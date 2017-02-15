@@ -401,6 +401,7 @@ Well::Saver::Saver( const Data& wd )
 
 Well::Saver::Saver( const Well::Saver& oth )
     : Saveable(oth)
+    , lastsavedsubobjdirtycounts_(oth.lastsavedsubobjdirtycounts_)
 {
     copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
@@ -413,12 +414,7 @@ Well::Saver::~Saver()
 }
 
 
-mImplMonitorableAssignment(Well::Saver,Saveable)
-
-void Well::Saver::copyClassData( const Well::Saver& oth )
-{
-    lastsavedsubobjdirtycounts_ = oth.lastsavedsubobjdirtycounts_;
-}
+mImplMonitorableAssignmentWithNoMembers(Well::Saver,Saveable)
 
 
 ConstRefMan<Well::Data> Well::Saver::wellData() const

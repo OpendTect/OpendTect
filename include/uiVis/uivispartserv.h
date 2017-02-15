@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "ranges.h"
 #include "thread.h"
+#include "coltabmappersetup.h"
 #include <typeinfo>
 
 class BufferStringSet;
@@ -44,7 +45,7 @@ class uiVisPickRetriever;
 template <class T> class Selector;
 
 namespace Attrib    { class SelSpec; }
-namespace ColTab    { class Sequence; class MapperSetup; }
+namespace ColTab    { class Sequence; }
 namespace FlatView  { class DataDispPars; }
 namespace Threads   { class Mutex; }
 namespace visBase   { class DataObject; class EventCatcher; }
@@ -289,7 +290,7 @@ public:
 				// ColorTable stuff
     void			fillDispPars(int id,int attrib,
 					 FlatView::DataDispPars&,bool) const;
-    const ColTab::MapperSetup*	getColTabMapperSetup(int id,int attrib,
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int id,int attrib,
 						 int version=mUdf(int)) const;
     void			setColTabMapperSetup(int id,int attrib,
 						    const ColTab::MapperSetup&);

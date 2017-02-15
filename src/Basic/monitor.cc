@@ -58,12 +58,11 @@ Monitorable::Monitorable()
 Monitorable::Monitorable( const Monitorable& oth )
     : CallBacker(oth)
     , chgnotifblocklevel_(0)
-    , dirtycount_(0)
+    , dirtycount_(oth.dirtycount_)
     , chgnotif_(this)
     , delnotif_(this)
     , delalreadytriggered_(false)
 {
-    // no operator==, we want to copy nothing
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -76,16 +75,26 @@ Monitorable::~Monitorable()
 
 Monitorable& Monitorable::operator =( const Monitorable& oth )
 {
-    // copyAll does nothing, so nothing here
+    copyAll( oth );
     return *this;
+}
+
+
+bool Monitorable::operator ==( const Monitorable& oth ) const
+{
+    return compareWith( oth ) == cNoChange();
+}
+
+
+Monitorable::ChangeType Monitorable::compareWith( const Monitorable& oth ) const
+{
+    return cNoChange();
 }
 
 
 void Monitorable::copyAll( const Monitorable& oth )
 {
-    // Copying nothing. No locking, monitors, notification - nothing.
-    // The function is here so subclasses can call it from their
-    // mImplMonitorableAssignment macro expansion.
+    dirtycount_ = oth.dirtycount_;
 }
 
 
@@ -101,8 +110,8 @@ void Monitorable::resumeChangeNotifications() const
 void Monitorable::sendEntireObjectChangeNotification() const
 {
     if ( !chgnotifblocklevel_ )
-	objectChanged().trigger( ChangeData(cEntireObjectChangeType(),
-					    cEntireObjectChangeID()) );
+	objectChanged().trigger( ChangeData(cEntireObjectChange(),
+					    cEntireObjectChgID()) );
 }
 
 
@@ -116,12 +125,16 @@ void Monitorable::sendChgNotif( AccessLocker& locker, ChangeType ct,
 void Monitorable::sendChgNotif( AccessLocker& locker,
 				const ChangeData& cd ) const
 {
-    touch();
     locker.unlockNow();
-    if ( chgnotifblocklevel_ )
-	return;
+    sendChangeNotification( cd );
+}
 
-    objectChanged().trigger( cd );
+
+void Monitorable::sendChangeNotification( const ChangeData& cd ) const
+{
+    touch();
+    if ( chgnotifblocklevel_ < 1 )
+	objectChanged().trigger( cd );
 }
 
 
@@ -140,6 +153,24 @@ Monitorable::ChangeType Monitorable::changeNotificationTypeOf( CallBacker* cb )
 {
     mCBCapsuleUnpack( ChangeData, chgdata, cb );
     return chgdata.changeType();
+}
+
+
+static void doTransferCBs( CallBackSet& fromcbs, CallBackSet& tocbs,
+			    const CallBacker* onlyfor )
+{
+    Threads::Locker mycbslocker( fromcbs.lock_ );
+    Threads::Locker tocbslocker( tocbs.lock_ );
+    fromcbs.transferTo( tocbs, onlyfor );
+}
+
+
+void Monitorable::transferNotifsTo( const Monitorable& to,
+				    const CallBacker* onlyfor ) const
+{
+    doTransferCBs( objectChanged().cbs_, to.objectChanged().cbs_, onlyfor );
+    doTransferCBs( objectToBeDeleted().cbs_, to.objectToBeDeleted().cbs_,
+		    onlyfor );
 }
 
 
@@ -175,9 +206,10 @@ void MonitorLock::reLock()
 }
 
 
-ChangeNotifyBlocker::ChangeNotifyBlocker( const Monitorable& obj )
+ChangeNotifyBlocker::ChangeNotifyBlocker( const Monitorable& obj, bool snd )
     : obj_(obj)
     , unblocked_(true)
+    , sendnotif_(snd)
 {
     reBlock();
 }
@@ -189,13 +221,13 @@ ChangeNotifyBlocker::~ChangeNotifyBlocker()
 }
 
 
-void ChangeNotifyBlocker::unBlockNow( bool sendnotif )
+void ChangeNotifyBlocker::unBlockNow()
 {
     if ( !unblocked_ )
     {
 	obj_.resumeChangeNotifications();
 	unblocked_ = true;
-	if ( sendnotif )
+	if ( sendnotif_ )
 	    obj_.sendEntireObjectChangeNotification();
     }
 }
@@ -268,6 +300,14 @@ void ChangeRecorder::copyClassData( const ChangeRecorder& oth )
     idx4redo_ = oth.idx4redo_;
     if ( obj_ )
 	mAttachCB( obj_->objectToBeDeleted(), ChangeRecorder::objDel );
+}
+
+
+Monitorable::ChangeType ChangeRecorder::compareClassData(
+				    const ChangeRecorder& oth ) const
+{
+    // not worth the effort
+    return cEntireObjectChange();
 }
 
 
@@ -403,8 +443,4 @@ SharedObject::~SharedObject()
 }
 
 
-mImplMonitorableAssignment( SharedObject, NamedMonitorable )
-
-void SharedObject::copyClassData( const SharedObject& oth )
-{
-}
+mImplMonitorableAssignmentWithNoMembers( SharedObject, NamedMonitorable )

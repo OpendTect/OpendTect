@@ -23,14 +23,15 @@ class TimeDepthModel;
 
 mStruct(Seis) SynthFVSpecificDispPars
 {
-    			SynthFVSpecificDispPars()
-			: overlap_(1)	{}
-    ColTab::MapperSetup	vdmapper_;
-    ColTab::MapperSetup	wvamapper_;
-    BufferString	ctab_;
-    float 		overlap_;
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+				SynthFVSpecificDispPars();
+
+    BufferString		colseqname_;
+    RefMan<ColTab::MapperSetup>	vdmapsetup_;
+    RefMan<ColTab::MapperSetup>	wvamapsetup_;
+    float			overlap_;
+
+    void			fillPar(IOPar&) const;
+    void			usePar(const IOPar&);
 };
 
 
@@ -69,7 +70,7 @@ public:
     const DataPack&			getPack() const {return *datapack_;}
     DataPack&				getPack()	{return *datapack_;}
 
-    ObjectSet<const TimeDepthModel> 	d2tmodels_;
+    ObjectSet<const TimeDepthModel>	d2tmodels_;
     ObjectSet<const TimeDepthModel>	zerooffsd2tmodels_;
 
     DataPack::FullID			datapackid_;
@@ -77,8 +78,8 @@ public:
     RefMan<ReflectivityModelSet>	reflectivitymodels_;
 
     int					id_;
-    virtual bool			isPS() const 		= 0;
-    virtual bool			hasOffset() const 	= 0;
+    virtual bool			isPS() const		= 0;
+    virtual bool			hasOffset() const	= 0;
     virtual bool			isAngleStack() const;
     virtual bool			isAVOGradient() const { return false; }
     virtual SynthGenParams::SynthType	synthType() const	= 0;
@@ -90,7 +91,7 @@ public:
     const char*				waveletName() const { return wvltnm_; }
     void				setWavelet( const char* wvltnm )
 					{ wvltnm_ = wvltnm; }
-    SynthFVSpecificDispPars&		dispPars() 	{ return disppars_; }
+    SynthFVSpecificDispPars&		dispPars()	{ return disppars_; }
     const SynthFVSpecificDispPars&	dispPars() const
 							{ return disppars_; }
     RefMan<ReflectivityModelSet>	getRefModels(int modelid,bool sampled);
@@ -108,7 +109,7 @@ protected:
 						      DataPack&);
 					~SyntheticData();
 
-    BufferString 			wvltnm_;
+    BufferString			wvltnm_;
     IOPar				raypars_;
     SynthFVSpecificDispPars		disppars_;
 

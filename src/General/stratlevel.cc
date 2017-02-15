@@ -169,10 +169,15 @@ void Strat::Level::copyClassData( const Level& oth )
 }
 
 
-bool Strat::Level::operator ==( const Level& lvl ) const
+Monitorable::ChangeType Strat::Level::compareClassData( const Level& oth ) const
 {
-    mLock4Read();
-    return id_.isValid() ? id_ == lvl.id_ : this == &lvl;
+    if ( id_ != oth.id_ )
+	return cEntireObjectChange();
+
+    mStartMonitorableCompare();
+    mHandleMonitorableCompare( color_, cColChange() );
+    mHandleMonitorableCompare( pars_, cParsChange() );
+    mDeliverMonitorableCompare();
 }
 
 
@@ -255,6 +260,20 @@ void Strat::LevelSet::copyClassData( const LevelSet& oth )
 {
     deepCopy( lvls_, oth.lvls_ );
     curlevelid_ = oth.curlevelid_;
+}
+
+
+Monitorable::ChangeType Strat::LevelSet::compareClassData(
+					const LevelSet& oth ) const
+{
+    if ( lvls_.size() != oth.lvls_.size() )
+	return cEntireObjectChange();
+
+    for ( int idx=0; idx<lvls_.size(); idx++ )
+	if ( *lvls_[idx] != *oth.lvls_[idx] )
+	    return cEntireObjectChange();
+
+    return cNoChange();
 }
 
 

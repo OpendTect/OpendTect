@@ -17,7 +17,8 @@ ________________________________________________________________________
 
 class uiODApplMgr;
 
-mExpClass(uiODMain) uiODSceneParentTreeItem : public uiODPrManagedParentTreeItem
+mExpClass(uiODMain) uiODSceneParentTreeItem
+			    : public uiPresManagedParentTreeItem
 { mODTextTranslationClass(uiODSceneParentTreeItem)
 public:
 			uiODSceneParentTreeItem(const uiString&);

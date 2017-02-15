@@ -50,57 +50,57 @@ mExpClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
 {
 public:
 				VolumeDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,VolumeDisplay,
 				    "VolumeDisplay",
 				    toUiString(sFactoryKeyword()));
 
     bool			isInlCrl() const { return true; }
 
-    static int			cInLine() 		{ return 2; }
-    static int			cCrossLine() 		{ return 1; }
-    static int			cTimeSlice() 		{ return 0; }
+    static int			cInLine()		{ return 2; }
+    static int			cCrossLine()		{ return 1; }
+    static int			cTimeSlice()		{ return 0; }
 
     int				addSlice(int dim);
-    				/*!\note return with removeChild(displayid). */
+				/*!\note return with removeChild(displayid). */
     void			showVolRen(bool yn);
     bool			isVolRenShown() const;
     int				volRenID() const;
 
     int				addIsoSurface(TaskRunner* = 0,
-	    				      bool updateisosurface = true);
-    				/*!\note return with removeChild(displayid). */
+					      bool updateisosurface = true);
+				/*!\note return with removeChild(displayid). */
     void			removeChild(int displayid);
-    
+
     visBase::MarchingCubesSurface* getIsoSurface(int idx);
     void			updateIsoSurface(int,TaskRunner* = 0);
     int				getNrIsoSurfaces();
     int				getIsoSurfaceIdx(
-	    			    const visBase::MarchingCubesSurface*) const;
+				    const visBase::MarchingCubesSurface*) const;
     float			defaultIsoValue() const;
     float			isoValue(
 				    const visBase::MarchingCubesSurface*) const;
-    				/*<Set isovalue and do update. */
+				/*<Set isovalue and do update. */
     void			setIsoValue(
 				    const visBase::MarchingCubesSurface*,
 				    float,TaskRunner* =0);
 
-    				/*<Seed based settings. set only, no update. */
+				/*<Seed based settings. set only, no update. */
     char			isFullMode(
 				    const visBase::MarchingCubesSurface*)const;
-    				/*<Return -1 if undefined, 1 if full, 
+				/*<Return -1 if undefined, 1 if full,
 				   0 if seed based. */
     void			setFullMode(
-	    			    const visBase::MarchingCubesSurface*,
+				    const visBase::MarchingCubesSurface*,
 				    bool full=1);
-    				/*<If 0, it is seed based. */
+				/*<If 0, it is seed based. */
     char			seedAboveIsovalue(
 				    const visBase::MarchingCubesSurface*) const;
-    				/*<-1 undefined, 1 above, 0 below. */
+				/*<-1 undefined, 1 above, 0 below. */
     void			setSeedAboveIsovalue(
 				    const visBase::MarchingCubesSurface*,bool);
     DBKey			getSeedsID(
-	    			    const visBase::MarchingCubesSurface*) const;
+				    const visBase::MarchingCubesSurface*) const;
     void			setSeedsID(const visBase::MarchingCubesSurface*,
 					   DBKey);
 
@@ -120,7 +120,7 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
     const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
-    const TypeSet<float>* 	getHistogram(int attrib) const;
+    const TypeSet<float>*	getHistogram(int) const;
     void			setSelSpecs(int attrib,
 					    const TypeSet<Attrib::SelSpec>&);
 
@@ -144,8 +144,8 @@ public:
     float			slicePosition(visBase::OrthogonalSlice*) const;
     void			setSlicePosition(visBase::OrthogonalSlice*,
 						    const TrcKeyZSampling&);
-    TrcKeyZSampling 		sliceSampling(visBase::OrthogonalSlice*) const;
-    visBase::OrthogonalSlice* 	getSelectedSlice() const;
+    TrcKeyZSampling		sliceSampling(visBase::OrthogonalSlice*) const;
+    visBase::OrthogonalSlice*	getSelectedSlice() const;
 
     float			getValue(int attrib,const Coord3&) const;
 
@@ -154,27 +154,27 @@ public:
 						   bool displayspace,
 						   int attrib) const;
     void			setTrcKeyZSampling(const TrcKeyZSampling&,
-	    					bool dragmode=false);
+						bool dragmode=false);
     bool			setDataVolume(int attrib,
-	    				      const RegularSeisDataPack*,
+					      const RegularSeisDataPack*,
 					      TaskRunner*);
     const RegularSeisDataPack*	getCacheVolume(int attrib) const;
     bool			setDataPackID(int attrib,DataPack::ID,
-	    				      TaskRunner*);
+					      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
-    				{ return DataPackMgr::SeisID(); }
+				{ return DataPackMgr::SeisID(); }
 
     void			getMousePosInfo(const visBase::EventInfo& ei,
-	    					IOPar& iop ) const
+						IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
-	    			     		Coord3&,BufferString& val,
-	    					BufferString& info) const;
+						Coord3&,BufferString& val,
+						BufferString& info) const;
     void			getObjectInfo(BufferString&) const;
     void			getTreeObjectInfo(uiString&) const;
 
-    const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int attrib,
 						     int version=0) const;
     void			setColTabMapperSetup(int attrib,
 					const ColTab::MapperSetup&,TaskRunner*);
@@ -247,7 +247,7 @@ protected:
     {
 				IsosurfaceSetting();
 	bool			operator==(const IsosurfaceSetting&) const;
-	IsosurfaceSetting& 	operator=(const IsosurfaceSetting&);
+	IsosurfaceSetting&	operator=(const IsosurfaceSetting&);
 
 	float			isovalue_;
 	char			mode_;
@@ -268,7 +268,7 @@ protected:
 
     void			sliceMoving(CallBacker*);
     void			setData(const RegularSeisDataPack*,
-	    				int datatype=0);
+					int datatype=0);
 
     void			dataTransformCB(CallBacker*);
     void			updateRanges(bool updateic,bool updatez);

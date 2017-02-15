@@ -32,39 +32,57 @@ ProbeLayer::ID ProbeLayer::getNewID()
 
 
 ProbeLayer::ProbeLayer()
-    : id_(ProbeLayer::getNewID())
+    : id_(getNewID())
     , probe_(0)
 {
 }
 
 
-mImplMonitorableAssignment( ProbeLayer, NamedMonitorable )
+ProbeLayer::ProbeLayer( const ProbeLayer& oth )
+    : SharedObject(oth)
+    , id_(oth.id_)
+    , probe_(0)
+{
+    copyClassData( oth );
+}
+
+
+mImplMonitorableAssignment( ProbeLayer, SharedObject )
+
 
 void ProbeLayer::copyClassData( const ProbeLayer& oth )
 {
     probe_ = oth.probe_;
-    id_ = oth.id_;
+    const_cast<ID&>(id_) = getNewID();
 }
+
+
+Monitorable::ChangeType ProbeLayer::compareClassData(
+					const ProbeLayer& oth ) const
+{
+    mDeliverYesNoMonitorableCompare( (!probe_ && !oth.probe_)
+	    || (probe_ && oth.probe_ && *probe_ == *oth.probe_) );
+}
+
 
 const Probe* ProbeLayer::getProbe() const
 {
     mLock4Read();
-
-    return probe_;
+    return probe_.ptr();
 }
 
-void ProbeLayer::setProbe( const Probe* parent )
+
+void ProbeLayer::setProbe( const Probe* newparent )
 {
     mLock4Write();
-
-    probe_ = parent;
+    probe_ = newparent;
+    mSendEntireObjChgNotif();
 }
 
 
 ProbeLayer::ID ProbeLayer::getID() const
 {
     mLock4Read();
-
     return id_;
 }
 
@@ -72,19 +90,7 @@ ProbeLayer::ID ProbeLayer::getID() const
 void ProbeLayer::fillPar( IOPar& par ) const
 {
     mLock4Read();
-
     par.set( sKeyLayerType(), layerType() );
-}
-
-
-
-ProbeLayer* ProbeLayer::clone() const
-{
-    mLock4Read();
-
-    IOPar probelaypar;
-    fillPar( probelaypar );
-    return PrLayFac().create( probelaypar );
 }
 
 
@@ -134,14 +140,20 @@ ProbeFactory& ProbeFac()
 const char* Probe::sProbeType()		{ return "ProbeType"; }
 
 mDefineInstanceCreatedNotifierAccess( Probe )
+static Threads::Atomic<int> curprobeid_( 0 );
 
 Probe::Probe()
     : SharedObject()
 {
-    mDefineStaticLocalObject( int, probeid_, = 0 );
-    probeid_++;
-    name_ = BufferString( "Probe" );
-    name_.add( probeid_ );
+    name_ = BufferString( "Probe ", ++curprobeid_ );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Probe::Probe( const Probe& oth )
+    : SharedObject(oth)
+{
+    name_ = BufferString( "Probe ", ++curprobeid_ );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -158,21 +170,23 @@ void Probe::copyClassData( const Probe& oth )
 {
     probepos_ = oth.probepos_;
 
-    deepErase( layers_ );
+    deepUnRef( layers_ );
     for ( int idx=0; idx<oth.layers_.size(); idx++ )
 	layers_ += oth.layers_[idx]->clone();
 }
 
 
-Probe* Probe::clone() const
+Monitorable::ChangeType Probe::compareClassData( const Probe& oth ) const
 {
-    mLock4Read();
+    if ( probepos_ != oth.probepos_ || layers_.size() != oth.layers_.size() )
+	return cEntireObjectChange();
 
-    IOPar probepar;
-    fillPar( probepar );
-    return ProbeFac().create( probepar );
+    for ( int idx=0; idx<layers_.size(); idx++ )
+	if ( *layers_[idx] != *oth.layers_[idx] )
+	    return cEntireObjectChange();
+
+    return cNoChange();
 }
-
 
 
 void Probe::fillPar( IOPar& par ) const
@@ -193,7 +207,9 @@ void Probe::fillPar( IOPar& par ) const
 
 bool Probe::usePar( const IOPar& par )
 {
+    mLock4Write();
     probepos_.usePar( par );
+    mSendEntireObjChgNotif();
     return true;
 }
 
@@ -240,11 +256,17 @@ ProbeLayer* Probe::removeLayer( ProbeLayer::ID id )
 	    return 0;
     }
 
-    const int probeidx = layers_.indexOf( lay );
+    int probeidx = layers_.indexOf( lay );
     if ( probeidx<0 )
 	return 0;
 
     mSendChgNotif( cLayerToRemove(), probeidx );
+    mReLock();
+
+    probeidx = layers_.indexOf( lay );
+    if ( probeidx<0 )
+	return 0;
+
     return layers_.removeSingle( probeidx );
 }
 
@@ -252,7 +274,6 @@ ProbeLayer* Probe::removeLayer( ProbeLayer::ID id )
 const ProbeLayer* Probe::getLayerByIdx( int idx ) const
 {
     mLock4Read();
-
     return layers_.validIdx(idx) ? layers_[idx] : 0;
 }
 
@@ -260,7 +281,6 @@ const ProbeLayer* Probe::getLayerByIdx( int idx ) const
 ProbeLayer* Probe::getLayerByIdx( int idx )
 {
     mLock4Read();
-
     return layers_.validIdx(idx) ? layers_[idx] : 0;
 }
 
@@ -271,7 +291,7 @@ const ProbeLayer* Probe::getLayer( ProbeLayer::ID id ) const
 
     for ( int idx=0; idx<layers_.size(); idx++ )
     {
-	if ( layers_[idx]->getID()==id )
+	if ( layers_[idx]->getID() == id )
 	    return layers_[idx];
     }
 
@@ -281,15 +301,7 @@ const ProbeLayer* Probe::getLayer( ProbeLayer::ID id ) const
 
 ProbeLayer* Probe::getLayer( ProbeLayer::ID id )
 {
-    mLock4Read();
-
-    for ( int idx=0; idx<layers_.size(); idx++ )
-    {
-	if ( layers_[idx]->getID()==id )
-	    return layers_[idx];
-    }
-
-    return 0;
+    return const_cast<Probe*>(this)->getLayer( id );
 }
 
 
@@ -308,7 +320,7 @@ void Probe::setPos( const TrcKeyZSampling& newpos )
     for ( int idx=0; idx<layers_.size(); idx++ )
 	layers_[idx]->invalidateData();
 
-    mSendChgNotif( cPositionChange(), cEntireObjectChangeID() );
+    mSendChgNotif( cPositionChange(), cEntireObjectChgID() );
 }
 
 
@@ -360,11 +372,7 @@ ProbeSaver::~ProbeSaver()
     sendDelNotif();
 }
 
-mImplMonitorableAssignment(ProbeSaver,Saveable)
-
-void ProbeSaver::copyClassData( const ProbeSaver& saver )
-{
-}
+mImplMonitorableAssignmentWithNoMembers(ProbeSaver,Saveable)
 
 
 uiRetVal ProbeSaver::doStore( const IOObj& ioobj ) const
@@ -401,8 +409,25 @@ InlineProbe::InlineProbe()
     mTriggerInstanceCreatedNotifier();
 }
 
+
+InlineProbe::InlineProbe( const InlineProbe& oth )
+    : Probe(oth)
+{
+    copyClassData( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+InlineProbe::~InlineProbe()
+{
+    sendDelNotif();
+}
+
+
 const char* InlineProbe::sFactoryKey()
-{ return sKey::Inline(); }
+{
+    return sKey::Inline();
+}
 
 
 BufferString InlineProbe::getDisplayName() const
@@ -411,11 +436,7 @@ BufferString InlineProbe::getDisplayName() const
 }
 
 
-mImplMonitorableAssignment( InlineProbe, Probe )
-
-void InlineProbe::copyClassData( const InlineProbe& oth )
-{
-}
+mImplMonitorableAssignmentWithNoMembers( InlineProbe, Probe )
 
 
 Probe* InlineProbe::createFrom( const IOPar& par )
@@ -463,8 +484,25 @@ CrosslineProbe::CrosslineProbe()
     mTriggerInstanceCreatedNotifier();
 }
 
+
+CrosslineProbe::CrosslineProbe( const CrosslineProbe& oth )
+    : Probe(oth)
+{
+    copyClassData( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+CrosslineProbe::~CrosslineProbe()
+{
+    sendDelNotif();
+}
+
+
 const char* CrosslineProbe::sFactoryKey()
-{ return sKey::Crossline(); }
+{
+    return sKey::Crossline();
+}
 
 
 BufferString CrosslineProbe::getDisplayName() const
@@ -472,11 +510,7 @@ BufferString CrosslineProbe::getDisplayName() const
     return BufferString( type(), probepos_.hsamp_.crlRange().start );
 }
 
-mImplMonitorableAssignment( CrosslineProbe, Probe )
-
-void CrosslineProbe::copyClassData( const CrosslineProbe& oth )
-{
-}
+mImplMonitorableAssignmentWithNoMembers( CrosslineProbe, Probe )
 
 
 Probe* CrosslineProbe::createFrom( const IOPar& par )
@@ -523,6 +557,21 @@ ZSliceProbe::ZSliceProbe()
     mTriggerInstanceCreatedNotifier();
 }
 
+
+ZSliceProbe::ZSliceProbe( const ZSliceProbe& oth )
+    : Probe(oth)
+{
+    copyClassData( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+ZSliceProbe::~ZSliceProbe()
+{
+    sendDelNotif();
+}
+
+
 const char* ZSliceProbe::sFactoryKey()
 { return sKey::ZSlice(); }
 
@@ -534,11 +583,7 @@ BufferString ZSliceProbe::getDisplayName() const
 }
 
 
-mImplMonitorableAssignment( ZSliceProbe, Probe )
-
-void ZSliceProbe::copyClassData( const ZSliceProbe& oth )
-{
-}
+mImplMonitorableAssignmentWithNoMembers( ZSliceProbe, Probe )
 
 
 Probe* ZSliceProbe::createFrom( const IOPar& par )
@@ -585,6 +630,21 @@ Line2DProbe::Line2DProbe()
     mTriggerInstanceCreatedNotifier();
 }
 
+
+Line2DProbe::Line2DProbe( const Line2DProbe& oth )
+    : Probe(oth)
+{
+    copyClassData( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Line2DProbe::~Line2DProbe()
+{
+    sendDelNotif();
+}
+
+
 void Line2DProbe::setGeomID( Pos::GeomID geomid )
 {
     mLock4Read();
@@ -609,7 +669,7 @@ void Line2DProbe::setGeomID( Pos::GeomID geomid )
     for ( int idx=0; idx<layers_.size(); idx++ )
 	layers_[idx]->invalidateData();
 
-    mSendChgNotif( cPositionChange(), cEntireObjectChangeID() );
+    mSendChgNotif( cPositionChange(), cEntireObjectChgID() );
 }
 
 
@@ -644,9 +704,17 @@ bool Line2DProbe::usePar( const IOPar& par )
 
 mImplMonitorableAssignment( Line2DProbe, Probe )
 
+
 void Line2DProbe::copyClassData( const Line2DProbe& oth )
 {
     geomid_ = oth.geomID();
+}
+
+
+Monitorable::ChangeType Line2DProbe::compareClassData(
+					const Line2DProbe& oth ) const
+{
+    mDeliverYesNoMonitorableCompare( geomid_ == oth.geomid_ );
 }
 
 
@@ -672,7 +740,7 @@ mDefineInstanceCreatedNotifierAccess( VolumeProbe );
 
 VolumeProbe::VolumeProbe( const TrcKeyZSampling& pos )
     : Probe()
-    , zdomain_( new ZDomain::Info(SI().zDomain()) )
+    , zdominfo_( new ZDomain::Info(SI().zDomain()) )
 {
     setPos( pos );
     mTriggerInstanceCreatedNotifier();
@@ -681,7 +749,7 @@ VolumeProbe::VolumeProbe( const TrcKeyZSampling& pos )
 
 VolumeProbe::VolumeProbe()
     : Probe()
-    , zdomain_( new ZDomain::Info(SI().zDomain()) )
+    , zdominfo_( new ZDomain::Info(SI().zDomain()) )
 {
     probepos_.hsamp_.start_.inl() =
 	(5*probepos_.hsamp_.start_.inl()+3*probepos_.hsamp_.stop_.inl())/8;
@@ -703,6 +771,22 @@ VolumeProbe::VolumeProbe()
     mTriggerInstanceCreatedNotifier();
 }
 
+
+VolumeProbe::VolumeProbe( const VolumeProbe& oth )
+    : Probe(oth)
+    , zdominfo_(0)
+{
+    copyClassData( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+VolumeProbe::~VolumeProbe()
+{
+    sendDelNotif();
+}
+
+
 const char* VolumeProbe::sFactoryKey()
 { return sKey::Volume(); }
 
@@ -712,15 +796,15 @@ void VolumeProbe::setZDomain( const ZDomain::Info& zdom )
 {
     mLock4Write();
 
-    delete zdomain_;
-    zdomain_ = new ZDomain::Info( zdom );
+    delete zdominfo_;
+    zdominfo_ = new ZDomain::Info( zdom );
 }
 
 
 BufferString VolumeProbe::getDisplayName() const
 {
     BufferString nm;
-    const int zuserfac = zdomain_->userFactor();
+    const int zuserfac = zdominfo_->userFactor();
     nm.add(probepos_.hsamp_.start_.inl()).add("-")
       .add(probepos_.hsamp_.stop_.inl()).add("/")
       .add(probepos_.hsamp_.start_.crl()).add( "-")
@@ -734,8 +818,18 @@ BufferString VolumeProbe::getDisplayName() const
 
 mImplMonitorableAssignment( VolumeProbe, Probe )
 
+
 void VolumeProbe::copyClassData( const VolumeProbe& oth )
 {
+    delete zdominfo_;
+    zdominfo_ = new ZDomain::Info( *oth.zdominfo_ );
+}
+
+
+Monitorable::ChangeType VolumeProbe::compareClassData(
+					const VolumeProbe& oth ) const
+{
+    mDeliverYesNoMonitorableCompare( zdominfo_->def_ == oth.zdominfo_->def_ );
 }
 
 

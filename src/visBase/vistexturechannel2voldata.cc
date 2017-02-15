@@ -36,11 +36,11 @@ public:
 
 VolumeDataSet() : voldata_( new SoVolumeData )
 		, dummytexture_( 255 )
-{ 
+{
     voldata_->ref();
     setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
- 		   Interval<float>(-0.5,0.5) );
-    voldata_->setVolumeData( SbVec3s(1,1,1), &dummytexture_, 
+		   Interval<float>(-0.5,0.5) );
+    voldata_->setVolumeData( SbVec3s(1,1,1), &dummytexture_,
 		    SoVolumeData::UNSIGNED_BYTE );
     if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	voldata_->usePalettedTexture = FALSE;
@@ -73,9 +73,9 @@ protected:
 }
 
 	SoVolumeData*		voldata_;
-	unsigned char* 		datacache_;
+	unsigned char*		datacache_;
 	unsigned char		dummytexture_;
-    
+
 };
 
 
@@ -96,7 +96,7 @@ void setNrChannels( int nr )
 
 
 bool addChannel()
-{ return true;  // to do: check 
+{ return true;  // to do: check
 }
 
 
@@ -139,7 +139,7 @@ const SbImagei32* getChannelData() const
     SbVec3i32 tmpsize;
     void* ptr;
     SoVolumeData::DataType dt;
-    
+
     if ( voldata_->getVolumeData(size,ptr,dt) )
     {
         int bpp = 0;
@@ -148,7 +148,7 @@ const SbImagei32* getChannelData() const
 	    bpp = 1;
 	else if ( dt == SoVolumeData::UNSIGNED_SHORT )
 	    bpp = 2;
-		
+
 	if ( bpp )
 	{
 	    tmpsize[0] = size[0];
@@ -157,7 +157,7 @@ const SbImagei32* getChannelData() const
 	    return new SbImagei32( (unsigned char*) ptr, tmpsize, bpp );
 	}
     }
-    
+
     return 0;
 }
 
@@ -171,7 +171,7 @@ SoNode* gtInvntrNode()
 	setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
 		       Interval<float>(-0.5,0.5) );
 	voldata_->setVolumeData( SbVec3s(1,1,1),
-	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
+			    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
 	if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	    voldata_->usePalettedTexture = FALSE;
     }
@@ -182,9 +182,9 @@ SoNode* gtInvntrNode()
 protected:
 
 ~VolumeDataSetImpl()
-{ 
+{
 }
-	
+
 };
 
 
@@ -198,6 +198,7 @@ VolumeDataSetImpl::VolumeDataSetImpl()
 
 TextureChannel2VolData::TextureChannel2VolData()
     : enabled_ (false)
+    , sequence_(ColTab::SeqMGR().getDefault())
 //    , transferfunc_( 0 )
 {
 }
@@ -237,25 +238,25 @@ void TextureChannel2VolData::setChannels( TextureChannels* texch )
 void TextureChannel2VolData::setSequence( int channel,
 					  const ColTab::Sequence& seq )
 {
-    // Only 1 channel supported now.
-    if ( ( channel < 0 ) || ( channel >= maxNrChannels() ) )
-	return;
+    if ( channel < 0 ) channel = 0;
+    if ( channel >= maxNrChannels() ) channel = maxNrChannels()-1;
 
-    if ( sequence_ == seq )
-	return;
-    
-    sequence_ = seq;
-    update();
+    // Only 1 channel supported now.
+    if ( sequence_.ptr() != &seq )
+    {
+	sequence_ = &seq;
+	update();
+    }
 }
 
 
-const ColTab::Sequence* TextureChannel2VolData::getSequence( int channel ) const
+const ColTab::Sequence& TextureChannel2VolData::getSequence( int channel ) const
 {
-    // Only 1 channel supported now.
-    if ( ( channel < 0 ) || ( channel >= maxNrChannels() ) )
-	return 0;
+    if ( channel < 0 ) channel = 0;
+    if ( channel >= maxNrChannels() ) channel = maxNrChannels()-1;
 
-    return &sequence_;
+    // Only 1 channel supported now.
+    return *sequence_;
 }
 
 
@@ -293,7 +294,7 @@ void TextureChannel2VolData::makeColorTables()
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
 
     transferfunc_->predefColorMap = SoTransferFunction::NONE;
-    
+
     const float redfactor = 1.0/255;
     const float greenfactor = 1.0/255;
     const float bluefactor = 1.0/255;
@@ -303,19 +304,19 @@ void TextureChannel2VolData::makeColorTables()
     for ( int idx=0; idx<mNrColors-1; idx++ )
     {
 	const float relval = ((float) idx)/(mNrColors-2);
-	const ::Color col = sequence_.color( relval );
+	const ::Color col = sequence_->color( relval );
 	transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
 	transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
     }
-    
-    const ::Color col = sequence_.undefColor();
+
+    const ::Color col = sequence_->undefColor();
     transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
     transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
     transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
     transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
-    
+
     transferfunc_->colorMap.enableNotify(didnotify);
     transferfunc_->colorMap.touch();
 */

@@ -503,9 +503,10 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
     {
 	BufferString seqnm;
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
-	ColTab::Sequence seq( seqnm );
-	setColTabSequence( attrib, seq, 0 );
-	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
+	setColTabSequence( attrib, *seq, 0 );
+	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
+	setColTabMapperSetup( attrib, *mapsetup, 0 );
     }
 }
 
@@ -1921,8 +1922,8 @@ const OD::MarkerStyle3D* FaultDisplay::markerStyle() const
 
 void FaultDisplay::setMarkerStyle( const OD::MarkerStyle3D& mkstyle )
 {
-    // for fault sticks we do use fixed colors for dragger, 
-    // polygon, and selection. So to guarantee this we set a fixed color here. 
+    // for fault sticks we do use fixed colors for dragger,
+    // polygon, and selection. So to guarantee this we set a fixed color here.
 
     OD::MarkerStyle3D ftmkstyle = mkstyle;
     ftmkstyle.color_ = Color::Yellow();

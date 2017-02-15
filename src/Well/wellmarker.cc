@@ -68,18 +68,14 @@ void Well::Marker::copyClassData( const Marker& oth )
 }
 
 
-bool Well::Marker::operator ==( const Marker& oth ) const
+Monitorable::ChangeType Well::Marker::compareClassData(
+					const Marker& oth ) const
 {
-    if ( this == &oth )
-	return true;
-
-    mLock4Read();
-    const bool iseq = levelid_ == oth.levelid_
-		      && gtName() == oth.gtName() && color_ == oth.color_
-		      && dah_ == oth.dah_;
-
-
-    return iseq;
+    mStartMonitorableCompare();
+    mHandleMonitorableCompare( dah_, cDahChange() );
+    mHandleMonitorableCompare( color_, cColorChange() );
+    mHandleMonitorableCompare( levelid_, cLevelChange() );
+    mDeliverMonitorableCompare();
 }
 
 
@@ -177,6 +173,13 @@ void Well::MarkerSet::copyClassData( const MarkerSet& oth )
     markers_ = oth.markers_;
     markerids_ = oth.markerids_;
     curmrkridnr_ = oth.curmrkridnr_;
+}
+
+
+Monitorable::ChangeType Well::MarkerSet::compareClassData(
+				const MarkerSet& oth ) const
+{
+    mDeliverYesNoMonitorableCompare( markers_ == oth.markers_ );
 }
 
 

@@ -13,7 +13,8 @@ ________________________________________________________________________
 #include "uigmtoverlay.h"
 
 class uiCheckBox;
-class uiColorTableSel;
+class uiColSeqSel;
+class uiColSeqUseMode;
 class uiComboBox;
 class uiGenInput;
 class uiIOObjSel;
@@ -29,7 +30,7 @@ public:
 
     static void		initClass();
 
-    			~uiGMTContourGrp();
+			~uiGMTContourGrp();
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -37,7 +38,7 @@ public:
 
 protected:
 
-    			uiGMTContourGrp(uiParent*);
+			uiGMTContourGrp(uiParent*);
 
     static uiGMTOverlayGrp*	createInstance(uiParent*);
     static int			factoryid_;
@@ -55,8 +56,8 @@ protected:
     uiCheckBox*		linefld_;
     uiSelLineStyle*	lsfld_;
     uiCheckBox*		fillfld_;
-    uiColorTableSel*	colseqfld_;
-    uiCheckBox*		flipfld_;
+    uiColSeqSel*	colseqfld_;
+    uiColSeqUseMode*	sequsefld_;
 
     void		readCB(CallBacker*);
     void		resetCB(CallBacker*);

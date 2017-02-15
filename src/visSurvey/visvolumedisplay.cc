@@ -494,7 +494,7 @@ bool VolumeDisplay::isVolRenShown() const
 float VolumeDisplay::defaultIsoValue() const
 {
     // TODO: adapt to multi-attrib
-    return attribs_[0]->cache_ ? getColTabMapperSetup(0)->range_.center()
+    return attribs_[0]->cache_ ? getColTabMapperSetup(0)->range().center()
 			       : mUdf(float);
 }
 
@@ -1028,7 +1028,9 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
 
 
 const TypeSet<float>* VolumeDisplay::getHistogram( int attrib ) const
-{ return &scalarfield_->getHistogram( attrib ); }
+{
+    return &scalarfield_->getHistogram( attrib );
+}
 
 
 SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat( int ) const
@@ -1312,9 +1314,9 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tskr ) const
 	vd->setSelSpecs( attrib, *attribs_[attrib]->as_ );
 	vd->setDataVolume( attrib, attribs_[attrib]->cache_, tskr );
 	vd->setColTabMapperSetup( attrib,
-			   scalarfield_->getColTabMapper(attrib).setup_, tskr );
+		       scalarfield_->getColTabMapper(attrib).setup(), tskr );
 	vd->setColTabSequence( attrib,
-			       *getChannels2RGBA()->getSequence(attrib), tskr );
+			       getChannels2RGBA()->getSequence(attrib), tskr );
     }
 
     return vd;
@@ -1408,7 +1410,7 @@ void VolumeDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 
 const ColTab::Sequence* VolumeDisplay::getColTabSequence( int attrib ) const
 {
-    return getChannels2RGBA() ? getChannels2RGBA()->getSequence(attrib) : 0;
+    return getChannels2RGBA() ? &getChannels2RGBA()->getSequence(attrib) : 0;
 }
 
 
@@ -1421,10 +1423,10 @@ void VolumeDisplay::setColTabMapperSetup( int attrib,
 }
 
 
-const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int attrib,
-							    int version ) const
+ConstRefMan<ColTab::MapperSetup> VolumeDisplay::getColTabMapperSetup(
+				int attrib, int version ) const
 {
-    return &scalarfield_->getColTabMapper(attrib).setup_;
+    return &scalarfield_->getColTabMapper(attrib).setup();
 }
 
 
@@ -1459,13 +1461,13 @@ bool VolumeDisplay::usePar( const IOPar& par )
     PtrMan<IOPar> texturepar = par.subselect( sKeyTexture() );
     if ( texturepar ) //old format (up to 4.0)
     {
-	ColTab::MapperSetup mappersetup;
-	ColTab::Sequence sequence;
+	RefMan<ColTab::MapperSetup> mappersetup = new ColTab::MapperSetup;
+	mappersetup->usePar( *texturepar );
+	ConstRefMan<ColTab::Sequence> sequence
+		= ColTab::SeqMGR().getFromPar( *texturepar );
 
-	mappersetup.usePar(*texturepar);
-	sequence.usePar(*texturepar );
-	setColTabMapperSetup( 0, mappersetup, 0 );
-	setColTabSequence( 0, sequence, 0 );
+	setColTabMapperSetup( 0, *mappersetup, 0 );
+	setColTabSequence( 0, *sequence, 0 );
 	if ( !(*attribs_[0]->as_)[0].usePar(par) )
 	    return false;
     }

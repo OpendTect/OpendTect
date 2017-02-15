@@ -51,18 +51,21 @@ mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory
     : public uiODVw2DTreeItemFactory
 {
 public:
+
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*         create() const
 			{ return new uiODVw2DHor3DParentTreeItem(); }
     uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+
 };
 
 
 mExpClass(uiODMain) uiODVw2DHor3DTreeItem : public uiODVw2DEMTreeItem
 { mODTextTranslationClass(uiODVw2DHor3DTreeItem)
 public:
-    			uiODVw2DHor3DTreeItem(const EM::ObjectID&);
-    			uiODVw2DHor3DTreeItem(int id,bool dummy);
+
+			uiODVw2DHor3DTreeItem(const EM::ObjectID&);
+			uiODVw2DHor3DTreeItem(int id,bool dummy);
 			~uiODVw2DHor3DTreeItem();
 
     bool		select();
@@ -74,7 +77,7 @@ protected:
 
     bool		init();
     const char*		parentType() const
-    			{ return typeid(uiODVw2DHor3DParentTreeItem).name(); }
+			{ return typeid(uiODVw2DHor3DParentTreeItem).name(); }
     bool		isSelectable() const			{ return true; }
 
 
@@ -91,4 +94,5 @@ protected:
 
     Vw2DHorizon3D*	horview_;
     void		emobjAbtToDelCB(CallBacker*);
+
 };

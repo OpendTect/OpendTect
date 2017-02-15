@@ -75,7 +75,7 @@ protected:
     void		fillHist(CallBacker*);
     void		seisSel(CallBacker*);
     void		selChangeCB(CallBacker*);
-    void		histChangeCB(CallBacker*);
+    void		mapperSetupChgCB(CallBacker*);
     void		doScaleCB(CallBacker*);
     void		finalizeDoneCB(CallBacker*);
     void		setColorTable();
@@ -91,10 +91,11 @@ protected:
     uiGenInput*			sizediskfld_;
     uiGenInput*			typefld_;
     uiGenInput*			memusagefld_;
-    uiMapperRangeEditor*	histfld_;
+    uiMapperRangeEditor*	mapperrgfld_;
     uiGenInput*			nrtrcsfld_;
     uiGenInput*			doscalefld_;
     uiGenInput*			fromrgfld_;
     uiGenInput*			torgfld_;
     uiPushButton*		scanbut_;
+
 };

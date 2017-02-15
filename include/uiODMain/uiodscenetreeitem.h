@@ -20,7 +20,7 @@ class uiMenu;
 class ui3DViewer;
 
 
-mExpClass(uiODMain) uiODSceneTreeItem : public uiODPrManagedTreeItem
+mExpClass(uiODMain) uiODSceneTreeItem : public uiPresManagedTreeItem
 { mODTextTranslationClass(uiODSceneTreeItem);
 public:
 			uiODSceneTreeItem(const uiString&);
@@ -28,6 +28,7 @@ public:
 
     int			sceneID() const;
     void		prepareForShutdown();
+
 protected:
 
     uiODApplMgr*	applMgr();
@@ -36,6 +37,7 @@ protected:
 
     void		setMoreObjectsToDoHint(bool yn);
     bool		getMoreObjectsToDoHint() const;
+
 };
 
 

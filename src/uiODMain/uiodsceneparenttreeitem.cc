@@ -16,7 +16,7 @@ ___________________________________________________________________
 
 
 uiODSceneParentTreeItem::uiODSceneParentTreeItem( const uiString& nm )
-    : uiODPrManagedParentTreeItem(nm)
+    : uiPresManagedParentTreeItem(nm)
 {
 }
 

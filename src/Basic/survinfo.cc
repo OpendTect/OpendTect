@@ -150,23 +150,17 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
 
 
 #define mCmpRet(memb,ct) \
-    if ( !(memb==oth->memb) ) \
-        return ChangeData( ct(), ChangeData::cUnspecChgID() )
+    if ( !(memb==oth.memb) ) \
+        return ct()
 #define mCmpRetDeRef(memb,ct) \
-    if ( !((*memb)==(*oth->memb)) ) \
-        return ChangeData( ct(), ChangeData::cUnspecChgID() )
+    if ( !((*memb)==(*oth.memb)) ) \
+        return ct()
 
-
-SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
+Monitorable::ChangeType SurveyInfo::compareClassData(
+					    const SurveyInfo& oth ) const
 {
-    if ( this == &mon )
-	return ChangeData::NoChange();
-    mDynamicCastGet( const SurveyInfo*, oth, &mon );
-    if ( !oth )
-	return ChangeData::AllChanged();
-
-    mCmpRet( basepath_, cEntireObjectChangeType );
-    mCmpRet( dirname_, cEntireObjectChangeType ); //TODO name change only?
+    mCmpRet( basepath_, cEntireObjectChange );
+    mCmpRet( dirname_, cEntireObjectChange ); //TODO name change only?
     mCmpRet( zdef_, cSetupChange );
     mCmpRet( b2c_, cSetupChange );
     mCmpRet( pol2d_, cSetupChange );
@@ -181,13 +175,13 @@ SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
     {
 	mCmpRet( set3binids_[idx], cAuxDataChange );
     }
-    if ( !sipnm_.isEqualTo(oth->sipnm_) )
-        return ChangeData( cAuxDataChange(), ChangeData::cUnspecChgID() );
+    if ( !sipnm_.isEqualTo(oth.sipnm_) )
+        return cAuxDataChange();
 
     mCmpRet( name_, cNameChange );
     mCmpRet( comments_, cCommentChange );
 
-    return ChangeData::NoChange();
+    return cNoChange();
 }
 
 

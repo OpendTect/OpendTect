@@ -11,29 +11,31 @@ ________________________________________________________________________
 -*/
 
 
-#include "generalmod.h"
-#include "color.h"
+#include "coltab.h"
+#include "ptrman.h"
+#include "uistring.h"
 #include "enums.h"
-#include "namedobj.h"
-#include "notify.h"
-#include "geometry.h"
-
-class BufferStringSet;
+#include "sharedobject.h"
 
 
 namespace ColTab
 {
 
-/*!\brief Maps from [0,1] -> Color
+class SequenceManager;
+
+
+/*!\brief A series of color control points able to give an (interpolated) color
+	  for every position [0,1].
 
   Standard color sequences ('Color tables') are read at program start,
-  including the 'user defined' ones. Users can overrule the standard ones.
+  including the 'user defined' ones. Users can overrule or 'remove' the
+  standard ones. Disabled sequecens will not be shown in selectors.
 
   Sequences cannot be scaled, try the Mapper.
 
  */
 
-mExpClass(General) Sequence : public NamedMonitorable
+mExpClass(General) Sequence : public SharedObject
 {
 public:
 
@@ -43,22 +45,21 @@ public:
     typedef unsigned char		ValueType;
     typedef std::pair<PosType,ValueType> TranspPtType;
 
-    enum Type		{ System, User, Edited };
+    enum Status		{ System, Edited, Added };
+			mDeclareEnumUtils(Status);
 
 			Sequence();		//!< Empty
-			Sequence(const char*);	//!< Find by name in SeqMgr
-			~Sequence();
+			Sequence(const char*);	//!< Find by name in SeqMGR
 			mDeclInstanceCreatedNotifierAccess(Sequence);
 			mDeclMonitorableAssignment(Sequence);
 
-    bool		operator==(const Sequence&) const;
-    bool		operator!=( const Sequence& oth ) const
-			{ return !(*this == oth); }
-
     Color		color(PosType) const; //!< 0 <= pos <= 1
 
-    inline bool		isSys() const		{ return type()==System; }
-    mImplSimpleMonitoredGetSet(inline,type,setType,Type,type_,cTypeChange())
+    Status		status() const;
+    inline bool		isSys() const		{ return status()==System; }
+    mImplSimpleMonitoredGetSet(inline,disabled,setDisabled,bool,disabled_,
+						    cStatusChange())
+    uiString		statusDispStr() const;
 
     inline bool		isEmpty() const		{ return size() < 1; }
     size_type		size() const;
@@ -77,7 +78,7 @@ public:
     bool		hasTransparency() const;
 
     mImplSimpleMonitoredGetSet(inline,nrSegments,setNrSegments,size_type,
-				    nrsegments_,cNrSegmentsChange())
+				    nrsegments_,cSegmentationChange())
 			/*!<nrsegments > 0 divide the ctab in equally wide
 			    nrsegments == 0 no segmentation
 			    nrsegments == -1 constant color between markers.*/
@@ -89,8 +90,6 @@ public:
 				 ValueType,ValueType,ValueType);
     void		removeColor(IdxType);
     void		removeAllColors();
-    void		flipColor();
-    void		flipTransparency();
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -100,12 +99,12 @@ public:
     mImplSimpleMonitoredGetSet(inline,markColor,setMarkColor,
 				Color,markcolor_,cMarkColChange())
 
-    static ChangeType	cTypeChange()		{ return 2; }
-    static ChangeType	cColorChange()		{ return 3; }
-    static ChangeType	cTransparencyChange()	{ return 4; }
-    static ChangeType	cNrSegmentsChange()	{ return 5; }
-    static ChangeType	cUdfColChange()		{ return 6; }
+    static ChangeType	cStatusChange()		{ return 3; }
+    static ChangeType	cColorChange()		{ return 4; }
+    static ChangeType	cTransparencyChange()	{ return 5; }
+    static ChangeType	cSegmentationChange()	{ return 6; }
     static ChangeType	cMarkColChange()	{ return 7; }
+    static ChangeType	cUdfColChange()		{ return 8; }
 
     static const char*	sKeyValCol();
     static const char*	sKeyMarkColor();
@@ -113,20 +112,23 @@ public:
     static const char*	sKeyTransparency();
     static const char*	sKeyCtbl();
     static const char*	sKeyNrSegments();
+    static const char*	sKeyDisabled();
     static const char*	sDefaultName(bool for_seismics=false);
 
 protected:
 
-    TypeSet<PosType>		x_;
-    TypeSet<ValueType>		r_;
-    TypeSet<ValueType>		g_;
-    TypeSet<ValueType>		b_;
-    TypeSet<TranspPtType>	tr_;
+			~Sequence();
 
-    Color			undefcolor_;
-    Color			markcolor_;
-    Type			type_;
-    size_type			nrsegments_;
+    TypeSet<PosType>	x_;
+    TypeSet<ValueType>	r_;
+    TypeSet<ValueType>	g_;
+    TypeSet<ValueType>	b_;
+    TypeSet<TranspPtType> tr_;
+    size_type		nrsegments_;
+
+    Color		undefcolor_;
+    Color		markcolor_;
+    bool		disabled_;
 
     inline size_type	gtSize() const	{ return x_.size(); }
 
@@ -134,74 +136,121 @@ protected:
     ValueType		gtTransparencyAt(PosType) const;
     bool		chgColor(IdxType,ValueType,ValueType,ValueType);
     bool		rmColor(IdxType);
+    void		emitStatusChg() const;
+
+    friend class	SequenceManager;
 
 };
 
 
-/*!\brief Manages Sequences; reads/writes system or user-defined
+/*!\brief Manages Sequences; reads/writes system or user-defined.
 
-  Has a singleton instance ColTab::SM().
+  This class is not fully MT-safe; it does not (safely) support concurrent
+  editing from different threads. That out of the way, we can do without IDs.
+  The name of a sequence is its key. Names are compared case-insensitive.
+  The name of a sequence can change though, watch the Sequence's notifications.
+
+  The class has a singleton instance ColTab::SeqMGR().
 
  */
 
-mExpClass(General) SeqMgr : public CallBacker
-{
+mExpClass(General) SequenceManager : public Monitorable
+{ mODTextTranslationClass(ColTab::SequenceManager);
 public:
 
-    typedef ObjectSet<Sequence>::size_type  size_type;
-    typedef size_type			    IdxType;
+    typedef ObjectSet<Sequence>::size_type	size_type;
+    typedef size_type				IdxType;
+    typedef ConstRefMan<Sequence>		ConstRef;
 
-    void		refresh();
+			mDeclMonitorableAssignment(SequenceManager);
 
-    size_type		size() const		{ return seqs_.size(); }
+    bool		isPresent(const char*) const;
+    ConstRef		getByName(const char*) const;	//!< can be null
+    ConstRef		getAny(const char*,bool seismics_if_default=true) const;
+				//!< guaranteed non-null
+    ConstRef		getDefault(bool for_seismics=true) const;
+				//!< guaranteed non-null
+    ConstRef		getFromPar(const IOPar&,const char* subky=0) const;
+				//!< guaranteed non-null
+
+			// Use monitorLock when using indexes
+    size_type		size() const;
+    Sequence::Status	statusOf(const Sequence&) const;
     IdxType		indexOf(const char*) const;
-    const Sequence*	get( IdxType idx ) const	{ return seqs_[idx]; }
-    bool		get(const char*,Sequence&);
-    const Sequence*	getByName(const char*) const;
-    void		getSequenceNames(BufferStringSet&);
-    const Sequence&	getDefault() const	{ return getAny(0); }
-    const Sequence&	getAny(const char* key) const;
-			//!< returns with key, or a nice one anyway
+    IdxType		indexOf(const Sequence&) const;
+    ConstRef		getByIdx(IdxType) const;
+    void		getSequenceNames(BufferStringSet&) const;
 
-    void		set(const Sequence&); //!< if name not yet present, adds
-    void		remove(IdxType);
+    bool		needsSave() const;
+    uiRetVal		write(bool sys=false,bool applsetup=true) const;
 
-    bool		write(bool sys=false,bool applsetup=true);
+			// ID is the index ... see class remarks.
+    static ChangeType	cSeqAdd()		{ return 2; }
+    static ChangeType	cSeqRemove()		{ return 3; }
+    static const char*	sKeyRemoved();
 
-    Notifier<SeqMgr>	seqAdded;
-    Notifier<SeqMgr>	seqRemoved;
+    mutable CNotifier<SequenceManager,ChangeData> nameChange;
+			//!< provides name change notif for any of the seqs
 
-			~SeqMgr();
+    static const Sequence& getRGBBlendColSeq(int);
+					//!< 0=red, 1=green, 2=blue 3=transp
 
 protected:
 
-			SeqMgr();
-
-
     ObjectSet<Sequence> seqs_;
+    ObjectSet<Sequence> sysseqs_;
+    const bool		iscopy_;
+    mutable DirtyCounter lastsaveddirtycount_;
 
-    friend mGlobal(General) SeqMgr&	SM();
+			SequenceManager();
+			~SequenceManager();
 
+			// Not locked:
+    size_type		gtSize() const;
+    IdxType		idxOf(const char*) const;
+    const Sequence*	gtAny(const char*,bool) const;
+    void		doAdd(Sequence*,bool issys);
     void		addFromPar(const IOPar&,bool);
-    void		add( Sequence* seq )
-			{ seqs_ += seq; seqAdded.trigger(); }
-    void		readColTabs();
+    void		rollbackFrom(const SequenceManager&);
 
-private:
+    static IdxType	gtIdxOf(const ObjectSet<Sequence>&,const char*);
 
-    ObjectSet<Sequence> removedseqs_;
+    void		seqChgCB(CallBacker*);
+
+    friend mGlobal(General) const SequenceManager& SeqMGR();
+    friend class	Sequence;
+    // friend class	uiColSeqMan;
+
+public:
+
+			// leave this to the color table manager
+    RefMan<Sequence>	get4Edit(const char*) const;
+    void		add(Sequence*);
+    void		removeByName(const char*);
+    ConstRef		getSystemSeq(const char*) const;
+    void		rollbackFromCopy(const SequenceManager&);
+    static void		deleteInst(SequenceManager*);
+
+    inline bool		isPresent( const OD::String& s ) const
+			{ return isPresent(s.str()); }
+    inline ConstRef	getByName( const OD::String& s ) const
+			{ return getByName(s.str()); }
+    inline ConstRef	getAny( const OD::String& s, bool fs=true ) const
+			{ return getAny(s.str(),fs); }
+    inline IdxType	indexOf( const OD::String& s ) const
+			{ return indexOf(s.str()); }
+    inline void		removeByName( const OD::String& s )
+			{ removeByName(s.str()); }
 
 };
 
-mGlobal(General) SeqMgr& SM();
+mGlobal(General) const SequenceManager& SeqMGR();
+mGlobal(General) inline SequenceManager& SeqMGR4Edit()
+{ return const_cast<SequenceManager&>(SeqMGR()); }
+
+mDeprecated mGlobal(General) inline SequenceManager& SM()
+{ return SeqMGR4Edit(); }
+mDeprecated typedef SequenceManager SeqMgr;
+
 
 } // namespace ColTab
-
-namespace RGBBlend
-{
-    mGlobal(General) ColTab::Sequence	getRedColTab();
-    mGlobal(General) ColTab::Sequence	getBlueColTab();
-    mGlobal(General) ColTab::Sequence	getGreenColTab();
-    mGlobal(General) ColTab::Sequence	getTransparencyColTab();
-    mGlobal(General) ColTab::Sequence	getColTab(int nr);
-}

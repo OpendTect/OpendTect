@@ -23,6 +23,7 @@ class uiPolygonItem;
 class uiPolyLineItem;
 class uiRectItem;
 class uiTextItem;
+template <class T> class DataDistribution;
 
 /*!\brief displays a function of (X,Y) pairs on a canvas - optionally a Y2.
 
@@ -153,9 +154,11 @@ public:
 				//!< Undef values are filtered out
     void			setY2Vals(const float* xvals,
 					  const float* yvals,int sz);
+				//!< Undef values are filtered out
     void			setY2Vals(const Interval<float>&,
 					const float* yvals,int sz);
-				//!< Undef values are filtered out
+    void			setY2Vals(const DataDistribution<float>&,
+					  bool limitspikes=true);
     void			setMarkValue(float,bool is_x);
     void			setMark2Value(float,bool is_x);
     void			setEmpty(); //!< clears all

@@ -80,7 +80,8 @@ bool SurveyObject::canHandleColTabSeqTrans(int) const
 { return true; }
 
 
-const ColTab::MapperSetup* SurveyObject::getColTabMapperSetup( int, int ) const
+ConstRefMan<ColTab::MapperSetup> SurveyObject::getColTabMapperSetup(
+						int, int ) const
 { return 0; }
 
 
@@ -240,34 +241,18 @@ bool SurveyObject::usePar( const IOPar& par )
 	setSelSpec( attribnr, spec );
 
 	PtrMan<IOPar> seqpar = attribpar->subselect( sKeySequence() );
-	ColTab::Sequence seq;
+	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getDefault();
 	if ( seqpar )
-	{
-	    if ( !seq.usePar( *seqpar ) )
-	    {
-		BufferString seqname;
-		if ( seqpar->get( sKey::Name(), seqname ) ) //Sys
-		    ColTab::SM().get( seqname.buf(), seq );
-	    }
-	}
-	else //Needed to read horizons written in od4.0
-	{
-	    seq.usePar( *attribpar );
-	}
-
-	setColTabSequence( attribnr, seq, 0 );
+	    seq = ColTab::SeqMGR().getFromPar( *seqpar );
+	setColTabSequence( attribnr, *seq, 0 );
 
 	PtrMan<IOPar> mappar = attribpar->subselect( sKeyMapper() );
-	ColTab::MapperSetup mapper;
+	RefMan<ColTab::MapperSetup> mappersetup = new ColTab::MapperSetup;
 	if ( mappar )
-	{
-	    mapper.usePar( *mappar );
-	    setColTabMapperSetup( attribnr, mapper, 0 );
-	}
-	else //Needed to read horizons written in od4.0
-	{
-	    mapper.usePar( *attribpar );
-	}
+	    mappersetup->usePar( *mappar );
+	else // horizons written in od4.0
+	    mappersetup->usePar( *attribpar );
+	setColTabMapperSetup( attribnr, *mappersetup, 0 );
 
 	bool ison = true;
 	attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
@@ -368,7 +353,10 @@ void SurveyObject::setSelSpecs(
 {
     const Attrib::SelSpec* oldselspec = getSelSpec( attrib, 0 );
     if ( !oldselspec || (*oldselspec)!=newselspecs[0] )
-	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+    {
+	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
+	setColTabMapperSetup( attrib, *mapsetup, 0 );
+    }
 }
 
 

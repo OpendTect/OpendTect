@@ -34,14 +34,14 @@ public:
     enum Pos		{ Left, Right, Top, Bottom };
     void		setPos( Pos pos );
     Pos			getPos() const	    { return pos_; }
-    
+
     void		setWindowSize(int winx, int winy);
 
     void		setOrientation(bool horizontal);
     bool		getOrientation() const { return horizontal_; }
 
-    void		setAnnotFont(const FontData&); 
-       
+    void		setAnnotFont(const FontData&);
+
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
     void		setLegendColor(const Color&);
@@ -52,17 +52,17 @@ public:
 
     virtual void	setPixelDensity(float dpi);
 
-        
+
 protected:
 			~SceneColTab();
     void		updateSequence();
     void		setPos(float x, float y);
 
     osg::Geode*		osgcolorbar_;
-    ColTab::Sequence	sequence_;
-    Interval<float>	rg_;
+    ConstRefMan<ColTab::Sequence> sequence_;
     Pos			pos_;
-    bool		flipseq_;
+    Interval<float>	rg_;
+    ColTab::SeqUseMode	sequsemode_;
     bool		horizontal_;
     int			width_;
     int			height_;

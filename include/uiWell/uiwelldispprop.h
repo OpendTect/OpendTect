@@ -17,8 +17,9 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiColorInput;
+class uiColSeqUseMode;
 class uiComboBox;
-class uiColorTableSel;
+class uiColSeqSel;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
@@ -179,29 +180,29 @@ protected:
     void		setStyleSensitive(bool);
 
     uiCheckList*	stylefld_;
-    uiGenInput*         clipratefld_;
-    uiGenInput*         rangefld_;
-    uiGenInput*         colorrangefld_;
-    uiGenInput*         cliprangefld_;
-    uiSpinBox*          ovlapfld_;
+    uiGenInput*		clipratefld_;
+    uiGenInput*		rangefld_;
+    uiGenInput*		colorrangefld_;
+    uiGenInput*		cliprangefld_;
+    uiSpinBox*		ovlapfld_;
     uiSpinBox*		repeatfld_;
-    uiLabeledSpinBox*   lblo_;
-    uiLabeledSpinBox*   lblr_;
+    uiLabeledSpinBox*	lblo_;
+    uiLabeledSpinBox*	lblr_;
     uiSlider*		logwidthslider_;
-    uiLabeledSpinBox*   lvlofdetailfld_;
-    uiLabeledComboBox*  logsfld_;
-    uiLabeledComboBox*  filllogsfld_;
-    uiLabeledComboBox*  logfilltypefld_;
-    uiCheckBox*         logarithmfld_;
-    uiCheckBox*         revertlogfld_;
-    uiCheckBox*         singlfillcolfld_;
-    uiCheckBox*         flipcoltabfld_;
-    uiColorTableSel*	coltablistfld_;
+    uiLabeledSpinBox*	lvlofdetailfld_;
+    uiLabeledComboBox*	logsfld_;
+    uiLabeledComboBox*	filllogsfld_;
+    uiLabeledComboBox*	logfilltypefld_;
+    uiCheckBox*		logarithmfld_;
+    uiCheckBox*		revertlogfld_;
+    uiCheckBox*		singlfillcolfld_;
+    uiColSeqSel*	colseqselfld_;
+    uiColSeqUseMode*	sequsefld_;
     uiColorInput*	seiscolorfld_;
     uiColorInput*	fillcolorfld_;
 
-    Interval<float>     valuerange_;
-    Interval<float>     fillvaluerange_;
-    const Well::LogSet*  wls_;
+    Interval<float>	valuerange_;
+    Interval<float>	fillvaluerange_;
+    const Well::LogSet*	wls_;
 
 };

@@ -21,7 +21,7 @@ mExpClass(uiODMain) uiODVw2DEMTreeItem : public uiODVw2DTreeItem
 public:
 			uiODVw2DEMTreeItem(const EM::ObjectID&);
 			~uiODVw2DEMTreeItem();
-    
+
     EM::ObjectID	emObjectID() const	{ return emid_; }
 
 protected:
@@ -32,6 +32,7 @@ protected:
     void		renameVisObj();
 
 private:
+
     void		doStoreObject(bool);
 
 };

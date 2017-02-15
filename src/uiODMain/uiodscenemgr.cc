@@ -35,7 +35,7 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uistrings.h"
 #include "uitoolbar.h"
-#include "uitreeitemmanager.h"
+#include "uitreeitem.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uiwindowgrabber.h"

@@ -22,7 +22,8 @@ class Vw2DHorizon2D;
 mExpClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DHor2DParentTreeItem);
 public:
-    				uiODVw2DHor2DParentTreeItem();
+
+				uiODVw2DHor2DParentTreeItem();
 				~uiODVw2DHor2DParentTreeItem();
 
     bool			showSubMenu();
@@ -43,7 +44,8 @@ protected:
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			getNonLoadedTrackedHor2Ds(
-	    				TypeSet<EM::ObjectID>&);
+					TypeSet<EM::ObjectID>&);
+
 };
 
 
@@ -51,18 +53,21 @@ mExpClass(uiODMain)
 uiODVw2DHor2DTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
-    const char*		name() const 	{ return typeid(*this).name(); }
+
+    const char*		name() const	{ return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODVw2DHor2DParentTreeItem(); }
+			{ return new uiODVw2DHor2DParentTreeItem(); }
     uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+
 };
 
 
 mExpClass(uiODMain) uiODVw2DHor2DTreeItem : public uiODVw2DEMTreeItem
 { mODTextTranslationClass(uiODVw2DHor2DTreeItem)
 public:
-    			uiODVw2DHor2DTreeItem(const EM::ObjectID&);
-    			uiODVw2DHor2DTreeItem(int dispid,bool dummy);
+
+			uiODVw2DHor2DTreeItem(const EM::ObjectID&);
+			uiODVw2DHor2DTreeItem(int dispid,bool dummy);
 			~uiODVw2DHor2DTreeItem();
 
     bool		showSubMenu();
@@ -80,12 +85,12 @@ protected:
     void                updateSelSpec(const Attrib::SelSpec*,bool wva);
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
+    void		emobjChangeCB(CallBacker*);
     void		emobjAbtToDelCB(CallBacker*);
     void		mousePressInVwrCB(CallBacker*);
     void		mouseReleaseInVwrCB(CallBacker*);
     void		displayMiniCtab();
 
-    void		emobjChangeCB(CallBacker*);
-
     Vw2DHorizon2D*	horview_;
+
 };

@@ -691,8 +691,8 @@ void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
     const BufferString propnm( "[", lmpropsdnm.buf(), "]" );
     RefMan<SyntheticData> sd = synthdisp_->getSyntheticData( propnm );
     if ( !sd ) return;
-    sd->dispPars().vdmapper_ = lmpropdp.mapper_;
-    sd->dispPars().ctab_ = lmpropdp.ctab_;
+    *sd->dispPars().vdmapsetup_ = *lmpropdp.mappersetup_;
+    sd->dispPars().colseqname_ = lmpropdp.colseqname_;
     sd->dispPars().overlap_ = lmpropdp.overlap_;
     RefMan<SyntheticData> vdsd = synthdisp_->getCurrentSyntheticData( false );
     RefMan<SyntheticData> wvasd = synthdisp_->getCurrentSyntheticData( true );
@@ -731,8 +731,8 @@ void uiStratLayerModel::synthDispParsChangedCB( CallBacker* )
 	sdnm.remove( StratSynth::sKeyFRNameSuffix() );
 
     LMPropSpecificDispPars vddisppars( sdnm );
-    vddisppars.mapper_ = vdsd->dispPars().vdmapper_;
-    vddisppars.ctab_ = vdsd->dispPars().ctab_;
+    vddisppars.mappersetup_ = vdsd->dispPars().vdmapsetup_;
+    vddisppars.colseqname_ = vdsd->dispPars().colseqname_;
     vddisppars.overlap_ = vdsd->dispPars().overlap_;
     if ( !moddisp_->setPropDispPars(vddisppars) )
 	return;

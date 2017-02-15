@@ -22,7 +22,7 @@ class uiODViewer2D;
 mExpClass(uiODMain) uiODVw2DFaultSSParentTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DFaultSSParentTreeItem);
 public:
-    				uiODVw2DFaultSSParentTreeItem();
+				uiODVw2DFaultSSParentTreeItem();
 				~uiODVw2DFaultSSParentTreeItem();
 
     bool			showSubMenu();
@@ -40,7 +40,8 @@ protected:
     const char*			iconName() const;
     bool			handleSubMenu(int);
     const char*			parentType() const
-    				{ return typeid(uiODVw2DTreeTop).name(); }
+				{ return typeid(uiODVw2DTreeTop).name(); }
+
 };
 
 
@@ -58,10 +59,10 @@ public:
 mExpClass(uiODMain) uiODVw2DFaultSSTreeItem : public uiODVw2DEMTreeItem
 { mODTextTranslationClass(uiODVw2DFaultSSTreeItem);
 public:
-    			uiODVw2DFaultSSTreeItem(const EM::ObjectID&);
-    			uiODVw2DFaultSSTreeItem(int displayid,bool dummy);
+			uiODVw2DFaultSSTreeItem(const EM::ObjectID&);
+			uiODVw2DFaultSSTreeItem(int displayid,bool dummy);
 			~uiODVw2DFaultSSTreeItem();
-    
+
     bool		showSubMenu();
     bool		select();
     EM::ObjectID	emObjectID() const	{ return emid_; }

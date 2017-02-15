@@ -64,14 +64,14 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
     const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
     const Geom::Size2D<int> arrsz(array_.getSize(true),array_.getSize(false));
     const FlatView::DataDispPars::VD& pars = app_.ddpars_.vd_;
-    ColTab::Sequence ctab( pars.ctab_.buf() );
-
+    ConstRefMan<ColTab::Sequence> colseq
+			    = ColTab::SeqMGR().getAny( pars.colseqname_ );
     const int minfill = (int)VDA2DBitMapGenPars::cMinFill();
     const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill();
-    ColTab::IndexedLookUpTable ctindex( ctab, maxfill-minfill+1 );
+    ColTab::IndexedLookUpTable ctindex( *colseq, maxfill-minfill+1,
+					pars.mappersetup_->seqUseMode() );
 
-    if ( (pars.mappersetup_.type_==ColTab::MapperSetup::HistEq) &&
-	 !clipperdata_.isEmpty() )
+    if ( pars.mappersetup_->doHistEq() && !clipperdata_.isEmpty() )
     {
 	TypeSet<float> datapts;
 	datapts.setCapacity( mCast(int,bmp.info().getTotalSz()), false );
@@ -84,7 +84,6 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 	histequalizer_->setRawData( datapts );
     }
 
-    const int maxcolidx = ctindex.nrCols()-1;
     for ( int ix=0; ix<arrsz.width(); ix++ )
     {
 	if ( ix >= bmpsz.width() ) break;
@@ -95,8 +94,7 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
 		continue;
 
-	    const int idx = (int)bmpval-minfill;
-	    const int colidx = pars.mappersetup_.flipseq_ ? maxcolidx-idx : idx;
+	    const int colidx = (int)bmpval-minfill;
 	    const Color col = ctindex.colorForIndex( colidx );
 	    if ( col.isVisible() )
 		array_.set( ix, iy, col );

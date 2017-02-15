@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "monitor.h"
+#include "monitorable.h"
 #include "uistring.h"
 class IOStream;
 class Saveable;

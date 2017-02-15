@@ -10,261 +10,37 @@ ________________________________________________________________________
 
 -*/
 
-#include "notify.h"
-#include "ptrman.h"
-#include "refcount.h"
+#include "monitorable.h"
 
 
-/*!\brief Object that can be MT-safely monitored from cradle to grave.
+// Tools for implementation of subclasses of Monitorable
 
-  Traditionally, the MVC concept was all about automatic updates. This can
-  still be done, but nowadays more important seems the integrity for MT.
 
-  The instanceCreated() will tell you when *any* Monitorable is created. To
-  make your class really monitorable, use mDeclInstanceCreatedNotifierAccess
-  for your subclass, too. Note that you'll need to add
-  mTriggerInstanceCreatedNotifier() to the constructor, and add
-  mDefineInstanceCreatedNotifierAccess(YourClassName) to a .cc.
-
-  Similarly, you have to trigger the objectToBeDeleted() at the start of your
-  destructor - if you do not have one, make one. For that, use sendDelNotif(),
-  it avoids double notifications; this base class will eventually do such a
-  thing but then it's too late for many purposes: the subclass part of the
-  object is then already dead. Thus, at the beginning of the your destructor,
-  call sendDelNotif().
-
-  You can also monitor the object's changes. First of all, a dirtyCount() is
-  maintained. To make more precise event handling possible, the change notifier
-  will deliver an int with a change type. This type can be specific for the
-  Monitorable, and could be available with symbolic constants in that class.
-  The default is 0 - 'General change'.
-
-  For simple class variables, there are simple macros for get and set that
-  will lock and unlock right: mImplSimpleMonitoredGet, mImplSimpleMonitoredSet,
-  and the most common mImplSimpleMonitoredGetSet.
-
-  Locking for more complex things should be done using macros: mLock4Read,
-  mLock4Write, mLock2Write, and mUnlockAllAccess. After write (i.e. object
-  change) operations, you need to unlock and send the notification. Use
-  mSendChgNotif or mSendEntireObjChgNotif.
-
-  To handle change notifications, you'll want to unpack the capsule with one
-  of the macros mGetMonitoredChgData or mGetMonitoredChgDataDoAll. Example:
-
-  void MyObj::chgCB( CallBacker* cb )
-  {
-      mGetMonitoredChgDataDoAll( cb, chgdata, caller, return redrawAll() );
-      if ( chgdata.changeType() == MonObj::cSomeChange() )
-	 doSomething( chgdata.ID() );
-  }
-
-  Lastly, copying of Monitorables needs to be done right. For this, you want to
-  use the mDeclMonitorableAssignment and mImplMonitorableAssignment macros:
-  these provide correct handling and even make your task easier than otherwise.
-  To make it work, in the .cc file you have to implement a void
-  copyClassData(const clss&) function. It is called already locked, and should
-  only copy the class' own data.
-
-  For typical subclass implementations see NamedMonitorable, or Pick::Set.
-  For usage, try visSurvey::LocationDisplay.
-
-*/
-
-mExpClass(Basic) Monitorable : public CallBacker
-{
-public:
-
-    typedef int		ChangeType;
-    typedef od_int64	IDType;
-    typedef od_int64	DirtyCountType;
-
-    mExpClass(Basic) ChangeData : public std::pair<ChangeType,IDType>
-    {
-    public:
-
-	mExpClass(Basic) AuxData : public RefCount::Referenced
-	{
-	    protected:
-		virtual	~AuxData()			{}
-	};
-
-			ChangeData( ChangeType typ, IDType id )
-			    : std::pair<ChangeType,IDType>(typ,id)
-			    , auxdata_(0)		{}
-			ChangeData(const ChangeData&);
-	virtual		~ChangeData()		{}
-	ChangeData&	operator =(const ChangeData&);
-
-	ChangeType	changeType() const	{ return first; }
-	IDType		ID() const		{ return second; }
-	bool		isEntireObject() const	{ return first == -1; }
-	bool		isNoChange() const	{ return mIsUdf(first); }
-	bool		includes( ChangeType ct ) const
-			{ return ct == first || isEntireObject(); }
-
-	static inline ChangeType cEntireObjectChgType()	{ return -1; }
-	static inline ChangeType cNoChgType()	{ return mUdf(ChangeType); }
-	static inline IDType cUnspecChgID()	{ return -1; }
-	static inline ChangeData AllChanged()	{ return ChangeData(-1,-1); }
-	static inline ChangeData NoChange()	{ return ChangeData(
-							 mUdf(ChangeType),-1); }
-	RefMan<AuxData>	auxdata_;
-	template<class T> inline T* auxDataAs()
-	{ return static_cast<T*>( auxdata_.ptr() ); }
-    };
-
-			Monitorable(const Monitorable&);
-    virtual		~Monitorable();
-    Monitorable&	operator =(const Monitorable&);
-    virtual Monitorable* clone() const		= 0;
-
-    virtual CNotifier<Monitorable,ChangeData>& objectChanged() const
-	{ return const_cast<Monitorable*>(this)->chgnotif_; }
-    virtual Notifier<Monitorable>&	objectToBeDeleted() const
-	{ return const_cast<Monitorable*>(this)->delnotif_; }
-    mDeclInstanceCreatedNotifierAccess(	Monitorable );
-					//!< defines static instanceCreated()
-
-    virtual void	touch() const		{ dirtycount_++; }
-    virtual DirtyCountType dirtyCount() const	{ return dirtycount_; }
-
-    void		sendEntireObjectChangeNotification() const;
-
-    static IDType	cEntireObjectChangeID()
-			{ return ChangeData::cUnspecChgID(); }
-    static inline ChangeType cEntireObjectChangeType()
-			{ return ChangeData::cEntireObjectChgType(); }
-    static ChangeType	changeNotificationTypeOf(CallBacker*);
-
-    virtual ChangeData	compareWith( const Monitorable& oth ) const
-			{ return this == &oth ? ChangeData::NoChange()
-					      : ChangeData::AllChanged(); }
-
-    mExpClass(Basic) AccessLocker : public Threads::Locker
-    {
-    public:
-			AccessLocker(const Monitorable&,bool forread=true);
-	inline bool	convertToWrite()	{ return convertToWriteLock(); }
-    };
-
-protected:
-
-			Monitorable();
-
-    mutable Threads::Lock accesslock_;
-
-    void		copyAll(const Monitorable&);
-    void		sendChgNotif(AccessLocker&,const ChangeData&) const;
-				//!< objectChanged called with released lock
-    void		sendChgNotif(AccessLocker&,ChangeType,IDType) const;
-    void		sendDelNotif() const;
-    void		stopChangeNotifications() const
-			{ chgnotifblocklevel_++; }
-    void		resumeChangeNotifications() const;
-
-    template <class T>
-    inline T		getMemberSimple(const T&) const;
-    template <class TMember,class TSetTo>
-    inline void		setMemberSimple(TMember&,TSetTo,ChangeType,IDType);
-
-    typedef Threads::Atomic<DirtyCountType>	DirtyCounter;
-
-private:
-
-    mutable DirtyCounter		dirtycount_;
-    mutable Threads::Atomic<int>	chgnotifblocklevel_;
-
-    mutable CNotifier<Monitorable,ChangeData> chgnotif_;
-    mutable Notifier<Monitorable>	delnotif_;
-    mutable bool			delalreadytriggered_;
-
-    friend class			MonitorLock;
-    friend class			ChangeNotifyBlocker;
-
-};
-
+/*!\brief Defines simple MT-safe copyable member get. */
 
 #define mImplSimpleMonitoredGet(fnnm,typ,memb) \
     typ fnnm() const { return getMemberSimple( memb ); }
+
+/*!\brief Defines simple MT-safe copyable member change. */
+
 #define mImplSimpleMonitoredSet(fnnm,typ,memb,chgtyp) \
-    void fnnm( typ _set_to_ ) { setMemberSimple( memb, _set_to_, chgtyp, 0 ); }
+    void fnnm( typ _set_to_ ) { setMemberSimple( memb, _set_to_, chgtyp, \
+				    cUnspecChgID() ); }
+
+/*!\brief Defines simple MT-safe copyable member access.
+
+  Example:
+
+  mImplSimpleMonitoredGetSet( inline, color, setColor, Color, color_,
+			      cColorChange() );
+
+*/
+
 #define mImplSimpleMonitoredGetSet(pfx,fnnmget,fnnmset,typ,memb,chgtyp) \
     pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
     pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb,chgtyp)
 
-#define mGetIDFromChgData( typ, var, chgdata ) \
-    const typ var = typ::get( (typ::IDType)chgdata.ID() )
 
-
-/*!\brief protects a Monitorable against change.
-
-  Compare the locking with thread-locking tools:
-
-  1) The Monitorable has (should have) methods that make a method call sort-of
-     atomic. You call it, and are guaranteed the whole operation succeeds safely
-     without interruption.
-
-  2) Sometimes operations on Monitorable's are dependent on each other. For
-     example, when you are iterating through a list. If changes in the list
-     (size of list, or elements changing) are unacceptable, you need a tool to
-     prevent any change. This is the MonitorLock.
-
-     Note that not releasing the lock will almost certainly stop the entire app,
-     therefore the MonitorLock will always release when it goes out of scope.
-     Most often though you want to release asap, therefore you'll often call
-     unlockNow() immediately when done.
-
-  Beware: you cannot use the MonitorLock and still change the object, a
-  DEADLOCK will be your reward. To write while reading, make a copy of the
-  object, change it, and assign the object to that. The assignment operator
-  of the object should be 'atomic' again, thanks to the assignment operator
-  macros.
-
- */
-
-mExpClass(Basic) MonitorLock
-{
-public:
-			MonitorLock(const Monitorable&);
-			~MonitorLock();
-
-    void		unlockNow();
-    void		reLock();
-
-protected:
-
-    Monitorable::AccessLocker locker_;
-    bool		unlocked_;
-
-};
-
-
-/*!\brief prevents change notifications coming out of a Monitorable.
-
-  Use to stop tons of change notifications going out. Will send an
-  'Entire object changed' event when it goes out of scope. To prevent that,
-  call unBlockNow(false) explicitly beforehand.
-
-*/
-
-mExpClass(Basic) ChangeNotifyBlocker
-{
-public:
-			ChangeNotifyBlocker(const Monitorable&);
-			~ChangeNotifyBlocker();
-
-    void		unBlockNow(bool send_entobj_notif=true);
-    void		reBlock();
-
-protected:
-
-    const Monitorable&	obj_;
-    bool		unblocked_;
-
-};
-
-
-//! For use in subclasses of Monitorable
 #define mLock4Read() AccessLocker accesslocker_( *this )
 #define mLock4Write() AccessLocker accesslocker_( *this, false )
 #define mLock2Write() accesslocker_.convertToWrite()
@@ -273,92 +49,201 @@ protected:
 #define mAccessLocker() accesslocker_
 #define mSendChgNotif(typ,id) sendChgNotif(accesslocker_,typ,id)
 #define mSendEntireObjChgNotif() \
-    mSendChgNotif( cEntireObjectChangeType(), cEntireObjectChangeID() )
+    mSendChgNotif( cEntireObjectChange(), cEntireObjectChgID() )
 
 
-#define mGetMonitoredChgData(cb,chgdata) \
-    mCBCapsuleUnpack( Monitorable::ChangeData, chgdata, cb )
 
-#define mGetMonitoredChgDataWithAux(cb,chgdata,T,auxvar) \
-    mCBCapsuleUnpack( Monitorable::ChangeData, chgdata, cb ); \
-    T* auxvar = chgdata.auxDataAs<T>()
-
-#define mGetMonitoredChgDataWithCaller(cb,chgdata,caller) \
-    mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, caller, cb )
-
-#define mGetMonitoredChgDataWithAuxAndCaller(cb,chgdata,T,auxvar,caller) \
-    mGetMonitoredChgDataWithCaller(cb,chgdata,caller); \
-    T* auxvar = chgdata.auxDataAs<T>()
-
-#define mGetMonitoredChgDataDoAll(cb,chgdata,doallact) \
-    mGetMonitoredChgData(chgdata,cb); \
-    if ( chgdata.changeType() == Monitored::cEntireObjectChangeType() ) \
-	{ doallact; }
+#define mDeclGenMonitorableAssignment(clss) \
+    private: \
+        void		copyClassData(const clss&); \
+        ChangeType	compareClassData(const clss&) const; \
+    protected: \
+        void		copyAll(const clss&); \
+    public: \
+			clss(const clss&); \
+	clss&		operator =(const clss&); \
+	bool		operator ==(const clss&) const; \
+	inline bool	operator !=( const clss& oth ) const \
+			{ return !(*this == oth); } \
+        ChangeType	compareWith(const Monitorable&) const
 
 
-/*!\brief For subclasses: declaration of assignment method that will emit
-  notifications, by default 'Entire Object'.
+/*!\brief Monitorable subclasses: assignment and comparison.
 
-  Because of the locking, assignment operators are essential. These will
-  need to copy both the 'own' members aswell as base class members, and emit
-  the notification afterwards. For this, you have to implement a function that
-  copies only the class' own data (unlocked): void copyClassData(const clss&).
+  Declares assignment method that will emit notifications, by default
+  'Entire Object'. Because of the locking, assignment operators are essential.
+  These will need to copy both the 'own' members aswell as base class members,
+  and emit the notification afterwards. For this, you have to implement a
+  function that copies only the class' own data (unlocked):
+  void copyClassData(const clss&).
 
-  Note that if you want to give more fine-grained notifications than always
-  'Entire Object Changed', then you can define (and implement) your own
-  compareWith().
+  To be able to provide more fine-grained notifications than always
+  'Entire Object Changed', you also have to provide a method compareClassData().
+  in this way we also define the equality operators (== and !=).
 
   */
 
 #define mDeclAbstractMonitorableAssignment(clss) \
-    private: \
-        void	    copyClassData(const clss&); \
-    protected: \
-        void	    copyAll(const clss&); \
-    public: \
-		    clss(const clss&); \
-	clss&	    operator =(const clss&)
+    mDeclGenMonitorableAssignment(clss); \
+    virtual clss* clone() const		= 0
 
-/*!\brief For subclasses: like mDeclAbstractMonitorableAssignment but for
-  non-abstract subclasses. Adds the clone() method. */
+/*!\brief like mDeclAbstractMonitorableAssignment but for
+  non-abstract subclasses. Implements the clone() method. */
 
 #define mDeclMonitorableAssignment(clss) \
-    mDeclAbstractMonitorableAssignment(clss); \
+    mDeclGenMonitorableAssignment(clss); \
     virtual clss* clone() const		{ return new clss( *this ); }
 
-/*!\brief For subclasses: implementation of assignment method. You have to
-  implement the copyClassData function yourself, no locking at all. As in:
+
+#define mImplEmptyMonitorableCopyClassData( clssnm ) \
+void clssnm::copyClassData( const clssnm& oth ) \
+{ \
+}
+
+#define mImplEmptyMonitorableCompare( clssnm ) \
+Monitorable::ChangeType clssnm::compareClassData( const clssnm& oth ) const \
+{ \
+    return cNoChange(); \
+}
+
+
+/*!\brief Implementation of assignment and comparison methods for Monitorable's.
+
+  you have to implement the copyClassData and compareClassData functions
+  yourself. These functions are calles in a locked state, so do not use
+  locking member functions.
 
   void MyClass::copyClassData( const MyClass& oth )
   {
       x_ = oth.x_;
       y_ = oth.y_;
   }
+  bool MyClass::compareClassData( const MyClass& oth ) const
+  {
+      if ( x_ != oth.x_ )
+	   return cXChanged();
+      if ( y_ != oth.y_ )
+	   return cYChanged();
+      return cNoChange();
+  }
+
+  For standard situations, there are macros to help you implement the
+  compareClassData function.
+
+  Usually, you can use the mImplMonitorableAssignment macro.
 
   */
 
-#define mImplMonitorableAssignment(clss,baseclss) \
-clss& clss::operator =( const clss& oth ) \
+#define mGenImplMonitorableAssignment(pfx,clss,baseclss) \
+pfx clss& clss::operator =( const clss& oth ) \
 { \
-    const ChangeData changedata = compareWith( oth ); \
-    if ( !changedata.isNoChange() ) \
+    const ChangeType chgtyp = compareWith( oth ); \
+    if ( chgtyp != cNoChange() ) \
     { \
 	mLock4Write(); \
 	AccessLocker lckr( oth ); \
 	copyAll( oth ); \
-	touch(); \
-	mUnlockAllAccess(); \
-	mSendChgNotif( changedata.changeType(), changedata.ID() ); \
+	mSendChgNotif( chgtyp, cUnspecChgID() ); \
     } \
     return *this; \
 } \
 \
-void clss::copyAll( const clss& oth ) \
+pfx bool clss::operator ==( const clss& oth ) const \
+\
+{ \
+    return compareWith( oth ) == cNoChange(); \
+} \
+\
+pfx void clss::copyAll( const clss& oth ) \
 { \
     baseclss::copyAll( oth ); \
+    AccessLocker lckr( oth ); \
     copyClassData( oth ); \
+} \
+\
+pfx Monitorable::ChangeType clss::compareWith( const Monitorable& mon ) const \
+{ \
+    if ( this == &mon ) \
+	return cNoChange(); \
+    mDynamicCastGet( const clss*, oth, &mon ); \
+    if ( !oth ) \
+	return cEntireObjectChange(); \
+\
+    mLock4Read(); \
+    AccessLocker lckr( *oth ); \
+    const ChangeType ct = compareClassData( *oth ); \
+    mUnlockAllAccess(); \
+\
+    return ct != cNoChange() ? ct : baseclss::compareWith( *oth ); \
 }
 
+
+#define mImplMonitorableAssignment(clss,baseclss) \
+    mGenImplMonitorableAssignment(,clss,baseclss)
+
+
+#define mImplMonitorableAssignmentWithNoMembers( clss, baseclss ) \
+    mImplMonitorableAssignment(clss,baseclss) \
+    mImplEmptyMonitorableCopyClassData( clss ) \
+    mImplEmptyMonitorableCompare( clss )
+
+
+
+/*!\brief Helper macro to easily implement your compareClassData()
+  in standard situations.
+
+  The idea is that a single change type can be returned, if more than one
+  change has happened you need to return cEntireObjectChange().
+
+  Example:
+
+Monitorable::ChangeType Well::Info::compareClassData( const Info& oth ) const
+{
+    mStartMonitorableCompare();
+    mHandleMonitorableCompare( uwid_, cUWIDChange() );
+    mHandleMonitorableCompare( oper_, cInfoChange() );
+    mHandleMonitorableComparePtrContents( a_ptr_, cDataChange() );
+    mDeliverMonitorableCompare();
+}
+
+  */
+
+#define mStartMonitorableCompare() ChangeType chgtype = cNoChange()
+
+#define mHandleMonitorableCompare( memb, val ) \
+    if ( !(memb == oth.memb) ) \
+    { \
+	if ( chgtype == cNoChange() || chgtype == val ) \
+	    chgtype = val; \
+	else \
+	    return cEntireObjectChange(); \
+    }
+
+#define mHandleMonitorableComparePtrContents( memb, val ) \
+    if ( (memb && !oth.memb) || (!memb && oth.memb) || !(*memb == *oth.memb) ) \
+    { \
+	if ( chgtype == cNoChange() || chgtype == val ) \
+	    chgtype = val; \
+	else \
+	    return cEntireObjectChange(); \
+    }
+
+#define mDeliverMonitorableCompare() return chgtype;
+
+
+/*!\brief Helper macro to implement a simple yes/no change compareClassData() */
+
+#define mDeliverSingCondMonitorableCompare(nochgcond,chgtype) \
+    return (nochgcond) ? cNoChange() : chgtype
+
+
+/*!\brief Helper macro to implement a simple yes/no change compareClassData() */
+
+#define mDeliverYesNoMonitorableCompare(nochgcond) \
+    mDeliverSingCondMonitorableCompare( nochgcond, cEntireObjectChange() )
+
+
+/*!\brief the get function used by mImplSimpleMonitoredGet */
 
 template <class T>
 inline T Monitorable::getMemberSimple( const T& memb ) const
@@ -366,6 +251,9 @@ inline T Monitorable::getMemberSimple( const T& memb ) const
     mLock4Read();
     return memb;
 }
+
+
+/*!\brief the set function used by mImplSimpleMonitoredSet */
 
 template <class TMember,class TSetTo>
 inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto,

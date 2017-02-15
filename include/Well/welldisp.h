@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "wellcommon.h"
 #include "namedobj.h"
 #include "color.h"
+#include "coltab.h"
 #include "ranges.h"
 #include "fontdata.h"
 #include "bufstringset.h"
@@ -183,8 +184,8 @@ public:
 
     mImplSimpleMonitoredGetSet(inline,singleColor,setSingleColor,bool,
 			       issinglecol_,cColorChg());
-    mImplSimpleMonitoredGetSet(inline,colTabFlipped,setColTabFlipped,bool,
-			       iscoltabflipped_,cColorChg());
+    mImplSimpleMonitoredGetSet(inline,seqUseMode,setSeqUseMode,
+				ColTab::SeqUseMode,sequsemode_,cColorChg());
     mImplSimpleMonitoredGetSet(inline,seisColor,setSeisColor,Color,
 			       seiscolor_,cColorChg());
 
@@ -209,7 +210,7 @@ protected:
     WidthType		logwidth_;
 
     bool		issinglecol_;
-    bool		iscoltabflipped_;
+    ColTab::SeqUseMode	sequsemode_;
     Color		seiscolor_;
 
 };

@@ -64,11 +64,10 @@ void NamedMonitorable::copyClassData( const NamedMonitorable& oth )
     name_ = oth.name_;
 }
 
-
-bool NamedMonitorable::operator ==( const NamedMonitorable& oth ) const
+Monitorable::ChangeType NamedMonitorable::compareClassData(
+					const NamedMonitorable& oth ) const
 {
-    mLock4Read();
-    return name_ == oth.getName();
+    mDeliverSingCondMonitorableCompare( name_ == oth.getName(), cNameChange() );
 }
 
 

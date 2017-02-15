@@ -30,7 +30,8 @@ uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     addChild( minvalitm_ );
     addChild( maxvalitm_ );
 
-    setColTabSequence( ColTab::Sequence("") );
+    setSequence( *ColTab::SeqMGR().getDefault() );
+    setMapperSetup( *new ColTab::MapperSetup );
 
     uiRect boundrec = ctseqitm_->boundingRect();
     ctseqitm_->setPos( 0.f, 0.f );
@@ -100,16 +101,36 @@ void uiColTabItem::adjustLabel()
 }
 
 
-void uiColTabItem::setColTab( const char* nm )
+void uiColTabItem::setSetup( const Setup& su )
 {
-    ColTab::Sequence seq( nm );
-    setColTabSequence( seq );
+    setup_ = su;
+    setPixmap();
+    adjustLabel();
 }
 
 
-void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
+void uiColTabItem::setSeqName( const char* nm )
 {
-    ctseq_ = ctseq;
+    setSequence( *ColTab::SeqMGR().getAny(nm) );
+}
+
+
+void uiColTabItem::setSequence( const ColTab::Sequence& ctseq )
+{
+    if ( ctseq_.ptr() == &ctseq )
+	return;
+
+    if ( ctseq_ )
+	mDetachCB( ctseq_->objectChanged(), uiColTabItem::seqChgCB );
+    ctseq_ = &ctseq;
+
+    seqChgCB( 0 );
+    mAttachCB( ctseq_->objectChanged(), uiColTabItem::seqChgCB );
+}
+
+
+void uiColTabItem::seqChgCB( CallBacker* )
+{
     setPixmap();
 }
 
@@ -117,22 +138,33 @@ void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
 void uiColTabItem::setPixmap()
 {
     uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
-    pm.fill( ctseq_, setup_.hor_ );
+    pm.fill( *ctseq_, setup_.hor_ );
     ctseqitm_->setPixmap( pm );
 }
 
 
-void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
+void uiColTabItem::setMapperSetup( const ColTab::MapperSetup& ms )
 {
-    BufferString precision;
-    minvalitm_->setPlainText( toUiString(precision.set(ms.range_.start,2)) );
-    maxvalitm_->setPlainText( toUiString(precision.set(ms.range_.stop,2)) );
-    adjustLabel();
+    if ( ctmsu_.ptr() == &ms )
+	return;
+
+    if ( ctmsu_ )
+	mDetachCB( ctmsu_->objectChanged(), uiColTabItem::mapperChgCB );
+    ctmsu_ = &ms;
+
+    mapperChgCB( 0 );
+    mAttachCB( ctmsu_->objectChanged(), uiColTabItem::mapperChgCB );
 }
 
-
-void uiColTabItem::setupChanged()
+void uiColTabItem::mapperChgCB( CallBacker* )
 {
-    setPixmap();
+    if ( !ctmsu_ )
+	return;
+
+    BufferString precision;
+    const Interval<float> rg = ctmsu_->range();
+    minvalitm_->setPlainText( toUiString(precision.set(rg.start,2)) );
+    maxvalitm_->setPlainText( toUiString(precision.set(rg.stop,2)) );
+
     adjustLabel();
 }

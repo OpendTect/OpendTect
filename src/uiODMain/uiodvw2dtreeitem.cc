@@ -135,7 +135,7 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 #define mRemoveAllItemsMenuID 103
 
 uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
-    : uiODPrManagedTreeItem( nm )
+    : uiPresManagedTreeItem( nm )
     , displayid_(-1)
 {}
 
@@ -371,7 +371,7 @@ const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
 }
 
 uiODVw2DParentTreeItem::uiODVw2DParentTreeItem( const uiString& nm )
-    : uiODPrManagedParentTreeItem( nm )
+    : uiPresManagedParentTreeItem( nm )
 {
 }
 

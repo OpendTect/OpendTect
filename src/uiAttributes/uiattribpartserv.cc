@@ -96,7 +96,6 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , multcomp3d_(uiStrings::s3D())
     , multcomp2d_(uiStrings::s2D())
     , dpsdispmgr_( 0 )
-    , evalmapperbackup_( 0 )
     , attrsneedupdt_(true)
     , manattribsetdlg_(0)
     , impattrsetdlg_(0)
@@ -2065,7 +2064,7 @@ void uiAttribPartServer::setEvalBackupColTabMapper(
 	*evalmapperbackup_ = *mp;
     else if ( !mp )
     {
-	delete evalmapperbackup_;
+	evalmapperbackup_->unRef();
 	evalmapperbackup_ = 0;
     }
     else if ( mp )
@@ -2076,7 +2075,9 @@ void uiAttribPartServer::setEvalBackupColTabMapper(
 
 
 const ColTab::MapperSetup* uiAttribPartServer::getEvalBackupColTabMapper() const
-{ return evalmapperbackup_; }
+{
+    return evalmapperbackup_;
+}
 
 
 void uiAttribPartServer::survChangedCB( CallBacker* )

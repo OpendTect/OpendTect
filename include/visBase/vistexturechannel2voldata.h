@@ -17,10 +17,10 @@ ________________________________________________________________________
 
 
 namespace visBase
-{ 
+{
 
-/*! Implementation of TextureChannel2VolData that feeds the 8-bit values from 
- the texture channel(s) into a volume data object. 
+/*! Implementation of TextureChannel2VolData that feeds the 8-bit values from
+ the texture channel(s) into a volume data object.
 */
 
 mExpClass(visBase) TextureChannel2VolData : public TextureChannel2RGBA
@@ -32,7 +32,7 @@ public:
     const osg::Image*	createRGBA() const		{ return 0; }
     bool		canSetSequence() const	{ return true; }
     void		setSequence(int channel,const ColTab::Sequence&);
-    const ColTab::Sequence* getSequence(int channel) const;
+    const ColTab::Sequence& getSequence(int channel) const;
 
     void		setEnabled(int ch, bool yn);
     bool		isEnabled(int ch) const;
@@ -45,14 +45,14 @@ public:
     MappedTextureDataSet* createMappedDataSet() const;
 
 protected:
-    			~TextureChannel2VolData();
+			~TextureChannel2VolData();
 
     void		setChannels(TextureChannels*);
     void		notifyChannelChange();
     void		update();
     void		makeColorTables();
 
-    ColTab::Sequence	sequence_;
+    ConstRefMan<ColTab::Sequence> sequence_;
     bool		enabled_;
 
 /*  OSG-TODO: Port to OSG if class is prolongated

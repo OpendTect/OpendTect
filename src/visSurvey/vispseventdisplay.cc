@@ -44,6 +44,7 @@ PSEventDisplay::PSEventDisplay()
     , offsetscale_( 1 )
     , markercolor_( Single )
     , eventmarkerset_( visBase::MarkerSet::create() )
+    , ctabsequence_(ColTab::SeqMGR().getDefault())
 {
     setLockable();
     linestyle_->ref();
@@ -53,8 +54,7 @@ PSEventDisplay::PSEventDisplay()
     eventmarkerset_->setMaterial( getMaterial() );
 
     addChild( eventmarkerset_->osgNode() );
-    ctabmapper_.setup_.type( ColTab::MapperSetup::Auto );
-
+    ctabmapper_.setup().setIsFixed( false );
 }
 
 
@@ -157,25 +157,31 @@ PSEventDisplay::MarkerColor PSEventDisplay::getMarkerColor() const
 { return markercolor_; }
 
 
-void PSEventDisplay::setColTabMapper( const ColTab::MapperSetup& n,
-				      bool update )
+void PSEventDisplay::setColMapperSetup( const ColTab::MapperSetup& n,
+					   bool update )
 {
-    if ( ctabmapper_.setup_==n )
+    if ( ctabmapper_.setup() == n )
 	return;
 
-    ctabmapper_.setup_ = n;
+    ctabmapper_.setSetup( n );
 
     if ( update )
 	updateDisplay();
 }
 
 
-const ColTab::MapperSetup& PSEventDisplay::getColTabMapper() const
-{ return ctabmapper_.setup_; }
+ConstRefMan<ColTab::MapperSetup> PSEventDisplay::getColTabMapper() const
+{
+    return &ctabmapper_.setup();
+}
 
-const ColTab::MapperSetup* PSEventDisplay::getColTabMapperSetup(
+
+ConstRefMan<ColTab::MapperSetup> PSEventDisplay::getColTabMapperSetup(
 						int visid, int attr ) const
-{ return &ctabmapper_.setup_; }
+{
+    return &ctabmapper_.setup();
+}
+
 
 void PSEventDisplay::setColTabSequence( int ch, const ColTab::Sequence& n,
 					TaskRunner* tskr )
@@ -183,10 +189,10 @@ void PSEventDisplay::setColTabSequence( int ch, const ColTab::Sequence& n,
 
 void PSEventDisplay::setColTabSequence( const ColTab::Sequence& n, bool update )
 {
-    if ( ctabsequence_==n )
+    if ( ctabsequence_.ptr() == &n )
 	return;
 
-    ctabsequence_ = n;
+    ctabsequence_ = &n;
 
     if ( update )
 	updateDisplay();
@@ -194,7 +200,7 @@ void PSEventDisplay::setColTabSequence( const ColTab::Sequence& n, bool update )
 
 
 const ColTab::Sequence* PSEventDisplay::getColTabSequence( int ) const
-{ return &ctabsequence_; }
+{ return ctabsequence_; }
 
 
 void PSEventDisplay::setDisplayMode( DisplayMode dm )
@@ -439,7 +445,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    ctabmapper_.setData( &vs, vals.size() );
 	    for (int idx=0;idx<eventmarkerset_->getCoordinates()->size();idx++)
 	    {
-		const Color col = ctabsequence_.color(
+		const Color col = ctabsequence_->color(
 		    ctabmapper_.position( vals[idx]) );
 		 eventmarkerset_->getMaterial()->setColor(col,idx) ;
 	    }
@@ -618,7 +624,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     if ( markercolor_ != Single )
     {
-	if ( ctabmapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+	if ( !ctabmapper_.setup().isFixed() )
 	{
 	    const ArrayValueSeries<float,float>
 		vs(values.arr(),0,values.size());
@@ -627,11 +633,10 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
 	for ( int idx =0; idx<lastmarker; idx++ )
 	{
-	    Color color = ctabsequence_.color(
+	    Color color = ctabsequence_->color(
 		ctabmapper_.position(values[idx]) );
 	    pao->markerset_->getMaterial()->setColor(color, idx );
 	}
-
     }
 
     for ( int idx=pao->markerset_->getCoordinates()->size()-1;

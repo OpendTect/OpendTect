@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uilabel.h"
 
+#include "coltabsequence.h"
 #include "arrayndsmoother.h"
 #include "flatposdata.h"
 #include "sampledprobdenfunc.h"
@@ -341,9 +342,10 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    uiFlatViewer& vwr = vwwinnd_->viewer();
 	    FlatView::Appearance& app = vwr.appearance();
 	    app.ddpars_.show( false, true );
-	    app.ddpars_.vd_.ctab_ = "Rainbow";
+	    app.ddpars_.vd_.colseqname_
+			= ColTab::SeqMGR().getDefault(false)->name();
 	    app.ddpars_.vd_.blocky_ = true;
-	    app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0,0);
+	    app.ddpars_.vd_.mappersetup_->setClipRate( Interval<float>(0,0) );
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.setAxesAnnot( true );
 	    ann.x1_.name_ = pdf_.dimName(0);
@@ -683,7 +685,7 @@ void uiEditGaussianProbDenFunc::updateCorrList( int cursel )
     else if ( cursel < 0 )
 	cursel = 0;
 
-    stopper.restore();
+    stopper.enableNotification();
     defcorrsfld_->setCurrentItem( cursel );
 }
 
@@ -711,7 +713,7 @@ void uiEditGaussianProbDenFunc::tabChg( CallBacker* )
 	NotifyStopper stopper1( var1fld_->selectionChanged );
 	NotifyStopper stopper2( var2fld_->selectionChanged );
 	var1fld_->setEmpty(); var2fld_->setEmpty();
-	var1fld_->addItems( varnms.getUiStringSet() ); 
+	var1fld_->addItems( varnms.getUiStringSet() );
 	var2fld_->addItems( varnms.getUiStringSet() );
     }
 

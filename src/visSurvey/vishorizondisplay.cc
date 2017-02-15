@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "binidvalue.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
+#include "datadistribution.h"
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "emhorizon3d.h"
@@ -312,8 +313,8 @@ HorizonDisplay::HorizonDisplay()
 	      s3dgeom_->crlDistance() * s3dgeom_->crlRange().width() );
 
     as_ += new TypeSet<Attrib::SelSpec>( 1, Attrib::SelSpec() );
-    coltabmappersetups_ += ColTab::MapperSetup();
-    coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
+    coltabmappersetups_ += new ColTab::MapperSetup;
+    coltabsequences_ += ColTab::SeqMGR().getDefault();
 
     TypeSet<float> shift;
     shift += 0.0;
@@ -344,9 +345,6 @@ HorizonDisplay::~HorizonDisplay()
 {
     deepErase(as_);
     unRefAndZeroPtr( intersectionlinematerial_ );
-
-    coltabmappersetups_.erase();
-    coltabsequences_.erase();
 
     setSceneEventCatcher( 0 );
     curshiftidx_.erase();
@@ -694,18 +692,18 @@ bool HorizonDisplay::addAttrib()
     enabled_ += true;
     shifts_ += new TypeSet<float>;
     dispdatapackids_ += new TypeSet<DataPack::ID>;
-    coltabmappersetups_ += ColTab::MapperSetup();
-    coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
+    coltabmappersetups_ += new ColTab::MapperSetup;
+    coltabsequences_ += ColTab::SeqMGR().getDefault();
 
     const int curchannel = coltabmappersetups_.size()-1;
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	sections_[idx]->addChannel();
 	sections_[idx]->setColTabSequence( curchannel,
-		coltabsequences_[curchannel] );
+		*coltabsequences_[curchannel] );
 
 	sections_[idx]->setColTabMapperSetup( curchannel,
-		coltabmappersetups_[curchannel], 0 );
+		*coltabmappersetups_[curchannel], 0 );
     }
 
     return true;
@@ -737,7 +735,7 @@ bool HorizonDisplay::removeAttrib( int channel )
     for ( int chan=channel; chan<nrAttribs(); chan++ )
     {
 	for ( int idx=0; idx<sections_.size(); idx++ )
-	    sections_[idx]->setColTabSequence( chan, coltabsequences_[chan] );
+	    sections_[idx]->setColTabSequence( chan, *coltabsequences_[chan] );
     }
 
     return true;
@@ -896,9 +894,10 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     {
 	BufferString seqnm;
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
-	ColTab::Sequence seq( seqnm );
-	setColTabSequence( channel, seq, 0 );
-	setColTabMapperSetup( channel, ColTab::MapperSetup(), 0 );
+	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
+	setColTabSequence( channel, *seq, 0 );
+	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
+	setColTabMapperSetup( channel, *mapsetup, 0 );
     }
 }
 
@@ -982,8 +981,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     if ( sections_[0]->getColTabMapperSetup(channel) )
     {
 	coltabmappersetups_[channel] =
-	    *sections_[0]->getColTabMapperSetup( channel );
-	coltabmappersetups_[channel].triggerRangeChange();
+	    sections_[0]->getColTabMapperSetup( channel )->clone();
     }
 
     validtexture_ = true;
@@ -1177,8 +1175,8 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tskr )
 
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
-	    surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
-	    surf->setColTabSequence( idx, coltabsequences_[idx] );
+	    surf->setColTabMapperSetup( idx, *coltabmappersetups_[idx], 0 );
+	    surf->setColTabSequence( idx, *coltabsequences_[idx] );
 	    surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
 	}
 
@@ -1505,8 +1503,8 @@ const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
        return 0;
 
     return sections_.size()
-	? sections_[0]->getColTabSequence( channel )
-	: &coltabsequences_[channel];
+	? &sections_[0]->getColTabSequence( channel )
+	: coltabsequences_[channel].ptr();
 }
 
 
@@ -1526,7 +1524,7 @@ void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq,
     if ( chan<0 || chan>=nrAttribs() )
        return;
 
-    coltabsequences_[chan] = seq;
+    coltabsequences_[chan] = ConstRefMan<ColTab::Sequence>( &seq );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setColTabSequence( chan, seq );
@@ -1540,7 +1538,7 @@ void HorizonDisplay::setColTabMapperSetup( int channel,
        return;
 
     if ( coltabmappersetups_.validIdx(channel) )
-	coltabmappersetups_[channel] = ms;
+	*coltabmappersetups_[channel] = ms;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setColTabMapperSetup( channel, ms, tskr );
@@ -1549,28 +1547,25 @@ void HorizonDisplay::setColTabMapperSetup( int channel,
     //works for single sections though.
     if ( sections_.size() && sections_[0]->getColTabMapperSetup( channel ) )
     {
-	coltabmappersetups_[channel] =
-	    *sections_[0]->getColTabMapperSetup( channel );
+	*coltabmappersetups_[channel] =
+		    *sections_[0]->getColTabMapperSetup( channel );
     }
 }
 
 
-const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch,
+ConstRefMan<ColTab::MapperSetup> HorizonDisplay::getColTabMapperSetup( int ch,
 								 int ) const
 {
     if ( ch<0 || ch>=nrAttribs() )
        return 0;
 
-    return &coltabmappersetups_[ch];
+    return coltabmappersetups_[ch];
 }
 
 
 const TypeSet<float>* HorizonDisplay::getHistogram( int attrib ) const
 {
-    if ( !sections_.size() )
-	return 0;
-
-    return sections_[0]->getHistogram( attrib );
+    return sections_.isEmpty() ? 0 : sections_[0]->getHistogram( attrib );
 }
 
 
@@ -2287,10 +2282,10 @@ void HorizonDisplay::calculateLockedPoints()
 
 bool HorizonDisplay::lockedShown() const
 {
-    const bool lockedshow = lockedpts_ ? 
+    const bool lockedshow = lockedpts_ ?
 	lockedpts_->size()>0 && lockedpts_->isOn() : false;
     const bool sectionlockedshow =
-	sectionlockedpts_ ? 
+	sectionlockedpts_ ?
 	sectionlockedpts_->size()>0 && sectionlockedpts_->isOn() : false;
     return lockedshow || sectionlockedshow;
 }

@@ -7,12 +7,12 @@ ________________________________________________________________________
  Date:		March 2009
 ________________________________________________________________________
 -*/
-// this header file only be used in the classes related to Horzonsection . 
+// this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
 
-#include "refcount.h"
 #include "rowcol.h"
+#include "coltabmapper.h"
 
 class DataPointSet;
 class BinIDValueSet;
@@ -20,11 +20,11 @@ class TaskRunner;
 
 namespace osg {  class Node; }
 namespace osgGeo { class LayeredTexture; }
-namespace ColTab { class Sequence; class MapperSetup; }
+namespace ColTab { class Sequence; }
 
 namespace visBase
 {
-    class TextureChannel2RGBA;    
+    class TextureChannel2RGBA;
     class TextureChannels;
     class HorizonSection;
 
@@ -43,14 +43,14 @@ public:
     void			inValidateCache(int channel);
 
     void			setChannels2RGBA(TextureChannel2RGBA*);
-    void			setColTabSequence(int channel, 
+    void			setColTabSequence(int channel,
 						  const ColTab::Sequence& se);
-    const ColTab::Sequence*	getColTabSequence(int channel) const;
+    const ColTab::Sequence&	getColTabSequence(int channel) const;
 
-    void			setColTabMapperSetup(int channel, 
-					    const ColTab::MapperSetup& mapper, 
+    void			setColTabMapperSetup(int channel,
+					    const ColTab::MapperSetup& mapper,
 					    TaskRunner* tskr);
-    const ColTab::MapperSetup*  getColTabMapperSetup(int ch) const;
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int ch) const;
     const TypeSet<float>*	getHistogram(int ch) const;
     void			setTransparency(int ch, unsigned char yn);
     unsigned char		getTransparency(int ch) const;
@@ -62,7 +62,7 @@ public:
     void                        setNrVersions(int channel,int);
     int                         activeVersion(int channel) const;
     void                        selectActiveVersion(int channel,int);
-    
+
     void			setTextureData(int channel, int sectionid,
 					       const DataPointSet* dtpntset);
     void			updateTexture(int channel,int sectionid,

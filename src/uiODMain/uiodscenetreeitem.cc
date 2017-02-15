@@ -112,13 +112,13 @@ void uiODSceneTreeTop::loopOverChildrenIds(
 
 
 uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm )
-    : uiODPrManagedTreeItem(nm)
+    : uiPresManagedTreeItem(nm)
 {}
 
 
 void uiODSceneTreeItem::prepareForShutdown()
 {
-    uiODPrManagedTreeItem::prepareForShutdown();
+    uiPresManagedTreeItem::prepareForShutdown();
 }
 
 

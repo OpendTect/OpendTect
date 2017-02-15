@@ -30,11 +30,6 @@ namespace Strat
 
   To store extra details, use the pars_.
 
-  The ID cannot be assigned, and it is unique. It is managed by the LevelSet.
-  Therefore:
-  * operator ==() : checks only ID
-  * isDifferentFrom() : checks all but ID
-
 */
 
 mExpClass(General) Level : public NamedMonitorable
@@ -46,10 +41,10 @@ public:
 			Level(const char* nm,const Color&,ID =ID::getInvalid());
 
 			mDeclMonitorableAssignment(Level);
-    bool		operator ==(const Level&) const;
     bool		isDifferentFrom(const Level&) const;
+			//!< checks all but ID
 
-    ID			id() const	{ return id_; }
+    inline mImplSimpleMonitoredGet(id,ID,id_)
     mImplSimpleMonitoredGetSet(inline,color,setColor,Color,color_,cColChange())
     mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,cParsChange())
 

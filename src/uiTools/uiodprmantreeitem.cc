@@ -13,39 +13,44 @@ ___________________________________________________________________
 #include "keystrs.h"
 
 
-uiODPrManagedTreeItem::uiODPrManagedTreeItem( const uiString& nm )
+uiPresManagedTreeItem::uiPresManagedTreeItem( const uiString& nm )
     : uiODTreeItem(nm)
     , dataobj_(0)
 {
 }
 
 
-uiODPrManagedTreeItem::~uiODPrManagedTreeItem()
+uiPresManagedTreeItem::~uiPresManagedTreeItem()
 {
     detachAllNotifiers();
 }
 
 
 
-void uiODPrManagedTreeItem::setDataObj( SharedObject* dataobj )
+void uiPresManagedTreeItem::setDataObj( SharedObject* dataobj )
 {
-    if ( dataobj_ )
-	mDetachCB( dataobj_->objectChanged(),
-		   uiODPrManagedTreeItem::objChangedCB );
-
-    dataobj_ = dataobj;
-    mAttachCB( dataobj_->objectChanged(), uiODPrManagedTreeItem::objChangedCB );
+    replaceMonitoredRef( dataobj_, dataobj, this );
+    if ( dataobj )
+	mAttachCB( dataobj->objectChanged(),
+		    uiPresManagedTreeItem::objChangedCB );
 }
 
 
-void uiODPrManagedTreeItem::prepareForShutdown()
+void uiPresManagedTreeItem::prepareForShutdown()
 {
     uiTreeItem::prepareForShutdown();
     emitPRRequest( OD::Vanish );
 }
 
 
-void uiODPrManagedTreeItem::emitPRRequest( OD::PresentationRequestType req )
+void uiPresManagedTreeItem::objChangedCB( CallBacker* cb )
+{
+    mGetMonitoredChgData( cb, chgdata );
+    handleObjChanged( chgdata );
+}
+
+
+void uiPresManagedTreeItem::emitPRRequest( OD::PresentationRequestType req )
 {
     PtrMan<OD::ObjPresentationInfo> objprinfo = getObjPRInfo();
     if ( !objprinfo )
@@ -59,31 +64,35 @@ void uiODPrManagedTreeItem::emitPRRequest( OD::PresentationRequestType req )
 
 
 
-uiODPrManagedParentTreeItem::uiODPrManagedParentTreeItem( const uiString& nm )
+uiPresManagedParentTreeItem::uiPresManagedParentTreeItem(
+					const uiString& nm )
     : uiODTreeItem(nm)
 {
 }
 
 
-uiODPrManagedParentTreeItem::~uiODPrManagedParentTreeItem()
+uiPresManagedParentTreeItem::~uiPresManagedParentTreeItem()
 {
     detachAllNotifiers();
 }
 
 
-void uiODPrManagedParentTreeItem::setPRManagedViewer(
+void uiPresManagedParentTreeItem::setPRManagedViewer(
 	OD::PresentationManagedViewer& prmanvwr )
 {
-    mAttachCB( prmanvwr.ObjAdded, uiODPrManagedParentTreeItem::objAddedCB );
+    mAttachCB( prmanvwr.ObjAdded, uiPresManagedParentTreeItem::objAddedCB );
     mAttachCB( prmanvwr.VanishRequested,
-	       uiODPrManagedParentTreeItem::objVanishedCB );
-    mAttachCB( prmanvwr.ShowRequested, uiODPrManagedParentTreeItem::objShownCB);
-    mAttachCB( prmanvwr.HideRequested,uiODPrManagedParentTreeItem::objHiddenCB);
-    mAttachCB( prmanvwr.ObjOrphaned,uiODPrManagedParentTreeItem::objOrphanedCB);
+	       uiPresManagedParentTreeItem::objVanishedCB );
+    mAttachCB( prmanvwr.ShowRequested,
+		uiPresManagedParentTreeItem::objShownCB );
+    mAttachCB( prmanvwr.HideRequested,
+		uiPresManagedParentTreeItem::objHiddenCB );
+    mAttachCB( prmanvwr.ObjOrphaned,
+		uiPresManagedParentTreeItem::objOrphanedCB );
 }
 
 
-void uiODPrManagedParentTreeItem::objAddedCB( CallBacker* cber )
+void uiPresManagedParentTreeItem::objAddedCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
@@ -93,7 +102,7 @@ void uiODPrManagedParentTreeItem::objAddedCB( CallBacker* cber )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiODPrManagedParentTreeItem::objAddedCB, cbercaps )
+	    uiPresManagedParentTreeItem::objAddedCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
     if ( !prinfo )
 	return;
@@ -104,7 +113,7 @@ void uiODPrManagedParentTreeItem::objAddedCB( CallBacker* cber )
 }
 
 
-void uiODPrManagedParentTreeItem::objVanishedCB( CallBacker* cber )
+void uiPresManagedParentTreeItem::objVanishedCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
@@ -114,7 +123,7 @@ void uiODPrManagedParentTreeItem::objVanishedCB( CallBacker* cber )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiODPrManagedParentTreeItem::objVanishedCB, cbercaps )
+	    uiPresManagedParentTreeItem::objVanishedCB, cbercaps )
     PtrMan<OD::ObjPresentationInfo> prinfo =
 			OD::PRIFac().create( objprinfopar );
     if ( !prinfo )
@@ -124,7 +133,7 @@ void uiODPrManagedParentTreeItem::objVanishedCB( CallBacker* cber )
 }
 
 
-void uiODPrManagedParentTreeItem::objShownCB( CallBacker* cber )
+void uiPresManagedParentTreeItem::objShownCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
@@ -134,7 +143,7 @@ void uiODPrManagedParentTreeItem::objShownCB( CallBacker* cber )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiODPrManagedParentTreeItem::objShownCB, cbercaps )
+	    uiPresManagedParentTreeItem::objShownCB, cbercaps )
     PtrMan<OD::ObjPresentationInfo> prinfo =
 			OD::PRIFac().create( objprinfopar );
     if ( !prinfo )
@@ -144,7 +153,7 @@ void uiODPrManagedParentTreeItem::objShownCB( CallBacker* cber )
 }
 
 
-void uiODPrManagedParentTreeItem::objHiddenCB( CallBacker* cber )
+void uiPresManagedParentTreeItem::objHiddenCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
@@ -154,7 +163,7 @@ void uiODPrManagedParentTreeItem::objHiddenCB( CallBacker* cber )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiODPrManagedParentTreeItem::objHiddenCB, cbercaps )
+	    uiPresManagedParentTreeItem::objHiddenCB, cbercaps )
     PtrMan<OD::ObjPresentationInfo> prinfo =
 			OD::PRIFac().create( objprinfopar );
     if ( !prinfo )
@@ -164,7 +173,7 @@ void uiODPrManagedParentTreeItem::objHiddenCB( CallBacker* cber )
 }
 
 
-void uiODPrManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
+void uiPresManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
@@ -174,7 +183,7 @@ void uiODPrManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiODPrManagedParentTreeItem::objHiddenCB, cbercaps )
+	    uiPresManagedParentTreeItem::objHiddenCB, cbercaps )
     PtrMan<OD::ObjPresentationInfo> prinfo =
 			OD::PRIFac().create( objprinfopar );
     if ( !prinfo )
@@ -183,12 +192,12 @@ void uiODPrManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
 }
 
 
-void uiODPrManagedParentTreeItem::emitChildPRRequest(
+void uiPresManagedParentTreeItem::emitChildPRRequest(
 	const OD::ObjPresentationInfo& prinfo, OD::PresentationRequestType req )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODPrManagedTreeItem*,childitem,
+	mDynamicCastGet(uiPresManagedTreeItem*,childitem,
 			getChild(idx))
 	if ( !childitem )
 	    continue;
@@ -202,12 +211,12 @@ void uiODPrManagedParentTreeItem::emitChildPRRequest(
 }
 
 
-void uiODPrManagedParentTreeItem::showHideChildren(
+void uiPresManagedParentTreeItem::showHideChildren(
 	const OD::ObjPresentationInfo& prinfo, bool show )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODPrManagedTreeItem*,childitem,getChild(idx))
+	mDynamicCastGet(uiPresManagedTreeItem*,childitem,getChild(idx))
 	if ( !childitem )
 	    continue;
 
@@ -221,12 +230,12 @@ void uiODPrManagedParentTreeItem::showHideChildren(
 }
 
 
-void uiODPrManagedParentTreeItem::removeChildren(
+void uiPresManagedParentTreeItem::removeChildren(
 	const OD::ObjPresentationInfo& prinfo )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODPrManagedTreeItem*,childitem,getChild(idx))
+	mDynamicCastGet(uiPresManagedTreeItem*,childitem,getChild(idx))
 	if ( !childitem )
 	    continue;
 
@@ -239,12 +248,12 @@ void uiODPrManagedParentTreeItem::removeChildren(
 }
 
 
-void uiODPrManagedParentTreeItem::getLoadedChildren(
+void uiPresManagedParentTreeItem::getLoadedChildren(
 	OD::ObjPresentationInfoSet& prinfos ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(const uiODPrManagedTreeItem*,childitem,getChild(idx))
+	mDynamicCastGet(const uiPresManagedTreeItem*,childitem,getChild(idx))
 	if ( !childitem )
 	    continue;
 
@@ -253,7 +262,7 @@ void uiODPrManagedParentTreeItem::getLoadedChildren(
 }
 
 
-bool uiODPrManagedParentTreeItem::selectChild(
+bool uiPresManagedParentTreeItem::selectChild(
 	const OD::ObjPresentationInfo& prinfo )
 {
     OD::ObjPresentationInfoSet objsloaded;
@@ -263,7 +272,7 @@ bool uiODPrManagedParentTreeItem::selectChild(
 
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODPrManagedTreeItem*,childitem,getChild(idx))
+	mDynamicCastGet(uiPresManagedTreeItem*,childitem,getChild(idx))
 	if ( !childitem )
 	    continue;
 
@@ -279,7 +288,7 @@ bool uiODPrManagedParentTreeItem::selectChild(
 }
 
 
-void uiODPrManagedParentTreeItem::addChildren(
+void uiPresManagedParentTreeItem::addChildren(
     const OD::ObjPresentationInfoSet& prinfos )
 {
     OD::ObjPresentationInfoSet prinfostobeloaded, prinfosloaded;

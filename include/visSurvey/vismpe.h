@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
+#include "coltabmappersetup.h"
 
 namespace Attrib { class SelSpec; }
 template <class T> class Selector;
@@ -29,7 +30,7 @@ namespace visBase
     class Transformation;
 };
 
-namespace ColTab { class MapperSetup; class Sequence; }
+namespace ColTab { class Sequence; }
 namespace MPE { class Engine; };
 class TaskRunner;
 
@@ -41,12 +42,12 @@ namespace visSurvey
 
 */
 
-mExpClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl, 
+mExpClass(visSurvey) MPEDisplay : public visBase::VisualObjectImpl,
 		    public visSurvey::SurveyObject
 {
 public:
 		    MPEDisplay();
-		    mDefaultFactoryInstantiation( 
+		    mDefaultFactoryInstantiation(
 			visSurvey::SurveyObject,MPEDisplay,
 			     "MPEDisplay", ::toUiString(sFactoryKeyword()));
 
@@ -55,27 +56,27 @@ public:
 
     void            showBoxDragger(bool);
     bool            isBoxDraggerShown() const;
-    
+
     void            showDragger(bool yn);
     bool            isDraggerShown() const;
 
     void	    enablePicking(bool);
     bool	    isPickingEnabled() const;
-    
+
     void            setDraggerTransparency(float);
     float           getDraggerTransparency() const;
-    
+
     void            setPlaneOrientation(int orient);
     int		    getPlaneOrientation() const;
 
     bool	    getPlanePosition(TrcKeyZSampling&) const;
-    void            moveMPEPlane(int nrsteps);    
+    void            moveMPEPlane(int nrsteps);
 
     void            updateBoxSpace();
     void            freezeBoxPosition(bool yn);
 
     TrcKeyZSampling	getTrcKeyZSampling(int attrib=-1) const;
-   
+
     void            setSelSpec(int,const Attrib::SelSpec&);
     const char*		getSelSpecUserRef() const;
                     /*!<\returns the userRef, "None" if
@@ -84,28 +85,29 @@ public:
     const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
 
-    const ColTab::MapperSetup*  getColTabMapperSetup(int, int version=0) const;
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int,
+					int version=0) const;
     void            setColTabMapperSetup(int,
-                    const ColTab::MapperSetup&,TaskRunner*);
-    
+					const ColTab::MapperSetup&,TaskRunner*);
+
     const ColTab::Sequence*    getColTabSequence(int) const;
     bool            canSetColTabSequence() const;
     void            setColTabSequence(int,const ColTab::Sequence&,
 	                              TaskRunner*);
 
-    const MouseCursor*	 getMouseCursor() const { return &mousecursor_; }
+    const MouseCursor* getMouseCursor() const { return &mousecursor_; }
 
     void	    getMousePosInfo( const visBase::EventInfo& ei,
 				     IOPar& iop ) const
 		    { return SurveyObject::getMousePosInfo(ei,iop);}
-    void            getMousePosInfo(const visBase::EventInfo&, Coord3&, 
+    void            getMousePosInfo(const visBase::EventInfo&, Coord3&,
 	                          BufferString& val, BufferString& info) const;
     void	    getObjectInfo(BufferString&) const;
 
     void            updateSeedOnlyPropagation(bool);
     void            updateMPEActiveVolume();
     void            removeSelectionInPolygon(const Selector<Coord3>&,
-	    				     TaskRunner*);
+					     TaskRunner*);
 
     virtual float	calcDist(const Coord3&) const;
     virtual float       maxDist() const;
@@ -114,35 +116,35 @@ public:
     virtual bool	usePar( const IOPar&);
 
     NotifierAccess*	getMovementNotifier();
-    
+
     Notifier<MPEDisplay>	boxDraggerStatusChange;
     Notifier<MPEDisplay>	planeOrientationChange;
-	
+
     // methods for volume-based display
     int			addSlice(int dim, bool show);
-    visBase::OrthogonalSlice*	getSlice(int index);
+    visBase::OrthogonalSlice* getSlice(int index);
     void		updateSlice();
     float		slicePosition(visBase::OrthogonalSlice*) const;
-    float		getValue(const Coord3&) const;   
-	
+    float		getValue(const Coord3&) const;
+
     void		removeChild(int displayid);
     void		getChildren(TypeSet<int>&) const;
-	
+
     bool		setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
 
     void		setRightHandSystem(bool yn);
-   
+
     bool		setDataVolume(int attrib,const RegularSeisDataPack*,
 				      TaskRunner*);
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
-    
+
     const RegularSeisDataPack*	getCacheVolume(int attrib) const;
     bool		setDataPackID(int attrib,DataPack::ID,TaskRunner*);
     DataPack::ID	getDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
                                 { return DataPackMgr::SeisID(); }
-    
+
     virtual bool        allowsPicks() const;
     void		allowShading(bool yn );
     bool		hasPosModeManipulator() const		{ return true; }
@@ -157,7 +159,7 @@ public:
     static int		cInLine()	{ return 0; }
     static int		cCrossLine()	{ return 1; }
     static int		cTimeSlice()	{ return 2; }
-   
+
     // texture channel-related methods
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
@@ -174,15 +176,15 @@ public:
 
     void		setDisplayTransformation(const mVisTrans*);
 
-    
+
 protected:
-    			~MPEDisplay();
+			~MPEDisplay();
     TrcKeyZSampling	getBoxPosition() const;
     void		setPlanePosition(const TrcKeyZSampling&);
 
     void		setSliceDimension(int slice,int dim);
     void		alignSliceToSurvey(visBase::OrthogonalSlice&);
-	
+
     void		setSceneEventCatcher(visBase::EventCatcher*);
 
     // callback from boxdragger
@@ -193,8 +195,8 @@ protected:
 
     // methods for volume-based display
     TrcKeyZSampling	getTrcKeyZSampling(bool manippos,bool display,
-	    		    		int attrib) const;
-    
+					int attrib) const;
+
     void		triggerSel();
     void		triggerDeSel();
 
@@ -202,26 +204,26 @@ protected:
     bool		rightClickable() const	{ return false; }
     bool		selectable() const	{ return false; }  // check!
     bool		isSelected() const;
-   
+
     void		turnOnSlice(bool);
     void		updateRanges(bool updateic,bool updatez);
-   
+
     // callback from user
     void		mouseClickCB(CallBacker*);
     void		updateMouseCursorCB(CallBacker*);
-    
+
     // other callbacks
     void		dataTransformCB(CallBacker*);
     void		sliceMoving(CallBacker*);
-    
+
     // texture channel-related methods
     bool		updateFromCacheID(int attrib, TaskRunner* tskr);
 
     MPE::Engine&		engine_;
     visBase::BoxDragger*	boxdragger_;
-    visBase::EventCatcher*	sceneeventcatcher_;    
+    visBase::EventCatcher*	sceneeventcatcher_;
     MouseCursor			mousecursor_;
-    Notifier<MPEDisplay>	movement;    
+    Notifier<MPEDisplay>	movement;
     TypeSet<Attrib::SelSpec>&	as_;
     bool			manipulated_;
     int				lasteventnr_;
@@ -241,7 +243,7 @@ protected:
     bool			allowshading_;
     int				dim_;
     ZAxisTransform*		datatransform_;
-   
+
     // texture channel-related data
     visBase::TextureChannels*	channels_;
 

@@ -36,7 +36,6 @@ uiODVW2DWiggleVarAreaTreeItem::uiODVW2DWiggleVarAreaTreeItem()
     : uiODVw2DTreeItem( tr("Wiggle") )
     , dummyview_(0)
     , menu_(0)
-    , attrlayer_(0)
     , selattrmnuitem_(uiStrings::sSelAttrib())
 {}
 
@@ -71,16 +70,11 @@ const char* uiODVW2DWiggleVarAreaTreeItem::iconName() const
 void uiODVW2DWiggleVarAreaTreeItem::setAttribProbeLayer(
 		AttribProbeLayer* attrlayer )
 {
-    if ( attrlayer_ == attrlayer )
-	return;
-
-    if ( attrlayer_ )
-	mDetachCB( attrlayer_->objectChanged(),
-		   uiODVW2DWiggleVarAreaTreeItem::attrLayerChangedCB );
-
-    attrlayer_ = attrlayer;
-    mAttachCB( attrlayer_->objectChanged(),
+    Monitorable::ChangeType ct = replaceMonitoredRef(attrlayer_,attrlayer,this);
+    mAttachCBIfNotAttached( attrlayer_->objectChanged(),
 	       uiODVW2DWiggleVarAreaTreeItem::attrLayerChangedCB );
+    if ( ct )
+	attrLayerChangedCB( 0 );
 }
 
 
@@ -94,7 +88,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
     {
 	mDynamicCastGet(AttribProbeLayer*,attrlayer,
 			vwr2dprobe.getLayerByIdx(idx))
-	if ( attrlayer && attrlayer->getDispType()==AttribProbeLayer::Wiggle )
+	if ( attrlayer && attrlayer->dispType()==AttribProbeLayer::Wiggle )
 	{
 	    setAttribProbeLayer( attrlayer );
 	    break;

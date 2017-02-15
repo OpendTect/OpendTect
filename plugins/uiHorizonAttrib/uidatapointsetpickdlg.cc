@@ -285,7 +285,7 @@ void uiDataPointSetPickDlg::setChgCB( CallBacker* cb )
     while ( values_.size() < ps->size() )
 	values_ += mUdf(float);
 
-    if ( chgdata.changeType() == Monitorable::cEntireObjectChangeType() )
+    if ( chgdata.changeType() == Monitorable::cEntireObjectChange() )
     {
 	while ( values_.size() > ps->size() )
 	    values_.removeSingle( values_.size()-1 );

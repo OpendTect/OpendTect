@@ -39,7 +39,7 @@ protected:
 					      Probe&);
 
     void		updateDisplay();
-
+    void		handleObjChanged(const ChangeData&);
 
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
@@ -50,7 +50,6 @@ protected:
 
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);
-    void		objChangedCB(CallBacker*);
     void		keyUnReDoPressedCB(CallBacker*);
     void		selectRGBA();
 
@@ -97,8 +96,8 @@ mExpClass(uiODMain) uiODInlineParentTreeItem
     bool			canAddFromWell() const	{ return true; }
     Probe*			createNewProbe() const;
     virtual bool		setPosToBeAddedFromWell(const Well::Data&);
-    const char* 		childObjTypeKey() const;
-    uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    const char*		childObjTypeKey() const;
+    uiPresManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
 protected:
     virtual bool		setDefaultPosToBeAdded();
 };
@@ -141,8 +140,8 @@ mExpClass(uiODMain) uiODCrosslineParentTreeItem
     mMenuOnAnyButton;
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
-    const char* 		childObjTypeKey() const;
-    uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    const char*		childObjTypeKey() const;
+    uiPresManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
     Probe*			createNewProbe() const;
     virtual bool		setPosToBeAddedFromWell(const Well::Data&);
 protected:
@@ -188,8 +187,8 @@ mExpClass(uiODMain) uiODZsliceParentTreeItem
     mMenuOnAnyButton;
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
-    const char* 		childObjTypeKey() const;
-    uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    const char*			childObjTypeKey() const;
+    uiPresManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
     Probe*			createNewProbe() const;
     virtual bool		setPosToBeAddedFromWell(const Well::Data&)
 				{ return false; }

@@ -701,7 +701,7 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
     NotifyStopper nsic( itemChosen );
     mListBoxBlockCmdRec;
     lb_->body().setCurrentRow( itmidx );
-    nsic.restore();
+    nsic.enableNotification();
 
     itemChosen.trigger( itmidx );
     updateCheckState();

@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "vissurvscene.h"
 #include "factory.h"
+#include "coltabmappersetup.h"
 
 
 class DataPointSet;
@@ -31,9 +32,7 @@ class RegularSeisDataPack;
 class SeisTrcBuf;
 class ZAxisTransform;
 class TaskRunner;
-
-namespace ColTab  { class MapperSetup; class Sequence; }
-
+namespace ColTab  { class Sequence; }
 namespace visBase
 {
     class Transformation;
@@ -41,9 +40,9 @@ namespace visBase
     class TextureChannels;
     class TextureChannel2RGBA;
 };
-
 namespace Attrib  { class SelSpec; }
 namespace Survey  { class Geometry3D; }
+
 
 namespace visSurvey
 {
@@ -146,11 +145,11 @@ public:
 				    regard to the color of the linestyle. */
 
     virtual void		setMarkerStyle(const OD::MarkerStyle3D&){};
-    virtual const OD::MarkerStyle3D*	
+    virtual const OD::MarkerStyle3D*
 				markerStyle() const { return 0; }
 				/*!<If the marker style can be set, a non-zero
 				    pointer should be return. */
-    virtual bool		markerStyleColorSelection() const 
+    virtual bool		markerStyleColorSelection() const
 							    { return true; }
     virtual void		setOnlyAtSectionsDisplay(bool)		{}
     virtual bool		displayedOnlyAtSections() const { return false;}
@@ -204,16 +203,16 @@ public:
     virtual bool		swapAttribs(int a0,int a1) { return false; }
     virtual void		setAttribTransparency(int,unsigned char) {}
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
-    virtual const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
+    virtual ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int attrib,
 							   int version=0) const;
     void			getChannelName(int,uiString&) const;
 				//!<\returns "Layer 0", or "Red", "Green" ...
     virtual void		setColTabMapperSetup(int,
-				     const ColTab::MapperSetup&,TaskRunner*);
+				    const ColTab::MapperSetup&,TaskRunner* t=0);
     virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }
     virtual bool		canSetColTabSequence() const	{ return false;}
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
-						  TaskRunner*);
+						  TaskRunner* t=0);
     virtual bool		canHandleColTabSeqTrans(int) const;
 
     virtual void		enableTextureInterpolation(bool)	{}
@@ -229,8 +228,7 @@ public:
     bool			isAnyAttribEnabled() const;
     virtual bool		hasSingleColorFallback() const { return false; }
     virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
-
-    virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
+    virtual const TypeSet<float>* getHistogram(int) const	{ return 0; }
 
     virtual bool		canRemoveSelection() const	{ return false;}
     virtual bool		removeSelections(TaskRunner*)	{ return false;}

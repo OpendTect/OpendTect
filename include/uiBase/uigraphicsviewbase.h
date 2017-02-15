@@ -33,6 +33,7 @@ public:
     void			setScene(uiGraphicsScene&);
 				//!<Scene becomes mine
     uiGraphicsScene&		scene();
+    const uiGraphicsScene&	scene() const;
     void			show();
     enum ODDragMode		{ NoDrag, ScrollHandDrag, RubberBandDrag };
     enum ScrollBarPolicy	{ ScrollBarAsNeeded, ScrollBarAlwaysOff,

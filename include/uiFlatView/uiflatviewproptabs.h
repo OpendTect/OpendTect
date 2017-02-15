@@ -21,12 +21,11 @@ class uiComboBox;
 class uiCheckBox;
 class uiColorInput;
 class uiSelLineStyle;
-class uiColorTableGroup;
 class uiSelLineStyle;
+class uiColSeqSel;
+class uiColSeqUseMode;
 
-/*!
-\brief uiFlatViewer properties tabs.
-*/
+/*!\brief uiFlatViewer properties tabs. */
 
 mExpClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
 { mODTextTranslationClass(uiFlatViewPropTab);
@@ -45,9 +44,7 @@ protected:
 };
 
 
-/*!
-\brief uiFlatViewer data display properties tabs.
-*/
+/*!\brief uiFlatViewer data display properties tabs.  */
 
 mExpClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 { mODTextTranslationClass(uiFlatViewDataDispPropTab);
@@ -90,9 +87,7 @@ protected:
 };
 
 
-/*!
-\brief uiFlatViewer WVA display properties tabs.
-*/
+/*!\brief uiFlatViewer WVA display properties tabs. */
 
 mExpClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 { mODTextTranslationClass(uiFVWVAPropTab);
@@ -125,9 +120,7 @@ protected:
 };
 
 
-/*!
-\brief uiFlatViewer VD display properties tabs.
-*/
+/*!\brief uiFlatViewer VD display properties tabs. */
 
 mExpClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
 { mODTextTranslationClass(uiFVVDPropTab);
@@ -142,12 +135,11 @@ public:
 protected:
 
     FlatView::DataDispPars::VD&		pars_;
-    ColTab::Sequence			ctab_;
     virtual FlatView::DataDispPars::Common& commonPars() { return pars_; }
     virtual BufferString		dataName() const;
 
-    uiColorTableGroup*	uicoltab_;
-    uiLabel*		uicoltablbl_;
+    uiColSeqSel*	colseqsel_;
+    uiColSeqUseMode*	colsequsemodesel_;
 
     virtual void	handleFieldDisplay(bool);
     void		dispSel(CallBacker*);
@@ -155,9 +147,7 @@ protected:
 };
 
 
-/*!
-\brief uiFlatViewer annotation properties tabs.
-*/
+/*!\brief uiFlatViewer annotation properties tabs. */
 
 mExpClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
 { mODTextTranslationClass(uiFVAnnotPropTab);

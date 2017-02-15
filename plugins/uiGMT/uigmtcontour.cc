@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicolor.h"
-#include "uicolortable.h"
+#include "uicolseqsel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -94,11 +94,12 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     fillfld_->attach( alignedBelow, nrcontourfld_ );
     linefld_->attach( leftOf, fillfld_ );
 
-    colseqfld_ = new uiColorTableSel( this, "Color table" );
+    colseqfld_ = new uiColSeqSel( this, OD::Horizontal,
+				    uiStrings::sColorTable() );
     colseqfld_->attach( rightOf, fillfld_ );
 
-    flipfld_ = new uiCheckBox( this, uiStrings::sFlip() );
-    flipfld_->attach( rightOf, colseqfld_ );
+    sequsefld_ = new uiColSeqUseMode( this );
+    sequsefld_->attach( rightOf, colseqfld_ );
 
     lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), tr("Line Style") );
     lsfld_->attach( alignedBelow, fillfld_ );
@@ -135,9 +136,7 @@ void uiGMTContourGrp::drawSel( CallBacker* )
     lsfld_->setSensitive( linefld_->isChecked() );
     const bool dofill = fillfld_->isChecked();
     colseqfld_->setSensitive( dofill );
-    flipfld_->setSensitive( dofill );
-    if ( !dofill )
-	flipfld_->setChecked( false );
+    sequsefld_->setSensitive( dofill );
 }
 
 
@@ -375,8 +374,9 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
     }
 
     par.setYN( ODGMT::sKeyFill(), dofill );
-    par.set( ODGMT::sKeyColSeq(), colseqfld_->text() );
-    par.setYN( ODGMT::sKeyFlipColTab(), flipfld_->isChecked() );
+    par.set( ODGMT::sKeyColSeq(), colseqfld_->seqName() );
+    const ColTab::SeqUseMode usemode = sequsefld_->mode();
+    ColTab::toPar( usemode, par );
 
     return true;
 }
@@ -412,10 +412,10 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     fillfld_->setChecked( dofill );
     if ( dofill )
     {
-	colseqfld_->setCurrentItem( par.find(ODGMT::sKeyColSeq()) );
-	bool doflip = false;
-	par.getYN( ODGMT::sKeyFlipColTab(), doflip );
-	flipfld_->setChecked( doflip );
+	colseqfld_->setSeqName( par.find(ODGMT::sKeyColSeq()) );
+	ColTab::SeqUseMode usemode = ColTab::UnflippedSingle;
+	ColTab::fromPar( par, usemode );
+	sequsefld_->setMode( usemode );
     }
 
     drawSel( 0 );

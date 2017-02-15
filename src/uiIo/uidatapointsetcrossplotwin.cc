@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uidatapointsetcrossplotwin.h"
 
 #include "uicolor.h"
-#include "uicolortable.h"
+#include "uicoltabsel.h"
 #include "uicombobox.h"
 #include "uicreatedpspdf.h"
 #include "uidatapointsetcrossplot.h"
@@ -53,7 +53,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , maniptb_(*new uiToolBar(this,uiStrings::phrCrossPlot(
 	  uiStrings::phrJoinStrings(tr("Manipulation"), uiStrings::sToolbar())),
 	  uiToolBar::Left))
-    , colortb_(*new uiColorTableToolBar(this,ColTab::Sequence("Rainbow"),true))
+    , colortb_(*new uiColTabToolBar(this))
     , grpfld_(0)
     , refineseldlg_(0)
     , propdlg_(0)
@@ -61,6 +61,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , multicolcodtbid_(-1)
     , wantnormalplot_(false)
 {
+    colortb_.selTool().setNonSeisDefault();
     windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
 
     Settings& setts = Settings::common();
@@ -96,15 +97,14 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 		  mCB(this,uiDataPointSetCrossPlotWin,showY2), true );
     disptb_.turnOn( showy2tbid_, false );
 
-    colortb_.enableManage( false );
     colortb_.display( false );
-    colortb_.seqChanged.notify(
+    colortb_.selTool().seqChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
-    colortb_.scaleChanged.notify(
+    colortb_.selTool().mapperSetup()->objectChanged().notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
 
-    plotter_.setColTab( colortb_.colTabSeq() );
-    plotter_.setCTMapper( colortb_.colTabMapperSetup() );
+    plotter_.setColTab( *colortb_.selTool().sequence() );
+    plotter_.setCTMapper( *colortb_.selTool().mapperSetup() );
     plotter_.initDraw();
     plotter_.drawContent();
 
@@ -267,16 +267,16 @@ void uiDataPointSetCrossPlotWin::drawTypeChangedCB( CallBacker* cb )
 void uiDataPointSetCrossPlotWin::coltabRgChangedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( Interval<float>, range , cb );
-    colortb_.setInterval( range );
+    colortb_.selTool().setRange( range );
 }
 
 
 void uiDataPointSetCrossPlotWin::colTabChanged( CallBacker* )
 {
-    plotter_.setColTab( colortb_.colTabSeq() );
-    ColTab::MapperSetup mapsetup = colortb_.colTabMapperSetup();
-    mapsetup.maxpts_ = 20000;
-    plotter_.setCTMapper( colortb_.colTabMapperSetup() );
+    plotter_.setColTab( *colortb_.selTool().sequence() );
+    RefMan<ColTab::MapperSetup> mapsetup
+		    = colortb_.selTool().mapperSetup()->clone();
+    plotter_.setCTMapper( *mapsetup );
     plotter_.drawContent();
     plotter_.reDrawSelections();
 }
@@ -644,12 +644,12 @@ void uiDataPointSetCrossPlotWin::setGrpColors()
 	    ? coly1 : plotter_.isMultiColMode()
 	    ? plotter_.y2grpColors()[idx]
 	    : plotter_.axisData(2).axis_->setup().style_.color_;
-	ColTab::Sequence ctseq;
-	ctseq.setColor( 0, coly1.r(), coly1.g(), coly1.b() );
-	ctseq.setColor( 1, coly2.r(), coly2.g(), coly2.b() );
-	ctseq.setNrSegments( 2 );
+	RefMan<ColTab::Sequence> ctseq = new ColTab::Sequence;
+	ctseq->setColor( 0, coly1.r(), coly1.g(), coly1.b() );
+	ctseq->setColor( 1, coly2.r(), coly2.g(), coly2.b() );
+	ctseq->setNrSegments( 2 );
 	uiPixmap pixmap( 20, 20 );
-	pixmap.fill( ctseq, true );
+	pixmap.fill( *ctseq, true );
 	if ( grpfld_ )
 	    grpfld_->setPixmap( idx+1, pixmap );
     }

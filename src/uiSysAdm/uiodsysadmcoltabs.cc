@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uiodsysadmcoltabs.h"
 
 #include "uibutton.h"
-#include "uicoltabimport.h"
+#include "uicolseqimport.h"
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -31,12 +31,12 @@ uiODSysAdmColorTabs::uiODSysAdmColorTabs( uiParent* p )
 {
     listfld = new uiListBox( this, "Color tables" );
     fillList( true );
-    
+
     uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(), false );
     addbut->activated.notify( mCB(this,uiODSysAdmColorTabs,addPush) );
     addbut->attach( alignedBelow, listfld );
 
-    uiPushButton* rmbut = new uiPushButton( this, uiStrings::sRemove(),	
+    uiPushButton* rmbut = new uiPushButton( this, uiStrings::sRemove(),
                                             true );
     rmbut->activated.notify( mCB(this,uiODSysAdmColorTabs,rmPush) );
     rmbut->attach( rightOf, addbut );
@@ -52,7 +52,7 @@ void uiODSysAdmColorTabs::fillList( bool setcur )
 {
     listfld->setEmpty();
     BufferStringSet seqnames;
-    ColTab::SM().getSequenceNames( seqnames );
+    ColTab::SeqMGR().getSequenceNames( seqnames );
     seqnames.sort();
     listfld->addItems( seqnames.getUiStringSet() );
 
@@ -64,7 +64,7 @@ void uiODSysAdmColorTabs::fillList( bool setcur )
 void uiODSysAdmColorTabs::addPush( CallBacker* )
 {
     const int sz = listfld->size();
-    uiColTabImport dlg( this );
+    uiColSeqImport dlg( this );
     if ( dlg.go() )
 	rebuildList( sz );
 }
@@ -74,7 +74,7 @@ void uiODSysAdmColorTabs::rmPush( CallBacker* )
 {
     const int curidx = listfld->currentItem();
     if ( curidx < 0 ) return;
-    ColTab::SM().remove( curidx );
+    ColTab::SeqMGR4Edit().removeByName( listfld->itemText(curidx) );
     rebuildList( curidx );
 }
 
@@ -83,8 +83,8 @@ void uiODSysAdmColorTabs::rebuildList( int curidx )
 {
     fillList( false );
 
-    if ( curidx >= ColTab::SM().size() )
-	curidx = ColTab::SM().size() -1;
+    if ( curidx >= ColTab::SeqMGR().size() )
+	curidx = ColTab::SeqMGR().size() -1;
     if ( curidx >= 0 )
 	listfld->setCurrentItem( curidx );
 }
@@ -92,11 +92,9 @@ void uiODSysAdmColorTabs::rebuildList( int curidx )
 
 bool uiODSysAdmColorTabs::acceptOK()
 {
-    if ( !ColTab::SM().write(true) )
-    {
-	uiMSG().error( tr("Cannot write new color table defs to file") );
-	return false;
-    }
+    uiRetVal uirv = ColTab::SeqMGR().write(true);
+    if ( uirv.isError() )
+	{ uiMSG().error( uirv ); return false; }
 
     return true;
 }

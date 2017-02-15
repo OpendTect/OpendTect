@@ -65,15 +65,11 @@ bool testNormalOp()
     notifier.notifier.trigger();
     mRunStandardTest( notified.nrhits_==3, "Normal callback" );
 
-    mRunStandardTest( notifier.notifier.disable(),
-		     "Return value of disable call" );
-    mRunStandardTest( !notifier.notifier.disable(),
-		     "Return value of disable call on disabled notifier" );
+    notifier.notifier.disable();
     notifier.notifier.trigger();
     mRunStandardTest( notified.nrhits_==3 , "Trigger disabled notifier" );
 
-    mRunStandardTest( !notifier.notifier.enable(),
-		      "Return value of enable call on disabled notifier" );
+    notifier.notifier.enable();
 
     NotifyStopper* stopper = new NotifyStopper( notifier.notifier );
     notifier.notifier.trigger();
@@ -96,6 +92,10 @@ bool testNormalOp()
     notifier.notifier.trigger();
     mRunStandardTest( notified.nrhits_==5,
 		     "Removed notify-stopper on disabled notifier" );
+
+    notifier.notifier.enable();
+    mRunStandardTest( notifier.notifier.isEnabled(),
+		     "No longer disabled notifier" );
 
     return true;
 }

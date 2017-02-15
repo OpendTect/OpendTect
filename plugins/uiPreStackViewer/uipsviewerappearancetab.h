@@ -13,10 +13,10 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "samplingdata.h"
 
-class uiColorTableGroup;
 class uiLabel;
 class uiButton;
 class uiGenInput;
+class uiColTabSel;
 namespace visBase { class FlatViewer; };
 namespace visSurvey { class PreStackDisplay; }
 
@@ -51,23 +51,23 @@ protected:
 					   uiGenInput* rgfld,
 					   uiLabel* lblfld,bool x1);
 
-    uiColorTableGroup*	uicoltab_;
-    uiLabel*	uicoltablbl_;
-    uiLabel*	zgridrangelbl_;
-    uiLabel*	offsgridrangelbl_;
-    uiGenInput*	zgridfld_;
-    uiGenInput*	zgridautofld_;
-    uiGenInput*	zgridrangefld_;
-    uiGenInput*	offsgridfld_;
-    uiGenInput*	offsgridautofld_;
-    uiGenInput*	offsgridrangefld_;
-    uiButton*			applybut_;
-    uiViewer3DMgr&		mgr_;
-    visBase::FlatViewer*	vwr_;
-    bool			applyall_;
-    bool			savedefault_;
-    SamplingData<float>		manuzsampl_;
-    SamplingData<float>		manuoffssampl_;
+    uiColTabSel*	coltabsel_;
+    uiLabel*		zgridrangelbl_;
+    uiLabel*		offsgridrangelbl_;
+    uiGenInput*		zgridfld_;
+    uiGenInput*		zgridautofld_;
+    uiGenInput*		zgridrangefld_;
+    uiGenInput*		offsgridfld_;
+    uiGenInput*		offsgridautofld_;
+    uiGenInput*		offsgridrangefld_;
+    uiButton*		applybut_;
+    uiViewer3DMgr&	mgr_;
+    visBase::FlatViewer* vwr_;
+    bool		applyall_;
+    bool		savedefault_;
+    SamplingData<float>	manuzsampl_;
+    SamplingData<float>	manuoffssampl_;
+
 };
 
 } // namespace

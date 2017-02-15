@@ -25,10 +25,11 @@ namespace ColTab { class Sequence; };
 mExpClass(uiODMain) uiODVW2DVariableDensityTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVW2DVariableDensityTreeItem);
 public:
-    				uiODVW2DVariableDensityTreeItem();
+
+				uiODVW2DVariableDensityTreeItem();
 				~uiODVW2DVariableDensityTreeItem();
 
-    bool                	select();
+    bool	select();
     bool                        showSubMenu();
     void			setAttribProbeLayer(AttribProbeLayer*);
 
@@ -42,14 +43,14 @@ protected:
 				{ return typeid(uiODVw2DTreeTop).name(); }
     bool			isSelectable() const            { return true; }
 
-    AttribProbeLayer*		attrlayer_;
+    RefMan<AttribProbeLayer>	attrlayer_;
     VW2DSeis*			dummyview_;
     uiMenuHandler*		menu_;
     MenuItem			selattrmnuitem_;
     bool			coltabinitialized_;
-   
+
     void			createSelMenu(MenuItem&);
-    bool    			handleSelMenu(int mnuid);
+    bool			handleSelMenu(int mnuid);
 
     void			checkCB(CallBacker*);
     void			colTabChgCB(CallBacker*);
@@ -58,6 +59,7 @@ protected:
     void			deSelectCB(CallBacker*);
     void			createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
+
 };
 
 
@@ -65,8 +67,10 @@ mExpClass(uiODMain) uiODVW2DVariableDensityTreeItemFactory
 				: public uiODVw2DTreeItemFactory
 {
 public:
+
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODVW2DVariableDensityTreeItem(); }
     uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+
 };

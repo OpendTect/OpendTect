@@ -421,7 +421,7 @@ void HorizonSection::configSizeParameters()
 	spacing_ += !res ? 1 : 2 * spacing_[res-1];
 	normalsidesize_ += tilesidesize_ / spacing_[res] + 1;
 	nrcells_ += ( normalsidesize_[res] - (res ? 1 : 0) ) *
-	    		( normalsidesize_[res] - (res ? 1 : 0) );
+			( normalsidesize_[res] - (res ? 1 : 0) );
 	normalstartidx_ += totalnormalsize_;
 	totalnormalsize_ += normalsidesize_[res] * normalsidesize_[res];
     }
@@ -430,7 +430,7 @@ void HorizonSection::configSizeParameters()
 
 
 void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
-       				 TaskRunner* tskr )
+				 TaskRunner* tskr )
 {
     if ( !surf ) return;
 
@@ -462,8 +462,8 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 	if ( tileptrs[idx] )
 	{
 	    writeLock();
-    	    removeChild( tileptrs[idx]->osgswitchnode_ );
-    	    delete tileptrs[idx];
+	    removeChild( tileptrs[idx]->osgswitchnode_ );
+	    delete tileptrs[idx];
 	    tileptrs[idx] = 0;
 	    writeUnLock();
 	}
@@ -637,8 +637,10 @@ void HorizonSection::setColTabSequence(int channel, const ColTab::Sequence& se)
 { hortexturehandler_->setColTabSequence( channel , se ); }
 
 
-const ColTab::Sequence* HorizonSection::getColTabSequence( int channel ) const
-{ return hortexturehandler_->getColTabSequence( channel ); }
+const ColTab::Sequence& HorizonSection::getColTabSequence( int channel ) const
+{
+    return hortexturehandler_->getColTabSequence( channel );
+}
 
 
 void HorizonSection::setColTabMapperSetup( int channel,
@@ -646,7 +648,8 @@ void HorizonSection::setColTabMapperSetup( int channel,
 { hortexturehandler_->setColTabMapperSetup( channel, mapper, tskr ); }
 
 
-const ColTab::MapperSetup* HorizonSection::getColTabMapperSetup( int ch ) const
+ConstRefMan<ColTab::MapperSetup> HorizonSection::getColTabMapperSetup(
+						int ch ) const
 { return hortexturehandler_->getColTabMapperSetup( ch ); }
 
 
@@ -782,8 +785,8 @@ int HorizonSection::getNrTitles() const
 
 bool HorizonSection::checkTileIndex( int tidx ) const
 {
-    return tiles_.getData() && 
-	   tidx<tiles_.info().getTotalSz() && 
+    return tiles_.getData() &&
+	   tidx<tiles_.info().getTotalSz() &&
 	   tiles_.getData()[tidx];
 }
 

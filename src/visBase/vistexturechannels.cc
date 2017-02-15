@@ -55,7 +55,7 @@ public:
 
     void			setColTabMapperSetup(
 						const ColTab::MapperSetup&);
-    const ColTab::MapperSetup&	getColTabMapperSetup(int version) const;
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int version) const;
     const ColTab::Mapper&	getColTabMapper(int version) const;
     bool			reMapData(bool dontreclip,TaskRunner*);
     const TypeSet<float>&	getHistogram() const	{ return histogram_; }
@@ -72,6 +72,7 @@ public:
 						bool skipclip);
     bool			setMappedData(int version,unsigned char*,
 					      OD::PtrPolicy);
+    void			mapperChgCB(CallBacker*);
 
     void			clipData(int version,TaskRunner*);
 				//!<If version==-1, all versions will be clipped
@@ -120,6 +121,7 @@ ChannelInfo::ChannelInfo( TextureChannels& nc )
 
 ChannelInfo::~ChannelInfo()
 {
+    detachAllNotifiers();
     setNrVersions( 0 );
 }
 
@@ -178,34 +180,19 @@ void ChannelInfo::setColTabMapperSetup( const ColTab::MapperSetup& setup )
     if ( !mappers_.size() )
 	{ pErrMsg("No mappers"); return; }
 
-    if ( mappers_[0]->setup_==setup )
-	return;
-
     for ( int idx=0; idx<mappers_.size(); idx++ )
-    {
-	const bool autoscalechange = mappers_[idx]->setup_.type_ != setup.type_;
-	mappers_[idx]->setup_ = setup;
-	if ( autoscalechange )
-	    mappers_[idx]->setup_.triggerAutoscaleChange();
-	else
-	    mappers_[idx]->setup_.triggerRangeChange();
-    }
-
+	mappers_[idx]->setSetup( setup );
 }
 
 
-const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int channel) const
+ConstRefMan<ColTab::MapperSetup> ChannelInfo::getColTabMapperSetup(
+						int channel ) const
 {
     if ( channel < mappers_.size() )
-	return mappers_[channel]->setup_;
+	return &mappers_[channel]->setup();
 
-	pErrMsg( "channel >= mappers_.size()" );
-	if ( mappers_.isEmpty() )
-	{
-	    mDefineStaticLocalObject( ColTab::MapperSetup, ctms, );
-	    return ctms;
-	}
-	return mappers_[mappers_.size()-1]->setup_;
+    pErrMsg( "channel >= mappers_.size()" );
+    return new ColTab::MapperSetup;
 }
 
 
@@ -217,22 +204,19 @@ void ChannelInfo::clipData( int version, TaskRunner* tskr )
     {
 	if ( version!=-1 && idx!=version )
 	    continue;
-
 	if ( !unmappeddata_[idx] )
 	    continue;
 
 	mappers_[idx]->setData( unmappeddata_[idx], nrelements, tskr );
-	mappers_[idx]->setup_.triggerRangeChange();
     }
 }
 
 
-bool ChannelInfo::reMapData(bool dontreclip,TaskRunner* tskr )
+bool ChannelInfo::reMapData( bool dontreclip, TaskRunner* tskr )
 {
     for ( int idx=nrVersions()-1; idx>=0; idx-- )
     {
-	if ( !dontreclip &&
-	    mappers_[idx]->setup_.type_!=ColTab::MapperSetup::Fixed )
+	if ( !dontreclip && !mappers_[idx]->setup().isFixed() )
 	    clipData( idx, tskr );
 
 	if ( !mapData( idx, tskr ) )
@@ -291,11 +275,13 @@ void ChannelInfo::setNrVersions( int nsz )
 	unmappeddata_.removeSingle( nsz );
 	ownsmappeddata_.removeSingle( nsz );
 	ownsunmappeddata_.removeSingle( nsz );
+	mDetachCB( mappers_[nsz]->setup().objectChanged(),
+		    ChannelInfo::mapperChgCB );
 	delete mappers_.removeSingle( nsz );
     }
 
     const ColTab::MapperSetup* templ = mappers_.size()
-	? &mappers_[0]->setup_
+	? &mappers_[0]->setup()
 	: 0;
 
     while ( mappeddata_.size()<nsz )
@@ -307,8 +293,26 @@ void ChannelInfo::setNrVersions( int nsz )
 
 	ColTab::Mapper* mapper = new ColTab::Mapper;
 	if ( templ )
-	    mapper->setup_ = *templ;
+	    mapper->setSetup( *templ );
+	mAttachCB( mapper->setup().objectChanged(), ChannelInfo::mapperChgCB );
 	mappers_ += mapper;
+    }
+}
+
+
+void ChannelInfo::mapperChgCB( CallBacker* cb )
+{
+    mGetMonitoredChgDataWithCaller( cb, chgdata, caller );
+
+    for ( int ich=0; ich<mappers_.size(); ich++ )
+    {
+	const ColTab::MapperSetup& msu = mappers_[ich]->setup();
+	if ( &msu == caller )
+	{
+	    NotifyStopper ns( msu.objectChanged(), this );
+	    reMapData( msu.isFixed(), 0 );
+	    break;
+	}
     }
 }
 
@@ -376,8 +380,7 @@ bool ChannelInfo::setUnMappedData( int version, const ValueSeries<float>* data,
 	ownsunmappeddata_[version] = true;
     }
 
-    if ( !skipclip &&
-	 mappers_[version]->setup_.type_!=ColTab::MapperSetup::Fixed )
+    if ( !skipclip && !mappers_[version]->setup().isFixed() )
 	clipData( version, tskr );
 
     return mapData( version, tskr );
@@ -425,8 +428,8 @@ bool ChannelInfo::mapData( int version, TaskRunner* tskr )
     if ( texturechannels_.nrUdfBands() )
 	mappedudfs = mappeddata_[version] + texturechannels_.nrDataBands();
 
-    ColTab::MapperTask< unsigned char>	maptask( *mappers_[version], nrelements,
-	    mNrColors, *unmappeddata_[version],
+    ColTab::MapperInfoCollector< unsigned char>	maptask( *mappers_[version],
+	    nrelements, mNrColors, *unmappeddata_[version],
 	    mappeddata_[version], spacing,
 	    mappedudfs, spacing );
 
@@ -790,7 +793,7 @@ void TextureChannels::setColTabMapperSetup( int channel,
 }
 
 
-void TextureChannels::reMapData( int channel, bool dontreclip, 
+void TextureChannels::reMapData( int channel, bool dontreclip,
 							    TaskRunner* tskr )
 {
     if ( channel<0 || channel>=channelinfo_.size() )
@@ -809,7 +812,7 @@ const TypeSet<float>* TextureChannels::getHistogram( int channel ) const
 }
 
 
-const ColTab::MapperSetup&
+ConstRefMan<ColTab::MapperSetup>
 TextureChannels::getColTabMapperSetup( int channel, int version ) const
 { return channelinfo_[channel]->getColTabMapperSetup( version ); }
 

@@ -618,6 +618,12 @@ uiGraphicsScene& uiGraphicsViewBase::scene()
 }
 
 
+const uiGraphicsScene& uiGraphicsViewBase::scene() const
+{
+    return *scene_;
+}
+
+
 uiRect uiGraphicsViewBase::getSceneRect() const
 {
     QRectF scenerect = body_->sceneRect();

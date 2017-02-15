@@ -34,7 +34,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem
 
     void		createMenu(MenuHandler*,bool istb);
     Probe*		createNewProbe() const;
-    uiODPrManagedTreeItem* addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem* addChildItem(const OD::ObjPresentationInfo&);
     const char*		childObjTypeKey() const;
     static const char*  sKeyRightClick();
     static const char*  sKeyUnselected();
@@ -87,11 +87,13 @@ public:
     void		removeAttrib(const char*);
 
 protected:
+
 			~uiOD2DLineTreeItem();
+
     bool		init();
     const char*		parentType() const;
-    void		objChangedCB(CallBacker*);
     void		updateDisplay();
+    void		handleObjChanged(const ChangeData&);
 
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "fontdata.h"
 #include "ranges.h"
 #include "scaler.h"
+#include "coltab.h"
 #include "visobject.h"
 
 namespace OD { class LineStyle; };
@@ -129,7 +130,7 @@ public:
 	Interval<float>		range_;
 	Interval<float>		valrange_;
 	bool			sclog_;
-	bool			iscoltabflipped_;
+	ColTab::SeqUseMode	sequsemode_;
 
 	int			filllogidx_;
 	BufferString		fillname_;

@@ -66,7 +66,7 @@ public:
     bool			canAddAttrib(int) const;
     bool			canRemoveAttrib() const;
     bool			canHandleColTabSeqTrans(int) const;
-    const ColTab::MapperSetup*	getColTabMapperSetup(int,int) const;
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int,int) const;
 
     void			setColTabMapperSetup(int,
 					const ColTab::MapperSetup&,TaskRunner*);

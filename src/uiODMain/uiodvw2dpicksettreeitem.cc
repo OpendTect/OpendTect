@@ -106,7 +106,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 }
 
 
-uiODPrManagedTreeItem* uiODVw2DPickSetParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODVw2DPickSetParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);

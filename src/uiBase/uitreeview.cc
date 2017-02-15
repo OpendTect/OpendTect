@@ -575,6 +575,13 @@ uiTreeViewItem* uiTreeView::selectedItem() const
 }
 
 
+const char* uiTreeView::text( int col ) const
+{
+    uiTreeViewItem* itm = selectedItem();
+    return itm ? itm->text( col ) : 0;
+}
+
+
 int uiTreeView::nrSelected() const
 { return body_->selectedItems().size(); }
 
@@ -629,21 +636,22 @@ int uiTreeView::nrItems() const
 { return body_->topLevelItemCount(); }
 
 
-uiTreeViewItem* uiTreeView::findItem( const char* text, int column,
+uiTreeViewItem* uiTreeView::findItem( const char* itmtxt, int column,
 				      bool casesensitive ) const
 {
     Qt::MatchFlags flags =
 	casesensitive ? Qt::MatchFixedString | Qt::MatchCaseSensitive
 		      : Qt::MatchFixedString;
     QList<QTreeWidgetItem*> items =
-	lvbody()->findItems( QString(text), flags, column );
+	lvbody()->findItems( QString(itmtxt), flags, column );
 
     if ( items.isEmpty() && !casesensitive )
     {
         uiTreeViewItem* nextitem = firstItem();
+	const FixedString cmpto( itmtxt );
 	while( nextitem )
 	{
-	    if ( !strcmp( nextitem->text( column ), text ) )
+	    if ( cmpto == nextitem->text( column ) )
 		return nextitem;
 
 	    nextitem = nextitem->itemBelow();
@@ -1122,7 +1130,7 @@ void uiTreeViewItem::setChecked( bool yn, bool trigger )
 
     mTreeViewBlockCmdRec;
     NotifyStopper ns( stateChanged );
-    if ( trigger ) ns.restore();
+    if ( trigger ) ns.enableNotification();
     qItem()->setCheckState( 0, yn ? Qt::Checked : Qt::Unchecked );
     checked_ = yn;
     stateChanged.trigger();

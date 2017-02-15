@@ -497,19 +497,23 @@ void uiMainWinBody::popTimTick( CallBacker* )
 void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 {
     if ( trigger_finalise_start_stop )
+    {
 	handle_.preFinalise().trigger( handle_ );
 
-    for ( int idx=0; idx<toolbars_.size(); idx++ )
-	toolbars_[idx]->preFinalise().trigger();
+	for ( int idx=0; idx<toolbars_.size(); idx++ )
+	    toolbars_[idx]->handleFinalise( true );
+    }
 
     centralwidget_->finalise();
     finaliseChildren();
 
     if ( trigger_finalise_start_stop )
+    {
 	handle_.postFinalise().trigger( handle_ );
 
-    for ( int idx=0; idx<toolbars_.size(); idx++ )
-	toolbars_[idx]->postFinalise().trigger();
+	for ( int idx=0; idx<toolbars_.size(); idx++ )
+	    toolbars_[idx]->handleFinalise( false );
+    }
 }
 
 

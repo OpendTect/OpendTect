@@ -539,7 +539,7 @@ void VolumeRenderScalarField::updateResizeCache( int attr, TaskRunner* tskr )
     }
 
     //TODO: if 8-bit data & some flags, use data itself
-    if ( attribs_[attr]->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+    if ( !attribs_[attr]->mapper_.setup().isFixed() )
 	clipData( attr, tskr );
 
     makeIndices( attr, tskr );
@@ -577,20 +577,12 @@ void VolumeRenderScalarField::setColTabMapperSetup( int attr,
 {
     mCheckAttribStore( attr );
 
-    if ( attribs_[attr]->mapper_.setup_ == ms )
+    if ( attribs_[attr]->mapper_.setup() == ms )
 	return;
 
-//    const bool autoscalechange =
-//	attribs_[attr]->mapper_.setup_.type_ != ms.type_;
+    attribs_[attr]->mapper_.setSetup( ms );
 
-    attribs_[attr]->mapper_.setup_ = ms;
-
-    /*if ( autoscalechange )
-	attribs_[attr]->mapper_.setup_.triggerAutoscaleChange();
-    else
-	attribs_[attr]->mapper_.setup_.triggerRangeChange();*/
-
-    if ( attribs_[attr]->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+    if ( !attribs_[attr]->mapper_.setup().isFixed() )
 	clipData( attr, tskr );
 
     makeIndices( attr, tskr );
@@ -611,9 +603,8 @@ void VolumeRenderScalarField::clipData( int attr, TaskRunner* tskr )
 	return;
 
     const od_int64 totalsz = getMultiAttribTrcKeyZSampling().totalNr();
-    attribs_[attr]->mapper_.setData( attribs_[attr]->resizecache_, totalsz, 
+    attribs_[attr]->mapper_.setData( attribs_[attr]->resizecache_, totalsz,
 									tskr );
-    attribs_[attr]->mapper_.setup_.triggerRangeChange();
 }
 
 
@@ -622,7 +613,7 @@ void VolumeRenderScalarField::makeColorTables( int attr )
     mCheckAttribStore( attr );
 
     const ColTab::Sequence* sequence =
-		getChannels2RGBA() ? getChannels2RGBA()->getSequence(attr) : 0;
+		getChannels2RGBA() ? &getChannels2RGBA()->getSequence(attr) : 0;
 
     if ( !sequence || isrgba_ )
 	return;
@@ -743,18 +734,16 @@ void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tskr )
     // transform in visSurvey::VolumeDisplay does the geometrical mirroring.
     const int idxstep = -attribs_[attr]->indexcachestep_;
     unsigned char* idxptr = attribs_[attr]->indexcache_ - (totalsz-1)*idxstep;
-//    const int idxstep = attribs_[attr]->indexcachestep_;
-//    unsigned char* idxptr = attribs_[attr]->indexcache_;
     unsigned char* udfptr = hasundefchannel ? idxptr+1 : 0;
-    ColTab::MapperTask<unsigned char> indexer( attribs_[attr]->mapper_,
+    ColTab::MapperInfoCollector<unsigned char> infcoll( attribs_[attr]->mapper_,
 			    totalsz, mNrColors-1, *attribs_[attr]->resizecache_,
 			    idxptr, idxstep, udfptr, idxstep );
 
-    if ( tskr ? !tskr->execute(indexer) : !indexer.execute() )
+    if ( tskr ? !tskr->execute(infcoll) : !infcoll.execute() )
 	return;
 
     int max = 0;
-    const unsigned int* histogram = indexer.getHistogram();
+    const unsigned int* histogram = infcoll.getHistogram();
     for ( int idx=mNrColors-2; idx>=0; idx-- )
     {
 	if ( histogram[idx]>max )

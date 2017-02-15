@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiattribpartserv.h"
 #include "uimain.h"
-#include "uicolortable.h"
+#include "uicoltabsel.h"
 #include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -317,6 +317,9 @@ bool uiODMain::ensureGoodSurveySetup()
 }
 
 
+extern void SetuiCOLTAB(uiColTabSelTool*);
+
+
 bool uiODMain::buildUI()
 {
     scenemgr_ = new uiODSceneMgr( this );
@@ -326,12 +329,13 @@ bool uiODMain::buildUI()
     menumgr_ = new uiODMenuMgr( this );
     menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 
-    uiColorTableToolBar* tb = new uiColorTableToolBar( this );
-    ctabtb_ = tb;
+    uiColTabToolBar* tb = new uiColTabToolBar( this );
+    tb->selTool().seqChanged.notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
+    tb->selTool().seqModified.notify( mCB(applmgr_,uiODApplMgr,colSeqModif) );
+    tb->selTool().mapperSetupChanged.notify( mCB(applmgr_,uiODApplMgr,
+					     colMapperChg) );
+    SetuiCOLTAB( &tb->selTool() );
     ctabed_ = new uiVisColTabEd( *tb );
-    ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
-    ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
-
     return true;
 }
 

@@ -606,7 +606,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    engine.setActivePath( clickcatcher_->info().getObjTKPath() );
 	    engine.setActiveRandomLineID(
 		    clickcatcher_->info().getObjRandomLineID() );
-	    notifystopper.restore();
+	    notifystopper.enableNotification();
 
 	    if ( clickedas )
 	    {
@@ -627,7 +627,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
     const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
     const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
-    const bool blockcallback = 
+    const bool blockcallback =
 	emobj->sectionGeometry(emobj->sectionID(0))->blocksCallBacks();
 
     if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
@@ -1038,7 +1038,7 @@ void uiMPEMan::lockAll()
 	    timer_->start( cLockWaitTime, true );
 	}
     }
- 
+
 }
 
 

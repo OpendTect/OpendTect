@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uicoltabsel.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 
@@ -39,9 +40,9 @@ uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
     , dummyview_(0)
     , menu_(0)
     , coltabinitialized_(false)
-    , attrlayer_(0)
     , selattrmnuitem_(uiStrings::sSelAttrib())
-{}
+{
+}
 
 
 uiODVW2DVariableDensityTreeItem::~uiODVW2DVariableDensityTreeItem()
@@ -69,7 +70,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
     {
 	mDynamicCastGet(AttribProbeLayer*,attrlayer,
 			vwr2dprobe.getLayerByIdx(idx))
-	if ( attrlayer && attrlayer->getDispType()==AttribProbeLayer::VD )
+	if ( attrlayer && attrlayer->dispType()==AttribProbeLayer::VD )
 	{
 	    setAttribProbeLayer( attrlayer );
 	    break;
@@ -98,8 +99,8 @@ bool uiODVW2DVariableDensityTreeItem::init()
 	if ( !vwr.control() )
 	    displayMiniCtab(0);
 
-	ColTab::Sequence seq( vwr.appearance().ddpars_.vd_.ctab_ );
-	displayMiniCtab( &seq );
+	displayMiniCtab( ColTab::SeqMGR().getAny(
+		    vwr.appearance().ddpars_.vd_.colseqname_) );
     }
 
     return uiODVw2DTreeItem::init();
@@ -109,16 +110,11 @@ bool uiODVW2DVariableDensityTreeItem::init()
 void uiODVW2DVariableDensityTreeItem::setAttribProbeLayer(
 		AttribProbeLayer* attrlayer )
 {
-    if ( attrlayer_ == attrlayer )
-	return;
-
-    if ( attrlayer_ )
-	mDetachCB( attrlayer_->objectChanged(),
-		   uiODVW2DVariableDensityTreeItem::attrLayerChangedCB );
-
-    attrlayer_ = attrlayer;
-    mAttachCB( attrlayer_->objectChanged(),
+    Monitorable::ChangeType ct = replaceMonitoredRef(attrlayer_,attrlayer,this);
+    mAttachCBIfNotAttached( attrlayer_->objectChanged(),
 	       uiODVW2DVariableDensityTreeItem::attrLayerChangedCB );
+    if ( ct )
+	attrLayerChangedCB( 0 );
 }
 
 
@@ -128,6 +124,8 @@ void uiODVW2DVariableDensityTreeItem::initColTab()
 
     mAttachCB( viewer2D()->viewControl()->colTabEd()->colTabChgd,
 	       uiODVW2DVariableDensityTreeItem::colTabChgCB );
+    mAttachCB( viewer2D()->viewControl()->colTabEd()->selTool().refreshReq,
+	       uiODVW2DVariableDensityTreeItem::attrLayerChangedCB );
 
     if ( uitreeviewitem_->treeView() &&
 	 uitreeviewitem_->treeView()->nrSelected() > 0 )
@@ -171,10 +169,12 @@ void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet(uiFlatViewColTabEd*,coltabed,cb);
-    if ( !coltabed ) return;
+    if ( !coltabed )
+	return;
 
     const FlatView::DataDispPars::VD& vdpars = coltabed->getDisplayPars();
-    attrlayer_->setColTab( ColTab::Sequence(vdpars.ctab_) );
+    NotifyStopper ns( viewer2D()->viewControl()->colTabEd()->colTabChgd, this );
+    attrlayer_->setColSeq( ColTab::SeqMGR().getAny(vdpars.colseqname_) );
 }
 
 
@@ -194,8 +194,8 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
     if ( dummyview_ && viewer2D()->dataMgr()->selectedID() == dummyview_->id() )
 	viewer2D()->viewControl()->colTabEd()->setColTab( ddp.vd_ );
 
-    ColTab::Sequence seq( ddp.vd_.ctab_ );
-    displayMiniCtab( &seq );
+    displayMiniCtab( ColTab::SeqMGR().getAny(
+		vwr.appearance().ddpars_.vd_.colseqname_) );
 }
 
 
@@ -282,7 +282,7 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     if ( is2d )
 	attrserv->filter2DMenuItems( *subitem, as, geomid, false, 2 );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
-    
+
     subitem = attrserv->storedAttribMenuItem(as,is2d,true );
     if ( is2d )
 	attrserv->filter2DMenuItems( *subitem, as, geomid, true, 1 );

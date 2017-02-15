@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	R. K. Singh
- Date: 		Jan 2008
+ Author:	R. K. Singh
+ Date:		Jan 2008
 ___________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ___________________________________________________________________
 #include "coltab.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
-#include "uicolortable.h"
+#include "uicoltabsel.h"
 #include "uibutton.h"
 #include "mousecursor.h"
 #include "uiodapplmgr.h"
@@ -30,7 +30,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     : uiDialog(p,uiDialog::Setup(tr("Color Settings"),mNoDlgTitle,
                                  mODHelpKey(mODEditAttribColorDlgHelpID) ))
     , items_(set)
-    , uicoltab_( 0 )
+    , coltabsel_( 0 )
 {
     setCtrlStyle( CloseOnly );
 
@@ -43,7 +43,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 
     const ColTab::Sequence* colseq = 0;
-    const ColTab::MapperSetup* colmapsetup = 0;
+    ConstRefMan<ColTab::MapperSetup> colmapsetup;
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
@@ -61,44 +61,45 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     }
 
     if ( !colseq || !colmapsetup )
-    {
-	pErrMsg( "Something is not as it should" );
-	return;
-    }
+	{ pErrMsg( "Something is not as it should" ); return; }
 
-    uicoltab_ = new uiColorTableGroup( this, *colseq, OD::Vertical, false );
-    uicoltab_->setMapperSetup( colmapsetup );
-    uicoltab_->seqChanged.notify( mCB(this,uiODEditAttribColorDlg,seqChg) );
-    uicoltab_->scaleChanged.notify( mCB(this,uiODEditAttribColorDlg,mapperChg));
+    coltabsel_ = new uiColTabSel( this, OD::Vertical );
+    coltabsel_->setSeqName( colseq->name() );
+    coltabsel_->setMapperSetup( *colmapsetup );
+    coltabsel_->seqChanged.notify( mCB(this,uiODEditAttribColorDlg,seqChg) );
+    coltabsel_->mapperSetupChanged.notify(
+			mCB(this,uiODEditAttribColorDlg,mapperSetupChg));
 }
 
 
 void uiODEditAttribColorDlg::seqChg( CallBacker* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    const ColTab::Sequence& newcolseq = uicoltab_->colTabSeq();
+    ConstRefMan<ColTab::Sequence> newcolseq = coltabsel_->sequence();
 
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	mDynamicCastGet(uiODAttribTreeItem*,attritem,items_[idx])
-	if ( !attritem ) continue;
-
-	attritem->attribProbeLayer()->setColTab(  newcolseq );
+	if ( !attritem )
+	    attritem->attribProbeLayer()->setColSeq( newcolseq );
     }
 }
 
 
-void uiODEditAttribColorDlg::mapperChg( CallBacker* )
+void uiODEditAttribColorDlg::mapperSetupChg( CallBacker* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    const ColTab::MapperSetup& newcolmapsetup = uicoltab_->colTabMapperSetup();
+    ConstRefMan<ColTab::MapperSetup> newcolmapsetup = coltabsel_->mapperSetup();
+    if ( !newcolmapsetup )
+	return;
 
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	mDynamicCastGet(uiODAttribTreeItem*,attritem,items_[idx])
-	if ( !attritem ) continue;
+	if ( !attritem )
+	    continue;
 
-	attritem->attribProbeLayer()->setColTabMapper( newcolmapsetup );
+	attritem->attribProbeLayer()->setMapperSetup( *newcolmapsetup );
     }
 }
 

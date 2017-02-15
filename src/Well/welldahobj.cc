@@ -47,6 +47,13 @@ void Well::DahObj::copyClassData( const DahObj& oth )
 }
 
 
+Monitorable::ChangeType Well::DahObj::compareClassData(
+					const DahObj& oth ) const
+{
+    mDeliverYesNoMonitorableCompare( dahs_ == oth.dahs_ );
+}
+
+
 Well::DahObj::size_type Well::DahObj::size() const
 {
     mLock4Read();

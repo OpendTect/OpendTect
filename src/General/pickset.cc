@@ -59,6 +59,18 @@ void Pick::Set::copyClassData( const Set& oth )
 }
 
 
+Monitorable::ChangeType Pick::Set::compareClassData( const Set& oth ) const
+{
+    if ( locs_ != oth.locs_ )
+	return cEntireObjectChange();
+
+    mStartMonitorableCompare();
+    mHandleMonitorableCompare( disp_, cDispChange() );
+    mHandleMonitorableCompare( pars_, cParsChange() );
+    mDeliverMonitorableCompare();
+}
+
+
 Pick::Set::size_type Pick::Set::size() const
 {
     mLock4Read();
@@ -170,7 +182,7 @@ void Pick::Set::setIsPolygon( bool yn )
 
     mLock2Write();
     pars_.set( sKey::Type(), yn ? sKey::Polygon() : sKey::PickSet() );
-    mSendChgNotif( cDispChange(), 0 );
+    mSendChgNotif( cParsChange(), cUnspecChgID() );
 }
 
 
@@ -183,7 +195,7 @@ void Pick::Set::setCategory( const char* newcat )
 
     mLock2Write();
     pars_.update( sKey::Category(), newcat );
-    mSendChgNotif( cDispChange(), 0 );
+    mSendChgNotif( cParsChange(), cUnspecChgID() );
 }
 
 
@@ -448,6 +460,7 @@ bool Pick::Set::usePar( const IOPar& par )
     pars_.removeWithKey( sKeyMarkerType() );
     pars_.removeWithKey( sKeyConnect );
 
+    mSendEntireObjChgNotif();
     return true;
 }
 
@@ -456,6 +469,7 @@ void Pick::Set::updateInPar( const char* ky, const char* val )
 {
     mLock4Write();
     pars_.update( ky, val );
+    mSendChgNotif( cParsChange(), cUnspecChgID() );
 }
 
 

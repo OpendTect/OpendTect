@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "zdomain.h"
 #include "randcolor.h"
 #include "survinfo.h"
+#include "coltabsequence.h"
 #include "keystrs.h"
 
 namespace FlatView
@@ -35,6 +36,7 @@ const char* DataDispPars::sKeyShow()	{ return "Show"; }
 const char* DataDispPars::sKeyDispRg()	{ return "Range"; }
 const char* DataDispPars::sKeyColTab()	{ return "Color Table"; }
 const char* DataDispPars::sKeyFlipSequence() { return "Flip Sequence"; }
+const char* DataDispPars::sKeyCyclicSequence() { return "Cyclic Sequence"; }
 const char* DataDispPars::sKeyLinearInter()  { return "Linear Interpolation"; }
 const char* DataDispPars::sKeyBlocky()	 { return "Blocky"; }
 const char* DataDispPars::sKeyAutoScale(){ return "Auto scale"; }
@@ -140,35 +142,54 @@ FlatView::DataDispPars::Common::Common()
     , blocky_(false)
     , allowuserchange_(true)
     , allowuserchangedata_(true)
-{}
-
-
-/*void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
+    , mappersetup_(new ColTab::MapperSetup)
 {
-    if ( autoscale_ )
-    {
-	if ( histeq_ ) setup.type_ = ColTab::MapperSetup::HistEq;
-	else
-	{
-	    setup.type_ = ColTab::MapperSetup::Auto;
-	    setup.cliprate_ = Interval<float>( clipperc_.start*0.01,
-					       clipperc_.stop*0.01 );
-	    if ( mIsUdf(clipperc_.stop) )
-		setup.cliprate_ = clipperc_.start*0.01;
-	    else
-		setup.cliprate_ = clipperc_.center()*0.01;
-	}
+}
 
-	setup.symmidval_ = symmidvalue_;
-	setup.autosym0_ = false;
-    }
-    else
+
+FlatView::DataDispPars::Common::Common( const Common& oth )
+    : show_(oth.show_)
+    , blocky_(oth.blocky_)
+    , allowuserchange_(oth.allowuserchange_)
+    , allowuserchangedata_(oth.allowuserchangedata_)
+    , mappersetup_(new ColTab::MapperSetup)
+{
+    *mappersetup_ = *oth.mappersetup_;
+}
+
+
+FlatView::DataDispPars::Common& FlatView::DataDispPars::Common::operator =(
+					const Common& oth )
+{
+    if ( this != &oth )
     {
-	setup.type_ = ColTab::MapperSetup::Fixed;
-	setup.start_ = rg_.start;
-	setup.width_ = rg_.width();
+	show_ = oth.show_;
+	blocky_ = oth.blocky_;
+	allowuserchange_ = oth.allowuserchange_;
+	allowuserchangedata_ = oth.allowuserchangedata_;
+	*mappersetup_ = *oth.mappersetup_;
     }
-}*/
+    return *this;
+}
+
+
+FlatView::DataDispPars::VD::VD()
+    : lininterp_(false)
+{
+    mAttachCB( ColTab::SeqMGR().nameChange, VD::tabNmChg );
+}
+
+
+void FlatView::DataDispPars::VD::tabNmChg( CallBacker* cb )
+{
+    if ( colseqname_.isEmpty() )
+	return;
+
+    mGetMonitoredChgDataWithAux( cb, cd, NamedMonitorable::NameChgData, ncd );
+    if ( ncd && colseqname_ == ncd->oldnm_ )
+	colseqname_ = ncd->newnm_;
+}
+
 
 
 FlatView::Annotation::AxisData::AxisData()
@@ -325,73 +346,95 @@ void FlatView::AuxData::empty()
 void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 {
     mIOPDoVD( setYN, sKeyShow(), vd_.show_ );
-    mIOPDoVD( set, sKeyDispRg(), vd_.mappersetup_.range_ );
-    mIOPDoVD( set, sKeyColTab(), vd_.ctab_ );
-    mIOPDoVD( setYN, sKeyFlipSequence(), vd_.mappersetup_.flipseq_ );
+    mIOPDoVD( set, sKeyColTab(), vd_.colseqname_ );
+    mIOPDoVD( setYN, sKeyFlipSequence(),
+	      ColTab::isFlipped(vd_.mappersetup_->seqUseMode()) );
+    mIOPDoVD( setYN, sKeyCyclicSequence(),
+	      ColTab::isCyclic(vd_.mappersetup_->seqUseMode()) );
     mIOPDoVD( setYN, sKeyLinearInter(), vd_.lininterp_ );
     mIOPDoVD( setYN, sKeyBlocky(), vd_.blocky_ );
-    mIOPDoVD( setYN, sKeyAutoScale(),
-	      vd_.mappersetup_.type_ == ColTab::MapperSetup::Auto );
-    Interval<float> clipperc( vd_.mappersetup_.cliprate_.start*100,
-			      vd_.mappersetup_.cliprate_.stop*100 );
+
+    mIOPDoVD( set, sKeyDispRg(), vd_.mappersetup_->range() );
+    mIOPDoVD( setYN, sKeyAutoScale(), vd_.mappersetup_->isFixed() );
+    Interval<float> clipperc = vd_.mappersetup_->clipRate();
+    clipperc.scale( 100.f );
     mIOPDoVD( set, sKeyClipPerc(), clipperc );
-    mIOPDoVD( set, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
+    mIOPDoVD( set, sKeySymMidValue(), vd_.mappersetup_->symMidVal() );
 
     mIOPDoWVA( setYN, sKeyShow(), wva_.show_ );
-    mIOPDoWVA( set, sKeyDispRg(), wva_.mappersetup_.range_ );
     mIOPDoWVA( setYN, sKeyBlocky(), wva_.blocky_ );
-    mIOPDoWVA( setYN, sKeyAutoScale(),
-	       wva_.mappersetup_.type_ == ColTab::MapperSetup::Auto );
-    mIOPDoWVA( set, sKeyClipPerc(), wva_.mappersetup_.cliprate_ );
     mIOPDoWVA( set, sKeyWiggCol(), wva_.wigg_ );
     mIOPDoWVA( set, sKeyRefLineCol(), wva_.refline_ );
     mIOPDoWVA( set, sKeyLowFillCol(), wva_.lowfill_ );
     mIOPDoWVA( set, sKeyHighFillCol(), wva_.highfill_ );
     mIOPDoWVA( set, sKeyOverlap(), wva_.overlap_ );
-    mIOPDoWVA( set, sKeySymMidValue(), wva_.mappersetup_.symmidval_ );
     mIOPDoWVA( set, sKeyRefLineValue(), wva_.reflinevalue_ );
+
+    mIOPDoWVA( set, sKeyDispRg(), wva_.mappersetup_->range() );
+    mIOPDoWVA( setYN, sKeyAutoScale(), wva_.mappersetup_->isFixed() );
+    clipperc = wva_.mappersetup_->clipRate();
+    clipperc.scale( 100.f );
+    mIOPDoWVA( set, sKeyClipPerc(), clipperc );
+    mIOPDoWVA( set, sKeySymMidValue(), wva_.mappersetup_->symMidVal() );
 }
 
 
 void FlatView::DataDispPars::usePar( const IOPar& iop )
 {
     mIOPDoVD( getYN, sKeyShow(), vd_.show_ );
-    Interval<float> range;
-    mIOPDoVD( get, sKeyDispRg(), range );
-    mIOPDoVD( get, sKeyColTab(), vd_.ctab_ );
-    mIOPDoVD( getYN, sKeyFlipSequence(), vd_.mappersetup_.flipseq_ );
+    mIOPDoVD( get, sKeyColTab(), vd_.colseqname_ );
+    bool flipseq = ColTab::isFlipped( vd_.mappersetup_->seqUseMode() );
+    bool seqcyclic = ColTab::isCyclic( vd_.mappersetup_->seqUseMode() );
+    mIOPDoVD( getYN, sKeyFlipSequence(), flipseq );
+    mIOPDoVD( getYN, sKeyCyclicSequence(), seqcyclic );
+    vd_.mappersetup_->setSeqUseMode( ColTab::getSeqUseMode(flipseq,seqcyclic) );
     mIOPDoVD( getYN, sKeyLinearInter(), vd_.lininterp_ );
     mIOPDoVD( getYN, sKeyBlocky(), vd_.blocky_ );
-    bool autoscale = true;
+
+    bool autoscale = !vd_.mappersetup_->isFixed();
     mIOPDoVD( getYN, "Auto Scale", autoscale ); // legacy
     mIOPDoVD( getYN, sKeyAutoScale(), autoscale );
-    vd_.mappersetup_.range_ = autoscale ? Interval<float>::udf() : range;
-    vd_.mappersetup_.setAutoScale( autoscale );
-    mIOPDoVD( get, sKeyClipPerc(), vd_.mappersetup_.cliprate_ );
-    vd_.mappersetup_.cliprate_.start *= 0.01;
-    if ( mIsUdf(vd_.mappersetup_.cliprate_.stop) )
-	vd_.mappersetup_.cliprate_.stop = vd_.mappersetup_.cliprate_.start;
-    else
-	vd_.mappersetup_.cliprate_.stop *= 0.01;
-
-    mIOPDoVD( get, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
+    Interval<float> range = vd_.mappersetup_->range();
+    mIOPDoVD( get, sKeyDispRg(), range );
+    vd_.mappersetup_->setRange( range );
+    vd_.mappersetup_->setIsFixed( !autoscale );
+    Interval<float> clpperc = vd_.mappersetup_->clipRate();
+    clpperc.start *= 100.f; clpperc.stop *= 100.f;
+    mIOPDoVD( get, sKeyClipPerc(), clpperc );
+    if ( mIsUdf(clpperc.stop) )
+	clpperc.stop = clpperc.start;
+    vd_.mappersetup_->setClipRate(
+	    Interval<float>(clpperc.start*0.01f,clpperc.stop*0.01f) );
+    float symmidval = vd_.mappersetup_->symMidVal();
+    mIOPDoVD( get, sKeySymMidValue(), symmidval );
+    vd_.mappersetup_->setSymMidVal( symmidval );
 
     mIOPDoWVA( getYN, sKeyShow(), wva_.show_ );
-    mIOPDoWVA( get, sKeyDispRg(), range );
-    wva_.mappersetup_.range_ = autoscale ? Interval<float>::udf() : range;
     mIOPDoWVA( getYN, sKeyBlocky(), wva_.blocky_ );
-    autoscale = true;
-    mIOPDoWVA( getYN, "Auto Scale", autoscale ); // legacy
-    mIOPDoWVA( getYN, sKeyAutoScale(), autoscale );
-    wva_.mappersetup_.setAutoScale( autoscale );
-    mIOPDoWVA( get, sKeyClipPerc(), wva_.mappersetup_.cliprate_ );
     mIOPDoWVA( get, sKeyWiggCol(), wva_.wigg_ );
     mIOPDoWVA( get, sKeyRefLineCol(), wva_.refline_ );
     mIOPDoWVA( get, sKeyLowFillCol(), wva_.lowfill_ );
     mIOPDoWVA( get, sKeyHighFillCol(), wva_.highfill_ );
     mIOPDoWVA( get, sKeyOverlap(), wva_.overlap_ );
-    mIOPDoWVA( get, sKeySymMidValue(), wva_.mappersetup_.symmidval_ );
     mIOPDoWVA( get, sKeyRefLineValue(), wva_.reflinevalue_ );
+
+    autoscale = !wva_.mappersetup_->isFixed();
+    mIOPDoWVA( getYN, "Auto Scale", autoscale ); // legacy
+    mIOPDoWVA( getYN, sKeyAutoScale(), autoscale );
+    range = vd_.mappersetup_->range();
+    mIOPDoWVA( get, sKeyDispRg(), range );
+    wva_.mappersetup_->setRange( range );
+    wva_.mappersetup_->setIsFixed( !autoscale );
+    clpperc = wva_.mappersetup_->clipRate();
+    clpperc.start *= 100.f; clpperc.stop *= 100.f;
+    mIOPDoWVA( get, sKeyClipPerc(), clpperc );
+    if ( mIsUdf(clpperc.stop) )
+	clpperc.stop = clpperc.start;
+    wva_.mappersetup_->setClipRate(
+	    Interval<float>(clpperc.start*0.01f,clpperc.stop*0.01f) );
+    symmidval = wva_.mappersetup_->symMidVal();
+    mIOPDoWVA( get, sKeySymMidValue(), symmidval );
+    wva_.mappersetup_->setSymMidVal( symmidval );
 }
 
 
@@ -754,12 +797,10 @@ StepInterval<double> FlatView::Viewer::getDataPackRange( bool forx1 ) const
 
 Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
 {
-    Interval<float> rg( mUdf(float), mUdf(float) );
-    const ColTab::MapperSetup mapper =
-	iswva ? appearance().ddpars_.wva_.mappersetup_
-	      : appearance().ddpars_.vd_.mappersetup_;
-    Interval<float> mapperrange = mapper.range_;
-    return mapperrange;
+    if ( iswva )
+	return appearance().ddpars_.wva_.mappersetup_->range();
+    else
+	return appearance().ddpars_.vd_.mappersetup_->range();
 }
 
 
@@ -767,5 +808,3 @@ void FlatView::Viewer::setSeisGeomidsToViewer( TypeSet<Pos::GeomID>& geomids )
 {
     geom2dids_ = geomids;
 }
-
-

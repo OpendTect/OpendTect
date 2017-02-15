@@ -381,7 +381,7 @@ MultiTextureSurveyObject::getColTabSequence( int attrib ) const
     if ( attrib<0 || attrib>=nrAttribs() )
 	return 0;
 
-    return channels_->getChannels2RGBA()->getSequence( attrib );
+    return &channels_->getChannels2RGBA()->getSequence( attrib );
 }
 
 
@@ -391,24 +391,25 @@ void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-    const ColTab::MapperSetup& old = channels_->getColTabMapperSetup(attrib,0);
-    if ( old!=mapper )
+    ConstRefMan<ColTab::MapperSetup> old
+		= channels_->getColTabMapperSetup(attrib,0);
+    if ( *old != mapper )
     {
-	const bool needsreclip = old.needsReClip( mapper );
+	const bool needsreclip = old->needsReClip( mapper );
 	channels_->setColTabMapperSetup( attrib, mapper );
 	channels_->reMapData( attrib, !needsreclip, 0 );
     }
 }
 
 
-const ColTab::MapperSetup*
+ConstRefMan<ColTab::MapperSetup>
 MultiTextureSurveyObject::getColTabMapperSetup( int attrib ) const
 {
     return getColTabMapperSetup( attrib, mUdf(int) );
 }
 
 
-const ColTab::MapperSetup*
+ConstRefMan<ColTab::MapperSetup>
 MultiTextureSurveyObject::getColTabMapperSetup( int attrib, int version ) const
 {
     if ( attrib<0 || attrib>=nrAttribs() )
@@ -418,7 +419,7 @@ MultiTextureSurveyObject::getColTabMapperSetup( int attrib, int version ) const
 			 || version >= channels_->nrVersions(attrib) )
 	version = channels_->currentVersion( attrib );
 
-    return &channels_->getColTabMapperSetup( attrib, version );
+    return channels_->getColTabMapperSetup( attrib, version );
 }
 
 
@@ -512,14 +513,14 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 						BufferString& val ) const
 {
     val = "undef";
-    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, ctab,
+    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, tx2rgba,
 	    channels_ ? channels_->getChannels2RGBA() : 0 );
-    if ( !ctab || !pos.isDefined() )
+    if ( !tx2rgba || !pos.isDefined() )
 	return;
 
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
     {
-	if ( !isAttribEnabled(idx) || ctab->getTransparency(idx)==255 )
+	if ( !isAttribEnabled(idx) || tx2rgba->getTransparency(idx)==255 )
 	    continue;
 
 	const int version = channels_->currentVersion( idx );
@@ -535,7 +536,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	for ( int idy=idx-1; idy>=0; idy-- )
 	{
 	    if ( !hasCache(idy) || !isAttribEnabled(idy) ||
-		 ctab->getTransparency(idx)==255 )
+		 tx2rgba->getTransparency(idx)==255 )
 		continue;
 
 	    islowest = false;
@@ -544,12 +545,11 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 
 	if ( !islowest )
 	{
-	    const ColTab::Sequence* seq = ctab->getSequence( idx );
+	    const ColTab::Sequence& seq = tx2rgba->getSequence( idx );
 	    const ColTab::Mapper& map = channels_->getColTabMapper(idx,version);
-
-	    const Color col = mIsUdf(fval) ? seq->undefColor()
-					   : seq->color( map.position(fval) );
-	    if ( col.t()==255 )
+	    const Color col = mIsUdf(fval) ? seq.undefColor()
+					   : seq.color( map.position(fval) );
+	    if ( col.t() == 255 )
 		continue;
 	}
 

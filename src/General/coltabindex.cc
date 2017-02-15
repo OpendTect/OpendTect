@@ -13,10 +13,22 @@
 
 
 ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
-				    int nrc, const ColTab::Mapper* map )
+				    int nrc, const ColTab::Mapper& map )
     : seq_(seq)
-    , mapper_(map)
+    , mapper_(&map)
     , nrcols_(nrc)
+    , mode_(map.setup().seqUseMode())
+{
+    update();
+}
+
+
+ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
+				    int nrc, ColTab::SeqUseMode mode )
+    : seq_(seq)
+    , mapper_(0)
+    , nrcols_(nrc)
+    , mode_(mode)
 {
     update();
 }
@@ -24,19 +36,21 @@ ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
 
 void ColTab::IndexedLookUpTable::update()
 {
-    cols_.erase();
+    if ( mapper_ )
+	mode_ = mapper_->setup().seqUseMode();
     cols_.setSize( nrcols_, seq_.undefColor() );
 
-    mDefParallelCalc2Pars( ColTabIndexAppl, tr("Update of color lookup table"),
-			   TypeSet<Color>&,cols, const Sequence&,seq )
+    mDefParallelCalc3Pars( ColTabIndexAppl, tr("Update of color lookup table"),
+	       TypeSet<Color>&,cols, const Sequence&,seq, SeqUseMode,mode )
     mDefParallelCalcBody(
-	const float dx = 1.f/(sz_-1)
 ,
-	cols_[(TypeSet<Color>::size_type)idx] = seq_.color( idx*dx )
+	const float pos = ((float)idx) / ((float)(sz_-1));
+	const float seqpos = Mapper::seqPos4RelPos( mode_, pos );
+	cols_[(TypeSet<Color>::size_type)idx] = seq_.color( seqpos );
 ,
 	)
 
-    ColTabIndexAppl appl( cols_.size(), cols_, seq_ );
+    ColTabIndexAppl appl( cols_.size(), cols_, seq_, mode_ );
     appl.execute();
 }
 

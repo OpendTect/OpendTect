@@ -45,8 +45,8 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     void			setSurface(Geometry::IndexedShape*,
-	    				   TaskRunner* = 0);
-    				//!<Does not become mine, should remain
+					   TaskRunner* = 0);
+				//!<Does not become mine, should remain
 				//!<in memory
 
     bool			touch(bool forall,bool createnew=true,
@@ -60,25 +60,25 @@ public:
     void			enableColTab(bool);
     bool			isColTabEnabled() const;
     void			setDataMapper(const ColTab::MapperSetup&,
-	    				      TaskRunner*);
-    const ColTab::MapperSetup*	getDataMapper() const;
+					      TaskRunner*);
+    ConstRefMan<ColTab::MapperSetup> getDataMapper() const;
     void			setDataSequence(const ColTab::Sequence&);
     const ColTab::Sequence*	getDataSequence() const;
 
     void			getAttribPositions(DataPointSet&,
 					mVisTrans* extratrans,
-	    				TaskRunner*) const;
+					TaskRunner*) const;
     void			setAttribData(const DataPointSet&,
-	    				TaskRunner*);
+					TaskRunner*);
 
     void			setMaterial(Material*);
     void			updateMaterialFrom(const Material*);
 
     enum			GeomShapeType{ Triangle, PolyLine, PolyLine3D };
     void			setGeometryShapeType(GeomShapeType shapetype,
-				 Geometry::PrimitiveSet::PrimitiveType pstype 
+				 Geometry::PrimitiveSet::PrimitiveType pstype
 				 = Geometry::PrimitiveSet::TriangleStrip);
-				/*!<remove previous geometry shape and create 
+				/*!<remove previous geometry shape and create
 				a new geometry shape based on shape type.*/
 
     void			useOsgNormal(bool);
@@ -104,30 +104,30 @@ protected:
 					ColorHandler();
 					~ColorHandler();
 	ColTab::Mapper			mapper_;
-	ColTab::Sequence                sequence_;
+	ConstRefMan<ColTab::Sequence>	sequence_;
 	visBase::Material*		material_;
 	ArrayValueSeries<float,float>	attributecache_;
     };
 
     static const char*			sKeyCoordIndex() { return "CoordIndex";}
 
-    ColorHandler*				colorhandler_;
+    ColorHandler*			colorhandler_;
 
-    Geometry::IndexedShape*			shape_;
-    VertexShape*				vtexshape_;
-    bool					colortableenabled_ ;
-    int						renderside_;
-       					    /*!< 0 = visisble from both sides.
+    Geometry::IndexedShape*		shape_;
+    VertexShape*			vtexshape_;
+    bool				colortableenabled_ ;
+    int					renderside_;
+					    /*!< 0 = visisble from both sides.
 					       1 = visible from positive side
 					      -1 = visible from negative side.*/
-    Material*					singlematerial_;
-    Material*					coltabmaterial_;
-    ColTab::Sequence		                sequence_;
-    GeomShapeType				geomshapetype_;
+    Material*				singlematerial_;
+    Material*				coltabmaterial_;
+    ConstRefMan<ColTab::Sequence>	sequence_;
+    GeomShapeType			geomshapetype_;
 
-    OD::LineStyle					linestyle_;
-    bool					useosgnormal_;
+    OD::LineStyle			linestyle_;
+    bool				useosgnormal_;
 };
 
 };
-	
+

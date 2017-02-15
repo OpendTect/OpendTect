@@ -694,11 +694,11 @@ bool uiSurveyManager::commit()
     writeCommentsIfChanged();
 
     reReadSurvInfoFromFile( getDirName() );
-    const SurveyInfo::ChangeData chgdata = SI().compareWith( *survinfo_ );
-    if ( chgdata.isNoChange() )
+    const Monitorable::ChangeType chgtype = SI().compareWith( *survinfo_ );
+    if ( chgtype == Monitorable::cNoChange() )
 	return true;
 
-    if ( !SurveyInfo::isSetupChange(chgdata.changeType()) )
+    if ( !SurveyInfo::isSetupChange(chgtype) )
     {
 	const_cast<SurveyInfo&>( SI() ) = *survinfo_;
 	return true;

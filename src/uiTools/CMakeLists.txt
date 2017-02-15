@@ -22,12 +22,12 @@ set( OD_MODULE_SOURCES
 	uibuildlistfromlist.cc
 	uibuttonstateedit.cc
 	uichecklist.cc
-	uicolortable.cc
+	uicolseqdisp.cc
+	uicolseqman.cc
 	uicolseqsel.cc
-	uicoltabimport.cc
-	uicoltabman.cc
-	uicoltabmarker.cc
-	uicoltabtools.cc
+	uicolseqimport.cc
+	uicolseqctrlpts.cc
+	uicoltabsel.cc
 	uicompparsel.cc
 	uiconstvel.cc
 	uidirectionalplot.cc
@@ -87,7 +87,7 @@ set( OD_MODULE_SOURCES
 	uitaskrunner.cc
 	uitextfile.cc
 	uitime2depthzaxistrans.cc
-	uitreeitemmanager.cc
+	uitreeitem.cc
 	uiunitsel.cc
 	uivalseriestracker.cc
 	uivariogram.cc

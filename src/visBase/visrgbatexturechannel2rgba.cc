@@ -22,46 +22,19 @@ mCreateFactoryEntry( visBase::RGBATextureChannel2RGBA );
 namespace visBase
 {
 
-ArrPtrMan<ColTab::Sequence> RGBATextureChannel2RGBA::sequences_ = 0;
 
 RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
     : proc_(0)
     , proctransparency_(0)
 {
-    if ( !sequences_ )
-    {
-	sequences_ = new ColTab::Sequence[4];
-	sequences_[0].setType(ColTab::Sequence::User);
-	sequences_[0].setColor( 0, 0, 0, 0 );
-	sequences_[0].setColor( 1, 255, 0, 0 );
-	sequences_[0].setName( "Red" );
-
-	sequences_[1].setType(ColTab::Sequence::User);
-	sequences_[1].setColor( 0, 0, 0, 0 );
-	sequences_[1].setColor( 1, 0, 255, 0 );
-	sequences_[1].setName( "Green" );
-
-	sequences_[2].setType(ColTab::Sequence::User);
-	sequences_[2].setColor( 0, 0, 0, 0 );
-	sequences_[2].setColor( 1, 0, 0, 255 );
-	sequences_[2].setName( "Blue" );
-
-	sequences_[3].setType(ColTab::Sequence::User);
-	sequences_[3].setColor( 0, 0, 0, 0 );
-	sequences_[3].setColor( 1, 255,255,255 );
-	sequences_[3].setTransparency( ColTab::Sequence::TranspPtType(0.f,0) );
-	sequences_[3].setTransparency( ColTab::Sequence::TranspPtType(1.f,255));
-	sequences_[3].setName( "Alpha" );
-    }
-
     for ( int idx=0; idx<=3; idx++ )
 	enabled_ += idx!=3;
 }
 
 
-const ColTab::Sequence* RGBATextureChannel2RGBA::getSequence( int ch ) const
+const ColTab::Sequence& RGBATextureChannel2RGBA::getSequence( int ch ) const
 {
-    return (sequences_ && ch>=0 && ch<=3) ? &sequences_[ch] : 0;
+    return ColTab::SeqMGR().getRGBBlendColSeq( ch );
 }
 
 

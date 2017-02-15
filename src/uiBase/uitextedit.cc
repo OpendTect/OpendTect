@@ -262,9 +262,14 @@ uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 
 void uiTextEdit::setText( const char* txt, bool trigger_notif )
 {
-    NotifyStopper ns( textChanged );
-    if ( trigger_notif ) ns.restore();
-    qte().setText( txt );
+#   define mSetQteText() qte().setText( txt )
+    if ( trigger_notif )
+	mSetQteText();
+    else
+    {
+	NotifyStopper ns( textChanged, this );
+	mSetQteText();
+    }
 }
 
 

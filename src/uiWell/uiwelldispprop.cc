@@ -12,11 +12,12 @@ ________________________________________________________________________
 
 #include "uichecklist.h"
 #include "uicolor.h"
-#include "uicolortable.h"
+#include "uicolseqsel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uispinbox.h"
+#include "uicombobox.h"
 #include "uiseparator.h"
 #include "uislider.h"
 #include "uistrings.h"
@@ -381,25 +382,26 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     singlfillcolfld_->attach( rightOf, logfilltypefld_ );
 
 
-    coltablistfld_ = new uiColorTableSel( this, "Table selection" );
-    coltablistfld_->attach( alignedBelow, filllogsfld_ );
+    colseqselfld_ = new uiColSeqSel( this, OD::Horizontal,
+					uiStrings::sColorTable() );
+    colseqselfld_->attach( alignedBelow, filllogsfld_ );
 
     colorrangefld_ = new uiGenInput( this, uiString::emptyString(),
 			     FloatInpIntervalSpec()
 			     .setName(BufferString(" range start"),0)
 			     .setName(BufferString(" range stop"),1) );
-    colorrangefld_->attach( rightOf, coltablistfld_ );
+    colorrangefld_->attach( rightOf, colseqselfld_ );
 
-    flipcoltabfld_ = new uiCheckBox( this, tr("flip color table") );
-    flipcoltabfld_->attach( rightOf, filllogsfld_ );
+    sequsefld_ = new uiColSeqUseMode( this, uiString::emptyString() );
+    sequsefld_->attach( rightOf, filllogsfld_ );
 
     uiSeparator* sep2 = new uiSeparator( this, "Sep" );
-    sep2->attach( stretchedBelow, coltablistfld_ );
+    sep2->attach( stretchedBelow, colseqselfld_ );
 
     const uiString lbl = tr("Log display width %1")
 			    .arg(SI().xyUnitString(true,true));
     logwidthslider_ = new uiSlider( this, uiSlider::Setup(lbl).withedit(true) );
-    logwidthslider_->attach( alignedBelow, coltablistfld_ );
+    logwidthslider_->attach( alignedBelow, colseqselfld_ );
     logwidthslider_->attach( ensureBelow, sep2 );
 
     logwidthslider_->setMinValue( 0.f );
@@ -433,7 +435,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     colorrangefld_->valuechanged.notify( choiceselcb );
     rangefld_->valuechanged.notify( choiceselcb );
     clipratefld_->valuechanged.notify( propchgcb );
-    coltablistfld_->selectionChanged.notify( propchgcb );
+    colseqselfld_->seqChanged.notify( propchgcb );
     colorrangefld_->valuechanged.notify( propchgcb );
     fillcolorfld_->colorChanged.notify( propchgcb );
     logwidthslider_->valueChanged.notify(propchgcb);
@@ -447,7 +449,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     singlfillcolfld_->activated.notify( propchgcb );
     stylefld_->changed.notify( propchgcb );
     logfilltypefld_->box()->selectionChanged.notify( propchgcb );
-    flipcoltabfld_->activated.notify( propchgcb );
+    sequsefld_->modeChange.notify( propchgcb );
 
     filllogsfld_->box()->selectionChanged.notify(
 		mCB(this,uiWellLogDispProperties,updateFillRange) );
@@ -495,8 +497,8 @@ void uiWellLogDispProperties::doPutToScreen()
 
     stylefld_->setChecked( logprops().style(), true );
     logarithmfld_->setChecked( logprops().isLogarithmic() );
-    coltablistfld_->setCurrent( logprops().seqName() );
-    flipcoltabfld_->setChecked( logprops().colTabFlipped() );
+    colseqselfld_->setSeqName( logprops().seqName() );
+    sequsefld_->setMode( logprops().seqUseMode() );
     ovlapfld_->setValue( logprops().repeatOverlap() );
     repeatfld_->setValue( logprops().repeat() );
     int fidx = logprops().fillLeft() ? logprops().fillRight() ? 3 : 1
@@ -557,8 +559,8 @@ void uiWellLogDispProperties::doGetFromScreen()
     mSetSwapFillIdx( fillidx )
     logprops().setFillLeft( fillidx == 1 || fillidx == 3 );
     logprops().setFillRight( fillidx == 2 || fillidx == 3 );
-    logprops().setSeqName( coltablistfld_->text() );
-    logprops().setColTabFlipped( flipcoltabfld_->isChecked() );
+    logprops().setSeqName( colseqselfld_->seqName() );
+    logprops().setSeqUseMode( sequsefld_->mode() );
     logprops().setRepeat( stylefld_->isChecked(1) ? repeatfld_->getIntValue()
 						  : 1 );
     logprops().setRepeatOverlap( mCast( float, ovlapfld_->getIntValue() ) );
@@ -592,31 +594,31 @@ void uiWellLogDispProperties::isFilledSel( CallBacker* )
     const bool isrightfilled_ = fillidx == 2 || fillidx == 3;
     const bool isfilled = isrightfilled_ || isleftfilled_;
     singlfillcolfld_->display( isfilled && iswelllogortube );
-    coltablistfld_->display( iswelllogortube &&  isfilled && !issinglecol );
+    colseqselfld_->display( iswelllogortube &&  isfilled && !issinglecol );
     seiscolorfld_->display( !iswelllogortube );
     fillcolorfld_->display( iswelllogortube && issinglecol && isfilled );
     filllogsfld_->display( iswelllogortube &&  isfilled && !issinglecol );
     colorrangefld_->display( iswelllogortube &&  isfilled && !issinglecol );
-    flipcoltabfld_->display( isfilled && iswelllogortube && !issinglecol );
+    sequsefld_->display( isfilled && iswelllogortube && !issinglecol );
 }
 
 
 void uiWellLogDispProperties::disableLogDisplays()
 {
     singlfillcolfld_->display( false );
-    coltablistfld_->display( false);
+    colseqselfld_->display( false );
     seiscolorfld_->display( false );
     fillcolorfld_->display( false );
     filllogsfld_->display( false );
     colorrangefld_->display( false );
-    flipcoltabfld_->display( false );
+    sequsefld_->display( false );
     lblr_->display( false );
     lblo_->display( false );
     singlfillcolfld_->display( false );
     logwidthslider_->display( false );
     szfld_->display( false );
     colfld_->display( false );
-    flipcoltabfld_->display( false );
+    sequsefld_->display( false );
     revertlogfld_->display( false );
     logfilltypefld_->display( false );
 }
@@ -643,11 +645,11 @@ void uiWellLogDispProperties::setWellLogSel()
 	setStyleSensitive( true );
 
     singlfillcolfld_->display( true );
-    coltablistfld_->display( true );
+    colseqselfld_->display( true );
     logfilltypefld_->display( true );
     filllogsfld_->display( true );
     colorrangefld_->display( true );
-    flipcoltabfld_->display( true );
+    sequsefld_->display( true );
     revertlogfld_->display( true );
     logwidthslider_->display( !setup_.onlyfor2ddisplay_ );
     colfld_->display( true );
@@ -729,7 +731,7 @@ void uiWellLogDispProperties::selNone()
     repeatfld_->setValue( 0 );
     ovlapfld_->setValue( 0 );
     singlfillcolfld_->setChecked( false );
-    coltablistfld_->setCurrent( logprops().seqName() );
+    colseqselfld_->setSeqName( logprops().seqName() );
     logwidthslider_->setValue( deflogwidth );
 }
 
@@ -749,9 +751,9 @@ void uiWellLogDispProperties::setFldSensitive( bool yn )
     lblr_->setSensitive( yn );
     szfld_->setSensitive( yn );
     singlfillcolfld_->setSensitive( yn );
-    coltablistfld_->setSensitive( yn );
+    colseqselfld_->setSensitive( yn );
     filllogsfld_->setSensitive(yn);
-    flipcoltabfld_->setSensitive( yn );
+    sequsefld_->setSensitive( yn );
     logarithmfld_->setSensitive(yn);
     logwidthslider_->setSensitive(yn);
     logfilltypefld_->setSensitive(yn);

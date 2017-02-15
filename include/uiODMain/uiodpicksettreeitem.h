@@ -26,7 +26,7 @@ mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODSceneParentTreeItem
     mMenuOnAnyButton;
 		~uiODPickSetParentTreeItem();
     const char* childObjTypeKey() const;
-    virtual uiODPrManagedTreeItem*
+    virtual uiPresManagedTreeItem*
 		addChildItem(const OD::ObjPresentationInfo&);
 };
 
@@ -88,7 +88,7 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODSceneParentTreeItem
 
 		~uiODPolygonParentTreeItem();
 
-    virtual uiODPrManagedTreeItem*
+    virtual uiPresManagedTreeItem*
 		addChildItem(const OD::ObjPresentationInfo&);
     const char* childObjTypeKey() const;
 };

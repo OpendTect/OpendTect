@@ -99,7 +99,7 @@ Probe* uiODVolrenParentTreeItem::createNewProbe() const
 }
 
 
-uiODPrManagedTreeItem* uiODVolrenParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODVolrenParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
@@ -355,7 +355,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfobjid = vd->addIsoSurface( 0, false );
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
-        
+
         uiSingleGroupDlg<> dlg( applMgr()->applService().parent(),
                      new uiVisIsoSurfaceThresholdDlg( 0,mcs,vd,attribNr()));
         dlg.setHelpKey( mODHelpKey(mVolrenTreeItemHelpID) );

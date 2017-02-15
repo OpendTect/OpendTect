@@ -454,7 +454,7 @@ void RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& bids,
 
     updatePanelStripPath();
 
-    movingnotifystopper.restore();
+    movingnotifystopper.enableNotification();
     moving_.trigger();
 }
 
@@ -1012,7 +1012,7 @@ void RandomTrackDisplay::acceptManipulation()
     dragger_->showAllPanels( false );
     ismanip_ = false;
 
-    movingnotifystopper.restore();
+    movingnotifystopper.enableNotification();
     moving_.trigger();
 }
 
@@ -1397,9 +1397,9 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
 	if ( selspecs ) rtd->setSelSpecs( idx, *selspecs );
 	rtd->setDataPackID( idx, getDataPackID(idx), taskr );
-	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
-	if ( mappersetup )
-	    rtd->setColTabMapperSetup( idx, *mappersetup, taskr );
+	ConstRefMan<ColTab::MapperSetup> mappersu = getColTabMapperSetup( idx );
+	if ( mappersu )
+	    rtd->setColTabMapperSetup( idx, *mappersu, taskr );
 	const ColTab::Sequence* colseq = getColTabSequence( idx );
 	if ( colseq ) rtd->setColTabSequence( idx, *colseq, taskr );
     }

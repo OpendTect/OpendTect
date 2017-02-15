@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "uistring.h"
 
-namespace ColTab { class Sequence; class SeqMgr; }
+namespace ColTab { class Sequence; }
 
 class uiFileInput;
 class uiGenInput;
@@ -22,14 +22,14 @@ class uiLabel;
 class uiListBox;
 
 
-mExpClass(uiTools) uiColTabImport : public uiDialog
-{ mODTextTranslationClass(uiColTabImport)
+mExpClass(uiTools) uiColSeqImport : public uiDialog
+{ mODTextTranslationClass(uiColSeqImport)
 public:
-				uiColTabImport(uiParent*);
-				~uiColTabImport();
+				uiColSeqImport(uiParent*);
+				~uiColSeqImport();
 
-    const char*			getCurrentSelColTab() const;
-    
+    const char*			currentSeqName() const;
+
 protected:
 
     uiGenInput*			choicefld_;
@@ -48,5 +48,7 @@ protected:
     void			showList();
 
 private :
-    static uiString		getLabel(bool);
+
+    static uiString		getLabelText(bool);
+
 };

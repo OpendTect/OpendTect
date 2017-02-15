@@ -73,9 +73,8 @@ public:
 
 			NamedMonitorable(const char* nm=0);
 			NamedMonitorable(const NamedObject&);
-			mDeclMonitorableAssignment(NamedMonitorable);
     virtual		~NamedMonitorable();
-    bool		operator ==(const NamedMonitorable&) const;
+			mDeclMonitorableAssignment(NamedMonitorable);
 
     inline virtual	mImplSimpleMonitoredGet(getName,BufferString,name_)
     virtual void	setName(const char*);
@@ -94,8 +93,6 @@ public:
 	    BufferString    newnm_;
 
     };
-
-
 };
 
 

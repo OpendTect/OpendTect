@@ -20,11 +20,11 @@ class SharedObject;
 namespace OD { class PresentationManagedViewer; }
 
 
-mExpClass(uiTools) uiODPrManagedTreeItem : public uiODTreeItem
-{ mODTextTranslationClass(uiODPrManagedTreeItem)
+mExpClass(uiTools) uiPresManagedTreeItem : public uiODTreeItem
+{ mODTextTranslationClass(uiPresManagedTreeItem)
 public:
-			uiODPrManagedTreeItem(const uiString&);
-    virtual		~uiODPrManagedTreeItem();
+			uiPresManagedTreeItem(const uiString&);
+    virtual		~uiPresManagedTreeItem();
 
     virtual OD::ObjPresentationInfo* getObjPRInfo() const	{ return 0; }
     const DBKey&	storedID() const		{ return storedid_; }
@@ -37,19 +37,27 @@ public:
 
 protected:
 
-    RefMan<SharedObject> dataobj_;
     DBKey		storedid_;
 
-    virtual void	objChangedCB(CallBacker*)	{}
+    inline RefMan<SharedObject>& dataObj()		{ return dataobj_; }
+    inline const RefMan<SharedObject>& dataObj() const	{ return dataobj_; }
+
+    typedef Monitorable::ChangeData ChangeData;
+    void		objChangedCB(CallBacker*);
+    virtual void	handleObjChanged(const ChangeData&)		{}
+
+private:
+
+    RefMan<SharedObject> dataobj_;
 
 };
 
 
-mExpClass(uiTools) uiODPrManagedParentTreeItem : public uiODTreeItem
-{ mODTextTranslationClass(uiODPrManagedParentTreeItem)
+mExpClass(uiTools) uiPresManagedParentTreeItem : public uiODTreeItem
+{ mODTextTranslationClass(uiPresManagedParentTreeItem)
 public:
-			uiODPrManagedParentTreeItem(const uiString&);
-    virtual		~uiODPrManagedParentTreeItem();
+			uiPresManagedParentTreeItem(const uiString&);
+    virtual		~uiPresManagedParentTreeItem();
     void		setPRManagedViewer(OD::PresentationManagedViewer&);
 
     void		getLoadedChildren(OD::ObjPresentationInfoSet&) const;
@@ -59,12 +67,14 @@ public:
     bool		selectChild(const OD::ObjPresentationInfo&);
     void		emitChildPRRequest(const OD::ObjPresentationInfo&,
 					   OD::PresentationRequestType);
-    virtual uiODPrManagedTreeItem*
+    virtual uiPresManagedTreeItem*
 			addChildItem(const OD::ObjPresentationInfo&)
 			{ return 0; }
 
     virtual const char* childObjTypeKey() const			=0;
+
 protected:
+
     virtual void	objAddedCB(CallBacker*);
     virtual void	objVanishedCB(CallBacker*);
     virtual void	objShownCB(CallBacker*);

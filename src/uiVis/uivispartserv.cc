@@ -526,7 +526,8 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     if ( so && so->getScene() && so->getScene()->getSceneColTab() )
     {
 	const ColTab::Sequence* seq = so->getColTabSequence( selattrib_ );
-	const ColTab::MapperSetup* ms = so->getColTabMapperSetup( selattrib_ );
+	ConstRefMan<ColTab::MapperSetup> ms
+				= so->getColTabMapperSetup( selattrib_ );
 	if ( seq )
 	    so->getScene()->getSceneColTab()->setColTabSequence( *seq );
 	if ( ms )
@@ -889,7 +890,7 @@ void uiVisPartServer::getObjectInfo( int id, BufferString& info ) const
 }
 
 
-const ColTab::MapperSetup*
+ConstRefMan<ColTab::MapperSetup>
     uiVisPartServer::getColTabMapperSetup( int id, int attrib,
 					   int version ) const
 {
@@ -959,26 +960,23 @@ void uiVisPartServer::fillDispPars( int id, int attrib,
 				    FlatView::DataDispPars& common,
 				    bool wva ) const
 {
-    const ColTab::MapperSetup* mapper = getColTabMapperSetup( id, attrib );
+    ConstRefMan<ColTab::MapperSetup> mappersu
+				= getColTabMapperSetup( id, attrib );
     const ColTab::Sequence* seq = getColTabSequence( id, attrib );
-    if ( !mapper || !seq )
+    if ( !mappersu || !seq )
 	return;
 
-    FlatView::DataDispPars::Common* compars;
+    FlatView::DataDispPars::Common& compars =
+	wva ? (FlatView::DataDispPars::Common&)common.wva_
+	    : (FlatView::DataDispPars::Common&)common.vd_;
+    *compars.mappersetup_ = *mappersu;
     if ( wva )
-	compars = &common.wva_;
+	common.wva_.show_ = true;
     else
-	compars = &common.vd_;
-
-    if ( !wva )
     {
-	common.vd_.ctab_ = seq->name();
+	common.vd_.colseqname_ = seq->name();
 	common.vd_.show_ = true;
     }
-    else
-	common.wva_.show_ = true;
-
-    compars->mappersetup_ = *mapper;
 }
 
 
@@ -2304,8 +2302,10 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
 	    continue;
 
 	multirgeditwin_->setDataPackID( statsidx, dpid );
-	const ColTab::MapperSetup* ms = getColTabMapperSetup( visid, dpidx );
-	if ( ms ) multirgeditwin_->setColTabMapperSetup( statsidx, *ms );
+	ConstRefMan<ColTab::MapperSetup> ms
+				= getColTabMapperSetup( visid, dpidx );
+	if ( ms )
+	    multirgeditwin_->setColTabMapperSetup( statsidx, *ms );
 
 	const ColTab::Sequence* ctseq = getColTabSequence( visid, dpidx );
 	if ( ctseq ) multirgeditwin_->setColTabSeq( statsidx, *ctseq );

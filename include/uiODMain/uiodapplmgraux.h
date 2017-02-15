@@ -127,6 +127,7 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     void		pageUpDownPressed(bool);
     void		updateColorTable(int,int);
     void		colSeqChg();
+    void		colSeqModif();
     NotifierAccess*	colorTableSeqChange();
     void		useDefColTab(int,int);
     void		saveDefColTab(int,int);

@@ -10,11 +10,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "coltab.h"
-#include "enums.h"
+#include "coltabmappersetup.h"
 #include "math2.h"
-#include "notify.h"
 #include "valseries.h"
 #include "varlenarray.h"
 
@@ -26,122 +23,94 @@ class TaskRunner;
 namespace ColTab
 {
 
-/*!
-\brief Setup class for colortable Mapper.
+/*!\brief Maps data values to color sequence positions: [0,1].
+
+  This class is not protected against MT write access. So you have to
+  set everything before going MT.
+
+  If setup().nrSegs() > 0, the mapper will return the centers of the
+  segments only. For example, if nsegs_ == 3, only positions returned are
+  1/6, 3/6 and 5/6.
+
 */
 
-mExpClass(General) MapperSetup : public CallBacker
-{
-public:
-			MapperSetup();
-    enum Type		{ Fixed, Auto, HistEq };
-			mDeclareEnumUtils(Type);
-
-    mDefSetupClssMemb(MapperSetup,Type,type)
-    mDefSetupClssMemb(MapperSetup,Interval<float>,cliprate)	//!< Auto
-    mDefSetupClssMemb(MapperSetup,bool,autosym0)	//!< Auto and HistEq.
-    mDefSetupClssMemb(MapperSetup,float,symmidval)	//!< Auto and HistEq.
-							//!< Usually mUdf(float)
-    mDefSetupClssMemb(MapperSetup,int,maxpts)		//!< Auto and HistEq
-    mDefSetupClssMemb(MapperSetup,int,nrsegs)		//!< All
-    mDefSetupClssMemb(MapperSetup,bool,flipseq)		//!< All
-    mDefSetupClssMemb(MapperSetup,Interval<float>,range)
-
-    bool			operator==(const MapperSetup&) const;
-    bool			operator!=(const MapperSetup&) const;
-    MapperSetup&		operator=(const MapperSetup&);
-
-    bool			needsReClip(const MapperSetup&) const;
-				//!<Is new clip necessary if set to this
-
-    void			setAutoScale(bool);
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
-    static const char*		sKeyClipRate()	{ return "Clip Rate"; }
-    static const char*		sKeyAutoSym()	{ return "Auto Sym"; }
-    static const char*		sKeySymMidVal()	{ return "Sym Mid Value"; }
-    static const char*		sKeyStarWidth()	{ return "Start_Width"; }
-    static const char*		sKeyRange()	{ return "Range"; }
-    static const char*		sKeyFlipSeq()	{ return "Flip seq"; }
-
-    void			triggerRangeChange();
-    void			triggerAutoscaleChange();
-    mutable Notifier<MapperSetup>	rangeChange;
-    mutable Notifier<MapperSetup>	autoscaleChange;
-};
-
-
-/*!
-\brief Maps data values to colortable positions: [0,1].
-
-  If nrsegs_ > 0, the mapper will return the centers of the segments only. For
-  example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
-*/
-
-mExpClass(General) Mapper
+mExpClass(General) Mapper : public CallBacker
 {
 public:
 
-				Mapper(); //!< defaults maps from [0,1] to [0,1]
+				Mapper(); //!< default maps [0,1] to [0,1]
+				Mapper(const Mapper&);
 				~Mapper();
+    Mapper&			operator =(const Mapper&);
+
+    MapperSetup&		setup()		{ return *setup_; }
+    const MapperSetup&		setup() const	{ return *setup_; }
+    void			useSetup(MapperSetup&);
+    void			setSetup(const MapperSetup&);
 
     float			position(float val) const;
 				//!< returns position in ColorTable
     static int			snappedPosition(const Mapper*,float val,
 						int nrsteps,int udfval);
-    const Interval<float>&	range() const;
-    bool			isFlipped() const    { return setup_.flipseq_; }
-    const ValueSeries<float>*	data() const		{ return vs_; }
-    od_int64			dataSize() const	{ return vssz_; }
+    Interval<float>		range() const	{ return setup_->range(); }
+    const ValueSeries<float>*	data() const	{ return vs_; }
+    od_int64			dataSize() const{ return vssz_; }
+    DataClipper&		clipper()	{ return clipper_; }
+    const DataClipper&		clipper() const	{ return clipper_; }
 
-    void			setFlipped(bool yn) { setup_.flipseq_ = yn; }
-
-    void			setRange( const Interval<float>& rg );
+    void			setRange(Interval<float>);
     void			setData(const ValueSeries<float>*,od_int64 sz,
 					TaskRunner* = 0);
-				//!< If data changes, call update()
+				    //!< If data changes, call update()
 
-    void			update(bool full=true, TaskRunner* = 0);
-				//!< If !full, will assume data is unchanged
-    MapperSetup			setup_;
+    void			update(bool full=true,TaskRunner* =0);
+				    //!< If !full, will assume data is unchanged
+
+    static float		getPosition(const Interval<float>&,SeqUseMode,
+					    int nrsegs,float val);
+				//!< only works if mapping is linear on range
+    static float		seqPos4RelPos(SeqUseMode,float relpos);
+				//!< only works if mapping is linear on range
 
 protected:
 
+    RefMan<MapperSetup>		setup_;
     DataClipper&		clipper_;
+    Interval<float>		range_;
 
     const ValueSeries<float>*	vs_;
     od_int64			vssz_;
 
+    void			doUpdate(bool,TaskRunner*);
+
 };
 
 
-/*!
-\brief Takes a Mapper, unmapped data and maps it.
-*/
+/*!\brief Uses unmapped data and gathers the info needed to map it. */
 
-template <class T>
-mClass(General) MapperTask : public ParallelTask
-{ mODTextTranslationClass(MapperTask)
+template <class iT>
+mClass(General) MapperInfoCollector : public ParallelTask
+{ mODTextTranslationClass(MapperInfoCollector)
 public:
-			MapperTask(const ColTab::Mapper& map,
-				   od_int64 sz,T nrsteps,
+			MapperInfoCollector(const ColTab::Mapper& map,
+				   od_int64 sz,iT nrsteps,
 				   const float* unmapped,
-				   T* mappedvals,int mappedvalspacing=1,
-				   T* mappedundef=0,int mappedundefspacing=1);
+				   iT* mappedvals,int mappedvalspacing=1,
+				   iT* mappedundef=0,int mappedundefspacing=1);
 			/*!<separateundef will set every second value to
 			    0 or mUndefColIdx depending on if the value
 			    is undef or not. Mapped pointer should thus
 			    have space for 2*sz */
-			MapperTask(const ColTab::Mapper& map,
-				   od_int64 sz,T nrsteps,
+			MapperInfoCollector(const ColTab::Mapper& map,
+				   od_int64 sz,iT nrsteps,
 				   const ValueSeries<float>& unmapped,
-				   T* mappedvals, int mappedvalspacing=1,
-				   T* mappedundef=0,int mappedundefspacing=1);
+				   iT* mappedvals, int mappedvalspacing=1,
+				   iT* mappedundef=0,int mappedundefspacing=1);
 			/*!<separateundef will set every second value to
 			    0 or mUndefColIdx depending on if the value
 			    is undef or not. Mapped pointer should thus
 			    have space for 2*sz */
-			~MapperTask();
+			~MapperInfoCollector();
     od_int64		nrIterations() const;
     const unsigned int*	getHistogram() const	{ return histogram_; }
 
@@ -154,21 +123,21 @@ private:
     od_int64			totalsz_;
     const float*		unmapped_;
     const ValueSeries<float>*	unmappedvs_;
-    T*				mappedvals_;
+    iT*				mappedvals_;
     int				mappedvalsspacing_;
-    T*				mappedudfs_;
+    iT*				mappedudfs_;
     int				mappedudfspacing_;
-    T				nrsteps_;
+    const iT			nrsteps_;
     unsigned int*		histogram_;
     Threads::Lock		lock_;
 };
 
 
-template <class T> inline
-MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
+template <class iT> inline
+MapperInfoCollector<iT>::MapperInfoCollector( const ColTab::Mapper& map, od_int64 sz, iT nrsteps,
 			   const float* unmapped,
-			   T* mappedvals, int mappedvalsspacing,
-			   T* mappedudfs, int mappedudfspacing	)
+			   iT* mappedvals, int mappedvalsspacing,
+			   iT* mappedudfs, int mappedudfspacing	)
     : ParallelTask( "Color table mapping" )
     , mapper_( map )
     , totalsz_( sz )
@@ -185,11 +154,11 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
 }
 
 
-template <class T> inline
-MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
+template <class iT> inline
+MapperInfoCollector<iT>::MapperInfoCollector( const ColTab::Mapper& map, od_int64 sz, iT nrsteps,
 			   const ValueSeries<float>& unmapped,
-			   T* mappedvals, int mappedvalsspacing,
-			   T* mappedudfs, int mappedudfspacing	)
+			   iT* mappedvals, int mappedvalsspacing,
+			   iT* mappedudfs, int mappedudfspacing	)
     : ParallelTask( "Color table mapping" )
     , mapper_( map )
     , totalsz_( sz )
@@ -206,27 +175,27 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
 }
 
 
-template <class T> inline
-MapperTask<T>::~MapperTask()
+template <class iT> inline
+MapperInfoCollector<iT>::~MapperInfoCollector()
 {
     delete [] histogram_;
 }
 
 
-template <class T> inline
-od_int64 MapperTask<T>::nrIterations() const
+template <class iT> inline
+od_int64 MapperInfoCollector<iT>::nrIterations() const
 { return totalsz_; }
 
 
-template <class T> inline
-bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
+template <class iT> inline
+bool MapperInfoCollector<iT>::doWork( od_int64 start, od_int64 stop, int )
 {
     mAllocVarLenArr( unsigned int, histogram,  mUndefColIdx+1);
 
     OD::memZero( histogram, (mUndefColIdx+1)*sizeof(unsigned int) );
 
-    T* valresult = mappedvals_+start*mappedvalsspacing_;
-    T* udfresult = mappedudfs_ ? mappedudfs_+start*mappedudfspacing_ : 0;
+    iT* valresult = mappedvals_+start*mappedvalsspacing_;
+    iT* udfresult = mappedudfs_ ? mappedudfs_+start*mappedudfspacing_ : 0;
     const float* inp = unmapped_+start;
 
     const ValueSeries<float>* unmappedvs = unmappedvs_;
@@ -235,11 +204,12 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
     const int nrsteps = nrsteps_;
     const int udfcolidx = mUndefColIdx;
 
-    const int nrsegs = mapper_.setup_.nrsegs_;
-    const bool flipseq = mapper_.setup_.flipseq_;
-    const float rangewidth = mapper_.setup_.range_.width( false );
+    const int nrsegs = mapper_.setup().nrSegs();
+    const SeqUseMode usemode = mapper_.setup().seqUseMode();
+    const Interval<float> maprg( mapper_.setup().range() );
+    const float rangewidth = maprg.width( false );
     const bool rangehaswidth = !mIsZero(rangewidth,mDefEps);
-    const float rangestart = mapper_.setup_.range_.start;
+    const float rangestart = maprg.start;
 
     int nrdone = 0;
     for ( od_int64 idx=start; idx<=stop; idx++ )
@@ -263,26 +233,19 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 		else if ( position < 0.0f )
 		    position = 0.0f;
 
-		if ( flipseq )
-		    position = 1.0f - position;
-
-		position *= nrsteps;
-
-		if ( position > nrsteps-0.9f )
-		    position = nrsteps - 0.9f;
-		else if ( position < 0.0f )
-		    position = 0.0f;
+		position = Mapper::seqPos4RelPos( usemode, position );
+		position = Mapper::snappedPosition( 0, position, nrsteps, -1 );
 	    }
 	}
 
-	const T res = (T) ( isudf ? udfcolidx : (int) position );
+	const iT res = (iT)( isudf ? udfcolidx : (int)position );
 
 	*valresult = res;
 	valresult += mappedvalsspacing;
 
 	if ( udfresult )
 	{
-	    *udfresult = (T) (isudf ? 0 : udfcolidx);
+	    *udfresult = (iT)(isudf ? 0 : udfcolidx);
 	    udfresult += mappedudfspacing;
 	}
 

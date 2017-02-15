@@ -109,16 +109,16 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     toolbar_->addSeparator();
     editbut_ = new uiToolButton( toolbar_, "seedpickmode",tr("Edit mode"),
 				mCB(this,uiCheckShotEdit,editCB) );
-    toolbar_->addButton( editbut_ );
+    toolbar_->addObject( editbut_ );
     editbut_->setToggleButton( true );
 
     undobut_ = new uiToolButton( toolbar_, "undo", uiStrings::sUndo(),
 				mCB(this,uiCheckShotEdit,undoCB) );
-    toolbar_->addButton( undobut_ );
+    toolbar_->addObject( undobut_ );
     undobut_->setSensitive( false );
     redobut_ = new uiToolButton( toolbar_, "redo", uiStrings::sRedo(),
 				mCB(this,uiCheckShotEdit,redoCB) );
-    toolbar_->addButton( redobut_ );
+    toolbar_->addObject( redobut_ );
     redobut_->setSensitive( false );
 
     control_ = new uiWellDisplayControl( *d2tdisplay_ );

@@ -61,23 +61,15 @@ void Well::D2TModel::copyClassData( const D2TModel& oth )
 }
 
 
-bool Well::D2TModel::operator ==( const Well::D2TModel& oth ) const
+Monitorable::ChangeType Well::D2TModel::compareClassData(
+					const D2TModel& oth ) const
 {
-    if ( &oth == this )
-	return true;
-    mLock4Read();
-    const int sz = gtSize();
-    if ( oth.size() != sz )
-	return false;
+    if ( times_ != oth.times_ )
+	return cEntireObjectChange();
 
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	if ( !mIsEqual(oth.dahs_[idx],dahs_[idx],z_eps) ||
-	     !mIsEqual(oth.times_[idx],times_[idx],t_eps) )
-	    return false;
-    }
-
-    return true;
+    mDeliverSingCondMonitorableCompare(
+	desc_ == oth.desc_ && datasource_ == oth.datasource_,
+	cParsChange() );
 }
 
 

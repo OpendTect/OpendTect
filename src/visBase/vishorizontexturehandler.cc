@@ -27,8 +27,8 @@
 using namespace visBase;
 
 HorizonTextureHandler::HorizonTextureHandler( const HorizonSection* horsection )
-    : channels_( TextureChannels::create() )		   
-    , channel2rgba_( ColTabTextureChannel2RGBA::create() ) 
+    : channels_( TextureChannels::create() )
+    , channel2rgba_( ColTabTextureChannel2RGBA::create() )
     , horsection_( horsection )
 {
     cache_.allowNull( true );
@@ -37,7 +37,7 @@ HorizonTextureHandler::HorizonTextureHandler( const HorizonSection* horsection )
     channels_->setChannels2RGBA( channel2rgba_ );
     if ( channels_->nrChannels()<1 )
 	addChannel();
-    else 
+    else
 	cache_ += 0;
     channels_->getOsgTexture()->setTextureSizePolicy(
 	osgGeo::LayeredTexture::AnySize );
@@ -65,7 +65,7 @@ osgGeo::LayeredTexture*	HorizonTextureHandler::getOsgTexture()
 
 
 void HorizonTextureHandler::addChannel()
-{ 
+{
     channels_->addChannel();
     cache_ += 0;
     channel2rgba_->setEnabled( nrChannels()-1, true );
@@ -79,37 +79,39 @@ void HorizonTextureHandler::setColTabSequence(int channel,
 }
 
 
-const ColTab::Sequence*
+const ColTab::Sequence&
 HorizonTextureHandler::getColTabSequence( int channel ) const
 {
-    return channel<0 ? 0 : channel2rgba_->getSequence( channel );
+    return channel2rgba_->getSequence( channel );
 }
 
 
-void HorizonTextureHandler::setColTabMapperSetup( int channel, 
-    const ColTab::MapperSetup& mapper, TaskRunner* tskr )
+void HorizonTextureHandler::setColTabMapperSetup( int channel,
+    const ColTab::MapperSetup& mappersu, TaskRunner* tskr )
 {
     if ( channel>=0 )
     {
+	ConstRefMan<ColTab::MapperSetup> channel0su
+		    = channels_->getColTabMapperSetup( channel, 0 );
 	const bool needsclip =
-	    channels_->getColTabMapperSetup( channel, 0 ).needsReClip( mapper );
-	channels_->setColTabMapperSetup( channel, mapper );
+	    channel0su->needsReClip( mappersu );
+	channels_->setColTabMapperSetup( channel, mappersu );
 	channels_->reMapData( channel, !needsclip, tskr );
     }
 }
 
 
-const ColTab::MapperSetup*
+ConstRefMan<ColTab::MapperSetup>
 HorizonTextureHandler::getColTabMapperSetup( int ch ) const
 {
-    return ch<0 ? 0 : &channels_->getColTabMapperSetup( ch,activeVersion(ch) );
+    return ch<0 ? 0 : channels_->getColTabMapperSetup( ch, activeVersion(ch) );
 }
 
 
 
 int HorizonTextureHandler::nrChannels() const
-{ 
-    return channels_->nrChannels(); 
+{
+    return channels_->nrChannels();
 }
 
 
@@ -127,81 +129,81 @@ void HorizonTextureHandler::setChannels2RGBA( TextureChannel2RGBA* t )
 
 
 TextureChannel2RGBA* HorizonTextureHandler::getChannels2RGBA()
-{ 
-    return channel2rgba_; 
+{
+    return channel2rgba_;
 }
 
 
 const TextureChannel2RGBA* HorizonTextureHandler::getChannels2RGBA() const
-{ 
-    return channel2rgba_; 
+{
+    return channel2rgba_;
 }
 
 
 void HorizonTextureHandler::useChannel( bool yn )
-{ 
-    channels_->turnOn( yn ); 
+{
+    channels_->turnOn( yn );
 }
 
 
 void HorizonTextureHandler::removeChannel( int channelidx )
-{ 
-    channels_->removeChannel( channelidx ); 
+{
+    channels_->removeChannel( channelidx );
     delete cache_.removeSingle( channelidx );
 }
 
 
 void HorizonTextureHandler::swapChannels( int channel0, int channel1 )
-{ 
-    channels_->swapChannels( channel0, channel1 ); 
+{
+    channels_->swapChannels( channel0, channel1 );
     cache_.swap( channel0, channel1 );
 }
 
 
 int HorizonTextureHandler::nrVersions( int channel ) const
 {
-    return channels_->nrVersions( channel ); 
+    return channels_->nrVersions( channel );
 }
 
 
 void HorizonTextureHandler::setNrVersions( int channel, int nrvers )
-{ 
+{
     channels_->setNrVersions( channel, nrvers);
 }
 
 
 int HorizonTextureHandler::activeVersion( int channel ) const
-{ 
-    return channels_->currentVersion( channel ); 
+{
+    return channels_->currentVersion( channel );
 }
 
 
 void HorizonTextureHandler::selectActiveVersion( int channel, int version )
-{ 
+{
     channels_->setCurrentVersion( channel, version );
 }
 
 
 const TypeSet<float>* HorizonTextureHandler::getHistogram( int ch ) const
-{ 
-    return channels_->getHistogram( ch ); 
+{
+    return channels_->getHistogram( ch );
 }
 
 
 void HorizonTextureHandler::setTransparency( int ch, unsigned char yn )
-{ 
+{
     mDynamicCastGet( ColTabTextureChannel2RGBA*, ct, channel2rgba_ );
     if ( ct && ch>=0 ) ct->setTransparency( ch, yn );
 }
 
 
 unsigned char HorizonTextureHandler::getTransparency( int ch ) const
-{ 
+{
     mDynamicCastGet( ColTabTextureChannel2RGBA*, ct, channel2rgba_ );
     if ( !ct )
 	return 0;
 
-    return ct->getTransparency( ch ); 
+    return ct->getTransparency( ch );
 }
 
 
@@ -221,8 +223,8 @@ void HorizonTextureHandler::inValidateCache( int channel )
 
 
 const BinIDValueSet* HorizonTextureHandler::getCache( int channel ) const
-{ 
-    return cache_.validIdx(channel) ? cache_[channel] : 0; 
+{
+    return cache_.validIdx(channel) ? cache_[channel] : 0;
 }
 
 
@@ -230,7 +232,7 @@ void HorizonTextureHandler::setTextureData( int channel,  int sectionid,
 				     const DataPointSet* dtpntset )
 {
     const BinIDValueSet* data = dtpntset ? &dtpntset->bivSet() : 0;
-    if ( channel<0 || channel>=cache_.size() ) 
+    if ( channel<0 || channel>=cache_.size() )
 	return;
 
     if ( cache_[channel] )
@@ -260,7 +262,7 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
     if ( !horsection_ ) return;
 
     const BinIDValueSet* data = cache_.validIdx(channel) ? cache_[channel] : 0;
-    if ( !horsection_->geometry_ || !horsection_->geometry_->getArray() || 
+    if ( !horsection_->geometry_ || !horsection_->geometry_->getArray() ||
 	 !dtpntset || !data )
 	return;
 
@@ -268,7 +270,7 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 
     const char* hrsectionid = "Section ID";
     const DataColDef sidcoldef( hrsectionid );
-    const int sidcol = 
+    const int sidcol =
 	dtpntset->dataSet().findColDef(sidcoldef,PosVecDataSet::NameExact);
     const int shift = sidcol==-1 ?  nrfixedcols : nrfixedcols+1;
 
@@ -310,7 +312,7 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 
 	if ( horsection_->userchangedisplayrg_ )
 	{
-	    if ( ( bid.inl()-rrg.start ) % rrg.step || 
+	    if ( ( bid.inl()-rrg.start ) % rrg.step ||
 		 ( bid.crl()-crg.start ) % crg.step )
 		continue;
 	}
@@ -343,7 +345,7 @@ void HorizonTextureHandler::updateTileTextureOrigin()
 	for ( int idy=0; idy<horsection_->tiles_.info().getSize(1); idy++ )
 	{
 	    HorizonSectionTile* tile = horsection_->tiles_.get( idx, idy );
-	    if ( !tile ) 
+	    if ( !tile )
 		continue;
 
 	    Coord origin( tile->origin_.col(), tile->origin_.row() );

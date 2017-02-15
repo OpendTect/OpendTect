@@ -199,7 +199,7 @@ public:
     TypeSet<Color>&		y2grpColors()		{ return y2grpcols_; }
 
     void			setColTab( const ColTab::Sequence& ctseq )
-				{ ctab_ = ctseq; }
+							{ ctab_ = &ctseq; }
     void			setCTMapper(const ColTab::MapperSetup&);
     void			showY2(bool);
     void			drawContent( bool withaxis = true );
@@ -264,8 +264,8 @@ public:
     int				y4Colid() const		{ return y4colid_; }
     const ColTab::Mapper&	y3Mapper() const	{ return y3mapper_; }
     const ColTab::Mapper&	y4Mapper() const	{ return y4mapper_; }
-    const ColTab::Sequence&	y3CtSeq() const		{ return y3ctab_; }
-    const ColTab::Sequence&	y4CtSeq() const		{ return y4ctab_; }
+    const ColTab::Sequence&	y3CtSeq() const		{ return *y3ctab_; }
+    const ColTab::Sequence&	y4CtSeq() const		{ return *y4ctab_; }
 
     float			getVal(int colid,int rid) const;
 
@@ -293,10 +293,10 @@ protected:
     uiColTabItem*		y1overlayctitem_;
     uiColTabItem*		y2overlayctitem_;
 
-    ColTab::Sequence		ctab_;
+    ConstRefMan<ColTab::Sequence> ctab_;
+    ConstRefMan<ColTab::Sequence> y3ctab_;
+    ConstRefMan<ColTab::Sequence> y4ctab_;
     ColTab::Mapper		ctmapper_;
-    ColTab::Sequence		y3ctab_;
-    ColTab::Sequence		y4ctab_;
     ColTab::Mapper		y3mapper_;
     ColTab::Mapper		y4mapper_;
     LinStats2D&			lsy1_;

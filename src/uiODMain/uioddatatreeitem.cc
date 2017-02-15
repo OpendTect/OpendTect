@@ -103,7 +103,6 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , menu_(0)
     , ampspectrumwin_(0)
     , fkspectrumwin_(0)
-    , probelayer_(0)
     , movemnuitem_(tr("Move"))
     , movetotopmnuitem_(tr("To Top"))
     , movetobottommnuitem_(tr("To Bottom"))
@@ -183,7 +182,8 @@ bool uiODDataTreeItem::init()
 	 visserv_->hasSingleColorFallback(displayID()) )
     {
 	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
-	uitreeviewitem_->setChecked( visserv_->isAttribEnabled(displayID(),
+	if ( uitreeviewitem_ )
+	    uitreeviewitem_->setChecked( visserv_->isAttribEnabled(displayID(),
 				     attribNr() ) );
     }
 
@@ -485,7 +485,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
     {
-	mDynamicCastGet(uiODPrManagedTreeItem*,prmanitem,parent_);
+	mDynamicCastGet(uiPresManagedTreeItem*,prmanitem,parent_);
 	if ( !prmanitem )
 	    return;
 
@@ -531,7 +531,7 @@ void uiODDataTreeItem::updateColumnText( int col )
 
 void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 {
-    if ( !seq )
+    if ( !seq || !uitreeviewitem_ )
     {
 	uiTreeItem::updateColumnText( uiODSceneMgr::cColorColumn() );
 	return;
@@ -541,25 +541,23 @@ void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 }
 
 
-void uiODDataTreeItem::setProbeLayer( ProbeLayer* layer )
+void uiODDataTreeItem::setProbeLayer( ProbeLayer* newlayer )
 {
-    if ( probelayer_ == layer )
+    if ( probelayer_ == newlayer )
 	return;
 
     if ( probelayer_ )
-    {
-	mDetachCB( probelayer_->objectChanged(),
-		   uiODDataTreeItem::probeLayerChangedCB );
 	mDetachCB( probelayer_->getProbe()->objectChanged(),
 		   uiODDataTreeItem::probeChangedCB );
-    }
 
-    probelayer_ = layer;
+    replaceMonitoredRef( probelayer_, newlayer );
 
-    mAttachCB( probelayer_->getProbe()->objectChanged(),
-	       uiODDataTreeItem::probeChangedCB );
-    mAttachCB( probelayer_->objectChanged(),
-	       uiODDataTreeItem::probeLayerChangedCB );
+    if ( newlayer )
+	mAttachCB( newlayer->getProbe()->objectChanged(),
+		   uiODDataTreeItem::probeChangedCB );
+
+    updateDisplay();
+    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
@@ -567,7 +565,8 @@ void uiODDataTreeItem::probeLayerChangedCB( CallBacker* cb )
 {
     updateDisplay();
     mCBCapsuleUnpack(Monitorable::ChangeData,cd,cb);
-    if ( cd.changeType()==AttribProbeLayer::cColTabSeqChange() )
+    if ( cd.isEntireObject()
+      || cd.changeType()==AttribProbeLayer::cColSeqChange() )
 	updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 

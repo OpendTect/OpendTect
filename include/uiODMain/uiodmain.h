@@ -50,7 +50,6 @@ public:
     uiODSceneMgr&	sceneMgr()	{ return *scenemgr_; }
     uiODViewer2DMgr&	viewer2DMgr()	{ return *viewer2dmgr_; }
     uiVisColTabEd&	colTabEd()	{ return *ctabed_; }
-    uiToolBar*		colTabToolBar()	{ return ctabtb_; }
 
     Notifier<uiODMain>	sessionSave;	//!< Put data in pars
     Notifier<uiODMain>	sessionRestoreEarly; //!< Get data from pars, before vis

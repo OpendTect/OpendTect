@@ -28,9 +28,14 @@ const char* ColTab::Sequence::sKeyUdfColor()	{ return "Undef color"; }
 const char* ColTab::Sequence::sKeyTransparency(){ return "Transparency"; }
 const char* ColTab::Sequence::sKeyCtbl()	{ return "Color table"; }
 const char* ColTab::Sequence::sKeyNrSegments()	{ return "Nr segments"; }
+const char* ColTab::Sequence::sKeyDisabled()	{ return "Disabled"; }
+const char* ColTab::SequenceManager::sKeyRemoved() { return "System.Hide"; }
 
 static const char* sKeyCtabSettsKey = "coltabs";
 mDefineInstanceCreatedNotifierAccess(ColTab::Sequence);
+
+mDefineEnumUtils(ColTab::Sequence,Status,"Color Sequence Status")
+	{ "System", "Edited", "Added", 0 };
 
 
 static const char* sKeyDefName = "dTect.Disp.Default Color table";
@@ -62,11 +67,10 @@ const char* ColTab::defSeqName()
 
 
 #define mInitMembs() \
-      NamedMonitorable(0) \
-    , undefcolor_(Color::LightGrey()) \
+      undefcolor_(Color::LightGrey()) \
     , markcolor_(Color::DgbColor()) \
     , nrsegments_( 0 ) \
-    , type_(User)
+    , disabled_( false )
 
 
 ColTab::Sequence::Sequence()
@@ -79,19 +83,17 @@ ColTab::Sequence::Sequence()
 ColTab::Sequence::Sequence( const char* nm )
     : mInitMembs()
 {
-    bool gotrequested = false;
     if ( nm && *nm )
-	gotrequested = ColTab::SM().get( nm , *this );
-    if ( !gotrequested )
-	ColTab::SM().get( defSeqName(), *this );
+	*this = *SeqMGR().getAny( nm );
     mTriggerInstanceCreatedNotifier();
 }
 
 
 ColTab::Sequence::Sequence( const ColTab::Sequence& oth )
-    : mInitMembs()
+    : SharedObject(oth)
+    , mInitMembs()
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -102,7 +104,7 @@ ColTab::Sequence::~Sequence()
 }
 
 
-mImplMonitorableAssignment( ColTab::Sequence, NamedMonitorable )
+mImplMonitorableAssignment( ColTab::Sequence, SharedObject )
 
 
 void ColTab::Sequence::copyClassData( const Sequence& oth )
@@ -115,48 +117,49 @@ void ColTab::Sequence::copyClassData( const Sequence& oth )
     nrsegments_ = oth.nrsegments_;
     undefcolor_ = oth.undefcolor_;
     markcolor_ = oth.markcolor_;
-    type_ = oth.type_;
+    disabled_ = oth.disabled_;
 }
 
 
-
-bool ColTab::Sequence::operator==( const ColTab::Sequence& oth ) const
+Monitorable::ChangeType ColTab::Sequence::compareClassData(
+					const Sequence& oth ) const
 {
-    if ( !NamedMonitorable::operator==(oth) )
-	return false;
-
-    mLock4Read();
-    MonitorLock ml( oth );
-
     const size_type sz = gtSize();
     if ( sz != oth.gtSize()
       || oth.tr_.size() != tr_.size()
+      || oth.nrsegments_ != nrsegments_
       || oth.undefcolor_ != undefcolor_
-      || oth.markcolor_ != markcolor_
-      || oth.nrsegments_ != nrsegments_ )
-	return false;
+      || oth.markcolor_ != markcolor_ )
+	return cEntireObjectChange();
 
-   for ( IdxType idx=0; idx<sz; idx++ )
-   {
-      if ( !mIsEqual(oth.x_[idx],x_[idx],0.001) || oth.r_[idx] != r_[idx] ||
-	   oth.g_[idx] != g_[idx] || oth.b_[idx] != b_[idx] )
-	  return false;
-   }
+    for ( IdxType idx=0; idx<sz; idx++ )
+    {
+	if ( !mIsEqual(oth.x_[idx],x_[idx],0.001)
+	  || oth.r_[idx] != r_[idx] || oth.g_[idx] != g_[idx]
+	  || oth.b_[idx] != b_[idx] )
+	return cEntireObjectChange();
+    }
 
-   for ( IdxType idx=0; idx<tr_.size(); idx++ )
-   {
-       if ( oth.tr_[idx] != tr_[idx] )
-	   return false;
-   }
+    for ( IdxType idx=0; idx<tr_.size(); idx++ )
+    {
+	if ( oth.tr_[idx] != tr_[idx] )
+	    return cEntireObjectChange();
+    }
 
-   return true;
+    return cNoChange();
 }
 
 
 ColTab::Sequence::size_type ColTab::Sequence::size() const
 {
     mLock4Read();
-    return x_.size();
+    return gtSize();
+}
+
+
+ColTab::Sequence::Status ColTab::Sequence::status() const
+{
+    return SeqMGR().statusOf( *this );
 }
 
 
@@ -288,7 +291,7 @@ ColTab::Sequence::IdxType ColTab::Sequence::setColor( PosType px,
     }
 
     if ( !done )
-	{ r_ += pr; g_ += pg; b_ += pb; x_ += px; chgdidx = x_.size()-1; }
+	{ r_ += pr; g_ += pg; b_ += pb; x_ += px; chgdidx = gtSize()-1; }
 
     mSendChgNotif( cColorChange(), chgdidx );
     return chgdidx;
@@ -444,43 +447,45 @@ void ColTab::Sequence::changeTransparency( IdxType idx, TranspPtType pt )
 }
 
 
-void ColTab::Sequence::flipColor()
+void ColTab::Sequence::emitStatusChg() const
 {
     mLock4Write();
-    if ( size() == 0 ) return;
-
-    IdxType first = 0;
-    IdxType last = size() - 1;
-    for ( ; first!=last && first<last; )
-    {
-	Swap( r_[first], r_[last] );
-	Swap( g_[first], g_[last] );
-	Swap( b_[first], b_[last] );
-	Swap( x_[first], x_[last] );
-
-	first++;
-	last--;
-    }
-
-    for ( IdxType idx=0; idx<size(); idx++ )
-	x_[idx] = 1.0f - x_[idx];
-    mSendEntireObjChgNotif();
+    mSendChgNotif( cStatusChange(), cUnspecChgID() );
 }
 
 
-void ColTab::Sequence::flipTransparency()
+uiString ColTab::Sequence::statusDispStr() const
 {
-    mLock4Write();
-    const TypeSet<TranspPtType> oldtr( tr_ );
+    return ::toUiString( "%1%2" ).arg( toUiString(status()) )
+	.arg( disabled() ? od_static_tr("ColTab::Sequence::statusDispStr",
+				"[disabled]") : uiString::emptyString() );
+}
 
-    const size_type sz = oldtr.size();
 
-    for ( IdxType idx=0; idx<sz; idx++ )
-    {
-	tr_[idx].first = 1 - oldtr[sz-idx-1].first;
-	tr_[idx].second = oldtr[sz-idx-1].second;
-    }
-    mSendEntireObjChgNotif();
+ColTab::Sequence::PosType ColTab::Sequence::snapToSegmentCenter(
+							PosType x ) const
+{
+    mLock4Read();
+    if ( mIsUdf(x) )
+	return x;
+    else if ( nrsegments_ < 1 )
+	return x;
+    else if ( nrsegments_ == 1 )
+	return 0.5f;
+    else if ( x < 0.f )
+	{ pErrMsg("0<=x<=1"); x = 0.f; }
+    else if ( x > 1.f )
+	{ pErrMsg("0<=x<=1"); x = 1.f; }
+
+    const float segmentsize = 1.0f / (nrsegments_ - 1);
+
+    IdxType segment = (IdxType) ( x/segmentsize + 0.5f );
+    if ( segment<0 )
+	segment = 0;
+    if ( segment>=nrsegments_ )
+	segment = nrsegments_-1;
+
+    return segment*segmentsize;
 }
 
 
@@ -519,10 +524,11 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
     fms += (int)undefcolor_.b(); fms += (int)undefcolor_.t();
     iopar.set( sKeyUdfColor(), fms );
     iopar.set( sKeyNrSegments(), nrsegments_ );
+    iopar.setYN( sKeyDisabled(), disabled_ );
 
-    for ( int idx=0; idx<x_.size(); idx++ )
+    for ( int idx=0; idx<gtSize(); idx++ )
     {
-	fms = "";
+	fms.setEmpty();
 	fms += x_[idx];
 	fms += (int)r_[idx]; fms += (int)g_[idx]; fms += (int)b_[idx];
 	fms += gtTransparencyAt( x_[idx] );
@@ -552,6 +558,7 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 	return false;
 
     name_ = res;
+    iopar.getYN( sKeyDisabled(), disabled_ );
 
     nrsegments_ = 0;
     const bool hadnrsegments = iopar.get( sKeyNrSegments(), nrsegments_ );
@@ -609,41 +616,30 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 }
 
 
-ColTab::SeqMgr& ColTab::SM()
+
+static Threads::AtomicPointer<ColTab::SequenceManager> the_coltab_seqmgr_;
+
+namespace ColTab
 {
-    mDefineStaticLocalObject( PtrMan<ColTab::SeqMgr>, theinst,
-                              = new ColTab::SeqMgr );
-    return *theinst;
+
+const SequenceManager& SeqMGR()
+{
+    if ( !the_coltab_seqmgr_ )
+	the_coltab_seqmgr_.setIfEqual( 0, new SequenceManager );
+
+    return *the_coltab_seqmgr_;
+}
+
 }
 
 
-ColTab::SeqMgr::SeqMgr()
-    : seqAdded(this)
-    , seqRemoved(this)
-{
-    readColTabs();
-}
-
-
-ColTab::SeqMgr::~SeqMgr()
-{
-    deepErase( seqs_ );
-    deepErase( removedseqs_ );
-}
-
-
-void ColTab::SeqMgr::refresh()
-{
-    deepErase( seqs_ );
-    readColTabs();
-}
-
-
-void ColTab::SeqMgr::readColTabs()
+ColTab::SequenceManager::SequenceManager()
+    : nameChange(this)
+    , iscopy_(false)
 {
     IOPar* iop = 0;
     BufferString fnm = mGetSetupFileName("ColTabs");
-    od_istream strm( mGetSetupFileName("ColTabs") );
+    od_istream strm( fnm );
     if ( strm.isOK() )
     {
 	ascistream astrm( strm );
@@ -651,141 +647,436 @@ void ColTab::SeqMgr::readColTabs()
     }
     if ( iop )
 	{ addFromPar( *iop, true ); delete iop; }
-    if ( InSysAdmMode() )
-	return;
 
-    Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
-    addFromPar( setts, false );
-}
-
-
-void ColTab::SeqMgr::addFromPar( const IOPar& iop, bool fromsys )
-{
-    for ( IdxType idx=0; ; idx++ )
+    if ( !InSysAdmMode() )
     {
-	PtrMan<IOPar> ctiopar = iop.subselect( idx );
-	if ( !ctiopar || !ctiopar->size() )
-	{
-	    if ( !idx ) continue;
-	    return;
-	}
-	ColTab::Sequence* newseq = new ColTab::Sequence;
-	if ( !newseq->usePar( *ctiopar ) )
-	    { delete newseq; continue; }
+	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
+	addFromPar( setts, false );
 
-	if ( newseq->size() < 1 && newseq->transparencySize() < 1 )
-	    { delete newseq; continue; }
-
-	IdxType existidx = indexOf( newseq->name() );
-	if ( existidx < 0 )
+	BufferStringSet removedseqnms;
+	PtrMan<IOPar> remiop = setts.subselect( sKeyRemoved() );
+	if ( remiop && !remiop->isEmpty() )
 	{
-	    newseq->setType( fromsys ? Sequence::System : Sequence::User );
-	    add( newseq );
+	    for ( int idx=0; idx<remiop->size(); idx++ )
+		removedseqnms.add( remiop->getValue(idx) );
 	}
-	else
+
+	for ( int idx=0; idx<sysseqs_.size(); idx++ )
 	{
-	    newseq->setType( Sequence::Edited );
-	    Sequence* oldseq = seqs_[existidx];
-	    seqs_.replace( existidx, newseq );
-	    delete oldseq;
+	    const Sequence* seq = sysseqs_[idx];
+	    if ( removedseqnms.isPresent(seq->name()) )
+		continue;
+
+	    if ( gtIdxOf(seqs_,seq->name()) < 0
+		&& !removedseqnms.isPresent(seq->name()) )
+		doAdd( seq->clone(), false );
 	}
     }
+    lastsaveddirtycount_ = dirtyCount();
 }
 
 
-ColTab::SeqMgr::IdxType ColTab::SeqMgr::indexOf( const char* nm ) const
+ColTab::SequenceManager::SequenceManager( const SequenceManager& oth )
+    : Monitorable(oth)
+    , iscopy_(true)
+    , nameChange(this)
 {
+    copyClassData( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+ColTab::SequenceManager::~SequenceManager()
+{
+    sendDelNotif();
+    deepUnRef( seqs_ );
+    deepUnRef( sysseqs_ );
+}
+
+
+void ColTab::SequenceManager::deleteInst( SequenceManager* inst )
+{
+    delete inst;
+}
+
+
+mImplMonitorableAssignment( ColTab::SequenceManager, Monitorable )
+
+
+void ColTab::SequenceManager::copyClassData( const SequenceManager& oth )
+{
+    deepUnRef( seqs_ );
+    deepUnRef( sysseqs_ );
+
+    for ( int othidx=0; othidx<oth.seqs_.size(); othidx++ )
+	doAdd( oth.seqs_[othidx]->clone(), false );
+
+    sysseqs_ = oth.sysseqs_;
+    deepRef( sysseqs_ );
+    lastsaveddirtycount_ = oth.lastsaveddirtycount_;
+}
+
+
+Monitorable::ChangeType ColTab::SequenceManager::compareClassData(
+					const SequenceManager& oth ) const
+{
+    if ( seqs_.size() != oth.seqs_.size() )
+	return cEntireObjectChange();
+    for ( int idx=0; idx<seqs_.size(); idx++ )
+	if ( *seqs_[idx] != *oth.seqs_[idx] )
+	    return cEntireObjectChange();
+    return cNoChange();
+}
+
+
+void ColTab::SequenceManager::rollbackFromCopy( const SequenceManager& oth )
+{
+    if ( iscopy_ || !oth.iscopy_ )
+	{ pErrMsg("Knurft"); return; }
+
+    rollbackFrom( oth );
+}
+
+
+void ColTab::SequenceManager::rollbackFrom( const SequenceManager& oth )
+{
+    // We cannot lock.
+    // There will be callbacks and the mgr cannot be in a locked state
+    // Not really a problem as rollback is a 'are you sure?' user thing.
+    // We will try to make as few changes as possible.
+
+    // 1. remove ones that are not in oth
+    for ( int myidx=0; myidx<seqs_.size(); myidx++ )
+    {
+	Sequence* myseq = seqs_[myidx];
+	if ( oth.idxOf(myseq->name()) < 0 )
+	{
+	    seqs_.removeSingle( myidx );
+	    myseq->unRef();
+	    myidx--;
+	}
+    }
+
+    // 2. add or copy the rest
+    for ( int othidx=0; othidx<oth.seqs_.size(); othidx++ )
+    {
+	const Sequence& othseq = *oth.seqs_[othidx];
+	const int myidx = idxOf( othseq.name() );
+	if ( myidx < 0 )
+	    doAdd( othseq.clone(), false );
+	else if ( *seqs_[myidx] != othseq )
+	    *seqs_[myidx] = othseq;
+    }
+
+    // 3. update to latest sys sequences
+    deepUnRef( sysseqs_ );
+    sysseqs_ = oth.sysseqs_;
+    deepRef( sysseqs_ );
+
+    // 4. copy the rest
+    lastsaveddirtycount_ = oth.lastsaveddirtycount_;
+    Monitorable::operator =( oth );
+}
+
+
+bool ColTab::SequenceManager::isPresent( const char* nm ) const
+{
+    mLock4Read();
+    return idxOf( nm ) < 0;
+}
+
+
+ColTab::Sequence::Status ColTab::SequenceManager::statusOf(
+						const Sequence& seq ) const
+{
+    // can't lock because Sequence will call this function
+    // should be OK as the sysseqs_ should be constant during normal use
+
+    const IdxType sysidx = gtIdxOf( sysseqs_, seq.name() );
+
+    return sysidx < 0			? Sequence::Added
+	 : (seq == *sysseqs_[sysidx]	? Sequence::System
+					: Sequence::Edited);
+}
+
+
+ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getByName(
+						const char* nm ) const
+{
+    mLock4Read();
+    const IdxType idx = idxOf( nm );
+    return ConstRef( idx < 0 ? 0 : seqs_[idx] );
+}
+
+
+ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getSystemSeq(
+						const char* nm ) const
+{
+    mLock4Read();
+    const IdxType idx = gtIdxOf( sysseqs_, nm );
+    return ConstRef( idx < 0 ? 0 : sysseqs_[idx] );
+}
+
+
+RefMan<ColTab::Sequence> ColTab::SequenceManager::get4Edit(
+						const char* nm ) const
+{
+    mLock4Read();
+    const IdxType idx = idxOf( nm );
+    ColTab::Sequence* ret = 0;
+    if ( idx >= 0 )
+	ret = const_cast<Sequence*>( seqs_[idx] );
+    return ret;
+}
+
+
+ColTab::SequenceManager::size_type ColTab::SequenceManager::size() const
+{
+    mLock4Read();
+    return seqs_.size();
+}
+
+
+ColTab::SequenceManager::IdxType ColTab::SequenceManager::indexOf(
+						const char* nm ) const
+{
+    mLock4Read();
+    return idxOf( nm );
+}
+
+
+ColTab::SequenceManager::IdxType ColTab::SequenceManager::indexOf(
+						const Sequence& seq ) const
+{
+    mLock4Read();
     for ( IdxType idx=0; idx<seqs_.size(); idx++ )
-	if ( seqs_[idx]->name() == nm )
-	    return idx;
-    for ( IdxType idx=0; idx<seqs_.size(); idx++ )
-	if ( seqs_[idx]->name().isEqual(nm,CaseInsensitive) )
+	if ( seqs_[idx] == &seq )
 	    return idx;
     return -1;
 }
 
 
-bool ColTab::SeqMgr::get( const char* nm, Sequence& seq )
+ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getByIdx(
+						IdxType idx ) const
 {
-    IdxType idx = indexOf( nm );
-    if ( idx < 0 ) return false;
-    seq = *get( idx );
-    return true;
+    mLock4Read();
+    return ConstRef( idx < 0 ? 0 : seqs_[idx] );
 }
 
 
-const ColTab::Sequence* ColTab::SeqMgr::getByName( const char* nm ) const
+ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getAny(
+					const char* nm, bool forseis ) const
 {
-    const IdxType idx = indexOf( nm );
-    return idx < 0 ? 0 : get( idx );
+    mLock4Read();
+    return gtAny( nm, forseis );
 }
 
 
-const ColTab::Sequence& ColTab::SeqMgr::getAny( const char* nm ) const
+ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getDefault(
+							bool forseis ) const
+{
+    mLock4Read();
+    return gtAny( 0, forseis );
+}
+
+
+const ColTab::Sequence* ColTab::SequenceManager::gtAny( const char* nm,
+							bool forseis ) const
 {
     if ( seqs_.isEmpty() )
     {
 	ColTab::Sequence* cs = new ColTab::Sequence;
-	cs->setColor( 0, 0, 0, 0 );
-	cs->setColor( 1, 255, 255, 255 );
-	cs->setName( "Grey scales" );
-	cs->setType( ColTab::Sequence::User );
+	cs->setColor( 0.f, 0, 0, 0 );
+	cs->setColor( 1.f, 255, 255, 255 );
 	cs->setMarkColor( Color::DgbColor() );
 	cs->setUndefColor( Color(255,255,0) );
-	((ColTab::SeqMgr*)this)->seqs_ += cs;
-	return *cs;
+	cs->setName( "[Fallback]" );
+	return cs;
     }
 
     IdxType idx = 0;
     if ( nm && *nm )
     {
-	idx = indexOf( nm );
+	idx = idxOf( nm );
 	if ( idx >= 0 )
-	    return *get( idx );
+	    return seqs_[idx];
     }
 
-    idx = indexOf( Sequence::sDefaultName() );
+    idx = idxOf( Sequence::sDefaultName(forseis) );
     if ( idx < 0 )
 	idx = 0;
 
-    return *get( idx );
+    return seqs_[idx];
 }
 
 
-void ColTab::SeqMgr::getSequenceNames( BufferStringSet& nms )
+ColTab::SequenceManager::ConstRef ColTab::SequenceManager::getFromPar(
+				const IOPar& iop, const char* subky ) const
 {
-    nms.erase();
-    for ( IdxType idx=0; idx<size(); idx++ )
-	nms.add( SM().get(idx)->name() );
+    mLock4Read();
+
+    ConstRef ret; BufferString seqname;
+    if ( iop.get(IOPar::compKey(subky,sKey::Name()),seqname) )
+    {
+	IdxType idx = idxOf( seqname );
+	if ( idx >= 0 )
+	    ret = seqs_[idx];
+    }
+    if ( !ret )
+    {
+	ret = gtAny( 0, true );
+	ColTab::Sequence* specseq = ret->clone();
+	if ( !subky || !*subky )
+	    specseq->usePar( iop );
+	else
+	{
+	    PtrMan<IOPar> subpar = iop.subselect( subky );
+	    specseq->usePar( *subpar );
+	}
+	ret = specseq;
+    }
+
+    return ret;
 }
 
 
-void ColTab::SeqMgr::set( const ColTab::Sequence& seq )
+void ColTab::SequenceManager::getSequenceNames( BufferStringSet& nms ) const
 {
-    IdxType idx = indexOf( seq.name() );
-    if ( idx < 0 )
-	add( new ColTab::Sequence(seq) );
-    else
-	*seqs_[idx] = seq;
+    mLock4Read();
+    for ( int idx=0; idx<seqs_.size(); idx++ )
+	nms.add( seqs_[idx]->name() );
 }
 
 
-void ColTab::SeqMgr::remove( IdxType idx )
+#define mSeqSet(issys) (issys ? sysseqs_ : seqs_)
+
+
+void ColTab::SequenceManager::addFromPar( const IOPar& iop, bool issys )
 {
-    if ( idx < 0 || idx > size() )
+    TypeSet<int> idxs; iop.collectIDs( idxs );
+    for ( int idx=0; idx<idxs.size(); idx++ )
+    {
+	PtrMan<IOPar> ctiopar = iop.subselect( idxs[idx] );
+	if ( !ctiopar || ctiopar->isEmpty() )
+	    continue;
+
+	ColTab::Sequence* newseq = new ColTab::Sequence;
+	if ( !newseq->usePar(*ctiopar) || newseq->size() < 1 )
+	    { newseq->unRef(); continue; }
+
+	IdxType existidx = gtIdxOf( mSeqSet(issys), newseq->name() );
+	if ( existidx < 0 )
+	    doAdd( newseq, issys );
+	else
+	{
+	    *mSeqSet(issys)[existidx] = *newseq;
+	    newseq->unRef();
+	}
+    }
+}
+
+
+ColTab::SequenceManager::IdxType ColTab::SequenceManager::idxOf(
+						const char* nm ) const
+{
+    return gtIdxOf( seqs_, nm );
+}
+
+
+ColTab::SequenceManager::IdxType ColTab::SequenceManager::gtIdxOf(
+			    const ObjectSet<Sequence>& seqs, const char* nm )
+{
+    for ( IdxType idx=0; idx<seqs.size(); idx++ )
+	if ( seqs[idx]->name().isEqual(nm,CaseInsensitive) )
+	    return idx;
+    return -1;
+}
+
+
+void ColTab::SequenceManager::doAdd( Sequence* seq, bool issys )
+{
+    seq->ref();
+    mSeqSet(issys) += seq;
+    if ( !issys && !iscopy_ )
+	mAttachCB( seq->objectChanged(), SequenceManager::seqChgCB );
+}
+
+
+void ColTab::SequenceManager::seqChgCB( CallBacker* cb )
+{
+    mGetMonitoredChgData( cb, chgdata );
+    if ( chgdata.isNoChange() )
 	return;
-    removedseqs_ += seqs_.removeSingle( idx );
-    seqRemoved.trigger();
+
+    if ( chgdata.changeType() == NamedMonitorable::cNameChange() )
+	nameChange.trigger( chgdata );
+
+    touch();
 }
 
 
-bool ColTab::SeqMgr::write( bool sys, bool applsetup )
+void ColTab::SequenceManager::add( Sequence* seq )
 {
+    if ( !seq )
+	return;
+
+    mLock4Read();
+    if ( idxOf(seq->name()) >= 0 )
+	return;
+    if ( !mLock2Write() && idxOf(seq->name()) >= 0 )
+	return;
+
+    doAdd( seq, false );
+    mSendChgNotif( cSeqAdd(), seqs_.size()-1 );
+}
+
+
+void ColTab::SequenceManager::removeByName( const char* nm )
+{
+    mLock4Read();
+
+    int idx = idxOf( nm );
+    if ( !seqs_.validIdx(idx) )
+	return;
+
+    mSendChgNotif( cSeqRemove(), idx );
+    mReLock();
+
+    idx = idxOf( nm );
+    if ( !mLock2Write() && !seqs_.validIdx(idx) )
+	return;
+
+    Sequence* rmseq = seqs_.removeSingle( idx );
+    rmseq->unRef();
+}
+
+
+bool ColTab::SequenceManager::needsSave() const
+{
+    return dirtyCount() != lastsaveddirtycount_;
+}
+
+
+uiRetVal ColTab::SequenceManager::write( bool sys, bool applsetup ) const
+{
+    uiRetVal uirv;
+    mLock4Read();
+
     if ( !sys )
     {
 	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
 	setts.setEmpty();
 	IdxType newidx = 1;
+	for ( IdxType idx=0; idx<sysseqs_.size(); idx++ )
+	{
+	    const ColTab::Sequence& seq = *sysseqs_[idx];
+	    if ( gtIdxOf(seqs_,seq.name()) < 0 )
+	    {
+		setts.set( IOPar::compKey(sKeyRemoved(),newidx), seq.name() );
+		newidx++;
+	    }
+	}
+	newidx = 1;
 	for ( IdxType idx=0; idx<seqs_.size(); idx++ )
 	{
 	    const ColTab::Sequence& seq = *seqs_[idx];
@@ -797,7 +1088,9 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 		newidx++;
 	    }
 	}
-	return setts.write( false );
+	if ( !setts.write(false) )
+	    uirv.set( tr("Cannot write user defined color tables") );
+	return uirv;
     }
 
     const BufferString fnm( applsetup
@@ -806,16 +1099,16 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
     if ( File::exists(fnm) && !File::isWritable(fnm)
 		&& !File::makeWritable(fnm,true,false) )
     {
-	BufferString msg( "Cannot make:\n" ); msg += fnm; msg += "\nwritable.";
-	ErrMsg( msg ); return false;
+	uirv.set( tr("Cannot make:\n%1\nnwritable").arg(fnm) );
+	return uirv;
     }
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {
-	BufferString msg( "Cannot open:\n", fnm, "\nfor write" );
-	strm.addErrMsgTo( msg );
-	ErrMsg( msg ); return false;
+	uirv.set( tr("Cannot open:\n%1\nnfor write").arg(fnm) );
+	strm.addErrMsgTo( uirv );
+	return uirv;
     }
 
     ascostream astrm( strm );
@@ -835,85 +1128,46 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
     }
 
     iopar.putTo( astrm );
-    return true;
+    if ( !strm.isOK() )
+	uirv.set( tr("Error during write of color table specifics") );
+    else
+	lastsaveddirtycount_ = dirtyCount();
+
+    return uirv;
 }
 
 
-ColTab::Sequence::PosType ColTab::Sequence::snapToSegmentCenter(
-							PosType x ) const
+const ColTab::Sequence& ColTab::SequenceManager::getRGBBlendColSeq( int nr )
 {
-    if ( nrsegments_<1 )
-	return x;
-
-    if ( mIsUdf(x) )
-	return x;
-
-    if ( nrsegments_==1 )
-	return 0.5;
-
-    const float segmentsize = 1.0f / (nrsegments_ - 1);
-
-    IdxType segment = (IdxType) ( x/segmentsize + 0.5 );
-    if ( segment<0 ) segment = 0;
-    if ( segment>=nrsegments_ )
-	segment = nrsegments_-1;
-    return segment*segmentsize;
-}
-
-ColTab::Sequence RGBBlend::getRedColTab()
-{
-    mDefineStaticLocalObject( ColTab::Sequence, redctab, );
-    redctab.setType(ColTab::Sequence::User);
-    redctab.setColor( 0, 0, 0, 0 );
-    redctab.setColor( 1, 255, 0, 0 );
-    redctab.setName( "Red" );
-    return redctab;
-}
-
-ColTab::Sequence RGBBlend::getGreenColTab()
-{
-    mDefineStaticLocalObject( ColTab::Sequence, greenctab, );
-    greenctab.setType(ColTab::Sequence::User);
-    greenctab.setColor( 0, 0, 0, 0 );
-    greenctab.setColor( 1, 0, 0, 255 );
-    greenctab.setName( "Blue" );
-    return greenctab;
-}
-
-
-ColTab::Sequence RGBBlend::getBlueColTab()
-{
-    mDefineStaticLocalObject( ColTab::Sequence, bluectab, );
-    bluectab.setType(ColTab::Sequence::User);
-    bluectab.setColor( 0, 0, 0, 0 );
-    bluectab.setColor( 1, 0, 255, 0 );
-    bluectab.setName( "Green" );
-    return bluectab;
-}
-
-
-ColTab::Sequence RGBBlend::getTransparencyColTab()
-{
-    mDefineStaticLocalObject( ColTab::Sequence, transpctab, );
-    transpctab.setType(ColTab::Sequence::User);
-    transpctab.setColor( 0.f, 0, 0, 0 );
-    transpctab.setColor( 1.f, 255, 255, 255 );
-    transpctab.setTransparency( ColTab::Sequence::TranspPtType(0.f,0) );
-    transpctab.setTransparency( ColTab::Sequence::TranspPtType(1.f,255) );
-    transpctab.setName( "Transparency" );
-    return transpctab;
-}
-
-
-ColTab::Sequence RGBBlend::getColTab( int nr )
-{
-    switch ( nr )
+    typedef ColTab::Sequence* pColTab_Sequence;
+    mDefineStaticLocalObject( pColTab_Sequence*, ctabs, = 0);
+    if ( !ctabs )
     {
-	case 0: return getRedColTab();
-	case 1: return getGreenColTab();
-	case 2: return getBlueColTab();
-	case 3: return getTransparencyColTab();
+	ctabs = new pColTab_Sequence[4];
+	for ( int idx=0; idx<4; idx++ )
+	{
+	    ColTab::Sequence* seq = new ColTab::Sequence;
+	    seq->setColor( 0.f, 0, 0, 0 );
+	    ctabs[idx] = seq;
+	}
+#	define mSetEndCol(nr,r,g,b) ctabs[nr]->setColor( 1.f, r, g, b )
+	mSetEndCol( 0, 255, 0, 0 );
+	mSetEndCol( 1, 0, 255, 0 );
+	mSetEndCol( 2, 0, 0, 255 );
+	mSetEndCol( 3, 255, 255, 255 );
+#	define mSetName(nr,nm) ctabs[nr]->setName( nm )
+	mSetName( 0, "Red" );
+	mSetName( 1, "Green" );
+	mSetName( 2, "Blue" );
+	mSetName( 3, "Transparency" );
+	ctabs[3]->setTransparency( ColTab::Sequence::TranspPtType(0.f,0) );
+	ctabs[3]->setTransparency( ColTab::Sequence::TranspPtType(1.f,255) );
     }
 
-    return ColTab::Sequence();
+    if ( nr < 0 )
+	{ pFreeFnErrMsg("RGB col tab nr too low"); nr = 0; }
+    if ( nr > 3 )
+	{ pFreeFnErrMsg("RGB col tab nr too high"); nr = 3; }
+
+    return *(ctabs[nr]);
 }

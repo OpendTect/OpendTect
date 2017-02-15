@@ -50,6 +50,7 @@ GeomIndexedShape::GeomIndexedShape()
     , geomshapetype_( Triangle )
     , linestyle_( OD::LineStyle::Solid,2,Color(0,255,0) )
     , useosgnormal_( false )
+    , sequence_(ColTab::SeqMGR().getDefault())
 {
     singlematerial_->ref();
     coltabmaterial_->ref();
@@ -65,7 +66,7 @@ GeomIndexedShape::GeomIndexedShape()
     setRenderMode( RenderBothSides );
 
     setMaterial( new Material );
-    setDataSequence( ColTab::Sequence(ColTab::defSeqName()) );
+    setDataSequence( *ColTab::SeqMGR().getDefault() );
 }
 
 
@@ -201,24 +202,26 @@ bool GeomIndexedShape::isColTabEnabled() const
 void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup,
 				      TaskRunner* tskr )
 {
-    if ( setup!=colorhandler_->mapper_.setup_ )
+    if ( colorhandler_->mapper_.setup() != setup )
     {
-	colorhandler_->mapper_.setup_ = setup;
-	if ( setup.type_!=ColTab::MapperSetup::Fixed )
+	colorhandler_->mapper_.setSetup( setup );
+	if ( !setup.isFixed() )
 	    reClip();
     }
 }
 
 
-const ColTab::MapperSetup* GeomIndexedShape::getDataMapper() const
-{ return colorhandler_ ? &colorhandler_->mapper_.setup_ : 0; }
+ConstRefMan<ColTab::MapperSetup> GeomIndexedShape::getDataMapper() const
+{
+    return colorhandler_ ? &colorhandler_->mapper_.setup() : 0;
+}
 
 
 void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
 {
-    if ( seq!=colorhandler_->sequence_ )
+    if ( colorhandler_->sequence_.ptr() != &seq )
     {
-	colorhandler_->sequence_ = seq;
+	colorhandler_->sequence_ = &seq;
 	TypeSet<Color> colors;
 	for ( int idx=0; idx<mNrMaterialSteps; idx++ )
 	{
@@ -237,7 +240,7 @@ void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
 
 
 const ColTab::Sequence* GeomIndexedShape::getDataSequence() const
-{ return colorhandler_ ? &colorhandler_->sequence_ : 0; }
+{ return colorhandler_ ? colorhandler_->sequence_ : 0; }
 
 
 void GeomIndexedShape::setDisplayTransformation( const mVisTrans* nt )
@@ -260,7 +263,7 @@ const mVisTrans* GeomIndexedShape::getDisplayTransformation() const
 { return vtexshape_->getDisplayTransformation(); }
 
 
-void GeomIndexedShape::setSurface( Geometry::IndexedShape* ns, 
+void GeomIndexedShape::setSurface( Geometry::IndexedShape* ns,
 							    TaskRunner* tskr )
 {
     shape_ = ns;
@@ -427,7 +430,7 @@ void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tskr)
 	cache.setValue( coordidx, val );
     }
 
-    if ( colorhandler_->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+    if ( !colorhandler_->mapper_.setup().isFixed() )
 	reClip();
 
     updateGeometryMaterial();
@@ -470,7 +473,7 @@ void GeomIndexedShape::setLineStyle( const OD::LineStyle& lnstyle )
     linestyle_ = lnstyle;
 
     if ( vtexshape_ )
-    	    vtexshape_->setLineStyle( lnstyle );
+	    vtexshape_->setLineStyle( lnstyle );
     else
 	touch( true );
 }

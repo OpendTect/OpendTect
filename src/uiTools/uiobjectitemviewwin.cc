@@ -440,7 +440,7 @@ void uiObjectItemViewInfoBar::reSizeItems()
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(toolbar_,fnm,tt, \
     mCB(this,uiObjectItemViewControl,cbnm) ); \
-    toolbar_->addButton( but );
+    toolbar_->addObject( but );
 
 uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     : uiGroup(mw.parent(),"ObjectItemView control")

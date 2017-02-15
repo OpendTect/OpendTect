@@ -18,9 +18,9 @@ namespace osgGeo { class RGBALayerProcess; }
 
 
 namespace visBase
-{ 
+{
 
-/*!Converts texture channels with RGBA information to ... RGBA. 
+/*!Converts texture channels with RGBA information to ... RGBA.
 Does also handle enable/disable of the channels. */
 
 
@@ -30,7 +30,7 @@ public:
     static RGBATextureChannel2RGBA*	create()
 				mCreateDataObj(RGBATextureChannel2RGBA);
 
-    const ColTab::Sequence*	getSequence(int ch) const;
+    const ColTab::Sequence&	getSequence(int ch) const;
     void			getChannelName(int,uiString&) const;
 
     void			swapChannels(int ch0,int ch1);
@@ -49,14 +49,12 @@ public:
 
 protected:
 
-    				~RGBATextureChannel2RGBA();
+				~RGBATextureChannel2RGBA();
 
     void			notifyChannelInsert(int ch);
 
     BoolTypeSet			enabled_;
     unsigned char		proctransparency_;
-
-    static ArrPtrMan<ColTab::Sequence>	sequences_;
 
     osgGeo::RGBALayerProcess*	proc_;
 };

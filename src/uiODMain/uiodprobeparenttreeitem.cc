@@ -114,7 +114,7 @@ bool uiODSceneProbeParentTreeItem::addChildProbe()
 	return false;
 
     ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
-    uiODPrManagedTreeItem* newitem = addChildItem( probeprinfo );
+    uiPresManagedTreeItem* newitem = addChildItem( probeprinfo );
     newitem->emitPRRequest( OD::Add );
     return true;
 }
@@ -193,7 +193,7 @@ bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
 	return false;
 
     AttribProbeLayer* attriblayer = new AttribProbeLayer;
-    Attrib::SelSpec attrlayselspec = attriblayer->getSelSpec();
+    Attrib::SelSpec attrlayselspec = attriblayer->selSpec();
     if ( !getSelAttrSelSpec(probe,attrlayselspec) )
     {
 	delete attriblayer;
@@ -231,7 +231,7 @@ bool uiODSceneProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
 	AttribProbeLayer* attriblayer =
 	    new AttribProbeLayer( AttribProbeLayer::RGB );
 	attriblayer->setSelSpec( rgbaspecs[idx] );
-	attriblayer->setColTab( RGBBlend::getColTab(idx) );
+	attriblayer->setColSeq( &ColTab::SeqMGR().getRGBBlendColSeq(idx) );
 	probe.addLayer( attriblayer );
     }
 
@@ -307,7 +307,7 @@ uiODDataTreeItem* uiODSceneProbeTreeItem::createAttribItem(
     Probe* parentprobe = const_cast<Probe*> (getProbe());
     uiODApplMgr* applmgr = const_cast<uiODSceneProbeTreeItem*>(this)->applMgr();
     AttribProbeLayer* attriblayer = new AttribProbeLayer;
-    Attrib::SelSpec attrlayselspec = as ? *as : attriblayer->getSelSpec();
+    Attrib::SelSpec attrlayselspec = as ? *as : attriblayer->selSpec();
     attrlayselspec.set2DFlag( parentprobe->is2D() );
     if ( !getSelAttribSelSpec(*parentprobe,attrlayselspec,*applmgr,sceneID(),
 			      tr("Select attribute to display")) )
@@ -333,13 +333,13 @@ uiODDataTreeItem* uiODSceneProbeTreeItem::createProbeLayerItem(
 
 const Probe* uiODSceneProbeTreeItem::getProbe() const
 {
-    mDynamicCastGet(const Probe*,probe,dataobj_.ptr());
+    mDynamicCastGet(const Probe*,probe,dataObj().ptr());
     return probe;
 }
 
 Probe* uiODSceneProbeTreeItem::getProbe()
 {
-    mDynamicCastGet(Probe*,probe,dataobj_.ptr());
+    mDynamicCastGet(Probe*,probe,dataObj().ptr());
     return probe;
 }
 

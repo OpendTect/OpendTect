@@ -36,9 +36,9 @@ public:
     bool		removeWith(CallBacker*,bool wait=true);
 			//!<\returns false only if wait and no lock could be got
 
-    inline bool	isEnabled() const	{ return cbs_.isEnabled(); }
-    inline bool	enable( bool yn=true )	{ return cbs_.doEnable(yn); }
-    inline bool	disable()		{ return cbs_.doEnable(false); }
+    inline bool	isEnabled() const	{ return !cbs_.hasAnyDisabled(); }
+    inline void	enable( bool yn=true )	{ return cbs_.disableAll(!yn); }
+    inline void	disable()		{ return cbs_.disableAll(true); }
 
     inline bool	isEmpty() const	{ return cbs_.isEmpty(); }
     bool		willCall(CallBacker*) const;
@@ -52,8 +52,8 @@ public:
     bool		isShutdownSubscribed(CallBacker*) const;
 			//!<Only for debugging purposes, don't use
 protected:
-    static void		doTrigger(CallBackSet&,CallBacker* c,
-				  CallBacker* exclude);
+
+    static void		doTrigger(CallBackSet&,CallBacker*);
     void		addShutdownSubscription(CallBacker*);
     bool		removeShutdownSubscription(CallBacker*, bool wait);
 			//!<\returns false only if wait and no lock could be got
@@ -62,6 +62,7 @@ protected:
 
     ObjectSet<CallBacker>	shutdownsubscribers_;
     mutable Threads::Lock	shutdownsubscriberlock_;
+
 };
 
 
@@ -117,13 +118,12 @@ public:
 			Notifier( T* c )			{ cber_ = c; }
 
     inline void		trigger()
-			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, cber_, 0 ); }
+			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, cber_ ); }
     inline void		trigger( T& t )
-			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, &t, 0 ); }
+			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, &t ); }
     inline void		trigger( CallBacker* c )
-			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, c, 0 ); }
-    inline void		trigger( CallBacker* c, CallBacker* exclude )
-			{ if ( !cbs_.isEmpty() ) doTrigger(cbs_,c,exclude); }
+			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, c ); }
+
 };
 
 
@@ -163,7 +163,7 @@ public:
     inline void		trigger( PayLoad pl )
 			{
 			    CBCapsule<PayLoad> caps( pl, cber_ );
-			    doTrigger( cbs_, &caps, 0 );
+			    doTrigger( cbs_, &caps );
 			}
 
     inline void		trigger( PayLoad pl, CallBacker* cb )
@@ -173,7 +173,7 @@ public:
 			    else
 			    {
 				CBCapsule<PayLoad> caps( pl, cb );
-				doTrigger( cbs_, &caps, 0 );
+				doTrigger( cbs_, &caps );
 			    }
 			}
     inline void		trigger( PayLoad pl, T& t )
@@ -196,22 +196,27 @@ public:
       // On exit, Notifier gets re-enabled automatically.
   }
   \endcode
+
+  To stop notifications only to a certain object (usually 'this'), pass the
+  object as 2nd argument to the constructor.
 */
 
 mExpClass(Basic) NotifyStopper
 {
 public:
-		NotifyStopper( NotifierAccess& na );
+		NotifyStopper(NotifierAccess&,const CallBacker* only_for=0);
 		~NotifyStopper();
 
-    void        enable();
-    void        disable();
-    void	restore();
+    void        enableNotification();
+    void        disableNotification();
 
 protected:
 
     NotifierAccess&	thenotif_;
-    bool		oldst_;
+    bool		isdisabled_;
+    const CallBacker*	onlyfor_;
+
+    void		setDisabled(bool);
 
 };
 

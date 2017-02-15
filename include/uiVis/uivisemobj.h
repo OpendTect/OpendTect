@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace EM { class EdgeLineSet; class EdgeLineSegment; class Horizon3D;}
 namespace visSurvey { class EMObjectDisplay; }
 
-class uiColorTableGroup;
+class uiColSeqSel;
 class uiMenuHandler;
 class uiParent;
 class uiVisPartServer;
@@ -56,6 +56,7 @@ public:
 			     a tracker if found. */
 
 protected:
+
     void		setUpConnections();
     void		addToToolBarCB(CallBacker*);
     void		createMenuCB(CallBacker*);
@@ -104,8 +105,9 @@ public:
 protected:
 
     uiGenInput*		resolutionfld_;
-    uiColorTableGroup*	coltabfld_;
+    uiColSeqSel*	colseqfld_;
 
     int			resolution_;
-    BufferString	coltabnm_;
+    BufferString	colseqnm_;
+
 };

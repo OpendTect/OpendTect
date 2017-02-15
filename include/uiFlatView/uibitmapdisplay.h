@@ -36,14 +36,14 @@ public:
 			~uiBitMapDisplay();
 
     void		update();
-    			//When inputs or settings have changed
+			//When inputs or settings have changed
 
     uiGraphicsItem*	getDisplay();
     void		removeDisplay();
 
     void		setOverlap(float v) { overlap_ = v; }
 			/*!<If overlap is more than 0, a larger dynamic image
- 			    than requested will be made. The result
+			    than requested will be made. The result
 			    is that smaller pan/zoom movements will still
 			    be covered by the dynamic image.
 			    An overlap of 1 means 1 with will be added in each

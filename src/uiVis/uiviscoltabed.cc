@@ -17,7 +17,7 @@ ___________________________________________________________________
 #include "visdataman.h"
 #include "visdata.h"
 #include "vissurvobj.h"
-#include "uicolortable.h"
+#include "uicoltabsel.h"
 #include "od_helpids.h"
 
 
@@ -28,9 +28,9 @@ const char* uiVisColTabEd::sKeyAutoScale()	{ return "Auto scale"; }
 const char* uiVisColTabEd::sKeySymmetry()	{ return "Symmetry"; }
 const char* uiVisColTabEd::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 
-uiVisColTabEd::uiVisColTabEd( uiColorTable& ct )
+uiVisColTabEd::uiVisColTabEd( uiColTabToolBar& cttb )
     : survobj_( 0 )
-    , uicoltab_(ct)
+    , coltabsel_(cttb.selTool())
 {
     visBase::DM().removeallnotify.notify(
 	    mCB(this,uiVisColTabEd,removeAllVisCB) );
@@ -40,9 +40,16 @@ uiVisColTabEd::uiVisColTabEd( uiColorTable& ct )
 #define mImplNotification( refop, notify) \
     if ( survobj_ ) \
     { \
-	if ( survobj_->getColTabMapperSetup(channel_,version_) ) \
-	    survobj_->getColTabMapperSetup( channel_, version_ )-> \
-		rangeChange.notify( mCB(this,uiVisColTabEd,mapperChangeCB) ); \
+	ConstRefMan<ColTab::MapperSetup> mapsu \
+		= survobj_->getColTabMapperSetup(channel_,version_); \
+	if ( mapsu ) \
+	    { mAttachCBIfNotAttached( mapsu->objectChanged(), \
+				uiVisColTabEd::mapperChangeCB ); } \
+	const ColTab::Sequence* seq \
+		= survobj_->getColTabSequence(channel_); \
+	if ( seq ) \
+	    { mAttachCBIfNotAttached( seq->objectChanged(), \
+				uiVisColTabEd::mapperChangeCB ); } \
 	mDynamicCastGet( visBase::DataObject*, dataobj, survobj_ ); \
 	if ( dataobj ) \
 	    dataobj->refop(); \
@@ -56,13 +63,13 @@ uiVisColTabEd::~uiVisColTabEd()
 }
 
 
-void uiVisColTabEd::setColTab( const ColTab::Sequence* seq, bool editseq,
-			       const ColTab::MapperSetup* setup,
-       			       bool enabletrans )
+void uiVisColTabEd::setColTab( const ColTab::Sequence* seq,
+			       const ColTab::MapperSetup* setup )
 {
-    uicoltab_.setSequence( seq, editseq, true );
-    uicoltab_.setMapperSetup( setup, true );
-    uicoltab_.enableTransparencyEdit( enabletrans );
+    if ( seq )
+	coltabsel_.setSeqName( seq->name() );
+    if ( setup )
+	coltabsel_.setMapperSetup( *setup );
 }
 
 
@@ -77,21 +84,19 @@ void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
 
     mImplNotification( ref, notify );
 
-    uicoltab_.setSequence( so ? so->getColTabSequence(channel_) : 0,
-			    so && so->canSetColTabSequence(), true );
-    uicoltab_.setMapperSetup(
-	    so ? so->getColTabMapperSetup(channel_,version_) : 0, true );
-    uicoltab_.enableTransparencyEdit(
-	    so && so->canHandleColTabSeqTrans(channel_) );
+    if ( so )
+	setColTab( so->getColTabSequence(channel_),
+		    so->getColTabMapperSetup(channel_,version_) );
 }
 
 
 void uiVisColTabEd::mapperChangeCB( CallBacker* )
 {
-    const ColTab::MapperSetup* ms  =
+    ConstRefMan<ColTab::MapperSetup> ms  =
 			survobj_->getColTabMapperSetup( channel_, version_ );
 
-    uicoltab_.setMapperSetup( ms, true );
+    if ( ms )
+	coltabsel_.setMapperSetup( *ms );
     if ( survobj_->getScene() && ms )
 	survobj_->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
 }
@@ -105,25 +110,44 @@ void uiVisColTabEd::removeAllVisCB( CallBacker* )
 
 
 const ColTab::Sequence& uiVisColTabEd::getColTabSequence() const
-{ return uicoltab_.colTabSeq(); }
+{ return *coltabsel_.sequence(); }
 
-const ColTab::MapperSetup& uiVisColTabEd::getColTabMapperSetup() const
-{ return uicoltab_.colTabMapperSetup(); }
+ConstRefMan<ColTab::MapperSetup> uiVisColTabEd::getColTabMapperSetup() const
+{ return coltabsel_.mapperSetup(); }
 
 NotifierAccess& uiVisColTabEd::seqChange()
-{ return uicoltab_.seqChanged; }
+{ return coltabsel_.seqChanged; }
 
 NotifierAccess& uiVisColTabEd::mapperChange()
-{ return uicoltab_.scaleChanged; }
+{ return coltabsel_.mapperSetup()->objectChanged(); }
 
-void uiVisColTabEd::setHistogram( const TypeSet<float>* hist )
-{ uicoltab_.setHistogram( hist ); }
+
+void uiVisColTabEd::setDistribution( const DataDistribution<float>* distr )
+{
+    if ( distr )
+	coltabsel_.setDistribution( *distr );
+    else
+    {
+	RefMan<DataDistribution<float> > emptydistr
+			= new DataDistribution<float>;
+	coltabsel_.setDistribution( *emptydistr );
+    }
+}
+
+void uiVisColTabEd::setHistogram( const TypeSet<float>* data )
+{
+    setDistribution( data ? new DataDistribution<float>( *data ) : 0 );
+}
+
 
 bool uiVisColTabEd::usePar( const IOPar& par )
-{ return true; }
+{
+    return true;
+}
 
 void uiVisColTabEd::fillPar( IOPar& par )
-{}
+{
+}
 
 
 
@@ -135,10 +159,7 @@ uiColorBarDialog::uiColorBarDialog( uiParent* p, const uiString& title )
 	       .canceltext(uiString::emptyString()))
     , winClosing( this )
 {
-    ColTab::Sequence ctseq( "" );
-    uiColorTableGroup* grp =
-	new uiColorTableGroup( this, ctseq, OD::Vertical, false );
-    coltabed_ = new uiVisColTabEd( *grp );
+    coltabed_ = new uiVisColTabEd( *new uiColTabToolBar(this) );
     setDeleteOnClose( false );
 }
 

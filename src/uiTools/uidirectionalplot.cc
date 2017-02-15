@@ -47,7 +47,6 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , scaleannotitm_(0)
     , coltabitm_(0)
     , sectorPicked(this)
-    , colseq_(0)
 {
     disableScrollZoom();
     setPrefWidth( setup_.prefsize_.width() );
@@ -289,13 +288,9 @@ void uiDirectionalPlot::drawColTab()
 	uiColTabItem::Setup su( true );
 	coltabitm_ = scene().addItem( new uiColTabItem(su) );
     }
-    ColTab::MapperSetup ctms;
-    ctms.type( ColTab::MapperSetup::Fixed );
-    ctms.range( valrg_ );
-    coltabitm_->setColTabMapperSetup( ctms );
-
+    coltabitm_->setMapperSetup( *new ColTab::MapperSetup(valrg_) );
     if ( colseq_ )
-	coltabitm_->setColTabSequence( *colseq_ );
+	coltabitm_->setSequence( *colseq_ );
 
     const uiRect br( coltabitm_->boundingRect() );
     uiPoint targettl( 5, height() - br.height() - 5 );
@@ -385,7 +380,7 @@ void uiDirectionalPlot::drawScatter()
 void uiDirectionalPlot::drawVals()
 {
     if ( !colseq_ )
-	colseq_ = &ColTab::SM().getAny( "Directional Plot" );
+	colseq_ = ColTab::SeqMGR().getAny( "Directional Plot" );
 
     drawSectorParts( true );
 }
@@ -472,7 +467,7 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 			     / (valrg_.stop-valrg_.start);
 		if ( relpos < 0 ) relpos = 0;
 		if ( relpos > 1 ) relpos = 1;
-		col = colseq_->color(relpos);
+		col = colseq_->color( relpos );
 	    }
 
 	    uiCurvedItem* ci = drawSectorPart( isect, rrg, col );

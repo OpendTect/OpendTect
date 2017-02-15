@@ -62,10 +62,12 @@ public:
 				 bool manage=true );
     virtual		~uiGroup();
 
+    inline uiObject&	asUiObject()		{ return *grpobj_; }
+    inline const uiObject& asUiObject() const	{ return *grpobj_; }
+    inline operator	const uiObject&() const	{ return asUiObject(); }
+    inline operator	uiObject&()		{ return asUiObject(); }
     inline operator	const uiGroupObj*() const { return grpobj_; }
     inline operator	uiGroupObj*()		{ return grpobj_; }
-    inline operator	const uiObject&() const	{ return *grpobj_; }
-    inline operator	uiObject&()		{ return *grpobj_; }
     inline uiObject*	attachObj()		{ return grpobj_; }
     inline const uiObject* attachObj() const	{ return grpobj_; }
     inline uiParent*	parent()		{ return grpobj_->parent(); }

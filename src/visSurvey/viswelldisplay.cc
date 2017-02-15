@@ -168,7 +168,7 @@ void WellDisplay::logChgCB( CallBacker* cb )
 
     //TODO figure out what happened etc., Log is a DahObj, look there
     // Remove next 2 lines, not needed but stops 'unused' warnings
-    if ( chgdata.changeType() != Monitorable::ChangeData::cNoChgType() )
+    if ( chgdata.changeType() != Monitorable::cNoChange() )
 	return;
 
     fullRedraw();
@@ -273,7 +273,7 @@ void WellDisplay::fillLogParams(
     lp.seqname_		= mGetLogDispPar( seqName );
     lp.size_		= mGetLogDispPar( size );
     lp.seiscolor_	= mGetLogDispPar( seisColor );
-    lp.iscoltabflipped_	= mGetLogDispPar( colTabFlipped );
+    lp.sequsemode_	= mGetLogDispPar( seqUseMode );
     const int style	= mGetLogDispPar( style );
     lp.style_		= (visBase::Well::LogStyle)style;
 }

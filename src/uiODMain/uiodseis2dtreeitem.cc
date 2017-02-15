@@ -142,7 +142,7 @@ Probe* uiODLine2DParentTreeItem::createNewProbe() const
 }
 
 
-uiODPrManagedTreeItem* uiODLine2DParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODLine2DParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
@@ -571,7 +571,7 @@ void uiOD2DLineTreeItem::updateDisplay()
 }
 
 
-void uiOD2DLineTreeItem::objChangedCB( CallBacker* )
+void uiOD2DLineTreeItem::handleObjChanged( const ChangeData& )
 {
     updateDisplay();
 }

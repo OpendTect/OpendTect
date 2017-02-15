@@ -46,13 +46,17 @@ typedef void (*StaticCallBackFunction)(CallBacker*);
 class QCallBackEventReceiver;
 
 
-/*!
-\brief CallBacks object-oriented (object + method).
+/*!\brief CallBacks object-oriented (object + method).
 
   CallBack is nothing more than a function pointer + optionally an object to
   call it on. It may be null, in which case doCall() will simply do nothing.
   If you want to be able to send a CallBack, you must provide a 'sender'
   CallBacker* (usually 'this').
+
+  You can disable a CallBack, but if you do make sure you enable it again
+  using disable(false), as it works with a counter (so that disabling can be
+  nested).
+
 */
 
 mExpClass(Basic) CallBack
@@ -60,18 +64,22 @@ mExpClass(Basic) CallBack
 public:
     static void		initClass();
 			CallBack()
-			    : cberobj_(0), fn_(0), sfn_(0){}
+			    : cberobj_(0), fn_(0), sfn_(0)	{}
 			CallBack( CallBacker* o, CallBackFunction f )
 			    : cberobj_(o), fn_(f), sfn_(0)	{}
 			CallBack( StaticCallBackFunction f )
 			    : cberobj_(0), fn_(0), sfn_(f)	{}
-    bool		operator==( const CallBack& c ) const;
+    bool		operator==(const CallBack&) const;
     inline bool		operator!=( const CallBack& cb ) const
 			{ return !(*this==cb); }
 
     inline bool		willCall() const
-			{ return (cberobj_  && fn_) || sfn_; }
+			{ return disablecount_ == 0
+			      && ((cberobj_ && fn_) || sfn_); }
     void		doCall(CallBacker*) const;
+    bool		isDisabled() const		{ return disablecount_;}
+    void		disable(bool yn=true) const;
+    void		enable() const			{ disable(false); }
 
     inline CallBacker*			cbObj()		{ return cberobj_; }
     inline const CallBacker*		cbObj() const	{ return cberobj_; }
@@ -108,6 +116,7 @@ private:
     CallBacker*				cberobj_;
     CallBackFunction			fn_;
     StaticCallBackFunction		sfn_;
+    mutable Threads::Atomic<int>	disablecount_;
     static Threads::ThreadID		mainthread_;
 
 public:
@@ -145,30 +154,25 @@ public:
 		CallBackSet(const CallBackSet&);
     CallBackSet& operator=(const CallBackSet&);
 
-    void	doCall(CallBacker*,CallBacker* exclude=0);
-		/*!<\param enabledflag: if non-null, content will be checked
-		  between each call, caling will stop if false.
-		     \note Will lock in the apropriate moment. */
+    void	doCall(CallBacker*);
+		//!< it is possible to remove another callback during the doCall
+    void	disableAll(bool yn=true);
+    bool	hasAnyDisabled() const;
 
     void	removeWith(CallBacker*);
-		//!<\note Should be locked before calling
+		//!<\note lock lock_ before calling
     void	removeWith(CallBackFunction);
-		//!<\note Should be locked before calling
+		//!<\note lock lock_ before calling
     void	removeWith(StaticCallBackFunction);
-		//!<\note Should be locked before calling
+		//!<\note lock lock_ before calling
+    void	transferTo(CallBackSet& to,const CallBacker* onlyfor=0);
+		//!<\note lock lock_ before calling, also to's lock_
 
-    inline bool	isEnabled() const { return enabled_; }
-    bool	doEnable( bool yn=true );
-		//!<Returns old state
-
-    mutable Threads::Lock	lock_;
+    mutable Threads::Lock   lock_;
 
 protected:
 
-				~CallBackSet();
-private:
-
-    bool			enabled_;
+		~CallBackSet();
 
 };
 
@@ -222,6 +226,10 @@ private:
     mutable Threads::Lock		attachednotifierslock_;
 
 public:
+
+    void				stopReceivingNotifications()
+					{ detachAllNotifiers(); }
+
     static void				createReceiverForCurrentThread();
 					/*!<Must be called if you wish to send
 					   callbacks to this thread. */
@@ -234,8 +242,7 @@ public:
 };
 
 
-/*!
-\brief Capsule class to wrap any class into a CallBacker.
+/*!\brief Capsule class to wrap any class into a CallBacker.
 
   Callback functions are defined as:
   void clss::func( CallBacker* )
@@ -245,19 +252,23 @@ public:
   available.
 */
 
-template <class PayLoadType>
+template <class PLT>
 mClass(Basic) CBCapsule : public CallBacker
 {
 public:
-    CBCapsule( PayLoadType d, CallBacker* c )
-    : data(d), caller(c)	{}
 
-    PayLoadType		data;
+    typedef PLT		PayLoadType;
+
+			CBCapsule( PLT d, CallBacker* c )
+			    : data(d), caller(c)	{}
+
+    PLT			data;
     CallBacker*		caller;
 
-    CBCapsule<PayLoadType>* clone()
-			    { return new CBCapsule<PayLoadType>(data,caller); }
-    bool		isCapsule() const	{ return true; }
+    CBCapsule<PLT>*	clone() const
+			    { return new CBCapsule<PLT>(data,caller); }
+    virtual bool	isCapsule() const		{ return true; }
+
 };
 
 

@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "";
 
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uicolortable.h"
+#include "uicoltabsel.h"
 #include "uidatapointsetcrossplot.h"
 #include "uilabel.h"
 #include "uigeninput.h"
@@ -44,12 +44,12 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
 		      "Specify the name of the new column.");
     uiLabel* msglbl = new uiLabel( this, msg );
     msglbl->attach( alignedAbove, nmfld_ );
- 
+
     if ( plotter_.isY2Shown() )
     {
 	selaxisfld_ =
 	    new uiGenInput( this, tr("Calculate selectedness on"),
-		    	    BoolInpSpec(true,tr("Y Axis"),tr("Y2 Axis")) );
+			    BoolInpSpec(true,tr("Y Axis"),tr("Y2 Axis")) );
 	selaxisfld_->attach( alignedBelow, nmfld_ );
     }
 
@@ -57,16 +57,18 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
 	new uiCheckBox( this, tr("Show selectedness as overlay attribute"),
 			mCB(this,uiDPSSelectednessDlg,showOverlayClicked) );
     showoverlayfld_->attach( alignedBelow, plotter_.isY2Shown() ? selaxisfld_
-	    							: nmfld_ );
+								: nmfld_ );
 
 
-    showin3dscenefld_ = 
+    showin3dscenefld_ =
 	new uiCheckBox( this, tr("Show selectedness in 3D scene"),
 		        mCB(this,uiDPSSelectednessDlg,show3DSceneClicked) );
 
     showin3dscenefld_->attach( alignedBelow, showoverlayfld_ );
 
-    coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence("Rainbow") );
+    coltabfld_ = new uiColTabSel( this, OD::Horizontal,
+				      uiStrings::sColorTable() );
+    coltabfld_->setNonSeisDefault();
     coltabfld_->attach( alignedBelow, showin3dscenefld_ );
     coltabfld_->display( false );
 }
@@ -75,14 +77,14 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
 void uiDPSSelectednessDlg::showOverlayClicked( CallBacker* )
 {
     coltabfld_->display( showoverlayfld_->isChecked() ||
-	   		 showin3dscenefld_->isChecked() );
+			 showin3dscenefld_->isChecked() );
 }
 
 
 void uiDPSSelectednessDlg::show3DSceneClicked( CallBacker* )
 {
     coltabfld_->display( showoverlayfld_->isChecked() ||
-	    		 showin3dscenefld_->isChecked() );
+			 showin3dscenefld_->isChecked() );
 }
 
 
@@ -93,7 +95,7 @@ void uiDPSSelectednessDlg::addColumn()
     for ( uiDataPointSet::DRowID rid=0; rid<dps.size(); rid++ )
     {
 	const bool isy1 = selaxisfld_ && selaxisfld_->attachObj()->isDisplayed()
-	    			? selaxisfld_->getBoolValue() : true;
+				? selaxisfld_->getBoolValue() : true;
 	const float val = plotter_.getSelectedness( rid, !isy1 );
 	BinIDValueSet& bvs = dps.bivSet();
 	BinIDValueSet::SPos pos = dps.bvsPos( rid );
@@ -115,21 +117,18 @@ void uiDPSSelectednessDlg::showOverlayAttrib()
 
     const DataPointSet& dps = plotter_.dps();
     const int dpscolid = dps.indexOf( nmfld_->text() );
-    const int bvscolid = dps.bivSetIdx( dpscolid );
-    ColTab::MapperSetup mapsu;
-    mapsu.range_ = dps.bivSet().valRange( bvscolid );
-    
+
     if ( selaxisfld_ && !selaxisfld_->getBoolValue() )
     {
 	plotter_.setOverlayY2Cols( dpscolid );
-	plotter_.setOverlayY2AttSeq( coltabfld_->colTabSeq() );
+	plotter_.setOverlayY2AttSeq( *coltabfld_->sequence() );
 	plotter_.updateOverlayMapper( false );
 	plotter_.setShowY4( true );
     }
     else
     {
 	plotter_.setOverlayY1Cols( dpscolid );
-	plotter_.setOverlayY1AttSeq( coltabfld_->colTabSeq() );
+	plotter_.setOverlayY1AttSeq( *coltabfld_->sequence() );
 	plotter_.updateOverlayMapper( true );
 	plotter_.setShowY3( true );
     }
@@ -146,11 +145,11 @@ void uiDPSSelectednessDlg::showIn3DScene()
     const DataPointSet& dps = plotter_.dps();
     const int dpscolid = dps.indexOf( nmfld_->text() );
     const int bvscolid = dps.bivSetIdx( dpscolid );
-    ColTab::MapperSetup mapsu;
-    mapsu.range_ = dps.bivSet().valRange( bvscolid );
-    
+    RefMan<ColTab::MapperSetup> mapsu = new ColTab::MapperSetup;
+    mapsu->setRange( dps.bivSet().valRange(bvscolid) );
+
     DataPointSetDisplayProp* dispprop =
-	new DataPointSetDisplayProp( coltabfld_->colTabSeq(), mapsu, dpscolid );
+	new DataPointSetDisplayProp( *coltabfld_->sequence(), *mapsu, dpscolid);
     plotter_.uidps().setDisp( dispprop );
 }
 
@@ -165,7 +164,7 @@ bool uiDPSSelectednessDlg::acceptOK()
     if ( colnms.isPresent(nmfld_->text()) )
     {
 	uiMSG().error( tr( "Column '%1' already present, "
-		    	   "choose a different name").arg( nmfld_->text()) );
+			   "choose a different name").arg( nmfld_->text()) );
 	return false;
     }
 

@@ -14,35 +14,38 @@ ________________________________________________________________________
 #include "uivismod.h"
 #include "uidialog.h"
 #include "uistring.h"
+#include "coltabmappersetup.h"
 
 namespace visSurvey { class SurveyObject; }
-namespace ColTab { class Sequence; class MapperSetup; }
-class uiColorTable;
+namespace ColTab { class Sequence; }
+template <class T> class DataDistribution;
+class uiColTabToolBar;
+class uiColTabSelTool;
 
 
 mExpClass(uiVis) uiVisColTabEd : public CallBacker
 { mODTextTranslationClass(uiVisColTabEd);
 public:
-    				uiVisColTabEd(uiColorTable&);
+
+				uiVisColTabEd(uiColTabToolBar&);
 				~uiVisColTabEd();
 
     void			setColTab(const ColTab::Sequence*,
-	    				  bool editseq,
-	    				  const ColTab::MapperSetup*,
-					  bool edittrans);
+					  const ColTab::MapperSetup*);
     void			setColTab(visSurvey::SurveyObject*,int ch,
-	    				  int version);
+					  int version);
     const ColTab::Sequence&	getColTabSequence() const;
-    const ColTab::MapperSetup&	getColTabMapperSetup() const;
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup() const;
 
     int				getChannel() const { return channel_; }
     const visSurvey::SurveyObject* getSurvObj() const { return survobj_; }
 
     NotifierAccess&		seqChange();
     NotifierAccess&		mapperChange();
-    
+
+    uiColTabSelTool&		colTabSel()	{ return coltabsel_; }
+    void			setDistribution(const DataDistribution<float>*);
     void			setHistogram(const TypeSet<float>*);
-    uiColorTable&		colTab()	{ return uicoltab_; }
 
     bool			usePar(const IOPar&);
     void                        fillPar(IOPar&);
@@ -64,17 +67,18 @@ protected:
     void			removeAllVisCB(CallBacker*);
 
 
-    uiColorTable&		uicoltab_;
+    uiColTabSelTool&		coltabsel_;
     int				channel_;
     int				version_;
     visSurvey::SurveyObject*	survobj_;
+
 };
 
 
 mExpClass(uiVis) uiColorBarDialog : public uiDialog
 { mODTextTranslationClass(uiColorBarDialog);
 public:
-    				uiColorBarDialog(uiParent*,
+				uiColorBarDialog(uiParent*,
 						 const uiString& title);
 
     uiVisColTabEd&		editor()	{ return *coltabed_; }

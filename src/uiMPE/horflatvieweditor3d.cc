@@ -128,7 +128,7 @@ void HorizonFlatViewEditor3D::releasePolygonSelectionCB( CallBacker* )
 void HorizonFlatViewEditor3D::selectionColorChangedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
-    if ( horpainter_ && 
+    if ( horpainter_ &&
 	cbdata.event==EM::EMObjectCallbackData::SelectionColorChnage )
 	horpainter_->updateSelectionColor();
 }
@@ -344,7 +344,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     }
 
     const Color prefcol = emobj->preferredColor();
-    const Color sowcolor = 
+    const Color sowcolor =
 	prefcol !=Color::Red() ? Color::Red() : Color::Green();
 
     if ( editor_ )
@@ -687,7 +687,7 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
     MPE::engine().setActivePath( randfdp ? &randfdp->getPath() : 0 );
     MPE::engine().setActiveRandomLineID( randfdp ? randfdp->getRandomLineID()
 						 : -1 );
-    notifystopper.restore();
+    notifystopper.enableNotification();
 
     seedpicker.setSelSpec( as );
 
@@ -742,7 +742,7 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 
 	const bool doerase =
 	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus() && sowingmode_;
-	const bool manualmodeclick = !mouseevent.ctrlStatus() && 
+	const bool manualmodeclick = !mouseevent.ctrlStatus() &&
 	    ( spk.getTrackMode()==spk.DrawBetweenSeeds ||
 	     spk.getTrackMode()==spk.DrawAndSnap );
 
@@ -762,7 +762,7 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	{
 		spk.addSeed( tkv, drop, tkv2 );
 	}
-	else if ( sowingmode_ ) 
+	else if ( sowingmode_ )
 	{
 	    spk.addSeedToPatch( tkv, false );
 	}
@@ -797,7 +797,7 @@ void HorizonFlatViewEditor3D::setupPatchDisplay()
     patchdata_->enabled_ = true;
 
     const int linewidth = sowingmode_ ? 0 : 4;
-    patchdata_->linestyle_ = 
+    patchdata_->linestyle_ =
 	OD::LineStyle( OD::LineStyle::Solid, linewidth, patchcolor );
 }
 
@@ -960,7 +960,7 @@ void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
 
     editor_->setSelectionPolygonVisible( false );
 
-    if ( !selectedids.size() && horpainter_ ) 
+    if ( !selectedids.size() && horpainter_ )
     {
 	horpainter_->removeSelections();
 	return;

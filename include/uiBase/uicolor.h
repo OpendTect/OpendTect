@@ -21,7 +21,7 @@ class uiComboBox;
 class uiSpinBox;
 
 
-/*! \brief pops a selector box to select a new color 
+/*! \brief pops a selector box to select a new color
      \return true if new color selected
 */
 mGlobal(uiBase) bool selectColor(Color&,uiParent* parnt=0,
@@ -36,7 +36,7 @@ mGlobal(uiBase) void		setExternalColor( const Color& );
 
   The label in this class is for displaying the current color. Another label
   may be created if you specify the lbltxt.
- 
+
  */
 
 mExpClass(uiBase) uiColorInput : public uiGroup
@@ -65,7 +65,7 @@ public:
 
     };
 
-    				uiColorInput(uiParent*,const Setup&,
+				uiColorInput(uiParent*,const Setup&,
 					     const char* nm=0);
 
     const Color&		color() const	{ return color_; }
@@ -74,8 +74,8 @@ public:
     void			setDoDraw(bool);
     void			setLblText(const uiString&);
 
-    Notifier<uiColorInput> 	colorChanged;
-    Notifier<uiColorInput> 	doDrawChanged;
+    Notifier<uiColorInput>	colorChanged;
+    Notifier<uiColorInput>	doDrawChanged;
 
     uiPushButton*		getButton()	{ return colbut_; }
     uiComboBox*			getDescCombo()	{ return descfld_; }
@@ -95,6 +95,7 @@ private:
     Color			color_;
     uiString			dlgtxt_;
     bool			selwithtransp_;
+    TypeSet<Color>		desccolors_;
 
     void			selCol(CallBacker*);
     void			dodrawSel(CallBacker*);

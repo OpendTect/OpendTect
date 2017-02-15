@@ -11,12 +11,13 @@ ________________________________________________________________________
 #include "uipsviewer2dmainwin.h"
 
 #include "uibutton.h"
-#include "uicolortable.h"
+#include "uicolseqsel.h"
 #include "uiflatviewer.h"
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewslicepos.h"
 #include "uigraphicsitemimpl.h"
 #include "uiioobjseldlg.h"
+#include "uicombobox.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uipixmap.h"
@@ -724,16 +725,21 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 	{
 	    if ( !isStored() )
 	    {
-		ColTab::MapperSetup& vdmapper = psapp.ddpars_.vd_.mappersetup_;
-		vdmapper.autosym0_ = false;
-		vdmapper.symmidval_ = mUdf(float);
-		vdmapper.type_ = ColTab::MapperSetup::Fixed;
-		vdmapper.range_ = Interval<float>(0,60);
-		psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sDefaultName();
-		ColTab::MapperSetup& wvamapper =psapp.ddpars_.wva_.mappersetup_;
-		wvamapper.cliprate_ = Interval<float>(0.0,0.0);
-		wvamapper.autosym0_ = true;
-		wvamapper.symmidval_ = 0.0f;
+		RefMan<ColTab::MapperSetup> newmapsu
+				= psapp.ddpars_.vd_.mappersetup_->clone();
+		newmapsu->setGuessSymmetry( false );
+		newmapsu->setSymMidVal( mUdf(float) );
+		newmapsu->setIsFixed( true );
+		newmapsu->setRange( Interval<float>(0,60) );
+		*psapp.ddpars_.vd_.mappersetup_ = *newmapsu;
+		psapp.ddpars_.vd_.colseqname_
+				= ColTab::Sequence::sDefaultName();
+
+		*newmapsu = *psapp.ddpars_.wva_.mappersetup_;
+		newmapsu->setClipRate( Interval<float>(0.0,0.0) );
+		newmapsu->setGuessSymmetry( false );
+		newmapsu->setSymMidVal( 0.0f );
+		*psapp.ddpars_.wva_.mappersetup_ = *newmapsu;
 	    }
 	}
 	else if ( !appearances_.isEmpty() )
@@ -1159,30 +1165,32 @@ void uiStoredViewer2DMainWin::displayAngle()
     {
 	if ( doanglegather_ ) continue;
 	PSViewAppearance& psapp = appearances_[dataidx];
-	ColTab::MapperSetup& vdmapper = psapp.ddpars_.vd_.mappersetup_;
+	RefMan<ColTab::MapperSetup> newmapsu
+		    = psapp.ddpars_.vd_.mappersetup_->clone();
 	if ( hasangledata_ )
 	{
 	    psapp.ddpars_.vd_.show_ = true;
 	    psapp.ddpars_.wva_.show_ = true;
-	    vdmapper.autosym0_ = false;
-	    vdmapper.symmidval_ = mUdf(float);
-	    vdmapper.type_ = ColTab::MapperSetup::Fixed;
-	    Interval<float> anglerg(
-		    mCast(float,angleparams_->anglerange_.start),
-		    mCast(float,angleparams_->anglerange_.stop) );
-	    vdmapper.range_ = anglerg;
-	    psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sDefaultName();
+	    newmapsu->setGuessSymmetry( false );
+	    newmapsu->setSymMidVal( mUdf(float) );
+	    newmapsu->setIsFixed( true );
+	    newmapsu->setRange( Interval<float>(
+			(float)angleparams_->anglerange_.start,
+			(float)angleparams_->anglerange_.stop ) );
+	    newmapsu->setSeqUseMode( ColTab::UnflippedCyclic );
+	    psapp.ddpars_.vd_.colseqname_ = ColTab::Sequence::sDefaultName();
 	}
 	else
 	{
 	    psapp.ddpars_.vd_.show_ = true;
 	    psapp.ddpars_.wva_.show_ = false;
-	    psapp.ddpars_.vd_.ctab_ = "Seismics";
-	    vdmapper.cliprate_ = Interval<float>(0.025,0.025);
-	    vdmapper.type_ = ColTab::MapperSetup::Auto;
-	    vdmapper.autosym0_ = true;
-	    vdmapper.symmidval_ = 0.0f;
+	    psapp.ddpars_.vd_.colseqname_ = "Seismics";
+	    newmapsu->setClipRate( Interval<float>(0.025,0.025) );
+	    newmapsu->setIsFixed( false );
+	    newmapsu->setGuessSymmetry( true );
+	    newmapsu->setSymMidVal( 0.f );
 	}
+	*psapp.ddpars_.vd_.mappersetup_ = *newmapsu;
     }
 
     setUpView();
@@ -1423,7 +1431,7 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 #define mDefBut(but,fnm,cbnm,tt) \
 uiToolButton* but = \
 new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
-    tb_->addButton( but );
+    tb_->addObject( but );
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
 				      bool isstored )
@@ -1450,11 +1458,12 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
 	    tr("Set gather data"));
     mDefBut(parsbut,"2ddisppars",propertiesDlgCB,
 	    tr("Set seismic display properties"));
-    ctabsel_ = new uiColorTableSel( tb_, "Select Color Table" );
-    ctabsel_->selectionChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
+    colseqsel_ = new uiColSeqSel( tb_, OD::Horizontal,
+				    uiStrings::sColorTable() );
+    colseqsel_->seqChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
     vwr_.dispParsChanged.notify( mCB(this,uiViewer2DControl,updateColTabCB) );
-    ctabsel_->setCurrent( dispPars().vd_.ctab_ );
-    tb_->addObject( ctabsel_ );
+    colseqsel_->setSeqName( dispPars().vd_.colseqname_ );
+    tb_->addObject( &colseqsel_->asUiObject() );
     tb_->addSeparator();
 }
 
@@ -1472,13 +1481,13 @@ void uiViewer2DControl::propertiesDlgCB( CallBacker* )
 void uiViewer2DControl::updateColTabCB( CallBacker* )
 {
     app_ = vwr_.appearance();
-    ctabsel_->setCurrent( dispPars().vd_.ctab_.buf() );
+    colseqsel_->setSeqName( dispPars().vd_.colseqname_ );
 }
 
 
 void uiViewer2DControl::coltabChg( CallBacker* )
 {
-    dispPars().vd_.ctab_ = ctabsel_->getCurrent();
+    dispPars().vd_.colseqname_ = colseqsel_->seqName();
     for( int ivwr=0; ivwr<vwrs_.size(); ivwr++ )
     {
 	if ( !vwrs_[ivwr] ) continue;
@@ -1510,7 +1519,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 
     app_ = vwrs_[ actvwridx ]->appearance();
     propChanged.trigger();
-    ctabsel_->setCurrent( app_.ddpars_.vd_.ctab_.buf() );
+    colseqsel_->setSeqName( app_.ddpars_.vd_.colseqname_ );
 
     ConstRefMan<FlatDataPack> vddatapack = vwrs_[actvwridx]->getPack( false );
     ConstRefMan<FlatDataPack> wvadatapack = vwrs_[actvwridx]->getPack( true );
@@ -1593,14 +1602,14 @@ void uiViewer2DControl::setGatherInfos( const TypeSet<GatherInfo>& gis )
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
 	gathernms.addIfNew( gatherinfos_[idx].gathernm_ );
     const bool showcoltab = gathernms.size() <= 1;
-    ctabsel_->setSensitive( showcoltab );
+    colseqsel_->setSensitive( showcoltab );
     uiString tooltipstr;
     if ( !showcoltab )
 	tooltipstr = tr( "Mutiple datasets selected. "
 			 "Use 'Set seismic display properties' button" );
     else
 	tooltipstr = uiString::emptyString();
-    ctabsel_->setToolTip( tooltipstr );
+    colseqsel_->asUiObject().setToolTip( tooltipstr );
 }
 
 

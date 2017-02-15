@@ -125,6 +125,19 @@ void DBDir::copyClassData( const DBDir& oth )
 }
 
 
+Monitorable::ChangeType DBDir::compareClassData( const DBDir& oth ) const
+{
+    if ( objs_.size() != oth.objs_.size() )
+	return cEntireObjectChange();
+
+    for ( int idx=0; idx<objs_.size(); idx++ )
+	if ( objs_[idx]->key() != oth.objs_[idx]->key() )
+	    return cEntireObjectChange();
+
+    return cNoChange();
+}
+
+
 bool DBDir::readFromFile( bool incl_old_tmp )
 {
     SafeFileIO sfio( omfFileName(dirname_), false );

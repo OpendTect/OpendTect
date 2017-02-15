@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "settings.h"
 #include "uibutton.h"
-#include "uicolortable.h"
+#include "uicoltabsel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -37,18 +37,19 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     , manuzsampl_( vwr_->appearance().annot_.x2_.sampling_ )
     , manuoffssampl_( vwr_->appearance().annot_.x1_.sampling_ )
 {
-    ColTab::Sequence coltabseq( vwr_->appearance().ddpars_.vd_.ctab_.buf() );
-    uicoltab_ = new uiColorTableGroup( this, coltabseq );
-    mAttachCB( uicoltab_->seqChanged, uiViewer3DAppearanceTab::colTabChanged );
-    mAttachCB(uicoltab_->scaleChanged, uiViewer3DAppearanceTab::colTabChanged);
-    uicoltablbl_ = new uiLabel( this, uiStrings::sColorTable(), uicoltab_ );
+    coltabsel_ = new uiColTabSel( this, OD::Horizontal,
+				 uiStrings::sColorTable() );
+    coltabsel_->setSeqName( vwr_->appearance().ddpars_.vd_.colseqname_ );
+    mAttachCB( coltabsel_->seqChanged, uiViewer3DAppearanceTab::colTabChanged );
+    mAttachCB( coltabsel_->mapperSetupChanged,
+		    uiViewer3DAppearanceTab::colTabChanged);
 
     const SamplingData<float> curzsmp = vwr_->appearance().annot_.x2_.sampling_;
     const bool zudf = mIsUdf( curzsmp.start ) || mIsUdf(curzsmp.step);
 
     zgridfld_ = new uiGenInput( this, tr("Z grid lines"),
 	    BoolInpSpec( vwr_->appearance().annot_.x2_.showgridlines_ ) );
-    zgridfld_->attach( alignedBelow, uicoltab_ );
+    zgridfld_->attach( alignedBelow, coltabsel_ );
     zgridfld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
 
@@ -116,8 +117,8 @@ uiViewer3DAppearanceTab::~uiViewer3DAppearanceTab()
 void uiViewer3DAppearanceTab::colTabChanged( CallBacker* )
 {
     FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
-    pars.ctab_ = uicoltab_->colTabSeq().name();
-    uicoltab_->getDispPars( pars );
+    pars.colseqname_ = coltabsel_->seqName();
+    *pars.mappersetup_ = *coltabsel_->mapperSetup();
     vwr_->handleChange( FlatView::Viewer::DisplayPars );
 }
 
@@ -125,10 +126,9 @@ void uiViewer3DAppearanceTab::colTabChanged( CallBacker* )
 void uiViewer3DAppearanceTab::updateColTab( CallBacker* )
 {
     const FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
-    const ColTab::Sequence ctseq( pars.ctab_ );
-    uicoltab_->setDispPars( pars );
-    uicoltab_->setSequence( &ctseq, true );
-    uicoltab_->setInterval( vwr_->getDataRange(false) );
+    coltabsel_->setMapperSetup( *pars.mappersetup_ );
+    coltabsel_->setSeqName( pars.colseqname_ );
+    coltabsel_->setRange( vwr_->getDataRange(false) );
 }
 
 
@@ -203,14 +203,14 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	return;
 
     FlatView::DataDispPars& ddp = vwr_->appearance().ddpars_;
-    ddp.vd_.mappersetup_.flipseq_ = uicoltab_->colTabMapperSetup().flipseq_;
-    ddp.vd_.ctab_ = uicoltab_->colTabSeq().name();
+    *ddp.vd_.mappersetup_ = *coltabsel_->mapperSetup();
+    ddp.vd_.colseqname_ = coltabsel_->seqName();
     vwr_->handleChange( FlatView::Viewer::DisplayPars );
 
     const bool showzgridlines = zgridfld_->getBoolValue();
     vwr_->appearance().annot_.x2_.showgridlines_ = showzgridlines;
 
-    SamplingData<float> zsmp(  mUdf(float),  mUdf(float) );
+    SamplingData<float> zsmp( mUdf(float), mUdf(float) );
     if ( showzgridlines )
     {
 	if ( !zgridautofld_->getBoolValue() )
@@ -271,7 +271,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	if ( fvwr==vwr_ )
 	    continue;
 
-	fvwr->appearance().ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
+	fvwr->appearance().ddpars_.vd_.colseqname_ = coltabsel_->seqName();
 
 	fvwr->appearance().annot_.x2_.showgridlines_ = showzgridlines;
 	fvwr->appearance().annot_.x1_.showgridlines_ = showoffsgridlines;

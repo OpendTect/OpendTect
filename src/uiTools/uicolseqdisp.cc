@@ -1,0 +1,264 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:        Bert
+ Date:          Jan 2017
+________________________________________________________________________
+
+-*/
+
+#include "uicolseqdisp.h"
+
+#include "coltabindex.h"
+#include "coltabsequence.h"
+#include "coltabmapper.h"
+
+#include "uipixmap.h"
+#include "uirgbarray.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
+
+
+uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient )
+    : uiRGBArrayCanvas(p,mkRGBArr())
+    , orientation_(orient)
+    , sequsemode_(ColTab::UnflippedSingle)
+    , colseq_(ColTab::SeqMGR().getDefault())
+    , selReq(this)
+    , menuReq(this)
+    , upReq(this)
+    , downReq(this)
+{
+    disableImageSave();
+    disableScrollZoom();
+    setDragMode( uiGraphicsView::NoDrag );
+
+    setDrawArr( true );
+    setStretch( 1, 0 );
+    scene().useBackgroundPattern( true );
+
+    setPrefHeight( orient == OD::Vertical ? 160 : 25 );
+    setPrefWidth( orient == OD::Vertical ? 30 : 80 );
+
+    mAttachCB( postFinalise(), uiColSeqDisp::initCB );
+}
+
+
+uiRGBArray& uiColSeqDisp::mkRGBArr()
+{
+    rgbarr_ = new uiRGBArray( false );
+    return *rgbarr_;
+}
+
+
+uiColSeqDisp::~uiColSeqDisp()
+{
+    detachAllNotifiers();
+    delete rgbarr_;
+}
+
+
+const char* uiColSeqDisp::seqName() const
+{
+    return colseq_ ? colseq_->name() : "";
+}
+
+
+void uiColSeqDisp::setNewSeq( const Sequence& newseq )
+{
+    replaceMonitoredRef( colseq_, const_cast<Sequence&>(newseq), this );
+}
+
+
+void uiColSeqDisp::setSeqName( const char* nm )
+{
+    if ( !nm || !*nm || FixedString(nm) == seqName() )
+	return;
+    ConstRefMan<Sequence> newseq = ColTab::SeqMGR().getByName( nm );
+    if ( !newseq )
+	return;
+
+    setNewSeq( *newseq );
+    reDraw();
+}
+
+
+void uiColSeqDisp::setSequence( const Sequence& seq )
+{
+    if ( colseq_.ptr() == &seq )
+	return;
+
+    setNewSeq( seq );
+    reDraw();
+}
+
+
+void uiColSeqDisp::setSeqUseMode( ColTab::SeqUseMode mode )
+{
+    if ( sequsemode_ != mode )
+    {
+	sequsemode_ = mode;
+	reDraw();
+    }
+}
+
+
+void uiColSeqDisp::setOrientation( OD::Orientation orient )
+{
+    if ( orientation_ != orient )
+    {
+	orientation_ = orient;
+	reDraw();
+    }
+}
+
+
+void uiColSeqDisp::initCB( CallBacker* )
+{
+    MouseEventHandler& meh = getMouseEventHandler();
+    mAttachCB( meh.buttonPressed, uiColSeqDisp::mousePressCB );
+    mAttachCB( meh.buttonReleased, uiColSeqDisp::mouseReleaseCB );
+    mAttachCB( meh.wheelMove, uiColSeqDisp::mouseWheelCB );
+
+    KeyboardEventHandler& keh = getKeyboardEventHandler();
+    mAttachCB( keh.keyReleased, uiColSeqDisp::keybCB );
+
+    mAttachCB( colseq_->objectChanged(), uiColSeqDisp::seqChgCB );
+    mAttachCB( reSize, uiColSeqDisp::reSizeCB );
+    reDraw();
+}
+
+
+
+void uiColSeqDisp::reSizeCB( CallBacker* )
+{
+    rgbarr_->setSize( (int)(scene().width()+.5), (int)(scene().height()+.5) );
+    reDraw();
+}
+
+
+void uiColSeqDisp::reDraw()
+{
+    if ( !finalised() || !colseq_ )
+	return;
+
+    beforeDraw();
+
+    rgbarr_->clear( colseq_->undefColor() );
+    const bool isvert = orientation_ != OD::Horizontal;
+    const int arrw = rgbarr_->getSize( true );
+    const int arrh = rgbarr_->getSize( false );
+    const ColTab::IndexedLookUpTable indextable( *colseq_, isvert ? arrh : arrw,
+						 sequsemode_ );
+    if ( isvert )
+    {
+	for ( int iy=0; iy<arrh; iy++ )
+	{
+	    const Color color = indextable.colorForIndex( iy );
+	    for ( int ix=0; ix<arrw; ix++ )
+		rgbarr_->set( ix, iy, color );
+	}
+    }
+    else
+    {
+	const int starty = arrh / 7;
+	const int stopy = arrh - starty;
+	const int startx = starty;
+	const int stopx = arrw - startx;
+	for ( int ix=startx; ix<stopx; ix++ )
+	{
+	    const Color color = indextable.colorForIndex( ix );
+	    for ( int iy=starty; iy<stopy; iy++ )
+		rgbarr_->set( ix, iy, color );
+	}
+    }
+
+    uiPixmap pixmap( arrw, arrh );
+    pixmap.convertFromRGBArray( *rgbarr_ );
+    setPixmap( pixmap );
+    updatePixmap();
+}
+
+
+uiColSeqDisp::PosType uiColSeqDisp::seqPosFor( const uiPoint& pt ) const
+{
+    const float relpos = orientation_ == OD::Horizontal
+			? ((float)pt.x_) / scene().width()
+			: ((float)pt.y_) / scene().height();
+    return ColTab::Mapper::seqPos4RelPos( sequsemode_, relpos );
+}
+
+
+#define mMouseTrigger(trig) \
+    { \
+	if ( !trig.isEmpty() ) \
+	{ \
+	    trig.trigger( seqPosFor(uiPoint(event.x(),event.y())) ); \
+	    meh.setHandled( true ); \
+	} \
+    }
+
+void uiColSeqDisp::handleMouseBut( bool ispressed )
+{
+    MouseEventHandler& meh = getMouseEventHandler();
+    if ( meh.isHandled() )
+	return;
+    const MouseEvent& event = meh.event();
+    if ( event.isWithKey() )
+	return;
+
+    if ( event.leftButton() && !ispressed )
+	mMouseTrigger( selReq )
+    else if ( event.rightButton() && ispressed )
+	mMouseTrigger( menuReq )
+}
+
+
+void uiColSeqDisp::mouseWheelCB( CallBacker* )
+{
+    MouseEventHandler& meh = getMouseEventHandler();
+    if ( meh.isHandled() )
+	return;
+    const MouseEvent& event = meh.event();
+    if ( event.isWithKey() )
+	return;
+
+    //TODO how does the wheel stuff work?
+    // if ( wheel-up )
+	// mMouseTrigger( upReq )
+    // else if ( wheel-down )
+	// mMouseTrigger( downReq )
+}
+
+
+void uiColSeqDisp::keybCB( CallBacker* )
+{
+    KeyboardEventHandler& keh = getKeyboardEventHandler();
+    if ( keh.isHandled() )
+	return;
+
+    const KeyboardEvent& event = keh.event();
+    if ( event.modifier_ != OD::NoButton )
+	return;
+
+    if ( event.key_ == OD::KB_Enter || event.key_ == OD::KB_Return )
+	selReq.trigger( mUdf(float) );
+    else if ( event.key_ == OD::KB_Space )
+	menuReq.trigger( mUdf(float) );
+    else if ( event.key_ == OD::KB_Up || event.key_ == OD::KB_PageUp )
+	upReq.trigger( mUdf(float) );
+    else if ( event.key_ == OD::KB_Down || event.key_ == OD::KB_PageDown )
+	downReq.trigger( mUdf(float) );
+}
+
+
+bool uiColSeqDisp::handleLongTabletPress()
+{
+    const Geom::Point2D<int> pos = TabletInfo::currentState()->globalpos_;
+    MouseEvent me( OD::RightButton, pos.x_, pos.y_ );
+    const int refnr = beginCmdRecEvent( "rightButtonPressed" );
+    getMouseEventHandler().triggerButtonPressed( me );
+    endCmdRecEvent( refnr, "rightButtonPressed" );
+    return true;
+}

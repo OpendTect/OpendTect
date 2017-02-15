@@ -496,9 +496,10 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     scanbut_ = new uiPushButton( rightgrp, tr("Rescan"), true );
     scanbut_->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
     scanbut_->attach( rightTo, nrtrcsfld_ );
-    histfld_ = new uiMapperRangeEditor( rightgrp, -1, false );
-    histfld_->rangeChanged.notify( mCB(this,uiSeisPreLoadSel,histChangeCB) );
-    histfld_->attach( leftAlignedBelow, nrtrcsfld_ );
+    mapperrgfld_ = new uiMapperRangeEditor( rightgrp, false );
+    mapperrgfld_->attach( alignedBelow, nrtrcsfld_ );
+    mAttachCB( mapperrgfld_->mapperSetup().objectChanged(),
+		uiSeisPreLoadSel::mapperSetupChgCB );
 
     postFinalise().notify( mCB(this,uiSeisPreLoadSel,finalizeDoneCB) );
 }
@@ -591,7 +592,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     {
 	if ( !info.getRanges(tkzs) ) // TODO: Add message
 	{
-	    histfld_->setEmpty();
+	    mapperrgfld_->setEmpty();
 	    return;
 	}
     }
@@ -599,7 +600,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     IOPar iop;
     if ( info.fillStats(iop) )
     {
-	histfld_->setData( iop );
+	mapperrgfld_->setData( iop );
 	nrtrcsfld_->setValue( mCast(int,tkzs.hsamp_.totalNr()) );
 	setColorTable();
 	return;
@@ -640,7 +641,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     }
 
     const SeisTrcBufArray2D array( &seisbuf, false, 0 );
-    histfld_->setData( &array );
+    mapperrgfld_->setData( &array );
     setColorTable();
 }
 
@@ -651,26 +652,25 @@ void uiSeisPreLoadSel::setColorTable()
     if ( !ioobj ) return;
 
     const SeisIOObjInfo info( ioobj );
-    ColTab::Sequence seq( "" );
-    ColTab::MapperSetup ms; ms.range_ = histfld_->getDisplay().xAxis()->range();
+    ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getDefault();
+    RefMan<ColTab::MapperSetup> ms = new ColTab::MapperSetup;
+    ms->setRange( mapperrgfld_->getDisplay().xAxis()->range() );
     IOPar pars;
     if ( info.getDisplayPars(pars) )
     {
 	const char* seqnm = pars.find( sKey::Name() );
-	seq = ColTab::Sequence( seqnm );
-	ms.usePar( pars );
+	seq = ColTab::SeqMGR().getAny( seqnm );
+	ms->usePar( pars );
     }
 
-    histfld_->setColTabSeq( seq );
-    histfld_->setColTabMapperSetup( ms );
-    histChangeCB( 0 );
+    mapperrgfld_->setColTabSeq( *seq );
+    mapperrgfld_->setMapperSetup( *ms );
 }
 
 
-void uiSeisPreLoadSel::histChangeCB( CallBacker* )
+void uiSeisPreLoadSel::mapperSetupChgCB( CallBacker* )
 {
-    const Interval<float> rg = histfld_->getColTabMapperSetup().range_;
-    fromrgfld_->setValue( rg );
+    fromrgfld_->setValue( mapperrgfld_->mapperSetup().range() );
 }
 
 

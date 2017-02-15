@@ -12,39 +12,58 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uirgbarraycanvas.h"
-class uiTextItem;
+#include "coltabsequence.h"
 class uiRGBArray;
 
 
-mExpClass(uiTools) uiColorSeqDisp : public uiRGBArrayCanvas
+mExpClass(uiTools) uiColSeqDisp : public uiRGBArrayCanvas
 {
 public:
 
-				uiColorSeqDisp(uiParent*);
-				~uiColorSeqDisp();
+    typedef ColTab::Sequence	Sequence;
+    typedef Sequence::PosType	PosType;
 
-    const char*			seqName() const		{ return seqnm_; }
+				uiColSeqDisp(uiParent*,OD::Orientation o
+							    =OD::Horizontal);
+				~uiColSeqDisp();
+
+    ConstRefMan<Sequence>	sequence() const	{ return colseq_; }
+    OD::Orientation		orientation() const	{ return orientation_; }
+    ColTab::SeqUseMode		seqUseMode() const	{ return sequsemode_; }
+    const char*			seqName() const;
+    void			setSequence(const Sequence&);
+    void			setSeqUseMode(ColTab::SeqUseMode);
+    void			setOrientation(OD::Orientation);
     void			setSeqName(const char*);
-    bool			isFlipped() const	{ return flipped_; }
-    void			setFlipped(bool);
 
-    Notifier<uiColorSeqDisp>	selReq; //!< click or enter
-    Notifier<uiColorSeqDisp>	menuReq; //!< right-click or space
-    Notifier<uiColorSeqDisp>	upReq;	 //!< wheel-up, key-up or page-up
-    Notifier<uiColorSeqDisp>	downReq; //!< wheel-down, key-down or page-down
+    PosType			seqPosFor(const uiPoint&) const;
+
+				// Note that the PosType may be undef
+    CNotifier<uiColSeqDisp,PosType>	selReq; //!< click or enter
+    CNotifier<uiColSeqDisp,PosType>	menuReq; //!< right-click or space
+    CNotifier<uiColSeqDisp,PosType>	upReq;	 //!< wheel-, key- or page-up
+    CNotifier<uiColSeqDisp,PosType>	downReq; //!< wheel-, key- or page-down
 
 protected:
 
-    BufferString		seqnm_;
-    bool			flipped_;
+    ColTab::SeqUseMode		sequsemode_;
+    ConstRefMan<Sequence>	colseq_;
+    OD::Orientation		orientation_;
     uiRGBArray*			rgbarr_;
-    uiTextItem*			nmitm_;
 
     void			initCB(CallBacker*);
-    void			mouseButCB(CallBacker*);
     void			mouseWheelCB(CallBacker*);
     void			keybCB(CallBacker*);
-    inline void			reSizeCB(CallBacker*);
+    void			reSizeCB(CallBacker*);
+    void			mousePressCB( CallBacker* )
+						{ handleMouseBut(true); }
+    void			mouseReleaseCB( CallBacker* )
+						{ handleMouseBut(false); }
+    void			seqChgCB( CallBacker* )	    { reDraw(); }
+
+    void			setNewSeq(const Sequence&);
+    void			handleMouseBut(bool);
+    virtual bool		handleLongTabletPress();
 
     void			reDraw();
 

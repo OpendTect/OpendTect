@@ -124,7 +124,7 @@ void TextureChannel2RGBA::getChannelName( int idx, uiString& res ) const
 }
 
 
-const osg::Image* TextureChannel2RGBA::createRGBA() const 
+const osg::Image* TextureChannel2RGBA::createRGBA() const
 {
      return laytex_ ? laytex_->getCompositeTextureImage() : 0;
 }
@@ -172,7 +172,7 @@ int ColTabTextureChannel2RGBA::maxNrChannels() const
 
 ColTabTextureChannel2RGBA::~ColTabTextureChannel2RGBA()
 {
-    deepErase( coltabs_ );
+    deepUnRef( coltabs_ );
     for ( int idx=0; idx<osgcolsequences_.size(); idx++ )
 	osgcolsequences_[idx]->unref();
     osgcolsequences_.erase();
@@ -239,7 +239,7 @@ void ColTabTextureChannel2RGBA::update()
 
 		    proc->setColorSequence( osgcolsequences_[procidx] );
 
-		    const Color& udfcol = getSequence(channel)->undefColor();
+		    const Color& udfcol = getSequence(channel).undefColor();
 		    proc->setNewUndefColor( Conv::to<osg::Vec4f>(udfcol) );
 		}
 		else
@@ -276,14 +276,17 @@ void ColTabTextureChannel2RGBA::adjustNrChannels()
 
     while ( coltabs_.size() < nr )
     {
-	coltabs_ += new ColTab::Sequence( ColTab::defSeqName() );
+	const ColTab::Sequence* seq = ColTab::SeqMGR().getDefault();
+	seq->ref();
+	coltabs_ += seq;
 	enabled_ += true;
 	opacity_ += 255;
     }
 
     while ( coltabs_.size() > nr )
     {
-	delete coltabs_.removeSingle( nr );
+	const ColTab::Sequence* seq = coltabs_.removeSingle( nr );
+	seq->unRef();
 	enabled_.removeSingle( nr );
 	opacity_.removeSingle( nr );
     }
@@ -308,7 +311,9 @@ void ColTabTextureChannel2RGBA::notifyChannelInsert( int ch )
     if ( ch<0 || ch>coltabs_.size() )
 	return;
 
-    coltabs_.insertAt( new ColTab::Sequence(ColTab::defSeqName()), ch );
+    const ColTab::Sequence* seq = ColTab::SeqMGR().getDefault();
+    seq->ref();
+    coltabs_.insertAt( seq, ch );
     enabled_.insert( ch, true );
     opacity_.insert( ch, 255 );
 
@@ -321,7 +326,8 @@ void ColTabTextureChannel2RGBA::notifyChannelRemove( int ch )
     if ( !coltabs_.validIdx(ch) )
 	return;
 
-    delete coltabs_.removeSingle( ch );
+    const ColTab::Sequence* seq = coltabs_.removeSingle( ch );
+    seq->unRef();
     enabled_.removeSingle( ch );
     opacity_.removeSingle( ch );
 
@@ -332,10 +338,12 @@ void ColTabTextureChannel2RGBA::notifyChannelRemove( int ch )
 void ColTabTextureChannel2RGBA::setSequence( int ch,
 					     const ColTab::Sequence& seq )
 {
-    if ( !coltabs_.validIdx(ch) || *coltabs_[ch]==seq )
+    if ( !coltabs_.validIdx(ch) || coltabs_[ch]==&seq )
 	return;
-    
-    *coltabs_[ch] = seq;
+
+    seq.ref();
+    coltabs_[ch]->unRef();
+    coltabs_.replace( ch, &seq );
 
     if ( laytex_ )
     {
@@ -344,17 +352,19 @@ void ColTabTextureChannel2RGBA::setSequence( int ch,
 
 	if ( laytex_->getProcess(ch) )
 	{
-	    const Color& udfcol = getSequence(ch)->undefColor();
+	    const Color& udfcol = getSequence(ch).undefColor();
 	    laytex_->getProcess(ch)->setNewUndefColor(
-		    				Conv::to<osg::Vec4f>(udfcol) );
+						Conv::to<osg::Vec4f>(udfcol) );
 	}
     }
 }
 
 
-const ColTab::Sequence* ColTabTextureChannel2RGBA::getSequence( int ch ) const
+const ColTab::Sequence& ColTabTextureChannel2RGBA::getSequence( int ch ) const
 {
-    return coltabs_.validIdx(ch) ? coltabs_[ch] : 0;
+    if ( ch < 0 ) ch = 0;
+    if ( ch > coltabs_.size()-1 ) ch = coltabs_.size()-1;
+    return *coltabs_[ch];
 }
 
 

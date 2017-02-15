@@ -60,7 +60,7 @@ const char* uiODPickSetParentTreeItem::childObjTypeKey() const
 }
 
 
-uiODPrManagedTreeItem* uiODPickSetParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODPickSetParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
@@ -476,7 +476,7 @@ const char* uiODPolygonParentTreeItem::childObjTypeKey() const
 }
 
 
-uiODPrManagedTreeItem* uiODPolygonParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODPolygonParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
@@ -488,7 +488,7 @@ uiODPrManagedTreeItem* uiODPolygonParentTreeItem::addChildItem(
     if ( !ps || !ps->isPolygon() )
 	return 0;
 
-    uiODPrManagedTreeItem* item = new uiODPolygonTreeItem( -1, *ps );
+    uiPresManagedTreeItem* item = new uiODPolygonTreeItem( -1, *ps );
     addChild( item, false );
     item->setChecked( true );
     return item;

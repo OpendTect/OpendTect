@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "vistransform.h"
 
 #include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "trckeyzsampling.h"
 #include "iopar.h"
 #include "indexedshape.h"
@@ -310,11 +311,11 @@ void Well::setWellName( const TrackParams& tp )
     transformZIfNeeded( crdtop );
     transformZIfNeeded( crdbot );
 
-    updateText( welltoptxt_->text(0),tp.isdispabove_ ? 
+    updateText( welltoptxt_->text(0),tp.isdispabove_ ?
 		tp.name_ : uiString::emptyString(), &crdtop,
 		tp.font_ );
 
-    updateText( wellbottxt_->text(0),tp.isdispbelow_ ? 
+    updateText( wellbottxt_->text(0),tp.isdispbelow_ ?
 		tp.name_ : uiString::emptyString(), &crdbot,
 		tp.font_ );
 
@@ -394,7 +395,7 @@ void Well::addMarker( const MarkerParams& mp )
     const int textidx = markernames_->addText();
     Text* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
- 
+
     updateText( txt,toUiString( mp.name_ ),&markerpos,mp.font_ );
 
     return;
@@ -404,14 +405,14 @@ void Well::addMarker( const MarkerParams& mp )
 void Well::updateMakerSize(float sizefactor)
 {
     float size = markerset_->getScreenSize();
-    markerset_->setScreenSize( size + (markersize_/sizefactor)*markersize_ ); 
+    markerset_->setScreenSize( size + (markersize_/sizefactor)*markersize_ );
 }
 
 
 void Well::updateMakerNamePosition(Side side,float sizefactor)
 {
     float ratio = displaytube_[side] ? 2 : 1;
-    
+
     for ( int idx=0; idx<markernames_->nrTexts(); idx++ )
     {
 	const Coord3 pos = markernames_->text(idx)->getPosition();
@@ -726,7 +727,7 @@ void Well::getLogStyle( Side side, int& style ) const
 	style = (int)Seismic;
 	return;
     }
-    
+
     if ( displaytube_[(int)side] )
 	style = (int)Logtube;
     else
@@ -764,21 +765,20 @@ const Color& Well::logColor( Side side  ) const
 #define colors2f(rgb) float(col.rgb())/255
 void Well::setLogFillColorTab( const LogParams& lp,  Side side  )
 {
-    int seqidx = ColTab::SM().indexOf( lp.seqname_ );
-    if ( seqidx<0 || mIsUdf(seqidx) ) seqidx = 0;
-    const ColTab::Sequence* seq = ColTab::SM().get( seqidx );
+    ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( lp.seqname_ );
 
     osg::ref_ptr<osg::Vec4Array> clrTable = new osg::Vec4Array;
     for ( int idx=0; idx<256; idx++ )
     {
 	const bool issinglecol = ( lp.style_ == Seismic ||
 			(lp.style_ != Seismic && lp.issinglcol_ ) );
-	float colstep = lp.iscoltabflipped_ ? 1-(float)idx/255 : (float)idx/255;
-	Color col = seq->color( colstep );
+	float colpos = ColTab::Mapper::seqPos4RelPos( lp.sequsemode_,
+						      (float)idx/255 );
+	Color col = seq->color( colpos );
 	float r = issinglecol ? scolors2f(r) : colors2f(r);
 	float g = issinglecol ? scolors2f(g) : colors2f(g);
 	float b = issinglecol ? scolors2f(b) : colors2f(b);
-	clrTable->push_back(osg::Vec4(r,g,b,1.0));
+	clrTable->push_back( osg::Vec4(r,g,b,1.0) );
     }
 
     osgGeo::WellLog* logdisplay =
@@ -877,7 +877,7 @@ bool Well::logsShown() const
 
 bool Well::hasLog( Side side ) const
 {
-    return displaylog_[(int)side];    
+    return displaylog_[(int)side];
 }
 
 
@@ -885,7 +885,7 @@ uiString Well::getLogName( Side side ) const
 {
     if ( displaylog_[(int)side] )
 	return lognames_[(int)side];
-    
+
     return uiString::emptyString();
 }
 
@@ -972,8 +972,8 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 	TypeSet<Color>& colors, TypeSet<TypeSet<int> >& pss,
 	TypeSet<Coord3>& normals, bool path ) const
 {
-    
-    if ( style==Logtube && !displaytube_[(int)side] ) 
+
+    if ( style==Logtube && !displaytube_[(int)side] )
 	return false;
 
     if ( style==Welllog && displaytube_[(int)side] )
@@ -988,7 +988,7 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 
     if ( style == Welllog || style== Seismic)
     {
-	geom = path ? 
+	geom = path ?
 	    logdisplay->getLogPathGeometry() : logdisplay->getLogGeometry();
     }
     else
@@ -996,10 +996,10 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 	geom = logdisplay->getTubeGeometry();
     }
 
-    if ( !geom ) 
+    if ( !geom )
 	return false;
 
-    if ( geom->getNumPrimitiveSets() == 0 
+    if ( geom->getNumPrimitiveSets() == 0
 	|| geom->getVertexArray()->getNumElements() == 0 )
 	return false;
 
@@ -1020,15 +1020,15 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 	for ( int idy = 0; idy<osgps->getNumIndices(); idy++ )
 	    ps += osgps->index( idy );
 
-	pss += ps;	    
+	pss += ps;
     }
-    
-    const osg::Vec3Array* vertices = 
+
+    const osg::Vec3Array* vertices =
 	mGetOsgVec3Arr( dynamic_cast<osg::Array*>(geom->getVertexArray()) );
     const osg::Vec3Array* osgnormals =
 	mGetOsgVec3Arr( dynamic_cast<osg::Array*>(geom->getNormalArray()) );
 
-    const osg::Vec4Array* clrarr = 
+    const osg::Vec4Array* clrarr =
 	mGetOsgVec4Arr( dynamic_cast<osg::Array*>(geom->getColorArray()) );
 
     for ( int idx=0; idx<vertices->size(); idx++ )

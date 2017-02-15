@@ -29,9 +29,9 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.overlap_ = 0;
-    app.ddpars_.wva_.mappersetup_.cliprate_ = Interval<float>(0,0);
     app.ddpars_.wva_.refline_ = Color::Black();
-    app.ddpars_.wva_.mappersetup_.symmidval_ = mUdf(float);
+    app.ddpars_.wva_.mappersetup_->setClipRate( Interval<float>(0,0) );
+    app.ddpars_.wva_.mappersetup_->setSymMidVal( mUdf(float) );
     app.setDarkBG( false );
 
     setExtraBorders( uiSize(-10,5), uiSize(2,5) );

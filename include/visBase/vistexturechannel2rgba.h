@@ -20,7 +20,7 @@ namespace osgGeo { class LayeredTexture; class ColorSequence; }
 namespace osg { class Image; }
 
 namespace visBase
-{ 
+{
 
 class TextureChannels;
 class MappedTextureDataSet;
@@ -47,7 +47,7 @@ public:
 
     virtual bool		canSetSequence() const		{ return false;}
     virtual void		setSequence(int,const ColTab::Sequence&){}
-    virtual const ColTab::Sequence* getSequence(int) const	{ return 0; }
+    virtual const ColTab::Sequence& getSequence(int) const	= 0;
 
     virtual void		swapChannels(int ch0,int ch1)	{}
     virtual void		setEnabled(int ch,bool yn)	{}
@@ -60,7 +60,7 @@ public:
     virtual int			maxNrChannels() const		= 0;
     virtual int			minNrChannels() const		{ return 1; }
     virtual void		getChannelName(int,uiString&) const;
-    
+
     int				getTexturePixelSizeInBits() const;
     const unsigned char*	getTextureData() const;
     int				getTextureWidth() const;
@@ -83,7 +83,7 @@ public:
     virtual int		nrChannels() const			= 0;
     virtual bool	addChannel()				= 0;
     virtual bool	enableNotify(bool)			= 0;
-    			//!<\returns previous status
+			//!<\returns previous status
     virtual void	touch()					= 0;
     virtual void	setNrChannels(int)			= 0;
 };
@@ -104,7 +104,7 @@ public:
 
     bool			canSetSequence() const		{ return true;}
     void			setSequence(int ch,const ColTab::Sequence&);
-    const ColTab::Sequence*	getSequence(int ch) const;
+    const ColTab::Sequence&	getSequence(int ch) const;
 
     void			setEnabled(int ch,bool yn);
     bool			isEnabled(int ch) const;
@@ -127,7 +127,7 @@ protected:
     void			getColors(int channel,
 					  TypeSet<unsigned char>&) const;
 
-    ObjectSet<ColTab::Sequence>	coltabs_;
+    ObjectSet<const ColTab::Sequence> coltabs_;
     BoolTypeSet			enabled_;
     TypeSet<unsigned char>	opacity_;
 

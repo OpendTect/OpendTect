@@ -68,6 +68,20 @@ void Well::LogSet::copyClassData( const LogSet& oth )
 }
 
 
+Monitorable::ChangeType Well::LogSet::compareClassData(
+					const LogSet& oth ) const
+{
+    if ( logs_.size() != oth.logs_.size() )
+	return cEntireObjectChange();
+
+    for ( int idx=0; idx<logs_.size(); idx++ )
+	if ( *logs_[idx] != *oth.logs_[idx] )
+	    return cEntireObjectChange();
+
+    return cNoChange();
+}
+
+
 Well::LogSet::IdxType Well::LogSet::gtIdx( LogID id ) const
 {
     if ( id.isInvalid() )
@@ -482,6 +496,17 @@ void Well::Log::copyClassData( const Log& oth )
     pars_ = oth.pars_;
     valrg_ = oth.valrg_;
     valsarecodes_ = oth.valsarecodes_;
+}
+
+
+Monitorable::ChangeType Well::Log::compareClassData( const Log& oth ) const
+{
+    if ( vals_ != oth.vals_ )
+	return cEntireObjectChange();
+
+    mDeliverSingCondMonitorableCompare(
+	unitmeaslbl_ == oth.unitmeaslbl_ && pars_ == oth.pars_,
+	cParsChange() );
 }
 
 

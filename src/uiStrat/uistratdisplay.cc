@@ -621,7 +621,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton( tb_, fnm, tt, mCB(this,uiStratViewControl,cbnm) ); \
-    tb_->addButton( but );
+    tb_->addObject( but );
 
 uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     : viewer_(v)

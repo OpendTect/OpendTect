@@ -42,8 +42,8 @@ ________________________________________________________________________
 #include "uibatchlaunch.h"
 #include "uibatchprestackproc.h"
 #include "uibatchprogs.h"
-#include "uicoltabimport.h"
-#include "uicoltabman.h"
+#include "uicolseqimport.h"
+#include "uicolseqman.h"
 #include "uiconvpos.h"
 #include "uicreate2dgrid.h"
 #include "uicreatelogcubedlg.h"
@@ -393,13 +393,12 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(ColTab):
 	if ( at == uiODApplMgr::Man )
 	{
-	    ColTab::Sequence ctseq( "" );
-	    uiColorTableMan dlg( par_, ctseq, true );
-	    dlg.go();
+	    uiColSeqMan* dlg = new uiColSeqMan( par_ );
+	    dlg->go();
 	}
 	else if ( at == uiODApplMgr::Imp )
 	{
-	    uiColTabImport dlg( par_ );
+	    uiColSeqImport dlg( par_ );
 	    dlg.go();
 	}
     break;

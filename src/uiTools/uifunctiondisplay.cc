@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicssaveimagedlg.h"
+#include "datadistribution.h"
 #include "mouseevent.h"
 #include "axislayout.h"
 #include "od_iostream.h"
@@ -208,6 +209,47 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 }
 
 
+void uiFunctionDisplay::setY2Vals( const DataDistribution<float>& distr,
+				   bool limitspikes )
+{
+    y2xvals_.erase(); y2yvals_.erase();
+
+    if ( !distr.isEmpty() )
+    {
+	float maxval = distr[0];
+	float runnerupval = maxval;
+	float minval = maxval;
+	int idxatmax = 0;
+
+	DataDistributionIter<float> iter( distr );
+	while ( iter.next() )
+	{
+	    y2xvals_ += iter.position();
+	    const float val = iter.value();
+	    y2yvals_ += val;
+	    if ( val < minval )
+		minval = val;
+	    else if ( val > maxval )
+	    {
+		runnerupval = maxval;
+		maxval = val;
+		idxatmax = iter.curIdx();
+	    }
+	}
+
+	if ( limitspikes && y2xvals_.size() > 5 )
+	{
+	    const float valrg = runnerupval - minval;
+	    const float max4disp = minval + 1.5 * valrg;
+	    if ( maxval > max4disp )
+		y2yvals_[idxatmax] = max4disp;
+	}
+    }
+
+    gatherInfo( true ); draw();
+}
+
+
 void uiFunctionDisplay::setMarkValue( float val, bool is_x )
 {
     (is_x ? xmarklineval_ : ymarklineval_) = val;
@@ -363,7 +405,7 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
     const Interval<int> xpixintv( xax_->getPix(xax_->range().start),
 				  xax_->getPix(xax_->range().stop) );
     const Interval<int> ypixintv( yax->getPix(yrg.start),
-	    			  yax->getPix(yrg.stop) );
+				  yax->getPix(yrg.stop) );
     uiPoint pt = closept;
     for ( int idx=0; idx<nrpts; idx++ )
     {

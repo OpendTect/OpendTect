@@ -313,8 +313,6 @@ uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
-	emobj->change.remove( mCB(this,uiODVw2DHor2DTreeItem,emobjChangeCB) );
-
 	EM::ObjectID emid = emobj->id();
 	if ( MPE::engine().hasTracker(emid) )
 	{

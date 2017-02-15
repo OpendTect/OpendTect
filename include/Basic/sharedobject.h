@@ -22,8 +22,6 @@ public:
 
 			SharedObject(const char* nm=0);
 			mDeclMonitorableAssignment(SharedObject);
-    bool		operator ==( const SharedObject& oth ) const
-			{ return NamedMonitorable::operator ==( oth ); }
 
     mDeclInstanceCreatedNotifierAccess(SharedObject);
 

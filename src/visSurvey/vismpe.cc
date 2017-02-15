@@ -127,7 +127,7 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 }
 
 
-const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib,
+ConstRefMan<ColTab::MapperSetup> MPEDisplay::getColTabMapperSetup( int attrib,
 	int version ) const
 {
     if ( attrib<0 || attrib>=nrAttribs() )
@@ -137,14 +137,14 @@ const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib,
 			 || version >= channels_->nrVersions(attrib) )
 	version = channels_->currentVersion( attrib );
 
-    return &channels_->getColTabMapperSetup( attrib, version );
+    return channels_->getColTabMapperSetup( attrib, version );
 }
 
 
 const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
 {
     return ( attrib>=0 && attrib<nrAttribs() && channels_->getChannels2RGBA() )
-	? channels_->getChannels2RGBA()->getSequence( attrib ) : 0;
+	? &channels_->getChannels2RGBA()->getSequence( attrib ) : 0;
 }
 
 

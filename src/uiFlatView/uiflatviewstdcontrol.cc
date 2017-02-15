@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "uibitmapdisplay.h"
 
-#include "uicolortable.h"
+#include "uicoltabsel.h"
 #include "uiflatviewcoltabed.h"
 #include "uiflatviewer.h"
 #include "uigraphicsscene.h"
@@ -33,12 +33,12 @@ ________________________________________________________________________
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
-    tb_->addButton( but );
+    tb_->addObject( but );
 
 #define mEditDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(edittb_,fnm,tt,\
 			   mCB(this,uiFlatViewStdControl,cbnm) ); \
-    edittb_->addButton( but );
+    edittb_->addObject( but );
 
 #define sLocalHZIdx	0
 #define sGlobalHZIdx	1
@@ -176,7 +176,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withcoltabed_ )
     {
-	uiColorTableToolBar* coltabtb = new uiColorTableToolBar( mainwin() );
+	uiColTabToolBar* coltabtb = new uiColTabToolBar( mainwin() );
 	ctabed_ = new uiFlatViewColTabEd( *coltabtb );
 	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>=400 );
 	if ( setup.managecoltab_ )
@@ -591,10 +591,10 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
     handDragging( cb );
     MouseCursorManager::restoreOverride();
     MouseCursor cursor( !isEditModeOn() ? MouseCursor::Arrow
-	    				: MouseCursor::Cross );
+					: MouseCursor::Cross );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	setVwrCursor( *vwrs_[idx], cursor );
-    
+
     mousepressed_ = false;
 }
 

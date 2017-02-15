@@ -338,9 +338,9 @@ static void addTranspToStr( char* str, unsigned char val, int transpopt,
 }
 
 
-const char* Color::getStdStr( bool withhash, int transpopt ) const
+BufferString Color::getStdStr( bool withhash, int transpopt ) const
 {
-    mDefineStaticLocalObject( char, buf, [10] );
+    char buf[10];
     int curidx = 0;
     const bool isrev = !withhash;
     if ( withhash ) { buf[curidx] = '#'; curidx++; }
@@ -350,7 +350,7 @@ const char* Color::getStdStr( bool withhash, int transpopt ) const
     addCompToStr( buf+curidx, withhash ? b() : r() ); curidx += 2;
     if ( !isrev ) addTranspToStr( buf, t(), transpopt, curidx );
     buf[curidx] = '\0';
-    return buf;
+    return BufferString( buf );
 }
 
 
@@ -505,16 +505,11 @@ static const ColorDescriptionData cColDD[] = {
 };
 
 
-static const char* getApproxDesc( const char* nm )
-{
-    mDeclStaticString( ret );
-    ret = "~";
-    ret += nm;
-    return ret.buf();
-}
+
+#define mApproxDescStr(nm) BufferString( "~", nm )
 
 
-const char* Color::getDescription() const
+BufferString Color::getDescription() const
 {
     int minsqdist = 16581376; int minidx = -1;
     for ( int idx=0; idx<cNrColDD; idx++ )
@@ -525,32 +520,39 @@ const char* Color::getDescription() const
 	const int bdist = b() - cdd.b_;
 	const int distsq = rdist*rdist + gdist*gdist + bdist*bdist;
 	if ( distsq < 4 )
-	    return distsq ? getApproxDesc(cdd.nm_) : cdd.nm_;
+	    return distsq ? mApproxDescStr(cdd.nm_) : BufferString(cdd.nm_);
 	else if ( distsq < minsqdist )
 	    { minsqdist = distsq; minidx = idx; }
     }
 
-    return getApproxDesc( cColDD[minidx].nm_ );
+    return mApproxDescStr( cColDD[minidx].nm_ );
 }
 
 
 bool Color::fromDescription( const char* inp )
 {
-    if ( !inp || !*inp )
+    if ( !inp )
 	return false;
-    if ( *inp == '~' )
+    while ( *inp && !isalpha(*inp) )
 	inp++;
     if ( !*inp )
 	return false;
 
+    BufferString colnm( inp );
+    char* colend = colnm.getCStr();
+    while ( *colend && isalnum(*colend) )
+	colend++;
+    *colend = '\0';
+
+    inp = colnm.getCStr();
     for ( int idx=0; idx<cNrColDD; idx++ )
     {
 	const ColorDescriptionData& cdd = cColDD[idx];
 	if ( caseInsensitiveEqual(cdd.nm_,inp) )
 	{
-	    *this = Color( (unsigned char) cdd.r_,
-			   (unsigned char) cdd.g_,
-			   (unsigned char) cdd.b_ );
+	    *this = Color( (unsigned char)cdd.r_,
+			   (unsigned char)cdd.g_,
+			   (unsigned char)cdd.b_ );
 	    return true;
 	}
     }
@@ -559,47 +561,36 @@ bool Color::fromDescription( const char* inp )
 }
 
 
-static BufferStringSet* descCreator()
+Color Color::getColorFromDescription( const char* coldesc )
 {
-    BufferStringSet* newbss = new BufferStringSet;
-    for ( int idx=0; idx<cNrColDD; idx++ )
-	newbss->add( cColDD[idx].nm_ );
-
-    return newbss;
+    Color col( NoColor() );
+    col.fromDescription( coldesc );
+    return col;
 }
 
-static PtrMan<BufferStringSet> descs = 0;
 
-
-const BufferStringSet& Color::descriptions()
-{ return *descs.createIfNull( descCreator ); }
-
-static PtrMan<TypeSet<Color> > cols = 0;
-
-static TypeSet<Color>* descCenterCreator()
+void Color::getDescriptions( BufferStringSet& descs )
 {
-    TypeSet<Color>* newcols = new TypeSet<Color>;
+    for ( int idx=0; idx<cNrColDD; idx++ )
+	descs.add( cColDD[idx].nm_ );
+}
+
+
+void Color::getDescriptionCenters( TypeSet<Color>& cols )
+{
     for ( int idx=0; idx<cNrColDD; idx++ )
     {
 	const ColorDescriptionData& cdd = cColDD[idx];
-	*newcols += Color( (unsigned char) cdd.r_,
-			(unsigned char) cdd.g_,
-			(unsigned char) cdd.b_ );
+	cols += Color(	(unsigned char)cdd.r_,
+			(unsigned char)cdd.g_,
+			(unsigned char)cdd.b_ );
     }
-
-    return newcols;
 }
 
 
-const TypeSet<Color>& Color::descriptionCenters()
-{ return *cols.createIfNull( descCenterCreator ); }
-
-
-const char* Color::largeUserInfoString() const
+BufferString Color::largeUserInfoString() const
 {
-    mDeclStaticString( ret );
-
-    ret = getStdStr();
+    BufferString ret( getStdStr() );
 
     ret.add( " (" ).add( getDescription() ).add( ")" )
        .add( " RGB=" )

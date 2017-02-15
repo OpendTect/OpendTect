@@ -104,14 +104,13 @@ void BitMapMgr::setup()
     const FlatView::DataDispPars::Common* pars = &appearance_.ddpars_.wva_;
     if ( !wva_ ) pars = &appearance_.ddpars_.vd_;
 
-    gen_->pars().clipratio_ = pars->mappersetup_.cliprate_;
+    gen_->pars().clipratio_ = pars->mappersetup_->clipRate();
     gen_->pars().midvalue_ =
-	pars->mappersetup_.autosym0_ ? mUdf(float)
-				     : pars->mappersetup_.symmidval_;
+	pars->mappersetup_->guessSymmetry() ? mUdf(float)
+					 : pars->mappersetup_->symMidVal();
     gen_->pars().nointerpol_ = pars->blocky_;
-    gen_->pars().autoscale_ =
-	pars->mappersetup_.type_ == ColTab::MapperSetup::Auto;
-    gen_->pars().scale_ = pars->mappersetup_.range_;
+    gen_->pars().autoscale_ = !pars->mappersetup_->isFixed();
+    gen_->pars().scale_ = pars->mappersetup_->range();
 }
 
 

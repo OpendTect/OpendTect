@@ -23,33 +23,40 @@ class IOObj;
 class Probe;
 class ProbeManager;
 
-mExpClass(General) ProbeLayer : public NamedMonitorable
+mExpClass(General) ProbeLayer : public SharedObject
 {
 public:
+
     typedef int IDType;
     mDefIntegerIDType(IDType,ID);
 
 			ProbeLayer();
-    mDeclAbstractMonitorableAssignment( ProbeLayer );
+			mDeclAbstractMonitorableAssignment( ProbeLayer );
+
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)		=0;
     virtual void	invalidateData()		=0;
     virtual const char* layerType() const		=0;
-    ProbeLayer*		clone() const;
     ID			getID() const;
     const Probe*	getProbe() const;
     static ID		getNewID();
 
     static const char*	sKeyLayerType();
     static const char*	sKeyLayer();
+
 protected:
-    ID			id_;
-    const Probe*	probe_;
+
+			~ProbeLayer()			{}
+
+    const ID		id_;
+    ConstRefMan<Probe>	probe_;
 
 private:
+
     void		setProbe(const Probe*);
 
-    friend class Probe;
+    friend class	Probe;
+
 };
 
 
@@ -74,7 +81,6 @@ public:
 			Probe();
     mDeclAbstractMonitorableAssignment( Probe );
     mDeclInstanceCreatedNotifierAccess( Probe );
-    Probe*		clone() const;
 
     static const char*	sProbeType();
     static ChangeType	cPositionChange()		{ return 2; }

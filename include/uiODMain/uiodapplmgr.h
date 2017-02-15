@@ -287,6 +287,7 @@ protected:
     void			surveyToBeChanged(CallBacker*);
     void			surveyChanged(CallBacker*);
     void			colSeqChg(CallBacker*);
+    void			colSeqModif(CallBacker*);
     void			colMapperChg(CallBacker*);
     void			setHistogram(int visid,int attrib);
     void			storeEMObject(bool saveas=false);

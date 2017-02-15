@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
+#include "coltabmappersetup.h"
 
 namespace visBase
 {
@@ -21,7 +22,7 @@ namespace visBase
     class TextureChannel2RGBA;
 };
 
-namespace ColTab  { class MapperSetup; class Sequence; }
+namespace ColTab  { class Sequence; }
 
 namespace visSurvey
 {
@@ -32,13 +33,13 @@ namespace visSurvey
 
 
 mExpClass(visSurvey) MultiTextureSurveyObject : public visBase::VisualObjectImpl
-    					      , public SurveyObject
+					      , public SurveyObject
 {
 public:
     bool			turnOn(bool yn);
     bool			isOn() const;
     bool			isShown() const;
-    				//!<Returns true if displayed, i.e. it is
+				//!<Returns true if displayed, i.e. it is
 				//!<on, and has at least one enabled attribute.
 
     virtual int			nrResolutions() const			= 0;
@@ -67,27 +68,27 @@ public:
     void			setSelSpecs(int attrib,
 					    const TypeSet<Attrib::SelSpec>&);
     void			clearTextures();
-    				/*!<Blanks all textures. */
-    
+				/*!<Blanks all textures. */
+
     void			enableTextureInterpolation(bool);
     bool			textureInterpolationEnabled() const;
-    
-    bool 			isAngle(int attrib) const;
+
+    bool			isAngle(int attrib) const;
     void			setAngleFlag(int attrib,bool yn);
     void			enableAttrib(int attrib,bool yn);
     bool			isAttribEnabled(int attrib) const;
     const TypeSet<float>*	getHistogram(int) const;
     int				getColTabID(int) const;
 
-    const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
-	    					     int version) const;
-    const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int attrib,
+						     int version) const;
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int) const;
     void			setColTabMapperSetup(int,
-	    				const ColTab::MapperSetup&,TaskRunner*);
+					const ColTab::MapperSetup&,TaskRunner*);
     const ColTab::Sequence*	getColTabSequence(int) const;
     bool			canSetColTabSequence() const;
     void			setColTabSequence(int,const ColTab::Sequence&,
-	    					  TaskRunner*);
+						  TaskRunner*);
 
     bool			canHaveMultipleTextures() const { return true; }
     int				nrTextures(int attrib) const;
@@ -106,14 +107,14 @@ public:
 
 protected:
 
-    				MultiTextureSurveyObject();
+				MultiTextureSurveyObject();
 				~MultiTextureSurveyObject();
     void			getValueString(const Coord3&,
-	    				       BufferString&) const;
-    				//!<Coord is in ztransformed space
+					       BufferString&) const;
+				//!<Coord is in ztransformed space
     virtual bool		getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const = 0;
-    				//!<Coord is in attribute space
+				//!<Coord is in attribute space
 
     void			updateMainSwitch();
     virtual void		addCache()				= 0;

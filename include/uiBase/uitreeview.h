@@ -82,6 +82,7 @@ public:
     void		setSelected(uiTreeViewItem*,bool);
     bool		isSelected(const uiTreeViewItem*) const;
     uiTreeViewItem*	selectedItem() const;
+    const char*		text(int col=0) const;
     int			nrSelected() const;
     void		getSelectedItems(ObjectSet<uiTreeViewItem>&) const;
     void		removeSelectedItems();

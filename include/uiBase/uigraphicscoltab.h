@@ -39,27 +39,29 @@ public:
 	mDefSetupMemb(OD::Alignment,stopal)
     };
 
-    			uiColTabItem(const Setup&);
+			uiColTabItem(const Setup&);
 			~uiColTabItem();
-    Setup&		setup()		{ return setup_; }
-    const Setup&	setup() const	{ return setup_; }
+    Setup		setup() const			{ return setup_; }
+    void		setSetup(const Setup&);
 
-    void		setColTab(const char* nm);
-    void		setColTabSequence(const ColTab::Sequence&);
-    void		setColTabMapperSetup(const ColTab::MapperSetup&);
-
-    void		setupChanged(); // Call this function whenever the setup
-					// is changed
+    void		setSeqName(const char* nm);
+    void		setSequence(const ColTab::Sequence&);
+    void		setMapperSetup(const ColTab::MapperSetup&);
 
 protected:
     void		adjustLabel();
     void		setPixmap();
 
     Setup		setup_;
-    ColTab::Sequence	ctseq_;
+    ConstRefMan<ColTab::Sequence> ctseq_;
+    ConstRefMan<ColTab::MapperSetup> ctmsu_;
 
     uiPixmapItem*	ctseqitm_;
     uiRectItem*		borderitm_;
     uiAdvancedTextItem* minvalitm_;
     uiAdvancedTextItem* maxvalitm_;
+
+    void		seqChgCB(CallBacker*);
+    void		mapperChgCB(CallBacker*);
+
 };

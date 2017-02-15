@@ -1686,7 +1686,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	}
 
 	visserv_->setSelSpec( visid, attrib, as );
-	visserv_->setColTabMapperSetup( visid, attrib, ColTab::MapperSetup() );
+	visserv_->setColTabMapperSetup( visid, attrib,*new ColTab::MapperSetup);
 	getNewData( visid, attrib );
 	sceneMgr().updateTrees();
     }
@@ -1725,16 +1725,16 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	}
 
 	const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
-	const ColTab::MapperSetup* ms =
+	ConstRefMan<ColTab::MapperSetup> ms =
 	    visserv_->getColTabMapperSetup( visid, attrib, tmpset.size()/2 );
 
 	attrserv_->setEvalBackupColTabMapper( ms );
 
 	if ( ms )
 	{
-	    ColTab::MapperSetup myms = *ms;
-	    myms.type_ = ColTab::MapperSetup::Fixed;
-	    visserv_->setColTabMapperSetup( visid, attrib, myms );
+	    RefMan<ColTab::MapperSetup> myms = new ColTab::MapperSetup( *ms );
+	    myms->setIsFixed( true );
+	    visserv_->setColTabMapperSetup( visid, attrib, *myms );
 	}
 	sceneMgr().updateTrees();
     }
@@ -1829,7 +1829,7 @@ bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
     for ( int idx=0; idx<tmpset.size(); idx++ )
 	refs->add( tmpset[idx].userRef() );
     visserv_->setUserRefs( visid, attrib, refs );
-    visserv_->setColTabMapperSetup( visid, attrib, ColTab::MapperSetup() );
+    visserv_->setColTabMapperSetup( visid, attrib, *new ColTab::MapperSetup );
     return as.is2D() ? evaluate2DAttribute(visid,attrib)
 		     : evaluateAttribute(visid,attrib);
 }
@@ -1960,6 +1960,8 @@ void uiODApplMgr::updateColorTable( int visid, int attrib )
 { attrvishandler_.updateColorTable( visid, attrib ); }
 void uiODApplMgr::colSeqChg( CallBacker* )
 { attrvishandler_.colSeqChg(); sceneMgr().updateSelectedTreeItem(); }
+void uiODApplMgr::colSeqModif( CallBacker* )
+{ attrvishandler_.colSeqModif(); }
 NotifierAccess* uiODApplMgr::colorTableSeqChange()
 { return attrvishandler_.colorTableSeqChange(); }
 void uiODApplMgr::useDefColTab( int visid, int attrib )

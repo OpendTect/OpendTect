@@ -747,14 +747,14 @@ void uiStratSynthDisp::parsChangedCB( CallBacker* )
     if ( currentvdsynthetic_ )
     {
 	SynthFVSpecificDispPars& disppars = currentvdsynthetic_->dispPars();
-	disppars.ctab_ = vwr_->appearance().ddpars_.vd_.ctab_;
-	disppars.vdmapper_ = vwr_->appearance().ddpars_.vd_.mappersetup_;
+	disppars.colseqname_ = vwr_->appearance().ddpars_.vd_.colseqname_;
+	disppars.vdmapsetup_ = vwr_->appearance().ddpars_.vd_.mappersetup_;
     }
 
     if ( currentwvasynthetic_ )
     {
 	SynthFVSpecificDispPars& disppars = currentwvasynthetic_->dispPars();
-	disppars.wvamapper_ = vwr_->appearance().ddpars_.wva_.mappersetup_;
+	disppars.wvamapsetup_ = vwr_->appearance().ddpars_.wva_.mappersetup_;
 	disppars.overlap_ = vwr_->appearance().ddpars_.wva_.overlap_;
     }
 
@@ -989,31 +989,32 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( sd->name() );
     if ( !wva )
-	vwr_->appearance().ddpars_.vd_.ctab_ = sd->dispPars().ctab_;
+	vwr_->appearance().ddpars_.vd_.colseqname_ = sd->dispPars().colseqname_;
     else
 	vwr_->appearance().ddpars_.wva_.overlap_ = sd->dispPars().overlap_;
-    ColTab::MapperSetup& mapper =
-	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
-	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
+    ColTab::MapperSetup& mapsu =
+	wva ? *vwr_->appearance().ddpars_.wva_.mappersetup_
+	    : *vwr_->appearance().ddpars_.vd_.mappersetup_;
     mDynamicCastGet(const StratPropSyntheticData*,prsd,sd.ptr());
     RefMan<SyntheticData> dispsd = const_cast< SyntheticData* > ( sd.ptr() );
-    ColTab::MapperSetup& dispparsmapper =
-	!wva ? dispsd->dispPars().vdmapper_ : dispsd->dispPars().wvamapper_;
-    const bool rgnotsaved = (mIsZero(dispparsmapper.range_.start,mDefEps) &&
-			     mIsZero(dispparsmapper.range_.stop,mDefEps)) ||
-			     dispparsmapper.range_.isUdf();
+    ColTab::MapperSetup& dispparsmapsu = !wva ? *dispsd->dispPars().vdmapsetup_
+					   : *dispsd->dispPars().wvamapsetup_;
+    const bool rgnotsaved = (mIsZero(dispparsmapsu.range().start,mDefEps) &&
+			     mIsZero(dispparsmapsu.range().stop,mDefEps)) ||
+			     dispparsmapsu.range().isUdf();
     if ( !rgnotsaved )
-	mapper = dispparsmapper;
+	mapsu = dispparsmapsu;
     else
     {
-	mapper.range_ = Interval<float>::udf();
+	mapsu.setRange( Interval<float>::udf() );
 	const float cliprate = wva ? 0.0f : 0.025f;
-	mapper.cliprate_ = Interval<float>(cliprate,cliprate);
-	mapper.autosym0_ = true;
-	mapper.type_ = ColTab::MapperSetup::Auto;
-	mapper.symmidval_ = prsd ? mUdf(float) : 0.0f;
-	if ( sd->dispPars().ctab_.isEmpty() )
-	    dispsd->dispPars().ctab_ = vwr_->appearance().ddpars_.vd_.ctab_
+	mapsu.setClipRate( Interval<float>(cliprate,cliprate) );
+	mapsu.setGuessSymmetry( true );
+	mapsu.setIsFixed( false );
+	mapsu.setSymMidVal( prsd ? mUdf(float) : 0.0f );
+	if ( sd->dispPars().colseqname_.isEmpty() )
+	    dispsd->dispPars().colseqname_
+		= vwr_->appearance().ddpars_.vd_.colseqname_
 			= ColTab::Sequence::sDefaultName( !prsd );
     }
 
@@ -1029,9 +1030,9 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
 
     if ( rgnotsaved )
     {
-	mapper.autosym0_ = false;
-	mapper.type_ = ColTab::MapperSetup::Fixed;
-	dispparsmapper = mapper;
+	mapsu.setGuessSymmetry( false );
+	mapsu.setIsFixed( true );
+	dispparsmapsu = mapsu;
     }
     displayFRText();
     levelSnapChanged( 0 );
@@ -1122,19 +1123,21 @@ void uiStratSynthDisp::setPreStackMapper()
     for ( int idx=0; idx<prestackwin_->nrViewers(); idx++ )
     {
 	uiFlatViewer& vwr = prestackwin_->viewer( idx );
-	ColTab::MapperSetup& vdmapper =
-	    vwr.appearance().ddpars_.vd_.mappersetup_;
-	vdmapper.cliprate_ = Interval<float>(0.0,0.0);
-	vdmapper.autosym0_ = false;
-	vdmapper.symmidval_ = mUdf(float);
-	vdmapper.type_ = ColTab::MapperSetup::Fixed;
-	vdmapper.range_ = Interval<float>(0,60);
-	vwr.appearance().ddpars_.vd_.ctab_ = ColTab::Sequence::sDefaultName();
-	ColTab::MapperSetup& wvamapper =
-	    vwr.appearance().ddpars_.wva_.mappersetup_;
-	wvamapper.cliprate_ = Interval<float>(0.0,0.0);
-	wvamapper.autosym0_ = true;
-	wvamapper.symmidval_ = 0.0f;
+	RefMan<ColTab::MapperSetup> newmapsu = new ColTab::MapperSetup(
+				*vwr.appearance().ddpars_.vd_.mappersetup_ );
+	newmapsu->setClipRate( Interval<float>(0.0,0.0) );
+	newmapsu->setGuessSymmetry( true );
+	newmapsu->setSymMidVal( mUdf(float) );
+	newmapsu->setIsFixed( true );
+	newmapsu->setRange( Interval<float>(0,60) );
+	*vwr.appearance().ddpars_.vd_.mappersetup_ = *newmapsu;
+	vwr.appearance().ddpars_.vd_.colseqname_
+			= ColTab::Sequence::sDefaultName();
+	*newmapsu = *vwr.appearance().ddpars_.wva_.mappersetup_;
+	newmapsu->setClipRate( Interval<float>(0.0,0.0) );
+	newmapsu->setGuessSymmetry( false );
+	newmapsu->setSymMidVal( 0.0f );
+	*vwr.appearance().ddpars_.wva_.mappersetup_ = *newmapsu;
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
 }

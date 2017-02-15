@@ -80,7 +80,7 @@ PreStackDisplay::PreStackDisplay()
     flatviewer_->appearance().setGeoDefaults( true );
     flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
     flatviewer_->getMaterial()->setAmbience( 0.8 );
-    flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
+    flatviewer_->appearance().ddpars_.vd_.mappersetup_->setSymMidVal( 0.f );
     mAttachCB( flatviewer_->dataChanged, PreStackDisplay::dataChangedCB );
     addChild( flatviewer_->osgNode() );
 

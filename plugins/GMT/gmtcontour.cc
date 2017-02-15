@@ -257,8 +257,7 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
     const char* seqname = find( ODGMT::sKeyColSeq() );
     if ( !seqname || !*seqname ) return false;
 
-    ColTab::Sequence seq;
-    if ( !ColTab::SM().get(seqname,seq) ) return false;
+    ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqname );
 
     bool doflip = false;
     getYN( ODGMT::sKeyFlipColTab(), doflip );
@@ -271,7 +270,7 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
     {
 	const float val = rg.start + rg.step * idx;
 	const float frac = (float)idx / (float)nrsteps;
-	const Color col = seq.color( doflip ? 1 - frac : frac );
+	const Color col = seq->color( doflip ? 1 - frac : frac );
 	if ( idx )
 	{
 	    procstrm << val << "\t";
@@ -285,8 +284,8 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 	}
     }
 
-    const Color bgcol = seq.color( mCast(float,doflip ? 1 : 0) );
-    const Color fgcol = seq.color( mCast(float,doflip ? 0 : 1) );
+    const Color bgcol = seq->color( mCast(float,doflip ? 1 : 0) );
+    const Color fgcol = seq->color( mCast(float,doflip ? 0 : 1) );
     procstrm << "B" << "\t";  mPrintCol( bgcol, "\n" );
     procstrm << "F" << "\t";  mPrintCol( fgcol, "\n" );
     return true;

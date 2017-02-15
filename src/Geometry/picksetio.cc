@@ -104,11 +104,7 @@ Pick::SetSaver::~SetSaver()
 }
 
 
-mImplMonitorableAssignment(Pick::SetSaver,Saveable)
-
-void Pick::SetSaver::copyClassData( const SetSaver& oth )
-{
-}
+mImplMonitorableAssignmentWithNoMembers(Pick::SetSaver,Saveable)
 
 
 ConstRefMan<Pick::Set> Pick::SetSaver::pickSet() const
