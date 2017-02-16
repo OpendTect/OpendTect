@@ -19,7 +19,7 @@ class Scaler;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcWriter;
-namespace Seis { class Provider; }
+namespace Seis { class Provider; class ProviderSet; }
 
 
 /*!\brief Merges 2D and 3D post-stack data */
@@ -47,10 +47,11 @@ protected:
 
     bool			is2d_;
     ObjectSet<Seis::Provider>	provs_;
+    Seis::ProviderSet*		provset_;
     SeisTrcWriter*		wrr_;
     int				curprovidx_;
     int				nrpos_;
-    int				totnrpos_;
+    od_int64			totnrpos_;
     uiString			errmsg_;
 
     BinID			curbid_;
@@ -61,9 +62,8 @@ protected:
 
     SeisTrc*			getNewTrc();
     SeisTrc*			getTrcFrom(Seis::Provider&);
-    void			get3DTraces();
+    uiRetVal			get3DTraces(SeisTrc*);
     SeisTrc*			getStacked(SeisTrcBuf&);
-    bool			toNextPos();
     int				writeTrc(SeisTrc*);
     int				writeFromBuf();
 

@@ -51,9 +51,10 @@ public:
 			{ return trcs_.validIdx(idx); }
     void		insert(SeisTrc*,int atidx=0);
     inline SeisTrc*	replace( int idx, SeisTrc* t )
-						{ return trcs_.replace(idx,t); }
+			{ return trcs_.replace(idx,t); }
     inline void		add( SeisTrc* t )	{ trcs_ += t; }
-    void		add(SeisTrcBuf&);	//!< shallow copy if not owner
+    void		add(SeisTrcBuf&);	//!<shallow copy if not owner
+    void		addTrcsFrom(ObjectSet<SeisTrc>&);
 
     int			find(const BinID&,bool is2d=false) const;
     int			find(const SeisTrc*,bool is2d=false) const;

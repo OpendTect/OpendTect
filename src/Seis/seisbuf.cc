@@ -95,6 +95,13 @@ void SeisTrcBuf::add( SeisTrcBuf& tb )
 }
 
 
+void SeisTrcBuf::addTrcsFrom( ObjectSet<SeisTrc>& trcs )
+{
+    for ( int idx=0; idx<trcs.size(); idx++ )
+	add( owner_ && trcs[idx] ? new SeisTrc(*trcs[idx]) : trcs[idx] );
+}
+
+
 void SeisTrcBuf::stealTracesFrom( SeisTrcBuf& tb )
 {
     for ( int idx=0; idx<tb.size(); idx++ )

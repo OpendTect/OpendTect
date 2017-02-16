@@ -191,6 +191,7 @@ public:
     BinID	curBinID() const;
 
     od_int64	curIdx() const				{ return curpos_; }
+    od_int64	totalNr() const				{ return totalnr_; }
 
 protected:
 

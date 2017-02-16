@@ -8,6 +8,7 @@
 #include "seismerge.h"
 #include "seisbounds.h"
 #include "seisprovider.h"
+#include "seisproviderset.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -31,6 +32,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 	, is2d_(is2d)
 	, wrr_(0)
 	, curprovidx_(-1)
+	, provset_(0)
 	, nrpos_(0)
 	, totnrpos_(-1)
 	, curbid_(SI().sampling(false).hsamp_.start_)
@@ -39,39 +41,27 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
         , scaler_(0)
 	, nrsamps_(-1)
 {
+    const Seis::ProviderSet::Policy policy = stacktrcs_
+				? Seis::ProviderSet::RequireAtLeastOne
+				: Seis::ProviderSet::RequireOnlyOne;
+    if ( is2d_ )
+	provset_ = new Seis::ProviderSet2D( policy );
+    else
+	provset_ = new Seis::ProviderSet3D( policy );
+
     if ( iops.isEmpty() )
     { errmsg_ = tr("Nothing to merge"); return; }
     if (iops.size() == 1)
     { errmsg_ = tr("One single entry to merge: Please use copy"); return; }
 
-    StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
     for ( int idx=0; idx<iops.size(); idx++ )
-    {
-	const Seis::GeomType geomtype = is2d_ ? Seis::Line : Seis::Vol;
-	Seis::Provider* prov = Seis::Provider::create( geomtype );
-	const uiRetVal uirv = prov->usePar( *iops[idx] );
-	if ( !uirv.isOK() )
-	    { errmsg_ = uirv; delete prov; continue; }
+	provset_->addInput( is2d_ ? Seis::Line : Seis::Vol );
 
-	if ( is2d_ )
-	{
-	    StepInterval<int> rg;
-	    ZSampling zsamp;
-	    mDynamicCastGet(const Seis::Provider2D&,prov2d,*prov);
-	    if ( prov2d.getRanges(prov2d.curGeomID(),rg,zsamp) )
-		zrg.include( zsamp, false );
-	}
-	else
-	{
-	    TrcKeyZSampling tkzs;
-	    mDynamicCastGet(const Seis::Provider3D&,prov3d,*prov);
-	    if ( prov3d.getRanges(tkzs) )
-		zrg.include( tkzs.zsamp_, false );
-	}
+    const uiRetVal uirv = provset_->usePar( iops );
+    if ( !uirv.isOK() )
+	{ errmsg_ = uirv; provset_->deepErase(); return; }
 
-	provs_ += prov;
-    }
-
+    const ZSampling zrg = provset_->getZRange();
     if ( !mIsUdf(zrg.start) && !mIsUdf(zrg.start) )
     {
 	sd_.start = zrg.start; sd_.step = zrg.step;
@@ -89,7 +79,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 
     curprovidx_ = 0;
     if ( !is2d_ )
-	totnrpos_ = mCast( int, SI().sampling(false).hsamp_.totalNr() );
+	totnrpos_ = provset_->totalNr();
 }
 
 
@@ -99,6 +89,7 @@ SeisMerger::~SeisMerger()
     delete wrr_;
     trcbuf_.deepErase();
     delete &trcbuf_;
+    delete provset_;
     delete scaler_;
 }
 
@@ -127,7 +118,7 @@ int SeisMerger::nextStep()
     SeisTrc* newtrc = getNewTrc();
     if ( !newtrc )
     {
-	deepErase( provs_ );
+	//deepErase( provs_ );
 	if ( !errmsg_.isEmpty() )
 	    return Executor::ErrorOccurred();
 
@@ -168,9 +159,13 @@ SeisTrc* SeisMerger::getNewTrc()
 	    }
 	}
 
-	get3DTraces();
+	SeisTrc* newtrc = new SeisTrc;
+	const uiRetVal uirv = get3DTraces( newtrc );
+	if ( isFinished(uirv) )
+	    return 0;
+
 	ret = getStacked( trcbuf_ );
-	if ( !toNextPos() || ret )
+	if ( isFinished(uirv) || ret )
 	    break;
     }
 
@@ -193,19 +188,12 @@ SeisTrc* SeisMerger::getTrcFrom( Seis::Provider& prov )
 }
 
 
-void SeisMerger::get3DTraces()
+uiRetVal SeisMerger::get3DTraces( SeisTrc* trc )
 {
     trcbuf_.deepErase();
-    for ( int idx=0; idx<provs_.size(); idx++ )
-    {
-	SeisTrc* newtrc = getTrcFrom( *provs_[idx] );
-	if ( !newtrc )
-	    continue;
-
-	trcbuf_.add( newtrc );
-	if ( !stacktrcs_ )
-	    break;
-    }
+    const uiRetVal uirv = provset_->getNext( *trc );
+    trcbuf_.add( trc );
+    return uirv;
 }
 
 
@@ -245,21 +233,6 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
     ret = buf.remove( 0 );
     buf.deepErase();
     return ret;
-}
-
-
-bool SeisMerger::toNextPos()
-{
-    TrcKeySampling hs = SI().sampling(false).hsamp_;
-    curbid_.crl() += hs.step_.crl();
-    if ( curbid_.crl() > hs.stop_.crl() )
-    {
-	curbid_.inl() += hs.step_.inl();
-	curbid_.crl() = hs.start_.crl();
-	if ( curbid_.inl() > hs.stop_.inl() )
-	    return false;
-    }
-    return true;
 }
 
 
