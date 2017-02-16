@@ -161,7 +161,7 @@ void uiAttrEMOut::updateAttributes( const Attrib::DescSet& descset,
 	nlamodel_ = nlamodel->clone();
     }
 
-    attrfld_->setDescSet( ads_ );
     attrfld_->setNLAModel( nlamodel_ );
     nlaid_ = nlaid;
+    attrfld_->setDescSet( ads_ );
 }
