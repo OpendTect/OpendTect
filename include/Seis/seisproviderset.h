@@ -32,7 +32,7 @@ public:
     enum Policy			{ GetEveryWhere, RequireOnlyOne,
 				  RequireAtLeastOne, RequireAll };
 
-				~ProviderSet();
+				virtual ~ProviderSet();
 
     virtual bool		is2D() const				= 0;
 
