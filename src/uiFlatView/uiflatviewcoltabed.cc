@@ -40,7 +40,7 @@ void uiFlatViewColTabEd::setColTab( const FlatView::DataDispPars::VD& vdpars )
 {
     vdpars_ = vdpars;
     ctseltool_.setSeqName( vdpars.colseqname_ );
-    ctseltool_.setMapperSetup( *vdpars.mappersetup_ );
+    ctseltool_.useMapperSetup( *vdpars.mappersetup_ );
     setSensitive( true );
 }
 

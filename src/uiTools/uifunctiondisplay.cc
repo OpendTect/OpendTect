@@ -212,40 +212,7 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 void uiFunctionDisplay::setY2Vals( const DataDistribution<float>& distr,
 				   bool limitspikes )
 {
-    y2xvals_.erase(); y2yvals_.erase();
-
-    if ( !distr.isEmpty() )
-    {
-	float maxval = distr[0];
-	float runnerupval = maxval;
-	float minval = maxval;
-	int idxatmax = 0;
-
-	DataDistributionIter<float> iter( distr );
-	while ( iter.next() )
-	{
-	    y2xvals_ += iter.position();
-	    const float val = iter.value();
-	    y2yvals_ += val;
-	    if ( val < minval )
-		minval = val;
-	    else if ( val > maxval )
-	    {
-		runnerupval = maxval;
-		maxval = val;
-		idxatmax = iter.curIdx();
-	    }
-	}
-
-	if ( limitspikes && y2xvals_.size() > 5 )
-	{
-	    const float valrg = runnerupval - minval;
-	    const float max4disp = minval + 1.5 * valrg;
-	    if ( maxval > max4disp )
-		y2yvals_[idxatmax] = max4disp;
-	}
-    }
-
+    distr.getCurve( y2xvals_, y2yvals_, limitspikes );
     gatherInfo( true ); draw();
 }
 

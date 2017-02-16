@@ -285,7 +285,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 
     am_.visserv_->setColTabMapperSetup( visid, attrib, *ctmapsetup );
     am_.visserv_->setColTabSequence( visid, attrib, *ctseq );
-    am_.appl_.colTabEd().colTabSel().setMapperSetup( *ctmapsetup );
+    am_.appl_.colTabEd().colTabSel().useMapperSetup( *ctmapsetup );
     am_.appl_.colTabEd().colTabSel().setSeqName( ctseq->name() );
     updateColorTable( visid, attrib );
 }

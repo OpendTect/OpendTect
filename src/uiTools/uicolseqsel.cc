@@ -24,13 +24,12 @@ ________________________________________________________________________
 
 
 uiColSeqSelTool::uiColSeqSelTool()
-    : usebasicmenu_(true)
-    , mandlg_(0)
+    : mandlg_(0)
     , seqChanged(this)
-    , seqModified(this)
-    , menuReq(this)
-    , refreshReq(this)
     , newManDlg(this)
+    , seqModified(this)
+    , refreshReq(this)
+    , seqMenuReq(this)
 {
 }
 
@@ -182,19 +181,6 @@ void uiColSeqSelTool::selectCB( CallBacker* )
 }
 
 
-uiMenu* uiColSeqSelTool::getBasicMenu()
-{
-    uiMenu* mnu = new uiMenu( asParent(), uiStrings::sAction() );
-
-    mnu->insertItem( new uiAction(tr("Set as default"),
-	mCB(this,uiColSeqSelTool,setAsDefaultCB)), 0 );
-    mnu->insertItem( new uiAction(m3Dots(tr("Manage")),
-	mCB(this,uiColSeqSelTool,manageCB)), 1 );
-
-    return mnu;
-}
-
-
 void uiColSeqSelTool::seqModifCB( CallBacker* )
 {
     seqModified.trigger();
@@ -203,13 +189,16 @@ void uiColSeqSelTool::seqModifCB( CallBacker* )
 
 void uiColSeqSelTool::menuCB( CallBacker* )
 {
-    if ( !usebasicmenu_ )
-	menuReq.trigger();
-    else
-    {
-        PtrMan<uiMenu> mnu = getBasicMenu();
-	mnu->exec();
-    }
+    PtrMan<uiMenu> mnu = new uiMenu( asParent(), uiStrings::sAction() );
+
+    mnu->insertItem( new uiAction(tr("Set as default"),
+	mCB(this,uiColSeqSelTool,setAsDefaultCB)), 0 );
+    mnu->insertItem( new uiAction(m3Dots(tr("Manage")),
+	mCB(this,uiColSeqSelTool,manageCB)), 1 );
+
+    seqMenuReq.trigger( mnu );
+
+    mnu->exec();
 }
 
 

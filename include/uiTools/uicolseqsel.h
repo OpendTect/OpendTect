@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "coltabsequence.h"
 
-class uiMenu;
 class uiLabel;
 class uiCheckBox;
 class uiColSeqMan;
@@ -43,19 +42,15 @@ public:
     uiColSeqDisp*		seqDisp()		{ return disp_; }
 
     Notifier<uiColSeqSelTool>	seqChanged;
-    Notifier<uiColSeqSelTool>	menuReq;	//!< only when !usingBasicMenu()
     Notifier<uiColSeqSelTool>	newManDlg;
     Notifier<uiColSeqSelTool>	seqModified;
-				//!< no change details, if needed start
+				//!< no change details, if needed, start
 				//!< watching the current sequence for yourself
     Notifier<uiColSeqSelTool>	refreshReq;
 				//!< Only to be picked up by viewers that do
 				//!< no automatic updating
-
-    bool			usingBasicMenu() const	{ return usebasicmenu_;}
-    void			setUseBasicMenu( bool yn )
-				{ usebasicmenu_ = yn; }
-    uiMenu*			getBasicMenu();	//!< starting point
+    Notifier<uiColSeqSelTool>	seqMenuReq;
+				//!< CallBacker* is the uiMenu about to pop up
 
     void			setCurrentAsDefault();
     void			showManageDlg();
@@ -72,7 +67,6 @@ protected:
 
     uiColSeqDisp*		disp_;
     uiColSeqMan*		mandlg_;
-    bool			usebasicmenu_;
 
     void			initDisp(CallBacker*);
     void			seqModifCB(CallBacker*);

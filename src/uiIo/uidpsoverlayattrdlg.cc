@@ -151,7 +151,7 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
 		    = y3coltabfld_->mapperSetup()->clone();
 	prevmsu->setIsFixed( false );
 	prevmsu->setClipRate( Interval<float>(0.f,0.f) );
-	y3coltabfld_->setMapperSetup( *prevmsu );
+	y3coltabfld_->useMapperSetup( *prevmsu );
 	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
 	plotter_.setOverlayY1AttMapr( *y3coltabfld_->mapperSetup() );
 	plotter_.updateOverlayMapper( true );
@@ -170,7 +170,7 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
 		    = y4coltabfld_->mapperSetup()->clone();
 	prevmsu->setIsFixed( false );
 	prevmsu->setClipRate( Interval<float>(0.f,0.f) );
-	y4coltabfld_->setMapperSetup( *prevmsu );
+	y4coltabfld_->useMapperSetup( *prevmsu );
 	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
 	plotter_.setOverlayY2AttMapr( *y4coltabfld_->mapperSetup() );
 	plotter_.updateOverlayMapper( false );

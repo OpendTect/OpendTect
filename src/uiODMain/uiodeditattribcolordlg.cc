@@ -65,7 +65,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 
     coltabsel_ = new uiColTabSel( this, OD::Vertical );
     coltabsel_->setSeqName( colseq->name() );
-    coltabsel_->setMapperSetup( *colmapsetup );
+    coltabsel_->useMapperSetup( *colmapsetup );
     coltabsel_->seqChanged.notify( mCB(this,uiODEditAttribColorDlg,seqChg) );
     coltabsel_->mapperSetupChanged.notify(
 			mCB(this,uiODEditAttribColorDlg,mapperSetupChg));

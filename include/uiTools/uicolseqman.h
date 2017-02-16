@@ -38,7 +38,7 @@ public:
 
     const Sequence&	current() const		    { return *curseq_; }
     void		setCurrent( const char* nm ) { setCurSeq(nm,true); }
-    void		setDistrib(const DistribType*);
+    void		useDistrib(const DistribType*);
 
     Notifier<uiColSeqMan> selectionChanged;
 

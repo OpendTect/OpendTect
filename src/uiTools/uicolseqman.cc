@@ -581,7 +581,7 @@ void uiColSeqMan::updateColSeqList()
 }
 
 
-void uiColSeqMan::setDistrib( const DistribType* dd )
+void uiColSeqMan::useDistrib( const DistribType* dd )
 {
     if ( replaceMonitoredRef(distrib_,dd,this) )
 	distrChgCB( 0 );

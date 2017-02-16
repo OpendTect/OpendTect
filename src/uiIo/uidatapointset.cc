@@ -97,7 +97,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
 	coltabfld_->setSeqName( prevdispprop->colSequence().name() );
-	coltabfld_->setMapperSetup( prevdispprop->colMapperSetUp() );
+	coltabfld_->useMapperSetup( prevdispprop->colMapperSetUp() );
     }
 
     attribChanged( 0 );

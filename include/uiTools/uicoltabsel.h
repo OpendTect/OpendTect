@@ -13,8 +13,9 @@ ________________________________________________________________________
 #include "uicolseqsel.h"
 #include "coltabmappersetup.h"
 #include "datadistribution.h"
-class uiColTabScaleDlg;
 class uiColTabSelTool;
+class uiManipMapperSetup;
+class uiEdMapperSetupDlg;
 
 
 /*!\brief The color table selection tool on the OD main window. */
@@ -37,12 +38,12 @@ public:
 				// access current
     RefMan<MapperSetup>		mapperSetup()		{ return mappersetup_; }
     ConstRefMan<MapperSetup>	mapperSetup() const	{ return mappersetup_; }
-    RefMan<DistribType>		distribution()		{ return distrib_;}
-    ConstRefMan<DistribType>	distribution() const	{ return distrib_;}
+    RefMan<DistribType>		distribution()		{ return distrib_; }
+    ConstRefMan<DistribType>	distribution() const	{ return distrib_; }
 
 				// make selector use another
-    void			setMapperSetup(const MapperSetup&);
-    void			setDistribution(const DistribType&);
+    void			useMapperSetup(const MapperSetup&);
+    void			useDistribution(const DistribType&);
 
     void			setRange( Interval<float> rg )
 				{ mappersetup_->setRange( rg ); }
@@ -51,26 +52,28 @@ public:
     Notifier<uiColTabSelTool>	mapperSetupChanged;
     Notifier<uiColTabSelTool>	distributionChanged;
 
+    Notifier<uiColTabSelTool>	mapperMenuReq;
+				//!< CallBacker* is the uiMenu about to pop up
+
     virtual void		addObjectsToToolBar(uiToolBar&);
 
 protected:
 
+			uiColTabSelTool();
+
     RefMan<MapperSetup>	mappersetup_;
     RefMan<DistribType>	distrib_;
-    uiColTabScaleDlg*	scaledlg_;
 
-			uiColTabSelTool();
+    uiManipMapperSetup*	manip_;
 
     void		initialise(OD::Orientation);
 
-    void		menuCB(CallBacker*);
     void		mapSetupChgCB(CallBacker*);
     void		distribChgCB(CallBacker*);
     void		newManDlgCB(CallBacker*);
-    void		scaleDlgReqCB(CallBacker*);
-    void		scaleDlgCloseCB( CallBacker* )	{ scaledlg_ = 0; }
 
-    friend class	uiColTabScaleDlg;
+    friend class	uiManipMapperSetup;
+    friend class	uiEdMapperSetupDlg;
 
 };
 

@@ -69,7 +69,7 @@ void uiVisColTabEd::setColTab( const ColTab::Sequence* seq,
     if ( seq )
 	coltabsel_.setSeqName( seq->name() );
     if ( setup )
-	coltabsel_.setMapperSetup( *setup );
+	coltabsel_.useMapperSetup( *setup );
 }
 
 
@@ -96,7 +96,7 @@ void uiVisColTabEd::mapperChangeCB( CallBacker* )
 			survobj_->getColTabMapperSetup( channel_, version_ );
 
     if ( ms )
-	coltabsel_.setMapperSetup( *ms );
+	coltabsel_.useMapperSetup( *ms );
     if ( survobj_->getScene() && ms )
 	survobj_->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
 }
@@ -125,12 +125,12 @@ NotifierAccess& uiVisColTabEd::mapperChange()
 void uiVisColTabEd::setDistribution( const DataDistribution<float>* distr )
 {
     if ( distr )
-	coltabsel_.setDistribution( *distr );
+	coltabsel_.useDistribution( *distr );
     else
     {
 	RefMan<DataDistribution<float> > emptydistr
 			= new DataDistribution<float>;
-	coltabsel_.setDistribution( *emptydistr );
+	coltabsel_.useDistribution( *emptydistr );
     }
 }
 

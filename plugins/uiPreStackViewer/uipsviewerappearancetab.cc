@@ -126,7 +126,7 @@ void uiViewer3DAppearanceTab::colTabChanged( CallBacker* )
 void uiViewer3DAppearanceTab::updateColTab( CallBacker* )
 {
     const FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
-    coltabsel_->setMapperSetup( *pars.mappersetup_ );
+    coltabsel_->useMapperSetup( *pars.mappersetup_ );
     coltabsel_->setSeqName( pars.colseqname_ );
     coltabsel_->setRange( vwr_->getDataRange(false) );
 }

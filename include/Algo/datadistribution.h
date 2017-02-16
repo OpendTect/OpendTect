@@ -59,6 +59,8 @@ public:
 
     inline VT			sumOfValues() const;
     inline void			normalise();
+    inline void			getCurve(TypeSet<VT>& xvals,TypeSet<VT>& yvals,
+				        bool limitspikes=false) const;
 
     static ChangeType		cDataChange()		{ return 2; }
     static ChangeType		cSamplingChange()	{ return 3; }
@@ -249,4 +251,44 @@ void DataDistribution<VT>::normalise()
 	data_[idx] /= sumvals;
 
     mSendEntireObjChgNotif();
+}
+
+
+template <class VT> inline
+void DataDistribution<VT>::getCurve( TypeSet<VT>& xvals, TypeSet<VT>& yvals,
+				    bool limitspikes ) const
+{
+    xvals.setEmpty(); yvals.setEmpty();
+    mLock4Read();
+    if ( data_.isEmpty() )
+	return;
+
+    VT maxval = data_[0];
+    VT runnerupval = maxval;
+    VT minval = maxval;
+    IdxType idxatmax = 0;
+
+    DataDistributionIter<VT> iter( *this );
+    while ( iter.next() )
+    {
+	xvals += iter.position();
+	const VT val = iter.value();
+	yvals += val;
+	if ( val < minval )
+	    minval = val;
+	else if ( val > maxval )
+	{
+	    runnerupval = maxval;
+	    maxval = val;
+	    idxatmax = iter.curIdx();
+	}
+    }
+
+    if ( limitspikes && xvals.size() > 5 )
+    {
+	const VT valrg = runnerupval - minval;
+	const VT max4disp = minval + 1.5 * valrg;
+	if ( maxval > max4disp )
+	    yvals[idxatmax] = max4disp;
+    }
 }
