@@ -254,7 +254,7 @@ void ColTab::MapperSetup::usePar( const IOPar& par )
 {
     mLock4Write();
     const char* typestr = par.find( sKey::Type() );
-    if ( !typestr && *typestr )
+    if ( typestr && *typestr )
     {
 	if ( *typestr == 'F' || *typestr == 'f' )
 	    { isfixed_ = true; dohisteq_ = false; }
