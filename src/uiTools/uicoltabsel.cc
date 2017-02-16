@@ -196,7 +196,6 @@ uiManipMapperSetup( uiColTabSelTool& seltool )
     , keh_(getKeyboardEventHandler())
 {
     disableScrollZoom();
-scene().addItem(new uiTextItem(tr("TODO (mapper)\ndouble-click")));
     mAttachCB( postFinalise(), uiManipMapperSetup::initCB );
 }
 
@@ -212,6 +211,10 @@ void initCB( CallBacker* )
 
     mAttachCB( meh_.doubleClick, uiManipMapperSetup::setupDlgReqCB );
     mAttachCB( keh_.keyReleased, uiManipMapperSetup::keyReleasedCB );
+
+    mAttachCB( reSize, uiManipMapperSetup::reSizeCB );
+
+    reDraw();
 }
 
 void mousePressCB( CallBacker* ) { handleMouseBut( true ); }
@@ -289,10 +292,37 @@ void setupDlgCloseCB( CallBacker* )
     eddlg_ = 0;
 }
 
+void reSizeCB( CallBacker* )
+{
+    reDraw();
+}
+
+void reDraw()
+{
+    /*
+    MonitorLock ml( distrib() );
+    const int sz = distrib().size();
+    if ( sz < 2 )
+    {
+	if ( polygonitem_ )
+	    polygonitem_->setVisible( false );
+	return;
+    }
+    TypeSet<uiPoint> pts;
+
+    if ( !polygonitem_ )
+	polygonitem_ = scene().addPolygon( pts, true );
+    else
+	polygonitem_->setPolygon( pts );
+	*/
+}
+
     uiColTabSelTool&	seltool_;
     uiEdMapperSetupDlg*	eddlg_;
     MouseEventHandler&	meh_;
     KeyboardEventHandler& keh_;
+    Interval<float>	scale_;
+    Interval<float>	range4scale_;
 
     uiParent*			    parent()
 				    { return seltool_.asParent(); }
