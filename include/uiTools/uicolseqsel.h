@@ -40,6 +40,8 @@ public:
     void			setSeqUseMode(ColTab::SeqUseMode);
     void			setNonSeisDefault();
 
+    uiColSeqDisp*		seqDisp()		{ return disp_; }
+
     Notifier<uiColSeqSelTool>	seqChanged;
     Notifier<uiColSeqSelTool>	menuReq;	//!< only when !usingBasicMenu()
     Notifier<uiColSeqSelTool>	newManDlg;

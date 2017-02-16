@@ -26,7 +26,6 @@ set( OD_MODULE_SOURCES
 	uicolseqman.cc
 	uicolseqsel.cc
 	uicolseqimport.cc
-	uicolseqctrlpts.cc
 	uicoltabsel.cc
 	uicompparsel.cc
 	uiconstvel.cc

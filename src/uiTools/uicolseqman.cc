@@ -23,25 +23,403 @@ ________________________________________________________________________
 #include "uicolor.h"
 #include "uicolseqdisp.h"
 #include "uicolseqimport.h"
-#include "uicolseqctrlpts.h"
 #include "uichecklist.h"
 #include "uifunctiondisplay.h"
 #include "uirgbarray.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uispinbox.h"
 #include "uisplitter.h"
 #include "uistrings.h"
+#include "uitable.h"
 #include "uitreeview.h"
 #include "uiworld2ui.h"
 #include "uistrings.h"
 #include "od_helpids.h"
 
-static const int cTranspDispHeight = 150;
+static const int cTranspDispHeight = 180;
 static const int cTranspDispWidth = GetGoldenMajor( cTranspDispHeight );
-static const int cSeqDispHeight = cTranspDispHeight / 8;
+static const int cCtrlDispHeight = cTranspDispHeight / 7;
+static const int cSeqDispHeight = cTranspDispHeight / 5;
+
+
+static const int cColorCol = 1;
+
+class uiColSeqColCtrlPtsDlg : public uiDialog
+{ mODTextTranslationClass(uiColSeqColCtrlPtsDlg);
+public:
+
+    typedef ColTab::Sequence	Sequence;
+
+uiColSeqColCtrlPtsDlg( uiParent* p, Sequence& cseq )
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage(
+		tr("Color Control Points") ), tr("Manage Color Control Points"),
+		mODHelpKey(mColTabMarkerDlgHelpID) ))
+    , colseq_(cseq)
+    , rollbackcseq_(new Sequence(cseq))
+{
+    uiTable::Setup tsu( colseq_.size(), 2 );
+    tsu.rowgrow(true).rowdesc(tr("Control Point"))
+	.defrowlbl(true).manualresize(true).removeselallowed(false);
+    table_ = new uiTable( this, tsu, "Color Control Points table" );
+    uiStringSet columnlabels;
+    columnlabels.add(uiStrings::sPosition());
+    columnlabels.add(uiStrings::sColor());
+    table_->setColumnLabels( columnlabels );
+    table_->setColumnReadOnly( cColorCol, true );
+    fillTable();
+
+    mAttachCB( table_->leftClicked, uiColSeqColCtrlPtsDlg::mouseClick );
+    mAttachCB( table_->rowInserted, uiColSeqColCtrlPtsDlg::pointInserted );
+    mAttachCB( table_->rowDeleted, uiColSeqColCtrlPtsDlg::pointDeleted );
+    mAttachCB( table_->valueChanged, uiColSeqColCtrlPtsDlg::pointPosChgd );
+    mAttachCB( colseq_.objectChanged(), uiColSeqColCtrlPtsDlg::seqChgCB );
+}
+
+void fillTable()
+{
+    NotifyStopper ns( table_->valueChanged, this );
+    for ( int idx=0; idx<table_->nrCols(); idx++ )
+    {
+	MonitorLock ml( colseq_ );
+	for ( int idy=0; idy<colseq_.size(); idy++ )
+	{
+	    RowCol rc; rc.row() = idy; rc.col() = idx;
+	    const float position = colseq_.position( idy );
+	    if ( rc.col() == 0 )
+		table_->setValue( rc, 100.f * position );
+	    if ( rc.col() == 1 )
+	    {
+		Color color( colseq_.color(position) );
+		table_->setColor( rc, color );
+	    }
+	}
+    }
+}
+
+void seqChgCB( CallBacker* cb )
+{
+    mGetMonitoredChgData( cb, chgdata );
+    if ( chgdata.isEntireObject()
+      || chgdata.changeType() == Sequence::cColorChange() )
+    {
+	NotifyStopper nsvc( table_->valueChanged, this );
+	NotifyStopper nsri( table_->rowInserted, this );
+	NotifyStopper nsrd( table_->rowDeleted, this );
+	MonitorLock ml( colseq_ );
+	table_->setNrRows( colseq_.size() );
+	fillTable();
+    }
+}
+
+void mouseClick( CallBacker* )
+{
+    NotifyStopper notifstop( table_->valueChanged );
+    RowCol rc = table_->notifiedCell();
+    if ( rc.col() != cColorCol )
+	return;
+
+    Color newcol = table_->getColor( rc );
+    if ( selectColor(newcol,this,tr("Control Point color")) )
+    {
+	NotifyStopper ns( table_->valueChanged, this );
+	colseq_.changeColor( rc.row(), newcol.r(), newcol.g(), newcol.b() );
+    }
+}
+
+void pointInserted( CallBacker* )
+{
+    NotifyStopper nsvc( table_->valueChanged, this );
+    RowCol rcvalue = table_->newCell();
+    if ( rcvalue.row()-1 < 0 || rcvalue.row() >= colseq_.size() )
+    {
+	NotifyStopper nsrd( table_->rowDeleted, this );
+	table_->removeRow( rcvalue );
+	uiMSG().error( tr("Cannot insert control points at the ends") );
+	return;
+    }
+
+    RowCol rccolor( rcvalue.row(), 1 );
+    const float newpos = colseq_.position(rcvalue.row()-1) +
+			 ( colseq_.position(rcvalue.row()) -
+			   colseq_.position(rcvalue.row()-1) ) / 2;
+    Color col( colseq_.color(newpos) );
+    NotifyStopper ns( colseq_.objectChanged(), this );
+    colseq_.setColor( newpos, col.r(), col.g(), col.b() );
+}
+
+void pointDeleted( CallBacker* )
+{
+    const RowCol rc = table_->notifiedCell();
+    if ( rc.row() == 0 || rc.row() == colseq_.size()-1 )
+    {
+	uiMSG().error( tr("Cannot remove control points at the ends") );
+	fillTable();
+    }
+    else
+    {
+	NotifyStopper ns( colseq_.objectChanged(), this );
+	colseq_.removeColor( rc.row() );
+    }
+}
+
+void pointPosChgd( CallBacker* )
+{
+    RowCol rc = table_->currentCell();
+    const float newpos = table_->getFValue( rc ) * 0.01f;
+
+    if ( colseq_.position(rc.row()-1)>newpos
+      || colseq_.position(rc.row()+1)<newpos )
+    {
+	uiMSG().error( uiStrings::phrEnter(
+		    tr("a position between surrounding Control Points")) );
+	NotifyStopper notifstop( table_->valueChanged );
+	table_->setValue( rc, colseq_.position(rc.row()) );
+	return;
+    }
+
+    NotifyStopper ns( colseq_.objectChanged(), this );
+    colseq_.changePos( rc.row(), newpos );
+}
+
+bool rejectOK()
+{
+    NotifyStopper ns( colseq_.objectChanged(), this );
+    colseq_ = *rollbackcseq_;
+    return true;
+}
+
+    uiTable*		table_;
+    Sequence&		colseq_;
+    ConstRefMan<Sequence> rollbackcseq_;
+
+};
+
+
+#define mSeqPosPerPix (1.0f / (scene().width()-cDroppedPixelsToRight))
+#define mPixPerSeqPos ((float)(scene().width()-cDroppedPixelsToRight))
+// TODO this is a hack because the painter is not using the full width
+static const int cDroppedPixelsToRight = 4;
+static const float cMaxSnapNrPix = 5.f;
+
+
+class uiColSeqColCtrlPtsEd : public uiGraphicsView
+{ mODTextTranslationClass(uiColSeqColCtrlPtsEd);
+public:
+
+    typedef ColTab::Sequence	Sequence;
+
+uiColSeqColCtrlPtsEd( uiGroup* p, uiColSeqMan* csm )
+    : uiGraphicsView(p,"Color Control Points Canvas")
+    , uiseqman_(csm)
+    , markerlineitmgrp_(0)
+    , meh_(scene().getMouseEventHandler())
+{
+    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
+    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+    curcptidx_ = -1;
+
+    mAttachCB( reDrawNeeded, uiColSeqColCtrlPtsEd::drawMarkers );
+    mAttachCB( reSize, uiColSeqColCtrlPtsEd::drawMarkers );
+
+    mAttachCB( meh_.buttonPressed, uiColSeqColCtrlPtsEd::mousePress );
+    mAttachCB( meh_.movement, uiColSeqColCtrlPtsEd::mouseMove );
+    mAttachCB( meh_.buttonReleased, uiColSeqColCtrlPtsEd::mouseRelease );
+    mAttachCB( meh_.doubleClick, uiColSeqColCtrlPtsEd::mouseDoubleClk );
+
+    mAttachCB( colseq().objectChanged(), uiColSeqColCtrlPtsEd::seqChgCB );
+}
+
+void drawMarkers( CallBacker* )
+{
+    scene().setSceneRect( 0, 0, mCast(float,width()), mCast(float,height()) );
+
+    if ( !markerlineitmgrp_ )
+    {
+	markerlineitmgrp_ = new uiGraphicsItemGroup();
+	scene().addItem( markerlineitmgrp_ );
+    }
+    else
+	markerlineitmgrp_->removeAll( true );
+
+    const int wdth = scene().width() - cDroppedPixelsToRight;
+    const int hght = scene().height();
+    MonitorLock ml( colseq() );
+    for ( int idx=0; idx<colseq().size(); idx++ )
+	addMarkerAt( (wdth-1) * colseq().position(idx), wdth, hght );
+}
+
+void addMarkerAt( float fpos, int wdth, int hght )
+{
+    int x = mNINT32( fpos );
+    if ( x < 1 ) x = 1;
+    if ( x > wdth-2 ) x = wdth - 2;
+
+    addLine( x, hght, 3, Color::Black() );
+
+    if ( x > 1 )
+    {
+	addLine( x-2, hght, 1, Color(150,150,150,100) );
+	if ( x > 2 )
+	    addLine( x-3, hght, 1, Color(225,225,225,200) );
+    }
+
+    if ( x < wdth-2 )
+    {
+	addLine( x+2, hght, 1, Color(150,150,150,100) );
+	if ( x < wdth-3 )
+	    addLine( x+3, hght, 1, Color(225,225,225,200) );
+    }
+}
+
+void addLine( int x, int hght, int lwdth, Color col )
+{
+    uiLineItem* lineitem = new uiLineItem;
+    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,lwdth) );
+    lineitem->setPenColor( col );
+    lineitem->setLine( x, 0, x, hght-1 );
+    markerlineitmgrp_->add( lineitem );
+}
+
+void mousePress( CallBacker* cb )
+{
+    if ( meh_.isHandled() )
+	return;
+
+    const MouseEvent& ev = meh_.event();
+    float mindiff = cMaxSnapNrPix;
+    curcptidx_ = -1;
+    for ( int idx=0; idx<colseq().size(); idx++ )
+    {
+	const float pixpos = mPixPerSeqPos * colseq().position( idx );
+	const float diffinpix = Math::Abs( ev.x() - pixpos );
+	if ( diffinpix < mindiff )
+	{
+	    curcptidx_ = idx;
+	    mindiff = diffinpix;
+	}
+    }
+
+    if ( ev.buttonState() != OD::RightButton )
+	return;
+
+    uiMenu mnu( uiseqman_, uiStrings::sAction() );
+    if ( curcptidx_>=0 )
+    {
+	if ( curcptidx_ != 0 && curcptidx_ != colseq().size()-1 )
+	    mnu.insertItem( new uiAction(tr("Remove color")), 0 );
+	mnu.insertItem( new uiAction(m3Dots(tr("Change color"))), 1 );
+    }
+
+    mnu.insertItem( new uiAction(m3Dots(tr("Edit in Table"))), 2 );
+
+    const int res = mnu.exec();
+    if ( res==0 )
+	removeMarker( curcptidx_ );
+    else if ( res==1 )
+	changeColor( curcptidx_ );
+    else if ( res==2 )
+    {
+	uiColSeqColCtrlPtsDlg dlg( uiseqman_, colseq() );
+	dlg.go();
+    }
+
+    curcptidx_ = -1;
+    meh_.setHandled( true );
+}
+
+void mouseMove( CallBacker* cb )
+{
+    NotifyStopper notifstop( meh_.buttonPressed );
+    if ( meh_.isHandled() )
+	return;
+
+    const int sz = colseq().size();
+    if ( curcptidx_<=0 || curcptidx_>=sz-1 )
+	return;
+
+    const MouseEvent& ev = meh_.event();
+    const float evseqpos = mSeqPosPerPix * ev.x();
+
+    float newcseqpos = evseqpos;
+    const float prevmrkpos = colseq().position( curcptidx_ - 1 );
+    const float nextmrkpos = colseq().position( curcptidx_ + 1 );
+#   define mEps 0.00001f
+    if ( evseqpos <= prevmrkpos )
+	newcseqpos = prevmrkpos + mEps;
+    else if ( evseqpos >= nextmrkpos )
+	newcseqpos = nextmrkpos - mEps;
+
+    colseq().changePos( curcptidx_, newcseqpos );
+    meh_.setHandled( true );
+}
+
+void mouseRelease( CallBacker* )
+{
+    curcptidx_ = -1;
+    meh_.setHandled( true );
+}
+
+void mouseDoubleClk( CallBacker* cb )
+{
+    if ( meh_.isHandled() )
+	return;
+
+    addCtrlPt( mSeqPosPerPix*meh_.event().x(), true );
+    curcptidx_ = -1;
+    meh_.setHandled( true );
+}
+
+void seqChgCB( CallBacker* cb )
+{
+    mGetMonitoredChgData( cb, chgdata );
+    if ( chgdata.isEntireObject()
+      || chgdata.changeType() == Sequence::cColorChange() )
+	reDrawNeeded.trigger();
+}
+
+void addCtrlPt( float pos, bool withcolsel )
+{
+    RefMan<Sequence> rollbackcseq = new Sequence( colseq() );
+    NotifyStopper ns( colseq().objectChanged(), this );
+
+    const Color col = colseq().color( pos );
+    const int cptidx = colseq().setColor( pos, col.r(), col.g(), col.b() );
+
+    if ( withcolsel )
+    {
+	if ( !changeColor( cptidx ) )
+	    colseq() = *rollbackcseq;
+    }
+}
+
+void removeMarker( int cptidx )
+{
+    colseq().removeColor( cptidx );
+}
+
+bool changeColor( int cptidx )
+{
+    Color col = colseq().color( colseq().position(cptidx) );
+    if ( !selectColor(col,uiseqman_,tr("Selection color"),false) )
+	return false;
+
+    NotifyStopper ns( colseq().objectChanged(), this );
+    colseq().changeColor( cptidx, col.r(), col.g(), col.b() );
+    return true;
+}
+
+    uiColSeqMan*	uiseqman_;
+    Sequence&		colseq()	    { return *uiseqman_->curseq_; }
+    uiGraphicsItemGroup* markerlineitmgrp_;
+    MouseEventHandler&	meh_;
+    int			curcptidx_;
+
+};
 
 
 uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
@@ -54,13 +432,13 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
     , selectionChanged(this)
 {
     setModal( false );
+    setShrinkAllowed( false );
     ConstRefMan<Sequence> initialcur = seqmgr_.getAny( initialseqnm );
     rollbackseq_ = new Sequence( *initialcur );
     curseq_ = seqmgr_.get4Edit( initialcur->name() );
 
-    setShrinkAllowed( false );
-
     uiGroup* leftgrp = new uiGroup( this, "Left" );
+    uiGroup* rightgrp = new uiGroup( this, "Right" );
 
     seqlistfld_ = new uiTreeView( leftgrp, "Color Table List" );
     BufferStringSet labels;
@@ -70,8 +448,6 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
     seqlistfld_->setHScrollBarMode( uiTreeView::AlwaysOff );
     seqlistfld_->setStretch( 2, 2 );
     seqlistfld_->setSelectionBehavior( uiTreeView::SelectRows );
-
-    uiGroup* rightgrp = new uiGroup( this, "Right" );
 
     const OD::LineStyle ls( OD::LineStyle::Solid, 1, Color::LightGrey() );
     uiFunctionDisplay::Setup su;
@@ -87,20 +463,20 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
 	.noxaxis( true ).noyaxis( true ).noy2axis( true )
 	.noxgridline( true ).noygridline( true ).noy2gridline( true );
     transpdisp_ = new uiFunctionDisplay( rightgrp, su );
-    transpdisp_->setStretch( 2, 0 );
+    transpdisp_->setStretch( 2, 2 );
 
-    ctrlptsdisp_ = new uiColSeqColCtrlPtsDisp( rightgrp );
-    ctrlptsdisp_->setPrefWidth( cTranspDispWidth );
-    ctrlptsdisp_->setPrefHeight( cSeqDispHeight );
-    ctrlptsdisp_->setStretch( 2, 0 );
-    ctrlptsdisp_->attach( alignedBelow, transpdisp_ );
+    ctrlptsed_ = new uiColSeqColCtrlPtsEd( rightgrp, this );
+    ctrlptsed_->setPrefWidth( cTranspDispWidth );
+    ctrlptsed_->setPrefHeight( cCtrlDispHeight );
+    ctrlptsed_->setStretch( 2, 2 );
+    ctrlptsed_->attach( ensureBelow, transpdisp_ );
 
     seqdisp_ = new uiColSeqDisp( rightgrp );
     seqdisp_->setPrefWidth( cTranspDispWidth );
     seqdisp_->setPrefHeight( cSeqDispHeight );
     seqdisp_->setSeqName( curseq_->name() );
-    seqdisp_->attach( alignedBelow, ctrlptsdisp_, 0 );
-    seqdisp_->setStretch( 2, 0 );
+    seqdisp_->attach( ensureBelow, ctrlptsed_, 0 );
+    seqdisp_->setStretch( 2, 2 );
 
     const char* segtypes[] = { "None", "Fixed", "Variable", 0 };
     segtypefld_ = new uiGenInput( rightgrp, tr("Segmentation"),
@@ -304,7 +680,7 @@ bool uiColSeqMan::rejectOK()
 	return false;
 
     stopReceivingNotifications();
-    ctrlptsdisp_->stopReceivingNotifications();
+    ctrlptsed_->stopReceivingNotifications();
     seqdisp_->stopReceivingNotifications();
 
     if ( havechanges )
@@ -414,7 +790,6 @@ void uiColSeqMan::seqChgCB( CallBacker* cb )
 
 void uiColSeqMan::handleSeqChg()
 {
-    ctrlptsdisp_->setSequence( *curseq_ );
     seqdisp_->setSequence( *curseq_ );
     updateTransparencyGraph();
     updateSegmentationFields();

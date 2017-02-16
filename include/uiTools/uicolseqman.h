@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiColorInput;
 class uiColSeqDisp;
-class uiColSeqColCtrlPtsDisp;
+class uiColSeqColCtrlPtsEd;
 class uiFunctionDisplay;
 class uiGenInput;
 class uiTreeView;
@@ -46,7 +46,7 @@ protected:
 
     uiTreeView*			seqlistfld_;
     uiFunctionDisplay*		transpdisp_;
-    uiColSeqColCtrlPtsDisp*	ctrlptsdisp_;
+    uiColSeqColCtrlPtsEd*	ctrlptsed_;
     uiColSeqDisp*		seqdisp_;
     uiColorInput*		undefcolfld_;
     uiColorInput*		markcolfld_;
@@ -60,6 +60,8 @@ protected:
     ColTab::SequenceManager*	rollbackmgr_;
     bool			mgrsaved_;
     ConstRefMan<DistribType>	distrib_;
+
+    friend class		uiColSeqColCtrlPtsEd;
 
     bool			save();
     bool			acceptOK();
