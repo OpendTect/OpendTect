@@ -59,6 +59,9 @@ mGlobal(Basic) int ExitProgram( int ret );
 		     return exitProgram( retval );
                 */
 
+mGlobal(Basic) bool IsExiting();
+		/*!<Returns if ExitProgram is called */
+
 typedef void (*PtrAllVoidFn)(void);
 mGlobal(Basic) void NotifyExitProgram(PtrAllVoidFn);
 		/*!< Function will be called on 'ExitProgram' */

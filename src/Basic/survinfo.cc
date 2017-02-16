@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "coordsystem.h"
 #include "trckeyzsampling.h"
 #include "latlong.h"
@@ -61,8 +62,26 @@ mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 #define mSampling(work) (work ? workcs_ : fullcs_)
 
 
-static SurveyInfo global_si_;
-const SurveyInfo& SI() { return global_si_; }
+static PtrMan<SurveyInfo> global_si_ = 0;
+
+static void DeleteSI()
+{
+    global_si_ = 0;
+}
+
+
+const SurveyInfo& SI()
+{
+    if ( !global_si_ && !IsExiting() )
+    {
+	if ( global_si_.setIfNull( new SurveyInfo, true ) )
+	{
+	    NotifyExitProgram( &DeleteSI );
+	}
+    }
+
+    return *global_si_;
+}
 
 
 
@@ -223,7 +242,7 @@ uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd,
     if ( !newsi )
 	return ret;
 
-    global_si_ = *newsi;
+    *global_si_ = *newsi;
     delete newsi;
     return ret;
 }
@@ -642,8 +661,8 @@ Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 {
     mLock4Read();
     const Interval<int> rg = inl
-      ? Interval<int>( fullcs_.hsamp_.start_.inl(), fullcs_.hsamp_.stop_.inl() )
-      : Interval<int>( fullcs_.hsamp_.start_.crl(), fullcs_.hsamp_.stop_.crl() );
+      ? Interval<int>( fullcs_.hsamp_.start_.inl(), fullcs_.hsamp_.stop_.inl())
+      : Interval<int>( fullcs_.hsamp_.start_.crl(), fullcs_.hsamp_.stop_.crl());
 
     const int w = rg.stop - rg.start;
 

@@ -271,6 +271,8 @@ int GetPID()
     return getpid();
 }
 
+static bool is_exiting_ = false;
+
 
 void NotifyExitProgram( PtrAllVoidFn fn )
 {
@@ -289,6 +291,9 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 	fns[myfnidx] = fn;
     }
 }
+
+
+bool IsExiting() { return is_exiting_; }
 
 
 mExternC(Basic) const char* GetLastSystemErrorMessage()
@@ -361,6 +366,7 @@ const char* getProcessNameForPID( int pid )
 
 int ExitProgram( int ret )
 {
+    is_exiting_ = true;
     if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
     {
 	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;

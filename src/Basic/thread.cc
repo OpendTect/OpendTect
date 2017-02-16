@@ -6,12 +6,13 @@
 
 
 #include "thread.h"
-
 #include "threadlock.h"
-#include "perthreadrepos.h"
+
 #include "atomic.h"
-#include "math.h"
 #include "limits.h"
+#include "math.h"
+#include "perthreadrepos.h"
+#include "ptrman.h"
 
 
 // Thread::Lock interface
@@ -49,19 +50,19 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
     {
 	if ( oth.mutex_ )
 	    { *mutex_ = *oth.mutex_; return *this; }
-	delete mutex_;
+	deleteAndZeroPtr( mutex_ );
     }
     else if ( splock_ )
     {
 	if ( oth.splock_ )
 	    { *splock_ = *oth.splock_; return *this; }
-	delete splock_;
+	deleteAndZeroPtr( splock_ );
     }
     else
     {
 	if ( oth.rwlock_ )
 	    { *rwlock_ = *oth.rwlock_; return *this; }
-	delete rwlock_;
+	deleteAndZeroPtr( rwlock_ );
     }
 
     mutex_ = oth.mutex_ ? new Mutex(*oth.mutex_) : 0;
@@ -74,7 +75,10 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
 
 Threads::Lock::~Lock()
 {
-    delete mutex_; delete splock_; delete rwlock_;
+    //Put to zero to force crash if used again.
+    deleteAndZeroPtr( mutex_ );
+    deleteAndZeroPtr( splock_ );
+    deleteAndZeroPtr( rwlock_ );
 }
 
 
@@ -250,7 +254,7 @@ Threads::Mutex::Mutex( const Mutex& m )
 Threads::Mutex::~Mutex()
 {
 #ifndef OD_NO_QT
-    delete qmutex_;
+    deleteAndZeroPtr( qmutex_ );
 #endif
 }
 
@@ -743,7 +747,7 @@ Threads::ConditionVar::~ConditionVar()
     if (count_)
 	pErrMsg("Deleting condition variable with waiting threads.");
 # endif
-    delete cond_;
+    deleteAndZeroPtr( cond_ );
 #endif
 }
 
@@ -847,7 +851,7 @@ Threads::Thread::~Thread()
 {
 #ifndef OD_NO_QT
     thread_->wait();
-    delete thread_;
+    deleteAndZeroPtr( thread_ );
 #endif
 }
 
