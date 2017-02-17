@@ -62,6 +62,8 @@ protected:
 
     uiMenu*		createAddMenu();
     bool		isAddItem(int id,bool addall) const;
+    uiMenu*		createRemoveMenu();
+    bool		isRemoveItem(int id,bool removeall) const;
     int			getNewItemID() const;
 
     virtual void	insertStdSubMenu(uiMenu&);
