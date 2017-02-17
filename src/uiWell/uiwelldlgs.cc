@@ -1691,9 +1691,15 @@ bool uiNewWellDlg::acceptOK()
     if ( newnm.trimBlanks().isEmpty() )
 	mErrRet( uiStrings::phrEnter(tr("a name")) )
 
+    bool res = true;
     if ( nms_->isPresent(newnm) )
-	mErrRet( uiStrings::phrSpecify(tr("a new name.\n"
-		    "Wells can be removed in 'Manage wells'")) )
+    {
+	res = uiMSG().askOverwrite( tr("Well name already exists. "
+		"Do you want to overwrite?") );
+    }
+
+    if ( !res )
+	return false;
 
     wellname_ = newnm;
     return true;
