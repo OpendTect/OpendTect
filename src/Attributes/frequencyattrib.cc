@@ -42,15 +42,15 @@ void Frequency::initClass()
     gate->setLimits( -mLargestZGate, mLargestZGate);
     desc->addParam( gate );
 
-    desc->addParam( new BoolParam( normalizeStr(), false ) );
-    desc->addParam( new StringParam( windowStr(), "CosTaper" ) );
+    desc->addParam( new BoolParam(normalizeStr(),false) );
+    desc->addParam( new StringParam(windowStr(),"CosTaper") );
 
     FloatParam* paramval = new FloatParam( paramvalStr(), 0.95, false );
     paramval->setLimits( 0.0, 1.0 );
     desc->addParam( paramval );
 
-    desc->addParam( new BoolParam( dumptofileStr(), false, false ) );
-    desc->addParam( new BoolParam( smoothspectrumStr(),true, false ) );
+    desc->addParam( new BoolParam(dumptofileStr(),false,false) );
+    desc->addParam( new BoolParam(smoothspectrumStr(),false,false) );
 
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );
