@@ -389,7 +389,7 @@ void uiSeisSel::updateInput()
     if ( !ioobjkey.isEmpty() )
 	uiIOSelect::setInput( ioobjkey );
 
-    if ( seissetup_.selectcomp_ && !mIsUdf( compnr_ ) )
+    if ( seissetup_.selectcomp_ && !mIsUdf( compnr_ ) && workctio_.ioobj_ )
     {
 	uiRetVal uirv;
 	PtrMan<Seis::Provider> prov = Seis::Provider::create(
