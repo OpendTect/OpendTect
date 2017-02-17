@@ -201,6 +201,6 @@ void uiSeisTransfer::fillPar( IOPar& iop ) const
     selfld->fillPar( iop );
     scalefld_->fillPar( iop );
 
-    iop.set( SeisTrc::sKeyExtTrcToSI(), extendTrcsToSI() );
+    iop.setYN( SeisTrc::sKeyExtTrcToSI(), extendTrcsToSI() );
     iop.set( sKeyNullTrcPol(), nullTrcPolicy() );
 }

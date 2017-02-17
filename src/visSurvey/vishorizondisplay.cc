@@ -2381,7 +2381,7 @@ void HorizonDisplay::fillPar( IOPar& par ) const
     par.setYN( sKeyTexture(), usesTexture() );
     par.set( sKeyShift(), getTranslation().z_ );
     par.set( sKeyResolution(), getResolution() );
-    par.set( sKeySurfaceGrid(), displaysSurfaceGrid() );
+    par.setYN( sKeySurfaceGrid(), displaysSurfaceGrid() );
 
     for ( int channel=nrAttribs()-1; channel>=0; channel-- )
     {
