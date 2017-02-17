@@ -287,6 +287,12 @@ ProbeLayer* Probe::getLayerByIdx( int idx )
 
 const ProbeLayer* Probe::getLayer( ProbeLayer::ID id ) const
 {
+    return const_cast<Probe*>(this)->getLayer( id );
+}
+
+
+ProbeLayer* Probe::getLayer( ProbeLayer::ID id )
+{
     mLock4Read();
 
     for ( int idx=0; idx<layers_.size(); idx++ )
@@ -296,12 +302,6 @@ const ProbeLayer* Probe::getLayer( ProbeLayer::ID id ) const
     }
 
     return 0;
-}
-
-
-ProbeLayer* Probe::getLayer( ProbeLayer::ID id )
-{
-    return const_cast<Probe*>(this)->getLayer( id );
 }
 
 
