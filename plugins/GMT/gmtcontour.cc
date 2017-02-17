@@ -75,7 +75,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     getYN( ODGMT::sKeyFill(), dofill );
     if ( dofill )
     {
-	par.set( ODGMT::sKeyPostColorBar(), true );
+	par.setYN( ODGMT::sKeyPostColorBar(), true );
 	str = find( ODGMT::sKeyDataRange() );
 	par.set( ODGMT::sKeyDataRange(), str );
     }
