@@ -328,10 +328,13 @@ TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
 bool RegularSeisDataPack::is2D() const
 { return sampling_.hsamp_.survid_ == Survey::GM().get2DSurvID(); }
 
+
 int RegularSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
 {
-    const int ret = mCast(int,sampling_.hsamp_.globalIdx(tk));
-    return ret < nrTrcs() ? ret : -1;
+    if ( !sampling_.hsamp_.includes(tk) )
+	return -1;
+
+    return mCast(int,sampling_.hsamp_.globalIdx(tk));
 }
 
 
