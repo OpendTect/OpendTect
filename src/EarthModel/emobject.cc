@@ -488,7 +488,6 @@ void EMObject::setPosAttrMarkerStyle( int attr, const OD::MarkerStyle3D& ms )
     cbdata.event = EMObjectCallbackData::AttribChange;
     cbdata.attrib = attr;
     change.trigger( cbdata );
-    changed_ = true;
 }
 
 
