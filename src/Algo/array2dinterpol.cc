@@ -902,6 +902,9 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
     if ( !nrinitialdefined_ )
 	return false; //Nothing defined;
 
+    definedidxs_.setEmpty();
+    neighbors_.setEmpty();
+    neighborweights_.setEmpty();
     if ( mIsUdf(searchradius_) )
     {
 	const bool* ptr = curdefined_;
@@ -915,8 +918,6 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 	const int rowradius = mNINT32( searchradius_/rowstep_ );
 	const int colradius = mNINT32( searchradius_/colstep_ );
 	const float radius2 = searchradius_*searchradius_;
-	neighbors_.erase();
-	neighborweights_.erase();
 
 	for ( int relrow=0; relrow<=rowradius; relrow++ )
 	{
@@ -934,7 +935,9 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 		if ( dist2>radius2 )
 		    continue;
 
-		const float weight = 1.0f/Math::Sqrt( dist2 );
+		const float dist = Math::Sqrt( dist2 );
+		float weight = ( searchradius_ - dist )/( searchradius_*dist );
+		weight *= weight;
 
 		neighbors_ += RowCol(relrow,relcol);
 		neighborweights_ += weight;
@@ -1015,7 +1018,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 		const float rowdist2 = rowdist*rowdist;
 		const float coldist = (targetcol-sourcecol)*colstep_;
 		const int coldist2 = mNINT32(coldist*coldist);
-		const float weight = 1.f/Math::Sqrt( coldist2+rowdist2 );
+		const float weight = 1.f/( coldist2+rowdist2 );
 
 		weights[idy] = weight;
 	    }
