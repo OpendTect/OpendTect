@@ -161,7 +161,7 @@ bool uiViewer3DShapeTab::acceptOK( )
 	Settings& settings = Settings::fetch( uiViewer3DMgr::sSettings3DKey() );
 	settings.set( mPSD::sKeyFactor(),viewer_.getFactor());
 	settings.set( mPSD::sKeyWidth(), viewer_.getWidth() );
-	settings.set( mPSD::sKeyAutoWidth(), viewer_.displayAutoWidth() );
+	settings.setYN( mPSD::sKeyAutoWidth(), viewer_.displayAutoWidth() );
 
 	if ( !settings.write() )
 	{

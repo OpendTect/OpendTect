@@ -129,7 +129,7 @@ bool System::IssueReporter::send()
     url.add( path_ );
     IOPar postvars;
     postvars.set( "report", report_.buf() );
-    postvars.set( "return_text", true );
+    postvars.setYN( "return_text", true );
 
     BufferString remotefname ( OD::Platform::local().shortName(), "_" );
     remotefname.add( ODInst::getPkgVersion ("base") );

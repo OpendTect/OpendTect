@@ -132,7 +132,7 @@ bool LockedPointsPathFinder::doWork( od_int64 start, od_int64 stop, int thread )
 
 class HorizonPathIntersector : public ParallelTask
 {
-public:	
+public:
 		HorizonPathIntersector(const HorizonDisplay& hd,
 				       const TrcKeyPath& path,
 				       const TypeSet<Coord>& crds,
@@ -388,7 +388,7 @@ HorizonDisplay::~HorizonDisplay()
 
     delete locker_.getParam( this );
     locker_.removeParam( this );
-    
+
     EMChangeData* horchangedata = emchangedata_.getParam( this );
     if ( horchangedata )
       horchangedata->clearData();
@@ -439,7 +439,7 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
     if ( lockedpts_ )
 	lockedpts_->setDisplayTransformation( transformation_ );
     if ( sectionlockedpts_.getParam(this) )
-	sectionlockedpts_.getParam(this)->setDisplayTransformation( 
+	sectionlockedpts_.getParam(this)->setDisplayTransformation(
 	transformation_ );
 }
 
@@ -1294,10 +1294,10 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     if ( cb )
     {
 	mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-	emchangedata_.getParam( this )->addCallBackData( 
+	emchangedata_.getParam( this )->addCallBackData(
 	    new EM::EMObjectCallbackData(cbdata) );
     }
-    
+
     mEnsureExecutedInMainThread( HorizonDisplay::emChangeCB );
 
     EMChangeData* horchangedata = emchangedata_.getParam(this);
@@ -1305,7 +1305,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 
     for ( int idx=0; idx<horchangedata->size(); idx++ )
     {
-	const EM::EMObjectCallbackData* cbdata = 
+	const EM::EMObjectCallbackData* cbdata =
         horchangedata->getCallBackData( idx );
 	if ( !cbdata )
 	    continue;
@@ -1314,7 +1314,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     }
 
     horchangedata->clearData();
-    updateSingleColor();   
+    updateSingleColor();
 }
 
 
@@ -1357,10 +1357,10 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	// if it is locked, we do nothing
 	mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
 	const bool locked = hor3d ? hor3d->hasLockedNodes() : 0;
-	if ( locked && !displayonlyatsections_ ) 
+	if ( locked && !displayonlyatsections_ )
 	{
 	    updateLockedPointsColor();
-	    return; 
+	    return;
 	}
 
 	if ( !locked )
@@ -1370,7 +1370,7 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 		lockedpts_->removeAllPoints();
 		lockedpts_->removeAllPrimitiveSets();
 	    }
-	    visBase::PointSet* sectionlockedpts = 
+	    visBase::PointSet* sectionlockedpts =
 		sectionlockedpts_.getParam(this);
 	    if ( sectionlockedpts )
 	    {
@@ -1400,10 +1400,10 @@ void HorizonDisplay::updateLockedPointsColor()
     if ( lockedpts_ && lockedpts_->getMaterial() )
 	lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
 
-    if ( sectionlockedpts_.getParam(this) && 
+    if ( sectionlockedpts_.getParam(this) &&
 	sectionlockedpts_.getParam(this)->getMaterial() )
     {
-	sectionlockedpts_.getParam(this)->getMaterial()->setColor( 
+	sectionlockedpts_.getParam(this)->getMaterial()->setColor(
 	    hor3d->getLockColor() );
     }
 }
@@ -1870,7 +1870,7 @@ HorizonDisplay::getOrCreateIntersectionData(
 #define mHandleIndex(obj)\
 { if ( obj && obj->id() == objid ) { objidx = idx; return true;}  }
 
-bool HorizonDisplay::isValidIntersectionObject( 
+bool HorizonDisplay::isValidIntersectionObject(
     const ObjectSet<const SurveyObject>&objs, int& objidx, int objid ) const
 {
     for ( int idx=0; idx<objs.size(); idx++ )
@@ -1883,7 +1883,7 @@ bool HorizonDisplay::isValidIntersectionObject(
 
 	mDynamicCastGet( const RandomTrackDisplay*, rtdisplay, objs[idx] );
 	mHandleIndex( rtdisplay )
-	
+
 	mDynamicCastGet( const Seis2DDisplay*, seis2ddisplay, objs[idx] );
 	mHandleIndex( seis2ddisplay )
     }
@@ -1949,12 +1949,12 @@ void HorizonDisplay::updateIntersectionLines(
 		const EM::SectionID sid = horizon->sectionID(sectionidx);
 		if ( trckeypath.size() )
 		{
-		    const Interval<float> zrg = 
+		    const Interval<float> zrg =
 			objs[objidx]->getDataTraceRange();
 		    data = getOrCreateIntersectionData( lines );
 		    data->objid_ = vo->id();
 		    traverseLine( trckeypath, trccoords, zrg, sid, *data );
-            	    continue;
+	    continue;
 		}
 		else
 		{
@@ -2087,8 +2087,8 @@ void HorizonDisplay::updateSectionSeeds(
 
     // handle locked points on section
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
-    if ( !lockedpts_ || 
-	 lockedpts_->size()<=0 || 
+    if ( !lockedpts_ ||
+	 lockedpts_->size()<=0 ||
 	 !displayonlyatsections_ )
 	return;
 
@@ -2097,7 +2097,7 @@ void HorizonDisplay::updateSectionSeeds(
         sectionlockedpts_.setParam( this, visBase::PointSet::create() );
 	sectionlockedpts_.getParam(this)->ref();
 	addChild( sectionlockedpts_.getParam(this)->osgNode() );
-	sectionlockedpts_.getParam(this)->setDisplayTransformation( 
+	sectionlockedpts_.getParam(this)->setDisplayTransformation(
 	    transformation_ );
     }
     else
@@ -2121,20 +2121,20 @@ void HorizonDisplay::updateSectionSeeds(
     lockedpointspathfinder.execute();
     if ( pidxs.isEmpty() )
 	return;
-    
-    Geometry::PrimitiveSet* pointsetps = 
+
+    Geometry::PrimitiveSet* pointsetps =
 	Geometry::IndexedPrimitiveSet::create(true);
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     sectionlockedpts_.getParam(this)->addPrimitiveSet( pointsetps );
 
     if ( hor3d )
-	sectionlockedpts_.getParam(this)->getMaterial()->setColor( 
+	sectionlockedpts_.getParam(this)->getMaterial()->setColor(
 	hor3d->getLockColor() );
 
     lockedpts_->turnOn( false );
-    sectionlockedpts_.getParam(this)->turnOn( 
-	showlock_.getParam(this) && hor3d->hasLockedNodes() && 
+    sectionlockedpts_.getParam(this)->turnOn(
+	showlock_.getParam(this) && hor3d->hasLockedNodes() &&
 	displayonlyatsections_ );
 }
 
@@ -2283,7 +2283,7 @@ void HorizonDisplay::calculateLockedPoints()
 	addChild( lockedpts_->osgNode() );
 	lockedpts_->setDisplayTransformation( transformation_ );
     }
-    else    
+    else
     {
 	lockedpts_->removeAllPoints();
 	lockedpts_->removeAllPrimitiveSets();
@@ -2319,11 +2319,11 @@ void HorizonDisplay::calculateLockedPoints()
 
 
 bool HorizonDisplay::lockedShown() const
-{ 
-    const bool lockedshow = lockedpts_ ? 
+{
+    const bool lockedshow = lockedpts_ ?
 	lockedpts_->size()>0 && lockedpts_->isOn() : false;
-    const bool sectionlockedshow = 
-	sectionlockedpts_.getParam(this) ? 
+    const bool sectionlockedshow =
+	sectionlockedpts_.getParam(this) ?
 	sectionlockedpts_.getParam(this)->size()>0 &&
 	sectionlockedpts_.getParam(this)->isOn() : false;
     return lockedshow || sectionlockedshow;
@@ -2414,7 +2414,7 @@ void HorizonDisplay::fillPar( IOPar& par ) const
     par.setYN( sKeyTexture(), usesTexture() );
     par.set( sKeyShift(), getTranslation().z );
     par.set( sKeyResolution(), getResolution() );
-    par.set( sKeySurfaceGrid(), displaysSurfaceGrid() );
+    par.setYN( sKeySurfaceGrid(), displaysSurfaceGrid() );
 
     for ( int channel=as_.size()-1; channel>=0; channel-- )
     {
@@ -2678,7 +2678,7 @@ HorizonDisplay::IntersectionData::setLineStyle( const LineStyle& lst )
 	    newline->ref();
 	    newline->setRightHandSystem( line_->isRightHandSystem() );
 	    newline->setDisplayTransformation(
-		    			line_->getDisplayTransformation());
+					line_->getDisplayTransformation());
 	    newline->getCoordinates()->copyFrom( *line_->getCoordinates() );
 	    if ( line_->getMaterial() )
 		newline->setMaterial( line_->getMaterial() );
