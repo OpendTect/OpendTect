@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "uifunctiondisplay.h"
 
 static uiColTabSelTool* globseltool_ = 0;
-void SetuiCOLTAB( uiColTabSelTool* st )
+mExtern(uiTools) void SetuiCOLTAB( uiColTabSelTool* st )
 {
     globseltool_ = st;
 }

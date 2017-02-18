@@ -317,7 +317,7 @@ bool uiODMain::ensureGoodSurveySetup()
 }
 
 
-extern void SetuiCOLTAB(uiColTabSelTool*);
+mExtern(uiTools) void SetuiCOLTAB(uiColTabSelTool*);
 
 
 bool uiODMain::buildUI()
