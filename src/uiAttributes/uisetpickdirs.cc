@@ -143,22 +143,22 @@ bool uiSetPickDirs::acceptOK()
 
     TypeSet<DataPointSet::Pos> positions;
     TypeSet<Pick::Set::LocID> locids;
-    DataPointSet dps( pts, dcds, ads_->is2D() );
+    RefMan<DataPointSet> dps = new DataPointSet( pts, dcds, ads_->is2D() );
     Pick::SetIter psiter( ps_ );
     while ( psiter.next() )
     {
 	DataPointSet::DataRow dtrow( DataPointSet::Pos(psiter.get().pos()) );
-	dps.addRow( dtrow );
+	dps->addRow( dtrow );
 	positions += dtrow.pos_;
 	locids.add( psiter.ID() );
     }
     psiter.retire();
 
-    dps.dataChanged();
-    if ( !getAndCheckAttribSelection( dps ) )
+    dps->dataChanged();
+    if ( !getAndCheckAttribSelection( *dps ) )
 	return false;
 
-    bool success = extractDipOrAngl( dps );
+    bool success = extractDipOrAngl( *dps );
     if ( !success )
 	mErrRet( tr("Cannot calculate attributes at these positions") );
 
@@ -168,12 +168,12 @@ bool uiSetPickDirs::acceptOK()
 	const Pick::Set::LocID locid( locids[idx] );
 	float phi = 0;
 	float theta = 0;
-	DataPointSet::RowID rid = dps.find( positions[idx] );
+	DataPointSet::RowID rid = dps->find( positions[idx] );
 	if ( rid < 0 )
 	    continue;
 
-	float inldip = dps.value( 0, rid )/2;
-	float crldip = dps.value( 1, rid )/2;
+	float inldip = dps->value( 0, rid )/2;
+	float crldip = dps->value( 1, rid )/2;
 
 	if ( mIsUdf(inldip) || mIsUdf(crldip) )
 	    inldip = crldip = 0;
@@ -191,8 +191,8 @@ bool uiSetPickDirs::acceptOK()
 	}
 	else
 	{
-	    phi = Math::toRadians( (float) dps.value( 0, rid ) );
-	    theta = Math::toRadians( (float) dps.value( 1, rid ) );
+	    phi = Math::toRadians( (float) dps->value( 0, rid ) );
+	    theta = Math::toRadians( (float) dps->value( 1, rid ) );
 	    if ( !mIsUdf(phi) && !mIsUdf(theta) )
 	    {
 		wrapPhi( phi );

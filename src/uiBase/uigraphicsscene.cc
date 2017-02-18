@@ -144,7 +144,7 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 
 
 uiGraphicsScene::uiGraphicsScene( const char* nm )
-    : NamedMonitorable(nm)
+    : NamedCallBacker(nm)
     , mousehandler_(MouseEventHandler())
     , ismouseeventactive_(true)
     , odgraphicsscene_(new ODGraphicsScene(*this))

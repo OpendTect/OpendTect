@@ -18,13 +18,13 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-mClass(uiBase) uiParentBody : public uiBody, public NamedMonitorable
+mClass(uiBase) uiParentBody : public uiBody, public NamedCallBacker
 {
 friend class uiObjectBody;
 public:
 			//uiParentBody( const char* nm = "uiParentBody")
 			uiParentBody( const char* nm )
-			    : NamedMonitorable( nm )
+			    : NamedCallBacker( nm )
 			    , finalised_( false )
 			{}
 

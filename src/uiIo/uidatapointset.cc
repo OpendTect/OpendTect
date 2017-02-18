@@ -1468,13 +1468,13 @@ bool uiDataPointSet::doSave()
     if ( !uidpss.go() ) return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    DataPointSet savedps( *dps_ );
-    savedps.dataSet().pars() = storepars_;
+    RefMan<DataPointSet> savedps = dps_->clone();
+    savedps->dataSet().pars() = storepars_;
     if ( !grpnames_.isEmpty() )
-	savedps.dataSet().pars().set( sKeyGroups, grpnames_ );
-    savedps.purgeInactive();
+	savedps->dataSet().pars().set( sKeyGroups, grpnames_ );
+    savedps->purgeInactive();
     uiString errmsg;
-    const bool ret = savedps.dataSet().
+    const bool ret = savedps->dataSet().
 			putTo( uidpss.fname_, errmsg, uidpss.istab_ );
     MouseCursorManager::restoreOverride();
     if ( !ret )

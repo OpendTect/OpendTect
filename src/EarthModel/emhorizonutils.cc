@@ -170,7 +170,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
 
     strm << "\nFetching surface positions ...\n" ;
     TextStreamProgressMeter pm( strm );
-    deepErase( data );
+    deepUnRef( data );
 
     DataPointSet* res = 0;
     if ( hor2d && geomid != Survey::GeometryManager::cUndefGeomID() )

@@ -107,8 +107,8 @@ Pick::Set* uiDataPointSetPickDlg::pickSet()
 
 void uiDataPointSetPickDlg::cleanUp()
 {
+    detachAllNotifiers();
     table_->clearTable();
-    delete &dps_;
 
     visBase::DataObject* obj = visBase::DM().getObject( sceneid_ );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
@@ -120,7 +120,7 @@ void uiDataPointSetPickDlg::cleanUp()
 	psd_ = 0;
     }
 
-    detachAllNotifiers();
+    dps_.unRef();
 }
 
 
@@ -175,14 +175,14 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
 
     values_.erase();
     pickset->setEmpty();
-    DataPointSet newdps( pvds, false );
-    Pos::SurvID survid = newdps.bivSet().survID();
-    for ( int idx=0; idx<newdps.size(); idx++ )
+    RefMan<DataPointSet> newdps = new DataPointSet( pvds, false );
+    Pos::SurvID survid = newdps->bivSet().survID();
+    for ( int idx=0; idx<newdps->size(); idx++ )
     {
-	const DataPointSet::Pos pos( newdps.pos(idx) );
+	const DataPointSet::Pos pos( newdps->pos(idx) );
 	Pick::Location loc( pos.coord(survid), pos.z() );
 	pickset->add( loc );
-	values_ += newdps.value(0,idx);
+	values_ += newdps->value(0,idx);
     }
 
     if ( psd_ )
@@ -415,9 +415,10 @@ void uiEMDataPointSetPickDlg::cleanUp()
     uiDataPointSetPickDlg::cleanUp();
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( emobj ) emobj->unRef();
+    if ( emobj )
+	emobj->unRef();
 
-    delete &emdps_;
+    emdps_.unRef();
 }
 
 

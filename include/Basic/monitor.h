@@ -100,6 +100,12 @@ void clssnm::copyClassData( const clssnm& oth ) \
 { \
 }
 
+#define mImplAlwaysDifferentMonitorableCompareClassData( clssnm ) \
+Monitorable::ChangeType clssnm::compareClassData( const clssnm& oth ) const \
+{ \
+    return cEntireObjectChange(); \
+}
+
 #define mImplEmptyMonitorableCompare( clssnm ) \
 Monitorable::ChangeType clssnm::compareClassData( const clssnm& oth ) const \
 { \

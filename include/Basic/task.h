@@ -23,7 +23,7 @@ namespace Threads { class ConditionVar; }
 /*!\brief Generalization of something (e.g. a computation) that needs to be
 	done in multiple steps. */
 
-mExpClass(Basic) Task : public NamedMonitorable
+mExpClass(Basic) Task : public NamedCallBacker
 { mODTextTranslationClass(Task);
 public:
 

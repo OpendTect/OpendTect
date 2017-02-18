@@ -5,7 +5,7 @@
 -*/
 
 
-#include "namedobj.h"
+#include "namedmonitorable.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include <ctype.h>
@@ -34,6 +34,32 @@ bool NamedObject::getNameFromPar( const IOPar& iop )
 void NamedObject::putNameInPar( IOPar& iop ) const
 {
     iop.set( sKey::Name(), getName() );
+}
+
+
+NamedCallBacker::NamedCallBacker( const char* nm )
+    : NamedObject(nm)
+    , delnotif_(this)
+    , delalreadytriggered_(false)
+{
+}
+
+
+NamedCallBacker::NamedCallBacker( const NamedCallBacker& oth )
+    : NamedObject(oth)
+    , delnotif_(this)
+    , delalreadytriggered_(false)
+{
+}
+
+
+void NamedCallBacker::sendDelNotif() const
+{
+    if ( !delalreadytriggered_ )
+    {
+	delalreadytriggered_ = true;
+	objectToBeDeleted().trigger();
+    }
 }
 
 

@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
-#include "namedobj.h"
+#include "namedmonitorable.h"
 #include "monitoriter.h"
 #include "ranges.h"
 #include "sets.h"

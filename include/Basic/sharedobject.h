@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "namedobj.h"
+#include "namedmonitorable.h"
 
 
 /*\!brief Monitorable object with a name, sharable through ref counting. */
@@ -21,7 +21,7 @@ mExpClass(Basic) SharedObject :	public RefCount::Referenced
 public:
 
 			SharedObject(const char* nm=0);
-			mDeclMonitorableAssignment(SharedObject);
+			mDeclAbstractMonitorableAssignment(SharedObject);
 
     mDeclInstanceCreatedNotifierAccess(SharedObject);
 

@@ -448,14 +448,14 @@ void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
 
     for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
     {
-	DataPointSet dps( false, true );
+	RefMan<DataPointSet> dps = new DataPointSet( false, true );
 	float shift;
-	applMgr()->EMServer()->getAuxData( emid_, idx, dps, shift );
+	applMgr()->EMServer()->getAuxData( emid_, idx, *dps, shift );
 	uiODDataTreeItem* itm = addAttribItem();
 	mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,dataitm,itm);
 	if ( !dataitm ) continue;
 
-	dataitm->setDataPointSet( dps );
+	dataitm->setDataPointSet( *dps );
 	dataitm->setChecked( false, true );
     }
 }
@@ -538,14 +538,14 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	DataPointSet vals( false, true );
-	vals.bivSet().setNrVals( 3 );
-	visserv->getRandomPosCache( visid, attribnr, vals );
-	if ( vals.size() )
+	RefMan<DataPointSet> vals = new DataPointSet( false, true );
+	vals->bivSet().setNrVals( 3 );
+	visserv->getRandomPosCache( visid, attribnr, *vals );
+	if ( !vals->isEmpty() )
 	{
 	    const float shift = (float) visserv->getTranslation( visid ).z_;
 	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
-	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals,
+	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, *vals,
 		    name_.getFullString(), validx, shift );
 	    if ( auxnr<0 )
 	    {
@@ -598,20 +598,20 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	bool res = false;
-	DataPointSet vals( false, true );
-	visserv->getRandomPosCache( visid, attribnr, vals );
+	RefMan<DataPointSet> vals = new DataPointSet( false, true );
+	visserv->getRandomPosCache( visid, attribnr, *vals );
 	if ( mnuid==filtermnuitem_.id )
 	    res = applMgr()->EMServer()->filterAuxData( emid_,
-				    name_.getFullString(), vals);
+				    name_.getFullString(), *vals);
 	else if ( mnuid==fillholesmnuitem_.id )
 	    res = applMgr()->EMServer()->
-			interpolateAuxData( emid_,name_.getFullString(), vals);
+			interpolateAuxData( emid_,name_.getFullString(), *vals);
 	else if ( mnuid==horvariogrammnuitem_.id )
 	    res = applMgr()->EMServer()->
-		computeVariogramAuxData( emid_, name_.getFullString(), vals );
+		computeVariogramAuxData( emid_, name_.getFullString(), *vals );
 	else if ( mnuid==attr2geommnuitm_.id )
 	    res = applMgr()->EMServer()->
-		attr2Geom( emid_, name_.getFullString(), vals );
+		attr2Geom( emid_, name_.getFullString(), *vals );
 
 	if ( !res || mnuid==horvariogrammnuitem_.id )
 	    return;
@@ -619,7 +619,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(name_.getFullString(),
 				Attrib::SelSpec::cOtherAttrib()) );
-	visserv->setRandomPosData( visid, attribnr, &vals );
+	visserv->setRandomPosData( visid, attribnr, vals );
 	changed_ = true;
     }
 }
@@ -646,9 +646,9 @@ void uiODEarthModelSurfaceDataTreeItem::selectAndLoadAuxData()
     cs.hsamp_.set( loadrrg, loadcrg );
 
     TypeSet<float> shifts;
-    DataPointSet vals( false, true );
-    applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts, &cs );
-    setDataPointSet( vals );
+    RefMan<DataPointSet> vals = new DataPointSet( false, true );
+    applMgr()->EMServer()->getAllAuxData( emid_, *vals, &shifts, &cs );
+    setDataPointSet( *vals );
     vishor->setAttribShift( attribNr(), shifts );
 
     updateColumnText( uiODSceneMgr::cNameColumn() );

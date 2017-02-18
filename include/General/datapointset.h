@@ -45,9 +45,11 @@ mExpClass(General) DataPointSet : public PointDataPack
 {
 public:
 
-    typedef int		RowID;
-    typedef int		ColID;
-    class		DataRow;
+    typedef int			RowID;
+    typedef int			ColID;
+    typedef BinIDValueSet::SPos	SPos;
+
+    class DataRow;
 
     /*!\brief Real Coord3D-position storable in BinIDValueSet + trc nr */
 
@@ -135,9 +137,7 @@ public:
 			DataPointSet(const PosVecDataSet&,bool is2d,
 					bool minimal=false);
 			DataPointSet(const DataPointSet&,const ::Pos::Filter&);
-			DataPointSet(const DataPointSet&);
-    virtual		~DataPointSet();
-    DataPointSet&	operator =(const DataPointSet&);
+			mDeclMonitorableAssignment(DataPointSet);
     bool		is2D() const		{ return is2d_; }
     bool		isMinimal() const	{ return minimal_; }
     bool		isEmpty() const		{ return bvsidxs_.isEmpty(); }
@@ -235,10 +235,12 @@ public:
 
 protected:
 
-    PosVecDataSet&		data_;
-    TypeSet<BinIDValueSet::SPos> bvsidxs_;
-    bool			is2d_;
-    bool			minimal_;
+    virtual		~DataPointSet();
+
+    PosVecDataSet&	data_;
+    TypeSet<SPos>	bvsidxs_;
+    bool		is2d_;
+    bool		minimal_;
 
     void		initPVDS();
     void		init(const TypeSet<DataRow>&,

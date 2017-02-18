@@ -137,6 +137,29 @@ protected:
 
 
 // PointDataPack
+
+PointDataPack::PointDataPack( const char* categry )
+    : DataPack(categry)
+{
+}
+
+
+PointDataPack::PointDataPack( const PointDataPack& oth )
+    : DataPack(oth)
+{
+    copyClassData( oth );
+}
+
+
+PointDataPack::~PointDataPack()
+{
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignmentWithNoMembers( PointDataPack, DataPack );
+
+
 Coord PointDataPack::coord( int idx ) const
 {
     return SI().transform( binID(idx) );
@@ -145,6 +168,16 @@ Coord PointDataPack::coord( int idx ) const
 
 
 // FlatDataPack
+FlatDataPack::FlatDataPack( const char* cat )
+    : DataPack(cat)
+    , arr2d_(0)
+    , posdata_(*new FlatPosData)
+{
+    // We cannot call init() here: size() does not dispatch virtual here
+    // Subclasses with no arr3d_ will have to do a position init 'by hand'
+}
+
+
 FlatDataPack::FlatDataPack( const char* cat, Array2D<float>* arr )
     : DataPack(cat)
     , arr2d_(arr ? arr : new Array2DImpl<float>(1,1))
@@ -154,20 +187,11 @@ FlatDataPack::FlatDataPack( const char* cat, Array2D<float>* arr )
 }
 
 
-FlatDataPack::FlatDataPack( const FlatDataPack& fdp )
-    : DataPack( fdp )
-    , arr2d_( fdp.arr2d_ ? new Array2DImpl<float>( *fdp.arr2d_ ) : 0 )
-    , posdata_( *new FlatPosData(fdp.posdata_) )
-{ }
-
-
-FlatDataPack::FlatDataPack( const char* cat )
-    : DataPack(cat)
-    , arr2d_(0)
-    , posdata_(*new FlatPosData)
+FlatDataPack::FlatDataPack( const FlatDataPack& oth )
+    : DataPack( oth )
+    , arr2d_( oth.arr2d_ ? new Array2DImpl<float>( *oth.arr2d_ ) : 0 )
+    , posdata_( *new FlatPosData(oth.posdata_) )
 {
-    // We cannot call init() here: size() does not dispatch virtual here
-    // Subclasses with no arr3d_ will have to do a position init 'by hand'
 }
 
 
@@ -181,8 +205,20 @@ void FlatDataPack::init()
 
 FlatDataPack::~FlatDataPack()
 {
+    sendDelNotif();
     delete arr2d_;
     delete &posdata_;
+}
+
+
+mImplMonitorableAssignment( FlatDataPack, DataPack );
+mImplAlwaysDifferentMonitorableCompareClassData( FlatDataPack )
+
+void FlatDataPack::copyClassData( const FlatDataPack& oth )
+{
+    delete arr2d_;
+    arr2d_ = oth.arr2d_ ? new Array2DImpl<float>( *oth.arr2d_ ) : 0;
+    posdata_ = oth.posdata_;
 }
 
 
@@ -253,10 +289,35 @@ MapDataPack::MapDataPack( const char* cat, Array2D<float>* arr )
 }
 
 
+MapDataPack::MapDataPack( const MapDataPack& oth )
+    : FlatDataPack(oth)
+    , xyrotarr2d_(0)
+    , xyrotposdata_(*new FlatPosData)
+{
+    copyClassData( oth );
+}
+
+
 MapDataPack::~MapDataPack()
 {
+    sendDelNotif();
     delete xyrotarr2d_;
     delete &xyrotposdata_;
+}
+
+
+mImplMonitorableAssignment( MapDataPack, FlatDataPack )
+mImplAlwaysDifferentMonitorableCompareClassData( MapDataPack )
+
+
+void MapDataPack::copyClassData( const MapDataPack& oth )
+{
+    delete xyrotarr2d_;
+    if ( oth.xyrotarr2d_ )
+	xyrotarr2d_ = new Array2DImpl<float>( *xyrotarr2d_ );
+    posdata_ = oth.xyrotposdata_;
+    isposcoord_ = oth.isposcoord_;
+    axeslbls_ = oth.axeslbls_;
 }
 
 
@@ -267,10 +328,10 @@ void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 			SI().transform(BinID(mNINT32(pos.x_),mNINT32(pos.y_)));
     const BinID bid = isposcoord_ ? SI().transform(pos.getXY())
 				  : BinID(mNINT32(pos.x_),mNINT32(pos.y_));
-    par.set( axeslbls_[0], coord.x_ );
-    par.set( axeslbls_[1], coord.y_ );
-    par.set( axeslbls_[2], bid.inl() );
-    par.set( axeslbls_[3], bid.crl() );
+    par.set( axeslbls_.get(0), coord.x_ );
+    par.set( axeslbls_.get(1), coord.y_ );
+    par.set( axeslbls_.get(2), bid.inl() );
+    par.set( axeslbls_.get(3), bid.crl() );
 }
 
 
@@ -337,21 +398,21 @@ void MapDataPack::setDimNames( const char* xlbl, const char* ylbl, bool forxy )
 {
     if ( forxy )
     {
-	axeslbls_[0] = xlbl;
-	axeslbls_[1] = ylbl;
+	axeslbls_.get(0) = xlbl;
+	axeslbls_.get(1) = ylbl;
     }
     else
     {
-	axeslbls_[2] = xlbl;
-	axeslbls_[3] = ylbl;
+	axeslbls_.get(2) = xlbl;
+	axeslbls_.get(3) = ylbl;
     }
 }
 
 
 const char* MapDataPack::dimName( bool dim0 ) const
 {
-    return dim0 ? isposcoord_ ? axeslbls_[0].buf() : axeslbls_[2].buf()
-		: isposcoord_ ? axeslbls_[1].buf() : axeslbls_[3].buf();
+    return (dim0 ? isposcoord_ ? axeslbls_.get(0) : axeslbls_.get(2)
+		 : isposcoord_ ? axeslbls_.get(1) : axeslbls_.get(3) ).buf();
 }
 
 
@@ -371,11 +432,45 @@ VolumeDataPack::VolumeDataPack( const char* cat, const BinDataDesc* bdd )
 }
 
 
+VolumeDataPack::VolumeDataPack( const VolumeDataPack& oth )
+    : DataPack(oth)
+    , zdomaininfo_(0)
+    , scaler_(0)
+{
+    copyClassData( oth );
+}
+
+
 VolumeDataPack::~VolumeDataPack()
 {
+    sendDelNotif();
     deepErase( arrays_ );
     deleteAndZeroPtr( zdomaininfo_ );
     deleteAndZeroPtr( scaler_ );
+}
+
+
+mImplMonitorableAssignment( VolumeDataPack, DataPack )
+mImplAlwaysDifferentMonitorableCompareClassData( VolumeDataPack )
+
+
+void VolumeDataPack::copyClassData( const VolumeDataPack& oth )
+{
+    componentnames_ = oth.componentnames_;
+    refnrs_ = oth.refnrs_;
+    desc_ = oth.desc_;
+
+    deepErase( arrays_ );
+    deleteAndZeroPtr( zdomaininfo_ );
+    deleteAndZeroPtr( scaler_ );
+
+    if ( oth.zdomaininfo_ )
+	zdomaininfo_ = new ZDomain::Info( *oth.zdomaininfo_ );
+    if ( oth.scaler_ )
+	scaler_ = oth.scaler_->clone();
+
+    for ( int idx=0; idx<oth.arrays_.size(); idx++ )
+	arrays_ += new Array3DImpl<float>( *oth.arrays_[idx] );
 }
 
 

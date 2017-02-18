@@ -19,7 +19,7 @@
 
 
 Task::Task( const char* nm )
-    : NamedMonitorable( nm )
+    : NamedCallBacker( nm )
     , workcontrolcondvar_( 0 )
     , control_( Task::Run )
 {
@@ -28,7 +28,6 @@ Task::Task( const char* nm )
 
 Task::~Task()
 {
-    sendDelNotif();
     delete workcontrolcondvar_;
 }
 

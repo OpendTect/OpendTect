@@ -404,15 +404,15 @@ bool uiODHorizonTreeItem::init()
 		if ( auxdatatype==EM::SurfaceAuxData::AutoShow ||
 		     (auxdatatype==EM::SurfaceAuxData::Tracking && istracking) )
 		{
-		    DataPointSet vals( false, true );
+		    RefMan<DataPointSet> vals = new DataPointSet( false, true );
 		    float shift;
-		    applMgr()->EMServer()->getAuxData(emid_, idx, vals, shift);
+		    applMgr()->EMServer()->getAuxData(emid_, idx, *vals, shift);
 
 		    uiODDataTreeItem* itm = addAttribItem();
 		    mDynamicCastGet( uiODEarthModelSurfaceDataTreeItem*,
 				     emitm, itm );
 		    if ( emitm )
-			emitm->setDataPointSet( vals );
+			emitm->setDataPointSet( *vals );
 		}
 	    }
 	}

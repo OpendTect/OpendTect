@@ -8,6 +8,7 @@
 #include "coordsystem.h"
 
 #include "iopar.h"
+#include "notify.h"
 #include "separstr.h"
 
 static const double cAvgEarthRadius = 6367450;

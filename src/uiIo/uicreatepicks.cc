@@ -187,13 +187,13 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
     if ( filt && !filt->initialize(&taskrunner) )
 	{ mRestorCursor(); return false; }
 
-    DataPointSet dps( prov->is2D() );
-    if ( !dps.extractPositions(*prov,ObjectSet<DataColDef>(),filt,
+    RefMan<DataPointSet> dps = new DataPointSet( prov->is2D() );
+    if ( !dps->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
 				 &taskrunner) )
 	return false;
     mRestorCursor();
 
-    const int dpssize = dps.size();
+    const int dpssize = dps->size();
     int size = maxnrpickfld_->getIntValue();
     if ( dpssize < size )
 	size = dpssize;
@@ -208,21 +208,21 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 	    return false;
     }
 
-    if ( dps.isEmpty() )
+    if ( dps->isEmpty() )
 	mErrRet(tr("No matching locations found"))
 
     const bool usemaxnrpicks = dpssize > size;
     if ( !usemaxnrpicks )
 	size = dpssize;
 
-    Pos::SurvID survid = dps.bivSet().survID();
+    Pos::SurvID survid = dps->bivSet().survID();
     for ( DataPointSet::RowID idx=0; idx<size; idx++ )
     {
 	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize )
 					 : idx;
-	const DataPointSet::Pos pos( dps.pos(posidx) );
+	const DataPointSet::Pos pos( dps->pos(posidx) );
 	Pick::Location pl( pos.coord(survid), pos.z() );
-	if ( dps.is2D() )
+	if ( dps->is2D() )
 	    pl.setSurvID( pos.binid_.inl() );
 	ps.add( pl );
     }

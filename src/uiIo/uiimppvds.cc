@@ -45,7 +45,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 
     uiFileInput::Setup su( uiFileDialog::Txt );
     su.withexamine(true).examstyle(File::Table).forread(true);
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()), 
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()),
 			       su );
 
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );
@@ -90,12 +90,12 @@ bool uiImpPVDS::acceptOK()
     if ( !strm.isOK() )
 	mErrRet(uiStrings::sCantOpenInpFile())
 
-    DataPointSet dps( is2d_ );
+    RefMan<DataPointSet> dps = new DataPointSet( is2d_ );
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    bool rv = getData( strm, fd_, dps );
+    bool rv = getData( strm, fd_, *dps );
     MouseCursorManager::restoreOverride();
 
-    return rv ? writeData( dps, *ioobj ) : false;
+    return rv ? writeData( *dps, *ioobj ) : false;
 }
 
 

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uiodtreeitem.h"
 #include "dbkey.h"
+#include "sharedobject.h"
 #include "odpresentationmgr.h"
 
 class SharedObject;

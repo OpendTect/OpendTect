@@ -201,6 +201,7 @@ uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, EM::ObjectID emid )
 			mODHelpKey(mIsopachMakerHelpID)))
     , dps_( new DataPointSet(false,true) )
 {
+    dps_->ref();
     grp_ = new uiIsochronMakerGrp( this, emid );
     uiString title( uiStrings::phrCreate(tr("Isochron for '%1'")
 						.arg(grp_->getHorNm(emid))) );
@@ -210,7 +211,7 @@ uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, EM::ObjectID emid )
 
 uiIsochronMakerDlg::~uiIsochronMakerDlg()
 {
-    delete dps_;
+    dps_->unRef();
 }
 
 

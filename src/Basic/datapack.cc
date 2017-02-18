@@ -18,6 +18,7 @@
 #include "msgh.h"
 
 #include <iostream>
+#include <string.h>
 
 DataPackMgr::ID DataPackMgr::BufID()	{ return ID::get(1); }
 DataPackMgr::ID DataPackMgr::PointID()	{ return ID::get(2); }
@@ -103,8 +104,49 @@ void DataPack::FullID::putInDBKey( DBKey& dbky ) const
 }
 
 
-
+mDefineInstanceCreatedNotifierAccess(DataPack)
 static Threads::Atomic<int> curdpidnr( 0 );
+
+DataPack::DataPack( const char* categry )
+    : SharedObject("<?>")
+    , category_(categry)
+    , manager_( 0 )
+    , id_(getNewID())
+{
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+DataPack::DataPack( const DataPack& oth )
+    : SharedObject(oth)
+    , category_(oth.category_)
+    , manager_(0)
+    , id_(getNewID())
+{
+    copyClassData( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+DataPack::~DataPack()
+{
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignment( DataPack, SharedObject )
+
+
+void DataPack::copyClassData( const DataPack& oth )
+{
+    dbkey_ = oth.dbkey_;
+}
+
+
+Monitorable::ChangeType DataPack::compareClassData( const DataPack& oth ) const
+{
+    mDeliverYesNoMonitorableCompare( id_ == oth.id_ );
+}
 
 
 DataPack::ID DataPack::getNewID()
@@ -576,4 +618,76 @@ void DataPack::dumpInfo( IOPar& iop ) const
     if ( dbky.isValid() )
 	dbkystr.set( dbKey().toString() );
     iop.set( "DB Key", dbkystr );
+}
+
+
+BufferDataPack::BufferDataPack( char* b, od_int64 sz, const char* catgry )
+    : DataPack(catgry)
+    , buf_(0)
+{
+    setBuf( b, sz );
+}
+
+
+BufferDataPack::BufferDataPack( const BufferDataPack& oth )
+    : DataPack(oth)
+    , buf_(0)
+    , sz_(0)
+{
+    copyClassData( oth );
+}
+
+
+BufferDataPack::~BufferDataPack()
+{
+    sendDelNotif();
+    delete [] buf_;
+}
+
+
+mImplMonitorableAssignment( BufferDataPack, DataPack )
+
+
+void BufferDataPack::copyClassData( const BufferDataPack& oth )
+{
+    mkNewBuf( oth.sz_ );
+    if ( buf_ )
+	OD::memCopy( buf_, oth.buf_, sz_ );
+}
+
+
+Monitorable::ChangeType BufferDataPack::compareClassData(
+					const BufferDataPack& oth ) const
+{
+    if ( sz_ != oth.sz_ )
+	return cEntireObjectChange();
+    else if ( !buf_ )
+	return cNoChange();
+
+    mDeliverYesNoMonitorableCompare( !memcmp(buf_,oth.buf_,sz_) );
+}
+
+
+void BufferDataPack::setBuf( char* b, od_int64 sz )
+{
+    delete [] buf_;
+    buf_ = b;
+    sz_ = buf_ ? sz : 0;
+}
+
+
+bool BufferDataPack::mkNewBuf( od_int64 sz )
+{
+    delete [] buf_;
+    setBuf( createBuf(sz), sz );
+    return sz_ > 0;
+}
+
+
+char* BufferDataPack::createBuf( od_int64 sz )
+{
+    char* ret = 0;
+    if ( sz > 0 )
+	{ mTryAlloc( ret, char [sz] ); }
+    return ret;
 }

@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "namedobj.h"
+#include "namedmonitorable.h"
 #include "uistring.h"
 #include "objectset.h"
 

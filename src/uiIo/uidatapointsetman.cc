@@ -45,7 +45,7 @@ uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
-    manipgrp->addButton( "mergeseis", 
+    manipgrp->addButton( "mergeseis",
 			 uiStrings::phrMerge(uiStrings::sCrossPlot()),
 			 mCB(this,uiDataPointSetMan,mergePush) );
 
@@ -62,7 +62,7 @@ uiDataPointSetMan::~uiDataPointSetMan()
 
 #define mGetDPS(dps) \
     PosVecDataSet pvds; \
-    DataPointSet* dps = 0; \
+    RefMan<DataPointSet> dps; \
     mDynamicCast(PosVecDataSetTranslator*, \
 		 PtrMan<PosVecDataSetTranslator> pvdstr, \
 		 curioobj_ ? curioobj_->createTranslator() : 0); \
@@ -100,9 +100,9 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     uiString errmsg;
     bool rv = spvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
     if ( !rv )
-    { uiMSG().error( errmsg ); return; }
+	{ uiMSG().error( errmsg ); return; }
     if ( spvds.data().isEmpty() )
-    { uiMSG().error(sSelDataSetEmpty()); return; }
+	{ uiMSG().error(sSelDataSetEmpty()); return; }
 
     DataPointSet* sdps =
 	new DataPointSet( spvds, dps->is2D(), dps->isMinimal() );
@@ -137,6 +137,5 @@ void uiDataPointSetMan::mkFileInfo()
 	txt += "\n";
     }
 
-    delete dps;
     setInfo( txt );
 }

@@ -65,7 +65,7 @@ widget already present).
 
 
 */
-class i_LayoutMngr : public mQtclass(QLayout), public NamedMonitorable
+class i_LayoutMngr : public mQtclass(QLayout), public NamedCallBacker
 {
     friend class	i_LayoutItem;
     friend class	uiGroupParentBody;

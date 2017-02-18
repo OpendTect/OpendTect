@@ -111,8 +111,8 @@ uiStratSynthCrossplot::~uiStratSynthCrossplot()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); delete dps; dps = 0; return dps; }
-#define mpErrRet(s) { pErrMsg(s); delete dps; dps = 0; return dps; }
+#define mErrRet(s) { uiMSG().error(s); return 0; }
+#define mpErrRet(s) { pErrMsg(s); return 0; }
 
 DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 					const Strat::LaySeqAttribSet& seqattrs,
@@ -129,7 +129,8 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    const_cast<Attrib::DescSet*>(&seisattrs)->removeDesc(tmpdesc->id());
     }
 
-    DataPointSet* dps = seisattrs.createDataPointSet(Attrib::DescSetup(),false);
+    RefMan<DataPointSet> dps
+	= seisattrs.createDataPointSet(Attrib::DescSetup(),false);
     dps->bivSet().setSurvID( TrcKey::stdSynthSurvID() );
     if ( !dps )
 	{ uiMSG().error(seisattrs.errMsg()); return 0; }
@@ -230,7 +231,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     if ( !extractModelNr(*dps) )
 	uiMSG().warning( uiStrings::phrCannotExtract(tr("the model numbers")) );
 
-    return dps;
+    return dps.release();
 }
 
 

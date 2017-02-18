@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
-#include "namedobj.h"
+#include "namedmonitorable.h"
 #include "color.h"
 #include "coltab.h"
 #include "ranges.h"

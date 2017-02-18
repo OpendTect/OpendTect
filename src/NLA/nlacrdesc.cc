@@ -125,7 +125,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 			= const_cast<ObjectSet<DataPointSet>&>( dpss );
 	const bool is2d = dpss[0]->is2D();
 	const bool ismini = dpss[0]->isMinimal();
-	deepErase( ncdpss );
+	deepUnRef( ncdpss );
 	ncdpss += new DataPointSet( vds, is2d, ismini );
 	nrout = 1;
 	totnrvec = dpss[0]->size();

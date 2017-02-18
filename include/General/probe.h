@@ -31,7 +31,7 @@ public:
     mDefIntegerIDType(IDType,ID);
 
 			ProbeLayer();
-			mDeclAbstractMonitorableAssignment( ProbeLayer );
+			mDeclAbstractMonitorableAssignment(ProbeLayer);
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)		=0;

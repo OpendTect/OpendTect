@@ -20,7 +20,7 @@ ________________________________________________________________________
 mFDQtclass(QLayoutItem)
 
 //! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-mExpClass(uiBase) i_LayoutItem : public uiBody, public NamedMonitorable
+mExpClass(uiBase) i_LayoutItem : public uiBody, public NamedCallBacker
 {
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;

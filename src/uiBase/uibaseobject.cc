@@ -47,7 +47,7 @@ bool CmdRecStopper::isInStopperList( const uiBaseObject* obj )
 
 
 uiBaseObject::uiBaseObject( const char* nm, uiBody* b )
-    : NamedMonitorable(nm)
+    : NamedCallBacker(nm)
     , finaliseStart_(this)
     , finaliseDone_(this)
     , cmdrecrefnr_(0)

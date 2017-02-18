@@ -62,17 +62,9 @@ public:
     typedef FullID::MgrID	MgrID;
 
 
-				DataPack( const char* categry )
-				    : SharedObject("<?>")
-				    , category_(categry)
-				    , manager_( 0 )
-				    , id_(getNewID())	{}
-				DataPack( const DataPack& dp )
-				    : SharedObject( dp )
-				    , category_( dp.category_ )
-				    , manager_( 0 )
-				    , id_(getNewID())	{}
-    virtual			~DataPack()		{ sendDelNotif(); }
+				DataPack(const char* categry);
+    				mDeclInstanceCreatedNotifierAccess(DataPack);
+    				mDeclAbstractMonitorableAssignment(DataPack);
 
     ID				id() const		{ return id_; }
     FullID			fullID( MgrID mgrid ) const
@@ -92,6 +84,8 @@ public:
     static ChangeType		cDBKeyChg()		{ return 2; }
 
 protected:
+
+    virtual			~DataPack();
 
     void			setManager(const DataPackMgr*);
     const ID			id_;
@@ -122,23 +116,23 @@ mExpClass(Basic) BufferDataPack : public DataPack
 {
 public:
 
-			BufferDataPack( char* b=0, od_int64 s=0,
-					const char* catgry="Buffer" )
-			    : DataPack(catgry)
-			    , buf_(b)
-			    , sz_(s)		{}
-
-			~BufferDataPack()	{ delete [] buf_; }
+			BufferDataPack(char* b=0,od_int64 s=0,
+					const char* catgry="Buffer");
+			mDeclMonitorableAssignment(BufferDataPack);
 
     char*		buf()			{ return buf_; }
     char const*		buf() const		{ return buf_; }
     od_int64		size() const		{ return sz_; }
-    void		setBuf( char* b, od_int64 s )
-			{ delete [] buf_; sz_ = s; buf_ = b; }
+    void		setBuf(char*,od_int64);
+    bool		mkNewBuf(od_int64);
 
     virtual float	nrKBytes() const	{ return sz_*sKb2MbFac(); }
 
+    static char*	createBuf(od_int64);
+
 protected:
+
+			~BufferDataPack();
 
     char*		buf_;
     od_int64		sz_;

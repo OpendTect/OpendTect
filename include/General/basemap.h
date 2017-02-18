@@ -12,8 +12,8 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "draw.h"
-#include "namedobj.h"
 #include "notify.h"
+#include "namedmonitorable.h"
 #include "odpresentationmgr.h"
 
 namespace OD

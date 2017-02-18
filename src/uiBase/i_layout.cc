@@ -34,7 +34,7 @@ mUseQtnamespace
 
 i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy )
     : QLayout(parnt)
-    , NamedMonitorable(nm)
+    , NamedCallBacker(nm)
     , minimumDone(false), preferredDone(false), ismain(false)
     , prefposStored(false)
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
@@ -127,7 +127,7 @@ QSize i_LayoutMngr::minimumSize() const
 	{
 	    BufferString msg;
 	    msg="Returning Minimum Size for ";
-	    msg += NamedMonitorable::name();
+	    msg += NamedCallBacker::name();
 	    msg += ". (h,v)=(";
 	    msg += hsz;
 	    msg +=" , ";
@@ -163,7 +163,7 @@ QSize i_LayoutMngr::sizeHint() const
     {
 	BufferString msg;
 	msg="Very large preferred size for ";
-	msg += NamedMonitorable::name();
+	msg += NamedCallBacker::name();
 	msg += ". (h,v)=(";
 	msg += mPos.hNrPics();
 	msg +=" , ";
@@ -514,7 +514,7 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 #ifdef __debug__
     if ( lyoutdbg )
     {
-	od_cout() << "(Re)sizing:" << NamedMonitorable::name();
+	od_cout() << "(Re)sizing:" << NamedCallBacker::name();
 	if ( isprefsz ) od_cout() << " yes"; else
 	    { od_cout() << " no " << hgrow << " ," << vgrow; }
 	od_cout() << od_endl;
@@ -557,7 +557,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     if ( lyoutdbg )
     {
 	od_cout() << "setGeometry called on: ";
-	od_cout() << NamedMonitorable::name() << od_endl;
+	od_cout() << NamedCallBacker::name() << od_endl;
 
 	od_cout() << "l: " << extRect.left() << " t: " << extRect.top();
 	od_cout() << " hor: " << extRect.width();
@@ -583,7 +583,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 	if ( lyoutdbg && !store2prefpos )
 	{
 	    od_cout() << "setGeometry called with wrong size on: ";
-	    od_cout() << NamedMonitorable::name() << od_endl;
+	    od_cout() << NamedCallBacker::name() << od_endl;
 	    od_cout() << "Width should be " << mPos.hNrPics();
 	    od_cout() << ", is " << extRect.width();
 	    od_cout() << ". Height should be " << mPos.vNrPics();
@@ -756,7 +756,7 @@ bool i_LayoutMngr::attach( constraintType type, QWidget& current,
 	}
     }
 
-    BufferString msg( NamedMonitorable::name() ); msg += ": Cannot attach '";
+    BufferString msg( NamedCallBacker::name() ); msg += ": Cannot attach '";
     msg += current.objectName(); msg += "'";
     if ( needother )
     {

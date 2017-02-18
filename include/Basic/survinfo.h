@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "namedobj.h"
+#include "namedmonitorable.h"
 #include "ranges.h"
 #include "enums.h"
 #include "zdomain.h"

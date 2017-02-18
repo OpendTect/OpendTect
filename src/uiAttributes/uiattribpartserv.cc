@@ -735,14 +735,14 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	ManagedObjectSet<DataColDef> dtcoldefset;
 	dtcoldefset += dtcd;
 	uiTaskRunner taskrunner( parent() );
-	DataPointSet posvals( rgprov3d.is2D() );
-	if ( !posvals.extractPositions(rgprov3d,dtcoldefset,0,&taskrunner) )
+	RefMan<DataPointSet> posvals = new DataPointSet( rgprov3d.is2D() );
+	if ( !posvals->extractPositions(rgprov3d,dtcoldefset,0,&taskrunner) )
 	    return 0;
 
 	const int firstcolidx = 0;
 
 	uiString errmsg;
-	process = aem->getTableOutExecutor( posvals, errmsg, firstcolidx );
+	process = aem->getTableOutExecutor( *posvals, errmsg, firstcolidx );
 	if ( !process )
 	    { uiMSG().error(errmsg); return 0; }
 
@@ -750,7 +750,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	    return 0;
 
 	TypeSet<float> vals;
-	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, vals,
+	posvals->bivSet().getColumn( posvals->nrFixedCols()+firstcolidx, vals,
 				    true );
 	if ( !vals.isEmpty() )
 	{

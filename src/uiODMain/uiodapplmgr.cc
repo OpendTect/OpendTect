@@ -769,31 +769,19 @@ void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
     mDeclareAndTryAlloc( DataPointSet*, dps,
 	    DataPointSet( drset, nmset, false, true ) );
     if ( !dps )
-    {
-	deepErase( dpsset );
-	return;
-    }
+	{ deepUnRef( dpsset ); return; }
 
     mDeclareAndTryAlloc(DataColDef*,siddef,DataColDef(emattrserv_->sidDef()));
     if ( !siddef )
-    {
-	deepErase( dpsset );
-	return;
-    }
+	{ deepUnRef( dpsset ); return; }
 
     dps->dataSet().add( siddef );
     if ( !dps->bivSet().setNrVals( dpsset.size()+2 ) )
-    {
-	deepErase( dpsset );
-	return;
-    }
+	{ deepUnRef( dpsset ); return; }
 
     mAllocVarLenArr( float, attribvals, dpsset.size()+2 );
     if ( !mIsVarLenArrOK(attribvals) )
-    {
-	deepErase( dpsset );
-	return;
-    }
+	{ deepUnRef( dpsset ); return; }
 
     attribvals[0] = 0.0; //depth
 
@@ -821,7 +809,7 @@ void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
 				emattrserv_->textureIdx() );
     parent->updateColumnText( uiODSceneMgr::cNameColumn() );
 
-    deepErase( dpsset );
+    deepUnRef( dpsset );
 }
 
 
@@ -920,10 +908,10 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
     }
     else if ( format==uiVisPartServer::RandomPos )
     {
-	DataPointSet data( false, true );
-	visserv_->getRandomPos( visid, data );
-	attrserv_->createOutput( data, data.nrCols() );
-	visserv_->setRandomPosData( visid, attrib, &data );
+	RefMan<DataPointSet> data = new DataPointSet( false, true );
+	visserv_->getRandomPos( visid, *data );
+	attrserv_->createOutput( *data, data->nrCols() );
+	visserv_->setRandomPosData( visid, attrib, data );
     }
     else
     {
@@ -1257,13 +1245,13 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 				visserv_->getAttributeFormat( visid, -1 );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
 
-	DataPointSet data( false, true );
-	visserv_->getRandomPosCache( visid, attribidx, data );
-	if ( data.isEmpty() ) return false;
+	RefMan<DataPointSet> data = new DataPointSet( false, true );
+	visserv_->getRandomPosCache( visid, attribidx, *data );
+	if ( data->isEmpty() ) return false;
 
 	const DBKey mid = visserv_->getDBKey( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
-	const int nrvals = data.bivSet().nrVals()-2;
+	const int nrvals = data->bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    const float shift = emattrserv_->shiftRange().atIndex(idx);
@@ -1272,7 +1260,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	    BufferString shiftstr;
 	    shiftstr.set( usrshift ).embed( '[', ']' );
 	    BufferString nm( emattrserv_->getAttribBaseNm(), " ", shiftstr );
-	    emserv_->setAuxData( emid, data, nm, idx+2, shift );
+	    emserv_->setAuxData( emid, *data, nm, idx+2, shift );
 	    BufferString dummy;
 	    if ( !emserv_->storeAuxData( emid, dummy, false ) )
 		return false;
@@ -1327,26 +1315,26 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	    {
 		if ( idx==attribidx )
 		{
-		    DataPointSet data( false, true );
-		    visserv_->getRandomPosCache( shiftvisid, attribidx, data );
-		    if ( data.isEmpty() )
+		    RefMan<DataPointSet> data = new DataPointSet( false, true );
+		    visserv_->getRandomPosCache( shiftvisid, attribidx, *data );
+		    if ( data->isEmpty() )
 			continue;
 
-		    const int sididx = data.dataSet().findColDef(
+		    const int sididx = data->dataSet().findColDef(
 			    emattrserv_->sidDef(), PosVecDataSet::NameExact );
 
 		    int texturenr = emattrserv_->textureIdx() + 1;
 		    if ( sididx<=texturenr )
 			texturenr++;
 
-		    const int nrvals = data.bivSet().nrVals();
+		    const int nrvals = data->bivSet().nrVals();
 		    for ( int idy=nrvals-1; idy>0; idy-- )
 		    {
 			if ( idy!=texturenr && idy!=sididx )
-			    data.bivSet().removeVal( idy );
+			    data->bivSet().removeVal( idy );
 		    }
 
-		    visserv_->setRandomPosData( shiftvisid, attribidx, &data );
+		    visserv_->setRandomPosData( shiftvisid, attribidx, data );
 		}
 	    }
 	}
@@ -1621,7 +1609,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 		    return false;
 	    }
 	    if ( !attrserv_->extractData(dpss) )
-		{ deepErase(dpss); return true; }
+		{ deepUnRef(dpss); return true; }
 	    IOPar& iop = nlaserv_->storePars();
 	    attrserv_->curDescSet(nlaserv_->is2DEvent())->fillPar( iop );
 	    if ( iop.name().isEmpty() )
@@ -1635,19 +1623,19 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
 	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D() );
 
-	deepErase(dpss);
+	deepUnRef(dpss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass() )
     {
 	RefMan<DataPointSet> dps = nlaserv_->dps();
-	DataPointSet mcpicks( dps->is2D() );
+	RefMan<DataPointSet> mcpicks = new DataPointSet( dps->is2D() );
 	for ( int irow=0; irow<dps->size(); irow++ )
 	{
 	    if ( dps->group(irow) == 3 )
-		mcpicks.addRow( dps->dataRow(irow) );
+		mcpicks->addRow( dps->dataRow(irow) );
 	}
-	mcpicks.dataChanged();
-	pickserv_->setMisclassSet( mcpicks );
+	mcpicks->dataChanged();
+	pickserv_->setMisclassSet( *mcpicks );
     }
     else if ( evid == uiNLAPartServer::evCreateAttrSet() )
     {
@@ -1756,18 +1744,18 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 				visserv_->getAttributeFormat( visid, attrib );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
 
-	DataPointSet data( false, true );
-	visserv_->getRandomPosCache( visid, attrnr, data );
-	if ( data.isEmpty() ) return false;
+	RefMan<DataPointSet> data = new DataPointSet( false, true );
+	visserv_->getRandomPosCache( visid, attrnr, *data );
+	if ( data->isEmpty() ) return false;
 
 	const DBKey mid = visserv_->getDBKey( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
 	const float shift = (float) visserv_->getTranslation(visid).z_;
 	const TypeSet<Attrib::SelSpec>& specs = attrserv_->getTargetSelSpecs();
-	const int nrvals = data.bivSet().nrVals()-2;
+	const int nrvals = data->bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    emserv_->setAuxData( emid, data, specs[idx].userRef(),
+	    emserv_->setAuxData( emid, *data, specs[idx].userRef(),
 				 idx+2, shift );
 	    BufferString dummy;
 	    emserv_->storeAuxData( emid, dummy, false );

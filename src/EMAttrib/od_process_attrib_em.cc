@@ -511,25 +511,24 @@ bool BatchProgram::go( od_ostream& strm )
 		TypeSet<DataPointSet::DataRow> startset;
 		BufferStringSet valnms;
 		valnms.add("z2");
-		DataPointSet* dtps = new DataPointSet( startset, valnms, true );
+		RefMan<DataPointSet> dps
+			= new DataPointSet( startset, valnms, true );
 
 		linepar->get( sKey::GeomID(), geomid );
 		hsamp.start_.inl() = hsamp.stop_.inl() = 0;
 		StepInterval<int> trcrg;
 		linepar->get( sKey::TrcRange(), trcrg );
 		hsamp.setCrlRange( trcrg );
-		HorizonUtils::getWantedPos2D( strm, midset, dtps,
+		HorizonUtils::getWantedPos2D( strm, midset, dps,
 					      hsamp, extraz, geomid );
 		SeisTrcBuf seisoutp( false );
 		uiString uierrmsg;
 		aem.setGeomID( geomid );
 		Processor* proc = aem.create2DVarZOutput( uierrmsg, pars(),
-				dtps, outval, zboundsset ? &zbounds : 0 );
+				dps, outval, zboundsset ? &zbounds : 0 );
 		if ( !proc ) mErrRet( uierrmsg.getFullString() );
 		if ( !process(strm,proc,is2d,&outpid,&seisoutp) )
 		    return false;
-
-		delete dtps;
 	    }
 	}
 	else
