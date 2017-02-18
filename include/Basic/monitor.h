@@ -65,6 +65,7 @@ ________________________________________________________________________
 	bool		operator ==(const clss&) const; \
 	inline bool	operator !=( const clss& oth ) const \
 			{ return !(*this == oth); } \
+	virtual clss*	clone() const		{ return (clss*)getClone(); } \
         ChangeType	compareWith(const Monitorable&) const
 
 
@@ -81,18 +82,20 @@ ________________________________________________________________________
   'Entire Object Changed', you also have to provide a method compareClassData().
   in this way we also define the equality operators (== and !=).
 
+  The stuff with clone() vs getClone() is because of Windows, and my obsession
+  to make clone() return a pointer to the actual class.
+
   */
 
 #define mDeclAbstractMonitorableAssignment(clss) \
-    mDeclGenMonitorableAssignment(clss); \
-    virtual clss* clone() const		= 0
+    mDeclGenMonitorableAssignment(clss)
 
 /*!\brief like mDeclAbstractMonitorableAssignment but for
   non-abstract subclasses. Implements the clone() method. */
 
 #define mDeclMonitorableAssignment(clss) \
     mDeclGenMonitorableAssignment(clss); \
-    virtual clss* clone() const		{ return new clss( *this ); }
+    virtual clss* getClone() const		{ return new clss( *this ); }
 
 
 #define mImplEmptyMonitorableCopyClassData( clssnm ) \

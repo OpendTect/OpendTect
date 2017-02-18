@@ -85,7 +85,7 @@ public:
     virtual		~Monitorable();
     Monitorable&	operator =(const Monitorable&);
     bool		operator ==(const Monitorable&) const;
-    virtual Monitorable* clone() const		= 0;
+    virtual Monitorable* clone() const	{ return getClone(); }
 
     virtual ChangeDataNotifier&		objectChanged() const
 	{ return const_cast<Monitorable*>(this)->chgnotif_; }
@@ -159,6 +159,7 @@ public:
 protected:
 
 			Monitorable();
+    virtual Monitorable* getClone() const	= 0;
 
     mutable Threads::Lock accesslock_;
 
