@@ -37,7 +37,6 @@ public:
 			mDeclInstanceCreatedNotifierAccess(uiColSeqMan);
 
     const Sequence&	current() const		    { return *curseq_; }
-    void		setCurrent( const char* nm ) { setCurSeq(nm,true); }
     void		useDistrib(const DistribType*);
 
     Notifier<uiColSeqMan> selectionChanged;
@@ -67,7 +66,6 @@ protected:
     bool			acceptOK();
     bool			rejectOK();
 
-    void			setCurSeq(const char*,bool);
     void			setSegmentation();
     void			handleSeqChg();
 
