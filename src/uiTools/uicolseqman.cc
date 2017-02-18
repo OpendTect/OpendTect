@@ -246,8 +246,8 @@ void drawMarkers( CallBacker* )
     else
 	markerlineitmgrp_->removeAll( true );
 
-    const int wdth = scene().width() - cDroppedPixelsToRight;
-    const int hght = scene().height();
+    const int wdth = mNINT32(scene().width() - cDroppedPixelsToRight);
+    const int hght = mNINT32(scene().height());
     MonitorLock ml( colseq() );
     for ( int idx=0; idx<colseq().size(); idx++ )
 	addMarkerAt( (wdth-1) * colseq().position(idx), wdth, hght );
