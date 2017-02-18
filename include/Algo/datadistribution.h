@@ -287,7 +287,7 @@ void DataDistribution<VT>::getCurve( TypeSet<VT>& xvals, TypeSet<VT>& yvals,
     if ( limitspikes && xvals.size() > 5 )
     {
 	const VT valrg = runnerupval - minval;
-	const VT max4disp = minval + 1.5 * valrg;
+	const VT max4disp = minval + 1.5f * valrg;
 	if ( maxval > max4disp )
 	    yvals[idxatmax] = max4disp;
     }
