@@ -184,8 +184,8 @@ void uiColSeqDisp::reDraw()
 uiColSeqDisp::PosType uiColSeqDisp::seqPosFor( const uiPoint& pt ) const
 {
     const float relpos = orientation_ == OD::Horizontal
-			? ((float)pt.x_) / scene().width()
-			: ((float)pt.y_) / scene().height();
+			? ((float)pt.x_) / ((float)scene().width())
+			: ((float)pt.y_) / ((float)scene().height());
     return ColTab::Mapper::seqPos4RelPos( sequsemode_, relpos );
 }
 

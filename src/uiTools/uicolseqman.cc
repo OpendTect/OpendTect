@@ -369,7 +369,7 @@ void mouseDoubleClk( CallBacker* cb )
     if ( meh_.isHandled() )
 	return;
 
-    addCtrlPt( mSeqPosPerPix*meh_.event().x(), true );
+    addCtrlPt( (float)(mSeqPosPerPix*meh_.event().x()), true );
     curcptidx_ = -1;
     meh_.setHandled( true );
 }
