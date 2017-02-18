@@ -200,7 +200,7 @@ bool rejectOK()
 };
 
 
-#define mSeqPosPerPix (1.0f / (scene().width()-cDroppedPixelsToRight))
+#define mSeqPosPerPix ((float)(1.0f / (scene().width()-cDroppedPixelsToRight)))
 #define mPixPerSeqPos ((float)(scene().width()-cDroppedPixelsToRight))
 // TODO this is a hack because the painter is not using the full width
 static const int cDroppedPixelsToRight = 4;
@@ -369,7 +369,7 @@ void mouseDoubleClk( CallBacker* cb )
     if ( meh_.isHandled() )
 	return;
 
-    addCtrlPt( (float)(mSeqPosPerPix*meh_.event().x()), true );
+    addCtrlPt( mSeqPosPerPix*meh_.event().x(), true );
     curcptidx_ = -1;
     meh_.setHandled( true );
 }
