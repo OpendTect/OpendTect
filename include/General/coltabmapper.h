@@ -234,7 +234,8 @@ bool MapperInfoCollector<iT>::doWork( od_int64 start, od_int64 stop, int )
 		    position = 0.0f;
 
 		position = Mapper::seqPos4RelPos( usemode, position );
-		position = Mapper::snappedPosition( 0, position, nrsteps, -1 );
+		position = (float)Mapper::snappedPosition( 0, position,
+				    nrsteps, -1 );
 	    }
 	}
 
