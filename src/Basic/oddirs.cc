@@ -10,6 +10,8 @@
 #include "oddirs.h"
 #include "envvars.h"
 #include "winutils.h"
+
+#include "commandlineparser.h"
 #include "debug.h"
 #include "file.h"
 #include "filepath.h"
@@ -149,30 +151,46 @@ mExternC(Basic) const char* GetScriptsDir( const char* subdir )
 }
 
 
+static BufferString GetSoftwareDirFromPath( const char* path )
+{
+    BufferString res;
+    const File::Path filepath = path;
+    //Find the relinfo directory, and set sw dir to its parent
+    for ( int idx=filepath.nrLevels()-1; idx>=0; idx-- )
+    {
+	const char* relinfostr = "relinfo";
+#ifdef __mac__
+	const File::Path datapath( filepath.dirUpTo(idx).buf(), "Resources",
+				 relinfostr );
+#else
+	const File::Path datapath( filepath.dirUpTo(idx).buf(),
+				 relinfostr );
+#endif
+	if ( File::isDirectory( datapath.fullPath()) )
+	{
+	    res = filepath.dirUpTo(idx);
+	    break;
+	}
+    }
+
+    return res;
+}
+
+
 mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 {
     mDeclStaticString( res );
 
     if ( res.isEmpty() )
     {
-	//Find the relinfo directory, and set sw dir to its parent
-	const File::Path filepath = GetFullExecutablePath();
-	for ( int idx=filepath.nrLevels()-1; idx>=0; idx-- )
-	{
-	    const char* relinfostr = "relinfo";
-#ifdef __mac__
-	    const File::Path datapath( filepath.dirUpTo(idx).buf(), "Resources",
-				     relinfostr );
-#else
-	    const File::Path datapath( filepath.dirUpTo(idx).buf(),
-				     relinfostr );
-#endif
-	    if ( File::isDirectory( datapath.fullPath()) )
-	    {
-		res = filepath.dirUpTo(idx);
-		break;
-	    }
-	}
+	CommandLineParser parser;
+	BufferString oddir;
+
+	//Get explicityly set oddir (normally only in automatic testing)
+	if ( parser.getVal("oddir", oddir ) )
+	    res = GetSoftwareDirFromPath( oddir );
+	else
+	    res = GetSoftwareDirFromPath( GetFullExecutablePath() );
 
 	if ( res.isEmpty() )
 	{

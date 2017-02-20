@@ -28,6 +28,9 @@ else if ( "$1" == "--datadir" ) then
 else if ( "$1" == "--plf" ) then
     set plf=$2
     shift
+else if ( "$1" == "--oddir" ) then
+    set args="${args} --oddir $2"
+    shift
 else if ( "$1" == "--quiet" ) then
     set args="${args} --quiet"
     set gensuppressions="no"
@@ -135,7 +138,7 @@ if ( "${valgrind}" != "" ) then
 	exit 1
     endif
 else
-    "${bindir}/${cmd}" ${args} --quiet
+    echo "${bindir}/${cmd}" ${args} --quiet
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
 	echo "Test program ${cmd} retured ${result}, while ${expret} was expected"

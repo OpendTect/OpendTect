@@ -41,6 +41,7 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
     list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
 		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
 		    --qtdir ${QTDIR}
+		    --oddir ${OpendTect_DIR}
 		    --quiet )
 
     if ( EXISTS ${PARAMETER_FILE} )
