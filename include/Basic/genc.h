@@ -39,12 +39,6 @@ mGlobal(Basic) const char* GetExecutableName(void);
 
 mGlobal(Basic) const char* GetOSIdentifier(void);
 
-mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
-				   bool require_valid_dataroot=true);
-mGlobal(Basic) bool AreProgramArgsSet(void);
-mGlobal(Basic) char** GetArgV(void);
-mGlobal(Basic) int& GetArgC(void);
-
 mGlobal(Basic) bool isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
 mGlobal(Basic) const char* getProcessNameForPID(int pid);
@@ -95,3 +89,10 @@ inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */
 
 }
+
+//Not C-functions
+mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
+                                   bool require_valid_dataroot=true);
+mGlobal(Basic) bool AreProgramArgsSet(void);
+mGlobal(Basic) char** GetArgV(void);
+mGlobal(Basic) int& GetArgC(void);

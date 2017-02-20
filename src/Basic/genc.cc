@@ -567,15 +567,15 @@ static BufferString initialdir_;
 static char** argv_ = 0;
 
 
-mExternC(Basic) char** GetArgV(void)
+mExtern(Basic) char** GetArgV(void)
 { return argv_; }
 
 
-mExternC(Basic) int& GetArgC(void)
+mExtern(Basic) int& GetArgC(void)
 { return argc_; }
 
 
-mExternC(Basic) bool AreProgramArgsSet(void)
+mExtern(Basic) bool AreProgramArgsSet(void)
 { return GetArgC()!=-1; }
 
 
@@ -619,7 +619,7 @@ static void getDataRoot( bool isrequired )
 }
 
 
-mExternC(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
+mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
 {
     char* getcwdres = getcwd( initialdir_.getCStr(), initialdir_.minBufSize() );
     if ( !getcwdres )
