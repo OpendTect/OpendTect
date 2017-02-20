@@ -131,14 +131,14 @@ if ( "${valgrind}" != "" ) then
 	"--num-callers=50" \
 	"--track-origins=yes" \
 	"--error-exitcode=1" \
-	"${bindir}/${cmd}" ${args} --quiet
+	"${bindir}/${cmd}" ${args}
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
 	echo "Test program ${cmd} failed memory test".
 	exit 1
     endif
 else
-    echo "${bindir}/${cmd}" ${args} --quiet
+    "${bindir}/${cmd}" ${args}
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
 	echo "Test program ${cmd} retured ${result}, while ${expret} was expected"
