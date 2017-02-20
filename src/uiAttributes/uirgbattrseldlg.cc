@@ -29,7 +29,7 @@ uiRGBAttrSelDlg::uiRGBAttrSelDlg( uiParent* p, const Attrib::DescSet& ds )
     bfld_->attach( alignedBelow, gfld_ );
 
     tfld_ = new uiAttrSel( this, ds );
-    tfld_->setLabelText( tr("Transparency Attribute") );
+    tfld_->setLabelText( tr("Alpha Attribute") );
     tfld_->attach( alignedBelow, bfld_ );
 }
 
