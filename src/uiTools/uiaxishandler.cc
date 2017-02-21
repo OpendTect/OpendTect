@@ -136,7 +136,7 @@ void uiAHPlotAnnotSet::setVisible( bool yn )
 }
 
 
-const OD::LineStyle& uiAHPlotAnnotSet::getLineStyle( 
+const OD::LineStyle& uiAHPlotAnnotSet::getLineStyle(
 						const uiAHPlotAnnot& pah )const
 {
     if ( !pah.isAux() ) return setup_.style_;
@@ -264,16 +264,16 @@ void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
     const int p1 = axh_.tickEndPix( true );
     if ( axh_.isHor() )
     {
-	const OD::Alignment al( OD::Alignment::HCenter, setup_.side_ == 
+	const OD::Alignment al( OD::Alignment::HCenter, setup_.side_ ==
 	      uiRect::Top ? (setup_.annotinside_ ? OD::Alignment::Top :
-	      OD::Alignment::Bottom) : (setup_.annotinside_ ? 
+	      OD::Alignment::Bottom) : (setup_.annotinside_ ?
 	      OD::Alignment::Bottom : OD::Alignment::Top) );
 	txtitm = new uiTextItem( uiPoint(pix,p1), pah.txt_, al );
     }
     else
     {
 	const OD::Alignment al( setup_.side_==uiRect::Left ?
-		OD::Alignment::Right : OD::Alignment::Left, 
+		OD::Alignment::Right : OD::Alignment::Left,
 		OD::Alignment::VCenter );
 	txtitm = new uiTextItem( uiPoint(p1,pix), pah.txt_, al );
     }
@@ -424,8 +424,8 @@ void uiAxisHandler::newDevSize()
 
 void uiAxisHandler::updateDevSize()
 {
-    setNewDevSize( (int)(isHor() ? scene_->width() : scene_->height()),
-		   (int)(isHor() ? scene_->height() : scene_->width() ));
+    setNewDevSize( isHor() ? scene_->nrPixX() : scene_->nrPixY(),
+		   isHor() ? scene_->nrPixY() : scene_->nrPixX() );
 }
 
 
@@ -806,7 +806,7 @@ void uiAxisHandler::annotAtEnd( const uiString& txt )
 	xpix = devsz_ - pixAfter() - 2;
 	ypix = setup_.side_ == uiRect::Top ? pix2edge  : height_ - pix2edge - 2;
 	al.set( OD::Alignment::Left,
-		setup_.side_==uiRect::Top ? OD::Alignment::Bottom : 
+		setup_.side_==uiRect::Top ? OD::Alignment::Bottom :
 		OD::Alignment::Top);
     }
     else
@@ -814,7 +814,7 @@ void uiAxisHandler::annotAtEnd( const uiString& txt )
 	xpix = setup_.side_ == uiRect::Left  ? pix2edge + 5
 					     : width_ - pix2edge - 5;
 	ypix = pixBefore() + 5;
-	al.set( setup_.side_==uiRect::Left ? OD::Alignment::Left : 
+	al.set( setup_.side_==uiRect::Left ? OD::Alignment::Left :
 	        OD::Alignment::Right, OD::Alignment::VCenter );
     }
 

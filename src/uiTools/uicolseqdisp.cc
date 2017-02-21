@@ -133,7 +133,7 @@ void uiColSeqDisp::initCB( CallBacker* )
 
 void uiColSeqDisp::reSizeCB( CallBacker* )
 {
-    rgbarr_->setSize( (int)(scene().width()+.5), (int)(scene().height()+.5) );
+    rgbarr_->setSize( scene().nrPixX(), scene().nrPixY() );
     reDraw();
 }
 
@@ -184,8 +184,8 @@ void uiColSeqDisp::reDraw()
 uiColSeqDisp::PosType uiColSeqDisp::seqPosFor( const uiPoint& pt ) const
 {
     const float relpos = orientation_ == OD::Horizontal
-			? ((float)pt.x_) / ((float)scene().width())
-			: ((float)pt.y_) / ((float)scene().height());
+			? ((float)pt.x_) / ((float)scene().nrPixX())
+			: ((float)pt.y_) / ((float)scene().nrPixY());
     return ColTab::Mapper::seqPos4RelPos( sequsemode_, relpos );
 }
 

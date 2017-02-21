@@ -200,10 +200,8 @@ bool rejectOK()
 };
 
 
-#define mSeqPosPerPix ((float)(1.0f / (scene().width()-cDroppedPixelsToRight)))
-#define mPixPerSeqPos ((float)(scene().width()-cDroppedPixelsToRight))
-// TODO this is a hack because the painter is not using the full width
-static const int cDroppedPixelsToRight = 4;
+#define mSeqPosPerPix ((float)(1.0 / scene().maxX()))
+#define mPixPerSeqPos ((float)scene().maxX())
 static const float cMaxSnapNrPix = 5.f;
 
 
@@ -240,48 +238,65 @@ void drawMarkers( CallBacker* )
 
     if ( !markerlineitmgrp_ )
     {
-	markerlineitmgrp_ = new uiGraphicsItemGroup();
+	markerlineitmgrp_ = new uiGraphicsItemGroup;
 	scene().addItem( markerlineitmgrp_ );
     }
     else
 	markerlineitmgrp_->removeAll( true );
 
-    const int wdth = mNINT32(scene().width() - cDroppedPixelsToRight);
-    const int hght = mNINT32(scene().height());
+    const int xmax = scene().nrPixX() - 1;
+    const int ymax = scene().nrPixY();
+
+    const int yshifttop = 4;
+    const int yshiftbot = 3;
+    uiLineItem* lineitem = new uiLineItem;
+    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
+    lineitem->setPenColor( Color(0,255,255) );
+    lineitem->setLine( 0, yshifttop, xmax, yshiftbot );
+    lineitem->setZValue( 10 );
+    markerlineitmgrp_->add( lineitem );
+    lineitem = new uiLineItem;
+    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
+    lineitem->setPenColor( Color(0,255,255) );
+    lineitem->setLine( 0, ymax+yshifttop, xmax, ymax+yshiftbot );
+    lineitem->setZValue( 10 );
+    markerlineitmgrp_->add( lineitem );
+
     MonitorLock ml( colseq() );
     for ( int idx=0; idx<colseq().size(); idx++ )
-	addMarkerAt( (wdth-1) * colseq().position(idx), wdth, hght );
+	addMarkerAt( xmax * colseq().position(idx), xmax, ymax );
 }
 
-void addMarkerAt( float fpos, int wdth, int hght )
+void addMarkerAt( float fpos, int xmax, int ymax )
 {
     int x = mNINT32( fpos );
     if ( x < 1 ) x = 1;
-    if ( x > wdth-2 ) x = wdth - 2;
+    if ( x > xmax-1 ) x = xmax - 1;
 
-    addLine( x, hght, 3, Color::Black() );
+    addLine( x, ymax, 3, Color::Black() );
 
     if ( x > 1 )
     {
-	addLine( x-2, hght, 1, Color(150,150,150,100) );
+	addLine( x-2, ymax, 1, Color(150,150,150,100) );
 	if ( x > 2 )
-	    addLine( x-3, hght, 1, Color(225,225,225,200) );
+	    addLine( x-3, ymax, 1, Color(225,225,225,200) );
     }
 
-    if ( x < wdth-2 )
+    if ( x < xmax-1 )
     {
-	addLine( x+2, hght, 1, Color(150,150,150,100) );
-	if ( x < wdth-3 )
-	    addLine( x+3, hght, 1, Color(225,225,225,200) );
+	addLine( x+2, ymax, 1, Color(150,150,150,100) );
+	if ( x < xmax-2 )
+	    addLine( x+3, ymax, 1, Color(225,225,225,200) );
     }
 }
 
-void addLine( int x, int hght, int lwdth, Color col )
+void addLine( int x, int ymax, int lwdth, Color col )
 {
     uiLineItem* lineitem = new uiLineItem;
     lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,lwdth) );
     lineitem->setPenColor( col );
-    lineitem->setLine( x, 0, x, hght-1 );
+    lineitem->setLine( x, 0, x, ymax );
+    lineitem->setZValue( 10000 );
     markerlineitmgrp_->add( lineitem );
 }
 

@@ -179,8 +179,8 @@ void uiStratLayerModelDisp::displayFRText()
     frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled")
                                       : tr("Hydrocarbon filled"));
     frtxtitm_->setPenColor( Color::Black() );
-    const int xpos = mNINT32( scene().width()/2 );
-    const int ypos = mNINT32( scene().height()-10 );
+    const int xpos = scene().nrPixX() / 2;
+    const int ypos = scene().nrPixY() - 10;
     frtxtitm_->setPos( uiPoint(xpos,ypos) );
     frtxtitm_->setZValue( 999999 );
     frtxtitm_->setVisible( fluidreplon_ );

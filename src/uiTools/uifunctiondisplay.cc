@@ -536,8 +536,8 @@ void uiFunctionDisplay::drawBorder()
 {
     if ( setup_.drawborder_ )
     {
-	const int scwidth = (int)scene().width();
-	const int scheight = (int)scene().height();
+	const int scwidth = scene().nrPixX();
+	const int scheight = scene().nrPixY();
 	const uiRect r( xAxis()->pixBefore(), yAxis(false)->pixAfter(),
 		scwidth -xAxis()->pixAfter()-xAxis()->pixBefore(),
 		scheight -yAxis(false)->pixAfter()-yAxis(false)->pixBefore() );

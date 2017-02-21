@@ -435,15 +435,34 @@ float uiGraphicsScene::getDefaultPixelDensity()
 }
 
 
-double uiGraphicsScene::width() const
-{ return odgraphicsscene_->width(); }
+int uiGraphicsScene::nrPixX() const
+{
+    return (int)(maxX() - 3.5);
+}
 
-double uiGraphicsScene::height() const
-{ return odgraphicsscene_->height(); }
+
+int uiGraphicsScene::nrPixY() const
+{
+    return (int)(maxY() - 3.5);
+}
+
+
+double uiGraphicsScene::maxX() const
+{
+    return odgraphicsscene_->width();
+}
+
+
+double uiGraphicsScene::maxY() const
+{
+    return odgraphicsscene_->height();
+}
 
 
 void uiGraphicsScene::setSceneRect( float x, float y, float w, float h )
-{ odgraphicsscene_->setSceneRect( x, y, w, h ); }
+{
+    odgraphicsscene_->setSceneRect( x, y, w, h );
+}
 
 
 uiRect uiGraphicsScene::sceneRect()
@@ -463,7 +482,7 @@ void uiGraphicsScene::CtrlCPressedCB( CallBacker* )
 void uiGraphicsScene::copyToClipBoard()
 {
     QPainter imagepainter;
-    QImage image( QSize((int)width(), (int)height()),
+    QImage image( QSize(nrPixX(), nrPixY()),
 		  QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image.fill( qcol.rgb() );
@@ -474,7 +493,7 @@ void uiGraphicsScene::copyToClipBoard()
     QGraphicsView* view = qGraphicsScene()->views()[0];
     QRectF sourcerect( view->mapToScene(0,0),
 		       view->mapToScene(view->width(),view->height()) );
-    qGraphicsScene()->render( &imagepainter, QRectF(0,0,width(),height()),
+    qGraphicsScene()->render( &imagepainter, QRectF(0,0,maxX(),maxY()),
 			      sourcerect );
     imagepainter.end();
 

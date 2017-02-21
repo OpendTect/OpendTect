@@ -31,24 +31,38 @@ mUseQtnamespace
 
 static void snapToSceneRect( QGraphicsItem* itm )
 {
-    if ( itm->x()<0 )
-	itm->setPos( 0, itm->y() );
-    else if ( itm->x()+itm->boundingRect().right() > itm->scene()->width() )
-	itm->setPos( itm->scene()->width()-itm->boundingRect().width(),
-		     itm->y() );
+    double xpos = itm->x();
+    const double xmax = itm->scene()->width();
+    bool xposchg = true;
+    if ( xpos < 0 )
+	xpos = 0;
+    else if ( xpos+itm->boundingRect().right() > xmax )
+	xpos = xmax - itm->boundingRect().right();
+    else
+	xposchg = false;
 
-    if ( itm->y()<0 )
-	itm->setPos( itm->x(), 0 );
-    else if ( itm->y()+itm->boundingRect().bottom() > itm->scene()->height() )
-	itm->setPos( itm->x(),
-		     itm->scene()->height()-itm->boundingRect().height() );
+    double ypos = itm->y();
+    const double ymax = itm->scene()->height();
+    bool yposchg = true;
+    if ( ypos < 0 )
+	ypos = 0;
+    else if ( ypos+itm->boundingRect().bottom() > ymax )
+	ypos = ymax - itm->boundingRect().bottom();
+    else
+	yposchg = false;
+
+
+    if ( xposchg || yposchg )
+	itm->setPos( xpos, ypos );
 }
+
 
 // ODGraphicsPointItem
 ODGraphicsPointItem::ODGraphicsPointItem()
     : QAbstractGraphicsShapeItem()
     , highlight_(false)
-{}
+{
+}
 
 
 QRectF ODGraphicsPointItem::boundingRect() const

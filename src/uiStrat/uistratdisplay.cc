@@ -456,7 +456,7 @@ void uiStratDrawer::drawColumns()
 	ColumnItem* colitm = new ColumnItem( data_.getCol( idcol )->name_ );
 	colitms_ += colitm;
 	colitm->pos_ = pos;
-	colitm->size_ = (int)xax_->getVal( (int)(scene_.width()+10) )
+	colitm->size_ = (int)xax_->getVal( (scene_.nrPixX()+10) )
 		      /( data_.nrDisplayedCols() ) ;
 	if ( colitm->size_ <0 )
 	    colitm->size_ = 0;

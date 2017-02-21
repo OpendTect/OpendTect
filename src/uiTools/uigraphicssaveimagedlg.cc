@@ -59,7 +59,7 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 
 
 void uiGraphicsSaveImageDlg::setAspectRatio( CallBacker* )
-{ aspectratio_ = (float) ( scene_->width() / scene_->height() ); }
+{ aspectratio_ = (float) ( scene_->maxX() / scene_->maxY() ); }
 
 
 bool uiGraphicsSaveImageDlg::acceptOK()
@@ -116,8 +116,8 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
     }
     else
     {
-	aspectratio_ = (float) ( scene_->width() / scene_->height() );
+	aspectratio_ = (float)( scene_->maxX() / scene_->maxY() );
 	dpifld_->box()->setValue( screendpi_ );
-	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
+	setSizeInPix( scene_->nrPixX(), scene_->nrPixY() );
     }
 }
