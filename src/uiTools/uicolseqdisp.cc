@@ -20,9 +20,10 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 
 
-uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient )
+uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient, bool wucd )
     : uiRGBArrayCanvas(p,mkRGBArr())
     , orientation_(orient)
+    , withudfcoldisp_(wucd)
     , sequsemode_(ColTab::UnflippedSingle)
     , colseq_(ColTab::SeqMGR().getDefault())
     , selReq(this)
@@ -162,7 +163,7 @@ void uiColSeqDisp::reDraw()
     }
     else
     {
-	const int starty = arrh / 7;
+	const int starty = withudfcoldisp_ ? arrh / 7 : 0;
 	const int stopy = arrh - starty;
 	const int startx = starty;
 	const int stopx = arrw - startx;

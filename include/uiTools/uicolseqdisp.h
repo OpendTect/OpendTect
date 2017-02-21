@@ -23,8 +23,8 @@ public:
     typedef ColTab::Sequence	Sequence;
     typedef Sequence::PosType	PosType;
 
-				uiColSeqDisp(uiParent*,OD::Orientation o
-							    =OD::Horizontal);
+				uiColSeqDisp(uiParent*,OD::Orientation,
+					     bool withudfcoldisp=true);
 				~uiColSeqDisp();
 
     ConstRefMan<Sequence>	sequence() const	{ return colseq_; }
@@ -49,6 +49,7 @@ protected:
     ColTab::SeqUseMode		sequsemode_;
     ConstRefMan<Sequence>	colseq_;
     OD::Orientation		orientation_;
+    const bool			withudfcoldisp_;
     uiRGBArray*			rgbarr_;
 
     void			initCB(CallBacker*);

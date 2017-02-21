@@ -245,20 +245,20 @@ void drawMarkers( CallBacker* )
 	markerlineitmgrp_->removeAll( true );
 
     const int xmax = scene().nrPixX() - 1;
-    const int ymax = scene().nrPixY();
+    const int ymax = scene().nrPixY() - 1;
 
     const int yshifttop = 4;
-    const int yshiftbot = 3;
+    const int yshiftbot = 0;
     uiLineItem* lineitem = new uiLineItem;
     lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
     lineitem->setPenColor( Color(0,255,255) );
-    lineitem->setLine( 0, yshifttop, xmax, yshiftbot );
+    lineitem->setLine( 0, yshifttop, xmax, yshifttop );
     lineitem->setZValue( 10 );
     markerlineitmgrp_->add( lineitem );
     lineitem = new uiLineItem;
     lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
     lineitem->setPenColor( Color(0,255,255) );
-    lineitem->setLine( 0, ymax+yshifttop, xmax, ymax+yshiftbot );
+    lineitem->setLine( 0, ymax-yshiftbot, xmax, ymax-yshiftbot );
     lineitem->setZValue( 10 );
     markerlineitmgrp_->add( lineitem );
 
@@ -295,7 +295,7 @@ void addLine( int x, int ymax, int lwdth, Color col )
     uiLineItem* lineitem = new uiLineItem;
     lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,lwdth) );
     lineitem->setPenColor( col );
-    lineitem->setLine( x, 0, x, ymax );
+    lineitem->setLine( x, 5, x, ymax-1 );
     lineitem->setZValue( 10000 );
     markerlineitmgrp_->add( lineitem );
 }
@@ -486,7 +486,7 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
     ctrlptsed_->setStretch( 2, 2 );
     ctrlptsed_->attach( ensureBelow, transpdisp_ );
 
-    seqdisp_ = new uiColSeqDisp( rightgrp );
+    seqdisp_ = new uiColSeqDisp( rightgrp, OD::Horizontal, false );
     seqdisp_->setPrefWidth( cTranspDispWidth );
     seqdisp_->setPrefHeight( cSeqDispHeight );
     seqdisp_->setSeqName( curseq_->name() );

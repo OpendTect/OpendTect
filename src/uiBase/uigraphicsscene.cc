@@ -437,13 +437,13 @@ float uiGraphicsScene::getDefaultPixelDensity()
 
 int uiGraphicsScene::nrPixX() const
 {
-    return (int)(maxX() - 3.5);
+    return (int)(maxX() + 0.5);
 }
 
 
 int uiGraphicsScene::nrPixY() const
 {
-    return (int)(maxY() - 3.5);
+    return (int)(maxY() + 0.5);
 }
 
 
