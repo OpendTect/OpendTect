@@ -206,6 +206,11 @@ uiManipMapperSetup( uiColTabSelTool& seltool )
     mAttachCB( postFinalise(), uiManipMapperSetup::initCB );
 }
 
+~uiManipMapperSetup()
+{
+    detachAllNotifiers();
+}
+
 void initCB( CallBacker* )
 {
     mAttachCB( meh_.buttonPressed, uiManipMapperSetup::mousePressCB );
