@@ -10,7 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
-#include "rangeposprovider.h"
+
 #include "mathproperty.h"
 #include "ioman.h"
 #include "elasticpropseltransl.h"
@@ -18,11 +18,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobjselectiontransl.h"
 #include "preloads.h"
 #include "geometryio.h"
+#include "rangeposprovider.h"
 #include "survgeometrytransl.h"
 #include "batchjobdispatch.h"
 
 
-mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc);
+mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc)
+mDefSimpleTranslators(PosProviders,"Subselection",dgb,Misc)
+mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
+mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
 
 
 mDefModInitFn(General)
@@ -32,14 +36,16 @@ mDefModInitFn(General)
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();
     IOObjSelectionTranslatorGroup::initClass();
+    PosProvidersTranslatorGroup::initClass();
     PreLoadsTranslatorGroup::initClass();
     PreLoadSurfacesTranslatorGroup::initClass();
 
-    dgbPreLoadsTranslator::initClass();
-    dgbPreLoadSurfacesTranslator::initClass();
     odElasticPropSelectionTranslator::initClass();
     odMathFormulaTranslator::initClass();
     odIOObjSelectionTranslator::initClass();
+    dgbPosProvidersTranslator::initClass();
+    dgbPreLoadsTranslator::initClass();
+    dgbPreLoadSurfacesTranslator::initClass();
 
     Pos::RangeProvider3D::initClass();
     Pos::RangeProvider2D::initClass();
@@ -54,6 +60,6 @@ mDefModInitFn(General)
     SurvGeom2DTranslatorGroup::initClass();
     dgbSurvGeom2DTranslator::initClass();
 
-    IOM(); //Trigger createion & reading of geometries
+    IOM(); //Trigger creation & reading of geometries
 
 }

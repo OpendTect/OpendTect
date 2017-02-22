@@ -59,11 +59,15 @@ protected:
 
     uiGenInput*			selfld_;
     uiButton*			fullsurvbut_;
+    uiButton*			openbut_;
+    uiButton*			savebut_;
     ObjectSet<uiPosProvGroup>	grps_;
     Setup			setup_;
 
     void			selChg(CallBacker*);
     void			fullSurvPush(CallBacker*);
+    void			openCB(CallBacker*);
+    void			saveCB(CallBacker*);
     uiPosProvGroup*		curGrp() const;
 };
 

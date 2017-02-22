@@ -11,17 +11,22 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiposprovider.h"
-#include "uipossubsel.h"
-#include "rangeposprovider.h"
-#include "uigeninput.h"
-#include "uimainwin.h"
-#include "uilabel.h"
+
 #include "uidialog.h"
+#include "uigeninput.h"
+#include "uiioobjseldlg.h"
+#include "uilabel.h"
+#include "uimainwin.h"
+#include "uimsg.h"
+#include "uipossubsel.h"
 #include "uitoolbutton.h"
-#include "trckeyzsampling.h"
+
+#include "ascstream.h"
 #include "keystrs.h"
-#include "survinfo.h"
 #include "od_helpids.h"
+#include "rangeposprovider.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
 
 
 uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
@@ -82,20 +87,40 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	return;
     }
 
+    uiObject* attachobj = 0;
     if ( nms.size() > 1 )
     {
 	selfld_ = new uiGenInput( this, setup_.seltxt_, StringListInpSpec(nms));
-	for ( int idx=0; idx<grps_.size(); idx++ )
-	    grps_[idx]->attach( alignedBelow, selfld_ );
 	selfld_->valuechanged.notify( selcb );
-	if ( !setup_.is2d_ )
-	{
-	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
-				tr("Set ranges to work area"),
-				 mCB(this,uiPosProvider,fullSurvPush) );
-	    fullsurvbut_->attach( rightOf, selfld_ );
-	}
+	attachobj = selfld_->attachObj();
     }
+
+    if ( !setup_.is2d_ )
+    {
+	fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
+			    tr("Set ranges to work area"),
+			    mCB(this,uiPosProvider,fullSurvPush) );
+	if ( selfld_ )
+	    fullsurvbut_->attach( rightOf, selfld_ );
+	else
+	    attachobj = fullsurvbut_;
+    }
+
+    openbut_ = new uiToolButton( this, "open",
+				tr("Open subselection"),
+				mCB(this,uiPosProvider,openCB) );
+    if ( fullsurvbut_ )
+	openbut_->attach( rightTo, fullsurvbut_ );
+    else
+	attachobj = openbut_;
+
+    savebut_ = new uiToolButton( this, "save",
+				tr("Save subselection"),
+				mCB(this,uiPosProvider,saveCB) );
+    savebut_->attach( rightTo, openbut_ );
+
+    for ( int idx=0; idx<grps_.size(); idx++ )
+	grps_[idx]->attach( alignedBelow, attachobj );
 
     setHAlignObj( grps_[0] );
     postFinalise().notify( selcb );
@@ -111,18 +136,74 @@ void uiPosProvider::selChg( CallBacker* )
 
     if ( fullsurvbut_ )
 	fullsurvbut_->display( BufferString(selfld_->text()) == sKey::Range() );
+
+    savebut_->setSensitive( grps_.validIdx(selidx) );
 }
 
 
 void uiPosProvider::fullSurvPush( CallBacker* )
 {
-    if ( !selfld_ ) return;
-    const int selidx = selfld_->getIntValue();
+    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
     if ( selidx < 0 ) return;
 
     IOPar iop;
     SI().sampling( true ).fillPar( iop );
     grps_[selidx]->usePar( iop );
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return; }
+
+void uiPosProvider::openCB( CallBacker* )
+{
+    CtxtIOObj ctio( PosProvidersTranslatorGroup::ioContext() );
+    ctio.ctxt_.forread_ = true;
+    ctio.fillDefault();
+    uiIOObjSelDlg dlg( this, ctio, tr("Open Subselection") );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
+    delete ctio.ioobj_;
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	mErrRet( tr("Cannot open input file:\n%1").arg(fnm) )
+
+    ascistream astrm( strm,true );
+    IOPar iop( astrm );
+    if ( iop.isEmpty() )
+	mErrRet( tr("No valid subselection found") )
+
+    usePar( iop );
+    selChg(0);
+}
+
+
+void uiPosProvider::saveCB( CallBacker* )
+{
+    if ( !selfld_ ) return;
+    const int selidx = selfld_->getIntValue();
+    if ( !grps_.validIdx(selidx) )
+	return;
+
+    IOPar iop;
+    grps_[selidx]->fillPar( iop );
+
+    CtxtIOObj ctio( PosProvidersTranslatorGroup::ioContext() );
+    ctio.ctxt_.forread_ = false;
+    uiIOObjSelDlg dlg( this, ctio, tr("Save Subselection") );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
+    delete ctio.ioobj_;
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+	mErrRet( tr("Cannot open output file:\n%1").arg(fnm) )
+
+    ascostream astrm( strm );
+    if ( !astrm.putHeader("PosProvider") )
+	mErrRet( tr("Cannot write to output file:\n%1").arg(fnm) )
+
+    iop.putTo( astrm );
 }
 
 
@@ -152,6 +233,21 @@ void uiPosProvider::usePar( const IOPar& iop )
 
     if ( selfld_ )
 	selfld_->setValue( ((int)0) );
+
+    if ( setup_.is2d_ )
+	return;
+
+// Provider from IOPar is not available in the gui.
+// Perhaps we can still get a TrcKeyZSampling
+    Pos::Provider3D* prov = Pos::Provider3D::make( iop );
+    if ( !prov ) return;
+
+    TrcKeyZSampling tkzs;
+    prov->getTrcKeyZSampling( tkzs );
+    Pos::RangeProvider3D rp3d; rp3d.setSampling( tkzs );
+    IOPar rangepars; rp3d.fillPar( rangepars );
+    rangepars.set(sKey::Type(), prov->type() );
+    grps_[0]->usePar( rangepars );
 }
 
 

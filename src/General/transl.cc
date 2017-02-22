@@ -5,6 +5,8 @@
  * FUNCTION : Translator functions
 -*/
 
+static const char* rcsID mUsedVar = "$Id$";
+
 #include "transl.h"
 #include "preloads.h"
 #include "streamconn.h"
@@ -28,11 +30,6 @@ uiString Translator::sSelObjectIsWrongType()
     return tr("Selected object is not a %1").arg( userName() );
 }
 
-
-static const char* rcsID mUsedVar = "$Id$";
-
-mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
-mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
 
 
 TranslatorGroup::TranslatorGroup( const char* clssnm )
@@ -107,7 +104,7 @@ public:
     const IOObjContext& ioCtxt() const		{ return ctxt; }
     int objSelector( const char* ) const	{ return mObjSelUnrelated; }
     FixedString groupName() const	{ return FixedString::empty(); }
-    uiString typeName(int) const		{ return uiString::emptyString(); }
+    uiString typeName(int) const	{ return uiString::emptyString(); }
 
    IOObjContext ctxt;
 

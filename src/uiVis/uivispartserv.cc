@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uimpeman.h"
 #include "uimapperrangeeditordlg.h"
-#include "uiselsurvranges.h"
+#include "uiposprovider.h"
 #include "uiscenecolorbarmgr.h"
 #include "uisurvtopbotimg.h"
 #include "uitaskrunner.h"
@@ -1380,33 +1380,24 @@ void uiVisPartServer::toHome( CallBacker* )
 
 
 class uiWorkAreaDlg : public uiDialog
-{ mODTextTranslationClass(uiWorkAreaDlg);
+{ mODTextTranslationClass(uiWorkAreaDlg)
 public:
 uiWorkAreaDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Set work volume"),mNoDlgTitle,
-                                    mODHelpKey(mWorkAreaDlgHelpID) ) )
+    : uiDialog(p,uiDialog::Setup(tr("Set Work Area"),mNoDlgTitle,
+				 mODHelpKey(mWorkAreaDlgHelpID) ) )
 {
-    selfld_ = new uiSelSubvol( this, false );
-    fullbut_ = new uiToolButton( this, "exttofullsurv",
-				tr("Set ranges to full survey"),
-				 mCB(this,uiWorkAreaDlg,fullPush) );
-    fullbut_->attach( rightOf, selfld_ );
-}
-
-void fullPush( CallBacker* )
-{
-    selfld_->setSampling( SI().sampling(false) );
+    uiPosProvider::Setup su( false, false, true );
+    selfld_ = new uiPosProvider( this, su );
 }
 
 bool acceptOK( CallBacker* )
 {
-    TrcKeyZSampling cs = selfld_->getSampling();
-    const_cast<SurveyInfo&>(SI()).setWorkRange( cs );
+    TrcKeyZSampling tkzs;
+    const_cast<SurveyInfo&>(SI()).setWorkRange( tkzs );
     return true;
 }
 
-    uiSelSubvol*	selfld_;
-    uiToolButton*	fullbut_;
+    uiPosProvider*	selfld_;
 };
 
 

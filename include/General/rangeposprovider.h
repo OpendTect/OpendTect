@@ -15,8 +15,11 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "posprovider.h"
+#include "transl.h"
 
 namespace PosInfo { class Line2DData; }
+
+mDeclEmptyTranslatorBundle(General,PosProviders,dgb,"subsel")
 
 namespace Pos
 {
@@ -41,7 +44,7 @@ public:
     virtual bool	toNextZ();
 
     virtual BinID	curBinID() const	{ return curbid_; }
-    virtual float	curZ() const;		
+    virtual float	curZ() const;
     virtual bool	includes(const BinID&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
@@ -115,7 +118,7 @@ public:
     void			setTrcRange(const StepInterval<int>&,int idx=0);
     const StepInterval<int>&	trcRange(int lidx) const
     				{return trcrgs_[lidx];}
-    
+
     void			setZRange(const StepInterval<float>&,int idx=0);
     const StepInterval<float>&	zRange(int lidx=0) const
     				{return zrgs_[lidx];}
