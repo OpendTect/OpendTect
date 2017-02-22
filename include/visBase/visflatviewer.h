@@ -10,9 +10,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
-#include "flatview.h"
 #include "visobject.h"
+#include "flatview.h"
+
 
 namespace visBase
 {
@@ -40,7 +40,7 @@ public:
     void		       turnOnGridLines(bool offsetlines,bool zlines);
     void		       allowShading(bool yn);
     void		       replaceChannels(TextureChannels*);
-    			       /*!<Replaces internal texture. The new texture
+			       /*!<Replaces internal texture. The new texture
 				  will not be added to the scene. */
     Interval<float>	       getDataRange(bool iswva) const;
     const SamplingData<float>  getDefaultGridSampling(bool x1) const;
@@ -63,13 +63,13 @@ public:
 
 
 protected:
-    			       ~FlatViewer();
-    
+			       ~FlatViewer();
+
     void		       updateGridLines(bool x1);
     TextureChannels*	       channels_;
     ColTabTextureChannel2RGBA* channel2rgba_;
     RefMan<TextureRectangle>   rectangle_;
-    PolyLine*	    	       x1gridlines_;
+    PolyLine*		       x1gridlines_;
     PolyLine*		       x2gridlines_;
     Material*		       gridlinematerial_;
 

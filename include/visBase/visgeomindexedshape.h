@@ -10,12 +10,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
-#include "valseries.h"
+#include "visshape.h"
 #include "visobject.h"
+#include "valseries.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
-#include "visshape.h"
 #include "draw.h"
 
 namespace Geometry { class IndexedGeometry; }

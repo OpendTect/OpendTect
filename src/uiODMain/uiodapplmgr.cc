@@ -1935,8 +1935,8 @@ void uiODApplMgr::setZStretch()
 { attrvishandler_.setZStretch(); }
 bool uiODApplMgr::selectAttrib( int id, int attrib )
 { return attrvishandler_.selectAttrib( id, attrib ); }
-void uiODApplMgr::setHistogram( int visid, int attrib )
-{ attrvishandler_.setHistogram(visid,attrib); }
+void uiODApplMgr::setColTabDistribution( int visid, int attrib )
+{ attrvishandler_.setColTabDistribution(visid,attrib); }
 void uiODApplMgr::colMapperChg( CallBacker* )
 { attrvishandler_.colMapperChg(); }
 void uiODApplMgr::setRandomPosData( int visid, int attrib,

@@ -11,14 +11,14 @@ ________________________________________________________________________
 
 -*/
 
-// this header file only be used in the classes related to Horzonsection . 
+// this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
 
-#include "typeset.h"
 #include "vistransform.h"
-#include "zaxistransform.h"
 #include "vishorizonsectiontile.h"
+#include "typeset.h"
+#include "zaxistransform.h"
 
 #include "thread.h"
 
@@ -45,7 +45,7 @@ namespace visBase
 class TileResolutionData
 {
 public:
-    TileResolutionData( const HorizonSectionTile* sectile, 
+    TileResolutionData( const HorizonSectionTile* sectile,
 			char resolution );
     ~TileResolutionData();
 
@@ -65,7 +65,7 @@ protected:
     friend class HorizonSectionTileGlue;
 
     const HorizonSectionTile*	sectile_;
-    osg::Switch*    		osgswitch_;
+    osg::Switch*		osgswitch_;
     osg::UserDataContainer*	geodes_;
 
     osg::Array*			osgvertices_;
@@ -82,7 +82,7 @@ protected:
     osg::DrawElementsUShort*	pointsosgps_;
     osg::DrawElementsUShort*	wireframesosgps_;
 
-    Threads::Mutex 		tesselatemutex_;
+    Threads::Mutex		tesselatemutex_;
 
     bool			updateprimitiveset_;
     char			needsretesselation_;
@@ -94,7 +94,7 @@ protected:
 private:
 
     void			buildOsgGeometres();
-    void			setPrimitiveSet(unsigned int, 
+    void			setPrimitiveSet(unsigned int,
 						osg::DrawElementsUShort*);
 
     void			tesselateCell(int row, int col);
@@ -106,7 +106,7 @@ private:
     void			buildPointGeometry(int idx);
     void			hideFromDisplay();
     bool			detectIsolatedLine(int crdidx,char direction);
-    void			setGeometryTexture(const unsigned int unit, 
+    void			setGeometryTexture(const unsigned int unit,
 						   const osg::Array* arr,
 						   osg::StateSet*stateset,
 						   int geometrytype);

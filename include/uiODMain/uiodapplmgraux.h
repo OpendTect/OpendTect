@@ -120,7 +120,7 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     void		crossPlot();
     void		setZStretch();
     bool		selectAttrib(int,int);
-    void		setHistogram(int,int);
+    void		setColTabDistribution(int,int);
     void		colMapperChg();
     void		setRandomPosData(int visid,int attrib,
 					const DataPointSet&);

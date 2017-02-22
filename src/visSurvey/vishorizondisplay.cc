@@ -1565,9 +1565,11 @@ ConstRefMan<ColTab::MapperSetup> HorizonDisplay::getColTabMapperSetup( int ch,
 }
 
 
-const TypeSet<float>* HorizonDisplay::getHistogram( int attrib ) const
+const visBase::DistribType& HorizonDisplay::getDataDistribution(
+						    int attrib ) const
 {
-    return sections_.isEmpty() ? 0 : sections_[0]->getHistogram( attrib );
+    return sections_.isEmpty() ? DataDistribution<float>::getEmptyDistrib()
+	 : sections_[0]->getDataDistribution( attrib );
 }
 
 

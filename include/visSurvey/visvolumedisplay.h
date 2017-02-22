@@ -120,7 +120,7 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
     const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
-    const TypeSet<float>*	getHistogram(int) const;
+    const visBase::DistribType&	getDataDistribution(int) const;
     void			setSelSpecs(int attrib,
 					    const TypeSet<Attrib::SelSpec>&);
 

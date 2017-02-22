@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiTextItem;
 template <class T> class Array2D;
 template <class T> class Array3D;
+template <class T> class DataDistribution;
 namespace Stats { template <class T> class ParallelCalc; }
 
 class DataPointSet;
@@ -43,6 +44,8 @@ public:
 
     void			setHistogram(const TypeSet<float>&,
 					     Interval<float>,int N=-1);
+    void			setDistribution(const DataDistribution<float>&,
+						int N=-1);
 
     const Stats::ParallelCalc<float>&	getStatCalc()	{ return rc_; }
     int				nrInpVals() const	{ return nrinpvals_; }

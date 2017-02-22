@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -47,7 +46,7 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
-    				~TopBotImage();
+				~TopBotImage();
 
     void			updateCoords();
     void			setRGBImage(const OD::RGBImage&);
@@ -57,7 +56,7 @@ protected:
     Coord3			pos0_;
     Coord3			pos1_;
     BufferString		filenm_;
-    
+
     static const char*		sKeyTopLeftCoord();
     static const char*		sKeyBottomRightCoord();
     static const char*		sKeyFileNameStr();
@@ -70,4 +69,4 @@ protected:
 
 } // namespace visBase
 
-#endif 
+#endif

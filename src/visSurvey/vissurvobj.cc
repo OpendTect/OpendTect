@@ -8,6 +8,7 @@
 #include "vissurvobj.h"
 
 #include "attribsel.h"
+#include "datadistribution.h"
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "coltabsequence.h"
@@ -293,6 +294,12 @@ bool SurveyObject::isAnyAttribEnabled() const
     }
 
     return false;
+}
+
+
+const visBase::DistribType& SurveyObject::getDataDistribution( int ) const
+{
+    return visBase::DistribType::getEmptyDistrib();
 }
 
 

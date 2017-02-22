@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "vistransform.h"
 
@@ -40,7 +39,7 @@ public:
 
     void			freezeDisplay(bool yn=true);
     bool			isDisplayFrozen() const;
-    				/*!<As long as texture panel strip is frozen,
+				/*!<As long as texture panel strip is frozen,
 				    the display of (lengthy) changes to its
 				    geometry and/or texture is postponed.
 				    Avoids showing half-finished updates. */
@@ -49,14 +48,14 @@ public:
     const TypeSet<Coord>&	getPath() const;
 
     void			setPath2TextureMapping(
-	    					const TypeSet<float>& offsets);
-    				/*!<Monotonously non-decreasing list of column
+						const TypeSet<float>& offsets);
+				/*!<Monotonously non-decreasing list of column
 				    offsets into the texture. There should be
 				    one offset per path coordinate. */
     const TypeSet<float>&	getPath2TextureMapping() const;
 
     void			setPathTextureShift(float shift,int startidx=0);
-    				/*!<Extra horizontal shift of (part of) the
+				/*!<Extra horizontal shift of (part of) the
 				    specified texture mapping (in pixel units).
 				    Shifting starts at path coord "startidx" */
     float			getPathTextureShift() const;
@@ -68,12 +67,12 @@ public:
     void			unsetZRange2TextureMapping();
     void			setZRange2TextureMapping(
 						const Interval<float>& offsets);
-    				//!<Mapped on full texture row range if not set.
+				//!<Mapped on full texture row range if not set.
     bool			isZRange2TextureMappingSet() const;
     Interval<float>		getZRange2TextureMapping() const;
 
     void			setZTextureShift(float);
-    				/*!<Extra vertical shift of the specified
+				/*!<Extra vertical shift of the specified
 				    texture mapping (in pixel units). */
     float			getZTextureShift() const;
 
@@ -82,7 +81,7 @@ public:
 
     void			smoothNormals(bool yn=true);
     bool			areNormalsSmoothed() const;
-    
+
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
     int				getNrTextures() const;
@@ -91,7 +90,7 @@ public:
     {
 	TypeSet<Coord3> coords_;
 	TypeSet<Coord>	texcoords_;
-	TypeSet<int>	ps_;    
+	TypeSet<int>	ps_;
 	void		setEmpty() { coords_.erase(); texcoords_.erase();
 				     ps_.erase(); }
     };
@@ -101,9 +100,9 @@ public:
     bool			getTextureInfo(int& width,int& height,
 				    int& pixsize);
 protected:
-    					~TexturePanelStrip();
+					~TexturePanelStrip();
     void				updatePath();
-    
+
     RefMan<const mVisTrans>		displaytrans_;
     osgGeo::TexturePanelStripNode*	osgpanelstrip_;
     RefMan<TextureChannels>		channels_;

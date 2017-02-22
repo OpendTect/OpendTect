@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "odmemory.h"
 #include "coltabmapper.h"
@@ -70,7 +69,7 @@ public:
     const ColTab::Mapper&	getColTabMapper(int channel,int version) const;
     void			reMapData(int channel,bool dontreclip,
 					  TaskRunner*);
-    const TypeSet<float>*	getHistogram(int channel) const;
+    const DistribType&		getDataDistribution(int channel) const;
 
     void			setSize(int channel,int sz0,int sz1,int sz2);
     int				getSize(int channel,unsigned char dim) const;

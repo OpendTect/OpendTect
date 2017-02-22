@@ -77,7 +77,7 @@ public:
     void			setAngleFlag(int attrib,bool yn);
     void			enableAttrib(int attrib,bool yn);
     bool			isAttribEnabled(int attrib) const;
-    const TypeSet<float>*	getHistogram(int) const;
+    const visBase::DistribType&	getDataDistribution(int) const;
     int				getColTabID(int) const;
 
     ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int attrib,

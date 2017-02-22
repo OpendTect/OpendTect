@@ -289,7 +289,7 @@ protected:
     void			colSeqChg(CallBacker*);
     void			colSeqModif(CallBacker*);
     void			colMapperChg(CallBacker*);
-    void			setHistogram(int visid,int attrib);
+    void			setColTabDistribution(int visid,int attrib);
     void			storeEMObject(bool saveas=false);
 
     void			manStrat();

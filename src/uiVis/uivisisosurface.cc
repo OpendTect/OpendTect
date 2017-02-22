@@ -62,15 +62,10 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     aboveisovaluefld_->setValue( vd_->seedAboveIsovalue(isosurface) );
     aboveisovaluefld_->attach( alignedBelow, seedselfld_ );
 
-    TypeSet<float> histogram;
-    if ( vd_->getHistogram(attrib) )
-	histogram = *vd_->getHistogram(attrib);
-    ConstRefMan<ColTab::MapperSetup> ms = vd_->getColTabMapperSetup( attrib );
-    const Interval<float> rg = ms->range();
-
     uiStatsDisplay::Setup su; su.withtext(false);
     statsdisplay_ = new uiStatsDisplay( this, su );
-    statsdisplay_->funcDisp()->setHistogram( histogram, rg );
+    statsdisplay_->funcDisp()->setDistribution(
+				    vd_->getDataDistribution(attrib) );
     statsdisplay_->attach( leftAlignedBelow, aboveisovaluefld_ );
 
     funcDisp().setDragMode( uiGraphicsView::NoDrag );

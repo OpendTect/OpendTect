@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visnodestate.h"
 
 namespace osg { class PolygonOffset; }
@@ -40,7 +39,7 @@ public:
     unsigned int		getMode() {return mode_; }
 
 protected:
-    				~PolygonOffset();
+				~PolygonOffset();
 
     osg::PolygonOffset*		offset_;
     unsigned int		mode_;

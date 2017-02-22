@@ -4,22 +4,21 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Kristofer Tingdahl
- Date:		4-11-2002
+ Author:	Bert
+ Date:		Feb 2017
 ________________________________________________________________________
 
 
 -*/
 
-#include "visshape.h"
+#include "visbasemod.h"
+template <class T> class DataDistribution;
+
 
 namespace visBase
 {
+    class DataObject;
 
-mExpClass(visBase) TriangleStripSet : public VertexShape
-{
-public:
-    static TriangleStripSet*	create()
-				mCreateDataObj( TriangleStripSet );
-};
-};
+    typedef DataDistribution<float> DistribType;
+
+} // namespace visBase

@@ -16,6 +16,7 @@
 #include "valseries.h"
 #include "visdataman.h"
 #include "visrgbatexturechannel2rgba.h"
+#include "datadistribution.h"
 #include "od_ostream.h"
 #include "uistrings.h"
 
@@ -53,6 +54,7 @@ VolumeRenderScalarField::AttribData::AttribData()
     , datatkzs_( false )
     , resizecache_( 0 )
     , ownsresizecache_( false )
+    , distrib_(new DistribType)
 {}
 
 
@@ -589,9 +591,10 @@ void VolumeRenderScalarField::setColTabMapperSetup( int attr,
 }
 
 
-const TypeSet<float>& VolumeRenderScalarField::getHistogram( int attr ) const
+const DistribType& VolumeRenderScalarField::getDataDistribution(
+					int attr ) const
 {
-    return attribs_[attribs_.validIdx(attr) ? attr : 0]->histogram_;
+    return *attribs_[attribs_.validIdx(attr) ? attr : 0]->distrib_;
 }
 
 
@@ -742,19 +745,24 @@ void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tskr )
     if ( tskr ? !tskr->execute(infcoll) : !infcoll.execute() )
 	return;
 
-    int max = 0;
+    const int nrcolors = mNrColors - 1;
+    unsigned int histmax = 0;
     const unsigned int* histogram = infcoll.getHistogram();
-    for ( int idx=mNrColors-2; idx>=0; idx-- )
+    for ( int idx=nrcolors-1; idx>=0; idx-- )
     {
-	if ( histogram[idx]>max )
-	    max = histogram[idx];
+	if ( histogram[idx] > histmax )
+	    histmax = histogram[idx];
     }
 
-    if ( max )
+    attribs_[attr]->distrib_ = new DistribType(
+			    infcoll.getHistogramSampling(), mNrColors-1 );
+    float* distribarr = attribs_[attr]->distrib_->getArr();
+    if ( histmax < 1 )
+	OD::memZero( distribarr, nrcolors*sizeof(float) );
+    else
     {
-	attribs_[attr]->histogram_.setSize( mNrColors-1, 0 );
-	for ( int idx=mNrColors-2; idx>=0; idx-- )
-	    attribs_[attr]->histogram_[idx] = (float) histogram[idx] / max;
+	for ( int idx=nrcolors-1; idx>=0; idx-- )
+	    distribarr[idx] = ((float)histogram[idx])/histmax;
     }
 
     unsigned char one = 1;

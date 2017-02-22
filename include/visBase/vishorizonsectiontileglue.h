@@ -10,12 +10,12 @@ ________________________________________________________________________
 
 -*/
 
-// this header file only be used in the classes related to Horizonsection . 
+// this header file only be used in the classes related to Horizonsection .
 // don't include it in somewhere else !!!
 
+#include "visdata.h"
 #include "typeset.h"
 #include "thread.h"
-#include "visdata.h"
 
 
 namespace osg
@@ -31,7 +31,7 @@ namespace visBase
 {
     class HorizonSectionTile;
     class Coordinates;
- 
+
 class HorizonSectionTileGlue
 {
 public:

@@ -11,6 +11,7 @@ ________________________________________________________________________
 // don't include it in somewhere else !!!
 
 
+#include "visbasecommon.h"
 #include "rowcol.h"
 #include "coltabmapper.h"
 
@@ -51,7 +52,7 @@ public:
 					    const ColTab::MapperSetup& mapper,
 					    TaskRunner* tskr);
     ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int ch) const;
-    const TypeSet<float>*	getHistogram(int ch) const;
+    const DistribType&		getDataDistribution(int channel) const;
     void			setTransparency(int ch, unsigned char yn);
     unsigned char		getTransparency(int ch) const;
 
@@ -82,4 +83,5 @@ protected:
     TextureChannel2RGBA*	channel2rgba_;
 
 };
-}
+
+} // namesapce visBase

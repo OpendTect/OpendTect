@@ -228,7 +228,7 @@ public:
     bool			isAnyAttribEnabled() const;
     virtual bool		hasSingleColorFallback() const { return false; }
     virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
-    virtual const TypeSet<float>* getHistogram(int) const	{ return 0; }
+    virtual const visBase::DistribType& getDataDistribution(int) const;
 
     virtual bool		canRemoveSelection() const	{ return false;}
     virtual bool		removeSelections(TaskRunner*)	{ return false;}

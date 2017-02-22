@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "selector.h"
 #include "draw.h"
@@ -38,7 +37,7 @@ inside or outside the polygon.
 mExpClass(visBase) PolygonSelection : public VisualObjectImpl
 {
 public:
-  
+
     static PolygonSelection*	create()
 				mCreateDataObj(PolygonSelection);
     enum			SelectionType { Off, Rectangle, Polygon };
@@ -53,12 +52,12 @@ public:
     bool			singleSelection() const;
     bool			isSelfIntersecting() const;
     bool			isInside(const Coord3&,
-	    				 bool displayspace=false) const;
+					 bool displayspace=false) const;
 
     char			includesRange(const Coord3& start,
-	    				      const Coord3& stop,
+					      const Coord3& stop,
 					      bool displayspace ) const;
-    				/*!< 0: projected box fully outside polygon
+				/*!< 0: projected box fully outside polygon
 				     1: projected box partially outside polygon
 				     2: projected box fully inside polygon
 				     3: all box points behind projection plane
@@ -115,8 +114,8 @@ public:
     bool			includes(const Coord3&) const;
     bool			canDoRange() const	{ return true; }
     char			includesRange(const Coord3& start,
-	    				      const Coord3& stop) const;
-  
+					      const Coord3& stop) const;
+
 protected:
     bool			isEq(const Selector<Coord3>&) const;
 

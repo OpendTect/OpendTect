@@ -15,6 +15,7 @@ ___________________________________________________________________
 #include "coltabmapper.h"
 #include "mousecursor.h"
 #include "settingsaccess.h"
+#include "datadistribution.h"
 #include "visosg.h"
 #include "vistexturechannel2rgba.h"
 
@@ -36,6 +37,8 @@ namespace visBase
 class ChannelInfo : public CallBacker
 {
 public:
+    typedef DataDistribution<float> DistribType;
+
 				ChannelInfo( TextureChannels& );
 				~ChannelInfo();
 
@@ -58,7 +61,7 @@ public:
     ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int version) const;
     const ColTab::Mapper&	getColTabMapper(int version) const;
     bool			reMapData(bool dontreclip,TaskRunner*);
-    const TypeSet<float>&	getHistogram() const	{ return histogram_; }
+    const DistribType&		getDistrib() const	{ return *distrib_; }
 
     void			setNrVersions(int);
     int				nrVersions() const;
@@ -91,7 +94,8 @@ public:
     ObjectSet<ColTab::Mapper>			mappers_;
     int						currentversion_;
     TextureChannels&				texturechannels_;
-    TypeSet<float>				histogram_;
+    RefMan<DistribType>				distrib_;
+    SamplingData<float>				histogramsampling_;
     int						size_[3];
     Coord					origin_;
     Coord					scale_;
@@ -104,9 +108,9 @@ public:
 ChannelInfo::ChannelInfo( TextureChannels& nc )
     : texturechannels_( nc )
     , currentversion_( 0 )
-    , histogram_( mNrColors, 0 )
     , origin_( 0.0, 0.0 )
     , scale_( 1.0, 1.0 )
+    , distrib_(new DistribType)
 {
     size_[0] = 0;
     size_[1] = 0;
@@ -428,27 +432,30 @@ bool ChannelInfo::mapData( int version, TaskRunner* tskr )
     if ( texturechannels_.nrUdfBands() )
 	mappedudfs = mappeddata_[version] + texturechannels_.nrDataBands();
 
+    const int nrcolors = mNrColors;
     ColTab::MapperInfoCollector< unsigned char>	maptask( *mappers_[version],
-	    nrelements, mNrColors, *unmappeddata_[version],
+	    nrelements, nrcolors, *unmappeddata_[version],
 	    mappeddata_[version], spacing,
 	    mappedudfs, spacing );
 
     if ( TaskRunner::execute( tskr, maptask ) )
     {
-	int max = 0;
 	const unsigned int* histogram = maptask.getHistogram();
-	for ( int idx=mNrColors-1; idx>=0; idx-- )
+	int max = 0;
+	for ( int idx=0; idx<nrcolors; idx++ )
 	{
-	    if ( histogram[idx]>max )
+	    if ( histogram[idx] > max )
 		max = histogram[idx];
 	}
 
+	distrib_ = new DistribType( maptask.getHistogramSampling(), nrcolors );
+	float* distribarr = distrib_->getArr();
 	if ( max == 0 )
-	    OD::memZero( histogram_.arr(), histogram_.size()*sizeof(float) );
+	    OD::memZero( distribarr, nrcolors*sizeof(float) );
 	else
 	{
-	    for ( int idx=mNrColors-1; idx>=0; idx-- )
-		histogram_[idx] = (float) histogram[idx]/max;
+	    for ( int idx=nrcolors-1; idx>=0; idx-- )
+		distribarr[idx] = ((float)histogram[idx]) / max;
 	}
 
 	texturechannels_.update( this );
@@ -803,12 +810,12 @@ void TextureChannels::reMapData( int channel, bool dontreclip,
 }
 
 
-const TypeSet<float>* TextureChannels::getHistogram( int channel ) const
+const DistribType& TextureChannels::getDataDistribution( int channel ) const
 {
     if ( !channelinfo_.validIdx(channel) )
-	return 0;
+	return DistribType::getEmptyDistrib();
 
-    return &channelinfo_[channel]->getHistogram();
+    return channelinfo_[channel]->getDistrib();
 }
 
 

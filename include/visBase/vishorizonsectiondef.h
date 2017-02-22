@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "visbasecommon.h"
 
 // this header file is the set of const definitions used in the files related to
 // horizonsection. don't include it in somewhere else in od.

@@ -122,21 +122,9 @@ NotifierAccess& uiVisColTabEd::mapperChange()
 { return coltabsel_.mapperSetup()->objectChanged(); }
 
 
-void uiVisColTabEd::setDistribution( const DataDistribution<float>* distr )
+void uiVisColTabEd::setDistribution( const DataDistribution<float>& distr )
 {
-    if ( distr )
-	coltabsel_.useDistribution( *distr );
-    else
-    {
-	RefMan<DataDistribution<float> > emptydistr
-			= new DataDistribution<float>;
-	coltabsel_.useDistribution( *emptydistr );
-    }
-}
-
-void uiVisColTabEd::setHistogram( const TypeSet<float>* data )
-{
-    setDistribution( data ? new DataDistribution<float>( *data ) : 0 );
+    coltabsel_.useDistribution( distr );
 }
 
 

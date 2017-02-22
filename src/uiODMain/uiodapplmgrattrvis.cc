@@ -135,10 +135,10 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
 }
 
 
-void uiODApplMgrAttrVisHandler::setHistogram( int visid, int attrib )
+void uiODApplMgrAttrVisHandler::setColTabDistribution( int visid, int attrib )
 {
-    am_.appl_.colTabEd().setHistogram(
-		am_.visserv_->getHistogram(visid,attrib) );
+    am_.appl_.colTabEd().setDistribution(
+		am_.visserv_->getDataDistribution(visid,attrib) );
 }
 
 
@@ -190,7 +190,7 @@ void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
 	    am_.visserv_->getColTabMapperSetup(visid,attrib) );
     }
 
-    setHistogram( visid, attrib );
+    setColTabDistribution( visid, attrib );
 }
 
 
@@ -206,7 +206,7 @@ void uiODApplMgrAttrVisHandler::colMapperChg()
     am_.visserv_->setColTabMapperSetup( visid, attrib,
 	    *am_.appl_.colTabEd().getColTabMapperSetup() );
 
-    setHistogram( visid, attrib );
+    setColTabDistribution( visid, attrib );
 
     //Autoscale may have changed ranges, so update.
     mDynamicCastGet( visSurvey::SurveyObject*, so,
@@ -238,7 +238,7 @@ void uiODApplMgrAttrVisHandler::colSeqChg()
 	: am_.visserv_->getSelAttribNr();
 
     if ( attrib == -1 ) attrib = 0;
-    setHistogram( visid, attrib );
+    setColTabDistribution( visid, attrib );
 
     am_.visserv_->setColTabSequence( visid, attrib,
 	    am_.appl_.colTabEd().getColTabSequence() );

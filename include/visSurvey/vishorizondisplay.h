@@ -158,7 +158,7 @@ public:
     ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int,int v=0) const;
     void			setColTabMapperSetup(int,
 				    const ColTab::MapperSetup&,TaskRunner*);
-    const TypeSet<float>*	getHistogram(int) const;
+    const visBase::DistribType&	getDataDistribution(int) const;
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);

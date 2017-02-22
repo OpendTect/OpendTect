@@ -13,7 +13,8 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "binidvalset.h"
 #include "coltabsequence.h"
-#include "coltabmapper.h"
+#include "coltabmappersetup.h"
+#include "datadistribution.h"
 #include "flatview.h"
 #include "iopar.h"
 #include "mousecursor.h"
@@ -980,10 +981,12 @@ void uiVisPartServer::fillDispPars( int id, int attrib,
 }
 
 
-const TypeSet<float>* uiVisPartServer::getHistogram( int id, int attrib ) const
+const DataDistribution<float>&
+uiVisPartServer::getDataDistribution( int id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*, so, getObject(id) );
-    return so ? so->getHistogram( attrib ) : 0;
+    return so ? so->getDataDistribution( attrib )
+	      : DataDistribution<float>::getEmptyDistrib();
 }
 
 

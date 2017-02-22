@@ -11,15 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
+#include "visdataman.h"
 #include "callback.h"
 #include "refcount.h"
 #include "sets.h"
-#include "visdataman.h"
 
-class BufferString;
-
-namespace visBase { class DataObject; class EventInfo; }
+namespace visBase { class EventInfo; }
 
 namespace osg { class Switch; class Node; class StateSet; }
 namespace osgViewer { class CompositeViewer; }
@@ -135,7 +132,7 @@ public:
     static float		getDefaultPixelDensity();
     virtual float		getPixelDensity() const;
 
-    virtual const uiString&	errMsg() const	
+    virtual const uiString&	errMsg() const
 					    { return uiString::emptyString(); }
 
     bool			serialize(const char* filename,
@@ -221,7 +218,7 @@ private:							\
     clss&			operator =(const clss&);	\
 				clss(const clss&);		\
 public:								\
-	clss();                        	\
+	clss();	\
     static void			initClass();			\
     static const char*		getStaticClassName();		\
     static const char*		sFactoryKeyword();		\

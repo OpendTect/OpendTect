@@ -11,13 +11,12 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
+#include "visobject.h"
 #include "color.h"
 #include "fontdata.h"
 #include "ranges.h"
 #include "scaler.h"
 #include "coltab.h"
-#include "visobject.h"
 
 namespace OD { class LineStyle; };
 class TaskRunner;

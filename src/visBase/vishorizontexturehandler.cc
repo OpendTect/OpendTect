@@ -184,9 +184,9 @@ void HorizonTextureHandler::selectActiveVersion( int channel, int version )
 }
 
 
-const TypeSet<float>* HorizonTextureHandler::getHistogram( int ch ) const
+const DistribType& HorizonTextureHandler::getDataDistribution( int ch ) const
 {
-    return channels_->getHistogram( ch );
+    return channels_->getDataDistribution( ch );
 }
 
 

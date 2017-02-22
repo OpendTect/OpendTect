@@ -12,10 +12,9 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visdata.h"
-#include "positionlist.h"
 #include "viscoord.h"
+#include "positionlist.h"
 
 namespace Threads { class Mutex; };
 

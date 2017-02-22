@@ -44,7 +44,7 @@ public:
     NotifierAccess&		mapperChange();
 
     uiColTabSelTool&		colTabSel()	{ return coltabsel_; }
-    void			setDistribution(const DataDistribution<float>*);
+    void			setDistribution(const DataDistribution<float>&);
     void			setHistogram(const TypeSet<float>*);
 
     bool			usePar(const IOPar&);

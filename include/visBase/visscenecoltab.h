@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "coltabsequence.h"
 

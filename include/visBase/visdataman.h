@@ -11,15 +11,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
+#include "visbasecommon.h"
 #include "factory.h"
 #include "notify.h"
 #include <typeinfo>
 namespace osg { class Node; }
 
+
 namespace visBase
 {
-class DataObject;
 class SelectionManager;
 
 /*!\brief the visBase Data Manager */

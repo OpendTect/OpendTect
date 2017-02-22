@@ -11,12 +11,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
+#include "vishorizonsectiondef.h"
+#include "visobject.h"
 #include "arrayndimpl.h"
 #include "rowcol.h"
-#include "visobject.h"
 #include "geomelement.h"
-#include "vishorizonsectiondef.h"
 #include "coltabmapper.h"
 
 class BinIDValueSet;
@@ -79,7 +78,7 @@ public:
 						const ColTab::MapperSetup&,
 						TaskRunner*);
     ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int channel) const;
-    const TypeSet<float>*	getHistogram(int channel) const;
+    const DistribType&		getDataDistribution(int channel) const;
 
     void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;

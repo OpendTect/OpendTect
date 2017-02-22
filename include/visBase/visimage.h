@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "odimage.h"
 
@@ -40,7 +39,7 @@ public:
     const char*		getFileName() const;
 
 protected:
-    			~Image();
+			~Image();
     SoTexture2*		texture_;
 };
 
@@ -48,8 +47,8 @@ protected:
 mExpClass(visBase) RGBImage : public OD::RGBImage
 {
 public:
-    		RGBImage();
-    		RGBImage(SbImage*);
+		RGBImage();
+		RGBImage(SbImage*);
 
     bool	hasAlpha() const;
     char	nrComponents() const;

@@ -11,9 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
-#include "sets.h"
 #include "visshape.h"
+#include "sets.h"
 #include "position.h"
 
 namespace visBase
@@ -38,7 +37,7 @@ public:
     int			size() const ;
 
     void		setDisplayTransformation( const mVisTrans* );
-    			/*!<\note The transformation is forwarded to the
+			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.  */
 

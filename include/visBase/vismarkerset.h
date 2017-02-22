@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "trigonometry.h"
 #include "draw.h"
@@ -61,17 +60,17 @@ public:
     void		getColorArray(TypeSet<Color>& colors) const;
 
     void		setMarkerStyle(const OD::MarkerStyle3D&);
-    			/*!<Sets predefined shape and size.
+			/*!<Sets predefined shape and size.
 			    Will only use color of markerstyle if no
 			    material is set.*/
     OD::MarkerStyle3D&	getMarkerStyle() { return markerstyle_; }
     const OD::MarkerStyle3D& getMarkerStyle() const { return markerstyle_; }
     void		setType(OD::MarkerStyle3D::Type);
-    			/*!<Sets predefined shape. */
+			/*!<Sets predefined shape. */
     OD::MarkerStyle3D::Type	getType() const;
 
     void		setScreenSize(float);
-    			/*!<If a nonzero value is given, the object will
+			/*!<If a nonzero value is given, the object will
 			    try to have the same size (in pixels) on the screen
 			    at all times. */
     float		getScreenSize() const;
@@ -94,7 +93,7 @@ public:
 
 
     void		doFaceCamera(bool yn);
-    			/*!<If true, the maker will always be rotated so the
+			/*!<If true, the maker will always be rotated so the
 			    same part of the marker always faces the camera. */
     bool		facesCamera() const;
 
@@ -107,7 +106,7 @@ public:
     void		removeMarker(int idx);
 
     void		clearMarkers();
-    			//!<Removes all markers
+			//!<Removes all markers
     void		turnMarkerOn(unsigned int idx,bool);
     bool		markerOn(unsigned int);
     void		turnAllMarkersOn(bool);

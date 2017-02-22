@@ -56,6 +56,8 @@ public:
 
     inline VT			operator[](IdxType idx) const;
     inline void			set(IdxType,VT);
+    VT*				getArr()		{ return data_.arr(); }
+				//!< for fast non-shared usage
 
     inline VT			sumOfValues() const;
     inline void			normalise();
@@ -64,6 +66,8 @@ public:
 
     static ChangeType		cDataChange()		{ return 2; }
     static ChangeType		cSamplingChange()	{ return 3; }
+
+    static const DataDistribution<VT>& getEmptyDistrib();
 
 protected:
 
@@ -291,4 +295,12 @@ void DataDistribution<VT>::getCurve( TypeSet<VT>& xvals, TypeSet<VT>& yvals,
 	if ( maxval > max4disp )
 	    yvals[idxatmax] = max4disp;
     }
+}
+
+
+template <class VT> inline
+const DataDistribution<VT>& DataDistribution<VT>::getEmptyDistrib()
+{
+    mDefineStaticLocalObject( DataDistribution<VT>, theempty, );
+    return theempty;
 }

@@ -113,6 +113,8 @@ public:
 			~MapperInfoCollector();
     od_int64		nrIterations() const;
     const unsigned int*	getHistogram() const	{ return histogram_; }
+    const SamplingData<float>&	getHistogramSampling() const
+						{ return histogramsampling_; }
 
 private:
     bool			doWork(od_int64 start,od_int64 stop,int);
@@ -129,6 +131,7 @@ private:
     int				mappedudfspacing_;
     const iT			nrsteps_;
     unsigned int*		histogram_;
+    SamplingData<float>		histogramsampling_;
     Threads::Lock		lock_;
 };
 
@@ -155,7 +158,8 @@ MapperInfoCollector<iT>::MapperInfoCollector( const ColTab::Mapper& map, od_int6
 
 
 template <class iT> inline
-MapperInfoCollector<iT>::MapperInfoCollector( const ColTab::Mapper& map, od_int64 sz, iT nrsteps,
+MapperInfoCollector<iT>::MapperInfoCollector( const ColTab::Mapper& map,
+			    od_int64 sz, iT nrsteps,
 			   const ValueSeries<float>& unmapped,
 			   iT* mappedvals, int mappedvalsspacing,
 			   iT* mappedudfs, int mappedudfspacing	)
@@ -172,6 +176,8 @@ MapperInfoCollector<iT>::MapperInfoCollector( const ColTab::Mapper& map, od_int6
     , histogram_( new unsigned int[nrsteps+1] )
 {
     OD::memZero( histogram_, (mUndefColIdx+1)*sizeof(unsigned int) );
+    histogramsampling_.start = mapper_.setup().range().start;
+    histogramsampling_.step = mapper_.setup().range().width() / nrsteps;
 }
 
 
@@ -239,9 +245,9 @@ bool MapperInfoCollector<iT>::doWork( od_int64 start, od_int64 stop, int )
 	    }
 	}
 
-	const iT res = (iT)( isudf ? udfcolidx : (int)position );
+	const iT histidx = (iT)( isudf ? udfcolidx : (int)position );
 
-	*valresult = res;
+	*valresult = histidx;
 	valresult += mappedvalsspacing;
 
 	if ( udfresult )
@@ -250,7 +256,7 @@ bool MapperInfoCollector<iT>::doWork( od_int64 start, od_int64 stop, int )
 	    udfresult += mappedudfspacing;
 	}
 
-	histogram[res]++;
+	histogram[histidx]++;
 
 	if ( (++nrdone) > 100000 )
 	{

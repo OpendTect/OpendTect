@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "objectset.h"
 #include "position.h"
@@ -38,7 +37,7 @@ mExpClass(visBase) RandomTrackDragger : public VisualObjectImpl
 
 public:
     static RandomTrackDragger*	create()
-    				mCreateDataObj(RandomTrackDragger);
+				mCreateDataObj(RandomTrackDragger);
 
     int				nrKnots() const;
     Coord			getKnot(int) const;
@@ -60,8 +59,8 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     void			setLimits(const Coord3& start,
-	    				  const Coord3& stop,
-					  const Coord3& step); 
+					  const Coord3& stop,
+					  const Coord3& step);
 
     void			showPlaneDraggers(bool yn,int minsizeinsteps=0);
 
@@ -85,7 +84,7 @@ public:
 						   const StepInterval<float>&);
 
 protected:
-    				~RandomTrackDragger();
+				~RandomTrackDragger();
 
     void			startCB(CallBacker*);
     void			moveCB(CallBacker*);

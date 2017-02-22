@@ -10,10 +10,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
-#include "position.h"
 #include "visosg.h"
+#include "position.h"
 
 namespace osgManipulator { class Dragger; }
 namespace osg
@@ -53,7 +52,7 @@ public:
 protected:
     friend			class DraggerCallbackHandler;
 				DraggerBase();
-    				~DraggerBase();
+				~DraggerBase();
 
     virtual  void		notifyStart() = 0;
     virtual  void		notifyStop() = 0;
@@ -78,10 +77,10 @@ mExpClass(visBase) Dragger : public DraggerBase
 {
 public:
     static Dragger*		create()
-    				mCreateDataObj(Dragger);
+				mCreateDataObj(Dragger);
 
     enum Type			{ Translate1D, Translate2D, Translate3D,
-    				  Scale3D };
+				  Scale3D };
     void			setDraggerType(Type);
 
     void			setPos(const Coord3&);
@@ -98,7 +97,7 @@ public:
     bool			defaultRotation() const;
 
     void			setOwnShape(DataObject*,bool activeshape);
-    				/*!< Sets a shape on the dragger. */
+				/*!< Sets a shape on the dragger. */
     bool			selectable() const;
 
     NotifierAccess*		rightClicked() { return &rightclicknotifier_; }
@@ -110,7 +109,7 @@ public:
     bool			isMoving() const	{ return ismoving_; }
 
 protected:
-    				~Dragger();
+				~Dragger();
     void			triggerRightClick(const EventInfo* eventinfo);
     virtual  void		notifyStart();
     virtual  void		notifyStop();

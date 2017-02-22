@@ -1027,9 +1027,10 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
 }
 
 
-const TypeSet<float>* VolumeDisplay::getHistogram( int attrib ) const
+const visBase::DistribType& VolumeDisplay::getDataDistribution(
+							int attrib ) const
 {
-    return &scalarfield_->getHistogram( attrib );
+    return scalarfield_->getDataDistribution( attrib );
 }
 
 

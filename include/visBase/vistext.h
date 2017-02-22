@@ -11,10 +11,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visosg.h"
-#include "fontdata.h"
 #include "visobject.h"
+#include "fontdata.h"
 #include "position.h"
 #include "uistring.h"
 
@@ -53,7 +52,7 @@ public:
     void			updateFontSize(float pixeldensity);
 
     void			setText(const uiString&);
-    const uiString&		getText() const 	{ return text_; }
+    const uiString&		getText() const	{ return text_; }
 
     void			setColor(const Color&);
     Color			getColor() const;
@@ -88,7 +87,7 @@ protected:
 mExpClass(visBase) OsgFontCreator
 {
 public:
-    virtual			~OsgFontCreator() 			{}
+    virtual			~OsgFontCreator()			{}
     static osgText::Font*	create(const FontData&);
 protected:
     static void			setCreator(OsgFontCreator*);

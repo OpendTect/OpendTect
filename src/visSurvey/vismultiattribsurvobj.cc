@@ -345,10 +345,10 @@ bool MultiTextureSurveyObject::canDisplayInteractively(
 }
 
 
-const TypeSet<float>*
-MultiTextureSurveyObject::getHistogram( int attrib ) const
+const visBase::DistribType&
+MultiTextureSurveyObject::getDataDistribution( int attrib ) const
 {
-    return channels_->getHistogram( attrib );
+    return channels_->getDataDistribution( attrib );
 }
 
 

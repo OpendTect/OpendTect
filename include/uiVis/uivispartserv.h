@@ -43,6 +43,7 @@ class uiTreeItemTBHandler;
 class uiVisModeMgr;
 class uiVisPickRetriever;
 template <class T> class Selector;
+template <class T> class DataDistribution;
 
 namespace Attrib    { class SelSpec; }
 namespace ColTab    { class Sequence; }
@@ -300,7 +301,7 @@ public:
 						  const ColTab::Sequence&);
     bool			canHandleColTabSeqTrans(int id,int attr) const;
 
-    const TypeSet<float>*	getHistogram(int id,int attrib) const;
+    const DataDistribution<float>& getDataDistribution(int id,int attrib) const;
 
     void			displayMapperRangeEditForAttribs(int id,
 								 int attrib=-1);

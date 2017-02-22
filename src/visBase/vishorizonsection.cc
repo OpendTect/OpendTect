@@ -653,8 +653,8 @@ ConstRefMan<ColTab::MapperSetup> HorizonSection::getColTabMapperSetup(
 { return hortexturehandler_->getColTabMapperSetup( ch ); }
 
 
-const TypeSet<float>* HorizonSection::getHistogram( int ch ) const
-{ return hortexturehandler_->getHistogram( ch ); }
+const DistribType& HorizonSection::getDataDistribution( int ch ) const
+{ return hortexturehandler_->getDataDistribution( ch ); }
 
 
 void HorizonSection::setTransparency( int ch, unsigned char yn )

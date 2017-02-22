@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "vistexturechannel2rgba.h"
 #include "coltabsequence.h"
 

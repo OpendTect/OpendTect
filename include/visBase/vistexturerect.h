@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "vistransform.h"
 
@@ -41,13 +40,13 @@ public:
 
     void			freezeDisplay(bool yn=true);
     bool			isDisplayFrozen() const;
-    				/*!<As long as texture rectangle is frozen,
+				/*!<As long as texture rectangle is frozen,
 				    the display of (lengthy) changes to its
 				    geometry and/or texture is postponed.
 				    Avoids showing half-finished updates. */
 
     void			setTextureShift(const Coord&);
-    				/*!<Shift of the texture envelope center
+				/*!<Shift of the texture envelope center
 				    (in pixel units) with regard to the
 				    center of the plane geometry. */
     Coord			getTextureShift() const;
@@ -61,16 +60,16 @@ public:
 
     void			setCenter(const Coord3& center);
     void			setWidth(const Coord3& width);
-    				//!<One dim must be set zero
+				//!<One dim must be set zero
     Coord3			getWidth() const;
     Coord3			getCenter() const;
 
     void			setRotation(const Coord3& spanvec0,
 					    const Coord3& spanvec1);
-    				//!<Aligns rectangle to both spanning vectors
+				//!<Aligns rectangle to both spanning vectors
     void			setRotationAndWidth(const Coord3& spanvec0,
-	    					    const Coord3& spanvec1);
-    				/*!<Aligns rectangle to both spanning vectors,
+						    const Coord3& spanvec1);
+				/*!<Aligns rectangle to both spanning vectors,
 				  and calls setWidth(.) using their lengths. */
     const Coord3&		getSpanningVector(int idx) const;
 
@@ -98,7 +97,7 @@ public:
 					       int& pixsize) const;
 
 protected:
-    				~TextureRectangle();
+				~TextureRectangle();
 
     RefMan<const mVisTrans>	displaytrans_;
 

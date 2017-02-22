@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "trckeyzsampling.h"
 
@@ -31,8 +30,8 @@ mExpClass(visBase) GridLines : public VisualObjectImpl
 {
 public:
     static GridLines*		create()
-    				mCreateDataObj(GridLines);
-    				~GridLines();
+				mCreateDataObj(GridLines);
+				~GridLines();
 
     void			setDisplayTransformation(const mVisTrans*);
 

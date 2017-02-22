@@ -11,9 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
-#include "ranges.h"
 #include "visobject.h"
+#include "ranges.h"
 
 
 namespace osgGeo { class TabPlaneDragger; }
@@ -39,25 +38,25 @@ public:
     static DepthTabPlaneDragger*	create()
 					mCreateDataObj(DepthTabPlaneDragger);
     void				removeScaleTabs();
-    					/*!\note once removed, they cannot be
+					/*!\note once removed, they cannot be
 					    restored */
 
     void			setCenter( const Coord3&, bool alldims = true );
-    				/*!< \param alldims if true, it updates the
+				/*!< \param alldims if true, it updates the
 				            internal cache, so the new position
-					    is valid through a setDim() 
+					    is valid through a setDim()
 				*/
     Coord3			center() const;
 
     void			setSize( const Coord3&, bool alldims=true );
-    				/*!< \param alldims if true, it updates the
+				/*!< \param alldims if true, it updates the
 				            internal cache, so the new position
-					    is valid through a setDim() 
+					    is valid through a setDim()
 				*/
     Coord3			size() const;
 
     void			setDim(int dim);
-    				/*!< Sets the dim of the plane's normal
+				/*!< Sets the dim of the plane's normal
 				    \param dim=0 x-axis
 				    \param dim=1 y-axis
 				    \param dim=2 z-axis
@@ -65,17 +64,17 @@ public:
     int				getDim() const;
 
     void			setSpaceLimits( const Interval<float>& x,
-	    					const Interval<float>& y,
+						const Interval<float>& y,
 						const Interval<float>& z );
     void			getSpaceLimits( Interval<float>& x,
-	    					Interval<float>& y,
+						Interval<float>& y,
 						Interval<float>& z ) const;
 
     void			setWidthLimits( const Interval<float>& x,
-	    					const Interval<float>& y,
+						const Interval<float>& y,
 						const Interval<float>& z );
     void			getWidthLimits( Interval<float>& x,
-	    					Interval<float>& y,
+						Interval<float>& y,
 						Interval<float>& z ) const;
 
     void			setDisplayTransformation( const mVisTrans* );
@@ -88,14 +87,14 @@ public:
     bool			isPlaneShown() const;
 
     void			setTransDragKeys(bool depth,int keys);
-    				/*!<\param depth specifies wheter the depth or
-				    		 the plane setting should be
+				/*!<\param depth specifies wheter the depth or
+						 the plane setting should be
 						 changed.
 				   \param keys	 combination of OD::ButtonState
 				   \note only shift/ctrl/alt are used. */
     int				getTransDragKeys(bool depth) const;
-    				/*!<\param depth specifies wheter the depth or
-				    		the plane setting should be
+				/*!<\param depth specifies wheter the depth or
+						the plane setting should be
 						returned.
 				    \returns	combination of OD::ButtonState*/
 
@@ -109,7 +108,7 @@ public:
     Notifier<DepthTabPlaneDragger>  finished;
 
 protected:
-    				~DepthTabPlaneDragger();
+				~DepthTabPlaneDragger();
 
     void			setOsgMatrix(const Coord3& worldscale,
 					     const Coord3& worldtrans);

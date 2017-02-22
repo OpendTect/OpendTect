@@ -13,8 +13,8 @@ ________________________________________________________________________
 
 /*! Definition of macros used to make osg-life easier */
 
+#include "visbasecommon.h"
 #include "refcount.h"
-#include "visbasemod.h"
 
 
 namespace osg { class Vec3f; class Array; class Referenced; }
@@ -55,11 +55,11 @@ namespace Conv
     template <>
     inline void set( osg::Vec3f& _to, const Coord3d& v )
     { _to.set( (float) v.x_, (float) v.y_, (float) v.z_ ); }
-    
+
     template <>
     inline void set( Coord3f& _to, const osg::Vec3f& v )
     { _to.x_ = v[0]; _to.y_=v[1]; _to.z_=v[2]; }
-    
+
     template <>
     inline void set( osg::Vec3f& _to, const Coord3f& v )
     { _to.set( v.x_, v.y_, v.z_ ); }
@@ -71,11 +71,11 @@ namespace Conv
     template <>
     inline void set( osg::Vec2f& _to, const Coord2d& v )
     { _to.set( (float) v.x_, (float) v.y_ ); }
-    
+
     template <>
     inline void set( Coord2f& _to, const osg::Vec2f& v )
     { _to.x_ = v[0]; _to.y_=v[1]; }
-    
+
     template <>
     inline void set( osg::Vec2f& _to, const Coord2f& v )
     { _to.set( v.x_, v.y_ ); }

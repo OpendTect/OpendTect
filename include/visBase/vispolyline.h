@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visshape.h"
 #include "position.h"
 #include "draw.h"
@@ -29,18 +28,15 @@ namespace visBase
 
 class DrawStyle;
 
-/*!\brief
-
-
-*/
+/*!\brief */
 
 mExpClass(visBase) PolyLine : public VertexShape
 {
 public:
     static PolyLine*	create()
-    			mCreateDataObj(PolyLine);
+			mCreateDataObj(PolyLine);
 
-    int 		size() const;
+    int		size() const;
     void		addPoint( const Coord3& pos );
     Coord3		getPoint( int ) const;
     void		setPoint( int, const Coord3& );
@@ -50,12 +46,12 @@ public:
     const OD::LineStyle&	lineStyle() const;
 
     void		setDisplayTransformation( const mVisTrans* );
-    			/*!<\note The transformation is forwarded to the
+			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.  */
 
 protected:
-    					~PolyLine();
+					~PolyLine();
     DrawStyle*				drawstyle_;
     Geometry::RangePrimitiveSet*	coordrange_;
 };
@@ -77,12 +73,12 @@ public:
     void		touchPrimitiveSet(int);
     void		setCoordinates(Coordinates*);
     void		setDisplayTransformation( const mVisTrans* );
-    			/*!<\note The transformation is forwarded to the
+			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.  */
 
     void		setPixelDensity(float);
-    float		getPixelDensity() const 	{ return pixeldensity_;}
+    float		getPixelDensity() const	{ return pixeldensity_;}
 
 protected:
     void			updateRadius();

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "visnodestate.h"
 #include "visosg.h"
@@ -41,7 +40,7 @@ public:
     bool		isOn() const	{ return ison_; }
 
     void		setAmbient(float);
-    			/*!< 0 = nada, 1 = full light */
+			/*!< 0 = nada, 1 = full light */
     float		getAmbient() const;
 
     void		setDiffuse(float);
@@ -55,7 +54,7 @@ public:
 
     void		fillPar( IOPar& ) const;
     bool		usePar( const IOPar& );
- 
+
 
 protected:
 				~Light();
