@@ -75,7 +75,12 @@ ConstRefMan<ColTab::Sequence> uiColSeqSelTool::sequence() const
 
 void uiColSeqSelTool::setSequence( const Sequence& seq )
 {
+    mDetachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
     disp_->setSequence( seq );
+    mAttachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
+
+    setToolTip();
+    seqChanged.trigger();
 }
 
 
@@ -87,7 +92,7 @@ const char* uiColSeqSelTool::seqName() const
 
 void uiColSeqSelTool::setSeqName( const char* nm )
 {
-    disp_->setSeqName( nm );
+    setSequence( *ColTab::SeqMGR().getAny(nm) );
 }
 
 
@@ -117,7 +122,7 @@ void uiColSeqSelTool::setIsVertical( bool yn )
 
 void uiColSeqSelTool::setNonSeisDefault()
 {
-    disp_->setSeqName( ColTab::SeqMGR().getDefault(false)->name() );
+    setSequence( *ColTab::SeqMGR().getDefault(false) );
 }
 
 
@@ -171,13 +176,8 @@ void uiColSeqSelTool::selectCB( CallBacker* )
     if ( !newseq )
 	return; // someone has removed it while the menu was up
 
-    mDetachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
-    disp_->setSequence( *newseq );
-    mAttachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
-
     ml.unlockNow();
-    setToolTip();
-    seqChanged.trigger();
+    setSequence( *newseq );
 }
 
 
@@ -208,6 +208,13 @@ void uiColSeqSelTool::setAsDefaultCB( CallBacker* )
 }
 
 
+void uiColSeqSelTool::manDlgSeqSelCB( CallBacker* )
+{
+    if ( mandlg_ )
+	setSequence( mandlg_->current() );
+}
+
+
 void uiColSeqSelTool::setCurrentAsDefault()
 {
     mSettUse( set, "dTect.Color table.Name", "", seqName() );
@@ -221,6 +228,7 @@ void uiColSeqSelTool::showManageDlg()
     {
 	mandlg_ = new uiColSeqMan( asParent(), seqName() );
 	mAttachCB( mandlg_->windowClosed, uiColSeqSelTool::manDlgCloseCB );
+	mAttachCB( mandlg_->selectionChanged, uiColSeqSelTool::manDlgSeqSelCB );
 	mandlg_->setDeleteOnClose( true );
 	mandlg_->show();
 	newManDlg.trigger();

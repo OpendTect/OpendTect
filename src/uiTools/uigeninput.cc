@@ -175,6 +175,7 @@ void uiPositionInpFld::addFld( uiParent* p, const char* nm )
     flds_ += fld;
     fld->notifyValueChanging( mCB(this,uiGenInputInputFld,valChangingNotify) );
     fld->notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
+    fld->notifyUpdateRequested( mCB(this,uiGenInputInputFld,updateReqNotify) );
     if ( elemidx > 0 )
 	flds_[elemidx]->attach( rightTo, flds_[elemidx-1] );
 }
@@ -342,6 +343,9 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
     start.notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
     stop.notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
 
+    start.notifyValueChanged( mCB(this,uiGenInputInputFld,updateReqNotify) );
+    stop.notifyValueChanged( mCB(this,uiGenInputInputFld,updateReqNotify) );
+
     start.setReadOnly( false );
     stop.setReadOnly( false );
 
@@ -355,6 +359,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 		mCB(this,uiGenInputInputFld,valChangingNotify) );
 	step->notifyValueChanged(
 		mCB(this,uiGenInputInputFld,valChangedNotify) );
+	step->notifyUpdateRequested(
+		mCB(this,uiGenInputInputFld,updateReqNotify) );
 	step->setReadOnly( false );
 
 	lbl = new uiLabel(&intvalGrp, uiStrings::sStep() );

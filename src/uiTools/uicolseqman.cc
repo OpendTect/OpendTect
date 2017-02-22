@@ -598,6 +598,12 @@ void uiColSeqMan::updateColSeqList()
 
 void uiColSeqMan::useDistrib( const DistribType* dd )
 {
+    if ( !dd )
+    {
+	if ( distrib_->isEmpty() )
+	    return;
+	dd = new DistribType;
+    }
     if ( replaceMonitoredRef(distrib_,dd,this) )
 	distrChgCB( 0 );
 }

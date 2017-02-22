@@ -67,6 +67,8 @@ protected:
     uiManipMapperSetup*	manip_;
 
     void		initialise(OD::Orientation);
+    void		handleMapperSetupChange();
+    void		handleDistribChange();
 
     void		mapSetupChgCB(CallBacker*);
     void		distribChgCB(CallBacker*);

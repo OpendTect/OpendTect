@@ -76,6 +76,7 @@ protected:
     void			upCB(CallBacker*)	{ nextColSeq(true); }
     void			downCB(CallBacker*)	{ nextColSeq(false); }
     void			setAsDefaultCB(CallBacker*);
+    void			manDlgSeqSelCB(CallBacker*);
     void			manageCB(CallBacker*)	{ showManageDlg(); }
     void			manDlgCloseCB(CallBacker*) { mandlg_ = 0; }
 

@@ -79,17 +79,24 @@ bool isFixed() const
 
 void initFldsCB( CallBacker* )
 {
-    handleMapperChange();
+    handleMapperSetupChange();
 
     mAttachCB( rangefld_->checked, uiEdMapperSetupDlg::fldSelCB );
     mAttachCB( rangefld_->valuechanged, uiEdMapperSetupDlg::fldSelCB );
     mAttachCB( skipsymscanfld_->checked, uiEdMapperSetupDlg::fldSelCB );
     mAttachCB( skipsymscanfld_->valuechanged, uiEdMapperSetupDlg::fldSelCB );
+    mAttachCB( rangefld_->updateRequested, uiEdMapperSetupDlg::updReqCB );
+    mAttachCB( clipfld_->updateRequested, uiEdMapperSetupDlg::updReqCB );
 }
 
 void fldSelCB( CallBacker* )
 {
     updateFldStates();
+}
+
+void updReqCB( CallBacker* )
+{
+    getFromScreen();
 }
 
 void putToScreen()
@@ -149,7 +156,7 @@ void updateFldStates()
     setButtonSensitive( SAVE, !isfixed );
 }
 
-void handleMapperChange()
+void handleMapperSetupChange()
 {
     putToScreen();
     updateFldStates();
@@ -201,10 +208,6 @@ uiManipMapperSetup( uiColTabSelTool& seltool )
 
 void initCB( CallBacker* )
 {
-    mAttachCB( setup().objectChanged(),
-		    uiManipMapperSetup::setupChgCB );
-    mAttachCB( distrib().objectChanged(),
-		    uiManipMapperSetup::distribChgCB );
     mAttachCB( meh_.buttonPressed, uiManipMapperSetup::mousePressCB );
     mAttachCB( meh_.buttonReleased, uiManipMapperSetup::mouseReleaseCB );
     mAttachCB( meh_.movement, uiManipMapperSetup::mouseMoveCB );
@@ -257,23 +260,37 @@ void addObjectsToToolBar( uiToolBar& tbar )
     tbar.addObject( this );
 }
 
-void distribChgCB( CallBacker* )
-{
-}
-
-void setupChgCB( CallBacker* )
+void handleMapperSetupChange()
 {
     if ( eddlg_ )
-	eddlg_->handleMapperChange();
+	eddlg_->handleMapperSetupChange();
+    reDrawRange();
+}
+
+void handleDistribChange()
+{
+    reDrawDistrib();
 }
 
 void doMenu()
 {
     uiMenu* mnu = new uiMenu( parent(), uiStrings::sAction() );
+    mnu->insertItem( new uiAction(tr("Re-scale now"),
+		        mCB(this,uiManipMapperSetup,reScaleReqCB)), 0 );
     mnu->insertItem( new uiAction(m3Dots(tr("Full Edit")),
-		        mCB(this,uiManipMapperSetup,setupDlgReqCB)), 0 );
+		        mCB(this,uiManipMapperSetup,setupDlgReqCB)), 1 );
     seltool_.mapperMenuReq.trigger( mnu );
     mnu->exec();
+}
+
+void reScaleReqCB( CallBacker* )
+{
+    const bool wasfixed = setup().isFixed();
+    setup().setIsFixed( false );
+    if ( wasfixed )
+	setup().setIsFixed( true );
+    else
+	setup().sendEntireObjectChangeNotification();
 }
 
 void setupDlgReqCB( CallBacker* )
@@ -297,7 +314,7 @@ void reSizeCB( CallBacker* )
     reDraw();
 }
 
-void reDraw()
+void reDrawDistrib()
 {
     /*
     MonitorLock ml( distrib() );
@@ -315,6 +332,17 @@ void reDraw()
     else
 	polygonitem_->setPolygon( pts );
 	*/
+}
+
+
+void reDrawRange()
+{
+}
+
+void reDraw()
+{
+    reDrawDistrib();
+    reDrawRange();
 }
 
     uiColTabSelTool&	seltool_;
@@ -369,32 +397,55 @@ void uiColTabSelTool::addObjectsToToolBar( uiToolBar& tbar )
 
 void uiColTabSelTool::useMapperSetup( const MapperSetup& msu )
 {
-    replaceMonitoredRef( mappersetup_, const_cast<MapperSetup&>(msu) );
+    if ( replaceMonitoredRef(mappersetup_,const_cast<MapperSetup&>(msu)) )
+	handleMapperSetupChange();
 }
 
 
 void uiColTabSelTool::useDistribution( const DistribType& distr )
 {
+    const bool issame = &distr == distrib_.ptr();
     replaceMonitoredRef( distrib_, const_cast<DistribType&>(distr) );
+    if ( !issame )
+    {
+	if ( mandlg_ )
+	    mandlg_->useDistrib( distrib_ );
+	manip_->handleDistribChange();
+    }
 }
 
 
 void uiColTabSelTool::newManDlgCB( CallBacker* )
 {
-    mandlg_->useDistrib( distrib_ );
+    if ( mandlg_ )
+	mandlg_->useDistrib( distrib_ );
 }
 
 
 void uiColTabSelTool::mapSetupChgCB( CallBacker* )
 {
+    handleMapperSetupChange();
+}
+
+
+void uiColTabSelTool::handleMapperSetupChange()
+{
     setSeqUseMode( mappersetup_->seqUseMode() );
+    manip_->handleMapperSetupChange();
     mapperSetupChanged.trigger();
+}
+
+
+void uiColTabSelTool::handleDistribChange()
+{
+    manip_->handleDistribChange();
+    distributionChanged.trigger();
 }
 
 
 void uiColTabSelTool::distribChgCB( CallBacker* )
 {
-    distributionChanged.trigger();
+    handleDistribChange();
 }
 
 
