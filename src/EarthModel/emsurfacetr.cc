@@ -327,6 +327,7 @@ bool dgbEMSurfaceTranslator::prepRead()
 	sd_.dbinfo = reader_->dbInfo();
     }
 
+    sd_.nrfltsticks_ = reader_->rowInterval().width()+1;
     reader_->setReadOnlyZ(  readOnlyZ() );
 
     return true;
