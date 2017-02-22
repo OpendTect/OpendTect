@@ -20,6 +20,7 @@ class BufferStringSet;
 class DataPointSet;
 class DataPointSetDisplayMgr;
 class NLAModel;
+class uiCreateLogCubeDlg;
 class uiWellAttribCrossPlot;
 class uiWellTo2DLineDlg;
 
@@ -74,6 +75,7 @@ protected:
     uiWellAttribCrossPlot*	xplotwin2d_;
     uiWellAttribCrossPlot*	xplotwin3d_;
     uiWellTo2DLineDlg*		wellto2ddlg_;
+    uiCreateLogCubeDlg*		crlogcubedlg_;
     DataPointSetDisplayMgr*	dpsdispmgr_;
 
     void			surveyChangedCB(CallBacker*);

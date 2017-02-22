@@ -239,12 +239,12 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 	if ( !presentobj )
 	    continue;
 
-	msg.append( tr( "Volume: '%1' is already present as another type"
-			" and won't be created" ).arg( fnm ), true );
+	msg = tr( "Volume: '%1' is already present as another type"
+		  " and won't be created" ).arg( fnm );
 	if ( ctxt.deftransl_ != presentobj->translator() )
 	    mErrRet( msg, errmsg_.isEmpty(), continue )
 
-	msg.append( tr( "Volume: '%1' is already present" ).arg( fnm ), true );
+	msg = tr( "Volume: '%1' is already present" ).arg( fnm );
 	mErrRet( msg, errmsg_.isEmpty(), continue )
     }
 

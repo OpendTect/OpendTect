@@ -15,6 +15,7 @@
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "multiid.h"
 
 class uiCheckBox;
 class uiCreateLogCubeOutputSel;
@@ -27,11 +28,13 @@ mExpClass(uiWellAttrib) uiCreateLogCubeDlg : public uiDialog
 public:
 				uiCreateLogCubeDlg(uiParent*,const MultiID*);
 
+    MultiID			currentKey() const	{ return key_; }
 protected:
 
     uiMultiWellLogSel*		welllogsel_;
     uiCreateLogCubeOutputSel*	outputgrp_;
 
+    MultiID			key_;
     bool			acceptOK(CallBacker*);
 };
 

@@ -563,7 +563,7 @@ void uiODApplMgrDispatcher::pluginMan()
 void uiODApplMgrDispatcher::manageShortcuts()
 { uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
 void uiODApplMgrDispatcher::createCubeFromWells()
-{ uiCreateLogCubeDlg dlg( par_, 0 ); dlg.go(); }
+{ am_.wellattrserv_->createLogCube( MultiID::udf() ); }
 
 void uiODApplMgrDispatcher::process2D3D( int opt )
 {

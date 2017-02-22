@@ -48,6 +48,7 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , dpsdispmgr_(0)
     , welltiedlg_(0)
     , wellto2ddlg_(0)
+    , crlogcubedlg_(0)
 {
     IOM().surveyChanged.notify(
 	    mCB(this,uiWellAttribPartServer,surveyChangedCB) );
@@ -72,8 +73,8 @@ void uiWellAttribPartServer::cleanUp()
     delete attrset_; attrset_ = 0;
     delete xplotwin2d_; xplotwin2d_ = 0;
     delete xplotwin3d_; xplotwin3d_ = 0;
-
     delete welltiedlg_; welltiedlg_ = 0;
+    delete crlogcubedlg_; crlogcubedlg_ = 0;
 
     if ( wellto2ddlg_ )
     {
@@ -190,8 +191,18 @@ bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 
 bool uiWellAttribPartServer::createLogCube( const MultiID& wellid )
 {
-    uiCreateLogCubeDlg dlg( parent(), &wellid );
-    return dlg.go();
+    if ( crlogcubedlg_ && wellid!=crlogcubedlg_->currentKey() )
+	deleteAndZeroPtr(crlogcubedlg_);
+
+    if ( !crlogcubedlg_ )
+    {
+	crlogcubedlg_ = new uiCreateLogCubeDlg( parent(), &wellid );
+	crlogcubedlg_->setModal( false );
+    }
+
+    crlogcubedlg_->show();
+    crlogcubedlg_->raise();
+    return true;
 }
 
 

@@ -32,6 +32,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* key )
 				 tr("Select logs to create new cubes"),
 				 key ? mODHelpKey(mCreateLogCubeDlgHelpID)
 				     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
+    , key_(key ? *key : MultiID::udf())
 {
     setCtrlStyle( RunAndClose );
 
