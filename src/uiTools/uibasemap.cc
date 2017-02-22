@@ -30,8 +30,8 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     if ( bmobject_ )
     {
 	mAttachCB( bmobject_->changed, uiBaseMapObject::changedCB );
-	mAttachCB( bmobject_->stylechanged, uiBaseMapObject::changedStyleCB );
-	mAttachCB( bmobject_->zvaluechanged, uiBaseMapObject::changedZValueCB );
+	mAttachCB( bmobject_->styleChanged, uiBaseMapObject::changedStyleCB );
+	mAttachCB( bmobject_->zvalueChanged, uiBaseMapObject::changedZValueCB );
 	changedZValueCB( 0 );
     }
     graphitem_.setAcceptHoverEvents( true );

@@ -107,9 +107,9 @@ public:
     CNotifier<BaseMapObject,const MouseEvent&>	leftClicked;
     CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;
     Notifier<BaseMapObject>			changed;
-    Notifier<BaseMapObject>			stylechanged;
-    Notifier<BaseMapObject>			zvaluechanged;
-    CNotifier<BaseMapObject,const uiString&>	namechanged;
+    Notifier<BaseMapObject>			styleChanged;
+    Notifier<BaseMapObject>			zvalueChanged;
+    CNotifier<BaseMapObject,const uiString&>	nameChanged;
 
 protected:
     int				depth_;
