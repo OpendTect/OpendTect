@@ -697,8 +697,17 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     bool atsamplepos = true;
 
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
+    RefMan<RegularSeisDataPack> preloadeddatapack = 0;
+
     if ( targetdesc )
     {
+	if ( targetdesc->isStored() )
+	{
+	    const DBKey mid( targetdesc->getStoredID() );
+	    preloadeddatapack =
+			Seis::PLDM().getAndCast<RegularSeisDataPack>( mid );
+	}
+
 	BufferString defstr;
 	targetdesc->getDefStr( defstr );
 	if ( defstr != targetspecs_[0].defString() )
@@ -726,7 +735,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     bool success = true;
     PtrMan<Processor> process = 0;
     RefMan<RegularSeisDataPack> output = 0;
-    if ( !atsamplepos )//note: 1 attrib computed at a time
+    if ( !preloadeddatapack && !atsamplepos )//note: 1 attrib computed at a time
     {
 	if ( !targetdesc ) return 0;
 	Pos::RangeProvider3D rgprov3d;
@@ -773,17 +782,11 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     }
     else
     {
-	if ( targetdesc && targetdesc->isStored() )
+	if ( preloadeddatapack )
 	{
-	    const DBKey mid( targetdesc->getStoredID() );
-	    RefMan<RegularSeisDataPack> sdp =
-		Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
-	    if ( sdp )
-	    {
-		ObjectSet<const RegularSeisDataPack> cubeset;
-		cubeset += sdp;
-		return aem->getDataPackOutput( cubeset );
-	    }
+	    ObjectSet<const RegularSeisDataPack> cubeset;
+	    cubeset += preloadeddatapack;
+	    return aem->getDataPackOutput( cubeset );
 	}
 
 	uiString errmsg;
@@ -868,7 +871,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 		    uiDialog::Setup(tr("Question"),mNoDlgTitle,mNoHelpKey) );
 		uiString msg( tr("Pre-loaded data does not cover the "
 				"full requested area.\n"
-				"Please choose one of the following options:") );
+				"Please choose one of the following options:"));
 		uiLabel* lbl = new uiLabel( &dlg, msg );
 		uiButtonGroup* grp =
 		    new uiButtonGroup( &dlg, "Options", OD::Vertical );
