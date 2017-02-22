@@ -671,8 +671,17 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
     bool atsamplepos = true;
 
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
+    RegularSeisDataPack* preloadeddatapack = 0;
+
     if ( targetdesc )
     {
+	if ( targetdesc->isStored() )
+	{
+	    const MultiID mid( targetdesc->getStoredID() );
+	    mDynamicCast( RegularSeisDataPack*, preloadeddatapack,
+						Seis::PLDM().get(mid) );
+	}
+
 	BufferString defstr;
 	targetdesc->getDefStr( defstr );
 	if ( defstr != targetspecs_[0].defString() )
@@ -700,7 +709,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
     bool success = true;
     PtrMan<Processor> process = 0;
     RegularSeisDataPack* output = 0;
-    if ( !atsamplepos )//note: 1 attrib computed at a time
+    if ( !preloadeddatapack && !atsamplepos )//note: 1 attrib computed at a time
     {
 	if ( !targetdesc ) return 0;
 	Pos::RangeProvider3D rgprov3d;
@@ -748,16 +757,11 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
     }
     else
     {
-	if ( targetdesc && targetdesc->isStored() )
+	if ( preloadeddatapack )
 	{
-	    const MultiID mid( targetdesc->getStoredID() );
-	    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
-	    if ( sdp )
-	    {
-		ObjectSet<const RegularSeisDataPack> cubeset;
-		cubeset += sdp;
-		return aem->getDataPackOutput( cubeset );
-	    }
+	    ObjectSet<const RegularSeisDataPack> cubeset;
+	    cubeset += preloadeddatapack;
+	    return aem->getDataPackOutput( cubeset );
 	}
 
 	uiString errmsg;

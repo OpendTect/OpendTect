@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
-    , zfactor_(SI().zDomain().userFactor())
+    , zfactor_(mUdf(int))
 {
     toolbar_ = new uiToolBar( p, uiStrings::phrJoinStrings(uiStrings::sSlice(),
 			      uiStrings::sPosition()) );
@@ -85,6 +85,7 @@ void uiSlicePos::shortcutsChg( CallBacker* )
 
 void uiSlicePos::initSteps( CallBacker* )
 {
+    zfactor_ = mCast( int, SI().zDomain().userFactor() );
     laststeps_[0] = SI().inlStep();
     laststeps_[1] = SI().crlStep();
     laststeps_[2] = mNINT32( SI().zStep()*zfactor_ );
