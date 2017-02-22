@@ -1873,8 +1873,6 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
     PtrMan<IOObj> ioobj = DBM().get( mid );
     const bool saveas = mid.isInvalid() || !ioobj || saveasreq;
     emserv_->storeObject( emid, saveas );
-    BufferString auxdatanm;
-    emserv_->storeAuxData( emid, auxdatanm );
 
     TypeSet<int> ids;
     mid = emserv_->getStorageID( emid );
