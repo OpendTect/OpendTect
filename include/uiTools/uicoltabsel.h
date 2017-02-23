@@ -56,6 +56,7 @@ public:
 				//!< CallBacker* is the uiMenu about to pop up
 
     virtual void		addObjectsToToolBar(uiToolBar&);
+    virtual void		orientationChanged();
 
 protected:
 

@@ -150,28 +150,23 @@ void uiColSeqDisp::reDraw()
     const bool isvert = orientation_ != OD::Horizontal;
     const int arrw = rgbarr_->getSize( true );
     const int arrh = rgbarr_->getSize( false );
-    const ColTab::IndexedLookUpTable indextable( *colseq_, isvert ? arrh : arrw,
+    const int shortarrlen = isvert ? arrw : arrh;
+    const int longarrlen = isvert ? arrh : arrw;
+    const ColTab::IndexedLookUpTable indextable( *colseq_, longarrlen,
 						 sequsemode_ );
-    if ( isvert )
+    const int startshort = withudfcoldisp_ ? shortarrlen / 7 : 0;
+    const int stopshort = shortarrlen - startshort;
+    const int startlong = 0;
+    const int stoplong = longarrlen;
+    for ( int ilong=startlong; ilong<stoplong; ilong++ )
     {
-	for ( int iy=0; iy<arrh; iy++ )
+	const Color color = indextable.colorForIndex( ilong );
+	for ( int ishort=startshort; ishort<stopshort; ishort++ )
 	{
-	    const Color color = indextable.colorForIndex( iy );
-	    for ( int ix=0; ix<arrw; ix++ )
-		rgbarr_->set( ix, iy, color );
-	}
-    }
-    else
-    {
-	const int starty = withudfcoldisp_ ? arrh / 7 : 0;
-	const int stopy = arrh - starty;
-	const int startx = starty;
-	const int stopx = arrw - startx;
-	for ( int ix=startx; ix<stopx; ix++ )
-	{
-	    const Color color = indextable.colorForIndex( ix );
-	    for ( int iy=starty; iy<stopy; iy++ )
-		rgbarr_->set( ix, iy, color );
+	    if ( isvert )
+		rgbarr_->set( ishort, ilong, color );
+	    else
+		rgbarr_->set( ilong, ishort, color );
 	}
     }
 

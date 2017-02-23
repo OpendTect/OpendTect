@@ -343,8 +343,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
     start.notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
     stop.notifyValueChanged( mCB(this,uiGenInputInputFld,valChangedNotify) );
 
-    start.notifyValueChanged( mCB(this,uiGenInputInputFld,updateReqNotify) );
-    stop.notifyValueChanged( mCB(this,uiGenInputInputFld,updateReqNotify) );
+    start.notifyUpdateRequested( mCB(this,uiGenInputInputFld,updateReqNotify) );
+    stop.notifyUpdateRequested( mCB(this,uiGenInputInputFld,updateReqNotify) );
 
     start.setReadOnly( false );
     stop.setReadOnly( false );

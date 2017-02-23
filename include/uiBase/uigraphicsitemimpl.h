@@ -476,3 +476,42 @@ protected:
     QPainterPath*	qppath_;
 
 };
+
+
+/*!\brief lines looking like a user can pick it up and drag it.  */
+
+mExpClass(uiBase) uiManipHandleItem : public uiGraphicsItemGroup
+{
+public:
+
+    mExpClass(uiBase) Setup
+    {
+    public:
+		    Setup() : hor_(false), start_(0), stop_(1) {}
+
+
+	bool	    hor_;
+	int	    thickness_; // width of the 'body' of the marker
+	int	    start_;	// start pixel in direction (usually 0)
+	int	    stop_;	// stop pixel (usually nrPixY()-1)
+	Color	    color_;	// color of 'body'
+    };
+
+			uiManipHandleItem(const Setup&,int pixpos,
+					    int zval=10000);
+			uiManipHandleItem(const Setup&,double fpos,
+					    int zval=10000);
+
+    void		setPenColor(const Color&,bool usetransp=false);
+			// usetransp is ignored
+
+protected:
+
+    void		init(const Setup&,int,int);
+    uiLineItem*		mkLine(bool,int,int,int,int,int);
+
+    uiLineItem*		bodyitm_;
+    uiLineItem*		shadeitm1_;
+    uiLineItem*		shadeitm2_;
+
+};

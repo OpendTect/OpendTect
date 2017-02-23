@@ -262,42 +262,16 @@ void drawMarkers( CallBacker* )
     lineitem->setZValue( 10 );
     markerlineitmgrp_->add( lineitem );
 
+    uiManipHandleItem::Setup msu;
+    msu.hor_ = false; msu.thickness_ = 3;
+    msu.start_ = 0; msu.stop_ = ymax;
+    msu.color_ = Color::Black();
     MonitorLock ml( colseq() );
     for ( int idx=0; idx<colseq().size(); idx++ )
-	addMarkerAt( xmax * colseq().position(idx), xmax, ymax );
-}
-
-void addMarkerAt( float fpos, int xmax, int ymax )
-{
-    int x = mNINT32( fpos );
-    if ( x < 1 ) x = 1;
-    if ( x > xmax-1 ) x = xmax - 1;
-
-    addLine( x, ymax, 3, Color::Black() );
-
-    if ( x > 1 )
     {
-	addLine( x-2, ymax, 1, Color(150,150,150,100) );
-	if ( x > 2 )
-	    addLine( x-3, ymax, 1, Color(225,225,225,200) );
+	const float fpos = xmax * colseq().position( idx );
+	markerlineitmgrp_->add( new uiManipHandleItem(msu,fpos) );
     }
-
-    if ( x < xmax-1 )
-    {
-	addLine( x+2, ymax, 1, Color(150,150,150,100) );
-	if ( x < xmax-2 )
-	    addLine( x+3, ymax, 1, Color(225,225,225,200) );
-    }
-}
-
-void addLine( int x, int ymax, int lwdth, Color col )
-{
-    uiLineItem* lineitem = new uiLineItem;
-    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,lwdth) );
-    lineitem->setPenColor( col );
-    lineitem->setLine( x, 5, x, ymax-1 );
-    lineitem->setZValue( 10000 );
-    markerlineitmgrp_->add( lineitem );
 }
 
 void mousePress( CallBacker* cb )

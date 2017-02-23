@@ -52,13 +52,22 @@ void uiColSeqSelTool::setToolTip()
 }
 
 
+#define mMaxLongSz 3*uiObject::iconSize()
+
 void uiColSeqSelTool::addObjectsToToolBar( uiToolBar& tbar )
 {
     if ( disp_ )
     {
-	disp_->setMaximumWidth( 3*uiObject::iconSize() );
+	disp_->setMaximumWidth( mMaxLongSz );
+	disp_->setMaximumHeight( mMaxLongSz );
 	tbar.addObject( disp_ );
     }
+}
+
+
+void uiColSeqSelTool::orientationChanged()
+{
+    disp_->setOrientation( orientation() );
 }
 
 

@@ -195,12 +195,17 @@ class uiManipMapperSetup : public uiGraphicsView
 { mODTextTranslationClass("uiManipMapperSetup");
 public:
 
+    typedef DataDistribution<float>	DistribType;
+
 uiManipMapperSetup( uiColTabSelTool& seltool )
     : uiGraphicsView(seltool.asParent(),"Mapper Manipulator")
     , seltool_(seltool)
     , eddlg_(0)
     , meh_(getMouseEventHandler())
     , keh_(getKeyboardEventHandler())
+    , distribitem_(0)
+    , rgstartitm_(0)
+    , rgstopitm_(0)
 {
     disableScrollZoom();
     mAttachCB( postFinalise(), uiManipMapperSetup::initCB );
@@ -236,10 +241,17 @@ void handleMouseBut( bool ispressed )
     if ( event.isWithKey() )
 	return;
 
-    if ( event.rightButton() && ispressed )
+    if ( ispressed )
     {
-	doMenu();
-	meh_.setHandled( true );
+	if ( event.rightButton() )
+	{
+	    doMenu();
+	    meh_.setHandled( true );
+	    return;
+	}
+	else if ( event.leftButton() )
+	{
+	}
     }
 }
 
@@ -259,22 +271,33 @@ void keyReleasedCB( CallBacker* )
 	setupDlgReqCB( 0 );
 }
 
+int maxLongSz() const
+{
+    return 3 * uiObject::iconSize();
+}
+
 void addObjectsToToolBar( uiToolBar& tbar )
 {
-    setMaximumWidth( 3*uiObject::iconSize() );
+    setMaximumWidth( maxLongSz() );
+    setMaximumHeight( maxLongSz() );
     tbar.addObject( this );
+}
+
+void orientationChanged()
+{
+    reDraw();
 }
 
 void handleMapperSetupChange()
 {
     if ( eddlg_ )
 	eddlg_->handleMapperSetupChange();
-    reDrawRange();
+    reDraw();
 }
 
 void handleDistribChange()
 {
-    reDrawDistrib();
+    reDraw();
 }
 
 void doMenu()
@@ -319,43 +342,119 @@ void reSizeCB( CallBacker* )
     reDraw();
 }
 
-void reDrawDistrib()
+bool calcScale()
 {
-    /*
-    MonitorLock ml( distrib() );
-    const int sz = distrib().size();
-    if ( sz < 2 )
-    {
-	if ( polygonitem_ )
-	    polygonitem_->setVisible( false );
-	return;
-    }
-    TypeSet<uiPoint> pts;
+    distrib().getCurve( longvals_, shortvals_, true );
+    longrg_ = setup().range();
 
-    if ( !polygonitem_ )
-	polygonitem_ = scene().addPolygon( pts, true );
-    else
-	polygonitem_->setPolygon( pts );
-	*/
+    const bool emptydistrib = longvals_.isEmpty();
+    const bool emptyrange = mIsUdf(longrg_.start) || mIsUdf(longrg_.start);
+    if ( emptyrange && emptydistrib )
+	return false;
+
+    if ( !emptydistrib )
+    {
+	Interval<float> drg( longvals_.first(), longvals_.last() );
+	if ( emptyrange )
+	    longrg_ = drg;
+	else
+	    longrg_.include( drg );
+	shortrg_.start = shortrg_.stop = 0.f;
+	for ( int idx=0; idx<shortvals_.size(); idx++ )
+	    shortrg_.include( shortvals_[idx] );
+    }
+    else // no distrib, but we have a range
+    {
+	longvals_.erase(); shortvals_.erase();
+	longvals_ += longrg_.start; longvals_ += longrg_.stop;
+	shortvals_ += 0.5f; shortvals_ += 0.5f;
+	shortrg_ = Interval<float>( 0.f, 1.f );
+    }
+
+    maprg_ = longrg_;
+    longrg_.widen( longrg_.width()/6.f );
+    return true;
+}
+
+void drawDistrib()
+{
+    const int xmaxpix = scene().nrPixX() - 1;
+    const int ymaxpix = scene().nrPixY() - 1;
+    TypeSet<uiPoint> pts;
+    const float longwdth = longrg_.width();
+    const float shortwdth = shortrg_.width();
+    const bool xislong = isHor();
+    const int sz = longvals_.size();
+    for ( int idx=-1; idx<=sz; idx++ )
+    {
+	float lpos = idx<0 ? longvals_[0]
+		   : (idx==sz ? longvals_[sz-1] : longvals_[idx]);
+	float spos = shortvals_.validIdx(idx) ? shortvals_[idx]
+					      : shortrg_.start;
+	const float fxpix = xislong
+		? ((lpos - longrg_.start) / longwdth) * xmaxpix
+		: ((spos - shortrg_.start) / shortwdth) * xmaxpix;
+	const float fypix = xislong
+		? ((shortrg_.stop - spos) / shortwdth) * ymaxpix
+		: ((longrg_.stop - lpos) / longwdth) * ymaxpix;
+	pts += uiPoint( mNINT32(fxpix), mNINT32(fypix) );
+    }
+
+    distribitem_ = scene().addPolygon( pts, true );
+    distribitem_->setPenColor( Color(0,127,0) );
+    distribitem_->setFillColor( Color::DgbColor() );
 }
 
 
-void reDrawRange()
+void drawRange()
 {
+    if ( mIsUdf(maprg_.start) || mIsUdf(maprg_.stop) )
+	return;
+
+    const int xmaxpix = scene().nrPixX() - 1;
+    const int ymaxpix = scene().nrPixY() - 1;
+    const float longwdth = longrg_.width();
+    const bool xislong = isHor();
+    uiManipHandleItem::Setup msu;
+    msu.hor_ = !isHor(); msu.thickness_ = 3;
+    msu.start_ = 0; msu.stop_ = xislong ? ymaxpix : xmaxpix;
+    msu.color_ = Color::Black();
+
+    const int nrpixlong = xislong ? xmaxpix : ymaxpix;
+    float fpos = nrpixlong * (maprg_.start-longrg_.start) / longwdth;
+    rgstartitm_ = scene().addItem( new uiManipHandleItem(msu,fpos) );
+    fpos = nrpixlong * (maprg_.stop-longrg_.start) / longwdth;
+    rgstopitm_ = scene().addItem( new uiManipHandleItem(msu,fpos) );
+}
+
+
+void eraseAll()
+{
+    delete distribitem_; distribitem_ = 0;
+    delete rgstartitm_; rgstartitm_ = 0;
+    delete rgstopitm_; rgstopitm_ = 0;
 }
 
 void reDraw()
 {
-    reDrawDistrib();
-    reDrawRange();
+    eraseAll();
+    if ( calcScale() )
+    {
+	drawDistrib();
+	drawRange();
+    }
 }
 
     uiColTabSelTool&	seltool_;
     uiEdMapperSetupDlg*	eddlg_;
     MouseEventHandler&	meh_;
     KeyboardEventHandler& keh_;
-    Interval<float>	scale_;
-    Interval<float>	range4scale_;
+    Interval<float>	maprg_;
+    Interval<float>	longrg_, shortrg_;
+    TypeSet<float>	longvals_, shortvals_;
+    uiPolygonItem*	distribitem_;
+    uiManipHandleItem*	rgstartitm_;
+    uiManipHandleItem*	rgstopitm_;
 
     uiParent*			    parent()
 				    { return seltool_.asParent(); }
@@ -363,6 +462,7 @@ void reDraw()
 				    { return *seltool_.mappersetup_; }
     uiColTabSelTool::DistribType&   distrib()
 				    { return *seltool_.distrib_; }
+    bool    isHor() const { return seltool_.orientation() == OD::Horizontal; }
 
 };
 
@@ -397,6 +497,13 @@ void uiColTabSelTool::addObjectsToToolBar( uiToolBar& tbar )
 {
     uiColSeqSelTool::addObjectsToToolBar( tbar );
     manip_->addObjectsToToolBar( tbar );
+}
+
+
+void uiColTabSelTool::orientationChanged()
+{
+    uiColSeqSelTool::orientationChanged();
+    manip_->orientationChanged();
 }
 
 

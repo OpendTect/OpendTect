@@ -63,6 +63,8 @@ public:
     inline void			normalise();
     inline void			getCurve(TypeSet<VT>& xvals,TypeSet<VT>& yvals,
 				        bool limitspikes=false) const;
+    inline void			getRanges(Interval<VT>& xrg,
+					  Interval<VT>& yrg) const;
 
     static ChangeType		cDataChange()		{ return 2; }
     static ChangeType		cSamplingChange()	{ return 3; }
@@ -294,6 +296,33 @@ void DataDistribution<VT>::getCurve( TypeSet<VT>& xvals, TypeSet<VT>& yvals,
 	const VT max4disp = minval + 1.5f * valrg;
 	if ( maxval > max4disp )
 	    yvals[idxatmax] = max4disp;
+    }
+}
+
+
+template <class VT> inline
+void DataDistribution<VT>::getRanges( Interval<VT>& xrg,
+				      Interval<VT>& yrg ) const
+{
+    mLock4Read();
+    xrg.start = sampling_.start;
+    if ( data_.size() < 1 )
+    {
+	xrg.stop = xrg.start;
+	yrg.start = yrg.stop = 0;
+    }
+    else
+    {
+	xrg.stop = sampling_.atIndex( data_.size()-1 );
+	yrg.start = yrg.stop = data_[0];
+	for ( int idx=1; idx<data_.size(); idx++ )
+	{
+	    const VT val = data_[idx];
+	    if ( val > yrg.stop )
+		yrg.stop = val;
+	    else if ( val < yrg.start )
+		yrg.start = val;
+	}
     }
 }
 

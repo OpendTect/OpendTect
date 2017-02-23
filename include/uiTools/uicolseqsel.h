@@ -60,6 +60,7 @@ public:
     virtual uiParent*		asParent()			= 0;
     virtual bool		isFinalised() const		= 0;
     virtual void		addObjectsToToolBar(uiToolBar&);
+    virtual void		orientationChanged();
 
 protected:
 
@@ -178,6 +179,7 @@ tbarclssnm##Tool( tbarclssnm* tb ) \
 void orChgCB( CallBacker* ) \
 { \
     setIsVertical( tbar_->getOrientation() == OD::Vertical ); \
+    orientationChanged(); \
 } \
 \
 virtual uiParent* asParent() \

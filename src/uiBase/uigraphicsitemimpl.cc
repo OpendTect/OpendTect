@@ -1150,3 +1150,53 @@ QGraphicsItem* uiCurvedItem::mkQtObj()
     qpathitem_ = new QGraphicsPathItem();
     return qpathitem_;
 }
+
+
+uiManipHandleItem::uiManipHandleItem( const Setup& su, int pixpos, int zval )
+    : uiGraphicsItemGroup(true)
+{
+    init( su, pixpos, zval );
+}
+
+
+uiManipHandleItem::uiManipHandleItem( const Setup& su, double fpos, int zval )
+    : uiGraphicsItemGroup(true)
+{
+    init( su, mNINT32(fpos), zval );
+}
+
+
+void uiManipHandleItem::init( const Setup& su, int pixpos, int zval )
+{
+    bodyitm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_,
+		       zval );
+    shadeitm1_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+1,
+			 zval-1 );
+    shadeitm2_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+2,
+			 zval-2 );
+    setPenColor( su.color_ );
+}
+
+
+uiLineItem* uiManipHandleItem::mkLine( bool ishor, int pos,
+			int start, int stop, int lwdth, int zval )
+{
+    uiLineItem* li = new uiLineItem;
+    li->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,lwdth) );
+    if ( ishor )
+	li->setLine( start, pos, stop, pos );
+    else
+	li->setLine( pos, start, pos, stop );
+    li->setZValue( zval );
+
+    add( li );
+    return li;
+}
+
+
+void uiManipHandleItem::setPenColor( const Color& basecol, bool )
+{
+    bodyitm_->setPenColor( basecol );
+    shadeitm1_->setPenColor( basecol.lighter( 1.0f ) );
+    shadeitm2_->setPenColor( basecol.lighter( 3.0f ) );
+}
