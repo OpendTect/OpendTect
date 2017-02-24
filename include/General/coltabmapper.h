@@ -197,7 +197,7 @@ od_int64 DataMapper<iT>::nrIterations() const
 template <class iT> inline
 bool DataMapper<iT>::doWork( od_int64 start, od_int64 stop, int )
 {
-    TypeSet<float> histogram( 255, 0 );
+    TypeSet<float> subhistogram( 255, 0 );
     iT* ptrcurmappedval = mappedvals_ + start*mappedvalsspacing_;
     iT* ptrcurmappedudf = mappedudfs_ ? mappedudfs_ + start*mappedudfspacing_
 				      : 0;
@@ -255,7 +255,7 @@ bool DataMapper<iT>::doWork( od_int64 start, od_int64 stop, int )
 	if ( !isudf )
 	{
 	    const int histidx = Mapper::indexForPosition( relpos, nrcolors, 0 );
-	    histogram[histidx]++;
+	    subhistogram[histidx]++;
 	}
 
 	if ( (++nrdone) > 100000 )
@@ -272,7 +272,7 @@ bool DataMapper<iT>::doWork( od_int64 start, od_int64 stop, int )
 
     Threads::Locker lckr( histogramlock_ );
     for ( int idx=0; idx<nrcolors_; idx++ )
-	histogram_[idx] += histogram[idx];
+	histogram_[idx] += subhistogram[idx];
 
     return true;
 }
