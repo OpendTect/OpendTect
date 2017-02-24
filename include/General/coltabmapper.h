@@ -197,7 +197,7 @@ od_int64 DataMapper<iT>::nrIterations() const
 template <class iT> inline
 bool DataMapper<iT>::doWork( od_int64 start, od_int64 stop, int )
 {
-    TypeSet<float> subhistogram( 255, 0 );
+    TypeSet<unsigned int> subhistogram( 255, 0 );
     iT* ptrcurmappedval = mappedvals_ + start*mappedvalsspacing_;
     iT* ptrcurmappedudf = mappedudfs_ ? mappedudfs_ + start*mappedudfspacing_
 				      : 0;
