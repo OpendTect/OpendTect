@@ -211,7 +211,7 @@ public:
     }
 
 
-    Threads::AtomicPointer<const void>	callingthread_;
+    Threads::Atomic<Threads::ThreadID>	callingthread_;
 };
 
 

@@ -300,7 +300,7 @@ protected:
     bool			ismanip_;
     bool                        onoffstatus_;
 
-    RefMan<const mVisTrans>	displaytrans_;
+    ConstRefMan<mVisTrans>	displaytrans_;
 
     static const char*		sKeyVolumeID();
     static const char*		sKeyInline();

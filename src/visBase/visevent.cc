@@ -667,7 +667,7 @@ void EventCatcher::releaseEventsCB( CallBacker* )
 	if ( eventqueue_.isEmpty() )
 	    return;
 
-	PtrMan<const EventInfo> curevent = eventqueue_.removeSingle( 0 );
+	ConstPtrMan<EventInfo> curevent = eventqueue_.removeSingle( 0 );
 	locker.unlockNow();
 
 	ishandled_ = false;

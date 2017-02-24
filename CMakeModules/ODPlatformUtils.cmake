@@ -31,6 +31,8 @@ if(UNIX) #Apple an Linux
 
     endif(CMAKE_COMPILER_IS_GNUCC)
 
+    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+
     if(APPLE)
 	option( AVOID_CLANG_ERROR "Avoid CLang error" OFF )
 	if ( AVOID_CLANG_ERROR )

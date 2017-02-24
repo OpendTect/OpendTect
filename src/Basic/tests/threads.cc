@@ -20,19 +20,19 @@
 	od_cout() << "\nData type in test: " << valtype; \
 	od_cout() << "\n====================\n"; \
     } \
-    od_cout() << "Atomic = " << atomic.get() << " in function: "; \
+    od_cout() << "Atomic = " << atomic.load() << " in function: "; \
     od_cout() << func << " failed!\n"; \
     stopflag = true; \
     return false; \
 } \
 else \
 { \
-	od_cout() << "Atomic = " << atomic.get() << " in function: "; \
+	od_cout() << "Atomic = " << atomic.load() << " in function: "; \
 	od_cout() << func << " OK\n"; \
 }
 
 #define mRunTest( func, finalval ) \
-    if ( (func)==false || atomic.get()!=finalval ) \
+    if ( (func)==false || atomic.load()!=finalval ) \
 	mPrintResult( #func )
 
 #define mTestVal 100
@@ -94,7 +94,7 @@ bool testAtomic( const char* valtype )
 
     int count = 10000000;
     bool successfound = false, failurefound = false;
-    curval = atomic.get();
+    curval = atomic.load();
     for ( int idx=0; idx<count; idx++ )
     {
 	if ( atomic.setIfValueIs( curval, mTestVal, &curval ) )
@@ -115,7 +115,7 @@ bool testAtomic( const char* valtype )
     int idx;
     for ( idx=0; idx<count; idx++ )
     {
-	curval = atomic.get();
+	curval = atomic.load();
 	if ( atomic.setIfValueIs(curval,mTestVal,&curval ) )
 	    successfound = true;
 	else
@@ -186,12 +186,10 @@ bool testAtomicSetIfValueIs()
 
 bool testAtomicPointer()
 {
-    Threads::AtomicPointer<const void> curthread;
-    const void* storage = curthread.getStorage();
+    Threads::AtomicPointer<void> curthread;
+
     curthread = Threads::currentThread();
 
-    mRunStandardTest(storage == curthread.getStorage(),
-	    	     "Atomic pointer sanity");
     mRunStandardTest(curthread == Threads::currentThread(),
 	    	     "Atomic Pointer assignment");
 

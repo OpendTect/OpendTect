@@ -88,9 +88,9 @@ void Referenced::removeObserver(WeakPtrBase* obs)
 }
 
 #ifdef __win__
-# define mDeclareCounters	od_int32 oldcount = count_.get(), newcount = 0
+# define mDeclareCounters	od_int32 oldcount = count_.load(), newcount = 0
 #else
-# define mDeclareCounters	od_int32 oldcount = count_.get(), newcount;
+# define mDeclareCounters	od_int32 oldcount = count_.load(), newcount;
 #endif
 
 

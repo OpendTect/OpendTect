@@ -342,8 +342,10 @@ void Threads::SpinLock::lock()
     }
 
     mPrepareIttNotify( lockingthread_ );
-    while ( !lockingthread_.setIfEqual( 0, currentthread ) )
-	;
+    ThreadID null_pointer = 0;
+    while ( !lockingthread_.compare_exchange_weak(null_pointer,currentthread ) )
+	null_pointer = 0;
+
 
     mIttNotifyAcquired( lockingthread_ );
 
@@ -371,7 +373,7 @@ void Threads::SpinLock::unLock()
 
 bool Threads::SpinLock::tryLock()
 {
-    const ThreadID currentthread = currentThread();
+    ThreadID currentthread = currentThread();
     if ( recursive_ && lockingthread_ == currentthread )
     {
 	count_ ++;
@@ -379,7 +381,8 @@ bool Threads::SpinLock::tryLock()
     }
 
     mPrepareIttNotify( lockingthread_ );
-    if ( lockingthread_.setIfEqual(0, currentthread) )
+    ThreadID oldthread = 0;
+    if ( lockingthread_.setIfValueIs(oldthread, currentthread) )
     {
 	mIttNotifyAcquired( lockingthread_ );
 	count_ ++;
@@ -424,7 +427,7 @@ void Threads::SpinRWLock::readLock()
 	    prevval = 0;
 
 	newval = prevval+1;
-    } while ( !count_.setIfValueIs( prevval, newval, &prevval ) );
+    } while ( !count_.compare_exchange_weak( prevval, newval ) );
 
     mIttNotifyAcquired( count_ );
 }
@@ -440,8 +443,12 @@ void Threads::SpinRWLock::readUnlock()
 void Threads::SpinRWLock::writeLock()
 {
     mPrepareIttNotify( count_ );
-    while ( !count_.setIfValueIs( 0, -1, 0 ) )
-    {}
+
+    int curval;
+    do
+    {
+	curval = 0;
+    } while ( !count_.compare_exchange_weak( curval, -1 ));
 
     mIttNotifyAcquired( count_ );
 }

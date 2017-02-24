@@ -134,7 +134,7 @@ protected:
     RefMan<Coordinates>		coords_;
     osg::Array*			onoffarr_;
     RefMan<Normals>		normals_;
-    RefMan<const mVisTrans>	displaytrans_;
+    ConstRefMan<mVisTrans>	displaytrans_;
     osgGeo::MarkerSet*		markerset_;
     OD::MarkerStyle3D		markerstyle_;
 

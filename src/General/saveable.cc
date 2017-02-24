@@ -105,7 +105,7 @@ const SharedObject* Saveable::object() const
 Monitorable::DirtyCountType Saveable::curDirtyCount() const
 {
     mLock4Read();
-    return objectalive_ ? object_->dirtyCount() : lastsavedirtycount_.get();
+    return objectalive_ ? object_->dirtyCount() : lastsavedirtycount_.load();
 }
 
 

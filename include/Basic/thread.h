@@ -30,7 +30,7 @@ simply too big and dependent.
 namespace Threads
 {
 
-typedef const void* ThreadID;
+typedef void* ThreadID;
 
 /*!
 \brief Is a lock that allows a thread to have exlusive rights to something.

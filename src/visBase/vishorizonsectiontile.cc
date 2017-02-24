@@ -386,7 +386,7 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
     datalock_.lock();
 
     const int nrcoords = hrsection_.nrcoordspertileside_;
-    const RefMan<const Transformation> trans = hrsection_.transformation_;
+    const ConstRefMan<Transformation> trans = hrsection_.transformation_;
 
     int crdidx = 0;
     bbox_.init();

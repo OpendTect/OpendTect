@@ -89,7 +89,7 @@ public:
 protected:
 					~BoxDragger();
 
-    RefMan<const mVisTrans>		transform_;
+    ConstRefMan<mVisTrans>		transform_;
 
     void				setOsgMatrix(const Coord3& worldscale,
 						     const Coord3& worldtrans);

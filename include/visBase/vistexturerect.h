@@ -99,7 +99,7 @@ public:
 protected:
 				~TextureRectangle();
 
-    RefMan<const mVisTrans>	displaytrans_;
+    ConstRefMan<mVisTrans>	displaytrans_;
 
     osgGeo::TexturePlaneNode*	textureplane_;
     RefMan<TextureChannels>	channels_;

@@ -247,7 +247,7 @@ protected:
     // texture channel-related data
     visBase::TextureChannels*	channels_;
 
-    RefMan<const mVisTrans>	displaytrans_;
+    ConstRefMan<mVisTrans>	displaytrans_;
     Coord3			curboxcenter_;
     Coord3			curboxwidth_;
 

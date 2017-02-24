@@ -119,7 +119,7 @@ protected:
     TypeSet<Coord3>		centers_;
     TypeSet<Coord3>		sizes_;
 
-    RefMan<const mVisTrans>	transform_;
+    ConstRefMan<mVisTrans>	transform_;
 
     osgGeo::TabPlaneDragger*	osgdragger_;
     osg::Switch*			osgdraggerplane_;

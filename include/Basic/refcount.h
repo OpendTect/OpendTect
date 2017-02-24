@@ -126,7 +126,7 @@ public:
     void		unRefDontInvalidate();
 			//!<Will allow it to go to zero
 
-    od_int32		count() const { return count_.get(); }
+    od_int32		count() const { return count_.load(); }
     bool		refIfReffed();
 			//!<Don't use in production, for debugging
 
