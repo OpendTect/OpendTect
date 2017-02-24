@@ -338,6 +338,7 @@ public:
     static uiString sHide()		{ return tr("Hide"); }
     static uiString sHistogram();
     static uiString sHorizon(int num=1);
+    static uiString sHorizonData()	{ return tr("Horizon Data"); }
     static uiString sHorizontal()	{ return tr("Horizontal"); }
     static uiString sImport();
     static uiString sImpSuccess()	{ return tr("Import successful"); }
