@@ -419,20 +419,20 @@ float ColTab::Mapper::seqPos4RelPos( SeqUseMode mode, float pos )
 }
 
 
-int ColTab::Mapper::snappedPosition( const ColTab::Mapper* mapper,
-	float v, int nrsteps, int udfval )
+int ColTab::Mapper::indexForValue( const ColTab::Mapper* mapper,
+				    float v, int nrcolors, int udfidx )
 {
     if ( mIsUdf(v) )
-	return udfval;
+	return udfidx;
 
-    float ret = mapper ? mapper->position( v ) : v;
-    ret *= nrsteps;
-    if ( ret > nrsteps - 0.9f )
-	ret = nrsteps - 0.9f;
-    else if ( ret < 0 )
+    float fidx = mapper ? mapper->position( v ) : v;
+    fidx *= nrcolors;
+    int ret = (int)(fidx - 0.5f);
+    if ( ret < 0 )
 	ret = 0;
-
-    return (int)ret;
+    if ( ret > nrcolors-1 )
+	ret = nrcolors-1;
+    return ret;
 }
 
 

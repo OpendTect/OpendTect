@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "valseries.h"
 #include "varlenarray.h"
 
-#define mUndefColIdx    (nrsteps_)
+#define mUndefColIdx    (nrcolors_)
 
 class DataClipper;
 class TaskRunner;
@@ -50,8 +50,11 @@ public:
 
     float			position(float val) const;
 				//!< returns position in ColorTable
-    static int			snappedPosition(const Mapper*,float val,
-						int nrsteps,int udfval);
+    static int			indexForValue(const Mapper*,float val,
+						int nrcolors,int udfval);
+    inline static int		indexForPosition( float ps, int nc, int udfidx )
+				{ return indexForValue( 0, ps, nc, udfidx ); }
+
     Interval<float>		range() const	{ return setup_->range(); }
     const ValueSeries<float>*	data() const	{ return vs_; }
     od_int64			dataSize() const{ return vssz_; }
@@ -86,143 +89,138 @@ protected:
 };
 
 
-/*!\brief Uses unmapped data and gathers the info needed to map it. */
+/*!\brief Maps input data into color indices. Generates a hostogram of values
+  while at it.*/
 
 template <class iT>
-mClass(General) MapperInfoCollector : public ParallelTask
-{ mODTextTranslationClass(MapperInfoCollector)
+mClass(General) DataMapper : public ParallelTask
+{ mODTextTranslationClass(DataMapper)
 public:
-			MapperInfoCollector(const ColTab::Mapper& map,
-				   od_int64 sz,iT nrsteps,
-				   const float* unmapped,
+
+			DataMapper(const ColTab::Mapper& map,
+				   od_int64 sz,iT nrcolors,
+				   const float* inpdata,
 				   iT* mappedvals,int mappedvalspacing=1,
 				   iT* mappedundef=0,int mappedundefspacing=1);
-			/*!<separateundef will set every second value to
-			    0 or mUndefColIdx depending on if the value
-			    is undef or not. Mapped pointer should thus
-			    have space for 2*sz */
-			MapperInfoCollector(const ColTab::Mapper& map,
-				   od_int64 sz,iT nrsteps,
-				   const ValueSeries<float>& unmapped,
+			DataMapper(const ColTab::Mapper& map,
+				   od_int64 sz,iT nrcolors,
+				   const ValueSeries<float>& inpvs,
 				   iT* mappedvals, int mappedvalspacing=1,
 				   iT* mappedundef=0,int mappedundefspacing=1);
-			/*!<separateundef will set every second value to
-			    0 or mUndefColIdx depending on if the value
-			    is undef or not. Mapped pointer should thus
-			    have space for 2*sz */
-			~MapperInfoCollector();
-    od_int64		nrIterations() const;
-    const unsigned int*	getHistogram() const	{ return histogram_; }
-    const SamplingData<float>&	getHistogramSampling() const
+
+    od_int64			nrIterations() const;
+    const TypeSet<unsigned int>& histogram() const	{ return histogram_; }
+    const SamplingData<float>&	histogramSampling() const
 						{ return histogramsampling_; }
 
 private:
+
+    void			initHistogram();
     bool			doWork(od_int64 start,od_int64 stop,int);
     uiString			nrDoneText() const
 				{ return tr("Data values mapped"); }
 
     const ColTab::Mapper&	mapper_;
-    od_int64			totalsz_;
-    const float*		unmapped_;
-    const ValueSeries<float>*	unmappedvs_;
+    const float*		inpdata_;
+    const ValueSeries<float>*	inpdatavs_;
+    const iT			nrcolors_;
+    const od_int64		totalsz_;
     iT*				mappedvals_;
-    int				mappedvalsspacing_;
+    const int			mappedvalsspacing_;
     iT*				mappedudfs_;
-    int				mappedudfspacing_;
-    const iT			nrsteps_;
-    unsigned int*		histogram_;
+    const int			mappedudfspacing_;
+
+    TypeSet<unsigned int>	histogram_;
     SamplingData<float>		histogramsampling_;
-    Threads::Lock		lock_;
+    Threads::Lock		histogramlock_;
+
 };
 
 
 template <class iT> inline
-MapperInfoCollector<iT>::MapperInfoCollector( const ColTab::Mapper& map, od_int64 sz, iT nrsteps,
-			   const float* unmapped,
+DataMapper<iT>::DataMapper( const ColTab::Mapper& map, od_int64 sz, iT nrcolors,
+			   const float* inpdata,
 			   iT* mappedvals, int mappedvalsspacing,
 			   iT* mappedudfs, int mappedudfspacing	)
-    : ParallelTask( "Color table mapping" )
+    : ParallelTask( "Color Table Mapping" )
     , mapper_( map )
     , totalsz_( sz )
-    , nrsteps_( nrsteps )
-    , unmapped_( unmapped )
-    , unmappedvs_( 0 )
+    , nrcolors_( nrcolors )
+    , inpdata_( inpdata )
+    , inpdatavs_( 0 )
     , mappedvals_( mappedvals )
     , mappedudfs_( mappedudfs )
     , mappedvalsspacing_( mappedvalsspacing )
     , mappedudfspacing_( mappedudfspacing )
-    , histogram_( new unsigned int[nrsteps+1] )
 {
-    OD::memZero( histogram_, (mUndefColIdx+1)*sizeof(unsigned int) );
+    initHistogram();
 }
 
 
 template <class iT> inline
-MapperInfoCollector<iT>::MapperInfoCollector( const ColTab::Mapper& map,
-			    od_int64 sz, iT nrsteps,
-			   const ValueSeries<float>& unmapped,
+DataMapper<iT>::DataMapper( const ColTab::Mapper& map,
+			    od_int64 sz, iT nrcolors,
+			   const ValueSeries<float>& inpdata,
 			   iT* mappedvals, int mappedvalsspacing,
 			   iT* mappedudfs, int mappedudfspacing	)
     : ParallelTask( "Color table mapping" )
     , mapper_( map )
     , totalsz_( sz )
-    , nrsteps_( nrsteps )
-    , unmapped_( unmapped.arr() )
-    , unmappedvs_( unmapped.arr() ? 0 : &unmapped )
+    , nrcolors_( nrcolors )
+    , inpdata_( inpdata.arr() )
+    , inpdatavs_( inpdata.arr() ? 0 : &inpdata )
     , mappedvals_( mappedvals )
     , mappedudfs_( mappedudfs )
     , mappedvalsspacing_( mappedvalsspacing )
     , mappedudfspacing_( mappedudfspacing )
-    , histogram_( new unsigned int[nrsteps+1] )
 {
-    OD::memZero( histogram_, (mUndefColIdx+1)*sizeof(unsigned int) );
+    initHistogram();
+}
+
+
+template <class iT> inline
+void DataMapper<iT>::initHistogram()
+{
+    histogram_.setSize( 255, 0 );
     histogramsampling_.start = mapper_.setup().range().start;
-    histogramsampling_.step = mapper_.setup().range().width() / nrsteps;
+    histogramsampling_.step = mapper_.setup().range().width() / nrcolors_;
 }
 
 
 template <class iT> inline
-MapperInfoCollector<iT>::~MapperInfoCollector()
+od_int64 DataMapper<iT>::nrIterations() const
 {
-    delete [] histogram_;
+    return totalsz_;
 }
 
 
 template <class iT> inline
-od_int64 MapperInfoCollector<iT>::nrIterations() const
-{ return totalsz_; }
-
-
-template <class iT> inline
-bool MapperInfoCollector<iT>::doWork( od_int64 start, od_int64 stop, int )
+bool DataMapper<iT>::doWork( od_int64 start, od_int64 stop, int )
 {
-    mAllocVarLenArr( unsigned int, histogram,  mUndefColIdx+1);
-
-    OD::memZero( histogram, (mUndefColIdx+1)*sizeof(unsigned int) );
-
-    iT* valresult = mappedvals_+start*mappedvalsspacing_;
-    iT* udfresult = mappedudfs_ ? mappedudfs_+start*mappedudfspacing_ : 0;
-    const float* inp = unmapped_+start;
-
-    const ValueSeries<float>* unmappedvs = unmappedvs_;
+    TypeSet<float> histogram( 255, 0 );
+    iT* ptrcurmappedval = mappedvals_ + start*mappedvalsspacing_;
+    iT* ptrcurmappedudf = mappedudfs_ ? mappedudfs_ + start*mappedudfspacing_
+				      : 0;
+    const float* ptrcurinp = inpdata_ + start;
+    const ValueSeries<float>* inpdatavs = inpdatavs_;
     const int mappedvalsspacing = mappedvalsspacing_;
     const int mappedudfspacing = mappedudfspacing_;
-    const int nrsteps = nrsteps_;
-    const int udfcolidx = mUndefColIdx;
-
+    const int nrcolors = nrcolors_;
+    const int udfcolidx = nrcolors_;
     const int nrsegs = mapper_.setup().nrSegs();
     const SeqUseMode usemode = mapper_.setup().seqUseMode();
     const Interval<float> maprg( mapper_.setup().range() );
+    const float rangestart = maprg.start;
     const float rangewidth = maprg.width( false );
     const bool rangehaswidth = !mIsZero(rangewidth,mDefEps);
-    const float rangestart = maprg.start;
 
     int nrdone = 0;
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
-	const float input = unmappedvs ? unmappedvs->value(idx) : *inp++;
+	const float input = inpdatavs ? inpdatavs->value(idx) : *ptrcurinp++;
 
-	float position = 0.0f;
+	float relpos = 0.0f;
+	int colidx = udfcolidx;
 	bool isudf = true;
 
 	if ( mFastIsFloatDefined(input) )
@@ -230,33 +228,35 @@ bool MapperInfoCollector<iT>::doWork( od_int64 start, od_int64 stop, int )
 	    isudf = false;
 	    if ( rangehaswidth )
 	    {
-		position = (input-rangestart) / rangewidth;
+		relpos = (input-rangestart) / rangewidth;
 		if ( nrsegs > 0 )
-		    position = (0.5f + ((int) (position*nrsegs))) / nrsegs;
+		    relpos = (0.5f + ((int) (relpos*nrsegs))) / nrsegs;
 
-		if ( position > 1.0f )
-		    position = 1.0f;
-		else if ( position < 0.0f )
-		    position = 0.0f;
+		if ( relpos > 1.0f )
+		    relpos = 1.0f;
+		else if ( relpos < 0.0f )
+		    relpos = 0.0f;
 
-		position = Mapper::seqPos4RelPos( usemode, position );
-		position = (float)Mapper::snappedPosition( 0, position,
-				    nrsteps, -1 );
+		float seqposition = Mapper::seqPos4RelPos( usemode, relpos );
+		colidx = Mapper::indexForPosition( seqposition,
+						   nrcolors, udfcolidx );
 	    }
 	}
 
-	const iT histidx = (iT)( isudf ? udfcolidx : (int)position );
+	*ptrcurmappedval = (iT)colidx;
+	ptrcurmappedval += mappedvalsspacing;
 
-	*valresult = histidx;
-	valresult += mappedvalsspacing;
-
-	if ( udfresult )
+	if ( ptrcurmappedudf )
 	{
-	    *udfresult = (iT)(isudf ? 0 : udfcolidx);
-	    udfresult += mappedudfspacing;
+	    *ptrcurmappedudf = (iT)(isudf ? 0 : udfcolidx);
+	    ptrcurmappedudf += mappedudfspacing;
 	}
 
-	histogram[histidx]++;
+	if ( !isudf )
+	{
+	    const int histidx = Mapper::indexForPosition( relpos, nrcolors, 0 );
+	    histogram[histidx]++;
+	}
 
 	if ( (++nrdone) > 100000 )
 	{
@@ -270,8 +270,8 @@ bool MapperInfoCollector<iT>::doWork( od_int64 start, od_int64 stop, int )
     if ( nrdone )
 	addToNrDone( nrdone );
 
-    Threads::Locker lckr( lock_ );
-    for ( int idx=0; idx<=mUndefColIdx; idx++ )
+    Threads::Locker lckr( histogramlock_ );
+    for ( int idx=0; idx<nrcolors_; idx++ )
 	histogram_[idx] += histogram[idx];
 
     return true;

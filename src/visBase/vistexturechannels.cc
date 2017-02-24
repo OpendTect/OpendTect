@@ -433,28 +433,29 @@ bool ChannelInfo::mapData( int version, TaskRunner* tskr )
 	mappedudfs = mappeddata_[version] + texturechannels_.nrDataBands();
 
     const int nrcolors = mNrColors;
-    ColTab::MapperInfoCollector< unsigned char>	maptask( *mappers_[version],
+    ColTab::DataMapper<unsigned char> maptask( *mappers_[version],
 	    nrelements, nrcolors, *unmappeddata_[version],
 	    mappeddata_[version], spacing,
 	    mappedudfs, spacing );
 
     if ( TaskRunner::execute( tskr, maptask ) )
     {
-	const unsigned int* histogram = maptask.getHistogram();
+	const unsigned int* histogram = maptask.histogram().arr();
 	int max = 0;
-	for ( int idx=0; idx<nrcolors; idx++ )
+	const int histsz = maptask.histogram().size();
+	for ( int idx=0; idx<histsz; idx++ )
 	{
 	    if ( histogram[idx] > max )
 		max = histogram[idx];
 	}
 
-	distrib_ = new DistribType( maptask.getHistogramSampling(), nrcolors );
+	distrib_ = new DistribType( maptask.histogramSampling(), nrcolors );
 	float* distribarr = distrib_->getArr();
 	if ( max == 0 )
-	    OD::memZero( distribarr, nrcolors*sizeof(float) );
+	    OD::memZero( distribarr, histsz*sizeof(float) );
 	else
 	{
-	    for ( int idx=nrcolors-1; idx>=0; idx-- )
+	    for ( int idx=0; idx<histsz; idx++ )
 		distribarr[idx] = ((float)histogram[idx]) / max;
 	}
 

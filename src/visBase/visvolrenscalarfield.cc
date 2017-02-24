@@ -738,30 +738,30 @@ void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tskr )
     const int idxstep = -attribs_[attr]->indexcachestep_;
     unsigned char* idxptr = attribs_[attr]->indexcache_ - (totalsz-1)*idxstep;
     unsigned char* udfptr = hasundefchannel ? idxptr+1 : 0;
-    ColTab::MapperInfoCollector<unsigned char> infcoll( attribs_[attr]->mapper_,
+    ColTab::DataMapper<unsigned char> infcoll( attribs_[attr]->mapper_,
 			    totalsz, mNrColors-1, *attribs_[attr]->resizecache_,
 			    idxptr, idxstep, udfptr, idxstep );
 
     if ( tskr ? !tskr->execute(infcoll) : !infcoll.execute() )
 	return;
 
-    const int nrcolors = mNrColors - 1;
+    const int histsz = infcoll.histogram().size();
     unsigned int histmax = 0;
-    const unsigned int* histogram = infcoll.getHistogram();
-    for ( int idx=nrcolors-1; idx>=0; idx-- )
+    const unsigned int* histogram = infcoll.histogram().arr();
+    for ( int idx=0; idx<histsz; idx++ )
     {
 	if ( histogram[idx] > histmax )
 	    histmax = histogram[idx];
     }
 
     attribs_[attr]->distrib_ = new DistribType(
-			    infcoll.getHistogramSampling(), mNrColors-1 );
+			    infcoll.histogramSampling(), mNrColors-1 );
     float* distribarr = attribs_[attr]->distrib_->getArr();
     if ( histmax < 1 )
-	OD::memZero( distribarr, nrcolors*sizeof(float) );
+	OD::memZero( distribarr, histsz*sizeof(float) );
     else
     {
-	for ( int idx=nrcolors-1; idx>=0; idx-- )
+	for ( int idx=0; idx<histsz; idx++ )
 	    distribarr[idx] = ((float)histogram[idx])/histmax;
     }
 

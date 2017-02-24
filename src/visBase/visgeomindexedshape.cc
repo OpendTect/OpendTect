@@ -446,11 +446,11 @@ void GeomIndexedShape::mapAttributeToColorTableMaterial()
 
     for ( int idx=0; idx<vtexshape_->getCoordinates()->size(); idx++ )
     {
-	const int coloridx = ColTab::Mapper::snappedPosition(
+	const int coloridx = ColTab::Mapper::indexForValue(
 	    &colorhandler_->mapper_,colorhandler_->attributecache_[idx],
 	    mNrMaterialSteps, mUndefMaterial );
 
-	colors.add( colorhandler_->material_->getColor(coloridx ) );
+	colors.add( colorhandler_->material_->getColor(coloridx) );
     }
 
     coltabmaterial_->setColors( colors, false );
