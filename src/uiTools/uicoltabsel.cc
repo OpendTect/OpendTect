@@ -206,6 +206,7 @@ uiManipMapperSetup( uiColTabSelTool& seltool )
     , distribitem_(0)
     , rgstartitm_(0)
     , rgstopitm_(0)
+    , movingside_(0)
 {
     disableScrollZoom();
     mAttachCB( postFinalise(), uiManipMapperSetup::initCB );
@@ -233,10 +234,30 @@ void initCB( CallBacker* )
 void mousePressCB( CallBacker* ) { handleMouseBut( true ); }
 void mouseReleaseCB( CallBacker* ) { handleMouseBut( true ); }
 
+int longNrPix() const
+{
+    return xIsLong() ? scene().nrPixX() : scene().nrPixY();
+}
+
+int pix4Val( float val ) const
+{
+    const float relpos = (val - longrg_.start) / longrg_.width();
+    const float fpix = relpos * longNrPix();
+    return (int)(fpix + 0.5f);
+}
+
+float val4Pix( int pix ) const
+{
+    const float relpos = ((float)pix) / longNrPix();
+    return longrg_.start + relpos * longrg_.width();
+}
+
 void handleMouseBut( bool ispressed )
 {
     if ( meh_.isHandled() )
 	return;
+
+    movingside_ = 0;
     const MouseEvent& event = meh_.event();
     if ( event.isWithKey() )
 	return;
@@ -251,12 +272,41 @@ void handleMouseBut( bool ispressed )
 	}
 	else if ( event.leftButton() )
 	{
+	    const int pix = event.x();
+	    const int nrsnappixs = 5;
+	    if ( abs(pix-pix4Val(maprg_.start)) < nrsnappixs )
+		{ movingside_ = -1; lastmovepos_ = val4Pix(pix); }
+	    else if ( abs(pix-pix4Val(maprg_.stop)) < nrsnappixs )
+		{ movingside_ = 1; lastmovepos_ = val4Pix(pix); }
 	}
     }
 }
 
 void mouseMoveCB( CallBacker* )
 {
+    if ( !movingside_ || meh_.isHandled() )
+	return;
+    const MouseEvent& event = meh_.event();
+    if ( event.isWithKey() )
+	{ pErrMsg("Huh"); return; }
+
+    int pix = event.x();
+    if ( movingside_ < 0 )
+    {
+	const int othsidepix = pix4Val( maprg_.stop );
+	if ( othsidepix - pix < 1 )
+	    pix = othsidepix - 1;
+	maprg_.start = val4Pix( pix );
+    }
+    else
+    {
+	const int othsidepix = pix4Val( maprg_.start );
+	if ( pix - othsidepix < 1 )
+	    pix = othsidepix + 1;
+	maprg_.stop = val4Pix( pix );
+    }
+
+    setup().setRange( maprg_ );
 }
 
 void keyReleasedCB( CallBacker* )
@@ -383,7 +433,7 @@ void drawDistrib()
     TypeSet<uiPoint> pts;
     const float longwdth = longrg_.width();
     const float shortwdth = shortrg_.width();
-    const bool xislong = isHor();
+    const bool xislong = xIsLong();
     const int sz = longvals_.size();
     for ( int idx=-1; idx<=sz; idx++ )
     {
@@ -414,7 +464,7 @@ void drawRange()
     const int xmaxpix = scene().nrPixX() - 1;
     const int ymaxpix = scene().nrPixY() - 1;
     const float longwdth = longrg_.width();
-    const bool xislong = isHor();
+    const bool xislong = xIsLong();
     uiManipHandleItem::Setup msu;
     msu.hor_ = !isHor(); msu.thickness_ = 3;
     msu.start_ = 0; msu.stop_ = xislong ? ymaxpix : xmaxpix;
@@ -456,13 +506,19 @@ void reDraw()
     uiManipHandleItem*	rgstartitm_;
     uiManipHandleItem*	rgstopitm_;
 
+    int			movingside_;
+    float		lastmovepos_;
+
     uiParent*			    parent()
 				    { return seltool_.asParent(); }
     ColTab::MapperSetup&	    setup()
 				    { return *seltool_.mappersetup_; }
     uiColTabSelTool::DistribType&   distrib()
 				    { return *seltool_.distrib_; }
-    bool    isHor() const { return seltool_.orientation() == OD::Horizontal; }
+
+    inline bool		xIsLong() const		{ return isHor(); }
+    bool		isHor() const
+			{ return seltool_.orientation() == OD::Horizontal; }
 
 };
 
