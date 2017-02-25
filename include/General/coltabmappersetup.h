@@ -42,9 +42,10 @@ public:
     mImplSimpleMonitoredGetSet(inline,seqUseMode,setSeqUseMode,
 				SeqUseMode,sequsemode_,cUseModeChange());
 
-    // The scaling when fixed
+    // The scaling. When fixed, set by you, when auto, set by clipping.
     mImplSimpleMonitoredGetSet(inline,range,setRange,
 				Interval<float>,range_,cRangeChange());
+    void			setFixedRange(Interval<float>);
 
     // The parameters for auto-scaling
     mImplSimpleMonitoredGetSet(inline,clipRate,setClipRate,

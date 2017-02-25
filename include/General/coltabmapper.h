@@ -219,7 +219,7 @@ bool DataMapper<iT>::doWork( od_int64 start, od_int64 stop, int )
     {
 	const float input = inpdatavs ? inpdatavs->value(idx) : *ptrcurinp++;
 
-	float relpos = 0.0f;
+	float relpos = -1.0f;
 	int colidx = udfcolidx;
 	bool isudf = true;
 
@@ -231,11 +231,6 @@ bool DataMapper<iT>::doWork( od_int64 start, od_int64 stop, int )
 		relpos = (input-rangestart) / rangewidth;
 		if ( nrsegs > 0 )
 		    relpos = (0.5f + ((int) (relpos*nrsegs))) / nrsegs;
-
-		if ( relpos > 1.0f )
-		    relpos = 1.0f;
-		else if ( relpos < 0.0f )
-		    relpos = 0.0f;
 
 		float seqposition = Mapper::seqPos4RelPos( usemode, relpos );
 		colidx = Mapper::indexForPosition( seqposition,
@@ -254,8 +249,11 @@ bool DataMapper<iT>::doWork( od_int64 start, od_int64 stop, int )
 
 	if ( !isudf )
 	{
-	    const int histidx = Mapper::indexForPosition( relpos, nrcolors, 0 );
-	    subhistogram[histidx]++;
+	    if ( relpos >= 0.f && relpos <= 1.f )
+	    {
+		const int hidx = Mapper::indexForPosition( relpos, nrcolors, 0);
+		subhistogram[hidx]++;
+	    }
 	}
 
 	if ( (++nrdone) > 100000 )

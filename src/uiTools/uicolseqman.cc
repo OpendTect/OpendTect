@@ -236,13 +236,13 @@ void drawMarkers( CallBacker* )
 {
     scene().setSceneRect( 0, 0, mCast(float,width()), mCast(float,height()) );
 
-    if ( !markerlineitmgrp_ )
+    if ( markerlineitmgrp_ )
+	markerlineitmgrp_->removeAll( true );
+    else
     {
 	markerlineitmgrp_ = new uiGraphicsItemGroup;
 	scene().addItem( markerlineitmgrp_ );
     }
-    else
-	markerlineitmgrp_->removeAll( true );
 
     const int xmax = scene().nrPixX() - 1;
     const int ymax = scene().nrPixY() - 1;
@@ -786,6 +786,7 @@ void uiColSeqMan::seqChgCB( CallBacker* cb )
 void uiColSeqMan::handleSeqChg()
 {
     seqdisp_->setSequence( *curseq_ );
+    ctrlptsed_->drawMarkers( 0 );
     updateTransparencyGraph();
     updateSegmentationFields();
     updateSpecColFlds();

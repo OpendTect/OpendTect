@@ -306,7 +306,7 @@ void mouseMoveCB( CallBacker* )
 	maprg_.stop = val4Pix( pix );
     }
 
-    setup().setRange( maprg_ );
+    setup().setFixedRange( maprg_ );
 }
 
 void keyReleasedCB( CallBacker* )
@@ -395,8 +395,9 @@ void reSizeCB( CallBacker* )
 bool calcScale()
 {
     distrib().getCurve( longvals_, shortvals_, true );
-    longrg_ = setup().range();
+    maprg_ = setup().range();
 
+    longrg_ = maprg_;
     const bool emptydistrib = longvals_.isEmpty();
     const bool emptyrange = mIsUdf(longrg_.start) || mIsUdf(longrg_.start);
     if ( emptyrange && emptydistrib )
@@ -421,7 +422,6 @@ bool calcScale()
 	shortrg_ = Interval<float>( 0.f, 1.f );
     }
 
-    maprg_ = longrg_;
     longrg_.widen( longrg_.width()/6.f );
     return true;
 }

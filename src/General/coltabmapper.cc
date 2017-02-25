@@ -223,6 +223,19 @@ Monitorable::ChangeType ColTab::MapperSetup::compareClassData(
 }
 
 
+void ColTab::MapperSetup::setFixedRange( Interval<float> newrg )
+{
+    mLock4Read();
+    if ( isfixed_ && newrg == range_ )
+	return;
+
+    mLock2Write();
+    range_ = newrg;
+    isfixed_ = true;
+    mSendEntireObjChgNotif();
+}
+
+
 bool ColTab::MapperSetup::needsReClip( const ColTab::MapperSetup& oth ) const
 {
     if ( isFixed() )
