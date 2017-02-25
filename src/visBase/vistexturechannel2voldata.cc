@@ -243,10 +243,9 @@ void TextureChannel2VolData::setSequence( int channel,
 
     // Only 1 channel supported now.
     if ( sequence_.ptr() != &seq )
-    {
 	sequence_ = &seq;
-	update();
-    }
+
+    update();
 }
 
 

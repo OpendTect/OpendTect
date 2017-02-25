@@ -63,6 +63,7 @@ public:
 
 protected:
 
+    void			colSeqModifCB(CallBacker*);
     void			mapperChangeCB(CallBacker*);
     void			removeAllVisCB(CallBacker*);
 

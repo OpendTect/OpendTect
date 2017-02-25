@@ -338,12 +338,15 @@ void ColTabTextureChannel2RGBA::notifyChannelRemove( int ch )
 void ColTabTextureChannel2RGBA::setSequence( int ch,
 					     const ColTab::Sequence& seq )
 {
-    if ( !coltabs_.validIdx(ch) || coltabs_[ch]==&seq )
+    if ( !coltabs_.validIdx(ch) )
 	return;
 
-    seq.ref();
-    coltabs_[ch]->unRef();
-    coltabs_.replace( ch, &seq );
+    if ( coltabs_[ch] != &seq )
+    {
+	seq.ref();
+	coltabs_[ch]->unRef();
+	coltabs_.replace( ch, &seq );
+    }
 
     if ( laytex_ )
     {

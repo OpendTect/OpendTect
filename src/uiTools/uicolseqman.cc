@@ -234,8 +234,6 @@ uiColSeqColCtrlPtsEd( uiGroup* p, uiColSeqMan* csm )
 
 void drawMarkers( CallBacker* )
 {
-    scene().setSceneRect( 0, 0, mCast(float,width()), mCast(float,height()) );
-
     if ( markerlineitmgrp_ )
 	markerlineitmgrp_->removeAll( true );
     else
@@ -554,7 +552,6 @@ void uiColSeqMan::updateColSeqList()
 		uiTreeViewItem::Setup()
 		.label(toUiString(seq->name()))
 		.label(seq->statusDispStr()) );
-	mAttachCBIfNotAttached( seq->objectChanged(), uiColSeqMan::seqChgCB );
 
 	if ( seq == curseq_ )
 	    curitm = itm;

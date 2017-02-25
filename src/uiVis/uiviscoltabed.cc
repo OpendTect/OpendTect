@@ -37,19 +37,19 @@ uiVisColTabEd::uiVisColTabEd( uiColTabToolBar& cttb )
 }
 
 
-#define mImplNotification( refop, notify) \
+#define mImplNotification( refop, notifyop ) \
     if ( survobj_ ) \
     { \
 	ConstRefMan<ColTab::MapperSetup> mapsu \
 		= survobj_->getColTabMapperSetup(channel_,version_); \
 	if ( mapsu ) \
-	    { mAttachCBIfNotAttached( mapsu->objectChanged(), \
-				uiVisColTabEd::mapperChangeCB ); } \
+	    { mapsu->objectChanged().notifyop( \
+		    mCB(this,uiVisColTabEd,mapperChangeCB) ); } \
 	const ColTab::Sequence* seq \
 		= survobj_->getColTabSequence(channel_); \
 	if ( seq ) \
-	    { mAttachCBIfNotAttached( seq->objectChanged(), \
-				uiVisColTabEd::mapperChangeCB ); } \
+	    { seq->objectChanged().notifyop( \
+		    mCB(this,uiVisColTabEd,colSeqModifCB) ); } \
 	mDynamicCastGet( visBase::DataObject*, dataobj, survobj_ ); \
 	if ( dataobj ) \
 	    dataobj->refop(); \
@@ -82,11 +82,25 @@ void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
     channel_ = channel;
     version_ = version;
 
-    mImplNotification( ref, notify );
+    mImplNotification( ref, notifyIfNotNotified );
 
     if ( so )
 	setColTab( so->getColTabSequence(channel_),
 		    so->getColTabMapperSetup(channel_,version_) );
+}
+
+
+void uiVisColTabEd::colSeqModifCB( CallBacker* )
+{
+    ConstRefMan<ColTab::MapperSetup> ms  =
+			survobj_->getColTabMapperSetup( channel_, version_ );
+    if ( ms )
+    {
+	//TODO this is a terrible hack to force remap.
+	// Long live the centralization of Probe power!
+	ms->sendEntireObjectChangeNotification();
+	survobj_->setColTabSequence( channel_, *coltabsel_.sequence() );
+    }
 }
 
 
@@ -104,7 +118,7 @@ void uiVisColTabEd::mapperChangeCB( CallBacker* )
 
 void uiVisColTabEd::removeAllVisCB( CallBacker* )
 {
-    mImplNotification( unRef, remove);
+    mImplNotification( unRef, remove );
     survobj_ = 0;
 }
 
