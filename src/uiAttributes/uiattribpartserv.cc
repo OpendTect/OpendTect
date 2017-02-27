@@ -891,6 +891,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 		uiTaskRunner uitr( parent() );
 		const int comp = targetdesc->selectedOutput();
 		DPSFromVolumeFiller filler( posvals, firstcol, *sdp, comp );
+		filler.setSampling( &sdp->sampling() );
 		return TaskRunner::execute( &uitr, filler );
 	    }
 	}

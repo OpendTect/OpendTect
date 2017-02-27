@@ -938,6 +938,7 @@ DPSFromVolumeFiller::DPSFromVolumeFiller( DataPointSet& dps, int firstcol,
     , firstcol_(firstcol)
     , hastrcdata_(false)
     , hasstorage_(false)
+    , sampling_(0)
 {
     dps_.ref();
     vdp_.ref();
@@ -976,6 +977,10 @@ od_int64 DPSFromVolumeFiller::nrIterations() const
     return dps_.size();
 }
 
+void DPSFromVolumeFiller::setSampling( const TrcKeyZSampling* tkzs )
+{ sampling_ = tkzs; }
+
+
 
 bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 {
@@ -989,7 +994,17 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
     {
 	const DataPointSet::RowID rid = mCast(int,idx);
 	float* vals = dps_.getValues( rid );
-	const BinID bid = dps_.binID( rid );
+	BinID bid = dps_.binID( rid );
+
+	if ( sampling_ )
+	{
+	    if ( !sampling_->hsamp_.lineRange().includes(bid.lineNr(),true) ||
+		 !sampling_->hsamp_.trcRange().includes(bid.trcNr(),true) )
+		continue;
+
+	    bid = sampling_->hsamp_.getNearest( bid );
+	}
+
 	const int gidx = vdp_.getGlobalIdx( bid );
 	if ( gidx<0 ) continue;
 
