@@ -145,8 +145,8 @@ const ZDomain::Info* uiAttribDescSetEd::getZDomainInfo() const
 
 void uiAttribDescSetEd::createMenuBar()
 {
-    uiMenuBar* menu = menuBar();
-    if( !menu )
+    uiMenuBar* menubar = menuBar();
+    if( !menubar )
 	{ pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
@@ -166,7 +166,7 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")), importFromSeis );
 
     filemnu->insertItem( impmnu );
-    menu->insertItem( filemnu );
+    menubar->insertItem( filemnu );
 }
 
 
@@ -532,11 +532,16 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
     if ( !newdesc )
 	mErrRetNull( toUiString("Cannot create attribdesc") )
 
-    newdesc->setDescSet( attrset_ );
     newdesc->ref();
-    uiString res = curde->commit( newdesc );
-    if ( !res.isEmpty() ) { newdesc->unRef(); mErrRetNull( res ); }
+    newdesc->setDescSet( attrset_ );
     newdesc->setUserRef( newnm );
+    uiString res = curde->commit( newdesc );
+    if ( !res.isEmpty() )
+    {
+	newdesc->unRef();
+	mErrRetNull( res );
+    }
+
     return newdesc;
 }
 
@@ -593,8 +598,7 @@ void uiAttribDescSetEd::setButStates()
     movedownbut_->setSensitive( selidx < attrlistfld_->size()-1 );
     sortbut_->setSensitive( selidx > 0 );
     int size = attrlistfld_->size();
-    sortbut_->setSensitive( size > 1);;
-    attrsetfld_->setText( sKeyNotSaved );
+    sortbut_->setSensitive( size > 1);
 }
 
 
