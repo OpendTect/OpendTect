@@ -32,6 +32,7 @@ SET(OD_MODULE_SOURCES
 	seis2ddatafmtconverter.cc
 	seis2dlineio.cc
 	seis2dto3d.cc
+	seis2dto3dinterpol.cc
 	seisbayesclass.cc
 	seisbuf.cc
 	seiscbvs.cc

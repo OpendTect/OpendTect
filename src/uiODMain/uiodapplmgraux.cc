@@ -65,6 +65,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseisbayesclass.h"
 #include "uiseis2dfrom3d.h"
 #include "uiseis2dto3d.h"
+#include "uiseis2dto3dinterpol.h"
 #include "uiselsimple.h"
 #include "uishortcuts.h"
 #include "uistrattreewin.h"
@@ -573,6 +574,11 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
     { uiSeis2DFrom3D dlg( par_ ); dlg.go(); }
     else if ( opt==2 )
     { uiSeis2DTo3D dlg( par_ ); dlg.go(); }
+    else if ( opt==3 )
+    {
+	uiString str = uiStrings::phrCreate(tr("3D cube from 2D DataSet"));
+	uiSeis2DTo3DInterPol dlg( par_, str ); dlg.go();
+    }
 }
 
 

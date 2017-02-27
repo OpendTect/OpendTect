@@ -123,6 +123,7 @@ public:
     void			create2DGrid()		{ process2D3D(0); }
     void			create2DFrom3D()	{ process2D3D(1); }
     void			create3DFrom2D()	{ process2D3D(2); }
+    void			interpol3DFrom2D()	{ process2D3D(3); }
 
     // View menu operations
     void			setWorkingArea();

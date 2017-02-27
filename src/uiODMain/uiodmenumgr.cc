@@ -575,17 +575,19 @@ void uiODMenuMgr::fillProcMenu()
 	mInsertItem( itm2d3d, m3Dots(tr("Extract 2D from 3D")),
 		     m2DFrom3DMnuItm );
     }
-#ifdef __debug__
-    if ( SI().has2D() )
+    const bool show3dfrom2d = GetEnvVarYN( "OD_CREATE_3D_FROM_2D" ) &&
+								  SI().has2D();
+    if ( show3dfrom2d )
     {
 	if ( !itm2d3d )
 	{
-	itm2d3d = new uiMenu( menutext );
+	    itm2d3d = new uiMenu( menutext );
 	    csoitm_->insertItem( itm2d3d );
 	}
-	mInsertItem( itm2d3d, m3Dots(tr("Create 3D from 2D")), m3DFrom2DMnuItm);
+	mInsertItem( itm2d3d, m3Dots(tr("Create 3D from 2D")),
+						    m3DFrom2DInterPolMnuItm);
     }
-#endif
+
 
     if ( SI().has3D() )
     {
@@ -1351,6 +1353,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCreate2DFrom3DMnuItm:	applMgr().create2DGrid(); break;
     case m2DFrom3DMnuItm:	applMgr().create2DFrom3D(); break;
     case m3DFrom2DMnuItm:	applMgr().create3DFrom2D(); break;
+    case m3DFrom2DInterPolMnuItm: applMgr().interpol3DFrom2D(); break;
     case mStartBatchJobMnuItm:	applMgr().startBatchJob(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;

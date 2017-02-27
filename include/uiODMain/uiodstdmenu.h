@@ -153,6 +153,7 @@ ________________________________________________________________________
 #define m3DFrom2DMnuItm		(mProcMnu + 25)
 #define mPSProc2DMnuItm		(mProcMnu + 26)
 #define mPSProc3DMnuItm		(mProcMnu + 27)
+#define m3DFrom2DInterPolMnuItm (mProcMnu + 28)
 #define mCreateSurf2DMnuItm	(mUseHorMnu + 1)
 #define mCompBetweenHor2DMnuItm	(mUseHorMnu + 2)
 #define mCompAlongHor2DMnuItm	(mUseHorMnu + 3)
