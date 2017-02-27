@@ -103,7 +103,7 @@ protected:
 					~TexturePanelStrip();
     void				updatePath();
 
-    RefMan<const mVisTrans>		displaytrans_;
+    ConstRefMan<mVisTrans>		displaytrans_;
     osgGeo::TexturePanelStripNode*	osgpanelstrip_;
     RefMan<TextureChannels>		channels_;
     PtrMan<TypeSet<Coord> >		pathcoords_;
