@@ -55,6 +55,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	, nlamdl_( n )
 	, dirinpfld_( 0 )
 	, phifld_( 0 )
+	, thetafld_( 0 )
 	, steerfld_( 0 )
 	, usesteering_( true )
 	, createdset_( 0 )
@@ -70,17 +71,13 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	return;
     }
 
-    const bool havesteer = true;
-    if ( havesteer )
-    {
-	dirinpfld_ = new uiGenInput( this, tr("Direction from"),
-			BoolInpSpec(true,tr("SteeringCube"),
-				    uiStrings::sAttribute(mPlural)));
-	dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
-	steerfld_ = new uiSteerAttrSel( this, DSHolder().getDescSet(is2d,true),
-					is2d );
-	steerfld_->attach( alignedBelow, dirinpfld_ );
-    }
+    dirinpfld_ = new uiGenInput( this, tr("Direction from"), 
+		    BoolInpSpec(true,tr("SteeringCube"),
+				uiStrings::sAttribute(mPlural)));
+    dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
+    steerfld_ = new uiSteerAttrSel( this, DSHolder().getDescSet(is2d,true),
+				    is2d );
+    steerfld_->attach( alignedBelow, dirinpfld_ );
 
     uiAttrSelData asd( *ads_, false );
     asd.nlamodel_ = nlamdl_;
@@ -131,6 +128,9 @@ void uiSetPickDirs::dirinpSel( CallBacker* )
 
 bool uiSetPickDirs::acceptOK()
 {
+    if ( !thetafld_ )
+	return true;
+
     if ( usesteering_ && !*steerfld_->getInput() )
 	mErrRet( uiStrings::phrSelect(toUiString("SteeringCube")) )
     if ( !usesteering_ && ( !*phifld_->getInput() || !*thetafld_->getInput() ) )
