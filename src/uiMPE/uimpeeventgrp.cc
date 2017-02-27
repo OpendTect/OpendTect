@@ -41,8 +41,8 @@ namespace MPE
 
 static VSEvent::Type getEventType( int sel )
 {
-    if ( sel==0 )	return VSEvent::Min;
-    if ( sel==1 )	return VSEvent::Max;
+    if ( sel==0 )	return VSEvent::Max;
+    if ( sel==1 )	return VSEvent::Min;
     if ( sel==2 )	return VSEvent::ZCPosNeg;
     if ( sel==3 )	return VSEvent::ZCNegPos;
 			return VSEvent::None;
@@ -51,15 +51,16 @@ static VSEvent::Type getEventType( int sel )
 
 static int getEventIdx( VSEvent::Type tp )
 {
-    if ( tp == VSEvent::Min )		return 0;
-    if ( tp == VSEvent::Max )		return 1;
+    if ( tp == VSEvent::Max )		return 0;
+    if ( tp == VSEvent::Min )		return 1;
     if ( tp == VSEvent::ZCPosNeg )	return 2;
     if ( tp == VSEvent::ZCNegPos )	return 3;
 					return -1;
 }
 
 
-static const char* sEventNames[] = { "Min", "Max", "0+-", "0-+", 0 };
+static const char* sEventNames[] =
+	{ "Peak", "Trough", "Zero Crossing +-", "Zero Crossing -+", 0 };
 
 static bool sAllowSteps = false;
 
@@ -78,6 +79,9 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     evfld_->valuechanged.notify( mCB(this,uiEventGroup,selEventType) );
     evfld_->valuechanged.notify( mCB(this,uiEventGroup,changeCB) );
     leftgrp->setHAlignObj( evfld_ );
+    allowsignchgfld_ = new uiCheckBox( leftgrp, tr("Positive only"),
+		mCB(this,uiEventGroup,changeCB) );
+    allowsignchgfld_->attach( rightTo, evfld_ );
 
     uiStringSet strs;
     strs.add( tr("Cut-off amplitude") ); strs.add( tr("Relative difference") );
@@ -188,6 +192,14 @@ void uiEventGroup::selEventType( CallBacker* )
     ampthresholdfld_->setSensitive( thresholdneeded );
     if ( addstepbut_ )
 	addstepbut_->setSensitive( thresholdneeded );
+
+    const bool minormax = ev==VSEvent::Min || ev==VSEvent::Max;
+    allowsignchgfld_->display( minormax );
+
+    if ( ev == VSEvent::Max )
+	allowsignchgfld_->setText( tr("Positive only") );
+    else if ( ev == VSEvent::Min )
+	allowsignchgfld_->setText( tr("Negative only") );
 }
 
 
@@ -348,6 +360,13 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
     {
 	fieldchange = true;
 	adjuster_->setTrackEvent( evtyp );
+    }
+
+    const bool allowsignchg = !allowsignchgfld_->isChecked();
+    if ( adjuster_->isAmplitudeSignChangeAllowed() != allowsignchg )
+    {
+	fieldchange = true;
+	adjuster_->allowAmplitudeSignChange( allowsignchg );
     }
 
     Interval<float> intv = srchgatefld_->getFInterval();

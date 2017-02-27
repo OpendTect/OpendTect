@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "uimpe.h"
 
+class uiCheckBox;
 class uiGenInput;
 class uiLabel;
 class uiPushButton;
@@ -59,6 +60,7 @@ protected:
     void			visibleDataChangeCB(CallBacker*);
 
     uiGenInput*			evfld_;
+    uiCheckBox*			allowsignchgfld_;
     uiGenInput*			srchgatefld_;
     uiGenInput*			thresholdtypefld_;
     uiGenInput*			ampthresholdfld_;

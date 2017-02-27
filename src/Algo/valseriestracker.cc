@@ -9,10 +9,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "valseriestracker.h"
 
 #include "genericnumer.h"
-#include "hiddenparam.h"
 #include "iopar.h"
 #include "samplfunc.h"
-
 
 ValSeriesTracker::ValSeriesTracker()
     : sourcevs_(0)
@@ -51,8 +49,6 @@ void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz,
 
 // EventTracker
 
-static HiddenParam<EventTracker,char> dosnap_(0);
-
 mDefineEnumUtils(EventTracker,CompareMethod,"Compare Method")
 {
 	"None",
@@ -76,6 +72,7 @@ const char* EventTracker::sKeyTrackEvent()	{ return "Track event"; }
 const char* EventTracker::sKeyCompareMethod()	{ return "Compare method"; }
 const char* EventTracker::sKeyAttribID()	{ return "Attribute"; }
 const char* EventTracker::sKeySnapToEvent()	{ return "Snap to event"; }
+const char* EventTracker::sKeyAllowSignChg()	{ return "Allow sign change"; }
 
 
 static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 };
@@ -122,25 +119,20 @@ EventTracker::EventTracker()
     , usesimilarity_( true )
     , similaritythreshold_( 0.8 )
     , normalizesimi_( false )
+    , dosnap_(true)
     , quality_( 1 )
     , rangestep_( 1 )
     , seedvs_(0)
     , seeddepth_(mUdf(float))
     , seedsize_(0)
     , comparemethod_(SeedTrace)
+    , allowamplsignchg_(true)
 {
 #define mAddAV(v) allowedvars_ += v
 //    mAddAV(0.01); mAddAV(0.02); mAddAV(0.05); mAddAV(0.1); mAddAV(0.2);
     mAddAV( 0.25 );
 #undef mAddAV
 
-    dosnap_.setParam( this, true );
-}
-
-
-void EventTracker::clean()
-{
-    dosnap_.removeParam( this );
 }
 
 
@@ -198,14 +190,19 @@ const Interval<float>& EventTracker::permittedRange() const
 void EventTracker::setTrackEvent( VSEvent::Type ev )
 { evtype_ = ev; }
 
-
 VSEvent::Type EventTracker::trackEvent() const
 { return evtype_; }
 
 
+void EventTracker::allowAmplitudeSignChange( bool yn )
+{ allowamplsignchg_ = yn; }
+
+bool EventTracker::isAmplitudeSignChangeAllowed() const
+{ return allowamplsignchg_; }
+
+
 void EventTracker::setAmplitudeThreshold( float th )
 { ampthreshold_ = th; }
-
 
 float EventTracker::amplitudeThreshold() const
 { return ampthreshold_; }
@@ -213,7 +210,6 @@ float EventTracker::amplitudeThreshold() const
 
 void EventTracker::setAmplitudeThresholds( const TypeSet<float>& ats )
 { ampthresholds_ = ats; }
-
 
 TypeSet<float>& EventTracker::getAmplitudeThresholds()
 { return ampthresholds_; }
@@ -283,10 +279,24 @@ float EventTracker::similarityThreshold() const
 { return similaritythreshold_; }
 
 void EventTracker::setSnapToEvent( bool yn )
-{ dosnap_.setParam( this, yn ); }
+{ dosnap_ = yn; }
 
 bool EventTracker::snapToEvent() const
-{ return dosnap_.getParam(this); }
+{ return dosnap_; }
+
+
+bool EventTracker::isTargetValueAllowed() const
+{
+    if ( isAmplitudeSignChangeAllowed() )
+	return true;
+
+    if ( evtype_==VSEvent::Max )
+	return targetvalue_>0;
+    if ( evtype_==VSEvent::Min )
+	return targetvalue_<0;
+
+    return true;
+}
 
 
 bool EventTracker::track()
@@ -314,11 +324,22 @@ bool EventTracker::track()
 	    refampl = sampfunc.getValue( targetdepth_ );
 	}
 
-	Interval<float> amplrg( refampl * (1-allowedvar_),
-				refampl * (1+allowedvar_) );
-	if ( evtype_==VSEvent::Min )
-	    amplrg.sort();
-	const bool res = snap( amplrg );
+	bool res = false;
+	const bool hasuplowthreshold = false;
+	if ( hasuplowthreshold )
+	{
+	    Interval<float> amplrg( refampl * (1-allowedvar_),
+				    refampl * (1+allowedvar_) );
+	    if ( evtype_==VSEvent::Min )
+		amplrg.sort();
+	    res = snap( amplrg );
+	}
+	else
+	{
+	    const float threshold = refampl * (1-allowedvar_);
+	    res = snap( threshold );
+	}
+
 	if ( res )
 	{
 	    if ( mIsUdf(targetvalue_) )
@@ -332,6 +353,8 @@ bool EventTracker::track()
 	    quality_ = (allowedvar_-amplvar)/allowedvar_;
 	    if ( quality_>1 ) quality_ = 1;
 	    else if ( quality_<0 ) quality_ = 0;
+
+	    return isTargetValueAllowed();
 	}
 
 	return res;
@@ -404,16 +427,17 @@ bool EventTracker::track()
     if ( targetdepth_<0 || mIsUdf(targetdepth_) )
 	return false;
 
-    if ( !snapToEvent() )
+    if ( !dosnap_ )
     {
 	const SampledFunctionImpl<float,ValueSeries<float> >
 					sampfunc( *targetvs_, targetsize_ );
 	targetvalue_ = sampfunc.getValue( targetdepth_ );
-	return true;
+	return isTargetValueAllowed();
     }
 
     const int bestidx = mNINT32( targetdepth_ );
-    return snap( (*targetvs_)[bestidx] );
+    const bool res = snap( (*targetvs_)[bestidx] );
+    return res ? isTargetValueAllowed() : false;
 }
 
 
@@ -813,7 +837,8 @@ void EventTracker::fillPar( IOPar& iopar ) const
     iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
     iopar.set( sKeySimWindow(), similaritywin_ );
     iopar.set( sKeySimThreshold(), similaritythreshold_ );
-    iopar.setYN( sKeySnapToEvent(), snapToEvent() );
+    iopar.setYN( sKeySnapToEvent(), dosnap_ );
+    iopar.setYN( sKeyAllowSignChg(), allowamplsignchg_ );
     iopar.setYN( sKeyTrackByValue(), !usesimilarity_ );
     iopar.setYN( sKeyNormSimi(), normalizesimi_ );
 }
@@ -841,9 +866,8 @@ bool EventTracker::usePar( const IOPar& iopar )
     iopar.get( sKeySimWindow(),similaritywin_ );
     iopar.getYN( sKeyNormSimi(), normalizesimi_ );
     iopar.get( sKeySimThreshold(), similaritythreshold_ );
-    bool dosnap = true;
-    iopar.getYN( sKeySnapToEvent(), dosnap );
-    setSnapToEvent( dosnap );
+    iopar.getYN( sKeySnapToEvent(), dosnap_ );
+    iopar.getYN( sKeyAllowSignChg(), allowamplsignchg_ );
     bool trackbyvalue;
     if ( iopar.getYN( sKeyTrackByValue(), trackbyvalue ) )
 	usesimilarity_ = !trackbyvalue;

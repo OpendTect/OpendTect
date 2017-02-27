@@ -52,7 +52,6 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
 HorizonAdjuster::~HorizonAdjuster()
 {
     delete attribsel_;
-    evtracker_.clean();
     delete &evtracker_;
     dpm_.release( datapackid_ );
 }
@@ -88,13 +87,11 @@ void HorizonAdjuster::setSearchWindow( const Interval<float>& rg )
 Interval<float> HorizonAdjuster::searchWindow() const
 { return evtracker_.permittedRange(); }
 
-
 void HorizonAdjuster::setTrackByValue( bool yn )
 { evtracker_.useSimilarity( !yn ); }
 
 bool HorizonAdjuster::trackByValue() const
 { return !evtracker_.usesSimilarity(); }
-
 
 void HorizonAdjuster::setTrackEvent( VSEvent::Type ev )
 { evtracker_.setTrackEvent( ev ); }
@@ -103,12 +100,18 @@ VSEvent::Type HorizonAdjuster::trackEvent() const
 { return evtracker_.trackEvent(); }
 
 
+void HorizonAdjuster::allowAmplitudeSignChange( bool yn )
+{ evtracker_.allowAmplitudeSignChange( yn ); }
+
+bool HorizonAdjuster::isAmplitudeSignChangeAllowed() const
+{ return evtracker_.isAmplitudeSignChangeAllowed(); }
+
+
 void HorizonAdjuster::setAmplitudeThreshold( float th )
 { evtracker_.setAmplitudeThreshold( th ); }
 
 float HorizonAdjuster::amplitudeThreshold() const
 { return evtracker_.amplitudeThreshold(); }
-
 
 void HorizonAdjuster::setAmplitudeThresholds( const TypeSet<float>& ats )
 { evtracker_.setAmplitudeThresholds( ats ); }

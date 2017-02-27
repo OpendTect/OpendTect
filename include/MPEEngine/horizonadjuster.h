@@ -53,6 +53,8 @@ public:
     bool		trackByValue() const;
     void		setTrackEvent(VSEvent::Type ev);
     VSEvent::Type	trackEvent() const;
+    void		allowAmplitudeSignChange(bool);
+    bool		isAmplitudeSignChangeAllowed() const;
 
     void		setAmplitudeThreshold(float th);
     float		amplitudeThreshold() const;
