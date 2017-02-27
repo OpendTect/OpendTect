@@ -447,6 +447,11 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
     int nrcrl = tks_.nrCrl();
     Array2DImpl<float> arr( nrinl, nrcrl );
     arr.setAll( mUdf(float) );
+    if ( dps_.isEmpty() )
+    {
+	uiMSG().error(tr("No Data Point picked for interpolation."));
+	return;
+    }
     for ( int idx=0; idx<dps_.size(); idx++ )
     {
 	DataPointSet::Pos pos = dps_.pos( idx );

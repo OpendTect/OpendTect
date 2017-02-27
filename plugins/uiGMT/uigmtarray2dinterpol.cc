@@ -76,6 +76,16 @@ uiGMTSurfaceGrid::uiGMTSurfaceGrid( uiParent* p )
 }
 
 
+void uiGMTSurfaceGrid::setValuesFrom( const Array2DInterpol& a )
+{
+    mDynamicCastGet(const GMTSurfaceGrid*, gmtsurf, &a );
+    if ( !gmtsurf )
+	return;
+
+   tensionfld_->setValue( gmtsurf->getTension() );
+}
+
+
 
 void uiGMTSurfaceGrid::fillPar( IOPar& iop ) const
 {
@@ -150,6 +160,15 @@ uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
     }
     else
 	createUi( this, mCB(this,uiGMTNearNeighborGrid,gmtPushCB));
+}
+
+void uiGMTNearNeighborGrid::setValuesFrom( const Array2DInterpol& a )
+{
+    mDynamicCastGet(const GMTNearNeighborGrid*, gmtneighbor, &a );
+    if ( !gmtneighbor )
+	return;
+
+   radiusfld_->setValue( gmtneighbor->getRadius() );
 }
 
 

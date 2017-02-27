@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "strmdata.h"
+#include "factory.h"
 
 
 mExpClass(GMT) GMTArray2DInterpol : public Array2DInterpol
@@ -50,11 +51,13 @@ protected:
 mExpClass(GMT) GMTSurfaceGrid : public GMTArray2DInterpol
 { mODTextTranslationClass(GMTSurfaceGrid);
 public:
+    mDefaultFactoryInstantiation(Array2DInterpol,
+				 GMTSurfaceGrid, "Continuous curvature(GMT)",
+				 tr("Continuous curvature(GMT)"))
     				GMTSurfaceGrid();
 
     static const char*		sType();
     const char*			type() const		{ return sType(); }
-    static void			initClass();
     static Array2DInterpol*	create();
 
     bool			mkCommand(BufferString&);
@@ -63,6 +66,7 @@ public:
     void			setTension(float);
     bool			usePar(const IOPar&);
     bool			fillPar(IOPar&) const;
+    float			getTension() const { return tension_; }
 
 protected:
     float			tension_;
@@ -72,11 +76,13 @@ protected:
 mExpClass(GMT) GMTNearNeighborGrid : public GMTArray2DInterpol
 { mODTextTranslationClass(GMTNearNeighborGrid);
 public:
+    mDefaultFactoryInstantiation(Array2DInterpol,
+				 GMTNearNeighborGrid, "Nearest neighbor(GMT)",
+				 tr("Nearest neighbor(GMT)"))
     				GMTNearNeighborGrid();
 
     static const char*		sType();
     const char*			type() const		{ return sType(); }
-    static void			initClass();
     static Array2DInterpol*	create();
 
     void			setRadius(float);
@@ -85,7 +91,7 @@ public:
     
     bool			usePar(const IOPar&);
     bool			fillPar(IOPar&) const;
-
+    float			getRadius() const { return radius_; }
 protected:
     float			radius_;
 };

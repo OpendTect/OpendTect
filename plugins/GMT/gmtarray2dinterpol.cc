@@ -89,19 +89,21 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( !*sd_.ostrm || !*sdmask_.ostrm )
 		break;
 
-	    nodes_[nrcols_*ridx+cidx]
-		? *sdmask_.ostrm << ridx << " " << cidx << " " << 1
-		: *sdmask_.ostrm << ridx << " " << cidx << " " << "NaN";
-	    *sdmask_.ostrm << "\n";
-	    if ( !arr_->info().validPos(ridx, cidx) )
+	    BufferString str("");
+	    str = str.add(ridx).addSpace().add(cidx).addSpace()
+		     .add(nodes_[nrcols_*ridx+cidx] ? "1" : "NaN");
+	    *sdmask_.ostrm << str << "\n";
+	   if ( !arr_->info().validPos(ridx, cidx) )
 		continue;
 
 	    if ( mIsUdf(arr_->get(ridx, cidx)) )
 		continue;
 
 	    addToNrDone( 1 );
-	    *sd_.ostrm << ridx << " " << cidx << " " << arr_->get(ridx, cidx)
-						     << "\n";
+	    str = "";
+	    const float val = arr_->get(ridx,cidx);
+	    str.add(ridx).addSpace().add(cidx).addSpace().add(val);
+	    *sd_.ostrm << str << "\n";
 	}
 
 	nrdone_++;
@@ -192,12 +194,6 @@ const char* GMTSurfaceGrid::sType()
 { return "Continuous curvature(GMT)"; }
 
 
-void GMTSurfaceGrid::initClass()
-{
-    Array2DInterpol::factory().addCreator( create, sType() );
-}
-
-
 Array2DInterpol* GMTSurfaceGrid::create()
 {
     return new GMTSurfaceGrid;
@@ -260,12 +256,6 @@ GMTNearNeighborGrid::GMTNearNeighborGrid()
 
 const char* GMTNearNeighborGrid::sType()
 { return "Nearest neighbor(GMT)"; }
-
-
-void GMTNearNeighborGrid::initClass()
-{
-    Array2DInterpol::factory().addCreator( create, sType() );
-}
 
 
 Array2DInterpol* GMTNearNeighborGrid::create()
