@@ -259,7 +259,8 @@ void Seis::MultiProvider3D::doGetNextTrcs(
 	    trcs.replace( idx, trc );
 	}
 
-	if ( (isfinished = !iter_.next()) )
+	isfinished = !iter_.next();
+	if ( isfinished )
 	    break;
 
     } while ( !nrtrcs && policy_!=GetEveryWhere );
