@@ -14,28 +14,44 @@ ________________________________________________________________________
 #include "seisprovider.h"
 #include "seisbuf.h"
 #include "seistrcprop.h"
+#include "seisselection.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
 
-Seis::ProviderSet::ProviderSet( Policy policy )
+// MultiProvider
+Seis::MultiProvider::MultiProvider( Policy policy, ZPolicy zpolicy )
     : policy_(policy)
+    , zpolicy_(zpolicy)
+    , seldata_(0)
 {}
 
 
-Seis::ProviderSet::~ProviderSet()
+Seis::MultiProvider::~MultiProvider()
+{
+    setEmpty();
+    delete seldata_;
+}
+
+
+void Seis::MultiProvider::setEmpty()
 {
     ::deepErase( provs_ );
 }
 
 
-void Seis::ProviderSet::deepErase()
+uiRetVal Seis::MultiProvider::addInput( const DBKey& dbky )
 {
-    ::deepErase( provs_ );
+    uiRetVal uirv;
+    Seis::Provider* prov = Seis::Provider::create( dbky, &uirv );
+    if ( !prov ) return uirv;
+
+    provs_ += prov;
+    return uirv;
 }
 
 
-void Seis::ProviderSet::addInput( Seis::GeomType gt )
+void Seis::MultiProvider::addInput( Seis::GeomType gt )
 {
     Seis::Provider* prov = Seis::Provider::create( gt );
     if ( prov )
@@ -43,28 +59,74 @@ void Seis::ProviderSet::addInput( Seis::GeomType gt )
 }
 
 
-uiRetVal Seis::ProviderSet::addInput( const DBKey& dbky )
+void Seis::MultiProvider::setSelData( SelData* sd )
 {
-    uiRetVal uirv;
-    Seis::Provider* prov = Seis::Provider::create( dbky, &uirv );
-    if ( prov )
-	provs_ += prov;
-
-    return uirv;
+    delete seldata_;
+    seldata_ = sd;
+    for ( int idx=0; idx<provs_.size(); idx++ )
+	provs_[idx]->setSelData( sd->clone() );
 }
 
 
-ZSampling Seis::ProviderSet::getZRange() const
+void Seis::MultiProvider::selectComponent( int iprov, int icomp )
 {
-    ZSampling zrg( mUdf(float), -mUdf(float), SI().zStep() );
+    if ( !provs_.validIdx(iprov) )
+	{ pErrMsg("Internal: component does not exist"); return; }
+
+    provs_[iprov]->selectComponent( icomp );
+}
+
+
+void Seis::MultiProvider::selectComponents( const TypeSet<int>& comps )
+{
     for ( int idx=0; idx<provs_.size(); idx++ )
-	zrg.include( provs_[idx]->getZRange(), false );
+	provs_[idx]->selectComponents( comps );
+}
+
+
+void Seis::MultiProvider::forceFPData( bool yn )
+{
+    for ( int idx=0; idx<provs_.size(); idx++ )
+	provs_[idx]->forceFPData( yn );
+}
+
+
+void Seis::MultiProvider::setReadMode( ReadMode rm )
+{
+    for ( int idx=0; idx<provs_.size(); idx++ )
+	provs_[idx]->setReadMode( rm );
+}
+
+
+uiRetVal Seis::MultiProvider::getComponentInfo( int iprov,
+	BufferStringSet& nms, TypeSet<Seis::DataType>* dts ) const
+{
+    if ( !provs_.validIdx(iprov) )
+	return uiRetVal( tr("Internal: component does not exist") );
+
+    return provs_[iprov]->getComponentInfo( nms, dts );
+}
+
+
+ZSampling Seis::MultiProvider::getZRange() const
+{
+    if ( provs_.isEmpty() )
+	return ZSampling::udf();
+
+    ZSampling zrg = provs_[0]->getZRange();
+    for ( int idx=1; idx<provs_.size(); idx++ )
+    {
+	if ( zpolicy_ == Maximum )
+	    zrg.include( provs_[idx]->getZRange(), false );
+	else
+	    zrg.limitTo( provs_[idx]->getZRange() );
+    }
 
     return zrg;
 }
 
 
-uiRetVal Seis::ProviderSet::fillPar( ObjectSet<IOPar>& iop ) const
+uiRetVal Seis::MultiProvider::fillPar( ObjectSet<IOPar>& iop ) const
 {
     uiRetVal uirv;
     doFillPar( iop, uirv );
@@ -72,7 +134,7 @@ uiRetVal Seis::ProviderSet::fillPar( ObjectSet<IOPar>& iop ) const
 }
 
 
-uiRetVal Seis::ProviderSet::usePar( const ObjectSet<IOPar>& iop )
+uiRetVal Seis::MultiProvider::usePar( const ObjectSet<IOPar>& iop )
 {
     uiRetVal uirv;
     doUsePar( iop, uirv );
@@ -80,7 +142,7 @@ uiRetVal Seis::ProviderSet::usePar( const ObjectSet<IOPar>& iop )
 }
 
 
-void Seis::ProviderSet::doFillPar(
+void Seis::MultiProvider::doFillPar(
 		ObjectSet<IOPar>& iop, uiRetVal& uirv ) const
 {
     for ( int idx=0; idx<provs_.size(); idx++ )
@@ -88,15 +150,33 @@ void Seis::ProviderSet::doFillPar(
 }
 
 
-uiRetVal Seis::ProviderSet::getNext( SeisTrc& trc )
+void Seis::MultiProvider::doGetNext( SeisTrc& trc, bool dostack,
+				     uiRetVal& uirv )
+{
+    const int nrtrcs = policy_==RequireOnlyOne ? 1 : provs_.size();
+    ManagedObjectSet<SeisTrc> trcs; trcs.allowNull();
+    for ( int idx=0; idx<nrtrcs; idx++ )
+	trcs += 0;
+
+    doGetNextTrcs( trcs, uirv );
+    if ( isFinished(uirv) )
+	return;
+
+    SeisTrcBuf trcbuf( true );
+    trcbuf.addTrcsFrom( trcs );
+    doGetStacked( trcbuf, trc );
+}
+
+
+uiRetVal Seis::MultiProvider::getNext( SeisTrc& trc, bool dostack )
 {
     uiRetVal uirv;
-    doGetNext( trc, uirv );
+    doGetNext( trc, dostack, uirv );
     return uirv;
 }
 
 
-uiRetVal Seis::ProviderSet::get(
+uiRetVal Seis::MultiProvider::get(
 	const TrcKey& trcky, ObjectSet<SeisTrc>& trcs ) const
 {
     uiRetVal uirv;
@@ -105,96 +185,103 @@ uiRetVal Seis::ProviderSet::get(
 }
 
 
-Seis::ProviderSet3D::ProviderSet3D( Policy pl )
-    : ProviderSet(pl)
-{}
-
-
-void Seis::ProviderSet3D::doGetNext( SeisTrc& trc, uiRetVal& uirv )
-{
-    const int nrtrcs = policy_==RequireOnlyOne ? 1 : provs_.size();
-    ManagedObjectSet<SeisTrc> trcs; trcs.allowNull();
-    for ( int idx=0; idx<nrtrcs; idx++ )
-	trcs += 0;
-
-    doGetNextTrcs( trcs, uirv );
-    SeisTrcBuf trcbuf( true );
-    trcbuf.addTrcsFrom( trcs );
-    getStacked( trcbuf, trc );
-}
-
-
-void Seis::ProviderSet3D::doGetNextTrcs(
-	ObjectSet<SeisTrc>& trcs, uiRetVal& uirv )
-{
-    if ( provs_.isEmpty() || trcs.size()<provs_.size() )
-	{ uirv.set( uiStrings::sFinished() ); return; }
-
-    int nrtrcs = 0;
-    do
-    {
-	for ( int idx=0; idx<provs_.size(); idx++ )
-	{
-	    SeisTrc* trc = new SeisTrc;
-	    const uiRetVal ret = provs_[idx]->get( iter_.curTrcKey(), *trc );
-	    if ( !ret.isOK() )
-		{ delete trc; continue; }
-
-	    trcs.replace( idx, trc );
-	    if ( ++nrtrcs==1 && policy_==RequireOnlyOne )
-		break;
-	}
-    } while ( iter_.next() && !nrtrcs );
-
-    if ( !nrtrcs )
-	uirv.set( uiStrings::sFinished() );
-}
-
-
-void Seis::ProviderSet3D::doGet(
+void Seis::MultiProvider::doGet(
 	const TrcKey& tk, ObjectSet<SeisTrc>& trcs, uiRetVal& uirv ) const
 {
-    if ( provs_.isEmpty() || trcs.size()<provs_.size() )
-	return;
+    if ( provs_.isEmpty() || trcs.size()!=provs_.size() )
+	{ pErrMsg("Size of providers and traces do not match."); return; }
 
     for ( int idx=0; idx<provs_.size(); idx++ )
-    {
 	uirv.add( provs_[idx]->get(tk,*trcs[idx]) );
-	if ( !uirv.isOK() )
-	    { errmsg_ = uirv; return; }
-    }
 }
 
 
-void Seis::ProviderSet3D::getStacked( SeisTrcBuf& trcbuf, SeisTrc& trc )
+void Seis::MultiProvider::doGetStacked( SeisTrcBuf& trcbuf, SeisTrc& trc )
 {
-    int nrtrcs = trcbuf.size();
-    if ( nrtrcs < 1 )
-	return;
-    else if ( nrtrcs == 1 )
-	{ trc = *trcbuf.first(); return; }
-
     SeisTrcBuf nulltrcs( true );
-    for ( int idx=nrtrcs-1; idx>-1; idx-- )
-	if ( !trcbuf.get(idx) || trcbuf.get(idx)->isNull() )
+    for ( int idx=trcbuf.size()-1; idx>=0; idx-- )
+    {
+	if ( !trcbuf.get(idx) )
+	    trcbuf.remove( idx );
+	if ( trcbuf.get(idx)->isNull() )
 	    nulltrcs.add( trcbuf.remove(idx) );
+    }
 
-    nrtrcs = trcbuf.size();
-    if ( nrtrcs < 1 )
+    if ( trcbuf.size() < 1 )
+    {
+	if ( !nulltrcs.isEmpty() )
+	    trc = *nulltrcs.first();
 	return;
-    if ( nrtrcs == 1 )
-	{ trc = *trcbuf.first(); return; }
+    }
 
     SeisTrcPropChg stckr( *trcbuf.first() );
-    for ( int idx=1; idx<nrtrcs; idx++ )
+    for ( int idx=1; idx<trcbuf.size(); idx++ )
 	stckr.stack( *trcbuf.get(idx), false, mCast(float,idx) );
 
     trc = *trcbuf.first();
 }
 
 
-bool Seis::ProviderSet3D::getRanges( TrcKeyZSampling& sampling ) const
+// MultiProvider3D
+Seis::MultiProvider3D::MultiProvider3D( Policy pl, ZPolicy zpl )
+    : MultiProvider(pl,zpl)
+{}
+
+
+void Seis::MultiProvider3D::doGetNext(
+	SeisTrc& trc, bool dostack, uiRetVal& uirv )
 {
+    Seis::MultiProvider::doGetNext( trc, dostack, uirv );
+}
+
+
+void Seis::MultiProvider3D::doGetNextTrcs(
+	ObjectSet<SeisTrc>& trcs, uiRetVal& uirv )
+{
+    bool isfinished = false; int nrtrcs = 0;
+    do
+    {
+	for ( int idx=0; idx<provs_.size(); idx++ )
+	{
+	    SeisTrc* trc = new SeisTrc;
+	    const uiRetVal ret = provs_[idx]->get( iter_.curTrcKey(), *trc);
+	    if ( !ret.isOK() )
+	    {
+		delete trc;
+		if ( policy_ == RequireAll )
+		    { nrtrcs = 0; break; }
+		continue;
+	    }
+
+	    if ( ++nrtrcs==1 && policy_==RequireOnlyOne )
+		{ trcs.replace( 0, trc ); break; }
+
+	    trcs.replace( idx, trc );
+	}
+
+	if ( (isfinished = !iter_.next()) )
+	    break;
+
+    } while ( !nrtrcs && policy_!=GetEveryWhere );
+
+    if ( isfinished )
+	uirv.set( uiStrings::sFinished() );
+}
+
+
+void Seis::MultiProvider3D::doGet(
+	const TrcKey& tk, ObjectSet<SeisTrc>& trcs, uiRetVal& uirv ) const
+{
+    Seis::MultiProvider::doGet( tk, trcs, uirv );
+}
+
+
+bool Seis::MultiProvider3D::getRanges(
+	TrcKeyZSampling& sampling, bool incl ) const
+{
+    if ( provs_.isEmpty() )
+	return false;
+
     for ( int idx=0; idx<provs_.size(); idx++ )
     {
 	TrcKeyZSampling tkzs;
@@ -202,42 +289,45 @@ bool Seis::ProviderSet3D::getRanges( TrcKeyZSampling& sampling ) const
 	if ( !prov3d.getRanges(tkzs) )
 	    return false;
 
-	sampling.include( tkzs );
+	if ( idx == 0 )
+	    sampling = tkzs;
+	else if ( incl )
+	    sampling.include( tkzs );
+	else
+	    sampling.getIntersection( tkzs, sampling );
     }
 
     return true;
 }
 
 
-void Seis::ProviderSet3D::getGeometryInfo( PosInfo::CubeData& cd ) const
+void Seis::MultiProvider3D::getGeometryInfo(
+		PosInfo::CubeData& cd, bool incl ) const
 {
     for ( int idx=0; idx<provs_.size(); idx++ )
     {
 	PosInfo::CubeData cubedata;
 	mDynamicCastGet(const Provider3D&,prov3d,*provs_[idx]);
 	prov3d.getGeometryInfo( cubedata );
-	cd.merge( cubedata, true );
+	cd.merge( cubedata, incl );
     }
 }
 
 
-void Seis::ProviderSet3D::doUsePar(
+void Seis::MultiProvider3D::doUsePar(
 	const ObjectSet<IOPar>& iop, uiRetVal& uirv )
 {
+    setEmpty();
+    for ( int idx=0; idx<iop.size(); idx++ )
+	addInput( Vol );
+
     for ( int idx=0; idx<provs_.size(); idx++ )
 	uirv.add( provs_[idx]->usePar(*iop[idx]) );
 
-    TrcKeySampling tks( false );
-    tks.survid_ = Survey::GM().default3DSurvID();
-    for ( int idx=0; idx<provs_.size(); idx++ )
-    {
-	TrcKeyZSampling tkzs;
-	mDynamicCastGet(const Provider3D&,prov3d,*provs_[idx]);
-	if ( !prov3d.getRanges(tkzs) )
-	    continue;
+    TrcKeyZSampling tkzs( false );
+    tkzs.hsamp_.survid_ = Survey::GM().default3DSurvID();
+    if ( !getRanges(tkzs,policy_!=RequireAll) )
+	return;
 
-	tks.include( tkzs.hsamp_ );
-    }
-
-    iter_.setSampling( tks );
+    iter_.setSampling( tkzs.hsamp_ );
 }

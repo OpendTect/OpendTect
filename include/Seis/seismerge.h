@@ -12,14 +12,13 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "executor.h"
-#include "binid.h"
 #include "samplingdata.h"
+#include "seisproviderset.h"
 
 class Scaler;
 class SeisTrc;
-class SeisTrcBuf;
 class SeisTrcWriter;
-namespace Seis { class Provider; class ProviderSet; }
+namespace Seis { class MultiProvider; }
 
 
 /*!\brief Merges 2D and 3D post-stack data */
@@ -29,7 +28,11 @@ mExpClass(Seis) SeisMerger : public Executor
 public:
 
 			SeisMerger(const ObjectSet<IOPar>& in,
-				   const IOPar& out,bool is2d);
+				   const IOPar& out,bool stacktrcs,
+				   Seis::MultiProvider::ZPolicy zpolicy);
+			//!<\param stacktrcs If false,first trc will be used
+			//!<\param zpolicy Specifies whether union or
+			//!< intersection of z-ranges has to be considered.
     virtual		~SeisMerger();
 
     uiString		message() const;
@@ -41,30 +44,18 @@ public:
     int			nextStep();
     void		setScaler(Scaler*);
 
-    bool		stacktrcs_; //!< If not, first trace will be used
-
 protected:
 
-    bool			is2d_;
-    ObjectSet<Seis::Provider>	provs_;
-    Seis::ProviderSet*		provset_;
+    bool			stacktrcs_;
+    Seis::MultiProvider*	multiprov_;
     SeisTrcWriter*		wrr_;
-    int				curprovidx_;
     int				nrpos_;
     od_int64			totnrpos_;
     uiString			errmsg_;
 
-    BinID			curbid_;
-    SeisTrcBuf&			trcbuf_;
     int				nrsamps_;
     SamplingData<float>		sd_;
     Scaler*			scaler_;
 
-    SeisTrc*			getNewTrc();
-    SeisTrc*			getTrcFrom(Seis::Provider&);
-    uiRetVal			get3DTraces(SeisTrc*);
-    SeisTrc*			getStacked(SeisTrcBuf&);
     int				writeTrc(SeisTrc*);
-    int				writeFromBuf();
-
 };

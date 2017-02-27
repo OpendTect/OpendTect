@@ -64,8 +64,8 @@ bool uiMergeSeis::acceptOK()
     if ( !getInput(inpars,outpar) )
 	return false;
 
-    SeisMerger mrgr( inpars, outpar, false );
-    mrgr.stacktrcs_ = stackfld_->getBoolValue();
+    SeisMerger mrgr( inpars, outpar, stackfld_->getBoolValue(),
+		     Seis::MultiProvider::Maximum );
     mrgr.setScaler( transffld_->getScaler() );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, mrgr );

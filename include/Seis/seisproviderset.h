@@ -12,111 +12,145 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "seistype.h"
+#include "survgeom2d.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
 
 class SeisTrc;
 class SeisTrcBuf;
 
-namespace PosInfo { class CubeData; }
+namespace PosInfo { class CubeData; class Line2DDataIterator; }
 
 namespace Seis
 {
 
 class Provider;
+class SelData;
 
-mExpClass(Seis) ProviderSet
-{ mODTextTranslationClass(Seis::ProviderSet);
+/*
+\brief Base class for accessing multiple providers and obtaining results
+according to a specified synchronisation policy.
+
+You need to instantiate one of MultiProvider2D or MultiProvider3D. If all
+you have is a list of IOPar, find out from IOPar by getting the DBKey from
+the first IOPar and asking SeisIOObjInfo whether it's tied to 2D or 3D
+seismics.
+*/
+
+mExpClass(Seis) MultiProvider
+{ mODTextTranslationClass(Seis::MultiProvider);
 public:
 
     enum Policy			{ GetEveryWhere, RequireOnlyOne,
 				  RequireAtLeastOne, RequireAll };
+    enum ZPolicy		{ Minimum, Maximum };
+				//!< Trcs with that z-range
 
-				virtual ~ProviderSet();
+				virtual ~MultiProvider();
 
-    virtual bool		is2D() const				= 0;
+    virtual bool		is2D() const			= 0;
 
-    bool			isEmpty() const { return size() == 0; }
     int				size() const	{ return provs_.size(); }
+    bool			isEmpty() const { return size() == 0; }
+    void			setEmpty();
 
-    void			addInput(Seis::GeomType);
     uiRetVal			addInput(const DBKey&);
-
-    const Provider&		provider(int idx=0) const
-				{ return *provs_[idx]; }
-    Provider&			provider(int idx=0)
-				{ return *provs_[idx]; }
+    void			setSelData(SelData*); //!< Becomes mine.
+    void			selectComponent(int iprov,int icomp);
+    void			selectComponents(const TypeSet<int>&);
+				//!< List of component indices to be
+				//!< selected. Same for all providers.
+    void			forceFPData(bool yn=true);
+    void			setReadMode(ReadMode);
 
     ZSampling			getZRange() const;
+    uiRetVal			getComponentInfo(int iprov,BufferStringSet&,
+				      TypeSet<Seis::DataType>* dts=0) const;
     virtual od_int64		totalNr() const		{ return -1; }
 
     uiRetVal			fillPar(ObjectSet<IOPar>&) const;
     uiRetVal			usePar(const ObjectSet<IOPar>&);
 
-    uiRetVal			getNext(SeisTrc&);
-    uiRetVal			get(const TrcKey&,ObjectSet<SeisTrc>&) const;
-
-    void			deepErase();
-
-    uiString			errMsg() const		{ return errmsg_; }
+    uiRetVal			getNext(SeisTrc&,bool dostack=false);
+				/*< \param dostack, if false, first
+				available trace in the list of providers is
+				returned.*/
+    uiRetVal			getGather(SeisTrcBuf&,bool dostack=false)
+				{ /* TODO */ return uiRetVal(); }
+				/*< \param dostack, if false, first
+				available trace in the list of providers is
+				returned.*/
+    uiRetVal			get(const TrcKey&,ObjectSet<SeisTrc>&)const;
+				/*< Fills the traces with data from each
+				 provider at the specified TrcKey.*/
+    uiRetVal			getGathers(const TrcKey&,
+					   ObjectSet<SeisTrcBuf>&) const
+				{ /* TODO */ return uiRetVal(); }
+				/*< Fills the SeisTrcBuf with gather from
+				  each provider at the specified TrcKey.*/
 
 protected:
 
-				ProviderSet(Policy=RequireAtLeastOne);
+				MultiProvider(Policy,ZPolicy);
 
-    virtual void		doFillPar(ObjectSet<IOPar>&,uiRetVal&) const;
+    void			addInput(Seis::GeomType);
+
+    virtual void		doFillPar(ObjectSet<IOPar>&,uiRetVal&)const;
     virtual void		doUsePar(const ObjectSet<IOPar>&,uiRetVal&)
-				{}
-
-    virtual void		doGetNext(SeisTrc&,uiRetVal&)		{}
+									= 0;
+    virtual void		doGetNext(SeisTrc&,bool dostack,uiRetVal&)
+									= 0;
+    virtual void		doGetNextTrcs(ObjectSet<SeisTrc>&,uiRetVal&)
+									= 0;
     virtual void		doGet(const TrcKey&,ObjectSet<SeisTrc>&,
-				      uiRetVal&) const			{}
+				      uiRetVal&) const			= 0;
 
-    mutable uiString		errmsg_;
+    void			doGetStacked(SeisTrcBuf&,SeisTrc&);
+
     Policy			policy_;
+    ZPolicy			zpolicy_;
+    SelData*			seldata_;
     ObjectSet<Seis::Provider>	provs_;
+
+public:
+
+    const Provider&		provider( int idx ) const
+				{ return *provs_[idx]; }
+    Provider&			provider( int idx )
+				{ return *provs_[idx]; }
 };
 
 
-mExpClass(Seis) ProviderSet3D : public ProviderSet
-{ mODTextTranslationClass(Seis::ProviderSet3D);
+/*
+\brief MultiProvider for Seis::Vol data.
+*/
+
+mExpClass(Seis) MultiProvider3D : public MultiProvider
+{ mODTextTranslationClass(Seis::MultiProvider3D);
 public:
-				ProviderSet3D(Policy pl=RequireAtLeastOne);
-				~ProviderSet3D()	{};
+				MultiProvider3D(Policy,ZPolicy);
+				~MultiProvider3D()	{};
 
     bool			is2D() const		{ return false; }
     od_int64			totalNr() const
 				{ return iter_.totalNr(); }
 
-    bool			getRanges(TrcKeyZSampling&) const;
-    void			getGeometryInfo(PosInfo::CubeData&) const;
+    bool			getRanges(TrcKeyZSampling&,bool incl) const;
+				//!< incl=union, !incl=intersection
+    void			getGeometryInfo(PosInfo::CubeData&,
+						bool incl) const;
+				//!< incl=union, !incl=intersection
 
 protected:
 
     void			doUsePar(const ObjectSet<IOPar>&,uiRetVal&);
 
-    void			doGetNext(SeisTrc&,uiRetVal&);
+    void			doGetNext(SeisTrc&,bool dostack,uiRetVal&);
     void			doGetNextTrcs(ObjectSet<SeisTrc>&,uiRetVal&);
     void			doGet(const TrcKey&,ObjectSet<SeisTrc>&,
 				      uiRetVal&) const;
 
-    void			getStacked(SeisTrcBuf&,SeisTrc&);
-
     TrcKeySamplingIterator	iter_;
-};
-
-
-mExpClass(Seis) ProviderSet2D : public ProviderSet
-{ mODTextTranslationClass(Seis::ProviderSet2D);
-public:
-				ProviderSet2D(Policy pl=RequireAtLeastOne)
-				    : ProviderSet(pl)
-				{};
-				~ProviderSet2D()	{};
-
-    bool			is2D() const		{ return true; }
-
-protected:
 };
 
 }

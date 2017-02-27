@@ -160,6 +160,33 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 }
 
 
+DBKey Seis::Provider::dbKey( const IOPar& iop )
+{
+    const char* res = iop.find( sKey::ID() );
+    BufferString tmp;
+    if ( !res )
+    {
+	res = iop.find( sKey::Name() );
+	if ( res && *res )
+	{
+	    const IOObj* tryioobj = DBM().getByName(IOObjContext::Seis,res);
+	    if ( !tryioobj )
+		res = 0;
+	    else
+	    {
+		tmp = tryioobj->key();
+		res = tmp.buf();
+	    }
+	}
+    }
+
+    if ( res && *res )
+	return DBKey::getFromString( res );
+
+    return DBKey::getInvalid();
+}
+
+
 void Seis::Provider::setSampleInterval( float zs )
 {
     Threads::Locker locker( lock_ );
@@ -454,30 +481,9 @@ void Seis::Provider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
 
 void Seis::Provider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 {
-    const char* res = iop.find( sKey::ID() );
-    BufferString tmp;
-    if ( !res )
-    {
-	res = iop.find( sKey::Name() );
-	if ( res && *res )
-	{
-	    const IOObj* tryioobj = DBM().getByName(IOObjContext::Seis,res);
-	    if ( !tryioobj )
-		res = 0;
-	    else
-	    {
-		tmp = tryioobj->key();
-		res = tmp.buf();
-	    }
-	}
-    }
-
-    if ( res && *res )
-    {
-	const DBKey dbkey = DBKey::getFromString( res );
-	if ( !dbkey.isInvalid() && dbkey!=dbKey() )
-	    setInput( dbkey );
-    }
+    const DBKey dbkey = dbKey( iop );
+    if ( !dbkey.isInvalid() && dbkey!=dbKey() )
+	setInput( dbkey );
 
     setSelData( Seis::SelData::get(iop) );
 }
