@@ -925,6 +925,7 @@ DPSFromVolumeFiller::DPSFromVolumeFiller( DataPointSet& dps, int firstcol,
     , firstcol_(firstcol)
     , hastrcdata_(false)
     , hasstorage_(false)
+    , sampling_(0)
 {
     dps_.obtain();
     const_cast<SeisDataPack&>(sdp_).obtain();
@@ -964,6 +965,10 @@ od_int64 DPSFromVolumeFiller::nrIterations() const
 }
 
 
+void DPSFromVolumeFiller::setSampling( const TrcKeyZSampling* tkzs )
+{ sampling_ = tkzs; }
+
+
 bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 {
     const StepInterval<float>& zsamp = sdp_.getZRange();
@@ -973,7 +978,17 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	const DataPointSet::RowID rid = mCast(int,idx);
-	const BinID bid = dps_.binID( rid );
+	BinID bid = dps_.binID( rid );
+
+	if ( sampling_ )
+	{
+	    if ( !sampling_->hsamp_.lineRange().includes(bid.lineNr(),true) ||
+		 !sampling_->hsamp_.trcRange().includes(bid.trcNr(),true) )
+		continue;
+
+	    bid = sampling_->hsamp_.getNearest( bid );
+	}
+
 	const int gidx = sdp_.getGlobalIdx( bid );
 	if ( gidx<0 || gidx>nrtrcs ) continue;
 
