@@ -62,6 +62,9 @@ public:
     virtual void		addObjectsToToolBar(uiToolBar&);
     virtual void		orientationChanged();
 
+    static int			maxElemLongDimSize();
+				//!< max size in pixels of each element
+
 protected:
 
 				uiColSeqSelTool();

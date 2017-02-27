@@ -510,6 +510,7 @@ protected:
     void		init(const Setup&,int,int);
     uiLineItem*		mkLine(bool,int,int,int,int,int);
 
+    uiLineItem*		centeritm_;
     uiLineItem*		bodyitm_;
     uiLineItem*		shadeitm1_;
     uiLineItem*		shadeitm2_;

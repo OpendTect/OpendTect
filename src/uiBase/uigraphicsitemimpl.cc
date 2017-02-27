@@ -1168,12 +1168,13 @@ uiManipHandleItem::uiManipHandleItem( const Setup& su, double fpos, int zval )
 
 void uiManipHandleItem::init( const Setup& su, int pixpos, int zval )
 {
+    centeritm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, 1, zval );
     bodyitm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_,
-		       zval );
-    shadeitm1_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+1,
-			 zval-1 );
-    shadeitm2_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+2,
+		       zval-1 );
+    shadeitm1_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+2,
 			 zval-2 );
+    shadeitm2_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+4,
+			 zval-3 );
     setPenColor( su.color_ );
 }
 
@@ -1196,6 +1197,7 @@ uiLineItem* uiManipHandleItem::mkLine( bool ishor, int pos,
 
 void uiManipHandleItem::setPenColor( const Color& basecol, bool )
 {
+    centeritm_->setPenColor( basecol.complementaryColor() );
     bodyitm_->setPenColor( basecol );
     shadeitm1_->setPenColor( basecol.lighter( 1.0f ) );
     shadeitm2_->setPenColor( basecol.lighter( 3.0f ) );

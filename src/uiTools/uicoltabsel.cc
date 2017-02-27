@@ -254,10 +254,10 @@ float val4Pix( int pix ) const
 
 void handleMouseBut( bool ispressed )
 {
+    movingside_ = 0;
     if ( meh_.isHandled() )
 	return;
 
-    movingside_ = 0;
     const MouseEvent& event = meh_.event();
     if ( event.isWithKey() )
 	return;
@@ -321,15 +321,10 @@ void keyReleasedCB( CallBacker* )
 	setupDlgReqCB( 0 );
 }
 
-int maxLongSz() const
-{
-    return 3 * uiObject::iconSize();
-}
-
 void addObjectsToToolBar( uiToolBar& tbar )
 {
-    setMaximumWidth( maxLongSz() );
-    setMaximumHeight( maxLongSz() );
+    setMaximumWidth( seltool_.maxElemLongDimSize() );
+    setMaximumHeight( seltool_.maxElemLongDimSize() );
     tbar.addObject( this );
 }
 
