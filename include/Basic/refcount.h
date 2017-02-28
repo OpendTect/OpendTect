@@ -182,7 +182,12 @@ public:
 				//!<Not for normal use. May become private
     void			removeObserver(WeakPtrBase* obs);
 				//!<Not for normal use. May become private
+    static bool		        isSane(const Referenced*);
+				/*Returns true if this really is a referenced
+				  (i.e. has magicnumber set ) */
 
+private:
+    const od_uint64		magicnumber_ = 0x123456789abcdef;
 };
 
 
