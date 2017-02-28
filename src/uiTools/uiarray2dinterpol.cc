@@ -120,7 +120,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 
 	if ( paramfld )
 	{
-	    if ( oldvals && idx==methodidx)
+	    if ( oldvals && idx==methodidx )
 		paramfld->setValuesFrom( *oldvals );
 
 	    if ( prevfld )
@@ -337,15 +337,15 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
 
 void uiInverseDistanceArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
 {
-    mDynamicCastGet(const InverseDistanceArray2DInterpol*, ptr, &a );
-    if ( !ptr )
+    mDynamicCastGet(const InverseDistanceArray2DInterpol*, invdist, &a );
+    if ( !invdist )
 	return;
 
-    radiusfld_->setValue( ptr->getSearchRadius() );
+    radiusfld_->setValue( invdist->getSearchRadius() );
 
-    nrsteps_ = ptr->getNrSteps();
-    cornersfirst_ = ptr->getCornersFirst();
-    stepsz_ = ptr->getStepSize();
+    nrsteps_ = invdist->getNrSteps();
+    cornersfirst_ = invdist->getCornersFirst();
+    stepsz_ = invdist->getStepSize();
 }
 
 
@@ -390,6 +390,22 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
 }
 
 
+void uiTriangulationArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
+{
+    mDynamicCastGet(const TriangulationArray2DInterpol*, triang, &a );
+    if ( !triang )
+	return;
+
+   useneighborfld_->setChecked( !triang->doInterpolation() );
+   maxdistfld_->setChecked( triang->isMaxInterPolChecked()  );
+   if ( maxdistfld_->isChecked() )
+   {
+       maxdistfld_->setValue( triang->getMaxDistance() );
+       maxdistfld_->setSensitive( true );
+   }
+}
+
+
 void uiTriangulationArray2DInterpol::intCB( CallBacker* )
 {
     maxdistfld_->display( !useneighborfld_->isChecked() );
@@ -428,6 +444,8 @@ bool uiTriangulationArray2DInterpol::acceptOK()
     if ( usemax )
 	res->setMaxDistance( maxdist );
 
+    res->setMaxDistInterPolChecekd( maxdistfld_->isChecked() );
+
     result_ = res;
     return true;
 }
@@ -456,6 +474,16 @@ Array2DInterpol* uiExtensionArray2DInterpol::createResult() const
 { return new ExtensionArray2DInterpol; }
 
 
+void uiExtensionArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
+{
+    mDynamicCastGet(const ExtensionArray2DInterpol*, extarr, &a );
+    if ( !extarr )
+	return;
+
+   nrstepsfld_->setValue( mCast(int,extarr->getNrSteps()) );
+}
+
+
 bool uiExtensionArray2DInterpol::acceptOK()
 {
     if ( nrstepsfld_->getIntValue()<1 )
@@ -469,7 +497,7 @@ bool uiExtensionArray2DInterpol::acceptOK()
 
     mDynamicCastGet( ExtensionArray2DInterpol*, res, createResult() )
     res->setNrSteps( nrstepsfld_->getIntValue() );
-
+    nrsteps_ = nrstepsfld_->getIntValue();
     result_ = res;
     return true;
 }
