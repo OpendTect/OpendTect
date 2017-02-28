@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "executor.h"
 #include "samplingdata.h"
-#include "seisproviderset.h"
+#include "seismultiprovider.h"
 
 class Scaler;
 class SeisTrc;

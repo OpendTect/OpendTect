@@ -52,10 +52,10 @@ set(OD_MODULE_SOURCES
 	seisloader.cc
 	seismerge.cc
 	seismulticubeps.cc
+	seismultiprovider.cc
 	seisposindexer.cc
 	seispreload.cc
 	seisprovider.cc
-	seisproviderset.cc
 	seisps2dprovider.cc
 	seisps3dprovider.cc
 	seispsioprov.cc

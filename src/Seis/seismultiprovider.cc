@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seisproviderset.h"
+#include "seismultiprovider.h"
 
 #include "posinfo.h"
 #include "seisprovider.h"
