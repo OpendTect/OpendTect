@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "waveletio.h"
 #include "seismulticubeps.h"
 #include "seispacketinfo.h"
+#include "seis2dto3dinterpol.h"
 
 #include "uistrings.h"
 
@@ -86,4 +87,6 @@ mDefModInitFn(Seis)
     Seis::ODSeqInp::initClass();
     Seis::ODSeqOut::initClass();
     Survey::GMAdmin().updateGeometries( 0 ); //Those using a transl from Seis.
+
+    Seis2DTo3DInterPolImpl::initClass();
 }
