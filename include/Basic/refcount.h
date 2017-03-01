@@ -154,12 +154,18 @@ private:
 mExpClass(Basic) Referenced
 {
 public:
+
     void			ref() const;
     void			unRef() const;
     void			unRefNoDelete() const;
 
 protected:
+
+				Referenced()		    {}
+				Referenced(const Referenced&);
+    Referenced&			operator =(const Referenced&);
     virtual			~Referenced();
+
 private:
     friend			class WeakPtrBase;
     virtual void		refNotify() const		{}
@@ -171,6 +177,7 @@ private:
     mutable Counter		refcount_;
 
 public:
+
     int				nrRefs() const;
 				//!<Only for expert use
     bool			refIfReffed() const;
@@ -187,7 +194,9 @@ public:
 				  (i.e. has magicnumber set ) */
 
 private:
+
     const od_uint64		magicnumber_ = 0x123456789abcdef;
+
 };
 
 

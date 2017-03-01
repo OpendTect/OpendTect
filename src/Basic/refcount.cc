@@ -22,6 +22,19 @@ bool Referenced::isSane( const Referenced* ptr )
     return ptr && ptr->magicnumber_ == 0x123456789abcdef;
 }
 
+
+Referenced::Referenced( const Referenced& oth )
+    : magicnumber_(oth.magicnumber_)
+{
+}
+
+
+Referenced& Referenced::operator =( const Referenced& oth )
+{
+    return *this;
+}
+
+
 Referenced::~Referenced()
 {
     const od_int32 count = refcount_.count();
@@ -35,7 +48,7 @@ Referenced::~Referenced()
 
 void Referenced::ref() const
 {
-#ifdef __debug__ 
+#ifdef __debug__
     /*If the object passed in ptr is truly 'Referenced' (and not just any
     class casted to Referenced, the magicnumber_ will
     be initialized. If it is not, well, then we should crash
