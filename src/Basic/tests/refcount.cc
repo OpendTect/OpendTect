@@ -224,6 +224,8 @@ bool testRefObjectSet()
 
 class NotReferenced
 {
+public:
+    virtual ~NotReferenced() {}
     virtual void init() {}
     int var = 0;
 };
