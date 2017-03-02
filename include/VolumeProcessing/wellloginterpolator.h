@@ -15,11 +15,13 @@ ________________________________________________________________________
 #include "volumeprocessingmod.h"
 #include "volprocstep.h"
 
+#include "arrayndalgo.h"
 #include "enums.h"
 #include "multiid.h"
 
 class BufferStringSet;
 class Gridder2D;
+class InverseDistanceGridder2D;
 class InterpolationLayerModel;
 
 namespace Well { class Data; class Log; }
@@ -90,6 +92,8 @@ protected:
 
     InterpolationLayerModel*	layermodel_;
     Gridder2D*			gridder_;
+    InverseDistanceGridder2D*	invdistgridder_;
+    PolyTrend::Order		trendorder_;
     ObjectSet<WellLogInfo>	infos_;
     TypeSet<MultiID>		wellmids_;
     BufferString		logname_;

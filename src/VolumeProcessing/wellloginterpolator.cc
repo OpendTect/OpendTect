@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "wellloginterpolator.h"
 
-#include "arrayndimpl.h"
 #include "fftfilter.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
@@ -195,6 +194,8 @@ WellLogInterpolator::WellLogInterpolator()
     , extension_(ExtrapolateEdgeValue)
     , extlog_(0)
     , layermodel_(0)
+    , invdistgridder_(new InverseDistanceGridder2D())
+    , trendorder_(PolyTrend::None)
 {}
 
 
@@ -210,6 +211,7 @@ void WellLogInterpolator::releaseData()
     deleteAndZeroPtr( gridder_ );
     deleteAndZeroPtr( layermodel_ );
     deepErase( infos_ );
+    deleteAndZeroPtr( invdistgridder_ );
 }
 
 
@@ -231,12 +233,14 @@ void WellLogInterpolator::setGridder( const char* nm, float radius )
     if ( FixedString(nm) == RadialBasisFunctionGridder2D::sFactoryKeyword() )
     {
 	gridder_ = new RadialBasisFunctionGridder2D();
+	trendorder_ = PolyTrend::Order2;
 	return;
     }
 
     if ( FixedString(nm) ==  TriangulatedGridder2D::sFactoryKeyword() )
     {
 	gridder_ = new TriangulatedGridder2D();
+	trendorder_ = PolyTrend::None;
 	return;
     }
 
@@ -244,6 +248,7 @@ void WellLogInterpolator::setGridder( const char* nm, float radius )
     {
 	InverseDistanceGridder2D* invgrid = new InverseDistanceGridder2D();
 	gridder_ = invgrid;
+	trendorder_ = PolyTrend::None;
 	if ( !mIsUdf(radius) )
 	    invgrid->setSearchRadius( radius );
 
@@ -348,6 +353,56 @@ bool WellLogInterpolator::prepareComp( int )
 }
 
 
+static void getCornerPoints( const BinID& bid, TypeSet<Coord>& corners )
+{
+    corners.setEmpty();
+    const TrcKeyZSampling tkzs( SI().sampling( false ) );
+    const TrcKeySampling& tks = tkzs.hsamp_;
+
+    TypeSet<BinID> cornerbids;
+    cornerbids.add( bid );
+
+    cornerbids.addIfNew( BinID( tks.start_.inl(), tks.start_.crl() ) );
+    cornerbids.addIfNew( BinID( tks.start_.inl(), tks.stop_.crl() ) );
+    cornerbids.addIfNew( BinID( tks.stop_.inl(), tks.start_.crl() ) );
+    cornerbids.addIfNew( BinID( tks.stop_.inl(), tks.stop_.crl() ) );
+
+    for ( int idx=1; idx<cornerbids.size(); idx++ )
+    {
+	const BinID& cornerbid = cornerbids[idx];
+	corners.add( tks.toCoord(cornerbid) );
+    }
+}
+
+
+static void addCornerPoints( const Gridder2D& gridder,
+			     Gridder2D& invdistgridder,
+			     const TypeSet<Coord>& corners,
+			     TypeSet<Coord>& points, TypeSet<float>& vals )
+{
+    if ( BufferString(gridder.factoryKeyword()) ==
+	    InverseDistanceGridder2D::sFactoryKeyword() ||
+	    points.size() < 2 )
+	return;
+
+    TypeSet<Coord> initialpoints( points );
+    TypeSet<float> initialvals( vals );
+    invdistgridder.setPoints( initialpoints );
+    invdistgridder.setValues( initialvals );
+
+    for ( int idx=0; idx<corners.size(); idx++ )
+    {
+	const Coord& gridpoint = corners[idx];
+	const float cornerval = invdistgridder.getValue( gridpoint );
+	if ( mIsUdf(cornerval) )
+	    continue;
+
+	points += gridpoint;
+	vals += cornerval;
+    }
+}
+
+
 bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 {
     if ( infos_.isEmpty() )
@@ -364,11 +419,15 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     const int nrz = output->sampling().nrZ();
     const int nrwells = infos_.size();
 
+    TypeSet<Coord> corners;
+    getCornerPoints( bid, corners );
+
     const TrcKeySampling& hs = output->sampling().hsamp_;
     const int outputinlidx = outputinlrg_.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg_.nearestIndex( bid.crl() );
     const Coord gridpoint( hs.toCoord(bid) );
     Gridder2D* gridder = gridder_->clone();
+    Gridder2D* invdistgridder = invdistgridder_->clone();
     TypeSet<Coord> points;
     TypeSet<float> logvals;
     for ( int idz=0; idz<nrz; idz++ )
@@ -395,18 +454,26 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	    logvals += logval;
 	}
 
-	if ( points.isEmpty() || !gridder->setPoints(points) ||
-	     !gridder->setValues(logvals) )
+	if ( points.isEmpty() )
 	{
 	    outputarray.set( outputinlidx, outputcrlidx, idz, mUdf(float) );
 	    continue;
 	}
 
+	addCornerPoints( *gridder, *invdistgridder, corners, points, logvals );
+	if ( !gridder->setPoints(points) || !gridder->setValues(logvals) )
+	{
+	    outputarray.set( outputinlidx, outputcrlidx, idz, mUdf(float) );
+	    continue;
+	}
+
+	gridder->setTrend( trendorder_ );
 	const float val = gridder->getValue( gridpoint );
 	outputarray.set( outputinlidx, outputcrlidx, idz, val );
     }
 
     delete gridder;
+    delete invdistgridder;
 
     return true;
 }
