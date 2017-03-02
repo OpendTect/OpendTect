@@ -545,7 +545,7 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
     if ( isGroup() )
 	manip_->attach( rightOf, usemodesel_ );
 
-    mAttachCB( usemodesel_->modeChange, uiColTabSelTool::mapSetupChgCB );
+    mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeChgCB );
     mAttachCB( mappersetup_->objectChanged(), uiColTabSelTool::mapSetupChgCB );
     mAttachCB( newManDlg, uiColTabSelTool::newManDlgCB );
 }
@@ -590,6 +590,12 @@ void uiColTabSelTool::newManDlgCB( CallBacker* )
 {
     if ( mandlg_ )
 	mandlg_->useDistrib( distrib_ );
+}
+
+
+void uiColTabSelTool::modeChgCB( CallBacker* )
+{
+    mappersetup_->setSeqUseMode( usemodesel_->mode() );
 }
 
 

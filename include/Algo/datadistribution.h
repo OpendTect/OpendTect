@@ -330,6 +330,7 @@ void DataDistribution<VT>::getRanges( Interval<VT>& xrg,
 template <class VT> inline
 const DataDistribution<VT>& DataDistribution<VT>::getEmptyDistrib()
 {
-    mDefineStaticLocalObject( DataDistribution<VT>, theempty, );
-    return theempty;
+    mDefineStaticLocalObject( RefMan< DataDistribution<VT> >, theempty,
+					= new DataDistribution<VT> );
+    return *theempty;
 }

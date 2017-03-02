@@ -72,6 +72,7 @@ protected:
     void		handleMapperSetupChange();
     void		handleDistribChange();
 
+    void		modeChgCB(CallBacker*);
     void		mapSetupChgCB(CallBacker*);
     void		distribChgCB(CallBacker*);
     void		newManDlgCB(CallBacker*);

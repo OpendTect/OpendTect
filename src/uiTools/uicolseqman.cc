@@ -321,7 +321,6 @@ void mousePress( CallBacker* cb )
 
 void mouseMove( CallBacker* cb )
 {
-    NotifyStopper notifstop( meh_.buttonPressed );
     if ( meh_.isHandled() )
 	return;
 

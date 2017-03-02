@@ -297,7 +297,7 @@ uiColSeqToolBar::uiColSeqToolBar( uiParent* p )
 
 
 class uiColSeqUseModeCompactSelector : public uiGraphicsView
-{
+{ mODTextTranslationClass(uiColSeqUseModeCompactSelector);
 public:
 
 typedef ColTab::SeqUseMode SeqUseMode;
@@ -323,23 +323,63 @@ void initCB( CallBacker* )
     mAttachCB( meh_.movement, uiColSeqUseModeCompactSelector::mouseMoveCB );
 
     mAttachCB( reSize, uiColSeqUseModeCompactSelector::reDrawCB );
-    drawAll();
+    mAttachCB( reSize, uiColSeqUseModeCompactSelector::mouseLeaveCB );
+
+    drawAsIs();
 }
 
 void mouseReleaseCB( CallBacker* )
 {
+    if ( meh_.isHandled() )
+	return;
+
+    const MouseEvent& ev = meh_.event();
+    const bool isflipped = ev.x() > scene().nrPixX() * 0.5f;
+    const bool iscyclic = ev.y() > scene().nrPixY() * 0.5f;
+    setMode( ColTab::getSeqUseMode(isflipped,iscyclic) );
+    modeChange.trigger();
+    drawSelected();
 }
 
 void mouseMoveCB( CallBacker* )
 {
+    if ( meh_.isHandled() )
+	return;
+
+    const MouseEvent& ev = meh_.event();
+    const bool isflipped = ev.x() > scene().nrPixX() * 0.5f;
+    const bool iscyclic = ev.y() > scene().nrPixY() * 0.5f;
+    const SeqUseMode usemode = ColTab::getSeqUseMode(isflipped,iscyclic);
+    drawCurrent( usemode );
+    switch ( usemode )
+    {
+	case ColTab::UnflippedSingle:
+	    setToolTip( tr("Normal Color Table") );
+	    break;
+	case ColTab::FlippedSingle:
+	    setToolTip( tr("Flipped Color Table") );
+	    break;
+	case ColTab::UnflippedCyclic:
+	    setToolTip( tr("Cyclic Color Table") );
+	    break;
+	case ColTab::FlippedCyclic:
+	    setToolTip( tr("Cyclic Color Table (Flipped)") );
+	    break;
+    }
+}
+
+void mouseLeaveCB( CallBacker* )
+{
+    if ( curitms_ )
+	curitms_->removeAll( true );
 }
 
 void reDrawCB( CallBacker* )
 {
-    drawAll();
+    drawAsIs();
 }
 
-void drawAll()
+void drawAsIs()
 {
     if ( !pixmapitm_ )
     {
@@ -349,39 +389,50 @@ void drawAll()
     pixmapitm_->scaleToScene();
 
     drawSelected();
-    drawCurrent();
 }
 
-void drawSelected()
+
+void drawHighlight( uiGraphicsItemGroup*& grp, SeqUseMode usemode,
+			int rwdth, Color col, int zval )
 {
     const int xsz = scene().nrPixX(); const int ysz = scene().nrPixY();
     if ( xsz < 1 || ysz < 1 )
 	return;
 
-    if ( !selitms_ )
-	selitms_ = scene().addItem( new uiGraphicsItemGroup );
+    if ( !grp )
+	grp = scene().addItem( new uiGraphicsItemGroup );
     else
-	selitms_->removeAll( true );
+	grp->removeAll( true );
 
     const uiSize pixmapsz = pixmapitm_ ? pixmapitm_->pixmapSize()
 				       : uiSize( xsz, ysz );
     const float scale = ((float)pixmapsz.width()) / xsz;
-    const int nrrects = (int)(scale * 4 + .5);
-    const OD::LineStyle ls( OD::LineStyle::Solid, 1, Color(0,255,255) );
+    const int nrrects = (int)(scale * rwdth + .5);
+    const OD::LineStyle ls( OD::LineStyle::Solid, 1, col );
     const int midx = xsz / 2; const int midy = ysz / 2;
-    const int xoffs = ColTab::isFlipped( mode_ ) ? midx : 0;
-    const int yoffs = ColTab::isCyclic( mode_ ) ? midy : 0;
+    const int xoffs = ColTab::isFlipped( usemode ) ? midx : 0;
+    const int yoffs = ColTab::isCyclic( usemode ) ? midy : 0;
+
     for ( int idx=0; idx<nrrects; idx++ )
     {
 	uiRectItem* itm = new uiRectItem( xoffs+idx, yoffs+idx,
 					  midx-2*idx, midy-2*idx );
 	itm->setPenStyle( ls );
-	selitms_->add( itm );
+	grp->add( itm );
     }
+
+    grp->setZValue( zval );
 }
 
-void drawCurrent()
+void drawSelected()
 {
+    drawHighlight( selitms_, mode_, 4, Color(0,255,255), 10 );
+}
+
+
+void drawCurrent( SeqUseMode usemode )
+{
+    drawHighlight( curitms_, usemode, 2, Color(255,255,0), 11 );
 }
 
 SeqUseMode mode() const
