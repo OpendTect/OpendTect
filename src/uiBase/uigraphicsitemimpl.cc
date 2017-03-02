@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
 
 #include "angles.h"
 #include "odgraphicsitem.h"
@@ -397,6 +398,33 @@ void uiPixmapItem::setPixmap( const uiPixmap& pixmap )
 void uiPixmapItem::setPaintInCenter( bool yn )
 {
     qpixmapitem_->setPaintInCenter( yn );
+}
+
+
+
+uiSize uiPixmapItem::pixmapSize() const
+{
+    QPixmap pm( qpixmapitem_->pixmap() );
+    return uiSize( pm.width(), pm.height() );
+}
+
+
+void uiPixmapItem::scaleToScene()
+{
+    if ( !scene_ )
+	{ pErrMsg("Cannot scale to scene without scene"); return; }
+    setPaintInCenter( false );
+
+    QPixmap pm( qpixmapitem_->pixmap() );
+    const int curwdth = pm.width(); const int curhght = pm.height();
+    const int newwdth = scene_->nrPixX(); const int newhght = scene_->nrPixY();
+
+    if ( curwdth == newwdth && curhght == newhght )
+	return;
+
+    QPixmap newpm = pm.scaled( newwdth, newhght,
+		       Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    qpixmapitem_->setPixmap( newpm );
 }
 
 

@@ -547,13 +547,17 @@ void ODGraphicsAdvancedTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* ev )
 ODGraphicsPixmapItem::ODGraphicsPixmapItem()
     : QGraphicsPixmapItem()
     , paintincenter_(false)
-{}
+{
+    setTransformationMode( Qt::SmoothTransformation );
+}
 
 
 ODGraphicsPixmapItem::ODGraphicsPixmapItem( const uiPixmap& pm )
     : QGraphicsPixmapItem(*pm.qpixmap())
     , paintincenter_(false)
-{}
+{
+    setTransformationMode( Qt::SmoothTransformation );
+}
 
 
 void ODGraphicsPixmapItem::setPaintInCenter( bool yn )

@@ -457,6 +457,8 @@ void uiMainWinBody::go( bool showminimized )
 {
     finalise( true );
     doShow( showminimized );
+    for ( int idx=0; idx<toolbars_.size(); idx++ )
+	toolbars_[idx]->handleFinalise( false );
     move( handle_.popuparea_ );
 }
 
@@ -508,12 +510,7 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
     finaliseChildren();
 
     if ( trigger_finalise_start_stop )
-    {
 	handle_.postFinalise().trigger( handle_ );
-
-	for ( int idx=0; idx<toolbars_.size(); idx++ )
-	    toolbars_[idx]->handleFinalise( false );
-    }
 }
 
 

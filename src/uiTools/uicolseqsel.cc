@@ -19,8 +19,10 @@ ________________________________________________________________________
 #include "uicolseqdisp.h"
 #include "uicolseqman.h"
 #include "uibutton.h"
-#include "uipixmap.h"
 #include "uimenu.h"
+#include "uipixmap.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
 
 
 
@@ -298,9 +300,14 @@ class uiColSeqUseModeCompactSelector : public uiGraphicsView
 {
 public:
 
+typedef ColTab::SeqUseMode SeqUseMode;
+
 uiColSeqUseModeCompactSelector( uiParent* p )
     : uiGraphicsView(p,"Compact SeqUseMode selector")
     , meh_(getMouseEventHandler())
+    , pixmapitm_(0)
+    , selitms_(0)
+    , curitms_(0)
     , modeChange(this)
 {
     disableScrollZoom();
@@ -334,26 +341,70 @@ void reDrawCB( CallBacker* )
 
 void drawAll()
 {
-    // draw the 4 states
-    drawCurrentRect();
+    if ( !pixmapitm_ )
+    {
+	const uiPixmap pm( "sequsemodes" );
+	pixmapitm_ = scene().addItem( new uiPixmapItem(pm) );
+    }
+    pixmapitm_->scaleToScene();
+
+    drawSelected();
+    drawCurrent();
 }
 
-void drawCurrentRect()
+void drawSelected()
+{
+    const int xsz = scene().nrPixX(); const int ysz = scene().nrPixY();
+    if ( xsz < 1 || ysz < 1 )
+	return;
+
+    if ( !selitms_ )
+	selitms_ = scene().addItem( new uiGraphicsItemGroup );
+    else
+	selitms_->removeAll( true );
+
+    const uiSize pixmapsz = pixmapitm_ ? pixmapitm_->pixmapSize()
+				       : uiSize( xsz, ysz );
+    const float scale = ((float)pixmapsz.width()) / xsz;
+    const int nrrects = (int)(scale * 4 + .5);
+    const OD::LineStyle ls( OD::LineStyle::Solid, 1, Color(0,255,255) );
+    const int midx = xsz / 2; const int midy = ysz / 2;
+    const int xoffs = ColTab::isFlipped( mode_ ) ? midx : 0;
+    const int yoffs = ColTab::isCyclic( mode_ ) ? midy : 0;
+    for ( int idx=0; idx<nrrects; idx++ )
+    {
+	uiRectItem* itm = new uiRectItem( xoffs+idx, yoffs+idx,
+					  midx-2*idx, midy-2*idx );
+	itm->setPenStyle( ls );
+	selitms_->add( itm );
+    }
+}
+
+void drawCurrent()
 {
 }
 
-ColTab::SeqUseMode mode() const
+SeqUseMode mode() const
 {
-    //TODO
-    return ColTab::UnflippedSingle;
+    return mode_;
 }
 
-void setMode( ColTab::SeqUseMode )
+void setMode( SeqUseMode newmode )
 {
-    //TODO
+    if ( mode_ == newmode )
+	return;
+
+    mode_ = newmode;
+    drawSelected();
 }
 
+    SeqUseMode					mode_;
     MouseEventHandler&				meh_;
+
+    uiPixmapItem*				pixmapitm_;
+    uiGraphicsItemGroup*			selitms_;
+    uiGraphicsItemGroup*			curitms_;
+
     Notifier<uiColSeqUseModeCompactSelector>	modeChange;
 
 };

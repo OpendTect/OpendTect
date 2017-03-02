@@ -184,6 +184,9 @@ public:
     void			setPixmap(const uiPixmap&);
     void			setPaintInCenter(bool);
 
+    uiSize			pixmapSize() const;
+    void			scaleToScene();
+
 protected:
 
     QGraphicsItem*		mkQtObj();
