@@ -102,6 +102,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , volattrdlg_(0)
     , multiattrdlg_(0)
     , dataattrdlg_(0)
+    , evalmapperbackup_ (0)
 {
     attrsetclosetim_.tick.notify(
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -2064,16 +2065,19 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 void uiAttribPartServer::setEvalBackupColTabMapper(
 			const ColTab::MapperSetup* mp )
 {
-    if ( evalmapperbackup_ && mp )
-	*evalmapperbackup_ = *mp;
-    else if ( !mp )
+    if ( evalmapperbackup_ == mp )
+	return;
+
+    if ( evalmapperbackup_ )
     {
 	evalmapperbackup_->unRef();
 	evalmapperbackup_ = 0;
     }
-    else if ( mp )
+
+    if ( mp )
     {
-	evalmapperbackup_ = new ColTab::MapperSetup( *mp );
+    	evalmapperbackup_ = new ColTab::MapperSetup( *mp );
+	evalmapperbackup_->ref();
     }
 }
 
