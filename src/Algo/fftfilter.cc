@@ -17,16 +17,11 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "odcomplex.h"
 
-#include "hiddenparam.h"
-
 #define mMINNRSAMPLES	100
 
 mDefineEnumUtils(FFTFilter,Type,"Filter type")
 { "LowPass", "HighPass", "BandPass", 0 };
 
-
-HiddenParam<FFTFilter,Array1DImpl<float_complex>*> freqdomain_(0);
-HiddenParam<FFTFilter,int> stayinfreq_(0);
 
 FFTFilter::FFTFilter( int sz, float step )
     : fft_(Fourier::CC::createDefault())
@@ -35,6 +30,8 @@ FFTFilter::FFTFilter( int sz, float step )
     , freqwindow_(0)
     , trendreal_(0)
     , trendimag_(0)
+    , freqdomain_(0)
+    , stayinfreq_(false)
 {
     MemSetter<float> initfreq( cutfreq_, mUdf(float), 4 );
     initfreq.execute();
@@ -42,8 +39,6 @@ FFTFilter::FFTFilter( int sz, float step )
     fftsz_ = fft_->getFastSize( 3 * sz_ );
     df_ = Fourier::CC::getDf( step, fftsz_ );
 
-    freqdomain_.setParam( this, 0 );
-    stayinfreq_.setParam( this, 0 );
 }
 
 
@@ -54,9 +49,7 @@ FFTFilter::~FFTFilter()
     delete freqwindow_;
     delete trendreal_;
     delete trendimag_;
-    delete freqdomain_.getParam(this);
-    freqdomain_.removeParam( this );
-    stayinfreq_.removeParam( this );
+    delete freqdomain_;
 }
 
 
@@ -243,16 +236,16 @@ bool FFTFilter::apply( Array1DImpl<float_complex>& outp, bool dopreproc )
     for ( int idy=0; idy<sz_; idy++ )
 	timedomain.set( sz_+idy, inp->get( idy ) );
 
-    delete getFreqDomainArr();
-    freqdomain_.setParam( this, new Array1DImpl<float_complex>(fftsz_) );
-    mDoFFT( true, timedomain.getData(), getFreqDomainArr()->getData() );
+    delete freqdomain_;
+    freqdomain_ = new Array1DImpl<float_complex>( fftsz_ );
+    mDoFFT( true, timedomain.getData(), freqdomain_->getData() );
     if ( freqwindow_ )
-	freqwindow_->apply( getFreqDomainArr() );
+	freqwindow_->apply( freqdomain_ );
 
-    if ( stayinfreq_.getParam(this)>0 )
+    if ( stayinfreq_ )
 	return true;
 
-    mDoFFT( false, getFreqDomainArr()->getData(), timedomain.getData() );
+    mDoFFT( false, freqdomain_->getData(), timedomain.getData() );
     for ( int idy=0; idy<sz_; idy++ )
 	inp->set( idy, timedomain.get( sz_ + idy ) );
 
@@ -617,16 +610,4 @@ void FFTFilter::restoreSize( const Array1DImpl<float>& inp,
     const int shift = mNINT32((float) sz_/2) - mNINT32((float) sz/2);
     for ( int idx=0; idx<sz; idx++ )
 	outp.set( idx, inp.get( idx + shift ) );
-}
-
-
-Array1DImpl<float_complex>* FFTFilter::getFreqDomainArr()
-{
-    return freqdomain_.getParam(this);
-}
-
-
-void FFTFilter::requestStayInFreqDomain()
-{
-    stayinfreq_.setParam( this, 1 );
 }

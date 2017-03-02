@@ -56,8 +56,10 @@ public:
     bool		apply(Array1DImpl<float>&);
     bool		apply(Array1DImpl<float_complex>&,bool dopreproc=true);
 
-    Array1DImpl<float_complex>* getFreqDomainArr();
-    void		requestStayInFreqDomain();
+    Array1DImpl<float_complex>* getFreqDomainArr() const
+			{ return freqdomain_; }
+    void		requestStayInFreqDomain()
+			{stayinfreq_ = true; }
 
     Type		getFilterType() const;
     bool		isLowPass() const;
@@ -79,6 +81,8 @@ protected:
     Array1DImpl<float>*	trendimag_;
     BoolTypeSet		isudfreal_;
     BoolTypeSet		isudfimag_;
+    Array1DImpl<float_complex>* freqdomain_;
+    bool			stayinfreq_;
 
     void		buildFreqTaperWin();
 

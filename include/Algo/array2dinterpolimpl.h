@@ -184,6 +184,10 @@ protected:
 
     				//Work control
     od_int64			totalnr_;
+
+    TypeSet<int>		corneridx_;
+    TypeSet<float>		cornerval_;
+    TypeSet<BinID>		cornerbid_;
 };
 
 

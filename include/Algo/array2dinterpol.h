@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "factory.h"
 #include "odmemory.h"
+#include "polygon.h"
 #include "rowcol.h"
 
 class TrcKeySampling;
@@ -154,6 +155,10 @@ protected:
     bool			maskismine_;
     bool			isclassification_;
     Stats::CalcSetup*		statsetup_;
+
+    PolyTrend*			trend_;
+    ODPolygon<double>*		poly_;
+    bool			croppoly_;
 };
 
 #endif

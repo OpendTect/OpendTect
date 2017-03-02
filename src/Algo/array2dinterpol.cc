@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "executor.h"
 #include "delaunay.h"
-#include "hiddenparam.h"
 #include "polygon.h"
 #include "limits.h"
 #include "rowcol.h"
@@ -23,14 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mPolygonType int
 
-
-HiddenParam<Array2DInterpol,PolyTrend*> trend_(0);
-HiddenParam<Array2DInterpol,ODPolygon<double>*> poly_(0);
-HiddenParam<Array2DInterpol,char> croppoly_(0);
-
-HiddenParam<TriangulationArray2DInterpol,TypeSet<int>*> corneridx_(0);
-HiddenParam<TriangulationArray2DInterpol,TypeSet<float>*> cornerval_(0);
-HiddenParam<TriangulationArray2DInterpol,TypeSet<BinID>*> cornerbid_(0);
 
 const char* Array2DInterpol::sKeyFillType()	{ return "Fill Type"; }
 const char* Array2DInterpol::sKeyRowStep()	{ return "Row Step"; }
@@ -117,10 +108,10 @@ Array2DInterpol::Array2DInterpol()
     , maskismine_(false)
     , isclassification_(false)
     , statsetup_(0)
+    , trend_(0)
+    , poly_(0)
+    , croppoly_(false)
 {
-    trend_.setParam( this, 0 );
-    poly_.setParam( this, 0 );
-    croppoly_.setParam( this, false );
 }
 
 
@@ -128,13 +119,8 @@ Array2DInterpol::~Array2DInterpol()
 {
     if ( maskismine_ ) delete mask_;
     delete statsetup_;
-    delete trend_.getParam( this );
-    trend_.removeParam( this );
-
-    delete poly_.getParam( this );
-    poly_.removeParam( this );
-
-    croppoly_.removeParam( this );
+    delete trend_;
+    delete poly_;
 }
 
 
@@ -163,9 +149,9 @@ void Array2DInterpol::setOrigin( const RowCol& rc )
 
 void Array2DInterpol::setTrendOrder( PolyTrend::Order ord )
 {
-    delete trend_.getParam( this );
-    trend_.setParam( this, new PolyTrend() );
-    trend_.getParam(this)->setOrder( ord );
+    delete trend_;
+    trend_ = new PolyTrend();
+    trend_->setOrder( ord );
 }
 
 
@@ -420,7 +406,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
     }
     else if ( filltype_==Polygon )
     {
-	if ( !poly_.getParam(this) )
+	if ( !poly_ )
 	    return;
 
 	for ( int idx=0; idx<nrcells_; idx++ )
@@ -429,7 +415,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
 	    Geom::Point2D<double> pos( (double)(idx / nrcols_ + origin_.inl()),
 				       (double)(idx % nrcols_ + origin_.crl()));
-	    if ( poly_.getParam(this)->isInside(pos,true,0) )
+	    if ( poly_->isInside(pos,true,0) )
 		shouldinterpol[idx] = true;
 	}
     }
@@ -567,12 +553,11 @@ mDefParallelCalcBody
 
 void Array2DInterpol::doPolygonCrop()
 {
-    if ( filltype_ != Polygon || !poly_.getParam(this) ||
-	 !croppoly_.getParam(this) || !arr_ )
+    if ( filltype_ != Polygon || !poly_ || !croppoly_ || !arr_ )
 	return;
 
     //arrsetter_ is not considered since its never been finished
-    ArrPolyCropper polycrop( nrcells_, poly_.getParam(this), *arr_, nrrows_,
+    ArrPolyCropper polycrop( nrcells_, poly_, *arr_, nrrows_,
 			     nrcols_, origin_ );
     polycrop.execute();
 }
@@ -702,11 +687,11 @@ bool Array2DInterpol::fillPar( IOPar& par ) const
     par.set( sKeyFillType(), filltype_ );
     if ( filltype_==Polygon )
     {
-	const ODPolygon<double>* poly = poly_.getParam( this );
+	const ODPolygon<double>* poly = poly_;
 	if ( !poly )
 	    return false;
 
-	par.setYN( sKeyCropPolygon(), croppoly_.getParam( this ) );
+	par.setYN( sKeyCropPolygon(), croppoly_ );
 	const int nrofnodes = poly->size();
 	par.set( sKeyPolyNrofNodes(), nrofnodes );
 	for ( int idx=0; idx<nrofnodes; idx++ )
@@ -723,9 +708,9 @@ bool Array2DInterpol::fillPar( IOPar& par ) const
     par.set( sKeyNrCols(), nrcols_ );
     par.set( sKeyNrCells(), nrcells_ );
     par.set( sKeyMaxHoleSz(), mIsUdf(maxholesize_) ? -1 : maxholesize_ );
-    if ( trend_.getParam(this) )
+    if ( trend_ )
 	par.set( PolyTrend::sKeyOrder(), PolyTrend::OrderDef().getKey(
-		    trend_.getParam(this)->getOrder()) );
+		    trend_->getOrder()) );
     return true;
 }
 
@@ -738,25 +723,25 @@ bool Array2DInterpol::usePar( const IOPar& par )
 
     if ( filltype_==Polygon )
     {
-	delete poly_.getParam( this );
-	poly_.setParam( this, 0 );
+	delete poly_;
+	poly_ = 0;
 
-	bool crop = croppoly_.getParam( this );
+	bool crop = croppoly_;
 	par.getYN( sKeyCropPolygon(), crop );
-	croppoly_.setParam( this, crop );
+	croppoly_ = crop;
 
 	int nrnodes = 0;
 	par.get( sKeyPolyNrofNodes(), nrnodes );
 	if ( nrnodes>0 )
 	{
-	    poly_.setParam( this, new ODPolygon<double>() );
+	    poly_ = new ODPolygon<double>();
 	    for ( int idx=0; idx<nrnodes; idx++ )
 	    {
 		Coord node;
 		if ( par.get( IOPar::compKey(sKeyPolyNode(),idx), node ) )
-		    poly_.getParam(this)->add( node );
+		    poly_->add( node );
 	    }
-	    poly_.getParam(this)->setClosed( true );
+	    poly_->setClosed( true );
 	}
     }
 
@@ -1394,12 +1379,9 @@ TriangulationArray2DInterpol::TriangulationArray2DInterpol()
     , dointerpolation_( true )
     , maxdistance_( mUdf(float) )
 {
-    corneridx_.setParam( this, new TypeSet<int> );
-    cornerval_.setParam( this, new TypeSet<float> );
-    cornerbid_.setParam( this, new TypeSet<BinID> );
-    corneridx_.getParam(this)->setSize( 4 );
-    cornerval_.getParam(this)->setSize( 4 );
-    cornerbid_.getParam(this)->setSize( 4 );
+    corneridx_.setSize( 4 );
+    cornerval_.setSize( 4 );
+    cornerbid_.setSize( 4 );
 }
 
 
@@ -1408,12 +1390,6 @@ TriangulationArray2DInterpol::~TriangulationArray2DInterpol()
     delete [] nodestofill_;
     delete [] curdefined_;
     delete triangleinterpolator_;
-    delete corneridx_.getParam( this );
-    delete cornerval_.getParam( this );
-    delete cornerbid_.getParam( this );
-    corneridx_.removeParam( this );
-    cornerval_.removeParam( this );
-    cornerbid_.removeParam( this );
 }
 
 
@@ -1477,8 +1453,8 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
     //Trend settings
     setTrendOrder( PolyTrend::Order2 );
     Array2DImpl<char> edgesmask( arr_->info() );
-    const bool usetrimming = trend_.getParam(this) ? trimArray( 8, edgesmask )
-						   : false;
+    const bool usetrimming = trend_ ? trimArray( 8, edgesmask )
+				    : false;
     //Get defined nodes to triangulate
     TypeSet<Coord>* coordlist = new TypeSet<Coord>;
     coordlistindices_.erase();
@@ -1495,13 +1471,13 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
     for ( int idx=0; idx<4; idx++ )
     {
 	hascorner[idx ] = false;
-	(*corneridx_.getParam(this))[idx] = -(idx+1);
-	(*cornerval_.getParam(this))[idx] = 0.f;
-	(*cornerbid_.getParam(this))[idx] = BinID( 0, 0 );
+	corneridx_[idx] = -(idx+1);
+	cornerval_[idx] = 0.f;
+	cornerbid_[idx] = BinID( 0, 0 );
 	if ( idx>1 )
-	    (*cornerbid_.getParam(this))[idx].inl() = nrrows_-1;
+	    cornerbid_[idx].inl() = nrrows_-1;
 	if ( idx==1 || idx==2 )
-	    (*cornerbid_.getParam(this))[idx].crl() = nrcols_-1;
+	    cornerbid_[idx].crl() = nrcols_-1;
     }
 
     int curidx = 0;
@@ -1533,10 +1509,10 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
 
 	    for ( int cidx=0; cidx<4; cidx++ )
 	    {
-		if ( (*cornerbid_.getParam(this))[cidx]==BinID(pos[0],pos[1]) )
+		if ( cornerbid_[cidx]==BinID(pos[0],pos[1]) )
 		{
 		    hascorner[cidx] = true;
-		    (*cornerval_.getParam(this))[cidx] = val;
+		    cornerval_[cidx] = val;
 		}
 	    }
 	}
@@ -1553,18 +1529,18 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
 	if ( hascorner[idx] )
 	    continue;
 
-	const BinID curbid = (*cornerbid_.getParam(this))[idx];
+	const BinID curbid = cornerbid_[idx];
 	const Coord pos( curbid.inl(), curbid.crl() );
 	(*coordlist) += pos;
-	coordlistindices_ += (*corneridx_.getParam(this))[idx];
-	(*cornerval_.getParam(this))[idx] =  mCast(float,avgz/nrdef);
+	coordlistindices_ += corneridx_[idx];
+	cornerval_[idx] =  mCast(float,avgz/nrdef);
 
 	trendpts += pos;
-	trendvals += (*cornerval_.getParam(this))[idx];
+	trendvals += cornerval_[idx];
     }
 
-    if ( trend_.getParam(this) )
-	trend_.getParam(this)->set( trendpts, trendvals.arr() );
+    if ( trend_ )
+	trend_->set( trendpts, trendvals.arr() );
 
     if ( triangulation_ )
 	delete triangulation_;
@@ -1651,7 +1627,7 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 	    const int sz = vertices.size();
 	    if ( !sz ) continue;
 
-	    if ( trend_.getParam(this) )
+	    if ( trend_ )
 	    {
 		double val = 0;
 		for ( int widx=0; widx<weightsd.size(); widx++ )
@@ -1673,11 +1649,11 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 		    {
 			for (int cidx=0; cidx<4; cidx++ )
 			{
-			    if ( (*corneridx_.getParam(this))[cidx]==posidx )
+			    if ( corneridx_[cidx]==posidx )
 			    {
 				const BinID curbid =
-				    (*cornerbid_.getParam(this))[cidx];
-				posval = (*cornerval_.getParam(this))[cidx];
+				    cornerbid_[cidx];
+				posval = cornerval_[cidx];
 				curpos = Coord( curbid.inl(), curbid.crl() );
 				break;
 			    }
@@ -1686,11 +1662,11 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 
 		    if ( mIsUdf(posval) ) continue;
 
-		    trend_.getParam(this)->apply( curpos, true, posval );
+		    trend_->apply( curpos, true, posval );
 		    val += weightsd[widx] * posval;
 		}
 
-		trend_.getParam(this)->apply(Coord(pos[0],pos[1]), false, val);
+		trend_->apply( Coord(pos[0],pos[1]), false, val );
 		arr_->set( pos[0], pos[1], mCast(float,val) );
 	    }
 	    else
