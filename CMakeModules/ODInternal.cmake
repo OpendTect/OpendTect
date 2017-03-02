@@ -263,13 +263,12 @@ install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mksethdir DESTINATION ${MISC_INSTALL_P
 install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 
 #Installing unix syatem libraries
-if ( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
-    if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
-	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib64/libstdc++.so.6 Release )
-	OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
-    elseif( ${OD_PLFSUBDIR} STREQUAL "lux32" )
-	OD_INSTALL_SYSTEM_LIBRARY( /usr/lib/libstdc++.so.6 Release )
-	OD_INSTALL_SYSTEM_LIBRARY( /lib/libgcc_s.so.1 Release )
+if ( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+    if ( EXISTS /usr/lib64/libstdc++.so.6 AND EXISTS /lib64/libgcc_s.so.1 )
+	if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+	    OD_INSTALL_SYSTEM_LIBRARY( /usr/lib64/libstdc++.so.6 Release )
+	    OD_INSTALL_SYSTEM_LIBRARY( /lib64/libgcc_s.so.1 Release )
+	endif()
     endif()
 endif()
 
