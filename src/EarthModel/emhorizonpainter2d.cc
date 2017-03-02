@@ -15,16 +15,9 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "zaxistransform.h"
-#include "hiddenparam.h"
 
 namespace EM
 {
-static HiddenParam< HorizonPainter2D, ObjectSet<HorizonPainter2D::Marker2D>* >
-	    intsectmarkers_( 0 );
-static HiddenParam< HorizonPainter2D, Line2DInterSectionSet* >
-					    lnintsectset_( 0 );
-static HiddenParam< HorizonPainter2D, HorizonPainter2D::Marker2D* >
-					  selectionpoints_( 0 );
 
 HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )
@@ -37,6 +30,7 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
     , markerseeds_(0)
     , abouttorepaint_(this)
     , repaintdone_(this)
+    , selectionpoints_(0)
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
@@ -44,13 +38,6 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 	emobj->ref();
 	emobj->change.notify( mCB(this,HorizonPainter2D,horChangeCB) );
     }
-
-    intsectmarkers_.setParam( this, new ObjectSet<HorizonPainter2D::Marker2D> );
-    lnintsectset_.setParam( this, new Line2DInterSectionSet );
-
-    delete selectionpoints_.getParam( this );
-    selectionpoints_.setParam( this, 0 );
-
 }
 
 
@@ -67,11 +54,6 @@ HorizonPainter2D::~HorizonPainter2D()
     removePolyLine();
     removeSelections();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
-    delete intsectmarkers_.getParam(this);
-    delete lnintsectset_.getParam(this);
-    intsectmarkers_.removeParam( this );
-    lnintsectset_.removeParam( this );
-    selectionpoints_.removeParam(this);
 }
 
 
@@ -243,7 +225,7 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
 
 void HorizonPainter2D::updateIntersectionMarkers( int sid )
 {
-    if ( lnintsectset_.getParam(this)->size()<=0 )
+    if ( intsectset_.size()<=0 )
     {
 	if ( !calcLine2DIntersections() )
 	    return;
@@ -258,9 +240,9 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
     for ( int idx=0; idx<nrlns; idx++ )
 	geomids += hor2d->geometry().geomID(idx);
 
-    for ( int idx=0; idx<lnintsectset_.getParam(this)->size(); idx++ )
+    for ( int idx=0; idx<intsectset_.size(); idx++ )
     {
-	const Line2DInterSection* intsect=(*lnintsectset_.getParam(this))[idx];
+	const Line2DInterSection* intsect=intsectset_[idx];
 	if ( !intsect )  continue;
 	if ( intsect->geomID() != geomid_ )
 		continue;
@@ -295,7 +277,7 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
 			create2DMarker( EM::SectionID(sid), x, z );
 		    intsecmarker->marker_->markerstyles_.first().color_ =
 			emobj->preferredColor();
-		    *intsectmarkers_.getParam(this) += intsecmarker;
+		    intsectmarks_ += intsecmarker;
 		}
 	    }
 	}
@@ -311,11 +293,10 @@ bool HorizonPainter2D::calcLine2DIntersections()
 
     BendPointFinder2DGeomSet bpfinder( geom2dids );
     bpfinder.execute();
-    Line2DInterSectionFinder intfinder( bpfinder.bendPoints(),
-	*lnintsectset_.getParam(this) );
+    Line2DInterSectionFinder intfinder( bpfinder.bendPoints(), intsectset_ );
     intfinder.execute();
 
-    return lnintsectset_.getParam(this)->size()>0;
+    return intsectset_.size()>0;
 }
 
 
@@ -405,9 +386,9 @@ void HorizonPainter2D::removePolyLine()
 
 void HorizonPainter2D::removeIntersectionMarkers()
 {
-    for ( int idx=intsectmarkers_.getParam(this)->size()-1; idx>=0; idx-- )
-	viewer_.removeAuxData((*intsectmarkers_.getParam(this))[idx]->marker_);
-    deepErase( *intsectmarkers_.getParam(this) );
+    for ( int idx=intsectmarks_.size()-1; idx>=0; idx-- )
+	viewer_.removeAuxData( intsectmarks_[idx]->marker_ );
+    deepErase( intsectmarks_ );
 }
 
 
@@ -446,8 +427,8 @@ void HorizonPainter2D::enableSeed( bool yn )
 
 void HorizonPainter2D::displayIntersection( bool yn )
 {
-    for ( int idx=0; idx<intsectmarkers_.getParam(this)->size(); idx++ )
-	(*intsectmarkers_.getParam(this))[idx]->marker_->enabled_ =  yn;
+    for ( int idx=0; idx<intsectmarks_.size(); idx++ )
+	intsectmarks_[idx]->marker_->enabled_ =  yn;
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
@@ -464,7 +445,7 @@ void HorizonPainter2D::displaySelections( const
 
     removeSelections();
 
-    selectionpoints_.setParam( this, create2DMarker(0) );
+    selectionpoints_ = create2DMarker( 0 );
     for ( int idx=0; idx<pointselections.size(); idx++ )
     {
 	const Coord3 pos = emobj->getPos( pointselections[idx] );
@@ -482,9 +463,8 @@ void HorizonPainter2D::displaySelections( const
 	markerstyle_.color_ = hor2d->getSelectionColor();
 	markerstyle_.size_ = ms3d.size_*2;
 	markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
-	selectionpoints_.getParam(this)->marker_->markerstyles_ += markerstyle_;
-	selectionpoints_.getParam(this)->marker_->poly_ +=
-	    FlatView::Point(distances_[didx],z);
+	selectionpoints_->marker_->markerstyles_ += markerstyle_;
+	selectionpoints_->marker_->poly_ += FlatView::Point(distances_[didx],z);
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
@@ -493,11 +473,11 @@ void HorizonPainter2D::displaySelections( const
 
 void HorizonPainter2D::removeSelections()
 {
-    if ( selectionpoints_.getParam(this) )
+    if ( selectionpoints_ )
     {
-	viewer_.removeAuxData( selectionpoints_.getParam(this)->marker_ );
-	delete selectionpoints_.getParam(this);
-	selectionpoints_.setParam( this, 0 );
+	viewer_.removeAuxData( selectionpoints_->marker_ );
+	delete selectionpoints_;
+	selectionpoints_ = 0;
     }
 }
 
@@ -516,10 +496,10 @@ void HorizonPainter2D::updateSelectionColor()
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
     if ( !hor2d ) return;
 
-    HorizonPainter2D::Marker2D*  selections = selectionpoints_.getParam(this);
-    if ( !selections )
+    if ( !selectionpoints_ )
 	return;
-    TypeSet<MarkerStyle2D>& markerstyles = selections->marker_->markerstyles_;
+    TypeSet<MarkerStyle2D>& markerstyles =
+		selectionpoints_->marker_->markerstyles_;
 
     for ( int idx=0; idx<markerstyles.size(); idx++ )
 	markerstyles[idx].color_ = hor2d->getSelectionColor();

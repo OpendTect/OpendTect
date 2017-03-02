@@ -95,13 +95,12 @@ public:
     CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;
     Notifier<BaseMapObject>	changed;
     Notifier<BaseMapObject>	stylechanged;
+    CNotifier<BaseMapObject,const uiString&>	nameChanged;
 
 protected:
     int				depth_;
     int				id_;
     BufferString		typenm_;
-public:
-    CNotifier<BaseMapObject,const uiString&>*	namechanged();
 };
 
 

@@ -95,6 +95,7 @@ protected:
     Seis::SelData*	sd_;
 
     bool		isHidingDataAvailabilityError() const;
+    bool		showdataavailabilityerrors_;
 
 public:
     void		showDataAvailabilityErrors(bool yn);

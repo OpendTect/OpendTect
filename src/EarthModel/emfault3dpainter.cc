@@ -23,16 +23,9 @@ ________________________________________________________________________
 #include "positionlist.h"
 #include "survinfo.h"
 #include "trigonometry.h"
-#include "hiddenparam.h"
-
-#include "hiddenparam.h"
 
 namespace EM
 {
-static HiddenParam< Fault3DPainter,char >paintenable_(true);
-
-static HiddenParam< Fault3DPainter, int > rdlids( -1 );
-
 Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     : viewer_(fv)
     , emid_(oid)
@@ -45,8 +38,9 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     , repaintdone_(this)
     , linenabled_(true)
     , knotenabled_(false)
+    , paintenable_(true)
+    , rdlid_(-1)
 {
-    rdlids.setParam( this, -1 );
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
@@ -54,13 +48,11 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
 	emobj->change.notify( mCB(this,Fault3DPainter,fault3DChangedCB) );
     }
     tkzs_.setEmpty();
-    paintenable_.setParam( this, true );
 }
 
 
 Fault3DPainter::~Fault3DPainter()
 {
-    rdlids.removeParam( this );
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
@@ -70,13 +62,11 @@ Fault3DPainter::~Fault3DPainter()
 
     removePolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
-
-    paintenable_.removeParam( this );
 }
 
 
 void Fault3DPainter::setRandomLineID( int rdlid )
-{ rdlids.setParam( this, rdlid ); }
+{ rdlid_ = rdlid; }
 
 
 void Fault3DPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool update )
@@ -290,7 +280,7 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
     BinID bid;
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
     RefMan<Geometry::RandomLine> rlgeom =
-	Geometry::RLM().get( rdlids.getParam(this) );
+	Geometry::RLM().get( rdlid_ );
     if ( !path_ || !rlgeom )
 	return false;
 
@@ -629,14 +619,15 @@ void Fault3DPainter::removePolyLine()
 
 void Fault3DPainter::enablePaint( bool paintenable )
 {
-    paintenable_.setParam( this, paintenable );
+    paintenable_ = paintenable;
 }
 
 
 void Fault3DPainter::repaintFault3D()
 {
-    if ( !paintenable_.getParam(this) )
+    if ( !paintenable_ )
 	return;
+
     abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();

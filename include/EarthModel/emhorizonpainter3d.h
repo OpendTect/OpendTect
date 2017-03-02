@@ -100,11 +100,13 @@ protected:
 
     ObjectSet<SectionMarker3DLine> markerline_;
     Marker3D*		markerseeds_;
+    Marker3D*		  selectionpoints_;
 
     bool		linenabled_;
     bool		seedenabled_;
     int			nrseeds_;
     bool		intersection_;
+    TrcKeySampling	updatesamplings_;
 };
 
 } //namespace EM

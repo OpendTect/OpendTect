@@ -250,6 +250,11 @@ public:
 
     float			nrKBytes() const;
     void			dumpInfo(IOPar&) const;
+    void			setRandomLineID(int);
+    int				getRandomLineID() const;
+
+    int				getComponentIdx(const char* nm,
+						int defcompidx=-1) const;
 
 protected:
 				SeisDataPack(const char*,const BinDataDesc*);
@@ -262,12 +267,7 @@ protected:
     ZDomain::Info*			zdomaininfo_;
     BinDataDesc				desc_;
     const Scaler*			scaler_;
-public:
-    void				setRandomLineID(int);
-    int					getRandomLineID() const;
-
-    int				getComponentIdx(const char* nm,
-						int defcompidx=-1) const;
+    int					rdlid_;
 };
 
 #endif

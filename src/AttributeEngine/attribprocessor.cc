@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attriboutput.h"
 #include "attribprovider.h"
-#include "hiddenparam.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "survgeom2d.h"
@@ -26,8 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Attrib
 {
 
-HiddenParam<Processor,char>	showdataavailabilityerrors_( 0 );
-
 Processor::Processor( Desc& desc , const char* lk, uiString& err )
     : Executor("Attribute Processor")
     , desc_(desc)
@@ -39,6 +36,7 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
     , moveonly(this)
     , prevbid_(BinID(-1,-1))
     , sd_(0)
+    , showdataavailabilityerrors_(true)
 {
     if ( !provider_ ) return;
     provider_->ref();
@@ -47,8 +45,6 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
     is2d_ = desc_.is2D();
     if ( is2d_ )
 	provider_->setCurLineName( lk );
-
-    showdataavailabilityerrors_.setParam( this, true );
 }
 
 
@@ -58,8 +54,6 @@ Processor::~Processor()
     deepUnRef( outputs_ );
 
     if (sd_) delete sd_;
-
-    showdataavailabilityerrors_.removeParam( this );
 }
 
 
@@ -582,13 +576,12 @@ void Processor::setRdmPaths( TypeSet<BinID>* truepath,
 
 
 void Processor::showDataAvailabilityErrors( bool yn )
-{ showdataavailabilityerrors_.setParam( this, yn ); }
+{ showdataavailabilityerrors_ = yn; }
 
 
 bool Processor::isHidingDataAvailabilityError() const
 {
-    return !showdataavailabilityerrors_.getParam(this) &&
-	   provider_->getDataUnavailableFlag();
+    return !showdataavailabilityerrors_ && provider_->getDataUnavailableFlag();
 }
 
 

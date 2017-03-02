@@ -15,14 +15,9 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "flatposdata.h"
 #include "zaxistransform.h"
-#include "hiddenparam.h"
 
 namespace EM
 {
-
-static HiddenParam<HorizonPainter3D,TrcKeySampling*> updatesamplings_( 0 );
-static HiddenParam<HorizonPainter3D, HorizonPainter3D::Marker3D*>	
-					selectionpoints_( 0 );
 
 HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )
@@ -38,7 +33,8 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     , flatposdata_(0)
     , abouttorepaint_(this)
     , repaintdone_(this)
-    , intersection_( true )
+    , intersection_(true)
+    , selectionpoints_(0)
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( emobj )
@@ -46,9 +42,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
 	emobj->ref();
 	emobj->change.notify( mCB(this,HorizonPainter3D,horChangeCB) );
     }
-    updatesamplings_.setParam( this, new TrcKeySampling() );
-    updatesamplings_.getParam(this)->init( false );
-    selectionpoints_.setParam( this, 0 );
+    updatesamplings_.init( false );
 }
 
 
@@ -66,10 +60,7 @@ HorizonPainter3D::~HorizonPainter3D()
 
     removePolyLine();
     removeSelections();
-    selectionpoints_.removeParam( this );
     viewer_.handleChange( FlatView::Viewer::Auxdata );
-    delete updatesamplings_.getParam(this);
-    updatesamplings_.removeParam( this );
 
     CallBack::removeFromMainThread( this );
 }
@@ -116,7 +107,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
     repaintdone_.trigger();
-    updatesamplings_.getParam(this)->init( false );
+    updatesamplings_.init( false );
 }
 
 
@@ -519,9 +510,7 @@ void HorizonPainter3D::enableSeed( bool yn )
 void HorizonPainter3D::setUpdateTrcKeySampling( 
     const TrcKeySampling& samplings )
 {
-    delete updatesamplings_.getParam(this);
-    updatesamplings_.removeParam( this );
-    updatesamplings_.setParam(this, new TrcKeySampling(samplings) );
+    updatesamplings_= TrcKeySampling( samplings );
 }
 
 
@@ -537,7 +526,7 @@ void HorizonPainter3D::displaySelections(
 
     removeSelections();
 
-    selectionpoints_.setParam( this, create3DMarker(0) );
+    selectionpoints_ = create3DMarker( 0 );
     
     for ( int idx=0; idx<pointselections.size(); idx++ )
     {
@@ -557,9 +546,8 @@ void HorizonPainter3D::displaySelections(
 	markerstyle_.color_ = hor3d->getSelectionColor();
 	markerstyle_.size_ = ms3d.size_*2;
 	markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
-	selectionpoints_.getParam(this)->marker_->markerstyles_ += markerstyle_;
-	selectionpoints_.getParam(this)->marker_->poly_ += 
-	    FlatView::Point( x, pos.z );
+	selectionpoints_->marker_->markerstyles_ += markerstyle_;
+	selectionpoints_->marker_->poly_ += FlatView::Point( x, pos.z );
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
@@ -568,11 +556,11 @@ void HorizonPainter3D::displaySelections(
 
 void HorizonPainter3D::removeSelections()
 {
-    if ( selectionpoints_.getParam(this) )
+    if ( selectionpoints_ )
     {
-	viewer_.removeAuxData( selectionpoints_.getParam(this)->marker_ );
-	delete selectionpoints_.getParam( this );
-	selectionpoints_.setParam( this, 0 );
+	viewer_.removeAuxData( selectionpoints_->marker_ );
+	delete selectionpoints_;
+	selectionpoints_ = 0;
     }
 }
 
@@ -591,11 +579,11 @@ void HorizonPainter3D::updateSelectionColor()
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
     if ( !hor3d ) return;
 
-    HorizonPainter3D::Marker3D*  selections = selectionpoints_.getParam(this);
-    if ( !selections )
+    if ( !selectionpoints_ )
 	return;
 
-    TypeSet<MarkerStyle2D>& markerstyles = selections->marker_->markerstyles_;
+    TypeSet<MarkerStyle2D>& markerstyles =
+		selectionpoints_->marker_->markerstyles_;
     for ( int idx=0; idx<markerstyles.size(); idx++ )
 	markerstyles[idx].color_ = hor3d->getSelectionColor();
 

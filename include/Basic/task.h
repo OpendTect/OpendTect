@@ -152,7 +152,7 @@ protected:
 			  it should be interpreted as cMoreToDo(). */
 
     ProgressMeter* progressmeter_;
-
+    int			lastupdate_;
 };
 
 

@@ -284,6 +284,7 @@ protected:
     bool			fullyloaded_;
     bool			locked_;
     int				burstalertcount_;
+    Threads::Lock		setposlock_;
 
     bool			insideselremoval_;
     bool			selremoving_;

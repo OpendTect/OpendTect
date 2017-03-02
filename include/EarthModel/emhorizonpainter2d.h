@@ -100,6 +100,9 @@ protected:
     bool		linenabled_;
     bool		seedenabled_;
     bool		intersection_;
+    Line2DInterSectionSet intsectset_;
+    ObjectSet<Marker2D>   intsectmarks_;
+    Marker2D*		  selectionpoints_;
 
 private:
     Marker2D*		create2DMarker(const EM::SectionID&);

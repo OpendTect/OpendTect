@@ -112,6 +112,7 @@ protected:
     const DataHolder*           imdata_;
     int				realidx_;
     int				imagidx_;
+    bool			smoothspectrum_;
 
     BufferStringSet		dumpset_;
     bool			fftisinit_;

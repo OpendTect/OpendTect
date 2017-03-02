@@ -176,7 +176,8 @@ public:
     void			lockAll();
     void			unlockAll();
     const Array2D<char>*	getLockedNodes() const;
-    bool			hasLockedNodes() const;
+    bool			hasLockedNodes() const
+				{ return haslockednodes_; }
 
     void			setParentColor(const Color&);
     const Color&		getParentColor() const;
@@ -209,6 +210,7 @@ protected:
     Color			lockcolor_;
 
     Pos::GeomID			survgeomid_;
+    bool			haslockednodes_;
 
 public:
     /*mDeprecated*/ float	getZ(const BinID&) const;

@@ -391,6 +391,7 @@ protected:
     bool			arebiddupl_;
     int				firstattrcol_;
     float			maxdisttrcs_;
+    float			mediandisttrcs_;
     TypeSet<float>		distpicktrc_;
 
     void			computeAndSetVals(const DataHolder&,float,

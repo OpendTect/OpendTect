@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emobjectposselector.h"
 #include "geomelement.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -40,8 +39,6 @@ const char* EMObject::posattrposidstr()	    { return " SubID"; }
 const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
 
 
-static HiddenParam<EMObject,Threads::Lock*> setposlocks( 0 );
-
 
 EMObject::EMObject( EMManager& emm )
     : manager_( emm )
@@ -64,7 +61,6 @@ EMObject::EMObject( EMManager& emm )
     removebypolyposbox_.setEmpty();
 
     change.notify( mCB(this,EMObject,posIDChangeCB) );
-    setposlocks.setParam( this, new Threads::Lock );
 }
 
 
@@ -77,9 +73,6 @@ EMObject::~EMObject()
 
     change.remove( mCB(this,EMObject,posIDChangeCB) );
     id_ = -2;	//To check easier if it has been deleted
-
-    delete setposlocks.getParam( this );
-    setposlocks.removeParam( this );
 }
 
 
@@ -171,8 +164,7 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
 bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 			const Coord3& newpos, bool addtoundo )
 {
-    Threads::Lock* setposlock = setposlocks.getParam( this );
-    Threads::Locker locker( *setposlock );
+    Threads::Locker locker( setposlock_ );
 
     Geometry::Element* element = sectionGeometryInternal( sid );
     if ( !element ) mRetErr( uiString::emptyString() );

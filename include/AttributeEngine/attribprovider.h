@@ -389,6 +389,7 @@ protected:
     bool			isusedmulttimes_;
     bool			needinterp_;
     uiString			errmsg_;
+    bool			dataunavailableflag_;
 
 public:
     void			setDataUnavailableFlag(bool yn);

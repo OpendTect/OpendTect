@@ -12,15 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizonsorter.h"
 
 #include "arrayndimpl.h"
-#include "hiddenparam.h"
 #include "trckeyzsampling.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "uistrings.h"
-
-static HiddenParam<HorizonSorter,TaskRunner*> taskrunhorsortermgr_(0);
 
 
 HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
@@ -32,14 +29,13 @@ HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
     , result_(0)
     , is2d_(is2d)
     , message_(tr("Sorting"))
+    , taskrun_(0)
 {
-    taskrunhorsortermgr_.setParam( this, 0 );
 }
 
 
 HorizonSorter::~HorizonSorter()
 {
-    taskrunhorsortermgr_.removeParam( this );
     delete result_;
     delete iterator_;
     deepUnRef( horizons_ );
@@ -48,7 +44,7 @@ HorizonSorter::~HorizonSorter()
 
 void HorizonSorter::setTaskRunner( TaskRunner& taskrun )
 {
-    taskrunhorsortermgr_.setParam( this, &taskrun );
+    taskrun_ = &taskrun;
 }
 
 
@@ -191,11 +187,10 @@ int HorizonSorter::nextStep()
     if ( !nrdone_ )
     {
 	PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedids_ );
-	TaskRunner* taskrun = taskrunhorsortermgr_.getParam( this );
 	if ( horreader )
 	{
-	    if ( taskrun )
-		taskrun->execute( *horreader.ptr() );
+	    if ( taskrun_ )
+		taskrun_->execute( *horreader.ptr() );
 	    else
 		horreader->execute();
 	}

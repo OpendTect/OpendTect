@@ -20,15 +20,9 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 #include "survinfo.h"
 #include "trigonometry.h"
-#include "hiddenparam.h"
-
-#include "hiddenparam.h"
 
 namespace EM
 {
-static HiddenParam< FaultStickPainter,char >paintenable_(true);
-static HiddenParam<FaultStickPainter,int> rdlids( -1 );
-
 FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 				      const EM::ObjectID& oid )
     : viewer_(fv)
@@ -44,22 +38,22 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , repaintdone_( this )
     , linenabled_(true)
     , knotenabled_(false)
+    , paintenable_(true)
+    , rdlid_(-1)
 {
-    rdlids.setParam( this, -1 );
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
 	emobj->ref();
 	emobj->change.notify( mCB(this,FaultStickPainter,fssChangedCB) );
     }
+
     tkzs_.setEmpty();
-    paintenable_.setParam( this, true );
 }
 
 
 FaultStickPainter::~FaultStickPainter()
 {
-    rdlids.removeParam( this );
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
@@ -69,7 +63,6 @@ FaultStickPainter::~FaultStickPainter()
 
     removePolyLine();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
-    paintenable_.removeParam( this );
 }
 
 
@@ -83,7 +76,7 @@ void FaultStickPainter::setPath( const TrcKeyPath& path )
 { path_ = &path; }
 
 void FaultStickPainter::setRandomLineID( int rdlid )
-{ rdlids.setParam( this, rdlid ); }
+{ rdlid_ = rdlid; }
 
 
 void FaultStickPainter::setFlatPosData( const FlatPosData* fps )
@@ -158,7 +151,7 @@ bool FaultStickPainter::addPolyLine()
 	    if ( tkzs_.isEmpty() ) // this means this is a 2D or random Line
 	    {
 		RefMan<Geometry::RandomLine> rlgeom =
-		    Geometry::RLM().get( rdlids.getParam(this) );
+		    Geometry::RLM().get( rdlid_ );
 		if ( path_ && rlgeom )
 		{
 		    TrcKeyPath knots;
@@ -347,14 +340,15 @@ void FaultStickPainter::enableKnots( bool yn )
 
 void FaultStickPainter::enablePaint(bool paintenable)
 {
-    paintenable_.setParam( this, paintenable );
+    paintenable_ = paintenable;
 }
 
 
 void FaultStickPainter::repaintFSS()
 {
-    if ( !paintenable_.getParam(this) )
+    if ( !paintenable_ )
 	return;
+
     abouttorepaint_.trigger();
     removePolyLine();
     addPolyLine();

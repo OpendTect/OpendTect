@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfauxdataio.h"
 #include "executor.h"
 #include "file.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -34,9 +33,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM
 {
 
-HiddenParam<SurfaceAuxData,TypeSet<SurfaceAuxData::AuxDataType>*>
-							    auxdatatypes_(0);
-
 SurfaceAuxData::SurfaceAuxData( Horizon3D& horizon )
     : horizon_( horizon )
     , changed_( 0 )
@@ -44,15 +40,12 @@ SurfaceAuxData::SurfaceAuxData( Horizon3D& horizon )
     auxdatanames_.allowNull(true);
     auxdatainfo_.allowNull(true);
     auxdata_.allowNull(true);
-    auxdatatypes_.setParam( this, new TypeSet<AuxDataType> );
 }
 
 
 SurfaceAuxData::~SurfaceAuxData()
 {
     removeAll();
-    delete auxdatatypes_.getParam( this );
-    auxdatatypes_.removeParam( this );
 }
 
 
@@ -61,7 +54,7 @@ void SurfaceAuxData::removeAll()
     deepErase( auxdatanames_ );
     deepErase( auxdatainfo_ );
     auxdatashift_.erase();
-    auxdatatypes_.getParam(this)->erase();
+    auxdatatypes_.erase();
 
     deepErase( auxdata_ );
     changed_ = true;
@@ -83,15 +76,14 @@ const char* SurfaceAuxData::auxDataName( int dataidx ) const
 
 void SurfaceAuxData::setAuxDataType( int dataidx, AuxDataType type )
 {
-    if ( auxdatatypes_.getParam(this)->validIdx(dataidx) )
-	(*auxdatatypes_.getParam(this))[dataidx] = type;
+    if ( auxdatatypes_.validIdx(dataidx) )
+	auxdatatypes_[dataidx] = type;
 }
 
 
 SurfaceAuxData::AuxDataType SurfaceAuxData::getAuxDataType( int dataidx ) const
 {
-    return auxdatatypes_.getParam(this)->validIdx(dataidx) ?
-	   (*auxdatatypes_.getParam(this))[dataidx] : NoType;
+    return auxdatatypes_.validIdx(dataidx) ? auxdatatypes_[dataidx] : NoType;
 }
 
 
@@ -131,7 +123,7 @@ int SurfaceAuxData::addAuxData( const char* name )
 {
     auxdatanames_.add( name );
     auxdatashift_ += 0.0;
-    (*auxdatatypes_.getParam(this)) += NoType;
+    auxdatatypes_ += NoType;
 
 
     for ( int idx=0; idx<auxdata_.size(); idx++ )
@@ -149,7 +141,7 @@ void SurfaceAuxData::removeAuxData( int dataidx )
 {
     auxdatanames_.replace( dataidx, 0 );
     auxdatashift_[dataidx] = 0.0;
-    (*auxdatatypes_.getParam(this))[dataidx] = NoType;
+    auxdatatypes_[dataidx] = NoType;
 
     for ( int idx=0; idx<auxdata_.size(); idx++ )
     {

@@ -70,6 +70,7 @@ protected:
     Array3D<int>*		result_;
     TypeSet<MultiID>		unsortedids_;
     TypeSet<MultiID>		sortedids_;
+    TaskRunner*			taskrun_;
 
     uiString			message_;
 };

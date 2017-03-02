@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -31,13 +30,11 @@ const char* RelationTree::Node::sKeyChildIDs()	{ return "Child IDs"; }
 const char* RelationTree::Node::sKeyLastModified()
 { return "Last Modified"; }
 
-HiddenParam<RelationTree::Node,BufferString*> stampptrs_(0);
 
 
 RelationTree::Node::Node( const MultiID& id )
     : id_(id)
 {
-    stampptrs_.setParam( this, new BufferString() );
 }
 
 
@@ -70,8 +67,7 @@ void RelationTree::Node::fillPar( IOPar& par ) const
 
     par.set( sKey::ID(), id_ );
     par.set( sKeyChildIDs(), childids );
-    BufferString& datestamp = *stampptrs_.getParam( this );
-    par.set( sKeyLastModified(), datestamp );
+    par.set( sKeyLastModified(), datestamp_ );
 }
 
 
@@ -106,9 +102,6 @@ RelationTree::RelationTree( bool is2d, bool doread )
 
 RelationTree::~RelationTree()
 {
-    for ( int idx=0; idx<nodes_.size(); idx++ )
-	stampptrs_.removeParam( nodes_[idx] );
-
     deepErase( nodes_ );
 }
 
@@ -185,7 +178,6 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
 	}
     }
 
-    stampptrs_.removeParam( node );
     delete nodes_.removeSingle( index );
     if ( dowrite )
 	write();
@@ -203,8 +195,7 @@ static RelationTree::Node* createNewNode( const MultiID& id )
 	return 0;
 
     RelationTree::Node* node = new RelationTree::Node( id );
-    BufferString& datestamp = *stampptrs_.getParam( node );
-    datestamp = File::timeLastModified( fnm );
+    node->datestamp_ = File::timeLastModified( fnm );
     return node;
 }
 
@@ -311,13 +302,13 @@ bool RelationTree::read( bool removeoutdated )
 
 	RelationTree::Node* node = nodes_[idx];
 	node->fillChildren( fms, *this );
-	BufferString& datestamp = *stampptrs_.getParam( node );
-	if ( !nodepar->get(RelationTree::Node::sKeyLastModified(),datestamp) )
+	if ( !nodepar->get(RelationTree::Node::sKeyLastModified(),
+			   node->datestamp_) )
 	    continue;
 
 	const IOObj* ioobj = surfiodir.get( node->id_ );
 	if ( removeoutdated &&
-		( !ioobj || hasBeenModified(*ioobj,datestamp.buf()) ) )
+		( !ioobj || hasBeenModified(*ioobj,node->datestamp_.buf()) ) )
 	    outdatednodes += node->id_;
     }
 

@@ -27,10 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "color.h"
 
-#include "hiddenparam.h"
-
-static HiddenParam<EM::Horizon2D,Color*> selectioncolor_( 0 );
-
 namespace EM
 {
 
@@ -396,16 +392,14 @@ mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::sGroupName() )
 Horizon2D::Horizon2D( EMManager& emm )
     : Horizon(emm)
     , geometry_(*this)
+    , selectioncolor_( Color::Blue() )
 {
     geometry_.addSection( "", false );
-    selectioncolor_.setParam( this, new Color(Color::Blue()) );
 }
 
 
 Horizon2D::~Horizon2D()
 {
-    delete selectioncolor_.getParam(this);
-    selectioncolor_.removeParam( this );
 }
 
 
@@ -714,8 +708,7 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid, Pos::GeomID geomid,
 
 void  Horizon2D::setSelectionColor( const Color& clr )
 {
-    delete selectioncolor_.getParam(this);
-    selectioncolor_.setParam( this, new Color(clr) );
+    selectioncolor_ = clr;
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::PrefColorChange;
     change.trigger(cbdata);
@@ -724,7 +717,7 @@ void  Horizon2D::setSelectionColor( const Color& clr )
 
 const Color& Horizon2D::getSelectionColor() const
 {
-    return *selectioncolor_.getParam(this);
+    return selectioncolor_;
 }
 
 

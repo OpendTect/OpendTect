@@ -39,6 +39,7 @@ public:
 
 	MultiID			id_;
 	ObjectSet<const Node>	children_;
+	BufferString		datestamp_;
 
 	bool			hasChild(const Node* descendant) const;
 

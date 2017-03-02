@@ -125,6 +125,8 @@ protected:
 
     bool		linenabled_;
     bool		knotenabled_;
+    bool		paintenable_;
+    int			rdlid_;
 };
 
 } //namespace EM

@@ -18,8 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "survinfo.h"
 
-#include "hiddenparam.h"
-
 // MapDataPackXYRotater
 class MapDataPackXYRotater : public ParallelTask
 {
@@ -423,7 +421,6 @@ void VolumeDataPack::dumpInfo( IOPar& par ) const
 }
 
 
-static HiddenParam<SeisDataPack,int> rdlids( -1 );
 
 // SeisDataPack
 SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
@@ -431,8 +428,8 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
     , scaler_(0)
+    , rdlid_(-1)
 {
-    rdlids.setParam( this, -1 );
 }
 
 
@@ -441,7 +438,6 @@ SeisDataPack::~SeisDataPack()
     deepErase( arrays_ );
     deleteAndZeroPtr( zdomaininfo_ );
     deleteAndZeroPtr( scaler_ );
-    rdlids.removeParam( this );
 }
 
 
@@ -649,7 +645,7 @@ Array3DImpl<float>& SeisDataPack::data( int component )
 { return *arrays_[component]; }
 
 void SeisDataPack::setRandomLineID( int rdlid )
-{ rdlids.setParam( this, rdlid ); }
+{ rdlid_ = rdlid; }
 
 int SeisDataPack::getRandomLineID() const
-{ return rdlids.getParam( this ); }
+{ return rdlid_; }

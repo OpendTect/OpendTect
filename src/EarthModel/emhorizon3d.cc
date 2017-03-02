@@ -40,11 +40,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
-#include "hiddenparam.h"
 
 #include <math.h>
-
-static HiddenParam<EM::Horizon3D,char> haslockednodes_( false );
 
 namespace EM {
 
@@ -305,17 +302,15 @@ Horizon3D::Horizon3D( EMManager& man )
     , selectioncolor_(sDefaultSelectionColor())
     , lockcolor_(Color::Blue())
     , survgeomid_( Survey::GM().default3DSurvID() )
+    , haslockednodes_(false)
 {
     geometry_.addSection( "", false );
-    haslockednodes_.setParam( this, false );
 }
 
 
 Horizon3D::~Horizon3D()
 {
     delete &auxdata;
-    haslockednodes_.removeParam( this );
-
     delete parents_; delete children_; delete lockednodes_;
 }
 
@@ -1002,7 +997,7 @@ void Horizon3D::lockAll()
 	setNodeLocked( tk, true );
     }
 
-    haslockednodes_.setParam( this, true );
+    haslockednodes_ = true;
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::LockChange;
     change.trigger( cbdata );
@@ -1015,16 +1010,10 @@ void Horizon3D::unlockAll()
 
     lockednodes_->setAll( '0' );
 
-    haslockednodes_.setParam( this, false );
+    haslockednodes_ = false;
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::LockChange;
     change.trigger( cbdata );
-}
-
-
-bool Horizon3D::hasLockedNodes() const
-{
-    return haslockednodes_.getParam( this );
 }
 
 

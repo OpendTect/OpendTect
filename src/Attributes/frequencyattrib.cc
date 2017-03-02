@@ -28,13 +28,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include <math.h>
 
-#include "hiddenparam.h"
-
-
 namespace Attrib
 {
-HiddenParam<Frequency,int> smoothspectrum_(0);
-
 mAttrDefCreateInstance(Frequency)
 
 void Frequency::initClass()
@@ -118,13 +113,11 @@ Frequency::Frequency( Desc& ds )
     mGetString( windowtype_, windowStr() );
     mGetFloat( variable_, paramvalStr() );
     mGetBool( dumptofile_, dumptofileStr() );
-    bool smoothspectrum = true;
-    mGetBool( smoothspectrum, smoothspectrumStr() );
-    smoothspectrum_.setParam( this, smoothspectrum );
+    mGetBool( smoothspectrum_, smoothspectrumStr() );
     samplegate_ = Interval<int>(mNINT32(gate_.start/SI().zStep()),
 			       mNINT32(gate_.stop/SI().zStep()));
 
-    if ( !smoothspectrum_.getParam(this) )
+    if ( !smoothspectrum_ )
     {
 	if ( windowtype_ != "None" )
 	    window_ = new ArrayNDWindow( Array1DInfoImpl(samplegate_.width()+1),
@@ -175,7 +168,7 @@ void Frequency::prepPriorToBoundsCalc()
 	samplegate_ = Interval<int>(mNINT32(gate_.start/refstep_),
 				   mNINT32(gate_.stop/refstep_));
 
-	if ( !smoothspectrum_.getParam(this) )
+	if ( !smoothspectrum_ )
 	{
 	    fftsz_ = Fourier::FFTCC1D::getFastSize( (samplegate_.width()+1)*3 );
 	    if ( window_ )
@@ -228,7 +221,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
     const int sgatesz = samplegate_.width()+1;
     Frequency* myself = const_cast<Frequency*>(this);
     FFTFilter* fftfilter = 0;
-    if ( smoothspectrum_.getParam(this) )
+    if ( smoothspectrum_ )
     {
 	fftfilter = new FFTFilter( sgatesz, refstep_);
 	fftfilter->setLowPass( 80 );
@@ -257,7 +250,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
     if ( !myself->signal_ ) mErrDelReturn()
 
-    if ( !smoothspectrum_.getParam(this) )
+    if ( !smoothspectrum_ )
     {
 	for ( int idx=0; idx<fftsz_; idx++ )
 	    myself->timedomain_->set( idx, 0 );
@@ -281,7 +274,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	}
 
 	Array1DImpl<float_complex>* freqdomain = 0;
-	if ( smoothspectrum_.getParam(this) )
+	if ( smoothspectrum_ )
 	{
 	    fftfilter->requestStayInFreqDomain();
 	    if ( !fftfilter->apply( *(myself->signal_), true ) )
@@ -416,7 +409,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
 bool Frequency::checkInpAndParsAtStart()
 {
-    if ( windowtype_ == "None" || smoothspectrum_.getParam(this) )
+    if ( windowtype_ == "None" || smoothspectrum_ )
 	return Provider::checkInpAndParsAtStart();
     else
 	return window_ && window_->isOK() && Provider::checkInpAndParsAtStart();

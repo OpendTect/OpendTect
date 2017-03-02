@@ -125,6 +125,8 @@ protected:
     int			activestickid_;
     bool		linenabled_;
     bool		knotenabled_;
+    int			rdlid_;
+    bool		paintenable_;
 
 public:
     void		setRandomLineID(int rdlid);

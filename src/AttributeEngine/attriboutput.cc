@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdataholder.h"
 #include "convmemvalseries.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "posinfo2d.h"
 #include "seisbuf.h"
@@ -1157,18 +1156,17 @@ bool Trc2DVarZStorOutput::finishWrite()
 }
 
 
-HiddenParam<TableOutput,float>	    mediandisttrcsmanager( mUdf(float) );
 
 TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
     : datapointset_(datapointset)
     , firstattrcol_(firstcol)
+    , mediandisttrcs_(mUdf(float))
 {
     ensureSelType( Seis::Table );
     seldata_->setIsAll( false );
     ((Seis::TableSelData*)seldata_)->binidValueSet().allowDuplicateBinIDs(true);
     ((Seis::TableSelData*)seldata_)->binidValueSet() = datapointset_.bivSet();
 
-    mediandisttrcsmanager.setParam( this, mUdf(float) );
     arebiddupl_ = areBIDDuplicated();
     distpicktrc_ = TypeSet<float>( datapointset.size(), mUdf(float) );
 }
@@ -1179,7 +1177,6 @@ void TableOutput::initPairsTable()
     BufferStringSet linenames;
     TypeSet<Survey::Geometry::ID> ids;
     Survey::GM().getList( linenames, ids, true );
-    float mediandisttrcs = mediandisttrcsmanager.getParam( this );
     for ( int idx=0; idx<datapointset_.size(); idx++ )
     {
 	TypeSet<TrcKey> tksclosestline; //TypeSet to store equivalent solutions
@@ -1246,7 +1243,7 @@ void TableOutput::initPairsTable()
 		tksclosestline += TrcKey( ids[geomidx], pos.nr_ );
 	}
 
-	if ( disttotrc <= mediandisttrcs/2 )
+	if ( disttotrc <= mediandisttrcs_/2 )
 	{
 	    for ( int idtk=0; idtk<tksclosesttrc.size(); idtk++ )
 	    {
@@ -1257,7 +1254,7 @@ void TableOutput::initPairsTable()
 		parpset_ += paridp;
 	    }
 	}
-	else if ( disttoline <= mediandisttrcs/2 )
+	else if ( disttoline <= mediandisttrcs_/2 )
 	{
 	    for ( int idtk=0; idtk<tksclosestline.size(); idtk++ )
 	    {
@@ -1286,7 +1283,7 @@ void TableOutput::initPairsTable()
 
 void TableOutput::setMedianDistBetwTrcs( float mediandist )
 {
-    mediandisttrcsmanager.setParam( this, mediandist );
+    mediandisttrcs_ = mediandist;
 }
 
 

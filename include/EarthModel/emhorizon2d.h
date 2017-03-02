@@ -170,6 +170,7 @@ protected:
 
     const IOObjContext&		getIOObjContext() const;
     Horizon2DGeometry		geometry_;
+    Color			selectioncolor_;
 };
 
 
