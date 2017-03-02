@@ -142,6 +142,8 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 {
     isnla_ = false;
     id_ = ds.getID( ref_, true );
+    if ( id_ == DescID::undef() )
+	id_ = ds.getID( objref_, true );
     BufferString attribname;
     if ( Desc::getAttribName( defstring_.buf(), attribname ) )
     {
