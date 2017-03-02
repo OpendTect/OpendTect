@@ -52,7 +52,7 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
 				      FloatInpIntervalSpec() );
     rangefld_->setWithCheck( true );
 
-    usemodefld_ = new uiColSeqUseMode( this );
+    usemodefld_ = new uiColSeqUseMode( this, false );
     usemodefld_->attach( alignedBelow, rangefld_ );
 
     clipfld_ = new uiGenInput( this, tr("Percentage clipped"),
@@ -208,6 +208,7 @@ uiManipMapperSetup( uiColTabSelTool& seltool )
     , rgstopitm_(0)
     , movingside_(0)
 {
+    setNoBackGround();
     disableScrollZoom();
     mAttachCB( postFinalise(), uiManipMapperSetup::initCB );
 }
@@ -272,7 +273,7 @@ void handleMouseBut( bool ispressed )
 	}
 	else if ( event.leftButton() )
 	{
-	    const int pix = event.x();
+	    const int pix = xIsLong() ? event.x() : event.y();
 	    const int nrsnappixs = 5;
 	    if ( abs(pix-pix4Val(maprg_.start)) < nrsnappixs )
 		{ movingside_ = -1; lastmovepos_ = val4Pix(pix); }
@@ -290,7 +291,7 @@ void mouseMoveCB( CallBacker* )
     if ( event.isWithKey() )
 	{ pErrMsg("Huh"); return; }
 
-    int pix = event.x();
+    int pix = xIsLong() ? event.x() : event.y();
     if ( movingside_ < 0 )
     {
 	const int othsidepix = pix4Val( maprg_.stop );
@@ -537,8 +538,14 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 {
     uiColSeqSelTool::initialise( orient );
 
-    manip_ = new uiManipMapperSetup( *this );
+    usemodesel_ = new uiColSeqUseMode( asParent(), true,
+				       uiString::emptyString() );
 
+    manip_ = new uiManipMapperSetup( *this );
+    if ( isGroup() )
+	manip_->attach( rightOf, usemodesel_ );
+
+    mAttachCB( usemodesel_->modeChange, uiColTabSelTool::mapSetupChgCB );
     mAttachCB( mappersetup_->objectChanged(), uiColTabSelTool::mapSetupChgCB );
     mAttachCB( newManDlg, uiColTabSelTool::newManDlgCB );
 }
@@ -547,6 +554,7 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 void uiColTabSelTool::addObjectsToToolBar( uiToolBar& tbar )
 {
     uiColSeqSelTool::addObjectsToToolBar( tbar );
+    usemodesel_->addObjectsToToolBar( tbar );
     manip_->addObjectsToToolBar( tbar );
 }
 
@@ -594,6 +602,7 @@ void uiColTabSelTool::mapSetupChgCB( CallBacker* )
 void uiColTabSelTool::handleMapperSetupChange()
 {
     setSeqUseMode( mappersetup_->seqUseMode() );
+    usemodesel_->setMode( mappersetup_->seqUseMode() );
     manip_->handleMapperSetupChange();
     mapperSetupChanged.trigger();
 }

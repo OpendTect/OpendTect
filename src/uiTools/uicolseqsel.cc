@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uicolseqsel.h"
 
 #include "settings.h"
+#include "mouseevent.h"
 
 #include "uimsg.h"
 #include "uimenu.h"
@@ -293,31 +294,129 @@ uiColSeqToolBar::uiColSeqToolBar( uiParent* p )
 }
 
 
-uiColSeqUseMode::uiColSeqUseMode( uiParent* p, uiString lbltxt )
-    : uiGroup(p,"ColTab SeqUseMode Group")
+class uiColSeqUseModeCompactSelector : public uiGraphicsView
+{
+public:
+
+uiColSeqUseModeCompactSelector( uiParent* p )
+    : uiGraphicsView(p,"Compact SeqUseMode selector")
+    , meh_(getMouseEventHandler())
     , modeChange(this)
 {
-    flippedbox_ = new uiCheckBox( this, tr("Flipped") );
-    cyclicbox_ = new uiCheckBox( this, tr("Cyclic") );
-    cyclicbox_->attach( rightOf, flippedbox_ );
-    if ( !lbltxt.isEmpty() )
-	new uiLabel( this, lbltxt, flippedbox_ );
+    disableScrollZoom();
+    setMaximumWidth( uiObject::iconSize() );
+    setMaximumHeight( uiObject::iconSize() );
+    mAttachCB( postFinalise(), uiColSeqUseModeCompactSelector::initCB );
+}
 
-    setHAlignObj( flippedbox_ );
-    mAttachCB( flippedbox_->activated, uiColSeqUseMode::boxChgCB );
-    mAttachCB( cyclicbox_->activated, uiColSeqUseMode::boxChgCB );
+void initCB( CallBacker* )
+{
+    mAttachCB( meh_.buttonReleased,
+		uiColSeqUseModeCompactSelector::mouseReleaseCB );
+    mAttachCB( meh_.movement, uiColSeqUseModeCompactSelector::mouseMoveCB );
+
+    mAttachCB( reSize, uiColSeqUseModeCompactSelector::reDrawCB );
+    drawAll();
+}
+
+void mouseReleaseCB( CallBacker* )
+{
+}
+
+void mouseMoveCB( CallBacker* )
+{
+}
+
+void reDrawCB( CallBacker* )
+{
+    drawAll();
+}
+
+void drawAll()
+{
+    // draw the 4 states
+    drawCurrentRect();
+}
+
+void drawCurrentRect()
+{
+}
+
+ColTab::SeqUseMode mode() const
+{
+    //TODO
+    return ColTab::UnflippedSingle;
+}
+
+void setMode( ColTab::SeqUseMode )
+{
+    //TODO
+}
+
+    MouseEventHandler&				meh_;
+    Notifier<uiColSeqUseModeCompactSelector>	modeChange;
+
+};
+
+
+uiColSeqUseMode::uiColSeqUseMode( uiParent* p, bool compact, uiString lbltxt )
+    : uiGroup(p,"ColTab SeqUseMode Group")
+    , modeChange(this)
+    , canvas_(0)
+    , flippedbox_(0)
+{
+    uiLabel* lbl = lbltxt.isEmpty() ? 0 : new uiLabel( this, lbltxt );
+
+    if ( compact )
+    {
+	canvas_ = new uiColSeqUseModeCompactSelector( this );
+	mAttachCB( canvas_->modeChange, uiColSeqUseMode::modeChgCB );
+	setHAlignObj( canvas_ );
+    }
+    else
+    {
+	flippedbox_ = new uiCheckBox( this, tr("Flipped") );
+	cyclicbox_ = new uiCheckBox( this, tr("Cyclic") );
+	cyclicbox_->attach( rightOf, flippedbox_ );
+	lbl->attach( leftOf, flippedbox_ );
+	mAttachCB( flippedbox_->activated, uiColSeqUseMode::modeChgCB );
+	mAttachCB( cyclicbox_->activated, uiColSeqUseMode::modeChgCB );
+	setHAlignObj( flippedbox_ );
+    }
+
+}
+
+
+void uiColSeqUseMode::addObjectsToToolBar( uiToolBar& tbar )
+{
+    if ( canvas_ )
+	tbar.addObject( canvas_ );
+    else
+    {
+	tbar.addObject( flippedbox_ );
+	tbar.addObject( cyclicbox_ );
+    }
 }
 
 
 ColTab::SeqUseMode uiColSeqUseMode::mode() const
 {
-    return ColTab::getSeqUseMode( flippedbox_->isChecked(),
+    return canvas_ ? canvas_->mode()
+	:  ColTab::getSeqUseMode( flippedbox_->isChecked(),
 				  cyclicbox_->isChecked() );
 }
 
 
 void uiColSeqUseMode::setMode( ColTab::SeqUseMode usemode )
 {
-    flippedbox_->setChecked( ColTab::isFlipped(usemode) );
-    cyclicbox_->setChecked( ColTab::isCyclic(usemode) );
+    if ( usemode == mode() )
+	return;
+
+    if ( canvas_ )
+	canvas_->setMode( usemode );
+    else
+    {
+	flippedbox_->setChecked( ColTab::isFlipped(usemode) );
+	cyclicbox_->setChecked( ColTab::isCyclic(usemode) );
+    }
 }

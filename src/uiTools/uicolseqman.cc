@@ -382,6 +382,7 @@ void addCtrlPt( float pos, bool withcolsel )
 	if ( !changeColor( cptidx ) )
 	    colseq() = *rollbackcseq;
     }
+    reDrawNeeded.trigger();
 }
 
 void removeMarker( int cptidx )
