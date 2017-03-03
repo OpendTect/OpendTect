@@ -130,6 +130,8 @@ protected:
     uiToolBar*		dtecttb_;
     uiToolBar*		viewtb_;
     uiToolBar*		mantb_;
+    uiToolBar*		plugintb_;
+    ObjectSet<uiToolBar>	customtbs_;
 
     uiODFaultToolMan*	faulttoolman_;
     MeasureToolMan*	measuretoolman_;
