@@ -184,7 +184,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 	if ( !emod->setEMObject(emid, &dlg) )
 	    mRefUnrefRet
 
-	    visserv_->addObject( emod, sceneid, true );
+	visserv_->addObject( emod, sceneid, true );
 	displayid_ = emod->id();
 	if ( !emobj->isEmpty() )
 	    setDepthAsAttrib( 0 );
@@ -439,7 +439,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==showfullmnuitem_.id )
     {
 	setOnlyAtSectionsDisplay( false );
-	if ( hordisp ) 
+	if ( hordisp )
 	{
 	    hordisp->displayIntersectionLines( false );
 	    hordisp->enableAttrib( (hordisp->nrAttribs()-1), true );
@@ -600,7 +600,7 @@ void uiVisEMObject::checkHorizonSize( const EM::Horizon3D* hor3d )
 	const int maxlines = nrrows*nrcols;
 	if ( maxlines >= cMaxHorTitles )
 	{
-	    uiString msg = 
+	    uiString msg =
 		tr( "The horizon is too big for display\n"
 		"Yes - using half resolution to save a certain memory.\n"
 		"No - continue using default resolution." );
