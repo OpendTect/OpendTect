@@ -95,7 +95,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	return;
     }
 
-    display_->setVisible( isOn() );
+    display_->setVisible( turnon_ );
     if ( !display_->isVisible() )
 	return;
 
@@ -145,7 +145,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    }
 	    else
 	    {
-		if ( needsUpdateLines() )
+		if ( needsupdatelines_ )
 		    polylineitem_->setPolyLine( poly_ );
 	    }
 

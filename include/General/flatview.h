@@ -91,11 +91,8 @@ public:
 						{ fillpattern_ = fp; }
     bool			isEmpty() const;
     void			empty();
-    void			turnOn(bool yn); //!<Turns on/off display
-    bool			isOn() const;
-
-    bool			needsUpdateLines() const;
-    void			setNeedUpdateLines(bool);
+    bool			turnon_;
+    bool			needsupdatelines_;
 
     // should be protected, don't use.
 				AuxData( const char* nm );
@@ -420,6 +417,8 @@ public:
 				{ return needstatusbarupd_; }
     void			setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
     const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const; 
+    void			setZDomain(const ZDomain::Def&);
+    const ZDomain::Info&	zDomain() const;
 
 protected:
 
@@ -430,6 +429,7 @@ protected:
     FlatView_CB_Rcvr*		cbrcvr_;
     mutable Threads::Lock	lock_;
     bool			needstatusbarupd_;
+    ZDomain::Info*		zdinfo_;
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
 
@@ -437,10 +437,9 @@ private:
 
     const FlatDataPack*		wvapack_;
     const FlatDataPack*		vdpack_;
+    TypeSet<Pos::GeomID>	geom2dids_;
 
 public:
-    void		setZDomain(const ZDomain::Def&);
-    const ZDomain::Info& zDomain() const;
 };
 
 } // namespace FlatView

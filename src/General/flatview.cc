@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "randcolor.h"
 #include "survinfo.h"
-#include "hiddenparam.h"
 
 
 namespace FlatView
@@ -264,9 +263,6 @@ FlatView::AuxData::EditPermissions::EditPermissions()
 {}
 
 
-HiddenParam<FlatView::AuxData,BoolTypeSetType> turnon_( true );
-HiddenParam<FlatView::AuxData,BoolTypeSetType> updatelines_( true );
-
 FlatView::AuxData::AuxData( const char* nm )
     : name_( nm )
     , namepos_( mUdf(int) )
@@ -279,9 +275,9 @@ FlatView::AuxData::AuxData( const char* nm )
     , x2rg_( 0 )
     , enabled_( true )
     , editpermissions_( 0 )
+    , turnon_(true)
+    , needsupdatelines_(true)
 {
-    turnon_.setParam( this, true );
-    updatelines_.setParam( this, true );
 }
 
 
@@ -300,9 +296,9 @@ FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
     , editpermissions_( aux.editpermissions_
 	    ? new EditPermissions(*aux.editpermissions_) : 0 )
     , poly_( aux.poly_ )
+    , turnon_(true)
+    , needsupdatelines_(true)
 {
-    turnon_.setParam( this, true );
-    updatelines_.setParam( this, true );
 }
 
 
@@ -311,8 +307,6 @@ FlatView::AuxData::~AuxData()
     delete x1rg_;
     delete x2rg_;
     delete editpermissions_;
-    turnon_.removeParam( this );
-    updatelines_.removeParam( this );
 }
 
 
@@ -322,30 +316,6 @@ bool FlatView::AuxData::isEmpty() const
 
 void FlatView::AuxData::empty()
 { poly_.erase(); }
-
-
-void FlatView::AuxData::turnOn( bool yn )
-{
-    turnon_.setParam( this, yn );
-}
-
-
-bool FlatView::AuxData::isOn() const
-{
-    return turnon_.getParam( this );
-}
-
-
-void FlatView::AuxData::setNeedUpdateLines( bool yn )
-{
-    updatelines_.setParam( this, yn );
-}
-
-
-bool FlatView::AuxData::needsUpdateLines() const
-{
-    return updatelines_.getParam( this );
-}
 
 
 #define mIOPDoWVA(fn,keynm,memb) \
@@ -466,10 +436,6 @@ FlatView::Viewer& vwr_;
 };
 
 
-static HiddenParam< FlatView::Viewer,TypeSet<Pos::GeomID>* >
-				     flatviewergeom2dids_( 0 );
-static HiddenParam< FlatView::Viewer,ZDomain::Info* > zdinfos( 0 );
-
 FlatView::Viewer::Viewer()
     : cbrcvr_(new FlatView_CB_Rcvr(*this))
     , dpm_(DPM(DataPackMgr::FlatID()))
@@ -478,11 +444,10 @@ FlatView::Viewer::Viewer()
     , wvapack_(0)
     , vdpack_(0)
     , needstatusbarupd_(true)
+    , zdinfo_(new ZDomain::Info(SI().zDomain()))
 {
-    zdinfos.setParam( this, new ZDomain::Info(SI().zDomain()) );
     dpm_.packToBeRemoved.notifyIfNotNotified(
 			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
-    flatviewergeom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
 }
 
 
@@ -499,10 +464,8 @@ FlatView::Viewer::~Viewer()
     {
 	dpm_.release( ids_[idx] );
     }
-    delete flatviewergeom2dids_.getParam(this);
-    flatviewergeom2dids_.removeParam( this );
-    delete zdinfos.getParam(this);
-    zdinfos.removeParam( this );
+
+    delete zdinfo_;
 }
 
 
@@ -521,17 +484,15 @@ bool FlatView::Viewer::setZAxisTransform( ZAxisTransform* zat )
 
 void FlatView::Viewer::setZDomain( const ZDomain::Def& zdef )
 {
-    ZDomain::Info* prevzinfo = zdinfos.getParam( this );
-    zdinfos.removeParam( this );
-    delete prevzinfo;
-    zdinfos.setParam( this, new ZDomain::Info(zdef) );
+    delete zdinfo_;
+    zdinfo_ = new ZDomain::Info( zdef );
 }
 
 
 const ZDomain::Info& FlatView::Viewer::zDomain() const
 {
     return datatransform_ ? datatransform_->toZDomainInfo()
-			  : *zdinfos.getParam( this );
+			  : *zdinfo_;
 }
 
 
@@ -787,13 +748,11 @@ Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
 
 void FlatView::Viewer::setSeisGeomidsToViewer( TypeSet<Pos::GeomID>& geomids )
 {
-    delete flatviewergeom2dids_.getParam(this);
-    flatviewergeom2dids_.removeParam( this );
-    flatviewergeom2dids_.setParam( this , new TypeSet<Pos::GeomID>(geomids) );
+    geom2dids_ = geomids;
 }
 
 
 const TypeSet<Pos::GeomID>& FlatView::Viewer::getAllSeisGeomids() const
 {
-    return *flatviewergeom2dids_.getParam(this);
+    return geom2dids_;
 }
