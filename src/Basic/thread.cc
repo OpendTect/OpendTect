@@ -128,10 +128,13 @@ void Threads::Locker::reLock( Threads::Locker::WaitType wt )
 	    needunlock_ = lock_.spinLock().tryLock();
 	else if ( lock_.isMutex() )
 	    needunlock_ = lock_.mutex().tryLock();
-	else if ( isread_ )
-	    needunlock_ = lock_.readWriteLock().tryReadLock();
-	else
-	    needunlock_ = lock_.readWriteLock().tryWriteLock();
+	else if ( lock_.isRWLock() )
+	{
+	    if ( isread_ )
+		needunlock_ = lock_.readWriteLock().tryReadLock();
+	    else
+		needunlock_ = lock_.readWriteLock().tryWriteLock();
+	}
     }
 }
 
