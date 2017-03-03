@@ -506,6 +506,8 @@ FlatView::Viewer::~Viewer()
     {
 	dpm_.release( ids_[idx] );
     }
+
+    delete zdinfo_;
 }
 
 
