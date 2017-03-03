@@ -118,6 +118,7 @@ protected:
     uiCheckBox*			betweenseedsfld_;
     uiCheckBox*			snapfld_;
     uiGenInput*			methodfld_;
+    uiGenInput*			failfld_;
 
 // Event and Correlation Group
     uiEventGroup*		eventgrp_;

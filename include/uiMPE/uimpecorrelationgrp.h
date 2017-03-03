@@ -60,6 +60,7 @@ protected:
     uiLabeledSpinBox*		corrthresholdfld_;
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
+    uiGenInput*			snapfld_;
 
     uiPreviewGroup*		previewgrp_;
     void			previewChgCB(CallBacker*);

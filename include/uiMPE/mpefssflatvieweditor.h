@@ -52,6 +52,7 @@ public:
     TypeSet<int>&	getTrcNos();
     TypeSet<float>&	getDistances();
     TypeSet<Coord>&	getCoords();
+    void		setRandomLineID(int rdlid);
 
 protected:
 
@@ -89,6 +90,9 @@ protected:
 
     EM::FaultStickPainter*  	fsspainter_;
     bool			seedhasmoved_;
+    bool			makenewstick_;
+    bool			doubleclicked_;
+    int				rdlid_;
 
     FlatView::AuxDataEditor*	editor_;
     ObjectSet<StkMarkerIdInfo>	markeridinfo_;
@@ -96,8 +100,6 @@ protected:
     MouseEventHandler*		meh_;
     EM::PosID			mousepid_;
     Coord3			getNormal(const Coord3* mousepos=0) const;
-public:
-    void			setRandomLineID(int rdlid);
 };
 
 } //namespace MPE

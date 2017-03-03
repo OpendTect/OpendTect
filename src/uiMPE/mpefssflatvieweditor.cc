@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "faultstickseteditor.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
-#include "hiddenparam.h"
 #include "keystrs.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
@@ -33,12 +32,6 @@ ________________________________________________________________________
 namespace MPE
 {
 
-static HiddenParam<FaultStickSetFlatViewEditor,BoolTypeSetType>
-	makenewstick( false );
-static HiddenParam<FaultStickSetFlatViewEditor,BoolTypeSetType>
-	doubleclicked( false );
-static HiddenParam<FaultStickSetFlatViewEditor,int> rdlids( -1 );
-
 FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 				FlatView::AuxDataEditor* ed,
 				const EM::ObjectID& oid )
@@ -50,10 +43,10 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
     , activestickid_(-1)
     , seedhasmoved_(false)
     , mousepid_( EM::PosID::udf() )
+    , makenewstick_(false)
+    , doubleclicked_(false)
+    , rdlid_(-1)
 {
-    makenewstick.setParam( this, false );
-    doubleclicked.setParam( this, false );
-    rdlids.setParam( this, -1 );
     fsspainter_->abouttorepaint_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
     fsspainter_->repaintdone_.notify(
@@ -66,7 +59,6 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 {
     detachAllNotifiers();
-    rdlids.removeParam( this );
     if ( meh_ )
     {
 	editor_->movementStarted.remove(
@@ -155,7 +147,7 @@ void FaultStickSetFlatViewEditor::setPath( const TrcKeyPath& path )
 
 void FaultStickSetFlatViewEditor::setRandomLineID( int rdlid )
 {
-    rdlids.setParam( this, rdlid );
+    rdlid_ = rdlid;
     fsspainter_->setRandomLineID( rdlid );
 }
 
@@ -411,7 +403,7 @@ Coord3 FaultStickSetFlatViewEditor::getNormal( const Coord3* mousepos ) const
 	const BinID mousebid = SI().transform( *mousepos );
 	TrcKey mousetk( mousebid );
 	RefMan<Geometry::RandomLine> rlgeom =
-	    Geometry::RLM().get( rdlids.getParam(this) );
+	    Geometry::RLM().get( rdlid_ );
 	if ( !rlgeom || !path_ )
 	    return Coord3::udf();
 
@@ -542,7 +534,7 @@ void FaultStickSetFlatViewEditor::sowingFinishedCB( CallBacker* cb )
 {
     fsspainter_->enablePaint( true );
     fsspainter_->paint();
-    makenewstick.setParam( this, true );
+    makenewstick_ = true;
 }
 
 
@@ -560,9 +552,9 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !mev.leftButton() )
 	return;
 
-    if ( doubleclicked.getParam(this) )
+    if ( doubleclicked_ )
     {
-	doubleclicked.setParam( this, false );
+	doubleclicked_ = false;
 	return;
     }
 
@@ -627,15 +619,14 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !mousepid_.isUdf() || mouseevent.ctrlStatus() )
 	return;
 
-    if ( mouseevent.shiftStatus() || interactpid.isUdf() ||
-	 makenewstick.getParam(this) )
+    if ( mouseevent.shiftStatus() || interactpid.isUdf() || makenewstick_ )
     {
 	if ( editor_->sower().moreToSow() )
 	    fsspainter_->enablePaint( false );
 	else
 	    fsspainter_->enablePaint( true );
 
-	makenewstick.setParam( this, false );
+	makenewstick_ = false;
 	Coord3 editnormal = getNormal( &pos );
 
 	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
@@ -680,8 +671,8 @@ void FaultStickSetFlatViewEditor::doubleClickedCB( CallBacker* cb )
     if ( !mev.leftButton() )
 	return;
 
-    makenewstick.setParam(this, true );
-    doubleclicked.setParam( this, true );
+    makenewstick_ = true;
+    doubleclicked_ = true;
 }
 
 

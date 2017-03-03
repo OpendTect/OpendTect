@@ -66,8 +66,8 @@ public:
 				    OD::ButtonState mask=OD::LeftButton);
     void		setEraserMask(bool yn=true,
 				    OD::ButtonState mask=mCtrlLeftButton);
-    Notifier<Sower>&	sowingNotifier() const;
     Notifier<Sower>	sowingEnd;
+    Notifier<Sower>	sowing;
 
 protected:
     			Sower(AuxDataEditor&,MouseEventHandler&);
@@ -199,7 +199,7 @@ public:
 
     const Point*	markerPosAt(const Geom::Point2D<int>& mousepos) const;
     void		setSelectionPolygonVisible(bool);
-   Notifier<AuxDataEditor>&	releaseSelectionNotifier() const;
+   Notifier<AuxDataEditor> releaseSelection;
 
 protected:
     void		getPointSelections( const ObjectSet<AuxData>& polygon,

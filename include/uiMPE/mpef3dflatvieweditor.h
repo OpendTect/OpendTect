@@ -45,6 +45,7 @@ public:
     void		drawFault();
     void		enableLine(bool);
     void		enableKnots(bool);
+    void		setRandomLineID(int rdlid);
 
 protected:
 
@@ -82,6 +83,9 @@ protected:
 
     EM::Fault3DPainter*		f3dpainter_;
     bool			seedhasmoved_;
+    bool			makenewstick_;
+    bool			doubleclicked_;
+    int				rdlid_;
 
     FlatView::AuxDataEditor*	editor_;
     ObjectSet<StkMarkerIdInfo>	markeridinfo_;
@@ -89,8 +93,6 @@ protected:
     MouseEventHandler*		meh_;
     EM::PosID			mousepid_;
     Coord3			getNormal(const Coord3* mousepos=0) const;
-public:
-    void			setRandomLineID(int rdlid);
 };
 
 }; //namespace MPE

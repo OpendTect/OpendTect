@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "emsurfaceauxdata.h"
 #include "emundo.h"
 #include "executor.h"
-#include "hiddenparam.h"
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
@@ -81,9 +80,7 @@ uiBaseHorizonSetupGroup::uiBaseHorizonSetupGroup( uiParent* p,
     : uiHorizonSetupGroup( p, typestr )
 {}
 
-
-static HiddenParam<uiHorizonSetupGroup,uiGenInput*> failfld_(0);
-
+//uiHorizonSetupGroup
 uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     : uiSetupGroup(p,"")
     , trackmgr_(0)
@@ -122,7 +119,6 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
 
 uiHorizonSetupGroup::~uiHorizonSetupGroup()
 {
-    failfld_.removeParam( this );
     engine().actionCalled.remove( mCB(this,uiHorizonSetupGroup,mpeActionCB) );
 }
 
@@ -192,8 +188,7 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 //    betweenseedsfld_->setSensitive( modeselgrp_->selectedId()==0 );
     betweenseedsfld_->setSensitive( false ); // for time being
     snapfld_->setSensitive( modeselgrp_->selectedId()==1 );
-    uiGenInput* failfld = failfld_.getParam( this );
-    if ( failfld ) failfld->setSensitive( modeselgrp_->selectedId()==0 );
+    if ( failfld_ ) failfld_->setSensitive( modeselgrp_->selectedId()==0 );
 
     methodfld_->setSensitive( doauto );
     eventgrp_->updateSensitivity( doauto );
@@ -327,15 +322,14 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 
     if ( is2d_ )
     {
-	uiGenInput* failfld = new uiGenInput( grp, tr("If tracking fails"),
+	failfld_ = new uiGenInput( grp, tr("If tracking fails"),
 			BoolInpSpec(true,tr("Extrapolate"),uiStrings::sStop()));
-	failfld->attach( alignedBelow, methodfld_ );
-	failfld->valuechanged.notify(
+	failfld_->attach( alignedBelow, methodfld_ );
+	failfld_->valuechanged.notify(
 		mCB(this,uiHorizonSetupGroup,seedModeChange) );
-	failfld_.setParam( this, failfld );
     }
     else
-	failfld_.setParam( this, 0 );
+	failfld_ = 0;
 
     return grp;
 }
@@ -575,9 +569,8 @@ void uiHorizonSetupGroup::initModeGroup()
     {
 	methodfld_->setValue(
 		horadj_->getCompareMethod()==EventTracker::SeedTrace ? 0 : 1 );
-	uiGenInput* failfld = failfld_.getParam( this );
-	if ( failfld )
-	    failfld->setValue( !horadj_->removesOnFailure() );
+	if ( failfld_ )
+	    failfld_->setValue( !horadj_->removesOnFailure() );
     }
 
     updateButtonSensitivity();
@@ -681,8 +674,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     }
 
     horadj_->setCompareMethod( getTrackingMethod() );
-    uiGenInput* failfld = failfld_.getParam( this );
-    horadj_->removeOnFailure( failfld ? !failfld->getBoolValue() : true );
+    horadj_->removeOnFailure( failfld_ ? !failfld_->getBoolValue() : true );
 
     return true;
 }

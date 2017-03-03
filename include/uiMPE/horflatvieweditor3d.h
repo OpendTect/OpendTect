@@ -120,6 +120,8 @@ protected:
     mutable bool		dodropnext_;
 
     FlatView::AuxData*		patchdata_;
+    TypeSet<EM::PosID>		pointselections_;
+    bool			sowingmode_;
 };
 
 } //namespace MPE

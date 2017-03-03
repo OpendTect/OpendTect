@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "emfault3d.h"
 #include "emfault3dpainter.h"
 #include "emmanager.h"
-#include "hiddenparam.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
 #include "mouseevent.h"
@@ -32,10 +31,6 @@ ________________________________________________________________________
 namespace MPE
 {
 
-static HiddenParam<Fault3DFlatViewEditor,BoolTypeSetType> makenewstick( false );
-static HiddenParam<Fault3DFlatViewEditor,BoolTypeSetType> doubleclicked( false);
-static HiddenParam<Fault3DFlatViewEditor,int> rdlids( -1 );
-
 Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 			    FlatView::AuxDataEditor* ed,
 			    const EM::ObjectID& oid )
@@ -47,10 +42,10 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
     , path_(0)
     , seedhasmoved_(false)
     , mousepid_( EM::PosID::udf() )
+    , makenewstick_(false)
+    , doubleclicked_(false)
+    , rdlid_(-1)
 {
-    makenewstick.setParam( this, false );
-    doubleclicked.setParam( this, false );
-    rdlids.setParam( this, -1 );
     f3dpainter_->abouttorepaint_.notify(
 	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
     f3dpainter_->repaintdone_.notify(
@@ -85,7 +80,6 @@ Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
     cleanActStkContainer();
     delete f3dpainter_;
     deepErase( markeridinfo_ );
-    rdlids.removeParam( this );
 }
 
 
@@ -153,7 +147,7 @@ void Fault3DFlatViewEditor::setPath( const TrcKeyPath& path )
 
 void Fault3DFlatViewEditor::setRandomLineID( int rdlid )
 {
-    rdlids.setParam( this, rdlid );
+    rdlid_ = rdlid;
     f3dpainter_->setRandomLineID( rdlid );
 }
 
@@ -365,7 +359,7 @@ Coord3 Fault3DFlatViewEditor::getNormal( const Coord3* mousepos ) const
 	const BinID mousebid = SI().transform( *mousepos );
 	TrcKey mousetk( mousebid );
 	RefMan<Geometry::RandomLine> rlgeom =
-	    Geometry::RLM().get( rdlids.getParam(this) );
+	    Geometry::RLM().get( rdlid_ );
 	if ( !rlgeom || !path_ )
 	    return Coord3::udf();
 
@@ -513,8 +507,8 @@ void Fault3DFlatViewEditor::doubleClickedCB( CallBacker* cb )
     if ( !mev.leftButton() )
 	return;
 
-    makenewstick.setParam( this, true );
-    doubleclicked.setParam( this, true );
+    makenewstick_ = true;
+    doubleclicked_ = true;
 }
 
 
@@ -522,7 +516,7 @@ void Fault3DFlatViewEditor::sowingFinishedCB( CallBacker* cb )
 {
     f3dpainter_->enablePaint( true );
     f3dpainter_->paint();
-    makenewstick.setParam( this, true );
+    makenewstick_ = true;
 }
 
 
@@ -540,9 +534,9 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !mev.leftButton() )
 	return;
 
-    if ( doubleclicked.getParam(this) )
+    if ( doubleclicked_ )
     {
-	doubleclicked.setParam( this, false );
+	doubleclicked_ = false;
 	return;
     }
 
@@ -578,8 +572,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	return;
 
     bool domakenewstick =
-	(!mouseevent.ctrlStatus() && mouseevent.shiftStatus()) ||
-	makenewstick.getParam( this );
+	(!mouseevent.ctrlStatus() && mouseevent.shiftStatus()) || makenewstick_;
     EM::PosID interactpid;
     Coord3 normal = getNormal( &pos );
     f3deditor->setScaleVector( getScaleVector() );
@@ -617,7 +610,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	else
 	    f3dpainter_->enablePaint( true );
 
-	makenewstick.setParam( this, false );
+	makenewstick_ = false;
 	Coord3 editnormal = getNormal( &pos );
 	if ( editnormal.isUdf() ) return;
 

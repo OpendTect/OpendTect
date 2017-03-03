@@ -18,13 +18,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "polygon.h"
 #include "timefun.h"
-#include "hiddenparam.h"
 
 namespace FlatView
 {
-
-static HiddenParam<Sower,Notifier<Sower>* > sowing_(0);
-static HiddenParam<AuxDataEditor,Notifier<AuxDataEditor>* >releaseselection(0); 
 
 AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     : viewer_( v )
@@ -44,8 +40,8 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , movementlimit_( 0 )
     , menuhandler_( 0 )
     , sower_( new Sower(*this,meh) )
+    , releaseSelection(this)
 {
-    releaseselection.setParam( this, new Notifier<AuxDataEditor>(this) );
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
     meh.buttonReleased.notify( mCB(this,AuxDataEditor,mouseReleaseCB) );
     meh.movement.notify( mCB(this,AuxDataEditor,mouseMoveCB) );
@@ -70,10 +66,6 @@ AuxDataEditor::~AuxDataEditor()
     limitMovement( 0 );
 
     setMenuHandler( 0 );
-
-    delete releaseselection.getParam(this);
-    releaseselection.removeParam( this );
-
 }
 
 
@@ -95,13 +87,7 @@ void AuxDataEditor::setSelActive(bool yn)
 { 
     isselactive_ = yn; 
     if ( !yn ) 
-	releaseselection.getParam(this)->trigger();
-}
-
-
-Notifier<AuxDataEditor>& AuxDataEditor::releaseSelectionNotifier() const
-{
-    return *releaseselection.getParam(this);
+	releaseSelection.trigger();
 }
 
 
@@ -754,8 +740,8 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
     , curknotid_( -1 )
     , curknotstamp_( mUdf(int) )
     , sowingEnd( this )
+    , sowing(this)
 {
-    sowing_.setParam( this, new Notifier<Sower>(this) );
     sowingline_ = editor_.viewer().createAuxData( 0 );
     editor_.viewer().addAuxData( sowingline_ );
     reInitSettings();
@@ -766,14 +752,6 @@ Sower::~Sower()
 {
     deepErase( eventlist_ );
     delete editor_.viewer().removeAuxData( sowingline_ );
-    delete sowing_.getParam(this);
-    sowing_.removeParam( this );
-}
-
-
-Notifier<Sower>& Sower::sowingNotifier() const
-{
-    return *sowing_.getParam(this);
 }
 
 
@@ -1001,7 +979,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
     const bool sow = bendpoints_.size()>1;
 
     if ( bendpoints_.size()>2 )
-	sowing_.getParam(this)->trigger();
+	sowing.trigger();
 
     while ( bendpoints_.size() )
     {
