@@ -853,11 +853,12 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     BufferStringSet atrrnms;
     eminfo.getAttribNames( atrrnms );
     uiSelectFromList::Setup setup( tr("Horizon Data"), atrrnms );
-    setup.dlgtitle( tr("Select one or more attributes to be displayed\n"
-		       "on the horizon. After loading, use 'Page Up'\n"
-		       "and 'Page Down' buttons to scroll.\n"
-		       "Make sure the attribute treeitem is selected\n"
-		       "and that the mouse pointer is in the scene.") );
+    setup.dlgtitle( tr("1) Select one or more attributes and press \"OK\".\n"
+	"2) Wait until the attributes are loaded and displayed\n"
+	"3) Make sure the attribute tree-item is still selected\n"
+	"4) Press the PageUp / PageDown key to scroll through"
+	    " the individual attributes") );
+
     uiSelectFromList dlg( parent(), setup );
     if ( dlg.selFld() )
 	dlg.selFld()->setMultiChoice( true );
