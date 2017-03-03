@@ -110,6 +110,8 @@ public:
 				//!< In practice, this happens only after reSize
     Notifier<uiGraphicsViewBase> preDraw;
     Notifier<uiGraphicsViewBase> scrollBarUsed;
+    Notifier<uiObject>		pointerEntered;
+    Notifier<uiObject>		pointerLeft;
 
 
     static const ObjectSet<uiGraphicsViewBase>& allInstances();

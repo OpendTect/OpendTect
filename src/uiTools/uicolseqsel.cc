@@ -323,7 +323,7 @@ void initCB( CallBacker* )
     mAttachCB( meh_.movement, uiColSeqUseModeCompactSelector::mouseMoveCB );
 
     mAttachCB( reSize, uiColSeqUseModeCompactSelector::reDrawCB );
-    mAttachCB( reSize, uiColSeqUseModeCompactSelector::mouseLeaveCB );
+    mAttachCB( pointerLeft, uiColSeqUseModeCompactSelector::mouseLeaveCB );
 
     drawAsIs();
 }

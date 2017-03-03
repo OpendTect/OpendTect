@@ -108,6 +108,16 @@ bool getMouseWheelReversal() const { return reversemousewheel_; }
 void setMidMouseButtonForDrag( bool yn ) { midmousebutfordrag_ = yn; }
 bool hasMidMouseButtonForDrag() const	{ return midmousebutfordrag_; }
 
+void enterEvent( QEvent* ev )
+{
+    handle_.pointerEntered.trigger();
+}
+
+void leaveEvent( QEvent* ev )
+{
+    handle_.pointerLeft.trigger();
+}
+
 
 
 const uiPoint& getStartPos() const	{ return startpos_; }
@@ -434,6 +444,8 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , preDraw(this)
     , rubberBandUsed(this)
     , scrollBarUsed(this)
+    , pointerEntered(this)
+    , pointerLeft(this)
     , scene_(0)
     , selectedarea_(0)
     , sceneborder_(0)
