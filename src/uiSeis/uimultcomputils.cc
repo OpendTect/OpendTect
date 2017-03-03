@@ -19,15 +19,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
-	: uiDialog(p,uiDialog::Setup(tr("Multi-Attribute selection"), 
+	: uiDialog(p,uiDialog::Setup(tr("Multi-Attribute selection"),
                                      uiStrings::sEmptyString(), mNoHelpKey) )
 	, compfld_(0)
 {
     uiString instructions( tr("Workflow :-\n"
 	"1) Select multiple attributes and press \"OK\".\n"
 	"2) Wait until the attributes are loaded and displayed\n"
-	"3) Make sure the attribute tree-item is still selected"
-	    " and click on the corresponding object in the scene\n"
+	"3) Make sure the attribute tree-item is still selected\n"
 	"4) Press the PageUp / PageDown key to scroll through"
 	    " the individual attributes") );
     setTitleText( instructions );
