@@ -661,6 +661,7 @@ bool uiStratLayerModel::openGenDesc()
     if ( mfvc ) mfvc->reInitZooms();
     synthdisp_->setSavedViewRect();
     setWinTitle();
+    raise();
     return true;
 }
 
