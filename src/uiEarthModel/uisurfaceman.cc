@@ -536,7 +536,7 @@ void uiSurfaceMan::fillAttribList()
     {
 	const MultiID& mid = mids[midx];
 	EM::IOObjInfo eminfo( mid );
-	if ( !info.isOK() )
+	if ( !eminfo.isOK() )
 	    return;
 
 	BufferStringSet attrnms;
