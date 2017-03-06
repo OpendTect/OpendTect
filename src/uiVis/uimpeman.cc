@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          March 2004
+ Author: Nanne Hemstra
+ Date:	 March 2004
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , oldactivevol_(false)
     , cureventnr_(mUdf(int))
     , sowingmode_( false )
-    , timer_( 0 )
+    , hortimer_( 0 )
 {
     mAttachCB( engine().trackeraddremove, uiMPEMan::trackerAddedRemovedCB );
     mAttachCB( engine().actionCalled, uiMPEMan::mpeActionCalledCB );
@@ -79,9 +79,7 @@ uiMPEMan::~uiMPEMan()
 {
     detachAllNotifiers();
     deleteVisObjects();
-    if ( timer_ )
-	timer_->tick.remove(mCB( this, uiMPEMan, timerHideLockedCB) );
-    delete timer_;
+    delete hortimer_;
 }
 
 
@@ -442,10 +440,9 @@ void uiMPEMan::seedClick( CallBacker* )
     const int clickedobject = clickcatcher_->info().getObjID();
     if ( clickedobject == -1 )
 	mSeedClickReturn();
-
-    const EM::ObjectID emobjid  = clickcatcher_->info().getEMObjID();
+    const EM::ObjectID emobjid =  clickcatcher_->info().getEMObjID();
     mDynamicCastGet(EM::Horizon*,clickedhor,EM::EMM().getObject(emobjid))
-    const bool clickedonhorizon = clickedhor;
+	const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
 	mSeedClickReturn();
 
@@ -1029,25 +1026,14 @@ void uiMPEMan::lockAll()
 	hd->showLocked( true );
 	if ( !preshowlocked )
 	{
-	    if ( timer_ )
-		timer_->tick.remove( mCB(this,uiMPEMan,timerHideLockedCB) );
-
-	    delete timer_;
-	    timer_ = new Timer("Lock all");
-	    timer_->tick.notify( mCB(this,uiMPEMan,timerHideLockedCB) );
-	    timer_->start( cLockWaitTime, true );
+	    delete hortimer_;
+	    hortimer_ = new HorizonTimer( hd );
+	    hortimer_->start( cLockWaitTime );
 	}
     }
 
 }
 
-
-void uiMPEMan::timerHideLockedCB( CallBacker* )
-{
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
-    if ( hd->lockedShown() )
-	hd->showLocked( false );
-}
 
 
 void uiMPEMan::updatePatchDisplay()
@@ -1218,3 +1204,44 @@ void uiMPEMan::setUndoLevel( int preveventnr )
     if ( currentevent != preveventnr )
 	    emundo.setUserInteractionEnd(currentevent);
 }
+
+
+HorizonTimer::HorizonTimer( visSurvey::HorizonDisplay*  displ )
+    : hordispl_( displ )
+    , timer_( 0 )
+{
+    if ( hordispl_ )
+	hordispl_->ref();
+};
+
+
+HorizonTimer::~HorizonTimer()
+{
+    if ( hordispl_ )
+	hordispl_->unRef();
+
+    if ( timer_ )
+	timer_->tick.remove( mCB(this,HorizonTimer,timerHideLockedCB) );
+    delete timer_;
+}
+
+
+void HorizonTimer::start( int msec )
+{
+    if ( timer_ )
+	timer_->tick.remove( mCB(this,HorizonTimer,timerHideLockedCB) );
+
+    delete timer_;
+    timer_ = new Timer( "Lock all" );
+    timer_->tick.notify( mCB(this,HorizonTimer,timerHideLockedCB) );
+    timer_->start( msec, true );
+}
+
+
+void HorizonTimer::timerHideLockedCB( CallBacker* )
+{
+    if ( hordispl_ && hordispl_->lockedShown() )
+	hordispl_->showLocked( false );
+ }
+
+
