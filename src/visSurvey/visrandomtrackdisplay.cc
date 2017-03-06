@@ -879,7 +879,9 @@ void RandomTrackDisplay::updatePanelStripPath()
     }
 
     if ( mapping.size()!=nodes_.size() )
+    {
 	pErrMsg( "Unexpected state while texture mapping" );
+    }
 
     panelstrip_->setPath( pathcrds );
     panelstrip_->setPath2TextureMapping( mapping );
