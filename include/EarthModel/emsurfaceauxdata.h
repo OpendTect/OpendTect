@@ -42,6 +42,7 @@ public:
 			SurfaceAuxData(Horizon3D&);
     virtual		~SurfaceAuxData();
     Executor*		auxDataLoader(int selidx=-1);
+    Executor*		auxDataLoader(const char* nm);
     Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
 
     void		removeAll();
@@ -70,6 +71,7 @@ public:
     void		setAuxDataName(int dataidx,const char*);
     void		removeAuxData(int dataidx);
     float		getAuxDataVal(int dataidx,const PosID& posid) const;
+    float		getAuxDataVal(int dataidx,const TrcKey&) const;
     void		setAuxDataVal(int dataidx,const PosID& posid,float val);
     void		setAuxDataVal(int dataidx,const PosID& posid,float val,
 				      bool onlynewpos);
