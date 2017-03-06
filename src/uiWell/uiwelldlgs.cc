@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "veldesc.h"
+#include "velocitycalc.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welllog.h"
@@ -1690,9 +1691,15 @@ bool uiNewWellDlg::acceptOK( CallBacker* )
     if ( newnm.trimBlanks().isEmpty() )
 	mErrRet( tr("Please enter a name") )
 
+    bool res = true;
     if ( nms_->isPresent(newnm) )
-	mErrRet( tr("Please specify a new name.\n"
-		    "Wells can be removed in 'Manage wells'") )
+    {
+	res = uiMSG().askOverwrite( tr("Well name already exists. "
+		"Do you want to overwrite?") );
+    }
+
+    if ( !res )
+	return false;
 
     name_ = newnm;
     return true;
@@ -1798,4 +1805,101 @@ bool uiWellLogUOMDlg::setUoMValues()
 bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 {
     return setUoMValues();
+}
+
+
+
+// uiSetD2TFromOtherWell
+uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
+    : uiDialog(p,Setup(tr("Set Depth-Time Model"),mNoDlgTitle,mTODOHelpKey))
+{
+    inpwellfld_ = new uiWellSel( this, true, tr("Use D2T model from"), false );
+
+    wellfld_ = new uiMultiWellSel( this, false );
+    wellfld_->attach( alignedBelow, inpwellfld_ );
+}
+
+
+uiSetD2TFromOtherWell::~uiSetD2TFromOtherWell()
+{
+}
+
+
+void uiSetD2TFromOtherWell::setSelected( const TypeSet<MultiID>& keys )
+{
+    wellfld_->setSelected( keys );
+}
+
+
+bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
+{
+    const IOObj* inpioobj = inpwellfld_->ioobj();
+    if ( !inpioobj )
+	return false;
+
+    RefMan<Well::Data> inpwd = new Well::Data;
+    PtrMan<Well::Reader> inprdr = new Well::Reader( *inpioobj, *inpwd );
+    if ( !inprdr->getD2T() )
+    {
+	uiMSG().message( tr("Can not read input model.") );
+	return false;
+    }
+
+    const Well::D2TModel* d2t = inpwd->d2TModel();
+    TimeDepthModel dtmodel;
+    if ( !d2t || !d2t->getTimeDepthModel(*inpwd,dtmodel) )
+    {
+	uiMSG().error( tr("Input Depth-Time Model is invalid") );
+	return false;
+    }
+
+    TypeSet<MultiID> selwells;
+    wellfld_->getSelected( selwells );
+    if ( selwells.isEmpty() )
+    {
+	uiMSG().error( tr("Please select at least one target well") );
+	return false;
+    }
+
+    const int mdlsz = dtmodel.size();
+    TypeSet<double> inputdepths( mdlsz, 0. );
+    TypeSet<double> inputtimes( mdlsz, 0. );
+    for ( int idx=0; idx<mdlsz; idx++ )
+    {
+	inputdepths[idx] = dtmodel.getDepth( idx );
+	inputtimes[idx] = dtmodel.getTime( idx );
+    }
+
+    uiStringSet errmsgs;
+    for ( int idx=0; idx<selwells.size(); idx++ )
+    {
+	RefMan<Well::Data> wd = new Well::Data;
+	PtrMan<Well::Reader> rdr = new Well::Reader( selwells[idx], *wd );
+	if ( !rdr->getD2T() )
+	    continue;
+
+	TypeSet<double> depths( inputdepths );
+	TypeSet<double> times( inputtimes );
+	uiString errmsg;
+	const bool res =
+		wd->d2TModel()->ensureValid( *wd, errmsg, &depths, &times );
+	if ( !res )
+	{
+	    uiString msgtoadd;
+	    msgtoadd.append( wd->name() ).append( " : " ).append( errmsg );
+	    errmsgs.add( errmsg );
+	    continue;
+	}
+
+	Well::Writer wtr( selwells[idx], *wd );
+	wtr.putD2T();
+    }
+
+    if ( !errmsgs.isEmpty() )
+    {
+	uiMSG().errorWithDetails( errmsgs );
+	return errmsgs.size() != selwells.size();
+    }
+
+    return true;
 }

@@ -65,6 +65,7 @@ uiWellSel::uiWellSel( uiParent* p, bool forread, const uiIOObjSel::Setup& su )
 uiWellParSel::uiWellParSel( uiParent* p )
     : uiCompoundParSel(p,uiStrings::sWell(mPlural))
     , iopar_(*new IOPar)
+    , selDone(this)
 {
     butPush.notify( mCB(this,uiWellParSel,doDlg) );
 }
@@ -100,6 +101,8 @@ void uiWellParSel::doDlg( CallBacker* )
     selgrp->getChosen( selids_ );
     iopar_.setEmpty();
     selgrp->fillPar( iopar_ );
+
+    selDone.trigger();
 }
 
 
@@ -141,4 +144,101 @@ BufferString uiWellParSel::getSummary() const
     }
 
     return names.getDispString( -1, false );
+}
+
+
+// uiMultiWellSel
+uiMultiWellSel::uiMultiWellSel( uiParent* p, bool singleline,
+		const uiIOObjSelGrp::Setup* su )
+    : uiGroup(p,"Multi-well selector")
+    , singlnfld_(0)
+    , multilnfld_(0)
+    , newSelection(0)
+    , newCurrent(0)
+{
+    if ( singleline )
+	singlnfld_ = new uiWellParSel( this );
+    else
+    {
+	const uiIOObjSelGrp::Setup plainsu( OD::ChooseAtLeastOne );
+	if ( !su )
+	    su = &plainsu;
+	multilnfld_ = new uiIOObjSelGrp( this, mIOObjContext(Well), *su );
+    }
+
+    if ( singlnfld_ )
+    {
+	setHAlignObj( singlnfld_ );
+	mAttachCB( singlnfld_->selDone, uiMultiWellSel::newSelectionCB );
+    }
+    else
+    {
+	setHAlignObj( multilnfld_ );
+	mAttachCB( multilnfld_->itemChosen,
+		   uiMultiWellSel::newSelectionCB );
+	mAttachCB( multilnfld_->selectionChanged,
+		   uiMultiWellSel::newCurrentCB );
+    }
+}
+
+
+int uiMultiWellSel::nrSelected() const
+{
+    return singlnfld_ ? singlnfld_->nrSelected() : multilnfld_->nrChosen();
+}
+
+
+void uiMultiWellSel::setSelected( const TypeSet<MultiID>& ids )
+{
+    if ( singlnfld_ )
+	singlnfld_->setSelected( ids );
+    else
+	multilnfld_->setChosen( ids );
+}
+
+
+void uiMultiWellSel::getSelected( TypeSet<MultiID>& ids ) const
+{
+    if ( singlnfld_ )
+	singlnfld_->getSelected( ids );
+    else
+	multilnfld_->getChosen( ids );
+}
+
+
+MultiID uiMultiWellSel::currentID() const
+{
+    if ( multilnfld_ )
+	return multilnfld_->currentID();
+
+    TypeSet<MultiID> selids;
+    singlnfld_->getSelected( selids );
+    return !selids.isEmpty() ? selids[0] : MultiID::udf();
+}
+
+
+void uiMultiWellSel::fillPar( IOPar& iop ) const
+{
+    if ( singlnfld_ )
+	singlnfld_->fillPar( iop );
+    else
+    {
+	IOPar fldiop;
+	multilnfld_->fillPar( fldiop );
+	iop.mergeComp( fldiop, sKey::Well() );
+    }
+}
+
+
+bool uiMultiWellSel::usePar( const IOPar& iop )
+{
+    if ( singlnfld_ )
+	return singlnfld_->usePar( iop );
+
+    PtrMan<IOPar> subsel = iop.subselect( sKey::Well() );
+    if ( !subsel )
+	return false;
+
+    multilnfld_->usePar( *subsel );
+    return true;
 }
