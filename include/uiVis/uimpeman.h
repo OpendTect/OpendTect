@@ -31,6 +31,22 @@ class uiPropertiesDialog;
 class uiVisPartServer;
 class Timer;
 
+mClass(uiVis) HorizonTimer : public CallBacker
+{
+public:
+		    HorizonTimer(visSurvey::HorizonDisplay*);
+		    ~HorizonTimer();
+
+    void	    start(int msec);
+
+protected:
+    Timer*			 timer_;
+    visSurvey::HorizonDisplay*	 hordispl_;
+    void	    timerHideLockedCB(CallBacker*);
+
+
+};
+
 
 /*! \brief Dialog for tracking properties
 */
@@ -111,10 +127,12 @@ protected:
     void			sowingModeCB(CallBacker*);
     void			updatePatchDisplay();
     void			timerHideLockedCB(CallBacker*);
+				/*!<no use anymore,only for keep ABI*/
     void			lockAll();
 
     bool			seedpickwason_;
     TrcKeyZSampling		oldactivevol_;
+    HorizonTimer*		hortimer_;
 };
 
 #endif
