@@ -21,22 +21,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hiddenparam.h"
 #include "survinfo.h"
 
-static HiddenParam<uiBaseMapObject,uiGraphicsItem*> labelitems(0);
-
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
     , graphitem_(*new uiGraphicsItem)
+    , labelitem_(*new uiGraphicsItem)
+    , showlabels_(true)
     , changed_(false)
     , transform_(0)
 {
-    labelitems.setParam( this, new uiGraphicsItem );
     if ( bmobject_ )
     {
 	bmobject_->changed.notify( mCB(this,uiBaseMapObject,changedCB) );
 	bmobject_->stylechanged.notify(
 		    mCB(this,uiBaseMapObject,changedStyleCB) );
 	graphitem_.setZValue( bmobject_->getDepth() );
-	labelitems.getParam( this )->setZValue( bmobject_->getDepth()-1 );
+	labelitem_.setZValue( bmobject_->getDepth()-1 );
     }
 
     graphitem_.setAcceptHoverEvents( true );
@@ -53,8 +52,7 @@ uiBaseMapObject::~uiBaseMapObject()
     }
 
     delete &graphitem_;
-    delete labelitems.getParam( this );
-    labelitems.removeParam( this );
+    delete &labelitem_;
 }
 
 
@@ -68,14 +66,21 @@ const char* uiBaseMapObject::name() const
 void uiBaseMapObject::show( bool yn )
 {
     graphitem_.setVisible( yn );
-    labelitems.getParam( this )->setVisible( yn );
+    if ( showlabels_ )
+	labelitem_.setVisible( yn );
 }
 
 bool uiBaseMapObject::isShown() const
 { return graphitem_.isVisible(); }
 
-uiGraphicsItem& uiBaseMapObject::labelItem()
-{ return *labelitems.getParam( this ); }
+
+void uiBaseMapObject::showLabels( bool yn )
+{
+    showlabels_ = yn;
+    if ( isShown() )
+	labelitem_.setVisible( yn );
+}
+
 
 void uiBaseMapObject::leftClickCB( CallBacker* cb )
 {
@@ -120,7 +125,15 @@ void uiBaseMapObject::addToGraphItem( uiGraphicsItem& itm )
 
 void uiBaseMapObject::addLabel( uiGraphicsItem& itm )
 {
-    labelitems.getParam( this )->addChild( &itm );
+    labelitem_.addChild( &itm );
+}
+
+
+void uiBaseMapObject::getMousePosInfo( Coord3& crd, TrcKey& tk, float& val,
+				       BufferString& info ) const
+{
+    if ( bmobject_ )
+	bmobject_->getMousePosInfo( crd, tk, val, info );
 }
 
 
@@ -132,7 +145,6 @@ void uiBaseMapObject::update()
 
     int itemnr = 0;
     int labelitemnr = 0;
-    uiGraphicsItem* labelitem = labelitems.getParam( this );
     for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )
     {
 	TypeSet<Coord> crds;
@@ -269,13 +281,13 @@ void uiBaseMapObject::update()
 	const char* shapenm = bmobject_->getShapeName( idx );
 	if ( shapenm && !crds.isEmpty() )
 	{
-	    if ( labelitem->nrChildren()<=labelitemnr )
+	    if ( labelitem_.nrChildren()<=labelitemnr )
 	    {
 		uiTextItem* itm = new uiTextItem();
 		addLabel( *itm );
 	    }
 
-	    mDynamicCastGet(uiTextItem*,itm,labelitem->getChild(labelitemnr));
+	    mDynamicCastGet(uiTextItem*,itm,labelitem_.getChild(labelitemnr));
 	    if ( !itm ) return;
 
 	    itm->setText( toUiString(shapenm) );
@@ -300,8 +312,8 @@ void uiBaseMapObject::update()
     while ( graphitem_.nrChildren()>itemnr )
 	graphitem_.removeChild( graphitem_.getChild(itemnr), true );
 
-    while ( labelitem->nrChildren()>labelitemnr )
-	labelitem->removeChild( labelitem->getChild(labelitemnr), true );
+    while ( labelitem_.nrChildren()>labelitemnr )
+	labelitem_.removeChild( labelitem_.getChild(labelitemnr), true );
 }
 
 
@@ -478,6 +490,21 @@ BaseMapObject* uiBaseMap::getObject( int id )
 }
 
 
+uiBaseMapObject* uiBaseMap::getUiObject( int id )
+{
+    if ( id<0 ) return 0;
+
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	BaseMapObject* bmo = objects_[idx]->getObject();
+	if ( bmo && bmo->ID()==id )
+	    return objects_[idx];
+    }
+
+    return 0;
+}
+
+
 bool uiBaseMap::hasChanged()
 {
     if ( changed_ ) return true;
@@ -520,6 +547,17 @@ void uiBaseMap::show( const BaseMapObject& obj, bool yn )
 }
 
 
+void uiBaseMap::showLabels( bool yn )
+{
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	objects_[idx]->showLabels( yn );
+}
+
+
+bool uiBaseMap::labelsShown() const
+{ return !objects_.isEmpty() && objects_[0]->labelsShown(); }
+
+
 int uiBaseMap::indexOf( const BaseMapObject* obj ) const
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
@@ -553,7 +591,8 @@ void uiBaseMap::reDraw( bool )
 }
 
 
-const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
+const uiBaseMapObject*
+	uiBaseMap::uiObjectAt( const Geom::Point2D<float>& pt ) const
 {
     const uiGraphicsItem* itm = view_.scene().itemAt( pt );
     if ( !itm ) return 0;
@@ -567,10 +606,40 @@ const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
 	if ( !bmitm.isPresent(*itm) )
 	    continue;
 
-	return objects_[idx]->name();
+	return objects_[idx];
     }
 
     return 0;
+}
+
+
+const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
+{
+    const uiBaseMapObject* uibmobj = uiObjectAt( pt );
+    return uibmobj ? uibmobj->name() : 0;
+}
+
+
+void uiBaseMap::getMousePosInfo( BufferString& nm, Coord3& crd3, TrcKey& tk,
+				 float& val, BufferString& info ) const
+{
+    nm.setEmpty();
+    tk = TrcKey::udf();
+    val = mUdf(float);
+    info.setEmpty();
+
+    const MouseEvent& ev = view_.getMouseEventHandler().event();
+    crd3.setXY( getWorld2Ui().toWorldX(ev.x()),
+		getWorld2Ui().toWorldY(ev.y()) );
+    crd3.z = mUdf(double);
+
+    const uiBaseMapObject* uibmobj = uiObjectAt(
+	Geom::Point2D<float>(mCast(float,ev.pos().x),mCast(float,ev.pos().y)) );
+    if ( uibmobj )
+    {
+	nm = uibmobj->name();
+	uibmobj->getMousePosInfo( crd3, tk, val, info );
+    }
 }
 
 

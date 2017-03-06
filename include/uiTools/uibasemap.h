@@ -39,11 +39,16 @@ public:
 
     uiGraphicsItem&		graphItem()		{ return graphitem_; }
     const uiGraphicsItem&	graphItem() const	{ return graphitem_; }
-    uiGraphicsItem&		labelItem();
+    uiGraphicsItem&		labelItem()		{ return labelitem_; }
+    const uiGraphicsItem&	labelItem() const	{ return labelitem_; }
+    void			showLabels(bool yn);
+    bool			labelsShown() const	{ return showlabels_; }
 
     virtual void		update();
     virtual void		updateStyle();
 
+    virtual void		getMousePosInfo(Coord3&,TrcKey&,float& val,
+						BufferString& info) const;
 protected:
     friend			class uiBaseMap;
 
@@ -53,6 +58,8 @@ protected:
     void			rightClickCB(CallBacker*);
 
     uiGraphicsItem&		graphitem_;
+    uiGraphicsItem&		labelitem_;
+    bool			showlabels_;
     const uiWorld2Ui*		transform_;
 
     bool			changed_;
@@ -74,6 +81,7 @@ public:
 
     virtual void		addObject(BaseMapObject*);
     BaseMapObject*		getObject(int id);
+    uiBaseMapObject*		getUiObject(int id);
 
     bool			hasChanged();
     inline void			setChangeFlag() { changed_ = true; }
@@ -82,9 +90,16 @@ public:
     void			removeObject(const BaseMapObject*);
     void			show(const BaseMapObject&,bool yn);
 
+    void			showLabels(bool yn);
+    bool			labelsShown() const;
+
     void			addObject(uiBaseMapObject*);
 
+    const uiBaseMapObject*	uiObjectAt(const Geom::Point2D<float>&) const;
     const char*			nameOfItemAt(const Geom::Point2D<float>&) const;
+    void			getMousePosInfo(BufferString& name,Coord3&,
+						TrcKey&,float& val,
+						BufferString& info) const;
 
     uiGraphicsItem&		worldItem()		{ return worlditem_;}
     void			centerWorldItem(bool);
