@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          March 2004
+ Author:    Nanne Hemstra
+ Date:	    March 2004
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace MPE;
 
 static HiddenParam<uiMPEMan,char> sowingmode_( false );
-static HiddenParam<uiMPEMan,Timer*> timer_( 0 );
+static HiddenParam<uiMPEMan,HorizonTimer*> hortimer_( 0 );
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : parent_(p)
@@ -77,7 +77,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
     mAttachCB( *visserv_->planeMovedEventNotifer(), uiMPEMan::planeChangedCB );
     sowingmode_.setParam( this, false );
-    timer_.setParam( this, 0 );
+    hortimer_.setParam( this, 0 );
 }
 
 
@@ -87,13 +87,8 @@ uiMPEMan::~uiMPEMan()
     deleteVisObjects();
     sowingmode_.removeParam( this );
 
-    Timer* timer = timer_.getParam(this);
-    if ( timer )
-	timer->tick.remove( mCB(this,uiMPEMan,timerHideLockedCB) );
-
-    delete timer;
-    timer_.removeParam( this );
-   
+    delete hortimer_.getParam( this );
+    hortimer_.removeParam( this );
 }
 
 
@@ -455,7 +450,7 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( clickedobject == -1 )
 	mSeedClickReturn();
 
-    const EM::ObjectID emobjid  = clickcatcher_->info().getEMObjID();
+    const EM::ObjectID emobjid = clickcatcher_->info().getEMObjID();
     mDynamicCastGet(EM::Horizon*,clickedhor,EM::EMM().getObject(emobjid))
     const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
@@ -677,7 +672,7 @@ void uiMPEMan::seedClick( CallBacker* )
 		    emobj->sectionGeometry(
 		    emobj->sectionID(0))->blockCallBacks( true, true );
 	    }
-	    else if ( dosowing  && !ctrlbut )
+	    else if ( dosowing && !ctrlbut )
 	    {
 		seedpicker->addSeedToPatch( seedpos, false );
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
@@ -1050,26 +1045,16 @@ void uiMPEMan::lockAll()
 	hd->showLocked( true );
 	if ( !preshowlocked )
 	{
-	    Timer* timer = timer_.getParam(this);
-	    if ( timer )
-		timer->tick.remove( mCB(this,uiMPEMan,timerHideLockedCB) );
-
-	    delete timer;
-	    timer = new Timer("Lock all");
-	    timer_.setParam( this, timer );
-	    timer->tick.notify( mCB(this,uiMPEMan,timerHideLockedCB) );
-	    timer->start( cLockWaitTime, true );
+	    delete hortimer_.getParam(this);
+	    hortimer_.setParam( this, new HorizonTimer(hd) );
+	    hortimer_.getParam(this)->start( cLockWaitTime );
 	}
     }
 }
 
 
-void uiMPEMan::timerHideLockedCB( CallBacker* )
-{
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
-    if ( hd->lockedShown() )
-	hd->showLocked( false );
-}
+void uiMPEMan::timerHideLockedCB( CallBacker* cb )
+{}
 
 
 void uiMPEMan::updatePatchDisplay()
@@ -1225,3 +1210,43 @@ void uiMPEMan::setUndoLevel( int preveventnr )
     if ( currentevent != preveventnr )
 	    emundo.setUserInteractionEnd(currentevent);
 }
+
+
+HorizonTimer::HorizonTimer( visSurvey::HorizonDisplay* displ )
+    : hordispl_( displ )
+    , timer_( 0 )
+{
+    if ( hordispl_ )
+	hordispl_->ref();
+};
+
+
+HorizonTimer::~HorizonTimer()
+{
+    if ( hordispl_ )
+	hordispl_->unRef();
+    
+    if ( timer_ )
+	timer_->tick.remove( mCB(this,HorizonTimer,timerHideLockedCB) );
+    delete timer_;
+}
+
+
+void HorizonTimer::start( int msec )
+{
+    if ( timer_ )
+	timer_->tick.remove( mCB(this,HorizonTimer,timerHideLockedCB) );
+
+    delete timer_;
+    timer_ = new Timer( "Lock all" );
+    timer_->tick.notify( mCB(this,HorizonTimer,timerHideLockedCB) );
+    timer_->start( msec, true );
+}
+
+
+void HorizonTimer::timerHideLockedCB( CallBacker* )
+{
+    if ( hordispl_ && hordispl_->lockedShown() )
+	hordispl_->showLocked( false );
+ }
+
