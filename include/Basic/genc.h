@@ -39,6 +39,11 @@ mGlobal(Basic) const char* GetExecutableName(void);
 
 mGlobal(Basic) const char* GetOSIdentifier(void);
 
+#ifdef __win__
+mGlobal(Basic) bool is64BitWindows();
+	    //!< Returns true if on 64 bit windows operating system.
+#endif
+
 mGlobal(Basic) bool isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
 mGlobal(Basic) const char* getProcessNameForPID(int pid);
