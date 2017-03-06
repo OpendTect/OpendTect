@@ -568,7 +568,7 @@ void uiColTabSelTool::orientationChanged()
 
 void uiColTabSelTool::useMapperSetup( const MapperSetup& msu )
 {
-    if ( replaceMonitoredRef(mappersetup_,const_cast<MapperSetup&>(msu)) )
+    if ( replaceMonitoredRef(mappersetup_,const_cast<MapperSetup&>(msu),this) )
 	handleMapperSetupChange();
 }
 
@@ -576,7 +576,7 @@ void uiColTabSelTool::useMapperSetup( const MapperSetup& msu )
 void uiColTabSelTool::useDistribution( const DistribType& distr )
 {
     const bool issame = &distr == distrib_.ptr();
-    replaceMonitoredRef( distrib_, const_cast<DistribType&>(distr) );
+    replaceMonitoredRef( distrib_, const_cast<DistribType&>(distr), this );
     if ( !issame )
     {
 	if ( mandlg_ )

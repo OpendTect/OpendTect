@@ -550,7 +550,7 @@ void uiODDataTreeItem::setProbeLayer( ProbeLayer* newlayer )
 	mDetachCB( probelayer_->getProbe()->objectChanged(),
 		   uiODDataTreeItem::probeChangedCB );
 
-    replaceMonitoredRef( probelayer_, newlayer );
+    replaceMonitoredRef( probelayer_, newlayer, this );
 
     if ( newlayer )
 	mAttachCB( newlayer->getProbe()->objectChanged(),

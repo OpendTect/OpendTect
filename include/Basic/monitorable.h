@@ -58,6 +58,9 @@ ________________________________________________________________________
 	 doSomething( chgdata.ID() );
   }
 
+  The choice of cNoChange being zero is deliberate; the guarantee is that you
+  can use a ChangeType as a boolean to see whether there is any change.
+
   Lastly, copying of Monitorables needs to be done right. For this, you want to
   use the mDeclMonitorableAssignment and mImplMonitorableAssignment macros:
   these provide correct handling and even make your task easier than otherwise.
@@ -304,13 +307,15 @@ protected:
 
   If you have suscribers to an object that you own (and that others monitor
   through your ref) then you'll probably not want to pass 'this'. In that way
-  all notifications are transferred to the new object.
+  all notifications are transferred to the new object. Note that this is a
+  dangerous thing to do - some managing objects may depend on having notifiers
+  on all objects they monitor.
 
   */
 
 template <class Mon> inline
 Monitorable::ChangeType replaceMonitoredRef( ConstRefMan<Mon>& ref,
-				const Mon* newptr, CallBacker* only_for=0 )
+				const Mon* newptr, CallBacker* only_for )
 {
     const Mon* curptr = ref.ptr();
     if ( curptr == newptr )
@@ -330,22 +335,22 @@ Monitorable::ChangeType replaceMonitoredRef( ConstRefMan<Mon>& ref,
 }
 
 template <class Mon> inline
-Monitorable::ChangeType replaceMonitoredRef( ConstRefMan<Mon>& ref, const Mon& newref,
-				CallBacker* only_for=0 )
+Monitorable::ChangeType replaceMonitoredRef( ConstRefMan<Mon>& ref,
+			 const Mon& newref, CallBacker* only_for )
 {
     return replaceMonitoredRef( ref, &newref, only_for );
 }
 
 template <class Mon> inline
-Monitorable::ChangeType replaceMonitoredRef( ConstRefMan<Mon>& ref, ConstRefMan<Mon>& newref,
-				CallBacker* only_for=0 )
+Monitorable::ChangeType replaceMonitoredRef( ConstRefMan<Mon>& ref,
+			ConstRefMan<Mon>& newref, CallBacker* only_for )
 {
     return replaceMonitoredRef( ref, newref.ptr(), only_for );
 }
 
 template <class Mon> inline
 Monitorable::ChangeType replaceMonitoredRef( RefMan<Mon>& ref, Mon* newptr,
-				CallBacker* only_for=0 )
+				CallBacker* only_for )
 {
     return replaceMonitoredRef( (ConstRefMan<Mon>&)ref, (const Mon*)newptr,
 				only_for );
@@ -353,14 +358,14 @@ Monitorable::ChangeType replaceMonitoredRef( RefMan<Mon>& ref, Mon* newptr,
 
 template <class Mon> inline
 Monitorable::ChangeType replaceMonitoredRef( RefMan<Mon>& ref, Mon& newref,
-				CallBacker* only_for=0 )
+				CallBacker* only_for )
 {
     return replaceMonitoredRef( ref, &newref, only_for );
 }
 
 template <class Mon> inline
 Monitorable::ChangeType replaceMonitoredRef( RefMan<Mon>& ref, RefMan<Mon>& newref,
-				CallBacker* only_for=0 )
+				CallBacker* only_for )
 {
     return replaceMonitoredRef( ref, newref.ptr(), only_for );
 }

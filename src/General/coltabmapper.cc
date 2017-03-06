@@ -371,7 +371,7 @@ void ColTab::Mapper::setSetup( const MapperSetup& newsu )
 
 void ColTab::Mapper::useSetup( MapperSetup& newsu )
 {
-    replaceMonitoredRef( setup_, newsu );
+    replaceMonitoredRef( setup_, newsu, this );
 }
 
 
