@@ -253,6 +253,7 @@ void Seis::VolFetcher::get( const BinID& bid, SeisTrc& trc )
     else if ( trl_ && trl_->goTo(nextbid_) )
 	moveok = true;
 
+    uirv_.setEmpty();
     if ( moveok )
 	getNext( trc );
     else

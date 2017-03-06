@@ -66,6 +66,11 @@ public:
     bool		hasUndef(int icomp=-1) const;
     inline void		zero( int icomp=-1 )
 			{ data_.zero( icomp ); }
+    void		addComponent( int ns=0,
+				      const DataCharacteristics& dc
+						= DataCharacteristics(),
+				      bool cleardata=false )
+			{ data_.addComponent( ns, dc, cleardata ); }
     bool		reSize(int,bool copydata);
     void		copyDataFrom(const SeisTrc&,int icomp=-1,
 				     bool forcefloats=false);

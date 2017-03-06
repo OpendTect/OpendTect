@@ -19,7 +19,7 @@ ________________________________________________________________________
 class SeisTrc;
 class SeisTrcBuf;
 
-namespace PosInfo { class CubeData; class Line2DDataIterator; }
+namespace PosInfo { class CubeData; }
 
 namespace Seis
 {
@@ -66,7 +66,7 @@ public:
     ZSampling			getZRange() const;
     uiRetVal			getComponentInfo(int iprov,BufferStringSet&,
 				      TypeSet<Seis::DataType>* dts=0) const;
-    virtual od_int64		totalNr() const		{ return -1; }
+    virtual od_int64		totalNr() const;
 
     uiRetVal			fillPar(ObjectSet<IOPar>&) const;
     uiRetVal			usePar(const ObjectSet<IOPar>&);
@@ -88,29 +88,47 @@ public:
 				{ /* TODO */ return uiRetVal(); }
 				/*< Fills the SeisTrcBuf with gather from
 				  each provider at the specified TrcKey.*/
+    uiRetVal			reset() const;
+				//!< done automatically when needed
 
 protected:
 
-				MultiProvider(Policy,ZPolicy);
+				MultiProvider(Policy,ZPolicy,
+					      float specialvalue=0.0f);
+				//!< \param specialvalue used as default
+				//!< value in SeisTrc.
 
     void			addInput(Seis::GeomType);
+    bool			handleSetupChanges(uiRetVal&) const;
+    void			handleTraces(ObjectSet<SeisTrc>&) const;
+    void			ensureRightZSampling(
+					ObjectSet<SeisTrc>&) const;
 
+    virtual void		doReset(uiRetVal&) const		= 0;
     virtual void		doFillPar(ObjectSet<IOPar>&,uiRetVal&)const;
     virtual void		doUsePar(const ObjectSet<IOPar>&,uiRetVal&)
 									= 0;
-    virtual void		doGetNext(SeisTrc&,bool dostack,uiRetVal&)
-									= 0;
-    virtual void		doGetNextTrcs(ObjectSet<SeisTrc>&,uiRetVal&)
-									= 0;
+    virtual void		doGetNext(SeisTrc&,bool dostack,
+					  uiRetVal&) const		= 0;
+    virtual void		doGetNextTrcs(ObjectSet<SeisTrc>&,
+					      uiRetVal&) const;
     virtual void		doGet(const TrcKey&,ObjectSet<SeisTrc>&,
 				      uiRetVal&) const			= 0;
+    virtual bool		doMoveToNext() const			= 0;
 
-    void			doGetStacked(SeisTrcBuf&,SeisTrc&);
+    void			doGetStacked(SeisTrcBuf&,SeisTrc&) const;
 
+    mutable Threads::Lock	lock_;
+    mutable od_int64		totalnr_;
+    mutable bool		setupchgd_;
+    mutable ZSampling		zsampling_;
+    float			specialvalue_;
     Policy			policy_;
     ZPolicy			zpolicy_;
     SelData*			seldata_;
     ObjectSet<Seis::Provider>	provs_;
+
+    mutable TrcKeySamplingIterator	iter_;
 
 public:
 
@@ -122,35 +140,71 @@ public:
 
 
 /*
-\brief MultiProvider for Seis::Vol data.
+\brief MultiProvider for 3D seismic data.
 */
 
 mExpClass(Seis) MultiProvider3D : public MultiProvider
 { mODTextTranslationClass(Seis::MultiProvider3D);
 public:
 				MultiProvider3D(Policy,ZPolicy);
-				~MultiProvider3D()	{};
+				~MultiProvider3D()	{}
 
     bool			is2D() const		{ return false; }
-    od_int64			totalNr() const
-				{ return iter_.totalNr(); }
 
-    bool			getRanges(TrcKeyZSampling&,bool incl) const;
-				//!< incl=union, !incl=intersection
-    void			getGeometryInfo(PosInfo::CubeData&,
-						bool incl) const;
-				//!< incl=union, !incl=intersection
+    bool			getRanges(TrcKeyZSampling&) const;
+    void			getGeometryInfo(PosInfo::CubeData&) const;
 
 protected:
 
+    void			doReset(uiRetVal&) const;
     void			doUsePar(const ObjectSet<IOPar>&,uiRetVal&);
 
-    void			doGetNext(SeisTrc&,bool dostack,uiRetVal&);
-    void			doGetNextTrcs(ObjectSet<SeisTrc>&,uiRetVal&);
+    void			doGetNext(SeisTrc&,bool dostack,
+					  uiRetVal&) const;
     void			doGet(const TrcKey&,ObjectSet<SeisTrc>&,
 				      uiRetVal&) const;
+    bool			doMoveToNext() const;
+};
 
-    TrcKeySamplingIterator	iter_;
+
+/*
+\brief MultiProvider for 2D seismic data.
+*/
+
+mExpClass(Seis) MultiProvider2D : public MultiProvider
+{ mODTextTranslationClass(Seis::MultiProvider2D);
+public:
+				MultiProvider2D(Policy,ZPolicy);
+				~MultiProvider2D()	{}
+
+    bool			is2D() const		{ return true; }
+
+    int				nrLines() const
+				{ return geomids_.size(); }
+    Pos::GeomID			geomID( int iln ) const
+				{ return geomids_[iln]; }
+    BufferString		lineName( int iln ) const
+				{ return Survey::GM().getName(geomID(iln));}
+    int				curLineIdx() const	{ return curlidx_; }
+
+    bool			getRanges(int iln,StepInterval<int>& trcrg,
+					  ZSampling&) const;
+    void			getGeometryInfo(int iln,
+					  PosInfo::Line2DData&) const;
+
+protected:
+
+    void			doReset(uiRetVal&) const;
+    void			doUsePar(const ObjectSet<IOPar>&,uiRetVal&);
+    void			doGetNext(SeisTrc&,bool dostack,
+					  uiRetVal&) const;
+    void			doGet(const TrcKey&,ObjectSet<SeisTrc>&,
+				      uiRetVal&) const;
+    bool			doMoveToNext() const;
+    bool			doMoveToNextLine() const;
+
+    mutable int			curlidx_;
+    mutable TypeSet<Pos::GeomID>geomids_;
 };
 
 }

@@ -32,11 +32,11 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     const Seis::MultiProvider::Policy policy = stacktrcs_
 				? Seis::MultiProvider::RequireAtLeastOne
 				: Seis::MultiProvider::RequireOnlyOne;
-    /*
-    const bool is2d = SeisIOObjInfo(Provider::dbKey(iops[0])).is2D();
+
+    const bool is2d = SeisIOObjInfo(Seis::Provider::dbKey(*iops[0])).is2D();
     if ( is2d )
 	multiprov_ = new Seis::MultiProvider2D( policy, zpol );
-    else*/
+    else
 	multiprov_ = new Seis::MultiProvider3D( policy, zpol );
 
     const uiRetVal uirv = multiprov_->usePar( iops );
