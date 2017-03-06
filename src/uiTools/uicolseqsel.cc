@@ -39,7 +39,7 @@ uiColSeqSelTool::uiColSeqSelTool()
 
 void uiColSeqSelTool::initialise( OD::Orientation orient )
 {
-    disp_ = new uiColSeqDisp( asParent(), orient );
+    disp_ = new uiColSeqDisp( getParent(), orient );
     mAttachCB( disp_->selReq, uiColSeqSelTool::selectCB );
     mAttachCB( disp_->menuReq, uiColSeqSelTool::menuCB );
     mAttachCB( disp_->upReq, uiColSeqSelTool::upCB );
@@ -296,14 +296,14 @@ uiColSeqToolBar::uiColSeqToolBar( uiParent* p )
 }
 
 
-class uiColSeqUseModeCompactSelector : public uiGraphicsView
-{ mODTextTranslationClass(uiColSeqUseModeCompactSelector);
+class uiColSeqUseModeToolBarSelector : public uiGraphicsView
+{ mODTextTranslationClass(uiColSeqUseModeToolBarSelector);
 public:
 
 typedef ColTab::SeqUseMode SeqUseMode;
 
-uiColSeqUseModeCompactSelector( uiParent* p )
-    : uiGraphicsView(p,"Compact SeqUseMode selector")
+uiColSeqUseModeToolBarSelector( uiParent* p )
+    : uiGraphicsView(p,"SeqUseMode selector for Toolbar")
     , meh_(getMouseEventHandler())
     , pixmapitm_(0)
     , selitms_(0)
@@ -313,17 +313,17 @@ uiColSeqUseModeCompactSelector( uiParent* p )
     disableScrollZoom();
     setMaximumWidth( uiObject::iconSize() );
     setMaximumHeight( uiObject::iconSize() );
-    mAttachCB( postFinalise(), uiColSeqUseModeCompactSelector::initCB );
+    mAttachCB( postFinalise(), uiColSeqUseModeToolBarSelector::initCB );
 }
 
 void initCB( CallBacker* )
 {
     mAttachCB( meh_.buttonReleased,
-		uiColSeqUseModeCompactSelector::mouseReleaseCB );
-    mAttachCB( meh_.movement, uiColSeqUseModeCompactSelector::mouseMoveCB );
+		uiColSeqUseModeToolBarSelector::mouseReleaseCB );
+    mAttachCB( meh_.movement, uiColSeqUseModeToolBarSelector::mouseMoveCB );
 
-    mAttachCB( reSize, uiColSeqUseModeCompactSelector::reDrawCB );
-    mAttachCB( pointerLeft, uiColSeqUseModeCompactSelector::mouseLeaveCB );
+    mAttachCB( reSize, uiColSeqUseModeToolBarSelector::reDrawCB );
+    mAttachCB( pointerLeft, uiColSeqUseModeToolBarSelector::mouseLeaveCB );
 
     drawAsIs();
 }
@@ -456,24 +456,23 @@ void setMode( SeqUseMode newmode )
     uiGraphicsItemGroup*			selitms_;
     uiGraphicsItemGroup*			curitms_;
 
-    Notifier<uiColSeqUseModeCompactSelector>	modeChange;
+    Notifier<uiColSeqUseModeToolBarSelector>	modeChange;
 
 };
 
 
-uiColSeqUseMode::uiColSeqUseMode( uiParent* p, bool compact, uiString lbltxt )
+uiColSeqUseMode::uiColSeqUseMode( uiParent* p, bool fortb, uiString lbltxt )
     : uiGroup(p,"ColTab SeqUseMode Group")
     , modeChange(this)
-    , canvas_(0)
+    , tbsel_(0)
     , flippedbox_(0)
 {
     uiLabel* lbl = lbltxt.isEmpty() ? 0 : new uiLabel( this, lbltxt );
 
-    if ( compact )
+    if ( fortb )
     {
-	canvas_ = new uiColSeqUseModeCompactSelector( this );
-	mAttachCB( canvas_->modeChange, uiColSeqUseMode::modeChgCB );
-	setHAlignObj( canvas_ );
+	tbsel_ = new uiColSeqUseModeToolBarSelector( 0 );
+	mAttachCB( tbsel_->modeChange, uiColSeqUseMode::modeChgCB );
     }
     else
     {
@@ -491,10 +490,11 @@ uiColSeqUseMode::uiColSeqUseMode( uiParent* p, bool compact, uiString lbltxt )
 
 void uiColSeqUseMode::addObjectsToToolBar( uiToolBar& tbar )
 {
-    if ( canvas_ )
-	tbar.addObject( canvas_ );
+    if ( tbsel_ )
+	tbar.addObject( tbsel_ );
     else
     {
+	pErrMsg("Adding to toolbar ... but that wasn't planned");
 	tbar.addObject( flippedbox_ );
 	tbar.addObject( cyclicbox_ );
     }
@@ -503,7 +503,7 @@ void uiColSeqUseMode::addObjectsToToolBar( uiToolBar& tbar )
 
 ColTab::SeqUseMode uiColSeqUseMode::mode() const
 {
-    return canvas_ ? canvas_->mode()
+    return tbsel_ ? tbsel_->mode()
 	:  ColTab::getSeqUseMode( flippedbox_->isChecked(),
 				  cyclicbox_->isChecked() );
 }
@@ -514,8 +514,8 @@ void uiColSeqUseMode::setMode( ColTab::SeqUseMode usemode )
     if ( usemode == mode() )
 	return;
 
-    if ( canvas_ )
-	canvas_->setMode( usemode );
+    if ( tbsel_ )
+	tbsel_->setMode( usemode );
     else
     {
 	flippedbox_->setChecked( ColTab::isFlipped(usemode) );

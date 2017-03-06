@@ -19,7 +19,7 @@ class uiLabel;
 class uiCheckBox;
 class uiColSeqMan;
 class uiColSeqDisp;
-class uiColSeqUseModeCompactSelector;
+class uiColSeqUseModeToolBarSelector;
 
 
 /* Color sequence selection object. */
@@ -89,6 +89,8 @@ protected:
     virtual void		setIsVertical(bool);
     void			nextColSeq(bool prev);
     void			setToolTip();
+    uiParent*			getParent()
+				{ return isGroup() ? asParent() : 0; }
 
 };
 
@@ -142,11 +144,13 @@ public:
 };
 
 
+/* uiToolBar color sequence use mode selection */
+
 mExpClass(uiTools) uiColSeqUseMode : public uiGroup
 { mODTextTranslationClass(uiColSeqUseMode);
 public:
 
-			uiColSeqUseMode(uiParent*,bool compact,
+			uiColSeqUseMode(uiParent*,bool for_toolbar,
 					uiString lbltxt=tr("Use table"));
 
     ColTab::SeqUseMode	mode() const;
@@ -159,7 +163,7 @@ protected:
 
     uiCheckBox*		flippedbox_;
     uiCheckBox*		cyclicbox_;
-    uiColSeqUseModeCompactSelector* canvas_;
+    uiColSeqUseModeToolBarSelector* tbsel_;
 
     void		modeChgCB( CallBacker* )	{ modeChange.trigger();}
     void		canvasMouseReleaseCB(CallBacker*);

@@ -198,7 +198,7 @@ public:
     typedef DataDistribution<float>	DistribType;
 
 uiManipMapperSetup( uiColTabSelTool& seltool )
-    : uiGraphicsView(seltool.asParent(),"Mapper Manipulator")
+    : uiGraphicsView(seltool.getParent(),"Mapper Manipulator")
     , seltool_(seltool)
     , eddlg_(0)
     , meh_(getMouseEventHandler())
@@ -538,12 +538,15 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 {
     uiColSeqSelTool::initialise( orient );
 
-    usemodesel_ = new uiColSeqUseMode( asParent(), true,
+    usemodesel_ = new uiColSeqUseMode( getParent(), true,
 				       uiString::emptyString() );
 
     manip_ = new uiManipMapperSetup( *this );
     if ( isGroup() )
+    {
+	usemodesel_->attach( rightOf, disp_ );
 	manip_->attach( rightOf, usemodesel_ );
+    }
 
     mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeChgCB );
     mAttachCB( mappersetup_->objectChanged(), uiColTabSelTool::mapSetupChgCB );
