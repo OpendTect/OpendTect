@@ -72,6 +72,7 @@ public:
 protected:
 
     TrcKeyZSampling		sampling_;
+    PosInfo::CubeData*		rgldpckposinfo_;
 };
 
 
@@ -163,6 +164,7 @@ public:
     const ZDomain::Info&	zDomain() const
 				{ return source_.zDomain(); }
     float			nrKBytes() const;
+    int				getRandomLineID() const;
 
 protected:
 
@@ -180,9 +182,7 @@ protected:
     const StepInterval<float>&	zsamp_;
 
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
-
-public:
-    int				getRandomLineID() const;
+    int				rdlid_;
 };
 
 

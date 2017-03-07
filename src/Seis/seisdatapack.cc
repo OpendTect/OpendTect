@@ -25,9 +25,6 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 
 #include <limits.h>
 
-#include "hiddenparam.h"
-
-
 class Regular2RandomDataCopier : public ParallelTask
 {
 public:
@@ -185,21 +182,18 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 
 // RegularSeisDataPack
 
-static HiddenParam<RegularSeisDataPack,PosInfo::CubeData*> rgldpckposinfo( 0 );
-
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)
+    , rgldpckposinfo_(0)
 {
     sampling_.init( false );
-    rgldpckposinfo.setParam( this, 0 );
 }
 
 
 RegularSeisDataPack::~RegularSeisDataPack()
 {
-    delete rgldpckposinfo.getParam( this );
-    rgldpckposinfo.removeParam( this );
+    delete rgldpckposinfo_;
 }
 
 
@@ -249,18 +243,13 @@ void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
     if ( is2D() )
 	return;
 
-    PosInfo::CubeData* oldval = rgldpckposinfo.getParam(this);
-
-    while ( !rgldpckposinfo.setParamIfValueIs( this, oldval, newposdata ) )
-	oldval = rgldpckposinfo.getParam(this);
-
-    delete oldval;
+    rgldpckposinfo_ = newposdata;
 }
 
 
 const PosInfo::CubeData* RegularSeisDataPack::getTrcsSampling() const
 {
-    return is2D() ? 0 : rgldpckposinfo.getParam( this );
+    return is2D() ? 0 : rgldpckposinfo_;
 }
 
 
@@ -523,15 +512,14 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 #define mKeyRefNr	SeisTrcInfo::toString(SeisTrcInfo::RefNr)
 
 // SeisFlatDataPack
-static HiddenParam<SeisFlatDataPack,int> rdlids( -1 );
 
 SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
     : FlatDataPack(source.category())
     , source_(source)
     , comp_(comp)
     , zsamp_(source.getZRange())
+    , rdlid_(-1)
 {
-    rdlids.setParam( this, -1 );
     DPM(DataPackMgr::SeisID()).addAndObtain(const_cast<SeisDataPack*>(&source));
     setName( source_.getComponentName(comp_) );
 }
@@ -539,7 +527,6 @@ SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
 
 SeisFlatDataPack::~SeisFlatDataPack()
 {
-    rdlids.removeParam( this );
     DPM(DataPackMgr::SeisID()).release( source_.id() );
 }
 
@@ -646,7 +633,7 @@ void SeisFlatDataPack::setPosData()
 
 int SeisFlatDataPack::getRandomLineID() const
 {
-    return rdlids.getParam( this );
+    return rdlid_;
 }
 
 
@@ -739,7 +726,7 @@ void RegularFlatDataPack::setSourceData()
 	    path_ += source_.getTrcKey( idx );
     }
 
-    rdlids.setParam( this, source_.getRandomLineID() );
+    rdlid_ = source_.getRandomLineID();
     if ( !is2D() )
     {
 	const bool isinl = dir_==TrcKeyZSampling::Inl;
@@ -769,7 +756,7 @@ RandomFlatDataPack::RandomFlatDataPack(
     : SeisFlatDataPack(source,comp)
     , path_(source.getPath())
 {
-    rdlids.setParam( this, source_.getRandomLineID() );
+    rdlid_ = getRandomLineID();
     setSourceData();
 }
 
