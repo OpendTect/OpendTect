@@ -34,7 +34,7 @@ public:
 						{ str_ = fs.str_; return *this;}
     inline FixedString&	operator=( const char* p )
 						{ str_ = p; return *this; }
-    FixedString&	operator=(const OD::String&);
+    FixedString&	operator=(const OD::String&)	= delete;
 				//!< Not impl - on purpose: too dangerous
     inline		operator const char*() const	{ return buf(); }
 
@@ -87,13 +87,3 @@ public:
 };
 
 }
-
-
-#ifndef __win__
-
-// Avoid silent conversion general OD::String -> FixedString as it is dangerous.
-void OD_Undef_FixedString_eq_bs_finder();
-inline FixedString& FixedString::operator=(const OD::String&)
-{ OD_Undef_FixedString_eq_bs_finder(); return *this; }
-
-#endif
