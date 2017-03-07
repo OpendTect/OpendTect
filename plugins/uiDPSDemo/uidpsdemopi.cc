@@ -22,19 +22,22 @@
 #include "randcolor.h"
 #include "survinfo.h"
 
+static PtrMan<BufferString> commenttxt = 0;
 
 mDefODPluginInfo(uiDPSDemo)
 {
     // Just to show a way to make plugin info text variable
-    mDefineStaticLocalObject( PtrMan<BufferString>, commenttxt, (0) );
     if ( !commenttxt )
     {
-	commenttxt = new BufferString( "Showing a few DataPointSet things."
+        PtrMan<BufferString> newcomment =
+            new BufferString( "Showing a few DataPointSet things."
 		"\n\nAs present in version " );
-	*commenttxt += mODMajorVersion; *commenttxt += ".";
-	*commenttxt += mODMinorVersion;
-	*commenttxt += " ("; *commenttxt += GetFullODVersion();
-	*commenttxt += ").";
+	*newcomment += mODMajorVersion; *commenttxt += ".";
+	*newcomment += mODMinorVersion;
+	*newcomment += " ("; *commenttxt += GetFullODVersion();
+	*newcomment += ").";
+        
+        commenttxt.setIfNull( newcomment.release(), true );
     }
 
     mDefineStaticLocalObject( PluginInfo, retpi,(

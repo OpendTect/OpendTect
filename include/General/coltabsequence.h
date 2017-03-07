@@ -124,11 +124,11 @@ protected:
     TypeSet<ValueType>	g_;
     TypeSet<ValueType>	b_;
     TypeSet<TranspPtType> tr_;
-    size_type		nrsegments_;
 
-    Color		undefcolor_;
-    Color		markcolor_;
-    bool		disabled_;
+    size_type		nrsegments_	= 0;
+    Color		undefcolor_	= Color::LightGrey();
+    Color		markcolor_	= Color::DgbColor();
+    bool		disabled_	= false;
 
     inline size_type	gtSize() const	{ return x_.size(); }
 

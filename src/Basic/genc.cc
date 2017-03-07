@@ -176,13 +176,12 @@ int initWinSock()
 }
 #endif
 
+static PtrMan<BufferString> osident = 0;
 
 const char* GetOSIdentifier()
 {
-    mDefineStaticLocalObject( PtrMan<BufferString>, ret, (0) );
-
-    if ( ret )
-	return ret->buf();
+    if ( osident )
+	return osident->buf();
 
     BufferString* tmp = new BufferString;
 
@@ -217,9 +216,9 @@ const char* GetOSIdentifier()
 	tmp->set( "Unknown Linux");
 #endif
 
-    ret.setIfNull( tmp, true );
+    osident.setIfNull( tmp, true );
 
-    return ret->buf();
+    return osident->buf();
 }
 
 

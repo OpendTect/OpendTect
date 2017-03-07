@@ -21,12 +21,11 @@ static const char* newline_replacement = "#-NL-#";
 
 #define mChckStrm(act) if ( !strm_.isOK() ) { act; }
 
+static PtrMan<BufferString> projvernm = 0;
 
 static BufferString& getPVN()
 {
-    mDefineStaticLocalObject( PtrMan<BufferString>, projvernm,
-			      = new BufferString );
-
+    projvernm.createIfNull();
     return *projvernm;
 }
 

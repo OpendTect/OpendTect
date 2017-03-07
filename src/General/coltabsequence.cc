@@ -66,22 +66,13 @@ const char* ColTab::defSeqName()
 }
 
 
-#define mInitMembs() \
-      undefcolor_(Color::LightGrey()) \
-    , markcolor_(Color::DgbColor()) \
-    , nrsegments_( 0 ) \
-    , disabled_( false )
-
-
 ColTab::Sequence::Sequence()
-    : mInitMembs()
 {
     mTriggerInstanceCreatedNotifier();
 }
 
 
 ColTab::Sequence::Sequence( const char* nm )
-    : mInitMembs()
 {
     if ( nm && *nm )
 	*this = *SeqMGR().getAny( nm );
@@ -91,7 +82,6 @@ ColTab::Sequence::Sequence( const char* nm )
 
 ColTab::Sequence::Sequence( const ColTab::Sequence& oth )
     : SharedObject(oth)
-    , mInitMembs()
 {
     copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
