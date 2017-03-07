@@ -53,6 +53,7 @@ protected:
     bool			computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
     ConstRefMan<Function>	getInputFunction(const BinID& bid,int& source);
+    void			fetchPerfectFit(const BinID&);
 
     ObjectSet<const Function>	velocityfunctions_;
     TypeSet<int>		sources_;

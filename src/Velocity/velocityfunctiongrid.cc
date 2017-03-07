@@ -17,85 +17,130 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "paralleltask.h"
 
+#include "hiddenparam.h"
+
 namespace Vel
 {
 
+HiddenParam<GriddedFunction,const Function*> directsourcemgr_( 0 );
 
 GriddedFunction::GriddedFunction( GriddedSource& source )
     : Function(source)
     , gridder_(0)
     , layermodel_(0)
-{}
+{
+    directsourcemgr_.setParam( this, 0 );
+}
 
 
 GriddedFunction::~GriddedFunction()
 {
     deepUnRef( velocityfunctions_ );
     delete gridder_;
+    const Function* directsource = directsourcemgr_.getParam( this );
+    if ( directsource )
+	directsource->unRef();
+
+    directsourcemgr_.removeParam( this );
 }
 
 
 bool GriddedFunction::moveTo( const BinID& bid )
 {
-    if ( !Function::moveTo( bid ) )
+    if ( !Function::moveTo(bid) )
 	return false;
+
+    fetchPerfectFit( bid );
+
+    mDynamicCastGet(InverseDistanceGridder2D*,invdistgridder,gridder_)
+    mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
+    if ( ( invdistgridder && mIsUdf(invdistgridder->getSearchRadius()) ) ||
+	 rbfgridder )
+	return true;
 
     return fetchSources();
 }
 
 
+void GriddedFunction::fetchPerfectFit( const BinID& bid )
+{
+    mDynamicCastGet( GriddedSource&, gvs, source_ );
+    if ( !gvs.sourcepos_.isValid(bid) )
+    {
+	const Function* directsource = directsourcemgr_.getParam( this );
+	if ( directsource )
+	    directsource->unRef();
+
+	directsourcemgr_.setParam( this, 0 );
+	return;
+    }
+
+    int funcsource;
+    ConstRefMan<Function> velfunc = getInputFunction( bid_, funcsource );
+    if	( !velfunc )
+    {
+	const Function* directsource = directsourcemgr_.getParam( this );
+	if ( directsource )
+	    directsource->unRef();
+
+	directsourcemgr_.setParam( this, 0 );
+	return;
+    }
+
+    velfunc->ref();
+    directsourcemgr_.setParam( this, velfunc );
+}
+
+
 bool GriddedFunction::fetchSources()
 {
-    if ( mIsUdf(bid_.inl()) || mIsUdf(bid_.crl() ) )
-	return false;
-
-    mDynamicCastGet( GriddedSource&, gvs, source_ );
-
     ObjectSet<const Function> velfuncs;
     TypeSet<int> velfuncsource;
 
-    //Search for perfect fit (i.e no gridding)
-    if ( gvs.sourcepos_.isValid(bid_) )
-    {
-	int funcsource;
-	ConstRefMan<Function> velfunc = getInputFunction( bid_, funcsource );
-	if  ( velfunc )
-	{
-	    velfunc->ref();
-	    velfuncs += velfunc;
-	    velfuncsource += funcsource;
-	}
-    }
+    if ( !gridder_->getPoints() )
+	return false;
 
-    if ( !velfuncs.size() ) //no perfect fit
+    const TypeSet<Coord>& gridderpoints = *gridder_->getPoints();
+    TypeSet<double> weights;
+    TypeSet<int> usedpoints;
+    mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
+    if ( rbfgridder )
     {
-	TypeSet<double> weights;
-	TypeSet<int> usedpoints;
+	const TypeSet<Coord>::size_type nrpoints = gridderpoints.size();
+	for ( TypeSet<Coord>::size_type idx=0; idx<nrpoints; idx++ )
+	    usedpoints += idx;
+    }
+    else
+    {
+	if ( mIsUdf(bid_.inl()) || mIsUdf(bid_.crl() ) )
+	    return false;
+
 	const Coord workpos = SI().transform( bid_ );
 	if ( gridder_ && !gridder_->getWeights(workpos,weights,usedpoints) )
 	    return false;
-
-	const TypeSet<BinID>& binids = gvs.gridsourcebids_;
-	for ( int idx=0; idx<usedpoints.size(); idx++ )
-	{
-	    const BinID curbid = binids[usedpoints[idx]];
-
-	    int funcsource;
-	    ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
-	    if ( !velfunc )
-	    {
-		pErrMsg("Error");
-		deepUnRef( velfuncs );
-		return false;
-	    }
-
-	    velfunc->ref();
-	    velfuncs += velfunc;
-	    velfuncsource += funcsource;
-	}
     }
 
-    if ( !velfuncs.size() )
+    mDynamicCastGet( GriddedSource&, gvs, source_ );
+    const TypeSet<BinID>& binids = gvs.gridsourcebids_;
+    for ( TypeSet<Coord>::size_type idx=0; idx<usedpoints.size(); idx++ )
+    {
+	const BinID curbid = binids[usedpoints[idx]];
+
+	int funcsource;
+	ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
+	if ( !velfunc )
+	{
+	    pErrMsg("Error");
+	    deepUnRef( velfuncs );
+	    return false;
+	}
+
+	velfunc->ref();
+	velfuncs += velfunc;
+	velfuncsource += funcsource;
+    }
+
+    if ( velfuncs.isEmpty() )
 	return false;
 
     if ( velfuncs.size()>1 && !gridder_ )
@@ -192,21 +237,37 @@ StepInterval<float> GriddedFunction::getAvailableZ() const
 bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
-    const bool nogridding = velocityfunctions_.size()==1;
+    const Function* directsource = directsourcemgr_.getParam( this );
+    const bool nogridding = directsource;
+    mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
+    const bool weightsarevaluesdependent = rbfgridder;
 
-    const bool doinverse = getDesc().isVelocity();
-    const Coord workpos = SI().transform( bid_ );
+    const bool doinverse = nogridding ? false : getDesc().isVelocity();
+    const Coord workpos = nogridding ? Coord::udf() : SI().transform( bid_ );
     TypeSet<double> weights;
     TypeSet<int> usedpoints;
-    if ( !gridder_ || !gridder_->getWeights(workpos,weights,usedpoints) )
-	return false;
+    if ( !nogridding )
+    {
+	if ( !gridder_ || !gridder_->getPoints() )
+	    return false;
+
+	const TypeSet<Coord>& gridderpoints = *gridder_->getPoints();
+	if ( weightsarevaluesdependent )
+	{
+	    const TypeSet<Coord>::size_type nrpoints = gridderpoints.size();
+	    for ( TypeSet<Coord>::size_type idx=0; idx<nrpoints; idx++ )
+		usedpoints += idx;
+	}
+	else if ( !gridder_->getWeights(workpos,weights,usedpoints) )
+	    return false;
+    }
 
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;
 	if ( nogridding )
 	{
-	    res[idx] = velocityfunctions_[0]->getVelocity( z );
+	    res[idx] = directsource->getVelocity( z );
 	    continue;
 	}
 
@@ -270,7 +331,12 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	}
 
 	gridder_->setValues( gridvalues_ );
-	const float val = gridder_->getValue( workpos, &weights, &usedpoints );
+	if ( rbfgridder )
+	    gridder_->setTrend( PolyTrend::Order2 );
+
+	const float val = rbfgridder
+			? gridder_->getValue( workpos )
+			: gridder_->getValue( workpos, &weights, &usedpoints );
 	if ( doinverse )
 	    res[idx] = mIsZero(val, 1e-7 ) ? mUdf(float) : 1.0f/val;
 	else
