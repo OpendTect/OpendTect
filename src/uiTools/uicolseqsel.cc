@@ -304,6 +304,7 @@ typedef ColTab::SeqUseMode SeqUseMode;
 
 uiColSeqUseModeToolBarSelector( uiParent* p )
     : uiGraphicsView(p,"SeqUseMode selector for Toolbar")
+    , mode_(ColTab::UnflippedSingle)
     , meh_(getMouseEventHandler())
     , pixmapitm_(0)
     , selitms_(0)
@@ -314,6 +315,11 @@ uiColSeqUseModeToolBarSelector( uiParent* p )
     setMaximumWidth( uiObject::iconSize() );
     setMaximumHeight( uiObject::iconSize() );
     mAttachCB( postFinalise(), uiColSeqUseModeToolBarSelector::initCB );
+}
+
+~uiColSeqUseModeToolBarSelector()
+{
+    detachAllNotifiers();
 }
 
 void initCB( CallBacker* )
