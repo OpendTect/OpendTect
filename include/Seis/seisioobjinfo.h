@@ -32,7 +32,6 @@ namespace ZDomain { class Def; }
 mExpClass(Seis) SeisIOObjInfo
 {
 public:
-
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const MultiID&);
@@ -65,6 +64,8 @@ public:
 
     bool		getDefSpaceInfo(SpaceInfo&) const;
     int			expectedMBs(const SpaceInfo&) const;
+    od_int64		getFileSize() const;
+    static od_int64	getFileSize(const char* fnm,int& nrfiles);
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const; // Only CBVS
     bool		getDataChar(DataCharacteristics&) const;

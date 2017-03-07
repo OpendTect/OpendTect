@@ -457,11 +457,26 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     subselfld_->attach( alignedBelow, seissel_ );
 
+    formatdiskfld_ = new uiGenInput( leftgrp, tr("Format on disk") );
+    formatdiskfld_->setReadOnly();
+    sizediskfld_ = new uiGenInput( leftgrp, tr("Size on disk") );
+    sizediskfld_->setReadOnly();
+    formatdiskfld_->attach( alignedBelow, subselfld_ );
+    sizediskfld_->attach( rightTo, formatdiskfld_ );
+
+    BufferStringSet formats;
+    const BufferStringSet& keys = DataCharacteristics::UserTypeDef().keys();
+    for ( int idx=0; idx<keys.size(); idx++ )
+	formats.add( keys.get(idx).buf()+4 );
+
     typefld_ = new uiGenInput( leftgrp, tr("Load as"),
-		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
+		StringListInpSpec(formats) );
     typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
-    typefld_->setValue( (int)DataCharacteristics::Auto );
-    typefld_->attach( alignedBelow, subselfld_ );
+    typefld_->attach( alignedBelow, formatdiskfld_ );
+
+    memusagefld_ = new uiGenInput( leftgrp, tr("Est usage") );
+    memusagefld_->setReadOnly();
+    memusagefld_->attach( alignedBelow, sizediskfld_ );
 
     doscalefld_ = new uiGenInput( leftgrp, tr("Scale Values"),
 				  BoolInpSpec(false) );
@@ -575,7 +590,10 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     else
     {
 	if ( !info.getRanges(tkzs) ) // TODO: Add message
+	{
+	    histfld_->setEmpty();
 	    return;
+	}
     }
 
     const od_int64 totalsz = tkzs.hsamp_.totalNr();
@@ -644,9 +662,24 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
     const IOObj* ioobj = seissel_->ioobj();
     if ( !ioobj ) return;
 
+    NotifyStopper ns( subselfld_->selChange );
+    const SeisIOObjInfo info( ioobj );
     typefld_->setValue( 0 );
     subselfld_->setInput( *ioobj );
+
+    BufferString formatstr;
+    DataCharacteristics dc; info.getDataChar( dc );
+    const FixedString usertypestr =
+	DataCharacteristics::toString( dc.userType() );
+    if ( usertypestr.size() > 4 )
+	formatstr.set( usertypestr.buf()+4 );
+    formatdiskfld_->setText( formatstr );
+
+    const od_int64 filesz = info.getFileSize();
+    sizediskfld_->setText( File::getFileSizeString(filesz) );
+
     selChangeCB( 0 );
+    fillHist( 0 );
 }
 
 
@@ -671,27 +704,18 @@ void uiSeisPreLoadSel::getDataChar( DataCharacteristics& dc ) const
 }
 
 
-#define mGetExtremeVal( rg, positiveextreme ) \
-    ((samesign && positiveextreme^(rg.start>0)) ? 0 : \
-    (positiveextreme ? mMAX(rg.start,rg.stop) : mMIN(rg.start,rg.stop)));
-
 void uiSeisPreLoadSel::updateScaleFld()
 {
     SeisIOObjInfo info( seissel_->ioobj() );
     DataCharacteristics dcstor; info.getDataChar( dcstor );
     DataCharacteristics dc; getDataChar( dc );
-    Interval<double> intv; intv.setUdf();
-    if ( dc.nrBytes() < dcstor.nrBytes() || dc.isSigned() != dcstor.isSigned() )
-    {
-	intv.start = dc.getLimitValue(false);
-	intv.stop = dc.getLimitValue(true);
-    }
-
-    torgfld_->setValue( intv );
-
-    const DataCharacteristics::UserType type(
-		(DataCharacteristics::UserType)typefld_->getIntValue() );
-    doscalefld_->setValue( type != DataCharacteristics::Auto );
+    const bool doscale = dc.nrBytes()<dcstor.nrBytes() ||
+			 dc.isSigned()!=dcstor.isSigned();
+    if ( doscale )
+	torgfld_->setValue( Interval<double>(dc.getLimitValue(false),
+					     dc.getLimitValue(true)) );
+    doscalefld_->setValue( doscale );
+    doscalefld_->setReadOnly( !doscale );
     doScaleCB( 0 );
 }
 
@@ -701,26 +725,20 @@ void uiSeisPreLoadSel::updateEstUsage()
     SeisIOObjInfo info( seissel_->ioobj() );
     const int nrcomp = info.nrComponents();
 
-    uiString infotxt = uiStrings::phrData(tr("format on disk: "));
+    BufferString infotxt;
     if ( nrcomp > 0 )
     {
-	DataCharacteristics dc; info.getDataChar( dc );
-	const FixedString usertypestr =
-	    DataCharacteristics::toString( dc.userType() );
-	if ( usertypestr.size() > 4 )
-	    infotxt.append( usertypestr.buf()+4 );
-
+	DataCharacteristics dc;
 	getDataChar( dc );
 	const od_int64 nrs = subselfld_->expectedNrSamples();
 	const od_int64 nrt = subselfld_->expectedNrTraces();
 	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
-	infotxt.append( tr(". Estimated memory usage: ") )
-	       .append( File::getFileSizeString(nrbytes/1024) );
+	infotxt.set( File::getFileSizeString(nrbytes/1024) );
     }
     else
-	infotxt.append( "?" );
+	infotxt.set( "-" );
 
-    toStatusBar( infotxt );
+    memusagefld_->setText( infotxt );
 }
 
 
