@@ -453,7 +453,7 @@ uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
     colseqsel_ = new uiColSeqSel( this, OD::Horizontal,
 				    uiStrings::sColorTable() );
     colseqsel_->attach( alignedBelow, lastcommonfld_ );
-    colsequsemodesel_ = new uiColSeqUseMode( this, false );
+    colsequsemodesel_ = new uiColSeqUseModeSel( this, false );
     colsequsemodesel_->attach( alignedBelow, colseqsel_ );
 
     mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);

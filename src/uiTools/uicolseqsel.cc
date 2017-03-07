@@ -80,6 +80,7 @@ void uiColSeqSelTool::orientationChanged()
 
 uiColSeqSelTool::~uiColSeqSelTool()
 {
+    detachAllNotifiers();
 }
 
 
@@ -296,13 +297,13 @@ uiColSeqToolBar::uiColSeqToolBar( uiParent* p )
 }
 
 
-class uiColSeqUseModeToolBarSelector : public uiGraphicsView
-{ mODTextTranslationClass(uiColSeqUseModeToolBarSelector);
+class uiColSeqUseModeCompactSel : public uiGraphicsView
+{ mODTextTranslationClass(uiColSeqUseModeCompactSel);
 public:
 
 typedef ColTab::SeqUseMode SeqUseMode;
 
-uiColSeqUseModeToolBarSelector( uiParent* p )
+uiColSeqUseModeCompactSel( uiParent* p )
     : uiGraphicsView(p,"SeqUseMode selector for Toolbar")
     , mode_(ColTab::UnflippedSingle)
     , meh_(getMouseEventHandler())
@@ -312,12 +313,14 @@ uiColSeqUseModeToolBarSelector( uiParent* p )
     , modeChange(this)
 {
     disableScrollZoom();
+    setMinimumWidth( uiObject::iconSize() );
+    setMinimumHeight( uiObject::iconSize() );
     setMaximumWidth( uiObject::iconSize() );
     setMaximumHeight( uiObject::iconSize() );
-    mAttachCB( postFinalise(), uiColSeqUseModeToolBarSelector::initCB );
+    mAttachCB( postFinalise(), uiColSeqUseModeCompactSel::initCB );
 }
 
-~uiColSeqUseModeToolBarSelector()
+~uiColSeqUseModeCompactSel()
 {
     detachAllNotifiers();
 }
@@ -325,11 +328,11 @@ uiColSeqUseModeToolBarSelector( uiParent* p )
 void initCB( CallBacker* )
 {
     mAttachCB( meh_.buttonReleased,
-		uiColSeqUseModeToolBarSelector::mouseReleaseCB );
-    mAttachCB( meh_.movement, uiColSeqUseModeToolBarSelector::mouseMoveCB );
+		uiColSeqUseModeCompactSel::mouseReleaseCB );
+    mAttachCB( meh_.movement, uiColSeqUseModeCompactSel::mouseMoveCB );
 
-    mAttachCB( reSize, uiColSeqUseModeToolBarSelector::reDrawCB );
-    mAttachCB( pointerLeft, uiColSeqUseModeToolBarSelector::mouseLeaveCB );
+    mAttachCB( reSize, uiColSeqUseModeCompactSel::reDrawCB );
+    mAttachCB( pointerLeft, uiColSeqUseModeCompactSel::mouseLeaveCB );
 
     drawAsIs();
 }
@@ -462,23 +465,24 @@ void setMode( SeqUseMode newmode )
     uiGraphicsItemGroup*			selitms_;
     uiGraphicsItemGroup*			curitms_;
 
-    Notifier<uiColSeqUseModeToolBarSelector>	modeChange;
+    Notifier<uiColSeqUseModeCompactSel>		modeChange;
 
 };
 
 
-uiColSeqUseMode::uiColSeqUseMode( uiParent* p, bool fortb, uiString lbltxt )
-    : uiGroup(p,"ColTab SeqUseMode Group")
+uiColSeqUseModeSel::uiColSeqUseModeSel( uiParent* p, bool compact,
+					uiString lbltxt )
+    : uiGroup(p,"SeqUseMode Sel Group")
     , modeChange(this)
-    , tbsel_(0)
+    , compactsel_(0)
     , flippedbox_(0)
 {
     uiLabel* lbl = lbltxt.isEmpty() ? 0 : new uiLabel( this, lbltxt );
 
-    if ( fortb )
+    if ( compact )
     {
-	tbsel_ = new uiColSeqUseModeToolBarSelector( 0 );
-	mAttachCB( tbsel_->modeChange, uiColSeqUseMode::modeChgCB );
+	compactsel_ = new uiColSeqUseModeCompactSel( 0 );
+	mAttachCB( compactsel_->modeChange, uiColSeqUseModeSel::modeChgCB );
     }
     else
     {
@@ -486,18 +490,24 @@ uiColSeqUseMode::uiColSeqUseMode( uiParent* p, bool fortb, uiString lbltxt )
 	cyclicbox_ = new uiCheckBox( this, tr("Cyclic") );
 	cyclicbox_->attach( rightOf, flippedbox_ );
 	lbl->attach( leftOf, flippedbox_ );
-	mAttachCB( flippedbox_->activated, uiColSeqUseMode::modeChgCB );
-	mAttachCB( cyclicbox_->activated, uiColSeqUseMode::modeChgCB );
+	mAttachCB( flippedbox_->activated, uiColSeqUseModeSel::modeChgCB );
+	mAttachCB( cyclicbox_->activated, uiColSeqUseModeSel::modeChgCB );
 	setHAlignObj( flippedbox_ );
     }
 
 }
 
 
-void uiColSeqUseMode::addObjectsToToolBar( uiToolBar& tbar )
+uiColSeqUseModeSel::~uiColSeqUseModeSel()
 {
-    if ( tbsel_ )
-	tbar.addObject( tbsel_ );
+    detachAllNotifiers();
+}
+
+
+void uiColSeqUseModeSel::addObjectsToToolBar( uiToolBar& tbar )
+{
+    if ( compactsel_ )
+	tbar.addObject( compactsel_ );
     else
     {
 	pErrMsg("Adding to toolbar ... but that wasn't planned");
@@ -507,21 +517,21 @@ void uiColSeqUseMode::addObjectsToToolBar( uiToolBar& tbar )
 }
 
 
-ColTab::SeqUseMode uiColSeqUseMode::mode() const
+ColTab::SeqUseMode uiColSeqUseModeSel::mode() const
 {
-    return tbsel_ ? tbsel_->mode()
+    return compactsel_ ? compactsel_->mode()
 	:  ColTab::getSeqUseMode( flippedbox_->isChecked(),
 				  cyclicbox_->isChecked() );
 }
 
 
-void uiColSeqUseMode::setMode( ColTab::SeqUseMode usemode )
+void uiColSeqUseModeSel::setMode( ColTab::SeqUseMode usemode )
 {
     if ( usemode == mode() )
 	return;
 
-    if ( tbsel_ )
-	tbsel_->setMode( usemode );
+    if ( compactsel_ )
+	compactsel_->setMode( usemode );
     else
     {
 	flippedbox_->setChecked( ColTab::isFlipped(usemode) );

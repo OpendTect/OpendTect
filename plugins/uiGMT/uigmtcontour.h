@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiColSeqSel;
-class uiColSeqUseMode;
+class uiColSeqUseModeSel;
 class uiComboBox;
 class uiGenInput;
 class uiIOObjSel;
@@ -57,7 +57,7 @@ protected:
     uiSelLineStyle*	lsfld_;
     uiCheckBox*		fillfld_;
     uiColSeqSel*	colseqfld_;
-    uiColSeqUseMode*	sequsefld_;
+    uiColSeqUseModeSel*	sequsefld_;
 
     void		readCB(CallBacker*);
     void		resetCB(CallBacker*);

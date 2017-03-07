@@ -52,7 +52,7 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
 				      FloatInpIntervalSpec() );
     rangefld_->setWithCheck( true );
 
-    usemodefld_ = new uiColSeqUseMode( this, false );
+    usemodefld_ = new uiColSeqUseModeSel( this, false );
     usemodefld_->attach( alignedBelow, rangefld_ );
 
     clipfld_ = new uiGenInput( this, tr("Percentage clipped"),
@@ -186,7 +186,7 @@ protected:
     uiGenInput*		clipfld_;
     uiGenInput*		skipsymscanfld_;
     uiGenInput*		midvalfld_;
-    uiColSeqUseMode*	usemodefld_;
+    uiColSeqUseModeSel*	usemodefld_;
 
 };
 
@@ -538,8 +538,8 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 {
     uiColSeqSelTool::initialise( orient );
 
-    usemodesel_ = new uiColSeqUseMode( getParent(), true,
-				       uiString::emptyString() );
+    usemodesel_ = new uiColSeqUseModeSel( getParent(), true,
+					  uiString::emptyString() );
 
     manip_ = new uiManipMapperSetup( *this );
     if ( isGroup() )
@@ -641,8 +641,6 @@ uiColTabSel::uiColTabSel( uiParent* p, OD::Orientation orient,
 	uiLabel* lbl = new uiLabel( this, lbltxt );
 	lbl->attach( leftOf, disp_ );
     }
-
-    manip_->attach( rightOf, disp_ );
 }
 
 

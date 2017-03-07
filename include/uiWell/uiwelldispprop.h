@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiColorInput;
-class uiColSeqUseMode;
+class uiColSeqUseModeSel;
 class uiComboBox;
 class uiColSeqSel;
 class uiGenInput;
@@ -197,7 +197,7 @@ protected:
     uiCheckBox*		revertlogfld_;
     uiCheckBox*		singlfillcolfld_;
     uiColSeqSel*	colseqselfld_;
-    uiColSeqUseMode*	sequsefld_;
+    uiColSeqUseModeSel*	sequsefld_;
     uiColorInput*	seiscolorfld_;
     uiColorInput*	fillcolorfld_;
 

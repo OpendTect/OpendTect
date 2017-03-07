@@ -23,7 +23,7 @@ class uiColorInput;
 class uiSelLineStyle;
 class uiSelLineStyle;
 class uiColSeqSel;
-class uiColSeqUseMode;
+class uiColSeqUseModeSel;
 
 /*!\brief uiFlatViewer properties tabs. */
 
@@ -139,7 +139,7 @@ protected:
     virtual BufferString		dataName() const;
 
     uiColSeqSel*	colseqsel_;
-    uiColSeqUseMode*	colsequsemodesel_;
+    uiColSeqUseModeSel*	colsequsemodesel_;
 
     virtual void	handleFieldDisplay(bool);
     void		dispSel(CallBacker*);

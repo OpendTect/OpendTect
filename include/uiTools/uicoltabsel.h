@@ -66,7 +66,7 @@ protected:
     RefMan<DistribType>	distrib_;
 
     uiManipMapperSetup*	manip_;
-    uiColSeqUseMode*	usemodesel_;
+    uiColSeqUseModeSel*	usemodesel_;
 
     void		initialise(OD::Orientation);
     void		handleMapperSetupChange();
