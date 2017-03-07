@@ -291,6 +291,8 @@ mGlobal(Basic) uiString toUiString(float);
 mGlobal(Basic) uiString toUiString(double);
 mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
+mGlobal(Basic) uiString toUiString(float,char format,int precision);
+mGlobal(Basic) uiString toUiString(double,char format,int precision);
 
 
 //User when string should be revisited later
