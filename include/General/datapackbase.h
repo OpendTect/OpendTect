@@ -127,8 +127,9 @@ public:
 				~MapDataPack();
 
     Array2D<float>&		data();
-    const Array2D<float>&	rawData() const	{ return *arr2d_; }
     FlatPosData&		posData();
+    const Array2D<float>&	rawData() const		{ return *arr2d_; }
+    const FlatPosData&		rawPosData() const	{ return posdata_; }
     void			setDimNames(const char*,const char*,bool forxy);
     const char*			dimName( bool dim0 ) const;
 
