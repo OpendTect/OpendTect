@@ -790,11 +790,14 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
  \
     typ nrsteps = (start - b.start) / step; \
     int nrstepsi = mNINT32( nrsteps ); \
-    typ diff = nrsteps - nrstepsi; \
-    return ( (diff) < (releps) && (diff) > (-releps) ); \
+    if ( !nrstepsi ) return mIsEqual( start, b.start, start * releps ); \
+\
+    typ reldiff = (nrsteps - nrstepsi) / nrsteps; \
+    return ( (reldiff) < (releps) && (reldiff) > (-releps) ); \
 }
 
 mDefFltisCompat(float,1e-5f)
 mDefFltisCompat(double,1e-10)
+// Do not change the above releps values as they originate from the types.
 
 #endif
