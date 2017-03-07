@@ -518,7 +518,7 @@ void RandomLineSet::getGeometry( const DBKey& rdlsid, TypeSet<BinID>& knots,
 				 StepInterval<float>* zrg )
 {
     Geometry::RandomLineSet rls; uiString errmsg;
-    const PtrMan<IOObj> rdmline = DBM().get( rdlsid );
+    ConstPtrMan<IOObj> rdmline = DBM().get( rdlsid );
     RandomLineSetTranslator::retrieve( rls, rdmline, errmsg );
     if ( !errmsg.isEmpty() || rls.isEmpty() )
 	return;

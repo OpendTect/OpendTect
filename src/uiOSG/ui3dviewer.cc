@@ -1423,7 +1423,7 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
 {
     if ( par.isEmpty() ) return false;
 
-    const PtrMan<IOPar> survhomepospar =
+    ConstPtrMan<IOPar> survhomepospar =
 	SI().getDefaultPars().subselect( sKeyHomePos() );
     if ( !survhomepospar )
 	  fillCameraPos( homepos_ );
