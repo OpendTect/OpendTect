@@ -10,6 +10,7 @@ set( OD_TEST_PROGS
 	arraymath.cc
 	checksum.cc
 	contcurvinterpol.cc
+	datadistributionextracter.cc
 	gaussianprobdenfunc.cc
 	simpnumer.cc
 	sorting.cc

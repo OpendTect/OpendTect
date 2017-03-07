@@ -21,8 +21,11 @@ template <class VT> class DataDistributionIter;
 
 /*!\brief Sharable data distribution. Sampling defaults to 0 step 1.
 
-  Note that it is a bad idea to put negative values in the data. We're
-  not checking.
+  The SamplingData describes the positions of the bin *centers*. Thus, if
+  you have a hard start and stop, calculate the step like (stop-start)/nrbins,
+  then put sampling.start at start + 0.5*step.
+
+  Note that it is a bad idea to have negative data (P<0). We're not checking.
 
 */
 
@@ -54,8 +57,11 @@ public:
     mImplSimpleMonitoredGetSet( inline,sampling,setSampling,SamplingType,
 				sampling_,cSamplingChange());
 
+    inline int			getBin(VT) const;
     inline VT			operator[](IdxType idx) const;
     inline void			set(IdxType,VT);
+    inline void			add(VT*);
+				//!< fast but unchecked
     VT*				getArr()		{ return data_.arr(); }
 				//!< for fast non-shared usage
 
@@ -70,6 +76,7 @@ public:
     static ChangeType		cSamplingChange()	{ return 3; }
 
     static const DataDistribution<VT>& getEmptyDistrib();
+    static inline int		getBinFor(VT,const SamplingType&,int nrbins);
 
 protected:
 
@@ -197,6 +204,31 @@ typename DataDistribution<VT>::size_type DataDistribution<VT>::size() const
 
 
 template <class VT> inline
+int DataDistribution<VT>::getBinFor( VT t, const SamplingType& sd, int nrbins )
+{
+    const float fbin = sd.getfIndex( t );
+    int ret;
+    if ( fbin < 0 )
+	ret = 0;
+    else
+    {
+	ret = (int)( fbin + 0.5f );
+	if ( ret >= nrbins )
+	    ret = nrbins - 1;
+    }
+    return ret;
+}
+
+
+template <class VT> inline
+int DataDistribution<VT>::getBin( VT t ) const
+{
+    mLock4Read();
+    return getBinFor( t, sampling_, data_.size() );
+}
+
+
+template <class VT> inline
 VT DataDistribution<VT>::operator[]( IdxType idx ) const
 {
     mLock4Read();
@@ -233,10 +265,22 @@ void DataDistribution<VT>::set( IdxType idx, VT val )
 
 
 template <class VT> inline
+void DataDistribution<VT>::add( VT* vals )
+{
+    mLock4Write();
+    const size_type sz = data_.size();
+    for ( IdxType idx=0; idx<sz; idx++ )
+	data_[idx] += vals[idx];
+
+    mSendChgNotif( cDataChange(), cUnspecChgID() );
+}
+
+
+template <class VT> inline
 VT DataDistribution<VT>::sumOfValues() const
 {
     mLock4Read();
-    const size_type sz = size();
+    const size_type sz = data_.size();
     VT sumvals = VT(0);
     for ( IdxType idx=0; idx<sz; idx++ )
 	sumvals += data_[idx];
@@ -252,7 +296,7 @@ void DataDistribution<VT>::normalise()
 	return;
 
     mLock4Write();
-    const size_type sz = size();
+    const size_type sz = data_.size();
     for ( IdxType idx=0; idx<sz; idx++ )
 	data_[idx] /= sumvals;
 
