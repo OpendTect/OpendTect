@@ -408,15 +408,11 @@ bool HorizonFlatViewEditor::getPosID( const EM::EMObject& emobj,
 	bid.crl() = pos.nr_;
     }
 
-    for ( int idx=0; idx<emobj.nrSections(); idx++ )
+    const EM::PoasID candidatepid = EM::PosID::getFromRowCol( bid );
+    if ( emobj.isDefined(candidatepid) )
     {
-	if ( emobj.isDefined(emobj.sectionID(idx),bid.toInt64()) )
-	{
-	    pid.setObjectID( emobj.id() );
-	    pid.setSectionID( emobj.sectionID(idx) );
-	    pid.setSubID( bid.toInt64() );
-	    return true;
-	}
+	pid = candidatepid;
+	return true;
     }
 
     return false;

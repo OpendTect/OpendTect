@@ -33,9 +33,9 @@ mExpClass(EarthModel) Hor2DTo3D : public Executor
 { mODTextTranslationClass(Hor2DTo3D);
 public:
 				Hor2DTo3D(const Horizon2D&,Array2DInterpol*,
-					  Horizon3D&,TaskRunner* =0);  
+					  Horizon3D&,TaskRunner* =0);
 				// current 3d-hor content is removed
-				// Interpol is taken over, if is 0, only copy 
+				// Interpol is taken over, if is 0, only copy
 				// grid 2D to 3D.
 				// TaskRunner is only used in constructor
 				~Hor2DTo3D();

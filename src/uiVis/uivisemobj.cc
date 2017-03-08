@@ -90,9 +90,6 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 		    sectionidx += idy;
 	    }
 
-	    if ( sectionidx.size() )
-		sel.selsections = sectionidx;
-
 	    if ( hordisp )
 	    {
 		const StepInterval<int> rowrg = hordisp->geometryRowRange();

@@ -11,12 +11,47 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
+#include "binid.h"
 #include "coord.h"
-#include "ranges.h"
+#include "integerid.h"
 #include "notify.h"
+#include "ranges.h"
+#include "rowcol.h"
 #include "uistring.h"
 
-typedef od_int64 GeomPosID;
+
+class GeomPosID : public IntegerID<od_int64>
+{
+public:
+
+    inline		GeomPosID()	{}
+
+    static inline GeomPosID get( od_int64 i )
+				{ return GeomPosID(i); }
+    static inline GeomPosID getFromRowCol( const Pos::IdxPair& rc )
+				{ return GeomPosID(rc.toInt64()); }
+    static inline GeomPosID getFromRowCol( int row, int col )
+				{ return GeomPosID(RowCol(row,col).toInt64()); }
+
+    inline RowCol	getRowCol() const
+			{ return RowCol::fromInt64(getI()); }
+    inline BinID	getBinID() const
+			{ return BinID::fromInt64(getI()); }
+
+    inline bool		operator ==( const GeomPosID& oth ) const
+			{ return IntegerID<od_int64>::operator ==(oth); }
+    inline bool		operator !=( const GeomPosID& oth ) const
+			{ return IntegerID<od_int64>::operator !=(oth); }
+
+    static inline GeomPosID getInvalid() { return GeomPosID(-1); }
+
+protected:
+
+    inline		GeomPosID( od_int64 i )
+			    : IntegerID<od_int64>(i)	{}
+    friend class	TypeSet<GeomPosID>;
+};
+
 
 namespace Geometry
 {

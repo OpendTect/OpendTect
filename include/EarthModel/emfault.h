@@ -30,36 +30,34 @@ class FaultStickSetGeometry;
 mExpClass(EarthModel) FaultGeometry : public SurfaceGeometry
 {
 public:
-    virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
+    virtual bool	insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory)	{ return false; }
 
-    virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
+    virtual bool	insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    const DBKey* pickeddbkey,
 				    const char* pickednm,bool addtohistory)
 							{ return false; }
-    virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
+    virtual bool	insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    Pos::GeomID pickedgeomid,bool addtohistory)
 							{ return false; }
-    virtual bool        insertKnot(const SectionID&,const SubID&,
+    virtual bool        insertKnot(const PosID&,
 				   const Coord3& pos,bool addtohistory)
 							{ return false; }
-    virtual bool	removeStick(const SectionID&,int sticknr,
+    virtual bool	removeStick(int sticknr,
 				    bool addtohistory)	{ return false; }
-    virtual bool	removeKnot(const SectionID&,const SubID&,
+    virtual bool	removeKnot(const PosID&,
 				   bool addtohistory)	{ return false; }
 
-    virtual Coord3	getEditPlaneNormal(const SectionID&,
-						   int sticknr) const;
-    virtual const DBKey*	pickedDBKey(const SectionID&,int stcknr) const
+    virtual Coord3	getEditPlaneNormal(int sticknr) const;
+    virtual const DBKey*	pickedDBKey(int stcknr) const
 							{ return 0; }
-    virtual const char*		pickedName(const SectionID&,int sticknr) const
+    virtual const char*		pickedName(int sticknr) const
 							{ return 0; }
 
     virtual void	copySelectedSticksTo(FaultStickSetGeometry& destfssg,
-					     const SectionID& destsid,
 					     bool addtohistory) const;
 
     virtual int		nrSelectedSticks() const;
@@ -70,7 +68,7 @@ public:
 					   const FaultGeometry* ref=0);
     virtual void	removeSelectedDoubles(bool addtohistory,
 					      const FaultGeometry* ref=0);
-    virtual int		nrStickDoubles(const SectionID&,int sticknr,
+    virtual int		nrStickDoubles(int sticknr,
 				       const FaultGeometry* ref=0) const;
 
 protected:
@@ -110,8 +108,8 @@ public:
 					 bool addtohistory);
     bool			removeStick(int sticknr,bool);
 
-    bool			insertKnot(const SubID&,const Coord3&,bool);
-    bool			removeKnot(const SubID&, bool);
+    bool			insertKnot(const PosID&,const Coord3&,bool);
+    bool			removeKnot(const PosID&, bool);
 
     StepInterval<int>		rowRange() const;
     StepInterval<int>		colRange(int row) const;

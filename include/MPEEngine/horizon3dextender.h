@@ -38,8 +38,7 @@ public:
     const TrcKeyZSampling&	getExtBoundary() const;
 
 protected:
-				BaseHorizon3DExtender(EM::Horizon3D&,
-						      EM::SectionID);
+				BaseHorizon3DExtender(EM::Horizon3D&);
 
     virtual float		getDepth(const TrcKey& src,
 					 const TrcKey& target) const;
@@ -57,9 +56,8 @@ mExpClass(MPEEngine) Horizon3DExtender : public BaseHorizon3DExtender
 {
 public:
     static void			initClass();
-    static SectionExtender*	create(EM::EMObject*,EM::SectionID);
-				Horizon3DExtender(EM::Horizon3D&,
-						  EM::SectionID);
+    static SectionExtender*	create(EM::EMObject*);
+				Horizon3DExtender(EM::Horizon3D&);
 };
 
 } // namespace MPE

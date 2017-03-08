@@ -237,19 +237,18 @@ static EM::FaultStickSet* createFaultStickSet(
 	    EM::FSSMan().createTempObject(EM::FaultStickSet::typeStr()))
     if ( !emfss ) return 0;
 
-    EM::SectionID sid = emfss->sectionID( 0 );
     for ( int idx=0; idx<sticks.size(); idx++ )
     {
 	EM::FaultStick* stick = sticks[idx];
 	if ( stick->crds_.isEmpty() )
 	    continue;
 
-	emfss->geometry().insertStick( sid, stick->stickidx_, 0,
+	emfss->geometry().insertStick( stick->stickidx_, 0,
 			stick->crds_[0], stick->getNormal(false), false );
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
 	    const RowCol rc( stick->stickidx_, crdidx );
-	    emfss->geometry().insertKnot( sid, rc.toInt64(),
+	    emfss->geometry().insertKnot( EM::PosID::getFromRowCol(rc),
 				       stick->crds_[crdidx], false );
 	}
     }

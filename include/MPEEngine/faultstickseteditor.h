@@ -64,10 +64,10 @@ protected:
 				const Coord3* posnorm) const;
     void		getPidsOnStick(EM::PosID& insertpid,int sticknr,
 					const Coord3& pos) const;
-    
+
     const EM::FaultStickSet*	emFaultStickSet() const;
 
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Geometry::ElementEditor*	createEditor();
     Coord3			scalevector_;
     Coord			xtrans_;
     Coord			ytrans_;

@@ -124,16 +124,6 @@ bool IOObjInfo::getSectionIDs( TypeSet<SectionID>& secids ) const
 }
 
 
-bool IOObjInfo::getSectionNames( BufferStringSet& secnames ) const
-{
-    mGetReaderRet
-
-    for ( int idx=0; idx<reader_->nrSections(); idx++ )
-	secnames.add( reader_->sectionName(idx) );
-    return true;
-}
-
-
 bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
 {
     if ( !ioobj_ )

@@ -193,7 +193,7 @@ ImplicitBodyRegionExtractor( const DBKeySet& surflist,
 	{
 	    mDynamicCastGet( EM::Fault3D*, emflt, emobj );
 	    Geometry::FaultStickSurface* flt =
-		emflt ? emflt->geometry().sectionGeometry(0) : 0;
+		emflt ? emflt->geometry().geometryElement() : 0;
 	    if ( !flt ) continue;
 
 	    emflt->ref();
@@ -533,7 +533,7 @@ void computeHorOuterRange()
     for ( int idx=0; idx<hors_.size(); idx++ )
     {
 	const Geometry::BinIDSurface* surf =
-	    hors_[idx]->geometry().sectionGeometry(hors_[idx]->sectionID(0));
+	    hors_[idx]->geometry().geometryElement();
 	const Array2D<float>* depth = surf ? surf->getArray() : 0;
 	const int sz = depth ? mCast( int,depth->info().getTotalSz() ) : 0;
 	if ( !sz ) continue;

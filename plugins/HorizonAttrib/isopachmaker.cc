@@ -41,12 +41,10 @@ IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
     , msg_(tr("Creating Isochron"))
     , dataidx_(dataidx)
     , dps_(dps)
-    , sectid1_(hor1.sectionID(0))
-    , sectid2_(hor2.sectionID(0))
     , inmsec_(false)
     , sidcolidx_(mUdf(int))
 {
-    iter_ = hor1.createIterator( sectid1_ );
+    iter_ = hor1.createIterator();
     totnr_ = iter_->approximateSize();
 
     if ( dps_ )
@@ -80,7 +78,7 @@ int IsochronMaker::nextStep()
 	    vals[idx] = mUdf(float);
 
 	const int nrfixedcols = dps_->nrFixedCols();
-	vals[sidcolidx_+nrfixedcols] = sectid1_;
+	vals[sidcolidx_+nrfixedcols] = 0;
 	startsourceidx = nrfixedcols + (sidcolidx_ ? 0 : 1);
     }
 
@@ -88,16 +86,9 @@ int IsochronMaker::nextStep()
     {
 	const EM::PosID posid = iter_->next();
 	nrdone_++;
-	if ( posid.objectID().isInvalid() )
-	    return finishWork();
-
-	if ( posid.sectionID() != sectid1_ )
-	    continue;
-
-	const EM::SubID subid = posid.subID();
-	const Coord3 pos1( hor1_.getPos( sectid1_, subid ) );
+	const Coord3 pos1( hor1_.getPos( posid ) );
 	const float z1 = (float) pos1.z_;
-	const float z2 = (float) hor2_.getPos( sectid2_, subid ).z_;
+	const float z2 = (float) hor2_.getPos( posid ).z_;
 	if ( mIsUdf(z1) || mIsUdf(z2) )
 	{
 	    if ( dataidx_ != -1 )

@@ -31,12 +31,12 @@ public:
     uiString		message() const	{ return msg_; }
     uiString		nrDoneText() const
 			{ return tr("Positions handled"); }
-    od_int64 		nrDone() const		{ return nrdone_; }
+    od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totnr_; }
 
     void		setUnits( const bool isinmsc) { inmsec_ = isinmsc; }
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
-	    			      bool overwrite,od_ostream* strm=0);
+				      bool overwrite,od_ostream* strm=0);
     static const char*	sKeyHorizonID();
     static const char*	sKeyCalculateToHorID();
     static const char*	sKeyAttribName();
@@ -54,7 +54,5 @@ protected:
     const EM::Horizon3D&	hor2_;
     DataPointSet*		dps_;
     EM::EMObjectIterator*	iter_;
-    const EM::SectionID		sectid1_;
-    const EM::SectionID		sectid2_;
     bool			inmsec_;
 };

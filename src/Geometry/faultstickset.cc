@@ -123,7 +123,7 @@ int FaultStick::size() const
 \
     const unsigned int hiddenmask = HiddenLowestBit<<(sceneidx+1);
 
-    
+
 FaultStickSet::FaultStickSet()
     : firstrow_(0)
     , curstickidnr_(0)
@@ -145,7 +145,7 @@ Element* FaultStickSet::clone() const
 
 
 
-bool FaultStickSet::insertStick( const Coord3& firstpos, 
+bool FaultStickSet::insertStick( const Coord3& firstpos,
 				 const Coord3& editnormal, int sticknr,
 				 int firstcol )
 {
@@ -179,7 +179,7 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
     }
 
     newstick->setKnot( 0, firstpos, NoStatus );
-    triggerNrPosCh( RowCol(stickidx,StickInsert).toInt64() );
+    triggerNrPosCh( GeomPosID::getFromRowCol(stickidx,StickInsert) );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
 
@@ -196,10 +196,10 @@ bool FaultStickSet::removeStick( int sticknr )
     if ( !stickidx )
 	firstrow_++;
 
-    triggerNrPosCh( RowCol(stickidx,StickRemove).toInt64() );
+    triggerNrPosCh( GeomPosID::getFromRowCol(stickidx,StickRemove) );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
-    
+
     return true;
 }
 
@@ -222,7 +222,7 @@ bool FaultStickSet::insertKnot( const RowCol& rc, const Coord3& pos )
     else
 	sticks_[stickidx]->setKnot( knotidx, pos, NoStatus );
 
-    triggerNrPosCh( RowCol(stickidx,StickChange).toInt64() );
+    triggerNrPosCh( GeomPosID::getFromRowCol(stickidx,StickChange) );
     return true;
 }
 
@@ -240,8 +240,8 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
     if ( !knotidx )
 	sticks_[stickidx]->firstCol()++;
 
-    triggerNrPosCh( RowCol(stickidx,StickChange).toInt64() );
-    
+    triggerNrPosCh( GeomPosID::getFromRowCol(stickidx,StickChange) );
+
     return true;
 }
 
@@ -270,8 +270,8 @@ StepInterval<int> FaultStickSet::rowRange() const
 {
     if ( sticks_.isEmpty() )
 	return mEmptyInterval();
-    
-    return StepInterval<int>( firstrow_, firstrow_+sticks_.size()-1, 1 ); 
+
+    return StepInterval<int>( firstrow_, firstrow_+sticks_.size()-1, 1 );
 }
 
 
@@ -293,7 +293,7 @@ bool FaultStickSet::setKnot( const RowCol& rc, const Coord3& pos )
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
 
     sticks_[stickidx]->setKnot( knotidx, pos );
-    triggerMovement( RowCol(stickidx,StickChange).toInt64() );
+    triggerMovement( GeomPosID::getFromRowCol(stickidx,StickChange) );
     return true;
 }
 
@@ -302,7 +302,7 @@ Coord3 FaultStickSet::getKnot( const RowCol& rc ) const
 {
     mGetValidStickIdx( stickidx, rc.row(), 0, Coord3::udf() );
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, Coord3::udf() );
-    
+
     return sticks_[stickidx]->getKnot( knotidx );
 }
 
@@ -338,7 +338,7 @@ void FaultStickSet::addUdfRow( int sticknr, int firstknotnr, int nrknots )
 {
     if ( isEmpty() )
 	firstrow_ = sticknr;
-    
+
     FaultStick* newstick = new FaultStick( firstknotnr, Coord3::udf(),
 					    NoStatus, nrknots );
     sticks_ += newstick;
@@ -361,7 +361,7 @@ static double pointToSegmentDist( const Coord3& point,
 	return d02;
 
     double sp = 0.5 *( d01+d02+d12 );
-    double area = Math::Sqrt( sp*(sp-d01)*(sp-d02)*(sp-d12) );  
+    double area = Math::Sqrt( sp*(sp-d01)*(sp-d02)*(sp-d12) );
     return 2.0*area/d12;
 }
 
@@ -475,9 +475,9 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 	for ( int idy=tailidx+1; idy<sticknrs.size(); idy++ )
 	{
 	    const double dist0 = interStickDist( sticknrs[0],
-		    				 sticknrs[idy], zscale );
+						 sticknrs[idy], zscale );
 	    const double dist1 = interStickDist( sticknrs[tailidx],
-		    				 sticknrs[idy], zscale );
+						 sticknrs[idy], zscale );
 
 	    if ( mMIN(dist0,dist1) < mindist )
 	    {
@@ -529,7 +529,7 @@ void FaultStickSet::hideStick( int sticknr, bool yn, int sceneidx )
 	stat &= ~hiddenmask;
 
     sticks_[stickidx]->setStickStat( stat );
-    triggerNrPosCh( RowCol(stickidx,StickHide).toInt64() );
+    triggerNrPosCh( GeomPosID::getFromRowCol(stickidx,StickHide) );
 }
 
 
@@ -586,7 +586,7 @@ void FaultStickSet::hideKnot( const RowCol& rc, bool yn, int sceneidx )
 
     sticks_[stickidx]->setKnotStat( knotidx, knotstat );
     // TODO if also sticks of faults are pruned for display only at sections:
-    // triggerNrPosCh( RowCol(stickidx,KnotHide).toInt64() );
+    // triggerNrPosCh( GeomPosID::getFromRowCol(stickidx,KnotHide) );
 }
 
 

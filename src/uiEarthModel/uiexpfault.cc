@@ -99,32 +99,32 @@ uiExportFault::~uiExportFault()
 }
 
 
-static int stickNr( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
+static int stickNr( EM::EMObject* emobj, int stickidx )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     return fss->rowRange().atIndex( stickidx );
 }
 
 
-static int nrSticks( EM::EMObject* emobj, EM::SectionID sid )
+static int nrSticks( EM::EMObject* emobj )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     return fss->nrSticks();
 }
 
 
-static int nrKnots( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
+static int nrKnots( EM::EMObject* emobj, int stickidx )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     const int sticknr = fss->rowRange().atIndex( stickidx );
     return fss->nrKnots( sticknr );
 }
 
 
-static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
+static Coord3 getCoord( EM::EMObject* emobj, int stickidx,
 			int knotidx )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     const int sticknr = fss->rowRange().atIndex(stickidx);
     const int knotnr = fss->colRange(sticknr).atIndex(knotidx);
     return fss->getKnot( RowCol(sticknr,knotnr) );
@@ -165,14 +165,13 @@ bool uiExportFault::writeAscii()
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );
-    const EM::SectionID sectionid = emobj->sectionID( 0 );
-    const int nrsticks = nrSticks( emobj.ptr(), sectionid );
+    const int nrsticks = nrSticks( emobj.ptr() );
     for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
     {
-	const int nrknots = nrKnots( emobj.ptr(), sectionid, stickidx );
+	const int nrknots = nrKnots( emobj.ptr(), stickidx );
 	for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 	{
-	    const Coord3 crd = getCoord( emobj.ptr(), sectionid,
+	    const Coord3 crd = getCoord( emobj.ptr(),
 					 stickidx, knotidx );
 	    if ( !crd.isDefined() )
 		continue;
@@ -199,14 +198,14 @@ bool uiExportFault::writeAscii()
 
 	    if ( fss )
 	    {
-		const int sticknr = stickNr( emobj.ptr(), sectionid, stickidx );
+		const int sticknr = stickNr( emobj.ptr(), stickidx );
 
 		bool pickedon2d =
-		    fss->geometry().pickedOn2DLine( sectionid, sticknr );
+		    fss->geometry().pickedOn2DLine( sticknr );
 		if ( pickedon2d && linenmfld_->isChecked() )
 		{
 		    Pos::GeomID geomid =
-			fss->geometry().pickedGeomID( sectionid, sticknr );
+			fss->geometry().pickedGeomID( sticknr );
 		    const char* linenm = Survey::GM().getName( geomid );
 
 		    if ( linenm )

@@ -33,13 +33,10 @@ mExpClass(EarthModel) MarchingCubesSurface : public Body, public EMObject
 public:
 
     const char*			type() const		{ return typeStr(); }
-    virtual int			nrSections() const	{ return 1; }
-    virtual SectionID		sectionID(int) const	{ return 0; }
-    virtual bool		canSetSectionName() const	{ return false;}
 
-    Geometry::Element*		sectionGeometry(const SectionID&) { return 0; }
-    const Geometry::Element*	sectionGeometry(const SectionID&) const
-								  { return 0; }
+    Geometry::Element*		geometryElement()		{ return 0; }
+    const Geometry::Element*	geometryElement() const		{ return 0; }
+
     virtual Executor*		loader();
     virtual Executor*		saver();
     virtual Executor*		saver(IOObj*);

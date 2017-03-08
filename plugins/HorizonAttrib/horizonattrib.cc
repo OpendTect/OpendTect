@@ -206,8 +206,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 	rc = RowCol( horizon2dlineid_, currentbid_.crl()+relpos.crl() );
     }
 
-    const EM::PosID posid( horizon_->id(), horizon_->sectionID(0),
-			   rc.toInt64() );
+    const EM::PosID posid = EM::PosID::getFromRowCol( rc );
     const float zval = (float) horizon_->getPos( posid ).z_;
 
     const bool isz = outtype_ == mOutTypeZ;

@@ -30,7 +30,7 @@ void Element::getPosIDs( TypeSet<GeomPosID>& res, bool noudf ) const
     PtrMan<Iterator> iter = createIterator();
 
     GeomPosID posid;
-    while ( (posid=iter->next())!=-1 )
+    while ( (posid=iter->next()).isValid() )
     {
 	if ( noudf && !isDefined( posid ) )
 	    continue;
@@ -47,7 +47,7 @@ IntervalND<float> Element::boundingBox(bool) const
 
     PtrMan<Iterator> iter = createIterator();
     GeomPosID posid;
-    while ( (posid=iter->next())!=-1 )
+    while ( (posid=iter->next()).isValid() )
     {
 	pos = getPosition( posid );
 
@@ -84,7 +84,7 @@ void Element::blockCallBacks( bool yn, bool flush )
 
     if ( blockcbs_ && !flush )
 	return;
-    
+
     Threads::Locker poschglocker( poschglock_ );
     nrposchbuffer_.erase();
     poschglocker.unlockNow();

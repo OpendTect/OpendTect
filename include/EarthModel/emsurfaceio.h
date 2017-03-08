@@ -54,13 +54,6 @@ public:
 			~dgbSurfaceReader();
 
     void		setOutput(EM::Surface&);
-    void		setOutput(Array3D<float>&);
-			/*!<\note only z-values will be put in array
-			    \note sizes of 1st and second dim must fit
-				  row/col selection.
-			    \note size in third dim must fit number of
-			          sections given by selSections. */
-
     int			version() const		{ return version_; }
 
     bool		isOK() const;
@@ -68,11 +61,6 @@ public:
 
     int			nrSections() const;
     EM::SectionID	sectionID(int) const;
-    BufferString	sectionName(int) const;
-    void		selSections(const TypeSet<EM::SectionID>&);
-			/*!< The given sectionIDs will be loaded. If
-			     this function is not called, all avaliable
-			     sections will be loaded. */
 
     const char*		dbInfo() const;
     int			nrAuxVals() const;
@@ -165,7 +153,6 @@ protected:
     BufferStringSet	linesets_;
     TypeSet<Pos::GeomID>	geomids_;
     TypeSet<EM::SectionID> sectionids_;
-    TypeSet<EM::SectionID> sectionsel_;
     bool		fullyread_;
 
     BufferStringSet	auxdatanames_;
@@ -269,13 +256,6 @@ public:
 
     int			nrSections() const;
     EM::SectionID	sectionID( int ) const;
-    const char*		sectionName( int ) const;
-    void		selSections(const TypeSet<EM::SectionID>&,
-				    bool add=false);
-			/*!< The given sectionIDs will be written. If this
-			     function is not called, all avaliable sections
-			     will be written.
-			*/
     void		setShift(float);
 			//!<Shift is added to z values before writing
 
@@ -324,7 +304,6 @@ protected:
 
     StreamConn*			conn_;
 
-    TypeSet<EM::SectionID>	sectionsel_;
     TypeSet<od_int64>		sectionoffsets_;
     od_int64			nrsectionsoffsetoffset_;
     TypeSet<int>		auxdatasel_;

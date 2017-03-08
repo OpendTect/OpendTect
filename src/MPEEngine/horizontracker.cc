@@ -131,9 +131,8 @@ bool HorizonAutoTracker::init()
 	    return false;
 	}
 
-	const EM::SectionID sid = horizon_.sectionID( 0 );
-	const StepInterval<int> inlrg = hor3d_->geometry().rowRange( sid );
-	const StepInterval<int> crlrg = hor3d_->geometry().colRange( sid );
+	const StepInterval<int> inlrg = hor3d_->geometry().rowRange();
+	const StepInterval<int> crlrg = hor3d_->geometry().colRange();
 
 
 	const BinID step = hor3d_->geometry().step();
@@ -227,7 +226,7 @@ int HorizonAutoTracker::doStep()
     history_->getData()[targetidx] = target.sources_;
     target.istarget_ = false; //we won't track this one again
 
-    addSeed( target.pid_.sectionID(), target.pid_.subID() );
+    addSeed( target.pid_ );
 
     return MoreToDo();
 }
@@ -256,11 +255,10 @@ RowCol HorizonAutoTracker::getArrayPos( const EM::PosID& pos ) const
 
 
 
-void HorizonAutoTracker::addSeed( EM::SectionID sectionid, EM::SubID subid )
+void HorizonAutoTracker::addSeed( EM::PosID posid )
 {
 
-    RowCol rc;
-    rc.fromInt64( subid );
+    const RowCol rc = posid.getRowCol();
     TypeSet<int> newtargets;
     if ( hor2d_ )
     {
@@ -294,10 +292,10 @@ HorizonAutoTracker::TrackTarget::TrackTarget( HorizonAutoTracker* tracker )
 }
 
 
-unsigned char HorizonAutoTracker::TrackTarget::getSourceMask(EM::SubID from,
-							     EM::SubID to)
+unsigned char HorizonAutoTracker::TrackTarget::getSourceMask(EM::PosID from,
+							     EM::PosID to)
 {
-    const RowCol diff = RowCol::fromInt64(to)-RowCol::fromInt64(from);
+    const RowCol diff = to.getRowCol() - from.getRowCol();
 
     if ( diff.row<0 )
     {
@@ -322,7 +320,7 @@ unsigned char HorizonAutoTracker::TrackTarget::getSourceMask(EM::SubID from,
 
 void HorizonAutoTracker::TrackTarget::reset()
 {
-    pid_ = EM::PosID::udf();
+    pid_ = EM::PosID::getInvalid();
     score_ = mUdf(float);
     proposedz_ = mUdf(float);
     isvalid_ = false;
@@ -349,7 +347,7 @@ void HorizonAutoTracker::TrackTarget::computeProposal()
     TypeSet<float> scores;
     TypeSet<unsigned char> sources;
 
-    const SeisTrc* targettrc = tracker_->getTrace( pid_.subID() );
+    const SeisTrc* targettrc = tracker_->getTrace( pid_ );
     if ( !targettrc )
 	mBreak;
 
@@ -361,7 +359,7 @@ void HorizonAutoTracker::TrackTarget::computeProposal()
 
     for ( int idx=sourcepids.size()-1; idx>=0; idx-- )
     {
-	const SeisTrc* sourcetrc = tracker_->getTrace( sourcepids[idx].subID() );
+	const SeisTrc* sourcetrc = tracker_->getTrace( sourcepids[idx] );
 	if ( !sourcetrc )
 	    continue;
 
@@ -378,7 +376,7 @@ void HorizonAutoTracker::TrackTarget::computeProposal()
 		found = true;
 		scores[idy] += newscore;
 		sources[idy] +=
-			getSourceMask( sourcepids[idx].subID(), pid_.subID() );
+			getSourceMask( sourcepids[idx], pid_ );
 		break;
 	    }
 	}
@@ -391,7 +389,7 @@ void HorizonAutoTracker::TrackTarget::computeProposal()
 
 	targets += newz;
 	scores += newscore;
-	sources += getSourceMask( sourcepids[idx].subID(), pid_.subID() );
+	sources += getSourceMask( sourcepids[idx], pid_ );
     }
 
     if ( besttarget==-1 )

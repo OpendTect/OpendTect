@@ -1577,7 +1577,7 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
     mCBCapsuleUnpack( const TypeSet<GeomPosID>*, pidlist, cb );
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
-	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
+	RowCol rc = (*pidlist)[idx].getRowCol();
 	const int stickidx = rc.row();
 
 	if ( rc.col()==FaultStickSurface::StickChange )
@@ -1622,7 +1622,7 @@ void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
     mCBCapsuleUnpack( const TypeSet<GeomPosID>*, pidlist, cb );
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
-	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
+	RowCol rc = (*pidlist)[idx].getRowCol();
 	const int stickidx = rc.row();
 
 	emptyPanel( stickidx-1 );

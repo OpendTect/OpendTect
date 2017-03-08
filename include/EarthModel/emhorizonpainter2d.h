@@ -72,8 +72,8 @@ protected:
 
     void		horChangeCB(CallBacker*);
     void		changePolyLineColor();
-    void		updateIntersectionMarkers(int sid);
-    Marker2D*		create2DMarker(const EM::SectionID&,float,float);
+    void		updateIntersectionMarkers();
+    Marker2D*		create2DMarker(float,float);
     bool		calcLine2DIntersections();
 
 
@@ -101,7 +101,7 @@ protected:
 
 
 private:
-    Marker2D*		create2DMarker(const EM::SectionID&);
+    Marker2D*		create2DMarker();
 
 };
 

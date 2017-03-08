@@ -251,7 +251,7 @@ bool SurfaceLimitedFiller::prepareComp( int )
 	else
 	{
 	    mDynamicCastGet( EM::Fault3D*, newft, emobj.ptr() );
-	    faults_ += newft ? newft->geometry().sectionGeometry(0) : 0;
+	    faults_ += newft ? newft->geometry().geometryElement() : 0;
 	    hors_ += 0;
 	}
     }
@@ -303,21 +303,18 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	    inputarr = 0;
     }
 
-    EM::SubID bidsq = bid.toInt64();
+    EM::PosID bidsq = EM::PosID::getFromRowCol( bid );
     mDynamicCastGet(const EM::Horizon2D*,refhor2d,refhorizon_)
     if ( refhor2d )
-	bidsq = BinID( refhor2d->geometry().lineIndex(bid.inl()), bid.crl() )
-			.toInt64();
+	bidsq = EM::PosID::getFromRowCol(
+			refhor2d->geometry().lineIndex(bid.inl()), bid.crl() );
 
     const double fixedz = userefz_ ? refz_ :
-	refhorizon_->getPos( refhorizon_->sectionID(0), bidsq ).z_;
+	refhorizon_->getPos( bidsq ).z_;
 
     double val0 = fixedstartval_;
     if ( !usestartval_ )
-    {
-	EM::PosID pid(starthorizon_->id(), starthorizon_->sectionID(0), bidsq);
-	val0 = starthorizon_->auxdata.getAuxDataVal( startauxidx_, pid );
-    }
+	val0 = starthorizon_->auxdata.getAuxDataVal( startauxidx_, bidsq );
 
     TypeSet<double> horz;
     bool allhordefined = true;
@@ -327,10 +324,10 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 
 	mDynamicCastGet(const EM::Horizon2D*,hor2d,hors_[idy])
 	if ( hor2d )
-	    bidsq = BinID( hor2d->geometry().lineIndex(bid.inl()), bid.crl() )
-			.toInt64();
+	    bidsq = EM::PosID::getFromRowCol(
+			hor2d->geometry().lineIndex(bid.inl()), bid.crl() );
 
-	horz += hors_[idy]->getPos(hors_[idy]->sectionID(0),bidsq).z_;
+	horz += hors_[idy]->getPos(bidsq).z_;
 	if ( mIsUdf(horz[idy]) )
 	{
 	    allhordefined = false;
@@ -340,10 +337,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 
     double gradient = fixedgradient_; //gradvertical_==true case done
     if ( !usegradient_ )
-    {
-	EM::PosID pid( gradhorizon_->id(), gradhorizon_->sectionID(0), bidsq );
-	gradient = gradhorizon_->auxdata.getAuxDataVal( gradauxidx_, pid );
-    }
+	gradient = gradhorizon_->auxdata.getAuxDataVal( gradauxidx_, bidsq );
     else if ( usebottomval_ )
     {
 	const StepInterval<float>& zrg = SI().zRange( true );

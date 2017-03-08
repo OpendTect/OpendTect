@@ -98,13 +98,11 @@ protected:
 	{
 	    FlatView::AuxData*	marker_;
 	    int			markerid_;
-	    EM::SectionID	sectionid_;
 	};
 
     void			cleanAuxInfoContainer();
     void			fillAuxInfoContainer();
     FlatView::AuxData*		getAuxData(int markerid);
-    EM::SectionID		getSectionID(int markerid);
 
     DBKey			emid_;
     EM::HorizonPainter2D*	horpainter_;

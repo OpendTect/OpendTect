@@ -49,8 +49,8 @@ void init()
 {
     for ( int idx=0; idx<loader_.tobeLodedKeys().size(); idx++ )
     {
-	const DBKey key = loader_.tobeLodedKeys()[idx];
-	PtrMan<IOObj> ioobj = DBM().get( key );
+	const DBKey objid = loader_.tobeLodedKeys()[idx];
+	PtrMan<IOObj> ioobj = DBM().get( objid );
 	if ( !ioobj )
 	{
 	    pErrMsg( "Required ID not in IOM. Probably not OK" );
@@ -63,7 +63,7 @@ void init()
 
 	EMObject* obj = EMM().createObject( typenm, ioobj->name() );
 	obj->ref();
-	obj->setDBKey( key );
+	obj->setDBKey( objid );
 	add( obj->loader() );
 	objects_.add( obj );
     }
@@ -266,15 +266,15 @@ uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj ) const
     mDynamicCastGet(FaultStickSet*,fss,copiedemobj)
     if ( !fss )
 	return uiRetVal::OK();
-    const DBKey key = ioobj.key();
-    Executor* exec = fss->geometry().saver( 0, &key );
+    const DBKey objid = ioobj.key();
+    Executor* exec = fss->geometry().saver( 0, &objid );
     if ( exec && !exec->execute() )
 	return exec->errorWithDetails();
 
     if ( isSave(ioobj) )
     {
 	emobj.getNonConstPtr()->setName( ioobj.name() );
-	emobj.getNonConstPtr()->setDBKey( key );
+	emobj.getNonConstPtr()->setDBKey( objid );
 	fss->saveDisplayPars();
     }
 
@@ -303,12 +303,12 @@ uiRetVal Fault3DSaver::doStore( const IOObj& ioobj ) const
     mDynamicCastGet(Fault3D*,flt3d,copiedemobj)
     if ( !flt3d )
 	return uiRetVal::OK();
-    const DBKey key = ioobj.key();
-    Executor* exec = flt3d->geometry().saver( 0, &key );
+    const DBKey objid = ioobj.key();
+    Executor* exec = flt3d->geometry().saver( 0, &objid );
     if ( exec && !exec->execute() )
 	return exec->errorWithDetails();
 
-    flt3d->setDBKey( key );
+    flt3d->setDBKey( objid );
     if ( isSave(ioobj) )
     {
 	flt3d->setName( ioobj.name() );
@@ -339,15 +339,15 @@ uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj ) const
     mDynamicCastGet(Horizon3D*,hor,copiedemobj)
     if ( !hor )
 	return uiRetVal::OK();
-    const DBKey key = ioobj.key();
-    Executor* exec = hor->geometry().saver( 0, &key );
+    const DBKey objid = ioobj.key();
+    Executor* exec = hor->geometry().saver( 0, &objid );
     if ( exec && !exec->execute() )
 	return exec->errorWithDetails();
 
     if ( isSave(ioobj) )
     {
 	emobj.getNonConstPtr()->setName( ioobj.name() );
-	emobj.getNonConstPtr()->setDBKey( key );
+	emobj.getNonConstPtr()->setDBKey( objid );
 	hor->saveDisplayPars();
     }
 

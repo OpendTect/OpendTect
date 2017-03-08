@@ -32,13 +32,13 @@ PolygonBodyUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return;
 
     pos_ = polygon->getPos( posid_ );
     const int row = posid_.getRowCol().row();
-    normal_ = polygon->geometry().getPolygonNormal( posid_.sectionID(), row );
+    normal_ = polygon->geometry().getPolygonNormal( row );
 }
 
 
@@ -58,30 +58,30 @@ const char* getStandardDesc() const
 
 bool unDo()
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
     const int row = posid_.getRowCol().row();
 
     return remove_
-	? polygon->geometry().insertPolygon( posid_.sectionID(), row,
+	? polygon->geometry().insertPolygon( row,
 		posid_.getRowCol().col(), pos_, normal_, false )
-	: polygon->geometry().removePolygon( posid_.sectionID(), row, false );
+	: polygon->geometry().removePolygon( row, false );
 }
 
 
 bool reDo()
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
     const int row = posid_.getRowCol().row();
 
     return remove_
-	? polygon->geometry().removePolygon( posid_.sectionID(), row, false )
-	: polygon->geometry().insertPolygon( posid_.sectionID(), row,
+	? polygon->geometry().removePolygon( row, false )
+	: polygon->geometry().insertPolygon( row,
 		posid_.getRowCol().col(), pos_, normal_, false );
 }
 
@@ -103,7 +103,7 @@ PolygonBodyKnotUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
     if ( !emobj ) return;
     pos_ = emobj->getPos( posid_ );
 }
@@ -123,29 +123,25 @@ const char* getStandardDesc() const
 
 bool unDo()
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
     return remove_
-	? polygon->geometry().insertKnot( posid_.sectionID(), posid_.subID(),
-					  pos_, false )
-	: polygon->geometry().removeKnot( posid_.sectionID(), posid_.subID(),
-					  false );
+	? polygon->geometry().insertKnot( posid_, pos_, false )
+	: polygon->geometry().removeKnot( posid_, false );
 }
 
 
 bool reDo()
 {
-    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( DBKey::getInvalid() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
     return remove_
-	? polygon->geometry().removeKnot( posid_.sectionID(), posid_.subID(),
-					  false )
-	: polygon->geometry().insertKnot( posid_.sectionID(), posid_.subID(),
-					  pos_, false );
+	? polygon->geometry().removeKnot( posid_, false )
+	: polygon->geometry().insertKnot( posid_, pos_, false );
 }
 
 protected:
@@ -163,7 +159,6 @@ PolygonBody::PolygonBody( const char* nm )
     : Surface(nm)
     , geometry_( *this )
 {
-    geometry_.addSection( "", false );
 }
 
 
@@ -173,8 +168,7 @@ PolygonBody::~PolygonBody()
 ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
 					       bool smooth ) const
 {
-    const EM::SectionID sid = sectionID( 0 );
-    const Geometry::PolygonSurface* surf = geometry().sectionGeometry( sid );
+    const Geometry::PolygonSurface* surf = geometry().geometryElement();
     if ( !surf || surf->bodyDimension()<3 )
 	return 0;
 
@@ -194,8 +188,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
 
 bool PolygonBody::getBodyRange( TrcKeyZSampling& cs )
 {
-    const Geometry::PolygonSurface* surf =
-	geometry().sectionGeometry( sectionID(0) );
+    const Geometry::PolygonSurface* surf = geometry().geometryElement();
     if ( !surf )
 	return false;
 
@@ -329,56 +322,54 @@ Executor* PolygonBodyGeometry::loader( const SurfaceIODataSelection* )
 { return surface_.loader(); }
 
 Geometry::PolygonSurface*
-PolygonBodyGeometry::sectionGeometry( const SectionID& sid )
+PolygonBodyGeometry::geometryElement()
 {
-    Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
+    Geometry::Element* res = SurfaceGeometry::geometryElement();
     return (Geometry::PolygonSurface*) res;
 }
 
 
-const Geometry::PolygonSurface* PolygonBodyGeometry::sectionGeometry(
-	const SectionID& sid ) const
+const Geometry::PolygonSurface* PolygonBodyGeometry::geometryElement() const
 {
-    const Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
+    const Geometry::Element* res = SurfaceGeometry::geometryElement();
     return (const Geometry::PolygonSurface*) res;
 }
 
 
-Geometry::PolygonSurface* PolygonBodyGeometry::createSectionGeometry() const
+Geometry::PolygonSurface* PolygonBodyGeometry::createGeometryElement() const
 { return new Geometry::PolygonSurface; }
 
 
-EMObjectIterator* PolygonBodyGeometry::createIterator( const SectionID& sid,
-	const TrcKeyZSampling* cs) const
-{ return new RowColIterator( surface_, sid, cs ); }
+EMObjectIterator* PolygonBodyGeometry::createIterator(
+					const TrcKeyZSampling* cs) const
+{ return new RowColIterator( surface_, cs ); }
 
 
-int PolygonBodyGeometry::nrPolygons( const SectionID& sid ) const
+int PolygonBodyGeometry::nrPolygons() const
 {
-    const Geometry::PolygonSurface* pol = sectionGeometry( sid );
+    const Geometry::PolygonSurface* pol = geometryElement();
     return (!pol || pol->isEmpty()) ? 0 : pol->rowRange().nrSteps()+1;
 }
 
 
-int PolygonBodyGeometry::nrKnots( const SectionID& sid, int polygonnr ) const
+int PolygonBodyGeometry::nrKnots( int polygonnr ) const
 {
-    const Geometry::PolygonSurface* pol = sectionGeometry( sid );
+    const Geometry::PolygonSurface* pol = geometryElement();
     return (!pol || pol->isEmpty()) ? -1 : pol->colRange(polygonnr).nrSteps()+1;
 }
 
 
-bool PolygonBodyGeometry::insertPolygon( const SectionID& sid, int polygonnr,
+bool PolygonBodyGeometry::insertPolygon( int polygonnr,
 				int firstknot, const Coord3& pos,
 				const Coord3& normal, bool addtohistory )
 {
-    Geometry::PolygonSurface* pol = sectionGeometry( sid );
+    Geometry::PolygonSurface* pol = geometryElement();
     if ( !pol || !pol->insertPolygon(pos, normal, polygonnr, firstknot) )
 	return false;
 
     if ( addtohistory )
     {
-	const PosID posid( surface_.id(), sid,
-		RowCol(polygonnr,0).toInt64() );
+	const PosID posid = PosID::getFromRowCol( polygonnr, 0 );
 	UndoEvent* undo = new PolygonBodyUndoEvent( posid );
 	BodyMan().undo().addEvent( undo, 0 );
     }
@@ -388,10 +379,10 @@ bool PolygonBodyGeometry::insertPolygon( const SectionID& sid, int polygonnr,
 }
 
 
-bool PolygonBodyGeometry::removePolygon( const SectionID& sid, int polygonnr,
+bool PolygonBodyGeometry::removePolygon( int polygonnr,
 					 bool addtohistory )
 {
-    Geometry::PolygonSurface* pol = sectionGeometry( sid );
+    Geometry::PolygonSurface* pol = geometryElement();
     if ( !pol )	return false;
 
     const StepInterval<int> colrg = pol->colRange( polygonnr );
@@ -400,135 +391,105 @@ bool PolygonBodyGeometry::removePolygon( const SectionID& sid, int polygonnr,
 
     const RowCol rc( polygonnr, colrg.start );
     const Coord3 pos = pol->getKnot( rc );
-    const Coord3 normal = getPolygonNormal( sid, polygonnr );
+    const Coord3 normal = getPolygonNormal( polygonnr );
     if ( !normal.isDefined() || !pos.isDefined() )
 	return false;
 
     if ( !pol->removePolygon(polygonnr) )
 	return false;
 
-    if ( addtohistory )
-    {
-	const PosID posid( surface_.id(), sid, rc.toInt64() );
-	UndoEvent* undo = new PolygonBodyUndoEvent( posid, pos, normal );
-	BodyMan().undo().addEvent( undo, 0 );
-    }
-
     mSendEMSurfNotif( EMObject::cBurstAlert() );
     return true;
 }
 
 
-bool PolygonBodyGeometry::insertKnot( const SectionID& sid, const SubID& subid,
+bool PolygonBodyGeometry::insertKnot( const PosID& posid,
 				      const Coord3& pos, bool addtohistory )
 {
-    Geometry::PolygonSurface* pol = sectionGeometry( sid );
-    RowCol rc = RowCol::fromInt64( subid );
+    Geometry::PolygonSurface* pol = geometryElement();
+    RowCol rc =  posid .getRowCol();
     if ( !pol || !pol->insertKnot(rc,pos) )
 	return false;
 
-    if ( addtohistory )
-    {
-	const PosID posid( surface_.id(), sid, subid );
-	UndoEvent* undo = new PolygonBodyKnotUndoEvent( posid );
-	BodyMan().undo().addEvent( undo, 0 );
-    }
-
     mSendEMSurfNotif( EMObject::cBurstAlert() );
     return true;
 }
 
 
-Coord3 PolygonBodyGeometry::getPolygonNormal( const SectionID& sid,
-						     int polygonnr ) const
+Coord3 PolygonBodyGeometry::getPolygonNormal( int polygonnr ) const
 {
-    const Geometry::PolygonSurface* pol = sectionGeometry( sid );
+    const Geometry::PolygonSurface* pol = geometryElement();
     return pol ? pol->getPolygonNormal(polygonnr) : Coord3::udf();
 }
 
 
-bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
+bool PolygonBodyGeometry::removeKnot( const PosID& posid,
 				      bool addtohistory )
 {
-    Geometry::PolygonSurface* pol = sectionGeometry( sid );
+    Geometry::PolygonSurface* pol = geometryElement();
     if ( !pol ) return false;
 
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc =  posid .getRowCol();
     const Coord3 pos = pol->getKnot( rc );
 
     if ( !pos.isDefined() || !pol->removeKnot(rc) )
 	return false;
 
-    if ( addtohistory )
-    {
-	const PosID posid( surface_.id(), sid, subid );
-	UndoEvent* undo = new PolygonBodyKnotUndoEvent( posid, pos );
-	BodyMan().undo().addEvent( undo, 0 );
-    }
-
     mSendEMSurfNotif( EMObject::cBurstAlert() );
     return true;
 }
 
 
-#define mDefEditNormalStr( editnormstr, sid, polygonnr ) \
+#define mDefEditNormalStr( editnormstr, polygonnr ) \
      BufferString editnormstr("Edit normal of section "); \
-     editnormstr += sid; editnormstr += " polygonnr "; editnormstr += polygonnr;
+     editnormstr += 0; editnormstr += " polygonnr "; editnormstr += polygonnr;
 
 
-#define mDefKnotsStr( knotstr, sid, polygonnr, knotidx ) \
-    BufferString knotstr("Edit knots of section "); knotstr += sid; \
+#define mDefKnotsStr( knotstr, polygonnr, knotidx ) \
+    BufferString knotstr("Edit knots of section "); knotstr += 0; \
     knotstr += " polygon "; knotstr += polygonnr; \
     knotstr += " knot "; knotstr += knotidx;
 
-#define mDefPlgBezierNr( bez, sid ) \
-     BufferString bez("BezierCurve nr of section "); bez += sid;
+#define mDefPlgBezierNr( bez ) \
+     BufferString bez("BezierCurve nr of section "); bez += 0;
 
 
 void PolygonBodyGeometry::fillPar( IOPar& par ) const
 {
-    for ( int idx=0; idx<nrSections(); idx++ )
+    const Geometry::PolygonSurface* pol = geometryElement();
+    if ( !pol ) return;
+
+    mDefPlgBezierNr( bez );
+    par.set( bez.buf(), pol->getBezierCurveSmoothness() );
+
+    StepInterval<int> polygonrg = pol->rowRange();
+    for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop;
+	    polygonnr++ )
     {
-	EM::SectionID sid = sectionID( idx );
-	const Geometry::PolygonSurface* pol = sectionGeometry( sid );
-	if ( !pol ) continue;
-
-	mDefPlgBezierNr( bez, sid );
-	par.set( bez.buf(), pol->getBezierCurveSmoothness() );
-
-	StepInterval<int> polygonrg = pol->rowRange();
-	for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop;
-		polygonnr++ )
-	{
-	    mDefEditNormalStr( editnormstr, sid, polygonnr );
-	    par.set( editnormstr.buf(), pol->getPolygonNormal(polygonnr) );
-	}
+	mDefEditNormalStr( editnormstr, polygonnr );
+	par.set( editnormstr.buf(), pol->getPolygonNormal(polygonnr) );
     }
 }
 
 
 bool PolygonBodyGeometry::usePar( const IOPar& par )
 {
-    for ( int idx=0; idx<nrSections(); idx++ )
+    Geometry::PolygonSurface* pol = geometryElement();
+    if ( !pol ) return false;
+
+    int beziernr;
+    mDefPlgBezierNr( bez );
+    par.get( bez.buf(), beziernr );
+    pol->setBezierCurveSmoothness( beziernr );
+
+    StepInterval<int> polygonrg = pol->rowRange();
+    for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop;
+	    polygonnr++ )
     {
-	EM::SectionID sid = sectionID( idx );
-	Geometry::PolygonSurface* pol = sectionGeometry( sid );
-	if ( !pol ) return false;
-
-	int beziernr;
-	mDefPlgBezierNr( bez, sid );
-	par.get( bez.buf(), beziernr );
-	pol->setBezierCurveSmoothness( beziernr );
-
-	StepInterval<int> polygonrg = pol->rowRange();
-	for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop;
-		polygonnr++ )
-	{
-	    mDefEditNormalStr( editnormstr, sid, polygonnr );
-	    Coord3 editnormal( Coord3::udf() );
-	    par.get( editnormstr.buf(), editnormal );
-	    pol->addEditPlaneNormal( editnormal );
-	}
+	mDefEditNormalStr( editnormstr, polygonnr );
+	Coord3 editnormal( Coord3::udf() );
+	par.get( editnormstr.buf(), editnormal );
+	pol->addEditPlaneNormal( editnormal );
     }
 
     return true;

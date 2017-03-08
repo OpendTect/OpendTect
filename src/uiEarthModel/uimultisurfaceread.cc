@@ -169,29 +169,4 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 					EM::SurfaceIODataSelection& sel ) const
 {
     uiIOSurface::getSelection( sel );
-
-    if ( ioobjselgrp_->nrChosen() != 1 )
-	return;
-
-    const DBKey mid = ioobjselgrp_->chosenID( 0 );
-    const EM::IOObjInfo info( mid );
-    EM::SurfaceIOData sd;
-    uiString errmsg;
-    if ( !info.getSurfaceData(sd,errmsg) || sd.sections.size() < 2
-	    || !info.isHorizon() )
-	return;
-
-    uiDialog dlg( const_cast<uiParent*>(parent()),
-	    uiDialog::Setup(uiStrings::phrSelect(tr("section(s)"))
-			    ,mNoDlgTitle,mNoHelpKey) );
-    uiListBox* lb = new uiListBox( &dlg, "Patches", OD::ChooseAtLeastOne );
-    lb->addItems( sd.sections.getUiStringSet() );
-    lb->chooseAll( true );
-    if ( dlg.go() )
-    {
-	sel.selsections.erase();
-	lb->getChosen( sel.selsections );
-	if ( sel.selsections.isEmpty() )
-	    sel.selsections += 0;
-    }
 }

@@ -30,21 +30,19 @@ class SectionExtender;
 class SectionAdjuster;
 
 /*!
-\brief Tracks sections of EM::EMObject with ID EM::SectionID.
+\brief Tracks sections of EM::EMObject.
 */
 
 mExpClass(MPEEngine) SectionTracker
 {
 public:
 				SectionTracker(EM::EMObject&,
-					       const EM::SectionID&,
 					       SectionSourceSelector* = 0,
 					       SectionExtender* = 0,
 					       SectionAdjuster* = 0);
     virtual			~SectionTracker();
 
     EM::EMObject&		emObject()		{ return emobject_; }
-    EM::SectionID		sectionID() const;
     virtual bool		init();
 
     void			reset();
@@ -83,10 +81,9 @@ public:
 
 protected:
 
-    void			getLockedSeeds(TypeSet<EM::SubID>& lockedseeds);
+    void			getLockedSeeds(TypeSet<EM::PosID>& lockedseeds);
 
     EM::EMObject&		emobject_;
-    EM::SectionID		sid_;
 
     BufferString		errmsg_;
     bool			useadjuster_;

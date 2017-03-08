@@ -180,9 +180,8 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 	return false;
     }
 
-    const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
     trackercurrentobject_ = emobj->id();
-    if ( !initSetupDlg(emobj,tracker,sid,true) )
+    if ( !initSetupDlg(emobj,tracker,true) )
 	return false;
 
     initialundoid_ = EM::EMM().undo().currentEventID();
@@ -413,8 +412,7 @@ void uiMPEPartServer::fillTrackerSettings( int trackerid )
     EM::EMObject* emobj = tracker ? tracker->emObject() : 0;
     if ( !emobj || !seedpicker ) return;
 
-    EM::SectionID sid = emobj->sectionID( 0 );
-    MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
+    MPE::SectionTracker* sectracker = tracker->getSectionTracker( true );
     if ( !sectracker ) return;
 
     setupgrp_->setSectionTracker( sectracker );
@@ -451,10 +449,9 @@ const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 { return eventattrselspec_; }
 
 
-bool uiMPEPartServer::showSetupDlg( const DBKey& emid,
-				    const EM::SectionID& sid )
+bool uiMPEPartServer::showSetupDlg( const DBKey& emid )
 {
-    if ( emid.isInvalid() || sid<0 )
+    if ( emid.isInvalid() )
 	return false;
 
     if ( !trackercurrentobject_.isInvalid() && setupgrp_ )
@@ -477,12 +474,10 @@ bool uiMPEPartServer::showSetupDlg( const DBKey& emid,
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     if ( !emobj ) return false;
 
-    if ( !initSetupDlg(emobj,tracker,sid) )
+    if ( !initSetupDlg(emobj,tracker) )
 	return false;
 
     if ( setupgrp_ ) setupgrp_->commitToTracker();
-
-    tracker->applySetupAsDefault( sid );
 
     return true;
 }
@@ -499,8 +494,7 @@ bool uiMPEPartServer::showSetupGroupOnTop( const DBKey& emid,
 }
 
 
-void uiMPEPartServer::useSavedSetupDlg( const DBKey& emid,
-					const EM::SectionID& sid )
+void uiMPEPartServer::useSavedSetupDlg( const DBKey& emid )
 {
     const int trackerid = getTrackerID( emid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
@@ -509,7 +503,7 @@ void uiMPEPartServer::useSavedSetupDlg( const DBKey& emid,
 	return;
 
     readSetup( emobj->dbKey() );
-    showSetupDlg( emid, sid );
+    showSetupDlg( emid );
 }
 
 
@@ -643,9 +637,8 @@ void uiMPEPartServer::trackerAddRemoveCB( CallBacker* )
     if ( !emobj ) return;
 
 // The rest should only be called when tracker is added ...
-    const EM::SectionID sid = emobj->sectionID(0);
     const MPE::SectionTracker* sectracker =
-			tracker->getSectionTracker( sid, false );
+			tracker->getSectionTracker( false );
     if ( sectracker && !sectracker->hasInitializedSetup() )
 	readSetup( emobj->dbKey() );
 
@@ -710,74 +703,68 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 				       MPE::EMTracker& tracker )
 {
     const Attrib::DescSet* attrset = getCurAttrDescSet( tracker.is2D() );
-    const EM::EMObject* emobj = EM::EMM().getObject( tracker.objectID() );
-    for ( int sidx=0; sidx<emobj->nrSections(); sidx++ )
+    MPE::SectionTracker* st = tracker.getSectionTracker( false );
+    if ( !st || !st->adjuster() ) return;
+
+    for ( int asidx=0; asidx<st->adjuster()->getNrAttributes(); asidx++ )
     {
-	const EM::SectionID sid = emobj->sectionID( sidx );
-	MPE::SectionTracker* st = tracker.getSectionTracker( sid, false );
-	if ( !st || !st->adjuster() ) continue;
+	const Attrib::SelSpec* as =
+		    st->adjuster()->getAttributeSel( asidx );
+	if ( !as || !as->id().isValid() ) continue;
 
-	for ( int asidx=0; asidx<st->adjuster()->getNrAttributes(); asidx++ )
+	if ( as->isStored() )
 	{
-	    const Attrib::SelSpec* as =
-			st->adjuster()->getAttributeSel( asidx );
-	    if ( !as || !as->id().isValid() ) continue;
-
-	    if ( as->isStored() )
-	    {
-		BufferString idstr;
-		Attrib::Desc::getParamString( as->defString(), "id", idstr );
-		Attrib::DescSet* storedads =
-		    Attrib::eDSHolder().getDescSet( tracker.is2D() , true );
-		storedads->getStoredID( DBKey::getFromString(idstr) );
-			// will try to add if fail
-
-		Attrib::SelSpec newas( *as );
-		newas.setIDFromRef( *storedads );
-		st->adjuster()->setAttributeSel( asidx, newas );
-		continue;
-	    }
-
-	    Attrib::DescID newid = Attrib::DescID::undef();
-	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
-	    if ( !usedad ) continue;
-
-	    for ( int ida=0; ida<attrset->size(); ida++ )
-	    {
-		const Attrib::DescID descid = attrset->getID( ida );
-		const Attrib::Desc* ad = attrset->getDesc( descid );
-		if ( !ad ) continue;
-
-		if ( usedad->isIdenticalTo( *ad ) )
-		{
-		    newid = ad->id();
-		    break;
-		}
-	    }
-
-	    if ( !newid.isValid() )
-	    {
-		Attrib::DescSet* set =
-		    const_cast<Attrib::DescSet*>( attrset );
-		Attrib::Desc* newdesc = new Attrib::Desc( *usedad );
-		newdesc->setDescSet( set );
-		newid = set->addDesc( newdesc );
-	    }
+	    BufferString idstr;
+	    Attrib::Desc::getParamString( as->defString(), "id", idstr );
+	    Attrib::DescSet* storedads =
+		Attrib::eDSHolder().getDescSet( tracker.is2D() , true );
+	    storedads->getStoredID( DBKey::getFromString(idstr) );
+		    // will try to add if fail
 
 	    Attrib::SelSpec newas( *as );
-	    newas.setIDFromRef( *attrset );
+	    newas.setIDFromRef( *storedads );
 	    st->adjuster()->setAttributeSel( asidx, newas );
+	    continue;
 	}
+
+	Attrib::DescID newid = Attrib::DescID::undef();
+	const Attrib::Desc* usedad = newads.getDesc( as->id() );
+	if ( !usedad ) continue;
+
+	for ( int ida=0; ida<attrset->size(); ida++ )
+	{
+	    const Attrib::DescID descid = attrset->getID( ida );
+	    const Attrib::Desc* ad = attrset->getDesc( descid );
+	    if ( !ad ) continue;
+
+	    if ( usedad->isIdenticalTo( *ad ) )
+	    {
+		newid = ad->id();
+		break;
+	    }
+	}
+
+	if ( !newid.isValid() )
+	{
+	    Attrib::DescSet* set =
+		const_cast<Attrib::DescSet*>( attrset );
+	    Attrib::Desc* newdesc = new Attrib::Desc( *usedad );
+	    newdesc->setDescSet( set );
+	    newid = set->addDesc( newdesc );
+	}
+
+	Attrib::SelSpec newas( *as );
+	newas.setIDFromRef( *attrset );
+	st->adjuster()->setAttributeSel( asidx, newas );
     }
 }
 
 
 bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 				    MPE::EMTracker*& tracker,
-				    const EM::SectionID& sid,
 				    bool freshdlg )
 {
-    if ( !emobj || !tracker || sid<0 ) return false;
+    if ( !emobj || !tracker ) return false;
 
     if ( setupgrp_ )
     {
@@ -801,7 +788,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     }
 
     setupgrp_->setMPEPartServer( this );
-    MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
+    MPE::SectionTracker* sectracker = tracker->getSectionTracker( true );
     if ( !sectracker ) return false;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );

@@ -107,9 +107,8 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 	if ( !fault3d )
 	    continue;
 
-	EM::SectionID fltsid = fault3d->sectionID( 0 );
 	Geometry::FaultStickSurface* fsssurf =
-				fault3d->geometry().sectionGeometry(fltsid);
+				fault3d->geometry().geometryElement();
 	PtrMan<Geometry::ExplFaultStickSurface> fltsurf =
 	    new Geometry::ExplFaultStickSurface( fsssurf,
 				  mCast(float,SI().zDomain().userFactor()) );
@@ -231,7 +230,7 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 	return false;
 
     Geometry::BinIDSurface* bidsurface =
-			    horizon3d->geometry().sectionGeometry( 0 );
+			    horizon3d->geometry().geometryElement();
     if ( !bidsurface )
 	return false;
 

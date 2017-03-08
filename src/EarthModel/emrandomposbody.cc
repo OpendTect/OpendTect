@@ -176,10 +176,9 @@ public:
 	}
 
 	const Coord3& crd( rdposbody_.getPositions()[nrdone_] );
-	const int idx = mCast( int, rdposbody_.posIDs()[nrdone_] );
 	BufferString str;
 	str.add( crd.x_ ).add( " " ).add( crd.y_ ).add( " " ).add( crd.z_ )
-	    .add( " " ).add ( idx );
+	    .add( " " ).add ( mCast(int,rdposbody_.posIDs()[nrdone_].getI()) );
 	((StreamConn*)conn_)->oStream() << str.buf() << '\n';
 	nrdone_++;
 
@@ -232,11 +231,11 @@ void RandomPosBody::copyFrom( const Pick::Set& ps )
     ids_.erase();
 
     Pick::SetIter iter( ps );
-    EM::SubID idx = 0;
+    int idx = 0;
     while ( iter.next() )
     {
 	locations_ += iter.get().pos();
-	ids_ += idx;
+	ids_ += PosID::get( idx );
 	idx++;
     }
 }
@@ -252,7 +251,7 @@ void RandomPosBody::copyFrom( const DataPointSet& data, int selgrp )
 	if ( selgrp<0 || data.selGroup(idx) == selgrp )
 	{
 	    locations_ += Coord3( data.coord(idx), data.z(idx) );
-	    ids_ += idx;
+	    ids_ += PosID::get( idx );
 	}
     }
 }
@@ -272,7 +271,7 @@ void RandomPosBody::copyFrom( const DataPointSet& data, int dpscolid,
 	if ( valrg.includes(data.value(dpscolid,idx),true) )
 	{
 	    locations_ += Coord3( data.coord(idx), data.z(idx) );
-	    ids_ += idx;
+	    ids_ += PosID::get( idx );
 	}
     }
 }
@@ -285,7 +284,7 @@ void RandomPosBody::setPositions( const TypeSet<Coord3>& pts )
 
     ids_.erase();
     for ( int idx=0; idx<pts.size(); idx++ )
-       ids_ += idx;
+       ids_ += PosID::get( idx );
 }
 
 
@@ -295,40 +294,30 @@ bool RandomPosBody::addPos( const Coord3& np )
 	return false;
 
     locations_ += np;
-    ids_ += ids_.size();
+    ids_ += PosID::get( ids_.size() );
 
     return true;
 }
 
 
 Coord3 RandomPosBody::getPos( const PosID& posid ) const
-{ return getPos( posid.sectionID(), posid.subID() ); }
-
-
-Coord3 RandomPosBody::getPos( const SectionID& sid, const SubID& subid ) const
 {
-    if ( sid!=sectionID(0) )
-	return Coord3::udf();
-
-    const int posidx = ids_.indexOf( subid );
+    const int posidx = ids_.indexOf( posid );
     return posidx==-1 ? Coord3::udf() : locations_[posidx];
 }
 
 
-bool RandomPosBody::setPosition( const SectionID& sid, const SubID& sub,
+bool RandomPosBody::setPosition( const PosID& sub,
 				    const Coord3& pos, bool addtohistory,
 				    NodeSourceType tp )
 {
-    if ( sid!=sectionID(0) || sub<0 )
-	return false;
-
-    if ( sub==ids_.size() )
+    if ( sub.getI()==ids_.size() )
 	return addPos( pos );
 
-    if ( !ids_.isPresent(sub) && sub==ids_.size() )
+    if ( !ids_.isPresent(sub) && sub.getI()==ids_.size() )
 	return addPos( pos );
     else
-	locations_[mCast(int,sub)] = pos;
+	locations_[mCast(int,sub.getI())] = pos;
 
     return true;
 }
@@ -414,14 +403,17 @@ bool RandomPosBody::useBodyPar( const IOPar& par )
 	return false;
 
     ids_.erase();
-    if ( !par.get( sKeySubIDs(), ids_ ) )
+    TypeSet<od_int64> idnums;
+    if ( !par.get( sKeyPosIDs(), idnums ) )
 	return false;
 
+    for ( int idx=0; idx<idnums.size(); idx++ )
+	ids_ += PosID::get( idnums[idx] );
     locations_.erase();
     for ( int idx=0; idx<ids_.size(); idx++ )
     {
 	Coord3 pos( Coord3::udf() );
-	BufferString skeypos("Location pos"); skeypos += ids_[idx];
+	BufferString skeypos("Location pos"); skeypos += ids_[idx].getI();
 	if (!par.get( skeypos.buf(), pos ) )
 	    return false;
 
@@ -435,10 +427,14 @@ bool RandomPosBody::useBodyPar( const IOPar& par )
 void RandomPosBody::fillBodyPar( IOPar& par ) const
 {
     EMObject::fillPar( par );
-    par.set( sKeySubIDs(), ids_ );
+    TypeSet<od_int64> idnums;
+    for ( int idx=0; idx<ids_.size(); idx++ )
+	idnums += ids_[idx].getI();
+
+    par.set( sKeyPosIDs(), idnums );
     for ( int idx=0; idx<locations_.size(); idx++ )
     {
-	BufferString skeypos("Location pos"); skeypos += ids_[idx];
+	BufferString skeypos("Location pos"); skeypos += ids_[idx].getI();
 	par.set( skeypos.buf(), locations_[idx] );
     }
 }

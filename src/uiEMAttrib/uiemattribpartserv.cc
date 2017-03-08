@@ -272,30 +272,25 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 
     DataPointSet::DataRow datarow;
     datarow.data_.setSize( 1, mUdf(float) );
-    for ( int sididx=0; sididx<hor3dgeom.nrSections(); sididx++ )
+    datarow.data_[0] = 0;
+    const int nrknots = hor3dgeom.geometryElement()->nrKnots();
+
+    for ( int idx=0; idx<nrknots; idx++ )
     {
-	const EM::SectionID sid = hor3dgeom.sectionID(sididx);
-	datarow.data_[0] = sid;
-	const int nrknots = hor3dgeom.sectionGeometry(sid)->nrKnots();
+	const BinID bid =
+		hor3dgeom.geometryElement()->getKnotRowCol(idx);
+	const float realz = (float) (
+	    hor3dgeom.geometryElement()->getKnot( bid, false ).z_ );
+	if ( mIsUdf(realz) )
+	    continue;
 
-	for ( int idx=0; idx<nrknots; idx++ )
+	datarow.pos_.binid_ = bid;
+
+	for ( int shiftidx=0; shiftidx<nrshifts; shiftidx++ )
 	{
-	    const BinID bid =
-		    hor3dgeom.sectionGeometry(sid)->getKnotRowCol(idx);
-	    const float realz = (float) (
-		hor3dgeom.sectionGeometry(sid)->getKnot( bid, false ).z_ );
-	    if ( mIsUdf(realz) )
-		continue;
-
-	    datarow.pos_.binid_ = bid;
-
-	    for ( int shiftidx=0; shiftidx<nrshifts; shiftidx++ )
-	    {
-		const float shift = intv.atIndex(shiftidx);
-		datarow.pos_.z_ = realz+shift;
-		dpsset[shiftidx]->addRow( datarow );
-	    }
-
+	    const float shift = intv.atIndex(shiftidx);
+	    datarow.pos_.z_ = realz+shift;
+	    dpsset[shiftidx]->addRow( datarow );
 	}
     }
 

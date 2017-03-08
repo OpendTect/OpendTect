@@ -32,7 +32,7 @@ MPEEditor::MPEEditor()
     , eventcatcher_( 0 )
     , transformation_( 0 )
     , markersize_( 3 )
-    , activedragger_( EM::PosID::udf() )
+    , activedragger_( EM::PosID::getInvalid() )
     , activenodematerial_( 0 )
     , nodematerial_( 0 )
     , isdragging_( false )
@@ -226,7 +226,7 @@ bool MPEEditor::allMarkersDisplayed() const
 
 
 EM::PosID MPEEditor::getNodePosID(int idx) const
-{ return idx>=0&&idx<posids_.size() ? posids_[idx] : EM::PosID::udf(); }
+{ return idx>=0&&idx<posids_.size() ? posids_[idx] : EM::PosID::getInvalid(); }
 
 
 bool MPEEditor::mouseClick( const EM::PosID& pid,
@@ -260,7 +260,7 @@ void MPEEditor::changeNumNodes( CallBacker* )
     nodestoremove.createDifference( editnodes, false );
 
     if ( nodestoremove.indexOf(activedragger_)!=-1 )
-	setActiveDragger( EM::PosID::udf() );
+	setActiveDragger( EM::PosID::getInvalid() );
 
     for ( int idx=0; idx<nodestoremove.size(); idx++ )
 	removeDragger( posids_.indexOf(nodestoremove[idx]) );
@@ -481,7 +481,7 @@ void MPEEditor::cleanPatch()
 EM::PosID MPEEditor::mouseClickDragger( const TypeSet<int>& path ) const
 {
     if ( path.isEmpty() )
-	return EM::PosID::udf();
+	return EM::PosID::getInvalid();
 
     for ( int idx=draggers_.size()-1; idx>=0; idx-- )
     {
@@ -489,7 +489,7 @@ EM::PosID MPEEditor::mouseClickDragger( const TypeSet<int>& path ) const
 	    return posids_[idx];
     }
 
-    return EM::PosID::udf();
+    return EM::PosID::getInvalid();
 }
 
 
@@ -532,7 +532,7 @@ void MPEEditor::dragStop( CallBacker* cb )
 
 EM::PosID MPEEditor::getActiveDragger() const
 {
-    return isdragging_ ? activedragger_ : EM::PosID::udf();
+    return isdragging_ ? activedragger_ : EM::PosID::getInvalid();
 }
 
 

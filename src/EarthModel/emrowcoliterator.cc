@@ -18,34 +18,26 @@ ________________________________________________________________________
 namespace EM
 {
 
-RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
-				const TrcKeyZSampling* cs	)
+RowColIterator::RowColIterator( const Surface& surf,
+				const TrcKeyZSampling* cs )
     : surf_( surf )
-    , sid_( sectionid )
-    , cursection_( 0 )
-    , allsids_( sectionid==-1 )
+    , surfgeom_( 0 )
     , csbound_( cs )
     , rowcolbounded_( false )
 {
-    if ( allsids_ )
-	sid_ = surf_.sectionID(0);
 }
 
 
-RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
+RowColIterator::RowColIterator( const Surface& surf,
 				const StepInterval<int> rowbnd,
 				const StepInterval<int> colbnd )
     : surf_( surf )
-    , sid_( sectionid )
-    , cursection_( 0 )
-    , allsids_( sectionid==-1 )
+    , surfgeom_( 0 )
     , csbound_( 0 )
     , rowcolbounded_( true )
     , rowbound_( rowbnd )
     , colbound_( colbnd )
 {
-    if ( allsids_ )
-	sid_ = surf_.sectionID(0);
 }
 
 
@@ -53,10 +45,10 @@ PosID RowColIterator::next()
 {
     while ( true )
     {
-	if ( !cursection_ )
+	if ( !surfgeom_ )
 	{
-	    if ( !initSection() )
-		return PosID::udf();
+	    if ( !init() )
+		return PosID::getInvalid();
 	}
 	else
 	{
@@ -66,24 +58,23 @@ PosID RowColIterator::next()
 		rc_.row() += rowrg_.step;
 		if ( !rowrg_.includes(rc_.row(),true) )
 		{
-		    cursection_ = 0;
-		    if ( !nextSection() )
-			return PosID::udf();
+		    surfgeom_ = 0;
+		    return PosID::getInvalid();
 		}
 
-		colrg_ = cursection_->colRange( rc_.row() );
+		colrg_ = surfgeom_->colRange( rc_.row() );
 		if ( rowcolbounded_ )
 		    colrg_.limitTo( colbound_ );
 		rc_.col() = colrg_.start;
 	    }
 	}
-	if ( !cursection_->isKnotDefined( rc_ ) )
+	if ( !surfgeom_->isKnotDefined( rc_ ) )
 	    continue;
 
 	if ( !csbound_ )
 	    break;
 
-	pos_ = surf_.getPos( sid_, rc_.toInt64() );
+	pos_ = surf_.getPos( PosID::getFromRowCol(rc_) );
 	bid_ = SI().transform( pos_.getXY() );
 
 	if ( csbound_->hsamp_.includes(bid_) &&
@@ -91,29 +82,14 @@ PosID RowColIterator::next()
 	    break;
     }
 
-    return PosID( surf_.id(), sid_, rc_.toInt64() );
+    return PosID::getFromRowCol( rc_ );
 }
 
 
 int RowColIterator::maximumSize() const
 {
-    if ( allsids_ )
-    {
-	int sum = 0;
-	for ( int idx=0; idx<surf_.nrSections(); idx++ )
-	    sum += maximumSize( surf_.sectionID(idx) );
-
-	return sum;
-    }
-
-    return maximumSize( sid_ );
-}
-
-
-int RowColIterator::maximumSize( const SectionID& cursid ) const
-{
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-		     surf_.sectionGeometry(cursid) );
+		     surf_.geometryElement() );
     if ( !rcs ) return 0;
 
     StepInterval<int> rowrg = rcs->rowRange();
@@ -133,14 +109,14 @@ int RowColIterator::maximumSize( const SectionID& cursid ) const
 }
 
 
-bool RowColIterator::initSection()
+bool RowColIterator::init()
 {
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-		     surf_.sectionGeometry(sid_) );
+		     surf_.geometryElement() );
     if ( !rcs )
-	return nextSection();
+	return false;
 
-    cursection_ = rcs;
+    surfgeom_ = rcs;
 
     rowrg_ = rcs->rowRange();
     if ( rowrg_.stop < rowrg_.start )
@@ -158,28 +134,6 @@ bool RowColIterator::initSection()
     rc_.row() = rowrg_.start;
     rc_.col() = colrg_.start;
     return true;
-}
-
-
-bool RowColIterator::nextSection()
-{
-    if ( !allsids_ ) return false;
-
-    cursection_ = 0;
-    int idx=0;
-    for ( ; idx<surf_.nrSections(); idx++ )
-    {
-	if ( surf_.sectionID(idx)==sid_ )
-	    break;
-    }
-
-    if ( idx<surf_.nrSections()-1 )
-    {
-	sid_ = surf_.sectionID(++idx);
-	return initSection();
-    }
-
-    return false;
 }
 
 } // namespace EM

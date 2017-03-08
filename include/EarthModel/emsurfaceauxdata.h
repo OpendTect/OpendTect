@@ -27,7 +27,6 @@ namespace EM
 {
 
 class Horizon3D;
-class PosID;
 
 
 /*!
@@ -43,7 +42,6 @@ public:
     Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
 
     void		removeAll();
-    void		removeSection(const SectionID&);
 
     int			nrAuxData() const;
 			/*!<\return	The number of data per node.
@@ -94,8 +92,8 @@ public:
 			     float val=mUdf(float));
 			/*!<dataidx==-1: init all*/
 
-    Array2D<float>*	createArray2D(int dataidx,SectionID) const;
-    void		setArray2D(int dataidx,SectionID,const Array2D<float>&);
+    Array2D<float>*	createArray2D(int dataidx) const;
+    void		setArray2D(int dataidx,const Array2D<float>&);
 
     const ObjectSet<BinIDValueSet>& getData() const	{ return auxdata_; }
 

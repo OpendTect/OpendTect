@@ -31,13 +31,6 @@ of one or more segments or patches, so they can overlap.
 mExpClass(EarthModel) Surface : public EMObject
 {
 public:
-    int				nrSections() const;
-    EM::SectionID		sectionID(int) const;
-    BufferString		sectionName(const SectionID&) const;
-    bool			canSetSectionName() const;
-    bool			setSectionName(const SectionID&,const char*,
-					       bool addtohistory);
-    bool			removeSection(SectionID,bool hist);
 
     virtual void		removeAll();
 
@@ -53,8 +46,7 @@ public:
     virtual bool		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
 
-    virtual EMObjectIterator*	createIterator(const SectionID&,
-					       const TrcKeyZSampling* =0) const;
+    virtual EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
     bool			enableGeometryChecks(bool);
     bool			isGeometryChecksEnabled() const;
@@ -75,7 +67,6 @@ protected:
 
 				Surface(const char*);
 				~Surface();
-    virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
 
     BufferString		dbinfo;
 };

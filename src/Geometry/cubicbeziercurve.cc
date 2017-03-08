@@ -66,12 +66,12 @@ IntervalND<float> CubicBezierCurve::boundingBox(bool approx) const
 	    return Coord3::udf();\
     }\
 \
-    const GeomPosID prevparam = range.atIndex(previdx);\
+    const GeomPosID prevparam = GeomPosID::get( range.atIndex(previdx) );\
 \
     const int nextidx = previdx+1;\
-    const GeomPosID nextparam = range.atIndex(nextidx);\
+    const GeomPosID nextparam = GeomPosID::get( range.atIndex(nextidx) );\
 \
-    const float u = (param-prevparam)/range.step;\
+    const float u = (param-prevparam.getI())/range.step;\
     Coord3 temppos[] = { positions[previdx], getBezierVertex(prevparam,false),\
 			 getBezierVertex(nextparam,true),\
 			 positions[previdx+1] }
@@ -100,13 +100,14 @@ Coord3 CubicBezierCurve::computePosition(float param) const
 	    return Coord3::udf();
     }
 
-    const GeomPosID prevparam = range.atIndex(previdx);
-    const GeomPosID nextparam = range.atIndex(nextidx);
+    const GeomPosID prevparam = GeomPosID::get( range.atIndex(previdx) );
+    const GeomPosID nextparam = GeomPosID::get( range.atIndex(nextidx) );
     Coord3 temppos[] = { positions[previdx], getBezierVertex(prevparam,false),
 			 getBezierVertex(nextparam,true),
 			 positions[nextidx] };
 
-    return cubicDeCasteljau( temppos, 0, 1, (param-prevparam)/range.step );
+    return cubicDeCasteljau( temppos, 0, 1,
+			     (param-prevparam.getI())/range.step );
 }
 
 
@@ -150,7 +151,7 @@ bool CubicBezierCurve::setPosition( GeomPosID param, const Coord3& np )
     {
 	positions.insert( 0, np );
 	directions.insert( 0, Coord3::udf() );
-	firstparam = mCast( int, param );
+	firstparam = mCast( int, param.getI() );
 	triggerNrPosCh( param );
     }
     else if ( idx==positions.size() )
@@ -183,10 +184,10 @@ bool CubicBezierCurve::insertPosition( GeomPosID param, const Coord3& np )
 
     TypeSet<GeomPosID> changedpids;
     for ( int idy=idx; idy<positions.size()-1; idy ++ )
-	changedpids += firstparam+idy*paramstep;
+	changedpids += GeomPosID::get( firstparam+idy*paramstep );
 
     triggerMovement( changedpids );
-    triggerNrPosCh( firstparam+(positions.size()-1)*paramstep);
+    triggerNrPosCh( GeomPosID::get(firstparam+(positions.size()-1)*paramstep));
     return true;
 }
 
@@ -205,10 +206,10 @@ bool CubicBezierCurve::removePosition( GeomPosID param )
 
     TypeSet<GeomPosID> changedpids;
     for ( int idy=idx; idy<positions.size(); idy ++ )
-	changedpids += firstparam+idy*paramstep;
+	changedpids += GeomPosID::get( firstparam+idy*paramstep );
 
     triggerMovement( changedpids );
-    triggerNrPosCh( firstparam+positions.size()*paramstep);
+    triggerNrPosCh( GeomPosID::get(firstparam+positions.size()*paramstep) );
     return true;
 }
 
@@ -318,8 +319,9 @@ bool CubicBezierCurve::setCircular(bool yn)
     {
 	iscircular=yn;
 	TypeSet<GeomPosID> affectedpids;
-	affectedpids += firstparam;
-	affectedpids += firstparam + (positions.size()-1)*paramstep;
+	affectedpids += GeomPosID::get( firstparam );
+	affectedpids +=
+	    GeomPosID::get( firstparam + (positions.size()-1)*paramstep );
 	triggerMovement( affectedpids );
     }
 

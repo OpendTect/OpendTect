@@ -27,24 +27,21 @@ void Horizon3DExtender::initClass()
 }
 
 
-SectionExtender* Horizon3DExtender::create( EM::EMObject* emobj,
-					    EM::SectionID sid )
+SectionExtender* Horizon3DExtender::create( EM::EMObject* emobj )
 {
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    return emobj && !hor ? 0 : new Horizon3DExtender( *hor, sid );
+    return emobj && !hor ? 0 : new Horizon3DExtender( *hor );
 }
 
 
-Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& hor3d,
-				      EM::SectionID sectionid )
-   : BaseHorizon3DExtender( hor3d, sectionid )
+Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& hor3d )
+   : BaseHorizon3DExtender( hor3d )
 {
 }
 
 
-BaseHorizon3DExtender::BaseHorizon3DExtender( EM::Horizon3D& hor3d,
-					      EM::SectionID sectionid )
-    : SectionExtender( sectionid )
+BaseHorizon3DExtender::BaseHorizon3DExtender( EM::Horizon3D& hor3d )
+    : SectionExtender()
     , horizon_( hor3d )
 {}
 
@@ -60,7 +57,7 @@ int BaseHorizon3DExtender::maxNrPosInExtArea() const
 void BaseHorizon3DExtender::preallocExtArea()
 {
     const TrcKeySampling hrg = getExtBoundary().hsamp_;
-    Geometry::BinIDSurface* bidsurf = horizon_.geometry().sectionGeometry(sid_);
+    Geometry::BinIDSurface* bidsurf = horizon_.geometry().geometryElement();
     if ( bidsurf ) bidsurf->expandWithUdf( hrg.start_,hrg.stop_ );
 }
 
@@ -107,16 +104,13 @@ int BaseHorizon3DExtender::nextStep()
 	    }
 
 	    const BinID& srcbid = sourcenodes[idx];
-	    const EM::PosID pid( horizon_.id(), sid_, srcbid.toInt64() );
+	    const EM::PosID pid = EM::PosID::getFromRowCol( srcbid );
 	    for ( int idy=0; idy<directions.size(); idy++ )
 	    {
 		const EM::PosID neighbor =
 			horizon_.geometry().getNeighbor( pid, directions[idy] );
 
-		if ( neighbor.sectionID() != sid_ )
-		    continue;
-
-		const BinID neighbbid = BinID::fromInt64( neighbor.subID() );
+		const BinID neighbbid = neighbor.getBinID();
 		if ( !getExtBoundary().hsamp_.includes(neighbbid) )
 		    continue;
 

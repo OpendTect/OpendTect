@@ -22,17 +22,13 @@ const char* SectionAdjuster::sKeyAdjuster() { return "Adjuster"; }
 const char* SectionAdjuster::sKeyThreshold() { return "Threshold value"; }
 const char* SectionAdjuster::sKeyRemoveOnFailure(){ return "Remove on Failure";}
 
-SectionAdjuster::SectionAdjuster( EM::SectionID sid )
-    : sectionid_(sid)
-    , removeonfailure_(true)
+SectionAdjuster::SectionAdjuster()
+    : removeonfailure_(true)
     , thresholdval_(0.5)
     , seedtk_(TrcKey::udf())
     , setundo_( true )
     , seedid_( 0 )
 {}
-
-
-EM::SectionID SectionAdjuster::sectionID() const { return sectionid_; }
 
 
 void SectionAdjuster::setPositions( const TypeSet<TrcKey>& p,

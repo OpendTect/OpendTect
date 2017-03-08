@@ -48,10 +48,10 @@ bool EM::SetPosUndoEvent::unDo()
 {
     EMManager& manager = EM::EMM();
 
-    if ( !manager.getObject(posid_.objectID()))
+    if ( !manager.getObject(getObjectID()))
 	return true;
 
-    EMObject* emobject = manager.getObject(posid_.objectID());
+    EMObject* emobject = manager.getObject(getObjectID());
     if ( !emobject ) return false;
 
     const bool haschecks = emobject->enableGeometryChecks( false );
@@ -73,10 +73,10 @@ bool EM::SetPosUndoEvent::reDo()
 {
     EMManager& manager = EM::EMM();
 
-    if ( !manager.getObject(posid_.objectID()))
+    if ( !manager.getObject(getObjectID()))
 	return true;
 
-    EMObject* emobject = manager.getObject(posid_.objectID());
+    EMObject* emobject = manager.getObject(getObjectID());
     if ( !emobject ) return false;
 
     bool res = false;
@@ -97,23 +97,21 @@ bool EM::SetPosUndoEvent::reDo()
 
 //SetAllHor3DPosUndoEvent
 EM::SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( EM::Horizon3D* hor,
-				EM::SectionID sid, Array2D<float>* oldarr )
+						Array2D<float>* oldarr )
     : horizon_( hor )
     , oldarr_( oldarr )
     , newarr_( 0 )
-    , sid_( sid )
-    , oldorigin_( hor->geometry().sectionGeometry(sid)->rowRange().start,
-		  hor->geometry().sectionGeometry(sid)->colRange().start )
+    , oldorigin_( hor->geometry().geometryElement()->rowRange().start,
+		  hor->geometry().geometryElement()->colRange().start )
 {}
 
 
 EM::SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( EM::Horizon3D* hor,
-				EM::SectionID sid, Array2D<float>* oldarr,
-				const RowCol& oldorigin )
+						Array2D<float>* oldarr,
+						const RowCol& oldorigin )
     : horizon_( hor )
     , oldarr_( oldarr )
     , newarr_( 0 )
-    , sid_( sid )
     , oldorigin_( oldorigin )
 {}
 
@@ -136,11 +134,11 @@ bool EM::SetAllHor3DPosUndoEvent::unDo()
 
     if ( !newarr_ )
     {
-	newarr_ = horizon_->createArray2D( sid_, 0 );
+	newarr_ = horizon_->createArray2D( 0 );
 	neworigin_.row() =
-		horizon_->geometry().sectionGeometry(sid_)->rowRange().start;
+		horizon_->geometry().geometryElement()->rowRange().start;
 	neworigin_.col() =
-		horizon_->geometry().sectionGeometry(sid_)->colRange().start;
+		horizon_->geometry().geometryElement()->colRange().start;
     }
 
     if ( !newarr_ )
@@ -167,7 +165,7 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 	return false;
 
     mDynamicCastGet( Geometry::ParametricSurface*, surf,
-		     horizon_->sectionGeometry( sid_ ) );
+		     horizon_->geometryElement() );
 
     StepInterval<int> curcolrg = surf->colRange();
     const StepInterval<int> targetcolrg( origin.col(),
@@ -215,14 +213,14 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 	Array2DPaste( tmparr, arr, currowrg.nearestIndex( targetrowrg.start ),
 		      curcolrg.nearestIndex( targetcolrg.start ), false );
 
-	return horizon_->setArray2D( tmparr, sid_, false, 0, true );
+	return horizon_->setArray2D( tmparr, false, 0, true );
     }
 
     const RowCol start( targetrowrg.start, targetcolrg.start );
     const RowCol stop( targetrowrg.stop, targetcolrg.stop );
-    horizon_->geometry().sectionGeometry(sid_)->expandWithUdf( start, stop );
+    horizon_->geometry().geometryElement()->expandWithUdf( start, stop );
 
-    return horizon_->setArray2D( arr, sid_, false, 0, false );
+    return horizon_->setArray2D( arr, false, 0, false );
 }
 
 
@@ -241,7 +239,7 @@ const char* EM::SetPosAttribUndoEvent::getStandardDesc() const
 #define mSetPosAttribUndoEvenUndoRedo( arg ) \
     EMManager& manager = EM::EMM(); \
  \
-    EMObject* emobject = manager.getObject(posid_.objectID()); \
+    EMObject* emobject = manager.getObject(getObjectID()); \
     if ( !emobject ) return true; \
  \
     emobject->setPosAttrib( posid_, attrib_, arg, false ); \

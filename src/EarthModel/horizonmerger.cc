@@ -117,8 +117,7 @@ bool Horizon3DMerger::doFinish( bool success )
     if ( !success )
 	return success;
 
-    EM::SectionID sid = outputhor_->sectionID( 0 );
-    Geometry::BinIDSurface* geom = outputhor_->geometry().sectionGeometry( sid);
+    Geometry::BinIDSurface* geom = outputhor_->geometry().geometryElement();
     if ( !geom )
 	return false;
 

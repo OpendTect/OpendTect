@@ -72,11 +72,10 @@ void HorizonSorter::calcBoundingBox()
 	    mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
 	    if ( !hor2d ) continue;
 
-	    const EM::SectionID sid = hor2d->sectionID( 0 );
 	    for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
 	    {
 		const Geometry::Horizon2DLine* geom =
-			hor2d->geometry().sectionGeometry(sid);
+			hor2d->geometry().geometryElement();
 		if ( !geom ) continue;
 
 		Pos::GeomID geomid = hor2d->geometry().geomID( ldx );
@@ -243,19 +242,18 @@ int HorizonSorter::nextStep()
 	mAllocLargeVarLenArr( float, depths, nrhors );
 	for ( int idx=0; idx<nrhors; idx++ )
 	{
-	    const EM::SectionID sid = horizons_[idx]->sectionID(0);
-	    const EM::SubID subid = binid_.toInt64();
+	    const EM::PosID posid = EM::PosID::getFromRowCol(binid_);
 	    if ( is2d_ )
 	    {
 		mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
 		if ( !hor2d ) continue;
 
 		depths[idx] =
-		    (float) hor2d->getPos( sid, geomids_[binid_.inl()],
+		    (float) hor2d->getPos( geomids_[binid_.inl()],
 					   binid_.crl() ).z_;
 	    }
 	    else
-		depths[idx] = (float) horizons_[idx]->getPos( sid, subid ).z_;
+		depths[idx] = (float) horizons_[idx]->getPos( posid ).z_;
 	}
 
 	for ( int idx=0; idx<nrhors; idx++ )

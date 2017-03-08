@@ -485,8 +485,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	    return false;
 
 	MPE::engine().setActiveTracker( emid_ );
-	const EM::SectionID sid = emobj->sectionID( 0 );
-	mps->useSavedSetupDlg( emid_, sid );
+	mps->useSavedSetupDlg( emid_ );
 	if ( viewer2D() && viewer2D()->viewControl() )
 	    viewer2D()->viewControl()->setEditMode( true );
     }
@@ -494,10 +493,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
     {
 	EM::EMObject* emobj = EM::Hor2DMan().getObject( emid_ );
 	if ( emobj )
-	{
-	    const EM::SectionID sid = emobj->sectionID( 0 );
-	    mps->showSetupDlg( emid_, sid );
-	}
+	    mps->showSetupDlg( emid_ );
     }
     else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
     {

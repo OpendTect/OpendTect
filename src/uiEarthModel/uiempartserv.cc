@@ -428,7 +428,7 @@ void uiEMPartServer::displayEMObject( const DBKey& mid )
         if ( hor3d )
         {
 	    TrcKeySampling selrg;
-	    selrg.setInlRange( hor3d->geometry().rowRange( 0 ) );
+	    selrg.setInlRange( hor3d->geometry().rowRange() );
 	    selrg.setCrlRange( hor3d->geometry().colRange( 0 ) );
 	    setHorizon3DDisplayRange( selrg );
         }
@@ -957,17 +957,13 @@ int uiEMPartServer::setAuxData( const DBKey& id, DataPointSet& data,
 
     BinID bid;
     BinIDValueSet::SPos pos;
-    const EM::SectionID sectionid = hor3d->sectionID( 0 );
-
-    EM::PosID posid( id, sectionid );
     while ( bivs.next(pos) )
     {
 	bid = bivs.getBinID( pos );
 	const float* vals = bivs.getVals( pos );
 
 	RowCol rc( bid.inl(), bid.crl() );
-	EM::SubID subid = rc.toInt64();
-	posid.setSubID( subid );
+	EM::PosID posid = EM::PosID::getFromRowCol( rc );
 	hor3d->auxdata.setAuxDataVal( auxdataidx, posid, vals[idx] );
     }
 
@@ -989,26 +985,17 @@ bool uiEMPartServer::getAuxData( const DBKey& oid, int auxdataidx,
     data.dataSet().add( new DataColDef(nm) );
 
     float auxvals[3];
-    for ( int idx=0; idx<hor3d->nrSections(); idx++ )
+    if ( !hor3d->geometry().geometryElement() )
+	return false;
+
+    auxvals[1] = 0;
+    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator();
+    while ( true )
     {
-	const EM::SectionID sid = hor3d->sectionID( idx );
-	if ( !hor3d->geometry().sectionGeometry(sid) )
-	    continue;
-
-	auxvals[1] = sid;
-
-	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
-	while ( true )
-	{
-	    const EM::PosID pid = iterator->next();
-	    if ( pid.objectID().isInvalid() )
-		break;
-
-	    auxvals[0] = (float) hor3d->getPos( pid ).z_;
-	    auxvals[2] = hor3d->auxdata.getAuxDataVal( auxdataidx, pid );
-	    BinID bid = BinID::fromInt64( pid.subID() );
-	    data.bivSet().add( bid, auxvals );
-	}
+	const EM::PosID pid = iterator->next();
+	auxvals[0] = (float) hor3d->getPos( pid ).z_;
+	auxvals[2] = hor3d->auxdata.getAuxDataVal( auxdataidx, pid );
+	data.bivSet().add( pid.getBinID(), auxvals );
     }
 
     data.dataChanged();
@@ -1040,41 +1027,37 @@ bool uiEMPartServer::getAllAuxData( const DBKey& oid,
 
     data.bivSet().allowDuplicateBinIDs(false);
     mAllocVarLenArr( float, auxvals, nms.size()+2 );
-    for ( int sidx=0; sidx<hor3d->nrSections(); sidx++ )
+    if ( !hor3d->geometry().geometryElement() )
+	return false;
+
+    auxvals[0] = 0;
+    auxvals[1] = 0;
+    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator(cs);
+    while ( true )
     {
-	const EM::SectionID sid = hor3d->sectionID( sidx );
-	if ( !hor3d->geometry().sectionGeometry(sid) )
-	    continue;
+	const EM::PosID pid = iterator->next();
+	if ( pid.isInvalid() )
+	    break;
 
-	auxvals[0] = 0;
-	auxvals[1] = sid;
-	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator(sid,cs);
-	while ( true )
+	BinID bid = pid.getBinID();
+	if ( cs )
 	{
-	    const EM::PosID pid = iterator->next();
-	    if ( pid.objectID().isInvalid() )
-		break;
+	    if ( !cs->hsamp_.includes(bid) )
+		continue;
 
-	    BinID bid = BinID::fromInt64( pid.subID() );
-	    if ( cs )
-	    {
-		if ( !cs->hsamp_.includes(bid) )
-		    continue;
-
-		BinID diff = bid - cs->hsamp_.start_;
-		if ( diff.inl() % cs->hsamp_.step_.inl() ||
-		     diff.crl() % cs->hsamp_.step_.crl() )
-		    continue;
-	    }
-
-	    auxvals[0] = (float) hor3d->getPos( pid ).z_;
-	    for ( int idx=0; idx<nms.size(); idx++ )
-	    {
-		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
-		auxvals[idx+2] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
-	    }
-	    data.bivSet().add( bid, mVarLenArr(auxvals) );
+	    BinID diff = bid - cs->hsamp_.start_;
+	    if ( diff.inl() % cs->hsamp_.step_.inl() ||
+		 diff.crl() % cs->hsamp_.step_.crl() )
+		continue;
 	}
+
+	auxvals[0] = (float) hor3d->getPos( pid ).z_;
+	for ( int idx=0; idx<nms.size(); idx++ )
+	{
+	    const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
+	    auxvals[idx+2] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
+	}
+	data.bivSet().add( bid, mVarLenArr(auxvals) );
     }
 
     data.dataChanged();
@@ -1122,9 +1105,8 @@ bool uiEMPartServer::computeVariogramAuxData( const DBKey& oid,
     if ( cid < 0 || mIsUdf(cid) )
 	return false;
 
-    const EM::SectionID sid = hor3d->sectionID( 0 );
-    const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
-    const StepInterval<int> colrg = hor3d->geometry().colRange( sid, -1 );
+    const StepInterval<int> rowrg = hor3d->geometry().rowRange();
+    const StepInterval<int> colrg = hor3d->geometry().colRange( -1 );
     BinID step( rowrg.step, colrg.step );
 //    BIDValSetArrAdapter adapter( bivs, cid, step );
 
@@ -1175,9 +1157,8 @@ bool uiEMPartServer::changeAuxData( const DBKey& oid,
     if ( cid < 0 )
 	return false;
 
-    const EM::SectionID sid = hor3d->sectionID( 0 );
-    const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
-    const StepInterval<int> colrg = hor3d->geometry().colRange( sid, -1 );
+    const StepInterval<int> rowrg = hor3d->geometry().rowRange();
+    const StepInterval<int> colrg = hor3d->geometry().colRange( -1 );
     BinID step( rowrg.step, colrg.step );
     BIDValSetArrAdapter adapter( bivs, cid, step );
 
@@ -1204,7 +1185,7 @@ bool uiEMPartServer::changeAuxData( const DBKey& oid,
 	interp->setRowStep( rowrg.step*inldist );
 	interp->setColStep( colrg.step*crldist );
 
-	PtrMan< Array2D<float> > arr = hor3d->createArray2D( sid );
+	PtrMan< Array2D<float> > arr = hor3d->createArray2D();
 	const float* arrptr = arr ? arr->getData() : 0;
 	if ( arrptr )
 	{
@@ -1446,53 +1427,25 @@ void uiEMPartServer::getSurfaceDef3D( const DBKeySet& selhorids,
 	for ( bid.crl()=hs.start_.crl(); bid.crl()<=hs.stop_.crl();
 	      bid.crl()+=hs.step_.crl() )
 	{
-	    const EM::SubID subid = bid.toInt64();
-	    TypeSet<Coord3> z1pos, z2pos;
-	    for ( int idx=hor3d->nrSections()-1; idx>=0; idx-- )
-	    {
-		const EM::SectionID sid = hor3d->sectionID( idx );
-		if ( hor3d->isDefined( sid, subid ) )
-		    z1pos += hor3d->getPos( sid, subid );
-	    }
+	    const EM::PosID posid = EM::PosID::getFromRowCol( bid );
+	    float z1pos = mUdf(float), z2pos = mUdf(float);
+	    if ( !hor3d->isDefined(posid) )
+		continue;
 
-	    if ( z1pos.isEmpty() ) continue;
-
+	    z1pos = (float) hor3d->getPos( posid ).z_;
 	    if ( !hor3d2 )
-	    {
-		for ( int posidx=0; posidx<z1pos.size(); posidx++ )
-		    bivs.add( bid, (float) z1pos[posidx].z_,
-			      (float) z1pos[posidx].z_ );
-	    }
+		z2pos = z1pos;
 	    else
 	    {
-		for ( int idx=hor3d2->nrSections()-1; idx>=0; idx-- )
-		{
-		    const EM::SectionID sid = hor3d2->sectionID( idx );
-		    if ( hor3d2->isDefined( sid, subid ) )
-			z2pos += hor3d2->getPos( sid, subid );
-		}
+		if ( !hor3d2->isDefined(posid) )
+		    continue;
 
-		if ( z2pos.isEmpty() ) continue;
-
-		Interval<float> zintv;
-		float dist = 999999;
-		for ( int z1idx=0; z1idx<z1pos.size(); z1idx++ )
-		{
-		    for ( int z2idx=0; z2idx<z2pos.size(); z2idx++ )
-		    {
-			const float dist_ =
-				(float) (z2pos[z2idx].z_ - z1pos[z1idx].z_);
-			if ( fabs(dist_) < dist )
-			{
-			    zintv.start = (float) z1pos[z1idx].z_;
-			    zintv.stop = (float) z2pos[z2idx].z_;
-			}
-		    }
-		}
-
-		zintv.sort();
-		bivs.add( bid, zintv.start, zintv.stop );
+		z2pos = (float) hor3d2->getPos( posid ).z_;
 	    }
+
+	    Interval<float> zintv( z1pos, z2pos );
+	    zintv.sort();
+	    bivs.add( bid, zintv.start, zintv.stop );
 	}
     }
 
@@ -1545,12 +1498,12 @@ void uiEMPartServer::getSurfaceDef2D( const DBKeySet& selhorids,
 	for ( int trcidx=0; trcidx<=trcrg.nrSteps(); trcidx++ )
 	{
 	    const int trcnr = trcrg.atIndex( trcidx );
-	    const Coord3 pos1 = hor2d1->getPos( 0, geomid, trcnr );
+	    const Coord3 pos1 = hor2d1->getPos( geomid, trcnr );
 	    const float z1 = mCast( float, pos1.z_ );
 	    float z2 = mUdf(float);
 
 	    if ( issecondhor )
-		z2 = mCast( float, hor2d2->getPos(0,geomid,trcnr).z_ );
+		z2 = mCast( float, hor2d2->getPos(geomid,trcnr).z_ );
 
 	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
 	    {
@@ -1579,13 +1532,13 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, DBKey horid )
     while ( psiter.next() )
     {
 	const BinID bid = psiter.get().binID();
-	const EM::SubID subid = bid.toInt64();
-	double zval = hor->getPos( hor->sectionID(0), subid ).z_;
+	const EM::PosID posid = EM::PosID::getFromRowCol( bid );
+	double zval = hor->getPos( posid ).z_;
 
 	if ( mIsUdf(zval) )
 	{
 	    const Geometry::BinIDSurface* geom =
-		hor->geometry().sectionGeometry( hor->sectionID(0) );
+		hor->geometry().geometryElement();
 	    if ( geom )
 		zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z_;
 	}

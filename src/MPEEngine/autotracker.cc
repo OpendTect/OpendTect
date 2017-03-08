@@ -168,7 +168,7 @@ void HorizonTrackerMgr::taskFinished( CallBacker* )
     if ( nrdone_%500 == 0 || nrtodo_==0 )
     {
 	if ( hor3d )
-	    hor3d->sectionGeometry( hor3d->sectionID(0) )->blockCallBacks(true);
+	    hor3d->geometryElement()->blockCallBacks(true);
     }
 
     if ( nrtodo_ == 0 )
@@ -210,7 +210,7 @@ void HorizonTrackerMgr::startFromSeeds()
     EM::EMObject* emobj = tracker_.emObject();
     if ( !emobj ) return;
 
-    SectionTracker* st = tracker_.getSectionTracker( emobj->sectionID(0) );
+    SectionTracker* st = tracker_.getSectionTracker();
     if ( !st || !st->extender() )
 	return;
 
@@ -225,7 +225,7 @@ void HorizonTrackerMgr::startFromSeeds()
 	}
 
 	hor3d->updateTrackingSampling();
-	horizon3dundoinfo_ = hor3d->createArray2D( hor3d->sectionID(0) );
+	horizon3dundoinfo_ = hor3d->createArray2D();
 	horizon3dundoorigin_ = hor3d->range().start_;
     }
 
@@ -254,8 +254,7 @@ void HorizonTrackerMgr::addUndoEvent()
 	EM::EMObject* emobj = tracker_.emObject();
 	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 	UndoEvent* undo = new EM::SetAllHor3DPosUndoEvent(
-		hor3d, hor3d->sectionID(0),
-		horizon3dundoinfo_, horizon3dundoorigin_ );
+		hor3d, horizon3dundoinfo_, horizon3dundoorigin_ );
 	EM::Hor3DMan().undo().addEvent( undo, "Auto tracking" );
 	horizon3dundoinfo_ = 0;
     }

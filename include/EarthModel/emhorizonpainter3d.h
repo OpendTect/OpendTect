@@ -72,7 +72,7 @@ protected:
     bool		addPolyLine();
     void		removePolyLine();
 
-    void		generateNewMarker(const Horizon3D&,const SectionID&,
+    void		generateNewMarker(const Horizon3D&,
 					  SectionMarker3DLine&,Marker3D*&);
     bool		addDataToMarker(const BinID&,const Coord3&,
 					const PosID&,const Horizon3D&,
@@ -82,7 +82,7 @@ protected:
     void		paintCB(CallBacker*);
     void		changePolyLineColor();
     void		changePolyLinePosition( const EM::PosID& pid );
-    Marker3D*		create3DMarker(const EM::SectionID&);
+    Marker3D*		create3DMarker();
 
     DBKey		id_;
     TrcKeyZSampling	tkzs_;

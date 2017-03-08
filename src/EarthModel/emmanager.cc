@@ -514,4 +514,17 @@ EMObject* GenEMManager::createTempObject( const char* type )
     return getMgr( trgrp ).createTempObject( type );
 }
 
+
+void GenEMManager::addObject( EMObject* obj )
+{
+    if ( !obj )
+	{ pErrMsg("No object provided!"); return; }
+
+    if ( isPresent(*obj) )
+	{ pErrMsg("Adding object twice"); return; }
+
+    getMgr( obj->dbKey() ).addObject( obj );
+}
+
+
 } // namespace EM

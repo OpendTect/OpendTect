@@ -87,8 +87,8 @@ float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
 
     if ( hor3d_ )
     {
-	const EM::SubID subid = bid.toInt64();
-	const Coord3& horpos = hor3d_->getPos( hor3d_->sectionID(0), subid );
+	const EM::PosID subid = EM::PosID::getFromRowCol( bid );
+	const Coord3& horpos = hor3d_->getPos( subid );
 	const BinID horbid = SI().transform( horpos.getXY() );
 	if ( bid == horbid )
 	    return (float)horpos.z_;

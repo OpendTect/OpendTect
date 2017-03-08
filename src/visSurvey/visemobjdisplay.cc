@@ -212,7 +212,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     else if ( keycb )
     {
 	const RowCol closestrc = closestnode.getRowCol();
-	BufferString str = "Section: "; str += closestnode.sectionID();
+	BufferString str = "Section: "; str += 0;
 	str += " ("; str += closestrc.row();
 	str += ","; str += closestrc.col(); str += ",";
 	const Coord3 pos = emobject_->getPos( closestnode );
@@ -251,7 +251,7 @@ void EMObjectDisplay::removeEMStuff()
 
 
 EM::PosID EMObjectDisplay::findClosestNode(const Coord3&) const
-{ return EM::PosID(DBKey::getInvalid(),-1,-1); }
+{ return EM::PosID::getInvalid(); }
 
 
 bool EMObjectDisplay::setEMObject( const DBKey& newid, TaskRunner* tskr )
@@ -300,18 +300,7 @@ DBKey EMObjectDisplay::getDBKey() const
 
 BufferStringSet EMObjectDisplay::displayedSections() const
 {
-    if ( !emobject_ )
-	return parsections_;
-
-    BufferStringSet res;
-    for ( int idx=emobject_->nrSections()-1; idx>=0; idx-- )
-    {
-	mDeclareAndTryAlloc( BufferString*, buf,
-	    BufferString(emobject_->sectionName(emobject_->sectionID(idx))) );
-	res += buf;
-    }
-
-    return res;
+    return parsections_;
 }
 
 
@@ -321,11 +310,8 @@ bool EMObjectDisplay::updateFromEM( TaskRunner* tskr )
 
     setName( emobject_->uiName() );
 
-    for ( int idx=0; idx<emobject_->nrSections(); idx++ )
-    {
-	if ( !addSection( emobject_->sectionID(idx), tskr ) )
-	    return false;
-    }
+    if ( !addSection( 0, tskr ) )
+	return false;
 
     updateFromMPE();
 
@@ -552,15 +538,6 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
     info = emobject_->getTypeStr(); info += ": ";
     info += mFromUiStringTodo(name());
-
-    const EM::SectionID sid = getSectionID(&eventinfo.pickedobjids);
-
-    if ( sid==-1 || emobject_->nrSections()==1 )
-	return;
-
-    BufferString sectionname = emobject_->sectionName(sid);
-    if ( sectionname.isEmpty() ) sectionname = sid;
-    info += ", Section: "; info += sectionname;
 }
 
 
@@ -682,7 +659,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 const visBase::MarkerSet* EMObjectDisplay::getSeedMarkerSet() const
 {
     const int attribindex = posattribs_.indexOf( EM::EMObject::sSeedNode() );
-    if ( attribindex==-1 || posattribmarkers_.size()<attribindex ) 
+    if ( attribindex==-1 || posattribmarkers_.size()<attribindex )
 	return 0;
 
     return posattribmarkers_[attribindex];
@@ -692,7 +669,7 @@ const visBase::MarkerSet* EMObjectDisplay::getSeedMarkerSet() const
 EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     const TypeSet<int>& path, const Coord3& clickeddisplaypos ) const
 {
-    EM::PosID res(DBKey::getInvalid(),-1,-1);
+    EM::PosID res = EM::PosID::getInvalid();
     const int attribidx = posattribs_.indexOf(attrib);
     if ( attribidx<0 )
 	return res;
@@ -708,7 +685,7 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 
     for ( int idx=0; idx<pids->size(); idx++ )
     {
-	Coord3 nodecrd = emobject_->getPos(  (*pids)[idx] );
+	Coord3 nodecrd = emobject_->getPos( (*pids)[idx] );
 	if ( transformation_ )
 	    transformation_->transform( nodecrd );
 

@@ -39,7 +39,6 @@ set(OD_MODULE_SOURCES
 		emobjectposselector.cc
 		emrandomposbody.cc
 		empolygonbody.cc
-		emposid.cc
 		emrandlinegen.cc
 		emregion.cc
 		emrowcoliterator.cc

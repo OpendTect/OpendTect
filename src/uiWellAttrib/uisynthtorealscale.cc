@@ -287,7 +287,7 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     if ( !hor ) return false;
     horizon_ = hor;
     horizon_->ref();
-    horiter_ = horizon_->createIterator( horizon_->sectionID(0) );
+    horiter_ = horizon_->createIterator();
     return true;
 }
 
@@ -373,7 +373,7 @@ bool getNextPos3D()
     while ( true )
     {
 	const EM::PosID posid = dlg_.horiter_->next();
-	if ( posid.isUdf() )
+	if ( posid.isInvalid() )
 	    return false;
 	const Coord3 crd = dlg_.horizon_->getPos( posid );
 	if ( setBinID(crd.getXY()) )

@@ -114,10 +114,10 @@ bool Horizon2DSeedPicker::startSeedPick()
 
 #define mGetHorAndColrg(hor,colrg,escval) \
     mGetHorizon(hor,escval); \
-    if ( sectionid_<0 || geomid_==Survey::GeometryManager::cUndefGeomID() ) \
+    if ( geomid_==Survey::GeometryManager::cUndefGeomID() ) \
 	return escval; \
     const StepInterval<int> colrg = \
-	hor->geometry().colRange( sectionid_, geomid_ );
+	hor->geometry().colRange( geomid_ );
 
 
 bool Horizon2DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
@@ -192,7 +192,7 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 	while ( col>colrg.start && col<colrg.stop )
 	{
 	    col += idx*colrg.step;
-	    const Coord3 pos = hor->getPos( sectionid_, geomid_, col );
+	    const Coord3 pos = hor->getPos( geomid_, col );
 	    if ( pos.getXY().isDefined() )
 	    {
 		if ( pos.isDefined() )
@@ -304,7 +304,7 @@ bool Horizon2DSeedPicker::getNextSeedPos( int seedpos, int dirstep,
 	currc.col() += dirstep;
 	if ( !colrg.includes(currc.col(),false) )
 	    return false;
-	const EM::PosID pid( hor->id(), sectionid_, currc.toInt64() );
+	const EM::PosID pid = EM::PosID::getFromRowCol( currc );
 	if ( hor->isPosAttrib( pid, EM::EMObject::sSeedNode() ) )
 	{
 	    nextseedpos = currc.col();
@@ -476,7 +476,7 @@ bool Horizon2DSeedPicker::retrackFromSeedSet()
 
     mGetHorizon(hor,false);
 
-    SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
+    SectionTracker* sectracker = tracker_.getSectionTracker( true );
     SectionExtender* extender = sectracker->extender();
     mDynamicCastGet( HorizonAdjuster*, adjuster, sectracker->adjuster() );
     mDynamicCastGet( Horizon2DExtender*, extender2d, extender );

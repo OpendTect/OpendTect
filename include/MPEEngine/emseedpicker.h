@@ -59,9 +59,6 @@ public:
     virtual		~EMSeedPicker();
 
 
-    virtual void	setSectionID(EM::SectionID);
-    virtual EM::SectionID getSectionID() const;
-
     virtual bool	startSeedPick();
 			/*!<Should be set when seedpicking is about to start. */
 
@@ -137,7 +134,6 @@ protected:
 
     bool		blockpicking_;
     bool		didchecksupport_;
-    EM::SectionID	sectionid_;
     TrackMode		trackmode_;
     TrcKeySampling	seedpickarea_;
     bool		sowermode_;

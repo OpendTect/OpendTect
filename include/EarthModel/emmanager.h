@@ -195,6 +195,7 @@ public:
     const Undo&		getUndo(const DBKey& id) const
 			{ return getMgr(id).undo(); }
 
+    void		addObject(EMObject*);
 };
 
 mGlobal(EarthModel) GenEMManager& EMM();

@@ -63,7 +63,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     , activestick_(visBase::Lines::create())
     , displayonlyatsections_(false)
     , makenewstick_( false )
-    , activestickid_( EM::PosID::udf() )
+    , activestickid_( EM::PosID::getInvalid() )
 {
     sticks_->ref();
     stickdrawstyle_ = sticks_->addNodeState( new visBase::DrawStyle );
@@ -305,8 +305,6 @@ void FaultStickSetDisplay::updateEditPids()
 
     editpids_.erase();
 
-    const bool displayknots = !hideallknots_ && !stickselectmode_;
-
     RowCol rc;
     const StepInterval<int> rowrg = fault_->rowRange();
     for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
@@ -319,7 +317,7 @@ void FaultStickSetDisplay::updateEditPids()
 		rc.col()+=colrg.step )
 	{
 	    if ( !fault_->isKnotHidden(rc,mSceneIdx) )
-		editpids_ += EM::PosID(fault_->id(), 0, rc.toInt64());
+		editpids_ += EM::PosID::getFromRowCol( rc );
 	}
     }
 
@@ -519,7 +517,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( eventinfo.buttonstate_ == OD::ControlButton )
     {
 	 makenewstick_ =  false;
-	 if ( !activestickid_.isUdf() )
+	 if ( !activestickid_.isInvalid() )
 	     fsseditor_->setLastClicked( activestickid_ );
 	 return;
     }
@@ -543,7 +541,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     BufferString horshiftname;
     Coord3 pos;
 
-    if ( !mousepid.isUdf() )
+    if ( !mousepid.isInvalid() )
     {
 	const int sticknr = mousepid.getRowCol().row();
 	pos = fault_->getPos( mousepid );
@@ -595,7 +593,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 	if ( !s2dd && !plane && !hordisp && !rdtd )
 	{
-	    setActiveStick( EM::PosID::udf() );
+	    setActiveStick( EM::PosID::getInvalid() );
 	    return;
 	}
 
@@ -607,10 +605,10 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     fsseditor_->getInteractionInfo( insertpid, pickeddbkey, pickednm,
 				    pickedgeomid, pos, normal);
 
-    if ( mousepid.isUdf() && !viseditor_->isDragging() )
+    if ( mousepid.isInvalid() && !viseditor_->isDragging() )
     {
 	EM::PosID npid = fsseditor_->getNearestStick( pos,pickedgeomid,normal );
-	if ( !npid.isUdf() )
+	if ( !npid.isInvalid() )
 	{
 	   setActiveStick( npid );
 	   activestickid_ = npid;
@@ -621,7 +619,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	 eventinfo.type!=visBase::MouseClick || viseditor_->isDragging() )
 	return;
 
-    if ( !mousepid.isUdf() )
+    if ( !mousepid.isInvalid() )
     {
 	fsseditor_->setLastClicked( mousepid );
 	setActiveStick( mousepid );
@@ -632,7 +630,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	return;
 
 
-    if ( !mousepid.isUdf() && OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
+    if ( !mousepid.isInvalid() && OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
     {
 	// Remove knot/stick
 	eventcatcher_->setHandled();
@@ -644,14 +642,14 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	if ( fault_->nrKnots(rmnr) == 1 )
 	    fault_->removeStick( rmnr, true );
 	else
-	    fault_->removeKnot( mousepid.subID(), true );
+	    fault_->removeKnot( mousepid, true );
 
 	mSetUserInteractionEnd();
 	updateEditPids();
 	return;
     }
 
-    if ( !mousepid.isUdf() || OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
+    if ( !mousepid.isInvalid() || OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
 	return;
 
     if ( viseditor_->sower().activate(fault_->preferredColor(), eventinfo) )
@@ -660,7 +658,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( eventinfo.pressed )
 	return;
 
-    if ( insertpid.isUdf() || makenewstick_ )
+    if ( insertpid.isInvalid() || makenewstick_ )
     {
 	// Add stick
 	const Coord3 editnormal(
@@ -680,9 +678,9 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    fault_->insertStick( insertsticknr, 0, pos, editnormal,
 			      pickedgeomid, true );
 
-	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
-	fsseditor_->setLastClicked( EM::PosID(fault_->id(),0,subid) );
-	setActiveStick( EM::PosID(fault_->id(),0,subid) );
+	const EM::PosID subid = EM::PosID::getFromRowCol( insertsticknr, 0 );
+	fsseditor_->setLastClicked( subid );
+	setActiveStick( subid );
 	mSetUserInteractionEnd();
 	updateEditPids();
 	makenewstick_ = false;
@@ -691,7 +689,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     {
 	// Add knot
 	editpids_.erase();
-	fault_->insertKnot( insertpid.subID(), pos, true );
+	fault_->insertKnot( insertpid, pos, true );
 	fsseditor_->setLastClicked( insertpid );
 	mSetUserInteractionEnd();
 	updateEditPids();
@@ -723,7 +721,7 @@ void FaultStickSetDisplay::setActiveStick( const EM::PosID& pid )
     if ( !viseditor_ )
 	return;
 
-    const bool allowactivestick = viseditor_->isOn() && !pid.isUdf();
+    const bool allowactivestick = viseditor_->isOn() && !pid.isInvalid();
     const int sticknr = allowactivestick ? pid.getRowCol().row() : mUdf(int);
 
     if ( activesticknr_ != sticknr )
@@ -745,7 +743,6 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
     }
     if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
     {
-	EM::SectionID sid = cbaux->pid0.sectionID();
 	RowCol rc = cbaux->pid0.getRowCol();
 
 	const DBKey* mid = fault_->pickedDBKey( rc.row() );
@@ -1016,7 +1013,7 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 	const StepInterval<int> colrg = fault_->colRange( rc.row() );
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
-	    if ( curdragger==EM::PosID(fault_->id(),0,rc.toInt64()) )
+	    if ( curdragger==EM::PosID::getFromRowCol(rc) )
 		unhiddenknots += rc;
 	}
 
@@ -1081,7 +1078,7 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
     stickselectmode_ = yn;
     ctrldown_ = false;
 
-    setActiveStick( EM::PosID::udf() );
+    setActiveStick( EM::PosID::getInvalid() );
     updateManipulator();
     updateEditPids();
     updateKnotMarkers();

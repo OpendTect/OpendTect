@@ -476,7 +476,7 @@ bool uiStratSynthExport::createHor2Ds()
 	for ( int trcidx=0; trcidx<stratlvl->zvals_.size(); trcidx++ )
 	{
 	    const int trcnr = trcnrrg.atIndex( trcidx );
-	    horizon2d->setZPos( horizon2d->sectionID(0), geomid, trcnr,
+	    horizon2d->setZPos( geomid, trcnr,
 			       stratlvl->zvals_[trcidx], false );
 	}
 

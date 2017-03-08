@@ -166,13 +166,11 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     TrcKeySamplingIterator iter( sd.rg );
-    EM::SectionID sid = hor->sectionID( 0 );
     const float fac = mCast( float, SI().zDomain().userFactor() );
     const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.str() );
     do
     {
-	const EM::SubID subid( iter.curBinID().toInt64() );
-	const EM::PosID posid( hor->id(), sid, subid );
+	const EM::PosID posid = EM::PosID::getFromRowCol( iter.curBinID() );
 	const Coord3 pos( hor->getPos( posid ) );
 	if ( !pos.isDefined() )
 	    continue;

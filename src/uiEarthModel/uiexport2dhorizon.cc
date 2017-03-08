@@ -126,8 +126,7 @@ bool uiExport2DHorizon::doExport()
     if ( !hor )
 	mErrRet(uiStrings::sCantReadHor())
 
-    EM::SectionID sid = hor->sectionID( 0 );
-    const Geometry::Horizon2DLine* geom = hor->geometry().sectionGeometry(sid);
+    const Geometry::Horizon2DLine* geom = hor->geometry().geometryElement();
     if ( !geom ) mErrRet(tr("Error Reading Horizon"))
 
     const bool wrudfs = udffld_->isChecked();

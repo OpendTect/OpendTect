@@ -27,28 +27,25 @@ namespace EM
 mExpClass(EarthModel) RowColIterator : public EMObjectIterator
 {
 public:
-    			RowColIterator(const Surface&,const SectionID&,
+			RowColIterator(const Surface&,
 				       const TrcKeyZSampling* =0);
-    			RowColIterator(const Surface&,const SectionID&,
+			RowColIterator(const Surface&,
 				       const StepInterval<int> rowbnd,
 				       const StepInterval<int> colbnd);
     PosID		next();
     int			maximumSize() const;
-    int			maximumSize(const SectionID&) const;
 
 protected:
-    bool		initSection();
-    bool		nextSection();
+
+    bool		init();
 
     RowCol				rc_;
-    SectionID				sid_;
-    const Geometry::RowColSurface*	cursection_;
+    const Geometry::RowColSurface*	surfgeom_;
     StepInterval<int>			rowrg_;
     StepInterval<int>			colrg_;
-    bool				allsids_;
     const Surface&			surf_;
 
-    const TrcKeyZSampling*			csbound_;
+    const TrcKeyZSampling*		csbound_;
     const StepInterval<int>		rowbound_;
     const StepInterval<int>		colbound_;
     const bool				rowcolbounded_;

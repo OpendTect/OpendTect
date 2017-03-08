@@ -261,40 +261,31 @@ bool uiExportHorizon::writeAscii()
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     const UnitOfMeasure* unit = unitsel_->getUnit();
-    TypeSet<int>& sections = sels.selsections;
     int zatvoi = -1;
     if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
     {
 	TrcKeyZSampling bbox;
 	bool first = true;
-	for ( int sidx=0; sidx<sections.size(); sidx++ )
+	PtrMan<EM::EMObjectIterator> it = hor->createIterator();
+	while ( true )
 	{
-	    const EM::SectionID sectionid = hor->sectionID( sections[sidx] );
-	    PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
-	    while ( true )
+	    const EM::PosID posid = it->next();
+	    const Coord3 crd = hor->getPos( posid );
+	    if ( !crd.isDefined() )
+		continue;
+
+	    const BinID bid = SI().transform( crd.getXY() );
+	    if ( first )
 	    {
-		const EM::PosID posid = it->next();
-		if ( posid.objectID().isInvalid() )
-		    break;
-
-		const Coord3 crd = hor->getPos( posid );
-		if ( !crd.isDefined() )
-		    continue;
-
-		const BinID bid = SI().transform( crd.getXY() );
-		if ( first )
-		{
-		    first = false;
-		    bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
-		    bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
-		}
-		else
-		{
-		    bbox.hsamp_.include( bid );
-		    bbox.zsamp_.include( (float) crd.z_ );
-		}
+		first = false;
+		bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
+		bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
 	    }
-
+	    else
+	    {
+		bbox.hsamp_.include( bid );
+		bbox.zsamp_.include( (float) crd.z_ );
+	    }
 	}
 
 	if ( !first && zatf->needsVolumeOfInterest() )
@@ -309,119 +300,93 @@ bool uiExportHorizon::writeAscii()
     }
 
     const int nrattribs = hor->auxdata.nrAuxData();
-    const bool writemultiple = sections.size() > 1;
-    for ( int sidx=0; sidx<sections.size(); sidx++ )
+    BufferString fname( basename );
+    od_ostream stream( fname );
+
+    if ( stream.isBad() )
     {
-	const int sectionidx = sections[sidx];
-	BufferString fname( basename );
-	if ( writemultiple )
+	mErrRet( uiStrings::sCantOpenOutpFile() );
+    }
+
+    if ( dogf )
+	initGF( stream, gfname_.buf(), gfcomment_.buf() );
+    else
+    {
+	stream.stdStream() << std::fixed;
+	writeHeader( stream );
+    }
+
+    PtrMan<EM::EMObjectIterator> it = hor->createIterator();
+    BufferString str;
+    while ( true )
+    {
+	const EM::PosID posid = it->next();
+	Coord3 crd = hor->getPos( posid );
+	const BinID bid = SI().transform( crd.getXY() );
+	if ( zatf )
+	    crd.z_ = zatf->transformTrc( bid, (float)crd.z_ );
+
+	if ( zatf && SI().depthsInFeet() )
 	{
-	    File::Path fp( fname );
-	    BufferString ext( fp.extension() );
-	    if ( ext.isEmpty() )
-		{ fname += "_"; fname += sidx; }
-	    else
-	    {
-		fp.setExtension( 0 );
-		BufferString fnm = fp.fileName();
-		fnm += "_"; fname += sidx;
-		fp.setFileName( fnm );
-		fp.setExtension( ext );
-		fname = fp.fullPath();
-	    }
+	    const UnitOfMeasure* uom = UoMR().get( "ft" );
+	    crd.z_ = uom->getSIValue( crd.z_ );
 	}
 
-        od_ostream stream( fname );
-
-	if ( stream.isBad() )
-	{
-            mErrRet( uiStrings::sCantOpenOutpFile() );
-	}
+	if ( !mIsUdf(crd.z_) && unit )
+	    crd.z_ = unit->userValue( crd.z_ );
 
 	if ( dogf )
-	    initGF( stream, gfname_.buf(), gfcomment_.buf() );
+	{
+	    const float auxvalue = nrattribs > 0
+		? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
+	    writeGF( stream, bid, (float) crd.z_, auxvalue,
+		     crd.getXY(), 0 );
+	    continue;
+	}
+
+	if ( !doxy )
+	{
+	    stream << bid.inl() << od_tab << bid.crl();
+	}
 	else
 	{
-	    stream.stdStream() << std::fixed;
-	    writeHeader( stream );
+	    // ostreams print doubles awfully
+	    str.setEmpty();
+	    str += crd.x_; str += od_tab; str += crd.y_;
+	    stream << str;
 	}
 
-	const EM::SectionID sectionid = hor->sectionID( sectionidx );
-	PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
-	BufferString str;
-	while ( true )
+	if ( addzpos )
 	{
-	    const EM::PosID posid = it->next();
-	    if ( posid.objectID().isInvalid() )
-		break;
-
-	    Coord3 crd = hor->getPos( posid );
-	    const BinID bid = SI().transform( crd.getXY() );
-	    if ( zatf )
-		crd.z_ = zatf->transformTrc( bid, (float)crd.z_ );
-
-	    if ( zatf && SI().depthsInFeet() )
-	    {
-		const UnitOfMeasure* uom = UoMR().get( "ft" );
-		crd.z_ = uom->getSIValue( crd.z_ );
-	    }
-
-	    if ( !mIsUdf(crd.z_) && unit )
-		crd.z_ = unit->userValue( crd.z_ );
-
-	    if ( dogf )
-	    {
-		const float auxvalue = nrattribs > 0
-		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-		writeGF( stream, bid, (float) crd.z_, auxvalue,
-			 crd.getXY(), sidx );
-		continue;
-	    }
-
-	    if ( !doxy )
-	    {
-		stream << bid.inl() << od_tab << bid.crl();
-	    }
+	    if ( mIsUdf(crd.z_) )
+		stream << od_tab << udfstr;
 	    else
 	    {
-		// ostreams print doubles awfully
-		str.setEmpty();
-		str += crd.x_; str += od_tab; str += crd.y_;
+		str = od_tab; str += crd.z_;
 		stream << str;
 	    }
-
-	    if ( addzpos )
-	    {
-		if ( mIsUdf(crd.z_) )
-		    stream << od_tab << udfstr;
-		else
-		{
-		    str = od_tab; str += crd.z_;
-		    stream << str;
-		}
-	    }
-
-	    for ( int idx=0; idx<nrattribs; idx++ )
-	    {
-		const float auxvalue = hor->auxdata.getAuxDataVal( idx, posid );
-		if ( mIsUdf(auxvalue) )
-		    stream << od_tab << udfstr;
-		else
-		{
-		    str = od_tab; str += auxvalue;
-		    stream << str;
-		}
-	    }
-
-	    stream << od_newline;
 	}
 
-	if ( dogf ) stream << "EOD";
+	for ( int idx=0; idx<nrattribs; idx++ )
+	{
+	    const float auxvalue = hor->auxdata.getAuxDataVal( idx, posid );
+	    if ( mIsUdf(auxvalue) )
+		stream << od_tab << udfstr;
+	    else
+	    {
+		str = od_tab; str += auxvalue;
+		stream << str;
+	    }
+	}
 
-        stream.flush();
-        if ( stream.isBad() )
-            mErrRet( tr("Cannot write output file") );
+	stream << od_newline;
     }
+
+    if ( dogf ) stream << "EOD";
+
+    stream.flush();
+    if ( stream.isBad() )
+	mErrRet( tr("Cannot write output file") );
 
     if ( zatf && zatvoi>=0 )
 	zatf->removeVolumeOfInterest( zatvoi );

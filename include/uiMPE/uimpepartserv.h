@@ -54,13 +54,11 @@ public:
     void			enableTracking(int trackerid,bool yn);
     bool			isTrackingEnabled(int trackerid) const;
 
-    bool			showSetupDlg(const DBKey&,
-					     const EM::SectionID&);
+    bool			showSetupDlg(const DBKey&);
 				/*!<\returns false if cancel was pressed. */
     bool			showSetupGroupOnTop(const DBKey&,
 						    const char* grpnm);
-    void			useSavedSetupDlg(const DBKey&,
-						 const EM::SectionID&);
+    void			useSavedSetupDlg(const DBKey&);
     MPE::uiSetupGroup*		getSetupGroup()	{ return setupgrp_; }
     void			fillTrackerSettings(int trackerid);
 
@@ -118,7 +116,6 @@ protected:
 						MPE::EMTracker&);
     bool			initSetupDlg(EM::EMObject*& emobj,
 					     MPE::EMTracker*& tracker,
-					     const EM::SectionID& sid,
 					     bool freshdlg=false);
 
     const Attrib::DescSet*	attrset3d_;

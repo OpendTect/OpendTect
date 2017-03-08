@@ -86,11 +86,11 @@ bool uiHorGeom2Attr::acceptOK()
 
     for ( EM::SectionID isect=0; isect<hor_.nrSections(); isect++ )
     {
-	EM::EMObjectIterator* iter = hor_.createIterator( isect );
+	EM::EMObjectIterator* iter = hor_.createIterator();
 	while ( true )
 	{
 	    const EM::PosID pid = iter->next();
-	    if ( pid.objectID().isInvalid() )
+	    if ( pid.isInvalid() )
 		break;
 	    if ( !hor_.geometry().isNodeOK(pid) )
 		continue;
@@ -196,7 +196,7 @@ int nextStep()
     for ( int idx=0; idx<1000; idx++ )
     {
 	const EM::PosID pid = it_->next();
-	if ( pid.objectID().isInvalid() )
+	if ( pid.isInvalid() )
 	{
 	    fillHorizonArray();
 	    return Finished();
@@ -241,9 +241,7 @@ int nextStep()
 
 void fillHorizonArray()
 {
-    const EM::SectionID sid = hor_.nrSections() ? hor_.sectionID( 0 )
-				: hor_.geometry().addSection( 0, false );
-    Geometry::BinIDSurface* geom = hor_.geometry().sectionGeometry( sid );
+    Geometry::BinIDSurface* geom = hor_.geometry().geometryElement();
     geom->setArray( hortks_.start_, hortks_.step_, horarray_, true );
     horarray_ = 0;
     hor_.enableGeometryChecks( true );

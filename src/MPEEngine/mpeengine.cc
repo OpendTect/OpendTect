@@ -122,16 +122,9 @@ void Engine::updateSeedOnlyPropagation( bool yn )
 	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
 	    continue;
 
-	DBKey oid = trackers_[idx]->objectID();
-	EM::EMObject* emobj = EM::EMM().getObject( oid );
-
-	for ( int sidx=0; sidx<emobj->nrSections(); sidx++ )
-	{
-	    EM::SectionID sid = emobj->sectionID( sidx );
-	    SectionTracker* sectiontracker =
-			trackers_[idx]->getSectionTracker( sid, true );
-	    sectiontracker->setSeedOnlyPropagation( yn );
-	}
+	SectionTracker* sectiontracker =
+		    trackers_[idx]->getSectionTracker( true );
+	sectiontracker->setSeedOnlyPropagation( yn );
     }
 }
 
@@ -338,7 +331,7 @@ bool Engine::trackInVolume()
     if ( !emobj || emobj->isLocked() )
 	return false;
 
-    emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
+    emobj->geometryElement()->blockCallBacks(true);
     EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
     if ( !seedpicker ) return false;
 

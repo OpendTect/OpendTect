@@ -1,5 +1,5 @@
 #pragma once
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -26,7 +26,7 @@ namespace MPE
 mExpClass(MPEEngine) PolygonBodyEditor : public ObjectEditor
 {
 public:
-    				PolygonBodyEditor(EM::PolygonBody&);
+				PolygonBodyEditor(EM::PolygonBody&);
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 
@@ -44,17 +44,15 @@ protected:
     bool			setPosition(const EM::PosID&,const Coord3&);
     bool			setPosition( const Coord3& c )
 				{ return ObjectEditor::setPosition(c); }
-    Geometry::ElementEditor* 	createEditor(const EM::SectionID&);
+    Geometry::ElementEditor*	createEditor();
     float			getNearestPolygon(int& polygon,
-	    					  EM::SectionID& sid,
 						  const Coord3&,
 						  float zfactor) const;
     void			getPidsOnPolygon(EM::PosID& nearestpid0,
-						 EM::PosID& nearestpid1, 
-       						 EM::PosID& insertpid,
-       						 int polygon,
-						 const EM::SectionID&,
-       						 const Coord3&,
+						 EM::PosID& nearestpid1,
+						 EM::PosID& insertpid,
+						 int polygon,
+						 const Coord3&,
 						 float zfactor) const;
 
     Coord3			sowingpivot_;

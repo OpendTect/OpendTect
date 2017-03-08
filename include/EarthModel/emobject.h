@@ -147,37 +147,39 @@ public:
     uiString			uiName() const { return toUiString(name()); }
     virtual void		setNewName();
 
-    virtual int			nrSections() const	= 0;
-    virtual SectionID		sectionID(int) const	= 0;
-    virtual BufferString	sectionName(const SectionID&) const;
-    virtual bool		canSetSectionName() const;
-    virtual bool		setSectionName(const SectionID&,const char*,
-					       bool addtohistory);
-    virtual int			sectionIndex(const SectionID&) const;
-    virtual bool		removeSection(SectionID,bool hist )
-							{ return false; }
+    virtual int			nrSections() const	{ return 1; }
+    virtual SectionID		sectionID(int) const	{ return 0; }
 
-    const Geometry::Element*	sectionGeometry(const SectionID&) const;
-    Geometry::Element*		sectionGeometry(const SectionID&);
+    const Geometry::Element*	geometryElement() const;
+    Geometry::Element*		geometryElement();
 
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
 
     virtual Coord3		getPos(const EM::PosID&) const;
-    virtual Coord3		getPos(const EM::SectionID&,
-				       const EM::SubID&) const;
+    Coord3			getPos(const EM::SectionID& sid,
+				       const EM::PosID& posid) const
+				{ return getPos( posid ); }
+
     virtual bool		isDefined(const EM::PosID&) const;
-    virtual bool		isDefined(const EM::SectionID&,
-					  const EM::SubID&) const;
+    virtual bool		isDefined(const EM::SectionID& sid,
+					  const EM::PosID& posid) const
+				{ return isDefined( posid ); }
+
     bool			setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory,
 				       NodeSourceType type=Auto);
-    bool			setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory,
-				       NodeSourceType type=Auto);
+    bool			setPos(const EM::SectionID& sid,
+				       const EM::PosID& posid,
+				       const Coord3& pos,bool tohistory,
+				       NodeSourceType type=Auto)
+				{ return setPos(posid, pos, tohistory, type); }
+
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
-    virtual bool		unSetPos(const EM::SectionID&,const EM::SubID&,
-					 bool addtohistory);
+    bool			unSetPos(const EM::SectionID& sid,
+					 const EM::PosID& posid,
+					 bool addtohistory)
+				{ return unSetPos( posid, addtohistory ); }
 
     virtual void		setNodeSourceType(const TrcKey&,
 							NodeSourceType){}
@@ -213,8 +215,7 @@ public:
 				     linked to the posid given
 				*/
 
-    virtual EMObjectIterator*	createIterator(const EM::SectionID&,
-					       const TrcKeyZSampling* =0) const
+    virtual EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const
 				{ return 0; }
 				/*!< creates an iterator. If the sectionid is
 				     -1, all sections will be traversed. */
@@ -238,8 +239,7 @@ public:
     virtual bool		isPosAttribLocked(int attr) const;
     virtual void		removeSelected(const Selector<Coord3>&,
 					       TaskRunner*);
-    void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
-						   const EM::SectionID&);
+    void			removePositions(const TypeSet<EM::PosID>&);
     void			removeAllUnSeedPos();
     const TrcKeyZSampling	getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();
@@ -297,11 +297,9 @@ protected:
 				EMObject(const char*);
 				//!<must be called after creation
 
-    virtual bool		setPosition(const EM::SectionID&,
-					    const EM::SubID&,
+    virtual bool		setPosition(const EM::PosID&,
 					    const Coord3&,bool addtohistory,
 					    NodeSourceType type=Auto);
-    virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);
     void			useDisplayPars(const IOPar&);
@@ -372,7 +370,6 @@ EMObject* clss::create( EM::EMManager& emm ) \
     EMObject* obj = new clss(""); \
     if ( !obj ) return 0; \
     obj->ref();         \
-    emm.addObject( obj ); \
     obj->unRefNoDelete(); \
     return obj; \
 } \

@@ -1461,11 +1461,10 @@ bool uiODApplMgr::handleVisServEv( int evid )
     }
     else if ( evid == uiVisPartServer::evShowMPESetupDlg() )
     {
-	mGetSelTracker( tracker );
-	const MPE::EMSeedPicker* seedpicker = tracker ?
-					      tracker->getSeedPicker(false) : 0;
-	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
-	mpeserv_->showSetupDlg( emid, sid );
+	mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+			visserv_->getObject(visserv_->getSelObjectId()));
+	const DBKey emid = emod ? emod->getObjectID() : DBKey::getInvalid();
+	mpeserv_->showSetupDlg( emid );
     }
     else if ( evid == uiVisPartServer::evShowSetupGroupOnTop() )
     {

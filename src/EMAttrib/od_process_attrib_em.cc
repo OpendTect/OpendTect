@@ -287,7 +287,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	const int dataid =
 	    horizon->auxdata.auxDataIndex( attribrefs.get(idx).buf() );
 	PtrMan< Array2D<float> > attrarr =
-	    horizon->auxdata.createArray2D( dataid, horizon->sectionID(0) );
+	    horizon->auxdata.createArray2D( dataid );
 	strm << "Gridding " << attribrefs.get(idx).buf() << "\n";
 
 	TextStreamProgressMeter runner( strm );
@@ -295,8 +295,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	arr2dint->setArray( *attrarr );
 	arr2dint->execute();
 	runner.setFinished();
-	horizon->auxdata.setArray2D( dataid, horizon->sectionID(0),
-				     *attrarr );
+	horizon->auxdata.setArray2D( dataid, *attrarr );
     }
 }
 
@@ -360,8 +359,6 @@ bool BatchProgram::go( od_ostream& strm )
 
 	SurfaceIODataSelection sels( sd );
 	sels.selvalues.erase();
-	for ( int ids=0; ids<sd.sections.size(); ids++ )
-	    sels.selsections += ids;
 	sels.rg = hsamp;
 	PtrMan<Executor> loader =
 			emmgr.objectLoader( dbky, iscubeoutp ? &sels : 0 );

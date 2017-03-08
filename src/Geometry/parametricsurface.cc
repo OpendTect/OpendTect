@@ -46,7 +46,7 @@ StepInterval<int> ParametricSurface::rowRange() const
 {
     return StepInterval<int>(origin_.row(),
 			     origin_.row() + (nrRows() - 1)*step_.row(),
-	   		     step_.row());
+			     step_.row());
 }
 
 
@@ -58,7 +58,7 @@ StepInterval<int> ParametricSurface::colRange() const
 {
     return StepInterval<int>(origin_.col(),
 			     origin_.col() + (nrCols() - 1)*step_.col(),
-	    		     step_.col());
+			     step_.col());
 }
 
 
@@ -72,7 +72,7 @@ int ParametricSurface::nrKnots() const { return nrCols()*nrRows(); }
 RowCol ParametricSurface::getKnotRowCol( int idx ) const
 {
     return RowCol( origin_.row()+idx/nrCols()*step_.row(),
-	    	   origin_.col()+idx%nrCols()*step_.col());
+		   origin_.col()+idx%nrCols()*step_.col());
 }
 
 
@@ -162,7 +162,7 @@ bool ParametricSurface::setKnot( const RowCol& rc, const Coord3& np )
 	    colindex = colIndex( rc.col() );
 	}
 
-    	index = getKnotIndex( rc );
+	index = getKnotIndex( rc );
     }
     else
     {
@@ -181,7 +181,7 @@ bool ParametricSurface::setKnot( const RowCol& rc, const Coord3& np )
 	return false;
     }
 
-    const GeomPosID gpos = rc.toInt64();
+    const GeomPosID gpos = GeomPosID::getFromRowCol( rc );
     if ( wasundef ) triggerNrPosCh(gpos);
     else triggerMovement(gpos);
 
@@ -203,7 +203,7 @@ bool ParametricSurface::unsetKnot( const RowCol& rc )
 
     // TODO: prevent endless loop in isAtSameEdge. Then remove these two lines
     _setKnot( index, Coord3::udf() );
-    triggerNrPosCh( rc.toInt64() );
+    triggerNrPosCh( GeomPosID::getFromRowCol(rc) );
     return true;
 
     /*
@@ -265,7 +265,7 @@ bool ParametricSurface::unsetKnot( const RowCol& rc )
 	}
     }
 
-    triggerNrPosCh(rc.toInt64());
+    triggerNrPosCh(GeomPosID::getFromRowCol(rc));
     return true;
     */
 }
@@ -284,16 +284,16 @@ bool ParametricSurface::isKnotDefined( const RowCol& rc ) const
 }
 
 
-Coord3 ParametricSurface::getPosition( od_int64 pid ) const
-{ return getKnot( RowCol::fromInt64(pid) ); }
+Coord3 ParametricSurface::getPosition( GeomPosID pid ) const
+{ return getKnot( pid.getRowCol() ); }
 
 
-bool ParametricSurface::setPosition( od_int64 pid, const Coord3& pos )
-{ return setKnot( RowCol::fromInt64(pid), pos ); }
+bool ParametricSurface::setPosition( GeomPosID pid, const Coord3& pos )
+{ return setKnot( pid.getRowCol(), pos ); }
 
 
-bool ParametricSurface::isDefined( od_int64 pid ) const
-{ return isKnotDefined( RowCol::fromInt64(pid) ); }
+bool ParametricSurface::isDefined( GeomPosID pid ) const
+{ return isKnotDefined( pid.getRowCol() ); }
 
 
 bool ParametricSurface::checkSupport(bool yn)

@@ -18,9 +18,8 @@ ___________________________________________________________________
 namespace MPE
 {
 
-Horizon2DSelector::Horizon2DSelector( const EM::Horizon2D& hor,
-				      const EM::SectionID& sid )
-    : SectionSourceSelector( sid )
+Horizon2DSelector::Horizon2DSelector( const EM::Horizon2D& hor )
+    : SectionSourceSelector()
     , horizon_( hor )
 {}
 

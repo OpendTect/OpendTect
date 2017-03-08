@@ -166,17 +166,12 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     uiStringSet errors;
-
-    for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
-    {
-	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
-	uiString errmsg;
-	uiRetVal rv = HorizonGridder::executeGridding(
-		interpolator.ptr(), hor3d, sid, interpolhor3dsel_->getStep(),
-		&taskrunner );
-	if ( rv.isError() )
-	    errors += rv;
-    }
+    uiString errmsg;
+    uiRetVal rv = HorizonGridder::executeGridding(
+	    interpolator.ptr(), hor3d, interpolhor3dsel_->getStep(),
+	    &taskrunner );
+    if ( rv.isError() )
+	errors += rv;
 
     MouseCursorManager::restoreOverride();
     const bool success = errors.isEmpty();
@@ -217,30 +212,22 @@ bool uiHorizonInterpolDlg::interpolate2D()
 
     uiTaskRunner taskrunner( this );
 
-    for ( int isect=0; isect<geom.nrSections(); isect++ )
-    {
-	ObjectSet< Array1D<float> > arr1d;
-	const EM::SectionID sid = geom.sectionID( isect );
-	for ( int lineidx=0; lineidx<geom.nrLines(); lineidx++ )
-	    arr1d += hor2d->createArray1D( sid, geom.geomID(lineidx) );
+    ObjectSet< Array1D<float> > arr1d;
+    for ( int lineidx=0; lineidx<geom.nrLines(); lineidx++ )
+	arr1d += hor2d->createArray1D( geom.geomID(lineidx) );
 
-	interpol1dsel_->setInterpolators( geom.nrLines() );
-	interpol1dsel_->setArraySet( arr1d );
+    interpol1dsel_->setInterpolators( geom.nrLines() );
+    interpol1dsel_->setArraySet( arr1d );
 
-	ExecutorGroup execgrp( "Interpolator", true );
-	for ( int idx=0; idx<arr1d.size(); idx++ )
-	    execgrp.add( interpol1dsel_->getResult(idx) );
+    ExecutorGroup execgrp( "Interpolator", true );
+    for ( int idx=0; idx<arr1d.size(); idx++ )
+	execgrp.add( interpol1dsel_->getResult(idx) );
 
-	if ( !TaskRunner::execute( &taskrunner, execgrp ) )
-	{
-	    uiString msg = tr("Cannot interpolate section %1")
-	                 .arg(sid);
-	    ErrMsg( msg.getFullString() ); continue;
-	}
+    if ( !TaskRunner::execute( &taskrunner, execgrp ) )
+    { ErrMsg( "Cannot interpolate horizon" ); return false; }
 
-	for ( int idx=0; idx<arr1d.size(); idx++ )
-	    usedhor2d->setArray1D( *arr1d[idx], sid,geom.geomID(idx),false);
-    }
+    for ( int idx=0; idx<arr1d.size(); idx++ )
+	usedhor2d->setArray1D( *arr1d[idx], geom.geomID(idx), false );
 
     if ( saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon() )
 	horReadyForDisplay.trigger();

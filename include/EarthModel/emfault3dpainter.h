@@ -84,16 +84,14 @@ protected:
 	    ObjectSet<FlatView::AuxData>	intsecmarker_;
 	};
 
-    bool		paintSticks(EM::Fault3D&,const EM::SectionID&,
-				    Fault3DMarker*);
+    bool		paintSticks(EM::Fault3D&,Fault3DMarker*);
     bool		paintStickOnPlane(const Geometry::FaultStickSurface&,
 					  RowCol&,const StepInterval<int>&,
 					  const Coord3&, FlatView::AuxData&);
     bool		paintStickOnRLine(const Geometry::FaultStickSurface&,
 					  RowCol&,const StepInterval<int>&,
 					  const Coord3&, FlatView::AuxData&);
-    bool		paintIntersection(EM::Fault3D&,const EM::SectionID&,
-					  Fault3DMarker*);
+    bool		paintIntersection(EM::Fault3D&,Fault3DMarker*);
     bool		paintPlaneIntxn(EM::Fault3D&,Fault3DMarker*,
 					Geometry::ExplPlaneIntersection*,
 					TypeSet<Coord3>&);

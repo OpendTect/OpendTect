@@ -31,49 +31,46 @@ public:
 			FaultStickSetGeometry(Surface&);
 			~FaultStickSetGeometry();
 
-    int			nrSticks(const SectionID&) const;
-    int			nrKnots(const SectionID&,int sticknr) const;
+    int			nrSticks() const;
+    int			nrKnots(int sticknr) const;
 
-    bool		insertStick(const SectionID&,int sticknr,int firstcol,
+    bool		insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory);
-    bool		insertStick(const SectionID&,int sticknr,int firstcol,
+    bool		insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    const DBKey* pickeddbkey,
 				    const char* pickednm,bool addtohistory);
-    bool		insertStick(const SectionID&,int sticknr,int firstcol,
+    bool		insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    Pos::GeomID pickedgeomid,bool addtohistory);
-    bool		removeStick(const SectionID&,int sticknr,
+    bool		removeStick(int sticknr,
 				    bool addtohistory);
-    bool		insertKnot(const SectionID&,const SubID&,
+    bool		insertKnot(const PosID&,
 				   const Coord3& pos,bool addtohistory);
-    bool		removeKnot(const SectionID&,const SubID&,
+    bool		removeKnot(const PosID&,
 				   bool addtohistory);
 
-    bool		pickedOnPlane(const SectionID&,int sticknr) const;
-    bool		pickedOn2DLine(const SectionID&,int sticknr) const;
-    bool		pickedOnHorizon(const SectionID&,int sticknr) const;
+    bool		pickedOnPlane(int sticknr) const;
+    bool		pickedOn2DLine(int sticknr) const;
+    bool		pickedOnHorizon(int sticknr) const;
 
-    const DBKey*	pickedDBKey(const SectionID&,int sticknr) const;
-    const char*		pickedName(const SectionID&,int sticknr) const;
-    Pos::GeomID		pickedGeomID(const SectionID&,int sticknr)const;
+    const DBKey*	pickedDBKey(int sticknr) const;
+    const char*		pickedName(int sticknr) const;
+    Pos::GeomID		pickedGeomID(int sticknr)const;
 
-    Geometry::FaultStickSet*
-			sectionGeometry(const SectionID&);
-    const Geometry::FaultStickSet*
-			sectionGeometry(const SectionID&) const;
+    Geometry::FaultStickSet*		geometryElement();
+    const Geometry::FaultStickSet*	geometryElement() const;
 
-    EMObjectIterator*	createIterator(const SectionID&,
-				       const TrcKeyZSampling* =0) const;
+    EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
-    Geometry::FaultStickSet*	createSectionGeometry() const;
+    Geometry::FaultStickSet*	createGeometryElement() const;
 
-    int			indexOf(const SectionID& sid,int stricnr) const;
+    int			indexOf(int stricnr) const;
 
     struct StickInfo
     {
@@ -109,7 +106,7 @@ public:
     bool				pickedOn2DLine(int row) const;
     Pos::GeomID				pickedGeomID(int row) const;
     const DBKey*			pickedDBKey(int sticknr) const;
-    const char*				pickedName(int sticknr) const; 
+    const char*				pickedName(int sticknr) const;
 
 protected:
 

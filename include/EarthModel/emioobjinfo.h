@@ -58,7 +58,6 @@ public:
     inline ObjectType	type() const		{ return type_; }
 
     bool		getSectionIDs(TypeSet<SectionID>&) const;
-    bool		getSectionNames(BufferStringSet&) const;
     bool		getAttribNames(BufferStringSet&) const;
     Interval<float>	getZRange() const;
     StepInterval<int>	getInlRange() const;
@@ -91,7 +90,7 @@ public:
     bool		getBodyRange(TrcKeyZSampling&) const;
 
     // FaultStickSet
-    int 		nrSticks() const;
+    int		nrSticks() const;
 
     // Helpful stuff
     static ObjectType	objectTypeOfIOObjGroup(const char*);

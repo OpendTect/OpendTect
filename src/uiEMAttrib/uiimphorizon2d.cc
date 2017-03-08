@@ -121,8 +121,7 @@ int nextStep()
 	if ( mIsUdf(curval) && udftreat_==Skip )
 	    continue;
 
-	const EM::SectionID sid = hors_[validx]->sectionID(0);
-	hors_[validx]->setZPos( sid, geomid, curtrcnr, curval, false );
+	hors_[validx]->setZPos( geomid, curtrcnr, curval, false );
 
 	if ( mIsUdf(curval) )
 	    continue;
@@ -170,7 +169,7 @@ void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
 	const float prod = mCast(float,vec.dot(newvec));
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
-	hors_[hidx]->setZPos( hors_[hidx]->sectionID(0), geomid,trcnr,val,false);
+	hors_[hidx]->setZPos( geomid, trcnr, val, false );
     }
 }
 

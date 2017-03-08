@@ -158,12 +158,11 @@ bool FaultTrace::getHorizonIntersectionInfo(
     mDynamicCastGet(const EM::Horizon2D*, hor2d, &hor);
     const bool use2d = hor2d && geomid!=Survey::GM().cUndefGeomID();
 
-    const EM::SectionID sid = hor.sectionID( 0 );
     StepInterval<int> hortrcrg = isinl_ ? hor.geometry().colRange()
-					: hor.geometry().rowRange( sid );
+					: hor.geometry().rowRange();
     if ( use2d )
-	hortrcrg = isinl_ ? hor2d->geometry().colRange( sid, geomid )
-			  : hor2d->geometry().rowRange( sid );
+	hortrcrg = isinl_ ? hor2d->geometry().colRange( geomid )
+			  : hor2d->geometry().rowRange();
 
     StepInterval<int> trcrg = hortrcrg;
     trcrg.limitTo( trcrange_ );
@@ -177,8 +176,8 @@ bool FaultTrace::getHorizonIntersectionInfo(
 
 	const BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
 	const float curz = use2d ?
-	    (float) hor2d->getPos( sid, geomid, trcnr ).z_ :
-	    (float) hor.getPos( sid, curbid.toInt64() ).z_;
+	    (float) hor2d->getPos( geomid, trcnr ).z_ :
+	    (float) hor.getPos( EM::PosID::getFromRowCol(curbid) ).z_;
 
 	if ( !mIsUdf(curz) )
 	{
@@ -194,8 +193,8 @@ bool FaultTrace::getHorizonIntersectionInfo(
 
 	const BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
 	const float curz = use2d ?
-	    (float) hor2d->getPos( sid, geomid, trcnr ).z_ :
-	    (float) hor.getPos( sid, curbid.toInt64() ).z_;
+	    (float) hor2d->getPos( geomid, trcnr ).z_ :
+	    (float) hor.getPos( EM::PosID::getFromRowCol(curbid) ).z_;
 	if ( !mIsUdf(curz) )
 	{
 	    trcrg.stop = trcnr;
@@ -211,8 +210,8 @@ bool FaultTrace::getHorizonIntersectionInfo(
     {
 	const BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
 	const float curz = use2d ?
-	    (float) hor2d->getPos( sid, geomid, trcnr ).z_ :
-	    (float) hor.getPos( sid, curbid.toInt64() ).z_;
+	    (float) hor2d->getPos( geomid, trcnr ).z_ :
+	    (float) hor.getPos( EM::PosID::getFromRowCol(curbid) ).z_;
 	if ( mIsUdf(curz) ) continue;
 
 	if ( prevtrc==-1 )
@@ -312,9 +311,8 @@ bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
 		pos1bids, pos1zs, pos2bids, pos2zs, intersects, true ) )
 	return false;
 
-    const EM::SectionID sid = hor.sectionID( 0 );
     const StepInterval<int> trcrg = isinl_ ? hor.geometry().colRange()
-					   : hor.geometry().rowRange( sid );
+					   : hor.geometry().rowRange();
     bid.inl() = isinl_ ? nr_ : trcrg.snap( mNINT32(intersects[0].x_) );
     bid.crl() = isinl_ ? trcrg.snap( mNINT32(intersects[0].x_) ) : nr_;
     return true;
@@ -1039,9 +1037,8 @@ bool FaultTraceExtractor3D::doPrepare( int nrthreads )
 	return false;
 
     editedoncrl_ = cfault && cfault->geometry().areEditPlanesMostlyCrossline();
-    EM::SectionID sid = fault_.sectionID( 0 );
     EM::Fault3D* fault3d = const_cast<EM::Fault3D*>(cfault);
-    Geometry::FaultStickSurface* fss = fault3d->geometry().sectionGeometry(sid);
+    Geometry::FaultStickSurface* fss = fault3d->geometry().geometryElement();
     if ( !fss )
 	return false;
 
@@ -1127,8 +1124,7 @@ FaultTraceExtractor2D::FaultTraceExtractor2D( const EM::Fault& flt,
   , geomid_(geomid)
 {
     mDynamicCastGet(const EM::FaultStickSet*,fss,&fault_)
-    const EM::SectionID sid = fault_.sectionID( 0 );
-    totalnr_ = fss ? fss->geometry().nrSticks( sid ) : 0;
+    totalnr_ = fss ? fss->geometry().nrSticks() : 0;
 }
 
 
@@ -1210,16 +1206,15 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     mDynamicCastGet(const EM::FaultStickSet*,fss,&fault_)
     if ( !fss ) return false;
 
-    const EM::SectionID sid = fault_.sectionID( 0 );
     const Geometry::FaultStickSet* fltgeom =
-			fss->geometry().sectionGeometry( sid );
+			fss->geometry().geometryElement();
     if ( !fltgeom ) return false;
 
     const int sticknr = fltgeom->rowRange().atIndex( stickidx );
-    if ( !fss->geometry().pickedOn2DLine(sid,sticknr) )
+    if ( !fss->geometry().pickedOn2DLine(sticknr) )
 	return true;
 
-    const Pos::GeomID geomid = fss->geometry().pickedGeomID( sid, sticknr );
+    const Pos::GeomID geomid = fss->geometry().pickedGeomID( sticknr );
     if ( geomid != geomid_ ) return true;
 
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
@@ -1321,24 +1316,20 @@ const FaultTrace* FaultTrcDataProvider::getFaultTrace2D( int fltidx,
 bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
 					  TrcKeySampling& hs ) const
 {
-    for ( int sidx=0; sidx<flt.nrSections(); sidx++ )
-    {
-	const EM::SectionID sid = flt.sectionID( sidx );
-	mDynamicCastGet(const Geometry::FaultStickSet*,fss,
-			flt.geometry().sectionGeometry(sid))
-	if ( !fss )
-	    continue;
+    mDynamicCastGet(const Geometry::FaultStickSet*,fss,
+		    flt.geometry().geometryElement())
+    if ( !fss )
+	return false;
 
-	const StepInterval<int> rowrg = fss->rowRange();
-	for ( int idx=rowrg.start; idx<=rowrg.stop; idx+=rowrg.step )
+    const StepInterval<int> rowrg = fss->rowRange();
+    for ( int idx=rowrg.start; idx<=rowrg.stop; idx+=rowrg.step )
+    {
+	const StepInterval<int> colrg = fss->colRange( idx );
+	for ( int idy=colrg.start; idy<=colrg.stop; idy+=colrg.step )
 	{
-	    const StepInterval<int> colrg = fss->colRange( idx );
-	    for ( int idy=colrg.start; idy<=colrg.stop; idy+=colrg.step )
-	    {
-		const Coord3 knot = fss->getKnot( RowCol(idx,idy) );
-		const BinID bid = SI().transform( knot.getXY() );
-		hs.include( bid );
-	    }
+	    const Coord3 knot = fss->getKnot( RowCol(idx,idy) );
+	    const BinID bid = SI().transform( knot.getXY() );
+	    hs.include( bid );
 	}
     }
 

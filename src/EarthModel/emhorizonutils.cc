@@ -35,16 +35,11 @@ namespace EM
 
 float HorizonUtils::getZ( const RowCol& rc, const Surface* surface )
 {
-    const SubID subid = rc.toInt64();
+    const PosID posid = PosID::getFromRowCol(rc);
 
     float bottomz=-mUdf(float);
-    for ( int idx=surface->nrSections()-1; idx>=0; idx-- )
-    {
-	const EM::SectionID sid = surface->sectionID( idx );
-	const float valz = (float) surface->getPos( sid, subid ).z_;
-	bottomz = ( !mIsUdf(valz) && valz>bottomz ) ? valz : bottomz;
-    }
-
+    const float valz = (float) surface->getPos( posid ).z_;
+    bottomz = ( !mIsUdf(valz) && valz>bottomz ) ? valz : bottomz;
     return bottomz;
 }
 
@@ -131,22 +126,12 @@ void HorizonUtils::getPositions( od_ostream& strm, const DBKey& id,
     TextStreamProgressMeter pm( strm );
     deepErase( data );
 
-    PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
-    SectionID sid = -1;
-    BinIDValueSet* res = 0;
+    PtrMan<EMObjectIterator> iterator = surface->createIterator();
+    BinIDValueSet* res = new BinIDValueSet( 1, false );
+    data += res;
     while ( iterator )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID().isInvalid() )
-	    break;
-
-	if ( pid.sectionID() != sid )
-	{
-	    res = new BinIDValueSet( 1, false );
-	    data += res;
-	    sid = pid.sectionID();
-	}
-
 	const Coord3 crd = surface->getPos( pid );
 	const BinID bid = SI().transform(crd.getXY());
 	res->add( bid, (float) crd.z_ );
@@ -178,10 +163,9 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
 	BufferStringSet nms;
 	res = new DataPointSet( pts, nms, true );
 	data += res;
-	SectionID sid = 0;		//multiple sections not used here
 	for ( int idx=hsamp.start_.crl(); idx<=hsamp.stop_.crl(); idx++ )
 	{
-	    Coord3 coords = hor2d->getPos( sid, geomid, idx);
+	    Coord3 coords = hor2d->getPos( geomid, idx);
 	    DataPointSet::Pos newpos( coords );
 	    DataPointSet::DataRow dtrow( newpos );
 	    res->addRow( dtrow );
@@ -189,24 +173,15 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
     }
     else
     {
-	PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
-	SectionID sid = -1;
+	PtrMan<EMObjectIterator> iterator = surface->createIterator();
 	//multiple sections not used!!
+	TypeSet<DataPointSet::DataRow> pts;
+	BufferStringSet nms;
+	res = new DataPointSet( pts, nms, true );
+	data += res;
 	while ( iterator )
 	{
 	    const EM::PosID pid = iterator->next();
-	    if ( pid.objectID().isInvalid() )
-		break;
-
-	    if ( pid.sectionID() != sid )
-	    {
-		TypeSet<DataPointSet::DataRow> pts;
-		BufferStringSet nms;
-		res = new DataPointSet( pts, nms, true );
-		data += res;
-		sid = pid.sectionID();
-	    }
-
 	    const Coord3 crd = surface->getPos( pid );
 	    DataPointSet::Pos newpos( crd );
 	    DataPointSet::DataRow dtrow( newpos );
@@ -359,22 +334,16 @@ void HorizonUtils::addSurfaceData( const DBKey& id,
     for ( int idx=0; idx<attrnms.size(); idx++ )
 	horizon->auxdata.addAuxData( attrnms.get(idx).buf() );
 
-    for ( int sectionidx=0; sectionidx<data.size(); sectionidx++ )
-    {
-	const SectionID sectionid = horizon->sectionID( sectionidx );
-	const BinIDValueSet& bivs = *data[sectionidx];
+    const BinIDValueSet& bivs = *data[0];
 
-	PosID posid( id, sectionid );
-	BinIDValueSet::SPos pos;
-	BinID bid; TypeSet<float> vals;
-	while ( bivs.next(pos) )
-	{
-	    bivs.get( pos, bid, vals );
-	    const SubID subid = RowCol(bid.inl(),bid.crl()).toInt64();
-	    posid.setSubID( subid );
-	    for ( int validx=1; validx<vals.size(); validx++ )
-		horizon->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );
-	}
+    BinIDValueSet::SPos pos;
+    BinID bid; TypeSet<float> vals;
+    while ( bivs.next(pos) )
+    {
+	bivs.get( pos, bid, vals );
+	const PosID posid = PosID::getFromRowCol( bid );
+	for ( int validx=1; validx<vals.size(); validx++ )
+	    horizon->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );
     }
 }
 

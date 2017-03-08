@@ -52,7 +52,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    DBKey		getObjectID() const { return posid_.objectID(); }
+    DBKey		getObjectID() const { return DBKey::getInvalid(); }
 
 protected:
     EM::PosID		posid_;
@@ -69,9 +69,9 @@ protected:
 mExpClass(EarthModel) SetAllHor3DPosUndoEvent : public EMUndoEvent
 {
 public:
-			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
+			SetAllHor3DPosUndoEvent(EM::Horizon3D*,
 				    Array2D<float>*);
-			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
+			SetAllHor3DPosUndoEvent(EM::Horizon3D*,
 				    Array2D<float>*,const RowCol& oldorigin);
 
     const char*		getStandardDesc() const;
@@ -84,7 +84,6 @@ protected:
 			~SetAllHor3DPosUndoEvent();
 
     EM::Horizon3D*	horizon_;
-    EM::SectionID	sid_;
     RowCol		oldorigin_;
     RowCol		neworigin_;
     Array2D<float>*	oldarr_;
@@ -105,7 +104,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    DBKey		getObjectID() const { return posid_.objectID(); }
+    DBKey		getObjectID() const { return DBKey::getInvalid(); }
 
 protected:
     EM::PosID		posid_;

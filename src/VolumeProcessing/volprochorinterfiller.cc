@@ -153,22 +153,23 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 	return false;
 
     //TODO: Rework EM::Horizon2D to avoid the manipulation below.
-    EM::SubID topsubid = bid.toInt64(), botsubid = bid.toInt64();
+    EM::PosID topposid = EM::PosID::getFromRowCol( bid );
+    EM::PosID botposid = topposid;
     mDynamicCastGet(const EM::Horizon2D*,tophor2d,tophorizon_)
     mDynamicCastGet(const EM::Horizon2D*,bothor2d,bottomhorizon_)
     if ( tophor2d )
-	topsubid = BinID( tophor2d->geometry().lineIndex(bid.inl()), bid.crl() )
-			.toInt64();
+	topposid = EM::PosID::getFromRowCol(
+			tophor2d->geometry().lineIndex(bid.inl()), bid.crl() );
     if ( bothor2d )
-	botsubid = BinID( bothor2d->geometry().lineIndex(bid.inl()), bid.crl() )
-			.toInt64();
+	botposid = EM::PosID::getFromRowCol(
+			bothor2d->geometry().lineIndex(bid.inl()), bid.crl() );
 
     const double topdepth = tophorizon_
-	? tophorizon_->getPos( tophorizon_->sectionID(0), topsubid ).z_
+	? tophorizon_->getPos( topposid ).z_
 	: SI().zRange(true).start;
 
     const double bottomdepth = bottomhorizon_
-	? bottomhorizon_->getPos( bottomhorizon_->sectionID(0), botsubid ).z_
+	? bottomhorizon_->getPos( botposid ).z_
 	: SI().zRange(true).stop;
 
     const SamplingData<double>

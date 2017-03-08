@@ -80,7 +80,7 @@ int testMain( int argc, char** argv )
        */
 
     const EM::FaultStickSetGeometry& fssgeom = fss->geometry();
-    mRunStandardTest( fssgeom.nrSticks(0) == 4 && fssgeom.nrKnots(0,0) == 7,
+    mRunStandardTest( fssgeom.nrSticks() == 4 && fssgeom.nrKnots(0) == 7,
 			"Check nr Sticks and knots of Stick in FaultStickSet" );
        /*
 	od_cout() << fssgeom.nrSticks(0) << " sticks, "

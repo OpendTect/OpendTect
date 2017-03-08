@@ -31,12 +31,9 @@ mExpClass(EarthModel) RandomPosBody : public Body, public EMObject
 public:
 
     const char*			type() const { return typeStr(); }
-    virtual int			nrSections() const		{ return 1; }
-    virtual SectionID		sectionID(int) const		{ return 0; }
-    virtual bool		canSetSectionName() const	{ return 0; }
 
-    Geometry::Element*		sectionGeometry(const SectionID&) { return 0; }
-    const Geometry::Element*	sectionGeometry(const SectionID&) const
+    Geometry::Element*		geometryElement() { return 0; }
+    const Geometry::Element*	geometryElement() const
 				{ return 0; }
 
     void			copyFrom(const Pick::Set&);//get my own picks.
@@ -48,11 +45,9 @@ public:
     const TypeSet<Coord3>&	getPositions() const	{ return locations_; }
     bool			addPos(const Coord3&);
 
-    const TypeSet<EM::SubID>&	posIDs() const		{ return ids_; }
+    const TypeSet<EM::PosID>&	posIDs() const		{ return ids_; }
 
     Coord3			getPos(const EM::PosID&) const;
-    Coord3			getPos(const EM::SectionID&,
-					const EM::SubID&) const;
     const IOObjContext&		getIOObjContext() const;
     virtual Executor*		saver();
     virtual Executor*		saver(IOObj*);
@@ -74,15 +69,14 @@ public:
     uiString			getUserTypeStr() const
 				{ return tr("Random Position Body"); }
 
-    static const char*		sKeySubIDs()	{ return "Position IDs"; }
+    static const char*		sKeyPosIDs()	{ return "Position IDs"; }
 protected:
 
-     virtual bool		setPosition(const EM::SectionID&,
-					    const EM::SubID&,
+     virtual bool		setPosition(const EM::PosID&,
 					    const Coord3&,bool addtohistory,
 					    NodeSourceType tp=Auto);
     TypeSet<Coord3>		locations_;
-    TypeSet<EM::SubID>		ids_;
+    TypeSet<EM::PosID>		ids_;
 };
 
 } // namespace EM

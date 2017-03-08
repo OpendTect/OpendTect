@@ -27,7 +27,7 @@ public:
     od_int64		totalNr() const;
     od_int64		nrDone() const		{ return nrdone_; }
     void		setHorSamp(const StepInterval<int>& inlrg,
-		    		   const StepInterval<int>& crlrg);
+				   const StepInterval<int>& crlrg);
     uiString		nrDoneText() const	{ return tr("Positions done"); }
 
 protected:
@@ -50,14 +50,14 @@ protected:
 mExpClass(Tut) ThicknessCalculator : public HorTool
 { mODTextTranslationClass(ThicknessCalculator);
 public:
-    			ThicknessCalculator();
+			ThicknessCalculator();
 
     int			nextStep();
     Executor*		dataSaver();
     void		init(const char*);
 
-    uiString		message() const { 
-					return tr("Calculating thickness"); 
+    uiString		message() const {
+					return tr("Calculating thickness");
 					  }
 
 protected:
@@ -73,7 +73,7 @@ mExpClass(Tut) HorSmoother : public HorTool
 { mODTextTranslationClass(HorSmoother);
 public:
 			HorSmoother();
-			   
+
     int			nextStep();
     void		setWeak( bool yn )	{ weak_ = yn; }
     Executor*		dataSaver(const DBKey&);
@@ -82,7 +82,7 @@ public:
 
 protected:
 
-    EM::SubID		subid_;
+    EM::PosID		posid_;
     bool		weak_;
 
 };

@@ -148,57 +148,49 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
     if ( !auxdatanames_.validIdx(dataidx) )
 	return mUdf(float);
 
-    const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
-    if ( !auxdata_.validIdx(sectionidx) || !auxdata_[sectionidx] )
+    if ( auxdata_.isEmpty() || !auxdata_[0] )
 	return mUdf(float);
 
     const BinID geomrc( posid.getRowCol() );
-    const BinIDValueSet::SPos pos = auxdata_[sectionidx]->find( geomrc );
+    const BinIDValueSet::SPos pos = auxdata_[0]->find( geomrc );
     if ( !pos.isValid() )
 	return mUdf(float);
 
-    return auxdata_[sectionidx]->getVals( pos )[dataidx];
+    return auxdata_[0]->getVals( pos )[dataidx];
 }
 
 
 void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
 				    bool onlynewpos )
 {
-    const TrcKey tk = BinID::fromInt64( posid.subID() );
+    const TrcKey tk = posid.getBinID();
     if ( !auxdatanames_.validIdx(dataidx) ||
 	tk.isUdf() ||
 	horizon_.isNodeLocked(tk) )
 	return;
 
-    const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
-    if ( sectionidx < 0 )
-	return;
+    if ( auxdata_.isEmpty() )
+	auxdata_ += 0;
 
-    if ( !auxdata_.validIdx(sectionidx) )
-    {
-	for ( int idx=auxdata_.size(); idx<horizon_.nrSections(); idx++ )
-	    auxdata_ += 0;
-    }
-
-    if ( !auxdata_[sectionidx] )
-	auxdata_.replace( sectionidx, new BinIDValueSet( nrAuxData(), false ) );
+    if ( !auxdata_[0] )
+	auxdata_.replace( 0, new BinIDValueSet( nrAuxData(), false ) );
 
     const BinID geomrc( posid.getRowCol() );
     if ( geomrc.isUdf() )
 	return;
 
-    const BinIDValueSet::SPos pos = auxdata_[sectionidx]->find( geomrc );
+    const BinIDValueSet::SPos pos = auxdata_[0]->find( geomrc );
     if ( !pos.isValid() )
     {
-	mAllocVarLenArr( float, vals, auxdata_[sectionidx]->nrVals() );
-	for ( int idx=0; idx<auxdata_[sectionidx]->nrVals(); idx++ )
+	mAllocVarLenArr( float, vals, auxdata_[0]->nrVals() );
+	for ( int idx=0; idx<auxdata_[0]->nrVals(); idx++ )
 	    vals[idx] = mUdf(float);
 
 	vals[dataidx] = val;
-	auxdata_[sectionidx]->add( geomrc, vals );
+	auxdata_[0]->add( geomrc, vals );
     }
     else if ( !onlynewpos )
-	auxdata_[sectionidx]->getVals( pos )[dataidx] = val;
+	auxdata_[0]->getVals( pos )[dataidx] = val;
 
     changed_ = true;
 }
@@ -296,16 +288,6 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 }
 
 
-void SurfaceAuxData::removeSection( const SectionID& sectionid )
-{
-    const int sectionidx = horizon_.sectionIndex( sectionid );
-    if ( !auxdata_.validIdx( sectionidx ) )
-	return;
-
-    delete auxdata_.removeSingle( sectionidx );
-}
-
-
 bool SurfaceAuxData::hasAttribute( const IOObj& ioobj, const char* attrnm )
 { return !getFileName(ioobj,attrnm).isEmpty(); }
 
@@ -358,22 +340,22 @@ bool SurfaceAuxData::removeFile( const char* attrnm ) const
 }
 
 
-Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
+Array2D<float>* SurfaceAuxData::createArray2D( int dataidx ) const
 {
-    if ( horizon_.geometry().sectionGeometry( sid )->isEmpty() )
+    if ( horizon_.geometry().geometryElement()->isEmpty() )
 	return 0;
 
-    const StepInterval<int> rowrg = horizon_.geometry().rowRange( sid );
-    const StepInterval<int> colrg = horizon_.geometry().colRange( sid, -1 );
+    const StepInterval<int> rowrg = horizon_.geometry().rowRange();
+    const StepInterval<int> colrg = horizon_.geometry().colRange( -1 );
 
-    PosID posid( horizon_.id(), sid );
+    PosID posid;
     Array2DImpl<float>* arr =
 	new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
-	    posid.setSubID( RowCol(row,col).toInt64() );
+	    posid = PosID::getFromRowCol( row, col );
 	    const float val = getAuxDataVal( dataidx, posid );
 	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), val );
 	}
@@ -385,20 +367,19 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
 
 void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
 {
-    const SectionID sid = horizon_.sectionID( 0 );
     const Geometry::RowColSurface* rcgeom =
-	horizon_.geometry().sectionGeometry( sid );
+	horizon_.geometry().geometryElement();
     if ( !rcgeom || rcgeom->isEmpty() )
 	return;
 
     const StepInterval<int> rowrg = rcgeom->rowRange();
     const StepInterval<int> colrg = rcgeom->colRange();
-    PosID posid( horizon_.id(), sid );
+    PosID posid;
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
-	    posid.setSubID( RowCol(row,col).toInt64() );
+	    posid = PosID::getFromRowCol( row, col );
 	    if ( dataidx<0 )
 	    {
 		for ( int aidx=0; aidx<nrAuxData(); aidx++ )
@@ -411,22 +392,22 @@ void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
 }
 
 
-void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
+void SurfaceAuxData::setArray2D( int dataidx,
 				 const Array2D<float>& arr2d )
 {
     const Geometry::RowColSurface* rcgeom =
-	horizon_.geometry().sectionGeometry( sid );
+	horizon_.geometry().geometryElement();
     if ( !rcgeom || rcgeom->isEmpty() )
 	return;
 
     const StepInterval<int> rowrg = rcgeom->rowRange();
     const StepInterval<int> colrg = rcgeom->colRange();
-    PosID posid( horizon_.id(), sid );
+    PosID posid;
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
-	    posid.setSubID( RowCol(row,col).toInt64() );
+	    posid = PosID::getFromRowCol( row, col );
 	    const float val = arr2d.get( rowrg.getIndex(row),
 					 colrg.getIndex(col) );
 	    setAuxDataVal( dataidx, posid, val );

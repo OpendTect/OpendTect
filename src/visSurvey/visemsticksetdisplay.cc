@@ -96,8 +96,6 @@ else \
 
 #define mGetStickNrAndPos()\
 EM::PosID pid = iter->next();\
-if ( pid.objectID().isInvalid() )\
-    break;\
 const int sticknr = pid.getRowCol().row();\
 const Coord3 pos = fault_->getPos(pid);\
 
@@ -189,10 +187,6 @@ void StickSetDisplay::updateStickMarkerSet()
     while ( true )
     {
 	const EM::PosID pid = iter->next();
-	if ( pid.objectID().isInvalid() )
-	    break;
-
-	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row();
 	if ( fault_->isStickHidden(sticknr,mSceneIdx) )
 	    continue;
@@ -297,11 +291,8 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	    while ( true )
 	    {
 		const EM::PosID pid = iter->next();
-		if ( pid.objectID().isInvalid() )
-		    return;
-
 		const int sticknr = pid.getRowCol().row();
-		matchMarker( pid.sectionID(), sticknr, markerpos,
+		matchMarker( 0, sticknr, markerpos,
 		    fault_->getPos(pid),eps );
 	    }
 	}

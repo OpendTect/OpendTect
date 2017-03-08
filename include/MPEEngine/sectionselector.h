@@ -23,16 +23,14 @@ namespace MPE
 {
 
 /*!
-\brief SequentialTask to select source of an EM section with ID EM::SectionID.
+\brief SequentialTask to select source of an EM section.
 */
 
 mExpClass(MPEEngine) SectionSourceSelector : public SequentialTask
 {
 public:
-    				SectionSourceSelector(
-					const EM::SectionID& sid = -1);
+				SectionSourceSelector();
 
-    EM::SectionID		sectionID() const;
     virtual void		reset();
 
     int				nextStep();
@@ -44,7 +42,6 @@ public:
     const TypeSet<TrcKey>&	selectedPositions() const;
 
 protected:
-    EM::SectionID		sectionid_;
     TypeSet<TrcKey>		selpos_;
     BufferString		errmsg_;
 };

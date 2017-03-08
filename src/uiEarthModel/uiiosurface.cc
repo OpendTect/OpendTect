@@ -46,7 +46,6 @@ const int cListHeight = 5;
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
     : uiGroup(p,"Surface selection")
     , ctio_( 0 )
-    , sectionfld_(0)
     , attribfld_(0)
     , rgfld_(0)
     , attrSelChange(this)
@@ -85,18 +84,6 @@ void uiIOSurface::mkAttribFld( bool labelabove )
 }
 
 
-void uiIOSurface::mkSectionFld( bool labelabove )
-{
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available patches"),
-	labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
-    sectionfld_ = new uiListBox( this, su );
-    sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
-    sectionfld_->setStretch( 2, 2 );
-    sectionfld_->selectionChanged.notify(
-					mCB(this,uiIOSurface,ioDataSelChg) );
-}
-
-
 void uiIOSurface::mkRangeFld( bool multisubsel )
 {
     BufferString username = ctio_->ctxt_.translatorGroupName();
@@ -107,7 +94,6 @@ void uiIOSurface::mkRangeFld( bool multisubsel )
 	su.choicetype( uiPosSubSel::Setup::VolumeTypes );
     rgfld_ = new uiPosSubSel( this, su );
     rgfld_->selChange.notify( mCB(this,uiIOSurface,ioDataSelChg) );
-    if ( sectionfld_ ) rgfld_->attach( ensureBelow, sectionfld_ );
 }
 
 
@@ -123,7 +109,6 @@ void uiIOSurface::mkObjFld( const uiString& lbl )
 void uiIOSurface::fillFields( const EM::SurfaceIOData& sd )
 {
     fillAttribFld( sd.valnames );
-    fillSectionFld( sd.sections );
     fillRangeFld( sd.rg );
 }
 
@@ -193,17 +178,6 @@ void uiIOSurface::setInput( const DBKey& mid ) const
 }
 
 
-void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
-{
-    if ( !sectionfld_ ) return;
-
-    sectionfld_->setEmpty();
-    for ( int idx=0; idx<sections.size(); idx++ )
-	sectionfld_->addItem( toUiString(sections[idx]->buf()) );
-    sectionfld_->chooseAll( true );
-}
-
-
 void uiIOSurface::fillRangeFld( const TrcKeySampling& hrg )
 {
     if ( !rgfld_ ) return;
@@ -236,12 +210,6 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 	    sels.rg.init( true );
 	sels.rg.limitTo( SI().sampling(true).hsamp_ );
     }
-
-    sels.selsections.erase();
-    if ( sectionfld_ )
-	sectionfld_->getChosen( sels.selsections );
-    else
-	sels.selsections += 0;
 
     sels.selvalues.erase();
     if ( attribfld_ )
@@ -289,8 +257,6 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     {
 	if ( setup.withsubsel_ )
 	    mkRangeFld();
-	if ( sectionfld_ && rgfld_ )
-	    rgfld_->attach( alignedBelow, sectionfld_ );
     }
 
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::sGroupName() )
@@ -344,9 +310,6 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 	 setup.typ_!=EMFault3DTranslatorGroup::sGroupName() &&
 	 setup.typ_!=EMBodyTranslatorGroup::sGroupName() )
     {
-	if ( surf.nrSections() > 1 )
-	    mkSectionFld( false );
-
 	if ( setup.withsubsel_ )
 	{
 	    mkRangeFld();
@@ -354,9 +317,6 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 	    sd.use( surf );
 	    surfrange_ = sd.rg;
 	}
-
-	if ( sectionfld_ && rgfld_ )
-	    rgfld_->attach( alignedBelow, sectionfld_ );
     }
 
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::sGroupName() )
@@ -388,9 +348,6 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 
 bool uiSurfaceWrite::processInput()
 {
-    if ( sectionfld_ && sectionfld_->nrChosen() < 1 )
-	{ uiMSG().error( tr("Horizon has no patches") ); return false; }
-
     const IOObj* ioobj = objfld_->ioobj();
     if ( ioobj )
 	objfld_->setInputText( ioobj->name() );
@@ -430,26 +387,6 @@ Color uiSurfaceWrite::getColor() const
 
 void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 {
-    bool issubsel = sectionfld_ &&
-		sectionfld_->size()!=sectionfld_->nrChosen();
-
-    if ( !issubsel && rgfld_ && !rgfld_->isAll() )
-    {
-	const TrcKeySampling& hrg = rgfld_->envelope().hsamp_;
-	issubsel = surfrange_.isEmpty() ? true :
-	    !hrg.includes(surfrange_.start_) || !hrg.includes(surfrange_.stop_);
-    }
-
-    if ( displayfld_ && issubsel )
-    {
-	displayfld_->setChecked( false );
-	displayfld_->setSensitive( false );
-    }
-    else if ( displayfld_ && !displayfld_->sensitive() )
-    {
-	displayfld_->setSensitive( true );
-	displayfld_->setChecked( true );
-    }
 }
 
 
@@ -466,24 +403,15 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 
     uiGroup* attachobj = objfld_;
 
-    if ( setup.withsectionfld_ )
-	mkSectionFld( setup.withattribfld_ );
-
     if ( objfld_->ctxtIOObj().ioobj_ )
 	objSel(0);
 
     if ( setup.withattribfld_ )
     {
-	mkAttribFld( setup.withsectionfld_ );
+	mkAttribFld( false );
 	attribfld_->attach( alignedBelow, objfld_ );
-	if ( sectionfld_ ) sectionfld_->attach( rightTo, attribfld_ );
 	attachobj = attribfld_;
 	attribfld_->setMultiChoice( setup.multiattribsel_ );
-    }
-    else if ( setup.withsectionfld_ )
-    {
-	sectionfld_->attach( alignedBelow, objfld_ );
-	attachobj = sectionfld_;
     }
 
     if ( setup.withsubsel_ )
@@ -508,10 +436,6 @@ bool uiSurfaceRead::processInput()
     if ( !objfld_->commitInput() )
 	{ uiMSG().error( uiStrings::phrSelect(uiStrings::sInput().toLower()) );
 								return false; }
-
-    if ( sectionfld_ && sectionfld_->nrChosen()<1 )
-	{ uiMSG().error( tr("Horizon has no pataches") ); return false; }
-
     return true;
 }
 
@@ -631,8 +555,7 @@ uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
 	mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
 	if ( !fss ) continue;
 
-	EM::SectionID sid = fss->sectionID(0);
-	const int nrsticks = fss->geometry().nrSticks( sid );
+	const int nrsticks = fss->geometry().nrSticks();
 
 	bool fssvalid = false;
 	for ( int gidx=0; gidx<geomids.size(); gidx++ )
@@ -641,15 +564,15 @@ uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
 	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	    {
 		const Geometry::FaultStickSet* fltgeom =
-		    fss->geometry().sectionGeometry( sid );
+		    fss->geometry().geometryElement();
 		if ( !fltgeom ) continue;
 
 		const int sticknr = fltgeom->rowRange().atIndex( stickidx );
-		if ( !fss->geometry().pickedOn2DLine(sid, sticknr) )
+		if ( !fss->geometry().pickedOn2DLine(sticknr) )
 		    continue;
 
 		if ( geomids[gidx] ==
-			    fss->geometry().pickedGeomID(sid,sticknr))
+			    fss->geometry().pickedGeomID(sticknr))
 		{ fssvalid = true; break; }
 	    }
 	}

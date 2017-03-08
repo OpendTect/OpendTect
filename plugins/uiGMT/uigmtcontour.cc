@@ -277,11 +277,9 @@ void uiGMTContourGrp::readCB( CallBacker* )
 
     Interval<float> rg( mUdf(float), -mUdf(float) );
     TrcKeySamplingIterator iter( hs );
-    const EM::SectionID sid = hor_->sectionID( 0 );
     do
     {
-	const EM::SubID subid( iter.curBinID().toInt64() );
-	const EM::PosID posid( hor_->id(), sid, subid );
+	const EM::PosID posid = EM::PosID::getFromRowCol( iter.curBinID() );
 	const float val = isz ? (float) hor_->getPos( posid ).z_
 			      : hor_->auxdata.getAuxDataVal( dataidx, posid );
 	if ( !mIsUdf(val) )

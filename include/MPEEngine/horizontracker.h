@@ -68,7 +68,7 @@ public:
 	TrackTarget( HorizonAutoTracker* );
 	void			reset();
 
-	static unsigned char	getSourceMask(EM::SubID from,EM::SubID to);
+	static unsigned char	getSourceMask(EM::PosID from,EM::PosID to);
 	static unsigned char	cSourcePP() { return 1; }
 	static unsigned char	cSourcePS() { return 2; }
 	static unsigned char	cSourcePN() { return 4; }
@@ -102,16 +102,16 @@ protected:
 
     float			getInterpolZ(const EM::PosID&) const;
     void			computeScores();
-    void			addSeed(EM::SectionID,EM::SubID);
-    int				addPossibleTarget(EM::SectionID,EM::SubID);
+    void			addSeed(EM::PosID);
+    int				addPossibleTarget(EM::PosID);
 				/*Returns index (to array) if target should
 				  be computed*/
     void			getSources(const EM::PosID&,
 					   TypeSet<EM::PosID>&) const;
 
-    const SeisTrc*		getTrace(EM::SubID) const;
+    const SeisTrc*		getTrace(EM::PosID) const;
 				//Waits until it is loaded
-    void			requestTrace(EM::SubID);
+    void			requestTrace(EM::PosID);
 				//Tell that you want it to be loaded
 
     BufferString		errmsg_;

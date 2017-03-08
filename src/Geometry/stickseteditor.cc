@@ -13,7 +13,7 @@ ___________________________________________________________________
 
 #include "faultstickset.h"
 
-namespace Geometry 
+namespace Geometry
 {
 
 
@@ -37,14 +37,14 @@ bool StickSetEditor::mayTranslate2D( GeomPosID gpid ) const
 Coord3 StickSetEditor::translation2DNormal( GeomPosID gpid ) const
 {
     const FaultStickSet& fss = reinterpret_cast<const FaultStickSet&>(element);
-    const int stick = RowCol::fromInt64(gpid).row();
+    const int stick = gpid.getRowCol().row();
     return fss.getEditPlaneNormal( stick );
 }
 
 
 void StickSetEditor::addedKnots(CallBacker*)
 { editpositionchange.trigger(); }
-    
 
-    
+
+
 }; //Namespace

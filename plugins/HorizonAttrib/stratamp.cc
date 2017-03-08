@@ -140,8 +140,6 @@ int StratAmpCalc::init( const IOPar& pars )
     dataidx_ = addtohor->auxdata.auxDataIndex( attribnm );
     if ( dataidx_ < 0 ) dataidx_ = addtohor->auxdata.addAuxData( attribnm );
 
-    posid_.setObjectID( addtohor->id() );
-    posid_.setSectionID( addtohor->sectionID(0) );
     if ( outfold_ )
     {
 	BufferString foldnm = attribnm;
@@ -149,9 +147,6 @@ int StratAmpCalc::init( const IOPar& pars )
 	dataidxfold_ = addtohor->auxdata.auxDataIndex( foldnm );
 	if ( dataidxfold_ < 0 )
 	    dataidxfold_ = addtohor->auxdata.addAuxData( foldnm );
-
-	posidfold_.setObjectID( addtohor->id() );
-	posidfold_.setSectionID( addtohor->sectionID(0) );
     }
 
     return dataidx_;
@@ -187,10 +182,10 @@ int StratAmpCalc::nextStep()
     }
 
     const BinID bid = trc->info().binID();
-    const EM::SubID subid = bid.toInt64();
-    float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z_;
+    posid_ = EM::PosID::getFromRowCol( bid );
+    float z1 = (float) tophorizon_->getPos(posid_).z_;
     float z2 = !bothorizon_ ? z1
-	: (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z_;
+	: (float) bothorizon_->getPos(posid_).z_;
     if ( mIsUdf(z1) || mIsUdf(z2) )
 	return Executor::MoreToDo();
 
@@ -222,11 +217,10 @@ int StratAmpCalc::nextStep()
     }
 
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
-    posid_.setSubID( subid );
     addtohor->auxdata.setAuxDataVal( dataidx_, posid_, (float) outval );
     if ( outfold_ )
     {
-	posidfold_.setSubID( subid );
+	posidfold_ = posid_;
 	addtohor->auxdata.setAuxDataVal( dataidxfold_, posidfold_,
 					  mCast(float,runcalc.count()) );
     }
