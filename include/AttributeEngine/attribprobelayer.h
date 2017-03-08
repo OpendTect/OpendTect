@@ -11,32 +11,31 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "attribsel.h"
 #include "probe.h"
-#include "coltabsequence.h"
-#include "coltabmapper.h"
 #include "datapack.h"
+#include "attribsel.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
+#include "datadistribution.h"
 
-namespace Attrib { class SelSpec; }
 
 mExpClass(AttributeEngine) AttribProbeLayer : public ProbeLayer
 {
 public:
 
-    enum DispType		{ VD, Wiggle, RGB, };
-    typedef ColTab::MapperSetup	MapperSetup;
+    typedef ColTab::Sequence		Sequence;
+    typedef ColTab::MapperSetup		MapperSetup;
+    typedef DataDistribution<float>	DistribType;
 
-				AttribProbeLayer(
-					DispType dt=AttribProbeLayer::VD);
+    enum DispType		{ VD, Wiggle, RGB };
+
+				AttribProbeLayer(DispType dt=VD);
 				~AttribProbeLayer();
 				mDeclMonitorableAssignment(AttribProbeLayer);
 
     const char*			layerType() const;
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    static ChangeType		cDataChange()		{ return 2; }
-    static ChangeType		cColSeqChange()		{ return 3; }
-    static ChangeType		cMapperSetupChange()	{ return 4; }
 
     bool			hasData() const
 				{ return !attribdpid_.isInvalid(); }
@@ -47,17 +46,28 @@ public:
     mImplSimpleMonitoredGet(	selSpec,Attrib::SelSpec,attrspec_)
     mImplSimpleMonitoredGet(	dataPackID,DataPack::ID,attribdpid_)
     mImplSimpleMonitoredGet(	dispType,DispType,disptype_)
-    mImplSimpleMonitoredGetSet(	inline,colSeq,setColSeq,
-					ConstRefMan<ColTab::Sequence>,colseq_,
-					cColSeqChange())
-    void			setSelSpec(const Attrib::SelSpec&);
-    void			setDataPackID(DataPack::ID);
-    ConstRefMan<MapperSetup>	mapperSetup() const;
-    void			setMapperSetup(const MapperSetup&);
+    mImplSimpleMonitoredGet(	selectedComponent,int,selcomp_)
+    mImplSimpleMonitoredGet(	distribution,RefMan<DistribType>,distrib_)
+    mImplSimpleMonitoredGetSet(	inline,colSeq,setColSeq,ConstRefMan<Sequence>,
+	    				colseq_,cColSeqChange())
+    mImplSimpleMonitoredGetSet(	inline,mapperSetup,setMapperSetup,
+					RefMan<MapperSetup>,mappersetup_,
+					cMapperSetupChange())
 
+    void			setSelSpec(const Attrib::SelSpec&);
+    int				nrAvialableComponents() const;
+    void			setSelectedComponent(int);
+    void			setDataPackID(DataPack::ID);
     bool			useStoredColTabPars();
+
     static ProbeLayer*		createFrom(const IOPar&);
     static void			initClass();
+
+    static ChangeType		cDataChange()		{ return 2; }
+    static ChangeType		cColSeqChange()		{ return 3; }
+    static ChangeType		cMapperSetupChange()	{ return 4; }
+    static ChangeType		cSelCompChange()	{ return 5; }
+
     static const char*		sFactoryKey();
     static const char*		sAttribDataPackID();
     static const char*		sAttribColTabName();
@@ -65,12 +75,14 @@ public:
 protected:
 
     Attrib::SelSpec&		attrspec_;
-    DataPack::ID		attribdpid_;
-    ConstRefMan<ColTab::Sequence> colseq_;
-    RefMan<MapperSetup>		mappersetup_;
     DispType			disptype_;
+    DataPack::ID		attribdpid_;
     ConstRefMan<DataPack>	attrdp_;
+    int				selcomp_;
+    ConstRefMan<Sequence>	colseq_;
+    RefMan<MapperSetup>		mappersetup_;
+    RefMan<DistribType>		distrib_;
 
-    void			updateDataPack();
+    void			handleDataPackChange();
 
 };

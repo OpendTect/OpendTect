@@ -596,10 +596,11 @@ void uiODViewer2DMgr::fillProbeFromExisting( Probe& probe,
 	const bool iswva = idx;
 	AttribProbeLayer* attrlayer = new AttribProbeLayer();
 	attrlayer->setSelSpec( vwr2d.selSpec(iswva) );
-	const uiFlatViewer& vwr = vwr2d.viewwin()->viewer( 0 );
-	const ColTab::MapperSetup& mapsu =
-	    iswva ? *vwr.appearance().ddpars_.wva_.mappersetup_
-		  : *vwr.appearance().ddpars_.vd_.mappersetup_;
+	uiFlatViewer& vwr = const_cast<uiFlatViewer&>(
+				vwr2d.viewwin()->viewer(0) );
+	RefMan<ColTab::MapperSetup> mapsu =
+	    iswva ? vwr.appearance().ddpars_.wva_.mappersetup_
+		  : vwr.appearance().ddpars_.vd_.mappersetup_;
 	if ( !iswva )
 	    attrlayer->setColSeq( ColTab::SeqMGR().getAny(
 				  vwr.appearance().ddpars_.vd_.colseqname_) );

@@ -15,6 +15,7 @@ ___________________________________________________________________
 #include "dbman.h"
 #include "keystrs.h"
 #include "seisioobjinfo.h"
+#include "datadistributionextracter.h"
 
 
 AttribProbeLayer::AttribProbeLayer( DispType dt )
@@ -23,6 +24,7 @@ AttribProbeLayer::AttribProbeLayer( DispType dt )
     , mappersetup_(new ColTab::MapperSetup)
     , attrspec_(*new Attrib::SelSpec())
     , disptype_(dt)
+    , selcomp_(0)
 {
 }
 
@@ -42,10 +44,8 @@ void AttribProbeLayer::copyClassData( const AttribProbeLayer& oth )
     attrspec_ = oth.attrspec_;
     attribdpid_ = oth.attribdpid_;
     colseq_ = oth.colseq_;
-    if ( mappersetup_ && oth.mappersetup_ )
-	*mappersetup_ = *oth.mappersetup_;
-    else if ( mappersetup_ )
-	mappersetup_ = 0;
+    selcomp_ = oth.selcomp_;
+    mappersetup_ = oth.mappersetup_;
     attrdp_ = oth.attrdp_;
 }
 
@@ -60,7 +60,7 @@ Monitorable::ChangeType AttribProbeLayer::compareClassData(
     mHandleMonitorableCompare( attribdpid_, cDataChange() );
     mHandleMonitorableCompare( attrspec_, cDataChange() );
     mHandleMonitorableCompare( colseq_, cColSeqChange() );
-    mHandleMonitorableComparePtrContents( mappersetup_, cMapperSetupChange() );
+    mHandleMonitorableCompare( mappersetup_, cMapperSetupChange() );
     mDeliverMonitorableCompare();
 }
 
@@ -72,8 +72,7 @@ AttribProbeLayer::~AttribProbeLayer()
 }
 
 
-ProbeLayer* AttribProbeLayer::createFrom(
-	const IOPar& par )
+ProbeLayer* AttribProbeLayer::createFrom( const IOPar& par )
 {
     AttribProbeLayer* attrprinfo = new AttribProbeLayer;
     attrprinfo->usePar( par );
@@ -111,26 +110,6 @@ void AttribProbeLayer::initClass()
 }
 
 
-ConstRefMan<ColTab::MapperSetup> AttribProbeLayer::mapperSetup() const
-{
-    mLock4Read();
-    return mappersetup_;
-}
-
-
-void AttribProbeLayer::setMapperSetup( const MapperSetup& msu )
-{
-    mLock4Read();
-    if ( *mappersetup_ == msu )
-	return;
-    if ( !mLock2Write() && *mappersetup_ == msu )
-	return;
-
-    *mappersetup_ = msu;
-    mSendChgNotif( cMapperSetupChange(), 0 );
-}
-
-
 void AttribProbeLayer::fillPar( IOPar& par ) const
 {
     mLock4Read();
@@ -157,14 +136,23 @@ bool AttribProbeLayer::usePar( const IOPar& par )
 }
 
 
-void AttribProbeLayer::updateDataPack()
+void AttribProbeLayer::handleDataPackChange()
 {
-    const Probe* parentprobe = getProbe();
-    if ( !parentprobe )
-    { pErrMsg( "Parent probe not set" ); return; }
-
     DataPackMgr& dpm = DPM( getDataPackManagerID() );
     attrdp_ = dpm.get( attribdpid_ );
+    selcomp_ = 0;
+
+    const ArrayND<float>* arr = 0;
+    if ( attrdp_ && selcomp_ < attrdp_->nrArrays() )
+	arr = attrdp_->arrayData( selcomp_ );
+
+    if ( !arr )
+	distrib_ = 0;
+    else
+    {
+	DataDistributionExtracter<float> extr( *arr );
+	distrib_ = extr.execute() ? extr.getDistribution() : 0;
+    }
 }
 
 
@@ -179,7 +167,7 @@ void AttribProbeLayer::setDataPackID( DataPack::ID dpid )
 	return;
 
     attribdpid_ = dpid;
-    updateDataPack();
+    handleDataPackChange();
     mSendChgNotif( cDataChange(), cUnspecChgID() );
 }
 
@@ -201,10 +189,37 @@ void AttribProbeLayer::setSelSpec( const Attrib::SelSpec& as )
 }
 
 
+#define mNrComps() (attrdp_ ? attrdp_->nrArrays() : 0)
+
+int AttribProbeLayer::nrAvialableComponents() const
+{
+    mLock4Read();
+    return mNrComps();
+}
+
+
+void AttribProbeLayer::setSelectedComponent( int icomp )
+{
+    mLock4Read();
+
+    if ( selcomp_ == icomp )
+	return;
+    if ( !mLock2Write() && selcomp_ == icomp )
+	return;
+
+    const int nrcomps = mNrComps();
+    if ( icomp >= nrcomps )
+	icomp = nrcomps - 1;
+    if ( icomp < 0 )
+	icomp = 0;
+    selcomp_ = icomp;
+    mSendChgNotif( cSelCompChange(), icomp );
+}
+
+
 void AttribProbeLayer::invalidateData()
 {
     mLock4Write();
-
     attribdpid_ = DataPack::cNoID();
 }
 
@@ -213,7 +228,8 @@ bool AttribProbeLayer::useStoredColTabPars()
 {
     mLock4Read();
 
-    if ( attrspec_.isNLA() ) return false;
+    if ( attrspec_.isNLA() )
+	return false;
 
     const Attrib::DescSet* attrset =
 	Attrib::DSHolder().getDescSet( attrspec_.is2D(), true );

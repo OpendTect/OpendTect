@@ -89,7 +89,7 @@ void uiODEditAttribColorDlg::seqChg( CallBacker* )
 void uiODEditAttribColorDlg::mapperSetupChg( CallBacker* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    ConstRefMan<ColTab::MapperSetup> newcolmapsetup = coltabsel_->mapperSetup();
+    RefMan<ColTab::MapperSetup> newcolmapsetup = coltabsel_->mapperSetup();
     if ( !newcolmapsetup )
 	return;
 
@@ -99,7 +99,7 @@ void uiODEditAttribColorDlg::mapperSetupChg( CallBacker* )
 	if ( !attritem )
 	    continue;
 
-	attritem->attribProbeLayer()->setMapperSetup( *newcolmapsetup );
+	attritem->attribProbeLayer()->setMapperSetup( newcolmapsetup );
     }
 }
 
