@@ -97,8 +97,10 @@ public:
     const Interval<float>&	offsetRange() const	{ return offsrg_; }
     od_int64			nrRejected() const	{ return nrrejected_; }
 
-    bool			ioCompressed() const;
-    void			setIOCompressed(bool yn=true);
+    bool			ioCompressed() const
+				{ return iocompressedmgr_; }
+    void			setIOCompressed(bool yn=true)
+				{ iocompressedmgr_ = yn; }
     bool			dumpTo(od_ostream& strm) const;
     bool			readFrom(const char* nm, od_int64 offset,
 					bool all,
@@ -151,6 +153,7 @@ protected:
     Interval<int>		goodinlrg_;
     Interval<int>		goodcrlrg_;
     od_int64			nrrejected_;
+    bool			iocompressedmgr_;
 
     bool			isReasonable(const BinID&) const;
     int				getFirstIdxs(const BinID&,int&,int&);

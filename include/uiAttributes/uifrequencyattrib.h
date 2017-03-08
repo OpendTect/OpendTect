@@ -35,6 +35,7 @@ protected:
     uiImagAttrSel*	inpfld;
     uiGenInput*         gatefld;
     uiGenInput*		normfld;
+    uiGenInput*		smoothspectrumfld_;
     uiWindowFunctionSel* winfld;
     uiGenInput*		outpfld;
 

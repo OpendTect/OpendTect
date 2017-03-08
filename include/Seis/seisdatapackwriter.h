@@ -67,6 +67,8 @@ private:
 
     TrcKeySampling		tks_;
     Interval<int>		zrg_;
+    StepInterval<int>		cubezrgidx_;
+    ObjectSet<Scaler>		compscalers_;
 
     void			getPosInfo();
     void			obtainDP();

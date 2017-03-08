@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "seisselection.h"
 #include "ctxtioobj.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -26,8 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "od_helpids.h"
 
-HiddenParam<uiAttrInpDlg,ObjectSet<uiSeisSel>* > seisinpsetmgr( 0 );
-HiddenParam<uiAttrInpDlg,ObjectSet<uiSeisSel>* > steerinpsetmgr( 0 );
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
 			    bool issteer, bool is2d, const char* prevrefnm )
@@ -37,11 +34,9 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 				 mODHelpKey(mAttrInpDlgHelpID) ))
     , multiinpcube_(true)
     , is2d_(is2d)
-    , seisinpfld_(0)
-    , steerinpfld_(0)
 {
-    seisinpsetmgr.setParam(this, new ObjectSet<uiSeisSel>);
-    steerinpsetmgr.setParam(this, new ObjectSet<uiSeisSel>);
+    seisinpflds_.erase();
+    steerinpflds_.erase();
     uiString infotxt = tr( "Provide input for the following attributes: " );
     uiLabel* infolbl = new uiLabel( this, infotxt );
 
@@ -65,9 +60,8 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 
     if ( issteer )
     {
-	*steerinpsetmgr.getParam(this) +=
-		new uiSteerCubeSel( this, is2d, true, seltext );
-	(*steerinpsetmgr.getParam(this))[0]->attach( alignedBelow, txtfld );
+	steerinpflds_ += new uiSteerCubeSel( this, is2d, true, seltext );
+	steerinpflds_[0]->attach( alignedBelow, txtfld );
     }
     else
     {
@@ -75,49 +69,10 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 	sssu.seltxt( seltext );
 	const IOObjContext& ioctxt =
 	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
-	*seisinpsetmgr.getParam(this) += new uiSeisSel( this, ioctxt, sssu );
-	(*seisinpsetmgr.getParam(this))[0]->attach( alignedBelow, txtfld );
+	seisinpflds_ += new uiSeisSel( this, ioctxt, sssu );
+	seisinpflds_[0]->attach( alignedBelow, txtfld );
     }
 
-}
-
-
-uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
-       			    bool is2d )
-    : uiDialog(p,uiDialog::Setup(tr("Attribute set definition"),
-	       hassteer ? (hasseis ? tr("Select Seismic & Steering input")
-			: tr("Select Steering input")) 
-                        : tr("Select Seismic input"),
-			  mODHelpKey(mAttrInpDlgHelpID) ))
-    , multiinpcube_(false)
-    , is2d_(is2d)
-    , seisinpfld_(0)
-    , steerinpfld_(0)
-{
-    seisinpsetmgr.setParam(this, new ObjectSet<uiSeisSel>);
-    steerinpsetmgr.setParam(this, new ObjectSet<uiSeisSel>);
-    if ( hasseis )
-    {
-	uiSeisSel::Setup sssu( is2d, false );
-	sssu.seltxt( uiStrings::phrInput(uiStrings::sSeismics() ) );
-	const IOObjContext& ioctxt =
-	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
-	*seisinpsetmgr.getParam(this) += new uiSeisSel( this, ioctxt, sssu );
-    }
-
-    if ( hassteer )
-    {
-	*steerinpsetmgr.getParam(this) +=
-	    new uiSteerCubeSel( this, is2d, true,
-				uiStrings::phrInput( uiStrings::sSteering() ) );
-    }
-
-    const int seisinpsz = seisinpsetmgr.getParam(this)->size();
-
-    if ( steerinpsetmgr.getParam(this)->size()
-	&& (*steerinpsetmgr.getParam(this))[0] && seisinpsz )
-	(*steerinpsetmgr.getParam(this))[0]->attach( alignedBelow,
-				(*seisinpsetmgr.getParam(this))[seisinpsz-1] );
 }
 
 
@@ -131,11 +86,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
 		 mODHelpKey(mAttrInpDlgHelpID) ))
     , multiinpcube_(false)
     , is2d_(is2d)
-    , seisinpfld_(0)
-    , steerinpfld_(0)
 {
-    seisinpsetmgr.setParam(this, new ObjectSet<uiSeisSel>);
-    steerinpsetmgr.setParam(this, new ObjectSet<uiSeisSel>);
     for ( int idx=0; idx<seisinpnms.size(); idx++ )
     {
 	uiSeisSel::Setup sssu( is2d, false );
@@ -152,7 +103,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
 				uiStrings::sVolDataName(is2d, !is2d, false)) );
 	const IOObjContext& ioctxt =
 	    uiSeisSel::ioContext( is2d ? Seis::Line : Seis::Vol, true );
-	*seisinpsetmgr.getParam(this) += new uiSeisSel( this, ioctxt, sssu );
+	seisinpflds_ += new uiSeisSel( this, ioctxt, sssu );
     }
 
     for ( int idx=0; idx<steeringinpnms.size(); idx++ )
@@ -171,23 +122,18 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
 	else
 	    tmpstr = uiStrings::phrInput( uiStrings::sSteering() );
 
-	*steerinpsetmgr.getParam(this) +=
-				new uiSteerCubeSel( this, is2d, true, tmpstr );
+	steerinpflds_ += new uiSteerCubeSel( this, is2d, true, tmpstr );
     }
 
-    const int seisinpsz = seisinpsetmgr.getParam(this)->size();
+    const int seisinpsz = seisinpflds_.size();
     for ( int idx=1; idx<seisinpsz; idx++ )
-	(*seisinpsetmgr.getParam(this))[idx]->attach( alignedBelow,
-				(*seisinpsetmgr.getParam(this))[idx-1] );
+	seisinpflds_[idx]->attach( alignedBelow,seisinpflds_[idx-1] );
 
-    if ( steerinpsetmgr.getParam(this)->size()
-	&& (*steerinpsetmgr.getParam(this))[0] && seisinpsz )
-	(*steerinpsetmgr.getParam(this))[0]->attach( alignedBelow,
-				(*seisinpsetmgr.getParam(this))[seisinpsz-1] );
+    if ( steerinpflds_.size() && steerinpflds_[0] && seisinpsz )
+	steerinpflds_[0]->attach( alignedBelow, seisinpflds_[seisinpsz-1] );
 
-    for ( int idx=1; idx<steerinpsetmgr.getParam(this)->size(); idx++ )
-	(*steerinpsetmgr.getParam(this))[idx]->attach( alignedBelow,
-				(*steerinpsetmgr.getParam(this))[idx-1] );
+    for ( int idx=1; idx<steerinpflds_.size(); idx++ )
+	steerinpflds_[idx]->attach( alignedBelow, steerinpflds_[idx-1] );
 }
 
 
@@ -203,14 +149,12 @@ bool uiAttrInpDlg::acceptOK( CallBacker* )
     const uiString errmsg = uiStrings::phrSelect(tr("the input for the "
 								"attributes"));
 
-    for ( int idx=0; idx<steerinpsetmgr.getParam(this)->size(); idx++ )
-	if ( (*steerinpsetmgr.getParam(this))[idx]
-		&& !(*steerinpsetmgr.getParam(this))[idx]->commitInput() )
+    for ( int idx=0; idx<steerinpflds_.size(); idx++ )
+	if ( steerinpflds_[idx] && !steerinpflds_[idx]->commitInput() )
 	    mErrRetSelInp();
 
-    for ( int idx=0; idx<seisinpsetmgr.getParam(this)->size(); idx++ )
-	if ( (*seisinpsetmgr.getParam(this))[idx]
-		&& !(*seisinpsetmgr.getParam(this))[idx]->commitInput() )
+    for ( int idx=0; idx<seisinpflds_.size(); idx++ )
+	if ( seisinpflds_[idx] && !seisinpflds_[idx]->commitInput() )
 	    mErrRetSelInp();
 
     return true;
@@ -219,10 +163,6 @@ bool uiAttrInpDlg::acceptOK( CallBacker* )
 
 uiAttrInpDlg::~uiAttrInpDlg()
 {
-    delete seisinpsetmgr.getParam(this);
-    seisinpsetmgr.removeParam( this );
-    delete steerinpsetmgr.getParam(this);
-    steerinpsetmgr.removeParam( this );
 }
 
 
@@ -252,28 +192,25 @@ const char* uiAttrInpDlg::getSteerKey() const
 
 const char* uiAttrInpDlg::getSeisRefFromIndex( int idx ) const
 {
-    return seisinpsetmgr.getParam(this)->size()>idx
-	&& (*seisinpsetmgr.getParam(this))[idx]
-		? (*seisinpsetmgr.getParam(this))[idx]->getInput() : 0;
+    return seisinpflds_.size()>idx && seisinpflds_[idx]
+		? seisinpflds_[idx]->getInput() : 0;
 }
 
 
 const char* uiAttrInpDlg::getSteerRefFromIndex( int idx ) const
 {
-    return steerinpsetmgr.getParam(this)->size()>idx
-	&& (*steerinpsetmgr.getParam(this))[idx]
-		? (*steerinpsetmgr.getParam(this))[idx]->getInput() : 0;
+    return steerinpflds_.size()>idx && steerinpflds_[idx]
+		? steerinpflds_[idx]->getInput() : 0;
 }
 
 
 const char* uiAttrInpDlg::getSeisKeyFromIndex( int idx ) const
 {
-    if ( seisinpsetmgr.getParam(this)->size()<=idx
-	|| !(*seisinpsetmgr.getParam(this))[idx] )
+    if ( seisinpflds_.size()<=idx || !seisinpflds_[idx] )
 	return 0;
 
     LineKey lk;
-    const IOObj* ioobj = (*seisinpsetmgr.getParam(this))[idx]->ioobj( true );
+    const IOObj* ioobj = seisinpflds_[idx]->ioobj( true );
     if ( !ioobj )
 	return 0;
 
@@ -286,12 +223,11 @@ const char* uiAttrInpDlg::getSeisKeyFromIndex( int idx ) const
 
 const char* uiAttrInpDlg::getSteerKeyFromIndex( int idx ) const
 {
-    if ( steerinpsetmgr.getParam(this)->size()<=idx
-	|| !(*steerinpsetmgr.getParam(this))[idx] )
+    if ( steerinpflds_.size()<=idx || !steerinpflds_[idx] )
 	return 0;
 
     static LineKey lk;
-    const IOObj* ioobj = (*steerinpsetmgr.getParam(this))[idx]->ioobj( true );
+    const IOObj* ioobj = steerinpflds_[idx]->ioobj( true );
     if ( !ioobj )
 	return 0;
 

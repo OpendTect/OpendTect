@@ -127,6 +127,8 @@ private:
     int			failtimeout_;
     int			min_time_between_update_;
     int			lastsucces_;
+    int			min_time_between_msgupdates_;
+    int			lastupdate_;
 
     void		logMsg(bool stat,const char* msg, const char* details);
     od_ostream*		logstream_;

@@ -23,11 +23,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "uistrings.h"
 
-#include "hiddenparam.h"
-
-HiddenParam<SeisDataPackWriter,StepInterval<int>* > cubezrgidx_(0);
-HiddenParam<SeisDataPackWriter,ObjectSet<Scaler>* > seisdpwrrcompscalers_(0);
-
 
 SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 				  const RegularSeisDataPack& dp,
@@ -43,10 +38,7 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , compidxs_( compidxs )
     , trc_( 0 )
 {
-    cubezrgidx_.setParam( this, new StepInterval<int>( 0,0,0 ) );
-    ObjectSet<Scaler>* compscalers = new ObjectSet<Scaler>;
-    compscalers->allowNull( true );
-    seisdpwrrcompscalers_.setParam( this, compscalers );
+    compscalers_.allowNull( true );
     obtainDP();
     getPosInfo();
 
@@ -55,13 +47,13 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 	for ( int idx=0; idx<dp_->nrComponents(); idx++ )
 	{
 	    compidxs_ += idx;
-	    *compscalers += 0;
+	    compscalers_ += 0;
 	}
     }
     else
     {
 	for ( int idx=0; idx<compidxs_.size(); idx++ )
-	    *compscalers += 0;
+	    compscalers_ += 0;
     }
 
     const int startz =
@@ -79,12 +71,7 @@ SeisDataPackWriter::~SeisDataPackWriter()
     releaseDP();
     delete trc_;
     delete writer_;
-    delete cubezrgidx_.getParam( this );
-    cubezrgidx_.removeParam( this );
-    ObjectSet<Scaler>* compscalers = seisdpwrrcompscalers_.getParam( this );
-    deepErase( *compscalers );
-    delete compscalers;
-    seisdpwrrcompscalers_.removeParam( this );
+    deepErase( compscalers_ );
 }
 
 
@@ -104,14 +91,13 @@ void SeisDataPackWriter::setComponentScaler( const Scaler& scaler, int compidx )
     if ( scaler.isEmpty() )
 	return;
 
-    ObjectSet<Scaler>* compscalers = seisdpwrrcompscalers_.getParam( this );
     for ( int idx=0; idx<=compidx; idx++ )
     {
-	if ( !compscalers->validIdx(idx) )
-	    *compscalers += 0;
+	if ( !compscalers_.validIdx(idx) )
+	    compscalers_ += 0;
     }
 
-    delete compscalers->replace( compidx, scaler.clone() );
+    delete compscalers_.replace( compidx, scaler.clone() );
 }
 
 
@@ -161,8 +147,7 @@ void SeisDataPackWriter::releaseDP()
 void SeisDataPackWriter::setCubeIdxRange()
 {
     const float zstep = SI().zRange( false ).step;
-    StepInterval<int>* cubezrgidx = cubezrgidx_.getParam( this );
-    cubezrgidx->set( mNINT32(dp_->sampling().zsamp_.start/zstep),
+    cubezrgidx_.set( mNINT32(dp_->sampling().zsamp_.start/zstep),
 			 mNINT32(dp_->sampling().zsamp_.stop/zstep),
 			 mNINT32(dp_->sampling().zsamp_.step/zstep) );
 }
@@ -191,7 +176,7 @@ bool SeisDataPackWriter::setTrc()
     if ( !writer_ || dp_->isEmpty() )
 	return false;
 
-    const int trcsz = cubezrgidx_.getParam(this)->nrSteps() + 1;
+    const int trcsz = cubezrgidx_.nrSteps() + 1;
     trc_ = new SeisTrc( trcsz );
 
     trc_->info().sampling.start = dp_->sampling().zsamp_.start;
@@ -221,7 +206,6 @@ int SeisDataPackWriter::nextStep()
     if ( !iterator_.next(currentpos) )
 	return Finished();
 
-    ObjectSet<Scaler>& compscalers = *seisdpwrrcompscalers_.getParam( this );
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
     const od_int64 posidx = iterator_.curIdx();
     if ( posinfo_ && !posinfo_->isValid(posidx,hs) )
@@ -232,9 +216,8 @@ int SeisDataPackWriter::nextStep()
     const int inlpos = hs.lineIdx( currentpos.inl() );
     const int crlpos = hs.trcIdx( currentpos.crl() );
     const int trcsz = trc_->size();
-    const StepInterval<int>* cubezrgidx = cubezrgidx_.getParam( this );
     int zsample = zrg_.start;
-    int cubesample = zsample - cubezrgidx->start;
+    int cubesample = zsample - cubezrgidx_.start;
     const od_int64 offset = dp_->data().info().
 					getOffset( inlpos, crlpos, cubesample );
     float value = mUdf(float);
@@ -242,13 +225,13 @@ int SeisDataPackWriter::nextStep()
     {
 	const Array3D<float>& outarr = dp_->data( compidxs_[idx] );
 	const float* dataptr = outarr.getData();
-	const Scaler* scaler = compscalers[idx];
+	const Scaler* scaler = compscalers_[idx];
 	dataptr += offset;
 	zsample = zrg_.start;
-	cubesample = zsample - cubezrgidx->start;
+	cubesample = zsample - cubezrgidx_.start;
 	for ( int zidx=0; zidx<trcsz; zidx++, zsample++ )
 	{
-	    if ( cubezrgidx->includes(zsample,false) )
+	    if ( cubezrgidx_.includes(zsample,false) )
 	    {
 		if ( dataptr )
 		    value = *dataptr++;

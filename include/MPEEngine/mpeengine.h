@@ -147,6 +147,13 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
+    const TrcKeyPath*		activePath() const;
+    void			setActivePath(const TrcKeyPath*);
+    int				activeRandomLineID() const;
+    void			setActiveRandomLineID(int);
+    void			refTracker(EM::ObjectID);
+    void			unRefTracker(EM::ObjectID,bool nodel=false);
+    bool			hasTracker(EM::ObjectID) const;
 
 protected:
 
@@ -164,6 +171,9 @@ protected:
     EMTracker*			activetracker_;
     int				undoeventid_;
     DataPackMgr&		dpm_;
+    const TrcKeyPath*		rdmlinetkpath_;
+    int				rdlid_;
+    TrackSettingsValidator*	validator_;
 
     bool			prepareForTrackInVolume(uiString&);
     bool			prepareForRetrack();
@@ -208,16 +218,6 @@ protected:
     static const char*		sKeySeedConMode(){ return "Seed Connect Mode"; }
 
     void			applClosingCB(CallBacker*);
-
-public:
-    const TrcKeyPath*		activePath() const;
-    void			setActivePath(const TrcKeyPath*);
-    int				activeRandomLineID() const;
-    void			setActiveRandomLineID(int);
-
-    void			refTracker(EM::ObjectID);
-    void			unRefTracker(EM::ObjectID,bool nodel=false);
-    bool			hasTracker(EM::ObjectID) const;
 };
 
 

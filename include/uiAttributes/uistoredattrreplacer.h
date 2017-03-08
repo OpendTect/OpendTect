@@ -59,7 +59,10 @@ public:
 						       Attrib::DescSet*);
 				uiStoredAttribReplacer(uiParent*,IOPar*,
 						       bool is2d=false);
+				~uiStoredAttribReplacer();
     void			go();
+    void			setDataPackIDs(
+				    const TypeSet<DataPack::FullID>&);
 
 protected:
 
@@ -82,16 +85,12 @@ protected:
     Attrib::DescSet* 		attrset_;
     IOPar*			iopar_;
     TypeSet<StoredEntry>	storedids_;
+    TypeSet<DataPack::FullID>	dpfids_;
     bool		 	is2d_;
     uiParent*	 		parent_;
     int				noofsteer_;
     int				noofseis_;
     bool			multiinpcube_;
-
-public:
-				~uiStoredAttribReplacer();
-    void			setDataPackIDs(
-				    const TypeSet<DataPack::FullID>&);
 };
 
 #endif

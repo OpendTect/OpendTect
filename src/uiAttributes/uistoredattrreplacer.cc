@@ -25,12 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uimsg.h"
 
-#include "hiddenparam.h"
-
 using namespace Attrib;
-
-static HiddenParam< uiStoredAttribReplacer,TypeSet<DataPack::FullID>* >
-			dpfids( 0 );
 
 uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
 						DescSet* attrset )
@@ -41,7 +36,6 @@ uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
     , noofseis_(0)
     , noofsteer_(0)
 {
-    dpfids.setParam( this, new TypeSet<DataPack::FullID>() );
     getStoredIds();
 
     for ( int idx=0; idx<storedids_.size(); idx++ )
@@ -63,7 +57,6 @@ uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
     , noofseis_(0)
     , noofsteer_(0)
 {
-    dpfids.setParam( this, new TypeSet<DataPack::FullID>() );
     usePar( *iopar );
 
     for ( int idx=0; idx<storedids_.size(); idx++ )
@@ -78,9 +71,6 @@ uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
 
 uiStoredAttribReplacer::~uiStoredAttribReplacer()
 {
-    TypeSet<DataPack::FullID>* fids = dpfids.getParam( this );
-    dpfids.removeParam( this );
-    delete fids;
 }
 
 
@@ -296,7 +286,7 @@ void uiStoredAttribReplacer::go()
 void uiStoredAttribReplacer::setDataPackIDs(
 	const TypeSet<DataPack::FullID>& dpids )
 {
-    *dpfids.getParam(this) = dpids;
+    dpfids_ = dpids;
 }
 
 
@@ -410,9 +400,9 @@ void uiStoredAttribReplacer::handleSingleInput()
 	}
     }
 
-    if ( !dpfids.getParam(this)->isEmpty() )
+    if ( !dpfids_.isEmpty() )
     {
-	uiDataPackReplacerDlg dlg( parent_, storedids_, *dpfids.getParam(this));
+	uiDataPackReplacerDlg dlg( parent_, storedids_, dpfids_ );
 	if ( attrset_ )
 	    dlg.setAttribDescSet( attrset_ );
 	else

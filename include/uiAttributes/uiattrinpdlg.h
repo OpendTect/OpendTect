@@ -30,9 +30,6 @@ public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,
 				     bool issteer,bool is2d,
 				     const char* prevrefnm =0);
-			//!<Will be removed in later releases, not to be used
-			uiAttrInpDlg(uiParent*,bool hasseis,
-				     bool hassteer,bool is2d);
 			//!<Use for single input case
 			~uiAttrInpDlg();
 
@@ -51,8 +48,8 @@ public:
 
 protected:
 
-    uiSeisSel*		seisinpfld_;
-    uiSeisSel*		steerinpfld_;
+    ObjectSet<uiSeisSel>	seisinpflds_;
+    ObjectSet<uiSeisSel>	steerinpflds_;
 
     bool		multiinpcube_;
     bool		is2d_;

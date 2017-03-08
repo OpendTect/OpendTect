@@ -74,8 +74,6 @@ public:
 
     void			setUndo(bool yn) { setundo_ = yn; }
     void			setSeedId(int);
-    int				seedId() const;
-    void			removeHiddenParam();
 
 protected:
 				SectionAdjuster(EM::SectionID sid=-1);
@@ -88,6 +86,7 @@ protected:
 
     TrcKey			seedtk_;
     bool			setundo_;
+    int				seedid_;
 
     static const char*		sKeyAdjuster();
     static const char*		sKeyThreshold();

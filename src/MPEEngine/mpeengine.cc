@@ -36,8 +36,6 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "seispreload.h"
 #include "survinfo.h"
 
-#include "hiddenparam.h"
-
 #define mRetErr( msg, retval ) { errmsg_ = msg; return retval; }
 
 MPE::Engine& MPE::engine()
@@ -49,10 +47,6 @@ MPE::Engine& MPE::engine()
 
 namespace MPE
 {
-
-static HiddenParam<Engine,const TrcKeyPath*> rdmlinetkpaths( 0 );
-static HiddenParam<Engine,int> rdlids( -1 );
-static HiddenParam<Engine,TrackSettingsValidator*> validators( 0 );
 
 // MPE::Engine
 Engine::Engine()
@@ -67,11 +61,10 @@ Engine::Engine()
     , state_(Stopped)
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
+    , rdmlinetkpath_(0)
+    , rdlid_(-1)
+    , validator_(0)
 {
-    rdmlinetkpaths.setParam( this, 0 );
-    rdlids.setParam( this, -1 );
-    validators.setParam( this, 0 );
-
     trackers_.allowNull();
     trackermgrs_.allowNull();
     flatcubescontainer_.allowNull();
@@ -96,40 +89,36 @@ Engine::~Engine()
 	dpm_.release( attribcachedatapackids_[idx] );
     for ( int idx=attribbkpcachedatapackids_.size()-1; idx>=0; idx-- )
 	dpm_.release( attribbkpcachedatapackids_[idx] );
-    rdmlinetkpaths.removeParam( this );
-    rdlids.removeParam( this );
-    delete validators.getParam( this );
-    validators.removeParam( this );
 }
 
 
 void Engine::setValidator( TrackSettingsValidator* val )
 {
-    delete validators.getParam( this );
-    validators.setParam( this, val );
+    delete validator_;
+    validator_ = val;
 }
 
 
 const TrcKeyPath* Engine::activePath() const
 {
-    return rdmlinetkpaths.getParam( this );
+    return rdmlinetkpath_;
 }
 
 
 void Engine::setActivePath( const TrcKeyPath* tkp )
 {
-    rdmlinetkpaths.setParam( this, tkp );
+    rdmlinetkpath_ = tkp;
 }
 
 
 int Engine::activeRandomLineID() const
 {
-    return rdlids.getParam( this );
+    return rdlid_;
 }
 
 void Engine::setActiveRandomLineID( int rdlid )
 {
-    rdlids.setParam( this, rdlid );
+    rdlid_ = rdlid;
 }
 
 
@@ -333,8 +322,7 @@ void Engine::enableTracking( bool yn )
 
 bool Engine::prepareForTrackInVolume( uiString& errmsg )
 {
-    TrackSettingsValidator* validator = validators.getParam( this );
-    if ( validator && !validator->checkActiveTracker() )
+    if ( validator_ && !validator_->checkActiveTracker() )
 	return false;
 
     EMSeedPicker* seedpicker = activetracker_->getSeedPicker( true );
@@ -344,10 +332,10 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
 
     MultiID key = MultiID::udf();
     Attrib::SelSpec as( *seedpicker->getSelSpec() );
-    if ( validator && !validator->checkStoredData(as,key) )
+    if ( validator_ && !validator_->checkStoredData(as,key) )
 	return false;
 
-    if ( validator && !validator->checkPreloadedData(key) )
+    if ( validator_ && !validator_->checkPreloadedData(key) )
 	return false;
 
     mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(key));
