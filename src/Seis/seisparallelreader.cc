@@ -33,9 +33,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "uistrings.h"
 
-#include "hiddenparam.h"
-
 #include <string.h>
+#include "hiddenparam.h"
 
 namespace Seis
 {
@@ -78,7 +77,6 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 }
 
 
-HiddenParam<ParallelReader,TypeSet<int>* > seisrdroutcompmgr( 0 );
 
 ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
     : dp_(0)
@@ -87,7 +85,6 @@ ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
     , ioobj_( ioobj.clone() )
     , totalnr_( cs.hsamp_.totalNr() )
 {
-    seisrdroutcompmgr.setParam( this, 0 );
     SeisIOObjInfo seisinfo( ioobj );
     const int nrcomponents = seisinfo.nrComponents();
     for ( int idx=0; idx<nrcomponents; idx++ )
@@ -104,7 +101,6 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
     , ioobj_( ioobj.clone() )
     , totalnr_( bidvals.totalSize() )
 {
-    seisrdroutcompmgr.setParam( this, 0 );
     errmsg_ = uiStrings::phrReading( ioobj_->uiName() );
 }
 
@@ -113,8 +109,6 @@ ParallelReader::~ParallelReader()
 {
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     delete ioobj_;
-    delete seisrdroutcompmgr.getParam( this );
-    seisrdroutcompmgr.removeParam( this );
 }
 
 
@@ -123,9 +117,7 @@ bool ParallelReader::setOutputComponents( const TypeSet<int>& compnrs )
     if ( compnrs.size() != components_.size() )
 	return false;
 
-    delete seisrdroutcompmgr.getParam( this );
-    seisrdroutcompmgr.setParam( this, new TypeSet<int>( compnrs ) );
-
+    seisrdroutcompmgr_ =  compnrs;
     return true;
 }
 
@@ -227,9 +219,8 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 	return false;
     }
 
-    const TypeSet<int>& outcompnrs = seisrdroutcompmgr.getParam( this )
-				   ? *seisrdroutcompmgr.getParam( this )
-				   : components_;
+    const TypeSet<int>& outcompnrs = !seisrdroutcompmgr_.isEmpty()
+				   ? seisrdroutcompmgr_ : components_;
     TrcKeySamplingIterator iter;
     BinIDValueSet::SPos bidvalpos;
     BinID curbid;
@@ -633,9 +624,6 @@ protected:
 };
 
 
-HiddenParam<SequentialReader,TypeSet<int>* > seisseqrdroutcompmgr( 0 );
-HiddenParam<SequentialReader,ObjectSet<Scaler>* > seisseqrdrcompscalers( 0 );
-
 SequentialReader::SequentialReader( const IOObj& ioobj,
 				    const TrcKeyZSampling* tkzs,
 				    const TypeSet<int>* comps )
@@ -648,10 +636,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     , dc_(DataCharacteristics::Auto)
     , initialized_(false)
 {
-    seisseqrdroutcompmgr.setParam( this, 0 );
-    ObjectSet<Scaler>* compscalers = new ObjectSet<Scaler>;
-    compscalers->allowNull( true );
-    seisseqrdrcompscalers.setParam( this, compscalers );
+    seqrdrcompscalers_.allowNull( true );
     SeisIOObjInfo info( ioobj );
     info.getDataChar( dc_ );
     if ( !comps )
@@ -660,14 +645,14 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 	for ( int idx=0; idx<nrcomps; idx++ )
 	{
 	    components_ += idx;
-	    *compscalers += 0;
+	    seqrdrcompscalers_ += 0;
 	}
     }
     else
     {
 	components_ = *comps;
 	for ( int idx=0; idx<components_.size(); idx++ )
-	    *compscalers += 0;
+	    seqrdrcompscalers_ += 0;
     }
 
     info.getRanges( tkzs_ );
@@ -691,11 +676,7 @@ SequentialReader::~SequentialReader()
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 
-    delete seisseqrdroutcompmgr.getParam( this );
-    deepErase( *seisseqrdrcompscalers.getParam( this ) );
-    delete seisseqrdrcompscalers.getParam( this );
-    seisseqrdroutcompmgr.removeParam( this );
-    seisseqrdrcompscalers.removeParam( this );
+    deepErase( seqrdrcompscalers_ );
 }
 
 
@@ -710,9 +691,7 @@ bool SequentialReader::setOutputComponents( const TypeSet<int>& compnrs )
     if ( compnrs.size() != components_.size() )
 	return false;
 
-    delete seisseqrdroutcompmgr.getParam( this );
-    seisseqrdroutcompmgr.setParam( this, new TypeSet<int>( compnrs ) );
-
+    seqrdroutcompmgr_ = compnrs;
     return true;
 }
 
@@ -734,14 +713,13 @@ void SequentialReader::setComponentScaler( const Scaler& scaler, int compidx )
     if ( scaler.isEmpty() )
 	return;
 
-    ObjectSet<Scaler>& compscalers = *seisseqrdrcompscalers.getParam( this );
     for ( int idx=0; idx<=compidx; idx++ )
     {
-	if ( !compscalers.validIdx(idx) )
-	    compscalers += 0;
+	if ( !seqrdrcompscalers_.validIdx(idx) )
+	    seqrdrcompscalers_ += 0;
     }
 
-    delete compscalers.replace( compidx, scaler.clone() );
+    delete seqrdrcompscalers_.replace( compidx, scaler.clone() );
 }
 
 
@@ -752,13 +730,11 @@ void SequentialReader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
     if ( dp_ && dp_->getDataDesc() == floatdesc )
 	return;
 
-    ObjectSet<Scaler>& compscalers = *seisseqrdrcompscalers.getParam( this );
-
     bool needadjust = false;
-    for ( int idx=0; idx<compscalers.size(); idx++ )
+    for ( int idx=0; idx<seqrdrcompscalers_.size(); idx++ )
     {
-	if ( !compscalers[idx] || compscalers[idx]->isEmpty() ||
-	     trcdesc == floatdesc )
+	if ( !seqrdrcompscalers_[idx] ||
+	     seqrdrcompscalers_[idx]->isEmpty() || trcdesc == floatdesc )
 	    continue;
 
 	needadjust = true;
@@ -805,11 +781,10 @@ bool SequentialReader::init()
     nrdone_ = 0;
     msg_ = tr("Initializing reader");
 
-    ObjectSet<Scaler>& compscalers = *seisseqrdrcompscalers.getParam( this );
     for ( int idx=0; idx<components_.size(); idx++ )
     {
-	if ( !compscalers.validIdx(idx) )
-	    compscalers += 0;
+	if ( !seqrdrcompscalers_.validIdx(idx) )
+	    seqrdrcompscalers_ += 0;
     }
 
     const SeisIOObjInfo seisinfo( *ioobj_ );
@@ -875,11 +850,10 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
 	return false;
     }
 
-    ObjectSet<Scaler>& compscalers = *seisseqrdrcompscalers.getParam( this );
-    if ( compscalers.size() < components_.size() )
+    if ( seqrdrcompscalers_.size() < components_.size() )
     {
-	for ( int idx=compscalers.size(); idx<components_.size(); idx++ )
-	    compscalers += 0;
+	for ( int idx=seqrdrcompscalers_.size();idx<components_.size(); idx++ )
+	    seqrdrcompscalers_ += 0;
     }
 
     PosInfo::CubeData cubedata;
@@ -912,13 +886,10 @@ int SequentialReader::nextStep()
     if ( !rdr_.get(*trc) )
     { delete trc; msg_ = rdr_.errMsg(); return ErrorOccurred(); }
 
-    const ObjectSet<Scaler>& compscalers =
-					*seisseqrdrcompscalers.getParam( this );
-    const TypeSet<int>& outcomponents = seisseqrdroutcompmgr.getParam( this )
-				      ? *seisseqrdroutcompmgr.getParam( this )
-				      : components_;
-    Task* task = new ArrayFiller( *trc, components_, compscalers, outcomponents,
-				  *dp_ );
+    const TypeSet<int>& outcomponents = !seqrdroutcompmgr_.isEmpty()
+				      ? seqrdroutcompmgr_ : components_;
+    Task* task = new ArrayFiller( *trc, components_, seqrdrcompscalers_,
+				  outcomponents, *dp_ );
     Threads::WorkManager::twm().addWork(
 	Threads::Work(*task,true), 0, queueid_, false, false, true );
 

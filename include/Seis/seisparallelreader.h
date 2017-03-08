@@ -93,6 +93,7 @@ protected:
     od_int64			totalnr_;
 
     uiString			errmsg_;
+    TypeSet<int>		seisrdroutcompmgr_;
 };
 
 
@@ -207,6 +208,8 @@ protected:
     od_int64			nrdone_;
     uiString			msg_;
     bool			initialized_;
+    TypeSet<int>		seqrdroutcompmgr_;
+    ObjectSet<Scaler>		seqrdrcompscalers_;
 };
 
 } // namespace Seis
