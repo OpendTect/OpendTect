@@ -605,7 +605,7 @@ void DataPackMgr::dumpInfoFor( DataPack::ID dpid, IOPar& iop ) const
 }
 
 
-void DataPack::dumpInfo( IOPar& iop ) const
+void DataPack::doDumpInfo( IOPar& iop ) const
 {
     iop.set( sKeyCategory(), category() );
     iop.set( sKey::Name(), name() );

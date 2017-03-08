@@ -166,8 +166,6 @@ public:
     SeisTrc*			getTrace(int gatheridx,int offsetidx);
     const SeisTrc*		getTrace(int gatheridx,int offsetidx) const;
 
-    virtual float		nrKBytes() const	{ return 0; }
-
     const Gather*		getGather(const BinID&) const;
     const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
     ObjectSet<Gather>&		getGathers()		{ return gathers_; }
@@ -181,6 +179,8 @@ protected:
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;
 
     RefObjectSet<Gather>	gathers_;
+
+    virtual float		gtNrKBytes() const	{ return 0; }
 
 };
 

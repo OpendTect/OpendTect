@@ -238,15 +238,15 @@ double FlatDataPack::getAltDim0Value( int ikey, int idim0 ) const
 static const float kbfac = ((float)sizeof(float)) / 1024.0;
 
 
-float FlatDataPack::nrKBytes() const
+float FlatDataPack::gtNrKBytes() const
 {
     return size(true) * kbfac * size(false);
 }
 
 
-void FlatDataPack::dumpInfo( IOPar& iop ) const
+void FlatDataPack::doDumpInfo( IOPar& iop ) const
 {
-    DataPack::dumpInfo( iop );
+    DataPack::doDumpInfo( iop );
     iop.set( sKey::Type(), "Flat" );
     const int sz0 = size(true); const int sz1 = size(false);
     for ( int idim=0; idim<2; idim++ )
@@ -695,7 +695,7 @@ void VolumeDataPack::setDataDesc( const BinDataDesc& dc )
 }
 
 
-float VolumeDataPack::nrKBytes() const
+float VolumeDataPack::gtNrKBytes() const
 {
     const int nrcomps = nrComponents();
     if ( nrcomps == 0 ) return 0.0f;
@@ -703,9 +703,9 @@ float VolumeDataPack::nrKBytes() const
 }
 
 
-void VolumeDataPack::dumpInfo( IOPar& iop ) const
+void VolumeDataPack::doDumpInfo( IOPar& iop ) const
 {
-    DataPack::dumpInfo( iop );
+    DataPack::doDumpInfo( iop );
     BufferString info;
     if ( scaler_ )
     {

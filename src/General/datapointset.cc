@@ -674,7 +674,7 @@ bool DataPointSet::setRow( const DataPointSet::DataRow& dr )
 }
 
 
-float DataPointSet::nrKBytes() const
+float DataPointSet::gtNrKBytes() const
 {
     const int twointsz = 2 * sizeof(int);
     const float rowsz =
@@ -684,7 +684,7 @@ float DataPointSet::nrKBytes() const
 }
 
 
-void DataPointSet::dumpInfo( IOPar& iop ) const
+void DataPointSet::doDumpInfo( IOPar& iop ) const
 {
     BufferString typstr( "PointSet (" );
     typstr += is2d_ ? "2D" : "3D";

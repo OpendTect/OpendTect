@@ -440,7 +440,7 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
 
     const Probe* parentprobe = attrprlayer->getProbe();
     if ( !parentprobe )
-    { pErrMsg( "Parent probe not set" ); return attrdp; }
+	{ pErrMsg( "Parent probe not set" ); return attrdp; }
 
     const TrcKeyZSampling probepos = parentprobe->position();
     ZAxisTransform* ztransform = visserv_->getZAxisTransform( sceneID() );

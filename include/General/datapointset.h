@@ -229,11 +229,7 @@ public:
 				const UnitOfMeasure* un=0);
 			//!< or use dataSet() to add columns
 
-    // DataPack interface impl
     bool		simpleCoords() const		{ return minimal_; }
-    float		nrKBytes() const;
-    void		dumpInfo(IOPar&) const;
-
 
 protected:
 
@@ -253,6 +249,10 @@ protected:
     const int		nrfixedcols_;
 
     DataColDef&		gtColDef(ColID) const;
+
+    virtual float	gtNrKBytes() const;
+    virtual void	doDumpInfo(IOPar&) const;
+
 };
 
 

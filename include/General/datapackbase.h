@@ -18,11 +18,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "trckeysampling.h"
 #include "valseries.h"
-
-template <class T> class Array1D;
-template <class T> class Array2D;
-template <class T> class Array3D;
-template <class T> class Array3DImpl;
+#include "arrayndimpl.h"
 
 class FlatPosData;
 class Scaler;
@@ -97,9 +93,6 @@ public:
 
     virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const {}
 
-    virtual float		nrKBytes() const;
-    virtual void		dumpInfo(IOPar&) const;
-
     virtual int			size(bool dim0) const;
 
 protected:
@@ -111,6 +104,11 @@ protected:
 
     Array2D<float>*		arr2d_;
     FlatPosData&		posdata_;
+
+    virtual float		gtNrKBytes() const;
+    virtual void		doDumpInfo(IOPar&) const;
+    virtual int			gtNrArrays() const	 { return 1; }
+    virtual const ArrayND<float>* gtArrayData(int) const { return arr2d_; }
 
 private:
 
@@ -227,9 +225,6 @@ public:
     void			setDataDesc(const BinDataDesc&);
 				//<! Will remove incompatible arrays if any
 
-    float			nrKBytes() const;
-    void			dumpInfo(IOPar&) const;
-
 protected:
 
 				VolumeDataPack(const char*,const BinDataDesc*);
@@ -243,4 +238,13 @@ protected:
     ZDomain::Info*			zdomaininfo_;
     BinDataDesc				desc_;
     const Scaler*			scaler_;
+
+    virtual int			gtNrArrays() const { return arrays_.size(); }
+    virtual const ArrayND<float>* gtArrayData( int iarr ) const
+    				{ return arrays_.validIdx(iarr)
+				       ? arrays_[iarr] : 0; }
+
+    float			gtNrKBytes() const;
+    void			doDumpInfo(IOPar&) const;
+
 };
