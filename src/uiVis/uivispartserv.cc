@@ -2241,11 +2241,15 @@ bool uiVisPartServer::isVerticalDisp( int id ) const
     return so ? so->isVerticalPlane() : true;
 }
 
+void uiVisPartServer::displayMapperRangeEditForAttrbs( int visid )
+{ displayMapperRangeEditForAttribs( visid, -1 ); }
 
-void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
+
+void uiVisPartServer::displayMapperRangeEditForAttribs(
+					int visid, int attribid  )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    mapperrgeditordisplayid_ = displayid;
+    mapperrgeditordisplayid_ = visid;
     if ( multirgeditwin_ )
     {
 	multirgeditwin_->close();
@@ -2253,31 +2257,34 @@ void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
 	multirgeditwin_ = 0;
     }
 
-    const DataPackMgr::ID dpmid = getDataPackMgrID( displayid );
+    const DataPackMgr::ID dpmid = getDataPackMgrID( visid );
     if ( dpmid < 1 )
     {
 	uiMSG().error( tr("Cannot display histograms for this type of data") );
 	return;
     }
 
-    multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, getNrAttribs(displayid),
-						     dpmid );
+    const int nrattribs = attribid==-1 ? getNrAttribs(visid) : 1;
+    multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, nrattribs, dpmid );
     multirgeditwin_->setDeleteOnClose( false );
     multirgeditwin_->rangeChange.notify(
 	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
 
-    for ( int idx=0; idx<getNrAttribs(displayid); idx++ )
+    for ( int idx=0; idx<nrattribs; idx++ )
     {
-	const DataPack::ID dpid = getDataPackID( displayid, idx );
+	const int dpidx = attribid==-1 ? idx : attribid;
+	const int statsidx = attribid==-1 ? idx : 0;
+
+	const DataPack::ID dpid = getDataPackID( visid, dpidx );
 	if ( dpid < 1 )
 	    continue;
 
-	multirgeditwin_->setDataPackID( idx, dpid );
-	const ColTab::MapperSetup* ms = getColTabMapperSetup( displayid, idx );
-	if ( ms ) multirgeditwin_->setColTabMapperSetup( idx, *ms );
+	multirgeditwin_->setDataPackID( statsidx, dpid );
+	const ColTab::MapperSetup* ms = getColTabMapperSetup( visid, dpidx );
+	if ( ms ) multirgeditwin_->setColTabMapperSetup( statsidx, *ms );
 
-	const ColTab::Sequence* ctseq = getColTabSequence( displayid, idx );
-	if ( ctseq ) multirgeditwin_->setColTabSeq( idx, *ctseq );
+	const ColTab::Sequence* ctseq = getColTabSequence( visid, dpidx );
+	if ( ctseq ) multirgeditwin_->setColTabSeq( statsidx, *ctseq );
     }
 
     multirgeditwin_->go();

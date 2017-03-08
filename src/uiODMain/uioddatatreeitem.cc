@@ -393,14 +393,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	if ( mnuid==statisticsitem_.id )
 	{
-	    uiStatsDisplay::Setup su; su.countinplot( false );
-	    delete statswin_;
-	    statswin_ =
-		new uiStatsDisplayWin( applMgr()->applService().parent(), su,
-				       1, false );
-	    statswin_->statsDisplay()->setDataPackID( dpid, dmid );
-	    statswin_->setDataName( DPM(dmid).nameOf(dpid)  );
-	    statswin_->show();
+	    visserv_->displayMapperRangeEditForAttribs( visid, attribid );
 	    menu->setIsHandled( true );
 	}
 	else if ( mnuid==amplspectrumitem_.id || mnuid==fkspectrumitem_.id )

@@ -13,8 +13,9 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicoltabtools.h"
+#include "uihistogramdisplay.h"
 #include "uimapperrangeeditor.h"
-#include "uiseparator.h"
+#include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
 #include "uitoolbar.h"
 
@@ -22,49 +23,66 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "datapackbase.h"
+#include "hiddenparam.h"
+#include "mouseevent.h"
 #include "od_helpids.h"
 
+static HiddenParam<uiMultiMapperRangeEditWin,
+		   ObjectSet<uiStatsDisplay>* > statsdisplays(0);
+
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
-       						DataPackMgr::ID dmid )
+						DataPackMgr::ID dmid )
     : uiDialog( p,uiDialog::Setup(uiStrings::sHistogram(),
-				  mNoDlgTitle,
-                                  mODHelpKey(mMultiMapperRangeEditWinHelpID) )
-                                  .modal(false)
-							.menubar(true) )
+				mNoDlgTitle,
+				mODHelpKey(mMultiMapperRangeEditWinHelpID) )
+				.nrstatusflds(1)
+				.modal(false)
+				.menubar(true) )
     , activeattrbid_(-1)
-    , activectbmapper_(0)	      
+    , activectbmapper_(0)
     , rangeChange(this)
-    , dpm_(DPM(dmid))		       
+    , dpm_(DPM(dmid))
 {
     setCtrlStyle( CloseOnly );
 
     datapackids_.setSize( nr );
-    uiSeparator* sephor = 0;
 
-    uiToolBar* tb = new uiToolBar( this, tr("Stats") );
-    tb->addButton( "info", tr("Statistics"),
-	    	   mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
+    statsdisplays.setParam( this, new ObjectSet<uiStatsDisplay> );
+
+    // Assuming max number of texture layers is 8
+    const int nrcols = nr < 5 ? nr : (nr<7 ? 3 : 4);
+    const int nrrows = nr < 5 ? 1  : 2;
+    const bool withstatsdlg = nrrows == 2;
+    if ( withstatsdlg )
+    {
+	uiToolBar* tb = new uiToolBar( this, tr("Stats") );
+	tb->addButton( "info", tr("Statistics"),
+		       mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
+    }
 
     for ( int idx=0; idx<nr; idx++ )
     {
 	uiMapperRangeEditor* rangeeditor =
-	    			new uiMapperRangeEditor( this, idx );
+				new uiMapperRangeEditor( this, idx );
 	rangeeditor->rangeChanged.notify(
 		mCB(this,uiMultiMapperRangeEditWin,rangeChanged) );
+	rangeeditor->getDisplay().getMouseEventHandler().movement.notify(
+			mCB(this,uiMultiMapperRangeEditWin,mouseMoveCB) );
 	mapperrgeditors_ += rangeeditor;
 
-	if ( idx%2 == 0 )
-	{
-	    if ( sephor )
-	    {
-		rangeeditor->attach( ensureBelow, sephor );
-		rangeeditor->attach( centeredBelow, mapperrgeditors_[idx-2] );
-	    }
-	    sephor = new uiSeparator( this, "H sep" );
-	    sephor->attach( stretchedBelow, rangeeditor );
-	}
-	else
+	if ( idx==nrcols )
+	    rangeeditor->attach( centeredBelow, mapperrgeditors_[idx-nrcols] );
+	else if ( idx>0 )
 	    rangeeditor->attach( centeredRightOf, mapperrgeditors_[idx-1] );
+
+	if ( !withstatsdlg )
+	{
+	    uiStatsDisplay::Setup sds; sds.withplot(false).withname(false);
+	    uiStatsDisplay* sd = new uiStatsDisplay( this, sds );
+	    sd->attach( alignedBelow, rangeeditor );
+	    ObjectSet<uiStatsDisplay>& displays = *statsdisplays.getParam(this);
+	    displays += sd;
+	}
     }
 
     dpm_.packToBeRemoved.notifyIfNotNotified(
@@ -76,6 +94,9 @@ uiMultiMapperRangeEditWin::~uiMultiMapperRangeEditWin()
 {
     dpm_.packToBeRemoved.remove(
 			mCB(this,uiMultiMapperRangeEditWin,dataPackDeleted) );
+
+    delete statsdisplays.getParam( this );
+    statsdisplays.removeParam( this );
 }
 
 
@@ -109,7 +130,13 @@ void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
 
     mapperrgeditors_[idx]->setDataPackID( dpid, dpm_.id() );
     if ( datapackids_.validIdx(idx) )
+    {
 	datapackids_[idx] = dpid;
+    }
+
+    ObjectSet<uiStatsDisplay>& displays = *statsdisplays.getParam( this );
+    if ( displays.validIdx(idx) )
+	displays[idx]->setDataPackID( dpid, dpm_.id() );
 }
 
 
@@ -118,18 +145,41 @@ void uiMultiMapperRangeEditWin::setColTabMapperSetup( int idx,
 {
     if ( !mapperrgeditors_.validIdx(idx) )
 	return;
-   
-    mapperrgeditors_[idx]->setColTabMapperSetup( ms ); 
+
+    mapperrgeditors_[idx]->setColTabMapperSetup( ms );
 }
 
 
-void uiMultiMapperRangeEditWin::setColTabSeq( int idx, 
+void uiMultiMapperRangeEditWin::setColTabSeq( int idx,
 						const ColTab::Sequence& ctseq )
 {
     if ( !mapperrgeditors_.validIdx(idx) )
 	return;
 
-    mapperrgeditors_[idx]->setColTabSeq( ctseq ); 
+    mapperrgeditors_[idx]->setColTabSeq( ctseq );
+}
+
+
+void uiMultiMapperRangeEditWin::mouseMoveCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,meh,cb)
+    if ( !meh ) return;
+
+    Geom::Point2D<float> val;
+    const Geom::Point2D<int>& pos = meh->event().pos();
+    for ( int idx=0; idx<mapperrgeditors_.size(); idx++ )
+    {
+	uiHistogramDisplay& disp = mapperrgeditors_[idx]->getDisplay();
+	if ( &disp.getMouseEventHandler() == meh )
+	{
+	    val = disp.getFuncXY( pos.x, false );
+	    break;
+	}
+    }
+
+    uiString str = tr("Value / Count: %1 / %2").arg(toUiString(val.x,4)).
+		   arg(toUiString(val.y,0));
+    toStatusBar( str );
 }
 
 

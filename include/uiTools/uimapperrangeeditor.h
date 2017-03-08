@@ -36,6 +36,7 @@ public:
 
     int				ID()		       { return id_; }
 
+    void			setEmpty();
     bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
     void                        setData(const Array2D<float>*);
     void                        setMarkValue(float,bool forx);
