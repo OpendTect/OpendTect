@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicssaveimagedlg.h"
+#include "datadistribution.h"
 #include "mouseevent.h"
 #include "axislayout.h"
 #include "od_iostream.h"
@@ -208,6 +209,14 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 }
 
 
+void uiFunctionDisplay::setY2Vals( const DataDistribution<float>& distr,
+				   bool limitspikes )
+{
+    distr.getCurve( y2xvals_, y2yvals_, limitspikes );
+    gatherInfo( true ); draw();
+}
+
+
 void uiFunctionDisplay::setMarkValue( float val, bool is_x )
 {
     (is_x ? xmarklineval_ : ymarklineval_) = val;
@@ -363,7 +372,7 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
     const Interval<int> xpixintv( xax_->getPix(xax_->range().start),
 				  xax_->getPix(xax_->range().stop) );
     const Interval<int> ypixintv( yax->getPix(yrg.start),
-	    			  yax->getPix(yrg.stop) );
+				  yax->getPix(yrg.stop) );
     uiPoint pt = closept;
     for ( int idx=0; idx<nrpts; idx++ )
     {
@@ -527,8 +536,8 @@ void uiFunctionDisplay::drawBorder()
 {
     if ( setup_.drawborder_ )
     {
-	const int scwidth = (int)scene().width();
-	const int scheight = (int)scene().height();
+	const int scwidth = scene().nrPixX();
+	const int scheight = scene().nrPixY();
 	const uiRect r( xAxis()->pixBefore(), yAxis(false)->pixAfter(),
 		scwidth -xAxis()->pixAfter()-xAxis()->pixBefore(),
 		scheight -yAxis(false)->pixAfter()-yAxis(false)->pixBefore() );

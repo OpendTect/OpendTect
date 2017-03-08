@@ -11,12 +11,12 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
+#include "visobject.h"
 #include "color.h"
 #include "fontdata.h"
 #include "ranges.h"
 #include "scaler.h"
-#include "visobject.h"
+#include "coltab.h"
 
 namespace OD { class LineStyle; };
 class TaskRunner;
@@ -129,7 +129,7 @@ public:
 	Interval<float>		range_;
 	Interval<float>		valrange_;
 	bool			sclog_;
-	bool			iscoltabflipped_;
+	ColTab::SeqUseMode	sequsemode_;
 
 	int			filllogidx_;
 	BufferString		fillname_;

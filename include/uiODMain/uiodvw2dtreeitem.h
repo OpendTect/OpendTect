@@ -26,9 +26,10 @@ class Vw2DDataObject;
 namespace Attrib { class SelSpec; }
 
 
-mExpClass(uiODMain) uiODVw2DTreeItem : public uiODPrManagedTreeItem
+mExpClass(uiODMain) uiODVw2DTreeItem : public uiPresManagedTreeItem
 { mODTextTranslationClass(uiODVw2DTreeItem)
 public:
+
 			uiODVw2DTreeItem(const uiString&);
 			~uiODVw2DTreeItem();
 
@@ -61,6 +62,8 @@ protected:
 
     uiMenu*		createAddMenu();
     bool		isAddItem(int id,bool addall) const;
+    uiMenu*		createRemoveMenu();
+    bool		isRemoveItem(int id,bool removeall) const;
     int			getNewItemID() const;
 
     virtual void	insertStdSubMenu(uiMenu&);
@@ -75,10 +78,12 @@ protected:
     virtual void	removeAllChildren();
     virtual void	doSave() {}
     virtual void	doSaveAs() {}
+
 };
 
 
-mExpClass(uiODMain) uiODVw2DParentTreeItem : public uiODPrManagedParentTreeItem
+mExpClass(uiODMain) uiODVw2DParentTreeItem
+				: public uiPresManagedParentTreeItem
 { mODTextTranslationClass(uiODVw2DParentTreeItem)
 public:
 			uiODVw2DParentTreeItem(const uiString&);

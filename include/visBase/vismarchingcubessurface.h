@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "samplingdata.h"
 
@@ -34,24 +33,24 @@ public:
 					mCreateDataObj(MarchingCubesSurface);
 
     bool				setSurface(::MarchingCubesSurface&,
-	    					   TaskRunner*);
+						   TaskRunner*);
     ::MarchingCubesSurface*		getSurface();
     const ::MarchingCubesSurface*	getSurface() const;
 
     void				setRightHandSystem(bool);
 
     void				setScales(const SamplingData<float>&,
-	    					  const SamplingData<float>&,
+						  const SamplingData<float>&,
 						  const SamplingData<float>&);
     const SamplingData<float>		getScale(int dim) const;
 
     bool			touch(bool forall,TaskRunner* =0);
     void			setRenderMode( RenderMode );
-					
-    				//For body section display only. 
+
+				//For body section display only.
     char			enabledSection() const;
     void			enableSection(char);
-    				/*!< -1: display the whole isosurface.
+				/*!< -1: display the whole isosurface.
 				      0: display section along inline.
 				      1: display section along crline.
 				      2: display section along z. */
@@ -68,7 +67,7 @@ public:
 
 
 protected:
-    					~MarchingCubesSurface();
+					~MarchingCubesSurface();
     void				updateHints();
     void				updateDisplayRange();
     static const char*			sKeyCoordIndex() { return "CoordIndex";}
@@ -86,4 +85,4 @@ protected:
 };
 
 };
-	
+

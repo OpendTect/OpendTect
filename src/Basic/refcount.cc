@@ -17,6 +17,24 @@ using namespace RefCount;
 #define mStartRefCount (-2)
 
 
+bool Referenced::isSane( const Referenced* ptr )
+{
+    return ptr && ptr->magicnumber_ == 0x123456789abcdef;
+}
+
+
+Referenced::Referenced( const Referenced& oth )
+    : magicnumber_(oth.magicnumber_)
+{
+}
+
+
+Referenced& Referenced::operator =( const Referenced& oth )
+{
+    return *this;
+}
+
+
 Referenced::~Referenced()
 {
     const od_int32 count = refcount_.count();
@@ -30,6 +48,18 @@ Referenced::~Referenced()
 
 void Referenced::ref() const
 {
+#ifdef __debug__
+    /*If the object passed in ptr is truly 'Referenced' (and not just any
+    class casted to Referenced, the magicnumber_ will
+    be initialized. If it is not, well, then we should crash
+    to let the developer figure out what is up. The check is only
+    run on ref, as all pointers go through ref before unref.*/
+    if ( !isSane(this) )
+    {
+	pErrMsg("Invalid this pointer.");
+	DBG::forceCrash(false);
+    }
+#endif
     refcount_.ref();
     refNotify();
 }
@@ -88,9 +118,9 @@ void Referenced::removeObserver(WeakPtrBase* obs)
 }
 
 #ifdef __win__
-# define mDeclareCounters	od_int32 oldcount = count_.get(), newcount = 0
+# define mDeclareCounters	od_int32 oldcount = count_.load(), newcount = 0
 #else
-# define mDeclareCounters	od_int32 oldcount = count_.get(), newcount;
+# define mDeclareCounters	od_int32 oldcount = count_.load(), newcount;
 #endif
 
 

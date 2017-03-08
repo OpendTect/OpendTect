@@ -164,7 +164,7 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 
 #define mHandleSelectionChangedBegin( oldselitems ) \
 \
-    const bool notifierwasenabled = actlist_.selectionChanged.disable(); \
+    actlist_.selectionChanged.disable(); \
     const int oldcuritem = actlist_.currentItem(); \
     TypeSet<int> oldselitems; \
     for ( int idx=0; idx<actlist_.size(); idx++ ) \
@@ -175,8 +175,7 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 
 #define mHandleSelectionChangedEnd( oldselitems ) \
 \
-    if ( notifierwasenabled ) \
-	actlist_.selectionChanged.enable(); \
+    actlist_.selectionChanged.enable(); \
 \
     for ( int idx=0; idx<actlist_.size(); idx++ ) \
     { \
@@ -716,7 +715,7 @@ void ListCmdComposer::storeListState()
     }
 
     if ( stagenr_ < 2 )
-	selecteditems_ = checkeditems_;	
+	selecteditems_ = checkeditems_;
 }
 
 

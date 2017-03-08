@@ -114,11 +114,7 @@ Pick::SetChangeRecorder::SetChangeRecorder( const SetChangeRecorder& oth )
 }
 
 
-mImplMonitorableAssignment(Pick::SetChangeRecorder,ChangeRecorder)
-
-void Pick::SetChangeRecorder::copyClassData( const SetChangeRecorder& oth )
-{
-}
+mImplMonitorableAssignmentWithNoMembers(Pick::SetChangeRecorder,ChangeRecorder)
 
 
 void Pick::SetChangeRecorder::handleObjChange( const ChangeData& chgdata )

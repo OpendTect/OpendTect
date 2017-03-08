@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicoltabimport.h"
+#include "uicolseqimport.h"
 
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -32,7 +32,7 @@ ________________________________________________________________________
 static BufferString sHomePath;
 static BufferString sFilePath;
 
-uiColTabImport::uiColTabImport( uiParent* p )
+uiColSeqImport::uiColSeqImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(uiStrings::sColorTable()),
 				  mNoDlgTitle, mODHelpKey(mColTabImportHelpID)))
     , dirfld_(0)
@@ -42,19 +42,19 @@ uiColTabImport::uiColTabImport( uiParent* p )
 
     choicefld_ = new uiGenInput( this, tr("Import from"),
 	BoolInpSpec(true,tr("Other user"), uiStrings::sFile()) );
-    choicefld_->valuechanged.notify( mCB(this,uiColTabImport,choiceSel) );
+    choicefld_->valuechanged.notify( mCB(this,uiColSeqImport,choiceSel) );
 
     sHomePath = sFilePath = GetPersonalDir();
-    dirfld_ = new uiFileInput( this, getLabel(true),
+    dirfld_ = new uiFileInput( this, getLabelText(true),
 			       uiFileInput::Setup(sHomePath)
 			       .directories(true) );
     dirfld_->setReadOnly();
-    dirfld_->valuechanged.notify( mCB(this,uiColTabImport,usrSel) );
+    dirfld_->valuechanged.notify( mCB(this,uiColSeqImport,usrSel) );
     dirfld_->attach( alignedBelow, choicefld_ );
 
     dtectusrfld_ = new uiGenInput( this, tr("DTECT_USER (if any)") );
     dtectusrfld_->attach( alignedBelow, dirfld_ );
-    dtectusrfld_->updateRequested.notify( mCB(this,uiColTabImport,usrSel) );
+    dtectusrfld_->updateRequested.notify( mCB(this,uiColSeqImport,usrSel) );
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Color table(s) to add") );
     su.lblpos( uiListBox::LeftTop );
@@ -71,24 +71,24 @@ uiColTabImport::uiColTabImport( uiParent* p )
 }
 
 
-uiColTabImport::~uiColTabImport()
+uiColSeqImport::~uiColSeqImport()
 {
-    deepErase( seqs_ );
+    deepUnRef( seqs_ );
 }
 
 
-const char* uiColTabImport::getCurrentSelColTab() const
+const char* uiColSeqImport::currentSeqName() const
 {
     return listfld_->getText();
 }
 
 
-void uiColTabImport::choiceSel( CallBacker* )
+void uiColSeqImport::choiceSel( CallBacker* )
 {
     const bool fromuser = choicefld_->getBoolValue();
     dirfld_->setSelectMode(
 	fromuser ? uiFileDialog::DirectoryOnly : uiFileDialog::ExistingFile );
-    dirfld_->setTitleText( getLabel(fromuser) );
+    dirfld_->setTitleText( getLabelText(fromuser) );
     dirfld_->setFileName( fromuser ? sHomePath : sFilePath );
 
     dtectusrfld_->display( fromuser );
@@ -96,18 +96,18 @@ void uiColTabImport::choiceSel( CallBacker* )
 }
 
 
-uiString uiColTabImport::getLabel( bool fromusr )
-{  
-    uiString ret = fromusr ? 
+uiString uiColSeqImport::getLabelText( bool fromusr )
+{
+    uiString ret = fromusr ?
                     tr("User's HOME directory") : uiStrings::sFile();
     return ret;
 }
 
 #define mErrRet(s1) { uiMSG().error(s1); return; }
 
-void uiColTabImport::usrSel( CallBacker* )
+void uiColSeqImport::usrSel( CallBacker* )
 {
-    PtrMan<IOPar> ctabiop = 0;
+    PtrMan<IOPar> cseqiop = 0;
     listfld_->setEmpty();
 
     const bool fromuser = choicefld_->getBoolValue();
@@ -136,8 +136,8 @@ void uiColTabImport::usrSel( CallBacker* )
 
 	BufferString settdir( fp.fullPath() );
 	const char* dtusr = dtectusrfld_->text();
-	ctabiop = Settings::fetchExternal( "coltabs", dtusr, settdir );
-	if ( !ctabiop )
+	cseqiop = Settings::fetchExternal( "coltabs", dtusr, settdir );
+	if ( !cseqiop )
 	{
 	    showMessage( tr("No user-defined color tables found") );
 	    return;
@@ -155,26 +155,26 @@ void uiColTabImport::usrSel( CallBacker* )
 	}
 
 	sFilePath = fnm;
-	ctabiop = new IOPar;
-	bool res = ctabiop->read( fnm, "Default settings" );
+	cseqiop = new IOPar;
+	bool res = cseqiop->read( fnm, "Default settings" );
 	if ( !res )
 	{
-	    res = ctabiop->read( fnm, 0 );
+	    res = cseqiop->read( fnm, 0 );
 	    if ( !res )
 	    {
 		showMessage(uiStrings::phrCannotRead(uiStrings::phrJoinStrings
-			   (uiStrings::sColorTable(), tr("from Selected"), 
+			   (uiStrings::sColorTable(), tr("from Selected"),
 			    uiStrings::sFile())));
 		return;
 	    }
 	}
     }
 
-    deepErase( seqs_ );
+    deepUnRef( seqs_ );
     int nrinvalididx = 0;
     for ( int idx=0; ; idx++ )
     {
-	IOPar* subpar = ctabiop->subselect( idx );
+	IOPar* subpar = cseqiop->subselect( idx );
 	if ( !subpar || !subpar->size() )
 	{
 	    delete subpar;
@@ -197,16 +197,16 @@ void uiColTabImport::usrSel( CallBacker* )
 
     if ( listfld_->isEmpty() )
 	showMessage(uiStrings::phrCannotRead(uiStrings::phrJoinStrings
-		   (uiStrings::sColorTable(), tr("from Selected"), 
+		   (uiStrings::sColorTable(), tr("from Selected"),
 		    uiStrings::sFile())));
     else
 	showList();
 }
 
 
-bool uiColTabImport::acceptOK()
+bool uiColSeqImport::acceptOK()
 {
-    bool oneadded = false;
+    int nrdone = 0;
 
     ObjectSet<const ColTab::Sequence> tobeadded;
     for ( int idx=0; idx<listfld_->size(); idx++ )
@@ -217,37 +217,41 @@ bool uiColTabImport::acceptOK()
 
     for ( int idx=0; idx<tobeadded.size(); idx++ )
     {
-	ColTab::Sequence seq( *tobeadded[idx] );
-	bool doset = true;
-	const int seqidx = ColTab::SM().indexOf( seq.name() );
-	if ( seqidx >= 0 )
+	RefMan<ColTab::Sequence> seq = new ColTab::Sequence( *tobeadded[idx] );
+	ConstRefMan<ColTab::Sequence> existseq
+			= ColTab::SeqMGR().getByName( seq->name() );
+	bool doimp = true;
+	if ( existseq )
 	{
-	    uiString msg = tr("User colortable '%1' "
-			      "will replace the existing.\nOverwrite?")
-			 .arg(seq.name());
-	    doset = uiMSG().askOverwrite( msg );
+	    uiString msg = tr("There already is a colortable '%1'."
+			      "\nDo you want to replace it?").arg(seq->name());
+	    doimp = uiMSG().askOverwrite( msg );
 	}
 
-	if ( doset )
+	if ( doimp )
 	{
-	    oneadded = true;
-	    seq.setType( ColTab::Sequence::User );
-	    ColTab::SM().set( seq );
+	    nrdone++;
+	    if ( existseq )
+		*const_cast<ColTab::Sequence*>(existseq.ptr()) = *seq;
+	    else
+		ColTab::SeqMGR4Edit().add( seq );
 	}
     }
 
-    if ( oneadded )
-	ColTab::SM().write( false );
+    bool stay = true;
+    if ( nrdone > 0 )
+    {
+	uiString msg = tr( "Successfully obtained %1 %2."
+			  "\n\nDo you want to import more Color tables?" )
+	    .arg( nrdone ).arg( uiStrings::sColorTable(nrdone) );
+	stay = uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window"));
+    }
 
-    uiString msg = tr( "Color table successfully imported."
-		      "\n\nDo you want to import more Color tables?" );
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
-    return !ret;
+    return !stay;
 }
 
 
-void uiColTabImport::showMessage( const uiString& msg )
+void uiColSeqImport::showMessage( const uiString& msg )
 {
     messagelbl_->setText( msg );
     messagelbl_->display( true );
@@ -255,7 +259,7 @@ void uiColTabImport::showMessage( const uiString& msg )
 }
 
 
-void uiColTabImport::showList()
+void uiColSeqImport::showList()
 {
     messagelbl_->display( false );
     listfld_->display( true );

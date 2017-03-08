@@ -14,11 +14,12 @@ ________________________________________________________________________
 #include "arrayndalgo.h"
 #include "binidvalset.h"
 #include "bufstringset.h"
+#include "ioobj.h"
 #include "trckeyzsampling.h"
 #include "fourier.h"
 #include "genericnumer.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "survinfo.h"
@@ -44,14 +45,17 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     fft_->setDir( true );
 
     initWavelet( ioobj );
-    seisrdr_ = new SeisTrcReader( &ioobj );
+    uiRetVal uirv;
+    seisprov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    if ( !seisprov_ )
+	msg_ = uirv;
 }
 
 
 WaveletExtractor::~WaveletExtractor()
 {
     delete fft_;
-    delete seisrdr_;
+    delete seisprov_;
 }
 
 
@@ -68,8 +72,8 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
 
 void WaveletExtractor::init3D()
 {
-    seisrdr_->setSelData( sd_->clone() );
-    seisrdr_->prepareWork();
+    if ( !seisprov_ ) return;
+    seisprov_->setSelData( sd_->clone() );
     isbetweenhor_ = false;
 
     mDynamicCastGet(const Seis::RangeSelData*,rsd,sd_)
@@ -119,11 +123,13 @@ bool WaveletExtractor::getNextLine()
     if ( lineidx_ >= sdset_.size() )
 	return false;
 
-    delete seisrdr_; // TODO: find a better way to reset the reader
-    seisrdr_ = new SeisTrcReader( &iobj_ );
-    seisrdr_->setSelData( sdset_[lineidx_]->clone() );
-    seisrdr_->prepareWork();
+    deleteAndZeroPtr( seisprov_ );
+    uiRetVal uirv;
+    seisprov_ = Seis::Provider::create( iobj_.key(), &uirv );
+    if ( !seisprov_ )
+	{ msg_ = uirv; return false; }
 
+    seisprov_->setSelData( sdset_[lineidx_]->clone() );
     return true;
 }
 
@@ -138,42 +144,32 @@ uiString WaveletExtractor::message() const
 
 int WaveletExtractor::nextStep()
 {
+    if ( !seisprov_ ) return ErrorOccurred();
+
     SeisTrc trc;
-    const int res = seisrdr_->get( trc.info() );
-
-    if ( res == -1 )
+    const uiRetVal uirv = seisprov_->getNext( trc );
+    if ( !uirv.isOK() )
     {
-	msg_ = tr("Error reading input data");
-	return ErrorOccurred();
-    }
+	if ( !isFinished(uirv) )
+	    { msg_ = uirv; return ErrorOccurred(); }
 
-    if ( res == 0 )
-    {
-	if ( seisrdr_->is2D() && getNextLine() )
+	if ( seisprov_->is2D() && getNextLine() )
 	    return MoreToDo();
 
 	return finish(nrusedtrcs_) ? Finished() : ErrorOccurred();
     }
 
-    if ( res == 2 )
+    if ( trc.isNull() )
 	return MoreToDo();
 
-    if ( res == 1 )
-    {
-	seisrdr_->get( trc );
-	if ( trc.isNull() )
-	    return MoreToDo();
+    int startsample, signalsz;
+    if ( !getSignalInfo(trc,startsample,signalsz) )
+	return MoreToDo();
 
-	int startsample, signalsz;
-	if ( !getSignalInfo(trc,startsample,signalsz) )
-	    return MoreToDo();
-
-	if ( processTrace(trc,startsample,signalsz) )
-	    nrusedtrcs_++;
-    }
+    if ( processTrace(trc,startsample,signalsz) )
+	nrusedtrcs_++;
 
     nrdone_++;
-
     return MoreToDo();
 }
 

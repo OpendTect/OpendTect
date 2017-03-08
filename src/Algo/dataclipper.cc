@@ -30,6 +30,14 @@ DataClipper::DataClipper()
 }
 
 
+bool DataClipper::operator ==( const DataClipper& oth ) const
+{
+    return approxstatsize_ == oth.approxstatsize_ &&
+	   sampleprob_ == oth.sampleprob_ &&
+	   subselect_ == oth.subselect_;
+}
+
+
 void DataClipper::setApproxNrValues( od_int64 n, int statsz )
 {
     sampleprob_ = ((float) statsz) / n;

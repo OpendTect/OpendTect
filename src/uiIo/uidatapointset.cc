@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "variogramcomputers.h"
 
 #include "uibutton.h"
-#include "uicolortable.h"
+#include "uicoltabsel.h"
 #include "uicombobox.h"
 #include "uidatapointsetman.h"
 #include "uidatapointsetcrossplotwin.h"
@@ -90,13 +90,14 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     selfld_->box()->selectionChanged.notify(
 			mCB(this,uiDPSDispPropDlg,attribChanged));
 
-    coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence("Rainbow"),
-					OD::Horizontal, false );
+    coltabfld_ = new uiColTabSel( this, OD::Horizontal,
+				      uiStrings::sColorTable() );
+    coltabfld_->setNonSeisDefault();
     coltabfld_->attach( alignedBelow, selfld_ );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
-	coltabfld_->setSequence( &prevdispprop->colSequence(), true );
-	coltabfld_->setMapperSetup( &prevdispprop->colMapperSetUp() );
+	coltabfld_->setSeqName( prevdispprop->colSequence().name() );
+	coltabfld_->useMapperSetup( prevdispprop->colMapperSetUp() );
     }
 
     attribChanged( 0 );
@@ -108,7 +109,7 @@ void attribChanged( CallBacker* )
     const DataPointSet& dps = plotter_.dps();
     const int bivsidx = dps.bivSetIdx( dps.indexOf(selfld_->box()->text()) );
     Interval<float> valrange = dps.bivSet().valRange( bivsidx );
-    coltabfld_->setInterval( valrange );
+    coltabfld_->setRange( valrange );
 }
 
 
@@ -125,14 +126,14 @@ const char* colName() const
 { return selfld_->box()->text(); }
 
 const ColTab::Sequence& ctSeq() const
-{ return coltabfld_->colTabSeq(); }
+{ return *coltabfld_->sequence(); }
 
 const ColTab::MapperSetup& ctMapperSetup() const
-{ return coltabfld_->colTabMapperSetup(); }
+{ return *coltabfld_->mapperSetup(); }
 
     uiGenInput*				typefld_;
     uiLabeledComboBox*			selfld_;
-    uiColorTableGroup*			coltabfld_;
+    uiColTabSel*			coltabfld_;
     const uiDataPointSetCrossPlotter&	plotter_;
 };
 
@@ -1467,13 +1468,13 @@ bool uiDataPointSet::doSave()
     if ( !uidpss.go() ) return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    DataPointSet savedps( *dps_ );
-    savedps.dataSet().pars() = storepars_;
+    RefMan<DataPointSet> savedps = dps_->clone();
+    savedps->dataSet().pars() = storepars_;
     if ( !grpnames_.isEmpty() )
-	savedps.dataSet().pars().set( sKeyGroups, grpnames_ );
-    savedps.purgeInactive();
+	savedps->dataSet().pars().set( sKeyGroups, grpnames_ );
+    savedps->purgeInactive();
     uiString errmsg;
-    const bool ret = savedps.dataSet().
+    const bool ret = savedps->dataSet().
 			putTo( uidpss.fname_, errmsg, uidpss.istab_ );
     MouseCursorManager::restoreOverride();
     if ( !ret )

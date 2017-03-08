@@ -33,7 +33,7 @@ mCreateFactoryEntry( visBase::FlatViewer );
 
 namespace visBase
 {
-   
+
 FlatViewer::FlatViewer()
     : VisualObjectImpl(false)
     , dataChanged(this)
@@ -55,8 +55,8 @@ FlatViewer::FlatViewer()
 
     if ( channels_->nrChannels()<1 )
     {
-    	channels_->addChannel();
-    	channel2rgba_->setEnabled( 0, true );	
+	channels_->addChannel();
+	channel2rgba_->setEnabled( 0, true );
     }
 
     rectangle_->setMaterial( 0 );
@@ -88,10 +88,10 @@ void FlatViewer::handleChange( unsigned int dt)
 {
     switch ( dt )
     {
-	case All:	
-	case Auxdata:	
+	case All:
+	case Auxdata:
 	case Annot:
-	    {	
+	    {
 		updateGridLines( true );
 		updateGridLines( false );
 
@@ -108,10 +108,10 @@ void FlatViewer::handleChange( unsigned int dt)
 		    const Array2D<float>& dparr = dp->data();
 		    const float* arr = dparr.getData();
 		    OD::PtrPolicy cp = OD::UsePtr;
-		    
+
 		    int rowsz = dparr.info().getSize(0);
 		    int colsz = dparr.info().getSize(1);
-		    
+
 		    if ( !arr || resolution_!=0 )
 		    {
 			rowsz = 1 + (rowsz-1) * (resolution_+1);
@@ -119,7 +119,7 @@ void FlatViewer::handleChange( unsigned int dt)
 
 			const od_int64 totalsz = rowsz*colsz;
 			mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
-			
+
 			if ( !tmparr )
 			{
 			    channels_->turnOn( false );
@@ -143,8 +143,8 @@ void FlatViewer::handleChange( unsigned int dt)
 		    channels_->setSize( 0, 1, rowsz, colsz );
 		    channels_->setUnMappedData( 0, 0, arr, cp, 0 );
 
-		    appearance().ddpars_.vd_.ctab_ =
-			channel2rgba_->getSequence(0)->name();
+		    appearance().ddpars_.vd_.colseqname_ =
+			channel2rgba_->getSequence(0).name();
 		    channels_->turnOn( appearance().ddpars_.vd_.show_ );
 
 		    dataChanged.trigger();
@@ -152,32 +152,28 @@ void FlatViewer::handleChange( unsigned int dt)
 			break;
 		}
 	    }
-	case DisplayPars: 	
+	case DisplayPars:
 	    {
-	    	const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
-	    	ColTab::MapperSetup mappersetup;
-		mappersetup = vd.mappersetup_;
-		if ( channels_->getColTabMapperSetup( 0,0 )!=mappersetup )
+		const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
+		if ( channels_->getColTabMapperSetup(0,0)
+				!= vd.mappersetup_.ptr() )
 		{
-		    channels_->setColTabMapperSetup( 0, mappersetup );
+		    channels_->setColTabMapperSetup( 0, *vd.mappersetup_ );
 		    channels_->reMapData( 0, false, 0 );
 		}
 
-		ColTab::Sequence sequence = *channel2rgba_->getSequence( 0 );
-		if ( vd.ctab_!=sequence.name() )
-		{
-		    if ( ColTab::SM().get( vd.ctab_, sequence ) )
-		    {
-			channel2rgba_->setSequence( 0, sequence );
-		    }
-		}
+		const ColTab::Sequence& sequence
+			= channel2rgba_->getSequence( 0 );
+		if ( vd.colseqname_ != sequence.name() )
+		    channel2rgba_->setSequence( 0,
+				*ColTab::SeqMGR().getAny(vd.colseqname_) );
 		dispParsChanged.trigger();
 	    }
-    }			
+    }
 }
 
 
-void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01, 
+void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 			      const Coord3& c10, const Coord3& c11 )
 {
     const Coord3 center = 0.5 * (c01+c10);
@@ -194,10 +190,10 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
     c01_ = c01;
     c10_ = c10;
     c11_ = c11;
-    
+
     updateGridLines( true );
     updateGridLines( false );
-}    
+}
 
 
 const SamplingData<float> FlatViewer::getDefaultGridSampling( bool x1 ) const
@@ -222,12 +218,9 @@ void FlatViewer::turnOnGridLines( bool offsetlines, bool zlines )
 
 void FlatViewer::updateGridLines( bool x1 )
 {
-    if ( channel2rgba_->getSequence(0) )
-    {
-    	const Color markcolor = channel2rgba_->getSequence(0)->markColor();
-    	x1gridlines_->getMaterial()->setColor( markcolor );
-    	x2gridlines_->getMaterial()->setColor( markcolor );
-    }
+    const Color markcolor = channel2rgba_->getSequence(0).markColor();
+    x1gridlines_->getMaterial()->setColor( markcolor );
+    x2gridlines_->getMaterial()->setColor( markcolor );
 
     ConstRefMan<FlatDataPack> dp = getPack( false );
     PolyLine* gridlines = x1 ? x1gridlines_ : x2gridlines_;
@@ -255,13 +248,13 @@ void FlatViewer::updateGridLines( bool x1 )
     {
 	const float relpos = (pos-range.start)/rgwidth;
 
-	const Coord3 startpos = x1 
+	const Coord3 startpos = x1
 	    ? c00_*(1-relpos)+c10_*relpos
 	    : c00_*(1-relpos)+c01_*relpos;
 	const Coord3 stoppos = x1
 	    ? c01_*(1-relpos)+c11_*relpos
 	    : c10_*(1-relpos)+c11_*relpos;
-	
+
 	gridlines->addPoint( startpos );
 	gridlines->addPoint( stoppos );
 	const int lastidx = gridlines->size();
@@ -303,26 +296,33 @@ void FlatViewer::replaceChannels( TextureChannels* nt )
 
 Interval<float> FlatViewer::getDataRange( bool wva ) const
 {
-    const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
-    const ColTab::MapperSetup mapper = vd.mappersetup_;
-    Interval<float> range = mapper.range_;
-    if ( !range.isUdf() )
-	return range;
- 
-    DataClipper clipper;
+    ConstRefMan<ColTab::MapperSetup> mapsetup
+	= wva ? appearance().ddpars_.wva_.mappersetup_
+	      : appearance().ddpars_.vd_.mappersetup_;
     ConstRefMan<FlatDataPack> dp = getPack( wva );
-    if ( dp )
-	clipper.putData( dp->data() );
-    clipper.fullSort();
+    if ( !dp || dp->size(true) < 1 || dp->size(false) < 1 )
+	return mapsetup->range();
 
-    Interval<float> res;
-    if ( mIsUdf(mapper.symmidval_) )
-	clipper.getRange( mapper.cliprate_.start, mapper.cliprate_.stop, res );
-    else
-	clipper.getSymmetricRange( mapper.cliprate_.start, mapper.symmidval_,
-				   res );
+    const int ndim0 = dp->size( true );
+    const int ndim1 = dp->size( false );
+    od_int64 totsz = ndim0; totsz *= ndim1;
+    const Array2D<float>& arr2d = dp->data();
+    const int vssz = totsz < 50000 ? totsz : 50000;
+    ArrayValueSeries<float,float> valseries( vssz );
+    od_int64 stepidx = totsz / vssz;
+    for ( int idx=0; idx<vssz; idx++ )
+    {
+	od_int64 arridx = idx * stepidx;
+	const int idx0 = (int)(arridx / ndim1);
+	const int idx1 = (int)(arridx % ndim1);
+	valseries.setValue( idx, arr2d.get( idx0, idx1 ) );
+    }
 
-    return res;
+    ColTab::Mapper mapper;
+    mapper.setSetup( *mapsetup );
+    mapper.setData( &valseries, vssz );
+
+    return mapper.setup().range();
 }
 
 

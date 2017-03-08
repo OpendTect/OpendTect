@@ -35,9 +35,6 @@ public:
 			~D2TModel();
 			mDeclMonitorableAssignment(D2TModel);
 			mDeclInstanceCreatedNotifierAccess(D2TModel);
-    bool		operator ==(const D2TModel&) const;
-    bool		operator !=( const D2TModel& oth ) const
-			{ return !( oth == *this ); }
 
     virtual void	getData(ZSetType&,TWTSetType&) const;
     mImplSimpleMonitoredGetSet(inline,desc,setDesc,BufferString,

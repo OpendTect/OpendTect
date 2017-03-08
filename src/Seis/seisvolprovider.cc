@@ -253,6 +253,7 @@ void Seis::VolFetcher::get( const BinID& bid, SeisTrc& trc )
     else if ( trl_ && trl_->goTo(nextbid_) )
 	moveok = true;
 
+    uirv_.setEmpty();
     if ( moveok )
 	getNext( trc );
     else
@@ -417,7 +418,7 @@ void Seis::VolProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 
 void Seis::VolProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 {
-    uirv.set( mTODONotImplPhrase() );
+    Seis::Provider3D::doUsePar( iop, uirv );
 }
 
 

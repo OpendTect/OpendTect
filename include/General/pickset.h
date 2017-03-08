@@ -98,7 +98,7 @@ public:
     bool		removeWithPolygon(const ODPolygon<double>&,
 					  bool inside=true);
 
-    mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,0)
+    mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,cParsChange())
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     void		updateInPar(const char* ky,const char* val);
@@ -109,9 +109,11 @@ public:
 	enum Connection { None, Open, Close };
 			mDeclareEnumUtils(Connection);
 			Disp() : connect_(None) {}
-	bool		operator ==( const Disp& oth ) const
+	inline bool	operator ==( const Disp& oth ) const
 			{ return connect_ == oth.connect_
 			      && mkstyle_ == oth.mkstyle_; }
+	inline bool	operator !=( const Disp& oth ) const
+			{ return !(*this == oth); }
 
 	Connection		connect_;	//!< connect picks in set order
 	OD::MarkerStyle3D	mkstyle_;
@@ -127,17 +129,18 @@ public:
 				int,disp_.mkstyle_.size_,cDispChange())
 
     static ChangeType	cDispChange()		{ return 2; }
-    static ChangeType	cLocationInsert()	{ return 3; }
-    static ChangeType	cLocationRemove()	{ return 4; }
-    static ChangeType	cLocationPreChange()	{ return 5; }
-    static ChangeType	cLocationChange()	{ return 6; }
-    static ChangeType	cLocationChangeTemp()	{ return 7; }
+    static ChangeType	cParsChange()		{ return 3; }
+    static ChangeType	cLocationInsert()	{ return 4; }
+    static ChangeType	cLocationRemove()	{ return 5; }
+    static ChangeType	cLocationPreChange()	{ return 6; }
+    static ChangeType	cLocationChange()	{ return 7; }
+    static ChangeType	cLocationChangeTemp()	{ return 8; }
     static inline bool	isLocationUpdate( ChangeType ct )
 			{ return ct > cDispChange(); }
     static inline bool	isLocationChange( ChangeType ct )
-			{ return ct > 4; }
+			{ return ct > 5; }
     static inline bool	isTempChange( ChangeType ct )
-			{ return ct > 6; }
+			{ return ct > 7; }
 
     static const Set&	emptySet()		{ return emptyset_; }
     static Set&		dummySet()		{ return dummyset_; }

@@ -454,8 +454,6 @@ void uiODVw2DHor3DTreeItem::renameVisObj()
 #define mSettsID	2
 #define mSaveID		3
 #define mSaveAsID	4
-#define mRemoveAllID	5
-#define mRemoveID	6
 
 bool uiODVw2DHor3DTreeItem::showSubMenu()
 {
@@ -480,10 +478,8 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
     addAction( mnu, m3Dots(uiStrings::sSaveAs()), mSaveAsID, "saveas", true );
 
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
+    uiMenu* removemenu = createRemoveMenu();
     mnu.addMenu( removemenu );
-    addAction( *removemenu, tr("From all 2D Viewers"), mRemoveAllID );
-    addAction( *removemenu, tr("Only from this 2D Viewer"), mRemoveID );
 
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
@@ -518,7 +514,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	if ( emobj )
 	    mps->showSetupDlg( emid_ );
     }
-    else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
+    else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {
 	if ( !ems->askUserToSave(emid_,true) )
 	    return true;
@@ -531,6 +527,9 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 			mnuid==mRemoveID;
 	if ( mnuid == mRemoveAllID )
 	    applMgr()->viewer2DMgr().removeHorizon3D( emid_ );
+
+	const bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ )
+			|| isRemoveItem(mnuid,false);
 	if ( doremove )
 	    parent_->removeChild( this );
     }

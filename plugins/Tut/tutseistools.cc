@@ -7,7 +7,7 @@
 
 #include "trckeyzsampling.h"
 #include "tutseistools.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seiswrite.h"
 #include "seisioobjinfo.h"
 #include "seisselectionimpl.h"
@@ -21,7 +21,7 @@
 Tut::SeisTools::SeisTools()
     : Executor("Tutorial tools: Direct Seismic")
     , inioobj_(0), outioobj_(0)
-    , rdr_(0), wrr_(0)
+    , prov_(0), wrr_(0)
     , trcin_(*new SeisTrc)
     , trcout_(*new SeisTrc)
 {
@@ -41,7 +41,7 @@ void Tut::SeisTools::clear()
 {
     delete inioobj_; inioobj_ = 0;
     delete outioobj_; outioobj_ = 0;
-    delete rdr_; rdr_ = 0;
+    delete prov_; prov_ = 0;
     delete wrr_; wrr_ = 0;
 
     action_ = Scale;
@@ -85,18 +85,16 @@ od_int64 Tut::SeisTools::totalNr() const
 }
 
 
-bool Tut::SeisTools::createReader()
+bool Tut::SeisTools::createProvider()
 {
-    rdr_ = new SeisTrcReader( inioobj_ );
-    Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
-    rdr_->setSelData( sd );
+    uiRetVal uirv;
+    prov_ = Seis::Provider::create( inioobj_->key(), &uirv );
+    if ( !prov_ )
+	{ errmsg_ = uirv; return false; }
 
-    rdr_->forceFloatData( action_ != Smooth );
-    if ( !rdr_->prepareWork() )
-    {
-	errmsg_ = rdr_->errMsg();
-	return false;
-    }
+    Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
+    prov_->setSelData( sd );
+    prov_->forceFPData( action_ != Smooth );
     return true;
 }
 
@@ -115,34 +113,27 @@ bool Tut::SeisTools::createWriter()
 
 int Tut::SeisTools::nextStep()
 {
-    if ( !rdr_ )
-	return createReader() ? Executor::MoreToDo()
-	    		      : Executor::ErrorOccurred();
+    if ( !prov_ )
+	return createProvider() ? Executor::MoreToDo()
+				: Executor::ErrorOccurred();
 
-    int rv = rdr_->get( trcin_.info() );
-    if ( rv < 0 )
+    const uiRetVal uirv = prov_->getNext( trcin_ );
+    if ( !uirv.isOK() )
     {
-	errmsg_ = rdr_->errMsg();
+	if ( isFinished(uirv) )
+	    return Executor::Finished();
+
+	errmsg_ = uirv;
 	return Executor::ErrorOccurred();
     }
-    else if ( rv == 0 )
-	return Executor::Finished();
-    else if ( rv == 1 )
-    {
-	if ( !rdr_->get(trcin_) )
-	{
-	    errmsg_ = rdr_->errMsg();
-	    return Executor::ErrorOccurred();
-	}
 
-	trcout_ = trcin_;
-	handleTrace();
+    trcout_ = trcin_;
+    handleTrace();
 
-	if ( !wrr_ && !createWriter() )
-	    return Executor::ErrorOccurred();
-	if ( !wrr_->put(trcout_) )
-	    { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred(); }
-    }
+    if ( !wrr_ && !createWriter() )
+	return Executor::ErrorOccurred();
+    if ( !wrr_->put(trcout_) )
+	{ errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred(); }
 
     return Executor::MoreToDo();
 }

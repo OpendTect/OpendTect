@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "uistring.h"
 #include "ioobjctxt.h"
+#include "ioobj.h"
 class TranslatorGroup;
 
 
@@ -77,14 +78,14 @@ public:
     static ChangeType	cEntryRemoved()		{ return 5; }
 
 private:
-
+    
     bool		isok_;
     ObjectSet<IOObj>	objs_;
     const DirID		dirid_;
     const BufferString	dirname_;
-    od_int64		readtime_;
-    mutable ObjNrType	curnr_;
-    mutable ObjNrType	curtmpnr_;
+    od_int64		readtime_	= -1;
+    mutable ObjNrType	curnr_		= 0;
+    mutable ObjNrType	curtmpnr_	= IOObj::tmpObjNrStart();
     mutable uiString	errmsg_;
 
 			DBDir();

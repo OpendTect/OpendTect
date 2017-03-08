@@ -42,7 +42,7 @@ namespace visBase
 SceneColTab::SceneColTab()
     : VisualObjectImpl( false )
     , osgcolorbar_( new mScalarBarType )
-    , flipseq_( false )
+    , sequsemode_( ColTab::UnflippedSingle )
     , width_( 20 )
     , height_( 250 )
     , horizontal_( false )
@@ -54,7 +54,7 @@ SceneColTab::SceneColTab()
     , pixeldensity_( getDefaultPixelDensity() )
 {
     addChild( osgcolorbar_ );
-    
+
     //Set it to something to avoid osg to look for own font
     setAnnotFont( FontData() );
 
@@ -63,7 +63,7 @@ SceneColTab::SceneColTab()
     mScalarBar->setNumLabels( 5 );
 
     setSize( width_, height_ );
-    setColTabSequence( ColTab::Sequence("") );
+    setColTabSequence( *ColTab::SeqMGR().getDefault() );
 }
 
 
@@ -109,13 +109,10 @@ void SceneColTab::setPixelDensity( float dpi )
 }
 
 
-void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
+void SceneColTab::setColTabSequence( const ColTab::Sequence& newseq )
 {
-    if ( sequence_==ctseq )
-	return;
-
-    sequence_ = ctseq;
-    updateSequence();
+    if ( replaceMonitoredRef(sequence_,newseq,this) )
+	updateSequence();
 }
 
 
@@ -195,23 +192,21 @@ void SceneColTab::updateSequence()
 	return;
 
     const int nrcols = 256;
-    ColTab::IndexedLookUpTable table( sequence_, nrcols );
+    ColTab::IndexedLookUpTable table( *sequence_, nrcols, sequsemode_ );
     std::vector<osg::Vec4> colors(nrcols);
 
-    mDefParallelCalc4Pars( ColorUpdator, tr("Color update"),
+    mDefParallelCalc2Pars( ColorUpdator, tr("Color update"),
 			   std::vector<osg::Vec4>&, colors,
-			   const ColTab::IndexedLookUpTable&,table,
-			   bool, flipseq,
-			   const int&, nrcols )
+			   const ColTab::IndexedLookUpTable&, table )
     mDefParallelCalcBody
     (
 	,
-	Color col = table_.colorForIndex( flipseq_ ? nrcols_-idx-1 : idx );
-	colors_[idx] = osg::Vec4( col2f(r), col2f(g), col2f(b), 1-col2f(t) )
+	const Color col = table_.colorForIndex( idx );
+	colors_[idx] = osg::Vec4( col2f(r), col2f(g), col2f(b), 1.f-col2f(t) )
 	,
     )
 
-    ColorUpdator colorupdator( nrcols, colors, table, flipseq_, nrcols );
+    ColorUpdator colorupdator( nrcols, colors, table );
     colorupdator.execute();
 
     osgSim::ColorRange* osgcolorrange =
@@ -224,12 +219,11 @@ void SceneColTab::updateSequence()
 
 void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
-    Interval<float> rg = ms.range_;
-    if ( rg==rg_ && flipseq_==ms.flipseq_ )
+    if ( rg_==ms.range() && sequsemode_==ms.seqUseMode() )
 	return;
 
-    rg_ = rg;
-    flipseq_ = ms.flipseq_;
+    rg_ = ms.range();
+    sequsemode_ = ms.seqUseMode();
 
     updateSequence();
 }

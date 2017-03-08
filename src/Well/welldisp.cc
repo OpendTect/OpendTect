@@ -37,6 +37,7 @@ static const char* sKeyRange = "Log Range";
 static const char* sKeyRevertRange = "Revert Range Bool";
 static const char* sKeySeqname = "Sequence name";
 static const char* sKeyColTabFlipped = "Log Color Table Flipped";
+static const char* sKeyColTabCyclic = "Log Color Table Cyclic";
 static const char* sKeyScale = "Log scale";
 static const char* sKey2DDisplayStrat = "Display Stratigraphy";
 static const char* sKeyLogStyle = "Log Style";
@@ -92,6 +93,22 @@ void Well::DisplayProperties::copyClassData( const DisplayProperties& oth )
     displaystrat_ = oth.displaystrat_;
     isdefaults_ = oth.isdefaults_;
     copyLogPairsFrom( oth );
+}
+
+
+Monitorable::ChangeType Well::DisplayProperties::compareClassData(
+					const DisplayProperties& oth ) const
+{
+    if ( logs_.size() != oth.logs_.size()
+	|| track_ != oth.track_ || markers_ != oth.markers_ )
+	return cEntireObjectChange();
+
+    for ( int idx=0; idx<logs_.size(); idx++ )
+	if ( *logs_[idx] != *oth.logs_[idx] )
+	    return cEntireObjectChange();
+
+    mDeliverSingCondMonitorableCompare( displaystrat_ == oth.displaystrat_,
+					cDispStratChg() );
 }
 
 
@@ -273,6 +290,17 @@ void Well::BasicDispProps::copyClassData( const BasicDispProps& oth )
 }
 
 
+Monitorable::ChangeType Well::BasicDispProps::compareClassData(
+					const BasicDispProps& oth ) const
+{
+    mStartMonitorableCompare();
+    mHandleMonitorableCompare( color_, cColorChg() );
+    mHandleMonitorableCompare( size_, cSizeChg() );
+    mHandleMonitorableCompare( font_, cFontChg() );
+    mDeliverMonitorableCompare();
+}
+
+
 #define mGetIOPKey(ky) IOPar::compKey( subj, ky )
 
 
@@ -336,6 +364,15 @@ void Well::TrackDispProps::copyClassData( const TrackDispProps& oth )
 }
 
 
+Monitorable::ChangeType Well::TrackDispProps::compareClassData(
+					const TrackDispProps& oth ) const
+{
+    mDeliverSingCondMonitorableCompare(
+	dispabove_ == oth.dispabove_ && dispbelow_ == oth.dispbelow_,
+	cDispPosChg() );
+}
+
+
 void Well::TrackDispProps::usePar( const IOPar& iop )
 {
     mLock4Write();
@@ -395,6 +432,20 @@ void Well::MarkerDispProps::copyClassData( const MarkerDispProps& oth )
 }
 
 
+Monitorable::ChangeType Well::MarkerDispProps::compareClassData(
+					const MarkerDispProps& oth ) const
+{
+    mStartMonitorableCompare();
+    mHandleMonitorableCompare( shapetype_, cShapeChg() );
+    mHandleMonitorableCompare( cylinderheight_, cShapeChg() );
+    mHandleMonitorableCompare( issinglecol_, cColorChg() );
+    mHandleMonitorableCompare( nmcol_, cColorChg() );
+    mHandleMonitorableCompare( samenmcol_, cColorChg() );
+    mHandleMonitorableCompare( selmarkernms_, cMarkerNmsChg() );
+    mDeliverMonitorableCompare();
+}
+
+
 void Well::MarkerDispProps::usePar( const IOPar& iop )
 {
     mLock4Write();
@@ -443,7 +494,7 @@ Well::LogDispProps::LogDispProps()
     , repeatovlap_(50)
     , seiscolor_(Color::White())
     , seqname_("Rainbow")
-    , iscoltabflipped_(false)
+    , sequsemode_(ColTab::UnflippedSingle)
     , style_( 0 )
 {
 }
@@ -483,8 +534,34 @@ void Well::LogDispProps::copyClassData( const LogDispProps& oth )
     repeatovlap_ = oth.repeatovlap_;
     seiscolor_ = oth.seiscolor_;
     seqname_ = oth.seqname_;
-    iscoltabflipped_ = oth.iscoltabflipped_;
+    sequsemode_ = oth.sequsemode_;
     style_ = oth.style_;
+}
+
+
+Monitorable::ChangeType Well::LogDispProps::compareClassData(
+					const LogDispProps& oth ) const
+{
+    mStartMonitorableCompare();
+    mHandleMonitorableCompare( cliprate_, cScaleChg() );
+    mHandleMonitorableCompare( fillname_, cNameChg() );
+    mHandleMonitorableCompare( fillrange_, cScaleChg() );
+    mHandleMonitorableCompare( isleftfill_, cShapeChg() );
+    mHandleMonitorableCompare( isrightfill_, cShapeChg() );
+    mHandleMonitorableCompare( isdatarange_, cScaleChg() );
+    mHandleMonitorableCompare( islogarithmic_, cScaleChg() );
+    mHandleMonitorableCompare( islogreverted_, cScaleChg() );
+    mHandleMonitorableCompare( issinglecol_, cColorChg() );
+    mHandleMonitorableCompare( logname_, cNameChg() );
+    mHandleMonitorableCompare( logwidth_, cShapeChg() );
+    mHandleMonitorableCompare( range_, cScaleChg() );
+    mHandleMonitorableCompare( repeat_, cShapeChg() );
+    mHandleMonitorableCompare( repeatovlap_, cShapeChg() );
+    mHandleMonitorableCompare( seiscolor_, cColorChg() );
+    mHandleMonitorableCompare( seqname_, cNameChg() );
+    mHandleMonitorableCompare( sequsemode_, cColorChg() );
+    mHandleMonitorableCompare( style_, cShapeChg() );
+    mDeliverMonitorableCompare();
 }
 
 
@@ -529,9 +606,13 @@ void Well::LogDispProps::usePar( const IOPar& iop, bool isleft )
     iop.get( mGetLRIOpKey(sKeySeisColor), seiscolor_ );
     iop.get( mGetLRIOpKey(sKeySeqname), seqname_ );
     iop.getYN( mGetLRIOpKey(sKeyScale), islogarithmic_ );
-    iop.getYN( mGetLRIOpKey(sKeyColTabFlipped), iscoltabflipped_ );
     iop.get( mGetLRIOpKey(sKeyLogStyle),style_);
     iop.get( mGetLRIOpKey(sKeyLogWidthXY),logwidth_ );
+    bool isflipped = ColTab::isFlipped( sequsemode_ );
+    bool iscyclic = ColTab::isCyclic( sequsemode_ );
+    iop.getYN( mGetLRIOpKey(sKeyColTabFlipped), isflipped );
+    iop.getYN( mGetLRIOpKey(sKeyColTabCyclic), iscyclic );
+    sequsemode_ = ColTab::getSeqUseMode( isflipped, iscyclic );
 
     if ( SI().xyInFeet() )
 	logwidth_ = (WidthType)( logwidth_*mToFeetFactorF );
@@ -561,7 +642,8 @@ void Well::LogDispProps::fillPar( IOPar& iop, bool isleft ) const
     iop.set( mGetLRIOpKey(sKeySeisColor), seiscolor_ );
     iop.set( mGetLRIOpKey(sKeySeqname), seqname_ );
     iop.setYN( mGetLRIOpKey(sKeyScale), islogarithmic_ );
-    iop.setYN( mGetLRIOpKey(sKeyColTabFlipped), iscoltabflipped_ );
+    iop.setYN( mGetLRIOpKey(sKeyColTabFlipped), ColTab::isFlipped(sequsemode_));
+    iop.setYN( mGetLRIOpKey(sKeyColTabCyclic), ColTab::isCyclic(sequsemode_) );
     iop.set( mGetLRIOpKey(sKeyLogStyle),style_);
     iop.set( mGetLRIOpKey(sKeyLogWidthXY),logwidth );
 }

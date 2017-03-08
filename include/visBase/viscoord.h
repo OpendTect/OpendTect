@@ -10,12 +10,12 @@ ________________________________________________________________________
 
 
 -*/
-#include "visbasemod.h"
+
+#include "visosg.h"
+#include "visdata.h"
 #include "notify.h"
 #include "positionlist.h"
 #include "thread.h"
-#include "visdata.h"
-#include "visosg.h"
 
 
 class UTMPosition;
@@ -95,7 +95,7 @@ protected:
     void		setPosWithoutLock(int, const Coord3&,bool scenespace);
 			/*!< Object should be locked when calling */
     void		setPosWithoutLock(int, const Coord3f&,bool scenespace);
-    			/*!< Object should be locked when calling */
+			/*!< Object should be locked when calling */
 
     int			getFreeIdx();
 			/*!< Object should be locked when calling */
@@ -107,7 +107,7 @@ protected:
     const mVisTrans*		transformation_;
 
     osg::Array*			osgcoords_;
-    friend class	 	SetOrGetCoordinates;
+    friend class		SetOrGetCoordinates;
 };
 
 

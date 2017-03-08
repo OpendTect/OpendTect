@@ -30,7 +30,7 @@ mFDQtclass(QWidget)
 
 #define USE_DISPLAY_TIMER 1
 
-mExpClass(uiBase) uiObjectBody : public uiBody, public NamedMonitorable
+mExpClass(uiBase) uiObjectBody : public uiBody, public NamedCallBacker
 {
 friend class		i_uiLayoutItem;
 

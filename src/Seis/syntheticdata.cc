@@ -45,14 +45,23 @@ ________________________________________________________________________
 static const char* sKeyDispPar()		{ return "Display Parameter"; }
 
 //SynthFVSpecificDispPars
+
+SynthFVSpecificDispPars::SynthFVSpecificDispPars()
+    : vdmapsetup_(new ColTab::MapperSetup)
+    , wvamapsetup_(new ColTab::MapperSetup)
+    , overlap_(1.f)
+{
+}
+
+
 void SynthFVSpecificDispPars::fillPar( IOPar& par ) const
 {
     IOPar disppar, vdmapperpar, wvamapperpar;
-    vdmapperpar.set( FlatView::DataDispPars::sKeyColTab(), ctab_ );
+    vdmapperpar.set( FlatView::DataDispPars::sKeyColTab(), colseqname_ );
     wvamapperpar.set( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
-    vdmapper_.fillPar( vdmapperpar );
+    vdmapsetup_->fillPar( vdmapperpar );
     disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyVD() );
-    wvamapper_.fillPar( wvamapperpar );
+    wvamapsetup_->fillPar( wvamapperpar );
     disppar.mergeComp( wvamapperpar, FlatView::DataDispPars::sKeyWVA() );
     par.mergeComp( disppar, sKeyDispPar() );
 }
@@ -64,30 +73,27 @@ void SynthFVSpecificDispPars::usePar( const IOPar& par )
     if ( !disppar )
 	return;
 
-    overlap_ = 1.0f;
-    disppar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
+    disppar->get( FlatView::DataDispPars::sKeyColTab(), colseqname_ );
     disppar->get( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
     PtrMan<IOPar> vdmapperpar =
 	disppar->subselect( FlatView::DataDispPars::sKeyVD() );
     if ( !vdmapperpar ) // Older par file
     {
-	vdmapper_.type_ = ColTab::MapperSetup::Fixed;
-	wvamapper_.type_ = ColTab::MapperSetup::Fixed;
-	disppar->get( sKey::Range(), vdmapper_.range_ );
-	disppar->get( sKey::Range(), wvamapper_.range_ );
+	vdmapsetup_->setIsFixed( true );
+	wvamapsetup_->setIsFixed( true );
+	Interval<float> rg( vdmapsetup_->range() );
+	disppar->get( sKey::Range(), rg );
+	wvamapsetup_->setRange( rg );
     }
     else
     {
-	 if ( vdmapperpar )
-	 {
-	     vdmapper_.usePar( *vdmapperpar );
-	     vdmapperpar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
-	 }
+	 vdmapperpar->get( FlatView::DataDispPars::sKeyColTab(), colseqname_ );
+	 vdmapsetup_->usePar( *vdmapperpar );
 	 PtrMan<IOPar> wvamapperpar =
 	     disppar->subselect( FlatView::DataDispPars::sKeyWVA() );
 	 if ( wvamapperpar )
 	 {
-	     wvamapper_.usePar( *wvamapperpar );
+	     wvamapsetup_->usePar( *wvamapperpar );
 	     wvamapperpar->get(FlatView::DataDispPars::sKeyOverlap(),overlap_);
 	 }
     }

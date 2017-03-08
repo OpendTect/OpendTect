@@ -23,6 +23,8 @@ ________________________________________________________________________
 
 #define mAddIdx		0
 #define mAddInAllIdx	1
+#define mRemoveIdx	10
+#define mRemoveInAllIdx	11
 
 const char* uiODVw2DTreeTop::viewer2dptr()		{ return "Viewer2D"; }
 const char* uiODVw2DTreeTop::applmgrstr()		{ return "Applmgr"; }
@@ -135,7 +137,7 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 #define mRemoveAllItemsMenuID 103
 
 uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
-    : uiODPrManagedTreeItem( nm )
+    : uiPresManagedTreeItem( nm )
     , displayid_(-1)
 {}
 
@@ -231,6 +233,23 @@ uiMenu* uiODVw2DTreeItem::createAddMenu()
 bool uiODVw2DTreeItem::isAddItem( int id, bool addall ) const
 {
     return addall ? id==mAddInAllIdx : id==mAddIdx;
+}
+
+
+uiMenu* uiODVw2DTreeItem::createRemoveMenu()
+{
+    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
+    addAction( *removemenu, m3Dots(tr("Only from this 2D Viewer")), mRemoveIdx );
+    const int nrvwrs = applMgr()->viewer2DMgr().nr2DViewers();
+    addAction( *removemenu, m3Dots(tr("From all 2D Viewers")), mRemoveInAllIdx,
+	       0, nrvwrs>1 );
+    return removemenu;
+}
+
+
+bool uiODVw2DTreeItem::isRemoveItem( int id, bool removeall ) const
+{
+    return removeall ? id==mRemoveInAllIdx : id==mRemoveIdx;
 }
 
 
@@ -371,7 +390,7 @@ const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
 }
 
 uiODVw2DParentTreeItem::uiODVw2DParentTreeItem( const uiString& nm )
-    : uiODPrManagedParentTreeItem( nm )
+    : uiPresManagedParentTreeItem( nm )
 {
 }
 

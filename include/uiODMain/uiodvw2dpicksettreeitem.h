@@ -24,12 +24,14 @@ mExpClass(uiODMain) uiODVw2DPickSetParentTreeItem
 			: public uiODVw2DParentTreeItem
 { mODTextTranslationClass(uiODVw2DPickSetParentTreeItem);
 public:
+
 				uiODVw2DPickSetParentTreeItem();
 				~uiODVw2DPickSetParentTreeItem();
 
     bool			showSubMenu();
     const char*			childObjTypeKey() const;
-    uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+
 protected:
 
     bool			init();
@@ -44,16 +46,19 @@ mExpClass(uiODMain)
 uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
+
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODVw2DPickSetParentTreeItem(); }
     uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
+
 };
 
 
 mExpClass(uiODMain) uiODVw2DPickSetTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DPickSetTreeItem)
 public:
+
 			uiODVw2DPickSetTreeItem(Pick::Set&);
 			~uiODVw2DPickSetTreeItem();
 

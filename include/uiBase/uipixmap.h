@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "namedobj.h"
+#include "coltab.h"
 
 mFDQtclass(QBitmap)
 mFDQtclass(QPaintDevice)
@@ -49,7 +50,8 @@ public:
     const mQtclass(QPixmap*) qpixmap() const	{ return qpixmap_; }
 
     void		fill(const Color&);
-    void		fill(const ColTab::Sequence&,bool hor);
+    void		fill(const ColTab::Sequence&,bool hor,
+			     ColTab::SeqUseMode m=ColTab::UnflippedSingle);
 
     int			width() const;
     int			height() const;

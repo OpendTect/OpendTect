@@ -166,15 +166,15 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
     }
     if ( s.withdesc_ )
     {
-	BufferStringSet strset = Color::descriptions();
-	descfld_ = new uiComboBox( this, strset.getUiStringSet(),
+	BufferStringSet coldescs; Color::getDescriptions( coldescs );
+	descfld_ = new uiComboBox( this, coldescs.getUiStringSet(),
 				    "Color description" );
 	descfld_->setHSzPol( uiObject::Medium );
-	TypeSet<Color> colors = Color::descriptionCenters();
-	for ( int idx=0; idx<colors.size(); idx++ )
+	Color::getDescriptionCenters( desccolors_ );
+	for ( int idx=0; idx<desccolors_.size(); idx++ )
 	{
 	    uiPixmap pm( 15, 10 );
-	    pm.fill( colors[idx] );
+	    pm.fill( desccolors_[idx] );
 	    descfld_->setPixmap( idx, pm );
 	}
 
@@ -250,9 +250,14 @@ void uiColorInput::selCol( CallBacker* )
 
 void uiColorInput::descSel( CallBacker* )
 {
-    const int selidx = descfld_ ? descfld_->currentItem() : -1;
-    if ( selidx < 0 ) return;
-    Color newcol( Color::descriptionCenters()[selidx] );
+    if ( !descfld_ )
+	return;
+
+    const int selidx = descfld_->currentItem();
+    if ( selidx < 0 )
+	return;
+
+    Color newcol( desccolors_[selidx] );
     mSetTranspFromFld(newcol);
     setColor( newcol );
     colorChanged.trigger();

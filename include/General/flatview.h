@@ -186,16 +186,19 @@ mExpClass(General) DataDispPars
 public:
 
     //!\brief Common to VD and WVA
-    mExpClass(General) Common
+    mExpClass(General) Common : public CallBacker
     {
     public:
 			Common();
+			Common(const Common&);
+			~Common()		{ detachAllNotifiers(); }
+	Common&		operator =(const Common&);
 
-	bool			show_;	   // default=true
-	bool			blocky_;   // default=false
-	bool			allowuserchange_;
-	bool			allowuserchangedata_;
-	ColTab::MapperSetup	mappersetup_;
+	bool		show_;	   // default=true
+	bool		blocky_;   // default=false
+	bool		allowuserchange_;
+	bool		allowuserchangedata_;
+	RefMan<ColTab::MapperSetup> mappersetup_; // do not set to null
     };
 
     //!\brief Variable Density (=color-bar driven) parameters
@@ -203,12 +206,17 @@ public:
     {
     public:
 
-			VD()
-			: lininterp_(false) {}
+			VD();
 
-	BufferString	ctab_;
+	BufferString	colseqname_;
 	bool		lininterp_; // Use bi-linear interpol, not poly
+
+    protected:
+
+	void		tabNmChg(CallBacker*);
+
     };
+
     //!\brief Wiggle/Variable Area parameters
     mExpClass(General) WVA : public Common
     {
@@ -246,6 +254,7 @@ public:
     static const char*	sKeyDispRg();
     static const char*	sKeyColTab();
     static const char*  sKeyFlipSequence();
+    static const char*  sKeyCyclicSequence();
     static const char*	sKeyLinearInter();
     static const char*	sKeyBlocky();
     static const char*  sKeyAutoScale();

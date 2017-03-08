@@ -12,14 +12,13 @@
 #include "od_iosfwd.h"
 #include "uistring.h"
 
-class SeisTrcReader;
 class SeisTrcWriter;
 class SeisTrcBuf;
 class SeisPSReader;
 class SeisPSWriter;
 
-namespace PosInfo { class CubeData; class CubeDataIterator; class Line2DData; }
-namespace Seis { class SelData; }
+namespace PosInfo { class CubeData; class CubeDataIterator;class Line2DData;}
+namespace Seis { class Provider; class SelData; }
 
 namespace ODMad
 {
@@ -62,7 +61,7 @@ protected:
     od_istream*			istrm_;
     od_ostream*			ostrm_;
 
-    SeisTrcReader*		seisrdr_;
+    Seis::Provider*		seisprov_;
     SeisTrcWriter*		seiswrr_;
     SeisPSReader*		psrdr_;
     SeisPSWriter*		pswrr_;

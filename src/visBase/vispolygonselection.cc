@@ -34,14 +34,19 @@ Notifier<PolygonSelection>* PolygonSelection::polygonFinished()
 class SelectionCallBack : public osg::NodeCallback
 {
 public:
-		    SelectionCallBack(){}
+		    SelectionCallBack( PolygonSelection* sel )
+			:polysel_(sel) {}
 		    void operator() ( osg::Node* node, osg::NodeVisitor* nv )
 		    {
 			if ( nv )
-			    PolygonSelection::polygonFinished()->trigger();
+			{
+			    if ( polysel_ && polysel_->hasPolygon() )
+				PolygonSelection::polygonFinished()->trigger();
+			}
 		    }
 protected:
     		    ~SelectionCallBack(){}
+		    RefMan<PolygonSelection> polysel_;
 };
 
 PolygonSelection::PolygonSelection()
@@ -56,7 +61,7 @@ PolygonSelection::PolygonSelection()
     drawstyle_->ref();
     selector_->ref();
     addChild( selector_ );
-    selectorcb_ = new SelectionCallBack;
+    selectorcb_ = new SelectionCallBack( this );
     selectorcb_->ref();
     selector_->addCallBack( selectorcb_ );
     mAttachCB( *PolygonSelection::polygonFinished(),
@@ -77,7 +82,7 @@ PolygonSelection::PolygonSelection( const osgGeo::PolygonSelection* selector)
     drawstyle_->ref();
     selector_->ref();
     addChild( selector_ );
-    selectorcb_ = new SelectionCallBack;
+    selectorcb_ = new SelectionCallBack( this );
     selectorcb_->ref();
     selector_->addCallBack( selectorcb_ );
     mAttachCB( *PolygonSelection::polygonFinished(),

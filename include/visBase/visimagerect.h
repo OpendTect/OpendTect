@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 
 namespace OD { class RGBImage; }
@@ -30,7 +29,7 @@ mExpClass(visBase) ImageRect : public VisualObjectImpl
 public:
     static ImageRect*	create()
 			mCreateDataObj( ImageRect );
-    
+
     void		setPick(const Pick::Location&);
 
     void		setCenterPos(const Coord3&);
@@ -38,9 +37,9 @@ public:
 
     void		setRGBImage(const OD::RGBImage&);
     void		setDisplayTransformation(const mVisTrans*);
-  
+
 protected:
-    			    ~ImageRect();
+			    ~ImageRect();
 
     const mVisTrans*		trans_;
     int				layerid_;

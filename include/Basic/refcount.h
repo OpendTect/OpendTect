@@ -126,7 +126,7 @@ public:
     void		unRefDontInvalidate();
 			//!<Will allow it to go to zero
 
-    od_int32		count() const { return count_.get(); }
+    od_int32		count() const { return count_.load(); }
     bool		refIfReffed();
 			//!<Don't use in production, for debugging
 
@@ -154,12 +154,18 @@ private:
 mExpClass(Basic) Referenced
 {
 public:
+
     void			ref() const;
     void			unRef() const;
     void			unRefNoDelete() const;
 
 protected:
+
+				Referenced()		    {}
+				Referenced(const Referenced&);
+    Referenced&			operator =(const Referenced&);
     virtual			~Referenced();
+
 private:
     friend			class WeakPtrBase;
     virtual void		refNotify() const		{}
@@ -171,6 +177,7 @@ private:
     mutable Counter		refcount_;
 
 public:
+
     int				nrRefs() const;
 				//!<Only for expert use
     bool			refIfReffed() const;
@@ -182,6 +189,13 @@ public:
 				//!<Not for normal use. May become private
     void			removeObserver(WeakPtrBase* obs);
 				//!<Not for normal use. May become private
+    static bool		        isSane(const Referenced*);
+				/*Returns true if this really is a referenced
+				  (i.e. has magicnumber set ) */
+
+private:
+
+    const od_uint64		magicnumber_ = 0x123456789abcdef;
 
 };
 

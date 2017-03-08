@@ -64,6 +64,15 @@ bool testPointerAlignment()
 }
 
 
+bool test64BitDetection()
+{
+#ifdef __win__
+    mRunStandardTest( is64BitWindows(), "Detecting 64 bit Windows OS" );
+#endif
+    return true;
+}
+
+
 
 bool testOSVersion()
 {
@@ -94,7 +103,8 @@ int testMain( int argc, char** argv )
     if ( !testPointerCast()
 	|| !testOSVersion()
         || !testPointerAlignment()
-	|| !testFuncName() )
+	|| !testFuncName()
+	|| !test64BitDetection() )
 	return 1;
 
     return 0;

@@ -39,11 +39,10 @@ mGlobal(Basic) const char* GetExecutableName(void);
 
 mGlobal(Basic) const char* GetOSIdentifier(void);
 
-mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
-				   bool require_valid_dataroot=true);
-mGlobal(Basic) bool AreProgramArgsSet(void);
-mGlobal(Basic) char** GetArgV(void);
-mGlobal(Basic) int& GetArgC(void);
+#ifdef __win__
+mGlobal(Basic) bool is64BitWindows();
+	    //!< Returns true if on 64 bit windows operating system.
+#endif
 
 mGlobal(Basic) bool isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
@@ -58,6 +57,9 @@ mGlobal(Basic) int ExitProgram( int ret );
 		     Return value is convenience only, so you can use like:
 		     return exitProgram( retval );
                 */
+
+mGlobal(Basic) bool IsExiting();
+		/*!<Returns if ExitProgram is called */
 
 typedef void (*PtrAllVoidFn)(void);
 mGlobal(Basic) void NotifyExitProgram(PtrAllVoidFn);
@@ -92,3 +94,10 @@ inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */
 
 }
+
+//Not C-functions
+mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
+                                   bool require_valid_dataroot=true);
+mGlobal(Basic) bool AreProgramArgsSet(void);
+mGlobal(Basic) char** GetArgV(void);
+mGlobal(Basic) int& GetArgC(void);

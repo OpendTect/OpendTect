@@ -52,6 +52,7 @@ set(OD_MODULE_SOURCES
 	seisloader.cc
 	seismerge.cc
 	seismulticubeps.cc
+	seismultiprovider.cc
 	seisposindexer.cc
 	seispreload.cc
 	seisprovider.cc
@@ -60,11 +61,10 @@ set(OD_MODULE_SOURCES
 	seispsioprov.cc
 	seispsmerge.cc
 	seisrandlineto2d.cc
-	seisrandomprovider.cc
 	seisread.cc
 	seisreaderset.cc
 	seisresampler.cc
-	seisscanner.cc
+	seisstatscalc.cc
 	seisselection.cc
 	seissingtrcproc.cc
 	seisstatinfo.cc

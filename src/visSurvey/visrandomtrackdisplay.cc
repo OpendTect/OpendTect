@@ -454,7 +454,7 @@ void RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& bids,
 
     updatePanelStripPath();
 
-    movingnotifystopper.restore();
+    movingnotifystopper.enableNotification();
     moving_.trigger();
 }
 
@@ -742,7 +742,7 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
     while ( idx1>=0 && !isMappingTraceOfBid(path.last().binID(),idx1,false) )
 	idx1--;
 
-    if ( idx0>=trcspath_.size() || idx1<0 || idx1-idx0!=path.size()-1 )
+    if ( idx0 >= idx1 )
     {
 	pErrMsg( "Texture trace path does not match random line geometry" );
 	return;
@@ -751,7 +751,8 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
     const Coord origin(
 	    (zrg.start-getDepthInterval().start)/appliedZRangeStep(), idx0 );
 
-    const Coord scale( zrg.step/appliedZRangeStep(), 1.0 );
+    const Coord scale( zrg.step/appliedZRangeStep(),
+		       mCast(float,idx1-idx0+1) / path.size() );
 
     channels_->setOrigin( attrib, origin*(resolution_+1) );
     channels_->setScale( attrib, scale );
@@ -877,13 +878,9 @@ void RandomTrackDisplay::updatePanelStripPath()
 	}
     }
 
-    if ( !trcspath_.isEmpty() )
+    if ( mapping.size()!=nodes_.size() )
     {
-	if ( mapping.size()!=nodes_.size() ||
-	     mNINT64(mapping.last())!=(trcspath_.size()-1)*(resolution_+1) )
-	{
-	    pErrMsg( "Unexpected state while texture mapping" );
-	}
+	pErrMsg( "Unexpected state while texture mapping" );
     }
 
     panelstrip_->setPath( pathcrds );
@@ -1012,7 +1009,7 @@ void RandomTrackDisplay::acceptManipulation()
     dragger_->showAllPanels( false );
     ismanip_ = false;
 
-    movingnotifystopper.restore();
+    movingnotifystopper.enableNotification();
     moving_.trigger();
 }
 
@@ -1397,9 +1394,9 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
 	if ( selspecs ) rtd->setSelSpecs( idx, *selspecs );
 	rtd->setDataPackID( idx, getDataPackID(idx), taskr );
-	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
-	if ( mappersetup )
-	    rtd->setColTabMapperSetup( idx, *mappersetup, taskr );
+	ConstRefMan<ColTab::MapperSetup> mappersu = getColTabMapperSetup( idx );
+	if ( mappersu )
+	    rtd->setColTabMapperSetup( idx, *mappersu, taskr );
 	const ColTab::Sequence* colseq = getColTabSequence( idx );
 	if ( colseq ) rtd->setColTabSequence( idx, *colseq, taskr );
     }

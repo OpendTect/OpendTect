@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -36,12 +35,12 @@ public:
 
     void			setCenter(const Coord3&);
     Coord3			center() const;
-    
+
     void			setWidth(const Coord3&);
     Coord3			width() const;
 
     void			setBoxTransparency(float);
-    				//!<Between 0 and 1
+				//!<Between 0 and 1
     void			showScaleTabs(bool);
 
     void			setSpaceLimits(const Interval<float>&,
@@ -49,7 +48,7 @@ public:
 					       const Interval<float>&);
 
     void			setWidthLimits(const Interval<float>& x,
-	    				       const Interval<float>& y,
+					       const Interval<float>& y,
 					       const Interval<float>& z );
 
     void			showDraggerBorder(bool yn=true);
@@ -90,7 +89,7 @@ public:
 protected:
 					~BoxDragger();
 
-    RefMan<const mVisTrans>		transform_;
+    ConstRefMan<mVisTrans>		transform_;
 
     void				setOsgMatrix(const Coord3& worldscale,
 						     const Coord3& worldtrans);
@@ -109,4 +108,4 @@ protected:
 };
 
 };
-	
+

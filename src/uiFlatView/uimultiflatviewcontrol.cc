@@ -90,7 +90,7 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	if ( isactiveintime )
 	{
 	    Interval<float> timerg( mCast(float,wr.top()),
-		    		    mCast(float,wr.bottom()) );
+				    mCast(float,wr.bottom()) );
 	    Interval<double> depthrg( d2tmodels_[0]->getDepth(timerg.start),
 				      d2tmodels_[0]->getDepth(timerg.stop) );
 	    if ( !depthrg.isUdf() && SI().depthsInFeet() )
@@ -116,10 +116,10 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	else
 	{
 	    Interval<float> depthrg( mCast(float,wr.top()),
-		    		     mCast(float,wr.bottom()) );
+				     mCast(float,wr.bottom()) );
 	    if ( isFlattened() )
 		depthrg.shift( -srdval );
-	    
+
 	    if ( SI().depthsInFeet() )
 		depthrg.scale( mFromFeetFactorF );
 
@@ -147,8 +147,8 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 				    const uiFlatViewStdControl::Setup& setup )
     : uiFlatViewStdControl(vwr,setup)
     , iszoomcoupled_(true)
-    , drawzoomboxes_(false)			  
-    , activevwr_(&vwr)  
+    , drawzoomboxes_(false)
+    , activevwr_(&vwr)
 {
     setViewerType( &vwr, true );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
@@ -161,10 +161,10 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 uiMultiFlatViewControl::~uiMultiFlatViewControl()
 {
     detachAllNotifiers();
-    
+
     for ( int idx=0; idx<zoomboxes_.size(); idx++ )
 	vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
-    
+
     deepErase( zoomboxes_ );
 }
 
@@ -181,7 +181,7 @@ bool uiMultiFlatViewControl::setActiveVwr( int vwridx )
 
 #define mAddBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
-    tb_->addButton( but );
+    tb_->addObject( but );
 
 void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 {
@@ -189,14 +189,14 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     uiFlatViewer& vwr = *vwrs_[ivwr];
     MouseEventHandler& mevh = vwr.rgbCanvas().getNavigationMouseEventHandler();
     mAttachCB( mevh.wheelMove, uiMultiFlatViewControl::wheelMoveCB );
-    
+
     toolbars_ += new uiToolBar(mainwin(),tr("Flat Viewer Tools"),
 			       tb_->prefArea());
 
     parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars",
 				   tr("Set display parameters"),
 				   mCB(this,uiMultiFlatViewControl,parsCB) );
-    toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
+    toolbars_[ivwr]->addObject( parsbuts_[ivwr] );
 
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
@@ -288,13 +288,13 @@ void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
     const Geom::Size2D<double> cursz = activevwr_->curView().size();
 
     const float scalefac = gevent->scale();
-    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac), 
+    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac),
 				cursz.height() * (1/scalefac) );
     Geom::Point2D<double> pos =
 	activevwr_->getWorld2Ui().transform( gevent->pos() );
 
     const uiWorldRect wr = getZoomOrPanRect( pos, newsz, activevwr_->curView(),
-	    				     activevwr_->boundingBox());
+					     activevwr_->boundingBox());
     vwrs_[vwridx]->setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )
@@ -332,7 +332,7 @@ bool uiMultiFlatViewControl::handleUserClick( int vwridx )
 void uiMultiFlatViewControl::parsCB( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,but,cb);
-    const int idx = parsbuts_.indexOf( but ); 
+    const int idx = parsbuts_.indexOf( but );
     if ( idx >= 0 )
 	doPropertiesDialog( idx );
 }
@@ -345,7 +345,7 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 
     zoomboxes_.erase();
 
-    if ( iszoomcoupled_ || !drawzoomboxes_ ) 
+    if ( iszoomcoupled_ || !drawzoomboxes_ )
 	return;
 
     const uiWorldRect& masterbbox = activeVwr()->boundingBox();
@@ -364,14 +364,14 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	    continue;
 
 	uiWorldRect newwr;
-       	if ( !viewmgr_.getViewRect(activeVwr(),vwrs_[idx],newwr) )
+	if ( !viewmgr_.getViewRect(activeVwr(),vwrs_[idx],newwr) )
 	    continue;
-	ad->poly_ += newwr.topLeft(); 
+	ad->poly_ += newwr.topLeft();
 	ad->poly_ += newwr.topRight();
 	ad->poly_ += newwr.bottomRight();
-	ad->poly_ += newwr.bottomLeft(); 
-	ad->poly_ += newwr.topLeft(); 
-	vwrs_[idx]->handleChange( FlatView::Viewer::Auxdata ); 
+	ad->poly_ += newwr.bottomLeft();
+	ad->poly_ += newwr.topLeft();
+	vwrs_[idx]->handleChange( FlatView::Viewer::Auxdata );
     }
 }
 

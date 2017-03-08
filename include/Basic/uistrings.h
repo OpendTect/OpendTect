@@ -212,6 +212,7 @@ public:
     static uiString sAdvanced()		{ return tr("Advanced"); }
     static uiString sAlignment()	{ return tr("OD::Alignment"); }
     static uiString sAll()		{ return tr("All"); }
+    static uiString sAlpha()		{ return tr("Alpha"); }
     static uiString sAmplitude(int num=1){ return tr("Amplitude",0,num); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sAnd()		{ return tr("and"); }
@@ -337,6 +338,7 @@ public:
     static uiString sHide()		{ return tr("Hide"); }
     static uiString sHistogram();
     static uiString sHorizon(int num=1);
+    static uiString sHorizonData()	{ return tr("Horizon Data"); }
     static uiString sHorizontal()	{ return tr("Horizontal"); }
     static uiString sImport();
     static uiString sImpSuccess()	{ return tr("Import successful"); }

@@ -49,6 +49,14 @@ void Well::Track::copyClassData( const Track& oth )
 }
 
 
+Monitorable::ChangeType Well::Track::compareClassData(
+					const Track& oth ) const
+{
+    mDeliverYesNoMonitorableCompare(
+	    pos_ == oth.pos_ && zistime_ == oth.zistime_ );
+}
+
+
 Coord3 Well::Track::pos( PointID id ) const
 {
     mLock4Read();

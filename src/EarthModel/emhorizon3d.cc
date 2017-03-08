@@ -844,7 +844,7 @@ void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
     while ( true )
     {
 	gidx = parents_->getData()[gidx];
-	if ( gidx==-1 )
+	if ( gidx==-1 || gidx>=parents_->info().getTotalSz() )
 	    break;
 
 	const TrcKey tk = trackingsamp_.atIndex( gidx );

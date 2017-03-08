@@ -163,8 +163,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+256"/>
         <source>ColorTable</source>
+        <translation type="vanished">
+            <numerusform>Color Table</numerusform>
+            <numerusform>Color Tables</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+256"/>
+        <source>Color Table</source>
         <translation>
             <numerusform>Color Table</numerusform>
             <numerusform>Color Tables</numerusform>
@@ -343,7 +350,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+10"/>
+        <location line="+11"/>
         <source>Amplitude</source>
         <translation>
             <numerusform>Amplitude</numerusform>

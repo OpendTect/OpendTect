@@ -23,7 +23,7 @@ mFDQtclass(QWidget)
     so, each widget has a relative position related to the others,
     as returned from getWidgetOrigin and getWidgetSpan. */
 
-mExpClass(uiBase) uiBaseObject : public NamedMonitorable
+mExpClass(uiBase) uiBaseObject : public NamedCallBacker
 {
 public:
 				uiBaseObject(const char* nm, uiBody* = 0);
@@ -77,9 +77,11 @@ protected:
 				//!< triggered when finalizing finished
 
 private:
+
     int				getNrRowCols( bool row ) const;
     int				cmdrecrefnr_;
     uiBody*			body_;
+
 };
 
 

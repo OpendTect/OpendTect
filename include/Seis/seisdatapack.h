@@ -19,19 +19,20 @@ ________________________________________________________________________
 class BinIDValueSet;
 
 
-/*!\brief SeisDataPack for random lines. */
+/*!\brief Seis Volume DataPack base class. */
 
 mExpClass(Seis) SeisVolumeDataPack : public VolumeDataPack
 {
 public:
 
-    void			fillTrace(const TrcKey&,SeisTrc&) const;
+    mDeclAbstractMonitorableAssignment(SeisVolumeDataPack);
+
+    void		fillTrace(const TrcKey&,SeisTrc&) const;
 
 protected:
 
-				SeisVolumeDataPack( const char* cat,
-						    const BinDataDesc* bdd )
-				    : VolumeDataPack(cat,bdd)	{}
+			SeisVolumeDataPack(const char* cat,const BinDataDesc*);
+			~SeisVolumeDataPack();
 
 };
 
@@ -43,12 +44,11 @@ mExpClass(Seis) RegularSeisDataPack : public SeisVolumeDataPack
 public:
 				RegularSeisDataPack(const char* cat,
 						    const BinDataDesc* bdd=0);
-				~RegularSeisDataPack();
+				mDeclMonitorableAssignment(RegularSeisDataPack);
 
     bool			is2D() const;
 
-    RegularSeisDataPack*	clone() const;
-    RegularSeisDataPack*	getSimilar() const;
+    virtual RegularSeisDataPack* getSimilar() const;
     bool			copyFrom(const RegularSeisDataPack&);
 
     void			setSampling( const TrcKeyZSampling& tkzs )
@@ -86,6 +86,8 @@ public:
 				for passing component names. */
 protected:
 
+				~RegularSeisDataPack();
+
     TrcKeyZSampling		sampling_;
     PtrMan<PosInfo::CubeData>	trcssampling_;
 
@@ -99,7 +101,8 @@ mExpClass(Seis) RandomSeisDataPack : public SeisVolumeDataPack
 public:
 				RandomSeisDataPack(const char* cat,
 						   const BinDataDesc* bdd=0);
-    RandomSeisDataPack*		getSimilar() const;
+				mDeclMonitorableAssignment(RandomSeisDataPack);
+    virtual RandomSeisDataPack*	getSimilar() const;
 
     bool			is2D() const		{ return false; }
     int				nrTrcs() const		{ return path_.size(); }
@@ -126,6 +129,8 @@ public:
 
 protected:
 
+				~RandomSeisDataPack();
+
     int				rdlid_;
     TrcKeyPath			path_;
     StepInterval<float>		zsamp_;
@@ -139,23 +144,24 @@ mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
 {
 public:
 
-				~SeisFlatDataPack();
+    mDeclAbstractMonitorableAssignment(SeisFlatDataPack);
 
     int				nrTrcs() const
-				{ return source_.nrTrcs(); }
+				{ return source_->nrTrcs(); }
     TrcKey			getTrcKey( int trcidx ) const
-				{ return source_.getTrcKey(trcidx); }
+				{ return source_->getTrcKey(trcidx); }
     const SeisVolumeDataPack&	getSourceDataPack() const
-				{ return source_; }
+				{ return *source_; }
     bool			is2D() const
-				{ return source_.is2D(); }
+				{ return source_->is2D(); }
 
     virtual const TrcKeyPath&	getPath() const				= 0;
 				//!< Will be empty if isVertical() is false
 				//!< Eg: Z-slices. Or if the data corresponds
 				//!< to a single trace.
-    int				getRandomLineID() const	{ return rdlid_; }
-    const StepInterval<float>&	getZRange() const	{ return zsamp_; }
+    const StepInterval<float>&	getZRange() const	{ return zSamp(); }
+    virtual int			getRandomLineID() const
+				{ return source_->getRandomLineID(); }
 
     bool			dimValuesInInt(const char* keystr) const;
     void			getAltDim0Keys(BufferStringSet&) const;
@@ -163,29 +169,28 @@ public:
     void			getAuxInfo(int i0,int i1,IOPar&) const;
 
     const Scaler*		getScaler() const
-				{ return source_.getScaler(); }
+				{ return source_->getScaler(); }
     const ZDomain::Info&	zDomain() const
-				{ return source_.zDomain(); }
+				{ return source_->zDomain(); }
     float			nrKBytes() const;
 
 protected:
 
 				SeisFlatDataPack(const SeisVolumeDataPack&,
 						 int icomp);
+				~SeisFlatDataPack();
 
-    virtual void		setSourceData()				= 0;
-    virtual void		setTrcInfoFlds()			= 0;
     void			setPosData();
 				/*!< Sets distances from start and Z-values
 				 as X1 and X2 posData. Assumes getPath() is
 				 not empty. */
 
-    const SeisVolumeDataPack&	source_;
+    ConstRefMan<SeisVolumeDataPack> source_;
     int				comp_;
-    int				rdlid_;
-    const StepInterval<float>&	zsamp_;
-
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
+
+    const StepInterval<float>&	zSamp() const	{ return source_->getZRange(); }
+
 };
 
 
@@ -197,27 +202,34 @@ public:
 
 				RegularFlatDataPack(const RegularSeisDataPack&,
 						    int component);
+				mDeclMonitorableAssignment(RegularFlatDataPack);
 
     bool			isVertical() const
-				{ return dir_ != TrcKeyZSampling::Z; }
+				{ return dir() != TrcKeyZSampling::Z; }
     const TrcKeyPath&		getPath() const		{ return path_; }
 
-    const TrcKeyZSampling&	sampling() const	{ return sampling_; }
+    const TrcKeyZSampling&	sampling() const
+				{ return regSource().sampling(); }
+    TrcKeyZSampling::Dir	dir() const
+				{ return sampling().defaultDir(); }
     Coord3			getCoord(int i0,int i1) const;
 
     const char*			dimName(bool dim0) const;
 
 protected:
 
+				~RegularFlatDataPack();
+
     void			setSourceDataFromMultiCubes();
     void			setSourceData();
     void			setTrcInfoFlds();
 
     TrcKeyPath			path_;
-    const TrcKeyZSampling&	sampling_;
-    TrcKeyZSampling::Dir	dir_;
     bool			usemulticomps_;
     bool			hassingletrace_;
+
+    const RegularSeisDataPack&	regSource() const
+				{ return (RegularSeisDataPack&)(*source_); }
 
 };
 
@@ -230,9 +242,11 @@ public:
 
 				RandomFlatDataPack(const RandomSeisDataPack&,
 						   int component);
+				mDeclMonitorableAssignment(RandomFlatDataPack);
 
     bool			isVertical() const	{ return true; }
-    const TrcKeyPath&		getPath() const		{ return path_; }
+    const TrcKeyPath&		getPath() const
+				{ return rdlSource().getPath(); }
     Coord3			getCoord(int i0,int i1) const;
 
     const char*			dimName( bool dim0 ) const
@@ -240,8 +254,12 @@ public:
 
 protected:
 
+				~RandomFlatDataPack();
+
     void			setSourceData();
     void			setTrcInfoFlds();
-    const TrcKeyPath&		path_;
+
+    const RandomSeisDataPack&	rdlSource() const
+				{ return (RandomSeisDataPack&)(*source_); }
 
 };

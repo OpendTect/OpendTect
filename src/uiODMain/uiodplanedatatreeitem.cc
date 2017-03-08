@@ -168,7 +168,7 @@ void uiODPlaneDataTreeItem::updateDisplay()
 }
 
 
-void uiODPlaneDataTreeItem::objChangedCB( CallBacker* )
+void uiODPlaneDataTreeItem::handleObjChanged( const ChangeData& )
 {
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateDisplay();
@@ -527,7 +527,7 @@ Probe* uiODInlineParentTreeItem::createNewProbe() const
 }
 
 
-uiODPrManagedTreeItem* uiODInlineParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODInlineParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
@@ -644,7 +644,7 @@ Probe* uiODCrosslineParentTreeItem::createNewProbe() const
 }
 
 
-uiODPrManagedTreeItem* uiODCrosslineParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODCrosslineParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
@@ -750,7 +750,7 @@ Probe* uiODZsliceParentTreeItem::createNewProbe() const
 }
 
 
-uiODPrManagedTreeItem* uiODZsliceParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODZsliceParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)

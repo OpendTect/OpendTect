@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "coordsystem.h"
 #include "trckeyzsampling.h"
 #include "latlong.h"
@@ -61,8 +62,26 @@ mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 #define mSampling(work) (work ? workcs_ : fullcs_)
 
 
-static SurveyInfo global_si_;
-const SurveyInfo& SI() { return global_si_; }
+static PtrMan<SurveyInfo> global_si_ = 0;
+
+static void DeleteSI()
+{
+    global_si_ = 0;
+}
+
+
+const SurveyInfo& SI()
+{
+    if ( !global_si_ && !IsExiting() )
+    {
+	if ( global_si_.setIfNull( new SurveyInfo, true ) )
+	{
+	    NotifyExitProgram( &DeleteSI );
+	}
+    }
+
+    return *global_si_;
+}
 
 
 
@@ -150,23 +169,17 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
 
 
 #define mCmpRet(memb,ct) \
-    if ( !(memb==oth->memb) ) \
-        return ChangeData( ct(), ChangeData::cUnspecChgID() )
+    if ( !(memb==oth.memb) ) \
+        return ct()
 #define mCmpRetDeRef(memb,ct) \
-    if ( !((*memb)==(*oth->memb)) ) \
-        return ChangeData( ct(), ChangeData::cUnspecChgID() )
+    if ( !((*memb)==(*oth.memb)) ) \
+        return ct()
 
-
-SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
+Monitorable::ChangeType SurveyInfo::compareClassData(
+					    const SurveyInfo& oth ) const
 {
-    if ( this == &mon )
-	return ChangeData::NoChange();
-    mDynamicCastGet( const SurveyInfo*, oth, &mon );
-    if ( !oth )
-	return ChangeData::AllChanged();
-
-    mCmpRet( basepath_, cEntireObjectChangeType );
-    mCmpRet( dirname_, cEntireObjectChangeType ); //TODO name change only?
+    mCmpRet( basepath_, cEntireObjectChange );
+    mCmpRet( dirname_, cEntireObjectChange ); //TODO name change only?
     mCmpRet( zdef_, cSetupChange );
     mCmpRet( b2c_, cSetupChange );
     mCmpRet( pol2d_, cSetupChange );
@@ -181,13 +194,13 @@ SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
     {
 	mCmpRet( set3binids_[idx], cAuxDataChange );
     }
-    if ( !sipnm_.isEqualTo(oth->sipnm_) )
-        return ChangeData( cAuxDataChange(), ChangeData::cUnspecChgID() );
+    if ( !sipnm_.isEqualTo(oth.sipnm_) )
+        return cAuxDataChange();
 
     mCmpRet( name_, cNameChange );
     mCmpRet( comments_, cCommentChange );
 
-    return ChangeData::NoChange();
+    return cNoChange();
 }
 
 
@@ -229,7 +242,7 @@ uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd,
     if ( !newsi )
 	return ret;
 
-    global_si_ = *newsi;
+    *global_si_ = *newsi;
     delete newsi;
     return ret;
 }
@@ -648,8 +661,8 @@ Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 {
     mLock4Read();
     const Interval<int> rg = inl
-      ? Interval<int>( fullcs_.hsamp_.start_.inl(), fullcs_.hsamp_.stop_.inl() )
-      : Interval<int>( fullcs_.hsamp_.start_.crl(), fullcs_.hsamp_.stop_.crl() );
+      ? Interval<int>( fullcs_.hsamp_.start_.inl(), fullcs_.hsamp_.stop_.inl())
+      : Interval<int>( fullcs_.hsamp_.start_.crl(), fullcs_.hsamp_.stop_.crl());
 
     const int w = rg.stop - rg.start;
 

@@ -11,10 +11,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
-#include "keyenum.h"
 #include "visdata.h"
 #include "visosg.h"
+#include "keyenum.h"
 #include "position.h"
 #include "trigonometry.h"
 
@@ -41,7 +40,7 @@ enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4,
 mExpClass(visBase) EventInfo
 {
 public:
-    				EventInfo();
+				EventInfo();
 				EventInfo(const EventInfo&);
 
 				~EventInfo();
@@ -54,7 +53,7 @@ public:
     Coord			mousepos;
 
     Line3			mouseline;
-    				/*!< The line projected from the mouse-position
+				/*!< The line projected from the mouse-position
 				     into the scene. Line is in display coords.
 				*/
     double			pickdepth;
@@ -65,16 +64,16 @@ public:
 				     If false, the button has been released.
 				*/
     bool			dragging;
-    				//!< Only set if type == MouseMovement
+				//!< Only set if type == MouseMovement
 
     OD::KeyboardKey		key_;
-    				//!< Only set if type == Keyboard
+				//!< Only set if type == Keyboard
 
     TypeSet<int>		pickedobjids;
 
     Coord3			displaypickedpos;	// display space
-    Coord3			localpickedpos; 	// object space
-    Coord3			worldpickedpos; 	// world space
+    Coord3			localpickedpos;	// object space
+    Coord3			worldpickedpos;	// world space
 
     TabletInfo*			tabletinfo;
     void			setTabletInfo(const TabletInfo*);
@@ -108,7 +107,7 @@ public:
     void			setUtm2Display(ObjectSet<Transformation>&);
 
 protected:
-    				~EventCatcher();
+				~EventCatcher();
 
     void			releaseEventsCB(CallBacker*);
 

@@ -42,22 +42,54 @@ Gather::Gather()
     , iscorr_( false )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
-{}
+{
+}
 
 
+Gather::Gather( const Gather& oth )
+    : FlatDataPack( oth )
+{
+    copyClassData( oth );
+}
 
-Gather::Gather( const Gather& gather )
-    : FlatDataPack( gather )
-    , offsetisangle_( gather.offsetisangle_ )
-    , iscorr_( gather.iscorr_ )
-    , trckey_( gather.trckey_ )
-    , coord_( gather.coord_ )
-    , zit_( gather.zit_ )
-    , azimuths_( gather.azimuths_ )
-    , velocitymid_( gather.velocitymid_ )
-    , storagemid_( gather.storagemid_ )
-    , staticsmid_( gather.staticsmid_ )
-{}
+
+Gather::~Gather()
+{
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignment( PreStack::Gather, FlatDataPack )
+
+
+void Gather::copyClassData( const Gather& oth )
+{
+    offsetisangle_ = oth.offsetisangle_;
+    iscorr_ = oth.iscorr_;
+    trckey_ = oth.trckey_;
+    coord_ = oth.coord_;
+    zit_ = oth.zit_;
+    azimuths_ = oth.azimuths_;
+    velocityid_ = oth.velocityid_;
+    storageid_ = oth.storageid_;
+    staticsid_ = oth.staticsid_;
+}
+
+
+Monitorable::ChangeType Gather::compareClassData( const Gather& oth ) const
+{
+    mDeliverYesNoMonitorableCompare(
+	offsetisangle_ == oth.offsetisangle_ &&
+	iscorr_ == oth.iscorr_ &&
+	trckey_ == oth.trckey_ &&
+	coord_ == oth.coord_ &&
+	zit_ == oth.zit_ &&
+	azimuths_ == oth.azimuths_ &&
+	velocityid_ == oth.velocityid_ &&
+	storageid_ == oth.storageid_ &&
+	staticsid_ == oth.staticsid_
+	    );
+}
 
 
 Gather::Gather( const FlatPosData& fposdata )
@@ -70,10 +102,6 @@ Gather::Gather( const FlatPosData& fposdata )
 {
     posdata_ = fposdata;
 }
-
-
-Gather::~Gather()
-{}
 
 
 bool Gather::readFrom( const DBKey& mid, const TrcKey& tk, int comp,
@@ -163,10 +191,10 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
 
     ioobj.pars().getYN(sKeyZisTime(),zit_);
 
-    velocitymid_.setInvalid();
-    GetVelocityVolumeTag( ioobj, velocitymid_ );
-    staticsmid_.setInvalid();
-    ioobj.pars().get( sKeyStaticsID(), staticsmid_ );
+    velocityid_.setInvalid();
+    GetVelocityVolumeTag( ioobj, velocityid_ );
+    staticsid_.setInvalid();
+    ioobj.pars().get( sKeyStaticsID(), staticsid_ );
 
     offsetisangle_ = false;
     ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
@@ -178,7 +206,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
     trckey_ = tk;
     setName( ioobj.name() );
 
-    storagemid_ = ioobj.key();
+    storageid_ = ioobj.key();
 
     return true;
 }
@@ -383,9 +411,42 @@ GatherSetDataPack::GatherSetDataPack( const char* categry,
 }
 
 
+GatherSetDataPack::GatherSetDataPack( const GatherSetDataPack& oth )
+    : DataPack( oth )
+{
+    copyClassData( oth );
+}
+
+
 GatherSetDataPack::~GatherSetDataPack()
 {
+    sendDelNotif();
     deepUnRef( gathers_ );
+}
+
+
+mImplMonitorableAssignment( PreStack::GatherSetDataPack, DataPack )
+
+
+void GatherSetDataPack::copyClassData( const GatherSetDataPack& oth )
+{
+    deepUnRef( gathers_ );
+    for ( int idx=0; idx<oth.gathers_.size(); idx++ )
+	gathers_ += oth.gathers_[idx]->clone();
+}
+
+
+Monitorable::ChangeType GatherSetDataPack::compareClassData(
+					const GatherSetDataPack& oth ) const
+{
+    if ( gathers_.size() != oth.gathers_.size() )
+	return cEntireObjectChange();
+
+    for ( int idx=0; idx<gathers_.size(); idx++ )
+	if ( *gathers_[idx] != *oth.gathers_[idx] )
+	    return cEntireObjectChange();
+
+    return cNoChange();
 }
 
 

@@ -11,8 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "color.h"
 #include "visnodestate.h"
+#include "color.h"
 #include "notify.h"
 #include "uistring.h"
 

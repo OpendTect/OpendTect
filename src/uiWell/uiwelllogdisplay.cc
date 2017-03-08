@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "welllog.h"
 
 
@@ -217,12 +218,11 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     const float rgstart = ld.xax_.range().start;
     const bool isrev = rgstop < rgstart;
 
+    ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny(
+							ld.disp_.seqName() );
     const Interval<float> fillrg = ld.disp_.fillRange();
-    const float colrgstop = fillrg.stop;
-    const float colrgstart = fillrg.start;
-    const float colrgwidth = fillrg.width();
-    const bool iscolrev = colrgstop < colrgstart;
-
+    const ColTab::SeqUseMode sequsemode = ld.disp_.seqUseMode();
+    const int nrsegs = seq->nrSegments();
     mGetWLSizeAndStep();
 
     const bool fullpanelfill = fillleft && fillright;
@@ -257,24 +257,22 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	}
 	mDefZPosInLoop( dah )
 
-	float val = wl.valueByIdx( index );
-	bool isvalrev = iscolrev;
-	if ( ld.disp_.colTabFlipped() )
-	    isvalrev = !isvalrev;
-	const float valdiff = isvalrev ? colrgstop-val : val-colrgstart;
+	const float val = wl.valueByIdx( index );
 	const bool isvaludf = mIsUdf(val);
-	float colpos = isvaludf ? mUdf(float) : (!mIsZero(colrgwidth,mDefEpsF)
-			? valdiff/colrgwidth : (val<=colrgstart ? 0.0f:1.0f));
-	if ( !isvaludf && colpos<0.0f ) colpos = 0.0f;
-	if ( !isvaludf && colpos>1.0f ) colpos = 1.0f;
+	float colpos = mUdf( float );
+	if ( !isvaludf )
+	    colpos = ColTab::Mapper::getPosition(
+					fillrg, sequsemode, nrsegs, val );
+
 	if ( mIsUdf(prevcolpos) )
 	    prevcolpos = colpos;
+	float valforx = val;
 	if ( fullpanelfill )
-	    val = first ? rgstart : rgstop;
+	    valforx = first ? rgstart : rgstop;
 
-	if ( !mIsUdf(val) )
+	if ( !mIsUdf(valforx) )
 	{
-	    pt.x_ = ld.xax_.getPix(val);
+	    pt.x_ = ld.xax_.getPix(valforx);
 	    pt.y_ = ld.yax_.getPix(zpos);
 	    if ( curpts->isEmpty() )
 		*curpts += uiPoint( closept.x_, pt.y_ );
@@ -302,8 +300,6 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	colorposset += prevcolpos;
     }
 
-    const int tabidx = ColTab::SM().indexOf( ld.disp_.seqName() );
-    const ColTab::Sequence* seq = ColTab::SM().get( tabidx<0 ? 0 : tabidx );
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	uiPolygonItem* pli = scene().addPolygon( *pts[idx], true );

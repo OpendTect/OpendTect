@@ -97,17 +97,13 @@ void LocationDisplay::setSet( Pick::Set* ps )
     if ( !ps || set_.ptr() == ps )
 	return;
 
-    if ( set_ )
-	mDetachCB( set_->objectChanged() , LocationDisplay::setChgCB );
-
-    set_ = ps;
-    setName( toUiString(set_->name()) );
-
-    fullRedraw();
-    if ( !showall_ && scene_ )
-	scene_->objectMoved( 0 );
-
-    mAttachCB( ps->objectChanged() , LocationDisplay::setChgCB );
+    if ( replaceMonitoredRef(set_,ps,this) )
+    {
+	setName( toUiString(ps->name()) );
+	fullRedraw();
+	if ( !showall_ && scene_ )
+	    scene_->objectMoved( 0 );
+    }
 }
 
 

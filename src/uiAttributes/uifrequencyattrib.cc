@@ -60,7 +60,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     winfld_->attach( alignedBelow, normfld_ );
 
     smoothspectrumfld_ = new uiGenInput( this, tr("Smooth Spectrum"),
-					 BoolInpSpec(true) );
+					 BoolInpSpec(false) );
     smoothspectrumfld_->attach( alignedBelow, winfld_ );
 
     outpfld_ = new uiGenInput( this, uiStrings::sOutput(),

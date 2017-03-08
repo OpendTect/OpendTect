@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "positionlist.h"
 #include "threadlock.h"

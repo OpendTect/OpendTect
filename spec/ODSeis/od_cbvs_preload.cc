@@ -71,7 +71,10 @@ int main( int argc, char** argv )
 	uiRetVal uirv;
 	Seis::Provider* prov = Seis::Provider::create( ioobj->key(), &uirv );
 	if ( !prov )
-	    { std::cerr << uirv << std::endl; ExitProgram( 1 ); }
+	{
+	    std::cerr << uirv.getText().buf() << std::endl;
+	    ExitProgram( 1 );
+	}
 
 	prov->setSelData( new Seis::RangeSelData(tkzs) );
 	SeisBufReader bufrdr( *prov, sbuf );

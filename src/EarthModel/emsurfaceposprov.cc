@@ -484,8 +484,8 @@ EMSurface2DProvider3D::EMSurface2DProvider3D()
 
 EMSurface2DProvider3D::~EMSurface2DProvider3D()
 {
-    delete &dpssurf1_;
-    delete &dpssurf2_;
+    dpssurf1_.unRef();
+    dpssurf2_.unRef();
 }
 
 

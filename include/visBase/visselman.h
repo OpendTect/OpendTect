@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "visbasemod.h"
+#include "visbasecommon.h"
 #include "notify.h"
 
 namespace Threads { class Mutex; }

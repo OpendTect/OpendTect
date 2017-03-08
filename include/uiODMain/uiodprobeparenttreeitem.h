@@ -54,6 +54,8 @@ public:
     virtual bool	setSelAttribProbeLayer(Probe&) const;
     virtual bool	setRGBProbeLayers(Probe&) const;
     virtual bool	getSelAttrSelSpec(Probe&,Attrib::SelSpec&) const;
+    virtual bool	getSelRGBAttrSelSpecs(Probe&,
+					      TypeSet<Attrib::SelSpec>&) const;
 
     Type		typetobeadded_;
     uiMenu*		menu_;

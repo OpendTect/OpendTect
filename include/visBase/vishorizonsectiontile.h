@@ -14,13 +14,13 @@ ________________________________________________________________________
 // this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
+#include "vishorizonsection.h"
+#include "visdata.h"
 #include "callback.h"
 #include "thread.h"
 #include "position.h"
 #include "color.h"
 #include "rowcol.h"
-#include "visdata.h"
-#include "vishorizonsection.h"
 
 #if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS)
 #include <osg/BoundingBox>

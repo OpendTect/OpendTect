@@ -230,7 +230,7 @@ protected:
     ZAxisTransform*			datatransform_;
     int					voiidx_;
 
-    RefMan<const mVisTrans>		displaytrans_;
+    ConstRefMan<mVisTrans>		displaytrans_;
     RefMan<visBase::TextureRectangle>	texturerect_;
 
     int					originalresolution_;

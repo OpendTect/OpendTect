@@ -10,7 +10,7 @@ ___________________________________________________________________
 
 
 
-#include "uitreeitemmanager.h"
+#include "uitreeitem.h"
 
 #include "uitreeview.h"
 

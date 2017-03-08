@@ -402,7 +402,7 @@ bool ProcessManager::usePar( const IOPar& par )
 	addProcessor( proc );
     }
 
-    stopper.disable();
+    stopper.enableNotification();
     setupChange.trigger();
 
     return true;

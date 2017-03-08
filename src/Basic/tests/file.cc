@@ -127,8 +127,10 @@ int testMain( int argc, char** argv )
     if ( normalargs.isEmpty() )
 	{ od_cout() << "No input file specified"; return 1; }
 
+    const BufferString parfile = *normalargs.last();
+
     if ( !testReadContent()
-      || !testIStream( normalargs.get(0).buf() ) )
+      || !testIStream( parfile.buf() ) )
 	return 1;
 
     if ( !testFilePathParsing() )

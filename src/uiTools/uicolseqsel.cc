@@ -8,322 +8,533 @@ ________________________________________________________________________
 
 -*/
 
-#include "uicolseqdisp.h"
 #include "uicolseqsel.h"
 
 #include "settings.h"
-#include "coltabindex.h"
-#include "coltabsequence.h"
+#include "mouseevent.h"
 
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uilabel.h"
+#include "uicolseqdisp.h"
+#include "uicolseqman.h"
+#include "uibutton.h"
+#include "uimenu.h"
 #include "uipixmap.h"
-#include "uirgbarray.h"
-#include "uicoltabman.h"
-#include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
-
-
-uiColorSeqDisp::uiColorSeqDisp( uiParent* p )
-    : uiRGBArrayCanvas(p,mkRGBArr())
-    , flipped_(false)
-    , seqnm_(ColTab::Sequence::sDefaultName())
-    , selReq(this)
-    , menuReq(this)
-    , upReq(this)
-    , downReq(this)
-{
-    disableImageSave();
-    disableScrollZoom();
-    setDragMode( uiGraphicsView::NoDrag );
-
-    nmitm_ = scene().addItem(
-	     new uiTextItem(uiString::emptyString(),mAlignment(HCenter,Top)) );
-
-    mAttachCB( postFinalise(), uiColorSeqDisp::initCB );
-}
-
-
-uiRGBArray& uiColorSeqDisp::mkRGBArr()
-{
-    rgbarr_ = new uiRGBArray( false );
-    return *rgbarr_;
-}
-
-
-uiColorSeqDisp::~uiColorSeqDisp()
-{
-    delete rgbarr_;
-}
-
-
-void uiColorSeqDisp::setSeqName( const char* nm )
-{
-    if ( ColTab::SM().indexOf(nm) < 0 )
-	return;
-    seqnm_ = nm;
-    reDraw();
-}
-
-
-void uiColorSeqDisp::setFlipped( bool yn )
-{
-    flipped_ = yn;
-    reDraw();
-}
-
-
-void uiColorSeqDisp::initCB( CallBacker* )
-{
-    reDraw();
-
-    MouseEventHandler& meh = getMouseEventHandler();
-    mAttachCB( meh.buttonPressed, uiColorSeqDisp::mouseButCB );
-    mAttachCB( meh.buttonReleased, uiColorSeqDisp::mouseButCB );
-    mAttachCB( meh.wheelMove, uiColorSeqDisp::mouseWheelCB );
-
-    KeyboardEventHandler& keh = getKeyboardEventHandler();
-    mAttachCB( keh.keyReleased, uiColorSeqDisp::keybCB );
-
-    mAttachCB( reSize, uiColorSeqDisp::reSizeCB );
-}
-
-
-void uiColorSeqDisp::reSizeCB( CallBacker* )
-{
-    rgbarr_->setSize( (int)(scene().width()+.5), (int)(scene().height()+.5) );
-    reDraw();
-}
-
-
-void uiColorSeqDisp::reDraw()
-{
-    if ( seqnm_.isEmpty() )
-	return;
-    const ColTab::Sequence* colseq = ColTab::SM().getByName( seqnm_ );
-    if ( !colseq )
-	return;
-
-    beforeDraw();
-    rgbarr_->clear( Color::White() );
-
-    const int arrh = rgbarr_->getSize( false );
-    const int ctabstop = arrh / 2;
-
-    const int arrw = rgbarr_->getSize( true );
-    const ColTab::IndexedLookUpTable indextable( *colseq, arrw );
-    for ( int ix=0; ix<arrw; ix++ )
-    {
-	const int colidx = flipped_ ? arrw-ix-1 : ix;
-	const Color color = indextable.colorForIndex( colidx );
-	for ( int iy=0; iy<ctabstop; iy++ )
-	    rgbarr_->set( ix, iy, color );
-    }
-
-    uiPixmap pixmap( arrw, arrh );
-    pixmap.convertFromRGBArray( *rgbarr_ );
-    setPixmap( pixmap );
-    updatePixmap();
-
-    nmitm_->setText( toUiString(seqnm_) );
-    nmitm_->setPos( uiPoint(arrw/2,ctabstop) );
-}
-
-
-#define mMouseTrigger(trig) \
-    { \
-	if ( !trig.isEmpty() ) \
-	{ \
-	    trig.trigger(); \
-	    meh.setHandled( true ); \
-	} \
-    }
-
-void uiColorSeqDisp::mouseButCB( CallBacker* )
-{
-    MouseEventHandler& meh = getMouseEventHandler();
-    if ( meh.isHandled() )
-	return;
-    const MouseEvent& event = meh.event();
-    if ( event.isWithKey() )
-	return;
-
-    if ( event.leftButton() && !event.isPressed() )
-	mMouseTrigger( selReq )
-    else if ( event.rightButton() && event.isPressed() )
-	mMouseTrigger( menuReq )
-
-}
-
-
-void uiColorSeqDisp::mouseWheelCB( CallBacker* )
-{
-    MouseEventHandler& meh = getMouseEventHandler();
-    if ( meh.isHandled() )
-	return;
-    const MouseEvent& event = meh.event();
-    if ( event.isWithKey() )
-	return;
-
-    //TODO how does the wheel stuff work?
-    // if ( wheel-up )
-	// mMouseTrigger( upReq )
-    // else if ( wheel-down )
-	// mMouseTrigger( downReq )
-}
-
-
-void uiColorSeqDisp::keybCB( CallBacker* )
-{
-    KeyboardEventHandler& keh = getKeyboardEventHandler();
-    if ( keh.isHandled() )
-	return;
-
-    const KeyboardEvent& event = keh.event();
-    if ( event.modifier_ != OD::NoButton )
-	return;
-
-    if ( event.key_ == OD::KB_Enter || event.key_ == OD::KB_Return )
-	selReq.trigger();
-    else if ( event.key_ == OD::KB_Space )
-	menuReq.trigger();
-    else if ( event.key_ == OD::KB_Up || event.key_ == OD::KB_PageUp )
-	upReq.trigger();
-    else if ( event.key_ == OD::KB_Down || event.key_ == OD::KB_PageDown )
-	downReq.trigger();
-}
+#include "uigraphicsscene.h"
 
 
 
-uiColorSeqSel::uiColorSeqSel( uiParent* p, uiString lbl )
-    : uiGroup(p,"Color Seq Selector")
-    , usebasicmenu_(true)
-    , mandlg_(0)
+uiColSeqSelTool::uiColSeqSelTool()
+    : mandlg_(0)
     , seqChanged(this)
-    , menuReq(this)
-{
-    disp_ = new uiColorSeqDisp( this );
-
-    if ( !lbl.isEmpty() )
-	new uiLabel( this, lbl, disp_ );
-
-    mAttachCB( postFinalise(), uiColorSeqSel::initDisp );
-}
-
-
-uiColorSeqSel::~uiColorSeqSel()
+    , newManDlg(this)
+    , seqModified(this)
+    , refreshReq(this)
+    , seqMenuReq(this)
 {
 }
 
 
-const char* uiColorSeqSel::seqName() const
+void uiColSeqSelTool::initialise( OD::Orientation orient )
+{
+    disp_ = new uiColSeqDisp( getParent(), orient );
+    mAttachCB( disp_->selReq, uiColSeqSelTool::selectCB );
+    mAttachCB( disp_->menuReq, uiColSeqSelTool::menuCB );
+    mAttachCB( disp_->upReq, uiColSeqSelTool::upCB );
+    mAttachCB( disp_->downReq, uiColSeqSelTool::downCB );
+    mAttachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
+}
+
+
+void uiColSeqSelTool::setToolTip()
+{
+    disp_->setToolTip( tr("'%1' - Click to change, Right-click for Menu")
+			.arg( seqName() ) );
+}
+
+
+int uiColSeqSelTool::maxElemLongDimSize()
+{
+    return 3 * uiObject::iconSize();
+}
+
+
+void uiColSeqSelTool::addObjectsToToolBar( uiToolBar& tbar )
+{
+    if ( disp_ )
+    {
+	disp_->setMaximumWidth( maxElemLongDimSize() );
+	disp_->setMaximumHeight( maxElemLongDimSize() );
+	tbar.addObject( disp_ );
+    }
+}
+
+
+void uiColSeqSelTool::orientationChanged()
+{
+    disp_->setOrientation( orientation() );
+}
+
+
+uiColSeqSelTool::~uiColSeqSelTool()
+{
+    detachAllNotifiers();
+}
+
+
+ConstRefMan<ColTab::Sequence> uiColSeqSelTool::sequence() const
+{
+    return disp_->sequence();
+}
+
+
+void uiColSeqSelTool::setSequence( const Sequence& seq )
+{
+    mDetachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
+    disp_->setSequence( seq );
+    mAttachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
+
+    setToolTip();
+    seqChanged.trigger();
+}
+
+
+const char* uiColSeqSelTool::seqName() const
 {
     return disp_->seqName();
 }
 
 
-void uiColorSeqSel::setSeqName( const char* nm )
+void uiColSeqSelTool::setSeqName( const char* nm )
 {
-    disp_->setSeqName( nm );
+    setSequence( *ColTab::SeqMGR().getAny(nm) );
 }
 
 
-bool uiColorSeqSel::isFlipped() const
+ColTab::SeqUseMode uiColSeqSelTool::seqUseMode() const
 {
-    return disp_->isFlipped();
+    return disp_->seqUseMode();
 }
 
 
-void uiColorSeqSel::setFlipped( bool yn )
+void uiColSeqSelTool::setSeqUseMode( ColTab::SeqUseMode mode )
 {
-    disp_->setFlipped( yn );
+    disp_->setSeqUseMode( mode );
 }
 
 
-
-void uiColorSeqSel::initDisp( CallBacker* )
+OD::Orientation uiColSeqSelTool::orientation() const
 {
-    mAttachCB( disp_->selReq, uiColorSeqSel::selectCB );
-    mAttachCB( disp_->menuReq, uiColorSeqSel::menuCB );
-    mAttachCB( disp_->upReq, uiColorSeqSel::upCB );
-    mAttachCB( disp_->downReq, uiColorSeqSel::downCB );
+    return disp_->orientation();
 }
 
 
-void uiColorSeqSel::selectCB( CallBacker* )
+void uiColSeqSelTool::setIsVertical( bool yn )
 {
-    uiMSG().error( mTODONotImplPhrase() );
+    disp_->setOrientation( yn ? OD::Vertical : OD::Horizontal );
 }
 
 
-uiMenu* uiColorSeqSel::getBasicMenu()
+void uiColSeqSelTool::setNonSeisDefault()
 {
-    uiMenu* mnu = new uiMenu( this, uiStrings::sAction() );
-
-    mnu->insertItem( new uiAction(tr("Set as default"),
-	mCB(this,uiColorSeqSel,setAsDefaultCB)), 0 );
-    mnu->insertItem( new uiAction(m3Dots(tr("Manage")),
-	mCB(this,uiColorSeqSel,manageCB)), 1 );
-
-    return mnu;
+    setSequence( *ColTab::SeqMGR().getDefault(false) );
 }
 
 
-void uiColorSeqSel::menuCB( CallBacker* )
+void uiColSeqSelTool::selectCB( CallBacker* )
 {
-    if ( !usebasicmenu_ )
-	menuReq.trigger();
+    MonitorLock ml( ColTab::SeqMGR() );
+    const int sz = ColTab::SeqMGR().size();
+    if ( sz < 1 )
+	return;
+
+    uiMenu* mnu = new uiMenu( asParent(), uiStrings::sAction() );
+    BufferStringSet nms;
+    ColTab::SeqMGR().getSequenceNames( nms );
+    nms.sort();
+
+    int curidx = nms.indexOf( disp_->seqName() );
+    BufferStringSet menunms;
+    if  ( curidx < 0 )
+	menunms = nms;
     else
     {
-        PtrMan<uiMenu> mnu = getBasicMenu();
-	mnu->exec();
+	for ( int ipass=0; ipass<2; ipass++ )
+	{
+	    for ( int inm=0; inm<nms.size(); inm++ )
+	    {
+		if (    (ipass == 0 && inm == curidx)
+		    ||  (ipass == 1 && inm != curidx) )
+		    menunms.add( nms.get(inm) );
+	    }
+	}
+	curidx = 0;
     }
+
+    for ( int inm=0; inm<menunms.size(); inm++ )
+    {
+	ConstRefMan<Sequence> seq = ColTab::SeqMGR().getByName(
+						menunms.get(inm) );
+	uiAction* act = new uiAction( toUiString(seq->name()) );
+	uiPixmap uipm( 32, 16 );
+	uipm.fill( *seq, true );
+	act->setPixmap( uipm );
+	mnu->insertItem( act, inm );
+    }
+
+    const int newnmidx = mnu->exec();
+    if ( newnmidx < 0 || newnmidx == curidx )
+	return;
+
+    ConstRefMan<Sequence> newseq = ColTab::SeqMGR().getByName(
+							menunms.get(newnmidx) );
+    if ( !newseq )
+	return; // someone has removed it while the menu was up
+
+    ml.unlockNow();
+    setSequence( *newseq );
 }
 
 
-void uiColorSeqSel::setAsDefaultCB( CallBacker* )
+void uiColSeqSelTool::seqModifCB( CallBacker* )
+{
+    seqModified.trigger();
+}
+
+
+void uiColSeqSelTool::menuCB( CallBacker* )
+{
+    PtrMan<uiMenu> mnu = new uiMenu( asParent(), uiStrings::sAction() );
+
+    mnu->insertItem( new uiAction(tr("Set as default"),
+	mCB(this,uiColSeqSelTool,setAsDefaultCB)), 0 );
+    mnu->insertItem( new uiAction(m3Dots(tr("Manage")),
+	mCB(this,uiColSeqSelTool,manageCB)), 1 );
+
+    seqMenuReq.trigger( mnu );
+
+    mnu->exec();
+}
+
+
+void uiColSeqSelTool::setAsDefaultCB( CallBacker* )
 {
     setCurrentAsDefault();
 }
 
 
-void uiColorSeqSel::manageCB( CallBacker* )
+void uiColSeqSelTool::manDlgSeqSelCB( CallBacker* )
 {
-    showManageDlg();
+    if ( mandlg_ )
+	setSequence( mandlg_->current() );
 }
 
 
-void uiColorSeqSel::setCurrentAsDefault()
+void uiColSeqSelTool::setCurrentAsDefault()
 {
     mSettUse( set, "dTect.Color table.Name", "", seqName() );
     Settings::common().write();
 }
 
 
-void uiColorSeqSel::showManageDlg()
+void uiColSeqSelTool::showManageDlg()
 {
-	/*
     if ( !mandlg_ )
     {
-	//TODO find out why this flag exists
-	const bool enabletransparancy = true;
-	mandlg_ = new uiColorTableMan( this, seqName(), enabletransparancy );
-	mAttachCB( mandlg_->tableChanged, uiColorSeqDisp::seqChgCB );
+	mandlg_ = new uiColSeqMan( asParent(), seqName() );
+	mAttachCB( mandlg_->windowClosed, uiColSeqSelTool::manDlgCloseCB );
+	mAttachCB( mandlg_->selectionChanged, uiColSeqSelTool::manDlgSeqSelCB );
+	mandlg_->setDeleteOnClose( true );
+	mandlg_->show();
+	newManDlg.trigger();
     }
 
-    mandlg_->show();
     mandlg_->raise();
-	*/
 }
 
 
-void uiColorSeqSel::nextColTab( bool prev )
+void uiColSeqSelTool::nextColSeq( bool prev )
 {
-    const int curidx = ColTab::SM().indexOf( seqName() );
-    if ( (prev && curidx < 1) || (!prev && curidx>=ColTab::SM().size()-1) )
+    const int curidx = ColTab::SeqMGR().indexOf( seqName() );
+    if ( (prev && curidx < 1) || (!prev && curidx>=ColTab::SeqMGR().size()-1) )
 	return;
 
     const int newidx = prev ? curidx-1 : curidx+1;
-    setSeqName( ColTab::SM().get(newidx)->name() );
+    setSeqName( ColTab::SeqMGR().getByIdx(newidx)->name() );
+}
+
+
+uiColSeqSel::uiColSeqSel( uiParent* p, OD::Orientation orient, uiString lbltxt )
+    : uiGroup(p,"Color Sequence Selector")
+    , lbl_(0)
+{
+    initialise( orient );
+
+    if ( !lbltxt.isEmpty() )
+    {
+	lbl_ = new uiLabel( this, lbltxt );
+	lbl_->attach( leftOf, disp_ );
+    }
+
+    setHAlignObj( disp_ );
+}
+
+
+void uiColSeqSel::setLabelText( const uiString& txt )
+{
+    lbl_->setText( txt );
+}
+
+
+mImpluiColSeqSelToolBarTool( uiColSeqToolBar, uiColSeqSelTool )
+
+uiColSeqToolBar::uiColSeqToolBar( uiParent* p )
+    : uiToolBar(p,tr("Color Selection"))
+    , seltool_(*new uiColSeqToolBarTool(this))
+{
+}
+
+
+class uiColSeqUseModeCompactSel : public uiGraphicsView
+{ mODTextTranslationClass(uiColSeqUseModeCompactSel);
+public:
+
+typedef ColTab::SeqUseMode SeqUseMode;
+
+uiColSeqUseModeCompactSel( uiParent* p )
+    : uiGraphicsView(p,"SeqUseMode selector for Toolbar")
+    , mode_(ColTab::UnflippedSingle)
+    , meh_(getMouseEventHandler())
+    , pixmapitm_(0)
+    , selitms_(0)
+    , curitms_(0)
+    , modeChange(this)
+{
+    disableScrollZoom();
+    setMinimumWidth( uiObject::iconSize() );
+    setMinimumHeight( uiObject::iconSize() );
+    setMaximumWidth( uiObject::iconSize() );
+    setMaximumHeight( uiObject::iconSize() );
+    mAttachCB( postFinalise(), uiColSeqUseModeCompactSel::initCB );
+}
+
+~uiColSeqUseModeCompactSel()
+{
+    detachAllNotifiers();
+}
+
+void initCB( CallBacker* )
+{
+    mAttachCB( meh_.buttonReleased,
+		uiColSeqUseModeCompactSel::mouseReleaseCB );
+    mAttachCB( meh_.movement, uiColSeqUseModeCompactSel::mouseMoveCB );
+
+    mAttachCB( reSize, uiColSeqUseModeCompactSel::reDrawCB );
+    mAttachCB( pointerLeft, uiColSeqUseModeCompactSel::mouseLeaveCB );
+
+    drawAsIs();
+}
+
+void mouseReleaseCB( CallBacker* )
+{
+    if ( meh_.isHandled() )
+	return;
+
+    const MouseEvent& ev = meh_.event();
+    const bool isflipped = ev.x() > scene().nrPixX() * 0.5f;
+    const bool iscyclic = ev.y() > scene().nrPixY() * 0.5f;
+    setMode( ColTab::getSeqUseMode(isflipped,iscyclic) );
+    modeChange.trigger();
+    drawSelected();
+}
+
+void mouseMoveCB( CallBacker* )
+{
+    if ( meh_.isHandled() )
+	return;
+
+    const MouseEvent& ev = meh_.event();
+    const bool isflipped = ev.x() > scene().nrPixX() * 0.5f;
+    const bool iscyclic = ev.y() > scene().nrPixY() * 0.5f;
+    const SeqUseMode usemode = ColTab::getSeqUseMode(isflipped,iscyclic);
+    drawCurrent( usemode );
+    switch ( usemode )
+    {
+	case ColTab::UnflippedSingle:
+	    setToolTip( tr("Normal Color Table") );
+	    break;
+	case ColTab::FlippedSingle:
+	    setToolTip( tr("Flipped Color Table") );
+	    break;
+	case ColTab::UnflippedCyclic:
+	    setToolTip( tr("Cyclic Color Table") );
+	    break;
+	case ColTab::FlippedCyclic:
+	    setToolTip( tr("Cyclic Color Table (Flipped)") );
+	    break;
+    }
+}
+
+void mouseLeaveCB( CallBacker* )
+{
+    if ( curitms_ )
+	curitms_->removeAll( true );
+}
+
+void reDrawCB( CallBacker* )
+{
+    drawAsIs();
+}
+
+void drawAsIs()
+{
+    if ( !pixmapitm_ )
+    {
+	const uiPixmap pm( "sequsemodes" );
+	pixmapitm_ = scene().addItem( new uiPixmapItem(pm) );
+    }
+    pixmapitm_->scaleToScene();
+
+    drawSelected();
+}
+
+
+void drawHighlight( uiGraphicsItemGroup*& grp, SeqUseMode usemode,
+			int rwdth, Color col, int zval )
+{
+    const int xsz = scene().nrPixX(); const int ysz = scene().nrPixY();
+    if ( xsz < 1 || ysz < 1 )
+	return;
+
+    if ( !grp )
+	grp = scene().addItem( new uiGraphicsItemGroup );
+    else
+	grp->removeAll( true );
+
+    const uiSize pixmapsz = pixmapitm_ ? pixmapitm_->pixmapSize()
+				       : uiSize( xsz, ysz );
+    const float scale = ((float)pixmapsz.width()) / xsz;
+    const int nrrects = (int)(scale * rwdth + .5);
+    const OD::LineStyle ls( OD::LineStyle::Solid, 1, col );
+    const int midx = xsz / 2; const int midy = ysz / 2;
+    const int xoffs = ColTab::isFlipped( usemode ) ? midx : 0;
+    const int yoffs = ColTab::isCyclic( usemode ) ? midy : 0;
+
+    for ( int idx=0; idx<nrrects; idx++ )
+    {
+	uiRectItem* itm = new uiRectItem( xoffs+idx, yoffs+idx,
+					  midx-2*idx, midy-2*idx );
+	itm->setPenStyle( ls );
+	grp->add( itm );
+    }
+
+    grp->setZValue( zval );
+}
+
+void drawSelected()
+{
+    drawHighlight( selitms_, mode_, 4, Color(0,255,255), 10 );
+}
+
+
+void drawCurrent( SeqUseMode usemode )
+{
+    drawHighlight( curitms_, usemode, 2, Color(255,255,0), 11 );
+}
+
+SeqUseMode mode() const
+{
+    return mode_;
+}
+
+void setMode( SeqUseMode newmode )
+{
+    if ( mode_ == newmode )
+	return;
+
+    mode_ = newmode;
+    drawSelected();
+}
+
+    SeqUseMode					mode_;
+    MouseEventHandler&				meh_;
+
+    uiPixmapItem*				pixmapitm_;
+    uiGraphicsItemGroup*			selitms_;
+    uiGraphicsItemGroup*			curitms_;
+
+    Notifier<uiColSeqUseModeCompactSel>		modeChange;
+
+};
+
+
+uiColSeqUseModeSel::uiColSeqUseModeSel( uiParent* p, bool compact,
+					uiString lbltxt )
+    : uiGroup(p,"SeqUseMode Sel Group")
+    , modeChange(this)
+    , compactsel_(0)
+    , flippedbox_(0)
+{
+    uiLabel* lbl = lbltxt.isEmpty() ? 0 : new uiLabel( this, lbltxt );
+
+    if ( compact )
+    {
+	compactsel_ = new uiColSeqUseModeCompactSel( this );
+	mAttachCB( compactsel_->modeChange, uiColSeqUseModeSel::modeChgCB );
+    }
+    else
+    {
+	flippedbox_ = new uiCheckBox( this, tr("Flipped") );
+	cyclicbox_ = new uiCheckBox( this, tr("Cyclic") );
+	cyclicbox_->attach( rightOf, flippedbox_ );
+	lbl->attach( leftOf, flippedbox_ );
+	mAttachCB( flippedbox_->activated, uiColSeqUseModeSel::modeChgCB );
+	mAttachCB( cyclicbox_->activated, uiColSeqUseModeSel::modeChgCB );
+	setHAlignObj( flippedbox_ );
+    }
+
+}
+
+
+uiColSeqUseModeSel::~uiColSeqUseModeSel()
+{
+    detachAllNotifiers();
+}
+
+
+void uiColSeqUseModeSel::addObjectsToToolBar( uiToolBar& tbar )
+{
+    if ( compactsel_ )
+	tbar.addObject( compactsel_ );
+    else
+    {
+	pErrMsg("Adding to toolbar ... but that wasn't planned");
+	tbar.addObject( flippedbox_ );
+	tbar.addObject( cyclicbox_ );
+    }
+}
+
+
+ColTab::SeqUseMode uiColSeqUseModeSel::mode() const
+{
+    return compactsel_ ? compactsel_->mode()
+	:  ColTab::getSeqUseMode( flippedbox_->isChecked(),
+				  cyclicbox_->isChecked() );
+}
+
+
+void uiColSeqUseModeSel::setMode( ColTab::SeqUseMode usemode )
+{
+    if ( usemode == mode() )
+	return;
+
+    if ( compactsel_ )
+	compactsel_->setMode( usemode );
+    else
+    {
+	flippedbox_->setChecked( ColTab::isFlipped(usemode) );
+	cyclicbox_->setChecked( ColTab::isCyclic(usemode) );
+    }
 }

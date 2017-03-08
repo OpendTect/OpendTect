@@ -276,7 +276,7 @@ void SignalHandling::doKill( int signalnr )
 #endif
 	ErrMsg( msg );
     }
-    killcbs_.doCall( this, 0 );
+    killcbs_.doCall( this );
     ExitProgram( 1 );
 }
 
@@ -286,7 +286,7 @@ void SignalHandling::doStop( int signalnr, bool withcbs )
     mReleaseSignal( signalnr );
 
     if ( withcbs )
-	stopcbs_.doCall( this, 0 );
+	stopcbs_.doCall( this );
 
 #ifdef __win__
     raise( signalnr );
@@ -329,31 +329,31 @@ void SignalHandling::doCont()
 #ifndef __win__
     mCatchSignal( SIGSTOP );
 #endif
-    contcbs_.doCall( this, 0 );
+    contcbs_.doCall( this );
 }
 
 
 void SignalHandling::handleConn()
 {
-    conncbs_.doCall( this, 0 );
+    conncbs_.doCall( this );
 }
 
 
 void SignalHandling::handleChld()
 {
-    chldcbs_.doCall( this, 0 );
+    chldcbs_.doCall( this );
 }
 
 
 void SignalHandling::handleReInit()
 {
-    reinitcbs_.doCall( this, 0 );
+    reinitcbs_.doCall( this );
 }
 
 
 void SignalHandling::handleAlarm()
 {
-    alarmcbs_.doCall( this, 0 );
+    alarmcbs_.doCall( this );
 }
 
 

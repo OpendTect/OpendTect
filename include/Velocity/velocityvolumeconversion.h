@@ -20,9 +20,9 @@ ________________________________________________________________________
 
 class IOObj;
 class SeisTrc;
-class SeisTrcReader;
 class SeisTrcWriter;
 class SeisSequentialWriter;
+namespace Seis { class Provider; }
 
 namespace Vel
 {
@@ -63,7 +63,7 @@ protected:
     TrcKeySampling			tks_;
     uiString			errmsg_;
 
-    SeisTrcReader*		reader_;
+    Seis::Provider*		provider_;
     SeisTrcWriter*		writer_;
     SeisSequentialWriter*	sequentialwriter_;
 

@@ -129,11 +129,7 @@ WaveletSaver::~WaveletSaver()
 }
 
 
-mImplMonitorableAssignment(WaveletSaver,Saveable)
-
-void WaveletSaver::copyClassData( const WaveletSaver& oth )
-{
-}
+mImplMonitorableAssignmentWithNoMembers(WaveletSaver,Saveable)
 
 
 ConstRefMan<Wavelet> WaveletSaver::wavelet() const

@@ -41,7 +41,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     , initialvalue_( vd->isoValue( isosurface ) )
     , vd_( vd )
 {
-    bool fullmode = vd->isFullMode(isosurface);
+    bool fullmode = vd_->isFullMode(isosurface);
     modefld_ = new uiGenInput( this, tr("Mode"),
 	    BoolInpSpec(true,tr("Full volume"),tr("Seed based")) );
     modefld_->setValue( fullmode );
@@ -49,7 +49,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
 
     seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), tr("Seeds") );
-    DBKey mid = vd->getSeedsID( isosurface );
+    DBKey mid = vd_->getSeedsID( isosurface );
     if ( mid.isValid() )
 	seedselfld_->setInput( mid );
 
@@ -59,17 +59,13 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     aboveisovaluefld_ = new uiGenInput( this, tr("Seeds value"),
 	    BoolInpSpec(true,tr("Above iso-value"),tr("Below iso-value")) );
     aboveisovaluefld_->display( !fullmode );
-    aboveisovaluefld_->setValue( vd->seedAboveIsovalue(isosurface) );
+    aboveisovaluefld_->setValue( vd_->seedAboveIsovalue(isosurface) );
     aboveisovaluefld_->attach( alignedBelow, seedselfld_ );
-
-    TypeSet<float> histogram;
-    if ( vd->getHistogram(attrib) ) histogram = *vd->getHistogram(attrib);
-    const ColTab::MapperSetup* ms = vd->getColTabMapperSetup( attrib );
-    const Interval<float> rg = ms->range_;
 
     uiStatsDisplay::Setup su; su.withtext(false);
     statsdisplay_ = new uiStatsDisplay( this, su );
-    statsdisplay_->funcDisp()->setHistogram( histogram, rg );
+    statsdisplay_->funcDisp()->setDistribution(
+				    vd_->getDataDistribution(attrib) );
     statsdisplay_->attach( leftAlignedBelow, aboveisovaluefld_ );
 
     funcDisp().setDragMode( uiGraphicsView::NoDrag );
@@ -82,7 +78,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 
     thresholdfld_ = new uiGenInput( this, tr("Iso value"),
 				    FloatInpSpec(initialvalue_) );
-    thresholdfld_->setValue( vd->isoValue(isosurface) );
+    thresholdfld_->setValue( vd_->isoValue(isosurface) );
     thresholdfld_->attach( leftAlignedBelow, statsdisplay_ );
     updatebutton_ = new uiPushButton( this, tr("Update"),
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,updatePressed), true );

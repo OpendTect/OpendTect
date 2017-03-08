@@ -43,8 +43,8 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
     vwr_->setPrefHeight( 200 );
     vwr_->setStretch( 0, 0 );
     vwr_->rgbCanvas().setDragMode( uiGraphicsView::NoDrag );
-    vwr_->appearance().ddpars_.wva_.mappersetup_.cliprate_ =
-				Interval<float>(0.01f,0.01f);
+    vwr_->appearance().ddpars_.wva_.mappersetup_->setClipRate(
+				Interval<float>(0.01f,0.01f) );
     vwr_->appearance().setGeoDefaults( true );
 
     OD::LineStyle ls( OD::LineStyle::Solid, 3, Color(0,255,0) );

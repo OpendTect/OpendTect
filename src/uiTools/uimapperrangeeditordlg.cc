@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uimapperrangeeditordlg.h"
 
 #include "uibutton.h"
-#include "uicoltabtools.h"
 #include "uihistogramdisplay.h"
 #include "uimapperrangeeditor.h"
 #include "uiseparator.h"
@@ -56,8 +55,6 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     {
 	uiMapperRangeEditor* rangeeditor =
 				new uiMapperRangeEditor( this, idx );
-	rangeeditor->rangeChanged.notify(
-		mCB(this,uiMultiMapperRangeEditWin,rangeChanged) );
 	rangeeditor->getDisplay().getMouseEventHandler().movement.notify(
 			mCB(this,uiMultiMapperRangeEditWin,mouseMoveCB) );
 	mapperrgeditors_ += rangeeditor;
@@ -137,10 +134,9 @@ void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
 void uiMultiMapperRangeEditWin::setColTabMapperSetup( int idx,
 						const ColTab::MapperSetup& ms )
 {
-    if ( !mapperrgeditors_.validIdx(idx) )
-	return;
-
-    mapperrgeditors_[idx]->setColTabMapperSetup( ms );
+    if ( mapperrgeditors_.validIdx(idx) )
+	mapperrgeditors_[idx]->setMapperSetup(
+				const_cast<ColTab::MapperSetup&>(ms) );
 }
 
 
@@ -181,7 +177,7 @@ void uiMultiMapperRangeEditWin::rangeChanged( CallBacker* cb )
 {
     mDynamicCastGet(uiMapperRangeEditor*,obj,cb);
     activeattrbid_ = obj->ID();
-    activectbmapper_ = &obj->getColTabMapperSetup();
+    activectbmapper_ = &obj->mapperSetup();
     rangeChange.trigger();
 }
 

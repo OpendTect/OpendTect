@@ -29,9 +29,9 @@ class Executor;
 class BinIDValueSet;
 class OffsetAzimuth;
 class TrcKeySampling;
-class SeisTrcReader;
 
 namespace EM { class Horizon3D; }
+namespace Seis { class Provider; }
 
 namespace PreStack
 {
@@ -233,10 +233,11 @@ protected:
     DipSource			primarydipsource_;
     DipSource			secondarydipsource_;
 
-    SeisTrcReader*		primarydipreader_;
-    SeisTrcReader*		secondarydipreader_;
+    Seis::Provider*		primarydipprovider_;
+    Seis::Provider*		secondarydipprovider_;
 
     Undo			undo_;
+    uiString			errmsg_;
 };
 
 

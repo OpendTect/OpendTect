@@ -23,8 +23,8 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 	, setup_(sup)
 	, selfld_(0)
 {
-    const int sz = setup_.items_.size();
-    if ( sz < 1 )
+    const bool isuichoice = !setup_.uiitems_.isEmpty();
+    if ( !isuichoice && setup_.items_.isEmpty() )
     {
 	new uiLabel(this,tr("No items available for selection"));
 	setCtrlStyle( CloseOnly );
@@ -39,7 +39,10 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 	selfld_->setCurrentItem( setup_.current_ );
 
     filtfld_ = new uiListBoxFilter( *selfld_ );
-    filtfld_->setItems( setup_.items_ );
+    if ( isuichoice )
+	filtfld_->setItems( setup_.uiitems_ );
+    else
+	filtfld_->setItems( setup_.items_ );
 
     selfld_->setHSzPol( uiObject::Wide );
     selfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );

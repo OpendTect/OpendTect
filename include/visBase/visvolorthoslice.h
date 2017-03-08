@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "position.h"
 
@@ -41,7 +40,7 @@ public:
     void			setDim(int);
 
     void			getSliceInfo(int&,Interval<float>&) const;
-    int 			getSliceNr(int dim=-1) const;	// -1 : curdim_
+    int			getSliceNr(int dim=-1) const;	// -1 : curdim_
     void			setSliceNr(int nr,int dim=-1);	// -1 : curdim_
 
     float			getPosition() const;
@@ -65,13 +64,13 @@ protected:
 				~OrthogonalSlice();
 
     void			draggerMovementCB(CallBacker*);
-    
+
     DepthTabPlaneDragger*	dragger_;
     TextureRectangle*		slice_;
 
     int				xdatasz_, ydatasz_, zdatasz_;
-    int 			curdim_;
-    int 			slicenr_[3];
+    int			curdim_;
+    int			slicenr_[3];
 
     static const char*		dimstr();
     static const char*		slicestr();
@@ -79,4 +78,4 @@ protected:
 
 
 };
-	
+

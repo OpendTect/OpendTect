@@ -81,7 +81,7 @@ bool uiViewer3DScalingTab::acceptOK()
 	return false;
 
     if ( useclipfld_->getIntValue() && saveAsDefault() )
-	ddpars_.vd_.mappersetup_.range_ = vwr_.getDataRange(false);
+	ddpars_.vd_.mappersetup_->setRange( vwr_.getDataRange(false) );
 
     IOPar flatviewpar;
     ddpars_.fillPar( flatviewpar );

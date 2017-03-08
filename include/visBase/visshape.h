@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visobject.h"
 #include "indexedshape.h"
 #include "draw.h"
@@ -62,7 +61,7 @@ public:
 protected:
 				Shape();
     virtual			~Shape();
-    
+
     Material*			material_;
 
     static const char*		sKeyOnOff();
@@ -77,7 +76,7 @@ mExpClass(visBase) VertexShape : public Shape
     class NodeCallbackHandler;
 
 public:
-    
+
     static VertexShape*	create()
 			mCreateDataObj(VertexShape);
 
@@ -98,12 +97,12 @@ public:
 			 scenegraph node to take effect. */
 
     virtual void	setDisplayTransformation( const mVisTrans* );
-    			/*!<\note The transformation is forwarded to the
-			     the coordinates, if you change coordinates, 
+			/*!<\note The transformation is forwarded to the
+			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.  */
     const mVisTrans*	getDisplayTransformation() const;
-    			/*!<\note Direcly relayed to the coordinates */
-    
+			/*!<\note Direcly relayed to the coordinates */
+
     void		dirtyCoordinates();
 
     void		addPrimitiveSet(Geometry::PrimitiveSet*);
@@ -137,10 +136,10 @@ public:
     void		forceRedraw(bool=true);
 
 protected:
-    			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
+			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
 				     bool creategeode );
-    			~VertexShape();
-    
+			~VertexShape();
+
     void		setupOsgNode();
 
     virtual void	addPrimitiveSetToScene(osg::PrimitiveSet*);
@@ -174,7 +173,7 @@ protected:
 
     Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
 
-    Threads::Lock 				lock_;
+    Threads::Lock				lock_;
 						/*!<lock protects primitiveset
 						and osg color array*/
     ObjectSet<Geometry::PrimitiveSet>		primitivesets_;
@@ -182,14 +181,14 @@ protected:
 };
 
 #undef mDeclSetGetItem
-    
-    
-    
+
+
+
 class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 {
     Geometry::PrimitiveSet* doCreate( bool, bool );
 };
-    
+
 
 
 }

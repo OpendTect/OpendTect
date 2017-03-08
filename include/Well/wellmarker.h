@@ -40,10 +40,7 @@ public:
 			Marker(LevelID,ZType);
 			~Marker();
 			mDeclInstanceCreatedNotifierAccess(Marker);
-			mDeclAbstractMonitorableAssignment(Marker);
-    bool		operator ==(const Marker&) const;
-    bool		operator !=(const Marker& oth) const
-			{ return !( *this == oth ); }
+			mDeclMonitorableAssignment(Marker);
 
     bool                operator >(const Marker&) const;
 
@@ -94,9 +91,9 @@ public:
 
 
 			MarkerSet();
-			mDeclInstanceCreatedNotifierAccess(MarkerSet);
-			mDeclAbstractMonitorableAssignment(MarkerSet);
 			~MarkerSet();
+			mDeclInstanceCreatedNotifierAccess(MarkerSet);
+			mDeclMonitorableAssignment(MarkerSet);
 
     MarkerID		add(const Marker&);
     Marker		get(MarkerID) const;

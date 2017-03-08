@@ -140,6 +140,8 @@ class StreamProviderPreLoadDataPack : public BufferDataPack
 {
 public:
 
+    mDeclMonitorableAssignment(StreamProviderPreLoadDataPack);
+
 StreamProviderPreLoadDataPack( char* b, od_int64 s,
 				const char* nm, const char* ki )
     : BufferDataPack(b,s,"Pre-loaded file")
@@ -159,7 +161,32 @@ void dumpInfo( IOPar& iop ) const
 };
 
 
+StreamProviderPreLoadDataPack::StreamProviderPreLoadDataPack(
+				const StreamProviderPreLoadDataPack& oth )
+    : BufferDataPack(oth)
+{
+    copyClassData( oth );
+}
+
+
+mImplMonitorableAssignment( StreamProviderPreLoadDataPack, BufferDataPack )
+
+
+void StreamProviderPreLoadDataPack::copyClassData(
+			const StreamProviderPreLoadDataPack& oth )
+{
+    keyid_ = oth.keyid_;
+}
+
+Monitorable::ChangeType StreamProviderPreLoadDataPack::compareClassData(
+			const StreamProviderPreLoadDataPack& oth ) const
+{
+    mDeliverYesNoMonitorableCompare( keyid_ == oth.keyid_ );
+}
+
+
 #define mBytesToMB(bytes) ( bytes / (1024*1024) )
+
 class StreamProviderPreLoadedData : public Executor
 { mODTextTranslationClass(StreamProviderPreLoadedData);
 public:
@@ -182,8 +209,8 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
     {
 	od_int64 bufsz = File::getKbSize( nm ) + 1;
 	bufsz *= 1024;
-	char* buf = 0;
-	mTryAlloc(buf,char [ bufsz ])
+
+	char* buf = BufferDataPack::createBuf( bufsz );
 	if ( !buf )
 	{
 	    msg_ = tr("Failed to allocate %1 MB of memory")

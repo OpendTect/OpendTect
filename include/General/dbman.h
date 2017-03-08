@@ -115,7 +115,7 @@ private:
 
 			DBMan();
 			~DBMan();
-    DBMan*		clone() const	    { return 0; }
+    DBMan*		getClone() const	    { return 0; }
 
     uiRetVal		handleNewSurvDir();
     void		leaveSurvey();
@@ -160,7 +160,7 @@ public:
 
 			// To change to another survey, probably not your thing:
     uiRetVal		setDataSource(const char* fullpath_of_survey_dir,
-	    				bool forcerefresh=false);
+					bool forcerefresh=false);
 			//!< Plugins need to use uiDataRootSel::setSurveyDirTo
     uiRetVal		setDataSource(const IOPar&,bool forcerefresh=false);
 			//!< uses sKey::dataRoot() and sKey::Survey()

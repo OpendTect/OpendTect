@@ -50,9 +50,9 @@ public:
 
     void			setMarkerColor(MarkerColor,bool update=true);
     MarkerColor			getMarkerColor() const;
-    void			setColTabMapper(const ColTab::MapperSetup&,
-						bool update=true);
-    const ColTab::MapperSetup&	getColTabMapper() const;
+    void			setColMapperSetup(const ColTab::MapperSetup&,
+						     bool update=true);
+    ConstRefMan<ColTab::MapperSetup> getColTabMapper() const;
     void			setColTabSequence(const ColTab::Sequence&,
 						  bool update=true);
     virtual const ColTab::Sequence* getColTabSequence(int ch=0) const;
@@ -60,7 +60,8 @@ public:
 						  TaskRunner*);
     virtual bool		canSetColTabSequence() const { return true; }
     virtual int			nrAttribs() const { return 1; }
-    virtual const ColTab::MapperSetup* getColTabMapperSetup(int,int) const;
+    virtual ConstRefMan<ColTab::MapperSetup>
+				getColTabMapperSetup(int,int) const;
     virtual void		setPixelDensity(float);
 
     enum DisplayMode		{ ZeroOffset, FullOnSections,
@@ -137,7 +138,7 @@ protected:
 
     MarkerColor				markercolor_;
     ColTab::Mapper			ctabmapper_;
-    ColTab::Sequence			ctabsequence_;
+    ConstRefMan<ColTab::Sequence>	ctabsequence_;
     OD::MarkerStyle3D			markerstyle_;
     visBase::MarkerSet*			eventmarkerset_;
     mutable Threads::Lock		lock_;

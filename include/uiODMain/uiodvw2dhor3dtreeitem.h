@@ -49,10 +49,12 @@ mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory
     : public uiODVw2DTreeItemFactory
 {
 public:
+
     const char*		name() const		{ return typeid(*this).name(); }
     uiTreeItem*         create() const
 			{ return new uiODVw2DHor3DParentTreeItem(); }
     uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+
 };
 
 
@@ -89,4 +91,5 @@ protected:
 
     Vw2DHorizon3D*	horview_;
     void		emobjAbtToDelCB(CallBacker*);
+
 };

@@ -27,16 +27,14 @@ class SeisTrcBuf;
 namespace PreStack
 {
 
-/*!
-\brief PreStack gather.
-*/
+/*!\brief PreStack gather. */
 
 mExpClass(PreStackProcessing) Gather : public FlatDataPack
 { mODTextTranslationClass(Gather)
 public:
 				Gather();
-				Gather(const Gather&);
 				Gather(const FlatPosData&);
+				mDeclMonitorableAssignment(Gather);
 
     bool			is3D() const	{ return !trckey_.is2D(); }
 
@@ -67,7 +65,7 @@ public:
     void			setTrcKey(const TrcKey& tk )
 				{ trckey_ = tk; }
 
-    const DBKey&		getStoredID() const	{ return storagemid_; }
+    const DBKey&		getStoredID() const	{ return storageid_; }
     const StepInterval<float>&	zRange() const		{ return zrg_; }
     void			setZRange( const StepInterval<float>& zrg )
 				{ zrg_ = zrg; }
@@ -90,9 +88,9 @@ public:
     bool			zIsTime() const		{ return zit_; }
 
 
-    const DBKey&		getVelocityID() const	{ return velocitymid_; }
-    const DBKey&		getStorageID() const    { return storagemid_; }
-    const DBKey&		getStaticsID() const	{ return staticsmid_; }
+    const DBKey&		getVelocityID() const	{ return velocityid_; }
+    const DBKey&		getStorageID() const    { return storageid_; }
+    const DBKey&		getStaticsID() const	{ return staticsid_; }
 
     static bool			getVelocityID(const DBKey& stor,DBKey& vid);
 
@@ -131,11 +129,12 @@ public:
 				{ trckey_.setPosition( bid ); }
 
 protected:
+
 				~Gather();
 
-    DBKey			velocitymid_;
-    DBKey			storagemid_;
-    DBKey			staticsmid_;
+    DBKey			velocityid_;
+    DBKey			storageid_;
+    DBKey			staticsid_;
     bool			offsetisangle_;
     bool			iscorr_;
 
@@ -146,21 +145,20 @@ protected:
     StepInterval<float>		zrg_;
 
 public:
+
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
 					    bool snapzrangetosi=false);
 };
 
 
-/*!
-\brief A DataPack containing an objectset of gathers.
-*/
+/*!\brief A DataPack containing an objectset of gathers. */
 
 mExpClass(PreStackProcessing) GatherSetDataPack : public DataPack
 {
 public:
 				GatherSetDataPack(const char* ctgery,
 						  const ObjectSet<Gather>&);
-				~GatherSetDataPack();
+				mDeclMonitorableAssignment(GatherSetDataPack);
 
     void			fill(Array2D<float>&,int offsetidx) const;
     void			fill(SeisTrcBuf&,int offsetidx) const;
@@ -177,9 +175,13 @@ public:
 				{ gathers_ = gathers;}
 
 protected:
+
+				~GatherSetDataPack();
+
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;
 
     RefObjectSet<Gather>	gathers_;
+
 };
 
 } // namespace PreStack

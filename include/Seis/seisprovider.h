@@ -58,6 +58,7 @@ public:
     static Provider*	create(Seis::GeomType);
     static Provider*	create(const DBKey&,uiRetVal* uirv=0);
     static Provider*	create(const IOPar&,uiRetVal* uirv=0);
+    static DBKey	dbKey(const IOPar&);
     virtual		~Provider();
 
     uiRetVal		setInput(const DBKey&);
@@ -66,8 +67,9 @@ public:
     bool		is2D() const	{ return Seis::is2D(geomType()); }
     bool		isPS() const	{ return Seis::isPS(geomType()); }
     BufferString	name() const;
+    Pos::GeomID		firstGeomID() const	{ return curGeomID(); }
     DBKey		dbKey() const		{ return dbky_; }
-    Pos::GeomID		curGeomID() const	{ return doGetCurGeomID(); }
+    ZSampling		getZRange() const	{ return doGetZRange(); }
     uiRetVal		getComponentInfo(BufferStringSet&,
 					 TypeSet<Seis::DataType>* dts=0) const;
     int			nrOffsets() const; //!< at a representative location
@@ -79,13 +81,19 @@ public:
     void		selectComponents(const TypeSet<int>&);
     void		forceFPData(bool yn=true);
     void		setReadMode(ReadMode);
+    uiRetVal		fillPar(IOPar&) const;
     uiRetVal		usePar(const IOPar&);
 
+    bool		isPresent( const TrcKey& tk ) const
+			{ return doGetIsPresent( tk ); }
     uiRetVal		getNext(SeisTrc&) const;
     uiRetVal		getNextGather(SeisTrcBuf&) const;
     uiRetVal		get(const TrcKey&,SeisTrc&) const;
     uiRetVal		getGather(const TrcKey&,SeisTrcBuf&) const;
 
+    const TypeSet<int>& getSelectedComponents() const	{ return selcomps_;}
+
+    Pos::GeomID		curGeomID() const	{ return doGetCurGeomID(); }
     od_int64		nrDone() const			{ return nrdone_; }
     od_int64		totalNr() const;
 
@@ -123,6 +131,7 @@ protected:
 
     virtual od_int64	getTotalNrInInput() const			= 0;
     virtual void	doReset(uiRetVal&) const			= 0;
+    virtual void	doFillPar(IOPar&,uiRetVal&) const;
     virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
 
     virtual int		gtNrOffsets() const			{ return 1; }
@@ -130,6 +139,8 @@ protected:
 					   TypeSet<Seis::DataType>&) const;
 				//!< def impl: { sKey::Data(), UnknownData }
     virtual Pos::GeomID doGetCurGeomID() const				= 0;
+    virtual ZSampling	doGetZRange() const				= 0;
+    virtual bool	doGetIsPresent(const TrcKey&) const;
 
 			    // define at least either SeisTrc or SeisTrcBuf fns
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
@@ -160,8 +171,11 @@ protected:
 			Provider3D()					{}
 
     virtual od_int64	getTotalNrInInput() const;
+    virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
+			{ Provider::doUsePar( iop, uirv ); }
     virtual Pos::GeomID doGetCurGeomID() const
 			{ return Survey::GM().default3DSurvID(); }
+    virtual ZSampling	doGetZRange() const;
 
 };
 
@@ -188,8 +202,11 @@ protected:
 			Provider2D()					{}
 
     virtual od_int64	getTotalNrInInput() const;
+    virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
+			{ Provider::doUsePar( iop, uirv ); }
     virtual Pos::GeomID doGetCurGeomID() const
 			{ return geomID( curLineIdx() ); }
+    virtual ZSampling	doGetZRange() const;
 
 };
 

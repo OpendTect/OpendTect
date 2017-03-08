@@ -161,13 +161,13 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
 		zval += zshift;
 	    else
 	    {
-		zval = zaxistransform_->transform( BinIDValue(bid,zval) );
+		zval = zaxistransform_->transformTrc( bid, zval );
 		if ( mIsUdf(zval) )
 		    continue;
 
 		zval += zshift;
 
-		zval = zaxistransform_->transformBack( BinIDValue(bid,zval) );
+		zval = zaxistransform_->transformTrcBack( bid, zval );
 		if ( mIsUdf(zval) )
 		    continue;
 	    }

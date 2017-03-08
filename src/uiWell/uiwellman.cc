@@ -54,10 +54,10 @@ mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
 uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(
-                   uiStrings::phrManage( uiStrings::sWell(mPlural)),mNoDlgTitle,
-				    mODHelpKey(mWellManHelpID))
-				.nrstatusflds(1).modal(false),
-	           WellTranslatorGroup::ioContext() )
+		uiStrings::phrManage( uiStrings::sWell(mPlural)),mNoDlgTitle,
+				      mODHelpKey(mWellManHelpID))
+		     .nrstatusflds(1).modal(false),
+		   WellTranslatorGroup::ioContext() )
     , d2tbut_(0)
     , csbut_(0)
     , iswritable_(true)
@@ -65,10 +65,19 @@ uiWellMan::uiWellMan( uiParent* p )
     createDefaultUI( false, true, true );
     setPrefWidth( 50 );
 
+    if ( SI().zIsTime() )
+    {
+	uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
+	manipgrp->addButton( "z2t",
+			tr("Set Depth to Time Model from other Well"),
+			mCB(this,uiWellMan,bulkD2TCB) );
+    }
+
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
     uiListBox::Setup su( OD::ChooseAtLeastOne, uiStrings::sLogs(),
 			 uiListBox::AboveMid );
     logsfld_ = new uiListBox( logsgrp_, su );
+    logsfld_->setHSzPol( uiObject::Wide );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
 						 OD::Horizontal );
@@ -186,6 +195,17 @@ void uiWellMan::getCurrentWells()
     }
 
     deepRef( curwds_ );
+}
+
+
+void uiWellMan::bulkD2TCB( CallBacker* )
+{
+    uiSetD2TFromOtherWell dlg( this );
+    dlg.setSelected( getSelWells() );
+    if ( !dlg.go() )
+	return;
+
+    // update display?
 }
 
 

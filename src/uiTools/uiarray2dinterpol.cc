@@ -58,7 +58,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 
     if ( maxholesz )
     {
-	maxholeszfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+	maxholeszfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 					FloatInpSpec() );
 	maxholeszfld_->setWithCheck( true );
 	if ( prevfld )
@@ -321,8 +321,10 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     , cornersfirst_(false)
     , stepsz_(1)
 {
-    radiusfld_ = new  uiGenInput( this, uiStrings::sEmptyString(), 
+    radiusfld_ = new  uiGenInput( this, uiStrings::sEmptyString(),
 				  FloatInpSpec() );
+    radiusfld_->setWithCheck( true );
+    radiusfld_->setChecked( false );
 
     parbut_ = new uiPushButton( this, tr("Parameters"),
 		    mCB(this,uiInverseDistanceArray2DInterpol,doParamDlg),
@@ -340,7 +342,9 @@ void uiInverseDistanceArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
     if ( !ptr )
 	return;
 
-    radiusfld_->setValue( ptr->getSearchRadius() );
+    const float radius = ptr->getSearchRadius();
+    radiusfld_->setValue( radius );
+    radiusfld_->setChecked( !mIsUdf(radius) );
 
     nrsteps_ = ptr->getNrSteps();
     cornersfirst_ = ptr->getCornersFirst();
@@ -378,7 +382,7 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
     useneighborfld_->activated.notify(
 	    mCB(this,uiTriangulationArray2DInterpol,intCB) );
 
-    maxdistfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    maxdistfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 				  FloatInpSpec() );
     maxdistfld_->setWithCheck( true );
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
@@ -540,8 +544,7 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
 	{ delete result_; result_ = 0; }
 
     const float radius = radiusfld_->getFValue(0);
-
-    if ( mIsUdf(radius) || radius<=0 )
+    if ( radiusfld_->isChecked() && (mIsUdf(radius) || radius<=0 ) )
     {
 	uiMSG().error(uiStrings::phrEnter(tr("a positive value for the search "
 			 "radius\n(or uncheck the field)")) );

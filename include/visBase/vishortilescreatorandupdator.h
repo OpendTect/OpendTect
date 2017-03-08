@@ -7,9 +7,10 @@ ________________________________________________________________________
  Date:		March 2009
 ________________________________________________________________________
 -*/
-// this header file only be used in the classes related to Horzonsection . 
+// this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
+#include "visbasecommon.h"
 #include "typeset.h"
 #include "geomelement.h"
 #include "rowcol.h"
@@ -32,7 +33,7 @@ namespace visBase
 
 class HorTilesCreatorAndUpdator : public RefCount::Referenced
 {
-public: 
+public:
             HorTilesCreatorAndUpdator(HorizonSection*);
 
     void    updateTiles(const TypeSet<GeomPosID>*,TaskRunner*);

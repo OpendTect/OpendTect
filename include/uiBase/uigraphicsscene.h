@@ -32,11 +32,16 @@ class uiPolyLineItem;
 class uiRectItem;
 class uiObjectItem;
 
-mExpClass(uiBase) uiGraphicsScene : public NamedMonitorable
+mExpClass(uiBase) uiGraphicsScene : public NamedCallBacker
 {
 public:
 				uiGraphicsScene(const char*);
 				~uiGraphicsScene();
+
+    double			maxX() const;
+    double			maxY() const;
+    int				nrPixX() const;
+    int				nrPixY() const;
 
     inline void			setEmpty()	    { removeAllItems(); }
     void			removeAllItems();
@@ -73,8 +78,6 @@ public:
 
     Notifier<uiGraphicsScene>	ctrlPPressed;
     Notifier<uiGraphicsScene>	ctrlCPressed;
-    double			width() const;
-    double			height() const;
 
     void			saveAsImage(const char*,int,int,int);
     void			saveAsPDF(const char*,int w,int h,int r);
@@ -119,13 +122,19 @@ protected:
 
     int				queueid_;
     float			pixeldensity_;
+
+public:
+
+    mDeprecated double		width() const	    { return maxX(); }
+    mDeprecated double		height() const	    { return maxY(); }
+
 };
 
 
 template <class T>
 inline T* uiGraphicsScene::addItem( T* itm )
 {
-    return (T*) doAddItem( itm );
+    return (T*)doAddItem( itm );
 }
 
 

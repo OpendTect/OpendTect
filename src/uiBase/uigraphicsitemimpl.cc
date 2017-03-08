@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
 
 #include "angles.h"
 #include "odgraphicsitem.h"
@@ -397,6 +398,33 @@ void uiPixmapItem::setPixmap( const uiPixmap& pixmap )
 void uiPixmapItem::setPaintInCenter( bool yn )
 {
     qpixmapitem_->setPaintInCenter( yn );
+}
+
+
+
+uiSize uiPixmapItem::pixmapSize() const
+{
+    QPixmap pm( qpixmapitem_->pixmap() );
+    return uiSize( pm.width(), pm.height() );
+}
+
+
+void uiPixmapItem::scaleToScene()
+{
+    if ( !scene_ )
+	{ pErrMsg("Cannot scale to scene without scene"); return; }
+    setPaintInCenter( false );
+
+    QPixmap pm( qpixmapitem_->pixmap() );
+    const int curwdth = pm.width(); const int curhght = pm.height();
+    const int newwdth = scene_->nrPixX(); const int newhght = scene_->nrPixY();
+
+    if ( curwdth == newwdth && curhght == newhght )
+	return;
+
+    QPixmap newpm = pm.scaled( newwdth, newhght,
+		       Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    qpixmapitem_->setPixmap( newpm );
 }
 
 
@@ -1149,4 +1177,56 @@ QGraphicsItem* uiCurvedItem::mkQtObj()
     qppath_ = new QPainterPath();
     qpathitem_ = new QGraphicsPathItem();
     return qpathitem_;
+}
+
+
+uiManipHandleItem::uiManipHandleItem( const Setup& su, int pixpos, int zval )
+    : uiGraphicsItemGroup(true)
+{
+    init( su, pixpos, zval );
+}
+
+
+uiManipHandleItem::uiManipHandleItem( const Setup& su, double fpos, int zval )
+    : uiGraphicsItemGroup(true)
+{
+    init( su, mNINT32(fpos), zval );
+}
+
+
+void uiManipHandleItem::init( const Setup& su, int pixpos, int zval )
+{
+    centeritm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, 1, zval );
+    bodyitm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_,
+		       zval-1 );
+    shadeitm1_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+2,
+			 zval-2 );
+    shadeitm2_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+4,
+			 zval-3 );
+    setPenColor( su.color_ );
+}
+
+
+uiLineItem* uiManipHandleItem::mkLine( bool ishor, int pos,
+			int start, int stop, int lwdth, int zval )
+{
+    uiLineItem* li = new uiLineItem;
+    li->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,lwdth) );
+    if ( ishor )
+	li->setLine( start, pos, stop, pos );
+    else
+	li->setLine( pos, start, pos, stop );
+    li->setZValue( zval );
+
+    add( li );
+    return li;
+}
+
+
+void uiManipHandleItem::setPenColor( const Color& basecol, bool )
+{
+    centeritm_->setPenColor( basecol.complementaryColor() );
+    bodyitm_->setPenColor( basecol );
+    shadeitm1_->setPenColor( basecol.lighter( 1.0f ) );
+    shadeitm2_->setPenColor( basecol.lighter( 3.0f ) );
 }

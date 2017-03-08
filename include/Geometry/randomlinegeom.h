@@ -11,9 +11,9 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
+#include "namedmonitorable.h"
 #include "binid.h"
 #include "dbkey.h"
-#include "namedobj.h"
 #include "notify.h"
 #include "ranges.h"
 #include "refcount.h"

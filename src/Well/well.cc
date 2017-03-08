@@ -122,6 +122,22 @@ void Well::Info::copyClassData( const Info& oth )
 }
 
 
+Monitorable::ChangeType Well::Info::compareClassData( const Info& oth ) const
+{
+    mStartMonitorableCompare();
+    mHandleMonitorableCompare( uwid_, cUWIDChange() );
+    mHandleMonitorableCompare( oper_, cInfoChange() );
+    mHandleMonitorableCompare( state_, cInfoChange() );
+    mHandleMonitorableCompare( county_, cInfoChange() );
+    mHandleMonitorableCompare( welltype_, cTypeChange() );
+    mHandleMonitorableCompare( surfacecoord_, cPosChg() );
+    mHandleMonitorableCompare( replvel_, cVelChg() );
+    mHandleMonitorableCompare( groundelev_, cElevChg() );
+    mHandleMonitorableCompare( source_, cSourceChg() );
+    mDeliverMonitorableCompare();
+}
+
+
 int Well::Info::legacyLogWidthFactor()
 {
    const int inlnr = SI().inlRange( true ).nrSteps() + 1;
@@ -228,6 +244,20 @@ void Well::Data::copyClassData( const Data& oth )
     csmodel_ = oth.csmodel_;
     disp2d_ = oth.disp2d_;
     disp3d_ = oth.disp3d_;
+}
+
+
+Monitorable::ChangeType Well::Data::compareClassData( const Data& oth ) const
+{
+    mDeliverYesNoMonitorableCompare(
+    info_ == oth.info_ &&
+    track_ == oth.track_ &&
+    d2tmodel_ == oth.d2tmodel_ &&
+    markers_ == oth.markers_ &&
+    logs_ == oth.logs_ &&
+    csmodel_ == oth.csmodel_ &&
+    disp2d_ == oth.disp2d_ &&
+    disp3d_ == oth.disp3d_ );
 }
 
 

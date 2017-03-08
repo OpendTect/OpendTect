@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uiodvw2demtreeitem.h"
 
-#include "uitreeitemmanager.h"
+#include "uitreeitem.h"
 #include "uiodapplmgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uiempartserv.h"

@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "uiodvw2dvariabledensity.h"
 #include "uiodvw2dwigglevararea.h"
 #include "uitaskrunner.h"
-#include "uitreeitemmanager.h"
+#include "uitreeitem.h"
 #include "uivispartserv.h"
 #include "zaxistransform.h"
 
@@ -597,13 +597,13 @@ void uiODViewer2DMgr::fillProbeFromExisting( Probe& probe,
 	AttribProbeLayer* attrlayer = new AttribProbeLayer();
 	attrlayer->setSelSpec( vwr2d.selSpec(iswva) );
 	const uiFlatViewer& vwr = vwr2d.viewwin()->viewer( 0 );
-	const ColTab::MapperSetup& mapper =
-	    iswva ? vwr.appearance().ddpars_.wva_.mappersetup_
-		  : vwr.appearance().ddpars_.vd_.mappersetup_;
+	const ColTab::MapperSetup& mapsu =
+	    iswva ? *vwr.appearance().ddpars_.wva_.mappersetup_
+		  : *vwr.appearance().ddpars_.vd_.mappersetup_;
 	if ( !iswva )
-	    attrlayer->setColTab(
-		    ColTab::Sequence(vwr.appearance().ddpars_.vd_.ctab_) );
-	attrlayer->setColTabMapper( mapper );
+	    attrlayer->setColSeq( ColTab::SeqMGR().getAny(
+				  vwr.appearance().ddpars_.vd_.colseqname_) );
+	attrlayer->setMapperSetup( mapsu );
 	probe.addLayer( attrlayer );
     }
 }

@@ -683,7 +683,7 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
     MPE::engine().setActivePath( randfdp ? &randfdp->getPath() : 0 );
     MPE::engine().setActiveRandomLineID( randfdp ? randfdp->getRandomLineID()
 						 : -1 );
-    notifystopper.restore();
+    notifystopper.enableNotification();
 
     seedpicker.setSelSpec( as );
 

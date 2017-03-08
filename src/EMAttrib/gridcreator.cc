@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "seis2ddata.h"
 #include "seisrandlineto2d.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seiswrite.h"
@@ -72,7 +72,7 @@ protected:
     od_int64		totalnr_;
     uiString		errmsg_;
 
-    SeisTrcReader*	rdr_;
+    Seis::Provider*	prov_;
     SeisTrcWriter*	wrr_;
 };
 
@@ -83,9 +83,12 @@ Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
     , nrdone_(0)
     , totalnr_(cs.hsamp_.totalNr())
 {
-    rdr_ = new SeisTrcReader( &input );
-    rdr_->prepareWork();
-    rdr_->setSelData( new Seis::RangeSelData(cs) );
+    uiRetVal uirv;
+    prov_ = Seis::Provider::create( input.key(), &uirv );
+    if ( prov_ )
+	prov_->setSelData( new Seis::RangeSelData(cs) );
+    else
+	errmsg_ = uirv;
 
     wrr_ = new SeisTrcWriter( &output );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
@@ -99,7 +102,7 @@ Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
 
 Seis2DLineCreator::~Seis2DLineCreator()
 {
-    delete rdr_;
+    delete prov_;
     delete wrr_;
 }
 
@@ -112,19 +115,16 @@ uiString Seis2DLineCreator::nrDoneText() const
 
 int Seis2DLineCreator::nextStep()
 {
-    SeisTrc trc;
-    const int res = rdr_->get( trc.info() );
-    if ( res == -1 )
-	{ errmsg_ = rdr_->errMsg(); return ErrorOccurred(); }
-    if ( res == 0 )
-	return Finished();
-    if ( res == 2 )
-	return MoreToDo();
+    if ( !prov_ ) return ErrorOccurred();
 
-    if ( !rdr_->get(trc) )
+    SeisTrc trc;
+    const uiRetVal uirv = prov_->getNext( trc );
+    if ( !uirv.isOK() )
     {
-	errmsg_ = tr("Error reading input trace\n");
-	errmsg_.append( rdr_->errMsg() );
+	if ( isFinished(uirv) )
+	    return Finished();
+
+	errmsg_ = uirv;
 	return ErrorOccurred();
     }
 

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "binidvalue.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
+#include "datadistribution.h"
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "emhorizon3d.h"
@@ -310,8 +311,8 @@ HorizonDisplay::HorizonDisplay()
 	      s3dgeom_->crlDistance() * s3dgeom_->crlRange().width() );
 
     as_ += new TypeSet<Attrib::SelSpec>( 1, Attrib::SelSpec() );
-    coltabmappersetups_ += ColTab::MapperSetup();
-    coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
+    coltabmappersetups_ += new ColTab::MapperSetup;
+    coltabsequences_ += ColTab::SeqMGR().getDefault();
 
     TypeSet<float> shift;
     shift += 0.0;
@@ -342,9 +343,6 @@ HorizonDisplay::~HorizonDisplay()
 {
     deepErase(as_);
     unRefAndZeroPtr( intersectionlinematerial_ );
-
-    coltabmappersetups_.erase();
-    coltabsequences_.erase();
 
     setSceneEventCatcher( 0 );
     curshiftidx_.erase();
@@ -693,18 +691,18 @@ bool HorizonDisplay::addAttrib()
     enabled_ += true;
     shifts_ += new TypeSet<float>;
     dispdatapackids_ += new TypeSet<DataPack::ID>;
-    coltabmappersetups_ += ColTab::MapperSetup();
-    coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
+    coltabmappersetups_ += new ColTab::MapperSetup;
+    coltabsequences_ += ColTab::SeqMGR().getDefault();
 
     const int curchannel = coltabmappersetups_.size()-1;
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	sections_[idx]->addChannel();
 	sections_[idx]->setColTabSequence( curchannel,
-		coltabsequences_[curchannel] );
+		*coltabsequences_[curchannel] );
 
 	sections_[idx]->setColTabMapperSetup( curchannel,
-		coltabmappersetups_[curchannel], 0 );
+		*coltabmappersetups_[curchannel], 0 );
     }
 
     return true;
@@ -736,7 +734,7 @@ bool HorizonDisplay::removeAttrib( int channel )
     for ( int chan=channel; chan<nrAttribs(); chan++ )
     {
 	for ( int idx=0; idx<sections_.size(); idx++ )
-	    sections_[idx]->setColTabSequence( chan, coltabsequences_[chan] );
+	    sections_[idx]->setColTabSequence( chan, *coltabsequences_[chan] );
     }
 
     return true;
@@ -851,24 +849,30 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> defs;
-    DataPointSet positions( pts, defs, false, true );
+    RefMan<DataPointSet> positions = new DataPointSet( pts, defs, false, true );
+
+    const DataColDef siddef( sKeySectionID() );
+    if ( positions->dataSet().findColDef(siddef,PosVecDataSet::NameExact)==-1 )
+	positions->dataSet().add( new DataColDef(siddef) );
 
     const DataColDef zvalsdef( sKeyZValues() );
-    if ( positions.dataSet().findColDef(zvalsdef,PosVecDataSet::NameExact)==-1 )
-	positions.dataSet().add( new DataColDef(zvalsdef) );
+    if ( positions->dataSet().findColDef(zvalsdef,PosVecDataSet::NameExact)
+		< 0 )
+	positions->dataSet().add( new DataColDef(zvalsdef) );
 
-    getRandomPos( positions, 0 );
+    getRandomPos( *positions, 0 );
 
-    if ( !positions.size() ) return;
+    if ( !positions->size() ) return;
 
-    BinIDValueSet& bivs = positions.bivSet();
+    BinIDValueSet& bivs = positions->bivSet();
     if ( bivs.nrVals()!=3 )
     {
 	pErrMsg( "Hmm" );
 	return;
     }
 
-    int zcol= positions.dataSet().findColDef(zvalsdef,PosVecDataSet::NameExact);
+    int zcol= positions->dataSet().findColDef( zvalsdef,
+						PosVecDataSet::NameExact );
     if ( zcol==-1 )
 	zcol = 2;
 
@@ -885,15 +889,16 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	    vals[zcol] = vals[0];
     }
 
-    setRandomPosData( channel, &positions, 0 );
+    setRandomPosData( channel, positions, 0 );
 
     if ( !attribwasdepth )
     {
 	BufferString seqnm;
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
-	ColTab::Sequence seq( seqnm );
-	setColTabSequence( channel, seq, 0 );
-	setColTabMapperSetup( channel, ColTab::MapperSetup(), 0 );
+	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
+	setColTabSequence( channel, *seq, 0 );
+	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
+	setColTabMapperSetup( channel, *mapsetup, 0 );
     }
 }
 
@@ -977,8 +982,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     if ( sections_[0]->getColTabMapperSetup(channel) )
     {
 	coltabmappersetups_[channel] =
-	    *sections_[0]->getColTabMapperSetup( channel );
-	coltabmappersetups_[channel].triggerRangeChange();
+	    sections_[0]->getColTabMapperSetup( channel )->clone();
     }
 
     validtexture_ = true;
@@ -1172,8 +1176,8 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tskr )
 
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
-	    surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
-	    surf->setColTabSequence( idx, coltabsequences_[idx] );
+	    surf->setColTabMapperSetup( idx, *coltabmappersetups_[idx], 0 );
+	    surf->setColTabSequence( idx, *coltabsequences_[idx] );
 	    surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
 	}
 
@@ -1420,19 +1424,19 @@ void HorizonDisplay::updateAuxData()
 	const int cidx = getChannelIndex( auxdatanm );
 	if ( cidx==-1 ) continue;
 
-	DataPointSet dps( false, true );
-	dps.dataSet().add( new DataColDef(sKeySectionID()) );
-	dps.dataSet().add( new DataColDef(auxdatanm) );
+	RefMan<DataPointSet> dps = new DataPointSet( false, true );
+	dps->dataSet().add( new DataColDef(sKeySectionID()) );
+	dps->dataSet().add( new DataColDef(auxdatanm) );
 
 	BinIDValueSet::SPos pos;
 	while ( auxdata[0]->next(pos) )
 	{
 	    auxvals[2] = auxdata[0]->getVal( pos, idx );
-	    dps.bivSet().add( auxdata[0]->getIdxPair(pos), auxvals );
+	    dps->bivSet().add( auxdata[0]->getIdxPair(pos), auxvals );
 	}
 
-	dps.dataChanged();
-	setRandomPosData( cidx, &dps, 0 );
+	dps->dataChanged();
+	setRandomPosData( cidx, dps, 0 );
 	selectTexture( cidx, 0 );
     }
 }
@@ -1499,8 +1503,8 @@ const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
        return 0;
 
     return sections_.size()
-	? sections_[0]->getColTabSequence( channel )
-	: &coltabsequences_[channel];
+	? &sections_[0]->getColTabSequence( channel )
+	: coltabsequences_[channel].ptr();
 }
 
 
@@ -1520,7 +1524,7 @@ void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq,
     if ( chan<0 || chan>=nrAttribs() )
        return;
 
-    coltabsequences_[chan] = seq;
+    coltabsequences_[chan] = ConstRefMan<ColTab::Sequence>( &seq );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setColTabSequence( chan, seq );
@@ -1534,7 +1538,7 @@ void HorizonDisplay::setColTabMapperSetup( int channel,
        return;
 
     if ( coltabmappersetups_.validIdx(channel) )
-	coltabmappersetups_[channel] = ms;
+	*coltabmappersetups_[channel] = ms;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setColTabMapperSetup( channel, ms, tskr );
@@ -1543,28 +1547,27 @@ void HorizonDisplay::setColTabMapperSetup( int channel,
     //works for single sections though.
     if ( sections_.size() && sections_[0]->getColTabMapperSetup( channel ) )
     {
-	coltabmappersetups_[channel] =
-	    *sections_[0]->getColTabMapperSetup( channel );
+	*coltabmappersetups_[channel] =
+		    *sections_[0]->getColTabMapperSetup( channel );
     }
 }
 
 
-const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch,
+ConstRefMan<ColTab::MapperSetup> HorizonDisplay::getColTabMapperSetup( int ch,
 								 int ) const
 {
     if ( ch<0 || ch>=nrAttribs() )
        return 0;
 
-    return &coltabmappersetups_[ch];
+    return coltabmappersetups_[ch];
 }
 
 
-const TypeSet<float>* HorizonDisplay::getHistogram( int attrib ) const
+const visBase::DistribType& HorizonDisplay::getDataDistribution(
+						    int attrib ) const
 {
-    if ( !sections_.size() )
-	return 0;
-
-    return sections_[0]->getHistogram( attrib );
+    return sections_.isEmpty() ? DataDistribution<float>::getEmptyDistrib()
+	 : sections_[0]->getDataDistribution( attrib );
 }
 
 
@@ -2373,7 +2376,7 @@ void HorizonDisplay::fillPar( IOPar& par ) const
     par.setYN( sKeyTexture(), usesTexture() );
     par.set( sKeyShift(), getTranslation().z_ );
     par.set( sKeyResolution(), getResolution() );
-    par.set( sKeySurfaceGrid(), displaysSurfaceGrid() );
+    par.setYN( sKeySurfaceGrid(), displaysSurfaceGrid() );
 
     for ( int channel=nrAttribs()-1; channel>=0; channel-- )
     {

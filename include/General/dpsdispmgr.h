@@ -35,24 +35,28 @@ class DataPointSet;
 mClass(General) DataPointSetDisplayProp
 {
 public:
-				DataPointSetDisplayProp(
-					const ColTab::Sequence& cs,
-				        const ColTab::MapperSetup& cm,int id)
-				    : coltab_(cs), coltabmappersu_(cm)
-				    , showsel_(false), dpscolid_(id)	{}
+			DataPointSetDisplayProp(
+				const ColTab::Sequence& cs,
+				const ColTab::MapperSetup& cm,int id)
+			    : coltab_(&cs)
+			    , coltabmappersu_(new ColTab::MapperSetup(cm))
+			    , showsel_(false), dpscolid_(id)	{}
 
-				DataPointSetDisplayProp(
-					const BufferStringSet& nms,
-				        const TypeSet<Color>& cols)
-				    : selgrpnms_(nms), selgrpcols_(cols)
-				    , showsel_(true), dpscolid_(-1)	{}
+			DataPointSetDisplayProp(
+				const BufferStringSet& nms,
+				const TypeSet<Color>& cols)
+			    : selgrpnms_(nms), selgrpcols_(cols)
+			    , showsel_(true), dpscolid_(-1)
+			    , coltab_(ColTab::SeqMGR().getDefault())
+			    , coltabmappersu_(new ColTab::MapperSetup)
+			{}
 
     DataPointSetDisplayProp* clone() const
     {
         if ( showsel_ )
 	    return new DataPointSetDisplayProp( selgrpnms_, selgrpcols_ );
         else
-	    return new DataPointSetDisplayProp(coltab_,coltabmappersu_,
+	    return new DataPointSetDisplayProp(*coltab_,*coltabmappersu_,
 								    dpscolid_);
     }
 
@@ -60,9 +64,9 @@ public:
    bool				showSelected() const	{ return showsel_; }
    const BufferStringSet&	selGrpNames() const	{ return selgrpnms_; }
    const TypeSet<Color>&	selGrpColors() const	{ return selgrpcols_; }
-   const ColTab::Sequence&	colSequence() const	{ return coltab_; }
+   const ColTab::Sequence&	colSequence() const	{ return *coltab_; }
    const ColTab::MapperSetup&	colMapperSetUp() const
-				{ return coltabmappersu_; }
+				{ return *coltabmappersu_; }
 
 Color getColor( float val ) const
 {
@@ -73,13 +77,13 @@ Color getColor( float val ) const
     }
 
     if ( mIsUdf(val) )
-	return coltab_.undefColor();
+	return coltab_->undefColor();
 
     ColTab::Mapper mapper;
-    mapper.setup_ = coltabmappersu_;
+    mapper.setSetup( *coltabmappersu_ );
     const float pos = mapper.position( val );
-    Color col = coltab_.color( pos );
-    col.setTransparency( (unsigned char) mNINT32(coltab_.transparencyAt(pos)) );
+    Color col = coltab_->color( pos );
+    col.setTransparency( coltab_->transparencyAt(pos) );
     return col;
 }
 
@@ -87,8 +91,8 @@ protected:
 
    BufferStringSet		selgrpnms_;
    TypeSet<Color>		selgrpcols_;
-   ColTab::Sequence		coltab_;
-   ColTab::MapperSetup		coltabmappersu_;
+   ConstRefMan<ColTab::Sequence> coltab_;
+   RefMan<ColTab::MapperSetup>	coltabmappersu_;
    int				dpscolid_;
    bool				showsel_;
 };
@@ -124,7 +128,7 @@ public:
 
     virtual void		getIconInfo(BufferString& fnm,
 					    BufferString& tootltip) const = 0;
-    virtual void		getIconInfo(BufferString&, 
+    virtual void		getIconInfo(BufferString&,
 					    uiString& tooltip) const = 0;
 
     const DataPointSetDisplayProp* dispProp() const

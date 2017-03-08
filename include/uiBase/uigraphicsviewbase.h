@@ -33,6 +33,7 @@ public:
     void			setScene(uiGraphicsScene&);
 				//!<Scene becomes mine
     uiGraphicsScene&		scene();
+    const uiGraphicsScene&	scene() const;
     void			show();
     enum ODDragMode		{ NoDrag, ScrollHandDrag, RubberBandDrag };
     enum ScrollBarPolicy	{ ScrollBarAsNeeded, ScrollBarAlwaysOff,
@@ -109,6 +110,8 @@ public:
 				//!< In practice, this happens only after reSize
     Notifier<uiGraphicsViewBase> preDraw;
     Notifier<uiGraphicsViewBase> scrollBarUsed;
+    Notifier<uiObject>		pointerEntered;
+    Notifier<uiObject>		pointerLeft;
 
 
     static const ObjectSet<uiGraphicsViewBase>& allInstances();

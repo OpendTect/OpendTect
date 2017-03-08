@@ -14,21 +14,22 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uidialog.h"
 
-class uiColorTableGroup;
+class uiColTabSel;
 class uiTreeItem;
 
 mExpClass(uiODMain) uiODEditAttribColorDlg : public uiDialog
 { mODTextTranslationClass(uiODEditAttribColorDlg);
 public:
-    				uiODEditAttribColorDlg(uiParent*,
+				uiODEditAttribColorDlg(uiParent*,
 						       ObjectSet<uiTreeItem>&,
 						       const char* attrnm);
 protected:
-	
-	uiColorTableGroup*		uicoltab_;
+
+	uiColTabSel*		coltabsel_;
 	ObjectSet<uiTreeItem>&	items_;
 
 	void			seqChg(CallBacker*);
-	void			mapperChg(CallBacker*);
+	void			mapperSetupChg(CallBacker*);
 	bool			acceptOK();
+
 };

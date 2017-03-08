@@ -18,8 +18,7 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 
 namespace EM { class Hor2DSeisLineIterator; class Horizon2D; }
-namespace Seis { class Horizon2D; }
-class SeisTrcReader;
+namespace Seis { class Horizon2D; class Provider; }
 class IOObj;
 
 /*!\brief SeisEventSnapper for 2D. */
@@ -53,9 +52,10 @@ protected:
 
     Pos::GeomID			geomid_;
     SeisTrc			trc_;
-    SeisTrcReader*		seisrdr_;
+    Seis::Provider*		seisprov_;
     const EM::Horizon2D&	orghor_;
     EM::Horizon2D&		newhor_;
+    uiString			errmsg_;
 };
 
 

@@ -503,9 +503,10 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
     {
 	BufferString seqnm;
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
-	ColTab::Sequence seq( seqnm );
-	setColTabSequence( attrib, seq, 0 );
-	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
+	setColTabSequence( attrib, *seq, 0 );
+	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
+	setColTabMapperSetup( attrib, *mapsetup, 0 );
     }
 }
 

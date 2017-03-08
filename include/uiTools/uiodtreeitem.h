@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uitreeitemmanager.h"
+#include "uitreeitem.h"
 #include "menuhandler.h"
 #include "uistring.h"
 

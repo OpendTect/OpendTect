@@ -222,13 +222,31 @@ bool testRefObjectSet()
 }
 
 
+class NotReferenced
+{
+public:
+    virtual ~NotReferenced() {}
+    virtual void init() {}
+    int var = 0;
+};
+
+bool testSanityCheck()
+{
+    PtrMan<NotReferenced> ptr = new NotReferenced;
+    mRunStandardTest(!RefCount::Referenced::isSane((RefCount::Referenced*) ptr.ptr()),
+	"Sanity check of false \"Referenced\" pointers");
+    return true;
+}
+
+
 int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
     if ( !testRefCount() ||
 	!testWeakPtr() ||
-	!testRefObjectSet() )
+	!testRefObjectSet() ||
+	!testSanityCheck() )
 	return 1;
 
     return 0;

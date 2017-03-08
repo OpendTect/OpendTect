@@ -117,7 +117,7 @@ protected:
 
     virtual mQtclass(QGraphicsItem*) mkQtObj()                  { return 0; }
     bool		selected_; // Remove when things in Qt works
-    mQtclass(uiGraphicsScene*)	scene_;
+    uiGraphicsScene*	scene_;
     ObjectSet<uiGraphicsItem> children_;
     uiGraphicsItem*	parent_;
 

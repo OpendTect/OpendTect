@@ -96,13 +96,26 @@ void Wavelet::copyClassData( const Wavelet& oth )
     cidx_ = oth.cidx_;
     dpos_ = oth.dpos_;
 
-    doReSize( oth.size() );
+    doReSize( oth.sz_ );
     if ( sz_ )
 	OD::memCopy( samps_, oth.samps_, sz_*sizeof(ValueType) );
 
     delete intpol_;
     intpol_ = !oth.intpol_ ? 0
 	    : new ValueSeriesInterpolator<ValueType>( *oth.intpol_ );
+}
+
+
+Monitorable::ChangeType Wavelet::compareClassData( const Wavelet& oth ) const
+{
+    if ( sz_ != oth.sz_ )
+	return cEntireObjectChange();
+    for ( int idx=0; idx<sz_; idx++ )
+	if ( samps_[idx] != oth.samps_[idx] )
+	    return cEntireObjectChange();
+
+    mDeliverSingCondMonitorableCompare(
+	    cidx_ == oth.cidx_ && dpos_ == oth.dpos_, cParChange() );
 }
 
 

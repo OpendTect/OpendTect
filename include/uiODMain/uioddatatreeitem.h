@@ -32,16 +32,20 @@ namespace ColTab { class Sequence; }
 mExpClass(uiODMain) uiODDataTreeItemFactory
 {
 public:
+
     typedef uiODDataTreeItem*	(*CreateFunc)(ProbeLayer&);
 
     void			addCreateFunc(CreateFunc,
 					      const char* probelayertype,
 					      const char* probetype);
     uiODDataTreeItem*		create(ProbeLayer&);
+
 protected:
+
     TypeSet< TypeSet<CreateFunc> >	createfuncsset_;
     BufferStringSet			probetypes_;
     TypeSet< BufferStringSet >		probelayertypesset_;
+
 };
 
 
@@ -121,5 +125,6 @@ protected:
     uiSeisAmplSpectrum*		ampspectrumwin_;
     uiFKSpectrum*		fkspectrumwin_;
 
-    ProbeLayer*			probelayer_;
+    RefMan<ProbeLayer>		probelayer_;
+
 };

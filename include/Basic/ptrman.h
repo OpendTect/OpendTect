@@ -108,19 +108,18 @@ protected:
 };
 
 
-
 /*!Smart pointer for normal pointers. */
 template <class T>
 mClass(Basic) PtrMan : public NonConstPtrManBase<T>
 {
 public:
-			PtrMan(const PtrMan<T>&);
-			//!<Don't use
     inline		PtrMan(T* = 0);
+    inline		PtrMan(PtrMan<T>&&);
     PtrMan<T>&		operator=( T* p );
 
-    PtrMan<T>&		operator=(const PtrMan<T>&);
-			//!<Don't use
+                        PtrMan(const PtrMan<T>&)		= delete;
+    PtrMan<T>&		operator=(const PtrMan<T>&)		= delete;
+
 
 private:
 
@@ -134,12 +133,14 @@ template <class T>
 mClass(Basic) ConstPtrMan : public ConstPtrManBase<T>
 {
 public:
-			ConstPtrMan(const ConstPtrMan<T>&);
-			//Don't use
+
     inline		ConstPtrMan(const T* = 0);
+    inline		ConstPtrMan(ConstPtrMan<T>&&);
     ConstPtrMan<T>&	operator=(const T* p);
-    ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&);
-			//!<Don't use
+    
+                        ConstPtrMan(const ConstPtrMan<T>&)	= delete;
+    ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&)	= delete;
+
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -151,12 +152,10 @@ template <class T>
 mClass(Basic) ArrPtrMan : public NonConstPtrManBase<T>
 {
 public:
-				ArrPtrMan(const ArrPtrMan<T>&);
-				//!<Don't use
     inline			ArrPtrMan(T* = 0);
+    inline			ArrPtrMan(ArrPtrMan<T>&&);
     ArrPtrMan<T>&		operator=( T* p );
-    inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
-				//!<Don't use
+    
 
 #ifdef __debug__
     T&				operator[](int);
@@ -166,7 +165,10 @@ public:
 
 #endif
     void			setSize(od_int64 size) { size_=size; }
-
+    
+				ArrPtrMan(const ArrPtrMan<T>&)	= delete;
+    inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>&)	= delete;
+    
 private:
 
     static void		deleteFunc( T* p )    { delete [] p; }
@@ -180,12 +182,11 @@ template <class T>
 mClass(Basic) ConstArrPtrMan : public ConstPtrManBase<T>
 {
 public:
-			ConstArrPtrMan(const ConstArrPtrMan<T>&);
-			//Don't use
     inline		ConstArrPtrMan(const T* = 0);
     ConstArrPtrMan<T>&	operator=(const T* p);
-    ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&);
-			//!< Will give linkerror if used
+    
+    ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&) 	 = delete;
+                        ConstArrPtrMan(const ConstArrPtrMan<T>&) = delete;
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -309,27 +310,15 @@ T* PtrManBase<T>::createIfNull(PointerCreator creator)
     return ptr_;
 }
 
-
-template <class T> inline
-PtrMan<T>::PtrMan( const PtrMan<T>& )
-    : NonConstPtrManBase<T>( 0, deleteFunc, 0 )
-{
-    pErrMsg("Should not be called");
-}
-
-
-template <class T> inline
-PtrMan<T>& PtrMan<T>::operator=( const PtrMan<T>& )
-{
-    PtrManBase<T>::set( 0, true );
-    pErrMsg("Should not be called");
-    return *this;
-}
-
-
 template <class T> inline
 PtrMan<T>::PtrMan( T* p )
     : NonConstPtrManBase<T>( 0, deleteFunc, p )
+{}
+
+
+template <class T> inline
+PtrMan<T>::PtrMan( PtrMan<T>&& p )
+    : PtrMan<T>( p.release() )
 {}
 
 
@@ -342,25 +331,14 @@ PtrMan<T>& PtrMan<T>::operator=( T* p )
 
 
 template <class T> inline
-ConstPtrMan<T>::ConstPtrMan( const ConstPtrMan<T>& )
-    : ConstPtrManBase<T>( 0, deleteFunc, 0 )
-{
-    pErrMsg("Should not be called");
-}
-
-
-template <class T> inline
-ConstPtrMan<T>& ConstPtrMan<T>::operator=( const ConstPtrMan<T>& )
-{
-    PtrManBase<T>::set( 0, true );
-    pErrMsg("Should not be called");
-    return *this;
-}
-
-
-template <class T> inline
 ConstPtrMan<T>::ConstPtrMan( const T* p )
     : ConstPtrManBase<T>( 0, deleteFunc, const_cast<T*>(p) )
+{}
+
+
+template <class T> inline
+ConstPtrMan<T>::ConstPtrMan( ConstPtrMan<T>&& p )
+    : ConstPtrMan<T>( p.release() )
 {}
 
 
@@ -373,26 +351,14 @@ ConstPtrMan<T>& ConstPtrMan<T>::operator=( const T* p )
 
 
 template <class T> inline
-ArrPtrMan<T>::ArrPtrMan( const ArrPtrMan<T>& )
-    : NonConstPtrManBase<T>( 0, deleteFunc, 0 )
-{
-    pErrMsg("Should not be called");
-}
-
-
-template <class T> inline
-ArrPtrMan<T>& ArrPtrMan<T>::operator=( const ArrPtrMan<T>& )
-{
-    PtrManBase<T>::set( 0, true );
-    pErrMsg("Should not be called");
-    return *this;
-}
-
-
-template <class T> inline
 ArrPtrMan<T>::ArrPtrMan( T* p )
     : NonConstPtrManBase<T>( 0, deleteFunc, p )
     , size_(-1)
+{}
+
+template <class T> inline
+ArrPtrMan<T>::ArrPtrMan( ArrPtrMan<T>&& p )
+    : ArrPtrMan<T>( p.release() )
 {}
 
 
@@ -449,15 +415,6 @@ const T& ArrPtrMan<T>::operator[]( od_int64 idx ) const
 }
 
 #endif
-
-
-
-template <class T> inline
-ConstArrPtrMan<T>::ConstArrPtrMan( const ConstArrPtrMan<T>& p )
-    : ConstPtrManBase<T>( 0, deleteFunc, 0 )
-{
-    pErrMsg("Shold not be called");
-}
 
 
 template <class T> inline

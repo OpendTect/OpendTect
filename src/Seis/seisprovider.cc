@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seisselection.h"
 #include "seisbuf.h"
+#include "ioobj.h"
 #include "keystrs.h"
 #include "uistrings.h"
 #include "dbman.h"
@@ -159,6 +160,33 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 }
 
 
+DBKey Seis::Provider::dbKey( const IOPar& iop )
+{
+    const char* res = iop.find( sKey::ID() );
+    BufferString tmp;
+    if ( !res )
+    {
+	res = iop.find( sKey::Name() );
+	if ( res && *res )
+	{
+	    const IOObj* tryioobj = DBM().getByName(IOObjContext::Seis,res);
+	    if ( !tryioobj )
+		res = 0;
+	    else
+	    {
+		tmp = tryioobj->key();
+		res = tmp.buf();
+	    }
+	}
+    }
+
+    if ( res && *res )
+	return DBKey::getFromString( res );
+
+    return DBKey::getInvalid();
+}
+
+
 void Seis::Provider::setSampleInterval( float zs )
 {
     Threads::Locker locker( lock_ );
@@ -196,6 +224,15 @@ void Seis::Provider::setReadMode( ReadMode rm )
     Threads::Locker locker( lock_ );
     readmode_ = rm;
     setupchgd_ = true;
+}
+
+
+uiRetVal Seis::Provider::fillPar( IOPar& iop ) const
+{
+    iop.setYN( sKeyForceFPData(), forcefpdata_ );
+    uiRetVal ret;
+    doFillPar( iop, ret );
+    return ret;
 }
 
 
@@ -388,6 +425,12 @@ void Seis::Provider::ensureRightZSampling( SeisTrc& trc ) const
 }
 
 
+bool Seis::Provider::doGetIsPresent( const TrcKey& tk ) const
+{
+    return Survey::GM().getGeometry(curGeomID())->includes( tk );
+}
+
+
 void Seis::Provider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 {
     SeisTrcBuf tbuf( true );
@@ -423,4 +466,40 @@ void Seis::Provider::doGetGather( const TrcKey& tkey, SeisTrcBuf& tbuf,
     doGet( tkey, trc, uirv );
     if ( uirv.isOK() )
 	putTraceInGather( trc, tbuf );
+}
+
+
+void Seis::Provider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
+{
+    iop.set( sKey::ID(), dbKey() );
+    if ( seldata_ )
+	seldata_->fillPar( iop );
+    else
+	Seis::SelData::removeFromPar( iop );
+}
+
+
+void Seis::Provider::doUsePar( const IOPar& iop, uiRetVal& uirv )
+{
+    const DBKey dbkey = dbKey( iop );
+    if ( !dbkey.isInvalid() && dbkey!=dbKey() )
+	setInput( dbkey );
+
+    setSelData( Seis::SelData::get(iop) );
+}
+
+
+ZSampling Seis::Provider3D::doGetZRange() const
+{
+    TrcKeyZSampling tkzs;
+    getRanges( tkzs );
+    return tkzs.zsamp_;
+}
+
+
+ZSampling Seis::Provider2D::doGetZRange() const
+{
+    StepInterval<int> trcrg; ZSampling zsamp;
+    getRanges( curLineIdx(), trcrg, zsamp );
+    return zsamp;
 }

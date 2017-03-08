@@ -72,7 +72,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     istvdfld_->attach( alignedBelow, intvfld_ );
 
     udffld_ = new uiGenInput( this, tr("Undefined value in logs"),
-                    FloatInpSpec(defundefval));
+		    FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Logs to import") );
@@ -171,7 +171,7 @@ bool uiImportLogsDlg::acceptOK()
     if ( nrexisting > 0 )
     {
 	uiString msg = tr("The following logs already exist and will not "
-	                  "be imported:\n\n%1\n\nPlease remove them before "
+			  "be imported:\n\n%1\n\nPlease remove them before "
 			  "import.").arg(existlogs.getDispString());
 	if ( lognms.isEmpty() )
 	    mErrRet( msg )
@@ -275,7 +275,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 
     const bool multiwells = wds.size() > 1;
     outfld_ = new uiFileInput( this, multiwells ?
-			              mJoinUiStrs(sFile(),sDirectory())
+				      mJoinUiStrs(sFile(),sDirectory())
 				    : uiStrings::phrOutput(uiStrings::sFile()),
 			      uiFileInput::Setup().forread(false)
 						  .directories(multiwells) );
@@ -314,9 +314,15 @@ void uiExportLogs::setDefaultRange( bool zinft )
 	}
     }
 
-    if ( zinft )
-	dahintv.scale( mToFeetFactorF );
-    zrangefld_->setValue( dahintv );
+    StepInterval<float> disprg = dahintv;
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+    if ( zun )
+    {
+	disprg.start = zun->userValue( dahintv.start );
+	disprg.stop = zun->userValue( dahintv.stop );
+    }
+
+    zrangefld_->setValue( disprg );
 }
 
 
@@ -422,10 +428,9 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	float md = intv.atIndex( idx );
-	if ( zinft ) md *= mFromFeetFactorF;
 	if ( outtypesel == 0 )
 	{
-	    const float mdout = infeet ? md*mToFeetFactorF : md;
+	    const float mdout = infeet && !zinft ? md*mToFeetFactorF : md;
 	    strm << mdout;
 	}
 	else
@@ -445,8 +450,8 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    }
 
 	    float z = (float) pos.z_;
-	    if ( infeet ) z *= mToFeetFactorF;
-	    else if (intime )
+	    if ( infeet && !zinft ) z *= mToFeetFactorF;
+	    else if ( intime )
 	    {
 		z = wd.d2TModel().getTime( md, wd.track() );
 		if ( inmsec && !mIsUdf(z) ) z *= cTWTFac;

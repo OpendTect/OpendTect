@@ -14,8 +14,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "ioobj.h"
 #include "ioobjtags.h"
-#include "seisbounds.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -39,36 +38,17 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     , veloutpdesc_( desc )
     , input_( input.clone() )
     , output_( output.clone() )
-    , reader_( 0 )
+    , provider_( 0 )
     , writer_( 0 )
     , sequentialwriter_(0)
 {
-    reader_ = new SeisTrcReader( input_ );
-    if ( !reader_->prepareWork() )
-    {
-	delete reader_;
-	reader_ = 0;
-	errmsg_ = uiStrings::sCantReadInp();
-	return;
-    }
+    uiRetVal uirv;
+    provider_ = Seis::Provider::create( input_->key(), &uirv );
+    if ( !provider_ )
+	{ errmsg_ = uirv; return; }
 
-    const SeisPacketInfo& packetinfo =
-	    reader_->seisTranslator()->packetInfo();
-
-    if ( packetinfo.cubedata )
-    {
-	BinIDValueSet bivs( 0, false );
-	bivs.add( *packetinfo.cubedata );
-	bivs.remove( tks_, false );
-	totalnr_ = bivs.totalSize();
-    }
-    else
-    {
-	totalnr_ = tks_.totalNr();
-    }
-
-    Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
-    reader_->setSelData( seldata );
+    totalnr_ = provider_->totalNr();
+    provider_->setSelData( new Seis::RangeSelData(tks_) );
 }
 
 
@@ -76,26 +56,20 @@ VolumeConverter::~VolumeConverter()
 {
     delete input_;
     delete output_;
-
-    if ( writer_ ) delete writer_;
-    if ( sequentialwriter_ ) delete sequentialwriter_;
-    if ( reader_ ) delete reader_;
+    delete writer_;
+    delete sequentialwriter_;
+    delete provider_;
 }
 
 bool VolumeConverter::doFinish( bool res )
 {
-    delete reader_;
-    reader_ = 0;
+    deleteAndZeroPtr(  provider_ );
 
     if ( !sequentialwriter_->finishWrite() )
 	res = false;
 
-    delete sequentialwriter_;
-    sequentialwriter_ = 0;
-
-    delete writer_;
-    writer_ = 0;
-
+    deleteAndZeroPtr( sequentialwriter_ );
+    deleteAndZeroPtr( writer_ );
     return res;
 }
 
@@ -141,19 +115,14 @@ bool VolumeConverter::doPrepare( int nrthreads )
 
     //Check input Vel
 
-    if ( !reader_ )
+    if ( !provider_ )
     {
-	reader_ = new SeisTrcReader( input_ );
-	if ( !reader_->prepareWork() )
-	{
-	    delete reader_;
-	    reader_ = 0;
-	    errmsg_ = uiStrings::sCantReadInp();
-	    return false;
-	}
+	uiRetVal uirv;
+	provider_ = Seis::Provider::create( input_->key(), &uirv );
+	if ( !provider_ )
+	    { errmsg_ = uirv; return false; }
 
-	Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
-	reader_->setSelData( seldata );
+	provider_->setSelData( new Seis::RangeSelData(tks_) );
     }
 
     writer_ = new SeisTrcWriter( output_ );
@@ -268,29 +237,25 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 {
-    if ( !reader_ )
+    if ( !provider_ )
 	return 0;
 
-    int res = 2;
-    while ( res==2 || !tks_.includes( trc.info().binID() ) )
-	res = reader_->get( trc.info() );
-
-    if ( res==1 )
+    const uiRetVal uirv = provider_->getNext( trc );
+    if ( !uirv.isOK() )
     {
-	if ( !reader_->get( trc ) )
-	    return -1;
+	if ( isFinished(uirv) )
+	    return 0;
 
-	sequentialwriter_->announceTrace( trc.info().binID() );
-	return 1;
+	errmsg_ = uirv;
+	return -1;
     }
 
-    if ( res==-1 )
-	errmsg_ = uiStrings::sCantReadInp();
+    sequentialwriter_->announceTrace( trc.info().binID() );
 
-    delete reader_;
-    reader_ = 0;
+    delete provider_;
+    provider_ = 0;
 
-    return mCast( char, res );
+    return 1;
 }
 
 } // namespace Vel

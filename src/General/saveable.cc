@@ -42,6 +42,7 @@ Saveable::~Saveable()
 
 mImplMonitorableAssignment(Saveable,Monitorable)
 
+
 void Saveable::copyClassData( const Saveable& oth )
 {
     detachCBFromObj();
@@ -51,6 +52,15 @@ void Saveable::copyClassData( const Saveable& oth )
     ioobjpars_ = oth.ioobjpars_;
     lastsavedirtycount_ = oth.lastsavedirtycount_;
     attachCBToObj();
+}
+
+
+Monitorable::ChangeType Saveable::compareClassData( const Saveable& oth ) const
+{
+    mDeliverYesNoMonitorableCompare(
+	    object_ == oth.object_
+	&& storekey_ == oth.storekey_
+	&& ioobjpars_ == oth.ioobjpars_ );
 }
 
 
@@ -95,7 +105,7 @@ const SharedObject* Saveable::object() const
 Monitorable::DirtyCountType Saveable::curDirtyCount() const
 {
     mLock4Read();
-    return objectalive_ ? object_->dirtyCount() : lastsavedirtycount_.get();
+    return objectalive_ ? object_->dirtyCount() : lastsavedirtycount_.load();
 }
 
 

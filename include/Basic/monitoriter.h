@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "monitor.h"
+#include "monitorable.h"
 
 
 /*!\brief base class for Monitorable iterators. Inherit from one of its

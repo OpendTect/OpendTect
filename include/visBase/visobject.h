@@ -11,12 +11,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
-#include "thread.h"
 #include "visosg.h"
-
-
+#include "thread.h"
 namespace osg { class Group; }
 
 namespace visBase
@@ -42,18 +39,18 @@ public:
     virtual void		setSceneEventCatcher( EventCatcher* )	{}
 
     void			setSelectable(bool yn)	{ isselectable=yn; }
-    bool			selectable() const 	{ return isselectable; }
-    NotifierAccess*		selection() 		{ return &selnotifier; }
-    NotifierAccess*		deSelection() 		{return &deselnotifier;}
+    bool			selectable() const	{ return isselectable; }
+    NotifierAccess*		selection()		{ return &selnotifier; }
+    NotifierAccess*		deSelection()		{return &deselnotifier;}
     virtual NotifierAccess*	rightClicked()		{ return &rightClick; }
     const EventInfo*		rightClickedEventInfo() const{return rcevinfo;}
     const TypeSet<int>*		rightClickedPath() const;
 
 protected:
     void			triggerSel()
-    				{ if (isselectable) selnotifier.trigger(); }
+				{ if (isselectable) selnotifier.trigger(); }
     void			triggerDeSel()
-    				{ if (isselectable) deselnotifier.trigger(); }
+				{ if (isselectable) deselnotifier.trigger(); }
     void			triggerRightClick(const EventInfo*);
 				VisualObject(bool selectable=false);
 				~VisualObject();
@@ -75,7 +72,7 @@ public:
     bool		isRightHandSystem() const { return righthandsystem_; }
 
     void		setLockable();
-    			/*!<Will enable lock functionality.
+			/*!<Will enable lock functionality.
 			   \note Must be done before giving away the SoNode with
 			   getInventorNode() to take effect */
     void		readLock();

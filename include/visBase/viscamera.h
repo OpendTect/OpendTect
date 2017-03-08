@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visdata.h"
 #include "position.h"
 namespace osg { class Camera; class RenderInfo; }
@@ -21,7 +20,7 @@ namespace visBase
 
 class DrawCallback;
 
-/*!\brief 
+/*!\brief
     keep osg camera status and render info
 */
 
@@ -43,13 +42,13 @@ public:
     Notifier<Camera>		postDraw;
 
     const osg::RenderInfo*	getRenderInfo() const { return renderinfo_; }
-    				//!<Only available during pre/post draw cb
+				//!<Only available during pre/post draw cb
 
 private:
     friend			class DrawCallback;
 
     void			triggerDrawCallBack(const DrawCallback*,
-                                	            const osg::RenderInfo&);
+	            const osg::RenderInfo&);
 
     virtual			~Camera();
 

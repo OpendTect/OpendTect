@@ -18,9 +18,7 @@
 #include "iopar.h"
 #include "keystrs.h"
 #include "samplfunc.h"
-#include "seisbounds.h"
 #include "seisdatapack.h"
-#include "seisread.h"
 #include "seisprovider.h"
 #include "seispreload.h"
 #include "seispacketinfo.h"
@@ -40,7 +38,7 @@ VelocityStretcher::VelocityStretcher( const ZDomain::Def& from,
 
 Time2DepthStretcher::Time2DepthStretcher()
     : VelocityStretcher(ZDomain::Time(),ZDomain::Depth())
-    , velreader_( 0 )
+    , velprovider_( 0 )
     , topvavg_ ( getDefaultVAvg().start, getDefaultVAvg().start )
     , botvavg_ ( getDefaultVAvg().stop, getDefaultVAvg().stop )
 {
@@ -55,20 +53,16 @@ Time2DepthStretcher::~Time2DepthStretcher()
 bool Time2DepthStretcher::setVelData( const DBKey& dbkey )
 {
     releaseData();
-    PtrMan<IOObj> velioobj = DBM().get( dbkey );
-    if ( !velioobj )
-	return false;
 
-    velreader_ = new SeisTrcReader( velioobj );
-    if ( !velreader_->prepareWork() )
-    {
-	releaseData();
-	return false;
-    }
+    uiRetVal uirv;
+    velprovider_ = Seis::Provider::create( dbkey, &uirv );
+    if ( !velprovider_ )
+	{ releaseData(); errmsg_ = uirv; return false; }
 
     fromzdomaininfo_.setID( dbkey.toString() );
     tozdomaininfo_.setID( dbkey.toString() );
 
+    PtrMan<IOObj> velioobj = DBM().get( dbkey );
     veldesc_.type_ = VelocityDesc::Interval;
     veldesc_.usePar( velioobj->pars() );
 
@@ -115,10 +109,10 @@ Interval<float> Time2DepthStretcher::getDefaultVAvg()
 void Time2DepthStretcher::fillPar( IOPar& par ) const
 {
     ZAxisTransform::fillPar( par );
-    if ( velreader_ && velreader_->ioObj() )
+    if ( velprovider_ )
     {
 	par.set( VelocityDesc::sKeyVelocityVolume(),
-		 velreader_->ioObj()->key() );
+		 velprovider_->dbKey() );
     }
 }
 
@@ -187,14 +181,14 @@ class TimeDepthDataLoader : public SequentialTask
 { mODTextTranslationClass(TimeDepthDataLoader);
 public:
 		TimeDepthDataLoader( Array3D<float>& arr,
-				    SeisTrcReader& reader,
+				    Seis::Provider& provider,
 				    const TrcKeyZSampling& readcs,
 				    const VelocityDesc& vd,
 				    const SamplingData<double>& voisd,
 				    bool velintime,
 				    bool voiintime )
 		    : arr_( arr )
-		    , reader_( reader )
+		    , provider_( provider )
 		    , readcs_( readcs )
 		    , hiter_( readcs.hsamp_ )
 		    , voisd_( voisd )
@@ -205,15 +199,17 @@ public:
 		    , seisdatapack_(0)
 		{
 		    mDynamicCast( const RegularSeisDataPack*,
-		  seisdatapack_,Seis::PLDM().get(reader.ioObj()->key()).ptr() );
+		  seisdatapack_,Seis::PLDM().get(provider.dbKey()).ptr() );
 		}
 protected:
 
     od_int64		totalNr() const
 			{ return readcs_.hsamp_.totalNr(); }
     od_int64		nrDone() const { return nrdone_; }
-    uiString	message() const { return tr("Reading velocity model"); };
-    uiString	nrDoneText() const { return tr("Position read"); }
+    uiString		message() const
+			{ return errmsg_.isEmpty()
+			    ? tr("Reading velocity model") : errmsg_; }
+    uiString		nrDoneText() const { return tr("Position read"); }
 
     int			nextStep()
     {
@@ -229,14 +225,16 @@ protected:
 	const int nrz = arr_.info().getSize( 2 );
 	if ( !seisdatapack_ )
 	{
-	    mDynamicCastGet( SeisTrcTranslator*, veltranslator,
-			    reader_.translator() );
-
 	    SeisTrc velocitytrc;
-	    if ( !veltranslator->goTo(curbid) || !reader_.get(velocitytrc) )
+	    const uiRetVal uirv = provider_.getNext( velocitytrc );
+	    if ( !uirv.isOK() )
 	    {
 		Time2DepthStretcher::udfFill( arrvs, nrz );
-		return hiter_.next() ? MoreToDo() : Finished();
+		if ( isFinished(uirv) )
+		    return hiter_.next() ? MoreToDo() : Finished();
+
+		errmsg_ = uirv;
+		return ErrorOccurred();
 	    }
 
 	    const SeisTrcValueSeries trcvs( velocitytrc, 0 );
@@ -266,7 +264,7 @@ protected:
     }
 
     TrcKeyZSampling		readcs_;
-    SeisTrcReader&		reader_;
+    Seis::Provider&		provider_;
     Array3D<float>&		arr_;
     TimeDepthConverter		tdc_;
     VelocityDesc		veldesc_;
@@ -277,6 +275,7 @@ protected:
     int				nrdone_;
 
     SamplingData<double>	voisd_;
+    uiString			errmsg_;
 
     TrcKeySamplingIterator		hiter_;
 };
@@ -284,14 +283,7 @@ protected:
 
 bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tskr )
 {
-    if ( !velreader_ )
-	return true;
-
-    mDynamicCastGet( SeisTrcTranslator*, veltranslator,
-		     velreader_->translator() );
-
-    if ( !veltranslator || !veltranslator->supportsGoTo() )
-	return false;
+    if ( !velprovider_ ) return true;
 
     const int idx = voiids_.indexOf( id );
     if ( idx<0 )
@@ -300,7 +292,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tskr )
     const TrcKeyZSampling& voi( voivols_[idx] );
     TrcKeyZSampling readcs( voi );
 
-    const StepInterval<float> filezrg = veltranslator->packetInfo().zrg;
+    const StepInterval<float> filezrg = velprovider_->getZRange();
     const int nrsamplesinfile = filezrg.nrSteps()+1;
     if ( velintime_!=voiintime_[idx] )
     {
@@ -329,7 +321,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tskr )
 	voidata_.replace( idx, arr );
     }
 
-    TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
+    TimeDepthDataLoader loader( *arr, *velprovider_, readcs, veldesc_,
 	    SamplingData<double>(voi.zsamp_), velintime_, voiintime_[idx] );
     if ( !TaskRunner::execute( tskr, loader ) )
 	return false;
@@ -623,21 +615,17 @@ float Time2DepthStretcher::getGoodZStep() const
 
 const char* Time2DepthStretcher::getZDomainID() const
 {
-    if ( velreader_ && velreader_->ioObj() )
-    {
-	mDeclStaticString( ret );
-	ret.set( velreader_->ioObj()->key().toString() );
-	return ret.buf();
-    }
-    return 0;
+    if ( !velprovider_ ) return 0;
+
+    mDeclStaticString( ret );
+    ret.set( velprovider_->dbKey().toString() );
+    return ret.buf();
 }
 
 
 void Time2DepthStretcher::releaseData()
 {
-    delete velreader_;
-    velreader_ = 0;
-
+    deleteAndZeroPtr( velprovider_ );
     for ( int idx=0; idx<voidata_.size(); idx++ )
     {
 	delete voidata_[idx];

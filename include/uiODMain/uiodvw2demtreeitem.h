@@ -32,6 +32,7 @@ protected:
     void		renameVisObj();
 
 private:
+
     void		doStoreObject(bool);
 
 };

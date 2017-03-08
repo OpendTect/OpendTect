@@ -87,7 +87,7 @@ bool uiODAttribTreeItem::init()
 	return false;
 
     AttribProbeLayer* attrlay = attribProbeLayer();
-    if ( attrlay && attrlay->getDispType()==AttribProbeLayer::RGB )
+    if ( attrlay && attrlay->dispType()==AttribProbeLayer::RGB )
 	so->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
     if ( parent_->nrChildren()>1 )
 	so->addAttrib();//For first child attrib is automatically added
@@ -363,7 +363,7 @@ uiString uiODAttribTreeItem::createDisplayName() const
     if ( !attrlayer )
 	return uiStrings::sRightClick();
 
-    Attrib::SelSpec as = attrlayer->getSelSpec();
+    Attrib::SelSpec as = attrlayer->selSpec();
     uiString dispname( as.id().isValid() ? toUiString(as.userRef())
 					 : uiString::emptyString() );
     if ( as.isNLA() )
@@ -387,10 +387,7 @@ uiString uiODAttribTreeItem::createDisplayName() const
 void uiODAttribTreeItem::updateColumnText( int col )
 {
     if ( col==uiODSceneMgr::cColorColumn() && attribProbeLayer() )
-    {
-	ColTab::Sequence attrctab = attribProbeLayer()->getColTab();
-	displayMiniCtab( &attrctab );
-    }
+	displayMiniCtab( attribProbeLayer()->colSeq() );
 
     uiODDataTreeItem::updateColumnText( col );
 }
@@ -408,21 +405,21 @@ void uiODAttribTreeItem::setProbeLayer( ProbeLayer* probelayer )
     if ( !so )
 	return;
 
-    if ( attrlay->getDispType()==AttribProbeLayer::RGB )
+    if ( attrlay->dispType()==AttribProbeLayer::RGB )
 	so->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
 }
 
 
 const AttribProbeLayer* uiODAttribTreeItem::attribProbeLayer() const
 {
-    mDynamicCastGet(const AttribProbeLayer*,attrlayer,probelayer_);
+    mDynamicCastGet(const AttribProbeLayer*,attrlayer,probelayer_.ptr());
     return attrlayer;
 }
 
 
 AttribProbeLayer* uiODAttribTreeItem::attribProbeLayer()
 {
-    mDynamicCastGet(AttribProbeLayer*,attrlayer,probelayer_);
+    mDynamicCastGet(AttribProbeLayer*,attrlayer,probelayer_.ptr());
     return attrlayer;
 }
 
@@ -448,8 +445,8 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
     const TrcKeyZSampling probepos = parentprobe->position();
     ZAxisTransform* ztransform = visserv_->getZAxisTransform( sceneID() );
     uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
-    const Attrib::SelSpec attrselspec = attrprlayer->getSelSpec();
-    attrserv->setTargetSelSpec( attrprlayer->getSelSpec() );
+    const Attrib::SelSpec attrselspec = attrprlayer->selSpec();
+    attrserv->setTargetSelSpec( attrprlayer->selSpec() );
 
     mDynamicCastGet(const RandomLineProbe*,rdlprobe,parentprobe);
     mDynamicCastGet(const ZSliceProbe*,zprobe,parentprobe);
@@ -511,22 +508,21 @@ void uiODAttribTreeItem::updateDisplay()
     if ( !attrprlayer )
 	return;
 
-    visserv_->setSelSpec( displayID(), attribNr(), attrprlayer->getSelSpec() );
+    visserv_->setSelSpec( displayID(), attribNr(), attrprlayer->selSpec() );
     visserv_->setColTabMapperSetup( displayID(), attribNr(),
-				    attrprlayer->getColTabMapper() );
+				    *attrprlayer->mapperSetup() );
     visserv_->setColTabSequence( displayID(), attribNr(),
-				 attrprlayer->getColTab() );
-    if ( attrprlayer->getAttribDataPack().isInvalid() )
+				 *attrprlayer->colSeq() );
+    if ( attrprlayer->dataPackID().isInvalid() )
     {
 	ConstRefMan<DataPack> attrdp = calculateAttribute();
 	if ( attrdp )
 	{
-	    ChangeNotifyBlocker notifyblocker( *attrprlayer );
-	    attrprlayer->setAttribDataPack( attrdp->id() );
-	    notifyblocker.unBlockNow( false );
+	    NotifyStopper ns( attrprlayer->objectChanged(), this );
+	    attrprlayer->setDataPackID( attrdp->id() );
 	}
     }
 
     visserv_->setDataPackID( displayID(), attribNr(),
-			     attrprlayer->getAttribDataPack() );
+			     attrprlayer->dataPackID() );
 }

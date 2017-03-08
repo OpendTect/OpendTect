@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "factory.h"
 #include "uistring.h"
 
-namespace ColTab{ class Sequence; class MapperSetup; }
 namespace visBase
 {
     class HorizonSection;
@@ -156,10 +155,10 @@ public:
     bool			canSetColTabSequence() const;
     void			setColTabSequence(int attr,
 				    const ColTab::Sequence&,TaskRunner*);
-    const ColTab::MapperSetup*	getColTabMapperSetup(int attr,int v=0) const;
-    void			setColTabMapperSetup(int attr,
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int,int v=0) const;
+    void			setColTabMapperSetup(int,
 				    const ColTab::MapperSetup&,TaskRunner*);
-    const TypeSet<float>*	getHistogram(int) const;
+    const visBase::DistribType&	getDataDistribution(int) const;
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
@@ -303,15 +302,15 @@ private:
     StepInterval<int>			parrowrg_;
     StepInterval<int>			parcolrg_;
 
-    TypeSet<ColTab::MapperSetup>	coltabmappersetups_;//for each channel
-    TypeSet<ColTab::Sequence>		coltabsequences_;  //for each channel
+    TypeSet<RefMan<ColTab::MapperSetup> > coltabmappersetups_;
+    TypeSet<ConstRefMan<ColTab::Sequence> > coltabsequences_;
     bool				enabletextureinterp_;
 
     bool				usestexture_;
     char				resolution_;
     int					curtextureidx_;
 
-    ObjectSet<TypeSet<Attrib::SelSpec> >as_;
+    ObjectSet<TypeSet<Attrib::SelSpec> > as_;
     ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;

@@ -176,13 +176,12 @@ int initWinSock()
 }
 #endif
 
+static PtrMan<BufferString> osident = 0;
 
 const char* GetOSIdentifier()
 {
-    mDefineStaticLocalObject( PtrMan<BufferString>, ret, (0) );
-
-    if ( ret )
-	return ret->buf();
+    if ( osident )
+	return osident->buf();
 
     BufferString* tmp = new BufferString;
 
@@ -217,10 +216,39 @@ const char* GetOSIdentifier()
 	tmp->set( "Unknown Linux");
 #endif
 
-    ret.setIfNull( tmp, true );
+    osident.setIfNull( tmp, true );
 
-    return ret->buf();
+    return osident->buf();
 }
+
+
+#ifdef __win__
+
+typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+
+
+bool is64BitWindows()
+{
+#if _WIN64
+    return true;
+#elif _WIN32
+
+    LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)
+	GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+
+    if ( fnIsWow64Process )
+    {
+	BOOL res;
+	if ( !fnIsWow64Process( GetCurrentProcess(), &res ) )
+	    return false;
+
+	return res;
+    }
+    
+    return false;
+#endif
+}
+#endif
 
 
 const char* GetLocalHostName()
@@ -271,6 +299,8 @@ int GetPID()
     return getpid();
 }
 
+static bool is_exiting_ = false;
+
 
 void NotifyExitProgram( PtrAllVoidFn fn )
 {
@@ -289,6 +319,9 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 	fns[myfnidx] = fn;
     }
 }
+
+
+bool IsExiting() { return is_exiting_; }
 
 
 mExternC(Basic) const char* GetLastSystemErrorMessage()
@@ -361,6 +394,7 @@ const char* getProcessNameForPID( int pid )
 
 int ExitProgram( int ret )
 {
+    is_exiting_ = true;
     if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
     {
 	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;
@@ -561,15 +595,15 @@ static BufferString initialdir_;
 static char** argv_ = 0;
 
 
-mExternC(Basic) char** GetArgV(void)
+mExtern(Basic) char** GetArgV(void)
 { return argv_; }
 
 
-mExternC(Basic) int& GetArgC(void)
+mExtern(Basic) int& GetArgC(void)
 { return argc_; }
 
 
-mExternC(Basic) bool AreProgramArgsSet(void)
+mExtern(Basic) bool AreProgramArgsSet(void)
 { return GetArgC()!=-1; }
 
 
@@ -613,7 +647,7 @@ static void getDataRoot( bool isrequired )
 }
 
 
-mExternC(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
+mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
 {
     char* getcwdres = getcwd( initialdir_.getCStr(), initialdir_.minBufSize() );
     if ( !getcwdres )

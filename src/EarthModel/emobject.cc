@@ -310,6 +310,23 @@ void EMObject::setPosAttrMarkerStyle( int attr, const OD::MarkerStyle3D& ms )
 }
 
 
+const OD::MarkerStyle3D& EMObject::preferredMarkerStyle3D() const
+{
+    return preferredmarkerstyle_;
+}
+
+
+void EMObject::setPreferredMarkerStyle3D( const OD::MarkerStyle3D& mkst )
+{
+    if( mkst == preferredmarkerstyle_ )
+	return;
+
+    preferredmarkerstyle_ = mkst;
+    saveDisplayPars();
+>>>>>>> origin/master
+}
+
+
 void EMObject::lockPosAttrib( int attr, bool yn )
 {
     addPosAttrib( attr );

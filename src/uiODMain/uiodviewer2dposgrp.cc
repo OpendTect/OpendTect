@@ -536,10 +536,10 @@ void Viewer2DPosDataSel::fillFromProbe( const Probe& probe )
     {
 	mDynamicCastGet(const AttribProbeLayer*,attrlayer,
 			probe.getLayerByIdx(idx));
-	if ( !attrlayer || attrlayer->getDispType()!=AttribProbeLayer::VD )
+	if ( !attrlayer || attrlayer->dispType()!=AttribProbeLayer::VD )
 	    continue;
 
-	selspec_ = attrlayer->getSelSpec();
+	selspec_ = attrlayer->selSpec();
 	break;
     }
 }

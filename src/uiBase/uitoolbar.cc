@@ -104,12 +104,6 @@ int uiToolBar::addButton( const MenuItem& itm )
 }
 
 
-void uiToolBar::addButton( uiButton* button )
-{
-    addObject( button );
-}
-
-
 void uiToolBar::addObject( uiObject* obj )
 {
     QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : 0;
@@ -252,6 +246,25 @@ void uiToolBar::setToolBarMenuAction( uiAction* action )
     toolbarmenuaction_ = action;
     if ( toolbarmenuaction_ )
 	toolbarmenuaction_->setChecked( !isHidden() );
+}
+
+
+void uiToolBar::handleFinalise( bool pre )
+{
+    if ( pre )
+	preFinalise().trigger();
+
+    for ( int idx=0; idx<addedobjects_.size(); idx++ )
+    {
+	uiObject& uiobj = *addedobjects_[idx];
+	if ( pre )
+	    uiobj.preFinalise().trigger();
+	else
+	    uiobj.finalise();
+    }
+
+    if ( !pre )
+	postFinalise().trigger();
 }
 
 

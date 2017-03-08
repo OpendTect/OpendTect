@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "simpnumer.h"
 
-#include "uicolortable.h"
+#include "uicolseqsel.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uilabel.h"
@@ -521,7 +521,7 @@ const visSurvey::EMObjectDisplay* uiVisEMObject::getDisplay() const
 
 
 static const char* sKeyHorizonRes = "dTect.Horizon.Resolution";
-static const char* sKeyHorizonColTab = "dTect.Horizon.Color table";
+static const char* sKeyHorizonColSeqName = "dTect.Horizon.Color table";
 static BufferStringSet sResolutionNames;
 
 static void fillResolutionNames( BufferStringSet& nms )
@@ -549,13 +549,15 @@ uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
 				     StringListInpSpec(sResolutionNames) );
     resolutionfld_->setValue( resolution_ );
 
-    coltabnm_ = ColTab::defSeqName();
-    setts.get( sKeyHorizonColTab, coltabnm_ );
-    coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence(coltabnm_) );
-    coltabfld_->attach( alignedBelow, resolutionfld_ );
+    colseqnm_ = ColTab::defSeqName();
+    setts.get( sKeyHorizonColSeqName, colseqnm_ );
+    colseqfld_ = new uiColSeqSel( this, OD::Horizontal,
+				  uiStrings::sColorTable() );
+    colseqfld_->setSeqName( colseqnm_ );
+    colseqfld_->attach( alignedBelow, resolutionfld_ );
 
     uiLabel* lbl = new uiLabel( this, tr("Default Colortable") );
-    lbl->attach( leftOf, coltabfld_ );
+    lbl->attach( leftOf, colseqfld_ );
 }
 
 
@@ -567,8 +569,8 @@ bool uiHorizonSettings::acceptOK()
 {
     updateSettings( resolution_, resolutionfld_->getIntValue(),
 		    sKeyHorizonRes );
-    updateSettings( coltabnm_, coltabfld_->colTabSeq().name(),
-		    sKeyHorizonColTab );
+    updateSettings( colseqnm_, colseqfld_->seqName(),
+		    sKeyHorizonColSeqName );
     return true;
 }
 

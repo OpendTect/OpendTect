@@ -685,7 +685,7 @@ const mVisTrans* PickSetDisplay::getDisplayTransformation() const
 void PickSetDisplay::fillPar( IOPar& par ) const
 {
     LocationDisplay::fillPar( par );
-    par.set( sKeyDisplayBody(), shoulddisplaybody_ );
+    par.setYN( sKeyDisplayBody(), shoulddisplaybody_ );
 }
 
 

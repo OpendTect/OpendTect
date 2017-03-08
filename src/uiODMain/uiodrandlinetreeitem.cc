@@ -193,7 +193,7 @@ bool uiODRandomLineParentTreeItem::setProbeToBeAddedParams( int mnuid )
 }
 
 
-uiODPrManagedTreeItem* uiODRandomLineParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODRandomLineParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
@@ -624,7 +624,7 @@ void uiODRandomLineTreeItem::editNodes()
 
     NotifyStopper notifystopper( visBase::DM().selMan().updateselnotifier );
     rtd->getRandomLine()->setNodePositions( newbids );
-    notifystopper.restore();
+    notifystopper.enableNotification();
 
     table->getZRange( zrg );
     zrg.scale( 1.f/SI().zDomain().userFactor() );

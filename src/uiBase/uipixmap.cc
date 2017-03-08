@@ -109,7 +109,8 @@ void uiPixmap::fill( const Color& col )
 { qpixmap_->fill( QColor(col.r(),col.g(),col.b()) ); }
 
 
-void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
+void uiPixmap::fill( const ColTab::Sequence& seq, bool hor,
+		     ColTab::SeqUseMode mode )
 {
     srcname_ = "[colortable]";
 
@@ -124,7 +125,7 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
     rgbarr.setSize( width(), height() );
     if ( hor )
     {
-	ColTab::IndexedLookUpTable table( seq, width() );
+	ColTab::IndexedLookUpTable table( seq, width(), mode );
 	for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
 	{
 	    const Color color = table.colorForIndex( idx1 );
@@ -134,7 +135,7 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
     }
     else // vertical colorbar
     {
-	ColTab::IndexedLookUpTable table( seq, height() );
+	ColTab::IndexedLookUpTable table( seq, height(), mode );
 	for ( int idx1=0; idx1<rgbarr.getSize(false); idx1++ )
 	{
 	    const Color color = table.colorForIndex( idx1 );

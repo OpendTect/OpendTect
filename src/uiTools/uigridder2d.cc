@@ -14,56 +14,52 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "survinfo.h"
 
-mImplFactory2Param( uiDlgGroup, uiParent*, Gridder2D*, uiGridder2DFact );
+mImplFactory2Param( uiGridder2DGrp, uiParent*, const BufferString&,
+		    uiGridder2DFact );
 
 
-uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
+uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g,
+				PolyTrend::Order trend )
     : uiDlgGroup( p, tr("Gridding") )
-    , original_( g )
 {
-    griddingparams_.allowNull();
-    BufferStringSet griddernames = Gridder2D::factory().getNames();
-    uiStringSet gridderusernames = Gridder2D::factory().getUserNames();
+    int selidx = mUdf(int);
+    const BufferStringSet griddernames = Gridder2D::factory().getNames();
+    const uiStringSet gridderusernames = Gridder2D::factory().getUserNames();
+    uiStringSet gridderusedusernames;
 
     for ( int idx=0; idx<griddernames.size(); idx++ )
     {
-	Gridder2D* gridder = g && (*griddernames[idx])==g->factoryKeyword()
-	    ? g->clone()
-	    : Gridder2D::factory().create(griddernames[idx]->buf());
-
-	if ( !gridder )
-	{
-	    griddernames.removeSingle( idx-- );
-	    gridderusernames.removeSingle( idx-- );
+	const BufferString& griddernm = griddernames.get( idx );
+	uiGridder2DGrp* uigriddergrp =
+			uiGridder2DFact().create( 0, this, griddernm, false );
+	if ( !uigriddergrp )
 	    continue;
+
+	if ( g && BufferString(g->factoryKeyword()) == griddernm )
+	{
+	    selidx = griddinggrps_.size();
+	    IOPar gridpar;
+	    gridpar.set( sKey::Name(), griddernm );
+	    g->fillPar( gridpar );
+	    gridpar.set( PolyTrend::sKeyOrder(),
+			 PolyTrend::OrderDef().getKey(trend) );
+	    uigriddergrp->usePar( gridpar );
 	}
 
-	gridders_ += gridder;
+	griddinggrps_ += uigriddergrp;
+	gridderusedusernames.add( gridderusernames.get(idx) );
+	uigriddergrp->display( false );
     }
 
     griddingsel_ = new uiGenInput( this, tr("Algorithm"),
-				   StringListInpSpec( gridderusernames ) );
+				   StringListInpSpec( gridderusedusernames ) );
     griddingsel_->valuechanged.notify( mCB(this,uiGridder2DSel,selChangeCB) );
 
-    for ( int idx=0; idx<griddernames.size(); idx++ )
-    {
-	uiDlgGroup* uigridder =
-	    uiGridder2DFact().create( 0, this, gridders_[idx], false );
+    for ( int idx=0; idx<griddinggrps_.size(); idx++ )
+	griddinggrps_[idx]->attach( alignedBelow, griddingsel_ );
 
-	griddingparams_ += uigridder;
-
-	if ( uigridder )
-	{
-	    uigridder->attach( alignedBelow, griddingsel_ );
-	    uigridder->display( false );
-	}
-    }
-
-    int selidx = original_
-	? griddernames.indexOf( original_->factoryKeyword() )
-	: -1;
-
-    if ( selidx<0 ) selidx=0;
+    if ( mIsUdf(selidx) )
+	selidx = 0;
 
     griddingsel_->setValue( selidx );
     setHAlignObj( griddingsel_ );
@@ -73,30 +69,133 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
 
 uiGridder2DSel::~uiGridder2DSel()
 {
-    griddingsel_->valuechanged.remove( mCB(this,uiGridder2DSel,selChangeCB) );
-    deepErase( gridders_ );
+    detachAllNotifiers();
 }
 
 
-const Gridder2D* uiGridder2DSel::getSel()
+bool uiGridder2DSel::usePar( const IOPar& par )
+{
+    uiGridder2DGrp* griddergrp = const_cast<uiGridder2DGrp*>( getSel() );
+
+    return griddergrp ? griddergrp->usePar(par) : false;
+}
+
+
+void uiGridder2DSel::fillPar( IOPar& par, bool withprefix ) const
+{
+    const uiGridder2DGrp* griddergrp = getSel();
+    IOPar gridderpar;
+    if ( griddergrp )
+	griddergrp->fillPar( gridderpar );
+
+    if ( withprefix )
+	par.mergeComp( gridderpar, Gridder2D::sKeyGridder() );
+    else
+	par.merge( gridderpar );
+}
+
+
+const uiGridder2DGrp* uiGridder2DSel::getSel() const
 {
     const int selidx = griddingsel_->getIntValue();
-    if ( griddingparams_[selidx] && !griddingparams_[selidx]->acceptOK() )
+    if ( !griddinggrps_.validIdx(selidx) || !griddinggrps_[selidx] )
 	return 0;
 
-    return gridders_[selidx];
+    return griddinggrps_[selidx];
 }
 
 
 void uiGridder2DSel::selChangeCB( CallBacker* )
 {
-    for ( int idx=griddingparams_.size()-1; idx>=0; idx-- )
-	if ( griddingparams_[idx] ) griddingparams_[idx]->display( false );
+    for ( int idx=griddinggrps_.size()-1; idx>=0; idx-- )
+	if ( griddinggrps_[idx] ) griddinggrps_[idx]->display( false );
 
     const int selidx = griddingsel_->getIntValue();
 
-    if ( griddingparams_[selidx] )
-	griddingparams_[selidx]->display( true );
+    if ( griddinggrps_.validIdx(selidx) && griddinggrps_[selidx] )
+	griddinggrps_[selidx]->display( true );
+}
+
+
+uiGridder2DGrp::uiGridder2DGrp( uiParent* p, const uiString nm,
+				const BufferString& griddernm, bool withtrend )
+    : uiDlgGroup(p,nm)
+    , gridder_(Gridder2D::factory().create(griddernm.buf()))
+    , trendfld_(0)
+{
+    fillPar( initialstate_ );
+
+    if ( !withtrend )
+	return;
+
+    initialstate_.set( PolyTrend::sKeyOrder(),
+		       PolyTrend::OrderDef().getKey(PolyTrend::Order2) );
+
+    trendfld_ = new uiGenInput( this, tr("Trend Polynomial"),
+				StringListInpSpec(PolyTrend::OrderDef()) );
+    setHAlignObj( trendfld_ );
+    rejectOK();
+}
+
+
+uiGridder2DGrp::~uiGridder2DGrp()
+{
+    delete gridder_;
+}
+
+
+bool uiGridder2DGrp::usePar( const IOPar& par )
+{
+    if ( trendfld_ )
+    {
+	PolyTrend::Order trend;
+	if ( PolyTrend::OrderDef().parse(par,PolyTrend::sKeyOrder(),trend) )
+	    trendfld_->setValue( PolyTrend::OrderDef().indexOf( trend ) );
+    }
+
+    BufferString griddernm;
+    if ( !par.get(sKey::Name(),griddernm) && !gridder_ )
+	return false;
+
+    if ( !gridder_ ||
+	 ( griddernm.isEmpty() &&
+	   BufferString(gridder_->factoryKeyword()) != griddernm ) )
+    {
+	delete gridder_;
+	gridder_ = Gridder2D::factory().create( griddernm.buf() );
+    }
+
+    if ( !gridder_ || !gridder_->usePar(par) )
+	return false;
+
+    putToScreen();
+
+    return true;
+}
+
+
+bool uiGridder2DGrp::fillPar( IOPar& par ) const
+{
+    if ( !gridder_ )
+	return false;
+
+    par.set( sKey::Name(), gridder_->factoryKeyword() );
+    getFromScreen();
+    gridder_->fillPar( par );
+    if ( !trendfld_ )
+	return true;
+
+    const PolyTrend::Order trend =
+		PolyTrend::OrderDef().getEnumForIndex(trendfld_->getIntValue());
+    par.set( PolyTrend::sKeyOrder(), PolyTrend::OrderDef().getKey(trend) );
+
+    return true;
+}
+
+
+bool uiGridder2DGrp::revertChanges()
+{
+    return usePar( initialstate_ );
 }
 
 
@@ -107,52 +206,78 @@ void uiInverseDistanceGridder2D::initClass()
 }
 
 
-uiDlgGroup* uiInverseDistanceGridder2D::create( uiParent* p, Gridder2D* g )
+uiGridder2DGrp* uiInverseDistanceGridder2D::create( uiParent* p,
+						const BufferString& griddernm )
 {
-    mDynamicCastGet( InverseDistanceGridder2D*, idg, g );
-    if ( !idg ) return 0;
+    if ( griddernm != InverseDistanceGridder2D::sFactoryKeyword() )
+	return 0;
 
-    return new uiInverseDistanceGridder2D( p, *idg );
+    return new uiInverseDistanceGridder2D( p, griddernm );
 }
 
 
 uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
-						InverseDistanceGridder2D& idg )
-    : uiDlgGroup( p, InverseDistanceGridder2D::sFactoryDisplayName() )
-    , idg_( idg )
-    , initialsearchradius_( idg.getSearchRadius() )
+						const BufferString& griddernm )
+    : uiGridder2DGrp(p,InverseDistanceGridder2D::sFactoryDisplayName(),
+		     griddernm)
 {
-    uiString radius = tr("Search radius %1").arg(SI().xyUnitString());
+    msg_ = tr("Search radius must be more than zero");
+    //the only thing that can go wrong
+
+    const uiString radius = tr("Search radius %1").arg(SI().xyUnitString());
     searchradiusfld_ = new uiGenInput( this, radius, FloatInpSpec() );
-    searchradiusfld_->setValue( initialsearchradius_ );
+    searchradiusfld_->setWithCheck( true );
+    if ( trendFld() )
+	trendFld()->attach( alignedBelow, searchradiusfld_ );
+
     setHAlignObj( searchradiusfld_ );
+
+    revertChanges();
 }
 
 
-const uiString uiInverseDistanceGridder2D::errMsg() const
-{ return tr("Search radius must be more than zero"); }
-//the only thing that can go wrong
-
-
-bool uiInverseDistanceGridder2D::acceptOK()
+void uiInverseDistanceGridder2D::getFromScreen() const
 {
-    const float searchradius = searchradiusfld_->getFValue();
-    if ( searchradius<0 )
-	return false;
-
-    idg_.setSearchRadius( searchradius );
-    return true;
+    IOPar par;
+    const float radius = searchradiusfld_->isChecked()
+		       ? searchradiusfld_->getFValue() : mUdf(float);
+    par.set( InverseDistanceGridder2D::sKeySearchRadius(), radius );
+    gridder_->usePar( par );
 }
 
 
-bool uiInverseDistanceGridder2D::rejectOK()
+void uiInverseDistanceGridder2D::putToScreen()
 {
-    return revertChanges();
+    IOPar par;
+    gridder_->fillPar( par );
+    float radius = mUdf(float);
+    if ( par.get(InverseDistanceGridder2D::sKeySearchRadius(),radius) )
+	searchradiusfld_->setValue( radius );
+
+    searchradiusfld_->setChecked( !mIsUdf(radius) );
 }
 
 
-bool uiInverseDistanceGridder2D::revertChanges()
+void uiTriangulatedGridder2D::initClass()
 {
-    idg_.setSearchRadius( initialsearchradius_ );
-    return true;
+    uiGridder2DFact().addCreator( uiTriangulatedGridder2D::create );
+}
+
+
+uiGridder2DGrp* uiTriangulatedGridder2D::create( uiParent* p,
+						const BufferString& griddernm )
+{
+    if ( griddernm != TriangulatedGridder2D::sFactoryKeyword() )
+	return 0;
+
+    return new uiTriangulatedGridder2D( p, griddernm );
+}
+
+
+uiTriangulatedGridder2D::uiTriangulatedGridder2D ( uiParent* p,
+						 const BufferString& griddernm )
+    : uiGridder2DGrp( p, TriangulatedGridder2D::sFactoryDisplayName(),
+		      griddernm )
+{
+    revertChanges();
 }

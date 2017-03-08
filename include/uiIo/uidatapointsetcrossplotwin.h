@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidatapointsetcrossplot.h"
 #include "uimainwin.h"
 
-class uiColorTableToolBar;
+class uiColTabToolBar;
 class uiComboBox;
 class uiDataPointSetCrossPlotterPropDlg;
 class uiDPSRefineSelDlg;
@@ -55,7 +55,7 @@ protected:
     uiToolBar&			disptb_;
     uiToolBar&			seltb_;
     uiToolBar&			maniptb_;
-    uiColorTableToolBar&	colortb_;
+    uiColTabToolBar&		colortb_;
     uiSpinBox*			eachfld_;
     uiComboBox*			grpfld_;
     uiComboBox*			selfld_;

@@ -54,7 +54,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 	, setup_(setup)
 {
     welllogselfld_ =
-	new uiMultiWellLogSel( this, setup.singlelog_, 
+	new uiMultiWellLogSel( this, setup.singlelog_,
 					&uiWellExtractParams::Setup()
 					.withsampling(true).withzstep(true)
 					.withextractintime(SI().zIsTime())
@@ -102,7 +102,9 @@ void uiWellLogExtractGrp::releaseDPS()
 
 
 const DataPointSet* uiWellLogExtractGrp::getDPS() const
-{ return curdps_; }
+{
+    return curdps_;
+}
 
 
 void uiWellLogExtractGrp::setDescSet( const Attrib::DescSet* newads )
@@ -312,7 +314,7 @@ bool uiWellLogExtractGrp::extractDPS()
 	}
     }
 
-    deepErase( dpss );
+    deepUnRef( dpss );
     curdps_->dataChanged();
     MouseCursorManager::restoreOverride();
     if ( curdps_->isEmpty() )

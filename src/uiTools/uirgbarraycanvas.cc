@@ -15,9 +15,9 @@
 #include "uipixmap.h"
 
 uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
-    	: uiGraphicsView(p,"RGB Array view")
-	, rgbarr_(a) 
-	, bgcolor_(Color::NoColor()) 
+	: uiGraphicsView(p,"RGB Array view")
+	, rgbarr_(a)
+	, bgcolor_(Color::NoColor())
 	, dodraw_(true)
 	, pixmapitm_(0)
 	, pixmap_(0)
@@ -61,13 +61,13 @@ void uiRGBArrayCanvas::setDrawArr( bool yn )
 
 void uiRGBArrayCanvas::beforeDraw()
 {
-    beforeDraw( mNINT32(scene().width()), mNINT32(scene().height()) );
+    beforeDraw( scene().nrPixX(), scene().nrPixY() );
 }
 
 
 void uiRGBArrayCanvas::beforeDraw( int w, int h )
 {
-    const uiSize totsz( w, h ); 
+    const uiSize totsz( w, h );
     const int unusedpix = 0;
     arrarea_ = border_.getRect( totsz, unusedpix );
     const int xsz = arrarea_.width() + 1;

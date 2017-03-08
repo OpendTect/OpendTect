@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uidialog.h"
 
-class uiColorTableGroup;
+class uiColTabSel;
 class uiComboBox;
 class uiDataPointSetCrossPlotter;
 
@@ -30,13 +30,13 @@ public:
 protected:
 
     uiDataPointSetCrossPlotter&	plotter_;
-    uiColorTableGroup*		y3coltabfld_;
-    uiColorTableGroup*		y4coltabfld_;
+    uiColTabSel*		y3coltabfld_;
+    uiColTabSel*		y4coltabfld_;
     uiComboBox*			y3propselfld_;
     uiComboBox*			y4propselfld_;
     TypeSet<int>		colids_;
 
-    const char* 	userName(int did) const;
+    const char*	userName(int did) const;
     void		doApply(CallBacker*);
     bool		acceptOK();
     void		attribChanged(CallBacker*);

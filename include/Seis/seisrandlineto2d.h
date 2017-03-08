@@ -18,11 +18,10 @@ ________________________________________________________________________
 
 class IOObj;
 class od_ostream;
-class SeisTrcReader;
 class SeisTrcWriter;
 class SeisTrcBuf;
 
-namespace Seis { class TableSelData; }
+namespace Seis { class Provider; class TableSelData; }
 namespace Geometry { class RandomLine; }
 
 mExpClass(Seis) SeisRandLineTo2D : public Executor
@@ -41,9 +40,10 @@ public:
 
 protected:
 
-    SeisTrcReader*	rdr_;
+    Seis::Provider*	prov_;
     SeisTrcWriter*	wrr_;
     Pos::GeomID		geomid_;
+    uiString		errmsg_;
     int			nrdone_;
     int			totnr_;
 

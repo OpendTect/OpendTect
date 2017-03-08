@@ -35,6 +35,9 @@ IF "%1"=="--command" (
 ) ELSE IF "%1"=="--qtdir" (
     set qtdir=%2
     shift
+) ELSE IF "%1"=="--oddir" (
+    set args=%args% --oddir %2
+    shift
 ) ELSE ( goto do_it )
 
 shift

@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 #include "datapack.h"
+#include "coltabsequence.h"
+#include "coltabmappersetup.h"
 
 class uiHistogramDisplay;
 class uiLineItem;
@@ -22,17 +24,18 @@ class uiTextItem;
 class uiAxisHandler;
 
 template <class T> class Array2D;
-namespace ColTab { class MapperSetup; class Sequence; }
+namespace ColTab { class MapperSetup; }
 
 mExpClass(uiTools) uiMapperRangeEditor : public uiGroup
 {
 public:
 
-				uiMapperRangeEditor(uiParent*,int id,
-					bool fixdrawrg=true);
-				~uiMapperRangeEditor();
+    typedef ColTab::MapperSetup	MapperSetup;
 
-    int				ID()		{ return id_; }
+				uiMapperRangeEditor(uiParent*,int an_id=0,
+						    bool fixdrawrg=true);
+				~uiMapperRangeEditor();
+    int				ID() const		{ return id_; }
 
     void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
@@ -40,23 +43,20 @@ public:
     void			setData(const IOPar&);
     void			setMarkValue(float,bool forx);
 
-    void			setColTabMapperSetup(
-	    				const ColTab::MapperSetup&);
+    const ColTab::MapperSetup&	mapperSetup()	{ return *mappersetup_; }
+    void			setMapperSetup(MapperSetup&);
     void			setColTabSeq(const ColTab::Sequence&);
-    const ColTab::MapperSetup&	getColTabMapperSetup()	{ return *ctmapper_; }
 
     uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }
 
-    Notifier<uiMapperRangeEditor>	rangeChanged;
-
 protected:
 
+    const int			id_;
     uiHistogramDisplay*		histogramdisp_;
-    int 			id_;
     uiAxisHandler*		xax_;
 
-    ColTab::MapperSetup*	ctmapper_;
-    ColTab::Sequence*		ctseq_;
+    RefMan<MapperSetup>		mappersetup_;
+    ConstRefMan<ColTab::Sequence> ctseq_;
 
     uiPixmapItem*		leftcoltab_;
     uiPixmapItem*		centercoltab_;
@@ -74,7 +74,7 @@ protected:
 
     bool			mousedown_;
 
-    void 			init();
+    void			init();
     void			drawAgain();
     void			drawText();
     void			drawLines();

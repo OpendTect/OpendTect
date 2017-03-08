@@ -36,6 +36,8 @@ mExpClass(General) PointDataPack : public DataPack
 {
 public:
 
+    mDeclAbstractMonitorableAssignment(PointDataPack);
+
     virtual int			size() const			= 0;
     virtual BinID		binID(int) const		= 0;
     virtual float		z(int) const			= 0;
@@ -49,8 +51,8 @@ public:
 
 protected:
 
-				PointDataPack( const char* categry )
-				    : DataPack( categry )	{}
+				PointDataPack(const char*);
+    				~PointDataPack();
 
 };
 
@@ -66,8 +68,7 @@ public:
 				FlatDataPack(const char* categry,
 					     Array2D<float>*);
 				//!< Array2D become mine (of course)
-				FlatDataPack(const FlatDataPack&);
-				~FlatDataPack();
+				mDeclMonitorableAssignment(FlatDataPack);
 
     virtual Array2D<float>&	data()			{ return *arr2d_; }
     const Array2D<float>&	data() const
@@ -106,6 +107,7 @@ protected:
 				FlatDataPack(const char* category);
 				//!< For this you have to overload data()
 				//!< and the destructor
+				~FlatDataPack();
 
     Array2D<float>*		arr2d_;
     FlatPosData&		posdata_;
@@ -125,7 +127,7 @@ public:
 				MapDataPack(const char* cat,
 					    Array2D<float>*);
 				//!<Array becomes mine
-				~MapDataPack();
+				mDeclMonitorableAssignment(MapDataPack);
 
     Array2D<float>&		data();
     const Array2D<float>&	rawData() const	{ return *arr2d_; }
@@ -145,13 +147,15 @@ public:
 
 protected:
 
+				~MapDataPack();
+
     float			getValAtIdx(int,int) const;
     friend class		MapDataPackXYRotater;
 
     Array2D<float>*		xyrotarr2d_;
     FlatPosData&		xyrotposdata_;
     bool			isposcoord_;
-    TypeSet<BufferString>	axeslbls_;
+    BufferStringSet		axeslbls_;
     Threads::Lock		initlock_;
 };
 
@@ -162,7 +166,8 @@ protected:
 mExpClass(General) VolumeDataPack : public DataPack
 {
 public:
-				~VolumeDataPack();
+
+    mDeclAbstractMonitorableAssignment(VolumeDataPack);
 
     virtual VolumeDataPack*	getSimilar() const			= 0;
     virtual bool		is2D() const				= 0;
@@ -226,7 +231,9 @@ public:
     void			dumpInfo(IOPar&) const;
 
 protected:
+
 				VolumeDataPack(const char*,const BinDataDesc*);
+				~VolumeDataPack();
 
     bool			addArray(int sz0,int sz1,int sz2);
 

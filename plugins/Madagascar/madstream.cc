@@ -23,7 +23,7 @@
 #include "seispsread.h"
 #include "seispswrite.h"
 #include "seisbuf.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -62,7 +62,7 @@ MadStream::MadStream( IOPar& par )
     : pars_(par)
     , is2d_(false),isps_(false),isbinary_(true)
     , istrm_(0),ostrm_(0)
-    , seisrdr_(0),seiswrr_(0)
+    , seisprov_(0),seiswrr_(0)
     , psrdr_(0),pswrr_(0)
     , trcbuf_(0),curtrcidx_(-1)
     , stortrcbuf_(0)
@@ -99,7 +99,7 @@ MadStream::~MadStream()
         deleteAndZeroPtr(ostrm_);
     }
 
-    delete seisrdr_; delete seiswrr_;
+    delete seisprov_; delete seiswrr_;
     delete psrdr_; delete pswrr_;
     delete trcbuf_; delete iter_; delete cubedata_; delete l2ddata_;
     delete &errmsg_;
@@ -205,9 +205,11 @@ void MadStream::initRead( IOPar* par )
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
     if ( !isps_ )
     {
-	seisrdr_ = new SeisTrcReader( ioobj );
-	seisrdr_->setSelData( seldata );
-	seisrdr_->prepareWork();
+	uiRetVal uirv;
+	seisprov_ = Seis::Provider::create( inpid, &uirv );
+	if ( !seisprov_ )
+	    mErrRet( uirv );
+	seisprov_->setSelData( seldata );
 	fillHeaderParsFromSeis();
     }
     else
@@ -321,7 +323,7 @@ uiString MadStream::sPosFile()
 
 void MadStream::fillHeaderParsFromSeis()
 {
-    if (!seisrdr_) mErrRet(uiStrings::sCantReadInp());
+    if ( !seisprov_ ) mErrRet(uiStrings::sCantReadInp());
 
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 
@@ -333,11 +335,11 @@ void MadStream::fillHeaderParsFromSeis()
     BufferString posfnm = getPosFileName( false );
     if ( is2d_ )
     {
-	const IOObj* ioobj = seisrdr_->ioObj();
-	if (!ioobj) mErrRet(tr("No nput object"));
+	PtrMan<IOObj> ioobj = DBM().get( seisprov_->dbKey() );
+	if (!ioobj) mErrRet(tr("No input object"));
 
 	Seis2DDataSet dset( *ioobj );
-	const Seis::SelData* seldata = seisrdr_->selData();
+	const Seis::SelData* seldata = seisprov_->selData();
 	if (!seldata) mErrRet(tr("Invalid data subselection"));
 
 	const int lidx = dset.indexOf( seldata->geomID() );
@@ -364,40 +366,39 @@ void MadStream::fillHeaderParsFromSeis()
     }
     else
     {
-	SeisPacketInfo& pinfo = seisrdr_->seisTranslator()->packetInfo();
-	zrg = pinfo.zrg;
-	trcrg = pinfo.crlrg;
+	TrcKeyZSampling tkzs;
+	mDynamicCastGet(const Seis::Provider3D&,prov3d,*seisprov_);
+	prov3d.getRanges( tkzs );
+	zrg = tkzs.zsamp_;
+	trcrg = tkzs.hsamp_.trcRange();
 
-	mDynamicCastGet(const Seis::RangeSelData*,rangesel,seisrdr_->selData())
-	if ( rangesel && !rangesel->isAll() )
+	mDynamicCastGet(const Seis::RangeSelData*,rgsel,seisprov_->selData())
+	if ( rgsel && !rgsel->isAll() )
 	{
-	    zrg.limitTo( rangesel->zRange() );
-	    trcrg.limitTo( rangesel->crlRange() );
+	    zrg.limitTo( rgsel->zRange() );
+	    trcrg.limitTo( rgsel->crlRange() );
 	}
 
-	if ( pinfo.fullyrectandreg )
-	    needposfile = false;
-	else
+	PosInfo::CubeData newcd;
+	prov3d.getGeometryInfo( newcd );
+	if ( rgsel && !rgsel->isAll() )
+	    newcd.limitTo( rgsel->cubeSampling().hsamp_ );
+
+	needposfile = !newcd.isFullyRectAndReg();
+	if ( needposfile )
 	{
-	    if (!pinfo.cubedata) mErrRet(tr("Incomplete Geometry "
-					    "Information"));
-
-	    PosInfo::CubeData newcd( *pinfo.cubedata );
-	    if ( rangesel && !rangesel->isAll() )
-		newcd.limitTo( rangesel->cubeSampling().hsamp_ );
-
-	    needposfile = !newcd.isFullyRectAndReg();
-	    if ( needposfile )
-	    {
-		nrtrcs = newcd.totalSize();
-		mWriteToPosFile( newcd )
-	    }
+	    nrtrcs = newcd.totalSize();
+	    mWriteToPosFile( newcd )
 	}
 
 	if ( !needposfile )
 	{
-	    StepInterval<int> inlrg = rangesel ?
-		rangesel->cubeSampling().hsamp_.inlRange() : pinfo.inlrg;
+	    StepInterval<int> inlrg;
+	    if ( rgsel )
+		rgsel->cubeSampling().hsamp_.inlRange();
+	    else
+		newcd.getInlRange( inlrg );
+
 	    headerpars_->set( "o3", inlrg.start );
 	    headerpars_->set( "n3", inlrg.nrSteps()+1 );
 	    headerpars_->set( "d3", inlrg.step );
@@ -497,7 +498,7 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     headerpars_->set( "n3", nrbids );
 
     headerpars_->set( "o2", firsttrc->info().offset_ );
-    headerpars_->set( "d2", nexttrc->info().offset_ - firsttrc->info().offset_ );
+    headerpars_->set( "d2",nexttrc->info().offset_-firsttrc->info().offset_);
     headerpars_->set( "n2", nroffsets_ );
 
     headerpars_->set( "o1", firsttrc->info().sampling_.start );
@@ -620,15 +621,17 @@ bool MadStream::getNextTrace( float* arr )
 	readRSFTrace( arr, nrsamps );
 	return !istrm_->isBad();
     }
-    else if ( seisrdr_ )
+    else if ( seisprov_ )
     {
 	SeisTrc trc;
-	const uiString errmsg = uiStrings::phrCannotRead( tr("traces") );
-	const int rv = seisrdr_->get( trc.info() );
-	if (rv < 0) mErrBoolRet( errmsg )
-	else if ( rv == 0 ) return false;
+	const uiRetVal uirv = seisprov_->getNext( trc );
+	if ( !uirv.isOK() )
+	{
+	    if ( !isFinished(uirv) )
+		errmsg_ = uirv;
+	    return false;
+	}
 
-	if (!seisrdr_->get(trc)) mErrBoolRet(errmsg);
 	for ( int idx=0; idx<trc.size(); idx++ )
 	    arr[idx] = trc.get( idx, 0 );
 

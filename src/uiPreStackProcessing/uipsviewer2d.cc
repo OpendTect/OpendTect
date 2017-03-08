@@ -42,7 +42,7 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p  )
     viewer_->appearance().ddpars_.wva_.show_ = false;
     viewer_->appearance().ddpars_.vd_.show_ = true;
     viewer_->appearance().ddpars_.vd_.lininterp_ = true;
-    viewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
+    viewer_->appearance().ddpars_.vd_.mappersetup_->setSymMidVal( 0.f );
 
     gatherpainter_ = new Viewer2DGatherPainter( *viewer_ );
 }

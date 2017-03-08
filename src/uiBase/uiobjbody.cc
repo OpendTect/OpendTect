@@ -27,7 +27,7 @@ mUseQtnamespace
 
 uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     : uiBody()
-    , NamedMonitorable( nm )
+    , NamedCallBacker( nm )
     , layoutItem_( 0 )
     , parent_( parnt ? mParntBody(parnt) : 0  )
     , font_( 0 )

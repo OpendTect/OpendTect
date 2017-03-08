@@ -5,7 +5,7 @@
 -*/
 
 
-#include "namedobj.h"
+#include "namedmonitorable.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include <ctype.h>
@@ -37,6 +37,32 @@ void NamedObject::putNameInPar( IOPar& iop ) const
 }
 
 
+NamedCallBacker::NamedCallBacker( const char* nm )
+    : NamedObject(nm)
+    , delnotif_(this)
+    , delalreadytriggered_(false)
+{
+}
+
+
+NamedCallBacker::NamedCallBacker( const NamedCallBacker& oth )
+    : NamedObject(oth)
+    , delnotif_(this)
+    , delalreadytriggered_(false)
+{
+}
+
+
+void NamedCallBacker::sendDelNotif() const
+{
+    if ( !delalreadytriggered_ )
+    {
+	delalreadytriggered_ = true;
+	objectToBeDeleted().trigger();
+    }
+}
+
+
 NamedMonitorable::NamedMonitorable( const char* nm )
     : NamedObject(nm)
 {
@@ -64,11 +90,10 @@ void NamedMonitorable::copyClassData( const NamedMonitorable& oth )
     name_ = oth.name_;
 }
 
-
-bool NamedMonitorable::operator ==( const NamedMonitorable& oth ) const
+Monitorable::ChangeType NamedMonitorable::compareClassData(
+					const NamedMonitorable& oth ) const
 {
-    mLock4Read();
-    return name_ == oth.getName();
+    mDeliverSingCondMonitorableCompare( name_ == oth.getName(), cNameChange() );
 }
 
 

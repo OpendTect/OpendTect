@@ -25,10 +25,14 @@ class BinIDWiseTask : public ParallelTask
 public:
 
 		BinIDWiseTask( Step& ro )
-		    : step_( ro ), totalnr_( -1 ) { setName(ro.userName()); }
+		    : step_( ro ), totalnr_( -1 )
+		{
+		    setName(ro.userName());
+		    msg_ = tr("Executing Volume Builder Task");
+		}
 
-    uiString	message() const	{ return errmsg_; }
-    uiString	nrDoneText() const	{ return tr("Positions done"); }
+    uiString	message() const	{ return msg_; }
+    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
 
 protected:
 
@@ -87,13 +91,13 @@ protected:
     bool	doPrepare( int nrthreads )
 		{
 		    const bool res = step_.prepareComp( nrthreads );
-		    if ( !res ) errmsg_ = step_.errMsg();
+		    if ( !res ) msg_ = step_.errMsg();
 		    return res;
 		}
 
     Step&		step_;
     mutable int		totalnr_;
-    uiString		errmsg_;
+    uiString		msg_;
 };
 
 } // namespace VolProc

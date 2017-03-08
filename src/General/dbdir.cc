@@ -29,14 +29,7 @@ static BufferString omfFileName( const char* dirnm )
 }
 
 
-#define mInitVarList \
-	  curnr_(0) \
-	, readtime_(-1) \
-	, curtmpnr_(IOObj::tmpObjNrStart())
-
-
 DBDir::DBDir()
-	: mInitVarList
 {
     mTriggerInstanceCreatedNotifier();
 }
@@ -54,7 +47,6 @@ DBDir::DBDir( const DBDir& oth )
 
 DBDir::DBDir( const char* dirnm )
 	: dirname_(dirnm)
-	, mInitVarList
 {
     readFromFile( false );
     mTriggerInstanceCreatedNotifier();
@@ -62,7 +54,6 @@ DBDir::DBDir( const char* dirnm )
 
 
 DBDir::DBDir( DirID dirid )
-	: mInitVarList
 {
     fromDirID( dirid, false );
     mTriggerInstanceCreatedNotifier();
@@ -70,12 +61,8 @@ DBDir::DBDir( DirID dirid )
 
 
 DBDir::DBDir( IOObjContext::StdSelType seltyp )
-	: dirid_(IOObjContext::getStdDirData(seltyp)->id_)
-	, mInitVarList
-{
-    fromDirID( dirid_, false );
-    mTriggerInstanceCreatedNotifier();
-}
+    : DBDir(IOObjContext::getStdDirData(seltyp)->id_)
+{}
 
 
 void DBDir::fromDirID( DirID dirid, bool inc_old_tmps )
@@ -122,6 +109,19 @@ void DBDir::copyClassData( const DBDir& oth )
     curnr_ = oth.curnr_;
     curtmpnr_ = oth.curtmpnr_;
     errmsg_ = oth.errmsg_;
+}
+
+
+Monitorable::ChangeType DBDir::compareClassData( const DBDir& oth ) const
+{
+    if ( objs_.size() != oth.objs_.size() )
+	return cEntireObjectChange();
+
+    for ( int idx=0; idx<objs_.size(); idx++ )
+	if ( objs_[idx]->key() != oth.objs_[idx]->key() )
+	    return cEntireObjectChange();
+
+    return cNoChange();
 }
 
 

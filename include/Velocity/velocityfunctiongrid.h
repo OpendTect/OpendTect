@@ -95,7 +95,6 @@ protected:
     GriddedFunction*		createFunction(const BinID&);
 				~GriddedSource();
     bool			initGridder();
-    static const char*		sKeyGridder() { return "Gridder"; }
 
     void			sourceChangeCB(CallBacker*);
 

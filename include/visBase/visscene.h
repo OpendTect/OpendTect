@@ -11,9 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
-#include "sets.h"
 #include "visdatagroup.h"
+#include "sets.h"
 
 /*!\brief Open Scene Graph*/
 
@@ -55,10 +54,10 @@ public:
     bool		saveCurrentOffsetAsDefault() const;
 
     bool		blockMouseSelection(bool yn);
-    			/*!<\returns previous status. */
+			/*!<\returns previous status. */
 
-    Camera*		getCamera() 			{ return camera_; }
-    const Camera*	getCamera() const 		{ return camera_; }
+    Camera*		getCamera()			{ return camera_; }
+    const Camera*	getCamera() const		{ return camera_; }
     virtual void	setCamera(Camera*);
 
     EventCatcher&	eventCatcher();

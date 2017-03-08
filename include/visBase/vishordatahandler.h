@@ -9,9 +9,10 @@ ________________________________________________________________________
 
 -*/
 
-// this header file only be used in the classes related to Horzonsection . 
+// this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
+#include "visbasecommon.h"
 #include "refcount.h"
 
 class ZAxisTransform;
@@ -40,9 +41,9 @@ protected:
 private:
       void			removeZTransform();
 
-      ZAxisTransform*  		zaxistransform_;
-      int			zaxistransformvoi_; 
-		       		//-1 not needed by zaxistransform, -2 not set
+      ZAxisTransform*		zaxistransform_;
+      int			zaxistransformvoi_;
+				//-1 not needed by zaxistransform, -2 not set
       const HorizonSection*	horsection_;
 
       friend class		HorizonSection;

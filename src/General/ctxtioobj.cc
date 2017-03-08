@@ -211,13 +211,6 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
     return true;
 }
 
-#define mInitRefs \
-  stdseltype( stdseltype_ ) \
-, trgroup( trgroup_ ) \
-, multi( multi_ )\
-, forread( forread_ ) \
-, deftransl( deftransl_ ) \
-, toselect( toselect_ )
 
 mStartAllowDeprecatedSection
 
@@ -225,7 +218,6 @@ IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
     : NamedObject(prefname)
     , trgroup_(trg)
     , stdseltype_(None)
-    , mInitRefs
 {
     multi_ = false;
     forread_ = true;
@@ -234,7 +226,6 @@ IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
 
 IOObjContext::IOObjContext( const IOObjContext& oth )
     : NamedObject(oth)
-    , mInitRefs
 {
     *this = oth;
 }

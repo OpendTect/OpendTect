@@ -11,12 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
+#include "vishorizonsectiondef.h"
+#include "visobject.h"
 #include "arrayndimpl.h"
 #include "rowcol.h"
-#include "visobject.h"
 #include "geomelement.h"
-#include "vishorizonsectiondef.h"
+#include "coltabmapper.h"
 
 class BinIDValueSet;
 class DataPointSet;
@@ -26,7 +26,7 @@ class TaskRunner;
 
 
 namespace Geometry { class BinIDSurface; }
-namespace ColTab { class Sequence; class MapperSetup; }
+namespace ColTab { class Sequence; }
 namespace osgGeo { class LayeredTexture; }
 namespace osg { class CullStack; }
 
@@ -73,12 +73,12 @@ public:
 
     void			setColTabSequence(int channel,
 						  const ColTab::Sequence&);
-    const ColTab::Sequence*	getColTabSequence(int channel) const;
+    const ColTab::Sequence&	getColTabSequence(int channel) const;
     void			setColTabMapperSetup(int channel,
 						const ColTab::MapperSetup&,
 						TaskRunner*);
-    const ColTab::MapperSetup*	getColTabMapperSetup(int channel) const;
-    const TypeSet<float>*	getHistogram(int channel) const;
+    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int channel) const;
+    const DistribType&		getDataDistribution(int channel) const;
 
     void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;

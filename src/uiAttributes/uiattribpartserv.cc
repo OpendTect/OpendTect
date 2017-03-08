@@ -96,13 +96,13 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , multcomp3d_(uiStrings::s3D())
     , multcomp2d_(uiStrings::s2D())
     , dpsdispmgr_( 0 )
-    , evalmapperbackup_( 0 )
     , attrsneedupdt_(true)
     , manattribsetdlg_(0)
     , impattrsetdlg_(0)
     , volattrdlg_(0)
     , multiattrdlg_(0)
     , dataattrdlg_(0)
+    , evalmapperbackup_ (0)
 {
     attrsetclosetim_.tick.notify(
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -698,8 +698,17 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     bool atsamplepos = true;
 
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
+    RefMan<RegularSeisDataPack> preloadeddatapack = 0;
+
     if ( targetdesc )
     {
+	if ( targetdesc->isStored() )
+	{
+	    const DBKey mid( targetdesc->getStoredID() );
+	    preloadeddatapack =
+			Seis::PLDM().getAndCast<RegularSeisDataPack>( mid );
+	}
+
 	BufferString defstr;
 	targetdesc->getDefStr( defstr );
 	if ( defstr != targetspecs_[0].defString() )
@@ -727,7 +736,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     bool success = true;
     PtrMan<Processor> process = 0;
     RefMan<RegularSeisDataPack> output = 0;
-    if ( !atsamplepos )//note: 1 attrib computed at a time
+    if ( !preloadeddatapack && !atsamplepos )//note: 1 attrib computed at a time
     {
 	if ( !targetdesc ) return 0;
 	Pos::RangeProvider3D rgprov3d;
@@ -736,14 +745,14 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	ManagedObjectSet<DataColDef> dtcoldefset;
 	dtcoldefset += dtcd;
 	uiTaskRunner taskrunner( parent() );
-	DataPointSet posvals( rgprov3d.is2D() );
-	if ( !posvals.extractPositions(rgprov3d,dtcoldefset,0,&taskrunner) )
+	RefMan<DataPointSet> posvals = new DataPointSet( rgprov3d.is2D() );
+	if ( !posvals->extractPositions(rgprov3d,dtcoldefset,0,&taskrunner) )
 	    return 0;
 
 	const int firstcolidx = 0;
 
 	uiString errmsg;
-	process = aem->getTableOutExecutor( posvals, errmsg, firstcolidx );
+	process = aem->getTableOutExecutor( *posvals, errmsg, firstcolidx );
 	if ( !process )
 	    { uiMSG().error(errmsg); return 0; }
 
@@ -751,7 +760,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	    return 0;
 
 	TypeSet<float> vals;
-	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, vals,
+	posvals->bivSet().getColumn( posvals->nrFixedCols()+firstcolidx, vals,
 				    true );
 	if ( !vals.isEmpty() )
 	{
@@ -774,17 +783,11 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     }
     else
     {
-	if ( targetdesc && targetdesc->isStored() )
+	if ( preloadeddatapack )
 	{
-	    const DBKey mid( targetdesc->getStoredID() );
-	    RefMan<RegularSeisDataPack> sdp =
-		Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
-	    if ( sdp )
-	    {
-		ObjectSet<const RegularSeisDataPack> cubeset;
-		cubeset += sdp;
-		return aem->getDataPackOutput( cubeset );
-	    }
+	    ObjectSet<const RegularSeisDataPack> cubeset;
+	    cubeset += preloadeddatapack;
+	    return aem->getDataPackOutput( cubeset );
 	}
 
 	uiString errmsg;
@@ -869,7 +872,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 		    uiDialog::Setup(tr("Question"),mNoDlgTitle,mNoHelpKey) );
 		uiString msg( tr("Pre-loaded data does not cover the "
 				"full requested area.\n"
-				"Please choose one of the following options:") );
+				"Please choose one of the following options:"));
 		uiLabel* lbl = new uiLabel( &dlg, msg );
 		uiButtonGroup* grp =
 		    new uiButtonGroup( &dlg, "Options", OD::Vertical );
@@ -889,6 +892,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 		uiTaskRunner uitr( parent() );
 		const int comp = targetdesc->selectedOutput();
 		DPSFromVolumeFiller filler( posvals, firstcol, *sdp, comp );
+		filler.setSampling( &sdp->sampling() );
 		return TaskRunner::execute( &uitr, filler );
 	    }
 	}
@@ -2061,22 +2065,27 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 void uiAttribPartServer::setEvalBackupColTabMapper(
 			const ColTab::MapperSetup* mp )
 {
-    if ( evalmapperbackup_ && mp )
-	*evalmapperbackup_ = *mp;
-    else if ( !mp )
+    if ( evalmapperbackup_ == mp )
+	return;
+
+    if ( evalmapperbackup_ )
     {
-	delete evalmapperbackup_;
+	evalmapperbackup_->unRef();
 	evalmapperbackup_ = 0;
     }
-    else if ( mp )
+
+    if ( mp )
     {
-	evalmapperbackup_ = new ColTab::MapperSetup( *mp );
+    	evalmapperbackup_ = new ColTab::MapperSetup( *mp );
+	evalmapperbackup_->ref();
     }
 }
 
 
 const ColTab::MapperSetup* uiAttribPartServer::getEvalBackupColTabMapper() const
-{ return evalmapperbackup_; }
+{
+    return evalmapperbackup_;
+}
 
 
 void uiAttribPartServer::survChangedCB( CallBacker* )

@@ -17,9 +17,9 @@ BaseMapObject::BaseMapObject( const char* nm )
     , changed(this)
     , leftClicked(this)
     , rightClicked(this)
-    , stylechanged(this)
-    , zvaluechanged(this)
-    , namechanged(this)
+    , styleChanged(this)
+    , zvalueChanged(this)
+    , nameChanged(this)
     , depth_(0)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, treeitmid, (1000) );
@@ -36,7 +36,7 @@ BaseMapObject::~BaseMapObject()
 void BaseMapObject::setDepth( int val )
 {
     depth_ = val;
-    zvaluechanged.trigger();
+    zvalueChanged.trigger();
 }
 
 

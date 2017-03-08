@@ -10,15 +10,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
+#include "visdata.h"
+#include "visosg.h"
 
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "color.h"
 #include "ranges.h"
 #include "trckeyzsampling.h"
-#include "visdata.h"
-#include "visosg.h"
 
 class TaskRunner;
 template <class T> class Array3D;
@@ -42,7 +41,7 @@ mExpClass(visBase) VolumeRenderScalarField : public DataObject
 public:
 
     static VolumeRenderScalarField*	create()
-	                        	mCreateDataObj(VolumeRenderScalarField);
+		mCreateDataObj(VolumeRenderScalarField);
 
     void			setChannels2RGBA(visBase::TextureChannel2RGBA*);
     TextureChannel2RGBA*	getChannels2RGBA();
@@ -59,7 +58,7 @@ public:
 						     TaskRunner* tskr );
     const ColTab::Mapper&	getColTabMapper(int attr);
 
-    const TypeSet<float>&	getHistogram(int attr) const;
+    const DistribType&		getDataDistribution(int attr) const;
 
     const uiString		writeVolumeFile(int attr,od_ostream&) const;
 				//!<\returns 0 on success, otherwise errmsg
@@ -97,7 +96,7 @@ public:
     bool			isRightHandSystem() const;
 
 protected:
-    				~VolumeRenderScalarField();
+				~VolumeRenderScalarField();
 
     void			updateResizeCache(int attr,TaskRunner*);
     void			makeIndices(int attr,TaskRunner*);
@@ -129,7 +128,7 @@ protected:
 	TrcKeyZSampling			datatkzs_;
 	const ValueSeries<float>*	resizecache_;
 	bool				ownsresizecache_;
-	TypeSet<float>			histogram_;
+	RefMan<DistribType>		distrib_;
     };
 
     ObjectSet<AttribData>		attribs_;

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "visbasemod.h"
 #include "visosg.h"
 #include "visobject.h"
 #include "color.h"
@@ -81,7 +80,7 @@ public:
     bool		usePar(const IOPar&);
 
     void		setDisplayTransformation(const mVisTrans*);
-    const mVisTrans*    getDisplayTransformation() const 
+    const mVisTrans*    getDisplayTransformation() const
 			{ return displaytrans_; }
     virtual void	setPixelDensity(float);
     const Text2*	getAnnotTexts() const { return axisannot_; }
@@ -90,7 +89,7 @@ public:
     void		setScene(Scene*);
     void		allowShading(bool yn) { allowshading_=yn; }
 private:
-    			~Annotation();
+			~Annotation();
     void		firstTraversal(CallBacker*);
     void		initGridLines();
     void		updateGridLines();

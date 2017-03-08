@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uigroup.h"
 #include "uistring.h"
+#include "coltabmappersetup.h"
 
 class PropertyRef;
 class uiGraphicsScene;
@@ -31,14 +32,16 @@ namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
 mStruct(uiStrat) LMPropSpecificDispPars
 {
 			LMPropSpecificDispPars( const char* nm=0 )
-			    : propnm_(nm)	{}
+			    : propnm_(nm)
+			    , mappersetup_(new ColTab::MapperSetup)	{}
     bool		operator==( const LMPropSpecificDispPars& oth ) const
 			{ return propnm_ == oth.propnm_; }
 
-    ColTab::MapperSetup	mapper_;
-    BufferString	ctab_;
+    RefMan<ColTab::MapperSetup>	mappersetup_;
+    BufferString	colseqname_;
     float		overlap_;
     BufferString	propnm_;
+
 };
 
 

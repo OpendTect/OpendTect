@@ -15,17 +15,30 @@ ________________________________________________________________________
 #include "color.h"
 #include "ranges.h"
 
-/*!\brief %Color %Table */
+/*!\brief %Color %Table common stuff */
 
 namespace ColTab
 {
 
-    mGlobal(General) const char*    defSeqName();
-    mGlobal(General) Interval<float>defClipRate();
-    mGlobal(General) float	    defSymMidval();
-    mGlobal(General) bool	    defAutoSymmetry();
-    mGlobal(General) void	    setMapperDefaults(Interval<float> cr,
+    enum SeqUseMode { UnflippedSingle, UnflippedCyclic, FlippedSingle,
+					FlippedCyclic };
+
+    mGlobal(General) bool		isFlipped(SeqUseMode);
+    mGlobal(General) bool		isCyclic(SeqUseMode);
+    mGlobal(General) SeqUseMode		getSeqUseMode(bool flipped,bool cyclic);
+    mGlobal(General) BufferString	toString(SeqUseMode);
+    mGlobal(General) void		toPar(SeqUseMode,IOPar&);
+    mGlobal(General) bool		fromPar(const IOPar&,SeqUseMode&);
+    mGlobal(General) inline const char*	sKeySeqUseMode()
+					{ return "Color Table Use Mode"; }
+
+    mGlobal(General) const char*	defSeqName();
+    mGlobal(General) Interval<float>	defClipRate();
+    mGlobal(General) float		defSymMidval();
+    mGlobal(General) bool		defAutoSymmetry();
+    mGlobal(General) void		setMapperDefaults(Interval<float> cr,
 						      float sm,bool autosym,
 						      bool histeq=false);
-    mGlobal(General) bool	    defHistEq();
+    mGlobal(General) bool		defHistEq();
+
 }

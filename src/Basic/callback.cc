@@ -17,7 +17,8 @@
 #include <QCoreApplication>
 #include <qpointer.h>
 
-static QEvent::Type eventtype = QEvent::None;
+static QEvent::Type qevent_type_ = QEvent::None;
+
 
 class QCallBackEventReceiver : public QObject
 {
@@ -32,7 +33,7 @@ public:
 
     bool event( QEvent* ev )
     {
-	if (ev->type() != eventtype )
+	if (ev->type() != qevent_type_ )
 	    return false;
 
 	Threads::Locker locker( receiverlock_ );
@@ -69,7 +70,7 @@ public:
 
 	if ( cbs_.isEmpty() )
 	{
-	    QCoreApplication::postEvent( this, new QEvent(eventtype) );
+	    QCoreApplication::postEvent( this, new QEvent(qevent_type_) );
 	}
 
         toremove_.addIfNew( cb.cbObj() );
@@ -368,14 +369,16 @@ Threads::ThreadID CallBack::mainthread_ = 0;
 
 
 bool CallBack::operator==( const CallBack& c ) const
-{ return cberobj_ == c.cberobj_ && fn_ == c.fn_ && sfn_ == c.sfn_; }
+{
+    return cberobj_ == c.cberobj_ && fn_ == c.fn_ && sfn_ == c.sfn_;
+}
 
 
 void CallBack::initClass()
 {
 #ifndef OD_NO_QT
     mainthread_ = Threads::currentThread();
-    eventtype = (QEvent::Type) QEvent::registerEventType();
+    qevent_type_ = (QEvent::Type)QEvent::registerEventType();
     CallBacker::createReceiverForCurrentThread(); //Force creation
 #endif
 }
@@ -383,10 +386,22 @@ void CallBack::initClass()
 
 void CallBack::doCall( CallBacker* cber ) const
 {
-    if (cberobj_ && fn_)
-	(cberobj_->*fn_)( cber );
-    else if ( sfn_ )
-	sfn_( cber );
+    if ( !disablecount_ )
+    {
+	if ( cberobj_ && fn_ )
+	    (cberobj_->*fn_)( cber );
+	else if ( sfn_ )
+	    sfn_( cber );
+    }
+}
+
+
+void CallBack::disable( bool yn ) const
+{
+    if ( yn )
+	disablecount_++;
+    else if ( disablecount_ > 0 )
+	disablecount_--;
 }
 
 
@@ -412,8 +427,8 @@ bool CallBack::addToThread( Threads::ThreadID threadid, const CallBack& cb,
 		  "by calling CallBacker::createReceiverForCurrentThread()");
 	return false;
     }
-    
-    rec->add(cb, cber);
+
+    rec->add( cb, cber );
     return true;
 }
 
@@ -462,15 +477,15 @@ void CallBack::removeFromThreadCalls(const CallBacker* cber)
 
 CallBackSet::CallBackSet()
     : lock_(true)
-    , enabled_(true)
-{}
+{
+}
 
 
 CallBackSet::CallBackSet( const CallBackSet& cbs )
     : TypeSet<CallBack>( cbs )
     , lock_( true )
-    , enabled_( cbs.enabled_ )
-{}
+{
+}
 
 
 CallBackSet::~CallBackSet()
@@ -486,34 +501,40 @@ CallBackSet& CallBackSet::operator=( const CallBackSet& cbs )
 }
 
 
-void CallBackSet::doCall( CallBacker* obj,
-			  CallBacker* exclude )
+void CallBackSet::doCall( CallBacker* obj )
 {
-    if ( !enabled_ ) return;
-
     Threads::Locker lckr( lock_ );
     TypeSet<CallBack> cbscopy = *this;
     lckr.unlockNow();
 
     for ( int idx=0; idx<cbscopy.size(); idx++ )
     {
-	CallBack& cb = cbscopy[idx];
+	CallBack cb = cbscopy[idx];
 	lckr.reLock();
 	if ( !isPresent(cb) )
 	    { lckr.unlockNow(); continue; }
 
 	lckr.unlockNow();
-	if ( !exclude || cb.cbObj()!=exclude )
-	    cb.doCall( obj );
+	cb.doCall( obj );
     }
 }
 
 
-bool CallBackSet::doEnable( bool yn )
+void CallBackSet::disableAll( bool yn )
 {
-    bool ret = enabled_;
-    enabled_ = yn;
-    return ret;
+    Threads::Locker lckr( lock_ );
+    for ( int idx=0; idx<size(); idx++ )
+	(*this)[idx].disable( yn );
+}
+
+
+bool CallBackSet::hasAnyDisabled() const
+{
+    Threads::Locker lckr( lock_ );
+    for ( int idx=0; idx<size(); idx++ )
+	if ( (*this)[idx].isDisabled() )
+	    return true;
+    return false;
 }
 
 
@@ -546,6 +567,22 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
 	CallBack& cb = (*this)[idx];
 	if ( cb.scbFn() == cbfn )
 	    { removeSingle( idx ); idx--; }
+    }
+}
+
+
+void CallBackSet::transferTo( CallBackSet& to, const CallBacker* onlyfor )
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const CallBack& cb = (*this)[idx];
+	if ( !onlyfor || cb.cbObj() == onlyfor )
+	{
+	    if ( !to.isPresent(cb) )
+		to += cb;
+	    removeSingle( idx );
+	    idx--;
+	}
     }
 }
 
@@ -666,11 +703,10 @@ bool NotifierAccess::willCall( CallBacker* cber ) const
 }
 
 
-void NotifierAccess::doTrigger( CallBackSet& cbs, CallBacker* c,
-				CallBacker* exclude)
+void NotifierAccess::doTrigger( CallBackSet& cbs, CallBacker* cber )
 {
     cbs.ref();
-    cbs.doCall( c, exclude );
+    cbs.doCall( cber );
     cbs.unRef();
 }
 
@@ -678,22 +714,43 @@ void NotifierAccess::doTrigger( CallBackSet& cbs, CallBacker* c,
 
 //---- NotifyStopper
 
-NotifyStopper::NotifyStopper( NotifierAccess& na )
-    : oldst_(na.disable())
-    , thenotif_(na)
-{}
+NotifyStopper::NotifyStopper( NotifierAccess& na, const CallBacker* only_for )
+    : thenotif_(na)
+    , isdisabled_(false)
+    , onlyfor_(only_for)
+{
+    disableNotification();
+}
 
 
 NotifyStopper::~NotifyStopper()
-{ restore(); }
-
-void NotifyStopper::enable()
-{ thenotif_.cbs_.doEnable(false); }
-
-
-void NotifyStopper::disable()
-{ thenotif_.cbs_.doEnable(true); }
+{
+    enableNotification();
+}
 
 
-void NotifyStopper::restore()
-{ thenotif_.cbs_.doEnable(oldst_);}
+void NotifyStopper::setDisabled( bool yn )
+{
+    Threads::Locker locker( thenotif_.cbs_.lock_ );
+    for ( int idx=0; idx<thenotif_.cbs_.size(); idx++ )
+    {
+	CallBack& cb = thenotif_.cbs_[idx];
+	if ( !onlyfor_ || cb.cbObj() == onlyfor_ )
+	    cb.disable( yn );
+    }
+    isdisabled_ = yn;
+}
+
+
+void NotifyStopper::enableNotification()
+{
+    if ( isdisabled_ )
+	setDisabled( false );
+}
+
+
+void NotifyStopper::disableNotification()
+{
+    if ( !isdisabled_ )
+	setDisabled( true );
+}

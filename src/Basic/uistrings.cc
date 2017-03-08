@@ -303,7 +303,7 @@ uiString uiStrings::sBatchProgramFailedStart()
 { return tr("Batch program failed to start"); }
 
 uiString uiStrings::sColorTable(int num)
-{ return tr("ColorTable",0,num); }
+{ return tr("Color Table",0,num); }
 
 uiString uiStrings::sCreate()
 { return tr("Create"); }

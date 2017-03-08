@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "bufstring.h"
+#include "datadistribution.h"
 #include "datapointset.h"
 #include "statparallelcalc.h"
 
@@ -315,6 +316,18 @@ void uiHistogramDisplay::setHistogram( const TypeSet<float>& histdata,
 {
     nrinpvals_ = nrvals;
     setVals( xrg, histdata.arr(), histdata.size() );
+}
+
+
+void uiHistogramDisplay::setDistribution( const DataDistribution<float>& distr,
+					  int nrvals )
+{
+    nrinpvals_ = nrvals;
+    const int sz = distr.size();
+    const SamplingData<float> sd = distr.sampling();
+    const Interval<float> xrg( sd.start, sd.atIndex(sz-1) );
+    const TypeSet<float> distrdata( distr.data() );
+    setVals( xrg, distrdata.arr(), distrdata.size() );
 }
 
 

@@ -15,16 +15,16 @@ ________________________________________________________________________
 #include "callback.h"
 #include "flatview.h"
 
-class uiColorTableToolBar;
+class uiColTabToolBar;
+class uiColTabSelTool;
 
-/*!
-\brief FlatView color table editor.
-*/
+
+/*!\brief FlatView color table editor. */
 
 mExpClass(uiFlatView) uiFlatViewColTabEd : public CallBacker
 {
 public:
-			uiFlatViewColTabEd(uiColorTableToolBar&);
+			uiFlatViewColTabEd(uiColTabToolBar&);
 			~uiFlatViewColTabEd();
 
     void		setColTab(const FlatView::DataDispPars::VD&);
@@ -32,12 +32,17 @@ public:
 
     FlatView::DataDispPars::VD&		getDisplayPars()
 					{ return vdpars_; }
+    uiColTabSelTool&			selTool()
+					{ return ctseltool_; }
+
     Notifier<uiFlatViewColTabEd>	colTabChgd;
 
 protected:
 
-    uiColorTableToolBar&	uicoltab_;
+    uiColTabSelTool&	ctseltool_;
     FlatView::DataDispPars::VD	vdpars_;
 
-    void			colTabChanged(CallBacker*);
+    void			mapperChgCB(CallBacker*);
+    void			seqChgCB(CallBacker*);
+
 };

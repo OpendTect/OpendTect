@@ -11,13 +11,17 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+
+#include "arrayndalgo.h"
+#include "dbkey.h"
+#include "enums.h"
 #include "volprocstep.h"
 #include "wellextractdata.h"
-#include "enums.h"
-#include "dbkey.h"
+
 class BufferStringSet;
 class Gridder2D;
 class InterpolationLayerModel;
+class InverseDistanceGridder2D;
 namespace Well { class Data; class Log; }
 
 
@@ -47,14 +51,12 @@ public:
     void			getWellNames(BufferStringSet&) const;
     void			getWellIDs(DBKeySet&) const;
     const char*			getLogName() const;
-    const char*			getGridderName() const;
-    float			getSearchRadius() const;
-    const Gridder2D*		getGridder() { return gridder_; }
+    const Gridder2D*		getGridder() const	{ return gridder_; }
+    PolyTrend::Order		getTrendOrder() const	{ return trendorder_; }
     const InterpolationLayerModel* getLayerModel() const;
     const Well::ExtractParams& getSelParams();
 
-    void			setGridder(const char* nm,float radius=0);
-    void			setGridder(const Gridder2D*);
+    void			setGridder(const IOPar&);
     void			setWellData(const DBKeySet&,
 					    const char* lognm);
     void			setWellExtractParams(
@@ -83,6 +85,7 @@ public:
 
 protected:
 
+    void			setGridder(const Gridder2D*);
     virtual bool		prepareComp(int);
     virtual bool		computeBinID(const BinID&,int);
     virtual od_int64		extraMemoryUsage(OutputSlotID,
@@ -91,6 +94,8 @@ protected:
 
     InterpolationLayerModel*	layermodel_;
     Gridder2D*			gridder_;
+    InverseDistanceGridder2D*	invdistgridder_;
+    PolyTrend::Order		trendorder_;
     ObjectSet<WellLogInfo>	infos_;
     DBKeySet			wellmids_;
     BufferString		logname_;

@@ -62,7 +62,7 @@ public:
     void		getHSV(unsigned char&,unsigned char&,
 			       unsigned char&) const;
     void		setStdStr(const char*); //!< e.g. "#00ff32"
-    const char*		getStdStr(bool withhash=true,
+    BufferString	getStdStr(bool withhash=true,
 				  int transpopt=0) const;
 			//!< without hash Google KML standard -> order reversed
 			//!< transpopt -1=opacity 0=not 1=transparency
@@ -79,7 +79,7 @@ public:
     static Color	LightGrey()	{ return Color(211,211,211,0); }
     static Color	Orange()	{ return Color(255,170,0); }
     static Color	Peach()		{ return Color(255,218,185,0); }
-    static Color	Pink()		{ return Color(255,0,255,0); } 
+    static Color	Pink()		{ return Color(255,0,255,0); }
     static Color	Red()		{ return Color(255,0,0,0); }
     static Color	White()		{ return Color(255,255,255,0); }
     static Color	Yellow()	{ return Color(255,255,0,0); }
@@ -87,14 +87,21 @@ public:
     static unsigned char getUChar( float v );
     static float	 getFloat(unsigned char);
 
+			// Std draw colors are distinct colors for data series
     static int		nrStdDrawColors();
     static Color	stdDrawColor(int);
+    static Color	stdDrawColor(const char*);
 
-    const char*		largeUserInfoString() const;
-    const char*		getDescription() const;
+			// The 'description' uses the standard Html color names
+			// if the color is not exactly on one, you will see
+			// a tilde '~' in front of the color
+    BufferString	getDescription() const;
     bool		fromDescription(const char*);
-    static const BufferStringSet& descriptions();
-    static const TypeSet<Color>& descriptionCenters();
+    static Color	getColorFromDescription(const char*);
+    static void		getDescriptions(BufferStringSet&);
+    static void		getDescriptionCenters(TypeSet<Color>&);
+
+    BufferString	largeUserInfoString() const;
 
 protected:
 
@@ -104,9 +111,7 @@ protected:
 
 namespace Values {
 
-/*!
-\brief Undefined Color.
-*/
+/*!\brief Undefined Color. */
 
 template<>
 mClass(Basic) Undef<Color>

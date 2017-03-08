@@ -161,7 +161,7 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
     {
 	rgfld_ = new uiGenInput( this, tr("Create body from value range"),
 				 FloatInpIntervalSpec(false) );
-	rgfld_->setValue( dispprop.colMapperSetUp().range_ );
+	rgfld_->setValue( dispprop.colMapperSetUp().range() );
     }
 }
 
@@ -213,7 +213,7 @@ uiCreatePicksFromDPSData( uiParent* p, const DataPointSetDisplayProp& dispprop,
     {
 	rgfld_ = new uiGenInput( this, tr("Create body from value range"),
 				 FloatInpIntervalSpec(false) );
-	rgfld_->setValue( dispprop_.colMapperSetUp().range_ );
+	rgfld_->setValue( dispprop_.colMapperSetUp().range() );
 	attachStdFlds( true, rgfld_ );
     }
 }

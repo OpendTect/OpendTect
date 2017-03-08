@@ -231,15 +231,15 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 	    continue;
 
 	mDynamicCastGet(AttribProbeLayer*,attriblayer,prblay)
-	if ( !attriblayer || attriblayer->getDispType()==AttribProbeLayer::RGB )
+	if ( !attriblayer || attriblayer->dispType()==AttribProbeLayer::RGB )
 	    continue;
 
 	const bool hasdatapack = attriblayer->hasData();
-	DataPack::ID attrdpid = attriblayer->getAttribDataPack();
+	DataPack::ID attrdpid = attriblayer->dataPackID();
 	const bool iswiggle =
-	    attriblayer->getDispType()==AttribProbeLayer::Wiggle;
+	    attriblayer->dispType()==AttribProbeLayer::Wiggle;
 	Attrib::SelSpec& selspec = iswiggle ? wvaselspec_ : vdselspec_;
-	selspec = attriblayer->getSelSpec();
+	selspec = attriblayer->selSpec();
 	bool& typedone = iswiggle ? wvadone : vddone;
 	if ( typedone )
 	    continue;
@@ -248,9 +248,8 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 	if ( !hasdatapack )
 	{
 	    attrdpid = createDataPack( iswiggle );
-	    ChangeNotifyBlocker notifybocker( *attriblayer );
-	    attriblayer->setAttribDataPack( attrdpid );
-	    notifybocker.unBlockNow( false );
+	    NotifyStopper ns( attriblayer->objectChanged(), this );
+	    attriblayer->setDataPackID( attrdpid );
 	}
 
 	setDataPack( createFlatDataPack(attrdpid,0), iswiggle, isnew );
@@ -258,13 +257,11 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 	{
 	    uiFlatViewer& vwr = viewwin()->viewer(ivwr);
 	    if ( !iswiggle )
-	    {
-		ColTab::Sequence attrcoltab = attriblayer->getColTab();
-		vwr.appearance().ddpars_.vd_.ctab_ = attrcoltab.name();
-	    }
+		vwr.appearance().ddpars_.vd_.colseqname_
+		    = attriblayer->colSeq()->name();
 
-	    vwr.appearance().ddpars_.wva_.mappersetup_ =
-		attriblayer->getColTabMapper();
+	    *vwr.appearance().ddpars_.wva_.mappersetup_ =
+		    *attriblayer->mapperSetup();
 	    vwr.handleChange( FlatView::Viewer::DisplayPars );
 	}
     }
@@ -655,23 +652,24 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 bool uiODViewer2D::useStoredDispPars( bool wva )
 {
     PtrMan<IOObj> ioobj = appl_.applMgr().attrServer()->getIOObj(selSpec(wva));
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     SeisIOObjInfo seisobj( ioobj );
     IOPar iop;
     if ( !seisobj.getDisplayPars(iop) )
 	return false;
 
-    ColTab::MapperSetup mapper;
-    if ( !mapper.usePar(iop) )
-	return false;
+    RefMan<ColTab::MapperSetup> mappersetup = new ColTab::MapperSetup;
+    mappersetup->usePar( iop );
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr );
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-	wva ? ddp.wva_.mappersetup_ : ddp.vd_.mappersetup_ = mapper;
-	if ( !wva ) ddp.vd_.ctab_ = iop.find( sKey::Name() );
+	(wva ? ddp.wva_.mappersetup_ : ddp.vd_.mappersetup_) = mappersetup;
+	if ( !wva )
+	    ddp.vd_.colseqname_ = iop.find( sKey::Name() );
     }
 
     return true;

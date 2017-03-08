@@ -88,7 +88,7 @@ list ( APPEND OD_MODULE_SOURCES
 	tableconv.cc
 	transl.cc
 	unitofmeasure.cc
-	usrinputobj.cc
+	userinputobj.cc
 	variogramcomputers.cc
 	volumedatapackzaxistransformer.cc
 	zaxistransformutils.cc

@@ -23,7 +23,7 @@ mExpClass(uiODMain) uiODVolrenParentTreeItem
 public:
 			~uiODVolrenParentTreeItem();
     virtual Probe*	createNewProbe() const;
-    uiODPrManagedTreeItem* addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem* addChildItem(const OD::ObjPresentationInfo&);
     bool		setProbeToBeAddedParams(int mnuid);
 
 protected:

@@ -249,7 +249,7 @@ bool HorizonFlatViewEditor::prepareTracking( bool picinvd,
 
 	NotifyStopper notifystopper( MPE::engine().activevolumechange );
 	MPE::engine().setActiveVolume( curcs_ );
-	notifystopper.restore();
+	notifystopper.enableNotification();
 
 	seedpicker.setSelSpec( as );
 

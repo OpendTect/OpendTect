@@ -148,7 +148,7 @@ void uiTieView::initFlatViewer()
     app.annot_.x2_.sampling_ = 0.1;
     app.annot_.x2_.showgridlines_ = true;
     app.ddpars_.show( true, false );
-    app.ddpars_.wva_.mappersetup_.cliprate_.set(0.0,0.0);
+    app.ddpars_.wva_.mappersetup_->setClipRate( Interval<float>(0.f,0.f) );
     app.annot_.x1_.name_ = data_.sKeySeismic();
     app.annot_.x2_.name_ =  "TWT";
     app.annot_.title_ = tr("Synthetics<--------------------"
@@ -246,12 +246,12 @@ void uiTieView::zoomChg( CallBacker* )
     const uiWorldRect& curwr = vwr_->curView();
     const float userfac = SI().showZ2UserFactor();
     Interval<float> zrg;
-    		
+
     if ( !params_.iszintime_  && SI().depthsInFeet() )
     {
-	float zrgstart = data_.wd_->d2TModel().getDah( 
+	float zrgstart = data_.wd_->d2TModel().getDah(
 				mCast(float, curwr.top()), data_.wd_->track() );
-	float zrgstop = data_.wd_->d2TModel().getDah( 
+	float zrgstop = data_.wd_->d2TModel().getDah(
 			    mCast(float, curwr.bottom()), data_.wd_->track() );
 	if ( mIsUdf(zrgstop) )
 	{
@@ -387,7 +387,7 @@ void uiTieView::drawUserPicks( const TypeSet<Marker>& pickset, bool issynth )
     for ( int idx=0; idx<pickset.size(); idx++ )
     {
 	const Marker& pick = pickset[idx];
-	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Solid, pick.size_, 
+	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Solid, pick.size_,
 								pick.color_ );
 	userpickauxdatas_[idx]->linestyle_ = ls;
 	drawMarker(userpickauxdatas_[idx], issynth, pick.zpos_ );

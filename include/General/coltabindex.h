@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "coltab.h"
 #include "typeset.h"
 #include "uistring.h"
@@ -22,17 +21,19 @@ class Mapper;
 class Sequence;
 
 /*!\brief Looks up color for certain value. Keeps a pre-calc list of colors.
- 
-  Note that sequence and mapper need to stay alive; no copy is made.
- 
+
+  Note that sequence and (optional) mapper need to stay alive; no copy is made.
+
  */
 
 mExpClass(General) IndexedLookUpTable
 { mODTextTranslationClass(IndexedLookUpTable);
 public:
 
-			IndexedLookUpTable(const Sequence&,int nrcols=0,
-					   const Mapper* m=0);
+			IndexedLookUpTable(const Sequence&,int nrcols,
+					    const Mapper&);
+			IndexedLookUpTable(const Sequence&,int nrcols,
+					   SeqUseMode);
 
     void		update();
 			//!< Call when sequence, mapper, or nr cols changed
@@ -45,12 +46,14 @@ public:
     void		setMapper( const Mapper* m )	{ mapper_ = m; }
     void		setNrCols( int n )		{ nrcols_ = n; }
     int			nrCols() const			{ return nrcols_; }
+    SeqUseMode		seqUseMode() const		{ return mode_; }
 
 protected:
 
     const Sequence&	seq_;
     const Mapper*	mapper_;
     int			nrcols_;
+    SeqUseMode		mode_;
     TypeSet<Color>	cols_;
 
     friend class	Indexer;

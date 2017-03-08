@@ -6,12 +6,13 @@
 
 
 #include "thread.h"
-
 #include "threadlock.h"
-#include "perthreadrepos.h"
+
 #include "atomic.h"
-#include "math.h"
 #include "limits.h"
+#include "math.h"
+#include "perthreadrepos.h"
+#include "ptrman.h"
 
 
 // Thread::Lock interface
@@ -49,19 +50,19 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
     {
 	if ( oth.mutex_ )
 	    { *mutex_ = *oth.mutex_; return *this; }
-	delete mutex_;
+	deleteAndZeroPtr( mutex_ );
     }
     else if ( splock_ )
     {
 	if ( oth.splock_ )
 	    { *splock_ = *oth.splock_; return *this; }
-	delete splock_;
+	deleteAndZeroPtr( splock_ );
     }
     else
     {
 	if ( oth.rwlock_ )
 	    { *rwlock_ = *oth.rwlock_; return *this; }
-	delete rwlock_;
+	deleteAndZeroPtr( rwlock_ );
     }
 
     mutex_ = oth.mutex_ ? new Mutex(*oth.mutex_) : 0;
@@ -74,7 +75,10 @@ Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
 
 Threads::Lock::~Lock()
 {
-    delete mutex_; delete splock_; delete rwlock_;
+    //Put to zero to force crash if used again.
+    deleteAndZeroPtr( mutex_ );
+    deleteAndZeroPtr( splock_ );
+    deleteAndZeroPtr( rwlock_ );
 }
 
 
@@ -124,10 +128,13 @@ void Threads::Locker::reLock( Threads::Locker::WaitType wt )
 	    needunlock_ = lock_.spinLock().tryLock();
 	else if ( lock_.isMutex() )
 	    needunlock_ = lock_.mutex().tryLock();
-	else if ( isread_ )
-	    needunlock_ = lock_.readWriteLock().tryReadLock();
-	else
-	    needunlock_ = lock_.readWriteLock().tryWriteLock();
+	else if ( lock_.isRWLock() )
+	{
+	    if ( isread_ )
+		needunlock_ = lock_.readWriteLock().tryReadLock();
+	    else
+		needunlock_ = lock_.readWriteLock().tryWriteLock();
+	}
     }
 }
 
@@ -250,7 +257,7 @@ Threads::Mutex::Mutex( const Mutex& m )
 Threads::Mutex::~Mutex()
 {
 #ifndef OD_NO_QT
-    delete qmutex_;
+    deleteAndZeroPtr( qmutex_ );
 #endif
 }
 
@@ -338,8 +345,10 @@ void Threads::SpinLock::lock()
     }
 
     mPrepareIttNotify( lockingthread_ );
-    while ( !lockingthread_.setIfEqual( 0, currentthread ) )
-	;
+    ThreadID null_pointer = 0;
+    while ( !lockingthread_.compare_exchange_weak(null_pointer,currentthread ) )
+	null_pointer = 0;
+
 
     mIttNotifyAcquired( lockingthread_ );
 
@@ -367,7 +376,7 @@ void Threads::SpinLock::unLock()
 
 bool Threads::SpinLock::tryLock()
 {
-    const ThreadID currentthread = currentThread();
+    ThreadID currentthread = currentThread();
     if ( recursive_ && lockingthread_ == currentthread )
     {
 	count_ ++;
@@ -375,7 +384,8 @@ bool Threads::SpinLock::tryLock()
     }
 
     mPrepareIttNotify( lockingthread_ );
-    if ( lockingthread_.setIfEqual(0, currentthread) )
+    ThreadID oldthread = 0;
+    if ( lockingthread_.setIfValueIs(oldthread, currentthread) )
     {
 	mIttNotifyAcquired( lockingthread_ );
 	count_ ++;
@@ -420,7 +430,7 @@ void Threads::SpinRWLock::readLock()
 	    prevval = 0;
 
 	newval = prevval+1;
-    } while ( !count_.setIfValueIs( prevval, newval, &prevval ) );
+    } while ( !count_.compare_exchange_weak( prevval, newval ) );
 
     mIttNotifyAcquired( count_ );
 }
@@ -436,8 +446,12 @@ void Threads::SpinRWLock::readUnlock()
 void Threads::SpinRWLock::writeLock()
 {
     mPrepareIttNotify( count_ );
-    while ( !count_.setIfValueIs( 0, -1, 0 ) )
-    {}
+
+    int curval;
+    do
+    {
+	curval = 0;
+    } while ( !count_.compare_exchange_weak( curval, -1 ));
 
     mIttNotifyAcquired( count_ );
 }
@@ -743,7 +757,7 @@ Threads::ConditionVar::~ConditionVar()
     if (count_)
 	pErrMsg("Deleting condition variable with waiting threads.");
 # endif
-    delete cond_;
+    deleteAndZeroPtr( cond_ );
 #endif
 }
 
@@ -847,7 +861,7 @@ Threads::Thread::~Thread()
 {
 #ifndef OD_NO_QT
     thread_->wait();
-    delete thread_;
+    deleteAndZeroPtr( thread_ );
 #endif
 }
 

@@ -129,7 +129,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	ts->usePar( crdesc.pars );
 	uiTaskRunner uiex( appserv().parent() );
 	if ( !TaskRunner::execute(&uiex,*ts) )
-	    deepErase( dpss );
+	    deepUnRef( dpss );
 	delete ts;
     }
 

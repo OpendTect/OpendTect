@@ -408,7 +408,7 @@ bool ContourTracer::doWork( od_int64 start, od_int64 stop, int )
 		delete contour;
 	    else
 	    {
-		Threads::Locker( contourlock_, Threads::Locker::WriteLock );
+		Threads::Locker locker(contourlock_,Threads::Locker::WriteLock);
 		contours_ += contour;
 	    }
 	}

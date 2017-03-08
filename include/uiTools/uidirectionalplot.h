@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uitoolsmod.h"
 #include "uigraphicsview.h"
+#include "coltabsequence.h"
 #include "statdirdata.h"
 #include "draw.h"
 
@@ -24,7 +25,6 @@ class uiCurvedItem;
 class uiMarkerItem;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
-namespace ColTab { class Sequence; }
 
 /*!\brief creates a directional plot: Rose diagrams and more.
 
@@ -88,7 +88,7 @@ public:
     int				curSector() const { return cursector_; }
     int				selSector() const { return selsector_; }
     void			setSelectedSector( int i )
-    						{ selsector_ = i; }
+						{ selsector_ = i; }
 
 protected:
 
@@ -103,7 +103,7 @@ protected:
     int				radius_;
     int				cursector_;
     int				selsector_;
-    const ColTab::Sequence*	colseq_;
+    ConstRefMan<ColTab::Sequence> colseq_;
 
     uiGraphicsItemGroup&	sectorlines_;
     uiCircleItem*		outercircleitm_;

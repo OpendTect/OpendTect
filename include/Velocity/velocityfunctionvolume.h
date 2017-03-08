@@ -18,9 +18,8 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 #include "uistring.h"
 
-
 class BinIDValueSet;
-class SeisTrcReader;
+namespace Seis { class Provider; }
 
 namespace Vel
 {
@@ -82,12 +81,12 @@ protected:
     static FunctionSource*	create(const DBKey&);
     				~VolumeFunctionSource();
 
-    SeisTrcReader*		getReader();
+    Seis::Provider*		getProvider(uiRetVal&);
 
-    ObjectSet<SeisTrcReader>	velreader_;
+    ObjectSet<Seis::Provider>	velprovider_;
     ObjectSet<const void>	threads_;
 
-    Threads::Lock		readerlock_;
+    Threads::Lock		providerlock_;
     bool			zit_;
     VelocityDesc		desc_;
 };

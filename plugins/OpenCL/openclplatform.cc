@@ -109,14 +109,14 @@ bool Platform::initClass()
             device->name_ = BufferString( devicevendor, " ", devicename );
             device->iscpu_ = devicetype==CL_DEVICE_TYPE_CPU;
 
-            plf->devices_ += device.set( 0, false );
+            plf->devices_ += device.release();
         }
 
         if ( !plf->devices_.size() )
             continue;
 
          //Take over ptr
-        platforms += plf.set( 0, false );
+        platforms += plf.release();
     }
 
     GPU::setPlatforms( platforms );

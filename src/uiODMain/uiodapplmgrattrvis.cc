@@ -24,10 +24,10 @@ ________________________________________________________________________
 #include "zdomain.h"
 
 #include "uiattribpartserv.h"
-#include "uicolortable.h"
 #include "uiemattribpartserv.h"
 #include "uinlapartserv.h"
 #include "uiviscoltabed.h"
+#include "uicoltabsel.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "visseis2ddisplay.h"
@@ -135,10 +135,10 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
 }
 
 
-void uiODApplMgrAttrVisHandler::setHistogram( int visid, int attrib )
+void uiODApplMgrAttrVisHandler::setColTabDistribution( int visid, int attrib )
 {
-    am_.appl_.colTabEd().setHistogram(
-		am_.visserv_->getHistogram(visid,attrib) );
+    am_.appl_.colTabEd().setDistribution(
+		am_.visserv_->getDataDistribution(visid,attrib) );
 }
 
 
@@ -175,7 +175,7 @@ void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
 {
     if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
     {
-	am_.appl_.colTabEd().setColTab( 0, false, 0, false );
+	am_.appl_.colTabEd().setColTab( 0, 0 );
 	return;
     }
 
@@ -187,11 +187,10 @@ void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
     {
 	am_.appl_.colTabEd().setColTab(
 	    am_.visserv_->getColTabSequence( visid, attrib ),
-	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
-	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
+	    am_.visserv_->getColTabMapperSetup(visid,attrib) );
     }
 
-    setHistogram( visid, attrib );
+    setColTabDistribution( visid, attrib );
 }
 
 
@@ -205,8 +204,9 @@ void uiODApplMgrAttrVisHandler::colMapperChg()
     if ( attrib == -1 ) attrib = 0;
 
     am_.visserv_->setColTabMapperSetup( visid, attrib,
-	    am_.appl_.colTabEd().getColTabMapperSetup() );
-    setHistogram( visid, attrib );
+	    *am_.appl_.colTabEd().getColTabMapperSetup() );
+
+    setColTabDistribution( visid, attrib );
 
     //Autoscale may have changed ranges, so update.
     mDynamicCastGet( visSurvey::SurveyObject*, so,
@@ -217,9 +217,14 @@ void uiODApplMgrAttrVisHandler::colMapperChg()
     {
 	am_.appl_.colTabEd().setColTab(
 	    am_.visserv_->getColTabSequence( visid, attrib ),
-	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
-	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
+	    am_.visserv_->getColTabMapperSetup(visid,attrib) );
     }
+}
+
+
+void uiODApplMgrAttrVisHandler::colSeqModif()
+{
+    // TODO someone help me! How can I force the vis things to remap?
 }
 
 
@@ -233,7 +238,7 @@ void uiODApplMgrAttrVisHandler::colSeqChg()
 	: am_.visserv_->getSelAttribNr();
 
     if ( attrib == -1 ) attrib = 0;
-    setHistogram( visid, attrib );
+    setColTabDistribution( visid, attrib );
 
     am_.visserv_->setColTabSequence( visid, attrib,
 	    am_.appl_.colTabEd().getColTabSequence() );
@@ -251,19 +256,21 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     if ( am_.appl_.isRestoringSession() ) return;
 
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
-    if ( !as || as->id().asInt() < 0 ) return;
+    if ( !as || as->id().asInt() < 0 )
+	return;
 
-    ColTab::Sequence seq( 0 );
-    const ColTab::Sequence* ctseq =
+    ConstRefMan<ColTab::Sequence> ctseq =
 		am_.visserv_->getColTabSequence( visid, attrib );
-    if ( ctseq ) seq = *ctseq;
+    if ( !ctseq )
+	ctseq = ColTab::SeqMGR().getDefault();
 
-    ColTab::MapperSetup mapper;
-    const ColTab::MapperSetup* ctmap =
+    ConstRefMan<ColTab::MapperSetup> startctmapsetup =
 		am_.visserv_->getColTabMapperSetup( visid, attrib );
-    if ( ctmap ) mapper = *ctmap;
+    if ( !startctmapsetup )
+	startctmapsetup = new ColTab::MapperSetup;
 
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
+    RefMan<ColTab::MapperSetup> ctmapsetup = startctmapsetup->clone();
     if ( ioobj )
     {
 	SeisIOObjInfo seisobj( ioobj );
@@ -271,15 +278,15 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 	if ( seisobj.getDisplayPars( iop ) )
 	{
 	    const char* ctname = iop.find( sKey::Name() );
-	    seq = ColTab::Sequence( ctname );
-	    mapper.usePar( iop );
+	    ctseq = ColTab::SeqMGR().getAny( ctname );
+	    ctmapsetup->usePar( iop );
 	}
     }
 
-    am_.visserv_->setColTabMapperSetup( visid, attrib, mapper );
-    am_.visserv_->setColTabSequence( visid, attrib, seq );
-    am_.appl_.colTabEd().colTab().setMapperSetup( &mapper );
-    am_.appl_.colTabEd().colTab().setSequence( &seq, true );
+    am_.visserv_->setColTabMapperSetup( visid, attrib, *ctmapsetup );
+    am_.visserv_->setColTabSequence( visid, attrib, *ctseq );
+    am_.appl_.colTabEd().colTabSel().useMapperSetup( *ctmapsetup );
+    am_.appl_.colTabEd().colTabSel().setSeqName( ctseq->name() );
     updateColorTable( visid, attrib );
 }
 
@@ -292,7 +299,7 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
 
     const ColTab::Sequence* ctseq =
 		am_.visserv_->getColTabSequence( visid, attrib );
-    const ColTab::MapperSetup* mapper =
+    ConstRefMan<ColTab::MapperSetup> mapper =
 		am_.visserv_->getColTabMapperSetup( visid, attrib );
 
     File::Path fp( ioobj->fullUserExpr(true) );

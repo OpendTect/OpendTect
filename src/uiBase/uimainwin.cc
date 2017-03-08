@@ -457,6 +457,8 @@ void uiMainWinBody::go( bool showminimized )
 {
     finalise( true );
     doShow( showminimized );
+    for ( int idx=0; idx<toolbars_.size(); idx++ )
+	toolbars_[idx]->handleFinalise( false );
     move( handle_.popuparea_ );
 }
 
@@ -497,7 +499,12 @@ void uiMainWinBody::popTimTick( CallBacker* )
 void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 {
     if ( trigger_finalise_start_stop )
+    {
 	handle_.preFinalise().trigger( handle_ );
+
+	for ( int idx=0; idx<toolbars_.size(); idx++ )
+	    toolbars_[idx]->handleFinalise( true );
+    }
 
     centralwidget_->finalise();
     finaliseChildren();
@@ -1162,7 +1169,7 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 
 	const QMessageBox::StandardButton stdbut =
 					getStandardButton( qmb, buttonnr );
-        if ( stdbut )
+	if ( stdbut )
 	    // TODO: get original text if button text is translation
 	    buttext = qmb->button(stdbut)->text();
 	else
@@ -1257,7 +1264,7 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 	if ( count>1 )
 	{
 	    res = toUiString( "%1 {%2}").arg( beginning )
-		                        .arg( toUiString(count) );
+					.arg( toUiString(count) );
 	    BufferString addendum( "  {", toString(count), "}" );
 	    if ( outputaddendum ) *outputaddendum = addendum;
 	}
@@ -1372,7 +1379,7 @@ void uiMainWin::languageChangeCB( CallBacker* )
 {
     if ( languagechangecount_<TrMgr().changeCount() )
     {
-        translateText();
+	translateText();
 	languagechangecount_ = TrMgr().changeCount();
     }
 }
@@ -1523,10 +1530,10 @@ public:
 			    else
 				uiSetResult( -1 );
 			}
-                        //!< to be called by a 'cancel' button
+			//!< to be called by a 'cancel' button
     void		accept( CallBacker* s )
 			    { if ( mHandle.acceptOK() ) _done(1); }
-                        //!< to be called by a 'ok' button
+			//!< to be called by a 'ok' button
     void		done( int i )
 			    { if ( mHandle.doneOK(i) ) _done(i); }
 
@@ -2071,12 +2078,12 @@ void uiDialog::setButtonText( Button but, const uiString& txt )
 {
     switch ( but )
     {
-        case OK		: setOkText( txt ); break;
-        case CANCEL	: setCancelText( txt ); break;
+	case OK		: setOkText( txt ); break;
+	case CANCEL	: setCancelText( txt ); break;
 	case APPLY	: mBody->setApplyText( txt ); break;
-        case HELP	: pErrMsg("set help txt but"); break;
+	case HELP	: pErrMsg("set help txt but"); break;
 	case SAVE	: enableSaveButton( txt ); break;
-        case CREDITS	: pErrMsg("set credits txt but"); break;
+	case CREDITS	: pErrMsg("set credits txt but"); break;
     }
 }
 

@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "monitor.h"
+#include "notify.h"
 #include "bufstring.h"
 
 
@@ -51,50 +51,23 @@ mExpClass(Basic) NamedCallBacker : public CallBacker
 				 , public NamedObject
 {
 public:
-			NamedCallBacker( const char* nm=0 )
-			    : NamedObject(nm)		{}
-			NamedCallBacker( const NamedCallBacker& oth )
-			    : NamedObject(oth)		{}
-    inline NamedCallBacker& operator =( const NamedCallBacker& oth )
-			{ NamedObject::operator =(oth); return *this; }
+
+			NamedCallBacker(const char* nm=0);
+			NamedCallBacker(const NamedCallBacker&);
+
     inline bool		operator ==( const NamedCallBacker& oth ) const
 			{ return name_ == oth.getName(); }
     inline bool		operator ==( const NamedObject& oth ) const
 			{ return name_ == oth.getName(); }
-};
 
+    virtual Notifier<NamedCallBacker>&	objectToBeDeleted() const
+			{ return const_cast<NamedCallBacker*>(this)->delnotif_;}
 
-/*!\brief Monitorable object with a name. All but name() are MT-safe. */
+protected:
 
-mExpClass(Basic) NamedMonitorable : public Monitorable
-				  , public NamedObject
-{
-public:
-
-			NamedMonitorable(const char* nm=0);
-			NamedMonitorable(const NamedObject&);
-			mDeclMonitorableAssignment(NamedMonitorable);
-    virtual		~NamedMonitorable();
-    bool		operator ==(const NamedMonitorable&) const;
-
-    inline virtual	mImplSimpleMonitoredGet(getName,BufferString,name_)
-    virtual void	setName(const char*);
-
-    mDeclInstanceCreatedNotifierAccess( NamedMonitorable );
-
-    static ChangeType	cNameChange()		{ return 1; }
-
-    mExpClass(Basic) NameChgData : public ChangeData::AuxData
-    {
-	public:
-			    NameChgData( const char* from, const char* to )
-				: oldnm_(from), newnm_(to)  {}
-
-	    BufferString    oldnm_;
-	    BufferString    newnm_;
-
-    };
-
+    Notifier<NamedCallBacker>	delnotif_;
+    mutable Threads::Atomic<bool> delalreadytriggered_;
+    void			sendDelNotif() const;
 
 };
 

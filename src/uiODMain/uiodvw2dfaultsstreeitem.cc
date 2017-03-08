@@ -331,8 +331,6 @@ bool uiODVw2DFaultSSTreeItem::select()
 #define mPropID		0
 #define mSaveID		1
 #define mSaveAsID	2
-#define mRemoveAllID	3
-#define mRemoveID	4
 
 bool uiODVw2DFaultSSTreeItem::showSubMenu()
 {
@@ -345,10 +343,8 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
     addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
     addAction( mnu, m3Dots(uiStrings::sSaveAs()), mSaveAsID, "saveas", true );
 
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
+    uiMenu* removemenu = createRemoveMenu();
     mnu.addMenu( removemenu );
-    addAction( *removemenu, tr("From all 2D Viewers"), mRemoveAllID );
-    addAction( *removemenu, tr("Only from this 2D Viewer"), mRemoveID );
 
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
@@ -362,7 +358,7 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 	if ( mnuid== mSaveAsID )
 	    doSaveAs();
     }
-    else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
+    else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
@@ -370,8 +366,8 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 	name_ = toUiString( DBM().nameOf(emid_) );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
-			mnuid==mRemoveID;
-	if ( mnuid == mRemoveAllID )
+		isRemoveItem(mnuid,false);
+	if ( isRemoveItem(mnuid,true) )
 	{
 	    applMgr()->viewer2DMgr().removeFaultSS2D( emid_ );
 	    applMgr()->viewer2DMgr().removeFaultSS( emid_ );

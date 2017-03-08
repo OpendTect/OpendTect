@@ -73,11 +73,13 @@ const char* FontData::key( StdSz ss )		 { return defaultkeys[(int)ss];}
 // static variables and their access functions
 static BufferString defaultfamily( universalfamilies[0] );
 static int defaultpointsize = 10;
+static int default3dpointsize = 16;
 static FontData::Weight defaultweight = FontData::Normal;
 static bool defaultitalic = false;
 
 const char* FontData::defaultFamily()		{ return defaultfamily; }
 int FontData::defaultPointSize()		{ return defaultpointsize; }
+int FontData::default3DPointSize()		{ return default3dpointsize; }
 FontData::Weight FontData::defaultWeight()	{ return defaultweight; }
 bool FontData::defaultItalic()			{ return defaultitalic; }
 

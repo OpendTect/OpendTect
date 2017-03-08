@@ -14,8 +14,10 @@ ___________________________________________________________________
 #include "survinfo.h"
 #include "uistrings.h"
 
-
 static int newrdlid =0;
+
+mDefineInstanceCreatedNotifierAccess( RandomLineProbe );
+
 
 Geometry::RandomLine* RandomLineProbe::createNewDefaultRDL()
 {
@@ -36,8 +38,6 @@ Geometry::RandomLine* RandomLineProbe::createNewDefaultRDL()
 }
 
 
-mDefineInstanceCreatedNotifierAccess( RandomLineProbe );
-
 RandomLineProbe::RandomLineProbe( int rdlid )
     : Probe()
     , rdlid_(rdlid)
@@ -50,6 +50,38 @@ RandomLineProbe::RandomLineProbe( int rdlid )
 
     mTriggerInstanceCreatedNotifier();
 }
+
+
+RandomLineProbe::RandomLineProbe( const RandomLineProbe& oth )
+    : Probe(oth)
+    , rdlid_(oth.rdlid_)
+{
+    copyClassData( oth );
+
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+RandomLineProbe::~RandomLineProbe()
+{
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignment( RandomLineProbe, Probe )
+
+void RandomLineProbe::copyClassData( const RandomLineProbe& oth )
+{
+    rdlid_ = oth.randomeLineID();
+}
+
+
+Monitorable::ChangeType RandomLineProbe::compareClassData(
+					const RandomLineProbe& oth ) const
+{
+    mDeliverYesNoMonitorableCompare( rdlid_ == oth.randomeLineID() );
+}
+
 
 const char* RandomLineProbe::sFactoryKey()
 { return IOPar::compKey(sKey::Random(),sKey::Line()); }
@@ -76,7 +108,7 @@ void RandomLineProbe::geomUpdated()
     for ( int idx=0; idx<layers_.size(); idx++ )
 	layers_[idx]->invalidateData();
 
-    mSendChgNotif( cPositionChange(), cEntireObjectChangeID() );
+    mSendChgNotif( cPositionChange(), cUnspecChgID() );
 }
 
 
@@ -95,7 +127,7 @@ void RandomLineProbe::setRandomLineID( int rdlid )
     for ( int idx=0; idx<layers_.size(); idx++ )
 	layers_[idx]->invalidateData();
 
-    mSendChgNotif( cPositionChange(), cEntireObjectChangeID() );
+    mSendChgNotif( cPositionChange(), cUnspecChgID() );
 }
 
 
@@ -111,14 +143,6 @@ bool RandomLineProbe::usePar( const IOPar& par )
 	return false;
 
     return par.get( sRandomLineID(), rdlid_ );
-}
-
-
-mImplMonitorableAssignment( RandomLineProbe, Probe )
-
-void RandomLineProbe::copyClassData( const RandomLineProbe& oth )
-{
-    rdlid_ = oth.randomeLineID();
 }
 
 

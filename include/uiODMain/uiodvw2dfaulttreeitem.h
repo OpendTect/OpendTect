@@ -22,6 +22,7 @@ class uiODViewer2D;
 mExpClass(uiODMain) uiODVw2DFaultParentTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DFaultParentTreeItem);
 public:
+
 				uiODVw2DFaultParentTreeItem();
 				~uiODVw2DFaultParentTreeItem();
 
@@ -41,6 +42,7 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
+
 };
 
 
@@ -83,4 +85,5 @@ protected:
     void		emobjChangeCB(CallBacker*);
     void		enableKnotsCB(CallBacker*);
     VW2DFault*		faultview_;
+
 };

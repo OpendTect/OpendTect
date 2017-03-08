@@ -34,7 +34,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem
 
     void		createMenu(MenuHandler*,bool istb);
     Probe*		createNewProbe() const;
-    uiODPrManagedTreeItem* addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem* addChildItem(const OD::ObjPresentationInfo&);
     const char*		childObjTypeKey() const;
     static const char*  sKeyRightClick();
     static const char*  sKeyUnselected();
@@ -42,7 +42,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem
 protected:
     uiVisPartServer*	visserv_;
     Pos::GeomID		geomtobeadded_;
-    mutable Attrib::SelSpec selattr_;
+
     MenuItem		additm_;
     MenuItem		create2dgridfrom3ditm_;
     MenuItem		extractfrom3ditm_;
@@ -56,7 +56,11 @@ protected:
     MenuItem		displayallitm_;
     MenuItem		hideallitm_;
 
+    mutable TypeSet<Attrib::SelSpec> selattribs_;
+
     bool		getSelAttrSelSpec(Probe&,Attrib::SelSpec&) const;
+    bool		getSelRGBAttrSelSpecs(Probe&,
+					      TypeSet<Attrib::SelSpec>&) const;
     BufferStringSet	getDisplayedAttribNames() const;
     Type		getType(int) const;
 };
@@ -83,11 +87,13 @@ public:
     void		removeAttrib(const char*);
 
 protected:
+
 			~uiOD2DLineTreeItem();
+
     bool		init();
     const char*		parentType() const;
-    void		objChangedCB(CallBacker*);
     void		updateDisplay();
+    void		handleObjChanged(const ChangeData&);
 
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
