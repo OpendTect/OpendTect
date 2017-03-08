@@ -83,8 +83,6 @@ void Seis::PS2DFetcher::reset()
     delete lditer_; lditer_ = 0;
     delete rdr_; rdr_ = 0;
     atend_ = false;
-
-    openDataSet();
 }
 
 

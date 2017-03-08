@@ -82,7 +82,7 @@ public:
     void		add(const Line2DPos&);
     void		remove(int trcnr);
     void		setEmpty()		{ posns_.erase(); }
-    void		setPositions( TypeSet<Line2DPos>& posns )
+    void		setPositions( const TypeSet<Line2DPos>& posns )
 			{ posns_ = posns; }
     void		limitTo(Interval<int> trcrg);
 
