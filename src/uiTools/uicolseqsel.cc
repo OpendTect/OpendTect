@@ -481,7 +481,7 @@ uiColSeqUseModeSel::uiColSeqUseModeSel( uiParent* p, bool compact,
 
     if ( compact )
     {
-	compactsel_ = new uiColSeqUseModeCompactSel( 0 );
+	compactsel_ = new uiColSeqUseModeCompactSel( this );
 	mAttachCB( compactsel_->modeChange, uiColSeqUseModeSel::modeChgCB );
     }
     else
