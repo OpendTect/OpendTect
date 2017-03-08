@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 
 GLInfo::GLInfo()
-    : glinfo_( new osgGeo::GLInfo() )
+    : glinfo_( osgGeo::GLInfo::get() )
 {
     update();
 }
