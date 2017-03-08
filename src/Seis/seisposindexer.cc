@@ -9,16 +9,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "datainterp.h"
 #include "survinfo.h"
-#include "hiddenparam.h"
 #include "od_iostream.h"
 
 static const int cMaxReasonableNrSegs = 100000;
-
-HiddenParam<Seis::PosIndexer,char> iocompressedmgr_( 0 );
-bool Seis::PosIndexer::ioCompressed() const
-{ return iocompressedmgr_.getParam( this ); }
-void Seis::PosIndexer::setIOCompressed( bool yn )
-{ iocompressedmgr_.setParam( this, yn ? 1 : 0 ); }
 
 
 Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex,
@@ -32,9 +25,8 @@ Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl, bool doindex,
     , goodinlrg_( SI().inlRange(false) )
     , goodcrlrg_( SI().crlRange(false) )
     , is2d_(false), isps_(false)
+    , iocompressedmgr_(false)
 {
-    iocompressedmgr_.setParam( this, 0 );
-
     int inlwidth = goodinlrg_.width();
     if ( inlwidth<1 )
 	inlwidth = 100;
@@ -64,7 +56,6 @@ Seis::PosIndexer::~PosIndexer()
     delete strm_;
     delete int32interp_;
     delete int64interp_;
-    iocompressedmgr_.removeParam( this );
 }
 
 
