@@ -306,6 +306,9 @@ void uiTableBody::paste()
     const SeparString firstrow( rows[0], '\t' );
     const int nrcols = firstrow.size();
 
+    if ( rowCount() < nrrows )
+	setRowCount( nrrows );
+
     for ( int i = 0; i<nrrows; i++ )
     {
 	const SeparString columns( rows[i], '\t' );
@@ -1169,7 +1172,7 @@ void uiTable::setColumnLabels( const BufferStringSet& labels )
     body_->setColumnCount( labels.size() );
 
     for ( int i=0; i<labels.size(); i++ )
-        setColumnLabel( i, toUiString(labels[i]->buf()) );
+	setColumnLabel( i, toUiString(labels[i]->buf()) );
 }
 
 
@@ -1506,7 +1509,7 @@ void uiTable::updateCellSizes( const uiSize* size )
 	    for ( int idx=0; idx < nrCols(); idx++ )
 		setColumnStretchable( idx, true );
 
-        if ( !setup_.fillrow_ )
+	if ( !setup_.fillrow_ )
 	    for ( int idx=0; idx < nrRows(); idx++ )
 		setRowStretchable( idx, true );
     }
