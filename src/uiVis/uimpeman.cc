@@ -49,11 +49,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "vismpeeditor.h"
 #include "visevent.h"
-#include "hiddenparam.h"
 
 using namespace MPE;
-
-static HiddenParam<uiMPEMan,char> sowingmode_( false );
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : parent_(p)
@@ -64,6 +61,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , oldactivevol_(false)
     , cureventnr_(mUdf(int))
     , hortimer_( 0 )
+    , sowingmode_(false)
 {
     mAttachCB( engine().trackeraddremove, uiMPEMan::trackerAddedRemovedCB );
     mAttachCB( engine().actionCalled, uiMPEMan::mpeActionCalledCB );
@@ -76,7 +74,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     mAttachCB( visserv_->keyEvent, uiMPEMan::keyEventCB );
     mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
     mAttachCB( *visserv_->planeMovedEventNotifer(), uiMPEMan::planeChangedCB );
-    sowingmode_.setParam( this, false );
 }
 
 
@@ -84,8 +81,6 @@ uiMPEMan::~uiMPEMan()
 {
     detachAllNotifiers();
     deleteVisObjects();
-    sowingmode_.removeParam( this );
-
     delete hortimer_;
 }
 
@@ -662,15 +657,14 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
 	else
 	{
-	    const bool dosowing = sowingmode_.getParam(this);
-	    if ( !dosowing && seedpicker->addSeed(seedpos,false) )
+	    if ( !sowingmode_ && seedpicker->addSeed(seedpos,false) )
 	    {
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
 		if ( blockcallback )
 		    emobj->sectionGeometry(
 		    emobj->sectionID(0))->blockCallBacks( true, true );
 	    }
-	    else if ( dosowing && !ctrlbut )
+	    else if ( sowingmode_ && !ctrlbut )
 	    {
 		seedpicker->addSeedToPatch( seedpos, false );
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
@@ -679,8 +673,7 @@ void uiMPEMan::seedClick( CallBacker* )
     }
     else
     {
-	const bool dosowing = sowingmode_.getParam(this);
-	const bool doerase = ctrlbut && dosowing;
+	const bool doerase = ctrlbut && sowingmode_;
 	const bool manualmodeclick = !ctrlbut && 
 	    (seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	     seedpicker->getTrackMode()==seedpicker->DrawAndSnap);
@@ -690,7 +683,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    seedpicker->addSeedToPatch( seedpos );
 	    updatePatchDisplay();
 	}
-	else if ( !ctrlbut && !dosowing )
+	else if ( !ctrlbut && !sowingmode_ )
 	{
 	    if ( seedpicker->addSeed(seedpos, shiftclicked) )
 	    {
@@ -700,7 +693,7 @@ void uiMPEMan::seedClick( CallBacker* )
 		    emobj->sectionID(0))->blockCallBacks( true, true );
 	    }
 	}
-	else if ( dosowing )
+	else if ( sowingmode_ )
 	{
 	    seedpicker->addSeedToPatch( seedpos, false );
 	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
@@ -911,7 +904,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 
 void uiMPEMan::sowingFinishedCB( CallBacker* )
 {
-    sowingmode_.setParam( this, false );
+    sowingmode_ = false;
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker ) return;
@@ -925,7 +918,7 @@ void uiMPEMan::sowingFinishedCB( CallBacker* )
 
 void uiMPEMan::sowingModeCB( CallBacker* )
 {
-    sowingmode_.setParam( this, true );
+    sowingmode_ = true;
 }
 
 

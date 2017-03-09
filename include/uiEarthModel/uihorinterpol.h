@@ -38,6 +38,7 @@ public:
     uiHorSaveFieldGrp*	saveFldGrp() const { return savefldgrp_; }
 
     Notifier<uiHorizonInterpolDlg> finished;
+    Notifier<uiHorizonInterpolDlg> horReadyForDisplay;
 
 protected:
 
@@ -54,8 +55,6 @@ protected:
     uiHorSaveFieldGrp*          savefldgrp_;
 
     EM::Horizon*		horizon_;
-public:
-    Notifier<uiHorizonInterpolDlg>* horReadyFroDisplay();
 };
 
 
@@ -88,6 +87,7 @@ protected:
     uiGenInput*			maxholeszfld_;
     uiGenInput*			stepfld_;
     uiGenInput*			methodsel_;
+    uiIOObjSel*			polyfld_;
 
     ObjectSet<uiHor3DInterpol>	methodgrps_;
 };

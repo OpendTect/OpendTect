@@ -131,6 +131,7 @@ protected:
     void			lockAll();
 
     bool			seedpickwason_;
+    bool			sowingmode_;
     TrcKeyZSampling		oldactivevol_;
     HorizonTimer*		hortimer_;
 };

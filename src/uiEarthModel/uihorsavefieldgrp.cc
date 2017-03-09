@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "file.h"
-#include "hiddenparam.h"
 #include "rangeposprovider.h"
 #include "survinfo.h"
 
@@ -30,9 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "uitaskrunner.h"
 
-static HiddenParam<uiHorSaveFieldGrp, uiPosSubSel*> rgfld_( 0 );
-
-
 uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     : uiGroup( p )
     , horizon_( hor )
@@ -42,6 +38,7 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     , outputfld_( 0 )
     , is2d_( is2d )
     , usefullsurvey_( false )
+    , rgfld_(0)
 {
     init( false );
 }
@@ -70,8 +67,7 @@ void uiHorSaveFieldGrp::init( bool withsubsel )
     {
 	uiPosSubSel::Setup su( is2d_, false );
 	su.choicetype( uiPosSubSel::Setup::RangewithPolygon );
-	uiPosSubSel* rgfld = new uiPosSubSel( this, su );
-	rgfld_.setParam( this, rgfld );
+	rgfld_ = new uiPosSubSel( this, su );
     }
 
 
@@ -82,7 +78,7 @@ void uiHorSaveFieldGrp::init( bool withsubsel )
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
     if ( withsubsel )
-	savefld_->attach( alignedBelow, rgfld_.getParam(this) );
+	savefld_->attach( alignedBelow, rgfld_ );
 
     IOObjContext ctxt = is2d_ ? EMHorizon2DTranslatorGroup::ioContext()
 			      : EMHorizon3DTranslatorGroup::ioContext();
@@ -106,7 +102,6 @@ uiHorSaveFieldGrp::~uiHorSaveFieldGrp()
 {
     if ( horizon_ ) horizon_->unRef();
     if ( newhorizon_ ) newhorizon_->unRef();
-    rgfld_.removeParam( this );
 }
 
 
@@ -191,8 +186,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 EM::SurfaceIODataSelection uiHorSaveFieldGrp::getSelection( bool isnew ) const
 {
     RefMan<EM::Horizon> horizon = isnew ? newhorizon_ : horizon_;
-    uiPosSubSel* rgfld = rgfld_.getParam( this );
-    Pos::Provider* prov = rgfld ? rgfld->curProvider() : 0;
+    Pos::Provider* prov = rgfld_ ? rgfld_->curProvider() : 0;
     mDynamicCastGet(Pos::Provider3D*,prov3d,prov);
     if ( prov3d )
     {

@@ -53,6 +53,7 @@ protected:
     static uiString	sChangeSetup() { return m3Dots(tr("Change setup")); }
 
     int			displayid_;
+    int			objid_;
     ZAxisTransform*	datatransform_;
 
     uiODApplMgr*	applMgr();

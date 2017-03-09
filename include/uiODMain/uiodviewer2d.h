@@ -63,6 +63,7 @@ public:
     uiODVw2DTreeTop*		treeTop()		{ return treetp_; }
 
     const uiTreeFactorySet*	uiTreeItemFactorySet() const { return tifs_; }
+    bool			isItemPresent(const uiTreeItem*) const;
 
     const ObjectSet<uiFlatViewAuxDataEditor>&	dataEditor()
 				{ return auxdataeditors_; }
@@ -144,6 +145,8 @@ public:
     Notifier<uiODViewer2D>	dataChanged;
     Notifier<uiODViewer2D>	posChanged;
 
+    void			getVwr2DObjIDs(TypeSet<int>& vw2dobjids) const;
+
     //Horizon 3D
     void			getHor3DVwr2DIDs(EM::ObjectID emid,
 						 TypeSet<int>& vw2dids) const;
@@ -152,6 +155,7 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon3D(EM::ObjectID);
+    void			setupTrackingHorizon3D(EM::ObjectID);
 
     //Horizon2D
     void			getHor2DVwr2DIDs(EM::ObjectID emid,
@@ -161,6 +165,7 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon2D(EM::ObjectID emid);
+    void			setupTrackingHorizon2D(EM::ObjectID);
 
     //Fault
     void			getFaultVwr2DIDs(EM::ObjectID emid,
@@ -170,6 +175,7 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addFaults(const TypeSet<EM::ObjectID>&);
     void			addNewTempFault(EM::ObjectID emid);
+    void			setupNewTempFault(EM::ObjectID emid);
 
     //FaultStickeSet
     void			getFaultSSVwr2DIDs(EM::ObjectID emid,
@@ -179,6 +185,17 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID emid);
+    void			setupNewTempFaultSS(EM::ObjectID emid);
+
+    //FaultStickeSet2D
+    void			removeFaultSS2D(EM::ObjectID emid);
+    void			getLoadedFaultSS2Ds(
+					TypeSet<EM::ObjectID>&) const;
+    void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
+    void			addNewTempFaultSS2D(EM::ObjectID emid);
+    void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
+						TypeSet<int>& vw2ds) const;
+    void			setupNewTempFaultSS2D(EM::ObjectID emid);
 
 
     //PickSets
@@ -187,6 +204,7 @@ public:
     void			removePickSet(const MultiID&);
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     void			addPickSets(const TypeSet<MultiID>&);
+    void			setupNewPickSet(const MultiID&);
 
 protected:
 
@@ -209,6 +227,7 @@ protected:
     uiODMain&			appl_;
     int				rdmlineid_;
     int				voiidx_;
+    int				syncsceneid_;
 
     uiWorldPoint		initialcentre_;
     float			initialx1pospercm_;
@@ -241,27 +260,6 @@ protected:
     void			removeSelected(CallBacker*);
     void			mouseCursorCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
-
-public:
-
-    bool			isItemPresent(const uiTreeItem*) const;
-
-//FaultStickeSet2D
-    void			removeFaultSS2D(EM::ObjectID emid);
-    void			getLoadedFaultSS2Ds(
-					TypeSet<EM::ObjectID>&) const;
-    void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS2D(EM::ObjectID emid);
-    void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
-						TypeSet<int>& vw2ds) const;
-    void			getVwr2DObjIDs(TypeSet<int>& vw2dobjids) const;
-
-    void			setupTrackingHorizon3D(EM::ObjectID);
-    void			setupTrackingHorizon2D(EM::ObjectID);
-    void			setupNewTempFault(EM::ObjectID emid);
-    void			setupNewTempFaultSS(EM::ObjectID emid);
-    void			setupNewTempFaultSS2D(EM::ObjectID emid);
-    void			setupNewPickSet(const MultiID&);
 };
 
 #endif

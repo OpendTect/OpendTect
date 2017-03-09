@@ -66,6 +66,7 @@ protected:
     void		updateTrackingState();
     bool		istrackingallowed_;
 
+    BufferString	timelastmodified_;
     MenuItem		savemnuitem_;
     MenuItem		saveasmnuitem_;
     MenuItem		enabletrackingmnuitem_;

@@ -15,6 +15,7 @@ ________________________________________________________________________
 class LineStyle;
 class uiGenInput;
 class uiSelLineStyle;
+class uiCheckBox;
 
 mExpClass(uiTools) uiMeasureDlg : public uiDialog
 { mODTextTranslationClass(uiMeasureDlg);
@@ -44,6 +45,7 @@ protected:
     uiGenInput*			distfld_;
     uiGenInput*			dist2fld_;
     uiGenInput*			inlcrldistfld_;
+    uiCheckBox*			clearchkbut_;
 
     void			lsChangeCB(CallBacker*);
     void			clearCB(CallBacker*);

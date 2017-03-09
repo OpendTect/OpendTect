@@ -56,7 +56,7 @@ public:
     uiString			getSceneName(int sceneid) const;
     CNotifier<uiODSceneMgr,int>	sceneClosed;
     CNotifier<uiODSceneMgr,int>	treeToBeAdded;
-    CNotifier<uiODSceneMgr,int>& treeAdded();
+    CNotifier<uiODSceneMgr,int> treeAdded;
 
     void			getScenePars(IOPar&);
     void			useScenePars(const IOPar&);

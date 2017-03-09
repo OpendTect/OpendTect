@@ -34,6 +34,7 @@ class uiIOObjSel;
 class uiListBox;
 class uiPosSubSel;
 class uiStratLevelSel;
+class uiPushButton;
 
 namespace EM { class Surface; class SurfaceIODataSelection; }
 
@@ -241,6 +242,7 @@ protected:
     BufferStringSet		optnms_;
     TypeSet<int>		optids_;
     int				defaultoptidx_;
+    uiPushButton*		clearbut_;
 };
 
 

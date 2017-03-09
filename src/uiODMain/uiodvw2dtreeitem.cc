@@ -33,10 +33,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ptrman.h"
 
-#include "hiddenparam.h"
-
-
-static HiddenParam<uiODVw2DTreeItem,int> objid_( -1 );
 
 const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
 const char* uiODVw2DTreeTop::applmgrstr()		{ return "Applmgr"; }
@@ -166,8 +162,8 @@ uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
     : uiTreeItem( nm )
     , displayid_(-1)
     , datatransform_(0)
+    , objid_(-1)
 {
-    objid_.setParam( this, -1 );
 }
 
 
@@ -176,7 +172,6 @@ uiODVw2DTreeItem::~uiODVw2DTreeItem()
     detachAllNotifiers();
     if ( datatransform_ )
 	datatransform_->unRef();
-    objid_.removeParam( this );
 }
 
 
@@ -198,7 +193,7 @@ void uiODVw2DTreeItem::addKeyBoardEvent( int id )
 	    uiODVw2DTreeItem::keyPressedCB);
     }
     if ( id>=0 )
-	objid_.setParam( this, id );
+	objid_ = id;
 }
 
 
@@ -411,10 +406,10 @@ const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
 
 void uiODVw2DTreeItem::doSave()
 {
-    if ( objid_.getParam( this )<0 )
+    if ( objid_ < 0 )
 	return;
 
-    const EM::ObjectID emid = EM::ObjectID( objid_.getParam(this) );
+    const EM::ObjectID emid = EM::ObjectID( objid_ );
     bool savewithname = false;
     if ( !EM::EMM().getMultiID(emid).isEmpty() )
 	savewithname = !IOM().get( EM::EMM().getMultiID(emid) );
@@ -431,10 +426,10 @@ void uiODVw2DTreeItem::doSave()
 
 void uiODVw2DTreeItem::doSaveAs()
 {
-    if ( objid_.getParam( this )<0 )
+    if ( objid_ < 0 )
 	return;
 
-    const EM::ObjectID emid = EM::ObjectID( objid_.getParam(this) );
+    const EM::ObjectID emid = EM::ObjectID( objid_ );
     doStoreObject( true );
 
     if ( MPE::engine().hasTracker(emid) )
@@ -452,10 +447,10 @@ void uiODVw2DTreeItem::doSaveAs()
 
 void uiODVw2DTreeItem::doStoreObject( bool saveas )
 {
-    if ( objid_.getParam( this )<0 )
+    if ( objid_ < 0 )
 	return;
 
-    const EM::ObjectID emid = EM::ObjectID( objid_.getParam(this) );
+    const EM::ObjectID emid = EM::ObjectID( objid_ );
     applMgr()->EMServer()->storeObject( emid, saveas );
     renameVisObj();
 }
@@ -463,10 +458,10 @@ void uiODVw2DTreeItem::doStoreObject( bool saveas )
 
 void uiODVw2DTreeItem::renameVisObj()
 {
-    if ( objid_.getParam( this )<0 )
+    if ( objid_ < 0 )
 	return;
 
-    const EM::ObjectID emid = EM::ObjectID( objid_.getParam(this) );
+    const EM::ObjectID emid = EM::ObjectID( objid_ );
     const MultiID midintree = applMgr()->EMServer()->getStorageID( emid );
     TypeSet<int> visobjids;
     applMgr()->visServer()->findObject( midintree, visobjids );

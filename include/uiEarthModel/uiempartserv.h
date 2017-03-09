@@ -30,6 +30,7 @@ class TrcKeySampling;
 class SurfaceInfo;
 class ZAxisTransform;
 class uiBulkHorizonImport;
+class uiBulkFaultImport;
 class uiCreateHorizon;
 class uiExportFault;
 class uiExportHorizon;
@@ -202,6 +203,7 @@ protected:
     uiImportHorizon*	imphorattrdlg_;
     uiImportHorizon*	imphorgeomdlg_;
     uiBulkHorizonImport* impbulkhordlg_;
+    uiBulkFaultImport*	impbulkfltdlg_;
     uiImportFault3D*	impfltdlg_;
     uiImportFault3D*	impfltstickdlg_;
     uiImportFaultStickSet2D*	impfss2ddlg_;

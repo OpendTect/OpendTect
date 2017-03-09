@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
@@ -45,8 +44,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vishorizondisplay.h"
 #include "vishorizonsection.h"
 
-
-HiddenParam<uiODEarthModelSurfaceTreeItem,BufferString> timelastmodifs(0);
 
 
 uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
@@ -82,7 +79,6 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     changesetupmnuitem_.iconfnm = "tools";
     NotSavedPrompter::NSP().promptSaving.notify(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
-    timelastmodifs.setParam( this, "" );
 }
 
 
@@ -105,7 +101,6 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 	MPE::engine().unRefTracker( emid_ );
     delete uivisemobj_;
 
-    timelastmodifs.removeParam( this );
 }
 
 
@@ -124,7 +119,7 @@ bool uiODEarthModelSurfaceTreeItem::init()
 	MPE::engine().refTracker( emid_ );
 
     EM::IOObjInfo eminfo( EM::EMM().getMultiID(emid_) );
-    timelastmodifs.setParam( this, eminfo.timeLastModified() );
+    timelastmodified_ = eminfo.timeLastModified();
     initNotify();
     return true;
 }
@@ -252,8 +247,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const EM::IOObjInfo eminfo( mid );
     const BufferString curtime = eminfo.timeLastModified();
-    const BufferString timelastmodified = timelastmodifs.getParam( this );
-    const bool isnewer = Time::isEarlier( timelastmodified, curtime );
+    const bool isnewer = Time::isEarlier( timelastmodified_, curtime );
     const bool allowreload = !hastracker && isnewer;
     mAddMenuItem( menu, &reloadmnuitem_, allowreload, false );
 

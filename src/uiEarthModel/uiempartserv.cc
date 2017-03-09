@@ -38,7 +38,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -91,7 +90,6 @@ static const char* sKeyPreLoad()		{ return "PreLoad"; }
 int uiEMPartServer::evDisplayHorizon()		{ return 0; }
 int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
-static HiddenParam< uiEMPartServer,uiBulkFaultImport* > impbulkfltdlgs_(0);
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -114,8 +112,8 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , ma3dfaultdlg_(0)
     , manfssdlg_(0)
     , manbodydlg_(0)
+    , impbulkfltdlg_(0)
 {
-    impbulkfltdlgs_.setParam( this, 0 );
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
 
@@ -130,8 +128,7 @@ uiEMPartServer::~uiEMPartServer()
     delete manfssdlg_;
     delete manbodydlg_;
     delete crhordlg_;
-    delete impbulkfltdlgs_.getParam( this );
-    impbulkfltdlgs_.removeParam( this );
+    delete impbulkfltdlg_;
 }
 
 
@@ -140,8 +137,7 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete imphorattrdlg_; imphorattrdlg_ = 0;
     delete imphorgeomdlg_; imphorgeomdlg_ = 0;
 
-    delete impbulkfltdlgs_.getParam( this );
-    impbulkfltdlgs_.setParam( this, 0 );
+    delete impbulkfltdlg_; impbulkfltdlg_ = 0;
 
     delete impfltdlg_; impfltdlg_ = 0;
     delete impbulkhordlg_; impbulkhordlg_ = 0;
@@ -296,10 +292,10 @@ bool uiEMPartServer::export3DHorizon()
 
 bool uiEMPartServer::importBulkFaults()
 {
-    if ( !impbulkfltdlgs_.getParam(this) )
-	impbulkfltdlgs_.setParam( this, new uiBulkFaultImport(parent()) );
+    if ( !impbulkfltdlg_ )
+	impbulkfltdlg_ = new uiBulkFaultImport( parent() );
 
-    return impbulkfltdlgs_.getParam(this)->go();
+    return impbulkfltdlg_->go();
 }
 
 
@@ -513,7 +509,7 @@ bool uiEMPartServer::fillHoles( const EM::ObjectID& emid, bool is2d )
 {
     mDynamicCastGet(EM::Horizon*,hor,em_.getObject(emid));
     uiHorizonInterpolDlg dlg( parent(), hor, is2d );
-    dlg.horReadyFroDisplay()->notify(
+    dlg.horReadyForDisplay.notify(
 	    mCB(this,uiEMPartServer,displayOnCreateCB) );
     return dlg.go();
 }
@@ -523,7 +519,7 @@ bool uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
     uiFilterHorizonDlg dlg( parent(), hor3d );
-    dlg.horReadyFroDisplay()->notify(
+    dlg.horReadyForDisplay.notify(
 	    mCB(this,uiEMPartServer,displayOnCreateCB) );
     return dlg.go();
 }

@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "keystrs.h"
 #include "settings.h"
 #include "genc.h"
@@ -96,8 +95,6 @@ static int defltNrInlPerJob( const IOPar& inputpar )
     }
 
 
-static HiddenParam<uiSeisMMProc,uiCheckBox*> saveasflds(0);
-
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     : uiMMBatchJobDispatcher(p,iop, mODHelpKey(mSeisMMProcHelpID) )
     , parfnm_(iop.find(sKey::FileName()))
@@ -106,9 +103,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     , outioobjinfo_(0)
     , lsfileemitted_(false)
     , is2d_(false)
+    , saveasdeffld_(0)
 {
-    saveasflds.setParam( this, 0 );
-
     setOkText( uiStrings::sClose() );
     setCancelText( uiString::emptyString() );
 
@@ -178,10 +174,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
                         tr("Nr of inlines per job"),
 			IntInpSpec(nrinlperjob_) );
 	inlperjobfld_->attach( alignedBelow, inlperjobattach );
-	uiCheckBox* saveasdeffld = new uiCheckBox( specparsgroup_,
+	saveasdeffld_ = new uiCheckBox( specparsgroup_,
 					uiStrings::sSaveAsDefault() );
-	saveasdeffld->attach( rightTo, inlperjobfld_ );
-	saveasflds.setParam( this, saveasdeffld );
+	saveasdeffld_->attach( rightTo, inlperjobfld_ );
     }
 }
 
@@ -190,7 +185,6 @@ uiSeisMMProc::~uiSeisMMProc()
 {
     delete jobprov_;
     delete outioobjinfo_;
-    saveasflds.removeParam( this );
 }
 
 
@@ -231,8 +225,7 @@ bool uiSeisMMProc::initWork( bool retry )
 	    inlperjobfld_->setValue( nrinlperjob_ );
 	    inlperjobfld_->setSensitive( false );
 
-	    uiCheckBox* saveasdeffld = saveasflds.getParam( this );
-	    if ( saveasdeffld && saveasdeffld->isChecked() )
+	    if ( saveasdeffld_ && saveasdeffld_->isChecked() )
 		InlineSplitJobDescProv::setDefaultNrInlPerJob( nrinlperjob_ );
 	}
     }

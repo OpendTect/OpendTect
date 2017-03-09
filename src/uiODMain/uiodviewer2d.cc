@@ -60,14 +60,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "view2ddataman.h"
 #include "view2ddata.h"
 #include "od_helpids.h"
-#include "hiddenparam.h"
 
 static void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
 
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
-
-static HiddenParam<uiODViewer2D,int> syncsceneid_( -1 );
 
 uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     : appl_(appl)
@@ -97,15 +94,13 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , marker_(0)
     , datatransform_(0)
 {
-    syncsceneid_.setParam( this, -1 );
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
     id_ = vwrid++;
 
     setWinTitle( true );
 
     if ( visid_>=0 )
-	syncsceneid_.setParam(
-		this, appl_.applMgr().visServer()->getSceneID(visid_) );
+	syncsceneid_ = appl_.applMgr().visServer()->getSceneID( visid_ );
     else
     {
 	TypeSet<int> sceneids;
@@ -120,7 +115,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
 	    if ( datatransform_==scntransform ||
 		 (scnzdomaininfo && scnzdomaininfo->def_==zDomain()) )
 	    {
-		syncsceneid_.setParam( this, sceneid );
+		syncsceneid_ = sceneid;
 		break;
 	    }
 	}
@@ -136,7 +131,6 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
 uiODViewer2D::~uiODViewer2D()
 {
     detachAllNotifiers();
-    syncsceneid_.removeParam( this );
     mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin())
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
@@ -166,7 +160,7 @@ uiODViewer2D::~uiODViewer2D()
 
 int uiODViewer2D::getSyncSceneID() const
 {
-    return syncsceneid_.getParam( this );
+    return syncsceneid_;
 }
 
 

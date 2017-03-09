@@ -39,12 +39,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
-#include "hiddenparam.h"
-
-static HiddenParam<uiHorizonInterpolDlg, Notifier<uiHorizonInterpolDlg>* >
-	horReadyForDisplays( 0 );
-
-static HiddenParam<uiHor3DInterpolSel, uiIOObjSel*> polyfld_( 0 );
 
 
 #define mScopeSurvey	0
@@ -65,10 +59,8 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     , interpol1dsel_( 0 )
     , savefldgrp_( 0 )
     , finished(this)
+    , horReadyForDisplay(this)
 {
-    Notifier<uiHorizonInterpolDlg>* notifier =
-	new Notifier<uiHorizonInterpolDlg>( this );
-    horReadyForDisplays.setParam( this, notifier );
     if ( !hor )
 	setCtrlStyle( RunAndClose );
 
@@ -128,18 +120,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 {
     detachAllNotifiers();
-    Notifier<uiHorizonInterpolDlg>* notifier =
-	horReadyForDisplays.getParam( this );
-    horReadyForDisplays.removeParam( this );
-    delete notifier;
-
     if ( horizon_ ) horizon_->unRef();
-}
-
-
-Notifier<uiHorizonInterpolDlg>* uiHorizonInterpolDlg::horReadyFroDisplay()
-{
-    return horReadyForDisplays.getParam( this );
 }
 
 
@@ -221,7 +202,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
     if ( success &&
 	 (saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon()) )
-	horReadyForDisplays.getParam(this)->trigger();
+	horReadyForDisplay.trigger();
 
     return success;
 }
@@ -273,7 +254,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
     }
 
     if ( saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon() )
-	horReadyForDisplays.getParam(this)->trigger();
+	horReadyForDisplay.trigger();
 
     return true;
 }
@@ -347,12 +328,11 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 
     IOObjContext ctxt = mIOObjContext( PickSet );
     ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    uiIOObjSel* polyselfld =
-       new uiIOObjSel( this,ctxt,uiIOObjSel::Setup(uiStrings::sEmptyString()) );
-    polyselfld->setCaption( uiStrings::sEmptyString() );
-    polyselfld->attach( rightOf, filltypefld_ );
-    polyselfld->setHSzPol( uiObject::SmallVar );
-    polyfld_.setParam( this, polyselfld );
+    polyfld_ = new uiIOObjSel( this,ctxt,
+			       uiIOObjSel::Setup(uiStrings::sEmptyString()) );
+    polyfld_->setCaption( uiStrings::sEmptyString() );
+    polyfld_->attach( rightOf, filltypefld_ );
+    polyfld_->setHSzPol( uiObject::SmallVar );
 
     PositionInpSpec::Setup setup;
     PositionInpSpec spec( setup );
@@ -391,7 +371,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 void uiHor3DInterpolSel::scopeChgCB( CallBacker* )
 {
     const bool showpolyfld = isPolygon();
-    polyfld_.getParam(this)->display( showpolyfld );
+    polyfld_->display( showpolyfld );
 }
 
 
@@ -453,12 +433,12 @@ bool uiHor3DInterpolSel::getPolygonRange( Interval<int>& inlrg,
 
 bool uiHor3DInterpolSel::readPolygon( ODPolygon<float>& poly ) const
 {
-    if ( !polyfld_.getParam(this) || !polyfld_.getParam(this)->ioobj() )
+    if ( !polyfld_ || !polyfld_->ioobj() )
 	return false;
 
     Pick::Set ps; BufferString errmsg;
     const bool res = PickSetTranslator::retrieve(
-	    ps, polyfld_.getParam(this)->ioobj(), true, errmsg );
+				ps, polyfld_->ioobj(), true, errmsg );
     if ( !res )
 	mErrRet( mToUiStringTodo(errmsg) );
 

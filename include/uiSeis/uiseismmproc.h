@@ -18,6 +18,7 @@ class uiGenInput;
 class uiIOFileSelect;
 class uiSeisIOObjInfo;
 class SeisJobExecProv;
+class uiCheckBox;
 
 
 mExpClass(uiSeis) uiSeisMMProc : public uiMMBatchJobDispatcher
@@ -38,6 +39,7 @@ protected:
 
     uiIOFileSelect*	tmpstordirfld_;
     uiGenInput*		inlperjobfld_;
+    uiCheckBox*		saveasdeffld_;
 
     virtual bool	initWork(bool);
     virtual bool	prepareCurrentJob();

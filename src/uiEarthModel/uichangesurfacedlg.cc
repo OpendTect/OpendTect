@@ -27,10 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "od_helpids.h"
-#include "hiddenparam.h"
 
-static HiddenParam<uiChangeHorizonDlg, Notifier<uiChangeHorizonDlg>* >
-		horReadyFroDisplays( 0 );
 
 uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
                                         bool is2d, const uiString& txt )
@@ -41,10 +38,8 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
     , savefldgrp_( 0 )		   
     , inputfld_( 0 )
     , parsgrp_( 0 )
+    , horReadyForDisplay(this)
 {
-    Notifier<uiChangeHorizonDlg>* notifier =
-	new Notifier<uiChangeHorizonDlg>( this );
-    horReadyFroDisplays.setParam( this, notifier );
     setCtrlStyle( RunAndClose );
 
     if ( horizon_ )
@@ -61,12 +56,6 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
 
     savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_ );
     savefldgrp_->setSaveFieldName( "Save interpolated horizon" );
-}
-
-
-Notifier<uiChangeHorizonDlg>* uiChangeHorizonDlg::horReadyFroDisplay()
-{
-    return horReadyFroDisplays.getParam( this );
 }
 
 
@@ -87,9 +76,6 @@ void uiChangeHorizonDlg::attachPars()
 
 uiChangeHorizonDlg::~uiChangeHorizonDlg()
 {
-    Notifier<uiChangeHorizonDlg>* notifier = horReadyFroDisplays.getParam(this);
-    horReadyFroDisplays.removeParam( this );
-    delete notifier;
     if ( horizon_ ) horizon_->unRef();
 }
 
@@ -206,7 +192,7 @@ bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 	return false;
 
     if ( saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon() )
-	horReadyFroDisplays.getParam( this )->trigger();
+	horReadyForDisplay.trigger();
 
     const bool res = savefldgrp_->saveHorizon();
     if ( res )

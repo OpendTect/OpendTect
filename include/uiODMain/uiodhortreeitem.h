@@ -25,10 +25,10 @@ public:
 			uiODHorizonParentTreeItem();
 			~uiODHorizonParentTreeItem();
 
-    MenuItem*		getNewMenu();
-    CNotifier<uiODHorizonParentTreeItem,int>& handleMenu();
-
     virtual void	removeChild(uiTreeItem*);
+
+    CNotifier<uiODHorizonParentTreeItem,int>	handleMenu;
+    MenuItem		newmenu_;
 
 protected:
 			mMenuOnAnyButton
@@ -39,6 +39,8 @@ protected:
 			{ return typeid(uiODTreeTop).name(); }
 
     void		sort();
+    MenuItem		trackitem_;
+    MenuItem		constzitem_;
 };
 
 

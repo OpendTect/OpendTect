@@ -33,6 +33,7 @@ public:
 						   bool is2d,const uiString&);
 				~uiChangeHorizonDlg();
     uiHorSaveFieldGrp*		saveFldGrp() const { return savefldgrp_; }
+    Notifier<uiChangeHorizonDlg> horReadyForDisplay;
 
 protected:
 
@@ -59,7 +60,7 @@ protected:
     virtual const char*		undoText() const		{ return 0; }
 
 public:
-    Notifier<uiChangeHorizonDlg>* horReadyFroDisplay();
+    //Notifier<uiChangeHorizonDlg>* horReadyFroDisplay();
 };
 
 

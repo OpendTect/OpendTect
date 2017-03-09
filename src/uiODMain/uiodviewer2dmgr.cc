@@ -61,11 +61,6 @@ ________________________________________________________________________
 #include "vispicksetdisplay.h"
 #include "visrandomtrackdisplay.h"
 
-#include "hiddenparam.h"
-
-static HiddenParam< uiODViewer2DMgr, TypeSet<Pos::GeomID>* >
-				     uiodviewer2dmgrgeom2dids_( 0 );
-
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     : appl_(*a)
     , tifs2d_(new uiTreeFactorySet)
@@ -90,11 +85,9 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs3d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 6500 );
 
     IOM().surveyChanged.notify( mCB(this,uiODViewer2DMgr,surveyChangedCB) );
-    uiodviewer2dmgrgeom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
 
     BufferStringSet lnms;
-    SeisIOObjInfo::getLinesWithData( lnms,
-		   *uiodviewer2dmgrgeom2dids_.getParam(this) );
+    SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
 
 }
 
@@ -107,9 +100,6 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
     deleteAndZeroPtr( l2dintersections_ );
     deepErase( viewers2d_ );
     delete tifs2d_; delete tifs3d_;
-
-    delete uiodviewer2dmgrgeom2dids_.getParam(this);
-    uiodviewer2dmgrgeom2dids_.removeParam( this );
 }
 
 void uiODViewer2DMgr::surveyChangedCB( CallBacker* )
@@ -118,7 +108,7 @@ void uiODViewer2DMgr::surveyChangedCB( CallBacker* )
 	deepErase( *l2dintersections_ );
     deleteAndZeroPtr( l2dintersections_ );
     deepErase( viewers2d_ );
-    uiodviewer2dmgrgeom2dids_.getParam(this)->erase();
+    geom2dids_.erase();
 }
 
 
@@ -287,9 +277,8 @@ int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
     vwr.handleChange( FlatView::Viewer::DisplayPars );
-    if ( uiodviewer2dmgrgeom2dids_.getParam(this)->size()>0 )
-	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer(
-	*uiodviewer2dmgrgeom2dids_.getParam(this) );
+    if ( geom2dids_.size() > 0 )
+	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
     attachNotifiersAndSetAuxData( vwr2d );
     return vwr2d->id_;
 }
@@ -335,9 +324,8 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 	visServ().fillDispPars( visid, attribid, ddp, dowva );
 	visServ().fillDispPars( visid, attribid, ddp, !dowva );
 	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
-    if ( uiodviewer2dmgrgeom2dids_.getParam(this)->size()>0 )
-	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer(
-	*uiodviewer2dmgrgeom2dids_.getParam(this) );
+    if ( geom2dids_.size() > 0 )
+	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
 	attachNotifiersAndSetAuxData( vwr2d );
     }
 
@@ -698,9 +686,8 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 	vwr.appearance().setGeoDefaults( vwr2d->isVertical() );
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
-    if ( uiodviewer2dmgrgeom2dids_.getParam(this)->size()>0 )
-	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer(
-	*uiodviewer2dmgrgeom2dids_.getParam(this) );
+    if ( geom2dids_.size() > 0 )
+	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
     attachNotifiersAndSetAuxData( vwr2d );
     vwr2d->viewControl()->setEditMode( curvwr2d.viewControl()->isEditModeOn() );
 }
@@ -742,18 +729,16 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 	    deepErase( *l2dintersections_ );
 	delete l2dintersections_;
 
-	if ( uiodviewer2dmgrgeom2dids_.getParam(this)->size()==0 )
+	if ( geom2dids_.size() == 0 )
 	{
 	    BufferStringSet lnms;
-	    SeisIOObjInfo::getLinesWithData( lnms,
-		*uiodviewer2dmgrgeom2dids_.getParam(this) );
+	    SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
 	}
-	if ( uiodviewer2dmgrgeom2dids_.getParam(this)->size()==0 )
+	if ( geom2dids_.size() == 0 )
 	    return;
 
 	l2dintersections_ = new Line2DInterSectionSet;
-	BendPointFinder2DGeomSet bpfinder(
-		*uiodviewer2dmgrgeom2dids_.getParam(this) );
+	BendPointFinder2DGeomSet bpfinder( geom2dids_ );
 	bpfinder.execute();
 	Line2DInterSectionFinder intfinder( bpfinder.bendPoints(),
 					    *l2dintersections_ );

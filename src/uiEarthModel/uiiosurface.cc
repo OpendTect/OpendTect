@@ -33,7 +33,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
-#include "hiddenparam.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -866,8 +865,7 @@ public:
 };
 
 
-static HiddenParam<uiFaultParSel,uiPushButton*> clearbuttons( 0 );
-
+//uiFaultParSel
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
     : uiCompoundParSel(p,tr("Faults"))
     , is2d_(is2d)
@@ -877,10 +875,9 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
 {
     butPush.notify( mCB(this,uiFaultParSel,doDlg) );
 
-    uiPushButton* clearbut = new uiPushButton(this, uiStrings::sClear(), true);
-    clearbut->activated.notify( mCB(this,uiFaultParSel,clearPush) );
-    clearbut->attach( rightOf, selbut_ );
-    clearbuttons.setParam( this, clearbut );
+    clearbut_ = new uiPushButton(this, uiStrings::sClear(), true);
+    clearbut_->activated.notify( mCB(this,uiFaultParSel,clearPush) );
+    clearbut_->attach( rightOf, selbut_ );
 
     txtfld_->setElemSzPol( uiObject::Wide );
     setHAlignObj( txtfld_ );
@@ -889,14 +886,12 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
 
 uiFaultParSel::~uiFaultParSel()
 {
-    clearbuttons.removeParam( this );
 }
 
 
 void uiFaultParSel::hideClearButton( bool yn )
 {
-    uiPushButton* clearbut = clearbuttons.getParam( this );
-    if ( clearbut ) clearbut->display( false, true );
+    clearbut_->display( false, true );
 }
 
 

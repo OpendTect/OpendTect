@@ -21,6 +21,7 @@ namespace EM { class Horizon; class SurfaceIODataSelection; }
 class uiCheckBox;
 class uiGenInput;
 class uiIOObjSel;
+class uiPosSubSel;
 
 /*!\brief save or overwrite horizon field set up. It will create new horizon
     based on given horizon, if the old horizon is not given, you can read it
@@ -56,6 +57,7 @@ protected:
     uiGenInput*			savefld_;
     uiCheckBox*			addnewfld_;
     uiIOObjSel*			outputfld_;
+    uiPosSubSel*		rgfld_;
 
     EM::Horizon*		horizon_;
     EM::Horizon*		newhorizon_;
