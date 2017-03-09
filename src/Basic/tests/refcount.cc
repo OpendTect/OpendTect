@@ -81,9 +81,13 @@ bool testWeakPtr()
     bool deleted = false;
     ReferencedClass* refclass = new ReferencedClass( &deleted );
 
+    //This will cause a prog-error, but should still be 
+    //handled properly
+    const bool oldstatus = DBG::setCrashOnProgError( false );
     WeakPtr<ReferencedClass> obsptr = refclass;
     mRunStandardTest( obsptr.get().ptr()==0,
 		      "Setting unreffed class should give NULL");
+    DBG::setCrashOnProgError( oldstatus );
 
     RefMan<ReferencedClass> refman1 = new ReferencedClass( &deleted );
     obsptr = refman1;

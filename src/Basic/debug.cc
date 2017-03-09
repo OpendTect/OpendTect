@@ -108,7 +108,7 @@ void od_init_test_program(int argc, char** argv )
 {
     SetProgramArgs( argc, argv, false );
     signal(SIGSEGV, od_test_prog_crash_handler );
-    crashonprogerror = true;
+    DBG::setCrashOnProgError( true );
 
     OD::ModDeps().ensureLoaded("Basic");
 }
@@ -150,6 +150,14 @@ bool isUdfImpl( float_complex val )
 
 namespace DBG
 {
+
+
+bool setCrashOnProgError( bool yn )
+{
+    const bool res = crashonprogerror;
+    crashonprogerror = yn;
+    return res;
+}
 
 
 bool crashOnNaN()

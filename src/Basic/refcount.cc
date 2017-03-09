@@ -373,12 +373,17 @@ void WeakPtrBase::set( Referenced* p )
 
     if ( p && p->tryRef() )
     {
+	if ( p->nrRefs()==1 )
+	{
+	    pErrMsg("I am the only reffer - not good" );
+	}
+
 	p->addObserver(this);
 	ptr_ = p;
 
 	//We may not be locked during unref as clear may be called
 	lock_.unLock();
-	p->unRefNoDelete();
+	p->unRef();
     }
     else
 	lock_.unLock();

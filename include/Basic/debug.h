@@ -35,11 +35,12 @@ namespace DBG
     mGlobal(Basic) bool isOn( int flag=0xffff );
     mGlobal(Basic) void message( const char* );     //!< default: to stderr
     mGlobal(Basic) void message( int flag, const char* msg );
-// { if ( isOn(flag) ) message(msg); }
     mGlobal(Basic) void putProgInfo(int,char**);
 			//!< one line; more if isOn()
     mGlobal(Basic) void forceCrash(bool withdump);
     mGlobal(Basic) bool crashOnNaN();
+    mGlobal(Basic) bool setCrashOnProgError(bool yn);
+			//!<Returns old status
 };
 
 extern "C" {
@@ -52,8 +53,6 @@ extern "C" {
     mGlobal(Basic) void od_init_test_program(int,char**);
 	/*!<Calls SetProgramArgs, sets crash on programmer error, and installs
 	    signal handling for crashes. */
-
-
 }
 
 
