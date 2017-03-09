@@ -64,16 +64,21 @@ public:
     bool		setPoints(const TypeSet<Coord>&,TaskRunner*);
     const TypeSet<Coord>* getPoints() const { return points_; }
     virtual void	setTrend(PolyTrend::Order);
+			/*<!Not a processing parameter, requires the input data
+			  (points & values) to be set. Needs to be called again
+			  each time either the values are changed */
     bool		setValues(const TypeSet<float>&);
 			/*<!Values are assumed to remain in mem at
 			    getValue(). Values should correspond to the
-			    coords in setPoints*/
+			    coords in setPoints */
     virtual float	getValue(const Coord&,const TypeSet<double>* weights=0,
 				 const TypeSet<int>* relevantpoints=0) const;
-			/*!<Does the gridding*/
+			//!<Does the gridding
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
+
+    virtual bool	allPointsAreRelevant() const			   =0;
 
     virtual bool	getWeights(const Coord&,
 				   TypeSet<double>& weights,
@@ -82,6 +87,7 @@ public:
 				    are called for the same setPoints()
 				    The output weights and pointset must then
 				    be provided to the getValue function */
+    virtual bool	areWeightsValuesDependent() const	{ return false;}
 
 protected:
 				Gridder2D();
@@ -125,6 +131,7 @@ public:
     float		getSearchRadius() const { return radius_; }
 
     bool		wantsAllPoints() const { return false; }
+    bool		allPointsAreRelevant() const;
     bool		isPointUsable(const Coord&,const Coord&) const;
     bool		getWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>& relevantpoints) const;
@@ -160,6 +167,7 @@ public:
     void		setGridArea(const Interval<float>&,
 				    const Interval<float>&);
 
+    bool		allPointsAreRelevant() const;
     bool		getWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>& relevantpoints) const;
 
@@ -201,10 +209,13 @@ public:
 
     void		setMetricTensor(double m11,double m12,double m22);
 
+    bool		allPointsAreRelevant() const;
     bool		getWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>& relevantpoints) const;
+    bool		areWeightsValuesDependent() const      { return true; }
     float		getValue(const Coord&,const TypeSet<double>* weights=0,
 				 const TypeSet<int>* relevantpoints=0) const;
+
 protected:
 
     bool		ismetric_;
@@ -216,7 +227,7 @@ protected:
     LinSolver<double>*	solv_;
 
     bool		updateSolver();
-			//will be removed after 6.0
+			//will be removed after 6.2
 
     bool		updateSolver(TaskRunner*);
     bool		updateSolution();

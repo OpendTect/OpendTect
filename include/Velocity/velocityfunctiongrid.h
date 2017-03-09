@@ -53,9 +53,11 @@ protected:
     bool			computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
     ConstRefMan<Function>	getInputFunction(const BinID& bid,int& source);
+    void			fetchPerfectFit(const BinID&);
 
     ObjectSet<const Function>	velocityfunctions_;
     TypeSet<int>		sources_;
+    const Function*		directsource_;
 
     Gridder2D*			gridder_;
     const InterpolationLayerModel* layermodel_;

@@ -87,6 +87,7 @@ public:
 				//!<Returns false if process should continue
     od_int64			nrDone() const;
     od_int64			totalNr() const       { return totalnr_; }
+    uiString			uiMessage() const;
     uiString			uiNrDoneText() const
 						{ return tr("CDPs gridded"); }
 
@@ -116,7 +117,8 @@ protected:
 
 // VelGriddingTask
 VelGriddingTask::VelGriddingTask( VelocityGridder& step )
-    : nrdone_( 0 )
+    : SequentialTask("Velocity Gridding Task")
+    , nrdone_( 0 )
     , remainingbids_( 0, false )
     , definedbids_( 0, false )
     , step_( step )
@@ -130,6 +132,12 @@ VelGriddingTask::VelGriddingTask( VelocityGridder& step )
 	remainingbids_.add( bid );
 
     totalnr_ = hrg.totalNr();
+}
+
+
+uiString VelGriddingTask::uiMessage() const
+{
+    return tr("Gridding velocities");
 }
 
 

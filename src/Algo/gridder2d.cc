@@ -118,8 +118,7 @@ void Gridder2D::setTrend( PolyTrend::Order order )
 	if ( order == trend_->getOrder() )
 	    return;
 
-	delete trend_;
-	trend_ = 0;
+	deleteAndZeroPtr( trend_ );
     }
 
     if ( order != PolyTrend::None )
@@ -278,6 +277,12 @@ void InverseDistanceGridder2D::setSearchRadius( float r )
 }
 
 
+bool InverseDistanceGridder2D::allPointsAreRelevant() const
+{
+    return mIsUdf( radius_ );
+}
+
+
 bool InverseDistanceGridder2D::isPointUsable( const Coord& calcpt,
 					      const Coord& datapt ) const
 {
@@ -388,6 +393,12 @@ void TriangulatedGridder2D::setGridArea( const Interval<float>& xrg,
 
 Gridder2D* TriangulatedGridder2D::clone() const
 { return new TriangulatedGridder2D( *this ); }
+
+
+bool TriangulatedGridder2D::allPointsAreRelevant() const
+{
+    return false;
+}
 
 
 bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
@@ -545,6 +556,12 @@ bool RadialBasisFunctionGridder2D::operator==( const Gridder2D& b ) const
 	 !mIsEqual(m22_,bidg->m22_,m22_*mDefEps) )
 	return false;
 
+    return true;
+}
+
+
+bool RadialBasisFunctionGridder2D::allPointsAreRelevant() const
+{
     return true;
 }
 
