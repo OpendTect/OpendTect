@@ -263,7 +263,7 @@ public:
     mDeprecated const DataPack*		obtain( DataPack::ID dpid ) const;
     mDeprecated void			release(DataPack::ID);
     mDeprecated void			release( const DataPack* dp )
-					{ if ( dp ) release( dp->id() ); }
+					{ if ( dp ) unRef( dp->id() ); }
     mDeprecated void			releaseAll(bool donotify);
 };
 
