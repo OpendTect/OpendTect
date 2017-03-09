@@ -1417,7 +1417,7 @@ void HorizonDisplay::updateAuxData()
 
     float auxvals[3];
     auxvals[0] = mUdf(float);
-    auxvals[1] = hor3d->sectionID( 0 );
+    auxvals[1] = 0;
     for ( int idx=0; idx<auxdata[0]->nrVals(); idx++ )
     {
 	const char* auxdatanm = hor3d->auxdata.auxDataName( idx );
