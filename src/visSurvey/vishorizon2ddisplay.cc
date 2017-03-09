@@ -911,6 +911,9 @@ void Horizon2DDisplay::updateSelections()
     while( true )
     {
 	const EM::PosID pid = iterator->next();
+	if ( pid.isInvalid() )
+	    break;
+
 	const Coord3 pos = h2d->getPos( pid );
 	if ( sel->includes( pos ) )
 	{

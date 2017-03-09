@@ -270,6 +270,9 @@ bool uiExportHorizon::writeAscii()
 	while ( true )
 	{
 	    const EM::PosID posid = it->next();
+	    if ( posid.isInvalid() )
+		break;
+
 	    const Coord3 crd = hor->getPos( posid );
 	    if ( !crd.isDefined() )
 		continue;
@@ -321,6 +324,9 @@ bool uiExportHorizon::writeAscii()
     while ( true )
     {
 	const EM::PosID posid = it->next();
+	if ( posid.isInvalid() )
+	    break;
+
 	Coord3 crd = hor->getPos( posid );
 	const BinID bid = SI().transform( crd.getXY() );
 	if ( zatf )

@@ -351,6 +351,9 @@ void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
     while ( true )
     {
 	EM::PosID pid = iter->next();
+	if ( pid.isInvalid() )
+	    break;
+
 	const int sticknr = pid.getRowCol().row();
 	mDynamicCastGet( Geometry::FaultStickSet*, fss, geometryElement() );
 

@@ -1668,6 +1668,9 @@ void FaultDisplay::updateEditorMarkers()
     while ( true )
     {
 	const EM::PosID pid = iter->next();
+	if ( pid.isInvalid() )
+	    break;
+
 	const int sticknr = pid.getRowCol().row();
 	EM::Fault3D* fault3d = emFault();
 	if ( fault3d )

@@ -132,6 +132,9 @@ void HorizonUtils::getPositions( od_ostream& strm, const DBKey& id,
     while ( iterator )
     {
 	const EM::PosID pid = iterator->next();
+	if ( pid.isInvalid() )
+	    break;
+
 	const Coord3 crd = surface->getPos( pid );
 	const BinID bid = SI().transform(crd.getXY());
 	res->add( bid, (float) crd.z_ );
@@ -182,6 +185,9 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
 	while ( iterator )
 	{
 	    const EM::PosID pid = iterator->next();
+	    if ( pid.isInvalid() )
+		break;
+
 	    const Coord3 crd = surface->getPos( pid );
 	    DataPointSet::Pos newpos( crd );
 	    DataPointSet::DataRow dtrow( newpos );

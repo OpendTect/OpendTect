@@ -997,6 +997,9 @@ bool uiEMPartServer::getAuxData( const DBKey& oid, int auxdataidx,
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
+	if ( pid.isInvalid() )
+	    break;
+
 	auxvals[0] = (float) hor3d->getPos( pid ).z_;
 	auxvals[2] = hor3d->auxdata.getAuxDataVal( auxdataidx, pid );
 	data.bivSet().add( pid.getBinID(), auxvals );

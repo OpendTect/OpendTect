@@ -209,7 +209,7 @@ void HorizonZTransform::calculateHorizonRange()
     bool isset = false;
 
     EM::PosID pid = iterator->next();
-    while ( !pid.isInvalid()  )
+    while ( !pid.isInvalid() )
     {
 	const float depth = (float) horizon_->getPos( pid ).z_;
 	if ( !mIsUdf( depth ) )
