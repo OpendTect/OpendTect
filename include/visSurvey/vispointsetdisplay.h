@@ -67,7 +67,7 @@ protected:
 				~PointSetDisplay();
     DataPointSetDisplayProp*	dpsdispprop_;
     visBase::PointSet*		pointset_;
-    DataPointSet*		data_;
+    RefMan<DataPointSet>	data_;
     const mVisTrans*		transformation_;
 };
 

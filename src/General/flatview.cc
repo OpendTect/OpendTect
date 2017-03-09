@@ -504,7 +504,7 @@ FlatView::Viewer::~Viewer()
 
     for ( int idx=0; idx<ids_.size(); idx++ )
     {
-	dpm_.release( ids_[idx] );
+	dpm_.unRef( ids_[idx] );
     }
 
     delete zdinfo_;
@@ -707,7 +707,7 @@ void FlatView::Viewer::removePack( DataPack::ID id )
 	usePack( false, DataPack::cNoID(), false );
 
     ids_.removeSingle( idx );
-    dpm_.release( id );
+    dpm_.unRef( id );
 }
 
 

@@ -615,10 +615,10 @@ void PlaneDataDisplay::removeCache( int attrib )
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.removeSingle( attrib );
 
-    DPM(DataPackMgr::SeisID()).release( datapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 
-    DPM(DataPackMgr::SeisID()).release( transfdatapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
     transfdatapackids_.removeSingle( attrib );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
@@ -640,10 +640,10 @@ void PlaneDataDisplay::emptyCache( int attrib )
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.replace( attrib, 0 );
 
-    DPM(DataPackMgr::SeisID()).release( datapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
     datapackids_[attrib] = DataPack::cNoID();
 
-    DPM(DataPackMgr::SeisID()).release( transfdatapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
     transfdatapackids_[attrib] = DataPack::cNoID();
 
     channels_->setNrVersions( attrib, 1 );

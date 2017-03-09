@@ -242,7 +242,6 @@ void DataPackMgr::dumpDPMs( od_ostream& strm )
 
 DataPackMgr::DataPackMgr( DataPackMgr::ID dpid )
     : id_(dpid)
-    , nrnull_(0)
     , newPack(this)
     , packToBeRemoved(this)
 {}
@@ -255,7 +254,7 @@ DataPackMgr::~DataPackMgr()
     //variables deleting at different times
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
-	ConstRefMan<DataPack> pack = packs_[idx].get();
+	ConstRefMan<DataPack> pack = packs_[idx];
 	if ( !pack )
 	    continue;
 
@@ -272,7 +271,9 @@ DataPackMgr::~DataPackMgr()
 
 bool DataPackMgr::haveID( DataPack::ID dpid ) const
 {
-    return indexOf( dpid ) >= 0;
+    RefMan<DataPack> pack = get( dpid );
+    pack.setNoDelete( true );
+    return pack;
 }
 
 
@@ -281,11 +282,11 @@ float DataPackMgr::nrKBytes() const
     float res = 0;
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
-	const DataPack* pack =(const DataPack*) refPtr(packs_[idx].get().ptr());
+        ConstRefMan<DataPack> pack = packs_[idx];
+        pack.setNoDelete(true);
 	if ( pack )
 	{
 	    res += pack->nrKBytes();
-	    pack->unRefNoDelete();
 	}
     }
     return res;
@@ -294,48 +295,53 @@ float DataPackMgr::nrKBytes() const
 
 RefMan<DataPack> DataPackMgr::get( DataPack::ID dpid ) const
 {
-    RefMan<DataPack> res = 0;
-    packslock_.readLock();
-    const int idx = indexOf( dpid );
-    if ( idx>=0 )
-	res = packs_[idx].get();
-
-    packslock_.readUnlock();
-
-    return res;
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+    
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+        RefMan<DataPack> pack = packs_[idx];
+        if ( pack && pack->id() == dpid )
+            return pack;
+            
+    
+        pack.setNoDelete( true );
+    }
+    
+    return 0;
 }
 
 
 WeakPtr<DataPack> DataPackMgr::observe( DataPack::ID dpid ) const
 {
-    WeakPtr<DataPack> res = 0;
-    packslock_.readLock();
-    const int idx = indexOf( dpid );
-    if ( idx>=0 )
-        res = packs_[idx];
-
-    packslock_.readUnlock();
-
-    return res;
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+    for ( int idx=0; idx<packs_.size(); idx++ )
+    {
+        RefMan<DataPack> pack = packs_[idx];
+        pack.setNoDelete(true);
+        if ( pack && pack->id() == dpid )
+        {
+            return pack;
+        }
+    }
+    
+    return 0;
 }
 
 
 
 void DataPackMgr::getPackIDs( TypeSet<DataPack::ID>& ids ) const
 {
-    packslock_.readLock();
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
+    
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
-	const DataPack* pack =(const DataPack*) refPtr(packs_[idx].get().ptr());
-
-	if ( pack )
+        ConstRefMan<DataPack> pack = packs_[idx];
+        pack.setNoDelete(true);
+        if ( pack )
 	{
 	    ids += pack->id();
-	    pack->unRefNoDelete();
 	}
     }
-
-    packslock_.readUnlock();
 }
 
 
@@ -347,20 +353,20 @@ void DataPackMgr::dumpInfo( od_ostream& strm ) const
 			     << od_newline;
     ascostream astrm( strm );
     astrm.newParagraph();
+    
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
-	const DataPack* pack =(const DataPack*) refPtr(packs_[idx].get().ptr());
+        ConstRefMan<DataPack> pack = packs_[idx];
+        pack.setNoDelete(true);
 	if ( !pack )
 	    continue;
 
 	IOPar iop;
 	pack->dumpInfo( iop );
 	iop.putTo( astrm );
-	pack->unRefNoDelete();
     }
 }
-
-#define mMaxNrNull 30
 
 
 void DataPackMgr::doAdd( DataPack* dp )
@@ -370,24 +376,8 @@ void DataPackMgr::doAdd( DataPack* dp )
     RefMan<DataPack> keeper = dp;
     keeper.setNoDelete( true );
     dp->setManager( this );
-
-    packslock_.writeLock();
-
-    //Do some cleanup while we are in writelock
-    if ( nrnull_>mMaxNrNull )
-    {
-	for ( int idx=packs_.size()-1; idx>=0; idx-- )
-	{
-	    if ( !packs_[idx] )
-		packs_.removeSingle( idx );
-	}
-
-	nrnull_ = 0;
-    }
-
+    
     packs_ += dp;
-
-    packslock_.writeUnlock();
 
     mTrackDPMsg( BufferString("[DP]: add ",dp->id().getI(),
 		 BufferString(" '",dp->name(),"'")) );
@@ -403,177 +393,68 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
     dp->ref();
     dp->setManager( this );
 
-    packslock_.writeLock();
-    const int idx = packs_.indexOf( dp );
-    if ( idx==-1 )
+    const bool added = packs_ += dp;
+    if ( added )
     {
 	mTrackDPMsg( BufferString("[DP]: add+obtain ",dp->id().getI(),
 		     BufferString(" '",dp->name(),"'")) );
-	packs_ += dp;
     }
     else
     {
 	mTrackDPMsg( BufferString("[DP]: add+obtain [existing!] ",
 		    dp->id().getI(), BufferString(" nrusers=",dp->nrRefs())) );
     }
-    packslock_.writeUnlock();
-
-    if ( idx==-1 )
+    
+    if ( added )
 	newPack.trigger( dp );
 
     return dp;
 }
 
+DataPack* DataPackMgr::obtain( DataPack::ID dpid )
+{
+    RefMan<DataPack> pack = get( dpid );
+    if ( pack ) pack->ref();
+    return pack.ptr();
+}
+
+
+const DataPack* DataPackMgr::obtain( DataPack::ID dpid ) const
+{
+    ConstRefMan<DataPack> pack = get( dpid );
+    if ( pack ) pack->ref();
+    return pack.ptr();
+}
+
 
 bool DataPackMgr::ref( DataPack::ID dpid )
 {
-    bool res;
-    packslock_.readLock();
-    const int idx = indexOf( dpid );
-    if ( packs_.validIdx(idx) )
+    RefMan<DataPack> pack = get( dpid );
+    if ( pack )
     {
-	RefMan<DataPack> pack = packs_[idx].get();
-	packslock_.readUnlock();
-	if ( pack )
-	{
-	    pack->ref();
-	    mTrackDPMsg( BufferString("[DP]: ref ",pack->id().getI(),
-			 BufferString(" nrusers=",pack->nrRefs())) );
-
-	}
-	res = true;
+        pack->ref();
+        return true;
     }
-    else
-    {
-	packslock_.readUnlock();
-	res = false;
-    }
-
-    return res;
+    return false;
 }
 
 
 bool DataPackMgr::unRef( DataPack::ID dpid )
 {
-    bool res;
-    packslock_.readLock();
-    const int idx = indexOf( dpid );
-    if ( packs_.validIdx(idx) )
+    RefMan<DataPack> pack = get( dpid );
+    if ( pack )
     {
-	RefMan<DataPack> pack = packs_[idx].get();
-	packslock_.readUnlock();
-	if ( pack )
-	{
-            pack->unRef();
-            //We have reffed in the refman above
-            //Hence the 'real' number is actual refs -1
-
-	    mTrackDPMsg( BufferString("[DP]: unRef ",pack->id().getI(),
-			 BufferString(" nrusers=",pack->nrRefs()-1)) );
-
-	}
-
-	res = true;
+        pack->unRef();
+        return true;
     }
-    else
-    {
-	packslock_.readUnlock();
-	res = false;
-    }
-
-    return res;
-}
-
-
-DataPack* DataPackMgr::doObtain( DataPack::ID dpid, bool obs ) const
-{
-    packslock_.readLock();
-    const int idx = indexOf( dpid );
-
-    DataPack* res = 0;
-    if ( packs_.validIdx(idx) )
-    {
-	RefMan<DataPack> pack = packs_[idx].get();
-	packslock_.readUnlock();
-	res = pack.ptr();
-	if ( !obs )
-	{
-	    res->ref();
-            //Real number of refs is one higher, as we have a refman in the
-            //function
-	    mTrackDPMsg( BufferString("[DP]: obtain ",res->id().getI(),
-			 BufferString(" nrusers=",res->nrRefs()-1)) );
-	}
-        else
-        {
-            pack.setNoDelete( true );
-        }
-    }
-    else
-    {
-	packslock_.readUnlock();
-    }
-
-    return res;
-}
-
-
-int DataPackMgr::indexOf( DataPack::ID dpid ) const
-{
-    //Count how many null pointers we have and update if need be.
-    int nrnullptr = 0;
-    int res = -1;
-
-    for ( int idx=0; idx<packs_.size(); idx++ )
-    {
-	const DataPack* pack =(const DataPack*) refPtr(packs_[idx].get().ptr());
-	if ( pack )
-	{
-	    if ( pack->id() == dpid )
-	    {
-		res = idx;
-		pack->unRefNoDelete();
-		break;
-	    }
-	}
-	else
-	{
-	    nrnullptr++;
-	}
-
-	unRefNoDeletePtr( pack );
-    }
-
-    //As we are in a locked section, we are sure no-one has set it to zero
-    //in the meanwhile.
-
-    nrnull_.setIfLarger( nrnullptr );
-
-    return res;
+    
+    return false;
 }
 
 
 void DataPackMgr::release( DataPack::ID dpid )
 {
-    packslock_.readLock();
-    int idx = indexOf( dpid );
-    if ( packs_.validIdx(idx) )
-    {
-	RefMan<DataPack> pack = packs_[idx].get();
-	packslock_.readUnlock();
-	pack.ptr()->unRef();
-
-	if ( pack->nrRefs()>1 ) //1 is our own ref
-	{
-	    mTrackDPMsg( BufferString("[DP]: release ",pack->id().getI(),
-                         BufferString(" nrusers=",pack->nrRefs()-1)) );
-	    return;
-	}
-    }
-    else
-    {
-	packslock_.readUnlock();
-    }
+    unRef( dpid );
 }
 
 
@@ -592,16 +473,44 @@ ret DataPackMgr::fn##Of( DataPack::ID dpid ) const \
     return res; \
 }
 
-mDefDPMDataPackFn(const char*,name)
-mDefDPMDataPackFn(const char*,category)
-mDefDPMDataPackFn(float,nrKBytes)
+const char* DataPackMgr::nameOf( const DataPack::ID dpid ) const
+{
+    RefMan<DataPack> pack = get( dpid );
+    if ( !pack )
+        return 0;
+    
+    pack.setNoDelete( true );
+    return pack->name();
+}
+
+
+const char* DataPackMgr::categoryOf( const DataPack::ID dpid ) const
+{
+    RefMan<DataPack> pack = get( dpid );
+    if ( !pack )
+        return 0;
+    
+    pack.setNoDelete( true );
+    return pack->category();
+}
+
+
+float DataPackMgr::nrKBytesOf( const DataPack::ID dpid ) const
+{
+    RefMan<DataPack> pack = get( dpid );
+    if ( !pack )
+        return 0;
+    
+    pack.setNoDelete( true );
+    return pack->nrKBytes();
+}
+
 
 void DataPackMgr::dumpInfoFor( DataPack::ID dpid, IOPar& iop ) const
 {
-    const int idx = indexOf( dpid ); if ( idx < 0 ) return;
-    const DataPack* pack = (const DataPack*) refPtr( packs_[idx].get().ptr() );
+    RefMan<DataPack> pack = get( dpid );
+    pack.setNoDelete( true );
     if ( pack ) pack->dumpInfo( iop );
-    unRefNoDeletePtr( pack );
 }
 
 

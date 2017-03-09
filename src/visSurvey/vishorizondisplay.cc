@@ -363,7 +363,7 @@ HorizonDisplay::~HorizonDisplay()
     {
 	const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[idx];
 	for ( int idy=dpids.size()-1; idy>=0; idy-- )
-	    dpm.release( dpids[idy] );
+	    dpm.unRef( dpids[idy] );
     }
 
     deepErase( dispdatapackids_ );
@@ -725,7 +725,7 @@ bool HorizonDisplay::removeAttrib( int channel )
 
     const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[channel];
     for ( int idy=dpids.size()-1; idy>=0; idy-- )
-	DPM(DataPackMgr::FlatID()).release( dpids[idy] );
+	DPM(DataPackMgr::FlatID()).unRef( dpids[idy] );
     delete dispdatapackids_.removeSingle( channel );
 
     coltabmappersetups_.removeSingle( channel );

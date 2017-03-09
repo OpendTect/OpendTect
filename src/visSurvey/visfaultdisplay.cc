@@ -163,7 +163,7 @@ FaultDisplay::~FaultDisplay()
 
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.release( datapackids_[idx] );
+	dpman.unRef( datapackids_[idx] );
 
     deepErase( texuredatas_ );
 }
@@ -1314,7 +1314,7 @@ void FaultDisplay::removeCache( int attrib )
     if ( !datapackids_.validIdx(attrib) )
 	return;
 
-    DPM( DataPackMgr::SurfID() ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::SurfID() ).unRef( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 }
 

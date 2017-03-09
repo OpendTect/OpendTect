@@ -62,8 +62,7 @@ EngineMan::~EngineMan()
     delete inpattrset_;
     delete nlamodel_;
     delete &tkzs_;
-    if ( cache_ )
-	dpm_.release( cache_ );
+    unRefAndZeroPtr( cache_ );
 }
 
 
@@ -835,11 +834,7 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
 Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 					    const RegularSeisDataPack* prev )
 {
-    if ( cache_ )
-    {
-	dpm_.release( cache_ );
-	cache_ = 0;
-    }
+    unRefAndZeroPtr( cache_ );
 
     if ( tkzs_.isEmpty() )
 	prev = 0;
@@ -860,9 +855,8 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	  || mRg(z).stop < tkzs_.zsamp_.start - mStepEps*tkzs_.zsamp_.step )
 	    // No overlap, gotta crunch all the numbers ...
 	{
-	    dpm_.release( cache_ );
-	    cache_ = 0;
-	}
+            unRefAndZeroPtr( cache_ );
+        }
     }
 
 #define mAddAttrOut(todocs) \

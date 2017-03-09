@@ -378,7 +378,7 @@ void WeakPtrBase::set( Referenced* p )
 
 	//We may not be locked during unref as clear may be called
 	lock_.unLock();
-	p->unRef();
+	p->unRefNoDelete();
     }
     else
 	lock_.unLock();
@@ -408,3 +408,21 @@ const RefCount::Referenced* refPtr( const RefCount::Referenced* ptr )
 }
 
 
+void RefCount::WeakPtrSetBase::blockCleanup()
+{
+    while ( true )
+    {
+        int prevval = blockcleanup_;
+        if ( prevval==-1 ) //cleanup in session
+            continue;
+        
+        if ( blockcleanup_.setIfValueIs( prevval, prevval+1 ) )
+            break;
+    }
+}
+
+
+void RefCount::WeakPtrSetBase::unblockCleanup()
+{
+    blockcleanup_--;
+}

@@ -233,20 +233,13 @@ public:
 
 protected:
 
-    void		doAdd(DataPack*);
+    void					doAdd(DataPack*);
 
-    ID			id_;
+    ID						id_;
+    mutable WeakPtrSet<DataPack>		packs_;
 
-    mutable Threads::Atomic<int>	nrnull_;
-    mutable Threads::SpinRWLock		packslock_;
-    TypeSet<WeakPtr<DataPack> >		packs_;
-
-    DataPack*		doObtain(DataPack::ID,bool) const;
-    int			indexOf(DataPack::ID) const;
-				//!<Object should be readlocked
-
-    static Threads::Lock mgrlistlock_;
-    static ManagedObjectSet<DataPackMgr> mgrs_;
+    static Threads::Lock			mgrlistlock_;
+    static ManagedObjectSet<DataPackMgr>	mgrs_;
 
 public:
 
@@ -261,20 +254,17 @@ public:
     static DataPackMgr*	gtDPM(ID,bool);
     static void		dumpDPMs(od_ostream&);
 
-    /*mDeprecated*/ DataPack*		addAndObtain(DataPack*);
+    mDeprecated DataPack*		addAndObtain(DataPack*);
 					/*!< The pack becomes mines. Pack is
 					    obtained during the lock, i.e.
 					    threadsafe. */
 
-    /*mDeprecated*/ DataPack*		obtain( DataPack::ID dpid )
-					{ return doObtain(dpid,false); }
-    /*mDeprecated*/ const DataPack*	obtain( DataPack::ID dpid ) const
-					{ return doObtain(dpid,false); }
-
-    /*mDeprecated*/ void		release(DataPack::ID);
-    /*mDeprecated*/ void		release( const DataPack* dp )
+    mDeprecated DataPack*		obtain( DataPack::ID dpid );
+    mDeprecated const DataPack*		obtain( DataPack::ID dpid ) const;
+    mDeprecated void			release(DataPack::ID);
+    mDeprecated void			release( const DataPack* dp )
 					{ if ( dp ) release( dp->id() ); }
-    /*mDeprecated*/ void		releaseAll(bool donotify);
+    mDeprecated void			releaseAll(bool donotify);
 };
 
 

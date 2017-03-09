@@ -40,8 +40,7 @@ PointSetDisplay::~PointSetDisplay()
 {
     setSceneEventCatcher( 0 );
     setDisplayTransformation( 0 );
-    if ( data_ )
-	DPM( DataPackMgr::PointID() ).release( data_->id() );
+
     delete dpsdispprop_;
 
     unRefAndZeroPtr( pointset_ );
@@ -68,10 +67,10 @@ int PointSetDisplay::getPointSize() const
 
 bool PointSetDisplay::setDataPack( DataPack::ID dpsid )
 {
-    DataPack* pack = DPM( DataPackMgr::PointID() ).obtain( dpsid );
+    RefMan<DataPack> pack = DPM( DataPackMgr::PointID() ).get( dpsid );
     if ( !pack ) return false;
 
-    mDynamicCastGet(DataPointSet*,data,pack)
+    mDynamicCastGet(DataPointSet*,data,pack.ptr())
     data_ = data;
     return true;
 }
