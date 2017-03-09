@@ -39,9 +39,6 @@ mStruct(uiSeis) FreqTaperSetup
 		    FreqTaperSetup(const FreqTaperSetup&);
 		    ~FreqTaperSetup();
 
-    const MultiID&	multiID() const;
-    MultiID&		multiID();
-
     const char*		seisnm_;
     const char*		attrnm_; //2D
     bool		hasmin_;
@@ -49,6 +46,7 @@ mStruct(uiSeis) FreqTaperSetup
     Interval<float>	minfreqrg_;
     Interval<float>	maxfreqrg_;
     bool		allfreqssetable_;
+    MultiID		multiid_;
 };
 
 
@@ -206,6 +204,7 @@ protected:
     uiPushButton*	previewfld_;
     uiSliceSelDlg*	posdlg_;
     TrcKeyZSampling*	tkzs_;
+    MultiID		seisid_;
 
     void		previewPushed(CallBacker*);
 };
@@ -221,7 +220,7 @@ public:
     Interval<float>	freqValues() const;
 
     void		setMultiID( const MultiID& multiid )
-			{ freqsetup_.multiID() = multiid; }
+			{ freqsetup_.multiid_ = multiid; }
     void		setIsMinMaxFreq(bool,bool);
     void		setInputFreqValue(float,int);
     void		setRefFreqs(Interval<float>);

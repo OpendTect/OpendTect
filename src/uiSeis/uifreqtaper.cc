@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "scaler.h"
 #include "seisbuf.h"
@@ -36,16 +35,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-HiddenParam<FreqTaperSetup,MultiID* > multiid_( 0 );
-
 FreqTaperSetup::FreqTaperSetup()
     : hasmin_(false)
     , hasmax_(true)
     , seisnm_(0)
     , attrnm_(0)
     , allfreqssetable_(false)
+    , multiid_(MultiID::udf())
 {
-    multiid_.setParam( this, new MultiID(MultiID::udf()) );
 }
 
 
@@ -58,51 +55,40 @@ FreqTaperSetup::FreqTaperSetup( const FreqTaperSetup& s )
     , maxfreqrg_(s.maxfreqrg_)
     , allfreqssetable_(s.allfreqssetable_)
 {
-    multiid_.setParam( this, new MultiID(s.multiID()) );
+    multiid_ =s.multiid_;
 }
 
 
 FreqTaperSetup::~FreqTaperSetup()
 {
-    PtrMan<MultiID> multiid = multiid_.getParam(this);
-    multiid_.removeParam(this);
 }
 
-const MultiID& FreqTaperSetup::multiID() const
-{ return *multiid_.getParam(this); }
 
-MultiID& FreqTaperSetup::multiID()
-{ return *multiid_.getParam(this); }
-
-
-HiddenParam<uiFreqTaperDlg,MultiID* > seisid_( 0 );
-
-uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
+uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& freqtapsu )
     : uiDialog( p, uiDialog::Setup(tr("Frequency taper"),
 		             tr("Select taper parameters at cut-off frequency"),
                                     mODHelpKey(mFreqTaperDlgHelpID) ))
     , tkzs_(new TrcKeyZSampling())
     , posdlg_(0)
     , funcvals_(0)
-    , seisnm_(s.seisnm_)
-    , attrnm_(s.attrnm_)
+    , seisnm_(freqtapsu.seisnm_)
+    , attrnm_(freqtapsu.attrnm_)
+    , seisid_(freqtapsu.multiid_)
 {
     setCtrlStyle( CloseOnly );
-
-    seisid_.setParam( this, new MultiID(s.multiID()) );
 
     CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
     previewfld_ = new uiPushButton( this, m3Dots(tr("Preview spectrum")),
                                     cbview,true);
 
     uiFuncTaperDisp::Setup su;
-    su.leftrg_ = s.minfreqrg_;
-    su.rightrg_ = s.maxfreqrg_;
+    su.leftrg_ = freqtapsu.minfreqrg_;
+    su.rightrg_ = freqtapsu.maxfreqrg_;
     su.logscale_ = true;
     su.is2sided_ = true;
 
     drawer_ = new uiFuncTaperDisp( this, su );
-    tapergrp_ = new uiFreqTaperGrp( this, s, drawer_ );
+    tapergrp_ = new uiFreqTaperGrp( this, freqtapsu, drawer_ );
     tapergrp_->attach( ensureBelow, drawer_ );
 
     uiSeparator* sep = new uiSeparator( this, "Sep" );
@@ -120,9 +106,6 @@ uiFreqTaperDlg::~uiFreqTaperDlg()
     delete tkzs_;
     delete funcvals_;
     delete posdlg_;
-
-    PtrMan<MultiID> multiid = seisid_.getParam(this);
-    seisid_.removeParam(this);
 }
 
 
@@ -171,7 +154,7 @@ protected:
 { uiMSG().error(msg); return; }
 void uiFreqTaperDlg::previewPushed(CallBacker*)
 {
-    SeisIOObjInfo objinfo( *seisid_.getParam(this) );
+    SeisIOObjInfo objinfo( seisid_ );
     if ( !objinfo.isOK() )
 	mErrRet( tr("Cannot read input data, "
 		 "please make sure you selected valid data") );
