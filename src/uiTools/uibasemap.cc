@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarray.h"
 #include "uiworld2ui.h"
 
-#include "hiddenparam.h"
 #include "survinfo.h"
 
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
