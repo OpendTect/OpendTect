@@ -37,7 +37,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "measuretoolman.h"
