@@ -523,9 +523,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	if ( trackerid>= 0 )
 	    renameVisObj();
 	name_ = toUiString( DBM().nameOf(emid_) );
-	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
-			mnuid==mRemoveID;
-	if ( mnuid == mRemoveAllID )
+	if ( isRemoveItem(mnuid,true) )
 	    applMgr()->viewer2DMgr().removeHorizon3D( emid_ );
 
 	const bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ )

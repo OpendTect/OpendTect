@@ -44,7 +44,6 @@ protected:
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			getNonLoadedTrackedHor2Ds(DBKeySet&);
 
->>>>>>> origin/master
 };
 
 

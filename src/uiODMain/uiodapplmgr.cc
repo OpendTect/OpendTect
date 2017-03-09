@@ -1253,7 +1253,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	if ( data->isEmpty() ) return false;
 
 	const DBKey emid = visserv_->getDBKey( visid );
-	const int nrvals = data.bivSet().nrVals()-2;
+	const int nrvals = data->bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    const float shift = emattrserv_->shiftRange().atIndex(idx);

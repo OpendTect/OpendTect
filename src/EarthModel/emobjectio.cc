@@ -228,6 +228,13 @@ void ObjectSaver::copyClassData( const ObjectSaver& oth )
 }
 
 
+Monitorable::ChangeType ObjectSaver::compareClassData(
+					const ObjectSaver& oth ) const
+{
+    return cNoChange();
+}
+
+
 ConstRefMan<EMObject> ObjectSaver::emObject() const
 {
     return ConstRefMan<EMObject>( static_cast<const EMObject*>( object() ) );

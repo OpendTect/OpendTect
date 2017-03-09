@@ -114,9 +114,11 @@ public:
     {
     public:
 
-			ChangeData( ChangeType typ, IDType id )
+	class AuxData;
+
+			ChangeData( ChangeType typ, IDType id, AuxData* data=0 )
 			    : std::pair<ChangeType,IDType>(typ,id)
-			    , auxdata_(0)		{}
+			    , auxdata_(data)		{}
 			ChangeData(const ChangeData&);
 	virtual		~ChangeData()		{}
 	ChangeData&	operator =(const ChangeData&);

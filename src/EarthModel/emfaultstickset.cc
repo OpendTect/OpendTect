@@ -64,6 +64,12 @@ void FaultStickSet::copyClassData( const FaultStickSet& oth )
 }
 
 
+Monitorable::ChangeType FaultStickSet::compareClassData(
+					const FaultStickSet& oth ) const
+{
+    return cNoChange();
+}
+
 
 uiString FaultStickSet::getUserTypeStr() const
 { return EMFaultStickSetTranslatorGroup::sTypeName(); }

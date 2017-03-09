@@ -831,8 +831,8 @@ void EMObjectDisplay::updateSelections()
     Color selectioncolor =  Color::Orange();
     if ( hor2d || hor3d )
     {
-	selectioncolor = hor3d ? hor3d->getSelectionColor() :	
-	    hor2d->getSelectionColor();    
+	selectioncolor = hor3d ? hor3d->selectionColor() :
+	    hor2d->getSelectionColor();
     }
 
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
