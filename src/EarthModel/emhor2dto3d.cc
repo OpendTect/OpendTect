@@ -125,6 +125,9 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
     for ( EM::RowColIterator iter(hor2d_); ; )
     {
 	const EM::PosID posid = iter.next();
+	if ( posid.isInvalid() )
+	    break;
+
 	const Coord coord = hor2d_.getPos( posid ).getXY();
 	const BinID bid = SI().transform( coord );
 	if ( mIsUdf(minbid.inl()) )
@@ -170,6 +173,9 @@ void Hor2DTo3D::fillSections()
 	for ( EM::RowColIterator iter(hor2d_); ; )
 	{
 	    const EM::PosID posid = iter.next();
+	    if ( posid.isInvalid() )
+		break;
+
 	    const Coord3 coord = hor2d_.getPos( posid );
 	    const BinID bid = SI().transform( coord.getXY() );
 	    sd.add( bid, (float) coord.z_ );
