@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dragcontroller.h"
 #include "vistransform.h"
 #include "ranges.h"
-#include "hiddenparam.h"
 #include "iopar.h"
 #include "mouseevent.h"
 #include "survinfo.h"
@@ -33,11 +32,6 @@ mCreateFactoryEntry( visBase::BoxDragger );
 
 namespace visBase
 {
-
-static HiddenParam<BoxDragger,StepInterval<float>*> dragctrlxspacing_(0);
-static HiddenParam<BoxDragger,StepInterval<float>*> dragctrlyspacing_(0);
-static HiddenParam<BoxDragger,StepInterval<float>*> dragctrlzspacing_(0);
-
 
 class BoxDraggerCallbackHandler: public osgManipulator::DraggerCallback
 {
@@ -241,21 +235,18 @@ void BoxDraggerCallbackHandler::initDragControl()
 {
     if ( !dodragcontrol_ )
     {
-	if ( dragctrlxspacing_.getParam(&dragger_)->isUdf() ||
-	     dragctrlyspacing_.getParam(&dragger_)->isUdf() ||
-	     dragctrlzspacing_.getParam(&dragger_)->isUdf() )
-	    return;
+	for ( int idx=0; idx<3; idx++ )
+	{
+	    if ( dragger_.dragctrlspacing_[idx].isUdf() )
+		return;
+	}
 
 	dodragcontrol_ = true;
     }
 
     mGetEventHandlingTabPlaneInfo( tpd, dim, sense, mousepos );
 
-    const double scalefactor =
-			dim==2 ? dragctrlzspacing_.getParam(&dragger_)->step :
-			dim==1 ? dragctrlyspacing_.getParam(&dragger_)->step :
-			dragctrlxspacing_.getParam(&dragger_)->step;
-
+    const double scalefactor = dragger_.dragctrlspacing_[dim].step;
     const Coord3 dragdir( dim==0, dim==1, dim==2 );
     dragcontroller_.init( mousepos, scalefactor, dragdir );
     maxdragdist_ = mUdf(double);
@@ -270,11 +261,7 @@ void BoxDraggerCallbackHandler::initDragControl()
     {
 	screendragprojvec /= screendragprojvec.sqAbs();
 
-	const float dragdepth =
-		    dim==2 ? dragctrlzspacing_.getParam(&dragger_)->width() :
-		    dim==1 ? dragctrlyspacing_.getParam(&dragger_)->width() :
-		    dragctrlxspacing_.getParam(&dragger_)->width();
-
+	const float dragdepth = dragger_.dragctrlspacing_[dim].width();
 	screendragprojvec *= sense * fabs(dragdepth) / scalefactor;
 	dragcontroller_.dragInScreenSpace( frontalview, screendragprojvec );
     }
@@ -371,25 +358,14 @@ BoxDragger::BoxDragger()
 
     showDraggerBorder( true );
 
-    dragctrlxspacing_.setParam( this, new StepInterval<float>() );
-    dragctrlxspacing_.getParam(this)->setUdf();
-    dragctrlyspacing_.setParam( this, new StepInterval<float>() );
-    dragctrlyspacing_.getParam(this)->setUdf();
-    dragctrlzspacing_.setParam( this, new StepInterval<float>() );
-    dragctrlzspacing_.getParam(this)->setUdf();
+    for (int dim=0; dim<3; dim++ )
+	dragctrlspacing_[dim].setUdf();
 }
 
 
 BoxDragger::~BoxDragger()
 {
     osgboxdragger_->removeDraggerCallback( osgcallbackhandler_ );
-
-    delete dragctrlxspacing_.getParam(this);
-    dragctrlxspacing_.removeParam(this);
-    delete dragctrlyspacing_.getParam(this);
-    dragctrlyspacing_.removeParam(this);
-    delete dragctrlzspacing_.getParam(this);
-    dragctrlzspacing_.removeParam(this);
 }
 
 
@@ -615,9 +591,9 @@ bool BoxDragger::isInDepthTranslationUsedForResize() const
 void BoxDragger::setDragCtrlSpacing( const StepInterval<float>& x,
 	const StepInterval<float>& y, const StepInterval<float>& z )
 {
-    *dragctrlxspacing_.getParam(this) = x;
-    *dragctrlyspacing_.getParam(this) = y;
-    *dragctrlzspacing_.getParam(this) = z;
+    dragctrlspacing_[0] = x;
+    dragctrlspacing_[1] = y;
+    dragctrlspacing_[2] = z;
 }
 
 

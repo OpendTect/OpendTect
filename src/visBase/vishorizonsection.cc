@@ -26,8 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Switch>
 #include <osgUtil/CullVisitor>
 
-#include "hiddenparam.h"
-
 
 mCreateFactoryEntry( visBase::HorizonSection );
 
@@ -221,7 +219,6 @@ bool HorizonSection::NodeCallbackHandler::eyeChanged( const osg::Vec3 projdir )
 
 //===========================================================================
 
-static HiddenParam< visBase::HorizonSection,char >useneighbors_( true );
 
 HorizonSection::HorizonSection()
     : VisualObjectImpl( false )
@@ -251,6 +248,7 @@ HorizonSection::HorizonSection()
     , texturecallbackhandler_( 0 )
     , isredrawing_( false )
     , zaxistransform_( 0 )
+    , useneighbors_( true )
 {
     setLockable();
     osghorizon_->ref();
@@ -271,7 +269,6 @@ HorizonSection::HorizonSection()
 
     queueid_ = Threads::WorkManager::twm().addQueue(
 		Threads::WorkManager::Manual, "HorizonSection" );
-    useneighbors_.setParam( this, true );
 }
 
 
@@ -308,8 +305,6 @@ HorizonSection::~HorizonSection()
     hortilescreatorandupdator_->unRef();
 
     Threads::WorkManager::twm().removeQueue( queueid_, false );
-
-    useneighbors_.removeParam( this );
 }
 
 
@@ -861,13 +856,13 @@ bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps,
 
 void HorizonSection::setUsingNeighborsInIsolatedLine( bool usingneigbors )
 {
-    useneighbors_.setParam( this, usingneigbors );
+    useneighbors_ = usingneigbors;
 }
 
 
 bool HorizonSection::usingNeighborsInIsolatedLine() const
 {
-    return useneighbors_.getParam( this );
+    return useneighbors_;
 }
 
 

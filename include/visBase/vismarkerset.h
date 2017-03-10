@@ -145,6 +145,7 @@ protected:
     float			rotationangle_;
     Coord3			rotationvec_;
     PolygonOffset*		offset_;
+    osg::Array*			onoffarr_;
 };
 
 } // namespace visBase

@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgGeo/MarkerShape>
 
 #include <math.h>
-#include "hiddenparam.h"
 
 #define mOSGMarkerScaleFactor 2.5f
 
@@ -30,8 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 mCreateFactoryEntry( visBase::MarkerSet );
 
 using namespace visBase;
-
-static HiddenParam< MarkerSet,osg::ref_ptr<osg::ByteArray> > onoffarr_(0);
 
 MarkerSet::MarkerSet()
     : VisualObjectImpl(true)
@@ -42,14 +39,13 @@ MarkerSet::MarkerSet()
     , rotationvec_( 1.0, 0.0, 0.0 )
     , rotationangle_( mUdf(float) )
     , offset_( 0 )
+    , onoffarr_( new osg::ByteArray() )
 {
     markerset_->ref();
-    osg::ByteArray* arr = new osg::ByteArray;
-    arr->ref();
-    onoffarr_.setParam( this, arr );
+    onoffarr_->ref();
     addChild( markerset_ );
     markerset_->setVertexArray( mGetOsgVec3Arr(coords_->osgArray()) );
-    markerset_->setOnOffArray( onoffarr_.getParam(this) );
+    markerset_->setOnOffArray((osg::ByteArray*)onoffarr_ );
 
     setMinimumScale( 1.0f );
 
@@ -70,9 +66,7 @@ MarkerSet::~MarkerSet()
     clearMarkers();
     markerset_->unref();
     removePolygonOffsetNodeState();
-    osg::ByteArray* arr = onoffarr_.getParam( this );
-    arr->unref();
-    onoffarr_.removeParam( this );
+    onoffarr_->unref();
 }
 
 
@@ -135,8 +129,8 @@ void MarkerSet::clearMarkers()
     if ( coords_ ) coords_->setEmpty();
     if ( normals_ ) normals_->clear();
     if ( material_ ) material_->clear();
-    if (onoffarr_.getParam(this) )
-	onoffarr_.getParam(this)->clear();
+    if (onoffarr_ )
+	((osg::ByteArray*)onoffarr_)->clear();
     markerset_->forceRedraw( true );
 }
 
@@ -147,9 +141,11 @@ void MarkerSet::removeMarker( int idx )
     if ( material_ ) material_->removeColor( idx );
     if ( coords_ ) coords_->removePos( idx, false );
     if ( coords_ ) coords_->dirty();
-    osg::ByteArray* onoffarr = onoffarr_.getParam(this);
-    if ( onoffarr )
+    if ( onoffarr_ )
+    {
+	osg::ByteArray* onoffarr = (osg::ByteArray*)onoffarr_;
 	onoffarr->erase( onoffarr->begin()+idx );
+    }
     markerset_->forceRedraw( true );
 }
 

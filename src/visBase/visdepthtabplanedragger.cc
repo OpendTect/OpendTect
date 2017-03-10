@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "position.h"
 #include "ranges.h"
-#include "hiddenparam.h"
 #include "iopar.h"
 #include "keyenum.h"
 #include "mouseevent.h"
@@ -33,14 +32,6 @@ mCreateFactoryEntry( visBase::DepthTabPlaneDragger );
 
 namespace visBase
 {
-
-static
-    HiddenParam<DepthTabPlaneDragger,StepInterval<float>*> dragctrlxspacing_(0);
-static
-    HiddenParam<DepthTabPlaneDragger,StepInterval<float>*> dragctrlyspacing_(0);
-static
-    HiddenParam<DepthTabPlaneDragger,StepInterval<float>*> dragctrlzspacing_(0);
-
 
 class PlaneDraggerCallbackHandler : public osgManipulator::DraggerCallback
 {
@@ -195,10 +186,11 @@ void PlaneDraggerCallbackHandler::initDragControl()
 {
     if ( !dodragcontrol_ )
     {
-	if ( dragctrlxspacing_.getParam(&dragger_)->isUdf() ||
-	     dragctrlyspacing_.getParam(&dragger_)->isUdf() ||
-	     dragctrlzspacing_.getParam(&dragger_)->isUdf() )
-	    return;
+	for ( int idx=0; idx<3; idx++ )
+	{
+	    if ( dragger_.dragctrlspacing_[idx].isUdf() )
+		return;
+	}
 
 	dodragcontrol_ = true;
     }
@@ -208,11 +200,7 @@ void PlaneDraggerCallbackHandler::initDragControl()
 
     const int dim = dragger_.getDim();
 
-    const double scalefactor =
-			dim==2 ? dragctrlzspacing_.getParam(&dragger_)->step :
-			dim==1 ? dragctrlyspacing_.getParam(&dragger_)->step :
-			dragctrlxspacing_.getParam(&dragger_)->step;
-
+    const double scalefactor = dragger_.dragctrlspacing_[dim].step;
     const Coord3 dragdir( dim==0, dim==1, dim==2 );
     dragcontroller_.init( pos, scalefactor, dragdir );
     maxdragdist_ = mUdf(double);
@@ -232,11 +220,7 @@ void PlaneDraggerCallbackHandler::initDragControl()
 	if ( dim==0 || (dim==2 && !SI().isRightHandSystem()) )
 	    screendragprojvec = -screendragprojvec;
 
-	const float dragdepth =
-		    dim==2 ? dragctrlzspacing_.getParam(&dragger_)->width() :
-		    dim==1 ? dragctrlyspacing_.getParam(&dragger_)->width() :
-		    dragctrlxspacing_.getParam(&dragger_)->width();
-
+	const float dragdepth = dragger_.dragctrlspacing_[dim].width();
 	screendragprojvec *= fabs(dragdepth) / scalefactor;
 	dragcontroller_.dragInScreenSpace( frontalview, screendragprojvec );
     }
@@ -284,24 +268,13 @@ DepthTabPlaneDragger::DepthTabPlaneDragger()
 
     setDim(dim_);
 
-    dragctrlxspacing_.setParam( this, new StepInterval<float>() );
-    dragctrlxspacing_.getParam(this)->setUdf();
-    dragctrlyspacing_.setParam( this, new StepInterval<float>() );
-    dragctrlyspacing_.getParam(this)->setUdf();
-    dragctrlzspacing_.setParam( this, new StepInterval<float>() );
-    dragctrlzspacing_.getParam(this)->setUdf();
+    for ( int dim=0; dim<3; dim++ )
+	dragctrlspacing_[dim].setUdf();
 }
 
 
 DepthTabPlaneDragger::~DepthTabPlaneDragger()
 {
-    delete dragctrlxspacing_.getParam(this);
-    dragctrlxspacing_.removeParam(this);
-    delete dragctrlyspacing_.getParam(this);
-    dragctrlyspacing_.removeParam(this);
-    delete dragctrlzspacing_.getParam(this);
-    dragctrlzspacing_.removeParam(this);
-
     osgdragger_->removeDraggerCallback( osgcallbackhandler_ );
     if ( osgcallbackhandler_ )
 	osgcallbackhandler_->unref();
@@ -644,9 +617,9 @@ bool DepthTabPlaneDragger::isPlaneShown() const
 void DepthTabPlaneDragger::setDragCtrlSpacing( const StepInterval<float>& x,
 		 const StepInterval<float>& y, const StepInterval<float>& z )
 {
-    *dragctrlxspacing_.getParam(this) = x;
-    *dragctrlyspacing_.getParam(this) = y;
-    *dragctrlzspacing_.getParam(this) = z;
+    dragctrlspacing_[0] = x;
+    dragctrlspacing_[1] = y;
+    dragctrlspacing_[2]= z;
 }
 
 

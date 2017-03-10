@@ -79,6 +79,9 @@ public:
 
     void			useInDepthTranslationForResize(bool);
     bool			isInDepthTranslationUsedForResize() const;
+    void			setDragCtrlSpacing(const StepInterval<float>&,
+						   const StepInterval<float>&,
+						   const StepInterval<float>&);
 
 
     Notifier<BoxDragger>	started;
@@ -101,13 +104,10 @@ protected:
     Interval<float>			widthranges_[3];
     Interval<float>			spaceranges_[3];
 
+    StepInterval<float>			dragctrlspacing_[3];
+
     bool				selectable_;
     bool				useindepthtransforresize_;
-
-public:
-    void			setDragCtrlSpacing(const StepInterval<float>&,
-						   const StepInterval<float>&,
-						   const StepInterval<float>&);
 };
 
 };

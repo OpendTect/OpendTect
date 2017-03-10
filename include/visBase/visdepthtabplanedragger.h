@@ -100,6 +100,9 @@ public:
 				    		the plane setting should be
 						returned.
 				    \returns	combination of OD::ButtonState*/
+    void			setDragCtrlSpacing(const StepInterval<float>&,
+						   const StepInterval<float>&,
+						   const StepInterval<float>&);
 
     Notifier<DepthTabPlaneDragger>  started;
     Notifier<DepthTabPlaneDragger>  motion;
@@ -126,11 +129,7 @@ protected:
 
     Interval<float>		widthranges_[3];
     Interval<float>		spaceranges_[3];
-
-public:
-    void			setDragCtrlSpacing(const StepInterval<float>&,
-						   const StepInterval<float>&,
-						   const StepInterval<float>&);
+    StepInterval<float>		dragctrlspacing_[3];
 };
 
 };

@@ -230,6 +230,7 @@ protected:
     ObjectSet<HorizonSectionTile> updatedtiles_;
     TypeSet<int>		updatedtileresolutions_;
     bool			wireframedisplayed_;
+    bool			useneighbors_;
 
 };
 
