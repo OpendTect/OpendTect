@@ -150,8 +150,8 @@ public:
     virtual int			nrSections() const	{ return 1; }
     virtual SectionID		sectionID(int) const	{ return 0; }
 
-    const Geometry::Element*	geometryElement() const;
-    Geometry::Element*		geometryElement();
+    virtual const Geometry::Element*	geometryElement() const;
+    virtual Geometry::Element*		geometryElement();
 
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
