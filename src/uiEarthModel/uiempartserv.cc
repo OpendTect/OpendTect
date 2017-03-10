@@ -596,8 +596,12 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     DBKeySet surfaceids;
     dlg.iogrp()->getSurfaceIds( surfaceids );
 
+    EM::SurfaceIOData sd;
+    EM::SurfaceIODataSelection sel( sd );
+    dlg.iogrp()->getSurfaceSelection( sel );
+
     PtrMan<EM::ObjectLoader> emloader =
-			  EM::ObjectLoader::factory().create( typ, surfaceids );
+		EM::ObjectLoader::factory().create( typ, surfaceids, &sel );
     if ( !emloader )
 	return;
 
@@ -822,10 +826,10 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 	    key = dlg.ioObj() ? dlg.ioObj()->key() : DBKey::getInvalid();
 	    exec = surface->geometry().saver( &sel, &key );
 	    if ( exec && dlg.replaceInTree() )
-		    surface->setDBKey( key );
-
-	    mDynamicCastGet( EM::dgbSurfaceWriter*, writer, exec.ptr() );
-	    if ( writer ) writer->setShift( shift );
+	    {
+		surface->setDBKey( key );
+		surface->setShift( shift );
+	    }
 	}
 	else
 	{
