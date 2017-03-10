@@ -151,7 +151,7 @@ od_int64 nrDone() const
 
 virtual uiString message() const
 {
-    return uiStrings::phrLoading( uiStrings::sFaultStickSet() );
+    return uiStrings::phrLoading( loader_.userName() );
 }
 
 virtual uiString nrDoneText() const
