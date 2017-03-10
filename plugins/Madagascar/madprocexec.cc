@@ -99,7 +99,7 @@ bool ODMad::ProcExec::init()
 	}
 
 	if ( FixedString(comm) == StreamProvider::sStdIO() )
-	    procstream_.oStrm() = &std::cout;
+	    procstream_.setOStrm( &std::cout );
 	else
 	    procstream_ = StreamProvider( comm ).makeOStream();
 

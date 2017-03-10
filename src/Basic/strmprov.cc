@@ -475,7 +475,7 @@ StreamData StreamProvider::makePLIStream( int plid )
     StreamData ret; ret.setFileName( pld.fileName() );
     std::fixedstreambuf* fsb
 		= new std::fixedstreambuf( pld.dp_->buf(), pld.filesz_, false );
-    ret.iStrm() = new std::fixedistream( fsb );
+    ret.setIStrm( new std::fixedistream( fsb ) );
     return ret;
 }
 
@@ -591,7 +591,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     mGetRetSD( retsd );
 
     if ( fname_ == sStdIO() || fname_ == sStdErr() )
-	{ retsd.iStrm() = &std::cin; return retsd; }
+	{ retsd.setIStrm( &std::cin ); return retsd; }
 
     if ( !iscomm_ && allowpl )
     {
@@ -616,15 +616,15 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	}
 
 #ifdef __msvc__
-	retsd.iStrm() = new std::winifstream
+	retsd.setIStrm(  = new std::winifstream
 #else
-	retsd.iStrm() = new std::ifstream
+	retsd.setIStrm( new std::ifstream
 #endif
 	  ( retsd.fileName(), binary ? std::ios_base::in | std::ios_base::binary
-				  : std::ios_base::in );
+				  : std::ios_base::in ) );
 
 	if ( !retsd.iStrm()->good() )
-	    { delete retsd.iStrm(); retsd.iStrm() = 0; }
+	    { delete retsd.iStrm(); retsd.setIStrm( 0 ); }
 	return retsd;
     }
 
@@ -637,7 +637,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
-	retsd.iStrm() = new iqstream( stdiosb );
+	retsd.setIStrm( new iqstream( stdiosb ) );
     }
 #endif
 
@@ -650,9 +650,9 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     mGetRetSD( retsd );
 
     if ( fname_ == sStdIO() )
-	{ retsd.oStrm() = &std::cout; return retsd; }
+	{ retsd.setOStrm( &std::cout ); return retsd; }
     else if ( fname_ == sStdErr() )
-	{ retsd.oStrm() = &std::cerr; return retsd; }
+	{ retsd.setOStrm( &std::cerr ); return retsd; }
 
     if ( !iscomm_ )
     {
@@ -667,13 +667,13 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 	if ( File::isHidden(retsd.fileName()) )
 	    File::hide( retsd.fileName(), false );
 
-	retsd.oStrm() = new std::winofstream( retsd.fileName(), openmode );
+        retsd.setOStrm( new std::winofstream( retsd.fileName(), openmode ) );
 #else
-	retsd.oStrm() = new std::ofstream( retsd.fileName(), openmode );
+	retsd.setOStrm( new std::ofstream( retsd.fileName(), openmode ) );
 #endif
 
 	if ( !retsd.oStrm()->good() )
-	    { delete retsd.oStrm(); retsd.oStrm() = 0; }
+	    { delete retsd.oStrm(); retsd.setOStrm( 0 ); }
 	return retsd;
     }
 
@@ -686,7 +686,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
-	retsd.oStrm() = new oqstream( stdiosb );
+	retsd.setOStrm( new oqstream( stdiosb ) );
     }
 #endif
 

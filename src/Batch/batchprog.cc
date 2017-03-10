@@ -318,7 +318,7 @@ bool BatchProgram::initOutput()
 	{
 	    std::cerr << name() << ": Cannot open log file" << std::endl;
 	    std::cerr << "Using stderror instead" << std::endl;
-	    sdout_.oStrm() = &std::cerr;
+            sdout_.setOStrm( &std::cerr );
 	}
     }
 

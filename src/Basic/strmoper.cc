@@ -545,6 +545,20 @@ void StreamData::setImpl( StreamDataImpl* n )
     istrm = n ? n->istrm_ : 0;
     ostrm = n ? n->ostrm_ : 0;
 }
+
+
+void StreamData::setIStrm( std::istream*  strm )
+{
+    impl_->istrm_ = istrm = strm;
+}
+
+
+void StreamData::setOStrm( std::ostream* strm )
+{
+    impl_->ostrm_ = ostrm = strm;
+}
+
+
 mStopAllowDeprecatedSection
 
 

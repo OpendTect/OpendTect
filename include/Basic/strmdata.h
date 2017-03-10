@@ -49,8 +49,9 @@ public:
 
     std::istream*	iStrm() const { return impl_->istrm_; }
     std::ostream*	oStrm() const { return impl_->ostrm_; }
-    std::istream*&	iStrm() { return impl_->istrm_; }
-    std::ostream*&	oStrm() { return impl_->ostrm_; }
+
+    void                setIStrm( std::istream* );
+    void                setOStrm( std::ostream* );
 
     //Internal use (unless you're making connectors to weird external streams)
     mExpClass(Basic) StreamDataImpl

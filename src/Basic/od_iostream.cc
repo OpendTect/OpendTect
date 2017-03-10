@@ -108,27 +108,27 @@ od_stream::od_stream( const File::Path& fp, bool forwrite, bool useexist )
 
 od_stream::od_stream( std::ostream* strm )
 {
-    sd_.oStrm() = strm;
+    sd_.setOStrm( strm );
 }
 
 
 od_stream::od_stream( std::istream* strm )
 {
-    sd_.iStrm() = strm;
+    sd_.setIStrm( strm );
 }
 
 
 od_stream::od_stream( std::ostream& strm )
 {
     mine_ = false;
-    sd_.oStrm() = &strm;
+    sd_.setOStrm( &strm );
 }
 
 
 od_stream::od_stream( std::istream& strm )
 {
     mine_ = false;
-    sd_.iStrm() = &strm;
+    sd_.setIStrm( &strm );
 }
 
 
