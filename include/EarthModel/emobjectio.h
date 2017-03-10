@@ -28,30 +28,36 @@ namespace EM
 {
 
 class EMObject;
+class SurfaceIODataSelection;
 
 mExpClass(EarthModel) ObjectLoader
 {
 public:
-    mDefineFactory1ParamInClass(ObjectLoader,const DBKeySet&,factory)
+    mDefineFactory2ParamInClass(ObjectLoader,const DBKeySet&,
+				const SurfaceIODataSelection*,factory)
 
     virtual uiString	userName()		= 0;
     virtual bool	load(TaskRunner*)	= 0;
     virtual Executor*	getLoader() const	= 0;
 
-    ObjectSet<EMObject> getLoadedEMObjects() const { return emobjects_; }
+    RefObjectSet<EMObject> getLoadedEMObjects() const { return emobjects_; }
     const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
     virtual bool	allOK() const
 			{ return notloadedkeys_.isEmpty(); }
 protected:
-			ObjectLoader(const DBKeySet&);
+			ObjectLoader(const DBKeySet&,
+				     const SurfaceIODataSelection*);
 
     virtual void	addObject(EMObject* obj) { emobjects_ += obj; }
 
     DBKeySet		dbkeys_;
+    const SurfaceIODataSelection* sel_;
     DBKeySet		notloadedkeys_;
-    ObjectSet<EMObject> emobjects_;
+    RefObjectSet<EMObject> emobjects_;
 
     friend class	ObjectLoaderExec;
+private:
+    Executor*		fetchLoader(EMObject*) const;
 };
 
 
@@ -59,12 +65,14 @@ mExpClass(EarthModel) FaultStickSetLoader : public ObjectLoader
 {
 public:
 
-    mDefaultFactoryInstantiation1Param(ObjectLoader,
+    mDefaultFactoryInstantiation2Param(ObjectLoader,
 				       FaultStickSetLoader,const DBKeySet&,
+				       const SurfaceIODataSelection*,
 				       EM::FaultStickSet::typeStr(),
 				       uiStrings::sFaultStickSet(mPlural))
 
-			FaultStickSetLoader(const DBKeySet&);
+			FaultStickSetLoader(const DBKeySet&,
+					    const SurfaceIODataSelection*);
 
     uiString		userName() {return uiStrings::sFaultStickSet(mPlural);}
 
@@ -80,12 +88,14 @@ protected:
 mExpClass(EarthModel) Fault3DLoader : public ObjectLoader
 {
 public:
-      mDefaultFactoryInstantiation1Param(ObjectLoader,
+      mDefaultFactoryInstantiation2Param(ObjectLoader,
 				       Fault3DLoader,const DBKeySet&,
+				       const SurfaceIODataSelection*,
 				       Fault3D::typeStr(),
 				       uiStrings::sFault(mPlural))
 
-			Fault3DLoader(const DBKeySet&);
+			Fault3DLoader(const DBKeySet&,
+				      const SurfaceIODataSelection*);
 
     uiString		userName() { return uiStrings::sFault(mPlural); }
 
@@ -101,12 +111,14 @@ protected:
 mExpClass(EarthModel) Horizon3DLoader : public ObjectLoader
 {
 public:
-      mDefaultFactoryInstantiation1Param(ObjectLoader,
+      mDefaultFactoryInstantiation2Param(ObjectLoader,
 				       Horizon3DLoader,const DBKeySet&,
+				       const SurfaceIODataSelection*,
 				       Horizon3D::typeStr(),
 				       uiStrings::sHorizon(mPlural))
 
-			Horizon3DLoader(const DBKeySet&);
+			Horizon3DLoader(const DBKeySet&,
+					const SurfaceIODataSelection*);
 
     uiString		userName() { return uiStrings::sHorizon(mPlural); }
 

@@ -36,6 +36,37 @@ Fault3D::Fault3D(const char* fnm)
 	OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,3,Color::Yellow()) );
 }
 
+Fault3D::Fault3D( const Fault3D& oth )
+    : Fault(oth)
+    , geometry_(oth.geometry_)
+    , auxdata_(oth.auxdata_)
+{
+    copyClassData( oth );
+}
+
+mImplMonitorableAssignment( Fault3D, SharedObject )
+
+void Fault3D::copyClassData( const Fault3D& oth )
+{
+    storageid_ = oth.storageid_;
+    preferredcolor_ = oth.preferredcolor_;
+    changed_ = oth.changed_;
+    fullyloaded_ = oth.fullyloaded_;
+    locked_ = oth.locked_;
+    burstalertcount_ = oth.fullyloaded_;
+    selremoving_ = oth.selremoving_;
+    preferredlinestyle_ = oth.preferredlinestyle_;
+    preferredmarkerstyle_ = oth.preferredmarkerstyle_;
+    selectioncolor_ = oth.selectioncolor_;
+    haslockednodes_ = oth.haslockednodes_;
+}
+
+
+Monitorable::ChangeType Fault3D::compareClassData( EM::Fault3D const &) const 
+{
+    return cNoChange();
+}
+
 
 Fault3D::~Fault3D()
 { delete auxdata_; }

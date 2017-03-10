@@ -1474,7 +1474,7 @@ void dgbSurfaceWriter::init( const char* fulluserexpr )
     oldsectionindex_= -1;
     writeonlyz_ = false;
     nrrows_ = 0;
-    shift_ = 0;
+    shift_ = surface_.getShift();
     writingfinished_ = false;
     geometry_ = reinterpret_cast<const EM::RowColSurfaceGeometry*>(
 							&surface_.geometry() );
@@ -1911,10 +1911,6 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
 
     return true;
 }
-
-
-void dgbSurfaceWriter::setShift( float s )
-{ shift_ = s; }
 
 
 bool dgbSurfaceWriter::writeRow( od_ostream& strm )

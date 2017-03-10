@@ -264,6 +264,20 @@ BufferString Surface::getParentChildFileName( const IOObj& ioobj )
 }
 
 
+float Surface::getShift() const
+{
+    return shift_;
+}
+
+
+void Surface::setShift( float shift )
+{
+    mLock4Write();
+    shift_ = shift;
+    touch();
+}
+
+
 bool Surface::usePar( const IOPar& par )
 {
     return EMObject::usePar(par) && geometry().usePar(par);

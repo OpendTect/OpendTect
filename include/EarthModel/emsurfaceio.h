@@ -256,8 +256,6 @@ public:
 
     int			nrSections() const;
     EM::SectionID	sectionID( int ) const;
-    void		setShift(float);
-			//!<Shift is added to z values before writing
 
     int			nrAuxVals() const;
     const char*		auxDataName(int) const;

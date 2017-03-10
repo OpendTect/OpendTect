@@ -84,6 +84,9 @@ mExpClass(EarthModel) Fault3D : public Fault
 {   mDefineEMObjFuncs( Fault3D );
     mODTextTranslationClass( Fault3D );
 public:
+
+				mDeclMonitorableAssignment(Fault3D);
+				mDeclInstanceCreatedNotifierAccess(Fault3D);
     Fault3DGeometry&		geometry();
     const Fault3DGeometry&	geometry() const;
     void			apply(const Pos::Filter&);

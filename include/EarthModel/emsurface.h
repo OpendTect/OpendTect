@@ -43,6 +43,9 @@ public:
     const char*			dbInfo() const		 { return dbinfo.buf();}
     void			setDBInfo(const char* s) { dbinfo = s; }
 
+    float			getShift() const;
+    void			setShift(float);
+
     virtual bool		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
 
@@ -69,6 +72,7 @@ protected:
 				~Surface();
 
     BufferString		dbinfo;
+    float			shift_;
 };
 
 

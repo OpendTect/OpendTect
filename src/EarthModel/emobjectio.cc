@@ -9,6 +9,7 @@
 
 #include "dbman.h"
 #include "emmanager.h"
+#include "emsurfaceiodata.h"
 #include "executor.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -16,17 +17,47 @@
 #include "task.h"
 
 mDefineInstanceCreatedNotifierAccess(EM::ObjectSaver)
-mImplFactory1Param(EM::ObjectLoader,const DBKeySet&,EM::ObjectLoader::factory)
+mImplFactory2Param(EM::ObjectLoader,const DBKeySet&,
+		   const EM::SurfaceIODataSelection*,EM::ObjectLoader::factory)
 mImplFactory1Param(EM::ObjectSaver,const SharedObject&,EM::ObjectSaver::factory)
 
 namespace EM
 {
 
-ObjectLoader::ObjectLoader( const DBKeySet& keys )
+ObjectLoader::ObjectLoader( const DBKeySet& keys,
+			    const SurfaceIODataSelection* sel )
     : dbkeys_(keys)
+    , sel_(sel)
 {
 }
 
+
+Executor* ObjectLoader::fetchLoader( EMObject* obj ) const
+{
+    mDynamicCastGet(Surface*,surface,obj)
+    if ( surface )
+    {
+	mDynamicCastGet(RowColSurfaceGeometry*,geom,&surface->geometry())
+	if ( geom && sel_ )
+	{
+	    TrcKeySampling hs;
+	    hs.setInlRange( geom->rowRange() );
+	    hs.setCrlRange( geom->colRange() );
+	    if ( hs.isEmpty() )
+		return geom->loader( sel_ );
+
+	    SurfaceIODataSelection newsel( *sel_ );
+	    newsel.rg.include( hs );
+	    return geom->loader( &newsel );
+	}
+
+	return surface->geometry().loader(sel_);
+    }
+    else if ( obj )
+	return obj->loader();
+
+    return 0;
+}
 
 class ObjectLoaderExec : public ExecutorGroup
 { mODTextTranslationClass(ObjectLoaderExec)
@@ -64,7 +95,7 @@ void init()
 	EMObject* obj = EMM().createObject( typenm, ioobj->name() );
 	obj->ref();
 	obj->setDBKey( objid );
-	add( obj->loader() );
+	add( loader_.fetchLoader(obj) );
 	objects_.add( obj );
     }
 
@@ -99,7 +130,8 @@ void finishWork()
 	if ( loader_.notloadedkeys_.isPresent(dbkey) )
 	    continue;
 
-	EMM().addObject( obj );
+	EMManager& emm = getMgr( dbkey );
+	emm.addObject( obj );
 	loader_.addObject( obj );
     }
 }
@@ -131,14 +163,15 @@ protected:
 
     ObjectLoader&		loader_;
     int				curidx_;
-    ObjectSet<EMObject>		objects_;
+    RefObjectSet<EMObject>	objects_;
     od_int64			nrdone_;
     od_int64			totnr_;
 };
 
 
-FaultStickSetLoader::FaultStickSetLoader( const DBKeySet& keys )
-    : ObjectLoader(keys)
+FaultStickSetLoader::FaultStickSetLoader( const DBKeySet& keys,
+					  const SurfaceIODataSelection* sel )
+    : ObjectLoader(keys,sel)
 {
 }
 
@@ -158,8 +191,9 @@ Executor* FaultStickSetLoader::getLoader() const
 }
 
 
-Fault3DLoader::Fault3DLoader( const DBKeySet& keys )
-    : ObjectLoader(keys)
+Fault3DLoader::Fault3DLoader( const DBKeySet& keys,
+			      const SurfaceIODataSelection* sel )
+    : ObjectLoader(keys,sel)
 {
 }
 
@@ -179,8 +213,9 @@ Executor* Fault3DLoader::getLoader() const
 }
 
 
-Horizon3DLoader::Horizon3DLoader( const DBKeySet& keys )
-    : ObjectLoader(keys)
+Horizon3DLoader::Horizon3DLoader( const DBKeySet& keys,
+				  const SurfaceIODataSelection* sel )
+    : ObjectLoader(keys,sel)
 {
 }
 
@@ -318,7 +353,8 @@ uiRetVal Fault3DSaver::doStore( const IOObj& ioobj ) const
     flt3d->setDBKey( objid );
     if ( isSave(ioobj) )
     {
-	flt3d->setName( ioobj.name() );
+	emobj.getNonConstPtr()->setName( ioobj.name() );
+	emobj.getNonConstPtr()->setDBKey( objid );
 	flt3d->saveDisplayPars();
     }
 
