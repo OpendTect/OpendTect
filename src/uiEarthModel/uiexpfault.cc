@@ -180,22 +180,22 @@ bool uiExportFault::writeAscii()
 	    if ( !doxy )
 	    {
 		const BinID bid = SI().transform( crd.getXY() );
-		*sdo.ostrm << bid.inl() << '\t' << bid.crl();
+		*sdo.oStrm() << bid.inl() << '\t' << bid.crl();
 	    }
 	    else
 	    {
 		// ostreams print doubles awfully
 		str.setEmpty();
 		str += crd.x_; str += "\t"; str += crd.y_;
-		*sdo.ostrm << str;
+		*sdo.oStrm() << str;
 	    }
 
-	    *sdo.ostrm << '\t' << unit->userValue( crd.z_ );
+	    *sdo.oStrm() << '\t' << unit->userValue( crd.z_ );
 
 	    if ( inclstickidx )
-		*sdo.ostrm << '\t' << stickidx;
+		*sdo.oStrm() << '\t' << stickidx;
 	    if ( inclknotidx )
-		*sdo.ostrm << '\t' << knotidx;
+		*sdo.oStrm() << '\t' << knotidx;
 
 	    if ( fss )
 	    {
@@ -210,11 +210,11 @@ bool uiExportFault::writeAscii()
 		    const char* linenm = Survey::GM().getName( geomid );
 
 		    if ( linenm )
-			*sdo.ostrm << '\t' << linenm;
+			*sdo.oStrm() << '\t' << linenm;
 		}
 	    }
 
-	    *sdo.ostrm << '\n';
+	    *sdo.oStrm() << '\n';
 	}
     }
 

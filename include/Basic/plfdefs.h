@@ -199,8 +199,11 @@ Always defined:
 #  else
 #   define mDeprecated
 #  endif
-#  define mStartAllowDeprecatedSection
-#  define mStopAllowDeprecatedSection
+#  define mStartAllowDeprecatedSection \
+    _Pragma("clang diagnostic push") \
+    _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"")
+#  define mStopAllowDeprecatedSection  \
+    _Pragma("clang diagnostic pop")
 # endif
 #else
 # define mUnusedVar

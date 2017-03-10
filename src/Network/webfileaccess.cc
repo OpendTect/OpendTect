@@ -8,7 +8,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "webstreamsource.h"
+
+#include "webfileaccess.h"
+
 #include "netfilecache.h"
 #include "odnetworkaccess.h"
 #include "odhttp.h"
@@ -524,23 +526,83 @@ webostream( webostreambuf* sb )
 } // namespace Network
 
 
-// WebStreamSource
+// HttpFileAccess
 
-void WebStreamSource::initClass()
-{ StreamProvider::addStreamSource( new WebStreamSource ); }
-bool WebStreamSource::willHandle( const char* fnm )
-{ return File::isURI( fnm ); }
-bool WebStreamSource::canHandle( const char* fnm ) const
-{ return willHandle( fnm ); }
+bool HttpFileAccess::exists(const char*,bool forread) const
+{ return false; }
 
-bool WebStreamSource::fill( StreamData& sd, StreamSource::Type typ ) const
+
+bool HttpFileAccess::isReadable(const char*) const
+{ return false; }
+
+
+bool HttpFileAccess::isFile(const char*) const
+{ return false; }
+
+
+bool HttpFileAccess::isDirectory(const char*) const
+{ return false; }
+
+
+bool HttpFileAccess::remove(const char*,bool recursive) const
+{ return false; }
+
+
+bool HttpFileAccess::setWritable(const char*,bool yn,bool recursive) const
+{ return false; }
+
+
+bool HttpFileAccess::isWritable(const char*) const
+{ return false; }
+
+
+bool HttpFileAccess::rename(const char* from,const char*)
+{ return false; }
+
+
+bool HttpFileAccess::copy(const char* from,const char* to,
+			     uiString* errmsg) const
+{ return false; }
+
+
+od_int64 HttpFileAccess::getFileSize(const char*, bool followlink)
+{ return false; }
+
+
+StreamData HttpFileAccess::createOStream( const char* fnm,
+				      bool binary,bool editmode) const
 {
-    if ( typ == Read )
-	sd.istrm = new Network::webistream(
-			new Network::webistreambuf(sd.fileName()) );
-    else if ( typ == Write )
-	sd.ostrm = new Network::webostream(
-			new Network::webostreambuf(sd.fileName()) );
+    StreamData sd;
+    if ( editmode )
+    {
+	return sd;
+    }
 
-    return sd.usable();
+    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
+    impl->fname_ = fnm;
+    impl->ostrm_ = new Network::webostream(
+				new Network::webostreambuf( fnm ) );
+    if ( !impl->ostrm_->good() )
+	deleteAndZeroPtr( impl->ostrm_ );
+
+    sd.setImpl( impl );
+    return sd;
 }
+
+
+StreamData HttpFileAccess::createIStream( const char* fnm, bool binary ) const
+{
+    StreamData sd;
+    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
+    impl->fname_ = fnm;
+    impl->istrm_ = new Network::webistream(
+					   new Network::webistreambuf( fnm ) );
+    if ( !impl->istrm_->good() )
+	deleteAndZeroPtr( impl->istrm_ );
+
+    sd.setImpl( impl );
+    return sd;
+}
+
+void HttpFileAccess::initClass()
+mDefaultFactoryInitClassImpl( File::SystemAccess, createInstance )

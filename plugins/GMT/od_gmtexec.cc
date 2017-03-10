@@ -107,7 +107,7 @@ bool BatchProgram::go( od_ostream& strm )
     StreamProvider( outputfp.fullPath() ).remove();
     File::changeDir( cwd.buf() );
     StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream();
-    *sd.ostrm << "Finished.\n";
+    *sd.oStrm() << "Finished.\n";
     sd.close();
     return true;
 }

@@ -35,10 +35,11 @@ public:
 			    : od_stream(s)			{}
 			od_ostream( std::ostream& s )
 			    : od_stream(s)			{}
-			od_ostream( const od_ostream& s )
-			    : od_stream(s)			{}
-    od_ostream&		operator =( const od_ostream& s )
-			    { od_stream::operator =(s); return *this; }
+			od_ostream(const od_ostream&) = delete;
+			od_ostream(od_ostream&&);
+    od_ostream&		operator=(const od_ostream&) = delete;
+    od_ostream&		operator=(od_ostream&&);
+
     bool		open(const char*,bool useexist=false);
 
     od_ostream&		add(char);

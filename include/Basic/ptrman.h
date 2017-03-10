@@ -19,6 +19,8 @@ ________________________________________________________________________
 # include "debug.h"
 #endif
 
+template <class T> class WeakPtr;
+
 /*!Convenience function to delete and zero pointer. */
 
 template <class T>

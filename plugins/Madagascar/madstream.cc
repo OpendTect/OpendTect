@@ -122,17 +122,17 @@ static bool getScriptForScons( BufferString& str )
 #ifdef __win__
     BufferString scriptfile = File::Path::getTempName( "bat" );
     StreamData sd = StreamProvider(scriptfile).makeOStream();
-    *sd.ostrm << "@echo off" << std::endl;
-    *sd.ostrm << "Pushd " << fp.pathOnly() << std::endl;
-    *sd.ostrm << sconsfp.fullPath() << std::endl;
-    *sd.ostrm << "Popd" << std::endl;
+    *sd.oStrm() << "@echo off" << std::endl;
+    *sd.oStrm() << "Pushd " << fp.pathOnly() << std::endl;
+    *sd.oStrm() << sconsfp.fullPath() << std::endl;
+    *sd.oStrm() << "Popd" << std::endl;
 #else
     BufferString scriptfile = File::Path::getTempName();
     StreamData sd = StreamProvider(scriptfile).makeOStream();
-    *sd.ostrm << "#!/bin/csh -f" << std::endl;
-    *sd.ostrm << "pushd " << fp.pathOnly() << std::endl;
-    *sd.ostrm << sconsfp.fullPath() << std::endl;
-    *sd.ostrm << "popd" << std::endl;
+    *sd.oStrm() << "#!/bin/csh -f" << std::endl;
+    *sd.oStrm() << "pushd " << fp.pathOnly() << std::endl;
+    *sd.oStrm() << sconsfp.fullPath() << std::endl;
+    *sd.oStrm() << "popd" << std::endl;
 #endif
     sd.close();
     File::setPermissions( scriptfile, "744", 0 );
@@ -171,7 +171,7 @@ void MadStream::initRead( IOPar* par )
 	inpstr += " form=ascii_float out=stdout";
 #endif
 	const char* str = inpstr.isEmpty() ? 0 : inpstr.buf();
-        std::istream* istrm = StreamProvider(str).makeIStream().istrm;
+	std::istream* istrm = StreamProvider(str).makeIStream().iStrm();
 
 	istrm_ = istrm ? new od_istream( *istrm ) : 0;
 
@@ -187,7 +187,7 @@ void MadStream::initRead( IOPar* par )
 
         deleteAndZeroPtr( istrm_ );
 
-	istrm_ = sd.istrm ? new od_istream( sd.istrm ) : 0;
+	istrm_ = sd.iStrm() ? new od_istream( sd.iStrm() ) : 0;
 	headerpars_->set( sKeyIn, sKeyStdIn );
 	return;
     }

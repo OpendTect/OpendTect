@@ -8,9 +8,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "webstreamsource.h"
+#include "webfileaccess.h"
 
-#include "webfile.h"
+
 #include "odnetworkaccess.h"
 #include "atomic.h"
 #include "moddepmgr.h"
@@ -20,8 +20,5 @@ mDefModInitFn(Network)
 {
     mIfNotFirstTime( return );
 
-    WebStreamSource::initClass();
-
-    File::setWebHandlers( Network::exists, Network::getFileSize,
-			  Network::getContent );
+    HttpFileAccess::initClass();
 }

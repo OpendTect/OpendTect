@@ -97,15 +97,15 @@ bool SeisImpBPSIF::openNext()
 bool SeisImpBPSIF::readFileHeader()
 {
     char buf[10];
-    cursd_.istrm->getline( buf, 10 ); removeTrailingBlanks(buf);
+    cursd_.iStrm()->getline( buf, 10 ); removeTrailingBlanks(buf);
     if ( FixedString(buf)!="#BPSIF#" )
 	mErrRet( toUiString(" is not a BPSIF file") )
-    if ( cursd_.istrm->peek() == '\n' ) cursd_.istrm->ignore( 1 );
+    if ( cursd_.iStrm()->peek() == '\n' ) cursd_.iStrm()->ignore( 1 );
 
     while ( true )
     {
 	BufferString* lineread = new BufferString;
-	if ( !StrmOper::readLine(*cursd_.istrm,lineread) )
+	if ( !StrmOper::readLine(*cursd_.iStrm(),lineread) )
 	    return false;
 	else if ( lineread->startsWith("#BINARY") )
 	    { binary_ = true; nrrcvpershot_ = toInt(lineread->buf()+9); }
@@ -187,7 +187,7 @@ int SeisImpBPSIF::nextStep()
 
 int SeisImpBPSIF::readAscii()
 {
-    std::istream& strm = *cursd_.istrm;
+    std::istream& strm = *cursd_.iStrm();
     const int nrshotattrs = shotattrs_.size();
     SeisTrc tmpltrc( nrshotattrs + rcvattrs_.size() );
     tmpltrc.info().sampling_.start = SI().zRange(true).start;
@@ -222,7 +222,7 @@ int SeisImpBPSIF::readAscii()
 
 int SeisImpBPSIF::readBinary()
 {
-    std::istream& strm = *cursd_.istrm;
+    std::istream& strm = *cursd_.iStrm();
     const int nrshotattrs = shotattrs_.size();
     const int nrrcvattrs = rcvattrs_.size();
     mAllocVarLenArr( float, vbuf, 2+nrshotattrs );
@@ -302,7 +302,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
     mAllocVarLenArr( float, vbuf, nrrcvvals );
     for ( int idx=0; idx<nrrcvpershot_; idx++ )
     {
-	if ( !StrmOper::readBlock( *cursd_.istrm, vbuf,
+	if ( !StrmOper::readBlock( *cursd_.iStrm(), vbuf,
 				   nrrcvvals*sizeof(float) ) )
 	    return false;
 

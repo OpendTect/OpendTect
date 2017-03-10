@@ -248,9 +248,9 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
     if ( !doesexist )
 	return;
 
-    StrmOper::seek( *sd.istrm, 3200, std::ios::beg );
+    StrmOper::seek( *sd.iStrm(), 3200, std::ios::beg );
     unsigned char buf[400];
-    StrmOper::readBlock( *sd.istrm, buf, 400 );
+    StrmOper::readBlock( *sd.iStrm(), buf, 400 );
     sd.close();
     SEGY::BinHeader bh; bh.setInput( buf );
     bh.guessIsSwapped();

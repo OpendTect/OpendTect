@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "iostrm.h"
 #include "od_iostream.h"
-#include "webstreamsource.h"
 #include "systeminfo.h"
 
 static const int cPrefHeight = 10;
@@ -300,28 +299,27 @@ BufferString uiObjFileMan::getFileInfo()
 
 	const od_int64 totsz = getFileSize( fname, nrfiles );
 	const BufferString fileszstr( File::getFileSizeString( totsz ) );
-	if ( WebStreamSource::willHandle(usrnm) )
-	    txt.add( "\nURL: " ).add( usrnm );
+
+	if ( isdir )
+	{
+	    txt.add( "\nDirectory name: " ).add( usrnm );
+	    txt.add( "\nTotal size on disk: " ).add( fileszstr );
+	    txt.add( "\nNumber of files: " ).add( nrfiles );
+	}
 	else
 	{
-	    if ( isdir )
-	    {
-		txt.add( "\nDirectory name: " ).add( usrnm );
-		txt.add( "\nTotal size on disk: " ).add( fileszstr );
-		txt.add( "\nNumber of files: " ).add( nrfiles );
-	    }
-	    else
-	    {
-		File::Path fp( usrnm );
-		txt.add( "\nFile name: " ).add( fp.fileName() );
-		fp.set( fname );
-		txt.add( "\nLocation: " ).add( fp.pathOnly() );
-		txt.add( "\nSize: " ).add( fileszstr );
-	    }
-	    BufferString timestr; getTimeStamp( fname, timestr );
-	    if ( !timestr.isEmpty() )
-		txt.add( "\nLast modified: " ).add( timestr );
+	    File::Path fp( usrnm );
+	    txt.add( "\nFile name: " ).add( fp.fileName() );
+	    fp.set( fname );
+	    txt.add( "\nLocation: " ).add( fp.pathOnly() );
+	    txt.add( "\nSize: " ).add( fileszstr );
 	}
+	BufferString timestr; getTimeStamp( fname, timestr );
+	if ( !timestr.isEmpty() )
+	{
+	    txt.add( "\nLast modified: " ).add( timestr );
+	}
+
     }
     txt.add( "\n" );
 

@@ -47,9 +47,9 @@ static BufferString getUsrInfo()
     if ( sd.usable() )
     {
 	char buf[1024];
-	while ( *sd.istrm )
+	while ( *sd.iStrm() )
 	{
-	    sd.istrm->getline( buf, 1024 );
+	    sd.iStrm()->getline( buf, 1024 );
 	    if ( *(const char*)bs ) bs += "\n";
 	    bs += buf;
 	}

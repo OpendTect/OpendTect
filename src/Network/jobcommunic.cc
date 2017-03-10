@@ -219,7 +219,7 @@ void JobCommunic::checkMasterTimeout()
 
 void JobCommunic::directMsg( const char* msg )
 {
-    (sdout_.ostrm ? *sdout_.ostrm : std::cerr) << msg << std::endl;
+    (sdout_.oStrm() ? *sdout_.oStrm() : std::cerr) << msg << std::endl;
     logMsg( true, msg, "" );
 }
 

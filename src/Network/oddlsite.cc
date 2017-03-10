@@ -106,7 +106,7 @@ bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
     }
 
     BufferString bs;
-    const bool isok = StrmOper::readFile( *sd.istrm, bs );
+    const bool isok = StrmOper::readFile( *sd.iStrm(), bs );
     sd.close();
     if ( isok )
     {

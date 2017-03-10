@@ -66,8 +66,9 @@ bool testPipeInput()
 
     {
 	StreamData streamdata = StreamProvider( command ).makeIStream();
-	mRunStandardTest( streamdata.istrm,"Creation of standard input stream");
-	PtrMan<od_istream> istream = new od_istream(streamdata.istrm);
+	mRunStandardTest( streamdata.iStrm(),
+			  "Creation of standard input stream");
+	PtrMan<od_istream> istream = new od_istream(streamdata.iStrm());
 
 	BufferString streaminput;
 	mRunStandardTest( istream->getAll( streaminput ) , "Read from pipe" );
@@ -94,9 +95,9 @@ bool testPipeInput()
     }
     {
 	StreamData streamdata = StreamProvider( command ).makeIStream();
-	mRunStandardTest( streamdata.istrm,
+	mRunStandardTest( streamdata.iStrm(),
 			  "Creation of standard input stream (binary)");
-	PtrMan<od_istream> istream = new od_istream(streamdata.istrm);
+	PtrMan<od_istream> istream = new od_istream(streamdata.iStrm());
 
 #define mSize	(100)
 	char streaminput[mSize];
@@ -146,8 +147,9 @@ bool testPipeOutput()
     command.add( " > " ).add( tmpfnm );
     StreamProvider prov( command );
     StreamData ostreamdata = prov.makeOStream();
-    mRunStandardTest( ostreamdata.ostrm,  "Creation of standard output stream");
-    PtrMan<od_ostream> ostream = new od_ostream(ostreamdata.ostrm);
+    mRunStandardTest( ostreamdata.oStrm(),
+		      "Creation of standard output stream");
+    PtrMan<od_ostream> ostream = new od_ostream(ostreamdata.oStrm());
 
     *ostream << message << " ";
     *ostream << num;
@@ -165,6 +167,36 @@ bool testPipeOutput()
     File::remove( tmpfnm );
 
     mRunStandardTest( streaminput==originpstr, "Pipe content check (Output)" );
+
+    return true;
+}
+
+
+bool testPrefix()
+{
+    mRunStandardTest(
+	    File::SystemAccess::removeProtocol( "file://")=="",
+	    "Remove protocol from emtpy file name");
+
+    mRunStandardTest(
+	    File::SystemAccess::removeProtocol( "file://abcde")=="abcde",
+	    "Remove protocol file name with protocol");
+
+    mRunStandardTest(
+	     File::SystemAccess::removeProtocol( "abcde")=="abcde",
+	     "Remove protocol file name without protocol");
+
+    mRunStandardTest(
+	     File::SystemAccess::getProtocol( "s3://abcd", true )=="s3",
+	     "Get protocol" );
+    mRunStandardTest(
+		File::SystemAccess::getProtocol( "abcde", true ).isEmpty(),
+		"Get non-existing protocol" );
+
+    mRunStandardTest(
+	     File::SystemAccess::getProtocol( "abcde", false )==
+		 File::LocalFileSystemAccess::sFactoryKeyword(),
+	     "Get non-existing protocol - obtain default" );
 
     return true;
 }
@@ -212,6 +244,9 @@ int testMain( int argc, char** argv )
 
 	return doExit(1);
     }
+
+    if ( !testPrefix() )
+	return doExit( 1 );
 
     return doExit( 0 );
 }

@@ -99,14 +99,14 @@ bool ODMad::ProcExec::init()
 	}
 
 	if ( FixedString(comm) == StreamProvider::sStdIO() )
-	    procstream_.ostrm = &std::cout;
+	    procstream_.oStrm() = &std::cout;
 	else
 	    procstream_ = StreamProvider( comm ).makeOStream();
 
 	if ( !procstream_.usable() )
 	    mErrRet(tr("Failed to create output stream"))
 
-        od_ostream procstrm(*procstream_.ostrm);
+	od_ostream procstrm(*procstream_.oStrm());
 	if ( !madstream_->putHeader(procstrm) )
 	    mErrRet(tr("Failed to get RSF header"))
 
@@ -116,7 +116,7 @@ bool ODMad::ProcExec::init()
 	    plotcomm += getPlotString();
 	    std::cerr << "About to plot: " << plotcomm << std::endl;
 	    plotstream_ = StreamProvider( plotcomm.buf() ).makeOStream();
-            od_ostream plotstrm( *plotstream_.ostrm );
+	    od_ostream plotstrm( *plotstream_.oStrm() );
 	    if ( !madstream_->putHeader(plotstrm) )
 		mErrRet(tr("Failed to put RSF header in plot stream"))
 	}
@@ -298,9 +298,9 @@ od_int64 ODMad::ProcExec::totalNr() const
 
 #define mWriteToStream(strm) \
     if ( madstream_->isBinary() ) \
-        (*strm.ostrm).write( (const char*) &val, sizeof(val)); \
+	(*strm.oStrm()).write( (const char*) &val, sizeof(val)); \
     else \
-	*strm.ostrm << val << " ";
+	*strm.oStrm() << val << " ";
 
 int ODMad::ProcExec::nextStep()
 {

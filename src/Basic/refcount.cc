@@ -373,10 +373,12 @@ void WeakPtrBase::set( Referenced* p )
 
     if ( p && p->tryRef() )
     {
+#ifdef __debug__
 	if ( p->nrRefs()==1 )
 	{
 	    pErrMsg("I am the only reffer - not good" );
 	}
+#endif
 
 	p->addObserver(this);
 	ptr_ = p;

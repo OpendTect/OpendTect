@@ -108,31 +108,6 @@ static inline const char* remExecCmd()
 }
 
 
-//---- StreamSource management ----
-struct StreamProviderRepos
-		: public ObjectSet<const StreamProvider::StreamSource>
-{
-    ~StreamProviderRepos() { deepErase( *this ); }
-};
-
-static StreamProviderRepos streamsources_;
-
-static const StreamProvider::StreamSource& streamSource( int idx )
-{ return *streamsources_[idx]; }
-int StreamProvider::addStreamSource( StreamSource* ss )
-{ streamsources_ += ss; return streamsources_.size() - 1; }
-
-static int getStrmSrc( const char* fnm )
-{
-    for ( int idx=0; idx<streamsources_.size(); idx++ )
-    {
-	if ( streamsources_[idx]->canHandle(fnm) )
-	    return idx;
-    }
-    return -1;
-}
-
-
 //---- Pre-loaded data ----
 
 
@@ -246,7 +221,7 @@ int nextStep()
 {
     if ( !isOK() ) return ErrorOccurred();
 
-    std::istream& strm = *sd_.istrm;
+    std::istream& strm = *sd_.iStrm();
     od_int64 offs = chunkidx_; offs *= mPreLoadChunkSz;
     strm.read( dp_->buf() + offs, mPreLoadChunkSz );
     chunkidx_++;
@@ -500,14 +475,13 @@ StreamData StreamProvider::makePLIStream( int plid )
     StreamData ret; ret.setFileName( pld.fileName() );
     std::fixedstreambuf* fsb
 		= new std::fixedstreambuf( pld.dp_->buf(), pld.filesz_, false );
-    ret.istrm = new std::fixedistream( fsb );
+    ret.iStrm() = new std::fixedistream( fsb );
     return ret;
 }
 
 
 StreamProvider::StreamProvider( const char* inp )
     : iscomm_(false)
-    , strmsrc_(-1)
 {
     set( inp );
 }
@@ -516,7 +490,7 @@ StreamProvider::StreamProvider( const char* inp )
 void StreamProvider::set( const char* inp )
 {
     hostname_.setEmpty(); fname_.setEmpty();
-    iscomm_ = false; strmsrc_ = -1;
+    iscomm_ = false;
     if ( !inp || !*inp )
 	return;
 
@@ -536,10 +510,6 @@ void StreamProvider::set( const char* inp )
     if ( fname_.startsWith("file://",CaseInsensitive) )
 	{ pwork += 7; fname_ = pwork; }
 
-    strmsrc_ = getStrmSrc( fname_ );
-    if ( strmsrc_ >= 0 )
-	return;
-
     workstr = OS::MachineCommand::extractHostName(fname_.buf(),hostname_);
 
     pwork = workstr.buf();
@@ -558,14 +528,12 @@ void StreamProvider::setFileName( const char* fnm )
     iscomm_ = false;
     fname_.set( fnm );
     hostname_.setEmpty();
-    strmsrc_ = getStrmSrc( fname_ );
 }
 
 
 void StreamProvider::setCommand( const char* cmd, const char* hostnm )
 {
     iscomm_ = true;
-    strmsrc_ = -1;
     fname_.set( cmd );
     hostname_.set( hostnm );
 }
@@ -595,7 +563,7 @@ const char* StreamProvider::fullName() const
 
 void StreamProvider::addPathIfNecessary( const char* path )
 {
-    if ( isBad() || iscomm_ || strmsrc_ >= 0 || !path || ! *path
+    if ( isBad() || iscomm_ || !path || ! *path
       || fname_ == sStdIO() || fname_ == sStdErr() )
 	return;
 
@@ -604,7 +572,6 @@ void StreamProvider::addPathIfNecessary( const char* path )
     {
 	fp.insert( path );
 	fname_ = fp.fullPath();
-	strmsrc_ = getStrmSrc( fname_ );
     }
 }
 
@@ -613,8 +580,6 @@ void StreamProvider::addPathIfNecessary( const char* path )
     StreamData retsd; \
     if ( iscomm_ ) \
 	retsd.setFileName( BufferString("@",fname_) ); \
-    else if ( strmsrc_ >= 0 ) \
-	retsd.setFileName( fname_.buf() ); \
     else \
 	retsd.setFileName( mkUnLinked(fname_.buf()) ); \
     if ( isBad() ) \
@@ -626,21 +591,13 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     mGetRetSD( retsd );
 
     if ( fname_ == sStdIO() || fname_ == sStdErr() )
-	{ retsd.istrm = &std::cin; return retsd; }
+	{ retsd.iStrm() = &std::cin; return retsd; }
 
     if ( !iscomm_ && allowpl )
     {
 	const int plid = getPLID( retsd.fileName(), false );
 	if ( plid >= 0 )
 	    return makePLIStream( plid );
-    }
-
-    if ( strmsrc_ >= 0 )
-    {
-	const StreamSource& ss = streamSource( strmsrc_ );
-	if ( ss.fill(retsd,StreamSource::Read)
-	  || ss.mustHandle(retsd.fileName()) )
-	    return retsd;
     }
 
     if ( !iscomm_ )
@@ -659,15 +616,15 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	}
 
 #ifdef __msvc__
-	retsd.istrm = new std::winifstream
+	retsd.iStrm() = new std::winifstream
 #else
-	retsd.istrm = new std::ifstream
+	retsd.iStrm() = new std::ifstream
 #endif
 	  ( retsd.fileName(), binary ? std::ios_base::in | std::ios_base::binary
 				  : std::ios_base::in );
 
-	if ( !retsd.istrm->good() )
-	    { delete retsd.istrm; retsd.istrm = 0; }
+	if ( !retsd.iStrm()->good() )
+	    { delete retsd.iStrm(); retsd.iStrm() = 0; }
 	return retsd;
     }
 
@@ -680,7 +637,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
-	retsd.istrm = new iqstream( stdiosb );
+	retsd.iStrm() = new iqstream( stdiosb );
     }
 #endif
 
@@ -693,17 +650,9 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     mGetRetSD( retsd );
 
     if ( fname_ == sStdIO() )
-	{ retsd.ostrm = &std::cout; return retsd; }
+	{ retsd.oStrm() = &std::cout; return retsd; }
     else if ( fname_ == sStdErr() )
-	{ retsd.ostrm = &std::cerr; return retsd; }
-    else if ( strmsrc_ >= 0 )
-    {
-	const StreamSource& ss = streamSource( strmsrc_ );
-	const StreamSource::Type sstyp = editmode ? StreamSource::Edit
-						  : StreamSource::Write;
-	if ( ss.fill(retsd,sstyp) || ss.mustHandle(retsd.fileName()) )
-	    return retsd;
-    }
+	{ retsd.oStrm() = &std::cerr; return retsd; }
 
     if ( !iscomm_ )
     {
@@ -718,13 +667,13 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 	if ( File::isHidden(retsd.fileName()) )
 	    File::hide( retsd.fileName(), false );
 
-	retsd.ostrm = new std::winofstream( retsd.fileName(), openmode );
+	retsd.oStrm() = new std::winofstream( retsd.fileName(), openmode );
 #else
-	retsd.ostrm = new std::ofstream( retsd.fileName(), openmode );
+	retsd.oStrm() = new std::ofstream( retsd.fileName(), openmode );
 #endif
 
-	if ( !retsd.ostrm->good() )
-	    { delete retsd.ostrm; retsd.ostrm = 0; }
+	if ( !retsd.oStrm()->good() )
+	    { delete retsd.oStrm(); retsd.oStrm() = 0; }
 	return retsd;
     }
 
@@ -737,7 +686,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
-	retsd.ostrm = new oqstream( stdiosb );
+	retsd.oStrm() = new oqstream( stdiosb );
     }
 #endif
 

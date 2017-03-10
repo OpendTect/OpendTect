@@ -388,7 +388,7 @@ int SEGY::ReSorter::ensureFileOpen( int inpfidx )
 
 bool SEGY::ReSorter::readData( int fidx, int trcidx )
 {
-    od_istream odstrm( *inpsds_[fidx]->istrm );
+    od_istream odstrm( *inpsds_[fidx]->iStrm() );
     if ( !trcbuf_ )
     {
 	odstrm.setPosition( 0 );
@@ -431,7 +431,7 @@ bool SEGY::ReSorter::writeData()
 {
     if ( needwritefilehdrs_ )
     {
-	if ( !StrmOper::writeBlock(*sdout_.ostrm,hdrbuf_,3600) )
+	if ( !StrmOper::writeBlock(*sdout_.oStrm(),hdrbuf_,3600) )
 	{
 	    msg_ = tr( "Cannot write file header to: %1" )
 		      .arg( sdout_.fileName() );
@@ -440,7 +440,7 @@ bool SEGY::ReSorter::writeData()
 	needwritefilehdrs_ = false;
     }
 
-    if ( !StrmOper::writeBlock(*sdout_.ostrm,trcbuf_,trcbytes_) )
+    if ( !StrmOper::writeBlock(*sdout_.oStrm(),trcbuf_,trcbytes_) )
     {
 	msg_ = tr( "Cannot write trace to:\n%1" ).arg( sdout_.fileName() );
 	return false;

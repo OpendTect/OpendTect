@@ -149,8 +149,8 @@ Frequency::~Frequency()
 		{
 		    BufferString bfstr;
 		    desc_.getDefStr(bfstr);
-		    *sd.ostrm << bfstr << '\n';
-		    *sd.ostrm << data;
+		    *sd.oStrm() << bfstr << '\n';
+		    *sd.oStrm() << data;
 		}
 	    }
 	}

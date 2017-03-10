@@ -99,7 +99,7 @@ void uiTextEditBase::readFromFile( const char* src, int wraplen )
     int nrnewlines = 0;
     while ( true )
     {
-	if ( !sd.istrm->getline(buf,mMaxLineLength) )
+	if ( !sd.iStrm()->getline(buf,mMaxLineLength) )
 	    break;
 
 	lines_left--;
@@ -160,7 +160,7 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 	{ sd.close(); return false; }
 
     if ( linelen < 1 && newlns )
-	*sd.ostrm << text();
+	*sd.oStrm() << text();
     else
     {
 	mAllocVarLenArr( char, fullline, linelen+1 );
@@ -183,15 +183,15 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 
 	    const int lnlen = strLength( startptr );
 	    if ( linelen < 1 || lnlen==linelen )
-		*sd.ostrm << startptr;
+		*sd.oStrm() << startptr;
 	    else
 	    {
 		OD::memSet( fullline, ' ', linelen ); fullline[linelen] = '\0';
 		strncpy( fullline, startptr, lnlen );
-		*sd.ostrm << fullline;
+		*sd.oStrm() << fullline;
 	    }
 
-	    if ( newlns ) *sd.ostrm << '\n';
+	    if ( newlns ) *sd.oStrm() << '\n';
 	}
     }
 
@@ -402,9 +402,9 @@ void uiTextBrowser::readTailCB( CallBacker* )
 
     if ( lastlinestartpos_ >= 0 )
     {
-	sd.istrm->seekg( lastlinestartpos_ );
-	sd.istrm->getline( buf, mMaxLineLength );
-	if ( !sd.istrm->good() || strncmp(buf, lastline_.buf(), maxchartocmp) )
+	sd.iStrm()->seekg( lastlinestartpos_ );
+	sd.iStrm()->getline( buf, mMaxLineLength );
+	if ( !sd.iStrm()->good() || strncmp(buf, lastline_.buf(), maxchartocmp))
 	{
 	    sd.close();
 	    lastlinestartpos_ = -1;
@@ -415,10 +415,10 @@ void uiTextBrowser::readTailCB( CallBacker* )
 	}
     }
 
-    while ( sd.istrm->peek()!=EOF )
+    while ( sd.iStrm()->peek()!=EOF )
     {
-	lastlinestartpos_ = sd.istrm->tellg();
-	sd.istrm->getline( buf, mMaxLineLength );
+	lastlinestartpos_ = sd.iStrm()->tellg();
+	sd.iStrm()->getline( buf, mMaxLineLength );
 	qte().append( buf );
     }
 
