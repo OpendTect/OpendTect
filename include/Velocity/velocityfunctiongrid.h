@@ -12,6 +12,8 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
+
+#include "arrayndalgo.h"
 #include "binidvalset.h"
 #include "samplingdata.h"
 #include "thread.h"
@@ -41,8 +43,9 @@ public:
 
     bool			isInfluencedBy(const BinID&) const;
 
-    void			setGridder(const Gridder2D&); //!<I will clone
     Gridder2D*			getGridder() { return gridder_; }
+    void			setGridder(const Gridder2D&); //!<I will clone
+    void			setTrendOrder(PolyTrend::Order);
     void			setLayerModel(const InterpolationLayerModel*);
 
 protected:
@@ -52,11 +55,14 @@ protected:
     bool			computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
     ConstRefMan<Function>	getInputFunction(const BinID& bid,int& source);
+    void			fetchPerfectFit(const BinID&);
 
     ObjectSet<const Function>	velocityfunctions_;
     TypeSet<int>		sources_;
+    const Function*		directsource_;
 
     Gridder2D*			gridder_;
+    PolyTrend::Order		trendorder_;
     const InterpolationLayerModel* layermodel_;
 
     mutable TypeSet<float>	gridvalues_;
@@ -73,6 +79,7 @@ public:
 
     const Gridder2D*		getGridder() const;
     void			setGridder(Gridder2D*); //!<Becomes mine
+    void			setTrendOrder(PolyTrend::Order);
 
     void			setSource(ObjectSet<FunctionSource>&);
     void			setSource(const DBKeySet&);
@@ -103,6 +110,7 @@ protected:
     Notifier<GriddedSource>	notifier_;
     BinID			changebid_;
     Gridder2D*			gridder_;
+    PolyTrend::Order		trendorder_;
     bool			gridderinited_;
     const InterpolationLayerModel* layermodel_;
 

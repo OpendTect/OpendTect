@@ -69,13 +69,16 @@ public:
 			/*<!Not a processing parameter, requires the input data
 			  (points & values) to be set. Needs to be called again
 			  each time either the values are changed
-			  */
+			 */
+
     virtual float	getValue(const Coord&,const TypeSet<double>* weights=0,
 				 const TypeSet<int>* relevantpoints=0) const;
 			/*!<Does the gridding*/
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
+
+    virtual bool	allPointsAreRelevant() const			   =0;
 
     virtual bool	getWeights(const Coord&,
 				   TypeSet<double>& weights,
@@ -84,6 +87,7 @@ public:
 				    are called for the same setPoints()
 				    The output weights and pointset must then
 				    be provided to the getValue function */
+    virtual bool	areWeightsValuesDependent() const	{ return false;}
 
     static const char*	sKeyGridder()		{ return "Gridder"; }
 
@@ -126,6 +130,7 @@ public:
     bool		operator==(const Gridder2D&) const;
 
     bool		wantsAllPoints() const { return false; }
+    bool		allPointsAreRelevant() const;
     bool		isPointUsable(const Coord&,const Coord&) const;
     bool		getWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>& relevantpoints) const;
@@ -161,6 +166,7 @@ public:
     void		setGridArea(const Interval<float>&,
 				    const Interval<float>&);
 
+    bool		allPointsAreRelevant() const;
     bool		getWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>& relevantpoints) const;
 
@@ -202,8 +208,10 @@ public:
 
     void		setMetricTensor(double m11,double m12,double m22);
 
+    bool		allPointsAreRelevant() const;
     bool		getWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>& relevantpoints) const;
+    bool		areWeightsValuesDependent() const      { return true; }
     float		getValue(const Coord&,const TypeSet<double>* weights=0,
 				 const TypeSet<int>* relevantpoints=0) const;
 

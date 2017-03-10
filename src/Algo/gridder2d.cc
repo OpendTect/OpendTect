@@ -260,6 +260,11 @@ bool InverseDistanceGridder2D::operator==( const Gridder2D& b ) const
     return mIsEqual(radius_,bidg->radius_, 1e-5 );
 }
 
+bool InverseDistanceGridder2D::allPointsAreRelevant() const
+{
+    return mIsUdf( radius_ );
+}
+
 
 bool InverseDistanceGridder2D::isPointUsable( const Coord& calcpt,
 					      const Coord& datapt ) const
@@ -282,6 +287,7 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 	return false;
 
     const bool useradius = !mIsUdf(radius_);
+    const double sqradius = useradius ? radius_*radius_ : mUdf(double);
     double weightsum = 0.;
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -290,20 +296,31 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 	    continue;
 
 	const Coord& pos = (*points_)[index];
-	const double dist = gridpoint.distTo<double>( pos );
-	if ( useradius && dist > radius_ )
+	const double sqdist = gridpoint.sqDistTo( pos );
+	if ( useradius && sqdist > sqradius )
 	    continue;
 
 	relevantpoints += index;
+	const double dist = useradius ? Math::Sqrt( sqdist ) : mUdf(double);
 	double weight = useradius ? ( radius_ - dist )/( radius_*dist )
-				  : 1. / dist;
-	weight *= weight;
+				  : 1. / sqdist;
+	if ( useradius )
+	    weight *= weight;
+
 	weightsum += weight;
 	weights += weight;
     }
 
-    for ( int idx=0; idx<weights.size(); idx++ )
-	weights[idx] /= weightsum;
+    if ( useradius && mIsZero(weightsum,mDefEps) )
+    { //All sources are exactly at (1) radius distance from the grid point
+	for ( int idx=0; idx<weights.size(); idx++ )
+	    weights[idx] = 1.;
+    }
+    else
+    {
+	for ( int idx=0; idx<weights.size(); idx++ )
+	    weights[idx] /= weightsum;
+    }
 
     return !relevantpoints.isEmpty();
 }
@@ -380,6 +397,12 @@ Gridder2D* TriangulatedGridder2D::clone() const
 { return new TriangulatedGridder2D( *this ); }
 
 
+bool TriangulatedGridder2D::allPointsAreRelevant() const
+{
+    return false;
+}
+
+
 bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
 					TypeSet<double>& weights,
 					TypeSet<int>& relevantpoints ) const
@@ -407,7 +430,7 @@ bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
 		continue;
 
 	    const Coord& pos = (*points_)[index];
-	    const double weight = 1. / gridpoint.distTo<double>( pos );
+	    const double weight = 1. / gridpoint.sqDistTo( pos );
 	    weightsum += weight;
 	    weights += weight;
 	}
@@ -535,6 +558,12 @@ bool RadialBasisFunctionGridder2D::operator==( const Gridder2D& b ) const
 	 !mIsEqual(m22_,bidg->m22_,m22_*mDefEps) )
 	return false;
 
+    return true;
+}
+
+
+bool RadialBasisFunctionGridder2D::allPointsAreRelevant() const
+{
     return true;
 }
 

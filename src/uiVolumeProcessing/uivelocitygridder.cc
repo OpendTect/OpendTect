@@ -44,7 +44,8 @@ uiVelocityGridder::uiVelocityGridder( uiParent* p, VelocityGridder* ro,
     layermodelfld_ = new uiInterpolationLayerModel( this );
     layermodelfld_->setModel( ro->getLayerModel() );
 
-    griddersel_ = new uiGridder2DSel( this, ro->getGridder() );
+    griddersel_ = new uiGridder2DSel( this, ro->getGridder(),
+				      ro->getTrendOrder() );
     griddersel_->attach( alignedBelow, layermodelfld_ );
 
     uiLabel* label = new uiLabel( this, tr("Velocity sources") );
