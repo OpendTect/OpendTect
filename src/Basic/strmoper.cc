@@ -476,10 +476,15 @@ uiString StrmOper::getErrorMessage( const StreamData& sd )
 //---- StreamData ----
 
 
+mStartAllowDeprecatedSection
+StreamData::StreamData() { setImpl(new StreamDataImpl); }
+
+
 StreamData::StreamData( StreamData&& n )
 {
     setImpl( n.impl_.set( 0, false ) );
 }
+mStopAllowDeprecatedSection
 
 
 StreamData& StreamData::operator=( StreamData&& n )

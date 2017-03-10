@@ -30,7 +30,7 @@ mExpClass(Basic) StreamData
 {
 public:
 
-			StreamData()		{ setImpl(new StreamDataImpl); }
+			StreamData();
 			StreamData(const StreamData&)	= delete;
 			StreamData(StreamData&&);
 
