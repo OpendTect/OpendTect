@@ -27,6 +27,7 @@ ________________________________________________________________________
 
 #ifdef __win__
 # include <direct.h>
+# include "winstreambuf.h"
 #else
 # include "sys/stat.h"
 # include <unistd.h>
