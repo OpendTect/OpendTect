@@ -212,8 +212,11 @@ Always defined:
 # else
 #  define mDeprecated
 # endif
-# define mStartAllowDeprecatedSection
-# define mStopAllowDeprecatedSection
+# define mStartAllowDeprecatedSection \
+    __pragma(warning(push)) \
+    __pragma(warning(disable:4996))
+# define mStopAllowDeprecatedSection \
+    __pragma(warning(pop))
 #endif
 
 #ifdef __win__
