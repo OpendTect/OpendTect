@@ -102,22 +102,25 @@ KeyboardEventHandler& keyboardEventHandler()
 GestureEventHandler& gestureEventHandler()
 { return gestureeventhandler_; }
 
-void setMouseWheelReversal(bool yn) { reversemousewheel_ = yn; }
-bool getMouseWheelReversal() const { return reversemousewheel_; }
+void setMouseWheelReversal(bool yn)	{ reversemousewheel_ = yn; }
+bool getMouseWheelReversal() const	{ return reversemousewheel_; }
 
 void setMidMouseButtonForDrag( bool yn ) { midmousebutfordrag_ = yn; }
 bool hasMidMouseButtonForDrag() const	{ return midmousebutfordrag_; }
+
+int viewWidth() const			{ return viewport()->width(); }
+int viewHeight() const			{ return viewport()->height(); }
 
 void enterEvent( QEvent* ev )
 {
     handle_.pointerEntered.trigger();
 }
 
+
 void leaveEvent( QEvent* ev )
 {
     handle_.pointerLeft.trigger();
 }
-
 
 
 const uiPoint& getStartPos() const	{ return startpos_; }
@@ -325,8 +328,8 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 				      newsz.height()-2*sceneborder );
 #else
 	handle_.scene_->setSceneRect( sceneborder, sceneborder,
-				      width()-2*sceneborder,
-				      height()-2*sceneborder );
+				      viewWidth()-2*sceneborder,
+				      viewHeight()-2*sceneborder );
 #endif
     }
 
@@ -347,8 +350,8 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 
 	QMatrix mat = matrix();
 	const QPointF& mousepos = ev->pos();
-	mat.translate( (width()/2) - mousepos.x(),
-		       (height()/2) - mousepos.y() );
+	mat.translate( (viewWidth()/2) - mousepos.x(),
+		       (viewHeight()/2) - mousepos.y() );
 
 	for ( int idx=0; idx<abs(numsteps); idx++ )
 	{
@@ -361,8 +364,8 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 	    }
 	}
 
-	mat.translate( mousepos.x() - (width()/2),
-		       mousepos.y() - (height()/2) );
+	mat.translate( mousepos.x() - (viewWidth()/2),
+		       mousepos.y() - (viewHeight()/2) );
 	setMatrix( mat );
 	ev->accept();
     }
@@ -585,6 +588,28 @@ int uiGraphicsViewBase::height() const
 }
 
 
+int uiGraphicsViewBase::viewWidth() const
+{ return body_->viewWidth(); }
+
+int uiGraphicsViewBase::viewHeight() const
+{ return body_->viewHeight(); }
+
+
+void uiGraphicsViewBase::setViewSize( int w, int h )
+{
+    QRect rect = body_->viewport()->geometry();
+    rect.setWidth( w );
+    rect.setHeight( h );
+    body_->viewport()->setGeometry( rect );
+}
+
+
+void uiGraphicsViewBase::setViewWidth( int w )
+{ body_->viewport()->resize( w, viewHeight() ); }
+
+void uiGraphicsViewBase::setViewHeight( int h )
+{ body_->viewport()->resize( viewWidth(), h ); }
+
 void uiGraphicsViewBase::centreOn( uiPoint centre )
 { body_->centerOn( centre.x_, centre.y_ ); }
 
@@ -607,7 +632,7 @@ void uiGraphicsViewBase::setViewArea( double x, double y, double w, double h )
 uiRect uiGraphicsViewBase::getViewArea() const
 {
     QRectF qselrect( body_->mapToScene(0,0),
-		     body_->mapToScene(width()-1,height()-1) );
+		     body_->mapToScene(viewWidth()-1,viewHeight()-1) );
     return uiRect( (int)qselrect.left(), (int)qselrect.top(),
 		   (int)qselrect.right(), (int)qselrect.bottom() );
 }
@@ -618,7 +643,8 @@ void uiGraphicsViewBase::setScene( uiGraphicsScene& scn )
     if ( scene_ ) delete scene_;
     scene_ = &scn;
     scene_->setSceneRect( sceneborder_, sceneborder_,
-			  width()-2*sceneborder_, height()-2*sceneborder_ );
+			  viewWidth()-2*sceneborder_,
+			  viewHeight()-2*sceneborder_ );
     scn.qGraphicsScene()->installEventFilter( new TouchSceneEventFilter );
     body_->setScene( scn.qGraphicsScene() );
 }

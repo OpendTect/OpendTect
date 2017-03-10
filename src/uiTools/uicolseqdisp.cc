@@ -39,8 +39,8 @@ uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient, bool wucd )
     setStretch( 1, 0 );
     scene().useBackgroundPattern( true );
 
-    setPrefHeight( orient == OD::Vertical ? 160 : 25 );
-    setPrefWidth( orient == OD::Vertical ? 30 : 80 );
+    setViewHeight( orient == OD::Vertical ? 160 : 25 );
+    setViewWidth( orient == OD::Vertical ? 30 : 80 );
 
     mAttachCB( postFinalise(), uiColSeqDisp::initCB );
 }
