@@ -616,7 +616,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	}
 
 #ifdef __msvc__
-	retsd.setIStrm(  = new std::winifstream
+	retsd.setIStrm( new std::winifstream
 #else
 	retsd.setIStrm( new std::ifstream
 #endif
