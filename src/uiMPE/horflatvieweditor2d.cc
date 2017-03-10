@@ -123,7 +123,7 @@ void HorizonFlatViewEditor2D::releasePolygonSelectionCB( CallBacker* )
 
 void HorizonFlatViewEditor2D::selectionColorChangedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
+    mCBCapsuleUnpack( EM::EMObjectCallbackData, cbdata, cb );
     if ( horpainter_ &&
 	cbdata.changeType()==EM::EMObject::cSelColorChange() )
 	horpainter_->updateSelectionColor();

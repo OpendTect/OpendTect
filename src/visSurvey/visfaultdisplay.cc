@@ -1028,7 +1028,7 @@ void FaultDisplay::setActiveStick( const EM::PosID& pid )
 
 void FaultDisplay::emChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    mCBCapsuleUnpack(EM::EMObjectCallbackData,cbdata,cb);
     ConstRefMan<EM::EMChangeAuxData> cbaux =
 			cbdata.auxDataAs<EM::EMChangeAuxData>();
 

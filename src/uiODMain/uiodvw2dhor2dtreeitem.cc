@@ -410,7 +410,7 @@ void uiODVw2DHor2DTreeItem::displayMiniCtab()
 
 void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
+    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
 				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;

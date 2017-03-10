@@ -1271,7 +1271,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 {
     if ( cb )
     {
-	mCBCapsuleUnpack( const EM::EMObjectCallbackData&,cbdata, cb );
+	mCBCapsuleUnpack( EM::EMObjectCallbackData,cbdata, cb );
 	emchangedata_.addCallBackData( new EM::EMObjectCallbackData(cbdata) );
     }
 

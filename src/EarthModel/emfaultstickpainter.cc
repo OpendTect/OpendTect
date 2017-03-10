@@ -362,7 +362,7 @@ void FaultStickPainter::removePolyLine()
 
 void FaultStickPainter::fssChangedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
+    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
 				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;

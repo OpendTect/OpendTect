@@ -501,7 +501,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
    if ( cb )
     {
-	mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
+	mCBCapsuleUnpack( EM::EMObjectCallbackData, cbdata, cb );
 	emchangedata_.addCallBackData( &cbdata );
     }
 
