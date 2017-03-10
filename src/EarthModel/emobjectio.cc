@@ -37,7 +37,7 @@ Executor* ObjectLoader::fetchLoader( EMObject* obj ) const
     mDynamicCastGet(Surface*,surface,obj)
     if ( surface )
     {
-	mDynamicCastGet(RowColSurfaceGeometry*,geom,&surface->geometry())
+/*	mDynamicCastGet(RowColSurfaceGeometry*,geom,&surface->geometry())
 	if ( geom && sel_ )
 	{
 	    TrcKeySampling hs;
@@ -50,7 +50,7 @@ Executor* ObjectLoader::fetchLoader( EMObject* obj ) const
 	    newsel.rg.include( hs );
 	    return geom->loader( &newsel );
 	}
-
+*/
 	return surface->geometry().loader(sel_);
     }
     else if ( obj )

@@ -57,6 +57,9 @@ public:
     virtual SurfaceGeometry&		geometry()			= 0;
     virtual const SurfaceGeometry&	geometry() const;
 
+    const Geometry::Element*	geometryElement() const;
+    Geometry::Element*		geometryElement();
+
     static BufferString		getParFileName(const IOObj&);
     static BufferString		getSetupFileName(const IOObj&);
     static BufferString		getParentChildFileName(const IOObj&);

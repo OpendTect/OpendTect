@@ -214,6 +214,12 @@ bool Surface::isGeometryChecksEnabled() const
 const SurfaceGeometry& Surface::geometry() const
 { return const_cast<Surface*>(this)->geometry(); }
 
+const Geometry::Element* Surface::geometryElement() const
+{ return geometry().geometryElement(); }
+
+Geometry::Element* Surface::geometryElement()
+{ return geometry().geometryElement(); }
+
 
 void Surface::apply( const Pos::Filter& pf )
 {

@@ -990,7 +990,9 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	    continue;
 	}
 
-	if ( !surface_->geometryElement() )
+	mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
+			 surface_->geometry().geometryElement() );
+	if ( bidsurf && !arr_ )
 	    createSection( sectionid );
 
 	if ( !arr_ )
@@ -1052,7 +1054,9 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	    continue;
 	}
 
-	if ( !surface_->geometryElement() )
+	mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
+			 surface_->geometry().geometryElement() );
+	if ( bidsurf && !arr_ )
 	    createSection( sectionid );
 
 	if ( !arr_ )
@@ -1264,7 +1268,9 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 
 	if ( surface_ )
 	{
-	    if ( !surface_->geometryElement() )
+	    mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
+				surface_->geometry().geometryElement() );
+	    if ( bidsurf && !arr_ )
 		createSection( sectionid );
 
 	    RowCol myrc( rc );

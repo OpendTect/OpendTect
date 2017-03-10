@@ -65,7 +65,7 @@ public:
     uiRetVal		store(const EMObject&,const ObjID&,
 				const IOPar* ioobjpars=0) const;
 
-    EMObject*		getObject(const DBKey&);
+    virtual EMObject*	getObject(const DBKey&);
 
     EMObject*		createTempObject(const char* type);
 
@@ -160,7 +160,7 @@ public:
 			{ return getMgr(id).fetchForEdit(id,trunner,
 							 forcereload); }
 
-    EMObject*		getObjectForEdit(const DBKey& id)
+    EMObject*		getObject(const DBKey& id)
 			{ return getMgr(id).getObject( id ); }
 
     EMObject*		createTempObject(const char* type);
