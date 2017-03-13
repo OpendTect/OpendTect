@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <time.h>
 # include <sys/timeb.h>
 # include <shlobj.h>
+# include <Psapi.h>
 #else
 # include <unistd.h>
 # include <errno.h>
