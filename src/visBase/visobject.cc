@@ -100,6 +100,7 @@ void VisualObjectImpl::setMaterial( Material* nm )
     if ( material_ )
     {
 	removeNodeState( material_ );
+	mDetachCB( material_->change, VisualObjectImpl::materialChangeCB );
 	material_->unRef();
     }
 
