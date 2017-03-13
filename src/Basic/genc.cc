@@ -244,7 +244,7 @@ bool is64BitWindows()
 
 	return res;
     }
-    
+
     return false;
 #endif
 }
@@ -381,11 +381,13 @@ const char* getProcessNameForPID( int pid )
 	procname = procnamebuff;
     }
 #else
-    const BufferString cmd( "ps -p ", pid, " -o comm=" );
+    const BufferString cmd( "ps -p ", pid, " -o command=" );
     BufferString stdoutput, stderror;
     OS::ExecCommand( cmd, OS::Wait4Finish, &stdoutput, &stderror );
-    procname = !stdoutput.isEmpty() ? stdoutput
-				    : !stderror.isEmpty() ? stderror : "";
+    procname = !stdoutput.isEmpty() ? stdoutput : stderror.isEmpty()
+						? "" : stderror;
+    char* ptrfirstspace = procname.find(' ');
+    if ( ptrfirstspace ) *ptrfirstspace = '\0';
 #endif
     const File::Path procpath( procname );
     ret = procpath.fileName();
@@ -734,7 +736,7 @@ mExternC(Basic) const char* GetExecutableName( void )
 	File::Path fpargv0 = argv_[0];
 	if ( !fpargv0.isAbsolute() )
 	    fpargv0 = File::Path( initialdir_, argv_[0] );
-	
+
 	fpargv0.setExtension( 0 );
 	res = fpargv0.fileName();
     }

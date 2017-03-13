@@ -31,7 +31,7 @@ ________________________________________________________________________
 	\
     File::changeDir( cwd.buf() ); \
     tmpstrm << "Failed" << od_newline; \
-    finishmsg_ = "Failed to create map"; \
+    tmpstrm << "Failed to create map"; \
     return false; \
 }
 
@@ -40,7 +40,6 @@ bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     GMT::initStdClasses();
-    finishmsg_ = "Map created successfully";
     const char* psfilenm = pars().find( sKey::FileName() );
     File::Path outputfp( psfilenm );
     const BufferString cwd = File::getCurrentPath();
@@ -102,6 +101,8 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<GMTPar> par = GMTPF().create( legendspar );
     if ( !par || !par->execute(strm, psfilenm) )
 	strm << "Failed to post legends";
+
+    strm << "Map created successfully" << od_endl;
 
     outputfp.setFileName( ".gmtcommands4" );
     StreamProvider( outputfp.fullPath() ).remove();

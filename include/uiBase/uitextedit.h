@@ -18,6 +18,7 @@ class uiTextEditBody;
 class uiTextBrowserBody;
 mFDQtclass(QTextEdit)
 class Timer;
+class i_ScrollBarMessenger;
 
 mExpClass(uiBase) uiTextEditBase : public uiObject
 {
@@ -27,6 +28,8 @@ public:
 
     const char*		text() const;
     int			nrLines() const;
+    bool		verticalSliderIsDown() const;
+			//!<Returns false in absence of the slider
 
     int			defaultWidth()		  { return defaultwidth_; }
     void		setDefaultWidth( int w )  { defaultwidth_ = w; }
@@ -41,18 +44,26 @@ public:
     void		hideScrollBar(bool vertical);
     void		scrollToBottom();
 
+    Notifier<uiTextEditBase>	sliderPressed;
+    Notifier<uiTextEditBase>	sliderReleased;
+
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
+
+    mutable BufferString result_;
+
+private:
 
     virtual mQtclass(QTextEdit&) qte()		= 0;
     const mQtclass(QTextEdit&)   qte() const
 			{ return const_cast<uiTextEditBase*>(this)->qte(); }
 
-    int			defaultwidth_;
-    int			defaultheight_;
     virtual int		maxLines() const	{ return -1; }
 
-    mutable BufferString result_;
+    int			defaultwidth_;
+    int			defaultheight_;
+
+    friend class	i_ScrollBarMessenger;
 };
 
 
@@ -74,11 +85,9 @@ public:
     void		append(const char*);
     Notifier<uiTextEdit> textChanged;
 
-protected:
+private:
 
     virtual mQtclass(QTextEdit&)	qte();
-
-private:
 
     uiTextEditBody*	body_;
     uiTextEditBody&	mkbody(uiParent*,const char*,bool);
@@ -117,13 +126,13 @@ public:
 
     bool		canGoForward()		{ return cangoforw_; }
     bool		canGoBackward()		{ return cangobackw_; }
-    const char*	lastLink()		{ return lastlink_; }
+    const char*		lastLink()		{ return lastlink_; }
 
     Notifier<uiTextBrowser>	goneForwardOrBack;
     Notifier<uiTextBrowser>	linkHighlighted;
     Notifier<uiTextBrowser>	linkClicked;
 
-protected:
+private:
 
     BufferString	textsrc_;
     BufferString	lastlink_;
@@ -134,15 +143,18 @@ protected:
 
     virtual int		maxLines() const	{ return maxlines_; }
 
-    virtual mQtclass(QTextEdit&) qte();
-
     void		readTailCB(CallBacker*);
+    void		sliderPressedCB(CallBacker*);
+    void		sliderReleasedCB(CallBacker*);
+    void		enableTailRead(bool yn);
+
     Timer*		timer_;
     bool		logviewmode_;
     od_int64		lastlinestartpos_;
     BufferString	lastline_;
 
-private:
+
+    virtual mQtclass(QTextEdit&) qte();
 
     uiTextBrowserBody*	body_;
     uiTextBrowserBody&	mkbody(uiParent*,const char*,bool);

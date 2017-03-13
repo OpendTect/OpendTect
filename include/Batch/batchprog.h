@@ -72,7 +72,8 @@ public:
     mExp(Batch) static void	deleteInstance();
 
 
-    static const char*	sKeyDataDir()		{ return "datadir"; }
+    static const char*	sKeyDataDir()	{ return "datadir"; }
+    static const char*	finishMsg()	{ return "Finished batch processing."; }
     static bool		doImport( od_ostream& strm, IOPar& iop, bool is2d );
     static bool		doExport( od_ostream& strm, IOPar& iop, bool is2d );
 
@@ -96,7 +97,6 @@ protected:
     CommandLineParser*	clparser_;
 
     BufferStringSet	requests_;
-    BufferString	finishmsg_;
 
     mExp(Batch) bool	initOutput();
     mExp(Batch) void	progKilled(CallBacker*);

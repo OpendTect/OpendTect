@@ -56,7 +56,6 @@ void BatchProgram::deleteInstance()
 BatchProgram::BatchProgram()
     : NamedCallBacker("Batch Program")
     , stillok_(false)
-    , finishmsg_("Finished batch processing.")
     , inbg_(false)
     , sdout_(*new StreamData)
     , iopar_(new IOPar)
@@ -178,7 +177,7 @@ void BatchProgram::init()
 
 BatchProgram::~BatchProgram()
 {
-    infoMsg( finishmsg_ );
+    infoMsg( finishMsg() );
     DBM().applClosing();
 
     if ( comm_ )
