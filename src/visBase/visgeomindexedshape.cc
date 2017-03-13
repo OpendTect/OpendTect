@@ -72,15 +72,12 @@ GeomIndexedShape::GeomIndexedShape()
 
 GeomIndexedShape::~GeomIndexedShape()
 {
+    detachAllNotifiers();
     unRefAndZeroPtr( singlematerial_ );
     unRefAndZeroPtr( coltabmaterial_ );
 
     delete colorhandler_;
     unRefAndZeroPtr( vtexshape_ );
-
-    if ( getMaterial() )
-	getMaterial()->change.remove( mCB(this,GeomIndexedShape,matChangeCB) );
-
 }
 
 
@@ -106,14 +103,20 @@ void GeomIndexedShape::setRenderMode( RenderMode mode )
 
 void GeomIndexedShape::setMaterial( Material* mat )
 {
-    if ( !vtexshape_  || !mat ) return;
+    if ( !vtexshape_ )
+	return;
+
+    if ( material_ )
+	mDetachCB( material_->change, GeomIndexedShape::matChangeCB );
+
+    if ( !mat )
+	return;
 
     VisualObjectImpl::setMaterial( mat );
-    if ( getMaterial() )
-	getMaterial()->change.notify( mCB(this,GeomIndexedShape,matChangeCB) );
+    if ( material_ )
+	mAttachCB( material_->change, GeomIndexedShape::matChangeCB );
 
     colorhandler_->material_->setPropertiesFrom( *mat );
-
 }
 
 
