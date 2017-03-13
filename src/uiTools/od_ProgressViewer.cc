@@ -65,7 +65,7 @@ protected:
     int			pid_;
     const BufferString	procnm_;
     ProcStatus		procstatus_;
-    int			delay_ = 500; //Lower may cause high CPU usage
+    int			delay_;
     od_istream		strm_;
     Timer		timer_;
 
@@ -88,6 +88,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
 				    int pid )
     : uiMainWin(p,tr("Progress Viewer"),1)
     , timer_("Progress")
+    , delay_(500)
     , strm_(fnm.str())
     , pid_(pid)
     , procnm_(getProcessNameForPID(pid))
