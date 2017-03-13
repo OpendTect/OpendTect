@@ -387,6 +387,15 @@ void uiTextBrowser::showToolTip( const char* txt )
 }
 
 
+void uiTextBrowser::stopTimer()
+{
+    if ( !timer_ )
+	return;
+
+    timer_->stop();
+}
+
+
 void uiTextBrowser::readTailCB( CallBacker* )
 {
     StreamData sd = StreamProvider( textsrc_ ).makeIStream();

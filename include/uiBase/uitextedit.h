@@ -148,6 +148,11 @@ private:
 
     uiTextBrowserBody*	body_;
     uiTextBrowserBody&	mkbody(uiParent*,const char*,bool);
+
+//Do not use, will be removed after 6.0
+public:
+
+    void		stopTimer();
 };
 
 #endif

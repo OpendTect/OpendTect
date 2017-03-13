@@ -195,7 +195,7 @@ void BatchProgram::init()
 
 BatchProgram::~BatchProgram()
 {
-    infoMsg( finishmsg_ );
+    infoMsg( sKeyFinishMsg() );
     IOM().applClosing();
 
     if ( comm_ )
