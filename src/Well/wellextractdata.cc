@@ -487,7 +487,9 @@ int Well::TrackSampler::nextStep()
     }
 
     uiRetVal uirv;
-    ConstRefMan<Data> wd = MGR().fetch( ids_[curid_], LoadReqs(Trck,D2T), uirv);
+    ConstRefMan<Data> wd = MGR().fetch( ids_[curid_],
+	    				LoadReqs(Trck,D2T,Mrkrs).add(Logs),
+				       	uirv);
     if ( !wd )
 	{ errmsgs_.add( uirv ); mRetNext() }
 
