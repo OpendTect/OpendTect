@@ -78,6 +78,7 @@ public:
     static const char*	sKeyBG();
     static const char*	sKeyJobID();
     static const char*	sKeyDataDir()		{ return "datadir"; }
+    static const char*	sKeyFinishMsg() { return "Finished batch processing."; }
 
 protected:
 
@@ -99,7 +100,7 @@ protected:
     CommandLineParser*	clparser_;
 
     BufferStringSet	requests_;
-    BufferString	finishmsg_;
+    BufferString	finishmsg_;	//Dot NOT use, will be removed after 6.2
 
     mExp(Batch) bool	initOutput();
     mExp(Batch) void	progKilled(CallBacker*);
@@ -112,6 +113,7 @@ private:
 
     JobCommunic*	comm_;
     int			jobid_;
+
 };
 
 

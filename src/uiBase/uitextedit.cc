@@ -39,6 +39,8 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     : uiObject(p,nm,bdy)
     , defaultwidth_(600)
     , defaultheight_(450)
+    , sliderPressed(this)
+    , sliderReleased(this)
 {
     setFont( FontList().get(FontData::Fixed) );
     setPrefWidth( defaultwidth_ );
@@ -72,8 +74,24 @@ void uiTextEditBase::allowTextSelection( bool yn )
 void uiTextEditBase::hideFrame()
 { qte().setFrameShape( QFrame::NoFrame ); }
 
+
+bool uiTextEditBase::verticalSliderIsDown() const
+{
+    QScrollBar* verticalscrollbar = qte().verticalScrollBar();
+
+    return verticalscrollbar && verticalscrollbar->isSliderDown();
+}
+
+
 void uiTextEditBase::scrollToBottom()
-{ qte().moveCursor( QTextCursor::End ); }
+{
+    QScrollBar* verticalscrollbar = qte().verticalScrollBar();
+    if ( !verticalscrollbar )
+	return;
+
+    verticalscrollbar->setSliderDown( true );
+}
+
 
 void uiTextEditBase::hideScrollBar( bool vertical )
 {
@@ -221,6 +239,7 @@ public:
 
 protected:
     i_TextEditMessenger& messenger_;
+
 };
 
 
@@ -234,11 +253,13 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p,
 }
 
 
-void uiTextEditBody::append( const char* txt)
+void uiTextEditBody::append( const char* txt )
 {
+    const bool sliderwasdown = handle_.verticalSliderIsDown();
     QTextEdit::append( txt );
     repaint();
-    moveCursor( QTextCursor::End );
+    if ( sliderwasdown )
+	handle_.scrollToBottom();
 }
 
 //-------------------------------------------------------
@@ -299,15 +320,20 @@ public:
 
                         uiTextBrowserBody(uiTextBrowser&,uiParent*,const char*,
 					  bool plaintxt );
-
-    virtual		~uiTextBrowserBody()	{ delete &messenger_; }
+    virtual		~uiTextBrowserBody();
 
     void		recordScrollPos();
     void		restoreScrollPos();
+
 protected:
 
     i_BrowserMessenger& messenger_;
-    RowCol		scrollpos_;
+    i_ScrollBarMessenger&	vertscrollbarmessenger_;
+
+private:
+
+    double		horscrollpos_;
+    double		vertscrollpos_;
 };
 
 
@@ -315,27 +341,61 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p,
 				      const char* nm, bool plaintxt )
     : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( hndl, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &hndl))
-    , scrollpos_(mUdf(int),mUdf(int))
+    , vertscrollbarmessenger_(
+		    *new i_ScrollBarMessenger(this->verticalScrollBar(),&hndl))
+    , horscrollpos_(mUdf(double))
+    , vertscrollpos_(mUdf(double))
 {
     setStretch( 2, 2 );
 }
 
 
+uiTextBrowserBody::~uiTextBrowserBody()
+{
+    detachAllNotifiers();
+    delete &messenger_;
+    delete &vertscrollbarmessenger_;
+}
+
+
+static double getScrollBarRelPos( const QScrollBar* scrollbar )
+{
+    if ( !scrollbar || scrollbar->maximum() == 0 )
+	return mUdf(double);
+
+    const double min = scrollbar->minimum();
+    const double max = scrollbar->maximum();
+    const double pos = scrollbar->value();
+    return ( pos - min ) / ( max - min );
+}
+
+
 void uiTextBrowserBody::recordScrollPos()
 {
-    scrollpos_.row() = horizontalScrollBar() ? horizontalScrollBar()->value()
-					   : mUdf(int);
-    scrollpos_.col() = verticalScrollBar() ? verticalScrollBar()->value()
-					   : mUdf(int);
+    horscrollpos_ = getScrollBarRelPos( horizontalScrollBar() );
+    vertscrollpos_ = getScrollBarRelPos( verticalScrollBar() );
+}
+
+
+static void restoreScrollBarRelPos( QScrollBar* scrollbar, double pos )
+{
+    if ( !scrollbar || mIsUdf(pos) )
+	return;
+
+    const int minline = scrollbar->minimum();
+    const int maxline = scrollbar->maximum();
+
+    int line = mNINT32( pos * ( maxline - minline ) );
+    line = mMAX(line,minline);
+    line = mMIN(line,maxline);
+    scrollbar->setValue( line );
 }
 
 
 void uiTextBrowserBody::restoreScrollPos()
 {
-    if ( horizontalScrollBar() && !mIsUdf(scrollpos_.row()) )
-	horizontalScrollBar()->setValue( scrollpos_.row() );
-    if ( verticalScrollBar() && !mIsUdf(scrollpos_.col()) )
-	verticalScrollBar()->setValue( scrollpos_.col() );
+    restoreScrollBarRelPos( horizontalScrollBar(), horscrollpos_ );
+    restoreScrollBarRelPos( verticalScrollBar(), vertscrollpos_ );
 }
 
 
@@ -353,19 +413,26 @@ uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
     , maxlines_(mxlns)
     , logviewmode_(lvmode)
     , lastlinestartpos_(-1)
+    , timer_(0)
 {
     if ( !mIsUdf(mxlns) )
 	qte().document()->setMaximumBlockCount( mxlns+2 );
 
-    timer_ = new Timer();
-    timer_->tick.notify( mCB(this,uiTextBrowser,readTailCB) );
+    if ( lvmode )
+    {
+	timer_ = new Timer( "Read log file tail" );
+	mAttachCB( timer_->tick, uiTextBrowser::readTailCB );
+	mAttachCB( sliderPressed, uiTextBrowser::sliderPressedCB );
+	mAttachCB( sliderReleased, uiTextBrowser::sliderReleasedCB );
+    }
+
     setBackgroundColor( roBackgroundColor() );
 }
 
 
 uiTextBrowser::~uiTextBrowser()
 {
-    timer_->tick.remove( mCB(this,uiTextBrowser,readTailCB) );
+    detachAllNotifiers();
     delete timer_;
 }
 
@@ -387,6 +454,30 @@ void uiTextBrowser::showToolTip( const char* txt )
 }
 
 
+void uiTextBrowser::sliderPressedCB( CallBacker* )
+{
+    enableTailRead( false );
+}
+
+
+void uiTextBrowser::sliderReleasedCB( CallBacker* )
+{
+    enableTailRead( true );
+}
+
+
+void uiTextBrowser::enableTailRead( bool yn )
+{
+    if ( !timer_ )
+	return;
+
+    if ( yn )
+	timer_->start( 500, false );
+    else
+	timer_->stop();
+}
+
+
 void uiTextBrowser::readTailCB( CallBacker* )
 {
     StreamData sd = StreamProvider( textsrc_ ).makeIStream();
@@ -396,6 +487,7 @@ void uiTextBrowser::readTailCB( CallBacker* )
     char buf[mMaxLineLength];
     const int maxchartocmp = mMIN( mMaxLineLength, 80 );
 
+    recordScrollPos();
     if ( lastlinestartpos_ >= 0 )
     {
 	sd.istrm->seekg( lastlinestartpos_ );
@@ -417,6 +509,8 @@ void uiTextBrowser::readTailCB( CallBacker* )
 	sd.istrm->getline( buf, mMaxLineLength );
 	qte().append( buf );
     }
+
+    restoreScrollPos();
 
     buf[maxchartocmp-1] = '\0';
     lastline_= buf;
@@ -463,7 +557,8 @@ void uiTextBrowser::setSource( const char* src )
 	    qte().setText( "" );
 	    lastlinestartpos_ = -1;
 	    readTailCB( 0 );
-	    timer_->start( 500, false );
+	    if ( !timer_->isActive() )
+		timer_->start( 500, false );
 	}
 	else
 	    readFromFile( src );
@@ -477,10 +572,16 @@ void uiTextBrowser::setMaxLines( int ml )
 { maxlines_ = ml; }
 
 void uiTextBrowser::backward()
-{ body_->backward();}
+{
+    body_->backward();
+    goneForwardOrBack.trigger();
+}
 
 void uiTextBrowser::forward()
-{ body_->forward(); }
+{
+    body_->forward();
+    goneForwardOrBack.trigger();
+}
 
 void uiTextBrowser::home()
 { body_->home(); }

@@ -137,7 +137,13 @@ void TextStreamProgressMeter::setFinished()
     annotate(false);
     finished_ = true;
 
-    strm_ << "\nFinished: "  << Time::getDateTimeString() << od_endl;
+    if ( name_.isEmpty() )
+	strm_ << od_newline;
+    else
+	strm_ <<  "Process: '" << name_.buf() << "'\n";
+
+    strm_ << "Finished: "  << Time::getDateTimeString() << od_endl;
+
     lock.unlockNow();
     reset();
 }

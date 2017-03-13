@@ -20,6 +20,7 @@ class uiTextEditBody;
 class uiTextBrowserBody;
 mFDQtclass(QTextEdit)
 class Timer;
+class i_ScrollBarMessenger;
 
 mExpClass(uiBase) uiTextEditBase : public uiObject
 {
@@ -29,6 +30,8 @@ public:
 
     const char*		text() const;
     int			nrLines() const;
+    bool		verticalSliderIsDown() const;
+			//!<Returns false in absence of the slider
 
     int			defaultWidth()		  { return defaultwidth_; }
     void		setDefaultWidth( int w )  { defaultwidth_ = w; }
@@ -43,6 +46,9 @@ public:
     void		hideScrollBar(bool vertical);
     void		scrollToBottom();
 
+    Notifier<uiTextEditBase>	sliderPressed;
+    Notifier<uiTextEditBase>	sliderReleased;
+
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
 
@@ -55,6 +61,10 @@ protected:
     virtual int		maxLines() const	{ return -1; }
 
     mutable BufferString result_;
+
+private:
+
+    friend class ScrollBarMessenger;
 };
 
 
@@ -139,6 +149,10 @@ protected:
     virtual mQtclass(QTextEdit&) qte();
 
     void		readTailCB(CallBacker*);
+    void		sliderPressedCB(CallBacker*);
+    void		sliderReleasedCB(CallBacker*);
+    void		enableTailRead(bool yn);
+
     Timer*		timer_;
     bool		logviewmode_;
     od_int64		lastlinestartpos_;

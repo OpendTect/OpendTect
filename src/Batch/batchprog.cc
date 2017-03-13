@@ -66,7 +66,6 @@ void BatchProgram::deleteInstance()
 BatchProgram::BatchProgram()
     : NamedObject("")
     , stillok_(false)
-    , finishmsg_("Finished batch processing.")
     , inbg_(false)
     , sdout_(*new StreamData)
     , iopar_(new IOPar)
@@ -195,7 +194,7 @@ void BatchProgram::init()
 
 BatchProgram::~BatchProgram()
 {
-    infoMsg( finishmsg_ );
+    infoMsg( sKeyFinishMsg() );
     IOM().applClosing();
 
     if ( comm_ )
