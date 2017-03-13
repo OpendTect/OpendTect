@@ -177,7 +177,7 @@ void BatchProgram::init()
 
 BatchProgram::~BatchProgram()
 {
-    infoMsg( finishMsg() );
+    infoMsg( sKeyFinishMsg() );
     DBM().applClosing();
 
     if ( comm_ )

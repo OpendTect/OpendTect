@@ -48,6 +48,7 @@ class uiProgressViewer : public uiMainWin
 public:
 
 		uiProgressViewer(uiParent*,const BufferString& filenm,int);
+		~uiProgressViewer();
 
     void	setDelayInMs( int d )		{ delay_ = d; }
 
@@ -120,8 +121,14 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
     if ( deswidth > txtfld_->defaultWidth() )
 	txtfld_->setPrefWidth( deswidth );
 
-    timer_.tick.notify( mCB(this,uiProgressViewer,doWork) );
+    mAttachCB( timer_.tick, uiProgressViewer::doWork );
     timer_.start( delay_, true );
+}
+
+
+uiProgressViewer::~uiProgressViewer()
+{
+    detachAllNotifiers();
 }
 
 
@@ -153,7 +160,7 @@ void uiProgressViewer::handleProcessStatus()
 	strm_.reOpen();
 	BufferString lines;
 	strm_.getAll( lines );
-	if ( lines.find(BatchProgram::finishMsg()) )
+	if ( lines.find(BatchProgram::sKeyFinishMsg()) )
 	    procstatus_ = Finished;
 	else
 	    procstatus_ = AbnormalEnd;
