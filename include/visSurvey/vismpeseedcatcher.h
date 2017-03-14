@@ -131,7 +131,6 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
 
     const mVisTrans*		getDisplayTransformation() const;
-//    Notifier<MPEClickCatcher>&	sowingNotifer() const;
 
     Notifier<MPEClickCatcher>	click;
     Notifier<MPEClickCatcher>	endSowing;
