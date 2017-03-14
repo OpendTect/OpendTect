@@ -714,6 +714,9 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
     for ( int idx=0; idx<selattribs.size(); idx++ )
     {
 	Executor* executor = hor3d->auxdata.auxDataLoader( selattribs[idx] );
+	if ( !executor )
+	    continue;
+
 	uiTaskRunner runer( parent() );
 	if ( runer.execute( *executor) )
 	    retval = true;
