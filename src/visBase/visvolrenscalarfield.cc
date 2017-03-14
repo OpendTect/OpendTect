@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "envvars.h"
 #include "genc.h"
-#include "hiddenparam.h"
 #include "iopar.h"
 #include "vismaterial.h"
 #include "valseries.h"
@@ -54,12 +53,16 @@ VolumeRenderScalarField::AttribData::AttribData()
     , ownsindexcache_( false )
     , datacache_( 0 )
     , ownsdatacache_( false )
+    , datatkzs_( false )
+    , resizecache_( 0 )
+    , ownsresizecache_( false )
 {}
 
 
 VolumeRenderScalarField::AttribData::~AttribData()
 {
     clearDataCache();
+    clearResizeCache();
     clearIndexCache();
 }
 
@@ -86,6 +89,16 @@ void VolumeRenderScalarField::AttribData::clearDataCache()
 }
 
 
+void VolumeRenderScalarField::AttribData::clearResizeCache()
+{
+    if ( ownsresizecache_ && resizecache_ )
+	delete resizecache_;
+
+    resizecache_ = 0;
+    ownsresizecache_ = false;
+}
+
+
 void VolumeRenderScalarField::AttribData::clearIndexCache()
 {
     if ( ownsindexcache_ && indexcache_ )
@@ -101,30 +114,7 @@ void VolumeRenderScalarField::AttribData::clearIndexCache()
     if ( attr<0 || attr>3 ) \
 	return; \
     while ( !attribs_.validIdx(attr) ) \
-    { \
 	attribs_ += new AttribData(); \
-	*datatkzs_.getParam(this) += TrcKeyZSampling( false ); \
-	*resizecache_.getParam(this) += 0; \
-	*ownsresizecache_.getParam(this) += false; \
-    }
-
-
-HiddenParam< VolumeRenderScalarField, TypeSet<TrcKeyZSampling>* >
-							datatkzs_( 0 );
-HiddenParam< VolumeRenderScalarField, ObjectSet<const ValueSeries<float> >* >
-							resizecache_( 0 );
-HiddenParam< VolumeRenderScalarField, BoolTypeSet*> ownsresizecache_( 0 );
-
-
-static void clearResizeCache( const VolumeRenderScalarField* vrsf, int attr )
-{
-    if ( (*ownsresizecache_.getParam(vrsf))[attr] &&
-					(*resizecache_.getParam(vrsf))[attr] )
-	delete (*resizecache_.getParam(vrsf))[attr];
-
-    resizecache_.getParam(vrsf)->replace( attr, 0 );
-    (*ownsresizecache_.getParam(vrsf))[attr] = false;
-}
 
 
 VolumeRenderScalarField::VolumeRenderScalarField()
@@ -142,16 +132,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     , osgtransfunc_( new osg::TransferFunction1D() )
     , osgtransprop_( new osgVolume::TransparencyProperty(1.0) )
 {
-    datatkzs_.setParam( this, new TypeSet<TrcKeyZSampling>() );
-    resizecache_.setParam( this, new ObjectSet<const ValueSeries<float> >() );
-    resizecache_.getParam(this)->allowNull( true );
-    ownsresizecache_.setParam( this, new BoolTypeSet() );
-
     attribs_ += new AttribData();	// Need at least one for dummy returns
-
-    *datatkzs_.getParam(this) += TrcKeyZSampling( false );
-    *resizecache_.getParam(this) += 0;
-    *ownsresizecache_.getParam(this) += false;
 
     setOsgNode( osgvolroot_ );
     osgvolroot_->ref();
@@ -197,17 +178,6 @@ VolumeRenderScalarField::VolumeRenderScalarField()
 
 VolumeRenderScalarField::~VolumeRenderScalarField()
 {
-    for ( int attridx=attribs_.size()-1; attridx>=0; attridx-- )
-	clearResizeCache( this, attridx );
-
-    delete datatkzs_.getParam(this);
-    delete resizecache_.getParam(this);
-    delete ownsresizecache_.getParam(this);
-
-    datatkzs_.removeParam( this );
-    resizecache_.removeParam( this );
-    ownsresizecache_.removeParam( this );
-
     deepErase( attribs_ );
 
     osgvolroot_->unref();
@@ -450,7 +420,7 @@ void VolumeRenderScalarField::setScalarField( int attr,
     mCheckAttribStore( attr );
 
     attribs_[attr]->clearDataCache();
-    clearResizeCache( this, attr );
+    attribs_[attr]->clearResizeCache();
 
     if ( !sc )
 	return;
@@ -467,7 +437,7 @@ void VolumeRenderScalarField::setScalarField( int attr,
 
     attribs_[attr]->ownsdatacache_ = mine;
     attribs_[attr]->datacache_ = sc->getStorage();
-    (*datatkzs_.getParam(this))[attr] = tkzs;
+    attribs_[attr]->datatkzs_ = tkzs;
 
     if ( !attribs_[attr]->datacache_ || !attribs_[attr]->datacache_->arr() )
     {
@@ -492,7 +462,7 @@ void VolumeRenderScalarField::setScalarField( int attr,
 	    // Reset datatkzs_ now. In case sc==0, the old datatkzs_ is kept
 	    // until a multi-attrib resizecache_ update is needed anyway.
 	    if ( !attribs_[attr]->datacache_ )
-		(*datatkzs_.getParam(this))[attr].setEmpty();
+		attribs_[attr]->datatkzs_.setEmpty();
 	}
     }
 
@@ -574,24 +544,24 @@ void VolumeRenderScalarField::updateResizeCache( int attr, TaskRunner* tr )
 {
     mCheckAttribStore( attr );
 
-    clearResizeCache( this, attr );
+    attribs_[attr]->clearResizeCache();
 
     if ( !attribs_[attr]->datacache_ )
 	return;
 
     const TrcKeyZSampling matkzs = getMultiAttribTrcKeyZSampling();
-    if ( (*datatkzs_.getParam(this))[attr] == matkzs )
-	resizecache_.getParam(this)->replace( attr, attribs_[attr]->datacache_);
+    if ( attribs_[attr]->datatkzs_ == matkzs )
+	attribs_[attr]->resizecache_ = attribs_[attr]->datacache_;
     else
     {
 	MultiArrayValueSeries<float,float>* myvalser =
 		    new MultiArrayValueSeries<float,float>( matkzs.totalNr() );
 	VolumeDataResizer resizer( *attribs_[attr]->datacache_,
-				   (*datatkzs_.getParam(this))[attr],
+				   attribs_[attr]->datatkzs_,
 				   *myvalser, matkzs );
 	resizer.execute();
-	resizecache_.getParam(this)->replace( attr, myvalser );
-	(*ownsresizecache_.getParam(this))[attr] = true;
+	attribs_[attr]->resizecache_ = myvalser;
+	attribs_[attr]->ownsresizecache_ = true;
     }
 
 
@@ -609,7 +579,7 @@ TrcKeyZSampling VolumeRenderScalarField::getMultiAttribTrcKeyZSampling() const
 
     for ( int attr=0; attr<attribs_.size(); attr++ )
     {
-	const TrcKeyZSampling& tkzs = (*datatkzs_.getParam(this))[attr];
+	const TrcKeyZSampling& tkzs = attribs_[attr]->datatkzs_;
 	if ( !tkzs.isDefined() || tkzs.isEmpty() )
 	    continue;
 
@@ -664,11 +634,11 @@ void VolumeRenderScalarField::clipData( int attr, TaskRunner* tr )
 {
     mCheckAttribStore( attr );
 
-    if ( !(*resizecache_.getParam(this))[attr] )
+    if ( !attribs_[attr]->resizecache_ )
 	return;
 
     const od_int64 totalsz = getMultiAttribTrcKeyZSampling().totalNr();
-    attribs_[attr]->mapper_.setData( (*resizecache_.getParam(this))[attr],
+    attribs_[attr]->mapper_.setData( attribs_[attr]->resizecache_,
 				     totalsz, tr);
     attribs_[attr]->mapper_.setup_.triggerRangeChange();
 }
@@ -746,7 +716,7 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 {
     mCheckAttribStore( attr );
 
-    if ( !(*resizecache_.getParam(this))[attr] )
+    if ( !attribs_[attr]->resizecache_ )
 	return;
 
     const TrcKeyZSampling matkzs = getMultiAttribTrcKeyZSampling();
@@ -804,7 +774,7 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 //    unsigned char* idxptr = attribs_[attr]->indexcache_;
     unsigned char* udfptr = hasundefchannel ? idxptr+1 : 0;
     ColTab::MapperTask<unsigned char> indexer( attribs_[attr]->mapper_,
-		    totalsz, mNrColors-1, *(*resizecache_.getParam(this))[attr],
+		    totalsz, mNrColors-1, *attribs_[attr]->resizecache_,
 		    idxptr, idxstep, udfptr, idxstep );
 
     if ( tr ? !tr->execute(indexer) : !indexer.execute() )

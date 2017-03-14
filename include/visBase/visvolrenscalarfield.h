@@ -126,6 +126,11 @@ protected:
 
 	void				clearDataCache();
 	void				clearIndexCache();
+	void				clearResizeCache();
+
+	TrcKeyZSampling			datatkzs_;
+	const ValueSeries<float>*	resizecache_;
+	bool				ownsresizecache_;
     };
 
     ObjectSet<AttribData>		attribs_;
