@@ -47,7 +47,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "zaxistransform.h"
 #include "thread.h"
-#include "hiddenparam.h"
 
 
 using namespace visSurvey;
@@ -62,15 +61,6 @@ const char* HorizonDisplay::sKeyIntersectLineMaterialID()
 { return "Intsectline material id"; }
 const char* HorizonDisplay::sKeySectionID()	{ return "Section ID"; }
 const char* HorizonDisplay::sKeyZValues()	{ return "Z values"; }
-
-static HiddenParam<HorizonDisplay,Threads::Mutex*> locker_( 0 );
-
-static HiddenParam<HorizonDisplay,visBase::PointSet*> sectionlockedpts_( 0 );
-
-static HiddenParam<HorizonDisplay,visSurvey::EMChangeData*>
-                                            emchangedata_( 0 );
-
-static HiddenParam<HorizonDisplay,char> showlock_( false );
 
 
 class LockedPointsPathFinder: public ParallelTask
@@ -307,6 +297,8 @@ HorizonDisplay::HorizonDisplay()
     , parentline_( 0 )
     , selections_( 0 )
     , lockedpts_( 0 )
+    , sectionlockedpts_( 0 )
+    , showlock_( false )
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
@@ -344,11 +336,7 @@ HorizonDisplay::HorizonDisplay()
     int res = (int)resolution_;
     Settings::common().get( "dTect.Horizon.Resolution", res );
     resolution_ = (char)res;
-    locker_.setParam( this, new Threads::Mutex );
-
-    sectionlockedpts_.setParam( this, 0 );
-    emchangedata_.setParam( this, new EMChangeData );
-    showlock_.setParam( this, false );
+    locker_ = new Threads::Mutex;
 }
 
 
@@ -386,19 +374,12 @@ HorizonDisplay::~HorizonDisplay()
     if ( selections_ ) selections_->unRef();
     if ( lockedpts_ ) lockedpts_->unRef();
 
-    delete locker_.getParam( this );
-    locker_.removeParam( this );
+    delete locker_;
 
-    EMChangeData* horchangedata = emchangedata_.getParam( this );
-    if ( horchangedata )
-      horchangedata->clearData();
-    emchangedata_.removeParam( this );
+    emchangedata_.clearData();
 
-    if ( sectionlockedpts_.getParam( this) )
-	sectionlockedpts_.getParam(this)->unRef();
-    sectionlockedpts_.removeParam( this );
-
-    showlock_.removeParam( this );
+    if ( sectionlockedpts_ )
+	sectionlockedpts_->unRef();
 }
 
 
@@ -438,9 +419,8 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 	selections_->setDisplayTransformation( transformation_ );
     if ( lockedpts_ )
 	lockedpts_->setDisplayTransformation( transformation_ );
-    if ( sectionlockedpts_.getParam(this) )
-	sectionlockedpts_.getParam(this)->setDisplayTransformation(
-	transformation_ );
+    if ( sectionlockedpts_ )
+	sectionlockedpts_->setDisplayTransformation( transformation_ );
 }
 
 
@@ -989,10 +969,10 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 	return;
     }
 
-    locker_.getParam(this)->lock();
+    locker_->lock();
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setTextureData( channel, data, sids_[idx], trans );
-    locker_.getParam(this)->unLock();
+    locker_->unLock();
 
     //We should really scale here, and then update sections. This
     //works for single sections though.
@@ -1259,14 +1239,13 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
     if ( !hor3d ) return;
-    const bool showlock = showlock_.getParam(this) && hor3d->hasLockedNodes();
+    const bool showlock = showlock_ && hor3d->hasLockedNodes();
 
     if ( lockedpts_ && lockedpts_->size()>0 )
 	lockedpts_->turnOn( showlock && !displayonlyatsections_ );
 
-    visBase::PointSet* sectionlockedpts = sectionlockedpts_.getParam(this);
-    if ( sectionlockedpts )
-	sectionlockedpts->turnOn( showlock && displayonlyatsections_ );
+    if ( sectionlockedpts_ )
+	sectionlockedpts_->turnOn( showlock && displayonlyatsections_ );
 }
 
 
@@ -1294,26 +1273,22 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     if ( cb )
     {
 	mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-	emchangedata_.getParam( this )->addCallBackData(
-	    new EM::EMObjectCallbackData(cbdata) );
+	emchangedata_.addCallBackData( new EM::EMObjectCallbackData(cbdata) );
     }
 
     mEnsureExecutedInMainThread( HorizonDisplay::emChangeCB );
 
-    EMChangeData* horchangedata = emchangedata_.getParam(this);
-    if ( !horchangedata ) return;
-
-    for ( int idx=0; idx<horchangedata->size(); idx++ )
+    for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
 	const EM::EMObjectCallbackData* cbdata =
-        horchangedata->getCallBackData( idx );
+	emchangedata_.getCallBackData( idx );
 	if ( !cbdata )
 	    continue;
 	EMObjectDisplay::handleEmChange( *cbdata );
 	handleEmChange( *cbdata );
     }
 
-    horchangedata->clearData();
+    emchangedata_.clearData();
     updateSingleColor();
 }
 
@@ -1325,10 +1300,10 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	validtexture_ = false;
 	const EM::SectionID sid = cbdata.pid0.sectionID();
 	const int idx = sids_.indexOf( sid );
-	locker_.getParam(this)->lock();
+	locker_->lock();
 	if ( idx>=0 && idx<sections_.size() )
 	    sections_[idx]->inValidateCache(-1);
-	locker_.getParam(this)->unLock();
+	locker_->unLock();
     }
    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
@@ -1370,19 +1345,17 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 		lockedpts_->removeAllPoints();
 		lockedpts_->removeAllPrimitiveSets();
 	    }
-	    visBase::PointSet* sectionlockedpts =
-		sectionlockedpts_.getParam(this);
-	    if ( sectionlockedpts )
+	    if ( sectionlockedpts_ )
 	    {
-		sectionlockedpts->removeAllPoints();
-		sectionlockedpts->removeAllPrimitiveSets();
+		sectionlockedpts_->removeAllPoints();
+		sectionlockedpts_->removeAllPrimitiveSets();
 	    }
 	}
 	else
 	{
 	    calculateLockedPoints(); // re-compute locked points
 	    hasmoved.trigger(); // display locked points on section
-	    showLocked( showlock_.getParam(this) );
+	    showLocked( showlock_ );
 	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::LockColorChange )
@@ -1400,11 +1373,9 @@ void HorizonDisplay::updateLockedPointsColor()
     if ( lockedpts_ && lockedpts_->getMaterial() )
 	lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
 
-    if ( sectionlockedpts_.getParam(this) &&
-	sectionlockedpts_.getParam(this)->getMaterial() )
+    if ( sectionlockedpts_ && sectionlockedpts_->getMaterial() )
     {
-	sectionlockedpts_.getParam(this)->getMaterial()->setColor(
-	    hor3d->getLockColor() );
+	sectionlockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
     }
 }
 
@@ -2092,19 +2063,18 @@ void HorizonDisplay::updateSectionSeeds(
 	 !displayonlyatsections_ )
 	return;
 
-    if ( !sectionlockedpts_.getParam(this) )
+    if ( !sectionlockedpts_ )
     {
-        sectionlockedpts_.setParam( this, visBase::PointSet::create() );
-	sectionlockedpts_.getParam(this)->ref();
-	addChild( sectionlockedpts_.getParam(this)->osgNode() );
-	sectionlockedpts_.getParam(this)->setDisplayTransformation(
-	    transformation_ );
+	sectionlockedpts_ = visBase::PointSet::create();
+	sectionlockedpts_->ref();
+	addChild( sectionlockedpts_->osgNode() );
+	sectionlockedpts_->setDisplayTransformation( transformation_ );
     }
     else
     {
-	sectionlockedpts_.getParam(this)->removeAllPoints();
-	sectionlockedpts_.getParam(this)->removeAllPrimitiveSets();
-	sectionlockedpts_.getParam(this)->getMaterial()->clear();
+	sectionlockedpts_->removeAllPoints();
+	sectionlockedpts_->removeAllPrimitiveSets();
+	sectionlockedpts_->getMaterial()->clear();
     }
 
     TrcKeyPath alttrckeys;
@@ -2117,7 +2087,7 @@ void HorizonDisplay::updateSectionSeeds(
 
     TypeSet<int> pidxs;
     LockedPointsPathFinder lockedpointspathfinder( *hor3d, alttrckeys,
-				   *sectionlockedpts_.getParam(this), pidxs );
+				   *sectionlockedpts_, pidxs );
     lockedpointspathfinder.execute();
     if ( pidxs.isEmpty() )
 	return;
@@ -2126,16 +2096,15 @@ void HorizonDisplay::updateSectionSeeds(
 	Geometry::IndexedPrimitiveSet::create(true);
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
-    sectionlockedpts_.getParam(this)->addPrimitiveSet( pointsetps );
+    sectionlockedpts_->addPrimitiveSet( pointsetps );
 
     if ( hor3d )
-	sectionlockedpts_.getParam(this)->getMaterial()->setColor(
-	hor3d->getLockColor() );
+	sectionlockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
 
     lockedpts_->turnOn( false );
-    sectionlockedpts_.getParam(this)->turnOn(
-	showlock_.getParam(this) && hor3d->hasLockedNodes() &&
-	displayonlyatsections_ );
+    sectionlockedpts_->turnOn( showlock_ &&
+			       hor3d->hasLockedNodes() &&
+			       displayonlyatsections_ );
 }
 
 
@@ -2250,9 +2219,9 @@ void HorizonDisplay::showSelections( bool yn )
 
 void HorizonDisplay::showLocked( bool yn )
 {
-    showlock_.setParam( this, yn );
+    showlock_ = yn;
 
-    if ( showlock_.getParam(this) )
+    if ( showlock_ )
 	calculateLockedPoints();
 
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
@@ -2262,9 +2231,8 @@ void HorizonDisplay::showLocked( bool yn )
     if ( lockedpts_ )
 	lockedpts_->turnOn( showlock && !displayonlyatsections_ );
 
-    visBase::PointSet* sectionlockedpts = sectionlockedpts_.getParam(this);
-    if ( sectionlockedpts )
-	sectionlockedpts->turnOn( showlock && displayonlyatsections_ );
+    if ( sectionlockedpts_ )
+	sectionlockedpts_->turnOn( showlock && displayonlyatsections_ );
 
     updateLockedPointsColor();
 }
@@ -2323,9 +2291,8 @@ bool HorizonDisplay::lockedShown() const
     const bool lockedshow = lockedpts_ ?
 	lockedpts_->size()>0 && lockedpts_->isOn() : false;
     const bool sectionlockedshow =
-	sectionlockedpts_.getParam(this) ?
-	sectionlockedpts_.getParam(this)->size()>0 &&
-	sectionlockedpts_.getParam(this)->isOn() : false;
+	sectionlockedpts_ ?
+	sectionlockedpts_->size()>0 && sectionlockedpts_->isOn() : false;
     return lockedshow || sectionlockedshow;
 }
 

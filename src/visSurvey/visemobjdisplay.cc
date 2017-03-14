@@ -36,15 +36,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannel2rgba.h"
 #include "vispolygonselection.h"
 #include "zaxistransform.h"
-#include "hiddenparam.h"
-
 
 #define mSelColor Color( 0, 255, 0 )
 #define mDefaultSize 4
-
-static HiddenParam<visSurvey::EMObjectDisplay,visSurvey::EMChangeData*>
-					    emchangedata_( 0 );
-
 
 namespace visSurvey
 {
@@ -88,7 +82,6 @@ EMObjectDisplay::EMObjectDisplay()
     drawstyle_->setLineStyle( defls );
 
     getMaterial()->setAmbience( 0.8 );
-    emchangedata_.setParam( this, new EMChangeData );
 }
 
 
@@ -123,11 +116,7 @@ EMObjectDisplay::~EMObjectDisplay()
 
     clearSelections();
 
-    EMChangeData* emchangeddata = emchangedata_.getParam( this );
-    if ( emchangeddata )
-	emchangeddata->clearData();
-    emchangedata_.removeParam(this);
-
+    emchangedata_.clearData();
 }
 
 
@@ -526,23 +515,20 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     if ( cb )
     {
 	mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
-	emchangedata_.getParam( this )->addCallBackData( &cbdata );
+	emchangedata_.addCallBackData( &cbdata );
     }
     
     mEnsureExecutedInMainThread( EMObjectDisplay::emChangeCB );
 
-    EMChangeData* emchangedata = emchangedata_.getParam(this);
-    if ( !emchangedata ) return;
-
-    for ( int idx=0; idx<emchangedata->size(); idx++ )
+    for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
 	const EM::EMObjectCallbackData* cbdata = 
-	    emchangedata->getCallBackData(idx);
+	    emchangedata_.getCallBackData(idx);
 	if ( !cbdata )
 	    continue;
 	handleEmChange( *cbdata );
     }
-    emchangedata->clearData();
+    emchangedata_.clearData();
  }
 
 

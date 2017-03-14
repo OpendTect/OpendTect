@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "draw.h"
 
 namespace MPE { class ObjectEditor; }
-
 namespace visBase
 {
 
@@ -131,6 +130,7 @@ protected:
     bool			isdragging_;
 
     Sower*			sower_;
+    MarkerStyle3D		markerstyle_;
 };
 
 } // namespace visSurvey

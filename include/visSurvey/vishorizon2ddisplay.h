@@ -117,6 +117,11 @@ protected:
     ObjectSet<visBase::PointSet>		points_;
     TypeSet<EM::SectionID>			sids_;
     TypeSet<int>				volumeofinterestids_;
+    visBase::MarkerSet*				intersectmkset_;
+    bool					updateintsectmarkers_;
+    int						nr2dlines_;
+    Line2DInterSectionSet*			ln2dset_;
+    visBase::PointSet*				selections_;
 };
 
 } // namespace visSurvey

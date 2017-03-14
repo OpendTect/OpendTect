@@ -20,14 +20,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissower.h"
 #include "vistransform.h"
 #include "vispolyline.h"
-#include "hiddenparam.h"
 
 mCreateFactoryEntry( visSurvey::MPEEditor )
 
 namespace visSurvey
 {
-
-static HiddenParam< visSurvey::MPEEditor, MarkerStyle3D* > markerstyle_( 0 );
 
 MPEEditor::MPEEditor()
     : visBase::VisualObjectImpl( false )
@@ -56,9 +53,8 @@ MPEEditor::MPEEditor()
 
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
-    MarkerStyle3D* defmkstyle = new MarkerStyle3D( MarkerStyle3D::Cube );
-    defmkstyle->size_ = (int)markersize_;
-    markerstyle_.setParam( this, defmkstyle );
+    markerstyle_ = MarkerStyle3D::Cube;
+    markerstyle_.size_ = (int)markersize_;
 }
 
 
@@ -79,9 +75,6 @@ MPEEditor::~MPEEditor()
 
     unRefAndZeroPtr( patchmarkers_ );
     unRefAndZeroPtr( patchline_ );
-
-    delete markerstyle_.getParam(this);
-    markerstyle_.removeParam( this );
 }
 
 
@@ -194,11 +187,7 @@ void MPEEditor::setMarkerStyle( const MarkerStyle3D& mkstyle )
 	patchmarkers_->setMarkersSingleColor( mkstyle.color_ );
     }
 
-    if ( mkstyle == *markerstyle_.getParam(this) )
-	return;
-
-    delete markerstyle_.getParam( this );
-    markerstyle_.setParam( this, new MarkerStyle3D(mkstyle) );
+    markerstyle_ = mkstyle;
 }
 
 
@@ -361,8 +350,8 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 
 
     marker->setMarkerHeightRatio( 1.0f );
-    marker->setMarkerStyle( *markerstyle_.getParam(this) );
-    marker->setMarkersSingleColor((*markerstyle_.getParam(this)).color_ );
+    marker->setMarkerStyle( markerstyle_ );
+    marker->setMarkersSingleColor( markerstyle_.color_ );
     marker->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
     marker->addPos( Coord3( 0, 0, 0 ) );
     marker->setMarkerResolution( 0.8f );

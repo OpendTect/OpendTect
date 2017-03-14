@@ -34,36 +34,25 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisioobjinfo.h"
 #include "geom2dintersections.h"
 #include "selector.h"
-#include "hiddenparam.h"
 
 namespace visSurvey
 {
-static HiddenParam< Horizon2DDisplay,visBase::MarkerSet* > intersectmkset_(0);
-static HiddenParam< Horizon2DDisplay,char > updateintsectmarkers_(true);
-static HiddenParam< Horizon2DDisplay,int > nr2dlines_(0);
-static HiddenParam< Horizon2DDisplay,Line2DInterSectionSet* > ln2dset_(0);
-static HiddenParam< Horizon2DDisplay,visBase::PointSet* > selections_(0);
-static HiddenParam<visSurvey::Horizon2DDisplay,visSurvey::EMChangeData*>
-                                            emchangedata_( 0 );
 
 
 Horizon2DDisplay::Horizon2DDisplay()
+    : intersectmkset_( visBase::MarkerSet::create() )
+    , updateintsectmarkers_( true )
+    , nr2dlines_( 0 )
+    , ln2dset_( 0 )
+    , selections_( 0 )
 {
-    intersectmkset_.setParam( this, visBase::MarkerSet::create() );
-    updateintsectmarkers_.setParam( this, true );
-    nr2dlines_.setParam( this, 0 );
-    ln2dset_.setParam( this, 0 );
-
     points_.allowNull(true);
     EMObjectDisplay::setLineStyle( LineStyle(LineStyle::Solid,5 ) );
-    visBase::MarkerSet* mkset = intersectmkset_.getParam(this);
-    mkset->ref();
-    addChild( mkset->osgNode() );
-    mkset->setMaterial( new visBase::Material );
-    mkset->setMarkerStyle( MarkerStyle3D::Sphere );
-    mkset->setScreenSize( 4.0 );
-    selections_.setParam( this, 0 );
-    emchangedata_.setParam( this, new EMChangeData );
+    intersectmkset_->ref();
+    addChild( intersectmkset_->osgNode() );
+    intersectmkset_->setMaterial( new visBase::Material );
+    intersectmkset_->setMarkerStyle( MarkerStyle3D::Sphere );
+    intersectmkset_->setScreenSize( 4.0 );
 }
 
 
@@ -75,25 +64,15 @@ Horizon2DDisplay::~Horizon2DDisplay()
 	removeSectionDisplay( sids_[idx] );
 
     removeEMStuff();
-    intersectmkset_.getParam(this)->unRef();
-    intersectmkset_.removeParam( this );
-    updateintsectmarkers_.removeParam( this );
+    intersectmkset_->unRef();
 
-    if ( ln2dset_.getParam( this ) )
-	delete ln2dset_.getParam( this );
-    ln2dset_.removeParam( this );
+    if ( ln2dset_ )
+	delete ln2dset_;
 
-    nr2dlines_.removeParam( this );
-    if ( selections_.getParam(this) )
-    {
-	selections_.getParam(this)->unRef();
-	selections_.removeParam(this);
-    }
+    if ( selections_ )
+	selections_->unRef();
 
-    EMChangeData* emchangeddata = emchangedata_.getParam(this);
-    if ( emchangeddata )
-        emchangeddata->clearData();
-    emchangedata_.removeParam( this );
+    emchangedata_.clearData();
 }
 
 
@@ -110,7 +89,7 @@ void Horizon2DDisplay::setDisplayTransformation( const mVisTrans* nt )
 	    points_[idx]->setDisplayTransformation(transformation_);
     }
 
-    intersectmkset_.getParam(this)->setDisplayTransformation( transformation_ );
+    intersectmkset_->setDisplayTransformation( transformation_ );
 }
 
 
@@ -523,21 +502,16 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
     if ( cb )
     {
        mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
-       if ( emchangedata_.getParam(this) )
-	    emchangedata_.getParam(this)->addCallBackData(
-	   new EM::EMObjectCallbackData(cbdata) );
+	emchangedata_.addCallBackData( new EM::EMObjectCallbackData(cbdata) );
     }
 
     mEnsureExecutedInMainThread( Horizon2DDisplay::emChangeCB );
 
-    EMChangeData* hor2dchangedata = emchangedata_.getParam(this);
-    if ( !hor2dchangedata ) return;
-
-    updateintsectmarkers_.setParam( this, true );
-    for ( int idx=0; idx<hor2dchangedata->size(); idx++ )
+    updateintsectmarkers_ = true;
+    for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
       const EM::EMObjectCallbackData* cbdata=
-          hor2dchangedata->getCallBackData( idx );
+	  emchangedata_.getCallBackData( idx );
       if ( !cbdata )
           continue;
       EMObjectDisplay::handleEmChange( *cbdata );
@@ -547,14 +521,12 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
           setLineStyle( emobject_->preferredLineStyle() );
 
 	  mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
-	  visBase::PointSet* selections = selections_.getParam(this);
-
-	  if ( hor2d && selections && selections->getMaterial() )
-	      selections->getMaterial()->setColor( hor2d->getSelectionColor() );
+	  if ( hor2d && selections_ && selections_->getMaterial() )
+	      selections_->getMaterial()->setColor( hor2d->getSelectionColor());
       }
     }
 
-    hor2dchangedata->clearData();
+    emchangedata_.clearData();
 }
 
 
@@ -565,7 +537,7 @@ void Horizon2DDisplay::updateLinesOnSections(
     {
 	for ( int sidx=0; sidx<sids_.size(); sidx++ )
 	    updateSection( sidx );
-	intersectmkset_.getParam(this)->turnOn( displayonlyatsections_ );
+	intersectmkset_->turnOn( displayonlyatsections_ );
 	return;
     }
 
@@ -612,10 +584,10 @@ void Horizon2DDisplay::updateLinesOnSections(
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
 	updateSection( sidx, &linergs );
 
-    if ( updateintsectmarkers_.getParam(this) )
+    if ( updateintsectmarkers_ )
 	updateIntersectionMarkers( seis2dlist );
 
-    intersectmkset_.getParam(this)->turnOn( displayonlyatsections_ );
+    intersectmkset_->turnOn( displayonlyatsections_ );
 }
 
 
@@ -624,11 +596,10 @@ void Horizon2DDisplay::updateLinesOnSections(
 void Horizon2DDisplay::updateIntersectionMarkers(
     const ObjectSet<const Seis2DDisplay>& seis2dlist )
 {
-    intersectmkset_.getParam(this)->clearMarkers();
+    intersectmkset_->clearMarkers();
     calcLine2DInterSectionSet();
 
-    const Line2DInterSectionSet* ln2dset = ln2dset_.getParam(this);
-    if ( !ln2dset )
+    if ( !ln2dset_ )
 	return;
 
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
@@ -639,9 +610,9 @@ void Horizon2DDisplay::updateIntersectionMarkers(
     for ( int idx=0; idx<nrlns; idx++ )
 	geomids += hor2d->geometry().geomID(idx);
 
-    for ( int idx=0; idx<ln2dset->size(); idx++ )
+    for ( int idx=0; idx<ln2dset_->size(); idx++ )
     {
-	const Line2DInterSection* intsect = (*ln2dset)[idx];
+	const Line2DInterSection* intsect = (*ln2dset_)[idx];
 	if ( !intsect )  continue;
 
 	for ( int idy=0; idy<seis2dlist.size(); idy++ )
@@ -658,7 +629,7 @@ void Horizon2DDisplay::updateIntersectionMarkers(
 
     }
 
-    updateintsectmarkers_.setParam( this, false );
+    updateintsectmarkers_ = false;
 }
 
 
@@ -689,12 +660,11 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 
     if ( intsectpnts.size()==1 )
     {
-	visBase::MarkerSet* mkset = intersectmkset_.getParam(this);
-	const int mid = mkset->addPos( intsectpnts[0] );
-	mkset->getMaterial()->setColor( hor2d->preferredColor(), mid );
+	const int mid = intersectmkset_->addPos( intsectpnts[0] );
+	intersectmkset_->getMaterial()->setColor( hor2d->preferredColor(),mid );
 	const int sz =
 		hor2d->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).size_;
-	mkset->setScreenSize( mCast(float,sz) );
+	intersectmkset_->setScreenSize( mCast(float,sz) );
     }
 }
 
@@ -719,20 +689,18 @@ void Horizon2DDisplay::calcLine2DInterSectionSet()
     const MultiID mid( IOObjContext::getStdDirData(IOObjContext::Geom)->id_ );
     const IODir iodir( mid );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    const bool needcalc =
-	nr2dlines_.getParam(this) !=ioobjs.size() ? true : false;
-    nr2dlines_.setParam( this, ioobjs.size() );
+    const bool needcalc = nr2dlines_ != ioobjs.size() ? true : false;
+    nr2dlines_ = ioobjs.size();
 
     if ( needcalc )
     {
 	BufferStringSet lnms;
 	TypeSet<Pos::GeomID> geom2dids;
 	SeisIOObjInfo::getLinesWithData( lnms, geom2dids );
-	Line2DInterSectionSet* ln2dset = ln2dset_.getParam(this);
-	if ( ln2dset )
-	    delete ln2dset_.getParam(this);
-	ln2dset_.setParam( this, new Line2DInterSectionSet );
-	calcLine2DIntersections( geom2dids, *ln2dset_.getParam(this) );
+	if ( ln2dset_ )
+	    delete ln2dset_;
+	ln2dset_ = new Line2DInterSectionSet;
+	calcLine2DIntersections( geom2dids, *ln2dset_ );
     }
 
 }
@@ -805,7 +773,7 @@ void Horizon2DDisplay::otherObjectsMoved(
 
     if ( !refresh ) return;
 
-    updateintsectmarkers_.setParam( this, true);
+    updateintsectmarkers_ = true;
     updateLinesOnSections( seis2dlist );
     updateSeedsOnSections( seis2dlist );
 }
@@ -901,22 +869,21 @@ void Horizon2DDisplay::removeVolumesOfInterest()
 void Horizon2DDisplay::initSelectionDisplay( bool erase )
 {
     mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
-    if ( !selections_.getParam(this) )
+    if ( !selections_ )
     {
-	visBase::PointSet* pntset = new visBase::PointSet;
-	pntset->ref();
-	selections_.setParam( this, pntset );
+	selections_ = new visBase::PointSet;
+	selections_->ref();
 
-	if ( h2d && pntset->getMaterial() )
-	    pntset->getMaterial()->setColor( h2d->getSelectionColor() );
-	addChild( pntset->osgNode() );
-	pntset->setDisplayTransformation( transformation_ );
+	if ( h2d && selections_->getMaterial() )
+	    selections_->getMaterial()->setColor( h2d->getSelectionColor() );
+	addChild( selections_->osgNode() );
+	selections_->setDisplayTransformation( transformation_ );
     }
     else if ( erase )
     {
-	selections_.getParam(this)->removeAllPoints();
-	selections_.getParam(this)->removeAllPrimitiveSets();
-	selections_.getParam(this)->getMaterial()->clear();
+	selections_->removeAllPoints();
+	selections_->removeAllPrimitiveSets();
+	selections_->getMaterial()->clear();
     }
 }
 
@@ -931,7 +898,7 @@ void Horizon2DDisplay::updateSelectionsHor2D()
 
     initSelectionDisplay( lastidx==0 );
 
-    if ( !selections_.getParam(this) )
+    if ( !selections_ )
 	return;
 
     const EM::SectionID sid = h2d->sectionID( 0 );
@@ -951,7 +918,7 @@ void Horizon2DDisplay::updateSelectionsHor2D()
 	const Coord3 pos = h2d->getPos( pid );
 	if ( sel->includes( pos ) )
 	{
-	    const int pidx = selections_.getParam(this)->addPoint( pos );
+	    const int pidx = selections_->addPoint( pos );
 	    pidxs += pidx;
 	}
     }
@@ -962,20 +929,19 @@ void Horizon2DDisplay::updateSelectionsHor2D()
 		Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
-    selections_.getParam(this)->addPrimitiveSet( pointsetps );
-    selections_.getParam(this)->getMaterial()->setColor(
-	h2d->getSelectionColor() );
-    selections_.getParam(this)->turnOn( true );
+    selections_->addPrimitiveSet( pointsetps );
+    selections_->getMaterial()->setColor( h2d->getSelectionColor() );
+    selections_->turnOn( true );
 }
 
 
 void Horizon2DDisplay::clearSelectionsHor2D()
 {
-    if ( selections_.getParam(this) )
+    if ( selections_ )
     {
-	selections_.getParam(this)->removeAllPoints();
-	selections_.getParam(this)->removeAllPrimitiveSets();
-	selections_.getParam(this)->getMaterial()->clear();
+	selections_->removeAllPoints();
+	selections_->removeAllPrimitiveSets();
+	selections_->getMaterial()->clear();
     }
 }
 

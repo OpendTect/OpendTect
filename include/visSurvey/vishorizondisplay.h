@@ -297,6 +297,7 @@ private:
 
     visBase::PointSet*			selections_;
     visBase::PointSet*			lockedpts_;
+    visBase::PointSet*			sectionlockedpts_;
     visBase::VertexShape*		parentline_;
 
     StepInterval<int>			parrowrg_;
@@ -325,6 +326,8 @@ private:
     TypeSet<StepInterval<int> >		olddisplayedcolranges_;
 
     ObjectSet<visBase::HorizonTextureHandler> oldhortexhandlers_;
+    Threads::Mutex*			locker_;
+    bool				showlock_;
 
     static const char*			sKeyTexture();
     static const char*			sKeyShift();
@@ -335,10 +338,6 @@ private:
     static const char*			sKeySurfaceGrid();
     static const char*			sKeySectionID();
     static const char*			sKeyZValues();
-
-public:
-    bool				getOnlyAtSectionsDisplay() const
-					{ return displayedOnlyAtSections(); }
 };
 
 } // namespace visSurvey

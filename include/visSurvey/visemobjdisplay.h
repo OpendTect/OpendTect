@@ -203,6 +203,7 @@ protected:
     bool				burstalertison_;
     bool				ctrldown_;
     ObjectSet< Selector<Coord3> >	selectors_;
+    EMChangeData			emchangedata_;
 
     static const char*			sKeyEarthModelID();
     static const char*			sKeyResolution();
