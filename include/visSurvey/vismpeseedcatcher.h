@@ -105,6 +105,8 @@ protected:
     TrcKeyZSampling			clickedcs_;
     const RegularSeisDataPack*		attrdata_;
     Attrib::SelSpec			attrsel_;
+    const TrcKeyPath*			rdltkpath_;
+    int					rdlid_;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
     Pos::GeomID 			geomid_;
@@ -129,10 +131,11 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
 
     const mVisTrans*		getDisplayTransformation() const;
-    Notifier<MPEClickCatcher>&	sowingNotifer() const;
+//    Notifier<MPEClickCatcher>&	sowingNotifer() const;
 
     Notifier<MPEClickCatcher>	click;
     Notifier<MPEClickCatcher>	endSowing;
+    Notifier<MPEClickCatcher>	sowing;
 
     const MPEClickInfo&		info() const;
     MPEClickInfo&		info();

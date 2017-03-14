@@ -32,17 +32,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "visplanedatadisplay.h"
 
-#include "hiddenparam.h"
-
 mCreateFactoryEntry( visSurvey::MPEClickCatcher )
 
 
 namespace visSurvey
 {
-
-static HiddenParam< MPEClickInfo, const TrcKeyPath* > rdmtkpaths( 0 );
-static HiddenParam< MPEClickInfo, int > rdlids( -1 );
-static HiddenParam< MPEClickCatcher, Notifier<MPEClickCatcher>* > sowing_( 0 );
 
 MPEClickCatcher::MPEClickCatcher()
     : visBase::VisualObjectImpl( false )
@@ -53,9 +47,8 @@ MPEClickCatcher::MPEClickCatcher()
     , editor_( 0 )
     , cureventinfo_( 0 )
     , endSowing( this )
+    , sowing(this)
 {
-    rdmtkpaths.setParam( &info_, 0 );
-    sowing_.setParam( this, new Notifier<MPEClickCatcher>(this) );
 }
 
 
@@ -64,10 +57,6 @@ MPEClickCatcher::~MPEClickCatcher()
     setSceneEventCatcher( 0 );
     setDisplayTransformation( 0 );
     setEditor( 0 );
-    rdmtkpaths.removeParam( &info_ );
-    rdlids.removeParam( &info_ );
-    delete sowing_.getParam( this );
-    sowing_.removeParam( this );
 }
 
 
@@ -558,12 +547,6 @@ void MPEClickCatcher::setEditor( MPEEditor* mpeeditor )
 }
 
 
-Notifier<MPEClickCatcher>& MPEClickCatcher::sowingNotifer() const
-{
-    return *sowing_.getParam( this );
-}
-
-
 bool MPEClickCatcher::activateSower( const Color& color,
 				     const TrcKeySampling* workrange )
 {
@@ -578,7 +561,7 @@ bool MPEClickCatcher::activateSower( const Color& color,
 
 void MPEClickCatcher::sowingCB( CallBacker* )
 {
-    sowing_.getParam(this)->trigger();
+    sowing.trigger();
 }
 
 
@@ -610,6 +593,7 @@ void MPEClickCatcher::allowPickBasedReselection()
 }
 
 
+//MPEClickInfo
 MPEClickInfo::MPEClickInfo()
     : pickednode_(TrcKey::udf())
 { clear(); }
@@ -705,8 +689,8 @@ void MPEClickInfo::clear()
     linename_ = "";
     geomid_ = Survey::GM().cUndefGeomID();
     doubleclicked_ = false;
-    rdmtkpaths.setParam( this, 0 );
-    rdlids.setParam( this, -1 );
+    rdltkpath_ = 0;
+    rdlid_ = -1;
 }
 
 
@@ -778,15 +762,15 @@ void MPEClickInfo::setObjLineData( const Attrib::Data2DHolder* ad2dh )
 { linedata_ = ad2dh; }
 
 void MPEClickInfo::setObjTKPath( const TrcKeyPath* tkp )
-{ rdmtkpaths.setParam( this, tkp ); }
+{ rdltkpath_ = tkp; }
 
 const TrcKeyPath* MPEClickInfo::getObjTKPath() const
-{ return rdmtkpaths.getParam( this ); }
+{ return rdltkpath_; }
 
 void MPEClickInfo::setObjRandomLineID( int rdlid )
-{ rdlids.setParam( this, rdlid ); }
+{ rdlid_ = rdlid; }
 
 int MPEClickInfo::getObjRandomLineID() const
-{ return rdlids.getParam( this ); }
+{ return rdlid_; }
 
 } // namespce visSurvey

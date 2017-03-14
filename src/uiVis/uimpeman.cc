@@ -881,7 +881,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 	clickcatcher_->click.notify(mCB(this,uiMPEMan,seedClick));
 	clickcatcher_->turnOn( false );
 	mAttachCB( clickcatcher_->endSowing, uiMPEMan::sowingFinishedCB );
-	mAttachCB( clickcatcher_->sowingNotifer(), uiMPEMan::sowingModeCB );
+	mAttachCB( clickcatcher_->sowing, uiMPEMan::sowingModeCB );
     }
 
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
