@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodprmantreeitem.h"
+#include "uiodscenetreeitem.h"
 #include "odpresentationmgr.h"
 
 class uiODApplMgr;
@@ -26,9 +26,9 @@ public:
     virtual bool	anyButtonClick(uiTreeViewItem*);
     bool		init();
     OD::ViewerID	getViewerID() const;
+    int			sceneID() const;
 
 protected:
     uiODApplMgr*	applMgr() const;
-    int			sceneID() const;
     void		setMoreObjectsToDoHint(bool yn);
 };

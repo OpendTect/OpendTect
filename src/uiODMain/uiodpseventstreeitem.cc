@@ -88,15 +88,6 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( DBKey& key,
 }
 
 
-int uiODPSEventsParentTreeItem::sceneID() const
-{
-    int sceneid;
-    if ( !getProperty<int>(uiODSceneTreeTop::sceneidkey(),sceneid) )
-	return -1;
-    return sceneid;
-}
-
-
 bool uiODPSEventsParentTreeItem::init()
 {
     bool ret = uiODSceneTreeItem::init();

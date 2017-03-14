@@ -908,7 +908,7 @@ void uiODSceneMgr::initTree( uiODScene& scn, int vwridx )
     scn.lv_->setFixedColumnWidth( cColorColumn(), 40 );
 
     scn.itemmanager_ =
-	new uiODSceneTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
+	new uiODSceneTreeTop( scn.lv_, tifs_, scn.vwr3d_->sceneID() );
     uiODSceneObjTreeItem* sceneitm =
 	new uiODSceneObjTreeItem( scn.mdiwin_->getTitle(),
 				  scn.vwr3d_->sceneID() );

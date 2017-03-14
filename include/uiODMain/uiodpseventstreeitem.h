@@ -23,8 +23,6 @@ public:
 				uiODPSEventsParentTreeItem();
 				~uiODPSEventsParentTreeItem();
 
-    int				sceneID() const;
-
 protected:
     bool			init();
     const char*			parentType() const;

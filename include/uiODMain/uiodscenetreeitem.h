@@ -17,7 +17,6 @@ ________________________________________________________________________
 class uiTreeView;
 class uiODApplMgr;
 class uiMenu;
-class ui3DViewer;
 
 
 mExpClass(uiODMain) uiODSceneTreeItem : public uiPresManagedTreeItem
@@ -26,13 +25,13 @@ public:
 			uiODSceneTreeItem(const uiString&);
     bool		anyButtonClick(uiTreeViewItem*);
 
-    int			sceneID() const;
+    virtual int		sceneID() const;
     void		prepareForShutdown();
 
 protected:
 
     uiODApplMgr*	applMgr();
-    ui3DViewer*		viewer();
+    uiODApplMgr*	applMgr() const;
     virtual OD::ViewerID getViewerID() const;
 
     void		setMoreObjectsToDoHint(bool yn);
@@ -44,15 +43,10 @@ protected:
 mExpClass(uiODMain) uiODSceneTreeTop : public uiTreeTopItem
 { mODTextTranslationClass(uiODSceneTreeTop);
 public:
-			uiODSceneTreeTop(ui3DViewer*,uiTreeView*,
-				    uiODApplMgr*,uiTreeFactorySet*);
+			uiODSceneTreeTop(uiTreeView*,uiTreeFactorySet*,int);
 			~uiODSceneTreeTop();
 
-    static const char*	sceneidkey();
-    static const char*	viewerptr();
-    static const char*	applmgrstr();
-
-    int			sceneID() const;
+    virtual int		sceneID() const;
     bool		selectWithKey(int selkey);
     TypeSet<int>	getDisplayIds(int&, bool);
     void		loopOverChildrenIds(TypeSet<int>&,int&,bool,
@@ -65,6 +59,7 @@ protected:
 
     virtual const char* parentType() const { return 0; }
     uiODApplMgr*	applMgr();
+    int			sceneid_;
 
     uiTreeFactorySet*	tfs;
 };
