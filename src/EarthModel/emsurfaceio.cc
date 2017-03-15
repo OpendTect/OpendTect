@@ -1915,6 +1915,7 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
 	}
     }
 
+    oldsectionindex_ = sectionindex_;
     return true;
 }
 
