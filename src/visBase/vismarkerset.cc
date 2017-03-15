@@ -218,6 +218,9 @@ void MarkerSet::setType( MarkerStyle3D::Type type )
 	case MarkerStyle3D::Plane:
 	    markerset_->setShape( osgGeo::MarkerShape::Plane );
 	    break;
+	case MarkerStyle3D::Point:
+	    markerset_->setShape( osgGeo::MarkerShape::Point );
+	    break;
 	default:
 	    pErrMsg("Shape not implemented");
 	    markerset_->setShape( osgGeo::MarkerShape::None );

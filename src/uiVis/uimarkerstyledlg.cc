@@ -22,7 +22,7 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title )
 		   .canceltext(uiString::emptyString()))
 {
     MarkerStyle3D::Type excludedtypes[] =
-				{ MarkerStyle3D::None, MarkerStyle3D::Point };
+				{ MarkerStyle3D::None };
     stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1, 15 ),
 	    2, excludedtypes );
     stylefld_->typeSel()->notify( mCB(this,uiMarkerStyleDlg,typeSel) );
