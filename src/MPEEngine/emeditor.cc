@@ -228,7 +228,7 @@ mGetFunction( getDirection )
 
 Geometry::ElementEditor* ObjectEditor::getEditor()
 {
-    if ( !geeditor_ ) return geeditor_;
+    if ( geeditor_ ) return geeditor_;
 
     geeditor_ = createEditor();
     if ( geeditor_ )

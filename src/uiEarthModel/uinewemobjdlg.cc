@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uinewemobjdlg.h"
 
 #include "color.h"
-#include "emfaultstickset.h"
 #include "emmanager.h"
 #include "od_helpids.h"
 #include "randcolor.h"
@@ -87,6 +86,62 @@ bool uiNewFSSDlg::acceptOK()
 
     emobj_->setPreferredColor( colorselfld_->color() );
     uiString errmsg = EM::FSSMan().store( *emobj_ );
+    if ( !errmsg.isEmpty() )
+	mErrRet( errmsg )
+
+    return true;
+}
+
+
+//Fault3D
+uiNewFlt3DDlg::uiNewFlt3DDlg( uiParent* p )
+    : uiNewEMObjectDlg(p,toUiString("Fault3D"))
+{
+}
+
+
+RefMan<EM::EMObject> uiNewFlt3DDlg::getNewEMObject() const
+{
+    const BufferString nm( nmfld_->text() );
+    bool isreplace = EM::Flt3DMan().nameExists( nm );
+    RefMan<EM::Fault3D> flt3d;
+    if ( !isreplace )
+	flt3d = new EM::Fault3D( nm );
+    else
+    {
+	const DBKey emid = EM::Flt3DMan().getIDByName( nm );
+	uiString msg = tr("A Fault3d with that name already exists.\n");
+	if ( EM::Flt3DMan().isLoaded(emid) )
+	{
+	    msg.append( tr("You are currently using it."
+			"\nPlease enter a different name."), true );
+	    return flt3d;
+	}
+	msg.append( tr("Do you want to overwrite the existing data?"), true );
+	if ( !uiMSG().askGoOn( msg ) )
+	    return flt3d;
+
+	flt3d = EM::Flt3DMan().fetchForEdit( emid );
+	if ( !flt3d )
+	    flt3d = new EM::FaultStickSet( nm );
+	else
+	    flt3d->removeAll();
+    }
+
+    return flt3d; 
+}
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+bool uiNewFlt3DDlg::acceptOK()
+{
+    RefMan<EM::EMObject> newflt3d = getNewEMObject();
+    emobj_= newflt3d;
+    if ( !emobj_ )
+	return false;
+
+    emobj_->setPreferredColor( colorselfld_->color() );
+    uiString errmsg = EM::Flt3DMan().store( *emobj_ );
     if ( !errmsg.isEmpty() )
 	mErrRet( errmsg )
 

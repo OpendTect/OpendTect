@@ -30,4 +30,5 @@ mDefModInitFn(uiEarthModel)
     uiSurfacePosProvGroup::initClass();
 
     uiNewFSSDlg::initClass();
+    uiNewFlt3DDlg::initClass();
 }

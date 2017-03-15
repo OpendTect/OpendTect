@@ -140,14 +140,15 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
     else if ( mnuid == mNewMnuID )
     {
-	RefMan<EM::EMObject> emo =
-	    EM::Flt3DMan().createTempObject( EM::Fault3D::typeStr() );
-	if ( !emo )
+	uiNewEMObjectDlg* newdlg =
+	    uiNewEMObjectDlg::factory().create( EM::Fault3D::typeStr(),
+						getUiParent() );
+	if ( !newdlg || !newdlg->go() )
 	    return false;
 
-	emo->setPreferredColor( getRandomColor(false) );
-	emo->setNewName();
-	emo->setFullyLoaded( true );
+	RefMan<EM::EMObject> emo = newdlg->getEMObject();
+	if ( !emo )
+	    return false;
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
 	applMgr()->viewer2DMgr().addNewTempFault( emo->id() );
 	return true;
@@ -465,9 +466,6 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	if ( !emo )
 	    return false;
 
-	/*emo->setPreferredColor( getRandomColor(false) );
-	emo->setNewName();
-	emo->setFullyLoaded( true );*/
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
 	applMgr()->viewer2DMgr().addNewTempFaultSS( emo->id() );
 	return true;

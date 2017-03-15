@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 
+#include "emfault3d.h"
 #include "emfaultstickset.h"
 #include "uidialog.h"
 
@@ -55,6 +56,24 @@ public:
 				uiStrings::sFaultStickSet(mPlural))
 
 			uiNewFSSDlg(uiParent*);
+
+protected:
+
+    bool		acceptOK();
+    
+    virtual RefMan<EM::EMObject>    getNewEMObject() const;
+};
+
+
+mExpClass(uiEarthModel) uiNewFlt3DDlg : public uiNewEMObjectDlg
+{ mODTextTranslationClass(uiNewFlt3DDlg);
+public:
+    mDefaultFactoryInstantiation1Param( uiNewEMObjectDlg,
+					uiNewFlt3DDlg,uiParent*,
+					EM::Fault3D::typeStr(),
+					uiStrings::sFault(mPlural))
+
+			uiNewFlt3DDlg(uiParent*);
 
 protected:
 
