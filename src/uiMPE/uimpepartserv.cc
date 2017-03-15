@@ -152,6 +152,41 @@ int uiMPEPartServer::addTracker( const DBKey& emid )
 }
 
 
+bool uiMPEPartServer::addTracker( const DBKey& objid, int addedtosceneid )
+{
+    cursceneid_ = addedtosceneid;
+    //NotifyStopper notifystopper( MPE::engine().trackeraddremove );
+    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    if ( !emobj ) return -1;
+
+    const int trackerid = MPE::engine().addTracker( emobj );
+    if ( trackerid == -1 ) return false;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker ) return false;
+
+    activetrackerid_ = trackerid;
+    if ( (addedtosceneid!=-1) &&
+	 !sendEvent(::uiMPEPartServer::evAddTreeObject()) )
+    {
+	pErrMsg("Could not create tracker" );
+	MPE::engine().removeTracker( trackerid );
+	emobj->ref(); emobj->unRef();
+	return false;
+    }
+
+    trackercurrentobject_ = objid;
+    if ( !initSetupDlg(emobj,tracker,true) )
+	return false;
+
+    initialundoid_ = EM::EMM().undo().currentEventID();
+    propertyChangedCB(0);
+
+    MPE::engine().unRefTracker( objid, true );
+    return true;
+}
+
+
 bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 {
     cursceneid_ = addedtosceneid;

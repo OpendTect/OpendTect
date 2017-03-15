@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "emfault3d.h"
 #include "emfaultstickset.h"
+#include "emhorizon3d.h"
 #include "uidialog.h"
 
 
@@ -29,7 +30,7 @@ namespace EM{ class EMObject; }
 mExpClass(uiEarthModel) uiNewEMObjectDlg : public uiDialog
 { mODTextTranslationClass(uiNewEMObjectDlg);
 public:
-    
+
     mDefineFactory1ParamInClass(uiNewEMObjectDlg,uiParent*,factory)
 
 			uiNewEMObjectDlg(uiParent*,const uiString&);
@@ -57,10 +58,33 @@ public:
 
 			uiNewFSSDlg(uiParent*);
 
+    RefMan<EM::FaultStickSet>	getFSS() const;
+
 protected:
 
     bool		acceptOK();
-    
+
+    virtual RefMan<EM::EMObject>    getNewEMObject() const;
+};
+
+
+mExpClass(uiEarthModel) uiNewHorizon3DDlg : public uiNewEMObjectDlg
+{ mODTextTranslationClass(uiNewHorizon3DDlg);
+public:
+    mDefaultFactoryInstantiation1Param(
+				uiNewEMObjectDlg,
+				uiNewHorizon3DDlg,uiParent*,
+				EM::Horizon3D::typeStr(),
+				uiStrings::sHorizon(mPlural))
+
+			uiNewHorizon3DDlg(uiParent*);
+
+    RefMan<EM::Horizon3D>	getHorizon3D() const;
+
+protected:
+
+    bool		acceptOK();
+
     virtual RefMan<EM::EMObject>    getNewEMObject() const;
 };
 
@@ -81,3 +105,4 @@ protected:
     
     virtual RefMan<EM::EMObject>    getNewEMObject() const;
 };
+

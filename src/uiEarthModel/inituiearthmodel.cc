@@ -19,7 +19,7 @@ ________________________________________________________________________
 mDefModInitFn(uiEarthModel)
 {
     mIfNotFirstTime( return );
-    
+
     uiImportHorizon::initClass();
     uiInvDistHor3DInterpol::initClass();
     uiTriangulationHor3DInterpol::initClass();
@@ -31,4 +31,5 @@ mDefModInitFn(uiEarthModel)
 
     uiNewFSSDlg::initClass();
     uiNewFlt3DDlg::initClass();
+    uiNewHorizon3DDlg::initClass();
 }

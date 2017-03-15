@@ -42,6 +42,7 @@ public:
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
     bool			addTracker(const char* trackertype,int sceneid);
+    bool			addTracker(const DBKey&,int sceneid);
     int				addTracker(const DBKey&);
 				/*!<Creates a new tracker for the object and
 				    returns the trackerid of it or -1 if it

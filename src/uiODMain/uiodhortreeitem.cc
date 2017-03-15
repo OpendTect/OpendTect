@@ -29,6 +29,7 @@ ___________________________________________________________________
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "uinewemobjdlg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiposprovider.h"
@@ -163,11 +164,22 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     }
     else if ( mnuid == trackitem_.id )
     {
+	uiNewEMObjectDlg* newdlg =
+	    uiNewEMObjectDlg::factory().create( EM::Horizon3D::typeStr(),
+						getUiParent() );
+	if ( !newdlg || !newdlg->go() )
+	    return false;
+
+	RefMan<EM::EMObject> emo = newdlg->getEMObject();
+	if ( !emo )
+	    return false;
+
+
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 				applMgr()->attrServer()->curDescSet(false) );
 
-	mps->addTracker( EM::Horizon3D::typeStr(), sceneID() );
+	mps->addTracker( emo->dbKey(), sceneID() );
 	return true;
     }
     else if ( mnuid == mSectIdx || mnuid == mFullIdx || mnuid == mSectFullIdx )

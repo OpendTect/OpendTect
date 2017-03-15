@@ -27,7 +27,7 @@ uiNewEMObjectDlg::uiNewEMObjectDlg( uiParent* p, const uiString& typ )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrCreateNew(typ)
 				,mNoDlgTitle,mTODOHelpKey))
     , emobj_(0)
-    
+
 {
     nmfld_ = new uiGenInput( this,
 		tr("Name for new %1").arg(typ) );
@@ -72,7 +72,7 @@ RefMan<EM::EMObject> uiNewFSSDlg::getNewEMObject() const
 	    fssret->removeAll();
     }
 
-    return fssret; 
+    return fssret;
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -90,6 +90,13 @@ bool uiNewFSSDlg::acceptOK()
 	mErrRet( errmsg )
 
     return true;
+}
+
+
+RefMan<EM::FaultStickSet> uiNewFSSDlg::getFSS() const
+{
+    mDynamicCastGet(EM::FaultStickSet*,fss,emobj_)
+    return fss;
 }
 
 
@@ -131,19 +138,80 @@ RefMan<EM::EMObject> uiNewFlt3DDlg::getNewEMObject() const
     return flt3d; 
 }
 
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
+
 
 bool uiNewFlt3DDlg::acceptOK()
 {
     RefMan<EM::EMObject> newflt3d = getNewEMObject();
     emobj_= newflt3d;
-    if ( !emobj_ )
-	return false;
-
-    emobj_->setPreferredColor( colorselfld_->color() );
     uiString errmsg = EM::Flt3DMan().store( *emobj_ );
     if ( !errmsg.isEmpty() )
 	mErrRet( errmsg )
 
     return true;
 }
+
+
+//Horizon3D
+
+uiNewHorizon3DDlg::uiNewHorizon3DDlg( uiParent* p )
+    : uiNewEMObjectDlg(p,uiStrings::sHorizon())
+{
+}
+
+RefMan<EM::EMObject> uiNewHorizon3DDlg::getNewEMObject() const
+{
+    const BufferString nm( nmfld_->text() );
+    bool isreplace = EM::Hor3DMan().nameExists( nm );
+    RefMan<EM::Horizon3D> horret;
+    if ( !isreplace )
+	horret = new EM::Horizon3D( nm );
+    else
+    {
+	const DBKey emid = EM::Hor3DMan().getIDByName( nm );
+	uiString msg = tr("A Horizon with that name already exists.\n");
+	if ( EM::Hor3DMan().isLoaded(emid) )
+	{
+	    msg.append( tr("You are currently using it."
+			"\nPlease enter a different name."), true );
+	    return horret;
+	}
+	msg.append( tr("Do you want to overwrite the existing data?"), true );
+	if ( !uiMSG().askGoOn( msg ) )
+	    return horret;
+
+	horret = EM::Hor3DMan().fetchForEdit( emid );
+	if ( !horret )
+	    horret = new EM::Horizon3D( nm );
+	else
+	    horret->removeAll();
+    }
+
+    return horret;
+}
+
+    
+bool uiNewHorizon3DDlg::acceptOK()
+{
+    RefMan<EM::EMObject> newhor = getNewEMObject();
+    emobj_= newhor;
+    if ( !emobj_ )
+	return false;
+
+    emobj_->setPreferredColor( colorselfld_->color() );
+    uiString errmsg = EM::Hor3DMan().store( *emobj_ );
+    if ( !errmsg.isEmpty() )
+	mErrRet( errmsg )
+
+    return true;
+}
+
+
+RefMan<EM::Horizon3D> uiNewHorizon3DDlg::getHorizon3D() const
+{
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj_)
+    return hor3d;
+}
+
