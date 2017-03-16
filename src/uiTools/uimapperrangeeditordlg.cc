@@ -23,12 +23,8 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "datapackbase.h"
-#include "hiddenparam.h"
 #include "mouseevent.h"
 #include "od_helpids.h"
-
-static HiddenParam<uiMultiMapperRangeEditWin,
-		   ObjectSet<uiStatsDisplay>* > statsdisplays(0);
 
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
 						DataPackMgr::ID dmid )
@@ -46,8 +42,6 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     setCtrlStyle( CloseOnly );
 
     datapackids_.setSize( nr );
-
-    statsdisplays.setParam( this, new ObjectSet<uiStatsDisplay> );
 
     // Assuming max number of texture layers is 8
     const int nrcols = nr < 5 ? nr : (nr<7 ? 3 : 4);
@@ -79,9 +73,8 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
 	{
 	    uiStatsDisplay::Setup sds; sds.withplot(false).withname(false);
 	    uiStatsDisplay* sd = new uiStatsDisplay( this, sds );
+	    statsdisplays_ += sd;
 	    sd->attach( alignedBelow, rangeeditor );
-	    ObjectSet<uiStatsDisplay>& displays = *statsdisplays.getParam(this);
-	    displays += sd;
 	}
     }
 
@@ -94,9 +87,6 @@ uiMultiMapperRangeEditWin::~uiMultiMapperRangeEditWin()
 {
     dpm_.packToBeRemoved.remove(
 			mCB(this,uiMultiMapperRangeEditWin,dataPackDeleted) );
-
-    delete statsdisplays.getParam( this );
-    statsdisplays.removeParam( this );
 }
 
 
@@ -134,9 +124,8 @@ void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
 	datapackids_[idx] = dpid;
     }
 
-    ObjectSet<uiStatsDisplay>& displays = *statsdisplays.getParam( this );
-    if ( displays.validIdx(idx) )
-	displays[idx]->setDataPackID( dpid, dpm_.id() );
+    if ( statsdisplays_.validIdx(idx) )
+	statsdisplays_[idx]->setDataPackID( dpid, dpm_.id() );
 }
 
 

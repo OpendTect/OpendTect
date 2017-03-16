@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class uiPushButton;
 class uiMapperRangeEditor;
+class uiStatsDisplay;
 
 namespace ColTab { class MapperSetup; class Sequence; }
 
@@ -50,6 +51,7 @@ protected:
     const ColTab::MapperSetup*		activectbmapper_;
     DataPackMgr&			dpm_;
     TypeSet<DataPack::ID>		datapackids_;
+    ObjectSet<uiStatsDisplay>		statsdisplays_;
 
     void				mouseMoveCB(CallBacker*);
     void				rangeChanged(CallBacker*);
