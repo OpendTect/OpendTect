@@ -52,6 +52,7 @@ void dirChg( const QString& qstr )
 void fileChg( const QString& qstr )
 {
     const BufferString filenm( qstr );
+    fm_.watch( filenm );
     fm_.fileChanged.trigger( filenm );
 }
 

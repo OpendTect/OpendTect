@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include "i_qtextedit.h"
 
 #include "ascstream.h"
+#include "filemonitor.h"
 #include "rowcol.h"
 #include "strmprov.h"
-#include "timer.h"
 #include "varlenarray.h"
 
 #include <iostream>
@@ -411,21 +411,22 @@ uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
     , goneForwardOrBack(this)
     , linkHighlighted(this)
     , linkClicked(this)
+    , fileReOpened(this)
     , cangoforw_(false)
     , cangobackw_(false)
     , forceplaintxt_(forceplaintxt)
     , maxlines_(mxlns)
     , logviewmode_(lvmode)
     , lastlinestartpos_(-1)
-    , timer_(0)
+    , filemon_(0)
 {
     if ( !mIsUdf(mxlns) )
 	qte().document()->setMaximumBlockCount( mxlns+2 );
 
     if ( lvmode )
     {
-	timer_ = new Timer( "Read log file tail" );
-	mAttachCB( timer_->tick, uiTextBrowser::readTailCB );
+	filemon_ = new File::Monitor;
+	mAttachCB( filemon_->fileChanged, uiTextBrowser::fileChgCB );
 	mAttachCB( sliderPressed, uiTextBrowser::sliderPressedCB );
 	mAttachCB( sliderReleased, uiTextBrowser::sliderReleasedCB );
     }
@@ -437,7 +438,7 @@ uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
 uiTextBrowser::~uiTextBrowser()
 {
     detachAllNotifiers();
-    delete timer_;
+    delete filemon_;
 }
 
 
@@ -472,17 +473,17 @@ void uiTextBrowser::sliderReleasedCB( CallBacker* )
 
 void uiTextBrowser::enableTailRead( bool yn )
 {
-    if ( !timer_ )
+    if ( !logviewmode_ )
 	return;
 
     if ( yn )
-	timer_->start( 500, false );
+	mAttachCB( filemon_->fileChanged, uiTextBrowser::fileChgCB );
     else
-	timer_->stop();
+	mDetachCB( filemon_->fileChanged, uiTextBrowser::fileChgCB );
 }
 
 
-void uiTextBrowser::readTailCB( CallBacker* )
+void uiTextBrowser::fileChgCB( CallBacker* cb )
 {
     StreamData sd = StreamProvider( textsrc_ ).makeIStream();
     if ( !sd.usable() )
@@ -494,6 +495,12 @@ void uiTextBrowser::readTailCB( CallBacker* )
     recordScrollPos();
     if ( lastlinestartpos_ >= 0 )
     {
+	od_int64 newstartpos = -1;
+	sd.iStrm()->seekg( newstartpos );
+	if ( newstartpos < lastlinestartpos_ )
+	    fileReOpened.trigger();
+
+	lastlinestartpos_ = newstartpos;
 	sd.iStrm()->seekg( lastlinestartpos_ );
 	sd.iStrm()->getline( buf, mMaxLineLength );
 	if ( !sd.iStrm()->good() || strncmp(buf, lastline_.buf(), maxchartocmp))
@@ -554,15 +561,17 @@ void uiTextBrowser::setSource( const char* src )
 {
     if ( forceplaintxt_ )
     {
+	if ( !textsrc_.isEmpty() && logviewmode_ )
+	    filemon_->forget( textsrc_ );
+
 	textsrc_ = src;
 
 	if ( logviewmode_ )
 	{
 	    qte().setText( "" );
 	    lastlinestartpos_ = -1;
-	    readTailCB( 0 );
-	    if ( !timer_->isActive() )
-		timer_->start( 500, false );
+	    fileChgCB(0);
+	    filemon_->watch( textsrc_ );
 	}
 	else
 	    readFromFile( src );

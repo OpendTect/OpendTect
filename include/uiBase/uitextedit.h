@@ -17,8 +17,8 @@ ________________________________________________________________________
 class uiTextEditBody;
 class uiTextBrowserBody;
 mFDQtclass(QTextEdit)
-class Timer;
 class i_ScrollBarMessenger;
+namespace File { class Monitor; }
 
 mExpClass(uiBase) uiTextEditBase : public uiObject
 {
@@ -131,6 +131,7 @@ public:
     Notifier<uiTextBrowser>	goneForwardOrBack;
     Notifier<uiTextBrowser>	linkHighlighted;
     Notifier<uiTextBrowser>	linkClicked;
+    Notifier<uiTextBrowser>	fileReOpened;
 
 private:
 
@@ -143,16 +144,15 @@ private:
 
     virtual int		maxLines() const	{ return maxlines_; }
 
-    void		readTailCB(CallBacker*);
+    void		fileChgCB(CallBacker*);
     void		sliderPressedCB(CallBacker*);
     void		sliderReleasedCB(CallBacker*);
     void		enableTailRead(bool yn);
 
-    Timer*		timer_;
+    File::Monitor*	filemon_;
     bool		logviewmode_;
     od_int64		lastlinestartpos_;
     BufferString	lastline_;
-
 
     virtual mQtclass(QTextEdit&) qte();
 

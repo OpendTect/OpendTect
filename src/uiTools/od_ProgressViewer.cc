@@ -70,6 +70,7 @@ protected:
     bool		haveProcess();
 
     void		doWork(CallBacker*);
+    void		getNewPID(CallBacker*);
     void		quitFn(CallBacker*);
     void		helpFn(CallBacker*);
     void		saveFn(CallBacker*);
@@ -122,7 +123,8 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
 	txtfld_->setPrefWidth( deswidth );
 
     mAttachCB( timer_.tick, uiProgressViewer::doWork );
-    timer_.start( delay_, true );
+    mAttachCB( txtfld_->fileReOpened, uiProgressViewer::getNewPID );
+    timer_.start( delay_, false );
 }
 
 
@@ -191,7 +193,37 @@ void uiProgressViewer::doWork( CallBacker* )
 
     statusBar()->message( tr("Running process %1 with PID %2.")
 				    .arg(procnm_).arg(pid_) );
-    timer_.start( delay_, true );
+}
+
+
+void uiProgressViewer::getNewPID( CallBacker* )
+{
+    if ( !mIsUdf(pid_) )
+	return;
+
+    strm_.reOpen();
+    BufferString line;
+    bool found = false;
+    while ( strm_.getLine(line) )
+    {
+	if ( line.find("Process ID:") )
+	{
+	    found = true;
+	    break;
+	}
+    }
+
+    strm_.close();
+    if ( !found )
+	return;
+
+    const SeparString sepstr( line.str(), ':' );
+    const int pid = sepstr.getIValue( 1 );
+    if ( pid == 0 )
+	return;
+
+    pid_ = pid;
+    timer_.start( delay_, false );
 }
 
 
