@@ -713,7 +713,9 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 							mToFeetFactorF : 1;
 
     Coord3 mouseworldpos = pos;
-    if ( datatransform_ )
+    const bool needsdatatransform = datatransform_ && ( !zistime_ ||
+                              !scene_->zDomainInfo().def_.isDepth() ) ;
+    if ( needsdatatransform )
 	mouseworldpos.z_ = datatransform_->transformBack( mouseworldpos );
 
     const float dah = track.nearestDah( mouseworldpos );
