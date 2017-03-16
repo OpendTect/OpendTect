@@ -16,16 +16,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidsurface.h"
 #include "position.h"
 #include "thread.h"
-#include "hiddenparam.h"
 
 
 
 using namespace visBase;
-
-static HiddenParam< HorizonSectionTilePosSetup, Threads::Lock*> lock_( 0 );
-static HiddenParam< HorizonSectionTilePosSetup, TypeSet<RowCol>*> hortiles_(0);
-static HiddenParam< HorizonSectionTilePosSetup, TypeSet<RowCol>*> indexes_(0);
-
 
 HorizonTileRenderPreparer::HorizonTileRenderPreparer(
     HorizonSection& hrsection, const osg::CullStack* cs, char res )
@@ -37,7 +31,6 @@ HorizonTileRenderPreparer::HorizonTileRenderPreparer(
     , resolution_( res )
     , permutation_( 0 )
 {
-
 }
 
 
@@ -267,34 +260,7 @@ int TileGlueTesselator::nextStep()
 }
 
 
-
-HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
-    ObjectSet<HorizonSectionTile> tiles, HorizonSection* horsection,
-    StepInterval<int>rrg,StepInterval<int>crg )
-    : hrtiles_( tiles )
-    , rrg_( rrg )
-    , crg_( crg )
-    , geo_( 0 )
-    , horsection_( horsection )
-    , resolution_( -1 )
-{
-
-    if ( horsection_ )
-    {
-	zaxistransform_ = horsection_->getZAxisTransform();
-	nrcrdspertileside_ = horsection_->nrcoordspertileside_;
-	resolution_ = horsection_->lowestresidx_;
-	geo_ = horsection_->geometry_;
-    }
-
-    if ( zaxistransform_ ) zaxistransform_->ref();
-    setName( BufferString( "Creating horizon surface..." ) );
-    lock_.setParam( this, 0 );
-    hortiles_.setParam( this,0 );
-    indexes_.setParam( this, 0 );
-}
-
-
+//HorizonSectionTilePosSetup
 HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
     TypeSet<RowCol>& tiles, TypeSet<RowCol>& indexes,HorizonSection* horsection,
     StepInterval<int>rrg,StepInterval<int>crg )
@@ -302,11 +268,9 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
     , crg_( crg )
     , geo_( 0 )
     , horsection_( horsection )
+    , hortiles_( tiles )
+    , indexes_( indexes )
 {
-    lock_.setParam( this, new Threads::Lock );
-    hortiles_.setParam( this, new TypeSet<RowCol>(tiles) );
-    indexes_.setParam( this, new TypeSet<RowCol>(indexes) );
-
     if ( horsection_ )
     {
 	zaxistransform_ = horsection_->getZAxisTransform();
@@ -323,19 +287,6 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
 {
     if ( zaxistransform_ ) zaxistransform_->unRef();
-   
-    if ( lock_.getParam(this) )
-	delete lock_.getParam(this);
-    lock_.removeParam( this );
-
-    if ( hortiles_.getParam(this) )
-	delete hortiles_.getParam(this);
-    hortiles_.removeParam( this );
-
-    if ( indexes_.getParam(this) )
-	delete indexes_.getParam(this);
-    indexes_.removeParam( this );
-
 }
 
 
@@ -348,11 +299,7 @@ void HorizonSectionTilePosSetup::setTesselationResolution( char res )
 
 od_int64 HorizonSectionTilePosSetup::nrIterations() const 
 { 
-    TypeSet<RowCol>* tiles = hortiles_.getParam(this);
-    if ( tiles )
-	return tiles->size();
-
-    return hrtiles_.size(); 
+    return hortiles_.size();
 }
 
 
@@ -426,16 +373,9 @@ bool HorizonSectionTilePosSetup::doNewWork( od_int64 start, od_int64 stop, int )
     if ( !geo_ )
 	return false;
 
-    const TypeSet<RowCol>* tilerowcol = hortiles_.getParam(this);
-    const TypeSet<RowCol>* indexes = indexes_.getParam(this);
-    Threads::Lock* lock = lock_.getParam(this);
-
-    if ( !tilerowcol || !lock || !indexes ) 
-	return false;
-
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const RowCol& origin = ( *tilerowcol )[idx];
+	const RowCol& origin =	hortiles_[idx];
 	if ( origin.isUdf() )
 	     continue;
 
@@ -471,14 +411,14 @@ bool HorizonSectionTilePosSetup::doNewWork( od_int64 start, od_int64 stop, int )
 	HorizonSectionTile* tile = 0;
 	if ( hasdata )
 	{
-	    Threads::Locker locker( (*lock) );
+	    Threads::Locker locker( lock_ );
 	    tile = new HorizonSectionTile( *horsection_, origin );
 	    tile->setPositions( positions );
 	    tile->tesselateResolution( resolution_, false );
 	    locker.unlockNow();
 	}
 
-	const RowCol tileindex = (*indexes)[idx];
+	const RowCol tileindex = indexes_[idx];
 	horsection_->writeLock();
 	horsection_->tiles_.set( tileindex.row(), tileindex.col(), tile );
 	horsection_->writeUnLock();

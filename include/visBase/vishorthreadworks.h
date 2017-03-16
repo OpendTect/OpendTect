@@ -114,10 +114,6 @@ public:
 class HorizonSectionTilePosSetup: public ParallelTask
 { mODTextTranslationClass(HorizonSectionTilePosSetup);
 public:
-    HorizonSectionTilePosSetup(ObjectSet<HorizonSectionTile> tiles, 
-	HorizonSection* horsection,StepInterval<int>rrg,StepInterval<int>crg );
-	/*! don't use it, only for keep ABI */
-
     HorizonSectionTilePosSetup(TypeSet<RowCol>& tiles,TypeSet<RowCol>& indexes,
 	HorizonSection* horsection,StepInterval<int>rrg,StepInterval<int>crg );
 
@@ -144,6 +140,9 @@ protected:
     StepInterval<int>			rrg_, crg_;
     ZAxisTransform*			zaxistransform_;
     HorizonSection*			horsection_;
+    Threads::Lock			lock_;
+    TypeSet<RowCol>&			hortiles_;
+    TypeSet<RowCol>&			indexes_;
 };
 
 
