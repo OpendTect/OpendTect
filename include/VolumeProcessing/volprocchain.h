@@ -139,6 +139,7 @@ private:
 
     uiString			errmsg_;
     Threads::Atomic<int>	freeid_;
+    ObjectSet<Scaler>		outcompscalers_;
 
 };
 

@@ -78,6 +78,7 @@ protected:
     ObjectSet<ChainOutputStorer> storers_;
     ObjectSet<ChainOutputStorer> toremstorers_;
     bool			storererr_;
+    JobCommunic*		jobcomm_;
 
     int				getChain();
     int				setupChunking();

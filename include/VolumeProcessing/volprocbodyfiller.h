@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 namespace EM { class EMObject; class Body; class ImplicitBody; }
+template <class T> class ODPolygon;
 
 namespace VolProc
 {
@@ -96,6 +97,7 @@ protected:
     char			plgdir_;
 				/* inline=0; crosline=1; z=2; other=3 */
     double			epsilon_;
+    ODPolygon<double>*		polygon_;
 
     static const char*		sKeyOldMultiID();
     static const char*		sKeyOldInsideOutsideValue();

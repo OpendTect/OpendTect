@@ -21,8 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "trigonometry.h"
 
-#include "hiddenparam.h"
-
 
 namespace VolProc
 {
@@ -45,8 +43,6 @@ const char* BodyFiller::sKeyInsideValue()	{ return "Inside Value"; }
 const char* BodyFiller::sKeyOutsideValue()	{ return "Outside Value"; }
 
 
-HiddenParam<BodyFiller,ODPolygon<double>*> polygon_(0);
-
 void BodyFiller::initClass()
 {
     SeparString keys( BodyFiller::sFactoryKeyword(), factory().cSeparator() );
@@ -68,6 +64,7 @@ BodyFiller::BodyFiller()
     , flatpolygon_(false)
     , plgdir_(0)
     , epsilon_(1e-4)
+    , polygon_(0)
 {}
 
 
@@ -90,9 +87,7 @@ void BodyFiller::releaseData()
     plgknots_.erase();
     plgbids_.erase();
 
-    delete polygon_.getParam( this );
-    polygon_.removeParam( this );
-    polygon_.setParam( this, 0 );
+    delete polygon_; polygon_ = 0;
 }
 
 
@@ -238,8 +233,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 			(double)bid.crl() : (double)bid.inl();
 		    const double cury = plgdir_==plgIsZSlice ?
 			(double)bid.crl() : scaledz;
-		    isinside = polygon_.getParam(this)->isInside(
-			    Coord(curx,cury), true, epsilon_ );
+		    isinside = polygon_->isInside( Coord(curx,cury),
+						   true, epsilon_ );
 		}
 
 		val = isinside ? insideval_ : outsideval_;
@@ -387,9 +382,8 @@ Task* BodyFiller::createTask()
 	    newplg->add( Coord(curx,cury) );
 	}
 
-	delete polygon_.getParam( this );
-	polygon_.removeParam( this );
-	polygon_.setParam( this, newplg );
+	delete polygon_;
+	polygon_ = newplg;
     }
     else
 	plgdir_ = plgIsOther;

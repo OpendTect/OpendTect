@@ -18,9 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seisparallelreader.h"
 
-#include "hiddenparam.h"
-
-HiddenParam<VolProc::VolumeReader,TypeSet<int>*> volproccompmgr_(0);
 
 namespace VolProc
 {
@@ -83,11 +80,6 @@ uiString	msg_;
 VolumeReader::~VolumeReader()
 {
     releaseData();
-    if ( volproccompmgr_.hasParam( this ) )
-    {
-	delete volproccompmgr_.getParam( this );
-	volproccompmgr_.removeParam( this );
-    }
 }
 
 
@@ -104,14 +96,9 @@ bool VolumeReader::prepareWork( const IOObj& ioobj )
     if ( compnms.isEmpty() )
 	return false;
 
-    if ( !volproccompmgr_.hasParam(this) )
-	volproccompmgr_.setParam( this, new TypeSet<int> );
-
-    TypeSet<int>& components = *volproccompmgr_.getParam(this);
-
     const int initialdpnrcomp = output->nrComponents();
     const int nrcompdataset = compnms.size();
-    if ( components.isEmpty() )
+    if ( components_.isEmpty() )
     {
 	for ( int idx=0; idx<nrcompdataset; idx++ )
 	{
@@ -123,20 +110,20 @@ bool VolumeReader::prepareWork( const IOObj& ioobj )
 		    return false;
 	    }
 
-	    components += idx;
+	    components_ += idx;
 	}
     }
     else
     {
-	for ( int icomp=initialdpnrcomp; icomp<components.size(); icomp++ )
+	for ( int icomp=initialdpnrcomp; icomp<components_.size(); icomp++ )
 	{
 	    if ( !output->addComponent(0))
 		return false;
 	}
 
-	for ( int icomp=0; icomp<components.size(); icomp++ )
+	for ( int icomp=0; icomp<components_.size(); icomp++ )
 	{
-	    const int compidx = components[icomp];
+	    const int compidx = components_[icomp];
 	    if ( compidx >= nrcompdataset )
 		return false;
 
@@ -158,12 +145,7 @@ Task* VolumeReader::createTask()
 	return 0;
     }
 
-    TypeSet<int> emptycomponents;
-    const TypeSet<int>& components = volproccompmgr_.hasParam( this )
-				   ? *volproccompmgr_.getParam( this )
-				   : emptycomponents;
-
-    return new VolumeReaderExecutor( *ioobj, components, *output );
+    return new VolumeReaderExecutor( *ioobj, components_, *output );
 }
 
 
@@ -178,14 +160,8 @@ bool VolumeReader::setVolumeID( const MultiID& mid )
 void VolumeReader::fillPar( IOPar& par ) const
 {
     Step::fillPar( par );
-
-    TypeSet<int> emptycomponents;
-    const TypeSet<int>& components = volproccompmgr_.hasParam( this )
-				   ? *volproccompmgr_.getParam( this )
-				   : emptycomponents;
-
     par.set( sKeyVolumeID(), mid_ );
-    par.set( sKey::Component(), components );
+    par.set( sKey::Component(), components_ );
 }
 
 
@@ -194,10 +170,7 @@ bool VolumeReader::usePar( const IOPar& par )
     if ( !Step::usePar(par) )
 	return false;
 
-    if ( !volproccompmgr_.hasParam(this) )
-	volproccompmgr_.setParam( this, new TypeSet<int> );
-
-    par.get( sKey::Component(), *volproccompmgr_.getParam( this ) );
+    par.get( sKey::Component(), components_ );
 
     MultiID mid;
     return par.get( sKeyVolumeID(), mid ) ? setVolumeID( mid ) : true;

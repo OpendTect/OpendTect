@@ -540,7 +540,7 @@ void MPEClickCatcher::setEditor( MPEEditor* mpeeditor )
     editor_ = mpeeditor;
     if ( editor_ )
     {
-	mAttachCB(editor_->sower().sowingNotifier(),MPEClickCatcher::sowingCB);
+	mAttachCB(editor_->sower().sowing, MPEClickCatcher::sowingCB);
 	mAttachCB( editor_->sower().sowingend, MPEClickCatcher::sowingEnd );
 	editor_->ref();
     }

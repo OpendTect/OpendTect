@@ -38,7 +38,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistopbotimage.h"
 #include "zaxistransform.h"
 
-#include "hiddenparam.h"
 
 namespace visSurvey
 {
@@ -49,11 +48,6 @@ const char* RandomTrackDisplay::sKeyKnotPrefix()    { return "Knot "; }
 const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
-static HiddenParam< RandomTrackDisplay, TrcKeyPath* > trckeypaths( 0 );
-
-static HiddenParam<RandomTrackDisplay,int> pickstartnodeidx_( 0 );
-static HiddenParam<RandomTrackDisplay,char> ispicking_( 0 );
-static HiddenParam<RandomTrackDisplay,int> oldstyledoubleclicked_( 0 );
 
 RandomTrackDisplay::RandomTrackDisplay()
     : MultiTextureSurveyObject()
@@ -75,13 +69,10 @@ RandomTrackDisplay::RandomTrackDisplay()
     , markerset_( visBase::MarkerSet::create() )
     , rl_(0)
     , nrgeomchangecbs_(0)
+    , pickstartnodeidx_( -1 )
+    , ispicking_(false)
+    , oldstyledoubleclicked_(0)
 {
-    pickstartnodeidx_.setParam( this, -1 );
-    ispicking_.setParam( this, false );
-    oldstyledoubleclicked_.setParam( this, 0 );
-
-    trckeypaths.setParam( this, new TrcKeyPath() );
-
     TypeSet<int> randomlines;
     visBase::DM().getIDs( typeid(*this), randomlines );
     int highestnamenr = 0;
@@ -206,14 +197,7 @@ RandomTrackDisplay::~RandomTrackDisplay()
 	rl_->unRef();
     }
 
-    TrcKeyPath* tkpath = trckeypaths.getParam( this );
-    trckeypaths.removeParam( this );
-    delete tkpath;
     setZAxisTransform( 0, 0 );
-
-    pickstartnodeidx_.removeParam( this );
-    ispicking_.removeParam( this );
-    oldstyledoubleclicked_.removeParam( this );
 }
 
 
@@ -602,9 +586,8 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 					   TypeSet<int>* segments ) const
 {
-    TrcKeyPath& tkpath = *trckeypaths.getParam( this );
     const_cast<RandomTrackDisplay*>(this)->trcspath_.erase();
-    tkpath.erase();
+    const_cast<RandomTrackDisplay*>(this)->trckeypath_.erase();
     TypeSet<BinID> nodes;
     getAllNodePos( nodes );
     const Pos::SurvID survid = s3dgeom_->getSurvID();
@@ -615,7 +598,8 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 	if ( !idx || bids[idx]!=trcspath_.last() )
 	{
 	    const_cast<RandomTrackDisplay*>(this)->trcspath_.add( bids[idx] );
-	    tkpath.add( TrcKey(bids[idx]) );
+	    const_cast<RandomTrackDisplay*>(this)->trckeypath_.add(
+							TrcKey(bids[idx]) );
 	}
     }
 }
@@ -1679,7 +1663,7 @@ void RandomTrackDisplay::updateMouseCursorCB( CallBacker* cb )
 
 
 bool RandomTrackDisplay::isPicking() const
-{ return ispicking_.getParam(this); }
+{ return ispicking_; }
 
 
 void RandomTrackDisplay::mouseCB( CallBacker* cb )
@@ -1691,21 +1675,21 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
     visBase::EventInfo eventinfo( ei );
 
     if ( eventinfo.type==visBase::MouseDoubleClick && eventinfo.pressed )
-	 oldstyledoubleclicked_.setParam( this, mUdf(int) );
+	 oldstyledoubleclicked_ = mUdf(int);
 
-    if ( !mIsUdf(oldstyledoubleclicked_.getParam(this)) )
+    if ( !mIsUdf(oldstyledoubleclicked_) )
     {
 	if ( eventinfo.type==visBase::MouseDoubleClick )
 	{
-	    oldstyledoubleclicked_.setParam( this, 1 );
+	    oldstyledoubleclicked_ = 1;
 	    eventinfo.pressed = true;
 	}
 	if ( eventinfo.type==visBase::MouseClick )
 	{
-	    if ( oldstyledoubleclicked_.getParam(this) && !eventinfo.pressed )
+	    if ( oldstyledoubleclicked_ && !eventinfo.pressed )
 		eventinfo.type = visBase::MouseDoubleClick;
 
-	    oldstyledoubleclicked_.setParam( this, 0 );
+	    oldstyledoubleclicked_ = 0;
 	}
     }
 
@@ -1718,24 +1702,23 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 
     if ( doubleclick )
     {
-	if ( nodeidx>=0 || pickstartnodeidx_.getParam(this)<0 )
+	if ( nodeidx>=0 || pickstartnodeidx_<0 )
 	    return;
 
 	if ( !eventinfo.pickedobjids.isPresent(markerset_->id()) )
 	    return;
 
-	if ( pickstartnodeidx_.getParam(this)>0 &&
-	     pickstartnodeidx_.getParam(this)<nrNodes()-1 )
+	if ( pickstartnodeidx_>0 && pickstartnodeidx_<nrNodes()-1 )
 	{
 	    double frac = 0.5;
 	    nodeidx = getClosestPanelIdx( eventinfo.worldpickedpos, &frac );
-	    if ( nodeidx==pickstartnodeidx_.getParam(this) || frac>=0.5 )
+	    if ( nodeidx==pickstartnodeidx_ || frac>=0.5 )
 		nodeidx++;
-	    if ( nodeidx == pickstartnodeidx_.getParam(this) )
+	    if ( nodeidx == pickstartnodeidx_ )
 		nodeidx--;
 	}
 	else
-	    nodeidx = pickstartnodeidx_.getParam(this);
+	    nodeidx = pickstartnodeidx_;
     }
     else if ( eventinfo.type != visBase::MouseClick )
 	return;
@@ -1760,24 +1743,24 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
     const BinID nodebid = getNodePos( nodeidx );
     inlcrlnodepos.x = nodebid.inl(); inlcrlnodepos.y = nodebid.crl();
 
-    if ( shiftclick && pickstartnodeidx_.getParam(this)<0 )
+    if ( shiftclick && pickstartnodeidx_<0 )
     {
 	if ( !eventinfo.pressed )
 	{
 	    setPolyLineMode( true );
-	    pickstartnodeidx_.setParam( this, nodeidx );
+	    pickstartnodeidx_ = nodeidx;
 	    setColor( Color(255,0,255) );
 	    polyline_->addPoint( inlcrlnodepos );
 	}
 	else
-	    ispicking_.setParam( this, true );	// Change to pick-cursor early
+	    ispicking_ = true;	// Change to pick-cursor early
 
 	return;
     }
 
     if ( ctrlclick )
     {
-	if ( pickstartnodeidx_.getParam(this)<0 && !eventinfo.pressed )
+	if ( pickstartnodeidx_<0 && !eventinfo.pressed )
 	{
 	    removeNode( nodeidx );
 	    channels_->turnOn( false );
@@ -1787,12 +1770,12 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 	return;
     }
 
-    if ( pickstartnodeidx_.getParam(this)>=0 )
+    if ( pickstartnodeidx_>=0 )
     {
 	if ( eventinfo.pressed )
 	{
 	    // Makes geomChangeCB(.) keep polyline mode.
-	    ispicking_.setParam( this, false );
+	    ispicking_ = false;
 	    return;
 	}
 
@@ -1800,17 +1783,17 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 	if ( nrinserts > 0 )
 	{
 	    const bool terminal = nodeidx==0 || nodeidx==nrNodes()-1;
-	    if ( nodeidx!=pickstartnodeidx_.getParam(this) || !terminal )
+	    if ( nodeidx!=pickstartnodeidx_ || !terminal )
 	    {
 		polyline_->addPoint( inlcrlnodepos );
-		if ( nodeidx == pickstartnodeidx_.getParam(this) )
+		if ( nodeidx == pickstartnodeidx_ )
 		    nrinserts++;
 	    }
 
-	    const bool forward = nodeidx>=pickstartnodeidx_.getParam(this) &&
-			     ( pickstartnodeidx_.getParam(this) || nodeidx );
+	    const bool forward = nodeidx>=pickstartnodeidx_ &&
+			     ( pickstartnodeidx_ || nodeidx );
 
-	    int curidx = pickstartnodeidx_.getParam(this);
+	    int curidx = pickstartnodeidx_;
 	    for ( int posidx=1; posidx<=nrinserts; posidx++ )
 	    {
 		if ( forward )
@@ -1820,7 +1803,7 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 		rl_->insertNode( curidx, BinID(mNINT32(pos.x),mNINT32(pos.y)) );
 	    }
 
-	    int nrremoves = abs(nodeidx-pickstartnodeidx_.getParam(this)) - 1;
+	    int nrremoves = abs(nodeidx-pickstartnodeidx_) - 1;
 	    curidx += forward ? 1 : nrremoves;
 	    while ( (nrremoves--) > 0 )
 		removeNode( curidx );
@@ -1894,8 +1877,8 @@ void RandomTrackDisplay::setPolyLineMode( bool yn )
     markerset_->turnOn( yn );
     dragger_->handleEvents( !yn );
 
-    pickstartnodeidx_.setParam( this, -1 );
-    ispicking_.setParam( this, yn );
+    pickstartnodeidx_ = -1;
+    ispicking_ =  yn;
 
     if ( scene_ )
 	scene_->blockMouseSelection( yn );
@@ -1990,7 +1973,7 @@ bool RandomTrackDisplay::createFromPolyLine()
     if ( polyline_->size() < 2 )
 	return false;
 
-    ispicking_.setParam(this,false); // Makes geomChangeCB(.) keep polyline mode
+    ispicking_ = false; // Makes geomChangeCB(.) keep polyline mode
 
     TypeSet<BinID> bids;
     for ( int idx=0; idx<polyline_->size(); idx++ )
@@ -2050,8 +2033,4 @@ void RandomTrackDisplay::draggerRightClick( CallBacker* )
     triggerRightClick( dragger_->rightClickedEventInfo() );
 }
 
-const TrcKeyPath* RandomTrackDisplay::getTrcKeyPath()
-{
-    return trckeypaths.getParam( this );
-}
 } // namespace visSurvey

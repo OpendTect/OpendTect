@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "thread.h"
 #include "threadlock.h"
 #include "threadwork.h"
-#include "hiddenparam.h"
 
 
 static bool isVisible( const FlatView::Appearance& app, bool wva )
@@ -191,9 +190,6 @@ Interval<float> getBitmapDataRange( bool iswva )
 };
 
 
-static HiddenParam< uiBitMapDisplay,Notifier<uiBitMapDisplay>* >
-				rangeUpdatedSet(0);
-
 uiBitMapDisplay::uiBitMapDisplay( FlatView::Appearance& app, bool withalpha )
     : appearance_(app)
     , display_(new uiDynamicImageItem)
@@ -201,10 +197,10 @@ uiBitMapDisplay::uiBitMapDisplay( FlatView::Appearance& app, bool withalpha )
     , basetask_(new uiBitMapDisplayTask(app,*display_,false,withalpha))
     , finishedcb_(mCB( this, uiBitMapDisplay, dynamicTaskFinishCB ))
     , overlap_(0.5f)
-    , wvapack_(0), vdpack_(0)
+    , wvapack_(0)
+    , vdpack_(0)
+    , rangeUpdated(this)
 {
-    Notifier<uiBitMapDisplay>* notifier = new Notifier<uiBitMapDisplay>( this );
-    rangeUpdatedSet.setParam( this, notifier );
     const int nrcpu = Threads::getNrProcessors();
     if ( nrcpu<4 )
 	overlap_ = 0.25f;
@@ -224,9 +220,6 @@ uiBitMapDisplay::~uiBitMapDisplay()
 
     delete basetask_;
     delete display_;
-    Notifier<uiBitMapDisplay>* notifier = rangeUpdatedSet.getParam( this );
-    rangeUpdatedSet.removeParam( this );
-    delete notifier;
 }
 
 
@@ -357,12 +350,6 @@ void uiBitMapDisplay::reGenerateCB(CallBacker*)
 }
 
 
-Notifier<uiBitMapDisplay>* uiBitMapDisplay::rangeUpdated()
-{
-    return rangeUpdatedSet.getParam( this );
-}
-
-
 Task* uiBitMapDisplay::createDynamicTask( bool issnapshot  )
 {
     if ( !display_ )
@@ -382,7 +369,7 @@ Task* uiBitMapDisplay::createDynamicTask( bool issnapshot  )
 	dynamictask->getBitmapDataRange( true );
     appearance_.ddpars_.vd_.mappersetup_.range_ =
 	dynamictask->getBitmapDataRange( false );
-    rangeUpdatedSet.getParam( this )->trigger();
+    rangeUpdated.trigger();
 
     uiWorldRect computewr = wr;
     uiSize computesz = sz;

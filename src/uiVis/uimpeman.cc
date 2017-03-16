@@ -73,7 +73,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     mAttachCB( visserv_->mouseEvent, uiMPEMan::mouseEventCB );
     mAttachCB( visserv_->keyEvent, uiMPEMan::keyEventCB );
     mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
-    mAttachCB( *visserv_->planeMovedEventNotifer(), uiMPEMan::planeChangedCB );
+    mAttachCB( visserv_->planeMovedEvent, uiMPEMan::planeChangedCB );
 }
 
 

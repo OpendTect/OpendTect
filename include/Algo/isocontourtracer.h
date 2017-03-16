@@ -67,6 +67,7 @@ protected:
     int				nrlargestonly_;
     float			edgevalue_;
     float			bendpointeps_;
+    unsigned int		edgepar_;
 
     const ODPolygon<float>*	polyroi_;
 };

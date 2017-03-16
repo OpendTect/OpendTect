@@ -62,6 +62,7 @@ protected:
     MultiID				mid_;
     ObjectSet<SeisTrcReader>		readers_;
     ObjectSet<SeisTrcTranslator>	translators_;
+    TypeSet<int>			components_;
 
 };
 

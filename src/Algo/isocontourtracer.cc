@@ -10,9 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndinfo.h"
 #include "threadwork.h"
-#include "hiddenparam.h"
-
-static HiddenParam< IsoContourTracer, unsigned int > edgepar_( 0 );
 
 
 #define mOnEdge(xy,idx)		(idx<edge_ || idx>xy##range_.width()+edge_)
@@ -445,14 +442,13 @@ IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
     , nrlargestonly_( -1 )
     , edgevalue_( mUdf(float) )
     , bendpointeps_( mUdf(float) )
+    , edgepar_( 0 )
 {
-    edgepar_.setParam( this, 0 );
 }
 
 
 IsoContourTracer::~IsoContourTracer()
 {
-    edgepar_.removeParam( this );
 }
 
 
@@ -495,7 +491,7 @@ void IsoContourTracer::setNrLargestOnly( int nr )
 
 void IsoContourTracer::setEdgeValue( float edgeval )
 {
-    edgepar_.setParam( this, mIsUdf(edgeval) ? 0 : 1 );
+    edgepar_ = mIsUdf(edgeval) ? 0 : 1;
     edgevalue_ = edgeval;
 }
 
@@ -504,9 +500,8 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 				    float z, bool closedonly ) const
 {
     deepErase( contours );
-    const unsigned int edge = edgepar_.getParam(this);
-    const int xsize = xrange_.width() + 2*edge + 1;
-    const int ysize = yrange_.width() + 2*edge + 1;
+    const int xsize = xrange_.width() + 2*edgepar_ + 1;
+    const int ysize = yrange_.width() + 2*edgepar_ + 1;
     float* crossings = new float[ xsize*ysize*2 ];
     int* execs = new int[ xsize*ysize*2 ];
 
@@ -516,8 +511,9 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
     finder.setSamplings( xsampling_, ysampling_ );
     if ( finder.execute() )
     {
-	ContourTracer tracer( contours, crossings, execs, xsize, ysize, edge,
-	    bendpointeps_, nrlargestonly_, minnrvertices_, closedonly );
+	ContourTracer tracer( contours, crossings, execs, xsize, ysize,
+			      edgepar_, bendpointeps_, nrlargestonly_,
+			      minnrvertices_, closedonly );
 	tracer.setRanges( xrange_, yrange_ );
 	tracer.setSamplings( xsampling_, ysampling_ );
 	tracer.execute();

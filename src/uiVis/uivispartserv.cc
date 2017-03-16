@@ -61,9 +61,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "zdomain.h"
 #include "od_helpids.h"
-#include "hiddenparam.h"
 
-#include "hiddenparam.h"
 
 int uiVisPartServer::evUpdateTree()			{ return 0; }
 int uiVisPartServer::evSelection()			{ return 1; }
@@ -97,9 +95,6 @@ static const int cResetManipIdx = 800;
 static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
 
-HiddenParam<uiVisPartServer,Notifier<uiVisPartServer>* > planeMovedEvent( 0 );
-static HiddenParam<uiVisPartServer,int> curinterpobjids( -1 );
-
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -127,10 +122,12 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , nrscenesChange(this)
     , keyEvent(this)
     , mouseEvent(this)
+    , planeMovedEvent(this)
     , seltype_((int)visBase::PolygonSelection::Off)
     , multirgeditwin_(0)
     , mapperrgeditordisplayid_(-1)
     , mapperrgeditinact_(false)
+    , curinterpobjid_(-1)
     , dirlightdlg_(0)
     , mousecursorexchange_(0)
     , objectAdded(this)
@@ -140,7 +137,6 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , topsetupgroupname_( 0 )
     , sceneeventsrc_(0)
 {
-    curinterpobjids.setParam( this, -1 );
     changematerialmnuitem_.iconfnm = "disppars";
 
     menu_.ref();
@@ -157,7 +153,6 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     vismgr_ = new uiVisModeMgr(this);
     pickretriever_->ref();
     PickRetriever::setInstance( pickretriever_ );
-    planeMovedEvent.setParam( this, new Notifier<uiVisPartServer>(this) );
 }
 
 
@@ -174,7 +169,6 @@ bool uiVisPartServer::sendVisEvent( int evid )
 
 uiVisPartServer::~uiVisPartServer()
 {
-    curinterpobjids.removeParam( this );
     visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifier.remove(
@@ -206,15 +200,6 @@ uiVisPartServer::~uiVisPartServer()
     delete dirlightdlg_;
 
     setMouseCursorExchange( 0 );
-
-    delete planeMovedEvent.getParam( this );
-    planeMovedEvent.removeParam( this );
-}
-
-
-Notifier<uiVisPartServer>* uiVisPartServer::planeMovedEventNotifer() const
-{
-    return planeMovedEvent.getParam( this );
 }
 
 
@@ -1509,7 +1494,7 @@ void uiVisPartServer::movePlaneAndCalcAttribs( int id,
     calculateAllAttribs( id );
     pdd->annotateNextUpdateStage( false );
     triggerTreeUpdate();
-    planeMovedEvent.getParam( this )->trigger();
+    planeMovedEvent.trigger();
 }
 
 
@@ -2370,11 +2355,11 @@ void uiVisPartServer::mapperRangeEditChanged( CallBacker* cb )
 
 
 void uiVisPartServer::setCurInterObjID( int visid )
-{ curinterpobjids.setParam( this, visid ); }
+{ curinterpobjid_ = visid; }
 
 
 int uiVisPartServer::getCurInterObjID() const
-{ return curinterpobjids.getParam( this ); }
+{ return curinterpobjid_; }
 
 
 void uiVisPartServer::setMoreObjectsToDoHint( int sceneid, bool yn )

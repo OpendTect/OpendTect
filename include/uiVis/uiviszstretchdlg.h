@@ -42,6 +42,8 @@ protected:
     uiButton*		vwallbut_;
 
     TypeSet<int>	sceneids_;
+    TypeSet<float>	zstretches_;
+    TypeSet<float>	initzstretches_;
 
 
     static uiString	sZStretch() { return tr( "Z stretch" ); }

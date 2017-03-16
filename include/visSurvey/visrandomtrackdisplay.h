@@ -176,6 +176,8 @@ public:
 
     virtual void		annotateNextUpdateStage(bool yn);
     virtual void		setPixelDensity(float);
+    const TrcKeyPath*		getTrcKeyPath()
+				{ return &trckeypath_; }
 
     static const char*		sKeyPanelDepthKey()  { return "PanelDepthKey"; }
     static const char*		sKeyPanelPlaneKey()  { return "PanelPlaneKey"; }
@@ -245,6 +247,11 @@ protected:
     Interval<float>		depthrg_;
     int				voiidx_;
 
+    TrcKeyPath			trckeypath_;
+    int				pickstartnodeidx_;
+    bool			ispicking_;
+    int				oldstyledoubleclicked_;
+
     struct UpdateStageInfo
     {
 	float			oldzrgstart_;
@@ -269,7 +276,6 @@ protected:
 					    int attrib,const TrcKeyPath&,
 					    const StepInterval<float>& zrg);
 public:
-    const TrcKeyPath*		getTrcKeyPath();
 
     bool			getSelMousePosInfo(const visBase::EventInfo&,
 						   Coord3&, BufferString&,

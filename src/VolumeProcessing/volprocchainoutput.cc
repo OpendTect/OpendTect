@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocchainexec.h"
 #include "volproctrans.h"
 #include "seisdatapackwriter.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "jobcommunic.h"
 #include "keystrs.h"
@@ -23,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 #include "progressmeterimpl.h"
 
-HiddenParam<VolProc::ChainOutput,JobCommunic*> jobcomms(0);
 
 VolProc::ChainOutput::ChainOutput()
     : Executor("")
@@ -38,10 +36,9 @@ VolProc::ChainOutput::ChainOutput()
     , curexecnr_(-1)
     , storererr_(false)
     , progresskeeper_(*new ProgressRecorder)
+    , jobcomm_(0)
 {
     progressmeter_ = &progresskeeper_;
-
-    jobcomms.setParam( this, 0 );
 }
 
 
@@ -53,8 +50,6 @@ VolProc::ChainOutput::~ChainOutput()
     delete wrr_;
     deepErase( storers_ );
     delete &progresskeeper_;
-
-    jobcomms.removeParam( this );
 }
 
 
@@ -88,7 +83,7 @@ void VolProc::ChainOutput::setProgressMeter( ProgressMeter* pm )
 
 
 void VolProc::ChainOutput::setJobCommunicator( JobCommunic* jc )
-{ jobcomms.setParam( this, jc ); }
+{ jobcomm_ = jc; }
 
 
 void VolProc::ChainOutput::enableWorkControl( bool yn )
@@ -130,7 +125,7 @@ void VolProc::ChainOutput::createNewChainExec()
     chainexec_ = new VolProc::ChainExecutor( *chain_ );
     chainexec_->enableWorkControl( workControlEnabled() );
     chainexec_->setProgressMeter( progresskeeper_.forwardTo() );
-    chainexec_->setJobCommunicator( jobcomms.getParam(this) );
+    chainexec_->setJobCommunicator( jobcomm_ );
 }
 
 

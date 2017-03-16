@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 
 #include "binidvalue.h"
-#include "hiddenparam.h"
 #include "trckeyzsampling.h"
 #include "envvars.h"
 #include "fontdata.h"
@@ -70,9 +69,6 @@ static const char* sKeyBottomImage()	{ return "BottomImage"; }
 static const char* sKeyZScale()		{ return "Z Scale"; }
 
 
-static HiddenParam<Scene,Threads::Lock*> updatelocks( 0 );
-static HiddenParam<Scene,char> moreobjectstodo_( 0 );
-
 Scene::Scene()
     : tempzstretchtrans_(0)
     , annot_(0)
@@ -99,6 +95,7 @@ Scene::Scene()
     , botimg_( 0 )
     , posmodemanipdeselobjid_( -1 )
     , spacebarwaspressed_( false )
+    , moreobjectstodo_( false )
 {
     mAttachCB( events_.eventhappened, Scene::mouseCB );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
@@ -108,9 +105,6 @@ Scene::Scene()
 
     setCameraAmbientLight( 1 );
     setup();
-
-    updatelocks.setParam( this, new Threads::Lock );
-    moreobjectstodo_.setParam( this, false );
 }
 
 
@@ -206,10 +200,6 @@ Scene::~Scene()
 
     mRemoveSelector;
     delete zdomaininfo_;
-
-    delete updatelocks.getParam( this );
-    updatelocks.removeParam( this );
-    moreobjectstodo_.removeParam( this );
 }
 
 
@@ -644,9 +634,7 @@ BufferString Scene::getMousePosString() const
 
 void Scene::objectMoved( CallBacker* cb )
 {
-    Threads::Lock* updatelock = updatelocks.getParam( this );
-    Threads::Locker locker( *updatelock );
-
+    Threads::Locker locker( updatelock_ );
     ObjectSet<const SurveyObject> activeobjects;
     int movedid = -1;
     for ( int idx=0; idx<size(); idx++ )
@@ -1521,11 +1509,11 @@ Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,
 }
 
 void Scene::setMoreObjectsToDoHint( bool yn )
-{ moreobjectstodo_.setParam( this, yn ); }
+{ moreobjectstodo_ = yn; }
 
 
 bool Scene::getMoreObjectsToDoHint() const
-{ return moreobjectstodo_.getParam(this); }
+{ return moreobjectstodo_; }
 
 
 } // namespace visSurvey

@@ -26,12 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "vissurvscene.h"
 #include "zdomain.h"
-#include "hiddenparam.h"
 
 #include <typeinfo>
-
-static HiddenParam< uiZStretchDlg,TypeSet<float>* >  zstretches_( 0 );
-static HiddenParam< uiZStretchDlg,TypeSet<float>* >  initzstretches_( 0 );
 
 uiZStretchDlg::uiZStretchDlg( uiParent* p )
     : uiDialog(p,
@@ -46,9 +42,6 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
     , uifactor_(0)
     , valchgd_(false)
 {
-    zstretches_.setParam( this, new TypeSet<float> );
-    initzstretches_.setParam( this, new TypeSet<float> );
-
     visBase::DM().getIDs( typeid(visSurvey::Scene), sceneids_ );
     if ( sceneids_.size() == 0 )
     {
@@ -63,7 +56,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
     const float initslval = 
 	scene->getFixedZStretch()*scene->getTempZStretch();
 
-    *zstretches_.getParam( this ) +=  initslval;
+    zstretches_ +=  initslval;
 
     if ( sceneids_.size()>1 )
     {
@@ -78,7 +71,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	    {
 		const float inival =
 		    thescene->getFixedZStretch()*thescene->getTempZStretch();
-		*zstretches_.getParam( this ) += inival;
+		zstretches_ += inival;
 	    }
 	}
 
@@ -96,17 +89,13 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	sliderfld_->attach( alignedBelow, scenefld_ );
 
     mAttachCB( preFinalise(), uiZStretchDlg::doFinalise );
-    *initzstretches_.getParam( this ) = *zstretches_.getParam( this );
+    initzstretches_ = zstretches_;
 }
 
 
 uiZStretchDlg::~uiZStretchDlg()
 {
     detachAllNotifiers();
-    delete zstretches_.getParam( this );
-    delete initzstretches_.getParam( this );
-    zstretches_.removeParam( this );
-    initzstretches_.removeParam( this );
 }
 
 
@@ -176,7 +165,7 @@ void uiZStretchDlg::updateSliderValues( int sceneidx )
 	if ( !scene ) return;
         initslval = scene->getFixedZStretch()*scene->getTempZStretch();
         uifactor = scene->getApparentVelocity( initslval )/initslval;
-	(*zstretches_.getParam(this))[sceneidx] = initslval; 
+	zstretches_[sceneidx] = initslval;
 
         if ( scene->zDomainInfo().def_.isTime() )
         {
@@ -213,10 +202,9 @@ bool uiZStretchDlg::acceptOK( CallBacker* )
 
     const bool stretchall = scenefld_ && scenefld_->box()->currentItem()==0;
     if ( stretchall )
-	setOneZStretchToAllScenes( 
-	(*zstretches_.getParam(this))[sceneidx], true );
+	setOneZStretchToAllScenes( zstretches_[sceneidx], true );
     else
-	setZStretchesToScenes( *zstretches_.getParam(this), true );
+	setZStretchesToScenes( zstretches_, true );
 
     SI().getPars().removeWithKey("Z Scale"); //Old setting
     SI().savePars();
@@ -277,13 +265,13 @@ void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch,
 	    IOPar::compKey("Z Scale",scene->zDomainInfo().key()), zstretch );
 
     const int id = sceneids_.indexOf( scene->id() );
-    (*zstretches_.getParam(this))[id] = zstretch;
+    zstretches_[id] = zstretch;
 }
 
 
 bool uiZStretchDlg::rejectOK( CallBacker* )
 {
-    setZStretchesToScenes( *initzstretches_.getParam(this), false );
+    setZStretchesToScenes( initzstretches_, false );
     return true;
 }
 
@@ -297,7 +285,7 @@ void uiZStretchDlg::sliderMove( CallBacker* )
     visSurvey::Scene* scene =  getSelectedScene();
     const int id = sceneids_.indexOf( scene->id() );
     if ( scene )
-	(*zstretches_.getParam(this))[id] = slval;
+	zstretches_[id] = slval;
 
     if ( stretchall )
 	setOneZStretchToAllScenes( slval, true );

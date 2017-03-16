@@ -255,6 +255,8 @@ protected:
 
     bool			ctshownusepar_;
     bool			usepar_;
+    bool			moreobjectstodo_;
+    Threads::Lock		updatelock_;
 
     static const char*		sKeyShowAnnot();
     static const char*		sKeyShowScale();

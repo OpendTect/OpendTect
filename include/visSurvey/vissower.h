@@ -69,8 +69,8 @@ public:
     bool		activate(const Color&,const visBase::EventInfo&,
 	    			 int underlyingobjid=-1,
 				 const TrcKeySampling* workrange=0);
-    Notifier<Sower>&	sowingNotifier() const;
     Notifier<Sower>	sowingend;
+    Notifier<Sower>	sowing;
 protected:
 
     bool		isInWorkRange(const visBase::EventInfo&) const ;

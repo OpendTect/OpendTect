@@ -98,6 +98,7 @@ private:
     int				totalnrepochs_;
 
     const RegularSeisDataPack*	outputdp_;
+    JobCommunic*		jobcomm_;
 
 };
 

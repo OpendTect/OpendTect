@@ -266,7 +266,6 @@ public:
     const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
     static int			evMouseEvent();
     Notifier<uiVisPartServer>	mouseEvent;
-    Notifier<uiVisPartServer>*	planeMovedEventNotifer() const;
     const MouseEvent&		getMouseEvent() const	{ return mouseevent_; }
     void			setSceneEventHandled();
 
@@ -297,7 +296,8 @@ public:
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
 
     void			displayMapperRangeEditForAttrbs(int id);
-    void			displayMapperRangeEditForAttribs(int id,int attribid);
+    void			displayMapperRangeEditForAttribs(int id,
+								 int attribid);
 
     static int			evColorTableChange();
     void			displaySceneColorbar(bool);
@@ -384,6 +384,9 @@ public:
     bool			isLocked(int id) const;
 
     bool			sendVisEvent(int);
+    void			setMoreObjectsToDoHint(int sceneid,bool yn);
+    bool			getMoreObjectsToDoHint(int sceneid) const;
+    Notifier<uiVisPartServer>	planeMovedEvent;
 
 protected:
 
@@ -441,6 +444,7 @@ protected:
     int				eventattrib_;
     int				selattrib_;
     int				mapperrgeditordisplayid_;
+    int				curinterpobjid_;
 
     int				seltype_;
     SelectionMode		selectionmode_;
@@ -481,8 +485,6 @@ protected:
     void			triggerObjectMoved(int id);
 
 public:
-    void			setMoreObjectsToDoHint(int sceneid,bool yn);
-    bool			getMoreObjectsToDoHint(int sceneid) const;
 };
 
 
