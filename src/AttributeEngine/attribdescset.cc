@@ -289,7 +289,7 @@ void DescSet::moveDescUpDown( const DescID& id, bool moveup )
     const int sz = ids_.size();
     const int selidx = ids_.indexOf( id );
     int gotoidx = moveup ? selidx-1 : selidx+1;
-    while ( gotoidx>=0 && gotoidx<sz
+    while ( gotoidx>=0 && gotoidx<sz && descs_[gotoidx]
 	    && ( descs_[gotoidx]->isHidden() || descs_[gotoidx]->isStored() ) )
 	gotoidx += moveup ? -1 : 1;
 
