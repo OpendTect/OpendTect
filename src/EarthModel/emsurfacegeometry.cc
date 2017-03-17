@@ -48,6 +48,13 @@ SurfaceGeometry::~SurfaceGeometry()
 }
 
 
+SurfaceGeometry& SurfaceGeometry::operator=( const SurfaceGeometry& oth )
+{
+    deepCopyClone( sections_, oth.sections_ );
+    return *this;
+}
+
+
 void SurfaceGeometry::removeAll()
 {
 }

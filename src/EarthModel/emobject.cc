@@ -39,16 +39,15 @@ Color EMObject::sDefaultSelectionColor() { return Color::Orange(); }
 
 EMObject::EMObject( const char* nm )
     : SharedObject( nm )
-    , preferredcolor_( *new Color(Color::Green()) )
+    , preferredcolor_(Color::Green())
     , changed_( false )
     , fullyloaded_( false )
     , locked_( false )
     , burstalertcount_( 0 )
     , selremoving_( false )
-    , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
-    , preferredmarkerstyle_(
-	*new OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,2,Color::White()))
-    , selectioncolor_( *new Color(sDefaultSelectionColor()) )
+    , preferredlinestyle_(OD::LineStyle::Solid,3)
+    , preferredmarkerstyle_(OD::MarkerStyle3D::Cube,2,Color::White())
+    , selectioncolor_(sDefaultSelectionColor())
     , haslockednodes_( false )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
@@ -58,16 +57,33 @@ EMObject::EMObject( const char* nm )
     objectChanged().notify( mCB(this,EMObject,posIDChangeCB) );
 }
 
+mImplMonitorableAssignment(EMObject,SharedObject);
 
 EMObject::~EMObject()
 {
     deepErase( posattribs_ );
-    delete &preferredcolor_;
-    delete &preferredlinestyle_;
-    delete &preferredmarkerstyle_;
-    delete &selectioncolor_;
-
     objectChanged().remove( mCB(this,EMObject,posIDChangeCB) );
+}
+
+
+void EMObject::copyClassData( const EMObject& oth )
+{
+#define mCopyMember( mem ) mem = oth.mem
+    mCopyMember( objname_ );
+    mCopyMember( storageid_ );
+    mCopyMember( preferredcolor_ );
+    mCopyMember( selectioncolor_ );
+    mCopyMember( preferredlinestyle_ );
+    mCopyMember( preferredmarkerstyle_ );
+    mCopyMember( attribs_ );
+
+    deepCopy<PosAttrib,PosAttrib>( posattribs_, oth.posattribs_ );
+}
+
+
+Monitorable::ChangeType EMObject::compareClassData( const EMObject& oth ) const
+{
+    return cNoChange();
 }
 
 
@@ -299,14 +315,8 @@ OD::MarkerStyle3D EMObject::getPosAttrMarkerStyle( int attr )
 
 void EMObject::setPosAttrMarkerStyle( int attr, const OD::MarkerStyle3D& ms )
 {
-    mLock4Write();
     addPosAttrib( attr );
     setPreferredMarkerStyle3D( ms );
-
-    RefMan<EMChangeAuxData> data = new EMChangeAuxData;
-    data->attrib = attr;
-    mSendEMCBNotifWithData( cAttribChange(), data );
-    touch();
 }
 
 

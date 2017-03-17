@@ -41,6 +41,9 @@ mExpClass(EarthModel) SurfaceGeometry : public CallBacker
 public:
 			SurfaceGeometry(Surface&);
     virtual		~SurfaceGeometry();
+
+    SurfaceGeometry&	operator=(const SurfaceGeometry&);
+
     virtual void	removeAll();
 
     virtual bool	enableChecks(bool yn);

@@ -43,7 +43,8 @@ protected:
 
     uiGenInput*		nmfld_;
     uiColorInput*	colorselfld_;
-    EM::EMObject*	emobj_;
+
+    RefMan<EM::EMObject>	emobj_;
 };
 
 
@@ -58,7 +59,7 @@ public:
 
 			uiNewFSSDlg(uiParent*);
 
-    RefMan<EM::FaultStickSet>	getFSS() const;
+    RefMan<EM::FaultStickSet>	getFSS();
 
 protected:
 
@@ -79,7 +80,7 @@ public:
 
 			uiNewHorizon3DDlg(uiParent*);
 
-    RefMan<EM::Horizon3D>	getHorizon3D() const;
+    RefMan<EM::Horizon3D>	getHorizon3D();
 
 protected:
 
@@ -102,7 +103,7 @@ public:
 protected:
 
     bool		acceptOK();
-    
+
     virtual RefMan<EM::EMObject>    getNewEMObject() const;
 };
 

@@ -292,6 +292,23 @@ Horizon3D::Horizon3D( const char* nm )
 }
 
 
+Horizon3D::Horizon3D( const Horizon3D& oth )
+    : Horizon(oth.name())
+    , geometry_(*this)
+    , auxdata(*new SurfaceAuxData(*this))
+    , lockednodes_(0)
+    , parents_(0)
+    , children_(0)
+    , parentcolor_(Color::Yellow())
+    , lockcolor_(Color::Blue())
+    , survgeomid_( Survey::GM().default3DSurvID() )
+    , nodesource_( 0 )
+    , arrayinited_( false )
+{
+    *this = oth;
+}
+
+
 Horizon3D::~Horizon3D()
 {
     delete &auxdata;
@@ -333,6 +350,16 @@ const Horizon3DGeometry& Horizon3D::geometry() const
 mImplementEMObjFuncs( Horizon3D,
 				EMHorizon3DTranslatorGroup::sGroupName() )
 
+mImplMonitorableAssignment(Horizon3D,Surface);
+
+
+void Horizon3D::copyClassData( const Horizon3D& oth )
+{
+}
+
+Monitorable::ChangeType Horizon3D::compareClassData(
+					const Horizon3D& oth ) const
+{ return cNoChange(); }
 
 Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
 {

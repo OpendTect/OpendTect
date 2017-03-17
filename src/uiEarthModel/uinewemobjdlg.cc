@@ -93,9 +93,9 @@ bool uiNewFSSDlg::acceptOK()
 }
 
 
-RefMan<EM::FaultStickSet> uiNewFSSDlg::getFSS() const
+RefMan<EM::FaultStickSet> uiNewFSSDlg::getFSS()
 {
-    mDynamicCastGet(EM::FaultStickSet*,fss,emobj_)
+    mDynamicCastGet(EM::FaultStickSet*,fss,emobj_.ptr())
     return fss;
 }
 
@@ -135,7 +135,7 @@ RefMan<EM::EMObject> uiNewFlt3DDlg::getNewEMObject() const
 	    flt3d->removeAll();
     }
 
-    return flt3d; 
+    return flt3d;
 }
 
 
@@ -192,7 +192,7 @@ RefMan<EM::EMObject> uiNewHorizon3DDlg::getNewEMObject() const
     return horret;
 }
 
-    
+
 bool uiNewHorizon3DDlg::acceptOK()
 {
     RefMan<EM::EMObject> newhor = getNewEMObject();
@@ -209,9 +209,9 @@ bool uiNewHorizon3DDlg::acceptOK()
 }
 
 
-RefMan<EM::Horizon3D> uiNewHorizon3DDlg::getHorizon3D() const
+RefMan<EM::Horizon3D> uiNewHorizon3DDlg::getHorizon3D()
 {
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj_)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj_.ptr())
     return hor3d;
 }
 

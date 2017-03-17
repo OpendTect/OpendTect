@@ -33,7 +33,7 @@ FaultStickSet::FaultStickSet( const char* nm )
 	OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,3,Color::Yellow()) );
 }
 
-mImplMonitorableAssignment( FaultStickSet, SharedObject )
+mImplMonitorableAssignment( FaultStickSet, Surface )
 
 
 FaultStickSet::FaultStickSet( const FaultStickSet& oth )

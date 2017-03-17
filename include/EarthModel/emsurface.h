@@ -31,6 +31,7 @@ of one or more segments or patches, so they can overlap.
 mExpClass(EarthModel) Surface : public EMObject
 {
 public:
+				mDeclAbstractMonitorableAssignment(Surface);
 
     virtual void		removeAll();
 

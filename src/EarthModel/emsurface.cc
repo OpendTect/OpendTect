@@ -187,10 +187,25 @@ Surface::Surface( const char* nm )
 }
 
 
+Surface::Surface( const Surface& oth )
+    : EMObject(oth.name())
+{
+    *this = oth;
+}
+
+
+mImplMonitorableAssignment(Surface,EMObject);
+
 Surface::~Surface()
 {}
 
 void Surface::removeAll() {}
+
+void Surface::copyClassData( const Surface& oth )
+{ geometry() = oth.geometry(); }
+
+Monitorable::ChangeType Surface::compareClassData( const Surface& oth ) const
+{ return cNoChange(); }
 
 bool Surface::isAtEdge( const PosID& posid ) const
 { return geometry().isAtEdge(posid); }

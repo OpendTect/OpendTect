@@ -297,6 +297,8 @@ protected:
 				EMObject(const char*);
 				//!<must be called after creation
 
+				mDeclAbstractMonitorableAssignment(EMObject);
+
     virtual bool		setPosition(const EM::PosID&,
 					    const Coord3&,bool addtohistory,
 					    NodeSourceType type=Auto);
@@ -308,10 +310,10 @@ protected:
     DBKey			storageid_;
     uiString			errmsg_;
 
-    Color&			preferredcolor_;
-    Color&			selectioncolor_;
-    OD::LineStyle&		preferredlinestyle_;
-    OD::MarkerStyle3D&		preferredmarkerstyle_;
+    Color			preferredcolor_;
+    Color			selectioncolor_;
+    OD::LineStyle		preferredlinestyle_;
+    OD::MarkerStyle3D		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
 
