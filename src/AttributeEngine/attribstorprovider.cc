@@ -523,7 +523,7 @@ bool StorageProvider::setMSCProvSelData()
     SeisTrcTranslator* transl = reader.seisTranslator();
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	if ( !outputinterest_[idx] )
+	if ( !outputinterest_[idx] && transl && transl->componentInfo()[idx] )
 	    transl->componentInfo()[idx]->destidx = -1;
     }
 
