@@ -495,9 +495,9 @@ DataDistribution<VT>::positionForCumulative( VT val ) const
     if ( sz < 2 )
 	return sz == 1 ? sampling_.start : mUdf(PosType);
     else if ( val <= VT(0) )
-	return sampling_.start - 0.5f * sampling_.step;
+	return sampling_.start - PosType(0.5) * sampling_.step;
     else if ( val >= cumdata_.last() )
-	return sampling_.start + (sz-0.5) * sampling_.step;
+	return sampling_.start + PosType(sz-0.5) * sampling_.step;
 
     // this function is mostly used for clipping which is at start or end
     // simple bisection may then not be optimal.
@@ -510,7 +510,8 @@ DataDistribution<VT>::positionForCumulative( VT val ) const
 	    const VT nextval = cumdata_[idx];
 	    if ( val <= nextval )
 	    {
-		PosType prevpos = sampling_.start + (idx-0.5f) * sampling_.step;
+		PosType prevpos = sampling_.start + PosType(idx-0.5)
+						    * sampling_.step;
 		if ( val == nextval )
 		    return prevpos + sampling_.step;
 
@@ -527,7 +528,8 @@ DataDistribution<VT>::positionForCumulative( VT val ) const
 	    const VT prevval = cumdata_[idx-1];
 	    if ( val >= prevval )
 	    {
-		PosType prevpos = sampling_.start + (idx-0.5f) * sampling_.step;
+		PosType prevpos = sampling_.start + VT(idx-0.5)
+						    * sampling_.step;
 		if ( prevval == val )
 		    return prevpos;
 

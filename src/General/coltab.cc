@@ -47,7 +47,7 @@ virtual od_int64 nrIterations() const
 
 virtual bool doWork( od_int64 startidx, od_int64 stopidx, int )
 {
-    for ( int idx=startidx; idx<=stopidx; idx++ )
+    for ( int idx=(int)startidx; idx<=(int)stopidx; idx++ )
 	tbl_.setColor( seq_, mapper_, idx );
     return true;
 }
@@ -76,7 +76,7 @@ virtual od_int64 nrIterations() const
 
 virtual bool doWork( od_int64 startidx, od_int64 stopidx, int )
 {
-    for ( int idx=startidx; idx<=stopidx; idx++ )
+    for ( int idx=(int)startidx; idx<=(int)stopidx; idx++ )
 	tbl_.setIndex( mapper_, idx );
     return true;
 }
