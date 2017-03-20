@@ -11,7 +11,6 @@ ________________________________________________________________________
 -*/
 
 #include "valseries.h"
-#include "odmemory.h"
 
 #ifdef __debug__
 #include "debug.h"
@@ -147,84 +146,6 @@ protected:
     od_int64		cursize_;
     const od_int64	chunksize_;
 };
-
-
-/*!
-\brief Gets ValueSeries.
-*/
-
-template <class T>
-mClass(Basic) ValueSeriesGetAll : public ParallelTask
-{
-public:
-		ValueSeriesGetAll(const ValueSeries<T>& from,
-				  ValueSeries<T>& to, od_int64 nriterations )
-		    : from_( from )
-		    , to_( &to )
-		    , toptr_( 0 )
-		    , nriterations_( nriterations )
-		{}
-
-		ValueSeriesGetAll(const ValueSeries<T>& from, T* to,
-				  od_int64 nriterations	)
-		    : from_( from )
-		    , toptr_( to )
-		    , to_( 0 )
-		    , nriterations_( nriterations )
-		{}
-
-od_int64	nrIterations() const { return nriterations_; }
-bool		doWork( od_int64 start, od_int64 stop, int )
-		{
-		    od_int64 nrleft = stop-start+1;
-		    const T* fromarr = from_.arr();
-		    T* toarr = toptr_ ? toptr_ : to_->arr();
-		    if ( toarr && fromarr )
-			OD::memCopy( toarr+start, fromarr+start,
-			        (size_t) (nrleft*from_.bytesPerItem()) );
-		    else if ( toarr )
-		    {
-			toarr += start;
-			for ( od_int64 idx=start; idx<=stop; idx++, toarr++ )
-			    *toarr = from_.value( idx );
-		    }
-		    else if ( fromarr )
-		    {
-			fromarr += start;
-			for ( od_int64 idx=start; idx<=stop; idx++, fromarr++ )
-			    to_->setValue(idx, *fromarr );
-		    }
-		    else
-		    {
-			for ( od_int64 idx=start; idx<=stop; idx++ )
-			    to_->setValue(idx,from_.value(idx));
-		    }
-
-		    return true;
-		}
-
-protected:
-od_int64		nriterations_;
-const ValueSeries<T>&	from_;
-ValueSeries<T>*		to_;
-T*			toptr_;
-};
-
-
-template <class T> inline
-void ValueSeries<T>::getValues( ValueSeries<T>& to, od_int64 nrvals ) const
-{
-    ValueSeriesGetAll<T> setter( *this, to, nrvals );
-    setter.execute();
-}
-
-
-template <class T> inline
-void ValueSeries<T>::getValues( T* to, od_int64 nrvals ) const
-{
-    ValueSeriesGetAll<T> setter( *this, to, nrvals );
-    setter.execute();
-}
 
 
 template <class RT, class AT> inline
