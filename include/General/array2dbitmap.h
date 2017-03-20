@@ -30,7 +30,7 @@ mStruct(General) A2DBitMapGenPars
 		A2DBitMapGenPars()
 		  : nointerpol_(false)
 		  , autoscale_(true)
-		  , clipratio_(0.025,0.025)
+		  , clipratio_(0.025f,0.025f)
 		  , midvalue_( mUdf(float) )
 		  , scale_(0,1)			{}
 
