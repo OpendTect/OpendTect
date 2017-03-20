@@ -11,13 +11,13 @@ ________________________________________________________________________
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
-#include "uigraphicscoltab.h"
+#include "uicoltabgraphicsitem.h"
 #include "uifont.h"
 #include "uistrings.h"
 #include "angles.h"
 #include "mouseevent.h"
 #include "dataclipper.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "coltabmapper.h"
 #include <iostream>
 
@@ -288,7 +288,7 @@ void uiDirectionalPlot::drawColTab()
 	uiColTabItem::Setup su( true );
 	coltabitm_ = scene().addItem( new uiColTabItem(su) );
     }
-    coltabitm_->setMapperSetup( *new ColTab::MapperSetup(valrg_) );
+    coltabitm_->setMapper( new ColTab::Mapper(valrg_) );
     if ( colseq_ )
 	coltabitm_->setSequence( *colseq_ );
 

@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uidatapointsetcrossplot.h"
 
 #include "uidatapointset.h"
-#include "uigraphicscoltab.h"
+#include "uicoltabgraphicsitem.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uipixmap.h"
@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 
 #include "arrayndimpl.h"
+#include "coltabseqmgr.h"
+#include "datadistributionextracter.h"
 #include "densitycalc.h"
 #include "linear.h"
 #include "statrand.h"
@@ -81,6 +83,9 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , y2overlayctitem_(0)
     , yrowidxs_(0)
     , y2rowidxs_(0)
+    , ctmapper_(new ColTab::Mapper)
+    , y3mapper_(new ColTab::Mapper)
+    , y4mapper_(new ColTab::Mapper)
     , cellsize_(1)
     , showy3_(false)
     , showy4_(false)
@@ -111,13 +116,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     y_.defaxsu_.border_ = setup_.minborder_;
     y2_.defaxsu_.border_ = setup_.minborder_;
 
-    RefMan<ColTab::MapperSetup> msu
-		    = new ColTab::MapperSetup( y3mapper_.setup() );
-    msu->setClipRate( Interval<float>(0.0,0.0) );
-    y3mapper_.useSetup( *msu );
-    msu = new ColTab::MapperSetup( y4mapper_.setup() );
-    msu->setClipRate( Interval<float>(0.0,0.0) );
-    y4mapper_.useSetup( *msu );
+    y3mapper_->setup().setClipRate( ColTab::ClipRatePair(0.f,0.f) );
+    y4mapper_->setup().setClipRate( ColTab::ClipRatePair(0.f,0.f) );
 
     reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reSizeDrawCB) );
     reDrawNeeded.notify( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );
@@ -644,9 +644,9 @@ float uiDataPointSetCrossPlotter::getVal( int colid, int rid ) const
 }
 
 
-void uiDataPointSetCrossPlotter::setCTMapper( const ColTab::MapperSetup& su )
+void uiDataPointSetCrossPlotter::setCTMapper( const ColTab::Mapper& mpr )
 {
-    ctmapper_.setSetup( su );
+    *ctmapper_ = mpr;
 }
 
 
@@ -654,7 +654,7 @@ void uiDataPointSetCrossPlotter::setShowY3( bool yn )
 {
     showy3_ = yn;
     if ( y1overlayctitem_ )
-	y1overlayctitem_->setMapperSetup( y3mapper_.setup() );
+	y1overlayctitem_->setMapper( y3mapper_ );
 }
 
 
@@ -662,7 +662,7 @@ void uiDataPointSetCrossPlotter::setShowY4( bool yn )
 {
     showy4_ = yn;
     if ( y2overlayctitem_ )
-	y2overlayctitem_->setMapperSetup( y4mapper_.setup() );
+	y2overlayctitem_->setMapper( y4mapper_ );
 }
 
 
@@ -708,9 +708,7 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
 					     mCast(float,ypos)) );
     ConstRefMan<ColTab::Sequence> ctab = isy1 ? y3ctab_ : y4ctab_;
     coltabitem->setSequence( *ctab );
-    const ColTab::MapperSetup& mappersetup = isy1 ? y3mapper_.setup()
-						  : y4mapper_.setup();
-    coltabitem->setMapperSetup( mappersetup );
+    coltabitem->setMapper( isy1 ? y3mapper_ : y4mapper_ );
     coltabitem->setVisible( isy1 ? showy3_ : ( showy4_ && isY2Shown() ) );
 }
 
@@ -724,24 +722,21 @@ void uiDataPointSetCrossPlotter::updateOverlayMapper( bool isy1 )
     for ( int idx=0; idx<dps_.size(); idx++ )
 	ydata += uidps_.getVal( isy1 ? y3colid_ : y4colid_ , idx, true );
 
-    ArrayValueSeries<float,float> valseries( ydata.arr(), false );
-    ColTab::Mapper& mapper = isy1 ? y3mapper_ : y4mapper_;
-    mapper.setData( &valseries, ydata.size() );
+    ColTab::Mapper& mapper = *(isy1 ? y3mapper_ : y4mapper_);
+    DataDistributionExtracter<float> extr( ydata );
+    extr.execute();
+    mapper.distribution() = *extr.getDistribution();
 }
 
 
-void uiDataPointSetCrossPlotter::setOverlayY1AttMapr(
-				    const ColTab::MapperSetup& su )
-{ y3mapper_.setSetup( su ); }
+void uiDataPointSetCrossPlotter::setOverlayY1AttMapr( const ColTab::Mapper& m )
+{ *y3mapper_ = m; }
 
-
-void uiDataPointSetCrossPlotter::setOverlayY2AttMapr(
-				    const ColTab::MapperSetup& su )
-{ y3mapper_.setSetup( su ); }
+void uiDataPointSetCrossPlotter::setOverlayY2AttMapr( const ColTab::Mapper& m )
+{ *y4mapper_ = m; }
 
 void uiDataPointSetCrossPlotter::setOverlayY1AttSeq( const ColTab::Sequence& ct)
 { y3ctab_ = &ct; }
-
 
 void uiDataPointSetCrossPlotter::setOverlayY2AttSeq( const ColTab::Sequence& ct)
 { y4ctab_ = &ct; }
@@ -1418,8 +1413,8 @@ Color uiDataPointSetCrossPlotter::getOverlayColor( uiDataPointSet::DRowID rid,
     ConstRefMan<ColTab::Sequence> seq = isy1 ? y3ctab_ : y4ctab_;
     if ( mIsUdf(yval) ) return seq->undefColor();
 
-    const ColTab::Mapper& mapper = isy1 ? y3mapper_ : y4mapper_;
-    return seq->color( mapper.position(yval) );
+    const ColTab::Mapper& mapper = *(isy1 ? y3mapper_ : y4mapper_);
+    return seq->color( mapper.seqPosition(yval) );
 }
 
 
@@ -1670,19 +1665,11 @@ int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data, bool chgdps,
     if ( freqdata )
 	densitycalc.getFreqData( *freqdata );
 
-    const od_int64 totalsz =
-	data->info().getSize(true) * data->info().getSize(false);
+    DataDistributionExtracter<float> extr( *data );
+    extr.execute();
+    ctmapper_->distribution() = *extr.getDistribution();
 
-    int indexsz = densitycalc.indexSize();
-    ctmapper_.setData( data->getStorage(), totalsz );
-    Interval<float> mapperrg =
-	Interval<float>(ctmapper_.range().start<1 ? 1 : ctmapper_.range().start,
-			ctmapper_.range().stop > indexsz
-			? indexsz : ctmapper_.range().stop );
-    if ( ctmapper_.range().start<1 || ctmapper_.range().stop > indexsz )
-	ctmapper_.setRange( mapperrg );
-
-    return indexsz;
+    return densitycalc.indexSize();
 }
 
 
@@ -1719,10 +1706,10 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
     if ( indexsz < 1 )
 	return;
 
+    const Interval<float> rawrg( ctmapper_->getRange() );
     Interval<float> mapperrg =
-	Interval<float>(ctmapper_.range().start<1 ? 1 : ctmapper_.range().start,
-			ctmapper_.range().stop > indexsz
-			? indexsz : ctmapper_.range().stop );
+	Interval<float>(rawrg.start<1 ? 1 : rawrg.start,
+			rawrg.stop > indexsz ? indexsz : rawrg.stop );
     coltabRgChanged.trigger( mapperrg );
 
     rgbarr_.clear( Color::White() );
@@ -1735,7 +1722,7 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
 		continue;
 
 	    const float val = data->get( idy, idx );
-	    const float mappedval = ctmapper_.position( (float)val );
+	    const float mappedval = ctmapper_->seqPosition( val );
 	    Color col = ( val == 0 ) ? Color::White() : ctab_->color(mappedval);
 	    if ( col.isVisible() )
 		rgbarr_.set( idy, idx, col );

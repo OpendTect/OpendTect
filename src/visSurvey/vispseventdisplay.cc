@@ -8,6 +8,8 @@
 #include "vispseventdisplay.h"
 
 #include "binidvalset.h"
+#include "coltabseqmgr.h"
+#include "datadistributionextracter.h"
 #include "prestackevents.h"
 #include "survinfo.h"
 #include "valseries.h"
@@ -45,6 +47,7 @@ PSEventDisplay::PSEventDisplay()
     , markercolor_( Single )
     , eventmarkerset_( visBase::MarkerSet::create() )
     , ctabsequence_(ColTab::SeqMGR().getDefault())
+    , ctabmapper_(new ColTab::Mapper)
 {
     setLockable();
     linestyle_->ref();
@@ -54,7 +57,6 @@ PSEventDisplay::PSEventDisplay()
     eventmarkerset_->setMaterial( getMaterial() );
 
     addChild( eventmarkerset_->osgNode() );
-    ctabmapper_.setup().setIsFixed( false );
 }
 
 
@@ -157,50 +159,38 @@ PSEventDisplay::MarkerColor PSEventDisplay::getMarkerColor() const
 { return markercolor_; }
 
 
-void PSEventDisplay::setColMapperSetup( const ColTab::MapperSetup& n,
-					   bool update )
+void PSEventDisplay::setColTabMapper( int, const ColTab::Mapper& mpr,
+				      TaskRunner* )
 {
-    if ( ctabmapper_.setup() == n )
-	return;
-
-    ctabmapper_.setSetup( n );
-
-    if ( update )
+    if ( replaceMonitoredRef( ctabmapper_, mpr, this ) )
 	updateDisplay();
 }
 
 
-ConstRefMan<ColTab::MapperSetup> PSEventDisplay::getColTabMapper() const
+const ColTab::Mapper& PSEventDisplay::getColTabMapper( int ) const
 {
-    return &ctabmapper_.setup();
+    return *ctabmapper_;
 }
 
 
-ConstRefMan<ColTab::MapperSetup> PSEventDisplay::getColTabMapperSetup(
-						int visid, int attr ) const
+void PSEventDisplay::setColTabRange( Interval<float> rg )
 {
-    return &ctabmapper_.setup();
+    const_cast<ColTab::MapperSetup&>(ctabmapper_->setup()).setFixedRange( rg );
 }
 
 
-void PSEventDisplay::setColTabSequence( int ch, const ColTab::Sequence& n,
+void PSEventDisplay::setColTabSequence( int ch, const ColTab::Sequence& seq,
 					TaskRunner* tskr )
-{ setColTabSequence( n, true ); }
-
-void PSEventDisplay::setColTabSequence( const ColTab::Sequence& n, bool update )
 {
-    if ( ctabsequence_.ptr() == &n )
-	return;
-
-    ctabsequence_ = &n;
-
-    if ( update )
+    if ( replaceMonitoredRef(ctabsequence_,seq,this) )
 	updateDisplay();
 }
 
 
-const ColTab::Sequence* PSEventDisplay::getColTabSequence( int ) const
-{ return ctabsequence_; }
+const ColTab::Sequence& PSEventDisplay::getColTabSequence( int ) const
+{
+    return *ctabsequence_;
+}
 
 
 void PSEventDisplay::setDisplayMode( DisplayMode dm )
@@ -251,18 +241,6 @@ void PSEventDisplay::setMarkerStyle( const OD::MarkerStyle3D& st, bool update )
 	    pao->markerset_->setMarkerStyle( st );
     }
 }
-
-
-//bool PSEventDisplay::filterBinID( const BinID& bid ) const
-//{
-    //for ( int idx=0; idx<sectionranges_.size(); idx++ )
-    //{
-	//if ( sectionranges_[idx].includes( bid ) )
-	    //return false;
-    //}
-//
-    //return true;
-//}
 
 
 void PSEventDisplay::updateDisplay()
@@ -380,6 +358,18 @@ float PSEventDisplay::getMoveoutComp( const TypeSet<float>& offsets,
 }
 
 
+void PSEventDisplay::ensureDistribSet( const TypeSet<float>& vals )
+{
+    ColTab::Mapper& mpr = const_cast<ColTab::Mapper&>( *ctabmapper_ );
+    if ( mpr.distribution().isEmpty() )
+    {
+	DataDistributionExtracter<float> extr( vals );
+	if ( extr.execute() )
+	    mpr.distribution() = *extr.getDistribution();
+    }
+}
+
+
 void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 {
     if ( !eventman_ )
@@ -441,13 +431,12 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	}
 	else
 	{
-	    const ArrayValueSeries<float,float> vs(vals.arr(),0,vals.size());
-	    ctabmapper_.setData( &vs, vals.size() );
+	    ensureDistribSet( vals );
 	    for (int idx=0;idx<eventmarkerset_->getCoordinates()->size();idx++)
 	    {
 		const Color col = ctabsequence_->color(
-		    ctabmapper_.position( vals[idx]) );
-		 eventmarkerset_->getMaterial()->setColor(col,idx) ;
+		    ctabmapper_->seqPosition( vals[idx]) );
+		 eventmarkerset_->getMaterial()->setColor( col, idx ) ;
 	    }
 	}
 
@@ -624,18 +613,12 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     if ( markercolor_ != Single )
     {
-	if ( !ctabmapper_.setup().isFixed() )
-	{
-	    const ArrayValueSeries<float,float>
-		vs(values.arr(),0,values.size());
-	    ctabmapper_.setData( &vs, values.size() );
-	}
-
-	for ( int idx =0; idx<lastmarker; idx++ )
+	ensureDistribSet( values );
+	for ( int idx=0; idx<lastmarker; idx++ )
 	{
 	    Color color = ctabsequence_->color(
-		ctabmapper_.position(values[idx]) );
-	    pao->markerset_->getMaterial()->setColor(color, idx );
+		ctabmapper_->seqPosition(values[idx]) );
+	    pao->markerset_->getMaterial()->setColor( color, idx );
 	}
     }
 
@@ -697,10 +680,7 @@ void PSEventDisplay::eventChangeCB(CallBacker*)
     }
 
     if ( !parentattached_.size() )
-    {
-	retriveParents();
-	return;
-    }
+	{ retrieveParents(); return; }
 
     for ( int idx=parentattached_.size()-1; idx>=0; idx-- )
     {
@@ -766,7 +746,7 @@ bool PSEventDisplay::supportsDisplay() const
 }
 
 
-void PSEventDisplay::retriveParents()
+void PSEventDisplay::retrieveParents()
 {
     if ( !scene_ )
 	return;

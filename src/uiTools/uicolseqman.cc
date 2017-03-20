@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uicolseqman.h"
 
 #include "bufstring.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "draw.h"
 #include "keystrs.h"
 #include "mouseevent.h"
@@ -849,7 +849,7 @@ void uiColSeqMan::transpPtChgCB( CallBacker* )
 		continue;
 
 	    Sequence::TranspPtType tpt( pt.x_,
-					mRounded(Sequence::ValueType,pt.y_) );
+					mRounded(Sequence::CompType,pt.y_) );
 	    if ( idx==0 )
 		tpt.first = 0.f;
 	    else if ( idx==nrpts-1 )
@@ -865,9 +865,9 @@ void uiColSeqMan::transpPtChgCB( CallBacker* )
 	if ( !pt.isDefined() )
 	    return;
 
-	Sequence::TranspPtType tpt( pt.x_, mRounded(Sequence::ValueType,pt.y_));
+	Sequence::TranspPtType tpt( pt.x_, mRounded(Sequence::CompType,pt.y_));
 
-	const Sequence::PosType poseps = 0.00001f;
+	const ColTab::PosType poseps = 0.00001f;
 	bool reset = false;
 	if ( ptidx==0 && !mIsZero(tpt.first,poseps) )
 	{
@@ -901,7 +901,7 @@ void uiColSeqMan::transpPtSelCB( CallBacker* )
 	return;
 
     const Sequence::TranspPtType tpt( pt.x_,
-				      mRounded(Sequence::ValueType,pt.y_) );
+				      mRounded(Sequence::CompType,pt.y_) );
 
     curseq_->setTransparency( tpt );
 }

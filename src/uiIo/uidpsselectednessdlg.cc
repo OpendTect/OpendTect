@@ -121,14 +121,14 @@ void uiDPSSelectednessDlg::showOverlayAttrib()
     if ( selaxisfld_ && !selaxisfld_->getBoolValue() )
     {
 	plotter_.setOverlayY2Cols( dpscolid );
-	plotter_.setOverlayY2AttSeq( *coltabfld_->sequence() );
+	plotter_.setOverlayY2AttSeq( coltabfld_->sequence() );
 	plotter_.updateOverlayMapper( false );
 	plotter_.setShowY4( true );
     }
     else
     {
 	plotter_.setOverlayY1Cols( dpscolid );
-	plotter_.setOverlayY1AttSeq( *coltabfld_->sequence() );
+	plotter_.setOverlayY1AttSeq( coltabfld_->sequence() );
 	plotter_.updateOverlayMapper( true );
 	plotter_.setShowY3( true );
     }
@@ -146,10 +146,10 @@ void uiDPSSelectednessDlg::showIn3DScene()
     const int dpscolid = dps.indexOf( nmfld_->text() );
     const int bvscolid = dps.bivSetIdx( dpscolid );
     RefMan<ColTab::MapperSetup> mapsu = new ColTab::MapperSetup;
-    mapsu->setRange( dps.bivSet().valRange(bvscolid) );
+    mapsu->setFixedRange( dps.bivSet().valRange(bvscolid) );
 
     DataPointSetDisplayProp* dispprop =
-	new DataPointSetDisplayProp( *coltabfld_->sequence(), *mapsu, dpscolid);
+	new DataPointSetDisplayProp( coltabfld_->sequence(), *mapsu, dpscolid );
     plotter_.uidps().setDisp( dispprop );
 }
 

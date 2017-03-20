@@ -50,18 +50,15 @@ public:
 
     void			setMarkerColor(MarkerColor,bool update=true);
     MarkerColor			getMarkerColor() const;
-    void			setColMapperSetup(const ColTab::MapperSetup&,
-						     bool update=true);
-    ConstRefMan<ColTab::MapperSetup> getColTabMapper() const;
-    void			setColTabSequence(const ColTab::Sequence&,
-						  bool update=true);
-    virtual const ColTab::Sequence* getColTabSequence(int ch=0) const;
+    void			setColTabMapper(int,const ColTab::Mapper&,
+						TaskRunner*);
+    void			setColTabRange(Interval<float>);
+    virtual const ColTab::Mapper& getColTabMapper(int) const;
+    virtual const ColTab::Sequence& getColTabSequence(int ch=0) const;
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
 						  TaskRunner*);
     virtual bool		canSetColTabSequence() const { return true; }
     virtual int			nrAttribs() const { return 1; }
-    virtual ConstRefMan<ColTab::MapperSetup>
-				getColTabMapperSetup(int,int) const;
     virtual void		setPixelDensity(float);
 
     enum DisplayMode		{ ZeroOffset, FullOnSections,
@@ -93,17 +90,10 @@ protected:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
-    //bool			filterBinID(const BinID&) const;
-				/*!<\returns true if the binid should not be
-				     viewed. */
-
-
-    //visBase::PickStyle*		pickstyle_;
     void			eventChangeCB(CallBacker*);
     void			eventForceReloadCB(CallBacker*);
 
 
-    //TypeSet<TrcKeySampling>	sectionranges_;
     struct ParentAttachedObject
     {
 					ParentAttachedObject(int);
@@ -121,7 +111,8 @@ protected:
     void				updateDisplay();
     void				updateDisplay(ParentAttachedObject*);
     void				clearDisplay(ParentAttachedObject*);
-    void				retriveParents();
+    void				retrieveParents();
+    void				ensureDistribSet(const TypeSet<float>&);
     float				getMoveoutComp(const TypeSet<float>&,
 					const TypeSet<float>&) const;
 
@@ -137,11 +128,12 @@ protected:
     float				offsetscale_;
 
     MarkerColor				markercolor_;
-    ColTab::Mapper			ctabmapper_;
+    ConstRefMan<ColTab::Mapper>		ctabmapper_;
     ConstRefMan<ColTab::Sequence>	ctabsequence_;
     OD::MarkerStyle3D			markerstyle_;
     visBase::MarkerSet*			eventmarkerset_;
     mutable Threads::Lock		lock_;
+
 };
 
 } // namespace visSurvey

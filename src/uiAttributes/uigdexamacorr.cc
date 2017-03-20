@@ -185,8 +185,7 @@ bool GapDeconACorrView::setUpViewWin( bool isqc )
 	app.setDarkBG( false );
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
-	vwr.appearance().ddpars_.vd_.mappersetup_->setIsFixed( true );
-	vwr.appearance().ddpars_.vd_.mappersetup_->setRange(
+	vwr.appearance().ddpars_.vd_.mapper_->setup().setFixedRange(
 					Interval<float>(-1,1) );
 	vwr.setInitialSize( uiSize(600,400) );
 	fvwin->addControl( new uiFlatViewStdControl(vwr,

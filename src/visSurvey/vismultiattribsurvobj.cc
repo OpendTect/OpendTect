@@ -345,19 +345,6 @@ bool MultiTextureSurveyObject::canDisplayInteractively(
 }
 
 
-const visBase::DistribType&
-MultiTextureSurveyObject::getDataDistribution( int attrib ) const
-{
-    return channels_->getDataDistribution( attrib );
-}
-
-
-int MultiTextureSurveyObject::getColTabID( int attrib ) const
-{
-    return -1;
-}
-
-
 void MultiTextureSurveyObject::setColTabSequence( int attrib,
 			      ColTab::Sequence const& seq, TaskRunner* )
 {
@@ -375,51 +362,38 @@ bool MultiTextureSurveyObject::canSetColTabSequence() const
 
 
 
-const ColTab::Sequence*
+const ColTab::Sequence&
 MultiTextureSurveyObject::getColTabSequence( int attrib ) const
 {
     if ( attrib<0 || attrib>=nrAttribs() )
-	return 0;
+       return SurveyObject::getColTabSequence(attrib);
 
-    return &channels_->getChannels2RGBA()->getSequence( attrib );
+    return channels_->getChannels2RGBA()->getSequence( attrib );
 }
 
 
-void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
-			      const ColTab::MapperSetup& mapper, TaskRunner* )
+void MultiTextureSurveyObject::setColTabMapper( int attrib,
+			      const ColTab::Mapper& mapper, TaskRunner* )
 {
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-    ConstRefMan<ColTab::MapperSetup> old
-		= channels_->getColTabMapperSetup(attrib,0);
-    if ( *old != mapper )
+    const ColTab::Mapper& old = channels_->getColTabMapper( attrib );
+    if ( &old != &mapper )
     {
-	const bool needsreclip = old->needsReClip( mapper );
-	channels_->setColTabMapperSetup( attrib, mapper );
-	channels_->reMapData( attrib, !needsreclip, 0 );
+	channels_->setColTabMapper( attrib, mapper );
+	channels_->reMapData( attrib, 0 );
     }
 }
 
 
-ConstRefMan<ColTab::MapperSetup>
-MultiTextureSurveyObject::getColTabMapperSetup( int attrib ) const
-{
-    return getColTabMapperSetup( attrib, mUdf(int) );
-}
-
-
-ConstRefMan<ColTab::MapperSetup>
-MultiTextureSurveyObject::getColTabMapperSetup( int attrib, int version ) const
+const ColTab::Mapper&
+MultiTextureSurveyObject::getColTabMapper( int attrib ) const
 {
     if ( attrib<0 || attrib>=nrAttribs() )
-	return 0;
+	return *new ColTab::Mapper;
 
-    if ( mIsUdf(version) || version<0
-			 || version >= channels_->nrVersions(attrib) )
-	version = channels_->currentVersion( attrib );
-
-    return channels_->getColTabMapperSetup( attrib, version );
+    return channels_->getColTabMapper( attrib );
 }
 
 
@@ -460,24 +434,21 @@ void MultiTextureSurveyObject::fillPar( IOPar& par ) const
 	IOPar attribpar;
 	getSelSpec(attrib)->fillPar( attribpar );
 
-	if ( canSetColTabSequence() && getColTabSequence( attrib ) )
+	if ( canSetColTabSequence() )
 	{
 	    IOPar seqpar;
-	    const ColTab::Sequence* seq = getColTabSequence( attrib );
-	    if ( seq->isSys() )
-		seqpar.set( sKey::Name(), seq->name() );
+	    const ColTab::Sequence& seq = getColTabSequence( attrib );
+	    if ( seq.isSys() )
+		seqpar.set( sKey::Name(), seq.name() );
 	    else
-		seq->fillPar( seqpar );
+		seq.fillPar( seqpar );
 
 	    attribpar.mergeComp( seqpar, sKeySequence() );
 	}
 
-	if ( getColTabMapperSetup( attrib ) )
-	{
-	    IOPar mapperpar;
-	    getColTabMapperSetup( attrib )->fillPar( mapperpar );
-	    attribpar.mergeComp( mapperpar, sKeyMapper() );
-	}
+	IOPar mapperpar;
+	getColTabMapper( attrib ).setup().fillPar( mapperpar );
+	attribpar.mergeComp( mapperpar, sKeyMapper() );
 
 	attribpar.set( sKeyTextTrans(),
 		       getAttribTransparency( attrib ) );
@@ -546,9 +517,9 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	if ( !islowest )
 	{
 	    const ColTab::Sequence& seq = tx2rgba->getSequence( idx );
-	    const ColTab::Mapper& map = channels_->getColTabMapper(idx,version);
+	    const ColTab::Mapper& mpr = channels_->getColTabMapper( idx );
 	    const Color col = mIsUdf(fval) ? seq.undefColor()
-					   : seq.color( map.position(fval) );
+					   : seq.color( mpr.seqPosition(fval) );
 	    if ( col.t() == 255 )
 		continue;
 	}

@@ -50,7 +50,6 @@ set( OD_MODULE_SOURCES
 	genericnumer.cc
 	gridder2d.cc
 	hilberttransform.cc
-	histequalizer.cc
 	houghtransform.cc
 	initalgo.cc
 	interpollayermodel.cc

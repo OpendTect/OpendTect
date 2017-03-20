@@ -9,14 +9,15 @@
 
 #include "arraynd.h"
 #include "draw.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "envvars.h"
 #include "genc.h"
 #include "iopar.h"
 #include "vismaterial.h"
-#include "valseries.h"
+#include "valseriesimpl.h"
 #include "visdataman.h"
 #include "visrgbatexturechannel2rgba.h"
-#include "datadistribution.h"
 #include "od_ostream.h"
 #include "uistrings.h"
 
@@ -54,8 +55,9 @@ VolumeRenderScalarField::AttribData::AttribData()
     , datatkzs_( false )
     , resizecache_( 0 )
     , ownsresizecache_( false )
-    , distrib_(new DistribType)
-{}
+    , mapper_( new ColTab::Mapper )
+{
+}
 
 
 VolumeRenderScalarField::AttribData::~AttribData()
@@ -540,10 +542,6 @@ void VolumeRenderScalarField::updateResizeCache( int attr, TaskRunner* tskr )
 	attribs_[attr]->ownsresizecache_ = true;
     }
 
-    //TODO: if 8-bit data & some flags, use data itself
-    if ( !attribs_[attr]->mapper_.setup().isFixed() )
-	clipData( attr, tskr );
-
     makeIndices( attr, tskr );
 }
 
@@ -570,44 +568,19 @@ TrcKeyZSampling VolumeRenderScalarField::getMultiAttribTrcKeyZSampling() const
 
 const ColTab::Mapper& VolumeRenderScalarField::getColTabMapper( int attr )
 {
-    return attribs_[attribs_.validIdx(attr) ? attr : 0]->mapper_;
+    return *attribs_[attribs_.validIdx(attr) ? attr : 0]->mapper_;
 }
 
 
-void VolumeRenderScalarField::setColTabMapperSetup( int attr,
-			    const ColTab::MapperSetup& ms, TaskRunner* tskr )
+void VolumeRenderScalarField::setColTabMapper( int attr,
+			    const ColTab::Mapper& mpr, TaskRunner* tskr )
 {
     mCheckAttribStore( attr );
 
-    if ( attribs_[attr]->mapper_.setup() == ms )
+    if ( !replaceMonitoredRef(attribs_[attr]->mapper_,mpr,this) )
 	return;
-
-    attribs_[attr]->mapper_.setSetup( ms );
-
-    if ( !attribs_[attr]->mapper_.setup().isFixed() )
-	clipData( attr, tskr );
 
     makeIndices( attr, tskr );
-}
-
-
-const DistribType& VolumeRenderScalarField::getDataDistribution(
-					int attr ) const
-{
-    return *attribs_[attribs_.validIdx(attr) ? attr : 0]->distrib_;
-}
-
-
-void VolumeRenderScalarField::clipData( int attr, TaskRunner* tskr )
-{
-    mCheckAttribStore( attr );
-
-    if ( !attribs_[attr]->resizecache_ )
-	return;
-
-    const od_int64 totalsz = getMultiAttribTrcKeyZSampling().totalNr();
-    attribs_[attr]->mapper_.setData( attribs_[attr]->resizecache_, totalsz,
-									tskr );
 }
 
 
@@ -617,7 +590,6 @@ void VolumeRenderScalarField::makeColorTables( int attr )
 
     const ColTab::Sequence* sequence =
 		getChannels2RGBA() ? &getChannels2RGBA()->getSequence(attr) : 0;
-
     if ( !sequence || isrgba_ )
 	return;
 
@@ -735,34 +707,32 @@ void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tskr )
     // Reverse the index order, because osgVolume turns out to perform well
     // for one sense of the coordinate system only, and OD uses the other. A
     // transform in visSurvey::VolumeDisplay does the geometrical mirroring.
+
     const int idxstep = -attribs_[attr]->indexcachestep_;
     unsigned char* idxptr = attribs_[attr]->indexcache_ - (totalsz-1)*idxstep;
     unsigned char* udfptr = hasundefchannel ? idxptr+1 : 0;
-    ColTab::DataMapper<unsigned char> infcoll( attribs_[attr]->mapper_,
-			    totalsz, mNrColors-1, *attribs_[attr]->resizecache_,
-			    idxptr, idxstep, udfptr, idxstep );
 
-    if ( tskr ? !tskr->execute(infcoll) : !infcoll.execute() )
-	return;
-
-    const int histsz = infcoll.histogram().size();
-    unsigned int histmax = 0;
-    const unsigned int* histogram = infcoll.histogram().arr();
-    for ( int idx=0; idx<histsz; idx++ )
+    //TODO parallelize
+    const int nrnormcolors = mNrColors - 1;
+    const ColTab::IndexTable idxtbl( nrnormcolors, *attribs_[attr]->mapper_ );
+    const ValueSeries<float>* vs = attribs_[attr]->resizecache_;
+    const float* ptrvals = vs->arr();
+    unsigned char* ptrmappedvals = idxptr;
+    const int spacing = idxstep;
+    unsigned char* ptrmappedudfs = udfptr;
+    const unsigned char udfcolidx = (unsigned char)nrnormcolors;
+    for ( int idx=0; idx<totalsz; idx++ )
     {
-	if ( histogram[idx] > histmax )
-	    histmax = histogram[idx];
-    }
-
-    attribs_[attr]->distrib_ = new DistribType(
-			    infcoll.histogramSampling(), mNrColors-1 );
-    float* distribarr = attribs_[attr]->distrib_->getArr();
-    if ( histmax < 1 )
-	OD::memZero( distribarr, histsz*sizeof(float) );
-    else
-    {
-	for ( int idx=0; idx<histsz; idx++ )
-	    distribarr[idx] = ((float)histogram[idx])/histmax;
+	const float val = ptrvals ? ptrvals[idx] : vs->value( idx );
+	const bool isudf = mIsUdf(val);
+	*ptrmappedvals = isudf ? udfcolidx
+			       : (unsigned char)idxtbl.indexFor( val );
+	ptrmappedvals += spacing;
+	if ( isudf )
+	{
+	    *ptrmappedudfs = isudf ? (unsigned char)0 : udfcolidx;
+	    ptrmappedudfs += spacing;
+	}
     }
 
     unsigned char one = 1;

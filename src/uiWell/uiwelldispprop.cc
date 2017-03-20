@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uichecklist.h"
 #include "uicolor.h"
 #include "uicolseqsel.h"
+#include "uicolsequsemodesel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"

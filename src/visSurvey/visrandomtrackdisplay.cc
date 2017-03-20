@@ -806,8 +806,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, 0,
-				    interactivetexturedisplay_ );
+	channels_->setUnMappedData( attrib, idx, arr, cp, 0 );
     }
 
     channels_->turnOn( true );
@@ -1394,11 +1393,9 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
 	if ( selspecs ) rtd->setSelSpecs( idx, *selspecs );
 	rtd->setDataPackID( idx, getDataPackID(idx), taskr );
-	ConstRefMan<ColTab::MapperSetup> mappersu = getColTabMapperSetup( idx );
-	if ( mappersu )
-	    rtd->setColTabMapperSetup( idx, *mappersu, taskr );
-	const ColTab::Sequence* colseq = getColTabSequence( idx );
-	if ( colseq ) rtd->setColTabSequence( idx, *colseq, taskr );
+	rtd->setColTabMapper( idx, getColTabMapper(idx), taskr );
+	const ColTab::Sequence& colseq = getColTabSequence( idx );
+	rtd->setColTabSequence( idx, colseq, taskr );
     }
 
     return rtd;

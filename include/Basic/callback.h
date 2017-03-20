@@ -159,7 +159,7 @@ public:
     void	disableAll(bool yn=true);
     bool	hasAnyDisabled() const;
 
-    void	removeWith(CallBacker*);
+    void	removeWith(const CallBacker*);
 		//!<\note lock lock_ before calling
     void	removeWith(CallBackFunction);
 		//!<\note lock lock_ before calling
@@ -188,34 +188,35 @@ public:
 			CallBacker(const CallBacker&);
     virtual		~CallBacker();
 
-    bool		attachCB(NotifierAccess&,const CallBack&,
-				 bool onlyifnew=false);
+    bool		attachCB(const NotifierAccess&,const CallBack&,
+				 bool onlyifnew=false) const;
 			/*!<Adds cb to notifier, and makes sure
 			    it is removed later when object is
 			    deleted.
 			    \returns if it was attached. */
-    bool		attachCB(NotifierAccess* notif,const CallBack& cb,
-				 bool onlyifnew=false);
+    bool		attachCB(const NotifierAccess* notif,const CallBack& cb,
+				 bool onlyifnew=false) const;
 			/*!<\note Attaches only if \param notif is not null.*/
 
-    void		detachCB(NotifierAccess&,const CallBack&);
+    void		detachCB(const NotifierAccess&,const CallBack&) const;
 			/*!<\note Normally not needed if you don't
 			          want this explicitly. */
-    void		detachCB(NotifierAccess* notif,const CallBack& cb)
+    void		detachCB( const NotifierAccess* notif,
+				  const CallBack& cb) const
 			{ if ( notif ) detachCB( *notif, cb ); }
 			/*!<\note Detaches only if \param notif is not null.*/
 
-    bool		isNotifierAttached(NotifierAccess*) const;
+    bool		isNotifierAttached(const NotifierAccess*) const;
 			//!<Only for debugging purposes, don't use
     virtual bool	isCapsule() const	{ return false; }
 
 protected:
 
-    void		detachAllNotifiers();
+    void		detachAllNotifiers() const;
 			//!<Call from the destructor of your inherited object
 private:
 
-    bool		notifyShutdown(NotifierAccess*,bool wait);
+    bool		notifyShutdown(const NotifierAccess*,bool wait) const;
 			/*!<\returns false only if wait and no lock could be
 				     obtained. */
 
@@ -227,7 +228,7 @@ private:
 
 public:
 
-    void				stopReceivingNotifications()
+    void				stopReceivingNotifications() const
 					{ detachAllNotifiers(); }
 
     static void				createReceiverForCurrentThread();
@@ -272,9 +273,7 @@ public:
 };
 
 
-/*!
-\ingroup Basic
-\brief Unpacking data from capsule.
+/*!\ingroup Basic \brief Unpacking data from capsule.
 
   If you have a pointer to a capsule cb, this:
   \code

@@ -182,7 +182,6 @@ public:
 						   const Attrib::SelSpec&);
     bool			calcRandomPosAttrib(int visid,int attrib);
     bool			calcMultipleAttribs(Attrib::SelSpec&);
-    NotifierAccess*		colorTableSeqChange();
     void			addVisDPSChild(CallBacker*);
     void			manSurvCB(CallBacker*);
     void			seisOut2DCB(CallBacker*);
@@ -287,9 +286,6 @@ protected:
     void			surveyToBeChanged(CallBacker*);
     void			surveyChanged(CallBacker*);
     void			colSeqChg(CallBacker*);
-    void			colSeqModif(CallBacker*);
-    void			colMapperChg(CallBacker*);
-    void			setColTabDistribution(int visid,int attrib);
     void			storeEMObject(bool saveas=false);
 
     void			manStrat();

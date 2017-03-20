@@ -9,6 +9,7 @@
 
 #include "arrayndimpl.h"
 #include "binidsurface.h"
+#include "coltabseqmgr.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emeditor.h"
@@ -505,8 +506,8 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
 	setColTabSequence( attrib, *seq, 0 );
-	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
-	setColTabMapperSetup( attrib, *mapsetup, 0 );
+	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
+	setColTabMapper( attrib, *mapper, 0 );
     }
 }
 

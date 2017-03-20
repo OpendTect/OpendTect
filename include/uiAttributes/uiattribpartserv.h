@@ -42,7 +42,7 @@ class uiAttribCrossPlot;
 class uiAttrSetMan;
 class uiAttrVolOut;
 class uiImpAttrSet;
-namespace ColTab { class MapperSetup; }
+namespace ColTab { class Mapper; }
 namespace Pick { class Set; }
 namespace ZDomain { class Info; class Def; }
 
@@ -182,8 +182,8 @@ public:
 			//!< For services that can work on 2D or 3D
     void		showXPlot(CallBacker*);
 
-    void		setEvalBackupColTabMapper(const ColTab::MapperSetup*);
-    const ColTab::MapperSetup* getEvalBackupColTabMapper() const;
+    void		setEvalBackupColTabMapper(const ColTab::Mapper*);
+    const ColTab::Mapper* getEvalBackupColTabMapper() const;
 
     void		setSelAttr(const char* attrnm,bool isnewset=true);
     void		loadDefaultAttrSet(const char* attrsetnm);
@@ -256,7 +256,7 @@ protected:
 
     DataPointSetDisplayMgr*	dpsdispmgr_;
 
-    ColTab::MapperSetup*	evalmapperbackup_;
+    const ColTab::Mapper*	evalmapperbackup_;
 
 private:
 

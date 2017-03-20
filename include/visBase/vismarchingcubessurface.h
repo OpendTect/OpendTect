@@ -14,13 +14,13 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "samplingdata.h"
 
-template <class T> class SamplingData;
 class MarchingCubesSurface;
 class ExplicitMarchingCubesSurface;
-class TaskRunner;
+
 
 namespace visBase
 {
+
 class Transformation;
 class GeomIndexedShape;
 
@@ -29,6 +29,7 @@ class GeomIndexedShape;
 mExpClass(visBase) MarchingCubesSurface : public VisualObjectImpl
 {
 public:
+
     static MarchingCubesSurface*	create()
 					mCreateDataObj(MarchingCubesSurface);
 
@@ -67,7 +68,9 @@ public:
 
 
 protected:
+
 					~MarchingCubesSurface();
+
     void				updateHints();
     void				updateDisplayRange();
     static const char*			sKeyCoordIndex() { return "CoordIndex";}
@@ -82,6 +85,7 @@ protected:
 
     ExplicitMarchingCubesSurface*	surface_;
     const mVisTrans*			transform_;
+
 };
 
 };

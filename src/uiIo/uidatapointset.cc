@@ -97,7 +97,8 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
 	coltabfld_->setSeqName( prevdispprop->colSequence().name() );
-	coltabfld_->useMapperSetup( prevdispprop->colMapperSetUp() );
+	coltabfld_->setMapper( const_cast<DataPointSetDisplayProp*>(
+				prevdispprop)->colTabMapper() );
     }
 
     attribChanged( 0 );
@@ -126,15 +127,16 @@ const char* colName() const
 { return selfld_->box()->text(); }
 
 const ColTab::Sequence& ctSeq() const
-{ return *coltabfld_->sequence(); }
+{ return coltabfld_->sequence(); }
 
 const ColTab::MapperSetup& ctMapperSetup() const
-{ return *coltabfld_->mapperSetup(); }
+{ return coltabfld_->mapper().setup(); }
 
     uiGenInput*				typefld_;
     uiLabeledComboBox*			selfld_;
     uiColTabSel*			coltabfld_;
     const uiDataPointSetCrossPlotter&	plotter_;
+
 };
 
 

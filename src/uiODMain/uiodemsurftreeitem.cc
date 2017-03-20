@@ -92,7 +92,6 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
 	emd->deSelection()->remove(
 		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
-	ODMainWin()->colTabEd().setColTab( 0, 0, 0 );
     }
 
     if ( MPE::engine().hasTracker(emid_) )
@@ -114,6 +113,21 @@ bool uiODEarthModelSurfaceTreeItem::init()
 
     if ( MPE::engine().hasTracker(emid_) )
 	MPE::engine().refTracker( emid_ );
+
+    //TODO PrIMPL this has to go to Probe stuff
+    if ( visserv_->hasAttrib( displayid_ ) )
+    {
+	for ( int attrib=0; attrib<visserv_->getNrAttribs(displayid_); attrib++)
+	{
+	    const Attrib::SelSpec* as = visserv_->getSelSpec(displayid_,attrib);
+	    uiODDataTreeItem* item = createAttribItem( as );
+	    if ( item )
+	    {
+		addChild( item, false );
+		item->setChecked( visserv_->isAttribEnabled(displayid_,attrib));
+	    }
+	}
+    }
 
     EM::IOObjInfo eminfo( EM::EMM().getDBKey(emid_) );
     timelastmodified_ = eminfo.timeLastModified();

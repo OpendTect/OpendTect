@@ -19,15 +19,17 @@ ________________________________________________________________________
 #include "task.h"
 #include "thread.h"
 
+class uiTreeViewItem;
+class uiTreeView;
+class uiParent;
+namespace ColTab { class Sequence; }
+
+
 /*!\brief
 are helping classes for uiTreeViews, wich makes it easy to bundle inteligence
 and data to treeitems. Usage is normally to create the uiTreeTopItem, run
 its init() and add Childrens.
 */
-
-class uiTreeViewItem;
-class uiTreeView;
-class uiParent;
 
 mExpClass(uiTools) uiTreeItem : public CallBacker
 { mODTextTranslationClass(uiTreeItem)
@@ -156,6 +158,8 @@ public:
     virtual void		translateText() { updateColumnText( 0 ); }
     uiTreeViewItem*		getItem()	{ return uitreeviewitem_; }
     const uiTreeViewItem*	getItem() const { return uitreeviewitem_; }
+
+    void			setPixmap(int col,const ColTab::Sequence*);
 
 protected:
 

@@ -8,6 +8,8 @@
 #include "vismarchingcubessurfacedisplay.h"
 
 #include "arrayndimpl.h"
+#include "coltabseqmgr.h"
+#include "coltabmapper.h"
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "emmanager.h"
@@ -208,29 +210,29 @@ bool MarchingCubesDisplay::canHandleColTabSeqTrans(int) const
 { return false; }
 
 
-ConstRefMan<ColTab::MapperSetup>
-MarchingCubesDisplay::getColTabMapperSetup( int attrib, int version ) const
+#define mColTabMapper() displaysurface_->getShape()->getColTabMapper()
+
+
+const ColTab::Mapper&
+MarchingCubesDisplay::getColTabMapper( int attrib ) const
 {
-    return !attrib && (!version || mIsUdf(version)) && displaysurface_
-	? displaysurface_->getShape()->getDataMapper()
-	: 0;
+    return mColTabMapper();
 }
 
 
-void MarchingCubesDisplay::setColTabMapperSetup( int attrib,
-	const ColTab::MapperSetup& setup, TaskRunner* taskrunner )
+void MarchingCubesDisplay::setColTabMapper( int attrib,
+	const ColTab::Mapper& mpr, TaskRunner* )
 {
     if ( !attrib && displaysurface_ )
-	displaysurface_->getShape()->setDataMapper( setup, taskrunner );
+	displaysurface_->getShape()->setColTabMapper( mpr );
 }
 
 
-const ColTab::Sequence*
+const ColTab::Sequence&
 MarchingCubesDisplay::getColTabSequence( int attrib ) const
 {
-    return !attrib && displaysurface_
-	? displaysurface_->getShape()->getDataSequence()
-	: 0;
+    return displaysurface_ ? displaysurface_->getShape()->getColTabSequence()
+			   : *ColTab::SeqMGR().getDefault();
 }
 
 
@@ -238,12 +240,14 @@ void MarchingCubesDisplay::setColTabSequence( int attrib,
 			      const ColTab::Sequence& seq, TaskRunner* )
 {
     if ( !attrib && displaysurface_ )
-	displaysurface_->getShape()->setDataSequence( seq );
+	displaysurface_->getShape()->setColTabSequence( seq );
 }
 
 
 bool MarchingCubesDisplay::canSetColTabSequence() const
-{ return true; }
+{
+    return true;
+}
 
 
 void MarchingCubesDisplay::setSelSpecs(
@@ -347,8 +351,8 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
 	setColTabSequence( attrib, *seq, 0 );
-	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
-	setColTabMapperSetup( attrib, *mapsetup, 0 );
+	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
+	setColTabMapper( attrib, *mapper, 0 );
     }
 }
 
@@ -371,8 +375,8 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
 	setColTabSequence( attrib, *seq, 0 );
-	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
-	setColTabMapperSetup( attrib, *mapsetup, 0 );
+	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
+	setColTabMapper( attrib, *mapper, 0 );
     }
 }
 
@@ -590,25 +594,22 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
     IOPar attribpar;
     as_[0].fillPar( attribpar ); //Right now only one attribute for the body
 
-    if ( canSetColTabSequence() && getColTabSequence( 0 ) )
+    if ( canSetColTabSequence() )
     {
 	IOPar seqpar;
-	const ColTab::Sequence* seq = getColTabSequence( 0 );
-	if ( ColTab::SeqMGR().isPresent(seq->name()) )
-	    seqpar.set( sKey::Name(), seq->name() );
+	const ColTab::Sequence& seq = getColTabSequence( 0 );
+	if ( ColTab::SeqMGR().isPresent(seq.name()) )
+	    seqpar.set( sKey::Name(), seq.name() );
 	else
-	    seq->fillPar( seqpar );
+	    seq.fillPar( seqpar );
 
 	attribpar.mergeComp( seqpar, sKeyColTabSequence() );
     }
 
-    ConstRefMan<ColTab::MapperSetup> mapsetup = getColTabMapperSetup( 0, 0 );
-    if ( mapsetup )
-    {
-	IOPar mapperpar;
-	mapsetup->fillPar( mapperpar );
-	attribpar.mergeComp( mapperpar, sKeyColTabMapper() );
-    }
+    const ColTab::Mapper& mapper = getColTabMapper( 0 );
+    IOPar mapperpar;
+    mapper.setup().fillPar( mapperpar );
+    attribpar.mergeComp( mapperpar, sKeyColTabMapper() );
 
     par.mergeComp( attribpar, sKeyAttribSelSpec() );
 }
@@ -650,11 +651,8 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
 
 	PtrMan<IOPar> mappar = attribpar->subselect( sKeyColTabMapper() );
 	if ( mappar )
-	{
-	    RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
-	    mapsetup->usePar( *mappar );
-	    setColTabMapperSetup( 0, *mapsetup, 0 );
-	}
+	    const_cast<ColTab::MapperSetup&>(mColTabMapper().setup())
+		    .usePar( *mappar );
     }
 
     return true;

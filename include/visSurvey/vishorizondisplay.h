@@ -151,14 +151,13 @@ public:
     float			calcDist(const Coord3&) const;
     float			maxDist() const;
 
-    const ColTab::Sequence*	getColTabSequence(int attr) const;
+    const ColTab::Sequence&	getColTabSequence(int attr) const;
     bool			canSetColTabSequence() const;
     void			setColTabSequence(int attr,
 				    const ColTab::Sequence&,TaskRunner*);
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int,int v=0) const;
-    void			setColTabMapperSetup(int,
-				    const ColTab::MapperSetup&,TaskRunner*);
-    const visBase::DistribType&	getDataDistribution(int) const;
+    const ColTab::Mapper&	getColTabMapper(int) const;
+    void			setColTabMapper(int,const ColTab::Mapper&,
+						TaskRunner*);
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
@@ -302,7 +301,7 @@ private:
     StepInterval<int>			parrowrg_;
     StepInterval<int>			parcolrg_;
 
-    TypeSet<RefMan<ColTab::MapperSetup> > coltabmappersetups_;
+    TypeSet<ConstRefMan<ColTab::Mapper> > coltabmappers_;
     TypeSet<ConstRefMan<ColTab::Sequence> > coltabsequences_;
     bool				enabletextureinterp_;
 

@@ -24,7 +24,7 @@ ___________________________________________________________________
 #include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
 #include "attribdescset.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "probemanager.h"
 #include "zdomain.h"
 
@@ -231,7 +231,7 @@ bool uiODSceneProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
 	AttribProbeLayer* attriblayer =
 	    new AttribProbeLayer( AttribProbeLayer::RGB );
 	attriblayer->setSelSpec( rgbaspecs[idx] );
-	attriblayer->setColSeq( &ColTab::SeqMGR().getRGBBlendColSeq(idx) );
+	attriblayer->setSequence( ColTab::SeqMGR().getRGBBlendColSeq(idx) );
 	probe.addLayer( attriblayer );
     }
 

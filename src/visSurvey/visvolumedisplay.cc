@@ -24,6 +24,8 @@ ________________________________________________________________________
 #include "array3dfloodfill.h"
 #include "arrayndimpl.h"
 #include "attribsel.h"
+#include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "dbman.h"
 #include "marchingcubes.h"
 #include "picksetmanager.h"
@@ -204,6 +206,7 @@ void VolumeDisplay::materialChange( CallBacker* )
 
 void VolumeDisplay::updateIsoSurfColor()
 {
+    const ColTab::Sequence& colseq = getColTabSequence( 0 );
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
 	if ( mIsUdf( isosurfsettings_[idx].isovalue_) )
@@ -212,13 +215,13 @@ void VolumeDisplay::updateIsoSurfColor()
 	const float val = isosurfsettings_[idx].isovalue_;
 	Color col;
 	if ( mIsUdf(val) )
-	    col = getColTabSequence( 0 )->undefColor();
+	    col = colseq.undefColor();
 	else
 	{
 	    // TODO: adapt to multi-attrib
 	    const float mappedval =
-		scalarfield_->getColTabMapper(0).position( val );
-	    col = getColTabSequence( 0 )->color( mappedval );
+		scalarfield_->getColTabMapper(0).seqPosition( val );
+	    col = colseq.color( mappedval );
 	}
 
 	isosurfaces_[idx]->getMaterial()->setColor( col );
@@ -494,7 +497,7 @@ bool VolumeDisplay::isVolRenShown() const
 float VolumeDisplay::defaultIsoValue() const
 {
     // TODO: adapt to multi-attrib
-    return attribs_[0]->cache_ ? getColTabMapperSetup(0)->range().center()
+    return attribs_[0]->cache_ ? getColTabMapper(0).getRange().center()
 			       : mUdf(float);
 }
 
@@ -1027,13 +1030,6 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
 }
 
 
-const visBase::DistribType& VolumeDisplay::getDataDistribution(
-							int attrib ) const
-{
-    return scalarfield_->getDataDistribution( attrib );
-}
-
-
 SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat( int ) const
 { return visSurvey::SurveyObject::Cube; }
 
@@ -1314,8 +1310,8 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tskr ) const
 
 	vd->setSelSpecs( attrib, *attribs_[attrib]->as_ );
 	vd->setDataVolume( attrib, attribs_[attrib]->cache_, tskr );
-	vd->setColTabMapperSetup( attrib,
-		       scalarfield_->getColTabMapper(attrib).setup(), tskr );
+	vd->setColTabMapper( attrib, scalarfield_->getColTabMapper(attrib),
+			     tskr );
 	vd->setColTabSequence( attrib,
 			       getChannels2RGBA()->getSequence(attrib), tskr );
     }
@@ -1409,25 +1405,24 @@ void VolumeDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 }
 
 
-const ColTab::Sequence* VolumeDisplay::getColTabSequence( int attrib ) const
+const ColTab::Sequence& VolumeDisplay::getColTabSequence( int attrib ) const
 {
-    return getChannels2RGBA() ? &getChannels2RGBA()->getSequence(attrib) : 0;
+    return getChannels2RGBA() ? getChannels2RGBA()->getSequence(attrib)
+	 : SurveyObject::getColTabSequence(attrib);
 }
 
 
-void VolumeDisplay::setColTabMapperSetup( int attrib,
-					  const ColTab::MapperSetup& ms,
-					  TaskRunner* tskr )
+void VolumeDisplay::setColTabMapper( int attrib, const ColTab::Mapper& mpr,
+				      TaskRunner* tskr )
 {
-    scalarfield_->setColTabMapperSetup( attrib, ms, tskr );
+    scalarfield_->setColTabMapper( attrib, mpr, tskr );
     updateIsoSurfColor();
 }
 
 
-ConstRefMan<ColTab::MapperSetup> VolumeDisplay::getColTabMapperSetup(
-				int attrib, int version ) const
+const ColTab::Mapper& VolumeDisplay::getColTabMapper( int attrib ) const
 {
-    return &scalarfield_->getColTabMapper(attrib).setup();
+    return scalarfield_->getColTabMapper(attrib);
 }
 
 
@@ -1441,7 +1436,9 @@ bool VolumeDisplay::turnOn( bool yn )
 
 
 bool VolumeDisplay::isOn() const
-{ return onoffstatus_; }
+{
+    return onoffstatus_;
+}
 
 
 void VolumeDisplay::fillPar( IOPar& par ) const
@@ -1458,40 +1455,6 @@ bool VolumeDisplay::usePar( const IOPar& par )
     if ( !visBase::VisualObjectImpl::usePar( par ) ||
 	 !visSurvey::SurveyObject::usePar( par ) )
 	return false;
-
-    PtrMan<IOPar> texturepar = par.subselect( sKeyTexture() );
-    if ( texturepar ) //old format (up to 4.0)
-    {
-	RefMan<ColTab::MapperSetup> mappersetup = new ColTab::MapperSetup;
-	mappersetup->usePar( *texturepar );
-	ConstRefMan<ColTab::Sequence> sequence
-		= ColTab::SeqMGR().getFromPar( *texturepar );
-
-	setColTabMapperSetup( 0, *mappersetup, 0 );
-	setColTabSequence( 0, *sequence, 0 );
-	if ( !(*attribs_[0]->as_)[0].usePar(par) )
-	    return false;
-    }
-
-    int volid;
-    if ( par.get(sKeyVolumeID(),volid) )
-    {
-	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject( volid );
-	if ( !dataobj ) return false;
-/*
-	mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj.ptr());
-	if ( !vr ) return -1;
-
-	{
-	    if ( childIndex(volren_->osgNode())!=-1 )
-		VisualObjectImpl::removeChild(volren_->osgNode());
-	    volren_->unRef();
-	}
-	volren_ = vr;
-	volren_->ref();
-	addChild( volren_->osgNode() );
-*/
-    }
 
     while ( slices_.size() )
 	removeChild( slices_[0]->id() );

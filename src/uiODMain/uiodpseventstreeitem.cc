@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiodpseventstreeitem.h"
 
 #include "uiioobjseldlg.h"
+#include "uicolseqdisp.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmain.h"
@@ -222,14 +223,10 @@ void uiODPSEventsTreeItem::updateDisplay()
 	eventdisplay_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,4) );
 	eventdisplay_->setEventManager( &psem_ );
 
-	ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>(
-	   &ODMainWin()->colTabEd().getColTabSequence() );
-	if ( cseq )
-	{
-	    mAttachCB( cseq->objectChanged(),
-		       uiODPSEventsTreeItem::coltabChangeCB );
-	    eventdisplay_->setColTabSequence( *cseq );
-	}
+	const ColTab::Sequence& cseq
+			= ODMainWin()->colTabEd().getColTabSequence();
+	mAttachCB( cseq.objectChanged(), uiODPSEventsTreeItem::coltabChangeCB );
+	eventdisplay_->setColTabSequence( 0, cseq, 0 );
     }
 }
 
@@ -260,8 +257,6 @@ void uiODPSEventsTreeItem::displayMiniColTab()
     if ( eventdisplay_->getMarkerColor() == visSurvey::PSEventDisplay::Single )
 	return;
 
-    const ColTab::Sequence* seq = eventdisplay_->getColTabSequence();
-    if ( !seq ) return;
-
-    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *seq );
+    const ColTab::Sequence& seq = eventdisplay_->getColTabSequence(0);
+    setPixmap( uiODSceneMgr::cColorColumn(), &seq );
 }

@@ -22,6 +22,8 @@ typedef Array2D<char>	A2DBitMap;
 /*!
 \brief Array2D Bitmap generation parameters.
 */
+typedef std::pair<float,float> A2DBitMapClips;
+
 
 mStruct(General) A2DBitMapGenPars
 {
@@ -34,8 +36,8 @@ mStruct(General) A2DBitMapGenPars
 
     bool	nointerpol_;	//!< Do not interpolate between actual samples
     bool	autoscale_;	//!< If not, use the scale_
-    Interval<float> clipratio_;	//!< ratio of numbers to be clipped before
-    				//!< determining min/max, only when autoscale_
+    A2DBitMapClips clipratio_;	//!< ratio of numbers to be clipped before
+				//!< determining min/max, only when autoscale_
     float	midvalue_;	//!< if mUdf(float), use the median data value
     Interval<float> scale_;	//!< Used when autoscale_ is false
 
@@ -52,13 +54,13 @@ mExpClass(General) A2DBitMapInpData
 {
 public:
 
-    			A2DBitMapInpData( const Array2D<float>& d )
+			A2DBitMapInpData( const Array2D<float>& d )
 			    : data_(d) { collectData(); }
     virtual		~A2DBitMapInpData()			{}
 
     const Array2D<float>& data() const	{ return data_; }
-    Interval<float>	scale(const Interval<float>& clipratio,
-	    		      float midval) const;
+    Interval<float>	scale(const A2DBitMapClips& clipratio,
+			      float midval) const;
     virtual float	midVal() const;
 
     void		collectData(); //!< again.
@@ -75,30 +77,30 @@ protected:
 
   This class allows 'zooming' into the data, and an irregularly positioned first
   dimension.
-  
+
   If this class wouldn't exist, both dimensions of the Array2D have to have
   100% regular positioning. But if for example the data contains samples
   of a 2-D seismic line with gaps, this is not the case. That is why you can add
   positioning in one dimension. The second dimension is assumed to be regular,
   step 1, starting at 0.
-  
+
   Thus, the first dimension may be irregularly sampled. For the first dimension,
   you can set up the axis by providing the positions in a float array. If you
   don't provide that array, one will be generated, the postions are assumed to
   be: 0 1 2 ..., which is the same as for the second dimension (which can never
   be irregular, but it can be different from 0 - N-1).
-  
+
   Then, you can zoom in by setting the different ranges. The default ranges will
   be -0.5 to N-0.5, i.e. half a distance between the cols/rows is added on all
   sides as border.
-  
+
   The positions in dim 0 *must* be sorted, *ascending*. Only the distances may
   vary. The average distance between the positions is used to calculate the
   default border.
-  
+
   Dim 0 <-> X ...  left-to-right
   Dim 1 <-> Y ...  Top to bottom
-  
+
   This class is _not_ intended to support direct world coordinates and that
   kind of things. It just enables most simple bitmap generations. You may still
   need a (usually linear) transformation in both directions for display.
@@ -117,16 +119,16 @@ public:
     void		setDim1Positions(float,float);
 				//!< For dim1
     inline const float*	dim0Positions() const
-    			{ return dim0pos_; }
+			{ return dim0pos_; }
     inline const Interval<float>& dim1Positions() const
-    			{ return dim1pos_; }
+			{ return dim1pos_; }
     int			dimSize( int dim ) const
-    			{ return dim ? szdim1_ : szdim0_; }
+			{ return dim ? szdim1_ : szdim0_; }
 
     void		setDimRange( int dim, const Interval<float>& r )
-    			{ (dim ? dim1rg_ : dim0rg_) = r; }	//!< 'zooming'
+			{ (dim ? dim1rg_ : dim0rg_) = r; }	//!< 'zooming'
     inline const Interval<float>& dimRange( int dim ) const
-    			{ return dim ? dim1rg_ : dim0rg_; }
+			{ return dim ? dim1rg_ : dim0rg_; }
     inline float	dim0MedianDist() const	{ return dim0mediandist_; }
 
     void		setBitMapSizes(int,int) const;
@@ -143,9 +145,9 @@ public:
 				 * getPixPerDim( dim ); }
 
     int			getPix(int dim,float) const;
-    			// Nr of pixels from (0,0), always inside bitmap
+			// Nr of pixels from (0,0), always inside bitmap
     bool		isInside(int dim,float) const;
-    			// Is position in dim inside bitmap?
+			// Is position in dim inside bitmap?
 
 protected:
 
@@ -186,7 +188,7 @@ public:
 
     static void		initBitMap(A2DBitMap&);	//!< with cNoFill
     void		initBitMap()
-    			{ if ( bitmap_ ) initBitMap( *bitmap_ ); }
+			{ if ( bitmap_ ) initBitMap( *bitmap_ ); }
     void		setPixSizes(int,int);
 
     void		fill();

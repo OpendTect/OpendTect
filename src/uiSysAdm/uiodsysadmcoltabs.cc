@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "oddirs.h"
 #include "filepath.h"
 #include "iopar.h"

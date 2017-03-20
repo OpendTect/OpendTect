@@ -1674,7 +1674,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	}
 
 	visserv_->setSelSpec( visid, attrib, as );
-	visserv_->setColTabMapperSetup( visid, attrib,*new ColTab::MapperSetup);
+	visserv_->setColTabMapper( visid, attrib, *new ColTab::Mapper );
 	getNewData( visid, attrib );
 	sceneMgr().updateTrees();
     }
@@ -1712,18 +1712,12 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    return false;
 	}
 
-	const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
-	ConstRefMan<ColTab::MapperSetup> ms =
-	    visserv_->getColTabMapperSetup( visid, attrib, tmpset.size()/2 );
+	const ColTab::Mapper& mpr = visserv_->getColTabMapper( visid, attrib );
+	attrserv_->setEvalBackupColTabMapper( &mpr );
 
-	attrserv_->setEvalBackupColTabMapper( ms );
-
-	if ( ms )
-	{
-	    RefMan<ColTab::MapperSetup> myms = new ColTab::MapperSetup( *ms );
-	    myms->setIsFixed( true );
-	    visserv_->setColTabMapperSetup( visid, attrib, *myms );
-	}
+	RefMan<ColTab::Mapper> mympr = new ColTab::Mapper( mpr );
+	mympr->setup().setFixedRange( mpr.getRange() );
+	visserv_->setColTabMapper( visid, attrib, *mympr );
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evEvalShowSlice() )
@@ -1764,10 +1758,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evEvalRestore() )
     {
 	if ( attrserv_->getEvalBackupColTabMapper() )
-	{
-	    visserv_->setColTabMapperSetup( visid, attrib,
+	    visserv_->setColTabMapper( visid, attrib,
 		    *attrserv_->getEvalBackupColTabMapper() );
-	}
 
 	Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
 		visserv_->getSelSpec(visid,attrib) );
@@ -1817,7 +1809,7 @@ bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
     for ( int idx=0; idx<tmpset.size(); idx++ )
 	refs->add( tmpset[idx].userRef() );
     visserv_->setUserRefs( visid, attrib, refs );
-    visserv_->setColTabMapperSetup( visid, attrib, *new ColTab::MapperSetup );
+    visserv_->setColTabMapper( visid, attrib, *new ColTab::Mapper );
     return as.is2D() ? evaluate2DAttribute(visid,attrib)
 		     : evaluateAttribute(visid,attrib);
 }
@@ -1933,10 +1925,6 @@ void uiODApplMgr::setZStretch()
 { attrvishandler_.setZStretch(); }
 bool uiODApplMgr::selectAttrib( int id, int attrib )
 { return attrvishandler_.selectAttrib( id, attrib ); }
-void uiODApplMgr::setColTabDistribution( int visid, int attrib )
-{ attrvishandler_.setColTabDistribution(visid,attrib); }
-void uiODApplMgr::colMapperChg( CallBacker* )
-{ attrvishandler_.colMapperChg(); }
 void uiODApplMgr::setRandomPosData( int visid, int attrib,
 				const DataPointSet& data )
 { attrvishandler_.setRandomPosData(visid,attrib,data); }
@@ -1946,10 +1934,6 @@ void uiODApplMgr::updateColorTable( int visid, int attrib )
 { attrvishandler_.updateColorTable( visid, attrib ); }
 void uiODApplMgr::colSeqChg( CallBacker* )
 { attrvishandler_.colSeqChg(); sceneMgr().updateSelectedTreeItem(); }
-void uiODApplMgr::colSeqModif( CallBacker* )
-{ attrvishandler_.colSeqModif(); }
-NotifierAccess* uiODApplMgr::colorTableSeqChange()
-{ return attrvishandler_.colorTableSeqChange(); }
 void uiODApplMgr::useDefColTab( int visid, int attrib )
 { attrvishandler_.useDefColTab(visid,attrib); }
 void uiODApplMgr::saveDefColTab( int visid, int attrib )

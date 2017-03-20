@@ -12,13 +12,9 @@ ________________________________________________________________________
 
 #include "visshape.h"
 #include "visobject.h"
-#include "valseries.h"
-#include "coltabsequence.h"
-#include "coltabmapper.h"
 #include "draw.h"
 
 namespace Geometry { class IndexedGeometry; }
-class TaskRunner;
 class DataPointSet;
 
 namespace visBase
@@ -58,11 +54,10 @@ public:
 
     void			enableColTab(bool);
     bool			isColTabEnabled() const;
-    void			setDataMapper(const ColTab::MapperSetup&,
-					      TaskRunner*);
-    ConstRefMan<ColTab::MapperSetup> getDataMapper() const;
-    void			setDataSequence(const ColTab::Sequence&);
-    const ColTab::Sequence*	getDataSequence() const;
+    void			setColTabMapper(const ColTab::Mapper&);
+    const ColTab::Mapper&	getColTabMapper() const;
+    void			setColTabSequence(const ColTab::Sequence&);
+    const ColTab::Sequence&	getColTabSequence() const;
 
     void			getAttribPositions(DataPointSet&,
 					mVisTrans* extratrans,
@@ -91,27 +86,30 @@ public:
     VertexShape*		getVertexShape() const { return vtexshape_; }
 
 protected:
+
 				~GeomIndexedShape();
-    void			reClip();
     void			mapAttributeToColorTableMaterial();
     void			matChangeCB(CallBacker*);
+    void			mappingChgCB(CallBacker*);
     void			updateGeometryMaterial();
+    void			updateColors();
 
     mExpClass(visBase)			ColorHandler
     {
     public:
+
 					ColorHandler();
-					~ColorHandler();
-	ColTab::Mapper			mapper_;
+
+	ConstRefMan<ColTab::Mapper>	mapper_;
 	ConstRefMan<ColTab::Sequence>	sequence_;
-	visBase::Material*		material_;
-	ArrayValueSeries<float,float>	attributecache_;
+	RefMan<visBase::Material>	material_;
+	TypeSet<float>			attributecache_;
+
     };
 
     static const char*			sKeyCoordIndex() { return "CoordIndex";}
 
-    ColorHandler*			colorhandler_;
-
+    ColorHandler			colorhandler_;
     Geometry::IndexedShape*		shape_;
     VertexShape*			vtexshape_;
     bool				colortableenabled_ ;
@@ -119,9 +117,8 @@ protected:
 					    /*!< 0 = visisble from both sides.
 					       1 = visible from positive side
 					      -1 = visible from negative side.*/
-    Material*				singlematerial_;
-    Material*				coltabmaterial_;
-    ConstRefMan<ColTab::Sequence>	sequence_;
+    RefMan<Material>			singlematerial_;
+    RefMan<Material>			coltabmaterial_;
     GeomShapeType			geomshapetype_;
 
     OD::LineStyle			linestyle_;

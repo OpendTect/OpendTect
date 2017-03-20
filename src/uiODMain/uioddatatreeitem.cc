@@ -10,6 +10,7 @@ ___________________________________________________________________
 
 #include "uioddatatreeitem.h"
 
+#include "uicolseqdisp.h"
 #include "uifkspectrum.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -515,13 +516,7 @@ void uiODDataTreeItem::updateColumnText( int col )
 
 void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 {
-    if ( !seq || !uitreeviewitem_ )
-    {
-	uiTreeItem::updateColumnText( uiODSceneMgr::cColorColumn() );
-	return;
-    }
-
-    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *seq );
+    setPixmap( uiODSceneMgr::cColorColumn(), seq );
 }
 
 

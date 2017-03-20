@@ -23,19 +23,19 @@ char VDA2DBitMapGenPars::cMaxFill()		{ return 120; }
 #define mXPMEndLn "\",\n"
 
 
-Interval<float> A2DBitMapInpData::scale( const Interval<float>& clipratio,
+Interval<float> A2DBitMapInpData::scale( const A2DBitMapClips& clipratio,
 					 float midval ) const
 {
     Interval<float> res;
     if ( mIsUdf(midval) )
     {
-	if ( mIsUdf(clipratio.stop) )
-	    clipper_.getRange( clipratio.start, res );
+	if ( mIsUdf(clipratio.second) )
+	    clipper_.getRange( clipratio.first, res );
 	else
-	    clipper_.getRange( clipratio.start, clipratio.stop, res );
+	    clipper_.getRange( clipratio.first, clipratio.second, res );
     }
     else
-	clipper_.getSymmetricRange( clipratio.start, midval, res );
+	clipper_.getSymmetricRange( clipratio.first, midval, res );
 
     return res;
 }
@@ -223,7 +223,7 @@ void A2DBitMapGenerator::fill()
     dim0perpix_ = 1.f / setup_.getPixPerDim(0);
     dim1perpix_ = 1.f / setup_.getPixPerDim(1);
 
-    scalerg_ = pars_.autoscale_ && pars_.scale_.isUdf()
+    scalerg_ = pars_.autoscale_ || pars_.scale_.isUdf()
 		    ? data_.scale( pars_.clipratio_, pars_.midvalue_ )
 		    : pars_.scale_;
     pars_.scale_ = scalerg_;

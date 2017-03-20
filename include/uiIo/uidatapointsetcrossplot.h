@@ -200,7 +200,7 @@ public:
 
     void			setColTab( const ColTab::Sequence& ctseq )
 							{ ctab_ = &ctseq; }
-    void			setCTMapper(const ColTab::MapperSetup&);
+    void			setCTMapper(const ColTab::Mapper&);
     void			showY2(bool);
     void			drawContent( bool withaxis = true );
     void			drawColTabItem(bool isy1);
@@ -247,8 +247,8 @@ public:
     int				cellSize() const	{ return cellsize_; }
     bool			isSelectionValid(uiDataPointSet::DRowID);
 
-    void			setOverlayY1AttMapr(const ColTab::MapperSetup&);
-    void			setOverlayY2AttMapr(const ColTab::MapperSetup&);
+    void			setOverlayY1AttMapr(const ColTab::Mapper&);
+    void			setOverlayY2AttMapr(const ColTab::Mapper&);
     void			setOverlayY1AttSeq(const ColTab::Sequence&);
     void			setOverlayY2AttSeq(const ColTab::Sequence&);
 
@@ -262,8 +262,8 @@ public:
 
     int				y3Colid() const		{ return y3colid_; }
     int				y4Colid() const		{ return y4colid_; }
-    const ColTab::Mapper&	y3Mapper() const	{ return y3mapper_; }
-    const ColTab::Mapper&	y4Mapper() const	{ return y4mapper_; }
+    const ColTab::Mapper&	y3Mapper() const	{ return *y3mapper_; }
+    const ColTab::Mapper&	y4Mapper() const	{ return *y4mapper_; }
     const ColTab::Sequence&	y3CtSeq() const		{ return *y3ctab_; }
     const ColTab::Sequence&	y4CtSeq() const		{ return *y4ctab_; }
 
@@ -296,9 +296,9 @@ protected:
     ConstRefMan<ColTab::Sequence> ctab_;
     ConstRefMan<ColTab::Sequence> y3ctab_;
     ConstRefMan<ColTab::Sequence> y4ctab_;
-    ColTab::Mapper		ctmapper_;
-    ColTab::Mapper		y3mapper_;
-    ColTab::Mapper		y4mapper_;
+    RefMan<ColTab::Mapper>	ctmapper_;
+    RefMan<ColTab::Mapper>	y3mapper_;
+    RefMan<ColTab::Mapper>	y4mapper_;
     LinStats2D&			lsy1_;
     LinStats2D&			lsy2_;
     Timer&			timer_;

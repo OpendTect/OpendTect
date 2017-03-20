@@ -5,8 +5,7 @@
 -*/
 
 
-#include "coltabsequence.h"
-#include "coltabindex.h"
+#include "coltabseqmgr.h"
 
 #include "ascstream.h"
 #include "bufstringset.h"
@@ -36,7 +35,6 @@ mDefineInstanceCreatedNotifierAccess(ColTab::Sequence);
 
 mDefineEnumUtils(ColTab::Sequence,Status,"Color Sequence Status")
 	{ "System", "Edited", "Added", 0 };
-
 
 static const char* sKeyDefName = "dTect.Disp.Default Color table";
 static const char* sKeyDefNameOld = "dTect.Color table.Name";
@@ -164,7 +162,7 @@ Color ColTab::Sequence::color( PosType x ) const
     if ( nrsegments_ > 0 )
 	x = snapToSegmentCenter( x );
 
-    ValueType t = Color::getUChar( gtTransparencyAt(x) );
+    CompType t = Color::getUChar( gtTransparencyAt(x) );
 
     PosType x0 = x_[0];
     if ( sz == 1 || x < x0 + mDefEps )
@@ -195,24 +193,24 @@ Color ColTab::Sequence::color( PosType x ) const
 }
 
 
-ColTab::Sequence::PosType ColTab::Sequence::position( IdxType idx ) const
+ColTab::PosType ColTab::Sequence::position( IdxType idx ) const
 {
     mLock4Read();
     return x_[idx];
 }
 
 
-ColTab::Sequence::ValueType ColTab::Sequence::gtTransparencyAt(
+ColTab::Sequence::CompType ColTab::Sequence::gtTransparencyAt(
 						PosType xpos ) const
 {
     const size_type sz = tr_.size();
     if ( sz == 0 || xpos <= -mDefEps || xpos >= 1+mDefEps )
 	return 0;
 
-    PosType x0 = tr_[0].first; ValueType y0 = tr_[0].second;
+    PosType x0 = tr_[0].first; CompType y0 = tr_[0].second;
     if ( sz == 1 || xpos < x0+mDefEps )
 	return y0;
-    PosType x1 = tr_[sz-1].first; ValueType y1 = tr_[sz-1].second;
+    PosType x1 = tr_[sz-1].first; CompType y1 = tr_[sz-1].second;
     if ( xpos > x1 - mDefEps )
 	return y1;
 
@@ -226,7 +224,7 @@ ColTab::Sequence::ValueType ColTab::Sequence::gtTransparencyAt(
 	    x0 = tr_[idx-1].first; y0 = tr_[idx-1].second;
 	    const float frac = (xpos-x0) / (x1-x0);
 	    const float val = frac * y1 + (1-frac) * y0;
-	    return mRounded( ValueType, val );
+	    return mRounded( CompType, val );
 	}
     }
 
@@ -253,7 +251,7 @@ bool ColTab::Sequence::hasTransparency() const
 
 
 ColTab::Sequence::IdxType ColTab::Sequence::setColor( PosType px,
-				 ValueType pr, ValueType pg, ValueType pb )
+				 CompType pr, CompType pg, CompType pb )
 {
     mLock4Write();
 
@@ -289,7 +287,7 @@ ColTab::Sequence::IdxType ColTab::Sequence::setColor( PosType px,
 
 
 void ColTab::Sequence::changeColor( IdxType idx,
-				 ValueType pr, ValueType pg, ValueType pb )
+				 CompType pr, CompType pg, CompType pb )
 {
     mLock4Write();
     if ( chgColor(idx,pr,pg,pb) )
@@ -298,7 +296,7 @@ void ColTab::Sequence::changeColor( IdxType idx,
 
 
 bool ColTab::Sequence::chgColor( IdxType idx,
-				 ValueType pr, ValueType pg, ValueType pb )
+				 CompType pr, CompType pg, CompType pb )
 {
     if ( !x_.validIdx(idx) )
 	return false;
@@ -372,7 +370,7 @@ ColTab::Sequence::TranspPtType ColTab::Sequence::transparency(
 }
 
 
-ColTab::Sequence::ValueType ColTab::Sequence::transparencyAt( PosType px ) const
+ColTab::Sequence::CompType ColTab::Sequence::transparencyAt( PosType px ) const
 {
     mLock4Read();
     return gtTransparencyAt( px );
@@ -452,8 +450,7 @@ uiString ColTab::Sequence::statusDispStr() const
 }
 
 
-ColTab::Sequence::PosType ColTab::Sequence::snapToSegmentCenter(
-							PosType x ) const
+ColTab::PosType ColTab::Sequence::snapToSegmentCenter( PosType x ) const
 {
     mLock4Read();
     if ( mIsUdf(x) )
@@ -580,7 +577,7 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 	if ( !iopar.get( key, pt.first, floatval ) )
 	    break;
 
-	pt.second = mRounded( ValueType, floatval );
+	pt.second = mRounded( CompType, floatval );
 	tr_ += pt;
     }
 

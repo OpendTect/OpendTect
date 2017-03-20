@@ -55,14 +55,10 @@ bool uiDataTreeItem::anyButtonClick( uiTreeViewItem* item )
     if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
-    if ( !select() ) return false;
-
-    uiVisPartServer* visserv = applMgr()->visServer();
-    if ( !visserv->getColTabSequence(displayID(),attribNr()) )
+    if ( !select() )
 	return false;
 
     ODMainWin()->applMgr().updateColorTable( displayID(), attribNr() );
-
     return true;
 }
 
@@ -196,7 +192,7 @@ void uiDataTreeItem::updateColumnText( int col )
 	}
 
 	if ( !so->hasColor() )
-	    displayMiniCtab( so->getColTabSequence(attribNr()) );
+	    displayMiniCtab( &so->getColTabSequence(attribNr()) );
     }
 
     uiODDataTreeItem::updateColumnText( col );

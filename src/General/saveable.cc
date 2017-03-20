@@ -35,8 +35,8 @@ Saveable::Saveable( const Saveable& oth )
 
 Saveable::~Saveable()
 {
-    detachAllNotifiers();
     sendDelNotif();
+    detachAllNotifiers();
 }
 
 
@@ -82,8 +82,7 @@ void Saveable::setObject( const SharedObject& obj )
 void Saveable::attachCBToObj()
 {
     if ( objectalive_ )
-	mAttachCB( const_cast<SharedObject&>(*object_).objectToBeDeleted(),
-		   Saveable::objDelCB );
+	mAttachCB( object_->objectToBeDeleted(), Saveable::objDelCB );
 }
 
 
@@ -203,8 +202,8 @@ SaveableManager::SaveableManager( const IOObjContext& ctxt, bool withautosave,
 
 SaveableManager::~SaveableManager()
 {
-    detachAllNotifiers();
     sendDelNotif();
+    detachAllNotifiers();
     setEmpty();
     delete const_cast<IOObjContext*>( &ctxt_ );
 }

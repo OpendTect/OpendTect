@@ -19,7 +19,7 @@ class uiPushButton;
 class uiMapperRangeEditor;
 class uiStatsDisplay;
 
-namespace ColTab { class MapperSetup; class Sequence; }
+namespace ColTab { class Mapper; class Sequence; }
 
 mExpClass(uiTools) uiMultiMapperRangeEditWin : public uiDialog
 { mODTextTranslationClass(uiMultiMapperRangeEditWin)
@@ -30,13 +30,13 @@ public:
 
     uiMapperRangeEditor*		getuiMapperRangeEditor(int);
     void				setDataPackID(int,DataPack::ID);
-    void				setColTabMapperSetup(int,
-						const ColTab::MapperSetup&);
+    void				setColTabMapper(int,
+							const ColTab::Mapper&);
     void				setColTabSeq(int,
 						const ColTab::Sequence&);
     int					activeAttrbID()
 					{ return activeattrbid_; }
-    const ColTab::MapperSetup&		activeMapperSetup()
+    const ColTab::Mapper&		activeMapper()
 					{ return *activectbmapper_; }
     Notifier<uiMultiMapperRangeEditWin>	rangeChange;
 
@@ -46,7 +46,7 @@ protected:
     ObjectSet<uiMapperRangeEditor>	mapperrgeditors_;
     ObjectSet<uiStatsDisplay>		statsdisplays_;
     int					activeattrbid_;
-    const ColTab::MapperSetup*		activectbmapper_;
+    const ColTab::Mapper*		activectbmapper_;
     DataPackMgr&			dpm_;
     TypeSet<DataPack::ID>		datapackids_;
 

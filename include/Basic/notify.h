@@ -29,19 +29,21 @@ public:
 			NotifierAccess();
     virtual		~NotifierAccess();
 
-    void		notify(const CallBack&,bool first=false);
-    bool		notifyIfNotNotified(const CallBack&);
+    void		notify(const CallBack&,bool first=false) const;
+    bool		notifyIfNotNotified(const CallBack&) const;
 			//!\returns true if it was added
-    void		remove(const CallBack&);
-    bool		removeWith(CallBacker*,bool wait=true);
+    void		remove(const CallBack&) const;
+    bool		removeWith(const CallBacker*,bool wait=true) const;
 			//!<\returns false only if wait and no lock could be got
+    void		transferCBSTo(const NotifierAccess&,
+				      const CallBacker* only_for) const;
 
     inline bool	isEnabled() const	{ return !cbs_.hasAnyDisabled(); }
     inline void	enable( bool yn=true )	{ return cbs_.disableAll(!yn); }
     inline void	disable()		{ return cbs_.disableAll(true); }
 
     inline bool	isEmpty() const	{ return cbs_.isEmpty(); }
-    bool		willCall(CallBacker*) const;
+    bool		willCall(const CallBacker*) const;
 			/*!<\returns true if the callback list contains
 			     CallBacker. */
 
@@ -49,18 +51,19 @@ public:
     CallBackSet&	cbs_;
     CallBacker*		cber_;
 
-    bool		isShutdownSubscribed(CallBacker*) const;
+    bool		isShutdownSubscribed(const CallBacker*) const;
 			//!<Only for debugging purposes, don't use
+
 protected:
 
-    static void		doTrigger(CallBackSet&,CallBacker*);
-    void		addShutdownSubscription(CallBacker*);
-    bool		removeShutdownSubscription(CallBacker*, bool wait);
+    static void		doTrigger(CallBackSet&,const CallBacker*);
+    void		addShutdownSubscription(const CallBacker*) const;
+    bool		removeShutdownSubscription(const CallBacker*,
+						    bool wait) const;
 			//!<\returns false only if wait and no lock could be got
-
 			/*!\returns previous status */
 
-    ObjectSet<CallBacker>	shutdownsubscribers_;
+    mutable ObjectSet<const CallBacker>	shutdownsubscribers_;
     mutable Threads::Lock	shutdownsubscriberlock_;
 
 };
@@ -106,6 +109,11 @@ protected:
   you may get random crashes. Either, remove them one by one in the destructor,
   or call detachAllNotifiers(), which will remove notifiers that are attached
   using the mAttachCB macro.
+
+  Note that the Notifier system circumvents the const system. Why? This makes
+  gettting and sending callbacks to/from const objects possible without
+  difficult const_casts.
+
 */
 
 

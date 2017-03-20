@@ -16,10 +16,8 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 
 class uiLabel;
-class uiCheckBox;
 class uiColSeqMan;
 class uiColSeqDisp;
-class uiColSeqUseModeCompactSel;
 
 
 /* Color sequence selection object. */
@@ -32,12 +30,11 @@ public:
 
     virtual			~uiColSeqSelTool();
 
-    ConstRefMan<Sequence>	sequence() const;
+    const Sequence&		sequence() const;
     void			setSequence(const Sequence&);
     const char*			seqName() const;
     void			setSeqName(const char*);
     ColTab::SeqUseMode		seqUseMode() const;
-    void			setSeqUseMode(ColTab::SeqUseMode);
     void			setNonSeisDefault();
 
     uiColSeqDisp*		seqDisp()		{ return disp_; }
@@ -77,7 +74,6 @@ protected:
     void			seqModifCB(CallBacker*);
     void			selectCB(CallBacker*);
     void			menuCB(CallBacker*);
-    void			colSeqModifiedCB(CallBacker*);
     void			upCB(CallBacker*)	{ nextColSeq(true); }
     void			downCB(CallBacker*)	{ nextColSeq(false); }
     void			setAsDefaultCB(CallBacker*);
@@ -140,35 +136,6 @@ public:
 			uiColSeqToolBar(uiParent*);
 
 			mImpluiColSeqSelToolBar(uiColSeqSelTool)
-
-};
-
-
-/* uiToolBar color sequence use mode selection */
-
-mExpClass(uiTools) uiColSeqUseModeSel : public uiGroup
-{ mODTextTranslationClass(uiColSeqUseModeSel);
-public:
-
-			uiColSeqUseModeSel(uiParent*,bool compact,
-					   uiString lbltxt=tr("Use table"));
-			~uiColSeqUseModeSel();
-
-    ColTab::SeqUseMode	mode() const;
-    void		setMode(ColTab::SeqUseMode);
-    void		addObjectsToToolBar(uiToolBar&);
-
-    Notifier<uiColSeqUseModeSel>    modeChange;
-
-protected:
-
-    uiCheckBox*		flippedbox_;
-    uiCheckBox*		cyclicbox_;
-    uiColSeqUseModeCompactSel* compactsel_;
-
-    void		modeChgCB( CallBacker* )	{ modeChange.trigger();}
-    void		canvasMouseReleaseCB(CallBacker*);
-    void		mouseMoveCB(CallBacker*);
 
 };
 

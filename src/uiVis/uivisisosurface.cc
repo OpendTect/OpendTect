@@ -11,10 +11,12 @@ ________________________________________________________________________
 #include "uivisisosurface.h"
 
 #include "coltabmapper.h"
+#include "datadistributionextracter.h"
 #include "marchingcubes.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "picksettr.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "uiaxishandler.h"
 #include "uibutton.h"
@@ -64,8 +66,15 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 
     uiStatsDisplay::Setup su; su.withtext(false);
     statsdisplay_ = new uiStatsDisplay( this, su );
-    statsdisplay_->funcDisp()->setDistribution(
-				    vd_->getDataDistribution(attrib) );
+    const RegularSeisDataPack* rsdp = vd_->getCacheVolume( attrib );
+    if ( rsdp && rsdp->nrArrays() > 0 )
+    {
+	DataDistributionExtracter<float> extr( *rsdp->arrayData(0) );
+	RefMan<DataDistribution<float> > distrib
+		= extr.execute() ? extr.getDistribution() : 0;
+	if ( distrib )
+	    statsdisplay_->funcDisp()->setDistribution( *distrib );
+    }
     statsdisplay_->attach( leftAlignedBelow, aboveisovaluefld_ );
 
     funcDisp().setDragMode( uiGraphicsView::NoDrag );

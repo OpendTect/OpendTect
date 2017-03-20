@@ -917,8 +917,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, 0,
-				    interactivetexturedisplay_ );
+	channels_->setUnMappedData( attrib, idx, arr, cp, 0 );
     }
 
     if ( !getUpdateStageNr() )
@@ -1090,11 +1089,8 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
 	if ( selspecs ) pdd->setSelSpecs( idx, *selspecs );
 
 	pdd->setDataPackID( idx, getDataPackID(idx), taskr );
-	if ( getColTabMapperSetup( idx ) )
-	    pdd->setColTabMapperSetup( idx, *getColTabMapperSetup( idx ),
-				       taskr );
-	if ( getColTabSequence( idx ) )
-	    pdd->setColTabSequence( idx, *getColTabSequence( idx ), taskr );
+	pdd->setColTabMapper( idx, getColTabMapper(idx), taskr );
+	pdd->setColTabSequence( idx, getColTabSequence( idx ), taskr );
     }
 
     return pdd;

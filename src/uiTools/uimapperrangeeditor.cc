@@ -14,11 +14,12 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uihistogramdisplay.h"
+#include "uicolseqdisp.h"
 #include "uipixmap.h"
 #include "uistrings.h"
 
 #include "coltabmapper.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "datapackbase.h"
 #include "mousecursor.h"
 #include "keystrs.h"
@@ -28,7 +29,7 @@ ________________________________________________________________________
 uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
     : uiGroup( p, "Mapper with color slider group" )
     , id_(id)
-    , mappersetup_(new ColTab::MapperSetup)
+    , mapper_(new ColTab::Mapper)
     , ctseq_(ColTab::SeqMGR().getDefault())
     , startpix_(mUdf(int))
     , stoppix_(mUdf(int))
@@ -115,25 +116,25 @@ void uiMapperRangeEditor::setMarkValue( float val, bool forx )
 }
 
 
-void uiMapperRangeEditor::setMapperSetup( ColTab::MapperSetup& ms )
+void uiMapperRangeEditor::setMapper( ColTab::Mapper& mpr )
 {
     uiAxisHandler* axhndler = histogramdisp_->xAxis();
-    if ( !axhndler ) return;
+    if ( !axhndler )
+	return;
 
     StepInterval<float> axrange = axhndler->range();
 
-    if ( !ms.range().includes(axrange.start,true) ||
-	 !ms.range().includes(axrange.stop,true) )
+    const Interval<float> rg = mpr.getRange();
+    if ( !rg.includes(axrange.start,true) || !rg.includes(axrange.stop,true) )
     {
-	axrange.include( ms.range() );
+	axrange.include( rg );
 	histogramdisp_->setup().xrg( axrange );
 	histogramdisp_->gatherInfo();
 	histogramdisp_->draw();
     }
 
-    replaceMonitoredRef( mappersetup_, ms, this );
-    mappersetup_->setIsFixed( true );
-    const Interval<float> rg = mappersetup_->range();
+    replaceMonitoredRef( mapper_, mpr, this );
+    mapper_->setup().setFixedRange( rg );
     cliprg_.start = rg.isRev() ? rg.stop : rg.start;
     cliprg_.stop = rg.isRev() ? rg.start : rg.stop;
     drawAgain();
@@ -203,19 +204,21 @@ void uiMapperRangeEditor::drawPixmaps()
     const int datastartpix = xax_->getPix( datarg_.start );
     const int datastoppix = xax_->getPix( datarg_.stop );
 
-    const Interval<float> mapperrg = mappersetup_->range();
+    const Interval<float> mapperrg = mapper_->getRange();
     uiPixmap leftpixmap( startpix_-datastartpix, pmh );
     leftpixmap.fill( ctseq_->color( mapperrg.width()>0 ? 0.f :1.f ) );
     leftcoltab_->setPixmap( leftpixmap );
     leftcoltab_->setOffset( datastartpix, disph-pmh-1 );
 
-    uiPixmap centerpixmap( stoppix_-startpix_, pmh );
-    centerpixmap.fill( *ctseq_, true, mappersetup_->seqUseMode() );
-    centercoltab_->setPixmap( centerpixmap );
+    uiPixmap* pm = ColTab::getuiPixmap( *ctseq_, stoppix_-startpix_, pmh,
+					mapper_ );
+    if ( pm )
+	centercoltab_->setPixmap( *pm );
     centercoltab_->setOffset( startpix_, disph-pmh-1 );
+    delete pm;
 
     uiPixmap rightpixmap( datastoppix-stoppix_, pmh );
-    leftpixmap.fill( ctseq_->color( mapperrg.width()>0 ? 1.f : 0.f ) );
+    rightpixmap.fill( ctseq_->color( mapperrg.width()>0 ? 1.f : 0.f ) );
     rightcoltab_->setPixmap( rightpixmap );
     rightcoltab_->setOffset( stoppix_, disph-pmh-1 );
 }
@@ -327,10 +330,10 @@ void uiMapperRangeEditor::mouseMoved( CallBacker* )
 
 	Interval<float> newrg;
 	newrg.start =
-	    mappersetup_->range().isRev() ? cliprg_.stop : cliprg_.start;
+	    mapper_->getRange().isRev() ? cliprg_.stop : cliprg_.start;
 	newrg.stop =
-	    mappersetup_->range().isRev() ? cliprg_.start : cliprg_.stop;
-	mappersetup_->setRange( newrg );
+	    mapper_->getRange().isRev() ? cliprg_.start : cliprg_.stop;
+	mapper_->setup().setFixedRange( newrg );
     }
 
     meh.setHandled( true );
@@ -345,10 +348,10 @@ void uiMapperRangeEditor::mouseReleased( CallBacker* )
     mousedown_ = false;
     Interval<float> newrg;
     newrg.start =
-	mappersetup_->range().isRev() ? cliprg_.stop : cliprg_.start;
+	mapper_->getRange().isRev() ? cliprg_.stop : cliprg_.start;
     newrg.stop =
-	mappersetup_->range().isRev() ? cliprg_.start : cliprg_.stop;
-    mappersetup_->setRange( newrg );
+	mapper_->getRange().isRev() ? cliprg_.start : cliprg_.stop;
+    mapper_->setup().setFixedRange( newrg );
 
     drawAgain();
     meh.setHandled( true );
@@ -372,8 +375,8 @@ void uiMapperRangeEditor::histDRChanged( CallBacker* cb )
 
     Interval<float> newrg;
     newrg.start =
-	mappersetup_->range().isRev() ? cliprg_.stop : cliprg_.start;
+	mapper_->getRange().isRev() ? cliprg_.stop : cliprg_.start;
     newrg.stop =
-	mappersetup_->range().isRev() ? cliprg_.start : cliprg_.stop;
-    mappersetup_->setRange( newrg );
+	mapper_->getRange().isRev() ? cliprg_.start : cliprg_.stop;
+    mapper_->setup().setFixedRange( newrg );
 }

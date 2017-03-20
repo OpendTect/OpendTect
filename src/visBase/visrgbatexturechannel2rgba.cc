@@ -12,7 +12,7 @@ ___________________________________________________________________
 #include "visrgbatexturechannel2rgba.h"
 
 #include "vistexturechannels.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "uistrings.h"
 
 #include <osgGeo/LayeredTexture>

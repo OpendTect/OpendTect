@@ -13,12 +13,12 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uigraphicsitem.h"
 #include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "draw.h"
 
 class uiPixmapItem;
 class uiRectItem;
 class uiAdvancedTextItem;
-namespace ColTab { class MapperSetup; }
 
 
 mExpClass(uiBase) uiColTabItem : public uiGraphicsItem
@@ -46,15 +46,15 @@ public:
 
     void		setSeqName(const char* nm);
     void		setSequence(const ColTab::Sequence&);
-    void		setMapperSetup(const ColTab::MapperSetup&);
+    void		setMapper(const ColTab::Mapper*);
 
 protected:
     void		adjustLabel();
     void		setPixmap();
 
     Setup		setup_;
-    ConstRefMan<ColTab::Sequence> ctseq_;
-    ConstRefMan<ColTab::MapperSetup> ctmsu_;
+    ConstRefMan<ColTab::Sequence> sequence_;
+    ConstRefMan<ColTab::Mapper> mapper_;
 
     uiPixmapItem*	ctseqitm_;
     uiRectItem*		borderitm_;

@@ -12,13 +12,11 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-template <class T> class DataDistribution;
 
+class TaskRunner;
+namespace ColTab { class Mapper; class Sequence; }
 
 namespace visBase
 {
     class DataObject;
-
-    typedef DataDistribution<float> DistribType;
-
 } // namespace visBase

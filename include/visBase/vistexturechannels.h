@@ -13,14 +13,13 @@ ________________________________________________________________________
 
 #include "visdata.h"
 #include "odmemory.h"
-#include "coltabmapper.h"
 
 class SbImagei32;
-class TaskRunner;
 namespace osgGeo { class LayeredTexture; }
 
 namespace visBase
 {
+
 class MappedTextureDataSet;
 class TextureChannel2RGBA;
 class ChannelInfo;
@@ -61,15 +60,9 @@ public:
     void			removeChannel(int);
     void			swapChannels(int,int);
 
-    void			setColTabMapperSetup(int channel,
-						const ColTab::MapperSetup&);
-				//!<Will not trigger a remap, use reMapData
-   ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int channel,
-							 int version) const;
-    const ColTab::Mapper&	getColTabMapper(int channel,int version) const;
-    void			reMapData(int channel,bool dontreclip,
-					  TaskRunner*);
-    const DistribType&		getDataDistribution(int channel) const;
+    void			setColTabMapper(int ch,const ColTab::Mapper&);
+    const ColTab::Mapper&	getColTabMapper(int channel) const;
+    void			reMapData(int channel,TaskRunner*);
 
     void			setSize(int channel,int sz0,int sz1,int sz2);
     int				getSize(int channel,unsigned char dim) const;
@@ -92,13 +85,12 @@ public:
     bool			isCurrentDataPremapped(int channel) const;
 
     bool			setUnMappedVSData(int channel,int version,
-				    const ValueSeries<float>*, OD::PtrPolicy,
-				    TaskRunner*,bool skipclip=false);
+				    const ValueSeries<float>*,OD::PtrPolicy,
+				    TaskRunner*);
     bool			setUnMappedData(int channel,int version,
-				    const float*, OD::PtrPolicy,
-				    TaskRunner*,bool skipclip=false);
+				    const float*,OD::PtrPolicy,TaskRunner*);
     bool			setMappedData(int channel,int version,
-					      unsigned char*, OD::PtrPolicy);
+					      unsigned char*,OD::PtrPolicy);
     void			unfreezeOldData(int channel);
 
     bool			setChannels2RGBA(TextureChannel2RGBA*);

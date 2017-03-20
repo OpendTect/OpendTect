@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "bidvsetarrayadapter.h"
 #include "binidvalue.h"
 #include "coltabmapper.h"
-#include "coltabsequence.h"
-#include "datadistribution.h"
+#include "coltabseqmgr.h"
 #include "datapointset.h"
+#include "datadistributionextracter.h"
 #include "datacoldef.h"
 #include "emhorizon3d.h"
 #include "emobjectposselector.h"
@@ -313,7 +313,7 @@ HorizonDisplay::HorizonDisplay()
 	      s3dgeom_->crlDistance() * s3dgeom_->crlRange().width() );
 
     as_ += new TypeSet<Attrib::SelSpec>( 1, Attrib::SelSpec() );
-    coltabmappersetups_ += new ColTab::MapperSetup;
+    coltabmappers_ += new ColTab::Mapper;
     coltabsequences_ += ColTab::SeqMGR().getDefault();
 
     TypeSet<float> shift;
@@ -692,18 +692,18 @@ bool HorizonDisplay::addAttrib()
     enabled_ += true;
     shifts_ += new TypeSet<float>;
     dispdatapackids_ += new TypeSet<DataPack::ID>;
-    coltabmappersetups_ += new ColTab::MapperSetup;
+    coltabmappers_ += new ColTab::Mapper;
     coltabsequences_ += ColTab::SeqMGR().getDefault();
 
-    const int curchannel = coltabmappersetups_.size()-1;
+    const int curchannel = coltabmappers_.size()-1;
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	sections_[idx]->addChannel();
 	sections_[idx]->setColTabSequence( curchannel,
 		*coltabsequences_[curchannel] );
 
-	sections_[idx]->setColTabMapperSetup( curchannel,
-		*coltabmappersetups_[curchannel], 0 );
+	sections_[idx]->setColTabMapper( curchannel,
+		*coltabmappers_[curchannel], 0 );
     }
 
     return true;
@@ -728,7 +728,7 @@ bool HorizonDisplay::removeAttrib( int channel )
 	DPM(DataPackMgr::FlatID()).unRef( dpids[idy] );
     delete dispdatapackids_.removeSingle( channel );
 
-    coltabmappersetups_.removeSingle( channel );
+    coltabmappers_.removeSingle( channel );
     coltabsequences_.removeSingle( channel );
     delete as_.removeSingle( channel );
 
@@ -747,7 +747,7 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->swapChannels( a0, a1 );
 
-    coltabmappersetups_.swap( a0, a1 );
+    coltabmappers_.swap( a0, a1 );
     coltabsequences_.swap( a0, a1 );
 
     as_.swap( a0, a1 );
@@ -898,8 +898,8 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
 	setColTabSequence( channel, *seq, 0 );
-	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
-	setColTabMapperSetup( channel, *mapsetup, 0 );
+	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
+	setColTabMapper( channel, *mapper, 0 );
     }
 }
 
@@ -973,17 +973,20 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 	return;
     }
 
-//    locker_.lock();
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setTextureData( channel, data, sids_[idx], tskr );
-//    locker_.unLock();
 
-    //We should really scale here, and then update sections. This
-    //works for single sections though.
-    if ( sections_[0]->getColTabMapperSetup(channel) )
+    coltabmappers_[channel] = &sections_[0]->getColTabMapper( channel );
+
+    // TODO PrIMPL do a better version of this hack and then centralised
+    if ( coltabmappers_[channel]->distribution().isEmpty() )
     {
-	coltabmappersetups_[channel] =
-	    sections_[0]->getColTabMapperSetup( channel )->clone();
+	DPSValueSeries dpsvs( *data, data->nrCols()-1 );
+	DataDistributionExtracter<float> extr( dpsvs, data->size() );
+	if ( TaskRunner::execute(tskr,extr) )
+	    const_cast<DataDistribution<float>&>(
+		    coltabmappers_[channel]->distribution())
+			    = *extr.getDistribution();
     }
 
     validtexture_ = true;
@@ -1177,7 +1180,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tskr )
 
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
-	    surf->setColTabMapperSetup( idx, *coltabmappersetups_[idx], 0 );
+	    surf->setColTabMapper( idx, *coltabmappers_[idx], 0 );
 	    surf->setColTabSequence( idx, *coltabsequences_[idx] );
 	    surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
 	}
@@ -1499,14 +1502,14 @@ void HorizonDisplay::displaysSurfaceGrid( bool yn )
     requestSingleRedraw();
 }
 
-const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
+const ColTab::Sequence& HorizonDisplay::getColTabSequence( int channel ) const
 {
     if ( channel<0 || channel>=nrAttribs() )
-       return 0;
+       return SurveyObject::getColTabSequence(channel);
 
     return sections_.size()
-	? &sections_[0]->getColTabSequence( channel )
-	: coltabsequences_[channel].ptr();
+	? sections_[0]->getColTabSequence( channel )
+	: *coltabsequences_[channel];
 }
 
 
@@ -1533,43 +1536,26 @@ void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq,
 }
 
 
-void HorizonDisplay::setColTabMapperSetup( int channel,
-			   const ColTab::MapperSetup& ms, TaskRunner* tskr )
+void HorizonDisplay::setColTabMapper( int channel, const ColTab::Mapper& mpr,
+				      TaskRunner* tskr )
 {
     if ( channel<0 || channel>=nrAttribs() )
        return;
 
-    if ( coltabmappersetups_.validIdx(channel) )
-	*coltabmappersetups_[channel] = ms;
+    if ( coltabmappers_.validIdx(channel) )
+	coltabmappers_[channel] = &mpr;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setColTabMapperSetup( channel, ms, tskr );
-
-    //We should really scale here, and then update sections. This
-    //works for single sections though.
-    if ( sections_.size() && sections_[0]->getColTabMapperSetup( channel ) )
-    {
-	*coltabmappersetups_[channel] =
-		    *sections_[0]->getColTabMapperSetup( channel );
-    }
+	sections_[idx]->setColTabMapper( channel, mpr, tskr );
 }
 
 
-ConstRefMan<ColTab::MapperSetup> HorizonDisplay::getColTabMapperSetup( int ch,
-								 int ) const
+const ColTab::Mapper& HorizonDisplay::getColTabMapper( int ch ) const
 {
     if ( ch<0 || ch>=nrAttribs() )
-       return 0;
+       return *new ColTab::Mapper;
 
-    return coltabmappersetups_[ch];
-}
-
-
-const visBase::DistribType& HorizonDisplay::getDataDistribution(
-						    int attrib ) const
-{
-    return sections_.isEmpty() ? DataDistribution<float>::getEmptyDistrib()
-	 : sections_[0]->getDataDistribution( attrib );
+    return *coltabmappers_[ch];
 }
 
 
@@ -1695,9 +1681,9 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 	if ( !islowest )
 	{
-	    const ColTab::Sequence* coltabseq = getColTabSequence( idx );
-	    const Color col = coltabseq ? coltabseq->color(fval) : Color();
-	    if ( (!coltabseq || col!=coltabseq->undefColor()) && col.t()==255 )
+	    const ColTab::Sequence& coltabseq = getColTabSequence( idx );
+	    const Color col = coltabseq.color(fval);
+	    if ( col!=coltabseq.undefColor() && col.t()==255 )
 		continue;
 	}
 
@@ -2388,9 +2374,8 @@ void HorizonDisplay::fillPar( IOPar& par ) const
 	IOPar channelpar;
 	(*as_[channel])[0].fillPar( channelpar );
 
-	getColTabMapperSetup(channel)->fillPar( channelpar );
-	if ( getColTabSequence(channel) )
-	    getColTabSequence(channel)->fillPar( channelpar );
+	getColTabMapper(channel).setup().fillPar( channelpar );
+	getColTabSequence(channel).fillPar( channelpar );
 
 	channelpar.setYN( sKeyIsOn(), isAttribEnabled(channel) );
 

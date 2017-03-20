@@ -910,15 +910,6 @@ void uiTreeViewItem::setPixmap( int column, const Color& col,
 }
 
 
-void uiTreeViewItem::setPixmap( int column, const ColTab::Sequence& seq,
-				int width, int height )
-{
-    uiPixmap pm( width, height );
-    pm.fill( seq, true );
-    setPixmap( column, pm );
-}
-
-
 int uiTreeViewItem::nrChildren() const
 { return qItem()->childCount(); }
 

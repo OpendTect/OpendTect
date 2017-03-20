@@ -96,42 +96,50 @@ channel and blends it into an RGBA image. */
 mExpClass(visBase) ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
+
+    typedef ColTab::Sequence		Sequence;
+
     static ColTabTextureChannel2RGBA*	create()
-				mCreateDataObj(ColTabTextureChannel2RGBA);
+			mCreateDataObj(ColTabTextureChannel2RGBA);
 
-    void			swapChannels(int ch0,int ch1);
+    void		swapChannels(int ch0,int ch1);
 
-    bool			canSetSequence() const		{ return true;}
-    void			setSequence(int ch,const ColTab::Sequence&);
-    const ColTab::Sequence&	getSequence(int ch) const;
+    bool		canSetSequence() const		{ return true;}
+    void		setSequence(int ch,const Sequence&);
+    const Sequence&	getSequence(int ch) const;
 
-    void			setEnabled(int ch,bool yn);
-    bool			isEnabled(int ch) const;
+    void		setEnabled(int ch,bool yn);
+    bool		isEnabled(int ch) const;
 
-    void			setTransparency(int ch,unsigned char yn);
-    unsigned char		getTransparency(int ch) const;
+    void		setTransparency(int ch,unsigned char yn);
+    unsigned char	getTransparency(int ch) const;
 
-    int				maxNrChannels() const;
+    int			maxNrChannels() const;
 
 protected:
-    void			notifyChannelInsert(int ch);
-    void			notifyChannelRemove(int ch);
 
-    void			adjustNrChannels();
-    void			setChannels(TextureChannels*);
+    void		notifyChannelInsert(int ch);
+    void		notifyChannelRemove(int ch);
 
-				~ColTabTextureChannel2RGBA();
+    void		adjustNrChannels();
+    void		setChannels(TextureChannels*);
 
-    void			update();
-    void			getColors(int channel,
-					  TypeSet<unsigned char>&) const;
+			~ColTabTextureChannel2RGBA();
 
-    ObjectSet<const ColTab::Sequence> coltabs_;
-    BoolTypeSet			enabled_;
-    TypeSet<unsigned char>	opacity_;
+    void		update();
+    void		updFromSeq(int);
+    void		getColors(int channel,TypeSet<unsigned char>&) const;
+    void		colSeqModifCB(CallBacker*);
+    void		startMonitorSeq(int);
+    void		stopMonitorSeq(int);
+
+    TypeSet<ConstRefMan<Sequence> >	colseqs_;
+    BoolTypeSet				enabled_;
+    TypeSet<unsigned char>		opacity_;
 
     ObjectSet<osgGeo::ColorSequence>	osgcolsequences_;
     ObjectSet<TypeSet<unsigned char> >	osgcolseqarrays_;
+
 };
 
 } //namespace

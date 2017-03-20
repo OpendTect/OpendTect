@@ -131,12 +131,11 @@ void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
 }
 
 
-void uiMultiMapperRangeEditWin::setColTabMapperSetup( int idx,
-						const ColTab::MapperSetup& ms )
+void uiMultiMapperRangeEditWin::setColTabMapper( int idx,
+						 const ColTab::Mapper& mpr )
 {
     if ( mapperrgeditors_.validIdx(idx) )
-	mapperrgeditors_[idx]->setMapperSetup(
-				const_cast<ColTab::MapperSetup&>(ms) );
+	mapperrgeditors_[idx]->setMapper( const_cast<ColTab::Mapper&>(mpr) );
 }
 
 
@@ -177,7 +176,7 @@ void uiMultiMapperRangeEditWin::rangeChanged( CallBacker* cb )
 {
     mDynamicCastGet(uiMapperRangeEditor*,obj,cb);
     activeattrbid_ = obj->ID();
-    activectbmapper_ = &obj->mapperSetup();
+    activectbmapper_ = &obj->mapper();
     rangeChange.trigger();
 }
 

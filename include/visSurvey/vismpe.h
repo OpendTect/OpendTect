@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
-#include "coltabmappersetup.h"
 
 namespace Attrib { class SelSpec; }
 template <class T> class Selector;
@@ -85,12 +84,10 @@ public:
     const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
 
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int,
-					int version=0) const;
-    void            setColTabMapperSetup(int,
-					const ColTab::MapperSetup&,TaskRunner*);
+    const ColTab::Mapper& getColTabMapper(int) const;
+    void		setColTabMapper(int,const ColTab::Mapper&,TaskRunner*);
 
-    const ColTab::Sequence*    getColTabSequence(int) const;
+    const ColTab::Sequence&    getColTabSequence(int) const;
     bool            canSetColTabSequence() const;
     void            setColTabSequence(int,const ColTab::Sequence&,
 	                              TaskRunner*);

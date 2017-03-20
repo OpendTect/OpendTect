@@ -643,18 +643,13 @@ const ColTab::Sequence& HorizonSection::getColTabSequence( int channel ) const
 }
 
 
-void HorizonSection::setColTabMapperSetup( int channel,
-    const ColTab::MapperSetup& mapper, TaskRunner* tskr )
-{ hortexturehandler_->setColTabMapperSetup( channel, mapper, tskr ); }
+void HorizonSection::setColTabMapper( int channel,
+    const ColTab::Mapper& mapper, TaskRunner* tskr )
+{ hortexturehandler_->setColTabMapper( channel, mapper, tskr ); }
 
 
-ConstRefMan<ColTab::MapperSetup> HorizonSection::getColTabMapperSetup(
-						int ch ) const
-{ return hortexturehandler_->getColTabMapperSetup( ch ); }
-
-
-const DistribType& HorizonSection::getDataDistribution( int ch ) const
-{ return hortexturehandler_->getDataDistribution( ch ); }
+const ColTab::Mapper& HorizonSection::getColTabMapper( int ch ) const
+{ return hortexturehandler_->getColTabMapper( ch ); }
 
 
 void HorizonSection::setTransparency( int ch, unsigned char yn )

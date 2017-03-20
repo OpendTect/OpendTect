@@ -767,11 +767,8 @@ visBase::VisualObject* CalloutDisplay::createLocation() const
     res->setActiveFeedbackMaterial( activedraggermaterial_ );
     res->setSelectable( true );
     res->setTextSize( scale_ );
-    res->moved.notify( mCB( const_cast<CalloutDisplay*>(this), CalloutDisplay,
-			directionChangeCB ) );
-    res->urlClick().notify(
-	    mCB(const_cast<CalloutDisplay*>(this), CalloutDisplay,urlClickCB ));
-
+    res->moved.notify( mCB(this,CalloutDisplay,directionChangeCB ) );
+    res->urlClick().notify( mCB(this,CalloutDisplay,urlClickCB) );
 
     if ( group_->size() )
     {

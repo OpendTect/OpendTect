@@ -182,6 +182,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	if ( setup.managecoltab_ )
 	{
 	    mAttachCB( ctabed_->colTabChgd, uiFlatViewStdControl::coltabChg );
+	    mAttachCB( ctabed_->refreshReq, uiFlatViewStdControl::coltabChg );
 	    mAttachCB( vwr.dispParsChanged, uiFlatViewStdControl::dispChgCB );
 	}
     }
@@ -272,7 +273,8 @@ void uiFlatViewStdControl::updatePosButtonStates()
 
 void uiFlatViewStdControl::dispChgCB( CallBacker* )
 {
-    if ( ctabed_ ) ctabed_->setColTab( vwr_.appearance().ddpars_.vd_ );
+    if ( ctabed_ )
+	ctabed_->setDisplayPars( vwr_.appearance().ddpars_.vd_ );
 }
 
 
@@ -720,7 +722,7 @@ void uiFlatViewStdControl::handleMenuCB( CallBacker* cb )
 
 void uiFlatViewStdControl::coltabChg( CallBacker* )
 {
-    vwr_.appearance().ddpars_.vd_ = ctabed_->getDisplayPars();
+    vwr_.appearance().ddpars_.vd_ = ctabed_->displayPars();
     vwr_.handleChange( FlatView::Viewer::DisplayPars );
 }
 

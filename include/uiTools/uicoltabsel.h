@@ -11,15 +11,15 @@ ________________________________________________________________________
 -*/
 
 #include "uicolseqsel.h"
-#include "coltabmappersetup.h"
-#include "datadistribution.h"
-class uiColTabSelTool;
-class uiManipMapperSetup;
+#include "coltabmapper.h"
+class uiManipMapper;
 class uiEdMapperSetupDlg;
+class uiColSeqUseModeSel;
 
 
 /*!\brief The color table selection tool on the OD main window. */
 
+class uiColTabSelTool;
 mGlobal(uiTools) uiColTabSelTool& uiCOLTAB();
 
 
@@ -29,30 +29,19 @@ mExpClass(uiTools) uiColTabSelTool : public uiColSeqSelTool
 { mODTextTranslationClass(uiColTabSelTool);
 public:
 
-    typedef ColTab::MapperSetup		MapperSetup;
-    typedef DataDistribution<float>	DistribType;
-    typedef DataDistributionIter<float>	DistribIterType;
+    typedef ColTab::Mapper	Mapper;
 
 				~uiColTabSelTool();
 
 				// access current
-    RefMan<MapperSetup>		mapperSetup()		{ return mappersetup_; }
-    ConstRefMan<MapperSetup>	mapperSetup() const	{ return mappersetup_; }
-    RefMan<DistribType>		distribution()		{ return distrib_; }
-    ConstRefMan<DistribType>	distribution() const	{ return distrib_; }
+    Mapper&			mapper()		{ return *mapper_; }
+    const Mapper&		mapper() const		{ return *mapper_; }
+    void			setMapper(Mapper&);
 
-				// make selector use another
-    void			useMapperSetup(const MapperSetup&);
-    void			useDistribution(const DistribType&);
-
-    void			setRange( Interval<float> rg )
-				{ mappersetup_->setRange( rg ); }
-
-    // Convenience. If you need to know what happened, ask the objs
-    Notifier<uiColTabSelTool>	mapperSetupChanged;
-    Notifier<uiColTabSelTool>	distributionChanged;
+    void			setRange(Interval<float>);
 
     Notifier<uiColTabSelTool>	mapperMenuReq;
+    Notifier<uiColTabSelTool>	mappingChanged;
 				//!< CallBacker* is the uiMenu about to pop up
 
     virtual void		addObjectsToToolBar(uiToolBar&);
@@ -60,25 +49,27 @@ public:
 
 protected:
 
-			uiColTabSelTool();
+				uiColTabSelTool();
 
-    RefMan<MapperSetup>	mappersetup_;
-    RefMan<DistribType>	distrib_;
+    RefMan<Mapper>		mapper_;
 
-    uiManipMapperSetup*	manip_;
-    uiColSeqUseModeSel*	usemodesel_;
+    uiManipMapper*		manip_;
+    uiColSeqUseModeSel*		usemodesel_;
 
-    void		initialise(OD::Orientation);
-    void		handleMapperSetupChange();
-    void		handleDistribChange();
+    void			initialise(OD::Orientation);
+    void			addSetupNotifs();
+    void			removeSetupNotifs();
+    void			handleMapperSetupChange();
+    void			handleDistribChange();
 
-    void		modeChgCB(CallBacker*);
-    void		mapSetupChgCB(CallBacker*);
-    void		distribChgCB(CallBacker*);
-    void		newManDlgCB(CallBacker*);
+    void			modeChgCB(CallBacker*);
+    void			mapSetupChgCB(CallBacker*);
+    void			mapRangeChgCB(CallBacker*);
+    void			distribChgCB(CallBacker*);
+    void			newManDlgCB(CallBacker*);
 
-    friend class	uiManipMapperSetup;
-    friend class	uiEdMapperSetupDlg;
+    friend class		uiManipMapper;
+    friend class		uiEdMapperSetupDlg;
 
 };
 

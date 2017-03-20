@@ -12,8 +12,8 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "binidvalset.h"
-#include "coltabsequence.h"
-#include "coltabmappersetup.h"
+#include "coltabseqmgr.h"
+#include "coltabmapper.h"
 #include "datadistribution.h"
 #include "flatview.h"
 #include "iopar.h"
@@ -526,13 +526,10 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id));
     if ( so && so->getScene() && so->getScene()->getSceneColTab() )
     {
-	const ColTab::Sequence* seq = so->getColTabSequence( selattrib_ );
-	ConstRefMan<ColTab::MapperSetup> ms
-				= so->getColTabMapperSetup( selattrib_ );
-	if ( seq )
-	    so->getScene()->getSceneColTab()->setColTabSequence( *seq );
-	if ( ms )
-	    so->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
+	const ColTab::Sequence& seq = so->getColTabSequence( selattrib_ );
+	so->getScene()->getSceneColTab()->setColTabSequence( seq );
+	const ColTab::Mapper& mpr = so->getColTabMapper( selattrib_ );
+	so->getScene()->getSceneColTab()->setColTabMapper( mpr );
 	setSelectionMode( selectionmode_ );
     }
 }
@@ -891,40 +888,41 @@ void uiVisPartServer::getObjectInfo( int id, BufferString& info ) const
 }
 
 
-ConstRefMan<ColTab::MapperSetup>
-    uiVisPartServer::getColTabMapperSetup( int id, int attrib,
-					   int version ) const
+const ColTab::Mapper&
+uiVisPartServer::getColTabMapper( int id, int attrib ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getColTabMapperSetup( attrib, version ) : 0;
+    return so ? so->getColTabMapper( attrib ) : *new ColTab::Mapper;
 }
 
 
-void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
-					    const ColTab::MapperSetup& ms )
+void uiVisPartServer::setColTabMapper( int id, int attrib,
+					    const ColTab::Mapper& mpr )
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    if ( !so ) return;
+    if ( !so )
+	return;
 
-    so->setColTabMapperSetup( attrib, ms, 0 );
+    so->setColTabMapper( attrib, mpr, 0 );
     if ( so->getScene() && so->getScene()->getSceneColTab() )
-	so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
+	so->getScene()->getSceneColTab()->setColTabMapper( mpr );
 
     if ( multirgeditwin_ && id==mapperrgeditordisplayid_ )
     {
 	if ( mapperrgeditinact_ )
 	    mapperrgeditinact_ = false;
 	else
-	    multirgeditwin_->setColTabMapperSetup( attrib, ms );
+	    multirgeditwin_->setColTabMapper( attrib, mpr );
     }
 }
 
 
-const ColTab::Sequence*
-    uiVisPartServer::getColTabSequence( int id, int attrib ) const
+const ColTab::Sequence&
+uiVisPartServer::getColTabSequence( int id, int attrib ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
-    return so ? so->getColTabSequence( attrib ) : 0;
+    return so ? so->getColTabSequence( attrib )
+	      : *ColTab::SeqMGR().getDefault();
 }
 
 
@@ -961,32 +959,19 @@ void uiVisPartServer::fillDispPars( int id, int attrib,
 				    FlatView::DataDispPars& common,
 				    bool wva ) const
 {
-    ConstRefMan<ColTab::MapperSetup> mappersu
-				= getColTabMapperSetup( id, attrib );
-    const ColTab::Sequence* seq = getColTabSequence( id, attrib );
-    if ( !mappersu || !seq )
-	return;
+    const ColTab::Mapper& mapper = getColTabMapper( id, attrib );
 
-    FlatView::DataDispPars::Common& compars =
+    FlatView::DataDispPars::Common& fvwdisppars =
 	wva ? (FlatView::DataDispPars::Common&)common.wva_
 	    : (FlatView::DataDispPars::Common&)common.vd_;
-    *compars.mappersetup_ = *mappersu;
+    fvwdisppars.mapper_ = const_cast<ColTab::Mapper*>( &mapper );
     if ( wva )
 	common.wva_.show_ = true;
     else
     {
-	common.vd_.colseqname_ = seq->name();
+	common.vd_.colseqname_ = getColTabSequence(id,attrib).name();
 	common.vd_.show_ = true;
     }
-}
-
-
-const DataDistribution<float>&
-uiVisPartServer::getDataDistribution( int id, int attrib ) const
-{
-    mDynamicCastGet(visSurvey::SurveyObject*, so, getObject(id) );
-    return so ? so->getDataDistribution( attrib )
-	      : DataDistribution<float>::getEmptyDistrib();
 }
 
 
@@ -2305,13 +2290,11 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
 	    continue;
 
 	multirgeditwin_->setDataPackID( statsidx, dpid );
-	ConstRefMan<ColTab::MapperSetup> ms
-				= getColTabMapperSetup( visid, dpidx );
-	if ( ms )
-	    multirgeditwin_->setColTabMapperSetup( statsidx, *ms );
+	const ColTab::Mapper& mpr = getColTabMapper( visid, dpidx );
+	multirgeditwin_->setColTabMapper( statsidx, mpr );
 
-	const ColTab::Sequence* ctseq = getColTabSequence( visid, dpidx );
-	if ( ctseq ) multirgeditwin_->setColTabSeq( statsidx, *ctseq );
+	const ColTab::Sequence& ctseq = getColTabSequence( visid, dpidx );
+	multirgeditwin_->setColTabSeq( statsidx, ctseq );
     }
 
     multirgeditwin_->go();
@@ -2387,8 +2370,8 @@ void uiVisPartServer::mapperRangeEditChanged( CallBacker* cb )
     mapperrgeditinact_ = true;
 
     mDynamicCastGet(uiMultiMapperRangeEditWin*,obj,cb);
-    setColTabMapperSetup( mapperrgeditordisplayid_, obj->activeAttrbID(),
-			  obj->activeMapperSetup() );
+    setColTabMapper( mapperrgeditordisplayid_, obj->activeAttrbID(),
+			  obj->activeMapper() );
     eventmutex_.lock();
     eventobjid_ = mapperrgeditordisplayid_;
     eventattrib_ = obj->activeAttrbID();

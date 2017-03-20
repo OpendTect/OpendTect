@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "array2dresample.h"
 #include "arraynd.h"
 #include "coltabmapper.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "dataclipper.h"
 #include "flatposdata.h"
 #include "axislayout.h"
@@ -155,11 +155,10 @@ void FlatViewer::handleChange( unsigned int dt)
 	case DisplayPars:
 	    {
 		const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
-		if ( channels_->getColTabMapperSetup(0,0)
-				!= vd.mappersetup_.ptr() )
+		if ( &channels_->getColTabMapper(0) != vd.mapper_.ptr() )
 		{
-		    channels_->setColTabMapperSetup( 0, *vd.mappersetup_ );
-		    channels_->reMapData( 0, false, 0 );
+		    channels_->setColTabMapper( 0, *vd.mapper_ );
+		    channels_->reMapData( 0, 0 );
 		}
 
 		const ColTab::Sequence& sequence
@@ -296,33 +295,10 @@ void FlatViewer::replaceChannels( TextureChannels* nt )
 
 Interval<float> FlatViewer::getDataRange( bool wva ) const
 {
-    ConstRefMan<ColTab::MapperSetup> mapsetup
-	= wva ? appearance().ddpars_.wva_.mappersetup_
-	      : appearance().ddpars_.vd_.mappersetup_;
-    ConstRefMan<FlatDataPack> dp = getPack( wva );
-    if ( !dp || dp->size(true) < 1 || dp->size(false) < 1 )
-	return mapsetup->range();
-
-    const int ndim0 = dp->size( true );
-    const int ndim1 = dp->size( false );
-    od_int64 totsz = ndim0; totsz *= ndim1;
-    const Array2D<float>& arr2d = dp->data();
-    const int vssz = totsz < 50000 ? totsz : 50000;
-    ArrayValueSeries<float,float> valseries( vssz );
-    od_int64 stepidx = totsz / vssz;
-    for ( int idx=0; idx<vssz; idx++ )
-    {
-	od_int64 arridx = idx * stepidx;
-	const int idx0 = (int)(arridx / ndim1);
-	const int idx1 = (int)(arridx % ndim1);
-	valseries.setValue( idx, arr2d.get( idx0, idx1 ) );
-    }
-
-    ColTab::Mapper mapper;
-    mapper.setSetup( *mapsetup );
-    mapper.setData( &valseries, vssz );
-
-    return mapper.setup().range();
+    const ColTab::Mapper& mapper
+	= wva ? *appearance().ddpars_.wva_.mapper_
+	      : *appearance().ddpars_.vd_.mapper_;
+    return mapper.getRange();
 }
 
 

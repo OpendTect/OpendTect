@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "coltabmapper.h"
 #include "welllog.h"
 
@@ -245,6 +245,9 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     ObjectSet<TypeSet<uiPoint> > pts;
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
     uiPoint pt;
+    RefMan<ColTab::Mapper> mapper = new ColTab::Mapper( fillrg );
+    mapper->setup().setSeqUseMode( sequsemode );
+    mapper->setup().setNrSegs( nrsegs );
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -261,8 +264,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	const bool isvaludf = mIsUdf(val);
 	float colpos = mUdf( float );
 	if ( !isvaludf )
-	    colpos = ColTab::Mapper::getPosition(
-					fillrg, sequsemode, nrsegs, val );
+	    colpos = mapper->seqPosition( val );
 
 	if ( mIsUdf(prevcolpos) )
 	    prevcolpos = colpos;

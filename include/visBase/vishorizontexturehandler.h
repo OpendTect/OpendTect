@@ -13,21 +13,18 @@ ________________________________________________________________________
 
 #include "visbasecommon.h"
 #include "rowcol.h"
-#include "coltabmapper.h"
+#include "refcount.h"
 
 class DataPointSet;
 class BinIDValueSet;
-class TaskRunner;
-
 namespace osg {  class Node; }
 namespace osgGeo { class LayeredTexture; }
-namespace ColTab { class Sequence; }
 
 namespace visBase
 {
-    class TextureChannel2RGBA;
-    class TextureChannels;
-    class HorizonSection;
+class TextureChannel2RGBA;
+class TextureChannels;
+class HorizonSection;
 
 class HorizonTextureHandler : public RefCount::Referenced
 {
@@ -48,11 +45,10 @@ public:
 						  const ColTab::Sequence& se);
     const ColTab::Sequence&	getColTabSequence(int channel) const;
 
-    void			setColTabMapperSetup(int channel,
-					    const ColTab::MapperSetup& mapper,
+    void			setColTabMapper(int channel,
+					    const ColTab::Mapper& mapper,
 					    TaskRunner* tskr);
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int ch) const;
-    const DistribType&		getDataDistribution(int channel) const;
+    const ColTab::Mapper&	getColTabMapper(int ch) const;
     void			setTransparency(int ch, unsigned char yn);
     unsigned char		getTransparency(int ch) const;
 

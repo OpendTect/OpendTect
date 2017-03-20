@@ -12,15 +12,17 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uidialog.h"
 #include "uistring.h"
 #include "coltabmappersetup.h"
 
 namespace visSurvey { class SurveyObject; }
 namespace ColTab { class Sequence; }
-template <class T> class DataDistribution;
 class uiColTabToolBar;
 class uiColTabSelTool;
+
+
+//TODO: this class should go, or at least be demoted to monitoring
+// and checking a few things.
 
 
 mExpClass(uiVis) uiVisColTabEd : public CallBacker
@@ -30,22 +32,19 @@ public:
 				uiVisColTabEd(uiColTabToolBar&);
 				~uiVisColTabEd();
 
-    void			setColTab(const ColTab::Sequence*,
-					  const ColTab::MapperSetup*);
-    void			setColTab(visSurvey::SurveyObject*,int ch,
-					  int version);
+    void			setNoColTab();
+    void			setColTab(const ColTab::Sequence&,
+					  ColTab::Mapper&);
+    void			setColTab(visSurvey::SurveyObject*,int ch);
     const ColTab::Sequence&	getColTabSequence() const;
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup() const;
+    const ColTab::Mapper&	getColTabMapper() const;
 
     int				getChannel() const { return channel_; }
     const visSurvey::SurveyObject* getSurvObj() const { return survobj_; }
 
     NotifierAccess&		seqChange();
-    NotifierAccess&		mapperChange();
 
     uiColTabSelTool&		colTabSel()	{ return coltabsel_; }
-    void			setDistribution(const DataDistribution<float>&);
-    void			setHistogram(const TypeSet<float>*);
 
     bool			usePar(const IOPar&);
     void                        fillPar(IOPar&);
@@ -70,23 +69,6 @@ protected:
 
     uiColTabSelTool&		coltabsel_;
     int				channel_;
-    int				version_;
     visSurvey::SurveyObject*	survobj_;
 
-};
-
-
-mExpClass(uiVis) uiColorBarDialog : public uiDialog
-{ mODTextTranslationClass(uiColorBarDialog);
-public:
-				uiColorBarDialog(uiParent*,
-						 const uiString& title);
-
-    uiVisColTabEd&		editor()	{ return *coltabed_; }
-
-    Notifier<uiColorBarDialog>	winClosing;
-
-protected:
-    bool			closeOK();
-    uiVisColTabEd*		coltabed_;
 };

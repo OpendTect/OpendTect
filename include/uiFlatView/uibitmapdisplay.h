@@ -51,7 +51,6 @@ public:
 			    large.*/
     float		getOverlap() const  { return overlap_; }
 
-    Interval<float>	getDataRange(bool iswva) const;
     const uiWorldRect&	boundingBox() const;
     void		setBoundingBox(const uiWorldRect&);
     void		setDataPack(const FlatDataPack*,bool wva);

@@ -93,23 +93,48 @@ Color Color::lighter( float fac ) const
 }
 
 
+Color Color::between( Color c1, Color c2, float relpos )
+{
+    float fval;
+#define mGet1Between(cnm) \
+    fval = relpos * c1.cnm(); \
+    fval += (1 - relpos) * c2.cnm(); \
+    unsigned char res_##cnm = (unsigned char)(fval + 0.5f)
+
+    mGet1Between(r); mGet1Between(g); mGet1Between(b); mGet1Between(t);
+    return Color( res_r, res_g, res_b, res_t );
+}
+
+
 void Color::setRgb( unsigned int rgb_  )
-{ col_ = rgb_; }
+{
+    col_ = rgb_;
+}
 
 
 void Color::setTransparency( unsigned char t_ )
-{ set( r(), g(), b(), t_ ); }
+{
+    set( r(), g(), b(), t_ );
+}
 
 
 void Color::setTransparencyF( float tf )
-{ setTransparency( mCast(unsigned char,(tf*255.0f)) ); }
+{
+    setTransparency( mCast(unsigned char,(tf*255.0f)) );
+}
 
 
 unsigned char Color::getUChar( float v )
-{ return v > 254.5 ? 255 : (v < 0.5 ? 0 : (unsigned char)(v+.5)); }
+{
+    return v > 254.5 ? 255 : (v < 0.5 ? 0 : (unsigned char)(v+.5));
+}
+
 
 float Color::getFloat( unsigned char c )
-{ return (mCast(float,c)/255.0f); }
+{
+    return (mCast(float,c)/255.0f);
+}
+
 
 const int nrstddrawcols = 10;
 Color stddrawcols[] = {

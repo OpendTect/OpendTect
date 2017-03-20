@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uicolseqsel.h"
+#include "uicolsequsemodesel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"

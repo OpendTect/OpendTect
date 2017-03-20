@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uilabel.h"
 
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "arrayndsmoother.h"
 #include "flatposdata.h"
 #include "sampledprobdenfunc.h"
@@ -344,8 +344,9 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    app.ddpars_.show( false, true );
 	    app.ddpars_.vd_.colseqname_
 			= ColTab::SeqMGR().getDefault(false)->name();
+	    app.ddpars_.vd_.mapper_->setup().setClipRate(
+				    ColTab::ClipRatePair(0.f,0.f) );
 	    app.ddpars_.vd_.blocky_ = true;
-	    app.ddpars_.vd_.mappersetup_->setClipRate( Interval<float>(0,0) );
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.setAxesAnnot( true );
 	    ann.x1_.name_ = pdf_.dimName(0);

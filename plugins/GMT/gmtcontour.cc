@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "gmtcontour.h"
 
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"

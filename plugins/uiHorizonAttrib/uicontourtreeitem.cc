@@ -1419,15 +1419,15 @@ int uiContourTreeItem::getNumberOfLines() const
 }
 
 
-bool uiContourTreeItem::getLineCoordinates( int idx, 
-    TypeSet<Coord3>& linecoords ) const
+bool uiContourTreeItem::getLineCoordinates( int iln,
+			TypeSet<Coord3>& linecoords ) const
 {
-    if ( !lines_ || idx<0 || idx>=lines_->nrPrimitiveSets() )
+    if ( !lines_ || iln<0 || iln>=lines_->nrPrimitiveSets() )
 	return false;
 
     linecoords.setEmpty();
 
-    const Geometry::PrimitiveSet* ps = lines_->getPrimitiveSet( idx );
+    const Geometry::PrimitiveSet* ps = lines_->getPrimitiveSet( iln );
     if ( !ps ) return false;
 
     for ( int idx=0; idx<ps->size(); idx++ )

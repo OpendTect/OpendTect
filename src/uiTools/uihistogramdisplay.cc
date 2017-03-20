@@ -326,7 +326,7 @@ void uiHistogramDisplay::setDistribution( const DataDistribution<float>& distr,
     const int sz = distr.size();
     const SamplingData<float> sd = distr.sampling();
     const Interval<float> xrg( sd.start, sd.atIndex(sz-1) );
-    const TypeSet<float> distrdata( distr.data() );
+    const TypeSet<float> distrdata( distr.getSet(false) );
     setVals( xrg, distrdata.arr(), distrdata.size() );
 }
 

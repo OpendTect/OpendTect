@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
-#include "datadistribution.h"
 
 
 mExpClass(AttributeEngine) AttribProbeLayer : public ProbeLayer
@@ -24,8 +23,7 @@ mExpClass(AttributeEngine) AttribProbeLayer : public ProbeLayer
 public:
 
     typedef ColTab::Sequence		Sequence;
-    typedef ColTab::MapperSetup		MapperSetup;
-    typedef DataDistribution<float>	DistribType;
+    typedef ColTab::Mapper		Mapper;
 
     enum DispType		{ VD, Wiggle, RGB };
 
@@ -47,13 +45,11 @@ public:
     mImplSimpleMonitoredGet(	dataPackID,DataPack::ID,attribdpid_)
     mImplSimpleMonitoredGet(	dispType,DispType,disptype_)
     mImplSimpleMonitoredGet(	selectedComponent,int,selcomp_)
-    mImplSimpleMonitoredGet(	distribution,RefMan<DistribType>,distrib_)
-    mImplSimpleMonitoredGetSet(	inline,colSeq,setColSeq,ConstRefMan<Sequence>,
-	    				colseq_,cColSeqChange())
-    mImplSimpleMonitoredGetSet(	inline,mapperSetup,setMapperSetup,
-					RefMan<MapperSetup>,mappersetup_,
-					cMapperSetupChange())
 
+    const Sequence&		sequence() const;
+    void			setSequence(const Sequence&);
+    Mapper&			mapper()		{ return *mapper_; }
+    const Mapper&		mapper() const		{ return *mapper_; }
     void			setSelSpec(const Attrib::SelSpec&);
     int				nrAvialableComponents() const;
     void			setSelectedComponent(int);
@@ -65,7 +61,7 @@ public:
 
     static ChangeType		cDataChange()		{ return 2; }
     static ChangeType		cColSeqChange()		{ return 3; }
-    static ChangeType		cMapperSetupChange()	{ return 4; }
+    static ChangeType		cMapperChange()		{ return 4; }
     static ChangeType		cSelCompChange()	{ return 5; }
 
     static const char*		sFactoryKey();
@@ -80,8 +76,7 @@ protected:
     ConstRefMan<DataPack>	attrdp_;
     int				selcomp_;
     ConstRefMan<Sequence>	colseq_;
-    RefMan<MapperSetup>		mappersetup_;
-    RefMan<DistribType>		distrib_;
+    RefMan<Mapper>		mapper_;
 
     void			handleDataPackChange();
 

@@ -40,16 +40,8 @@ uiVisColTabEd::uiVisColTabEd( uiColTabToolBar& cttb )
 #define mImplNotification( refop, notifyop ) \
     if ( survobj_ ) \
     { \
-	ConstRefMan<ColTab::MapperSetup> mapsu \
-		= survobj_->getColTabMapperSetup(channel_,version_); \
-	if ( mapsu ) \
-	    { mapsu->objectChanged().notifyop( \
-		    mCB(this,uiVisColTabEd,mapperChangeCB) ); } \
-	const ColTab::Sequence* seq \
-		= survobj_->getColTabSequence(channel_); \
-	if ( seq ) \
-	    { seq->objectChanged().notifyop( \
-		    mCB(this,uiVisColTabEd,colSeqModifCB) ); } \
+	const ColTab::Sequence& seq = survobj_->getColTabSequence(channel_); \
+	seq.objectChanged().notifyop( mCB(this,uiVisColTabEd,colSeqModifCB) ); \
 	mDynamicCastGet( visBase::DataObject*, dataobj, survobj_ ); \
 	if ( dataobj ) \
 	    dataobj->refop(); \
@@ -63,56 +55,49 @@ uiVisColTabEd::~uiVisColTabEd()
 }
 
 
-void uiVisColTabEd::setColTab( const ColTab::Sequence* seq,
-			       const ColTab::MapperSetup* setup )
+void uiVisColTabEd::setNoColTab()
 {
-    if ( seq )
-	coltabsel_.setSeqName( seq->name() );
-    if ( setup )
-	coltabsel_.useMapperSetup( *setup );
+    coltabsel_.asParent()->display( false );
 }
 
 
-void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
-			       int version )
+void uiVisColTabEd::setColTab( const ColTab::Sequence& seq,
+			       ColTab::Mapper& mapper )
+{
+    coltabsel_.asParent()->display( true );
+    coltabsel_.setSequence( seq );
+    coltabsel_.setMapper( mapper );
+}
+
+
+//TODO the end result should be to get rid of this thing
+void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel )
 {
     mImplNotification( unRef, remove );
 
     survobj_ = so;
     channel_ = channel;
-    version_ = version;
 
     mImplNotification( ref, notifyIfNotNotified );
 
-    if ( so )
+    if ( !so )
+	setNoColTab();
+    else
 	setColTab( so->getColTabSequence(channel_),
-		    so->getColTabMapperSetup(channel_,version_) );
+		const_cast<ColTab::Mapper&>(so->getColTabMapper(channel_)) );
 }
 
 
 void uiVisColTabEd::colSeqModifCB( CallBacker* )
 {
-    ConstRefMan<ColTab::MapperSetup> ms  =
-			survobj_->getColTabMapperSetup( channel_, version_ );
-    if ( ms )
-    {
-	//TODO this is a terrible hack to force remap.
-	// Long live the centralization of Probe power!
-	ms->sendEntireObjectChangeNotification();
-	survobj_->setColTabSequence( channel_, *coltabsel_.sequence() );
-    }
-}
+    //TODO this is a terrible hack to force remap. Add watching to vis and
+    // remove this monstrous function ...
 
+    if ( !survobj_ )
+	return;
 
-void uiVisColTabEd::mapperChangeCB( CallBacker* )
-{
-    ConstRefMan<ColTab::MapperSetup> ms  =
-			survobj_->getColTabMapperSetup( channel_, version_ );
-
-    if ( ms )
-	coltabsel_.useMapperSetup( *ms );
-    if ( survobj_->getScene() && ms )
-	survobj_->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
+    coltabsel_.mappingChanged.trigger();
+    survobj_->setColTabSequence( channel_, coltabsel_.sequence() );
 }
 
 
@@ -124,21 +109,20 @@ void uiVisColTabEd::removeAllVisCB( CallBacker* )
 
 
 const ColTab::Sequence& uiVisColTabEd::getColTabSequence() const
-{ return *coltabsel_.sequence(); }
+{
+    return coltabsel_.sequence();
+}
 
-ConstRefMan<ColTab::MapperSetup> uiVisColTabEd::getColTabMapperSetup() const
-{ return coltabsel_.mapperSetup(); }
+
+const ColTab::Mapper& uiVisColTabEd::getColTabMapper() const
+{
+    return coltabsel_.mapper();
+}
+
 
 NotifierAccess& uiVisColTabEd::seqChange()
-{ return coltabsel_.seqChanged; }
-
-NotifierAccess& uiVisColTabEd::mapperChange()
-{ return coltabsel_.mapperSetup()->objectChanged(); }
-
-
-void uiVisColTabEd::setDistribution( const DataDistribution<float>& distr )
 {
-    coltabsel_.useDistribution( distr );
+    return coltabsel_.seqChanged;
 }
 
 
@@ -149,25 +133,4 @@ bool uiVisColTabEd::usePar( const IOPar& par )
 
 void uiVisColTabEd::fillPar( IOPar& par )
 {
-}
-
-
-
-// ----- uiColorBarDialog -----
-uiColorBarDialog::uiColorBarDialog( uiParent* p, const uiString& title )
-    : uiDialog(p, uiDialog::Setup(title,mNoDlgTitle,
-                                  mODHelpKey(mColorBarDialog) ).modal(false)
-	       .oktext(uiStrings::sExit()).dlgtitle(uiString::emptyString())
-	       .canceltext(uiString::emptyString()))
-    , winClosing( this )
-{
-    coltabed_ = new uiVisColTabEd( *new uiColTabToolBar(this) );
-    setDeleteOnClose( false );
-}
-
-
-bool uiColorBarDialog::closeOK()
-{
-    winClosing.trigger( this );
-    return true;
 }

@@ -292,8 +292,8 @@ inline uiPoint uiBorder::relPt( const uiPoint& dpt ) const
 inline uiRect uiBorder::getRect( const uiSize& sz, int extr ) const
 {
     return uiRect( lt_.width()+extr, lt_.height()+extr,
-		   sz.width()-rb_.width()-2*extr,
-		   sz.height()-rb_.height()-2*extr );
+		   sz.width()-1-rb_.width()-2*extr,
+		   sz.height()-1-rb_.height()-2*extr );
 }
 
 

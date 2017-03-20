@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "ioobj.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
@@ -98,9 +98,9 @@ bool uiODVW2DVariableDensityTreeItem::init()
     {
 	if ( !vwr.control() )
 	    displayMiniCtab(0);
-
-	displayMiniCtab( ColTab::SeqMGR().getAny(
-		    vwr.appearance().ddpars_.vd_.colseqname_) );
+	else
+	    displayMiniCtab( ColTab::SeqMGR().getAny(
+			vwr.appearance().ddpars_.vd_.colseqname_) );
     }
 
     return uiODVw2DTreeItem::init();
@@ -145,7 +145,7 @@ bool uiODVW2DVariableDensityTreeItem::select()
 	viewer2D()->dataMgr()->setSelected( dummyview_ );
     uiFlatViewColTabEd* coltabed = viewer2D()->viewControl()->colTabEd();
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    coltabed->setColTab( vwr.appearance().ddpars_.vd_ );
+    coltabed->setDisplayPars( vwr.appearance().ddpars_.vd_ );
     return true;
 }
 
@@ -172,9 +172,9 @@ void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
     if ( !coltabed )
 	return;
 
-    const FlatView::DataDispPars::VD& vdpars = coltabed->getDisplayPars();
+    const FlatView::DataDispPars::VD& vdpars = coltabed->displayPars();
     NotifyStopper ns( viewer2D()->viewControl()->colTabEd()->colTabChgd, this );
-    attrlayer_->setColSeq( ColTab::SeqMGR().getAny(vdpars.colseqname_) );
+    attrlayer_->setSequence( *ColTab::SeqMGR().getAny(vdpars.colseqname_) );
 }
 
 
@@ -192,7 +192,7 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
     if ( !coltabinitialized_ ) initColTab();
 
     if ( dummyview_ && viewer2D()->dataMgr()->selectedID() == dummyview_->id() )
-	viewer2D()->viewControl()->colTabEd()->setColTab( ddp.vd_ );
+	viewer2D()->viewControl()->colTabEd()->setDisplayPars( ddp.vd_ );
 
     displayMiniCtab( ColTab::SeqMGR().getAny(
 		vwr.appearance().ddpars_.vd_.colseqname_) );
@@ -211,13 +211,7 @@ void uiODVW2DVariableDensityTreeItem::attrLayerChangedCB( CallBacker* )
 void uiODVW2DVariableDensityTreeItem::displayMiniCtab(
 						const ColTab::Sequence* seq )
 {
-    if ( !seq )
-    {
-	uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
-	return;
-    }
-
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *seq );
+    setPixmap( uiODViewer2DMgr::cColorColumn(), seq );
 }
 
 

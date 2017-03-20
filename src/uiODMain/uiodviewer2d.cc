@@ -258,10 +258,9 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 	    uiFlatViewer& vwr = viewwin()->viewer(ivwr);
 	    if ( !iswiggle )
 		vwr.appearance().ddpars_.vd_.colseqname_
-		    = attriblayer->colSeq()->name();
+			    = attriblayer->sequence().name();
 
-	    *vwr.appearance().ddpars_.wva_.mappersetup_ =
-		    *attriblayer->mapperSetup();
+	    vwr.appearance().ddpars_.wva_.mapper_ = &attriblayer->mapper();
 	    vwr.handleChange( FlatView::Viewer::DisplayPars );
 	}
     }
@@ -667,7 +666,7 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr );
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-	(wva ? ddp.wva_.mappersetup_ : ddp.vd_.mappersetup_) = mappersetup;
+	(wva ? ddp.wva_.mapper_ : ddp.vd_.mapper_)->setup() = *mappersetup;
 	if ( !wva )
 	    ddp.vd_.colseqname_ = iop.find( sKey::Name() );
     }

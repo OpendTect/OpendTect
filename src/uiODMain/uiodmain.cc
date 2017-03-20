@@ -331,9 +331,6 @@ bool uiODMain::buildUI()
 
     uiColTabToolBar* tb = new uiColTabToolBar( this );
     tb->selTool().seqChanged.notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
-    tb->selTool().seqModified.notify( mCB(applmgr_,uiODApplMgr,colSeqModif) );
-    tb->selTool().mapperSetupChanged.notify( mCB(applmgr_,uiODApplMgr,
-					     colMapperChg) );
     SetuiCOLTAB( &tb->selTool() );
     ctabed_ = new uiVisColTabEd( *tb );
     return true;
@@ -647,6 +644,7 @@ void uiODMain::sessTimerCB( CallBacker* )
 
 void uiODMain::afterStartupCB( CallBacker* )
 {
+    uiCOLTAB().asParent()->display( false );
     startAutoSaved2RealObjectRestorer();
 }
 

@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uicoltabsel.h"
 #include "uicolseqdisp.h"
+#include "uicolsequsemodesel.h"
 #include "uicolseqman.h"
 #include "coltabmapper.h"
 #include "uimenu.h"
@@ -107,9 +108,9 @@ void putToScreen()
 
     usemodefld_->setMode( setup().seqUseMode() );
 
-    Interval<float> clipperc( setup().clipRate() );
-    clipperc.scale( 100.f );
-    clipfld_->setValue( clipperc );
+    ColTab::ClipRatePair clipperc( setup().clipRate() );
+    ColTab::convToPerc( clipperc );
+    clipfld_->setValues( clipperc.first, clipperc.second );
 
     skipsymscanfld_->setChecked( !setup().guessSymmetry() );
     const float symmidval = setup().symMidVal();
@@ -123,15 +124,15 @@ void getFromScreen()
     RefMan<ColTab::MapperSetup> newms = new ColTab::MapperSetup( setup() );
 
     const bool isfixed = isFixed();
-    newms->setIsFixed( isfixed );
     newms->setSeqUseMode( usemodefld_->mode() );
     if ( isfixed )
-	newms->setRange( rangefld_->getFInterval() );
+	newms->setFixedRange( rangefld_->getFInterval() );
     else
     {
-	Interval<float> cliprate = clipfld_->getFInterval();
-	cliprate.start = fabs( cliprate.start * 0.01f );
-	cliprate.stop = fabs( cliprate.stop * 0.01f );
+	newms->setNotFixed();
+	ColTab::ClipRatePair cliprate;
+	cliprate.first = fabs( clipfld_->getFValue(0) * 0.01f );
+	cliprate.second = fabs( clipfld_->getFValue(1) * 0.01f );
 	newms->setClipRate( cliprate );
 	const bool guesssymm = !skipsymscanfld_->isChecked();
 	newms->setGuessSymmetry( guesssymm );
@@ -168,7 +169,7 @@ bool acceptOK()
 
     if ( !isFixed() && saveButtonChecked() )
 	ColTab::setMapperDefaults( setup().clipRate(), setup().symMidVal(),
-				   setup().guessSymmetry() );
+			       setup().guessSymmetry(), setup().doHistEq() );
 
     seltool_.refreshReq.trigger( this );
     return false;
@@ -178,9 +179,7 @@ protected:
 
     uiColTabSelTool&		    seltool_;
     ColTab::MapperSetup&	    setup()
-				    { return *seltool_.mappersetup_; }
-    uiColTabSelTool::DistribType&   distrib()
-				    { return *seltool_.distrib_; }
+				    { return seltool_.mapper_->setup(); }
 
     uiGenInput*		rangefld_;
     uiGenInput*		clipfld_;
@@ -191,13 +190,13 @@ protected:
 };
 
 
-class uiManipMapperSetup : public uiGraphicsView
-{ mODTextTranslationClass("uiManipMapperSetup");
+class uiManipMapper : public uiGraphicsView
+{ mODTextTranslationClass("uiManipMapper");
 public:
 
-    typedef DataDistribution<float>	DistribType;
+    typedef ColTab::Mapper::DistribType	DistribType;
 
-uiManipMapperSetup( uiColTabSelTool& seltool )
+uiManipMapper( uiColTabSelTool& seltool )
     : uiGraphicsView(seltool.getParent(),"Mapper Manipulator")
     , seltool_(seltool)
     , eddlg_(0)
@@ -210,24 +209,24 @@ uiManipMapperSetup( uiColTabSelTool& seltool )
 {
     setNoBackGround();
     disableScrollZoom();
-    mAttachCB( postFinalise(), uiManipMapperSetup::initCB );
+    mAttachCB( postFinalise(), uiManipMapper::initCB );
 }
 
-~uiManipMapperSetup()
+~uiManipMapper()
 {
     detachAllNotifiers();
 }
 
 void initCB( CallBacker* )
 {
-    mAttachCB( meh_.buttonPressed, uiManipMapperSetup::mousePressCB );
-    mAttachCB( meh_.buttonReleased, uiManipMapperSetup::mouseReleaseCB );
-    mAttachCB( meh_.movement, uiManipMapperSetup::mouseMoveCB );
+    mAttachCB( meh_.buttonPressed, uiManipMapper::mousePressCB );
+    mAttachCB( meh_.buttonReleased, uiManipMapper::mouseReleaseCB );
+    mAttachCB( meh_.movement, uiManipMapper::mouseMoveCB );
 
-    mAttachCB( meh_.doubleClick, uiManipMapperSetup::setupDlgReqCB );
-    mAttachCB( keh_.keyReleased, uiManipMapperSetup::keyReleasedCB );
+    mAttachCB( meh_.doubleClick, uiManipMapper::setupDlgReqCB );
+    mAttachCB( keh_.keyReleased, uiManipMapper::keyReleasedCB );
 
-    mAttachCB( reSize, uiManipMapperSetup::reSizeCB );
+    mAttachCB( reSize, uiManipMapper::reSizeCB );
 
     reDraw();
 }
@@ -350,21 +349,17 @@ void doMenu()
 {
     uiMenu* mnu = new uiMenu( parent(), uiStrings::sAction() );
     mnu->insertItem( new uiAction(tr("Re-scale now"),
-		        mCB(this,uiManipMapperSetup,reScaleReqCB)), 0 );
+		        mCB(this,uiManipMapper,reScaleReqCB)), 0 );
     mnu->insertItem( new uiAction(m3Dots(tr("Full Edit")),
-		        mCB(this,uiManipMapperSetup,setupDlgReqCB)), 1 );
+		        mCB(this,uiManipMapper,setupDlgReqCB)), 1 );
     seltool_.mapperMenuReq.trigger( mnu );
     mnu->exec();
 }
 
 void reScaleReqCB( CallBacker* )
 {
-    const bool wasfixed = setup().isFixed();
-    setup().setIsFixed( false );
-    if ( wasfixed )
-	setup().setIsFixed( true );
-    else
-	setup().sendEntireObjectChangeNotification();
+    setup().setNotFixed();
+    setup().sendEntireObjectChangeNotification();
 }
 
 void setupDlgReqCB( CallBacker* )
@@ -372,7 +367,7 @@ void setupDlgReqCB( CallBacker* )
     if ( !eddlg_ )
     {
 	eddlg_ = new uiEdMapperSetupDlg( seltool_ );
-	mAttachCB( eddlg_->windowClosed, uiManipMapperSetup::setupDlgCloseCB );
+	mAttachCB( eddlg_->windowClosed, uiManipMapper::setupDlgCloseCB );
 	eddlg_->show();
     }
     eddlg_->raise();
@@ -505,12 +500,12 @@ void reDraw()
     int			movingside_;
     float		lastmovepos_;
 
-    uiParent*			    parent()
-				    { return seltool_.asParent(); }
-    ColTab::MapperSetup&	    setup()
-				    { return *seltool_.mappersetup_; }
-    uiColTabSelTool::DistribType&   distrib()
-				    { return *seltool_.distrib_; }
+    uiParent*		parent()
+			{ return seltool_.asParent(); }
+    ColTab::MapperSetup& setup()
+			{ return seltool_.mapper_->setup(); }
+    ColTab::Mapper::DistribType& distrib()
+			{ return seltool_.mapper_->distribution(); }
 
     inline bool		xIsLong() const		{ return isHor(); }
     bool		isHor() const
@@ -520,11 +515,9 @@ void reDraw()
 
 
 uiColTabSelTool::uiColTabSelTool()
-    : distrib_(new DistribType)
-    , mappersetup_(new MapperSetup)
-    , mapperSetupChanged(this)
-    , distributionChanged(this)
+    : mapper_(new Mapper)
     , mapperMenuReq(this)
+    , mappingChanged(this)
 {
 }
 
@@ -541,7 +534,7 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
     usemodesel_ = new uiColSeqUseModeSel( getParent(), true,
 					  uiString::emptyString() );
 
-    manip_ = new uiManipMapperSetup( *this );
+    manip_ = new uiManipMapper( *this );
     if ( isGroup() )
     {
 	usemodesel_->attach( rightOf, disp_ );
@@ -549,8 +542,32 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
     }
 
     mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeChgCB );
-    mAttachCB( mappersetup_->objectChanged(), uiColTabSelTool::mapSetupChgCB );
     mAttachCB( newManDlg, uiColTabSelTool::newManDlgCB );
+    addSetupNotifs();
+
+    disp_->setMapper( mapper_ );
+}
+
+
+void uiColTabSelTool::removeSetupNotifs()
+{
+    mDetachCB( mapper_->setup().objectChanged(),
+				uiColTabSelTool::mapSetupChgCB );
+    mDetachCB( mapper_->setup().rangeCalculated,
+				uiColTabSelTool::mapRangeChgCB );
+    mDetachCB( mapper_->distribution().objectChanged(),
+				uiColTabSelTool::distribChgCB );
+}
+
+
+void uiColTabSelTool::addSetupNotifs()
+{
+    mAttachCB( mapper_->setup().objectChanged(),
+				uiColTabSelTool::mapSetupChgCB );
+    mAttachCB( mapper_->setup().rangeCalculated,
+				uiColTabSelTool::mapRangeChgCB );
+    mAttachCB( mapper_->distribution().objectChanged(),
+				uiColTabSelTool::distribChgCB );
 }
 
 
@@ -569,38 +586,48 @@ void uiColTabSelTool::orientationChanged()
 }
 
 
-void uiColTabSelTool::useMapperSetup( const MapperSetup& msu )
+void uiColTabSelTool::setMapper( Mapper& mpr )
 {
-    if ( replaceMonitoredRef(mappersetup_,const_cast<MapperSetup&>(msu),this) )
+    if ( mapper_.ptr() != &mpr )
+    {
+	removeSetupNotifs();
+	disp_->setMapper( &mpr );
+    }
+
+    const bool ischg = replaceMonitoredRef( mapper_, mpr, this );
+    addSetupNotifs();
+
+    if ( ischg )
+    {
 	handleMapperSetupChange();
+	handleDistribChange();
+    }
 }
 
 
-void uiColTabSelTool::useDistribution( const DistribType& distr )
+void uiColTabSelTool::setRange( Interval<float> rg )
 {
-    const bool issame = &distr == distrib_.ptr();
-    replaceMonitoredRef( distrib_, const_cast<DistribType&>(distr), this );
-    if ( !issame )
-    {
-	if ( mandlg_ )
-	    mandlg_->useDistrib( distrib_ );
-	manip_->handleDistribChange();
-    }
+    mapper_->setup().setFixedRange( rg );
 }
 
 
 void uiColTabSelTool::newManDlgCB( CallBacker* )
 {
     if ( mandlg_ )
-	mandlg_->useDistrib( distrib_ );
+	mandlg_->useDistrib( &mapper_->distribution() );
 }
 
 
 void uiColTabSelTool::modeChgCB( CallBacker* )
 {
-    mappersetup_->setSeqUseMode( usemodesel_->mode() );
+    mapper_->setup().setSeqUseMode( usemodesel_->mode() );
 }
 
+
+void uiColTabSelTool::mapRangeChgCB( CallBacker* )
+{
+    manip_->handleMapperSetupChange();
+}
 
 void uiColTabSelTool::mapSetupChgCB( CallBacker* )
 {
@@ -610,17 +637,18 @@ void uiColTabSelTool::mapSetupChgCB( CallBacker* )
 
 void uiColTabSelTool::handleMapperSetupChange()
 {
-    setSeqUseMode( mappersetup_->seqUseMode() );
-    usemodesel_->setMode( mappersetup_->seqUseMode() );
+    usemodesel_->setMode( mapper_->setup().seqUseMode() );
     manip_->handleMapperSetupChange();
-    mapperSetupChanged.trigger();
+    mappingChanged.trigger();
 }
 
 
 void uiColTabSelTool::handleDistribChange()
 {
     manip_->handleDistribChange();
-    distributionChanged.trigger();
+    if ( mandlg_ )
+	mandlg_->useDistrib( &mapper_->distribution() );
+    mappingChanged.trigger();
 }
 
 

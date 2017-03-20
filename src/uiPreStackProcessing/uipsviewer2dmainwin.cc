@@ -726,20 +726,19 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 	    if ( !isStored() )
 	    {
 		RefMan<ColTab::MapperSetup> newmapsu
-				= psapp.ddpars_.vd_.mappersetup_->clone();
+				= psapp.ddpars_.vd_.mapper_->setup().clone();
 		newmapsu->setGuessSymmetry( false );
 		newmapsu->setSymMidVal( mUdf(float) );
-		newmapsu->setIsFixed( true );
-		newmapsu->setRange( Interval<float>(0,60) );
-		*psapp.ddpars_.vd_.mappersetup_ = *newmapsu;
+		newmapsu->setFixedRange( Interval<float>(0.f,60.f) );
+		psapp.ddpars_.vd_.mapper_->setup() = *newmapsu;
 		psapp.ddpars_.vd_.colseqname_
 				= ColTab::Sequence::sDefaultName();
 
-		*newmapsu = *psapp.ddpars_.wva_.mappersetup_;
-		newmapsu->setClipRate( Interval<float>(0.0,0.0) );
+		*newmapsu = psapp.ddpars_.wva_.mapper_->setup();
+		newmapsu->setClipRate( ColTab::ClipRatePair(0.0,0.0) );
 		newmapsu->setGuessSymmetry( false );
 		newmapsu->setSymMidVal( 0.0f );
-		*psapp.ddpars_.wva_.mappersetup_ = *newmapsu;
+		psapp.ddpars_.wva_.mapper_->setup() = *newmapsu;
 	    }
 	}
 	else if ( !appearances_.isEmpty() )
@@ -1166,15 +1165,14 @@ void uiStoredViewer2DMainWin::displayAngle()
 	if ( doanglegather_ ) continue;
 	PSViewAppearance& psapp = appearances_[dataidx];
 	RefMan<ColTab::MapperSetup> newmapsu
-		    = psapp.ddpars_.vd_.mappersetup_->clone();
+		    = psapp.ddpars_.vd_.mapper_->setup().clone();
 	if ( hasangledata_ )
 	{
 	    psapp.ddpars_.vd_.show_ = true;
 	    psapp.ddpars_.wva_.show_ = true;
 	    newmapsu->setGuessSymmetry( false );
 	    newmapsu->setSymMidVal( mUdf(float) );
-	    newmapsu->setIsFixed( true );
-	    newmapsu->setRange( Interval<float>(
+	    newmapsu->setFixedRange( Interval<float>(
 			(float)angleparams_->anglerange_.start,
 			(float)angleparams_->anglerange_.stop ) );
 	    newmapsu->setSeqUseMode( ColTab::UnflippedCyclic );
@@ -1185,12 +1183,12 @@ void uiStoredViewer2DMainWin::displayAngle()
 	    psapp.ddpars_.vd_.show_ = true;
 	    psapp.ddpars_.wva_.show_ = false;
 	    psapp.ddpars_.vd_.colseqname_ = "Seismics";
-	    newmapsu->setClipRate( Interval<float>(0.025,0.025) );
-	    newmapsu->setIsFixed( false );
+	    newmapsu->setNotFixed();
+	    newmapsu->setClipRate( ColTab::ClipRatePair(0.025f,0.025f) );
 	    newmapsu->setGuessSymmetry( true );
 	    newmapsu->setSymMidVal( 0.f );
 	}
-	*psapp.ddpars_.vd_.mappersetup_ = *newmapsu;
+	psapp.ddpars_.vd_.mapper_->setup() = *newmapsu;
     }
 
     setUpView();

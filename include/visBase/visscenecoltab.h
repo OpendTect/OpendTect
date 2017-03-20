@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 
 class FontData;
-namespace ColTab { class MapperSetup; }
-
 namespace osg { class Geode; }
 
 
@@ -42,7 +40,7 @@ public:
     void		setAnnotFont(const FontData&);
 
     void		setColTabSequence(const ColTab::Sequence&);
-    void		setColTabMapperSetup(const ColTab::MapperSetup&);
+    void		setColTabMapper(const ColTab::Mapper&);
     void		setLegendColor(const Color&);
 
     bool		turnOn(bool);
@@ -53,15 +51,16 @@ public:
 
 
 protected:
+
 			~SceneColTab();
-    void		updateSequence();
+    void		updateDisplay();
     void		setPos(float x, float y);
+    void		coltabChgCB( CallBacker* )	{ updateDisplay(); }
 
     osg::Geode*		osgcolorbar_;
     ConstRefMan<ColTab::Sequence> sequence_;
+    ConstRefMan<ColTab::Mapper> mapper_;
     Pos			pos_;
-    Interval<float>	rg_;
-    ColTab::SeqUseMode	sequsemode_;
     bool		horizontal_;
     int			width_;
     int			height_;
@@ -70,6 +69,7 @@ protected:
     int			winy_;
     float		pixeldensity_;
     int			fontsize_;
+
 };
 
 } // class visBase

@@ -49,7 +49,6 @@ set(OD_MODULE_SOURCES
 	uieventfilter.cc
 	uifiledlg.cc
 	uifont.cc
-	uigraphicscoltab.cc
 	uigraphicsitem.cc
 	uigraphicsitemimpl.cc
 	uigraphicsscene.cc

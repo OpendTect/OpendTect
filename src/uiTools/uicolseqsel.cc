@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uicolseqsel.h"
+#include "uicolsequsemodesel.h"
 
 #include "settings.h"
+#include "coltabseqmgr.h"
 #include "mouseevent.h"
 
 #include "uimsg.h"
@@ -44,7 +46,7 @@ void uiColSeqSelTool::initialise( OD::Orientation orient )
     mAttachCB( disp_->menuReq, uiColSeqSelTool::menuCB );
     mAttachCB( disp_->upReq, uiColSeqSelTool::upCB );
     mAttachCB( disp_->downReq, uiColSeqSelTool::downCB );
-    mAttachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
+    mAttachCB( disp_->sequence().objectChanged(), uiColSeqSelTool::seqModifCB );
 }
 
 
@@ -84,17 +86,21 @@ uiColSeqSelTool::~uiColSeqSelTool()
 }
 
 
-ConstRefMan<ColTab::Sequence> uiColSeqSelTool::sequence() const
+const ColTab::Sequence& uiColSeqSelTool::sequence() const
 {
     return disp_->sequence();
 }
 
 
-void uiColSeqSelTool::setSequence( const Sequence& seq )
+void uiColSeqSelTool::setSequence( const Sequence& newseq )
 {
-    mDetachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
-    disp_->setSequence( seq );
-    mAttachCB( disp_->sequence()->objectChanged(), uiColSeqSelTool::seqModifCB);
+    const Sequence& oldseq = sequence();
+    if ( &newseq == &oldseq )
+	return;
+
+    mDetachCB( oldseq.objectChanged(), uiColSeqSelTool::seqModifCB);
+    disp_->setSequence( newseq );
+    mAttachCB( newseq.objectChanged(), uiColSeqSelTool::seqModifCB );
 
     setToolTip();
     seqChanged.trigger();
@@ -110,18 +116,6 @@ const char* uiColSeqSelTool::seqName() const
 void uiColSeqSelTool::setSeqName( const char* nm )
 {
     setSequence( *ColTab::SeqMGR().getAny(nm) );
-}
-
-
-ColTab::SeqUseMode uiColSeqSelTool::seqUseMode() const
-{
-    return disp_->seqUseMode();
-}
-
-
-void uiColSeqSelTool::setSeqUseMode( ColTab::SeqUseMode mode )
-{
-    disp_->setSeqUseMode( mode );
 }
 
 
@@ -178,10 +172,10 @@ void uiColSeqSelTool::selectCB( CallBacker* )
 	ConstRefMan<Sequence> seq = ColTab::SeqMGR().getByName(
 						menunms.get(inm) );
 	uiAction* act = new uiAction( toUiString(seq->name()) );
-	uiPixmap uipm( 32, 16 );
-	uipm.fill( *seq, true );
-	act->setPixmap( uipm );
+	uiPixmap* uipm = ColTab::getuiPixmap( *seq, 32, 16 );
+	act->setPixmap( *uipm );
 	mnu->insertItem( act, inm );
+	delete uipm;
     }
 
     const int newnmidx = mnu->exec();
