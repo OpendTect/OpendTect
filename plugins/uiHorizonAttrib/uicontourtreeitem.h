@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uihorizonattribmod.h"
 #include "uioddatatreeitem.h"
 
 #include "trckeyzsampling.h"
@@ -41,7 +42,7 @@ class uiContourTreeItemContourData;
 
 /*!\brief Tree item for Contour display on 3D horizons */
 
-mClass(uiHorizonAttrib) uiContourTreeItem : public uiODDataTreeItem
+mExpClass(uiHorizonAttrib) uiContourTreeItem : public uiODDataTreeItem
 { mODTextTranslationClass(uiContourTreeItem);
 public:
 
@@ -57,7 +58,7 @@ public:
     static const char*		sKeyZValue();
 
     const visBase::PolyLine*	getPolylines() const { return lines_; }
-    const int			getNumberOfLines() const;
+    int				getNumberOfLines() const;
     bool			getLineCoordinates(int,TypeSet<Coord3>&) const;
     
 private:

@@ -1411,7 +1411,7 @@ void uiContourTreeItem::updateZShift()
 }
 
 
-const int uiContourTreeItem::getNumberOfLines() const
+int uiContourTreeItem::getNumberOfLines() const
 {
     if ( !lines_ ) return 0;
 
