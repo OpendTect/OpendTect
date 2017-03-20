@@ -56,6 +56,10 @@ public:
     static const char*		sKeyContourDefString();
     static const char*		sKeyZValue();
 
+    const visBase::PolyLine*	getPolylines() const { return lines_; }
+    const int			getNumberOfLines() const;
+    bool			getLineCoordinates(int,TypeSet<Coord3>&) const;
+    
 private:
 
     virtual bool		init();
