@@ -43,6 +43,7 @@ const char* Seis2DTo3DInterPol::sKeyType()	{ return "Interpolation type"; }
 const char* Seis2DTo3DInterPol::sKeyPow()	{ return "Operator decay"; }
 const char* Seis2DTo3DInterPol::sKeyTaper()	{ return "Operator taper"; }
 const char* Seis2DTo3DInterPol::sKeySmrtScale() { return "Smart scaling"; }
+const char* Seis2DTo3DInterPol::sKeyCreaterType()   { return "Creater Type"; }
 
 Seis2DTo3DInterPol::Seis2DTo3DInterPol()
     : Executor("Generating a 3D cube from a 2DDataSet")

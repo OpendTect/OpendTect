@@ -52,6 +52,8 @@ public:
     static const char*	sKeyPow();
     static const char*	sKeyTaper();
     static const char*	sKeySmrtScale();
+    static const char*	sKeyCreaterType();
+    static BufferString getCreatorFormat() { return "Experimental"; }
 
 protected:
     virtual bool		usePar(const IOPar&);

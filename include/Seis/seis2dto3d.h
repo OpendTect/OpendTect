@@ -128,6 +128,8 @@ public:
     static const char*	sKeyStepout();
     static const char*	sKeyReUse();
     static const char*	sKeyMaxVel();
+    static const char*	sKeyCreaterType();
+    static BufferString getCreatorFormat() { return "Normal"; }
 
 protected:
     bool		usePar(const IOPar&);

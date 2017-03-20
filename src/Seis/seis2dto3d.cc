@@ -40,6 +40,7 @@ const char* Seis2DTo3D::sKeyIsNearest() { return "Take Nearest"; }
 const char* Seis2DTo3D::sKeyStepout()	{ return "Inl-Crl Stepout"; }
 const char* Seis2DTo3D::sKeyReUse()	{ return "Re-use existing"; }
 const char* Seis2DTo3D::sKeyMaxVel()	{ return "Maximum Velocity"; }
+const char* Seis2DTo3D::sKeyCreaterType() { return "Creater Type"; }
 
 
 

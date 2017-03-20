@@ -108,6 +108,7 @@ bool uiSeis2DTo3D::fillSeisPar()
     IOPar& iop = jobSpec().pars_;
     iop.set( Seis2DTo3D::sKeyInput(), inpfld_->key() );
     iop.set( SeisJobExecProv::sKeySeisOutIDKey(), outfld_->key() );
+    iop.set( Seis2DTo3D::sKeyCreaterType(), Seis2DTo3D::getCreatorFormat() );
 
     IOPar sampling;
     possubsel_->fillPar( sampling );

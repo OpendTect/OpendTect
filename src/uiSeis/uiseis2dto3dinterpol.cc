@@ -58,7 +58,7 @@ uiSeis2DTo3DInterPol::uiSeis2DTo3DInterPol(uiParent* p, uiString& titletext)
     possubsel_->attach( alignedBelow, outfld_ );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
-					     Batch::JobSpec::TwoDto3D );
+					    Batch::JobSpec::TwoDto3D );
     IOPar& iop = jobSpec().pars_;
     iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     batchfld_->attach( alignedBelow, possubsel_ );
@@ -90,23 +90,28 @@ bool uiSeis2DTo3DInterPol::prepareProcessing()
 
 bool uiSeis2DTo3DInterPol::fillSeisPar()
 {
-	IOPar& iop = jobSpec().pars_;
+    IOPar& iop = jobSpec().pars_;
 
-	iop.set( Seis2DTo3DInterPol::sKeyInput(), inpfld_->key() );
+    iop.set( Seis2DTo3DInterPol::sKeyInput(), inpfld_->key() );
     iop.set( SeisJobExecProv::sKeySeisOutIDKey(), outfld_->key() );
+    iop.set( Seis2DTo3DInterPol::sKeyCreaterType(),
+				    Seis2DTo3DInterPol::getCreatorFormat());
 
     IOPar sampling;
+
     possubsel_->fillPar( sampling );
     IOPar subsel;
     subsel.mergeComp( sampling, sKey::Subsel() );
     uiSeisIOObjInfo ioobjinfo( *(outfld_->ioobj()), true );
     TrcKeyZSampling cs = possubsel_->envelope();
+    cs.fillPar(subsel);
     SeisIOObjInfo::SpaceInfo spi( cs.nrZ(), (int)cs.hsamp_.totalNr() );
     subsel.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
     if ( !ioobjinfo.checkSpaceLeft(spi) )
 	return false;
 
     iop.mergeComp( subsel, sKey::Output() );
+
     return true;
 }
 
@@ -116,9 +121,10 @@ bool uiSeis2DTo3DInterPol::fillPar()
 	return false;
 
     IOPar par;
-	BufferString method = Seis2DTo3DInterPolImpl::sFactoryKeyword();
 
-	par.set(Seis2DTo3DInterPol::sKeyType(), method);
+    BufferString method = Seis2DTo3DInterPolImpl::sFactoryKeyword();
+
+    par.set(Seis2DTo3DInterPol::sKeyType(), method);
     par.set(Seis2DTo3DInterPol::sKeyPow(), powfld_->getFValue() );
     par.set(Seis2DTo3DInterPol::sKeyTaper(), taperfld_->getFValue() );
     par.setYN(Seis2DTo3DInterPol::sKeySmrtScale(), smrtscalebox_->isChecked() );

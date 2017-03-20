@@ -556,7 +556,7 @@ void uiODMenuMgr::fillProcMenu()
     const uiString menutext = tr("2D <=> 3D");
     if ( SI().has3D() )
     {
-    itm2d3d = new uiMenu( menutext );
+	itm2d3d = new uiMenu( menutext );
 	csoitm_->insertItem( itm2d3d );
 	mInsertItem( itm2d3d, m3Dots(tr("Create 2D from 3D")),
 		     mCreate2DFrom3DMnuItm );
@@ -573,6 +573,8 @@ void uiODMenuMgr::fillProcMenu()
 	    csoitm_->insertItem( itm2d3d );
 	}
 	mInsertItem( itm2d3d, m3Dots(tr("Create 3D from 2D")),
+							    m3DFrom2DMnuItm );
+	mInsertItem( itm2d3d, m3Dots(tr("Interpolate 3D from 2D")),
 						    m3DFrom2DInterPolMnuItm);
     }
 
