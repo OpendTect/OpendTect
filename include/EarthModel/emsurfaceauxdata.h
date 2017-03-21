@@ -69,6 +69,7 @@ public:
     void		setAuxDataName(int dataidx,const char*);
     void		removeAuxData(int dataidx);
     float		getAuxDataVal(int dataidx,const PosID& posid) const;
+    float		getAuxDataVal(int dataidx,const TrcKey&) const;
     void		setAuxDataVal(int dataidx,const PosID& posid,float val,
 				      bool onlynewpos=false);
     void		setAuxDataVal(int dataidx,const TrcKey&,float val);

@@ -161,6 +161,20 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 }
 
 
+float SurfaceAuxData::getAuxDataVal( int dataidx, const TrcKey& tk ) const
+{
+    if ( !auxdatanames_.validIdx(dataidx) ||
+	 !auxdata_.validIdx(0) || !auxdata_[0] )
+	return mUdf(float);
+
+    const BinIDValueSet::SPos pos = auxdata_[0]->find( tk.binID() );
+    if ( !pos.isValid() )
+	return mUdf(float);
+
+    return auxdata_[0]->getVals( pos )[dataidx];
+}
+
+
 void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
 				    bool onlynewpos )
 {
