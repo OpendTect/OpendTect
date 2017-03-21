@@ -365,7 +365,7 @@ void ColTabTextureChannel2RGBA::colSeqModifCB( CallBacker* cb )
     mGetMonitoredChgDataWithCaller( cb, chgdata, seq );
     for ( int idx=0; idx<colseqs_.size(); idx++ )
     {
-	if ( colseqs_[idx] == seq )
+	if ( colseqs_[idx].ptr() == seq )
 	    updFromSeq( idx );
     }
 }

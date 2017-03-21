@@ -16,5 +16,6 @@ ________________________________________________________________________
 
 mExportTemplClassInst( General ) Array2D<float>;
 mExportTemplClassInst( General ) MonitorableIterBase<int>;
+mExportTemplClassInst( General ) ValueSeries<float>;
 
 # endif

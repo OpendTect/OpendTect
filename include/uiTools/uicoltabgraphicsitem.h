@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
+#include "uitoolsmod.h"
 #include "uigraphicsitem.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
@@ -21,11 +21,11 @@ class uiRectItem;
 class uiAdvancedTextItem;
 
 
-mExpClass(uiBase) uiColTabItem : public uiGraphicsItem
+mExpClass(uiTools) uiColTabItem : public uiGraphicsItem
 {
 public:
 
-    mExpClass(uiBase) Setup
+    mExpClass(uiTools) Setup
     {
     public:
 		Setup( bool h ) //!< horizontal?

@@ -52,7 +52,7 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     app.ddpars_.wva_.allowuserchange_ = false;
     app.ddpars_.vd_.show_ = true;
     app.ddpars_.vd_.mapper_->setup().setClipRate(
-			    ColTab::ClipRatePair(0.005,0.005));
+			    ColTab::ClipRatePair(0.005f,0.005f));
     addControl( new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
 
     vwr.rgbCanvas().getMouseEventHandler().movement.notify(

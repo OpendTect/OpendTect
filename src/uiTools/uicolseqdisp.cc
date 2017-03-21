@@ -220,7 +220,7 @@ int uiColSeqDisp::longSz() const
 int uiColSeqDisp::pixFor( ValueType val ) const
 {
     const float relpos = mapper_->relPosition( val );
-    return relpos * longSz();
+    return mCast(int,relpos * longSz());
 }
 
 
