@@ -42,8 +42,6 @@ public:
     virtual bool	canSetAll() const		{ return false; }
     virtual void	setAll(T)			{}
 
-    virtual bool	selfSufficient() const		{ return false; }
-			/*!<\returns true if not depending on other objects */
     virtual bool	reSizeable() const		{ return false; }
     virtual bool	setSize(od_int64)		{ return false; }
 

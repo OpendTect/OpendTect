@@ -81,7 +81,6 @@ public:
     const RT*	arr() const			mImplArr;
     RT*		arr()				mImplArr;
 
-    bool	selfSufficient() const		{ return mine_; }
     bool	reSizeable() const		{ return mine_; }
     inline bool	setSize(od_int64);
     od_int64	size() const			{ return cursize_; }
@@ -135,7 +134,6 @@ public:
     const RT*	arr() const;
     RT*		arr();
 
-    bool	selfSufficient() const		{ return true; }
     bool	reSizeable() const		{ return true; }
     inline bool	setSize(od_int64);
     od_int64	size() const			{ return cursize_; }
