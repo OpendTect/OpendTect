@@ -1173,6 +1173,10 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
     distpicktrc_ = TypeSet<float>( datapointset.size(), mUdf(float) );
 }
 
+TableOutput::~TableOutput()
+{
+    mediandisttrcsmanager.removeParam( this );
+}
 
 void TableOutput::initPairsTable()
 {

@@ -354,7 +354,7 @@ mExpClass(AttributeEngine) TableOutput : public Output
 {
 public:
 				TableOutput(DataPointSet&,int);
-				~TableOutput() {};
+				~TableOutput();
 
     bool			getDesiredVolume(TrcKeyZSampling&) const
 				{ return true;}
