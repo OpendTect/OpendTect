@@ -101,6 +101,9 @@ public:
     virtual bool		canRemoveWithPolygon() const   { return false; }
     virtual void		removeWithPolygon(const ODPolygon<double>&) {}
 
+    virtual void		getMousePosInfo(Coord3&,TrcKey&,float& val,
+						BufferString& info) const     {}
+
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&,TaskRunner* taskr=0);
 
