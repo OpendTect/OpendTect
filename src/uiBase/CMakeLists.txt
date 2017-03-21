@@ -25,7 +25,6 @@ set(QT_MOC_HEADERS
 	i_qtextedit.h
 	i_qtoolbar.h
 	i_qtreeview.h
-	i_qtxtbrowser.h
 )
 
 set(OD_MODULE_SOURCES
