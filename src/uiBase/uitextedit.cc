@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiobjbody.h"
 #include "uifont.h"
-#include "i_qtxtbrowser.h"
 #include "i_qtextedit.h"
 
 #include "ascstream.h"
@@ -39,8 +38,10 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     : uiObject(p,nm,bdy)
     , defaultwidth_(600)
     , defaultheight_(450)
+    , textChanged(this)
     , sliderPressed(this)
     , sliderReleased(this)
+    , copyAvailable(this)
 {
     setFont( FontList().get(FontData::Fixed) );
     setPrefWidth( defaultwidth_ );
@@ -266,7 +267,6 @@ void uiTextEditBody::append( const char* txt )
 
 uiTextEdit::uiTextEdit( uiParent* parnt, const char* nm, bool ro )
     : uiTextEditBase( parnt, nm, mkbody(parnt,nm,ro) )
-    , textChanged(this)
 {
     setPrefWidth( defaultWidth() );
     setPrefHeight( defaultHeight() );
@@ -352,7 +352,6 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p,
 
 uiTextBrowserBody::~uiTextBrowserBody()
 {
-    detachAllNotifiers();
     delete &messenger_;
     delete &vertscrollbarmessenger_;
 }
@@ -407,6 +406,7 @@ uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
     , goneForwardOrBack(this)
     , linkHighlighted(this)
     , linkClicked(this)
+    , fileReOpened(this)
     , cangoforw_(false)
     , cangobackw_(false)
     , forceplaintxt_(forceplaintxt)
@@ -424,6 +424,7 @@ uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
 	mAttachCB( timer_->tick, uiTextBrowser::readTailCB );
 	mAttachCB( sliderPressed, uiTextBrowser::sliderPressedCB );
 	mAttachCB( sliderReleased, uiTextBrowser::sliderReleasedCB );
+	mAttachCB( copyAvailable, uiTextBrowser::copyAvailableCB );
     }
 
     setBackgroundColor( roBackgroundColor() );
@@ -466,9 +467,16 @@ void uiTextBrowser::sliderReleasedCB( CallBacker* )
 }
 
 
+void uiTextBrowser::copyAvailableCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(bool,yn,cb);
+    enableTailRead( !yn );
+}
+
+
 void uiTextBrowser::enableTailRead( bool yn )
 {
-    if ( !timer_ )
+    if ( !logviewmode_ )
 	return;
 
     if ( yn )
@@ -490,19 +498,33 @@ void uiTextBrowser::readTailCB( CallBacker* )
     recordScrollPos();
     if ( lastlinestartpos_ >= 0 )
     {
+	sd.istrm->seekg( 0, sd.istrm->end );
+	const od_int64 filelength = sd.istrm->tellg();
+	if ( filelength < lastlinestartpos_ )
+	{
+	    fileReOpened.trigger();
+	    lastlinestartpos_ = -1;
+	}
+	else if ( filelength-1 == lastlinestartpos_ )
+	{
+	    sd.close();
+	    return;
+	}
+
 	sd.istrm->seekg( lastlinestartpos_ );
 	sd.istrm->getline( buf, mMaxLineLength );
 	if ( !sd.istrm->good() || strncmp(buf, lastline_.buf(), maxchartocmp) )
 	{
 	    sd.close();
 	    lastlinestartpos_ = -1;
-	    qte().setText( "" );
+	    setText( 0 );
 	    sd = StreamProvider( textsrc_ ).makeIStream();
 	    if ( !sd.usable() )
 		return;
 	}
     }
 
+    NotifyStopper ns( textChanged );
     while ( sd.istrm->peek()!=EOF )
     {
 	lastlinestartpos_ = sd.istrm->tellg();
@@ -519,7 +541,13 @@ void uiTextBrowser::readTailCB( CallBacker* )
 
 
 void uiTextBrowser::setText( const char* txt )
-{ qte().setText( txt ); }
+{
+    NotifyStopper ns( textChanged );
+    if ( !txt )
+	qte().clear();
+
+    qte().setText( txt );
+}
 
 void uiTextBrowser::setHtmlText( const char* txt )
 { body_->setHtml( txt ); }
@@ -554,7 +582,7 @@ void uiTextBrowser::setSource( const char* src )
 
 	if ( logviewmode_ )
 	{
-	    qte().setText( "" );
+	    setText( 0 );
 	    lastlinestartpos_ = -1;
 	    readTailCB( 0 );
 	    if ( !timer_->isActive() )
@@ -572,16 +600,10 @@ void uiTextBrowser::setMaxLines( int ml )
 { maxlines_ = ml; }
 
 void uiTextBrowser::backward()
-{
-    body_->backward();
-    goneForwardOrBack.trigger();
-}
+{ body_->backward(); }
 
 void uiTextBrowser::forward()
-{
-    body_->forward();
-    goneForwardOrBack.trigger();
-}
+{ body_->forward(); }
 
 void uiTextBrowser::home()
 { body_->home(); }

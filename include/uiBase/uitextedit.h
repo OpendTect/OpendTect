@@ -46,8 +46,10 @@ public:
     void		hideScrollBar(bool vertical);
     void		scrollToBottom();
 
+    Notifier<uiTextEditBase>	textChanged;
     Notifier<uiTextEditBase>	sliderPressed;
     Notifier<uiTextEditBase>	sliderReleased;
+    CNotifier<uiTextEditBase,bool>	copyAvailable;
 
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
@@ -84,7 +86,6 @@ public:
 			    notification. */
     void		setText(const char*,bool trigger_notif);
     void		append(const char*);
-    Notifier<uiTextEdit> textChanged;
 
 protected:
 
@@ -134,6 +135,7 @@ public:
     Notifier<uiTextBrowser>	goneForwardOrBack;
     Notifier<uiTextBrowser>	linkHighlighted;
     Notifier<uiTextBrowser>	linkClicked;
+    Notifier<uiTextBrowser>	fileReOpened;
 
 protected:
 
@@ -151,6 +153,7 @@ protected:
     void		readTailCB(CallBacker*);
     void		sliderPressedCB(CallBacker*);
     void		sliderReleasedCB(CallBacker*);
+    void		copyAvailableCB(CallBacker*);
     void		enableTailRead(bool yn);
 
     Timer*		timer_;
