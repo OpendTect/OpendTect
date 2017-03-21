@@ -9,6 +9,7 @@ set dodoc=no
 set nrcpus=1
 set stoponerr=no
 set cmake_exec=cmake
+set make_cmd=make
 set startdate=`date +%a-%d-%b`
 set starttm=`date +%s`
 set starttmstr=`date +%T`
@@ -16,6 +17,9 @@ set allargs=""
 
 if ( $?CMAKE ) then
     set cmake_exec=${CMAKE}
+endif
+if ( -r "$WORK/build.ninja" ) then
+    set make_cmd=ninja
 endif
 
 if ( $?OD_MAKE_NR_PROCESSORS ) then
@@ -30,6 +34,9 @@ set allargs="$allargs $1"
 
 if ( "$1" == "--shallow" ) then
     set shallow=yes
+else if ( "$1" == "--make_cmd" ) then
+    set make_cmd=$2
+    shift
 else if ( "$1" == "--askdeep" ) then
     set askdeep=yes
 else if ( "$1" == "--noupd" ) then
@@ -60,7 +67,7 @@ do_it:
 
 set flags=""
 if ( $nrcpus > 1 ) set flags="-j$nrcpus"
-if ( $stoponerr != "yes" ) set flags="$flags -k"
+if ( $make_cmd != ninja && $stoponerr != "yes" ) set flags="$flags -k"
 echo ""; echo "make flags: $flags"; echo ""
 
 set logdir=$WORK/dtect/log
@@ -77,11 +84,11 @@ set dgbdir=`echo $oddir | sed 's/od/dgb/'`
 if ( $doupd == yes ) then
     cd ..
     echo "svn update $oddir"
-    cd $oddir; make update
+    cd $oddir; $make_cmd update
     echo ""
     echo "svn update $dgbdir"
     sleep 2;
-    cd ../$dgbdir; make update
+    cd ../$dgbdir; $make_cmd update
     cdw
 endif
 
@@ -98,31 +105,31 @@ endif
 if ( $shallow == no ) then
     cdw
     echo "Cleaning $oddir ..."
-    make clean
+    $make_cmd clean
     cd ../$dgbdir;
     echo "Cleaning $dgbdir ..."
-    make clean
+    $make_cmd clean
     cdw
 endif
 
 if ( ! -e CMakeCache.txt ) then
     ${cmake_exec} .
 endif
-make $flags
+$make_cmd $flags
 cd ../$dgbdir
 if ( ! -e CMakeCache.txt ) then
     ${cmake_exec} .
 endif
-make $flags
+$make_cmd $flags
 cdw
 
 programmer_doc:
 
 if ( $dodoc == yes ) then
     cdw
-    make doc
+    $make_cmd doc
     cd ../$dgbdir
-    make doc
+    $make_cmd doc
     cdw
 endif
 
