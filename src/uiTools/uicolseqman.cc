@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uicolseqdisp.h"
+#include "uicoltabsel.h"
 #include "uicolseqimport.h"
 #include "uichecklist.h"
 #include "uifunctiondisplay.h"
@@ -245,18 +246,16 @@ void drawMarkers( CallBacker* )
     const int xmax = scene().nrPixX() - 1;
     const int ymax = scene().nrPixY() - 1;
 
-    const int yshifttop = 4;
-    const int yshiftbot = 0;
     uiLineItem* lineitem = new uiLineItem;
     lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
     lineitem->setPenColor( Color(0,255,255) );
-    lineitem->setLine( 0, yshifttop, xmax, yshifttop );
+    lineitem->setLine( 0, 0, xmax, 0 );
     lineitem->setZValue( 10 );
     markerlineitmgrp_->add( lineitem );
     lineitem = new uiLineItem;
     lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
     lineitem->setPenColor( Color(0,255,255) );
-    lineitem->setLine( 0, ymax-yshiftbot, xmax, ymax-yshiftbot );
+    lineitem->setLine( 0, ymax, xmax, ymax );
     lineitem->setZValue( 10 );
     markerlineitmgrp_->add( lineitem );
 
@@ -414,7 +413,6 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
 	uiDialog::Setup(uiStrings::phrManage(uiStrings::sColorTable(mPlural)),
 			 mNoDlgTitle,mODHelpKey(mColorTableManHelpID) ))
     , seqmgr_(ColTab::SeqMGR4Edit())
-    , distrib_(new DistribType)
     , rollbackmgr_(ColTab::SeqMGR().clone())
     , selectionChanged(this)
 {
@@ -451,6 +449,15 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
 	.noxgridline( true ).noygridline( true ).noy2gridline( true );
     transpdisp_ = new uiFunctionDisplay( rightgrp, su );
     transpdisp_->setStretch( 2, 2 );
+    RefMan<DataDistribution<float> > y2distr
+			    = uiCOLTAB().mapper().distribution().clone();
+    const int distrsz = y2distr->size();
+    if ( distrsz > 2 )
+    {
+	y2distr->setSampling( SamplingData<float>(0.f,1.0f/(distrsz-1)) );
+	y2distr->normalise( false );
+	transpdisp_->setY2Vals( *y2distr, true );
+    }
 
     ctrlptsed_ = new uiColSeqColCtrlPtsEd( rightgrp, this );
     ctrlptsed_->setPrefWidth( cTranspDispWidth );
@@ -516,7 +523,6 @@ void uiColSeqMan::doFinalise( CallBacker* )
 {
     updateColSeqList();
     handleSeqChg();
-    distrChgCB( 0 );
     toStatusBar( uiString::emptyString(), 1 );
 
     mAttachCB( seqlistfld_->selectionChanged, uiColSeqMan::selChgCB );
@@ -526,7 +532,6 @@ void uiColSeqMan::doFinalise( CallBacker* )
     mAttachCB( nrsegfld_->box()->valueChanging, uiColSeqMan::nrSegmentsChgCB );
     mAttachCB( undefcolfld_->colorChanged, uiColSeqMan::undefColSelCB );
     mAttachCB( markcolfld_->colorChanged, uiColSeqMan::markerColSelCB );
-    mAttachCB( distrib_->objectChanged(), uiColSeqMan::distrChgCB );
 
     mAttachCB( curseq_->objectChanged(), uiColSeqMan::seqChgCB );
     mAttachCB( seqmgr_.objectChanged(), uiColSeqMan::seqMgrChgCB );
@@ -564,19 +569,6 @@ void uiColSeqMan::updateColSeqList()
 	seqlistfld_->setSelected( curitm, true );
 	seqlistfld_->ensureItemVisible( curitm );
     }
-}
-
-
-void uiColSeqMan::useDistrib( const DistribType* dd )
-{
-    if ( !dd )
-    {
-	if ( distrib_->isEmpty() )
-	    return;
-	dd = new DistribType;
-    }
-    if ( replaceMonitoredRef(distrib_,dd,this) )
-	distrChgCB( 0 );
 }
 
 
@@ -691,18 +683,6 @@ void uiColSeqMan::undefColSelCB( CallBacker* )
 void uiColSeqMan::markerColSelCB( CallBacker* )
 {
     curseq_->setMarkColor( markcolfld_->color() );
-}
-
-
-void uiColSeqMan::distrChgCB( CallBacker* )
-{
-    if ( distrib_ )
-    {
-	RefMan<DataDistribution<float> > y2distr = distrib_->clone();
-	const int sz = y2distr->size();
-	y2distr->setSampling( SamplingData<float>(0.f,1.0f/(sz-1)) );
-	transpdisp_->setY2Vals( *y2distr, true );
-    }
 }
 
 

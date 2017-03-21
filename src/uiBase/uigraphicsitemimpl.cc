@@ -1225,7 +1225,7 @@ uiLineItem* uiManipHandleItem::mkLine( bool ishor, int pos,
 
 void uiManipHandleItem::setPenColor( const Color& basecol, bool )
 {
-    centeritm_->setPenColor( basecol.complementaryColor() );
+    centeritm_->setPenColor( basecol.complementaryColor().darker( 1.0f ) );
     bodyitm_->setPenColor( basecol );
     shadeitm1_->setPenColor( basecol.lighter( 1.0f ) );
     shadeitm2_->setPenColor( basecol.lighter( 3.0f ) );

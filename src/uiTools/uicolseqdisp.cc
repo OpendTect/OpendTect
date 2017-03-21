@@ -203,7 +203,8 @@ void uiColSeqDisp::reDraw()
 
     beforeDraw();
 
-    ColTab::fillRGBArray( *rgbarr_, *colseq_, mapper_, orientation_, 4 );
+    ColTab::fillRGBArray( *rgbarr_, *colseq_, mapper_, orientation_,
+			  withudfcoldisp_ ? 4 : 0 );
     uiPixmap pixmap( rgbarr_->getSize(true), rgbarr_->getSize(false) );
     pixmap.convertFromRGBArray( *rgbarr_ );
     setPixmap( pixmap );

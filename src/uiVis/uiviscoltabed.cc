@@ -31,6 +31,7 @@ const char* uiVisColTabEd::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 uiVisColTabEd::uiVisColTabEd( uiColTabToolBar& cttb )
     : survobj_( 0 )
     , coltabsel_(cttb.selTool())
+    , isDisplayedChange(this)
 {
     visBase::DM().removeallnotify.notify(
 	    mCB(this,uiVisColTabEd,removeAllVisCB) );
@@ -40,8 +41,6 @@ uiVisColTabEd::uiVisColTabEd( uiColTabToolBar& cttb )
 #define mImplNotification( refop, notifyop ) \
     if ( survobj_ ) \
     { \
-	const ColTab::Sequence& seq = survobj_->getColTabSequence(channel_); \
-	seq.objectChanged().notifyop( mCB(this,uiVisColTabEd,colSeqModifCB) ); \
 	mDynamicCastGet( visBase::DataObject*, dataobj, survobj_ ); \
 	if ( dataobj ) \
 	    dataobj->refop(); \
@@ -55,18 +54,27 @@ uiVisColTabEd::~uiVisColTabEd()
 }
 
 
-void uiVisColTabEd::setNoColTab()
+bool uiVisColTabEd::isDisplayed() const
 {
-    coltabsel_.asParent()->display( false );
+    return coltabsel_.asParent()->isDisplayed();
+}
+
+
+void uiVisColTabEd::display( bool yn )
+{
+    if ( isDisplayed() == yn )
+	return;
+    coltabsel_.asParent()->display( yn );
+    isDisplayedChange.trigger();
 }
 
 
 void uiVisColTabEd::setColTab( const ColTab::Sequence& seq,
 			       ColTab::Mapper& mapper )
 {
-    coltabsel_.asParent()->display( true );
     coltabsel_.setSequence( seq );
     coltabsel_.setMapper( mapper );
+    display( true );
 }
 
 
@@ -81,23 +89,10 @@ void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel )
     mImplNotification( ref, notifyIfNotNotified );
 
     if ( !so )
-	setNoColTab();
+	display( false );
     else
 	setColTab( so->getColTabSequence(channel_),
 		const_cast<ColTab::Mapper&>(so->getColTabMapper(channel_)) );
-}
-
-
-void uiVisColTabEd::colSeqModifCB( CallBacker* )
-{
-    //TODO this is a terrible hack to force remap. Add watching to vis and
-    // remove this monstrous function ...
-
-    if ( !survobj_ )
-	return;
-
-    coltabsel_.mappingChanged.trigger();
-    survobj_->setColTabSequence( channel_, coltabsel_.sequence() );
 }
 
 

@@ -75,7 +75,9 @@ public:
     inline bool			isNormalised() const
 				{ return sumOfValues() == VT(1); }
     inline VT			sumOfValues() const;
-    inline void			normalise();
+    inline VT			maxValue() const;
+    inline void			normalise(bool in_the_math_sense=true);
+				//!< if !math, sets max to 1
 
     inline void			getCurve(SetType& xvals,SetType& yvals,
 				        bool limitspikes=false) const;
@@ -100,6 +102,8 @@ protected:
     SetType		data_;
     SetType		cumdata_;
     SamplingType	sampling_;
+
+    inline VT		gtMax() const;
 
     friend class	DataDistributionIter<VT>;
 
@@ -380,30 +384,47 @@ VT DataDistribution<VT>::sumOfValues() const
 
 
 template <class VT> inline
-void DataDistribution<VT>::normalise()
+VT DataDistribution<VT>::maxValue() const
 {
     mLock4Read();
+    return gtMax();
+}
+
+
+template <class VT> inline
+VT DataDistribution<VT>::gtMax() const
+{
+    size_type sz = data_.size();
+    if ( sz < 2 )
+	return sz == 1 ? data_[0] : VT(0);
+
+    VT ret = data_[0];
+    for ( IdxType idx=1; idx<sz; idx++ )
+    {
+	const VT val = data_[idx];
+	if ( val > ret )
+	    ret = val;
+    }
+
+    return ret;
+}
+
+
+template <class VT> inline
+void DataDistribution<VT>::normalise( bool in_the_math_sense )
+{
+    mLock4Write();
     size_type sz = data_.size();
     if ( sz < 1 )
 	return;
 
-    VT sumvals = cumdata_[sz-1];
-    if ( sumvals == VT(0) || sumvals == VT(1) )
+    const VT divby = in_the_math_sense ? cumdata_[sz-1] : gtMax();
+    if ( divby == VT(0) || divby == VT(1) )
 	return;
-
-    if ( !mLock2Write() )
-    {
-	sz = data_.size();
-	if ( sz < 1 )
-	    return;
-	sumvals = cumdata_[sz-1];
-	if ( sumvals == VT(0) || sumvals == VT(1) )
-	    return;
-    }
 
     for ( IdxType idx=0; idx<sz; idx++ )
     {
-	data_[idx] /= sumvals;
+	data_[idx] /= divby;
 	if ( idx == 0 )
 	    cumdata_[idx] = data_[idx];
 	else

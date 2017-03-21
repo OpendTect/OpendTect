@@ -232,7 +232,7 @@ void initCB( CallBacker* )
 }
 
 void mousePressCB( CallBacker* ) { handleMouseBut( true ); }
-void mouseReleaseCB( CallBacker* ) { handleMouseBut( true ); }
+void mouseReleaseCB( CallBacker* ) { handleMouseBut( false ); }
 
 int longNrPix() const
 {
@@ -542,7 +542,6 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
     }
 
     mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeChgCB );
-    mAttachCB( newManDlg, uiColTabSelTool::newManDlgCB );
     addSetupNotifs();
 
     disp_->setMapper( mapper_ );
@@ -611,13 +610,6 @@ void uiColTabSelTool::setRange( Interval<float> rg )
 }
 
 
-void uiColTabSelTool::newManDlgCB( CallBacker* )
-{
-    if ( mandlg_ )
-	mandlg_->useDistrib( &mapper_->distribution() );
-}
-
-
 void uiColTabSelTool::modeChgCB( CallBacker* )
 {
     mapper_->setup().setSeqUseMode( usemodesel_->mode() );
@@ -646,8 +638,6 @@ void uiColTabSelTool::handleMapperSetupChange()
 void uiColTabSelTool::handleDistribChange()
 {
     manip_->handleDistribChange();
-    if ( mandlg_ )
-	mandlg_->useDistrib( &mapper_->distribution() );
     mappingChanged.trigger();
 }
 

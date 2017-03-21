@@ -168,7 +168,7 @@ void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
 {
     if ( visid<0 || attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
     {
-	am_.appl_.colTabEd().setNoColTab();
+	am_.appl_.colTabEd().display( false );
 	return;
     }
 

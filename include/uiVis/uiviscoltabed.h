@@ -32,7 +32,9 @@ public:
 				uiVisColTabEd(uiColTabToolBar&);
 				~uiVisColTabEd();
 
-    void			setNoColTab();
+    bool			isDisplayed() const;
+    void			display(bool);
+
     void			setColTab(const ColTab::Sequence&,
 					  ColTab::Mapper&);
     void			setColTab(visSurvey::SurveyObject*,int ch);
@@ -60,10 +62,10 @@ public:
     void			colorTabChgdCB(CallBacker*);
     void			clipperChanged(CallBacker*);
 
+    Notifier<uiVisColTabEd>	isDisplayedChange;
+
 protected:
 
-    void			colSeqModifCB(CallBacker*);
-    void			mapperChangeCB(CallBacker*);
     void			removeAllVisCB(CallBacker*);
 
 

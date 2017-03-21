@@ -66,7 +66,6 @@ protected:
     void			mapSetupChgCB(CallBacker*);
     void			mapRangeChgCB(CallBacker*);
     void			distribChgCB(CallBacker*);
-    void			newManDlgCB(CallBacker*);
 
     friend class		uiManipMapper;
     friend class		uiEdMapperSetupDlg;
