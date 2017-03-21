@@ -3,11 +3,66 @@ OpendTect V6.0.x : Release info
 In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
+
+v6.0.6: March 21, 2017
+* Added Area sub selection in 3D Horizon Gridding window
+  to limit output within polygon/range
+* Added New Polygon scope option for 3D Horizon gridding within polygon
+* Added Extrapolate option if tracking fails for 2D Horizon tracking
+* Added Z step control for attribute-attribute crossplot around a horizon
+* Added a link to the training manual in the Help menu
+* Added new option for setting default number of jobs in multi machine
+  processing window
+* Fix for mentioning output name on title bar of MMP processing window
+* Fix for error message and added installation checks to Presentation maker
+* Fix for crash while zooming out in 2D viewer
+* Fix for 3D horizon partially imported when surface grid is different
+  from OpendTect survey grid
+* Improved 3D Horizon display for irregular grids/isolated points in
+  3D scene and 2D viewer
+* Page Up / Page Down for viewing multi-attribute displays made easier
+* Fix for re-tracking an already tracked and saved horizon
+* Fix for not releasing the memory after SEG-Y file scanning
+* Fix for immediate update of Grapics 3D font settings
+* Fix for Pre-load data pop-up that pops up behind horizon tracking
+  settings window
+* Fix for crash of a presentation maker
+* Fix for 3D Horizon interpretation (Manual) on random line in 2D Viewer
+* Fix for crash when locking horizon after picking one seed
+* Various improvements in horizon tracking
+* Faults and FaultStickSet's Marker Properties are made independent of
+  line-size
+* Fix for data display issue when the survey inline/crossline step is
+  greater than the seismic volume step
+* Fix for unnecessary warning message when saving auto-tracking horizon
+* Fix for exporting depth domain data using batch mode
+* Fix for crash occured while moving a rendered volume to a differnt position
+* Fix for parts of  interpreted horizonwhich become invisible if the
+  section is moved
+* Manage Stratigraphy for Simple Reservoir template does not allow changing
+  the absolute age
+* Fix for showing the index of surface data in field instead of its name
+* Fix for Copying Cube in batch mode not allowing second operation
+* Fix for duplication of hov files when saving auto-tracked horizon
+* Fix for crash when resuming tracking an existing horizon
+* Fix for Velocity gridder using Inverse distance with a search radius
+* Fix for grid lines which cannot be removed in 2D Viewer
+* Fix for crash during Horizon editing using Polygon (lasso) selection tool
+* Fix for displaying a pre-loaded seismic volume along a horizon
+* Fix for Z-slice display which is slow even after preoloading
+* Fix for slower scrolling/dragging of INL/XL/RL through larger 3D Volume
+  with horizons displayed on sections
+* Smoothing spectrum of  Frequency attribute is set to 'No' by default
+* Fix for crash when pressing space bar while locking a tracked horizon
+* Fix for crash when attempting to delete point set using Shift-Delete
+* Fix for slowness during Fault Interpretation with 3D horizon is displayed
+  in full
+
 v6.0.5: December 19, 2016
  * New Attribute 'Pseudo relief' is added to attribute list
- * Fix for constant values turning to zeros in Mathematical expression while 
+ * Fix for constant values turning to zeros in Mathematical expression while
    switching to different attributes
- * Fix for faults exporting with incorrect depth values if survey 
+ * Fix for faults exporting with incorrect depth values if survey
    is in feet
  * Improved updating speed of locked texture when moving/rotating
    random line while tracking 3D horizon
@@ -57,7 +112,7 @@ v6.0.5: December 19, 2016
  * Disabled cross plot button in cross plot table window unless X & Y columns
    are selected
  * Fix for Horizon tracking issue: Holding Ctrl key and picking in
-   auto-tracking mode, 
+   auto-tracking mode,
    starts drawing in manual mode
  * Fix for crash without crash report in 2D Horizon tracking
  * Fix for a lag between actions and display in Horizon Auto-tracking
