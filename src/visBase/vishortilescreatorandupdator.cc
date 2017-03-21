@@ -99,6 +99,8 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 		tilerowidx*horsection_->tilesidesize_*step.row(),
 		horsection_->origin_.col() +
 		tilecolidx*horsection_->tilesidesize_*step.col() );
+	    if ( fullupdatetiles.indexOf(tileorigin) !=-1 )
+		continue;
 	    fullupdatetiles += tileorigin;
 	    tileindexes += RowCol(tilerowidx,tilecolidx);
 	}
