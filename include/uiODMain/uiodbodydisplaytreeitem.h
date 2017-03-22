@@ -62,6 +62,7 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
+    void		keyPressedCB(CallBacker*);
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
     bool		createUiVisObj();
 

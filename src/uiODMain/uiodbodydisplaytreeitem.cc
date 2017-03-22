@@ -27,6 +27,7 @@ ___________________________________________________________________
 #include "uibodyoperatordlg.h"
 #include "uiempartserv.h"
 #include "uiimpbodycaldlg.h"
+#include "uimain.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -249,26 +250,10 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
 
 uiODBodyDisplayTreeItem::~uiODBodyDisplayTreeItem()
 {
-    if ( mcd_ )
-    {
-	mcd_->materialChange()->remove(
-	    mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
-	mcd_->unRef();
-    }
-
-    if ( plg_ )
-    {
-	plg_->materialChange()->remove(
-	    mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
-	plg_->unRef();
-    }
-
-    if ( rpb_ )
-    {
-	rpb_->materialChange()->remove(
-		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
-	rpb_->unRef();
-    }
+    detachAllNotifiers();
+    unRefAndZeroPtr( mcd_ );
+    unRefAndZeroPtr( plg_ );
+    unRefAndZeroPtr( rpb_ );
 }
 
 
@@ -372,24 +357,50 @@ bool uiODBodyDisplayTreeItem::init()
     }
 
     if ( plg_ )
-    {
-	plg_->materialChange()->notify(
-		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
-    }
+	mAttachCB( plg_->materialChange(),uiODBodyDisplayTreeItem::colorChCB );
 
     if ( mcd_ )
-    {
-	mcd_->materialChange()->notify(
-		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
-    }
+	mAttachCB( mcd_->materialChange(),uiODBodyDisplayTreeItem::colorChCB );
 
     if ( rpb_ )
+	mAttachCB( rpb_->materialChange(),uiODBodyDisplayTreeItem::colorChCB );
+
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+	uiODBodyDisplayTreeItem::keyPressedCB );
+    return uiODDisplayTreeItem::init();
+}
+
+
+void uiODBodyDisplayTreeItem::keyPressedCB( CallBacker* )
+{
+    mDynamicCastGet( visSurvey::PolygonBodyDisplay*,pbd,
+	visserv_->getObject(displayid_) )
+    if ( !pbd || !pbd->isSelected() )
+	    return;
+
+    mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emObjectID()) );
+
+    if ( !emundo || !uiMain::keyboardEventHandler().hasEvent() )
+	return;
+
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+
+    bool update = false;
+    if ( KeyboardEvent::isUnDo(kbe) )
     {
-	rpb_->materialChange()->notify(
-		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
+	EM::EMM().burstAlertToAll( true );
+	update = emundo->unDo( 1, true );
+	EM::EMM().burstAlertToAll( false );    
+    }
+    else if ( KeyboardEvent::isReDo(kbe) )
+    {
+	EM::EMM().burstAlertToAll( true );
+	update = emundo->reDo( 1, true );
+	EM::EMM().burstAlertToAll( false );
     }
 
-    return uiODDisplayTreeItem::init();
+    if ( update )
+	pbd->requestSingleRedraw();
 }
 
 
@@ -407,29 +418,10 @@ bool uiODBodyDisplayTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
 void uiODBodyDisplayTreeItem::prepareForShutdown()
 {
-    if ( mcd_ )
-    {
-	mcd_->materialChange()->remove(
-	    mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
-	mcd_->unRef();
-    }
-    mcd_ = 0;
-
-    if ( plg_ )
-    {
-	plg_->materialChange()->remove(
-		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
-	plg_->unRef();
-    }
-    plg_ = 0;
-
-    if ( rpb_ )
-    {
-	rpb_->materialChange()->remove(
-		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
-	rpb_->unRef();
-    }
-    rpb_ = 0;
+    detachAllNotifiers();
+    unRefAndZeroPtr( mcd_ );
+    unRefAndZeroPtr( plg_ );
+    unRefAndZeroPtr( rpb_ );
 
     uiODDisplayTreeItem::prepareForShutdown();
 }
