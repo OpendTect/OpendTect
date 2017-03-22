@@ -16,7 +16,7 @@ namespace ColTab
 
 static ClipRatePair	defcliprate_ = ClipRatePair( mUdf(float), mUdf(float) );
 static ValueType	defsymmidval_ = mUdf(ValueType);
-static bool		defautosymm_ = false;
+static int		defautosymm_ = -1;
 static int		defhisteq_ = -1;
 
 static const char*	sKeyDefClipPerc
