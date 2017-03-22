@@ -729,7 +729,7 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 
 bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
 {
-    Undo& undo = EM::EMM().undo();
+    Undo& undo = EM::EMM().undo( emobject_->id() );
     const int lastid = undo.currentEventID();
     for ( int idx=0; idx<selectors_.size(); idx++ )
     {

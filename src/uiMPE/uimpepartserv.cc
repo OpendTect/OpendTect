@@ -185,7 +185,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     if ( !initSetupDlg(emobj,tracker,sid,true) )
 	return false;
 
-    initialundoid_ = EM::EMM().undo().currentEventID();
+    initialundoid_ = EM::EMM().undo(emobj->id()).currentEventID();
     propertyChangedCB(0);
 
     MPE::engine().unRefTracker( emobj->id(), true );

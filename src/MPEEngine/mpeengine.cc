@@ -194,7 +194,10 @@ void Engine::stopTracking()
 
 void Engine::trackingFinishedCB( CallBacker* )
 {
-    Undo& emundo = EM::EMM().undo();
+    const EM::EMObject* emobj = getCurrentEMObject();
+    if ( !emobj ) return;
+    
+    Undo& emundo = EM::EMM().undo(emobj->id());
     const int currentevent = emundo.currentEventID();
     if ( currentevent != undoeventid_ )
 	emundo.setUserInteractionEnd( currentevent );
@@ -207,23 +210,40 @@ void Engine::trackingFinishedCB( CallBacker* )
 
 bool Engine::canUnDo()
 {
-    return EM::EMM().undo().canUnDo();
+    const EM::EMObject* emobj = getCurrentEMObject();
+    if ( !emobj ) return false;
+
+    return EM::EMM().undo(emobj->id()).canUnDo();
 }
 
 
 bool Engine::canReDo()
 {
-    return EM::EMM().undo().canReDo();
+    const EM::EMObject* emobj = getCurrentEMObject();
+    if ( !emobj ) return false;
+
+    return EM::EMM().undo(emobj->id()).canReDo();
+}
+
+
+EM::EMObject* Engine::getCurrentEMObject() const
+{
+   if ( !activetracker_ )
+	return 0;
+
+    return EM::EMM().getObject( activetracker_->objectID() );
+
 }
 
 
 void Engine::undo( uiString& errmsg )
 {
-    mDynamicCastGet(EM::EMUndo*,emundo,&EM::EMM().undo())
+    EM::EMObject* emobj = getCurrentEMObject();
+    if ( !emobj ) return;
+
+    mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
     if ( !emundo ) return;
 
-    EM::ObjectID curid = emundo->getCurrentEMObjectID( false );
-    EM::EMObject* emobj = EM::EMM().getObject( curid );
     if ( emobj )
     {
 	emobj->ref();
@@ -246,11 +266,12 @@ void Engine::undo( uiString& errmsg )
 
 void Engine::redo( uiString& errmsg )
 {
-    mDynamicCastGet(EM::EMUndo*,emundo,&EM::EMM().undo())
-    if ( !emundo ) return;
+    EM::EMObject* emobj = getCurrentEMObject();
+    if(!emobj) return;
 
-    EM::ObjectID curid = emundo->getCurrentEMObjectID( true );
-    EM::EMObject* emobj = EM::EMM().getObject( curid );
+    mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
+    if( !emundo ) return;
+
     if ( emobj )
     {
 	emobj->ref();
@@ -359,7 +380,7 @@ bool Engine::trackInVolume()
     actionCalled.trigger();
 
 //    EM::EMM().undo().removeAllBeforeCurrentEvent();
-    undoeventid_ = EM::EMM().undo().currentEventID();
+    undoeventid_ = EM::EMM().undo(emobj->id()).currentEventID();
     htm->setSeeds( seeds );
     htm->startFromSeeds();
     return true;

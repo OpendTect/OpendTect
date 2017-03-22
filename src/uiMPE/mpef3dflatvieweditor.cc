@@ -473,8 +473,8 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 
 #define mSetUserInteractionEnd() \
     if ( !editor_->sower().moreToSow() ) \
-	EM::EMM().undo().setUserInteractionEnd( \
-					EM::EMM().undo().currentEventID() );
+	EM::EMM().undo(emf3d->id()).setUserInteractionEnd( \
+		    EM::EMM().undo(emf3d->id()).currentEventID() );
 
 void Fault3DFlatViewEditor::doubleClickedCB( CallBacker* cb )
 {

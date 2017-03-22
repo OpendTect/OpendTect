@@ -1366,7 +1366,7 @@ bool uiEMPartServer::geom2Attr( const EM::ObjectID& oid )
 
 void uiEMPartServer::removeUndo()
 {
-     em_.undo().removeAll();
+    em_.removeAllUndoList();
 }
 
 

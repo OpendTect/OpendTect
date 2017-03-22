@@ -132,8 +132,8 @@ void ObjectEditor::finishEdit()
 //	tracker->snapPositions(alongmovingnodes);
     }
 
-    EM::EMM().undo().setUserInteractionEnd(
-	    EM::EMM().undo().currentEventID() );
+    EM::EMM().undo(emobject_->id()).setUserInteractionEnd(
+	    EM::EMM().undo(emobject_->id()).currentEventID() );
 }
 
 

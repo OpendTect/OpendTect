@@ -374,8 +374,6 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 	       uiODFaultToolMan::editReadyTimerCB );
     mAttachCB( flashtimer_.tick,
 	       uiODFaultToolMan::flashOutputTimerCB );
-    mAttachCB( EM::EMM().undo().undoredochange,
-	       uiODFaultToolMan::updateToolbarCB );
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 	       uiODFaultToolMan::keyPressedCB );
     mAttachCB( uiMain::keyboardEventHandler().keyReleased,
@@ -429,6 +427,11 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	{
 	    toolbar_->turnOn( selbutidx_, false );
 	    selectmode_ = false;
+	}
+	else
+	{
+	    mAttachCBIfNotAttached(EM::EMM().undo(emobj->id()).undoredochange,
+		uiODFaultToolMan::updateToolbarCB);
 	}
 
 	editSelectToggleCB( 0 );
@@ -652,6 +655,11 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
 
 void uiODFaultToolMan::updateToolbarCB( CallBacker* )
 {
+    const EM::EMObject* emobj = EM::EMM().getObject( curemid_ );
+
+    if ( !emobj )
+	return;
+
     const bool selecting = toolbar_->isOn( selbutidx_ );
 
     toolbar_->setSensitive( settingsbutidx_, selecting );
@@ -665,19 +673,19 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
 
     mOutputNameComboSetTextColorSensitivityHack( flashcolor_ );
 
-    toolbar_->setSensitive( undobutidx_, EM::EMM().undo().canUnDo() );
+    toolbar_->setSensitive( undobutidx_,EM::EMM().undo(emobj->id()).canUnDo() );
     uiString undotooltip;
-    if ( EM::EMM().undo().canUnDo() )
-    undotooltip = tr("Undo %1").arg( EM::EMM().undo().unDoDesc() );
+    if ( EM::EMM().undo(emobj->id()).canUnDo() )
+    undotooltip = tr("Undo %1").arg( EM::EMM().undo(emobj->id()).unDoDesc() );
     else
 	undotooltip = uiStrings::sUndo();
 
     toolbar_->setToolTip( undobutidx_, undotooltip );
 
-    toolbar_->setSensitive( redobutidx_, EM::EMM().undo().canReDo() );
+    toolbar_->setSensitive( redobutidx_,EM::EMM().undo(emobj->id()).canReDo() );
     uiString redotooltip;
-    if ( EM::EMM().undo().canReDo() )
-	redotooltip = tr( "Redo %1").arg( EM::EMM().undo().reDoDesc() );
+    if ( EM::EMM().undo(emobj->id()).canReDo() )
+	redotooltip = tr("Redo %1").arg(EM::EMM().undo(emobj->id()).reDoDesc());
     else
 	redotooltip = uiStrings::sRedo();
 
@@ -964,13 +972,13 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 
     srcfault->geometry().removeSelectedSticks( true );
     srcfault->setChangedFlag();
-    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID());
+    EM::EMM().undo(srcemobj->id()).setUserInteractionEnd( 
+	EM::EMM().undo(srcemobj->id()).currentEventID());
 }
 
 
 void uiODFaultToolMan::transferSticksCB( CallBacker* )
 {
-    NotifyStopper ns( EM::EMM().undo().changenotifier );
     MouseCursorChanger mcc( MouseCursor::Wait );
 
     if ( curemid_ < 0 )
@@ -1085,7 +1093,9 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     afterTransferUpdate();
 
     UndoEvent* undo = new FaultStickTransferUndoEvent( copy, saved );
-    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().addEvent(undo) );
+    PtrMan<Executor> executor = destfault->saver();
+    EM::EMM().undo(destfault->id()).setUserInteractionEnd(
+	EM::EMM().undo(destfault->id()).addEvent(undo) );
 
     if ( newnrselected )
     {
@@ -1404,10 +1414,14 @@ void uiODFaultToolMan::setAuxSurfaceWrite( const char* outputname )
 
 void uiODFaultToolMan::undoCB( CallBacker* )
 {
+    const EM::EMObject* curemobj = EM::EMM().getObject(curemid_);
+    if ( !curemobj )
+	return;
+
     if ( !curfltd_ && !curfssd_ ) return;
     MouseCursorChanger mcc( MouseCursor::Wait );
     EM::EMM().burstAlertToAll( true );
-    if ( !EM::EMM().undo().unDo( 1, true  ) )
+    if ( !EM::EMM().undo(curemobj->id()).unDo( 1, true  ) )
 	uiMSG().error(tr("Cannot undo everything."));
     EM::EMM().burstAlertToAll( false );
     updateToolbarCB( 0 );
@@ -1417,10 +1431,14 @@ void uiODFaultToolMan::undoCB( CallBacker* )
 
 void uiODFaultToolMan::redoCB( CallBacker* )
 {
+    const EM::EMObject* curemobj = EM::EMM().getObject(curemid_);
+    if ( !curemobj )
+	return;
+
     if ( !curfltd_ && !curfssd_ ) return;
     MouseCursorChanger mcc( MouseCursor::Wait );
     EM::EMM().burstAlertToAll( true );
-    if ( !EM::EMM().undo().reDo( 1, true  ) )
+    if ( !EM::EMM().undo(curemobj->id()).reDo( 1, true  ) )
 	uiMSG().error(tr("Cannot redo everything."));
     EM::EMM().burstAlertToAll( false );
     updateToolbarCB( 0 );

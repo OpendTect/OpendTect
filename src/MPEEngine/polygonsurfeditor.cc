@@ -198,8 +198,8 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 
     if ( change )
     {
-	EM::EMM().undo().setUserInteractionEnd(
-		EM::EMM().undo().currentEventID() );
+	EM::EMM().undo(emobject_->id()).setUserInteractionEnd(
+		EM::EMM().undo(emobject_->id()).currentEventID() );
     }
 
     return change;

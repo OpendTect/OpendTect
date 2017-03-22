@@ -617,8 +617,8 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 
 		if ( res && !viseditor_->sower().moreToSow() )
 		{
-		    EM::EMM().undo().setUserInteractionEnd(
-			    EM::EMM().undo().currentEventID() );
+		    EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
+			EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
 		    touchAll( false );
 		}
 	    }
@@ -659,8 +659,8 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	    polygonsurfeditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-		EM::EMM().undo().setUserInteractionEnd(
-		    EM::EMM().undo().currentEventID() );
+		EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
+		    EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
 
 		touchAll( false );
 		polygonsurfeditor_->editpositionchange.trigger();
@@ -675,8 +675,8 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	    polygonsurfeditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-		EM::EMM().undo().setUserInteractionEnd(
-		    EM::EMM().undo().currentEventID() );
+		EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
+		    EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
 		polygonsurfeditor_->editpositionchange.trigger();
 	    }
 	}

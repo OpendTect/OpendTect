@@ -579,7 +579,7 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
     if ( oldarr )
     {
 	UndoEvent* undo = new  SetAllHor3DPosUndoEvent( this, sid, oldarr );
-	EMM().undo().addEvent( undo, undodesc );
+	EMM().undo(id()).addEvent( undo, undodesc );
     }
 
     return true;
@@ -1098,7 +1098,7 @@ void Horizon3D::deleteChildren()
 {
     if ( !children_ ) return;
 
-    const int prevevid = EM::EMM().undo().currentEventID();
+    const int prevevid = EM::EMM().undo(id()).currentEventID();
 
     Geometry::Element* ge = sectionGeometry( sectionID(0) );
     setBurstAlert( true );
@@ -1117,9 +1117,9 @@ void Horizon3D::deleteChildren()
 
     resetChildren();
 
-    const int evid = EM::EMM().undo().currentEventID();
+    const int evid = EM::EMM().undo(id()).currentEventID();
     if ( prevevid != evid )
-	EM::EMM().undo().setUserInteractionEnd( evid );
+	EM::EMM().undo(id()).setUserInteractionEnd( evid );
 }
 
 

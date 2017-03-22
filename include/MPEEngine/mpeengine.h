@@ -183,6 +183,7 @@ protected:
     bool			prepareForRetrack();
     bool			trackInVolume();
     void			trackingFinishedCB(CallBacker*);
+    EM::EMObject*		getCurrentEMObject() const;
 
     struct CacheSpecs
     {

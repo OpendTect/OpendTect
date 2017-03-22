@@ -192,7 +192,7 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
     {
 	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).toInt64());
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     mTriggerSurfaceChange( surface_ );
@@ -230,7 +230,7 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
     {
 	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).toInt64());
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     mTriggerSurfaceChange( surface_ );
@@ -278,7 +278,7 @@ bool FaultStickSetGeometry::removeStick( const SectionID& sid, int sticknr,
     {
 	const PosID posid( surface_.id(), sid, rc.toInt64() );
 	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     mTriggerSurfaceChange( surface_ );
@@ -299,7 +299,7 @@ bool FaultStickSetGeometry::insertKnot( const SectionID& sid,
     {
 	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new FaultKnotUndoEvent( posid );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     mTriggerSurfaceChange( surface_ );
@@ -323,7 +323,7 @@ bool FaultStickSetGeometry::removeKnot( const SectionID& sid,
     {
 	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new FaultKnotUndoEvent( posid, pos );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     mTriggerSurfaceChange( surface_ );
