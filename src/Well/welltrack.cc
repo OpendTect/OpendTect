@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "velocitycalc.h"
 #include "welldata.h"
-
+#include "trigonometry.h"
 
 Well::Track& Well::Track::operator =( const Track& t )
 {
@@ -395,41 +395,43 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 	return dah_[0];
 
     const double zfac = zistime_ ? 2000. : 1.;
-    Coord3 reqpos( posin ); reqpos.z *= zfac;
-    Coord3 curpos( getPos( dah_[0] ) ); curpos.z *= zfac;
-    double sqneardist = curpos.sqDistTo( reqpos );
-    double sqsecdist = sqneardist;
-    int nearidx = 0; int secondidx = 0;
-    curpos = getPos( dah_[1] ); curpos.z *= zfac;
-    double sqdist = curpos.sqDistTo( reqpos );
-    if ( sqdist < sqneardist )
-	{ nearidx = 1; sqneardist = sqdist; }
-    else
-	{ secondidx = 1; sqsecdist = sqdist; }
-
-    for ( int idah=2; idah<dah_.size(); idah++ )
+    Coord3 curpos(posin); curpos.z *= zfac;
+    int startidx = 0;
+    Coord3 actualboundstart = getPos( dah_[startidx] );
+    actualboundstart.z *= zfac;
+    Coord3 actualboundstop = getPos( dah_[startidx+1] );
+    actualboundstop.z *= zfac;
+    Coord3 curposonline;
+    for ( int idx=0; idx<dah_.size()-1; idx++ )
     {
-	curpos = getPos( dah_[idah] ); curpos.z *= zfac;
-	sqdist = curpos.sqDistTo( reqpos );
-	if ( sqdist < 0.1 ) return dah_[idah];
+	Coord3 boundposstart = getPos( dah_[idx] ); boundposstart.z *= zfac;
+	Coord3 boundposstop = getPos( dah_[idx+1] ); boundposstop.z *= zfac;
+	Vector3 dir = boundposstop-boundposstart;
+	Line3 newline(boundposstop,dir);
 
-	if ( sqdist < sqneardist )
+	Interval<float> zintrvl( mCast(float,boundposstart.z),
+						mCast(float,boundposstop.z) );
+	if ( zintrvl.includes(curpos.z,true) )
 	{
-	    secondidx = nearidx; sqsecdist = sqneardist;
-	    nearidx = idah; sqneardist = sqdist;
+	    Coord3 posonline = newline.getPoint(newline.closestPoint(curpos));
+	    if ( posonline.isDefined() )
+	    {
+		curposonline = posonline;
+		actualboundstart = boundposstart;
+		actualboundstop = boundposstop;
+		startidx = idx;
+	    }
 	}
-	else if ( sqdist < sqsecdist )
-	    { secondidx = idah; sqsecdist = sqdist; }
-
-	if ( sqdist > 2 * sqneardist ) // safe for 'reasonable wells'
-	    break;
     }
+    double sqrdisttostart = actualboundstart.sqDistTo( curposonline );
+    double sqrdisttostop = actualboundstop.sqDistTo( curposonline );
 
-    const double neardist = Math::Sqrt( sqneardist );
-    const double secdist = Math::Sqrt( sqsecdist );
-    const double dahnear = mCast(double,dah_[nearidx]);
-    const double dahsec = mCast(double,dah_[secondidx]);
-    const double res = ( neardist*dahsec+secdist*dahnear )/( neardist+secdist );
+    const double distfrmstrart = Math::Sqrt( sqrdisttostart );
+    const double disttoend = Math::Sqrt( sqrdisttostop );
+    const double dahnear = mCast(double,dah_[startidx]);
+    const double dahsec = mCast(double,dah_[startidx+1]);
+    double res = ( distfrmstrart*dahsec+disttoend*dahnear )/
+					    ( distfrmstrart+disttoend );
     return mCast( float, res );
 }
 
