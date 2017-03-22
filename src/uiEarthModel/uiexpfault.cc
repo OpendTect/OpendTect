@@ -20,8 +20,9 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioobj.h"
+#include "od_ostream.h"
 #include "ptrman.h"
-#include "strmprov.h"
+// #include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "uibutton.h"
@@ -174,8 +175,8 @@ bool uiExportFault::writeAscii()
     uiTaskRunner taskrunner( this );
     BufferString typnm = issingle_ ? ctio_.ioobj_->group() :
 				    bulkinfld_->getCtxtIOObj().ioobj_->group();
-    RefObjectSet<EMObject> loadedobjs =
-		EM::EMM().loadObjects( typnm, dbkeyset, 0, taskrunner );
+    RefObjectSet<EM::EMObject> loadedobjs =
+		EM::EMM().loadObjects( typnm, dbkeyset, 0, &taskrunner );
     if ( loadedobjs.isEmpty() )
 	return false;
 
@@ -191,13 +192,14 @@ bool uiExportFault::writeAscii()
 	const bool doxy = coordfld_->getBoolValue();
 	const bool inclstickidx = stickidsfld_->isChecked( 0 );
 	const bool inclknotidx = stickidsfld_->isChecked( 1 );
-	const int nrsticks = nrSticks( emobj.ptr() );
+	const int nrsticks = nrSticks( loadedobjs[idx] );
 	for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	{
-	    const int nrknots = nrKnots( emobj.ptr(), stickidx );
+	    const int nrknots = nrKnots( loadedobjs[idx], stickidx );
 	    for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 	    {
-		const Coord3 crd = getCoord( emobj.ptr(), stickidx, knotidx );
+		const Coord3 crd =
+			getCoord( loadedobjs[idx], stickidx, knotidx );
 		if ( !crd.isDefined() )
 		    continue;
 		if ( !issingle_ )
@@ -224,7 +226,7 @@ bool uiExportFault::writeAscii()
 
 		if ( fss )
 		{
-		    const int sticknr = stickNr( emobj.ptr(), stickidx );
+		    const int sticknr = stickNr( loadedobjs[idx], stickidx );
 
 		    bool pickedon2d =
 			fss->geometry().pickedOn2DLine( sticknr );
