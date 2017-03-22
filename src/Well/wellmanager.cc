@@ -430,7 +430,7 @@ void Well::Saver::setWellData( const Data& wd )
 
 
 
-uiRetVal Well::Saver::doStore( const IOObj& ioobj ) const
+uiRetVal Well::Saver::doStore( const IOObj& ioobj, TaskRunner* ) const
 {
     uiRetVal uirv;
     ConstRefMan<Data> wd = wellData();

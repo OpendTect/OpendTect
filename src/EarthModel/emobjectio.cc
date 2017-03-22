@@ -282,7 +282,7 @@ void ObjectSaver::setEMObject( const EMObject& obj )
 }
 
 
-uiRetVal ObjectSaver::doStore( const IOObj& ioobj ) const
+uiRetVal ObjectSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 {
     return uiRetVal::OK();
 }
@@ -297,7 +297,7 @@ FaultStickSetSaver::~FaultStickSetSaver()
 {}
 
 
-uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj ) const
+uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj,TaskRunner* tskr) const
 {
     uiRetVal uirv;
     ConstRefMan<EMObject> emobj = emObject();
@@ -310,7 +310,7 @@ uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj ) const
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
     Executor* exec = fss->geometry().saver( 0, &objid );
-    if ( exec && !exec->execute() )
+    if ( !TaskRunner::execute(tskr,*exec)  )
 	return exec->errorWithDetails();
 
     if ( isSave(ioobj) )
@@ -334,7 +334,7 @@ Fault3DSaver::~Fault3DSaver()
 {}
 
 
-uiRetVal Fault3DSaver::doStore( const IOObj& ioobj ) const
+uiRetVal Fault3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 {
     uiRetVal uirv;
     ConstRefMan<EMObject> emobj = emObject();
@@ -347,7 +347,7 @@ uiRetVal Fault3DSaver::doStore( const IOObj& ioobj ) const
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
     Executor* exec = flt3d->geometry().saver( 0, &objid );
-    if ( exec && !exec->execute() )
+    if ( !TaskRunner::execute(tskr,*exec) )
 	return exec->errorWithDetails();
 
     flt3d->setDBKey( objid );
@@ -371,7 +371,7 @@ Horizon3DSaver::~Horizon3DSaver()
 {}
 
 
-uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj ) const
+uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 {
     uiRetVal uirv;
     ConstRefMan<EMObject> emobj = emObject();
@@ -384,7 +384,7 @@ uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj ) const
 	return uiRetVal::OK();
     const DBKey objid = ioobj.key();
     Executor* exec = hor->geometry().saver( 0, &objid );
-    if ( exec && !exec->execute() )
+    if ( !TaskRunner::execute(tskr,*exec) )
 	return exec->errorWithDetails();
 
     if ( isSave(ioobj) )

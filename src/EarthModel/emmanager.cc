@@ -157,6 +157,24 @@ EMObject* EMManager::gtObject( const DBKey& mid )
 }
 
 
+RefObjectSet<EMObject> EMManager::loadObjects( const char* typ,
+					    const DBKeySet& dbkeys,
+					const SurfaceIODataSelection* sel,
+					TaskRunner* tskr )
+{
+    RefObjectSet<EMObject> loadedpbjs;
+    PtrMan<EM::ObjectLoader> emloader =
+		EM::ObjectLoader::factory().create( typ, dbkeys, sel );
+    if ( !emloader )
+	return loadedpbjs;
+
+    if ( emloader->load(tskr) )
+	loadedpbjs = emloader->getLoadedEMObjects();
+    
+    return loadedpbjs;
+}
+
+
 ConstRefMan<EMObject> EMManager::fetch( const DBKey& mid, TaskRunner* trunner,
 				bool forcereload ) const
 {

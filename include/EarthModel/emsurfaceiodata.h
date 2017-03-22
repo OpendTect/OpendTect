@@ -61,6 +61,8 @@ mExpClass(EarthModel) SurfaceIODataSelection
 {
 public:
 
+    				SurfaceIODataSelection()
+				    : sd(* new SurfaceIOData)		{}
 				SurfaceIODataSelection( const SurfaceIOData& s )
 				    : sd(s)		{}
 

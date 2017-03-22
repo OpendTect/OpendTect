@@ -119,7 +119,7 @@ void Pick::SetSaver::setPickSet( const Set& ps )
 }
 
 
-uiRetVal Pick::SetSaver::doStore( const IOObj& ioobj ) const
+uiRetVal Pick::SetSaver::doStore( const IOObj& ioobj, TaskRunner* ) const
 {
     uiRetVal uirv;
     ConstRefMan<Set> ps = pickSet();

@@ -57,6 +57,11 @@ EMObject::EMObject( const char* nm )
     objectChanged().notify( mCB(this,EMObject,posIDChangeCB) );
 }
 
+EMObject::EMObject( const EMObject& oth )
+{
+   copyClassData( oth );
+}
+
 mImplMonitorableAssignment(EMObject,SharedObject);
 
 EMObject::~EMObject()

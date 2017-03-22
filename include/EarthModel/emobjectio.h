@@ -148,7 +148,7 @@ public:
 
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&) const;
+    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
 };
 
 
@@ -163,7 +163,7 @@ public:
 			~FaultStickSetSaver();
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&) const;
+    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
 };
 
 
@@ -178,7 +178,7 @@ public:
 			~Fault3DSaver();
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&) const;
+    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
 };
 
 
@@ -193,7 +193,7 @@ public:
 			~Horizon3DSaver();
 protected:
 
-    virtual uiRetVal	doStore(const IOObj&) const;
+    virtual uiRetVal	doStore(const IOObj&,TaskRunner*) const;
 };
 
 } // namespace EM

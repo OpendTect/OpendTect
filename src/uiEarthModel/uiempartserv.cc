@@ -600,14 +600,11 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     EM::SurfaceIODataSelection sel( sd );
     dlg.iogrp()->getSurfaceSelection( sel );
 
-    PtrMan<EM::ObjectLoader> emloader =
-		EM::ObjectLoader::factory().create( typ, surfaceids, &sel );
-    if ( !emloader )
-	return;
-
     uiTaskRunner uitr( parent() );
-    if ( emloader->load(&uitr) )
-	objs.append( emloader->getLoadedEMObjects() );
+    const RefObjectSet<EM::EMObject> emobjs = 
+	EM::EMM().loadObjects( typ, surfaceids, &sel, &uitr );
+    if ( !emobjs.isEmpty() )
+	objs.append( emobjs );
 }
 
 
@@ -802,7 +799,34 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 				  DBKey& storagekey,
 				  float shift ) const
 {
-    EM::EMObject* object = em_.getObject( id );
+    EM::EMObject* object = EM::getMgr( id ).getObject( id );
+    if ( !object ) return false;
+
+    mDynamicCastGet(EM::Surface*,surface,object);
+    mDynamicCastGet(EM::Body*,body,object);
+
+    PtrMan<Executor> exec = 0;
+    DBKey key = object->dbKey();
+    uiTaskRunner uitr( parent() );
+    if ( storeas )
+    {
+	if ( surface )
+	{
+	    uiWriteSurfaceDlg dlg( parent(), *surface, shift );
+	    dlg.showAlwaysOnTop(); // hack to show on top of tracking window
+	    if ( !dlg.go() ) return false;
+
+	    EM::SurfaceIOData sd;
+	    EM::SurfaceIODataSelection sel( sd );
+	    dlg.getSelection( sel );
+
+	    key = dlg.ioObj() ? dlg.ioObj()->key() : DBKey::getInvalid();
+	    EM::getMgr( id ).saveAs( id, key, &uitr );
+	}
+    }
+    em_.save( id, &uitr );
+
+    /*EM::EMObject* object = em_.getObject( id );
     if ( !object ) return false;
 
     mDynamicCastGet(EM::Surface*,surface,object);
@@ -879,8 +903,8 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
     if( ret && surface )
 	surface->saveDisplayPars();
 
-    return ret;
-
+    return ret;*/
+    return true;
 }
 
 

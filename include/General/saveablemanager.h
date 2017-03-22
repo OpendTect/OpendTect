@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "objectset.h"
 class ChangeRecorder;
 class IOObjContext;
-
+class TaskRunner;
 
 /*!\brief Base class for managers of Saveable objects: loading and storing.
 
@@ -50,8 +50,9 @@ public:
 
     bool		nameExists(const char*) const;
     bool		canSave(const ObjID&) const;
-    uiRetVal		save(const ObjID&) const;
-    uiRetVal		saveAs(const ObjID& curid,const ObjID& newid) const;
+    uiRetVal		save(const ObjID&,TaskRunner* tskr=0) const;
+    uiRetVal		saveAs(const ObjID& curid,const ObjID& newid,
+				TaskRunner* tskr=0) const;
     bool		needsSave(const ObjID&) const;
     void		setJustSaved(const ObjID&) const;
 
@@ -105,10 +106,11 @@ protected:
 
 			// to be called from public obj-type specific ones
     ObjID		getID(const SharedObject&) const;
-    uiRetVal		store(const SharedObject&,const IOPar*) const;
+    uiRetVal		store(const SharedObject&,const IOPar*,
+						      TaskRunner* tskr=0) const;
     uiRetVal		store(const SharedObject&,const ObjID&,
-			      const IOPar*) const;
-    uiRetVal		save(const SharedObject&) const;
+				    	 const IOPar*,TaskRunner* tskr=0) const;
+    uiRetVal		save(const SharedObject&,TaskRunner* tskr=0) const;
     bool		needsSave(const SharedObject&) const;
     IOObj*		getIOObj(const DBKey&) const;
     IOObj*		getIOObjByName(const char*) const;
@@ -120,7 +122,7 @@ protected:
     IdxType		gtIdx(const SharedObject&) const;
     SharedObject*	gtObj(IdxType) const;
     const Saveable*	saverFor(const ObjID&) const;
-    uiRetVal		doSave(const ObjID&) const;
+    uiRetVal		doSave(const ObjID&,TaskRunner* tskr=0) const;
     void		add(const SharedObject&,const ObjID&,AccessLocker&,
 				const IOPar*,bool) const;
 

@@ -487,7 +487,7 @@ void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* )
     if ( curemid_.isInvalid() )
 	return;
 
-    if ( !EM::EMM().getObject(curemid_) )
+    if ( !EM::getMgr(curemid_).getObject(curemid_) )
 	deseltimer_.start( 100, true );
 }
 

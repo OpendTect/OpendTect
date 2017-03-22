@@ -140,7 +140,7 @@ public:
 				~ProbeSaver();
 protected:
 
-    virtual uiRetVal		doStore(const IOObj&) const;
+    virtual uiRetVal		doStore(const IOObj&,TaskRunner*) const;
 
 };
 

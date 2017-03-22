@@ -56,6 +56,9 @@ public:
 			    Returned object must be reffed by caller
 			    (and eventually unreffed). */
 
+    RefObjectSet<EMObject>  loadObjects(const char* typ,const DBKeySet&,
+					const SurfaceIODataSelection* =0,
+					TaskRunner* trunner=0);
     ConstRefMan<EMObject> fetch(const DBKey&,TaskRunner* trunner=0,
 			        bool forcereload=false) const;
     RefMan<EMObject>	fetchForEdit(const DBKey&,TaskRunner* trunner=0,
@@ -181,9 +184,9 @@ public:
 
     EMObject*		loadIfNotFullyLoaded(const DBKey& id,TaskRunner* t=0)
 			{ return getMgr(id).loadIfNotFullyLoaded( id, t ); }
-    Executor*		objectLoader(const DBKey& id,
+   /* Executor*		objectLoader(const DBKey& id,
 				     const SurfaceIODataSelection* sd=0)
-			{ return getMgr(id).objectLoader( id, sd ); }
+			{ return getMgr(id).objectLoader( id, sd ); }*/
 
     EMObject*		createObject(const char* type,const char* nm)
 			/*!< Creates a new object, saves it and loads it.

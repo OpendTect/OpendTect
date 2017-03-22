@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "uistring.h"
 class IOObj;
+class TaskRunner;
 
 
 /*!\brief Object that can be saved at any time. */
@@ -36,8 +37,8 @@ public:
     mImplSimpleMonitoredGetSet(inline,ioObjPars,setIOObjPars,IOPar,ioobjpars_,0)
 			// The pars will be merge()'d with the IOObj's current
 
-    virtual uiRetVal	save() const;
-    virtual uiRetVal	store(const IOObj&) const;
+    virtual uiRetVal	save(TaskRunner* tskr=0) const;
+    virtual uiRetVal	store(const IOObj&,TaskRunner* tskr=0) const;
 
     bool		needsSave() const;
     virtual void	setJustSaved() const;
@@ -58,7 +59,7 @@ protected:
     mutable DirtyCounter lastsavedirtycount_;
 
 			// This function can be called from any thread
-    virtual uiRetVal	doStore(const IOObj&) const	= 0;
+    virtual uiRetVal	doStore(const IOObj&,TaskRunner* tskr=0) const	= 0;
     bool		isSave(const IOObj&) const;
 
 private:
