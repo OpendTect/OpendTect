@@ -127,7 +127,7 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* cb )
 {
     Probe* probe = getProbe();
     if ( !probe )
-    { pErrMsg( "Huh! Shared Object not of type Probe" ); return; }
+	{ pErrMsg( "Huh! Shared Object not of type Probe" ); return; }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))

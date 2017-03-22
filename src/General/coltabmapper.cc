@@ -156,7 +156,12 @@ bool ColTab::MapperSetup::isMappingChange( ChangeType ct ) const
 
 void ColTab::MapperSetup::setCalculatedRange( const RangeType& newrg ) const
 {
-    mLock4Write();
+    mLock4Read();
+    if ( range_ == newrg )
+	return;
+    if ( !mLock2Write() && range_ == newrg )
+	return;
+
     MapperSetup& self = *const_cast<MapperSetup*>( this );
     self.range_ = newrg;
     mUnlockAllAccess();
@@ -424,7 +429,11 @@ void ColTab::Mapper::setupChgCB( CallBacker* cb )
     mLock4Read();
 
     if ( setup_->isMappingChange(chgdata.changeType()) )
+    {
+	if ( !setup_->isFixed() )
+	    determineRange();
 	mSendChgNotif( cMappingChange(), ChangeData::cUnspecChgID() );
+    }
 }
 
 

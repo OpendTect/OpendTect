@@ -588,14 +588,17 @@ void uiColTabSelTool::orientationChanged()
 
 void uiColTabSelTool::setMapper( Mapper& mpr )
 {
-    if ( mapper_.ptr() != &mpr )
+    const bool isnew = mapper_.ptr() != &mpr;
+    if ( isnew )
     {
 	removeSetupNotifs();
 	disp_->setMapper( &mpr );
     }
 
     const bool ischg = replaceMonitoredRef( mapper_, mpr, this );
-    addSetupNotifs();
+
+    if ( isnew )
+	addSetupNotifs();
 
     if ( ischg )
     {
