@@ -66,7 +66,6 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     uiIOObjSelGrp::Setup su; su.choicemode_ = !issingle_ ?
 	    OD::ChoiceMode::ChooseAtLeastOne : OD::ChoiceMode::ChooseOnlyOne;
-    IOObj* ioobj = ctio_.ioobj_;
     if ( issingle_ )
 	singleinfld_ = new uiIOObjSel( this, ctio_, mGetLbl(typ) );
     else

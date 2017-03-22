@@ -714,7 +714,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 
     Coord3 mouseworldpos = pos;
     const bool needsdatatransform = datatransform_ && ( !zistime_ ||
-                              !scene_->zDomainInfo().def_.isDepth() ) ;
+			      !scene_->zDomainInfo().def_.isDepth() ) ;
     if ( needsdatatransform )
 	mouseworldpos.z_ = datatransform_->transformBack( mouseworldpos );
 
