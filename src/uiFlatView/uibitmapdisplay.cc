@@ -76,9 +76,9 @@ void setDataPack( const FlatDataPack* fdp, bool wva )
     Mapper& mapper = getMapper( wva );
     if ( mapper.distribution().isEmpty() )
     {
-	DataDistributionExtracter<float> extracter( *fdp->arrayData(0) );
-	if ( extracter.execute() )
-	    mapper.distribution() = *extracter.getDistribution();
+	RangeLimitedDataDistributionExtracter<float> extracter(
+						    *fdp->arrayData(0) );
+	mapper.distribution() = *extracter.getDistribution();
     }
     setupdone_ = false;
 }

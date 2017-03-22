@@ -363,9 +363,8 @@ void PSEventDisplay::ensureDistribSet( const TypeSet<float>& vals )
     ColTab::Mapper& mpr = const_cast<ColTab::Mapper&>( *ctabmapper_ );
     if ( mpr.distribution().isEmpty() )
     {
-	DataDistributionExtracter<float> extr( vals );
-	if ( extr.execute() )
-	    mpr.distribution() = *extr.getDistribution();
+	RangeLimitedDataDistributionExtracter<float> extr( vals );
+	mpr.distribution() = *extr.getDistribution();
     }
 }
 

@@ -385,7 +385,9 @@ void reSizeCB( CallBacker* )
 
 bool calcScale()
 {
-    distrib().getCurve( longvals_, shortvals_, true );
+    RefMan<DistribType> drawdistr = distrib().clone();
+    drawdistr->deSpike();
+    drawdistr->getCurve( longvals_, shortvals_, true );
     maprg_ = setup().range();
 
     longrg_ = maprg_;
@@ -413,7 +415,6 @@ bool calcScale()
 	shortrg_ = Interval<float>( 0.f, 1.f );
     }
 
-    longrg_.widen( longrg_.width()/6.f );
     return true;
 }
 
@@ -504,7 +505,7 @@ void reDraw()
 			{ return seltool_.asParent(); }
     ColTab::MapperSetup& setup()
 			{ return seltool_.mapper_->setup(); }
-    ColTab::Mapper::DistribType& distrib()
+    DistribType&	distrib()
 			{ return seltool_.mapper_->distribution(); }
 
     inline bool		xIsLong() const		{ return isHor(); }

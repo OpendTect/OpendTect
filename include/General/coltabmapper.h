@@ -22,7 +22,7 @@ namespace ColTab
   Beware that the Mapper *requires* a data distribution if you want to map
   anything else than [0,1] to [0,1]. The Mapper will no longer scan your data,
   that needs to be done before using the Mapper. Using the
-  DataDistributionExtracter may be helpful for that.
+  [RangeLimited]DataDistributionExtracter may be helpful for that.
 
   If setup().nrSegs() > 0, the mapper will return the centers of the
   segments only. For example, if nsegs_ == 3, only positions returned are

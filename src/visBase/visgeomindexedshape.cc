@@ -431,9 +431,8 @@ void GeomIndexedShape::mapAttributeToColorTableMaterial()
 
     if ( colorhandler_.mapper_->distribution().isEmpty() )
     {
-	DataDistributionExtracter<float> extr( colorhandler_.attributecache_ );
-	if ( !extr.execute() )
-	    return;
+	RangeLimitedDataDistributionExtracter<float> extr(
+					colorhandler_.attributecache_ );
 	colorhandler_.mapper_.getNonConstPtr()->distribution()
 	    = *extr.getDistribution();
     }

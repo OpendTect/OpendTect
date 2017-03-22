@@ -165,12 +165,9 @@ void AttribProbeLayer::handleDataPackChange()
     bool havedistrib = false;
     if ( arr )
     {
-	DataDistributionExtracter<float> extr( *arr );
-	if ( extr.execute() )
-	{
-	    mapper_->distribution() = *extr.getDistribution();
-	    havedistrib = true;
-	}
+	RangeLimitedDataDistributionExtracter<float> extr( *arr );
+	mapper_->distribution() = *extr.getDistribution();
+	havedistrib = true;
     }
 
     if ( !havedistrib )

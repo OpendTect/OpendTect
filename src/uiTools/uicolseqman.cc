@@ -454,6 +454,7 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
     const int distrsz = y2distr->size();
     if ( distrsz > 2 )
     {
+	y2distr->deSpike();
 	y2distr->setSampling( SamplingData<float>(0.f,1.0f/(distrsz-1)) );
 	y2distr->normalise( false );
 	transpdisp_->setY2Vals( *y2distr, true );

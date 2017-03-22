@@ -78,6 +78,10 @@ public:
     inline VT			maxValue() const;
     inline void			normalise(bool in_the_math_sense=true);
 				//!< if !math, sets max to 1
+    inline bool			deSpike(VT ratioaboverg=VT(0.5));
+				//!< Returns whether any change made
+				//!< Note that your distrib is no longer correct
+				//!< Useful for nice displays
 
     inline void			getCurve(SetType& xvals,SetType& yvals,
 				        bool limitspikes=false) const;
@@ -438,42 +442,62 @@ void DataDistribution<VT>::normalise( bool in_the_math_sense )
 }
 
 
-template <class VT> inline
-void DataDistribution<VT>::getCurve( SetType& xvals, SetType& yvals,
-				     bool limitspikes ) const
+template <class VT> inline bool DataDistribution<VT>::deSpike( VT cutoff )
 {
-    xvals.setEmpty(); yvals.setEmpty();
-    mLock4Read();
-    if ( data_.isEmpty() )
-	return;
+    mLock4Write();
+    const int sz = data_.size();
+    if ( sz < 6 )
+	return false;
 
     VT maxval = data_[0];
     VT runnerupval = maxval;
     VT minval = maxval;
     IdxType idxatmax = 0;
 
-    DataDistributionIter<VT> iter( *this );
-    while ( iter.next() )
+    for ( int idx=1; idx<sz; idx++ )
     {
-	xvals += iter.position();
-	const VT val = iter.value();
-	yvals += val;
+	const VT val = data_[idx];
 	if ( val < minval )
 	    minval = val;
 	else if ( val > maxval )
 	{
 	    runnerupval = maxval;
 	    maxval = val;
-	    idxatmax = iter.curIdx();
+	    idxatmax = idx;
 	}
     }
 
-    if ( limitspikes && xvals.size() > 5 )
+    const VT unspikedvalrg = runnerupval - minval;
+    const VT spikelimit = minval + VT(1+cutoff) * unspikedvalrg;
+    if ( maxval > spikelimit )
     {
-	const VT valrg = runnerupval - minval;
-	const VT max4disp = minval + 1.5f * valrg;
-	if ( maxval > max4disp )
-	    yvals[idxatmax] = max4disp;
+	data_[idxatmax] = spikelimit;
+	return true;
+    }
+    return false;
+}
+
+
+template <class VT> inline
+void DataDistribution<VT>::getCurve( SetType& xvals, SetType& yvals,
+				     bool limitspikes ) const
+{
+    xvals.setEmpty(); yvals.setEmpty();
+
+    if ( limitspikes )
+    {
+	RefMan< DataDistribution<VT> > despiked = clone();
+	despiked->deSpike();
+	despiked->getCurve( xvals, yvals, false );
+    }
+    else
+    {
+	DataDistributionIter<VT> iter( *this );
+	while ( iter.next() )
+	{
+	    xvals += iter.position();
+	    yvals += iter.value();
+	}
     }
 }
 

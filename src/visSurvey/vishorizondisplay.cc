@@ -982,11 +982,10 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     if ( coltabmappers_[channel]->distribution().isEmpty() )
     {
 	DPSValueSeries dpsvs( *data, data->nrCols()-1 );
-	DataDistributionExtracter<float> extr( dpsvs, data->size() );
-	if ( TaskRunner::execute(tskr,extr) )
-	    const_cast<DataDistribution<float>&>(
-		    coltabmappers_[channel]->distribution())
-			    = *extr.getDistribution();
+	RangeLimitedDataDistributionExtracter<float> extr( dpsvs, data->size(),
+							    tskr );
+	const_cast<DataDistribution<float>&>(
+	    coltabmappers_[channel]->distribution()) = *extr.getDistribution();
     }
 
     validtexture_ = true;

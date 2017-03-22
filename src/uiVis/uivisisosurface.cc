@@ -69,11 +69,8 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     const RegularSeisDataPack* rsdp = vd_->getCacheVolume( attrib );
     if ( rsdp && rsdp->nrArrays() > 0 )
     {
-	DataDistributionExtracter<float> extr( *rsdp->arrayData(0) );
-	RefMan<DataDistribution<float> > distrib
-		= extr.execute() ? extr.getDistribution() : 0;
-	if ( distrib )
-	    statsdisplay_->funcDisp()->setDistribution( *distrib );
+	RangeLimitedDataDistributionExtracter<float> extr( *rsdp->arrayData(0));
+	statsdisplay_->funcDisp()->setDistribution( *extr.getDistribution() );
     }
     statsdisplay_->attach( leftAlignedBelow, aboveisovaluefld_ );
 

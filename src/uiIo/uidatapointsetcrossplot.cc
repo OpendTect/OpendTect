@@ -723,8 +723,7 @@ void uiDataPointSetCrossPlotter::updateOverlayMapper( bool isy1 )
 	ydata += uidps_.getVal( isy1 ? y3colid_ : y4colid_ , idx, true );
 
     ColTab::Mapper& mapper = *(isy1 ? y3mapper_ : y4mapper_);
-    DataDistributionExtracter<float> extr( ydata );
-    extr.execute();
+    RangeLimitedDataDistributionExtracter<float> extr( ydata );
     mapper.distribution() = *extr.getDistribution();
 }
 
@@ -1665,8 +1664,7 @@ int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data, bool chgdps,
     if ( freqdata )
 	densitycalc.getFreqData( *freqdata );
 
-    DataDistributionExtracter<float> extr( *data );
-    extr.execute();
+    RangeLimitedDataDistributionExtracter<float> extr( *data );
     ctmapper_->distribution() = *extr.getDistribution();
 
     return densitycalc.indexSize();
