@@ -26,9 +26,6 @@
 #include "unitofmeasure.h"
 #include "keystrs.h"
 
-namespace PreStack
-{
-
 const char* Gather::sDataPackCategory()		{ return "Pre-Stack Gather"; }
 const char* Gather::sKeyIsAngleGather()		{ return "Angle Gather"; }
 const char* Gather::sKeyIsCorr()		{ return "Is Corrected"; }
@@ -59,7 +56,7 @@ Gather::~Gather()
 }
 
 
-mImplMonitorableAssignment( PreStack::Gather, FlatDataPack )
+mImplMonitorableAssignment( Gather, FlatDataPack )
 
 
 void Gather::copyClassData( const Gather& oth )
@@ -425,7 +422,7 @@ GatherSetDataPack::~GatherSetDataPack()
 }
 
 
-mImplMonitorableAssignment( PreStack::GatherSetDataPack, DataPack )
+mImplMonitorableAssignment( GatherSetDataPack, DataPack )
 
 
 void GatherSetDataPack::copyClassData( const GatherSetDataPack& oth )
@@ -459,6 +456,24 @@ const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
     }
 
     return 0;
+}
+
+
+void GatherSetDataPack::addGather( Gather* gather )
+{
+    DPM(DataPackMgr::FlatID()).add( gather );
+    gather->ref();
+    gathers_ += gather;
+}
+
+
+float GatherSetDataPack::gtNrKBytes() const
+{
+    float totalnrkbytes = 0.0f;
+    for ( int idx=0; idx<gathers_.size(); idx++ )
+	totalnrkbytes += gathers_[idx]->nrKBytes();
+
+    return totalnrkbytes;
 }
 
 
@@ -527,6 +542,31 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, Interval<float> stackrg ) const
 }
 
 
+void GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf,const BinID& bid)
+{
+    const Gather* gather = 0; int gatheridx = -1;
+    for ( int idx=0; idx<gathers_.size(); idx++ )
+	if ( gathers_[idx]->getBinID() == bid )
+	    { gather = gathers_[idx]; gatheridx = idx; break; }
+    if ( !gather ) return;
+    
+    for ( int offsetidx=0; offsetidx<gather->nrOffsets(); offsetidx++ )
+	seisbuf.add( getTrace(gatheridx,offsetidx) );
+}
+
+
+const SeisTrc* GatherSetDataPack::getTrace(
+		const BinID& bid, int offsetidx ) const
+{
+    int gatheridx = -1;
+    for ( int idx=0; idx<gathers_.size(); idx++ )
+	if ( gathers_[idx]->getBinID() == bid )
+	    { gatheridx = idx; break; }
+
+    return gtTrace( gatheridx, offsetidx );
+}
+
+
 const SeisTrc* GatherSetDataPack::getTrace(int gatheridx,int offsetidx) const
 {
     return gtTrace( gatheridx, offsetidx );
@@ -544,5 +584,3 @@ SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
     SeisTrcBuf tbuf(false); fill( tbuf, offsetidx );
     return tbuf.size() > gatheridx ? tbuf.get( gatheridx ) : 0;
 }
-
-} // namespace PreStack

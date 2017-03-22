@@ -8,10 +8,9 @@ ________________________________________________________________________
  Date:		April 2005
 ________________________________________________________________________
 
-
 -*/
 
-#include "prestackprocessingmod.h"
+#include "seismod.h"
 #include "arrayndimpl.h"
 #include "datapackbase.h"
 #include "dbkey.h"
@@ -24,12 +23,9 @@ class SeisPSReader;
 class SeisTrc;
 class SeisTrcBuf;
 
-namespace PreStack
-{
-
 /*!\brief PreStack gather. */
 
-mExpClass(PreStackProcessing) Gather : public FlatDataPack
+mExpClass(Seis) Gather : public FlatDataPack
 { mODTextTranslationClass(Gather)
 public:
 				Gather();
@@ -71,6 +67,8 @@ public:
 				{ zrg_ = zrg; }
 
     bool			isLoaded() const	{ return arr2d_; }
+    int				nrOffsets() const
+				{ return data().info().getSize( 0 ); }
 
     const char*			dimName(bool dim0) const;
     void			getAuxInfo(int,int,IOPar&) const;
@@ -153,22 +151,27 @@ public:
 
 /*!\brief A DataPack containing an objectset of gathers. */
 
-mExpClass(PreStackProcessing) GatherSetDataPack : public DataPack
+mExpClass(Seis) GatherSetDataPack : public DataPack
 {
 public:
 				GatherSetDataPack(const char* ctgery,
 						  const ObjectSet<Gather>&);
+				GatherSetDataPack( const char* cat )
+				    : DataPack(cat)	{}
 				mDeclMonitorableAssignment(GatherSetDataPack);
 
     void			fill(Array2D<float>&,int offsetidx) const;
     void			fill(SeisTrcBuf&,int offsetidx) const;
     void			fill(SeisTrcBuf&,Interval<float> stackrg) const;
+    void			fillGatherBuf(SeisTrcBuf&,const BinID&);
     SeisTrc*			getTrace(int gatheridx,int offsetidx);
     const SeisTrc*		getTrace(int gatheridx,int offsetidx) const;
+    const SeisTrc*		getTrace(const BinID&,int offsetidx) const;
 
     const Gather*		getGather(const BinID&) const;
     const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
     ObjectSet<Gather>&		getGathers()		{ return gathers_; }
+    void			addGather(Gather*);
     void			setGathers( RefObjectSet<Gather>& gathers )
 				{ gathers_ = gathers;}
 
@@ -180,8 +183,6 @@ protected:
 
     RefObjectSet<Gather>	gathers_;
 
-    virtual float		gtNrKBytes() const	{ return 0; }
+    virtual float		gtNrKBytes() const;
 
 };
-
-} // namespace PreStack
