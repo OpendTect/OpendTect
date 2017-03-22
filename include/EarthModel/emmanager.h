@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "dbkey.h"
 #include "emposid.h"
+#include "emundo.h"
 
 class Undo;
 class IOObj;
@@ -86,9 +87,19 @@ public:
 
 protected:
 
-    Undo&			undo_;
-
     ObjectSet<EMObject>		objects_;
+
+    mStruct(EarthModel) EMObjUndo	
+    {
+	EMObjUndo( const EM::ObjectID& id )
+	: undo_( *new EMUndo() ), id_ ( id ) {}
+	
+	~EMObjUndo() { delete &undo_; }
+	Undo&	     undo_;		
+	EM::ObjectID id_;
+    };
+
+    ObjectSet<EMObjUndo>	undolist_;
 
     void		levelSetChgCB(CallBacker*);
     static const char*	displayparameterstr();
@@ -97,6 +108,7 @@ protected:
 						    IOPar&)const;
     bool		readParsFromGeometryInfoFile(const DBKey&,
 						     IOPar&)const;
+    int			undoIndexOf(const EM::ObjectID& id);
 
 public:
 
@@ -120,8 +132,8 @@ public:
     void		addObject(EMObject*);
     void		removeObject(const EMObject*);
 
-    Undo&		undo();
-    const Undo&		undo() const;
+    void		eraseUndoList();
+    Undo&		undo(const EM::ObjectID&);
 
 };
 

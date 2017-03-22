@@ -14,7 +14,6 @@
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
-#include "emundo.h"
 #include "executor.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -51,8 +50,7 @@ const char* EMManager::displayparameterstr() { return "Display Parameters"; }
 mImplFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager::EMManager()
-    : undo_( *new EMUndo() )
-    , addRemove( this )
+    : addRemove( this )
 {
     mAttachCB( Strat::eLVLS().objectChanged(), EMManager::levelSetChgCB );
 }
@@ -62,7 +60,6 @@ EMManager::~EMManager()
 {
     detachAllNotifiers();
     setEmpty();
-    delete &undo_;
 }
 
 
@@ -85,13 +82,14 @@ void EMManager::setEmpty()
 	{ pErrMsg( "Not all objects are unreffed" ); }
 
     addRemove.trigger();
-
-    undo_.removeAll();
+    eraseUndoList();
 }
 
 
-const Undo& EMManager::undo() const	{ return undo_; }
-Undo& EMManager::undo()			{ return undo_; }
+void EMManager::eraseUndoList()
+{
+    deepErase( undolist_ );
+}
 
 
 BufferString EMManager::objectName( const DBKey& mid ) const
@@ -211,6 +209,10 @@ void EMManager::addObject( EMObject* obj )
 
 void EMManager::removeObject( const EMObject* obj )
 {
+    const int idy = undoIndexOf( obj->id() );
+    if ( idy>=0 )
+	delete undolist_.removeSingle( idy );
+
     const int idx = objects_.indexOf(obj);
     if ( idx<0 ) return;
     objects_.removeSingle( idx );
@@ -469,5 +471,31 @@ void EMManager::levelSetChgCB( CallBacker* cb )
 	    hor->setStratLevelID( Strat::Level::ID::getInvalid() );
     }
 }
+
+
+Undo& EMManager::undo( const EM::ObjectID& id )
+{
+    const int idx = undoIndexOf( id );
+    if ( undolist_.validIdx(idx) )
+	return undolist_[idx]->undo_;
+
+    EMObjUndo* newemobjundo = new EMObjUndo( id );
+    undolist_ += newemobjundo;
+    
+    return newemobjundo->undo_;
+}
+
+
+int EMManager::undoIndexOf( const EM::ObjectID& id )
+{
+    for ( int idx=0; idx<undolist_.size(); idx++ )
+    {
+	if ( undolist_[idx]->id_ == id )
+	    return idx;
+    }
+
+    return -1;
+}
+
 
 } // namespace EM
