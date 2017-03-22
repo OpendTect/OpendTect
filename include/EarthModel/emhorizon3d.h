@@ -157,7 +157,7 @@ public:
 					const TrcKeySampling& hs);
 
 
-    Pos::GeomID			getSurveyGeomID() const { return survgeomid_; }
+    Pos::GeomID			getSurveyGeomID() const { return survid_; }
 				//!A 3D Horizon is locked to one survey
 				//!Geometry
     void			setSurveyGeomID(Pos::GeomID);
@@ -227,7 +227,7 @@ protected:
     Color			parentcolor_;
     Color			lockcolor_;
 
-    Pos::GeomID			survgeomid_;
+    Pos::SurvID			survid_;
     Array2D<char>*		nodesource_;
 				/*!< '0'- non interpreted, '1'- manual
 				interpreted,'2' - auto interpreted.
