@@ -23,7 +23,6 @@ set(OD_MODULE_SOURCES
 	prestackeventsapi.cc
 	prestackeventtracker.cc
 	prestackeventtransl.cc
-	prestackgather.cc
 	prestacklateralstack.cc
 	prestackmute.cc
 	prestackmuteasciio.cc

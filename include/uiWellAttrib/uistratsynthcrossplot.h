@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "uistring.h"
 
+class GatherSetDataPack;
 class SeisTrcInfo;
 class SeisTrcBuf;
 class TimeDepthModel;
@@ -26,7 +27,6 @@ class uiAttribDescSetBuild;
 class uiStratLaySeqAttribSetBuild;
 namespace Strat { class Level; class LayerModel; class LaySeqAttribSet; }
 namespace Attrib { class DescSet; class EngineMan; }
-namespace PreStack { class GatherSetDataPack; }
 
 
 /*!\brief Dialog specifying what to crossplot */

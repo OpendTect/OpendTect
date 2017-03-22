@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "seisps3dprovider.h"
 #include "seisfetcher.h"
+#include "seispreload.h"
 #include "seistrctr.h"
 #include "uistrings.h"
 #include "seispacketinfo.h"
@@ -17,6 +18,7 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "seispsioprov.h"
 #include "posinfo.h"
+#include "prestackgather.h"
 #include "keystrs.h"
 
 
@@ -53,6 +55,7 @@ const PS3DProvider& prov() const
 }
 
     void		reset();
+    void		findDataPack();
     TrcKeyZSampling	getDefaultCS() const;
 
     void		openStore();
@@ -67,9 +70,10 @@ const PS3DProvider& prov() const
     void		getNext(SeisTrcBuf&);
     void		getNextSingle(SeisTrc&);
 
-    SeisPS3DReader*	rdr_;
+    SeisPS3DReader*		rdr_;
+    RefMan<GatherSetDataPack>	dp_;
     PosInfo::CubeDataIterator*	cditer_;
-    bool		atend_;
+    bool			atend_;
 
 };
 
@@ -82,8 +86,22 @@ void Seis::PS3DFetcher::reset()
     delete cditer_; cditer_ = 0;
     delete rdr_; rdr_ = 0;
     atend_ = false;
+    dp_ = 0;
 
+    findDataPack();
     openStore();
+}
+
+
+void Seis::PS3DFetcher::findDataPack()
+{
+    RefMan<DataPack> dp = Seis::PLDM().get( prov().dbky_ );
+    if ( !dp ) return;
+
+    mDynamicCastGet(GatherSetDataPack*,gatherdp,dp.ptr());
+    if ( !gatherdp ) return;
+
+    dp_ = gatherdp;
 }
 
 
@@ -158,6 +176,10 @@ void Seis::PS3DFetcher::getAt( const BinID& bid, SeisTrcBuf& tbuf )
     if ( !prepGetAt(bid) )
 	return;
 
+    if ( dp_ )
+	{ dp_->fillGatherBuf( tbuf, bid ); return; }
+
+    uirv_.setEmpty();
     if ( !rdr_->getGather(nextbid_,tbuf) )
 	uirv_.set( rdr_->errMsg() );
     else
@@ -170,8 +192,16 @@ void Seis::PS3DFetcher::getSingleAt( const BinID& bid, SeisTrc& trc )
     if ( !prepGetAt(bid) )
 	return;
 
-    SeisTrc* rdtrc = rdr_->getTrace( nextbid_,
-			 prov().selcomps_.isEmpty() ? 0 : prov().selcomps_[0] );
+    const int offsetidx = !prov().selcomps_.isEmpty() ? prov().selcomps_[0]
+						      : 0;
+    if ( dp_ )
+    {
+	const SeisTrc* seistrc = dp_->getTrace( bid, offsetidx );
+	if ( seistrc )
+	    { trc = *seistrc; return; }
+    }
+
+    SeisTrc* rdtrc = rdr_->getTrace( nextbid_, offsetidx );
     if ( !rdtrc )
 	uirv_.set( rdr_->errMsg() );
     else

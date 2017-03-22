@@ -21,10 +21,10 @@ ________________________________________________________________________
 #include "sets.h"
 #include "trckeysampling.h"
 
+class Gather;
+
 namespace PreStack
 {
-
-class Gather;
 
 /*!
 \brief Processes PreStack data at one cdp location. The algorithm is

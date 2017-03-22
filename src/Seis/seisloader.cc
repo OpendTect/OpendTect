@@ -17,7 +17,9 @@
 #include "od_ostream.h"
 #include "odsysmem.h"
 #include "posinfo.h"
+#include "prestackgather.h"
 #include "samplingdata.h"
+#include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
 #include "seisdatapack.h"
@@ -145,12 +147,6 @@ void Loader::setScaler( const Scaler* newsc )
 {
     delete scaler_;
     scaler_ = newsc ? newsc->clone() : 0;
-}
-
-
-RegularSeisDataPack* Loader::getDataPack()
-{
-    return dp_;
 }
 
 
@@ -837,7 +833,7 @@ bool SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 
 int SequentialFSLoader::nextStep()
 {
-    if ( !initialized_ && !init() )
+    if ( !init() )
 	return ErrorOccurred();
 
     if ( Threads::WorkManager::twm().queueSize(queueid_) >
@@ -863,6 +859,106 @@ int SequentialFSLoader::nextStep()
 			 tkzs_.hsamp_.is2D() );
     Threads::WorkManager::twm().addWork(
 	Threads::Work(*task,true), 0, queueid_, false, false, true );
+
+    nrdone_++;
+    return MoreToDo();
+}
+
+
+SequentialPSLoader::SequentialPSLoader( const IOObj& ioobj,
+					const Interval<int>* linerg,
+					Pos::GeomID geomid )
+    : Executor("Volume Reader")
+    , ioobj_(ioobj.clone())
+    , geomid_(geomid)
+    , sd_(0)
+    , prov_(0)
+    , nrdone_(0)
+{
+    uiRetVal uirv;
+    prov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    if ( !prov_ )
+	msg_ = uirv;
+
+    TrcKeyZSampling tkzs;
+    SeisIOObjInfo info( ioobj );
+    if ( info.is2D() )
+    {
+	StepInterval<int> trcrg; ZSampling zsamp;
+	if ( !info.getRanges(geomid,trcrg,zsamp) )
+	    return;
+
+	tkzs.set2DDef();
+	tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+	tkzs.hsamp_.setTrcRange( trcrg );
+	tkzs.zsamp_ = zsamp;
+
+	prov_->setSelData( new Seis::RangeSelData(tkzs) );
+    }
+    else
+    {
+	if ( !info.getRanges(tkzs) )
+	    return;
+
+	Seis::RangeSelData* seldata = new Seis::RangeSelData( tkzs );
+	if ( linerg )
+	    seldata->setInlRange( *linerg );
+
+	prov_->setSelData( seldata );
+    }
+
+    init();
+}
+
+
+SequentialPSLoader::~SequentialPSLoader()
+{
+    delete ioobj_;
+    delete prov_;
+}
+
+
+od_int64 SequentialPSLoader::totalNr() const
+{
+    return prov_ ? prov_->totalNr() : 0;
+}
+
+
+uiString SequentialPSLoader::nrDoneText() const
+{
+    return uiStrings::phrJoinStrings( uiStrings::sTrace(mPlural),
+				      tr("read") );
+}
+
+
+bool SequentialPSLoader::init()
+{
+    gatherdp_ = new GatherSetDataPack( ioobj_->name() );
+    const StringPair strpair( prov_->name(), Survey::GM().getName(geomid_));
+    gatherdp_->setName( strpair.getCompString() );
+    return true;
+}
+
+
+int SequentialPSLoader::nextStep()
+{
+    if ( !prov_ || !gatherdp_ )
+	return ErrorOccurred();
+
+    SeisTrcBuf trcbuf( true );
+    const uiRetVal uirv = prov_->getNextGather( trcbuf );
+    if ( !uirv.isOK() )
+    {
+	if ( isFinished(uirv) )
+	    return Finished();
+
+	msg_ = uirv;
+	return ErrorOccurred();
+    }
+
+    Gather* gather = new Gather();
+    gather->setFromTrcBuf( trcbuf, 0 );
+    gatherdp_->addGather( gather );
 
     nrdone_++;
     return MoreToDo();

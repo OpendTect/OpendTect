@@ -18,12 +18,11 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "prestackgather.h"
 
+class Gather;
 class SeisPSReader;
 class IOObj;
 
-namespace PreStack { class ProcessManager; class Gather;
-		     class AngleComputer; }
-
+namespace PreStack { class ProcessManager; class AngleComputer; }
 
 namespace Attrib
 {
@@ -107,10 +106,10 @@ protected:
     void		setSmootheningPar();
     float		getXscaler(bool isoffset, bool isindegrees) const;
 
-    RefMan<PreStack::Gather>	getPreProcessed(const BinID& relbid);
+    RefMan<Gather>	getPreProcessed(const BinID& relbid);
     bool			getGatherData(const BinID& bid,
-                                      RefMan<PreStack::Gather>& gather,
-				      RefMan<PreStack::Gather>& anggleg);
+				      RefMan<Gather>& gather,
+				      RefMan<Gather>& anggleg);
 
     DBKey			psid_;
     IOObj*			psioobj_;
@@ -127,7 +126,7 @@ protected:
     const DataHolder*		inputdata_;
     DBKey			velocityid_;
 
-    RefObjectSet<PreStack::Gather>    gatherset_;
+    RefObjectSet<Gather>    gatherset_;
 };
 
 }; // namespace Attrib

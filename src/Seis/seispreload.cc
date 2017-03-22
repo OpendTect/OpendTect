@@ -12,6 +12,7 @@
 #include "dbman.h"
 #include "keystrs.h"
 #include "perthreadrepos.h"
+#include "prestackgather.h"
 #include "seiscbvs.h"
 #include "seiscbvsps.h"
 #include "seiscbvs2d.h"
@@ -181,13 +182,12 @@ bool PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 {
     mPrepIOObj();
 
-    SeisCBVSPSIO psio( ioobj->fullUserExpr(true) );
-    BufferStringSet fnms;
-    if ( !psio.get3DFileNames(fnms,inlrg) )
-	{ errmsg_ = psio.errMsg(); return false; }
+    Seis::SequentialPSLoader psrdr( *ioobj, inlrg );
+    if ( !trunnr.execute(psrdr) )
+	return false;
 
-    return fnms.isEmpty() ? true
-	 : StreamProvider::preLoad( fnms, trunnr, dbkey_.toString() );
+    PLDM().add( ioobj->key(), psrdr.getPSDataPack() );
+    return true;
 }
 
 
@@ -211,13 +211,17 @@ bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 
     mPrepIOObj();
 
-    BufferStringSet fnms;
-    SeisCBVSPSIO psio( ioobj->fullUserExpr(true) );
     for ( int idx=0; idx<lnms.size(); idx++ )
-	fnms.add( psio.get2DFileName(lnms.get(idx)) );
+    {
+	const Pos::GeomID geomid = Survey::GM().getGeomID( lnms.get(idx) );
+	Seis::SequentialPSLoader psrdr( *ioobj, 0, geomid );
+	if ( !trunnr.execute(psrdr) )
+	    return false;
 
-    return fnms.isEmpty() ? true
-	: StreamProvider::preLoad( fnms, trunnr, dbkey_.toString() );
+	PLDM().add( ioobj->key(), geomid, psrdr.getPSDataPack() );
+    }
+
+    return true;
 }
 
 

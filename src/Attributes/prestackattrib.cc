@@ -360,15 +360,14 @@ bool PSAttrib::getAngleInputData()
 {
     if ( propcalc_->hasAngleData() )
 	return true;
-    const PreStack::Gather* gather = propcalc_->getGather();
+    const Gather* gather = propcalc_->getGather();
     if ( !gather || !anglecomp_ )
 	return false;
 
     const FlatPosData& fp = gather->posData();
     anglecomp_->setOutputSampling( fp );
     anglecomp_->setTrcKey( TrcKey(gather->getBinID()) );
-    PreStack::Gather* angledata = anglecomp_->computeAngles();
-
+    RefMan<Gather> angledata = anglecomp_->computeAngles();
     if ( !angledata )
 	return false;
 
@@ -380,22 +379,22 @@ bool PSAttrib::getAngleInputData()
 
 
 bool PSAttrib::getGatherData( const BinID& bid,
-                              RefMan<PreStack::Gather>& resgather,
-			      RefMan<PreStack::Gather>& resanglegather )
+			      RefMan<Gather>& resgather,
+			      RefMan<Gather>& resanglegather )
 {
     if ( gatherset_.size() )
     {
-	const PreStack::GatherSetDataPack* anglegsdp = 0;
+	const GatherSetDataPack* anglegsdp = 0;
 	if ( anglegsdpid_.isValid() )
 	{
 	    ConstRefMan<DataPack> angledp =
 		DPM( DataPackMgr::SeisID() ).get( anglegsdpid_ );
-	    mDynamicCast( const PreStack::GatherSetDataPack*,anglegsdp,
+	    mDynamicCast( const GatherSetDataPack*,anglegsdp,
 			  angledp.ptr() );
 	}
 
-	ConstRefMan<PreStack::Gather> curgather = 0;
-	ConstRefMan<PreStack::Gather> curanglegather = 0;
+	ConstRefMan<Gather> curgather = 0;
+	ConstRefMan<Gather> curanglegather = 0;
 	for ( int idx=0; idx<gatherset_.size(); idx++ )
 	{
 	    const bool hasanglegather =
@@ -414,8 +413,8 @@ bool PSAttrib::getGatherData( const BinID& bid,
 
 	if ( !curgather ) return false;
 
-	mDeclareAndTryAlloc( RefMan<PreStack::Gather>, gather,
-                             PreStack::Gather(*curgather ) );
+	mDeclareAndTryAlloc( RefMan<Gather>, gather,
+			     Gather(*curgather ) );
 
 	if ( !gather )
 	    return false;
@@ -425,15 +424,15 @@ bool PSAttrib::getGatherData( const BinID& bid,
 
 	if ( curanglegather )
 	{
-	    mDeclareAndTryAlloc( RefMan<PreStack::Gather>, anglegather,
-				 PreStack::Gather(*curanglegather ) );
+	    mDeclareAndTryAlloc( RefMan<Gather>, anglegather,
+				 Gather(*curanglegather ) );
 	    DPM(DataPackMgr::FlatID()).add( anglegather );
 	    resanglegather = anglegather;
 	}
     }
     else
     {
-	mDeclareAndTryAlloc( PreStack::Gather*, gather, PreStack::Gather );
+	mDeclareAndTryAlloc( Gather*, gather, Gather );
 	if ( !gather )
 	    return false;
 
@@ -450,14 +449,14 @@ bool PSAttrib::getGatherData( const BinID& bid,
 }
 
 
-RefMan<PreStack::Gather> PSAttrib::getPreProcessed( const BinID& relpos )
+RefMan<Gather> PSAttrib::getPreProcessed( const BinID& relpos )
 {
     if ( !preprocessor_->reset() || !preprocessor_->prepareWork() )
 	return 0;
 
     const BinID stepout = preprocessor_->getInputStepout();
     BinID relbid;
-    RefObjectSet<PreStack::Gather> tempgathers;
+    RefObjectSet<Gather> tempgathers;
     const BinID sistep( SI().inlRange(true).step, SI().crlRange(true).step );
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 	  relbid.inl()++ )
@@ -469,10 +468,10 @@ RefMan<PreStack::Gather> PSAttrib::getPreProcessed( const BinID& relpos )
 		continue;
 
 	    const BinID bid = currentbid_+relpos+relbid*sistep;
-	    RefMan<PreStack::Gather> gather = 0;
+	    RefMan<Gather> gather = 0;
 	    if ( gatherset_.isEmpty() )
 	    {
-		gather = new PreStack::Gather;
+		gather = new Gather;
 		TrcKey tk( bid );
 		if (!gather->readFrom(*psioobj_,*psrdr_,tk,component_) )
 		    continue;
@@ -517,8 +516,8 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	return false;
 
     const BinID bid = currentbid_+relpos;
-    RefMan<PreStack::Gather> curgather = 0;
-    RefMan<PreStack::Gather> curanglegather = 0;
+    RefMan<Gather> curgather = 0;
+    RefMan<Gather> curanglegather = 0;
     if ( !getGatherData(bid,curgather,curanglegather) )
 	return false;
 
@@ -548,8 +547,8 @@ void PSAttrib::prepPriorToBoundsCalc()
     {
 	const DataPack::FullID fid = DataPack::FullID::getFromString(
 							    fullidstr.str()+1 );
-        RefMan<PreStack::GatherSetDataPack> psgdtp =
-            DPM( fid ).getAndCast<PreStack::GatherSetDataPack>( fid.packID() );
+	RefMan<GatherSetDataPack> psgdtp =
+	    DPM( fid ).getAndCast<GatherSetDataPack>( fid.packID() );
 
 	isondisc =  !psgdtp;
 	if ( isondisc )

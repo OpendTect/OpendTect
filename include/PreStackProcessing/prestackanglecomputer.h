@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 class FFTFilter;
+class Gather;
 class RayTracer1D;
 class VelocityDesc;
 
@@ -30,10 +31,8 @@ namespace Vel { class FunctionSource; }
 namespace PreStack
 {
 
-class Gather;
-
 /*!
-\brief Computes angles for PreStack::Gather.
+\brief Computes angles for Gather.
 */
 
 mExpClass(PreStackProcessing) AngleComputer :  public RefCount::Referenced
@@ -94,7 +93,7 @@ protected:
 
 
 /*!
-\brief Computes angles for PreStack::Gather from velocity model.
+\brief Computes angles for Gather from velocity model.
 */
 
 mExpClass(PreStackProcessing) VelocityBasedAngleComputer : public AngleComputer
@@ -119,7 +118,7 @@ protected:
 
 
 /*!
-\brief Computes angles for PreStack::Gather from ElasticModel.
+\brief Computes angles for Gather from ElasticModel.
 */
 
 mExpClass(PreStackProcessing) ModelBasedAngleComputer : public AngleComputer

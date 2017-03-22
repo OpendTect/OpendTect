@@ -13,17 +13,18 @@ ________________________________________________________________________
 #include "prestackprocessingmod.h"
 #include "syntheticdata.h"
 
-class SeisTrcBuf;
-namespace PreStack
-{
 class GatherSetDataPack;
 class Gather;
+class SeisTrcBuf;
+
+namespace PreStack
+{
 
 mExpClass(PreStackProcessing) PreStackSyntheticData : public SyntheticData
 {
 public:
 				PreStackSyntheticData(const SynthGenParams&,
-						PreStack::GatherSetDataPack&);
+						GatherSetDataPack&);
 				~PreStackSyntheticData();
 
     bool				isPS() const	  { return true; }
@@ -35,21 +36,21 @@ public:
 					{ return SynthGenParams::PreStack; }
 
     void				setAngleData(
-					    const ObjectSet<PreStack::Gather>&);
+					    const ObjectSet<Gather>&);
     const SeisTrc*			getTrace(int seqnr) const
 					{ return getTrace(seqnr,0); }
     const SeisTrc*			getTrace(int seqnr,int* offset) const;
     SeisTrcBuf*				getTrcBuf(float startoffset,
 					    const Interval<float>* of=0) const;
 
-    PreStack::GatherSetDataPack&	preStackPack();
-    const PreStack::GatherSetDataPack&	preStackPack() const;
-    const PreStack::GatherSetDataPack&	angleData() const { return *angledp_; }
+    GatherSetDataPack&	preStackPack();
+    const GatherSetDataPack&	preStackPack() const;
+    const GatherSetDataPack&	angleData() const { return *angledp_; }
 
 protected:
 
-    RefMan<PreStack::GatherSetDataPack> angledp_;
+    RefMan<GatherSetDataPack> angledp_;
     void				convertAngleDataToDegrees(
-						PreStack::Gather*) const;
+						Gather*) const;
 };
 } // namespace PreStack

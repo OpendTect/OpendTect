@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace FlatView { class Viewer; };
 template <class T> class SamplingData;
 
-namespace PreStack { class Gather; }
+class Gather;
 
 //!Gather display
 
@@ -41,13 +41,13 @@ public:
     				{ return inputwvagather_ || inputvdgather_; }
 
 protected:
-    void			getGatherRange(const PreStack::Gather*,
+    void			getGatherRange(const Gather*,
 					       SamplingData<float>&,
 					       int& nrsamp) const;
 
     FlatView::Viewer&			viewer_;
-    ConstRefMan<PreStack::Gather>	inputwvagather_;
-    ConstRefMan<PreStack::Gather>	inputvdgather_;
+    ConstRefMan<Gather> inputwvagather_;
+    ConstRefMan<Gather> inputvdgather_;
 };
 
 

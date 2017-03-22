@@ -15,11 +15,10 @@ ________________________________________________________________________
 #include "factory.h"
 #include "objectset.h"
 
+class Gather;
 
 namespace PreStack
 {
-
-class Gather;
 
 /*!
 \brief Base class for algorithms that compute semblance along a moveout.

@@ -20,7 +20,8 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "stratsynthlevelset.h"
 
-namespace PreStack {  class PreStackSyntheticData; class GatherSetDataPack; }
+namespace PreStack {  class PreStackSyntheticData; }
+class GatherSetDataPack;
 class RaySynthGenerator;
 class SeisTrcBuf;
 class TaskRunner;
@@ -161,7 +162,7 @@ protected:
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&,bool);
 
-    const PreStack::GatherSetDataPack*	getRelevantAngleData(
+    const GatherSetDataPack*	getRelevantAngleData(
 						const IOPar& raypar) const;
 
 public:

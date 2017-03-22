@@ -105,7 +105,7 @@ bool StratSynth::canRayModelsBeRemoved( const IOPar& sdraypar ) const
 }
 
 
-const PreStack::GatherSetDataPack* StratSynth::getRelevantAngleData(
+const GatherSetDataPack* StratSynth::getRelevantAngleData(
 					const IOPar& sdraypar ) const
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
@@ -370,7 +370,7 @@ RefMan<SyntheticData> StratSynth::createSynthData( const SyntheticData& sd,
 	return 0;
 
     mDynamicCastGet(const PreStack::PreStackSyntheticData&,presd,sd);
-    const PreStack::GatherSetDataPack& gdp = presd.preStackPack();
+    const GatherSetDataPack& gdp = presd.preStackPack();
     DataPack::FullID dpfid( DataPackMgr::SeisID(), gdp.id() );
     const BufferString dpidstring( "#", dpfid.toString() );
     Attrib::Desc* psdesc =
@@ -409,7 +409,7 @@ RefMan<SyntheticData> StratSynth::createSynthData( const SyntheticData& sd,
     aem->setAttribSpecs( attribspecs );
     aem->setTrcKeyZSampling( cs );
     BinIDValueSet bidvals( 0, false );
-    const ObjectSet<PreStack::Gather>& gathers = gdp.getGathers();
+    const ObjectSet<Gather>& gathers = gdp.getGathers();
     for ( int idx=0; idx<gathers.size(); idx++ )
 	bidvals.add( gathers[idx]->getBinID() );
     SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true );
@@ -640,11 +640,11 @@ uiString nrDoneText() const
     return tr( "Models done" );
 }
 
-ObjectSet<PreStack::Gather>& angleGathers()	{ return anglegathers_; }
+ObjectSet<Gather>& angleGathers()	{ return anglegathers_; }
 
 protected:
 
-void convertAngleDataToDegrees( PreStack::Gather* ag ) const
+void convertAngleDataToDegrees( Gather* ag ) const
 {
     Array2D<float>& agdata = ag->data();
     const int dim0sz = agdata.info().getSize(0);
@@ -666,12 +666,12 @@ int nextStep()
 {
     if ( !gathers_.validIdx(nrdone_) )
 	return Finished();
-    const PreStack::Gather* gather = gathers_[(int)nrdone_];
+    const Gather* gather = gathers_[(int)nrdone_];
     anglecomputer_->setOutputSampling( gather->posData() );
     const TrcKey trckey( gather->getBinID() );
     anglecomputer_->setRayTracer( rts_[(int)nrdone_], trckey );
     anglecomputer_->setTrcKey( trckey );
-    RefMan<PreStack::Gather> anglegather = anglecomputer_->computeAngles();
+    RefMan<Gather> anglegather = anglecomputer_->computeAngles();
     convertAngleDataToDegrees( anglegather );
     TypeSet<float> azimuths;
     gather->getAzimuths( azimuths );
@@ -686,9 +686,9 @@ int nextStep()
 }
 
     const ObjectSet<RayTracer1D>&		rts_;
-    const RefObjectSet<PreStack::Gather>	gathers_;
+    const RefObjectSet<Gather>	gathers_;
     const PreStack::PreStackSyntheticData&		pssd_;
-    RefObjectSet<PreStack::Gather>		anglegathers_;
+    RefObjectSet<Gather>		anglegathers_;
     PreStack::ModelBasedAngleComputer*		anglecomputer_;
     od_int64					nrdone_;
 
@@ -778,7 +778,7 @@ RefMan<SyntheticData> StratSynth::generateSD(const SynthGenParams& synthgenpar )
 	    mDynamicCastGet(PreStack::PreStackSyntheticData*,presd,sd.ptr());
 	    if ( hasrms )
 	    {
-		const PreStack::GatherSetDataPack* anglegather =
+		const GatherSetDataPack* anglegather =
 		    getRelevantAngleData( synthgenpar.raypars_ );
 		if ( anglegather )
 		    presd->setAngleData( anglegather->getGathers() );

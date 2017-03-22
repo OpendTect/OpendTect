@@ -161,6 +161,7 @@ void Seis::LineFetcher::getNext( SeisTrc& trc )
 			     !getNextGetter()) )
 	{ uirv_.set( uiStrings::sFinished() ); return; }
 
+    uirv_.setEmpty();
     if ( dp_ && dp_->sampling().hsamp_.includes(nexttrcky_.binID()) )
 	{ dp_->fillTrace( nexttrcky_, trc ); return; }
 

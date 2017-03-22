@@ -21,7 +21,7 @@
     if ( !mIsEqual(angles->data().get(ofsidx,zidx),val,1e-6f) ) return false
 
 
-bool isRawAngleOK(PreStack::Gather* angles)
+bool isRawAngleOK(Gather* angles)
 {
     mCheckVal( 0, 0, 0.f );
     mCheckVal( 5, 0, 1.5707964f );
@@ -40,7 +40,7 @@ bool isRawAngleOK(PreStack::Gather* angles)
 }
 
 
-bool isMovingAverageAngleOK(PreStack::Gather* angles)
+bool isMovingAverageAngleOK(Gather* angles)
 {
     mCheckVal( 0, 0, 0.f );
     mCheckVal( 5, 0, 1.5605127f );
@@ -59,7 +59,7 @@ bool isMovingAverageAngleOK(PreStack::Gather* angles)
 }
 
 
-bool isFFTAngleOK(PreStack::Gather* angles)
+bool isFFTAngleOK(Gather* angles)
 {
     mCheckVal( 0, 0, 0.f );
     mCheckVal( 5, 0, 1.5611646f );
@@ -81,7 +81,7 @@ bool isFFTAngleOK(PreStack::Gather* angles)
 #define mCompVal(ofsidx,zidx,val) \
     if ( !mIsEqual(angles->data().get(ofsidx,zidx),val,1e-1f) ) return false
 
-bool compareAngles(PreStack::Gather* angles,int zidx)
+bool compareAngles(Gather* angles,int zidx)
 {
     const int lastidx = angles->data().info().getSize( 1 ) - 1;
     const int mididx = lastidx / 2;
@@ -150,7 +150,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    RefMan<PreStack::Gather> angles = computer->computeAngles();
+    RefMan<Gather> angles = computer->computeAngles();
     if ( !angles )
     {
 	od_cout() << "Computer did not succeed in making angle data\n";
@@ -237,7 +237,7 @@ bool testAnglesForDifferentSurveys()
 	    return false;
 	}
 
-	RefMan<PreStack::Gather> angles = computer->computeAngles();
+	RefMan<Gather> angles = computer->computeAngles();
 	if ( !angles )
 	{
 	    od_cout() << survnames[idx];

@@ -85,6 +85,21 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 	else
 	    mAddBut(tr("Add DataSet"),linesLoadPush,"seismicline2d")
     }
+    if ( has3d )
+    {
+	if ( has2d )
+	    mAddBut(tr("Add 3D Prestack data"),ps3DPush,"prestackdataset")
+	else
+	    mAddBut(tr("Add Prestack data"),ps3DPush,"prestackdataset")
+    }
+    if ( has2d )
+    {
+	if ( has3d )
+	    mAddBut(tr("Add 2D Prestack lines"),ps2DPush,
+		    "prestackdataset2d")
+	else
+	    mAddBut(tr("Add Prestack data"),ps2DPush,"prestackdataset2d")
+    }
     mAddBut(tr("Unload Checked"),unloadPush,"unload");
 
     uiToolButton* savetb = new uiToolButton( topgrp, "save",
@@ -574,10 +589,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 	TypeSet<Pos::GeomID> geomids;
 	selectedGeomIDs( geomids );
 	if ( geomids.isEmpty() )
-	{
-	    uiMSG().error( tr("Please select at least 1 2D line") );
 	    return;
-	}
 
 	Pos::GeomID geomid0 = geomids.first();
 	tkzs.hsamp_.setLineRange( StepInterval<int>(geomid0,geomid0,1) );

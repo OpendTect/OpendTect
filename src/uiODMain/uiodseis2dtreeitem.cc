@@ -737,7 +737,7 @@ void uiOD2DLineAttribTreeItem::initClass()
 void uiOD2DLineAttribTreeItem::updateDisplay()
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    applMgr()->visServer()->getObject( displayID() ));
+		    visserv_->getObject( displayID() ));
     if ( !s2d )
 	return;
 

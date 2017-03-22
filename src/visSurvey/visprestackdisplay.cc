@@ -208,7 +208,7 @@ DataPack::ID PreStackDisplay::preProcess()
 		? relbid
 		: relbid * BinID( s3dgeom_->inlStep(), s3dgeom_->crlStep() );
 	    trckey_.setPosition( trckey_.position() + relpos );
-	    RefMan<PreStack::Gather> gather = new PreStack::Gather;
+	    RefMan<Gather> gather = new Gather;
 	    if ( !gather->readFrom(*ioobj_,*reader_,trckey_) )
 		continue;
 
@@ -239,7 +239,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 
     trckey_.setPosition( nb );
 
-    RefMan<PreStack::Gather> gather = new PreStack::Gather;
+    RefMan<Gather> gather = new Gather;
     if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,trckey_) )
     {
 	mDefineStaticLocalObject( bool, shown3d, = false );
@@ -295,7 +295,7 @@ bool PreStackDisplay::updateData()
     }
 
     const bool haddata = flatviewer_->hasPack( false );
-    RefMan<PreStack::Gather> gather = new PreStack::Gather;
+    RefMan<Gather> gather = new Gather;
 
     DataPack::ID displayid = DataPack::cNoID();
     if ( preprocmgr_.nrProcessors() )
@@ -668,7 +668,7 @@ void PreStackDisplay::setTraceNr( int trcnr )
     trckey_.setTrcNr( trcnr );
     if ( seis2d_ )
     {
-	RefMan<PreStack::Gather> gather = new PreStack::Gather;
+	RefMan<Gather> gather = new Gather;
 	if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,trckey_))
 	{
 	    mDefineStaticLocalObject( bool, show2d, = false );

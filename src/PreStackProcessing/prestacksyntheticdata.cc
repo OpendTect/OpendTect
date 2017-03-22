@@ -18,7 +18,7 @@ namespace PreStack
 {
 
 PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
-					      PreStack::GatherSetDataPack& dp)
+					      GatherSetDataPack& dp)
     : SyntheticData(sgp,dp)
     , angledp_(0)
 {
@@ -26,7 +26,7 @@ PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
     DataPackMgr::ID pmid = DataPackMgr::SeisID();
     DPM( pmid ).add( &dp );
     datapackid_ = DataPack::FullID( pmid, dp.id());
-    ObjectSet<PreStack::Gather>& gathers = dp.getGathers();
+    ObjectSet<Gather>& gathers = dp.getGathers();
     for ( int idx=0; idx<gathers.size(); idx++ )
     {
 	gathers[idx]->setName( name() );
@@ -38,20 +38,20 @@ PreStackSyntheticData::~PreStackSyntheticData()
 {}
 
 
-PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack()
+GatherSetDataPack& PreStackSyntheticData::preStackPack()
 {
-    return static_cast<PreStack::GatherSetDataPack&>( *datapack_ );
+    return static_cast<GatherSetDataPack&>( *datapack_ );
 }
 
 
-const PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack() const
+const GatherSetDataPack& PreStackSyntheticData::preStackPack() const
 {
-    return static_cast<const PreStack::GatherSetDataPack&>( *datapack_ );
+    return static_cast<const GatherSetDataPack&>( *datapack_ );
 }
 
 
 void PreStackSyntheticData::convertAngleDataToDegrees(
-					PreStack::Gather* ag ) const
+					Gather* ag ) const
 {
     Array2D<float>& agdata = ag->data();
     const int dim0sz = agdata.info().getSize(0);
@@ -70,10 +70,10 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 
 
 void PreStackSyntheticData::setAngleData(
-	const ObjectSet<PreStack::Gather>& ags )
+	const ObjectSet<Gather>& ags )
 {
     BufferString angledpnm( name().buf(), " (Angle Gather)" );
-    angledp_ = new PreStack::GatherSetDataPack( angledpnm, ags );
+    angledp_ = new GatherSetDataPack( angledpnm, ags );
     DPM( DataPackMgr::SeisID() ).add( angledp_ );
 }
 
@@ -81,10 +81,10 @@ void PreStackSyntheticData::setAngleData(
 float PreStackSyntheticData::offsetRangeStep() const
 {
     float offsetstep = mUdf(float);
-    const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
+    const ObjectSet<Gather>& gathers = preStackPack().getGathers();
     if ( !gathers.isEmpty() )
     {
-	const PreStack::Gather& gather = *gathers[0];
+	const Gather& gather = *gathers[0];
 	offsetstep = gather.getOffset(1)-gather.getOffset(0);
     }
 
@@ -95,10 +95,10 @@ float PreStackSyntheticData::offsetRangeStep() const
 const Interval<float> PreStackSyntheticData::offsetRange() const
 {
     Interval<float> offrg( 0, 0 );
-    const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
+    const ObjectSet<Gather>& gathers = preStackPack().getGathers();
     if ( !gathers.isEmpty() )
     {
-	const PreStack::Gather& gather = *gathers[0];
+	const Gather& gather = *gathers[0];
 	offrg.set(gather.getOffset(0),gather.getOffset( gather.size(true)-1));
     }
     return offrg;

@@ -41,7 +41,7 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
 	viewer_.removePack( inputvdgather_->id() );
 
     inputvdgather_ =
-	DPM( DataPackMgr::FlatID() ).getAndCast<PreStack::Gather>( vdid );
+	DPM( DataPackMgr::FlatID() ).getAndCast<Gather>( vdid );
 
     viewer_.appearance().ddpars_.vd_.show_ = inputvdgather_;
 
@@ -61,7 +61,7 @@ void Viewer2DGatherPainter::setWVAGather( DataPack::ID wvaid )
 	viewer_.removePack( inputwvagather_->id() );
 
     inputwvagather_ =
-	DPM( DataPackMgr::FlatID() ).getAndCast<PreStack::Gather>( wvaid );
+	DPM( DataPackMgr::FlatID() ).getAndCast<Gather>( wvaid );
 
     viewer_.appearance().ddpars_.wva_.show_ = inputwvagather_;
 

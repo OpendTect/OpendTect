@@ -17,12 +17,11 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "stattype.h"
 
+class Gather;
 class SeisPSReader;
 
 namespace PreStack
 {
-
-class Gather;
 
 /*!
 \brief Calculates 'post-stack' properties of a PreStack data store.

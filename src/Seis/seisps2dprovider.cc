@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "seisps2dprovider.h"
 #include "seisfetcher.h"
+#include "seispreload.h"
 #include "seistrctr.h"
 #include "uistrings.h"
 #include "seispacketinfo.h"
@@ -18,6 +19,7 @@ ________________________________________________________________________
 #include "seispsioprov.h"
 #include "seis2ddata.h"
 #include "posinfo2d.h"
+#include "prestackgather.h"
 #include "keystrs.h"
 
 
@@ -54,6 +56,7 @@ const PS2DProvider& prov() const
 }
 
     void		reset();
+    void		findDataPack();
 
     bool		openReader(Pos::GeomID);
     void		moveNextTrcKey();
@@ -67,7 +70,8 @@ const PS2DProvider& prov() const
     void		getNext(SeisTrcBuf&);
     void		getNextSingle(SeisTrc&);
 
-    SeisPS2DReader*	rdr_;
+    SeisPS2DReader*		rdr_;
+    RefMan<GatherSetDataPack>	dp_;
     PosInfo::Line2DDataIterator* lditer_;
     bool		atend_;
 
@@ -83,6 +87,22 @@ void Seis::PS2DFetcher::reset()
     delete lditer_; lditer_ = 0;
     delete rdr_; rdr_ = 0;
     atend_ = false;
+    dp_ = 0;
+
+    moveNextTrcKey();
+    findDataPack();
+}
+
+
+void Seis::PS2DFetcher::findDataPack()
+{
+    RefMan<DataPack> dp = Seis::PLDM().get( prov().dbky_, curGeomID() );
+    if ( !dp ) return;
+
+    mDynamicCastGet(GatherSetDataPack*,gatherdp,dp.ptr());
+    if ( !gatherdp ) return;
+
+    dp_ = gatherdp;
 }
 
 
@@ -116,14 +136,15 @@ bool Seis::PS2DFetcher::openReader( Pos::GeomID geomid )
     nexttrcky_.setLineNr( curlidx_ );
     nexttrcky_.setGeomID( geomid );
     nexttrcky_.setTrcNr( lditer_->trcNr() );
+    findDataPack();
     return true;
 }
 
 
 void Seis::PS2DFetcher::moveNextTrcKey()
 {
-    atend_ = !lditer_->next();
-    while ( atend_ )
+    atend_ = lditer_ && !lditer_->next();
+    while ( atend_ || !lditer_ )
     {
 	if ( !toNextLine() )
 	    return;
@@ -167,6 +188,10 @@ void Seis::PS2DFetcher::getAt( const TrcKey& tk, SeisTrcBuf& tbuf )
     if ( !prepGetAt(tk) )
 	return;
 
+    if ( dp_ )
+	{ dp_->fillGatherBuf( tbuf, tk.binID() ); return; }
+
+    uirv_.setEmpty();
     if ( !rdr_->getGather(nexttrcky_,tbuf) )
 	uirv_.set( rdr_->errMsg() );
     else
@@ -179,8 +204,16 @@ void Seis::PS2DFetcher::getSingleAt( const TrcKey& tk, SeisTrc& trc )
     if ( !prepGetAt(tk) )
 	return;
 
-    SeisTrc* rdtrc = rdr_->getTrace( nexttrcky_,
-			 prov().selcomps_.isEmpty() ? 0 : prov().selcomps_[0] );
+    const int offsetidx = !prov().selcomps_.isEmpty() ? prov().selcomps_[0]
+						      : 0;
+    if ( dp_ )
+    {
+	const SeisTrc* seistrc = dp_->getTrace( tk.binID(), offsetidx );
+	if ( seistrc )
+	    { trc = *seistrc; return; }
+    }
+
+    SeisTrc* rdtrc = rdr_->getTrace( nexttrcky_, offsetidx );
     if ( !rdtrc )
 	uirv_.set( rdr_->errMsg() );
     else

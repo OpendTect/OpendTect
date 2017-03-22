@@ -12,9 +12,8 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "datachar.h"
 #include "executor.h"
-#include "fixedstring.h"
 #include "paralleltask.h"
-#include "sets.h"
+#include "survgeom.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
 
@@ -26,7 +25,7 @@ class Scaler;
 
 template <class T> class Array2D;
 template <class T> class Array3D;
-
+class GatherSetDataPack;
 
 namespace Seis
 {
@@ -55,10 +54,13 @@ public:
 
     void		setScaler(const Scaler*);
 
-    virtual RegularSeisDataPack* getDataPack();
+    virtual RegularSeisDataPack*	getDataPack()	{ return dp_; }
 
     virtual uiString	nrDoneText() const;
     virtual uiString	message() const			{ return msg_; }
+
+    od_int64		totalNr() const
+			{ return tkzs_.hsamp_.totalNr(); }
 
 protected:
 			Loader(const IOObj&,const TrcKeyZSampling*,
@@ -193,6 +195,41 @@ protected:
     od_int64		nrdone_;
     bool		initialized_;
 
+};
+
+
+/*
+\brief Loads a Prestack Seismic Dataset into a GatherSetDataPack
+*/
+
+mExpClass(Seis) SequentialPSLoader : public Executor
+{ mODTextTranslationClass(SequentialPSLoader)
+public:
+			SequentialPSLoader(const IOObj&,
+					   const Interval<int>* linerg=0,
+					   Pos::GeomID geomid=mUdfGeomID);
+			~SequentialPSLoader();
+
+    GatherSetDataPack*	getPSDataPack()			{ return gatherdp_;}
+
+    od_int64		totalNr() const;
+    od_int64		nrDone() const			{ return nrdone_; }
+    virtual uiString	nrDoneText() const;
+    virtual uiString	message() const			{ return msg_; }
+
+protected:
+    bool		init();
+    int			nextStep();
+
+    RefMan<GatherSetDataPack>	gatherdp_;
+
+    Seis::Provider*	prov_;
+    Seis::SelData*	sd_;
+    Pos::GeomID		geomid_;
+    IOObj*		ioobj_;
+
+    od_int64		nrdone_;
+    uiString		msg_;
 };
 
 } // namespace Seis

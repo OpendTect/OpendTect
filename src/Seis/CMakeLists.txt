@@ -12,6 +12,7 @@ set ( OD_TEST_PROGS seisbuf.cc seiskeytracker.cc seisprovider.cc )
 set(OD_MODULE_SOURCES
 	initseis.cc
 	offsetazimuth.cc
+	prestackgather.cc
 	seisdatapackwriter.cc
 	segydirect.cc
 	segydirect2d.cc

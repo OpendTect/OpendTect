@@ -1090,19 +1090,19 @@ void uiStratSynthDisp::displayPreStackSynthetic( ConstRefMan<SyntheticData> sd )
     if ( !prestackwin_ ) return;
 
     if ( !sd ) return;
-    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,&sd->getPack())
+    mDynamicCastGet(const GatherSetDataPack*,gsetdp,&sd->getPack())
     mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr())
     if ( !gsetdp || !presd ) return;
 
-    const PreStack::GatherSetDataPack& angledp = presd->angleData();
+    const GatherSetDataPack& angledp = presd->angleData();
     prestackwin_->removeGathers();
     TypeSet<PreStackView::GatherInfo> gatherinfos;
-    const ObjectSet<PreStack::Gather>& gathers = gsetdp->getGathers();
-    const ObjectSet<PreStack::Gather>& anglegathers = angledp.getGathers();
+    const ObjectSet<Gather>& gathers = gsetdp->getGathers();
+    const ObjectSet<Gather>& anglegathers = angledp.getGathers();
     for ( int idx=0; idx<gathers.size(); idx++ )
     {
-	const PreStack::Gather* gather = gathers[idx];
-	const PreStack::Gather* anglegather= anglegathers[idx];
+	const Gather* gather = gathers[idx];
+	const Gather* anglegather= anglegathers[idx];
 
 	PreStackView::GatherInfo gatherinfo;
 	gatherinfo.isstored_ = false;
@@ -1176,16 +1176,16 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
 	    if ( !sd ) continue;
 	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,
 			    sd.ptr());
-	    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,
+	    mDynamicCastGet(const GatherSetDataPack*,gsetdp,
 			    &sd->getPack())
 	    if ( !gsetdp || !presd ) continue;
-	    const PreStack::GatherSetDataPack& angledp = presd->angleData();
+	    const GatherSetDataPack& angledp = presd->angleData();
 	    for ( int idx=0; idx<ginfos.size(); idx++ )
 	    {
 		PreStackView::GatherInfo ginfo = ginfos[idx];
 		ginfo.gathernm_ = sd->name();
-		const PreStack::Gather* gather = gsetdp->getGather( ginfo.bid_);
-		const PreStack::Gather* anglegather =
+		const Gather* gather = gsetdp->getGather( ginfo.bid_);
+		const Gather* anglegather =
 		    angledp.getGather( ginfo.bid_);
 		ginfo.vddpid_ = anglegather->id();
 		ginfo.wvadpid_ = gather->id();
@@ -1751,11 +1751,11 @@ void uiStratSynthDisp::setDiffData()
 	    mDynamicCastGet(PreStack::PreStackSyntheticData*,frpresd,frsd.ptr())
 	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,
 			    sd.ptr())
-	    PreStack::GatherSetDataPack& frgdp =frpresd->preStackPack();
-	    ObjectSet<PreStack::Gather>& frgathers = frgdp.getGathers();
+	    GatherSetDataPack& frgdp =frpresd->preStackPack();
+	    ObjectSet<Gather>& frgathers = frgdp.getGathers();
 	    StepInterval<float> offrg( frpresd->offsetRange() );
 	    offrg.step = frpresd->offsetRangeStep();
-	    const PreStack::GatherSetDataPack& gdp = presd->preStackPack();
+	    const GatherSetDataPack& gdp = presd->preStackPack();
 	    for ( int igather=0; igather<frgathers.size(); igather++ )
 	    {
 		for ( int offsidx=0; offsidx<offrg.nrSteps(); offsidx++ )

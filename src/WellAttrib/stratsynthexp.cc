@@ -180,8 +180,8 @@ int StratSynthExporter::writePreStackTraces()
     mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
     if ( !presd )
 	mErrRetPErr( "Wrong type (not PreStackSyntheticData)" )
-    const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();
-    const ObjectSet<PreStack::Gather>& gathers = gsdp.getGathers();
+    const GatherSetDataPack& gsdp = presd->preStackPack();
+    const ObjectSet<Gather>& gathers = gsdp.getGathers();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
     if ( posdone_ >= postobedone_ )
     {
@@ -194,7 +194,7 @@ int StratSynthExporter::writePreStackTraces()
 
     if ( !gathers.validIdx(posdone_) )
 	mErrRetPErr( "Cannot find the gather in the required position" );
-    const PreStack::Gather* gather = gathers[posdone_];
+    const Gather* gather = gathers[posdone_];
     for ( int offsidx=0; offsidx<gather->size(true); offsidx++ )
     {
 	const float offset = gather->getOffset( offsidx );

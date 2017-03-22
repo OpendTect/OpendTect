@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "bufstring.h"
 
+class Gather;
 
 namespace PreStack
 {
-class Gather;
 class Event;
 class MuteDef;
 

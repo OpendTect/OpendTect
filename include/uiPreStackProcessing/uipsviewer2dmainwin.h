@@ -20,11 +20,11 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "flatview.h"
 
-
+class Gather;
 class uiSlicePos2DView;
 class uiColSeqSel;
 
-namespace PreStack { class Gather; class MuteDef; class ProcessManager;
+namespace PreStack { class MuteDef; class ProcessManager;
 		     class VelocityBasedAngleComputer; class AngleCompParams; }
 namespace PreStackView
 {
@@ -95,8 +95,8 @@ protected:
     virtual void	setGather(const GatherInfo& pos)	{}
     void		setGatherView(uiGatherDisplay*,
 				      uiGatherDisplayInfoHeader*);
-    RefMan<PreStack::Gather> getAngleGather(const PreStack::Gather& gather,
-				       const PreStack::Gather& angledata,
+    RefMan<Gather> getAngleGather(const Gather& gather,
+				       const Gather& angledata,
 				       const Interval<int>& anglerange);
     DataPack::ID	getPreProcessedID(const GatherInfo&);
     void		setGatherforPreProc(const BinID& relbid,
@@ -161,8 +161,8 @@ protected:
     void		setUpNewSlicePositions();
     void		setUpNewIDs();
     void		convAngleDataToDegrees(
-				PreStack::Gather* angledata) const;
-    RefMan<PreStack::Gather> getAngleData(DataPack::ID gatherid);
+				Gather* angledata) const;
+    RefMan<Gather> getAngleData(DataPack::ID gatherid);
     void		posDlgChgCB(CallBacker*);
     void		posSlcChgCB(CallBacker*);
 };

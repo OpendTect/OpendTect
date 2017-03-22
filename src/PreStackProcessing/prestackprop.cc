@@ -73,7 +73,7 @@ void PropCalc::setGather( DataPack::ID id )
 {
     removeGather();
 
-    gather_ = DPM(DataPackMgr::FlatID()).getAndCast<PreStack::Gather>( id );
+    gather_ = DPM(DataPackMgr::FlatID()).getAndCast<Gather>( id );
 
     if ( gather_ )
     {

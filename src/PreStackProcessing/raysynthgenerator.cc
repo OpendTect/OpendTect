@@ -41,9 +41,9 @@ RaySynthGenerator::RaySynthGenerator( const TypeSet<ElasticModel>* ems,
     }
     else
     {
-	ObjectSet<PreStack::Gather> gatherset;
-	PreStack::GatherSetDataPack* dp =
-		new PreStack::GatherSetDataPack( synthpars.name_, gatherset );
+	ObjectSet<Gather> gatherset;
+	GatherSetDataPack* dp =
+		new GatherSetDataPack( synthpars.name_, gatherset );
 	synthdata_ = new PreStack::PreStackSyntheticData( synthpars, *dp );
     }
 }
@@ -206,11 +206,11 @@ bool RaySynthGenerator::updateDataPack()
 
     ObjectSet<SeisTrcBuf> tbufs;
     getTraces( tbufs );
-    RefObjectSet<PreStack::Gather> gatherset;
+    RefObjectSet<Gather> gatherset;
     while ( tbufs.size() )
     {
 	PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
-	RefMan<PreStack::Gather> gather = new PreStack::Gather();
+	RefMan<Gather> gather = new Gather();
 	if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
 	    continue;
 
@@ -219,7 +219,7 @@ bool RaySynthGenerator::updateDataPack()
     }
 
     RefMan<DataPack> dp = DPM( synthdata_->datapackid_ ).get(id);
-    mDynamicCastGet(PreStack::GatherSetDataPack*,prestkdp,dp.ptr());
+    mDynamicCastGet(GatherSetDataPack*,prestkdp,dp.ptr());
     prestkdp->setGathers( gatherset );
     deepUnRef( gatherset );
     return true;

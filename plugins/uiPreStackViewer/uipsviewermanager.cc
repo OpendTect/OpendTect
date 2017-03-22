@@ -657,7 +657,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	if ( !ioobj )
 	    continue;
 
-	RefMan<PreStack::Gather> gather = new PreStack::Gather;
+	RefMan<Gather> gather = new Gather;
 	DataPack::ID dpid;
 	TrcKey tk( bid );
 	if ( !is3d )
@@ -714,7 +714,7 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
     int nrsaved = 0;
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	ConstRefMan<PreStack::Gather> gather =
+	ConstRefMan<Gather> gather =
 			viewers2d_[idx]->viewer().getPack( false );
 	if ( !gather )
 	    continue;
