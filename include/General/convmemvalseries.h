@@ -27,8 +27,8 @@ mClass(General) ConvMemValueSeries : public ValueSeries<T>
 {
 public:
 
-    inline	    	ConvMemValueSeries(od_int64 sz,
-	    				   const BinDataDesc& stortype,
+    inline		ConvMemValueSeries(od_int64 sz,
+					   const BinDataDesc& stortype,
 					   const Scaler* scaler,
 					   bool doundef=true);
 
@@ -42,7 +42,6 @@ public:
     inline T		value(od_int64 idx) const;
     inline void		setValue( od_int64 idx, T v );
 
-    inline bool		selfSufficient() const	{ return true; }
     inline bool		reSizeable() const	{ return true; }
     inline bool		setSize(od_int64);
 

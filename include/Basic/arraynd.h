@@ -13,11 +13,9 @@ ________________________________________________________________________
 #include "valseries.h"
 #include "arrayndinfo.h"
 #include "varlenarray.h"
-#include "odmemory.h"
 #include "ptrman.h"
 
-/*!
-\brief An ArrayND is an array with a given number of dimensions and a size.
+/*!\brief An ArrayND is an array with a given number of dimensions and a size.
 
   The ArrayND can be accessed via set() and get().
 

@@ -77,15 +77,11 @@ public:
     void			setAngleFlag(int attrib,bool yn);
     void			enableAttrib(int attrib,bool yn);
     bool			isAttribEnabled(int attrib) const;
-    const visBase::DistribType&	getDataDistribution(int) const;
-    int				getColTabID(int) const;
 
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int attrib,
-						     int version) const;
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int) const;
-    void			setColTabMapperSetup(int,
-					const ColTab::MapperSetup&,TaskRunner*);
-    const ColTab::Sequence*	getColTabSequence(int) const;
+    const ColTab::Mapper&	getColTabMapper(int attrib) const;
+    void			setColTabMapper(int,const ColTab::Mapper&,
+						TaskRunner*);
+    const ColTab::Sequence&	getColTabSequence(int) const;
     bool			canSetColTabSequence() const;
     void			setColTabSequence(int,const ColTab::Sequence&,
 						  TaskRunner*);

@@ -56,7 +56,8 @@ bool GMTArray2DInterpol::doPrepare( int nrthreads )
 {
     mTryAlloc( nodes_, bool[nrcells_] );
     getNodesToFill( 0, nodes_, 0 );
-    defundefpath_ = File::Path(GetDataDir(),"Misc","defundefinfo.grd").fullPath();
+    defundefpath_ =
+	File::Path(GetDataDir(),"Misc","defundefinfo.grd").fullPath();
     BufferString gmtcmd( "@xyz2grd" );
     gmtcmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
 			 .add( " -G").add( defundefpath_ ).add( " -I1" );
@@ -80,18 +81,18 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
     nrdone_ = 0;
     for ( int ridx=mCast(int,start); ridx<stop; ridx++ )
     {
-	if ( !*sd_.ostrm || !*sdmask_.ostrm )
+	if ( !*sd_.oStrm() || !*sdmask_.oStrm() )
 	    break;
 
 	for ( int cidx=0; cidx<nrcols_; cidx++ )
 	{
-	    if ( !*sd_.ostrm || !*sdmask_.ostrm )
+	    if ( !*sd_.oStrm() || !*sdmask_.oStrm() )
 		break;
 
 	    nodes_[nrcols_*ridx+cidx]
-		? *sdmask_.ostrm << ridx << " " << cidx << " " << 1
-		: *sdmask_.ostrm << ridx << " " << cidx << " " << "NaN";
-	    *sdmask_.ostrm << "\n";
+		? *sdmask_.oStrm() << ridx << " " << cidx << " " << 1
+		: *sdmask_.oStrm() << ridx << " " << cidx << " " << "NaN";
+	    *sdmask_.oStrm() << "\n";
 	    if ( !arr_->info().validPos(ridx, cidx) )
 		continue;
 
@@ -99,7 +100,7 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 		continue;
 
 	    addToNrDone( 1 );
-	    *sd_.ostrm << ridx << " " << cidx << " " << arr_->get(ridx, cidx)
+	    *sd_.oStrm() << ridx << " " << cidx << " " << arr_->get(ridx, cidx)
 						     << "\n";
 	}
 
@@ -139,19 +140,19 @@ bool GMTArray2DInterpol::doFinish( bool success )
     FixedString fsrowstr( rowstr ), fscolstr( colstr ), fsvalstr( valstr );
     for ( int ridx=0; ridx<nrrows_; ridx++ )
     {
-	if ( !*sd_.istrm )
+	if ( !*sd_.iStrm() )
 	    break;
 
 	for ( int cidx=0; cidx<nrcols_; cidx++ )
 	{
-	    if ( !*sd_.istrm )
+	    if ( !*sd_.iStrm() )
 		break;
 
 	    if ( !arr_->info().validPos(ridx, cidx) )
 		continue;
 
 	    rowstr[0] = colstr[0] = valstr[0] = '\0';
-	    *sd_.istrm >> rowstr >> colstr >> valstr;
+	    *sd_.iStrm() >> rowstr >> colstr >> valstr;
 	    if ( fsrowstr == sKeyGMTUdf || fscolstr == sKeyGMTUdf
 					|| fsvalstr == sKeyGMTUdf )
 		continue;
@@ -239,7 +240,8 @@ bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
 	return false;
     }
 
-    path_ = File::Path( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
+    path_ =
+	File::Path( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
     cmd = "@surface -I1 ";
     cmd.add( "-T" ).add( tension_ )
        .add( " -G" ).add( path_ )
@@ -309,7 +311,8 @@ bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
 	return false;
     }
 
-    path_ = File::Path( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
+    path_ =
+	File::Path( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
     cmd = "@nearneighbor -I1 ";
     cmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
        .add( " -S" ).add( radius_ )

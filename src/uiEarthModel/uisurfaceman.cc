@@ -535,7 +535,7 @@ void uiSurfaceMan::fillAttribList()
     {
 	const DBKey& mid = mids[midx];
 	EM::IOObjInfo eminfo( mid );
-	if ( !info.isOK() )
+	if ( !eminfo.isOK() )
 	    return;
 
 	BufferStringSet attrnms;

@@ -43,7 +43,6 @@ class uiTreeItemTBHandler;
 class uiVisModeMgr;
 class uiVisPickRetriever;
 template <class T> class Selector;
-template <class T> class DataDistribution;
 
 namespace Attrib    { class SelSpec; }
 namespace ColTab    { class Sequence; }
@@ -291,17 +290,14 @@ public:
 				// ColorTable stuff
     void			fillDispPars(int id,int attrib,
 					 FlatView::DataDispPars&,bool) const;
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int id,int attrib,
-						 int version=mUdf(int)) const;
-    void			setColTabMapperSetup(int id,int attrib,
-						    const ColTab::MapperSetup&);
-    const ColTab::Sequence*	getColTabSequence(int id,int attrib) const;
+    const ColTab::Mapper&	getColTabMapper(int id,int attrib) const;
+    void			setColTabMapper(int id,int attrib,
+						const ColTab::Mapper&);
+    const ColTab::Sequence&	getColTabSequence(int id,int attrib) const;
     bool			canSetColTabSequence(int id) const;
     void			setColTabSequence(int id,int attrib,
 						  const ColTab::Sequence&);
     bool			canHandleColTabSeqTrans(int id,int attr) const;
-
-    const DataDistribution<float>& getDataDistribution(int id,int attrib) const;
 
     void			displayMapperRangeEditForAttribs(int id,
 								 int attrib=-1);

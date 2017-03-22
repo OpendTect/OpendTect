@@ -10,6 +10,9 @@ ________________________________________________________________________
 
 #include "visgeomindexedshape.h"
 
+#include "coltabseqmgr.h"
+#include "coltabmapper.h"
+#include "datadistributionextracter.h"
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "posvecdataset.h"
@@ -43,17 +46,15 @@ GeomIndexedShape::GeomIndexedShape()
     : VisualObjectImpl( true )
     , shape_( 0 )
     , vtexshape_( VertexShape::create() )
-    , colorhandler_( new ColorHandler )
     , colortableenabled_( false )
     , singlematerial_( new Material )
     , coltabmaterial_( new Material )
     , geomshapetype_( Triangle )
     , linestyle_( OD::LineStyle::Solid,2,Color(0,255,0) )
     , useosgnormal_( false )
-    , sequence_(ColTab::SeqMGR().getDefault())
 {
-    singlematerial_->ref();
-    coltabmaterial_->ref();
+    if ( !material_ )
+	{ material_ = new Material; material_->ref(); }
     vtexshape_->ref();
     addChild( vtexshape_->osgNode() );
 
@@ -66,35 +67,24 @@ GeomIndexedShape::GeomIndexedShape()
     setRenderMode( RenderBothSides );
 
     setMaterial( new Material );
-    setDataSequence( *ColTab::SeqMGR().getDefault() );
+    setColTabSequence( *ColTab::SeqMGR().getDefault() );
+    mAttachCB( colorhandler_.mapper_->objectChanged(),
+		GeomIndexedShape::mappingChgCB );
 }
 
 
 GeomIndexedShape::~GeomIndexedShape()
 {
-    unRefAndZeroPtr( singlematerial_ );
-    unRefAndZeroPtr( coltabmaterial_ );
-
-    delete colorhandler_;
+    detachAllNotifiers();
     unRefAndZeroPtr( vtexshape_ );
-
-    if ( getMaterial() )
-	getMaterial()->change.remove( mCB(this,GeomIndexedShape,matChangeCB) );
-
 }
 
 
 GeomIndexedShape::ColorHandler::ColorHandler()
     : material_( new visBase::Material )
-    , attributecache_( 0 )
+    , mapper_( new ColTab::Mapper )
+    , sequence_( ColTab::SeqMGR().getDefault() )
 {
-    material_->ref();
-}
-
-
-GeomIndexedShape::ColorHandler::~ColorHandler()
-{
-    material_->unRef();
 }
 
 
@@ -106,14 +96,13 @@ void GeomIndexedShape::setRenderMode( RenderMode mode )
 
 void GeomIndexedShape::setMaterial( Material* mat )
 {
-    if ( !vtexshape_  || !mat ) return;
+    if ( !vtexshape_ || !mat )
+       return;
 
+    mDetachCB( material_->change, GeomIndexedShape::matChangeCB );
     VisualObjectImpl::setMaterial( mat );
-    if ( getMaterial() )
-	getMaterial()->change.notify( mCB(this,GeomIndexedShape,matChangeCB) );
-
-    colorhandler_->material_->setPropertiesFrom( *mat );
-
+    mAttachCB( material_->change, GeomIndexedShape::matChangeCB );
+    colorhandler_.material_->setPropertiesFrom( *mat );
 }
 
 
@@ -123,12 +112,18 @@ void GeomIndexedShape::updateMaterialFrom( const Material* mat )
 
     singlematerial_->setFrom( *mat );
 
-    if ( isColTabEnabled() && colorhandler_ )
+    if ( isColTabEnabled() )
     {
-	colorhandler_->material_->setPropertiesFrom( *mat );
+	colorhandler_.material_->setPropertiesFrom( *mat );
 	mapAttributeToColorTableMaterial();
     }
     enableColTab( colortableenabled_ );
+}
+
+
+void GeomIndexedShape::mappingChgCB( CallBacker* )
+{
+    updateColors();
 }
 
 
@@ -142,7 +137,7 @@ void GeomIndexedShape::updateGeometryMaterial()
 {
     if ( getMaterial() )
     {
-	colorhandler_->material_->setPropertiesFrom( *getMaterial() );
+	colorhandler_.material_->setPropertiesFrom( *getMaterial() );
 	mapAttributeToColorTableMaterial();
 	vtexshape_->setColorBindType( VertexShape::BIND_PER_VERTEX );
 	vtexshape_->setMaterial( coltabmaterial_ );
@@ -199,48 +194,48 @@ bool GeomIndexedShape::isColTabEnabled() const
 }
 
 
-void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup,
-				      TaskRunner* tskr )
+void GeomIndexedShape::setColTabMapper( const ColTab::Mapper& mpr )
 {
-    if ( colorhandler_->mapper_.setup() != setup )
-    {
-	colorhandler_->mapper_.setSetup( setup );
-	if ( !setup.isFixed() )
-	    reClip();
-    }
+    replaceMonitoredRef( colorhandler_.mapper_, mpr, this );
 }
 
 
-ConstRefMan<ColTab::MapperSetup> GeomIndexedShape::getDataMapper() const
+const ColTab::Mapper& GeomIndexedShape::getColTabMapper() const
 {
-    return colorhandler_ ? &colorhandler_->mapper_.setup() : 0;
+    return *colorhandler_.mapper_;
 }
 
 
-void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
+void GeomIndexedShape::setColTabSequence( const ColTab::Sequence& seq )
 {
-    if ( colorhandler_->sequence_.ptr() != &seq )
-    {
-	colorhandler_->sequence_ = &seq;
-	TypeSet<Color> colors;
-	for ( int idx=0; idx<mNrMaterialSteps; idx++ )
-	{
-	    const float val = ( (float) idx )/( mNrMaterialSteps-1 );
-	    const Color col = seq.color( val );
-	    colors += col;
-	}
+    if ( replaceMonitoredRef(colorhandler_.sequence_, seq, this ) )
+	updateColors();
+}
 
-	colors += seq.undefColor();
-	colorhandler_->material_->setColors( colors, false );
+
+void GeomIndexedShape::updateColors()
+{
+    const ColTab::Sequence& seq = *colorhandler_.sequence_;
+    TypeSet<Color> colors;
+    for ( int idx=0; idx<mNrMaterialSteps; idx++ )
+    {
+	const float val = ( (float) idx )/( mNrMaterialSteps-1 );
+	const Color col = seq.color( val );
+	colors += col;
     }
+
+    colors += seq.undefColor();
+    colorhandler_.material_->setColors( colors, false );
 
    if ( isColTabEnabled() )
 	updateGeometryMaterial();
 }
 
 
-const ColTab::Sequence* GeomIndexedShape::getDataSequence() const
-{ return colorhandler_ ? colorhandler_->sequence_ : 0; }
+const ColTab::Sequence& GeomIndexedShape::getColTabSequence() const
+{
+    return *colorhandler_.sequence_;
+}
 
 
 void GeomIndexedShape::setDisplayTransformation( const mVisTrans* nt )
@@ -391,11 +386,11 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
 }
 
 
-void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tskr)
+void GeomIndexedShape::setAttribData( const DataPointSet& set, TaskRunner* )
 {
     const DataColDef coordindex( sKeyCoordIndex() );
     const int col =
-	set.dataSet().findColDef(coordindex,PosVecDataSet::NameExact);
+	set.dataSet().findColDef( coordindex, PosVecDataSet::NameExact );
 
     if ( col==-1 )
 	return;
@@ -404,9 +399,8 @@ void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tskr)
     if ( vals.nrVals()<col+1 )
 	return;
 
-    ArrayValueSeries<float,float>& cache = colorhandler_->attributecache_;
-    cache.setSize( vals.totalSize() );
-    cache.setAll( mUdf(float) );
+    TypeSet<float>& cache = colorhandler_.attributecache_;
+    cache.setSize( vals.totalSize(), mUdf(float) );
 
     BinIDValueSet::SPos pos;
     while ( vals.next( pos ) )
@@ -417,21 +411,14 @@ void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tskr)
 
 	if ( coordidx>=cache.size() )
 	{
-	    int oldsz = cache.size();
-	    cache.setSize( coordidx+1 );
+	    pErrMsg( "coordidx should not exceed vals.totalSize()" );
+	    cache.setSize( coordidx+1, mUdf(float) );
 	    if ( !cache.arr() )
 		return;
-
-	    const float udf = mUdf( float );
-	    for ( int idx=oldsz; idx<=coordidx; idx++ )
-		cache.setValue( idx, udf );
 	}
 
-	cache.setValue( coordidx, val );
+	cache[coordidx] = val;
     }
-
-    if ( !colorhandler_->mapper_.setup().isFixed() )
-	reClip();
 
     updateGeometryMaterial();
 }
@@ -439,29 +426,33 @@ void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tskr)
 
 void GeomIndexedShape::mapAttributeToColorTableMaterial()
 {
-    if ( !colorhandler_ || colorhandler_->attributecache_.size()<=0 )
+    if ( colorhandler_.attributecache_.isEmpty() )
 	return;
 
-    TypeSet<Color> colors;
+    if ( colorhandler_.mapper_->distribution().isEmpty() )
+    {
+	RangeLimitedDataDistributionExtracter<float> extr(
+					colorhandler_.attributecache_ );
+	colorhandler_.mapper_.getNonConstPtr()->distribution()
+	    = *extr.getDistribution();
+    }
 
+    const int sz = vtexshape_->getCoordinates()->size();
+    TypeSet<Color> colors( sz,
+		colorhandler_.material_->getColor(mUndefMaterial) );
     for ( int idx=0; idx<vtexshape_->getCoordinates()->size(); idx++ )
     {
-	const int coloridx = ColTab::Mapper::indexForValue(
-	    &colorhandler_->mapper_,colorhandler_->attributecache_[idx],
-	    mNrMaterialSteps, mUndefMaterial );
-
-	colors.add( colorhandler_->material_->getColor(coloridx) );
+	const float val = colorhandler_.attributecache_[idx];
+	if ( !mIsUdf(val) )
+	{
+	    const int coloridx = colorhandler_.mapper_->colIndex( val,
+							    mNrMaterialSteps );
+	    colors[idx] = colorhandler_.material_->getColor( coloridx );
+	}
     }
 
     coltabmaterial_->setColors( colors, false );
-    coltabmaterial_->setPropertiesFrom( *colorhandler_->material_ );
-}
-
-
-void GeomIndexedShape::reClip()
-{
-    colorhandler_->mapper_.setData( &colorhandler_->attributecache_,
-				    colorhandler_->attributecache_.size() );
+    coltabmaterial_->setPropertiesFrom( *colorhandler_.material_ );
 }
 
 

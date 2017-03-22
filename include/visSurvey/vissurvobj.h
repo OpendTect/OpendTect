@@ -203,13 +203,12 @@ public:
     virtual bool		swapAttribs(int a0,int a1) { return false; }
     virtual void		setAttribTransparency(int,unsigned char) {}
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
-    virtual ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int attrib,
-							   int version=0) const;
     void			getChannelName(int,uiString&) const;
 				//!<\returns "Layer 0", or "Red", "Green" ...
-    virtual void		setColTabMapperSetup(int,
-				    const ColTab::MapperSetup&,TaskRunner* t=0);
-    virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }
+    virtual const ColTab::Mapper& getColTabMapper(int attrib) const;
+    virtual void		setColTabMapper(int,const ColTab::Mapper&,
+						TaskRunner* t=0);
+    virtual const ColTab::Sequence& getColTabSequence(int) const;
     virtual bool		canSetColTabSequence() const	{ return false;}
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
 						  TaskRunner* t=0);
@@ -228,7 +227,6 @@ public:
     bool			isAnyAttribEnabled() const;
     virtual bool		hasSingleColorFallback() const { return false; }
     virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
-    virtual const visBase::DistribType& getDataDistribution(int) const;
 
     virtual bool		canRemoveSelection() const	{ return false;}
     virtual bool		removeSelections(TaskRunner*)	{ return false;}

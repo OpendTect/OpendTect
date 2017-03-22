@@ -11,11 +11,12 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "bufstring.h"
+#include "strmdata.h"
 #include "uistring.h"
 #include "od_iosfwd.h"
 #include <iosfwd>
-class StreamData;
 namespace File { class Path; }
 
 
@@ -78,7 +79,6 @@ public:
     inline const StreamData&	streamData() const		{ return sd_; }
 
     void			setNoClose( bool yn=true )	{ noclose_=yn; }
-    void			releaseStream(StreamData&);
     void			close();
 
     void			addErrMsgTo(BufferString&) const;
@@ -99,12 +99,11 @@ protected:
 			od_stream(std::ostream&);
 			od_stream(std::istream*);
 			od_stream(std::istream&);
-			od_stream(const od_stream&);
-    od_stream&		operator=(const od_stream&);
+    od_stream&		operator=(const od_stream&)		= delete;
 
-    StreamData&		sd_;
-    bool		mine_;
-    bool		noclose_;
+    StreamData		sd_;
+    bool		mine_		= true;
+    bool		noclose_	= false;
     mutable uiString	errmsg_;
 
 };

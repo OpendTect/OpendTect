@@ -501,10 +501,5 @@ void uiODDisplayTreeItem::handleAddAttrib()
 void uiODDisplayTreeItem::prepareForShutdown()
 {
     uiODSceneTreeItem::prepareForShutdown();
-    mDynamicCastGet( const visSurvey::SurveyObject*, so,
-		     visserv_->getObject(displayid_) );
-    if ( ODMainWin()->colTabEd().getSurvObj() == so )
-	ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
-
     visserv_->removeObject( displayid_, sceneID() );
 }

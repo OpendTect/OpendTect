@@ -615,10 +615,10 @@ void PlaneDataDisplay::removeCache( int attrib )
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.removeSingle( attrib );
 
-    DPM(DataPackMgr::SeisID()).release( datapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 
-    DPM(DataPackMgr::SeisID()).release( transfdatapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
     transfdatapackids_.removeSingle( attrib );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
@@ -640,10 +640,10 @@ void PlaneDataDisplay::emptyCache( int attrib )
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.replace( attrib, 0 );
 
-    DPM(DataPackMgr::SeisID()).release( datapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( datapackids_[attrib] );
     datapackids_[attrib] = DataPack::cNoID();
 
-    DPM(DataPackMgr::SeisID()).release( transfdatapackids_[attrib] );
+    DPM(DataPackMgr::SeisID()).unRef( transfdatapackids_[attrib] );
     transfdatapackids_[attrib] = DataPack::cNoID();
 
     channels_->setNrVersions( attrib, 1 );
@@ -917,8 +917,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, 0,
-				    interactivetexturedisplay_ );
+	channels_->setUnMappedData( attrib, idx, arr, cp, 0 );
     }
 
     if ( !getUpdateStageNr() )
@@ -1090,11 +1089,8 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
 	if ( selspecs ) pdd->setSelSpecs( idx, *selspecs );
 
 	pdd->setDataPackID( idx, getDataPackID(idx), taskr );
-	if ( getColTabMapperSetup( idx ) )
-	    pdd->setColTabMapperSetup( idx, *getColTabMapperSetup( idx ),
-				       taskr );
-	if ( getColTabSequence( idx ) )
-	    pdd->setColTabSequence( idx, *getColTabSequence( idx ), taskr );
+	pdd->setColTabMapper( idx, getColTabMapper(idx), taskr );
+	pdd->setColTabSequence( idx, getColTabSequence( idx ), taskr );
     }
 
     return pdd;

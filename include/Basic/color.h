@@ -54,6 +54,7 @@ public:
     Color		lighter(float fac) const;
     Color		darker( float fac ) const
 					{ return lighter( -fac ); }
+    static Color	between(Color,Color,float relpos=0.5f);
 
     void		setRgb( unsigned int rgb_  );
     void		setTransparency( unsigned char t_ );

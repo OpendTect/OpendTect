@@ -22,7 +22,9 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbar.h"
 
+#include "batchprog.h"
 #include "commandlineparser.h"
+#include "file.h"
 #include "filepath.h"
 #include "helpview.h"
 #include "moddepmgr.h"
@@ -46,65 +48,81 @@ class uiProgressViewer : public uiMainWin
 { mODTextTranslationClass(uiProgressViewer)
 public:
 
-		uiProgressViewer(uiParent*,od_istream&,int);
+		uiProgressViewer(uiParent*,const BufferString& filenm,int,
+				 int delay=500);
 		~uiProgressViewer();
 
-    void	setDelayInMs( int d )		{ delay_ = d; }
+    static const char*	sKeyDelay()		{ return "delay"; }
+    static const char*	sKeyPID()		{ return "pid"; }
+    static const char*	sKeyInputFile()		{ return "inpfile"; }
 
 protected:
 
-    uiTextEdit*	txtfld;
-    uiToolBar*	tb_;
-    int		quittbid_;
+    enum ProcStatus	{ None, Running, Finished, Terminated, AbnormalEnd };
 
-    int		pid_;
-    int		delay_;
+    uiTextBrowser*	txtfld_;
+    uiToolBar*		tb_;
+    int			quittbid_;
+    int			killbid_;
 
-    od_istream& strm_;
-    BufferString curline_;
-    Timer*	timer_;
-    od_stream::Pos nrcharsread_;
+    int			pid_;
+    const BufferString	procnm_;
+    ProcStatus		procstatus_;
+    int			delay_ = 500; //Lower may cause high CPU usage
+    od_istream		strm_;
+    Timer		timer_;
 
-    inline bool	haveProcess() const		{ return pid_ > 0; }
-    inline bool	processEnded() const		{ return pid_ == 0; }
+    bool		haveProcess();
 
-    void	doWork(CallBacker*);
-    void	quitFn(CallBacker*);
-    void	helpFn(CallBacker*);
-    void	saveFn(CallBacker*);
+    void		doWork(CallBacker*);
+    void		getNewPID(CallBacker*);
+    void		quitFn(CallBacker*);
+    void		killFn(CallBacker*);
+    void		saveFn(CallBacker*);
+    void		helpFn(CallBacker*);
 
-    void	handleProcessStatus();
-    bool	closeOK();
-    void	appendToText();
-    void	addChar(char);
+    void		handleProcessStatus();
+    bool		closeOK();
+
+    static bool		canTerminate();
 };
 
 
 #define mAddButton(fnm,txt,fn) \
     tb_->addButton( fnm, txt, mCB(this,uiProgressViewer,fn), false );
 
-uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
-	: uiMainWin(p,tr("Progress"),1)
-	, timer_(0)
-	, strm_(s)
-	, pid_(pid)
-	, delay_(1)
-	, nrcharsread_(0)
+uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
+				    int pid, int delay )
+    : uiMainWin(p,tr("Progress Viewer"),1)
+    , timer_("Progress")
+    , strm_(fnm.str())
+    , pid_(pid)
+    , procstatus_(None)
+    , tb_(0)
+    , quittbid_(0)
 {
-    sleepSeconds( delay_ );
+    sleepSeconds( mCast(double,delay_) / 1000. );
+    if ( mIsUdf(pid) )
+	getNewPID(0);
+
+    if ( !mIsUdf(pid_) )
+	const_cast<BufferString&>( procnm_ ) = getProcessNameForPID( pid_ );
+
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
 
     tb_ = new uiToolBar( this, uiStrings::sToolbar() );
     quittbid_ = mAddButton( "stop", haveProcess() ? sStopAndQuit() : sQuitOnly()
 			    ,quitFn );
+    killbid_ = mAddButton( "cancel", tr("Terminate the process"), killFn );
     mAddButton( "save", tr("Save text to a file"), saveFn );
     mAddButton( "contexthelp", uiStrings::sHelp(), helpFn );
 
-    txtfld = new uiTextEdit( this, "", true );
+    txtfld_ = new uiTextBrowser( this, "Progress", mUdf(int), true, true );
+    txtfld_->setSource( fnm.str() );
     uiFont& fnt = FontList().add( "Non-prop",
 	    FontData(FontData::defaultPointSize(),"Courier") );
-    txtfld->setFont( fnt );
+    txtfld_->setFont( fnt );
 
     //Ensure we have space for 80 chars
     const int nrchars = TextStreamProgressMeter::cNrCharsPerRow()+5;
@@ -117,97 +135,138 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
     if ( !mIsUdf(desktopwidth) && deswidth>desktopwidth )
 	deswidth = desktopwidth;
 
-    if ( deswidth > txtfld->defaultWidth() )
-	txtfld->setPrefWidth( deswidth );
+    if ( deswidth > txtfld_->defaultWidth() )
+	txtfld_->setPrefWidth( deswidth );
 
-    timer_ = new Timer( "Progress" );
-    timer_->tick.notify( mCB(this,uiProgressViewer,doWork) );
-    timer_->start( 50, true );
+    mAttachCB( timer_.tick, uiProgressViewer::doWork );
+    mAttachCB( txtfld_->fileReOpened, uiProgressViewer::getNewPID );
+    timer_.start( delay_, false );
 }
 
 
 uiProgressViewer::~uiProgressViewer()
 {
-    delete timer_;
+    detachAllNotifiers();
 }
 
 
-void uiProgressViewer::appendToText()
+bool uiProgressViewer::haveProcess()
 {
-    if ( curline_.isEmpty() )
-	return;
+    if ( mIsUdf(pid_) )
+	return false;
 
-    txtfld->append( curline_ );
-    uiMain::theMain().flushX();
-    curline_.setEmpty();
+    if ( isProcessAlive(pid_) )
+    {
+	procstatus_ = Running;
+	return true;
+    }
+
+    procstatus_ = None;
+
+    return false;
 }
-
 
 
 void uiProgressViewer::handleProcessStatus()
 {
-    if ( haveProcess() && !isProcessAlive(pid_) )
-    {
-	statusBar()->message( tr("Processing finished") );
-	tb_->setToolTip( quittbid_, sQuitOnly() );
-	pid_ = 0;
-    }
-}
-
-
-void uiProgressViewer::addChar( char c )
-{
-    if ( !c )
+    if ( haveProcess() )
 	return;
 
-    if ( c == '\n' )
-	appendToText();
-    else
+    if ( procstatus_ == None )
     {
-	char buf[2]; buf[0] = c; buf[1] = '\0';
-	curline_.add( buf );
+	sleepSeconds( 1 );
+	strm_.reOpen();
+	BufferString lines;
+	strm_.getAll( lines );
+	if ( lines.find(BatchProgram::sKeyFinishMsg()) )
+	    procstatus_ = Finished;
+	else
+	    procstatus_ = AbnormalEnd;
+
+	strm_.close();
     }
 
-    nrcharsread_++;
+    uiString stbmsg = tr("Processing finished %1")
+		      .arg( procstatus_ == AbnormalEnd ? tr("abnormally.")
+						       : tr("successfully.") );
+    if ( procstatus_ == AbnormalEnd )
+	stbmsg.append( tr(" It was probably terminated or crashed.") );
+    else if ( procstatus_ == Terminated )
+	stbmsg = tr("Process %1 was terminated." ).arg(procnm_);
+
+    statusBar()->message( stbmsg );
+    timer_.stop();
+    tb_->setToolTip( quittbid_, sQuitOnly() );
+    tb_->setSensitive( killbid_, false );
+    pid_ = mUdf(int);
 }
 
 
 void uiProgressViewer::doWork( CallBacker* )
 {
-    int restartdelay = delay_;
+    handleProcessStatus();
+    if ( procstatus_ != Running )
+	return;
 
-    if ( strm_.isOK() )
+    statusBar()->message( tr("Running process %1 with PID %2.")
+				    .arg(procnm_).arg(pid_) );
+}
+
+
+void uiProgressViewer::getNewPID( CallBacker* )
+{
+    if ( !mIsUdf(pid_) )
+	return;
+
+    sleepSeconds( 1. );
+    strm_.reOpen();
+    BufferString line;
+    bool found = false;
+    while ( strm_.getLine(line) )
     {
-	const char ch = strm_.peek();
-	if ( ch )
+	if ( line.find("Process ID:") )
 	{
-	    addChar( strm_.peek() );
-	    strm_.ignore( 1 );
+	    found = true;
+	    break;
 	}
     }
-    else
-    {
-	handleProcessStatus();
-	if ( !haveProcess() )
-	{
-	    sleepSeconds( 1 );
-	    strm_.reOpen();
-	    strm_.getAll( curline_ );
-	    txtfld->setText( curline_ );
-	    txtfld->scrollToBottom();
-	    statusBar()->message( processEnded() ? tr("Processing ended")
-						 : uiString::emptyString() );
-	    return;
-	}
 
-	strm_.reOpen();
-	strm_.ignore( nrcharsread_ );
-	restartdelay = mMAX(delay_,200);
-			// Makes sure we're not re-opening *all* the time
+    strm_.close();
+    if ( !found )
+	return;
+
+    const SeparString sepstr( line.str(), ':' );
+    const int pid = sepstr.getIValue( 1 );
+    if ( pid == 0 )
+	return;
+
+    pid_ = pid;
+    const_cast<BufferString&>( procnm_ ) = getProcessNameForPID( pid_ );
+    if ( tb_ && quittbid_ )
+    {
+	tb_->setToolTip( quittbid_, sStopAndQuit() );
+	tb_->setSensitive( killbid_, true );
     }
 
-    statusBar()->message( toUiString(curline_) );
-    timer_->start( restartdelay, true );
+    timer_.start( delay_, false );
+}
+
+
+bool uiProgressViewer::canTerminate()
+{
+    return uiMSG().askGoOn( tr("Do you want to terminate the process?") );
+}
+
+
+void uiProgressViewer::killFn( CallBacker* cb )
+{
+    if ( cb && !canTerminate() )
+	return;
+
+    SignalHandling::stopProcess( pid_ );
+    pid_ = mUdf(int);
+    procstatus_ = Terminated;
+    handleProcessStatus();
 }
 
 
@@ -220,13 +279,8 @@ void uiProgressViewer::quitFn( CallBacker* )
 
 bool uiProgressViewer::closeOK()
 {
-    if ( haveProcess() )
-    {
-	if ( !uiMSG().askGoOn(tr("Do you want to terminate the process?")) )
-	    return false;
-
-	SignalHandling::stopProcess( pid_ );
-    }
+    if ( haveProcess() && canTerminate() )
+	killFn( 0 );
 
     return true;
 }
@@ -247,10 +301,32 @@ void uiProgressViewer::saveFn( CallBacker* )
     {
 	od_ostream strm( dlg.fileName() );
 	if ( strm.isOK() )
-	   strm << txtfld->text() << od_endl;
+	   strm << txtfld_->text() << od_endl;
     }
 }
 
+
+static void printBatchUsage( const char* prognm )
+{
+    od_ostream& strm = od_ostream::logStream();
+    strm << "Usage: " << prognm;
+    strm << " [LOGFILE]... [OPTION]...\n";
+    strm << "Monitors a batch process from its log file and process ID.\n";
+    strm << "Mandatory arguments:\n";
+    strm << "\t --" << uiProgressViewer::sKeyInputFile() << "\tlogfile\n";
+    strm << "\t --" << uiProgressViewer::sKeyPID() << "\t\tProcess ID\n";
+    strm << "Optional arguments:\n";
+    strm << "\t --" << uiProgressViewer::sKeyDelay() <<"\tDelay between";
+    strm << " updates in milliseconds\n";
+    strm << od_endl;
+}
+
+#undef mErrRet
+#define mErrRet(act) \
+{ \
+    act; \
+    return ExitProgram( 1 ); \
+}
 
 int main( int argc, char** argv )
 {
@@ -258,26 +334,52 @@ int main( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "uiBase" );
 
     CommandLineParser cl( argc, argv );
-    cl.setKeyHasValue( "pid" );
-    cl.setKeyHasValue( "inpfile" );
-    cl.setKeyHasValue( "delay" );
+    if ( argc < 2 )
+	mErrRet(printBatchUsage( cl.getExecutableName() ))
 
-    int pid = -1;
-    cl.getVal( "pid", pid );
-    int delay = 1;
-    cl.getVal( "delay", delay );
+    cl.setKeyHasValue( uiProgressViewer::sKeyInputFile() );
+    cl.setKeyHasValue( uiProgressViewer::sKeyPID() );
+    cl.setKeyHasValue( uiProgressViewer::sKeyDelay() );
+
     BufferString inpfile;
-    cl.getVal( "inpfile", inpfile );
+    cl.getVal( uiProgressViewer::sKeyInputFile(), inpfile );
+    int pid = mUdf(int);
+    cl.getVal( uiProgressViewer::sKeyPID(), pid );
+    int delay = mUdf(int);
+    cl.getVal( uiProgressViewer::sKeyDelay(), delay );
+
     if ( inpfile.isEmpty() )
-	inpfile = od_stream::sStdIO();
+    {
+	BufferStringSet normalargs;
+	cl.getNormalArguments( normalargs );
+	if ( !normalargs.isEmpty() )
+	{
+	    const File::Path fp( normalargs.get(0) );
+	    if ( BufferString(fp.extension()) == "log" ||
+		 BufferString(fp.extension()) == "txt" )
+		inpfile = fp.fullPath();
+
+	    if ( normalargs.size() > 1 )
+	    {
+		const int tmppid = normalargs.get(1).toInt();
+		if ( !mIsUdf(tmppid) || tmppid > 0 )
+		    pid = tmppid;
+	    }
+	}
+    }
+
+    od_ostream& strm = od_ostream::logStream();
+    if ( !File::exists(inpfile) )
+	mErrRet( strm << "Selected file does not exist." << od_endl; )
+
+    if ( !File::isFile(inpfile) )
+	mErrRet( strm << "Selected parameter file is no file." << od_endl; )
 
     uiMain app( argc, argv );
 
-    od_istream istrm( inpfile );
-    uiProgressViewer* pv = new uiProgressViewer( 0, istrm, pid );
-    pv->setDelayInMs( delay );
-
+    uiProgressViewer* pv = new uiProgressViewer( 0, inpfile, pid, delay );
     app.setTopLevel( pv );
     pv->show();
+
     return ExitProgram( app.exec() );
 }

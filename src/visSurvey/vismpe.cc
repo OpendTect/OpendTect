@@ -18,6 +18,7 @@
 #include "vistexturechannel2rgba.h"
 
 #include "arrayndsubsel.h"
+#include "coltabmapper.h"
 #include "mpeengine.h"
 #include "seisdatapack.h"
 #include "settings.h"
@@ -107,15 +108,14 @@ MPEDisplay::~MPEDisplay()
 }
 
 
-void MPEDisplay::setColTabMapperSetup( int attrib,
-				       const ColTab::MapperSetup& ms,
-				       TaskRunner* tskr )
+void MPEDisplay::setColTabMapper( int attrib, const ColTab::Mapper& mpr,
+				  TaskRunner* tskr )
 {
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-    channels_->setColTabMapperSetup( attrib, ms );
-    channels_->reMapData( attrib, false, 0 );
+    channels_->setColTabMapper( attrib, mpr );
+    channels_->reMapData( attrib, 0 );
 }
 
 
@@ -127,24 +127,20 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 }
 
 
-ConstRefMan<ColTab::MapperSetup> MPEDisplay::getColTabMapperSetup( int attrib,
-	int version ) const
+const ColTab::Mapper& MPEDisplay::getColTabMapper( int attrib ) const
 {
     if ( attrib<0 || attrib>=nrAttribs() )
-	return 0;
+	return *new ColTab::Mapper;
 
-    if ( mIsUdf(version) || version<0
-			 || version >= channels_->nrVersions(attrib) )
-	version = channels_->currentVersion( attrib );
-
-    return channels_->getColTabMapperSetup( attrib, version );
+    return channels_->getColTabMapper( attrib );
 }
 
 
-const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
+const ColTab::Sequence& MPEDisplay::getColTabSequence( int attrib ) const
 {
     return ( attrib>=0 && attrib<nrAttribs() && channels_->getChannels2RGBA() )
-	? &channels_->getChannels2RGBA()->getSequence( attrib ) : 0;
+	? channels_->getChannels2RGBA()->getSequence( attrib )
+	: SurveyObject::getColTabSequence( attrib );
 }
 
 
@@ -904,7 +900,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tskr )
     }
 
     channels_->setUnMappedData( attrib, 0, arr, cp, tskr );
-    channels_->reMapData( 0, false, 0 );
+    channels_->reMapData( 0, 0 );
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 

@@ -35,7 +35,7 @@ mExpClass(uiBase) uiPixmap : public NamedObject
 public:
 
 			uiPixmap();
-			uiPixmap(int w,int h);
+			uiPixmap(int w,int h,Color col=Color::NoColor());
 			uiPixmap(const char* icon_identifier);
 			uiPixmap(const uiRGBArray&);
 			uiPixmap(const char* xpm[]);
@@ -50,14 +50,13 @@ public:
     const mQtclass(QPixmap*) qpixmap() const	{ return qpixmap_; }
 
     void		fill(const Color&);
-    void		fill(const ColTab::Sequence&,bool hor,
-			     ColTab::SeqUseMode m=ColTab::UnflippedSingle);
 
     int			width() const;
     int			height() const;
     bool		isEmpty() const;
 
-    const char*		source() const		{ return srcname_.buf(); }
+    const char*		source() const		{ return srcname_; }
+    void		setSource( const char* src ) { srcname_ = src; }
 
     bool		save(const char* fnm,const char* fmt=0,
 			     int quality=-1) const;

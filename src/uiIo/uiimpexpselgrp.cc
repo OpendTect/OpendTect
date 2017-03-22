@@ -401,7 +401,7 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
     if ( !sd_.usable() )
 	return selgrpset;
 
-    od_istream strm( *sd_.istrm );
+    od_istream strm( *sd_.iStrm() );
     ascistream astrm( strm, true );
 
     if ( !astrm.isOfFileType(sKeyFileType) )
@@ -456,7 +456,7 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
 {
     if ( !sd_.usable() ) return false;
 
-    od_ostream strm( *sd_.ostrm );
+    od_ostream strm( *sd_.oStrm() );
     ascostream astrm( strm );
 
     if ( !selgrps.size() )

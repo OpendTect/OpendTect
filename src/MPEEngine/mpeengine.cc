@@ -85,9 +85,9 @@ Engine::~Engine()
     deepErase( flatcubescontainer_ );
 
     for ( int idx=attribcachedatapackids_.size()-1; idx>=0; idx-- )
-	dpm_.release( attribcachedatapackids_[idx] );
+	dpm_.unRef( attribcachedatapackids_[idx] );
     for ( int idx=attribbkpcachedatapackids_.size()-1; idx>=0; idx-- )
-	dpm_.release( attribbkpcachedatapackids_[idx] );
+	dpm_.unRef( attribbkpcachedatapackids_[idx] );
 
     setValidator( 0 );
 }
@@ -699,7 +699,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     {
 	if ( cacheid == DataPack::cNoID() )
 	{
-	    dpm_.release( attribcachedatapackids_[idx] );
+	    dpm_.unRef( attribcachedatapackids_[idx] );
 	    attribcachedatapackids_.removeSingle( idx );
 	    delete attribcachespecs_.removeSingle( idx );
 	}
@@ -1046,9 +1046,9 @@ void Engine::init()
     deepErase( trackermgrs_ );
 
     for ( int idx=0; idx<attribcachedatapackids_.size(); idx++ )
-	dpm_.release( attribcachedatapackids_[idx] );
+	dpm_.unRef( attribcachedatapackids_[idx] );
     for ( int idx=0; idx<attribbkpcachedatapackids_.size(); idx++ )
-	dpm_.release( attribbkpcachedatapackids_[idx] );
+	dpm_.unRef( attribbkpcachedatapackids_[idx] );
 
     attribcachedatapackids_.erase();
     attribbkpcachedatapackids_.erase();

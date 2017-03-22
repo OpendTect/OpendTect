@@ -93,8 +93,7 @@ int testMain( int argc, char** argv )
     uiDialog* dlg = new uiDialog( 0, uiDialog::Setup(uiStrings::sInformation(),
 			mNoDlgTitle,mNoHelpKey) );
     uiCanvasDrawTester* tstr = new uiCanvasDrawTester( dlg );
-    tstr->setPrefWidth( 600 );
-    tstr->setPrefHeight( 400 );
+    tstr->setViewSize( 600, 400 );
     app.setTopLevel( dlg );
     dlg->go();
 

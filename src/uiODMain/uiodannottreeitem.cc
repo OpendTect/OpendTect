@@ -63,10 +63,8 @@ bool uiODAnnotParentTreeItem::rightClick( uiTreeViewItem* itm )
 
 int uiODAnnotParentTreeItem::sceneID() const
 {
-    int sceneid;
-    if ( !getProperty<int>(uiODSceneTreeTop::sceneidkey(),sceneid) )
-	return -1;
-    return sceneid;
+    mDynamicCastGet(uiODSceneTreeTop*,treetop,parent_);
+    return treetop ? treetop->sceneID() : -1;
 }
 
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uicolor.h"
 #include "uicoltabsel.h"
+#include "uicolseqdisp.h"
 #include "uicombobox.h"
 #include "uicreatedpspdf.h"
 #include "uidatapointsetcrossplot.h"
@@ -100,11 +101,11 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     colortb_.display( false );
     colortb_.selTool().seqChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
-    colortb_.selTool().mapperSetup()->objectChanged().notify(
+    colortb_.selTool().mapper().objectChanged().notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
 
-    plotter_.setColTab( *colortb_.selTool().sequence() );
-    plotter_.setCTMapper( *colortb_.selTool().mapperSetup() );
+    plotter_.setColTab( colortb_.selTool().sequence() );
+    plotter_.setCTMapper( colortb_.selTool().mapper() );
     plotter_.initDraw();
     plotter_.drawContent();
 
@@ -273,10 +274,8 @@ void uiDataPointSetCrossPlotWin::coltabRgChangedCB( CallBacker* cb )
 
 void uiDataPointSetCrossPlotWin::colTabChanged( CallBacker* )
 {
-    plotter_.setColTab( *colortb_.selTool().sequence() );
-    RefMan<ColTab::MapperSetup> mapsetup
-		    = colortb_.selTool().mapperSetup()->clone();
-    plotter_.setCTMapper( *mapsetup );
+    plotter_.setColTab( colortb_.selTool().sequence() );
+    plotter_.setCTMapper( colortb_.selTool().mapper() );
     plotter_.drawContent();
     plotter_.reDrawSelections();
 }
@@ -644,14 +643,17 @@ void uiDataPointSetCrossPlotWin::setGrpColors()
 	    ? coly1 : plotter_.isMultiColMode()
 	    ? plotter_.y2grpColors()[idx]
 	    : plotter_.axisData(2).axis_->setup().style_.color_;
-	RefMan<ColTab::Sequence> ctseq = new ColTab::Sequence;
-	ctseq->setColor( 0, coly1.r(), coly1.g(), coly1.b() );
-	ctseq->setColor( 1, coly2.r(), coly2.g(), coly2.b() );
-	ctseq->setNrSegments( 2 );
-	uiPixmap pixmap( 20, 20 );
-	pixmap.fill( *ctseq, true );
+
 	if ( grpfld_ )
-	    grpfld_->setPixmap( idx+1, pixmap );
+	{
+	    RefMan<ColTab::Sequence> ctseq = new ColTab::Sequence;
+	    ctseq->setColor( 0, coly1.r(), coly1.g(), coly1.b() );
+	    ctseq->setColor( 1, coly2.r(), coly2.g(), coly2.b() );
+	    ctseq->setNrSegments( 2 );
+	    uiPixmap* pm = ColTab::getuiPixmap( *ctseq, 20, 20 );
+	    grpfld_->setPixmap( idx+1, *pm );
+	    delete pm;
+	}
     }
 }
 

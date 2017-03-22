@@ -133,6 +133,8 @@ bool Seis::Fetcher3D::moveNextBinID()
 Seis::Fetcher2D::~Fetcher2D()
 {
     delete dataset_;
+    delete iter_;
+    deepErase( line2ddata_ );
 }
 
 
@@ -151,14 +153,49 @@ const Seis::Provider2D& Seis::Fetcher2D::prov2D() const
 void Seis::Fetcher2D::reset()
 {
     Fetcher::reset();
-    delete dataset_; dataset_ = 0;
-    nexttrcky_.setGeomID( mUdfGeomID );
     curlidx_ = -1;
+    deepErase( line2ddata_ );
+    openDataSet();
+    if ( !dataset_ )
+	{ nexttrcky_.setGeomID( mUdfGeomID ); return; }
+
+    for ( int iln=0; iln<gtNrLines(); iln++ )
+    {
+	const Pos::GeomID geomid = dataset_->geomID( iln );
+	PosInfo::Line2DData* l2dd = new PosInfo::Line2DData();
+	dataset_->getGeometry( geomid, *l2dd );
+	line2ddata_ += l2dd;
+
+	const TypeSet<PosInfo::Line2DPos>& positions = l2dd->positions();
+	for ( int idx=0; idx<positions.size(); idx++ )
+	{
+	    const int trcnr = positions[idx].nr_;
+	    if ( !isSelectedBinID(BinID(geomid,trcnr)) )
+		l2dd->remove( trcnr );
+	}
+    }
+}
+
+
+bool Seis::Fetcher2D::isSelectedBinID( const BinID& bid ) const
+{
+    return !prov_.seldata_ || prov_.seldata_->isOK(bid);
+}
+
+
+bool Seis::Fetcher2D::moveNextBinID()
+{
+    if ( !iter_ || !iter_->next() )
+	return false;
+
+    nexttrcky_.setTrcNr( iter_->line2DPos().nr_ );
+    return true;
 }
 
 
 void Seis::Fetcher2D::openDataSet()
 {
+    deleteAndZeroPtr( dataset_ );
     if ( !fillIOObj() )
 	return;
 
@@ -202,6 +239,9 @@ bool Seis::Fetcher2D::toNextLine()
 	}
     }
 
+    delete iter_;
+    iter_ = new PosInfo::Line2DDataIterator( *line2ddata_[curlidx_] );
+    nexttrcky_.setGeomID( curGeomID() );
     return true;
 }
 
@@ -304,18 +344,13 @@ BufferString Seis::Fetcher2D::gtLineName( int lnr ) const
 }
 
 
-void Seis::Fetcher2D::gtGeometryInfo( int iln, PosInfo::Line2DData& l2dd ) const
+void Seis::Fetcher2D::gtGeometryInfo(
+		int iln, PosInfo::Line2DData& l2dd ) const
 {
-    l2dd.setEmpty();
-
-    if ( dataset_ )
-	dataset_->getGeometry( dataset_->geomID(iln), l2dd );
-    else
-    {
-	PtrMan<Seis2DDataSet> ds = mkDataSet();
-	if ( ds )
-	    ds->getGeometry( ds->geomID(iln), l2dd );
-    }
+    const PosInfo::Line2DData& ld = *line2ddata_[iln];
+    l2dd.setLineName( ld.lineName() );
+    l2dd.setPositions( ld.positions() );
+    l2dd.setZRange( ld.zRange() );
 }
 
 

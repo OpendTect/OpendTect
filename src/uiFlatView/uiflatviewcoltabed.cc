@@ -15,12 +15,15 @@ ___________________________________________________________________
 
 
 uiFlatViewColTabEd::uiFlatViewColTabEd( uiColTabToolBar& ctab )
-    : colTabChgd(this)
-    , ctseltool_(ctab.selTool())
+    : ctseltool_(ctab.selTool())
+    , colTabChgd(this)
+    , refreshReq(this)
 {
     mAttachCB( ctseltool_.seqChanged, uiFlatViewColTabEd::seqChgCB );
-    mAttachCB( ctseltool_.mapperSetup()->objectChanged(),
+    mAttachCB( ctseltool_.seqModified, uiFlatViewColTabEd::seqChgCB );
+    mAttachCB( ctseltool_.mapper().objectChanged(),
 		uiFlatViewColTabEd::mapperChgCB );
+    mAttachCB( ctseltool_.refreshReq, uiFlatViewColTabEd::refreshReqCB );
 }
 
 
@@ -36,25 +39,30 @@ void uiFlatViewColTabEd::setSensitive( bool yn )
 }
 
 
-void uiFlatViewColTabEd::setColTab( const FlatView::DataDispPars::VD& vdpars )
+void uiFlatViewColTabEd::setDisplayPars( const VDDispPars& vdpars )
 {
     vdpars_ = vdpars;
-    ctseltool_.setSeqName( vdpars.colseqname_ );
-    ctseltool_.useMapperSetup( *vdpars.mappersetup_ );
+    ctseltool_.setSeqName( vdpars_.colseqname_ );
+    ctseltool_.setMapper( *vdpars_.mapper_ );
     setSensitive( true );
 }
 
 
 void uiFlatViewColTabEd::mapperChgCB( CallBacker* cb )
 {
-    // mGetMonitoredChgData( cb, chgdata );
-    seqChgCB( 0 );
+    *vdpars_.mapper_ = ctseltool_.mapper();
+    colTabChgd.trigger();
 }
 
 
 void uiFlatViewColTabEd::seqChgCB( CallBacker* cb )
 {
     vdpars_.colseqname_ = ctseltool_.seqName();
-    *vdpars_.mappersetup_ = *ctseltool_.mapperSetup();
     colTabChgd.trigger();
+}
+
+
+void uiFlatViewColTabEd::refreshReqCB( CallBacker* cb )
+{
+    refreshReq.trigger();
 }

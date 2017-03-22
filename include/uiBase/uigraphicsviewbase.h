@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiobj.h"
 
-namespace OD { class Alignment; };
+namespace OD { class Alignment; }
 class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsViewBody;
@@ -53,8 +53,14 @@ public:
     void			setMidMouseButtonForDrag(bool);
     bool			hasMidMouseButtonForDrag() const;
 
-    int				width() const;
-    int				height() const;
+    int				width() const;		//!<width of widget
+    int				height() const;		//!<height of widget
+    int				viewWidth() const;	//!<width of viewport
+    int				viewHeight() const;	//!<height of viewport
+
+    void			setViewSize(int width,int height);
+    void			setViewWidth(int);
+    void			setViewHeight(int);
 
     int				getSceneBorder() const;
     void			setSceneBorder(int);

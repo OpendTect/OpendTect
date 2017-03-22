@@ -8,6 +8,7 @@
 #include "muter.h"
 
 #include "valseries.h"
+#include "typeset.h"
 #include <math.h>
 
 
@@ -36,7 +37,7 @@ void Muter::topMute( ValueSeries<float>& arr, int sz, float pos ) const
     for ( int idx=startidx; idx<=endidx; idx++ )
     {
 	float relpos = (idx-pos) / taperlen_;
-	arr.setValue( idx, 
+	arr.setValue( idx,
 		    (float) ( arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) ) );
     }
 }
@@ -56,7 +57,7 @@ void Muter::tailMute( ValueSeries<float>& arr, int sz, float pos ) const
     for ( int idx=startidx; idx<=endidx; idx++ )
     {
 	float relpos = 1-((idx-pos) / taperlen_);
-	arr.setValue( idx, 
+	arr.setValue( idx,
 		    (float) ( arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) ) );
     }
 
@@ -67,13 +68,13 @@ void Muter::tailMute( ValueSeries<float>& arr, int sz, float pos ) const
 
 void Muter::muteIntervalsPos( const TypeSet< Interval<float> >& itvs,
 				TypeSet< Interval<float> >& muteitvs,
-				const SamplingData<double>& sd ) 
+				const SamplingData<double>& sd )
 {
     for ( int idx=0; idx<itvs.size(); idx++ )
     {
 	muteitvs += itvs[idx];
-	muteitvs[idx].start = mutePos( itvs[idx].start, sd ); 
-	muteitvs[idx].stop = mutePos( itvs[idx].stop, sd ); 
+	muteitvs[idx].start = mutePos( itvs[idx].start, sd );
+	muteitvs[idx].stop = mutePos( itvs[idx].stop, sd );
     }
 }
 
@@ -83,7 +84,7 @@ void Muter::muteIntervals( ValueSeries<float>& arr, int sz,
 {
     //TODO assumes intervals sorted. What if not ??
 
-    for ( int idx=0; idx<muteitvs.size(); idx++ ) 
+    for ( int idx=0; idx<muteitvs.size(); idx++ )
     {
 	const Interval<float> itv = muteitvs[idx];
 
@@ -132,7 +133,7 @@ void Muter::itvMute(ValueSeries<float>& arr, int sz, Interval<float> itv ) const
     for ( int idx=startidx; idx<=endidx; idx++ )
     {
 	float relpos = (idx-pos1) / taperlen_;
-	arr.setValue( idx, 
+	arr.setValue( idx,
 		    (float) ( arr[idx] * 0.5 * ( 1 - cos(M_PI * relpos) ) ) );
     }
 }

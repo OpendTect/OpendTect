@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodtreeitem.h"
+#include "uiodscenetreeitem.h"
 #include "bufstring.h"
 #include "factory.h"
 
@@ -49,7 +49,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODDataTreeItem : public uiTreeItem
+mExpClass(uiODMain) uiODDataTreeItem : public uiODSceneTreeItem
 { mODTextTranslationClass(uiODDataTreeItem)
 public:
 				~uiODDataTreeItem();
@@ -85,9 +85,7 @@ protected:
 
     virtual bool		hasTransparencyMenu() const { return true; }
 
-    uiODApplMgr*		applMgr() const;
     uiVisPartServer*		visserv_;
-    int				sceneID() const;
     bool			isSelectable() const	{ return true; }
     bool			isExpandable() const	{ return false; }
     const char*			parentType() const	{ return parenttype_; }

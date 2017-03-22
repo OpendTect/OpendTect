@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "color.h"
 #include "datapackbase.h"
+#include "valseries.h"
 class DataColDef;
 class BinIDValueSet;
 class PosVecDataSet;
@@ -229,11 +230,7 @@ public:
 				const UnitOfMeasure* un=0);
 			//!< or use dataSet() to add columns
 
-    // DataPack interface impl
     bool		simpleCoords() const		{ return minimal_; }
-    float		nrKBytes() const;
-    void		dumpInfo(IOPar&) const;
-
 
 protected:
 
@@ -253,11 +250,46 @@ protected:
     const int		nrfixedcols_;
 
     DataColDef&		gtColDef(ColID) const;
+
+    virtual float	gtNrKBytes() const;
+    virtual void	doDumpInfo(IOPar&) const;
+
 };
 
 
-/*!\brief Fills DataPointSet with data from a VolumeDataPack
-*/
+/*!\brief ValueSeries based on DataPointSet */
+
+mExpClass(General) DPSValueSeries : public ValueSeries<float>
+{
+public:
+
+    typedef DataPointSet::ColID	ColID;
+    typedef DataPointSet::RowID	RowID;
+
+				DPSValueSeries( const DataPointSet& dps,
+						ColID colid )
+				    : dps_(dps), colid_(colid)
+				{ dps_.ref(); }
+				DPSValueSeries( const DPSValueSeries& oth )
+				    : dps_(oth.dps_), colid_(oth.colid_)
+				{ dps_.ref(); }
+				~DPSValueSeries()
+				{ dps_.unRef();}
+
+    virtual ValueSeries<float>*	clone() const
+				{ return new DPSValueSeries(*this); }
+    virtual float		value( od_int64 idx ) const
+				{ return dps_.value( colid_, (RowID)idx ); }
+
+protected:
+
+    const DataPointSet&		dps_;
+    ColID			colid_;
+
+};
+
+
+/*!\brief Fills DataPointSet with data from a VolumeDataPack */
 
 mExpClass(General) DPSFromVolumeFiller : public ParallelTask
 { mODTextTranslationClass(DPSFromVolumeFiller)

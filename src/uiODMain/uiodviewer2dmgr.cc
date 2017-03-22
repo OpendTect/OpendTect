@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
+#include "coltabseqmgr.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emhorizon2d.h"
@@ -596,14 +597,15 @@ void uiODViewer2DMgr::fillProbeFromExisting( Probe& probe,
 	const bool iswva = idx;
 	AttribProbeLayer* attrlayer = new AttribProbeLayer();
 	attrlayer->setSelSpec( vwr2d.selSpec(iswva) );
-	const uiFlatViewer& vwr = vwr2d.viewwin()->viewer( 0 );
-	const ColTab::MapperSetup& mapsu =
-	    iswva ? *vwr.appearance().ddpars_.wva_.mappersetup_
-		  : *vwr.appearance().ddpars_.vd_.mappersetup_;
+	uiFlatViewer& vwr = const_cast<uiFlatViewer&>(
+				vwr2d.viewwin()->viewer(0) );
+	const ColTab::Mapper& mapper =
+		*(iswva ? vwr.appearance().ddpars_.wva_.mapper_
+			: vwr.appearance().ddpars_.vd_.mapper_);
 	if ( !iswva )
-	    attrlayer->setColSeq( ColTab::SeqMGR().getAny(
+	    attrlayer->setSequence( *ColTab::SeqMGR().getAny(
 				  vwr.appearance().ddpars_.vd_.colseqname_) );
-	attrlayer->setMapperSetup( mapsu );
+	attrlayer->mapper() = mapper;
 	probe.addLayer( attrlayer );
     }
 }

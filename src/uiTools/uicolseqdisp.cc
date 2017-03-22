@@ -10,8 +10,7 @@ ________________________________________________________________________
 
 #include "uicolseqdisp.h"
 
-#include "coltabindex.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "coltabmapper.h"
 
 #include "uipixmap.h"
@@ -20,12 +19,71 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 
 
+void ColTab::fillRGBArray( uiRGBArray& rgbarr, const Sequence& seq,
+			   const Mapper* mpr, OD::Orientation orient,
+			   int bordernrpix )
+{
+    if ( bordernrpix )
+	rgbarr.clear( seq.undefColor() );
+
+    const int szx = rgbarr.getSize( true );
+    const int szy = rgbarr.getSize( false );
+    const int stopxpix = szx - bordernrpix;
+    const int stopypix = szy - bordernrpix;
+
+    if ( !mpr )
+	mpr = new Mapper;
+    const ColTab::Table table( seq, orient==OD::Horizontal ? szx : szy, *mpr );
+
+    if ( orient == OD::Horizontal )
+    {
+	for ( int ix=bordernrpix; ix<stopxpix; ix++ )
+	{
+	    const Color color = table.color( ix );
+	    for ( int iy=bordernrpix; iy<stopypix; iy++ )
+		rgbarr.set( ix, iy, color );
+	}
+    }
+    else
+    {
+	for ( int iy=bordernrpix; iy<stopypix; iy++ )
+	{
+	    const Color color = table.color( iy );
+	    for ( int ix=bordernrpix; ix<stopxpix; ix++ )
+		rgbarr.set( ix, iy, color );
+	}
+    }
+}
+
+
+uiPixmap* ColTab::getuiPixmap( const Sequence& seq, int szx, int szy,
+			       const Mapper* mpr, OD::Orientation orient,
+			       int bordernrpix )
+{
+    if ( szx < 1 || szy < 1 )
+	return 0;
+
+    uiPixmap* pm = new uiPixmap( szx, szy );
+    pm->setSource( "[colortable]" );
+    if ( seq.isEmpty() )
+	{ pm->fill( seq.undefColor() ); return pm; }
+
+    uiRGBArray rgbarr( false );
+    rgbarr.setSize( szx, szy );
+
+    fillRGBArray( rgbarr, seq, mpr, orient, bordernrpix );
+
+    pm->convertFromRGBArray( rgbarr );
+    return pm;
+}
+
+
 uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient, bool wucd )
     : uiRGBArrayCanvas(p,mkRGBArr())
     , orientation_(orient)
     , withudfcoldisp_(wucd)
-    , sequsemode_(ColTab::UnflippedSingle)
     , colseq_(ColTab::SeqMGR().getDefault())
+    , mapper_(new ColTab::Mapper())
     , selReq(this)
     , menuReq(this)
     , upReq(this)
@@ -39,8 +97,8 @@ uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient, bool wucd )
     setStretch( 1, 0 );
     scene().useBackgroundPattern( true );
 
-    setPrefHeight( orient == OD::Vertical ? 160 : 25 );
-    setPrefWidth( orient == OD::Vertical ? 30 : 80 );
+    setViewHeight( orient == OD::Vertical ? 160 : 25 );
+    setViewWidth( orient == OD::Vertical ? 30 : 80 );
 
     mAttachCB( postFinalise(), uiColSeqDisp::initCB );
 }
@@ -66,9 +124,9 @@ const char* uiColSeqDisp::seqName() const
 }
 
 
-void uiColSeqDisp::setNewSeq( const Sequence& newseq )
+bool uiColSeqDisp::setNewSeq( const Sequence& newseq )
 {
-    replaceMonitoredRef( colseq_, const_cast<Sequence&>(newseq), this );
+    return replaceMonitoredRef( colseq_, newseq, this );
 }
 
 
@@ -80,28 +138,25 @@ void uiColSeqDisp::setSeqName( const char* nm )
     if ( !newseq )
 	return;
 
-    setNewSeq( *newseq );
-    reDraw();
+    if ( setNewSeq(*newseq) )
+	reDraw();
 }
 
 
 void uiColSeqDisp::setSequence( const Sequence& seq )
 {
-    if ( colseq_.ptr() == &seq )
-	return;
-
-    setNewSeq( seq );
-    reDraw();
+    if ( setNewSeq(seq) )
+	reDraw();
 }
 
 
-void uiColSeqDisp::setSeqUseMode( ColTab::SeqUseMode mode )
+void uiColSeqDisp::setMapper( const Mapper* mpr )
 {
-    if ( sequsemode_ != mode )
-    {
-	sequsemode_ = mode;
-	reDraw();
-    }
+    if ( !mpr )
+	mpr = new Mapper;
+
+    replaceMonitoredRef( mapper_, mpr, this );
+    reDraw();
 }
 
 
@@ -126,8 +181,10 @@ void uiColSeqDisp::initCB( CallBacker* )
     mAttachCB( keh.keyReleased, uiColSeqDisp::keybCB );
 
     mAttachCB( colseq_->objectChanged(), uiColSeqDisp::seqChgCB );
+    mAttachCB( mapper_->objectChanged(), uiColSeqDisp::mapperChgCB );
     mAttachCB( reSize, uiColSeqDisp::reSizeCB );
-    reDraw();
+
+    reSizeCB(0);
 }
 
 
@@ -146,43 +203,32 @@ void uiColSeqDisp::reDraw()
 
     beforeDraw();
 
-    rgbarr_->clear( colseq_->undefColor() );
-    const bool isvert = orientation_ != OD::Horizontal;
-    const int arrw = rgbarr_->getSize( true );
-    const int arrh = rgbarr_->getSize( false );
-    const int shortarrlen = isvert ? arrw : arrh;
-    const int longarrlen = isvert ? arrh : arrw;
-    const ColTab::IndexedLookUpTable indextable( *colseq_, longarrlen,
-						 sequsemode_ );
-    const int startshort = withudfcoldisp_ ? shortarrlen / 7 : 0;
-    const int stopshort = shortarrlen - startshort;
-    const int startlong = 0;
-    const int stoplong = longarrlen;
-    for ( int ilong=startlong; ilong<stoplong; ilong++ )
-    {
-	const Color color = indextable.colorForIndex( ilong );
-	for ( int ishort=startshort; ishort<stopshort; ishort++ )
-	{
-	    if ( isvert )
-		rgbarr_->set( ishort, ilong, color );
-	    else
-		rgbarr_->set( ilong, ishort, color );
-	}
-    }
-
-    uiPixmap pixmap( arrw, arrh );
+    ColTab::fillRGBArray( *rgbarr_, *colseq_, mapper_, orientation_,
+			  withudfcoldisp_ ? 4 : 0 );
+    uiPixmap pixmap( rgbarr_->getSize(true), rgbarr_->getSize(false) );
     pixmap.convertFromRGBArray( *rgbarr_ );
     setPixmap( pixmap );
     updatePixmap();
 }
 
 
-uiColSeqDisp::PosType uiColSeqDisp::seqPosFor( const uiPoint& pt ) const
+int uiColSeqDisp::longSz() const
 {
-    const float relpos = orientation_ == OD::Horizontal
-			? ((float)pt.x_) / ((float)scene().nrPixX())
-			: ((float)pt.y_) / ((float)scene().nrPixY());
-    return ColTab::Mapper::seqPos4RelPos( sequsemode_, relpos );
+    return orientation_ == OD::Horizontal ? scene().nrPixX() : scene().nrPixY();
+}
+
+
+int uiColSeqDisp::pixFor( ValueType val ) const
+{
+    const float relpos = mapper_->relPosition( val );
+    return mCast(int,relpos * longSz());
+}
+
+
+ColTab::PosType uiColSeqDisp::relPosFor( const MouseEvent& ev ) const
+{
+    const int ipos = orientation_ == OD::Horizontal ? ev.x() : ev.y();
+    return ((float)ipos) / longSz();
 }
 
 
@@ -190,7 +236,7 @@ uiColSeqDisp::PosType uiColSeqDisp::seqPosFor( const uiPoint& pt ) const
     { \
 	if ( !trig.isEmpty() ) \
 	{ \
-	    trig.trigger( seqPosFor(uiPoint(event.x(),event.y())) ); \
+	    trig.trigger( relPosFor(event) ); \
 	    meh.setHandled( true ); \
 	} \
     }

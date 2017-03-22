@@ -10,6 +10,7 @@ ___________________________________________________________________
 
 
 #include "vistexturechannel2voldata.h"
+#include "coltabseqmgr.h"
 #include "envvars.h"
 
 
@@ -201,11 +202,14 @@ TextureChannel2VolData::TextureChannel2VolData()
     , sequence_(ColTab::SeqMGR().getDefault())
 //    , transferfunc_( 0 )
 {
+    mAttachCB( sequence_->objectChanged(), TextureChannel2VolData::seqModifCB );
 }
 
 
 TextureChannel2VolData::~TextureChannel2VolData()
 {
+    detachAllNotifiers();
+
 //    if ( transferfunc_ )
 //	transferfunc_->unref();
 }
@@ -235,17 +239,16 @@ void TextureChannel2VolData::setChannels( TextureChannels* texch )
 }
 
 
-void TextureChannel2VolData::setSequence( int channel,
-					  const ColTab::Sequence& seq )
+void TextureChannel2VolData::setSequence( int channel, const Sequence& seq )
 {
-    if ( channel < 0 ) channel = 0;
-    if ( channel >= maxNrChannels() ) channel = maxNrChannels()-1;
+    if ( channel < 0 )
+	channel = 0;
+    if ( channel >= maxNrChannels() )
+	channel = maxNrChannels()-1;
 
     // Only 1 channel supported now.
-    if ( sequence_.ptr() != &seq )
-	sequence_ = &seq;
-
-    update();
+    if ( replaceMonitoredRef( sequence_, seq, this ) )
+	update();
 }
 
 

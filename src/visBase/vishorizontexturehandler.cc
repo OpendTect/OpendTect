@@ -86,27 +86,21 @@ HorizonTextureHandler::getColTabSequence( int channel ) const
 }
 
 
-void HorizonTextureHandler::setColTabMapperSetup( int channel,
-    const ColTab::MapperSetup& mappersu, TaskRunner* tskr )
+void HorizonTextureHandler::setColTabMapper( int channel,
+    const ColTab::Mapper& mapper, TaskRunner* tskr )
 {
     if ( channel>=0 )
     {
-	ConstRefMan<ColTab::MapperSetup> channel0su
-		    = channels_->getColTabMapperSetup( channel, 0 );
-	const bool needsclip =
-	    channel0su->needsReClip( mappersu );
-	channels_->setColTabMapperSetup( channel, mappersu );
-	channels_->reMapData( channel, !needsclip, tskr );
+	channels_->setColTabMapper( channel, mapper );
+	channels_->reMapData( channel, tskr );
     }
 }
 
 
-ConstRefMan<ColTab::MapperSetup>
-HorizonTextureHandler::getColTabMapperSetup( int ch ) const
+const ColTab::Mapper& HorizonTextureHandler::getColTabMapper( int ch ) const
 {
-    return ch<0 ? 0 : channels_->getColTabMapperSetup( ch, activeVersion(ch) );
+    return ch<0 ? *new ColTab::Mapper : channels_->getColTabMapper( ch );
 }
-
 
 
 int HorizonTextureHandler::nrChannels() const
@@ -181,12 +175,6 @@ int HorizonTextureHandler::activeVersion( int channel ) const
 void HorizonTextureHandler::selectActiveVersion( int channel, int version )
 {
     channels_->setCurrentVersion( channel, version );
-}
-
-
-const DistribType& HorizonTextureHandler::getDataDistribution( int ch ) const
-{
-    return channels_->getDataDistribution( ch );
 }
 
 

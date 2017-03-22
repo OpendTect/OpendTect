@@ -10,6 +10,7 @@ ___________________________________________________________________
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
+#include "uiodsceneparenttreeitem.h"
 #include "uiodsceneobjtreeitem.h"
 
 #include "keyboardevent.h"
@@ -28,20 +29,12 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 
 
-const char* uiODSceneTreeTop::sceneidkey()		{ return "Sceneid"; }
-const char* uiODSceneTreeTop::viewerptr()		{ return "Viewer"; }
-const char* uiODSceneTreeTop::applmgrstr()		{ return "Applmgr"; }
-
-
-uiODSceneTreeTop::uiODSceneTreeTop( ui3DViewer* sovwr, uiTreeView* lv,
-				    uiODApplMgr* am, uiTreeFactorySet* tfs_ )
+uiODSceneTreeTop::uiODSceneTreeTop( uiTreeView* lv, uiTreeFactorySet* tfs_,
+				    int sceneid )
     : uiTreeTopItem(lv)
     , tfs(tfs_)
+    , sceneid_(sceneid)
 {
-    setProperty<int>( sceneidkey(), sovwr->sceneID() );
-    setPropertyPtr( viewerptr(), sovwr );
-    setPropertyPtr( applmgrstr(), am );
-
     tfs->addnotifier.notify( mCB(this,uiODSceneTreeTop,addFactoryCB) );
     tfs->removenotifier.notify( mCB(this,uiODSceneTreeTop,removeFactoryCB) );
 }
@@ -56,9 +49,7 @@ uiODSceneTreeTop::~uiODSceneTreeTop()
 
 int uiODSceneTreeTop::sceneID() const
 {
-    int sceneid=-1;
-    getProperty<int>( sceneidkey(), sceneid );
-    return sceneid;
+    return sceneid_;
 }
 
 
@@ -71,9 +62,7 @@ bool uiODSceneTreeTop::selectWithKey( int selkey )
 
 uiODApplMgr* uiODSceneTreeTop::applMgr()
 {
-    void* res = 0;
-    getPropertyPtr( applmgrstr(), res );
-    return reinterpret_cast<uiODApplMgr*>( res );
+    return &ODMainWin()->applMgr();
 }
 
 
@@ -134,27 +123,23 @@ bool uiODSceneTreeItem::anyButtonClick( uiTreeViewItem* item )
 }
 
 
+uiODApplMgr* uiODSceneTreeItem::applMgr() const
+{ return &ODMainWin()->applMgr(); }
+
+
 uiODApplMgr* uiODSceneTreeItem::applMgr()
-{
-    void* res = 0;
-    getPropertyPtr( uiODSceneTreeTop::applmgrstr(), res );
-    return reinterpret_cast<uiODApplMgr*>( res );
-}
-
-
-ui3DViewer* uiODSceneTreeItem::viewer()
-{
-    void* res = 0;
-    getPropertyPtr( uiODSceneTreeTop::viewerptr(), res );
-    return reinterpret_cast<ui3DViewer*>( res );
-}
+{ return &ODMainWin()->applMgr(); }
 
 
 int uiODSceneTreeItem::sceneID() const
 {
-    int sceneid=-1;
-    getProperty<int>( uiODSceneTreeTop::sceneidkey(), sceneid );
-    return sceneid;
+    mDynamicCastGet(uiODSceneTreeItem*,scenetreeitem,parent_);
+    mDynamicCastGet(uiODSceneParentTreeItem*,sceneptreeitem,parent_);
+    mDynamicCastGet(uiODSceneTreeTop*,treetop,parent_);
+    return scenetreeitem ? scenetreeitem->sceneID()
+			 : sceneptreeitem ? sceneptreeitem->sceneID()
+					  : treetop ? treetop->sceneID()
+						    : -1;
 }
 
 
@@ -301,7 +286,7 @@ void uiODSceneObjTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuOrTBItem( istb, 0, menu, &coltabitem_, true, false );
     bool enabdump = true;
     Settings::common().getYN(
-		IOPar::compKey("dTect","Dump OI Menu"), enabdump );
+	    IOPar::compKey("dTect","Dump OI Menu"), enabdump );
     mAddMenuOrTBItem( istb, 0, menu, &dumpivitem_, enabdump, false );
 }
 
@@ -318,8 +303,10 @@ void uiODSceneObjTreeItem::handleMenuCB( CallBacker* cb )
     {
 	ObjectSet<ui3DViewer> viewers;
 	ODMainWin()->sceneMgr().get3DViewers( viewers );
+	const ui3DViewer* vwr3d =
+	    ODMainWin()->sceneMgr().get3DViewer( sceneID() );
 	uiScenePropertyDlg dlg( getUiParent(), viewers,
-				viewers.indexOf(viewer()) );
+				viewers.indexOf(vwr3d) );
 	dlg.go();
     }
     else if ( mnuid==imageitem_.id )
@@ -329,6 +316,12 @@ void uiODSceneObjTreeItem::handleMenuCB( CallBacker* cb )
     else if( mnuid==dumpivitem_.id )
 	visserv->writeSceneToFile( displayid_,
 			    uiStrings::phrExport( uiStrings::sScene() ));
+}
+
+
+int uiODSceneObjTreeItem::sceneID() const
+{
+    return displayid_;
 }
 
 

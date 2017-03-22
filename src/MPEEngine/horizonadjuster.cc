@@ -52,7 +52,7 @@ HorizonAdjuster::~HorizonAdjuster()
 {
     delete attribsel_;
     delete &evtracker_;
-    dpm_.release( datapackid_ );
+    dpm_.unRef( datapackid_ );
 }
 
 

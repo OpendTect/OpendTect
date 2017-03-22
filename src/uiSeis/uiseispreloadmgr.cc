@@ -10,7 +10,7 @@
 #include "ascstream.h"
 #include "ctxtioobj.h"
 #include "coltabmapper.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "datapack.h"
 #include "file.h"
 #include "filepath.h"
@@ -498,7 +498,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     scanbut_->attach( rightTo, nrtrcsfld_ );
     mapperrgfld_ = new uiMapperRangeEditor( rightgrp, false );
     mapperrgfld_->attach( alignedBelow, nrtrcsfld_ );
-    mAttachCB( mapperrgfld_->mapperSetup().objectChanged(),
+    mAttachCB( mapperrgfld_->mapper().setup().objectChanged(),
 		uiSeisPreLoadSel::mapperSetupChgCB );
 
     postFinalise().notify( mCB(this,uiSeisPreLoadSel,finalizeDoneCB) );
@@ -653,24 +653,24 @@ void uiSeisPreLoadSel::setColorTable()
 
     const SeisIOObjInfo info( ioobj );
     ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getDefault();
-    RefMan<ColTab::MapperSetup> ms = new ColTab::MapperSetup;
-    ms->setRange( mapperrgfld_->getDisplay().xAxis()->range() );
+    RefMan<ColTab::Mapper> mpr = new ColTab::Mapper;
+    mpr->setup().setFixedRange( mapperrgfld_->getDisplay().xAxis()->range() );
     IOPar pars;
     if ( info.getDisplayPars(pars) )
     {
 	const char* seqnm = pars.find( sKey::Name() );
 	seq = ColTab::SeqMGR().getAny( seqnm );
-	ms->usePar( pars );
+	mpr->setup().usePar( pars );
     }
 
     mapperrgfld_->setColTabSeq( *seq );
-    mapperrgfld_->setMapperSetup( *ms );
+    mapperrgfld_->setMapper( *mpr );
 }
 
 
 void uiSeisPreLoadSel::mapperSetupChgCB( CallBacker* )
 {
-    fromrgfld_->setValue( mapperrgfld_->mapperSetup().range() );
+    fromrgfld_->setValue( mapperrgfld_->mapper().getRange() );
 }
 
 

@@ -39,7 +39,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     const uiString lbltxt = tr("Preprocessing methods");
     uiLabel* label = new uiLabel( this, lbltxt );
 
-    factorylist_ = new uiListBox( this, "Preprocessing methods", 
+    factorylist_ = new uiListBox( this, "Preprocessing methods",
 							    OD::ChooseOnlyOne );
     factorylist_->addItems( Processor::factory().getUserNames() );
     factorylist_->setHSzPol( uiObject::Wide );
@@ -50,7 +50,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     factorylist_->attach( ensureBelow, label );
 
     addprocessorbutton_ = new uiToolButton( this, uiToolButton::RightArrow,
-			      uiStrings::phrAdd(tr("method")), 
+			      uiStrings::phrAdd(tr("method")),
 			      mCB(this,uiProcessorManager,addCB) );
     addprocessorbutton_->attach( centeredRightOf, factorylist_ );
 
@@ -58,7 +58,6 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     processorlist_->setHSzPol( uiObject::Wide );
     processorlist_->attach( rightTo, factorylist_ );
     processorlist_->attach( ensureRightOf, addprocessorbutton_ );
-    processorlist_->attach( heightSameAs, factorylist_ );
     processorlist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,processorClickCB) );
     processorlist_->doubleClicked.notify(

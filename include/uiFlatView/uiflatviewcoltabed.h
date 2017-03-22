@@ -24,25 +24,29 @@ class uiColTabSelTool;
 mExpClass(uiFlatView) uiFlatViewColTabEd : public CallBacker
 {
 public:
+
+    typedef FlatView::DataDispPars::VD	VDDispPars;
+
 			uiFlatViewColTabEd(uiColTabToolBar&);
 			~uiFlatViewColTabEd();
 
-    void		setColTab(const FlatView::DataDispPars::VD&);
+    uiColTabSelTool&	selTool()		{ return ctseltool_; }
     void		setSensitive(bool yn);
 
-    FlatView::DataDispPars::VD&		getDisplayPars()
-					{ return vdpars_; }
-    uiColTabSelTool&			selTool()
-					{ return ctseltool_; }
+    const VDDispPars&	displayPars() const		{ return vdpars_; }
+    VDDispPars&		displayPars()			{ return vdpars_; }
+    void		setDisplayPars(const VDDispPars&);
 
-    Notifier<uiFlatViewColTabEd>	colTabChgd;
+    Notifier<uiFlatViewColTabEd> refreshReq;
+    Notifier<uiFlatViewColTabEd> colTabChgd;
 
 protected:
 
-    uiColTabSelTool&	ctseltool_;
+    uiColTabSelTool&		ctseltool_;
     FlatView::DataDispPars::VD	vdpars_;
 
     void			mapperChgCB(CallBacker*);
     void			seqChgCB(CallBacker*);
+    void			refreshReqCB(CallBacker*);
 
 };

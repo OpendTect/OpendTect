@@ -48,6 +48,7 @@ public:
     void		setGridder(Gridder2D*); //becomes mine
     bool		setGridder(const IOPar&);
     const Gridder2D*	getGridder() const;
+    PolyTrend::Order	getTrendOrder() const	{ return trendorder_; }
 
     void		setLayerModel(InterpolationLayerModel*); //becomes mine
     const InterpolationLayerModel* getLayerModel() const;
@@ -74,7 +75,7 @@ protected:
 
     InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;
-    PolyTrend::Order			trend_;
+    PolyTrend::Order			trendorder_;
     ObjectSet<Vel::FunctionSource>	sources_;
 
 };

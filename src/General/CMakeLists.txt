@@ -28,7 +28,7 @@ list ( APPEND OD_MODULE_SOURCES
 	conn.cc
 	cbvsinfo.cc cbvsreader.cc cbvsreadmgr.cc
 	cbvswriter.cc cbvswritemgr.cc
-	coltabindex.cc coltabmapper.cc coltabsequence.cc
+	coltab.cc coltabmapper.cc coltabsequence.cc
 	ctxtioobj.cc
 	databuf.cc
 	datainpspec.cc

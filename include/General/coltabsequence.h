@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 
 #include "coltab.h"
-#include "ptrman.h"
-#include "uistring.h"
 #include "enums.h"
+#include "uistring.h"
 #include "sharedobject.h"
 
 
@@ -29,7 +28,7 @@ class SequenceManager;
 
   Standard color sequences ('Color tables') are read at program start,
   including the 'user defined' ones. Users can overrule or 'remove' the
-  standard ones. Disabled sequecens will not be shown in selectors.
+  standard ones. Disabled sequences will not be shown in selectors.
 
   Sequences cannot be scaled, try the Mapper.
 
@@ -39,11 +38,10 @@ mExpClass(General) Sequence : public SharedObject
 {
 public:
 
-    typedef float			PosType; //!< 0 <= x <= 1
-    typedef TypeSet<float>::size_type	size_type;
+    typedef TypeSet<PosType>::size_type	size_type;
     typedef size_type			IdxType;
-    typedef unsigned char		ValueType;
-    typedef std::pair<PosType,ValueType> TranspPtType;
+    typedef unsigned char		CompType;
+    typedef std::pair<PosType,CompType>	TranspPtType;
 
     enum Status		{ System, Edited, Added };
 			mDeclareEnumUtils(Status);
@@ -64,13 +62,13 @@ public:
     inline bool		isEmpty() const		{ return size() < 1; }
     size_type		size() const;
     PosType		position(IdxType) const;
-    ValueType		r(IdxType) const;
-    ValueType		g(IdxType) const;
-    ValueType		b(IdxType) const;
+    CompType		r(IdxType) const;
+    CompType		g(IdxType) const;
+    CompType		b(IdxType) const;
 
     size_type		transparencySize() const;
     TranspPtType	transparency(IdxType) const;
-    ValueType		transparencyAt(PosType) const;
+    CompType		transparencyAt(PosType) const;
     void		setTransparency(TranspPtType);
     void		changeTransparency(IdxType,TranspPtType);
     void		removeTransparencies();
@@ -84,10 +82,10 @@ public:
 			    nrsegments == -1 constant color between markers.*/
     bool		isSegmentized() const		{ return nrSegments(); }
 
-    void		changeColor(IdxType,ValueType,ValueType,ValueType);
+    void		changeColor(IdxType,CompType,CompType,CompType);
     void		changePos(IdxType,PosType);
     IdxType		setColor(PosType, //!< Insert or change
-				 ValueType,ValueType,ValueType);
+				 CompType,CompType,CompType);
     void		removeColor(IdxType);
     void		removeAllColors();
 
@@ -120,9 +118,9 @@ protected:
 			~Sequence();
 
     TypeSet<PosType>	x_;
-    TypeSet<ValueType>	r_;
-    TypeSet<ValueType>	g_;
-    TypeSet<ValueType>	b_;
+    TypeSet<CompType>	r_;
+    TypeSet<CompType>	g_;
+    TypeSet<CompType>	b_;
     TypeSet<TranspPtType> tr_;
 
     size_type		nrsegments_	= 0;
@@ -133,124 +131,14 @@ protected:
     inline size_type	gtSize() const	{ return x_.size(); }
 
     PosType		snapToSegmentCenter(PosType) const;
-    ValueType		gtTransparencyAt(PosType) const;
-    bool		chgColor(IdxType,ValueType,ValueType,ValueType);
+    CompType		gtTransparencyAt(PosType) const;
+    bool		chgColor(IdxType,CompType,CompType,CompType);
     bool		rmColor(IdxType);
     void		emitStatusChg() const;
 
     friend class	SequenceManager;
 
 };
-
-
-/*!\brief Manages Sequences; reads/writes system or user-defined.
-
-  This class is not fully MT-safe; it does not (safely) support concurrent
-  editing from different threads. That out of the way, we can do without IDs.
-  The name of a sequence is its key. Names are compared case-insensitive.
-  The name of a sequence can change though, watch the Sequence's notifications.
-
-  The class has a singleton instance ColTab::SeqMGR().
-
- */
-
-mExpClass(General) SequenceManager : public Monitorable
-{ mODTextTranslationClass(ColTab::SequenceManager);
-public:
-
-    typedef ObjectSet<Sequence>::size_type	size_type;
-    typedef size_type				IdxType;
-    typedef ConstRefMan<Sequence>		ConstRef;
-
-			mDeclMonitorableAssignment(SequenceManager);
-
-    bool		isPresent(const char*) const;
-    ConstRef		getByName(const char*) const;	//!< can be null
-    ConstRef		getAny(const char*,bool seismics_if_default=true) const;
-				//!< guaranteed non-null
-    ConstRef		getDefault(bool for_seismics=true) const;
-				//!< guaranteed non-null
-    ConstRef		getFromPar(const IOPar&,const char* subky=0) const;
-				//!< guaranteed non-null
-
-			// Use monitorLock when using indexes
-    size_type		size() const;
-    Sequence::Status	statusOf(const Sequence&) const;
-    IdxType		indexOf(const char*) const;
-    IdxType		indexOf(const Sequence&) const;
-    ConstRef		getByIdx(IdxType) const;
-    void		getSequenceNames(BufferStringSet&) const;
-
-    bool		needsSave() const;
-    uiRetVal		write(bool sys=false,bool applsetup=true) const;
-
-			// ID is the index ... see class remarks.
-    static ChangeType	cSeqAdd()		{ return 2; }
-    static ChangeType	cSeqRemove()		{ return 3; }
-    static const char*	sKeyRemoved();
-
-    mutable CNotifier<SequenceManager,ChangeData> nameChange;
-			//!< provides name change notif for any of the seqs
-
-    static const Sequence& getRGBBlendColSeq(int);
-					//!< 0=red, 1=green, 2=blue 3=transp
-
-protected:
-
-    ObjectSet<Sequence> seqs_;
-    ObjectSet<Sequence> sysseqs_;
-    const bool		iscopy_;
-    mutable DirtyCounter lastsaveddirtycount_;
-
-			SequenceManager();
-			~SequenceManager();
-
-			// Not locked:
-    size_type		gtSize() const;
-    IdxType		idxOf(const char*) const;
-    const Sequence*	gtAny(const char*,bool) const;
-    void		doAdd(Sequence*,bool issys);
-    void		addFromPar(const IOPar&,bool);
-    void		rollbackFrom(const SequenceManager&);
-
-    static IdxType	gtIdxOf(const ObjectSet<Sequence>&,const char*);
-
-    void		seqChgCB(CallBacker*);
-
-    friend mGlobal(General) const SequenceManager& SeqMGR();
-    friend class	Sequence;
-    // friend class	uiColSeqMan;
-
-public:
-
-			// leave this to the color table manager
-    RefMan<Sequence>	get4Edit(const char*) const;
-    void		add(Sequence*);
-    void		removeByName(const char*);
-    ConstRef		getSystemSeq(const char*) const;
-    void		rollbackFromCopy(const SequenceManager&);
-    static void		deleteInst(SequenceManager*);
-
-    inline bool		isPresent( const OD::String& s ) const
-			{ return isPresent(s.str()); }
-    inline ConstRef	getByName( const OD::String& s ) const
-			{ return getByName(s.str()); }
-    inline ConstRef	getAny( const OD::String& s, bool fs=true ) const
-			{ return getAny(s.str(),fs); }
-    inline IdxType	indexOf( const OD::String& s ) const
-			{ return indexOf(s.str()); }
-    inline void		removeByName( const OD::String& s )
-			{ removeByName(s.str()); }
-
-};
-
-mGlobal(General) const SequenceManager& SeqMGR();
-mGlobal(General) inline SequenceManager& SeqMGR4Edit()
-{ return const_cast<SequenceManager&>(SeqMGR()); }
-
-mDeprecated mGlobal(General) inline SequenceManager& SM()
-{ return SeqMGR4Edit(); }
-mDeprecated typedef SequenceManager SeqMgr;
 
 
 } // namespace ColTab

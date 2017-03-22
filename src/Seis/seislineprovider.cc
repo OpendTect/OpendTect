@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "seisfetcher.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
+#include "seispreload.h"
+#include "seisdatapack.h"
 #include "seisselection.h"
 #include "uistrings.h"
 #include "posinfo2d.h"
@@ -63,12 +65,14 @@ const LineProvider& prov() const
 }
 
     void		reset();
+    void		findDataPack();
     bool		getNextGetter();
     bool		readNextTraces();
 
     void		get(const TrcKey&,SeisTrc&);
     void		getNext(SeisTrc&);
 
+    RefMan<RegularSeisDataPack> dp_;
     Seis2DTraceGetter*	getter_;
 
 };
@@ -80,13 +84,26 @@ void Seis::LineFetcher::reset()
 {
     Fetcher2D::reset();
     delete getter_; getter_ = 0;
+    dp_ = 0;
 
-    openDataSet();
     if ( uirv_.isOK() )
     {
 	if ( !getNextGetter() )
 	    uirv_.set( tr("Empty 2D Data set") );
     }
+}
+
+
+void Seis::LineFetcher::findDataPack()
+{
+    RefMan<DataPack> dp = Seis::PLDM().get( prov().dbky_, curGeomID() );
+    if ( !dp ) return;
+
+    mDynamicCastGet(RegularSeisDataPack*,rdp,dp.ptr());
+    if ( !rdp || rdp->isEmpty() )
+	return;
+
+    dp_ = rdp;
 }
 
 
@@ -98,17 +115,25 @@ bool Seis::LineFetcher::getNextGetter()
 	return false;
 
     getter_ = dataset_->traceGetter( curGeomID(), prov2D().selData(), uirv_ );
-    return getter_ ? true : getNextGetter();
+    if ( !getter_ ) return getNextGetter();
+
+    findDataPack();
+    return true;
 }
 
 
 void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 {
+    nexttrcky_ = tk;
     if ( !tk.hasValidGeomID() )
     {
 	uirv_.set( tr("Invalid position requested") );
 	return;
     }
+
+    uirv_.setEmpty();
+    if ( dp_ && dp_->sampling().hsamp_.includes(tk) )
+	{ dp_->fillTrace( tk, trc ); return; }
 
     if ( !getter_ || tk.geomID() != curGeomID() )
     {
@@ -132,18 +157,17 @@ void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 
 void Seis::LineFetcher::getNext( SeisTrc& trc )
 {
+    if ( !moveNextBinID() && (mIsSingleLine(prov().seldata_) ||
+			     !getNextGetter()) )
+	{ uirv_.set( uiStrings::sFinished() ); return; }
+
+    if ( dp_ && dp_->sampling().hsamp_.includes(nexttrcky_.binID()) )
+	{ dp_->fillTrace( nexttrcky_, trc ); return; }
+
     if ( getter_ )
-	uirv_ = getter_->getNext( trc );
-    while ( !getter_ || uirv_.isError() )
-    {
-	if ( mIsSingleLine(prov().seldata_) || !getNextGetter() )
-	{
-	    if ( uirv_.isEmpty() )
-		uirv_.set( uiStrings::sFinished() );
-	    break;
-	}
-	uirv_ = getter_->getNext( trc );
-    }
+	uirv_ = getter_->get( nexttrcky_.trcNr(), trc );
+    if ( !getter_ || uirv_.isError() )
+	getNext( trc );
 }
 
 

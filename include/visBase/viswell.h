@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "coltab.h"
 
 namespace OD { class LineStyle; };
-class TaskRunner;
 class VisColorTab;
 class ZAxisTransform;
 

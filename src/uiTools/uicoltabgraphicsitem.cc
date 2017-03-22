@@ -9,13 +9,14 @@ ________________________________________________________________________
 -*/
 
 
-#include "uigraphicscoltab.h"
+#include "uicoltabgraphicsitem.h"
+#include "uicolseqdisp.h"
 
 #include "uigraphicsitemimpl.h"
 #include "uipixmap.h"
 
 #include "coltabmapper.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 
 uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     : uiGraphicsItem()
@@ -31,7 +32,7 @@ uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     addChild( maxvalitm_ );
 
     setSequence( *ColTab::SeqMGR().getDefault() );
-    setMapperSetup( *new ColTab::MapperSetup );
+    setMapper( 0 );
 
     uiRect boundrec = ctseqitm_->boundingRect();
     ctseqitm_->setPos( 0.f, 0.f );
@@ -117,15 +118,8 @@ void uiColTabItem::setSeqName( const char* nm )
 
 void uiColTabItem::setSequence( const ColTab::Sequence& ctseq )
 {
-    if ( ctseq_.ptr() == &ctseq )
-	return;
-
-    if ( ctseq_ )
-	mDetachCB( ctseq_->objectChanged(), uiColTabItem::seqChgCB );
-    ctseq_ = &ctseq;
-
-    seqChgCB( 0 );
-    mAttachCB( ctseq_->objectChanged(), uiColTabItem::seqChgCB );
+    if ( replaceMonitoredRef(sequence_,ctseq,this) )
+	seqChgCB( 0 );
 }
 
 
@@ -137,32 +131,32 @@ void uiColTabItem::seqChgCB( CallBacker* )
 
 void uiColTabItem::setPixmap()
 {
-    uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
-    pm.fill( *ctseq_, setup_.hor_ );
-    ctseqitm_->setPixmap( pm );
+    const int szx = setup_.sz_.hNrPics(); const int szy = setup_.sz_.vNrPics();
+    uiPixmap* pm = ColTab::getuiPixmap( *sequence_, szx, szy, mapper_,
+				setup_.hor_ ? OD::Horizontal : OD::Vertical );
+    ctseqitm_->setPixmap( *pm );
+    delete pm;
 }
 
 
-void uiColTabItem::setMapperSetup( const ColTab::MapperSetup& ms )
+void uiColTabItem::setMapper( const ColTab::Mapper* mpr )
 {
-    if ( ctmsu_.ptr() == &ms )
-	return;
-
-    if ( ctmsu_ )
-	mDetachCB( ctmsu_->objectChanged(), uiColTabItem::mapperChgCB );
-    ctmsu_ = &ms;
-
-    mapperChgCB( 0 );
-    mAttachCB( ctmsu_->objectChanged(), uiColTabItem::mapperChgCB );
+    if ( replaceMonitoredRef(mapper_,mpr,this) )
+	mapperChgCB( 0 );
 }
+
 
 void uiColTabItem::mapperChgCB( CallBacker* )
 {
-    if ( !ctmsu_ )
+    if ( !mapper_ )
+    {
+	minvalitm_->setPlainText( uiString::emptyString() );
+	maxvalitm_->setPlainText( uiString::emptyString() );
 	return;
+    }
 
     BufferString precision;
-    const Interval<float> rg = ctmsu_->range();
+    const Interval<float> rg = mapper_->getRange();
     minvalitm_->setPlainText( toUiString(precision.set(rg.start,2)) );
     maxvalitm_->setPlainText( toUiString(precision.set(rg.stop,2)) );
 

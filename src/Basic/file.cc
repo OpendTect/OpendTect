@@ -10,7 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "file.h"
-#include "webfile.h"
+
 #include "filepath.h"
 #include "bufstringset.h"
 #include "commandlineparser.h"
@@ -27,6 +27,7 @@ ________________________________________________________________________
 
 #ifdef __win__
 # include <direct.h>
+# include "winstreambuf.h"
 #else
 # include "sys/stat.h"
 # include <unistd.h>
@@ -38,13 +39,16 @@ ________________________________________________________________________
 # include <QFile>
 # include <QFileInfo>
 # include <QProcess>
-#else
-# include <fstream>
 #endif
+
+#include <fstream>
+
 
 #define mMBFactor (1024*1024)
 const char* not_implemented_str = "Not implemented";
 
+
+mImplFactory( File::SystemAccess, File::SystemAccess::factory );
 
 mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 {
@@ -55,22 +59,6 @@ mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 	0
 };
 
-
-
-static File::ExistsFn web_existsfn = 0;
-static File::GetSizeFn web_getsizefn = 0;
-static File::GetContentFn web_getcontentfn = 0;
-
-void File::setWebHandlers( ExistsFn existfn, GetSizeFn sizefn,
-			    GetContentFn contfn )
-{
-    if ( existfn )
-	web_existsfn = existfn;
-    if ( sizefn )
-	web_getsizefn = sizefn;
-    if ( contfn )
-	web_getcontentfn = contfn;
-}
 
 static inline bool isSane( const char*& fnm )
 {
@@ -124,7 +112,7 @@ public:
 
     od_int64		nrDone() const		{ return nrdone_ / mMBFactor; }
     od_int64		totalNr() const		{ return totalnr_ / mMBFactor; }
-    uiString		message() const	{ return msg_; }
+    uiString		message() const { return msg_; }
     uiString		nrDoneText() const	{ return tr("MBytes copied"); }
 
 protected:
@@ -215,7 +203,7 @@ public:
 
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
-    uiString		message() const	{ return msg_; }
+    uiString		message() const { return msg_; }
     uiString		nrDoneText() const
 			{ return tr( "Files removed" ); }
 
@@ -320,51 +308,18 @@ void File::makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 
 od_int64 File::getFileSize( const char* fnm, bool followlink )
 {
-    if ( isURI(fnm) )
-	return web_getsizefn ? (*web_getsizefn)( fnm ) : 0;
-
-    if ( !followlink && isLink(fnm) )
-    {
-        od_int64 filesize = 0;
-#ifdef __win__
-        HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
-                                   FILE_ATTRIBUTE_NORMAL, NULL );
-        filesize = GetFileSize( file, NULL );
-        CloseHandle( file );
-#else
-        struct stat filestat;
-        filesize = lstat( fnm, &filestat )>=0 ? filestat.st_size : 0;
-#endif
-
-	return filesize;
-    }
-
-#ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    return qfi.size();
-#else
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
-	return 0;
-
-    return st_buf.st_size;
-#endif
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    return fsa->getFileSize( fnm, followlink );
 }
+
 
 bool File::exists( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
-    else if ( fnmIsURI(fnm) )
-	return web_existsfn ? (*web_existsfn)( fnm ) : od_istream(fnm).isOK();
 
-#ifndef OD_NO_QT
-    return (*fnm == '@' && *(fnm+1)) || QFile::exists( fnm );
-    // support, like od_istream, commands. These start with '@'.
-#else
-    return od_istream(fnm).isOK();
-#endif
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    return fsa->exists( fnm, true );
 }
 
 
@@ -393,20 +348,9 @@ bool File::isFile( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
-    else if ( fnmIsURI(fnm) )
-	return true;
 
-#ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    return qfi.isFile();
-#else
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
-	return false;
-
-    return S_ISREG (st_buf.st_mode);
-#endif
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    return fsa->isFile( fnm );
 }
 
 
@@ -414,33 +358,9 @@ bool File::isDirectory( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
-    else if ( fnmIsURI(fnm) )
-	return false;
 
-#ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    if ( qfi.isDir() )
-	return true;
-
-    BufferString lnkfnm( fnm, ".lnk" );
-    qfi.setFile( lnkfnm.buf() );
-    return qfi.isDir();
-#else
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
-	return false;
-
-    if ( S_ISDIR (st_buf.st_mode) )
-	return true;
-
-    BufferString lnkfnm( fnm, ".lnk" );
-    status = stat ( lnkfnm.buf(), &st_buf);
-    if (status != 0)
-	return false;
-
-    return S_ISDIR (st_buf.st_mode);
-#endif
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    return fsa->isDirectory( fnm );
 }
 
 
@@ -535,20 +455,9 @@ bool File::isReadable( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
-    else if ( fnmIsURI(fnm) )
-	return exists(fnm);
 
-#ifdef OD_NO_QT
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
-	return false;
-
-    return st_buf.st_mode & S_IRUSR;
-#else
-    QFileInfo qfi( fnm );
-    return qfi.isReadable();
-#endif
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    return fsa->isReadable( fnm );
 }
 
 
@@ -556,20 +465,9 @@ bool File::isWritable( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
-    else if ( fnmIsURI(fnm) )
-	return true;
 
-#ifdef OD_NO_QT
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
-	return false;
-
-    return st_buf.st_mode & S_IWUSR;
-#else
-    QFileInfo qfi( fnm );
-    return qfi.isWritable();
-#endif
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    return fsa->isWritable( fnm );
 }
 
 
@@ -631,17 +529,15 @@ bool File::createDir( const char* fnm )
 
 bool File::rename( const char* oldname, const char* newname )
 {
-    if ( !isSane(oldname) || !isSane(newname)
-      || fnmIsURI(oldname) || fnmIsURI(newname) )
+    if ( !isSane(oldname) || !isSane(newname) )
 	return false;
 
-#ifndef OD_NO_QT
-    return QFile::rename( oldname, newname );
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
+    if ( File::SystemAccess::getProtocol( oldname, false ) !=
+	 File::SystemAccess::getProtocol( newname, false ) )
+	return false;
 
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( newname );
+    return fsa->rename( oldname, newname );
 }
 
 
@@ -689,31 +585,20 @@ bool File::saveCopy( const char* from, const char* to )
 
 bool File::copy( const char* from, const char* to, uiString* errmsg )
 {
-    if ( !isLocal(from) || !isLocal(to) )
+    if ( !isSane(from) || !isSane(to) )
 	return false;
 
-    if ( isDirectory(from) || isDirectory(to)  )
+    if ( File::SystemAccess::getProtocol( from, false ) !=
+	 File::SystemAccess::getProtocol( to, false ) )
+    {
+	return false;
+    }
+
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( from );
+    if ( fsa->isDirectory(from) || fsa->isDirectory(to)  )
 	return copyDir( from, to, errmsg );
 
-    uiString errmsgloc;
-    if ( !checkDirectory(from,true,errmsg ? *errmsg:errmsgloc) ||
-	 !checkDirectory(to,false,errmsg ? *errmsg:errmsgloc) )
-	return false;
-
-    if ( exists(to) && !isDirectory(to) )
-	File::remove( to );
-
-#ifdef OD_NO_QT
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#else
-    QFile qfile( from );
-    bool ret = qfile.copy( to );
-    if ( !ret && errmsg )
-	errmsg->setFrom( qfile.errorString() );
-
-    return ret;
-#endif
+    return fsa->copy( from, to, errmsg );
 }
 
 
@@ -730,25 +615,10 @@ bool File::copyDir( const char* from, const char* to, uiString* errmsg )
 	 !checkDirectory(to,false,errmsg ? *errmsg:errmsgloc) )
 	return false;
 
-#ifndef OD_NO_QT
     PtrMan<Executor> copier = getRecursiveCopier( from, to );
     const bool res = copier->execute();
     if ( !res && errmsg )
 	*errmsg = copier->message();
-#else
-
-    BufferString cmd;
-#ifdef __win__
-    cmd = "xcopy /E /I /Q /H ";
-    cmd.add(" \"").add(from).add("\" \"").add(to).add("\"");
-#else
-    cmd = "/bin/cp -r ";
-    cmd.add(" '").add(from).add("' '").add(to).add("'");
-#endif
-
-    bool res = !system( cmd );
-    if ( res ) res = exists( to );
-#endif
     return res;
 }
 
@@ -759,12 +629,8 @@ bool File::resize( const char* fnm, od_int64 newsz )
 	return false;
     else if ( newsz < 0 )
 	return remove( fnm );
-#ifndef OD_NO_QT
+
     return QFile::resize( fnm, newsz );
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
 }
 
 
@@ -772,14 +638,9 @@ bool File::remove( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return true;
-    else if ( fnmIsURI(fnm) )
-	return false;
-#ifndef OD_NO_QT
-    return isFile(fnm) || isLink(fnm) ? QFile::remove( fnm ) : removeDir( fnm );
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
+
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    return fsa->remove( fnm );
 }
 
 
@@ -787,29 +648,9 @@ bool File::removeDir( const char* dirnm )
 {
     if ( !isSane(dirnm) )
 	return true;
-    else if ( fnmIsURI(dirnm) )
-	return false;
 
-#ifdef OD_NO_QT
-    return false;
-#else
-    if ( !exists(dirnm) )
-	return true;
-
-    if ( isLink(dirnm) )
-	return QFile::remove( dirnm );
-
-# ifdef __win__
-    return winRemoveDir( dirnm );
-# else
-    BufferString cmd;
-    cmd = "/bin/rm -rf";
-    cmd.add(" \"").add(dirnm).add("\"");
-    bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
-    if ( res ) res = !exists(dirnm);
-    return res;
-# endif
-#endif
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( dirnm );
+    return fsa->remove( dirnm, true );
 }
 
 
@@ -833,17 +674,16 @@ bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 			       "Please specify a directory name" );
 	return false;
     }
-    else if ( fnmIsURI(fnm) )
-    {
-	errmsg = od_static_tr( "FilecheckDirectory",
-			       "Web addresses not supported (yet)" );
-	return false;
-    }
+
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
 
     Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
 
-    const bool success = forread ? isReadable( dirnm ) : isWritable( dirnm );
+    const bool success = forread
+	? fsa->isReadable( dirnm )
+	: fsa->isWritable( dirnm );
+
     uiString postfix = od_static_tr( "FilecheckDirectory", "in folder: %1" )
 				   .arg( dirnm );
     errmsg = forread ? uiStrings::phrCannotRead( postfix )
@@ -920,8 +760,6 @@ bool File::getContent( const char* fnm, BufferString& bs )
 {
     if ( !isSane(fnm) )
 	return false;
-    else if ( fnmIsURI(fnm) )
-	return web_getcontentfn ? (*web_getcontentfn)( fnm, bs ) : false;
 
     bs.setEmpty();
     if ( !fnm || !*fnm ) return false;
@@ -1180,4 +1018,342 @@ bool File::launchViewer( const char* fnm, const ViewPars& vp )
     OS::CommandLauncher cl = OS::MachineCommand( cmd );
     OS::CommandExecPars pars; pars.launchtype_ = OS::RunInBG;
     return cl.execute( pars );
+}
+
+static const char* prefixsearch = "://";
+static const int searchlen = strlen( prefixsearch );
+
+BufferString File::SystemAccess::getProtocol( const char* filename,
+					      bool acceptnone )
+{
+    BufferString res = filename;
+    char* prefixend = res.find( prefixsearch );
+    if ( !prefixend )
+    {
+	if ( !acceptnone )
+	    res = File::LocalFileSystemAccess::sFactoryKeyword();
+	else
+	    res = BufferString::empty();
+    }
+    else
+    {
+	*prefixend = 0;
+    }
+
+    return res;
+}
+
+
+BufferString File::SystemAccess::removeProtocol( const char* url )
+{
+    BufferString input( url );
+    char* prefixend = input.find( prefixsearch );
+    if ( !prefixend )
+	return input;
+
+    return BufferString( prefixend + searchlen );
+}
+
+
+//We only wish to run initClass once. Since we want to make it threadsafe
+//an atomic variable is added to protect the init function.
+
+#define mLocalFileSystemNotInited	0
+#define mLocalFileSystemIniting		1
+#define mLocalFileSystemInited		2
+static Threads::Atomic<int> lfsinit = mLocalFileSystemNotInited;
+
+/* Keep one copy as it is always handy to have (and LocalFileSystemAccess does
+ not change.
+ */
+
+static RefMan<File::SystemAccess> lfsinst = 0;
+static void shutdownCB()
+{
+    lfsinst = 0;
+}
+
+static WeakPtrSet<File::SystemAccess> systemlist;
+
+void File::LocalFileSystemAccess::initClass()
+{
+    while ( lfsinit!=mLocalFileSystemInited )
+    {
+	if ( lfsinit.setIfValueIs( mLocalFileSystemNotInited,
+				   mLocalFileSystemIniting ) )
+	{
+	    //We are the first to do it
+	    File::SystemAccess::factory().addCreator(createInstance,
+						     sFactoryKeyword(),
+						     sFactoryDisplayName());
+
+	    lfsinst = new File::LocalFileSystemAccess;
+	    systemlist += lfsinst;
+	    NotifyExitProgram( shutdownCB );
+	    lfsinit = mLocalFileSystemInited;
+	}
+    }
+}
+
+
+
+RefMan<File::SystemAccess> File::SystemAccess::get( const char* fnm )
+{
+    if ( lfsinit!=mLocalFileSystemInited )
+	LocalFileSystemAccess::initClass();
+
+    BufferString protocol = getProtocol( fnm, false );
+
+    for ( int idx=0; idx<systemlist.size(); idx++ )
+    {
+	RefMan<SystemAccess> item = systemlist[idx];
+	if ( item && protocol==item->factoryKeyword() )
+	    return item;
+    }
+
+    RefMan<SystemAccess> res = factory().create( protocol );
+    if ( res )
+	systemlist += res;
+
+    return res;
+}
+
+
+bool File::LocalFileSystemAccess::exists( const char* url, bool forread ) const
+{
+    const BufferString fnm = removeProtocol( url );
+    return QFile::exists( fnm.buf() );
+}
+
+bool File::LocalFileSystemAccess::isReadable( const char* url ) const
+{
+    const BufferString fnm = removeProtocol( url );
+    QFileInfo qfi( fnm.buf() );
+    return qfi.isReadable();
+}
+
+
+bool File::LocalFileSystemAccess::isFile( const char* url ) const
+{
+    const BufferString fnm = removeProtocol( url );
+    QFileInfo qfi( fnm.buf() );
+    return qfi.isFile();
+}
+
+
+bool File::LocalFileSystemAccess::isDirectory( const char* url ) const
+{
+    const BufferString fnm = removeProtocol( url );
+    QFileInfo qfi( fnm.buf() );
+    if ( qfi.isDir() )
+	return true;
+
+    BufferString lnkfnm( fnm, ".lnk" );
+    qfi.setFile( lnkfnm.buf() );
+    return qfi.isDir();
+}
+
+
+
+bool File::LocalFileSystemAccess::remove( const char* url,
+					  bool recursive ) const
+{
+    const BufferString fnm = removeProtocol( url );
+
+    if ( isFile(fnm) || isLink(fnm) )
+	return QFile::remove( fnm.buf() );
+
+    if ( recursive && isDirectory( fnm ) )
+    {
+#if QT_VERSION >= 0x050000
+	QDir dir( fnm.buf() );
+	return dir.removeRecursively();
+#else
+# ifdef __win__
+	return winRemoveDir( fnm );
+# else
+	BufferString cmd;
+	cmd = "/bin/rm -rf";
+	cmd.add(" \"").add(fnm).add("\"");
+	bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
+	if ( res ) res = !exists(fnm,true);
+	return res;
+# endif
+#endif
+    }
+
+    return false;
+}
+
+
+bool File::LocalFileSystemAccess::setWritable( const char* url, bool yn,
+					       bool recursive ) const
+{
+    const BufferString fnm = removeProtocol( url );
+
+#ifdef OD_NO_QT
+    return false;
+#else
+    BufferString cmd;
+# ifdef __win__
+    cmd = "attrib"; cmd += yn ? " -R " : " +R ";
+    cmd.add("\"").add(fnm).add("\"");
+    if ( recursive && isDirectory(fnm) )
+	cmd += "\\*.* /S ";
+# else
+    cmd = "chmod";
+    if ( recursive && isDirectory(fnm) )
+	cmd += " -R ";
+    cmd.add(yn ? " ug+w \"" : " a-w \"").add(fnm).add("\"");
+# endif
+
+    return QProcess::execute( QString(cmd.buf()) ) >= 0;
+#endif
+
+
+}
+
+
+bool File::LocalFileSystemAccess::isWritable( const char* url ) const
+{
+    const BufferString fnm = removeProtocol( url );
+    const QFileInfo qfi( fnm.buf() );
+    return qfi.isWritable();
+}
+
+
+bool File::LocalFileSystemAccess::rename( const char* fromurl,
+					  const char* tourl )
+{
+    const BufferString from = removeProtocol( fromurl );
+    const BufferString to = removeProtocol( tourl );
+
+    return QFile::rename( from.buf(), to.buf() );
+}
+
+
+bool File::LocalFileSystemAccess::copy( const char* fromurl,
+					const char* tourl,
+					uiString* errmsg ) const
+{
+    const BufferString from = removeProtocol( fromurl );
+    const BufferString to = removeProtocol( tourl );
+
+    if ( isDirectory(from) || isDirectory(to)  )
+	return copyDir( from, to, errmsg );
+
+    uiString errmsgloc;
+    if ( !File::checkDirectory(from,true,errmsg ? *errmsg : errmsgloc) ||
+	 !File::checkDirectory(to,false,errmsg ? *errmsg : errmsgloc) )
+	return false;
+
+    if ( exists(to,true) && !isDirectory(to) )
+	remove( to );
+
+    QFile qfile( from.buf() );
+    const bool ret = qfile.copy( to.buf() );
+    if ( !ret && errmsg )
+	errmsg->setFrom( qfile.errorString() );
+
+    return ret;
+}
+
+
+od_int64 File::LocalFileSystemAccess::getFileSize( const char* url,
+						   bool followlink )
+{
+    const BufferString fnm = removeProtocol( url );
+
+    if ( !followlink && isLink(fnm) )
+    {
+	od_int64 filesize = 0;
+#ifdef __win__
+	HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
+				  FILE_ATTRIBUTE_NORMAL, NULL );
+	filesize = GetFileSize( file, NULL );
+	CloseHandle( file );
+#else
+	struct stat filestat;
+	filesize = lstat( fnm, &filestat )>=0 ? filestat.st_size : 0;
+#endif
+
+	return filesize;
+    }
+
+    QFileInfo qfi( fnm.buf() );
+    return qfi.size();
+}
+
+
+
+StreamData File::LocalFileSystemAccess::createOStream(const char* url,
+					bool binary, bool editmode ) const
+{
+    const BufferString fnm = removeProtocol( url );
+
+    StreamData res;
+    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
+    impl->fname_ = url;
+
+    std::ios_base::openmode openmode = std::ios_base::out;
+    if ( binary )
+	openmode |= std::ios_base::binary;
+
+    if ( editmode )
+	openmode |= std::ios_base::in;
+
+#ifdef __msvc__
+    if ( isHidden(fnm.buf() ) )
+	hide( fnm.buf(), false );
+
+    impl->ostrm_ = new std::winofstream( fnm.buf(), openmode );
+#else
+    impl->ostrm_ = new std::ofstream( fnm.buf(), openmode );
+#endif
+
+    if ( !impl->ostrm_ || !impl->ostrm_->good() )
+	deleteAndZeroPtr( impl->ostrm_ );
+
+    res.setImpl( impl );
+
+    return res;
+}
+
+
+StreamData File::LocalFileSystemAccess::createIStream(const char* url,
+						      bool binary ) const
+{
+    BufferString fnm = removeProtocol( url );
+
+    StreamData res;
+    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
+    impl->fname_ = url;
+
+    if ( !exists( fnm, true ) )
+    {
+	File::Path fp( fnm );
+	BufferString fullpath = fp.fullPath( File::Path::Local, true );
+	if ( !exists(fullpath,true) )
+	    fullpath = fp.fullPath( File::Path::Local, false );
+	// Sometimes the filename _is_ weird, and the cleanup is wrong
+	if ( exists( fullpath, true ) )
+	    impl->fname_ = fullpath;
+    }
+
+    std::ios_base::openmode openmode = std::ios_base::in;
+    if ( binary )
+	openmode = openmode | std::ios_base::binary;
+
+
+#ifdef __msvc__
+    impl->istrm_ = new std::winifstream( impl->fname_, openmode );
+#else
+    impl->istrm_ = new std::ifstream( impl->fname_, openmode );
+#endif
+
+    if ( !impl->istrm_ || !impl->istrm_->good() )
+	deleteAndZeroPtr( impl->istrm_ );
+
+    res.setImpl( impl );
+    return res;
 }

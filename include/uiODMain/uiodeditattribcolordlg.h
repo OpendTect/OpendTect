@@ -29,7 +29,7 @@ protected:
 	ObjectSet<uiTreeItem>&	items_;
 
 	void			seqChg(CallBacker*);
-	void			mapperSetupChg(CallBacker*);
+	void			mapperChg(CallBacker*);
 	bool			acceptOK();
 
 };

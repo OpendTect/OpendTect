@@ -12,17 +12,13 @@ ________________________________________________________________________
 
 #include "visdata.h"
 #include "visosg.h"
-
-#include "coltabmapper.h"
-#include "coltabsequence.h"
 #include "color.h"
 #include "ranges.h"
 #include "trckeyzsampling.h"
 
-class TaskRunner;
+class od_ostream;
 template <class T> class Array3D;
 template <class T> class ValueSeries;
-
 
 namespace osgVolume { class Volume; class VolumeTile; class ImageLayer;
 		      class TransparencyProperty; }
@@ -33,8 +29,10 @@ namespace osgGeo { class RayTracedTechnique; }
 
 namespace visBase
 {
-    class Material;
-    class TextureChannel2RGBA;
+
+class Material;
+class TextureChannel2RGBA;
+
 
 mExpClass(visBase) VolumeRenderScalarField : public DataObject
 { mODTextTranslationClass(VolumeRenderScalarField)
@@ -53,12 +51,9 @@ public:
 
     TrcKeyZSampling		getMultiAttribTrcKeyZSampling() const;
 
-    void			setColTabMapperSetup(int attr,
-						     const ColTab::MapperSetup&,
-						     TaskRunner* tskr );
+    void			setColTabMapper(int attr,const ColTab::Mapper&,
+					        TaskRunner*);
     const ColTab::Mapper&	getColTabMapper(int attr);
-
-    const DistribType&		getDataDistribution(int attr) const;
 
     const uiString		writeVolumeFile(int attr,od_ostream&) const;
 				//!<\returns 0 on success, otherwise errmsg
@@ -119,7 +114,7 @@ protected:
 	void				clearResizeCache();
 	void				clearIndexCache();
 
-	ColTab::Mapper			mapper_;
+	ConstRefMan<ColTab::Mapper>	mapper_;
 	unsigned char*			indexcache_;
 	int				indexcachestep_;
 	bool				ownsindexcache_;
@@ -128,7 +123,6 @@ protected:
 	TrcKeyZSampling			datatkzs_;
 	const ValueSeries<float>*	resizecache_;
 	bool				ownsresizecache_;
-	RefMan<DistribType>		distrib_;
     };
 
     ObjectSet<AttribData>		attribs_;

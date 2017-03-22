@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "vistext.h"
 #include "vistransform.h"
 
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "coltabmapper.h"
 #include "trckeyzsampling.h"
 #include "iopar.h"
@@ -763,18 +763,17 @@ const Color& Well::logColor( Side side  ) const
 
 #define scolors2f(rgb) float(lp.seiscolor_.rgb())/255
 #define colors2f(rgb) float(col.rgb())/255
-void Well::setLogFillColorTab( const LogParams& lp,  Side side  )
+void Well::setLogFillColorTab( const LogParams& lp, Side side  )
 {
     ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( lp.seqname_ );
 
+    const ColTab::Table tbl( *seq, 256, lp.sequsemode_ );
     osg::ref_ptr<osg::Vec4Array> clrTable = new osg::Vec4Array;
     for ( int idx=0; idx<256; idx++ )
     {
 	const bool issinglecol = ( lp.style_ == Seismic ||
 			(lp.style_ != Seismic && lp.issinglcol_ ) );
-	float colpos = ColTab::Mapper::seqPos4RelPos( lp.sequsemode_,
-						      (float)idx/255 );
-	Color col = seq->color( colpos );
+	Color col = tbl.colorAt( (float)idx/255 );
 	float r = issinglecol ? scolors2f(r) : colors2f(r);
 	float g = issinglecol ? scolors2f(g) : colors2f(g);
 	float b = issinglecol ? scolors2f(b) : colors2f(b);

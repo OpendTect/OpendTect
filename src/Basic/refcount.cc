@@ -373,6 +373,13 @@ void WeakPtrBase::set( Referenced* p )
 
     if ( p && p->tryRef() )
     {
+#ifdef __debug__
+	if ( p->nrRefs()==1 )
+	{
+	    pErrMsg("I am the only reffer - not good" );
+	}
+#endif
+
 	p->addObserver(this);
 	ptr_ = p;
 
@@ -408,3 +415,21 @@ const RefCount::Referenced* refPtr( const RefCount::Referenced* ptr )
 }
 
 
+void RefCount::WeakPtrSetBase::blockCleanup()
+{
+    while ( true )
+    {
+        int prevval = blockcleanup_;
+        if ( prevval==-1 ) //cleanup in session
+            continue;
+        
+        if ( blockcleanup_.setIfValueIs( prevval, prevval+1 ) )
+            break;
+    }
+}
+
+
+void RefCount::WeakPtrSetBase::unblockCleanup()
+{
+    blockcleanup_--;
+}

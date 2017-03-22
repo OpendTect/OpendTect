@@ -63,8 +63,8 @@ public:
     bool		importFault(bool bulk);
     bool		importFaultStickSet();
     void		import2DFaultStickset();
-    bool		exportFault();
-    bool		exportFaultStickSet();
+    bool		exportFault(bool single=true);
+    bool		exportFaultStickSet(bool single=true);
     void		createHorWithConstZ(bool is2d);
 
     int			nrAttributes(const DBKey&) const;

@@ -452,7 +452,7 @@ uiString StrmOper::getErrorMessage( const StreamData& sd )
 {
     uiString msg;
 
-    const int iotyp = sd.istrm ? -1 : (sd.ostrm ? 1 : 0);
+    const int iotyp = sd.iStrm() ? -1 : (sd.oStrm() ? 1 : 0);
     if ( iotyp == 0 )
     {
 	uiString addedmsg = od_static_tr( "StrmOpergetErrorMessage", "file: " );
@@ -476,39 +476,103 @@ uiString StrmOper::getErrorMessage( const StreamData& sd )
 //---- StreamData ----
 
 
+mStartAllowDeprecatedSection
+StreamData::StreamData() { setImpl(new StreamDataImpl); }
+
+
+StreamData::StreamData( StreamData&& n )
+{
+    setImpl( n.impl_.set( 0, false ) );
+}
+mStopAllowDeprecatedSection
+
+
+StreamData& StreamData::operator=( StreamData&& n )
+{
+    setImpl( n.impl_.set( 0, false ) );
+    return *this;
+}
+
 void StreamData::close()
 {
-    if ( istrm && istrm != &std::cin )
-	delete istrm;
-
-    if ( ostrm )
-    {
-	ostrm->flush();
-	if ( ostrm != &std::cout && ostrm != &std::cerr )
-	    delete ostrm;
-    }
-
-    initStrms();
+    if ( impl_ ) impl_->close();
 }
 
 
 bool StreamData::usable() const
 {
-    return istrm || ostrm;
+    return iStrm() || oStrm();
 }
 
 
 void StreamData::transferTo( StreamData& sd )
 {
-    sd = *this;
-    initStrms();
+    sd.impl_ = impl_.set( 0, false );
+}
+
+
+void StreamData::setFileName( const char* fn )
+{
+    if ( !impl_ )
+	return;
+
+    impl_->fname_ = fn;
+}
+
+
+const char* StreamData::fileName() const
+{
+    if ( !impl_ )
+	return 0;
+
+    return impl_->fname_.buf();
 }
 
 
 std::ios* StreamData::streamPtr() const
 {
-    const std::ios* ret = istrm;
-    if ( !istrm )
-	ret = ostrm;
-    return const_cast<std::ios*>( ret );
+    std::ios* ret = iStrm();
+    if ( !ret )
+	ret = oStrm();
+
+    return ret;
+}
+
+mStartAllowDeprecatedSection
+void StreamData::setImpl( StreamDataImpl* n )
+{
+    impl_ = n;
+    istrm = n ? n->istrm_ : 0;
+    ostrm = n ? n->ostrm_ : 0;
+}
+
+
+void StreamData::setIStrm( std::istream*  strm )
+{
+    impl_->istrm_ = istrm = strm;
+}
+
+
+void StreamData::setOStrm( std::ostream* strm )
+{
+    impl_->ostrm_ = ostrm = strm;
+}
+
+
+mStopAllowDeprecatedSection
+
+
+void StreamData::StreamDataImpl::close()
+{
+    if ( istrm_ && istrm_ != &std::cin )
+	deleteAndZeroPtr( istrm_ );
+
+    if ( ostrm_ )
+    {
+	ostrm_->flush();
+	if ( ostrm_ != &std::cout && ostrm_ != &std::cerr )
+	    deleteAndZeroPtr( ostrm_ );
+	else
+	    ostrm_ = 0;
+    }
 }

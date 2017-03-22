@@ -120,7 +120,6 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
     const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
-    const visBase::DistribType&	getDataDistribution(int) const;
     void			setSelSpecs(int attrib,
 					    const TypeSet<Attrib::SelSpec>&);
 
@@ -174,11 +173,10 @@ public:
     void			getObjectInfo(BufferString&) const;
     void			getTreeObjectInfo(uiString&) const;
 
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int attrib,
-						     int version=0) const;
-    void			setColTabMapperSetup(int attrib,
-					const ColTab::MapperSetup&,TaskRunner*);
-    const ColTab::Sequence*	getColTabSequence(int attrib) const;
+    const ColTab::Mapper&	getColTabMapper(int attrib) const;
+    void			setColTabMapper(int attr,const ColTab::Mapper&,
+						TaskRunner*);
+    const ColTab::Sequence&	getColTabSequence(int attrib) const;
     void			setColTabSequence(int attrib,
 					const ColTab::Sequence&,TaskRunner*);
     bool			canSetColTabSequence() const;

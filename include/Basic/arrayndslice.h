@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "arraynd.h"
 #include "varlenarray.h"
+#include "valseriesimpl.h"
 
 /*!
 \brief Base class of Array1DSlice and Array2DSlice. Access-tool to another
@@ -22,14 +23,14 @@ ArrayND with higher dimensionality.
   higher dimensionality. It can be used to get Array1D through a Array3D cube.
   Use setPos(int,int) to set the fixed positions and leave out the positions
   that should vary. When all positions are set, call init().
-  
+
   To unset a position, set it to -1. If positions are unset, init has to be
   called prior to dataaccesing functions.
 */
 
 mExpClass(Basic) ArrayNDSliceBase
 {
-public:				
+public:
     virtual			~ArrayNDSliceBase();
     int				getDimSize(int dim) const;
     int				getPos(int dim) const;
@@ -37,10 +38,10 @@ public:
     bool			init();
     void			setDimMap(int localdim, int remotedim );
 protected:
-    				ArrayNDSliceBase( ArrayNDInfo*,
+				ArrayNDSliceBase( ArrayNDInfo*,
 						  const ArrayNDInfo& );
     void			getSourcePos(const int* localpos,
-	    				     int* sourcepos) const;
+					     int* sourcepos) const;
     ArrayNDInfo&		info_;
     const ArrayNDInfo&		sourceinfo_;
 
@@ -71,11 +72,13 @@ public:
     bool			isSettable() const;
 
 protected:
+
     const ValueSeries<T>*	getStorage_() const;
 
     bool				writable_;
     ArrayND<T>&				source_;
     mutable OffsetValueSeries<T>*	storage_;
+
 };
 
 
@@ -97,11 +100,13 @@ public:
     bool			isSettable() const;
 
 protected:
+
     const ValueSeries<T>*	getStorage_() const;
     bool			writable_;
 
     ArrayND<T>&				source_;
     mutable OffsetValueSeries<T>*	storage_;
+
 };
 
 
@@ -172,7 +177,7 @@ ValueSeries<T>* Array1DSlice<T>::clone() const
 }
 
 template <class T> inline
-const Array1DInfo& Array1DSlice<T>::info() const	
+const Array1DInfo& Array1DSlice<T>::info() const
 { return (const Array1DInfo&) info_; }
 
 
@@ -265,7 +270,7 @@ T Array2DSlice<T>::get( int pos0, int pos1 ) const
 
 
 template <class T> inline
-const Array2DInfo& Array2DSlice<T>::info() const	
+const Array2DInfo& Array2DSlice<T>::info() const
 { return (const Array2DInfo&) info_; }
 
 

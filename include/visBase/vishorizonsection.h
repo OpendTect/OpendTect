@@ -16,28 +16,24 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "rowcol.h"
 #include "geomelement.h"
-#include "coltabmapper.h"
 
 class BinIDValueSet;
 class DataPointSet;
-
 class ZAxisTransform;
-class TaskRunner;
-
-
 namespace Geometry { class BinIDSurface; }
-namespace ColTab { class Sequence; }
 namespace osgGeo { class LayeredTexture; }
 namespace osg { class CullStack; }
 
 namespace visBase
 {
-    class TextureChannel2RGBA;
-    class HorizonSectionTile;
-    class TextureChannels;
-    class HorizonSectionDataHandler;
-    class HorizonTextureHandler;
-    class HorTilesCreatorAndUpdator;
+
+class TextureChannel2RGBA;
+class HorizonSectionTile;
+class TextureChannels;
+class HorizonSectionDataHandler;
+class HorizonTextureHandler;
+class HorTilesCreatorAndUpdator;
+
 
 /*!Horizon geometry is divided into 64*64 pixel tiles. Each tile has it's own
   glue edge to merge into it's neighbors in case of different resolutions. Each
@@ -74,11 +70,10 @@ public:
     void			setColTabSequence(int channel,
 						  const ColTab::Sequence&);
     const ColTab::Sequence&	getColTabSequence(int channel) const;
-    void			setColTabMapperSetup(int channel,
-						const ColTab::MapperSetup&,
+    void			setColTabMapper(int channel,
+						const ColTab::Mapper&,
 						TaskRunner*);
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int channel) const;
-    const DistribType&		getDataDistribution(int channel) const;
+    const ColTab::Mapper&	getColTabMapper(int channel) const;
 
     void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;

@@ -25,13 +25,14 @@ namespace visBase
 mExpClass(visBase) TextureChannel2VolData : public TextureChannel2RGBA
 {
 public:
+    typedef ColTab::Sequence	Sequence;
     static TextureChannel2VolData*	create()
 			mCreateDataObj(TextureChannel2VolData);
 
     const osg::Image*	createRGBA() const		{ return 0; }
     bool		canSetSequence() const	{ return true; }
-    void		setSequence(int channel,const ColTab::Sequence&);
-    const ColTab::Sequence& getSequence(int channel) const;
+    void		setSequence(int channel,const Sequence&);
+    const Sequence&	getSequence(int channel) const;
 
     void		setEnabled(int ch, bool yn);
     bool		isEnabled(int ch) const;
@@ -50,6 +51,7 @@ protected:
     void		notifyChannelChange();
     void		update();
     void		makeColorTables();
+    void		seqModifCB(CallBacker*)		{ update(); }
 
     ConstRefMan<ColTab::Sequence> sequence_;
     bool		enabled_;

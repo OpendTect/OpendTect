@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "legal.h"
 #include "coordsystem.h"
+
 #ifdef __win__
 # include <stdio.h> // for _set_output_format
 #endif

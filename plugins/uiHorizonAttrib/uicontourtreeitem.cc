@@ -1408,3 +1408,39 @@ void uiContourTreeItem::updateZShift()
 
     zshift_ = (float) trans.z_;
 }
+
+
+int uiContourTreeItem::getNumberOfLines() const
+{
+    if ( !lines_ ) return 0;
+
+    return lines_->nrPrimitiveSets();
+}
+
+
+bool uiContourTreeItem::getLineCoordinates( int iln,
+			TypeSet<Coord3>& linecoords ) const
+{
+    if ( !lines_ || iln<0 || iln>=lines_->nrPrimitiveSets() )
+	return false;
+
+    linecoords.setEmpty();
+
+    const Geometry::PrimitiveSet* ps = lines_->getPrimitiveSet( iln );
+    if ( !ps ) return false;
+
+    for ( int idx=0; idx<ps->size(); idx++ )
+    {
+	if ( lines_->getCoordinates()->isDefined(idx) )
+	{
+	    const Coord3 pos = lines_->getCoordinates()->getPos( idx );
+	    linecoords += pos;
+	}
+    }
+
+    return true;
+}
+
+
+
+

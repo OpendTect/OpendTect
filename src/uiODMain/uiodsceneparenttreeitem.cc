@@ -29,17 +29,14 @@ uiODSceneParentTreeItem::~uiODSceneParentTreeItem()
 
 uiODApplMgr* uiODSceneParentTreeItem::applMgr() const
 {
-    void* res = 0;
-    getPropertyPtr( uiODSceneTreeTop::applmgrstr(), res );
-    return reinterpret_cast<uiODApplMgr*>( res );
+    return &ODMainWin()->applMgr();
 }
 
 
 int uiODSceneParentTreeItem::sceneID() const
 {
-    int sceneid=-1;
-    getProperty<int>( uiODSceneTreeTop::sceneidkey(), sceneid );
-    return sceneid;
+    mDynamicCastGet(uiODSceneTreeTop*,treetop,parent_);
+    return treetop ? treetop->sceneID() : -1;
 }
 
 

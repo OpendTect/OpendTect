@@ -2062,8 +2062,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 }
 
 
-void uiAttribPartServer::setEvalBackupColTabMapper(
-			const ColTab::MapperSetup* mp )
+void uiAttribPartServer::setEvalBackupColTabMapper( const ColTab::Mapper* mp )
 {
     if ( evalmapperbackup_ == mp )
 	return;
@@ -2076,13 +2075,13 @@ void uiAttribPartServer::setEvalBackupColTabMapper(
 
     if ( mp )
     {
-    	evalmapperbackup_ = new ColTab::MapperSetup( *mp );
+	evalmapperbackup_ = mp;
 	evalmapperbackup_->ref();
     }
 }
 
 
-const ColTab::MapperSetup* uiAttribPartServer::getEvalBackupColTabMapper() const
+const ColTab::Mapper* uiAttribPartServer::getEvalBackupColTabMapper() const
 {
     return evalmapperbackup_;
 }

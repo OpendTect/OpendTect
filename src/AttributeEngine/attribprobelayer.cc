@@ -12,17 +12,20 @@ ___________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "coltabseqmgr.h"
 #include "dbman.h"
 #include "keystrs.h"
 #include "seisioobjinfo.h"
+#include "datadistributionextracter.h"
 
 
 AttribProbeLayer::AttribProbeLayer( DispType dt )
     : ProbeLayer()
     , colseq_(ColTab::SeqMGR().getDefault(false))
-    , mappersetup_(new ColTab::MapperSetup)
+    , mapper_(new ColTab::Mapper)
     , attrspec_(*new Attrib::SelSpec())
     , disptype_(dt)
+    , selcomp_(0)
 {
 }
 
@@ -42,10 +45,8 @@ void AttribProbeLayer::copyClassData( const AttribProbeLayer& oth )
     attrspec_ = oth.attrspec_;
     attribdpid_ = oth.attribdpid_;
     colseq_ = oth.colseq_;
-    if ( mappersetup_ && oth.mappersetup_ )
-	*mappersetup_ = *oth.mappersetup_;
-    else if ( mappersetup_ )
-	mappersetup_ = 0;
+    selcomp_ = oth.selcomp_;
+    mapper_ = oth.mapper_->clone();
     attrdp_ = oth.attrdp_;
 }
 
@@ -60,7 +61,7 @@ Monitorable::ChangeType AttribProbeLayer::compareClassData(
     mHandleMonitorableCompare( attribdpid_, cDataChange() );
     mHandleMonitorableCompare( attrspec_, cDataChange() );
     mHandleMonitorableCompare( colseq_, cColSeqChange() );
-    mHandleMonitorableComparePtrContents( mappersetup_, cMapperSetupChange() );
+    mHandleMonitorableCompare( mapper_, cMapperChange() );
     mDeliverMonitorableCompare();
 }
 
@@ -72,12 +73,26 @@ AttribProbeLayer::~AttribProbeLayer()
 }
 
 
-ProbeLayer* AttribProbeLayer::createFrom(
-	const IOPar& par )
+ProbeLayer* AttribProbeLayer::createFrom( const IOPar& par )
 {
-    AttribProbeLayer* attrprinfo = new AttribProbeLayer;
-    attrprinfo->usePar( par );
-    return attrprinfo;
+    AttribProbeLayer* layer = new AttribProbeLayer;
+    layer->usePar( par );
+    return layer;
+}
+
+
+const AttribProbeLayer::Sequence& AttribProbeLayer::sequence() const
+{
+    mLock4Read();
+    return *colseq_;
+}
+
+
+void AttribProbeLayer::setSequence( const Sequence& seq )
+{
+    mLock4Write();
+    if ( replaceMonitoredRef(colseq_,seq,this) )
+	mSendChgNotif( cColSeqChange(), cUnspecChgID() );
 }
 
 
@@ -111,26 +126,6 @@ void AttribProbeLayer::initClass()
 }
 
 
-ConstRefMan<ColTab::MapperSetup> AttribProbeLayer::mapperSetup() const
-{
-    mLock4Read();
-    return mappersetup_;
-}
-
-
-void AttribProbeLayer::setMapperSetup( const MapperSetup& msu )
-{
-    mLock4Read();
-    if ( *mappersetup_ == msu )
-	return;
-    if ( !mLock2Write() && *mappersetup_ == msu )
-	return;
-
-    *mappersetup_ = msu;
-    mSendChgNotif( cMapperSetupChange(), 0 );
-}
-
-
 void AttribProbeLayer::fillPar( IOPar& par ) const
 {
     mLock4Read();
@@ -139,7 +134,7 @@ void AttribProbeLayer::fillPar( IOPar& par ) const
     attrspec_.fillPar( par );
     par.set( sAttribDataPackID(), attribdpid_ );
     par.set( sAttribColTabName(), colseq_->name() );
-    mappersetup_->fillPar( par );
+    mapper_->setup().fillPar( par );
 }
 
 
@@ -152,19 +147,31 @@ bool AttribProbeLayer::usePar( const IOPar& par )
     BufferString seqnm( colseq_->name() );
     par.get( sAttribColTabName(), seqnm );
     colseq_ = ColTab::SeqMGR().getAny( seqnm );
-    mappersetup_->usePar( par );
+    mapper_->setup().usePar( par );
     return true;
 }
 
 
-void AttribProbeLayer::updateDataPack()
+void AttribProbeLayer::handleDataPackChange()
 {
-    const Probe* parentprobe = getProbe();
-    if ( !parentprobe )
-    { pErrMsg( "Parent probe not set" ); return; }
-
     DataPackMgr& dpm = DPM( getDataPackManagerID() );
     attrdp_ = dpm.get( attribdpid_ );
+    selcomp_ = 0;
+
+    const ArrayND<float>* arr = 0;
+    if ( attrdp_ && selcomp_ < attrdp_->nrArrays() )
+	arr = attrdp_->arrayData( selcomp_<1 ? 0 : selcomp_ );
+
+    bool havedistrib = false;
+    if ( arr )
+    {
+	RangeLimitedDataDistributionExtracter<float> extr( *arr );
+	mapper_->distribution() = *extr.getDistribution();
+	havedistrib = true;
+    }
+
+    if ( !havedistrib )
+	mapper_->distribution().setEmpty();
 }
 
 
@@ -179,7 +186,7 @@ void AttribProbeLayer::setDataPackID( DataPack::ID dpid )
 	return;
 
     attribdpid_ = dpid;
-    updateDataPack();
+    handleDataPackChange();
     mSendChgNotif( cDataChange(), cUnspecChgID() );
 }
 
@@ -201,10 +208,37 @@ void AttribProbeLayer::setSelSpec( const Attrib::SelSpec& as )
 }
 
 
+#define mNrComps() (attrdp_ ? attrdp_->nrArrays() : 0)
+
+int AttribProbeLayer::nrAvialableComponents() const
+{
+    mLock4Read();
+    return mNrComps();
+}
+
+
+void AttribProbeLayer::setSelectedComponent( int icomp )
+{
+    mLock4Read();
+
+    if ( selcomp_ == icomp )
+	return;
+    if ( !mLock2Write() && selcomp_ == icomp )
+	return;
+
+    const int nrcomps = mNrComps();
+    if ( icomp >= nrcomps )
+	icomp = nrcomps - 1;
+    if ( icomp < 0 )
+	icomp = 0;
+    selcomp_ = icomp;
+    mSendChgNotif( cSelCompChange(), icomp );
+}
+
+
 void AttribProbeLayer::invalidateData()
 {
     mLock4Write();
-
     attribdpid_ = DataPack::cNoID();
 }
 
@@ -213,7 +247,8 @@ bool AttribProbeLayer::useStoredColTabPars()
 {
     mLock4Read();
 
-    if ( attrspec_.isNLA() ) return false;
+    if ( attrspec_.isNLA() )
+	return false;
 
     const Attrib::DescSet* attrset =
 	Attrib::DSHolder().getDescSet( attrspec_.is2D(), true );
@@ -241,7 +276,7 @@ bool AttribProbeLayer::useStoredColTabPars()
 
     mLock2Write();
 
-    mappersetup_->usePar( iop );
+    mapper_->setup().usePar( iop );
 
     BufferString seqnm = iop.find( sKey::Name() );
     if ( !seqnm.isEmpty() )

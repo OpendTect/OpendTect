@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 #include "visscenecoltab.h"
 
-#include "coltabindex.h"
 #include "coltabmapper.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "fontdata.h"
+#include "paralleltask.h"
 #include "vistext.h"
 
 #include <osg/Geode>
@@ -42,7 +42,6 @@ namespace visBase
 SceneColTab::SceneColTab()
     : VisualObjectImpl( false )
     , osgcolorbar_( new mScalarBarType )
-    , sequsemode_( ColTab::UnflippedSingle )
     , width_( 20 )
     , height_( 250 )
     , horizontal_( false )
@@ -52,6 +51,8 @@ SceneColTab::SceneColTab()
     , winy_( 100 )
     , fontsize_( 18 )
     , pixeldensity_( getDefaultPixelDensity() )
+    , sequence_( ColTab::SeqMGR().getDefault() )
+    , mapper_( new ColTab::Mapper )
 {
     addChild( osgcolorbar_ );
 
@@ -63,7 +64,10 @@ SceneColTab::SceneColTab()
     mScalarBar->setNumLabels( 5 );
 
     setSize( width_, height_ );
-    setColTabSequence( *ColTab::SeqMGR().getDefault() );
+    updateDisplay();
+
+    mAttachCB( sequence_->objectChanged(), SceneColTab::coltabChgCB );
+    mAttachCB( mapper_->objectChanged(), SceneColTab::coltabChgCB );
 }
 
 
@@ -112,7 +116,14 @@ void SceneColTab::setPixelDensity( float dpi )
 void SceneColTab::setColTabSequence( const ColTab::Sequence& newseq )
 {
     if ( replaceMonitoredRef(sequence_,newseq,this) )
-	updateSequence();
+	updateDisplay();
+}
+
+
+void SceneColTab::setColTabMapper( const ColTab::Mapper& newmpr )
+{
+    if ( replaceMonitoredRef(mapper_,newmpr,this) )
+	updateDisplay();
 }
 
 
@@ -186,22 +197,22 @@ Geom::Size2D<int> SceneColTab::getSize()
 }
 
 
-void SceneColTab::updateSequence()
+void SceneColTab::updateDisplay()
 {
     if ( !isOn() )
 	return;
 
     const int nrcols = 256;
-    ColTab::IndexedLookUpTable table( *sequence_, nrcols, sequsemode_ );
+    const ColTab::Table table( *sequence_, nrcols, *mapper_ );
     std::vector<osg::Vec4> colors(nrcols);
 
     mDefParallelCalc2Pars( ColorUpdator, tr("Color update"),
 			   std::vector<osg::Vec4>&, colors,
-			   const ColTab::IndexedLookUpTable&, table )
+			   const ColTab::Table&, table )
     mDefParallelCalcBody
     (
 	,
-	const Color col = table_.colorForIndex( idx );
+	const Color col = table_.color( idx );
 	colors_[idx] = osg::Vec4( col2f(r), col2f(g), col2f(b), 1.f-col2f(t) )
 	,
     )
@@ -209,30 +220,19 @@ void SceneColTab::updateSequence()
     ColorUpdator colorupdator( nrcols, colors, table );
     colorupdator.execute();
 
+    const Interval<float> rg( mapper_->getRange() );
     osgSim::ColorRange* osgcolorrange =
-	new osgSim::ColorRange(
-	rg_.start, mIsZero(rg_.width(false),mDefEps) ? 1 : rg_.stop, colors );
+	new osgSim::ColorRange( rg.start,
+		mIsZero(rg.width(false),mDefEps) ? 1 : rg.stop, colors );
 
     mScalarBar->setScalarsToColors( osgcolorrange );
-}
-
-
-void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
-{
-    if ( rg_==ms.range() && sequsemode_==ms.seqUseMode() )
-	return;
-
-    rg_ = ms.range();
-    sequsemode_ = ms.seqUseMode();
-
-    updateSequence();
 }
 
 
 bool SceneColTab::turnOn( bool yn )
 {
     const bool res = VisualObjectImpl::turnOn( yn );
-    updateSequence();
+    updateDisplay();
     return res;
 }
 

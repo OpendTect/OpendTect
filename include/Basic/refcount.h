@@ -17,6 +17,8 @@ ________________________________________________________________________
 
 template <class T> class WeakPtr;
 template <class T> class RefMan;
+template <class T> class ConstRefMan;
+
 
 
 /*!
@@ -234,15 +236,43 @@ mExpClass(Basic) WeakPtrBase
 public:
 				operator bool() const;
     bool			operator!() const;
+    bool			operator==( const WeakPtrBase& r ) const
+    				{ return ptr_==r.ptr_; }
 protected:
 				WeakPtrBase();
-    void			set(Referenced*);
+	void			set(Referenced*);
 
     friend class		Counter;
 
     void			clearPtr();
     mutable Threads::SpinLock	lock_;
     Referenced*			ptr_;
+};
+
+mExpClass(Basic) WeakPtrSetBase
+{
+public:
+    mExpClass(Basic) CleanupBlocker
+    {
+    public:
+                        CleanupBlocker( WeakPtrSetBase& base )
+                            : base_( base )
+                        {
+                            base_.blockCleanup();
+                        }
+
+                        ~CleanupBlocker() { base_.unblockCleanup(); }
+    private:
+        WeakPtrSetBase&	base_;
+
+    };
+
+protected:
+    Threads::Atomic<int>	blockcleanup_	= 0;
+private:
+    friend 			class CleanupBlocker;
+    void			blockCleanup();
+    void			unblockCleanup();
 };
 
 
@@ -257,8 +287,8 @@ mClass(Basic) WeakPtr : public RefCount::WeakPtrBase
 {
 public:
 			WeakPtr(RefCount::Referenced* p = 0) { set(p); }
-			WeakPtr(const WeakPtr<T>& p) { set( p.get().ptr() ); }
-			WeakPtr(const RefMan<T>& p) { set( p.ptr() ); }
+                        WeakPtr(const WeakPtr<T>& p) : WeakPtr<T>( p.ptr_ ) {}
+                        WeakPtr(RefMan<T>& p) : WeakPtr<T>(p.ptr()) {}
 			~WeakPtr() { set( 0 ); }
 
     inline WeakPtr<T>&	operator=(const WeakPtr<T>& p);
@@ -268,6 +298,30 @@ public:
 			{ set(p); return p; }
 
     RefMan<T>		get() const;
+};
+
+
+//A collection of weak pointers
+
+template <class T>
+mClass(Basic) WeakPtrSet : public RefCount::WeakPtrSetBase
+{
+public:
+    bool		operator+=(const WeakPtr<T>&);
+			//Returns if added (i.e. not duplicate)
+    bool		operator+=(RefMan<T>&);
+			//Returns if added (i.e. not duplicate)
+    int			size() const;
+    RefMan<T>		operator[](int);
+    ConstRefMan<T>	operator[](int) const;
+
+    int			indexOf(T*) const;
+
+
+private:
+
+    TypeSet<WeakPtr<T> >		ptrs_;
+    mutable Threads::SpinLock		lock_;
 };
 
 
@@ -324,4 +378,71 @@ RefMan<T> WeakPtr<T>::get() const
     }
 
     return res;
+}
+
+
+template <class T> inline
+bool WeakPtrSet<T>::operator+=(RefMan<T>& n)
+{
+    T* ptr = n.ptr();
+    return WeakPtrSet<T>::operator+=( WeakPtr<T>( ptr ) );
+}
+
+template <class T> inline
+bool WeakPtrSet<T>::operator+=(const WeakPtr<T>& n)
+{
+    lock_.lock();
+
+    const bool cleanup = blockcleanup_.setIfValueIs( 0, -1 );
+    //Clean up old pointers
+    for ( int idx=ptrs_.size()-1; idx>=0; idx-- )
+    {
+	if ( cleanup && !ptrs_[idx] )
+        {
+	    ptrs_.removeSingle( idx );
+            continue;
+        }
+        
+        if ( ptrs_[idx]==n )
+        {
+            if ( cleanup ) blockcleanup_ = 0;
+            lock_.unLock();
+            return false;
+        }
+    }
+    
+    if ( cleanup ) blockcleanup_ = 0;
+
+    ptrs_ += n;
+    lock_.unLock();
+
+    return true;
+}
+
+
+template <class T> inline
+int WeakPtrSet<T>::size() const
+{
+    lock_.lock();
+    const int res = ptrs_.size();
+    lock_.unLock();
+    return res;
+}
+
+
+template <class T> inline
+RefMan<T> WeakPtrSet<T>::operator[]( int idx )
+{
+    lock_.lock();
+    RefMan<T> res = ptrs_.validIdx(idx) ? ptrs_[idx].get() : RefMan<T>( 0 );
+    lock_.unLock();
+    return res;
+}
+
+
+
+template <class T> inline
+ConstRefMan<T> WeakPtrSet<T>::operator[]( int idx ) const
+{
+    return const_cast<WeakPtrSet<T>*>( this )->operator[](idx);
 }

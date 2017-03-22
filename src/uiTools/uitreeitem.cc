@@ -11,8 +11,10 @@ ___________________________________________________________________
 
 
 #include "uitreeitem.h"
-
+#include "uipixmap.h"
 #include "uitreeview.h"
+#include "uicolseqdisp.h"
+#include "coltabsequence.h"
 
 
 #define mEnabSelChg(yn) \
@@ -331,6 +333,19 @@ int uiTreeItem::uiTreeViewItemType() const
 uiParent* uiTreeItem::getUiParent() const
 {
     return parent_ ? parent_->getUiParent() : 0;
+}
+
+
+void uiTreeItem::setPixmap( int col, const ColTab::Sequence* seq )
+{
+    if ( !uitreeviewitem_ || !seq )
+	uiTreeItem::updateColumnText( col );
+    else
+    {
+	uiPixmap* pm = ColTab::getuiPixmap( *seq, 20, 10 );
+	uitreeviewitem_->setPixmap( col, *pm );
+	delete pm;
+    }
 }
 
 

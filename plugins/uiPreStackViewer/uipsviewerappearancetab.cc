@@ -40,9 +40,8 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     coltabsel_ = new uiColTabSel( this, OD::Horizontal,
 				 uiStrings::sColorTable() );
     coltabsel_->setSeqName( vwr_->appearance().ddpars_.vd_.colseqname_ );
+    coltabsel_->setMapper( *vwr_->appearance().ddpars_.vd_.mapper_ );
     mAttachCB( coltabsel_->seqChanged, uiViewer3DAppearanceTab::colTabChanged );
-    mAttachCB( coltabsel_->mapperSetupChanged,
-		    uiViewer3DAppearanceTab::colTabChanged);
 
     const SamplingData<float> curzsmp = vwr_->appearance().annot_.x2_.sampling_;
     const bool zudf = mIsUdf( curzsmp.start ) || mIsUdf(curzsmp.step);
@@ -118,15 +117,15 @@ void uiViewer3DAppearanceTab::colTabChanged( CallBacker* )
 {
     FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
     pars.colseqname_ = coltabsel_->seqName();
-    *pars.mappersetup_ = *coltabsel_->mapperSetup();
+    *pars.mapper_ = coltabsel_->mapper();
     vwr_->handleChange( FlatView::Viewer::DisplayPars );
 }
 
 
 void uiViewer3DAppearanceTab::updateColTab( CallBacker* )
 {
-    const FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
-    coltabsel_->useMapperSetup( *pars.mappersetup_ );
+    FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
+    coltabsel_->setMapper( *pars.mapper_ );
     coltabsel_->setSeqName( pars.colseqname_ );
     coltabsel_->setRange( vwr_->getDataRange(false) );
 }
@@ -203,7 +202,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	return;
 
     FlatView::DataDispPars& ddp = vwr_->appearance().ddpars_;
-    *ddp.vd_.mappersetup_ = *coltabsel_->mapperSetup();
+    *ddp.vd_.mapper_ = coltabsel_->mapper();
     ddp.vd_.colseqname_ = coltabsel_->seqName();
     vwr_->handleChange( FlatView::Viewer::DisplayPars );
 

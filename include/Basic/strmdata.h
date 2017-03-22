@@ -12,6 +12,8 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
+#include "ptrman.h"
 #include "bufstring.h"
 #include <iosfwd>
 
@@ -23,30 +25,54 @@ ________________________________________________________________________
   Need to find out what to do with the pipe in windows.
 */
 
+
 mExpClass(Basic) StreamData
 {
 public:
 
-		StreamData()			{ initStrms(); }
-    void	transferTo(StreamData&);	//!< retains file name
+			StreamData();
+			StreamData(const StreamData&)	= delete;
+			StreamData(StreamData&&);
 
-    void	close();
-    bool	usable() const;
+    StreamData&		operator=(const StreamData&)	= delete;
+    StreamData&		operator=(StreamData&&);
 
-    void	setFileName( const char* fn )	{ fname_ = fn; }
-    const char*	fileName() const		{ return fname_; }
+    void mDeprecated	transferTo(StreamData&);	//!< retains file name
 
-    std::ios*	streamPtr() const;
+    void		close();
+    bool		usable() const;
 
-    std::istream* istrm;
-    std::ostream* ostrm;
+    void		setFileName( const char* fn );
+    const char*		fileName() const;
+
+    std::ios*		streamPtr() const;
+
+    std::istream*	iStrm() const { return impl_->istrm_; }
+    std::ostream*	oStrm() const { return impl_->ostrm_; }
+
+    void                setIStrm( std::istream* );
+    void                setOStrm( std::ostream* );
+
+    //Internal use (unless you're making connectors to weird external streams)
+    mExpClass(Basic) StreamDataImpl
+    {
+    public:
+	virtual void	close();
+	virtual		~StreamDataImpl() {}
+	BufferString	fname_;
+	std::istream*	istrm_ = 0;
+	std::ostream*	ostrm_ = 0;
+    };
+
+    void setImpl(StreamDataImpl*);
 
 private:
 
-    BufferString fname_;
+    PtrMan<StreamDataImpl>	impl_;
 
-    inline void	initStrms()			{ istrm = 0; ostrm = 0; }
+public:
 
-    friend class StreamProvider;
-
+				//Use iStrm() and oStrm() instead
+    mDeprecated std::istream*	istrm;
+    mDeprecated std::ostream*	ostrm;
 };

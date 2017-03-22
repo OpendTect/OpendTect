@@ -24,13 +24,13 @@ class uiTextItem;
 class uiAxisHandler;
 
 template <class T> class Array2D;
-namespace ColTab { class MapperSetup; }
+namespace ColTab { class Mapper; }
 
 mExpClass(uiTools) uiMapperRangeEditor : public uiGroup
 {
 public:
 
-    typedef ColTab::MapperSetup	MapperSetup;
+    typedef ColTab::Mapper	Mapper;
 
 				uiMapperRangeEditor(uiParent*,int an_id=0,
 						    bool fixdrawrg=true);
@@ -43,8 +43,8 @@ public:
     void			setData(const IOPar&);
     void			setMarkValue(float,bool forx);
 
-    const ColTab::MapperSetup&	mapperSetup()	{ return *mappersetup_; }
-    void			setMapperSetup(MapperSetup&);
+    const ColTab::Mapper&	mapper()	{ return *mapper_; }
+    void			setMapper(Mapper&);
     void			setColTabSeq(const ColTab::Sequence&);
 
     uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }
@@ -55,7 +55,7 @@ protected:
     uiHistogramDisplay*		histogramdisp_;
     uiAxisHandler*		xax_;
 
-    RefMan<MapperSetup>		mappersetup_;
+    RefMan<Mapper>		mapper_;
     ConstRefMan<ColTab::Sequence> ctseq_;
 
     uiPixmapItem*		leftcoltab_;

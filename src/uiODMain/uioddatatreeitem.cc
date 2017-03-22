@@ -10,6 +10,7 @@ ___________________________________________________________________
 
 #include "uioddatatreeitem.h"
 
+#include "uicolseqdisp.h"
 #include "uifkspectrum.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -97,7 +98,7 @@ uiODDataTreeItem* uiODDataTreeItemFactory::create( ProbeLayer& probelayer )
 
 
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
-    : uiTreeItem(uiString::emptyString())
+    : uiODSceneTreeItem(uiString::emptyString())
     , parenttype_(parenttype)
     , visserv_(ODMainWin()->applMgr().visServer())
     , menu_(0)
@@ -168,14 +169,6 @@ int uiODDataTreeItem::uiTreeViewItemType() const
 }
 
 
-uiODApplMgr* uiODDataTreeItem::applMgr() const
-{
-    void* res = 0;
-    getPropertyPtr( uiODSceneTreeTop::applmgrstr(), res );
-    return reinterpret_cast<uiODApplMgr*>( res );
-}
-
-
 bool uiODDataTreeItem::init()
 {
     if ( visserv_->canHaveMultipleAttribs(displayID()) ||
@@ -205,14 +198,6 @@ bool uiODDataTreeItem::shouldSelect( int selid ) const
 {
     return selid!=-1 && selid==displayID() &&
 	   visserv_->getSelAttribNr()==attribNr();
-}
-
-
-int uiODDataTreeItem::sceneID() const
-{
-    int sceneid=-1;
-    getProperty<int>( uiODSceneTreeTop::sceneidkey(), sceneid );
-    return sceneid;
 }
 
 
@@ -531,13 +516,7 @@ void uiODDataTreeItem::updateColumnText( int col )
 
 void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 {
-    if ( !seq || !uitreeviewitem_ )
-    {
-	uiTreeItem::updateColumnText( uiODSceneMgr::cColorColumn() );
-	return;
-    }
-
-    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *seq );
+    setPixmap( uiODSceneMgr::cColorColumn(), seq );
 }
 
 

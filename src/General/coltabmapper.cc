@@ -1,165 +1,33 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert etc.
- * DATE     : 1996 / Jul 2007
+ * DATE     : 1996 / Jul 2007 / Mar 2017
 -*/
 
 
 #include "coltabmapper.h"
-#include "dataclipper.h"
-#include "histequalizer.h"
+#include "iopar.h"
 #include "keystrs.h"
-#include "settings.h"
-#include "math2.h"
 #include "task.h"
-#include "uistrings.h"
 
-static const int cMaxClipperPts = 100000;
-
-namespace ColTab
-{
-static Interval<float> defcliprate_ = Interval<float>(mUdf(float),mUdf(float));
-static const char* sKeyDefClipPerc = "dTect.Disp.Default clip perc";
-static float defsymmidval_ = mUdf(float);
-static bool defautosymm_ = false;
-static bool defhisteq_ = false;
-static const char* sKeyDefSymmZero = "dTect.Disp.Default symmetry zero";
-static const char* sKeyDefAutoSymm = "dTect.Disp.Default auto symmetry";
-static const char* sKeyDefHistEq = "dTect.Disp.Default histogram equalisation";
 static const char* sKeyStartWidth = "Start_Width";
-}
-
-
-bool ColTab::isFlipped( SeqUseMode mode )
-{
-    return mode == FlippedSingle || mode == FlippedCyclic;
-}
-
-
-bool ColTab::isCyclic( SeqUseMode mode )
-{
-    return mode == UnflippedCyclic || mode == FlippedCyclic;
-}
-
-
-ColTab::SeqUseMode ColTab::getSeqUseMode( bool flipped, bool cyclic )
-{
-    return flipped ? (cyclic ? FlippedCyclic : FlippedSingle)
-		   : (cyclic ? UnflippedCyclic : UnflippedSingle);
-}
-
-
-BufferString ColTab::toString( SeqUseMode mode )
-{
-    switch ( mode )
-    {
-    case UnflippedCyclic:	return BufferString( "Cyclic" );
-    case FlippedSingle:		return BufferString( "Flipped" );
-    case FlippedCyclic:		return BufferString( "ReverseCyclic" );
-    default:
-    case UnflippedSingle:	return BufferString( "Normal" );
-    }
-}
-
-
-void ColTab::toPar( SeqUseMode mode, IOPar& iop )
-{
-    iop.set( sKeySeqUseMode(), toString(mode) );
-}
-
-
-bool ColTab::fromPar( const IOPar& iop, SeqUseMode& mode )
-{
-    BufferString modestr;
-    if ( !iop.get(sKeySeqUseMode(),modestr) )
-	return false;
-
-    const char firstchar = modestr.firstChar();
-    mode = UnflippedSingle;
-    if ( firstchar == 'C' )
-	mode = UnflippedCyclic;
-    else if ( firstchar == 'F' )
-	mode = FlippedSingle;
-    else if ( firstchar == 'R' )
-	mode = FlippedCyclic;
-
-    return true;
-}
-
-
-Interval<float> ColTab::defClipRate()
-{
-    if ( mIsUdf(defcliprate_.start) || mIsUdf(defcliprate_.stop))
-    {
-	Interval<float> clipperc( mUdf(float), mUdf(float) );
-	Settings::common().get( sKeyDefClipPerc, clipperc );
-
-	if ( mIsUdf(clipperc.start) )
-	    clipperc.start = 2.5;
-	if ( mIsUdf(clipperc.stop) )
-	    clipperc.stop = clipperc.start;
-	clipperc.scale( 0.01 );
-	defcliprate_ = clipperc;
-
-	float mv = mUdf(float);
-	Settings::common().get( sKeyDefSymmZero, mv );
-	defsymmidval_ = mv;
-    }
-
-    return defcliprate_;
-}
-
-
-bool ColTab::defAutoSymmetry()
-{
-    Settings::common().getYN( sKeyDefAutoSymm, defautosymm_ );
-    return defautosymm_;
-}
-
-
-bool ColTab::defHistEq()
-{
-    return defhisteq_;
-}
-
-
-float ColTab::defSymMidval()
-{
-    if ( mIsUdf(defcliprate_.start) || mIsUdf(defcliprate_.stop) )
-	(void)defClipRate();
-    return defsymmidval_;
-}
-
-
-void ColTab::setMapperDefaults( Interval<float> clipintv, float sm, bool asym,
-				bool histeq )
-{
-    defcliprate_ = clipintv;
-    clipintv.scale( 100.f );
-    defsymmidval_ = sm;
-    defautosymm_ = asym;
-    Settings::common().set( sKeyDefClipPerc, clipintv );
-    Settings::common().set( sKeyDefSymmZero, sm );
-    Settings::common().setYN( sKeyDefAutoSymm, asym );
-    Settings::common().setYN( sKeyDefHistEq, histeq );
-    Settings::common().write();
-}
 
 
 ColTab::MapperSetup::MapperSetup()
     : isfixed_(false)
     , dohisteq_(defHistEq())
-    , range_(Interval<float>::udf())
+    , range_(RangeType::udf())
     , cliprate_(defClipRate())
     , guesssymmetry_(defAutoSymmetry())
     , symmidval_(defSymMidval())
     , nrsegs_(0)
     , sequsemode_(ColTab::UnflippedSingle)
+    , rangeCalculated(this)
 {
 }
 
 
-ColTab::MapperSetup::MapperSetup( Interval<float> rg )
+ColTab::MapperSetup::MapperSetup( const RangeType& rg )
     : isfixed_(true)
     , dohisteq_(defHistEq())
     , range_(rg)
@@ -168,12 +36,14 @@ ColTab::MapperSetup::MapperSetup( Interval<float> rg )
     , symmidval_(defSymMidval())
     , nrsegs_(0)
     , sequsemode_(ColTab::UnflippedSingle)
+    , rangeCalculated(this)
 {
 }
 
 
 ColTab::MapperSetup::MapperSetup( const MapperSetup& oth )
     : SharedObject(oth)
+    , rangeCalculated(this)
 {
     copyClassData( oth );
 }
@@ -182,6 +52,7 @@ ColTab::MapperSetup::MapperSetup( const MapperSetup& oth )
 ColTab::MapperSetup::~MapperSetup()
 {
     sendDelNotif();
+    detachAllNotifiers();
 }
 
 
@@ -223,27 +94,73 @@ Monitorable::ChangeType ColTab::MapperSetup::compareClassData(
 }
 
 
-void ColTab::MapperSetup::setFixedRange( Interval<float> newrg )
+void ColTab::MapperSetup::setNotFixed()
 {
     mLock4Read();
+    if ( !isfixed_ )
+	return;
+    if ( !mLock2Write() && !isfixed_ )
+	return;
+
+    isfixed_ = false;
+    range_.setUdf();
+    mSendChgNotif( cIsFixedChange(), ChangeData::cUnspecChgID() );
+}
+
+
+void ColTab::MapperSetup::setFixedRange( RangeType newrg )
+{
+    mLock4Read();
+    if ( mIsUdf(newrg.start) )
+	newrg.start = range_.start;
+    if ( mIsUdf(newrg.stop) )
+	newrg.stop = range_.stop;
+
     if ( isfixed_ && newrg == range_ )
 	return;
 
     mLock2Write();
+    const bool isfixedchgd = !isfixed_;
+    const bool rgchgd = newrg != range_;
+    if ( !isfixedchgd && !rgchgd )
+	return;
+
     range_ = newrg;
     isfixed_ = true;
-    mSendEntireObjChgNotif();
+    if ( isfixedchgd && rgchgd )
+	mSendEntireObjChgNotif();
+    else if ( isfixedchgd )
+	mSendChgNotif( cIsFixedChange(), ChangeData::cUnspecChgID() );
+    else
+	mSendChgNotif( cRangeChange(), ChangeData::cUnspecChgID() );
 }
 
 
-bool ColTab::MapperSetup::needsReClip( const ColTab::MapperSetup& oth ) const
+bool ColTab::MapperSetup::isMappingChange( ChangeType ct ) const
 {
-    if ( isFixed() )
-	return false;
+    if ( ct == ChangeData::cEntireObjectChgType() )
+	return true;
 
-    return clipRate() != oth.clipRate()
-	|| guessSymmetry() != oth.guessSymmetry()
-	|| symMidVal() != oth.symMidVal();
+    mLock4Read();
+    if ( ct == cIsFixedChange() && isfixed_ )
+	return false; // the auto-determined ranges have become fixed
+
+    if ( ct == cDoHistEqChange()
+      || ct == cSegChange()
+      || ct == cUseModeChange() )
+	return true;
+
+    return isfixed_ ? ct == cRangeChange() : true;
+}
+
+
+void ColTab::MapperSetup::setCalculatedRange( const RangeType& newrg ) const
+{
+    mLock4Write();
+    MapperSetup& self = *const_cast<MapperSetup*>( this );
+    self.range_ = newrg;
+    mUnlockAllAccess();
+    self.rangeCalculated.trigger();
 }
 
 
@@ -283,7 +200,7 @@ void ColTab::MapperSetup::usePar( const IOPar& par )
 	par.get( sKeyRange(), range_ );
     else if ( par.find(sKeyStartWidth) ) // Legacy key
     {
-	float start, width;
+	ValueType start, width;
 	par.get( sKeyStartWidth, start, width );
 	range_.start = start;
 	range_.stop = start + width;
@@ -305,15 +222,15 @@ void ColTab::MapperSetup::usePar( const IOPar& par )
     par.getYN( sKeyAutoSym(), guesssymmetry_ );
     if ( !isfixed_ )
     {
-	if ( mIsUdf(cliprate_.start) )
+	if ( mIsUdf(cliprate_.first) )
 	{
-	    if ( mIsUdf(cliprate_.stop) )
+	    if ( mIsUdf(cliprate_.second) )
 		cliprate_ = defClipRate();
 	    else
-		cliprate_.start = cliprate_.stop;
+		cliprate_.first = cliprate_.second;
 	}
-	if ( mIsUdf(cliprate_.stop) )
-	    cliprate_.stop = cliprate_.start;
+	if ( mIsUdf(cliprate_.second) )
+	    cliprate_.second = cliprate_.first;
     }
 
     bool flipseq = isFlipped( sequsemode_ );
@@ -326,243 +243,198 @@ void ColTab::MapperSetup::usePar( const IOPar& par )
 }
 
 
-
 ColTab::Mapper::Mapper()
-    : vs_(0)
-    , setup_(new MapperSetup)
-    , clipper_(*new DataClipper)
+    : setup_(new MapperSetup)
+    , distrib_(new DistribType)
 {
+    setNotifs();
+}
+
+
+ColTab::Mapper::Mapper( RangeType rg )
+    : setup_(new MapperSetup(rg))
+    , distrib_(new DistribType)
+{
+    setNotifs();
+}
+
+
+ColTab::Mapper::Mapper( const MapperSetup& msu )
+    : setup_(msu.clone())
+    , distrib_(new DistribType)
+{
+    setNotifs();
 }
 
 
 ColTab::Mapper::Mapper( const Mapper& oth )
-    : vs_(0)
+    : SharedObject(oth)
     , setup_(new MapperSetup)
-    , clipper_(*new DataClipper)
+    , distrib_(new DistribType)
 {
-    *this = oth;
+    copyClassData( oth );
+    setNotifs();
+}
+
+
+void ColTab::Mapper::setNotifs()
+{
+    mAttachCB( setup_->objectChanged(), Mapper::setupChgCB );
+    mAttachCB( distrib_->objectChanged(), Mapper::distribChgCB );
 }
 
 
 ColTab::Mapper::~Mapper()
 {
-    delete &clipper_;
+    sendDelNotif();
+    detachAllNotifiers();
 }
 
 
-ColTab::Mapper& ColTab::Mapper::operator =( const Mapper& oth )
+mImplMonitorableAssignment( ColTab::Mapper, SharedObject )
+
+
+void ColTab::Mapper::copyClassData( const Mapper& oth )
 {
-    if ( this != &oth )
+    setup_ = oth.setup_->clone();
+    distrib_ = oth.distrib_->clone();
+}
+
+
+Monitorable::ChangeType ColTab::Mapper::compareClassData(
+						const Mapper& oth ) const
+{
+    mDeliverYesNoMonitorableCompare(
+	    *setup_ == *oth.setup_ && *distrib_ == *oth.distrib_ );
+}
+
+
+ColTab::PosType ColTab::Mapper::getLinRelPos( const RangeType& rg,
+						      ValueType val )
+{
+    const PosType width = rg.width( false );
+    return width == 0.f ? 0.5f : (val-rg.start) / width;
+}
+
+
+ColTab::PosType ColTab::Mapper::getHistEqRelPos( const RangeType& rg,
+							 ValueType val ) const
+{
+    mLock4Read();
+    MonitorLock ml( *distrib_ );
+    const ValueType cumval = distrib_->valueAt( val, true );
+    const float relposinrg = cumval / distrib_->sumOfValues();
+    return rg.start + relposinrg * rg.width();
+}
+
+
+void ColTab::Mapper::determineRange() const
+{
+    mLock4Read();
+    RangeType rg;
+    if ( distrib_->isEmpty() )
+	{ rg.start = 0.f; rg.stop = 1.f; }
+    else
     {
-	*setup_ = *oth.setup_;
-	vs_ = oth.vs_;
-	vssz_ = oth.vssz_;
-	clipper_ = oth.clipper_;
+	const ClipRatePair clips( setup_->clipRate() );
+	const float sumvals = distrib_->sumOfValues();
+	const ClipRatePair distrvals( clips.first * sumvals,
+			       (1.0f-clips.second) * sumvals );
+	rg.start = distrib_->positionForCumulative( distrvals.first );
+	rg.stop = distrib_->positionForCumulative( distrvals.second );
     }
-    return *this;
+
+    setup_->setCalculatedRange( rg );
 }
 
 
-void ColTab::Mapper::setSetup( const MapperSetup& newsu )
+ColTab::Mapper::RangeType ColTab::Mapper::getRange() const
 {
-    *setup_ = newsu;
+    mLock4Read();
+    const Interval<float> rg = setup_->range();
+    if ( !mIsUdf(rg.start) && !mIsUdf(rg.stop) )
+	return rg;
+
+    determineRange();
+    return setup_->range();
 }
 
 
-void ColTab::Mapper::useSetup( MapperSetup& newsu )
+ColTab::PosType ColTab::Mapper::relPosition( ValueType val ) const
 {
-    replaceMonitoredRef( setup_, newsu, this );
-}
+    if ( mIsUdf(val) )
+	return 0.5f;
 
-
-static bool histeq_not_impl_msg_done = false;
-
-float ColTab::Mapper::position( float val ) const
-{
-    if ( setup_->doHistEq() )
+    mLock4Read();
+    Interval<float> rg = setup_->range();
+    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
     {
-	if ( !histeq_not_impl_msg_done )
-	{
-	    pErrMsg("TODO: implement HistEq col tab mapping");
-	    histeq_not_impl_msg_done = true;
-	}
+	determineRange();
+	rg = setup_->range();
     }
 
-    return getPosition( range(), setup_->seqUseMode(), setup_->nrSegs(),
-			val );
-}
+    const bool dohisteq = !distrib_->isEmpty() && setup_->doHistEq();
+    float relpos = dohisteq ? getHistEqRelPos(rg,val) : getLinRelPos(rg,val);
+    const int nrsegs = setup_->nrSegs();
 
-
-float ColTab::Mapper::getPosition( const Interval<float>& rg,
-				SeqUseMode mode, int nrsegs, float val )
-{
-    const float width = rg.width( false );
-    if ( mIsZero(width,mDefEps) )
-	return 0;
-
-    float pos = (val-rg.start) / width;
     if ( nrsegs > 0 )
     {
-	pos *= nrsegs;
-	pos = (0.5f + ((int)pos)) / nrsegs;
+	relpos *= nrsegs;
+	relpos = (0.5f + ((int)relpos)) / nrsegs;
     }
 
-    return seqPos4RelPos( mode, pos );
+    if ( relpos > 1.f )
+	relpos = 1.f;
+    else if ( relpos < 0.f )
+	relpos = 0.f;
+
+    return relpos;
 }
 
 
-float ColTab::Mapper::seqPos4RelPos( SeqUseMode mode, float pos )
+ColTab::PosType ColTab::Mapper::seqPosition( ValueType val ) const
 {
-    if ( pos > 1.f )
-	pos = 1.f;
-    else if ( pos < 0.f )
-	pos = 0.f;
+    PosType seqpos = relPosition( val );
 
-    if ( isCyclic(mode) )
+    mLock4Read();
+    const SeqUseMode sequsemode = setup_->seqUseMode();
+    if ( isCyclic(sequsemode) )
     {
-	pos *= 2;
-	if ( pos > 1.0f )
-	    pos = 2.0f - pos;
+	seqpos *= 2;
+	if ( seqpos > 1.0f )
+	    seqpos = 2.0f - seqpos;
     }
+    if ( isFlipped(sequsemode) )
+	seqpos = 1.0f - seqpos;
 
-    if ( isFlipped(mode) )
-	pos = 1.0f - pos;
-
-    return pos;
+    return seqpos;
 }
 
 
-int ColTab::Mapper::indexForValue( const ColTab::Mapper* mapper,
-				    float v, int nrcolors, int udfidx )
+int ColTab::Mapper::colIndex( ValueType val, int nrcols ) const
 {
-    if ( mIsUdf(v) )
-	return udfidx;
-
-    float fidx = mapper ? mapper->position( v ) : v;
-    fidx *= nrcolors;
-    int ret = (int)(fidx - 0.5f);
-    if ( ret < 0 )
-	ret = 0;
-    if ( ret > nrcolors-1 )
-	ret = nrcolors-1;
-    return ret;
+    int ret = (int)(nrcols * seqPosition(val));
+    return ret < 0 ? 0 : (ret >=nrcols ? nrcols-1 : ret);
 }
 
 
-void ColTab::Mapper::setRange( Interval<float> rg )
+void ColTab::Mapper::setupChgCB( CallBacker* cb )
 {
-    setup_->setRange( rg );
-    setup_->setIsFixed( true );
+    mGetMonitoredChgData( cb, chgdata );
+    mLock4Read();
+
+    if ( setup_->isMappingChange(chgdata.changeType()) )
+	mSendChgNotif( cMappingChange(), ChangeData::cUnspecChgID() );
 }
 
 
-void ColTab::Mapper::setData( const ValueSeries<float>* vs, od_int64 sz,
-			      TaskRunner* tskr )
+void ColTab::Mapper::distribChgCB( CallBacker* cb )
 {
-    vs_ = vs; vssz_ = sz;
-    update( true, tskr );
-}
+    mGetMonitoredChgData( cb, chgdata );
+    mLock4Read();
 
+    if ( !setup_->isFixed() )
+	determineRange();
 
-struct SymmetryCalc : public ParallelTask
-{
-SymmetryCalc( const ValueSeries<float>& vs, od_int64 sz )
-    : sz_(sz)
-    , vs_(vs)
-    , above0_(0)
-    , below0_(0)
-    , lock_(true)
-{
-    //TODO should be done calculating the Galton number
-    // e.g. https://brownmath.com/stat/shape.htm
-}
-
-od_int64 nrIterations() const { return sz_; }
-
-bool doWork( od_int64 start, od_int64 stop, int )
-{
-    od_int64 above0 = 0;
-    od_int64 below0 = 0;
-
-    for ( od_int64 idx=start; idx<=stop; idx++ )
-    {
-	if ( mIsUdf(vs_[idx]) ) continue;
-	if ( vs_[idx] < 0 ) below0++;
-	else if ( vs_[idx] > 0 ) above0++;
-    }
-
-    Threads::Locker lock( lock_ );
-    above0_ += above0;
-    below0_ += below0;
-
-    return true;
-}
-
-
-bool isSymmAroundZero() const
-{
-    od_int64 max = mMAX( above0_, below0_ );
-    od_int64 min = mMIN( above0_, below0_ );
-    if ( max==0 || min==0 ) return false;
-
-    return max/min - 1 < 0.05;
-}
-
-
-uiString nrDoneText() const
-{
-    return uiStrings::sDone();
-}
-
-    od_int64			sz_;
-    od_int64			above0_;
-    od_int64			below0_;
-    Threads::Lock		lock_;
-    const ValueSeries<float>&	vs_;
-};
-
-
-void ColTab::Mapper::update( bool full, TaskRunner* tskr )
-{
-    if ( setup_->isFixed() || !vs_ || vssz_ < 1 )
-	return;
-
-    // using notify blockers when setting caching data (range, sym mid val)
-
-    if ( vssz_ == 1 )
-    {
-	const float rgstart = (mIsUdf(vs_->value(0)) ? 0.f : vs_->value(0))-1.f;
-	const float rgstop = rgstart + 2.f;
-	setup_->setRange( Interval<float>( rgstart, rgstop ) );
-	return;
-    }
-
-    if ( full || clipper_.isEmpty() )
-    {
-	clipper_.reset();
-	clipper_.setApproxNrValues( vssz_, cMaxClipperPts ) ;
-	clipper_.putData( *vs_, vssz_ );
-	clipper_.fullSort();
-
-	if ( setup_->guessSymmetry() )
-	{
-	    SymmetryCalc symmcalc( *vs_, vssz_ );
-	    TaskRunner::execute( tskr, symmcalc );
-	    setup_->setSymMidVal( symmcalc.isSymmAroundZero()
-					? 0.f : mUdf(float) );
-	}
-    }
-
-    Interval<float> intv( -1, 1 );
-    const float symmidval = setup_->symMidVal();
-    Interval<float> cliprate( setup_->clipRate() );
-    if ( mIsUdf(symmidval) )
-	clipper_.getRange( cliprate.start, cliprate.stop, intv );
-    else
-	clipper_.getSymmetricRange( cliprate.start, symmidval, intv );
-
-    if ( mIsZero(intv.width(),mDefEps) )
-	intv.widen( 1.f );
-
-    setup_->setRange( intv );
+    mSendChgNotif( cMappingChange(), ChangeData::cUnspecChgID() );
 }

@@ -43,26 +43,3 @@ if ( ! $?LD_LIBRARY_PATH ) then
 else
     setenv LD_LIBRARY_PATH "${MATLAB_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}"
 endif
-
-if ( -f "${bindir}/libstdc++.so.6" || -f "${bindir}/libgcc_s.so.1" ) then
-    if ( -w "${bindir}" ) then
-	if ( -e "${bindir}"/libstdc++.so.6 ) then
-	    mv "${bindir}"/libstdc++.so.6 ${bindir}/libstdc++_BU.so.6
-	endif
-	if ( -e "${bindir}"/libgcc_s.so.1 ) then
-	    mv "${bindir}"/libgcc_s.so.1 ${bindir}/libgcc_s_BU.so.1
-	endif
-    else
-	echo ""
-	echo "The following libraries are installed by OpendTect:"
-	echo ""
-	echo " in ${bindir} :"
-	echo "      libstdc++.so.6"
-	echo "      libgcc_s.so.1"
-	echo ""
-	echo "these are not compatible with the MATLAB libraries."
-	echo "Please ask your system administrator to rename or move away these files"
-	echo "in order to use the OpendTect-MATLAB plugin "
-	echo ""
-    endif
-endif

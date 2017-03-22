@@ -69,8 +69,6 @@ public:
     TrcKey			getTrcKey(int globaltrcidx) const;
     int				getGlobalIdx(const TrcKey&) const;
 
-    virtual void		dumpInfo(IOPar&) const;
-
     const StepInterval<float>&	getZRange() const
 				{ return sampling_.zsamp_; }
 
@@ -90,6 +88,8 @@ protected:
 
     TrcKeyZSampling		sampling_;
     PtrMan<PosInfo::CubeData>	trcssampling_;
+
+    virtual void		doDumpInfo(IOPar&) const;
 
 };
 
@@ -172,7 +172,6 @@ public:
 				{ return source_->getScaler(); }
     const ZDomain::Info&	zDomain() const
 				{ return source_->zDomain(); }
-    float			nrKBytes() const;
 
 protected:
 
@@ -190,6 +189,7 @@ protected:
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
 
     const StepInterval<float>&	zSamp() const	{ return source_->getZRange(); }
+    virtual float		gtNrKBytes() const;
 
 };
 

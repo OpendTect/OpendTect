@@ -86,6 +86,7 @@ public:
 				//!<Returns false if process should continue
     od_int64			nrDone() const;
     od_int64			totalNr() const       { return totalnr_; }
+    uiString		message() const;
     uiString			nrDoneText() const
 						{ return tr("CDPs gridded"); }
 
@@ -115,7 +116,8 @@ protected:
 
 // VelGriddingTask
 VelGriddingTask::VelGriddingTask( VelocityGridder& step )
-    : nrdone_( 0 )
+    : SequentialTask("Velocity Gridding Task")
+    , nrdone_( 0 )
     , remainingbids_( 0, false )
     , definedbids_( 0, false )
     , step_( step )
@@ -130,6 +132,12 @@ VelGriddingTask::VelGriddingTask( VelocityGridder& step )
     } while ( iterator.next() );
 
     totalnr_ = hrg.totalNr();
+}
+
+
+uiString VelGriddingTask::message() const
+{
+    return tr("Gridding velocities");
 }
 
 
@@ -218,9 +226,11 @@ VelGriddingFromFuncTask::VelGriddingFromFuncTask( VelGriddingTask& task )
     if ( velfuncsource_ )
     {
 	velfuncsource_->ref();
+	VelocityGridder& velgridstep = task_.getStep();
 	velfuncsource_->setSource( const_cast<ObjectSet<Vel::FunctionSource>&>(
-		    task_.getStep().getSources()) );
-	velfuncsource_->setGridder( task_.getStep().getGridder()->clone() );
+				   velgridstep.getSources()) );
+	velfuncsource_->setGridder( velgridstep.getGridder()->clone() );
+	velfuncsource_->setTrendOrder( velgridstep.getTrendOrder() );
 	velfuncsource_->setLayerModel( task_.getStep().getLayerModel() );
     }
 }
@@ -436,7 +446,7 @@ static const char* sKeyLayerModel()	{ return "Layer Model"; }
 VelocityGridder::VelocityGridder()
     : gridder_(0)
     , layermodel_(0)
-    , trend_(PolyTrend::None)
+    , trendorder_(PolyTrend::None)
 {}
 
 
@@ -485,6 +495,9 @@ bool VelocityGridder::setGridder( const IOPar& par )
 	    delete gridder;
 	    return false;
 	}
+
+	PolyTrend::OrderDef().parse( *velgridpar, PolyTrend::sKeyOrder(),
+				     trendorder_ );
     }
     else //Old format
     {
@@ -494,7 +507,6 @@ bool VelocityGridder::setGridder( const IOPar& par )
     }
 
     setGridder( gridder );
-    PolyTrend::OrderDef().parse( *velgridpar, PolyTrend::sKeyOrder(), trend_ );
 
     return gridder_;
 }
@@ -574,6 +586,8 @@ void VelocityGridder::fillPar( IOPar& par ) const
 	IOPar gridpar;
 	gridpar.set( sKey::Name(), gridder_->factoryKeyword() );
 	gridder_->fillPar( gridpar );
+	gridpar.set( PolyTrend::sKeyOrder(),
+		     PolyTrend::OrderDef().getKey(trendorder_) );
 	par.mergeComp( gridpar, Gridder2D::sKeyGridder() );
     }
 

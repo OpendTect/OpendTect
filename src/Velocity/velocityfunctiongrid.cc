@@ -24,6 +24,8 @@ GriddedFunction::GriddedFunction( GriddedSource& source )
     : Function(source)
     , gridder_(0)
     , layermodel_(0)
+    , directsource_(0)
+    , trendorder_(source.trendorder_)
 {}
 
 
@@ -31,6 +33,8 @@ GriddedFunction::~GriddedFunction()
 {
     deepUnRef( velocityfunctions_ );
     delete gridder_;
+    if ( directsource_ )
+	directsource_->unRef();
 }
 
 
@@ -39,62 +43,89 @@ bool GriddedFunction::moveTo( const BinID& bid )
     if ( !Function::moveTo( bid ) )
 	return false;
 
+    fetchPerfectFit( bid );
+    if ( !gridder_ )
+	return false;
+
+    if ( gridder_->allPointsAreRelevant() )
+	return true;
+
     return fetchSources();
+}
+
+
+void GriddedFunction::fetchPerfectFit( const BinID& bid )
+{
+    mDynamicCastGet( GriddedSource&, gvs, source_ );
+    if ( !gvs.sourcepos_.isValid(bid) )
+    {
+	if ( directsource_ ) directsource_->unRef();
+	directsource_ = 0;
+	return;
+    }
+
+    int funcsource;
+    ConstRefMan<Function> velfunc = getInputFunction( bid_, funcsource );
+    if ( !velfunc )
+    {
+	if ( directsource_ ) directsource_->unRef();
+	directsource_ = 0;
+	return;
+    }
+
+    velfunc->ref();
+    directsource_ = velfunc;
 }
 
 
 bool GriddedFunction::fetchSources()
 {
-    if ( mIsUdf(bid_.inl()) || mIsUdf(bid_.crl() ) )
-	return false;
-
-    mDynamicCastGet( GriddedSource&, gvs, source_ );
-
     ObjectSet<const Function> velfuncs;
     TypeSet<int> velfuncsource;
 
-    //Search for perfect fit (i.e no gridding)
-    if ( gvs.sourcepos_.isValid(bid_) )
-    {
-	int funcsource;
-	ConstRefMan<Function> velfunc = getInputFunction( bid_, funcsource );
-	if  ( velfunc )
-	{
-	    velfunc->ref();
-	    velfuncs += velfunc;
-	    velfuncsource += funcsource;
-	}
-    }
+    if ( !gridder_->getPoints() )
+	return false;
 
-    if ( !velfuncs.size() ) //no perfect fit
+    const TypeSet<Coord>& gridderpoints = *gridder_->getPoints();
+    TypeSet<double> weights;
+    TypeSet<int> usedpoints;
+    if ( gridder_->allPointsAreRelevant() )
     {
-	TypeSet<double> weights;
-	TypeSet<int> usedpoints;
+	const TypeSet<Coord>::size_type nrpoints = gridderpoints.size();
+	for ( TypeSet<Coord>::size_type idx=0; idx<nrpoints; idx++ )
+	    usedpoints += idx;
+    }
+    else
+    {
+	if ( mIsUdf(bid_.inl()) || mIsUdf(bid_.crl() ) )
+	    return false;
+
 	const Coord workpos = SI().transform( bid_ );
 	if ( gridder_ && !gridder_->getWeights(workpos,weights,usedpoints) )
 	    return false;
-
-	const TypeSet<BinID>& binids = gvs.gridsourcebids_;
-	for ( int idx=0; idx<usedpoints.size(); idx++ )
-	{
-	    const BinID curbid = binids[usedpoints[idx]];
-
-	    int funcsource;
-	    ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
-	    if ( !velfunc )
-	    {
-		pErrMsg("Error");
-		deepUnRef( velfuncs );
-		return false;
-	    }
-
-	    velfunc->ref();
-	    velfuncs += velfunc;
-	    velfuncsource += funcsource;
-	}
     }
 
-    if ( !velfuncs.size() )
+    mDynamicCastGet( GriddedSource&, gvs, source_ );
+    const TypeSet<BinID>& binids = gvs.gridsourcebids_;
+    for ( TypeSet<Coord>::size_type idx=0; idx<usedpoints.size(); idx++ )
+    {
+	const BinID curbid = binids[usedpoints[idx]];
+
+	int funcsource;
+	ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
+	if ( !velfunc )
+	{
+	    pErrMsg("Error");
+	    deepUnRef( velfuncs );
+	    return false;
+	}
+
+	velfunc->ref();
+	velfuncs += velfunc;
+	velfuncsource += funcsource;
+    }
+
+    if ( velfuncs.isEmpty() )
 	return false;
 
     if ( velfuncs.size()>1 && !gridder_ )
@@ -147,6 +178,12 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 }
 
 
+void GriddedFunction::setTrendOrder( PolyTrend::Order trendorder )
+{
+    trendorder_ = trendorder;
+}
+
+
 void GriddedFunction::setLayerModel( const InterpolationLayerModel* mdl )
 { layermodel_ = mdl; }
 
@@ -191,21 +228,35 @@ StepInterval<float> GriddedFunction::getAvailableZ() const
 bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
-    const bool nogridding = velocityfunctions_.size()==1;
-
-    const bool doinverse = getDesc().isVelocity();
-    const Coord workpos = SI().transform( bid_ );
+    const bool nogridding = directsource_;
+    const bool doinverse = nogridding ? false :getDesc().isVelocity();
+    const Coord workpos = nogridding ? Coord::udf() : SI().transform( bid_ );
     TypeSet<double> weights;
     TypeSet<int> usedpoints;
-    if ( !gridder_ || !gridder_->getWeights(workpos,weights,usedpoints) )
-	return false;
+    bool weightsarevaluesdependent = false;
+    if ( !nogridding )
+    {
+	if ( !gridder_ || !gridder_->getPoints() )
+	    return false;
+
+	const TypeSet<Coord>& gridderpoints = *gridder_->getPoints();
+	weightsarevaluesdependent = gridder_->areWeightsValuesDependent();
+	if ( weightsarevaluesdependent )
+	{
+	    const TypeSet<Coord>::size_type nrpoints = gridderpoints.size();
+	    for ( TypeSet<Coord>::size_type idx=0; idx<nrpoints; idx++ )
+		usedpoints += idx;
+	}
+	else if ( !gridder_->getWeights(workpos,weights,usedpoints) )
+	    return false;
+    }
 
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;
 	if ( nogridding )
 	{
-	    res[idx] = velocityfunctions_[0]->getVelocity( z );
+	    res[idx] = directsource_->getVelocity( z );
 	    continue;
 	}
 
@@ -269,7 +320,11 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	}
 
 	gridder_->setValues( gridvalues_ );
-	const float val = gridder_->getValue( workpos, &weights, &usedpoints );
+	gridder_->setTrend( trendorder_ );
+
+	const float val = weightsarevaluesdependent
+			? gridder_->getValue( workpos )
+			: gridder_->getValue( workpos, &weights, &usedpoints );
 	if ( doinverse )
 	    res[idx] = mIsZero(val, 1e-7 ) ? mUdf(float) : 1.0f/val;
 	else
@@ -287,6 +342,7 @@ GriddedSource::GriddedSource()
     , sourcepos_(0,false)
     , gridderinited_(false)
     , layermodel_(0)
+    , trendorder_(PolyTrend::None)
 { initGridder(); }
 
 
@@ -489,6 +545,12 @@ void GriddedSource::setGridder( Gridder2D* ng )
 }
 
 
+void GriddedSource::setTrendOrder( PolyTrend::Order trendorder )
+{
+    trendorder_ = trendorder;
+}
+
+
 const Gridder2D* GriddedSource::getGridder() const
 {
     return gridder_;
@@ -561,6 +623,7 @@ GriddedFunction* GriddedSource::createFunction()
 {
     GriddedFunction* res = new GriddedFunction( *this );
     if ( gridder_ ) res->setGridder( *gridder_ );
+    res->setTrendOrder( trendorder_ );
     if ( layermodel_ ) res->setLayerModel( layermodel_ );
     return res;
 }
@@ -612,6 +675,8 @@ void GriddedSource::fillPar( IOPar& par ) const
     IOPar gridpar;
     gridder_->fillPar( gridpar );
     gridpar.set( sKey::Name(), gridder_->factoryKeyword() );
+    gridpar.set( PolyTrend::sKeyOrder(),
+		 PolyTrend::OrderDef().getKey(trendorder_) );
     par.mergeComp( gridpar, Gridder2D::sKeyGridder() );
 }
 
@@ -635,6 +700,7 @@ bool GriddedSource::usePar( const IOPar& par )
     }
 
     setGridder( gridder );
+    PolyTrend::OrderDef().parse( *gridpar, PolyTrend::sKeyOrder(), trendorder_);
 
     return true;
 }

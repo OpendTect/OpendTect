@@ -156,21 +156,11 @@ Monitorable::ChangeType Monitorable::changeNotificationTypeOf( CallBacker* cb )
 }
 
 
-static void doTransferCBs( CallBackSet& fromcbs, CallBackSet& tocbs,
-			    const CallBacker* onlyfor )
-{
-    Threads::Locker mycbslocker( fromcbs.lock_ );
-    Threads::Locker tocbslocker( tocbs.lock_ );
-    fromcbs.transferTo( tocbs, onlyfor );
-}
-
-
 void Monitorable::transferNotifsTo( const Monitorable& to,
 				    const CallBacker* onlyfor ) const
 {
-    doTransferCBs( objectChanged().cbs_, to.objectChanged().cbs_, onlyfor );
-    doTransferCBs( objectToBeDeleted().cbs_, to.objectToBeDeleted().cbs_,
-		    onlyfor );
+    objectChanged().transferCBSTo( to.objectChanged(), onlyfor );
+    objectToBeDeleted().transferCBSTo( to.objectToBeDeleted(), onlyfor );
 }
 
 

@@ -17,18 +17,15 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "thread.h"
 
-
-class TaskRunner;
-
-namespace osg
-{ class CullStack; }
-
+namespace osg { class CullStack; }
 namespace osgGeo { class LayeredTexture; }
+
 
 namespace visBase
 {
-    class HorizonSection;
-    class HorizonSectionTile;
+
+class HorizonSection;
+class HorizonSectionTile;
 
 
 class HorTilesCreatorAndUpdator : public RefCount::Referenced
@@ -44,6 +41,7 @@ public:
 
 
 protected:
+
             ~HorTilesCreatorAndUpdator();
     void    updateTileArray(const StepInterval<int>& rrg,
 			    const StepInterval<int>& crg);
@@ -55,8 +53,6 @@ protected:
     Threads::SpinLock	spinlock_;
     Threads::Mutex	updatelock_;
 
-
-private:
 };
 
 

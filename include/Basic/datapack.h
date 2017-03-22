@@ -18,10 +18,10 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 class DataPackMgr;
+template <class T> class ArrayND;
 
 
-/*!
-\brief A data packet: data+positioning and more that needs to be shared.
+/*!\brief A data packet: data+positioning and more that needs to be shared.
 
   The 'category' is meant like:
   'Prestack gather'
@@ -30,6 +30,9 @@ class DataPackMgr;
 
   A DataPack may be tied to stored object. If so, the optional dbKey() is
   valid.
+
+  A DataPack will often contain data in the form of ArrayND<float>.
+  Because this is so common there is access to this data from this top level.
 
 */
 
@@ -61,31 +64,42 @@ public:
     typedef FullID::PackID	ID;
     typedef FullID::MgrID	MgrID;
 
-
 				DataPack(const char* categry);
     				mDeclInstanceCreatedNotifierAccess(DataPack);
     				mDeclAbstractMonitorableAssignment(DataPack);
+				//TODO int -> bool
+    int				isOK() const		{ return 1; }
 
     ID				id() const		{ return id_; }
     FullID			fullID( MgrID mgrid ) const
 						{ return FullID(mgrid,id()); }
-    virtual const char*		category() const	{ return category_; }
-
-    virtual float		nrKBytes() const	= 0;
-    virtual void		dumpInfo(IOPar&) const;
+    const char*			category() const	{ return gtCategory(); }
+    float			nrKBytes() const	{ return gtNrKBytes(); }
+				//TODO bool -> void
+    bool			dumpInfo( IOPar& iop ) const
+    				{ doDumpInfo(iop); return true; }
 
     static const char*		sKeyCategory();
     static ID			cNoID()			{ return ID(); }
 
-    virtual bool		isOK() const		{ return true; }
 
     mImplSimpleMonitoredGetSet( inline, dbKey, setDBKey, DBKey, dbkey_,
 				cDBKeyChg() )
     static ChangeType		cDBKeyChg()		{ return 2; }
 
+    int				nrArrays() const	{ return gtNrArrays(); }
+    const ArrayND<float>*	arrayData( int iarr ) const
+    				{ return gtArrayData(iarr); }
+
 protected:
 
     virtual			~DataPack();
+
+    virtual const char*		gtCategory() const	{ return category_; }
+    virtual float		gtNrKBytes() const	= 0;
+    virtual void		doDumpInfo(IOPar&) const;
+    virtual int			gtNrArrays() const	{ return 0; }
+    virtual const ArrayND<float>* gtArrayData(int) const { return 0; }
 
     void			setManager(const DataPackMgr*);
     const ID			id_;
@@ -126,8 +140,6 @@ public:
     void		setBuf(char*,od_int64);
     bool		mkNewBuf(od_int64);
 
-    virtual float	nrKBytes() const	{ return sz_*sKb2MbFac(); }
-
     static char*	createBuf(od_int64);
 
 protected:
@@ -136,6 +148,8 @@ protected:
 
     char*		buf_;
     od_int64		sz_;
+
+    virtual float	gtNrKBytes() const	{ return sz_*sKb2MbFac(); }
 
 };
 
@@ -219,20 +233,13 @@ public:
 
 protected:
 
-    void		doAdd(DataPack*);
+    void					doAdd(DataPack*);
 
-    ID			id_;
+    ID						id_;
+    mutable WeakPtrSet<DataPack>		packs_;
 
-    mutable Threads::Atomic<int>	nrnull_;
-    mutable Threads::SpinRWLock		packslock_;
-    TypeSet<WeakPtr<DataPack> >		packs_;
-
-    DataPack*		doObtain(DataPack::ID,bool) const;
-    int			indexOf(DataPack::ID) const;
-				//!<Object should be readlocked
-
-    static Threads::Lock mgrlistlock_;
-    static ManagedObjectSet<DataPackMgr> mgrs_;
+    static Threads::Lock			mgrlistlock_;
+    static ManagedObjectSet<DataPackMgr>	mgrs_;
 
 public:
 
@@ -247,20 +254,17 @@ public:
     static DataPackMgr*	gtDPM(ID,bool);
     static void		dumpDPMs(od_ostream&);
 
-    /*mDeprecated*/ DataPack*		addAndObtain(DataPack*);
+    mDeprecated DataPack*		addAndObtain(DataPack*);
 					/*!< The pack becomes mines. Pack is
 					    obtained during the lock, i.e.
 					    threadsafe. */
 
-    /*mDeprecated*/ DataPack*		obtain( DataPack::ID dpid )
-					{ return doObtain(dpid,false); }
-    /*mDeprecated*/ const DataPack*	obtain( DataPack::ID dpid ) const
-					{ return doObtain(dpid,false); }
-
-    /*mDeprecated*/ void		release(DataPack::ID);
-    /*mDeprecated*/ void		release( const DataPack* dp )
-					{ if ( dp ) release( dp->id() ); }
-    /*mDeprecated*/ void		releaseAll(bool donotify);
+    mDeprecated DataPack*		obtain( DataPack::ID dpid );
+    mDeprecated const DataPack*		obtain( DataPack::ID dpid ) const;
+    mDeprecated void			release(DataPack::ID);
+    mDeprecated void			release( const DataPack* dp )
+					{ if ( dp ) unRef( dp->id() ); }
+    mDeprecated void			releaseAll(bool donotify);
 };
 
 

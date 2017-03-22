@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 class IOObj;
 class Seis2DDataSet;
-namespace PosInfo { class Line2DData; }
+namespace PosInfo { class Line2DData; class Line2DDataIterator; }
 
 
 namespace Seis
@@ -82,11 +82,16 @@ public:
 			Fetcher2D( Provider& p )
 			    : Fetcher(p)
 			    , dataset_(0)
+			    , iter_(0)
 			    , curlidx_(-1)		{}
 			~Fetcher2D();
 
     Provider2D&		prov2D();
     const Provider2D&	prov2D() const;
+
+    bool		isSelectedBinID(const BinID&) const;
+    bool		moveNextBinID();
+
     void		openDataSet();
     bool		toNextLine();
     int			lineIdxFor(Pos::GeomID) const;
@@ -108,6 +113,9 @@ public:
     int			gtLineNr(Pos::GeomID) const;
     void		gtGeometryInfo(int,PosInfo::Line2DData&) const;
     bool		gtRanges(int,StepInterval<int>&,ZSampling&) const;
+
+    PosInfo::Line2DDataIterator*	iter_;
+    ObjectSet<PosInfo::Line2DData>	line2ddata_;
 
 };
 

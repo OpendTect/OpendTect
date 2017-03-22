@@ -248,9 +248,9 @@ Strat::LevelSet::LevelSet( const LevelSet& oth )
 
 Strat::LevelSet::~LevelSet()
 {
+    sendDelNotif();
     detachAllNotifiers();
     deepErase( lvls_ );
-    sendDelNotif();
 }
 
 

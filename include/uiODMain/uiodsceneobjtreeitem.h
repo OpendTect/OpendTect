@@ -23,6 +23,7 @@ public:
 			~uiODSceneObjTreeItem();
 
     void		updateColumnText(int);
+    virtual int		sceneID() const;
 
 protected:
 

@@ -235,7 +235,7 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 						  ctxt.translatorGroupName() );
 	if ( presentobj )
 	{
-	    msg.append( tr("Volume: '%1' is already present").arg(fnm), true );
+	    msg = tr("Volume: '%1' is already present").arg( fnm );
 	    mErrRet( msg, errmsg_.isEmpty(), continue )
 	}
     }

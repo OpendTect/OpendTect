@@ -395,7 +395,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
 	    for ( int idx=0; idx<nrsamp; idx++ )
 	    {
 		for ( int idy=0; idy<nrscales; idy++ )
-		    *sd.ostrm << idx << '\t' << idy << '\t'
+		    *sd.oStrm() << idx << '\t' << idy << '\t'
 			      << outputdata.get(idx,idy)<<'\n';
 	    }
 	    sd.close();

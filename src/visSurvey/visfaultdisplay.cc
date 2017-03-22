@@ -9,6 +9,7 @@
 
 #include "arrayndimpl.h"
 #include "binidsurface.h"
+#include "coltabseqmgr.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emeditor.h"
@@ -163,7 +164,7 @@ FaultDisplay::~FaultDisplay()
 
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.release( datapackids_[idx] );
+	dpman.unRef( datapackids_[idx] );
 
     deepErase( texuredatas_ );
 }
@@ -505,8 +506,8 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ConstRefMan<ColTab::Sequence> seq = ColTab::SeqMGR().getAny( seqnm );
 	setColTabSequence( attrib, *seq, 0 );
-	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
-	setColTabMapperSetup( attrib, *mapsetup, 0 );
+	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
+	setColTabMapper( attrib, *mapper, 0 );
     }
 }
 
@@ -1310,7 +1311,7 @@ void FaultDisplay::removeCache( int attrib )
     if ( !datapackids_.validIdx(attrib) )
 	return;
 
-    DPM( DataPackMgr::SurfID() ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::SurfID() ).unRef( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 }
 

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uicolseqimport.h"
+#include "uicolseqdisp.h"
 
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -18,7 +19,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uistrings.h"
 
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -190,9 +191,9 @@ void uiColSeqImport::usrSel( CallBacker* )
 	ColTab::Sequence* seq = new ColTab::Sequence;
 	seq->usePar( *subpar );
 	seqs_ += seq;
-	uiPixmap coltabpix( 16, 10 );
-	coltabpix.fill( *seq, true );
-	listfld_->addItem( toUiString(nm), coltabpix );
+	uiPixmap* pm = ColTab::getuiPixmap( *seq, 16, 10 );
+	listfld_->addItem( toUiString(nm), *pm );
+	delete pm;
     }
 
     if ( listfld_->isEmpty() )

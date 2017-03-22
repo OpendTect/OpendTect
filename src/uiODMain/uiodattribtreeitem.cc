@@ -107,8 +107,7 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
     if ( !select() ) return false;
 
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( !visserv->canSetColTabSequence( displayID() ) &&
-	 !visserv->getColTabMapperSetup( displayID(), attribNr() ) )
+    if ( !visserv->canSetColTabSequence( displayID() ) )
 	return false;
 //  if ( !visserv->isClassification( displayID(), attribNr() ) )
     applMgr()->updateColorTable( displayID(), attribNr() );
@@ -174,7 +173,7 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu )
 
     const Probe* parentprobe = attrprlayer->getProbe();
     if ( !parentprobe )
-    { pErrMsg( "Parent probe not set" ); return; }
+	{ pErrMsg( "Parent probe not set" ); return; }
 
     Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
     mDynamicCastGet(const Line2DProbe*,line2dprobe,parentprobe);
@@ -386,9 +385,9 @@ uiString uiODAttribTreeItem::createDisplayName() const
 
 void uiODAttribTreeItem::updateColumnText( int col )
 {
-    if ( col==uiODSceneMgr::cColorColumn() && attribProbeLayer() )
-	displayMiniCtab( attribProbeLayer()->colSeq() );
-
+    if ( col==uiODSceneMgr::cColorColumn() )
+	displayMiniCtab( attribProbeLayer() ? &attribProbeLayer()->sequence()
+					    : 0 );
     uiODDataTreeItem::updateColumnText( col );
 }
 
@@ -440,7 +439,7 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
 
     const Probe* parentprobe = attrprlayer->getProbe();
     if ( !parentprobe )
-    { pErrMsg( "Parent probe not set" ); return attrdp; }
+	{ pErrMsg( "Parent probe not set" ); return attrdp; }
 
     const TrcKeyZSampling probepos = parentprobe->position();
     ZAxisTransform* ztransform = visserv_->getZAxisTransform( sceneID() );
@@ -508,21 +507,20 @@ void uiODAttribTreeItem::updateDisplay()
     if ( !attrprlayer )
 	return;
 
-    visserv_->setSelSpec( displayID(), attribNr(), attrprlayer->selSpec() );
-    visserv_->setColTabMapperSetup( displayID(), attribNr(),
-				    *attrprlayer->mapperSetup() );
-    visserv_->setColTabSequence( displayID(), attribNr(),
-				 *attrprlayer->colSeq() );
     if ( attrprlayer->dataPackID().isInvalid() )
     {
 	ConstRefMan<DataPack> attrdp = calculateAttribute();
-	if ( attrdp )
-	{
-	    NotifyStopper ns( attrprlayer->objectChanged(), this );
-	    attrprlayer->setDataPackID( attrdp->id() );
-	}
+	if ( !attrdp )
+	    return;
+
+	NotifyStopper ns( attrprlayer->objectChanged(), this );
+	attrprlayer->setDataPackID( attrdp->id() );
     }
 
+    visserv_->setSelSpec( displayID(), attribNr(), attrprlayer->selSpec() );
+    visserv_->setColTabMapper( displayID(), attribNr(), attrprlayer->mapper() );
+    visserv_->setColTabSequence( displayID(), attribNr(),
+				    attrprlayer->sequence() );
     visserv_->setDataPackID( displayID(), attribNr(),
 			     attrprlayer->dataPackID() );
 }

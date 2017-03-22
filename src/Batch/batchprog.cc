@@ -56,7 +56,6 @@ void BatchProgram::deleteInstance()
 BatchProgram::BatchProgram()
     : NamedCallBacker("Batch Program")
     , stillok_(false)
-    , finishmsg_("Finished batch processing.")
     , inbg_(false)
     , sdout_(*new StreamData)
     , iopar_(new IOPar)
@@ -178,7 +177,7 @@ void BatchProgram::init()
 
 BatchProgram::~BatchProgram()
 {
-    infoMsg( finishmsg_ );
+    infoMsg( sKeyFinishMsg() );
     DBM().applClosing();
 
     if ( comm_ )
@@ -254,10 +253,10 @@ bool BatchProgram::pauseRequested() const
 
 bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 {
-    if ( sdout_.ostrm )
-	*sdout_.ostrm << '\n' << msg.getFullString() << '\n' << std::endl;
+    if ( sdout_.oStrm() )
+	*sdout_.oStrm() << '\n' << msg.getFullString() << '\n' << std::endl;
 
-    if ( !sdout_.ostrm || cc_stderr )
+    if ( !sdout_.oStrm() || cc_stderr )
 	std::cerr << '\n' << msg.getFullString() << '\n' << std::endl;
 
     if ( comm_ && comm_->ok() ) return comm_->sendErrMsg(msg.getFullString());
@@ -268,10 +267,10 @@ bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 
 bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
 {
-    if ( sdout_.ostrm )
-	*sdout_.ostrm << '\n' << msg << '\n' << std::endl;
+    if ( sdout_.oStrm() )
+	*sdout_.oStrm() << '\n' << msg << '\n' << std::endl;
 
-    if ( !sdout_.ostrm || cc_stdout )
+    if ( !sdout_.oStrm() || cc_stdout )
 	od_cout() << '\n' << msg << '\n' << od_endl;
 
     return true;
@@ -314,11 +313,11 @@ bool BatchProgram::initOutput()
 	if ( res.isEmpty() )
 	    res = StreamProvider::sStdErr();
 	sdout_ = StreamProvider(res).makeOStream();
-	if ( !sdout_.ostrm )
+	if ( !sdout_.oStrm() )
 	{
 	    std::cerr << name() << ": Cannot open log file" << std::endl;
 	    std::cerr << "Using stderror instead" << std::endl;
-	    sdout_.ostrm = &std::cerr;
+            sdout_.setOStrm( &std::cerr );
 	}
     }
 
@@ -339,7 +338,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     {
 	if ( errmsg.isEmpty() )
 	    errmsg = tr("Error getting DB info");
-	*sdout_.ostrm << errmsg.getFullString().buf() << std::endl;
+	*sdout_.oStrm() << errmsg.getFullString().buf() << std::endl;
     }
 
     return ioobj;

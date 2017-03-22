@@ -198,7 +198,7 @@ public:
 	bool		blocky_;   // default=false
 	bool		allowuserchange_;
 	bool		allowuserchangedata_;
-	RefMan<ColTab::MapperSetup> mappersetup_; // do not set to null
+	RefMan<ColTab::Mapper> mapper_; // do not set to null
     };
 
     //!\brief Variable Density (=color-bar driven) parameters

@@ -76,7 +76,7 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
 	mErrStrmRet("Cannot read Lat/Long range file")
 
     char buf[80];
-    sd.istrm->getline( buf, 40, ' ' );
+    sd.iStrm()->getline( buf, 40, ' ' );
     BufferString rangestr = buf;
     sd.close(); sp.remove();
     *( rangestr.getCStr() + rangestr.size() - 1 ) = '\0';

@@ -25,7 +25,6 @@ mFDQtclass(QStringList)
 class uiPixmap;
 class uiTreeViewBody;
 class uiTreeViewItem;
-namespace ColTab { class Sequence; }
 
 mExpClass(uiBase) uiTreeView : public uiObject
 { mODTextTranslationClass(uiTreeView);
@@ -273,8 +272,6 @@ public:
     void		setIcon(int column,const char* iconname);
     void		setPixmap(int column,const uiPixmap&);
     void		setPixmap(int column,const Color&,
-				  int width=16,int height=10);
-    void		setPixmap(int column,const ColTab::Sequence&,
 				  int width=16,int height=10);
 
     virtual const char* key(int,bool) const		{ return 0; }

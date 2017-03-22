@@ -79,11 +79,10 @@ void SynthFVSpecificDispPars::usePar( const IOPar& par )
 	disppar->subselect( FlatView::DataDispPars::sKeyVD() );
     if ( !vdmapperpar ) // Older par file
     {
-	vdmapsetup_->setIsFixed( true );
-	wvamapsetup_->setIsFixed( true );
 	Interval<float> rg( vdmapsetup_->range() );
 	disppar->get( sKey::Range(), rg );
-	wvamapsetup_->setRange( rg );
+	wvamapsetup_->setFixedRange( rg );
+	vdmapsetup_->setFixedRange( rg );
     }
     else
     {

@@ -32,7 +32,7 @@ set ( OD_MODULE_SOURCES
 	odnetworkaccess.cc
 	svnaccess.cc
 	systeminfo.cc
-	webstreamsource.cc
+	webfileaccess.cc
 )
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
 set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc echoserver.cc netreqechoserver.cc webstreamsource )

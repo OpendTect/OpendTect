@@ -27,6 +27,7 @@ set( OD_MODULE_SOURCES
 	uicolseqsel.cc
 	uicolseqimport.cc
 	uicoltabsel.cc
+	uicoltabgraphicsitem.cc
 	uicompparsel.cc
 	uiconstvel.cc
 	uidirectionalplot.cc

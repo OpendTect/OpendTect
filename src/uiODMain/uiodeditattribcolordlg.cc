@@ -20,6 +20,7 @@ ___________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
+#include "uilabel.h"
 #include "uivispartserv.h"
 #include "od_helpids.h"
 
@@ -34,72 +35,67 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 {
     setCtrlStyle( CloseOnly );
 
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+
     if ( attrnm && *attrnm )
     {
 	uiString titletext = tr("Color Settings: %1").arg( attrnm );
 	setTitleText( titletext );
     }
 
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-
     const ColTab::Sequence* colseq = 0;
-    ConstRefMan<ColTab::MapperSetup> colmapsetup;
+    const ColTab::Mapper* mapper = 0;
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
-	if ( !item ) continue;
+	if ( !item )
+	    continue;
 
 	const int did = item->displayID();
 	const int anr = item->attribNr();
-	colseq = visserv->getColTabSequence( did, anr );
-	if ( !colseq ) continue;
-
-	colmapsetup = visserv->getColTabMapperSetup( did, anr );
-	if ( !colmapsetup ) continue;
-
+	colseq = &visserv->getColTabSequence( did, anr );
+	mapper = &visserv->getColTabMapper( did, anr );
 	break;
     }
+    if ( !colseq )
+	{ new uiLabel( this, tr("No defined attributes") ); return; }
 
-    if ( !colseq || !colmapsetup )
-	{ pErrMsg( "Something is not as it should" ); return; }
 
     coltabsel_ = new uiColTabSel( this, OD::Vertical );
-    coltabsel_->setSeqName( colseq->name() );
-    coltabsel_->useMapperSetup( *colmapsetup );
+    coltabsel_->setSequence( *colseq );
+    coltabsel_->setMapper( const_cast<ColTab::Mapper&>(*mapper) );
     coltabsel_->seqChanged.notify( mCB(this,uiODEditAttribColorDlg,seqChg) );
-    coltabsel_->mapperSetupChanged.notify(
-			mCB(this,uiODEditAttribColorDlg,mapperSetupChg));
+    mapper->setup().objectChanged().notify(
+			mCB(this,uiODEditAttribColorDlg,mapperChg));
 }
 
 
 void uiODEditAttribColorDlg::seqChg( CallBacker* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    ConstRefMan<ColTab::Sequence> newcolseq = coltabsel_->sequence();
+    const ColTab::Sequence& newcolseq = coltabsel_->sequence();
 
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	mDynamicCastGet(uiODAttribTreeItem*,attritem,items_[idx])
-	if ( !attritem )
-	    attritem->attribProbeLayer()->setColSeq( newcolseq );
+	if ( attritem )
+	    attritem->attribProbeLayer()->setSequence( newcolseq );
     }
 }
 
 
-void uiODEditAttribColorDlg::mapperSetupChg( CallBacker* )
+void uiODEditAttribColorDlg::mapperChg( CallBacker* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    ConstRefMan<ColTab::MapperSetup> newcolmapsetup = coltabsel_->mapperSetup();
-    if ( !newcolmapsetup )
-	return;
 
+    const ColTab::Mapper& mapper = coltabsel_->mapper();
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	mDynamicCastGet(uiODAttribTreeItem*,attritem,items_[idx])
 	if ( !attritem )
 	    continue;
 
-	attritem->attribProbeLayer()->setMapperSetup( *newcolmapsetup );
+	attritem->attribProbeLayer()->mapper().setup() = mapper.setup();
     }
 }
 

@@ -30,14 +30,12 @@ mExpClass(uiTools) uiColSeqMan : public uiDialog
 public:
 
     typedef ColTab::Sequence		Sequence;
-    typedef DataDistribution<float>	DistribType;
 
 			uiColSeqMan(uiParent*,const char* initialseqnm=0);
 			~uiColSeqMan();
 			mDeclInstanceCreatedNotifierAccess(uiColSeqMan);
 
     const Sequence&	current() const		    { return *curseq_; }
-    void		useDistrib(const DistribType*);
 
     Notifier<uiColSeqMan> selectionChanged;
 
@@ -58,7 +56,6 @@ protected:
     ColTab::SequenceManager&	seqmgr_;
     ColTab::SequenceManager*	rollbackmgr_;
     bool			mgrsaved_;
-    ConstRefMan<DistribType>	distrib_;
 
     friend class		uiColSeqColCtrlPtsEd;
 
@@ -88,6 +85,5 @@ protected:
     void			toggleDisabledCB(CallBacker*);
     void			seqChgCB(CallBacker*);
     void			seqMgrChgCB(CallBacker*);
-    void			distrChgCB(CallBacker*);
 
 };

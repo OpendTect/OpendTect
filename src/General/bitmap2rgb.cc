@@ -12,27 +12,21 @@ ________________________________________________________________________
 
 #include "array2dbitmapimpl.h"
 #include "arrayndimpl.h"
-#include "coltabindex.h"
-#include "coltabsequence.h"
+#include "coltabseqmgr.h"
 #include "flatposdata.h"
 #include "flatview.h"
-#include "histequalizer.h"
 #include "odimage.h"
 
 
 BitMap2RGB::BitMap2RGB( const FlatView::Appearance& a, OD::RGBImage& arr )
     : app_(a)
     , array_(arr)
-    , histequalizer_(0)
-    , clipperdata_(*new TypeSet<float>())
 {
 }
 
 
 BitMap2RGB::~BitMap2RGB()
 {
-    delete histequalizer_;
-    delete &clipperdata_;
 }
 
 
@@ -41,9 +35,6 @@ OD::RGBImage& BitMap2RGB::rgbArray()
 
 void BitMap2RGB::setRGBArray( const OD::RGBImage& arr )
 { array_ = arr; }
-
-void BitMap2RGB::setClipperData( const TypeSet<float>& clipdata )
-{ clipperdata_ = clipdata; }
 
 
 void BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
@@ -68,21 +59,7 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 			    = ColTab::SeqMGR().getAny( pars.colseqname_ );
     const int minfill = (int)VDA2DBitMapGenPars::cMinFill();
     const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill();
-    ColTab::IndexedLookUpTable ctindex( *colseq, maxfill-minfill+1,
-					pars.mappersetup_->seqUseMode() );
-
-    if ( pars.mappersetup_->doHistEq() && !clipperdata_.isEmpty() )
-    {
-	TypeSet<float> datapts;
-	datapts.setCapacity( mCast(int,bmp.info().getTotalSz()), false );
-	for ( int idx=0; idx<bmp.info().getSize(0); idx++ )
-	    for ( int idy=0; idy<bmp.info().getSize(1); idy++ )
-		datapts += (float)bmp.get( idx, idy );
-
-	delete histequalizer_;
-	histequalizer_ = new HistEqualizer( maxfill-minfill+1 );
-	histequalizer_->setRawData( datapts );
-    }
+    const ColTab::Table ctab( *colseq, maxfill-minfill+1, *pars.mapper_ );
 
     for ( int ix=0; ix<arrsz.width(); ix++ )
     {
@@ -95,7 +72,7 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 		continue;
 
 	    const int colidx = (int)bmpval-minfill;
-	    const Color col = ctindex.colorForIndex( colidx );
+	    const Color col = ctab.color( colidx );
 	    if ( col.isVisible() )
 		array_.set( ix, iy, col );
 	}

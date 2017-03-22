@@ -66,11 +66,10 @@ public:
     bool			canAddAttrib(int) const;
     bool			canRemoveAttrib() const;
     bool			canHandleColTabSeqTrans(int) const;
-    ConstRefMan<ColTab::MapperSetup> getColTabMapperSetup(int,int) const;
-
-    void			setColTabMapperSetup(int,
-					const ColTab::MapperSetup&,TaskRunner*);
-    const ColTab::Sequence*	getColTabSequence(int) const;
+    const ColTab::Mapper&	getColTabMapper(int) const;
+    void			setColTabMapper(int,const ColTab::Mapper&,
+						TaskRunner*);
+    const ColTab::Sequence&	getColTabSequence(int) const;
     bool			canSetColTabSequence() const;
     void			setColTabSequence(int,const ColTab::Sequence&,
 					TaskRunner*);

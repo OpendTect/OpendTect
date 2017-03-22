@@ -89,20 +89,20 @@ bool uiExportMute::writeAscii()
 	for ( int offsetidx=0; offsetidx<offsetvals.size(); offsetidx++ )
 	{
 	    if( !isxy )
-		*sdo.ostrm << binid.inl() << '\t' << binid.crl();
+		*sdo.oStrm() << binid.inl() << '\t' << binid.crl();
 	    else
 	    {
 		const Coord coord = SI().transform( binid );
 		// ostreams print doubles awfully
 		str.setEmpty();
 		str += coord.x_; str += "\t"; str += coord.y_;
-		*sdo.ostrm << str;
+		*sdo.oStrm() << str;
 	    }
 
-	    *sdo.ostrm << '\t' << offsetvals[offsetidx] << '\t' <<
+	    *sdo.oStrm() << '\t' << offsetvals[offsetidx] << '\t' <<
 		       mutedef.getFn( pos ).getValue( offsetvals[offsetidx] );
 
-	    *sdo.ostrm << '\n';
+	    *sdo.oStrm() << '\n';
 	}
     }
 

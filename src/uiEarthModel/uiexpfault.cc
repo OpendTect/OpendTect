@@ -33,6 +33,9 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uiunitsel.h"
 #include "od_helpids.h"
+#include "dbman.h"
+#include "emioobjinfo.h"
+#include "uiioobjselgrp.h"
 
 #define mGet( tp, fss, f3d ) \
     FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
@@ -48,22 +51,32 @@ ________________________________________________________________________
 	      uiStrings::phrInput( uiStrings::sFault() ) )
 
 
-uiExportFault::uiExportFault( uiParent* p, const char* typ )
+uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
 				 mODHelpKey(mExportFaultHelpID)) ))
     , ctio_(mGetCtio(typ))
     , linenmfld_(0)
+    , issingle_(issingle)
+    , singleinfld_(0)
+    , bulkinfld_(0)
 {
     setModal( false );
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
-
-    infld_ = new uiIOObjSel( this, ctio_, mGetLbl(typ) );
+    uiIOObjSelGrp::Setup su; su.choicemode_ = !issingle_ ?
+	    OD::ChoiceMode::ChooseAtLeastOne : OD::ChoiceMode::ChooseOnlyOne;
+    if ( issingle_ )
+	singleinfld_ = new uiIOObjSel( this, ctio_, mGetLbl(typ) );
+    else
+	bulkinfld_ = new uiIOObjSelGrp( this, ctio_, mGetLbl(typ), su );
 
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
-    coordfld_->attach( alignedBelow, infld_ );
+    if ( issingle_ )
+	coordfld_->attach( alignedBelow, singleinfld_ );
+    else
+	coordfld_->attach( alignedBelow, bulkinfld_ );
 
     uiUnitSel::Setup unitselsu( PropertyRef::surveyZType(), tr("Z in") );
     zunitsel_ = new uiUnitSel( this, unitselsu );
@@ -133,99 +146,123 @@ static Coord3 getCoord( EM::EMObject* emobj, int stickidx,
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
+
+bool uiExportFault::getInputDBKeys( DBKeySet& dbkeyset )
+{
+    if ( issingle_ )
+    {
+	const IOObj* ioobj = ctio_.ioobj_;
+	if ( !ioobj ) return false;
+	dbkeyset.add(ioobj->key());
+    }
+    else
+	dbkeyset = bulkinfld_->getIOObjIds();
+    return true;
+}
+
 bool uiExportFault::writeAscii()
 {
-    const IOObj* ioobj = ctio_.ioobj_;
-    if ( !ioobj ) mErrRet(tr("Cannot find fault in database"));
-
-    RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
-    if ( !emobj ) mErrRet(tr("Cannot add fault to EarthModel"))
-
-    emobj->setDBKey( ioobj->key() );
-    mDynamicCastGet(EM::Fault3D*,f3d,emobj.ptr())
-    mDynamicCastGet(EM::FaultStickSet*,fss,emobj.ptr())
-    if ( !f3d && !fss ) return false;
-
-    PtrMan<Executor> loader = emobj->loader();
-    if ( !loader ) mErrRet( uiStrings::phrCannotRead( uiStrings::sFault() ))
-
-    uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
+    DBKeySet dbkeyset;
+    if ( !getInputDBKeys(dbkeyset) )
+	mErrRet(tr("No faults selected"))
 
     const BufferString fname = outfld_->fileName();
-    StreamData sdo = StreamProvider( fname ).makeOStream();
-    if ( !sdo.usable() )
-    {
-	sdo.close();
-	mErrRet( uiStrings::sCantOpenOutpFile() );
-    }
+    od_ostream ostrm( fname );
+    if ( !ostrm.isOK() )
+	return false;
 
-    BufferString str;
-    const UnitOfMeasure* unit = zunitsel_->getUnit();
-    const bool doxy = coordfld_->getBoolValue();
-    const bool inclstickidx = stickidsfld_->isChecked( 0 );
-    const bool inclknotidx = stickidsfld_->isChecked( 1 );
-    const int nrsticks = nrSticks( emobj.ptr() );
-    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
+    uiTaskRunner taskrunner( this );
+    BufferString typnm = issingle_ ? ctio_.ioobj_->group() :
+				    bulkinfld_->getCtxtIOObj().ioobj_->group();
+    RefObjectSet<EMObject> loadedobjs =
+		EM::EMM().loadObjects( typnm, dbkeyset, 0, taskrunner );
+    if ( loadedobjs.isEmpty() )
+	return false;
+
+    for ( int idx=0; idx<loadedobjs.size(); idx++ )
     {
-	const int nrknots = nrKnots( emobj.ptr(), stickidx );
-	for ( int knotidx=0; knotidx<nrknots; knotidx++ )
+	mDynamicCastGet(EM::Fault3D*,f3d,loadedobjs[idx])
+	mDynamicCastGet(EM::FaultStickSet*,fss,loadedobjs[idx])
+	if ( !f3d && !fss ) return false;
+
+	BufferString objnm = f3d ? f3d->name() : fss->name();
+	BufferString str;
+	const UnitOfMeasure* unit = zunitsel_->getUnit();
+	const bool doxy = coordfld_->getBoolValue();
+	const bool inclstickidx = stickidsfld_->isChecked( 0 );
+	const bool inclknotidx = stickidsfld_->isChecked( 1 );
+	const int nrsticks = nrSticks( emobj.ptr() );
+	for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	{
-	    const Coord3 crd = getCoord( emobj.ptr(),
-					 stickidx, knotidx );
-	    if ( !crd.isDefined() )
-		continue;
-
-	    if ( !doxy )
+	    const int nrknots = nrKnots( emobj.ptr(), stickidx );
+	    for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 	    {
-		const BinID bid = SI().transform( crd.getXY() );
-		*sdo.ostrm << bid.inl() << '\t' << bid.crl();
-	    }
-	    else
-	    {
-		// ostreams print doubles awfully
-		str.setEmpty();
-		str += crd.x_; str += "\t"; str += crd.y_;
-		*sdo.ostrm << str;
-	    }
-
-	    *sdo.ostrm << '\t' << unit->userValue( crd.z_ );
-
-	    if ( inclstickidx )
-		*sdo.ostrm << '\t' << stickidx;
-	    if ( inclknotidx )
-		*sdo.ostrm << '\t' << knotidx;
-
-	    if ( fss )
-	    {
-		const int sticknr = stickNr( emobj.ptr(), stickidx );
-
-		bool pickedon2d =
-		    fss->geometry().pickedOn2DLine( sticknr );
-		if ( pickedon2d && linenmfld_->isChecked() )
+		const Coord3 crd = getCoord( emobj.ptr(), stickidx, knotidx );
+		if ( !crd.isDefined() )
+		    continue;
+		if ( !issingle_ )
+		    ostrm << objnm << "\t";
+		if ( !doxy )
 		{
-		    Pos::GeomID geomid =
-			fss->geometry().pickedGeomID( sticknr );
-		    const char* linenm = Survey::GM().getName( geomid );
-
-		    if ( linenm )
-			*sdo.ostrm << '\t' << linenm;
+		    const BinID bid = SI().transform( crd.getXY() );
+		    ostrm << bid.inl() << '\t' << bid.crl();
 		}
-	    }
+		else
+		{
+		    // ostreams print doubles awfully
+		    str.setEmpty();
+		    str += crd.x_; str += "\t"; str += crd.y_;
+		    ostrm << str;
+		}
 
-	    *sdo.ostrm << '\n';
+		ostrm << '\t' << unit->userValue( crd.z_ );
+
+		if ( inclstickidx )
+		    ostrm << '\t' << stickidx;
+		if ( inclknotidx )
+		    ostrm << '\t' << knotidx;
+
+		if ( fss )
+		{
+		    const int sticknr = stickNr( emobj.ptr(), stickidx );
+
+		    bool pickedon2d =
+			fss->geometry().pickedOn2DLine( sticknr );
+		    if ( pickedon2d && linenmfld_->isChecked() )
+		    {
+			Pos::GeomID geomid =
+					fss->geometry().pickedGeomID( sticknr );
+			const char* linenm = Survey::GM().getName( geomid );
+
+			if ( linenm )
+			    ostrm << '\t' << linenm;
+		    }
+		}
+
+		ostrm << '\n';
+	    }
 	}
     }
 
-    sdo.close();
     return true;
 }
 
 
 bool uiExportFault::acceptOK()
 {
-    if ( !infld_->commitInput() )
+    BufferStringSet fltnms;
+    bool isobjsel(true);
+    if ( issingle_ )
+	isobjsel = singleinfld_->commitInput();
+    else
+    {
+	bulkinfld_->getChosen(fltnms);
+	if ( fltnms.isEmpty() ) isobjsel = false;
+    }
+
+    if ( !isobjsel )
 	mErrRet( uiStrings::phrSelect(tr("the input fault")) );
+
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() );
@@ -233,12 +270,11 @@ bool uiExportFault::acceptOK()
     if ( File::exists(outfnm)
       && !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()))
 	return false;
-
-    const bool res = writeAscii();
+    bool res = writeAscii();
 
     if ( !res )	return false;
-
-    const IOObj* ioobj = ctio_.ioobj_;
+    const IOObj* ioobj = issingle_ ? ctio_.ioobj_ :
+					    bulkinfld_->getCtxtIOObj().ioobj_;
 
     const uiString tp =
       EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()

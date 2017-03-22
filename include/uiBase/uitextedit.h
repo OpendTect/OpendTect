@@ -17,7 +17,8 @@ ________________________________________________________________________
 class uiTextEditBody;
 class uiTextBrowserBody;
 mFDQtclass(QTextEdit)
-class Timer;
+class i_ScrollBarMessenger;
+namespace File { class Monitor; }
 
 mExpClass(uiBase) uiTextEditBase : public uiObject
 {
@@ -27,6 +28,8 @@ public:
 
     const char*		text() const;
     int			nrLines() const;
+    bool		verticalSliderIsDown() const;
+			//!<Returns false in absence of the slider
 
     int			defaultWidth()		  { return defaultwidth_; }
     void		setDefaultWidth( int w )  { defaultwidth_ = w; }
@@ -41,18 +44,28 @@ public:
     void		hideScrollBar(bool vertical);
     void		scrollToBottom();
 
+    Notifier<uiTextEditBase>	textChanged;
+    Notifier<uiTextEditBase>	sliderPressed;
+    Notifier<uiTextEditBase>	sliderReleased;
+    CNotifier<uiTextEditBase,bool>	copyAvailable;
+
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
+
+    mutable BufferString result_;
+
+private:
 
     virtual mQtclass(QTextEdit&) qte()		= 0;
     const mQtclass(QTextEdit&)   qte() const
 			{ return const_cast<uiTextEditBase*>(this)->qte(); }
 
-    int			defaultwidth_;
-    int			defaultheight_;
     virtual int		maxLines() const	{ return -1; }
 
-    mutable BufferString result_;
+    int			defaultwidth_;
+    int			defaultheight_;
+
+    friend class	i_ScrollBarMessenger;
 };
 
 
@@ -72,13 +85,10 @@ public:
 			    notification. */
     void		setText(const char*,bool trigger_notif);
     void		append(const char*);
-    Notifier<uiTextEdit> textChanged;
-
-protected:
-
-    virtual mQtclass(QTextEdit&)	qte();
 
 private:
+
+    virtual mQtclass(QTextEdit&)	qte();
 
     uiTextEditBody*	body_;
     uiTextEditBody&	mkbody(uiParent*,const char*,bool);
@@ -117,13 +127,14 @@ public:
 
     bool		canGoForward()		{ return cangoforw_; }
     bool		canGoBackward()		{ return cangobackw_; }
-    const char*	lastLink()		{ return lastlink_; }
+    const char*		lastLink()		{ return lastlink_; }
 
     Notifier<uiTextBrowser>	goneForwardOrBack;
     Notifier<uiTextBrowser>	linkHighlighted;
     Notifier<uiTextBrowser>	linkClicked;
+    Notifier<uiTextBrowser>	fileReOpened;
 
-protected:
+private:
 
     BufferString	textsrc_;
     BufferString	lastlink_;
@@ -134,15 +145,18 @@ protected:
 
     virtual int		maxLines() const	{ return maxlines_; }
 
-    virtual mQtclass(QTextEdit&) qte();
+    void		fileChgCB(CallBacker*);
+    void		sliderPressedCB(CallBacker*);
+    void		sliderReleasedCB(CallBacker*);
+    void		copyAvailableCB(CallBacker*);
+    void		enableTailRead(bool yn);
 
-    void		readTailCB(CallBacker*);
-    Timer*		timer_;
+    File::Monitor*	filemon_;
     bool		logviewmode_;
     od_int64		lastlinestartpos_;
     BufferString	lastline_;
 
-private:
+    virtual mQtclass(QTextEdit&) qte();
 
     uiTextBrowserBody*	body_;
     uiTextBrowserBody&	mkbody(uiParent*,const char*,bool);

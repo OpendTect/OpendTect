@@ -215,7 +215,7 @@ bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
 
     nms.erase();
     BufferString nm;
-    while ( StrmOper::readLine(*sd.istrm,&nm) )
+    while ( StrmOper::readLine(*sd.iStrm(),&nm) )
 	nms.add( nm.buf() );
     sd.close();
 
@@ -236,9 +236,9 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
     StreamData sd( StreamProvider(fnm).makeOStream() );
     if ( !sd.usable() ) return false;
 
-    *sd.ostrm << nms.get(0);
+    *sd.oStrm() << nms.get(0);
     for ( int idx=1; idx<nms.size(); idx++ )
-	*sd.ostrm << '\n' << nms.get(idx);
+	*sd.oStrm() << '\n' << nms.get(idx);
     sd.close();
 
     return true;

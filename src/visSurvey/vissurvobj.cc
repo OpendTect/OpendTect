@@ -8,11 +8,10 @@
 #include "vissurvobj.h"
 
 #include "attribsel.h"
-#include "datadistribution.h"
 #include "mousecursor.h"
 #include "survinfo.h"
-#include "coltabsequence.h"
 #include "coltabmapper.h"
+#include "coltabseqmgr.h"
 #include "visevent.h"
 #include "vistexturechannel2rgba.h"
 #include "visobject.h"
@@ -72,18 +71,21 @@ bool SurveyObject::canRemoveAttrib() const
 { return canHaveMultipleAttribs() && nrAttribs()>1; }
 
 
-void SurveyObject::setColTabMapperSetup( int, const ColTab::MapperSetup&,
+void SurveyObject::setColTabMapper( int, const ColTab::Mapper&,
 					 TaskRunner*)
 {}
 
 
+const ColTab::Sequence& SurveyObject::getColTabSequence( int ) const
+{ return *ColTab::SeqMGR().getDefault(); }
+
+
+const ColTab::Mapper& SurveyObject::getColTabMapper( int ) const
+{ return *new ColTab::Mapper; }
+
+
 bool SurveyObject::canHandleColTabSeqTrans(int) const
 { return true; }
-
-
-ConstRefMan<ColTab::MapperSetup> SurveyObject::getColTabMapperSetup(
-						int, int ) const
-{ return 0; }
 
 
 void SurveyObject::setColTabSequence( int, const ColTab::Sequence&, TaskRunner*)
@@ -163,24 +165,21 @@ void SurveyObject::fillPar( IOPar& par ) const
 
 	getSelSpec( attrib )->fillPar( attribpar );
 
-	if ( canSetColTabSequence() && getColTabSequence( attrib ) )
+	if ( canSetColTabSequence() )
 	{
 	    IOPar seqpar;
-	    const ColTab::Sequence* seq = getColTabSequence( attrib );
-	    if ( seq->isSys() )
-		seqpar.set( sKey::Name(), seq->name() );
+	    const ColTab::Sequence& seq = getColTabSequence( attrib );
+	    if ( seq.isSys() )
+		seqpar.set( sKey::Name(), seq.name() );
 	    else
-		seq->fillPar( seqpar );
+		seq.fillPar( seqpar );
 
 	    attribpar.mergeComp( seqpar, sKeySequence() );
 	}
 
-	if ( getColTabMapperSetup( attrib ) )
-	{
-	    IOPar mapperpar;
-	    getColTabMapperSetup( attrib )->fillPar( mapperpar );
-	    attribpar.mergeComp( mapperpar, sKeyMapper() );
-	}
+	IOPar mapperpar;
+	getColTabMapper( attrib ).setup().fillPar( mapperpar );
+	attribpar.mergeComp( mapperpar, sKeyMapper() );
 
 	attribpar.set( sKeyTextTrans(), getAttribTransparency( attrib ) );
 	attribpar.setYN( visBase::VisualObjectImpl::sKeyIsOn(),
@@ -253,7 +252,9 @@ bool SurveyObject::usePar( const IOPar& par )
 	    mappersetup->usePar( *mappar );
 	else // horizons written in od4.0
 	    mappersetup->usePar( *attribpar );
-	setColTabMapperSetup( attribnr, *mappersetup, 0 );
+	ColTab::Mapper& mpr = const_cast<ColTab::Mapper&>(
+				    getColTabMapper(attribnr) );
+	mpr.setup() = *mappersetup;
 
 	bool ison = true;
 	attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
@@ -294,12 +295,6 @@ bool SurveyObject::isAnyAttribEnabled() const
     }
 
     return false;
-}
-
-
-const visBase::DistribType& SurveyObject::getDataDistribution( int ) const
-{
-    return visBase::DistribType::getEmptyDistrib();
 }
 
 
@@ -361,8 +356,8 @@ void SurveyObject::setSelSpecs(
     const Attrib::SelSpec* oldselspec = getSelSpec( attrib, 0 );
     if ( !oldselspec || (*oldselspec)!=newselspecs[0] )
     {
-	RefMan<ColTab::MapperSetup> mapsetup = new ColTab::MapperSetup;
-	setColTabMapperSetup( attrib, *mapsetup, 0 );
+	RefMan<ColTab::Mapper> mapper = new ColTab::Mapper;
+	setColTabMapper( attrib, *mapper, 0 );
     }
 }
 

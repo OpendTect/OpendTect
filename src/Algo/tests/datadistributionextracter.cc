@@ -10,20 +10,49 @@
 
 #include <iostream>
 
+static const int cNrDataPts = 10000;
+
 
 static bool testDistribMaking()
 {
     TypeSet<float> data;
-    for ( int idx=0; idx<12025; idx++ )
+    for ( int idx=0; idx<cNrDataPts; idx++ )
 	data += (float)idx;
 
-    DataDistributionExtracter<float> extr( data );
-    if ( !extr.execute() )
-	return false;
-
+    RangeLimitedDataDistributionExtracter<float> extr( data );
     RefMan<DataDistribution<float> > distr = extr.getDistribution();
-    const float val3 = (*distr)[3];
-    mRunStandardTest( val3 > 62 && val3 < 67, "Distribution Extracter" );
+    const float expectedtotal = (float)cNrDataPts;
+    const float distrtotal = distr->sumOfValues();
+    mRunStandardTest( fabs(expectedtotal - distrtotal) < 0.1f ,
+		     "Cumulative freq" );
+
+    /*
+    for ( int idx=9; idx>-1; idx-- )
+    {
+	const float val = idx*10;
+	od_cout() << "Pos for " << val << ": "
+	    << distr->positionForCumulative( val ) << od_endl;
+    }
+
+    const float halfway = cNrDataPts * 0.5f;
+    for ( int idx=0; idx<20; idx++ )
+    {
+	const float val = halfway + (idx-10)*10;
+	od_cout() << "Pos for " << val << ": "
+	    << distr->positionForCumulative( val ) << od_endl;
+    }
+
+    for ( int idx=0; idx<20; idx++ )
+    {
+	const float val = cNrDataPts - idx*10;
+	od_cout() << "Pos for " << val << ": "
+	    << distr->positionForCumulative( val ) << od_endl;
+    }
+    */
+
+    const float histval = distr->valueAt( 300.f, false );
+    const float cumval = distr->valueAt( 300.f, true );
+    od_cout() << "Hist val at " << 300 << ": " << histval << " ; cum: " << cumval << od_endl;
 
     return true;
 }

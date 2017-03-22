@@ -370,9 +370,9 @@ bool RegularSeisDataPack::addComponent( const char* nm )
 }
 
 
-void RegularSeisDataPack::dumpInfo( IOPar& par ) const
+void RegularSeisDataPack::doDumpInfo( IOPar& par ) const
 {
-    VolumeDataPack::dumpInfo( par );
+    VolumeDataPack::doDumpInfo( par );
 
     const TrcKeySampling& tks = sampling_.hsamp_;
     if ( is2D() )
@@ -695,7 +695,7 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 }
 
 
-float SeisFlatDataPack::nrKBytes() const
+float SeisFlatDataPack::gtNrKBytes() const
 {
     return source_->nrKBytes() / source_->nrComponents();
 }
