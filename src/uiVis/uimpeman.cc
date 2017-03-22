@@ -131,16 +131,20 @@ static const int sSett = 19;
 
 void uiMPEMan::keyEventCB( CallBacker* )
 {
-    if ( MPE::engine().nrTrackersAlive() == 0 ) return;
-
     int action = -1;
     const KeyboardEvent& kev = visserv_->getKeyboardEvent();
+
+    const bool undoonloadedhor = 
+	KeyboardEvent::isUnDo(kev) || KeyboardEvent::isReDo(kev);
 
     if ( KeyboardEvent::isUnDo(kev) )
 	undo();
     else if ( KeyboardEvent::isReDo(kev) )
 	redo();
-    else if ( kev.key_ == OD::KB_K )
+
+    if ( undoonloadedhor || MPE::engine().nrTrackersAlive() == 0 ) return;
+
+    if ( kev.key_ == OD::KB_K )
     {
 	if ( MPE::engine().trackingInProgress() )
 	    action = sStop;
@@ -240,9 +244,9 @@ int uiMPEMan::popupMenu()
     addAction( mnu, tr("Delete Selected"), "d", sDelete,
 	       "clearselection", true, hor3d );
     addAction( mnu, tr("Undo"), "ctrl+z", sUndo, "undo",
-		EM::EMM().undo().canUnDo(), true );
+		EM::EMM().undo(hor->id()).canUnDo(), true );
     addAction( mnu, tr("Redo"), "ctrl+y", sRedo, "redo",
-		EM::EMM().undo().canReDo(), true );
+		EM::EMM().undo(hor->id()).canReDo(), true );
     addAction( mnu, tr("Lock"), "l", sLock, "lock", true, hor3d );
     addAction( mnu, tr("Unlock"), "u", sUnlock, "unlock", true, hor3d );
 
@@ -719,7 +723,7 @@ void uiMPEMan::beginSeedClickEvent( EM::EMObject* emobj )
 {
     if ( mIsUdf(cureventnr_) )
     {
-	cureventnr_ = EM::EMM().undo().currentEventID();
+	cureventnr_ = EM::EMM().undo(emobj->id()).currentEventID();
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	if ( emobj )
 	    emobj->setBurstAlert( true );
@@ -738,7 +742,7 @@ void uiMPEMan::endSeedClickEvent( EM::EMObject* emobj )
 	    emobj->setBurstAlert( false );
 
 	MouseCursorManager::restoreOverride();
-	setUndoLevel( cureventnr_ );
+	setUndoLevel( emobj->id(), cureventnr_ );
 	cureventnr_ = mUdf(int);
     }
 }
@@ -966,13 +970,16 @@ void uiMPEMan::cleanPatchDisplay()
 
 void uiMPEMan::undo()
 {
-    if ( !getSelectedDisplay() || !getSelectedDisplay()->isSelected() )
+    visSurvey::EMObjectDisplay* emod = getSelectedDisplay();
+    if ( !emod || !emod->isSelected() )
 	return;
 
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString errmsg;
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+
+    bool update = false;
     if ( seedpicker && seedpicker->canUndo() )
     {
 	 seedpicker->horPatchUndo().unDo();
@@ -980,35 +987,52 @@ void uiMPEMan::undo()
     }
     else
     {
-	uiString undoerrmsg;
-	engine().undo( undoerrmsg );
-	if ( !undoerrmsg.isEmpty() )
-	    uiMSG().message( undoerrmsg );
+	mDynamicCastGet(
+	    EM::EMUndo*,emundo,&EM::EMM().undo(emod->getObjectID()) );
+	if ( !emundo ) return;
+	EM::EMM().burstAlertToAll( true );
+	update = emundo->unDo( 1, true );
+	EM::EMM().burstAlertToAll( false );
     }
 
-    visSurvey::EMObjectDisplay* emod = getSelectedDisplay();
-    if ( emod )
+    if ( update )
+    {
+	emod->updateAuxData();
 	emod->requestSingleRedraw();
+    }
 }
 
 
 void uiMPEMan::redo()
 {
-    if ( !getSelectedDisplay() || !getSelectedDisplay()->isSelected() )
+    visSurvey::EMObjectDisplay* emod = getSelectedDisplay();
+    if ( !emod || !emod->isSelected() )
 	return;
 
     MouseCursorChanger mcc( MouseCursor::Wait );
-    uiString redoerrmsg;
-    engine().redo( redoerrmsg );
-    if ( !redoerrmsg.isEmpty() )
-	uiMSG().message( redoerrmsg );
-
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+
+    bool update = false;
     if ( seedpicker && seedpicker->canReDo() )
     {
 	 seedpicker->horPatchUndo().reDo();
 	 updatePatchDisplay();
+    }
+    else
+    {
+	mDynamicCastGet(
+	    EM::EMUndo*,emundo,&EM::EMM().undo(emod->getObjectID()) );
+	if ( !emundo ) return;
+	EM::EMM().burstAlertToAll( true );
+	update = emundo->reDo( 1, true );
+	EM::EMM().burstAlertToAll( false );
+    }
+
+    if ( update )
+    {
+	emod->updateAuxData();
+	emod->requestSingleRedraw();
     }
 }
 
@@ -1197,16 +1221,16 @@ void uiMPEMan::initFromDisplay()
 }
 
 
-void uiMPEMan::setUndoLevel( int preveventnr )
+void uiMPEMan::setUndoLevel( const EM::ObjectID& id, int preveventnr )
 {
-    Undo& emundo = EM::EMM().undo();
+    Undo& emundo = EM::EMM().undo( id );
     const int currentevent = emundo.currentEventID();
     if ( currentevent != preveventnr )
 	    emundo.setUserInteractionEnd(currentevent);
 }
 
 
-HorizonTimer::HorizonTimer( visSurvey::HorizonDisplay*  displ )
+HorizonTimer::HorizonTimer( visSurvey::HorizonDisplay* displ )
     : hordispl_( displ )
     , timer_( 0 )
 {
