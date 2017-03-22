@@ -56,10 +56,14 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
     usemodefld_ = new uiColSeqUseModeSel( this, false );
     usemodefld_->attach( alignedBelow, rangefld_ );
 
+    histeqfld_ = new uiGenInput( this, tr("Use Histogram Equalisation"),
+				 BoolInpSpec(false) );
+    histeqfld_->attach( alignedBelow, usemodefld_ );
+
     clipfld_ = new uiGenInput( this, tr("Percentage clipped"),
 			      FloatInpIntervalSpec() );
     clipfld_->setElemSzPol( uiObject::Small );
-    clipfld_->attach( alignedBelow, usemodefld_ );
+    clipfld_->attach( alignedBelow, histeqfld_ );
 
     skipsymscanfld_ = new uiGenInput( this, tr("Skip data symmetry scan"),
 	     BoolInpSpec(true,tr("Symmetry"), tr("No symmetry")) );
@@ -107,6 +111,7 @@ void putToScreen()
     rangefld_->setChecked( fixedrange );
 
     usemodefld_->setMode( setup().seqUseMode() );
+    histeqfld_->setValue( setup().doHistEq() );
 
     ColTab::ClipRatePair clipperc( setup().clipRate() );
     ColTab::convToPerc( clipperc );
@@ -125,6 +130,7 @@ void getFromScreen()
 
     const bool isfixed = isFixed();
     newms->setSeqUseMode( usemodefld_->mode() );
+    newms->setDoHistEq( histeqfld_->getBoolValue() );
     if ( isfixed )
 	newms->setFixedRange( rangefld_->getFInterval() );
     else
@@ -185,6 +191,7 @@ protected:
     uiGenInput*		clipfld_;
     uiGenInput*		skipsymscanfld_;
     uiGenInput*		midvalfld_;
+    uiGenInput*		histeqfld_;
     uiColSeqUseModeSel*	usemodefld_;
 
 };

@@ -327,9 +327,12 @@ ColTab::PosType ColTab::Mapper::getHistEqRelPos( const RangeType& rg,
 {
     mLock4Read();
     MonitorLock ml( *distrib_ );
+    if ( distrib_->isEmpty() )
+	return getLinRelPos( rg, val );
+
     const ValueType cumval = distrib_->valueAt( val, true );
     const float relposinrg = cumval / distrib_->sumOfValues();
-    return rg.start + relposinrg * rg.width();
+    return relposinrg;
 }
 
 

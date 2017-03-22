@@ -17,7 +17,7 @@ namespace ColTab
 static ClipRatePair	defcliprate_ = ClipRatePair( mUdf(float), mUdf(float) );
 static ValueType	defsymmidval_ = mUdf(ValueType);
 static bool		defautosymm_ = false;
-static bool		defhisteq_ = false;
+static int		defhisteq_ = -1;
 
 static const char*	sKeyDefClipPerc
 			= "dTect.Disp.Default clip perc";
@@ -190,13 +190,24 @@ ColTab::ClipRatePair ColTab::defClipRate()
 
 bool ColTab::defAutoSymmetry()
 {
-    Settings::common().getYN( sKeyDefAutoSymm, defautosymm_ );
+    if ( defautosymm_ < 0 )
+    {
+	bool yn = false;
+	Settings::common().getYN( sKeyDefAutoSymm, yn );
+	defautosymm_ = yn ? 1 : 0;
+    }
     return defautosymm_;
 }
 
 
 bool ColTab::defHistEq()
 {
+    if ( defhisteq_ < 0 )
+    {
+	bool yn = false;
+	Settings::common().getYN( sKeyDefHistEq, yn );
+	defhisteq_ = yn ? 1 : 0;
+    }
     return defhisteq_;
 }
 

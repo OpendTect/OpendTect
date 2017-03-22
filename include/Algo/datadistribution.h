@@ -78,7 +78,7 @@ public:
     inline VT			maxValue() const;
     inline void			normalise(bool in_the_math_sense=true);
 				//!< if !math, sets max to 1
-    inline bool			deSpike(VT ratioaboverg=VT(0.5));
+    inline bool			deSpike(VT ratioaboverg=VT(0.4));
 				//!< Returns whether any change made
 				//!< Note that your distrib is no longer correct
 				//!< Useful for nice displays
