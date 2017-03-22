@@ -98,13 +98,13 @@ Coord3 Well::Track::getPos( ZType dh ) const
 	return pos_[idx1];
     else if ( idx1 < 0 || idx1 == dahs_.size()-1 )
     {
-        Coord3 ret( idx1 < 0 ? pos_[0] : pos_[idx1] );
-        if ( idx1 < 0 )
+	Coord3 ret( idx1 < 0 ? pos_[0] : pos_[idx1] );
+	if ( idx1 < 0 )
 	    ret.z_ -= dahs_[0] - dh;
-        else
+	else
 	    ret.z_ += dh - dahs_[idx1];
 
-        return ret;
+	return ret;
     }
 
     return coordAfterIdx( dh, idx1 );
@@ -244,7 +244,7 @@ Well::Track::ZType Well::Track::nearestDah( const Coord3& posin ) const
 	Coord3 boundposstop = getPos( dahs_[idx+1] ); boundposstop.z_ *= zfac;
 	Line3 newline(boundposstart,boundposstop);
 
-	Interval<float> zintrvl( mCast(float,boundposstart.z_),       
+	Interval<float> zintrvl( mCast(float,boundposstart.z_),
 						mCast(float,boundposstop.z_) );
 	if ( zintrvl.includes(curpos.z_,true) )
 	{
@@ -258,7 +258,7 @@ Well::Track::ZType Well::Track::nearestDah( const Coord3& posin ) const
 		stopidx = idx+1;
 	    }
 	}
-      }
+    }
 
     double sqrdisttostart = actualboundstart.sqDistTo( curposonline );
     double sqrdisttostop = actualboundstop.sqDistTo( curposonline );
@@ -268,7 +268,7 @@ Well::Track::ZType Well::Track::nearestDah( const Coord3& posin ) const
     const double dahnear = mCast(double,dahs_[startidx]);
     const double dahsec = mCast(double,dahs_[stopidx]);
     double res = ( distfrmstrart*dahsec+disttoend*dahnear )/
-                                          ( distfrmstrart+disttoend );
+					( distfrmstrart+disttoend );
     return (ZType)res;
 }
 
