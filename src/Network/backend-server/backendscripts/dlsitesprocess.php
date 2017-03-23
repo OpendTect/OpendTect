@@ -69,14 +69,6 @@ if ( !file_exists( $processeddir ) )		{ echo "$processeddir does not exist\n"; e
 $use_country_db = false;
 $dbip = ''; //Make variable in this scope
 
-if ( $DLSITES_USE_LOCAL_IP_DB )
-{
-    require "dbip.class.php";
-
-    $db = new PDO("mysql:host=$DLSITES_DB_HOST;dbname=$DLSITES_DB", $DLSITES_DB_USER, $DLSITES_DB_PW);
-    $dbip = new DBIP($db);
-}
-
 foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)   
 {  
     if ( !file_exists( $file ) ) //It may be temporary renamed
@@ -119,28 +111,12 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	if ( !array_key_exists( 'country', $listing ) || $listing['country']=='' )
 	{
 	    $ipnumber = $listing['address'];
-	    if ( $DLSITES_USE_LOCAL_IP_DB )
+	    $iplookup = file_get_contents( "http://api.db-ip.com/v2/$DLSITES_IP_API_KEY/$ipnumber" );
+	    if ( $iplookup!==false )
 	    {
-		try
-		{
-		    $inf = $dbip->Lookup( $ipnumber );
-		    $listing['country'] = $inf->country;
-		}
-		catch (DBIP_Exception $e)
-		{
-		    echo "error: {$e->getMessage()}\n";
-		    exit ( 1 );
-		}
-	    }
-	    else
-	    {
-		$iplookup = file_get_contents( "http://api.db-ip.com/v2/$DLSITES_IP_API_KEY/$ipnumber" );
-		if ( $iplookup!==false )
-		{
-		    $iplookuparr = (array) json_decode( $iplookup );
-		    if ( array_key_exists( 'countryCode', $iplookuparr ) )
-			$listing['country'] = $iplookuparr['countryCode'];
-		}
+		$iplookuparr = (array) json_decode( $iplookup );
+		if ( array_key_exists( 'countryCode', $iplookuparr ) )
+		    $listing['country'] = $iplookuparr['countryCode'];
 	    }
 	}
 

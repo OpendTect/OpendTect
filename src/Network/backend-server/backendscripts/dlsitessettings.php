@@ -30,6 +30,12 @@ $DLSITES_COMPRESSED_ARCHIVE_DIR = 'compressed_archive';
 //Site that should be reported as download site
 $DLSITES_DOWNLOAD_SITE = 'download.opendtect.org';
 
+//Countries where cloudfront should be used
+$DLSITES_CLOUDFRONT_COUNTRIES = array();
+
+//Cloudfront url
+$DLSITES_CLOUDFRONT_URL = '';
+
 //Statistics database host
 $DLSITES_DB_HOST = '';
 
@@ -50,9 +56,6 @@ $DLSITES_PERIOD_TABLE_PREFIX = 'period_';
 
 //IP-geography database key
 $DLSITES_IP_API_KEY = '';
-
-//IP-geography database key
-$DLSITES_USE_LOCAL_IP_DB = false;
 
 //GS archive path
 $DLSITES_GS_ARCHIVE_PATH = '';

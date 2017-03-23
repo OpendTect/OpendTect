@@ -41,6 +41,8 @@ $filename = $filenamebase.".txt";
 $tmpfilename = $filenamebase.".tmp";
 $outputfile = $outputdir.$tmpfilename;
 
+$outputurl = $DLSITES_DOWNLOAD_SITE;
+
 /*Write to .tmp file first. As the processing scripts only reads .txt, it will hence not 
   read a half-done file.
   If the file already exists, rename to tmp, append it, and then rename it back.
@@ -49,9 +51,23 @@ $outputfile = $outputdir.$tmpfilename;
 if ( file_exists( $outputdir.$filename ) )
     rename( $outputdir.$filename, $outputfile );
 
+$iplookup = file_get_contents( "http://api.db-ip.com/v2/$DLSITES_IP_API_KEY/$address" );
+if ( $iplookup!==false )
+{
+    $iplookuparr = (array) json_decode( $iplookup );
+    if ( array_key_exists( 'countryCode', $iplookuparr ) )
+    {
+	$filearray['country'] = $iplookuparr['countryCode'];
+
+	$country = strtolower( $iplookuparr['countryCode'] );
+	if ( in_array( $country, $DLSITES_CLOUDFRONT_COUNTRIES ) )
+	   $outputurl = $DLSITES_CLOUDFRONT_URL;
+    }
+}
+
 if ( file_put_contents( $outputfile, json_encode( $filearray )."\n", FILE_APPEND | LOCK_EX ) !== false )
 {
     rename( $outputfile, $outputdir.$filename );
 }
 
-echo $DLSITES_DOWNLOAD_SITE."\n";
+echo $outputurl."\n";
