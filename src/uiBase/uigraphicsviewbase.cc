@@ -597,18 +597,26 @@ int uiGraphicsViewBase::viewHeight() const
 
 void uiGraphicsViewBase::setViewSize( int w, int h )
 {
-    QRect rect = body_->viewport()->geometry();
-    rect.setWidth( w );
-    rect.setHeight( h );
-    body_->viewport()->setGeometry( rect );
+    setViewWidth( w );
+    setViewHeight( h );
 }
 
 
 void uiGraphicsViewBase::setViewWidth( int w )
-{ body_->viewport()->resize( w, viewHeight() ); }
+{
+    body_->viewport()->resize( w, viewHeight() );
+    // TODO: The +2 works for now, needs rework.
+    setPrefWidth( w+2 );
+}
+
 
 void uiGraphicsViewBase::setViewHeight( int h )
-{ body_->viewport()->resize( viewWidth(), h ); }
+{
+    body_->viewport()->resize( viewWidth(), h );
+    // TODO: The +2 works for now, needs rework.
+    setPrefHeight( h+2 );
+}
+
 
 void uiGraphicsViewBase::centreOn( uiPoint centre )
 { body_->centerOn( centre.x_, centre.y_ ); }
@@ -618,10 +626,10 @@ void uiGraphicsViewBase::setScrollBarPolicy( bool hor, ScrollBarPolicy sbp )
 {
     if ( hor )
 	body_->setHorizontalScrollBarPolicy(
-				      (Qt::ScrollBarPolicy)int(sbp) );
+				(Qt::ScrollBarPolicy)int(sbp) );
     else
 	body_->setVerticalScrollBarPolicy(
-				      (Qt::ScrollBarPolicy)int(sbp) );
+				(Qt::ScrollBarPolicy)int(sbp) );
 }
 
 
