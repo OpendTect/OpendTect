@@ -185,7 +185,7 @@ uiScaleDlg( uiParent* p, const TrcKeyZSampling& scale, const char* zdomkey )
 }
 
 
-bool rejectOK()
+bool acceptOK()
 {
     newscale_ = rangefld_->getSampling();
     return true;
