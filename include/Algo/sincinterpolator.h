@@ -360,7 +360,7 @@ RT SincInterpolator1D<RT,PT>::getValue( PT x ) const
     {
 	for ( int isinc=0,idx=idx0; isinc<lsinc_; isinc++,idx++ )
 	{
-	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
+	    const int idx1 = getLimited( idx, 0, nx_-1 );
 	    mAddVal(data_[idx1],asinc[isinc],idx,out)
 	}
     }
@@ -454,10 +454,10 @@ RT SincInterpolator2D<RT,PT>::getValue( PT x, PT y ) const
 	    if ( mIsZero(asincxval,mDefEpsF) )
 		continue;
 
-	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
+	    const int idx1 = getLimited( idx, 0, nx_-1 );
 	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
 	    {
-		const int idy1 = idy < 0 ? 0 : idy >= ny_ ? ny_-1 : idy;
+		const int idy1 = getLimited( idy, 0, ny_-1 );
 		const od_int64 off = idx1*ny_+idy1;
 		mAddVal(data_[off],asincy[iysinc],off,outx)
 	    }
@@ -587,7 +587,7 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
 	    if ( mIsZero(asincxval,mDefEpsF) )
 		continue;
 
-	    const int idx1 = idx < 0 ? 0 : idx >= nx_ ? nx_-1 : idx;
+	    const int idx1 = getLimited( idx, 0, nx_-1 );
 	    for ( int iysinc=0,idy=idy0; iysinc<lsinc_; iysinc++,idy++ )
 	    {
 		outy = 0.;
@@ -595,10 +595,10 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
 		if ( mIsZero(asincyval,mDefEpsF) )
 		    continue;
 
-		const int idy1 = idy < 0 ? 0 : idy >= ny_ ? ny_-1 : idy;
+		const int idy1 = getLimited( idy, 0, ny_-1 );
 		for ( int izsinc=0,idz=idz0; izsinc<lsinc_; izsinc++,idz++ )
 		{
-		    const int idz1 = idz < 0 ? 0 : idz >= nz_ ? nz_-1 : idz;
+		    const int idz1 = getLimited( idz, 0, nz_-1 );
 		    const od_int64 off = mGetOffset(idx1,idy1,idz1);
 		    mAddVal(data_[off],asincz[izsinc],off,outy)
 		}

@@ -28,6 +28,10 @@ enum SeqUseMode
 {
     UnflippedSingle, UnflippedCyclic, FlippedSingle, FlippedCyclic
 };
+inline PosType getLimitedRelPos( PosType relpos )
+{
+    return getLimited( relpos, 0.f, 1.f );
+}
 
 mGlobal(General) bool			isFlipped(SeqUseMode);
 mGlobal(General) bool			isCyclic(SeqUseMode);

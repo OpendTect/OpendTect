@@ -298,7 +298,7 @@ void ColTab::Table::createTable( const Sequence& seq, const Mapper& mapper,
 int ColTab::Table::indexFor( ValueType val ) const
 {
     const int idx = sampling_.nearestIndex( val );
-    return idx < 1 ? 0 : (idx > cols_.size()-2 ? cols_.size()-1 : idx);
+    return getLimited( idx, 0, cols_.size()-1 );
 }
 
 

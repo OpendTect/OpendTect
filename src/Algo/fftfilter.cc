@@ -571,7 +571,7 @@ void FFTFilter::reSize( const Array1DImpl<float_complex>& inp,
     for ( int idx=0; idx<sz_; idx++ )
     {
 	const int cidx = idx + shift;
-	const int idy = cidx < 0 ? 0 : cidx >= sz ? sz-1 : cidx;
+	const int idy = getLimited( cidx, 0, sz-1 );
 	outp.set( idx, inp.get( idy ) );
     }
 }
@@ -585,7 +585,7 @@ void FFTFilter::reSize( const Array1DImpl<float>& inp,
     for ( int idx=0; idx<sz_; idx++ )
     {
 	const int cidx = idx + shift;
-	const int idy = cidx < 0 ? 0 : cidx >= sz ? sz-1 : cidx;
+	const int idy = getLimited( cidx, 0, sz-1 );
 	outp.set( idx, inp.get( idy ) );
     }
 }

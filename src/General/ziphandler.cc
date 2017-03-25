@@ -251,7 +251,7 @@ bool ZipHandler::initMakeZip( const char* destfnm,
 	    cumulativefilecounts_ += allfilenames_.size();
 	}
 	else
-	{ mErrRet( srcfnms.get(idx), tr(" does not exist."), 
+	{ mErrRet( srcfnms.get(idx), tr(" does not exist."),
 						    uiString::emptyString() ) }
     }
 
@@ -360,7 +360,8 @@ bool ZipHandler::doZCompress()
     int ret = deflateInit2( &zlibstrm, complevel_, method,
 	mMaxWindowBitForRawDeflate, mZDefaultMemoryLevel, Z_DEFAULT_STRATEGY );
 
-    const od_uint32 chunksize = mMaxLimited( uncompfilesize_, mMaxChunkSize );
+    const od_uint32 chunksize = uncompfilesize_>mMaxChunkSize
+			      ? mMaxChunkSize : uncompfilesize_;
     od_uint32 upperbound = deflateBound( &zlibstrm, chunksize );
     if ( ret != Z_OK )
 	mErrRet( tr("Error Details:Initialization required to compress data \
@@ -1019,14 +1020,14 @@ bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
 	if ( !sigcheck )
 	{
 	    closeInputStream();
-	    mErrRet( srcfile_, tr(" is not a valid zip archive"), 
+	    mErrRet( srcfile_, tr(" is not a valid zip archive"),
 						   uiString::emptyString() )
 	}
 
 	if ( getBitValue( *(headerbuff + mLCentralDirBitFlag), 0 ) )
 	{
 	    closeInputStream();
-	    mErrRet( tr("Encrypted file::Not supported"), 
+	    mErrRet( tr("Encrypted file::Not supported"),
 			uiString::emptyString(),uiString::emptyString() )
 	    ////TODO implement
 	}
@@ -1041,7 +1042,7 @@ bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
 	od_uint16 compmethod = *mCast( od_uint16*, headerbuff +
 						    mLCentralDirCompMethod );
 	if ( compmethod != mDeflate && compmethod != 0 )
-	{ mErrRet( uiStrings::sCannotZip(), srcfile_, 
+	{ mErrRet( uiStrings::sCannotZip(), srcfile_,
 		   tr("\nCompression method used '\' is not supported") ) }
 
 	od_uint16 bitflag = *mCast( od_uint16*, headerbuff +
@@ -1094,7 +1095,7 @@ bool ZipHandler::readEndOfCentralDirHeader()
     mEndOfCntrlDirHeaderSig( sig );
     od_stream::Pos filepos = istrm_->endPosition();
     if ( filepos == 0 )
-	{ mErrRet( tr("Zip archive is empty"), uiString::emptyString(), 
+	{ mErrRet( tr("Zip archive is empty"), uiString::emptyString(),
 						uiString::emptyString() ) }
 
     filepos -= mEndOfDirHeaderSize;
@@ -1138,7 +1139,7 @@ bool ZipHandler::readZIP64EndOfCentralDirLocator()
     istrm_->setPosition( 0, od_stream::End );
     od_stream::Pos filepos = istrm_->position();
     if ( filepos == 0 )
-	{ mErrRet( tr("Zip archive is empty"), uiString::emptyString(), 
+	{ mErrRet( tr("Zip archive is empty"), uiString::emptyString(),
 						    uiString::emptyString()) }
 
     istrm_->setPosition( filepos
@@ -1184,7 +1185,7 @@ bool ZipHandler::readZIP64EndOfCentralDirRecord()
     const od_uint32* ihdrbuff = reinterpret_cast<od_uint32*>(headerbuff);
     const od_uint32* isig = reinterpret_cast<od_uint32*>(sig);
     if ( *ihdrbuff != *isig )
-    { mErrRet( uiStrings::sCannotUnZip(), srcfile_, 
+    { mErrRet( uiStrings::sCannotUnZip(), srcfile_,
 					    tr("\nZip archive is corrupt") ) }
 
     istrm_->getBin( headerbuff+mSizeFourBytes,
@@ -1300,7 +1301,7 @@ bool ZipHandler::extractNextFile()
 		    istrm_->addErrMsgTo( errormsg_ );
 		else
 		{
-		    errormsg_.append( tr(" because of a write error to %1") 
+		    errormsg_.append( tr(" because of a write error to %1")
 			     .arg(ostrm_->fileName()) );
 		    ostrm_->addErrMsgTo( errormsg_ );
 		}
@@ -1312,7 +1313,7 @@ bool ZipHandler::extractNextFile()
     else
     {
 	closeOutputStream(); closeInputStream();
-	mErrRet( tr("Cannot unzip "), toUiString(srcfile_), 
+	mErrRet( tr("Cannot unzip "), toUiString(srcfile_),
 	    tr("\nCompression method used '\' is not supported") )
     }
 
@@ -1339,11 +1340,11 @@ int ZipHandler::readLocalFileHeader()
     bool sigcheck;
     mFileHeaderSigCheck( headerbuff, 0 );
     if ( !sigcheck )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_, 
+	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
 					    tr("\nZip archive is corrupt") )
 
     if ( getBitValue( *(headerbuff + mLGenPurBitFlag), 0 ) )
-	mErrRet( tr("Encrypted file::Not supported"), uiString::emptyString(), 
+	mErrRet( tr("Encrypted file::Not supported"), uiString::emptyString(),
 					uiString::emptyString() )
 	    ////TODO implement
 
@@ -1354,7 +1355,7 @@ int ZipHandler::readLocalFileHeader()
 
     od_uint16 compmethod = *mCast( od_uint16*, headerbuff + mLCompMethod );
     if ( compmethod != mDeflate && compmethod != 0 )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_, 
+	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
 		 tr("\nCompression method used '\' is not supported") )
 
     od_uint16 bitflag = *mCast( od_uint16*, headerbuff + mLGenPurBitFlag );
@@ -1490,7 +1491,7 @@ bool ZipHandler::doZUnCompress()
 	    if ( ret < 0 && ret != Z_BUF_ERROR )
 	    {
 		(void)inflateEnd( &zlibstrm );
-		mErrRet( uiStrings::sCannotUnZip(), srcfile_, 
+		mErrRet( uiStrings::sCannotUnZip(), srcfile_,
 					    tr("\nZip file is corrupt") )
 	    }
 
@@ -1501,7 +1502,7 @@ bool ZipHandler::doZUnCompress()
 	    if ( !ostrm_->isOK() )
 	    {
 		(void)inflateEnd( &zlibstrm );
-		mErrRet( uiStrings::sCannotUnZip(), srcfile_, 
+		mErrRet( uiStrings::sCannotUnZip(), srcfile_,
 			  tr("\nError occured while '\' writing to disk") )
 	    }
 
@@ -1511,7 +1512,7 @@ bool ZipHandler::doZUnCompress()
 
     inflateEnd( &zlibstrm );
     if ( !(crc == crc_) )
-	mErrRet( uiStrings::sCannotUnZip(), srcfile_, 
+	mErrRet( uiStrings::sCannotUnZip(), srcfile_,
 					    tr("\nZip archive is corrupt.") )
 
     return ret == Z_STREAM_END ? true : false;

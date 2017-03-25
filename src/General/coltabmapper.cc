@@ -318,7 +318,10 @@ ColTab::PosType ColTab::Mapper::getLinRelPos( const RangeType& rg,
 						      ValueType val )
 {
     const PosType width = rg.width( false );
-    return width == 0.f ? 0.5f : (val-rg.start) / width;
+    if ( width <= 0.f )
+	return 0.5f;
+
+    return getLimitedRelPos( (val - rg.start) / width );
 }
 
 
@@ -330,9 +333,14 @@ ColTab::PosType ColTab::Mapper::getHistEqRelPos( const RangeType& rg,
     if ( distrib_->isEmpty() )
 	return getLinRelPos( rg, val );
 
+    const ValueType startcumval = distrib_->valueAt( rg.start, true );
+    const ValueType stopcumval = distrib_->valueAt( rg.stop, true );
+    const ValueType cumvalwidth = stopcumval - startcumval;
+    if ( cumvalwidth <= 0.f )
+	return 0.5f;
+
     const ValueType cumval = distrib_->valueAt( val, true );
-    const float relposinrg = cumval / distrib_->sumOfValues();
-    return relposinrg;
+    return getLimitedRelPos( (cumval - startcumval) / cumvalwidth );
 }
 
 
@@ -422,7 +430,7 @@ ColTab::PosType ColTab::Mapper::seqPosition( ValueType val ) const
 int ColTab::Mapper::colIndex( ValueType val, int nrcols ) const
 {
     int ret = (int)(nrcols * seqPosition(val));
-    return ret < 0 ? 0 : (ret >=nrcols ? nrcols-1 : ret);
+    return getLimited( ret, 0, nrcols-1 );
 }
 
 

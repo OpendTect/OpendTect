@@ -39,14 +39,18 @@ inline bool isFPZero( fT v, eT eps )		{ return v < eps && v > -eps; }
 template <class T1,class T2,class eT>
 inline bool isFPEqual( T1 v1, T2 v2, eT eps )	{ return isFPZero(v1-v2,eps); }
 
+template <class T>
+inline T getLimited( T v, T min, T max )
+{ return v<min ? min : (v>max ? max : v); }
+
+
 #define mRounded(typ,x)		roundOff<typ>( x )
 #define mNINT32(x)		mRounded( od_int32, x )
 #define mNINT64(x)		mRounded( od_int64, x )
 
-#define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
-#define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
-#define mMaxLimited(v,lim)	( (v)<(lim) ? (v) : (lim) )
-#define mMinLimited(v,lim)	( (v)>(lim) ? (v) : (lim) )
+#define mMAX(x,y)		((x)>(y) ? (x) : (y))
+#define mMIN(x,y)		((x)<(y) ? (x) : (y))
+#define mLimited(v,min,max)	getLimited( v, min, max )
 
 #define mIsZero(x,eps)		isFPZero( x, eps )
 #define mIsEqual(x,y,eps)	isFPEqual( x, y, eps )
@@ -76,9 +80,6 @@ inline bool isFPEqual( T1 v1, T2 v2, eT eps )	{ return isFPZero(v1-v2,eps); }
 #ifndef M_SQRT2
 #  define M_SQRT2       1.41421356237309504880168872421
 #endif
-#ifndef M_SQRT1_2
-# define M_SQRT1_2	0.70710678118654752440
-#endif
 #ifndef M_PIf
 # define M_PIf		3.14159265358979323846f
 #endif
@@ -93,9 +94,6 @@ inline bool isFPEqual( T1 v1, T2 v2, eT eps )	{ return isFPZero(v1-v2,eps); }
 #endif
 #ifndef M_SQRT2f
 #  define M_SQRT2f      1.41421356237309504880168872421f
-#endif
-#ifndef M_SQRT1_2f
-# define M_SQRT1_2f	0.70710678118654752440f
 #endif
 
 #ifndef MAXFLOAT
@@ -169,7 +167,13 @@ private: \
 #define mExportTemplClassInst(mod)	mExportInst(mod,template class)
 
 
-//--- Local static variable initialization. This is an MT Windows problem.
+//--- Local static variable initialization ---
+// The circus below is because the M$ VS compiler does not properly initialise
+// static local variables under MT conditions (baffling, but true).
+// End result: never declare static local variables other than with the
+// mDefineStaticLocalObject macro.
+// Note that if you want to MT-safely return static local variables, you should
+// think about perthreadrepos.h stuff, for example the mDeclStaticString macro.
 
 #ifdef __win__
 namespace Threads
