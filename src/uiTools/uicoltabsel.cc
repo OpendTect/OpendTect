@@ -467,7 +467,7 @@ void drawDistrib()
 	}
 	scene().addItem( zeroitem_ );
 	zeroitem_->setPenColor( Color::Black() );
-	zeroitem_->setZValue( 1000.f );
+	zeroitem_->setZValue( 1000 );
     }
 
     distribitem_ = scene().addPolygon( pts, true );
