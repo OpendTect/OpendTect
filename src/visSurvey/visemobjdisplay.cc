@@ -813,20 +813,20 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 
 bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
 {
+    if ( selectionids_.isEmpty() )
+	return false;
+
     Undo& undo = EM::EMM().undo();
     const int lastid = undo.currentEventID();
-    for ( int idx=0; idx<selectors_.size(); idx++ )
-    {
-	Selector<Coord3>* sel = selectors_[idx];
-	em_.removeSelected( emobject_->id(), *sel, taskr );
-    }
+ 
+    emobject_->removeSelected( selectionids_ );
 
     if ( lastid!=undo.currentEventID() )
 	undo.setUserInteractionEnd( undo.currentEventID() );
 
     updateAuxData();
     clearSelections();
-    return !selectors_.isEmpty();
+    return true;
 }
 
 
@@ -879,23 +879,6 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
     if ( !ctrldown_ )
 	unSelectAll();
 
-    TypeSet<int> overlapselectors = findOverlapSelectors( polysel );
-
-    for ( int idx=overlapselectors.size()-1; idx>=0; idx-- )
-    {
-	if ( selectors_.size()>=overlapselectors[idx] )
-	    selectors_.removeSingle( overlapselectors[idx] );
-    }
-
-    if ( polysel->hasPolygon() )
-    {
-	RefMan<visBase::PolygonSelection> copyselection = polysel->copy();
-	visBase::PolygonCoord3Selector* selector =
-	    new visBase::PolygonCoord3Selector( *copyselection );
-	if ( selector )
-	    selectors_ += selector;
-    }
-
     updateSelections();
 
     polysel->clear();
@@ -905,33 +888,18 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 const TypeSet<int> EMObjectDisplay::findOverlapSelectors(
     visBase::PolygonSelection* polysel )
 {
+    // for keep ABI. do nothing
     TypeSet<int> overlapselectors;
-    for ( int idz = 0; idz<selectors_.size(); idz++ )
-    {
-	for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
-	{
-	    for ( int idy=0; idy<posattribmarkers_[idx]->size(); idy++ )
-	    {
-		visBase::MarkerSet* markerset = posattribmarkers_[idx];
-		const visBase::Coordinates* coords=markerset->getCoordinates();
-		const Coord3 pos = coords->getPos( idy );
-		if ( selectors_[idz]->includes(pos) )
-		{
-		    if ( polysel->isInside(pos) )
-		    {
-		      if ( !overlapselectors.isPresent(idz) )
-			overlapselectors += idz;
-		    }
-		}
-	    }
-	}
-    }
     return overlapselectors;
 }
 
 
 void EMObjectDisplay::updateSelections()
 {
+    const Selector<Coord3>* selector = scene_->getSelector();
+    if ( !selector )
+	return;
+
     mDynamicCastGet( EM::Horizon2D*, hor2d, emobject_ );
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
 
@@ -959,18 +927,15 @@ void EMObjectDisplay::updateSelections()
 	    const bool lockednode = !pickedbid.isUdf() && hor3d &&
 		hor3d->isNodeLocked( TrcKey(pickedbid) );
 
-	    for ( int idz=selectors_.size()-1; idz>=0; idz-- )
+	    if ( selector->includes(pos) && !lockednode )
 	    {
-		if ( selectors_[idz]->includes(pos) && !lockednode )
-		{
-			markerset->getMaterial()->setColor(
-			selectioncolor, idy );
-		}
-		else if ( lockednode && hor3d )
-		{
-		    markerset->getMaterial()->setColor(
+		markerset->getMaterial()->setColor(
+		selectioncolor, idy );
+	    }
+	    else if ( lockednode && hor3d )
+	    {
+		markerset->getMaterial()->setColor(
 		    hor3d->getLockColor(),idy);
-		}
 	    }
 	}
     }
@@ -983,11 +948,11 @@ void EMObjectDisplay::updateSelections()
 
 void EMObjectDisplay::clearSelections()
 {
-    deepErase( selectors_ );
-
     // Cannot reimplement virtual function to keep binary compatibility
     mDynamicCastGet( Horizon2DDisplay*, h2dd, this );
     if ( h2dd ) h2dd->clearSelectionsHor2D();
+
+    selectionids_.setEmpty();
 }
 
 

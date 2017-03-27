@@ -203,6 +203,8 @@ protected:
     bool				burstalertison_;
     bool				ctrldown_;
     ObjectSet< Selector<Coord3> >	selectors_;
+					/*!<not used anymore,only for ABI.*/
+    TypeSet<EM::SubID>			selectionids_;
     EMChangeData			emchangedata_;
 
     static const char*			sKeyEarthModelID();
@@ -219,6 +221,7 @@ private:
     void				updateLockedSeedsColor();
     const TypeSet<int>			findOverlapSelectors(
 						    visBase::PolygonSelection*);
+					/*!<not used anymore,only for ABI.*/
 public:
     virtual bool		getOnlyAtSectionsDisplay() const
 				{ return displayedOnlyAtSections(); }
