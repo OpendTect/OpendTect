@@ -914,32 +914,32 @@ void Horizon2DDisplay::initSelectionDisplay( bool erase )
     }
     else if ( erase )
     {
-	selections_.getParam(this)->removeAllPoints();
-	selections_.getParam(this)->removeAllPrimitiveSets();
-	selections_.getParam(this)->getMaterial()->clear();
+	selections_.getParam(this)->clear();
+	TypeSet<EM::SubID>* selectionids = getSelectionIds();
+	if ( selectionids )
+	    selectionids->setEmpty();
     }
 }
 
 
 void Horizon2DDisplay::updateSelectionsHor2D()
 {
-    const int lastidx = selectors_.size() - 1;
-    if ( lastidx<0 ) return;
+    const Selector<Coord3>* sel = scene_->getSelector();
 
     mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
     if ( !h2d ) return;
 
-    initSelectionDisplay( lastidx==0 );
+    initSelectionDisplay( !ctrldown_ );
 
     if ( !selections_.getParam(this) )
 	return;
 
     const EM::SectionID sid = h2d->sectionID( 0 );
-    const Selector<Coord3>* sel = selectors_[lastidx];
 
     const Geometry::Element* ge = h2d->geometry().sectionGeometry( sid );
     if ( !ge ) return;
 
+    TypeSet<EM::SubID>* selectionids = getSelectionIds();
     PtrMan<EM::EMObjectIterator> iterator = h2d->geometry().createIterator(-1);
     TypeSet<int> pidxs;
     while( true )
@@ -952,6 +952,8 @@ void Horizon2DDisplay::updateSelectionsHor2D()
 	if ( sel->includes( pos ) )
 	{
 	    const int pidx = selections_.getParam(this)->addPoint( pos );
+	if ( selectionids )
+	    *selectionids += pid.subID();
 	    pidxs += pidx;
 	}
     }
@@ -973,9 +975,9 @@ void Horizon2DDisplay::clearSelectionsHor2D()
 {
     if ( selections_.getParam(this) )
     {
-	selections_.getParam(this)->removeAllPoints();
-	selections_.getParam(this)->removeAllPrimitiveSets();
-	selections_.getParam(this)->getMaterial()->clear();
+	selections_.getParam(this)->clear();
+	if ( getSelectionIds() )
+	    getSelectionIds()->setEmpty();
     }
 }
 

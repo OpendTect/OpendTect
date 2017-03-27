@@ -513,37 +513,47 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
     if ( !selector.isOK() )
 	return;
 
+    insideselremoval_ = true;
     removebypolyposbox_.setEmpty();
 
-    insideselremoval_ = true;
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	Geometry::Element* ge = sectionGeometry( sectionID(idx) );
-	if ( !ge ) continue;
-
-	mDynamicCastGet(const Geometry::RowColSurface*,surface,ge);
-	if ( !surface ) continue;
-
 	ObjectSet<const Selector<Coord3> > selectors;
 	selectors += &selector;
 	EMObjectPosSelector posselector( *this, sectionID(idx), selectors );
 	posselector.executeParallel( tr );
 
 	const TypeSet<EM::SubID>& list = posselector.getSelected();
+	removeSelected( list );
+    }
+
+    insideselremoval_ = false;
+}
+
+
+void EMObject::removeSelected( const TypeSet<EM::SubID>& subids )
+{
+    for ( int idx = 0; idx<nrSections(); idx++ )
+    {
+	Geometry::Element* ge = sectionGeometry(sectionID(idx));
+	if ( !ge ) continue;
+
+	mDynamicCastGet( const Geometry::RowColSurface*, surface, ge );
+	if ( !surface ) continue;
 
 	setBurstAlert( true );
 	int poscount = 0;
 	ge->blockCallBacks( true, false );
-	for ( int sididx=0; sididx<list.size(); sididx++ )
-	{
-	    unSetPos( sectionID(idx), list[sididx], true );
 
-	    BinID bid = BinID::fromInt64( list[sididx] );
-	    const Coord3 pos = getPos( sectionID(idx), list[sididx] );
+	for ( int sididx=0; sididx<subids.size(); sididx++ )
+	{
+	    unSetPos( sectionID(idx), subids[sididx], true );
+	    BinID bid = BinID::fromInt64( subids[sididx] );
+	    const Coord3 pos = getPos( sectionID(idx), subids[sididx] );
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
 		removebypolyposbox_.hsamp_.start_ =
-			removebypolyposbox_.hsamp_.stop_ = bid;
+		    removebypolyposbox_.hsamp_.stop_ = bid;
 		removebypolyposbox_.zsamp_.start =
 		    removebypolyposbox_.zsamp_.stop = (float) pos.z;
 	    }
@@ -552,18 +562,15 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 		removebypolyposbox_.hsamp_.include(bid);
 		removebypolyposbox_.zsamp_.include((float) pos.z);
 	    }
-
 	    if ( ++poscount >= 10000 )
 	    {
-		ge->blockCallBacks( true, true );
+		ge->blockCallBacks(true,true);
 		poscount = 0;
 	    }
 	}
 	ge->blockCallBacks( false, true );
-	setBurstAlert( false );
+	setBurstAlert(false);
     }
-
-    insideselremoval_ = false;
 }
 
 

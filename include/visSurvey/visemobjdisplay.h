@@ -149,7 +149,7 @@ public:
 				    int whichobj )	=0;
     virtual void		setPixelDensity(float dpi);
     const visBase::MarkerSet*	getSeedMarkerSet() const; 
-
+    TypeSet<EM::SubID>*		getSelectionIds() const;
 
 protected:
 				EMObjectDisplay();
@@ -203,7 +203,7 @@ protected:
     bool				burstalertison_;
     bool				ctrldown_;
     ObjectSet< Selector<Coord3> >	selectors_;
-
+					/*!<not used anymore,only for ABI.*/
     static const char*			sKeyEarthModelID();
     static const char*			sKeyResolution();
     static const char*			sKeyEdit();
@@ -218,6 +218,7 @@ private:
     void				updateLockedSeedsColor();
     const TypeSet<int>			findOverlapSelectors(
 						    visBase::PolygonSelection*);
+					/*!<not used anymore,only for ABI.*/
 public:
     virtual bool		getOnlyAtSectionsDisplay() const
 				{ return displayedOnlyAtSections(); }
