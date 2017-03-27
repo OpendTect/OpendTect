@@ -82,12 +82,15 @@ public:
 				//!< Returns whether any change made
 				//!< Note that your distrib is no longer correct
 				//!< Useful for nice displays
+    inline bool			isRoughlySymmetrical() const;
+				//!< criterion: median value is near modus
 
     inline void			getCurve(SetType& xvals,SetType& yvals,
 				        bool limitspikes=false) const;
     inline void			getRanges(Interval<PosType>& xrg,
 					  Interval<PosType>& yrg) const;
     inline PosType		positionForCumulative(VT) const;
+    inline PosType		medianPosition() const;
     inline VT*			getArr( bool cum ) const
 				{ return cum ? cumdata_.arr() : data_.arr(); }
 				//!< for fast non-shared usage
@@ -107,7 +110,7 @@ protected:
     SetType		cumdata_;
     SamplingType	sampling_;
 
-    inline VT		gtMax() const;
+    inline VT		gtMax(int* idxat=0) const;
 
     friend class	DataDistributionIter<VT>;
 
@@ -297,16 +300,12 @@ VT DataDistribution<VT>::valueAt( PosType pos, bool cumulative ) const
     if ( cumulative )
 	fidx -= 0.5f;
 
-    int aftidx = (int)fidx + 1;
-    if ( aftidx >= sz )
-	aftidx = sz;
-    if ( aftidx < 0 )
-	aftidx = 0;
+    const int aftidx = getLimited( ((int)fidx + 1), 0, sz );
     const int beforeidx = aftidx - 1;
 
     const VT valbefore = beforeidx<0 ? (cumulative?VT(0):vals[0])
 				     : vals[ beforeidx ];
-    const VT valafter = vals[ aftidx ];
+    const VT valafter = aftidx>sz-2 ? vals.last() : vals[ aftidx ] ;
     const PosType relpos = (fidx - beforeidx);
     return valbefore + (valafter-valbefore) * relpos;
 }
@@ -396,9 +395,12 @@ VT DataDistribution<VT>::maxValue() const
 
 
 template <class VT> inline
-VT DataDistribution<VT>::gtMax() const
+VT DataDistribution<VT>::gtMax( int* idxat ) const
 {
-    size_type sz = data_.size();
+    const size_type sz = data_.size();
+    if ( idxat )
+	*idxat = 0;
+
     if ( sz < 2 )
 	return sz == 1 ? data_[0] : VT(0);
 
@@ -407,7 +409,11 @@ VT DataDistribution<VT>::gtMax() const
     {
 	const VT val = data_[idx];
 	if ( val > ret )
+	{
 	    ret = val;
+	    if ( idxat )
+		*idxat = idx;
+	}
     }
 
     return ret;
@@ -475,6 +481,19 @@ template <class VT> inline bool DataDistribution<VT>::deSpike( VT cutoff )
 	return true;
     }
     return false;
+}
+
+
+template <class VT> inline
+bool DataDistribution<VT>::isRoughlySymmetrical() const
+{
+    mLock4Read();
+    IdxType maxidx; gtMax( &maxidx );
+    PosType medpos = medianPosition();
+    PosType diff = medpos - sampling_.atIndex( maxidx );
+    if ( diff < PosType(0) )
+	diff = -diff;
+    return diff < sampling_.step;
 }
 
 
@@ -587,6 +606,17 @@ DataDistribution<VT>::positionForCumulative( VT val ) const
 
     // should not reach
     return VT(0);
+}
+
+
+template <class VT> inline typename DataDistribution<VT>::PosType
+DataDistribution<VT>::medianPosition() const
+{
+    mLock4Read();
+    if ( cumdata_.size() < 2 )
+	return sampling_.start;
+
+    return positionForCumulative( cumdata_.last() * VT(0.5) );
 }
 
 

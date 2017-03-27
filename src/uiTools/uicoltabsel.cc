@@ -212,6 +212,7 @@ uiManipMapper( uiColTabSelTool& seltool )
     , distribitem_(0)
     , rgstartitm_(0)
     , rgstopitm_(0)
+    , zeroitem_(0)
     , movingside_(0)
 {
     setNoBackGround();
@@ -449,6 +450,26 @@ void drawDistrib()
 	pts += uiPoint( mNINT32(fxpix), mNINT32(fypix) );
     }
 
+    if ( longrg_.includes(0.f,false) )
+    {
+	const float longrelpos = -longrg_.start / longwdth;
+	if ( xislong )
+	{
+	    const float fxpix = longrelpos * xmaxpix;
+	    const int xpix = mNINT32( fxpix );
+	    zeroitem_ = new uiLineItem( xpix, 0, xpix, ymaxpix );
+	}
+	else
+	{
+	    const float fypix = longrelpos * ymaxpix;
+	    const int ypix = mNINT32( fypix );
+	    zeroitem_ = new uiLineItem( 0, ypix, xmaxpix, ypix );
+	}
+	scene().addItem( zeroitem_ );
+	zeroitem_->setPenColor( Color::Black() );
+	zeroitem_->setZValue( 1000.f );
+    }
+
     distribitem_ = scene().addPolygon( pts, true );
     distribitem_->setPenColor( Color(0,127,0) );
     distribitem_->setFillColor( Color::DgbColor() );
@@ -480,6 +501,7 @@ void drawRange()
 void eraseAll()
 {
     delete distribitem_; distribitem_ = 0;
+    delete zeroitem_; zeroitem_ = 0;
     delete rgstartitm_; rgstartitm_ = 0;
     delete rgstopitm_; rgstopitm_ = 0;
 }
@@ -502,6 +524,7 @@ void reDraw()
     Interval<float>	longrg_, shortrg_;
     TypeSet<float>	longvals_, shortvals_;
     uiPolygonItem*	distribitem_;
+    uiLineItem*		zeroitem_;
     uiManipHandleItem*	rgstartitm_;
     uiManipHandleItem*	rgstopitm_;
 
