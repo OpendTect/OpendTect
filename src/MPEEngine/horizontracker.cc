@@ -126,11 +126,6 @@ bool HorizonAutoTracker::init()
 
     if ( hor3d_ )
     {
-	if ( !horizon_.nrSections() )
-	{
-	    return false;
-	}
-
 	const StepInterval<int> inlrg = hor3d_->geometry().rowRange();
 	const StepInterval<int> crlrg = hor3d_->geometry().colRange();
 
