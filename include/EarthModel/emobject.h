@@ -216,7 +216,7 @@ public:
     virtual bool		isPosAttribLocked(int attr) const;
     virtual void		removeSelected(const Selector<Coord3>&,
 	    				       TaskRunner*);
-    virtual void		removeSelected(const TypeSet<EM::SubID>&);
+    void			removeSelected(const TypeSet<EM::SubID>&);
 
     void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
 	    					   const EM::SectionID&);
