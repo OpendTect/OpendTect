@@ -115,6 +115,52 @@ bool uiStratGenDescTools::usePar( const IOPar& par )
 
 
 
+uiMultiStratLevelSel::uiMultiStratLevelSel(
+	uiParent* p, uiStratLayModEditTools& tools )
+    : uiCompoundParSel(p,tr("Stratigraphic Level"))
+    , modtools_(tools)
+{
+    butPush.notify( mCB(this,uiMultiStratLevelSel,doSelLevelDlg) );
+}
+
+
+void uiMultiStratLevelSel::doSelLevelDlg( CallBacker* )
+{
+    uiDialog::Setup su( uiStrings::phrSelect(uiStrings::sMarker(mPlural)),
+			mNoDlgTitle, mTODOHelpKey );
+    uiDialog dlg( parent(), su );
+
+    const uiListBox::Setup setup( OD::ChooseZeroOrMore, tr("Available Markers"),
+	    			  uiListBox::AboveLeft );
+    uiListBox* lb = new uiListBox( &dlg, setup );
+    lb->setMultiChoice( true );
+    lb->addItems( alllevelnames_.getUiStringSet() );
+    lb->setChosen( sellevelnames_ );
+
+    if ( !dlg.go() )
+	return;
+
+    lb->getChosen( sellevelnames_ );
+    modtools_.setLevelNames( sellevelnames_ );
+    modtools_.selLevelChg.trigger();
+
+}
+
+
+BufferString uiMultiStratLevelSel::getSummary() const
+{
+    return sellevelnames_.getDispString();
+}
+
+
+void uiMultiStratLevelSel::setLevelNames( const BufferStringSet& lvlnms )
+{
+    alllevelnames_ = lvlnms;
+    sellevelnames_ = lvlnms;
+    updateSummary();
+}
+
+
 uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     : uiGroup(p,"Lay Mod Edit Tools")
     , selPropChg(this)
@@ -133,12 +179,8 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     propfld_->selectionChanged.notify(
 				mCB(this,uiStratLayModEditTools,selPropCB) );
 
-    lvlfld_ = new uiCheckedCompoundParSel( leftgrp,
-					    tr("Selected Stratigraphic Level"),
-					    false, tr("Select Markers") );
+    lvlfld_ = new uiMultiStratLevelSel( leftgrp, *this );
     lvlfld_->attach( rightOf, propfld_ );
-    lvlfld_->butPush.notify( mCB(this,uiStratLayModEditTools,doDlg) );
-    lvlfld_->checked.notify( mCB(this,uiStratLayModEditTools,dispLVLs) );
 
     contfld_ = new uiComboBox( leftgrp, "Content" );
     contfld_->setToolTip( tr("Marked content") );
@@ -187,27 +229,21 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     zoomtb_->attach( leftOf, lithtb_ );
     rightgrp->attach( rightTo, leftgrp );
     rightgrp->attach( rightBorder );
-
-    updateSummary();
 }
 
 
 void uiStratLayModEditTools::showFlatCB( CallBacker* )
 {
+    if ( !flattenedtb_->isOn() )
+	return;
+
     if ( choosenlvlnms_.isEmpty() )
     {
-	uiMSG().error(tr("No Levels Selected for Display"));
+	pErrMsg("No levels chosen" );
 	return;
     }
 
-    else if ( choosenlvlnms_.size() == 1 )
-    {
-	flattenlvlnm_ = choosenlvlnms_.get(0);
-	flattenChg.trigger();
-	return;
-    }
-
-    if ( flattenlvlnm_.isEmpty() )
+    if ( sellevelnm_.isEmpty() )
 	flattenMenuCB(0);
 
     flattenChg.trigger();
@@ -225,85 +261,15 @@ void uiStratLayModEditTools::flattenMenuCB( CallBacker* )
     uiListBox* lb = new uiListBox( &dlg, setup );
     uiStringSet trchoosenlvlnms_ = choosenlvlnms_.getUiStringSet();
     lb->addItems( trchoosenlvlnms_ );
-    if ( !flattenlvlnm_.isEmpty() )
-	lb->setCurrentItem( flattenlvlnm_.buf() );
+    if ( !sellevelnm_.isEmpty() )
+	lb->setCurrentItem( sellevelnm_.buf() );
 
     if ( !dlg.go() )
 	return;
 
-    flattenlvlnm_ = choosenlvlnms_.get(lb->currentItem());
+    sellevelnm_ = lb->getText();
     flattenedtb_->setOn( true );
     flattenChg.trigger();
-}
-
-
-void uiStratLayModEditTools::doDlg( CallBacker* )
-{
-    uiDialog::Setup su( uiStrings::phrSelect(uiStrings::sMarker(mPlural)),
-			mNoDlgTitle, mTODOHelpKey );
-    uiDialog dlg( parent(), su );
-
-    const Strat::LevelSet& lvls = Strat::LVLS();
-
-    uiStringSet lvlnmset;
-    for ( int idx=0; idx<lvls.size(); idx++ )
-    {
-	const Strat::Level lvl = lvls.getByIdx( idx );
-	const BufferString nm( lvl.name() );
-	lvlnmset.add( toUiString(nm) );
-    }
-
-    const uiListBox::Setup setup( OD::ChooseZeroOrMore, tr("Available Markers"),
-							uiListBox::AboveLeft );
-    uiListBox* lb = new uiListBox( &dlg, setup );
-    lb->setMultiChoice( true );
-    lb->addItems( lvlnmset );
-    lb->setChosen( choosenlvlnms_ );
-
-    if ( !dlg.go() )
-	return;
-
-    lb->getChosen( choosenlvlnms_ );
-
-    updateSummary();
-}
-
-
-void uiStratLayModEditTools::dispLVLs( CallBacker* )
-{
-    if ( !lvlfld_->isChecked() )
-    {
-	prevlvlnms_ = choosenlvlnms_;
-	choosenlvlnms_.setEmpty();
-    }
-    else
-	choosenlvlnms_ = prevlvlnms_;
-
-    updateSummary();
-}
-
-
-void uiStratLayModEditTools::getSummary()
-{
-    BufferString ret;
-    const int sz = choosenlvlnms_.size();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	BufferString* nm = choosenlvlnms_[idx];
-	ret.add(*nm);
-
-	if ( sz>1 && idx<(sz-1) )
-	    ret.add("; ");
-    }
-    lvlfld_->setSummary(ret);
-}
-
-
-void uiStratLayModEditTools::updateSummary()
-{
-    getSummary();
-    lvlfld_->updateSummary();
-    selLevelChg.trigger();
 }
 
 
@@ -348,6 +314,8 @@ void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
 
 void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
 {
+    choosenlvlnms_ = nms;
+    lvlfld_->setLevelNames( nms );
     //setFldNms( lvlfld_, nms, true, false, 0 );
 }
 
@@ -382,16 +350,14 @@ int uiStratLayModEditTools::selPropIdx() const
 
 BufferString uiStratLayModEditTools::selLevel() const
 {
-    if ( showFlattened() )
-	return flattenlvlnm_;
-    return choosenlvlnms_.isEmpty() ? 0 : choosenlvlnms_.get(0);
+    return sellevelnm_.isEmpty() ? choosenlvlnms_.get(0) : sellevelnm_;
 }
 
 
 Strat::Level::ID uiStratLayModEditTools::flattenSelLevelID() const
 {
-    return lvlfld_ ? Strat::LVLS().getByName( flattenlvlnm_ ).id() :
-					    Strat::Level::ID::getInvalid();
+    return lvlfld_ ? Strat::LVLS().getByName( sellevelnm_ ).id()
+		   : Strat::Level::ID::getInvalid();
 }
 
 
@@ -444,7 +410,7 @@ bool uiStratLayModEditTools::dispLith() const
 
 bool uiStratLayModEditTools::showFlattened() const
 {
-    return flattenedtb_->isOn() && Strat::LVLS().getByName( flattenlvlnm_ ).
+    return flattenedtb_->isOn() && Strat::LVLS().getByName( sellevelnm_ ).
 								id().isValid();
 }
 
@@ -463,8 +429,7 @@ void uiStratLayModEditTools::setSelProp( const char* sel )
 
 void uiStratLayModEditTools::setSelLevel( const char* sel )
 {
-    lvlfld_->setSelText( toUiString(sel) );
-    return;
+    sellevelnm_ = sel;
 }
 
 
@@ -559,7 +524,7 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
     NotifyStopper stopsynthchg( mkSynthChg );
 
     mSetProp( propfld_, sKeyDisplayedProp );
-    //mSetProp( lvlfld_, sKeySelectedLevel );
+    par.get( sKeySelectedLevel(), sellevelnm_ );
     mSetProp( contfld_, sKeySelectedContent );
 
     int decimation;

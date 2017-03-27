@@ -304,10 +304,9 @@ void uiStratLayerModel::setWinTitle()
 }
 
 
-const char* uiStratLayerModel::levelName() const
+BufferString uiStratLayerModel::levelName() const
 {
-    const char* nm = modtools_->selLevel();
-    return !nm || !*nm || (*nm == '-' && *(nm+1) == '-') ? 0 : nm;
+    return modtools_->selLevel();
 }
 
 
@@ -489,8 +488,8 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     uiStratSynthCrossplot dlg( this, layerModel(),synthdisp_->getSynthetics());
     if ( !dlg.errMsg().isEmpty() )
 	{ uiMSG().error( dlg.errMsg() ); return; }
-    const char* lvlnm = modtools_->selLevel();
-    if ( lvlnm && *lvlnm ) dlg.setRefLevel( lvlnm );
+    BufferString lvlnm = modtools_->selLevel();
+    if ( !lvlnm.isEmpty() ) dlg.setRefLevel( lvlnm );
     dlg.go();
 }
 
@@ -832,7 +831,7 @@ void uiStratLayerModel::handleNewModel()
     synthdisp_->setFlattened( modtools_->showFlattened(), true );
     moddisp_->setFlattened( modtools_->showFlattened(), true );
     synthdisp_->setDispMrkrs( modtools_->getSelLvlNmSet(),
-						moddisp_->getLevelDepths() );
+			      moddisp_->getLevelDepths() );
 
     if ( needtoretrievefrpars_ )
     {

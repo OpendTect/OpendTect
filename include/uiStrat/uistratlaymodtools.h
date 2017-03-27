@@ -21,6 +21,7 @@ class uiComboBox;
 class uiLabel;
 class uiSpinBox;
 class uiToolButton;
+class uiMultiStratLevelSel;
 
 
 mExpClass(uiStrat) uiStratGenDescTools : public uiGroup
@@ -102,15 +103,15 @@ public:
     Color			selLevelColor() const;	//!< May return NoColor
 
 
-    uiToolButton* lithButton()		{ return lithtb_; }
-    uiToolButton* zoomButton()		{ return zoomtb_; }
+    uiToolButton*		lithButton()		{ return lithtb_; }
+    uiToolButton*		zoomButton()		{ return zoomtb_; }
 
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
-    bool	allownoprop_;
-    const BufferStringSet getSelLvlNmSet() { return choosenlvlnms_; }
-    const BufferString	  getFlattenLvlNm() { return flattenlvlnm_; }
+    bool			allownoprop_;
+    const BufferStringSet 	getSelLvlNmSet() { return choosenlvlnms_; }
+    const BufferString	  	getFlattenLvlNm() { return sellevelnm_; }
 
 protected:
 
@@ -130,25 +131,19 @@ protected:
     uiToolButton*		lithtb_;
     uiToolButton*		flattenedtb_;
     uiToolButton*		mksynthtb_;
-    uiCheckedCompoundParSel*	lvlfld_;
+    uiMultiStratLevelSel*	lvlfld_;
 
     void	selPropCB( CallBacker* )	{ selPropChg.trigger(); }
-    void	selLevelCB( CallBacker* )	{ selLevelChg.trigger(); }
     void	selContentCB( CallBacker* )	{ selContentChg.trigger(); }
     void	dispEachCB( CallBacker* )	{ dispEachChg.trigger(); }
     void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
     void	showFlatCB( CallBacker* );
     void	mkSynthCB( CallBacker* )	{ mkSynthChg.trigger(); }
-    void	doDlg( CallBacker* );
-    void	dispLVLs( CallBacker* );
     void	flattenMenuCB( CallBacker* );
-    void	getSummary();
-    void	updateSummary();
 
     BufferStringSet		choosenlvlnms_;
-    BufferStringSet		prevlvlnms_;
-    BufferString		flattenlvlnm_;
+    BufferString		sellevelnm_;
 
 };
 
@@ -183,4 +178,22 @@ protected:
     uiComboBox*		porosityfld_;
     uiString		errmsg_;
 
+};
+
+
+mExpClass(uiStrat) uiMultiStratLevelSel : public uiCompoundParSel
+{ mODTextTranslationClass(uiMultiStratLevelSel);
+public:
+    					uiMultiStratLevelSel(uiParent*,
+						uiStratLayModEditTools&);
+    void				setLevelNames(const BufferStringSet&);
+    BufferStringSet			getSelLevelNames() const
+					{ return sellevelnames_; }
+protected:
+    uiStratLayModEditTools&		modtools_;
+    BufferStringSet			alllevelnames_;
+    BufferStringSet			sellevelnames_;
+
+    virtual BufferString		getSummary() const;
+    void				doSelLevelDlg(CallBacker*);
 };

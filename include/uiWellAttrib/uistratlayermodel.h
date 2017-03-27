@@ -56,7 +56,7 @@ public:
     Strat::LayerModel&			layerModelEdited();
     const Strat::LayerModel&            layerModel() const;
     Strat::LayerModel&                  layerModel();
-    const char*				levelName() const; //!< null if none
+    BufferString			levelName() const;
     const StratSynth&			currentStratSynth() const;
     StratSynth&				currentStratSynth();
     const StratSynth&			normalStratSynth() const;

@@ -948,7 +948,6 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
 	return;
     }
 
-    vwr_->setVisible( wva, true );
     mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr());
 
@@ -1019,6 +1018,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
     }
 
     vwr_->setPack( wva, dp->id(), !hadpack );
+    vwr_->setVisible( wva, true );
     control_->setD2TModels( *d2tmodels_ );
     NotifyStopper notstop( vwr_->viewChanged );
     if ( mIsZero(relzoomwr_.left(),1e-3) &&

@@ -190,10 +190,8 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 
 bool RaySynthGenerator::updateDataPack()
 {
-    const bool zerooffset = offsets_.size() == 1 &&
-			    Seis::equalOffset(offsets_[0],0);
     DataPack::ID id = synthdata_->getPack().id();
-    if ( zerooffset )
+    if ( !synthdata_->isPS() )
     {
 	SeisTrcBuf* seisbuf = new SeisTrcBuf( true );
 	getStackedTraces( *seisbuf );
