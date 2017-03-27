@@ -145,6 +145,8 @@ public:
     virtual bool		removeSection(SectionID,bool hist )
 							{ return false; }
 
+    virtual void		removeSelected(const TypeSet<EM::SubID>&);
+
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
     Geometry::Element*		sectionGeometry(const SectionID&);
 

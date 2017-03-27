@@ -202,6 +202,8 @@ protected:
     bool				burstalertison_;
     bool				ctrldown_;
     ObjectSet< Selector<Coord3> >	selectors_;
+					/*!<not used anymore,only for ABI.*/
+    TypeSet<EM::SubID>			selectionids_;
     EMChangeData			emchangedata_;
 
 
@@ -218,9 +220,6 @@ protected:
 private:
     void				unSelectAll();
     void				updateLockedSeedsColor();
-    const TypeSet<int>			findOverlapSelectors(
-						    visBase::PolygonSelection*);
-
 };
 
 } // namespace visSurvey

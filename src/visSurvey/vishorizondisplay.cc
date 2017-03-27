@@ -2150,9 +2150,8 @@ void HorizonDisplay::initSelectionDisplay( bool erase )
     }
     else if ( erase )
     {
-	selections_->removeAllPoints();
-	selections_->removeAllPrimitiveSets();
-	selections_->getMaterial()->clear();
+	selections_->clear();
+	selectionids_.setEmpty();
     }
 }
 
@@ -2282,17 +2281,19 @@ bool HorizonDisplay::lockedShown() const
 
 void HorizonDisplay::updateSelections()
 {
-    EMObjectDisplay::updateSelections();
-    const int lastidx = selectors_.size() - 1;
-    if ( lastidx<0 ) return;
+    const Selector<Coord3>* sel = scene_->getSelector();
+    if ( !sel )
+	return;
+
 
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
-    if ( !hor3d ) return;
+    if ( !hor3d || !sel ) return;
 
-    initSelectionDisplay( lastidx==0 );
+    EMObjectDisplay::updateSelections();
+
+    initSelectionDisplay( !ctrldown_ );
 
     const EM::SectionID sid = hor3d->sectionID(0);
-    const Selector<Coord3>* sel = selectors_[lastidx];
     ObjectSet<const Selector<Coord3> > selectors;
     selectors += sel;
     EM::EMObjectPosSelector posselector( *hor3d, sid, selectors );
@@ -2309,6 +2310,7 @@ void HorizonDisplay::updateSelections()
 	if ( pos.isUdf() ) continue;
 
 	const int pidx = selections_->addPoint( pos );
+	selectionids_ += selids[idx];
 	pidxs += pidx;
     }
 
@@ -2330,9 +2332,7 @@ void HorizonDisplay::clearSelections()
     EMObjectDisplay::clearSelections();
     if ( selections_ )
     {
-	selections_->removeAllPoints();
-	selections_->removeAllPrimitiveSets();
-	selections_->getMaterial()->clear();
+	selections_->clear();
     }
 }
 

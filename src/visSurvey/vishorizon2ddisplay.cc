@@ -881,9 +881,8 @@ void Horizon2DDisplay::initSelectionDisplay( bool erase )
     }
     else if ( erase )
     {
-	selections_->removeAllPoints();
-	selections_->removeAllPrimitiveSets();
-	selections_->getMaterial()->clear();
+	selections_->clear();
+	selectionids_.setEmpty();
     }
 }
 
@@ -891,19 +890,16 @@ void Horizon2DDisplay::initSelectionDisplay( bool erase )
 void Horizon2DDisplay::updateSelections()
 {
     EMObjectDisplay::updateSelections();
-    const int lastidx = selectors_.size() - 1;
-    if ( lastidx<0 ) return;
-
+    const Selector<Coord3>* sel = scene_->getSelector();
     mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
-    if ( !h2d ) return;
+    if ( !sel || !h2d ) return;
 
-    initSelectionDisplay( lastidx==0 );
+    initSelectionDisplay( !ctrldown_ );
 
     if ( !selections_ )
 	return;
 
-    const EM::SectionID sid = h2d->sectionID( 0 );
-    const Selector<Coord3>* sel = selectors_[lastidx];
+    const EM::SectionID sid = h2d->sectionID(0);
 
     const Geometry::Element* ge = h2d->geometry().sectionGeometry( sid );
     if ( !ge ) return;
@@ -920,6 +916,7 @@ void Horizon2DDisplay::updateSelections()
 	if ( sel->includes( pos ) )
 	{
 	    const int pidx = selections_->addPoint( pos );
+	    selectionids_ += pid.subID();
 	    pidxs += pidx;
 	}
     }
@@ -942,9 +939,8 @@ void Horizon2DDisplay::clearSelections()
     EMObjectDisplay::clearSelections();
     if ( selections_ )
     {
-	selections_->removeAllPoints();
-	selections_->removeAllPrimitiveSets();
-	selections_->getMaterial()->clear();
+	selections_->clear();
+	selectionids_.setEmpty();
     }
 }
 

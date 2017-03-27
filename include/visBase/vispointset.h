@@ -40,6 +40,7 @@ public:
 			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.  */
+    void		clear();
 
 protected:
 			~PointSet();

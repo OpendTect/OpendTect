@@ -83,5 +83,13 @@ void PointSet::setDisplayTransformation( const mVisTrans* trans )
 }
 
 
+void PointSet::clear()
+{
+    removeAllPoints();
+    removeAllPrimitiveSets();
+    getMaterial()->clear();
+}
+
+
 };
 // namespace visBase
