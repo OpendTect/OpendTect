@@ -1093,7 +1093,6 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     afterTransferUpdate();
 
     UndoEvent* undo = new FaultStickTransferUndoEvent( copy, saved );
-    PtrMan<Executor> executor = destfault->saver();
     EM::EMM().undo(destfault->id()).setUserInteractionEnd(
 	EM::EMM().undo(destfault->id()).addEvent(undo) );
 
