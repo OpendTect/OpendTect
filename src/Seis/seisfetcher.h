@@ -70,6 +70,9 @@ public:
     virtual void		reset();
     virtual TrcKeyZSampling	getDefaultCS() const;
 
+    virtual void	doFillPar(IOPar&,uiRetVal&) const;
+    virtual void	doUsePar(const IOPar&,uiRetVal&);
+
 };
 
 
@@ -113,6 +116,9 @@ public:
     int			gtLineNr(Pos::GeomID) const;
     void		gtGeometryInfo(int,PosInfo::Line2DData&) const;
     bool		gtRanges(int,StepInterval<int>&,ZSampling&) const;
+
+    virtual void	doFillPar(IOPar&,uiRetVal&) const;
+    virtual void	doUsePar(const IOPar&,uiRetVal&);
 
     PosInfo::Line2DDataIterator*	iter_;
     ObjectSet<PosInfo::Line2DData>	line2ddata_;

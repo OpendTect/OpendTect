@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "seismultiprovider.h"
 
+#include "keystrs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "seisprovider.h"
@@ -18,6 +19,24 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "survinfo.h"
 #include "uistrings.h"
+
+mDefineEnumUtils(Seis::MultiProvider,Policy,"Policy") {
+    "Get everywhere",
+    "Require only one",
+    "Require atleast one",
+    "Require all",
+    0
+};
+
+mDefineEnumUtils(Seis::MultiProvider,ZPolicy,"Z policy") {
+    "Maximum",
+    "Minimum",
+    0
+};
+
+static const char* sKeySpecialValue()	{ return "Special Value"; }
+static const char* sKeyGeomIDs()	{ return "Geom IDs"; }
+static const char* sKeyCurrentLineIdx() { return "Current line index"; }
 
 
 // MultiProvider
@@ -152,18 +171,33 @@ ZSampling Seis::MultiProvider::getZRange() const
 }
 
 
-uiRetVal Seis::MultiProvider::fillPar( ObjectSet<IOPar>& iop ) const
+uiRetVal Seis::MultiProvider::fillPar( IOPar& iop ) const
 {
+    iop.set( sKey::TotalNr(), totalnr_ );
+    iop.set( sKey::ZRange(), zsampling_ );
+    iop.set( sKeySpecialValue(), specialvalue_ );
+    iop.set( PolicyDef().name(), MultiProvider::toUiString(policy_) );
+    iop.set( ZPolicyDef().name(), MultiProvider::toUiString(zpolicy_) );
+
     uiRetVal uirv;
     doFillPar( iop, uirv );
     return uirv;
 }
 
 
-uiRetVal Seis::MultiProvider::usePar( const ObjectSet<IOPar>& iop )
+uiRetVal Seis::MultiProvider::usePar( const IOPar& iop )
 {
+    iop.get( sKey::TotalNr(), totalnr_ );
+    iop.get( sKey::ZRange(), zsampling_ );
+    iop.get( sKeySpecialValue(), specialvalue_ );
+    PolicyDef().parse( iop, PolicyDef().name(), policy_ );
+    ZPolicyDef().parse( iop, ZPolicyDef().name(), zpolicy_ );
+
     uiRetVal uirv;
     doUsePar( iop, uirv );
+    if ( !provs_.isEmpty() && provs_[0]->selData() )
+	setSelData( provs_[0]->selData()->clone() );
+
     return uirv;
 }
 
@@ -210,11 +244,37 @@ void Seis::MultiProvider::ensureRightZSampling(
 }
 
 
-void Seis::MultiProvider::doFillPar(
-		ObjectSet<IOPar>& iop, uiRetVal& uirv ) const
+void Seis::MultiProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
 {
+    IOPar par;
     for ( int idx=0; idx<provs_.size(); idx++ )
-	uirv.add( provs_[idx]->fillPar(*iop[idx]) );
+    {
+	uirv.add( provs_[idx]->fillPar(par) );
+	const FixedString key( IOPar::compKey(sKey::Provider(),idx) );
+	iop.mergeComp( par, key );
+    }
+
+    iter_.fillPar( par );
+    iop.merge( par );
+}
+
+
+void Seis::MultiProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
+{
+    setEmpty();
+    int idx = -1;
+    while ( true )
+    {
+	const FixedString key( IOPar::compKey(sKey::Provider(),++idx) );
+	PtrMan<IOPar> subpar = iop.subselect( key );
+	if ( !subpar || subpar->isEmpty() )
+	    break;
+
+	addInput( is2D() ? Line : Vol );
+	uirv.add( provs_[idx]->usePar(*subpar) );
+    }
+
+    iter_.usePar( iop );
 }
 
 
@@ -423,18 +483,6 @@ void Seis::MultiProvider3D::getGeometryInfo( PosInfo::CubeData& cd ) const
 }
 
 
-void Seis::MultiProvider3D::doUsePar(
-	const ObjectSet<IOPar>& iop, uiRetVal& uirv )
-{
-    setEmpty();
-    for ( int idx=0; idx<iop.size(); idx++ )
-    {
-	addInput( Vol );
-	uirv.add( provs_[idx]->usePar(*iop[idx]) );
-    }
-}
-
-
 // MultiProvider2D
 Seis::MultiProvider2D::MultiProvider2D(Policy pl,ZPolicy zpl)
     : MultiProvider(pl,zpl)
@@ -476,18 +524,6 @@ void Seis::MultiProvider2D::doReset( uiRetVal& uirv ) const
 }
 
 
-void Seis::MultiProvider2D::doUsePar(
-	const ObjectSet<IOPar>& iop, uiRetVal& uirv )
-{
-    setEmpty();
-    for ( int idx=0; idx<iop.size(); idx++ )
-    {
-	addInput( Line );
-	uirv.add( provs_[idx]->usePar(*iop[idx]) );
-    }
-}
-
-
 void Seis::MultiProvider2D::doGetNext(
 	SeisTrc& trc, bool dostack, uiRetVal& uirv ) const
 {
@@ -515,6 +551,24 @@ bool Seis::MultiProvider2D::doMoveToNextLine() const
     tks.setTrcRange( trcrg );
     iter_.setSampling( tks );
     return true;
+}
+
+
+void Seis::MultiProvider2D::doFillPar( IOPar& iop, uiRetVal& uirv ) const
+{
+    MultiProvider::doFillPar( iop, uirv );
+
+    iop.set( sKeyGeomIDs(), geomids_ );
+    iop.set( sKeyCurrentLineIdx(), curlidx_ );
+}
+
+
+void Seis::MultiProvider2D::doUsePar( const IOPar& iop, uiRetVal& uirv )
+{
+    MultiProvider::doUsePar( iop, uirv );
+
+    iop.get( sKeyGeomIDs(), geomids_ );
+    iop.get( sKeyCurrentLineIdx(), curlidx_ );
 }
 
 

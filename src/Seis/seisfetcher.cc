@@ -20,6 +20,9 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
+static const char* sKeyNextBinID()	{ return "Next BinID"; }
+static const char* sKeyCurLineIdx()	{ return "Current line index"; }
+
 Seis::Fetcher::Fetcher( Provider& p )
     : prov_(p)
     , ioobj_(0)
@@ -127,6 +130,23 @@ bool Seis::Fetcher3D::moveNextBinID()
 	if ( isSelectedBinID(nextbid_) )
 	    return true;
     }
+}
+
+
+void Seis::Fetcher3D::doFillPar( IOPar& iop, uiRetVal& uirv ) const
+{
+    iop.set( sKeyNextBinID(), nextbid_ );
+
+    IOPar par;
+    reqcs_.fillPar( par );
+    iop.merge( par );
+}
+
+
+void Seis::Fetcher3D::doUsePar( const IOPar& iop, uiRetVal& uirv )
+{
+    iop.get( sKeyNextBinID(), nextbid_ );
+    reqcs_.usePar( iop );
 }
 
 
@@ -341,6 +361,23 @@ BufferString Seis::Fetcher2D::gtLineName( int lnr ) const
 	PtrMan<Seis2DDataSet> ds = mkDataSet();
 	return BufferString( ds ? ds->lineName(lnr) : "" );
     }
+}
+
+
+void Seis::Fetcher2D::doFillPar( IOPar& iop, uiRetVal& uirv ) const
+{
+    iop.set( sKeyNextBinID(), nexttrcky_.binID() );
+    iop.set( sKeyCurLineIdx(), curlidx_ );
+}
+
+
+void Seis::Fetcher2D::doUsePar( const IOPar& iop, uiRetVal& uirv )
+{
+    BinID nextbid;
+    if ( iop.get(sKeyNextBinID(),nextbid) )
+	nexttrcky_ = TrcKey( nextbid );
+
+    iop.get( sKeyCurLineIdx(), curlidx_ );
 }
 
 

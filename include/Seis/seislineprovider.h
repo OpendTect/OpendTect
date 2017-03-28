@@ -45,6 +45,7 @@ protected:
     friend class	LineFetcher;
     LineFetcher&	fetcher_;
 
+    virtual void	doFillPar(IOPar&,uiRetVal&) const;
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
     virtual uiRetVal	doGetComponentInfo(BufferStringSet&,

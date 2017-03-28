@@ -10,6 +10,7 @@
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "scaler.h"
+#include "keystrs.h"
 
 SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 			bool stacktrcs, Seis::MultiProvider::ZPolicy zpol )
@@ -39,7 +40,14 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     else
 	multiprov_ = new Seis::MultiProvider3D( policy, zpol );
 
-    const uiRetVal uirv = multiprov_->usePar( iops );
+    IOPar iop;
+    for ( int idx=0; idx<iops.size(); idx++ )
+    {
+	const FixedString key( IOPar::compKey(sKey::Provider(),idx) );
+	iop.mergeComp( *iops[idx], key );
+    }
+
+    const uiRetVal uirv = multiprov_->usePar( iop );
     if ( !uirv.isOK() )
 	{ errmsg_ = uirv; multiprov_->setEmpty(); return; }
 

@@ -85,6 +85,7 @@ namespace sKey
     inline FixedString No()		{ return "No"; }
     inline FixedString None()		{ return "None"; }
     inline FixedString NrFaults()	{ return "Nr Faults";}
+    inline FixedString NrDone()		{ return "Nr Done"; }
     inline FixedString NrGeoms()	{ return "Nr Geometries";}
     inline FixedString NrItems()	{ return "Nr Items";}
     inline FixedString NrValues()	{ return "Nr Values"; }
@@ -95,6 +96,7 @@ namespace sKey
     inline FixedString Polygon()	{ return "Polygon"; }
     inline FixedString Position()	{ return "Position"; }
     inline FixedString Property()	{ return "Property"; }
+    inline FixedString Provider()	{ return "Provider"; }
     inline FixedString Probe()		{ return "Probe"; }
     inline FixedString Quiet()		{ return "quiet"; }
     inline FixedString Random()		{ return "Random"; }
@@ -122,6 +124,7 @@ namespace sKey
     inline FixedString Time()		{ return "Time"; }
     inline FixedString Title()		{ return "Title"; }
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
+    inline FixedString TotalNr()	{ return "Total Nr"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString TraceKey()	{ return "Trace key"; }
     inline FixedString Type()		{ return "Type"; }

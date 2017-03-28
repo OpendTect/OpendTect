@@ -193,6 +193,9 @@ public:
     od_int64	curIdx() const				{ return curpos_; }
     od_int64	totalNr() const				{ return totalnr_; }
 
+    void	fillPar(IOPar&) const;
+    void	usePar(const IOPar&);
+
 protected:
 
     TrcKeySampling			tks_;

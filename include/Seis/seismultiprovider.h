@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
+#include "enums.h"
 
 class SeisTrc;
 class SeisTrcBuf;
@@ -43,8 +44,10 @@ public:
 
     enum Policy			{ GetEveryWhere, RequireOnlyOne,
 				  RequireAtLeastOne, RequireAll };
+				mDeclareEnumUtils(Policy);
     enum ZPolicy		{ Minimum, Maximum };
 				//!< Trcs with that z-range
+				mDeclareEnumUtils(ZPolicy)
 
 				virtual ~MultiProvider();
 
@@ -68,8 +71,8 @@ public:
 				      TypeSet<Seis::DataType>* dts=0) const;
     virtual od_int64		totalNr() const;
 
-    uiRetVal			fillPar(ObjectSet<IOPar>&) const;
-    uiRetVal			usePar(const ObjectSet<IOPar>&);
+    uiRetVal			fillPar(IOPar&) const;
+    uiRetVal			usePar(const IOPar&);
 
     uiRetVal			getNext(SeisTrc&,bool dostack=false);
 				/*< \param dostack, if false, first
@@ -90,6 +93,7 @@ public:
 				  each provider at the specified TrcKey.*/
     uiRetVal			reset() const;
 				//!< done automatically when needed
+    const SelData*		selData() const		{ return seldata_; }
 
 protected:
 
@@ -105,9 +109,8 @@ protected:
 					ObjectSet<SeisTrc>&) const;
 
     virtual void		doReset(uiRetVal&) const		= 0;
-    virtual void		doFillPar(ObjectSet<IOPar>&,uiRetVal&)const;
-    virtual void		doUsePar(const ObjectSet<IOPar>&,uiRetVal&)
-									= 0;
+    virtual void		doFillPar(IOPar&,uiRetVal&) const;
+    virtual void		doUsePar(const IOPar&,uiRetVal&);
     virtual void		doGetNext(SeisTrc&,bool dostack,
 					  uiRetVal&) const		= 0;
     virtual void		doGetNextTrcs(ObjectSet<SeisTrc>&,
@@ -157,8 +160,6 @@ public:
 protected:
 
     void			doReset(uiRetVal&) const;
-    void			doUsePar(const ObjectSet<IOPar>&,uiRetVal&);
-
     void			doGetNext(SeisTrc&,bool dostack,
 					  uiRetVal&) const;
     void			doGet(const TrcKey&,ObjectSet<SeisTrc>&,
@@ -195,13 +196,15 @@ public:
 protected:
 
     void			doReset(uiRetVal&) const;
-    void			doUsePar(const ObjectSet<IOPar>&,uiRetVal&);
     void			doGetNext(SeisTrc&,bool dostack,
 					  uiRetVal&) const;
     void			doGet(const TrcKey&,ObjectSet<SeisTrc>&,
 				      uiRetVal&) const;
     bool			doMoveToNext() const;
     bool			doMoveToNextLine() const;
+
+    void			doFillPar(IOPar&,uiRetVal&) const;
+    void			doUsePar(const IOPar&,uiRetVal&);
 
     mutable int			curlidx_;
     mutable TypeSet<Pos::GeomID>geomids_;

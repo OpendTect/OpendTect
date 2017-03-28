@@ -236,9 +236,21 @@ bool Seis::LineProvider::getRanges( int iln, StepInterval<int>& trcrg,
 }
 
 
+void Seis::LineProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
+{
+    Seis::Provider2D::doFillPar( iop, uirv );
+
+    IOPar par;
+    fetcher_.doFillPar( par, uirv );
+    iop.merge( par );
+}
+
+
 void Seis::LineProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 {
     Seis::Provider2D::doUsePar( iop, uirv );
+
+    fetcher_.doUsePar( iop, uirv );
 }
 
 

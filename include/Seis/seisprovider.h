@@ -97,7 +97,10 @@ public:
     od_int64		nrDone() const			{ return nrdone_; }
     od_int64		totalNr() const;
 
-    static const char*	sKeyForceFPData()		{ return "Force FPs"; }
+    static const char*	sKeyForceFPData()
+			{ return "Force FPs"; }
+    static const char*	sKeySelectedComponents()
+			{ return "Selected Components"; }
 
     static void		putTraceInGather(const SeisTrc&,SeisTrcBuf&);
 			//!< components become offsets 0, 100, 200, ...
@@ -171,6 +174,8 @@ protected:
 			Provider3D()					{}
 
     virtual od_int64	getTotalNrInInput() const;
+    virtual void	doFillPar( IOPar& iop, uiRetVal& uirv ) const
+			{ Provider::doFillPar( iop, uirv ); }
     virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
 			{ Provider::doUsePar( iop, uirv ); }
     virtual Pos::GeomID doGetCurGeomID() const
@@ -202,6 +207,8 @@ protected:
 			Provider2D()					{}
 
     virtual od_int64	getTotalNrInInput() const;
+    virtual void	doFillPar( IOPar& iop, uiRetVal& uirv ) const
+			{ Provider::doFillPar( iop, uirv ); }
     virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
 			{ Provider::doUsePar( iop, uirv ); }
     virtual Pos::GeomID doGetCurGeomID() const

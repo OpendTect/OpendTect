@@ -230,6 +230,10 @@ void Seis::Provider::setReadMode( ReadMode rm )
 uiRetVal Seis::Provider::fillPar( IOPar& iop ) const
 {
     iop.setYN( sKeyForceFPData(), forcefpdata_ );
+    iop.set( sKey::NrDone(), nrdone_ );
+    iop.set( sKey::TotalNr(), totalnr_ );
+    iop.set( sKeySelectedComponents(), selcomps_ );
+
     uiRetVal ret;
     doFillPar( iop, ret );
     return ret;
@@ -239,6 +243,16 @@ uiRetVal Seis::Provider::fillPar( IOPar& iop ) const
 uiRetVal Seis::Provider::usePar( const IOPar& iop )
 {
     forcefpdata_ = iop.isTrue( sKeyForceFPData() );
+    iop.get( sKeySelectedComponents(), selcomps_ );
+
+    od_int64 nrdone;
+    if ( iop.get(sKey::NrDone(),nrdone) )
+	nrdone_ = nrdone;
+
+    od_int64 totalnr;
+    if ( iop.get(sKey::TotalNr(),totalnr) )
+	totalnr_ = totalnr;
+
     uiRetVal ret;
     doUsePar( iop, ret );
     return ret;

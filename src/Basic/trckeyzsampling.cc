@@ -1303,6 +1303,7 @@ void TrcKeyZSampling::normalise()
 }
 
 
+static const char* sKeyCurrentPos()	{ return "Current position"; }
 
 TrcKeySamplingIterator::TrcKeySamplingIterator()
     : tks_( true )
@@ -1355,4 +1356,20 @@ TrcKey TrcKeySamplingIterator::curTrcKey() const
 BinID TrcKeySamplingIterator::curBinID() const
 {
     return tks_.atIndex( curpos_ );
+}
+
+
+void TrcKeySamplingIterator::fillPar( IOPar& iop ) const
+{
+    tks_.fillPar( iop );
+    iop.set( sKeyCurrentPos(), curpos_ );
+}
+
+
+void TrcKeySamplingIterator::usePar( const IOPar& iop )
+{
+    tks_.usePar( iop );
+    od_int64 curpos;
+    if ( iop.get(sKeyCurrentPos(),curpos) )
+	setCurrentPos( curpos );
 }
