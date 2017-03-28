@@ -18,6 +18,7 @@ BaseMapObject::BaseMapObject( const char* nm )
     , leftClicked(this)
     , rightClicked(this)
     , stylechanged(this)
+    , zvalueChanged(this)
     , nameChanged(this)
     , depth_(0)
 {
@@ -26,23 +27,32 @@ BaseMapObject::BaseMapObject( const char* nm )
 }
 
 
+BaseMapObject::~BaseMapObject()
+{
+}
+
+
+void BaseMapObject::setDepth( int val )
+{
+    depth_ = val;
+    zvalueChanged.trigger();
+}
+
+
 int BaseMapObject::nrShapes() const
 { return 0; }
-
 
 const char* BaseMapObject::getShapeName( int ) const
 { return 0; }
 
-
 void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
-{ }
+{}
 
+bool BaseMapObject::getBoundingBox( BoundingBox& ) const
+{ return false; }
 
-Alignment BaseMapObject::getAlignment( int shapeidx ) const
-{
-    return Alignment();
-}
-
+Alignment BaseMapObject::getAlignment( int ) const
+{ return Alignment(); }
 
 Color BaseMapObject::getColor() const
 {
@@ -59,15 +69,14 @@ Color BaseMapObject::getColor() const
 const OD::RGBImage* BaseMapObject::createImage( Coord& origin,Coord& p11 ) const
 { return 0; }
 
-
 const OD::RGBImage* BaseMapObject::createPreview( int approxdiagonal ) const
 { return 0; }
-
 
 bool BaseMapObject::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name() );
     par.set( sKey::Type(), getType() );
+    par.set( sKey::Depth(), getDepth() );
     return true;
 }
 
@@ -79,6 +88,10 @@ bool BaseMapObject::usePar( const IOPar& par, TaskRunner* )
 	setName( nm );
     if ( par.get(sKey::Type(),type) )
 	setType( type );
+
+    int depth = 0;
+    if ( par.get(sKey::Depth(),depth) )
+	setDepth( depth );
 
     return true;
 }
@@ -110,6 +123,4 @@ void BaseMapMarkers::getPoints( int shapeidx, TypeSet<Coord>& res) const
 
 
 void BaseMapMarkers::updateGeometry()
-{
-    changed.trigger();
-}
+{ changed.trigger(); }

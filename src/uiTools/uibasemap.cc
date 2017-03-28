@@ -30,9 +30,10 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 {
     if ( bmobject_ )
     {
-	bmobject_->changed.notify( mCB(this,uiBaseMapObject,changedCB) );
-	bmobject_->stylechanged.notify(
-		    mCB(this,uiBaseMapObject,changedStyleCB) );
+	mAttachCB( bmobject_->changed, uiBaseMapObject::changedCB );
+	mAttachCB( bmobject_->stylechanged, uiBaseMapObject::changedStyleCB );
+	mAttachCB( bmobject_->zvalueChanged, uiBaseMapObject::changedZValueCB );
+
 	graphitem_.setZValue( bmobject_->getDepth() );
 	labelitem_.setZValue( bmobject_->getDepth()-1 );
     }
@@ -43,13 +44,7 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 
 uiBaseMapObject::~uiBaseMapObject()
 {
-    if ( bmobject_ )
-    {
-	bmobject_->changed.remove( mCB(this,uiBaseMapObject,changedCB) );
-	bmobject_->stylechanged.remove(
-		    mCB(this,uiBaseMapObject,changedStyleCB) );
-    }
-
+    detachAllNotifiers();
     delete &graphitem_;
     delete &labelitem_;
 }
@@ -110,6 +105,14 @@ void uiBaseMapObject::changedStyleCB( CallBacker* )
 }
 
 
+void uiBaseMapObject::changedZValueCB( CallBacker* )
+{
+    changed_ = true;
+    graphitem_.setZValue( bmobject_->getDepth() );
+    labelitem_.setZValue( bmobject_->getDepth()-1 );
+}
+
+
 void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
 { transform_ = w2ui; }
 
@@ -149,9 +152,9 @@ void uiBaseMapObject::update()
 	TypeSet<Coord> crds;
 	bmobject_->getPoints( idx, crds );
 
-	TypeSet<uiWorldPoint> worldpts;
-	for ( int cdx=0; cdx<crds.size(); cdx++ )
-	    worldpts += crds[cdx];
+	TypeSet<uiWorldPoint> worldpts( crds.size(), Coord::udf() );
+	for ( int cidx=0; cidx<crds.size(); cidx++ )
+	    worldpts[cidx] = crds[cidx];
 
 	if ( bmobject_->getLineStyle(idx) &&
 	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )

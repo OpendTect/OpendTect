@@ -54,6 +54,7 @@ protected:
 
     void			changedCB(CallBacker*);
     void			changedStyleCB(CallBacker*);
+    void			changedZValueCB(CallBacker*);
     void			leftClickCB(CallBacker*);
     void			rightClickCB(CallBacker*);
 
@@ -83,8 +84,10 @@ public:
     BaseMapObject*		getObject(int id);
     uiBaseMapObject*		getUiObject(int id);
 
+    ObjectSet<uiBaseMapObject>& getObjects()		{ return objects_; }
+
     bool			hasChanged();
-    inline void			setChangeFlag() { changed_ = true; }
+    inline void			setChangeFlag()		{ changed_ = true; }
     void			resetChangeFlag();
 				//!Owned by caller
     void			removeObject(const BaseMapObject*);

@@ -31,7 +31,11 @@ template <class T> class ODPolygon;
 mExpClass(General) BaseMapObject : public NamedObject
 {
 public:
+
+    typedef Geom::PosRectangle<double>	BoundingBox;
+
 				BaseMapObject(const char* nm);
+				~BaseMapObject();
 
     int				ID() const		{ return id_; }
 
@@ -41,7 +45,7 @@ public:
     virtual void		setType(const char* tp) { typenm_ = tp;}
     virtual const char*		getType() const		{ return typenm_; }
 
-    virtual void		setDepth(int val)	{ depth_ = val; }
+    virtual void		setDepth(int val);
     virtual int			getDepth() const	{ return depth_; }
 				/*!<Determines what should be painted ontop of
 				    what */
@@ -51,6 +55,7 @@ public:
     virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const;
 				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
+    virtual bool		getBoundingBox(BoundingBox&) const;
     virtual Alignment		getAlignment(int shapeidx) const;
     virtual float		getTextRotation() const { return 0; }
     virtual Color		getColor() const;
@@ -71,6 +76,7 @@ public:
 
     virtual bool		fill(int shapeidx) const	{ return false;}
     virtual bool		close(int shapeidx) const	{ return false;}
+    virtual bool		multicolor(int shapeidx) const	{ return false;}
 
     virtual void		setImage(int idx,OD::RGBImage*)     {}
     virtual const OD::RGBImage* getImage(int shapeidx) const	{ return 0;}
@@ -96,8 +102,9 @@ public:
 
     CNotifier<BaseMapObject,const MouseEvent&>	leftClicked;
     CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;
-    Notifier<BaseMapObject>	changed;
-    Notifier<BaseMapObject>	stylechanged;
+    Notifier<BaseMapObject>			changed;
+    Notifier<BaseMapObject>			stylechanged;
+    Notifier<BaseMapObject>			zvalueChanged;
     CNotifier<BaseMapObject,const uiString&>	nameChanged;
 
 protected:
