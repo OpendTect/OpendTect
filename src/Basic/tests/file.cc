@@ -84,32 +84,57 @@ bool testIStream( const char* file )
 }
 
 
+bool testFilePath( const char* inputpath,
+		   const char* filename,
+		   const char* extension,
+		   int nrlevels,
+		   bool absolute )
+{
+    const File::Path path( inputpath );
+
+    mRunStandardTest( path.isAbsolute()==absolute,
+	    BufferString( inputpath, " detects absolute status" ) );
+
+    mRunStandardTest( path.fileName()==filename,
+	    BufferString( inputpath, " detects filename" ) );
+
+    mRunStandardTest( FixedString(path.extension())==extension,
+	    BufferString( inputpath, " detects extension" ) );
+
+    mRunStandardTest( path.nrLevels()==nrlevels,
+	    BufferString( inputpath, " detects nrLevels" ) );
+
+    return true;
+}
+
+
 bool testFilePathParsing()
 {
-    File::Path winstyle( "C:\\Program Files\\OpendTect 5.0.0\\file.txt" );
-    if ( winstyle.fileName() != "file.txt" )
+    if ( !testFilePath( "C:\\path\\to\\me.txt",
+			"me.txt",	//filename
+			"txt",		//extension
+			3,		//nrlevels
+			true )) 	//absolute
     {
-	od_cout() << "Failed to parse Windows style file path" << od_endl;
-	od_cout() << "Actual result: " << winstyle.fileName() << od_endl;
-	od_cout() << "Expected result: file.txt" << od_endl;
 	return false;
     }
 
-    File::Path unixstyle( "/data/apps/OpendTect 5.0.0/file.txt" );
-    if ( unixstyle.fileName() != "file.txt" )
+    if ( !testFilePath( "/data/apps/OpendTect 5.0.0/file.txt",
+			"file.txt",	//filename
+			"txt",		//extension
+			4,		//nrlevels
+			true )) 	//absolute
     {
-	od_cout() << "Failed to parse Unix style file path" << od_endl;
-	od_cout() << "Actual result: " << unixstyle.fileName() << od_endl;
-	od_cout() << "Expected result: file.txt" << od_endl;
 	return false;
     }
 
-    File::Path mixedstyle( "C:\\Program Files/OpendTect\\5.0.0/file.txt" );
-    if ( mixedstyle.fileName() != "file.txt" )
+
+    if ( !testFilePath( "C:\\Program Files/OpendTect\\5.0.0/file.txt",
+			"file.txt",	//filename
+			"txt",		//extension
+			4,		//nrlevels
+			true )) 	//absolute
     {
-	od_cout() << "Failed to parse Windows-Unix mixed file path" << od_endl;
-	od_cout() << "Actual result: " << mixedstyle.fileName() << od_endl;
-	od_cout() << "Expected result: file.txt" << od_endl;
 	return false;
     }
 
