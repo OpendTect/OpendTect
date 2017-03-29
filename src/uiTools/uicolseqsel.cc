@@ -483,7 +483,8 @@ uiColSeqUseModeSel::uiColSeqUseModeSel( uiParent* p, bool compact,
 	flippedbox_ = new uiCheckBox( this, tr("Flipped") );
 	cyclicbox_ = new uiCheckBox( this, tr("Cyclic") );
 	cyclicbox_->attach( rightOf, flippedbox_ );
-	lbl->attach( leftOf, flippedbox_ );
+	if ( lbl )
+	    lbl->attach( leftOf, flippedbox_ );
 	mAttachCB( flippedbox_->activated, uiColSeqUseModeSel::modeChgCB );
 	mAttachCB( cyclicbox_->activated, uiColSeqUseModeSel::modeChgCB );
 	setHAlignObj( flippedbox_ );

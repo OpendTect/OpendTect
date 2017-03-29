@@ -393,8 +393,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 			     .setName(BufferString(" range stop"),1) );
     colorrangefld_->attach( rightOf, colseqselfld_ );
 
-    sequsefld_ = new uiColSeqUseModeSel( this, true, uiString::emptyString() );
-    sequsefld_->attach( rightOf, filllogsfld_ );
+    sequsefld_ = new uiColSeqUseModeSel( this, false, uiString::emptyString() );
+    sequsefld_->attach( rightOf, colorrangefld_ );
 
     uiSeparator* sep2 = new uiSeparator( this, "Sep" );
     sep2->attach( stretchedBelow, colseqselfld_ );
