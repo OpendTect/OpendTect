@@ -186,17 +186,15 @@ bool Well::Reader::get() const
 
     wd->setD2TModel( 0 );
     wd->setCheckShotModel( 0 );
+    if ( !getTrack() || !getInfo() )
+	return false;
+
     if ( SI().zIsTime() )
     {
 	if ( !getD2T() )
 	    return false;
 
 	getCSMdl();
-    }
-    else
-    {
-	if ( !getTrack() || !getInfo() )
-	    return false;
     }
 
     getLogs();
