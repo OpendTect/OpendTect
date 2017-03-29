@@ -1662,7 +1662,16 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 
 		    if ( posidx>=0 )
 		    {
-			posval = data[posidx];
+			if ( data )
+			    posval = data[posidx];
+			else
+			{
+			    int posrc[2];
+			    if ( !arr_->info().getArrayPos(curnode,posrc) )
+				continue;
+
+			    posval = arr_->get( posrc[0], posrc[1] );
+			}
 			int rc[2];
 			if ( !arr_->info().getArrayPos(curnode,rc) )
 			    continue;
