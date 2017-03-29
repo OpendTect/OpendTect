@@ -692,7 +692,7 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
 	    msg = tr("Input error with the %1\n"
 		  "Your time-depth model suggests a %1 of %2%4\n "
 		  "but the %1 was set to: %3%4\n"
-		  "Velocity information from file was overruled.");
+		  "Velocity information from input was overruled.");
 	    msg.arg( replvelbl ).arg( fileval )
 	       .arg( toString(mScaledValue(replvel,uomvel), 2) )
 	       .arg( veluomlbl );
@@ -761,12 +761,12 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 {
     int inputsz = zvals.size();
     if ( inputsz < 2 || inputsz != tvals.size() )
-	mErrRet( tr("Input file does not contain at least two valid rows") );
+	mErrRet( tr("Input data does not contain at least two valid rows") );
 
     inputsz = sortAndEnsureUniqueTZPairs( zvals, tvals );
     if ( inputsz < 2 )
     {
-	mErrRet( tr("Input file does not contain at least two valid rows"
+	mErrRet( tr("Input data does not contain at least two valid rows"
 		 " after re-sorting and removal of duplicated positions") );
     }
 
@@ -786,11 +786,11 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
     //before any data gets removed
 
     if ( !removePairsAtOrAboveDatum(zvals,tvals,zwllhead) )
-	mErrRet( tr("Input file has not enough data points below the datum") )
+	mErrRet( tr("Input data has not enough data points below the datum") )
 
     const Interval<double> trackrg = track.zRangeD();
     if ( !truncateToTD(zvals,tvals,trackrg.stop) )
-	mErrRet( tr("Input file has not enough data points above TD") )
+	mErrRet( tr("Input data has not enough data points above TD") )
 
     removeDuplicatedVelocities( zvals, tvals );
     const double replveld = (double)wllinfo.replacementVelocity();

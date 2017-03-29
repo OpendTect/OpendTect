@@ -86,16 +86,14 @@ bool Well::ReadAccess::updateDTModel( D2TModel& dtmodel, bool ischeckshot,
 
 bool Well::ReadAccess::getAll() const
 {
+    if ( !getTrack() || !getInfo() )
+	return false;
+
     if ( SI().zIsTime() )
     {
 	if ( !getD2T() )
 	    return false;
 	getCSMdl();
-    }
-    else
-    {
-	if ( !getTrack() || !getInfo() )
-	    return false;
     }
 
     getLogs();
