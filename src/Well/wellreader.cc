@@ -84,6 +84,29 @@ bool Well::ReadAccess::updateDTModel( D2TModel& dtmodel, bool ischeckshot,
 }
 
 
+bool Well::ReadAccess::getAll() const
+{
+    if ( SI().zIsTime() )
+    {
+	if ( !getD2T() )
+	    return false;
+	getCSMdl();
+    }
+    else
+    {
+	if ( !getTrack() || !getInfo() )
+	    return false;
+    }
+
+    getLogs();
+    getMarkers();
+    getDispProps();
+
+    return true;
+}
+
+
+
 Well::Reader::Reader( const IOObj& ioobj, Well::Data& wd )
     : ra_(0)
 {
@@ -150,23 +173,7 @@ bool Well::Reader::get() const
     if ( !wd )
 	return false;
 
-    if ( SI().zIsTime() )
-    {
-	if ( !getD2T() )
-	    return false;
-	getCSMdl();
-    }
-    else
-    {
-	if ( !getTrack() || !getInfo() )
-	    return false;
-    }
-
-    getLogs();
-    getMarkers();
-    getDispProps();
-
-    return true;
+    return ra_->getAll();
 }
 
 

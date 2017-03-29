@@ -42,6 +42,8 @@ public:
     Data&		data()				{ return wd_; }
     const Data&		data() const			{ return wd_; }
 
+    bool		getAll() const;
+
 protected:
 
     Data&		wd_;
