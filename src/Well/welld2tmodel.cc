@@ -819,7 +819,7 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
     const bool externalvals = depths && times;
     const int sz = externalvals ? depths->size() : size();
     if ( sz < 2 || (depths && !times) || (!depths && times) )
-	{ msg = tr("Input model invalid"); return false; }
+	{ msg = tr("Invalid Depth vs Time model"); return false; }
 
     const Well::Track& track = wll.track();
     TypeSet<double>* zvals = depths ? depths : new TypeSet<double>;
