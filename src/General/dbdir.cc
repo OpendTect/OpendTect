@@ -451,11 +451,13 @@ bool DBDir::wrOmf( od_ostream& strm ) const
 	for ( size_type idx=0; idx<objs_.size(); idx++ )
 	{
 	    const IOObj& obj = *objs_[idx];
-	    bool writenow = false;
-	    if ( ipass > 0 )
-		writenow = obj.isSubdir() == (ipass==1);
-	    else if ( obj.objID().getI() == 1 )
-	       writenow = true;
+	    bool writenow;
+	    if ( ipass == 0 )
+		writenow = obj.objID().getI() == 1 ;
+	    else if ( ipass == 1 )
+		writenow = obj.isSubdir();
+	    else
+		writenow = obj.objID().getI() > 1 && !obj.isSubdir();
 
 	    if ( writenow && !obj.put(astream) )
 		mErrRet()
