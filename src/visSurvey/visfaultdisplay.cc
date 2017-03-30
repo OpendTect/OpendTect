@@ -942,8 +942,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
 		if ( res && !viseditor_->sower().moreToSow() )
 		{
-		    EM::EMM().undo().setUserInteractionEnd(
-			    EM::EMM().undo().currentEventID() );
+		    EM::EMM().undo(fault3d->id()).setUserInteractionEnd(
+			    EM::EMM().undo(fault3d->id()).currentEventID() );
 		    updateDisplay();
 		}
 	    }
@@ -980,8 +980,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-		EM::EMM().undo().setUserInteractionEnd(
-		    EM::EMM().undo().currentEventID() );
+		EM::EMM().undo(fault_->id()).setUserInteractionEnd(
+		    EM::EMM().undo(fault_->id()).currentEventID() );
 
 		updateDisplay();
 		setActiveStick( insertpid );
@@ -998,8 +998,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-		EM::EMM().undo().setUserInteractionEnd(
-		    EM::EMM().undo().currentEventID() );
+		EM::EMM().undo(fault_->id()).setUserInteractionEnd(
+		    EM::EMM().undo(fault_->id()).currentEventID() );
 		faulteditor_->editpositionchange.trigger();
 	    }
 	}

@@ -314,8 +314,8 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
     if ( change )
     {
-	EM::EMM().undo().setUserInteractionEnd(
-		                            EM::EMM().undo().currentEventID() );
+	EM::EMM().undo(emObject().id()).setUserInteractionEnd(
+	    EM::EMM().undo(emObject().id()).currentEventID() );
     }
 
     return change;

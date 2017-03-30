@@ -381,7 +381,7 @@ bool PolygonBodyGeometry::insertPolygon( const SectionID& sid, int polygonnr,
 	const PosID posid( surface_.id(), sid,
 		RowCol(polygonnr,0).toInt64() );
 	UndoEvent* undo = new PolygonBodyUndoEvent( posid );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();
@@ -416,7 +416,7 @@ bool PolygonBodyGeometry::removePolygon( const SectionID& sid, int polygonnr,
     {
 	const PosID posid( surface_.id(), sid, rc.toInt64() );
 	UndoEvent* undo = new PolygonBodyUndoEvent( posid, pos, normal );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();
@@ -440,7 +440,7 @@ bool PolygonBodyGeometry::insertKnot( const SectionID& sid, const SubID& subid,
     {
 	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new PolygonBodyKnotUndoEvent( posid );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();
@@ -476,7 +476,7 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     {
 	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new PolygonBodyKnotUndoEvent( posid, pos );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();

@@ -180,6 +180,8 @@ protected:
     bool			trackInVolume();
     bool			trackFromEdges();
     void			trackingFinishedCB(CallBacker*);
+    EM::EMObject*		getCurrentEMObject() const;
+
 
     struct CacheSpecs
     {

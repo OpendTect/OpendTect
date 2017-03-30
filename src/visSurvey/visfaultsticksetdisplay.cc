@@ -515,8 +515,8 @@ static float zdragoffset = 0;
 
 #define mSetUserInteractionEnd() \
     if ( !viseditor_->sower().moreToSow() ) \
-	EM::EMM().undo().setUserInteractionEnd( \
-					EM::EMM().undo().currentEventID() );
+	EM::EMM().undo(fault_->id()).setUserInteractionEnd( \
+		EM::EMM().undo(fault_->id()).currentEventID() );
 
 
 void FaultStickSetDisplay::sowingFinishedCB( CallBacker* )

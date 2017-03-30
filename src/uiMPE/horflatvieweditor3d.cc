@@ -407,7 +407,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
 	return;
 
-    const int prevevent = EM::EMM().undo().currentEventID();
+    const int prevevent = EM::EMM().undo(emobj->id()).currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
     if ( !emobj->hasBurstAlert() )
 	emobj->setBurstAlert( true );
@@ -431,11 +431,11 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 	dodropnext_ = true;
 
     MouseCursorManager::restoreOverride();
-    const int currentevent = EM::EMM().undo().currentEventID();
+    const int currentevent = EM::EMM().undo(emobj->id()).currentEventID();
     if ( !dbl && currentevent != prevevent )
     {
 	if ( !editor_ || !editor_->sower().moreToSow() )
-	    EM::EMM().undo().setUserInteractionEnd(currentevent);
+	    EM::EMM().undo(emobj->id()).setUserInteractionEnd(currentevent);
     }
 }
 
@@ -923,7 +923,7 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
     mDynamicCastGet( EM::Horizon3D*, hor3d,emobj.ptr() );
     if ( !hor3d ) return;
 
-    Undo& doundo = EM::EMM().undo();
+    Undo& doundo = EM::EMM().undo( emobj->id() );
     const int lastid = doundo.currentEventID();
 
     hor3d->setBurstAlert( true );

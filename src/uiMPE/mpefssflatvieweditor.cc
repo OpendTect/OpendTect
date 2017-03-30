@@ -526,8 +526,8 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 
 #define mSetUserInteractionEnd() \
     if ( !editor_->sower().moreToSow() ) \
-	EM::EMM().undo().setUserInteractionEnd( \
-					EM::EMM().undo().currentEventID() );
+	EM::EMM().undo(emfss->id()).setUserInteractionEnd( \
+	    EM::EMM().undo(emfss->id()).currentEventID() );
 
 
 void FaultStickSetFlatViewEditor::sowingFinishedCB( CallBacker* cb )

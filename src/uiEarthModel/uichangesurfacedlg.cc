@@ -162,7 +162,8 @@ bool uiChangeHorizonDlg::doProcessing3D()
     }
 
     if ( change )
-	EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().lastEventID());
+	EM::EMM().undo(usedhor3d->id()).setUserInteractionEnd(
+	EM::EMM().undo(usedhor3d->id()).lastEventID() );
 
     return true;
 }

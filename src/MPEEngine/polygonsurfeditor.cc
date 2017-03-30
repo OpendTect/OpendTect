@@ -199,8 +199,8 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 
     if ( change )
     {
-	EM::EMM().undo().setUserInteractionEnd(
-		EM::EMM().undo().currentEventID() );
+	EM::EMM().undo(emObject().id()).setUserInteractionEnd(
+		EM::EMM().undo(emObject().id()).currentEventID() );
     }
 
     return change;
@@ -314,8 +314,10 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 	return emobject.setPos( pid, mpos, addtoundo );
 
     const int zscale =  SI().zDomain().userFactor();   
-    const int previdx = rc.col()==colrg.start ? colrg.stop : rc.col()-colrg.step;
-    const int nextidx = rc.col()<colrg.stop ? rc.col()+colrg.step : colrg.start;
+    const int previdx = 
+	rc.col()==colrg.start ? colrg.stop : rc.col()-colrg.step;
+    const int nextidx = 
+	rc.col()<colrg.stop ? rc.col()+colrg.step : colrg.start;
     
     Coord3 curpos = mpos; curpos.z *= zscale;
     Coord3 prevpos = surface->getKnot( RowCol(rc.row(), previdx) );
@@ -389,7 +391,8 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pt )
 	{
-	    sqdist = (float) mCompareCoord(pt).sqDistTo( mCompareCoord(mousepos) );
+	    sqdist = (float) mCompareCoord(pt).sqDistTo( 
+		mCompareCoord(mousepos) );
 	    if ( mIsZero(sqdist, 1e-4) ) //mousepos is duplicated.
 		return;
 	}

@@ -265,7 +265,7 @@ void HorizonTrackerMgr::addUndoEvent()
 	UndoEvent* undo = new EM::SetAllHor3DPosUndoEvent(
 		hor3d, hor3d->sectionID(0),
 		horizon3dundoinfo_, horizon3dundoorigin_ );
-	EM::EMM().undo().addEvent( undo, "Auto tracking" );
+	EM::EMM().undo(emobj->id()).addEvent( undo, "Auto tracking" );
 	horizon3dundoinfo_ = 0;
     }
 }

@@ -816,7 +816,7 @@ bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
     if ( selectionids_.isEmpty() )
 	return false;
 
-    Undo& undo = EM::EMM().undo();
+    Undo& undo = EM::EMM().undo( emobject_->id() );
     const int lastid = undo.currentEventID();
  
     emobject_->removeSelected( selectionids_ );

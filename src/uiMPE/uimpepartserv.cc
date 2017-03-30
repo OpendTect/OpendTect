@@ -197,7 +197,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     if ( !initSetupDlg(emobj,tracker,sid,true) )
 	return false;
 
-    initialundoid_ = EM::EMM().undo().currentEventID();
+    initialundoid_ = EM::EMM().undo(emobj->id()).currentEventID();
     propertyChangedCB(0);
 
     MPE::engine().unRefTracker( emobj->id(), true );
@@ -384,15 +384,15 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
 void uiMPEPartServer::noTrackingRemoval()
 {
     sendEvent( uiMPEPartServer::evEndSeedPick() );
-    if( !mIsUdf(initialundoid_) )
+    if ( !mIsUdf(initialundoid_) )
     {
 	EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
 	if ( !emobj ) return;
 
 	emobj->setBurstAlert( true );
-	EM::EMM().undo().unDo(
-			EM::EMM().undo().currentEventID()-initialundoid_);
-	EM::EMM().undo().removeAllAfterCurrentEvent();
+	EM::EMM().undo(emobj->id()).unDo(
+		EM::EMM().undo(emobj->id()).currentEventID()-initialundoid_);
+	EM::EMM().undo(emobj->id()).removeAllAfterCurrentEvent();
 	emobj->setBurstAlert( false );
     }
 

@@ -193,7 +193,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
     if ( addtoundo )
     {
 	UndoEvent* undo = new SetPosUndoEvent( oldpos, pid );
-	EMM().undo().addEvent( undo, 0 );
+	EMM().undo(id()).addEvent( undo, 0 );
     }
 
     if ( burstalertcount_==0 )
@@ -248,7 +248,7 @@ void EMObject::setPreferredColor( const Color& col, bool addtoundo )
     if ( addtoundo )
     {
 	UndoEvent* undo = new SetPrefColorEvent( id(), preferredcolor_, col );
-	EMM().undo().addEvent( undo );
+	EMM().undo(id()).addEvent( undo );
     }
 
     preferredcolor_ = col;
@@ -324,7 +324,7 @@ void EMObject::changePosID( const PosID& from, const PosID& to,
     if ( addtoundo )
     {
 	PosIDChangeEvent* event = new PosIDChangeEvent( from, to, tosprevpos );
-	EMM().undo().addEvent( event, 0 );
+	EMM().undo(id()).addEvent( event, 0 );
     }
 
     EMObjectCallbackData cbdata;
@@ -413,7 +413,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     if ( addtoundo )
     {
 	UndoEvent* event = new SetPosAttribUndoEvent( pid, attr, yn );
-	EMM().undo().addEvent( event, 0 );
+	EMM().undo(id()).addEvent( event, 0 );
     }
 
     if ( !hasBurstAlert() )
