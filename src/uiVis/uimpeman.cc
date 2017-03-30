@@ -144,7 +144,7 @@ void uiMPEMan::keyEventCB( CallBacker* )
     else if ( KeyboardEvent::isReDo(kev) )
 	redo();
 
-    if ( MPE::engine().nrTrackersAlive() == 0 ) return;
+    if ( undoonloadedhor || MPE::engine().nrTrackersAlive() == 0 ) return;
 
     if ( kev.key_ == OD::KB_K )
     {
