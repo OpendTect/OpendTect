@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "multiid.h"
 #include "emposid.h"
+#include "emundo.h"
 
 class Undo;
 class IOObj;
@@ -90,7 +91,20 @@ public:
 
 protected:
 
+    mStruct(EarthModel) EMObjUndo
+    {
+	EMObjUndo(const EM::ObjectID& id)
+	: undo_(*new EMUndo()),id_(id) {}
+
+	~EMObjUndo() { delete &undo_; }
+	Undo&	     undo_;
+	EM::ObjectID id_;
+    };
+
+    ObjectSet<EMObjUndo>	undolist_;
+
     Undo&			undo_;
+				/*don't use it, only for keep ABI */
 
     ObjectSet<EMObject>		objects_;
 
@@ -101,6 +115,7 @@ protected:
 						    IOPar&)const;
     bool		readParsFromGeometryInfoFile(const MultiID&,
 						     IOPar&)const;
+    int			undoIndexOf(const EM::ObjectID& id);
 
 public:
 
@@ -125,7 +140,12 @@ public:
     void		removeObject(const EMObject*);
 
     Undo&		undo();
+			/*don't use it, only for keep ABI */
     const Undo&		undo() const;
+			/*don't use it, only for keep ABI */
+
+    void		eraseUndoList();
+    Undo&		undo(const EM::ObjectID&);
 
 };
 

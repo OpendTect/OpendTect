@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
-#include "emundo.h"
 #include "executor.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -86,8 +85,15 @@ void EMManager::setEmpty()
 	{ pErrMsg( "Not all objects are unreffed" ); }
 
     addRemove.trigger();
+    eraseUndoList();
 
     undo_.removeAll();
+}
+
+
+void EMManager::eraseUndoList()
+{
+    deepErase( undolist_ );
 }
 
 
@@ -212,6 +218,10 @@ void EMManager::addObject( EMObject* obj )
 
 void EMManager::removeObject( const EMObject* obj )
 {
+   const int idy = undoIndexOf( obj->id() );
+   if ( idy>=0 )
+	delete undolist_.removeSingle( idy );
+
     const int idx = objects_.indexOf(obj);
     if ( idx<0 ) return;
     objects_.removeSingle( idx );
@@ -470,6 +480,31 @@ void EMManager::levelToBeRemoved( CallBacker* cb )
 	if ( hor && hor->stratLevelID() == lvl.id() )
 	    hor->setStratLevelID( -1 );
     }
+}
+
+
+Undo& EMManager::undo( const EM::ObjectID& id )
+{
+    const int idx = undoIndexOf( id );
+    if ( undolist_.validIdx(idx) )
+	return undolist_[idx]->undo_;
+
+    EMObjUndo* newemobjundo = new EMObjUndo( id );
+    undolist_ += newemobjundo;
+    
+    return newemobjundo->undo_;
+}
+
+
+int EMManager::undoIndexOf( const EM::ObjectID& id )
+{
+    for ( int idx=0; idx<undolist_.size(); idx++ )
+    {
+	if ( undolist_[idx]->id_ == id )
+	    return idx;
+    }
+
+    return -1;
 }
 
 } // namespace EM
