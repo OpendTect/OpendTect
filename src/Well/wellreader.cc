@@ -186,6 +186,7 @@ bool Well::Reader::get() const
 
     wd->setD2TModel( 0 );
     wd->setCheckShotModel( 0 );
+
     if ( !getTrack() || !getInfo() )
 	return false;
 
@@ -207,7 +208,7 @@ bool Well::Reader::get() const
 
 bool Well::Reader::getD2T() const
 {
-    if ( !getTrack() || !getInfo() )
+    if ( data() && data()->track().isEmpty() && (!getTrack() || !getInfo()) )
 	return false;
 
     return ra_ ? ra_->getD2T() : false;
@@ -216,7 +217,7 @@ bool Well::Reader::getD2T() const
 
 bool Well::Reader::getCSMdl() const
 {
-    if ( !getTrack() || !getInfo() )
+    if ( data() && data()->track().isEmpty() && (!getTrack() || !getInfo()) )
 	return false;
 
     return ra_ ? ra_->getCSMdl() : false;
