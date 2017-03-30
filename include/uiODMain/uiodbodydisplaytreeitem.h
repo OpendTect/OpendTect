@@ -62,6 +62,7 @@ protected:
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
+    void		keyPressedCB(CallBacker*);
     void		colorChCB(CallBacker*);
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
     bool		createUiVisObj();
