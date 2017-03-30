@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "trckeyzsampling.h"
 #include "trckeyvalue.h"
+#include "emposid.h"
 
 namespace EM { class EMObject; class Horizon; class Horizon2D; class Horizon3D;}
 namespace MPE { class EMTracker; }
@@ -119,6 +120,10 @@ protected:
     void			beginSeedClickEvent(EM::EMObject*);
     void			endSeedClickEvent(EM::EMObject*);
     void			setUndoLevel(int);
+				/*don't use it, only for keep ABI */
+
+    void			setUndoLevel(const EM::ObjectID&,
+					     int preveventnr);
 
     void			seedClick(CallBacker*);
     void			updateClickCatcher(bool create=true);
