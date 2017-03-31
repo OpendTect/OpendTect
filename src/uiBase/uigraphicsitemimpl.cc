@@ -462,10 +462,10 @@ uiPolyLineItem::uiPolyLineItem( const TypeSet<uiWorldPoint>& ptlist )
 
 
 uiPolyLineItem::~uiPolyLineItem()
-{ }
+{}
 
 
-#define mImpSetPolyline( type ) \
+#define mImplSetPolyline( type ) \
 void uiPolyLineItem::setPolyLine( type ptlist ) \
 { \
     QPainterPath path; \
@@ -489,14 +489,80 @@ void uiPolyLineItem::setPolyLine( type ptlist ) \
     odgraphicspath_->set( path ); \
 }
 
-mImpSetPolyline( const TypeSet<uiPoint>& )
-mImpSetPolyline( const TypeSet<uiWorldPoint>& )
+mImplSetPolyline( const TypeSet<uiPoint>& );
+mImplSetPolyline( const TypeSet<uiWorldPoint>& );
+#undef mImplSetPolyline
 
 
 QGraphicsItem* uiPolyLineItem::mkQtObj()
 {
     odgraphicspath_ = new ODGraphicsPathItem();
     return odgraphicspath_;
+}
+
+
+//uiMultiColorPolyLineItem
+uiMultiColorPolyLineItem::uiMultiColorPolyLineItem()
+	: uiGraphicsItem(mkQtObj())
+{}
+
+
+uiMultiColorPolyLineItem::uiMultiColorPolyLineItem(
+					const TypeSet<uiPoint>& pts )
+{
+    setPolyLine( pts );
+}
+
+
+uiMultiColorPolyLineItem::uiMultiColorPolyLineItem(
+					const TypeSet<uiWorldPoint>& pts )
+{
+    setPolyLine( pts );
+}
+
+
+uiMultiColorPolyLineItem::~uiMultiColorPolyLineItem()
+{}
+
+
+QGraphicsItem* uiMultiColorPolyLineItem::mkQtObj()
+{
+    odmulticoloritem_ = new ODGraphicsMultiColorPolyLineItem();
+    return odmulticoloritem_;
+}
+
+
+#define mImplSetPolyline( type ) \
+    void uiMultiColorPolyLineItem::setPolyLine( type ptlist ) \
+{ \
+    QPolygonF qpolygonf; \
+    for ( int idx=0; idx<ptlist.size(); idx++ ) \
+    { \
+	if ( !ptlist[idx].isDefined() ) \
+	    qpolygonf += QPointF( mUdf(double), mUdf(double) ); \
+	else \
+	    qpolygonf += QPointF( mCast(double,ptlist[idx].x), \
+				  mCast(double,ptlist[idx].y) ); \
+    } \
+    odmulticoloritem_->setPolyLine( qpolygonf ); \
+}
+
+mImplSetPolyline( const TypeSet<uiPoint>& );
+mImplSetPolyline( const TypeSet<uiWorldPoint>& );
+#undef mImplSetPolyline
+
+
+void uiMultiColorPolyLineItem::setColors(
+		const TypeSet<Color>& colors, bool usetransparency )
+{
+    QVector<QPen> qpens( colors.size() );
+    for ( int idx=0; idx<colors.size(); idx++ )
+    {
+	qpens[idx] = QPen( QColor(QRgb(colors[idx].rgb())), 2 );
+	if ( usetransparency )
+	    qpens[idx].color().setAlpha( 255-colors[idx].t() );
+    }
+    odmulticoloritem_->setQPens( qpens );
 }
 
 

@@ -43,6 +43,7 @@ class ODGraphicsPathItem;
 class ODGraphicsPixmapItem;
 class ODGraphicsPointItem;
 class ODGraphicsPolyLineItem;
+class ODGraphicsMultiColorPolyLineItem;
 class ODGraphicsDynamicImageItem;
 class ODGraphicsTextItem;
 template <class T> class ODPolygon;
@@ -227,6 +228,24 @@ protected:
     ODGraphicsPathItem*		odgraphicspath_;
 };
 
+
+mExpClass(uiBase) uiMultiColorPolyLineItem : public uiGraphicsItem
+{
+public:
+			uiMultiColorPolyLineItem();
+			uiMultiColorPolyLineItem(const TypeSet<uiPoint>&);
+			uiMultiColorPolyLineItem(const TypeSet<uiWorldPoint>&);
+			~uiMultiColorPolyLineItem();
+
+    void		setPolyLine(const TypeSet<uiPoint>&);
+    void		setPolyLine(const TypeSet<uiWorldPoint>&);
+    void		setColors(const TypeSet<Color>&,bool usetransp=false);
+
+protected:
+
+    QGraphicsItem*			mkQtObj();
+    ODGraphicsMultiColorPolyLineItem*	odmulticoloritem_;
+};
 
 
 mExpClass(uiBase) uiRectItem : public uiGraphicsItem

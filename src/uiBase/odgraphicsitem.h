@@ -237,6 +237,36 @@ protected:
 };
 
 
+class ODGraphicsMultiColorPolyLineItem : public QGraphicsItem
+				       , public ODGraphicsHighlightItem
+{
+public:
+				ODGraphicsMultiColorPolyLineItem();
+				~ODGraphicsMultiColorPolyLineItem();
+
+    QRectF			boundingRect() const;
+    void			paint(QPainter*,
+				      const QStyleOptionGraphicsItem*,
+				      QWidget*);
+
+    void			setPolyLine(const QPolygonF&);
+    void			setQPens(const QVector<QPen>&);
+
+    void			highlight()	{ highlight_ = true; }
+    void			unHighlight()	{ highlight_ = false; }
+
+    virtual int			type() const	{ return ODGraphicsType+7; }
+
+protected:
+
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+
+    bool			highlight_;
+    QPolygonF			qpolygon_;
+    QVector<QPen>		qpens_;
+};
+
+
 class ODGraphicsItemGroup : public QGraphicsItemGroup
 {
 public:

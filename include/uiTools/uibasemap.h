@@ -57,6 +57,7 @@ protected:
     void			changedZValueCB(CallBacker*);
     void			leftClickCB(CallBacker*);
     void			rightClickCB(CallBacker*);
+    void			addToGraphItem(uiGraphicsItem&);
 
     uiGraphicsItem&		graphitem_;
     uiGraphicsItem&		labelitem_;
@@ -67,7 +68,6 @@ protected:
     BaseMapObject*		bmobject_;
 
 private:
-    void			addToGraphItem(uiGraphicsItem&);
     void			addLabel(uiGraphicsItem&);
 };
 
