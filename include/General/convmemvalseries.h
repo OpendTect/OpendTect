@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "valseries.h"
 #include "datainterp.h"
 #include "datachar.h"
+#include "scaler.h"
 #include "undefarray.h"
 
 
@@ -30,7 +31,8 @@ public:
 
     inline	    	ConvMemValueSeries(od_int64 sz,
 	    				   const BinDataDesc& stortype,
-	    				   bool doundef=true);
+					   bool doundef=true,
+					   const Scaler* scaler=0);
 
     inline		~ConvMemValueSeries();
     inline bool		isOK() const;
@@ -60,6 +62,7 @@ protected:
     UndefArrayHandler*	undefhandler_;
     DataInterpreter<T>	interpreter_;
     BinDataDesc		rettype_;
+    const Scaler*	scaler_;
 
     char*		ptr_;
     od_int64		size_;
@@ -69,8 +72,10 @@ protected:
 template <class T> inline
 ConvMemValueSeries<T>::ConvMemValueSeries( od_int64 sz,
 					   const BinDataDesc& stortype,
-					   bool doundef)
+					   bool doundef,
+					   const Scaler* scaler )
     : ptr_( 0 )
+    , scaler_( scaler ? scaler->clone() : 0 )
     , size_( -1 )
     , interpreter_( DataCharacteristics(stortype) )
     , undefhandler_( doundef ? new UndefArrayHandler(stortype) : 0 )
@@ -88,6 +93,7 @@ template <class T> inline
 ConvMemValueSeries<T>::~ConvMemValueSeries()
 {
     delete [] ptr_;
+    delete scaler_;
     delete undefhandler_;
 }
 
@@ -96,7 +102,7 @@ template <class T> inline
 ValueSeries<T>*	ConvMemValueSeries<T>::clone() const
 {
     ConvMemValueSeries<T>* res = new ConvMemValueSeries( size_,
-	    interpreter_.dataChar(), undefhandler_ );
+	    interpreter_.dataChar(), undefhandler_, scaler_ );
     if ( storArr() )
 	OD::memCopy( res->storArr(), storArr(), size_ * interpreter_.nrBytes());
 
@@ -121,7 +127,8 @@ T ConvMemValueSeries<T>::value(od_int64 idx) const
     if ( undefhandler_ && undefhandler_->isUdf( ptr_,idx ) )
 	return mUdf(T);
 
-    return interpreter_.get( ptr_, idx );
+    const T val = interpreter_.get( ptr_, idx );
+    return mCast( T, scaler_ ? scaler_->unScale(val) : val );
 }
 
 
@@ -153,7 +160,8 @@ void ConvMemValueSeries<T>::setValue( od_int64 idx, T v )
 	undefhandler_->setUdf( ptr_, idx );
     else
     {
-	interpreter_.put( ptr_, idx, v );
+	const T val = mCast( T, scaler_ ? scaler_->scale(v) : v );
+	interpreter_.put( ptr_, idx, val );
 	if ( undefhandler_ ) undefhandler_->unSetUdf( ptr_, idx );
     }
 }

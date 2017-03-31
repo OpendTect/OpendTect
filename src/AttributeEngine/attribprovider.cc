@@ -1038,7 +1038,8 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 		    new ArrayValueSeries<float,float>( ptr, true, nrsamples );
 	    }
 	    else
-		valptr = new ConvMemValueSeries<float>( nrsamples,outputformat);
+		valptr = new ConvMemValueSeries<float>(
+				nrsamples, outputformat, true, 0 );
 
 	    if ( !valptr )
 	    {

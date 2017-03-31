@@ -472,6 +472,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     typefld_ = new uiGenInput( leftgrp, tr("Load as"),
 		StringListInpSpec(formats) );
     typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
+    torgfld_->setReadOnly( true );
     typefld_->attach( alignedBelow, formatdiskfld_ );
 
     memusagefld_ = new uiGenInput( leftgrp, tr("Est usage") );
@@ -494,7 +495,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
     rightgrp->attach( rightOf, leftgrp );
     nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"), IntInpSpec(1000) );
-    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Scan"), true );
+    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Rescan"), true);
     scanbut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
     scanbut->attach( rightTo, nrtrcsfld_ );
     histfld_ = new uiMapperRangeEditor( rightgrp, -1, false );

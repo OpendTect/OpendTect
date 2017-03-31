@@ -276,17 +276,6 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     	    seq = ColTab::Sequence( ctname );
     	    mapper.usePar( iop );
 	}
-
-	DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-	ConstDataPackRef<SeisDataPack> seisdp =
-	    dpm.obtain( am_.visserv_->getDataPackID(visid,attrib) );
-	const Scaler* scaler = seisdp ? seisdp->getScaler() : 0;
-	if ( scaler && !mapper.range_.isUdf() )
-	{
-	    mapper.range_.start =
-		mCast(float,scaler->scale(mapper.range_.start));
-	    mapper.range_.stop = mCast(float,scaler->scale(mapper.range_.stop));
-	}
     }
 
     am_.visserv_->setColTabMapperSetup( visid, attrib, mapper );
