@@ -47,7 +47,7 @@ Seis::MultiProvider::MultiProvider( Policy policy, ZPolicy zpolicy,
     , specialvalue_(specialvalue)
     , zsampling_(ZSampling::udf())
     , seldata_(0)
-    , totalnr_(0)
+    , totalnr_(-1)
     , setupchgd_(false)
 {}
 
@@ -100,7 +100,12 @@ uiRetVal Seis::MultiProvider::reset() const
 
 od_int64 Seis::MultiProvider::totalNr() const
 {
+    uiRetVal uirv;
+
     Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return -1;
+
     return totalnr_;
 }
 
@@ -307,6 +312,29 @@ uiRetVal Seis::MultiProvider::getNext( SeisTrc& trc, bool dostack )
 	return uirv;
 
     doGetNext( trc, dostack, uirv );
+    return uirv;
+}
+
+
+uiRetVal Seis::MultiProvider::getNext( ObjectSet<SeisTrc>& trcs )
+{
+    uiRetVal uirv;
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
+
+    deepErase( trcs );
+    trcs.allowNull();
+    const int nrtrcs = policy_==RequireOnlyOne ? 1 : provs_.size();
+    for ( int idx=0; idx<nrtrcs; idx++ )
+	trcs += 0;
+
+    doGetNextTrcs( trcs, uirv );
+    if ( !uirv.isOK() || isFinished(uirv) )
+	return uirv;
+
+    handleTraces( trcs );
     return uirv;
 }
 

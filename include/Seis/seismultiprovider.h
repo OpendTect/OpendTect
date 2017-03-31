@@ -78,6 +78,7 @@ public:
 				/*< \param dostack, if false, first
 				available trace in the list of providers is
 				returned.*/
+    uiRetVal			getNext(ObjectSet<SeisTrc>&);
     uiRetVal			getGather(SeisTrcBuf&,bool dostack=false)
 				{ /* TODO */ return uiRetVal(); }
 				/*< \param dostack, if false, first

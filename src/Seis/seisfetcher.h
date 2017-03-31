@@ -70,6 +70,8 @@ public:
     virtual void		reset();
     virtual TrcKeyZSampling	getDefaultCS() const;
 
+    bool		gtRanges(TrcKeyZSampling&) const;
+
     virtual void	doFillPar(IOPar&,uiRetVal&) const;
     virtual void	doUsePar(const IOPar&,uiRetVal&);
 

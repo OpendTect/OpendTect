@@ -381,21 +381,9 @@ uiRetVal Seis::VolProvider::doGetComponentInfo( BufferStringSet& nms,
 }
 
 
-bool Seis::VolProvider::getRanges( TrcKeyZSampling& cs ) const
+bool Seis::VolProvider::getRanges( TrcKeyZSampling& tkzs ) const
 {
-    if ( fetcher_.trl_ && !fetcher_.isMultiConn() )
-    {
-	cs.zsamp_.start = fetcher_.trl_->inpSD().start;
-	cs.zsamp_.step = fetcher_.trl_->inpSD().step;
-	cs.zsamp_.stop = cs.zsamp_.start
-		       + (fetcher_.trl_->inpNrSamples()-1) * cs.zsamp_.step;
-	const SeisPacketInfo& pinfo = fetcher_.trl_->packetInfo();
-	cs.hsamp_.set( pinfo.inlrg, pinfo.crlrg );
-    }
-    else if ( !SeisTrcTranslator::getRanges( dbky_, cs ) )
-	return false;
-
-    return true;
+    return fetcher_.gtRanges( tkzs );
 }
 
 

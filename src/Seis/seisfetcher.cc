@@ -133,6 +133,12 @@ bool Seis::Fetcher3D::moveNextBinID()
 }
 
 
+bool Seis::Fetcher3D::gtRanges( TrcKeyZSampling& tkzs ) const
+{
+    tkzs = reqcs_;
+    return true;
+}
+
 void Seis::Fetcher3D::doFillPar( IOPar& iop, uiRetVal& uirv ) const
 {
     iop.set( sKeyNextBinID(), nextbid_ );

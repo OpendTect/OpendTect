@@ -265,6 +265,7 @@ void Seis::Provider::setSelData( SelData* sd )
     delete seldata_;
     seldata_ = sd;
     setupchgd_ = true;
+    reset();
 }
 
 
