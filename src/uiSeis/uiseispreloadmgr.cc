@@ -610,9 +610,8 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     }
 
     IOPar iop;
-    if ( info.fillStats(iop) )
+    if ( info.getStats(iop) && mapperrgfld_->setData(iop) )
     {
-	mapperrgfld_->setData( iop );
 	nrtrcsfld_->setValue( mCast(int,tkzs.hsamp_.totalNr()) );
 	setColorTable();
 	return;
@@ -693,7 +692,7 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
 
     NotifyStopper ns( subselfld_->selChange );
     const SeisIOObjInfo info( ioobj ); IOPar iop;
-    const bool dorescan = !info.fillStats( iop );
+    const bool dorescan = !info.getStats( iop );
     nrtrcsfld_->setReadOnly( !dorescan );
     nrtrcsfld_->setValue( mDefaultNrTrcs );
     scanbut_->setSensitive( dorescan );

@@ -52,8 +52,7 @@
 #define mInitVars() \
     wrrkey_ = out.key(); \
     worktrc_ = &intrc_; \
-    curmsg_ = msg; \
-    worktrc_ = &intrc_
+    curmsg_ = msg
 
 #define mHandlePastLastReader(to_do) \
     if ( !provs_.validIdx(curprovidx_) ) \
@@ -129,7 +128,7 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
     if ( !prov )
 	{ curmsg_ = uirv; delete prov; return false; }
 
-    const bool is3d = !prov->is2D() && !wrr_.is2D();
+    const bool is3d = !prov->is2D();
     if ( is3d && wrr_.ioObj()->key()==prov->dbKey() )
 	{ curmsg_ = tr("Input equals output"); delete prov; return false; }
 
@@ -190,7 +189,7 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 
     if ( provs_.size() == 1 )
     {
-	is3d_ = !prov->is2D() && !wrr_.is2D();
+	is3d_ = !prov->is2D();
 	wrr_.setCrFrom( ioobj.fullUserExpr() );
 	if ( iop )
 	    wrr_.auxPars() = *iop;

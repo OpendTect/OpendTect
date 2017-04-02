@@ -210,7 +210,7 @@ void Seis::VolFetcher::getTranslator( Conn* conn )
     if ( !trl_->initRead(conn,prov().readmode_) )
 	{ uirv_ = trl_->errMsg(); delete trl_; trl_ = 0; return; }
 
-    if ( !prov().selcomps_.isEmpty() )
+    if ( prov().haveSelComps() )
     {
 	for ( int icd=0; icd<trl_->componentInfo().size(); icd++ )
 	{

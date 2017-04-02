@@ -14,8 +14,9 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "samplingdata.h"
 #include "sharedobject.h"
-#include "monitoriter.h"
 
+template <class VT> class DataDistributionChanger;
+template <class VT> class DataDistributionInfoExtracter;
 template <class VT> class DataDistributionIter;
 
 
@@ -32,6 +33,9 @@ template <class VT> class DataDistributionIter;
 
   Note that it is a bad idea to have negative data (P<0). We're not checking.
 
+  Also note that PosType and DataValueType are the same typedefs. The position
+  in a distribution is a data value.
+
 */
 
 template <class VT>
@@ -39,12 +43,14 @@ mClass(Algo) DataDistribution : public SharedObject
 {
 public:
 
-    typedef float		PosType;
+    typedef VT			DataValueType;
+    typedef DataValueType	PosType;
     typedef VT			ValueType;
     typedef TypeSet<VT>		SetType;
     typedef typename SetType::size_type	size_type;
     typedef size_type		IdxType;
     typedef SamplingData<PosType> SamplingType;
+    typedef Interval<VT>	RangeType;
 
     inline			DataDistribution()
 				    : sampling_(PosType(0),PosType(1)) {}
@@ -76,19 +82,8 @@ public:
 				{ return sumOfValues() == VT(1); }
     inline VT			sumOfValues() const;
     inline VT			maxValue() const;
-    inline void			normalise(bool in_the_math_sense=true);
-				//!< if !math, sets max to 1
-    inline bool			deSpike(VT ratioaboverg=VT(0.4));
-				//!< Returns whether any change made
-				//!< Note that your distrib is no longer correct
-				//!< Useful for nice displays
-    inline bool			isRoughlySymmetrical() const;
-				//!< criterion: median value is near modus
+    inline RangeType		dataRange() const;
 
-    inline void			getCurve(SetType& xvals,SetType& yvals,
-				        bool limitspikes=false) const;
-    inline void			getRanges(Interval<PosType>& xrg,
-					  Interval<PosType>& yrg) const;
     inline PosType		positionForCumulative(VT) const;
     inline PosType		medianPosition() const;
     inline VT*			getArr( bool cum ) const
@@ -110,49 +105,14 @@ protected:
     SetType		cumdata_;
     SamplingType	sampling_;
 
+    void		setCumData(int);
     inline VT		gtMax(int* idxat=0) const;
 
+    friend class	DataDistributionChanger<VT>;
+    friend class	DataDistributionInfoExtracter<VT>;
     friend class	DataDistributionIter<VT>;
 
 };
-
-
-template <class VT>
-mClass(Algo) DataDistributionIter
-	: public MonitorableIter4Read< typename DataDistribution<VT>::IdxType >
-{
-public:
-
-    typedef MonitorableIterBase< typename DataDistribution<VT>::IdxType >
-						base_type;
-    typedef DataDistribution<VT>		DistribType;
-    typedef typename DistribType::PosType	PosType;
-    typedef typename DistribType::IdxType	IdxType;
-
-    inline	    DataDistributionIter( const DistribType& d )
-			: MonitorableIter4Read<IdxType>(d,0,d.size()-1) {}
-    inline	    DataDistributionIter( const DataDistributionIter& oth )
-			: MonitorableIter4Read<IdxType>(oth)		{}
-    inline const DistribType& distrib() const
-		    { return static_cast<const DistribType&>(
-					    base_type::monitored() ); }
-
-    inline bool	    isValid() const	{ return base_type::isValid(); }
-    inline VT	    value() const
-		    { return isValid() ? distrib().data_[base_type::curidx_]
-				       : mUdf(VT); }
-    inline VT	    cumValue() const
-		    { return isValid() ? distrib().cumdata_[base_type::curidx_]
-				       : mUdf(VT); }
-    inline PosType  position() const
-		    { return isValid()
-			    ? distrib().sampling().atIndex(base_type::curidx_)
-			    : mUdf(PosType); }
-
-    mDefNoAssignmentOper(DataDistributionIter)
-
-};
-
 
 
 template <class VT> inline
@@ -361,6 +321,13 @@ void DataDistribution<VT>::add( const VT* vals )
 
 
 template <class VT> inline
+void DataDistribution<VT>::setCumData( int idx )
+{
+    cumdata_[idx] = data_[idx] + (idx<1 ? VT(0) : cumdata_[idx-1]);
+}
+
+
+template <class VT> inline
 void DataDistribution<VT>::set( const VT* vals )
 {
     mLock4Write();
@@ -368,10 +335,7 @@ void DataDistribution<VT>::set( const VT* vals )
     for ( IdxType idx=0; idx<sz; idx++ )
     {
 	data_[idx] = vals[idx];
-	if ( idx == 0 )
-	    cumdata_[idx] = vals[idx];
-	else
-	    cumdata_[idx] = cumdata_[idx-1] + vals[idx];
+	setCumData( idx );
     }
 
     mSendChgNotif( cDataChange(), cUnspecChgID() );
@@ -391,6 +355,16 @@ VT DataDistribution<VT>::maxValue() const
 {
     mLock4Read();
     return gtMax();
+}
+
+
+template <class VT> inline
+typename DataDistribution<VT>::RangeType DataDistribution<VT>::dataRange() const
+{
+    mLock4Read();
+    const PosType hstep = sampling_.step * PosType(0.5);
+    return RangeType( sampling_.start - hstep,
+		      sampling_.atIndex(data_.size()-1) + hstep );
 }
 
 
@@ -417,134 +391,6 @@ VT DataDistribution<VT>::gtMax( int* idxat ) const
     }
 
     return ret;
-}
-
-
-template <class VT> inline
-void DataDistribution<VT>::normalise( bool in_the_math_sense )
-{
-    mLock4Write();
-    size_type sz = data_.size();
-    if ( sz < 1 )
-	return;
-
-    const VT divby = in_the_math_sense ? cumdata_[sz-1] : gtMax();
-    if ( divby == VT(0) || divby == VT(1) )
-	return;
-
-    for ( IdxType idx=0; idx<sz; idx++ )
-    {
-	data_[idx] /= divby;
-	if ( idx == 0 )
-	    cumdata_[idx] = data_[idx];
-	else
-	    cumdata_[idx] = cumdata_[idx-1] + data_[idx];
-    }
-
-    // last should now be pretty close to 1, but let's make it exact
-    cumdata_[sz-1] = VT(1);
-
-    mSendEntireObjChgNotif();
-}
-
-
-template <class VT> inline bool DataDistribution<VT>::deSpike( VT cutoff )
-{
-    mLock4Write();
-    const int sz = data_.size();
-    if ( sz < 6 )
-	return false;
-
-    VT maxval = data_[0];
-    VT runnerupval = maxval;
-    VT minval = maxval;
-    IdxType idxatmax = 0;
-
-    for ( int idx=1; idx<sz; idx++ )
-    {
-	const VT val = data_[idx];
-	if ( val < minval )
-	    minval = val;
-	else if ( val > maxval )
-	{
-	    runnerupval = maxval;
-	    maxval = val;
-	    idxatmax = idx;
-	}
-    }
-
-    const VT unspikedvalrg = runnerupval - minval;
-    const VT spikelimit = minval + VT(1+cutoff) * unspikedvalrg;
-    if ( maxval > spikelimit )
-    {
-	data_[idxatmax] = spikelimit;
-	return true;
-    }
-    return false;
-}
-
-
-template <class VT> inline
-bool DataDistribution<VT>::isRoughlySymmetrical() const
-{
-    mLock4Read();
-    IdxType maxidx; gtMax( &maxidx );
-    PosType medpos = medianPosition();
-    PosType diff = medpos - sampling_.atIndex( maxidx );
-    if ( diff < PosType(0) )
-	diff = -diff;
-    return diff < sampling_.step;
-}
-
-
-template <class VT> inline
-void DataDistribution<VT>::getCurve( SetType& xvals, SetType& yvals,
-				     bool limitspikes ) const
-{
-    xvals.setEmpty(); yvals.setEmpty();
-
-    if ( limitspikes )
-    {
-	RefMan< DataDistribution<VT> > despiked = clone();
-	despiked->deSpike();
-	despiked->getCurve( xvals, yvals, false );
-    }
-    else
-    {
-	DataDistributionIter<VT> iter( *this );
-	while ( iter.next() )
-	{
-	    xvals += iter.position();
-	    yvals += iter.value();
-	}
-    }
-}
-
-
-template <class VT> inline
-void DataDistribution<VT>::getRanges( Interval<PosType>& xrg,
-				      Interval<PosType>& yrg ) const
-{
-    mLock4Read();
-    xrg.start = sampling_.start;
-    if ( data_.size() < 1 )
-    {
-	xrg.stop = xrg.start;
-	yrg.start = yrg.stop = 0;
-    }
-    else
-    {
-	xrg.stop = sampling_.atIndex( data_.size()-1 );
-	yrg.start = yrg.stop = data_[0];
-	for ( IdxType idx=1; idx<data_.size(); idx++ )
-	{
-	    const VT val = data_[idx];
-	    if ( val > yrg.stop )
-		yrg.stop = val;
-	    else if ( val < yrg.start )
-		yrg.start = val;
-	}
-    }
 }
 
 

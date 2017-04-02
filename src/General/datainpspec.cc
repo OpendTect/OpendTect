@@ -83,6 +83,15 @@ int DataInpSpec::getIntValue( int idx ) const
 }
 
 
+od_int64 DataInpSpec::getInt64Value( int idx ) const
+{
+    od_int64 res;
+    const char* valstr = text(idx);
+    return valstr && getFromString(res, valstr,mUdf(od_int64))
+		? res : mUdf(od_int64);
+}
+
+
 double DataInpSpec::getDValue( int idx ) const
 {
     double res;
@@ -104,6 +113,10 @@ bool DataInpSpec::getBoolValue( int idx ) const
 
 
 void DataInpSpec::setValue( int i, int idx )
+{ setText( toString( i ),idx); }
+
+
+void DataInpSpec::setValue( od_int64 i, int idx )
 { setText( toString( i ),idx); }
 
 
@@ -460,17 +473,23 @@ bool StringListInpSpec::setText( const char* s, int nr )
 int StringListInpSpec::getIntValue( int idx ) const
 { return cur_; }
 
+od_int64 StringListInpSpec::getInt64Value( int idx ) const
+{ return cur_; }
+
 
 double StringListInpSpec::getDValue( int idx ) const
 { return cur_; }
 
 
 float StringListInpSpec::getFValue( int idx ) const
-{ return (float) cur_; }
+{ return (float)cur_; }
 
 
 void StringListInpSpec::setValue( int i, int idx )
 { if ( i < strings_.size() ) cur_ = i; isset_ = true; }
+
+void StringListInpSpec::setValue( od_int64 i, int idx )
+{ setValue( (int)i, idx ); }
 
 
 void StringListInpSpec::setValue( double d, int idx )

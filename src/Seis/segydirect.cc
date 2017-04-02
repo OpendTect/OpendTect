@@ -602,19 +602,15 @@ SEGY::FileIndexer::~FileIndexer()
 
 bool SEGY::FileIndexer::writeHistogramPars() const
 {
-    IOPar histpar;
-    const uiRetVal uirv = scanner_->fillStats( histpar );
+    IOPar statspar;
+    const uiRetVal uirv = scanner_->fillStats( statspar );
     if ( !uirv.isOK() )
 	{ msg_ = uirv; return false; }
 
     File::Path fp( ioobj_->fullUserExpr(true) );
-    fp.setExtension( "par" );
-
-    IOPar iop;
-    iop.read( fp.fullPath(), sKey::Pars() );
-    iop.mergeComp( histpar, sKey::Histogram() );
-    iop.write( fp.fullPath(), sKey::Pars() );
-    return true;
+    fp.setExtension( "stats" );
+    if ( !statspar.write(fp.fullPath(),sKey::Stats()) )
+	msg_ = uiStrings::phrCannotWrite( toUiString(fp.fullPath()) );
 }
 
 

@@ -31,6 +31,7 @@ public:
     typedef ArrayND<vT>			ArrNDType;
     typedef DataDistribution<vT>	DistribType;
     typedef Interval<vT>		RangeType;
+    typedef RefMan<DistribType>		DistribRef;
 
 			DataDistributionExtracter( const ArrNDType& arr )
 			    : arrnd_(&arr)
@@ -62,7 +63,7 @@ public:
 
     virtual od_int64	nrIterations() const		{ return totalsz_; }
 
-    RefMan<DistribType>	getDistribution()		{ return distrib_; }
+    DistribRef		getDistribution();
     void		reset()				{ init(); }
 
 
@@ -72,7 +73,7 @@ protected:
     const vT*			arr_;
     const ValueSeries<vT>*	vs_;
     const od_int64		totalsz_;
-    RefMan<DistribType>		distrib_;
+    DistribRef			distrib_;
     int				nrbins_;
     RangeType			bounds_;
 
@@ -106,6 +107,7 @@ public:
     typedef ArrayND<vT>			ArrNDType;
     typedef DataDistribution<vT>	DistribType;
     typedef Interval<vT>		RangeType;
+    typedef RefMan<DistribType>		DistribRef;
 
 		RangeLimitedDataDistributionExtracter( const ArrNDType& arr,
 						      TaskRunner* tskr=0 )
@@ -121,12 +123,12 @@ public:
 			    : extracter_(ts)		{ init(tskr); }
     virtual	~RangeLimitedDataDistributionExtracter()	{}
 
-    RefMan<DistribType>	getDistribution()		{ return distrib_; }
+    DistribRef	getDistribution()		{ return distrib_; }
 
 protected:
 
     DataDistributionExtracter<vT> extracter_;
-    RefMan<DistribType>		distrib_;
+    DistribRef		distrib_;
 
     void			init(TaskRunner*);
     bool			deSpike();
@@ -138,9 +140,18 @@ protected:
 template <class vT> inline
 void DataDistributionExtracter<vT>::init()
 {
-    distrib_ = new DistribType;
+    distrib_ = 0;
     nrbins_ = mUdf(int);
     bounds_ = RangeType( mUdf(vT), mUdf(vT) );
+}
+
+
+template <class vT> inline typename DataDistributionExtracter<vT>::DistribRef
+DataDistributionExtracter<vT>::getDistribution()
+{
+    if ( !distrib_ )
+	execute();
+    return distrib_;
 }
 
 
@@ -184,11 +195,11 @@ Interval<vT> DataDistributionExtracter<vT>::getDataRange() const
 template <class vT> inline
 int DataDistributionExtracter<vT>::getDefNrBins() const
 {
-    int ret = (int)(totalsz_ / 64);
+    int ret = (int)(totalsz_ / 132);
     if ( ret < 8 )
 	ret = 8;
-    if ( ret > 1024 )
-	ret = 1024;
+    if ( ret > 256 )
+	ret = 256;
     return ret;
 }
 

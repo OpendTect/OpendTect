@@ -351,15 +351,26 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 }
 
 
-bool SeisIOObjInfo::fillStats( IOPar& iop ) const
+bool SeisIOObjInfo::getPars( IOPar& iop ) const
 {
     mChk(false);
-    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		 ioobj_->createTranslator() );
-    if ( !sttr )
-	{ pErrMsg("No Translator!"); return false; }
+    if ( !ioobj_->isStream() )
+	return false;
 
-    return sttr->fillStats( *ioobj_, iop );
+    File::Path fp( ioobj_->fullUserExpr() );
+    fp.setExtension( "par" );
+    return iop.read( fp.fullPath(), sKey::Pars() );
+}
+
+
+bool SeisIOObjInfo::getStats( IOPar& iop ) const
+{
+    if ( !ioobj_->isStream() )
+	return false;
+
+    File::Path fp( ioobj_->fullUserExpr() );
+    fp.setExtension( "stats" );
+    return iop.read( fp.fullPath(), sKey::Stats() );
 }
 
 

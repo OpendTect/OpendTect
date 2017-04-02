@@ -22,7 +22,9 @@ TrcKeySampling::TrcKeySampling()
     , stop( stop_ )
     , step( step_ )
     , survid_( mUdf(int) )
-{ init( true ); }
+{
+    init( true );
+}
 
 
 TrcKeySampling::TrcKeySampling( const TrcKeySampling& tks )
@@ -38,7 +40,21 @@ TrcKeySampling::TrcKeySampling( Pos::GeomID gid )
     : start( start_ )
     , stop( stop_ )
     , step( step_ )
-{ init( gid ); }
+{
+    init( gid );
+}
+
+
+TrcKeySampling::TrcKeySampling( const TrcKey& tk )
+    : start( start_ )
+    , stop( stop_ )
+    , step( step_ )
+{
+    init( true );
+    survid_ = tk.survID();
+    start_.lineNr() = stop_.lineNr() = tk.lineNr();
+    start_.trcNr() = stop_.trcNr() = tk.trcNr();
+}
 
 
 TrcKeySampling::TrcKeySampling( bool settosi )
@@ -46,7 +62,9 @@ TrcKeySampling::TrcKeySampling( bool settosi )
     , stop( stop_ )
     , step( step_ )
     , survid_( mUdf(int) )
-{ init( settosi ); }
+{
+    init( settosi );
+}
 
 mStopAllowDeprecatedSection
 

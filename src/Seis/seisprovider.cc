@@ -151,6 +151,15 @@ uiRetVal Seis::Provider::doGetComponentInfo( BufferStringSet& nms,
 }
 
 
+bool Seis::Provider::haveSelComps() const
+{
+    for ( int idx=0; idx<selcomps_.size(); idx++ )
+	if ( selcomps_[idx] >= 0 )
+	    return true;
+    return false;
+}
+
+
 uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 {
     Threads::Locker locker( lock_ );

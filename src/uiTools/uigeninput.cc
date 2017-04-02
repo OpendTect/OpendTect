@@ -647,6 +647,7 @@ protected:
 };
 
 typedef uiSimpleInputFld<uiGenInputIntFld>	uiIntInputFld;
+typedef uiSimpleInputFld<uiGenInputInt64Fld>	uiInt64InputFld;
 
 /*!
 
@@ -689,11 +690,14 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     case DataType::floatTp:
     case DataType::doubleTp:
     case DataType::intTp:
+    case DataType::int64Tp:
     {
 	if ( desc.type().form() == DataType::interval )
 	{
 	    switch( desc.type().rep() )
 	    {
+	    case DataType::int64Tp:
+		{ pErrMsg("int 64 intervals need support"); }
 	    case DataType::intTp:
 		fld = new uiIntIntervalInpFld( this, desc, name() );
 	    break;
@@ -711,6 +715,8 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	    fld = new uiPositionInpFld( this, desc, name() );
 	else if ( desc.type() == DataType::intTp )
 	    fld = new uiIntInputFld( this, desc, name() );
+	else if ( desc.type() == DataType::int64Tp )
+	    fld = new uiInt64InputFld( this, desc, name() );
 	else
 	    fld = new uiTextInputFld( this, desc );
     }
@@ -1168,6 +1174,7 @@ void uiGenInput::setfn( fntyp var, int nr ) \
 
 mDefuiLineEditGetSet(text,setText,const char*)
 mDefuiLineEditGetSet(getIntValue,setValue,int)
+mDefuiLineEditGetSet(getInt64Value,setValue,od_int64)
 mDefuiLineEditGetSet(getDValue,setValue,double)
 mDefuiLineEditGetSet(getFValue,setValue,float)
 mDefuiLineEditGetSet(getBoolValue,setValue,bool)

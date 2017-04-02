@@ -195,8 +195,6 @@ public:
     virtual bool	supportsGoTo() const		{ return false; }
     virtual bool	goTo(const BinID&)		{ return false; }
 
-    virtual bool	fillStats(const IOObj&,IOPar&) const;
-
     virtual void	cleanUp();
 			//!< Prepare for new initialisation.
 

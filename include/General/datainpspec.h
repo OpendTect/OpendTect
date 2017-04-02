@@ -30,25 +30,25 @@ mExpClass(General) DataType
 { mODTextTranslationClass(DataType)
 public:
 
-    enum		Rep  { intTp, floatTp, doubleTp, boolTp, stringTp };
-    enum		Form { normal, interval, filename, position, list };
+    enum	Rep  { intTp, int64Tp, floatTp, doubleTp, boolTp, stringTp };
+    enum	Form { normal, interval, filename, position, list };
 
-			DataType( Rep tp, Form frm=normal )
-			    : rep_( tp ), form_(frm) {}
+		DataType( Rep tp, Form frm=normal )
+		    : rep_( tp ), form_(frm) {}
 
-    inline Rep		rep() const		{ return rep_; }
-    inline Form		form() const		{ return form_; }
+    inline Rep	rep() const		{ return rep_; }
+    inline Form	form() const		{ return form_; }
 
-    bool		operator==( const DataType& oth ) const
-			    { return (rep_==oth.rep_) && (form_==oth.form_); }
-    bool		operator!=( const DataType& oth ) const
-			    { return ! (oth == *this); }
+    bool	operator==( const DataType& oth ) const
+		    { return (rep_==oth.rep_) && (form_==oth.form_); }
+    bool	operator!=( const DataType& oth ) const
+		    { return ! (oth == *this); }
 
 
 protected:
 
-    Rep			rep_;
-    Form		form_;
+    Rep		rep_;
+    Form	form_;
 
 };
 
@@ -68,10 +68,11 @@ public:
 protected:
 
     inline Rep		rep__( int i )    const	{ return intTp; }
+    inline Rep		rep__( od_int64 i ) const { return int64Tp; }
     inline Rep		rep__( float f )  const	{ return floatTp; }
     inline Rep		rep__( double d ) const	{ return doubleTp; }
     inline Rep		rep__( bool b )   const	{ return boolTp; }
-    inline Rep		rep__( const char* s ) const	{ return stringTp; }
+    inline Rep		rep__( const char* s ) const { return stringTp; }
 
 };
 
@@ -112,11 +113,13 @@ public:
 			/*!Sets the _values_ (with setText()) */
 
     virtual int		getIntValue(int idx=0) const;
+    virtual od_int64	getInt64Value(int idx=0) const;
     virtual double	getDValue(int idx=0) const;
     virtual float	getFValue(int idx=0) const;
     virtual bool	getBoolValue(int idx=0) const;
 
     virtual void	setValue(int i,int idx=0);
+    virtual void	setValue(od_int64 i,int idx=0);
     virtual void	setValue(double d,int idx=0);
     virtual void	setValue(float f,int idx=0);
     virtual void	setValue(bool b,int idx=0);
@@ -205,6 +208,8 @@ public:
 			    { return getFromString( value_, s, mUdf(T) ); }
 
     virtual int		getIntValue(int idx=0) const { return (int)value(); }
+    virtual od_int64	getInt64Value(int idx=0) const
+						{ return (od_int64)value(); }
     virtual double	getDValue(int idx=0) const    { return value(); }
     virtual float	getFValue(int idx=0) const   { return (float)value(); }
 
@@ -288,6 +293,7 @@ NumInpSpec<T>::NumInpSpec( const NumInpSpec<T>& nis )
 
 
 typedef NumInpSpec<int>		IntInpSpec;
+typedef NumInpSpec<od_int64>	Int64InpSpec;
 typedef NumInpSpec<float>	FloatInpSpec;
 typedef NumInpSpec<double>	DoubleInpSpec;
 
@@ -382,6 +388,7 @@ public:
 			    interval_ = intval.clone();
 			}
 			mDefDISSetValBaseClassImpl(int)
+			mDefDISSetValBaseClassImpl(od_int64)
 			mDefDISSetValBaseClassImpl(bool)
 			mDefDISSetValBaseClassImpl(float)
 			mDefDISSetValBaseClassImpl(double)
@@ -411,6 +418,8 @@ public:
 			}
 
     virtual int		getIntValue(int idx=0) const { return (int)value(idx); }
+    virtual od_int64	getInt64Value(int idx=0) const
+						{ return (od_int64)value(idx); }
     virtual double	getDValue(int idx=0) const   { return value(idx); }
     virtual float	getFValue(int idx=0) const { return (float)value(idx); }
 
@@ -645,6 +654,7 @@ public:
     virtual bool	getBoolValue(int idx=0) const;
     virtual void	setValue(bool,int idx=0);
 			mDefDISSetValBaseClassImpl(int)
+			mDefDISSetValBaseClassImpl(od_int64)
 			mDefDISSetValBaseClassImpl(float)
 			mDefDISSetValBaseClassImpl(double)
     virtual bool	getDefaultBoolValue(int idx=0) const;
@@ -702,10 +712,12 @@ public:
     virtual bool	setText(const char* s,int nr);
 
     virtual int		getIntValue(int idx=0) const;
+    virtual od_int64	getInt64Value(int idx=0) const;
     virtual double	getDValue(int idx=0) const;
     virtual float	getFValue(int idx=0) const;
 
     virtual void	setValue(int i,int idx=0);
+    virtual void	setValue(od_int64 i,int idx=0);
     virtual void	setValue(double d,int idx=0);
     virtual void	setValue(float f,int idx=0);
 			mDefDISSetValBaseClassImpl(bool)
@@ -774,6 +786,7 @@ public:
     void		setValue( float f, int idx=0 )
 			{ setVal( setup_, idx, f ); }
 			mDefDISSetValBaseClassImpl(int)
+			mDefDISSetValBaseClassImpl(od_int64)
 			mDefDISSetValBaseClassImpl(bool)
 			mDefDISSetValBaseClassImpl(double)
     virtual bool	isUndef(int idx=0) const;

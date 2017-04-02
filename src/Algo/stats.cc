@@ -41,7 +41,7 @@ mDefineNameSpaceEnumUtils(Stats,UpscaleType,"Upscale type")
 #include <stdlib.h>
 
 
-void initSeed( int seed )
+static void initSeed( int seed )
 {
     mDefineStaticLocalObject( int, seed_, = 0 );
 

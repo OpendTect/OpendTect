@@ -41,15 +41,30 @@ ________________________________________________________________________
     pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb,chgtyp)
 
 
-#define mLock4Read() AccessLocker accesslocker_( *this )
-#define mLock4Write() AccessLocker accesslocker_( *this, false )
-#define mLock2Write() accesslocker_.convertToWrite()
-#define mReLock() accesslocker_.reLock()
-#define mUnlockAllAccess() accesslocker_.unlockNow()
-#define mAccessLocker() accesslocker_
-#define mSendChgNotif(typ,id) sendChgNotif(accesslocker_,typ,id)
-#define mSendEntireObjChgNotif() \
-    mSendChgNotif( cEntireObjectChange(), cEntireObjectChgID() )
+// Generalised; also available for friend classes
+#define mLockMonitorable4Read(obj) \
+	Monitorable::AccessLocker accesslocker_( obj )
+#define mLockMonitorable4Write(obj) \
+	Monitorable::AccessLocker accesslocker_( obj, false )
+#define mMonitorableLock2Write(obj) accesslocker_.convertToWrite()
+#define mMonitorableReLock(obj) accesslocker_.reLock()
+#define mMonitorableUnlockAllAccess(obj) accesslocker_.unlockNow()
+#define mMonitorableAccessLocker(obj) accesslocker_
+#define mSendMonitorableChgNotif(obj,typ,id) \
+	(obj).sendChgNotif(accesslocker_,typ,id)
+#define mSendMonitorableEntireObjChgNotif(obj) \
+	mSendMonitorableChgNotif(obj,Monitorable::cEntireObjectChange(), \
+				 Monitorable::cEntireObjectChgID())
+
+// Shorthands for class implementation
+#define mLock4Read() mLockMonitorable4Read(*this)
+#define mLock4Write() mLockMonitorable4Write(*this)
+#define mLock2Write() mMonitorableLock2Write(*this)
+#define mReLock() mMonitorableReLock(*this)
+#define mUnlockAllAccess() mMonitorableUnlockAllAccess(*this)
+#define mAccessLocker() mMonitorableAccessLocker(*this)
+#define mSendChgNotif(typ,id) mSendMonitorableChgNotif(*this,typ,id)
+#define mSendEntireObjChgNotif() mSendMonitorableEntireObjChgNotif(*this)
 
 
 

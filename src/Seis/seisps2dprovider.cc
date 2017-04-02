@@ -204,8 +204,7 @@ void Seis::PS2DFetcher::getSingleAt( const TrcKey& tk, SeisTrc& trc )
     if ( !prepGetAt(tk) )
 	return;
 
-    const int offsetidx = !prov().selcomps_.isEmpty() ? prov().selcomps_[0]
-						      : 0;
+    const int offsetidx = prov().haveSelComps() ? prov().selcomps_[0] : 0;
     if ( dp_ )
     {
 	const SeisTrc* seistrc = dp_->getTrace( tk.binID(), offsetidx );

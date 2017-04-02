@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "seispsioprov.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "seisstatscollector.h"
 #include "zdomain.h"
 #include "separstr.h"
 #include "timedepthconv.h"
@@ -222,7 +223,7 @@ void uiSeisFileMan::setToolButtonProperties()
     if ( histogrambut_ )
     {
 	const SeisIOObjInfo info( curioobj_ ); IOPar iop;
-	histogrambut_->setSensitive( info.fillStats(iop) );
+	histogrambut_->setSensitive( info.getStats(iop) );
     }
 
     if ( attribbut_ )
@@ -464,14 +465,26 @@ void uiSeisFileMan::manPS( CallBacker* )
 void uiSeisFileMan::showHistogram( CallBacker* )
 {
     const SeisIOObjInfo info( curioobj_ ); IOPar iop;
-    if ( !info.fillStats(iop) )
+    if ( !info.getStats(iop) )
 	return;
 
-    uiStatsDisplay::Setup su; su.countinplot( false );
-    uiStatsDisplayWin statswin( this, su, 1, true );
-    statswin.statsDisplay()->usePar( iop );
-    statswin.setDataName( curioobj_->name() );
-    statswin.show();
+    uiStatsDisplay::Setup su;
+    uiStatsDisplayWin* statswin = new uiStatsDisplayWin( this, su, 1, false );
+    statswin->setDeleteOnClose( true );
+
+    ConstRefMan<DataDistribution<float> > distrib
+			= SeisStatsCollector::getDistribution( iop );
+    if ( !distrib )
+	statswin->statsDisplay()->usePar( iop );
+    else
+    {
+	const Interval<float> rg = SeisStatsCollector::getExtremes( iop );
+	const od_int64 nrsamples = SeisStatsCollector::getNrSamples( iop );
+	statswin->statsDisplay()->setData( *distrib, nrsamples, rg );
+    }
+
+    statswin->setDataName( curioobj_->name() );
+    statswin->show();
 }
 
 

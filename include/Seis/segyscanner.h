@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "segyfiledef.h"
 #include "executor.h"
 #include "bufstringset.h"
-#include "seisstatinfo.h"
+#include "seisstatscollector.h"
 #include "uistring.h"
 class SeisTrc;
 class DataClipSampler;
@@ -73,7 +73,7 @@ protected:
     FileDataSet&	fds_;
     FileSpec		filespec_;
     SEGYSeisTrcTranslator* tr_;
-    SeisStatInfo	seisstatinfo_;
+    SeisStatsCollector	seisstatscollector_;
     DataClipSampler&	clipsmplr_;
     int			nrtrcs_;
     bool		forcerev0_;

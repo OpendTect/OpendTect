@@ -92,6 +92,7 @@ public:
     uiRetVal		getGather(const TrcKey&,SeisTrcBuf&) const;
 
     const TypeSet<int>& getSelectedComponents() const	{ return selcomps_;}
+    bool		haveSelComps() const;
 
     Pos::GeomID		curGeomID() const	{ return doGetCurGeomID(); }
     od_int64		nrDone() const			{ return nrdone_; }

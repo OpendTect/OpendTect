@@ -75,6 +75,7 @@ public:
 				{ return connType() == s; }
 
     virtual const char*		connType() const		= 0;
+    virtual bool		isStream() const		{ return false;}
     virtual Conn*		getConn(bool forread) const	= 0;
 
     virtual const OD::String&	translator() const	       {return transl_;}

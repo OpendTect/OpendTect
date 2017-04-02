@@ -26,11 +26,11 @@ output cube's setup and extent.
 
 #include "seisstor.h"
 #include "fixedstring.h"
-#include "seisstatinfo.h"
 #include "uistring.h"
 class SeisTrc;
 class SeisPSWriter;
 class Seis2DLinePutter;
+class SeisStatsCollector;
 namespace Threads { class ConditionVar; }
 namespace PosInfo { class Line2DData; }
 
@@ -77,12 +77,12 @@ protected:
     int			nrwritten_;
     int			firstns_;
     SamplingData<float>	firstsampling_;
-    SeisStatInfo	seisstatinfo_;
+    SeisStatsCollector&	seisstatscollector_;
     IOPar&		auxpars_;
 
     void		init();
     void		startWork();
-    bool		writeHistogramPars() const;
+    void		writeCollectedStats() const;
 
     // PS only
     SeisPSWriter*	pswriter_;

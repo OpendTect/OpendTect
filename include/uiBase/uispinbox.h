@@ -35,11 +35,13 @@ public:
     void		setSpecialValueText(const char*); // First entry
 
     void		setValue(int);
+    void		setValue(od_int64);
     void		setValue(float);
     void		setValue(double);
     void		setValue(const char*);
 
     int			getIntValue() const;
+    od_int64		getInt64Value() const;
     double		getDValue() const;
     float		getFValue() const;
     bool		getBoolValue() const;
@@ -115,11 +117,6 @@ private:
     bool		focuschgtrigger_;
     void		snapToStep(CallBacker*);
 
-public:
-// deprecated, do not use
-    mDeprecated int	getValue() const	{ return getIntValue(); }
-    mDeprecated float	getfValue() const	{ return getFValue(); }
-    mDeprecated double	getdValue() const	{ return getDValue(); }
 };
 
 

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "fftfilter.h"
 #include "fourier.h"
 #include "od_helpids.h"
-#include "statgrubbs.h"
 #include "smoother1d.h"
 #include "welld2tmodel.h"
 #include "welllog.h"
@@ -47,7 +46,7 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
     setOkText( uiStrings::sContinue() );
     uiWellExtractParams::Setup su;
     su.withzintime_ = su.withextractintime_ = false;
-    welllogselfld_ = new uiMultiWellLogSel( this, false, &su, welllnms, 
+    welllogselfld_ = new uiMultiWellLogSel( this, false, &su, welllnms,
 								      lognms );
     welllogselfld_->selectOnlyWritableWells();
 }
@@ -370,6 +369,51 @@ void uiWellLogToolWin::cancelPushedCB( CallBacker* )
     continue; \
 }
 
+
+static float getMaxGrubbsValue( const float* arr, int sz, int& idxof )
+{
+    if ( sz < 3 )
+	{ idxof = 0; return sz > 0 ? 0 : mUdf(float); }
+    int startidx = 0;
+    for ( ; startidx<sz && mIsUdf(arr[startidx]); startidx++ )
+	/* just skip undefs at start */;
+    if ( startidx+3 > sz )
+	{ idxof = startidx; return 0; }
+
+    float maxval = arr[startidx]; float minval = maxval, sum = maxval;
+    int minidx = startidx, maxidx = startidx;
+    int nonudfsz = 1;
+    for ( int idx=startidx+1; idx<sz; idx++ )
+    {
+	const float val = arr[idx];
+	if ( mIsUdf(val) ) continue;
+
+	if ( maxval < val ) { maxidx = idx; maxval = val; }
+	if ( minval > val ) { minidx = idx; minval = val; }
+	sum += val;
+	nonudfsz++;
+    }
+    if ( maxval == minval || nonudfsz < 3 )
+	{ idxof = startidx; return 0; }
+
+    const float avg = sum / nonudfsz;
+    sum = 0;
+    for ( int idx=startidx; idx<sz; idx++ )
+    {
+	const float val = arr[idx];
+	if ( mIsUdf(val) ) continue;
+
+	const float delta = avg - arr[idx];
+	sum += delta * delta;
+    }
+    const float stdev = Math::Sqrt( sum / nonudfsz );
+
+    const float diffmin = avg - minval;
+    const float diffmax = maxval - avg;
+    idxof = diffmin > diffmax ? minidx : maxidx;
+    return (diffmin > diffmax ? diffmin : diffmax) / stdev;
+}
+
 void uiWellLogToolWin::applyPushedCB( CallBacker* )
 {
     const int act = actionfld_->currentItem();
@@ -396,23 +440,22 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    float* outp = outpvals.arr();
 	    if ( act == 0 )
 	    {
-		Stats::Grubbs sgb;
-		const float cutoff_grups =
+		const float cutoff_grubbs =
 			mCast( float,thresholdfld_->box()->getIntValue() );
 		TypeSet<int> grubbsidxs;
 		mAllocVarLenArr( float, gatevals, gate )
 		for ( int idx=gate/2; idx<sz-gate; idx+=gate  )
 		{
-		    float cutoffval = cutoff_grups + 1;
-		    while ( cutoffval > cutoff_grups )
+		    float maxgrubbs = cutoff_grubbs + 1;
+		    while ( maxgrubbs > cutoff_grubbs )
 		    {
 			for (int winidx=0; winidx<gate; winidx++)
 			    gatevals[winidx]= outp[idx+winidx-gate/2];
 
 			int idxtofix;
-			cutoffval = sgb.getMax( mVarLenArr(gatevals),
+			maxgrubbs = getMaxGrubbsValue( mVarLenArr(gatevals),
 						gate, idxtofix ) ;
-			if ( cutoffval > cutoff_grups  && idxtofix >= 0 )
+			if ( maxgrubbs > cutoff_grubbs  && idxtofix >= 0 )
 			{
 			    outp[idx+idxtofix-gate/2] = mUdf( float );
 			    grubbsidxs += idx+idxtofix-gate/2;
@@ -425,9 +468,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    const int gridx = grubbsidxs[idx];
 		    float& grval = outp[gridx];
 		    if ( spkact == 2 )
-		    {
 			grval = replacespikevalfld_->getFValue();
-		    }
 		    else if ( spkact == 1 )
 		    {
 			float dah = dahs[ gridx ];

@@ -68,7 +68,8 @@ public:
     bool		getDataChar(DataCharacteristics&) const;
     bool		getBPS(int&,int icomp) const;
 			//!< max bytes per sample, component -1 => add all
-    bool		fillStats(IOPar&) const;
+    bool		getPars(IOPar&) const;
+    bool		getStats(IOPar&) const;
 
     int			nrComponents(Pos::GeomID geomid=mUdfGeomID) const;
     void		getComponentNames(BufferStringSet&,

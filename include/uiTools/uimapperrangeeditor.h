@@ -40,7 +40,7 @@ public:
     void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
     void			setData(const Array2D<float>*);
-    void			setData(const IOPar&);
+    bool			setData(const IOPar&);
     void			setMarkValue(float,bool forx);
 
     const ColTab::Mapper&	mapper()	{ return *mapper_; }

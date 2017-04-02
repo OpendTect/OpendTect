@@ -87,8 +87,8 @@ void SEGY::Scanner::closeTr()
 
 uiRetVal SEGY::Scanner::fillStats( IOPar& iop ) const
 {
-    if ( !seisstatinfo_.fillPar(iop) )
-	return seisstatinfo_.message();
+    if ( !seisstatscollector_.fillPar(iop) )
+	return tr("Not enough different traces to calculate stats");
 
     return uiRetVal::OK();
 }
@@ -199,7 +199,7 @@ int SEGY::Scanner::readNext()
     dtctor_.add( ti.coord_, ti.binID(), ti.trcNr(), ti.offset_ );
     clipsmplr_.add( (const float*)trc_.data().getComponent(0)->data(),
 		    trc_.size() );
-    seisstatinfo_.useTrace( trc_ );
+    seisstatscollector_.useTrace( trc_ );
     nrdone_++;
 
     if ( notrcinfo_ )

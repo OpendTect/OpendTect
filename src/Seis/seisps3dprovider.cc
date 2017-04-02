@@ -192,8 +192,7 @@ void Seis::PS3DFetcher::getSingleAt( const BinID& bid, SeisTrc& trc )
     if ( !prepGetAt(bid) )
 	return;
 
-    const int offsetidx = !prov().selcomps_.isEmpty() ? prov().selcomps_[0]
-						      : 0;
+    const int offsetidx = prov().haveSelComps() ? prov().selcomps_[0] : 0;
     if ( dp_ )
     {
 	const SeisTrc* seistrc = dp_->getTrace( bid, offsetidx );

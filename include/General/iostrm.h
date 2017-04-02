@@ -32,6 +32,7 @@ public:
     virtual void	copyFrom(const IOObj&);
     virtual const char*	fullUserExpr(bool forread=true) const;
     virtual const char*	connType() const;
+    virtual bool	isStream() const	{ return true; }
     virtual Conn*	getConn(bool) const;
 
     virtual bool	implExists(bool forread) const;

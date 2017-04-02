@@ -56,6 +56,7 @@ namespace sKey
     inline FixedString Depth()		{ return "Depth"; }
     inline FixedString DepthUnit()	{ return "Depth-Unit"; }
     inline FixedString Desc()		{ return "Description"; }
+    inline FixedString Distribution()	{ return "Distribution"; }
     inline FixedString EmptyString()	{ return ""; }
     inline FixedString Factor()		{ return "Factor"; }
     inline FixedString Fault()		{ return "Fault"; }
@@ -64,7 +65,6 @@ namespace sKey
     inline FixedString FloatUdf()	{ return "1e30"; }
     inline FixedString Geometry()	{ return "Geometry"; }
     inline FixedString GeomID()		{ return "GeomID"; }
-    inline FixedString Histogram()	{ return "Histogram"; }
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString ID()		{ return "ID"; }
     inline FixedString Input()		{ return "Input"; }
@@ -112,6 +112,7 @@ namespace sKey
     inline FixedString Size()		{ return "Size"; }
     inline FixedString SpaceString()	{ return " "; }
     inline FixedString StackOrder()	{ return "Stack order"; }
+    inline FixedString Stats()		{ return "Stats"; }
     inline FixedString Steering()	{ return "Steering"; }
     inline FixedString Stored()		{ return "Stored"; }
     inline FixedString StratRef()	{ return "Strat Level"; }

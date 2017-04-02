@@ -17,6 +17,7 @@ class uiHistogramDisplay;
 class uiGenInput;
 class uiLabel;
 template <class T> class Array2D;
+template <class T> class DataDistribution;
 namespace Stats { template <class T> class ParallelCalc; }
 
 
@@ -45,6 +46,9 @@ public:
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
     void			setData(const float*,int sz);
     void			setData(const Array2D<float>*);
+    void			setData(const DataDistribution<float>&,
+				    od_int64 count=mUdf(od_int64),
+				    Interval<float> rg=Interval<float>::udf());
     void			setDataName(const char*);
 
     uiHistogramDisplay*		funcDisp()	{ return histgramdisp_; }

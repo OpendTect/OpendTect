@@ -65,9 +65,9 @@ set(OD_MODULE_SOURCES
 	seisread.cc
 	seisresampler.cc
 	seisstatscalc.cc
+	seisstatscollector.cc
 	seisselection.cc
 	seissingtrcproc.cc
-	seisstatinfo.cc
 	seisstor.cc
 	seistrc.cc
 	seistrcprop.cc

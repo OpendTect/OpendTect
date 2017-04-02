@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicssaveimagedlg.h"
-#include "datadistribution.h"
+#include "datadistributiontools.h"
 #include "mouseevent.h"
 #include "axislayout.h"
 #include "od_iostream.h"
@@ -212,7 +212,8 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 void uiFunctionDisplay::setY2Vals( const DataDistribution<float>& distr,
 				   bool limitspikes )
 {
-    distr.getCurve( y2xvals_, y2yvals_, limitspikes );
+    DataDistributionInfoExtracter<float>( distr )
+	.getCurve( y2xvals_, y2yvals_, limitspikes );
     gatherInfo( true ); draw();
 }
 

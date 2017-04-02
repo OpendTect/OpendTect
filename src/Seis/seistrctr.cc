@@ -523,23 +523,6 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 }
 
 
-bool SeisTrcTranslator::fillStats( const IOObj& ioobj, IOPar& iop ) const
-{
-    File::Path fp( ioobj.fullUserExpr() );
-    fp.setExtension( "par" );
-
-    IOPar pars;
-    if ( !pars.read(fp.fullPath(),sKey::Pars()) )
-	return false;
-
-    ConstPtrMan<IOPar> histpars = pars.subselect( sKey::Histogram() );
-    if ( !histpars ) return false;
-
-    iop = *histpars;
-    return true;
-}
-
-
 bool SeisTrcTranslator::getRanges( const DBKey& ky, TrcKeyZSampling& cs,
 				   const char* lk )
 {

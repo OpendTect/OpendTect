@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uicolsequsemodesel.h"
 #include "uicolseqman.h"
 #include "coltabmapper.h"
+#include "datadistributiontools.h"
 #include "uimenu.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -394,8 +395,9 @@ void reSizeCB( CallBacker* )
 bool calcScale()
 {
     RefMan<DistribType> drawdistr = distrib().clone();
-    drawdistr->deSpike();
-    drawdistr->getCurve( longvals_, shortvals_, true );
+    DataDistributionChanger<float>(*drawdistr).deSpike();
+    DataDistributionInfoExtracter<float>(*drawdistr)
+			    .getCurve( longvals_, shortvals_, true );
     maprg_ = setup().range();
 
     longrg_ = maprg_;

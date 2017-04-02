@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "bufstring.h"
 #include "datapointset.h"
+#include "datadistributiontools.h"
 #include "mouseevent.h"
 #include "statparallelcalc.h"
 
@@ -251,6 +252,28 @@ void uiStatsDisplay::usePar( const IOPar& iop )
     mGetAndSetParam( double, stddev, sKey::StdDev(), avgstdfld_, 1 );
     mGetAndSetParam( float, median, sKey::Median(), medrmsfld_, 0 );
     mGetAndSetParam( double, rms, sKey::RMS(), medrmsfld_, 1 );
+}
+
+
+void uiStatsDisplay::setData( const DataDistribution<float>& distrib,
+			      od_int64 count, Interval<float> rg )
+{
+    histgramdisp_->setDistribution( distrib );
+    if ( countfld_ )
+	countfld_->setValue( count );
+    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+	rg = distrib.dataRange();
+    DataDistributionInfoExtracter<float> distrinfextr( distrib );
+    float med, avg, stdev, rms;
+    med = distrib.medianPosition();
+    distrinfextr.getAvgStdRMS( avg, stdev, rms );
+
+    minmaxfld_->setValue( rg.start, 0 );
+    minmaxfld_->setValue( rg.stop, 1 );
+    avgstdfld_->setValue( avg, 0 );
+    avgstdfld_->setValue( stdev, 1 );
+    medrmsfld_->setValue( med, 0 );
+    medrmsfld_->setValue( rms, 1 );
 }
 
 

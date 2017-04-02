@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabseqmgr.h"
 #include "datapackbase.h"
+#include "datadistributiontools.h"
 #include "mousecursor.h"
 #include "keystrs.h"
 #include <math.h>
@@ -93,19 +94,19 @@ void uiMapperRangeEditor::setData( const Array2D<float>* data )
 }
 
 
-void uiMapperRangeEditor::setData( const IOPar& iop )
+bool uiMapperRangeEditor::setData( const IOPar& iop )
 {
-    TypeSet<float> histdata;
-    Interval<float> xrg; int nrvals;
-    iop.get( sKey::Data(), histdata );
-    iop.get( sKey::ValueRange(), xrg );
-    iop.get( sKey::NrValues(), nrvals );
+    RefMan<DataDistribution<float> > distr = new DataDistribution<float>;
+    DataDistributionChanger<float>( *distr ).usePar( iop );
+    if ( distr->isEmpty() )
+	return false;
 
-    histogramdisp_->setHistogram( histdata, xrg, nrvals );
+    histogramdisp_->setDistribution( *distr );
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
     drawAgain();
+    return true;
 }
 
 

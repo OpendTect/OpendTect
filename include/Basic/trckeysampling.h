@@ -27,8 +27,9 @@ mExpClass(Basic) TrcKeySampling
 public:
 
 			TrcKeySampling();
-			TrcKeySampling(const TrcKeySampling&);
 			TrcKeySampling(Pos::GeomID);
+			TrcKeySampling(const TrcKey&);
+			TrcKeySampling(const TrcKeySampling&);
 
     bool		is2D() const	{ return TrcKey::is2D(survid_); }
     Pos::GeomID getGeomID() const;
@@ -144,7 +145,7 @@ public:
     void		includeInl( int inl ) { includeLine(inl); }
     void		includeCrl( int crl ) { includeTrc(crl); }
     inline bool		includes(const BinID& bid,bool ignoresteps=false) const
-			{ return lineOK(bid.inl(),ignoresteps) && 
+			{ return lineOK(bid.inl(),ignoresteps) &&
 				 trcOK(bid.crl(),ignoresteps); }
     inline bool		inlOK( int inl ) const { return lineOK(inl); }
     inline bool		crlOK( int crl ) const { return trcOK(crl); }
