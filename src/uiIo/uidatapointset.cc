@@ -1440,7 +1440,7 @@ bool acceptOK()
 	    ctio_.ioobj_->pars().set( sKey::Type(), type_ );
 	    DBM().setEntry( *ctio_.ioobj_ );
 	}
-	fname_ = ctio_.ioobj_->fullUserExpr(false);
+	fname_ = ctio_.ioobj_->mainFileName();
     }
 
     return true;

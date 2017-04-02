@@ -231,7 +231,7 @@ void uiSeisFileMan::setToolButtonProperties()
 	attribbut_->setSensitive( curioobj_ );
 	if ( curioobj_ )
 	{
-	     File::Path fp( curioobj_->fullUserExpr() );
+	     File::Path fp( curioobj_->mainFileName() );
 	     fp.setExtension( "proc" );
 	     attribbut_->setSensitive( File::exists(fp.fullPath()) );
 	     mSetButToolTip(attribbut_,tr("Show AttributeSet for "),
@@ -492,7 +492,7 @@ void uiSeisFileMan::showAttribSet( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    File::Path fp( curioobj_->fullUserExpr() );
+    File::Path fp( curioobj_->mainFileName() );
     fp.setExtension( "proc" );
     File::launchViewer( fp.fullPath(), File::ViewPars() );
 }

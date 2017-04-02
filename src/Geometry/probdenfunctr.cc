@@ -45,14 +45,14 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
         return 0;
     }
 
-    const BufferString fnm( ioobj.fullUserExpr(true) );
+    const BufferString fnm( ioobj.mainFileName() );
     od_istream strm( fnm );
     if ( !strm.isOK() )
     {
 	if ( emsg )
 	{
 	    *emsg = uiStrings::phrCannotOpen(toUiString(fnm));
-	    strm.addErrMsgTo(*emsg); 
+	    strm.addErrMsgTo(*emsg);
 	}
 	return 0;
     }
@@ -78,14 +78,14 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 	return false;
     }
 
-    const BufferString fnm( ioobj.fullUserExpr(false) );
+    const BufferString fnm( ioobj.mainFileName() );
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {
 	if ( emsg )
 	{
 	    *emsg = uiStrings::phrCannotOpen( toUiString(fnm) );
-	    strm.addErrMsgTo(*emsg); 
+	    strm.addErrMsgTo(*emsg);
 	}
 	return false;
     }

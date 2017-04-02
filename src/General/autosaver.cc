@@ -299,7 +299,7 @@ bool OD::AutoSaver::restore( IOStream& iostrm, const char* newnm )
     if ( transl )
 	tmpiostrm.setExt( transl->defExtension() );
     tmpiostrm.genFileName();
-    const BufferString newfnm( tmpiostrm.fullUserExpr(true) );
+    const BufferString newfnm( tmpiostrm.mainFileName() );
     if ( iostrm.implRename(newfnm) )
 	iostrm.fileSpec().setFileName( newfnm );
     iostrm.setName( newnm );

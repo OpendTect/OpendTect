@@ -88,7 +88,7 @@ bool FaultAuxData::init()
     if ( !ioobj || ioinfo.type()!=IOObjInfo::Fault )
 	return false;
 
-    File::Path fp( ioobj->fullUserExpr(true) );
+    File::Path fp( ioobj->mainFileName() );
     fp.setExtension( "" );
     fltfullnm_ = fp.fullPath();
 

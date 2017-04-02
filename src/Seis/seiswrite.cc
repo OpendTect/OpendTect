@@ -105,10 +105,10 @@ bool SeisTrcWriter::close()
 void SeisTrcWriter::writeCollectedStats() const
 {
     IOPar statspar;
-    if ( !ioobj_->isStream() || !seisstatscollector_.fillPar(statspar) )
+    if ( !seisstatscollector_.fillPar(statspar) )
 	return;
 
-    File::Path fp( ioobj_->fullUserExpr(true) );
+    File::Path fp( ioobj_->mainFileName() );
     fp.setExtension( "stats" );
     statspar.write( fp.fullPath(), sKey::Stats() );
 }

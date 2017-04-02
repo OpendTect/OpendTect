@@ -223,7 +223,7 @@ const char* IOObjInfo::timeLastModified() const
 {
     if ( !ioobj_ ) return 0;
 
-    const char* fnm = ioobj_->fullUserExpr();
+    const BufferString fnm = ioobj_->mainFileName();
     return File::timeLastModified( fnm );
 }
 

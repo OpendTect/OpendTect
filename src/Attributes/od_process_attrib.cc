@@ -94,12 +94,12 @@ bool BatchProgram::go( od_ostream& strm )
 	    msg += seisid; msg += "' ..."; mRetHostErr( msg );
 	}
 
-	File::Path seisfp( seisioobj->fullUserExpr(false) );
+	File::Path seisfp( seisioobj->mainFileName() );
 	if ( !seisfp.isAbsolute() )
 	{
 	    seisfp.set( DBM().survDir() );
 	    seisfp.add( seisioobj->dirName() );
-	    seisfp.add( seisioobj->fullUserExpr(false) );
+	    seisfp.add( seisioobj->mainFileName() );
 	}
 
 	BufferString dirnm = seisfp.pathOnly();
@@ -328,7 +328,7 @@ bool BatchProgram::go( od_ostream& strm )
 	PtrMan<IOObj> ioobj = DBM().get( seisdbky );
 	if ( ioobj )
 	{
-	    File::Path fp( ioobj->fullUserExpr() );
+	    File::Path fp( ioobj->mainFileName() );
 	    fp.setExtension( "proc" );
 	    pars().write( fp.fullPath(), sKey::Pars() );
 	}

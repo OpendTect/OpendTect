@@ -149,7 +149,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 			uiStrings::sEmptyString())
 	}
 
-	pathnm = outfld_->ioobj(true)->fullUserExpr( Conn::Write );
+	pathnm = outfld_->ioobj(true)->mainFileName();
 	if ( lnmfld_ )
 	{
 	    if ( !File::isDirectory(pathnm) )

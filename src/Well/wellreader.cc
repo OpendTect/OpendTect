@@ -241,7 +241,9 @@ const char* Well::odIO::mkFileName( const char* bnm, const char* ext, int nr )
 
 const char* Well::odIO::getMainFileName( const IOObj& ioobj )
 {
-    return ioobj.fullUserExpr( true );
+    mDeclStaticString( ret );
+    ret = ioobj.mainFileName();
+    return ret.buf();
 }
 
 
@@ -320,7 +322,7 @@ Well::odReader::odReader( const char* f, Well::Data& w, uiString& e )
 
 
 Well::odReader::odReader( const IOObj& ioobj, Well::Data& w, uiString& e )
-    : Well::odIO(ioobj.fullUserExpr(true),e)
+    : Well::odIO(ioobj.mainFileName(),e)
     , Well::ReadAccess(w)
 {
     wd_.info().setName( ioobj.name() );

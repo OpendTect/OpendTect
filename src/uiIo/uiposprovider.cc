@@ -154,7 +154,7 @@ void uiPosProvider::openCB( CallBacker* )
     uiIOObjSelDlg dlg( this, ctio, tr("Open Subselection") );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
-    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
+    const BufferString fnm( dlg.ioObj()->mainFileName() );
     delete ctio.ioobj_;
     od_istream strm( fnm );
     if ( !strm.isOK() )
@@ -185,7 +185,7 @@ void uiPosProvider::saveCB( CallBacker* )
     uiIOObjSelDlg dlg( this, ctio, tr("Save Subselection") );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
-    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
+    const BufferString fnm( dlg.ioObj()->mainFileName() );
     delete ctio.ioobj_;
     od_ostream strm( fnm );
     if ( !strm.isOK() )

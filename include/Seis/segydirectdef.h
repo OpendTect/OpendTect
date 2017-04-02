@@ -121,7 +121,7 @@ public:
 
 protected:
 
-    bool		writeHistogramPars() const;
+    bool		writeStats() const;
     IOObj*		ioobj_;
     Pos::GeomID		geomid_;
 

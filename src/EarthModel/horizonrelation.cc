@@ -183,8 +183,8 @@ static RelationTree::Node* createNewNode( const DBKey& id )
     if ( !ioobj )
 	return 0;
 
-    const char* fnm = ioobj->fullUserExpr( true );
-    if ( !fnm || !*fnm || !File::exists(fnm) )
+    const BufferString fnm = ioobj->mainFileName();
+    if ( fnm.isEmpty() || !File::exists(fnm) )
 	return 0;
 
     RelationTree::Node* node = new RelationTree::Node( id );
@@ -250,8 +250,8 @@ bool RelationTree::write() const
 
 static bool hasBeenModified( const IOObj& ioobj, const char* datestamp )
 {
-    const char* fnm = ioobj.fullUserExpr( true );
-    if ( !fnm || !*fnm || !File::exists(fnm) )
+    const BufferString fnm = ioobj.mainFileName();
+    if ( fnm.isEmpty() || !File::exists(fnm) )
 	return false;
 
     const char* moddate = File::timeLastModified( fnm );

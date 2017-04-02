@@ -311,7 +311,7 @@ bool SeisJobExecProv::removeTempSeis()
     PtrMan<IOObj> ioobj = DBM().get( tmpstorid_ );
     if ( !ioobj ) return true;
 
-    File::Path fp( ioobj->fullUserExpr(true) );
+    File::Path fp( ioobj->mainFileName() );
     DBM().removeEntry( tmpstorid_ );
 
     if ( fp.fileName() == "i.*" )

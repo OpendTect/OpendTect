@@ -296,7 +296,7 @@ od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
 
 od_int64 SeisIOObjInfo::getFileSize() const
 {
-    const char* fnm = ioobj_->fullUserExpr();
+    const char* fnm = ioobj_->mainFileName();
     int nrfiles;
     return getFileSize( fnm, nrfiles );
 }
@@ -354,10 +354,7 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 bool SeisIOObjInfo::getPars( IOPar& iop ) const
 {
     mChk(false);
-    if ( !ioobj_->isStream() )
-	return false;
-
-    File::Path fp( ioobj_->fullUserExpr() );
+    File::Path fp( ioobj_->mainFileName() );
     fp.setExtension( "par" );
     return iop.read( fp.fullPath(), sKey::Pars() );
 }
@@ -365,10 +362,7 @@ bool SeisIOObjInfo::getPars( IOPar& iop ) const
 
 bool SeisIOObjInfo::getStats( IOPar& iop ) const
 {
-    if ( !ioobj_->isStream() )
-	return false;
-
-    File::Path fp( ioobj_->fullUserExpr() );
+    File::Path fp( ioobj_->mainFileName() );
     fp.setExtension( "stats" );
     return iop.read( fp.fullPath(), sKey::Stats() );
 }
@@ -779,15 +773,4 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
 	    gids.removeSingle( idl );
 	}
     }
-}
-
-
-bool SeisIOObjInfo::getDisplayPars( IOPar& iop ) const
-{
-    if ( !ioobj_ )
-	return false;
-
-    File::Path fp( ioobj_->fullUserExpr(true) );
-    fp.setExtension( "par" );
-    return iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty();
 }

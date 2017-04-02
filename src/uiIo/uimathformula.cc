@@ -410,7 +410,7 @@ BufferString uiMathFormula::getIOFileName( bool forread )
     if ( !dlg.go() )
 	return fnm;
 
-    fnm = dlg.ioObj()->fullUserExpr( forread );
+    fnm = dlg.ioObj()->mainFileName();
     const bool doesexist = File::exists( fnm );
     if ( forread && !doesexist )
 	{ uiMSG().error(uiStrings::sFileDoesntExist()); fnm.setEmpty(); }

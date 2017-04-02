@@ -70,11 +70,12 @@ public:
 			//!< max bytes per sample, component -1 => add all
     bool		getPars(IOPar&) const;
     bool		getStats(IOPar&) const;
+    bool		getDisplayPars( IOPar& iop ) const
+			{ return getPars(iop); }
 
     int			nrComponents(Pos::GeomID geomid=mUdfGeomID) const;
     void		getComponentNames(BufferStringSet&,
 					  Pos::GeomID geomid=mUdfGeomID) const;
-    bool		getDisplayPars(IOPar&) const;
 
     mStruct(Seis) Opts2D
     {

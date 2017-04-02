@@ -27,6 +27,7 @@ public:
 
     void		copyFrom(const IOObj&);
     const char*		fullUserExpr(bool forread=true) const;
+    BufferString	mainFileName() const;
     const char*		dirName() const;
 
     bool		implExists(bool) const;

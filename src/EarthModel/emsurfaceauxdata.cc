@@ -352,7 +352,7 @@ bool SurfaceAuxData::hasAttribute( const IOObj& ioobj, const char* attrnm )
 
 BufferString
     SurfaceAuxData::getFileName( const IOObj& ioobj, const char* attrnm )
-{ return getFileName( ioobj.fullUserExpr(true), attrnm ); }
+{ return getFileName( ioobj.mainFileName(), attrnm ); }
 
 
 BufferString

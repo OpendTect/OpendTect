@@ -42,7 +42,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	    {
 		mess = tr("Delete '%1' with folder\n'%2'%3");
 		mess.arg( ioobj_.uiName() );
-		mess.arg( ioobj_.fullUserExpr(true) );
+		mess.arg( ioobj_.mainFileName() );
 		mess.arg( tr("\n- and everything in it! - ?") );
 	    }
 

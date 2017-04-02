@@ -186,7 +186,7 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
 bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return true;
-    BufferString fnm( ioobj->fullUserExpr(true) );
+    BufferString fnm( ioobj->mainFileName() );
     BufferString bakfnm( fnm ); bakfnm += ".bak";
     if ( File::exists(bakfnm) )
 	File::remove( bakfnm );
@@ -219,7 +219,7 @@ bool TwoDSeisTrcTranslator::initRead_()
     PtrMan<IOObj> ioobj = DBM().get( conn_ ? conn_->linkedTo() : DBKey() );
     if ( !ioobj )
 	{ errmsg_ = tr( "Cannot reconstruct 2D filename" ); return false; }
-    BufferString fnm( ioobj->fullUserExpr(true) );
+    BufferString fnm( ioobj->mainFileName() );
     if ( !File::exists(fnm) )
     { errmsg_ = uiStrings::phrDoesntExist(toUiString(fnm)); return false; }
 
@@ -230,7 +230,7 @@ bool TwoDSeisTrcTranslator::initRead_()
 bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return true;
-    BufferString fnm( ioobj->fullUserExpr(true) );
+    BufferString fnm( ioobj->mainFileName() );
     Seis2DDataSet ds( *ioobj );
     const int nrlines = ds.nrLines();
     TypeSet<int> geomids;
@@ -272,7 +272,7 @@ bool SeisTrc2DTranslator::initRead_()
     PtrMan<IOObj> ioobj = DBM().get( conn_ ? conn_->linkedTo() : DBKey() );
     if ( !ioobj )
 	{ errmsg_ = tr("Cannot reconstruct 2D filename"); return false; }
-    BufferString fnm( ioobj->fullUserExpr(true) );
+    BufferString fnm( ioobj->mainFileName() );
     if ( !File::exists(fnm) ) return false;
 
     Seis2DDataSet dset( *ioobj );

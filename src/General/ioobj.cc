@@ -37,6 +37,7 @@ public:
     virtual const char*	connType() const		{ return ""; }
     virtual Conn*	getConn(bool) const		{ return 0; }
     virtual const char*	fullUserExpr(bool) const	{ return "<Undef>"; }
+    virtual BufferString mainFileName() const		{ return "udf"; }
     virtual bool	implExists(bool) const		{ return false; }
 
 protected:
@@ -356,7 +357,7 @@ bool IOObj::isSurveyDefault( const DBKey& ky )
 bool IOObj::isInCurrentSurvey() const
 {
     File::Path cursurvfp( DBM().survDir() ); cursurvfp.makeCanonical();
-    File::Path orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
+    File::Path orgfp( mainFileName() ); orgfp.makeCanonical();
     return orgfp.isSubDirOf(cursurvfp);
 }
 
@@ -426,7 +427,7 @@ const char* IOSubDir::fullUserExpr( bool ) const
 {
     mDeclStaticString( ret );
     ret = File::Path(dirnm_,name()).fullPath();
-    return ret;
+    return ret.buf();
 }
 
 
@@ -481,9 +482,20 @@ const char* IOX::fullUserExpr( bool forread ) const
 {
     IOObj* ioobj = DBM().get( ownkey_ );
     if ( !ioobj ) return "<invalid>";
-    const char* s = ioobj->fullUserExpr( forread );
+    mDeclStaticString( ret );
+    ret = ioobj->fullUserExpr( forread );
     delete ioobj;
-    return s;
+    return ret.buf();
+}
+
+
+BufferString IOX::mainFileName() const
+{
+    IOObj* ioobj = DBM().get( ownkey_ );
+    if ( !ioobj ) return BufferString( "invalid" );
+    const BufferString ret = ioobj->mainFileName();
+    delete ioobj;
+    return ret;
 }
 
 

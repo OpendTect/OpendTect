@@ -51,8 +51,9 @@ BufferString SEGYDirect2DLineIOProvider::getFileName( const IOObj& obj,
 						      Pos::GeomID geomid )
 {
     mDeclStaticString( ret );
-    ret = obj.fullUserExpr();
-    if ( ret.isEmpty() ) return ret;
+    ret = obj.mainFileName();
+    if ( ret.isEmpty() )
+	return ret;
 
     ret = SEGY::DirectDef::get2DFileName( ret, geomid );
     return ret;
@@ -130,7 +131,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
 					   const char* newnm ) const
 {
     const BufferString msk( "*.", sExtSEGDirect );
-    DirList dl( obj.fullUserExpr(), DirList::FilesOnly, msk );
+    DirList dl( obj.mainFileName(), DirList::FilesOnly, msk );
     bool ret = true;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -156,7 +157,7 @@ uiRetVal SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
 {
     geomids.erase();
     const BufferString msk( "*.", sExtSEGDirect );
-    DirList dl( obj.fullUserExpr(), DirList::FilesOnly, msk );
+    DirList dl( obj.mainFileName(), DirList::FilesOnly, msk );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );

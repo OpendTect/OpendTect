@@ -70,7 +70,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::convertData(
 	    addGeomIDToFSSPara( ioobjinfo );
 
         if ( ioobjinfo.getParsOffsetInFile() > 0 )
-	    writeToFile(ioobj->fullUserExpr(), ioobjinfo.getParsOffsetInFile());
+	    writeToFile(ioobj->mainFileName(), ioobjinfo.getParsOffsetInFile());
     }
 }
 

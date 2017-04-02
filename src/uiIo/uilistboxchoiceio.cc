@@ -59,7 +59,7 @@ void uiListBoxChoiceIO::readReqCB( CallBacker* )
     const IOObj* ioobj = dlg.ioObj();
     if ( !ioobj ) return;
 
-    const BufferString fnm( ioobj->fullUserExpr(true) );
+    const BufferString fnm( ioobj->mainFileName() );
     od_istream strm( fnm );
     if ( !strm.isOK() )
     {
@@ -95,7 +95,7 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
     const IOObj* ioobj = dlg.ioObj();
     if ( !ioobj ) return;
 
-    const BufferString fnm( ioobj->fullUserExpr(false) );
+    const BufferString fnm( ioobj->mainFileName() );
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {

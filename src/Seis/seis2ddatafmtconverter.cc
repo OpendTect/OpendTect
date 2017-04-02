@@ -35,7 +35,7 @@ static void convert2DPSData()
     for ( int idx=0; idx<olddel.size(); idx++ )
     {
 	const IOObj& psobj = olddel.ioobj( idx );
-	const FixedString psdir = psobj.fullUserExpr( true );
+	const BufferString psdir = psobj.mainFileName();
 	if ( psdir.isEmpty() || !File::isDirectory(psdir) )
 	    continue;
 
@@ -281,7 +281,7 @@ void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
 static const char* sKeyLSFileType = "2D Line Group Data";
 static void read2DSFile( const IOObj& lsobj, ObjectSet<IOPar>& pars )
 {
-    SafeFileIO sfio( lsobj.fullUserExpr(), true );
+    SafeFileIO sfio( lsobj.mainFileName(), true );
     if ( !sfio.open(true) )
 	return;
 
@@ -357,7 +357,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	ctio.setObj( 0 );
 	ctio.ctxt_.setName( nm );
 	if ( ctio.fillObj() == 0 ) return BufferString::empty();
-	File::Path fp( ctio.ioobj_->fullUserExpr() );
+	File::Path fp( ctio.ioobj_->mainFileName() );
 	nm = fp.fileName();
 	iop.set( sKey::Attribute(), nm.buf() );
     }
@@ -369,7 +369,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     if ( !issurvdefset && ctio.ioobj_ && survdefattr == attribnm )
 	ctio.ioobj_->setSurveyDefault();
 
-    BufferString ret( ctio.ioobj_ ? ctio.ioobj_->fullUserExpr() : "" );
+    BufferString ret( ctio.ioobj_ ? ctio.ioobj_->mainFileName() : "" );
     ctio.setObj( 0 );
     return ret;
 }
@@ -442,7 +442,7 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
 
 static bool write2DSFile( const IOObj& lsobj, const ObjectSet<IOPar>& pars )
 {
-    SafeFileIO sfio( lsobj.fullUserExpr(), true );
+    SafeFileIO sfio( lsobj.mainFileName(), true );
     if ( !sfio.open(false,true) )
 	return false;
 

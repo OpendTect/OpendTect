@@ -148,7 +148,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 	return false;
     ctio_.setObj( dlg.ioObj()->clone() );
 
-    const BufferString fnm( ctio_.ioobj_->fullUserExpr(!forsave) );
+    const BufferString fnm( ctio_.ioobj_->mainFileName() );
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     bool rv = false;
     if ( forsave )

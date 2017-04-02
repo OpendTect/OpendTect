@@ -593,24 +593,26 @@ SEGY::FileIndexer::FileIndexer( const DBKey& mid, bool isvol,
 
 SEGY::FileIndexer::~FileIndexer()
 {
-    writeHistogramPars();
+    writeStats();
     delete ioobj_;
     delete directdef_;
     delete scanner_;
 }
 
 
-bool SEGY::FileIndexer::writeHistogramPars() const
+bool SEGY::FileIndexer::writeStats() const
 {
     IOPar statspar;
     const uiRetVal uirv = scanner_->fillStats( statspar );
     if ( !uirv.isOK() )
 	{ msg_ = uirv; return false; }
 
-    File::Path fp( ioobj_->fullUserExpr(true) );
+    File::Path fp( ioobj_->mainFileName() );
     fp.setExtension( "stats" );
     if ( !statspar.write(fp.fullPath(),sKey::Stats()) )
 	msg_ = uiStrings::phrCannotWrite( toUiString(fp.fullPath()) );
+
+    return true;
 }
 
 
@@ -620,7 +622,7 @@ int SEGY::FileIndexer::nextStep()
 
     if ( !directdef_ )
     {
-	BufferString outfile = ioobj_->fullUserExpr( false );
+	BufferString outfile = ioobj_->mainFileName();
 	if ( outfile.isEmpty() )
 	{ msg_ = tr("Output filename empty"); return ErrorOccurred(); }
 

@@ -46,7 +46,7 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 BufferString SeisCBVS2DLineIOProvider::getFileName( const IOObj& obj,
 						    Pos::GeomID geomid )
 {
-    BufferString ret = obj.fullUserExpr();
+    BufferString ret = obj.mainFileName();
     if ( ret.isEmpty() )
 	return ret;
 
@@ -134,7 +134,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
 					   const char* newnm ) const
 {
     const BufferString msk( "*.", sExtCBVS );
-    DirList dl( obj.fullUserExpr(), DirList::FilesOnly, msk );
+    DirList dl( obj.mainFileName(), DirList::FilesOnly, msk );
     bool ret = true;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -168,7 +168,7 @@ uiRetVal SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
 {
     geomids.erase();
     const BufferString msk( "*.", sExtCBVS );
-    DirList dl( obj.fullUserExpr(), DirList::FilesOnly, msk );
+    DirList dl( obj.mainFileName(), DirList::FilesOnly, msk );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );

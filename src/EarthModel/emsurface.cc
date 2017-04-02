@@ -271,7 +271,7 @@ BufferString Surface::getParFileName( const IOObj& ioobj )
     if ( !EM::canOverwrite(ioobj.key()) )
 	return BufferString::empty();
 
-    File::Path fp( ioobj.fullUserExpr(true) );
+    File::Path fp( ioobj.mainFileName() );
     fp.setExtension( "par" );
     return fp.fullPath();
 }
@@ -282,7 +282,7 @@ BufferString Surface::getSetupFileName( const IOObj& ioobj )
     if ( !EM::canOverwrite(ioobj.key()) )
 	return BufferString::empty();
 
-    File::Path fp( ioobj.fullUserExpr(true) );
+    File::Path fp( ioobj.mainFileName() );
     fp.setExtension( "ts" );
     return fp.fullPath();
 }
@@ -293,7 +293,7 @@ BufferString Surface::getParentChildFileName( const IOObj& ioobj )
     if ( !EM::canOverwrite(ioobj.key()) )
 	return BufferString::empty();
 
-    File::Path fp( ioobj.fullUserExpr(true) );
+    File::Path fp( ioobj.mainFileName() );
     fp.setExtension( "pcd" );
     return fp.fullPath();
 }

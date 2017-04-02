@@ -131,7 +131,7 @@ uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
 	, outioobj_(oio)
 	, impdlg_(p)
 {
-    const BufferString fnm( inioobj_.fullUserExpr(true) );
+    const BufferString fnm( inioobj_.mainFileName() );
     File::Path fp( fnm );
     BufferString ext = fp.extension();
     if ( ext.isEmpty() ) ext = "sgy";

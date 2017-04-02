@@ -86,19 +86,27 @@ void IOStream::copyFrom( const IOObj& obj )
 
 const char* IOStream::fullUserExpr( bool forread ) const
 {
-    return fs_.absFileName( curfidx_ );
+    mDeclStaticString( ret );
+    ret = mainFileName();
+    return ret;
+}
+
+
+BufferString IOStream::mainFileName() const
+{
+    return BufferString( fs_.absFileName(curfidx_) );
 }
 
 
 bool IOStream::implExists( bool fr ) const
 {
-    return File::exists( fullUserExpr(fr) );
+    return File::exists( mainFileName() );
 }
 
 
 bool IOStream::implReadOnly() const
 {
-    return !File::isWritable( fullUserExpr(true) );
+    return !File::isWritable( mainFileName() );
 }
 
 
@@ -140,9 +148,8 @@ bool IOStream::implRename( const char* newnm, const CallBack* cb )
     if ( nrfiles != 1 )
 	return false;
 
-    // need this, newnm may be same buf as fullUserExpr uses ...
     const BufferString newfnm( newnm );
-    const BufferString oldfnm( fullUserExpr(true) );
+    const BufferString oldfnm( mainFileName() );
     return File::rename( oldfnm, newfnm );
 }
 

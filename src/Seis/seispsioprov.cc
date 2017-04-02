@@ -286,7 +286,7 @@ bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 
     SeisPS3DTranslator::implRemove( ioobj );
 
-    const BufferString fnm( ioobj->fullUserExpr(true) );
+    const BufferString fnm( ioobj->mainFileName() );
     if ( File::exists(fnm) )
 	File::remove( fnm );
 
@@ -297,7 +297,7 @@ bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 bool CBVSSeisPS2DTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
-    BufferString fnm( ioobj->fullUserExpr(true) );
+    BufferString fnm( ioobj->mainFileName() );
     if ( File::exists(fnm) )
 	File::remove( fnm );
     return !File::exists(fnm);

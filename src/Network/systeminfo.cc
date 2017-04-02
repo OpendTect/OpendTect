@@ -221,7 +221,7 @@ int getFreeMBOnDisk( const IOObj& ioobj )
     if ( !iostrm )
 	dir = GetDataDir();
     else
-	dir = File::Path( iostrm->fullUserExpr() ).pathOnly();
+	dir = File::Path( iostrm->mainFileName() ).pathOnly();
 
     return getFreeMBOnDisk( dir );
 }
@@ -233,7 +233,7 @@ void getFreeMBOnDiskMsg( int mb, uiString& str )
     bytes <<= 20;
     NrBytesToStringCreator converter( bytes );
     str = od_static_tr( "getFreeMBOnDiskMsg",
-    			"Free space on disk: %1")
+			"Free space on disk: %1")
 	.arg( converter.getString( bytes ) );
 }
 

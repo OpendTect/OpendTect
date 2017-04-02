@@ -265,7 +265,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 	, outioobj_(oi)
 	, segyexp_(p)
 {
-    const BufferString fnm( outioobj_.fullUserExpr(false) );
+    const BufferString fnm( outioobj_.mainFileName() );
     File::Path fp( fnm );
     BufferString ext = fp.extension();
     if ( ext.isEmpty() ) ext = "sgy";
@@ -434,7 +434,7 @@ bool uiSEGYExp::acceptOK()
 	    needmsgallok = result;
 	else
 	{
-	    uiSEGYFileManip dlg( this, outioobj->fullUserExpr(false) );
+	    uiSEGYFileManip dlg( this, outioobj->mainFileName() );
 	    dlg.go();
 	}
     }

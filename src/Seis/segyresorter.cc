@@ -112,12 +112,11 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 	    break;
 	    case Seis::VolPS:
 	    {
-		drdr_ = new SEGYDirect3DPSReader( ioobj->fullUserExpr(true) );
+		drdr_ = new SEGYDirect3DPSReader( ioobj->mainFileName() );
 	    }
 	    break;
 	    case Seis::LinePS:
-		drdr_ = new SEGYDirect2DPSReader( ioobj->fullUserExpr(true),
-						  lnm );
+		drdr_ = new SEGYDirect2DPSReader( ioobj->mainFileName(), lnm );
 	    break;
 	    case Seis::Line:
 		msg_ = tr("2D seismics not supported");

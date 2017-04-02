@@ -402,7 +402,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
 {
     mDynamicCastGet(IOStream&,iostrm,ioobj)
     uiString caption = tr("New file location for '%1'").arg(ioobj.uiName());
-    BufferString oldfnm( iostrm.fullUserExpr() );
+    BufferString oldfnm( iostrm.mainFileName() );
     BufferString filefilt;
     BufferString defext( subj_.defExt() );
     if ( !defext.isEmpty() )
@@ -469,7 +469,7 @@ bool uiIOObjManipGroup::doReloc(Translator* trans, IOStream& iostrm,
 {
     const bool oldimplexist = trans ? trans->implExists( &iostrm, true )
 				    : iostrm.implExists( true );
-    const BufferString newfname( chiostrm.fullUserExpr() );
+    const BufferString newfname( chiostrm.mainFileName() );
 
     bool succeeded = true;
     if ( oldimplexist )

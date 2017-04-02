@@ -169,7 +169,7 @@ void Seis::VolFetcher::getNextTranslator()
 Conn* Seis::VolFetcher::getConn()
 {
     Conn* conn = ioobj_->getConn( Conn::Read );
-    const BufferString fnm = ioobj_->fullUserExpr( Conn::Read );
+    const BufferString fnm = ioobj_->mainFileName();
     if ( !conn || (conn->isBad() && !File::isDirectory(fnm)) )
     {
 	delete conn; conn = 0;

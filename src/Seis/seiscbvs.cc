@@ -537,10 +537,11 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 static StreamProvider* getStrmProv( const IOObj* ioobj, const char* ext )
 {
     File::Path fp( ioobj->fullUserExpr(true) );
-    fp.setExtension( ext );
+    if ( ext && *ext )
+	fp.setExtension( ext );
     StreamProvider* sp = new StreamProvider( fp.fullPath() );
     if ( !sp->exists(true) )
-    { delete sp; sp = 0; }
+	{ delete sp; sp = 0; }
 
     return sp;
 }

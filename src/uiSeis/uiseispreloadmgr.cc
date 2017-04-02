@@ -396,7 +396,7 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
     uiIOObjSelDlg dlg( this, ctio, tr("Open pre-load settings") );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
-    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
+    const BufferString fnm( dlg.ioObj()->mainFileName() );
     delete ctio.ioobj_;
     od_istream strm( fnm );
     if ( !strm.isOK() )
@@ -423,7 +423,7 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
     uiIOObjSelDlg dlg( this, ctio, tr("Save pre-load settings") );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
-    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
+    const BufferString fnm( dlg.ioObj()->mainFileName() );
     delete ctio.ioobj_;
     od_ostream strm( fnm );
     if ( !strm.isOK() )

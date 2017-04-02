@@ -134,7 +134,7 @@ static bool isIOStream( const IOObj& ioobj )
 
 static BufferString getNotesFileName( const IOObj& ioobj )
 {
-    BufferString fnm( ioobj.fullUserExpr() );
+    BufferString fnm( ioobj.mainFileName() );
     File::Path fp( fnm );
     if ( !fp.isAbsolute() )
     {
@@ -285,7 +285,7 @@ BufferString uiObjFileMan::getFileInfo()
 	return txt;
 
     const bool isstrm = isIOStream( *curioobj_ );
-    const BufferString fname = curioobj_->fullUserExpr();
+    const BufferString fname = curioobj_->mainFileName();
     const bool isdir = isstrm && File::isDirectory( fname );
     if ( !isstrm )
 	txt.add( "Data source: " ).add( curioobj_->connType() );

@@ -177,11 +177,14 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     BufferString type( EM::EMM().objectType(mid) );
     BufferString info;
     info.add( "Data Type: " ).add( type ).add( "\n" );
-    File::Path fp( ioobj->fullUserExpr(true) );
-    info.add( "Directory: " ).add( fp.pathOnly() ).add ( "\n" );
-    info.add( "File: " ).add( fp.fileName() ).add( "\n" );
-    info.add( "File size in KB: " )
-	.add( File::getKbSize(ioobj->fullUserExpr(true)) );
+    if ( ioobj->isStream() )
+    {
+	File::Path fp( ioobj->mainFileName() );
+	info.add( "Directory: " ).add( fp.pathOnly() ).add ( "\n" );
+	info.add( "File: " ).add( fp.fileName() ).add( "\n" );
+	info.add( "File size in KB: " )
+	    .add( File::getKbSize(ioobj->mainFileName()) );
+    }
     infofld_->setText( info );
 }
 
@@ -249,7 +252,7 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     if ( !hordlg.go() || !hordlg.ioObj() )
 	return;
 
-    const BufferString fnm( hordlg.ioObj()->fullUserExpr(true) );
+    const BufferString fnm( hordlg.ioObj()->mainFileName() );
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {

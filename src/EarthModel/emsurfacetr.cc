@@ -151,7 +151,7 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
 
 #define mImplStart(fn) \
     if ( !ioobj || ioobj->translator()!="dGB" ) return false; \
-    const BufferString basefnm( ioobj->fullUserExpr(true) ); \
+    const BufferString basefnm( ioobj->mainFileName() ); \
     StreamProvider sp( basefnm.buf() ); \
     File::Path basefp( basefnm ); \
     const BufferString pathnm( basefp.pathOnly() ); \
@@ -422,7 +422,7 @@ static BufferString getFileName( const char* fulluserexp, const char* attrnmptr)
 }
 
 static BufferString getFileName( const IOObj& ioobj, const char* attrnm )
-{ return getFileName( ioobj.fullUserExpr(true), attrnm ); }
+{ return getFileName( ioobj.mainFileName(), attrnm ); }
 
 
 Executor* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,

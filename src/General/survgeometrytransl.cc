@@ -57,7 +57,7 @@ IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
 Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 							uiString& errmsg ) const
 {
-    od_istream strm( ioobj.fullUserExpr() );
+    od_istream strm( ioobj.mainFileName() );
     if ( !strm.isOK() )
 	return 0;
 
@@ -84,7 +84,7 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
 	return false;
 
     geom2d->setID( ioobj.key().objID().getI() );
-    od_ostream strm( ioobj.fullUserExpr() );
+    od_ostream strm( ioobj.mainFileName() );
     const bool res = !strm.isOK() ? false
 		   : geom2d->data().write( strm, false, true );
     if ( !res )

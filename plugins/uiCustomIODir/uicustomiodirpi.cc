@@ -86,9 +86,9 @@ bool acceptOK( CallBacker* )
 	return false;
 
     // Do your thing here, for example use the filenames:
-    BufferString inputfilename = inioobj->fullUserExpr( true );
-    BufferString outputfilename = outioobj->fullUserExpr( false );
-    uiMSG().message( inputfilename, " is input\noutput is: ", outputfilename );
+    BufferString inputname = inioobj->fullUserExpr( true );
+    BufferString outputname = outioobj->fullUserExpr( false );
+    uiMSG().message( inputname, " is input\noutput is: ", outputname );
 
     return true;
 }

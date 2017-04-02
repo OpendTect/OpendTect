@@ -574,7 +574,7 @@ bool uiStratLayerModel::saveGenDesc() const
 	return false;
     descctio_.setObj( dlg.ioObj()->clone() );
 
-    const BufferString fnm( descctio_.ioobj_->fullUserExpr(false) );
+    const BufferString fnm( descctio_.ioobj_->mainFileName() );
     bool rv = false;
 
     MouseCursorChanger mcch( MouseCursor::Wait );
@@ -611,7 +611,7 @@ bool uiStratLayerModel::openGenDesc()
 
     descctio_.setObj( modeldlg_->ioObj()->clone() );
 
-    const BufferString fnm( descctio_.ioobj_->fullUserExpr(true) );
+    const BufferString fnm( descctio_.ioobj_->mainFileName() );
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	{ uiMSG().error( uiStrings::sCantOpenInpFile() ); return false; }

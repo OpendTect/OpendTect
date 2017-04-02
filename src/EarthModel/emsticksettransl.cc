@@ -62,7 +62,7 @@ Executor* EMStickSetTranslator::reader( EM::StickSet& hor, const IOObj* ioobj,
     if ( !conn )
     {
 	errmsg = "Cannot open ";
-	errmsg += ioobj->fullUserExpr(true);
+	errmsg += ioobj->mainFileName();
 	return 0;
     }
 
@@ -95,7 +95,7 @@ Executor* EMStickSetTranslator::writer( const EM::StickSet& hor,
     if ( !conn )
     {
 	errmsg = "Cannot open ";
-	errmsg += ioobj->fullUserExpr(true);
+	errmsg += ioobj->mainFileName();
 	return false;
     }
 

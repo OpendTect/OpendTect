@@ -1196,7 +1196,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     if ( !ioobj )
 	return;
 
-    File::Path fp( ioobj->fullUserExpr() );
+    File::Path fp( ioobj->mainFileName() );
     fp.setExtension( "proc" );
     if ( !File::exists(fp.fullPath()) )
     {

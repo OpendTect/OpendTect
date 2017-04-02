@@ -375,7 +375,7 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 	while ( true )
 	{
 	    iostrm->genFileName();
-	    if ( !File::exists(iostrm->fullUserExpr()) )
+	    if ( !File::exists(iostrm->mainFileName()) )
 		break;
 	    ifnm++;
 	    iostrm->setName( BufferString(uniqnm,ifnm) );

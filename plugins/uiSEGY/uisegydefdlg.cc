@@ -242,7 +242,7 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
     , nrfiles_(0)
     , isusable_(true)
 {
-    const BufferString deffnm = obj.fullUserExpr( true );
+    const BufferString deffnm = obj.mainFileName();
     uiLabel* lbl = 0;
     if ( !SEGY::DirectDef::readFooter(deffnm,filepars_,fileparsoffset_) )
 	mErrLabelRet(tr("Cannot read SEGY file info for %1").arg(obj.name()));
@@ -412,6 +412,6 @@ bool uiEditSEGYFileDataDlg::acceptOK()
 	filepars_.set( getFileNameKey(idx), fp.fullPath() );
     }
 
-    return SEGY::DirectDef::updateFooter( ioobj_.fullUserExpr(true), filepars_,
+    return SEGY::DirectDef::updateFooter( ioobj_.mainFileName(), filepars_,
 					  fileparsoffset_ );
 }

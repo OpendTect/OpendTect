@@ -20,12 +20,12 @@ uiString PosVecDataSetTranslatorGroup::sTypeName( int num )
 
 bool odPosVecDataSetTranslator::read( const IOObj& ioobj, PosVecDataSet& vds )
 {
-    return vds.getFrom( ioobj.fullUserExpr(true), errmsg_ );
+    return vds.getFrom( ioobj.mainFileName(), errmsg_ );
 }
 
 
 bool odPosVecDataSetTranslator::write( const IOObj& ioobj,
 					const PosVecDataSet& vds )
 {
-    return vds.putTo( ioobj.fullUserExpr(false), errmsg_, false );
+    return vds.putTo( ioobj.mainFileName(), errmsg_, false );
 }

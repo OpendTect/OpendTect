@@ -87,7 +87,7 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 				    const char* filetype )
     : ExecutorGroup( "Surface Reader" )
 {
-    init( ioobj.fullUserExpr(true), ioobj.name() );
+    init( ioobj.mainFileName(), ioobj.name() );
     error_ = !readHeaders( filetype );
 }
 
@@ -1489,7 +1489,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , binary_(binary)
     , objectmid_(ioobj ? ioobj->key() : DBKey::getInvalid() )
 {
-    init( ioobj ? ioobj->fullUserExpr(false) : 0 );
+    init( ioobj ? ioobj->mainFileName() : 0 );
 }
 
 

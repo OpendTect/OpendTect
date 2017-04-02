@@ -128,7 +128,7 @@ Well::odWriter::odWriter( const char* f, const Well::Data& w, uiString& e )
 
 Well::odWriter::odWriter( const IOObj& ioobj, const Well::Data& w,
 			  uiString& e )
-    : Well::odIO(ioobj.fullUserExpr(false),e)
+    : Well::odIO(ioobj.mainFileName(),e)
     , Well::WriteAccess(w)
 {
     init();
