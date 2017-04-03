@@ -44,7 +44,9 @@ VolProc::ChainOutput::ChainOutput()
 
 VolProc::ChainOutput::~ChainOutput()
 {
-    chain_->unRef();
+    if ( chain_ )
+	chain_->unRef();
+
     delete chainexec_;
     delete chainpar_;
     delete wrr_;
@@ -118,7 +120,10 @@ void VolProc::ChainOutput::createNewChainExec()
 	unRefAndZeroPtr( chain_ );
 
     if ( getChain() != MoreToDo() )
+    {
+	unRefAndZeroPtr( chain_ );
 	return;
+    }
     /* Many usePar implementations also allocate auxiliary data:
        Restore in case of chunking */
 
@@ -132,6 +137,8 @@ void VolProc::ChainOutput::createNewChainExec()
 int VolProc::ChainOutput::retError( const uiString& msg )
 {
     progresskeeper_.setMessage( msg );
+    setName( "Volume builder processing" );
+
     return ErrorOccurred();
 }
 
@@ -333,7 +340,7 @@ int VolProc::ChainOutput::setNextChunk()
 
     progresskeeper_.setMessage(
 	    tr("Starting new Volume Processing chunk %1-%2.")
-	    .arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() ) );
+	    .arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() ), true );
     progresskeeper_.setMessage( uiString::emptyString() );
 
     return MoreToDo();

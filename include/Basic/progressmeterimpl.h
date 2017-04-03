@@ -40,6 +40,7 @@ public:
     virtual void	setTotalNr(od_int64);
     virtual void	setNrDone(od_int64);
     virtual void	setMessage(const uiString&);
+    void		setMessage(const uiString&,bool printtolog);
     virtual void	setNrDoneText(const uiString&);
     virtual void	operator++();
 

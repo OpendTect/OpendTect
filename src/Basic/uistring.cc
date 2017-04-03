@@ -277,9 +277,7 @@ uiString::uiString()
 #ifdef __debug__
     , debugstr_( 0 )
 #endif
-{
-    mSetDBGStr;
-}
+{}
 
 uiString::uiString( const char* str )
     : data_( 0	)
@@ -852,7 +850,7 @@ bool uiString::setFromHexEncoded( const char* str )
 }
 
 
-uiString toUiString( const char* var ) { return uiString().set( var ); }
+uiString toUiString( const char* var )	{ return uiString().set( var ); }
 uiString toUiString( const uiString& var ) { return var; }
 
 uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }

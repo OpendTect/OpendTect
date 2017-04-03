@@ -69,6 +69,15 @@ mImplProgressRecorderStartStopGetFn(ProgressMeter*,forwardTo,forwardto_)
 void ProgressRecorder::setMessage( const uiString& msg )
 {
     message_ = msg;
+}
+
+
+void ProgressRecorder::setMessage( const uiString& msg, bool doprint )
+{
+    setMessage( msg );
+    if ( !doprint )
+	return;
+
     mDynamicCastGet(TextStreamProgressMeter*,txtfwdto,forwardto_)
     if ( txtfwdto )
 	txtfwdto->printMessage( msg );
