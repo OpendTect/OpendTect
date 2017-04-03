@@ -478,6 +478,9 @@ BufferString DBMan::getDirectoryNameOf( DirID dirid, bool fullpath ) const
 		{ ret = iosubd->dirName(); break; }
 	}
     }
+
+    if ( !fullpath )
+	ret = File::Path( ret ).fileName();
     return ret;
 }
 
