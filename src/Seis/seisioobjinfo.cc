@@ -362,6 +362,7 @@ bool SeisIOObjInfo::getPars( IOPar& iop ) const
 
 bool SeisIOObjInfo::getStats( IOPar& iop ) const
 {
+    mChk(false);
     File::Path fp( ioobj_->mainFileName() );
     fp.setExtension( "stats" );
     return iop.read( fp.fullPath(), sKey::Stats() );
