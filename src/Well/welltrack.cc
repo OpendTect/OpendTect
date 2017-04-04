@@ -188,7 +188,13 @@ Well::Track::ZType Well::Track::getDahForTVD( double z, ZType prevdah ) const
 
     const Interval<double> zrange = gtZRangeD();
     if ( !zrange.includes(z,false) )
+    {
+	const ZType kbelev = getKbElev();
+	if ( z+eps > kbelev && z-eps < firstPos().z_ )
+	    return z + kbelev;
+
 	return mUdf(ZType);
+    }
 
 #define mZInRg() \
     (zrg.start-eps < z  && zrg.stop+eps  > z) \
