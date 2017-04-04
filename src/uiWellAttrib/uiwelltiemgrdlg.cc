@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
-#include "seistrctr.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
@@ -334,7 +333,7 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 	    mErrRet( errmsg );
 	}
 
-	const bool idinsetupis2d = !seisIDIs3D( wtsetup_.seisid_ );
+	const bool idinsetupis2d = SeisIOObjInfo(wtsetup_.seisid_).is2D();
 	const bool surveyhastype = idinsetupis2d ? SI().has2D() : SI().has3D();
 	if ( !surveyhastype )
 	{
@@ -599,19 +598,6 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
     wtr.putIOPar( par, uiTieWin::sKeyWinPar() );
 
     welltiedlgset_.removeSingle( idx );
-}
-
-
-bool uiTieWinMGRDlg::seisIDIs3D( DBKey seisid ) const
-{
-    PtrMan<IOObj> ioobj = DBM().get( seisid );
-    if ( !ioobj )
-	return true;
-
-    const bool is2D = SeisTrcTranslator::is2D(*ioobj,true);
-    const bool islineset = SeisTrcTranslator::isLineSet(*ioobj);
-
-    return !is2D && !islineset;
 }
 
 const DBKey& uiTieWinMGRDlg::getWellId() const

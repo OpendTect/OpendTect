@@ -1096,8 +1096,8 @@ void uiSEGYFileOpts::setToggled( IOPar& iop, const char* key,
 
 bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 {
-    iop.setYN( SeisTrcTranslator::sKeyIs2D(), is2d_ );
-    iop.setYN( SeisTrcTranslator::sKeyIsPS(), isps_ );
+    iop.setYN( sKey::Is2D(), is2d_ );
+    iop.setYN( sKey::IsPS(), isps_ );
 
     iop.set( FileReadOpts::sKeyICOpt(),
 	     !posfld_ ? 0 : (posfld_->getBoolValue() ? 1 : -1) );

@@ -398,8 +398,8 @@ bool uiSEGYExp::acceptOK()
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
     fpfld_->fillPar( outioobj->pars() );
     const bool is2d = Seis::is2D( geom_ );
-    outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D(), is2d );
-    outioobj->pars().setYN( SeisTrcTranslator::sKeyIsPS(), Seis::isPS(geom_) );
+    outioobj->pars().setYN( sKey::Is2D(), is2d );
+    outioobj->pars().setYN( sKey::IsPS(), Seis::isPS(geom_) );
 
     if ( batchfld_ && batchfld_->wantBatch() )
     {

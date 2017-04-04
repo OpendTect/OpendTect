@@ -426,11 +426,11 @@ bool StorageProvider::setMSCProvSelData()
     if ( !mscprov_ )
 	return false;
 
-    Seis::Provider& prov = *mscprov_->provider();
-    if ( prov.isPS() )
+    Seis::Provider* prov = mscprov_->provider();
+    if ( !prov || prov->isPS() )
 	return false;
 
-    const bool is2d = prov.is2D();
+    const bool is2d = prov->is2D();
     const bool haveseldata = seldata_ && !seldata_->isAll();
 
     if ( haveseldata && seldata_->type() == Seis::Table )
@@ -476,14 +476,14 @@ bool StorageProvider::setMSCProvSelData()
     cs.zsamp_.stop = desiredvolume_->zsamp_.stop > storedvolume_.zsamp_.stop ?
 		     storedvolume_.zsamp_.stop : desiredvolume_->zsamp_.stop;
 
-    prov.setSelData( haveseldata ? seldata_->clone()
+    prov->setSelData( haveseldata ? seldata_->clone()
 				   : new Seis::RangeSelData(cs) );
 
     TypeSet<int> selcomps;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
 	if ( outputinterest_[idx] )
 	    selcomps += idx;
-    prov.selectComponents( selcomps );
+    prov->selectComponents( selcomps );
 
     return true;
 }

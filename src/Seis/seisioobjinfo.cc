@@ -29,7 +29,6 @@
 #include "seisread.h"
 #include "seisselection.h"
 #include "seistrc.h"
-#include "seistrctr.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "zdomain.h"
@@ -121,7 +120,7 @@ void SeisIOObjInfo::setType()
     bool isps = false;
     if ( SeisTrcTranslator::isPS(*ioobj_) )
 	isps = true;
-    ioobj_->pars().getYN( SeisTrcTranslator::sKeyIsPS(), isps );
+    ioobj_->pars().getYN( sKey::IsPS(), isps );
 
     if ( !isps && ioobj_->group()!=mTranslGroupName(SeisTrc) &&
 	    ioobj_->group()!=mTranslGroupName(SeisTrc2D) )

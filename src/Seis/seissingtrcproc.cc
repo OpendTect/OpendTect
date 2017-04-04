@@ -163,15 +163,12 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 
     if ( is3d && !wrr_.isPS() && !szdone )
     {
-	TrcKeyZSampling cs( false );
 	mDynamicCastGet(const IOStream*,iostrm,&ioobj)
 	if ( iostrm )
 	    iostrm->resetConnIdx();
-	if ( SeisTrcTranslator::getRanges(ioobj,cs) )
-	{
-	    totnr_ += cs.nrInl() * cs.nrCrl();
-	    szdone = true;
-	}
+
+	totnr_ += prov->totalNr();
+	szdone = true;
     }
 
     if ( !szdone )

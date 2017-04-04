@@ -83,7 +83,6 @@ protected:
     void		wellSelChg(CallBacker*);
     void		wellTieDlgClosed(CallBacker*);
     bool		selIs2D() const;
-    bool		seisIDIs3D(DBKey) const;
 };
 
 } // namespace WellTie

@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "seisioobjinfo.h"
 #include "seispreload.h"
-#include "seistrctr.h"
 #include "seis2ddata.h"
 #include "survinfo.h"
 #include "zdomain.h"
@@ -313,12 +312,11 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	    const IOObj& ioobj = iter.ioObj();
 	    if ( *ioobj.group() == 'W' )
 		continue;
-	    if ( SeisTrcTranslator::isPS(ioobj) )
+	    const SeisIOObjInfo info( ioobj );
+	    if ( info.isPS() )
 		continue;
-	    const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
-	    const bool islineset = SeisTrcTranslator::isLineSet(ioobj);
-	    const bool isvalid3d = !is2d  && !islineset
-				&& ioobj.isUserSelectable();
+	    const bool is2d = info.is2D();
+	    const bool isvalid3d = !is2d && ioobj.isUserSelectable();
 
 	    if ( (is2d_ != is2d) || (!is2d && !isvalid3d) )
 		continue;
@@ -408,7 +406,7 @@ SelInfo& SelInfo::operator=( const SelInfo& asi )
 bool SelInfo::is2D( const char* defstr )
 {
     PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(defstr) );
-    return ioobj ? SeisTrcTranslator::is2D(*ioobj,true) : false;
+    return SeisIOObjInfo(ioobj).is2D();
 }
 
 
@@ -417,7 +415,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 {
     nms.erase();
     PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(defstr) );
-    if ( !ioobj || !SeisTrcTranslator::is2D(*ioobj,true) )
+    if ( !ioobj || !SeisIOObjInfo(ioobj).is2D() )
 	return;
 
     SeisIOObjInfo info( ioobj );
@@ -447,8 +445,8 @@ void SelInfo::getZDomainItems( const ZDomain::Info& zinf, bool need2d,
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();
-	const bool is2d = SeisTrcTranslator::is2D( ioobj, true );
-	if ( need2d==is2d && ioobj.isUserSelectable() &&
+	if ( need2d==SeisIOObjInfo(ioobj).is2D() &&
+		ioobj.isUserSelectable() &&
 		zinf.isCompatibleWith(ioobj.pars()) )
 	    nms.add( ioobj.name() );
     }

@@ -119,8 +119,8 @@ void uiSEGYRead::doPart()
 void uiSEGYRead::setGeomType( const IOObj& ioobj )
 {
     bool is2d = false; bool isps = false;
-    ioobj.pars().getYN( SeisTrcTranslator::sKeyIs2D(), is2d );
-    ioobj.pars().getYN( SeisTrcTranslator::sKeyIsPS(), isps );
+    ioobj.pars().getYN( sKey::Is2D(), is2d );
+    ioobj.pars().getYN( sKey::IsPS(), isps );
     geom_ = Seis::geomTypeOf( is2d, isps );
 }
 
@@ -302,10 +302,10 @@ CtxtIOObj* uiSEGYRead::getCtio( bool forread, Seis::GeomType gt )
     ctxt.fixTranslator( "SEG-Y" );
     IOPar* cnstr = Seis::is2D(gt) ? &ctxt.toselect_.require_
 				  : &ctxt.toselect_.dontallow_;
-    cnstr->setYN( SeisTrcTranslator::sKeyIs2D(), true );
+    cnstr->setYN( sKey::Is2D(), true );
     cnstr = Seis::isPS(gt) ? &ctxt.toselect_.require_
 			   : &ctxt.toselect_.dontallow_;
-    cnstr->setYN( SeisTrcTranslator::sKeyIsPS(), true );
+    cnstr->setYN( sKey::IsPS(), true );
     return ret;
 }
 

@@ -11,7 +11,7 @@
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seisbounds.h"
-#include "seistrctr.h"
+#include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
@@ -83,8 +83,10 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
     close();
     if ( !ioob ) return;
     ioobj_ = ioob->clone();
-    is2d_ = SeisTrcTranslator::is2D( *ioobj_, true );
-    const bool isps = SeisTrcTranslator::isPS( *ioobj_ );
+
+    const SeisIOObjInfo info( ioobj_ );
+    is2d_ = info.is2D();
+    const bool isps = info.isPS();
 
     trl_ = ioobj_->createTranslator();
     if ( isps )

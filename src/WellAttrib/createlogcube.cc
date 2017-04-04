@@ -51,7 +51,6 @@ bool LogCubeCreator::LogCube::mkIOObj()
 {
     IOObjContext ctxt = mIOObjContext(SeisTrc);
     ctxt.forread_ = false;
-    ctxt.deftransl_ = CBVSSeisTrcTranslator::translKey();
 
     CtxtIOObj ctio( ctxt );
     ctio.setName( fnm_ );
@@ -199,9 +198,7 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
     }
 
     IOObjContext ctxt = mIOObjContext(SeisTrc);
-    ctxt.deftransl_ = "3D";
     ctxt.forread_ = false;
-    ctxt.deftransl_ = CBVSSeisTrcTranslator::translKey();
 
     BufferString wellnmsuffix;
     if ( withwllnm )

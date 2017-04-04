@@ -70,6 +70,8 @@ namespace sKey
     inline FixedString Input()		{ return "Input"; }
     inline FixedString Inline()		{ return "In-line"; }
     inline FixedString IOSelection()	{ return "I/O Selection"; }
+    inline FixedString Is2D()		{ return "Is2D"; }
+    inline FixedString IsPS()		{ return "IsPS"; }
     inline FixedString Keys()		{ return "Keys"; }
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line()		{ return "Line"; }

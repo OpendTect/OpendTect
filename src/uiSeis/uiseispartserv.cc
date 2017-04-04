@@ -21,13 +21,13 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 #include "ptrman.h"
 #include "seisselection.h"
-#include "seistrctr.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
+#include "seisioobjinfo.h"
 #include "seispreload.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
@@ -463,8 +463,8 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();
-	if ( SeisTrcTranslator::isPS(ioobj)
-	  && SeisTrcTranslator::is2D(ioobj) != for3d )
+	const SeisIOObjInfo info( ioobj );
+	if ( info.isPS() && info.is2D()!=for3d )
 	    nms.add( ioobj.name() );
     }
 
