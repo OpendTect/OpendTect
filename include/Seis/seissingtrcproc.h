@@ -76,8 +76,6 @@ public:
 
     int			nrSkipped() const	{ return nrskipped_; }
     int			nrWritten() const	{ return nrwr_; }
-    void		setTotalNrIfUnknown( int nr )
-			{ if ( totnr_ < 0 ) totnr_ = nr; }
     void		setScaler(Scaler*);
 			//!< Scaler becomes mine.
     void		setResampler(SeisResampler*);
@@ -105,7 +103,7 @@ protected:
     bool		skipcurtrc_;
     int			nrwr_;
     int			nrskipped_;
-    int			totnr_;
+    od_int64		totnr_;
     DBKey&		wrrkey_;
     int			trcsperstep_;
     int			curprovidx_;
