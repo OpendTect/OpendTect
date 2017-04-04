@@ -191,7 +191,7 @@ Well::Track::ZType Well::Track::getDahForTVD( double z, ZType prevdah ) const
     {
 	const ZType kbelev = getKbElev();
 	if ( z+eps > kbelev && z-eps < firstPos().z_ )
-	    return z + kbelev;
+	    return mCast(ZType,z) + kbelev;
 
 	return mUdf(ZType);
     }
