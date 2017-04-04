@@ -42,7 +42,7 @@ public:
     Data&		data()				{ return wd_; }
     const Data&		data() const			{ return wd_; }
 
-    bool		getAll() const;
+    bool		getAll(bool stoponerr) const;
 
 protected:
 

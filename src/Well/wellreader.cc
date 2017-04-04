@@ -84,14 +84,16 @@ bool Well::ReadAccess::updateDTModel( D2TModel& dtmodel, bool ischeckshot,
 }
 
 
-bool Well::ReadAccess::getAll() const
+bool Well::ReadAccess::getAll( bool stoponerr ) const
 {
-    if ( !getTrack() || !getInfo() )
+    bool haveerr = !getTrack() || !getInfo();
+    if ( stoponerr && haveerr )
 	return false;
 
     if ( SI().zIsTime() )
     {
-	if ( !getD2T() )
+	haveerr = getD2T() || haveerr;
+	if ( stoponerr && haveerr )
 	    return false;
 	getCSMdl();
     }
@@ -100,7 +102,7 @@ bool Well::ReadAccess::getAll() const
     getMarkers();
     getDispProps();
 
-    return true;
+    return haveerr;
 }
 
 
@@ -171,7 +173,7 @@ bool Well::Reader::get() const
     if ( !wd )
 	return false;
 
-    return ra_->getAll();
+    return ra_->getAll( false );
 }
 
 
