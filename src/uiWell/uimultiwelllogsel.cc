@@ -34,7 +34,7 @@ ________________________________________________________________________
 #include "uiwellextractparams.h"
 
 
-uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const bool singlelog, 
+uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const bool singlelog,
 				      const uiWellExtractParams::Setup* s,
 				      const BufferStringSet* wellnms,
 				      const BufferStringSet* lognms )
@@ -55,7 +55,7 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const bool singlelog,
 }
 
 
-uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const bool singlelog, 
+uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const bool singlelog,
 				      const DBKey& singlewid,
 				      const uiWellExtractParams::Setup* s )
     : uiGroup( p, "Select Multi-Well Logs" )
@@ -88,7 +88,7 @@ void uiMultiWellLogSel::init(const bool isextractparamsreq )
     {
       wellextractparamsfld_ = new  uiWellExtractParams( this, *setup_ );
       wellextractparamsfld_->attach( ensureBelow, logsfld_ );
-    } 
+    }
 
     if ( !singlewid_ )
     {
@@ -188,7 +188,8 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
     for ( int midx=0; midx<mids.size(); midx++ )
     {
 	const DBKey dbky = mids[midx];
-	ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky );
+	ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky,
+				    Well::LoadReqs(Well::Trck,Well::Logs) );
 	if ( !wd )
 	    continue;
 
@@ -316,14 +317,14 @@ void uiMultiWellLogSel::writeWellChoiceReq( CallBacker* )
 void uiMultiWellLogSel::setWellExtractParams( const Well::ExtractParams& sel )
 {
     if ( wellextractparamsfld_ )
-	wellextractparamsfld_->setRangeSel( sel ); 
-    
+	wellextractparamsfld_->setRangeSel( sel );
+
     return;
 }
 
 
 Well::ExtractParams* uiMultiWellLogSel::getWellExtractParams()
-{ 
-    return &wellextractparamsfld_->params(); 
+{
+    return &wellextractparamsfld_->params();
 }
 

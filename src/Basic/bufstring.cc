@@ -868,6 +868,43 @@ BufferStringSet::size_type* BufferStringSet::getSortIndexes(
 }
 
 
+bool BufferStringSet::hasUniqueNames( CaseSensitivity sens ) const
+{
+    const int lastidx = size() - 1;
+    for ( int idx=0; idx<lastidx; idx++ )
+	if ( firstDuplicateOf(idx,sens,idx+1) >= 0 )
+	    return false;
+    return true;
+}
+
+
+BufferStringSet::size_type BufferStringSet::firstDuplicateOf(
+	    size_type idx2find, CaseSensitivity sens, size_type startat ) const
+{
+    const int sz = size();
+    if ( idx2find < 0 || idx2find >= sz )
+	return -1;
+
+    const BufferString& tofind = get( idx2find );
+    for ( int idx=startat; idx<sz; idx++ )
+    {
+	if ( idx == idx2find )
+	    continue;
+
+	if ( sens == CaseInsensitive )
+	{
+	    if ( caseInsensitiveEqual(tofind.str(),get(idx).str()) )
+		return idx;
+	}
+	else if ( get(idx) == tofind )
+	    return idx;
+
+    }
+
+    return -1;
+}
+
+
 void BufferStringSet::fillPar( IOPar& iopar ) const
 {
     BufferString key;

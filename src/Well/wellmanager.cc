@@ -152,10 +152,10 @@ bool Well::Manager::readReqData( ObjID id, Data& wd, const LoadReqs& lreq,
 	{ uirv = rdr.errMsg(); return false; }
     mRetIfFail( Inf, rdr.getInfo() )
     mRetIfFail( Trck, rdr.getTrack() )
-    mRetIfFail( D2T, rdr.getD2T() )
 
 #   define mJustTry(typ,oper) \
     if ( lreq.includes(typ) ) oper;
+    mJustTry( D2T, rdr.getD2T() )
     mJustTry( Mrkrs, rdr.getMarkers() )
     mJustTry( Logs, rdr.getLogs() )
     mJustTry( CSMdl, rdr.getCSMdl() )

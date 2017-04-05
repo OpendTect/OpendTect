@@ -74,6 +74,10 @@ public:
     size_type		nearestMatch(const char*,bool caseinsens=true) const;
     bool		isSubsetOf(const BufferStringSet&) const;
     size_type		maxLength() const;
+    size_type		firstDuplicateOf(size_type,
+					 CaseSensitivity s=CaseSensitive,
+					 size_type startat=0) const;
+    bool		hasUniqueNames(CaseSensitivity s=CaseSensitive) const;
 
     void		sort(bool caseinsens=true,bool asc=true);
     size_type*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
@@ -107,7 +111,7 @@ public:
     void		insertAt( BufferString* bs, size_type idx )
 				{ strs_.insertAt(bs,idx); }
 				    //generate non translated uiStrings's set
-    uiStringSet		getUiStringSet() const;	
+    uiStringSet		getUiStringSet() const;
 
 protected:
 
