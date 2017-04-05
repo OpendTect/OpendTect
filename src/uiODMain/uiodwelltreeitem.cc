@@ -110,15 +110,15 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( mnuid == cAddIdx )
     {
-	DBKeySet emwellids;
-	applMgr()->selectWells( emwellids );
-	if ( emwellids.isEmpty() )
+	DBKeySet wellids;
+	applMgr()->selectWells( wellids );
+	if ( wellids.isEmpty() )
 	    return false;
 
-	for ( int idx=0; idx<emwellids.size(); idx++ )
+	for ( int idx=0; idx<wellids.size(); idx++ )
 	{
-	    setMoreObjectsToDoHint( idx<emwellids.size()-1 );
-	    addChild(new uiODWellTreeItem(emwellids[idx]), false );
+	    setMoreObjectsToDoHint( idx<wellids.size()-1 );
+	    addChild(new uiODWellTreeItem(wellids[idx]), false );
 	}
     }
 
@@ -245,12 +245,11 @@ bool uiODWellTreeItem::init()
 	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
 	displayid_ = wd->id();
 	visserv_->addObject( wd, sceneID(), true );
-	if ( !wd->setDBKey(mid_) )
+	uiRetVal uirv = wd->setDBKey( mid_ );
+	if ( uirv.isError() )
 	{
 	    visserv_->removeObject( wd, sceneID() );
-	    PtrMan<IOObj> ioobj = DBM().get( mid_ );
-	    const char* nm = ioobj ? ioobj->name().buf() : 0;
-	    uiMSG().error(uiStrings::phrCannotLoad(tr("well %1").arg(nm)) );
+	    uiMSG().error( uirv );
 	    return false;
 	}
     }

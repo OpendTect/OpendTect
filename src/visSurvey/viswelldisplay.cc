@@ -90,15 +90,16 @@ WellDisplay::~WellDisplay()
 
 
 
-void WellDisplay::getWD() const
+uiRetVal WellDisplay::getWD() const
 {
+    uiRetVal uirv;
     if ( !wd_ )
     {
 	WellDisplay& self = const_cast<WellDisplay&>( *this );
-	self.wd_ = Well::MGR().fetchForEdit( wellid_, Well::LoadReqs::All() );
+	self.wd_ = Well::MGR().fetchForEdit( wellid_, Well::LoadReqs::All(),
+						uirv );
 	if ( wd_ )
 	{
-
 #	    define mAttachWDObjCB(obj,fn) \
 		self.mAttachObjCB( &self, self.wd_->obj.objectChanged(), \
 				   WellDisplay::fn, false )
@@ -115,6 +116,7 @@ void WellDisplay::getWD() const
 	    mAttachWDDispPropsCB( log(false), logDispPropsChgCB );
 	}
     }
+    return uirv;
 }
 
 
@@ -312,22 +314,28 @@ void WellDisplay::fullRedraw()
 }
 
 
-#define mErrRet(s) { errmsg_ = s; return false; }
-bool WellDisplay::setDBKey( const DBKey& dbkey )
+uiRetVal WellDisplay::setDBKey( const DBKey& dbkey )
 {
     wd_ = 0; wellid_ = dbkey;
-    getWD();
-    mCheckWD( return false );
+    uiRetVal uirv = getWD();
+    if ( uirv.isError() )
+	return uirv;
+
     const Well::D2TModel& d2t = wd_->d2TModel();
     const bool trackabovesrd = wd_->track().zRange().stop <
 			      -1.f * mCast(float,SI().seismicReferenceDatum());
     if ( zistime_ && d2t.isEmpty() && !trackabovesrd )
-	mErrRet( tr("No depth to time model defined") )
+    {
+	uirv.set( tr("No valid depth to time model defined for %1")
+		    .arg( wd_->name()) );
+	return uirv;
+    }
 
     fullRedraw();
     changed_.trigger();
-    return true;
+    return uirv;
 }
+
 
 bool WellDisplay::needsConversionToTime() const
 {
@@ -1076,10 +1084,8 @@ bool WellDisplay::usePar( const IOPar& par )
     if ( !par.get(sKeyEarthModelID,newmid) )
 	return false;
 
-    if ( !setDBKey(newmid) )
-    {
-	return 1;
-    }
+    if ( setDBKey(newmid).isError() )
+	return false;
 
     mCheckWD(return false);
     wd_->displayProperties().usePar( par );

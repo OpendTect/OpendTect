@@ -60,7 +60,7 @@ public:
 				    "WellDisplay",
 				    toUiString(sFactoryKeyword()) )
 
-    bool			setDBKey(const DBKey&);
+    uiRetVal			setDBKey(const DBKey&);
     DBKey			getDBKey() const	{ return wellid_; }
 
     //track
@@ -129,7 +129,7 @@ public:
     void			setupPicking(bool);
     void			showKnownPositions();
     void			restoreDispProp();
-    void			getWD() const;
+    uiRetVal			getWD() const;
     bool			needsConversionToTime() const;
 
     bool			allowsPicks() const	{ return true; }
@@ -140,7 +140,6 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
     virtual void		setPixelDensity(float);
-    const uiString&		errMsg() const { return errmsg_; }
     const visBase::Well*	getWell() const { return well_; }
 
 protected:
