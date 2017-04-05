@@ -335,7 +335,7 @@ void Well::ZRangeSelector::getMarkerRange( const Data& wd,
 }
 
 
-void Well::ZRangeSelector::getDahRange( const Well::Data& wd, 
+void Well::ZRangeSelector::getDahRange( const Well::Data& wd,
 						   Interval<ZType>& zrg )
 {
     if ( zselection_ == Markers )
@@ -349,7 +349,7 @@ void Well::ZRangeSelector::getDahRange( const Well::Data& wd,
 	zrg.stop = wd.d2TModel().getDah( fixedzrg_.stop,  wd.track() );
     }
     else
-	zrg = fixedzrg_;   
+	zrg = fixedzrg_;
 }
 
 
@@ -497,7 +497,7 @@ int Well::TrackSampler::nextStep()
     if ( zrg_.isUdf() )
 	mRetNext()
 
-    getData( *wd, *dps );		   
+    getData( *wd, *dps );
     mRetNext();
 }
 
@@ -942,9 +942,6 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
     if ( track_.isEmpty() )
 	return;
 
-    if ( mIsUdf( extrintv_.step ) )
-	extrintv_.step = SI().zStep();
-
     tracklimits_.start = track_.firstDah();
     tracklimits_.stop = track_.lastDah();
     if ( d2t_ )
@@ -953,6 +950,7 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
 	tracklimits_.stop = d2t_->getTime( tracklimits_.stop, track_ );
 	extrintv_.start = d2t_->getTime( extrintv_.start, track_ );
 	extrintv_.stop = d2t_->getTime( extrintv_.stop, track_ );
+	extrintv_.step = SI().zStep();
     }
 }
 

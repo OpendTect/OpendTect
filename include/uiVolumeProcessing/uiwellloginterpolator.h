@@ -47,8 +47,6 @@ protected:
 
     uiInterpolationLayerModel*	layermodelfld_;
     uiGridder2DSel*		algosel_;
-    uiGenInput*			extensfld_;
-    uiGenInput*			logextenfld_;
     uiMultiWellLogSel*		welllogsel_;
 };
 

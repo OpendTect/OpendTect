@@ -34,22 +34,11 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
 
     layermodelfld_ = new uiInterpolationLayerModel( this );
 
-    const char* ext[] = { "None", "By top/bottom values only",
-			  "By parallel to top/base", 0 };
-    extensfld_ = new uiGenInput( this, tr("Vertical Extension"),
-	    StringListInpSpec(ext) );
-    extensfld_->setText( ext[hwi.extensionMethod()] );
-    extensfld_->attach( alignedBelow, layermodelfld_ );
-
-    logextenfld_ = new uiGenInput( this, tr("Log extension if needed"),
-	    BoolInpSpec(hwi.useLogExtension()) );
-    logextenfld_->attach( alignedBelow, extensfld_ );
-
     uiWellExtractParams::Setup su;
     su.withextractintime(false).withsampling(true);
 
     welllogsel_ = new uiMultiWellLogSel( this, true, &su );
-    welllogsel_->attach( alignedBelow, logextenfld_ );
+    welllogsel_->attach( alignedBelow, layermodelfld_ );
 
     algosel_ = new uiGridder2DSel( this, hwi.getGridder(), hwi.getTrendOrder());
     algosel_->attach( alignedBelow, welllogsel_ );
@@ -87,10 +76,6 @@ bool uiWellLogInterpolator::acceptOK()
 
     InterpolationLayerModel* mdl = layermodelfld_->getModel();
     hwinterpolator_.setLayerModel( mdl );
-
-    hwinterpolator_.useLogExtension( logextenfld_->getBoolValue() );
-    hwinterpolator_.extensionMethod(
-	    (WellLogInterpolator::ExtensionModel)extensfld_->getIntValue() );
 
     IOPar par;
     algosel_->fillPar( par, true );

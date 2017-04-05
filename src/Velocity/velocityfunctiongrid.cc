@@ -231,6 +231,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
     const bool nogridding = directsource_;
     const bool doinverse = nogridding ? false :getDesc().isVelocity();
     const Coord workpos = nogridding ? Coord::udf() : SI().transform( bid_ );
+						//TODO: Get a TrcKeySampling
     TypeSet<double> weights;
     TypeSet<int> usedpoints;
     bool weightsarevaluesdependent = false;
@@ -251,6 +252,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	    return false;
     }
 
+    const TrcKey tk( bid_ ); //TODO: Get a SurvID from TrcKeySampling
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;
@@ -261,7 +263,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	}
 
 	const float layeridx = layermodel_ ?
-		layermodel_->getLayerIndex( bid_, z ) : mUdf(float);
+		    layermodel_->getLayerIndex( tk, z ) : mUdf(float);
 	if ( mIsUdf(layeridx) )
 	{
 	    res[idx] = mUdf(float);
@@ -277,8 +279,9 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	for ( int idy=usedpoints.size()-1; idy>=0; idy-- )
 	{
 	    const Function* func = velocityfunctions_[idy];
+	    const TrcKey tkfunc( func->getBinID() ); //TODO: Get a SurvID
 	    const float zval = layermodel_ && !mIsUdf(layeridx) ?
-		layermodel_->getInterpolatedZ( func->getBinID(), layeridx ) : z;
+			  layermodel_->getInterpolatedZ( tkfunc, layeridx ) : z;
 	    const float value = func->getVelocity( zval );
 	    if ( doinverse && mIsZero(value,1e-3) )
 	    {

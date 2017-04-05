@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "arrayndalgo.h"
 #include "dbkey.h"
-#include "enums.h"
 #include "volprocstep.h"
 #include "wellextractdata.h"
 
@@ -63,16 +62,6 @@ public:
 						    const Well::ExtractParams&);
     void			setLayerModel(InterpolationLayerModel*);
 
-
-    enum ExtensionModel		{ None, EdgeValueOnly, ExtrapolateEdgeValue };
-				mDeclareEnumUtils(ExtensionModel)
-    ExtensionModel		extensionMethod() const	{ return extension_; }
-    void			extensionMethod(ExtensionModel ext)
-				{ extension_ = ext; }
-
-    bool			useLogExtension() const  { return extlog_; }
-    void			useLogExtension(bool yn) { extlog_ = yn; }
-
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
     virtual uiString		errMsg() const		{ return errmsg_; }
@@ -100,9 +89,6 @@ protected:
     DBKeySet			wellmids_;
     BufferString		logname_;
     Well::ExtractParams		params_;
-
-    ExtensionModel		extension_;
-    bool			extlog_;
 
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;

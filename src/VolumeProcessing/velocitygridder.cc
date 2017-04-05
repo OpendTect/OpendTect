@@ -558,9 +558,12 @@ const VelocityDesc* VelocityGridder::getVelDesc() const
 
 Task* VelocityGridder::createTask()
 {
-    if ( !gridder_ ) return 0;
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    if ( !output || output->isEmpty() || !gridder_ ) return 0;
 
-    if ( layermodel_ ) layermodel_->prepare( 0 );
+    if ( !layermodel_ || !layermodel_->prepare(output->sampling()) )
+	return 0;
+
     return new VelGriddingTask( *this );
 }
 
@@ -682,7 +685,7 @@ bool VelocityGridder::usePar( const IOPar& par )
 od_int64 VelocityGridder::extraMemoryUsage( OutputSlotID,
 	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
 {
-    return 0;
+    return layermodel_ ? layermodel_->getMemoryUsage( hsamp ) : 0;
 }
 
 
