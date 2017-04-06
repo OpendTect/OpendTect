@@ -70,8 +70,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
     uiIOObjSelGrp::Setup su; su.choicemode_ = !issingle_ ?
-     OD::ChoiceMode::ChooseAtLeastOne : OD::ChoiceMode::ChooseOnlyOne;
-    IOObj* ioobj = ctio_.ioobj_;
+		    OD::ChooseAtLeastOne : OD::ChooseOnlyOne;
     if ( issingle_ )
 	infld_ = new uiIOObjSel( this, ctio_, mGetLbl(typ) );
     else
@@ -94,9 +93,9 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     zfld_->valuechanged.notify( mCB(this,uiExportFault,addZChg ) );
     zfld_->attach( alignedBelow, coordfld_ );
 
-    uiT2DConvSel::Setup setup( 0, false );
-    setup.ist2d( SI().zIsTime() );
-    transfld_ = new uiT2DConvSel( this, setup );
+    uiT2DConvSel::Setup stup( 0, false );
+    stup.ist2d( SI().zIsTime() );
+    transfld_ = new uiT2DConvSel( this, stup );
     transfld_->display( false );
     transfld_->attach( alignedBelow, zfld_ );
 
