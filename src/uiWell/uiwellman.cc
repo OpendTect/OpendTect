@@ -843,6 +843,10 @@ void uiWellMan::mkFileInfo()
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
 	}
+
+	if ( SI().zIsTime() && !curwd->haveD2TModel() )
+	    txt.add("No valid Depth vs Time relation."
+		"\nUse 'Tie Well To Seismics' in Analysis menu to add one.");
     }
 
     mAddWellInfo(Well::Info::sUwid(),info.UWI())
