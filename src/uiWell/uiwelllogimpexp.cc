@@ -463,7 +463,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    else if ( outintime )
 	    {
 		z = wd.d2TModel().getTime( md, wd.track() );
-		if ( inmsec && !mIsUdf(z) ) z *= cTWTFac;
+		if ( outinmsec && !mIsUdf(z) ) z *= cTWTFac;
 	    }
 
 	    strm << od_tab << z;
