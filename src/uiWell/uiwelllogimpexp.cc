@@ -320,6 +320,7 @@ void uiExportLogs::setDefaultRange( bool zinft )
     {
 	disprg.start = zun->userValue( dahintv.start );
 	disprg.stop = zun->userValue( dahintv.stop );
+	disprg.step = zun->userValue( dahintv.step );
     }
 
     zrangefld_->setValue( disprg );
@@ -408,18 +409,18 @@ void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
 
 void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 {
-    const bool infeet = zunitgrp_->selectedId() == 1;
-    const bool insec = zunitgrp_->selectedId() == 2;
-    const bool inmsec = zunitgrp_->selectedId() == 3;
-    const bool intime = insec || inmsec;
-    if ( intime && wd.d2TModel().isEmpty() )
+    const bool outinft = zunitgrp_->selectedId() == 1;
+    const bool outinsec = zunitgrp_->selectedId() == 2;
+    const bool outinmsec = zunitgrp_->selectedId() == 3;
+    const bool outintime = outinsec || outinmsec;
+    if ( outintime && wd.d2TModel().isEmpty() )
     {
 	uiMSG().error( tr("No depth-time model found, "
 			  "cannot export with time") );
 	return;
     }
 
-    const bool zinft = SI().depthsInFeet();
+    const bool si_inft = SI().depthsInFeet();
     const int outtypesel = typefld_->getIntValue();
     const bool dobinid = outtypesel == 2;
     const StepInterval<float> intv = zrangefld_->getFStepInterval();
@@ -430,7 +431,12 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	float md = intv.atIndex( idx );
 	if ( outtypesel == 0 )
 	{
-	    const float mdout = infeet && !zinft ? md*mToFeetFactorF : md;
+	    float mdout = md;
+	    if ( outinft && !si_inft )
+		mdout *= mToFeetFactorF;
+	    else if ( !outinft && si_inft )
+		mdout *= mFromFeetFactorF;
+
 	    strm << mdout;
 	}
 	else
@@ -450,8 +456,11 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    }
 
 	    float z = (float) pos.z_;
-	    if ( infeet && !zinft ) z *= mToFeetFactorF;
-	    else if ( intime )
+	    if ( outinft && !si_inft )
+		z *= mToFeetFactorF;
+	    else if ( !outinft && si_inft )
+		z *= mFromFeetFactorF;
+	    else if ( outintime )
 	    {
 		z = wd.d2TModel().getTime( md, wd.track() );
 		if ( inmsec && !mIsUdf(z) ) z *= cTWTFac;
