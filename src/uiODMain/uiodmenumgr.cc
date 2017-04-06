@@ -441,7 +441,6 @@ void uiODMenuMgr::fillExportMenu()
     mInsertItem( expfltasc, m3Dots(tr("Single Fault")), mExpFltAsciiMnuItm );
     mInsertItem( expfltasc, m3Dots(tr("Bulk Faults")), mExpBulkFltAsciiMnuItm );
     expflt->insertItem( expfltasc );
-    uiMenu* expfltssasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     mInsertPixmapItem( expfltss, sascii, mExpFltSSAsciiMnuItm, ascic );
     mInsertPixmapItem( expgeom2d, sascii, mExpGeom2DMnuItm, ascic );
     mInsertPixmapItem( exppick, sascii, mExpPickAsciiMnuItm, ascic );
