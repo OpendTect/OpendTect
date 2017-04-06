@@ -128,6 +128,9 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     moveupmnuitem_.iconfnm = "uparrow";
     movedownmnuitem_.iconfnm = "downarrow";
     movetobottommnuitem_.iconfnm = "tobottom";
+    probelayer_ = new AttribProbeLayer;
+    mAttachCB( probelayer_->objectChanged(),
+	       uiODDataTreeItem::probeLayerChangedCB );
 }
 
 
@@ -526,14 +529,24 @@ void uiODDataTreeItem::setProbeLayer( ProbeLayer* newlayer )
 	return;
 
     if ( probelayer_ )
-	mDetachCB( probelayer_->getProbe()->objectChanged(),
-		   uiODDataTreeItem::probeChangedCB );
+    {
+	if ( probelayer_->getProbe() )
+	    mDetachCB( probelayer_->getProbe()->objectChanged(),
+		       uiODDataTreeItem::probeChangedCB );
+	else
+	    pErrMsg( "No parent for probe layer" );
+    }
 
     replaceMonitoredRef( probelayer_, newlayer, this );
 
     if ( newlayer )
-	mAttachCB( newlayer->getProbe()->objectChanged(),
-		   uiODDataTreeItem::probeChangedCB );
+    {
+	if ( newlayer->getProbe() )
+	    mDetachCB( newlayer->getProbe()->objectChanged(),
+		       uiODDataTreeItem::probeChangedCB );
+	else
+	    pErrMsg( "No parent for probe layer" );
+    }
 
     updateDisplay();
     updateColumnText( uiODSceneMgr::cColorColumn() );
