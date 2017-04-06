@@ -403,6 +403,7 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
     for ( int idx=0; idx<nrout_; idx++ )
     {
         TraceData& td = trc.data();
+	if ( !tarcds_.validIdx(idx) ) break;
         if ( td.nrComponents() <= idx )
             td.addComponent( actualsz, tarcds_[ inpfor_[idx] ]->datachar );
         else
