@@ -49,6 +49,8 @@ static Table::FormatDesc* getDesc()
     fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd->bodyinfos_ += new Table::TargetInfo( "Stick number", IntInpSpec(),
 					     Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( "Node index", IntInpSpec(),
+					     Table::Optional );
     return fd;
 }
 

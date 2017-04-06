@@ -348,25 +348,22 @@ void uiEMPartServer::import2DFaultStickset()
 }
 
 
-bool uiEMPartServer::exportFault()
+bool uiEMPartServer::exportFault( bool issingle )
 {
-    if ( expfltdlg_ )
-	expfltdlg_->raise();
-    else
-	expfltdlg_ = new uiExportFault( parent(),
-					EMFault3DTranslatorGroup::sGroupName());
+    expfltdlg_ = new uiExportFault( parent(),
+			    EMFault3DTranslatorGroup::sGroupName(), issingle);
     return expfltdlg_->go();
 }
 
 
-bool uiEMPartServer::exportFaultStickSet()
+bool uiEMPartServer::exportFaultStickSet( bool issingle )
 {
     if ( expfltstickdlg_ )
 	expfltstickdlg_->raise();
     else
 	expfltstickdlg_ =
 	    new uiExportFault( parent(),
-			       EMFaultStickSetTranslatorGroup::sGroupName() );
+		    EMFaultStickSetTranslatorGroup::sGroupName(), issingle );
     return expfltstickdlg_->go();
 }
 

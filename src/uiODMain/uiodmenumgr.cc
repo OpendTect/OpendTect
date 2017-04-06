@@ -437,7 +437,11 @@ void uiODMenuMgr::fillExportMenu()
 		     mExpHorAscii2DMnuItm, ascic );
     mInsertPixmapItem( exphor, have2d ? m3Dots(tr("ASCII 3D")) : sascii,
 		 mExpHorAscii3DMnuItm, ascic );
-    mInsertPixmapItem( expflt, sascii, mExpFltAsciiMnuItm, ascic );
+    uiMenu* expfltasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
+    mInsertItem( expfltasc, m3Dots(tr("Single Fault")), mExpFltAsciiMnuItm );
+    mInsertItem( expfltasc, m3Dots(tr("Bulk Faults")), mExpBulkFltAsciiMnuItm );
+    expflt->insertItem( expfltasc );
+    uiMenu* expfltssasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     mInsertPixmapItem( expfltss, sascii, mExpFltSSAsciiMnuItm, ascic );
     mInsertPixmapItem( expgeom2d, sascii, mExpGeom2DMnuItm, ascic );
     mInsertPixmapItem( exppick, sascii, mExpPickAsciiMnuItm, ascic );
@@ -1276,7 +1280,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpHorAscii3DMnuItm:		mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:		mDoOp(Exp,Hor,1); break;
     case mExpFltAsciiMnuItm:		mDoOp(Exp,Flt,0); break;
+    case mExpBulkFltAsciiMnuItm:	mDoOp(Exp,Flt,1); break;
     case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Fltss,0); break;
+    case mExpBulkFltSSAsciiMnuItm:	mDoOp(Exp,Fltss,1); break;
     case mImpWellAsciiTrackMnuItm:	mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm:	mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;

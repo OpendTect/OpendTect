@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
+#include "multiid.h"
 
 class CtxtIOObj;
 class uiCheckBox;
@@ -21,6 +22,10 @@ class uiCheckList;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
+class uiIOObjSelGrp;
+class StreamData;
+class uiUnitSel;
+class uiT2DConvSel;
 
 
 /*! \brief Dialog for horizon export */
@@ -28,22 +33,32 @@ class uiIOObjSel;
 mExpClass(uiEarthModel) uiExportFault : public uiDialog
 { mODTextTranslationClass(uiExportFault);
 public:
-			uiExportFault(uiParent*,const char* type);
+			uiExportFault(uiParent*,const char* type,
+							bool issingle=true);
 			~uiExportFault();
 
 protected:
 
+    uiIOObjSelGrp*	bulkinfld_;
     uiIOObjSel*		infld_;
     uiGenInput*		coordfld_;
-    uiGenInput*		zbox_;
     uiCheckList*	stickidsfld_;
     uiCheckBox*		linenmfld_;
     uiFileInput*	outfld_;
+    uiUnitSel*		zunitsel_;
+    uiGenInput*		zfld_;
+    uiT2DConvSel*	transfld_;
 
     CtxtIOObj&		ctio_;
+    bool		getInputMIDs(TypeSet<MultiID>&);
+
+    void		addZChg(CallBacker*);
+    FixedString		getZDomain() const;
 
     virtual bool	acceptOK(CallBacker*);
+
     bool		writeAscii();
+    bool		issingle_;
 };
 
 #endif
