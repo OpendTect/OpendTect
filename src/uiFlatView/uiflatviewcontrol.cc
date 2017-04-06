@@ -306,7 +306,7 @@ MouseEventHandler& uiFlatViewControl::mouseEventHandler( int idx, bool ofscene )
 
 int uiFlatViewControl::getViewerIdx( const MouseEventHandler* meh,bool ofscene )
 {
-    if ( !meh ) return -1;
+    if ( !meh || !&vwrs_ ) return -1;
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
