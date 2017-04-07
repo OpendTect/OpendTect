@@ -363,8 +363,8 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-	uiDialog::Setup( tr("Iso value selection"), mNoDlgTitle,
-                                mODHelpKey(mVolrenTreeItemHelpID) ) );
+		uiDialog::Setup(tr("Iso value selection"),mNoDlgTitle,
+				mODHelpKey(mVolrenTreeItemHelpID)) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd,attribNr()) );
 	if ( !dlg.go() )
 	{
@@ -384,7 +384,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	visserv->addObject( mcdisplay, sceneID(), true );
-	addChild(new uiODBodyDisplayTreeItem(mcdisplay->id(),true), false);
+	addChild( new uiODBodyDisplayTreeItem(mcdisplay->id(),true), false );
 	vd->removeChild( surfobjid );
     }
 }
