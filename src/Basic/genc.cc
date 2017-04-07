@@ -629,14 +629,18 @@ void setQtPaths();
 static void getDataRoot( bool isrequired )
 {
     BufferString dataroot = GetBaseDataDir();
-    bool droverrule = false;
+
+    bool drootinargs = false;
     if ( argc_ > 2 && FixedString(argv_[1]) == "--dataroot" )
     {
 	dataroot = File::linkEnd( argv_[2] );
-	droverrule = true;
+	drootinargs = true;
+	// These args are of no use to anyone else. Let's remove them ...
+	for ( int idx=3; idx<argc_; idx++ )
+	    argv_[idx-2] = argv_[idx];
 	argc_ -= 2;
-	argv_ = argv_ + 2;
     }
+
     const uiRetVal uirv = SurveyInfo::isValidDataRoot( dataroot );
     if ( !uirv.isOK() && isrequired )
     {
@@ -644,7 +648,7 @@ static void getDataRoot( bool isrequired )
 	ExitProgram( 1 );
     }
 
-    if ( droverrule )
+    if ( drootinargs )
 	SetBaseDataDir( dataroot );
 }
 
@@ -655,7 +659,11 @@ mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
     if ( !getcwdres )
 	{ pFreeFnErrMsg("Cannot read current directory"); }
 
-    argc_ = argc; argv_ = argv;
+    argc_ = argc;
+    argv_ = new char* [argc_];
+    for ( int idx=0; idx<argc_; idx++ )
+	argv_[idx] = argv[idx];
+
     od_putProgInfo( argc_, argv_ );
     getDataRoot( drrequired );
 
