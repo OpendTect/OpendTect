@@ -20,11 +20,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 
-int main( int argc, char ** argv )
+int main( int argc_in, char ** argv_in )
 {
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc_in, argv_in );
     OD::ModDeps().ensureLoaded( "uiSeis" );
 
+    char** argv = GetArgV();
+    int& argc = GetArgC();
     bool dofork = true;
     uiSEGYExamine::Setup su;
     int argidx = 1;

@@ -30,6 +30,7 @@ public:
     BufferString	survName() const;
     BufferString	survDirName() const;
     SurveyInfo::Pol2D	pol2D() const;
+    const uiSurvInfoProvider* getSIP() const;
 
 protected:
 

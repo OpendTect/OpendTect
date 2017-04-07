@@ -128,11 +128,17 @@ SurveyInfo::Pol2D uiUserCreateSurvey::pol2D() const
 }
 
 
-uiString uiUserCreateSurvey::sipName() const
+const uiSurvInfoProvider* uiUserCreateSurvey::getSIP() const
 {
     const int sipidx = sipfld_->currentItem();
-    return sips_.validIdx(sipidx) ? sips_[sipidx]->usrText()
-				  : uiString::emptyString();
+    return sips_.validIdx(sipidx) ? sips_[sipidx] : 0;
+}
+
+
+uiString uiUserCreateSurvey::sipName() const
+{
+    const uiSurvInfoProvider* cursip = getSIP();
+    return cursip ? cursip->usrText() : uiString::emptyString();
 }
 
 
@@ -246,7 +252,7 @@ bool uiUserCreateSurvey::acceptOK()
     }
 
     const uiRetVal uirv = DBM().setDataSource( survinfo_->getFullDirPath(),
-	    					true );
+						true );
     if ( uirv.isError() )
 	{ uiMSG().error( uirv ); return false; }
 
@@ -258,6 +264,9 @@ bool uiUserCreateSurvey::doUsrDef()
 {
     IOPar iop; iop.setStdCreationEntries();
     iop.set( uiSurvInfoProvider::sKeySIPName(), survinfo_->sipName() );
+    const uiSurvInfoProvider* cursip = getSIP();
+    if ( cursip )
+	cursip->fillPar( iop );
     survinfo_->setFreshSetupData( iop );
 
     const_cast<SurveyInfo&>( SI() ) = *survinfo_;
