@@ -71,9 +71,6 @@ if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
 		-P external/Externals.cmake )
 endif()
 
-if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
-endif()
-
 if ( EXISTS ${PLUGIN_DIR} )
     set ( EXTERNALPLUGINSUPDATE
 	COMMAND ${UPDATE_CMD} ${PLUGIN_DIR}/../ )
