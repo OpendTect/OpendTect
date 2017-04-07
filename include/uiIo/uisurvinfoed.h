@@ -130,7 +130,7 @@ protected:
 mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
 {
 public:
-			uiCopySurveySIP() {};
+			uiCopySurveySIP() {}
 
     virtual const char*	usrText() const	{ return "Copy from other survey"; }
     virtual uiDialog*	dialog(uiParent*);

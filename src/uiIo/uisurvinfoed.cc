@@ -36,9 +36,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uiselsimple.h"
 #include "uiseparator.h"
 #include "uisurvey.h"
+#include "uisurveyselect.h"
 #include "od_helpids.h"
 
 
@@ -929,11 +929,9 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
-    uiSurvey::getSurveyList( survlist_, 0, SI().getDirName() );
-    uiSelectFromList::Setup setup(  uiStrings::sSurveys(), survlist_ );
-    setup.dlgtitle( uiStrings::phrSelect(uiStrings::sSurvey()) );
-    uiSelectFromList* dlg = new uiSelectFromList( p, setup );
-    dlg->setHelpKey(mODHelpKey(mCopySurveySIPHelpID) );
+    uiSurveySelectDlg* dlg = new uiSurveySelectDlg( p, GetSurveyName(),
+	GetBaseDataDir(), true, true );
+    dlg->setHelpKey( mODHelpKey(mCopySurveySIPHelpID) );
     return dlg;
 }
 
@@ -942,11 +940,10 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 {
     tdinf_ = Uknown;
     inft_ = false;
-    mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
+    mDynamicCastGet(uiSurveySelectDlg*,seldlg,dlg)
     if ( !seldlg ) return false;
 
-    BufferString fname = FilePath( GetBaseDataDir() )
-			 .add( seldlg->selFld()->getText() ).fullPath();
+    const BufferString fname = seldlg->getSurveyPath();
     PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname );
     if ( !survinfo ) return false;
 
