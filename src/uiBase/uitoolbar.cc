@@ -255,6 +255,25 @@ void uiToolBar::setToolBarMenuAction( uiAction* action )
 }
 
 
+void uiToolBar::handleFinalise( bool pre )
+{
+    if ( pre )
+	preFinalise().trigger();
+
+    for ( int idx=0; idx<addedobjects_.size(); idx++ )
+    {
+	uiObject& uiobj = *addedobjects_[idx];
+	if ( pre )
+	    uiobj.preFinalise().trigger();
+	else
+	    uiobj.finalise();
+    }
+
+    if ( !pre )
+	postFinalise().trigger();
+}
+
+
 void uiToolBar::clear()
 {
     removeAllActions();

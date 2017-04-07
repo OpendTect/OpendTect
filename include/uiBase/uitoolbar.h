@@ -116,6 +116,7 @@ protected:
     void			doInsertSeparator(mQtclass(QAction)* before);
     void			doRemoveAction(mQtclass(QAction)*);
     void			doClear();
+    void			handleFinalise(bool pre);
 
     uiAction*			toolbarmenuaction_;
 
@@ -129,6 +130,7 @@ protected:
     int				getButtonID(mQtclass(QAction*));
 
     uiParent*			parent_;
+    friend class		uiMainWinBody;
 
 public:
 			//!CmdDriver functionality, not for casual use

@@ -94,6 +94,22 @@ static bool isInOrderedWinList( const uiMainWin* uimw )
 }
 
 
+static bool hasChildWindows( uiMainWin& curwin )
+{
+    for ( int idx=0; idx<orderedwinlist_.size(); idx++ )
+    {
+	uiMainWin* mw = orderedwinlist_[idx];
+	if ( mw->parent()==&curwin && mw->isModal() )
+	{
+	    mw->raise();
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
 //=============================================================================
 
 
@@ -484,7 +500,12 @@ void uiMainWinBody::popTimTick( CallBacker* )
 void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 {
     if ( trigger_finalise_start_stop )
+    {
 	handle_.preFinalise().trigger( handle_ );
+
+	for ( int idx=0; idx<toolbars_.size(); idx++ )
+	    toolbars_[idx]->handleFinalise( true );
+    }
 
     centralwidget_->finalise();
     finaliseChildren();
@@ -496,6 +517,12 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 
 void uiMainWinBody::closeEvent( QCloseEvent* ce )
 {
+    if ( hasChildWindows(handle_) )
+    {
+	ce->ignore();
+	return;
+    }
+
     const int refnr = handle_.beginCmdRecEvent( "Close" );
 
     if ( handle_.closeOK() )
