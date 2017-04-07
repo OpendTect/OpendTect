@@ -57,11 +57,6 @@ else()
     endif()
 endif()
 
-if ( EXISTS ${PLUGIN_DIR} )
-    set ( EXTERNALPLUGINSUPDATE
-	COMMAND ${UPDATE_CMD} ${PLUGIN_DIR}/../ )
-endif()
-
 if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
     execute_process(
 	COMMAND ${CMAKE_COMMAND}
@@ -69,20 +64,34 @@ if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
 	    -DUPDATE=No
 	    -P external/Externals.cmake
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
-endif()
 
-if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
     set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
 		-DOpendTect_DIR=${OpendTect_DIR}
 		-DUPDATE=Yes
 		-P external/Externals.cmake )
 endif()
 
-if ( EXISTS ${PLUGIN_DIR}/../external/Externals.cmake )
-    set ( EXTERNALPLUGINSCMD COMMAND ${CMAKE_COMMAND}
-		-DOpendTect_DIR=${OpendTect_DIR}
-		-DUPDATE=Yes
-		-P ${PLUGIN_DIR}/../external/Externals.cmake )
+if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
+endif()
+
+if ( EXISTS ${PLUGIN_DIR} )
+    set ( EXTERNALPLUGINSUPDATE
+	COMMAND ${UPDATE_CMD} ${PLUGIN_DIR}/../ )
+
+    if ( EXISTS ${PLUGIN_DIR}/../external/Externals.cmake )
+	execute_process( COMMAND ${CMAKE_COMMAND}
+		    -DOpendTect_DIR=${OpendTect_DIR}
+		    -DPLUGIN_DIR=${PLUGIN_DIR}
+		    -DUPDATE=No
+		    -P ${PLUGIN_DIR}/../external/Externals.cmake
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+
+	set ( EXTERNALPLUGINSCMD COMMAND ${CMAKE_COMMAND}
+		    -DOpendTect_DIR=${OpendTect_DIR}
+		    -DPLUGIN_DIR=${PLUGIN_DIR}
+		    -DUPDATE=Yes
+		    -P ${PLUGIN_DIR}/../external/Externals.cmake )
+    endif()
 endif()
 
 add_custom_target( update ${UPDATE_CMD}
