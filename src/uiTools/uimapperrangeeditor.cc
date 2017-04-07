@@ -34,21 +34,22 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
     , stoppix_(mUdf(int))
     , mousedown_(false)
     , rangeChanged(this)
+    , sequenceChanged(this)
 {
     uiHistogramDisplay::Setup hsu;
     hsu.border( uiBorder(20,20,20,40) );
     hsu.fixdrawrg(fixdrawrg);
     histogramdisp_ = new uiHistogramDisplay( this, hsu, true );
-    histogramdisp_->getMouseEventHandler().buttonPressed.notify(
-			     mCB(this,uiMapperRangeEditor,mousePressed) );
-    histogramdisp_->getMouseEventHandler().buttonReleased.notify(
-			     mCB(this,uiMapperRangeEditor,mouseReleased) );
-    histogramdisp_->getMouseEventHandler().movement.notify(
-			     mCB(this,uiMapperRangeEditor,mouseMoved) );
+    MouseEventHandler& meh = histogramdisp_->getMouseEventHandler();
+    meh.buttonPressed.notify( mCB(this,uiMapperRangeEditor,mousePressed) );
+    meh.buttonReleased.notify( mCB(this,uiMapperRangeEditor,mouseReleased) );
+    meh.movement.notify( mCB(this,uiMapperRangeEditor,mouseMoved) );
+    histogramdisp_->getNavigationMouseEventHandler().wheelMove.notify(
+			mCB(this,uiMapperRangeEditor,wheelMoved) );
     histogramdisp_->reSize.notify(
-			     mCB(this,uiMapperRangeEditor,histogramResized));
+			mCB(this,uiMapperRangeEditor,histogramResized));
     histogramdisp_->drawRangeChanged.notify(
-			     mCB(this,uiMapperRangeEditor,histDRChanged));
+			mCB(this,uiMapperRangeEditor,histDRChanged));
     xax_ = histogramdisp_->xAxis();
 
     init();
@@ -344,6 +345,26 @@ void uiMapperRangeEditor::mouseReleased( CallBacker* )
     drawAgain();
     rangeChanged.trigger();
     meh.setHandled( true );
+}
+
+
+void uiMapperRangeEditor::wheelMoved( CallBacker* )
+{
+    MouseEventHandler& meh = histogramdisp_->getNavigationMouseEventHandler();
+    if ( meh.isHandled() ) return;
+
+    const bool up = meh.event().angle() > 0;
+    BufferStringSet nms;
+    ColTab::SM().getSequenceNames( nms );
+    nms.sort();
+    const int curidx = nms.indexOf( ctseq_->name() );
+    const int newidx = up ? curidx-1 : curidx+1;
+    if ( !nms.validIdx(newidx) )
+	return;
+
+    const ColTab::Sequence newseq( nms.get(newidx) );
+    setColTabSeq( newseq );
+    sequenceChanged.trigger();
 }
 
 

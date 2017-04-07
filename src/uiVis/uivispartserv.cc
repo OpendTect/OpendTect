@@ -932,7 +932,7 @@ const ColTab::Sequence*
 }
 
 
-bool uiVisPartServer:: canHandleColTabSeqTrans( int id, int attrib ) const
+bool uiVisPartServer::canHandleColTabSeqTrans( int id, int attrib ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
     return so ? so-> canHandleColTabSeqTrans( attrib ) : false;
@@ -957,7 +957,12 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
 	so->getScene()->getSceneColTab()->setColTabSequence( seq );
 
     if ( multirgeditwin_ && id == mapperrgeditordisplayid_ )
-	multirgeditwin_->setColTabSeq( attrib, seq );
+    {
+	if ( mapperrgeditinact_ )
+	    mapperrgeditinact_ = false;
+	else
+	    multirgeditwin_->setColTabSeq( attrib, seq );
+    }
 }
 
 
@@ -1364,32 +1369,18 @@ void uiVisPartServer::toHome( CallBacker* )
 { eventmutex_.lock(); sendEvent( evToHomePos() ); }
 
 
-class uiWorkAreaDlg : public uiDialog
-{ mODTextTranslationClass(uiWorkAreaDlg)
-public:
-uiWorkAreaDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Set Work Area"),mNoDlgTitle,
-				 mODHelpKey(mWorkAreaDlgHelpID) ) )
-{
-    uiPosProvider::Setup su( false, false, true );
-    selfld_ = new uiPosProvider( this, su );
-}
-
-bool acceptOK( CallBacker* )
-{
-    TrcKeyZSampling tkzs;
-    const_cast<SurveyInfo&>(SI()).setWorkRange( tkzs );
-    return true;
-}
-
-    uiPosProvider*	selfld_;
-};
-
-
 bool uiVisPartServer::setWorkingArea()
 {
-    uiWorkAreaDlg dlg( appserv().parent() );
+    uiPosProvider::Setup su( false, false, true );
+    su.useworkarea(false);
+    uiPosProvDlg dlg( parent(), su, tr("Set Work Area") );
+    dlg.setSampling( SI().sampling(true) );
+    dlg.setHelpKey( mODHelpKey(mWorkAreaDlgHelpID) );
     if ( !dlg.go() ) return false;
+
+    TrcKeyZSampling tkzs;
+    dlg.getSampling( tkzs );
+    const_cast<SurveyInfo&>(SI()).setWorkRange( tkzs );
 
     TypeSet<int> sceneids;
     getChildIds( -1, sceneids );
@@ -2254,6 +2245,8 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
     multirgeditwin_->setDeleteOnClose( false );
     multirgeditwin_->rangeChange.notify(
 	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
+    multirgeditwin_->sequenceChange.notify(
+	    mCB(this,uiVisPartServer,sequenceEditChanged) );
 
     for ( int idx=0; idx<nrattribs; idx++ )
     {
@@ -2351,6 +2344,21 @@ void uiVisPartServer::mapperRangeEditChanged( CallBacker* cb )
     eventobjid_ = mapperrgeditordisplayid_;
     eventattrib_ = obj->activeAttrbID();
     sendEvent( evColorTableChange() );
+}
+
+
+void uiVisPartServer::sequenceEditChanged( CallBacker* cb )
+{
+    mapperrgeditinact_ = true;
+
+    mDynamicCastGet(uiMultiMapperRangeEditWin*,obj,cb);
+    setColTabSequence( mapperrgeditordisplayid_, obj->activeAttrbID(),
+		       obj->activeSequence() );
+    eventmutex_.lock();
+    eventobjid_ = mapperrgeditordisplayid_;
+    eventattrib_ = obj->activeAttrbID();
+    sendEvent( evColorTableChange() );
+    triggerTreeUpdate();
 }
 
 

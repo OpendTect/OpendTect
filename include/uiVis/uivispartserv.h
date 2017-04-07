@@ -463,6 +463,7 @@ protected:
     void			colTabChangeCB(CallBacker*);
 
     void			mapperRangeEditChanged(CallBacker*);
+    void			sequenceEditChanged(CallBacker*);
 
     MenuItem			resetmanipmnuitem_;
     MenuItem			changematerialmnuitem_;

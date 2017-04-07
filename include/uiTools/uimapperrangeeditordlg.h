@@ -41,7 +41,11 @@ public:
 					{ return activeattrbid_; }
     const ColTab::MapperSetup&		activeMapperSetup()
 					{ return *activectbmapper_; }
+    const ColTab::Sequence&		activeSequence()
+					{ return *activectbseq_; }
+
     Notifier<uiMultiMapperRangeEditWin>	rangeChange;
+    Notifier<uiMultiMapperRangeEditWin>	sequenceChange;
 
 protected:
 
@@ -49,12 +53,14 @@ protected:
     ObjectSet<uiMapperRangeEditor>	mapperrgeditors_;
     int					activeattrbid_;
     const ColTab::MapperSetup*		activectbmapper_;
+    const ColTab::Sequence*		activectbseq_;
     DataPackMgr&			dpm_;
     TypeSet<DataPack::ID>		datapackids_;
     ObjectSet<uiStatsDisplay>		statsdisplays_;
 
     void				mouseMoveCB(CallBacker*);
     void				rangeChanged(CallBacker*);
+    void				sequenceChanged(CallBacker*);
     void				showStatDlg(CallBacker*);
     void				dataPackDeleted(CallBacker*);
 };

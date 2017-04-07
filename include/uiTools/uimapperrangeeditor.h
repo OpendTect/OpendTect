@@ -27,7 +27,7 @@ template <class T> class Array2D;
 namespace ColTab { class MapperSetup; class Sequence; }
 
 mExpClass(uiTools) uiMapperRangeEditor : public uiGroup
-{ 
+{
 public:
 
     				uiMapperRangeEditor(uiParent*,int id,
@@ -37,26 +37,28 @@ public:
     int				ID()		       { return id_; }
 
     void			setEmpty();
-    bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
-    void                        setData(const Array2D<float>*);
-    void                        setMarkValue(float,bool forx);
+    bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
+    void			setData(const Array2D<float>*);
+    void			setMarkValue(float,bool forx);
 
     void			setColTabMapperSetup(
-	    				const ColTab::MapperSetup&);
-    void			setColTabSeq(const ColTab::Sequence&);
+					const ColTab::MapperSetup&);
     const ColTab::MapperSetup&	getColTabMapperSetup()	{ return *ctmapper_; }
+    void			setColTabSeq(const ColTab::Sequence&);
+    const ColTab::Sequence&	getColTabSeq() const	{ return *ctseq_; }
 
-    uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }    
+    uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }
 
     Notifier<uiMapperRangeEditor>	rangeChanged;
+    Notifier<uiMapperRangeEditor>	sequenceChanged;
 
 protected:
-	
-    uiHistogramDisplay*		histogramdisp_;    
+
+    uiHistogramDisplay*		histogramdisp_;
     int 			id_;
     uiAxisHandler*		xax_;
 
-    ColTab::MapperSetup*        ctmapper_;
+    ColTab::MapperSetup*	ctmapper_;
     ColTab::Sequence*		ctseq_;
 
     uiPixmapItem*		leftcoltab_;
@@ -85,6 +87,7 @@ protected:
     void			mousePressed(CallBacker*);
     void			mouseMoved(CallBacker*);
     void			mouseReleased(CallBacker*);
+    void			wheelMoved(CallBacker*);
 
     void			histogramResized(CallBacker*);
     void			histDRChanged(CallBacker*);

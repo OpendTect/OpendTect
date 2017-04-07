@@ -36,7 +36,9 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
 				.menubar(true) )
     , activeattrbid_(-1)
     , activectbmapper_(0)
+    , activectbseq_(0)
     , rangeChange(this)
+    , sequenceChange(this)
     , dpm_(DPM(dmid))
 {
     setCtrlStyle( CloseOnly );
@@ -60,6 +62,8 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
 				new uiMapperRangeEditor( this, idx );
 	rangeeditor->rangeChanged.notify(
 		mCB(this,uiMultiMapperRangeEditWin,rangeChanged) );
+	rangeeditor->sequenceChanged.notify(
+		mCB(this,uiMultiMapperRangeEditWin,sequenceChanged) );
 	rangeeditor->getDisplay().getMouseEventHandler().movement.notify(
 			mCB(this,uiMultiMapperRangeEditWin,mouseMoveCB) );
 	mapperrgeditors_ += rangeeditor;
@@ -119,10 +123,9 @@ void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
 	return;
 
     mapperrgeditors_[idx]->setDataPackID( dpid, dpm_.id() );
+    mapperrgeditors_[idx]->display( true );
     if ( datapackids_.validIdx(idx) )
-    {
 	datapackids_[idx] = dpid;
-    }
 
     if ( statsdisplays_.validIdx(idx) )
 	statsdisplays_[idx]->setDataPackID( dpid, dpm_.id() );
@@ -178,6 +181,15 @@ void uiMultiMapperRangeEditWin::rangeChanged( CallBacker* cb )
     activeattrbid_ = obj->ID();
     activectbmapper_ = &obj->getColTabMapperSetup();
     rangeChange.trigger();
+}
+
+
+void uiMultiMapperRangeEditWin::sequenceChanged( CallBacker* cb )
+{
+    mDynamicCastGet(uiMapperRangeEditor*,obj,cb);
+    activeattrbid_ = obj->ID();
+    activectbseq_ = &obj->getColTabSeq();
+    sequenceChange.trigger();
 }
 
 
