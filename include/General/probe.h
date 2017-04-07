@@ -37,6 +37,10 @@ public:
     virtual bool	usePar(const IOPar&)		=0;
     virtual void	invalidateData()		=0;
     virtual const char* layerType() const		=0;
+
+    virtual bool	useDisplayPars() { return false; }
+    virtual void	saveDisplayPars() {}
+
     ID			getID() const;
     const Probe*	getProbe() const;
     static ID		getNewID();

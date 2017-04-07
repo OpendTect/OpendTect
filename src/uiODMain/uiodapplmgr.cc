@@ -1932,11 +1932,11 @@ void uiODApplMgr::pageUpDownPressed( bool pageup )
 { attrvishandler_.pageUpDownPressed(pageup); sceneMgr().updateTrees(); }
 void uiODApplMgr::updateColorTable( int visid, int attrib )
 { attrvishandler_.updateColorTable( visid, attrib ); }
-void uiODApplMgr::colSeqChg( CallBacker* )
-{ attrvishandler_.colSeqChg(); sceneMgr().updateSelectedTreeItem(); }
-void uiODApplMgr::useDefColTab( int visid, int attrib )
+void uiODApplMgr::colSeqChg( CallBacker* )/*TODO: Remove*/
+{ attrvishandler_.colSeqChg(); sceneMgr().updateSelectedTreeItem();  }
+void uiODApplMgr::useDefColTab( int visid, int attrib )/*TODO: Remove*/
 { attrvishandler_.useDefColTab(visid,attrib); }
-void uiODApplMgr::saveDefColTab( int visid, int attrib )
+void uiODApplMgr::saveDefColTab( int visid, int attrib )/*TODO: Remove*/
 { attrvishandler_.saveDefColTab(visid,attrib); }
 
 void uiODApplMgr::processPreStack( bool is2d )

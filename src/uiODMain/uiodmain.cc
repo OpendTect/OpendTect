@@ -330,7 +330,6 @@ bool uiODMain::buildUI()
     menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 
     uiColTabToolBar* tb = new uiColTabToolBar( this );
-    tb->selTool().seqChanged.notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
     SetuiCOLTAB( &tb->selTool() );
     ctabed_ = new uiVisColTabEd( *tb );
     return true;

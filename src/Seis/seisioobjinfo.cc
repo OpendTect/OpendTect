@@ -774,3 +774,14 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
 	}
     }
 }
+
+
+void SeisIOObjInfo::saveDisplayPars( const IOPar& par )
+{
+    if ( bad_ )
+	return;
+
+    File::Path fp( ioobj_->mainFileName() );
+    fp.setExtension( "par" );
+    par.write( fp.fullPath(), sKey::Pars() );
+}

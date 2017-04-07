@@ -72,6 +72,7 @@ public:
     bool		getStats(IOPar&) const;
     bool		getDisplayPars( IOPar& iop ) const
 			{ return getPars(iop); }
+    void		saveDisplayPars(const IOPar&);
 
     int			nrComponents(Pos::GeomID geomid=mUdfGeomID) const;
     void		getComponentNames(BufferStringSet&,

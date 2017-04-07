@@ -243,13 +243,8 @@ void AttribProbeLayer::invalidateData()
 }
 
 
-bool AttribProbeLayer::useStoredColTabPars()
+SeisIOObjInfo* AttribProbeLayer::gtSeisInfo() const
 {
-    mLock4Read();
-
-    if ( attrspec_.isNLA() )
-	return false;
-
     const Attrib::DescSet* attrset =
 	Attrib::DSHolder().getDescSet( attrspec_.is2D(), true );
     const Attrib::Desc* desc =
@@ -259,19 +254,34 @@ bool AttribProbeLayer::useStoredColTabPars()
 	attrset = Attrib::DSHolder().getDescSet( attrspec_.is2D(), false );
 	desc = attrset ? attrset->getDesc( attrspec_.id() ) : 0;
 	if ( !desc )
-	    return false;
+	    return 0;
     }
 
     DBKey storedid = desc->getStoredID();
     if ( !desc->isStored() || storedid.isInvalid() )
-	return false;
+	return 0;
 
     if ( !DBM().get(storedid) )
+	return 0;
+
+    SeisIOObjInfo* seisobj = new SeisIOObjInfo( storedid );
+    return seisobj;
+}
+
+
+bool AttribProbeLayer::useDisplayPars()
+{
+    mLock4Read();
+
+    if ( attrspec_.isNLA() )
 	return false;
 
-    SeisIOObjInfo seisobj( storedid );
+    PtrMan<SeisIOObjInfo> seisobj = gtSeisInfo();
+    if ( !seisobj )
+	return false;
+
     IOPar iop;
-    if ( !seisobj.getDisplayPars(iop) )
+    if ( !seisobj->getDisplayPars(iop) )
 	return false;
 
     mLock2Write();
@@ -284,4 +294,26 @@ bool AttribProbeLayer::useStoredColTabPars()
 
     mSendChgNotif( cColSeqChange(), cUnspecChgID() );
     return true;
+}
+
+
+void AttribProbeLayer::saveDisplayPars()
+{
+    mLock4Read();
+
+    if ( attrspec_.isNLA() )
+	return;
+        
+    PtrMan<SeisIOObjInfo> seisobj = gtSeisInfo();
+    if ( !seisobj )
+	return;
+
+    IOPar iop;
+    if ( !seisobj->getDisplayPars(iop) )
+	return;
+
+    iop.set( sKey::Name(), colseq_->name() );
+    mapper_->setup().fillPar( iop );
+
+    seisobj->saveDisplayPars( iop );
 }

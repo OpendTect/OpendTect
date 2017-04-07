@@ -249,7 +249,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	AttribProbeLayer* attrprobelayer =
 	    new AttribProbeLayer( AttribProbeLayer::Wiggle );
 	attrprobelayer->setSelSpec( selas );
-	attrprobelayer->useStoredColTabPars();
+	attrprobelayer->useDisplayPars();
 
 	viewer2D()->getProbe().addLayer( attrprobelayer );
 	setAttribProbeLayer( attrprobelayer );

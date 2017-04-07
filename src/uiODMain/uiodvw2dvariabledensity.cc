@@ -307,7 +307,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     {
 	AttribProbeLayer* attrprobelayer = new AttribProbeLayer();
 	attrprobelayer->setSelSpec( selas );
-	attrprobelayer->useStoredColTabPars();
+	attrprobelayer->useDisplayPars();
 
 	viewer2D()->getProbe().addLayer( attrprobelayer );
 	setAttribProbeLayer( attrprobelayer );

@@ -159,7 +159,7 @@ bool uiODSceneProbeParentTreeItem::addDefaultAttribLayer( uiODApplMgr& applmgr,
 
     AttribProbeLayer* attriblayer = new AttribProbeLayer;
     attriblayer->setSelSpec( as );
-    attriblayer->useStoredColTabPars();
+    attriblayer->useDisplayPars();
     TrcKeyZSampling probepos = probe.position();
     probe.addLayer( attriblayer );
     return true;
@@ -201,7 +201,7 @@ bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
     }
 
     attriblayer->setSelSpec( attrlayselspec );
-    attriblayer->useStoredColTabPars();
+    attriblayer->useDisplayPars();
     probe.addLayer( attriblayer );
     return true;
 }
@@ -317,7 +317,7 @@ uiODDataTreeItem* uiODSceneProbeTreeItem::createAttribItem(
     }
 
     attriblayer->setSelSpec( attrlayselspec );
-    attriblayer->useStoredColTabPars();
+    attriblayer->useDisplayPars();
     parentprobe->addLayer( attriblayer );
 
     return createProbeLayerItem( *attriblayer );

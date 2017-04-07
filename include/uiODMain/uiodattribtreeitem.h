@@ -49,6 +49,7 @@ protected:
     bool		handleSelMenu(int mnuid);
     ConstRefMan<DataPack> calculateAttribute();
     virtual DataPackMgr& getDPM();
+    virtual void	colSeqChg(const ColTab::Sequence&);
 
     MenuItem		selattrmnuitem_;
     MenuItem		colsettingsmnuitem_;

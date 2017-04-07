@@ -13,6 +13,8 @@ ________________________________________________________________________
 
 #include "uiioobjseldlg.h"
 #include "uicolseqdisp.h"
+#include "uicoltabsel.h"
+
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmain.h"
@@ -223,8 +225,7 @@ void uiODPSEventsTreeItem::updateDisplay()
 	eventdisplay_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,4) );
 	eventdisplay_->setEventManager( &psem_ );
 
-	const ColTab::Sequence& cseq
-			= ODMainWin()->colTabEd().getColTabSequence();
+	const ColTab::Sequence& cseq = uiCOLTAB().sequence();
 	mAttachCB( cseq.objectChanged(), uiODPSEventsTreeItem::coltabChangeCB );
 	eventdisplay_->setColTabSequence( 0, cseq, 0 );
     }

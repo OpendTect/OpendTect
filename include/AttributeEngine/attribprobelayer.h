@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 
+class SeisIOObjInfo;
 
 mExpClass(AttributeEngine) AttribProbeLayer : public ProbeLayer
 {
@@ -54,7 +55,8 @@ public:
     int				nrAvialableComponents() const;
     void			setSelectedComponent(int);
     void			setDataPackID(DataPack::ID);
-    bool			useStoredColTabPars();
+    virtual bool		useDisplayPars();
+    virtual void		saveDisplayPars();
 
     static ProbeLayer*		createFrom(const IOPar&);
     static void			initClass();
@@ -70,6 +72,7 @@ public:
 
 protected:
 
+    SeisIOObjInfo*		gtSeisInfo() const;
     Attrib::SelSpec&		attrspec_;
     DispType			disptype_;
     DataPack::ID		attribdpid_;

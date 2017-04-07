@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "factory.h"
 
 class ProbeLayer;
+class uiColTabSelTool;
 class uiFKSpectrum;
 class uiMenuHandler;
 class uiSeisAmplSpectrum;
@@ -103,6 +104,9 @@ protected:
 
     void			displayMiniCtab( const ColTab::Sequence* );
 
+    void			colSeqChgCB(CallBacker*);
+    virtual void		colSeqChg(const ColTab::Sequence&) {}
+
     uiMenuHandler*		menu_;
     MenuItem			movemnuitem_;
     MenuItem			movetotopmnuitem_;
@@ -124,5 +128,5 @@ protected:
     uiFKSpectrum*		fkspectrumwin_;
 
     RefMan<ProbeLayer>		probelayer_;
-
+    uiColTabSelTool&		coltabsel_;
 };

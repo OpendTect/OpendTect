@@ -11,6 +11,7 @@ ___________________________________________________________________
 #include "uioddatatreeitem.h"
 
 #include "uicolseqdisp.h"
+#include "uicoltabsel.h"
 #include "uifkspectrum.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -117,6 +118,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , fkspectrumitem_(m3Dots(tr("F-K Spectrum")))
     , view2dwvaitem_(tr("2D Viewer - Wiggle"))
     , view2dvditem_(tr("2D Viewer"))
+    , coltabsel_(uiCOLTAB())
 {
     statisticsitem_.iconfnm = "histogram";
     removemnuitem_.iconfnm = "remove";
@@ -130,7 +132,8 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     movetobottommnuitem_.iconfnm = "tobottom";
     probelayer_ = new AttribProbeLayer;
     mAttachCB( probelayer_->objectChanged(),
-	       uiODDataTreeItem::probeLayerChangedCB );
+	uiODDataTreeItem::probeLayerChangedCB );
+    coltabsel_.seqChanged.notify( mCB(this,uiODDataTreeItem,colSeqChgCB) );
 }
 
 
@@ -150,6 +153,7 @@ uiODDataTreeItem::~uiODDataTreeItem()
     MenuHandler* tb = visserv_->getToolBarHandler();
     tb->createnotifier.remove( mCB(this,uiODDataTreeItem,addToToolBarCB) );
     tb->handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
+    coltabsel_.seqChanged.remove( mCB(this,uiODDataTreeItem,colSeqChgCB) );
 }
 
 
@@ -221,6 +225,7 @@ int uiODDataTreeItem::attribNr() const
 
 void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
 {
+    coltabsel_.asParent()->display( false );
     mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
     if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
@@ -288,6 +293,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	visserv_->getDisplayedDataPackID( displayID(), attribNr() );
     const bool hasdatapack = dpid.isValid();
     const bool isvert = visserv_->isVerticalDisp( displayID() );
+    coltabsel_.asParent()->display( hasdatapack );
     if ( hasdatapack )
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
 			  &statisticsitem_, true, false)
@@ -569,4 +575,11 @@ void uiODDataTreeItem::probeChangedCB( CallBacker* cb )
     if ( cd.changeType()==Probe::cPositionChange() ||
 	 cd.changeType()==Probe::cDimensionChange() )
 	updateDisplay();
+}
+
+
+void uiODDataTreeItem::colSeqChgCB( CallBacker* cb )
+{
+    if ( isSelected() )
+	colSeqChg( coltabsel_.sequence() );
 }

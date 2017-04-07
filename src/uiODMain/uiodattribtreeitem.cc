@@ -35,6 +35,7 @@ ___________________________________________________________________
 #include "zaxistransformutils.h"
 
 #include "uiattribpartserv.h"
+#include "uicoltabsel.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -104,14 +105,20 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
     if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
-    if ( !select() ) return false;
+    if ( !select() )
+	return false;
 
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( !visserv->canSetColTabSequence( displayID() ) )
 	return false;
-//  if ( !visserv->isClassification( displayID(), attribNr() ) )
-    applMgr()->updateColorTable( displayID(), attribNr() );
 
+    AttribProbeLayer* attrprlayer = attribProbeLayer();
+    if ( !attrprlayer )
+	return false;
+    
+    coltabsel_.setSequence( attrprlayer->sequence() );
+    coltabsel_.setMapper( attrprlayer->mapper() );
+    
     return true;
 }
 
@@ -251,12 +258,13 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid == colsettingsmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	applMgr()->saveDefColTab( displayID(), attribNr() );
+	 AttribProbeLayer* attrprlayer = attribProbeLayer();
+	 if ( !attrprlayer ) return;
+	 attrprlayer->saveDisplayPars();
     }
     else if ( handleSelMenu(mnuid) )
     {
 	menu->setIsHandled(true);
-	ODMainWin()->applMgr().useDefColTab( displayID(), attribNr() );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
@@ -308,7 +316,10 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid )
 	{
 	    AttribProbeLayer* attrlayer = attribProbeLayer();
 	    if ( attrlayer )
+	    {
 		attrlayer->setSelSpec( myas );
+		attrlayer->useDisplayPars();
+	    }
 	}
 	return true;
     }
@@ -523,4 +534,15 @@ void uiODAttribTreeItem::updateDisplay()
 				    attrprlayer->sequence() );
     visserv_->setDataPackID( displayID(), attribNr(),
 			     attrprlayer->dataPackID() );
+}
+
+
+void uiODAttribTreeItem::colSeqChg( const ColTab::Sequence& seq )
+{
+    AttribProbeLayer* attrprlayer = attribProbeLayer();
+    if ( !attrprlayer )
+	return;
+    
+    attrprlayer->setSequence( seq );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
