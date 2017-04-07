@@ -29,7 +29,7 @@ bool uiZAxisTransform::isField( const uiParent* p )
 }
 
 
-uiZAxisTransform::uiZAxisTransform( uiParent* p ) 
+uiZAxisTransform::uiZAxisTransform( uiParent* p )
     : uiDlgGroup( p, uiStrings::sEmptyString() )
 {}
 
@@ -44,7 +44,7 @@ bool uiZAxisTransform::getTargetSampling( StepInterval<float>& ) const
 
 uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	const char* fromdomain, const char* todomain, bool withsampling,
-	bool isfield )
+	bool isfield, bool is2d )
     : uiDlgGroup( p, uiStrings::sEmptyString() )
     , selfld_( 0 )
     , isfield_( isfield )
@@ -83,7 +83,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	transflds_ += uizat;
 	names += usernames[idx];
     }
-    
+
     const bool hastransforms = names.size();
 
     const uiString nonestr = uiStrings::sNone();
@@ -101,8 +101,8 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	selfld_->valuechanged.notify( mCB(this, uiZAxisTransformSel,selCB) );
 
 	setHAlignObj( selfld_ );
-	
-    
+
+
 	for ( int idx=0; idx<transflds_.size(); idx++ )
 	{
 	    if ( !transflds_[idx] )
@@ -145,9 +145,9 @@ bool uiZAxisTransformSel::getTargetSampling( StepInterval<float>& zrg ) const
     const int idx = mGetSel;
     if ( !transflds_[idx] )
 	return false;
-    
+
     return transflds_[idx]->getTargetSampling( zrg );
-    
+
 }
 
 
@@ -192,33 +192,33 @@ bool uiZAxisTransformSel::acceptOK()
 {
     const int idx = mGetSel;
     if ( !transflds_[idx] )
-	return true;    
+	return true;
 
     if ( !transflds_[idx]->acceptOK() )
 	return false;
-    
+
     StepInterval<float> zrg;
     if ( !getTargetSampling( zrg ) )
 	return true;
-    
+
     if ( zrg.isUdf() )
     {
 	uiMSG().error(tr("Sampling is not set"));
 	return false;
     }
-    
+
     if ( zrg.isRev() )
     {
 	uiMSG().error(tr("Sampling is reversed."));
 	return false;
     }
-    
+
     if ( zrg.step<=0 )
     {
 	uiMSG().error(tr("Sampling step is zero or negative"));
 	return false;
     }
-    
+
     return true;
 }
 
@@ -230,7 +230,7 @@ void uiZAxisTransformSel::selCB( CallBacker* )
     {
 	if ( !transflds_[idx] )
 	    continue;
-	
+
 	transflds_[idx]->display( idx==selidx );
     }
 }

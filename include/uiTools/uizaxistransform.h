@@ -28,7 +28,7 @@ mExpClass(uiTools) uiZAxisTransform : public uiDlgGroup
 public:
     mDefineFactory3ParamInClass(uiZAxisTransform,uiParent*,
 	    			const char*,const char*,factory);
-    
+
     virtual void		enableTargetSampling();
     virtual bool		getTargetSampling(StepInterval<float>&) const;
 
@@ -62,7 +62,8 @@ public:
 						    const char* fromdomain=0,
 						    const char* todomain=0,
 						    bool withsampling=false,
-						    bool asfield=false);
+						    bool asfield=false,
+						    bool is2d=false);
 
     bool			isField() const;
 				/*!<If true, the shape will be a one-line
