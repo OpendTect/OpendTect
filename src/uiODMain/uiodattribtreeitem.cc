@@ -118,7 +118,7 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
     
     coltabsel_.setSequence( attrprlayer->sequence() );
     coltabsel_.setMapper( attrprlayer->mapper() );
-    
+    coltabsel_.asParent()->display( true );
     return true;
 }
 
