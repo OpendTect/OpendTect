@@ -274,6 +274,9 @@ void uiTableBody::paste()
     const int nrrows = rows.count()-1;
     const int nrcols = rows.first().count('\t') + 1;
 
+    if ( rowCount() < nrrows )
+	setRowCount( nrrows );
+
     for ( int i = 0; i<nrrows; i++ )
     {
 	QStringList columns = rows[i].split( '\t' );
@@ -1087,7 +1090,7 @@ void uiTable::setRowLabels( const BufferStringSet& labels )
 {
     body_->setNrLines( labels.size() );
     for ( int i=0; i<labels.size(); i++ )
-        setRowLabel( i, *labels[i] );
+	setRowLabel( i, *labels[i] );
 }
 
 
@@ -1458,7 +1461,7 @@ void uiTable::updateCellSizes( const uiSize* size )
 	    for ( int idx=0; idx < nrCols(); idx++ )
 		setColumnStretchable( idx, true );
 
-        if ( !setup_.fillrow_ )
+	if ( !setup_.fillrow_ )
 	    for ( int idx=0; idx < nrRows(); idx++ )
 		setRowStretchable( idx, true );
     }
