@@ -105,6 +105,7 @@ endif()
 
 
 #Add current module to include-path
+set( CMAKE_BINARY_DIR "${OD_BINARY_BASEDIR}" )
 if ( OD_MODULE_HAS_LIBRARY )
     if (OD_IS_PLUGIN)
         set( PLUGINDIR ${CMAKE_CURRENT_SOURCE_DIR} )

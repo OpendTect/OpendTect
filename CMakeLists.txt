@@ -45,8 +45,6 @@ if( NOT DEFINED CMAKE_BUILD_TYPE )
     set( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
 endif()
 
-set( OD_DGB_DIR "" CACHE PATH "Place where closed source part is found" )
-
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 
 set( OD_SUBSYSTEM "od" )
@@ -121,7 +119,11 @@ if ( EXISTS ${PLUGIN_DIR}/CMakeLists.txt )
     include ( ${PLUGIN_DIR}/CMakeLists.txt )
 endif()
 
-OD_WRITE_ALOFILES( ${MISC_INSTALL_PREFIX}/plugins/${OD_PLFSUBDIR} )
+if ( DEFINED ${MISC_INSTALL_PREFIX} )
+    OD_WRITE_ALOFILES( ${MISC_INSTALL_PREFIX}/plugins/${OD_PLFSUBDIR} )
+else()
+    OD_WRITE_ALOFILES( ${CMAKE_BINARY_DIR}/plugins/${OD_PLFSUBDIR} )
+endif()
 
 #OD_ADD_KEYWORD_TEST( strcmp strcmp )
 OD_ADD_KEYWORD_TEST( "sqrt(" sqrt "Use Math::Sqrt() instead of sqrt" )
