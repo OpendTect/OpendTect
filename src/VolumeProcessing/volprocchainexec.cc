@@ -572,7 +572,23 @@ int VolProc::ChainExecutor::nextStep()
     curtask.setProgressMeter( progressmeter_ );
     curtask.enableWorkControl( true );
     if ( !curtask.execute() )
-	mCleanUpAndRet( ErrorOccurred() )
+    {
+	uiStringSet errors;
+	const ObjectSet<Step>& cursteps = curepoch_->getSteps();
+	for ( int istep=0; istep<cursteps.size(); istep++ )
+	{
+	    if ( !cursteps[istep] || cursteps[istep]->errMsg().isEmpty() )
+		continue;
+
+	    errors.add( cursteps[istep]->errMsg() );
+	}
+
+	if ( !errors.isEmpty() )
+	    errmsg_ = errors.cat();
+
+	deleteAndZeroPtr( curepoch_ );
+	return ErrorOccurred();
+    }
 
     const bool finished = epochs_.isEmpty();
     if ( finished )			//we just executed the last one

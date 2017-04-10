@@ -26,19 +26,37 @@ public:
 			mDefineFactoryInClass(InterpolationLayerModel,factory)
     virtual		~InterpolationLayerModel();
 
-    virtual int		nrLayers() const				= 0;
-    virtual float	getZ(const BinID&,int layer) const		= 0;
-    virtual float	getInterpolatedZ(const BinID&,float layer) const;
-    virtual float	getLayerIndex(const BinID&,float z) const	= 0;
-    virtual void	getAllZ(const BinID&,TypeSet<float>&) const	= 0;
-    virtual bool	hasPosition(const BinID&) const			= 0;
-    virtual bool	prepare(TaskRunner*)				= 0;
+    virtual InterpolationLayerModel* clone() const			= 0;
+
+    virtual bool	isOK(const TrcKey* tk=0) const;
+
+    virtual bool	prepare(const TrcKeyZSampling&,TaskRunner* =0);
+    virtual void	addSampling(const TrcKeySampling&);
+    virtual od_int64	getMemoryUsage(const TrcKeySampling&) const;
+			/*!< returns total amount of bytes needed to store
+			     the Z values of the model */
+
+    virtual float	getLayerIndex(const TrcKey&,float z) const	= 0;
+    virtual float	getInterpolatedZ(const TrcKey&,float layer) const;
 
     static const char*	sKeyModelType();
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)		{ return true; }
 
+protected:
+			InterpolationLayerModel();
+			InterpolationLayerModel(const InterpolationLayerModel&);
+
+    virtual bool	hasSampling() const;
+
+    ObjectSet<TrcKeySampling>	tkss_;
+    StepInterval<float> zsamp_;
+
+private:
+
+    virtual int		nrLayers() const				= 0;
+    virtual float	getZ(const TrcKey&,int layer) const		= 0;
 };
 
 
@@ -51,18 +69,23 @@ public:
 				"ZSlices",
 				tr("Z Slices"))
 
-    void		setTrcKeyZSampling(const TrcKeyZSampling&);
+protected:
+			ZSliceInterpolationModel();
+			ZSliceInterpolationModel(
+					const ZSliceInterpolationModel&);
+
+private:
+
+    InterpolationLayerModel*	clone() const;
+
+    bool		isOK(const TrcKey* tk=0) const;
 
     int			nrLayers() const;
-    float		getZ(const BinID&,int layer) const;
-    float		getLayerIndex(const BinID&,float z) const;
-    void		getAllZ(const BinID&,TypeSet<float>&) const;
-    bool		hasPosition(const BinID&) const;
-    bool		prepare(TaskRunner*)	{ return true; }
+    float		getLayerIndex(const TrcKey&,float z) const;
+    float		getZ(const TrcKey&,int layer) const;
+    od_int64		getMemoryUsage(const TrcKeySampling&) const
+			{ return 0; }
 
-protected:
-
-    TrcKeyZSampling	tkzs_;
 };
 
 #endif

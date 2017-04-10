@@ -917,9 +917,6 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
     if ( track_.isEmpty() )
 	return;
 
-    if ( mIsUdf( extrintv_.step ) )
-	extrintv_.step = SI().zStep();
-
     float zstop = track_.dah( track_.size()-1 );
     float zstart = track_.dah( 0 );
     if ( d2t )
@@ -928,6 +925,7 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Well::Track& t,
 	zstop = d2t->getTime( zstop, track_ );
 	extrintv_.start = d2t->getTime( extrintv_.start, track_ );
 	extrintv_.stop = d2t->getTime( extrintv_.stop, track_ );
+	extrintv_.step = SI().zStep();
     }
     tracklimits_.start = zstart;
     tracklimits_.stop = zstop;

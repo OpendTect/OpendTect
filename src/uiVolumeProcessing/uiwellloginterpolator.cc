@@ -29,26 +29,17 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
 					      WellLogInterpolator& hwi )
     : uiStepDialog( p, WellLogInterpolator::sFactoryDisplayName(), &hwi )
     , hwinterpolator_( hwi )
+    , extensfld_(0)
+    , logextenfld_(0)
 {
     setHelpKey( mODHelpKey(mWellLogInterpolHelpID) );
 
     layermodelfld_ = new uiInterpolationLayerModel( this );
 
-    const char* ext[] = { "None", "By top/bottom values only",
-			  "By parallel to top/base", 0 };
-    extensfld_ = new uiGenInput( this, tr("Vertical Extension"),
-	    StringListInpSpec(ext) );
-    extensfld_->setText( ext[hwi.extensionMethod()] );
-    extensfld_->attach( alignedBelow, layermodelfld_ );
-
-    logextenfld_ = new uiGenInput( this, tr("Log extension if needed"),
-	    BoolInpSpec(hwi.useLogExtension()) );
-    logextenfld_->attach( alignedBelow, extensfld_ );
-
     uiWellExtractParams::Setup su;
     su.singlelog(true).withextractintime(false).withsampling(true);
     welllogsel_ = new uiMultiWellLogSel( this, su );
-    welllogsel_->attach( alignedBelow, logextenfld_ );
+    welllogsel_->attach( alignedBelow, layermodelfld_ );
 
     uiStringSet algos;
     algos += InverseDistanceGridder2D::sFactoryDisplayName();
@@ -121,11 +112,6 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
 
     InterpolationLayerModel* mdl = layermodelfld_->getModel();
     hwinterpolator_.setLayerModel( mdl );
-
-    hwinterpolator_.useLogExtension( logextenfld_->getBoolValue() );
-    hwinterpolator_.extensionMethod(
-	    (WellLogInterpolator::ExtensionModel)extensfld_->getIntValue() );
-    
 
     const bool validrad =  !algosel_->getIntValue() &&
 	radiusfld_->isChecked() && !mIsUdf(radiusfld_->getFValue());

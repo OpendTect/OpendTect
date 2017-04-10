@@ -13,24 +13,24 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "volprocstep.h"
 
 #include "arrayndalgo.h"
-#include "enums.h"
 #include "multiid.h"
+#include "volprocstep.h"
 
 class BufferStringSet;
 class Gridder2D;
-class InverseDistanceGridder2D;
 class InterpolationLayerModel;
-
+class InverseDistanceGridder2D;
 namespace Well { class Data; class Log; }
+
 
 namespace VolProc
 {
 
 class WellLogInfo;
 class WellLogInfoSetup;
+
 
 /*! Fills a volume with well log values. */
 
@@ -62,14 +62,6 @@ public:
     void			setLayerModel(InterpolationLayerModel*);
     const InterpolationLayerModel* getLayerModel() const;
 
-    enum ExtensionModel		{ None, EdgeValueOnly, ExtrapolateEdgeValue };
-				mDeclareEnumUtils(ExtensionModel)
-    ExtensionModel		extensionMethod() const	{ return extension_; }
-    void			extensionMethod(ExtensionModel ext)
-				{ extension_ = ext; }
-
-    bool			useLogExtension() const  { return extlog_; }
-    void			useLogExtension(bool yn) { extlog_ = yn; }
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -98,10 +90,6 @@ protected:
     TypeSet<MultiID>		wellmids_;
     BufferString		logname_;
 
-    ExtensionModel		extension_;
-    bool			extlog_;
-
-    uiString			errmsg_;
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;
 };
