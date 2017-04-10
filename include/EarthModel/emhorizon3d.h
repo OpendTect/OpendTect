@@ -104,10 +104,14 @@ public:
 
     virtual void		setNodeSourceType(const TrcKey&,
 						  NodeSourceType);
+    virtual void		setNodeSourceType(const PosID&,NodeSourceType);
+
     virtual bool		isNodeSourceType(const PosID&,
 						 NodeSourceType) const;
     virtual bool		isNodeSourceType(const TrcKey&,
 						 NodeSourceType) const;
+    bool			hasNodeSourceType(const PosID&) const;
+
     virtual void		setNodeLocked(const TrcKey&,bool locked);
     virtual bool		isNodeLocked(const TrcKey&) const;
     virtual bool		isNodeLocked(const PosID&)const;
@@ -137,6 +141,10 @@ public:
     void			removeAll();
     Horizon3DGeometry&		geometry();
     const Horizon3DGeometry&	geometry() const;
+
+    virtual void		setArray(const SectionID&,const BinID& start,
+					 const BinID& step,Array2D<float>* arr,
+					 bool takeover);
 
     static Horizon3D*		createWithConstZ(float z,const TrcKeySampling&);
     Array2D<float>*		createArray2D(SectionID,

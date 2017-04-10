@@ -374,12 +374,28 @@ void Horizon3D::setNodeSourceType( const TrcKey& tk, NodeSourceType type )
 }
 
 
+void Horizon3D::setNodeSourceType( const PosID& posid, NodeSourceType type )
+{
+    const TrcKey tk = geometry_.getTrcKey( posid );
+    setNodeSourceType( tk, type );
+}
+
+
 bool Horizon3D::isNodeSourceType( const PosID& posid,
     NodeSourceType type ) const
 {
     const TrcKey tk = geometry_.getTrcKey( posid );
     return !tk.isUdf() ? isNodeSourceType( tk, type ) : false;
 }
+
+
+bool Horizon3D::hasNodeSourceType( const PosID& posid ) const
+{
+    const TrcKey tk = geometry_.getTrcKey( posid );
+    return nodesource_ ? nodesource_->getData()[tk.trcNr()] !=
+	(char)NodeSourceType::None : false;
+}
+
 
 
 bool  Horizon3D::isNodeSourceType( const TrcKey& tk,
@@ -1256,6 +1272,26 @@ bool Horizon3D::setPosition( const SectionID& sid, const SubID& subid,
     setNodeSourceType( tk, tp );
     return EMObject::setPosition( sid, subid, crd, addtoundo );
 }
+
+
+void Horizon3D::setArray( const SectionID& sid, const BinID& start, 
+    const BinID& step, Array2D<float>* arr, bool takeover )
+{
+    PtrMan<EM::EMObjectIterator> iterator = createIterator( sid );
+    if ( !iterator )
+	return;
+
+    while( true )
+    {
+	const EM::PosID posid = iterator->next();
+	if ( posid.objectID() == -1 )
+	    break;
+	if ( !hasNodeSourceType(posid) )
+	    setNodeSourceType( posid, NodeSourceType::Gridding );
+    }
+    geometry().sectionGeometry(sid)->setArray( start, step, arr, true );
+}
+
 
 
 // Horizon3DGeometry

@@ -120,7 +120,7 @@ mExpClass(EarthModel) EMObject	: public RefCount::Referenced
 public:
 
     enum NodeSourceType		{ None = (int)'0', Manual=(int)'1',
-				  Auto=(int)'2' };
+				  Auto=(int)'2', Gridding=(int)'3' };
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const	= 0;
     virtual uiString		getUserTypeStr() const	= 0;
@@ -180,6 +180,9 @@ public:
 
     virtual void		setNodeSourceType(const TrcKey&,
 							NodeSourceType){}
+    virtual bool		hasNodeSourceType( const PosID& ) const
+						    { return false; }
+
     virtual bool		isNodeSourceType(const PosID&,
 				    NodeSourceType) const {return false;}
     virtual bool		isNodeSourceType(const TrcKey&,
