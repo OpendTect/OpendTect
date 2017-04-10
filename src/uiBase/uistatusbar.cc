@@ -21,6 +21,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <qlabel.h>
 #include <qtooltip.h>
 
+#include "envvars.h"
+static Threads::Atomic<int> nodispatall_( -1 );
+
 mUseQtnamespace
 
 class uiStatusBarBody : public uiBodyImpl<uiStatusBar,QStatusBar>
@@ -31,7 +34,10 @@ public:
 uiStatusBarBody( uiStatusBar& hndl, uiMainWin* parnt, const char* nm,
 		 QStatusBar& sb)
 : uiBodyImpl<uiStatusBar,QStatusBar>( hndl, parnt, sb )
-{}
+{
+    if ( nodispatall_ == -1 )
+	nodispatall_ = GetEnvVarYN( "OD_NO_STATUSBAR_MSGS" ) ? 1 : 0;
+}
 
 
 int size() const
@@ -40,6 +46,9 @@ int size() const
 
 void message( const uiString& msg, int idx, int msecs )
 {
+    if ( nodispatall_ )
+	return;
+
     if ( msgs_.validIdx(idx) && msgs_[idx] )
 	msgs_[idx]->setText(msg.getQString());
     else if ( !msg.isEmpty() )
@@ -240,6 +249,9 @@ void uiStatusBar::setTxtAlign( int idx, Alignment::HPos hal )
 
 void uiStatusBar::setLabelTxt( int idx, const uiString& lbltxt )
 {
+    if ( nodispatall_ )
+	return;
+
     if ( !body_->msgs_.validIdx(idx) ) return;
 
     QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs_[idx]->buddy());
