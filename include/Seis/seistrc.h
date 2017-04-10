@@ -71,6 +71,8 @@ public:
 						= DataCharacteristics(),
 				      bool cleardata=false )
 			{ data_.addComponent( ns, dc, cleardata ); }
+    void		removeComponent( int icomp )
+			{ data_.delComponent( icomp ); }
     bool		reSize(int,bool copydata);
     void		copyDataFrom(const SeisTrc&,int icomp=-1,
 				     bool forcefloats=false);

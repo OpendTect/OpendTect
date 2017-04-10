@@ -164,6 +164,7 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 {
     Threads::Locker locker( lock_ );
     dbky_ = dbky;
+    setSelData( 0 );
     setupchgd_ = true;
     return reset();
 }
@@ -314,6 +315,7 @@ void Seis::Provider::putGatherInTrace( const SeisTrcBuf& tbuf, SeisTrc& trc )
 
 void Seis::Provider::handleTrace( SeisTrc& trc ) const
 {
+    ensureRightComponents( trc );
     ensureRightZSampling( trc );
     ensureRightDataRep( trc );
     nrdone_++;
@@ -399,6 +401,19 @@ uiRetVal Seis::Provider::getGather( const TrcKey& trcky,
     if ( uirv.isOK() )
 	handleTraces( tbuf );
     return uirv;
+}
+
+
+void Seis::Provider::ensureRightComponents( SeisTrc& trc ) const
+{
+    int nrselectedcomps = 0;
+    for ( int idx=0; idx<selcomps_.size(); idx++ )
+	if ( selcomps_[idx] != -1 )
+	    nrselectedcomps++;
+
+    if ( nrselectedcomps != 0 )
+	for ( int idx=trc.nrComponents()-1; idx>=nrselectedcomps; idx-- )
+	    trc.removeComponent( idx );
 }
 
 

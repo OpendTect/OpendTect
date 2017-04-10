@@ -129,6 +129,7 @@ protected:
 
     void		ensureRightDataRep(SeisTrc&) const;
     void		ensureRightZSampling(SeisTrc&) const;
+    void		ensureRightComponents(SeisTrc&) const;
     bool		handleSetupChanges(uiRetVal&) const;
     void		handleTrace(SeisTrc&) const;
     void		handleTraces(SeisTrcBuf&) const;
