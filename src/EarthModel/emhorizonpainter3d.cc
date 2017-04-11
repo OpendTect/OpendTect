@@ -170,12 +170,12 @@ bool HorizonPainter3D::addPolyLine()
 		}
 
 		if ( newmarker )
-		{
 		    generateNewMarker( *hor3d, sid, *secmarkerln, marker );
-		    newmarker = false;
-		}
 
-		addDataToMarker( bid, crd, posid, *hor3d, *marker, idx );
+		addDataToMarker( bid, crd, posid, *hor3d, *marker, 
+		    newmarker, idx );
+		newmarker = false;
+
 	    }
 	    continue;
 	}
@@ -200,13 +200,12 @@ bool HorizonPainter3D::addPolyLine()
 	    }
 
 	    if ( newmarker )
-	    {
 		generateNewMarker( *hor3d, sid, *secmarkerln, marker );
-		newmarker = false;
-	    }
 
-	    if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
+	    if ( addDataToMarker( bid,crd,posid,*hor3d,*marker,newmarker ) )
 		nrseeds_++;
+	    
+	    newmarker = false;
 	}
     }
 
@@ -215,33 +214,9 @@ bool HorizonPainter3D::addPolyLine()
 }
 
 
-void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
-					  const EM::SectionID& sid,
-					  SectionMarker3DLine& secmarkerln,
-					  Marker3D*& marker )
-{
-    FlatView::AuxData* auxdata = viewer_.createAuxData( 0 );
-    viewer_.addAuxData( auxdata );
-    auxdata->poly_.erase();
-    auxdata->cursor_ = seedenabled_ ? MouseCursor::Cross : MouseCursor::Arrow;
-    auxdata->linestyle_ = markerlinestyle_;
-    Color prefcol = hor3d.preferredColor();
-    prefcol.setTransparency( 0 );
-    auxdata->linestyle_.color_ = prefcol;
-    auxdata->fillcolor_ = prefcol;
-    auxdata->enabled_ = linenabled_;
-    auxdata->name_ = hor3d.name();
-    marker = new Marker3D;
-    secmarkerln += marker;
-    marker->marker_ = auxdata;
-    marker->sectionid_ = sid;
-}
-
-
-bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
-					const EM::PosID& posid,
-					const EM::Horizon3D& hor3d,
-					Marker3D& marker, int idx )
+bool HorizonPainter3D::addDataToMarker( const BinID& bid,const Coord3& crd, 
+    const PosID& posid, const Horizon3D& hor3d, Marker3D& marker, 
+    bool newmarker, int idx )
 {
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
     const double z = zat ? zat->transform(crd) : crd.z;
@@ -276,14 +251,18 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 
     marker.marker_->poly_ += FlatView::Point( x, z );
     const bool isseed = hor3d.isPosAttrib( posid, EM::EMObject::sSeedNode() );
-    if ( isseed || isintersec )
+    if ( newmarker || isseed || isintersec )
     {
 	const int postype = isseed ? EM::EMObject::sSeedNode()
 				   : EM::EMObject::sIntersectionNode();
 	EM::EMObject* emobj = EM::EMM().getObject( id_ );
 	MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
 	markerstyle_.color_ = ms3d.color_;
-	if ( isintersec )
+
+	if ( newmarker )
+	    ms3d.type_ = MarkerStyle3D::Sphere;
+
+	if ( isintersec || newmarker )
 	    markerstyle_.color_ = emobj->preferredColor();
 	markerstyle_.size_ = ms3d.size_*2;
 	markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
@@ -293,6 +272,37 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
     }
 
     return false;
+
+}
+void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
+					  const EM::SectionID& sid,
+					  SectionMarker3DLine& secmarkerln,
+					  Marker3D*& marker )
+{
+    FlatView::AuxData* auxdata = viewer_.createAuxData( 0 );
+    viewer_.addAuxData( auxdata );
+    auxdata->poly_.erase();
+    auxdata->cursor_ = seedenabled_ ? MouseCursor::Cross : MouseCursor::Arrow;
+    auxdata->linestyle_ = markerlinestyle_;
+    Color prefcol = hor3d.preferredColor();
+    prefcol.setTransparency( 0 );
+    auxdata->linestyle_.color_ = prefcol;
+    auxdata->fillcolor_ = prefcol;
+    auxdata->enabled_ = linenabled_;
+    auxdata->name_ = hor3d.name();
+    marker = new Marker3D;
+    secmarkerln += marker;
+    marker->marker_ = auxdata;
+    marker->sectionid_ = sid;
+}
+
+
+bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
+					const EM::PosID& posid,
+					const EM::Horizon3D& hor3d,
+					Marker3D& marker, int idx )
+{
+    return addDataToMarker( bid, crd, posid, hor3d, marker, false, idx );
 }
 
 

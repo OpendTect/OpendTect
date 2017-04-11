@@ -80,6 +80,11 @@ protected:
     bool		addDataToMarker(const BinID&,const Coord3&,
 	    				const PosID&,const Horizon3D&,
 					Marker3D&,int idx=-1);
+    			 /*!<\don't use it. here is only for keep ABI.*/
+
+    bool		addDataToMarker(const BinID&,const Coord3&,
+					const PosID&,const Horizon3D&,
+					Marker3D&,bool newmarker,int idx = -1);
 
     void		horChangeCB(CallBacker*);
     void		paintCB(CallBacker*);
