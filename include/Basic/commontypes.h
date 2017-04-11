@@ -62,6 +62,17 @@ namespace OD
 {
     enum FPDataRepType
 	{ AutoFPRep=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64, SI64 };
+
+    template <class T> mClass(Basic) Triplet
+    {
+			Triplet( T f, T s, T t )
+			    : first(f), second(s), third(t)	{}
+			Triplet()
+			    : Triplet(T(0),T(0),T(0))		{}
+
+	T first, second, third;
+    };
+
 }
 
 typedef Geom::Point3D<Pos::Ordinate_Type> Coord3d;

@@ -71,6 +71,7 @@ public:
 
     BufferString	fullPath(Style s=Local,bool cleanup=true) const;
     const char*		prefix() const;
+    const char*		postfix() const;
     int			nrLevels() const;
     const char*		extension() const;	//!< may return null
 
@@ -86,7 +87,7 @@ public:
 
     static BufferString	getTempDir();
     static BufferString	getTempName(const char* ext=0);
-    static BufferString	mkCleanPath(const char* path, Style fmt);
+    static BufferString	mkCleanPath(const char* path,Style fmt);
     static BufferString getTimeStampFileName(const char*ext=0);
 
     const char*		dirSep() const;
@@ -98,6 +99,7 @@ protected:
     bool		isuri_;
     bool		isabs_;
     BufferString	prefix_;
+    BufferString	postfix_;	    //!< after '?'
     BufferStringSet	lvls_;
 
     void		addPart(const char*);
@@ -106,5 +108,6 @@ protected:
 };
 
 } // namespace File;
+
 
 mDeprecated typedef File::Path FilePath;

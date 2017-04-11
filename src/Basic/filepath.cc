@@ -19,8 +19,8 @@
 
 const char* File::Path::sPrefSep = ":";
 
-static const File::Path::Style cOther = __iswin__ ? File::Path::Unix
-						  : File::Path::Windows;
+static const File::Path::Style cOtherStyle = __iswin__ ? File::Path::Unix
+						       : File::Path::Windows;
 
 File::Path::Path( const char* fnm )
 {
@@ -50,6 +50,7 @@ File::Path& File::Path::operator =( const Path& fp )
 {
     lvls_ = fp.lvls_;
     prefix_ = fp.prefix_;
+    postfix_ = fp.postfix_;
     isabs_ = fp.isabs_;
     isuri_ = fp.isuri_;
     return *this;
@@ -62,7 +63,8 @@ File::Path& File::Path::operator =( const char* fnm )
 
 bool File::Path::operator ==( const Path& fp ) const
 {
-    return lvls_ == fp.lvls_ && prefix_ == fp.prefix_ && isabs_ == fp.isabs_;
+    return lvls_ == fp.lvls_ && isabs_ == fp.isabs_
+	&& prefix_ == fp.prefix_ && postfix_ == fp.postfix_;
 }
 
 
@@ -80,7 +82,9 @@ bool File::Path::operator != ( const char* fnm ) const
 
 File::Path& File::Path::set( const char* _fnm )
 {
-    lvls_.erase(); prefix_.setEmpty(); isabs_ = isuri_ = false;
+    lvls_.erase();
+    prefix_.setEmpty(); postfix_.setEmpty();
+    isabs_ = isuri_ = false;
     if ( !_fnm || !*_fnm )
 	return *this;
 
@@ -108,7 +112,7 @@ File::Path& File::Path::set( const char* _fnm )
 	if ( ptr )
 	{
 	    const char* dsptr = firstOcc( fnm, *dirSep(Local) );
-	    const char* otherdsptr = firstOcc( fnm, *dirSep(cOther) );
+	    const char* otherdsptr = firstOcc( fnm, *dirSep(cOtherStyle) );
 	    if ( otherdsptr && ( !dsptr || otherdsptr < dsptr ) )
 		dsptr = otherdsptr;
 
@@ -274,14 +278,24 @@ bool File::Path::makeRelativeTo( const Path& oth )
 
 BufferString File::Path::fullPath( Style f, bool cleanup ) const
 {
-    const BufferString res = dirUpTo(-1);
-    return cleanup ? mkCleanPath(res,f) : res;
+    BufferString res = dirUpTo(-1);
+    if ( cleanup )
+	res = mkCleanPath( res, f );
+    if ( postfix_ )
+	res.add( postfix_ );
+    return res;
 }
 
 
 const char* File::Path::prefix() const
 {
     return prefix_.buf();
+}
+
+
+const char* File::Path::postfix() const
+{
+    return postfix_.buf();
 }
 
 
@@ -460,11 +474,11 @@ void File::Path::addPart( const char* fnm )
     {
 	char cur = *fnm;
 
-	if ( cur != *dirSep(Local) && cur != *dirSep(cOther) )
+	if ( cur != *dirSep(Local) && cur != *dirSep(cOtherStyle) )
 	    remdblsep = true;
 	else
 	{
-	    if ( (prev != *dirSep(Local) && prev != *dirSep(cOther))
+	    if ( (prev != *dirSep(Local) && prev != *dirSep(cOtherStyle))
 		    || !remdblsep )
 	    {
 		*bufptr = '\0';
@@ -483,6 +497,20 @@ void File::Path::addPart( const char* fnm )
     *bufptr = '\0';
     if ( buf[0] ) lvls_.add( buf );
     delete [] buf;
+    if ( lvls_.isEmpty() )
+	return;
+
+    if ( isuri_ )
+    {
+	BufferString& lastlvl = *lvls_.last();
+	char* postfixptr = lastlvl.find( '?' );
+	if ( postfixptr )
+	{
+	    *postfixptr++ = '\0';
+	    if ( *postfixptr )
+		postfix_ = postfixptr;
+	}
+    }
     conv2TrueDirIfLink();
 }
 

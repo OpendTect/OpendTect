@@ -519,7 +519,7 @@ mExtern(Basic) bool GetEnvVarYN( const char* env, bool defaultval )
 	return defaultval;
 
     return *s == '0' || *s == 'n' || *s == 'N' ||
-	   *s == 'f' || *s == 'F' ? 0 : 1;
+	   *s == 'f' || *s == 'F' ? false : true;
 }
 
 
