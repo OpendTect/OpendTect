@@ -30,6 +30,8 @@ set(OD_MODULE_SOURCES
 	seis2dlineio.cc
 	seis2dto3d.cc
 	seisbayesclass.cc
+	seisblocksdata.cc
+	seisblockswriter.cc
 	seisbuf.cc
 	seiscbvs.cc
 	seiscbvs2d.cc

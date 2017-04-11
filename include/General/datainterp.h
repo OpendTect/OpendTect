@@ -81,7 +81,7 @@ public:
 			{ return di.getfn == getfn; }
     inline bool		operator !=( const DataInterpreter& di ) const
 			{ return di.getfn != getfn; }
-    inline bool		isSUCompat() const
+    inline bool		isF32() const
 			{ return getfn == &DataInterpreter::getF; }
     int			nrBytes() const;
     DataCharacteristics	dataChar() const;

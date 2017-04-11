@@ -375,6 +375,7 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
 
 
 
+namespace OD { mGlobal(Basic) void sysMemSet(void*,char,od_int64); }
 namespace OD { mGlobal(Basic) void sysMemCopy(void*,const void*,od_int64); }
 
 template <class T> inline

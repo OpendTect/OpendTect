@@ -33,10 +33,17 @@ static od_int64 swapfree;
 #include <string.h>
 
 
+void OD::sysMemSet( void* dest, char val, od_int64 sz )
+{
+    memset( dest, val, (size_t)sz );
+}
+
+
 void OD::sysMemCopy( void* dest, const void* org, od_int64 sz )
 {
     memcpy( dest, org, (size_t)sz );
 }
+
 
 #define mExecNonParallel(sz) \
     (sz < (2 * mODMemMinThreadSize) || Threads::getNrProcessors() < 4)
@@ -96,7 +103,7 @@ void OD::memSet( void* data, char setto, od_int64 sz )
 	{ pFreeFnErrMsg("data null"); return; }
 
     if ( mExecNonParallel(sz) || !Threads::WorkManager::twm().nrFreeThreads() )
-	memset( data, (int)setto, (size_t)sz );
+	sysMemSet( data, setto, sz );
     else
     {
 	MemSetter<char> msetter( (char*)data, setto, (size_t)sz );
