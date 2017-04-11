@@ -76,7 +76,7 @@ protected:
 	   				  SectionMarker3DLine&,Marker3D*&);
     bool		addDataToMarker(const BinID&,const Coord3&,
 	    				const PosID&,const Horizon3D&,
-					Marker3D&,int idx=-1);
+					Marker3D&,bool,int idx=-1);
 
     void		horChangeCB(CallBacker*);
     void		paintCB(CallBacker*);

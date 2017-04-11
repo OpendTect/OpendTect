@@ -166,12 +166,11 @@ bool HorizonPainter3D::addPolyLine()
 		}
 
 		if ( newmarker )
-		{
 		    generateNewMarker( *hor3d, sid, *secmarkerln, marker );
-		    newmarker = false;
-		}
 
-		addDataToMarker( bid, crd, posid, *hor3d, *marker, idx );
+		addDataToMarker( bid,crd,posid,*hor3d,*marker,newmarker,idx );
+		newmarker = false;
+
 	    }
 	    continue;
 	}
@@ -196,13 +195,13 @@ bool HorizonPainter3D::addPolyLine()
 	    }
 
 	    if ( newmarker )
-	    {
 		generateNewMarker( *hor3d, sid, *secmarkerln, marker );
-		newmarker = false;
-	    }
 
-	    if ( addDataToMarker(trk.position(),crd,posid,*hor3d,*marker) )
+	    if ( addDataToMarker(
+		trk.position(),crd,posid,*hor3d,*marker, newmarker) )
 		nrseeds_++;
+
+	    newmarker = false;
 
 	} while ( iter.next() );
     }
@@ -238,7 +237,8 @@ void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
 bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 					const EM::PosID& posid,
 					const EM::Horizon3D& hor3d,
-					Marker3D& marker, int idx )
+					Marker3D& marker, 
+					bool newmarker, int idx )
 {
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
     const double z = zat ? zat->transform(crd) : crd.z_;
@@ -273,14 +273,17 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 
     marker.marker_->poly_ += FlatView::Point( x, z );
     const bool isseed = hor3d.isPosAttrib( posid, EM::EMObject::sSeedNode() );
-    if ( isseed || isintersec )
+    if ( newmarker || isseed || isintersec )
     {
 	const int postype = isseed ? EM::EMObject::sSeedNode()
 				   : EM::EMObject::sIntersectionNode();
 	EM::EMObject* emobj = EM::EMM().getObject( id_ );
 	OD::MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
 	markerstyle_.color_ = ms3d.color_;
-	if ( isintersec )
+	if ( newmarker )
+	    ms3d.type_ = OD::MarkerStyle3D::Sphere;
+
+	if ( isintersec || newmarker )
 	    markerstyle_.color_ = emobj->preferredColor();
 	markerstyle_.size_ = ms3d.size_*2;
 	markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
