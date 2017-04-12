@@ -291,6 +291,9 @@ protected:
     BufferStringSet&	warnings_;
     virtual void	addWarn(int,const char*);
 
+    virtual bool	implRemove(const IOObj*) const;
+    void		removeAuxFiles(const IOObj&) const;
+
 private:
 
     int*		inpfor_;

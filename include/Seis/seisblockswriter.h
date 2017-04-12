@@ -10,13 +10,13 @@ ________________________________________________________________________
 
 */
 
-#include "seiscommon.h"
+#include "seisblocksdata.h"
+#include "seistrc.h"
 #include "filepath.h"
 #include "uistring.h"
 
 class Scaler;
 class SeisTrc;
-namespace Survey { class Geometry3D; }
 
 
 namespace Seis
@@ -28,7 +28,7 @@ class Data;
 
 /*!\brief Writes provided data into Block Storage */
 
-mExpClass(Seis) Writer
+mExpClass(Seis) Writer : public DataStorage
 { mODTextTranslationClass(Seis::Blocks::Writer);
 public:
 
@@ -36,13 +36,16 @@ public:
 			~Writer();
 
     void		setBasePath(const File::Path&);
+    void		setCubeName(const char*);
+    void		setComponent(int);
 
     uiRetVal		add(const SeisTrc&);
 
 protected:
 
-    const Survey::Geometry3D& survgeom_;
     File::Path		basepath_;
+    BufferString	cubename_;
+    int			component_;
     Scaler*		scaler_;
 
     bool		needreset_;

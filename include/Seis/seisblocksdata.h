@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 class Scaler;
 class DataBuffer;
+namespace Survey { class Geometry3D; }
 template <class T> class DataInterpreter;
 
 
@@ -75,6 +76,29 @@ protected:
     int			getBufIdx(const SampIdx&) const;
     inline int		nrSampsPerInl() const
 			{ return ((int)dims_.crl()) * dims_.z(); }
+
+};
+
+
+/*!\brief Base class for Reader and Writer */
+
+mExpClass(Seis) DataStorage
+{
+public:
+
+    virtual		~DataStorage()		    {}
+
+    IdxType		idx4Inl(int) const;
+    IdxType		idx4Crl(int) const;
+    IdxType		idx4Z(float) const;
+    GlobIdx		getGlobIdx(const BinID&,float) const;
+
+protected:
+
+			DataStorage(const Survey::Geometry3D*);
+
+    const Survey::Geometry3D& survgeom_;
+    const Dimensions	dims_;
 
 };
 

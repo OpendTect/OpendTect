@@ -72,8 +72,10 @@ public:
     void		growTo(const TrcKeySampling& outertks);
     void		expand(int nrlines,int nrtrcs);
 
-    int			lineIdx(Pos::LineID) const;
-    int			trcIdx(Pos::TraceID) const;
+    inline int		lineIdx(Pos::LineID) const;
+    inline int		trcIdx(Pos::TraceID) const;
+    inline Pos::LineID	lineID(int) const;
+    inline Pos::TraceID	traceID(int) const;
 
     od_int64		globalIdx(const TrcKey&) const;
     od_int64		globalIdx(const BinID&) const;
@@ -224,4 +226,16 @@ inline int TrcKeySampling::trcIdx( Pos::TraceID trcid ) const
     return step_.trcNr()
 	? (trcid-start_.trcNr()) / step_.trcNr()
 	: (trcid==start_.trcNr() ? 0 : -1);
+}
+
+
+inline Pos::LineID TrcKeySampling::lineID( int lidx ) const
+{
+    return start_.lineNr() + step_.lineNr() * lidx;
+}
+
+
+inline Pos::TraceID TrcKeySampling::traceID( int tidx ) const
+{
+    return start_.trcNr() + step_.trcNr() * tidx;
 }

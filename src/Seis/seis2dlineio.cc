@@ -185,7 +185,10 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
 
 bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
-    if ( !ioobj ) return true;
+    if ( !ioobj )
+	return true;
+    SeisTrcTranslator::implRemove( ioobj );
+
     BufferString fnm( ioobj->mainFileName() );
     BufferString bakfnm( fnm ); bakfnm += ".bak";
     if ( File::exists(bakfnm) )

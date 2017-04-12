@@ -40,6 +40,13 @@ public:
     int			inlStep() const;
     int			crlStep() const;
 
+    inline int		idx4Inl(int) const;
+    inline int		idx4Crl(int) const;
+    inline int		idx4Z(float) const;
+    inline int		inl4Idx(int) const;
+    inline int		crl4Idx(int) const;
+    inline float	z4Idx(int) const;
+
     float		zStep() const;
 
     virtual Coord	toCoord(int line,int tracenr) const;
@@ -82,5 +89,20 @@ protected:
 
     float		zscale_;
 };
+
+
+inline int Survey::Geometry3D::idx4Inl( int inl ) const
+{ return sampling_.hsamp_.lineIdx( inl ); }
+inline int Survey::Geometry3D::idx4Crl( int crl ) const
+{ return sampling_.hsamp_.trcIdx( crl ); }
+inline int Survey::Geometry3D::idx4Z( float z ) const
+{ return sampling_.zsamp_.nearestIndex( z ); }
+inline int Survey::Geometry3D::inl4Idx( int idx ) const
+{ return sampling_.hsamp_.lineID( idx ); }
+inline int Survey::Geometry3D::crl4Idx( int idx ) const
+{ return sampling_.hsamp_.traceID( idx ); }
+inline float Survey::Geometry3D::z4Idx( int idx ) const
+{ return sampling_.zsamp_.atIndex( idx ); }
+
 
 } // namespace Survey

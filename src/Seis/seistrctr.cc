@@ -609,3 +609,23 @@ void SeisTrcTranslator::addWarn( int nr, const char* msg )
     warnnrs_ += nr;
     warnings_.add( msg );
 }
+
+
+bool SeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+{
+    if ( ioobj )
+	removeAuxFiles( *ioobj );
+    return true;
+}
+
+
+void SeisTrcTranslator::removeAuxFiles( const IOObj& ioobj ) const
+{
+    File::Path fp( ioobj.mainFileName() );
+    fp.setExtension( "par" );
+    File::remove( fp.fullPath() );
+    fp.setExtension( "stats" );
+    File::remove( fp.fullPath() );
+    fp.setExtension( "proc" );
+    File::remove( fp.fullPath() );
+}

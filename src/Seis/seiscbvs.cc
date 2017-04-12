@@ -547,13 +547,6 @@ static StreamProvider* getStrmProv( const IOObj* ioobj, const char* ext )
 }
 
 
-static void removeAuxFile( const IOObj* ioobj, const char* ext )
-{
-    PtrMan<StreamProvider> sp = getStrmProv( ioobj, ext );
-    if ( sp ) sp->remove(false);
-}
-
-
 static void renameAuxFile( const IOObj* ioobj, const char* newnm,
 			   const char* ext )
 {
@@ -586,10 +579,8 @@ static void renameAuxFile( const IOObj* ioobj, const char* newnm,
 
 bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
+    SeisTrcTranslator::implRemove( ioobj );
     mImplStart( implRemove() );
-
-    removeAuxFile( ioobj, "par" );
-    removeAuxFile( ioobj, "proc" );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
