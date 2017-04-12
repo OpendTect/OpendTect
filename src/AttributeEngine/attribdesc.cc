@@ -340,7 +340,8 @@ bool Desc::setInput( int inp, const Desc* nd )
 bool Desc::setInput_( int input, Desc* nd )
 {
     if ( nd && (inputspecs_[input].forbiddenDts_.isPresent(nd->dataType()) ||
-		inputspecs_[input].issteering_!=nd->isSteering()) )
+		( nd->dataType() != Seis::Dip &&
+		  inputspecs_[input].issteering_!=nd->isSteering()) ) )
 	return false;
 
     if ( inputs_[input] ) inputs_[input]->unRef();

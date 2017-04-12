@@ -587,7 +587,10 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     {
 	FixedString type = descpar.find( sKey::DataType() );
 	if ( type=="Dip" )
+	{
 	    dsc->setNrOutputs( Seis::Dip, 2 );
+	    dsc->setSteering( true );
+	}
 	else
 	    dsc->changeOutputDataType( selout, Seis::dataTypeOf(type) );
     }

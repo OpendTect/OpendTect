@@ -87,9 +87,8 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     if ( compnms )
 	*compnms = provcompnms;
 
-    desc.removeOutputs();
-    for ( int idx=0; idx<dtyps.size(); idx++ )
-	desc.addOutputDataType( dtyps[idx] );
+    for ( int idx=desc.nrOutputs(); idx<dtyps.size(); idx++ )
+	desc.addOutputDataType( Seis::UnknowData );
 
     //safety, might be removed afterwards but we still use old surveys/cubes
     if ( desc.isSteering() )
