@@ -472,7 +472,6 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     typefld_ = new uiGenInput( leftgrp, tr("Load as"),
 		StringListInpSpec(formats) );
     typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
-    torgfld_->setReadOnly( true );
     typefld_->attach( alignedBelow, formatdiskfld_ );
 
     memusagefld_ = new uiGenInput( leftgrp, tr("Est usage") );
@@ -490,6 +489,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 
     torgfld_ = new uiGenInput( leftgrp, tr("Scale To"),
 	FloatInpIntervalSpec().setName("To start",0).setName("To stop",1) );
+    torgfld_->setReadOnly( true );
     torgfld_->attach( alignedBelow, fromrgfld_ );
 
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
