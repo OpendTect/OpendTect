@@ -14,6 +14,7 @@
 #include "file.h"
 #include "filepath.h"
 #include "perthreadrepos.h"
+#include "envvars.h"
 #include "oddirs.h"
 
 class IOStreamProducer : public IOObjProducer
@@ -80,6 +81,7 @@ void IOStream::copyFrom( const IOObj& obj )
 	fs_ = oth->fs_;
 	curfidx_ = oth->curfidx_;
 	extension_ = oth->extension_;
+	specfname_ = oth->specfname_;
     }
 }
 
@@ -199,12 +201,69 @@ void IOStream::genFileName()
 }
 
 
+bool IOStream::locateInSharedDir( const char* dirnm )
+{
+    File::Path shfp( GetBaseDataDir(), dirnm );
+    const BufferString shdirnm( shfp.fullPath() );
+    if ( !File::isDirectory(shdirnm) )
+    {
+	if ( File::exists(shdirnm) )
+	    return false;
+	else if ( !File::isWritable(GetBaseDataDir()) )
+	    return false;
+	else if ( !File::createDir(shdirnm) )
+	    return false;
+    }
+
+    File::Path curfp( mainFileName() );
+    const File::Path newfp( "${DTECT_DATA}", dirnm, curfp.fileName() );
+    fs_.setFileName( newfp.fullPath() );
+    return true;
+}
+
+
+static void getFullSpecFileName( BufferString& fnm, BufferString* specfnm )
+{
+    if ( !fnm.startsWith( "${" ) )
+	return;
+
+    BufferString dirnm( fnm.str()+2 );
+    char* ptr = dirnm.find( "}" );
+    if ( !ptr )
+	{ fnm = dirnm; return; }
+
+    if ( specfnm )
+	*specfnm = fnm;
+    *ptr++ = '\0';
+    fnm = ptr;
+
+    if ( dirnm == "DTECT_DATA" )
+	dirnm = GetBaseDataDir();
+    else if ( dirnm == "DTECT_APPL" )
+	dirnm = GetSoftwareDir(true);
+    else if ( dirnm == "DTECT_APPL_SETUP" )
+	dirnm = GetApplSetupDir();
+    else if ( dirnm == "DTECT_SETTINGS" )
+	dirnm = GetSettingsDir();
+    else
+    {
+	dirnm = GetEnvVar( dirnm );
+	if ( dirnm.isEmpty() )
+	    dirnm = GetBaseDataDir();
+    }
+
+    File::Path fp( dirnm, fnm );
+    fnm = fp.fullPath();
+}
+
+
 #define mStrmNext() { stream.next(); kw = stream.keyWord() + 1; }
 
 
 bool IOStream::getFrom( ascistream& stream )
 {
     fs_.setEmpty();
+    specfname_.setEmpty();
 
     BufferString kw = stream.keyWord() + 1;
     if ( kw == "Extension" )
@@ -237,10 +296,13 @@ bool IOStream::getFrom( ascistream& stream )
 	{ genFileName(); stream.next(); }
     else
     {
+	getFullSpecFileName( fnm, &specfname_ );
 	fs_.fnames_.add( fnm );
 	mStrmNext()
 	while ( kw.startsWith("Name.") )
 	{
+	    fnm = stream.value();
+	    getFullSpecFileName( fnm, 0 );
 	    fs_.fnames_.add( stream.value() );
 	    mStrmNext()
 	}
@@ -272,8 +334,19 @@ bool IOStream::putTo( ascostream& stream ) const
     {
 	File::Path fp( fs_.fnames_.get(idx) );
 	BufferString fnm( fp.fullPath() );
+	bool trymakerel = fp.isAbsolute();
+	if ( idx == 0 && !specfname_.isEmpty() )
+	{
+	    BufferString fullspecfnm = specfname_;
+	    getFullSpecFileName( fullspecfnm, 0 );
+	    if ( fullspecfnm == fnm )
+	    {
+		fnm = specfname_;
+		trymakerel = false;
+	    }
+	}
 	int offs = 0;
-	if ( fp.isAbsolute() )
+	if ( trymakerel )
 	{
 	    BufferString head( fp.dirUpTo( fpsurvsubdir.nrLevels() - 1 ) );
 	    if ( head == survsubdir )

@@ -56,6 +56,8 @@ public:
     const File::MultiSpec& fileSpec() const		{ return fs_; }
     void		setExt( const char* ext )	{ extension_ = ext; }
     void		genFileName();
+    bool		locateInSharedDir(const char* dirnm);
+			//!< will not move files, just changes the entry
 
     int			nrFiles() const			{ return fs_.nrFiles();}
     bool		isMulti() const			{ return nrFiles()>1; }
@@ -68,6 +70,7 @@ protected:
     File::MultiSpec	fs_;
     mutable int		curfidx_;
     BufferString	extension_;
+    BufferString	specfname_;
 
     StreamProvider*	getStreamProv(bool,bool f=true) const;
     bool		implDoAll(bool,bool yn=true) const;
