@@ -416,6 +416,7 @@ public:
     static uiString sParameter(int num=1) { return tr("Parameter",0,num); }
     static uiString sPercentageDone()	{ return tr("Percentage done"); }
     static uiString sPickSet(int num=1)	{ return tr("PickSet",0,num); }
+    static uiString sPointSet(int num=1){ return tr("PointSet",0,num); }
     static uiString sPolygon(int num=1)	{ return tr("Polygon",0,num); }
     static uiString sPosition(int num=1){ return tr("Position",0,num); }
     static uiString sPreStack()		{ return tr("PreStack"); }
