@@ -74,7 +74,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     istvdfld_->attach( alignedBelow, intvfld_ );
 
     udffld_ = new uiGenInput( this, tr("Undefined value in logs"),
-                    FloatInpSpec(defundefval));
+		    FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Logs to import") );
@@ -295,7 +295,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 	outfld_->setFileName( IOM().rootDir() );
 	multiwellsnamefld_ = new uiGenInput( this, tr("File name suffix") );
 	multiwellsnamefld_->attach( alignedBelow, outfld_ );
-	multiwellsnamefld_->setText( "logs.txt" );
+	multiwellsnamefld_->setText( "logs.dat" );
     }
 
     typeSel(0);
@@ -312,7 +312,7 @@ void uiExportLogs::setDefaultRange( bool zinft )
 	{
 	    const Well::Log& log = wd.logs().getLog(idx);
 	    const int logsz = log.size();
-	    if ( !logsz ) continue;
+	    if ( logsz==0 ) continue;
 
 	    dahintv.include( wd.logs().dahInterval() );
 	    const float width = log.dah(logsz-1) - log.dah(0);
@@ -321,14 +321,14 @@ void uiExportLogs::setDefaultRange( bool zinft )
 	}
     }
 
-    if ( zinft )
-    {
-	dahintv.start *= mToFeetFactorF;
-	dahintv.stop *= mToFeetFactorF;
-	dahintv.step *= mToFeetFactorF;
-    }
+    StepInterval<float> disprg = dahintv;
+    const UnitOfMeasure* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* outunit = UnitOfMeasure::surveyDefDepthUnit();
+    disprg.start = getConvertedValue( dahintv.start, storunit, outunit );
+    disprg.stop = getConvertedValue( dahintv.stop, storunit, outunit );
+    disprg.step = getConvertedValue( dahintv.step, storunit, outunit );
 
-    zrangefld_->setValue( dahintv );
+    zrangefld_->setValue( disprg );
 }
 
 
@@ -376,6 +376,7 @@ bool uiExportLogs::acceptOK( CallBacker* )
 	writeHeader( strm, *wds_[idx] );
 	writeLogs( strm, *wds_[idx] );
     }
+
     return true;
 }
 
@@ -412,35 +413,41 @@ void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
 
 void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 {
-    const bool infeet = zunitgrp_->selectedId() == 1;
-    const bool insec = zunitgrp_->selectedId() == 2;
-    const bool inmsec = zunitgrp_->selectedId() == 3;
-    const bool intime = insec || inmsec;
-    if ( intime && !wd.d2TModel() )
+    const bool outinm = zunitgrp_->selectedId() == 0;
+    const bool outinft = zunitgrp_->selectedId() == 1;
+    const bool outinsec = zunitgrp_->selectedId() == 2;
+    const bool outinmsec = zunitgrp_->selectedId() == 3;
+    const bool outindepth = outinm || outinft;
+    const bool outintime = outinsec || outinmsec;
+    if ( outintime && !wd.d2TModel() )
     {
 	uiMSG().error( tr("No depth-time model found, "
 			  "cannot export with time") );
 	return;
     }
 
-    const bool zinft = SI().depthsInFeet();
     const int outtypesel = typefld_->getIntValue();
     const bool dobinid = outtypesel == 2;
     const StepInterval<float> intv = zrangefld_->getFStepInterval();
     const int nrsteps = intv.nrSteps();
 
+    const UnitOfMeasure* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* userunit = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* outunit =
+	outinft ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
+
     for ( int idx=0; idx<nrsteps; idx++ )
     {
-	float md = intv.atIndex( idx );
-	if ( zinft ) md *= mFromFeetFactorF;
+	const float md = intv.atIndex( idx );
+	const float mdstor = getConvertedValue( md, userunit, storunit );
 	if ( outtypesel == 0 )
 	{
-	    const float mdout = infeet ? md*mToFeetFactorF : md;
+	    const float mdout = getConvertedValue( md, userunit, outunit );
 	    strm << mdout;
 	}
 	else
 	{
-	    const Coord3 pos = wd.track().getPos( md );
+	    const Coord3 pos = wd.track().getPos( mdstor );
 	    if ( !pos.x && !pos.y && !pos.z ) continue;
 
 	    if ( dobinid )
@@ -455,11 +462,12 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    }
 
 	    float z = (float) pos.z;
-	    if ( infeet ) z *= mToFeetFactorF;
-	    else if (intime )
+	    if ( outindepth )
+		z = getConvertedValue( z, storunit, outunit );
+	    else if ( outintime )
 	    {
-		z = wd.d2TModel()->getTime( md, wd.track() );
-		if ( inmsec && !mIsUdf(z) ) z *= cTWTFac;
+		z = wd.d2TModel()->getTime( mdstor, wd.track() );
+		if ( outinmsec && !mIsUdf(z) ) z *= cTWTFac;
 	    }
 
 	    strm << od_tab << z;
@@ -469,7 +477,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	{
 	    const Well::Log& log = wd.logs().getLog( logidx );
 	    if ( !logsel_.isPresent( log.name() ) ) continue;
-	    const float val = log.getValue( md );
+	    const float val = log.getValue( mdstor );
 	    if ( mIsUdf(val) )
 		strm << od_tab << "1e30";
 	    else
