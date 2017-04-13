@@ -54,6 +54,7 @@ protected:
     int			uiTreeViewItemType() const;
     virtual void	checkCB(CallBacker*);
     virtual void	keyPressCB(CallBacker*);
+    virtual bool	doubleClick(uiTreeViewItem*);
     virtual bool	init();
 
     bool		isSelectable() const		{ return true; }
@@ -62,6 +63,7 @@ protected:
 
     virtual uiString	createDisplayName() const;
     void		updateLockPixmap(bool islocked);
+    void		selectRGBA();
 
     virtual bool	askContinueAndSaveIfNeeded(bool withcancel)
 			{ return true; }

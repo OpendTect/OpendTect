@@ -119,7 +119,9 @@ ________________________________________________________________________
 #define mManPickMnuItm		(mFileManMnu + 50)
 #define mManRanLMnuItm		(mFileManMnu + 55)
 #define mManWvltMnuItm		(mFileManMnu + 60)
-#define mManAttrMnuItm		(mFileManMnu + 70)
+#define mManAttr2DMnuItm	(mFileManMnu + 70)
+#define mManAttr3DMnuItm	(mFileManMnu + 71)
+#define mManAttrMnuItm		mManAttr3DMnuItm
 #define mManNLAMnuItm		(mFileManMnu + 80)
 #define mManSessMnuItm		(mFileManMnu + 90)
 #define mManStratMnuItm		(mFileManMnu + 95)
@@ -169,9 +171,11 @@ ________________________________________________________________________
 
 #define mAddSceneMnuItm		(mWinMnu + 10)
 #define mAddMapSceneMnuItm	(mWinMnu + 11)
-#define mAddTmeDepthMnuItm	(mWinMnu + 12)
-#define mAddHorFlat2DMnuItm	(mWinMnu + 13)
-#define mAddHorFlat3DMnuItm	(mWinMnu + 14)
+#define mAddTimeDepth2DMnuItm	(mWinMnu + 12)
+#define mAddTimeDepth3DMnuItm	(mWinMnu + 13)
+#define mAddTmeDepthMnuItm	mAddTimeDepth3DMnuItm
+#define mAddHorFlat2DMnuItm	(mWinMnu + 14)
+#define mAddHorFlat3DMnuItm	(mWinMnu + 15)
 #define mCascadeMnuItm		(mWinMnu + 20)
 #define mTileAutoMnuItm		(mWinMnu + 30)
 #define mTileHorMnuItm		(mWinMnu + 31)

@@ -27,13 +27,14 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefineInstanceCreatedNotifierAccess(uiAttrSetMan)
 
 
-uiAttrSetMan::uiAttrSetMan( uiParent* p )
+uiAttrSetMan::uiAttrSetMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage(tr("Attribute Sets")),
 				     mNoDlgTitle,
 				     mODHelpKey(mAttrSetManHelpID) )
 			       .nrstatusflds(1).modal(false),
 		   AttribDescSetTranslatorGroup::ioContext())
 {
+    ctxt_.toselect_.dontallow_.set( sKey::Type(), is2d ? "3D" : "2D" );
     createDefaultUI();
     setPrefWidth( 50 );
 
@@ -53,23 +54,10 @@ uiAttrSetMan::~uiAttrSetMan()
 }
 
 
-static void getAttrNms( BufferStringSet& nms, const Attrib::DescSet& attrset,
-			bool stor )
-{
-    const int totnrdescs = attrset.nrDescs( true, true );
-    for ( int idx=0; idx<totnrdescs; idx++ )
-    {
-	const Attrib::Desc& desc = *attrset.desc( idx );
-	if ( !desc.isHidden() && stor == desc.isStored() )
-	    nms.add( desc.userRef() );
-    }
-}
-
-static void addAttrNms( const Attrib::DescSet& attrset, BufferString& txt,
-			bool stor )
+static void addStoredNms( const Attrib::DescSet& attrset, BufferString& txt )
 {
     BufferStringSet nms;
-    getAttrNms( nms, attrset, stor );
+    attrset.getStoredNames( nms );
     txt.add( nms.getDispString() );
 }
 
@@ -78,7 +66,7 @@ static void fillAttribList( uiListBox* attribfld,
 			    const Attrib::DescSet& attrset )
 {
     BufferStringSet nms;
-    getAttrNms( nms, attrset, false );
+    attrset.getAttribNames( nms, false );
     attribfld->addItems( nms );
 }
 
@@ -101,17 +89,9 @@ void uiAttrSetMan::mkFileInfo()
 	if (!errmsg.isEmpty())
 	    ErrMsg(errmsg.getFullString());
 
-	const int nrattrs = attrset.nrDescs( false, false );
-	const int nrwithstor = attrset.nrDescs( true, false );
-	const int nrstor = nrwithstor - nrattrs;
 	txt = "Type: "; txt += attrset.is2D() ? "2D" : "3D";
-	if ( nrstor > 0 )
-	{
-	    txt += "\nInput: ";
-	    addAttrNms( attrset, txt, true );
-	}
-	if ( nrattrs < 1 )
-	    txt += "\nNo attributes defined";
+	txt += "\nInput: ";
+	addStoredNms( attrset, txt );
 
 	fillAttribList( attribfld_, attrset );
     }

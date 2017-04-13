@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 class uiListBox;
 
-
 /*!
 \brief AttributeSet Manager
 */
@@ -25,16 +24,16 @@ class uiListBox;
 mExpClass(uiAttributes) uiAttrSetMan : public uiObjFileMan
 { mODTextTranslationClass(uiAttrSetMan);
 public:
-    				uiAttrSetMan(uiParent*);
-				~uiAttrSetMan();
+			uiAttrSetMan(uiParent*,bool is2d=false);
+			~uiAttrSetMan();
 
     mDeclInstanceCreatedNotifierAccess(uiAttrSetMan);
 
 protected:
 
-    void			mkFileInfo();
+    void		mkFileInfo();
 
-    uiListBox*			attribfld_;
+    uiListBox*		attribfld_;
 };
 
 #endif

@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribposvecoutput.h"
 #include "attribprocessor.h"
 #include "attribsel.h"
-#include "uiattrsetman.h"
 #include "attribsetcreator.h"
 #include "attribstorprovider.h"
 
@@ -50,6 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrdescseted.h"
 #include "uiattrgetfile.h"
 #include "uiattrsel.h"
+#include "uiattrsetman.h"
 #include "uiattr2dsel.h"
 #include "uiattrvolout.h"
 #include "uiattribcrossplot.h"
@@ -63,6 +63,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uimultcomputils.h"
 #include "uimultoutsel.h"
+#include "uirgbattrseldlg.h"
 #include "uiseisioobjinfo.h"
 #include "uisetpickdirs.h"
 #include "uiseispartserv.h"
@@ -97,6 +98,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , dpsdispmgr_( 0 )
     , evalmapperbackup_( 0 )
     , attrsneedupdt_(true)
+    , manattribset2ddlg_(0)
     , manattribsetdlg_(0)
     , impattrsetdlg_(0)
     , volattrdlg_(0)
@@ -128,6 +130,7 @@ uiAttribPartServer::~uiAttribPartServer()
 
     deepErase( attrxplotset_ );
     delete &eDSHolder();
+    delete manattribset2ddlg_;
     delete manattribsetdlg_;
     delete impattrsetdlg_;
     delete volattrdlg_;
@@ -233,11 +236,20 @@ void uiAttribPartServer::getDirectShowAttrSpec( SelSpec& as ) const
 }
 
 
-void uiAttribPartServer::manageAttribSets()
+void uiAttribPartServer::manageAttribSets( bool is2d )
 {
-    delete manattribsetdlg_;
-    manattribsetdlg_ = new uiAttrSetMan( parent() );
-    manattribsetdlg_->go();
+    if ( is2d )
+    {
+	delete manattribset2ddlg_;
+	manattribset2ddlg_ = new uiAttrSetMan( parent(), true );
+	manattribset2ddlg_->show();
+    }
+    else
+    {
+	delete manattribsetdlg_;
+	manattribsetdlg_ = new uiAttrSetMan( parent(), false );
+	manattribsetdlg_->show();
+    }
 }
 
 
@@ -419,6 +431,26 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	selspec.setRefFromID( attrdata.attrSet() );
     //selspec.setZDomainKey( dlg.zDomainKey() );
 
+    return true;
+}
+
+
+bool uiAttribPartServer::selectRGBAttribs( TypeSet<SelSpec>& rgbaspecs,
+					   const ZDomain::Info* zinf,
+					   Pos::GeomID geomid )
+{
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    const bool is2d = geom && geom->is2D();
+    DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
+    if ( !adsman->descSet() )
+	return false;
+
+    uiRGBAttrSelDlg dlg( parent(), *adsman->descSet() );
+    dlg.setSelSpec( rgbaspecs );
+    if ( !dlg.go() )
+	return false;
+
+    dlg.fillSelSpec( rgbaspecs );
     return true;
 }
 
@@ -2133,11 +2165,13 @@ const ColTab::MapperSetup* uiAttribPartServer::getEvalBackupColTabMapper() const
 
 void uiAttribPartServer::survChangedCB( CallBacker* )
 {
-    delete manattribsetdlg_; manattribsetdlg_ = 0;
-    delete impattrsetdlg_; impattrsetdlg_ = 0;
-    delete volattrdlg_; volattrdlg_ = 0;
-    delete multiattrdlg_; multiattrdlg_ = 0;
-    delete dataattrdlg_; dataattrdlg_ = 0;
+    deleteAndZeroPtr( manattribset2ddlg_ );
+    deleteAndZeroPtr( manattribsetdlg_ );
+    deleteAndZeroPtr( attrsetdlg_ );
+    deleteAndZeroPtr( impattrsetdlg_ );
+    deleteAndZeroPtr( volattrdlg_);
+    deleteAndZeroPtr( multiattrdlg_);
+    deleteAndZeroPtr( dataattrdlg_);
 }
 
 

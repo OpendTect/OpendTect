@@ -471,8 +471,8 @@ void uiODMenuMgr::fillExportMenu()
 void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
-    mInsertPixmapItem( manmnu_, m3Dots(tr("Attribute Sets")),
-		       mManAttrMnuItm, "man_attrs" );
+    add2D3DMenuItem( *manmnu_, "man_attrs", tr("Attribute Sets"),
+			mManAttr2DMnuItm, mManAttr3DMnuItm );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Bodies")),
 		      mManBodyMnuItm, "man_body" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Color Tables")),
@@ -697,9 +697,10 @@ void uiODMenuMgr::fillSceneMenu()
     mInsertItem( scenemnu_, uiStrings::sNew(), mAddSceneMnuItm );
     mInsertItem( scenemnu_, tr("New Map View"), mAddMapSceneMnuItm );
 
-    addtimedepthsceneitm_ = new uiAction( ::toUiString("Dummy"),
-					  mCB(this,uiODMenuMgr,handleClick) );
-    scenemnu_->insertItem( addtimedepthsceneitm_, mAddTmeDepthMnuItm );
+    uiString itmtxt = tr( "New [%1]" )
+	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
+    add2D3DMenuItem( *scenemnu_, "empty", m3Dots(itmtxt),
+		     mAddTimeDepth2DMnuItm, mAddTimeDepth3DMnuItm );
 
     add2D3DMenuItem( *scenemnu_, "empty", tr("New [Horizon Flattened]"),
 		     mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm );
@@ -754,13 +755,9 @@ void uiODMenuMgr::updateSceneMenu()
 	    itm->setCheckable( true );
 	}
 
-    itm->setText( scenenms[idx]);
-	itm->setChecked( idx==activescene );
+	itm->setText( scenenms[idx]);
+	    itm->setChecked( idx==activescene );
     }
-
-    uiString itmtxt = tr( "New [%1]" )
-	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
-    addtimedepthsceneitm_->setText( m3Dots(itmtxt) );
 }
 
 
@@ -1320,7 +1317,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManPickMnuItm:		mDoOp(Man,Pick,0); break;
     case mManRanLMnuItm:		mDoOp(Man,RanL,0); break;
     case mManWvltMnuItm:		mDoOp(Man,Wvlt,0); break;
-    case mManAttrMnuItm:		mDoOp(Man,Attr,0); break;
+    case mManAttr3DMnuItm:		mDoOp(Man,Attr,0); break;
+    case mManAttr2DMnuItm:		mDoOp(Man,Attr,1); break;
     case mManNLAMnuItm:			mDoOp(Man,NLA,0); break;
     case mManSessMnuItm:		mDoOp(Man,Sess,0); break;
     case mManStratMnuItm:		mDoOp(Man,Strat,0); break;
@@ -1355,7 +1353,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
-    case mAddTmeDepthMnuItm:	applMgr().addTimeDepthScene(); break;
+    case mAddTimeDepth2DMnuItm: applMgr().addTimeDepthScene(true); break;
+    case mAddTimeDepth3DMnuItm: applMgr().addTimeDepthScene(false); break;
     case mAddHorFlat2DMnuItm:	applMgr().addHorFlatScene(true); break;
     case mAddHorFlat3DMnuItm:	applMgr().addHorFlatScene(false); break;
     case mCascadeMnuItm:	sceneMgr().cascade(); break;

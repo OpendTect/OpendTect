@@ -471,7 +471,7 @@ void uiODApplMgr::setStereoOffset()
 }
 
 
-void uiODApplMgr::addTimeDepthScene()
+void uiODApplMgr::addTimeDepthScene( bool is2d )
 {
     uiDialog::Setup setup(tr("Velocity model"),
 		tr("Select velocity model to base scene on"),
@@ -481,9 +481,9 @@ void uiODApplMgr::addTimeDepthScene()
 
     uiZAxisTransformSel* uitrans = SI().zIsTime()
 	? new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyTime(),
-				   ZDomain::sKeyDepth(), true )
+				   ZDomain::sKeyDepth(), true, is2d )
 	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
-				   ZDomain::sKeyTime(), true );
+				   ZDomain::sKeyTime(), true, is2d );
 
     if ( !uitrans->isOK() )
     {
