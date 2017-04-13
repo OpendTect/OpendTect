@@ -284,7 +284,7 @@ void uiODDisplayTreeItem::selectRGBA()
     if ( !applMgr() || !applMgr()->attrServer() )
 	return;
 
-    Pos::GeomID geomid;
+    Pos::GeomID geomid = mUdfGeomID; // TODO: 
     TypeSet<Attrib::SelSpec> rgbaspecs( 4, Attrib::SelSpec() );
     for ( int idx=0; idx<4; idx++ )
     {
