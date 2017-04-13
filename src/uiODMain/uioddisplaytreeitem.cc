@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
 
+#include "uiattribpartserv.h"
 #include "uiicon.h"
 #include "uiioobj.h"
 #include "uimenu.h"
@@ -256,6 +257,18 @@ void uiODDisplayTreeItem::keyPressCB( CallBacker* cb )
 }
 
 
+bool uiODDisplayTreeItem::doubleClick( uiTreeViewItem* item )
+{
+    if ( item != uitreeviewitem_ )
+	return uiTreeItem::doubleClick( item );
+
+    if ( !select() ) return false;
+
+    visserv_->setMaterial( displayID() );
+    return true;
+}
+
+
 void uiODDisplayTreeItem::setOnlyAtSectionsDisplay( bool yn )
 {
     visserv_->setOnlyAtSectionsDisplay( displayid_, yn );
@@ -264,6 +277,36 @@ void uiODDisplayTreeItem::setOnlyAtSectionsDisplay( bool yn )
 
 bool uiODDisplayTreeItem::displayedOnlyAtSections() const
 { return visserv_->displayedOnlyAtSections( displayid_ ); }
+
+
+void uiODDisplayTreeItem::selectRGBA()
+{
+    if ( !applMgr() || !applMgr()->attrServer() )
+	return;
+
+    Pos::GeomID geomid;
+    TypeSet<Attrib::SelSpec> rgbaspecs( 4, Attrib::SelSpec() );
+    for ( int idx=0; idx<4; idx++ )
+    {
+	const Attrib::SelSpec* as = visserv_->getSelSpec( displayid_, idx );
+	if ( as )
+	    rgbaspecs[idx] = *as;
+    }
+
+    const bool selok =
+	applMgr()->attrServer()->selectRGBAttribs( rgbaspecs, 0, geomid );
+    if ( !selok ) return;
+
+    for ( int idx=0; idx<rgbaspecs.size(); idx++ )
+    {
+	const Attrib::SelSpec& as = rgbaspecs[idx];
+	if ( !as.id().isValid() )
+	    continue;
+
+	visserv_->setSelSpec( displayid_, idx, as );
+	visserv_->calculateAttrib( displayid_, idx, false );
+    }
+}
 
 
 int uiODDisplayTreeItem::uiTreeViewItemType() const

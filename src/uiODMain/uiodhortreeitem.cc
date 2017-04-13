@@ -422,6 +422,9 @@ bool uiODHorizonTreeItem::init()
 	}
     }
 
+    if ( rgba_ )
+	selectRGBA();
+
     return res;
 }
 
