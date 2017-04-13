@@ -630,8 +630,8 @@ void uiMPEMan::seedClick( CallBacker* )
     beginSeedClickEvent( emobj );
 
     const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
-    const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ ); 
-    const bool blockcallback = 
+    const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
+    const bool blockcallback =
 	emobj->sectionGeometry(emobj->sectionID(0))->blocksCallBacks();
 
     if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
@@ -678,7 +678,7 @@ void uiMPEMan::seedClick( CallBacker* )
     else
     {
 	const bool doerase = ctrlbut && sowingmode_;
-	const bool manualmodeclick = !ctrlbut && 
+	const bool manualmodeclick = !ctrlbut &&
 	    (seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	     seedpicker->getTrackMode()==seedpicker->DrawAndSnap);
 
@@ -714,7 +714,7 @@ void uiMPEMan::planeChangedCB( CallBacker* )
     if( !tracker ) return;
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker || !seedpicker->getPatch() ||
-	seedpicker->getPatch()->getPath().size()<=0 ) 
+	seedpicker->getPatch()->getPath().size()<=0 )
 	return;
 
     seedpicker->endPatch( false );
@@ -1049,7 +1049,7 @@ void uiMPEMan::lockAll()
     visSurvey::HorizonDisplay* hd = getSelectedDisplay();
     const bool preshowlocked = hd->lockedShown();
 
-    if ( hor3d && hd ) 
+    if ( hor3d && hd )
     {
 	hor3d->lockAll();
 	hd->showLocked( true );
@@ -1237,7 +1237,7 @@ HorizonTimer::HorizonTimer( visSurvey::HorizonDisplay* displ )
 {
     if ( hordispl_ )
 	hordispl_->ref();
-};
+}
 
 
 HorizonTimer::~HorizonTimer()
