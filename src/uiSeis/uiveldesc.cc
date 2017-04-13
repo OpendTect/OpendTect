@@ -45,6 +45,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
     hasstaticsfld_ = new uiGenInput( vigrp, tr("Has statics"),
 				     BoolInpSpec(true) );
     hasstaticsfld_->valuechanged.notify(mCB(this,uiVelocityDesc,updateFlds));
+
     staticsfld_ = new uiStaticsDesc( vigrp, 0 );
     staticsfld_->attach( alignedBelow, hasstaticsfld_ );
     vigrp->setHAlignObj( hasstaticsfld_ );
@@ -137,7 +138,8 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
     , toprange_( mUdf(float), mUdf(float ) )
     , bottomrange_( mUdf(float), mUdf(float ) )
 {
-    uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( tr("Velocity cube") );
+    const Seis::GeomType gt = vsu && vsu->is2d_ ? Seis::Line : Seis::Vol;
+    uiSeisSel::Setup ssu( gt ); ssu.seltxt( tr("Velocity cube") );
     volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
 				ssu );
     if ( sel )
@@ -153,7 +155,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 
 
 uiVelocityDescDlg::~uiVelocityDescDlg()
-{ }
+{}
 
 
 IOObj* uiVelocityDescDlg::getSelection() const

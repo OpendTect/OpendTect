@@ -34,9 +34,11 @@ public:
     {
     public:
 				Setup( const VelocityDesc* vd=0 )
+				    : is2d_(false)
 				{ if ( vd ) desc_ = *vd; }
 
 	mDefSetupMemb(VelocityDesc,desc)
+	mDefSetupMemb(bool,is2d)
     };
 
 				uiVelocityDesc(uiParent*,const Setup* s=0);
