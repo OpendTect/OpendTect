@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "seisblockswriter.h"
 #include "seisblocksdata.h"
+#include "posidxpairdataset.h"
 #include "task.h"
 #include "scaler.h"
 #include "survgeom3d.h"
@@ -31,6 +32,8 @@ Seis::Blocks::Writer::Writer( const SurvGeom* geom )
     , specfprep_(OD::AutoFPRep)
     , usefprep_(OD::F32)
     , needreset_(true)
+    , blocks_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
+    , nrposperblock_(((int)dims_.inl()) * dims_.crl())
 {
 }
 
@@ -45,6 +48,17 @@ Seis::Blocks::Writer::~Writer()
     }
 
     delete scaler_;
+    setEmpty();
+    delete &blocks_;
+}
+
+
+void Seis::Blocks::Writer::setEmpty()
+{
+    Pos::IdxPairDataSet::SPos spos;
+    while ( blocks_.next(spos) )
+	delete (Block*)blocks_.getObj( spos );
+    blocks_.setEmpty();
 }
 
 
@@ -128,8 +142,8 @@ void Seis::Blocks::Writer::resetZ( const Interval<float>& zrg )
 	// only possibility is that zrg is entirely between two output samples.
 	// As a service, we'll make sure the nearest sample is set
 	const float zeval = zrg.center();
-	const int globzidx = Data::globIdx4Z( survgeom_, zeval, dims_.z() );
-	const int sampzidx = Data::sampIdx4Z( survgeom_, zeval, dims_.z() );
+	const IdxType globzidx = Data::globIdx4Z( survgeom_, zeval, dims_.z() );
+	const IdxType sampzidx = Data::sampIdx4Z( survgeom_, zeval, dims_.z() );
 	globzidxrg_.start = globzidxrg_.stop = globzidx;
 	ZEvalInfo* evalinf = new ZEvalInfo( globzidx );
 	evalinf->evalpositions_ += ZEvalPos( sampzidx, zeval );
@@ -142,6 +156,7 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 {
     if ( needreset_ )
     {
+	setEmpty();
 	resetZ( Interval<float>(trc.startPos(),trc.endPos()) );
 	usefprep_ = specfprep_;
 	if ( usefprep_ == OD::AutoFPRep )
@@ -167,8 +182,15 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 bool Seis::Blocks::Writer::add2Block( const GlobIdx& globidx,
 	const SeisTrc& trc, const ZEvalPosSet& zevals, uiRetVal& uirv )
 {
-    Data& data = getData( globidx );
-    if ( data.isRetired() )
+    Block* block = getBlock( globidx );
+    if ( !block )
+    {
+	uirv.set( tr("Memory needed for writing process unavailable.") );
+	setEmpty();
+	return false;
+    }
+
+    if ( block->data_->isRetired() )
 	return true; // not writing same block again
 
     const BinID bid( trc.info().binID() );
@@ -183,34 +205,57 @@ bool Seis::Blocks::Writer::add2Block( const GlobIdx& globidx,
 	float val2write = trc.getValue( evalpos.second, component_ );
 	if ( scaler_ )
 	    val2write = (float)scaler_->scale( val2write );
-	data.setValue( sampidx, val2write );
+	block->data_->setValue( sampidx, val2write );
     }
 
-    if ( isComplete(globidx) )
-	writeBlock( data, uirv );
+    if ( isCompletionVisit(*block,sampidx) )
+	writeBlock( *block, uirv );
 
     return uirv.isError();
 }
 
 
-Seis::Blocks::Data& Seis::Blocks::Writer::getData( const GlobIdx& globidx )
+Seis::Blocks::Writer::Block*
+Seis::Blocks::Writer::getBlock( const GlobIdx& globidx )
 {
-    // TODO implement
-    return *new Data( globidx, dims_, usefprep_ );
+    const Pos::IdxPair idxpair( globidx.inl(), globidx.crl() );
+    Pos::IdxPairDataSet::SPos spos = blocks_.find( idxpair );
+    Block* ret = 0;
+    if ( spos.isValid() )
+	ret = (Block*)blocks_.getObj( spos );
+    else
+    {
+	try {
+	    ret = new Block;
+	    ret->data_ = new Data( globidx, dims_, usefprep_ );
+	    ret->visited_.setSize( nrposperblock_, false );
+	} catch ( ... ) { delete ret; ret = 0; }
+	if ( ret )
+	    blocks_.add( idxpair, ret );
+    }
+
+    return ret;
 }
 
 
-bool Seis::Blocks::Writer::isComplete( const GlobIdx& globidx ) const
+bool Seis::Blocks::Writer::isCompletionVisit( Block& block,
+					      const SampIdx& sampidx ) const
 {
-    // TODO implement
-    return false;
+    const int arridx = ((int)sampidx.inl()) * dims_.inl() + sampidx.crl();
+    if ( !block.visited_[arridx] )
+    {
+	block.nruniquevisits_++;
+	block.visited_[arridx] = true;
+    }
+
+    return block.nruniquevisits_ == nrposperblock_;
 }
 
 
-void Seis::Blocks::Writer::writeBlock( Data& data, uiRetVal& uirv )
+void Seis::Blocks::Writer::writeBlock( Block& block, uiRetVal& uirv )
 {
     // TODO implement
-    data.retire();
+    block.data_->retire();
     uirv.setEmpty();
 }
 

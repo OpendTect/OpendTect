@@ -190,6 +190,19 @@ int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
+    Pos::IdxPairDataSet* ds_viaptrs = new Pos::IdxPairDataSet( sizeof(TstObj*),
+						    false, false );
+    ds_viaptrs->add( Pos::IdxPair(1000,2000), new TstObj(1,2) );
+    ds_viaptrs->add( Pos::IdxPair(2000,3000), new TstObj(2,3) );
+    Pos::IdxPairDataSet::SPos spos;
+    while ( ds_viaptrs->next(spos) )
+    {
+	TstObj* obj = (TstObj*)ds_viaptrs->getObj( spos );
+	delete obj;
+    }
+    ds_viaptrs->setEmpty();
+    delete ds_viaptrs;
+
     Pos::IdxPairDataSet ds_zeromanobj( 0, true, true );
     ds_zeromanobj.add( Pos::IdxPair(1000,2000), 0 );
     Pos::IdxPairDataSet ds_zero( 0, true, false );

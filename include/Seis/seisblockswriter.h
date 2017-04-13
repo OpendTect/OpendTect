@@ -18,6 +18,7 @@ ________________________________________________________________________
 class Task;
 class Scaler;
 class SeisTrc;
+namespace Pos { class IdxPairDataSet; }
 
 
 namespace Seis
@@ -57,6 +58,14 @@ protected:
 	const IdxType	globidx_;
 	ZEvalPosSet	evalpositions_;
     };
+    struct Block
+    {
+			Block() : data_(0), nruniquevisits_(0)	{}
+			~Block()				{ delete data_;}
+	Data*		data_;
+	BoolTypeSet	visited_;
+	int		nruniquevisits_;
+    };
 
     File::Path		basepath_;
     BufferString	filenamebase_;
@@ -65,16 +74,19 @@ protected:
     int			component_;
     Scaler*		scaler_;
     bool		needreset_;
+    const int		nrposperblock_;
 
     void		resetZ(const Interval<float>&);
     Interval<IdxType>	globzidxrg_;
     ObjectSet<ZEvalInfo> zevalinfos_;
+    Pos::IdxPairDataSet& blocks_;
 
+    void		setEmpty();
     bool		add2Block(const GlobIdx&,const SeisTrc&,
 				  const ZEvalPosSet&,uiRetVal&);
-    Data&		getData(const GlobIdx&);
-    bool		isComplete(const GlobIdx&) const;
-    void		writeBlock(Data&,uiRetVal&);
+    Block*		getBlock(const GlobIdx&);
+    bool		isCompletionVisit(Block&,const SampIdx&) const;
+    void		writeBlock(Block&,uiRetVal&);
 
 };
 
