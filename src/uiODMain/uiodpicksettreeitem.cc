@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
-    : uiODTreeItem( uiStrings::sPickSet())
+    : uiODTreeItem( uiStrings::sPointSet())
 {
     mAttachCB( Pick::Mgr().setToBeRemoved,
 		uiODPickSetParentTreeItem::setRemovedCB );
@@ -242,6 +242,18 @@ void uiODPickSetTreeItem::selChangedCB( CallBacker* )
 }
 
 
+bool uiODPickSetTreeItem::doubleClick( uiTreeViewItem* item )
+{
+    if ( item != uitreeviewitem_ )
+	return uiTreeItem::doubleClick( item );
+
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+		    visserv_->getObject(displayid_));
+    uiPickPropDlg dlg( getUiParent(), set_ , psd );
+    return dlg.go();
+}
+
+
 void uiODPickSetTreeItem::setChg( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
@@ -423,7 +435,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
     : uiODTreeItem( uiStrings::sPolygon() )
 {
-    
+
     mAttachCB( Pick::Mgr().setToBeRemoved,
 		uiODPolygonParentTreeItem::setRemovedCB );
 }
@@ -603,6 +615,19 @@ void uiODPolygonTreeItem::selChangedCB( CallBacker* )
 	return;
 
     visserv_->setCurInterObjID( displayid_ );
+}
+
+
+bool uiODPolygonTreeItem::doubleClick( uiTreeViewItem* item )
+{
+    if ( item != uitreeviewitem_ )
+	return uiTreeItem::doubleClick( item );
+
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+		    visserv_->getObject(displayid_));
+    // TODO: Make polygon specific properties dialog
+    uiPickPropDlg dlg( getUiParent(), set_ , psd );
+    return dlg.go();
 }
 
 
