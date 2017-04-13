@@ -86,19 +86,24 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	return;
     }
 
+    uiObject* attachobj = 0;
     if ( nms.size() > 1 )
     {
 	selfld_ = new uiGenInput( this, setup_.seltxt_, StringListInpSpec(nms));
-	for ( int idx=0; idx<grps_.size(); idx++ )
-	    grps_[idx]->attach( alignedBelow, selfld_ );
 	selfld_->valuechanged.notify( selcb );
-	if ( !setup_.is2d_ )
-	{
-	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
-				tr("Set ranges to work area"),
-				mCB(this,uiPosProvider,fullSurvPush) );
+	attachobj = selfld_->attachObj();
+    }
+
+    if ( !setup_.is2d_ )
+    {
+	fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
+			setup_.useworkarea_ ? tr("Set ranges to work area")
+					    : tr("Set ranges to full survey"),
+			mCB(this,uiPosProvider,fullSurvPush) );
+	if ( selfld_ )
 	    fullsurvbut_->attach( rightOf, selfld_ );
-	}
+	else
+	    attachobj = fullsurvbut_;
     }
 
     openbut_ = new uiToolButton( this, "open",
@@ -106,12 +111,18 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 				mCB(this,uiPosProvider,openCB) );
     if ( fullsurvbut_ )
 	openbut_->attach( rightTo, fullsurvbut_ );
+    else if ( selfld_ )
+	openbut_->attach( rightOf, selfld_ );
     else
-	openbut_->attach( rightTo, selfld_ );
+	attachobj = openbut_;
+
     savebut_ = new uiToolButton( this, "save",
 				tr("Save subselection"),
 				mCB(this,uiPosProvider,saveCB) );
     savebut_->attach( rightTo, openbut_ );
+
+    for ( int idx=0; idx<grps_.size(); idx++ )
+	grps_[idx]->attach( alignedBelow, attachobj );
 
     setHAlignObj( grps_[0] );
     postFinalise().notify( selcb );
@@ -134,12 +145,11 @@ void uiPosProvider::selChg( CallBacker* )
 
 void uiPosProvider::fullSurvPush( CallBacker* )
 {
-    if ( !selfld_ ) return;
-    const int selidx = selfld_->getIntValue();
+    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
     if ( selidx < 0 ) return;
 
     IOPar iop;
-    SI().sampling( true ).fillPar( iop );
+    SI().sampling( setup_.useworkarea_ ).fillPar( iop );
     grps_[selidx]->usePar( iop );
 }
 
@@ -172,8 +182,7 @@ void uiPosProvider::openCB( CallBacker* )
 
 void uiPosProvider::saveCB( CallBacker* )
 {
-    if ( !selfld_ ) return;
-    const int selidx = selfld_->getIntValue();
+    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
     if ( !grps_.validIdx(selidx) )
 	return;
 
@@ -208,6 +217,46 @@ uiPosProvGroup* uiPosProvider::curGrp() const
 }
 
 
+void uiPosProvider::setSampling( const TrcKeyZSampling& tkzs )
+{
+    IOPar iop;
+    iop.set( sKey::Type(), sKey::Range() );
+    if ( setup_.is2d_ )
+    {
+	Pos::RangeProvider2D prov;
+	prov.setTrcRange( tkzs.hsamp_.trcRange() );
+	prov.setZRange( tkzs.zsamp_ );
+	prov.fillPar( iop );
+    }
+    else
+    {
+	Pos::RangeProvider3D prov; prov.setSampling( tkzs );
+	prov.fillPar( iop );
+    }
+
+    usePar( iop );
+}
+
+
+void uiPosProvider::getSampling( TrcKeyZSampling& tkzs, const IOPar* pars ) const
+{
+    IOPar iop;
+    if ( pars )
+	iop = *pars;
+    else
+	fillPar( iop );
+
+    PtrMan<Pos::Provider> prov = 0;
+    if ( setup_.is2d_ )
+	prov = Pos::Provider2D::make( iop );
+    else
+	prov = Pos::Provider3D::make( iop );
+
+    if ( prov )
+	prov->getTrcKeyZSampling( tkzs );
+}
+
+
 void uiPosProvider::usePar( const IOPar& iop )
 {
     BufferString typ;
@@ -225,6 +274,16 @@ void uiPosProvider::usePar( const IOPar& iop )
 
     if ( selfld_ )
 	selfld_->setValue( ((int)0) );
+
+    if ( setup_.is2d_ )
+	return;
+
+// Provider from IOPar is not available in the gui.
+// Perhaps we can still get a TrcKeyZSampling
+
+    TrcKeyZSampling tkzs;
+    getSampling( tkzs, &iop );
+    setSampling( tkzs );
 }
 
 
@@ -446,6 +505,32 @@ void uiPosProvSel::usePar( const IOPar& iop )
     }
 }
 
+
+
+// uiPosProvDlg
+uiPosProvDlg::uiPosProvDlg( uiParent* p, const Setup& su, const uiString& title)
+    : uiDialog(p,uiDialog::Setup(title,mNoDlgTitle,mNoHelpKey))
+{
+    selfld_ = new uiPosProvider( this, su );
+    selfld_->setSampling( SI().sampling(su.useworkarea_) );
+}
+
+
+uiPosProvDlg::~uiPosProvDlg()
+{}
+
+void uiPosProvDlg::setSampling( const TrcKeyZSampling& tkzs )
+{ selfld_->setSampling( tkzs ); }
+
+void uiPosProvDlg::getSampling( TrcKeyZSampling& tkzs, const IOPar* pars ) const
+{ selfld_->getSampling( tkzs, pars ); }
+
+
+bool uiPosProvDlg::acceptOK()
+{ return true; }
+
+
+// uiPosSubSel
 
 uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
     : uiGroup(p,"uiPosSubSel")

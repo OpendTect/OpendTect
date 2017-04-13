@@ -12,8 +12,10 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uicompoundparsel.h"
+#include "uidialog.h"
 #include "uiposprovgroup.h"
 #include "iopar.h"
+
 class uiButton;
 class uiGenInput;
 namespace Pos { class Provider; }
@@ -35,18 +37,24 @@ public:
 			    : uiPosProvGroup::Setup(is_2d,with_step,with_z)
 			    , seltxt_(uiStrings::sPosition(2))
 			    , allownone_(false)
+			    , useworkarea_(true)
 			    , choicetype_(OnlyRanges)	{}
-	virtual	~Setup()				{}
+	virtual		~Setup()			{}
+
 	mDefSetupMemb(uiString,seltxt)
 	mDefSetupMemb(ChoiceType,choicetype)
 	mDefSetupMemb(bool,allownone)
+	mDefSetupMemb(bool,useworkarea)
     };
 
-    			uiPosProvider(uiParent*,const Setup&);
+			uiPosProvider(uiParent*,const Setup&);
 
     void		usePar(const IOPar&);
     bool		fillPar(IOPar&) const;
     void		setExtractionDefaults();
+
+    void		setSampling(const TrcKeyZSampling&);
+    void		getSampling(TrcKeyZSampling&,const IOPar* =0) const;
 
     Pos::Provider*	createProvider() const;
 
@@ -72,15 +80,14 @@ protected:
 
 /*!\brief CompoundParSel to capture a user's Pos::Provider wishes */
 
-
 mExpClass(uiIo) uiPosProvSel : public uiCompoundParSel
 {
 public:
 
     typedef uiPosProvider::Setup Setup;
 
-    			uiPosProvSel(uiParent*,const Setup&);
-    			~uiPosProvSel();
+			uiPosProvSel(uiParent*,const Setup&);
+			~uiPosProvSel();
 
     void		usePar(const IOPar&);
     void		fillPar( IOPar& iop ) const	{ iop.merge(iop_); }
@@ -110,4 +117,24 @@ protected:
     void		setCSToAll() const;
     void		setProvFromCS();
     void		mkNewProv(bool updsumm=true);
+};
+
+
+/*!\brief Dialog to capture a user's Pos::Provider wishes */
+
+mExpClass(uiIo) uiPosProvDlg : public uiDialog
+{ mODTextTranslationClass(uiPosProvDlg)
+public:
+    typedef uiPosProvider::Setup Setup;
+
+			uiPosProvDlg(uiParent*,const Setup&,const uiString&);
+			~uiPosProvDlg();
+
+    void		setSampling(const TrcKeyZSampling&);
+    void		getSampling(TrcKeyZSampling&,const IOPar* =0) const;
+
+protected:
+    bool		acceptOK();
+
+    uiPosProvider*	selfld_;
 };
