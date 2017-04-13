@@ -513,6 +513,7 @@ bool uiEMPartServer::fillHoles( const EM::ObjectID& emid, bool is2d )
 {
     mDynamicCastGet(EM::Horizon*,hor,em_.getObject(emid));
     uiHorizonInterpolDlg dlg( parent(), hor, is2d );
+    dlg.saveFldGrp()->allowOverWrite( false );
     dlg.horReadyFroDisplay()->notify(
 	    mCB(this,uiEMPartServer,displayOnCreateCB) );
     return dlg.go();
@@ -523,6 +524,7 @@ bool uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
     uiFilterHorizonDlg dlg( parent(), hor3d );
+    dlg.saveFldGrp()->allowOverWrite( false );
     dlg.horReadyFroDisplay()->notify(
 	    mCB(this,uiEMPartServer,displayOnCreateCB) );
     return dlg.go();
@@ -770,7 +772,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 	const int selidx = attrnms.indexOf( selattrnms.get(idx) );
 	if ( selidx < 0 ) continue;
 
-	idxs += idx;
+	idxs += selidx;
     }
 
     return loadAuxData( id, idxs, removeold );
@@ -875,7 +877,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 
     hor3d->auxdata.removeAll();
     ExecutorGroup exgrp( "Loading Horizon Data" );
-    exgrp.setNrDoneText( Task::uiStdNrDoneText() );
+    exgrp.setNrDoneText( tr("Positions read") );
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
