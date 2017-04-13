@@ -397,8 +397,16 @@ uiString uiODAttribTreeItem::createDisplayName() const
 void uiODAttribTreeItem::updateColumnText( int col )
 {
     if ( col==uiODSceneMgr::cColorColumn() )
-	displayMiniCtab( attribProbeLayer() ? &attribProbeLayer()->sequence()
-					    : 0 );
+    {
+	const ColTab::Sequence* seq =
+	    attribProbeLayer() ? &attribProbeLayer()->sequence() : 0;
+	if ( seq )
+	{
+	    displayMiniCtab( seq );
+	    coltabsel_.setSequence( *seq );
+	}
+    }
+
     uiODDataTreeItem::updateColumnText( col );
 }
 
