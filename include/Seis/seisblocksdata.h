@@ -25,6 +25,7 @@ namespace Blocks
 {
     typedef short		IdxType;
     typedef unsigned short	SzType;
+    typedef Survey::Geometry3D	SurvGeom;
 
 #define mDefSeisBlockTripletClass(clss,typ) \
 mExpClass(Seis) clss : public Triplet<typ> \
@@ -62,7 +63,30 @@ public:
     void		setValue(const SampIdx&,float);
     void		setVert(SampIdx,const float*,int sz);
 
+    GlobIdx		getGlobIdx(const BinID&,const SurvGeom&) const;
+    GlobIdx		getGlobIdx(const BinID&,float z,const SurvGeom&) const;
+    IdxType		getGlobZIdx(float,const SurvGeom&) const;
+    SampIdx		getSampIdx(const BinID&,const SurvGeom&) const;
+    SampIdx		getSampIdx(const BinID&,float z,const SurvGeom&) const;
+    IdxType		getSampZIdx(float,const SurvGeom&) const;
+
+    static IdxType	globIdx4Inl(const SurvGeom&,int inl,SzType inldim);
+    static IdxType	globIdx4Crl(const SurvGeom&,int crl,SzType crldim);
+    static IdxType	globIdx4Z(const SurvGeom&,float z,SzType zdim);
+    static IdxType	sampIdx4Inl(const SurvGeom&,int inl,SzType inldim);
+    static IdxType	sampIdx4Crl(const SurvGeom&,int crl,SzType crldim);
+    static IdxType	sampIdx4Z(const SurvGeom&,float z,SzType zdim);
+    static int		inl4Idxs(const SurvGeom&,SzType inldim,IdxType globidx,
+				IdxType sampidx);
+    static int		crl4Idxs(const SurvGeom&,SzType crldim,IdxType globidx,
+				IdxType sampidx);
+    static float	z4Idxs(const SurvGeom&,SzType zdim,IdxType globidx,
+				IdxType sampidx);
+
     static Dimensions	defDims();
+
+    void		retire();
+    bool		isRetired() const;
 
 protected:
 
@@ -88,16 +112,11 @@ public:
 
     virtual		~DataStorage()		    {}
 
-    IdxType		idx4Inl(int) const;
-    IdxType		idx4Crl(int) const;
-    IdxType		idx4Z(float) const;
-    GlobIdx		getGlobIdx(const BinID&,float) const;
-
 protected:
 
-			DataStorage(const Survey::Geometry3D*);
+			DataStorage(const SurvGeom*);
 
-    const Survey::Geometry3D& survgeom_;
+    const SurvGeom&	survgeom_;
     const Dimensions	dims_;
 
 };
