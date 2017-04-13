@@ -309,7 +309,7 @@ void File::makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 od_int64 File::getFileSize( const char* fnm, bool followlink )
 {
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
-    return fsa->getFileSize( fnm, followlink );
+    return fsa ? fsa->getFileSize( fnm, followlink ) : 0;
 }
 
 
@@ -319,7 +319,7 @@ bool File::exists( const char* fnm )
 	return false;
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
-    return fsa->exists( fnm, true );
+    return fsa && fsa->exists( fnm, true );
 }
 
 
@@ -350,7 +350,7 @@ bool File::isFile( const char* fnm )
 	return false;
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
-    return fsa->isFile( fnm );
+    return fsa && fsa->isFile( fnm );
 }
 
 
@@ -360,7 +360,7 @@ bool File::isDirectory( const char* fnm )
 	return false;
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
-    return fsa->isDirectory( fnm );
+    return fsa && fsa->isDirectory( fnm );
 }
 
 
@@ -457,7 +457,7 @@ bool File::isReadable( const char* fnm )
 	return false;
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
-    return fsa->isReadable( fnm );
+    return fsa && fsa->isReadable( fnm );
 }
 
 
@@ -467,7 +467,7 @@ bool File::isWritable( const char* fnm )
 	return false;
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
-    return fsa->isWritable( fnm );
+    return fsa && fsa->isWritable( fnm );
 }
 
 
@@ -537,7 +537,7 @@ bool File::rename( const char* oldname, const char* newname )
 	return false;
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( newname );
-    return fsa->rename( oldname, newname );
+    return fsa && fsa->rename( oldname, newname );
 }
 
 
@@ -595,6 +595,8 @@ bool File::copy( const char* from, const char* to, uiString* errmsg )
     }
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( from );
+    if ( !fsa ) return false;
+
     if ( fsa->isDirectory(from) || fsa->isDirectory(to)  )
 	return copyDir( from, to, errmsg );
 
@@ -640,7 +642,7 @@ bool File::remove( const char* fnm )
 	return true;
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
-    return fsa->remove( fnm );
+    return fsa && fsa->remove( fnm );
 }
 
 
@@ -650,7 +652,7 @@ bool File::removeDir( const char* dirnm )
 	return true;
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( dirnm );
-    return fsa->remove( dirnm, true );
+    return fsa && fsa->remove( dirnm, true );
 }
 
 
@@ -676,6 +678,7 @@ bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
     }
 
     RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    if ( !fsa ) return false;
 
     Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
