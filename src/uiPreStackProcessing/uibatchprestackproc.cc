@@ -35,7 +35,9 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
 			       .arg(is2d_ ? uiStrings::s2D() : uiStrings::s3D())
 			       .arg(uiStrings::sProcessing());
     setCaption( dlgnm );
-    chainsel_ = new uiProcSel( pargrp_, uiStrings::sSetup(), 0 );
+    uiString lbl = uiStrings::phrJoinStrings( uiStrings::sProcessing(),
+					      uiStrings::sSetup() );
+    chainsel_ = new uiProcSel( pargrp_, lbl, 0 );
     chainsel_->selectionDone.notify( mCB(this,uiBatchProcSetup,setupSelCB) );
 
     const Seis::GeomType gt = is2d_ ? Seis::LinePS : Seis::VolPS;
