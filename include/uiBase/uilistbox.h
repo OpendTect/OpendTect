@@ -144,6 +144,7 @@ public:
     void		addItem(const uiString&,const Color&,int id=-1);
 
     void		addItems(const char**);
+    void		addItems(const BufferStringSet&);
     void		addItems(const uiStringSet&);
 
     void		insertItem(const uiString&,int idx=-1,
@@ -218,8 +219,7 @@ public:
     void		offerReadWriteSelection( const CallBack& rcb,
 						 const CallBack& wcb )
 			{ retrievecb_ = rcb; savecb_ = wcb; }
-protected:
-    mDeprecated void	addItems(const BufferStringSet&);
+
 private:
 
     void		translateText();
