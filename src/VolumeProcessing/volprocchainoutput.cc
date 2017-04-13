@@ -25,6 +25,8 @@
 VolProc::ChainOutput::ChainOutput()
     : Executor("")
     , tkzs_(true)
+    , chainid_(DBKey::getInvalid())
+    , chainpar_(0)
     , chain_(0)
     , chainexec_(0)
     , wrr_(0)
@@ -33,7 +35,7 @@ VolProc::ChainOutput::ChainOutput()
     , curexecnr_(-1)
     , storererr_(false)
     , progresskeeper_(*new ProgressRecorder)
-    , comm_(0)
+    , jobcomm_(0)
 {
     progressmeter_ = &progresskeeper_;
 }
@@ -41,8 +43,11 @@ VolProc::ChainOutput::ChainOutput()
 
 VolProc::ChainOutput::~ChainOutput()
 {
-    chain_->unRef();
-    delete chainexec_; chainexec_ = 0;
+    if ( chain_ )
+	chain_->unRef();
+
+    delete chainexec_;
+    delete chainpar_;
     delete wrr_;
     deepErase( storers_ );
     delete &progresskeeper_;
@@ -58,17 +63,26 @@ void VolProc::ChainOutput::setOutputID( const DBKey& outid )
 void VolProc::ChainOutput::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 { tkzs_ = tkzs; }
 
-void VolProc::ChainOutput::setJobComm(JobCommunic* comm)
+void VolProc::ChainOutput::setJobCommunicator( JobCommunic* comm )
 {
-    comm_ = comm;
-    if ( comm_ )
-	comm_->setProgressDetail( "percent done" );
+    jobcomm_ = comm;
+    if ( jobcomm_ )
+	jobcomm_->setProgressDetail( "percent done" );
 }
 
 
 void VolProc::ChainOutput::usePar( const IOPar& iop )
 {
     iop.get( VolProcessingTranslatorGroup::sKeyChainID(), chainid_ );
+    unRefAndZeroPtr( chain_ );
+    if ( chainid_.isInvalid() )
+    {
+	if ( chainpar_ )
+	    deleteAndZeroPtr( chainpar_ );
+
+	chainpar_ = iop.subselect( sKey::Chain() );
+	if ( !chainpar_ ) return;
+    }
 
     PtrMan<IOPar> subselpar = iop.subselect(
 	    IOPar::compKey(sKey::Output(),sKey::Subsel()) );
@@ -113,7 +127,18 @@ void VolProc::ChainOutput::controlWork( Control ctrl )
 
 void VolProc::ChainOutput::createNewChainExec()
 {
-    delete chainexec_;
+    deleteAndZeroPtr( chainexec_ );
+    if ( chain_ )
+	unRefAndZeroPtr( chain_ );
+
+    if ( getChain() != MoreToDo() )
+    {
+	unRefAndZeroPtr( chain_ );
+	return;
+    }
+    /* Many usePar implementations also allocate auxiliary data:
+       Restore in case of chunking */
+
     chainexec_ = new VolProc::ChainExecutor( *chain_ );
     chainexec_->enableWorkControl( workControlEnabled() );
     chainexec_->setProgressMeter( progresskeeper_.forwardTo() );
@@ -123,6 +148,8 @@ void VolProc::ChainOutput::createNewChainExec()
 int VolProc::ChainOutput::retError( const uiString& msg )
 {
     progresskeeper_.setMessage( msg );
+    setName( "Volume builder processing" );
+
     return ErrorOccurred();
 }
 
@@ -163,9 +190,7 @@ int VolProc::ChainOutput::nextStep()
     if ( !shouldContinue() )
 	return Finished();
 
-    if ( !chain_ )
-	return getChain();
-    else if ( nrexecs_<0 )
+    if ( nrexecs_<0 )
 	return setupChunking();
     else if ( neednextchunk_ )
 	return setNextChunk();
@@ -180,7 +205,7 @@ int VolProc::ChainOutput::nextStep()
     {
 	int res = chainexec_->doStep();
 	if ( res < 0 )
-	    return ErrorOccurred();
+	    return retError( chainexec_->errMsg() );
 
 	if ( res == 0 )
 	{
@@ -189,19 +214,18 @@ int VolProc::ChainOutput::nextStep()
 
 	    neednextchunk_ = ++curexecnr_ < nrexecs_;
 	    startWriteChunk();
+	    if ( !neednextchunk_ )
+	    {	//We just did the last step of the last chunk
+		progressmeter_ = 0;
+		deleteAndZeroPtr( chainexec_ );
+	    }
 	}
 
-	if ( comm_ )
+	if ( jobcomm_ )
 	{
 	    const double curperc = mCast(double,chainexec_->nrDone());
 	    const int totperc = mNINT32((100*curexecnr_ + curperc) / nrexecs_ );
-	    comm_->sendProgress( totperc );
-	}
-
-	if ( res == 0 && !neednextchunk_ )
-	{   //We just did the last step of the last chunk
-	    progressmeter_ = 0;
-	    deleteAndZeroPtr( chainexec_ );
+	    jobcomm_->sendProgress( totperc );
 	}
 
 	return MoreToDo();
@@ -225,6 +249,14 @@ int VolProc::ChainOutput::nextStep()
 
 int VolProc::ChainOutput::getChain()
 {
+    if ( chainpar_ )
+    {
+	unRefAndZeroPtr( chain_ );
+	chain_ = new Chain; chain_->ref();
+	if ( chain_->usePar(*chainpar_) )
+	    return MoreToDo();
+    }
+
     if ( chainid_.isInvalid() )
 	return retError( tr("No Volume Processing ID specified") );
 
@@ -255,6 +287,8 @@ int VolProc::ChainOutput::getChain()
 int VolProc::ChainOutput::setupChunking()
 {
     createNewChainExec();
+    if ( !chainexec_ )
+	return ErrorOccurred();
 
     const float zstep = chain_->getZStep();
     outputzrg_ = StepInterval<int>( mNINT32(tkzs_.zsamp_.start/zstep),
@@ -263,7 +297,7 @@ int VolProc::ChainOutput::setupChunking()
 			   //real -> index, outputzrg_ is the index of z-samples
 
     od_uint64 nrbytes = mCast( od_uint64, 1.01f *
-	      chainexec_->computeMaximumMemoryUsage( tkzs_.hsamp_, outputzrg_ ) );
+	      chainexec_->computeMaximumMemoryUsage(tkzs_.hsamp_,outputzrg_) );
 
     od_int64 totmem, freemem; OD::getSystemMemory( totmem, freemem );
 
@@ -291,7 +325,6 @@ int VolProc::ChainOutput::setupChunking()
 	// is calculated. Therefore, lets add some more mem need:
 	nrbytes += (( tkzs_.hsamp_.totalNr() *
 		    ( outputzrg_.nrSteps() + 1 ) ) * sizeof(float) ) * 3;
-
 	const float fnrexecs = Math::Ceil( mCast(float,nrbytes)
 					 / mCast(float,freemem) );
 	nrexecs_ = mNINT32( fnrexecs );
@@ -309,13 +342,17 @@ int VolProc::ChainOutput::setNextChunk()
 {
     neednextchunk_ = false;
     if ( curexecnr_ > 0 )
+    {
 	createNewChainExec();
+	if ( !chainexec_ )
+	    return ErrorOccurred();
+    }
 
     const TrcKeySampling hsamp( tkzs_.hsamp_.getLineChunk(nrexecs_,curexecnr_));
 
     if ( !chainexec_->setCalculationScope(hsamp,outputzrg_) )
     {
-	delete chainexec_; chainexec_ = 0;
+	deleteAndZeroPtr( chainexec_ );
 	return retError( tr("Could not set calculation scope."
 		    "\nProbably there is not enough memory available.") );
     }
@@ -324,8 +361,8 @@ int VolProc::ChainOutput::setNextChunk()
 	return MoreToDo();
 
     progresskeeper_.setMessage(
-			tr("\nStarting new Volume Processing chunk %1-%2.\n")
-			.arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() ) );
+		tr("Starting new Volume Processing chunk %1-%2.")
+		   .arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() ), true );
     progresskeeper_.setMessage( uiString::emptyString() );
 
     return MoreToDo();
@@ -366,6 +403,7 @@ bool VolProc::ChainOutput::openOutput()
 	const Scaler* scaler = chain_->getOutputScalers()[idx];
 	if ( !scaler )
 	    continue;
+
 	wrr_->setComponentScaler( *scaler, idx );
     }
 

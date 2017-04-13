@@ -65,7 +65,7 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
 	vco.setChainID( chainid );
 	vco.setOutputID( outid );
 	vco.setTrcKeyZSampling( tkzs );
-	vco.setJobComm( comm );
+	vco.setJobCommunicator( comm );
 	if ( !vco.go(strm) )
 	    return false;
     }

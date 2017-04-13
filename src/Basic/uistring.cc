@@ -275,9 +275,7 @@ uiString::uiString()
     : data_( 0 )
     , datalock_( true )
     , debugstr_( 0 )
-{
-    mSetDBGStr;
-}
+{}
 
 uiString::uiString( const char* str )
     : data_( 0	)

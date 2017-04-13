@@ -38,6 +38,7 @@ public:
     virtual void	setNrDone(od_int64);
     virtual void	setNrDoneText(const uiString&);
     virtual void	setMessage(const uiString&);
+    void		setMessage(const uiString&,bool printtolog);
 
     virtual void	operator++();
 

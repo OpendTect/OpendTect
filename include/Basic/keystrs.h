@@ -40,6 +40,7 @@ namespace sKey
     inline FixedString Binary()		{ return "Binary"; }
     inline FixedString Body()		{ return "Body"; }
     inline FixedString Category()	{ return "Category"; }
+    inline FixedString Chain()		{ return "Chain"; }
     inline FixedString Color()		{ return "Color"; }
     inline FixedString Component()	{ return "Component"; }
     inline FixedString Content()	{ return "Content"; }

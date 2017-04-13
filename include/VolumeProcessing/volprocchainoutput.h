@@ -16,9 +16,12 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "trckeyzsampling.h"
 #include "threadlock.h"
-class SeisDataPackWriter;
-class ProgressRecorder;
+
+class IOPar;
 class JobCommunic;
+class ProgressRecorder;
+class SeisDataPackWriter;
+
 
 namespace VolProc
 {
@@ -53,14 +56,14 @@ public:
     virtual void		setProgressMeter(ProgressMeter*);
     virtual void		controlWork(Control);
     virtual void		enableWorkControl(bool yn=true);
-
-    void			setJobComm(JobCommunic* comm);
+    void			setJobCommunicator(JobCommunic*);
 
 protected:
 
     DBKey			chainid_;
     DBKey			outid_;
     TrcKeyZSampling		tkzs_;
+    IOPar*			chainpar_;
 
     Chain*			chain_;
     ChainExecutor*		chainexec_;
@@ -75,6 +78,7 @@ protected:
     ObjectSet<ChainOutputStorer> storers_;
     ObjectSet<ChainOutputStorer> toremstorers_;
     bool			storererr_;
+    JobCommunic*		jobcomm_;
 
     int				getChain();
     int				setupChunking();
@@ -85,8 +89,6 @@ protected:
     void			startWriteChunk();
     void			manageStorers();
     void			reportFinished(ChainOutputStorer&);
-
-    JobCommunic*		comm_;
 
     friend class		ChainOutputStorer;
 
