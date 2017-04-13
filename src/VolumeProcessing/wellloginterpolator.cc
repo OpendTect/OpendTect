@@ -351,7 +351,7 @@ bool WellLogInterpolator::prepareComp( int )
 	infos_ += info;
     }
 
-    if ( errmsgs.isEmpty() )
+    if ( !errmsgs.isEmpty() )
     {
 	errmsg_ = errmsgs.cat();
 	deepErase( infos_ );
