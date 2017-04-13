@@ -41,15 +41,18 @@ static const char* rcsID mUsedVar = "$Id$";
 uiString uiODAttribTreeItem::sKeySelAttribMenuTxt()
 { return uiStrings::sSelAttrib(); }
 
-
 uiString uiODAttribTreeItem::sKeyColSettingsMenuTxt()
 { return tr("Save Color Settings"); }
+
+uiString uiODAttribTreeItem::sKeyUseColSettingsMenuTxt()
+{ return tr("Use Saved Color Settings"); }
 
 
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
     , selattrmnuitem_( sKeySelAttribMenuTxt() )
     , colsettingsmnuitem_( sKeyColSettingsMenuTxt() )
+    , usecolsettingsmnuitem_( sKeyUseColSettingsMenuTxt() )
 {}
 
 
@@ -160,6 +163,7 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( as && ioobj )
     {
 	mAddMenuOrTBItem( istb, 0, menu, &colsettingsmnuitem_, true, false );
+	mAddMenuOrTBItem( istb, 0, menu, &usecolsettingsmnuitem_, true, false );
     }
 
     uiODDataTreeItem::createMenu( menu, istb );
@@ -180,10 +184,16 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	applMgr()->saveDefColTab( displayID(), attribNr() );
     }
+    else if ( mnuid == usecolsettingsmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	applMgr()->useDefColTab( displayID(), attribNr() );
+	updateColumnText( uiODSceneMgr::cColorColumn() );
+    }
     else if ( handleSelMenu( mnuid, displayID(), attribNr()) )
     {
 	menu->setIsHandled(true);
-	ODMainWin()->applMgr().useDefColTab( displayID(), attribNr() );
+	applMgr()->useDefColTab( displayID(), attribNr() );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }

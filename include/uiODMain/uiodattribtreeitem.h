@@ -30,6 +30,7 @@ public:
     static bool		handleSelMenu(int mnuid,int visid,int attrib);
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
+    static uiString	sKeyUseColSettingsMenuTxt();
 protected:
 
     bool		anyButtonClick(uiTreeViewItem*);
@@ -38,9 +39,10 @@ protected:
     void		handleMenuCB( CallBacker* );
     void		updateColumnText( int col );
     uiString		createDisplayName() const;
-    
+
     MenuItem		selattrmnuitem_;
     MenuItem		colsettingsmnuitem_;
+    MenuItem		usecolsettingsmnuitem_;
 };
 
 
