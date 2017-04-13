@@ -173,7 +173,15 @@ void uiHorizonSetupGroup::setMPEPartServer( uiMPEPartServer* mps )
 
 void uiHorizonSetupGroup::mpeActionCB( CallBacker* )
 {
+    mEnsureExecutedInMainThread( uiHorizonSetupGroup::mpeActionCB );
+
     updateButtonSensitivity();
+    if ( !mps_ ) return;
+
+    const MPE::Engine::TrackState state = engine().getState();
+    if ( state==MPE::Engine::Started || state==MPE::Engine::Stopped )
+	mps_->sendMPEEvent( uiMPEPartServer::evHorizonTracking() );
+
 }
 
 

@@ -666,11 +666,10 @@ bool HorizonDisplay::canAddAttrib( int nr ) const
 
 bool HorizonDisplay::canRemoveAttrib() const
 {
-    if ( !sections_.size() )
+    if ( !sections_.size() || MPE::engine().getState()==MPE::engine().Started )
 	return false;
 
-    const int newnrattribs = nrAttribs()-1;
-    return newnrattribs>=sections_[0]->getChannels2RGBA()->minNrChannels();
+    return nrAttribs()>=sections_[0]->getChannels2RGBA()->minNrChannels();
 }
 
 

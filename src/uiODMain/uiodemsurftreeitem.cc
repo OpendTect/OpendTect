@@ -528,11 +528,12 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
 
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
-    mAddMenuItem( menu, &algomnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &filtermnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &horvariogrammnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &attr2geommnuitm_, true, false );
+    const bool enabletool = !MPE::engine().trackingInProgress();
+    mAddMenuItem( menu, &algomnuitem_, enabletool, false );
+    mAddMenuItem( &algomnuitem_, &filtermnuitem_, enabletool, false );
+    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, enabletool, false );
+    mAddMenuItem( &algomnuitem_, &horvariogrammnuitem_, enabletool, false );
+    mAddMenuItem( &algomnuitem_, &attr2geommnuitm_, enabletool, false );
 }
 
 

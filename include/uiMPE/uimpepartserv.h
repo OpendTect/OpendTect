@@ -100,6 +100,7 @@ public:
     static int			evSetupLaunched();
     static int			evSetupClosed();
     static int			evInitFromSession();
+    static int			evHorizonTracking();
 
     bool 			prepareSaveSetupAs(const DBKey&);
     bool 			saveSetupAs(const DBKey&);

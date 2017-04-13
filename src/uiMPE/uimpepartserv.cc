@@ -52,6 +52,7 @@ int uiMPEPartServer::evCreate2DSelSpec()	{ return 9; }
 int uiMPEPartServer::evUpdateTrees()		{ return 11; }
 int uiMPEPartServer::evUpdateSeedConMode()	{ return 12; }
 int uiMPEPartServer::evStoreEMObject()		{ return 13; }
+int uiMPEPartServer::evHorizonTracking()	{ return 14; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )

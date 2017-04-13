@@ -302,10 +302,12 @@ void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
     if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
 
+    const bool enab = !visserv_->isLocked(displayid_) && 
+	visserv_->canRemoveAttrib( displayid_ );
+
     createMenu( tb, true );
     mAddMenuItem( tb, &lockmnuitem_, true, false );
-    mAddMenuItem( tb, &removemnuitem_,
-		  !visserv_->isLocked(displayid_),false);
+    mAddMenuItem( tb, &removemnuitem_, enab, false );
 }
 
 
@@ -379,8 +381,11 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	!visserv_->isSoloMode();
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
-    const bool islocked = visserv_->isLocked( displayid_ );
-    mAddMenuItem( menu, &removemnuitem_, !islocked, false );
+    const bool enab = !visserv_->isLocked( displayid_ ) && 
+	visserv_->canRemoveAttrib( displayid_ );
+
+    mAddMenuItem( menu, &removemnuitem_, enab, false );
+
 }
 
 

@@ -470,7 +470,8 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
 
     mAddMenuItem( &displaymnuitem_, &positionmnuitem_, true, false );
-    mAddMenuItem( menu, &algomnuitem_, true, false );
+    mAddMenuItem( 
+	menu, &algomnuitem_, !MPE::engine().trackingInProgress(), false );
     mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
     mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
     mAddMenuItem( &algomnuitem_, &shiftmnuitem_, !islocked, false )
@@ -919,7 +920,8 @@ void uiODHorizon2DTreeItem::createMenu( MenuHandler* menu, bool istb )
 	const bool islocked = visserv_->isLocked( displayID() );
 	const bool isempty = applMgr()->EMServer()->isEmpty( emid_ );
 	const bool enab = !islocked && !isempty;
-	mAddMenuItem( menu, &algomnuitem_, true, false );
+	mAddMenuItem( 
+	    menu, &algomnuitem_, !MPE::engine().trackingInProgress(), false );
 	mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, enab, false );
 	mAddMenuItem( &algomnuitem_, &interpolatemnuitem_, enab, false );
 
