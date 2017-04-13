@@ -126,17 +126,16 @@ Interval<float> WellT2DTransform::getZRange( bool time ) const
     const bool survistime = SI().zIsTime();
     if ( time && survistime ) return zrg;
 
-    const BinIDValue startbidval( 0, 0, zrg.start );
-    const BinIDValue stopbidval( 0, 0, zrg.stop );
+    const TrcKey tk( BinID(0,0) );
     if ( survistime && !time )
     {
-	zrg.start = ZAxisTransform::transform( startbidval );
-	zrg.stop = ZAxisTransform::transform( stopbidval );
+	zrg.start = ZAxisTransform::transformTrc( tk, zrg.start );
+	zrg.stop = ZAxisTransform::transformTrc( tk, zrg.stop );
     }
     else if ( !survistime && time )
     {
-	zrg.start = ZAxisTransform::transformBack( startbidval );
-	zrg.stop = ZAxisTransform::transformBack( stopbidval );
+	zrg.start = ZAxisTransform::transformTrcBack( tk, zrg.start );
+	zrg.stop = ZAxisTransform::transformTrcBack( tk, zrg.stop );
     }
 
     return zrg;
