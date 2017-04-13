@@ -88,6 +88,8 @@ protected:
     bool		isCompletionVisit(Block&,const SampIdx&) const;
     void		writeBlock(Block&,uiRetVal&);
 
+    friend class	WriterFinisher;
+
 };
 
 

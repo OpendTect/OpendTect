@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "seisblockswriter.h"
 #include "seisblocksdata.h"
 #include "posidxpairdataset.h"
-#include "task.h"
+#include "paralleltask.h"
 #include "scaler.h"
 #include "survgeom3d.h"
 
@@ -260,8 +260,80 @@ void Seis::Blocks::Writer::writeBlock( Block& block, uiRetVal& uirv )
 }
 
 
+namespace Seis
+{
+namespace Blocks
+{
+
+class WriterFinisher : public ParallelTask
+{ mODTextTranslationClass(Seis::Blocks::WriterFinisher)
+public:
+
+WriterFinisher( Writer& wrr )
+    : ParallelTask("Block write finisher")
+    , wrr_(wrr)
+{
+    Pos::IdxPairDataSet::SPos spos;
+    while ( wrr_.blocks_.next(spos) )
+    {
+	Writer::Block* block = (Writer::Block*)wrr_.blocks_.getObj( spos );
+	if ( !block->data_->isRetired() )
+	{
+	    if ( block->nruniquevisits_ < 1 )
+		block->data_->retire();
+	    else
+		towrite_ += block;
+	}
+    }
+}
+
+virtual od_int64 nrIterations() const
+{
+    return towrite_.size();
+}
+
+virtual uiString nrDoneText() const
+{
+   return tr("Blocks written");
+}
+
+virtual uiString message() const
+{
+    if ( uirv_.isOK() )
+       return tr("Writing edge blocks");
+    return uirv_;
+}
+
+virtual bool doWork( od_int64 startidx, od_int64 stopidx, int )
+{
+    uiRetVal uirv;
+    for ( int idx=(int)startidx; idx<=(int)stopidx; idx++ )
+    {
+	wrr_.writeBlock( *towrite_[idx], uirv );
+	if ( uirv.isError() )
+	    { uirv_.add( uirv ); return false; }
+	addToNrDone( 1 );
+    }
+
+    return true;
+}
+
+    uiRetVal			uirv_;
+    Writer&			wrr_;
+    ObjectSet<Writer::Block>	towrite_;
+
+};
+
+} // namespace Blocks
+} // namespace Seis
+
+
 Task* Seis::Blocks::Writer::finisher()
 {
-    // TODO implement
-    return 0;
+    WriterFinisher* ret = new WriterFinisher( *this );
+
+    if ( ret->towrite_.isEmpty() )
+	{ delete ret; ret = 0; }
+
+    return ret;
 }
