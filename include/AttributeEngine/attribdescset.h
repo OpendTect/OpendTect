@@ -21,11 +21,8 @@ ________________________________________________________________________
 #include "sets.h"
 #include "uistring.h"
 
-
 class BufferStringSet;
 class DataPointSet;
-
-
 
 namespace Attrib
 {
@@ -50,8 +47,8 @@ public:
 			{ return indexOf(nm,usr) >= 0; }
 
     DescSet*		optimizeClone(const DescID& targetid) const;
-    DescSet*	optimizeClone(const TypeSet<DescID>&) const;
-    DescSet*	optimizeClone(const BufferStringSet&) const;
+    DescSet*		optimizeClone(const TypeSet<DescID>&) const;
+    DescSet*		optimizeClone(const BufferStringSet&) const;
 			/*!< Only clones stuff needed to calculate
 			     the attrib with the ids given */
     void		updateInputs();
@@ -95,12 +92,14 @@ public:
 				    const char* blindcompnm=0);
     Desc*		getFirstStored(bool usesteering=true) const;
     MultiID		getStoredKey(const DescID&) const;
+    void		getStoredNames(BufferStringSet&) const;
+    void		getAttribNames(BufferStringSet&,bool inclhidden) const;
 
     void		removeDesc(const DescID&);
     void		moveDescUpDown(const DescID&,bool);
     void		sortDescSet();
     void		removeAll(bool kpdefault);
-    int removeUnused(bool removestored=false,
+    int			removeUnused(bool removestored=false,
 				     bool kpdefault=true);
 			//!< Removes unused hidden attributes, stored attribs
 			//!< if not available or if removestored flag is true.
