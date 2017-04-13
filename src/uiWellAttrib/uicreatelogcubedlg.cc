@@ -28,9 +28,10 @@ _______________________________________________________________________
 // uiCreateLogCubeDlg
 uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const DBKey* key )
     : uiDialog(p,uiDialog::Setup(tr("Create Log Cube"),
-				 tr("Select logs to create new cubes"),
+				 tr("One cube will be created for each log"),
 				 key ? mODHelpKey(mCreateLogCubeDlgHelpID)
 				     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
+    , key_(key ? *key : DBKey::getInvalid())
 {
     setCtrlStyle( RunAndClose );
 
@@ -50,8 +51,8 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const DBKey* key )
 
 bool uiCreateLogCubeDlg::acceptOK()
 {
-    const Well::ExtractParams* extractparams = welllogsel_->
-							getWellExtractParams();
+    const Well::ExtractParams* extractparams =
+		welllogsel_->getWellExtractParams();
     const int nrtrcs = outputgrp_->getNrRepeatTrcs();
 
     DBKeySet wids;

@@ -13,6 +13,7 @@
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "dbkey.h"
 
 class uiCheckBox;
 class uiCreateLogCubeOutputSel;
@@ -25,11 +26,13 @@ mExpClass(uiWellAttrib) uiCreateLogCubeDlg : public uiDialog
 public:
 				uiCreateLogCubeDlg(uiParent*,const DBKey*);
 
+    DBKey			currentKey() const	{ return key_; }
 protected:
 
     uiMultiWellLogSel*		welllogsel_;
     uiCreateLogCubeOutputSel*	outputgrp_;
 
+    DBKey			key_;
     bool			acceptOK();
 };
 

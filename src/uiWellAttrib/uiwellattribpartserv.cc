@@ -183,8 +183,8 @@ bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 
 bool uiWellAttribPartServer::createLogCube( const DBKey& wellid )
 {
-    if ( wellid.isInvalid() )
-	return false;
+    if ( crlogcubedlg_ && wellid!=crlogcubedlg_->currentKey() )
+	deleteAndZeroPtr(crlogcubedlg_);
 
     if ( !crlogcubedlg_ )
     {
