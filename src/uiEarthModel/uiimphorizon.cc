@@ -89,7 +89,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::phrASCII(
 		  uiStrings::sFile())), uiFileInput::Setup(uiFileDialog::Gen)
 		  .withexamine(true).forread(true).filter(fltr)
-		  .defseldir(sImportFromPath).examstyle(File::Table) );
+		  .defseldir(sImportFromPath) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
 
