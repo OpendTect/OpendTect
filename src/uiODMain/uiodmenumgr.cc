@@ -405,7 +405,8 @@ void uiODMenuMgr::fillExportMenu()
     uiMenu* expflt = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
     uiMenu* expfltss = new uiMenu( &appl_, uiStrings::sFaultStickSet(mPlural) );
     uiMenu* expgeom2d = new uiMenu( &appl_, tr("Geometry 2D") );
-    uiMenu* exppick = new uiMenu( &appl_, tr("PickSets/Polygons") );
+    uiMenu* exppick = new uiMenu( &appl_, tr("PickSets") );
+    uiMenu* exppoly = new uiMenu( &appl_, tr("Polygons") );
     uiMenu* expwvlt = new uiMenu( &appl_, tr("Wavelets") );
     uiMenu* expmute = new uiMenu( &appl_, tr("Mute Functions") );
     uiMenu* exppdf =
@@ -417,6 +418,7 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( exphor );
     expmnu_->insertItem( expmute );
     expmnu_->insertItem( exppick );
+    expmnu_->insertItem( exppoly );
     expmnu_->insertItem( exppdf );
     expmnu_->insertItem( expseis );
     expmnu_->insertItem( expwvlt );
@@ -467,6 +469,7 @@ void uiODMenuMgr::fillExportMenu()
     expfltss->insertItem( expfltssasc );
     mInsertPixmapItem( expgeom2d, sascii, mExpGeom2DMnuItm, ascic );
     mInsertPixmapItem( exppick, sascii, mExpPickAsciiMnuItm, ascic );
+    mInsertPixmapItem( exppoly, sascii, mExpPolyAsciiMnuItm, ascic );
     mInsertPixmapItem( expwvlt, sascii, mExpWvltAsciiMnuItm, ascic );
     mInsertPixmapItem( expmute, sascii, mExpMuteDefAsciiMnuItm, ascic );
     mInsertPixmapItem( exppdf, m3Dots(tr("ASCII (RokDoc)")),
@@ -484,6 +487,7 @@ void uiODMenuMgr::fillExportMenu()
     mAddExpMnu( Flt, expflt );
     mAddExpMnu( Fltss, expfltss );
     mAddExpMnu( Pick, exppick );
+    mAddExpMnu( Poly, exppoly );
     mAddExpMnu( Wvlt, expwvlt );
     mAddExpMnu( MDef, expmute );
     mAddExpMnu( PDF, exppdf );
@@ -494,8 +498,8 @@ void uiODMenuMgr::fillExportMenu()
 void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
-    mInsertPixmapItem( manmnu_, m3Dots(tr("Attribute Sets")),
-		       mManAttrMnuItm, "man_attrs" );
+    add2D3DMenuItem( *manmnu_, "man_attrs", tr("Attribute Sets"),
+			mManAttr2DMnuItm, mManAttr3DMnuItm );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Bodies")),
 		      mManBodyMnuItm, "man_body" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Color Tables")),
@@ -677,7 +681,7 @@ void uiODMenuMgr::fillAnalMenu()
 	analmnu_->insertItem( aitm );
 	analmnu_->insertSeparator();
 
-	uiMenu* vpitm = new uiMenu( &appl_, m3Dots(tr("Volume Builder")),
+	uiMenu* vpitm = new uiMenu( &appl_, tr("Volume Builder"),
 				   VolProc::uiChain::pixmapFileName() );
 	mInsertPixmapItem( vpitm, m3Dots(uiStrings::s2D()), mVolProc2DMnuItm,
 			   VolProc::uiChain::pixmapFileName() );
@@ -790,14 +794,14 @@ void uiODMenuMgr::updateSceneMenu()
 	    itm->setCheckable( true );
 	}
 
-    itm->setText( scenenms[idx]);
+	itm->setText( scenenms[idx] );
 	itm->setChecked( idx==activescene );
     }
 
     uiString itmtxt = tr( "New [%1]" )
 	 .arg( !DBM().isBad() && SI().zIsTime() ? uiStrings::sDepth()
 						: uiStrings::sTime() );
-    addtimedepthsceneitm_->setText( itmtxt );
+    addtimedepthsceneitm_->setText( m3Dots(itmtxt) );
 }
 
 
@@ -915,7 +919,7 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( installmnu_, m3Dots(tr("Connection Settings")),
 		 mInstConnSettsMnuItm );
     mInsertItem( installmnu_, m3Dots(tr("Plugins")), mPluginsMnuItm );
-    mInsertItem( installmnu_, m3Dots(tr("Setup Batch Processing")),
+    mInsertItem( installmnu_, m3Dots(tr("Setup Multi-Machine Processing")),
 		 mSetupBatchItm);
 
     const char* lmfnm = od_ostream::logStream().fileName();
@@ -1020,12 +1024,12 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 
     const int xplotid = dtecttb_->addButton( "xplot", tr("Cross-plot") );
     uiMenu* mnu = new uiMenu();
-    mnu->insertItem( new uiAction(tr("Cross-plot Attribute vs Attribute Data"),
-				  mCB(appman,uiODApplMgr,doAttribXPlot),
-				  "xplot_attribs") );
-    mnu->insertItem( new uiAction(tr("Cross-plot Attribute vs Well Data"),
-				  mCB(appman,uiODApplMgr,doWellXPlot),
-				  "xplot_wells") );
+    mnu->insertItem(
+	new uiAction(m3Dots(tr("Cross-plot Attribute vs Attribute Data")),
+		     mCB(appman,uiODApplMgr,doAttribXPlot),"xplot_attribs") );
+    mnu->insertItem(
+	new uiAction(m3Dots(tr("Cross-plot Attribute vs Well Data")),
+		     mCB(appman,uiODApplMgr,doWellXPlot),"xplot_wells") );
     dtecttb_->setButtonMenu( xplotid, mnu, uiToolButton::InstantPopup );
 
     mAddTB(dtecttb_,"rockphys",tr("Create New Well Logs Using Rock Physics"),
@@ -1367,7 +1371,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManPickMnuItm:		mDoOp(Man,Pick,0); break;
     case mManRanLMnuItm:		mDoOp(Man,RanL,0); break;
     case mManWvltMnuItm:		mDoOp(Man,Wvlt,0); break;
-    case mManAttrMnuItm:		mDoOp(Man,Attr,0); break;
+    case mManAttr3DMnuItm:		mDoOp(Man,Attr,0); break;
+    case mManAttr2DMnuItm:		mDoOp(Man,Attr,1); break;
     case mManNLAMnuItm:			mDoOp(Man,NLA,0); break;
     case mManSessMnuItm:		mDoOp(Man,Sess,0); break;
     case mManStratMnuItm:		mDoOp(Man,Strat,0); break;

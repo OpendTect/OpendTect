@@ -90,8 +90,8 @@ public:
     bool			manageSurvey()		{ return manSurv(0); }
 
     enum ObjType		{ Seis, Hor, Flt, Fltss, Wll, Attr, NLA, Pick,
-				  Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
-				  Body, Props, ColTab, RanL, NrObjTypes };
+				  Poly, Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS,
+				  Geom, Body, Props, ColTab, RanL, NrObjTypes };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
 				//!< Not all combinations are available ...!

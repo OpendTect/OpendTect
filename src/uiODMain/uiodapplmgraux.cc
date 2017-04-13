@@ -265,7 +265,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Attr):
 	switch( at )
 	{
-	mCase(Man):	am_.attrserv_->manageAttribSets();  break;
+	mCase(Man): am_.attrserv_->manageAttribSets(opt==1);  break;
 	mCase(Imp):
 	    if ( opt == 0 )
 		am_.attrserv_->importAttrSetFromFile();
@@ -563,7 +563,7 @@ void uiODApplMgrDispatcher::pluginMan()
 void uiODApplMgrDispatcher::manageShortcuts()
 { uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
 void uiODApplMgrDispatcher::createCubeFromWells()
-{ uiCreateLogCubeDlg dlg( par_, 0 ); dlg.go(); }
+{ am_.wellattrserv_->createLogCube( DBKey::getInvalid() ); }
 
 void uiODApplMgrDispatcher::process2D3D( int opt )
 {
@@ -572,10 +572,11 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
     else if ( opt==1 )
     { uiSeis2DFrom3D dlg( par_ ); dlg.go(); }
     else if ( opt==2 )
-	{
-		uiString titletext = tr("Create 3D cube from to 2DDataSet");
-		uiSeis2DTo3D dlg( par_ ,titletext); dlg.go();
-	}
+    {
+	uiString titletext = tr("Create 3D cube from to 2D DataSet");
+	uiSeis2DTo3D dlg( par_ ,titletext );
+	dlg.go();
+    }
 }
 
 

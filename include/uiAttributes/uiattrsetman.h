@@ -20,15 +20,16 @@ class uiListBox;
 */
 
 mExpClass(uiAttributes) uiAttrSetMan : public uiObjFileMan
-{ mODTextTranslationClass(uiAttrSetMan);
+{ mODTextTranslationClass(uiAttrSetMan)
 public:
-    			uiAttrSetMan(uiParent*);
+			uiAttrSetMan(uiParent*,bool is2d);
 			~uiAttrSetMan();
 
     mDeclInstanceCreatedNotifierAccess(uiAttrSetMan);
 
 protected:
 
-    uiListBox*		attribfld_;
     void		mkFileInfo();
+
+    uiListBox*		attribfld_;
 };

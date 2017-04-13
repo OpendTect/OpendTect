@@ -20,19 +20,21 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdescsettr.h"
 #include "ioobjctxt.h"
+#include "keystrs.h"
 #include "survinfo.h"
 #include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiAttrSetMan)
 
 
-uiAttrSetMan::uiAttrSetMan( uiParent* p )
+uiAttrSetMan::uiAttrSetMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage(tr("Attribute Sets")),
 				     mNoDlgTitle,
 				     mODHelpKey(mAttrSetManHelpID) )
 			       .nrstatusflds(1).modal(false),
 		   AttribDescSetTranslatorGroup::ioContext())
 {
+    ctxt_.toselect_.dontallow_.set( sKey::Type(), is2d ? "3D" : "2D" );
     createDefaultUI();
     setPrefWidth( 50 );
 
@@ -65,7 +67,6 @@ static void fillAttribList( uiListBox* attribfld,
 {
     BufferStringSet nms;
     attrset.getAttribNames( nms, false );
-    attribfld->addItems( nms.getUiStringSet() );
     attribfld->addItems( nms.getUiStringSet() );
 }
 

@@ -97,7 +97,8 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , multcomp2d_(uiStrings::s2D())
     , dpsdispmgr_( 0 )
     , attrsneedupdt_(true)
-    , manattribsetdlg_(0)
+    , manattribset2ddlg_(0)
+    , manattribset3ddlg_(0)
     , impattrsetdlg_(0)
     , volattrdlg_(0)
     , multiattrdlg_(0)
@@ -129,7 +130,8 @@ uiAttribPartServer::~uiAttribPartServer()
 
     deepErase( attrxplotset_ );
     delete &eDSHolder();
-    delete manattribsetdlg_;
+    delete manattribset2ddlg_;
+    delete manattribset3ddlg_;
     delete impattrsetdlg_;
     delete volattrdlg_;
     delete multiattrdlg_;
@@ -235,11 +237,20 @@ void uiAttribPartServer::getDirectShowAttrSpec( SelSpec& as ) const
 }
 
 
-void uiAttribPartServer::manageAttribSets()
+void uiAttribPartServer::manageAttribSets( bool is2d )
 {
-    delete manattribsetdlg_;
-    manattribsetdlg_ = new uiAttrSetMan( parent() );
-    manattribsetdlg_->go();
+    if ( is2d )
+    {
+	delete manattribset2ddlg_;
+	manattribset2ddlg_ = new uiAttrSetMan( parent(), true );
+	manattribset2ddlg_->show();
+    }
+    else
+    {
+	delete manattribset3ddlg_;
+	manattribset3ddlg_ = new uiAttrSetMan( parent(), false );
+	manattribset3ddlg_->show();
+    }
 }
 
 
@@ -2089,11 +2100,13 @@ const ColTab::Mapper* uiAttribPartServer::getEvalBackupColTabMapper() const
 
 void uiAttribPartServer::survChangedCB( CallBacker* )
 {
-    delete manattribsetdlg_; manattribsetdlg_ = 0;
-    delete impattrsetdlg_; impattrsetdlg_ = 0;
-    delete volattrdlg_; volattrdlg_ = 0;
-    delete multiattrdlg_; multiattrdlg_ = 0;
-    delete dataattrdlg_; dataattrdlg_ = 0;
+    deleteAndZeroPtr( manattribset2ddlg_ );
+    deleteAndZeroPtr( manattribset3ddlg_ );
+    deleteAndZeroPtr( attrsetdlg_ );
+    deleteAndZeroPtr( impattrsetdlg_ );
+    deleteAndZeroPtr( volattrdlg_);
+    deleteAndZeroPtr( multiattrdlg_);
+    deleteAndZeroPtr( dataattrdlg_);
 }
 
 

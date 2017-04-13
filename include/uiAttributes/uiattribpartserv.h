@@ -26,7 +26,7 @@ namespace Attrib
     class DescSet;
     class EngineMan;
     class SelSpec;
-};
+}
 
 class BinIDValueSet;
 class TrcKeyZSampling;
@@ -81,7 +81,7 @@ public:
 			//!< Request current 3D NLAModel* via getObject()
     static uiString	getMenuText(bool is2d,bool issteering, bool endmenu);
 
-    void		manageAttribSets();
+    void		manageAttribSets(bool is2d);
     const Attrib::DescSet* curDescSet(bool is2d) const;
     void		getDirectShowAttrSpec(Attrib::SelSpec&) const;
     bool		setSaved(bool is2d) const;
@@ -173,8 +173,8 @@ public:
     void		setDPSDispMgr( DataPointSetDisplayMgr* dispmgr )
 			{ dpsdispmgr_ = dispmgr; }
 
-    void                set2DEvent( bool is2d )		{ is2devsent_ = is2d; }
-    bool                is2DEvent()                     { return is2devsent_; }
+    void		set2DEvent( bool is2d )		{ is2devsent_ = is2d; }
+    bool		is2DEvent()			{ return is2devsent_; }
     int			use3DMode() const;
 			//!< If you have services that can work on 2D or 3D
 			//!< 0 = 2D, 1 = 3D, -1 = user cancel
@@ -190,18 +190,18 @@ public:
 
 protected:
 
-    MenuItem            stored2dmnuitem_;
-    MenuItem            stored3dmnuitem_;
-    MenuItem            calc2dmnuitem_;
-    MenuItem            calc3dmnuitem_;
-    MenuItem            nla2dmnuitem_;
-    MenuItem            nla3dmnuitem_;
-    MenuItem            zdomain2dmnuitem_;
-    MenuItem            zdomain3dmnuitem_;
-    MenuItem            steering2dmnuitem_;
-    MenuItem            steering3dmnuitem_;
-    MenuItem            multcomp2d_;
-    MenuItem            multcomp3d_;
+    MenuItem		stored2dmnuitem_;
+    MenuItem		stored3dmnuitem_;
+    MenuItem		calc2dmnuitem_;
+    MenuItem		calc3dmnuitem_;
+    MenuItem		nla2dmnuitem_;
+    MenuItem		nla3dmnuitem_;
+    MenuItem		zdomain2dmnuitem_;
+    MenuItem		zdomain3dmnuitem_;
+    MenuItem		steering2dmnuitem_;
+    MenuItem		steering3dmnuitem_;
+    MenuItem		multcomp2d_;
+    MenuItem		multcomp3d_;
 
     ObjectSet<uiAttribCrossPlot> attrxplotset_;
     const Attrib::Desc*	dirshwattrdesc_;
@@ -209,7 +209,8 @@ protected:
     Timer		attrsetclosetim_;
     bool                is2devsent_;
     bool		attrsneedupdt_;
-    uiAttrSetMan*	manattribsetdlg_;
+    uiAttrSetMan*	manattribset2ddlg_;
+    uiAttrSetMan*	manattribset3ddlg_;
     uiImpAttrSet*	impattrsetdlg_;
     uiAttrVolOut*	volattrdlg_;
     uiAttrVolOut*	multiattrdlg_;
