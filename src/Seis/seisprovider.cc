@@ -411,9 +411,12 @@ void Seis::Provider::ensureRightComponents( SeisTrc& trc ) const
 	if ( selcomps_[idx] != -1 )
 	    nrselectedcomps++;
 
+    int nrcomps = SeisIOObjInfo(dbky_).nrComponents();
     if ( nrselectedcomps != 0 )
-	for ( int idx=trc.nrComponents()-1; idx>=nrselectedcomps; idx-- )
-	    trc.removeComponent( idx );
+	nrcomps = mMIN( nrselectedcomps, nrcomps );
+
+    for ( int idx=trc.nrComponents()-1; idx>=nrcomps; idx-- )
+	trc.removeComponent( idx );
 }
 
 

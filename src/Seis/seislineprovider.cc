@@ -125,6 +125,7 @@ bool Seis::LineFetcher::getNextGetter()
 void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 {
     nexttrcky_ = tk;
+    iter_->setTrcNr( tk.trcNr() );
     if ( !tk.hasValidGeomID() )
     {
 	uirv_.set( tr("Invalid position requested") );

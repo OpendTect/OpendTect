@@ -144,6 +144,8 @@ public:
     inline void		reset()		{ idx_ = -1; }
     inline const Line2DPos& line2DPos() const { return ld_.posns_[idx_]; }
     inline int		trcNr() const	{ return ld_.posns_[idx_].nr_; }
+    inline void		setTrcNr( int trcnr )
+			{ idx_ = ld_.indexOf( trcnr ); }
 
     const Line2DData&	ld_;
     int			idx_;

@@ -130,6 +130,7 @@ bool Seis::Fetcher3D::moveNextBinID()
 	if ( isSelectedBinID(nextbid_) )
 	    return true;
     }
+    return false;
 }
 
 
@@ -211,11 +212,16 @@ bool Seis::Fetcher2D::isSelectedBinID( const BinID& bid ) const
 
 bool Seis::Fetcher2D::moveNextBinID()
 {
-    if ( !iter_ || !iter_->next() )
-	return false;
+    while ( true )
+    {
+	if ( !iter_ || !iter_->next() )
+	    return false;
 
-    nexttrcky_.setTrcNr( iter_->line2DPos().nr_ );
-    return true;
+	nexttrcky_.setTrcNr( iter_->trcNr() );
+	if ( isSelectedBinID(nexttrcky_.binID()) )
+	    return true;
+    }
+    return false;
 }
 
 

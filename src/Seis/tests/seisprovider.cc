@@ -4,16 +4,13 @@
  * DATE     : Nov 2016
 -*/
 
+#include "seisprovidertester.h"
+
 #include "seisprovider.h"
-#include "seisinfo.h"
 #include "seisbuf.h"
 #include "seisselectionimpl.h"
 #include "testprog.h"
 #include "moddepmgr.h"
-#include "seispreload.h"
-#include "executor.h"
-
-#include <iostream>
 
 #define mCreateProvider( dbkeystr ) \
 const DBKey dbky = DBKey::getFromString( dbkeystr ); \
@@ -45,34 +42,16 @@ static const char* dbkeyline = "100010.13";
 static const char* dbkeyline_with_missing_trcs = "100010.21";
 static const char* dbkeyps3d = "100010.5";
 
-static const TrcKey tk_1300_1200( BinID(1300,1200) );
-static const TrcKey tk_500_500( BinID(500,500) );
-static const TrcKey tk_298_1200( BinID(298,1200) );
-//!< Trace before first missing inline.
-static const TrcKey tk_3_200( 3, 200 );
+// 3D
+static const TrcKey tk_before_first_missing_inl( BinID(298,1200) );
 static const TrcKey tk_last( BinID(650,1200) );
-static const TrcKey tk_17_170( 17, 170 );
-//!< Trace before first missing trace on line.
 
+// 2D
+static const TrcKey tk_before_first_missing_trc( 17, 170 );
 
-static void prTrc( const char* start, const SeisTrc& trc, const uiRetVal& uirv,
-		   bool withcomps=false, bool withoffs=false )
-{
-    if ( start )
-	od_cout() << start << ": ";
+// 3D Pre-Stack
+static const TrcKey tk_1300_1200( BinID(1300,1200) );
 
-    mRetIfNotOK( uirv );
-
-    od_cout() << trc.info().binID().inl()
-	      << '/' << trc.info().binID().crl()
-	      << " #samples=" << trc.size();
-    if ( withcomps )
-	od_cout() << " #nrcomps=" << trc.nrComponents();
-    if ( withoffs )
-	od_cout() << " O=" << trc.info().offset_;
-
-    od_cout() << od_endl;
-}
 
 static void prBuf( const char* start, const SeisTrcBuf& tbuf,
 		    const uiRetVal& uirv )
@@ -99,127 +78,53 @@ static void prBuf( const char* start, const SeisTrcBuf& tbuf,
 
 static bool testVol()
 {
-    od_cout() << "\n\n---- 3D Volume ----\n" << od_endl;
-    mCreateProvider( dbkeyvol );
+    od_cout() << "\n---- 3D Volume ----\n" << od_endl;
 
-    od_cout() << "From disk:\n" << od_endl;
-    SeisTrc trc;
-    uirv = prov->getNext( trc );
-    prTrc( "First next", trc, uirv );
-    uirv = prov->getNext( trc );
-    prTrc( "Second next", trc, uirv );
-    uirv = prov->get( tk_1300_1200, trc );
-    prTrc( "tk_1300_1200", trc, uirv );
-    od_cout() << "\n";
+    Seis::ProviderTester tester;
+    tester.setInput( dbkeyvol );
+    tester.testGetNext();
 
-    TrcKeySampling hs;
-    hs.start_ = hs.stop_ = tk_last.binID();
-    prov->setSelData( new Seis::RangeSelData( hs ) );
-    uirv = prov->getNext( trc );
-    prTrc( "First next after subsel to last trc", trc, uirv );
-    uirv = prov->getNext( trc );
-    prTrc( "Second next after subsel to last trc", trc, uirv );
-    od_cout() << "\n";
+    TrcKeySampling tks;
+    tks.start_ = tks.stop_ = tk_last.binID();
+    tester.testSubselection( new Seis::RangeSelData(tks),
+			     "Subselection to last trc:" );
 
-    hs.start_.inl() = hs.start_.crl() = 1200;
-    hs.stop_ = hs.start_;
-    prov->setSelData( new Seis::RangeSelData( hs ) );
-    uirv = prov->getNext( trc );
-    prTrc( "First next after subsel to outside data range", trc, uirv );
-    uirv = prov->getNext( trc );
-    prTrc( "Second next after subsel to outside data range", trc, uirv );
-    od_cout() << "\n";
+    tks.start_.inl() = tks.start_.crl() = tk_last.binID().crl();
+    tks.stop_ = tks.start_;
+    tester.testSubselection( new Seis::RangeSelData(tks),
+			     "Subselection to outside data range:" );
 
-    Seis::PreLoader pl( dbky );
-    TextTaskRunner taskrunner( od_cout() );
-    pl.setTaskRunner( taskrunner );
-    TrcKeyZSampling tkzs( true );
-    tkzs.hsamp_.start_ = tkzs.hsamp_.stop_ = tk_500_500.binID();
-    pl.load( tkzs );
-    prov->setSelData( new Seis::RangeSelData(tkzs.hsamp_) );
-    uirv = prov->getNext( trc );
-    prTrc( "First next after subsel to preloaded trc", trc, uirv );
-    uirv = prov->getNext( trc );
-    prTrc( "Second next after subsel to preloaded trc", trc, uirv );
-    uirv = prov->get( tk_1300_1200, trc );
-    prTrc( "tk_1300_1200", trc, uirv );
+    tester.testPreLoadTrc( false );
 
-    pl.unLoad();
+    od_cout() << "\n---- 3D Volume with gaps ----\n" << od_endl;
+    tester.setInput( dbkeyvol_with_missing_trcs );
+    tester.testGetTrc( tk_before_first_missing_inl,
+		       "Trc before first missing inline" );
+    tester.testGetNext();
 
-    od_cout() << "\n\n---- 3D Volume with gaps ----\n" << od_endl;
-
-    prov->setInput( DBKey::getFromString(dbkeyvol_with_missing_trcs) );
-    uirv = prov->get( tk_298_1200, trc );
-    prTrc( "Trc before first missing inline", trc, uirv );
-    uirv = prov->getNext( trc );
-    prTrc( "First next", trc, uirv );
-    uirv = prov->getNext( trc );
-    prTrc( "Second next", trc, uirv );
-    od_cout() << "\n";
-
-    od_cout() << "\n\n---- 3D Steering Cube ----\n" << od_endl;
-
-    od_cout() << "Component selection:\n" << od_endl;
-    prov->setInput( DBKey::getFromString(dbkeysteer) );
-    uirv = prov->getNext( trc );
-    prTrc( "First next", trc, uirv, true );
-
-    int comps[2] = { 0, 1 };
-    prov->selectComponent( comps[0] );
-    uirv = prov->get( trc.info().trckey_, trc );
-    prTrc( "1st comp selected", trc, uirv, true );
-
-    prov->selectComponent( comps[1] );
-    uirv = prov->get( trc.info().trckey_, trc );
-    prTrc( "2nd comp selected", trc, uirv, true );
-
-    prov->selectComponents( TypeSet<int>(comps,2) );
-    uirv = prov->get( trc.info().trckey_, trc );
-    prTrc( "Both comps selected", trc, uirv, true );
-
-    prov->selectComponent( -1 );
-    uirv = prov->get( trc.info().trckey_, trc );
-    prTrc( "No comp selected", trc, uirv, true );
-
+    od_cout() << "\n---- 3D Steering Cube ----\n" << od_endl;
+    tester.setInput( dbkeysteer );
+    tester.testComponentSelection();
     return true;
 }
 
 
 static bool testLine()
 {
-    od_cout() << "\n\n---- 2D Lines ----\n" << od_endl;
-    mCreateProvider( dbkeyline );
+    od_cout() << "\n---- 2D Lines ----\n" << od_endl;
 
-    SeisTrc trc;
-    uirv = prov->getNext( trc );
-    prTrc( "First next", trc, uirv );
-    uirv = prov->getNext( trc );
-    prTrc( "Second next", trc, uirv );
-    const int curlinenr = trc.info().lineNr();
-    while ( trc.info().lineNr() == curlinenr )
-    {
-	uirv = prov->getNext( trc );
-	if ( uirv.isError() )
-	{
-	    od_cout() << uirv << od_endl;
-	    break;
-	}
-    }
-    prTrc( "First on following line", trc, uirv );
+    Seis::ProviderTester tester;
+    tester.setInput( dbkeyline );
+    tester.testGetNext();
+    tester.testPreLoadTrc();
+    tester.testComponentSelection();
 
-    uirv = prov->get( tk_3_200, trc );
-    prTrc( "tk_3_200", trc, uirv );
+    od_cout() << "\n---- 2D Line with a gap ----\n" << od_endl;
 
-    od_cout() << "\n\n---- 2D Line with a gap ----\n" << od_endl;
-
-    prov->setInput( DBKey::getFromString(dbkeyline_with_missing_trcs) );
-    uirv = prov->get( tk_17_170, trc );
-    prTrc( "Trc before first missing trc", trc, uirv );
-    uirv = prov->getNext( trc );
-    prTrc( "First next", trc, uirv );
-    uirv = prov->getNext( trc );
-    prTrc( "Second next", trc, uirv );
-
+    tester.setInput( dbkeyline_with_missing_trcs );
+    tester.testGetTrc( tk_before_first_missing_trc,
+		       "Trc before first missing trc" );
+    tester.testGetNext();
     return true;
 }
 
@@ -229,29 +134,16 @@ static bool testPS3D()
     od_cout() << "\n\n---- 3D Pre-Stack ----\n" << od_endl;
     mCreateProvider( dbkeyps3d );
 
-    SeisTrc trc;
+    Seis::ProviderTester tester;
+    tester.setInput( dbkeyps3d );
+    tester.testGetNext();
+    tester.testGetTrc( tk_1300_1200 );
+
+    prov->reset();
+    tester.testComponentSelection();
+
+    prov->reset();
     SeisTrcBuf tbuf( false );
-    uirv = prov->getNext( trc );
-    prTrc( "First next", trc, uirv, false, true );
-    uirv = prov->get( tk_1300_1200, trc );
-    prTrc( "tk_1300_1200", trc, uirv, false, true );
-
-    BufferStringSet compnms;
-    uirv = prov->getComponentInfo( compnms );
-    if ( uirv.isError() )
-    {
-	od_cout() << uirv << od_endl;
-	return true;
-    }
-    BufferString prstr = compnms.getDispString( 4 );
-    od_cout() << prstr << od_endl;
-    prov->selectComponent( 1 );
-    prov->reset();
-    uirv = prov->getNext( trc );
-    prTrc( "First next after component sel", trc, uirv, true, true );
-
-    prov->selectComponent( -1 );
-    prov->reset();
     uirv = prov->getNextGather( tbuf );
     prBuf( "First next", tbuf, uirv );
     uirv = prov->getGather( tk_1300_1200, tbuf );

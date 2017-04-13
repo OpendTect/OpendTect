@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "datapackbase.h"
 #include "dbkey.h"
 #include "ranges.h"
+#include "survgeom.h"
 #include "task.h"
 
 class IOObj;
@@ -28,8 +29,9 @@ namespace Seis
 mExpClass(Seis) PreLoader
 { mODTextTranslationClass(PreLoader);
 public:
-			PreLoader(const DBKey&,Pos::GeomID =-1,
-				  TaskRunner* =0);
+			PreLoader(const DBKey&,
+				Pos::GeomID=Survey::GM().default3DSurvID(),
+				TaskRunner* =0);
 
     const DBKey&	id() const			{ return dbkey_; }
     Pos::GeomID		geomID() const			{ return geomid_; }
