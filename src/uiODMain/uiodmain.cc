@@ -231,7 +231,7 @@ uiODMain::uiODMain( uiMain& a )
     memtimer_.start( 1000 );
 
     if ( !useallcpus )
-    cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
+	cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
 }
 
 
@@ -332,7 +332,9 @@ bool uiODMain::buildUI()
 
 void uiODMain::initScene()
 {
-    scenemgr_->initMenuMgrDepObjs();
+    const bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" );
+    if ( addscene )
+	scenemgr_->initMenuMgrDepObjs();
     readSettings();
 
     justBeforeGo.trigger();
@@ -682,8 +684,8 @@ bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
     if ( doask && hasSessionChanged() )
     {
 	askedanything = true;
-	int res = uiMSG().askSave( tr("Do you want to save this session?"),
-                                   true );
+	const int res =
+	    uiMSG().askSave( tr("Do you want to save this session?"), true );
 	if ( res == 1 )
 	    saveSession();
 	else if ( res == -1 )
