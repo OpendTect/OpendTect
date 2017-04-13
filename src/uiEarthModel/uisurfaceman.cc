@@ -173,17 +173,18 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 
 	new uiPushButton( extrabutgrp_, uiStrings::sStratigraphy(),
 		mCB(this,uiSurfaceMan,stratSel), false );
-
-	new uiPushButton( extrabutgrp_, tr("Relations"),
-		mCB(this,uiSurfaceMan,setRelations), false );
 	extrabutgrp_->attach( ensureBelow, attribfld_ );
-
 	setPrefWidth( 50 );
     }
-    if ( type_ == Flt3D )
+    if ( type_==Hor3D || type_==Hor2D )
+    {
+	new uiPushButton( extrabutgrp_, tr("Relations"),
+		mCB(this,uiSurfaceMan,setRelations), false );
+    }
+    if ( type_==Flt3D )
     {
     }
-    if ( type_ == Body )
+    if ( type_==Body )
     {
 	applybodybut_ = manipgrp->addButton( "set_union",
 					     tr("Apply Body operations"),
