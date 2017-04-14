@@ -207,8 +207,7 @@ private:
     friend class	uiSurveyManager;
     friend class	uiSurveyInfoEditor;
 
-    Pos::IdxPair2Coord::DirTransform rdxtr_;
-    Pos::IdxPair2Coord::DirTransform rdytr_;
+    Pos::IdxPair2Coord	rdb2c_;
 
 				// For DBMan only
     static uiRetVal	setSurveyLocation(const char*,const char*,bool);

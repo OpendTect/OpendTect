@@ -146,7 +146,7 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 {
     if ( !rdr_ ) return;
     uiFileDialog dlg( this, false,
-		      File::Path(GetDataDir(),"Seismics").fullPath(), 0,
+		      File::Path(GetDataDir(),sSeismicSubDir()).fullPath(), 0,
 		      tr("Save SEG-Y Textual Header to") );
     if ( !dlg.go() ) return;
 

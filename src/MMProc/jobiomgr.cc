@@ -485,7 +485,7 @@ bool JobIOMgr::mkIOParFile( const File::Path& basefp,
 						  : path.fullPath() );
 	if ( remdata.nrLevels() )
 	{
-	    remotetmpdir.add( SI().getDirName() ).add( "Seismics" )
+	    remotetmpdir.add( SI().getDirName() ).add( sSeismicSubDir() )
 			.add( path.fileName() );
 	}
 

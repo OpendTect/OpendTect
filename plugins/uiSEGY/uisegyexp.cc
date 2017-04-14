@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "dbman.h"
 #include "iostrm.h"
 #include "oddirs.h"
@@ -88,7 +89,7 @@ void agSel( CallBacker* )
 
 void readPush( CallBacker* )
 {
-    File::Path fp( GetDataDir(), "Seismics" );
+    File::Path fp( GetDataDir(), sSeismicSubDir() );
     uiFileDialog dlg( this, true, fp.fullPath(), uiSEGYFileSpec::fileFilter(),
 	    tr("Read SEG-Y Textual Header from file") );
     if ( !dlg.go() ) return;
@@ -106,7 +107,7 @@ void readPush( CallBacker* )
 
 void writePush( CallBacker* )
 {
-    File::Path fp( GetDataDir(), "Seismics" );
+    File::Path fp( GetDataDir(), sSeismicSubDir() );
     uiFileDialog dlg( this,false, fp.fullPath(), 0,
 	    tr("Write SEG-Y Textual Header to a file") );
     if ( !dlg.go() ) return;

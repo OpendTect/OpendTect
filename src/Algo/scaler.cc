@@ -53,10 +53,18 @@ void Scaler::put( char* str ) const
 
 
 LinScaler::LinScaler( double x0, double y0, double x1, double y1 )
-    : factor(1)
-    , constant(0)
+    : factor_(1.)
+    , constant_(0.)
 {
     set( x0, y0, x1, y1 );
+}
+
+
+LinScaler* LinScaler::inverse() const
+{
+    if ( factor_ == 0 )
+	return new LinScaler( 0, 0 );
+    return new LinScaler( 1./factor_, constant_ / factor_ );
 }
 
 
@@ -65,22 +73,22 @@ void LinScaler::set( double x0, double y0, double x1, double y1 )
     x1 -= x0;
     if ( x1 )
     {
-	factor = (y1 - y0) / x1;
-	constant = y0 - factor * x0;
+	factor_ = (y1 - y0) / x1;
+	constant_ = y0 - factor_ * x0;
     }
 }
 
 
 double LinScaler::scale( double v ) const
 {
-    return mIsUdf(v) ? v : constant + factor * v;
+    return mIsUdf(v) ? v : constant_ + factor_ * v;
 }
 
 
 double LinScaler::unScale( double v ) const
 {
     if ( mIsUdf(v) ) return v;
-    v -= constant; if ( factor ) v /= factor;
+    v -= constant_; if ( factor_ ) v /= factor_;
     return v;
 }
 
@@ -89,20 +97,26 @@ const char* LinScaler::toString() const
 {
     static FileMultiString fms;
     fms = "";
-    fms += constant;
-    fms += factor;
+    fms += constant_;
+    fms += factor_;
     return fms;
 }
 
 
 void LinScaler::fromString( const char* str )
 {
-    constant = 0; factor = 1;
+    constant_ = 0; factor_ = 1;
     if ( !str || ! *str ) return;
     FileMultiString fms = str;
     const int sz = fms.size();
-    if ( sz > 0 ) constant = fms.getDValue( 0 );
-    if ( sz > 1 ) factor = fms.getDValue( 1 );
+    if ( sz > 0 ) constant_ = fms.getDValue( 0 );
+    if ( sz > 1 ) factor_ = fms.getDValue( 1 );
+}
+
+
+Scaler* LogScaler::inverse() const
+{
+    return new ExpScaler( ten_ );
 }
 
 
@@ -128,6 +142,12 @@ const char* LogScaler::toString() const
 void LogScaler::fromString( const char* str )
 {
     ten_ = toBool( str, false );
+}
+
+
+Scaler* ExpScaler::inverse() const
+{
+    return new LogScaler( ten_ );
 }
 
 
@@ -160,7 +180,7 @@ void AsymptScaler::set( double c, double w, double l )
 {
     width_ = w; center_ = c; linedge_ = l;
 
-    factor = mIsZero(width_,1e-30) ? 0 : linedge_ / width_;
+    factor_ = mIsZero(width_,1e-30) ? 0 : linedge_ / width_;
 }
 
 
@@ -171,7 +191,7 @@ double AsymptScaler::scale( double v ) const
 
     v -= center_;
     if ( v <= width_ && v >= -width_ )
-	return v * factor;
+	return v * factor_;
     // TODO
     return v;
 }
@@ -182,7 +202,7 @@ double AsymptScaler::unScale( double v ) const
     if ( mIsUdf(v) ) return v;
     // TODO
     // v = unscale_implementation;
-    v /= factor;
+    v /= factor_;
     v += center_;
     return v;
 }

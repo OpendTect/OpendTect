@@ -35,6 +35,7 @@ const Survey::GeometryManager& Survey::GM()
 Survey::Geometry::Geometry()
     : id_(mUdfGeomID)
     , sampling_(false)
+    , coordsysid_(0)
 {}
 
 

@@ -200,7 +200,7 @@ BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
     const bool havepth = pth && *pth;
     File::Path fp( havepth ? pth : GetDataDir() );
     if ( !havepth )
-	fp.add( "Seismics" );
+	fp.add( sSeismicSubDir() );
 
     BufferString stordir = "Proc_";
     stordir += HostData::localHostName();

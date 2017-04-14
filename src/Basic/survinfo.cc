@@ -97,12 +97,13 @@ SurveyInfo::SurveyInfo()
     , s3dgeom_(0)
     , work_s3dgeom_(0)
 {
-    rdxtr_.b = rdytr_.c = 1;
+    Pos::IdxPair2Coord::DirTransform xtr, ytr;
+    xtr.b = ytr.c = 1;
+    rdb2c_.setTransforms( xtr, ytr );
     set3binids_[2].crl() = 0;
 
 	// We need a 'reasonable' transform even when no proper SI is available
 	// For example DataPointSets need to work
-    Pos::IdxPair2Coord::DirTransform xtr, ytr;
     xtr.b = 1000; xtr.c = 0;
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
@@ -161,7 +162,7 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
     workcs_ = oth.workcs_;
     defpars_ = oth.defpars_;
     seisrefdatum_ = oth.seisrefdatum_;
-    rdxtr_ = oth.rdxtr_; rdytr_ = oth.rdytr_;
+    rdb2c_ = oth.rdb2c_;
     sipnm_ = oth.sipnm_;
     comments_ = oth.comments_;
     update3DGeometry();
@@ -310,7 +311,7 @@ bool SurveyInfo::wrapUpRead()
     if ( set3binids_[2].crl() == 0 )
 	get3Pts( set3coords_, set3binids_, set3binids_[2].crl() );
 
-    b2c_.setTransforms( rdxtr_, rdytr_ );
+    b2c_ = rdb2c_;
     if ( !b2c_.isValid() )
     {
 	BufferString errmsg( "Survey ", name() );
@@ -416,9 +417,7 @@ bool SurveyInfo::usePar( const IOPar& par )
     }
 
     par.get( sKeySeismicRefDatum(), seisrefdatum_ );
-
-    par.get( sKeyXTransf, rdxtr_.a, rdxtr_.b, rdxtr_.c );
-    par.get( sKeyYTransf, rdytr_.a, rdytr_.b, rdytr_.c );
+    rdb2c_.usePar( par );
 
     PtrMan<IOPar> setpts = par.subselect( sKeySetPointPrefix );
     if ( setpts )
@@ -1342,7 +1341,7 @@ uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
     if ( File::exists(fp.fullPath()) )
     {
 	// probably we're in a survey. So let's check:
-	fp.setFileName( "Seismics" );
+	fp.setFileName( "Misc" );
 	if ( File::isDirectory(fp.fullPath()) )
 	    ret.add( tr("%1 has '%2' file").arg(datarootstr).arg(sSurvFile) );
     }
@@ -1365,7 +1364,7 @@ uiRetVal SurveyInfo::isValidSurveyDir( const char* dirnm )
     if ( !File::exists(survfnm) )
 	mErrRetDoesntExist( survfnm );
 
-    fp.setFileName( "Seismics" );
+    fp.setFileName( sSeismicSubDir() );
     const BufferString seisdirnm( fp.fullPath() );
     if ( !File::isDirectory(seisdirnm) )
 	mErrRetDoesntExist( seisdirnm );

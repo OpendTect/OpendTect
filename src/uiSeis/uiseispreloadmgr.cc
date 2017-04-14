@@ -777,7 +777,7 @@ void uiSeisPreLoadSel::updateEstUsage()
 bool uiSeisPreLoadSel::acceptOK()
 {
     mDynamicCastGet(LinScaler*,linscaler,scaler_)
-    linscaler->constant = 0; linscaler->factor = 1;
+    linscaler->constant_ = 0; linscaler->factor_ = 1;
     if ( doscalefld_->getBoolValue() )
     {
 	linscaler->set( fromrgfld_->getDValue(0), torgfld_->getDValue(0),

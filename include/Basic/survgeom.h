@@ -44,7 +44,9 @@ mExpClass(Basic) Geometry : public RefCount::Referenced
 {
 public:
 
-    typedef Pos::GeomID	ID;
+    typedef Pos::GeomID		ID;
+    typedef unsigned short	CoordSysID;
+
     enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
 			/*!< 'Related' means the two geometries have the same
 			  transform but neither includes the other. */
@@ -55,6 +57,8 @@ public:
 
     ID			getID() const			{ return id_; }
     void		setID( ID id )			{ id_ = id; }
+    CoordSysID		coordSysID() const		{ return coordsysid_; }
+    void		setCoordSysID( CoordSysID id )	{ coordsysid_ = id; }
     virtual const char*	getName() const			= 0;
 
     virtual Coord	toCoord(Pos::LineID,Pos::TraceID) const		= 0;
@@ -90,6 +94,8 @@ protected:
 				Geometry();
 
     TrcKeyZSampling		sampling_;
+    CoordSysID			coordsysid_;
+
 private:
 
     ID				id_;

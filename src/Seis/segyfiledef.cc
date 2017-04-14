@@ -14,6 +14,7 @@
 #include "oddirs.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "separstr.h"
 #include "ioobjctxt.h"
@@ -73,7 +74,7 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     iostrm->fileSpec() = *this;
     iostrm->setGroup( SeisTrcTranslatorGroup::sGroupName() );
     iostrm->setTranslator( "SEG-Y" );
-    iostrm->setDirName( "Seismics" );
+    iostrm->setDirName( sSeismicSubDir() );
     return iostrm;
 }
 

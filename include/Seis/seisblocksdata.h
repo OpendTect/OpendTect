@@ -21,6 +21,20 @@ template <class T> class DataInterpreter;
 namespace Seis
 {
 
+/*!\brief Storage and access of data in survey-geometry driven blocks.
+
+A 3D survey Geometry defines a full 'Lattice' that in turns defines
+a unique set of indices for inlines, crosslines and Z. We can group the
+positions into blocks of a size that can easily be read in one go but is still
+big enough to not make a huge number of files. BTW the default size 80x80x80
+was chosen to always fit within a default HD cache unit of 8MB.
+
+With these predefined dimensions, we can set up indexes for each block in each
+dimension (the GlobIdx). Within the blocks, you then have local, relative
+indices 0 - N-1 in SampIdx.
+
+  */
+
 namespace Blocks
 {
     typedef short		IdxType;
@@ -47,6 +61,7 @@ mDefSeisBlockTripletClass(GlobIdx,IdxType);
 mDefSeisBlockTripletClass(SampIdx,IdxType);
 mDefSeisBlockTripletClass(Dimensions,SzType);
 
+
 /*!\brief Single block of data */
 
 mExpClass(Seis) Data
@@ -57,15 +72,17 @@ public:
 				OD::FPDataRepType fpr=OD::F32);
 			~Data();
 
+    const GlobIdx&	globIdx() const		{ return globidx_; }
     const DataBuffer&	dataBuf() const		{ return dbuf_; }
+    void		zero();
+    void		retire();
+    bool		isRetired() const;
+
     float		value(const SampIdx&) const;
     void		getVert(SampIdx,float*,int sz) const;
     void		setValue(const SampIdx&,float);
     void		setVert(SampIdx,const float*,int sz);
 
-    GlobIdx		getGlobIdx(const BinID&,const SurvGeom&) const;
-    GlobIdx		getGlobIdx(const BinID&,float z,const SurvGeom&) const;
-    IdxType		getGlobZIdx(float,const SurvGeom&) const;
     SampIdx		getSampIdx(const BinID&,const SurvGeom&) const;
     SampIdx		getSampIdx(const BinID&,float z,const SurvGeom&) const;
     IdxType		getSampZIdx(float,const SurvGeom&) const;
@@ -84,9 +101,6 @@ public:
 				IdxType sampidx);
 
     static Dimensions	defDims();
-
-    void		retire();
-    bool		isRetired() const;
 
 protected:
 
@@ -112,12 +126,19 @@ public:
 
     virtual		~DataStorage()		    {}
 
+    unsigned short	version() const		    { return version_; }
+
+    static BufferString	fileNameFor(const GlobIdx&);
+
+    static const char*	sKeyDimensions()	    { return "Dimensions"; }
+
 protected:
 
 			DataStorage(const SurvGeom*);
 
     const SurvGeom&	survgeom_;
     const Dimensions	dims_;
+    unsigned short	version_;
 
 };
 

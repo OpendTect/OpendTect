@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "hostdata.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -48,7 +49,7 @@ static BufferString getDefTempStorDir()
     stordir += HostData::localHostName();
     stordir += "_";
     stordir += Stats::randGen().getIndex(100000);
-    const File::Path fp( GetDataDir(), "Seismics", stordir );
+    const File::Path fp( GetDataDir(), sSeismicSubDir(), stordir );
     if ( !File::createDir(fp.fullPath()) )
 	return BufferString(File::getTempPath());
 

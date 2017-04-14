@@ -81,6 +81,11 @@ public:
     inline Coord	inlDir() const	{ return firstDir(); }
     inline Coord	crlDir() const	{ return secondDir(); }
 
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+    static int		sizeInBuf()	{ return 6*sizeof(double); }
+    void		fillBuf(void*) const;
+    void		useBuf(const void*);
 
 protected:
 

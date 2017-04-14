@@ -316,7 +316,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     else
     {
 	if ( !trcscale_ ) trcscale_ = new LinScaler( 0, scfac );
-	else		 trcscale_->factor = scfac;
+	else		 trcscale_->factor_ = scfac;
 	curtrcscale_ =	trcscale_;
     }
 

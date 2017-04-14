@@ -617,7 +617,7 @@ bool DataPlayer::copyDataToLogSet()
 	const PropertyRef::StdType& impprop = PropertyRef::Imp;
 	const UnitOfMeasure* aiuomfrommodel = UoMR().getInternalFor( impprop );
 	ailogfrommodel->setUnitMeasLabel( aiuomfrommodel->symbol() );
-	float fact = mCast( float, denuom->scaler().factor );
+	float fact = mCast( float, denuom->scaler().factor_ );
 	if ( sonuom->isImperial() )
 	    fact *= mFromFeetFactorF;
 
@@ -626,7 +626,7 @@ bool DataPlayer::copyDataToLogSet()
 	const UnitOfMeasure* aiuom = 0;
 	for ( int idx=0; idx<relevantunits.size(); idx++ )
 	{
-	    const float curfactor = (float)relevantunits[idx]->scaler().factor;
+	    const float curfactor = (float)relevantunits[idx]->scaler().factor_;
 	    const float eps = curfactor / 100.f;
 	    if ( mIsEqual(curfactor,fact,eps) )
 		aiuom = relevantunits[idx];

@@ -15,6 +15,7 @@
 #include "globexpr.h"
 #include "separstr.h"
 #include "file.h"
+#include "genc.h"
 #include "filepath.h"
 #include "survinfo.h"
 #include "keystrs.h"
@@ -41,11 +42,11 @@ mDefineEnumUtils(IOObjContext,StdSelType,"Std sel type") {
 	    IOObjContext::StdSelTypeDef().getKey(IOObjContext::typ) )
 
 static const IOObjContext::StdDirData stddirdata[] = {
-    mStdDirD( 100010, "Seismics", Seis ),
-    mStdDirD( 100020, "Surfaces", Surf ),
+    mStdDirD( 100010, sSeismicSubDir(), Seis ),
+    mStdDirD( 100020, sSurfaceSubDir(), Surf ),
     mStdDirD( 100030, "Locations", Loc ),
     mStdDirD( 100040, "Features", Feat ),
-    mStdDirD( 100050, "WellInfo", WllInf ),
+    mStdDirD( 100050, sWellSubDir(), WllInf ),
     mStdDirD( 100060, "NLAs", NLA ),
     mStdDirD( 100070, "Misc", Misc ),
     mStdDirD( 100080, "Attribs", Attr ),

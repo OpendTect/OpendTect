@@ -115,8 +115,8 @@ void uiScaler::setInput( const Scaler& sc )
     if ( typ == sLinScaler )
     {
 	const LinScaler& lsc = (const LinScaler&)sc;
-	linearfld->setValue( lsc.constant, 0 );
-	linearfld->setValue( lsc.factor, 1 );
+	linearfld->setValue( lsc.constant_, 0 );
+	linearfld->setValue( lsc.factor_, 1 );
     }
     else
     {

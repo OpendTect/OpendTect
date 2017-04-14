@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "filepath.h"
 #include "dirlist.h"
 #include "oddirs.h"
+#include "genc.h"
 #include "survinfo.h"
 #include "od_istream.h"
 #include "settings.h"
@@ -1036,7 +1037,7 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 	File::Path newfp( GetDataDir(), fnm );
 	if ( !File::exists(newfp.fullPath()) )
 	{
-	    newfp.set( GetDataDir() ).add( "Seismics" );
+	    newfp.set( GetDataDir() ).add( sSeismicSubDir() );
 	    if ( !File::exists(newfp.fullPath()) )
 	    {
 		if ( emiterr )

@@ -28,6 +28,9 @@ static const Pos::IdxPair udfposidxpair( mUdfIdx, mUdfIdx );
 static const Coord udfcoord( mUdfOrd, mUdfOrd );
 static const Coord3 udfcoord3( mUdfOrd, mUdfOrd, mUdfOrd );
 
+static const char* sKeyXTransf = "Coord-X-BinID";
+static const char* sKeyYTransf = "Coord-Y-BinID";
+
 
 const IdxPair& IdxPair::udf()
 {
@@ -394,4 +397,34 @@ Coord Pos::IdxPair2Coord::transform( const Coord& ip_coord ) const
 {
     return Coord( xtr.a + xtr.b*ip_coord.x_ + xtr.c*ip_coord.y_,
 		  ytr.a + ytr.b*ip_coord.x_ + ytr.c*ip_coord.y_ );
+}
+
+
+void Pos::IdxPair2Coord::fillPar( IOPar& iop ) const
+{
+    iop.set( sKeyXTransf, xtr.a, xtr.b, xtr.c );
+    iop.set( sKeyYTransf, ytr.a, ytr.b, ytr.c );
+}
+
+
+void Pos::IdxPair2Coord::usePar( const IOPar& iop )
+{
+    iop.get( sKeyXTransf, xtr.a, xtr.b, xtr.c );
+    iop.get( sKeyYTransf, ytr.a, ytr.b, ytr.c );
+}
+
+
+void Pos::IdxPair2Coord::fillBuf( void* buf ) const
+{
+    double* ptr = (double*)buf;
+    *ptr++ = xtr.a; *ptr++ = xtr.b; *ptr++ = xtr.c;
+    *ptr++ = ytr.a; *ptr++ = ytr.b; *ptr = ytr.c;
+}
+
+
+void Pos::IdxPair2Coord::useBuf( const void* buf )
+{
+    const double* ptr = (const double*)buf;
+    xtr.a = *ptr++; xtr.b = *ptr++; xtr.c = *ptr++;
+    ytr.a = *ptr++; ytr.b = *ptr++; ytr.c = *ptr;
 }

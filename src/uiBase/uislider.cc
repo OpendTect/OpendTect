@@ -171,8 +171,8 @@ void uiSlider::setLinearFraction( float frac )
 void uiSlider::setScale( float fact, float constant )
 {
     const float userval = getFValue();
-    scaler_->factor = fact;
-    scaler_->constant = constant;
+    scaler_->factor_ = fact;
+    scaler_->constant_ = constant;
     setValue( userval );
 }
 
@@ -286,7 +286,7 @@ void uiSlider::setStep( float stp )
     int istep = (int)stp;
     if ( scaler_ )
     {
-	const float fstp = stp / scaler_->factor;
+	const float fstp = stp / scaler_->factor_;
 	istep = mNINT32( fstp );
     }
     slider_->body().setSingleStep( istep );
@@ -334,8 +334,8 @@ void uiSlider::setLinearScale( double constant, double factor )
 {
     if ( scaler_ )
     {
-	scaler_->constant = constant;
-	scaler_->factor =  factor;
+	scaler_->constant_ = constant;
+	scaler_->factor_ =  factor;
     }
 }
 

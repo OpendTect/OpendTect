@@ -37,7 +37,7 @@ public:
     BufferStringSet	fnames_;
     StepInterval<int>	nrs_;
     int			zeropad_;	//!< left-pad the nrs_ to this length
-    BufferString	survsubdir_;	//!< For example "Seismics"
+    BufferString	survsubdir_;	//!< For example sSeismicSubDir()
 
     bool		isEmpty() const
 			{ return fnames_.isEmpty() || fnames_.get(0).isEmpty();}

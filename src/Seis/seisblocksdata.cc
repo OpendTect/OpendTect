@@ -46,6 +46,12 @@ Seis::Blocks::Data::~Data()
 }
 
 
+void Seis::Blocks::Data::zero()
+{
+    dbuf_.zero();
+}
+
+
 void Seis::Blocks::Data::retire()
 {
     dbuf_.reSize( 0, false );
@@ -192,26 +198,10 @@ Seis::Blocks::IdxType Seis::Blocks::Data::sampIdx4Z( const SurvGeom& sg,
 }
 
 
-Seis::Blocks::IdxType Seis::Blocks::Data::getGlobZIdx( float z,
-						   const SurvGeom& sg ) const
-{
-    return globIdx4Z( sg, z, dims_.z() );
-}
-
-
 Seis::Blocks::IdxType Seis::Blocks::Data::getSampZIdx( float z,
 						   const SurvGeom& sg ) const
 {
     return sampIdx4Z( sg, z, dims_.z() );
-}
-
-
-Seis::Blocks::GlobIdx Seis::Blocks::Data::getGlobIdx( const BinID& bid,
-						      const SurvGeom& sg ) const
-{
-    return GlobIdx( globIdx4Inl(sg,bid.inl(),dims_.inl()),
-		    globIdx4Crl(sg,bid.crl(),dims_.crl()),
-		    IdxType(0) );
 }
 
 
@@ -221,16 +211,6 @@ Seis::Blocks::SampIdx Seis::Blocks::Data::getSampIdx( const BinID& bid,
     return SampIdx( sampIdx4Inl(sg,bid.inl(),dims_.inl()),
 		    sampIdx4Crl(sg,bid.crl(),dims_.crl()),
 		    IdxType(0) );
-}
-
-
-Seis::Blocks::GlobIdx Seis::Blocks::Data::getGlobIdx( const BinID& bid,
-						      float z,
-						      const SurvGeom& sg ) const
-{
-    return GlobIdx( globIdx4Inl(sg,bid.inl(),dims_.inl()),
-		    globIdx4Crl(sg,bid.crl(),dims_.crl()),
-		    globIdx4Z(sg,z,dims_.z()) );
 }
 
 

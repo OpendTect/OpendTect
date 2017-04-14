@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "dbman.h"
 #include "dbdir.h"
+#include "genc.h"
 #include "iostrm.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -99,7 +100,7 @@ IOObj* uiSeisImportCBVS::getInpIOObj( const char* inp ) const
     IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
     iostrm->setGroup( mTranslGroupName(SeisTrc) );
     iostrm->setTranslator( CBVSSeisTrcTranslator::translKey() );
-    iostrm->setDirName( "Seismics" );
+    iostrm->setDirName( sSeismicSubDir() );
     iostrm->fileSpec().setFileName( inp );
     return iostrm;
 }

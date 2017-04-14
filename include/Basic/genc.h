@@ -95,9 +95,13 @@ inline void EmptyFunction()			{}
 
 }
 
-//Not C-functions
+
 mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
                                    bool require_valid_dataroot=true);
 mGlobal(Basic) bool AreProgramArgsSet(void);
 mGlobal(Basic) char** GetArgV(void);
 mGlobal(Basic) int& GetArgC(void);
+
+mGlobal(Basic) inline const char* sSeismicSubDir()	{ return "Seismics"; }
+mGlobal(Basic) inline const char* sWellSubDir()		{ return "WellInfo"; }
+mGlobal(Basic) inline const char* sSurfaceSubDir()	{ return "Surfaces"; }
