@@ -46,9 +46,9 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     modefld_ = new uiGenInput( this, tr("Mode"),
 	    BoolInpSpec(true,tr("Full volume"),tr("Seed based")) );
     modefld_->setValue( fullmode );
-    modefld_->valuechanged.notify( 
+    modefld_->valuechanged.notify(
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
-    
+
     seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), tr("Seeds") );
     MultiID mid = vd->getSeedsID( isosurface );
     if ( !mid.isEmpty() )
@@ -62,7 +62,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     aboveisovaluefld_->display( !fullmode );
     aboveisovaluefld_->setValue( vd->seedAboveIsovalue(isosurface) );
     aboveisovaluefld_->attach( alignedBelow, seedselfld_ );
-    
+
     TypeSet<float> histogram;
     if ( vd->getHistogram(attrib) ) histogram = *vd->getHistogram(attrib);
     const ColTab::MapperSetup* ms = vd->getColTabMapperSetup( attrib );
@@ -72,7 +72,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     statsdisplay_ = new uiStatsDisplay( this, su );
     statsdisplay_->funcDisp()->setHistogram( histogram, rg );
     statsdisplay_->attach( leftAlignedBelow, aboveisovaluefld_ );
- 
+
     funcDisp().setDragMode( uiGraphicsView::NoDrag );
     funcDisp().scene().getMouseEventHandler().buttonPressed.notify(
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,mousePressed) );
@@ -131,7 +131,10 @@ bool uiVisIsoSurfaceThresholdDlg::rejectOK()
 bool uiVisIsoSurfaceThresholdDlg::revertChanges()
 {
     const float curvalue = vd_->isoValue( isosurfacedisplay_ );
-    const float prec = (float) ( (curvalue+initialvalue_) * 5e-4 );
+    if ( mIsZero(curvalue,mDefEps) && mIsZero(initialvalue_,mDefEps) )
+	return true;
+
+    const float prec = mCast(float,(curvalue+initialvalue_)*5e-4);
     if ( !mIsEqual(curvalue,initialvalue_,prec) )
 	updateIsoDisplay(initialvalue_);
 
@@ -150,15 +153,15 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
     const bool aboveisoval = aboveisovaluefld_->getBoolValue();
     MultiID mid( 0 );
     mid.setEmpty();
-    if ( !fullmode && seedselfld_->commitInput() && 
+    if ( !fullmode && seedselfld_->commitInput() &&
 	  seedselfld_->ctxtIOObj().ioobj_ )
 	mid = seedselfld_->ctxtIOObj().ioobj_->key();
 
-    if ( isosurfacedisplay_->getSurface() && 
+    if ( isosurfacedisplay_->getSurface() &&
 	!isosurfacedisplay_->getSurface()->isEmpty() )
     {
-	
-	if ( mIsEqual(oldthreshhold, newthreshhold, 
+
+	if ( mIsEqual(oldthreshhold, newthreshhold,
 		      (oldthreshhold+newthreshhold)*5e-5) )
 	{
 	    if ( fullmode )
@@ -189,7 +192,7 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
 	if ( seedselfld_->ctxtIOObj().ioobj_ )
     	    vd_->setSeedsID( isosurfacedisplay_, mid );
     }
-    
+
     updateIsoDisplay( newthreshhold );
 }
 
@@ -284,7 +287,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 
     if ( !mIsUdf(thresholdfld_->getfValue()) )
     {
-	ls.color_ = Color(0,255,0,0); 
+	ls.color_ = Color(0,255,0,0);
 	const int valx = xAxis().getPix(thresholdfld_->getfValue());
 	if ( valx < xAxis().getPix(xAxis().range().start) ||
 	     valx > xAxis().getPix(xAxis().range().stop) )
