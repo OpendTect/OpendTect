@@ -25,8 +25,9 @@ Seis::Provider::Provider()
     : forcefpdata_(false)
     , readmode_(Prod)
     , zstep_(mUdf(float))
+    , nrcomps_(1)
     , seldata_(0)
-    , setupchgd_(false)
+    , setupchgd_(true)
 {
 }
 
@@ -108,8 +109,17 @@ uiRetVal Seis::Provider::reset() const
 	    totalnr_ = seldata_->expectedNrTraces( is2D() );
 	else
 	    totalnr_ = getTotalNrInInput();
-	setupchgd_ = false;
+
+	int nrselectedcomps = 0;
+	for ( int idx=0; idx<selcomps_.size(); idx++ )
+	    if ( selcomps_[idx] != -1 )
+		nrselectedcomps++;
+
+	nrcomps_ = SeisIOObjInfo(dbky_).nrComponents();
+	if ( nrselectedcomps != 0 )
+	    nrcomps_ = mMIN( nrselectedcomps, nrcomps_ );
     }
+    setupchgd_ = false;
     return uirv;
 }
 
@@ -406,16 +416,7 @@ uiRetVal Seis::Provider::getGather( const TrcKey& trcky,
 
 void Seis::Provider::ensureRightComponents( SeisTrc& trc ) const
 {
-    int nrselectedcomps = 0;
-    for ( int idx=0; idx<selcomps_.size(); idx++ )
-	if ( selcomps_[idx] != -1 )
-	    nrselectedcomps++;
-
-    int nrcomps = SeisIOObjInfo(dbky_).nrComponents();
-    if ( nrselectedcomps != 0 )
-	nrcomps = mMIN( nrselectedcomps, nrcomps );
-
-    for ( int idx=trc.nrComponents()-1; idx>=nrcomps; idx-- )
+    for ( int idx=trc.nrComponents()-1; idx>=nrcomps_; idx-- )
 	trc.removeComponent( idx );
 }
 

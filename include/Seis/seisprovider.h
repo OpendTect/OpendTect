@@ -123,6 +123,7 @@ protected:
     ReadMode		readmode_;
     bool		forcefpdata_;
     mutable od_int64	totalnr_;
+    mutable int		nrcomps_;
     mutable bool	setupchgd_;
 
     mutable Threads::Atomic<od_int64> nrdone_;
