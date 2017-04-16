@@ -121,8 +121,7 @@ protected:
     void		writeColumn(Column&,uiRetVal&);
     bool		writeColumnHeader(od_ostream&,const Column&,
 				    const SampIdx&,const Dimensions&) const;
-    bool		writeBlock(od_ostream&,Block&,
-				    const SampIdx&,const Dimensions&);
+    bool		writeBlock(od_ostream&,Block&,SampIdx,Dimensions);
     void		writeMainFile(uiRetVal&);
     bool		writeMainFileData(od_ostream&);
     void		scanPositions( PosInfo::CubeData& cubedata,

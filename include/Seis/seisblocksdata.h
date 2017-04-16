@@ -45,16 +45,20 @@ namespace Blocks
 mExpClass(Seis) clss : public Triplet<typ> \
 { \
 public: \
-		clss()				{} \
-		clss( short iidx, short xidx, short zidx ) \
+\
+    inline	clss()					{} \
+    inline	clss( short iidx, short xidx, short zidx ) \
 		    : Triplet<typ>(iidx,xidx,zidx)	{} \
- \
-    typ		inl() const		{ return first; } \
-    typ&	inl()			{ return first; } \
-    typ		crl() const		{ return second; } \
-    typ&	crl()			{ return second; } \
-    typ		z() const		{ return third; } \
-    typ&	z()			{ return third; } \
+    inline bool	operator ==( const clss& oth ) const \
+		{ return first == oth.first && second == oth.second \
+		      && third == oth.third; } \
+\
+    inline typ	inl() const	{ return first; } \
+    inline typ&	inl()		{ return first; } \
+    inline typ	crl() const	{ return second; } \
+    inline typ&	crl()		{ return second; } \
+    inline typ	z() const	{ return third; } \
+    inline typ&	z()		{ return third; } \
 }
 
 mDefSeisBlockTripletClass(GlobIdx,IdxType);

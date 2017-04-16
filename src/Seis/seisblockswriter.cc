@@ -400,12 +400,12 @@ Seis::Blocks::Writer::Column*
 Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
 {
     Column* column = new Column( dims_ );
-    for ( int globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
+    for ( IdxType globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
 	    globzidx++ )
     {
 	const ZEvalPosSet& evalposs
 		= *zevalpositions_[globzidx-globzidxrg_.start];
-	GlobIdx gidx( globidx ); gidx.z() = (IdxType)globzidx;
+	GlobIdx gidx( globidx ); gidx.z() = globzidx;
 	Column::BlockSet* blockset = new Column::BlockSet;
 	column->blocksets_ += blockset;
 
@@ -488,6 +488,7 @@ ColumnWriter( Writer& wrr, Column& colmn, const char* fnm )
     else
     {
 	column_.getDefArea( start_, dims_ );
+	start_.z() = 0;
 	if ( !wrr_.writeColumnHeader(strm_,column_,start_,dims_) )
 	    setErr();
     }
@@ -514,7 +515,8 @@ virtual int nextStep()
     {
 	Writer::Column::BlockSet& blockset = *column_.blocksets_[icomp];
 	Block& block = *blockset[iblock_];
-	if ( !wrr_.writeBlock( strm_, block, start_, dims_ ) )
+	Dimensions wrdims( dims_ ); wrdims.z() = block.dims().z();
+	if ( !wrr_.writeBlock( strm_, block, start_, wrdims ) )
 	    { setErr(); return ErrorOccurred(); }
     }
 
@@ -597,16 +599,36 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
 
 
 bool Seis::Blocks::Writer::writeBlock( od_ostream& strm, Block& block,
-		const SampIdx& start, const Dimensions& dims )
+					SampIdx wrstart, Dimensions wrdims )
 {
-    if ( dims.inl() == dims_.inl() && dims.crl() == dims_.crl() )
-	strm.addBin( block.dataBuf().data(), block.dataBuf().totalBytes() );
+    const DataBuffer& dbuf = block.dataBuf();
+
+    if ( wrdims == dims_ )
+	strm.addBin( dbuf.data(), dbuf.totalBytes() );
     else
     {
-	pErrMsg( "Not properly implemented" );
-	//TODO do properly, do each crl from start.crl()
-	int tmpsz = dims.inl(); tmpsz *= dims.crl(); tmpsz *= dims.z();
-	strm.addBin( block.dataBuf().data(), tmpsz );
+	const DataBuffer::buf_type* bufdata = dbuf.data();
+	const int bytespersample = dbuf.bytesPerElement();
+	const int bytesperentirecrl = bytespersample * dims_.z();
+	const int bytesperentireinl = bytesperentirecrl * dims_.crl();
+
+	const int bytes2write = wrdims.z() * bytespersample;
+	const IdxType wrstopinl = wrstart.inl() + wrdims.inl();
+	const IdxType wrstopcrl = wrstart.crl() + wrdims.crl();
+
+	const DataBuffer::buf_type* dataptr = bufdata
+			+ wrstart.inl() * bytesperentireinl
+			+ wrstart.crl() * bytesperentirecrl
+			+ wrstart.z() * bytespersample;
+
+	for ( IdxType iinl=wrstart.inl(); iinl<wrstopinl; iinl++ )
+	{
+	    for ( IdxType icrl=wrstart.crl(); icrl<wrstopcrl; icrl++ )
+	    {
+		strm.addBin( dataptr, bytes2write );
+		dataptr += bytesperentirecrl;
+	    }
+	}
     }
 
     block.retire();
