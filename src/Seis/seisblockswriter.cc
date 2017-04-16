@@ -12,12 +12,16 @@ ________________________________________________________________________
 #include "seisblocksdata.h"
 #include "posidxpairdataset.h"
 #include "paralleltask.h"
+#include "executor.h"
 #include "uistrings.h"
 #include "scaler.h"
+#include "datachar.h"
 #include "file.h"
 #include "keystrs.h"
+#include "posinfo.h"
 #include "survgeom3d.h"
-#include "od_ostream.h"
+#include "ascstream.h"
+#include "separstr.h"
 
 static const unsigned short cVersion = 1;
 static const unsigned short cHdrSz = 128;
@@ -25,7 +29,7 @@ static const unsigned short cHdrSz = 128;
 Seis::Blocks::DataStorage::DataStorage( const SurvGeom* geom )
     : survgeom_(*(geom ? geom : static_cast<const SurvGeom*>(
 				    &SurvGeom::default3D())))
-    , dims_(Data::defDims())
+    , dims_(Block::defDims())
     , version_(cVersion)
 {
 }
@@ -34,48 +38,125 @@ Seis::Blocks::DataStorage::DataStorage( const SurvGeom* geom )
 BufferString Seis::Blocks::DataStorage::fileNameFor( const GlobIdx& globidx )
 {
     BufferString ret;
-    ret.add( globidx.inl() ).add( '_' )
-	.add( globidx.crl() ).add( '_' )
-	.add( globidx.z() ).add( ".bin" );
+    ret.add( globidx.inl() ).add( "_" ).add( globidx.crl() ).add( ".bin" );
     return ret;
+}
+
+
+Seis::Blocks::Writer::Column::Column( const Dimensions& dims )
+    : nruniquevisits_(0)
+    , dims_(dims)
+{
+    visited_ = new bool* [dims_.inl()];
+    for ( IdxType idx=0; idx<dims_.inl(); idx++ )
+	visited_[idx] = new bool [dims_.crl()];
+}
+
+
+Seis::Blocks::Writer::Column::~Column()
+{
+    deepErase(blocksets_);
+    for ( IdxType idx=0; idx<dims_.inl(); idx++ )
+	delete [] visited_[idx];
+    delete [] visited_;
+}
+
+
+void Seis::Blocks::Writer::Column::retireAll()
+{
+    for ( int iset=0; iset<blocksets_.size(); iset++ )
+    {
+	BlockSet& bset = *blocksets_[iset];
+	for ( int iblock=0; iblock<bset.size(); iblock++ )
+	    bset[iblock]->retire();
+    }
+}
+
+
+void Seis::Blocks::Writer::Column::getDefArea( SampIdx& start,
+					       Dimensions& dims ) const
+{
+    IdxType mininl = dims_.inl()-1, mincrl = dims_.crl()-1;
+    IdxType maxinl = 0, maxcrl = 0;
+
+    for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
+    {
+	for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
+	{
+	    if ( visited_[iinl][icrl] )
+	    {
+		if ( mininl > iinl )
+		    mininl = iinl;
+		if ( mincrl > icrl )
+		    mincrl = icrl;
+		if ( maxinl < iinl )
+		    maxinl = iinl;
+		if ( maxcrl < icrl )
+		    maxcrl = icrl;
+	    }
+	}
+    }
+
+    start.inl() = mininl;
+    start.crl() = mincrl;
+    dims.inl() = maxinl - mininl + 1;
+    dims.crl() = maxcrl - mincrl + 1;
 }
 
 
 Seis::Blocks::Writer::Writer( const SurvGeom* geom )
     : DataStorage(geom)
     , scaler_(0)
-    , component_(0)
     , specfprep_(OD::AutoFPRep)
     , usefprep_(OD::F32)
     , needreset_(true)
-    , blocks_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
-    , nrposperblock_(((int)dims_.inl()) * dims_.crl())
-    , writecomplete_(false)
+    , columns_(*new Pos::IdxPairDataSet(sizeof(Column*),false,false))
+    , nrcomponents_(1)
+    , nrpospercolumn_(((int)dims_.inl()) * dims_.crl())
+    , isfinished_(false)
 {
 }
 
 
 Seis::Blocks::Writer::~Writer()
 {
-    Task* task = finisher();
-    if ( task )
+    if ( !isfinished_ )
     {
-	task->execute();
-	delete task;
+	Task* task = finisher();
+	if ( task )
+	{
+	    task->execute();
+	    delete task;
+	}
     }
 
+    deepErase( auxiops_ );
     delete scaler_;
     setEmpty();
-    delete &blocks_;
+    delete &columns_;
 }
+
+
+// This function + the macros keep IdxPairDataSet debugging possible
+// without dependencies in the header file
+
+inline static Seis::Blocks::Writer::Column* gtColumn( Pos::IdxPairDataSet& ds,
+				    const Pos::IdxPairDataSet::SPos& spos )
+{
+    return (Seis::Blocks::Writer::Column*)ds.getObj( spos );
+}
+
+#define mGetColumn(spos) gtColumn( columns_, spos )
+#define mGetWrrColumn(wrr,spos) gtColumn( wrr_.columns_, spos )
 
 
 void Seis::Blocks::Writer::setEmpty()
 {
     Pos::IdxPairDataSet::SPos spos;
-    while ( blocks_.next(spos) )
-	delete (Block*)blocks_.getObj( spos );
-    blocks_.setEmpty();
+    while ( columns_.next(spos) )
+	delete mGetColumn( spos );
+    columns_.setEmpty();
+    deepErase( zevalpositions_ );
 }
 
 
@@ -109,6 +190,30 @@ void Seis::Blocks::Writer::setFPRep( OD::FPDataRepType rep )
 }
 
 
+void Seis::Blocks::Writer::setCubeName( const char* nm )
+{
+    cubename_ = nm;
+}
+
+
+void Seis::Blocks::Writer::addComponentName( const char* nm )
+{
+    compnms_.add( nm );
+}
+
+
+void Seis::Blocks::Writer::addAuxInfo( const char* key, const IOPar& iop )
+{
+    BufferString auxkey( key );
+    if ( auxkey.isEmpty() )
+	{ pErrMsg( "Refusing to add section without key" ); return; }
+
+    IOPar* toadd = new IOPar( iop );
+    toadd->setName( auxkey );
+    auxiops_ += toadd;
+}
+
+
 void Seis::Blocks::Writer::setScaler( const LinScaler* newscaler )
 {
     if ( (!scaler_ && !newscaler) )
@@ -120,51 +225,46 @@ void Seis::Blocks::Writer::setScaler( const LinScaler* newscaler )
 }
 
 
-void Seis::Blocks::Writer::setComponent( int icomp )
-{
-    if ( component_ != icomp )
-    {
-	component_ = icomp;
-	needreset_ = true;
-    }
-}
-
-
 void Seis::Blocks::Writer::resetZ( const Interval<float>& zrg )
 {
-    globzidxrg_.start = Data::globIdx4Z( survgeom_, zrg.start, dims_.z() );
-    globzidxrg_.stop = Data::globIdx4Z( survgeom_, zrg.stop, dims_.z() );
+    globzidxrg_.start = Block::globIdx4Z( survgeom_, zrg.start, dims_.z() );
+    globzidxrg_.stop = Block::globIdx4Z( survgeom_, zrg.stop, dims_.z() );
     const float eps = Seis::cDefSampleSnapDist();
-    deepErase( zevalinfos_ );
+    deepErase( zevalpositions_ );
 
+    bool emptystart = false, emptyend = false;
     for ( IdxType globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
 		globzidx++ )
     {
-	ZEvalInfo* evalinf = new ZEvalInfo( globzidx );
+	ZEvalPosSet* posset = new ZEvalPosSet;
 	for ( IdxType sampzidx=0; sampzidx<dims_.z(); sampzidx++ )
 	{
-	    const float z = Data::z4Idxs( survgeom_, dims_.z(),
+	    const float z = Block::z4Idxs( survgeom_, dims_.z(),
 					  globzidx, sampzidx );
 	    if ( z > zrg.start-eps && z < zrg.stop+eps )
-		evalinf->evalpositions_ += ZEvalPos( sampzidx, z );
+		*posset += ZEvalPos( sampzidx, z );
 	}
-	if ( evalinf->evalpositions_.isEmpty() )
-	    delete evalinf;
+	if ( posset->isEmpty() )
+	    (globzidx==globzidxrg_.start ? emptystart : emptyend) = true;
 	else
-	    zevalinfos_ += evalinf;
+	     zevalpositions_ += posset;
     }
+    if ( emptystart )
+	globzidxrg_.start++;
+    else if ( emptyend )
+	globzidxrg_.stop--;
 
-    if ( zevalinfos_.isEmpty() )
+    if ( zevalpositions_.isEmpty() )
     {
 	// only possibility is that zrg is entirely between two output samples.
 	// As a service, we'll make sure the nearest sample is set
 	const float zeval = zrg.center();
-	const IdxType globzidx = Data::globIdx4Z( survgeom_, zeval, dims_.z() );
-	const IdxType sampzidx = Data::sampIdx4Z( survgeom_, zeval, dims_.z() );
+	const IdxType globzidx = Block::globIdx4Z( survgeom_, zeval, dims_.z());
+	const IdxType sampzidx = Block::sampIdx4Z( survgeom_, zeval, dims_.z());
 	globzidxrg_.start = globzidxrg_.stop = globzidx;
-	ZEvalInfo* evalinf = new ZEvalInfo( globzidx );
-	evalinf->evalpositions_ += ZEvalPos( sampzidx, zeval );
-	zevalinfos_ += evalinf;
+	ZEvalPosSet* posset = new ZEvalPosSet;
+	*posset += ZEvalPos( sampzidx, zeval );
+	zevalpositions_ += posset;
     }
 }
 
@@ -211,7 +311,6 @@ bool Seis::Blocks::Writer::removeExisting( const char* fnm,
 
 bool Seis::Blocks::Writer::prepareWrite( uiRetVal& uirv )
 {
-    writecomplete_ = false;
     const BufferString mainfnm = mainFileName();
     const BufferString dirnm = dirName();
     if ( !removeExisting(mainfnm,uirv) || !removeExisting(dirnm,uirv) )
@@ -232,6 +331,7 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
     uiRetVal uirv;
     if ( needreset_ )
     {
+	isfinished_ = false;
 	setEmpty();
 	if ( !prepareWrite(uirv) )
 	    return uirv;
@@ -240,145 +340,255 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 	usefprep_ = specfprep_;
 	if ( usefprep_ == OD::AutoFPRep )
 	    usefprep_ = trc.data().getInterpreter()->dataChar().userType();
+
+	nrcomponents_ = trc.nrComponents();
     }
 
     const BinID bid = trc.info().binID();
-    GlobIdx globidx( Data::globIdx4Inl(survgeom_,bid.inl(),dims_.inl()),
-		     Data::globIdx4Crl(survgeom_,bid.crl(),dims_.crl()), 0 );
-    for ( int iblock=0; iblock<zevalinfos_.size(); iblock++ )
+    const GlobIdx globidx( Block::globIdx4Inl(survgeom_,bid.inl(),dims_.inl()),
+			   Block::globIdx4Crl(survgeom_,bid.crl(),dims_.crl()),
+			   0 );
+    const SampIdx sampidx( Block::sampIdx4Inl(survgeom_,bid.inl(),dims_.inl()),
+			   Block::sampIdx4Crl(survgeom_,bid.crl(),dims_.crl()),
+			   0 );
+
+    Column* column = getColumn( globidx );
+    if ( !column )
     {
-	const ZEvalInfo& evalinf = *zevalinfos_[iblock];
-	globidx.z() = evalinf.globidx_;
-	if ( !add2Block(globidx,trc,evalinf.evalpositions_,uirv) )
-	    return uirv;
+	uirv.set( tr("Memory needed for writing process unavailable.") );
+	setEmpty();
+	return uirv;
     }
+
+    for ( int icomp=0; icomp<nrcomponents_; icomp++ )
+    {
+	Column::BlockSet& blocks = *column->blocksets_[icomp];
+	for ( int iblock=0; iblock<zevalpositions_.size(); iblock++ )
+	{
+	    const ZEvalPosSet& posset = *zevalpositions_[iblock];
+	    Block& block = *blocks[iblock];
+	    add2Block( block, posset, sampidx, trc, icomp );
+	}
+    }
+
+    if ( isCompletionVisit(*column,sampidx) )
+	writeColumn( *column, uirv );
 
     return uirv;
 }
 
 
-bool Seis::Blocks::Writer::add2Block( const GlobIdx& globidx,
-	const SeisTrc& trc, const ZEvalPosSet& zevals, uiRetVal& uirv )
+void Seis::Blocks::Writer::add2Block( Block& block, const ZEvalPosSet& zevals,
+			SampIdx sampidx, const SeisTrc& trc, int icomp )
 {
-    Block* block = getBlock( globidx );
-    if ( !block )
-    {
-	uirv.set( tr("Memory needed for writing process unavailable.") );
-	setEmpty();
-	return false;
-    }
-
-    if ( block->data_->isRetired() )
-	return true; // not writing same block again
-
-    const BinID bid( trc.info().binID() );
-    SampIdx sampidx( Data::sampIdx4Inl( survgeom_, bid.inl(), dims_.inl() ),
-		     Data::sampIdx4Crl( survgeom_, bid.crl(), dims_.crl() ),
-		     0 );
+    if ( block.isRetired() )
+	return; // new visit of already written. Won't do, but no error.
 
     for ( int idx=0; idx<zevals.size(); idx++ )
     {
 	const ZEvalPos& evalpos = zevals[idx];
 	sampidx.z() = evalpos.first;
-	float val2write = trc.getValue( evalpos.second, component_ );
+	float val2set = trc.getValue( evalpos.second, icomp );
 	if ( scaler_ )
-	    val2write = (float)scaler_->scale( val2write );
-	block->data_->setValue( sampidx, val2write );
+	    val2set = (float)scaler_->scale( val2set );
+	block.setValue( sampidx, val2set );
     }
-
-    if ( isCompletionVisit(*block,sampidx) )
-	writeBlock( *block, uirv );
-
-    return uirv.isError();
 }
 
 
-Seis::Blocks::Writer::Block*
-Seis::Blocks::Writer::getBlock( const GlobIdx& globidx )
+Seis::Blocks::Writer::Column*
+Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
+{
+    Column* column = new Column( dims_ );
+    for ( int globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
+	    globzidx++ )
+    {
+	const ZEvalPosSet& evalposs
+		= *zevalpositions_[globzidx-globzidxrg_.start];
+	GlobIdx gidx( globidx ); gidx.z() = globzidx;
+	Column::BlockSet* blockset = new Column::BlockSet;
+	column->blocksets_ += blockset;
+
+	Dimensions dims( dims_ ); SampIdx start;
+	if ( globzidx == globzidxrg_.start )
+	{
+	    start.z() = (IdxType)(dims_.z() - evalposs.size());
+	    dims.z() = dims_.z() - (SzType)start.z();
+	}
+	else if ( globzidx == globzidxrg_.stop )
+	    dims.z() = (SzType)evalposs.size();
+
+	for ( int icomp=0; icomp<nrcomponents_; icomp++ )
+	{
+	    Block* block = new Block( gidx, start, dims, usefprep_ );
+	    if ( block->isRetired() )
+		{ delete column; return 0; }
+	    block->zero();
+	    *blockset += block;
+	}
+    }
+
+    return column;
+}
+
+
+Seis::Blocks::Writer::Column*
+Seis::Blocks::Writer::getColumn( const GlobIdx& globidx )
 {
     const Pos::IdxPair idxpair( globidx.inl(), globidx.crl() );
-    Pos::IdxPairDataSet::SPos spos = blocks_.find( idxpair );
-    Block* ret = 0;
+    Pos::IdxPairDataSet::SPos spos = columns_.find( idxpair );
+    Column* column = 0;
     if ( spos.isValid() )
-	ret = (Block*)blocks_.getObj( spos );
+	column = mGetColumn( spos );
     else
     {
-	try {
-	    ret = new Block;
-	    ret->data_ = new Data( globidx, dims_, usefprep_ );
-	    ret->data_->zero();
-	    ret->visited_.setSize( nrposperblock_, false );
-	} catch ( ... ) { delete ret; ret = 0; }
-	if ( ret )
-	    blocks_.add( idxpair, ret );
+	column = mkNewColumn( globidx );
+	if ( column )
+	    columns_.add( idxpair, column );
     }
-
-    return ret;
+    return column;
 }
 
 
-bool Seis::Blocks::Writer::isCompletionVisit( Block& block,
+bool Seis::Blocks::Writer::isCompletionVisit( Column& column,
 					      const SampIdx& sampidx ) const
 {
-    const int arridx = ((int)sampidx.inl()) * dims_.inl() + sampidx.crl();
-    if ( !block.visited_[arridx] )
+    bool& visited = column.visited_[sampidx.inl()][sampidx.crl()];
+    if ( !visited )
     {
-	block.nruniquevisits_++;
-	block.visited_[arridx] = true;
+	column.nruniquevisits_++;
+	visited = true;
     }
 
-    return block.nruniquevisits_ == nrposperblock_;
+    return column.nruniquevisits_ == nrpospercolumn_;
 }
 
 
-void Seis::Blocks::Writer::writeBlock( Block& block, uiRetVal& uirv )
+namespace Seis
 {
-    uirv.setEmpty();
-    Data& data = *block.data_;
+namespace Blocks
+{
 
+class ColumnWriter : public Executor
+{ mODTextTranslationClass(Seis::Blocks::ColumnWriter)
+public:
+
+    typedef Writer::Column  Column;
+
+ColumnWriter( Writer& wrr, Column& colmn, const char* fnm )
+    : Executor("Column File Writer")
+    , wrr_(wrr)
+    , column_(colmn)
+    , strm_(fnm)
+    , nrblocks_(wrr_.nrColumnBlocks())
+    , iblock_(0)
+{
+    if ( strm_.isBad() )
+	setErr( true );
+    else
+    {
+	column_.getDefArea( start_, dims_ );
+	if ( !wrr_.writeColumnHeader(strm_,column_,start_,dims_) )
+	    setErr();
+    }
+}
+
+virtual od_int64 nrDone() const { return iblock_; }
+virtual od_int64 totalNr() const { return nrblocks_; }
+virtual uiString nrDoneText() const { return tr("Blocks written"); }
+virtual uiString message() const
+{
+    if ( uirv_.isError() )
+	return uirv_;
+    return tr("Writing Traces");
+}
+
+virtual int nextStep()
+{
+    if ( uirv_.isError() )
+	return ErrorOccurred();
+    else if ( iblock_ >= nrblocks_ )
+	return Finished();
+
+    for ( int icomp=0; icomp<wrr_.nrcomponents_; icomp++ )
+    {
+	Writer::Column::BlockSet& blockset = *column_.blocksets_[icomp];
+	Block& block = *blockset[iblock_];
+	if ( !wrr_.writeBlock( strm_, block, start_, dims_ ) )
+	    { setErr(); return ErrorOccurred(); }
+    }
+
+    iblock_++;
+    return MoreToDo();
+}
+
+void setErr( bool initial=false )
+{
+    uirv_.set( initial ? uiStrings::phrCannotOpen(toUiString(strm_.fileName()))
+	    : uiStrings::phrCannotWrite( toUiString(strm_.fileName()) ) );
+    strm_.addErrMsgTo( uirv_ );
+}
+
+    od_ostream		strm_;
+    Writer&		wrr_;
+    Column&		column_;
+    Dimensions		dims_;
+    SampIdx		start_;
+    const int		nrblocks_;
+    int			iblock_;
+    uiRetVal		uirv_;
+
+};
+
+} // namespace Blocks
+} // namespace Seis
+
+
+void Seis::Blocks::Writer::writeColumn( Column& column, uiRetVal& uirv )
+{
     File::Path fp( basepath_ );
-    fp.add( filenamebase_ ).add( fileNameFor(data.globIdx()) );
-
-    od_ostream strm( fp.fullPath() );
-    if ( strm.isBad() )
-    {
-	uirv.add( uiStrings::phrCannotOpen( toUiString(strm.fileName()) ) );
-	return;
-    }
-
-    if ( !writeBlockHeader(strm,data)
-      || !writeBlockData(strm,data) )
-    {
-	uirv.add( uiStrings::phrCannotWrite( toUiString(strm.fileName()) ) );
-	return;
-    }
-
-    data.retire();
+    fp.add( filenamebase_ )
+      .add( fileNameFor(column.firstBlock().globIdx()) );
+    ColumnWriter wrr( *this, column, fp.fullPath() );
+    if ( !wrr.execute() )
+	uirv = wrr.uirv_;
 }
 
 
-bool Seis::Blocks::Writer::writeBlockHeader( od_ostream& strm, Data& data )
+bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
+    const Column& column, const SampIdx& start, const Dimensions& dims ) const
 {
-    strm.addBin( cHdrSz ).addBin( version_ );
-    strm.addBin( dims_.inl() ).addBin( dims_.crl() ).addBin( dims_.z() );
+    const Block& firstblock = column.firstBlock();
+    const GlobIdx& globidx = firstblock.globIdx();
+    int zdim = 0;
+    for ( int idx=0; idx<zevalpositions_.size(); idx++ )
+	zdim += zevalpositions_[idx]->size();
+    int zstart = globidx.z(); zstart *= dims_.z();
+    zstart += firstblock.start().z();
     const unsigned short dfmt = (unsigned short)usefprep_;
+    const SurvGeom::CoordSysID coordsysid = survgeom_.coordSysID();
+
+    strm.addBin( cHdrSz ).addBin( version_ );
+    strm.addBin( globidx.inl() ).addBin( globidx.crl() ).addBin( globidx.z() );
+    strm.addBin( start.inl() ).addBin( start.crl() ).addBin( zstart );
+    strm.addBin( dims.inl() ).addBin( dims.crl() ).addBin( zdim );
     strm.addBin( dfmt );
     char buf[cHdrSz]; OD::memZero( buf, cHdrSz );
     if ( scaler_ )
     {
+	// write the scaler needed to reconstruct the org values
+	LinScaler* invscaler = scaler_->inverse();
 	float* ptr = (float*)buf;
-	*ptr++ = (float)scaler_->constant_;
-	*ptr = (float)scaler_->factor_;
+	*ptr++ = (float)invscaler->constant_;
+	*ptr = (float)invscaler->factor_;
+	delete invscaler;
     }
-    strm.addBin( buf, 8 );
-    const GlobIdx gli = data.globIdx();
-    strm.addBin( gli.inl() ).addBin( gli.crl() ).addBin( gli.z() );
-    const unsigned short coordsysid = survgeom_.coordSysID();
+    strm.addBin( buf, 2*sizeof(float) );
     strm.addBin( coordsysid );
     survgeom_.binID2Coord().fillBuf( buf );
     strm.addBin( buf, survgeom_.binID2Coord().sizeInBuf() );
 
-    const int bytes_left_in_hdr = cHdrSz - 76;
+    const int bytes_left_in_hdr = cHdrSz - (int)strm.position();
     OD::memZero( buf, bytes_left_in_hdr );
     strm.addBin( buf, bytes_left_in_hdr );
 
@@ -386,9 +596,20 @@ bool Seis::Blocks::Writer::writeBlockHeader( od_ostream& strm, Data& data )
 }
 
 
-bool Seis::Blocks::Writer::writeBlockData( od_ostream& strm, Data& data )
+bool Seis::Blocks::Writer::writeBlock( od_ostream& strm, Block& block,
+		const SampIdx& start, const Dimensions& dims )
 {
-    strm.addBin( data.dataBuf().data(), data.dataBuf().totalBytes() );
+    if ( dims.inl() == dims_.inl() && dims.crl() == dims_.crl() )
+	strm.addBin( block.dataBuf().data(), block.dataBuf().totalBytes() );
+    else
+    {
+	pErrMsg( "Not properly implemented" );
+	//TODO do properly, do each crl from start.crl()
+	int tmpsz = dims.inl(); tmpsz *= dims.crl(); tmpsz *= dims.z();
+	strm.addBin( block.dataBuf().data(), tmpsz );
+    }
+
+    block.retire();
     return strm.isOK();
 }
 
@@ -402,28 +623,142 @@ void Seis::Blocks::Writer::writeMainFile( uiRetVal& uirv )
 	return;
     }
 
-    //TODO
-    IOPar iop;
+    if ( !writeMainFileData(strm) )
+    {
+	uirv.add( uiStrings::phrCannotWrite( toUiString(strm.fileName()) ) );
+	return;
+    }
+}
+
+
+bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
+{
+    ascostream ascostrm( strm );
+    if ( !ascostrm.putHeader(sKeyFileType()) )
+	return false;
+
+    PosInfo::CubeData cubedata;
+    Interval<IdxType> globinlrg, globcrlrg;
+    Interval<int> inlrg, crlrg;
+    Interval<double> xrg, yrg;
+    Interval<float> zrg;
+    scanPositions( cubedata, globinlrg, globcrlrg, inlrg, crlrg, xrg, yrg );
+    zrg.start = zevalpositions_.first()->first().second;
+    zrg.stop = zevalpositions_.last()->last().second;
+
+    IOPar iop( "General" );
+    iop.set( sKey::Name(), cubename_ );
     iop.set( sKey::Version(), version_ );
-    iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );
-    /*
-    const unsigned short dfmt = (unsigned short)usefprep_;
-    strm.addBin( dfmt );
-    char buf[cHdrSz]; OD::memZero( buf, cHdrSz );
+    survgeom_.binID2Coord().fillPar( iop );
+    iop.set( sKey::CoordSys(), survgeom_.coordSysID() ); //TODO add text
+    iop.set( sKey::FirstInl(), survgeom_.sampling().hsamp_.start_.inl() );
+    iop.set( sKey::FirstCrl(), survgeom_.sampling().hsamp_.start_.crl() );
+    iop.set( sKey::StepInl(), survgeom_.sampling().hsamp_.step_.inl() );
+    iop.set( sKey::StepCrl(), survgeom_.sampling().hsamp_.step_.crl() );
+    iop.set( sKey::ZStep(), survgeom_.sampling().zsamp_.step );
+    iop.set( sKey::DataStorage(), DataCharacteristics::toString(usefprep_) );
     if ( scaler_ )
     {
-	float* ptr = (float*)buf;
-	*ptr++ = (float)scaler_->constant_;
-	*ptr = (float)scaler_->factor_;
+	char buf[1024]; scaler_->put( buf );
+	iop.set( sKey::Scale(), buf );
     }
-    strm.addBin( buf, 8 );
-    const GlobIdx gli = data.globIdx();
-    strm.addBin( gli.inl() ).addBin( gli.crl() ).addBin( gli.z() );
-    const unsigned short coordsysid = survgeom_.coordSysID();
-    strm.addBin( coordsysid );
-    survgeom_.binID2Coord().fillBuf( buf );
-    strm.addBin( buf, survgeom_.binID2Coord().sizeInBuf() );
-    */
+    iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );
+    iop.set( sKeyGlobInlRg(), globinlrg );
+    iop.set( sKeyGlobCrlRg(), globcrlrg );
+    iop.set( sKeyGlobZRg(), globzidxrg_ );
+    iop.set( sKey::InlRange(), inlrg );
+    iop.set( sKey::CrlRange(), crlrg );
+    iop.set( sKey::XRange(), xrg );
+    iop.set( sKey::YRange(), yrg );
+    iop.set( sKey::ZRange(), zrg );
+
+    FileMultiString fms;
+    for ( int icomp=0; icomp<nrcomponents_; icomp++ )
+    {
+	BufferString nm;
+	if ( icomp < compnms_.size() )
+	    nm = compnms_.get( icomp );
+	else
+	    nm.set( "Component " ).add( icomp+1 );
+	fms += nm;
+    }
+    iop.set( sKeyComponents(), fms );
+
+    iop.putTo( ascostrm );
+    if ( !strm.isOK() )
+	return false;
+
+    for ( int idx=0; idx<auxiops_.size(); idx++ )
+    {
+	auxiops_[idx]->putTo( ascostrm );
+	if ( !strm.isOK() )
+	    return false;
+    }
+
+    strm << "Positions" << od_endl;
+    return cubedata.write( strm, true );
+}
+
+
+void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
+	Interval<IdxType>& globinlrg, Interval<IdxType>& globcrlrg,
+	Interval<int>& inlrg, Interval<int>& crlrg,
+	Interval<double>& xrg, Interval<double>& yrg )
+{
+    PosInfo::CubeDataFiller cdf( cubedata );
+    Pos::IdxPairDataSet::SPos spos;
+    bool first = true;
+    while ( columns_.next(spos) )
+    {
+	const Column& column = *mGetColumn( spos );
+	if ( column.nruniquevisits_ < 1 )
+	    continue;
+
+	const Block& block = column.firstBlock();
+	GlobIdx globidx = block.globIdx();
+	if ( first )
+	{
+	    globinlrg.start = globinlrg.stop = globidx.inl();
+	    globcrlrg.start = globcrlrg.stop = globidx.crl();
+	}
+	else
+	{
+	    globinlrg.include( globidx.inl(), false );
+	    globcrlrg.include( globidx.crl(), false );
+	}
+
+	for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
+	{
+	    for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
+	    {
+		if ( !column.visited_[iinl][icrl] )
+		    continue;
+		const int inl = Block::inl4Idxs( survgeom_, dims_.inl(),
+					    globidx.inl(), iinl );
+		const int crl = Block::inl4Idxs( survgeom_, dims_.crl(),
+					    globidx.crl(), icrl );
+		const Coord coord = survgeom_.toCoord( inl, crl );
+		if ( first )
+		{
+		    inlrg.start = inlrg.stop = inl;
+		    crlrg.start = crlrg.stop = crl;
+		    xrg.start = xrg.stop = coord.x_;
+		    yrg.start = yrg.stop = coord.y_;
+		}
+		else
+		{
+		    inlrg.include( inl, false );
+		    crlrg.include( crl, false );
+		    xrg.include( coord.x_, false );
+		    yrg.include( coord.y_, false );
+		}
+
+		cdf.add( BinID(inl,crl) );
+	    }
+	}
+
+	first = false;
+    }
 }
 
 
@@ -436,21 +771,20 @@ class WriterFinisher : public ParallelTask
 { mODTextTranslationClass(Seis::Blocks::WriterFinisher)
 public:
 
+    typedef Writer::Column  Column;
+
 WriterFinisher( Writer& wrr )
-    : ParallelTask("Block write finisher")
+    : ParallelTask("Seis Blocks Writer finisher")
     , wrr_(wrr)
 {
     Pos::IdxPairDataSet::SPos spos;
-    while ( wrr_.blocks_.next(spos) )
+    while ( wrr_.columns_.next(spos) )
     {
-	Writer::Block* block = (Writer::Block*)wrr_.blocks_.getObj( spos );
-	if ( !block->data_->isRetired() )
-	{
-	    if ( block->nruniquevisits_ < 1 )
-		block->data_->retire();
-	    else
-		towrite_ += block;
-	}
+	Writer::Column* column = mGetWrrColumn( wrr_, spos );
+	if ( column->nruniquevisits_ < 1 )
+	    column->retireAll();
+	else
+	    towrite_ += column;
     }
 }
 
@@ -461,7 +795,7 @@ virtual od_int64 nrIterations() const
 
 virtual uiString nrDoneText() const
 {
-   return tr("Blocks written");
+   return tr("Column files written");
 }
 
 virtual uiString message() const
@@ -476,7 +810,7 @@ virtual bool doWork( od_int64 startidx, od_int64 stopidx, int )
     uiRetVal uirv;
     for ( int idx=(int)startidx; idx<=(int)stopidx; idx++ )
     {
-	wrr_.writeBlock( *towrite_[idx], uirv );
+	wrr_.writeColumn( *towrite_[idx], uirv );
 	if ( uirv.isError() )
 	    { uirv_.add( uirv ); return false; }
 	addToNrDone( 1 );
@@ -493,9 +827,9 @@ virtual bool doFinish( bool )
     return uirv.isError();
 }
 
-    uiRetVal			uirv_;
-    Writer&			wrr_;
-    ObjectSet<Writer::Block>	towrite_;
+    uiRetVal		uirv_;
+    Writer&		wrr_;
+    ObjectSet<Column>	towrite_;
 
 };
 

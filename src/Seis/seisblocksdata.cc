@@ -11,34 +11,65 @@ ________________________________________________________________________
 #include "seisblocksdata.h"
 #include "databuf.h"
 #include "scaler.h"
+#include "envvars.h"
 #include "datainterp.h"
 #include "odmemory.h"
 #include "survgeom3d.h"
 
 static const unsigned short cDefDim = 80;
+static PtrMan<Seis::Blocks::Dimensions> def_dims_ = 0;
 
-Seis::Blocks::Dimensions Seis::Blocks::Data::defDims()
+static Seis::Blocks::SzType getNextDim( char*& startptr )
 {
-    return Dimensions( cDefDim, cDefDim, cDefDim );
+    int val;
+    char* ptr = firstOcc( startptr, 'x' );
+    if ( ptr )
+	*ptr = '\0';
+    val = toInt( startptr );
+    if ( ptr )
+	startptr = ptr + 1;
+    if ( val < 0 || val > 65535 )
+	return 0;
+    return (Seis::Blocks::SzType)val;
+}
+
+Seis::Blocks::Dimensions Seis::Blocks::Block::defDims()
+{
+    if ( !def_dims_ )
+    {
+	Dimensions* dims = new Dimensions( cDefDim, cDefDim, cDefDim );
+	BufferString envvval = GetEnvVar( "OD_SEIS_BLOCKS_DIMS" );
+	if ( !envvval.isEmpty() )
+	{
+	    char* startptr = envvval.getCStr();
+	    dims->inl() = getNextDim( startptr );
+	    dims->crl() = getNextDim( startptr );
+	    dims->z() = getNextDim( startptr );
+	}
+	def_dims_.setIfNull( dims, true );
+    }
+    return *def_dims_;
 }
 
 
-Seis::Blocks::Data::Data( GlobIdx gidx, Dimensions dims, OD::FPDataRepType fpr )
+Seis::Blocks::Block::Block( GlobIdx gidx, SampIdx start,
+			    Dimensions dims, OD::FPDataRepType fpr )
     : globidx_(gidx)
+    , start_(start)
     , dims_(dims)
     , scaler_(0)
-    , totsz_((((int)dims.inl())*dims.crl()) * dims.z())
     , dbuf_(*new DataBuffer(0))
 {
     const DataCharacteristics dc( fpr );
     interp_ = DataInterpreter<float>::create( dc, true );
     const int bytesperval = (int)dc.nrBytes();
     dbuf_.reByte( bytesperval, false );
-    dbuf_.reSize( totsz_ );
+    const int totsz = (((int)dims.inl())*dims.crl()) * dims.z();
+    dbuf_.reSize( totsz );
 }
 
 
-Seis::Blocks::Data::~Data()
+Seis::Blocks::Block::~Block()
 {
     delete interp_;
     delete scaler_;
@@ -46,25 +77,25 @@ Seis::Blocks::Data::~Data()
 }
 
 
-void Seis::Blocks::Data::zero()
+void Seis::Blocks::Block::zero()
 {
     dbuf_.zero();
 }
 
 
-void Seis::Blocks::Data::retire()
+void Seis::Blocks::Block::retire()
 {
     dbuf_.reSize( 0, false );
 }
 
 
-bool Seis::Blocks::Data::isRetired() const
+bool Seis::Blocks::Block::isRetired() const
 {
     return dbuf_.isEmpty();
 }
 
 
-int Seis::Blocks::Data::getBufIdx( const SampIdx& sidx ) const
+int Seis::Blocks::Block::getBufIdx( const SampIdx& sidx ) const
 {
     const int nrsampsoninl = ((int)sidx.crl()) * dims_.z() + sidx.z();
     return sidx.inl() ? sidx.inl()*nrSampsPerInl() + nrsampsoninl
@@ -72,14 +103,14 @@ int Seis::Blocks::Data::getBufIdx( const SampIdx& sidx ) const
 }
 
 
-float Seis::Blocks::Data::value( const SampIdx& sidx ) const
+float Seis::Blocks::Block::value( const SampIdx& sidx ) const
 {
-    return !scaler_ ? interp_->get( dbuf_.data(), getBufIdx(sidx) )
-	: (float)scaler_->scale( interp_->get(dbuf_.data(),getBufIdx(sidx)) );
+    float val = interp_->get( dbuf_.data(), getBufIdx(sidx) );
+    return !scaler_ ? val : (float)scaler_->scale( val );
 }
 
 
-void Seis::Blocks::Data::getVert( SampIdx sampidx, float* vals,
+void Seis::Blocks::Block::getVert( SampIdx sampidx, float* vals,
 				  int arrsz ) const
 {
     const int startbufidx = getBufIdx( sampidx );
@@ -112,7 +143,7 @@ void Seis::Blocks::Data::getVert( SampIdx sampidx, float* vals,
 }
 
 
-void Seis::Blocks::Data::setValue( const SampIdx& sidx, float val )
+void Seis::Blocks::Block::setValue( const SampIdx& sidx, float val )
 {
     if ( !scaler_ )
 	interp_->put( dbuf_.data(), getBufIdx(sidx), val );
@@ -122,7 +153,7 @@ void Seis::Blocks::Data::setValue( const SampIdx& sidx, float val )
 }
 
 
-void Seis::Blocks::Data::setVert( SampIdx sampidx, const float* vals,
+void Seis::Blocks::Block::setVert( SampIdx sampidx, const float* vals,
 				  int arrsz )
 {
     const int startbufidx = getBufIdx( sampidx );
@@ -160,52 +191,52 @@ void Seis::Blocks::Data::setVert( SampIdx sampidx, const float* vals,
 // * Easy debugging
 
 
-Seis::Blocks::IdxType Seis::Blocks::Data::globIdx4Inl( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Inl( const SurvGeom& sg,
 						       int inl, SzType inldim )
 {
     return IdxType( sg.idx4Inl( inl ) / inldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Data::globIdx4Crl( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Crl( const SurvGeom& sg,
 						       int crl, SzType crldim )
 {
     return IdxType( sg.idx4Crl( crl ) / crldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Data::globIdx4Z( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Z( const SurvGeom& sg,
 						     float z, SzType zdim )
 {
     return IdxType( sg.idx4Z( z ) / zdim );
 }
 
 
-Seis::Blocks::IdxType Seis::Blocks::Data::sampIdx4Inl( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::sampIdx4Inl( const SurvGeom& sg,
 						       int inl, SzType inldim )
 {
     return IdxType( sg.idx4Inl( inl ) % inldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Data::sampIdx4Crl( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::sampIdx4Crl( const SurvGeom& sg,
 						       int crl, SzType crldim )
 {
     return IdxType( sg.idx4Crl( crl ) % crldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Data::sampIdx4Z( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::sampIdx4Z( const SurvGeom& sg,
 						     float z, SzType zdim )
 {
     return IdxType( sg.idx4Z( z ) % zdim );
 }
 
 
-Seis::Blocks::IdxType Seis::Blocks::Data::getSampZIdx( float z,
+Seis::Blocks::IdxType Seis::Blocks::Block::getSampZIdx( float z,
 						   const SurvGeom& sg ) const
 {
     return sampIdx4Z( sg, z, dims_.z() );
 }
 
 
-Seis::Blocks::SampIdx Seis::Blocks::Data::getSampIdx( const BinID& bid,
+Seis::Blocks::SampIdx Seis::Blocks::Block::getSampIdx( const BinID& bid,
 						      const SurvGeom& sg ) const
 {
     return SampIdx( sampIdx4Inl(sg,bid.inl(),dims_.inl()),
@@ -214,7 +245,7 @@ Seis::Blocks::SampIdx Seis::Blocks::Data::getSampIdx( const BinID& bid,
 }
 
 
-Seis::Blocks::SampIdx Seis::Blocks::Data::getSampIdx( const BinID& bid,
+Seis::Blocks::SampIdx Seis::Blocks::Block::getSampIdx( const BinID& bid,
 						      float z,
 						      const SurvGeom& sg ) const
 {
@@ -224,21 +255,21 @@ Seis::Blocks::SampIdx Seis::Blocks::Data::getSampIdx( const BinID& bid,
 }
 
 
-int Seis::Blocks::Data::inl4Idxs( const SurvGeom& sg, SzType inldim,
+int Seis::Blocks::Block::inl4Idxs( const SurvGeom& sg, SzType inldim,
 				  IdxType globidx, IdxType sampidx )
 {
     return sg.inl4Idx( (((int)inldim) * globidx) + sampidx );
 }
 
 
-int Seis::Blocks::Data::crl4Idxs( const SurvGeom& sg, SzType crldim,
+int Seis::Blocks::Block::crl4Idxs( const SurvGeom& sg, SzType crldim,
 				  IdxType globidx, IdxType sampidx )
 {
     return sg.crl4Idx( (((int)crldim) * globidx) + sampidx );
 }
 
 
-float Seis::Blocks::Data::z4Idxs( const SurvGeom& sg, SzType zdim,
+float Seis::Blocks::Block::z4Idxs( const SurvGeom& sg, SzType zdim,
 				  IdxType globidx, IdxType sampidx )
 {
     return sg.z4Idx( (((int)zdim) * globidx) + sampidx );

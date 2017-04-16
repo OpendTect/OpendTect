@@ -64,16 +64,20 @@ mDefSeisBlockTripletClass(Dimensions,SzType);
 
 /*!\brief Single block of data */
 
-mExpClass(Seis) Data
+mExpClass(Seis) Block
 {
 public:
 
-			Data(GlobIdx,Dimensions dims=defDims(),
+			Block(GlobIdx,SampIdx start=SampIdx(),
+				Dimensions dims=defDims(),
 				OD::FPDataRepType fpr=OD::F32);
-			~Data();
+			~Block();
 
     const GlobIdx&	globIdx() const		{ return globidx_; }
+    const SampIdx&	start() const		{ return start_; }
+    const Dimensions&	dims() const		{ return dims_; }
     const DataBuffer&	dataBuf() const		{ return dbuf_; }
+
     void		zero();
     void		retire();
     bool		isRetired() const;
@@ -105,9 +109,9 @@ public:
 protected:
 
     const GlobIdx	globidx_;
+    const SampIdx	start_;
     const Dimensions	dims_;
     const Scaler*	scaler_;
-    const int		totsz_;
     DataBuffer&		dbuf_;
     const DataInterpreter<float>* interp_;
 
@@ -124,13 +128,18 @@ mExpClass(Seis) DataStorage
 {
 public:
 
-    virtual		~DataStorage()		    {}
+    virtual		~DataStorage()		{}
 
-    unsigned short	version() const		    { return version_; }
+    unsigned short	version() const		{ return version_; }
 
     static BufferString	fileNameFor(const GlobIdx&);
 
-    static const char*	sKeyDimensions()	    { return "Dimensions"; }
+    static const char*	sKeyFileType()		{ return "Seismic Blocks"; }
+    static const char*	sKeyDimensions()	{ return "Block Dimensions"; }
+    static const char*	sKeyComponents()	{ return "Components"; }
+    static const char*	sKeyGlobInlRg()		{ return "Block Inl ID Range"; }
+    static const char*	sKeyGlobCrlRg()		{ return "Block Crl ID Range"; }
+    static const char*	sKeyGlobZRg()		{ return "Block Z ID Range"; }
 
 protected:
 

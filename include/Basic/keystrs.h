@@ -42,6 +42,7 @@ namespace sKey
     inline FixedString Category()	{ return "Category"; }
     inline FixedString Chain()		{ return "Chain"; }
     inline FixedString Color()		{ return "Color"; }
+    inline FixedString CoordSys()	{ return "Coordinate System"; }
     inline FixedString Component()	{ return "Component"; }
     inline FixedString Content()	{ return "Content"; }
     inline FixedString Crossline()	{ return "Cross-line"; }
@@ -146,11 +147,14 @@ namespace sKey
     inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }
     inline FixedString XCoord()		{ return "X-Coord"; }
+    inline FixedString XRange()		{ return "X range"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
+    inline FixedString YRange()		{ return "Y range"; }
     inline FixedString Yes()		{ return "Yes"; }
     inline FixedString ZCoord()		{ return "Z-Coord"; }
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }
+    inline FixedString ZStep()		{ return "Z step"; }
     inline FixedString ZUnit()		{ return "Z-Unit"; }
     inline FixedString ZValue()		{ return "Z value"; }
 
