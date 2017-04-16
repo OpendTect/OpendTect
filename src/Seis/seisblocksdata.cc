@@ -52,11 +52,11 @@ Seis::Blocks::Dimensions Seis::Blocks::Block::defDims()
 }
 
 
-Seis::Blocks::Block::Block( GlobIdx gidx, SampIdx start,
-			    Dimensions dims, OD::FPDataRepType fpr )
+Seis::Blocks::Block::Block( GlobIdx gidx, SampIdx strt, Dimensions dms,
+			    OD::FPDataRepType fpr )
     : globidx_(gidx)
-    , start_(start)
-    , dims_(dims)
+    , start_(strt)
+    , dims_(dms)
     , scaler_(0)
     , dbuf_(*new DataBuffer(0))
 {
@@ -64,7 +64,7 @@ Seis::Blocks::Block::Block( GlobIdx gidx, SampIdx start,
     interp_ = DataInterpreter<float>::create( dc, true );
     const int bytesperval = (int)dc.nrBytes();
     dbuf_.reByte( bytesperval, false );
-    const int totsz = (((int)dims.inl())*dims.crl()) * dims.z();
+    const int totsz = (((int)dims_.inl())*dims_.crl()) * dims_.z();
     dbuf_.reSize( totsz );
 }
 

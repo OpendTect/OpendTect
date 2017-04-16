@@ -405,7 +405,7 @@ Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
     {
 	const ZEvalPosSet& evalposs
 		= *zevalpositions_[globzidx-globzidxrg_.start];
-	GlobIdx gidx( globidx ); gidx.z() = globzidx;
+	GlobIdx gidx( globidx ); gidx.z() = (IdxType)globzidx;
 	Column::BlockSet* blockset = new Column::BlockSet;
 	column->blocksets_ += blockset;
 
