@@ -7,7 +7,12 @@
 
 set(OD_MODULE_DEPS Geometry MMProc )
 
-set ( OD_TEST_PROGS seisbuf.cc seiskeytracker.cc seisprovider.cc )
+set(OD_TEST_PROGS
+	seisblocks.cc
+	seisbuf.cc
+	seiskeytracker.cc
+	seisprovider.cc
+)
 
 set(OD_MODULE_SOURCES
 	initseis.cc

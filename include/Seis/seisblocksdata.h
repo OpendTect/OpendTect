@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 
-class Scaler;
 class DataBuffer;
 namespace Survey { class Geometry3D; }
 template <class T> class DataInterpreter;
@@ -115,7 +114,6 @@ protected:
     const GlobIdx	globidx_;
     const SampIdx	start_;
     const Dimensions	dims_;
-    const Scaler*	scaler_;
     DataBuffer&		dbuf_;
     const DataInterpreter<float>* interp_;
 

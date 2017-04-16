@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "seisblocksdata.h"
 #include "databuf.h"
-#include "scaler.h"
 #include "envvars.h"
 #include "datainterp.h"
 #include "odmemory.h"
@@ -57,7 +56,6 @@ Seis::Blocks::Block::Block( GlobIdx gidx, SampIdx strt, Dimensions dms,
     : globidx_(gidx)
     , start_(strt)
     , dims_(dms)
-    , scaler_(0)
     , dbuf_(*new DataBuffer(0))
 {
     const DataCharacteristics dc( fpr );
@@ -65,14 +63,13 @@ Seis::Blocks::Block::Block( GlobIdx gidx, SampIdx strt, Dimensions dms,
     const int bytesperval = (int)dc.nrBytes();
     dbuf_.reByte( bytesperval, false );
     const int totsz = (((int)dims_.inl())*dims_.crl()) * dims_.z();
-    dbuf_.reSize( totsz );
+    dbuf_.reSize( totsz, false );
 }
 
 
 Seis::Blocks::Block::~Block()
 {
     delete interp_;
-    delete scaler_;
     delete &dbuf_;
 }
 
@@ -105,8 +102,7 @@ int Seis::Blocks::Block::getBufIdx( const SampIdx& sidx ) const
 
 float Seis::Blocks::Block::value( const SampIdx& sidx ) const
 {
-    float val = interp_->get( dbuf_.data(), getBufIdx(sidx) );
-    return !scaler_ ? val : (float)scaler_->scale( val );
+    return interp_->get( dbuf_.data(), getBufIdx(sidx) );
 }
 
 
@@ -117,7 +113,7 @@ void Seis::Blocks::Block::getVert( SampIdx sampidx, float* vals,
     sampidx.z() = (IdxType)dims_.z();
     const int stopbufidx = getBufIdx( sampidx );
 
-    if ( interp_->isF32() && !scaler_ )
+    if ( interp_->isF32() )
     {
 	int nr2copy = stopbufidx - startbufidx + 1;
 	if ( nr2copy > arrsz )
@@ -132,11 +128,7 @@ void Seis::Blocks::Block::getVert( SampIdx sampidx, float* vals,
 	{
 	    if ( arridx >= arrsz )
 		break;
-	    if ( !scaler_ )
-		vals[arridx] = interp_->get( dbuf_.data(), bufidx );
-	    else
-		vals[arridx] = (float)scaler_->scale(
-				    interp_->get( dbuf_.data(), bufidx ) );
+	    vals[arridx] = interp_->get( dbuf_.data(), bufidx );
 	    arridx++;
 	}
     }
@@ -145,11 +137,7 @@ void Seis::Blocks::Block::getVert( SampIdx sampidx, float* vals,
 
 void Seis::Blocks::Block::setValue( const SampIdx& sidx, float val )
 {
-    if ( !scaler_ )
-	interp_->put( dbuf_.data(), getBufIdx(sidx), val );
-    else
-	interp_->put( dbuf_.data(), getBufIdx(sidx),
-			    (float)scaler_->unScale(val) );
+    interp_->put( dbuf_.data(), getBufIdx(sidx), val );
 }
 
 
@@ -160,7 +148,7 @@ void Seis::Blocks::Block::setVert( SampIdx sampidx, const float* vals,
     sampidx.z() = (IdxType)dims_.z();
     const int stopbufidx = getBufIdx( sampidx );
 
-    if ( interp_->isF32() && !scaler_ )
+    if ( interp_->isF32() )
     {
 	int nr2copy = stopbufidx - startbufidx + 1;
 	if ( nr2copy > arrsz )
@@ -175,11 +163,7 @@ void Seis::Blocks::Block::setVert( SampIdx sampidx, const float* vals,
 	{
 	    if ( arridx >= arrsz )
 		break;
-	    if ( !scaler_ )
-		interp_->put( dbuf_.data(), bufidx, vals[arridx] );
-	    else
-		interp_->put( dbuf_.data(), bufidx,
-			      (float)scaler_->unScale( vals[arridx] ) );
+	    interp_->put( dbuf_.data(), bufidx, vals[arridx] );
 	    arridx++;
 	}
     }

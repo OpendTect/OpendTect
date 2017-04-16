@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "datachar.h"
 #include "file.h"
+#include "oddirs.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "posinfo.h"
 #include "survgeom3d.h"
@@ -43,13 +45,20 @@ BufferString Seis::Blocks::DataStorage::fileNameFor( const GlobIdx& globidx )
 }
 
 
-Seis::Blocks::Writer::Column::Column( const Dimensions& dims )
+Seis::Blocks::Writer::Column::Column( const Dimensions& dims, int nrcomps )
     : nruniquevisits_(0)
     , dims_(dims)
 {
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+	blocksets_ += new BlockSet;
+
     visited_ = new bool* [dims_.inl()];
-    for ( IdxType idx=0; idx<dims_.inl(); idx++ )
-	visited_[idx] = new bool [dims_.crl()];
+    for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
+    {
+	visited_[iinl] = new bool [dims_.crl()];
+	for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
+	    visited_[iinl][icrl] = false;
+    }
 }
 
 
@@ -106,6 +115,7 @@ void Seis::Blocks::Writer::Column::getDefArea( SampIdx& start,
 
 Seis::Blocks::Writer::Writer( const SurvGeom* geom )
     : DataStorage(geom)
+    , basepath_(GetBaseDataDir(),sSeismicSubDir())
     , scaler_(0)
     , specfprep_(OD::AutoFPRep)
     , usefprep_(OD::F32)
@@ -331,6 +341,7 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
     uiRetVal uirv;
     if ( needreset_ )
     {
+	needreset_ = false;
 	isfinished_ = false;
 	setEmpty();
 	if ( !prepareWrite(uirv) )
@@ -362,11 +373,11 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 
     for ( int icomp=0; icomp<nrcomponents_; icomp++ )
     {
-	Column::BlockSet& blocks = *column->blocksets_[icomp];
-	for ( int iblock=0; iblock<zevalpositions_.size(); iblock++ )
+	Column::BlockSet& blockset = *column->blocksets_[icomp];
+	for ( int iblock=0; iblock<blockset.size(); iblock++ )
 	{
 	    const ZEvalPosSet& posset = *zevalpositions_[iblock];
-	    Block& block = *blocks[iblock];
+	    Block& block = *blockset[iblock];
 	    add2Block( block, posset, sampidx, trc, icomp );
 	}
     }
@@ -399,16 +410,14 @@ void Seis::Blocks::Writer::add2Block( Block& block, const ZEvalPosSet& zevals,
 Seis::Blocks::Writer::Column*
 Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
 {
-    Column* column = new Column( dims_ );
+    Column* column = new Column( dims_, nrcomponents_ );
+
     for ( IdxType globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
 	    globzidx++ )
     {
 	const ZEvalPosSet& evalposs
 		= *zevalpositions_[globzidx-globzidxrg_.start];
-	GlobIdx gidx( globidx ); gidx.z() = globzidx;
-	Column::BlockSet* blockset = new Column::BlockSet;
-	column->blocksets_ += blockset;
-
+	GlobIdx curgidx( globidx ); curgidx.z() = globzidx;
 	Dimensions dims( dims_ ); SampIdx start;
 	if ( globzidx == globzidxrg_.start )
 	{
@@ -420,11 +429,11 @@ Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
 
 	for ( int icomp=0; icomp<nrcomponents_; icomp++ )
 	{
-	    Block* block = new Block( gidx, start, dims, usefprep_ );
+	    Block* block = new Block( curgidx, start, dims, usefprep_ );
 	    if ( block->isRetired() )
 		{ delete column; return 0; }
 	    block->zero();
-	    *blockset += block;
+	    *column->blocksets_[icomp] += block;
 	}
     }
 
@@ -602,27 +611,27 @@ bool Seis::Blocks::Writer::writeBlock( od_ostream& strm, Block& block,
 					SampIdx wrstart, Dimensions wrdims )
 {
     const DataBuffer& dbuf = block.dataBuf();
+    const Dimensions& blockdims = block.dims();
 
-    if ( wrdims == dims_ )
+    if ( wrdims == blockdims )
 	strm.addBin( dbuf.data(), dbuf.totalBytes() );
     else
     {
 	const DataBuffer::buf_type* bufdata = dbuf.data();
 	const int bytespersample = dbuf.bytesPerElement();
-	const int bytesperentirecrl = bytespersample * dims_.z();
-	const int bytesperentireinl = bytesperentirecrl * dims_.crl();
+	const int bytesperentirecrl = bytespersample * blockdims.z();
+	const int bytesperentireinl = bytesperentirecrl * blockdims.crl();
 
 	const int bytes2write = wrdims.z() * bytespersample;
 	const IdxType wrstopinl = wrstart.inl() + wrdims.inl();
 	const IdxType wrstopcrl = wrstart.crl() + wrdims.crl();
 
-	const DataBuffer::buf_type* dataptr = bufdata
-			+ wrstart.inl() * bytesperentireinl
-			+ wrstart.crl() * bytesperentirecrl
-			+ wrstart.z() * bytespersample;
-
+	const DataBuffer::buf_type* dataptr;
 	for ( IdxType iinl=wrstart.inl(); iinl<wrstopinl; iinl++ )
 	{
+	    dataptr = bufdata + iinl * bytesperentireinl
+			      + wrstart.crl() * bytesperentirecrl
+			      + wrstart.z() * bytespersample;
 	    for ( IdxType icrl=wrstart.crl(); icrl<wrstopcrl; icrl++ )
 	    {
 		strm.addBin( dataptr, bytes2write );
@@ -681,8 +690,11 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
     iop.set( sKey::DataStorage(), DataCharacteristics::toString(usefprep_) );
     if ( scaler_ )
     {
-	char buf[1024]; scaler_->put( buf );
+	// write the scaler needed to reconstruct the org values
+	LinScaler* invscaler = scaler_->inverse();
+	char buf[1024]; invscaler->put( buf );
 	iop.set( sKey::Scale(), buf );
+	delete invscaler;
     }
     iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );
     iop.set( sKeyGlobInlRg(), globinlrg );
@@ -846,6 +858,7 @@ virtual bool doFinish( bool )
     uiRetVal uirv;
     wrr_.writeMainFile( uirv );
     uirv_.add( uirv );
+    wrr_.isfinished_ = true;
     return uirv.isError();
 }
 
@@ -861,5 +874,8 @@ virtual bool doFinish( bool )
 
 Task* Seis::Blocks::Writer::finisher()
 {
-    return new WriterFinisher( *this );
+    WriterFinisher* wf = new WriterFinisher( *this );
+    if ( wf->towrite_.isEmpty() )
+	{ delete wf; wf = 0; }
+    return wf;
 }

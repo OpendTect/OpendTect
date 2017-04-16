@@ -71,7 +71,7 @@ public:
     {
 	typedef ManagedObjectSet<Block>    BlockSet;
 
-			Column(const Dimensions&);
+			Column(const Dimensions&,int nrcomps);
 			~Column();
 
 	Block&		firstBlock()	{ return *blocksets_.first()->first(); }
