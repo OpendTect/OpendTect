@@ -472,7 +472,7 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
     }
 
     curpolylineitem->setPolyLine( pixpts );
-    LineStyle ls = yah->setup().style_;
+    OD::LineStyle ls = yah->setup().style_;
     ls.width_ = 3;
     curpolylineitem->setPenStyle( ls );
     curpolylineitem->setZValue( 4 );

@@ -85,8 +85,8 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
     comm += " -JM"; comm += mapdim.start; comm += "c -D";
     const int res = ODGMT::parseEnumResolution( find(ODGMT::sKeyResolution()) );
     comm += sResKeys[res];
-    LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle()) );
-    drawcontour = ls.type_ != LineStyle::None;
+    OD::LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle()) );
+    drawcontour = ls.type_ != OD::LineStyle::None;
     if ( drawcontour )
     {
 	BufferString lsstr; mGetLineStyleString( ls, lsstr );

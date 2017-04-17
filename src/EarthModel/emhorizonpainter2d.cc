@@ -23,7 +23,7 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )
     : viewer_(fv)
     , id_(oid)
-    , markerlinestyle_(LineStyle::Solid,2,Color(0,255,0))
+    , markerlinestyle_(OD::LineStyle::Solid,2,Color(0,255,0))
     , markerstyle_(MarkerStyle2D::Square, 4, Color::White())
     , linenabled_(true)
     , seedenabled_(true)

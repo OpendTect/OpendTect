@@ -106,7 +106,7 @@ void MPEEditor::setupPatchDisplay()
 	patchline_->setDisplayTransformation( transformation_ );
     }
 
-    LineStyle lsty( LineStyle::Solid, 4, lineclr );
+    OD::LineStyle lsty( OD::LineStyle::Solid, 4, lineclr );
     patchline_->setLineStyle( lsty );
     patchmarkers_->setMarkersSingleColor( mkclr );
 }

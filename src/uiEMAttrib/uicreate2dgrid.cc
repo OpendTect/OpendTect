@@ -89,7 +89,7 @@ void update()
 
     if ( !grid_ ) return;
 
-    LineStyle ls;
+    OD::LineStyle ls;
     ls.width_ = 5;
     int graphicszval = 2;
     for ( int idx=0; idx<grid_->size(true); idx++ )

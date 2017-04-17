@@ -29,7 +29,7 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
     , ps_(ps)
 {
     Color defcol( ps_.disp_.color_ ); defcol.setTransparency( 150 );
-    const LineStyle ls( LineStyle::Solid, 20, defcol );
+    const OD::LineStyle ls( OD::LineStyle::Solid, 20, defcol );
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
 

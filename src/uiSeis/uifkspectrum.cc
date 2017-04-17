@@ -113,7 +113,7 @@ uiFKSpectrum::~uiFKSpectrum()
 FlatView::AuxData* uiFKSpectrum::initAuxData()
 {
     FlatView::AuxData* ad = viewer().createAuxData(0);
-    ad->linestyle_.type_ = LineStyle::Solid;
+    ad->linestyle_.type_ = OD::LineStyle::Solid;
     ad->linestyle_.width_ = 2;
     ad->linestyle_.color_ = Color::Black();
     viewer().addAuxData( ad );

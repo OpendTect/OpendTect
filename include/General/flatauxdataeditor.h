@@ -56,7 +56,7 @@ public:
 
     bool		accept(const MouseEvent&,bool released=false);
     bool		activate(const Color&,const MouseEvent&);
-    bool		activate(const LineStyle&,const MouseEvent&);
+    bool		activate(const OD::LineStyle&,const MouseEvent&);
 
     void		setSequentSowMask(bool yn=true,
 				    OD::ButtonState mask=OD::LeftButton);
@@ -173,8 +173,9 @@ public:
     				//!<If not rectangle, it's a polygon
     bool			getSelectionPolygonRectangle() const;
     				//!<If not rectangle, it's a polygon
-    const LineStyle&		getSelectionPolygonLineStyle() const;
-    void			setSelectionPolygonLineStyle(const LineStyle&);
+    const OD::LineStyle&	getSelectionPolygonLineStyle() const;
+    void			setSelectionPolygonLineStyle(
+							const OD::LineStyle&);
     void			getPointSelections(TypeSet<int>& ids,
 	    					   TypeSet<int>& idxs) const;
     				/*!<Each point within the limits of the polygons
@@ -233,7 +234,7 @@ protected:
 
     int				addauxdataid_;
     ObjectSet<AuxData>		polygonsel_;
-    LineStyle			polygonsellst_;
+    OD::LineStyle		polygonsellst_;
     bool			polygonselrect_;
     bool			isselactive_;
     AuxData*			feedback_;

@@ -101,7 +101,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     flipfld_ = new uiCheckBox( this, uiStrings::sFlip() );
     flipfld_->attach( rightOf, colseqfld_ );
 
-    lsfld_ = new uiSelLineStyle( this, LineStyle(), tr("Line Style") );
+    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), tr("Line Style") );
     lsfld_->attach( alignedBelow, fillfld_ );
     drawSel( 0 );
 }
@@ -123,7 +123,7 @@ void uiGMTContourGrp::reset()
     rgfld_->clear();
     nrcontourfld_->clear();
     linefld_->setChecked( true );
-    lsfld_->setStyle( LineStyle() );
+    lsfld_->setStyle( OD::LineStyle() );
     fillfld_->setChecked( false );
     drawSel( 0 );
 }
@@ -406,7 +406,7 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     if ( drawcontour )
     {
 	FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
-	LineStyle ls; ls.fromString( lskey.str() );
+	OD::LineStyle ls; ls.fromString( lskey.str() );
 	lsfld_->setStyle( ls );
     }
 

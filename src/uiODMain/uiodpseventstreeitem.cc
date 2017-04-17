@@ -235,7 +235,7 @@ void uiODPSEventsTreeItem::updateDisplay()
 	visserv->addObject( eventdisplay_, sceneID(), false );
 	displayid_ = eventdisplay_->id();
     eventdisplay_->setName( mToUiStringTodo(eventname_) );
-	eventdisplay_->setLineStyle( LineStyle(LineStyle::Solid,4) );
+	eventdisplay_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,4) );
 	eventdisplay_->setEventManager( &psem_ );
 
 	ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>(

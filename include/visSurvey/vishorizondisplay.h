@@ -127,7 +127,7 @@ public:
     void			setRandomPosData( int,const DataPointSet*,
 						 TaskRunner*);
 
-    void			setLineStyle(const LineStyle&);
+    void			setLineStyle(const OD::LineStyle&);
 				/*!<If ls is solid, a 3d shape will be used,
 				    otherwise 'flat' lines. */
     bool			hasStoredAttrib(int attrib) const;
@@ -245,7 +245,7 @@ private:
 
     struct IntersectionData
     {
-				IntersectionData(const LineStyle&);
+				IntersectionData(const OD::LineStyle&);
 				~IntersectionData();
 	void			addLine(const TypeSet<Coord3>&);
 	void			clear();
@@ -256,7 +256,7 @@ private:
 						   ZAxisTransform*);
         void			setSceneEventCatcher(visBase::EventCatcher*);
         void			setMaterial(visBase::Material*);
-	RefMan<visBase::VertexShape> setLineStyle(const LineStyle&);
+	RefMan<visBase::VertexShape> setLineStyle(const OD::LineStyle&);
     				//Returns old line if replaced
 
 

@@ -241,7 +241,7 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 	uiPoint pt( w2ui_->transform(wpt) );
 	uiLineItem* lineitem = new uiLineItem();
 	lineitem->setLine( pt.x, 0, pt.x, 15 );
-	lineitem->setPenStyle( LineStyle(LineStyle::Solid,3) );
+	lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,3) );
 	markerlineitmgrp_->add( lineitem );
     }
 }

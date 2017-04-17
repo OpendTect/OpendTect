@@ -53,7 +53,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( alignedBelow, inpfld_ );
 
-    lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
+    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, namefld_ );
 
     fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
@@ -67,7 +67,7 @@ void uiGMTPolylineGrp::reset()
 {
     inpfld_->clear();
     namefld_->clear();
-    lsfld_->setStyle( LineStyle() );
+    lsfld_->setStyle( OD::LineStyle() );
     fillcolfld_->setColor( Color::White() );
     fillcolfld_->setDoDraw( false );
 }
@@ -111,7 +111,7 @@ bool uiGMTPolylineGrp::usePar( const IOPar& par )
     FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( !lskey.isEmpty() )
     {
-	LineStyle ls; ls.fromString( lskey.str() );
+	OD::LineStyle ls; ls.fromString( lskey.str() );
 	lsfld_->setStyle( ls );
     }
 

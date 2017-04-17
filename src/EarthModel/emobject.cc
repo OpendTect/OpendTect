@@ -51,7 +51,7 @@ EMObject::EMObject( EMManager& emm )
     , locked_( false )
     , burstalertcount_( 0 )
     , selremoving_( false )
-    , preferredlinestyle_( *new LineStyle(LineStyle::Solid,3) )
+    , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
     , preferredmarkerstyle_(
 	*new MarkerStyle3D(MarkerStyle3D::Cube,2,Color::White()))
 {
@@ -216,13 +216,13 @@ bool EMObject::isAtEdge( const PosID& ) const
 }
 
 
-const LineStyle& EMObject::preferredLineStyle() const
+const OD::LineStyle& EMObject::preferredLineStyle() const
 {
     return preferredlinestyle_;
 }
 
 
-void EMObject::setPreferredLineStyle( const LineStyle& lnst )
+void EMObject::setPreferredLineStyle( const OD::LineStyle& lnst )
 {
     if ( preferredlinestyle_ == lnst )
 	return;
@@ -637,7 +637,7 @@ void EMObject::useDisplayPars( const IOPar& par )
     }
 
     BufferString lnststr;
-    LineStyle lnst;
+    OD::LineStyle lnst;
     if( displaypar.get(sKey::LineStyle(),lnststr) )
     {
 	lnst.fromString( lnststr );

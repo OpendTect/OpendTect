@@ -273,7 +273,7 @@ void ODGraphicsArrowItem::drawArrow( QPainter& painter )
 
 
 void ODGraphicsArrowItem::setLineStyle( QPainter& painter,
-					const LineStyle& ls )
+					const OD::LineStyle& ls )
 {
     pen().setStyle( (Qt::PenStyle)ls.type_ );
     pen().setColor( QColor(QRgb(ls.color_.rgb())) );

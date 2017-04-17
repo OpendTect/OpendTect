@@ -158,13 +158,13 @@ void PolygonSelection::setHUDCamera( Camera* hudcam )
 }
 
 
-void PolygonSelection::setLineStyle( const LineStyle& lst )
+void PolygonSelection::setLineStyle( const OD::LineStyle& lst )
 {
     drawstyle_->setLineStyle( lst );
 }
 
 
-const LineStyle& PolygonSelection::getLineStyle() const
+const OD::LineStyle& PolygonSelection::getLineStyle() const
 { return drawstyle_->lineStyle(); }
 
 

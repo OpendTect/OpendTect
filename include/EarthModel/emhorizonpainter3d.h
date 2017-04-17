@@ -99,7 +99,7 @@ protected:
     const TrcKeyPath*	path_;
     const FlatPosData*	flatposdata_;
 
-    LineStyle		markerlinestyle_;
+    OD::LineStyle	markerlinestyle_;
     MarkerStyle2D	markerstyle_;
     FlatView::Viewer&	viewer_;
 

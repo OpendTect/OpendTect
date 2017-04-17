@@ -111,7 +111,7 @@ void drawMarkerLine( float val )
 
     if ( !markerlineitem_ )
     {
-	LineStyle ls( LineStyle::Solid, 2, Color(0,255,0) );
+	OD::LineStyle ls( OD::LineStyle::Solid, 2, Color(0,255,0) );
 	markerlineitem_ = dispfld_->scene().addItem( new uiLineItem() );
 	markerlineitem_->setPenStyle( ls );
 	markerlineitem_->setZValue( 3 );

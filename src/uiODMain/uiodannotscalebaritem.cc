@@ -38,7 +38,7 @@ ScaleBarPars()
 bool		oninlcrl_;
 int		orientation_;
 double		length_;
-LineStyle	ls_;
+OD::LineStyle	ls_;
 };
 
 
@@ -77,7 +77,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     unitlbl_->setPrefWidthInChar( 6 );
     unitlbl_->attach( rightTo, lengthfld_ );
 
-    LineStyle ls; uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
+    OD::LineStyle ls; uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
     linestylefld_ = new uiSelLineStyle( this, ls, lssu );
     linestylefld_->changed.notify( mCB(this,uiScaleBarDialog,changeCB) );
     linestylefld_->attach( alignedBelow, lengthfld_ );
@@ -228,7 +228,7 @@ void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
 	pars.oninlcrl_ = ad->isOnInlCrl();
 	pars.orientation_ = ad->getOrientation();
 	pars.length_ = ad->getLength();
-	pars.ls_ = LineStyle(LineStyle::Solid,ad->getLineWidth(),
+	pars.ls_ = OD::LineStyle(OD::LineStyle::Solid,ad->getLineWidth(),
 			     set_->disp_.color_);
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	uiScaleBarDialog dlg( getUiParent(), scene->zDomainInfo() );

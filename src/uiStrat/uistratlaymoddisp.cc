@@ -215,7 +215,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 	eachfld_ = new uiGenInput( this, tr("Use Each"), val );
 	eachfld_->attach( alignedBelow, filefld_ );
 
-	doreplacefld_ = new uiGenInput( this, 
+	doreplacefld_ = new uiGenInput( this,
 					tr("Clear existing model before add"),
 					BoolInpSpec(true) );
 	doreplacefld_->attach( alignedBelow, eachfld_ );
@@ -837,7 +837,8 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
     {
 	selseqad_ = vwr_.createAuxData( 0 );
 	selseqad_->enabled_ = true;
-	selseqad_->linestyle_ = LineStyle( LineStyle::Dot, 2, Color::Black() );
+	selseqad_->linestyle_ =
+		OD::LineStyle( OD::LineStyle::Dot, 2, Color::Black() );
 	selseqad_->zvalue_ = uiFlatViewer::auxDataZVal() + 2;
 	vwr_.addAuxData( selseqad_ );
     }
@@ -882,7 +883,7 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 	levelad->poly_.erase();
 	levelad->close_ = false;
 	levelad->enabled_ = true;
-	levelad->linestyle_ = LineStyle(LineStyle::Solid,2,lvlcol_);
+	levelad->linestyle_ = OD::LineStyle(OD::LineStyle::Solid,2,lvlcol_);
 	levelad->poly_ += FlatView::Point( xpos1, ypos );
 	levelad->poly_ += FlatView::Point( xpos2, ypos );
 	auxdataidx++;
@@ -945,7 +946,7 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 
 	layad->fillcolor_ = laycol;
 	layad->enabled_ = true;
-	layad->linestyle_ = LineStyle( LineStyle::Solid, 2, pencol );
+	layad->linestyle_ = OD::LineStyle( OD::LineStyle::Solid, 2, pencol );
 	if ( mustannotcont )
 	    layad->fillpattern_ = lay.content().pattern_;
 	else

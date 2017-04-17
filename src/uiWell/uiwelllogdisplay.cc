@@ -117,7 +117,7 @@ void uiWellLogDisplay::drawCurve( bool first )
     LogData& ld = logData( first );
 
     if ( !ld.curvepolyitm_ ) return;
-    LineStyle ls(LineStyle::Solid);
+    OD::LineStyle ls(OD::LineStyle::Solid);
     ls.width_ = ld.disp_.size_;
     ls.color_ = ld.disp_.color_;
     ld.curvepolyitm_->setPenStyle( ls );
@@ -190,7 +190,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 	ld.curvepolyitms_ += pli;
 	Color color = ld.disp_.seiscolor_;
 	pli->setFillColor( color );
-	pli->setPenStyle( LineStyle(LineStyle::Solid,1,color) );
+	pli->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
 	pli->setZValue( 1 );
     }
     deepErase( pts );
@@ -304,7 +304,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	Color color = ld.disp_.issinglecol_ ? ld.disp_.seiscolor_
 					    : seq->color(colorposset[idx]);
 	pli->setFillColor( color );
-	pli->setPenStyle( LineStyle(LineStyle::None) );
+	pli->setPenStyle( OD::LineStyle(OD::LineStyle::None) );
 	pli->setZValue( 1 );
     }
     deepErase( pts );

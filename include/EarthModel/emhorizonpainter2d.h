@@ -85,7 +85,7 @@ protected:
     EM::ObjectID	id_;
     TrcKeyZSampling	tkzs_;
 
-    LineStyle		markerlinestyle_;
+    OD::LineStyle	markerlinestyle_;
     MarkerStyle2D	markerstyle_;
     FlatView::Viewer&	viewer_;
 

@@ -176,7 +176,7 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
 
 void ScaleBar::setLineWidth( int width )
 {
-    linestyle_->setLineStyle( LineStyle(LineStyle::Solid,width) );
+    linestyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,width) );
     requestSingleRedraw();
 }
 

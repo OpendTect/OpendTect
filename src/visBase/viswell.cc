@@ -261,20 +261,20 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 
 void Well::setTrackProperties( Color& col, int width)
 {
-    LineStyle lst;
+    OD::LineStyle lst;
     lst.color_ = col;
     lst.width_ = width;
     setLineStyle( lst );
 }
 
 
-void Well::setLineStyle( const LineStyle& lst )
+void Well::setLineStyle( const OD::LineStyle& lst )
 {
     track_->setLineStyle( lst );
 }
 
 
-const LineStyle& Well::lineStyle() const
+const OD::LineStyle& Well::lineStyle() const
 {
     return track_->lineStyle();
 }
@@ -944,7 +944,7 @@ bool Well::usePar( const IOPar& par )
     BufferString linestyle;
     if ( par.get(linestylestr(),linestyle) )
     {
-	LineStyle lst;
+	OD::LineStyle lst;
 	lst.fromString( linestyle );
 	setLineStyle( lst );
     }

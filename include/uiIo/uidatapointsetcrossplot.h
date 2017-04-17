@@ -55,9 +55,9 @@ public:
 	mDefSetupMemb(bool,noedit)
 	mDefSetupMemb(uiBorder,minborder)
 	mDefSetupMemb(MarkerStyle2D,markerstyle) // None => uses drawPoint
-	mDefSetupMemb(LineStyle,xstyle)
-	mDefSetupMemb(LineStyle,ystyle)
-	mDefSetupMemb(LineStyle,y2style)
+	mDefSetupMemb(OD::LineStyle,xstyle)
+	mDefSetupMemb(OD::LineStyle,ystyle)
+	mDefSetupMemb(OD::LineStyle,y2style)
 	mDefSetupMemb(bool,showcc)		// corr coefficient
 	mDefSetupMemb(bool,showregrline)
 	mDefSetupMemb(bool,showy1userdefpolyline)

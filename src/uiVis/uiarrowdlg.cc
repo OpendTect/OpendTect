@@ -31,7 +31,7 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     typefld_->box()->selectionChanged.notify(
 				mCB(this,uiArrowDialog,changeCB) );
 
-    LineStyle ls; uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
+    OD::LineStyle ls; uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
     linestylefld_ = new uiSelLineStyle( this, ls, lssu );
     linestylefld_->changed.notify( mCB(this,uiArrowDialog,changeCB) );
     linestylefld_->attach( alignedBelow, typefld_ );

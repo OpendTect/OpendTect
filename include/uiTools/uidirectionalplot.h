@@ -47,9 +47,9 @@ public:
 	enum Type		{ Rose, Scatter, Vals };
 				Setup( Type t=Rose )
 				    : type_(t)
-				    , circlels_(LineStyle::Solid)
-				    , sectorls_(LineStyle::Solid)
-				    , equils_(LineStyle::Dot)
+				    , circlels_(OD::LineStyle::Solid)
+				    , sectorls_(OD::LineStyle::Solid)
+				    , equils_(OD::LineStyle::Dot)
 				    , markstyle_(MarkerStyle2D::Circle)
 				    , docount_(false)
 				    , curissel_(true)
@@ -58,9 +58,9 @@ public:
 				    , prefsize_(400,400)	{}
 
 	mDefSetupMemb(Type,type)
-	mDefSetupMemb(LineStyle,circlels)
-	mDefSetupMemb(LineStyle,sectorls)
-	mDefSetupMemb(LineStyle,equils)
+	mDefSetupMemb(OD::LineStyle,circlels)
+	mDefSetupMemb(OD::LineStyle,sectorls)
+	mDefSetupMemb(OD::LineStyle,equils)
 	mDefSetupMemb(MarkerStyle2D,markstyle)
 	mDefSetupMemb(bool,curissel)	// Must clicked sector become selected?
 	mDefSetupMemb(bool,docount)	// Show count rather than val_ (Vals)

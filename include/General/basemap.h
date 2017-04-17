@@ -22,7 +22,6 @@ namespace OD { class RGBImage; }
 class MarkerStyle2D;
 class MouseEvent;
 class TaskRunner;
-class LineStyle;
 template <class T> class ODPolygon;
 
 /*!Object that can be painted in a basemap. */
@@ -67,8 +66,8 @@ public:
 				{ scx = scy = 1.f; }
     virtual void		setXYScale(int idx,float scx,float scy)	{}
 
-    virtual void		setLineStyle(int idx,const LineStyle&)	    {}
-    virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
+    virtual void		setLineStyle(int idx,const OD::LineStyle&)    {}
+    virtual const OD::LineStyle* getLineStyle(int shapeidx) const { return 0; }
 
     virtual void		setFillColor(int idx,const Color&)	    {}
     virtual const Color		getFillColor(int idx) const

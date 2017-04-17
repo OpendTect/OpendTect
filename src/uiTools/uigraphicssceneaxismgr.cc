@@ -73,7 +73,7 @@ void uiGraphicsSceneAxis::enableMask( bool yn )
 	mask_ = new uiRectItem;
 	itmgrp_->add( mask_ );
 	mask_->setFillColor( Color::White() );
-	LineStyle lst; lst.type_ = LineStyle::None;
+	OD::LineStyle lst; lst.type_ = OD::LineStyle::None;
 
 	mask_->setPenStyle( lst );
 	mask_->setZValue( mMaskZ );
@@ -285,7 +285,7 @@ uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
     yaxis_->setEnd( xaxis_ );
 
     updateFontSizeCB( 0 );
-    LineStyle lst; lst.type_ = LineStyle::None;
+    OD::LineStyle lst; lst.type_ = OD::LineStyle::None;
 
     mAddMask( topmask_ );
     mAddMask( bottommask_ );
@@ -351,13 +351,13 @@ void uiGraphicsSceneAxisMgr::setWorldCoords( const uiWorldRect& wr )
 }
 
 
-void uiGraphicsSceneAxisMgr::setXLineStyle( const LineStyle& xls )
+void uiGraphicsSceneAxisMgr::setXLineStyle( const OD::LineStyle& xls )
 {
     xaxis_->setup().style_ = xls;
 }
 
 
-void uiGraphicsSceneAxisMgr::setYLineStyle( const LineStyle& yls )
+void uiGraphicsSceneAxisMgr::setYLineStyle( const OD::LineStyle& yls )
 {
     yaxis_->setup().style_ = yls;
 }
@@ -394,7 +394,7 @@ void uiGraphicsSceneAxisMgr::updateFontSizeCB( CallBacker* )
 }
 
 
-void uiGraphicsSceneAxisMgr::setGridLineStyle( const LineStyle& gls )
+void uiGraphicsSceneAxisMgr::setGridLineStyle( const OD::LineStyle& gls )
 {
     xaxis_->setup().gridlinestyle_ = gls;
     yaxis_->setup().gridlinestyle_ = gls;
@@ -425,8 +425,8 @@ void uiGraphicsSceneAxisMgr::setAuxAnnotPositions(
 }
 
 
-void uiGraphicsSceneAxisMgr::setAuxLineStyle( const LineStyle& ls, bool forx,
-					      bool forhl )
+void uiGraphicsSceneAxisMgr::setAuxLineStyle( const OD::LineStyle& ls,
+					      bool forx, bool forhl )
 {
     uiAxisHandler* axis = forx ? xaxis_ : yaxis_;
     if ( forhl )

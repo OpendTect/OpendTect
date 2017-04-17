@@ -415,7 +415,7 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 
     if ( polydrawn )
     {
-	LineStyle ls;
+	OD::LineStyle ls;
 	ls.width_ = setup_.ywidth_;
 	ls.color_ = setup_.ycol_;
 	ypolyitem_->setPenStyle( ls );
@@ -454,7 +454,7 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 
     if ( polydrawn )
     {
-	LineStyle ls;
+	OD::LineStyle ls;
 	ls.width_ = setup_.y2width_;
 	ls.color_ = setup_.y2col_;
 	y2polyitem_->setPenStyle( ls );

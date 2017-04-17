@@ -220,7 +220,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     {
 	strm << "Drawing contours ...  ";
 	FixedString lskey = find( ODGMT::sKeyLineStyle() );
-	LineStyle ls; ls.fromString( lskey.str() );
+	OD::LineStyle ls; ls.fromString( lskey.str() );
 	BufferString lsstr;
 	mGetLineStyleString( ls, lsstr );
 	comm = "grdcontour "; comm += finalgrd;

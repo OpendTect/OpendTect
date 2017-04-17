@@ -79,7 +79,7 @@ public:
 				      excess points.
 				*/
 
-    LineStyle			linestyle_;
+    OD::LineStyle		linestyle_;
     Color			fillcolor_;
     FillPattern			fillpattern_;
     int				zvalue_; //!<overlay zvalue ( max=on top )
@@ -125,8 +125,8 @@ public:
 	int			factor_;
 	bool			showauxannot_;
 	uiString		auxlabel_;
-	LineStyle		auxlinestyle_;
-	LineStyle		auxhllinestyle_;
+	OD::LineStyle		auxlinestyle_;
+	OD::LineStyle		auxhllinestyle_;
 	TypeSet<PlotAnnotation> auxannot_;
 	int			auxPosIdx(float pos,float eps) const;
 	void			showAll(bool yn);

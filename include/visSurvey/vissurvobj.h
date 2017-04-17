@@ -27,7 +27,6 @@ ________________________________________________________________________
 
 
 class DataPointSet;
-class LineStyle;
 class NotifierAccess;
 class RegularSeisDataPack;
 class SeisTrcBuf;
@@ -35,6 +34,7 @@ class ZAxisTransform;
 class TaskRunner;
 
 namespace ColTab  { class MapperSetup; class Sequence; }
+namespace OD { class LineStyle; }
 
 namespace visBase
 {
@@ -42,10 +42,10 @@ namespace visBase
     class EventInfo;
     class TextureChannels;
     class TextureChannel2RGBA;
-};
+}
 
-namespace Attrib  { class SelSpec; }
-namespace Survey  { class Geometry3D; }
+namespace Attrib { class SelSpec; }
+namespace Survey { class Geometry3D; }
 
 namespace visSurvey
 {
@@ -60,7 +60,7 @@ public:
     void			doRef();
     void			doUnRef();
 
-				mDefineFactoryInClass(SurveyObject,factory);
+				mDefineFactoryInClass(SurveyObject,factory)
 
     virtual void		set3DSurvGeom(const Survey::Geometry3D*);
     const Survey::Geometry3D*	get3DSurvGeom() const { return s3dgeom_; }
@@ -139,10 +139,10 @@ public:
 					 with setMaterial on
 					 visBase::VisualObject */
 
-    virtual const LineStyle*	lineStyle() const { return 0; }
+    virtual const OD::LineStyle* lineStyle() const { return 0; }
 				/*!<If the linestyle can be set, a non-zero
 				    pointer should be return. */
-    virtual void		setLineStyle(const LineStyle&) {}
+    virtual void		setLineStyle(const OD::LineStyle&) {}
     virtual void		getLineWidthBounds(int& min,int& max);
     virtual bool		hasSpecificLineColor() const { return false; }
 				/*!<Specifies wether setLineStyle takes
@@ -279,10 +279,10 @@ public:
 
 				//Trace-data
     virtual void		getTraceKeyPath(TrcKeyPath&,
-                                                TypeSet<Coord>* = 0) const {}
-                                /*!<If Coordinates are different from the
-                                   trckeys, they can be delivered in the 
-                                   TypeSet<Coord>* */
+						TypeSet<Coord>* = 0) const {}
+				/*!<If Coordinates are different from the
+				    trckeys, they can be delivered in the
+				    TypeSet<Coord>* */
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
 				{ return Interval<float>(0,0); }
@@ -334,7 +334,7 @@ public:
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     virtual bool		isVerticalPlane() const		{ return true;}
     virtual bool		isInlCrl() const		{ return false;}
-    virtual void		turnOnSelectionMode(bool) {};
+    virtual void		turnOnSelectionMode(bool) {}
 
     static float		sDefMaxDist();
 

@@ -19,11 +19,11 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "uistring.h"
 
-class LineStyle;
 class FillPattern;
 class MouseCursor;
 class MouseEvent;
 class uiGraphicsScene;
+namespace OD { class LineStyle; }
 
 mFDQtclass(QGraphicsItem)
 mFDQtclass(QGraphicsItemGroup)
@@ -82,7 +82,7 @@ public:
     bool		isItemIgnoresTransformationsEnabled() const;
     virtual uiRect	boundingRect() const;
 
-    virtual void	setPenStyle(const LineStyle&,bool usetransp=false);
+    virtual void	setPenStyle(const OD::LineStyle&,bool usetransp=false);
     virtual void	setPenColor(const Color&,bool usetransp=false);
     virtual void	setFillColor(const Color&,bool usetransp=false);
     virtual void	setFillPattern(const FillPattern&);

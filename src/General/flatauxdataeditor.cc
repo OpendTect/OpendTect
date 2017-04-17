@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "polygon.h"
 #include "timefun.h"
 
+using namespace OD;
+
 namespace FlatView
 {
 
@@ -34,7 +36,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , movementFinished( this )
     , addAuxDataChange( this )
     , seldatasetidx_( -1 )
-    , polygonsellst_( LineStyle::Solid, 1, Color( 255, 0, 0 ) )
+    , polygonsellst_( OD::LineStyle::Solid, 1, Color( 255, 0, 0 ) )
     , polygonselrect_( true )
     , isselactive_( true )
     , movementlimit_( 0 )
@@ -83,10 +85,10 @@ bool AuxDataEditor::removeSelectionPolygon()
 }
 
 
-void AuxDataEditor::setSelActive(bool yn) 
-{ 
-    isselactive_ = yn; 
-    if ( !yn ) 
+void AuxDataEditor::setSelActive(bool yn)
+{
+    isselactive_ = yn;
+    if ( !yn )
 	releaseSelection.trigger();
 }
 
@@ -103,7 +105,7 @@ int AuxDataEditor::addAuxData( FlatView::AuxData* nd, bool doedit )
 	}
     }
 
-    if ( !found ) 
+    if ( !found )
     {
 	pErrMsg("Auxdata not present in viewer");
 	return -1;
@@ -165,7 +167,7 @@ void AuxDataEditor::enablePolySel( int id, bool allowsel )
 void AuxDataEditor::setAddAuxData( int id )
 {
     bool change = addauxdataid_!=id;
-    
+
     addauxdataid_ = id;
     if ( removeSelectionPolygon() ) viewer_.handleChange( Viewer::Auxdata );
 
@@ -179,7 +181,7 @@ int AuxDataEditor::getAddAuxData() const
     return addauxdataid_;
 }
 
-    
+
 void AuxDataEditor::setView( const Rect& wv,
 			     const Geom::Rectangle<int>& mouserect )
 {
@@ -210,7 +212,7 @@ bool AuxDataEditor::getSelectionPolygonRectangle() const
 { return polygonselrect_; }
 
 
-void AuxDataEditor::setSelectionPolygonLineStyle( const LineStyle& lst )
+void AuxDataEditor::setSelectionPolygonLineStyle( const OD::LineStyle& lst )
 {
     polygonsellst_ = lst;
 
@@ -222,7 +224,7 @@ void AuxDataEditor::setSelectionPolygonLineStyle( const LineStyle& lst )
 }
 
 
-const LineStyle& AuxDataEditor::getSelectionPolygonLineStyle() const
+const OD::LineStyle& AuxDataEditor::getSelectionPolygonLineStyle() const
 {
     return polygonsellst_;
 }
@@ -341,7 +343,7 @@ void AuxDataEditor::setSelectionPolygonVisible( bool yn )
 {
     for ( int idx = 0; idx<polygonsel_.size(); idx++ )
 	polygonsel_[idx]->enabled_ =  yn;
-     
+
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
@@ -364,10 +366,10 @@ MenuHandler* AuxDataEditor::getMenuHandler()
 
 void AuxDataEditor::mousePressCB( CallBacker* cb )
 {
-    if ( mousehandler_.isHandled() || !viewer_.appearance().annot_.editable_ ) 
-	return; 
+    if ( mousehandler_.isHandled() || !viewer_.appearance().annot_.editable_ )
+	return;
 
-    const MouseEvent& ev = mousehandler_.event(); 
+    const MouseEvent& ev = mousehandler_.event();
     if ( !(ev.buttonState() & OD::LeftButton ) &&
 	  !(ev.buttonState() & OD::MidButton ) &&
 	  (ev.buttonState() & OD::RightButton ) )
@@ -409,7 +411,7 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 
     hasmoved_ = false;
     mousedown_ = true;
-    
+
     if ( seldatasetidx_!=-1 || !(ev.ctrlStatus() || ev.shiftStatus()) ||
 	 ev.altStatus() )
     {
@@ -430,10 +432,10 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
     if ( !mousedown_ || !viewer_.appearance().annot_.editable_ )
 	return;
 
-    if ( !mousehandler_.hasEvent() || mousehandler_.isHandled() ) 
-	return; 
+    if ( !mousehandler_.hasEvent() || mousehandler_.isHandled() )
+	return;
 
-    const MouseEvent& ev = mousehandler_.event(); 
+    const MouseEvent& ev = mousehandler_.event();
     if ( !(ev.buttonState() & OD::LeftButton ) ||
 	  (ev.buttonState() & OD::MidButton ) ||
 	  (ev.buttonState() & OD::RightButton ) )
@@ -469,7 +471,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	if ( seldatasetidx_<doedit_.size() && doedit_[seldatasetidx_] )
 	{
 	    const int selidx = selptidx_[0];
-	    auxdata_[seldatasetidx_]->poly_.removeSingle( selidx ); 
+	    auxdata_[seldatasetidx_]->poly_.removeSingle( selidx );
 	    auxdata_[seldatasetidx_]->markerstyles_.removeSingle( selidx );
 	    viewer_.handleChange( Viewer::Auxdata );
 	}
@@ -489,7 +491,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 
 	viewer_.handleChange( Viewer::Auxdata );
     }
-    
+
     //Movement of existing position
     if ( seldatasetidx_!=-1 && selptidx_.size() && hasmoved_ )
     {
@@ -516,13 +518,13 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 {
     if ( !mousedown_ || mousehandler_.isHandled() ||
-         !viewer_.appearance().annot_.editable_ ) 
-	return; 
+	 !viewer_.appearance().annot_.editable_ )
+	return;
 
     if ( seldatasetidx_!=-1 && !allowmove_[seldatasetidx_] )
 	return;
 
-    const MouseEvent& ev = mousehandler_.event(); 
+    const MouseEvent& ev = mousehandler_.event();
     if ( !(ev.buttonState() & OD::LeftButton ) ||
 	  (ev.buttonState() & OD::MidButton ) ||
 	  (ev.buttonState() & OD::RightButton ) )
@@ -561,7 +563,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	}
 	else if ( !selptidx_.size() )
 	    feedback_->poly_[0] = selptcoord_;
-	else 
+	else
 	    feedback_->poly_[selptidx_[0]] = selptcoord_;
 
 	viewer_.handleChange( Viewer::Auxdata );
@@ -788,7 +790,7 @@ void Sower::setView( const Rect& curview,const Geom::Rectangle<int>& mousearea )
 }
 
 
-bool Sower::activate(const LineStyle& linestyle,
+bool Sower::activate(const OD::LineStyle& linestyle,
     const MouseEvent& mouseevent)
 {
     const bool retval = activate( linestyle.color_, mouseevent );
@@ -820,7 +822,7 @@ bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
 
     mode_ = Furrowing;
     furrowstamp_ = Time::getMilliSeconds();
-    sowingline_->linestyle_ = LineStyle( LineStyle::Solid, 1, color );
+    sowingline_->linestyle_ = OD::LineStyle( OD::LineStyle::Solid, 1, color );
 
     if ( !accept(mouseevent, false) )
     {
@@ -866,7 +868,7 @@ bool Sower::accept( const MouseEvent& mouseevent, bool released )
 #define mRehandle( mouseeventhandler, mouseevent, tityp, tbtyp ) \
     if ( (mouseevent).tabletInfo() ) \
 	(mouseevent).tabletInfo()->eventtype_ = TabletInfo::tityp; \
-    mouseeventhandler.triggerButton##tbtyp( mouseevent ); 
+    mouseeventhandler.triggerButton##tbtyp( mouseevent );
 
 
 bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
@@ -890,7 +892,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	const Pos::IdxPair ip = Pos::IdxPair( mouseevent.x(), mouseevent.y() );
 	const Point pt = transformation_.transform( ip );
 	sowingline_->poly_ += pt;
-	if ( sowingline_->poly_.size() == 1 )	    // Do not want the marker  
+	if ( sowingline_->poly_.size() == 1 )	    // Do not want the marker
 	    sowingline_->poly_ += pt;		    // from one-point polyline
 
 	editor_.viewer().handleChange( Viewer::Auxdata );

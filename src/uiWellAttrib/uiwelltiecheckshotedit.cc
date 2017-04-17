@@ -394,7 +394,7 @@ void uiCheckShotEdit::drawPoints()
 	if ( pts.isEmpty() ) return;
 
 	d2tlineitm_ = scene.addItem( new uiPolyLineItem(pts) );
-	LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
+	OD::LineStyle ls( OD::LineStyle::Solid, 2, Color::DgbColor() );
 	d2tlineitm_->setPenStyle( ls );
     }
 }

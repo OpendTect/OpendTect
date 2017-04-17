@@ -74,7 +74,7 @@ protected:
     void			changedCB(CallBacker*);
 
     visSurvey::SurveyObject*	survobj_;
-    LineStyle			backup_;
+    OD::LineStyle		backup_;
     uiSelLineStyle*		field_;
 
 };

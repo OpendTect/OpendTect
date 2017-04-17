@@ -79,7 +79,7 @@ ArrowDisplay::Type ArrowDisplay::getType() const
 
 void ArrowDisplay::setLineWidth( int nw )
 {
-    linestyle_->setLineStyle( LineStyle(LineStyle::Solid,nw) );
+    linestyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,nw) );
 }
 
 

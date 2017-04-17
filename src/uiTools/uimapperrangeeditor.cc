@@ -151,7 +151,7 @@ void uiMapperRangeEditor::init()
     maxvaltext_ = scene.addItem( new uiTextItem() );
 
     MouseCursor cursor( MouseCursor::SizeHor );
-    LineStyle ls( LineStyle::Solid, 2, Color(0,255,0) );
+    OD::LineStyle ls( OD::LineStyle::Solid, 2, Color(0,255,0) );
     minline_ = scene.addItem( new uiLineItem() );
     minline_->setPenStyle( ls );
     minline_->setCursor( cursor );

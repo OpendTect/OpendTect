@@ -355,7 +355,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 	editor_->sower().intersow();
 	editor_->sower().reverseSowingOrder();
 	if ( editor_->sower().activate(
-	    LineStyle( LineStyle::Solid, 4, sowcolor ), mouseevent) )
+	    OD::LineStyle( OD::LineStyle::Solid, 4, sowcolor ), mouseevent) )
 	    return;
     }
 
@@ -791,7 +791,7 @@ void HorizonFlatViewEditor3D::setupPatchDisplay()
 
     const int linewidth = sowingmode_ ? 0 : 4;
     patchdata_->linestyle_ = 
-	LineStyle( LineStyle::Solid, linewidth, patchcolor );
+	OD::LineStyle( OD::LineStyle::Solid, linewidth, patchcolor );
 }
 
 

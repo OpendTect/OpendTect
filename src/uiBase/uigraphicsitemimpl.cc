@@ -276,7 +276,7 @@ void uiLineItem::setPenColor( const Color& col, bool )
 }
 
 
-void uiLineItem::setPenStyle( const LineStyle& ls, bool )
+void uiLineItem::setPenStyle( const OD::LineStyle& ls, bool )
 {
     QBrush qbrush( QColor(QRgb(ls.color_.rgb())) );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );

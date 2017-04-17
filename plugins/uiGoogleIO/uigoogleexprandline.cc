@@ -42,7 +42,7 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 			      StringInpSpec(mFromUiStringTodo(nm)) );
     lnmfld_->attach( alignedBelow, putlnmfld_ );
 
-    LineStyle ls( LineStyle::Solid, 20, Color(200,0,200) );
+    OD::LineStyle ls( OD::LineStyle::Solid, 20, Color(200,0,200) );
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, lnmfld_ );

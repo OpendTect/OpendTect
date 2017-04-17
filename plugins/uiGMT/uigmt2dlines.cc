@@ -48,7 +48,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     lineselfld_ = new uiSeis2DLineSel( this, true );
     lineselfld_->attach( alignedBelow, namefld_ );
 
-    lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
+    lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, lineselfld_ );
 
     labelfld_ = new uiCheckBox( this, tr("Post Line names"),
@@ -84,7 +84,7 @@ void uiGMT2DLinesGrp::reset()
 {
     namefld_->clear();
     lineselfld_->clearSelection();
-    lsfld_->setStyle( LineStyle() );
+    lsfld_->setStyle( OD::LineStyle() );
     labelfld_->setChecked( false );
     labelfontfld_->setValue( 10 );
     trclabelfld_->setChecked( false );
@@ -149,7 +149,7 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( lskey )
     {
-	LineStyle ls; ls.fromString( lskey.str() );
+	OD::LineStyle ls; ls.fromString( lskey.str() );
 	lsfld_->setStyle( ls );
     }
 

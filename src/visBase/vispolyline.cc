@@ -81,7 +81,7 @@ void PolyLine::removeAllPoints()
 }
 
 
-void PolyLine::setLineStyle( const LineStyle& lst )
+void PolyLine::setLineStyle( const OD::LineStyle& lst )
 {
     if ( !drawstyle_ )
 	drawstyle_ = addNodeState( new DrawStyle );
@@ -97,12 +97,12 @@ void PolyLine::setLineStyle( const LineStyle& lst )
 }
 
 
-const LineStyle& PolyLine::lineStyle() const
+const OD::LineStyle& PolyLine::lineStyle() const
 {
     if ( drawstyle_ )
 	return drawstyle_->lineStyle();
 
-    static LineStyle ls;
+    static OD::LineStyle ls;
     ls.color_ = getMaterial()->getColor();
     return ls;
 }
@@ -125,7 +125,7 @@ PolyLine3D::PolyLine3D()
 }
 
 
-void PolyLine3D::setLineStyle( const LineStyle& lst )
+void PolyLine3D::setLineStyle( const OD::LineStyle& lst )
 {
     lst_ = lst;
     updateRadius();
@@ -168,7 +168,7 @@ void PolyLine3D::setPixelDensity( float dpi )
 }
 
 
-const LineStyle& PolyLine3D::lineStyle() const
+const OD::LineStyle& PolyLine3D::lineStyle() const
 {
     return lst_;
 }

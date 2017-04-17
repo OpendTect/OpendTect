@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     : uiBaseMapObject(bmo)
-    , ls_(LineStyle::Solid,3,Color::Red())
+    , ls_(OD::LineStyle::Solid,3,Color::Red())
     , showlabels_(true)
 {
     for ( int idx=0; idx<4; idx++ )
@@ -67,7 +67,7 @@ bool uiSurveyBoxObject::labelsShown() const
 { return !labels_.isEmpty() && labels_[0]->isVisible(); }
 
 
-void uiSurveyBoxObject::setLineStyle( const LineStyle& ls )
+void uiSurveyBoxObject::setLineStyle( const OD::LineStyle& ls )
 {
     ls_ = ls;
     frame_->setPenColor( ls.color_ );
@@ -137,7 +137,8 @@ uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
 	return;
 
     angleline_ = new uiLineItem;
-    angleline_->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
+    angleline_->setPenStyle(
+		OD::LineStyle(OD::LineStyle::Dot,2,Color(255,0,0)) );
     graphitem_.addChild( angleline_ );
 
     mDeclAlignment( txtalign, Right, Bottom );

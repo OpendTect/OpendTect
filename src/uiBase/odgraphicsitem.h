@@ -132,7 +132,7 @@ public:
 				{ arrowstyle_ = arrowstyle ; }
     void			setArrowSize( const int arrowsz )
 				{ arrowsz_ = arrowsz ; }
-    void			setLineStyle(QPainter&,const LineStyle&);
+    void			setLineStyle(QPainter&,const OD::LineStyle&);
 
     virtual int			type() const	{ return ODGraphicsType+4; }
 

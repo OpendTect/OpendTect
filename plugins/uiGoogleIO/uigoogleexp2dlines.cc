@@ -55,7 +55,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     if ( putallfld_ )
 	putlnmfld_->attach( alignedBelow, putallfld_ );
 
-    LineStyle ls( LineStyle::Solid, 20, Color(0,0,255) );
+    OD::LineStyle ls( OD::LineStyle::Solid, 20, Color(0,0,255) );
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, putlnmfld_ );

@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 
-class LineStyle;
+namespace OD { class LineStyle; }
 class uiGenInput;
 class uiSelLineStyle;
 class uiCheckBox;
@@ -23,7 +23,7 @@ public:
 				uiMeasureDlg(uiParent*);
 				~uiMeasureDlg();
 
-    const LineStyle&		getLineStyle() const	{ return ls_; }
+    const OD::LineStyle&	getLineStyle() const	{ return ls_; }
     bool			doClear() const;
 
     void			fill(const TypeSet<Coord3>&);
@@ -36,7 +36,7 @@ public:
 protected:
 
     float			velocity_;
-    LineStyle&			ls_;
+    OD::LineStyle&		ls_;
 
     uiGenInput*			hdistfld_;
     uiGenInput*			zdistfld_;

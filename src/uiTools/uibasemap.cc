@@ -157,7 +157,7 @@ void uiBaseMapObject::update()
 	    worldpts[cidx] = crds[cidx];
 
 	if ( bmobject_->getLineStyle(idx) &&
-	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )
+	     bmobject_->getLineStyle(idx)->type_!=OD::LineStyle::None )
 	{
 	    if ( !bmobject_->close(idx) )
 	    {
@@ -329,7 +329,7 @@ void uiBaseMapObject::updateStyle()
     for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )
     {
 	if ( bmobject_->getLineStyle(idx) &&
-	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )
+	     bmobject_->getLineStyle(idx)->type_!=OD::LineStyle::None )
 	{
 	    if ( !bmobject_->close(idx) )
 	    {

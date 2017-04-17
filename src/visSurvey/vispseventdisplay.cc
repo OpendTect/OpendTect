@@ -213,13 +213,13 @@ PSEventDisplay::DisplayMode PSEventDisplay::getDisplayMode() const
 { return displaymode_; }
 
 
-void PSEventDisplay::setLineStyle( const LineStyle& ls )
+void PSEventDisplay::setLineStyle( const OD::LineStyle& ls )
 {
     linestyle_->setLineStyle( ls );
 }
 
 
-LineStyle PSEventDisplay::getLineStyle() const
+OD::LineStyle PSEventDisplay::getLineStyle() const
 {
     return linestyle_->lineStyle();
 }

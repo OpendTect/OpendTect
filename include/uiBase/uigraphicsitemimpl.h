@@ -118,7 +118,7 @@ public:
 			~uiLineItem();
 
     QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
-    void 		setPenStyle(const LineStyle&,bool withalpha=false);
+    void		setPenStyle(const OD::LineStyle&,bool withalpha=false);
     void		setPenColor(const Color&,bool withalpha=false);
     void		setLine(const uiPoint& start,const uiPoint& end);
     void		setLine(const uiWorldPoint&,const uiWorldPoint&);

@@ -421,7 +421,7 @@ void uiGraphicsItem::setSelectable( bool yn )
 }
 
 
-void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool usetransparency )
+void uiGraphicsItem::setPenStyle( const OD::LineStyle& ls, bool usetransparency)
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;

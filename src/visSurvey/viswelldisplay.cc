@@ -366,13 +366,13 @@ mShowFunction( showMarkerName, markerNameShown )
 mShowFunction( showLogName, logNameShown )
 
 
-const LineStyle* WellDisplay::lineStyle() const
+const OD::LineStyle* WellDisplay::lineStyle() const
 {
     return &well_->lineStyle();
 }
 
 
-void WellDisplay::setLineStyle( const LineStyle& lst )
+void WellDisplay::setLineStyle( const OD::LineStyle& lst )
 {
     well_->setLineStyle( lst );
 }

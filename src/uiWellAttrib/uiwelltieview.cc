@@ -344,11 +344,11 @@ void uiTieView::drawViewerWellMarkers()
 	vwr_->addAuxData( auxdata );
 	const int shapeint = mrkdisp.shapeint_;
 	const int drawsize = mrkdisp.size_;
-	LineStyle ls = LineStyle( LineStyle::Dot, drawsize, col );
+	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, drawsize, col );
 	if ( shapeint == 1 )
-	    ls.type_ =  LineStyle::Solid;
+	    ls.type_ =	OD::LineStyle::Solid;
 	if ( shapeint == 2 )
-	    ls.type_ = LineStyle::Dash;
+	    ls.type_ = OD::LineStyle::Dash;
 	auxdata->linestyle_ = ls;
 
 	BufferString mtxt( marker->name() );
@@ -385,7 +385,8 @@ void uiTieView::drawUserPicks( const TypeSet<Marker>& pickset, bool issynth )
     for ( int idx=0; idx<pickset.size(); idx++ )
     {
 	const Marker& pick = pickset[idx];
-	LineStyle ls = LineStyle( LineStyle::Solid, pick.size_, pick.color_ );
+	OD::LineStyle ls =
+		OD::LineStyle( OD::LineStyle::Solid, pick.size_, pick.color_ );
 	userpickauxdatas_[idx]->linestyle_ = ls;
 	drawMarker(userpickauxdatas_[idx], issynth, pick.zpos_ );
     }
@@ -413,7 +414,7 @@ void uiTieView::drawHorizons()
 	auxdata->name_ = mtxt;
 	auxdata->namealignment_ = Alignment(Alignment::HCenter,Alignment::Top);
 	auxdata->namepos_ = 0;
-	LineStyle ls = LineStyle( LineStyle::Dot, 2, hor.color_ );
+	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, 2, hor.color_ );
 	auxdata->linestyle_ = ls;
 
 	drawMarker( auxdata, false, zval );

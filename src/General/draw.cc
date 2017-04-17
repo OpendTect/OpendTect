@@ -32,7 +32,7 @@ mDefineEnumUtils(MarkerStyle2D,Type,"Marker type")
 mDefineEnumUtils(MarkerStyle3D,Type,"Marker type")
 { "None", "Cube","Cone", "Cylinder", "Sphere", "Arrow",
   "Cross", "Point", "Plane", 0 };
-mDefineEnumUtils(LineStyle,Type,"Line style")
+mDefineEnumUtils(OD::LineStyle,Type,"Line style")
 { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 
 Alignment::Alignment( HPos h, VPos v )
@@ -104,11 +104,11 @@ void clss::fromString( const char* s ) \
 
 mToStringImpl( MarkerStyle2D, size_ )
 mToStringImpl( MarkerStyle3D, size_ )
-mToStringImpl( LineStyle, width_ )
+mToStringImpl( OD::LineStyle, width_ )
 
 mFromStringImpl( MarkerStyle2D, size_ )
 mFromStringImpl( MarkerStyle3D, size_ )
-mFromStringImpl( LineStyle, width_ )
+mFromStringImpl( OD::LineStyle, width_ )
 
 MarkerStyle2D::MarkerStyle2D(Type tp, int sz, Color col, float rot )
     : type_(tp), size_(sz), color_(col), rotation_(rot)
@@ -170,20 +170,20 @@ MarkerStyle2D::Type MarkerStyle3D::getMS2DType( MarkerStyle3D::Type ms3d )
 }
 
 
-LineStyle::LineStyle( Type t, int w, Color c )
+OD::LineStyle::LineStyle( Type t, int w, Color c )
     : type_(t), width_(w), color_(c)
 {}
 
 
-bool LineStyle::operator ==( const LineStyle& ls ) const
+bool OD::LineStyle::operator ==( const OD::LineStyle& ls ) const
 { return type_ == ls.type_ && width_ == ls.width_ && color_ == ls.color_; }
 
 
-bool LineStyle::operator !=( const LineStyle& ls ) const
+bool OD::LineStyle::operator !=( const OD::LineStyle& ls ) const
 { return !(*this == ls); }
 
 
-bool LineStyle::isVisible() const
+bool OD::LineStyle::isVisible() const
 { return type_!=None && width_>0 && color_.isVisible();}
 
 
@@ -235,7 +235,7 @@ void ArrowHeadStyle::setBoldNess( int b )
 
 ArrowStyle::ArrowStyle( int boldness, Type t )
     : type_(t)
-    , linestyle_(LineStyle::Solid,boldness)
+    , linestyle_(OD::LineStyle::Solid,boldness)
 { setBoldNess(boldness); }
 
 

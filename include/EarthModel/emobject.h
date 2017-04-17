@@ -151,8 +151,8 @@ public:
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&,
 						  bool addtohistory=false);
-    const LineStyle&		preferredLineStyle() const;
-    void			setPreferredLineStyle(const LineStyle&);
+    const OD::LineStyle&		preferredLineStyle() const;
+    void			setPreferredLineStyle(const OD::LineStyle&);
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
 
@@ -275,7 +275,7 @@ protected:
     uiString			errmsg_;
 
     Color&			preferredcolor_;
-    LineStyle&			preferredlinestyle_;
+    OD::LineStyle&		preferredlinestyle_;
     MarkerStyle3D&		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;

@@ -20,17 +20,13 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "visobject.h"
 
-class LineStyle;
 class TaskRunner;
 class VisColorTab;
 class ZAxisTransform;
 
+namespace OD { class LineStyle; }
 
-namespace osgGeo
-{
-    class WellLog;
-}
-
+namespace osgGeo { class WellLog; }
 
 namespace visBase
 {
@@ -145,8 +141,8 @@ public:
 	LogStyle		style_;
     };
 
-    const LineStyle&		lineStyle() const;
-    void			setLineStyle(const LineStyle&);
+    const OD::LineStyle&	lineStyle() const;
+    void			setLineStyle(const OD::LineStyle&);
 
     void			initializeData(const LogParams&,int);
     float			getValue(const TypeSet<Coord3Value>&,int,bool,
@@ -246,7 +242,7 @@ protected:
 
 private:
 
-    void			updateText(Text* tx, const uiString& chr, 
+    void			updateText(Text* tx, const uiString& chr,
 					   const Coord3* pos,
 					   const FontData& fnt);
 

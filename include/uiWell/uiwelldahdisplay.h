@@ -56,25 +56,25 @@ else if ( !zdata_.zistime_ && track() )\
 
 mExpClass(uiWell) uiWellDahDisplay : public uiGraphicsView
 { mODTextTranslationClass(uiWellDahDisplay)
-public:	
+public:
     mStruct(uiWell) Setup
     {
 			    Setup()
 			    : nrmarkerchars_(2)
-			    , pickls_(LineStyle::Solid,1,Color(0,200,0))
+			    , pickls_(OD::LineStyle::Solid,1,Color(0,200,0))
 			    , border_(5)
 			    , noxannot_(false)
 			    , noyannot_(false)
 			    , annotinside_(false)
 			    , samexaxisrange_(false)
-			    , symetricalxaxis_(false) 
+			    , symetricalxaxis_(false)
 			    , drawcurvenames_(false)
-			    , xannotinpercents_(false)			   
+			    , xannotinpercents_(false)
 			    {}
 
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars
-	mDefSetupMemb(LineStyle,pickls)   //!< color used if no PickData color
+	mDefSetupMemb(OD::LineStyle,pickls) //!< color used if no PickData color
 	mDefSetupMemb(int,axisticsz)
 	mDefSetupMemb(bool,noxannot)
 	mDefSetupMemb(bool,noyannot)
@@ -92,7 +92,7 @@ public:
     {
 	virtual			~DahObjData() { delete xaxprcts_; }
 
-	//Set these	
+	//Set these
 	void			setData(const Well::DahObj* d) { dahobj_ = d; }
 	bool			hasData() const { return dahobj_; }
 	bool                    xrev_;
@@ -100,9 +100,9 @@ public:
 	float			cliprate_;
 	Color			col_;
 	bool			drawascurve_;
-	int		 	curvesz_;	
+	int			curvesz_;
 	bool			drawaspoints_;
-	int		 	pointsz_;	
+	int			pointsz_;
 
 	//Get these
 	Interval<float>         zrg_;
@@ -169,9 +169,9 @@ public:
 				{ return mIsEqual(pd.dah_,dah_,1e-4); }
 
 	float                   dah_;
-	Color                   color_; //!< default will use the global 
+	Color			color_; //!< default will use the global
 					//setup color
-	float			val_; //this will be a point if defined, 
+	float			val_; //this will be a point if defined,
 				      //a line otherwise
     };
 
@@ -186,7 +186,7 @@ public:
     void			reDraw()	{ gatherInfo(); draw(); }
     void			reDrawAnnots()	{ drawMarkers(); drawZPicks(); }
 
-    DahObjData&                 dahObjData( bool first ) 
+    DahObjData&			dahObjData( bool first )
     				{ return first ? *ld1_ : *ld2_; }
 protected:
 
@@ -205,7 +205,7 @@ protected:
 			    ~MarkerDraw();
 
 	const Well::Marker&     mrk_;
-	LineStyle               ls_;
+	OD::LineStyle		ls_;
 	uiTextItem*             txtitm_;
 	uiLineItem*             lineitm_;
     };

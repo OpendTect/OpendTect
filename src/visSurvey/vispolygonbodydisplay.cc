@@ -63,7 +63,7 @@ PolygonBodyDisplay::PolygonBodyDisplay()
     nearestpolygonmarker_->setPrimitiveType(Geometry::PrimitiveSet::LineStrips);
 
     drawstyle_->ref();
-    drawstyle_->setLineStyle( LineStyle(LineStyle::Solid,2) );
+    drawstyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
 
     intsurf_->ref();
     intsurf_->turnOn( false );
@@ -156,11 +156,11 @@ EM::ObjectID PolygonBodyDisplay::getEMID() const
 }
 
 
-const LineStyle* PolygonBodyDisplay::lineStyle() const
+const OD::LineStyle* PolygonBodyDisplay::lineStyle() const
 { return &drawstyle_->lineStyle(); }
 
 
-void PolygonBodyDisplay::setLineStyle( const LineStyle& lst )
+void PolygonBodyDisplay::setLineStyle( const OD::LineStyle& lst )
 {
     if ( lineStyle()->width_<0 || lst.width_<0 )
     {
@@ -182,10 +182,10 @@ void PolygonBodyDisplay::setLineStyle( const LineStyle& lst )
 
 void PolygonBodyDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 {
-    const bool islinesolid = lineStyle()->type_ == LineStyle::Solid;
+    const bool islinesolid = lineStyle()->type_ == OD::LineStyle::Solid;
     const float linewidth = islinesolid ? 1.5f*lineStyle()->width_ : -1.0f;
 
-    LineStyle lnstyle( *lineStyle() ) ;
+    OD::LineStyle lnstyle( *lineStyle() ) ;
     lnstyle.width_ = (int)( linewidth );
 
     if ( shape )

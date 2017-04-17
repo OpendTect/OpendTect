@@ -74,7 +74,7 @@ protected:
 
     void		removeAllGraphicsItems();
 
-    const LineStyle&	getLineStyle(const uiAHPlotAnnot&) const;
+    const OD::LineStyle&	getLineStyle(const uiAHPlotAnnot&) const;
     int			getZValue(const uiAHPlotAnnot&) const;
 
     void		addItems(const uiAHPlotAnnot&,bool);
@@ -137,7 +137,8 @@ void uiAHPlotAnnotSet::setVisible( bool yn )
 }
 
 
-const LineStyle& uiAHPlotAnnotSet::getLineStyle( const uiAHPlotAnnot& pah )const
+const OD::LineStyle&
+	uiAHPlotAnnotSet::getLineStyle( const uiAHPlotAnnot& pah ) const
 {
     if ( !pah.isAux() ) return setup_.style_;
     const bool ishighlighted = pah.linetype_ == PlotAnnotation::HighLighted;
@@ -253,7 +254,7 @@ void uiAHPlotAnnotSet::addGridLineAt( int pix, const uiAHPlotAnnot& pah )
 
 void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
 {
-    const LineStyle& ls = getLineStyle( pah );
+    const OD::LineStyle& ls = getLineStyle( pah );
     const int zvalue = getZValue( pah );
     uiLineItem* tickitm = axh_.getTickLine( pix );
     tickitm->setPenColor( ls.color_ );
@@ -576,8 +577,8 @@ void uiAxisHandler::updateAxisLine()
     if ( setup_.noaxisline_ )
 	{ mRemoveFromScene( axislineitm_ ); return; }
 
-    LineStyle ls( setup_.style_ );
-    ls.type_ = LineStyle::Solid;
+    OD::LineStyle ls( setup_.style_ );
+    ls.type_ = OD::LineStyle::Solid;
 
     const int edgepix = pixToEdge();
     if ( isHor() )

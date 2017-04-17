@@ -112,6 +112,9 @@ public:
 };
 
 
+namespace OD
+{
+
 mExpClass(General) LineStyle
 {
 public:
@@ -136,6 +139,8 @@ public:
     void		fromString(const char*);
 
 };
+
+} // namespace OD
 
 
 mExpClass(General) FillPattern
@@ -189,7 +194,7 @@ public:
     bool		hasTail() const;
 
     Type		type_;
-    LineStyle		linestyle_;	//!< contains the color
+    OD::LineStyle	linestyle_;	//!< contains the color
     ArrowHeadStyle	headstyle_;
     ArrowHeadStyle	tailstyle_;
 

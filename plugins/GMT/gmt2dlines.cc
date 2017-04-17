@@ -71,7 +71,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
     TypeSet<Pos::GeomID> geomids;
     get( sKey::GeomID(), geomids );
     BufferStringSet linenms;
-    LineStyle ls;
+    OD::LineStyle ls;
     BufferString lsstr = find( ODGMT::sKeyLineStyle() );
     ls.fromString( lsstr );
     bool postlabel = false;
@@ -253,7 +253,7 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
     if ( !RandomLineSetTranslator::retrieve(inprls,ioobj,msg) )
 	mErrStrmRet("Cannot read random lines")
 
-    LineStyle ls;
+    OD::LineStyle ls;
     BufferString lsstr = find( ODGMT::sKeyLineStyle() );
     ls.fromString( lsstr );
     bool postlabel = false;

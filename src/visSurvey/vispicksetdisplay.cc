@@ -158,7 +158,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     {
 	if ( needLine() && polyline_ )
 	{
-	    LineStyle ls; ls.width_ = set_->disp_.pixsize_;
+	    OD::LineStyle ls; ls.width_ = set_->disp_.pixsize_;
 	    polyline_->setLineStyle( ls );
 	}
 
@@ -320,7 +320,7 @@ void PickSetDisplay::createLine()
     polyline_->setMaterial( 0 );
 
     int pixsize = set_->disp_.pixsize_;
-    LineStyle ls;
+    OD::LineStyle ls;
     ls.width_ = pixsize;
     polyline_->setLineStyle( ls );
 }
@@ -332,7 +332,7 @@ void PickSetDisplay::redrawLine()
 	return;
 
     int pixsize = set_->disp_.pixsize_;
-    LineStyle ls;
+    OD::LineStyle ls;
     ls.width_ = pixsize;
     polyline_->setLineStyle( ls );
 

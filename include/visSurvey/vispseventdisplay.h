@@ -71,8 +71,8 @@ public:
     void			setDisplayMode(DisplayMode);
     DisplayMode			getDisplayMode() const;
 
-    void			setLineStyle(const LineStyle&);
-    LineStyle			getLineStyle() const;
+    void			setLineStyle(const OD::LineStyle&);
+    OD::LineStyle		getLineStyle() const;
 
     void			setMarkerStyle(const MarkerStyle3D&,bool updat);
     virtual bool		hasColor() const { return true; }

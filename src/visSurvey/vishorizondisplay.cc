@@ -1952,7 +1952,7 @@ void HorizonDisplay::updateIntersectionLines(
 }
 
 
-void HorizonDisplay::setLineStyle( const LineStyle& lst )
+void HorizonDisplay::setLineStyle( const OD::LineStyle& lst )
 {
     if ( lst==*lineStyle() )
 	return;
@@ -2510,8 +2510,8 @@ void HorizonDisplay::setPixelDensity( float dpi )
 }
 
 
-HorizonDisplay::IntersectionData::IntersectionData( const LineStyle& lst )
-    : line_( lst.type_==LineStyle::Solid
+HorizonDisplay::IntersectionData::IntersectionData( const OD::LineStyle& lst )
+    : line_( lst.type_==OD::LineStyle::Solid
 	? (visBase::VertexShape*) visBase::PolyLine3D::create()
 	: (visBase::VertexShape*) visBase::PolyLine::create() )
     , markerset_( visBase::MarkerSet::create() )
@@ -2625,7 +2625,7 @@ void HorizonDisplay::IntersectionData::setSceneEventCatcher(
 
 
 RefMan<visBase::VertexShape>
-HorizonDisplay::IntersectionData::setLineStyle( const LineStyle& lst )
+HorizonDisplay::IntersectionData::setLineStyle( const OD::LineStyle& lst )
 {
     RefMan<visBase::VertexShape> oldline = 0;
     if ( line_ )
@@ -2633,11 +2633,11 @@ HorizonDisplay::IntersectionData::setLineStyle( const LineStyle& lst )
 	mDynamicCastGet( visBase::PolyLine3D*,ln3d,line_);
 
 	const bool removelines =
-	    (lst.type_==LineStyle::Solid) != ((bool) ln3d );
+	    (lst.type_==OD::LineStyle::Solid) != ((bool) ln3d );
 
 	if ( removelines )
 	{
-	    visBase::VertexShape* newline = lst.type_==LineStyle::Solid
+	    visBase::VertexShape* newline = lst.type_==OD::LineStyle::Solid
 		? (visBase::VertexShape*) visBase::PolyLine3D::create()
 		: (visBase::VertexShape*) visBase::PolyLine::create();
 	    newline->ref();
@@ -2654,7 +2654,7 @@ HorizonDisplay::IntersectionData::setLineStyle( const LineStyle& lst )
 	    line_->ref();
 	}
 
-	if ( lst.type_==LineStyle::Solid )
+	if ( lst.type_==OD::LineStyle::Solid )
 	{
 	    ((visBase::PolyLine3D* ) line_ )->setLineStyle( lst );
 	}

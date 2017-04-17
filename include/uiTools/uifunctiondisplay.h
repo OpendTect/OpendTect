@@ -79,7 +79,7 @@ public:
 				    , markerfilly2_(false)
 				    , drawborder_(false)
 				    , fixdrawrg_(true)
-				    , borderstyle_(LineStyle())
+				    , borderstyle_(OD::LineStyle())
 				    , closepolygon_(true)
 				    , drawliney_(true)
 				    , useyscalefory2_(false)
@@ -124,7 +124,7 @@ public:
 	mDefSetupMemb(bool,closepolygon)
 	mDefSetupMemb(bool,drawborder)
 	mDefSetupMemb(bool,useyscalefory2)
-	mDefSetupMemb(LineStyle,borderstyle)
+	mDefSetupMemb(OD::LineStyle,borderstyle)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
 	mDefSetupMemb(bool,fixdrawrg)
 	mDefSetupMemb(bool,xannotinint)

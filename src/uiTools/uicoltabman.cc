@@ -73,7 +73,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     uiGroup* rightgrp = new uiGroup( this, "Right" );
 
-    LineStyle ls( LineStyle::Solid, 1, Color::LightGrey() );
+    OD::LineStyle ls( OD::LineStyle::Solid, 1, Color::LightGrey() );
     uiFunctionDisplay::Setup su;
     su.border(uiBorder(2,5,3,5)).xrg(Interval<float>(0,1)).editable(true)
       .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth).closepolygon(true)
