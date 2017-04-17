@@ -1105,7 +1105,7 @@ void IOPar::getFrom( ascistream& strm )
 void IOPar::putTo( ascostream& strm ) const
 {
     if ( !name().isEmpty() )
-	strm.put( name() );
+	strm.stream() << name() << od_endl;
     for ( int idx=0; idx<size(); idx++ )
 	strm.put( keys_.get(idx), vals_.get(idx) );
     strm.newParagraph();
