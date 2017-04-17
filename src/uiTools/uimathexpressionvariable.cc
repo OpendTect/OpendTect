@@ -64,8 +64,8 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 
     if ( withunit )
     {
-	uiUnitSel::Setup uussu( PropertyRef::Other, tr("convert to:") );
-	uussu.withnone( true );
+	uiUnitSel::Setup uussu( PropertyRef::Other, tr("convert to") );
+	uussu.withnone( true ).nodefsave( true );
 	unfld_ = new uiUnitSel( this, uussu );
 	unfld_->attach( rightOf, inpgrp_ );
     }
@@ -90,7 +90,7 @@ void uiMathExpressionVariable::addInpViewIcon( const char* icnm, const char* tt,
 }
 
 
-void uiMathExpressionVariable::addInpViewIcon( const char* icnm, 
+void uiMathExpressionVariable::addInpViewIcon( const char* icnm,
 					const uiString& tt, const CallBack& cb )
 {
     vwbut_ = new uiToolButton( inpgrp_, icnm, tt, cb );

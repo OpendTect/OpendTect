@@ -1161,8 +1161,13 @@ void SurveyInfo::saveDefaultPars( const char* basedir ) const
 	if ( File::exists(defsfnm) )
 	    File::remove( defsfnm );
     }
-    else if ( !defpars_.write( defsfnm, sKeySurvDefs ) )
-	uiErrMsg( defsfnm );
+    else
+    {
+	IOPar iop( defpars_ );
+	iop.sortOnKeys();
+	if ( !iop.write( defsfnm, sKeySurvDefs ) )
+	    uiErrMsg( defsfnm );
+    }
 }
 
 

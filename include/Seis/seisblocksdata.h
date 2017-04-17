@@ -136,12 +136,12 @@ public:
 
     static BufferString	fileNameFor(const GlobIdx&);
 
-    static const char*	sKeyFileType()		{ return "Seismic Blocks"; }
-    static const char*	sKeyDimensions()	{ return "Block Dimensions"; }
-    static const char*	sKeyComponents()	{ return "Components"; }
-    static const char*	sKeyGlobInlRg()		{ return "Block Inl ID Range"; }
-    static const char*	sKeyGlobCrlRg()		{ return "Block Crl ID Range"; }
-    static const char*	sKeyGlobZRg()		{ return "Block Z ID Range"; }
+    static const char*	sKeyFileType()	 { return "Column Cube"; }
+    static const char*	sKeyDimensions() { return "Blocks.Max Dimensions"; }
+    static const char*	sKeyGlobInlRg()	 { return "Blocks.Inl ID Range"; }
+    static const char*	sKeyGlobCrlRg()	 { return "Blocks.Crl ID Range"; }
+    static const char*	sKeyGlobZRg()	 { return "Blocks.Z ID Range"; }
+    static const char*	sKeyComponents() { return "Components"; }
 
 protected:
 

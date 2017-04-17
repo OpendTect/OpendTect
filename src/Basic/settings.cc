@@ -175,13 +175,15 @@ bool Settings::doRead( bool ext )
 
 bool Settings::write( bool do_merge ) const
 {
+    IOPar wriop( *this );
     if ( do_merge )
     {
-	IOPar dup( *this );
 	Settings* me = const_cast<Settings*>( this );
 	me->reRead();
-	me->merge( dup );
+	me->merge( wriop );
+	wriop = *this;
     }
+    wriop.sortOnKeys();
 
     SafeFileIO sfio( fname_ );
     if ( !sfio.open(false) )
@@ -195,7 +197,7 @@ bool Settings::write( bool do_merge ) const
 
     ascostream stream( sfio.ostrm() );
     stream.putHeader( sKeyDeflt );
-    putTo( stream );
+    wriop.putTo( stream );
     if ( !sfio.closeSuccess() )
     {
 	BufferString msg( "Error closing user settings file:\n" );

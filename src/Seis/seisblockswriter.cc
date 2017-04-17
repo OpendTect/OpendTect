@@ -700,11 +700,11 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
     iop.set( sKeyGlobInlRg(), globinlrg );
     iop.set( sKeyGlobCrlRg(), globcrlrg );
     iop.set( sKeyGlobZRg(), globzidxrg_ );
-    iop.set( sKey::InlRange(), inlrg );
-    iop.set( sKey::CrlRange(), crlrg );
     iop.set( sKey::XRange(), xrg );
     iop.set( sKey::YRange(), yrg );
     iop.set( sKey::ZRange(), zrg );
+    iop.set( sKey::InlRange(), inlrg );
+    iop.set( sKey::CrlRange(), crlrg );
 
     FileMultiString fms;
     for ( int icomp=0; icomp<nrcomponents_; icomp++ )

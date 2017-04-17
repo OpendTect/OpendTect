@@ -50,12 +50,14 @@ public:
 				    , lbltxt_(labeltxt)
 				    , mode_(Full)
 				    , selproptype_(false)
+				    , nodefsave_(false)
 				    , withnone_(false)	{}
 
 	mDefSetupMemb(PropertyRef::StdType,ptype)
 	mDefSetupMemb(uiString,lbltxt)
 	mDefSetupMemb(Mode,mode)
 	mDefSetupMemb(bool,selproptype)
+	mDefSetupMemb(bool,nodefsave)
 	mDefSetupMemb(bool,withnone)
     };
 

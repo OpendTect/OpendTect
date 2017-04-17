@@ -75,6 +75,7 @@ public:
     FixedString		getValue(int) const;
     bool		setKey(int,const char*);
     void		setValue(int,const char*);
+    void		sortOnKeys();
 
     inline bool		hasKey( const char* s ) const { return isPresent(s); }
     const char*		findKeyFor(const char*,int nr=0) const;

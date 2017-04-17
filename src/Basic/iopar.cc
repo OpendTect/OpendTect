@@ -216,6 +216,18 @@ void IOPar::removeWithKeyPattern( const char* pattern )
 }
 
 
+void IOPar::sortOnKeys()
+{
+    if ( keys_.size() < 2 )
+	return;
+
+    BufferStringSet::size_type* sortidxs = keys_.getSortIndexes();
+    keys_.useIndexes( sortidxs );
+    vals_.useIndexes( sortidxs );
+    delete [] sortidxs;
+}
+
+
 void IOPar::merge( const IOPar& oth )
 {
     if ( &oth == this ) return;
@@ -1099,6 +1111,9 @@ void IOPar::getFrom( ascistream& strm )
 	strm.next();
     if ( strm.type() == ascistream::Keyword )
     {
+	BufferString nm( strm.keyWord() );
+	if ( nm.lastChar() == ':' )
+	    nm.last() = '\0';
 	setName( strm.keyWord() );
 	strm.next();
     }
@@ -1117,7 +1132,7 @@ void IOPar::getFrom( ascistream& strm )
 void IOPar::putTo( ascostream& strm ) const
 {
     if ( !name().isEmpty() )
-	strm.put( name() );
+	strm.stream() << name() << od_endl;
     for ( int idx=0; idx<size(); idx++ )
 	strm.put( keys_.get(idx), vals_.get(idx) );
     strm.newParagraph();

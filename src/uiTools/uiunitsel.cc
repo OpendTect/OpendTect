@@ -142,7 +142,7 @@ void uiUnitSel::setUnFld( const UnitOfMeasure* un )
     if ( selidx >= 0 )
     {
 	inpfld_->setCurrentItem( selidx );
-	if ( selidx > 0 || !setup_.withnone_ )
+	if ( !setup_.nodefsave_ && (selidx > 0 || !setup_.withnone_) )
 	    fillPar( lastUsed() );
     }
 }
@@ -169,7 +169,8 @@ void uiUnitSel::setUnit( const char* unitnm )
 
 const UnitOfMeasure* uiUnitSel::getUnit() const
 {
-    fillPar( lastUsed() );
+    if ( !setup_.nodefsave_ )
+	fillPar( lastUsed() );
     return gtUnit();
 }
 
@@ -183,7 +184,8 @@ const UnitOfMeasure* uiUnitSel::gtUnit() const
 
 const char* uiUnitSel::getUnitName() const
 {
-    fillPar( lastUsed() );
+    if ( !setup_.nodefsave_ )
+	fillPar( lastUsed() );
 
     int selidx = inpfld_->currentItem();
     if ( selidx < 0 || (setup_.withnone_ && selidx == 0) )

@@ -202,23 +202,16 @@ void uiSettings::grpChg( CallBacker* )
 
 void uiSettings::dispNewGrp( CallBacker* )
 {
-    BufferStringSet keys, vals;
-    for ( int idx=0; idx<cursetts_->size(); idx++ )
-    {
-	keys.add( cursetts_->getKey(idx) );
-	vals.add( cursetts_->getValue(idx) );
-    }
-    int* idxs = keys.getSortIndexes();
-    keys.useIndexes(idxs); vals.useIndexes(idxs);
-    delete [] idxs;
+    IOPar disiop( *cursetts_ );
+    disiop.sortOnKeys();
+    const int sz = disiop.size();
 
-    const int sz = keys.size();
     tbl_->clearTable();
     tbl_->setNrRows( sz + 5 );
     for ( int irow=0; irow<sz; irow++ )
     {
-	tbl_->setText( RowCol(irow,0), keys.get(irow) );
-	tbl_->setText( RowCol(irow,1), vals.get(irow) );
+	tbl_->setText( RowCol(irow,0), disiop.getKey(irow) );
+	tbl_->setText( RowCol(irow,1), disiop.getValue(irow) );
     }
 
     tbl_->resizeColumnToContents( 1 );

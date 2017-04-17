@@ -48,7 +48,8 @@ public:
     unsigned int	size() const;
     inline bool		isEmpty() const			{ return !gtStr(); }
     inline const char&	operator []( int idx ) const	{ return gtBuf()[idx]; }
-    virtual char	firstChar() const		{ return gtBuf()[0]; }
+    virtual char	firstChar() const	{ return gtBuf()[0]; }
+    virtual char	lastChar() const	{ return gtBuf()[size()-1]; }
 
 #   define		mODStringDefSens CaseSensitivity c=CaseSensitive
     bool		isEqual(const char*,mODStringDefSens) const;

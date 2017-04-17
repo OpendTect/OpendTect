@@ -19,9 +19,9 @@ static bool testWriting()
     wrr.addComponentName( "Test SeisBlocks Component" );
     IOPar iop;
     iop.set( "Test Seisblocks key", "Test Seisblocks value" );
+    /*
     wrr.addAuxInfo( "Test SeisBlocks section", iop );
 
-    /*
     Seis::Provider* prov = Seis::Provider::create(
 				DBKey::getFromString("100010.2" ) );
 
@@ -54,7 +54,7 @@ static bool testWriting()
     PtrMan<Task> finisher = wrr.finisher();
     if ( finisher && !finisher->execute() )
 	tstStream(true) << finisher->message() << od_endl;
-	*/
+    */
 
     return true;
 }

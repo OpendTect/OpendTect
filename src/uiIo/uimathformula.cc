@@ -79,7 +79,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	uiUnitSel::Setup uussu( PropertyRef::Other,
 		haveproptype ? tr("Formula output unit") :
 			       tr("Formula result is") );
-	uussu.selproptype( !haveproptype ).withnone( true );
+	uussu.selproptype( !haveproptype ).withnone( true ).nodefsave( true );
 	unitfld_ = new uiUnitSel( this, uussu );
 	unitfld_->attach( alignedBelow,
 				inpflds_[inpflds_.size()-1]->attachObj() );

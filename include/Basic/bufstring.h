@@ -76,6 +76,8 @@ public:
 			//!< fill old C-style char buf
 
     inline char&	operator []( int idx )	{ return getCStr()[idx]; }
+    inline char&	first()			{ return getCStr()[0]; }
+    inline char&	last()			{ return getCStr()[size()-1]; }
     char*		find(char);
     char*		find(const char*);
     inline const char*	find(char) const;
