@@ -86,7 +86,11 @@ void uiGridder2DSel::fillPar( IOPar& par, bool withprefix ) const
     const uiGridder2DGrp* griddergrp = getSel();
     IOPar gridderpar;
     if ( griddergrp )
-	griddergrp->fillPar( gridderpar );
+    {
+	if ( !griddergrp->fillPar(gridderpar) ||
+	     !griddergrp->errMsg().isEmpty() )
+	    msg_ = griddergrp->errMsg();
+    }
 
     if ( withprefix )
 	par.mergeComp( gridderpar, Gridder2D::sKeyGridder() );

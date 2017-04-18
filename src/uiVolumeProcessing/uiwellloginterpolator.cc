@@ -9,6 +9,7 @@
 #include "wellloginterpolator.h"
 
 #include "uigridder2d.h"
+#include "gridder2d.h"
 #include "survinfo.h"
 #include "volprocchain.h"
 
@@ -79,6 +80,9 @@ bool uiWellLogInterpolator::acceptOK()
 
     IOPar par;
     algosel_->fillPar( par, true );
+    if ( !algosel_->message().isEmpty() )
+	uiMSG().warning( algosel_->message() );
+
     hwinterpolator_.usePar( par );
 
     DBKeySet wellids;
@@ -97,6 +101,19 @@ bool uiWellLogInterpolator::acceptOK()
     if ( welllogsel_->isWellExtractParamsUsed() )
 	hwinterpolator_.setWellExtractParams(
 					 *welllogsel_->getWellExtractParams() );
+    PolyTrend::Order trend;
+    PtrMan<IOPar> gridpar = par.subselect( Gridder2D::sKeyGridder() );
+    if ( !gridpar ||
+	 !PolyTrend::OrderDef().parse(*gridpar,PolyTrend::sKeyOrder(),trend) )
+	return true;
+
+    uiString msg;
+    if ( !PolyTrend::getOrder(wellids.size(),trend,&msg) )
+    {
+	uiMSG().warning( msg );
+	par.set( PolyTrend::sKeyOrder(), PolyTrend::OrderDef().getKey(trend) );
+    }
+
     return true;
 }
 

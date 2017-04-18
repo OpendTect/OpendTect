@@ -33,6 +33,8 @@ public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&,bool withprefix=false) const;
 
+    uiString			message() const		{ return msg_; }
+
 protected:
 
     void			selChangeCB(CallBacker*);
@@ -41,6 +43,7 @@ protected:
     uiGenInput*			griddingsel_;
 
     ObjectSet<uiGridder2DGrp>	griddinggrps_;
+    mutable uiString		msg_;
 };
 
 
@@ -56,7 +59,7 @@ public:
     virtual bool		rejectOK()	{ return revertChanges(); }
     bool			revertChanges();
 
-    virtual const uiString	errMg() { return msg_; }
+    virtual const uiString	errMsg() const	{ return msg_; }
 
 protected:
 				uiGridder2DGrp(uiParent*,const uiString,

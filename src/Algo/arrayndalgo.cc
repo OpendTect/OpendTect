@@ -174,6 +174,36 @@ bool PolyTrend::operator==( const PolyTrend& p ) const
 }
 
 
+bool PolyTrend::getOrder( int nrpoints, Order& ord, uiString* msg )
+{
+    if ( ord == None || ord == Order0 )
+	return true;
+
+    bool isvalid = true;
+    if ( ord == Order1 && nrpoints < 3 )
+    {
+	if ( msg )
+	    *msg =tr("De-trending with Order1 requires at least three points.");
+	isvalid = false;
+    }
+    else if ( ord == Order2 && nrpoints < 6 )
+    {
+	if ( msg )
+	    *msg = tr("De-trending with Order2 requires at least six points.");
+	isvalid = false;
+    }
+
+    if ( isvalid )
+	return true;
+
+    if ( msg )
+	msg->append( tr("Will revert to Order0 (Average removal)."), true );
+    ord = Order0;
+
+    return false;
+}
+
+
 void PolyTrend::initOrder0( const TypeSet<double>& vals )
 {
     const int sz = vals.size();
