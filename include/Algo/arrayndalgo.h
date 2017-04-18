@@ -1005,7 +1005,7 @@ private:
 */
 
 mExpClass(Algo) PolyTrend
-{
+{ mODTextTranslationClass(PolyTrend);
 public:
 				PolyTrend();
 
@@ -1015,6 +1015,7 @@ public:
 				mDeclareEnumUtils(Order)
 
     static const char*		sKeyOrder()	{ return "Polynomial Order"; }
+    static bool			getOrder(int nrpoints,Order&,uiString* =0);
 
     void			setOrder( PolyTrend::Order t )	{ order_ = t; }
     template <class IDXABLE> bool	set(const TypeSet<Coord>&,
@@ -1073,12 +1074,15 @@ bool PolyTrend::set( const TypeSet<Coord>& poslist, const IDXABLE& vals )
     }
 
     sz = valsnoudf.size();
-    if ( order_ == Order2 && sz > 5 )
-	initOrder2( posnoudf, valsnoudf );
-    else if ( order_ == Order1 && sz > 2 )
-	initOrder1( posnoudf, valsnoudf );
-    else
+    getOrder( sz, order_ );
+    if ( order_ == Order0 )
 	initOrder0( valsnoudf );
+    else if ( order_ == Order1 )
+	initOrder1( posnoudf, valsnoudf );
+    else if ( order_ == Order2 )
+	initOrder2( posnoudf, valsnoudf );
+    else
+	return false;
 
     return true;
 }
