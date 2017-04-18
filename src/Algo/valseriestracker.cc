@@ -323,11 +323,22 @@ bool EventTracker::track()
 	    refampl = sampfunc.getValue( targetdepth_ );
 	}
 
-	Interval<float> amplrg( refampl * (1-allowedvar_),
-				refampl * (1+allowedvar_) );
-	if ( evtype_==VSEvent::Min )
-	    amplrg.sort();
-	const bool res = snap( amplrg );
+	bool res = false;
+	const bool hasthresholdrg = false;
+	if ( hasthresholdrg )
+	{
+	    Interval<float> amplrg( refampl * (1-allowedvar_),
+				    refampl * (1+allowedvar_) );
+	    if ( evtype_==VSEvent::Min )
+		amplrg.sort();
+	    res = snap( amplrg );
+	}
+	else
+	{
+	    const float threshold = refampl * (1-allowedvar_);
+	    res = snap( threshold );
+	}
+
 	if ( res )
 	{
 	    if ( mIsUdf(targetvalue_) )
