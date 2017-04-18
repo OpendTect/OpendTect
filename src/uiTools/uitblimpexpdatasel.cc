@@ -621,8 +621,9 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     button->attach( rightOf, hdrtypefld_ );
 
     int nrlns = fd_.nrHdrLines(); if ( nrlns < 1 ) nrlns = 1;
+    IntInpSpec iis( nrlns ); iis.setLimits( Interval<int>(1,mUdf(int)) );
     hdrlinesfld_ = new uiGenInput( this, tr("Header size (number of lines)"),
-				   IntInpSpec(nrlns) );
+				   iis );
     hdrlinesfld_->attach( alignedBelow, hdrtypefld_ );
     hdrlinesfld_->valuechanged.notify( hdrchgcb );
     hdrtokfld_ = new uiGenInput( this, tr("End-of-header 'word'"),
