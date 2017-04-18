@@ -154,7 +154,6 @@ namespace sKey
     inline FixedString ZCoord()		{ return "Z-Coord"; }
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }
-    inline FixedString ZStep()		{ return "Z step"; }
     inline FixedString ZUnit()		{ return "Z-Unit"; }
     inline FixedString ZValue()		{ return "Z value"; }
 
@@ -180,6 +179,8 @@ namespace sKey
     inline FixedString LastCrl()	{ return "Last Cross-line"; }
     inline FixedString StepCrl()	{ return "Step Cross-line"; }
     inline FixedString StepOutCrl()	{ return "Stepout Cross-line"; }
+    inline FixedString FirstZ()		{ return "First Z"; }
+    inline FixedString StepZ()		{ return "Step Z"; }
     inline FixedString FirstTrc()	{ return "First Trace"; }
     inline FixedString LastTrc()	{ return "Last Trace"; }
     inline FixedString TrcRange()	{ return "Trace Range"; }

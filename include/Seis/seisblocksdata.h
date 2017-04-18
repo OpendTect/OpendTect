@@ -137,6 +137,10 @@ public:
     static BufferString	fileNameFor(const GlobIdx&);
 
     static const char*	sKeyFileType()	 { return "Column Cube"; }
+    static const char*	sKeySectionPre() { return "Section-"; }
+    static const char*	sKeyGenSection() { return "Section-General"; }
+    static const char*	sKeyPosSection() { return "Section-Positions"; }
+    static const char*	sKeyFmtVersion() { return "Blocks.Version"; }
     static const char*	sKeyDimensions() { return "Blocks.Max Dimensions"; }
     static const char*	sKeyGlobInlRg()	 { return "Blocks.Inl ID Range"; }
     static const char*	sKeyGlobCrlRg()	 { return "Blocks.Crl ID Range"; }

@@ -9,6 +9,7 @@
 #include "seisblockswriter.h"
 #include "seisprovider.h"
 #include "moddepmgr.h"
+#include "paralleltask.h"
 
 
 static bool testWriting()
@@ -19,12 +20,15 @@ static bool testWriting()
     wrr.addComponentName( "Test SeisBlocks Component" );
     IOPar iop;
     iop.set( "Test Seisblocks key", "Test Seisblocks value" );
-    /*
+
     wrr.addAuxInfo( "Test SeisBlocks section", iop );
 
     Seis::Provider* prov = Seis::Provider::create(
 				DBKey::getFromString("100010.2" ) );
+    if ( !prov )
+	return true;
 
+    /*
     SeisTrc trc; uiRetVal uirv; int prevlinenr = -1;
     while ( true )
     {
@@ -52,10 +56,23 @@ static bool testWriting()
     }
 
     PtrMan<Task> finisher = wrr.finisher();
-    if ( finisher && !finisher->execute() )
-	tstStream(true) << finisher->message() << od_endl;
-    */
+    if ( finisher )
+    {
+	bool parallel = false;
+	mDynamicCastGet(ParallelTask*,ptask,finisher.ptr());
+	bool res;
+	if ( ptask )
+	    res = ptask->executeParallel(parallel);
+	else
+	    res = finisher->execute();
+	if ( !res )
+	{
+	    tstStream(true) << finisher->message() << od_endl;
+	    return false;
+	}
+    }
 
+    */
     return true;
 }
 

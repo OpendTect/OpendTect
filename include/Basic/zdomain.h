@@ -32,19 +32,27 @@ mGlobal(Basic) void		setDepth(IOPar&);
 mGlobal(Basic) void		setTime(IOPar&);
 
 
-/*!
-\brief Definition of z-domain.
+/*!\brief Definition of z-domain.
+
+  Because there is a factory on string-key, we can generate a secondary
+  key from the string which is likely to be unique (if it aint, the inventor
+  of the domain should adapt the string key).
+
 */
 
 mExpClass(Basic) Def
 {
 public:
 
+    typedef unsigned short  GenID;
+
     static const Def&	get(const char*);
     static const Def&	get(const IOPar&);
+    static const Def&	get(GenID);
     void		set(IOPar&) const;	//!< Only key
 
     const char*		key() const		{ return key_; }
+    GenID		genID() const;
     uiString		userName() const	{ return usrnm_; }
     int			userFactor() const	{ return usrfac_; }
 

@@ -219,7 +219,7 @@ void Seis::Blocks::Writer::addAuxInfo( const char* key, const IOPar& iop )
 	{ pErrMsg( "Refusing to add section without key" ); return; }
 
     IOPar* toadd = new IOPar( iop );
-    toadd->setName( auxkey );
+    toadd->setName( BufferString(sKeySectionPre(),auxkey) );
     auxiops_ += toadd;
 }
 
@@ -577,7 +577,6 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
     int zstart = globidx.z(); zstart *= dims_.z();
     zstart += firstblock.start().z();
     const unsigned short dfmt = (unsigned short)usefprep_;
-    const SurvGeom::CoordSysID coordsysid = survgeom_.coordSysID();
 
     strm.addBin( cHdrSz ).addBin( version_ );
     strm.addBin( globidx.inl() ).addBin( globidx.crl() ).addBin( globidx.z() );
@@ -595,9 +594,8 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
 	delete invscaler;
     }
     strm.addBin( buf, 2*sizeof(float) );
-    strm.addBin( coordsysid );
-    survgeom_.binID2Coord().fillBuf( buf );
-    strm.addBin( buf, survgeom_.binID2Coord().sizeInBuf() );
+    survgeom_.putStructure( buf );
+    strm.addBin( buf, survgeom_.bufSize4Structure() );
 
     const int bytes_left_in_hdr = cHdrSz - (int)strm.position();
     OD::memZero( buf, bytes_left_in_hdr );
@@ -677,16 +675,10 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
     zrg.start = zevalpositions_.first()->first().second;
     zrg.stop = zevalpositions_.last()->last().second;
 
-    IOPar iop( "General" );
+    IOPar iop( sKeyGenSection() );
+    iop.set( sKeyFmtVersion(), version_ );
     iop.set( sKey::Name(), cubename_ );
-    iop.set( sKey::Version(), version_ );
-    survgeom_.binID2Coord().fillPar( iop );
-    iop.set( sKey::CoordSys(), survgeom_.coordSysID() ); //TODO add text
-    iop.set( sKey::FirstInl(), survgeom_.sampling().hsamp_.start_.inl() );
-    iop.set( sKey::FirstCrl(), survgeom_.sampling().hsamp_.start_.crl() );
-    iop.set( sKey::StepInl(), survgeom_.sampling().hsamp_.step_.inl() );
-    iop.set( sKey::StepCrl(), survgeom_.sampling().hsamp_.step_.crl() );
-    iop.set( sKey::ZStep(), survgeom_.sampling().zsamp_.step );
+    survgeom_.putStructure( iop );
     iop.set( sKey::DataStorage(), DataCharacteristics::toString(usefprep_) );
     if ( scaler_ )
     {
@@ -729,7 +721,7 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
 	    return false;
     }
 
-    strm << "Positions" << od_endl;
+    strm << sKeyPosSection() << od_endl;
     return cubedata.write( strm, true );
 }
 
@@ -739,7 +731,7 @@ void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
 	Interval<int>& inlrg, Interval<int>& crlrg,
 	Interval<double>& xrg, Interval<double>& yrg )
 {
-    PosInfo::CubeDataFiller cdf( cubedata );
+    Pos::IdxPairDataSet sortedpositions( 0, false );
     Pos::IdxPairDataSet::SPos spos;
     bool first = true;
     while ( columns_.next(spos) )
@@ -787,11 +779,19 @@ void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
 		    yrg.include( coord.y_, false );
 		}
 
-		cdf.add( BinID(inl,crl) );
+		sortedpositions.add( BinID(inl,crl) );
 	    }
 	}
 
 	first = false;
+    }
+
+    PosInfo::CubeDataFiller cdf( cubedata );
+    spos.reset();
+    while ( sortedpositions.next(spos) )
+    {
+	const Pos::IdxPair ip( sortedpositions.getIdxPair( spos ) );
+	cdf.add( BinID(ip.inl(),ip.crl()) );
     }
 }
 
@@ -817,7 +817,7 @@ WriterFinisher( Writer& wrr )
 	Writer::Column* column = mGetWrrColumn( wrr_, spos );
 	if ( column->nruniquevisits_ < 1 )
 	    column->retireAll();
-	else
+	else if ( !column->firstBlock().isRetired() )
 	    towrite_ += column;
     }
 }

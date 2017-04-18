@@ -108,6 +108,16 @@ void ZDomain::setTime( IOPar& iop )
 }
 
 
+ZDomain::Def::GenID ZDomain::Def::genID() const
+{
+    GenID id = 0;
+    const char* ptr = key_;
+    while ( *ptr )
+	id += *ptr++;
+    return id;
+}
+
+
 bool ZDomain::Def::isSI() const
 {
     return ::SI().zDomain().isTime() ? isTime() : isDepth();
@@ -199,6 +209,16 @@ const ZDomain::Def& ZDomain::Def::get( const char* ky )
 const ZDomain::Def& ZDomain::Def::get( const IOPar& iop )
 {
     return get( iop.find(sKey()) );
+}
+
+
+const ZDomain::Def& ZDomain::Def::get( GenID genid )
+{
+    const ObjectSet<ZDomain::Def>& defs = DEFS();
+    for ( int idx=0; idx<defs.size(); idx++ )
+	if ( defs[idx]->genID() == genid )
+	    return *defs[idx];
+    return ZDomain::SI();
 }
 
 

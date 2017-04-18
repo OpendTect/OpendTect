@@ -21,7 +21,12 @@ namespace Survey
 {
 
 
-/*!\brief Scaled down survey geometry for an inl/crl geometry */
+/*!\brief Scaled down survey geometry for an inl/crl geometry
+
+  Note that the concept of 'Structure' determines whether a geometry is
+  compatible.
+
+*/
 
 mExpClass(Basic) Geometry3D : public Survey::Geometry
 {
@@ -32,7 +37,10 @@ public:
     virtual bool	is2D() const		{ return false; }
     virtual const char*	getName() const		{ return name_.buf(); }
 
+    const ZDomain::Def&	zDomain() const		{ return zdomain_; }
     float		zScale() const		{ return zscale_; }
+
+    bool		isCompatibleWith(const Geometry3D&) const;
 
     StepInterval<int>	inlRange() const;
     StepInterval<int>	crlRange() const;
@@ -65,8 +73,6 @@ public:
 			     inline axis to the crossline axis. */
     mDeprecated bool	isClockWise() const { return isRightHandSystem(); }
 
-    const ZDomain::Def&	zDomain() const		{ return zdomain_; }
-
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
     void		setGeomData(const Pos::IdxPair2Coord&,
 					const TrcKeyZSampling&,float zscl);
@@ -81,12 +87,18 @@ public:
 			//!< see snap() for direction
     void		snapZ(float&,int direction=0) const;
 			//!< see snap() for direction
+
+    void		getStructure(const IOPar&);
+    void		putStructure(IOPar&) const;
+    int			bufSize4Structure() const; // 76
+    void		getStructure(const void*);
+    void		putStructure(void*) const;
+
 protected:
 
     BufferString	name_;
-    const ZDomain::Def	zdomain_;
     Pos::IdxPair2Coord	b2c_;
-
+    ZDomain::Def	zdomain_;
     float		zscale_;
 };
 
