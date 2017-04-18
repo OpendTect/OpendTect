@@ -58,7 +58,7 @@ LocationDisplay::LocationDisplay()
     , eventcatcher_( 0 )
     , transformation_( 0 )
     , showall_( true )
-    , set_( 0 )
+    , set_(new Pick::Set)
     , manip_( this )
     , datatransform_( 0 )
     , pickedsurvobjid_(-1)
@@ -68,6 +68,7 @@ LocationDisplay::LocationDisplay()
 {
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
+    mAttachCB( set_->objectChanged(), LocationDisplay::setChgCB );
 }
 
 
@@ -94,8 +95,10 @@ LocationDisplay::~LocationDisplay()
 
 void LocationDisplay::setSet( Pick::Set* ps )
 {
-    if ( !ps || set_.ptr() == ps )
+    if ( set_.ptr() == ps )
 	return;
+    else if ( !ps )
+	ps = new Pick::Set;
 
     if ( replaceMonitoredRef(set_,ps,this) )
     {
@@ -109,17 +112,18 @@ void LocationDisplay::setSet( Pick::Set* ps )
 
 DBKey LocationDisplay::getDBKey() const
 {
-    return set_ ? Pick::SetMGR().getID( *set_ ) : DBKey::getInvalid();
+    return Pick::SetMGR().getID( *set_ ) ;
 }
 
 
 void LocationDisplay::fullRedraw( CallBacker* )
 {
-    if ( !set_ )
-	return;
+    invalidpicks_.erase();
 
-    if ( datatransform_ && datatransform_->needsVolumeOfInterest() &&
-	 !set_->isEmpty() )
+    if ( set_->isEmpty() )
+	{ removeAll(); return; }
+
+    if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
     {
 	TrcKeyZSampling cs( false );
 	Pick::SetIter psiter( *set_ );
@@ -144,13 +148,10 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	    datatransform_->loadDataIfMissing( voiidx_ );
 	}
     }
-
+    
     getMaterial()->setColor( set_->dispColor() );
-    invalidpicks_.erase();
 
-    if ( set_->isEmpty() )
-	{ removeAll(); return; }
-
+    // TODO make ID based.
     Pick::SetIter psiter( *set_ );
     int idx = 0;
     while ( psiter.next() )
@@ -161,7 +162,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	else
 	    invalidpicks_ -= idx;
 
-	setPosition( idx, loc );
+	setPosition( idx, loc ); 
 	idx++;
     }
 }
@@ -193,7 +194,7 @@ bool LocationDisplay::displayedOnlyAtSections() const
 
 void LocationDisplay::pickCB( CallBacker* cb )
 {
-    if ( !set_ || !isSelected() || !isOn() || isLocked() )
+    if ( !isSelected() || !isOn() || isLocked() )
 	return;
 
     mCBCapsuleUnpack( const EventInfo&, eventinfo, cb );
@@ -528,21 +529,19 @@ void LocationDisplay::locChg( const Monitorable::ChangeData& chgdata )
 
 void LocationDisplay::dispChg()
 {
-    if ( set_ )
-	getMaterial()->setColor( set_->dispColor() );
+    getMaterial()->setColor( set_->dispColor() );
 }
 
 
 void LocationDisplay::setColor( Color nc )
 {
-    if ( set_ )
-	set_->setDispColor( nc );
+    set_->setDispColor( nc );
 }
 
 
 Color LocationDisplay::getColor() const
 {
-    return set_ ? set_->dispColor() : Color::DgbColor();
+    return set_->dispColor();
 }
 
 
@@ -625,7 +624,7 @@ LocationDisplay::LocID LocationDisplay::addPick( const Coord3& pos,
 
 BufferString LocationDisplay::getManipulationString() const
 {
-    BufferString str = set_ && set_->isPolygon() ? "Polygon: " : "PickSet: ";
+    BufferString str = set_->isPolygon() ? "Polygon: " : "PickSet: ";
     str += mFromUiStringTodo(name());
     return str;
 }
@@ -816,15 +815,11 @@ void LocationDisplay::fillPar( IOPar& par ) const
     visSurvey::SurveyObject::fillPar( par );
 
     par.setYN( sKeyShowAll(), showall_ );
-
-    if ( set_ )
-    {
-	par.set( sKeyID(), Pick::SetMGR().getID(*set_) );
-	par.set( sKeyMgrName(), set_->category() );
-	BufferString mkststr;
-	set_->markerStyle().toString( mkststr );
-	par.set( sKey::MarkerStyle(), mkststr );
-    }
+    par.set( sKeyID(), Pick::SetMGR().getID(*set_) );
+    par.set( sKeyMgrName(), set_->category() );
+    BufferString mkststr;
+    set_->markerStyle().toString( mkststr );
+    par.set( sKey::MarkerStyle(), mkststr );
 }
 
 

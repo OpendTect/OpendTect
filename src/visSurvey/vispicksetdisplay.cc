@@ -310,7 +310,7 @@ void PickSetDisplay::removeAll()
 
 void PickSetDisplay::createLine()
 {
-    if ( polyline_ || !set_ )
+    if ( polyline_ )
 	return;
 
     polyline_ = visBase::PolyLine::create();
@@ -457,7 +457,7 @@ bool PickSetDisplay::setBodyDisplay()
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
-    if ( !shoulddisplaybody_ || !set_ || set_->isEmpty() )
+    if ( !shoulddisplaybody_ || set_->isEmpty() )
 	return false;
 
     if ( !bodydisplay_ )
@@ -611,7 +611,7 @@ void PickSetDisplay::updateLineAtSection()
 
 void PickSetDisplay::getPickingMessage( uiString& str ) const
 {
-    float area = set_ ? set_->getXYArea() : mUdf(float);
+    float area = set_->getXYArea();
     const bool hasarea = !mIsUdf(area) && area>0;
     uiString areastring;
 
@@ -620,7 +620,7 @@ void PickSetDisplay::getPickingMessage( uiString& str ) const
 	areastring = tr("Area= %1").arg(getAreaString( area, false, 0 ));
     }
 
-    str = tr("Picking (Nr picks= %1").arg(set_ ? set_->size() : 0);
+    str = tr("Picking (Nr picks= %1").arg(set_->size());
     if ( !areastring.isEmpty() ) 
     {
 	str.append(toUiString(", %1").arg(areastring)); 
@@ -631,8 +631,7 @@ void PickSetDisplay::getPickingMessage( uiString& str ) const
 
 void PickSetDisplay::setColor( Color nc )
 {
-    if ( set_ )
-	set_->setDispColor( nc );
+    set_->setDispColor( nc );
 
     if ( !bodydisplay_ ) return;
 
