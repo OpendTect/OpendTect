@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "manobjectset.h"
 
 class Task;
-class LinScaler;
 class SeisTrc;
 namespace Pos { class IdxPairDataSet; }
 namespace PosInfo { class CubeData; }
@@ -48,6 +47,8 @@ public:
 			Writer(const SurvGeom* sg=0);
 			~Writer();
 
+    const SurvGeom&	survGeom() const	{ return survgeom_; }
+
     void		setBasePath(const File::Path&);
     void		setFileNameBase(const char*);
     void		setCubeName(const char*);
@@ -55,9 +56,6 @@ public:
     void		setScaler(const LinScaler*);
     void		addComponentName(const char*);
     void		addAuxInfo(const char* key,const IOPar&);
-
-    BufferString	dirName() const;
-    BufferString	mainFileName() const;
 
     uiRetVal		add(const SeisTrc&);
     Task*		finisher();
@@ -90,23 +88,14 @@ public:
 
 protected:
 
-    File::Path		basepath_;
-    BufferString	filenamebase_;
-    BufferString	cubename_;
+    const SurvGeom&	survgeom_;
     OD::FPDataRepType	specfprep_;
-    OD::FPDataRepType	usefprep_;
-    LinScaler*		scaler_;
-    BufferStringSet	compnms_;
-    ObjectSet<IOPar>	auxiops_;
-
-    bool		needreset_;
     const int		nrpospercolumn_;
     int			nrcomponents_;
     bool		isfinished_;
     Interval<IdxType>	globzidxrg_;
     ObjectSet<ZEvalPosSet> zevalpositions_;
     Pos::IdxPairDataSet& columns_;
-
 
     void		setEmpty();
     void		resetZ(const Interval<float>&);

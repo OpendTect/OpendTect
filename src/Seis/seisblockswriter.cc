@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "datachar.h"
 #include "file.h"
-#include "oddirs.h"
-#include "genc.h"
 #include "keystrs.h"
 #include "posinfo.h"
 #include "survgeom3d.h"
@@ -97,12 +95,9 @@ void Seis::Blocks::Writer::Column::getDefArea( SampIdx& start,
 
 
 Seis::Blocks::Writer::Writer( const SurvGeom* geom )
-    : IOClass(geom)
-    , basepath_(GetBaseDataDir(),sSeismicSubDir())
-    , scaler_(0)
+    : survgeom_(*(geom ? geom : static_cast<const SurvGeom*>(
+					&SurvGeom::default3D())))
     , specfprep_(OD::AutoFPRep)
-    , usefprep_(OD::F32)
-    , needreset_(true)
     , columns_(*new Pos::IdxPairDataSet(sizeof(Column*),false,false))
     , nrcomponents_(1)
     , nrpospercolumn_(((int)dims_.inl()) * dims_.crl())
@@ -123,8 +118,6 @@ Seis::Blocks::Writer::~Writer()
 	}
     }
 
-    deepErase( auxiops_ );
-    delete scaler_;
     setEmpty();
     delete &columns_;
 }
@@ -262,23 +255,6 @@ void Seis::Blocks::Writer::resetZ( const Interval<float>& zrg )
 }
 
 
-BufferString Seis::Blocks::Writer::dirName() const
-{
-    File::Path fp( basepath_ );
-    fp.add( filenamebase_ );
-    return fp.fullPath();
-}
-
-
-BufferString Seis::Blocks::Writer::mainFileName() const
-{
-    File::Path fp( basepath_ );
-    fp.add( filenamebase_ );
-    fp.setExtension( "cube", false );
-    return fp.fullPath();
-}
-
-
 bool Seis::Blocks::Writer::removeExisting( const char* fnm,
 					   uiRetVal& uirv ) const
 {
@@ -331,9 +307,9 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 	    return uirv;
 
 	resetZ( Interval<float>(trc.startPos(),trc.endPos()) );
-	usefprep_ = specfprep_;
-	if ( usefprep_ == OD::AutoFPRep )
-	    usefprep_ = trc.data().getInterpreter()->dataChar().userType();
+	fprep_ = specfprep_;
+	if ( fprep_ == OD::AutoFPRep )
+	    fprep_ = trc.data().getInterpreter()->dataChar().userType();
 
 	nrcomponents_ = trc.nrComponents();
     }
@@ -412,7 +388,7 @@ Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
 
 	for ( int icomp=0; icomp<nrcomponents_; icomp++ )
 	{
-	    Block* block = new Block( curgidx, start, dims, usefprep_ );
+	    Block* block = new Block( curgidx, start, dims, fprep_ );
 	    if ( block->isRetired() )
 		{ delete column; return 0; }
 	    block->zero();
@@ -559,7 +535,7 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
 	zdim += zevalpositions_[idx]->size();
     int zstart = globidx.z(); zstart *= dims_.z();
     zstart += firstblock.start().z();
-    const unsigned short dfmt = (unsigned short)usefprep_;
+    const unsigned short dfmt = (unsigned short)fprep_;
 
     strm.addBin( cHdrSz ).addBin( version_ );
     strm.addBin( globidx.inl() ).addBin( globidx.crl() ).addBin( globidx.z() );
@@ -662,7 +638,7 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
     iop.set( sKeyFmtVersion(), version_ );
     iop.set( sKey::Name(), cubename_ );
     survgeom_.putStructure( iop );
-    iop.set( sKey::DataStorage(), DataCharacteristics::toString(usefprep_) );
+    iop.set( sKey::DataStorage(), DataCharacteristics::toString(fprep_) );
     if ( scaler_ )
     {
 	// write the scaler needed to reconstruct the org values

@@ -28,8 +28,6 @@ static bool testWriting()
 	return true; // don't need e-mails from CDash
     }
 
-    /*
-
     Seis::Blocks::Writer wrr;
     wrr.setFileNameBase( usesteer ? "test_blocks_steering" : "test_blocks" );
     wrr.setCubeName( prov->name() );
@@ -47,6 +45,7 @@ static bool testWriting()
     iop.set( "Input DBKey", seisidstr );
     wrr.addAuxInfo( "Test section", iop );
 
+    /*
     SeisTrc trc; int prevlinenr = -1;
     while ( true )
     {

@@ -13,18 +13,47 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "datainterp.h"
 #include "odmemory.h"
+#include "oddirs.h"
+#include "scaler.h"
+#include "genc.h"
 #include "survgeom3d.h"
 
 static const unsigned short cVersion = 1;
 static const unsigned short cDefDim = 80;
 
 
-Seis::Blocks::IOClass::IOClass( const SurvGeom* geom )
-    : survgeom_(*(geom ? geom : static_cast<const SurvGeom*>(
-				    &SurvGeom::default3D())))
+Seis::Blocks::IOClass::IOClass()
+    : basepath_(GetBaseDataDir(),sSeismicSubDir())
     , dims_(Block::defDims())
     , version_(cVersion)
+    , scaler_(0)
+    , fprep_(OD::F32)
+    , needreset_(true)
 {
+}
+
+
+Seis::Blocks::IOClass::~IOClass()
+{
+    deepErase( auxiops_ );
+    delete scaler_;
+}
+
+
+BufferString Seis::Blocks::IOClass::dirName() const
+{
+    File::Path fp( basepath_ );
+    fp.add( filenamebase_ );
+    return fp.fullPath();
+}
+
+
+BufferString Seis::Blocks::IOClass::mainFileName() const
+{
+    File::Path fp( basepath_ );
+    fp.add( filenamebase_ );
+    fp.setExtension( "cube", false );
+    return fp.fullPath();
 }
 
 

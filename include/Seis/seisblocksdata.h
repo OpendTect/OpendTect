@@ -11,8 +11,10 @@ ________________________________________________________________________
 */
 
 #include "seiscommon.h"
+#include "filepath.h"
 
 class DataBuffer;
+class LinScaler;
 namespace Survey { class Geometry3D; }
 template <class T> class DataInterpreter;
 
@@ -139,9 +141,21 @@ mExpClass(Seis) IOClass
 {
 public:
 
-    virtual		~IOClass()		{}
+    virtual		~IOClass();
+    virtual const SurvGeom& survGeom() const	= 0;
 
     unsigned short	version() const		{ return version_; }
+    const File::Path&	basePath() const	{ return basepath_; }
+    const char*		fileNameBase() const	{ return filenamebase_; }
+    const char*		cubeName(const char*) const { return cubename_; }
+    const BufferStringSet& componentNames() const { return compnms_; }
+    OD::FPDataRepType	fPRep() const		{ return fprep_; }
+    const LinScaler*	scaler() const		{ return scaler_; }
+    int			nrAuxInfo() const	{ return auxiops_.size(); }
+    const IOPar&	getAuxInfo( int i ) const { return *auxiops_[i]; }
+
+    BufferString	dirName() const;
+    BufferString	mainFileName() const;
 
     static BufferString	fileNameFor(const GlobIdx&);
 
@@ -158,11 +172,18 @@ public:
 
 protected:
 
-			IOClass(const SurvGeom*);
+			IOClass();
 
-    const SurvGeom&	survgeom_;
-    const Dimensions	dims_;
+    File::Path		basepath_;
+    Dimensions		dims_;
     unsigned short	version_;
+    BufferString	filenamebase_;
+    BufferString	cubename_;
+    BufferStringSet	compnms_;
+    LinScaler*		scaler_;
+    OD::FPDataRepType	fprep_;
+    ObjectSet<IOPar>	auxiops_;
+    mutable bool	needreset_;
 
 };
 
