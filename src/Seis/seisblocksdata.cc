@@ -15,7 +15,27 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "survgeom3d.h"
 
+static const unsigned short cVersion = 1;
 static const unsigned short cDefDim = 80;
+
+
+Seis::Blocks::IOClass::IOClass( const SurvGeom* geom )
+    : survgeom_(*(geom ? geom : static_cast<const SurvGeom*>(
+				    &SurvGeom::default3D())))
+    , dims_(Block::defDims())
+    , version_(cVersion)
+{
+}
+
+
+BufferString Seis::Blocks::IOClass::fileNameFor( const GlobIdx& globidx )
+{
+    BufferString ret;
+    ret.add( globidx.inl() ).add( "_" ).add( globidx.crl() ).add( ".bin" );
+    return ret;
+}
+
+
 static PtrMan<Seis::Blocks::Dimensions> def_dims_ = 0;
 
 static Seis::Blocks::SzType getNextDim( char*& startptr )
@@ -31,6 +51,7 @@ static Seis::Blocks::SzType getNextDim( char*& startptr )
 	return 0;
     return (Seis::Blocks::SzType)val;
 }
+
 
 Seis::Blocks::Dimensions Seis::Blocks::Block::defDims()
 {

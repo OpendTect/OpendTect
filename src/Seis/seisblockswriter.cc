@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisblockswriter.h"
-#include "seisblocksdata.h"
+#include "seistrc.h"
 #include "posidxpairdataset.h"
 #include "paralleltask.h"
 #include "executor.h"
@@ -25,24 +25,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "separstr.h"
 
-static const unsigned short cVersion = 1;
 static const unsigned short cHdrSz = 128;
-
-Seis::Blocks::DataStorage::DataStorage( const SurvGeom* geom )
-    : survgeom_(*(geom ? geom : static_cast<const SurvGeom*>(
-				    &SurvGeom::default3D())))
-    , dims_(Block::defDims())
-    , version_(cVersion)
-{
-}
-
-
-BufferString Seis::Blocks::DataStorage::fileNameFor( const GlobIdx& globidx )
-{
-    BufferString ret;
-    ret.add( globidx.inl() ).add( "_" ).add( globidx.crl() ).add( ".bin" );
-    return ret;
-}
 
 
 Seis::Blocks::Writer::Column::Column( const Dimensions& dims, int nrcomps )
@@ -114,7 +97,7 @@ void Seis::Blocks::Writer::Column::getDefArea( SampIdx& start,
 
 
 Seis::Blocks::Writer::Writer( const SurvGeom* geom )
-    : DataStorage(geom)
+    : IOClass(geom)
     , basepath_(GetBaseDataDir(),sSeismicSubDir())
     , scaler_(0)
     , specfprep_(OD::AutoFPRep)
@@ -859,7 +842,7 @@ virtual bool doFinish( bool )
     wrr_.writeMainFile( uirv );
     uirv_.add( uirv );
     wrr_.isfinished_ = true;
-    return uirv.isError();
+    return uirv.isOK();
 }
 
     uiRetVal		uirv_;

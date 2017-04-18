@@ -124,13 +124,22 @@ protected:
 };
 
 
-/*!\brief Base class for Reader and Writer */
+/*!\brief Base class for Reader and Writer.
 
-mExpClass(Seis) DataStorage
+  The format is designed with these principles in mind:
+  * Bricking helps keep performance similar and reasonably OK in all directions
+  * The total geometry setup is stored in a human-readbale summary file, which
+    will make the data usable accross surveys
+  * When writing, no sorting is required, although some sorting will help keep
+    memory consumption down
+
+*/
+
+mExpClass(Seis) IOClass
 {
 public:
 
-    virtual		~DataStorage()		{}
+    virtual		~IOClass()		{}
 
     unsigned short	version() const		{ return version_; }
 
@@ -149,7 +158,7 @@ public:
 
 protected:
 
-			DataStorage(const SurvGeom*);
+			IOClass(const SurvGeom*);
 
     const SurvGeom&	survgeom_;
     const Dimensions	dims_;

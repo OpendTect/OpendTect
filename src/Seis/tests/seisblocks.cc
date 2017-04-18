@@ -12,24 +12,42 @@
 #include "paralleltask.h"
 
 
+static const char* sNormSeisIDStr = "100010.2";
+static const char* sSteerSeisIDStr = "100010.3";
+
 static bool testWriting()
 {
-    Seis::Blocks::Writer wrr;
-    wrr.setFileNameBase( "test_seisblocks" );
-    wrr.setCubeName( "Test Seisblocks Cube" );
-    wrr.addComponentName( "Test SeisBlocks Component" );
-    IOPar iop;
-    iop.set( "Test Seisblocks key", "Test Seisblocks value" );
+    const bool usesteer = false;
 
-    wrr.addAuxInfo( "Test SeisBlocks section", iop );
-
+    const char* seisidstr = usesteer ? sSteerSeisIDStr : sNormSeisIDStr;
     Seis::Provider* prov = Seis::Provider::create(
-				DBKey::getFromString("100010.2" ) );
+				    DBKey::getFromString(seisidstr) );
     if ( !prov )
-	return true;
+    {
+	tstStream(true) << "Cur survey has no " << seisidstr << od_endl;
+	return true; // don't need e-mails from CDash
+    }
 
     /*
-    SeisTrc trc; uiRetVal uirv; int prevlinenr = -1;
+
+    Seis::Blocks::Writer wrr;
+    wrr.setFileNameBase( usesteer ? "test_blocks_steering" : "test_blocks" );
+    wrr.setCubeName( prov->name() );
+    BufferStringSet compnms;
+    uiRetVal uirv = prov->getComponentInfo( compnms );
+    if ( uirv.isError() )
+	tstStream(true) << "Hmmm can't get component info" << od_endl;
+    else
+    {
+	for ( int idx=0; idx<compnms.size(); idx++ )
+	    wrr.addComponentName( compnms.get(idx) );
+    }
+    IOPar iop;
+    iop.setStdCreationEntries();
+    iop.set( "Input DBKey", seisidstr );
+    wrr.addAuxInfo( "Test section", iop );
+
+    SeisTrc trc; int prevlinenr = -1;
     while ( true )
     {
 	uirv = prov->getNext( trc );

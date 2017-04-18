@@ -11,9 +11,10 @@ ________________________________________________________________________
 */
 
 #include "seisblocksdata.h"
-#include "seistrc.h"
 #include "filepath.h"
 #include "uistring.h"
+#include "ranges.h"
+#include "od_iosfwd.h"
 #include "manobjectset.h"
 
 class Task;
@@ -28,21 +29,19 @@ namespace Seis
 namespace Blocks
 {
 
-class Block;
-
-/*!\brief Writes provided data into Block Storage.
+/*!\brief Writes provided data into Blocks Storage.
 
   The writer accepts trace data which it will distribute amongst in-memory
-  blocks. When a block is fully filled it will be written and the block is
-  retired (i.e. its databuffer is emptied).
+  blocks. When a column of blocks is fully filled it will be written and each
+  block is retired (i.e. its databuffer is emptied).
 
-  All block data is put in a subdir of the base path. At the end the blocks
-  that have never been fully filled (edge blocks, blocks with data gaps) will
+  All files are put in a subdir of the base path. At the end the columns
+  that have never been fully filled (edge columns, columns with data gaps) will
   be written. Lastly, the main file ".cube" will be written.
 
 */
 
-mExpClass(Seis) Writer : public DataStorage
+mExpClass(Seis) Writer : public IOClass
 { mODTextTranslationClass(Seis::Blocks::Writer);
 public:
 
