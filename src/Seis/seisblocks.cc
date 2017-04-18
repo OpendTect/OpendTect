@@ -8,11 +8,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "seisblocksdata.h"
-#include "databuf.h"
+#include "seisblocks.h"
 #include "envvars.h"
 #include "datainterp.h"
-#include "odmemory.h"
 #include "oddirs.h"
 #include "scaler.h"
 #include "genc.h"
@@ -101,122 +99,19 @@ Seis::Blocks::Dimensions Seis::Blocks::Block::defDims()
 }
 
 
-Seis::Blocks::Block::Block( GlobIdx gidx, SampIdx strt, Dimensions dms,
-			    OD::FPDataRepType fpr )
+Seis::Blocks::Block::Block( GlobIdx gidx, const SampIdx& strt,
+			    const Dimensions& dms )
     : globidx_(gidx)
     , start_(strt)
     , dims_(dms)
-    , dbuf_(*new DataBuffer(0))
+    , interp_(0)
 {
-    const DataCharacteristics dc( fpr );
-    interp_ = DataInterpreter<float>::create( dc, true );
-    const int bytesperval = (int)dc.nrBytes();
-    dbuf_.reByte( bytesperval, false );
-    const int totsz = (((int)dims_.inl())*dims_.crl()) * dims_.z();
-    dbuf_.reSize( totsz, false );
 }
 
 
 Seis::Blocks::Block::~Block()
 {
     delete interp_;
-    delete &dbuf_;
-}
-
-
-void Seis::Blocks::Block::zero()
-{
-    dbuf_.zero();
-}
-
-
-void Seis::Blocks::Block::retire()
-{
-    dbuf_.reSize( 0, false );
-}
-
-
-bool Seis::Blocks::Block::isRetired() const
-{
-    return dbuf_.isEmpty();
-}
-
-
-int Seis::Blocks::Block::getBufIdx( const SampIdx& sidx ) const
-{
-    const int nrsampsoninl = ((int)sidx.crl()) * dims_.z() + sidx.z();
-    return sidx.inl() ? sidx.inl()*nrSampsPerInl() + nrsampsoninl
-		      : nrsampsoninl;
-}
-
-
-float Seis::Blocks::Block::value( const SampIdx& sidx ) const
-{
-    return interp_->get( dbuf_.data(), getBufIdx(sidx) );
-}
-
-
-void Seis::Blocks::Block::getVert( SampIdx sampidx, float* vals,
-				  int arrsz ) const
-{
-    const int startbufidx = getBufIdx( sampidx );
-    sampidx.z() = (IdxType)dims_.z();
-    const int stopbufidx = getBufIdx( sampidx );
-
-    if ( interp_->isF32() )
-    {
-	int nr2copy = stopbufidx - startbufidx + 1;
-	if ( nr2copy > arrsz )
-	    nr2copy = arrsz;
-	OD::sysMemCopy( vals, dbuf_.data() + sizeof(float) * startbufidx,
-		        nr2copy * sizeof(float) );
-    }
-    else
-    {
-	int arridx = 0;
-	for ( int bufidx=startbufidx; bufidx<=stopbufidx; bufidx++ )
-	{
-	    if ( arridx >= arrsz )
-		break;
-	    vals[arridx] = interp_->get( dbuf_.data(), bufidx );
-	    arridx++;
-	}
-    }
-}
-
-
-void Seis::Blocks::Block::setValue( const SampIdx& sidx, float val )
-{
-    interp_->put( dbuf_.data(), getBufIdx(sidx), val );
-}
-
-
-void Seis::Blocks::Block::setVert( SampIdx sampidx, const float* vals,
-				  int arrsz )
-{
-    const int startbufidx = getBufIdx( sampidx );
-    sampidx.z() = (IdxType)dims_.z();
-    const int stopbufidx = getBufIdx( sampidx );
-
-    if ( interp_->isF32() )
-    {
-	int nr2copy = stopbufidx - startbufidx + 1;
-	if ( nr2copy > arrsz )
-	    nr2copy = arrsz;
-	OD::sysMemCopy( dbuf_.data() + sizeof(float) * startbufidx,
-		        vals, nr2copy * sizeof(float) );
-    }
-    else
-    {
-	int arridx = 0;
-	for ( int bufidx=startbufidx; bufidx<=stopbufidx; bufidx++ )
-	{
-	    if ( arridx >= arrsz )
-		break;
-	    interp_->put( dbuf_.data(), bufidx, vals[arridx] );
-	    arridx++;
-	}
-    }
 }
 
 

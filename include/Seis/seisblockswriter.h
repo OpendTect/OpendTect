@@ -10,12 +10,11 @@ ________________________________________________________________________
 
 */
 
-#include "seisblocksdata.h"
+#include "seisblocks.h"
 #include "filepath.h"
 #include "uistring.h"
 #include "ranges.h"
 #include "od_iosfwd.h"
-#include "manobjectset.h"
 
 class Task;
 class SeisTrc;
@@ -27,6 +26,10 @@ namespace Seis
 {
 namespace Blocks
 {
+
+class MemBlock;
+class MemBlockColumn;
+
 
 /*!\brief Writes provided data into Blocks Storage.
 
@@ -64,25 +67,6 @@ public:
     typedef std::pair<IdxType,float>	ZEvalPos;
     typedef TypeSet<ZEvalPos>		ZEvalPosSet;
 
-    struct Column
-    {
-	typedef ManagedObjectSet<Block>    BlockSet;
-
-			Column(const Dimensions&,int nrcomps);
-			~Column();
-
-	Block&		firstBlock()	{ return *blocksets_.first()->first(); }
-	const Block&	firstBlock() const
-					{ return *blocksets_.first()->first(); }
-	void		retireAll();
-	void		getDefArea(SampIdx&,Dimensions&) const;
-
-	const Dimensions dims_;
-	ObjectSet<BlockSet> blocksets_; // one set per component
-	bool**		visited_;
-	int		nruniquevisits_;
-    };
-
     inline int		nrColumnBlocks() const
 			{ return zevalpositions_.size(); }
 
@@ -101,18 +85,18 @@ protected:
     void		resetZ(const Interval<float>&);
     bool		removeExisting(const char*,uiRetVal&) const;
     bool		prepareWrite(uiRetVal&);
-    void		add2Block(Block&,const ZEvalPosSet&,SampIdx,
+    void		add2Block(MemBlock&,const ZEvalPosSet&,SampIdx,
 				    const SeisTrc&,int);
-    Column*		getColumn(const GlobIdx&);
-    Column*		mkNewColumn(const GlobIdx&);
-    bool		isCompletionVisit(Column&,const SampIdx&) const;
-    void		writeColumn(Column&,uiRetVal&);
-    bool		writeColumnHeader(od_ostream&,const Column&,
+    MemBlockColumn*	getColumn(const GlobIdx&);
+    MemBlockColumn*	mkNewColumn(const GlobIdx&);
+    bool		isCompletionVisit(MemBlockColumn&,const SampIdx&) const;
+    void		writeColumn(MemBlockColumn&,uiRetVal&);
+    bool		writeColumnHeader(od_ostream&,const MemBlockColumn&,
 				    const SampIdx&,const Dimensions&) const;
-    bool		writeBlock(od_ostream&,Block&,SampIdx,Dimensions);
+    bool		writeBlock(od_ostream&,MemBlock&,SampIdx,Dimensions);
     void		writeMainFile(uiRetVal&);
     bool		writeMainFileData(od_ostream&);
-    void		scanPositions( PosInfo::CubeData& cubedata,
+    void		scanPositions(PosInfo::CubeData& cubedata,
 			    Interval<IdxType>&,Interval<IdxType>&,
 		            Interval<int>&,Interval<int>&,
 			    Interval<double>&,Interval<double>&);

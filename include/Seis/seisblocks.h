@@ -26,9 +26,8 @@ namespace Seis
 
 A 3D survey Geometry defines a full 'Lattice' that in turns defines
 a unique set of indices for inlines, crosslines and Z. We can group the
-positions into blocks of a size that can easily be read in one go but is still
-big enough to not make a huge number of files. BTW the default size 80x80x80
-was chosen to always fit within a default HD cache unit of 8MB.
+positions into blocks of a size that is not too big, but big enough to not
+make a huge number of files.
 
 With these predefined dimensions, we can set up indexes for each block in each
 dimension (the GlobIdx). Within the blocks, you then have local, relative
@@ -67,30 +66,17 @@ mDefSeisBlockTripletClass(SampIdx,IdxType);
 mDefSeisBlockTripletClass(Dimensions,SzType);
 
 
-/*!\brief Single block of data */
+/*!\brief Base class for single block. */
 
 mExpClass(Seis) Block
 {
 public:
 
-			Block(GlobIdx,SampIdx start=SampIdx(),
-				Dimensions dims=defDims(),
-				OD::FPDataRepType fpr=OD::F32);
 			~Block();
 
     const GlobIdx&	globIdx() const		{ return globidx_; }
     const SampIdx&	start() const		{ return start_; }
     const Dimensions&	dims() const		{ return dims_; }
-    const DataBuffer&	dataBuf() const		{ return dbuf_; }
-
-    void		zero();
-    void		retire();
-    bool		isRetired() const;
-
-    float		value(const SampIdx&) const;
-    void		getVert(SampIdx,float*,int sz) const;
-    void		setValue(const SampIdx&,float);
-    void		setVert(SampIdx,const float*,int sz);
 
     SampIdx		getSampIdx(const BinID&,const SurvGeom&) const;
     SampIdx		getSampIdx(const BinID&,float z,const SurvGeom&) const;
@@ -113,13 +99,13 @@ public:
 
 protected:
 
+			Block(GlobIdx,const SampIdx&,const Dimensions&);
+
     const GlobIdx	globidx_;
     const SampIdx	start_;
     const Dimensions	dims_;
-    DataBuffer&		dbuf_;
     const DataInterpreter<float>* interp_;
 
-    int			getBufIdx(const SampIdx&) const;
     inline int		nrSampsPerInl() const
 			{ return ((int)dims_.crl()) * dims_.z(); }
 

@@ -26,7 +26,100 @@ ________________________________________________________________________
 static const unsigned short cHdrSz = 128;
 
 
-Seis::Blocks::Writer::Column::Column( const Dimensions& dims, int nrcomps )
+namespace Seis
+{
+namespace Blocks
+{
+
+/*!\brief Block with data buffer collecting data to be written. */
+
+class MemBlock : public Block
+{
+public:
+
+			MemBlock(GlobIdx,SampIdx start=SampIdx(),
+				   Dimensions dims=defDims(),
+				   OD::FPDataRepType fpr=OD::F32);
+
+    void		zero()			{ dbuf_.zero(); }
+    void		retire()		{ dbuf_.reSize( 0, false ); }
+    bool		isRetired() const	{ return dbuf_.isEmpty(); }
+
+    float		value(const SampIdx&) const;
+    void		setValue(const SampIdx&,float);
+
+    DataBuffer		dbuf_;
+
+protected:
+
+    int			getBufIdx(const SampIdx&) const;
+
+};
+
+
+class MemBlockColumn
+{
+public:
+
+    typedef ManagedObjectSet<MemBlock>    BlockSet;
+
+			MemBlockColumn(const Dimensions&,int nrcomps);
+			~MemBlockColumn();
+
+    MemBlock&		firstBlock()	{ return *blocksets_.first()->first(); }
+    const MemBlock&	firstBlock() const
+					{ return *blocksets_.first()->first(); }
+    void		retireAll();
+    void		getDefArea(SampIdx&,Dimensions&) const;
+
+    const Dimensions	dims_;
+    ObjectSet<BlockSet> blocksets_; // one set per component
+    bool**		visited_;
+    int			nruniquevisits_;
+};
+
+} // namespace Blocks
+
+} // namespace Seis
+
+
+Seis::Blocks::MemBlock::MemBlock( GlobIdx gidx, SampIdx strt,
+				      Dimensions dms, OD::FPDataRepType fpr )
+    : Block(gidx,strt,dms)
+    , dbuf_(0)
+{
+    const DataCharacteristics dc( fpr );
+    interp_ = DataInterpreter<float>::create( dc, true );
+    const int bytesperval = (int)dc.nrBytes();
+    dbuf_.reByte( bytesperval, false );
+    const int totsz = (((int)dims_.inl())*dims_.crl()) * dims_.z();
+    dbuf_.reSize( totsz, false );
+}
+
+
+int Seis::Blocks::MemBlock::getBufIdx( const SampIdx& sidx ) const
+{
+    const int nrsampsoninl = ((int)sidx.crl()) * dims_.z() + sidx.z();
+    return sidx.inl() ? sidx.inl()*nrSampsPerInl() + nrsampsoninl
+		      : nrsampsoninl;
+}
+
+
+float Seis::Blocks::MemBlock::value( const SampIdx& sidx ) const
+{
+    return interp_->get( dbuf_.data(), getBufIdx(sidx) );
+}
+
+
+void Seis::Blocks::MemBlock::setValue( const SampIdx& sidx, float val )
+{
+    interp_->put( dbuf_.data(), getBufIdx(sidx), val );
+}
+
+
+
+Seis::Blocks::MemBlockColumn::MemBlockColumn( const Dimensions& dims,
+					      int nrcomps )
     : nruniquevisits_(0)
     , dims_(dims)
 {
@@ -43,7 +136,7 @@ Seis::Blocks::Writer::Column::Column( const Dimensions& dims, int nrcomps )
 }
 
 
-Seis::Blocks::Writer::Column::~Column()
+Seis::Blocks::MemBlockColumn::~MemBlockColumn()
 {
     deepErase(blocksets_);
     for ( IdxType idx=0; idx<dims_.inl(); idx++ )
@@ -52,7 +145,7 @@ Seis::Blocks::Writer::Column::~Column()
 }
 
 
-void Seis::Blocks::Writer::Column::retireAll()
+void Seis::Blocks::MemBlockColumn::retireAll()
 {
     for ( int iset=0; iset<blocksets_.size(); iset++ )
     {
@@ -63,7 +156,7 @@ void Seis::Blocks::Writer::Column::retireAll()
 }
 
 
-void Seis::Blocks::Writer::Column::getDefArea( SampIdx& start,
+void Seis::Blocks::MemBlockColumn::getDefArea( SampIdx& start,
 					       Dimensions& dims ) const
 {
     IdxType mininl = dims_.inl()-1, mincrl = dims_.crl()-1;
@@ -98,7 +191,7 @@ Seis::Blocks::Writer::Writer( const SurvGeom* geom )
     : survgeom_(*(geom ? geom : static_cast<const SurvGeom*>(
 					&SurvGeom::default3D())))
     , specfprep_(OD::AutoFPRep)
-    , columns_(*new Pos::IdxPairDataSet(sizeof(Column*),false,false))
+    , columns_(*new Pos::IdxPairDataSet(sizeof(MemBlockColumn*),false,false))
     , nrcomponents_(1)
     , nrpospercolumn_(((int)dims_.inl()) * dims_.crl())
     , isfinished_(false)
@@ -126,10 +219,10 @@ Seis::Blocks::Writer::~Writer()
 // This function + the macros keep IdxPairDataSet debugging possible
 // without dependencies in the header file
 
-inline static Seis::Blocks::Writer::Column* gtColumn( Pos::IdxPairDataSet& ds,
+inline static Seis::Blocks::MemBlockColumn* gtColumn( Pos::IdxPairDataSet& ds,
 				    const Pos::IdxPairDataSet::SPos& spos )
 {
-    return (Seis::Blocks::Writer::Column*)ds.getObj( spos );
+    return (Seis::Blocks::MemBlockColumn*)ds.getObj( spos );
 }
 
 #define mGetColumn(spos) gtColumn( columns_, spos )
@@ -322,7 +415,7 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 			   Block::sampIdx4Crl(survgeom_,bid.crl(),dims_.crl()),
 			   0 );
 
-    Column* column = getColumn( globidx );
+    MemBlockColumn* column = getColumn( globidx );
     if ( !column )
     {
 	uirv.set( tr("Memory needed for writing process unavailable.") );
@@ -332,11 +425,11 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 
     for ( int icomp=0; icomp<nrcomponents_; icomp++ )
     {
-	Column::BlockSet& blockset = *column->blocksets_[icomp];
+	MemBlockColumn::BlockSet& blockset = *column->blocksets_[icomp];
 	for ( int iblock=0; iblock<blockset.size(); iblock++ )
 	{
 	    const ZEvalPosSet& posset = *zevalpositions_[iblock];
-	    Block& block = *blockset[iblock];
+	    MemBlock& block = *blockset[iblock];
 	    add2Block( block, posset, sampidx, trc, icomp );
 	}
     }
@@ -348,8 +441,9 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 }
 
 
-void Seis::Blocks::Writer::add2Block( Block& block, const ZEvalPosSet& zevals,
-			SampIdx sampidx, const SeisTrc& trc, int icomp )
+void Seis::Blocks::Writer::add2Block( MemBlock& block,
+			const ZEvalPosSet& zevals, SampIdx sampidx,
+			const SeisTrc& trc, int icomp )
 {
     if ( block.isRetired() )
 	return; // new visit of already written. Won't do, but no error.
@@ -366,10 +460,10 @@ void Seis::Blocks::Writer::add2Block( Block& block, const ZEvalPosSet& zevals,
 }
 
 
-Seis::Blocks::Writer::Column*
+Seis::Blocks::MemBlockColumn*
 Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
 {
-    Column* column = new Column( dims_, nrcomponents_ );
+    MemBlockColumn* column = new MemBlockColumn( dims_, nrcomponents_ );
 
     for ( IdxType globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
 	    globzidx++ )
@@ -388,7 +482,7 @@ Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
 
 	for ( int icomp=0; icomp<nrcomponents_; icomp++ )
 	{
-	    Block* block = new Block( curgidx, start, dims, fprep_ );
+	    MemBlock* block = new MemBlock( curgidx, start, dims, fprep_ );
 	    if ( block->isRetired() )
 		{ delete column; return 0; }
 	    block->zero();
@@ -400,12 +494,12 @@ Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
 }
 
 
-Seis::Blocks::Writer::Column*
+Seis::Blocks::MemBlockColumn*
 Seis::Blocks::Writer::getColumn( const GlobIdx& globidx )
 {
     const Pos::IdxPair idxpair( globidx.inl(), globidx.crl() );
     Pos::IdxPairDataSet::SPos spos = columns_.find( idxpair );
-    Column* column = 0;
+    MemBlockColumn* column = 0;
     if ( spos.isValid() )
 	column = mGetColumn( spos );
     else
@@ -418,7 +512,7 @@ Seis::Blocks::Writer::getColumn( const GlobIdx& globidx )
 }
 
 
-bool Seis::Blocks::Writer::isCompletionVisit( Column& column,
+bool Seis::Blocks::Writer::isCompletionVisit( MemBlockColumn& column,
 					      const SampIdx& sampidx ) const
 {
     bool& visited = column.visited_[sampidx.inl()][sampidx.crl()];
@@ -441,7 +535,7 @@ class ColumnWriter : public Executor
 { mODTextTranslationClass(Seis::Blocks::ColumnWriter)
 public:
 
-    typedef Writer::Column  Column;
+    typedef MemBlockColumn  Column;
 
 ColumnWriter( Writer& wrr, Column& colmn, const char* fnm )
     : Executor("Column File Writer")
@@ -481,8 +575,8 @@ virtual int nextStep()
 
     for ( int icomp=0; icomp<wrr_.nrcomponents_; icomp++ )
     {
-	Writer::Column::BlockSet& blockset = *column_.blocksets_[icomp];
-	Block& block = *blockset[iblock_];
+	MemBlockColumn::BlockSet& blockset = *column_.blocksets_[icomp];
+	MemBlock& block = *blockset[iblock_];
 	Dimensions wrdims( dims_ ); wrdims.z() = block.dims().z();
 	if ( !wrr_.writeBlock( strm_, block, start_, wrdims ) )
 	    { setErr(); return ErrorOccurred(); }
@@ -514,7 +608,7 @@ void setErr( bool initial=false )
 } // namespace Seis
 
 
-void Seis::Blocks::Writer::writeColumn( Column& column, uiRetVal& uirv )
+void Seis::Blocks::Writer::writeColumn( MemBlockColumn& column, uiRetVal& uirv )
 {
     File::Path fp( basepath_ );
     fp.add( filenamebase_ )
@@ -526,7 +620,8 @@ void Seis::Blocks::Writer::writeColumn( Column& column, uiRetVal& uirv )
 
 
 bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
-    const Column& column, const SampIdx& start, const Dimensions& dims ) const
+		    const MemBlockColumn& column, const SampIdx& start,
+		    const Dimensions& dims ) const
 {
     const Block& firstblock = column.firstBlock();
     const GlobIdx& globidx = firstblock.globIdx();
@@ -564,10 +659,10 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
 }
 
 
-bool Seis::Blocks::Writer::writeBlock( od_ostream& strm, Block& block,
+bool Seis::Blocks::Writer::writeBlock( od_ostream& strm, MemBlock& block,
 					SampIdx wrstart, Dimensions wrdims )
 {
-    const DataBuffer& dbuf = block.dataBuf();
+    const DataBuffer& dbuf = block.dbuf_;
     const Dimensions& blockdims = block.dims();
 
     if ( wrdims == blockdims )
@@ -695,7 +790,7 @@ void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
     bool first = true;
     while ( columns_.next(spos) )
     {
-	const Column& column = *mGetColumn( spos );
+	const MemBlockColumn& column = *mGetColumn( spos );
 	if ( column.nruniquevisits_ < 1 )
 	    continue;
 
@@ -764,7 +859,7 @@ class WriterFinisher : public ParallelTask
 { mODTextTranslationClass(Seis::Blocks::WriterFinisher)
 public:
 
-    typedef Writer::Column  Column;
+    typedef MemBlockColumn  Column;
 
 WriterFinisher( Writer& wrr )
     : ParallelTask("Seis Blocks Writer finisher")
@@ -773,7 +868,7 @@ WriterFinisher( Writer& wrr )
     Pos::IdxPairDataSet::SPos spos;
     while ( wrr_.columns_.next(spos) )
     {
-	Writer::Column* column = mGetWrrColumn( wrr_, spos );
+	Column* column = mGetWrrColumn( wrr_, spos );
 	if ( column->nruniquevisits_ < 1 )
 	    column->retireAll();
 	else if ( !column->firstBlock().isRetired() )
