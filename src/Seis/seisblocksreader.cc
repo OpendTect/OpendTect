@@ -32,13 +32,81 @@ namespace Blocks
 {
 
 class ReadColumn
-{
+{ mODTextTranslationClass(Seis::Blocks::ReadColumn)
 public:
+
+			ReadColumn(const Reader&,const GlobIdx&);
+			~ReadColumn()		{ retire(); }
+
+    void		activate(uiRetVal&);
+    void		retire();
+
+    GlobIdx		globidx_;
+    const Reader&	rdr_;
+    od_istream*		strm_;
+
 };
 
 } // namespace Blocks
 
 } // namespace Seis
+
+
+Seis::Blocks::ReadColumn::ReadColumn( const Reader& rdr, const GlobIdx& gidx )
+    : rdr_(rdr)
+    , globidx_(gidx)
+    , strm_(0)
+{
+}
+
+
+void Seis::Blocks::ReadColumn::activate( uiRetVal& uirv )
+{
+    uirv.setEmpty();
+    if ( strm_ )
+	return;
+
+    const File::Path fp( rdr_.dataDirName(), rdr_.fileNameFor(globidx_) );
+    const BufferString fnm( fp.fullPath() );
+    strm_ = new od_istream( fnm );
+    if ( !strm_->isOK() )
+    {
+	retire();
+	uirv.set( uiStrings::phrCannotOpen( toUiString(fnm) ) );
+	return;
+    }
+
+    IOClass::HdrSzVersionType hdrsz, version;
+    strm_->getBin( hdrsz ).getBin( version );
+    IOClass::HdrSzVersionType expectedhdrsz = rdr_.columnHeaderSize( version );
+    if ( hdrsz != expectedhdrsz )
+    {
+	retire();
+	uirv.set( tr("%1: unexpected header size.\nFound %2, should be %3.")
+	          .arg( fnm ).arg( hdrsz ).arg( expectedhdrsz ) );
+	return;
+    }
+
+    const IOClass::HdrSzVersionType bytesleft
+			= hdrsz - 2 * sizeof(IOClass::HdrSzVersionType);
+    char* buf = new char [bytesleft];
+    strm_->getBin( buf, bytesleft );
+    delete [] buf;
+    if ( !strm_->isOK() )
+    {
+	retire();
+	uirv.set( tr("%1: unexpected en of file.").arg( fnm ) );
+	return;
+    }
+
+    // Need to check the data int buf against the reader's main file?
+}
+
+
+void Seis::Blocks::ReadColumn::retire()
+{
+    delete strm_; strm_ = 0;
+}
 
 
 Seis::Blocks::Reader::Reader( const char* inp )
@@ -142,11 +210,8 @@ void Seis::Blocks::Reader::readMainFile()
     }
 
     if ( !havegensection || !havepossection )
-    {
 	state_.set( tr("%1\nlacks %1 section").arg(strm.fileName())
 	       .arg( havegensection ? tr("Position") : tr("General") ) );
-	return;
-    }
 }
 
 
@@ -196,6 +261,10 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 	for ( int icomp=0; icomp<nrcomps; icomp++ )
 	    compnms_.add( fms[icomp] );
     }
+
+    int maxinlblocks = globinlidxrg_.width() + 1;
+    int maxcrlblocks = globcrlidxrg_.width() + 1;
+    maxnrfiles_ = mMAX( maxinlblocks, maxcrlblocks ) + 1;
 
     return true;
 }
@@ -303,7 +372,23 @@ void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
 }
 
 
+Seis::Blocks::ReadColumn* Seis::Blocks::Reader::getColumn(
+		const GlobIdx& globidx, uiRetVal& uirv ) const
+{
+    return 0;
+}
+
+
 void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
 {
+    const BinID bid = trc.info().binID();
+    const GlobIdx globidx( Block::globIdx4Inl(*survgeom_,bid.inl(),dims_.inl()),
+			   Block::globIdx4Crl(*survgeom_,bid.crl(),dims_.crl()),
+			   0 );
+
+    ReadColumn* column = getColumn( globidx, uirv );
+    if ( !column )
+	return;
+
     uirv.set( tr("TODO: actual reading of trace.") );
 }

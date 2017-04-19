@@ -72,6 +72,7 @@ protected:
     Interval<int>	inlrg_;
     Interval<int>	crlrg_;
     Interval<float>	zrg_;
+    int			maxnrfiles_;
 
     mutable Threads::Lock		accesslock_;
     mutable ObjectSet<ReadColumn>	columns_;
@@ -83,6 +84,9 @@ protected:
     bool		advancePos(CubeDataPos&) const;
     void		doGet(SeisTrc&,uiRetVal&) const;
     void		readTrace(SeisTrc&,uiRetVal&) const;
+    ReadColumn*		getColumn(const GlobIdx&,uiRetVal&) const;
+
+    friend class	ReadColumn;
 
 };
 

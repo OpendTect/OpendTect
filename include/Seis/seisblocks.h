@@ -140,7 +140,7 @@ public:
     int			nrAuxInfo() const	{ return auxiops_.size(); }
     const IOPar&	getAuxInfo( int i ) const { return *auxiops_[i]; }
 
-    BufferString	dirName() const;
+    BufferString	dataDirName() const;
     BufferString	mainFileName() const;
 
     static BufferString	fileNameFor(const GlobIdx&);
@@ -158,13 +158,15 @@ public:
     static const char*	sKeyGlobZRg()	 { return "Blocks.Z ID Range"; }
     static const char*	sKeyComponents() { return "Components"; }
 
+    typedef unsigned short  HdrSzVersionType;
+
 protected:
 
 			IOClass();
 
     File::Path		basepath_;
     Dimensions		dims_;
-    unsigned short	version_;
+    HdrSzVersionType	version_;
     BufferString	filenamebase_;
     BufferString	cubename_;
     BufferStringSet	compnms_;
@@ -172,6 +174,8 @@ protected:
     OD::FPDataRepType	fprep_;
     ObjectSet<IOPar>	auxiops_;
     mutable bool	needreset_;
+
+    static HdrSzVersionType columnHeaderSize(HdrSzVersionType);
 
 };
 

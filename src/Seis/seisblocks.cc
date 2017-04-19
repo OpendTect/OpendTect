@@ -18,6 +18,8 @@ ________________________________________________________________________
 
 static const unsigned short cVersion = 1;
 static const unsigned short cDefDim = 80;
+Seis::Blocks::IOClass::HdrSzVersionType
+Seis::Blocks::IOClass::columnHeaderSize( HdrSzVersionType ver ) { return 128; }
 
 
 Seis::Blocks::IOClass::IOClass()
@@ -38,7 +40,7 @@ Seis::Blocks::IOClass::~IOClass()
 }
 
 
-BufferString Seis::Blocks::IOClass::dirName() const
+BufferString Seis::Blocks::IOClass::dataDirName() const
 {
     File::Path fp( basepath_ );
     fp.add( filenamebase_ );

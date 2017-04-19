@@ -24,8 +24,6 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "separstr.h"
 
-static const unsigned short cHdrSz = 128;
-
 
 namespace Seis
 {
@@ -375,7 +373,7 @@ bool Seis::Blocks::Writer::removeExisting( const char* fnm,
 bool Seis::Blocks::Writer::prepareWrite( uiRetVal& uirv )
 {
     const BufferString mainfnm = mainFileName();
-    const BufferString dirnm = dirName();
+    const BufferString dirnm = dataDirName();
     if ( !removeExisting(mainfnm,uirv) || !removeExisting(dirnm,uirv) )
         return false;
 
@@ -633,12 +631,14 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
     zstart += firstblock.start().z();
     const unsigned short dfmt = (unsigned short)fprep_;
 
-    strm.addBin( cHdrSz ).addBin( version_ );
+    const int hdrsz = columnHeaderSize( version_ );
+    strm.addBin( hdrsz ).addBin( version_ );
     strm.addBin( globidx.inl() ).addBin( globidx.crl() ).addBin( globidx.z() );
     strm.addBin( start.inl() ).addBin( start.crl() ).addBin( zstart );
     strm.addBin( dims.inl() ).addBin( dims.crl() ).addBin( zdim );
     strm.addBin( dfmt );
-    char buf[cHdrSz]; OD::memZero( buf, cHdrSz );
+    char* buf = new char [hdrsz];
+    OD::memZero( buf, hdrsz );
     if ( scaler_ )
     {
 	// write the scaler needed to reconstruct the org values
@@ -652,10 +652,11 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
     survgeom_.putStructure( buf );
     strm.addBin( buf, survgeom_.bufSize4Structure() );
 
-    const int bytes_left_in_hdr = cHdrSz - (int)strm.position();
+    const int bytes_left_in_hdr = hdrsz - (int)strm.position();
     OD::memZero( buf, bytes_left_in_hdr );
     strm.addBin( buf, bytes_left_in_hdr );
 
+    delete [] buf;
     return strm.isOK();
 }
 
