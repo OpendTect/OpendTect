@@ -14,12 +14,16 @@
 
 static const char* sNormSeisIDStr = "100010.2";
 static const char* sSteerSeisIDStr = "100010.3";
+static const char* sMonsterSeisIDStr = "100010.311";
 
 static bool testWriting()
 {
     const bool usesteer = false;
+    const bool usemonster = true;
 
     const char* seisidstr = usesteer ? sSteerSeisIDStr : sNormSeisIDStr;
+    if ( usemonster )
+	seisidstr = sMonsterSeisIDStr;
     Seis::Provider* prov = Seis::Provider::create(
 				    DBKey::getFromString(seisidstr) );
     if ( !prov )
@@ -29,7 +33,10 @@ static bool testWriting()
     }
 
     Seis::Blocks::Writer wrr;
-    wrr.setFileNameBase( usesteer ? "test_blocks_steering" : "test_blocks" );
+    if ( !usemonster )
+	wrr.setFileNameBase( usesteer ? "test_blocks_steering" : "test_blocks");
+    else
+	wrr.setFileNameBase( "monster" );
     wrr.setCubeName( prov->name() );
     BufferStringSet compnms;
     uiRetVal uirv = prov->getComponentInfo( compnms );

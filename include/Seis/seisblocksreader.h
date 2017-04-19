@@ -11,10 +11,12 @@ ________________________________________________________________________
 */
 
 #include "seisblocks.h"
+#include "ranges.h"
+#include "threadlock.h"
 #include "uistring.h"
 
 class SeisTrc;
-namespace PosInfo { class CubeData; }
+namespace PosInfo { class CubeData; class CubeDataPos; }
 
 
 namespace Seis
@@ -24,6 +26,8 @@ class SelData;
 
 namespace Blocks
 {
+
+class ReadColumn;
 
 /*!\brief Reads data from Blocks Storage.
 
@@ -35,13 +39,18 @@ mExpClass(Seis) Reader : public IOClass
 { mODTextTranslationClass(Seis::Blocks::Reader);
 public:
 
+    typedef PosInfo::CubeData	    CubeData;
+
 			Reader(const char* fnm_or_dirnm);
 			~Reader();
 
     const uiRetVal&	state() const		    { return state_; }
 
     const SurvGeom&	survGeom() const	    { return *survgeom_; }
-    const PosInfo::CubeData& positions() const	    { return cubedata_; }
+    const CubeData&	positions() const	    { return cubedata_; }
+    Interval<float>	zRange() const		    { return zrg_; }
+    Interval<int>	inlRange() const	    { return inlrg_; }
+    Interval<int>	crlRange() const	    { return crlrg_; }
 
     void		setSelData(const SelData*);
 
@@ -50,13 +59,30 @@ public:
 
 protected:
 
+    typedef PosInfo::CubeDataPos    CubeDataPos;
+
     SurvGeom*		survgeom_;
     SelData*		seldata_;
     uiRetVal		state_;
-    PosInfo::CubeData&	cubedata_;
+    Interval<IdxType>	globinlidxrg_;
+    Interval<IdxType>	globcrlidxrg_;
+    Interval<IdxType>	globzidxrg_;
+    CubeData&		cubedata_;
+    CubeDataPos&	curcdpos_;
+    Interval<int>	inlrg_;
+    Interval<int>	crlrg_;
+    Interval<float>	zrg_;
+
+    mutable Threads::Lock		accesslock_;
+    mutable ObjectSet<ReadColumn>	columns_;
 
     void		readMainFile();
     bool		getGeneralSectionData(const IOPar&);
+    bool		reset(uiRetVal&) const;
+    bool		isSelected(const CubeDataPos&) const;
+    bool		advancePos(CubeDataPos&) const;
+    void		doGet(SeisTrc&,uiRetVal&) const;
+    void		readTrace(SeisTrc&,uiRetVal&) const;
 
 };
 

@@ -722,11 +722,12 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
 	return false;
 
     PosInfo::CubeData cubedata;
-    Interval<IdxType> globinlrg, globcrlrg;
+    Interval<IdxType> globinlidxrg, globcrlidxrg;
     Interval<int> inlrg, crlrg;
     Interval<double> xrg, yrg;
     Interval<float> zrg;
-    scanPositions( cubedata, globinlrg, globcrlrg, inlrg, crlrg, xrg, yrg );
+    scanPositions( cubedata, globinlidxrg, globcrlidxrg,
+		    inlrg, crlrg, xrg, yrg );
     zrg.start = zevalpositions_.first()->first().second;
     zrg.stop = zevalpositions_.last()->last().second;
 
@@ -744,8 +745,8 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
 	delete invscaler;
     }
     iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );
-    iop.set( sKeyGlobInlRg(), globinlrg );
-    iop.set( sKeyGlobCrlRg(), globcrlrg );
+    iop.set( sKeyGlobInlRg(), globinlidxrg );
+    iop.set( sKeyGlobCrlRg(), globcrlidxrg );
     iop.set( sKeyGlobZRg(), globzidxrg_ );
     iop.set( sKey::XRange(), xrg );
     iop.set( sKey::YRange(), yrg );

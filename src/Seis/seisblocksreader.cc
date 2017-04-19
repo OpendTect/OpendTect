@@ -25,9 +25,29 @@ ________________________________________________________________________
 #include "zdomain.h"
 
 
+namespace Seis
+{
+
+namespace Blocks
+{
+
+class ReadColumn
+{
+public:
+};
+
+} // namespace Blocks
+
+} // namespace Seis
+
+
 Seis::Blocks::Reader::Reader( const char* inp )
     : survgeom_(0)
     , cubedata_(*new PosInfo::CubeData)
+    , curcdpos_(*new PosInfo::CubeDataPos)
+    , globinlidxrg_(0,0)
+    , globcrlidxrg_(0,0)
+    , globzidxrg_(0,0)
 {
     File::Path fp( inp );
     if ( !File::exists(inp) )
@@ -53,7 +73,9 @@ Seis::Blocks::Reader::~Reader()
 {
     delete seldata_;
     delete survgeom_;
+    deepErase( columns_ );
     delete &cubedata_;
+    delete &curcdpos_;
 }
 
 
@@ -143,6 +165,38 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
     Scaler* scl = Scaler::get( iop );
     mDynamicCast( LinScaler*, scaler_, scl );
 
+    int i1 = dims_.inl(), i2 = dims_.crl(), i3 = dims_.z();
+    if ( !iop.get(sKeyDimensions(),i1,i2,i3) )
+    {
+	state_.set( tr("%1\nlacks block dimension info").arg(mainFileName()) );
+	return false;
+    }
+    dims_.inl() = SzType(i1); dims_.crl() = SzType(i2); dims_.z() = SzType(i3);
+
+    i1 = globinlidxrg_.start; i2 = globinlidxrg_.stop;
+    iop.get( sKeyGlobInlRg(), i1, i2 );
+    globinlidxrg_.start = IdxType(i1); globinlidxrg_.stop = IdxType(i2);
+    i1 = globcrlidxrg_.start; i2 = globcrlidxrg_.stop;
+    iop.get( sKeyGlobCrlRg(), i1, i2 );
+    globcrlidxrg_.start = IdxType(i1); globcrlidxrg_.stop = IdxType(i2);
+    i1 = globzidxrg_.start; i2 = globzidxrg_.stop;
+    iop.get( sKeyGlobZRg(), i1, i2 );
+    globzidxrg_.start = IdxType(i1); globzidxrg_.stop = IdxType(i2);
+
+    iop.get( sKey::InlRange(), inlrg_ );
+    iop.get( sKey::CrlRange(), crlrg_ );
+    iop.get( sKey::ZRange(), zrg_ );
+
+    FileMultiString fms( iop.find(sKeyComponents()) );
+    const int nrcomps = fms.size();
+    if ( nrcomps < 1 )
+	compnms_.add( "Component 1" );
+    else
+    {
+	for ( int icomp=0; icomp<nrcomps; icomp++ )
+	    compnms_.add( fms[icomp] );
+    }
+
     return true;
 }
 
@@ -158,4 +212,98 @@ void Seis::Blocks::Reader::setSelData( const SelData* sd )
 	    seldata_ = 0;
 	needreset_ = true;
     }
+}
+
+
+bool Seis::Blocks::Reader::isSelected( const CubeDataPos& pos ) const
+{
+    return pos.isValid()
+	&& (!seldata_ || seldata_->isOK(cubedata_.binID(pos)));
+}
+
+
+bool Seis::Blocks::Reader::advancePos( CubeDataPos& pos ) const
+{
+    while ( true )
+    {
+	if ( !cubedata_.toNext(pos) )
+	{
+	    pos.toPreStart();
+	    return false;
+	}
+	if ( isSelected(pos) )
+	    return true;
+    }
+}
+
+
+bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
+{
+    curcdpos_.toPreStart();
+    if ( !advancePos(curcdpos_) )
+    {
+	uirv.set( tr("No selected positions found") );
+	return false;
+    }
+
+    needreset_ = false;
+    return true;
+}
+
+
+uiRetVal Seis::Blocks::Reader::get( const BinID& bid, SeisTrc& trc ) const
+{
+    uiRetVal uirv;
+    Threads::Locker locker( accesslock_ );
+
+    if ( needreset_ )
+    {
+	if ( !reset(uirv) )
+	    return uirv;
+    }
+
+    PosInfo::CubeDataPos newcdpos = cubedata_.cubeDataPos( bid );
+    if ( !newcdpos.isValid() )
+    {
+	uirv.set( tr("Position not present: %1/%2")
+		.arg( bid.inl() ).arg( bid.crl() ) );
+	return uirv;
+    }
+
+    curcdpos_ = newcdpos;
+    doGet( trc, uirv );
+    return uirv;
+}
+
+
+uiRetVal Seis::Blocks::Reader::getNext( SeisTrc& trc ) const
+{
+    uiRetVal uirv;
+    Threads::Locker locker( accesslock_ );
+
+    doGet( trc, uirv );
+    return uirv;
+}
+
+
+void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
+{
+    if ( needreset_ )
+    {
+	if ( !reset(uirv) )
+	    return;
+    }
+
+    if ( !curcdpos_.isValid() )
+	{ uirv.set( uiStrings::sFinished() ); return; }
+
+    readTrace( trc, uirv );
+    if ( !uirv.isError() )
+	advancePos( curcdpos_ );
+}
+
+
+void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
+{
+    uirv.set( tr("TODO: actual reading of trace.") );
 }
