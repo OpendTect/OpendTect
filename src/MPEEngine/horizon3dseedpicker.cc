@@ -95,7 +95,7 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 		tracker_.snapPositions( seedlist_ );
 
 	    seedlist_ += lastseed_.tk_;
-	    interpolateSeeds();
+	    interpolateSeeds( false );
 	}
     }
     else
@@ -351,7 +351,7 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
     for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
     {
 	const float val = !doerase ? path[idx].val_ : mUdf(float);
-	hor3d->setZ( path[idx].tk_, val, true );
+	hor3d->setZ( path[idx].tk_, val, true, EM::EMObject::Manual );
 	if ( trackmode_ == DrawAndSnap )
 	{
 	    hor3d->setAttrib( path[idx].tk_, EM::EMObject::sSeedNode(),
@@ -368,7 +368,7 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
 	seedlist_ += path[idx].tk_;
     }
 
-    interpolateSeeds();
+    interpolateSeeds( true );
     hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks( false, true );
     hor3d->setBurstAlert( false );
     EM::EMM().undo(hor3d->id()).setUserInteractionEnd( 
@@ -461,7 +461,9 @@ void Horizon3DSeedPicker::extendSeedListEraseInBetween(
 	}
 
 	// to erase points attached to start
-	if ( curdefined )
+	const EM::PosID pid(hor3d->id(),hor3d->sectionID(0),curbid.toInt64());
+	if ( curdefined && 
+	    !hor3d->isNodeSourceType(pid,EM::EMObject::Manual) )
 	    eraselist_ += curbid;
     }
 
@@ -476,7 +478,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 	return true;
 
     if ( trackmode_ == DrawBetweenSeeds )
-	return interpolateSeeds();
+	return interpolateSeeds( false );
 
     mGetHorizon( hor3d, false );
 
@@ -563,6 +565,12 @@ int Horizon3DSeedPicker::nrLineNeighbors( const BinID& bid,
 
 
 bool Horizon3DSeedPicker::interpolateSeeds()
+{
+    return interpolateSeeds( false );
+}
+
+
+bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 {
     mGetHorizon( hor3d, false )
 
@@ -652,7 +660,10 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	    }
 	    if ( tk.isUdf() )
 		continue;
-	    hor3d->setZ( tk, (float)interpos.z, true );
+	    const EM::EMObject::NodeSourceType type = setmanualnode ?
+		EM::EMObject::NodeSourceType::Manual : 
+		EM::EMObject::NodeSourceType::Auto;  
+	    hor3d->setZ( tk, (float)interpos.z, true, type );
 	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
 	    if ( trackmode_ != DrawBetweenSeeds )

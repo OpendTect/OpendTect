@@ -405,8 +405,7 @@ uiRetVal HorizonGridder::executeGridding(
 		od_static_tr("executeGridding","Cannot interpolate section %1")
 			    .arg(sid+1) );
 
-    hor3d->geometry().sectionGeometry(sid)->setArray(
-					hs.start_, hs.step_, arr, true );
+    hor3d->setArray( sid, hs.start_, hs.step_, arr, true );
     return uiRetVal::OK();
 }
 

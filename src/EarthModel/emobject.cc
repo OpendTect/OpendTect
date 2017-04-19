@@ -54,6 +54,7 @@ EMObject::EMObject( EMManager& emm )
     , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
     , preferredmarkerstyle_(
 	*new MarkerStyle3D(MarkerStyle3D::Cube,2,Color::White()))
+    , haslockednodes_( false )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
@@ -590,7 +591,9 @@ void EMObject::removeAllUnSeedPos()
 	if ( pid.objectID()==-1 )
 	    break;
 
-	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) )
+	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) &&
+    	     !isNodeSourceType(pid,Manual) &&
+	     !isNodeLocked(pid) )
 	    unSetPos( pid, true );
     }
     setBurstAlert( false );

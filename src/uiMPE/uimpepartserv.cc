@@ -53,6 +53,7 @@ int uiMPEPartServer::evCreate2DSelSpec()	{ return 9; }
 int uiMPEPartServer::evUpdateTrees()		{ return 11; }
 int uiMPEPartServer::evUpdateSeedConMode()	{ return 12; }
 int uiMPEPartServer::evStoreEMObject()		{ return 13; }
+int uiMPEPartServer::evHorizonTracking()	{ return 14; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -699,7 +700,7 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     if ( trackerid<0 ) return false;
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(emid))
-    if ( hor3d ) hor3d->saveParentArray();
+    if ( hor3d ) hor3d->saveNodeArrays();
 
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;

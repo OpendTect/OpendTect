@@ -99,8 +99,20 @@ public:
 
     virtual float		getZ(const TrcKey&) const;
 				//!< Fast: reads from the first section
-    virtual bool		setZ(const TrcKey&,float z,bool addtohist);
+    virtual bool		setZ(const TrcKey&,float z,bool addtohist,
+				     NodeSourceType type=Auto);
 				//!< Fast: writes to the first section
+
+    virtual void		setNodeSourceType(const TrcKey&,NodeSourceType);
+    virtual void		setNodeSourceType(const PosID&,NodeSourceType);
+    virtual bool		isNodeSourceType(const PosID&,
+						 NodeSourceType) const;
+    virtual bool		isNodeSourceType(const TrcKey&,
+						 NodeSourceType) const;
+    virtual bool		isNodeLocked(const PosID&)const;
+    
+    bool			hasNodeSourceType(const PosID&) const;
+
     virtual bool		hasZ(const TrcKey&) const;
 				//!< Fast: checks only the first section
     virtual Coord3		getCoord(const TrcKey&) const;
@@ -119,6 +131,9 @@ public:
     Horizon3DGeometry&		geometry();
     const Horizon3DGeometry&	geometry() const;
 
+    virtual void		setArray(const SectionID&,const BinID& start,
+					const BinID& step, Array2D<float>* arr,
+					bool takeover);
     static Horizon3D*		createWithConstZ(float z,const TrcKeySampling&);
     Array2D<float>*		createArray2D(SectionID,
 					      const ZAxisTransform* zt=0) const;
@@ -162,6 +177,9 @@ public:
     void			updateTrackingSampling();
     bool			saveParentArray();
     bool			readParentArray();
+    bool			saveNodeArrays();
+    bool			readNodeArrays();
+
     TrcKeySampling		getTrackingSampling() const;
     void			setParent(const TrcKey&,const TrcKey& parent);
     TrcKey			getParent(const TrcKey&) const;
@@ -187,14 +205,29 @@ public:
     const Color&		getLockColor() const;
 
     virtual bool		setPos(const EM::PosID&,const Coord3&,
-				       bool addtohistory);
+				       bool addtohistory,
+				       NodeSourceType type=Auto);
     virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory);
+				       const Coord3&,bool addtohistory,
+				       NodeSourceType type=Auto);
 
 protected:
+    enum			ArrayType{Parents,Children,LockNode,NodeSource};
+
     void			fillPar(IOPar&) const;
     bool			usePar( const IOPar& );
     const IOObjContext&		getIOObjContext() const;
+    void			initNodeArraysSize(const StepInterval<int>&,
+						   const StepInterval<int>&);
+    void			setNodeArraySize(const StepInterval<int>&,
+				     const StepInterval<int>&,ArrayType);
+    void			updateNodeSourceArray(const TrcKeySampling,
+						      ArrayType);
+    Array2D<char>*		getNodeSourceArray(ArrayType) const;
+    void			createNodeSourceArray(const StepInterval<int>&,
+						const StepInterval<int>&,
+						ArrayType);
+    TrcKeySampling		getSectionTrckeySampling() const;
 
     friend class		EMManager;
     friend class		EMObject;
@@ -211,6 +244,11 @@ protected:
 
     Pos::GeomID			survgeomid_;
     bool			haslockednodes_;
+    Array2D<char>*		nodesource_;
+				/*!< '0'- non interpreted, '1'- manual 
+				interpreted,'2' - auto interpreted. 
+				see enum NodeSourceType*/
+    bool			arrayinited_;
 
 public:
     /*mDeprecated*/ float	getZ(const BinID&) const;
