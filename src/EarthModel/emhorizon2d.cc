@@ -411,13 +411,12 @@ float Horizon2D::getZ( const TrcKey& tk ) const
 }
 
 
-bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist, 
-    NodeSourceType type )
+bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist )
 {
-    if ( !nodesource_ )
-	initNodeSourceArray( tk );
+//    const NodeSourceType tp = !mIsUdf(z) ? type : None;
+//    setNodeSourceType( tk, tp );
 
-    return setPos( sectionID(0), tk.geomID(), tk.trcNr(), z, addtohist, type );
+    return setPos( sectionID(0), tk.geomID(), tk.trcNr(), z, addtohist );
 }
 
 
@@ -434,27 +433,26 @@ void Horizon2D::initNodeSourceArray( const TrcKey& tk )
 }
 
 
-void Horizon2D::setNodeSourceType( const TrcKey& tk, 
-    NodeSourceType type )
+void Horizon2D::setNodeSourceType( const TrcKey& tk, NodeSourceType type )
 {
-    if ( !nodesource_ ) return;
+    if ( !nodesource_ )
+	initNodeSourceArray( tk );
+
     nodesource_->getData()[tk.trcNr()] = (char)type;
 }
 
 
-bool Horizon2D::isNodeSourceType( const PosID& posid, 
-    NodeSourceType type ) const
+bool Horizon2D::isNodeSourceType( const PosID& posid, NodeSourceType type) const
 {
     const TrcKey tk = geometry_.getTrcKey(posid);
     return !tk.isUdf() ? isNodeSourceType( tk, type ) : false;
 }
 
 
-bool Horizon2D::isNodeSourceType( const TrcKey& tk, 
-    NodeSourceType type ) const
+bool Horizon2D::isNodeSourceType( const TrcKey& tk, NodeSourceType type ) const
 {
-    return nodesource_ ? nodesource_->getData()[tk.trcNr()] ==
-	(char)type : false;
+    return nodesource_ ?
+	nodesource_->getData()[tk.trcNr()] == (char)type : false;
 }
 
 
@@ -632,7 +630,7 @@ bool Horizon2D::setPos( const EM::SectionID& sid, const EM::SubID& subid,
 
 
 bool Horizon2D::setPos( EM::SectionID sid, Pos::GeomID geomid, int trcnr,
-			float z, bool addtohistory,  NodeSourceType type )
+			float z, bool addtohistory )
 {
   Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
@@ -644,10 +642,6 @@ bool Horizon2D::setPos( EM::SectionID sid, Pos::GeomID geomid, int trcnr,
     EM::SubID subid = BinID( lineidx, trcnr ).toInt64();
     Coord3 newpos = EMObject::getPos( sid, subid );
     newpos.z = z;
-
-    const NodeSourceType tp = newpos.isDefined() ? type : None;
-    const TrcKey tk( geomid, trcnr );
-    setNodeSourceType( tk, tp );
 
     return EMObject::setPos( sid, subid, newpos, addtohistory );
 }

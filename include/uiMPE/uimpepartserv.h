@@ -107,6 +107,7 @@ public:
     static int			evSetupLaunched();
     static int			evSetupClosed();
     static int			evInitFromSession();
+    static int			evHorizonTracking();
 
     void			loadTrackSetupCB(CallBacker*);
     bool 			prepareSaveSetupAs(const MultiID&);

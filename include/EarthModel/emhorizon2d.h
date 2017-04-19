@@ -110,8 +110,7 @@ mExpClass(EarthModel) Horizon2D : public Horizon
 public:
 
     virtual float		getZ(const TrcKey&) const;
-    virtual bool		setZ(const TrcKey&,float z,bool addtohist,
-    				     NodeSourceType type=Auto);
+    virtual bool		setZ(const TrcKey&,float z,bool addtohist);
     virtual bool		hasZ(const TrcKey&) const;
     virtual Coord3		getCoord(const TrcKey&) const;
     virtual void		setAttrib(const TrcKey&,int attr,int yn,
@@ -142,10 +141,10 @@ public:
 					NodeSourceType)const;
 
     bool			setPos(EM::SectionID,Pos::GeomID geomid,
-				       int trcnr,float z,bool addtohist,
-				       NodeSourceType type=Auto);
+				       int trcnr,float z,bool addtohist);
 
-    bool			setPos(const EM::PosID&,const Coord3&,bool);
+    bool			setPos(const EM::PosID&,const Coord3&,
+				       bool addtohist);
     bool			setPos(const EM::SectionID&,const EM::SubID&,
 				       const Coord3&,bool addtohist);
 
@@ -182,7 +181,7 @@ protected:
     Horizon2DGeometry		geometry_;
     Color			selectioncolor_;
     Array1D<char>*		nodesource_;
-				/*!< '0'- non interpreted, 
+				/*!< '0'- non interpreted,
 				'1'- manual interpreted,
 				'2' - auto interpreted. see
 				 enum NodeSourceType*/

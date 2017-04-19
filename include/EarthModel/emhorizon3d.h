@@ -99,8 +99,7 @@ public:
 
     virtual float		getZ(const TrcKey&) const;
 				//!< Fast: reads from the first section
-    virtual bool		setZ(const TrcKey&,float z,bool addtohist,
-				     NodeSourceType type=Auto);
+    virtual bool		setZ(const TrcKey&,float z,bool addtohist);
 				//!< Fast: writes to the first section
 
     virtual void		setNodeSourceType(const TrcKey&,NodeSourceType);
@@ -110,7 +109,7 @@ public:
     virtual bool		isNodeSourceType(const TrcKey&,
 						 NodeSourceType) const;
     virtual bool		isNodeLocked(const PosID&)const;
-    
+
     bool			hasNodeSourceType(const PosID&) const;
 
     virtual bool		hasZ(const TrcKey&) const;
@@ -205,11 +204,9 @@ public:
     const Color&		getLockColor() const;
 
     virtual bool		setPos(const EM::PosID&,const Coord3&,
-				       bool addtohistory,
-				       NodeSourceType type=Auto);
+				       bool addtohistory);
     virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory,
-				       NodeSourceType type=Auto);
+				       const Coord3&,bool addtohistory);
 
 protected:
     enum			ArrayType{Parents,Children,LockNode,NodeSource};
@@ -245,8 +242,8 @@ protected:
     Pos::GeomID			survgeomid_;
     bool			haslockednodes_;
     Array2D<char>*		nodesource_;
-				/*!< '0'- non interpreted, '1'- manual 
-				interpreted,'2' - auto interpreted. 
+				/*!< '0'- non interpreted, '1'- manual
+				interpreted,'2' - auto interpreted.
 				see enum NodeSourceType*/
     bool			arrayinited_;
 

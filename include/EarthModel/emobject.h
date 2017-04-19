@@ -33,6 +33,7 @@ class TaskRunner;
 namespace Geometry { class Element; }
 
 template <class T> class Selector;
+template <class T> class Array2D;
 
 namespace EM
 {
@@ -121,8 +122,8 @@ mExpClass(EarthModel) EMObject : public CallBacker
 mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
 { prepareForDelete(); delete this; } );
 public:
-    enum NodeSourceType	        { None = (int)'0', Manual=(int)'1', 
-	Auto=(int)'2', Gridding=(int)'3' };			
+    enum NodeSourceType		{ None = (int)'0', Manual=(int)'1',
+				  Auto=(int)'2', Gridding=(int)'3' };
 
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
@@ -173,29 +174,30 @@ public:
     virtual bool		unSetPos(const EM::SectionID&,const EM::SubID&,
 					 bool addtohistory);
 
-
     virtual void		setNodeSourceType(const TrcKey&,
-							NodeSourceType){};
+						  NodeSourceType)	{}
     virtual bool		isNodeSourceType(const PosID&,
-				    NodeSourceType) const {return false;}
+						 NodeSourceType) const
+				{ return false; }
     virtual bool		isNodeSourceType(const TrcKey&,
-				     NodeSourceType)const {return false;}
-
-    virtual void		setNodeLocked(const TrcKey&,bool locked){};
-    virtual bool		isNodeLocked(const TrcKey&) const 
-					    { return false; }
-    virtual bool		isNodeLocked(const PosID&)const {return false;}
-
-    virtual void		lockAll() {};
-    virtual void		unlockAll(){};
-    virtual const Array2D<char>* 
-				getLockedNodes() const { return 0; }
-    virtual void		setLockColor(const Color&) {};
-    virtual const Color&	getLockColor() const { return Color::Blue(); }
-    virtual bool		hasLockedNodes() const {return haslockednodes_;}
-
+						 NodeSourceType)const
+				{ return false; }
     virtual bool		hasNodeSourceType( const PosID& ) const
-						   { return false; }
+				{ return false; }
+
+    virtual void		setNodeLocked(const TrcKey&,bool locked) {}
+    virtual bool		isNodeLocked(const TrcKey&) const
+				{ return false; }
+    virtual bool		isNodeLocked(const PosID&)const
+				{ return false; }
+
+    virtual void		lockAll() {}
+    virtual void		unlockAll(){}
+    virtual const Array2D<char>*
+				getLockedNodes() const { return 0; }
+    virtual void		setLockColor(const Color&) {}
+    virtual const Color&	getLockColor() const { return lockcolor_; }
+    virtual bool		hasLockedNodes() const {return haslockednodes_;}
 
     virtual bool		enableGeometryChecks(bool);
     virtual bool		isGeometryChecksEnabled() const;
@@ -314,6 +316,7 @@ protected:
     int				burstalertcount_;
     Threads::Lock		setposlock_;
     bool			haslockednodes_;
+    Color			lockcolor_;
 
     bool			insideselremoval_;
     bool			selremoving_;
