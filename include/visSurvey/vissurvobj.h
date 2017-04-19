@@ -372,6 +372,7 @@ public:
 				{ saveinsessionsflag_ = yn; }
     bool			getSaveInSessionsFlag() const
 				{ return saveinsessionsflag_; }
+    virtual bool		canBeRemoved()const { return true; }
 
 protected:
 				SurveyObject();

@@ -204,6 +204,7 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+    virtual bool		canBeRemoved()const;
 private:
 				~HorizonDisplay();
     void			removeEMStuff();

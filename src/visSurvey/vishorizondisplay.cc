@@ -673,6 +673,15 @@ bool HorizonDisplay::canRemoveAttrib() const
 }
 
 
+bool HorizonDisplay::canBeRemoved()const
+{
+    if ( !sections_.size() || MPE::engine().getState()==MPE::engine().Started )
+	return false;
+
+    return true;
+}
+
+
 void HorizonDisplay::setAttribShift( int channel, const TypeSet<float>& shifts )
 {
     (*shifts_[channel]) = shifts;
