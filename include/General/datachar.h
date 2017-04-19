@@ -87,6 +87,10 @@ public:
 			mDeclareEnumUtils(UserType)
 			DataCharacteristics(UserType);
     UserType		userType() const; //!< will return 'nearest'
+    static bool		getUserTypeFromPar(const IOPar&,UserType&);
+    static void		putUserTypeToPar(IOPar&,UserType);
+    void		putUserType( IOPar& iop ) const
+			{ putUserTypeToPar( iop, userType() ); }
 
     double		getLimitValue(bool max) const;
 

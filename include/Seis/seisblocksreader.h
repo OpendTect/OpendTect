@@ -41,6 +41,7 @@ public:
     const uiRetVal&	state() const		    { return state_; }
 
     const SurvGeom&	survGeom() const	    { return *survgeom_; }
+    const PosInfo::CubeData& positions() const	    { return cubedata_; }
 
     void		setSelData(const SelData*);
 
@@ -52,8 +53,10 @@ protected:
     SurvGeom*		survgeom_;
     SelData*		seldata_;
     uiRetVal		state_;
+    PosInfo::CubeData&	cubedata_;
 
     void		readMainFile();
+    bool		getGeneralSectionData(const IOPar&);
 
 };
 

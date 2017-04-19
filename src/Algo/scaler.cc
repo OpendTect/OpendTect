@@ -10,6 +10,8 @@
 #include "separstr.h"
 #include "string2.h"
 #include "undefval.h"
+#include "keystrs.h"
+#include "iopar.h"
 #include "math2.h"
 
 #include <limits.h>
@@ -44,11 +46,34 @@ Scaler* Scaler::get( const char* str )
 }
 
 
+Scaler* Scaler::get( const IOPar& iop )
+{
+    return get( iop.find(sKey::Scale()) );
+}
+
+
 void Scaler::put( char* str ) const
 {
     FileMultiString fs( type() );
     fs += FileMultiString( toString() );
     strcpy( str, fs );
+}
+
+
+void Scaler::put( IOPar& iop ) const
+{
+    char buf[1024];
+    put( buf );
+    iop.set( sKey::Scale(), buf );
+}
+
+
+void Scaler::putToPar( IOPar& iop, const Scaler* sc )
+{
+    if ( !sc )
+	iop.removeWithKey( sKey::Scale() );
+    else
+	sc->put( iop );
 }
 
 

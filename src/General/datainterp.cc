@@ -14,6 +14,7 @@
 #include "ibmformat.h"
 #include "separstr.h"
 #include "od_istream.h"
+#include "keystrs.h"
 #include <limits>
 
 mDefineEnumUtils(DataCharacteristics,UserType,"Data storage") {
@@ -28,6 +29,22 @@ mDefineEnumUtils(DataCharacteristics,UserType,"Data storage") {
         "8 - 64 bit floating point",
         "9 - 64 bit signed",
 	0 };
+
+bool DataCharacteristics::getUserTypeFromPar( const IOPar& iop, UserType& ut )
+{
+    const char* res = iop.find( sKey::DataStorage() );
+    if ( !res || !isdigit(*res) )
+	return false;
+    ut = UserType( *res - '0' );
+    return true;
+}
+
+
+void DataCharacteristics::putUserTypeToPar( IOPar& iop, UserType ut )
+{
+    iop.set( sKey::DataStorage(), toString(ut) );
+}
+
 
 // sys/types.h is a bit of a mess, so ...
 typedef signed char TS1;

@@ -27,8 +27,7 @@ public:
     void		updateFrom(const IOObj&);
 
     Scaler*		getScaler() const;
-    int			getFormat() const;
-			//!< returns (int)DataCharacteristics::UserType
+    OD::FPDataRepType	getFormat() const;
     bool		horOptim() const;
     bool		extendTrcToSI() const;
     void		updateIOObj(IOObj*,bool commit=true) const;

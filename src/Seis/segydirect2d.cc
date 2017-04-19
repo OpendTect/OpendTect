@@ -341,8 +341,7 @@ SEGYDirect2DLinePutter::SEGYDirect2DLinePutter( const IOObj& obj,
     if ( !File::exists(fp.pathOnly()) )
 	File::createDir( fp.pathOnly() );
 
-    DataCharacteristics::UserTypeDef().parse(
-	    obj.pars().find(sKey::DataStorage()), preseldt_ );
+    DataCharacteristics::getUserTypeFromPar( obj.pars(), preseldt_ );
 }
 
 

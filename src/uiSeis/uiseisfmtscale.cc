@@ -26,8 +26,15 @@ class uiSeisFmtScaleData
 { mODTextTranslationClass(uiSeisFmtScaleData);
 public:
 
-uiSeisFmtScaleData() : stor_(0), sclr_(0), optim_(false), trcgrow_(false) {}
-uiSeisFmtScaleData( const uiSeisFmtScaleData& d ) : sclr_(0)
+    typedef DataCharacteristics::UserType  StorType;
+
+uiSeisFmtScaleData()
+    : stor_(OD::AutoFPRep), sclr_(0), optim_(false), trcgrow_(false)
+{
+}
+
+uiSeisFmtScaleData( const uiSeisFmtScaleData& d )
+    : sclr_(0)
 {
     stor_ = d.stor_; optim_ = d.optim_;
     trcgrow_ = d.trcgrow_;
@@ -45,7 +52,7 @@ Scaler* getScaler() const
     return sclr_ ? sclr_->clone() : 0;
 }
 
-    int		stor_;
+    StorType	stor_;
     Scaler*	sclr_;
     bool	optim_;
     bool	trcgrow_;
@@ -68,7 +75,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 {
     stortypfld_ = new uiGenInput( this, tr("Storage"),
 		 StringListInpSpec(DataCharacteristics::UserTypeDef()) );
-    stortypfld_->setValue( data_.stor_ );
+    stortypfld_->setValue( (int)data_.stor_ );
     if ( fixedfmtscl )
 	stortypfld_->setSensitive( false );
 
@@ -100,7 +107,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 
 bool acceptOK()
 {
-    data_.stor_ = stortypfld_->getIntValue();
+    data_.stor_ = OD::FPDataRepType( stortypfld_->getIntValue() );
     data_.sclr_ = scalefld_->getScaler();
     data_.optim_ = optimfld_ && optimfld_->getBoolValue();
     data_.trcgrow_ = trcgrowfld_ && trcgrowfld_->getBoolValue();
@@ -193,7 +200,7 @@ void uiSeisFmtScale::updSteer( CallBacker* )
     else
     {
 	compfld_->data_.setScaler( 0 );
-	compfld_->data_.stor_ = (int)OD::SI16;
+	compfld_->data_.stor_ = OD::SI16;
 	compfld_->updateSummary();
     }
 }
@@ -205,9 +212,9 @@ Scaler* uiSeisFmtScale::getScaler() const
 }
 
 
-int uiSeisFmtScale::getFormat() const
+OD::FPDataRepType uiSeisFmtScale::getFormat() const
 {
-    return scalefld_ ? 0 : compfld_->data_.stor_;
+    return scalefld_ ? OD::AutoFPRep : compfld_->data_.stor_;
 }
 
 
@@ -229,9 +236,8 @@ void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
     setSteering( res && *res == 'S' );
     if ( !compfld_ ) return;
 
-    res = ioobj.pars().find( sKey::DataStorage() );
-    if ( res )
-	compfld_->data_.stor_ = (int)(*res - '0');
+    DataCharacteristics::getUserTypeFromPar( ioobj.pars(),
+					     compfld_->data_.stor_ );
 
     res = ioobj.pars().find( "Optimized direction" );
     compfld_->data_.optim_ = res && *res == 'H';
@@ -254,9 +260,7 @@ void uiSeisFmtScale::updateIOObj( IOObj* ioobj, bool commit ) const
 
 void uiSeisFmtScale::fillFmtPars( IOPar& iop ) const
 {
-    const int tp = getFormat();
-    iop.set( sKey::DataStorage(),
-	    DataCharacteristics::UserTypeDef().getKeyForIndex(tp) );
+    DataCharacteristics::putUserTypeToPar( iop, getFormat() );
     iop.update( sKeyOptDir(), horOptim() ? "Horizontal" : "" );
 }
 

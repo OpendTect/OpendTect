@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "posinfo.h"
 #include "survgeom3d.h"
+#include "survinfo.h" // for survey name only
 #include "ascstream.h"
 #include "separstr.h"
 
@@ -731,15 +732,15 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
 
     IOPar iop( sKeyGenSection() );
     iop.set( sKeyFmtVersion(), version_ );
-    iop.set( sKey::Name(), cubename_ );
+    iop.set( sKeySurveyName(), SI().name() );
+    iop.set( sKeyCubeName(), cubename_ );
     survgeom_.putStructure( iop );
-    iop.set( sKey::DataStorage(), DataCharacteristics::toString(fprep_) );
+    DataCharacteristics::putUserTypeToPar( iop, fprep_ );
     if ( scaler_ )
     {
 	// write the scaler needed to reconstruct the org values
 	LinScaler* invscaler = scaler_->inverse();
-	char buf[1024]; invscaler->put( buf );
-	iop.set( sKey::Scale(), buf );
+	invscaler->put( iop );
 	delete invscaler;
     }
     iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );

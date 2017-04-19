@@ -41,11 +41,11 @@ uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
 
 void uiCBVSVolOpts::use( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::DataStorage() );
-    if ( res && *res )
-	stortypfld_->setValue( (int)(*res - '0') );
+    DataCharacteristics::UserType ut;
+    if ( DataCharacteristics::getUserTypeFromPar(iop,ut) )
+	stortypfld_->setValue( (int)ut );
 
-    res = iop.find( CBVSSeisTrcTranslator::sKeyOptDir() );
+    const char* res = iop.find( CBVSSeisTrcTranslator::sKeyOptDir() );
     if ( res && *res )
 	optimdirfld_->setChecked( *res == 'H' );
 }
@@ -53,7 +53,8 @@ void uiCBVSVolOpts::use( const IOPar& iop )
 
 bool uiCBVSVolOpts::fill( IOPar& iop ) const
 {
-    iop.set( sKey::DataStorage(), stortypfld_->text() );
+    DataCharacteristics::putUserTypeToPar( iop,
+	    DataCharacteristics::UserType( stortypfld_->getIntValue() ) );
 
     iop.update( CBVSSeisTrcTranslator::sKeyOptDir(),
 			optimdirfld_->isChecked() ? "Horizontal" : "" );
@@ -79,15 +80,16 @@ uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
 
 void uiCBVSPS3DOpts::use( const IOPar& iop )
 {
-    const char* res = iop.find( sKey::DataStorage() );
-    if ( res && *res )
-	stortypfld_->setValue( (int)(*res - '0') );
+    DataCharacteristics::UserType ut;
+    if ( DataCharacteristics::getUserTypeFromPar(iop,ut) )
+	stortypfld_->setValue( (int)ut );
 }
 
 
 bool uiCBVSPS3DOpts::fill( IOPar& iop ) const
 {
-    iop.set( sKey::DataStorage(), stortypfld_->text() );
+    DataCharacteristics::putUserTypeToPar( iop,
+	    DataCharacteristics::UserType( stortypfld_->getIntValue() ) );
     return true;
 }
 

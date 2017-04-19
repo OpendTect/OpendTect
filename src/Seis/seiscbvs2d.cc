@@ -401,8 +401,7 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
     bid_.inl() = geomid;
     File::Path fp( fname_ );
     const BufferString dirnm( fp.pathOnly() );
-    DataCharacteristics::UserTypeDef().parse(
-	    obj.pars().find(sKey::DataStorage()), preseldt_ );
+    DataCharacteristics::getUserTypeFromPar( obj.pars(), preseldt_ );
     if ( !File::exists(dirnm) && !File::createDir(dirnm) )
 	errmsg_ = tr("Cannot create directory '%1'").arg(fp.pathOnly() );
 }

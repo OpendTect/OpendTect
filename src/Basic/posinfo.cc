@@ -782,18 +782,18 @@ bool PosInfo::CubeData::write( od_ostream& strm, bool asc ) const
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
 	const PosInfo::LineData& inlinf = *(*this)[iinl];
-	const int nrcrl = inlinf.segments_.size();
+	const int nrsegs = inlinf.segments_.size();
 	if ( asc )
-	    strm << inlinf.linenr_ << ' ' << nrcrl;
+	    strm << inlinf.linenr_ << ' ' << nrsegs;
 	else
 	{
 	    strm.addBin( &inlinf.linenr_, intsz );
-	    strm.addBin( &nrcrl, intsz );
+	    strm.addBin( &nrsegs, intsz );
 	}
 
-	for ( int icrl=0; icrl<nrcrl; icrl++ )
+	for ( int iseg=0; iseg<nrsegs; iseg++ )
 	{
-	    const PosInfo::LineData::Segment& seg = inlinf.segments_[icrl];
+	    const PosInfo::LineData::Segment& seg = inlinf.segments_[iseg];
 	    if ( asc )
 		strm << ' ' << seg.start << ' ' << seg.stop << ' ' << seg.step;
 	    else

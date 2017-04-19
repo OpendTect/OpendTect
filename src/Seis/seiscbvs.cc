@@ -31,7 +31,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	, forread_(true)
 	, storinterps_(0)
 	, blockbufs_(0)
-	, preseldatatype_(0)
+	, preseldatatype_(OD::AutoFPRep)
 	, rdmgr_(0)
 	, wrmgr_(0)
 	, nrdone_(0)
@@ -212,9 +212,8 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     {
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	addComp( dc, 0 );
-	if ( preseldatatype_ )
-	    tarcds_[idx]->datachar = DataCharacteristics(
-			(DataCharacteristics::UserType)preseldatatype_ );
+	if ( preseldatatype_ != OD::AutoFPRep )
+	    tarcds_[idx]->datachar = DataCharacteristics(preseldatatype_);
     }
 
     return true;
@@ -507,11 +506,9 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 {
     SeisTrcTranslator::usePar( iopar );
 
-    const char* res = iopar.find( sKey::DataStorage() );
-    if ( res && *res )
-	preseldatatype_ = (DataCharacteristics::UserType)(*res-'0');
+    DataCharacteristics::getUserTypeFromPar( iopar, preseldatatype_ );
 
-    res = iopar.find( sKeyOptDir() );
+    const char* res = iopar.find( sKeyOptDir() );
     if ( res && *res )
     {
 	brickspec_.setStd( *res == 'H' );

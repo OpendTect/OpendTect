@@ -71,13 +71,13 @@ static int doWork( int argc, char** argv )
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
 
-    fp.set( argv[argidx] ); 
+    fp.set( argv[argidx] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
     tro->set2D( is2d );
-    tro->setPreselDataType( fmt );
+    tro->setPreselDataType( (OD::FPDataRepType)fmt );
     tro->packetInfo() = tri->packetInfo();
 
     SeisTrc trc; int nrwr = 0;
