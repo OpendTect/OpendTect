@@ -204,6 +204,7 @@ public:
     bool			lockedShown() const;
     virtual void		clearSelections();
     void			updateAuxData();
+    virtual bool		canBeRemoved() const;
 
 private:
 				~HorizonDisplay();

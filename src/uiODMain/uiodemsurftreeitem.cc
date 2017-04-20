@@ -44,8 +44,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vishorizondisplay.h"
 #include "vishorizonsection.h"
 
-
-
 uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
 					const Attrib::SelSpec* as ) const
 {
@@ -534,11 +532,12 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 	 as->id()!=Attrib::SelSpec::cAttribNotSel()) || isdttransform ;
 	     
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
-    mAddMenuItem( menu, &algomnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &filtermnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &horvariogrammnuitem_, true, false );
-    mAddMenuItem( &algomnuitem_, &attr2geommnuitm_, true, false );
+    const bool enabletool = !MPE::engine().trackingInProgress();
+    mAddMenuItem( menu, &algomnuitem_, enabletool, false );
+    mAddMenuItem( &algomnuitem_, &filtermnuitem_, enabletool, false );
+    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, enabletool, false );
+    mAddMenuItem( &algomnuitem_, &horvariogrammnuitem_, enabletool, false );
+    mAddMenuItem( &algomnuitem_, &attr2geommnuitm_, enabletool, false );
 }
 
 

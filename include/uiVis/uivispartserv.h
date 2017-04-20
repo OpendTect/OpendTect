@@ -131,6 +131,7 @@ public:
     bool		canHaveMultipleAttribs(int id) const;
     bool		canAddAttrib(int id,int nrattribstoadd=1) const;
     bool		canRemoveAttrib(int id) const;
+    bool		canRemoveDisplay(int id) const;
     int			addAttrib(int id);
     void		removeAttrib(int id,int attrib);
     int			getNrAttribs(int id) const;

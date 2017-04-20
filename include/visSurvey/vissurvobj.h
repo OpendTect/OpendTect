@@ -360,6 +360,8 @@ public:
     bool			getSaveInSessionsFlag() const
 				{ return saveinsessionsflag_; }
 
+    virtual bool		canBeRemoved() const { return true; }
+
 protected:
 				SurveyObject();
 				~SurveyObject();

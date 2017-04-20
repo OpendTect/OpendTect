@@ -625,6 +625,13 @@ bool uiVisPartServer::canRemoveAttrib( int id ) const
 }
 
 
+bool uiVisPartServer::canRemoveDisplay( int id ) const
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    return so ? so->canBeRemoved() : false;
+}
+
+
 int uiVisPartServer::addAttrib( int id )
 {
     if ( !canHaveMultipleAttribs(id) )

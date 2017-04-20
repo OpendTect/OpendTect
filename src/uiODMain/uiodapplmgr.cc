@@ -1034,6 +1034,10 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	sceneMgr().updateTrees();
 	return true;
     }
+    else if ( evid==uiMPEPartServer::evHorizonTracking() )
+    {
+	sceneMgr().updateItemToolbar( visserv_->getSelObjectId() );
+    }
     else if ( evid == uiMPEPartServer::evStartSeedPick() )
     {
 	//Turn off everything

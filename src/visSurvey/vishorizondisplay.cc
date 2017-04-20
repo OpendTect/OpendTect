@@ -681,9 +681,18 @@ bool HorizonDisplay::canAddAttrib( int nr ) const
 }
 
 
+bool HorizonDisplay::canBeRemoved() const
+{
+    if ( !sections_.size() || MPE::engine().getState()==MPE::engine().Started )
+	return false;
+
+    return true;
+}
+
+
 bool HorizonDisplay::canRemoveAttrib() const
 {
-    if ( !sections_.size() )
+    if ( !sections_.size() || MPE::engine().getState()==MPE::engine().Started )
 	return false;
 
     const int newnrattribs = nrAttribs()-1;
