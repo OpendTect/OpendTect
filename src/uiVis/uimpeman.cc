@@ -52,6 +52,59 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace MPE;
 
+
+class LockedDisplayTimer : public CallBacker
+{
+public:
+LockedDisplayTimer()
+    : hd_(0)
+    , timer_(new Timer("Display Locked Nodes"))
+{
+    timer_->tick.notify( mCB(this,LockedDisplayTimer,hideCB) );
+}
+
+
+~LockedDisplayTimer()
+{
+    if ( hd_ )
+	hd_->unRef();
+
+    delete timer_;
+}
+
+
+#define cLockWaitTime 2000
+void start( visSurvey::HorizonDisplay* hd )
+{
+    if ( hd_ )
+	hd_->unRef();
+
+    hd_ = hd;
+    if ( hd_ )
+	hd_->ref();
+
+    timer_->start( cLockWaitTime, true );
+}
+
+
+protected:
+void hideCB( CallBacker* )
+{
+    if ( !hd_ ) return;
+
+    if ( hd_->lockedShown() )
+	hd_->showLocked( false );
+    hd_->unRef();
+    hd_ = 0;
+}
+
+    Timer*			timer_;
+    visSurvey::HorizonDisplay*	hd_;
+
+};
+
+
+
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : parent_(p)
     , clickcatcher_(0)
@@ -60,7 +113,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , seedpickwason_(false)
     , oldactivevol_(false)
     , cureventnr_(mUdf(int))
-    , hortimer_( 0 )
+    , lockeddisplaytimer_(new LockedDisplayTimer)
     , sowingmode_(false)
 {
     mAttachCB( engine().trackeraddremove, uiMPEMan::trackerAddedRemovedCB );
@@ -81,7 +134,7 @@ uiMPEMan::~uiMPEMan()
 {
     detachAllNotifiers();
     deleteVisObjects();
-    delete hortimer_;
+    delete lockeddisplaytimer_;
 }
 
 
@@ -136,7 +189,7 @@ void uiMPEMan::keyEventCB( CallBacker* )
     int action = -1;
     const KeyboardEvent& kev = visserv_->getKeyboardEvent();
 
-    const bool undoonloadedhor = 
+    const bool undoonloadedhor =
 	KeyboardEvent::isUnDo(kev) || KeyboardEvent::isReDo(kev);
 
     if ( KeyboardEvent::isUnDo(kev) )
@@ -976,7 +1029,7 @@ void uiMPEMan::undo()
     visSurvey::EMObjectDisplay* emod = getSelectedEMDisplay();
     if ( !emod || !emod->isSelected() )
 	return;
-    
+
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString errmsg;
     MPE::EMTracker* tracker = getSelectedTracker();
@@ -1013,7 +1066,7 @@ void uiMPEMan::redo()
 	return;
 
     MouseCursorChanger mcc( MouseCursor::Wait );
- 
+
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
 
@@ -1041,8 +1094,6 @@ void uiMPEMan::redo()
 }
 
 
-#define cLockWaitTime 2000
-
 void uiMPEMan::lockAll()
 {
     EM::Horizon3D* hor3d = getSelectedHorizon3D();
@@ -1054,17 +1105,9 @@ void uiMPEMan::lockAll()
 	hor3d->lockAll();
 	hd->showLocked( true );
 	if ( !preshowlocked )
-	{
-	    delete hortimer_;
-	    hortimer_ = new HorizonTimer( hd );
-	    hortimer_->start( cLockWaitTime );
-	}
+	    lockeddisplaytimer_->start( hd );
     }
 }
-
-
-void uiMPEMan::timerHideLockedCB( CallBacker* )
-{}
 
 
 void uiMPEMan::updatePatchDisplay()
@@ -1229,43 +1272,3 @@ void uiMPEMan::setUndoLevel( const EM::ObjectID& id, int preveventnr )
     if ( currentevent != preveventnr )
 	    emundo.setUserInteractionEnd(currentevent);
 }
-
-
-HorizonTimer::HorizonTimer( visSurvey::HorizonDisplay* displ )
-    : hordispl_( displ )
-    , timer_( 0 )
-{
-    if ( hordispl_ )
-	hordispl_->ref();
-}
-
-
-HorizonTimer::~HorizonTimer()
-{
-    if ( hordispl_ )
-	hordispl_->unRef();
-
-    if ( timer_ )
-	timer_->tick.remove( mCB(this,HorizonTimer,timerHideLockedCB) );
-    delete timer_;
-}
-
-
-void HorizonTimer::start( int msec )
-{
-    if ( timer_ )
-	timer_->tick.remove( mCB(this,HorizonTimer,timerHideLockedCB) );
-
-    delete timer_;
-    timer_ = new Timer( "Lock all" );
-    timer_->tick.notify( mCB(this,HorizonTimer,timerHideLockedCB) );
-    timer_->start( msec, true );
-}
-
-
-void HorizonTimer::timerHideLockedCB( CallBacker* )
-{
-    if ( hordispl_ && hordispl_->lockedShown() )
-	hordispl_->showLocked( false );
- }
-
