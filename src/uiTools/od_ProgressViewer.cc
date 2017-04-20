@@ -38,6 +38,8 @@ ________________________________________________________________________
 
 #include <iostream>
 
+static int cDefDelay = 500; // milliseconds.
+
 static const uiString sStopAndQuit()
 { return od_static_tr("sStopAndQuit","Stop process and Quit"); }
 static const uiString sQuitOnly()
@@ -49,7 +51,7 @@ class uiProgressViewer : public uiMainWin
 public:
 
 		uiProgressViewer(uiParent*,const BufferString& filenm,int,
-				 int delay=500);
+				 int delay=cDefDelay);
 		~uiProgressViewer();
 
     static const char*	sKeyDelay()		{ return "delay"; }
@@ -68,7 +70,7 @@ protected:
     int			pid_;
     const BufferString	procnm_;
     ProcStatus		procstatus_;
-    int			delay_ = 500; //Lower may cause high CPU usage
+    int			delay_ = cDefDelay; //Lower may cause high CPU usage
     od_istream		strm_;
     Timer		timer_;
 
@@ -101,7 +103,6 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
     , tb_(0)
     , quittbid_(0)
 {
-    sleepSeconds( mCast(double,delay_) / 1000. );
     if ( mIsUdf(pid) )
 	getNewPID(0);
 
@@ -345,7 +346,7 @@ int main( int argc, char** argv )
     cl.getVal( uiProgressViewer::sKeyInputFile(), inpfile );
     int pid = mUdf(int);
     cl.getVal( uiProgressViewer::sKeyPID(), pid );
-    int delay = mUdf(int);
+    int delay = cDefDelay;
     cl.getVal( uiProgressViewer::sKeyDelay(), delay );
 
     if ( inpfile.isEmpty() )
@@ -368,6 +369,7 @@ int main( int argc, char** argv )
 	}
     }
 
+    sleepSeconds( mCast(double,delay) / 1000. );
     od_ostream& strm = od_ostream::logStream();
     if ( !File::exists(inpfile) )
 	mErrRet( strm << "Selected file does not exist." << od_endl; )
