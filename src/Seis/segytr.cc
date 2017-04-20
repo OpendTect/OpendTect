@@ -8,26 +8,29 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "segytr.h"
+
+#include "bendpoints2coords.h"
+#include "conn.h"
+#include "datainterp.h"
+#include "envvars.h"
+#include "filepath.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "od_iostream.h"
+#include "scaler.h"
+#include "segyfiledef.h"
+#include "segyhdr.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"
-#include "segyhdr.h"
-#include "segyfiledef.h"
-#include "datainterp.h"
-#include "conn.h"
-#include "iopar.h"
-#include "timefun.h"
-#include "scaler.h"
-#include "survinfo.h"
 #include "seisselection.h"
-#include "envvars.h"
 #include "separstr.h"
-#include "keystrs.h"
 #include "settings.h"
-#include "zdomain.h"
-#include "filepath.h"
-#include "od_iostream.h"
-#include "bendpoints2coords.h"
+#include "survinfo.h"
+#include "timefun.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
+#include "zdomain.h"
+
 #include <math.h>
 #include <ctype.h>
 
@@ -309,7 +312,12 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     trchead_.fill( ti, fileopts_.coordscale_ );
     if ( othdomain_ )
 	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
-    if ( binhead_.isInFeet() ) ti.offset *= mFromFeetFactorF;
+
+    const UnitOfMeasure* dispunit =
+	SI().xyInFeet() ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
+    const UnitOfMeasure* fileunit =
+	binhead_.isInFeet() ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
+    convValue( ti.offset, fileunit, dispunit );
 
     float scfac = trchead_.postScale( filepars_.fmt_ ? filepars_.fmt_ : 1 );
     if ( mIsEqual(scfac,1,mDefEps) )

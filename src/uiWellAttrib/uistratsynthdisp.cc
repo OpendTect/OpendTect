@@ -267,9 +267,6 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     float val;
     if ( pars.get(sKey::Offset(),val) )
     {
-	if ( SI().xyInFeet() )
-	    val *= mToFeetFactorF;
-
 	mAddSep(); mesg += "Offs="; mesg += val;
 	mesg += " "; mesg += SI().getXYUnitString();
     }
@@ -1283,7 +1280,7 @@ void uiStratSynthDisp::doModelChange()
 
     if ( !curSS().errMsg().isEmpty() )
 	mErrRet( curSS().errMsg(), return )
-    
+
     showInfoMsg( false );
     updateSyntheticList( true );
     updateSyntheticList( false );
@@ -1312,7 +1309,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	return;
     if ( !curSS().removeSynthetic(syntheticnm) )
 	return;
-    
+
      if ( curwvasdnm==synthnm )
 	 currentwvasynthetic_ = 0;
      if ( curvdsdnm==synthnm )
@@ -1323,7 +1320,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	mErrRet(curSS().errMsg(), return );
 
     showInfoMsg( false );
-        
+
     if ( altSS().hasElasticModels() )
     {
 	altSS().removeSynthetic( syntheticnm );
@@ -1518,7 +1515,7 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 	SyntheticData* altsd = altSS().addSynthetic();
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return )
-	
+
 	showInfoMsg( true );
     }
     updateSyntheticList( true );
