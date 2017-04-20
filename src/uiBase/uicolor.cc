@@ -286,8 +286,10 @@ void uiColorInput::setColor( const Color& col )
     if ( descfld_ )
     {
 	NotifyStopper ns( descfld_->selectionChanged );
-	const char* desc = color_.getDescription();
-	if ( *desc == '~' ) desc++;
+	const BufferString coldesc = color_.getDescription();
+	const char* desc = coldesc.buf();
+	if ( *desc == '~' )
+	    desc++;
 	descfld_->setText( desc );
     }
 }
