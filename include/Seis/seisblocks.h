@@ -12,10 +12,14 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "filepath.h"
+#include "threadlock.h"
 
 class DataBuffer;
 class LinScaler;
+class SeisTrc;
 namespace Survey { class Geometry3D; }
+namespace Pos { class IdxPairDataSet; }
+namespace PosInfo { class CubeData; }
 template <class T> class DataInterpreter;
 
 
@@ -163,6 +167,9 @@ public:
 protected:
 
 			IOClass();
+
+    mutable Threads::Lock accesslock_;
+    Pos::IdxPairDataSet& columns_;
 
     File::Path		basepath_;
     Dimensions		dims_;

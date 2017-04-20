@@ -27,11 +27,13 @@ class SelData;
 namespace Blocks
 {
 
-class ReadColumn;
+class FileColumn;
 
 /*!\brief Reads data from Blocks Storage.
 
   if ( state().isError() ) do not attempt anything.
+
+  The get() and getNext() should be MT-safe, but reading is not parallel.
 
 */
 
@@ -74,9 +76,7 @@ protected:
     Interval<float>	zrg_;
     int			maxnrfiles_;
 
-    mutable Threads::Lock		accesslock_;
-    mutable ObjectSet<ReadColumn>	columns_;
-
+    virtual void	setEmpty();
     void		readMainFile();
     bool		getGeneralSectionData(const IOPar&);
     bool		reset(uiRetVal&) const;
@@ -84,9 +84,9 @@ protected:
     bool		advancePos(CubeDataPos&) const;
     void		doGet(SeisTrc&,uiRetVal&) const;
     void		readTrace(SeisTrc&,uiRetVal&) const;
-    ReadColumn*		getColumn(const GlobIdx&,uiRetVal&) const;
+    FileColumn*		getColumn(const GlobIdx&,uiRetVal&) const;
 
-    friend class	ReadColumn;
+    friend class	FileColumn;
 
 };
 

@@ -190,7 +190,6 @@ Seis::Blocks::Writer::Writer( const SurvGeom* geom )
     : survgeom_(*(geom ? geom : static_cast<const SurvGeom*>(
 					&SurvGeom::default3D())))
     , specfprep_(OD::AutoFPRep)
-    , columns_(*new Pos::IdxPairDataSet(sizeof(MemBlockColumn*),false,false))
     , nrcomponents_(1)
     , nrpospercolumn_(((int)dims_.inl()) * dims_.crl())
     , isfinished_(false)
@@ -211,7 +210,6 @@ Seis::Blocks::Writer::~Writer()
     }
 
     setEmpty();
-    delete &columns_;
 }
 
 
@@ -390,6 +388,7 @@ bool Seis::Blocks::Writer::prepareWrite( uiRetVal& uirv )
 uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 {
     uiRetVal uirv;
+    Threads::Locker locker( accesslock_ );
     if ( needreset_ )
     {
 	needreset_ = false;
@@ -421,6 +420,8 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 	setEmpty();
 	return uirv;
     }
+    else if ( isCompleted(*column) )
+	return uirv; // this check is absolutely necessary to for MT writing
 
     for ( int icomp=0; icomp<nrcomponents_; icomp++ )
     {
@@ -433,8 +434,18 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 	}
     }
 
-    if ( isCompletionVisit(*column,sampidx) )
+    bool& visited = column->visited_[sampidx.inl()][sampidx.crl()];
+    if ( !visited )
+    {
+	column->nruniquevisits_++;
+	visited = true;
+    }
+
+    if ( isCompleted(*column) )
+    {
+	locker.unlockNow();
 	writeColumn( *column, uirv );
+    }
 
     return uirv;
 }
@@ -511,16 +522,8 @@ Seis::Blocks::Writer::getColumn( const GlobIdx& globidx )
 }
 
 
-bool Seis::Blocks::Writer::isCompletionVisit( MemBlockColumn& column,
-					      const SampIdx& sampidx ) const
+bool Seis::Blocks::Writer::isCompleted( const MemBlockColumn& column ) const
 {
-    bool& visited = column.visited_[sampidx.inl()][sampidx.crl()];
-    if ( !visited )
-    {
-	column.nruniquevisits_++;
-	visited = true;
-    }
-
     return column.nruniquevisits_ == nrpospercolumn_;
 }
 

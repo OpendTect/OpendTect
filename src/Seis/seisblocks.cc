@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "genc.h"
 #include "survgeom3d.h"
+#include "posidxpairdataset.h"
 
 static const unsigned short cVersion = 1;
 static const unsigned short cDefDim = 80;
@@ -28,6 +29,7 @@ Seis::Blocks::IOClass::IOClass()
     , version_(cVersion)
     , scaler_(0)
     , fprep_(OD::F32)
+    , columns_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
     , needreset_(true)
 {
 }
@@ -37,6 +39,9 @@ Seis::Blocks::IOClass::~IOClass()
 {
     deepErase( auxiops_ );
     delete scaler_;
+    if ( !columns_.isEmpty() )
+	{ pErrMsg("Mem leak: columns_ not empty"); }
+    delete &columns_;
 }
 
 

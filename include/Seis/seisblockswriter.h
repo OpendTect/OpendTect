@@ -17,10 +17,6 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 class Task;
-class SeisTrc;
-namespace Pos { class IdxPairDataSet; }
-namespace PosInfo { class CubeData; }
-
 
 namespace Seis
 {
@@ -40,6 +36,8 @@ class MemBlockColumn;
   All files are put in a subdir of the base path. At the end the columns
   that have never been fully filled (edge columns, columns with data gaps) will
   be written. Lastly, the main file ".cube" will be written.
+
+  The Writer supports MT add's, and the output writing can be parallel.
 
 */
 
@@ -63,6 +61,7 @@ public:
     uiRetVal		add(const SeisTrc&);
     Task*		finisher();
 			//!< if not run by you, destructor will run it
+			//!< be sure that all add()'s are done!
 
     typedef std::pair<IdxType,float>	ZEvalPos;
     typedef TypeSet<ZEvalPos>		ZEvalPosSet;
@@ -77,11 +76,11 @@ protected:
     const int		nrpospercolumn_;
     int			nrcomponents_;
     bool		isfinished_;
+
     Interval<IdxType>	globzidxrg_;
     ObjectSet<ZEvalPosSet> zevalpositions_;
-    Pos::IdxPairDataSet& columns_;
 
-    void		setEmpty();
+    virtual void	setEmpty();
     void		resetZ(const Interval<float>&);
     bool		removeExisting(const char*,uiRetVal&) const;
     bool		prepareWrite(uiRetVal&);
@@ -89,7 +88,7 @@ protected:
 				    const SeisTrc&,int);
     MemBlockColumn*	getColumn(const GlobIdx&);
     MemBlockColumn*	mkNewColumn(const GlobIdx&);
-    bool		isCompletionVisit(MemBlockColumn&,const SampIdx&) const;
+    bool		isCompleted(const MemBlockColumn&) const;
     void		writeColumn(MemBlockColumn&,uiRetVal&);
     bool		writeColumnHeader(od_ostream&,const MemBlockColumn&,
 				    const SampIdx&,const Dimensions&) const;

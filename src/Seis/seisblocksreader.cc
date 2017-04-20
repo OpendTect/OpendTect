@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "seistrc.h"
 #include "uistrings.h"
+#include "posidxpairdataset.h"
 #include "scaler.h"
 #include "datachar.h"
 #include "file.h"
@@ -31,12 +32,12 @@ namespace Seis
 namespace Blocks
 {
 
-class ReadColumn
-{ mODTextTranslationClass(Seis::Blocks::ReadColumn)
+class FileColumn
+{ mODTextTranslationClass(Seis::Blocks::FileColumn)
 public:
 
-			ReadColumn(const Reader&,const GlobIdx&);
-			~ReadColumn()		{ retire(); }
+			FileColumn(const Reader&,const GlobIdx&);
+			~FileColumn()		{ retire(); }
 
     void		activate(uiRetVal&);
     void		retire();
@@ -52,7 +53,7 @@ public:
 } // namespace Seis
 
 
-Seis::Blocks::ReadColumn::ReadColumn( const Reader& rdr, const GlobIdx& gidx )
+Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const GlobIdx& gidx )
     : rdr_(rdr)
     , globidx_(gidx)
     , strm_(0)
@@ -60,7 +61,7 @@ Seis::Blocks::ReadColumn::ReadColumn( const Reader& rdr, const GlobIdx& gidx )
 }
 
 
-void Seis::Blocks::ReadColumn::activate( uiRetVal& uirv )
+void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
 {
     uirv.setEmpty();
     if ( strm_ )
@@ -99,11 +100,11 @@ void Seis::Blocks::ReadColumn::activate( uiRetVal& uirv )
 	return;
     }
 
-    // Need to check the data int buf against the reader's main file?
+    // Need to check the data in buf against the reader's main file?
 }
 
 
-void Seis::Blocks::ReadColumn::retire()
+void Seis::Blocks::FileColumn::retire()
 {
     delete strm_; strm_ = 0;
 }
@@ -141,9 +142,21 @@ Seis::Blocks::Reader::~Reader()
 {
     delete seldata_;
     delete survgeom_;
-    deepErase( columns_ );
+    setEmpty();
     delete &cubedata_;
     delete &curcdpos_;
+}
+
+
+#define mGetColumn(spos) (Seis::Blocks::FileColumn*)columns_.getObj( spos )
+
+
+void Seis::Blocks::Reader::setEmpty()
+{
+    Pos::IdxPairDataSet::SPos spos;
+    while ( columns_.next(spos) )
+	delete mGetColumn( spos );
+    columns_.setEmpty();
 }
 
 
@@ -372,7 +385,7 @@ void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
 }
 
 
-Seis::Blocks::ReadColumn* Seis::Blocks::Reader::getColumn(
+Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumn(
 		const GlobIdx& globidx, uiRetVal& uirv ) const
 {
     return 0;
@@ -386,7 +399,7 @@ void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
 			   Block::globIdx4Crl(*survgeom_,bid.crl(),dims_.crl()),
 			   0 );
 
-    ReadColumn* column = getColumn( globidx, uirv );
+    FileColumn* column = getColumn( globidx, uirv );
     if ( !column )
 	return;
 
