@@ -77,7 +77,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
     mAttachCB( *visserv_->planeMovedEventNotifer(), uiMPEMan::planeChangedCB );
     sowingmode_.setParam( this, false );
-    hortimer_.setParam( this, 0 );
+    hortimer_.setParam( this, new HorizonTimer(0) );
 }
 
 
@@ -633,8 +633,8 @@ void uiMPEMan::seedClick( CallBacker* )
     beginSeedClickEvent( emobj );
 
     const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
-    const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ ); 
-    const bool blockcallback = 
+    const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
+    const bool blockcallback =
 	emobj->sectionGeometry(emobj->sectionID(0))->blocksCallBacks();
 
     if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
@@ -683,7 +683,7 @@ void uiMPEMan::seedClick( CallBacker* )
     {
 	const bool dosowing = sowingmode_.getParam(this);
 	const bool doerase = ctrlbut && dosowing;
-	const bool manualmodeclick = !ctrlbut && 
+	const bool manualmodeclick = !ctrlbut &&
 	    (seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	     seedpicker->getTrackMode()==seedpicker->DrawAndSnap);
 
@@ -719,7 +719,7 @@ void uiMPEMan::planeChangedCB( CallBacker* )
     if( !tracker ) return;
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker || !seedpicker->getPatch() ||
-	seedpicker->getPatch()->getPath().size()<=0 ) 
+	seedpicker->getPatch()->getPath().size()<=0 )
 	return;
 
     seedpicker->endPatch( false );
@@ -1031,23 +1031,20 @@ void uiMPEMan::redo()
 }
 
 
-#define cLockWaitTime 2000
-
 void uiMPEMan::lockAll()
 {
     EM::Horizon3D* hor3d = getSelectedHorizon3D();
     visSurvey::HorizonDisplay* hd = getSelectedDisplay();
     const bool preshowlocked = hd->lockedShown();
 
-    if ( hor3d && hd ) 
+    if ( hor3d && hd )
     {
 	hor3d->lockAll();
 	hd->showLocked( true );
 	if ( !preshowlocked )
 	{
-	    delete hortimer_.getParam(this);
-	    hortimer_.setParam( this, new HorizonTimer(hd) );
-	    hortimer_.getParam(this)->start( cLockWaitTime );
+	    HorizonTimer* ht = hortimer_.getParam( this );
+	    if ( ht ) ht->start( hd );
 	}
     }
 }
@@ -1212,41 +1209,51 @@ void uiMPEMan::setUndoLevel( int preveventnr )
 }
 
 
-HorizonTimer::HorizonTimer( visSurvey::HorizonDisplay* displ )
-    : hordispl_( displ )
-    , timer_( 0 )
+// HorizonTimer
+HorizonTimer::HorizonTimer( visSurvey::HorizonDisplay* )
+    : hordispl_(0)
+    , timer_(new Timer("Lock all"))
 {
-    if ( hordispl_ )
-	hordispl_->ref();
-};
+    timer_->tick.notify( mCB(this,HorizonTimer,timerHideLockedCB) );
+}
 
 
 HorizonTimer::~HorizonTimer()
 {
     if ( hordispl_ )
 	hordispl_->unRef();
-    
-    if ( timer_ )
-	timer_->tick.remove( mCB(this,HorizonTimer,timerHideLockedCB) );
+
     delete timer_;
 }
 
 
 void HorizonTimer::start( int msec )
 {
-    if ( timer_ )
-	timer_->tick.remove( mCB(this,HorizonTimer,timerHideLockedCB) );
+}
 
-    delete timer_;
-    timer_ = new Timer( "Lock all" );
-    timer_->tick.notify( mCB(this,HorizonTimer,timerHideLockedCB) );
-    timer_->start( msec, true );
+
+#define cLockWaitTime 2000
+void HorizonTimer::start( visSurvey::HorizonDisplay* hd )
+{
+    if ( hordispl_ )
+	hordispl_->unRef();
+
+    hordispl_ = hd;
+    if ( hordispl_ )
+	hordispl_->ref();
+
+    timer_->start( cLockWaitTime );
 }
 
 
 void HorizonTimer::timerHideLockedCB( CallBacker* )
 {
-    if ( hordispl_ && hordispl_->lockedShown() )
-	hordispl_->showLocked( false );
- }
+    if ( !hordispl_ )
+	return;
 
+    if ( hordispl_->lockedShown() )
+	hordispl_->showLocked( false );
+
+    hordispl_->unRef();
+    hordispl_ = 0;
+ }

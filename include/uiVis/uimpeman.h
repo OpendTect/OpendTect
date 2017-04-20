@@ -35,16 +35,16 @@ class Timer;
 mClass(uiVis) HorizonTimer : public CallBacker
 {
 public:
-		    HorizonTimer(visSurvey::HorizonDisplay*);
-		    ~HorizonTimer();
+			HorizonTimer(visSurvey::HorizonDisplay*);
+			~HorizonTimer();
 
-    void	    start(int msec);
+    void		start(int msec); // don't use
+    void		start(visSurvey::HorizonDisplay*);
 
 protected:
     Timer*			 timer_;
     visSurvey::HorizonDisplay*	 hordispl_;
     void	    timerHideLockedCB(CallBacker*);
-
 
 };
 
