@@ -116,6 +116,25 @@ protected:
 };
 
 
+/*!\brief Base class for column of blocks. */
+
+mExpClass(Seis) Column
+{
+public:
+
+    virtual		~Column()		{}
+    
+    const GlobIdx	globidx_;
+    const Dimensions	dims_;
+    const int		nrcomps_;
+
+protected:
+
+			Column(const GlobIdx&,const Dimensions&,int);
+
+};
+
+
 /*!\brief Base class for Reader and Writer.
 
   The format is designed with these principles in mind:
@@ -182,6 +201,9 @@ protected:
     ObjectSet<IOPar>	auxiops_;
     mutable bool	needreset_;
 
+    Column*		findColumn(const GlobIdx&) const;
+    void		addColumn(Column*) const;
+    void		clearColumns();
     static HdrSzVersionType columnHeaderSize(HdrSzVersionType);
 
 };

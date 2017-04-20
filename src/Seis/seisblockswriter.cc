@@ -56,13 +56,14 @@ protected:
 };
 
 
-class MemBlockColumn
+class MemBlockColumn : public Column
 {
 public:
 
     typedef ManagedObjectSet<MemBlock>    BlockSet;
 
-			MemBlockColumn(const Dimensions&,int nrcomps);
+			MemBlockColumn(const GlobIdx&,const Dimensions&,
+					int nrcomps);
 			~MemBlockColumn();
 
     MemBlock&		firstBlock()	{ return *blocksets_.first()->first(); }
@@ -71,7 +72,6 @@ public:
     void		retireAll();
     void		getDefArea(SampIdx&,Dimensions&) const;
 
-    const Dimensions	dims_;
     ObjectSet<BlockSet> blocksets_; // one set per component
     bool**		visited_;
     int			nruniquevisits_;
@@ -117,12 +117,13 @@ void Seis::Blocks::MemBlock::setValue( const SampIdx& sidx, float val )
 
 
 
-Seis::Blocks::MemBlockColumn::MemBlockColumn( const Dimensions& dims,
+Seis::Blocks::MemBlockColumn::MemBlockColumn( const GlobIdx& gidx,
+					      const Dimensions& dims,
 					      int nrcomps )
-    : nruniquevisits_(0)
-    , dims_(dims)
+    : Column(gidx,dims,nrcomps)
+    , nruniquevisits_(0)
 {
-    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    for ( int icomp=0; icomp<nrcomps_; icomp++ )
 	blocksets_ += new BlockSet;
 
     visited_ = new bool* [dims_.inl()];
@@ -213,25 +214,9 @@ Seis::Blocks::Writer::~Writer()
 }
 
 
-// This function + the macros keep IdxPairDataSet debugging possible
-// without dependencies in the header file
-
-inline static Seis::Blocks::MemBlockColumn* gtColumn( Pos::IdxPairDataSet& ds,
-				    const Pos::IdxPairDataSet::SPos& spos )
-{
-    return (Seis::Blocks::MemBlockColumn*)ds.getObj( spos );
-}
-
-#define mGetColumn(spos) gtColumn( columns_, spos )
-#define mGetWrrColumn(wrr,spos) gtColumn( wrr_.columns_, spos )
-
-
 void Seis::Blocks::Writer::setEmpty()
 {
-    Pos::IdxPairDataSet::SPos spos;
-    while ( columns_.next(spos) )
-	delete mGetColumn( spos );
-    columns_.setEmpty();
+    clearColumns();
     deepErase( zevalpositions_ );
 }
 
@@ -473,7 +458,7 @@ void Seis::Blocks::Writer::add2Block( MemBlock& block,
 Seis::Blocks::MemBlockColumn*
 Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
 {
-    MemBlockColumn* column = new MemBlockColumn( dims_, nrcomponents_ );
+    MemBlockColumn* column = new MemBlockColumn( globidx, dims_, nrcomponents_);
 
     for ( IdxType globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
 	    globzidx++ )
@@ -507,18 +492,13 @@ Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
 Seis::Blocks::MemBlockColumn*
 Seis::Blocks::Writer::getColumn( const GlobIdx& globidx )
 {
-    const Pos::IdxPair idxpair( globidx.inl(), globidx.crl() );
-    Pos::IdxPairDataSet::SPos spos = columns_.find( idxpair );
-    MemBlockColumn* column = 0;
-    if ( spos.isValid() )
-	column = mGetColumn( spos );
-    else
+    Column* column = findColumn( globidx );
+    if ( !column )
     {
 	column = mkNewColumn( globidx );
-	if ( column )
-	    columns_.add( idxpair, column );
+	addColumn( column );
     }
-    return column;
+    return (MemBlockColumn*)column;
 }
 
 
@@ -537,9 +517,7 @@ class ColumnWriter : public Executor
 { mODTextTranslationClass(Seis::Blocks::ColumnWriter)
 public:
 
-    typedef MemBlockColumn  Column;
-
-ColumnWriter( Writer& wrr, Column& colmn, const char* fnm )
+ColumnWriter( Writer& wrr, MemBlockColumn& colmn, const char* fnm )
     : Executor("Column File Writer")
     , wrr_(wrr)
     , column_(colmn)
@@ -597,7 +575,7 @@ void setErr( bool initial=false )
 
     od_ostream		strm_;
     Writer&		wrr_;
-    Column&		column_;
+    MemBlockColumn&	column_;
     Dimensions		dims_;
     SampIdx		start_;
     const int		nrblocks_;
@@ -614,7 +592,7 @@ void Seis::Blocks::Writer::writeColumn( MemBlockColumn& column, uiRetVal& uirv )
 {
     File::Path fp( basepath_ );
     fp.add( filenamebase_ )
-      .add( fileNameFor(column.firstBlock().globIdx()) );
+      .add( fileNameFor(column.globidx_) );
     ColumnWriter wrr( *this, column, fp.fullPath() );
     if ( !wrr.execute() )
 	uirv = wrr.uirv_;
@@ -626,7 +604,7 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
 		    const Dimensions& dims ) const
 {
     const Block& firstblock = column.firstBlock();
-    const GlobIdx& globidx = firstblock.globIdx();
+    const GlobIdx& globidx = column.globidx_;
     int zdim = 0;
     for ( int idx=0; idx<zevalpositions_.size(); idx++ )
 	zdim += zevalpositions_[idx]->size();
@@ -636,7 +614,7 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
 
     const int hdrsz = columnHeaderSize( version_ );
     strm.addBin( hdrsz ).addBin( version_ );
-    strm.addBin( globidx.inl() ).addBin( globidx.crl() ).addBin( globidx.z() );
+    strm.addBin( globidx.inl() ).addBin( globidx.crl() );
     strm.addBin( start.inl() ).addBin( start.crl() ).addBin( zstart );
     strm.addBin( dims.inl() ).addBin( dims.crl() ).addBin( zdim );
     strm.addBin( dfmt );
@@ -796,12 +774,11 @@ void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
     bool first = true;
     while ( columns_.next(spos) )
     {
-	const MemBlockColumn& column = *mGetColumn( spos );
+	const MemBlockColumn& column = *(MemBlockColumn*)columns_.getObj(spos);
 	if ( column.nruniquevisits_ < 1 )
 	    continue;
 
-	const Block& block = column.firstBlock();
-	GlobIdx globidx = block.globIdx();
+	const GlobIdx& globidx = column.globidx_;
 	if ( first )
 	{
 	    globinlrg.start = globinlrg.stop = globidx.inl();
@@ -865,8 +842,6 @@ class WriterFinisher : public ParallelTask
 { mODTextTranslationClass(Seis::Blocks::WriterFinisher)
 public:
 
-    typedef MemBlockColumn  Column;
-
 WriterFinisher( Writer& wrr )
     : ParallelTask("Seis Blocks Writer finisher")
     , wrr_(wrr)
@@ -874,7 +849,7 @@ WriterFinisher( Writer& wrr )
     Pos::IdxPairDataSet::SPos spos;
     while ( wrr_.columns_.next(spos) )
     {
-	Column* column = mGetWrrColumn( wrr_, spos );
+	MemBlockColumn* column = (MemBlockColumn*)wrr_.columns_.getObj( spos );
 	if ( column->nruniquevisits_ < 1 )
 	    column->retireAll();
 	else if ( !column->firstBlock().isRetired() )
@@ -924,7 +899,7 @@ virtual bool doFinish( bool )
 
     uiRetVal		uirv_;
     Writer&		wrr_;
-    ObjectSet<Column>	towrite_;
+    ObjectSet<MemBlockColumn> towrite_;
 
 };
 

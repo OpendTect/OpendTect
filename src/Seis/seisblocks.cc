@@ -39,8 +39,7 @@ Seis::Blocks::IOClass::~IOClass()
 {
     deepErase( auxiops_ );
     delete scaler_;
-    if ( !columns_.isEmpty() )
-	{ pErrMsg("Mem leak: columns_ not empty"); }
+    clearColumns();
     delete &columns_;
 }
 
@@ -67,6 +66,43 @@ BufferString Seis::Blocks::IOClass::fileNameFor( const GlobIdx& globidx )
     BufferString ret;
     ret.add( globidx.inl() ).add( "_" ).add( globidx.crl() ).add( ".bin" );
     return ret;
+}
+
+
+void Seis::Blocks::IOClass::clearColumns()
+{
+    Pos::IdxPairDataSet::SPos spos;
+    while ( columns_.next(spos) )
+	delete (Column*)columns_.getObj( spos );
+    columns_.setEmpty();
+}
+
+
+Seis::Blocks::Column* Seis::Blocks::IOClass::findColumn(
+						const GlobIdx& gidx ) const
+{
+    const Pos::IdxPair idxpair( gidx.inl(), gidx.crl() );
+    Pos::IdxPairDataSet::SPos spos = columns_.find( idxpair );
+    return spos.isValid() ? (Column*)columns_.getObj( spos ) : 0;
+}
+
+
+void Seis::Blocks::IOClass::addColumn( Column* column ) const
+{
+    if ( !column )
+	return;
+
+    const Pos::IdxPair idxpair( column->globidx_.inl(), column->globidx_.crl());
+    columns_.add( idxpair, column );
+}
+
+
+Seis::Blocks::Column::Column( const GlobIdx& gidx, const Dimensions& dims,
+			      int nrcomps )
+    : globidx_(gidx)
+    , dims_(dims)
+    , nrcomps_(nrcomps)
+{
 }
 
 

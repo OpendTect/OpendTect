@@ -32,19 +32,24 @@ namespace Seis
 namespace Blocks
 {
 
-class FileColumn
+class FileColumn : public Column
 { mODTextTranslationClass(Seis::Blocks::FileColumn)
 public:
 
 			FileColumn(const Reader&,const GlobIdx&);
-			~FileColumn()		{ retire(); }
+			~FileColumn()		{ retire(); delete scaler_; }
 
     void		activate(uiRetVal&);
     void		retire();
 
-    GlobIdx		globidx_;
+    void		getTrace(SeisTrc&,uiRetVal&);
+
     const Reader&	rdr_;
     od_istream*		strm_;
+
+    SampIdx		start_;
+    OD::FPDataRepType	fprep_;
+    LinScaler*		scaler_;
 
 };
 
@@ -54,9 +59,12 @@ public:
 
 
 Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const GlobIdx& gidx )
-    : rdr_(rdr)
-    , globidx_(gidx)
+    : Column(gidx,Dimensions(0,0,0),rdr.componentNames().size())
+    , rdr_(rdr)
+    , start_(0,0,0)
+    , fprep_(OD::F32)
     , strm_(0)
+    , scaler_(0)
 {
 }
 
@@ -88,9 +96,31 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
 	return;
     }
 
-    const IOClass::HdrSzVersionType bytesleft
-			= hdrsz - 2 * sizeof(IOClass::HdrSzVersionType);
-    char* buf = new char [bytesleft];
+    GlobIdx gidx; // not using it; creates possibility to do file-level tricks
+    Dimensions& dims( const_cast<Dimensions&>(dims_) );
+    strm_->getBin( gidx.first ).getBin( gidx.second );
+    strm_->getBin( start_.first ).getBin( start_.second ).getBin( start_.third);
+    strm_->getBin( dims.first ).getBin( dims.second ).getBin( dims.third );
+    strm_->getBin( fprep_ );
+
+    const int nrscalebytes = 2 * sizeof(float);
+    char* buf = new char [nrscalebytes];
+    strm_->getBin( buf, nrscalebytes );
+    bool havescaler = false;
+    for ( int idx=0; idx<nrscalebytes; idx++ )
+    {
+	if ( buf[idx] != 0 )
+	    havescaler = true;
+    }
+    if ( havescaler )
+    {
+	const float* vals = (const float*)buf;
+	scaler_ = new LinScaler( vals[0], vals[1] );
+    }
+    delete [] buf;
+
+    const int bytesleft = (int)hdrsz - (int)strm_->position();
+    buf = new char [bytesleft];
     strm_->getBin( buf, bytesleft );
     delete [] buf;
     if ( !strm_->isOK() )
@@ -99,14 +129,18 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
 	uirv.set( tr("%1: unexpected en of file.").arg( fnm ) );
 	return;
     }
-
-    // Need to check the data in buf against the reader's main file?
 }
 
 
 void Seis::Blocks::FileColumn::retire()
 {
     delete strm_; strm_ = 0;
+}
+
+
+void Seis::Blocks::FileColumn::getTrace( SeisTrc& trc, uiRetVal& uirv )
+{
+    uirv.set( tr("Trace read not implemented yet" ) );
 }
 
 
@@ -148,15 +182,9 @@ Seis::Blocks::Reader::~Reader()
 }
 
 
-#define mGetColumn(spos) (Seis::Blocks::FileColumn*)columns_.getObj( spos )
-
-
 void Seis::Blocks::Reader::setEmpty()
 {
-    Pos::IdxPairDataSet::SPos spos;
-    while ( columns_.next(spos) )
-	delete mGetColumn( spos );
-    columns_.setEmpty();
+    clearColumns();
 }
 
 
@@ -388,7 +416,15 @@ void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
 Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumn(
 		const GlobIdx& globidx, uiRetVal& uirv ) const
 {
-    return 0;
+    FileColumn* column = (FileColumn*)findColumn( globidx );
+    if ( !column )
+    {
+	column = new FileColumn( *this, globidx );
+	addColumn( column );
+    }
+    column->activate( uirv );
+    //TODO retire one if too many open files
+    return uirv.isError() ? 0 : column;
 }
 
 
@@ -400,8 +436,6 @@ void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
 			   0 );
 
     FileColumn* column = getColumn( globidx, uirv );
-    if ( !column )
-	return;
-
-    uirv.set( tr("TODO: actual reading of trace.") );
+    if ( column )
+	column->getTrace( trc, uirv );
 }

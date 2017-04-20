@@ -83,8 +83,8 @@ protected:
     bool		isSelected(const CubeDataPos&) const;
     bool		advancePos(CubeDataPos&) const;
     void		doGet(SeisTrc&,uiRetVal&) const;
-    void		readTrace(SeisTrc&,uiRetVal&) const;
     FileColumn*		getColumn(const GlobIdx&,uiRetVal&) const;
+    void		readTrace(SeisTrc&,uiRetVal&) const;
 
     friend class	FileColumn;
 
