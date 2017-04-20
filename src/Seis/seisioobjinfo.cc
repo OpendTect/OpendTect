@@ -582,7 +582,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
     int ret = 0; if ( nms ) nms->erase();
     mChk(ret);
     if ( isPS() )
-	return 0;
+	return 1;
 
     if ( !is2D() )
     {

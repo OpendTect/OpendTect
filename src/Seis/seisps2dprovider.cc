@@ -90,7 +90,6 @@ void Seis::PS2DFetcher::reset()
     dp_ = 0;
 
     moveNextTrcKey();
-    findDataPack();
 }
 
 
@@ -143,8 +142,11 @@ bool Seis::PS2DFetcher::openReader( Pos::GeomID geomid )
 
 void Seis::PS2DFetcher::moveNextTrcKey()
 {
-    atend_ = lditer_ && !lditer_->next();
-    while ( atend_ || !lditer_ )
+    atend_ = !lditer_ || !lditer_->next();
+    if ( !atend_ )
+	nexttrcky_.setTrcNr( lditer_->trcNr() );
+
+    while ( atend_ )
     {
 	if ( !toNextLine() )
 	    return;
@@ -171,7 +173,7 @@ void Seis::PS2DFetcher::moveNextTrcKey()
 
 bool Seis::PS2DFetcher::prepGetAt( const TrcKey& tk )
 {
-    if ( rdr_ && rdr_->geomID() != tk.geomID() )
+    if ( !rdr_ || rdr_->geomID()!=tk.geomID() )
     {
 	if ( !openReader( tk.geomID() ) )
 	    return false;
@@ -383,7 +385,7 @@ void Seis::PS2DProvider::doGetNextGather( SeisTrcBuf& tbuf,
 void Seis::PS2DProvider::doGetGather( const TrcKey& trcky, SeisTrcBuf& tbuf,
 				  uiRetVal& uirv ) const
 {
-    fetcher_.get( trcky.binID(), tbuf );
+    fetcher_.get( trcky, tbuf );
     uirv = fetcher_.uirv_;
 }
 
@@ -398,6 +400,6 @@ void Seis::PS2DProvider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 void Seis::PS2DProvider::doGet( const TrcKey& trcky, SeisTrc& trc,
 				uiRetVal& uirv ) const
 {
-    fetcher_.getSingle( trcky.binID(), trc );
+    fetcher_.getSingle( trcky, trc );
     uirv = fetcher_.uirv_;
 }

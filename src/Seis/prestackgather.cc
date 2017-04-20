@@ -462,7 +462,6 @@ const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
 void GatherSetDataPack::addGather( Gather* gather )
 {
     DPM(DataPackMgr::FlatID()).add( gather );
-    gather->ref();
     gathers_ += gather;
 }
 
@@ -491,19 +490,7 @@ void GatherSetDataPack::fill( Array2D<float>& inp, int offsetidx ) const
 void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 {
     for ( int idx=0; idx<gathers_.size(); idx++ )
-    {
-	const int gathersz = gathers_[idx]->size(false);
-	SeisTrc* trc = new SeisTrc( gathersz );
-	trc->info().trckey_ = gathers_[idx]->getTrcKey();
-	trc->info().coord_ = trc->info().trckey_.getCoord();
-	const SamplingData<double>& sd = gathers_[idx]->posData().range( false);
-	trc->info().sampling_.set((float) sd.start, (float) sd.step );
-	const Array2D<float>& data = gathers_[idx]->data();
-	for ( int idz=0; idz<gathersz; idz++ )
-	    trc->set( idz, data.get( offsetidx, idz ), 0 );
-
-	inp.add( trc );
-    }
+	inp.add( gtTrace(idx,offsetidx) );
 }
 
 
@@ -581,6 +568,20 @@ SeisTrc* GatherSetDataPack::getTrace( int gatheridx, int offsetidx )
 
 SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
 {
-    SeisTrcBuf tbuf(false); fill( tbuf, offsetidx );
-    return tbuf.size() > gatheridx ? tbuf.get( gatheridx ) : 0;
+    if ( !gathers_.validIdx(gatheridx) ||
+	    offsetidx>=gathers_[gatheridx]->nrOffsets() )
+	return 0;
+
+    const Gather* gather = gathers_[gatheridx];
+    const int gathersz = gather->size( false );
+    SeisTrc* trc = new SeisTrc( gathersz );
+    trc->info().trckey_ = gather->getTrcKey();
+    trc->info().coord_ = trc->info().trckey_.getCoord();
+    const SamplingData<double>& sd = gather->posData().range( false );
+    trc->info().sampling_.set( mCast(float,sd.start), mCast(float,sd.step));
+    const Array2D<float>& data = gather->data();
+    for ( int idz=0; idz<gathersz; idz++ )
+	trc->set( idz, data.get( offsetidx, idz ), 0 );
+
+    return trc;
 }

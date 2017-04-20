@@ -33,7 +33,7 @@ public:
 
     uiRetVal			setInput(const char*);
 
-    void			testGetTrc(const TrcKey&,const char*txt="");
+    void			testGet(const TrcKey&,const char*txt="");
 
     void			testGetNext();
     void			testSubselection(SelData*,const char* txt);

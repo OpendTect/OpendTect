@@ -30,7 +30,7 @@ public:
 			PS2DProvider(const DBKey&);
 			~PS2DProvider();
 
-    virtual GeomType	geomType() const	{ return VolPS; }
+    virtual GeomType	geomType() const	{ return LinePS; }
 
     virtual int		curLineIdx() const;
     virtual int		nrLines() const;

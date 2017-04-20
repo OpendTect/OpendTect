@@ -88,7 +88,6 @@ void Seis::PS3DFetcher::reset()
     atend_ = false;
     dp_ = 0;
 
-    findDataPack();
     openStore();
 }
 
@@ -142,6 +141,11 @@ void Seis::PS3DFetcher::openStore()
     }
 
     cditer_ = new PosInfo::CubeDataIterator( rdr_->posData() );
+    moveNextBinID();
+    if ( atend_ )
+	uirv_ = tr( "No selected postion present in data store" );
+    else
+	findDataPack();
 }
 
 
