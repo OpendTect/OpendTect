@@ -62,6 +62,12 @@ protected:
     void		addAction(uiMenu& mnu,uiString txt,int id,
 				  const char* icon=0,bool enab=true);
 
+    uiMenu*		createAddMenu();
+    bool		isAddItem(int id,bool addall) const;
+    uiMenu*		createRemoveMenu();
+    bool		isRemoveItem(int id,bool removeall) const;
+    int			getNewItemID() const;
+
     virtual void	insertStdSubMenu(uiMenu&);
     virtual bool	handleStdSubMenu(int menuid);
 

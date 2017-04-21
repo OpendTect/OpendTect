@@ -33,8 +33,12 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ptrman.h"
 
+#define mAddIdx		0
+#define mAddInAllIdx	1
+#define mRemoveIdx	10
+#define mRemoveInAllIdx	11
 
-const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
+const char* uiODVw2DTreeTop::viewer2dptr()		{ return "Viewer2D"; }
 const char* uiODVw2DTreeTop::applmgrstr()		{ return "Applmgr"; }
 
 
@@ -45,16 +49,14 @@ uiODVw2DTreeTop::uiODVw2DTreeTop( uiTreeView* lv, uiODApplMgr* am,
 {
     setPropertyPtr( applmgrstr(), am );
     setPropertyPtr( viewer2dptr(), vw2d );
-
-    tfs_->addnotifier.notify( mCB(this,uiODVw2DTreeTop,addFactoryCB) );
-    tfs_->removenotifier.notify( mCB(this,uiODVw2DTreeTop,addFactoryCB) );
+    mAttachCB( tfs_->addnotifier, uiODVw2DTreeTop::addFactoryCB );
+    mAttachCB( tfs_->removenotifier, uiODVw2DTreeTop::addFactoryCB );
 }
 
 
 uiODVw2DTreeTop::~uiODVw2DTreeTop()
 {
-    tfs_->addnotifier.remove( mCB(this,uiODVw2DTreeTop,addFactoryCB) );
-    tfs_->removenotifier.remove( mCB(this,uiODVw2DTreeTop,addFactoryCB) );
+    detachAllNotifiers();
 }
 
 
@@ -270,6 +272,44 @@ void uiODVw2DTreeItem::addAction( uiMenu& mnu, uiString txt, int id,
 }
 
 
+uiMenu* uiODVw2DTreeItem::createAddMenu()
+{
+    uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
+    addAction( *addmenu, m3Dots(tr("Only in this 2D Viewer")), mAddIdx );
+    const int nrvwrs = applMgr()->viewer2DMgr().nr2DViewers();
+    addAction( *addmenu, m3Dots(tr("In all 2D Viewers")), mAddInAllIdx,
+	       0, nrvwrs>1 );
+    return addmenu;
+}
+
+
+bool uiODVw2DTreeItem::isAddItem( int id, bool addall ) const
+{
+    return addall ? id==mAddInAllIdx : id==mAddIdx;
+}
+
+
+uiMenu* uiODVw2DTreeItem::createRemoveMenu()
+{
+    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
+    addAction( *removemenu, m3Dots(tr("Only from this 2D Viewer")), mRemoveIdx);
+    const int nrvwrs = applMgr()->viewer2DMgr().nr2DViewers();
+    addAction( *removemenu, m3Dots(tr("From all 2D Viewers")), mRemoveInAllIdx,
+	       0, nrvwrs>1 );
+    return removemenu;
+}
+
+
+bool uiODVw2DTreeItem::isRemoveItem( int id, bool removeall ) const
+{
+    return removeall ? id==mRemoveInAllIdx : id==mRemoveIdx;
+}
+
+
+int uiODVw2DTreeItem::getNewItemID() const
+{ return mAddInAllIdx+1; }
+
+
 void uiODVw2DTreeItem::updSampling( const TrcKeyZSampling& cs, bool update )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
@@ -418,7 +458,7 @@ void uiODVw2DTreeItem::doSave()
     if ( MPE::engine().hasTracker(emid) )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	if ( mps ) 
+	if ( mps )
 	    mps->saveSetup( applMgr()->EMServer()->getStorageID(emid) );
     }
 }
@@ -435,7 +475,7 @@ void uiODVw2DTreeItem::doSaveAs()
     if ( MPE::engine().hasTracker(emid) )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	if ( mps ) 
+	if ( mps )
 	{
 	   const MultiID oldmid = applMgr()->EMServer()->getStorageID( emid );
 	   mps->prepareSaveSetupAs( oldmid );

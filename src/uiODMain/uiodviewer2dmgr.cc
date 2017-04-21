@@ -88,7 +88,6 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
 
     BufferStringSet lnms;
     SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
-
 }
 
 
@@ -101,6 +100,11 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
     deepErase( viewers2d_ );
     delete tifs2d_; delete tifs3d_;
 }
+
+
+int uiODViewer2DMgr::nr2DViewers() const
+{ return viewers2d_.size(); }
+
 
 void uiODViewer2DMgr::surveyChangedCB( CallBacker* )
 {
@@ -1059,7 +1063,7 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
     StepInterval<int> vwrtrcrg = vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
     const uiWorldPoint wperpixel =
 	vwr2d->viewwin()->viewer(0).getWorld2Ui().worldPerPixel();
-    const float eps  = mCast(float,wperpixel.x) * sEPSPixWidth;	
+    const float eps  = mCast(float,wperpixel.x) * sEPSPixWidth;
     TypeSet<Pos::GeomID> datagids;
     getVWR2DDataGeomIDs( vwr2d, datagids );
     for ( int idx=0; idx<int2d->size(); idx++ )

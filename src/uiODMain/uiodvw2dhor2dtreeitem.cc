@@ -37,10 +37,7 @@ ________________________________________________________________________
 #include "view2ddataman.h"
 #include "view2dhorizon2d.h"
 
-
-#define mAddInAllIdx	0
-#define mAddIdx		1
-#define mNewIdx		2
+#define mNewIdx		10
 
 uiODVw2DHor2DParentTreeItem::uiODVw2DHor2DParentTreeItem()
     : uiODVw2DTreeItem( tr("2D Horizon") )
@@ -80,10 +77,7 @@ bool uiODVw2DHor2DParentTreeItem::showSubMenu()
     const bool cantrack = !viewer2D()->hasZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
-    addmenu->insertItem( new uiAction(tr("In all 2D Viewers")), mAddInAllIdx );
-    addmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), mAddIdx );
-    mnu.insertItem( addmenu );
+    mnu.insertItem( createAddMenu() );
 
     TypeSet<EM::ObjectID> emids;
     getNonLoadedTrackedHor2Ds( emids );
@@ -148,7 +142,7 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 		emid, viewer2D()->getSyncSceneID() );
 	mps->enableTracking( trackid, true );
     }
-    else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
+    else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true );
@@ -156,7 +150,7 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
 
-	if ( mnuid==mAddInAllIdx )
+	if ( isAddItem(mnuid,true) )
 	{
 	    addHorizon2Ds( emids );
 	    applMgr()->viewer2DMgr().addHorizon2Ds( emids );
@@ -457,8 +451,6 @@ void uiODVw2DHor2DTreeItem::renameVisObj()
 #define mSettsID	2
 #define mSaveID		3
 #define mSaveAsID	4
-#define mRemoveAllID	5
-#define mRemoveID	6
 
 bool uiODVw2DHor2DTreeItem::showSubMenu()
 {
@@ -483,10 +475,8 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
     addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
     addAction( mnu, m3Dots(uiStrings::sSaveAs()), mSaveAsID, "saveas", true );
 
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
+    uiMenu* removemenu = createRemoveMenu();
     mnu.addMenu( removemenu );
-    addAction( *removemenu, tr("From all 2D Viewers"), mRemoveAllID );
-    addAction( *removemenu, tr("Only from this 2D Viewer"), mRemoveID );
 
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
@@ -525,7 +515,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	    mps->showSetupDlg( emid_, sid );
 	}
     }
-    else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
+    else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {
 	if ( !ems->askUserToSave(emid_,true) )
 	    return true;
@@ -535,8 +525,8 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	    renameVisObj();
 	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
-			mnuid==mRemoveID;
-	if ( mnuid == mRemoveAllID )
+		isRemoveItem(mnuid,false);
+	if ( isRemoveItem(mnuid,true) )
 	    applMgr()->viewer2DMgr().removeHorizon2D( emid_ );
 	if ( doremove )
 	    parent_->removeChild( this );

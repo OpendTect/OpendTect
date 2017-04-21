@@ -39,10 +39,7 @@ ________________________________________________________________________
 #include "view2ddataman.h"
 #include "view2dhorizon3d.h"
 
-
-#define mAddInAllIdx	0
-#define mAddIdx		1
-#define mNewIdx		2
+#define mNewIdx		10
 
 uiODVw2DHor3DParentTreeItem::uiODVw2DHor3DParentTreeItem()
     : uiODVw2DTreeItem( tr("3D Horizon") )
@@ -83,10 +80,7 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 	!viewer2D()->hasZAxisTransform() && viewer2D()->isVertical();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
-    addmenu->insertItem( new uiAction(tr("In all 2D Viewers")), mAddInAllIdx );
-    addmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), mAddIdx );
-    mnu.insertItem( addmenu );
+    mnu.insertItem( createAddMenu() );
 
     TypeSet<EM::ObjectID> emids;
     getNonLoadedTrackedHor3Ds( emids );
@@ -161,7 +155,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 		emid, viewer2D()->getSyncSceneID() );
 	mps->enableTracking( trackid, true );
     }
-    else if ( mnuid == mAddInAllIdx || mnuid==mAddIdx )
+    else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
@@ -169,7 +163,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
 
-	if ( mnuid==mAddInAllIdx )
+	if ( isAddItem(mnuid,true) )
 	{
 	    addHorizon3Ds( emids );
 	    applMgr()->viewer2DMgr().addHorizon3Ds( emids );
@@ -341,7 +335,8 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( int id, bool )
 
 uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 {
-         detachAllNotifiers();
+    detachAllNotifiers();
+
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
     {
@@ -386,7 +381,7 @@ bool uiODVw2DHor3DTreeItem::init()
 	horview_ = hd;
     }
 
-     if ( emobj )
+    if ( emobj )
 	mAttachCB( emobj->change, uiODVw2DHor3DTreeItem::emobjChangeCB );
 
     displayMiniCtab();
@@ -473,8 +468,6 @@ void uiODVw2DHor3DTreeItem::renameVisObj()
 #define mSettsID	2
 #define mSaveID		3
 #define mSaveAsID	4
-#define mRemoveAllID	5
-#define mRemoveID	6
 
 bool uiODVw2DHor3DTreeItem::showSubMenu()
 {
@@ -499,10 +492,8 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
     addAction( mnu, m3Dots(uiStrings::sSaveAs()), mSaveAsID, "saveas", true );
 
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
+    uiMenu* removemenu = createRemoveMenu();
     mnu.addMenu( removemenu );
-    addAction( *removemenu, tr("From all 2D Viewers"), mRemoveAllID );
-    addAction( *removemenu, tr("Only from this 2D Viewer"), mRemoveID );
 
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
@@ -541,7 +532,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	    mps->showSetupDlg( emid_, sid );
 	}
     }
-    else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
+    else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {
 	if ( !ems->askUserToSave(emid_,true) )
 	    return true;
@@ -550,9 +541,9 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	if ( trackerid>= 0 )
 	    renameVisObj();
 	name_ = ems->getUiName( emid_ );
-	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
-			mnuid==mRemoveID;
-	if ( mnuid == mRemoveAllID )
+	const bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ )
+			|| isRemoveItem(mnuid,false);
+	if ( isRemoveItem(mnuid,true) )
 	    applMgr()->viewer2DMgr().removeHorizon3D( emid_ );
 	if ( doremove )
 	    parent_->removeChild( this );

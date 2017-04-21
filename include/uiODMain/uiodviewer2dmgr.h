@@ -55,6 +55,7 @@ public:
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
     uiODViewer2D*		find2DViewer(const Pos::GeomID&);
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
+    int				nr2DViewers() const;
 
     int				displayIn2DViewer(DataPack::ID,
 					      const Attrib::SelSpec&,

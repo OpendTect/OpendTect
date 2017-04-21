@@ -48,11 +48,8 @@ uiODVw2DFaultParentTreeItem::~uiODVw2DFaultParentTreeItem()
 bool uiODVw2DFaultParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    uiMenu* addmenu = new uiMenu( uiStrings::sAdd() );
-    addmenu->insertItem( new uiAction(tr("In all 2D Viewers")), 1 );
-    addmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), 2 );
-    mnu.insertItem( addmenu );
-    mnu.insertItem( new uiAction(uiStrings::sNew()), 0 );
+    mnu.insertItem( createAddMenu() );
+    mnu.insertItem( new uiAction(uiStrings::sNew()), getNewItemID() );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
@@ -62,7 +59,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 {
     handleStdSubMenu( mnuid );
 
-    if ( mnuid == 0 )
+    if ( mnuid == getNewItemID() )
     {
 	RefMan<EM::EMObject> emo =
 			EM::EMM().createTempObject( EM::Fault3D::typeStr() );
@@ -76,7 +73,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	applMgr()->viewer2DMgr().addNewTempFault(
 		emo->id(), viewer2D()->getSyncSceneID() );
     }
-    else if ( mnuid == 1 || mnuid==2 )
+    else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaults( objs, false );
@@ -84,7 +81,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
 
-	if ( mnuid==1 )
+	if ( isAddItem(mnuid,true) )
 	{
 	    addFaults( emids );
 	    applMgr()->viewer2DMgr().addFaults( emids );
@@ -359,8 +356,6 @@ void uiODVw2DFaultTreeItem::renameVisObj()
 #define mPropID		0
 #define mSaveID		1
 #define mSaveAsID	2
-#define mRemoveAllID	3
-#define mRemoveID	4
 
 bool uiODVw2DFaultTreeItem::showSubMenu()
 {
@@ -373,10 +368,8 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
     addAction( mnu, uiStrings::sSave(), mSaveID, "save", haschanged );
     addAction( mnu, m3Dots(uiStrings::sSaveAs()), mSaveAsID, "saveas", true );
 
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
+    uiMenu* removemenu = createRemoveMenu();
     mnu.addMenu( removemenu );
-    addAction( *removemenu, tr("From all 2D Viewers"), mRemoveAllID );
-    addAction( *removemenu, tr("Only from this 2D Viewer"), mRemoveID );
 
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
@@ -390,7 +383,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	if ( mnuid==mSaveAsID )
 	    doSaveAs();
     }
-    else if ( mnuid==mRemoveAllID || mnuid==mRemoveID )
+    else if ( isRemoveItem(mnuid,false) || isRemoveItem(mnuid,true) )
     {
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
@@ -398,10 +391,9 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	name_ = applMgr()->EMServer()->getUiName( emid_ );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
-			mnuid==mRemoveID;
-	if ( mnuid == mRemoveAllID )
+		isRemoveItem(mnuid,false);
+	if ( isRemoveItem(mnuid,true) )
 	    applMgr()->viewer2DMgr().removeFault( emid_ );
-
 	if ( doremove )
 	    parent_->removeChild( this );
     }
