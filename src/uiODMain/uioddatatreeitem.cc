@@ -540,8 +540,6 @@ void uiODDataTreeItem::setProbeLayer( ProbeLayer* newlayer )
 	if ( probelayer_->getProbe() )
 	    mDetachCB( probelayer_->getProbe()->objectChanged(),
 		       uiODDataTreeItem::probeChangedCB );
-	else
-	    pErrMsg( "No parent for probe layer" );
     }
 
     replaceMonitoredRef( probelayer_, newlayer, this );

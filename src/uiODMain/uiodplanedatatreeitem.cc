@@ -735,8 +735,10 @@ bool uiODZsliceParentTreeItem::setDefaultPosToBeAdded()
     }
 
     const ZAxisTransform* transform = vwr->getZAxisTransform();
-    const StepInterval<float> zrg = transform ? transform->getZInterval(true)
+    StepInterval<float> zrg = transform ? transform->getZInterval(true)
 					      : SI().sampling(true).zsamp_;
+    if ( !transform )
+	zrg.step = SI().zStep();
     StepInterval<float> defzrg( zrg.center(), zrg.center(), zrg.step );
     probetobeaddedpos_.zsamp_ = defzrg;
     return true;
