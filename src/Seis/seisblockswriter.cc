@@ -614,11 +614,11 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
     zstart += firstblock.start().z();
     const unsigned short dfmt = (unsigned short)fprep_;
 
-    const int hdrsz = columnHeaderSize( version_ );
+    const HdrSzVersionType hdrsz = columnHeaderSize( version_ );
     strm.addBin( hdrsz ).addBin( version_ );
-    strm.addBin( globidx.inl() ).addBin( globidx.crl() ).add( globidx.z() );
-    strm.addBin( start.inl() ).addBin( start.crl() ).addBin( start.z() );
-    strm.addBin( dims.inl() ).addBin( dims.crl() ).addBin( dims_.z() );
+    strm.addBin( globidx.first ).addBin( globidx.second ).addBin(globidx.third);
+    strm.addBin( start.first ).addBin( start.second ).addBin( start.third );
+    strm.addBin( dims.first ).addBin( dims.second ).addBin( dims_.third );
     strm.addBin( nrsamples );
     strm.addBin( dfmt );
     char* buf = new char [hdrsz];
@@ -801,7 +801,7 @@ void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
 		    continue;
 		const int inl = Block::inl4Idxs( survgeom_, dims_.inl(),
 					    globidx.inl(), iinl );
-		const int crl = Block::inl4Idxs( survgeom_, dims_.crl(),
+		const int crl = Block::crl4Idxs( survgeom_, dims_.crl(),
 					    globidx.crl(), icrl );
 		const Coord coord = survgeom_.toCoord( inl, crl );
 		if ( first )

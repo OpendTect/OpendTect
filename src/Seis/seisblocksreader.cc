@@ -296,6 +296,7 @@ Seis::Blocks::Reader::Reader( const char* inp )
     : survgeom_(0)
     , cubedata_(*new PosInfo::CubeData)
     , curcdpos_(*new PosInfo::CubeDataPos)
+    , seldata_(0)
     , globinlidxrg_(0,0)
     , globcrlidxrg_(0,0)
     , globzidxrg_(0,0)
@@ -350,8 +351,6 @@ void Seis::Blocks::Reader::readMainFile()
     bool havegensection = false, havepossection = false;
     while ( !havepossection )
     {
-	if ( atEndOfSection(astrm) )
-	    astrm.next();
 	BufferString sectnm;
 	if ( !strm.getLine(sectnm) )
 	    break;
@@ -401,7 +400,7 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 {
     int ver = version_;
     iop.get( sKeyFmtVersion(), ver );
-    version_ = (unsigned short)ver;
+    version_ = (HdrSzVersionType)ver;
     iop.get( sKeyCubeName(), cubename_ );
     if ( cubename_.isEmpty() )
 	cubename_ = filenamebase_;
@@ -616,5 +615,9 @@ void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
 
     FileColumn* column = getColumn( globidx, uirv );
     if ( column )
+    {
 	column->getTrace( bid, trc, uirv );
+	trc.info().setBinID( bid );
+	trc.info().coord_ = survgeom_->transform( bid );
+    }
 }

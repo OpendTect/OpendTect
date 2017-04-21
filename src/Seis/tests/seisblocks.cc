@@ -7,8 +7,11 @@
 
 #include "testprog.h"
 #include "seisblockswriter.h"
+#include "seisblocksreader.h"
 #include "seisprovider.h"
 #include "moddepmgr.h"
+#include "oddirs.h"
+#include "genc.h"
 #include "paralleltask.h"
 
 
@@ -19,7 +22,7 @@ static const char* sMonsterSeisIDStr = "100010.311";
 static bool testWriting()
 {
     const bool usesteer = false;
-    const bool usemonster = true;
+    const bool usemonster = false;
 
     const char* seisidstr = usesteer ? sSteerSeisIDStr : sNormSeisIDStr;
     if ( usemonster )
@@ -31,6 +34,8 @@ static bool testWriting()
 	tstStream(true) << "Cur survey has no " << seisidstr << od_endl;
 	return true; // don't need e-mails from CDash
     }
+
+    /*
 
     Seis::Blocks::Writer wrr;
     if ( !usemonster )
@@ -52,7 +57,6 @@ static bool testWriting()
     iop.set( "Input DBKey", seisidstr );
     wrr.addAuxInfo( "Test section", iop );
 
-    ///*
     SeisTrc trc; int prevlinenr = -1;
     while ( true )
     {
@@ -96,8 +100,42 @@ static bool testWriting()
 	}
     }
 
-    //*/
+    */
+
     return true;
+}
+
+static bool testReading()
+{
+    const bool usesteer = false;
+    const bool usemonster = false;
+
+    File::Path fp( GetBaseDataDir(), sSeismicSubDir() );
+    if ( !usemonster )
+	fp.add( usesteer ? "test_blocks_steering" : "test_blocks");
+    else
+	fp.add( "monster" );
+
+    Seis::Blocks::Reader rdr( fp.fullPath() );
+    if ( rdr.state().isError() )
+    {
+	tstStream(true) << rdr.state() << od_endl;
+	return true; // don't need e-mails from CDash
+    }
+
+    SeisTrc trc;
+    uiRetVal uirv = rdr.getNext( trc );
+    if ( uirv.isError() )
+    {
+	tstStream(true) << uirv << od_endl;
+	return false;
+    }
+
+    const BinID bid( trc.info().binID() );
+    tstStream( false ) << bid.inl() << '/' << bid.crl() << ':' << trc.size()
+			<< " @300=" << trc.get( 300, 0 ) << od_endl;
+    return true;
+
 }
 
 int testMain( int argc, char** argv )
@@ -105,7 +143,11 @@ int testMain( int argc, char** argv )
     mInitTestProg();
     OD::ModDeps().ensureLoaded("Seis");
 
+
     if ( !testWriting() )
+	return 1;
+
+    if ( !testReading() )
 	return 1;
 
     return 0;
