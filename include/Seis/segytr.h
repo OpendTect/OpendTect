@@ -60,6 +60,7 @@ public:
     SEGY::FilePars&	filePars()		{ return filepars_; }
     SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
     const unsigned char* blockBuf() const	{ return blockbuf_; }
+    void		setSelComp( int icomp )	{ selcomp_ = icomp; }
 
     virtual bool	implManagesObjects( const IOObj* ) const
 						{ return true; }
@@ -74,6 +75,7 @@ protected:
     SEGY::TrcHeader&	trchead_; // must be *after* fileopts_
     LinScaler*		trcscale_;
     const LinScaler*	curtrcscale_;
+    int			selcomp_;
     int			forcedrev_;
 
     bool		useinpsd_;

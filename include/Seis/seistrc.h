@@ -66,6 +66,7 @@ public:
     bool		hasUndef(int icomp=-1) const;
     inline void		zero( int icomp=-1 )
 			{ data_.zero( icomp ); }
+    void		setNrComponents(int);
     void		addComponent( int ns=0,
 				      const DataCharacteristics& dc
 						= DataCharacteristics(),

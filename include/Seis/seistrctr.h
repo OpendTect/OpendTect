@@ -51,8 +51,7 @@ READ:
 WRITE:
 
 2) with initWrite() client passes Connection and example trace. Translator
-   will fill default writing layout. If Translator is single component,
-   only the first component will have a destidx != -1.
+   will fill default writing layout.
 3) Client sets trace selection and components as wanted
 4) commitSelections() writes 'global' header, if any
 5) write() writes selected traces/trace sections
@@ -112,8 +111,10 @@ public:
     /*!\brief ComponentData as it should be when the Translator puts it away.
 
     The data will be copied from the input ComponentData, but can then be
-    changed to desired values. If a component should not be read/written,
-    set destidx to -1.
+    changed to desired values. If a component should not be read or written,
+    set selected_ to false. If Translator returns true for isSingleComponent()
+    then if you do not set selected_ flags yourself, then the first component
+    is written.
 
     */
 
@@ -123,17 +124,15 @@ public:
 
     public:
 
-	int			destidx;
-	const ComponentData&	org;
+	bool		selected_;
 
     protected:
 
-			    TargetComponentData( const ComponentData& c,
-						 int idx )
-			    : ComponentData(c), org(c), destidx(idx)	{}
+			TargetComponentData( const ComponentData& c )
+			    : ComponentData(c), selected_(true) {}
 
-	void		operator=(const TargetComponentData&);
-			    //!< Protection against assignment.
+	void		operator=(const TargetComponentData&)	= delete;
+
     };
 
 			SeisTrcTranslator(const char*,const char*);
@@ -179,6 +178,7 @@ public:
     virtual bool	close();
     uiString		errMsg() const			{ return errmsg_; }
 
+    virtual bool	isSingleComponent() const	{ return true; }
     virtual bool	inlCrlSorted() const		{ return true; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
 

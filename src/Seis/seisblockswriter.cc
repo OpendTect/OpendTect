@@ -98,8 +98,8 @@ Seis::Blocks::MemBlock::MemBlock( GlobIdx gidx, SampIdx strt,
 
 int Seis::Blocks::MemBlock::getBufIdx( const SampIdx& sidx ) const
 {
-    const int nrsampsoninl = ((int)sidx.crl()) * dims_.z() + sidx.z();
-    return sidx.inl() ? sidx.inl()*nrSampsPerInl() + nrsampsoninl
+    const int nrsampsoninl = nrSampsOnInl( dims_, sidx );
+    return sidx.inl() ? sidx.inl()*nrSampsPerInl(dims_) + nrsampsoninl
 		      : nrsampsoninl;
 }
 
@@ -210,7 +210,7 @@ Seis::Blocks::Writer::~Writer()
 	}
     }
 
-    setEmpty();
+    deepErase( zevalpositions_ );
 }
 
 

@@ -215,7 +215,7 @@ void Seis::VolFetcher::getTranslator( Conn* conn )
 	for ( int icd=0; icd<trl_->componentInfo().size(); icd++ )
 	{
 	    if ( !prov().selcomps_.isPresent(icd) )
-		trl_->componentInfo()[icd]->destidx = -1;
+		trl_->componentInfo()[icd]->selected_ = false;
 	}
     }
 

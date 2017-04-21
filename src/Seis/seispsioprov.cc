@@ -418,7 +418,7 @@ bool SeisPSCubeSeisTrcTranslator::commitSelections_()
 
     for ( int idx=0; idx<tarcds_.size(); idx++ )
     {
-	if ( tarcds_[idx]->destidx >= 0 )
+	if ( tarcds_[idx]->selected_ )
 	    trcnrs_ += idx;
     }
 

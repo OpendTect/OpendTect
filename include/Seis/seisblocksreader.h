@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "seisblocks.h"
 #include "ranges.h"
 #include "threadlock.h"
+#include "typeset.h"
 #include "uistring.h"
 
 class SeisTrc;
@@ -55,6 +56,7 @@ public:
     Interval<int>	crlRange() const	    { return crlrg_; }
     inline int		nrComponents() const
 			{ return componentNames().size(); }
+    BoolTypeSet		compSelected()		    { return compsel_; }
 
     void		setSelData(const SelData*);
 
@@ -77,8 +79,10 @@ protected:
     Interval<int>	crlrg_;
     Interval<float>	zrg_;
     int			maxnrfiles_;
+    BoolTypeSet		compsel_;
 
-    virtual void	setEmpty();
+    mutable ObjectSet<FileColumn> activitylist_;
+
     void		readMainFile();
     bool		getGeneralSectionData(const IOPar&);
     bool		reset(uiRetVal&) const;
@@ -87,6 +91,7 @@ protected:
     void		doGet(SeisTrc&,uiRetVal&) const;
     FileColumn*		getColumn(const GlobIdx&,uiRetVal&) const;
     void		readTrace(SeisTrc&,uiRetVal&) const;
+    bool		activateColumn(FileColumn*,uiRetVal&) const;
 
     friend class	FileColumn;
 

@@ -198,7 +198,7 @@ bool SeisTrcReader::startWork()
     if ( selcomp_ >= 0 )
     {
 	for ( int idx=0; idx<sttrl.componentInfo().size(); idx++ )
-	    sttrl.componentInfo()[idx]->destidx = idx == selcomp_ ? 0 : -1;
+	    sttrl.componentInfo()[idx]->selected_ = idx == selcomp_;
     }
 
     sttrl.setSelData( seldata_ );
@@ -280,7 +280,7 @@ bool SeisTrcReader::initRead( Conn* conn )
     bool foundone = false;
     for ( int idx=0; idx<nrcomp; idx++ )
     {
-	if ( sttrl->componentInfo()[idx]->destidx >= 0 )
+	if ( sttrl->componentInfo()[idx]->selected_ )
 	    { foundone = true; break; }
     }
     if ( !foundone )
@@ -288,14 +288,14 @@ bool SeisTrcReader::initRead( Conn* conn )
 	for ( int idx=0; idx<nrcomp; idx++ )
 	{
 	    if ( selcomp_ == -1 )
-		sttrl->componentInfo()[idx]->destidx = idx;
+		sttrl->componentInfo()[idx]->selected_ = true;
 	    else
-		sttrl->componentInfo()[idx]->destidx = selcomp_ == idx ? 0 : 1;
-	    if ( sttrl->componentInfo()[idx]->destidx >= 0 )
+		sttrl->componentInfo()[idx]->selected_ = selcomp_ == idx;
+	    if ( sttrl->componentInfo()[idx]->selected_ )
 		foundone = true;
 	}
 	if ( !foundone )
-	    sttrl->componentInfo()[0]->destidx = 0;
+	    sttrl->componentInfo()[0]->selected_ = true;
     }
 
     needskip = false;

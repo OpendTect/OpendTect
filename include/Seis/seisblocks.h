@@ -101,6 +101,12 @@ public:
 
     static Dimensions	defDims();
 
+    inline static int	nrSampsPerInl( const Dimensions& dims )
+			{ return ((int)dims.crl()) * dims.z(); }
+    inline static int	nrSampsOnInl( const Dimensions& dims,
+				      const SampIdx& sidx )
+			{ return ((int)sidx.crl()) * dims.z() + sidx.z(); }
+
 protected:
 
 			Block(GlobIdx,const SampIdx&,const Dimensions&);
@@ -109,9 +115,6 @@ protected:
     const SampIdx	start_;
     const Dimensions	dims_;
     const DataInterpreter<float>* interp_;
-
-    inline int		nrSampsPerInl() const
-			{ return ((int)dims_.crl()) * dims_.z(); }
 
 };
 

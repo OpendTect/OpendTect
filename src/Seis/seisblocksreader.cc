@@ -37,12 +37,12 @@ class FileColumn : public Column
 public:
 
 			FileColumn(const Reader&,const GlobIdx&);
-			~FileColumn()		{ retire(); delete scaler_; }
+			~FileColumn();
 
     void		activate(uiRetVal&);
     void		retire();
 
-    void		getTrace(const BinID&,SeisTrc&,uiRetVal&);
+    void		getTrace(const BinID&,SeisTrc&,uiRetVal&) const;
 
     const Reader&	rdr_;
     od_istream*		strm_;
@@ -51,13 +51,27 @@ public:
     int			nrcomponents_;
     int			nrsamplesinfile_;
     int			nrsamplesintrace_;
+    int			nrcomponentsintrace_;
     DataInterpreter<float>* interp_;
     LinScaler*		scaler_;
 
+    struct Chunk
+    {
+	int		comp_;
+	int		startsamp_;
+	int		nrsamps_;
+	od_stream_Pos	offs_;
+	od_stream_Pos	singtrcoffs_;
+    };
+    ObjectSet<Chunk>    chunks_;
 
 protected:
 
+    bool		wasretired_;
+    char*		trcpartbuf_;
+
     void		createOffsetTable();
+    void		closeStream();
 
 };
 
@@ -75,7 +89,22 @@ Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const GlobIdx& gidx )
     , scaler_(0)
     , nrsamplesinfile_(0)
     , nrsamplesintrace_(0)
+    , nrcomponentsintrace_(0)
+    , trcpartbuf_(0)
+    , wasretired_(false)
 {
+    for ( int idx=0; idx<rdr_.compsel_.size(); idx++ )
+	if ( rdr_.compsel_[idx] )
+	    nrcomponentsintrace_++;
+}
+
+
+Seis::Blocks::FileColumn::~FileColumn()
+{
+    closeStream();
+    delete scaler_;
+    deepErase( chunks_ );
+    delete [] trcpartbuf_;
 }
 
 
@@ -90,17 +119,20 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
     strm_ = new od_istream( fnm );
     if ( !strm_->isOK() )
     {
-	retire();
+	closeStream();
 	uirv.set( uiStrings::phrCannotOpen( toUiString(fnm) ) );
 	return;
     }
+
+    if ( wasretired_ )
+	return;
 
     IOClass::HdrSzVersionType hdrsz, version;
     strm_->getBin( hdrsz ).getBin( version );
     IOClass::HdrSzVersionType expectedhdrsz = rdr_.columnHeaderSize( version );
     if ( hdrsz != expectedhdrsz )
     {
-	retire();
+	closeStream();
 	uirv.set( tr("%1: unexpected header size.\nFound %2, should be %3.")
 	          .arg( fnm ).arg( hdrsz ).arg( expectedhdrsz ) );
 	return;
@@ -139,14 +171,23 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
     delete [] buf;
     if ( !strm_->isOK() )
     {
-	retire();
+	closeStream();
 	uirv.set( tr("%1: unexpected en of file.").arg( fnm ) );
 	return;
     }
+
+    createOffsetTable();
 }
 
 
 void Seis::Blocks::FileColumn::retire()
+{
+    closeStream();
+    wasretired_ = true;
+}
+
+
+void Seis::Blocks::FileColumn::closeStream()
 {
     delete strm_; strm_ = 0;
 }
@@ -161,44 +202,68 @@ void Seis::Blocks::FileColumn::createOffsetTable()
     if ( rdr_.seldata_ )
 	zrg.limitTo( rdr_.seldata_->zRange() );
 
-    const od_stream_Pos singcompslicesize = ((od_stream_Pos)dims_.inl())
-				  * dims_.crl() * interp_->nrBytes();
-    const od_stream_Pos slicesize = singcompslicesize * nrcomps_;
-    const od_stream_Pos firstblocksize = slicesize * (dims_.z()-start_.z());
-    const od_stream_Pos blocksize = slicesize * dims_.z();
+    const int nrbytespersample = interp_->nrBytes();
+    const od_stream_Pos nrbytespercompslice = ((od_stream_Pos)dims_.inl())
+				  * dims_.crl() * nrbytespersample;
 
-    nrsamplesintrace_ = 0;
     const Interval<IdxType> globzidxrg(
 	    Block::globIdx4Z( survgeom, zrg.start, dims_.z() ),
 	    Block::globIdx4Z( survgeom, zrg.stop, dims_.z() ) );
+    nrsamplesintrace_ = 0;
+    int nrfilesamplessofar = 0;
+    od_stream_Pos blockstartoffs = 0;
     for ( IdxType gzidx=globzidxrg.start; gzidx<=globzidxrg.stop; gzidx++ )
     {
-	const int blockidx = gzidx - globidx_.z();
-	const od_stream_Pos blockoffs = blockidx == 0 ? 0
-			: firstblocksize + (blockidx-1) * blocksize;
+	const bool isfirst = gzidx == globzidxrg.start;
+	Dimensions dims( dims_ );
+	if ( isfirst )
+	{
+	    dims.z() = SzType( dims_.z() - start_.z() );
+	    nrfilesamplessofar = dims.z();
+	}
+	if ( gzidx == globzidxrg.stop )
+	    dims.z() = nrsamplesinfile_ - nrfilesamplessofar;
+	else if ( !isfirst )
+	    nrfilesamplessofar += dims_.z();
 
 	IdxType startzidx = 0;
-	SzType nrz = dims_.z();
+	SzType nrsamps = dims_.z();
 	if ( gzidx == globzidxrg.start )
 	{
 	    startzidx = Block::sampIdx4Z( survgeom, zrg.start, dims_.z() );
-	    nrz = dims_.z() - startzidx;
+	    nrsamps = dims_.z() - startzidx;
 	}
 	else if ( gzidx == globzidxrg.stop )
-	    nrz = Block::sampIdx4Z( survgeom, zrg.stop, dims_.z() )
-		- startzidx + 1;
+	    nrsamps = Block::sampIdx4Z( survgeom, zrg.stop, dims_.z() )
+		    - startzidx + 1;
 
-	nrsamplesintrace_ += nrz;
+	const od_stream_Pos blocknrbytes = nrbytespercompslice * dims.z();
 
-	od_stream_Pos offset = blockoffs + startzidx * slicesize;
-	od_stream_Pos dummy = nrz * offset;
-	strm_->setPosition( dummy );
+	for ( int icomp=0; icomp<nrcomps_; icomp++ )
+	{
+	    if ( rdr_.compsel_[icomp] )
+	    {
+		Chunk* chunk = new Chunk;
+		chunk->comp_ = icomp;
+		chunk->offs_ = blockstartoffs + startzidx * nrbytespersample;
+		chunk->startsamp_ = nrsamplesintrace_;
+		chunk->nrsamps_ = nrsamps;
+		chunk->singtrcoffs_ = dims.z() * nrbytespersample;
+		chunks_ += chunk;
+	    }
+	    blockstartoffs += blocknrbytes;
+	}
+
+	nrsamplesintrace_ += nrsamps;
     }
+
+    delete [] trcpartbuf_;
+    trcpartbuf_ = new char [dims_.z() * nrbytespersample];
 }
 
 
 void Seis::Blocks::FileColumn::getTrace( const BinID& bid, SeisTrc& trc,
-					 uiRetVal& uirv )
+					 uiRetVal& uirv ) const
 {
     const SurvGeom& survgeom = *rdr_.survgeom_;
     const SampIdx sampidx(
@@ -206,25 +271,24 @@ void Seis::Blocks::FileColumn::getTrace( const BinID& bid, SeisTrc& trc,
 	Block::sampIdx4Crl(survgeom,bid.crl(),dims_.crl()) - start_.crl(),
 	0 );
 
+    trc.setNrComponents( nrcomponentsintrace_ );
     trc.reSize( nrsamplesintrace_, false );
 
-    uirv.set( tr("Trace read not implemented yet" ) );
-
-    /*
+    const int nrtrcs = sampidx.inl() * dims_.crl() + sampidx.crl();
     const int nrbytespersample = interp_->nrBytes();
-    for ( int idx=0; idx<offstbl_.size(); idx++ )
+    for ( int idx=0; idx<chunks_.size(); idx++ )
     {
-	const OffsEntry& offsentry = *offstbl_[idx];
-	strm_->getBin( blockbuf_, offsentry.nrz_ * nrbytespersample );
-	for ( int isamp=0; isamp<offsentry.nrz_; isamp++ )
+	const Chunk& chunk = *chunks_[idx];
+	strm_->setPosition( chunk.offs_ + nrtrcs * chunk.singtrcoffs_ );
+	strm_->getBin( trcpartbuf_, chunk.nrsamps_ * nrbytespersample );
+	for ( int isamp=0; isamp<chunk.nrsamps_; isamp++ )
 	{
-	    float val = interp_->get( isamp );
+	    float val = interp_->get( trcpartbuf_, isamp );
 	    if ( scaler_ )
 		val = scaler_->scale( val );
-	    trc.set( offsentry.starttrcidx_ + isamp, val, icomp );
+	    trc.set( chunk.startsamp_ + isamp, val, chunk.comp_ );
 	}
     }
-    */
 }
 
 
@@ -260,15 +324,8 @@ Seis::Blocks::Reader::~Reader()
 {
     delete seldata_;
     delete survgeom_;
-    setEmpty();
     delete &cubedata_;
     delete &curcdpos_;
-}
-
-
-void Seis::Blocks::Reader::setEmpty()
-{
-    clearColumns();
 }
 
 
@@ -380,16 +437,25 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
     FileMultiString fms( iop.find(sKeyComponents()) );
     const int nrcomps = fms.size();
     if ( nrcomps < 1 )
+    {
 	compnms_.add( "Component 1" );
+	compsel_ += true;
+    }
     else
     {
 	for ( int icomp=0; icomp<nrcomps; icomp++ )
+	{
 	    compnms_.add( fms[icomp] );
+	    compsel_ += true;
+	}
     }
 
     int maxinlblocks = globinlidxrg_.width() + 1;
     int maxcrlblocks = globcrlidxrg_.width() + 1;
-    maxnrfiles_ = mMAX( maxinlblocks, maxcrlblocks ) + 1;
+    maxnrfiles_ = mMAX( maxinlblocks, maxcrlblocks ) * 2;
+    if ( maxnrfiles_ > 1024 )
+	maxnrfiles_ = 1024; // this is a *lot* just a bit of sanity
+			    // remember it's not a disaster because we retire
 
     return true;
 }
@@ -506,9 +572,38 @@ Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumn(
 	column = new FileColumn( *this, globidx );
 	addColumn( column );
     }
+
+    return activateColumn(column,uirv) ? column : 0;
+}
+
+
+bool Seis::Blocks::Reader::activateColumn( FileColumn* column,
+					    uiRetVal& uirv ) const
+{
     column->activate( uirv );
-    //TODO retire one if too many open files
-    return uirv.isError() ? 0 : column;
+    if ( uirv.isError() )
+	return false;
+
+    if ( activitylist_.first() != column )
+    {
+	int curidx = activitylist_.indexOf( column );
+	if ( curidx < 0 )
+	{
+	    const int cursz = activitylist_.size();
+	    if ( cursz < maxnrfiles_ )
+		activitylist_ += column;
+	    else
+	    {
+		FileColumn* oldest = activitylist_.last();
+		oldest->retire();
+		activitylist_.replace( cursz-1, column );
+	    }
+	    curidx = activitylist_.size() - 1;
+	}
+	activitylist_.swap( curidx, 0 );
+    }
+
+    return true;
 }
 
 

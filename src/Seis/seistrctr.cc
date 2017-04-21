@@ -197,15 +197,12 @@ bool SeisTrcTranslator::commitSelections()
     }
 
     mAllocLargeVarLenArr( int, selnrs, sz );
-    mAllocLargeVarLenArr( int, inpnrs, sz );
     int nrsel = 0;
     for ( int idx=0; idx<sz; idx++ )
     {
-	int destidx = tarcds_[idx]->destidx;
-	if ( destidx >= 0 )
+	if ( tarcds_[idx]->selected_ )
 	{
-	    selnrs[nrsel] = destidx;
-	    inpnrs[nrsel] = idx;
+	    selnrs[nrsel] = nrsel;
 	    nrsel++;
 	}
     }
@@ -216,12 +213,11 @@ bool SeisTrcTranslator::commitSelections()
     if ( nrsel < 1 )
 	inpfor_[0] = 0;
     else if ( nrsel == 1 )
-	inpfor_[0] = inpnrs[0];
+	inpfor_[0] = selnrs[0];
     else
     {
-	sort_coupled( (int*)selnrs, (int*)inpnrs, nrsel );
 	for ( int idx=0; idx<nrout_; idx++ )
-	    inpfor_[idx] = inpnrs[idx];
+	    inpfor_[idx] = selnrs[idx];
     }
 
     inpcds_ = new ComponentData* [nrout_];
@@ -443,7 +439,7 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
     cds_ += newcd;
     bool isl = newcd->datachar.littleendian_;
     newcd->datachar.littleendian_ = __islittle__;
-    tarcds_ += new TargetComponentData( *newcd, cds_.size()-1 );
+    tarcds_ += new TargetComponentData( *newcd );
     newcd->datachar.littleendian_ = isl;
 }
 

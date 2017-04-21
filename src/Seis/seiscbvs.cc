@@ -266,7 +266,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
     compsel_ = new bool [tarcds_.size()];
     for ( int idx=0; idx<tarcds_.size(); idx++ )
-	compsel_[idx] = tarcds_[idx]->destidx >= 0;
+	compsel_[idx] = tarcds_[idx]->selected_;
 
     if ( !forread_ )
 	return startWrite();

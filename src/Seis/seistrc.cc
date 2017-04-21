@@ -210,6 +210,24 @@ void SeisTrc::convertToFPs( bool pres )
 }
 
 
+void SeisTrc::setNrComponents( int nrcomps )
+{
+    while ( nrComponents() != nrcomps )
+    {
+	if ( nrComponents() > nrcomps )
+	    removeComponent( 0 );
+	else
+	{
+	    if ( nrComponents() < 1 )
+		addComponent();
+	    else
+		data().addComponent( size(),
+				     data().getInterpreter(0)->dataChar() );
+	}
+    }
+}
+
+
 void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
 {
     int startcomp = tarcomp < 0 ? 0 : tarcomp;

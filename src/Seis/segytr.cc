@@ -70,6 +70,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, prevoffs_(0)
 	, othdomain_(false)
 	, bp2c_(0)
+	, selcomp_(0)
 {
     if ( maxnrconsecutivebadtrcs < 0 )
     {
@@ -559,7 +560,8 @@ bool SEGYSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 	toSupported( dc );
 	selectWriteDataChar( dc );
 	tarcds_[idx]->datachar = dc;
-	if ( idx ) tarcds_[idx]->destidx = -1;
+	if ( idx != selcomp_ )
+	    tarcds_[idx]->selected_ = false;
     }
 
     return true;
