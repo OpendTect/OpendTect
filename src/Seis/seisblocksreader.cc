@@ -222,7 +222,7 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 	    nrfilesamplessofar = dims.z();
 	}
 	if ( gzidx == globzidxrg.stop )
-	    dims.z() = nrsamplesinfile_ - nrfilesamplessofar;
+	    dims.z() = SzType(nrsamplesinfile_ - nrfilesamplessofar);
 	else if ( !isfirst )
 	    nrfilesamplessofar += dims_.z();
 
