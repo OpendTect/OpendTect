@@ -7,6 +7,7 @@ SET( INCLUDES
     ODQtUtils
     ODZlibUtils
     ODOsgUtils
+    ODPythonUtils
     ODBreakPadUtils
     ODMacroUtils
     ODModDeps
