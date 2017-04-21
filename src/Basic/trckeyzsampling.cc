@@ -577,19 +577,54 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 	survid_ = Survey::GM().default3DSurvID();
     }
 
-    return inlok && crlok;
+    if ( inlok && crlok )
+	return true;
+
+    IOPar* subpars = pars.subselect( IOPar::compKey( sKey::Line(), 0 ) );
+    if ( !subpars ) return false;
+
+    bool trcrgok = getRange( *subpars, sKey::TrcRange(),
+			     start_.trcNr(), stop_.trcNr(), step_.trcNr() );
+    if ( !trcrgok )
+    {
+	trcrgok = subpars->get( sKey::FirstTrc(), start_.trcNr() );
+	trcrgok = subpars->get( sKey::LastTrc(), stop_.trcNr() ) || trcrgok;
+    }
+
+    if ( trcrgok )
+    {
+	start_.lineNr() = 0;
+	stop_.lineNr() = mUdf(int);
+	step_.lineNr() = step_.trcNr() = 1;
+	survid_ = Survey::GM().get2DSurvID();
+
+    }
+
+    return trcrgok;
 }
 
 
 void TrcKeySampling::fillPar( IOPar& pars ) const
 {
-    pars.set( sKey::FirstInl(), start_.lineNr() );
-    pars.set( sKey::FirstCrl(), start_.trcNr() );
-    pars.set( sKey::LastInl(), stop_.lineNr() );
-    pars.set( sKey::LastCrl(), stop_.trcNr() );
-    pars.set( sKey::StepInl(), step_.lineNr() );
-    pars.set( sKey::StepCrl(), step_.trcNr() );
-    pars.set( sKey::SurveyID(), survid_ );
+    if ( is2D() )
+    {
+	IOPar tmppar;
+	tmppar.set( sKey::FirstTrc(), start_.trcNr() );
+	tmppar.set( sKey::LastTrc() , stop_.trcNr() );
+	tmppar.set( sKey::StepCrl(), step_.trcNr() );
+	tmppar.set( sKey::SurveyID(), survid_ );
+	pars.mergeComp( tmppar, IOPar::compKey( sKey::Line(), 0 ) );
+    }
+    else
+    {
+	pars.set( sKey::FirstInl(), start_.lineNr() );
+	pars.set( sKey::FirstCrl(), start_.trcNr() );
+	pars.set( sKey::LastInl(), stop_.lineNr() );
+	pars.set( sKey::LastCrl(), stop_.trcNr() );
+	pars.set( sKey::StepInl(), step_.lineNr() );
+	pars.set( sKey::StepCrl(), step_.trcNr() );
+	pars.set( sKey::SurveyID(), survid_ );
+    }
 }
 
 
@@ -1245,14 +1280,30 @@ bool TrcKeyZSampling::isEqual( const TrcKeyZSampling& tkzs, float zeps ) const
 
 bool TrcKeyZSampling::usePar( const IOPar& par )
 {
-    return hsamp_.usePar( par ) && par.get( sKey::ZRange(), zsamp_ );
+    bool isok = hsamp_.usePar( par );
+    if ( hsamp_.is2D() )
+    {
+	IOPar* subpars = par.subselect( IOPar::compKey( sKey::Line(), 0 ) );
+	if ( !subpars ) return false;
+	return isok && subpars->get( sKey::ZRange(), zsamp_ );
+    }
+    else
+	return isok && par.get( sKey::ZRange(), zsamp_ );
 }
 
 
 void TrcKeyZSampling::fillPar( IOPar& par ) const
 {
     hsamp_.fillPar( par );
-    par.set( sKey::ZRange(), zsamp_.start, zsamp_.stop, zsamp_.step );
+    if ( hsamp_.is2D() )
+    {
+	IOPar tmppar;
+	tmppar.set( sKey::ZRange(), zsamp_.start, zsamp_.stop, zsamp_.step );
+	par.mergeComp( tmppar, IOPar::compKey( sKey::Line(), 0 ) );
+
+    }
+    else
+	par.set( sKey::ZRange(), zsamp_.start, zsamp_.stop, zsamp_.step );
 }
 
 
