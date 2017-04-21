@@ -261,33 +261,38 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 
 void uiGapDeconAttrib::examPush( CallBacker* cb )
 {
-    if ( mIsUdf(gatefld_->getFInterval().start) ||
-	 mIsUdf(gatefld_->getFInterval().stop) ||
-	 inpfld_->attribID() == DescID::undef() )
+    if ( inpfld_->attribID() == DescID::undef() )
     {
-	uiMSG().error(tr("Please, first, fill in the Input Data\n"
-                         "and the Correlation window fields"));
-
+	uiMSG().error( tr("Please select Input Data") );
 	return;
     }
 
-    TrcKeyZSampling cs;
-    inpfld_->getRanges(cs);
+    if ( mIsUdf(gatefld_->getFInterval().start) ||
+	 mIsUdf(gatefld_->getFInterval().stop) )
+    {
+	uiMSG().error( tr("Please provide start and stop values\n"
+			  "for the Correlation window") );
+	return;
+    }
+
+    TrcKeyZSampling tkzs;
+    inpfld_->getRanges( tkzs );
     Interval<float> gate = gatefld_->getFInterval();
     const float zfac = mCast(float,SI().zDomain().userFactor());
     gate.scale(1.f/zfac);
-    if ( !cs.zsamp_.includes(gate) )
+
+    if ( !ads_->is2D() && !tkzs.zsamp_.includes(gate) )
     {
-	Interval<float> zrg = cs.zsamp_;
+	Interval<float> zrg = tkzs.zsamp_;
 	gate = zrg; zrg.scale( zfac );
 	gatefld_->setValue( zrg );
     }
-    cs.zsamp_.limitTo( gate );
+    tkzs.zsamp_.limitTo( gate );
 
     DBKey mid;
     getInputMID( mid );
     if ( positiondlg_ ) delete positiondlg_;
-    positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
+    positiondlg_ = new uiGDPositionDlg( this, tkzs, ads_->is2D(), mid );
     if ( par_.size() )
     {
 	if ( ads_->is2D() )
@@ -328,13 +333,21 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	    const char* lnm = positiondlg_->linesfld_->box()->text();
 	    BufferString prevlnm;
 	    par_.get( sKeyLineName(), prevlnm );
-	    if ( !prevlnm.isEqual( lnm ) )
+	    if ( !prevlnm.isEqual(lnm) )
 	    {
 		par_.setEmpty();
 		positiondlg_->prevpar_.setEmpty();
 	    }
 
 	    par_.set( sKeyLineName(), lnm );
+
+	    // Now I know the zrg for the selected 2D line
+	    StepInterval<float> zrg = positiondlg_->tkzs_.zsamp_;
+	    if ( !zrg.includes(gate) )
+	    {
+		zrg.scale( (float)SI().zDomain().userFactor() );
+		gatefld_->setValue( zrg );
+	    }
 	}
 
 	positiondlg_->popUpPosDlg();

@@ -284,22 +284,24 @@ bool SeisTrc2DTranslator::initRead_()
     dset.getTxtInfo( dset.geomID(0), pinfo_.usrinfo, pinfo_.stdinfo );
     addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
 
-    if ( seldata_ )
+    if ( seldata_ && !mIsUdf(seldata_->geomID()) )
 	geomid_ = seldata_->geomID();
+    else
+	geomid_ = dset.geomID(0);
 
     if ( !mIsUdfGeomID(geomid_) && dset.indexOf(geomid_)<0 )
 	{ errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_); return false; }
 
-    TrcKeyZSampling cs( true );
-    insd_.start = cs.zsamp_.start; insd_.step = cs.zsamp_.step;
-    innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) /
-			  cs.zsamp_.step + 1.5);
-    pinfo_.inlrg.start = cs.hsamp_.start_.inl();
-    pinfo_.inlrg.stop = cs.hsamp_.stop_.inl();
-    pinfo_.inlrg.step = cs.hsamp_.step_.inl();
-    pinfo_.crlrg.step = cs.hsamp_.step_.crl();
-    pinfo_.crlrg.start = cs.hsamp_.start_.crl();
-    pinfo_.crlrg.stop = cs.hsamp_.stop_.crl();
+    StepInterval<int> trcrg; StepInterval<float> zrg;
+    dset.getRanges( geomid_, trcrg, zrg );
+    insd_.start = zrg.start; insd_.step = zrg.step;
+    innrsamples_ = (int)((zrg.stop-zrg.start) / zrg.step + 1.5);
+    pinfo_.inlrg.start = geomid_;
+    pinfo_.inlrg.stop = geomid_;
+    pinfo_.inlrg.step = 1;
+    pinfo_.crlrg.start = trcrg.start;
+    pinfo_.crlrg.stop = trcrg.stop;
+    pinfo_.crlrg.step = trcrg.step;
     return true;
 }
 
