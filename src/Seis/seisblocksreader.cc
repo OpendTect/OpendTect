@@ -285,7 +285,7 @@ void Seis::Blocks::FileColumn::getTrace( const BinID& bid, SeisTrc& trc,
 	{
 	    float val = interp_->get( trcpartbuf_, isamp );
 	    if ( scaler_ )
-		val = scaler_->scale( val );
+		val = (float)scaler_->scale( val );
 	    trc.set( chunk.startsamp_ + isamp, val, chunk.comp_ );
 	}
     }
