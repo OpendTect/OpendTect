@@ -87,7 +87,7 @@ protected:
     void		add2Block(MemBlock&,const ZEvalPosSet&,SampIdx,
 				    const SeisTrc&,int);
     MemBlockColumn*	getColumn(const GlobIdx&);
-    MemBlockColumn*	mkNewColumn(const GlobIdx&);
+    MemBlockColumn*	mkNewColumn(GlobIdx);
     bool		isCompleted(const MemBlockColumn&) const;
     void		writeColumn(MemBlockColumn&,uiRetVal&);
     bool		writeColumnHeader(od_ostream&,const MemBlockColumn&,

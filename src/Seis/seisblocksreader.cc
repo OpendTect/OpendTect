@@ -42,14 +42,22 @@ public:
     void		activate(uiRetVal&);
     void		retire();
 
-    void		getTrace(SeisTrc&,uiRetVal&);
+    void		getTrace(const BinID&,SeisTrc&,uiRetVal&);
 
     const Reader&	rdr_;
     od_istream*		strm_;
 
     SampIdx		start_;
-    OD::FPDataRepType	fprep_;
+    int			nrcomponents_;
+    int			nrsamplesinfile_;
+    int			nrsamplesintrace_;
+    DataInterpreter<float>* interp_;
     LinScaler*		scaler_;
+
+
+protected:
+
+    void		createOffsetTable();
 
 };
 
@@ -59,12 +67,14 @@ public:
 
 
 Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const GlobIdx& gidx )
-    : Column(gidx,Dimensions(0,0,0),rdr.componentNames().size())
+    : Column(gidx,Dimensions(0,0,0),rdr.nrComponents())
     , rdr_(rdr)
     , start_(0,0,0)
-    , fprep_(OD::F32)
+    , interp_(0)
     , strm_(0)
     , scaler_(0)
+    , nrsamplesinfile_(0)
+    , nrsamplesintrace_(0)
 {
 }
 
@@ -96,12 +106,16 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
 	return;
     }
 
-    GlobIdx gidx; // not using it; creates possibility to do file-level tricks
+    GlobIdx gidx; // not using inl/crl
     Dimensions& dims( const_cast<Dimensions&>(dims_) );
-    strm_->getBin( gidx.first ).getBin( gidx.second );
+    strm_->getBin( gidx.first ).getBin( gidx.second ).getBin( gidx.third );
     strm_->getBin( start_.first ).getBin( start_.second ).getBin( start_.third);
     strm_->getBin( dims.first ).getBin( dims.second ).getBin( dims.third );
-    strm_->getBin( fprep_ );
+    strm_->getBin( nrsamplesinfile_ );
+    OD::FPDataRepType fprep;
+    strm_->getBin( fprep );
+    const DataCharacteristics dc( fprep );
+    interp_ = DataInterpreter<float>::create( dc, true );
 
     const int nrscalebytes = 2 * sizeof(float);
     char* buf = new char [nrscalebytes];
@@ -138,9 +152,79 @@ void Seis::Blocks::FileColumn::retire()
 }
 
 
-void Seis::Blocks::FileColumn::getTrace( SeisTrc& trc, uiRetVal& uirv )
+void Seis::Blocks::FileColumn::createOffsetTable()
 {
+    Interval<float> zrg;
+    const SurvGeom& survgeom = *rdr_.survgeom_;
+    zrg.start = Block::z4Idxs( survgeom, dims_.z(), globidx_.z(), start_.z() );
+    zrg.stop = zrg.start + (nrsamplesinfile_-1) * survgeom.zStep();
+    if ( rdr_.seldata_ )
+	zrg.limitTo( rdr_.seldata_->zRange() );
+
+    const od_stream_Pos singcompslicesize = ((od_stream_Pos)dims_.inl())
+				  * dims_.crl() * interp_->nrBytes();
+    const od_stream_Pos slicesize = singcompslicesize * nrcomps_;
+    const od_stream_Pos firstblocksize = slicesize * (dims_.z()-start_.z());
+    const od_stream_Pos blocksize = slicesize * dims_.z();
+
+    nrsamplesintrace_ = 0;
+    const Interval<IdxType> globzidxrg(
+	    Block::globIdx4Z( survgeom, zrg.start, dims_.z() ),
+	    Block::globIdx4Z( survgeom, zrg.stop, dims_.z() ) );
+    for ( IdxType gzidx=globzidxrg.start; gzidx<=globzidxrg.stop; gzidx++ )
+    {
+	const int blockidx = gzidx - globidx_.z();
+	const od_stream_Pos blockoffs = blockidx == 0 ? 0
+			: firstblocksize + (blockidx-1) * blocksize;
+
+	IdxType startzidx = 0;
+	SzType nrz = dims_.z();
+	if ( gzidx == globzidxrg.start )
+	{
+	    startzidx = Block::sampIdx4Z( survgeom, zrg.start, dims_.z() );
+	    nrz = dims_.z() - startzidx;
+	}
+	else if ( gzidx == globzidxrg.stop )
+	    nrz = Block::sampIdx4Z( survgeom, zrg.stop, dims_.z() )
+		- startzidx + 1;
+
+	nrsamplesintrace_ += nrz;
+
+	od_stream_Pos offset = blockoffs + startzidx * slicesize;
+	od_stream_Pos dummy = nrz * offset;
+	strm_->setPosition( dummy );
+    }
+}
+
+
+void Seis::Blocks::FileColumn::getTrace( const BinID& bid, SeisTrc& trc,
+					 uiRetVal& uirv )
+{
+    const SurvGeom& survgeom = *rdr_.survgeom_;
+    const SampIdx sampidx(
+	Block::sampIdx4Inl(survgeom,bid.inl(),dims_.inl()) - start_.inl(),
+	Block::sampIdx4Crl(survgeom,bid.crl(),dims_.crl()) - start_.crl(),
+	0 );
+
+    trc.reSize( nrsamplesintrace_, false );
+
     uirv.set( tr("Trace read not implemented yet" ) );
+
+    /*
+    const int nrbytespersample = interp_->nrBytes();
+    for ( int idx=0; idx<offstbl_.size(); idx++ )
+    {
+	const OffsEntry& offsentry = *offstbl_[idx];
+	strm_->getBin( blockbuf_, offsentry.nrz_ * nrbytespersample );
+	for ( int isamp=0; isamp<offsentry.nrz_; isamp++ )
+	{
+	    float val = interp_->get( isamp );
+	    if ( scaler_ )
+		val = scaler_->scale( val );
+	    trc.set( offsentry.starttrcidx_ + isamp, val, icomp );
+	}
+    }
+    */
 }
 
 
@@ -430,12 +514,12 @@ Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumn(
 
 void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
 {
-    const BinID bid = trc.info().binID();
+    const BinID bid = cubedata_.binID( curcdpos_ );
     const GlobIdx globidx( Block::globIdx4Inl(*survgeom_,bid.inl(),dims_.inl()),
 			   Block::globIdx4Crl(*survgeom_,bid.crl(),dims_.crl()),
 			   0 );
 
     FileColumn* column = getColumn( globidx, uirv );
     if ( column )
-	column->getTrace( trc, uirv );
+	column->getTrace( bid, trc, uirv );
 }

@@ -53,6 +53,8 @@ public:
     Interval<float>	zRange() const		    { return zrg_; }
     Interval<int>	inlRange() const	    { return inlrg_; }
     Interval<int>	crlRange() const	    { return crlrg_; }
+    inline int		nrComponents() const
+			{ return componentNames().size(); }
 
     void		setSelData(const SelData*);
 

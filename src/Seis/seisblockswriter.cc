@@ -456,8 +456,9 @@ void Seis::Blocks::Writer::add2Block( MemBlock& block,
 
 
 Seis::Blocks::MemBlockColumn*
-Seis::Blocks::Writer::mkNewColumn( const GlobIdx& globidx )
+Seis::Blocks::Writer::mkNewColumn( GlobIdx globidx )
 {
+    globidx.z() = globzidxrg_.start;
     MemBlockColumn* column = new MemBlockColumn( globidx, dims_, nrcomponents_);
 
     for ( IdxType globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
@@ -530,7 +531,8 @@ ColumnWriter( Writer& wrr, MemBlockColumn& colmn, const char* fnm )
     else
     {
 	column_.getDefArea( start_, dims_ );
-	start_.z() = 0;
+	start_.z() = colmn.firstBlock().start().z();
+	dims_.z() = wrr.dimensions().z();
 	if ( !wrr_.writeColumnHeader(strm_,column_,start_,dims_) )
 	    setErr();
     }
@@ -605,18 +607,19 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
 {
     const Block& firstblock = column.firstBlock();
     const GlobIdx& globidx = column.globidx_;
-    int zdim = 0;
+    int nrsamples = 0;
     for ( int idx=0; idx<zevalpositions_.size(); idx++ )
-	zdim += zevalpositions_[idx]->size();
+	nrsamples += zevalpositions_[idx]->size();
     int zstart = globidx.z(); zstart *= dims_.z();
     zstart += firstblock.start().z();
     const unsigned short dfmt = (unsigned short)fprep_;
 
     const int hdrsz = columnHeaderSize( version_ );
     strm.addBin( hdrsz ).addBin( version_ );
-    strm.addBin( globidx.inl() ).addBin( globidx.crl() );
-    strm.addBin( start.inl() ).addBin( start.crl() ).addBin( zstart );
-    strm.addBin( dims.inl() ).addBin( dims.crl() ).addBin( zdim );
+    strm.addBin( globidx.inl() ).addBin( globidx.crl() ).add( globidx.z() );
+    strm.addBin( start.inl() ).addBin( start.crl() ).addBin( start.z() );
+    strm.addBin( dims.inl() ).addBin( dims.crl() ).addBin( dims_.z() );
+    strm.addBin( nrsamples );
     strm.addBin( dfmt );
     char* buf = new char [hdrsz];
     OD::memZero( buf, hdrsz );

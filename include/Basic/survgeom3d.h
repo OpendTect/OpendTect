@@ -47,6 +47,7 @@ public:
     StepInterval<float> zRange() const;
     int			inlStep() const;
     int			crlStep() const;
+    float		zStep() const;
 
     inline int		idx4Inl(int) const;
     inline int		idx4Crl(int) const;
@@ -54,8 +55,6 @@ public:
     inline int		inl4Idx(int) const;
     inline int		crl4Idx(int) const;
     inline float	z4Idx(int) const;
-
-    float		zStep() const;
 
     virtual Coord	toCoord(int line,int tracenr) const;
     virtual TrcKey	nearestTrace(const Coord&,float* distance) const;

@@ -123,7 +123,7 @@ mExpClass(Seis) Column
 public:
 
     virtual		~Column()		{}
-    
+
     const GlobIdx	globidx_;
     const Dimensions	dims_;
     const int		nrcomps_;
@@ -153,6 +153,7 @@ public:
     virtual		~IOClass();
     virtual const SurvGeom& survGeom() const	= 0;
 
+    const Dimensions&	dimensions() const	{ return dims_; }
     unsigned short	version() const		{ return version_; }
     const File::Path&	basePath() const	{ return basepath_; }
     const char*		fileNameBase() const	{ return filenamebase_; }

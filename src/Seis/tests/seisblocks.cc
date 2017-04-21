@@ -52,7 +52,7 @@ static bool testWriting()
     iop.set( "Input DBKey", seisidstr );
     wrr.addAuxInfo( "Test section", iop );
 
-    /*
+    ///*
     SeisTrc trc; int prevlinenr = -1;
     while ( true )
     {
@@ -96,7 +96,7 @@ static bool testWriting()
 	}
     }
 
-    */
+    //*/
     return true;
 }
 
