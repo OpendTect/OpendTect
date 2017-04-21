@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class IOObj;
 class NLAModel;
-namespace Attrib	{ class CurrentSel; class DescID; class DescSet; };
+namespace Attrib	{ class CurrentSel; class DescID; class DescSet; }
 namespace Batch		{ class JobSpec; }
 
 class uiAttrSel;
@@ -34,7 +34,7 @@ class uiBatchJobDispatcherSel;
 /*! \brief Dialog for creating volume output */
 
 mExpClass(uiAttributes) uiAttrVolOut : public uiBatchProcDlg
-{ mODTextTranslationClass(uiAttrVolOut);
+{ mODTextTranslationClass(uiAttrVolOut)
 public:
 			uiAttrVolOut(uiParent*,const Attrib::DescSet&,
 				     bool multioutput,
