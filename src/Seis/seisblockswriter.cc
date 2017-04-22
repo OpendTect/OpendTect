@@ -623,7 +623,7 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
     strm.addBin( dfmt );
     char* buf = new char [hdrsz];
     OD::memZero( buf, hdrsz );
-    if ( scaler_ )
+    if ( scaler_ && !scaler_->isEmpty() )
     {
 	// write the scaler needed to reconstruct the org values
 	LinScaler* invscaler = scaler_->inverse();

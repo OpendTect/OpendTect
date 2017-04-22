@@ -42,11 +42,12 @@ public:
     void		activate(uiRetVal&);
     void		retire();
 
-    void		getTrace(const BinID&,SeisTrc&,uiRetVal&) const;
+    void		fillTrace(const BinID&,SeisTrc&,uiRetVal&) const;
 
     const Reader&	rdr_;
     od_istream*		strm_;
 
+    IOClass::HdrSzVersionType headernrbytes_;
     SampIdx		start_;
     int			nrcomponents_;
     int			nrsamplesinfile_;
@@ -54,6 +55,7 @@ public:
     int			nrcomponentsintrace_;
     DataInterpreter<float>* interp_;
     LinScaler*		scaler_;
+    SamplingData<float>	sampling_;
 
     struct Chunk
     {
@@ -127,14 +129,14 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
     if ( wasretired_ )
 	return;
 
-    IOClass::HdrSzVersionType hdrsz, version;
-    strm_->getBin( hdrsz ).getBin( version );
-    IOClass::HdrSzVersionType expectedhdrsz = rdr_.columnHeaderSize( version );
-    if ( hdrsz != expectedhdrsz )
+    IOClass::HdrSzVersionType version;
+    strm_->getBin( headernrbytes_ ).getBin( version );
+    IOClass::HdrSzVersionType expectedhdrbts = rdr_.columnHeaderSize( version );
+    if ( headernrbytes_ != expectedhdrbts )
     {
 	closeStream();
 	uirv.set( tr("%1: unexpected header size.\nFound %2, should be %3.")
-	          .arg( fnm ).arg( hdrsz ).arg( expectedhdrsz ) );
+	          .arg( fnm ).arg( headernrbytes_ ).arg( expectedhdrbts ) );
 	return;
     }
 
@@ -144,9 +146,8 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
     strm_->getBin( start_.first ).getBin( start_.second ).getBin( start_.third);
     strm_->getBin( dims.first ).getBin( dims.second ).getBin( dims.third );
     strm_->getBin( nrsamplesinfile_ );
-    OD::FPDataRepType fprep;
-    strm_->getBin( fprep );
-    const DataCharacteristics dc( fprep );
+    unsigned short dfmt; strm_->getBin( dfmt );
+    const DataCharacteristics dc( (OD::FPDataRepType)dfmt );
     interp_ = DataInterpreter<float>::create( dc, true );
 
     const int nrscalebytes = 2 * sizeof(float);
@@ -156,7 +157,7 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
     for ( int idx=0; idx<nrscalebytes; idx++ )
     {
 	if ( buf[idx] != 0 )
-	    havescaler = true;
+	    { havescaler = true; break; }
     }
     if ( havescaler )
     {
@@ -165,10 +166,6 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
     }
     delete [] buf;
 
-    const int bytesleft = (int)hdrsz - (int)strm_->position();
-    buf = new char [bytesleft];
-    strm_->getBin( buf, bytesleft );
-    delete [] buf;
     if ( !strm_->isOK() )
     {
 	closeStream();
@@ -195,12 +192,14 @@ void Seis::Blocks::FileColumn::closeStream()
 
 void Seis::Blocks::FileColumn::createOffsetTable()
 {
-    Interval<float> zrg;
     const SurvGeom& survgeom = *rdr_.survgeom_;
+    sampling_.step = survgeom.zStep();
+    Interval<float> zrg;
     zrg.start = Block::z4Idxs( survgeom, dims_.z(), globidx_.z(), start_.z() );
-    zrg.stop = zrg.start + (nrsamplesinfile_-1) * survgeom.zStep();
+    zrg.stop = zrg.start + (nrsamplesinfile_-1) * sampling_.step;
     if ( rdr_.seldata_ )
 	zrg.limitTo( rdr_.seldata_->zRange() );
+    sampling_.start = zrg.start;
 
     const int nrbytespersample = interp_->nrBytes();
     const od_stream_Pos nrbytespercompslice = ((od_stream_Pos)dims_.inl())
@@ -211,7 +210,7 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 	    Block::globIdx4Z( survgeom, zrg.stop, dims_.z() ) );
     nrsamplesintrace_ = 0;
     int nrfilesamplessofar = 0;
-    od_stream_Pos blockstartoffs = 0;
+    od_stream_Pos blockstartoffs = headernrbytes_;
     for ( IdxType gzidx=globzidxrg.start; gzidx<=globzidxrg.stop; gzidx++ )
     {
 	const bool isfirst = gzidx == globzidxrg.start;
@@ -262,8 +261,8 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 }
 
 
-void Seis::Blocks::FileColumn::getTrace( const BinID& bid, SeisTrc& trc,
-					 uiRetVal& uirv ) const
+void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
+					  uiRetVal& uirv ) const
 {
     const SurvGeom& survgeom = *rdr_.survgeom_;
     const SampIdx sampidx(
@@ -616,7 +615,8 @@ void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
     FileColumn* column = getColumn( globidx, uirv );
     if ( column )
     {
-	column->getTrace( bid, trc, uirv );
+	column->fillTrace( bid, trc, uirv );
+	trc.info().sampling_ = column->sampling_;
 	trc.info().setBinID( bid );
 	trc.info().coord_ = survgeom_->transform( bid );
     }

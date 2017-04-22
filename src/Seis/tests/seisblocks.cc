@@ -19,10 +19,27 @@ static const char* sNormSeisIDStr = "100010.2";
 static const char* sSteerSeisIDStr = "100010.3";
 static const char* sMonsterSeisIDStr = "100010.311";
 
+static void prTrc( const SeisTrc& trc )
+{
+    const BinID bid( trc.info().binID() );
+    tstStream( false ) << bid.inl() << '/' << bid.crl() << '(' << trc.size()
+		       << "):" << od_endl;
+
+    const int nrcomps = trc.nrComponents();
+    for ( int idx=10; idx<trc.size(); idx +=20 )
+    {
+	tstStream( false ) << trc.samplePos(idx) << '=';
+	for ( int icomp=0; icomp<nrcomps; icomp++ )
+	    tstStream( false ) << trc.get(idx,icomp) << ' ';
+	tstStream( false ) << od_endl;
+    }
+}
+
+
 static bool testWriting()
 {
     const bool usesteer = false;
-    const bool usemonster = false;
+    const bool usemonster = true;
 
     const char* seisidstr = usesteer ? sSteerSeisIDStr : sNormSeisIDStr;
     if ( usemonster )
@@ -39,7 +56,7 @@ static bool testWriting()
 
     Seis::Blocks::Writer wrr;
     if ( !usemonster )
-	wrr.setFileNameBase( usesteer ? "test_blocks_steering" : "test_blocks");
+	wrr.setFileNameBase( usesteer ? "steering" : "org_seis" );
     else
 	wrr.setFileNameBase( "monster" );
     wrr.setCubeName( prov->name() );
@@ -108,11 +125,11 @@ static bool testWriting()
 static bool testReading()
 {
     const bool usesteer = false;
-    const bool usemonster = false;
+    const bool usemonster = true;
 
     File::Path fp( GetBaseDataDir(), sSeismicSubDir() );
     if ( !usemonster )
-	fp.add( usesteer ? "test_blocks_steering" : "test_blocks");
+	fp.add( usesteer ? "steering" : "org_seis" );
     else
 	fp.add( "monster" );
 
@@ -124,19 +141,23 @@ static bool testReading()
     }
 
     SeisTrc trc;
-    uiRetVal uirv = rdr.getNext( trc );
-    if ( uirv.isError() )
+    uiRetVal uirv;
+    for ( int idx=0; idx<2000; idx++ )
     {
-	tstStream(true) << uirv << od_endl;
-	return false;
+	uirv = rdr.getNext( trc );
+	if ( uirv.isError() )
+	{
+	    tstStream(true) << uirv << od_endl;
+	    return false;
+	}
     }
+    prTrc( trc );
 
-    const BinID bid( trc.info().binID() );
-    tstStream( false ) << bid.inl() << '/' << bid.crl() << ':' << trc.size()
-			<< " @300=" << trc.get( 300, 0 ) << od_endl;
+    rdr.get( BinID(425,800), trc );
+    prTrc( trc );
     return true;
-
 }
+
 
 int testMain( int argc, char** argv )
 {
