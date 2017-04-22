@@ -613,7 +613,7 @@ void uiSEGYFileManip::trcNrChg( CallBacker* )
 	}
     }
 
-    strm().setPosition( offs );
+    strm().setReadPosition( offs );
     strm().getBin( inphdrbuf_, SegyTrcHeaderLength );
 
     updTrcVals();
@@ -639,7 +639,7 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     , hdef_(SEGY::TrcHeader::hdrDef())
     , needswap_(p->binhdr_.isSwapped())
 {
-    fm_.strm().setPosition( cFileHeaderSize );
+    fm_.strm().setReadPosition( cFileHeaderSize );
     trcrg_.start = 1;
     totalnr_ = (fm_.filesize_-cFileHeaderSize) / fm_.traceBytes();
     trcrg_.stop = (int)totalnr_;
@@ -676,7 +676,7 @@ int nextStep()
     if ( totalnr_ < 0 )
 	return Finished();
 
-    fm_.strm().setPosition( cFileHeaderSize + nrdone_ * fm_.traceBytes() );
+    fm_.strm().setReadPosition( cFileHeaderSize + nrdone_ * fm_.traceBytes() );
     if ( !fm_.strm().getBin(buf_,SegyTrcHeaderLength) )
 	return Finished();
 
@@ -778,7 +778,7 @@ bool uiSEGYFileManip::acceptOK()
     calcset_.reSetSeqNr( 1 );
 
     const int bptrc = binhdr_.nrSamples() * binhdr_.bytesPerSample();
-    strm().setPosition( 0 );
+    strm().setReadPosition( 0 );
     Executor* exec = calcset_.getApplier( strm(), outstrm, bptrc,
 					  &binhdr_, &txthdr_ );
     uiTaskRunner taskrunner( this );

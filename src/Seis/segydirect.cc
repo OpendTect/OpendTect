@@ -271,7 +271,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	if ( !strm.isOK() )
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 
-	strm.setPosition( textpars );
+	strm.setReadPosition( textpars );
 	ascistream astrm2( strm, false );
 
 	IOPar iop2;
@@ -288,7 +288,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 
 	const od_stream::Pos curpos = strm.position();
 	if ( curpos!=cubedatastart )
-	    strm.setPosition( cubedatastart );
+	    strm.setReadPosition( cubedatastart );
 
 	if ( !cubedata_.read(strm,false) || !linedata_.read(strm,false) )
 	    { delete fds; mErrRet(uiStrings::phrCannotRead(toUiString(fnm))); }
@@ -411,7 +411,7 @@ bool SEGY::DirectDef::readFooter( const char* fnm, IOPar& pars,
 	DataInterpreter<od_int64>::get(int64interp,istrm);
     offset = DataInterpreter<od_int64>::get(int64interp,istrm);
 
-    istrm.setPosition( offset );
+    istrm.setReadPosition( offset );
     ascistream astrm2( istrm, false );
     pars.getFrom( astrm2 );
     return istrm.isOK();
@@ -425,10 +425,10 @@ bool SEGY::DirectDef::updateFooter( const char* fnm, const IOPar& pars,
     if ( !ostrm.isOK() )
 	return false;
 
-    ostrm.setPosition( offset );
+    ostrm.setWritePosition( offset );
     ascostream astrm2( ostrm );
     pars.putTo( astrm2 );
-    od_stream_Pos endpos = ostrm.endPosition();
+    od_stream_Pos endpos = ostrm.lastWrittenPosition();
     od_stream_Pos usedsize = ostrm.position();
     od_stream_Pos nrcharstopadup = endpos - usedsize;
     for ( int idx=0; idx<nrcharstopadup-1; idx++ )
@@ -474,10 +474,10 @@ bool SEGY::DirectDef::writeFootersToFile()
     iop2.putTo( astrm2 );
 
     const od_stream::Pos eofpos = strm.position();
-    strm.setPosition( offsetstart_ );
+    strm.setWritePosition( offsetstart_ );
     mWriteOffsets;
 
-    strm.setPosition( eofpos );
+    strm.setWritePosition( eofpos );
     const bool res = strm.isOK();
     delete outstream_;
     outstream_ = 0;

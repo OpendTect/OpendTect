@@ -278,7 +278,7 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
     for ( int idx=0; idx<chunks_.size(); idx++ )
     {
 	const Chunk& chunk = *chunks_[idx];
-	strm_->setPosition( chunk.offs_ + nrtrcs * chunk.singtrcoffs_ );
+	strm_->setReadPosition( chunk.offs_ + nrtrcs * chunk.singtrcoffs_ );
 	strm_->getBin( trcpartbuf_, chunk.nrsamps_ * nrbytespersample );
 	for ( int isamp=0; isamp<chunk.nrsamps_; isamp++ )
 	{

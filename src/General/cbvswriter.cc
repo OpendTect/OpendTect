@@ -87,10 +87,10 @@ void CBVSWriter::init( const CBVSInfo& i )
     input_rectnreg_ = survgeom_.fullyrectandreg;
 
     const od_stream::Pos cursp = strm_.position();
-    strm_.setPosition( 8 );
+    strm_.setWritePosition( 8 );
     int nrbytes = (int)cursp;
     strm_.addBin( &nrbytes, integersize );
-    strm_.setPosition( cursp );
+    strm_.setWritePosition( cursp );
 }
 
 
@@ -134,7 +134,7 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     strm_.addBin( &len, integersize );
     strm_.addBin( bs, len );
 
-    if ( !strm_.isOK() ) 
+    if ( !strm_.isOK() )
 	mErrRet(uiStrings::phrCannotWrite(tr("complete header")));
 }
 
@@ -316,9 +316,9 @@ int CBVSWriter::put( void** cdat, int offs )
     }
 
     if ( !writeAuxInfo() )
-    { 
-	errmsg_ = uiStrings::phrCannotWrite(tr("Trace header data")); 
-	return -1; 
+    {
+	errmsg_ = uiStrings::phrCannotWrite(tr("Trace header data"));
+	return -1;
     }
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
@@ -401,9 +401,9 @@ void CBVSWriter::doClose( bool islast )
 
     getRealGeometry();
     const od_stream::Pos kp = strm_.position();
-    strm_.setPosition( geomsp_ );
+    strm_.setWritePosition( geomsp_ );
     writeGeom();
-    strm_.setPosition( kp );
+    strm_.setWritePosition( kp );
 
     if ( !writeTrailer() )
     {
@@ -416,7 +416,7 @@ void CBVSWriter::doClose( bool islast )
     if ( islast )
 	strmclosed_ = true;
     else
-	strm_.setPosition( kp );
+	strm_.setWritePosition( kp );
 }
 
 

@@ -70,7 +70,7 @@ bool SEGY::FileDataSet::StoredData::getKey( od_stream_Pos pos, Seis::PosKey& pk,
 
     static const int unitsz = sizeof(int)+sizeof(int)+sizeof(int)+sizeof(bool);
     const od_stream_Pos offset = start_+pos*unitsz;
-    istrm_->setPosition( offset );
+    istrm_->setReadPosition( offset );
     if ( !istrm_->isOK() )
 	return false;
 

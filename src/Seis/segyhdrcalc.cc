@@ -200,7 +200,7 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
     , needswap_(bh ? bh->isSwapped() : false)
 {
     totalnr_ = inpstrm_.endPosition();
-    inpstrm_.setPosition( 0 );
+    inpstrm_.setReadPosition( 0 );
 
     buf_ = new unsigned char [bptrc_>mSEGYFileHdrSize?bptrc_:mSEGYFileHdrSize];
     if ( !inpstrm_.getBin(buf_,mSEGYFileHdrSize) )

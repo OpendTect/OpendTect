@@ -86,7 +86,7 @@ bool SEGY::BasicFileInfo::goToTrace( od_istream& strm, od_stream_Pos startpos,
     if ( startpos >= strm.endPosition() )
 	return false;
 
-    strm.setPosition( startpos );
+    strm.setReadPosition( startpos );
     return true;
 }
 
@@ -128,7 +128,7 @@ SEGY::TrcHeader* SEGY::BasicFileInfo::getTrcHdr( od_istream& strm ) const
 uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 					const bool* knownhdrswap )
 {
-    strm.setPosition( 0 );
+    strm.setReadPosition( 0 );
     if ( !strm.isOK() )
 	mErrRetWithFileName( tr("is empty") )
 
@@ -159,7 +159,7 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 
     od_stream_Pos firsttrcpos = strm.position();
     PtrMan<SEGY::TrcHeader> thdr = getTrcHdr( strm );
-    strm.setPosition( firsttrcpos );
+    strm.setReadPosition( firsttrcpos );
     if ( !thdr )
 	mErrRetWithFileName( uiStrings::phrCannotFind(
 					uiStrings::sTrace(mPlural).toLower()) )
@@ -236,7 +236,7 @@ SEGY::LoadDef SEGY::LoadDef::getPrepared( od_istream& strm ) const
     od_stream_Pos orgpos = strm.position();
     LoadDef rddef( *this ); bool dum;
     uiString msg = rddef.getFrom( strm, dum, &hdrsswapped_ );
-    strm.setPosition( orgpos );
+    strm.setReadPosition( orgpos );
     if ( !msg.isEmpty() )
 	return *this;
 
@@ -652,7 +652,7 @@ void SEGY::ScanInfo::finishGet( od_istream& strm )
 {
     pidetector_->finish();
     rgs_.use( *pidetector_ );
-    strm.setPosition( startpos_ );
+    strm.setReadPosition( startpos_ );
 }
 
 

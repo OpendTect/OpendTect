@@ -192,7 +192,7 @@ IOPar* Reader::getIOPar( const char* subsel, od_istream& strm ) const
     if ( !rdHdr(strm,sKeyWellTieSetup()) )
 	return 0;
 
-    strm.setPosition( 0 );
+    strm.setReadPosition( 0 );
     ascistream astrm( strm );
     IOPar iop; iop.getFrom( astrm );
     return subsel ? iop.subselect( subsel ) : new IOPar(iop);

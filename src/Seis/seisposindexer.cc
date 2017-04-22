@@ -125,10 +125,10 @@ bool Seis::PosIndexer::dumpTo( od_ostream& strm ) const
     {
 	// Now write the offsets of the inline starts for real
 	FileOffsType endofdataoffs = strm.position();
-	strm.setPosition( posofinlfileoffsets );
+	strm.setWritePosition( posofinlfileoffsets );
 	strm.addBin( inlfileoffsets.arr(),
 		     sizeof(FileOffsType)*inlfileoffsets.size() );
-	strm.setPosition( endofdataoffs );
+	strm.setWritePosition( endofdataoffs );
     }
 
     return !strm.isBad();
@@ -158,7 +158,7 @@ bool Seis::PosIndexer::readFrom( const char* fnm, od_stream_Pos offset,
     od_istream* strm = new od_istream( fnm );
     if ( !strm->isOK() )
 	mRet( false )
-    strm->setPosition( offset );
+    strm->setReadPosition( offset );
     if ( !strm->isOK() )
 	mRet( false )
 
@@ -467,7 +467,7 @@ Seis::PosIndexer::SetIdxType Seis::PosIndexer::getFirstIdxs( const BinID& bid,
     {
 	if ( curinl_ != bid.inl() )
 	{
-	    strm_->setPosition( inlfileoffsets_[inlidx] );
+	    strm_->setReadPosition( inlfileoffsets_[inlidx] );
 	    if ( !readLine(curcrlset_,curfileidxs_,
 			   int32interp_,int64interp_ ) )
 		return -1;
@@ -502,7 +502,7 @@ void Seis::PosIndexer::getCrls( KeyIdxType inl, KeyIdxSet& crls ) const
     {
 	if ( curinl_ != inl )
 	{
-	    strm_->setPosition( inlfileoffsets_[inlidx] );
+	    strm_->setReadPosition( inlfileoffsets_[inlidx] );
 	    if ( !readLine(curcrlset_,curfileidxs_,
 			   const_cast<PosIndexer*>(this)->int32interp_,
 			   const_cast<PosIndexer*>(this)->int64interp_ ) )

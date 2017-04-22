@@ -225,6 +225,27 @@ static std::ios::seekdir getSeekdir( od_stream::Ref ref )
 
 void od_stream::setPosition( od_stream::Pos pos, od_stream::Ref ref )
 {
+    if ( sd_.iStrm() )
+	static_cast<od_istream*>(this)->setReadPosition( pos, ref );
+    else if ( sd_.oStrm() )
+	static_cast<od_ostream*>(this)->setWritePosition( pos, ref );
+}
+
+
+void od_istream::setReadPosition( od_stream::Pos pos, od_stream::Ref ref )
+{
+    if ( sd_.iStrm() )
+    {
+	if ( ref == Abs )
+	    StrmOper::seek( *sd_.iStrm(), pos );
+	else
+	    StrmOper::seek( *sd_.iStrm(), pos, getSeekdir(ref) );
+    }
+}
+
+
+void od_ostream::setWritePosition( od_stream::Pos pos, od_stream::Ref ref )
+{
     if ( sd_.oStrm() )
     {
 	if ( ref == Abs )
@@ -232,13 +253,28 @@ void od_stream::setPosition( od_stream::Pos pos, od_stream::Ref ref )
 	else
 	    StrmOper::seek( *sd_.oStrm(), pos, getSeekdir(ref) );
     }
-    else if ( sd_.iStrm() )
-    {
-	if ( ref == Abs )
-	    StrmOper::seek( *sd_.iStrm(), pos );
-	else
-	    StrmOper::seek( *sd_.iStrm(), pos, getSeekdir(ref) );
-    }
+}
+
+
+od_stream::Pos od_istream::endPosition() const
+{
+    const Pos curpos = position();
+    od_istream& self = *const_cast<od_istream*>( this );
+    self.setReadPosition( 0, End );
+    const Pos ret = position();
+    self.setReadPosition( curpos, Abs );
+    return ret;
+}
+
+
+od_stream::Pos od_ostream::lastWrittenPosition() const
+{
+    const Pos curpos = position();
+    od_ostream& self = *const_cast<od_ostream*>( this );
+    self.setWritePosition( 0, End );
+    const Pos ret = position();
+    self.setWritePosition( curpos, Abs );
+    return ret;
 }
 
 
@@ -257,17 +293,6 @@ const char* od_stream::fileName() const
 void od_stream::setFileName( const char* fnm )
 {
     sd_.setFileName( fnm );
-}
-
-
-od_stream::Pos od_stream::endPosition() const
-{
-    const Pos curpos = position();
-    od_stream& self = *const_cast<od_stream*>( this );
-    self.setPosition( 0, End );
-    const Pos ret = position();
-    self.setPosition( curpos, Abs );
-    return ret;
 }
 
 

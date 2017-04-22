@@ -179,13 +179,13 @@ void CBVSReader::getText( int nrchar, BufferString& txt )
 
 
 #undef mErrRet
-#define mErrRet { strm.setPosition( 0, od_stream::Abs ); return msg; }
+#define mErrRet { strm.setReadPosition( 0, od_stream::Abs ); return msg; }
 
 const uiString CBVSReader::check( od_istream& strm )
 {
     if ( strm.isBad() ) return uiStrings::phrInput(tr("stream cannot be used"));
 
-    strm.setPosition( 0, od_stream::Abs );
+    strm.setReadPosition( 0, od_stream::Abs );
     char buf[4]; OD::memZero( buf, 4 );
     strm.getBin( buf, 3 );
     uiString msg = uiStrings::phrInput(tr("stream cannot be used"));
@@ -197,7 +197,7 @@ const uiString CBVSReader::check( od_istream& strm )
     char plf; strm.getBin( &plf, 1 );
     if ( plf > 2 ) mErrRet;
 
-    strm.setPosition( 0, od_stream::Abs );
+    strm.setReadPosition( 0, od_stream::Abs );
     return uiString::emptyString();
 }
 
@@ -236,7 +236,7 @@ bool CBVSReader::readComps()
     mAllocVarLenArr( char, ucbuf, 4*integersize );
     strm_.getBin( ucbuf, integersize );
     nrcomps_ = iinterp_.get( ucbuf, 0 );
-    if ( nrcomps_ < 1 ) 
+    if ( nrcomps_ < 1 )
 	mErrRet(tr("Corrupt CBVS format: No components defined"))
 
     cnrbytes_ = new int [nrcomps_];
@@ -332,16 +332,16 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
 
 bool CBVSReader::readTrailer()
 {
-    strm_.setPosition( -3, od_stream::End );
+    strm_.setReadPosition( -3, od_stream::End );
     char buf[40];
     strm_.getBin( buf, 3 ); buf[3] = '\0';
     if ( FixedString(buf)!="BGd" ) mErrRet(tr("Missing required file trailer"))
 
-    strm_.setPosition( -4-integersize, od_stream::End );
+    strm_.setReadPosition( -4-integersize, od_stream::End );
     strm_.getBin( buf, integersize );
     const int nrbytes = iinterp_.get( buf, 0 );
 
-    strm_.setPosition( -4-integersize-nrbytes, od_stream::End );
+    strm_.setReadPosition( -4-integersize-nrbytes, od_stream::End );
     if ( coordpol_ == InTrailer )
     {
 	strm_.getBin( buf, integersize );
@@ -420,7 +420,7 @@ BinID CBVSReader::nextBinID() const
 void CBVSReader::toOffs( od_int64 sp )
 {
     lastposfo_ = sp;
-    strm_.setPosition( lastposfo_, od_stream::Abs );
+    strm_.setReadPosition( lastposfo_, od_stream::Abs );
 }
 
 
@@ -537,7 +537,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 	return true;
 
     if ( hinfofetched_ )
-	strm_.setPosition( -auxnrbytes_, od_stream::Rel );
+	strm_.setReadPosition( -auxnrbytes_, od_stream::Rel );
 
     char buf[2*sizeof(double)];
     mCondGetAux(startpos_)
@@ -612,7 +612,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
     {
 	if ( comps && !comps[icomp] )
 	{
-	    strm_.setPosition( cnrbytes_[icomp], od_stream::Rel );
+	    strm_.setReadPosition( cnrbytes_[icomp], od_stream::Rel );
 	    continue;
 	}
 	iselc++;
@@ -620,13 +620,13 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
 	int bps = compinfo->datachar.nrBytes();
 	if ( samps->start )
-	    strm_.setPosition( samps->start*bps, od_stream::Rel );
+	    strm_.setReadPosition( samps->start*bps, od_stream::Rel );
 	if ( !strm_.getBin(((char*)bufs[iselc]) + offs*bps,
 				   (samps->stop-samps->start+1) * bps ) )
 	    break;
 
 	if ( samps->stop < info_.nrsamples_-1 )
-	    strm_.setPosition((info_.nrsamples_-samps->stop-1)*bps,
+	    strm_.setReadPosition((info_.nrsamples_-samps->stop-1)*bps,
 		    od_stream::Rel );
     }
 

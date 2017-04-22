@@ -1080,7 +1080,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 
 
 #define mErrRetResetStream(str) { \
-    strm.setPosition( firsttrcpos ); \
+    strm.setReadPosition( firsttrcpos ); \
     uiMSG().error( str.arg(strm.fileName()) ); \
     return false; }
 
@@ -1105,7 +1105,7 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 	bfi.sampling_ = ti.sampling_;
     }
 
-    strm.setPosition( firsttrcpos );
+    strm.setReadPosition( firsttrcpos );
     return true;
 }
 

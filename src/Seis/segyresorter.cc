@@ -390,14 +390,14 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
     od_istream odstrm( *inpsds_[fidx]->iStrm() );
     if ( !trcbuf_ )
     {
-	odstrm.setPosition( 0 );
+	odstrm.setReadPosition( 0 );
 	if ( !odstrm.getBin(hdrbuf_,3600) )
 	{
 	    msg_ = tr( "Cannot read SEG-Y file header. Empty file? -\n%1" )
 			.arg( inpfnms_.get(fidx) );
 	    return false;
 	}
-	odstrm.setPosition( 0 );
+	odstrm.setReadPosition( 0 );
 	SEGYSeisTrcTranslator trctr( "SEGY", "SEG-Y" );
 	trctr.usePar( fds().segyPars() );
 	StreamConn* sc = new StreamConn( odstrm );
@@ -411,9 +411,9 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
 	trcbuf_ = new unsigned char [trcbytes_];
     }
 
-    odstrm.setPosition( 0 );
+    odstrm.setReadPosition( 0 );
     od_stream::Pos pos = 3600 + trcbytes_ * trcidx;
-    odstrm.setPosition( pos );
+    odstrm.setReadPosition( pos );
     if ( !odstrm.getBin(trcbuf_,trcbytes_) )
     {
 	msg_ = tr( "Cannot read trace.\nFile: %1\nTrace: %2" )

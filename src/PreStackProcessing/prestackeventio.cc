@@ -1190,7 +1190,7 @@ int EventPatchReader::nextStep()
     if ( headeridx_>=fileheader_.nrEvents() )
 	return Finished();
 
-    strm.setPosition( fileheader_.getFileOffset(headeridx_) );
+    strm.setReadPosition( fileheader_.getFileOffset(headeridx_) );
     const int nrevents = readInt16( strm );
 
 #   define mErrRetCantReadAt(s,more) \
@@ -1479,7 +1479,7 @@ int EventPatchWriter::nextStep()
     od_ostream& strm = fileio_.ostrm();
     if ( headeridx_>=fileheader_.nrEvents() )
     {
-	strm.setPosition( fileheaderoffset_ );
+	strm.setWritePosition( fileheaderoffset_ );
 	fileheader_.toStream( strm, binary_ );
 	if ( !fileio_.closeSuccess() )
 	{

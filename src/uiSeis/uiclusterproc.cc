@@ -44,7 +44,7 @@ static int getExitStatus( const char* logfile, BufferString& msg )
     if ( !istream.isOK() )
 	return -1;
 
-    istream.setPosition( -50, od_stream::End );
+    istream.setReadPosition( -50, od_stream::End );
 
     char buf[51];
     if ( !istream.getBin( buf, 50 ) )

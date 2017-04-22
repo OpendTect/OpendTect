@@ -90,6 +90,8 @@ public:
     bool		skipUntil(char);
     bool		skipWord();
     bool		skipLine();
+    void		setReadPosition(Pos,Ref r=Abs);
+    Pos			endPosition() const;
 
     Count		lastNrBytesRead() const;
     std::istream&	stdStream();

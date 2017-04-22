@@ -70,7 +70,7 @@ bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
 	    dtype = bits == 16 ? 2 : 0;
     }
 
-    strm.setPosition( data, od_stream::Abs );
+    strm.setReadPosition( data, od_stream::Abs );
     if ( !strm.isOK() )
 	{ emsg = "Cannot read first trace."; mRetFalse; }
 
@@ -102,19 +102,19 @@ bool DZT::FileHeader::getFrom( od_istream& strm, uiString& emsg )
     emsg.setEmpty();
 #define mRetFalse nsamp = 0; return false
     if ( nsamp < 1 )
-    { 
-	emsg = od_static_tr("getFrom","Zero Nr of samples found."); 
-	    mRetFalse; 
+    {
+	emsg = od_static_tr("getFrom","Zero Nr of samples found.");
+	    mRetFalse;
     }
     if ( sps < 1 )
-    { 
-	emsg = od_static_tr("getFrom", "Zero scans per second found."); 
-	mRetFalse; 
+    {
+	emsg = od_static_tr("getFrom", "Zero scans per second found.");
+	mRetFalse;
     }
     if ( range < 1 )
-    { 
-	emsg = od_static_tr("getFrom", "Zero trace length found."); 
-	mRetFalse; 
+    {
+	emsg = od_static_tr("getFrom", "Zero trace length found.");
+	mRetFalse;
     }
     if ( data < 128 )
 	{ emsg.append(" Invalid data offset found: %1").arg(data); mRetFalse; }
@@ -128,11 +128,11 @@ bool DZT::FileHeader::getFrom( od_istream& strm, uiString& emsg )
 	    dtype = bits == 16 ? 2 : 0;
     }
 
-    strm.setPosition( data, od_stream::Abs );
+    strm.setReadPosition( data, od_stream::Abs );
     if ( !strm.isOK() )
-    { 
+    {
 	emsg = uiStrings::phrCannotRead(od_static_tr("getFrom","first trace."));
-	mRetFalse; 
+	mRetFalse;
     }
 
     return true;

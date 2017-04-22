@@ -268,7 +268,7 @@ static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
     if ( !strm.isOK() )
 	mErrRet("Cannot open input file")
     BufferString firstword; strm >> firstword;
-    strm.setPosition( 0 );
+    strm.setReadPosition( 0 );
     tabstyle = firstword != "dTect" && firstword != "dGB-GDI";
     if ( !tabstyle )
     {
@@ -287,7 +287,7 @@ static od_istream getUiInpStrm( const char* fnm, uiString& errmsg,
     if ( !strm.isOK() )
 	errmsg = uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower());
     BufferString firstword; strm >> firstword;
-    strm.setPosition( 0 );
+    strm.setReadPosition( 0 );
     tabstyle = firstword != "dTect" && firstword != "dGB-GDI";
     if ( !tabstyle )
     {

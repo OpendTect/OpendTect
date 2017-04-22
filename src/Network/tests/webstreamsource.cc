@@ -66,10 +66,10 @@ static bool testReadBigFile()
 	totsz += newsz;
     }
 
-    strm.setPosition( 123453 );
+    strm.setReadPosition( 123453 );
     char c = strm.peek(); // 'Q'
     mRunStandardTest( c=='Q', "Value at pre-defined position 1" );
-    strm.setPosition( 1234560 );
+    strm.setReadPosition( 1234560 );
     c = strm.peek(); // 'Z'
     mRunStandardTest( c=='Z', "Value at pre-defined position 2" );
 

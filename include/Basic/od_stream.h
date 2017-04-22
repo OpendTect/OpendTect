@@ -69,8 +69,7 @@ public:
 
     enum Ref			{ Abs, Rel, End };
     Pos				position() const;
-    void			setPosition(Pos,Ref r=Abs);
-    Pos				endPosition() const;
+    mDeprecated void		setPosition(Pos,Ref r=Abs);
 
     const char*			fileName() const;
     void			setFileName(const char*);

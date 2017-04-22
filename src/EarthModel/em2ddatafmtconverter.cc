@@ -128,7 +128,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::writeToFile( const char* fullpath,
     if ( !ostrm.isOK() )
         return;
 
-    ostrm.setPosition( pos );
+    ostrm.setWritePosition( pos );
     ascostream parstream(ostrm);
     parstream.stream() << od_endl;
     parstream.newParagraph();

@@ -544,7 +544,7 @@ bool SEGYSeisTrcTranslator::initRead_()
               .arg(innrsamples_))
 
     offsetcalc_.set( fileopts_ );
-    sConn().iStream().setPosition( cEndTapeHeader );
+    sConn().iStream().setReadPosition( cEndTapeHeader );
     return true;
 }
 
@@ -574,7 +574,7 @@ bool SEGYSeisTrcTranslator::goToTrace( int nr )
     so *= (cTraceHeaderBytes + dataBytes() * innrsamples_);
     so += cEndTapeHeader;
     od_istream& strm = sConn().iStream();
-    strm.setPosition( so );
+    strm.setReadPosition( so );
     headerdone_ = false;
     return strm.isOK();
 }
@@ -635,7 +635,8 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 	mPosErrRet(str);
     }
 
-    sConn().iStream().setPosition( innrsamples_*mBPS(inpcd_), od_stream::Rel );
+    sConn().iStream().setReadPosition( innrsamples_*mBPS(inpcd_),
+				       od_stream::Rel );
     if ( !readTraceHeadBuffer() )
 	return false;
     if ( !tryInterpretBuf(ti) )
@@ -763,10 +764,10 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
 
     od_istream& strm = sConn().iStream();
     if ( !headerdone_ )
-	strm.setPosition( mSEGYTraceHeaderBytes, od_stream::Rel );
-    strm.setPosition( innrsamples_ * mBPS(inpcd_), od_stream::Rel );
+	strm.setReadPosition( mSEGYTraceHeaderBytes, od_stream::Rel );
+    strm.setReadPosition( innrsamples_ * mBPS(inpcd_), od_stream::Rel );
     if ( ntrcs > 1 )
-	strm.setPosition( (ntrcs-1)
+	strm.setReadPosition( (ntrcs-1)
 		* (mSEGYTraceHeaderBytes + innrsamples_ * mBPS(inpcd_)) );
 
     headerdone_ = false;
@@ -805,7 +806,7 @@ bool SEGYSeisTrcTranslator::readDataToBuf()
 {
     od_istream& strm = sConn().iStream();
     if ( samprg_.start > 0 )
-	strm.setPosition( samprg_.start * mBPS(inpcd_), od_stream::Rel );
+	strm.setReadPosition( samprg_.start * mBPS(inpcd_), od_stream::Rel );
 
     int rdsz = (samprg_.width()+1) *  mBPS(inpcd_);
     if ( !sConn().iStream().getBin(blockbuf_,rdsz) )
@@ -817,7 +818,7 @@ bool SEGYSeisTrcTranslator::readDataToBuf()
     }
 
     if ( samprg_.stop < innrsamples_-1 )
-	strm.setPosition( (innrsamples_-samprg_.stop-1) * mBPS(inpcd_),
+	strm.setReadPosition( (innrsamples_-samprg_.stop-1) * mBPS(inpcd_),
 				od_stream::Rel );
 
     return !strm.isBad();
