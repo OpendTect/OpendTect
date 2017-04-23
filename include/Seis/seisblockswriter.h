@@ -45,10 +45,10 @@ mExpClass(Seis) Writer : public IOClass
 { mODTextTranslationClass(Seis::Blocks::Writer);
 public:
 
-			Writer(const SurvGeom* sg=0);
+			Writer(const HGeom* sg=0);
 			~Writer();
 
-    const SurvGeom&	survGeom() const	{ return survgeom_; }
+    const HGeom&	hGeom() const		{ return hgeom_; }
 
     void		setBasePath(const File::Path&);
     void		setFileNameBase(const char*);
@@ -71,28 +71,29 @@ public:
 
 protected:
 
-    const SurvGeom&	survgeom_;
-    OD::FPDataRepType	specfprep_;
-    const int		nrpospercolumn_;
-    int			nrcomponents_;
+    const HGeom&	hgeom_;
+    ZGeom		zgeom_;
+    OD::FPDataRepType	specifiedfprep_;
+    int			nrcomps_;
     bool		isfinished_;
+    DataInterp*		interp_;
 
-    Interval<IdxType>	globzidxrg_;
+    IdxType		nrglobzidxs_;
     ObjectSet<ZEvalPosSet> zevalpositions_;
 
     virtual void	setEmpty();
-    void		resetZ(const Interval<float>&);
+    void		resetZ();
     bool		removeExisting(const char*,uiRetVal&) const;
     bool		prepareWrite(uiRetVal&);
-    void		add2Block(MemBlock&,const ZEvalPosSet&,SampIdx,
+    void		add2Block(MemBlock&,const ZEvalPosSet&,const HLocIdx&,
 				    const SeisTrc&,int);
-    MemBlockColumn*	getColumn(const GlobIdx&);
-    MemBlockColumn*	mkNewColumn(GlobIdx);
+    MemBlockColumn*	getColumn(const HGlobIdx&);
+    MemBlockColumn*	mkNewColumn(const HGlobIdx&);
     bool		isCompleted(const MemBlockColumn&) const;
     void		writeColumn(MemBlockColumn&,uiRetVal&);
     bool		writeColumnHeader(od_ostream&,const MemBlockColumn&,
-				    const SampIdx&,const Dimensions&) const;
-    bool		writeBlock(od_ostream&,MemBlock&,SampIdx,Dimensions);
+				    const HLocIdx&,const HDimensions&) const;
+    bool		writeBlock(od_ostream&,MemBlock&,HLocIdx,HDimensions);
     void		writeMainFile(uiRetVal&);
     bool		writeMainFileData(od_ostream&);
     void		scanPositions(PosInfo::CubeData& cubedata,

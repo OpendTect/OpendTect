@@ -45,8 +45,16 @@ void OD::sysMemCopy( void* dest, const void* org, od_int64 sz )
 }
 
 
-#define mExecNonParallel(sz) \
-    (sz < (2 * mODMemMinThreadSize) || Threads::getNrProcessors() < 4)
+static inline bool executeNonParallel( od_int64 sz )
+{
+    // This first check is needed because we cannot use
+    // Threads::getNrProcessors() at program startup
+    if ( sz < 2*mODMemMinThreadSize )
+	return true;
+
+    const int nrproc = Threads::getNrProcessors();
+    return nrproc < 4 || sz < (nrproc*mODMemMinThreadSize);
+}
 
 
 void OD::memCopy( void* dest, const void* org, od_int64 sz )
@@ -58,8 +66,8 @@ void OD::memCopy( void* dest, const void* org, od_int64 sz )
     else if ( !org )
 	{ pFreeFnErrMsg("org null"); return; }
 
-    if ( mExecNonParallel(sz) )
-	memcpy( dest, org, (size_t)sz );
+    if ( executeNonParallel(sz) )
+	sysMemCopy( dest, org, (size_t)sz );
     else
     {
 	if ( sz % 8 == 0 )
@@ -102,7 +110,7 @@ void OD::memSet( void* data, char setto, od_int64 sz )
     else if ( !data )
 	{ pFreeFnErrMsg("data null"); return; }
 
-    if ( mExecNonParallel(sz) || !Threads::WorkManager::twm().nrFreeThreads() )
+    if ( executeNonParallel(sz) )
 	sysMemSet( data, setto, sz );
     else
     {

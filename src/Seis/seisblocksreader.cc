@@ -36,7 +36,7 @@ class FileColumn : public Column
 { mODTextTranslationClass(Seis::Blocks::FileColumn)
 public:
 
-			FileColumn(const Reader&,const GlobIdx&);
+			FileColumn(const Reader&,const HGlobIdx&);
 			~FileColumn();
 
     void		activate(uiRetVal&);
@@ -48,14 +48,15 @@ public:
     od_istream*		strm_;
 
     IOClass::HdrSzVersionType headernrbytes_;
-    SampIdx		start_;
+    HLocIdx		start_;
+    const Dimensions	dims_;
     int			nrcomponents_;
-    int			nrsamplesinfile_;
     int			nrsamplesintrace_;
     int			nrcomponentsintrace_;
-    DataInterpreter<float>* interp_;
+    DataInterp*		interp_;
     LinScaler*		scaler_;
-    SamplingData<float>	sampling_;
+    const HGeom&	hgeom_;
+    float		zstart_;
 
     struct Chunk
     {
@@ -63,7 +64,7 @@ public:
 	int		startsamp_;
 	int		nrsamps_;
 	od_stream_Pos	offs_;
-	od_stream_Pos	singtrcoffs_;
+	od_stream_Pos	trcpartnrbytes_;
     };
     ObjectSet<Chunk>    chunks_;
 
@@ -82,18 +83,18 @@ protected:
 } // namespace Seis
 
 
-Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const GlobIdx& gidx )
+Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const HGlobIdx& gidx )
     : Column(gidx,Dimensions(0,0,0),rdr.nrComponents())
     , rdr_(rdr)
-    , start_(0,0,0)
+    , start_(0,0)
     , interp_(0)
     , strm_(0)
     , scaler_(0)
-    , nrsamplesinfile_(0)
     , nrsamplesintrace_(0)
     , nrcomponentsintrace_(0)
     , trcpartbuf_(0)
     , wasretired_(false)
+    , hgeom_(*rdr_.hgeom_)
 {
     for ( int idx=0; idx<rdr_.compsel_.size(); idx++ )
 	if ( rdr_.compsel_[idx] )
@@ -129,8 +130,8 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
     if ( wasretired_ )
 	return;
 
-    IOClass::HdrSzVersionType version;
-    strm_->getBin( headernrbytes_ ).getBin( version );
+    IOClass::HdrSzVersionType version, dfmt;
+    strm_->getBin( headernrbytes_ ).getBin( version ).getBin( dfmt );
     IOClass::HdrSzVersionType expectedhdrbts = rdr_.columnHeaderSize( version );
     if ( headernrbytes_ != expectedhdrbts )
     {
@@ -139,16 +140,14 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
 	          .arg( fnm ).arg( headernrbytes_ ).arg( expectedhdrbts ) );
 	return;
     }
-
-    GlobIdx gidx; // not using inl/crl
-    Dimensions& dims( const_cast<Dimensions&>(dims_) );
-    strm_->getBin( gidx.first ).getBin( gidx.second ).getBin( gidx.third );
-    strm_->getBin( start_.first ).getBin( start_.second ).getBin( start_.third);
-    strm_->getBin( dims.first ).getBin( dims.second ).getBin( dims.third );
-    strm_->getBin( nrsamplesinfile_ );
-    unsigned short dfmt; strm_->getBin( dfmt );
     const DataCharacteristics dc( (OD::FPDataRepType)dfmt );
-    interp_ = DataInterpreter<float>::create( dc, true );
+    interp_ = DataInterp::create( dc, true );
+
+    HGlobIdx gidx; // will be ignored
+    Dimensions& dims( const_cast<Dimensions&>(dims_) );
+    strm_->getBin( dims.first ).getBin( dims.second ).getBin( dims.third );
+    strm_->getBin( gidx.first ).getBin( gidx.second );
+    strm_->getBin( start_.first ).getBin( start_.second );
 
     const int nrscalebytes = 2 * sizeof(float);
     char* buf = new char [nrscalebytes];
@@ -192,49 +191,43 @@ void Seis::Blocks::FileColumn::closeStream()
 
 void Seis::Blocks::FileColumn::createOffsetTable()
 {
-    const SurvGeom& survgeom = *rdr_.survgeom_;
-    sampling_.step = survgeom.zStep();
-    Interval<float> zrg;
-    zrg.start = Block::z4Idxs( survgeom, dims_.z(), globidx_.z(), start_.z() );
-    zrg.stop = zrg.start + (nrsamplesinfile_-1) * sampling_.step;
+    const ZGeom& zgeom = rdr_.zGeom();
+    Interval<float> zrg( zgeom.start, zgeom.stop );
     if ( rdr_.seldata_ )
+    {
 	zrg.limitTo( rdr_.seldata_->zRange() );
-    sampling_.start = zrg.start;
+	zrg.start = zgeom.snap( zrg.start );
+	zrg.stop = zgeom.snap( zrg.stop );
+    }
+    zstart_ = zrg.start;
 
+    const int nrsamplesinfile = zgeom.nrSteps() + 1;
     const int nrbytespersample = interp_->nrBytes();
     const od_stream_Pos nrbytespercompslice = ((od_stream_Pos)dims_.inl())
 				  * dims_.crl() * nrbytespersample;
 
-    const Interval<IdxType> globzidxrg(
-	    Block::globIdx4Z( survgeom, zrg.start, dims_.z() ),
-	    Block::globIdx4Z( survgeom, zrg.stop, dims_.z() ) );
+    Interval<IdxType> globzidxrg(
+	    Block::globIdx4Z( zgeom, zrg.start, dims_.z() ),
+	    Block::globIdx4Z( zgeom, zrg.stop, dims_.z() ) );
     nrsamplesintrace_ = 0;
     int nrfilesamplessofar = 0;
     od_stream_Pos blockstartoffs = headernrbytes_;
     for ( IdxType gzidx=globzidxrg.start; gzidx<=globzidxrg.stop; gzidx++ )
     {
-	const bool isfirst = gzidx == globzidxrg.start;
 	Dimensions dims( dims_ );
-	if ( isfirst )
-	{
-	    dims.z() = SzType( dims_.z() - start_.z() );
-	    nrfilesamplessofar = dims.z();
-	}
 	if ( gzidx == globzidxrg.stop )
-	    dims.z() = SzType(nrsamplesinfile_ - nrfilesamplessofar);
-	else if ( !isfirst )
-	    nrfilesamplessofar += dims_.z();
+	    dims.z() = SzType(nrsamplesinfile - nrfilesamplessofar);
+	nrfilesamplessofar += dims.z();
 
 	IdxType startzidx = 0;
-	SzType nrsamps = dims_.z();
 	if ( gzidx == globzidxrg.start )
 	{
-	    startzidx = Block::sampIdx4Z( survgeom, zrg.start, dims_.z() );
-	    nrsamps = dims_.z() - startzidx;
+	    startzidx = Block::locIdx4Z( zgeom, zrg.start, dims_.z() );
+	    dims.z() = dims_.z() - startzidx;
 	}
-	else if ( gzidx == globzidxrg.stop )
-	    nrsamps = Block::sampIdx4Z( survgeom, zrg.stop, dims_.z() )
-		    - startzidx + 1;
+	if ( gzidx == globzidxrg.stop )
+	    dims.z() = Block::locIdx4Z( zgeom, zrg.stop, dims_.z() )
+		     - startzidx + 1;
 
 	const od_stream_Pos blocknrbytes = nrbytespercompslice * dims.z();
 
@@ -246,14 +239,14 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 		chunk->comp_ = icomp;
 		chunk->offs_ = blockstartoffs + startzidx * nrbytespersample;
 		chunk->startsamp_ = nrsamplesintrace_;
-		chunk->nrsamps_ = nrsamps;
-		chunk->singtrcoffs_ = dims.z() * nrbytespersample;
+		chunk->nrsamps_ = dims.z();
+		chunk->trcpartnrbytes_ = dims.z() * nrbytespersample;
 		chunks_ += chunk;
 	    }
 	    blockstartoffs += blocknrbytes;
 	}
 
-	nrsamplesintrace_ += nrsamps;
+	nrsamplesintrace_ += dims.z();
     }
 
     delete [] trcpartbuf_;
@@ -264,22 +257,29 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 					  uiRetVal& uirv ) const
 {
-    const SurvGeom& survgeom = *rdr_.survgeom_;
-    const SampIdx sampidx(
-	Block::sampIdx4Inl(survgeom,bid.inl(),dims_.inl()) - start_.inl(),
-	Block::sampIdx4Crl(survgeom,bid.crl(),dims_.crl()) - start_.crl(),
-	0 );
+    const HGeom& hgeom = *rdr_.hgeom_;
+    const HLocIdx locidx(
+	Block::locIdx4Inl(hgeom,bid.inl(),rdr_.dims_.inl()) - start_.inl(),
+	Block::locIdx4Crl(hgeom,bid.crl(),rdr_.dims_.crl()) - start_.crl() );
+    if ( locidx.inl() < 0 || locidx.crl() < 0
+      || locidx.inl() >= dims_.inl() || locidx.crl() >= dims_.crl() )
+    {
+	// something's diff between bin block and main file; a getNext() found
+	// this position in the CubeData, but the position is not available
+	uirv.set( tr("Location from .cube file (%1/%2) not in file")
+		.arg(bid.inl()).arg(bid.crl()) );
+	return;
+    }
 
     trc.setNrComponents( nrcomponentsintrace_ );
     trc.reSize( nrsamplesintrace_, false );
 
-    const int nrtrcs = sampidx.inl() * dims_.crl() + sampidx.crl();
-    const int nrbytespersample = interp_->nrBytes();
+    const int nrtrcs = ((int)locidx.inl()) * dims_.crl() + locidx.crl();
     for ( int idx=0; idx<chunks_.size(); idx++ )
     {
 	const Chunk& chunk = *chunks_[idx];
-	strm_->setReadPosition( chunk.offs_ + nrtrcs * chunk.singtrcoffs_ );
-	strm_->getBin( trcpartbuf_, chunk.nrsamps_ * nrbytespersample );
+	strm_->setReadPosition( chunk.offs_ + nrtrcs * chunk.trcpartnrbytes_ );
+	strm_->getBin( trcpartbuf_, chunk.trcpartnrbytes_ );
 	for ( int isamp=0; isamp<chunk.nrsamps_; isamp++ )
 	{
 	    float val = interp_->get( trcpartbuf_, isamp );
@@ -292,13 +292,12 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 
 
 Seis::Blocks::Reader::Reader( const char* inp )
-    : survgeom_(0)
+    : hgeom_(0)
     , cubedata_(*new PosInfo::CubeData)
     , curcdpos_(*new PosInfo::CubeDataPos)
     , seldata_(0)
     , globinlidxrg_(0,0)
     , globcrlidxrg_(0,0)
-    , globzidxrg_(0,0)
 {
     File::Path fp( inp );
     if ( !File::exists(inp) )
@@ -323,7 +322,7 @@ Seis::Blocks::Reader::Reader( const char* inp )
 Seis::Blocks::Reader::~Reader()
 {
     delete seldata_;
-    delete survgeom_;
+    delete hgeom_;
     delete &cubedata_;
     delete &curcdpos_;
 }
@@ -403,9 +402,11 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
     iop.get( sKeyCubeName(), cubename_ );
     if ( cubename_.isEmpty() )
 	cubename_ = filenamebase_;
+    iop.get( sKeySurveyName(), survname_ );
 
-    survgeom_ = new SurvGeom( cubename_, ZDomain::SI() );
-    survgeom_->getStructure( iop );
+    hgeom_ = new HGeom( cubename_, ZDomain::SI() );
+    hgeom_->getStructure( iop );
+    iop.get( sKey::ZRange(), zgeom_ );
     DataCharacteristics::getUserTypeFromPar( iop, fprep_ );
     Scaler* scl = Scaler::get( iop );
     mDynamicCast( LinScaler*, scaler_, scl );
@@ -424,13 +425,9 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
     i1 = globcrlidxrg_.start; i2 = globcrlidxrg_.stop;
     iop.get( sKeyGlobCrlRg(), i1, i2 );
     globcrlidxrg_.start = IdxType(i1); globcrlidxrg_.stop = IdxType(i2);
-    i1 = globzidxrg_.start; i2 = globzidxrg_.stop;
-    iop.get( sKeyGlobZRg(), i1, i2 );
-    globzidxrg_.start = IdxType(i1); globzidxrg_.stop = IdxType(i2);
 
     iop.get( sKey::InlRange(), inlrg_ );
     iop.get( sKey::CrlRange(), crlrg_ );
-    iop.get( sKey::ZRange(), zrg_ );
 
     FileMultiString fms( iop.find(sKeyComponents()) );
     const int nrcomps = fms.size();
@@ -452,8 +449,8 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
     int maxcrlblocks = globcrlidxrg_.width() + 1;
     maxnrfiles_ = mMAX( maxinlblocks, maxcrlblocks ) * 2;
     if ( maxnrfiles_ > 1024 )
-	maxnrfiles_ = 1024; // this is a *lot* just a bit of sanity
-			    // remember it's not a disaster because we retire
+	maxnrfiles_ = 1024; // this is a *lot*, just a bit of sanity
+			    // no prob anyway because we retire not destroy
 
     return true;
 }
@@ -562,7 +559,7 @@ void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
 
 
 Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumn(
-		const GlobIdx& globidx, uiRetVal& uirv ) const
+		const HGlobIdx& globidx, uiRetVal& uirv ) const
 {
     FileColumn* column = (FileColumn*)findColumn( globidx );
     if ( !column )
@@ -608,16 +605,16 @@ bool Seis::Blocks::Reader::activateColumn( FileColumn* column,
 void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
 {
     const BinID bid = cubedata_.binID( curcdpos_ );
-    const GlobIdx globidx( Block::globIdx4Inl(*survgeom_,bid.inl(),dims_.inl()),
-			   Block::globIdx4Crl(*survgeom_,bid.crl(),dims_.crl()),
-			   0 );
+    const HGlobIdx globidx( Block::globIdx4Inl(*hgeom_,bid.inl(),dims_.inl()),
+			    Block::globIdx4Crl(*hgeom_,bid.crl(),dims_.crl()) );
 
     FileColumn* column = getColumn( globidx, uirv );
     if ( column )
     {
 	column->fillTrace( bid, trc, uirv );
-	trc.info().sampling_ = column->sampling_;
+	trc.info().sampling_.start = column->zstart_;
+	trc.info().sampling_.step = zgeom_.step;
 	trc.info().setBinID( bid );
-	trc.info().coord_ = survgeom_->transform( bid );
+	trc.info().coord_ = hgeom_->transform( bid );
     }
 }

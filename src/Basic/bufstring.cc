@@ -33,7 +33,12 @@ BufferString::BufferString( int sz, bool mknull )
 
     setBufSize( sz );
     if ( len_ > 0 )
-	OD::memZero( buf_, len_ );
+    {
+	if ( len_ == 1 )
+	    *buf_ = '\0';
+	else
+	    OD::sysMemSet( buf_, '\0', len_ );
+    }
 }
 
 

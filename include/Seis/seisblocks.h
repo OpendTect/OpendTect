@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "filepath.h"
+#include "ranges.h"
 #include "threadlock.h"
 
 class DataBuffer;
@@ -35,7 +36,7 @@ make a huge number of files.
 
 With these predefined dimensions, we can set up indexes for each block in each
 dimension (the GlobIdx). Within the blocks, you then have local, relative
-indices 0 - N-1 in SampIdx.
+indices 0 - N-1 in LocIdx.
 
   */
 
@@ -43,30 +44,52 @@ namespace Blocks
 {
     typedef short		IdxType;
     typedef unsigned short	SzType;
-    typedef Survey::Geometry3D	SurvGeom;
+    typedef Survey::Geometry3D	HGeom;
+    typedef StepInterval<float>	ZGeom;
+    typedef DataInterpreter<float> DataInterp;
 
-#define mDefSeisBlockTripletClass(clss,typ) \
-mExpClass(Seis) clss : public Triplet<typ> \
+#define mDefSeisBlockPairClass(clss,typ) \
+mExpClass(Seis) clss : public std::pair<typ,typ> \
 { \
 public: \
 \
-    inline	clss()					{} \
-    inline	clss( short iidx, short xidx, short zidx ) \
-		    : Triplet<typ>(iidx,xidx,zidx)	{} \
+    inline	clss() : std::pair<typ,typ>(0,0)		{} \
+    inline	clss( typ iidx, typ xidx ) \
+		    : std::pair<typ,typ>(iidx,xidx)		{} \
     inline bool	operator ==( const clss& oth ) const \
-		{ return first == oth.first && second == oth.second \
-		      && third == oth.third; } \
+		{ return first == oth.first && second == oth.second; } \
 \
     inline typ	inl() const	{ return first; } \
     inline typ&	inl()		{ return first; } \
     inline typ	crl() const	{ return second; } \
     inline typ&	crl()		{ return second; } \
-    inline typ	z() const	{ return third; } \
-    inline typ&	z()		{ return third; } \
+}
+
+mDefSeisBlockPairClass(HGlobIdx,IdxType);
+mDefSeisBlockPairClass(HLocIdx,IdxType);
+mDefSeisBlockPairClass(HDimensions,SzType);
+
+#define mDefSeisBlockTripletClass(clss,typ) \
+mExpClass(Seis) clss : public H##clss \
+{ \
+public: \
+ \
+    inline		clss() : third(0)			{} \
+    inline		clss( typ iidx, typ xidx, typ zidx ) \
+			    : H##clss(iidx,xidx), third(zidx)	{} \
+    inline bool		operator ==( const clss& oth ) const \
+			{ return H##clss::operator==(oth) \
+			      && third == oth.third; } \
+ \
+    inline typ		z() const	{ return third; } \
+    inline typ&		z()		{ return third; } \
+ \
+    typ			third; \
+ \
 }
 
 mDefSeisBlockTripletClass(GlobIdx,IdxType);
-mDefSeisBlockTripletClass(SampIdx,IdxType);
+mDefSeisBlockTripletClass(LocIdx,IdxType);
 mDefSeisBlockTripletClass(Dimensions,SzType);
 
 
@@ -76,45 +99,36 @@ mExpClass(Seis) Block
 {
 public:
 
-			~Block();
+			~Block()		{}
 
     const GlobIdx&	globIdx() const		{ return globidx_; }
-    const SampIdx&	start() const		{ return start_; }
+    const HLocIdx&	start() const		{ return start_; }
     const Dimensions&	dims() const		{ return dims_; }
 
-    SampIdx		getSampIdx(const BinID&,const SurvGeom&) const;
-    SampIdx		getSampIdx(const BinID&,float z,const SurvGeom&) const;
-    IdxType		getSampZIdx(float,const SurvGeom&) const;
-
-    static IdxType	globIdx4Inl(const SurvGeom&,int inl,SzType inldim);
-    static IdxType	globIdx4Crl(const SurvGeom&,int crl,SzType crldim);
-    static IdxType	globIdx4Z(const SurvGeom&,float z,SzType zdim);
-    static IdxType	sampIdx4Inl(const SurvGeom&,int inl,SzType inldim);
-    static IdxType	sampIdx4Crl(const SurvGeom&,int crl,SzType crldim);
-    static IdxType	sampIdx4Z(const SurvGeom&,float z,SzType zdim);
-    static int		inl4Idxs(const SurvGeom&,SzType inldim,IdxType globidx,
+    static IdxType	globIdx4Inl(const HGeom&,int inl,SzType inldim);
+    static IdxType	globIdx4Crl(const HGeom&,int crl,SzType crldim);
+    static IdxType	globIdx4Z(const ZGeom&,float z,SzType zdim);
+    static IdxType	locIdx4Inl(const HGeom&,int inl,SzType inldim);
+    static IdxType	locIdx4Crl(const HGeom&,int crl,SzType crldim);
+    static IdxType	locIdx4Z(const ZGeom&,float z,SzType zdim);
+    static int		inl4Idxs(const HGeom&,SzType inldim,IdxType globidx,
 				IdxType sampidx);
-    static int		crl4Idxs(const SurvGeom&,SzType crldim,IdxType globidx,
+    static int		crl4Idxs(const HGeom&,SzType crldim,IdxType globidx,
 				IdxType sampidx);
-    static float	z4Idxs(const SurvGeom&,SzType zdim,IdxType globidx,
-				IdxType sampidx);
+    static float	z4Idxs(const ZGeom&,SzType zdim,IdxType globidx,
+				IdxType loczidx);
 
     static Dimensions	defDims();
 
-    inline static int	nrSampsPerInl( const Dimensions& dims )
-			{ return ((int)dims.crl()) * dims.z(); }
-    inline static int	nrSampsOnInl( const Dimensions& dims,
-				      const SampIdx& sidx )
-			{ return ((int)sidx.crl()) * dims.z() + sidx.z(); }
-
 protected:
 
-			Block(GlobIdx,const SampIdx&,const Dimensions&);
+			Block( const GlobIdx& gidx, const HLocIdx& s,
+			       const Dimensions& d )
+			    : globidx_(gidx), start_(s), dims_(d)   {}
 
     const GlobIdx	globidx_;
-    const SampIdx	start_;
+    const HLocIdx	start_;
     const Dimensions	dims_;
-    const DataInterpreter<float>* interp_;
 
 };
 
@@ -125,15 +139,21 @@ mExpClass(Seis) Column
 {
 public:
 
-    virtual		~Column()		{}
+    virtual		~Column()					{}
 
-    const GlobIdx	globidx_;
-    const Dimensions	dims_;
-    const int		nrcomps_;
+    const HGlobIdx&	globIdx() const		{ return globidx_; }
+    const Dimensions&	dims() const		{ return dims_; }
+    int			nrComponents() const	{ return nrcomps_; }
 
 protected:
 
-			Column(const GlobIdx&,const Dimensions&,int);
+			Column( const HGlobIdx& gidx, const Dimensions& d,
+				int nc )
+			    : globidx_(gidx), dims_(d), nrcomps_(nc)	{}
+
+    const HGlobIdx	globidx_;
+    const Dimensions	dims_;
+    const int		nrcomps_;
 
 };
 
@@ -154,7 +174,8 @@ mExpClass(Seis) IOClass
 public:
 
     virtual		~IOClass();
-    virtual const SurvGeom& survGeom() const	= 0;
+    virtual const HGeom& hGeom() const	= 0;
+    const ZGeom&	zGeom() const		{ return zgeom_; }
 
     const Dimensions&	dimensions() const	{ return dims_; }
     unsigned short	version() const		{ return version_; }
@@ -170,7 +191,7 @@ public:
     BufferString	dataDirName() const;
     BufferString	mainFileName() const;
 
-    static BufferString	fileNameFor(const GlobIdx&);
+    static BufferString	fileNameFor(const HGlobIdx&);
 
     static const char*	sKeyFileType()	 { return "Column Cube"; }
     static const char*	sKeySectionPre() { return "Section-"; }
@@ -196,6 +217,7 @@ protected:
 
     File::Path		basepath_;
     Dimensions		dims_;
+    ZGeom		zgeom_;
     HdrSzVersionType	version_;
     BufferString	filenamebase_;
     BufferString	cubename_;
@@ -205,7 +227,7 @@ protected:
     ObjectSet<IOPar>	auxiops_;
     mutable bool	needreset_;
 
-    Column*		findColumn(const GlobIdx&) const;
+    Column*		findColumn(const HGlobIdx&) const;
     void		addColumn(Column*) const;
     void		clearColumns();
     static HdrSzVersionType columnHeaderSize(HdrSzVersionType);

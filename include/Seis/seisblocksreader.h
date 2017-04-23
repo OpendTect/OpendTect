@@ -49,9 +49,9 @@ public:
 
     const uiRetVal&	state() const		    { return state_; }
 
-    const SurvGeom&	survGeom() const	    { return *survgeom_; }
+    const HGeom&	hGeom() const		    { return *hgeom_; }
+    BufferString	surveyName() const	    { return survname_; }
     const CubeData&	positions() const	    { return cubedata_; }
-    Interval<float>	zRange() const		    { return zrg_; }
     Interval<int>	inlRange() const	    { return inlrg_; }
     Interval<int>	crlRange() const	    { return crlrg_; }
     inline int		nrComponents() const
@@ -67,19 +67,18 @@ protected:
 
     typedef PosInfo::CubeDataPos    CubeDataPos;
 
-    SurvGeom*		survgeom_;
+    HGeom*		hgeom_;
     SelData*		seldata_;
-    uiRetVal		state_;
+    BufferString	survname_;
     Interval<IdxType>	globinlidxrg_;
     Interval<IdxType>	globcrlidxrg_;
-    Interval<IdxType>	globzidxrg_;
     CubeData&		cubedata_;
     CubeDataPos&	curcdpos_;
     Interval<int>	inlrg_;
     Interval<int>	crlrg_;
-    Interval<float>	zrg_;
     int			maxnrfiles_;
     BoolTypeSet		compsel_;
+    uiRetVal		state_;
 
     mutable ObjectSet<FileColumn> activitylist_;
 
@@ -89,7 +88,7 @@ protected:
     bool		isSelected(const CubeDataPos&) const;
     bool		advancePos(CubeDataPos&) const;
     void		doGet(SeisTrc&,uiRetVal&) const;
-    FileColumn*		getColumn(const GlobIdx&,uiRetVal&) const;
+    FileColumn*		getColumn(const HGlobIdx&,uiRetVal&) const;
     void		readTrace(SeisTrc&,uiRetVal&) const;
     bool		activateColumn(FileColumn*,uiRetVal&) const;
 

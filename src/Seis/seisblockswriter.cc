@@ -36,22 +36,21 @@ class MemBlock : public Block
 {
 public:
 
-			MemBlock(GlobIdx,SampIdx start=SampIdx(),
-				   Dimensions dims=defDims(),
-				   OD::FPDataRepType fpr=OD::F32);
+			MemBlock(GlobIdx,const Dimensions&,const DataInterp&);
 
     void		zero()			{ dbuf_.zero(); }
     void		retire()		{ dbuf_.reSize( 0, false ); }
     bool		isRetired() const	{ return dbuf_.isEmpty(); }
 
-    float		value(const SampIdx&) const;
-    void		setValue(const SampIdx&,float);
+    float		value(const LocIdx&) const;
+    void		setValue(const LocIdx&,float);
 
     DataBuffer		dbuf_;
+    const DataInterp&	interp_;
 
 protected:
 
-    int			getBufIdx(const SampIdx&) const;
+    int			getBufIdx(const LocIdx&) const;
 
 };
 
@@ -60,21 +59,21 @@ class MemBlockColumn : public Column
 {
 public:
 
-    typedef ManagedObjectSet<MemBlock>    BlockSet;
+    typedef ManagedObjectSet<MemBlock>	BlockSet;
 
-			MemBlockColumn(const GlobIdx&,const Dimensions&,
-					int nrcomps);
+			MemBlockColumn(const HGlobIdx&,const Dimensions&,
+					int ncomps);
 			~MemBlockColumn();
 
-    MemBlock&		firstBlock()	{ return *blocksets_.first()->first(); }
-    const MemBlock&	firstBlock() const
-					{ return *blocksets_.first()->first(); }
-    void		retireAll();
-    void		getDefArea(SampIdx&,Dimensions&) const;
+    void		retire();
+    inline bool		isRetired() const
+			{ return blocksets_.first()->first()->isRetired(); }
+    void		getDefArea(HLocIdx&,HDimensions&) const;
 
     ObjectSet<BlockSet> blocksets_; // one set per component
     bool**		visited_;
     int			nruniquevisits_;
+
 };
 
 } // namespace Blocks
@@ -82,42 +81,39 @@ public:
 } // namespace Seis
 
 
-Seis::Blocks::MemBlock::MemBlock( GlobIdx gidx, SampIdx strt,
-				      Dimensions dms, OD::FPDataRepType fpr )
-    : Block(gidx,strt,dms)
+Seis::Blocks::MemBlock::MemBlock( GlobIdx gidx, const Dimensions& dms,
+				  const DataInterp& interp )
+    : Block(gidx,HLocIdx(),dms)
     , dbuf_(0)
+    , interp_(interp)
 {
-    const DataCharacteristics dc( fpr );
-    interp_ = DataInterpreter<float>::create( dc, true );
-    const int bytesperval = (int)dc.nrBytes();
+    const int bytesperval = interp_.nrBytes();
     dbuf_.reByte( bytesperval, false );
     const int totsz = (((int)dims_.inl())*dims_.crl()) * dims_.z();
     dbuf_.reSize( totsz, false );
 }
 
 
-int Seis::Blocks::MemBlock::getBufIdx( const SampIdx& sidx ) const
+int Seis::Blocks::MemBlock::getBufIdx( const LocIdx& sidx ) const
 {
-    const int nrsampsoninl = nrSampsOnInl( dims_, sidx );
-    return sidx.inl() ? sidx.inl()*nrSampsPerInl(dims_) + nrsampsoninl
-		      : nrsampsoninl;
+    return ((int)dims_.z()) * (sidx.inl()*dims_.crl() + sidx.crl()) + sidx.z();
 }
 
 
-float Seis::Blocks::MemBlock::value( const SampIdx& sidx ) const
+float Seis::Blocks::MemBlock::value( const LocIdx& sidx ) const
 {
-    return interp_->get( dbuf_.data(), getBufIdx(sidx) );
+    return interp_.get( dbuf_.data(), getBufIdx(sidx) );
 }
 
 
-void Seis::Blocks::MemBlock::setValue( const SampIdx& sidx, float val )
+void Seis::Blocks::MemBlock::setValue( const LocIdx& sidx, float val )
 {
-    interp_->put( dbuf_.data(), getBufIdx(sidx), val );
+    interp_.put( dbuf_.data(), getBufIdx(sidx), val );
 }
 
 
 
-Seis::Blocks::MemBlockColumn::MemBlockColumn( const GlobIdx& gidx,
+Seis::Blocks::MemBlockColumn::MemBlockColumn( const HGlobIdx& gidx,
 					      const Dimensions& dims,
 					      int nrcomps )
     : Column(gidx,dims,nrcomps)
@@ -145,7 +141,7 @@ Seis::Blocks::MemBlockColumn::~MemBlockColumn()
 }
 
 
-void Seis::Blocks::MemBlockColumn::retireAll()
+void Seis::Blocks::MemBlockColumn::retire()
 {
     for ( int iset=0; iset<blocksets_.size(); iset++ )
     {
@@ -156,8 +152,8 @@ void Seis::Blocks::MemBlockColumn::retireAll()
 }
 
 
-void Seis::Blocks::MemBlockColumn::getDefArea( SampIdx& start,
-					       Dimensions& dims ) const
+void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& start,
+					       HDimensions& dims ) const
 {
     IdxType mininl = dims_.inl()-1, mincrl = dims_.crl()-1;
     IdxType maxinl = 0, maxcrl = 0;
@@ -187,14 +183,14 @@ void Seis::Blocks::MemBlockColumn::getDefArea( SampIdx& start,
 }
 
 
-Seis::Blocks::Writer::Writer( const SurvGeom* geom )
-    : survgeom_(*(geom ? geom : static_cast<const SurvGeom*>(
-					&SurvGeom::default3D())))
-    , specfprep_(OD::AutoFPRep)
-    , nrcomponents_(1)
-    , nrpospercolumn_(((int)dims_.inl()) * dims_.crl())
+Seis::Blocks::Writer::Writer( const HGeom* geom )
+    : hgeom_(*(geom ? geom : static_cast<const HGeom*>(&HGeom::default3D())))
+    , specifiedfprep_(OD::AutoFPRep)
+    , nrcomps_(1)
     , isfinished_(false)
+    , interp_(new DataInterp(DataCharacteristics()))
 {
+    zgeom_ = hgeom_.sampling().zsamp_;
 }
 
 
@@ -211,6 +207,7 @@ Seis::Blocks::Writer::~Writer()
     }
 
     deepErase( zevalpositions_ );
+    delete interp_;
 }
 
 
@@ -243,9 +240,9 @@ void Seis::Blocks::Writer::setFileNameBase( const char* nm )
 
 void Seis::Blocks::Writer::setFPRep( OD::FPDataRepType rep )
 {
-    if ( specfprep_ != rep )
+    if ( specifiedfprep_ != rep )
     {
-	specfprep_ = rep;
+	specifiedfprep_ = rep;
 	needreset_ = true;
     }
 }
@@ -283,50 +280,6 @@ void Seis::Blocks::Writer::setScaler( const LinScaler* newscaler )
     delete scaler_;
     scaler_ = newscaler ? newscaler->clone() : 0;
     needreset_ = true;
-}
-
-
-void Seis::Blocks::Writer::resetZ( const Interval<float>& zrg )
-{
-    globzidxrg_.start = Block::globIdx4Z( survgeom_, zrg.start, dims_.z() );
-    globzidxrg_.stop = Block::globIdx4Z( survgeom_, zrg.stop, dims_.z() );
-    const float eps = Seis::cDefSampleSnapDist();
-    deepErase( zevalpositions_ );
-
-    bool emptystart = false, emptyend = false;
-    for ( IdxType globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
-		globzidx++ )
-    {
-	ZEvalPosSet* posset = new ZEvalPosSet;
-	for ( IdxType sampzidx=0; sampzidx<dims_.z(); sampzidx++ )
-	{
-	    const float z = Block::z4Idxs( survgeom_, dims_.z(),
-					  globzidx, sampzidx );
-	    if ( z > zrg.start-eps && z < zrg.stop+eps )
-		*posset += ZEvalPos( sampzidx, z );
-	}
-	if ( posset->isEmpty() )
-	    (globzidx==globzidxrg_.start ? emptystart : emptyend) = true;
-	else
-	     zevalpositions_ += posset;
-    }
-    if ( emptystart )
-	globzidxrg_.start++;
-    else if ( emptyend )
-	globzidxrg_.stop--;
-
-    if ( zevalpositions_.isEmpty() )
-    {
-	// only possibility is that zrg is entirely between two output samples.
-	// As a service, we'll make sure the nearest sample is set
-	const float zeval = zrg.center();
-	const IdxType globzidx = Block::globIdx4Z( survgeom_, zeval, dims_.z());
-	const IdxType sampzidx = Block::sampIdx4Z( survgeom_, zeval, dims_.z());
-	globzidxrg_.start = globzidxrg_.stop = globzidx;
-	ZEvalPosSet* posset = new ZEvalPosSet;
-	*posset += ZEvalPos( sampzidx, zeval );
-	zevalpositions_ += posset;
-    }
 }
 
 
@@ -370,6 +323,38 @@ bool Seis::Blocks::Writer::prepareWrite( uiRetVal& uirv )
 }
 
 
+void Seis::Blocks::Writer::resetZ()
+{
+    const float eps = Seis::cDefSampleSnapDist();
+    deepErase( zevalpositions_ );
+    const int nrglobzidxs = Block::globIdx4Z(zgeom_,zgeom_.stop,dims_.z()) + 1;
+
+    for ( IdxType globzidx=0; globzidx<nrglobzidxs; globzidx++ )
+    {
+	ZEvalPosSet* posset = new ZEvalPosSet;
+	for ( IdxType loczidx=0; loczidx<dims_.z(); loczidx++ )
+	{
+	    const float z = Block::z4Idxs( zgeom_, dims_.z(),
+					   globzidx, loczidx );
+	    if ( z > zgeom_.start-eps && z < zgeom_.stop+eps )
+		*posset += ZEvalPos( loczidx, z );
+	}
+	if ( posset->isEmpty() )
+	    delete posset;
+	else
+	    zevalpositions_ += posset;
+    }
+
+    if ( zevalpositions_.isEmpty() )
+    {
+	pErrMsg("Huh");
+	ZEvalPosSet* posset = new ZEvalPosSet;
+	*posset += ZEvalPos( 0, zgeom_.start );
+	 zevalpositions_ += posset;
+    }
+}
+
+
 uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 {
     uiRetVal uirv;
@@ -379,24 +364,30 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 	needreset_ = false;
 	isfinished_ = false;
 	setEmpty();
-	if ( !prepareWrite(uirv) )
+	if ( trc.isEmpty() )
+	{
+	    uirv.add( tr("No data in input trace") );
+	    return uirv;
+	}
+	else if ( !prepareWrite(uirv) )
 	    return uirv;
 
-	resetZ( Interval<float>(trc.startPos(),trc.endPos()) );
-	fprep_ = specfprep_;
+	fprep_ = specifiedfprep_;
 	if ( fprep_ == OD::AutoFPRep )
 	    fprep_ = trc.data().getInterpreter()->dataChar().userType();
+	delete interp_;
+	interp_ = DataInterp::create( DataCharacteristics(fprep_), true );
 
-	nrcomponents_ = trc.nrComponents();
+	zgeom_.start = trc.startPos();
+	zgeom_.stop = trc.endPos();
+	zgeom_.step = trc.stepPos();
+	nrcomps_ = trc.nrComponents();
+	resetZ();
     }
 
     const BinID bid = trc.info().binID();
-    const GlobIdx globidx( Block::globIdx4Inl(survgeom_,bid.inl(),dims_.inl()),
-			   Block::globIdx4Crl(survgeom_,bid.crl(),dims_.crl()),
-			   0 );
-    const SampIdx sampidx( Block::sampIdx4Inl(survgeom_,bid.inl(),dims_.inl()),
-			   Block::sampIdx4Crl(survgeom_,bid.crl(),dims_.crl()),
-			   0 );
+    const HGlobIdx globidx( Block::globIdx4Inl(hgeom_,bid.inl(),dims_.inl()),
+			    Block::globIdx4Crl(hgeom_,bid.crl(),dims_.crl()) );
 
     MemBlockColumn* column = getColumn( globidx );
     if ( !column )
@@ -408,18 +399,21 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
     else if ( isCompleted(*column) )
 	return uirv; // this check is absolutely necessary to for MT writing
 
-    for ( int icomp=0; icomp<nrcomponents_; icomp++ )
+    const HLocIdx locidx( Block::locIdx4Inl(hgeom_,bid.inl(),dims_.inl()),
+			  Block::locIdx4Crl(hgeom_,bid.crl(),dims_.crl()) );
+
+    for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	MemBlockColumn::BlockSet& blockset = *column->blocksets_[icomp];
 	for ( int iblock=0; iblock<blockset.size(); iblock++ )
 	{
 	    const ZEvalPosSet& posset = *zevalpositions_[iblock];
 	    MemBlock& block = *blockset[iblock];
-	    add2Block( block, posset, sampidx, trc, icomp );
+	    add2Block( block, posset, locidx, trc, icomp );
 	}
     }
 
-    bool& visited = column->visited_[sampidx.inl()][sampidx.crl()];
+    bool& visited = column->visited_[locidx.inl()][locidx.crl()];
     if ( !visited )
     {
 	column->nruniquevisits_++;
@@ -437,49 +431,43 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 
 
 void Seis::Blocks::Writer::add2Block( MemBlock& block,
-			const ZEvalPosSet& zevals, SampIdx sampidx,
+			const ZEvalPosSet& zevals, const HLocIdx& hlocidx,
 			const SeisTrc& trc, int icomp )
 {
     if ( block.isRetired() )
 	return; // new visit of already written. Won't do, but no error.
 
+    LocIdx locidx( hlocidx.inl(), hlocidx.crl(), 0 );
     for ( int idx=0; idx<zevals.size(); idx++ )
     {
 	const ZEvalPos& evalpos = zevals[idx];
-	sampidx.z() = evalpos.first;
+	locidx.z() = evalpos.first;
 	float val2set = trc.getValue( evalpos.second, icomp );
 	if ( scaler_ )
 	    val2set = (float)scaler_->scale( val2set );
-	block.setValue( sampidx, val2set );
+	block.setValue( locidx, val2set );
     }
 }
 
 
 Seis::Blocks::MemBlockColumn*
-Seis::Blocks::Writer::mkNewColumn( GlobIdx globidx )
+Seis::Blocks::Writer::mkNewColumn( const HGlobIdx& hglobidx )
 {
-    globidx.z() = globzidxrg_.start;
-    MemBlockColumn* column = new MemBlockColumn( globidx, dims_, nrcomponents_);
+    MemBlockColumn* column = new MemBlockColumn( hglobidx, dims_, nrcomps_ );
 
-    for ( IdxType globzidx=globzidxrg_.start; globzidx<=globzidxrg_.stop;
-	    globzidx++ )
+    const int nrglobzidxs = zevalpositions_.size();
+    for ( IdxType globzidx=0; globzidx<nrglobzidxs; globzidx++ )
     {
-	const ZEvalPosSet& evalposs
-		= *zevalpositions_[globzidx-globzidxrg_.start];
-	GlobIdx curgidx( globidx ); curgidx.z() = globzidx;
-	Dimensions dims( dims_ ); SampIdx start;
-	if ( globzidx == globzidxrg_.start )
-	{
-	    start.z() = (IdxType)(dims_.z() - evalposs.size());
-	    dims.z() = dims_.z() - (SzType)start.z();
-	}
-	else if ( globzidx == globzidxrg_.stop )
+	const ZEvalPosSet& evalposs = *zevalpositions_[globzidx];
+	GlobIdx globidx( hglobidx.inl(), hglobidx.crl(), globzidx );
+	Dimensions dims( dims_ );
+	if ( globzidx == nrglobzidxs-1 )
 	    dims.z() = (SzType)evalposs.size();
 
-	for ( int icomp=0; icomp<nrcomponents_; icomp++ )
+	for ( int icomp=0; icomp<nrcomps_; icomp++ )
 	{
-	    MemBlock* block = new MemBlock( curgidx, start, dims, fprep_ );
-	    if ( block->isRetired() )
+	    MemBlock* block = new MemBlock( globidx, dims, *interp_ );
+	    if ( block->isRetired() ) // ouch
 		{ delete column; return 0; }
 	    block->zero();
 	    *column->blocksets_[icomp] += block;
@@ -491,7 +479,7 @@ Seis::Blocks::Writer::mkNewColumn( GlobIdx globidx )
 
 
 Seis::Blocks::MemBlockColumn*
-Seis::Blocks::Writer::getColumn( const GlobIdx& globidx )
+Seis::Blocks::Writer::getColumn( const HGlobIdx& globidx )
 {
     Column* column = findColumn( globidx );
     if ( !column )
@@ -505,7 +493,7 @@ Seis::Blocks::Writer::getColumn( const GlobIdx& globidx )
 
 bool Seis::Blocks::Writer::isCompleted( const MemBlockColumn& column ) const
 {
-    return column.nruniquevisits_ == nrpospercolumn_;
+    return column.nruniquevisits_ == ((int)dims_.inl()) * dims_.crl();
 }
 
 
@@ -531,8 +519,6 @@ ColumnWriter( Writer& wrr, MemBlockColumn& colmn, const char* fnm )
     else
     {
 	column_.getDefArea( start_, dims_ );
-	start_.z() = colmn.firstBlock().start().z();
-	dims_.z() = wrr.dimensions().z();
 	if ( !wrr_.writeColumnHeader(strm_,column_,start_,dims_) )
 	    setErr();
     }
@@ -555,12 +541,11 @@ virtual int nextStep()
     else if ( iblock_ >= nrblocks_ )
 	return Finished();
 
-    for ( int icomp=0; icomp<wrr_.nrcomponents_; icomp++ )
+    for ( int icomp=0; icomp<wrr_.nrcomps_; icomp++ )
     {
 	MemBlockColumn::BlockSet& blockset = *column_.blocksets_[icomp];
 	MemBlock& block = *blockset[iblock_];
-	Dimensions wrdims( dims_ ); wrdims.z() = block.dims().z();
-	if ( !wrr_.writeBlock( strm_, block, start_, wrdims ) )
+	if ( !wrr_.writeBlock( strm_, block, start_, dims_ ) )
 	    { setErr(); return ErrorOccurred(); }
     }
 
@@ -578,8 +563,8 @@ void setErr( bool initial=false )
     od_ostream		strm_;
     Writer&		wrr_;
     MemBlockColumn&	column_;
-    Dimensions		dims_;
-    SampIdx		start_;
+    HDimensions		dims_;
+    HLocIdx		start_;
     const int		nrblocks_;
     int			iblock_;
     uiRetVal		uirv_;
@@ -594,7 +579,7 @@ void Seis::Blocks::Writer::writeColumn( MemBlockColumn& column, uiRetVal& uirv )
 {
     File::Path fp( basepath_ );
     fp.add( filenamebase_ )
-      .add( fileNameFor(column.globidx_) );
+      .add( fileNameFor(column.globIdx()) );
     ColumnWriter wrr( *this, column, fp.fullPath() );
     if ( !wrr.execute() )
 	uirv = wrr.uirv_;
@@ -602,27 +587,20 @@ void Seis::Blocks::Writer::writeColumn( MemBlockColumn& column, uiRetVal& uirv )
 
 
 bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
-		    const MemBlockColumn& column, const SampIdx& start,
-		    const Dimensions& dims ) const
+		    const MemBlockColumn& column, const HLocIdx& start,
+		    const HDimensions& dims ) const
 {
-    const Block& firstblock = column.firstBlock();
-    const GlobIdx& globidx = column.globidx_;
-    int nrsamples = 0;
-    for ( int idx=0; idx<zevalpositions_.size(); idx++ )
-	nrsamples += zevalpositions_[idx]->size();
-    int zstart = globidx.z(); zstart *= dims_.z();
-    zstart += firstblock.start().z();
-    const unsigned short dfmt = (unsigned short)fprep_;
 
     const HdrSzVersionType hdrsz = columnHeaderSize( version_ );
-    strm.addBin( hdrsz ).addBin( version_ );
-    strm.addBin( globidx.first ).addBin( globidx.second ).addBin(globidx.third);
-    strm.addBin( start.first ).addBin( start.second ).addBin( start.third );
-    strm.addBin( dims.first ).addBin( dims.second ).addBin( dims_.third );
-    strm.addBin( nrsamples );
-    strm.addBin( dfmt );
+    const HdrSzVersionType dfmt = (HdrSzVersionType)fprep_;
     char* buf = new char [hdrsz];
-    OD::memZero( buf, hdrsz );
+
+    strm.addBin( hdrsz ).addBin( version_ ).addBin( dfmt );
+    strm.addBin( dims.first ).addBin( dims.second ).addBin( dims_.third );
+    strm.addBin( column.globIdx().first ).addBin( column.globIdx().second );
+    strm.addBin( start.first ).addBin( start.second );
+
+    OD::memZero( buf, 2*sizeof(float) );
     if ( scaler_ && !scaler_->isEmpty() )
     {
 	// write the scaler needed to reconstruct the org values
@@ -633,8 +611,10 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
 	delete invscaler;
     }
     strm.addBin( buf, 2*sizeof(float) );
-    survgeom_.putStructure( buf );
-    strm.addBin( buf, survgeom_.bufSize4Structure() );
+
+    hgeom_.putStructure( buf );
+    strm.addBin( buf, hgeom_.bufSize4Structure() );
+    strm.addBin( zgeom_.start ).addBin( zgeom_.stop ).addBin( zgeom_.step );
 
     const int bytes_left_in_hdr = hdrsz - (int)strm.position();
     OD::memZero( buf, bytes_left_in_hdr );
@@ -646,10 +626,11 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
 
 
 bool Seis::Blocks::Writer::writeBlock( od_ostream& strm, MemBlock& block,
-					SampIdx wrstart, Dimensions wrdims )
+					HLocIdx wrstart, HDimensions wrhdims )
 {
     const DataBuffer& dbuf = block.dbuf_;
     const Dimensions& blockdims = block.dims();
+    const Dimensions wrdims( wrhdims.inl(), wrhdims.crl(), blockdims.z() );
 
     if ( wrdims == blockdims )
 	strm.addBin( dbuf.data(), dbuf.totalBytes() );
@@ -668,8 +649,7 @@ bool Seis::Blocks::Writer::writeBlock( od_ostream& strm, MemBlock& block,
 	for ( IdxType iinl=wrstart.inl(); iinl<wrstopinl; iinl++ )
 	{
 	    dataptr = bufdata + iinl * bytesperentireinl
-			      + wrstart.crl() * bytesperentirecrl
-			      + wrstart.z() * bytespersample;
+			      + wrstart.crl() * bytesperentirecrl;
 	    for ( IdxType icrl=wrstart.crl(); icrl<wrstopcrl; icrl++ )
 	    {
 		strm.addBin( dataptr, bytes2write );
@@ -710,17 +690,15 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
     Interval<IdxType> globinlidxrg, globcrlidxrg;
     Interval<int> inlrg, crlrg;
     Interval<double> xrg, yrg;
-    Interval<float> zrg;
     scanPositions( cubedata, globinlidxrg, globcrlidxrg,
 		    inlrg, crlrg, xrg, yrg );
-    zrg.start = zevalpositions_.first()->first().second;
-    zrg.stop = zevalpositions_.last()->last().second;
 
     IOPar iop( sKeyGenSection() );
     iop.set( sKeyFmtVersion(), version_ );
     iop.set( sKeySurveyName(), SI().name() );
     iop.set( sKeyCubeName(), cubename_ );
-    survgeom_.putStructure( iop );
+    hgeom_.putStructure( iop );
+    iop.set( sKey::ZRange(), zgeom_ );
     DataCharacteristics::putUserTypeToPar( iop, fprep_ );
     if ( scaler_ )
     {
@@ -732,15 +710,13 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
     iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );
     iop.set( sKeyGlobInlRg(), globinlidxrg );
     iop.set( sKeyGlobCrlRg(), globcrlidxrg );
-    iop.set( sKeyGlobZRg(), globzidxrg_ );
     iop.set( sKey::XRange(), xrg );
     iop.set( sKey::YRange(), yrg );
-    iop.set( sKey::ZRange(), zrg );
     iop.set( sKey::InlRange(), inlrg );
     iop.set( sKey::CrlRange(), crlrg );
 
     FileMultiString fms;
-    for ( int icomp=0; icomp<nrcomponents_; icomp++ )
+    for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	BufferString nm;
 	if ( icomp < compnms_.size() )
@@ -781,7 +757,7 @@ void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
 	if ( column.nruniquevisits_ < 1 )
 	    continue;
 
-	const GlobIdx& globidx = column.globidx_;
+	const HGlobIdx& globidx = column.globIdx();
 	if ( first )
 	{
 	    globinlrg.start = globinlrg.stop = globidx.inl();
@@ -799,11 +775,11 @@ void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
 	    {
 		if ( !column.visited_[iinl][icrl] )
 		    continue;
-		const int inl = Block::inl4Idxs( survgeom_, dims_.inl(),
-					    globidx.inl(), iinl );
-		const int crl = Block::crl4Idxs( survgeom_, dims_.crl(),
-					    globidx.crl(), icrl );
-		const Coord coord = survgeom_.toCoord( inl, crl );
+		const int inl = Block::inl4Idxs( hgeom_, dims_.inl(),
+						 globidx.inl(), iinl );
+		const int crl = Block::crl4Idxs( hgeom_, dims_.crl(),
+						 globidx.crl(), icrl );
+		const Coord coord = hgeom_.toCoord( inl, crl );
 		if ( first )
 		{
 		    inlrg.start = inlrg.stop = inl;
@@ -854,8 +830,8 @@ WriterFinisher( Writer& wrr )
     {
 	MemBlockColumn* column = (MemBlockColumn*)wrr_.columns_.getObj( spos );
 	if ( column->nruniquevisits_ < 1 )
-	    column->retireAll();
-	else if ( !column->firstBlock().isRetired() )
+	    column->retire();
+	else if ( !column->isRetired() )
 	    towrite_ += column;
     }
 }

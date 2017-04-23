@@ -61,7 +61,7 @@ BufferString Seis::Blocks::IOClass::mainFileName() const
 }
 
 
-BufferString Seis::Blocks::IOClass::fileNameFor( const GlobIdx& globidx )
+BufferString Seis::Blocks::IOClass::fileNameFor( const HGlobIdx& globidx )
 {
     BufferString ret;
     ret.add( globidx.inl() ).add( "_" ).add( globidx.crl() ).add( ".bin" );
@@ -79,7 +79,7 @@ void Seis::Blocks::IOClass::clearColumns()
 
 
 Seis::Blocks::Column* Seis::Blocks::IOClass::findColumn(
-						const GlobIdx& gidx ) const
+						const HGlobIdx& gidx ) const
 {
     const Pos::IdxPair idxpair( gidx.inl(), gidx.crl() );
     Pos::IdxPairDataSet::SPos spos = columns_.find( idxpair );
@@ -92,17 +92,9 @@ void Seis::Blocks::IOClass::addColumn( Column* column ) const
     if ( !column )
 	return;
 
-    const Pos::IdxPair idxpair( column->globidx_.inl(), column->globidx_.crl());
+    const Pos::IdxPair idxpair( column->globIdx().inl(),
+				column->globIdx().crl() );
     columns_.add( idxpair, column );
-}
-
-
-Seis::Blocks::Column::Column( const GlobIdx& gidx, const Dimensions& dims,
-			      int nrcomps )
-    : globidx_(gidx)
-    , dims_(dims)
-    , nrcomps_(nrcomps)
-{
 }
 
 
@@ -142,107 +134,65 @@ Seis::Blocks::Dimensions Seis::Blocks::Block::defDims()
 }
 
 
-Seis::Blocks::Block::Block( GlobIdx gidx, const SampIdx& strt,
-			    const Dimensions& dms )
-    : globidx_(gidx)
-    , start_(strt)
-    , dims_(dms)
-    , interp_(0)
-{
-}
-
-
-Seis::Blocks::Block::~Block()
-{
-    delete interp_;
-}
-
-
 // Following functions are not macro-ed because:
 // * It's such fundamental stuff, maintenance will be minimal anyway
 // * Easy debugging
 
 
-Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Inl( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Inl( const HGeom& hg,
 						       int inl, SzType inldim )
 {
-    return IdxType( sg.idx4Inl( inl ) / inldim );
+    return IdxType( hg.idx4Inl( inl ) / inldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Crl( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Crl( const HGeom& hg,
 						       int crl, SzType crldim )
 {
-    return IdxType( sg.idx4Crl( crl ) / crldim );
+    return IdxType( hg.idx4Crl( crl ) / crldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Z( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::globIdx4Z( const ZGeom& zg,
 						     float z, SzType zdim )
 {
-    return IdxType( sg.idx4Z( z ) / zdim );
+    return IdxType( zg.nearestIndex( z ) / zdim );
 }
 
 
-Seis::Blocks::IdxType Seis::Blocks::Block::sampIdx4Inl( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::locIdx4Inl( const HGeom& hg,
 						       int inl, SzType inldim )
 {
-    return IdxType( sg.idx4Inl( inl ) % inldim );
+    return IdxType( hg.idx4Inl( inl ) % inldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Block::sampIdx4Crl( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::locIdx4Crl( const HGeom& hg,
 						       int crl, SzType crldim )
 {
-    return IdxType( sg.idx4Crl( crl ) % crldim );
+    return IdxType( hg.idx4Crl( crl ) % crldim );
 }
 
-Seis::Blocks::IdxType Seis::Blocks::Block::sampIdx4Z( const SurvGeom& sg,
+Seis::Blocks::IdxType Seis::Blocks::Block::locIdx4Z( const ZGeom& zg,
 						     float z, SzType zdim )
 {
-    return IdxType( sg.idx4Z( z ) % zdim );
+    return IdxType( zg.nearestIndex( z ) % zdim );
 }
 
 
-Seis::Blocks::IdxType Seis::Blocks::Block::getSampZIdx( float z,
-						   const SurvGeom& sg ) const
-{
-    return sampIdx4Z( sg, z, dims_.z() );
-}
-
-
-Seis::Blocks::SampIdx Seis::Blocks::Block::getSampIdx( const BinID& bid,
-						      const SurvGeom& sg ) const
-{
-    return SampIdx( sampIdx4Inl(sg,bid.inl(),dims_.inl()),
-		    sampIdx4Crl(sg,bid.crl(),dims_.crl()),
-		    IdxType(0) );
-}
-
-
-Seis::Blocks::SampIdx Seis::Blocks::Block::getSampIdx( const BinID& bid,
-						      float z,
-						      const SurvGeom& sg ) const
-{
-    return SampIdx( sampIdx4Inl(sg,bid.inl(),dims_.inl()),
-		    sampIdx4Crl(sg,bid.crl(),dims_.crl()),
-		    sampIdx4Z(sg,z,dims_.z()) );
-}
-
-
-int Seis::Blocks::Block::inl4Idxs( const SurvGeom& sg, SzType inldim,
+int Seis::Blocks::Block::inl4Idxs( const HGeom& hg, SzType inldim,
 				  IdxType globidx, IdxType sampidx )
 {
-    return sg.inl4Idx( (((int)inldim) * globidx) + sampidx );
+    return hg.inl4Idx( (((int)inldim) * globidx) + sampidx );
 }
 
 
-int Seis::Blocks::Block::crl4Idxs( const SurvGeom& sg, SzType crldim,
+int Seis::Blocks::Block::crl4Idxs( const HGeom& hg, SzType crldim,
 				  IdxType globidx, IdxType sampidx )
 {
-    return sg.crl4Idx( (((int)crldim) * globidx) + sampidx );
+    return hg.crl4Idx( (((int)crldim) * globidx) + sampidx );
 }
 
 
-float Seis::Blocks::Block::z4Idxs( const SurvGeom& sg, SzType zdim,
+float Seis::Blocks::Block::z4Idxs( const ZGeom& zg, SzType zdim,
 				  IdxType globidx, IdxType sampidx )
 {
-    return sg.z4Idx( (((int)zdim) * globidx) + sampidx );
+    return zg.atIndex( (((int)zdim) * globidx) + sampidx );
 }
