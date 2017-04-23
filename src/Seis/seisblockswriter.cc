@@ -253,6 +253,12 @@ void Seis::Blocks::Writer::setCubeName( const char* nm )
 }
 
 
+void Seis::Blocks::Writer::setZDomain( const ZDomain::Def& def )
+{
+    zdomaindef_ = def;
+}
+
+
 void Seis::Blocks::Writer::addComponentName( const char* nm )
 {
     compnms_.add( nm );
@@ -611,9 +617,11 @@ bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
     }
     strm.addBin( buf, 2*sizeof(float) );
 
-    hgeom_.putStructure( buf );
-    strm.addBin( buf, hgeom_.bufSize4Structure() );
+    hgeom_.putMapInfo( buf );
+    strm.addBin( buf, hgeom_.bufSize4MapInfo() );
     strm.addBin( zgeom_.start ).addBin( zgeom_.stop ).addBin( zgeom_.step );
+    ZDomain::Def::GenID zdomid = zdomaindef_.genID();
+    strm.addBin( zdomid );
 
     const int bytes_left_in_hdr = hdrsz - (int)strm.position();
     OD::memZero( buf, bytes_left_in_hdr );
@@ -696,8 +704,6 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
     iop.set( sKeyFmtVersion(), version_ );
     iop.set( sKeySurveyName(), SI().name() );
     iop.set( sKeyCubeName(), cubename_ );
-    hgeom_.putStructure( iop );
-    iop.set( sKey::ZRange(), zgeom_ );
     DataCharacteristics::putUserTypeToPar( iop, fprep_ );
     if ( scaler_ )
     {
@@ -706,13 +712,12 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
 	invscaler->put( iop );
 	delete invscaler;
     }
-    iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );
-    iop.set( sKeyGlobInlRg(), globinlidxrg );
-    iop.set( sKeyGlobCrlRg(), globcrlidxrg );
     iop.set( sKey::XRange(), xrg );
     iop.set( sKey::YRange(), yrg );
     iop.set( sKey::InlRange(), inlrg );
     iop.set( sKey::CrlRange(), crlrg );
+    iop.set( sKey::ZRange(), zgeom_ );
+    zdomaindef_.set( iop );
 
     FileMultiString fms;
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
@@ -725,6 +730,11 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
 	fms += nm;
     }
     iop.set( sKeyComponents(), fms );
+
+    hgeom_.putMapInfo( iop );
+    iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );
+    iop.set( sKeyGlobInlRg(), globinlidxrg );
+    iop.set( sKeyGlobCrlRg(), globcrlidxrg );
 
     iop.putTo( ascostrm );
     if ( !strm.isOK() )

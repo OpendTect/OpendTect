@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "filepath.h"
 #include "ranges.h"
+#include "zdomain.h"
 #include "threadlock.h"
 
 class DataBuffer;
@@ -176,6 +177,7 @@ public:
     virtual		~IOClass();
     virtual const HGeom& hGeom() const	= 0;
     const ZGeom&	zGeom() const		{ return zgeom_; }
+    const ZDomain::Def&	zDomain() const		{ return zdomaindef_; }
 
     const Dimensions&	dimensions() const	{ return dims_; }
     unsigned short	version() const		{ return version_; }
@@ -218,6 +220,7 @@ protected:
     File::Path		basepath_;
     Dimensions		dims_;
     ZGeom		zgeom_;
+    ZDomain::Def	zdomaindef_;
     HdrSzVersionType	version_;
     BufferString	filenamebase_;
     BufferString	cubename_;

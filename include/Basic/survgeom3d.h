@@ -87,11 +87,12 @@ public:
     void		snapZ(float&,int direction=0) const;
 			//!< see snap() for direction
 
-    void		getStructure(const IOPar&);
-    void		putStructure(IOPar&) const;
-    int			bufSize4Structure() const; // 76
-    void		getStructure(const void*);
-    void		putStructure(void*) const;
+			// MapInfo = B2C and CoordSys
+    void		getMapInfo(const IOPar&);
+    void		putMapInfo(IOPar&) const;
+    int			bufSize4MapInfo() const; // 66
+    void		getMapInfo(const void*);
+    void		putMapInfo(void*) const;
 
 protected:
 

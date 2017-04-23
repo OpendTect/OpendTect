@@ -702,24 +702,23 @@ void Survey::Geometry3D::snapZ( float& z, int dir ) const
 }
 
 
-void Survey::Geometry3D::putStructure( IOPar& iop ) const
+void Survey::Geometry3D::putMapInfo( IOPar& iop ) const
 {
     b2c_.fillPar( iop );
     FileMultiString fms;
     fms += (int)coordsysid_;
-    fms += "Coordinate system"; //TODO = CoordSys::usrText4ID(coordsysid_);
+    fms += "Coordinate system"; //TODO CoordSys::usrText4ID(coordsysid_);
     iop.set( sKey::CoordSys(), fms );
     iop.set( sKey::FirstInl(), sampling_.hsamp_.start_.inl() );
     iop.set( sKey::FirstCrl(), sampling_.hsamp_.start_.crl() );
-    iop.set( sKey::FirstZ(), sampling_.zsamp_.start );
     iop.set( sKey::StepInl(), sampling_.hsamp_.step_.inl() );
     iop.set( sKey::StepCrl(), sampling_.hsamp_.step_.crl() );
-    iop.set( sKey::StepZ(), sampling_.zsamp_.step );
-    zdomain_.set( iop );
+    iop.set( sKey::LastInl(), sampling_.hsamp_.stop_.inl() );
+    iop.set( sKey::LastCrl(), sampling_.hsamp_.stop_.crl() );
 }
 
 
-void Survey::Geometry3D::getStructure( const IOPar& iop )
+void Survey::Geometry3D::getMapInfo( const IOPar& iop )
 {
     b2c_.usePar( iop );
     const char* res = iop.find( sKey::CoordSys() );
@@ -730,21 +729,18 @@ void Survey::Geometry3D::getStructure( const IOPar& iop )
     }
     iop.get( sKey::FirstInl(), sampling_.hsamp_.start_.inl() );
     iop.get( sKey::FirstCrl(), sampling_.hsamp_.start_.crl() );
-    iop.get( sKey::FirstZ(), sampling_.zsamp_.start );
     iop.get( sKey::StepInl(), sampling_.hsamp_.step_.inl() );
     iop.get( sKey::StepCrl(), sampling_.hsamp_.step_.crl() );
-    iop.get( sKey::StepZ(), sampling_.zsamp_.step );
-    zdomain_ = ZDomain::Def::get( iop );
+    iop.get( sKey::LastInl(), sampling_.hsamp_.stop_.inl() );
+    iop.get( sKey::LastCrl(), sampling_.hsamp_.stop_.crl() );
 }
 
 
-int Survey::Geometry3D::bufSize4Structure() const
+int Survey::Geometry3D::bufSize4MapInfo() const
 {
     return b2c_.sizeInBuf()		// +48 =	48
 	+ sizeof(coordsysid_)		// +2 =		50
-	+ 4 * sizeof( Pos::Index_Type )	// +16 =	66
-	+ 2 * sizeof( float )		// +8 =		74
-	+ sizeof(ZDomain::Def::GenID);	// +2 =		76
+	+ 6 * sizeof(Pos::Index_Type);	// +24 =	74
 }
 
 
@@ -754,35 +750,33 @@ int Survey::Geometry3D::bufSize4Structure() const
     var = *((const typ*)buf); ptr += sizeof(const typ)
 
 
-void Survey::Geometry3D::putStructure( void* buf ) const
+void Survey::Geometry3D::putMapInfo( void* buf ) const
 {
     char* ptr = (char*)buf;
     b2c_.fillBuf( ptr );
     ptr += b2c_.sizeInBuf();
     mPutAndIncrement( coordsysid_, CoordSysID );
     mPutAndIncrement( sampling_.hsamp_.start_.inl(), Pos::Index_Type );
-    mPutAndIncrement( sampling_.hsamp_.start_.inl(), Pos::Index_Type );
-    mPutAndIncrement( sampling_.zsamp_.start, float );
+    mPutAndIncrement( sampling_.hsamp_.start_.crl(), Pos::Index_Type );
+    mPutAndIncrement( sampling_.hsamp_.stop_.inl(), Pos::Index_Type );
+    mPutAndIncrement( sampling_.hsamp_.stop_.crl(), Pos::Index_Type );
     mPutAndIncrement( sampling_.hsamp_.step_.inl(), Pos::Index_Type );
-    mPutAndIncrement( sampling_.hsamp_.step_.inl(), Pos::Index_Type );
-    mPutAndIncrement( sampling_.zsamp_.step, float );
-    *((ZDomain::Def::GenID*)ptr) = zdomain_.genID();
+    mPutAndIncrement( sampling_.hsamp_.step_.crl(), Pos::Index_Type );
 }
 
 
-void Survey::Geometry3D::getStructure( const void* buf )
+void Survey::Geometry3D::getMapInfo( const void* buf )
 {
     const char* ptr = (const char*)buf;
     b2c_.useBuf( ptr );
     ptr += b2c_.sizeInBuf();
     mGetAndIncrement( coordsysid_, CoordSysID );
     mGetAndIncrement( sampling_.hsamp_.start_.inl(), Pos::Index_Type );
-    mGetAndIncrement( sampling_.hsamp_.start_.inl(), Pos::Index_Type );
-    mGetAndIncrement( sampling_.zsamp_.start, float );
+    mGetAndIncrement( sampling_.hsamp_.start_.crl(), Pos::Index_Type );
+    mGetAndIncrement( sampling_.hsamp_.stop_.inl(), Pos::Index_Type );
+    mGetAndIncrement( sampling_.hsamp_.stop_.crl(), Pos::Index_Type );
     mGetAndIncrement( sampling_.hsamp_.step_.inl(), Pos::Index_Type );
-    mGetAndIncrement( sampling_.hsamp_.step_.inl(), Pos::Index_Type );
-    mGetAndIncrement( sampling_.zsamp_.step, float );
-    zdomain_ = ZDomain::Def::get( *((ZDomain::Def::GenID*)ptr) );
+    mGetAndIncrement( sampling_.hsamp_.step_.crl(), Pos::Index_Type );
 }
 
 

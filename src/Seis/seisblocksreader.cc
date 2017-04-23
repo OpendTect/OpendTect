@@ -405,8 +405,9 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
     iop.get( sKeySurveyName(), survname_ );
 
     hgeom_ = new HGeom( cubename_, ZDomain::SI() );
-    hgeom_->getStructure( iop );
+    hgeom_->getMapInfo( iop );
     iop.get( sKey::ZRange(), zgeom_ );
+    zdomaindef_ = ZDomain::Def::get( iop );
     DataCharacteristics::getUserTypeFromPar( iop, fprep_ );
     Scaler* scl = Scaler::get( iop );
     mDynamicCast( LinScaler*, scaler_, scl );

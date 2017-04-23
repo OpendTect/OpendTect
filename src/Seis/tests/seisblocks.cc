@@ -19,6 +19,10 @@ static const char* sNormSeisIDStr = "100010.2";
 static const char* sSteerSeisIDStr = "100010.3";
 static const char* sMonsterSeisIDStr = "100010.311";
 
+static const bool usesteer = true;
+static const bool usemonster = false;
+
+
 static void prTrc( const SeisTrc& trc )
 {
     const BinID bid( trc.info().binID() );
@@ -38,9 +42,6 @@ static void prTrc( const SeisTrc& trc )
 
 static bool testWriting()
 {
-    const bool usesteer = false;
-    const bool usemonster = true;
-
     const char* seisidstr = usesteer ? sSteerSeisIDStr : sNormSeisIDStr;
     if ( usemonster )
 	seisidstr = sMonsterSeisIDStr;
@@ -124,9 +125,6 @@ static bool testWriting()
 
 static bool testReading()
 {
-    const bool usesteer = false;
-    const bool usemonster = true;
-
     File::Path fp( GetBaseDataDir(), sSeismicSubDir() );
     if ( !usemonster )
 	fp.add( usesteer ? "steering" : "org_seis" );

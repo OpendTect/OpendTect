@@ -53,6 +53,7 @@ public:
     void		setBasePath(const File::Path&);
     void		setFileNameBase(const char*);
     void		setCubeName(const char*);
+    void		setZDomain(const ZDomain::Def&);
     void		setFPRep(OD::FPDataRepType);
     void		setScaler(const LinScaler*);
     void		addComponentName(const char*);
