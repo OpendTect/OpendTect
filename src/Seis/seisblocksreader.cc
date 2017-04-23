@@ -144,8 +144,8 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
     interp_ = DataInterp::create( dc, true );
 
     HGlobIdx gidx; // will be ignored
-    Dimensions& dims( const_cast<Dimensions&>(dims_) );
-    strm_->getBin( dims.first ).getBin( dims.second ).getBin( dims.third );
+    Dimensions& dms( const_cast<Dimensions&>(dims_) );
+    strm_->getBin( dms.first ).getBin( dms.second ).getBin( dms.third );
     strm_->getBin( gidx.first ).getBin( gidx.second );
     strm_->getBin( start_.first ).getBin( start_.second );
 
@@ -214,22 +214,22 @@ void Seis::Blocks::FileColumn::createOffsetTable()
     od_stream_Pos blockstartoffs = headernrbytes_;
     for ( IdxType gzidx=globzidxrg.start; gzidx<=globzidxrg.stop; gzidx++ )
     {
-	Dimensions dims( dims_ );
+	Dimensions rddims( dims_ );
 	if ( gzidx == globzidxrg.stop )
-	    dims.z() = SzType(nrsamplesinfile - nrfilesamplessofar);
-	nrfilesamplessofar += dims.z();
+	    rddims.z() = SzType(nrsamplesinfile - nrfilesamplessofar);
+	nrfilesamplessofar += rddims.z();
 
 	IdxType startzidx = 0;
 	if ( gzidx == globzidxrg.start )
 	{
 	    startzidx = Block::locIdx4Z( zgeom, zrg.start, dims_.z() );
-	    dims.z() = dims_.z() - startzidx;
+	    rddims.z() = dims_.z() - startzidx;
 	}
 	if ( gzidx == globzidxrg.stop )
-	    dims.z() = Block::locIdx4Z( zgeom, zrg.stop, dims_.z() )
+	    rddims.z() = Block::locIdx4Z( zgeom, zrg.stop, dims_.z() )
 		     - startzidx + 1;
 
-	const od_stream_Pos blocknrbytes = nrbytespercompslice * dims.z();
+	const od_stream_Pos blocknrbytes = nrbytespercompslice * rddims.z();
 
 	for ( int icomp=0; icomp<nrcomps_; icomp++ )
 	{
@@ -239,14 +239,14 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 		chunk->comp_ = icomp;
 		chunk->offs_ = blockstartoffs + startzidx * nrbytespersample;
 		chunk->startsamp_ = nrsamplesintrace_;
-		chunk->nrsamps_ = dims.z();
-		chunk->trcpartnrbytes_ = dims.z() * nrbytespersample;
+		chunk->nrsamps_ = rddims.z();
+		chunk->trcpartnrbytes_ = rddims.z() * nrbytespersample;
 		chunks_ += chunk;
 	    }
 	    blockstartoffs += blocknrbytes;
 	}
 
-	nrsamplesintrace_ += dims.z();
+	nrsamplesintrace_ += rddims.z();
     }
 
     delete [] trcpartbuf_;

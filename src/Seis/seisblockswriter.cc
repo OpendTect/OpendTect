@@ -112,11 +112,10 @@ void Seis::Blocks::MemBlock::setValue( const LocIdx& sidx, float val )
 }
 
 
-
 Seis::Blocks::MemBlockColumn::MemBlockColumn( const HGlobIdx& gidx,
-					      const Dimensions& dims,
+					      const Dimensions& bldims,
 					      int nrcomps )
-    : Column(gidx,dims,nrcomps)
+    : Column(gidx,bldims,nrcomps)
     , nruniquevisits_(0)
 {
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
@@ -152,8 +151,8 @@ void Seis::Blocks::MemBlockColumn::retire()
 }
 
 
-void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& start,
-					       HDimensions& dims ) const
+void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& defstart,
+					       HDimensions& defdims ) const
 {
     IdxType mininl = dims_.inl()-1, mincrl = dims_.crl()-1;
     IdxType maxinl = 0, maxcrl = 0;
@@ -176,10 +175,10 @@ void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& start,
 	}
     }
 
-    start.inl() = mininl;
-    start.crl() = mincrl;
-    dims.inl() = maxinl - mininl + 1;
-    dims.crl() = maxcrl - mincrl + 1;
+    defstart.inl() = mininl;
+    defstart.crl() = mincrl;
+    defdims.inl() = maxinl - mininl + 1;
+    defdims.crl() = maxcrl - mincrl + 1;
 }
 
 
