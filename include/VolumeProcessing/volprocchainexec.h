@@ -85,6 +85,8 @@ private:
     void			computeComputationScope(Step::ID stepid,
 				    TrcKeySampling& stepoutputhrg,
 				    StepInterval<int>& stepoutputzrg ) const;
+    Step::ID			getChainOutputStepID() const;
+    Step::OutputSlotID		getChainOutputSlotID() const;
 
     Epoch*			curepoch_;
     bool			isok_;
