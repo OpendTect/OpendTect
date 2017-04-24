@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "seistrctr.h"
 
-namespace Seis { namespace Blocks { class Reader; class Writer; }
+namespace Seis { namespace Blocks { class Reader; class Writer; } }
 
 
 mExpClass(Seis) SeisBlocksSeisTrcTranslator : public SeisTrcTranslator
@@ -49,14 +49,16 @@ public:
     virtual bool	isSingleComponent() const	{ return false; }
     virtual int		estimatedNrTraces() const;
 
+    static const char*	sKeyTrName()			{ return "SeisBlocks"; }
+
 protected:
 
     Reader*		rdr_;
     Writer*		wrr_;
-    Seis::Blocks::IOClass*  ioclss_;
 
     virtual bool	commitSelections_();
     virtual bool	initRead_();
     virtual bool	initWrite_(const SeisTrc&);
+    virtual bool	wantBuffering() const		{ return false; }
 
 };

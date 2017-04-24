@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "mathspecvars.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
+#include "perthreadrepos.h"
 
 
 static const Math::SpecVarSet emptsvs;

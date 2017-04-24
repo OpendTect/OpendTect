@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "posprovider.h"
 #include "ptrman.h"
 #include "scaler.h"
+#include "survgeom3d.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "threadwork.h"
@@ -1274,7 +1275,7 @@ bool Horizon3D::setPosition( const SectionID& sid, const SubID& subid,
 }
 
 
-void Horizon3D::setArray( const SectionID& sid, const BinID& start, 
+void Horizon3D::setArray( const SectionID& sid, const BinID& start,
     const BinID& step, Array2D<float>* arr, bool takeover )
 {
     PtrMan<EM::EMObjectIterator> iterator = createIterator( sid );

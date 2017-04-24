@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "survgeom2d.h"
+#include "survgeom3d.h"
 #include "posinfo2dsurv.h"
 
 #include "keystrs.h"
@@ -229,6 +230,13 @@ const char* Survey::GeometryManager::getName( Geometry::ID geomid ) const
 {
     mGetConstGeom(geom,geomid);
     return geom ? geom->getName() : 0;
+}
+
+
+bool Survey::GeometryManager::is2D( Geometry::ID geomid ) const
+{
+    mGetConstGeom(geom,geomid);
+    return geom ? geom->is2D() : false;
 }
 
 
@@ -593,8 +601,14 @@ static bool isCompatible4BinID( const Survey::Geometry3D& sg1,
     return bid1 == bid2;
 }
 
-bool Survey::Geometry3D::isCompatibleWith( const Geometry3D& oth ) const
+
+bool Survey::Geometry3D::isCompatibleWith( const Geometry& geom ) const
 {
+    if ( geom.is2D() )
+	return false;
+
+    const Geometry3D& oth = static_cast<const Geometry3D&>( geom );
+
     return isCompatible4BinID( *this, oth, sampling_.hsamp_.start_ )
 	&& isCompatible4BinID( *this, oth, sampling_.hsamp_.stop_ )
 	&& sampling_.hsamp_.start_ == oth.sampling_.hsamp_.start_

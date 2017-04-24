@@ -561,6 +561,9 @@ uiRetVal Seis::Blocks::Reader::getTrcInfo( SeisTrcInfo& ti ) const
 	    return uirv;
     }
 
+    if ( !curcdpos_.isValid() )
+	{ uirv.set( uiStrings::sFinished() ); return uirv; }
+
     const BinID bid = cubedata_.binID( curcdpos_ );
     FileColumn* column = getColumnAt( bid, uirv );
     if ( column )

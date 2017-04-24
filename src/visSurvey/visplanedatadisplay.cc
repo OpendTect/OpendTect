@@ -16,6 +16,7 @@
 #include "seisdatapack.h"
 #include "volumedatapackzaxistransformer.h"
 #include "settings.h"
+#include "survinfo.h"
 
 #include "visdepthtabplanedragger.h"
 #include "visevent.h"

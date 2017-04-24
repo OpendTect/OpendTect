@@ -32,21 +32,6 @@ protected:
 };
 
 
-mExpClass(uiSEGY) uiCBVSPS3DOpts : public uiIOObjTranslatorWriteOpts
-{ mODTextTranslationClass(uiCBVSPS3DOpts);
-public:
-
-			uiCBVSPS3DOpts(uiParent*);
-
-    mDecluiIOObjTranslatorWriteOptsStdFns(uiCBVSPS3DOpts);
-
-protected:
-
-    uiGenInput*		stortypfld_;
-
-};
-
-
 mExpClass(uiSEGY) uiSEGYDirectPS3DOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiSEGYDirectPS3DOpts);
 public:

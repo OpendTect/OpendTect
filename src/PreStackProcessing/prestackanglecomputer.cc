@@ -420,10 +420,7 @@ bool VelocityBasedAngleComputer::setDBKey( const DBKey& mid )
 
 RefMan<Gather> VelocityBasedAngleComputer::computeAngles()
 {
-    ConstRefMan<Survey::Geometry> geom =
-	Survey::GM().getGeometry( trckey_.geomID() );
-
-    if ( geom && geom->is2D() )
+    if ( trckey_.is2D() )
 	{ pErrMsg( "Only 3D is supported at this time" ); return 0; }
 
     RefMan<Vel::FunctionSource> source = velsource_;

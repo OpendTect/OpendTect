@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 #include "positionlist.h"
 #include "survinfo.h"
+#include "survgeom3d.h"
 #include "trigonometry.h"
 
 namespace EM
@@ -146,7 +147,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 	StepInterval<int> colrg = fss->colRange( rc.row() );
 	FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
 	stickauxdata->cursor_ = knotenabled_ ? MouseCursor::Cross
-	    				     : MouseCursor::Arrow;
+					     : MouseCursor::Arrow;
 	stickauxdata->poly_.erase();
 	stickauxdata->linestyle_ = markerlinestyle_;
 	if ( rc.row() == activestickid_ )
@@ -373,7 +374,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 	{
 	    BinID start( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.start_.crl() );
 	    BinID stop(tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.stop_.crl() );
-	    
+
 	    pts += Coord3( SI().transform(start), tkzs_.zsamp_.start );
 	    pts += Coord3( SI().transform(start), tkzs_.zsamp_.stop );
 	    pts += Coord3( SI().transform(stop), tkzs_.zsamp_.start );
@@ -455,7 +456,7 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	FlatView::AuxData* intsecauxdat = viewer_.createAuxData( 0 );
 	intsecauxdat->poly_.erase();
 	intsecauxdat->cursor_ = knotenabled_ ? MouseCursor::Cross
-	    				     : MouseCursor::Arrow;
+					     : MouseCursor::Arrow;
 	intsecauxdat->linestyle_ = markerlinestyle_;
 	intsecauxdat->linestyle_.width_ = markerlinestyle_.width_/2;
 	intsecauxdat->linestyle_.color_ = f3d.preferredColor();
@@ -465,7 +466,7 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	f3dmaker->intsecmarker_ += intsecauxdat;
 	viewer_.addAuxData( intsecauxdat );
     }
-} 
+}
 
 
 FlatView::Point Fault3DPainter::getFVAuxPoint( const Coord3& pos ) const
@@ -479,7 +480,7 @@ FlatView::Point Fault3DPainter::getFVAuxPoint( const Coord3& pos ) const
 	const int trcidx = path_->indexOf( trckey );
 	if ( trcidx == -1 )
 	    return FlatView::Point::udf();
-	
+
 	const double z = zat ? zat->transform(pos) : pos.z_;
 	return FlatView::Point( flatposdata_->position(true,trcidx), z );
     }

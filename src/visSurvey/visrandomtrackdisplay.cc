@@ -20,6 +20,7 @@
 #include "volumedatapackzaxistransformer.h"
 #include "randomlinegeom.h"
 #include "randomlineprobe.h"
+#include "survinfo.h"
 #include "mousecursor.h"
 #include "polylinend.h"
 #include "settings.h"

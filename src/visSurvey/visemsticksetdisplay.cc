@@ -16,7 +16,7 @@
 #include "mpeengine.h"
 #include "keyenum.h"
 #include "emfault.h"
-#include "survinfo.h"
+#include "survgeom3d.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
 

@@ -11,16 +11,17 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "namedmonitorable.h"
-#include "ranges.h"
 #include "enums.h"
+#include "namedmonitorable.h"
+#include "posidxpair2coord.h"
+#include "ranges.h"
+#include "trckeyzsampling.h"
 #include "zdomain.h"
-#include "notify.h"
-#include "survgeom3d.h"
 
 class ascostream;
 
 namespace Coords { class PositionSystem; }
+namespace Survey { class Geometry3D; }
 
 
 /*!

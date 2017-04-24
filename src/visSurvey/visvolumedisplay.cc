@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "seisdatapack.h"
 #include "settings.h"
+#include "survinfo.h"
 #include "uistrings.h"
 #include "zaxistransform.h"
 #include "zaxistransformer.h"

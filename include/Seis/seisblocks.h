@@ -183,7 +183,7 @@ public:
     unsigned short	version() const		{ return version_; }
     const File::Path&	basePath() const	{ return basepath_; }
     const char*		fileNameBase() const	{ return filenamebase_; }
-    const char*		cubeName(const char*) const { return cubename_; }
+    const char*		cubeName() const	{ return cubename_; }
     const BufferStringSet& componentNames() const { return compnms_; }
     OD::FPDataRepType	fPRep() const		{ return fprep_; }
     const LinScaler*	scaler() const		{ return scaler_; }

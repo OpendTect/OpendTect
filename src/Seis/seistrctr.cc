@@ -23,6 +23,7 @@
 #include "scaler.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "survgeom.h"
 #include "bufstringset.h"
 #include "trckeyzsampling.h"
 #include "envvars.h"
@@ -89,6 +90,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
+    delete seldata_;
     delete &trcblock_;
     delete &pinfo_;
     delete &warnings_;
@@ -270,12 +272,8 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
     if ( !inpfor_ && !commitSelections() )
 	return false;
 
-    if ( !inlCrlSorted() )
-    {
-	// No buffering: who knows what we'll get?
-	dumpBlock();
+    if ( !wantBuffering() )
 	return writeTrc_( trc );
-    }
 
     const bool haveprev = !mIsUdf( prevnr_ );
     const bool wrblk = haveprev && (is_2d ? prevnr_ > 99
@@ -475,6 +473,13 @@ SeisTrc* SeisTrcTranslator::getEmpty()
 	dc = tarcds_[selComp()]->datachar;
 
     return new SeisTrc( 0, dc );
+}
+
+
+void SeisTrcTranslator::setSelData( const Seis::SelData* sd )
+{
+    delete seldata_;
+    seldata_ = sd ? sd->clone() : sd;
 }
 
 

@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "oscommand.h"
 #include "uistrings.h"
+#include "survgeom3d.h"
 #include <stdio.h>
 
 

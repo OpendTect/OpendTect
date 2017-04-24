@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "vistransmgr.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
+#include "survgeom3d.h"
 #include "survinfo.h"
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "survinfo.h"
 #include "dbman.h"
+#include "perthreadrepos.h"
 
 static const char* sDispNone = "-";
 

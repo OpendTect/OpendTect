@@ -38,6 +38,7 @@ set(OD_MODULE_SOURCES
 	seisblocks.cc
 	seisblocksreader.cc
 	seisblockswriter.cc
+	seisblockstr.cc
 	seisbuf.cc
 	seiscbvs.cc
 	seiscbvs2d.cc

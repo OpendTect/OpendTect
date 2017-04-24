@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "zaxistransform.h"
 #include "survinfo.h"
+#include "survgeom3d.h"
 #include "trigonometry.h"
 
 namespace EM
@@ -158,7 +159,7 @@ bool FaultStickPainter::addPolyLine()
 			const BinID bid = SI().transform( pos.getXY() );
 			const TrcKey trckey = Survey::GM().traceKey(
 			   Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
-			Coord3 editnormal( 
+			Coord3 editnormal(
 			    Geometry::RandomLine::getNormal(knots,trckey), 0.f);
 			const Coord3 nzednor = editnormal.normalize();
 			const Coord3 stkednor =

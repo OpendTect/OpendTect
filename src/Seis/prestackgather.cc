@@ -23,6 +23,7 @@
 #include "seistrctr.h"
 #include "seistrcprop.h"
 #include "survinfo.h"
+#include "survgeom.h"
 #include "unitofmeasure.h"
 #include "keystrs.h"
 
@@ -536,7 +537,7 @@ void GatherSetDataPack::fillGatherBuf( SeisTrcBuf& seisbuf,const BinID& bid)
 	if ( gathers_[idx]->getBinID() == bid )
 	    { gather = gathers_[idx]; gatheridx = idx; break; }
     if ( !gather ) return;
-    
+
     for ( int offsetidx=0; offsetidx<gather->nrOffsets(); offsetidx++ )
 	seisbuf.add( getTrace(gatheridx,offsetidx) );
 }

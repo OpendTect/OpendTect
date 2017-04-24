@@ -23,6 +23,7 @@
 #include "pickset.h"
 #include "callback.h"
 #include "separstr.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
@@ -621,9 +622,9 @@ void PickSetDisplay::getPickingMessage( uiString& str ) const
     }
 
     str = tr("Picking (Nr picks= %1").arg(set_->size());
-    if ( !areastring.isEmpty() ) 
+    if ( !areastring.isEmpty() )
     {
-	str.append(toUiString(", %1").arg(areastring)); 
+	str.append(toUiString(", %1").arg(areastring));
     }
     str.append(toUiString(")"));
 }

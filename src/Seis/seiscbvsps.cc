@@ -22,6 +22,7 @@
 #include "strmoper.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "survgeom.h"
 #include "uistrings.h"
 #include "od_iostream.h"
 #include <string.h>

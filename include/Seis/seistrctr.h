@@ -163,8 +163,7 @@ public:
     const SamplingData<float>&	outSD() const		{ return outsd_; }
     int				outNrSamples() const	{ return outnrsamples_;}
 
-    void		setSelData( const Seis::SelData* t ) { seldata_ = t; }
-			/*!< This Seis::SelData is seen as a hint ... */
+    void		setSelData(const Seis::SelData*);
     bool		commitSelections();
 			/*!< If not called, will be called by Translator.
 			     For write, this will put tape header (if any) */
@@ -234,8 +233,6 @@ public:
     bool		haveWarnings() const;
     const BufferStringSet& warnings() const		{ return warnings_; }
 
-    mDeprecated virtual bool inlCrlSorted() const	{ return true; }
-
 protected:
 
     Conn*		conn_;
@@ -270,6 +267,7 @@ protected:
     virtual bool	initRead_()			{ return true; }
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
+    virtual bool	wantBuffering() const		{ return true; }
 
 			// These are called from the default write()
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
@@ -308,4 +306,6 @@ public:
 
     void		setIs2D( bool yn )	{ is_2d = yn; }
     void		setIsPS( bool yn )	{ is_prestack = yn; }
+    mDeprecated virtual bool inlCrlSorted() const { return true; }
+
 };

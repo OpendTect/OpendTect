@@ -40,7 +40,7 @@ public:
     const ZDomain::Def&	zDomain() const		{ return zdomain_; }
     float		zScale() const		{ return zscale_; }
 
-    bool		isCompatibleWith(const Geometry3D&) const;
+    virtual bool	isCompatibleWith(const Geometry&) const;
 
     StepInterval<int>	inlRange() const;
     StepInterval<int>	crlRange() const;

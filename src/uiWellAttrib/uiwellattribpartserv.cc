@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "nlamodel.h"
 #include "ptrman.h"
 #include "randcolor.h"
+#include "survgeom.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"

@@ -20,6 +20,7 @@
 #include "posinfo2dsurv.h"
 #include "dirlist.h"
 #include "survinfo.h"
+#include "survgeom3d.h"
 #include "file.h"
 #include "filepath.h"
 #include "keystrs.h"

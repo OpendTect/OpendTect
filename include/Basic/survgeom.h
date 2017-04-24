@@ -122,6 +122,7 @@ public:
 
     Geometry::ID		getGeomID(const char* linenm) const;
     const char*			getName(Geometry::ID) const;
+    bool			is2D(Geometry::ID) const;
 
     Coord			toCoord(const TrcKey&) const;
 

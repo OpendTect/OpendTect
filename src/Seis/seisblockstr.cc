@@ -10,18 +10,18 @@
 #include "seisblocksreader.h"
 #include "seisblockswriter.h"
 #include "seistrc.h"
+#include "seispacketinfo.h"
 #include "seisselection.h"
-
-
-defineTranslator(SeisBlocks,SeisTrc,sKey::PetrelDirect());
+#include "survgeom3d.h"
+#include "ioman.h"
+#include "posinfo.h"
 
 
 SeisBlocksSeisTrcTranslator::SeisBlocksSeisTrcTranslator( const char* s1,
-							const char* s2 )
+							  const char* s2 )
     : SeisTrcTranslator(s1,s2)
     , rdr_(0)
     , wrr_(0)
-    , ioclss_(0)
 {
 }
 
@@ -35,8 +35,8 @@ SeisBlocksSeisTrcTranslator::~SeisBlocksSeisTrcTranslator()
 bool SeisBlocksSeisTrcTranslator::close()
 {
     // stop (potentially early)
-    delete ioclss_;
-    rdr_ = 0; wrr_ = 0; ioclss_ = 0;
+    delete rdr_; rdr_ = 0;
+    delete wrr_; wrr_ = 0;
     return SeisTrcTranslator::close();
 }
 
@@ -52,7 +52,6 @@ bool SeisBlocksSeisTrcTranslator::initRead_()
 {
     StreamConn& sconn = *static_cast<StreamConn*>( conn_ );
     rdr_ = new Seis::Blocks::Reader( sconn.iStream() );
-    ioclss_ = rdr_;
     sconn.close();
     if ( !rdr_->state().isOK() )
     {
@@ -77,7 +76,7 @@ bool SeisBlocksSeisTrcTranslator::initRead_()
 
     const DataCharacteristics dc( rdr_->fPRep() );
     const int nrcomps = rdr_->nrComponents();
-    for ( int icomp=0; idx<nrcomps; idx++ )
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
 	addComp( dc, rdr_->componentNames().get(icomp) );
 
     return true;
@@ -88,18 +87,17 @@ bool SeisBlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
     StreamConn& sconn = *static_cast<StreamConn*>( conn_ );
     const BufferString mainfnm( sconn.fileName() );
-    const DBkey dbky = sconn.linkedTo();
+    const DBKey dbky = sconn.linkedTo();
     sconn.close( true ); // this preserves the original file for now
 
     wrr_ = new Seis::Blocks::Writer;
-    ioclss_ = wrr_;
     File::Path fp( mainfnm );
     fp.setExtension( 0 );
     wrr_->setFileNameBase( fp.fileName() );
     fp.setFileName( 0 );
     wrr_->setBasePath( fp );
 
-    PtrMan<IOObj> ioobj = IOM().get( dbky );
+    PtrMan<IOObj> ioobj = DBM().get( dbky );
     if ( ioobj )
     {
 	OD::FPDataRepType fprep;
@@ -139,8 +137,14 @@ bool SeisBlocksSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
     uiRetVal uirv = rdr_->getTrcInfo( ti );
     if ( uirv.isError() )
-	errmsg_ = uirv;
-    return uirv.isOK();
+    {
+	if ( isFinished(uirv) )
+	    errmsg_.setEmpty();
+	else
+	    errmsg_ = uirv;
+	return false;
+    }
+    return true;
 }
 
 
@@ -148,8 +152,14 @@ bool SeisBlocksSeisTrcTranslator::read( SeisTrc& trc )
 {
     uiRetVal uirv = rdr_->getNext( trc );
     if ( uirv.isError() )
-	errmsg_ = uirv;
-    return uirv.isOK();
+    {
+	if ( isFinished(uirv) )
+	    errmsg_.setEmpty();
+	else
+	    errmsg_ = uirv;
+	return false;
+    }
+    return true;
 }
 
 
@@ -192,6 +202,6 @@ int SeisBlocksSeisTrcTranslator::estimatedNrTraces() const
 
 void SeisBlocksSeisTrcTranslator::usePar( const IOPar& iop )
 {
-    SeisTrcTranslator::usePar( iopar );
+    SeisTrcTranslator::usePar( iop );
     // DataCharacteristics::getUserTypeFromPar( iopar, preseldatatype_ );
 }

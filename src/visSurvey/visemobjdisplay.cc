@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "mousecursor.h"
 #include "polygon.h"
+#include "survinfo.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 
@@ -682,7 +683,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 const visBase::MarkerSet* EMObjectDisplay::getSeedMarkerSet() const
 {
     const int attribindex = posattribs_.indexOf( EM::EMObject::sSeedNode() );
-    if ( attribindex==-1 || posattribmarkers_.size()<attribindex ) 
+    if ( attribindex==-1 || posattribmarkers_.size()<attribindex )
 	return 0;
 
     return posattribmarkers_[attribindex];
@@ -734,7 +735,7 @@ bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
 
     Undo& undo = EM::EMM().undo( emobject_->id() );
     const int lastid = undo.currentEventID();
- 
+
     emobject_->removeSelected( selectionids_ );
 
     if ( lastid!=undo.currentEventID() )
@@ -813,8 +814,8 @@ void EMObjectDisplay::updateSelections()
     Color selectioncolor =  Color::Orange();
     if ( hor2d || hor3d )
     {
-	selectioncolor = hor3d ? hor3d->getSelectionColor() :	
-	    hor2d->getSelectionColor();    
+	selectioncolor = hor3d ? hor3d->getSelectionColor() :
+	    hor2d->getSelectionColor();
     }
 
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )

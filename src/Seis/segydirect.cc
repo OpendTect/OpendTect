@@ -24,6 +24,7 @@
 #include "seisposindexer.h"
 #include "strmoper.h"
 #include "strmprov.h"
+#include "survgeom.h"
 #include "od_iostream.h"
 #include "survinfo.h"
 #include "uistrings.h"

@@ -43,6 +43,7 @@ ___________________________________________________________________
 #include "seistrctr.h"
 #include "seis2ddata.h"
 #include "survgeom2d.h"
+#include "survinfo.h"
 
 
 static TypeSet<int> selcomps;

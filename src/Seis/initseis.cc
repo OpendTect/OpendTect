@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "timedepthconv.h"
 #include "seisseqio.h"
 #include "segytr.h"
+#include "seisblockstr.h"
 #include "seiscbvs.h"
 #include "seis2dlineio.h"
 #include "seispscubetr.h"
@@ -29,6 +30,7 @@ uiString SeisTrcTranslatorGroup::sTypeName( int num )
 
 defineTranslatorGroup(SeisTrc,"Seismic Data");
 defineTranslator(CBVS,SeisTrc,"CBVS");
+defineTranslator(SeisBlocks,SeisTrc,SeisBlocksSeisTrcTranslator::sKeyTrName());
 defineTranslator(SEGY,SeisTrc,"SEG-Y");
 defineTranslator(TwoD,SeisTrc,"2D");
 defineTranslator(TwoDData,SeisTrc,"TwoD DataSet");
@@ -58,12 +60,14 @@ mDefModInitFn(Seis)
     SeisTrc2DTranslatorGroup::initClass();
     SeisPS3DTranslatorGroup::initClass();
     SeisPS2DTranslatorGroup::initClass();
+
     WaveletTranslatorGroup::initClass();
     dgbWaveletTranslator::initClass();
 
     // The order here is important!
     // The first one is the default unless explicitly changed.
     CBVSSeisTrcTranslator::initClass();
+    SeisBlocksSeisTrcTranslator::initClass();
     TwoDSeisTrcTranslator::initClass();
     TwoDDataSeisTrcTranslator::initClass();
     CBVSSeisTrc2DTranslator::initClass();

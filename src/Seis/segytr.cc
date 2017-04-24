@@ -22,6 +22,7 @@
 #include "separstr.h"
 #include "keystrs.h"
 #include "settings.h"
+#include "perthreadrepos.h"
 #include "zdomain.h"
 #include "filepath.h"
 #include "od_iostream.h"

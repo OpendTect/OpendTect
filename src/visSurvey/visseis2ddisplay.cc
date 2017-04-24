@@ -28,6 +28,7 @@
 #include "seisdatapack.h"
 #include "volumedatapackzaxistransformer.h"
 #include "zaxistransform.h"
+#include "survinfo.h"
 #include "keystrs.h"
 
 //For parsing old pars

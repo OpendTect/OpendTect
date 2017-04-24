@@ -13,6 +13,7 @@
 #include "posfilterstd.h"
 #include "posprovider.h"
 #include "survinfo.h"
+#include "survgeom3d.h"
 #include "statrand.h"
 
 mImplFactory(Pos::Filter3D,Pos::Filter3D::factory);

@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "position.h"
 #include "ranges.h"
-#include "survinfo.h"
+#include "survgeom3d.h"
 #include "vissurvscene.h"
 #include "factory.h"
 #include "coltabmappersetup.h"
@@ -41,7 +41,6 @@ namespace visBase
     class TextureChannel2RGBA;
 };
 namespace Attrib  { class SelSpec; }
-namespace Survey  { class Geometry3D; }
 
 
 namespace visSurvey

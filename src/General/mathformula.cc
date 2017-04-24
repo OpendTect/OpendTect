@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "mathformulatransl.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
+#include "perthreadrepos.h"
 #include "iopar.h"
 
 mDefSimpleTranslators(MathFormula,Math::Formula::sKeyFileType(),od,Misc);

@@ -12,6 +12,7 @@
 #include "stratlevel.h"
 #include "bufstringset.h"
 #include "idxable.h"
+#include "perthreadrepos.h"
 #include "keystrs.h"
 
 const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }

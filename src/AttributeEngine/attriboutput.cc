@@ -22,6 +22,7 @@
 #include "seiswrite.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "survgeom.h"
 #include "uistrings.h"
 #include "keystrs.h"
 

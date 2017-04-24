@@ -11,6 +11,7 @@
 #include "survinfo.h"
 #include "separstr.h"
 #include "posimpexppars.h"
+#include "survgeom.h"
 #include <ctype.h>
 
 static char pipechar = '|';

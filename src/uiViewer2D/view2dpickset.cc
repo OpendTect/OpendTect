@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
+#include "survgeom3d.h"
 #include "posinfo2d.h"
 #include "uiflatviewer.h"
 #include "uiflatauxdataeditor.h"

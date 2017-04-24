@@ -13,6 +13,7 @@
 #include "dbman.h"
 #include "ioobj.h"
 #include "seisdatapack.h"
+#include "survgeom3d.h"
 #include "survinfo.h"
 #include "volprocchainexec.h"
 #include "volproctrans.h"
