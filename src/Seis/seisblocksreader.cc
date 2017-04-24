@@ -291,13 +291,18 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 }
 
 
-Seis::Blocks::Reader::Reader( const char* inp )
-    : hgeom_(0)
-    , cubedata_(*new PosInfo::CubeData)
-    , curcdpos_(*new PosInfo::CubeDataPos)
-    , seldata_(0)
-    , globinlidxrg_(0,0)
+#define mSeisBlocksReaderInitList() \
+      hgeom_(0) \
+    , cubedata_(*new PosInfo::CubeData) \
+    , curcdpos_(*new PosInfo::CubeDataPos) \
+    , seldata_(0) \
+    , globinlidxrg_(0,0) \
     , globcrlidxrg_(0,0)
+
+
+
+Seis::Blocks::Reader::Reader( const char* inp )
+    : mSeisBlocksReaderInitList()
 {
     File::Path fp( inp );
     if ( !File::exists(inp) )
@@ -315,7 +320,29 @@ Seis::Blocks::Reader::Reader( const char* inp )
     fp.setFileName( 0 );
     basepath_ = fp;
 
-    readMainFile();
+    const BufferString fnm( mainFileName() );
+    od_istream strm( mainFileName() );
+    if ( !strm.isOK() )
+    {
+	state_.set( uiStrings::phrCannotOpen(toUiString(strm.fileName())) );
+	strm.addErrMsgTo( state_ );
+	return;
+    }
+
+    readMainFile( strm );
+}
+
+
+Seis::Blocks::Reader::Reader( od_istream& strm )
+    : mSeisBlocksReaderInitList()
+{
+    File::Path fp( strm.fileName() );
+    fp.setExtension( 0 );
+    filenamebase_ = fp.fileName();
+    fp.setFileName( 0 );
+    basepath_ = fp;
+
+    readMainFile( strm );
 }
 
 
@@ -328,16 +355,8 @@ Seis::Blocks::Reader::~Reader()
 }
 
 
-void Seis::Blocks::Reader::readMainFile()
+void Seis::Blocks::Reader::readMainFile( od_istream& strm )
 {
-    const BufferString fnm( mainFileName() );
-    od_istream strm( mainFileName() );
-    if ( !strm.isOK() )
-    {
-	state_.set( uiStrings::phrCannotOpen(toUiString(strm.fileName())) );
-	strm.addErrMsgTo( state_ );
-	return;
-    }
 
     ascistream astrm( strm );
     if ( !astrm.isOfFileType(sKeyFileType()) )
@@ -493,6 +512,22 @@ bool Seis::Blocks::Reader::advancePos( CubeDataPos& pos ) const
 }
 
 
+uiRetVal Seis::Blocks::Reader::skip( int nrpos ) const
+{
+    uiRetVal uirv;
+    Threads::Locker locker( accesslock_ );
+    for ( int idx=0; idx<nrpos; idx++ )
+    {
+	if ( !advancePos(curcdpos_) )
+	{
+	    uirv.set( tr("Failed skipping %1 positions").arg(idx+1) );
+	    return uirv;
+	}
+    }
+    return uirv;
+}
+
+
 bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
 {
     curcdpos_.toPreStart();
@@ -507,7 +542,15 @@ bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
 }
 
 
-uiRetVal Seis::Blocks::Reader::get( const BinID& bid, SeisTrc& trc ) const
+bool Seis::Blocks::Reader::goTo( const BinID& bid ) const
+{
+    uiRetVal uirv;
+    Threads::Locker locker( accesslock_ );
+    return doGoTo( bid, uirv );
+}
+
+
+uiRetVal Seis::Blocks::Reader::getTrcInfo( SeisTrcInfo& ti ) const
 {
     uiRetVal uirv;
     Threads::Locker locker( accesslock_ );
@@ -518,15 +561,23 @@ uiRetVal Seis::Blocks::Reader::get( const BinID& bid, SeisTrc& trc ) const
 	    return uirv;
     }
 
-    PosInfo::CubeDataPos newcdpos = cubedata_.cubeDataPos( bid );
-    if ( !newcdpos.isValid() )
-    {
-	uirv.set( tr("Position not present: %1/%2")
-		.arg( bid.inl() ).arg( bid.crl() ) );
-	return uirv;
-    }
+    const BinID bid = cubedata_.binID( curcdpos_ );
+    FileColumn* column = getColumnAt( bid, uirv );
+    if ( column )
+	doFillInfo( bid, *column, ti );
 
-    curcdpos_ = newcdpos;
+    return uirv;
+}
+
+
+uiRetVal Seis::Blocks::Reader::get( const BinID& bid, SeisTrc& trc ) const
+{
+    uiRetVal uirv;
+    Threads::Locker locker( accesslock_ );
+
+    if ( !doGoTo(bid,uirv) )
+	return uirv;
+
     doGet( trc, uirv );
     return uirv;
 }
@@ -539,6 +590,37 @@ uiRetVal Seis::Blocks::Reader::getNext( SeisTrc& trc ) const
 
     doGet( trc, uirv );
     return uirv;
+}
+
+
+bool Seis::Blocks::Reader::doGoTo( const BinID& bid, uiRetVal& uirv ) const
+{
+    if ( needreset_ )
+    {
+	if ( !reset(uirv) )
+	    return false;
+    }
+
+    PosInfo::CubeDataPos newcdpos = cubedata_.cubeDataPos( bid );
+    if ( !newcdpos.isValid() )
+    {
+	uirv.set( tr("Position not present: %1/%2")
+		.arg( bid.inl() ).arg( bid.crl() ) );
+	return false;
+    }
+
+    curcdpos_ = newcdpos;
+    return true;
+}
+
+
+void Seis::Blocks::Reader::doFillInfo( const BinID& bid,
+		    const FileColumn& column, SeisTrcInfo& ti ) const
+{
+    ti.sampling_.start = column.zstart_;
+    ti.sampling_.step = zgeom_.step;
+    ti.setBinID( bid );
+    ti.coord_ = hgeom_->transform( bid );
 }
 
 
@@ -556,6 +638,16 @@ void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
     readTrace( trc, uirv );
     if ( !uirv.isError() )
 	advancePos( curcdpos_ );
+}
+
+
+Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumnAt( const BinID& bid,
+						    uiRetVal& uirv ) const
+{
+    const HGlobIdx globidx( Block::globIdx4Inl(*hgeom_,bid.inl(),dims_.inl()),
+			    Block::globIdx4Crl(*hgeom_,bid.crl(),dims_.crl()) );
+
+    return getColumn( globidx, uirv );
 }
 
 
@@ -613,9 +705,6 @@ void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
     if ( column )
     {
 	column->fillTrace( bid, trc, uirv );
-	trc.info().sampling_.start = column->zstart_;
-	trc.info().sampling_.step = zgeom_.step;
-	trc.info().setBinID( bid );
-	trc.info().coord_ = hgeom_->transform( bid );
+	doFillInfo( bid, *column, trc.info() );
     }
 }

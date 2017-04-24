@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "uistring.h"
 
+class od_istream;
 class SeisTrc;
+class SeisTrcInfo;
 namespace PosInfo { class CubeData; class CubeDataPos; }
 
 
@@ -45,6 +47,7 @@ public:
     typedef PosInfo::CubeData	    CubeData;
 
 			Reader(const char* fnm_or_dirnm);
+			Reader(od_istream& mainfilestrm);
 			~Reader();
 
     const uiRetVal&	state() const		    { return state_; }
@@ -60,8 +63,11 @@ public:
 
     void		setSelData(const SelData*);
 
-    uiRetVal		get(const BinID&,SeisTrc&) const;
+    bool		goTo(const BinID&) const;
+    uiRetVal		skip(int) const;
+    uiRetVal		getTrcInfo(SeisTrcInfo&) const;
     uiRetVal		getNext(SeisTrc&) const;
+    uiRetVal		get(const BinID&,SeisTrc&) const;
 
 protected:
 
@@ -82,15 +88,19 @@ protected:
 
     mutable ObjectSet<FileColumn> activitylist_;
 
-    void		readMainFile();
+    void		readMainFile(od_istream&);
     bool		getGeneralSectionData(const IOPar&);
     bool		reset(uiRetVal&) const;
     bool		isSelected(const CubeDataPos&) const;
     bool		advancePos(CubeDataPos&) const;
+    bool		doGoTo(const BinID&,uiRetVal&) const;
     void		doGet(SeisTrc&,uiRetVal&) const;
+    void		doFillInfo(const BinID&,const FileColumn&,
+				   SeisTrcInfo&) const;
+    FileColumn*		getColumnAt(const BinID&,uiRetVal&) const;
     FileColumn*		getColumn(const HGlobIdx&,uiRetVal&) const;
-    void		readTrace(SeisTrc&,uiRetVal&) const;
     bool		activateColumn(FileColumn*,uiRetVal&) const;
+    void		readTrace(SeisTrc&,uiRetVal&) const;
 
     friend class	FileColumn;
 

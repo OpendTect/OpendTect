@@ -19,8 +19,8 @@ static const char* sNormSeisIDStr = "100010.2";
 static const char* sSteerSeisIDStr = "100010.3";
 static const char* sMonsterSeisIDStr = "100010.311";
 
-static const bool usesteer = true;
-static const bool usemonster = false;
+static const bool usesteer = false;
+static const bool usemonster = true;
 
 
 static void prTrc( const SeisTrc& trc )
@@ -53,7 +53,7 @@ static bool testWriting()
 	return true; // don't need e-mails from CDash
     }
 
-    /*
+    ///*
 
     Seis::Blocks::Writer wrr;
     if ( !usemonster )
@@ -118,7 +118,7 @@ static bool testWriting()
 	}
     }
 
-    */
+    //*/
 
     return true;
 }

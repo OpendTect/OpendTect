@@ -38,10 +38,8 @@ numbers.
 namespace PosInfo
 {
 
-/*!
-\brief Position info for a line - in a 3D cube, that would be an inline.
-Stored as (crossline-)number segments.
-*/
+/*!\brief Position info for a line - in a 3D cube, that would be an inline.
+  Stored as (crossline-)number segments. */
 
 mExpClass(Basic) LineData
 {
@@ -67,9 +65,7 @@ public:
 };
 
 
-/*!
-\brief Position in a CubeData.
-*/
+/*!\brief Position in a CubeData. */
 
 mExpClass(Basic) CubeDataPos
 {
@@ -88,10 +84,8 @@ public:
 };
 
 
-/*!
-\brief Position info for an entire 3D cube.
-The LineData's are not sorted.
-*/
+/*!\brief Position info for an entire 3D cube. The LineData's are not
+  automatically sorted. */
 
 mExpClass(Basic) CubeData : public ManagedObjectSet<LineData>
 {
@@ -149,10 +143,8 @@ protected:
 };
 
 
-/*!
-\brief Position info for an entire 3D cube.
-The LineData's are sorted.
-*/
+/*!\brief Position info for an entire 3D cube. The LineData's add are
+  automatically sorted. */
 
 mExpClass(Basic) SortedCubeData : public CubeData
 {
@@ -185,9 +177,7 @@ protected:
 };
 
 
-/*!
-\brief Fills CubeData object. Requires inline- and crossline-sorting.
-*/
+/*!\brief Fills CubeData object. Requires inline- and crossline-sorting.  */
 
 mExpClass(Basic) CubeDataFiller
 {

@@ -172,15 +172,24 @@ public:
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&)			{ return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
+    virtual bool	supportsGoTo() const		{ return false; }
+    virtual bool	goTo(const BinID&)		{ return false; }
     virtual bool	write(const SeisTrc&);
 			// overrule if you don't need sorting/buffering
 
-    virtual bool	close();
     uiString		errMsg() const			{ return errmsg_; }
 
     virtual bool	isSingleComponent() const	{ return true; }
-    virtual bool	inlCrlSorted() const		{ return true; }
+    virtual bool	getGeometryInfo(PosInfo::CubeData&) const
+							{ return false; }
+			//!< The returned CubeData is assumed to be sorted!
+    virtual bool	isUserSelectable(bool) const	{ return false; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
+    virtual int		estimatedNrTraces() const	{ return -1; }
+
+    virtual bool	close();
+    virtual void	cleanUp();
+			//!< Prepare for new initialisation.
 
     virtual void	usePar(const IOPar&);
 
@@ -192,19 +201,10 @@ public:
     SeisTrc*		getFilled(const BinID&);
 			/*!< Returns a full sized trace with zeros. */
 
-    virtual bool	supportsGoTo() const		{ return false; }
-    virtual bool	goTo(const BinID&)		{ return false; }
-
-    virtual void	cleanUp();
-			//!< Prepare for new initialisation.
-
     static bool		getRanges(const DBKey&,TrcKeyZSampling&,
 				  const char* linekey=0);
     static bool		getRanges(const IOObj&,TrcKeyZSampling&,
 				  const char* linekey=0);
-
-    virtual bool	getGeometryInfo(PosInfo::CubeData&) const
-							{ return false; }
 
     static bool		is2D(const IOObj&,bool only_internal=false);
     static bool		isPS(const IOObj&);
@@ -228,14 +228,13 @@ public:
     Pos::GeomID		curGeomID() const		{ return geomid_; }
     void		setCurGeomID( Pos::GeomID gid )	{ geomid_ = gid; }
 
-    virtual bool	isUserSelectable(bool) const	{ return false; }
-    virtual int		estimatedNrTraces() const	{ return -1; }
-
     void		setComponentNames(const BufferStringSet&);
     void		getComponentNames(BufferStringSet&) const;
 
     bool		haveWarnings() const;
     const BufferStringSet& warnings() const		{ return warnings_; }
+
+    mDeprecated virtual bool inlCrlSorted() const	{ return true; }
 
 protected:
 

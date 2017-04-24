@@ -30,8 +30,8 @@ public:
     BufferString	usrinfo;
     BufferString	stdinfo;
     int			nr;
-    bool		fullyrectandreg;
 
+    bool		fullyrectandreg;
     const PosInfo::CubeData* cubedata;
 
     StepInterval<int>	inlrg;
