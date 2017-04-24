@@ -26,6 +26,7 @@
 #include "uisegyread.h"
 
 #include "uiseisfileman.h"
+#include "uiseispsman.h"
 #include "uisurvinfoed.h"
 #include "uimenu.h"
 #include "uiodmenumgr.h"
@@ -113,6 +114,12 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     bdef->tooltip_ = tr("Change file/directory names in SEG-Y file %1");
     bdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisFileMan::addBrowser( bdef );
+
+    uiSeisPreStackMan::BrowserDef* psbdef = new uiSeisPreStackMan::BrowserDef(
+				SEGYDirectSeisPS3DTranslator::translKey() );
+    psbdef->tooltip_ = tr("Change file/directory names in SEG-Y file %1");
+    psbdef->cb_ = muiSEGYMgrCB(edFiles);
+    uiSeisPreStackMan::addBrowser( psbdef );
 
     mCallODPluginSurvRelToolsLoadFn( uiSEGY );
     mAttachCB( DBM().surveyChanged, uiSEGYMgr::updateMenu );
@@ -246,7 +253,7 @@ void uiSEGYMgr::reSortCB( CallBacker* )
 
 void uiSEGYMgr::edFiles( CallBacker* cb )
 {
-    mDynamicCastGet(uiSeisFileMan*,sfm,cb)
+    mDynamicCastGet(uiObjFileMan*,sfm,cb)
     if ( !sfm || !sfm->curIOObj() )
 	return;
 

@@ -40,6 +40,7 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     , is2d_(is2d)
     , copybut_(0)
     , mergebut_(0)
+    , editbut_(0)
 {
     createDefaultUI( true );
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
@@ -54,6 +55,9 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 	manipgrp->addButton( "mkmulticubeps",
 			     tr("Create/Edit Multi-Cube data store"),
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
+	editbut_ = manipgrp->addButton( "browseseis",
+			tr("Change file/directory names in SEG-Y file %1"),
+			mCB(this,uiSeisPreStackMan,editPush) );
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -104,6 +108,16 @@ void uiSeisPreStackMan::ownSelChg()
     else
 	mergebut_->setToolTip(uiStrings::phrMerge(uiStrings::phrData(
 								tr("Store"))));
+
+    const uiSeisPreStackMan::BrowserDef* bdef = getBrowserDef();
+    editbut_->display( bdef );
+    if ( bdef )
+    {
+	uiString bdeftt( bdef->tooltip_ );
+	editbut_->setToolTip( bdeftt.arg(curioobj_->uiName()) );
+    }
+    else
+	editbut_->setToolTip( uiString::emptyString() );
 }
 
 
@@ -198,3 +212,40 @@ void uiSeisPreStackMan::mkMultiPush( CallBacker* )
     dlg.go();
     selgrp_->fullUpdate( key );
 }
+
+
+static ObjectSet<uiSeisPreStackMan::BrowserDef> browserdefs_;
+
+int uiSeisPreStackMan::addBrowser( uiSeisPreStackMan::BrowserDef* bd )
+{
+    browserdefs_ += bd;
+    return browserdefs_.size() - 1;
+}
+
+
+const uiSeisPreStackMan::BrowserDef* uiSeisPreStackMan::getBrowserDef() const
+{
+    if ( curioobj_ )
+    {
+	for ( int idx=0; idx<browserdefs_.size(); idx++ )
+	{
+	    const BrowserDef* bdef = browserdefs_[idx];
+	    if ( bdef->name_ == curioobj_->translator() )
+		return bdef;
+	}
+    }
+
+    return 0;
+}
+
+
+void uiSeisPreStackMan::editPush( CallBacker* )
+{
+    const uiSeisPreStackMan::BrowserDef* bdef = getBrowserDef();
+    if ( bdef )
+    {
+	CallBack cb( bdef->cb_ );
+	cb.doCall( this );
+    }
+}
+
