@@ -51,7 +51,7 @@ Language:
 Byte order:
 
 	__little__	little-endian
- 
+
 Always defined:
 
 	__islittle__	'true' if little endian machine, false otherwise
@@ -84,7 +84,7 @@ Always defined:
 //This is a fix to fix the bug 6644037 at bugreport.apple.com
 //This bug makes the compiler not link the objectset's virtual functions under
 //some conditions.
-# if defined( __clang__) 
+# if defined( __clang__)
 #  if ( __clang_major__==5 ) && ( __clang_minor__==1 )
 #    ifndef __MAC_LLVM_COMPILER_ERROR__
 #     define LLVM_ERROR
@@ -208,8 +208,8 @@ Always defined:
 #if defined( __gnuc__ )
 # define mUnusedVar __attribute__ ((unused))
 
-//Support for deprecation under gcc is fully available in gcc 4.8
-# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 1 )
+//Support for deprecation under gcc is fully available in gcc 4.6
+# if __GNUC__ > 4 || (__GNUC__ == 6 && __GNUC_MINOR__ > 0 )
 #  define mDeprecated __attribute__ ((deprecated))
 #  define mStartAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic push" ) \
