@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyread.h"
 
 #include "uiseisfileman.h"
+#include "uiseispsman.h"
 #include "uisurvinfoed.h"
 #include "uimenu.h"
 #include "uiodmenumgr.h"
@@ -112,6 +113,12 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 	uiSurveyInfoEditor::addInfoProvider(
 			    new uiSEGYClassicSurvInfoProvider() );
     mAttachCB( IOM().surveyChanged, uiSEGYMgr::updateMenu );
+
+    uiSeisPreStackMan::BrowserDef* psbdef = new uiSeisPreStackMan::BrowserDef(
+				SEGYDirectSeisPS3DTranslator::translKey() );
+    psbdef->tooltip_ = tr("Change file/directory names in SEG-Y file %1");
+    psbdef->cb_ = muiSEGYMgrCB(edFiles);
+    uiSeisPreStackMan::addBrowser( psbdef );
 
     updateMenu(0);
 }
@@ -242,7 +249,7 @@ void uiSEGYMgr::reSortCB( CallBacker* )
 
 void uiSEGYMgr::edFiles( CallBacker* cb )
 {
-    mDynamicCastGet(uiSeisFileMan*,sfm,cb)
+    mDynamicCastGet(uiObjFileMan*,sfm,cb)
     if ( !sfm || !sfm->curIOObj() )
 	return;
 
