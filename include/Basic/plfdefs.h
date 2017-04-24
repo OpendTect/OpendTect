@@ -185,8 +185,8 @@ Always defined:
 #if defined( __gnuc__ )
 # define mUnusedVar __attribute__ ((unused))
 
-//Support for deprecation under gcc is fully available in gcc 4.8
-# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 7 )
+//Support for deprecation under gcc is fully available in gcc 4.6
+# if __GNUC__ > 4 || (__GNUC__ == 6 && __GNUC_MINOR__ > 0 )
 #  define mDeprecated __attribute__ ((deprecated))
 #  define mStartAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic push" ) \
