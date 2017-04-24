@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.0" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -164,7 +164,7 @@
     </message>
     <message numerus="yes">
         <source>ColorTable</source>
-        <translation type="vanished">
+        <translation>
             <numerusform>Color Table</numerusform>
             <numerusform>Color Tables</numerusform>
         </translation>
@@ -479,7 +479,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+13"/>
+        <location line="+14"/>
         <source>In-line</source>
         <translation>
             <numerusform>In-line</numerusform>
@@ -572,6 +572,14 @@
         <translation>
             <numerusform>PickSet</numerusform>
             <numerusform>PickSets</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
+        <source>PointSet</source>
+        <translation>
+            <numerusform>PointSet</numerusform>
+            <numerusform>PointSets</numerusform>
         </translation>
     </message>
     <message numerus="yes">
