@@ -34,9 +34,7 @@ namespace Blocks
 {
 
 
-class OffsetTable : public std::map<HGlobIdx,od_stream_Pos>
-{
-};
+class OffsetTable : public std::map<HGlobIdx,od_stream_Pos> {};
 
 
 class FileColumn : public Column
@@ -133,8 +131,8 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 {
     const int nrsamplesinfile = rdr_.zgeom_.nrSteps() + 1;
     const int nrbytespersample = rdr_.interp_->nrBytes();
-    const od_stream_Pos nrbytespercompslice = ((od_stream_Pos)dims_.inl())
-				  * dims_.crl() * nrbytespersample;
+    const int nrbytespercompslice = ((int)dims_.inl()) * dims_.crl()
+				    * nrbytespersample;
 
     const IdxType lastglobzidxinfile = Block::globIdx4Z( rdr_.zgeom_,
 					rdr_.zgeom_.stop, dims_.z() );
