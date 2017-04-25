@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "uistring.h"
 #include "ranges.h"
-#include "od_iosfwd.h"
+class od_ostream;
 
 class Task;
 
@@ -50,7 +50,7 @@ public:
 
     const HGeom&	hGeom() const		{ return hgeom_; }
 
-    void		setBasePath(const File::Path&);
+    void		setFullPath(const char*); //!< with or w/o extension
     void		setFileNameBase(const char*);
     void		setCubeName(const char*);
     void		setZDomain(const ZDomain::Def&);
@@ -69,6 +69,7 @@ public:
 
     inline int		nrColumnBlocks() const
 			{ return zevalpositions_.size(); }
+    void		setBasePath(const File::Path&);
 
 protected:
 
@@ -78,25 +79,24 @@ protected:
     int			nrcomps_;
     bool		isfinished_;
     DataInterp*		interp_;
+    od_ostream*		strm_;
 
     IdxType		nrglobzidxs_;
     ObjectSet<ZEvalPosSet> zevalpositions_;
 
     virtual void	setEmpty();
     void		resetZ();
-    bool		removeExisting(const char*,uiRetVal&) const;
-    bool		prepareWrite(uiRetVal&);
     void		add2Block(MemBlock&,const ZEvalPosSet&,const HLocIdx&,
 				    const SeisTrc&,int);
     MemBlockColumn*	getColumn(const HGlobIdx&);
     MemBlockColumn*	mkNewColumn(const HGlobIdx&);
     bool		isCompleted(const MemBlockColumn&) const;
     void		writeColumn(MemBlockColumn&,uiRetVal&);
-    bool		writeColumnHeader(od_ostream&,const MemBlockColumn&,
+    bool		writeColumnHeader(const MemBlockColumn&,
 				    const HLocIdx&,const HDimensions&) const;
-    bool		writeBlock(od_ostream&,MemBlock&,HLocIdx,HDimensions);
-    void		writeMainFile(uiRetVal&);
-    bool		writeMainFileData(od_ostream&);
+    bool		writeBlock(MemBlock&,HLocIdx,HDimensions);
+    void		writeInfoFile(uiRetVal&);
+    bool		writeInfoFileData(od_ostream&);
     void		scanPositions(PosInfo::CubeData& cubedata,
 			    Interval<IdxType>&,Interval<IdxType>&,
 		            Interval<int>&,Interval<int>&,

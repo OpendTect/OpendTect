@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "ascstream.h"
 #include "zdomain.h"
+#include <map>
 
 
 namespace Seis
@@ -32,31 +33,30 @@ namespace Seis
 namespace Blocks
 {
 
+
+class OffsetTable : public std::map<HGlobIdx,od_stream_Pos>
+{
+};
+
+
 class FileColumn : public Column
 { mODTextTranslationClass(Seis::Blocks::FileColumn)
 public:
 
-			FileColumn(const Reader&,const HGlobIdx&);
+			FileColumn(const Reader&,const HGlobIdx&,uiRetVal&);
 			~FileColumn();
-
-    void		activate(uiRetVal&);
-    void		retire();
 
     void		fillTrace(const BinID&,SeisTrc&,uiRetVal&) const;
 
     const Reader&	rdr_;
-    od_istream*		strm_;
+    od_istream&		strm_;
 
-    IOClass::HdrSzVersionType headernrbytes_;
+    od_stream_Pos	startoffsinfile_;
+    SzType		headernrbytes_;
     HLocIdx		start_;
     const Dimensions	dims_;
-    int			nrcomponents_;
     int			nrsamplesintrace_;
-    int			nrcomponentsintrace_;
-    DataInterp*		interp_;
-    LinScaler*		scaler_;
     const HGeom&	hgeom_;
-    float		zstart_;
 
     struct Chunk
     {
@@ -70,11 +70,9 @@ public:
 
 protected:
 
-    bool		wasretired_;
     char*		trcpartbuf_;
 
     void		createOffsetTable();
-    void		closeStream();
 
 };
 
@@ -83,92 +81,39 @@ protected:
 } // namespace Seis
 
 
-Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const HGlobIdx& gidx )
+Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const HGlobIdx& gidx,
+				      uiRetVal& uirv )
     : Column(gidx,Dimensions(0,0,0),rdr.nrComponents())
     , rdr_(rdr)
     , start_(0,0)
-    , interp_(0)
-    , strm_(0)
-    , scaler_(0)
+    , strm_(*rdr.strm_)
     , nrsamplesintrace_(0)
-    , nrcomponentsintrace_(0)
     , trcpartbuf_(0)
-    , wasretired_(false)
     , hgeom_(*rdr_.hgeom_)
-{
-    for ( int idx=0; idx<rdr_.compsel_.size(); idx++ )
-	if ( rdr_.compsel_[idx] )
-	    nrcomponentsintrace_++;
-}
-
-
-Seis::Blocks::FileColumn::~FileColumn()
-{
-    closeStream();
-    delete scaler_;
-    deepErase( chunks_ );
-    delete [] trcpartbuf_;
-}
-
-
-void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
+    , startoffsinfile_(rdr.offstbl_[globidx_])
 {
     uirv.setEmpty();
-    if ( strm_ )
-	return;
 
-    const File::Path fp( rdr_.dataDirName(), rdr_.fileNameFor(globidx_) );
-    const BufferString fnm( fp.fullPath() );
-    strm_ = new od_istream( fnm );
-    if ( !strm_->isOK() )
-    {
-	closeStream();
-	uirv.set( uiStrings::phrCannotOpen( toUiString(fnm) ) );
-	return;
-    }
-
-    if ( wasretired_ )
-	return;
-
-    IOClass::HdrSzVersionType version, dfmt;
-    strm_->getBin( headernrbytes_ ).getBin( version ).getBin( dfmt );
-    IOClass::HdrSzVersionType expectedhdrbts = rdr_.columnHeaderSize( version );
+    strm_.setReadPosition( startoffsinfile_ );
+    strm_.getBin( headernrbytes_ );
+    SzType expectedhdrbts = rdr_.columnHeaderSize( rdr_.version_ );
     if ( headernrbytes_ != expectedhdrbts )
     {
-	closeStream();
-	uirv.set( tr("%1: unexpected header size.\nFound %2, should be %3.")
-	          .arg( fnm ).arg( headernrbytes_ ).arg( expectedhdrbts ) );
+	uirv.set( tr("%1: unexpected size in file.\nFound %2, should be %3.")
+	          .arg( strm_.fileName() )
+		  .arg( headernrbytes_ ).arg( expectedhdrbts ) );
 	return;
     }
-    const DataCharacteristics dc( (OD::FPDataRepType)dfmt );
-    interp_ = DataInterp::create( dc, true );
 
-    HGlobIdx gidx; // will be ignored
     Dimensions& dms( const_cast<Dimensions&>(dims_) );
-    strm_->getBin( dms.first ).getBin( dms.second ).getBin( dms.third );
-    strm_->getBin( gidx.first ).getBin( gidx.second );
-    strm_->getBin( start_.first ).getBin( start_.second );
+    strm_.getBin( dms.first ).getBin( dms.second ).getBin( dms.third );
+    strm_.getBin( start_.first ).getBin( start_.second );
+    HGlobIdx gidx4dbg; // will be ignored, but helps debugging
+    strm_.getBin( gidx4dbg.first ).getBin( gidx4dbg.second );
 
-    const int nrscalebytes = 2 * sizeof(float);
-    char* buf = new char [nrscalebytes];
-    strm_->getBin( buf, nrscalebytes );
-    bool havescaler = false;
-    for ( int idx=0; idx<nrscalebytes; idx++ )
+    if ( !strm_.isOK() )
     {
-	if ( buf[idx] != 0 )
-	    { havescaler = true; break; }
-    }
-    if ( havescaler )
-    {
-	const float* vals = (const float*)buf;
-	scaler_ = new LinScaler( vals[0], vals[1] );
-    }
-    delete [] buf;
-
-    if ( !strm_->isOK() )
-    {
-	closeStream();
-	uirv.set( tr("%1: unexpected en of file.").arg( fnm ) );
+	uirv.set( tr("%1: unexpected end of file.").arg( strm_.fileName() ) );
 	return;
     }
 
@@ -176,42 +121,26 @@ void Seis::Blocks::FileColumn::activate( uiRetVal& uirv )
 }
 
 
-void Seis::Blocks::FileColumn::retire()
+Seis::Blocks::FileColumn::~FileColumn()
 {
-    closeStream();
-    wasretired_ = true;
-}
-
-
-void Seis::Blocks::FileColumn::closeStream()
-{
-    delete strm_; strm_ = 0;
+    deepErase( chunks_ );
+    delete [] trcpartbuf_;
 }
 
 
 void Seis::Blocks::FileColumn::createOffsetTable()
 {
-    const ZGeom& zgeom = rdr_.zGeom();
-    Interval<float> zrg( zgeom.start, zgeom.stop );
-    if ( rdr_.seldata_ )
-    {
-	zrg.limitTo( rdr_.seldata_->zRange() );
-	zrg.start = zgeom.snap( zrg.start );
-	zrg.stop = zgeom.snap( zrg.stop );
-    }
-    zstart_ = zrg.start;
-
-    const int nrsamplesinfile = zgeom.nrSteps() + 1;
-    const int nrbytespersample = interp_->nrBytes();
+    const int nrsamplesinfile = rdr_.zgeom_.nrSteps() + 1;
+    const int nrbytespersample = rdr_.interp_->nrBytes();
     const od_stream_Pos nrbytespercompslice = ((od_stream_Pos)dims_.inl())
 				  * dims_.crl() * nrbytespersample;
 
     Interval<IdxType> globzidxrg(
-	    Block::globIdx4Z( zgeom, zrg.start, dims_.z() ),
-	    Block::globIdx4Z( zgeom, zrg.stop, dims_.z() ) );
+	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start, dims_.z() ),
+	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop, dims_.z() ) );
     nrsamplesintrace_ = 0;
     int nrfilesamplessofar = 0;
-    od_stream_Pos blockstartoffs = headernrbytes_;
+    od_stream_Pos blockstartoffs = startoffsinfile_ + headernrbytes_;
     for ( IdxType gzidx=globzidxrg.start; gzidx<=globzidxrg.stop; gzidx++ )
     {
 	Dimensions rddims( dims_ );
@@ -222,12 +151,13 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 	IdxType startzidx = 0;
 	if ( gzidx == globzidxrg.start )
 	{
-	    startzidx = Block::locIdx4Z( zgeom, zrg.start, dims_.z() );
+	    startzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start,
+					 dims_.z() );
 	    rddims.z() = dims_.z() - startzidx;
 	}
 	if ( gzidx == globzidxrg.stop )
-	    rddims.z() = Block::locIdx4Z( zgeom, zrg.stop, dims_.z() )
-		     - startzidx + 1;
+	    rddims.z() = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop,
+			 dims_.z() ) - startzidx + 1;
 
 	const od_stream_Pos blocknrbytes = nrbytespercompslice * rddims.z();
 
@@ -264,27 +194,27 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
     if ( locidx.inl() < 0 || locidx.crl() < 0
       || locidx.inl() >= dims_.inl() || locidx.crl() >= dims_.crl() )
     {
-	// something's diff between bin block and main file; a getNext() found
+	// something's diff between bin block and info file; a getNext() found
 	// this position in the CubeData, but the position is not available
-	uirv.set( tr("Location from .cube file (%1/%2) not in file")
+	uirv.set( tr("Location from .info file (%1/%2) not in file")
 		.arg(bid.inl()).arg(bid.crl()) );
 	return;
     }
 
-    trc.setNrComponents( nrcomponentsintrace_ );
+    trc.setNrComponents( rdr_.nrcomponentsintrace_ );
     trc.reSize( nrsamplesintrace_, false );
 
     const int nrtrcs = ((int)locidx.inl()) * dims_.crl() + locidx.crl();
     for ( int idx=0; idx<chunks_.size(); idx++ )
     {
 	const Chunk& chunk = *chunks_[idx];
-	strm_->setReadPosition( chunk.offs_ + nrtrcs * chunk.trcpartnrbytes_ );
-	strm_->getBin( trcpartbuf_, chunk.trcpartnrbytes_ );
+	strm_.setReadPosition( chunk.offs_ + nrtrcs * chunk.trcpartnrbytes_ );
+	strm_.getBin( trcpartbuf_, chunk.trcpartnrbytes_ );
 	for ( int isamp=0; isamp<chunk.nrsamps_; isamp++ )
 	{
-	    float val = interp_->get( trcpartbuf_, isamp );
-	    if ( scaler_ )
-		val = (float)scaler_->scale( val );
+	    float val = rdr_.interp_->get( trcpartbuf_, isamp );
+	    if ( rdr_.scaler_ )
+		val = (float)rdr_.scaler_->scale( val );
 	    trc.set( chunk.startsamp_ + isamp, val, chunk.comp_ );
 	}
     }
@@ -292,19 +222,22 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 
 
 #define mSeisBlocksReaderInitList() \
-      hgeom_(0) \
+      offstbl_(*new OffsetTable) \
+    , strm_(0) \
+    , hgeom_(0) \
+    , scaler_(0) \
+    , interp_(0) \
     , cubedata_(*new PosInfo::CubeData) \
     , curcdpos_(*new PosInfo::CubeDataPos) \
     , seldata_(0) \
-    , globinlidxrg_(0,0) \
-    , globcrlidxrg_(0,0)
+    , nrcomponentsintrace_(0) \
+    , lastopwasgetinfo_(false)
 
 
 
 Seis::Blocks::Reader::Reader( const char* inp )
     : mSeisBlocksReaderInitList()
 {
-    File::Path fp( inp );
     if ( !File::exists(inp) )
     {
 	if ( !inp || !*inp )
@@ -314,14 +247,11 @@ Seis::Blocks::Reader::Reader( const char* inp )
 	return;
     }
 
-    if ( !File::isDirectory(inp) )
-	fp.setExtension( 0 );
-    filenamebase_ = fp.fileName();
-    fp.setFileName( 0 );
-    basepath_ = fp;
+    basepath_.set( inp );
+    basepath_.setExtension( 0 );
 
-    const BufferString fnm( mainFileName() );
-    od_istream strm( mainFileName() );
+    const BufferString fnm( infoFileName() );
+    od_istream strm( infoFileName() );
     if ( !strm.isOK() )
     {
 	state_.set( uiStrings::phrCannotOpen(toUiString(strm.fileName())) );
@@ -329,35 +259,47 @@ Seis::Blocks::Reader::Reader( const char* inp )
 	return;
     }
 
-    readMainFile( strm );
+    readInfoFile( strm );
 }
 
 
 Seis::Blocks::Reader::Reader( od_istream& strm )
     : mSeisBlocksReaderInitList()
 {
-    File::Path fp( strm.fileName() );
-    fp.setExtension( 0 );
-    filenamebase_ = fp.fileName();
-    fp.setFileName( 0 );
-    basepath_ = fp;
+    basepath_.set( strm.fileName() );
+    basepath_.setExtension( 0 );
 
-    readMainFile( strm );
+    readInfoFile( strm );
 }
 
 
 Seis::Blocks::Reader::~Reader()
 {
+    closeStream();
     delete seldata_;
     delete hgeom_;
     delete &cubedata_;
     delete &curcdpos_;
+    delete &offstbl_;
 }
 
 
-void Seis::Blocks::Reader::readMainFile( od_istream& strm )
+void Seis::Blocks::Reader::close()
 {
+    closeStream();
+    offstbl_.clear();
+    needreset_ = true;
+}
 
+
+void Seis::Blocks::Reader::closeStream() const
+{
+    delete strm_; strm_ = 0;
+}
+
+
+void Seis::Blocks::Reader::readInfoFile( od_istream& strm )
+{
     ascistream astrm( strm );
     if ( !astrm.isOfFileType(sKeyFileType()) )
     {
@@ -365,7 +307,7 @@ void Seis::Blocks::Reader::readMainFile( od_istream& strm )
 	return;
     }
 
-    bool havegensection = false, havepossection = false;
+    bool havegensection = false, havepossection = false, haveoffsection = false;
     while ( !havepossection )
     {
 	BufferString sectnm;
@@ -375,7 +317,7 @@ void Seis::Blocks::Reader::readMainFile( od_istream& strm )
 	if ( !sectnm.startsWith(sKeySectionPre()) )
 	{
 	    state_.set( tr("%1\n'%2' keyword not found")
-		    .arg(strm.fileName()).arg(sKeySectionPre()) );
+			.arg(strm.fileName()).arg(sKeySectionPre()) );
 	    return;
 	}
 
@@ -392,6 +334,13 @@ void Seis::Blocks::Reader::readMainFile( od_istream& strm )
 	    failed = !getGeneralSectionData( iop );
 	    havegensection = true;
 	}
+	else if ( sectnm == sKeyOffSection() )
+	{
+	    IOPar iop;
+	    iop.getFrom( astrm );
+	    failed = !getOffsetSectionData( iop );
+	    haveoffsection = true;
+	}
 	else
 	{
 	    IOPar* iop = new IOPar;
@@ -401,15 +350,17 @@ void Seis::Blocks::Reader::readMainFile( od_istream& strm )
 	}
 	if ( failed )
 	{
-	    state_.set( tr("%1\n'%2' section is invalid")
-		    .arg(strm.fileName()).arg(sectnm) );
+	    state_.set( tr("%1\n'%2' section is invalid").arg(strm.fileName())
+			.arg(sectnm) );
 	    return;
 	}
     }
 
-    if ( !havegensection || !havepossection )
-	state_.set( tr("%1\nlacks %1 section").arg(strm.fileName())
-	       .arg( havegensection ? tr("Position") : tr("General") ) );
+    if ( !havegensection || !havepossection || !haveoffsection )
+	state_.set( tr("%1\nlacks %2 section").arg(strm.fileName())
+	       .arg( !havegensection ? tr("General")
+		  : (!havepossection ? tr("Positioning")
+				     : tr("File Offset")) ) );
 }
 
 
@@ -417,37 +368,29 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 {
     int ver = version_;
     iop.get( sKeyFmtVersion(), ver );
-    version_ = (HdrSzVersionType)ver;
+    version_ = (SzType)ver;
     iop.get( sKeyCubeName(), cubename_ );
     if ( cubename_.isEmpty() )
-	cubename_ = filenamebase_;
+	cubename_ = basepath_.fileName();
     iop.get( sKeySurveyName(), survname_ );
 
     hgeom_ = new HGeom( cubename_, ZDomain::SI() );
     hgeom_->getMapInfo( iop );
     iop.get( sKey::ZRange(), zgeom_ );
     zdomaindef_ = ZDomain::Def::get( iop );
+
     DataCharacteristics::getUserTypeFromPar( iop, fprep_ );
+    interp_ = DataInterp::create( DataCharacteristics(fprep_), true );
     Scaler* scl = Scaler::get( iop );
     mDynamicCast( LinScaler*, scaler_, scl );
 
     int i1 = dims_.inl(), i2 = dims_.crl(), i3 = dims_.z();
     if ( !iop.get(sKeyDimensions(),i1,i2,i3) )
     {
-	state_.set( tr("%1\nlacks block dimension info").arg(mainFileName()) );
+	state_.set( tr("%1\nlacks block dimension info").arg(infoFileName()) );
 	return false;
     }
     dims_.inl() = SzType(i1); dims_.crl() = SzType(i2); dims_.z() = SzType(i3);
-
-    i1 = globinlidxrg_.start; i2 = globinlidxrg_.stop;
-    iop.get( sKeyGlobInlRg(), i1, i2 );
-    globinlidxrg_.start = IdxType(i1); globinlidxrg_.stop = IdxType(i2);
-    i1 = globcrlidxrg_.start; i2 = globcrlidxrg_.stop;
-    iop.get( sKeyGlobCrlRg(), i1, i2 );
-    globcrlidxrg_.start = IdxType(i1); globcrlidxrg_.stop = IdxType(i2);
-
-    iop.get( sKey::InlRange(), inlrg_ );
-    iop.get( sKey::CrlRange(), crlrg_ );
 
     FileMultiString fms( iop.find(sKeyComponents()) );
     const int nrcomps = fms.size();
@@ -465,14 +408,26 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 	}
     }
 
-    int maxinlblocks = globinlidxrg_.width() + 1;
-    int maxcrlblocks = globcrlidxrg_.width() + 1;
-    maxnrfiles_ = mMAX( maxinlblocks, maxcrlblocks ) * 2;
-    if ( maxnrfiles_ > 1024 )
-	maxnrfiles_ = 1024; // this is a *lot*, just a bit of sanity
-			    // no prob anyway because we retire not destroy
-
     return true;
+}
+
+
+bool Seis::Blocks::Reader::getOffsetSectionData( const IOPar& iop )
+{
+    for ( int idx=0; idx<iop.size(); idx++ )
+    {
+	BufferString kw( iop.getKey(idx) );
+	char* ptr = kw.find( '.' );
+	if ( !ptr )
+	    continue;
+
+	*ptr++ = '\0';
+	const HGlobIdx globidx( (IdxType)toInt(kw), (IdxType)toInt(ptr) );
+	const od_stream_Pos pos = toInt64( iop.getValue(idx) );
+	offstbl_[globidx] = pos;
+    }
+
+    return !offstbl_.empty();
 }
 
 
@@ -530,6 +485,10 @@ uiRetVal Seis::Blocks::Reader::skip( int nrpos ) const
 
 bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
 {
+    needreset_ = false;
+    lastopwasgetinfo_ = false;
+    closeStream();
+
     curcdpos_.toPreStart();
     if ( !advancePos(curcdpos_) )
     {
@@ -537,7 +496,30 @@ bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
 	return false;
     }
 
-    needreset_ = false;
+    const BufferString fnm( dataFileName() );
+    strm_ = new od_istream( fnm );
+    if ( !strm_->isOK() )
+    {
+	closeStream();
+	uirv.set( uiStrings::phrCannotOpen( toUiString(fnm) ) );
+	return false;
+    }
+
+    int& nrcomps = const_cast<int&>( nrcomponentsintrace_ );
+    nrcomps = 0;
+    for ( int idx=0; idx<compsel_.size(); idx++ )
+	if ( compsel_[idx] )
+	    nrcomps++;
+
+    Interval<float>& zrg = const_cast<Interval<float>&>( zrgintrace_ );
+    zrg = zgeom_;
+    if ( seldata_ )
+    {
+	zrg.limitTo( seldata_->zRange() );
+	zrg.start = zgeom_.snap( zrg.start );
+	zrg.stop = zgeom_.snap( zrg.stop );
+    }
+
     return true;
 }
 
@@ -561,13 +543,15 @@ uiRetVal Seis::Blocks::Reader::getTrcInfo( SeisTrcInfo& ti ) const
 	    return uirv;
     }
 
+    if ( lastopwasgetinfo_ )
+	advancePos( curcdpos_ );
+    lastopwasgetinfo_ = true;
+
     if ( !curcdpos_.isValid() )
 	{ uirv.set( uiStrings::sFinished() ); return uirv; }
 
     const BinID bid = cubedata_.binID( curcdpos_ );
-    FileColumn* column = getColumnAt( bid, uirv );
-    if ( column )
-	doFillInfo( bid, *column, ti );
+    fillInfo( bid, ti );
 
     return uirv;
 }
@@ -603,6 +587,7 @@ bool Seis::Blocks::Reader::doGoTo( const BinID& bid, uiRetVal& uirv ) const
 	if ( !reset(uirv) )
 	    return false;
     }
+    lastopwasgetinfo_ = false;
 
     PosInfo::CubeDataPos newcdpos = cubedata_.cubeDataPos( bid );
     if ( !newcdpos.isValid() )
@@ -617,10 +602,9 @@ bool Seis::Blocks::Reader::doGoTo( const BinID& bid, uiRetVal& uirv ) const
 }
 
 
-void Seis::Blocks::Reader::doFillInfo( const BinID& bid,
-		    const FileColumn& column, SeisTrcInfo& ti ) const
+void Seis::Blocks::Reader::fillInfo( const BinID& bid, SeisTrcInfo& ti ) const
 {
-    ti.sampling_.start = column.zstart_;
+    ti.sampling_.start = zrgintrace_.start;
     ti.sampling_.step = zgeom_.step;
     ti.setBinID( bid );
     ti.coord_ = hgeom_->transform( bid );
@@ -629,6 +613,7 @@ void Seis::Blocks::Reader::doFillInfo( const BinID& bid,
 
 void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
 {
+    lastopwasgetinfo_ = false;
     if ( needreset_ )
     {
 	if ( !reset(uirv) )
@@ -644,57 +629,19 @@ void Seis::Blocks::Reader::doGet( SeisTrc& trc, uiRetVal& uirv ) const
 }
 
 
-Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumnAt( const BinID& bid,
-						    uiRetVal& uirv ) const
-{
-    const HGlobIdx globidx( Block::globIdx4Inl(*hgeom_,bid.inl(),dims_.inl()),
-			    Block::globIdx4Crl(*hgeom_,bid.crl(),dims_.crl()) );
-
-    return getColumn( globidx, uirv );
-}
-
-
 Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumn(
 		const HGlobIdx& globidx, uiRetVal& uirv ) const
 {
-    FileColumn* column = (FileColumn*)findColumn( globidx );
+    FileColumn* column = static_cast<FileColumn*>( findColumn(globidx) );
     if ( !column )
     {
-	column = new FileColumn( *this, globidx );
+	column = new FileColumn( *this, globidx, uirv );
+	if ( uirv.isError() )
+	    return 0;
 	addColumn( column );
     }
 
-    return activateColumn(column,uirv) ? column : 0;
-}
-
-
-bool Seis::Blocks::Reader::activateColumn( FileColumn* column,
-					    uiRetVal& uirv ) const
-{
-    column->activate( uirv );
-    if ( uirv.isError() )
-	return false;
-
-    if ( activitylist_.first() != column )
-    {
-	int curidx = activitylist_.indexOf( column );
-	if ( curidx < 0 )
-	{
-	    const int cursz = activitylist_.size();
-	    if ( cursz < maxnrfiles_ )
-		activitylist_ += column;
-	    else
-	    {
-		FileColumn* oldest = activitylist_.last();
-		oldest->retire();
-		activitylist_.replace( cursz-1, column );
-	    }
-	    curidx = activitylist_.size() - 1;
-	}
-	activitylist_.swap( curidx, 0 );
-    }
-
-    return true;
+    return column;
 }
 
 
@@ -708,6 +655,6 @@ void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
     if ( column )
     {
 	column->fillTrace( bid, trc, uirv );
-	doFillInfo( bid, *column, trc.info() );
+	fillInfo( bid, trc.info() );
     }
 }

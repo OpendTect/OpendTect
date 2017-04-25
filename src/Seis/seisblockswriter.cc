@@ -70,9 +70,10 @@ public:
 			{ return blocksets_.first()->first()->isRetired(); }
     void		getDefArea(HLocIdx&,HDimensions&) const;
 
-    ObjectSet<BlockSet> blocksets_; // one set per component
-    bool**		visited_;
     int			nruniquevisits_;
+    od_stream_Pos	fileoffset_;
+    bool**		visited_;
+    ObjectSet<BlockSet> blocksets_; // one set per component
 
 };
 
@@ -117,6 +118,7 @@ Seis::Blocks::MemBlockColumn::MemBlockColumn( const HGlobIdx& gidx,
 					      int nrcomps )
     : Column(gidx,bldims,nrcomps)
     , nruniquevisits_(0)
+    , fileoffset_(0)
 {
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
 	blocksets_ += new BlockSet;
@@ -188,6 +190,7 @@ Seis::Blocks::Writer::Writer( const HGeom* geom )
     , nrcomps_(1)
     , isfinished_(false)
     , interp_(new DataInterp(DataCharacteristics()))
+    , strm_(0)
 {
     zgeom_ = hgeom_.sampling().zsamp_;
 }
@@ -205,6 +208,7 @@ Seis::Blocks::Writer::~Writer()
 	}
     }
 
+    delete strm_;
     deepErase( zevalpositions_ );
     delete interp_;
 }
@@ -227,13 +231,19 @@ void Seis::Blocks::Writer::setBasePath( const File::Path& fp )
 }
 
 
+void Seis::Blocks::Writer::setFullPath( const char* nm )
+{
+    File::Path fp( nm );
+    fp.setExtension( 0 );
+    setBasePath( fp );
+}
+
+
 void Seis::Blocks::Writer::setFileNameBase( const char* nm )
 {
-    if ( filenamebase_ != nm )
-    {
-	filenamebase_ = nm;
-	needreset_ = true;
-    }
+    File::Path fp( basepath_ );
+    fp.setFileName( nm );
+    setBasePath( fp );
 }
 
 
@@ -288,46 +298,6 @@ void Seis::Blocks::Writer::setScaler( const LinScaler* newscaler )
 }
 
 
-bool Seis::Blocks::Writer::removeExisting( const char* fnm,
-					   uiRetVal& uirv ) const
-{
-    if ( File::exists(fnm) )
-    {
-	if ( !File::isDirectory(fnm) )
-	{
-	    if ( !File::remove(fnm) )
-	    {
-		uirv.add( tr("Cannot remove file:\n%1").arg(fnm) );
-		return false;
-	    }
-	}
-	else if ( !File::removeDir(fnm) )
-	{
-	    uirv.add( tr("Cannot remove directory:\n%1").arg(fnm) );
-	    return false;
-	}
-    }
-    return true;
-}
-
-
-bool Seis::Blocks::Writer::prepareWrite( uiRetVal& uirv )
-{
-    const BufferString mainfnm = mainFileName();
-    const BufferString dirnm = dataDirName();
-    if ( !removeExisting(mainfnm,uirv) || !removeExisting(dirnm,uirv) )
-        return false;
-
-    if ( !File::createDir(dirnm) )
-    {
-	uirv.add( tr("Cannot create directory:\n%1").arg(dirnm) );
-	return false;
-    }
-
-    return true;
-}
-
-
 void Seis::Blocks::Writer::resetZ()
 {
     const float eps = Seis::cDefSampleSnapDist();
@@ -374,8 +344,6 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 	    uirv.add( tr("No data in input trace") );
 	    return uirv;
 	}
-	else if ( !prepareWrite(uirv) )
-	    return uirv;
 
 	fprep_ = specifiedfprep_;
 	if ( fprep_ == OD::AutoFPRep )
@@ -511,11 +479,11 @@ class ColumnWriter : public Executor
 { mODTextTranslationClass(Seis::Blocks::ColumnWriter)
 public:
 
-ColumnWriter( Writer& wrr, MemBlockColumn& colmn, const char* fnm )
-    : Executor("Column File Writer")
+ColumnWriter( Writer& wrr, MemBlockColumn& colmn )
+    : Executor("Column Writer")
     , wrr_(wrr)
     , column_(colmn)
-    , strm_(fnm)
+    , strm_(*wrr.strm_)
     , nrblocks_(wrr_.nrColumnBlocks())
     , iblock_(0)
 {
@@ -523,8 +491,9 @@ ColumnWriter( Writer& wrr, MemBlockColumn& colmn, const char* fnm )
 	setErr( true );
     else
     {
+	column_.fileoffset_ = strm_.position();
 	column_.getDefArea( start_, dims_ );
-	if ( !wrr_.writeColumnHeader(strm_,column_,start_,dims_) )
+	if ( !wrr_.writeColumnHeader(column_,start_,dims_) )
 	    setErr();
     }
 }
@@ -550,7 +519,7 @@ virtual int nextStep()
     {
 	MemBlockColumn::BlockSet& blockset = *column_.blocksets_[icomp];
 	MemBlock& block = *blockset[iblock_];
-	if ( !wrr_.writeBlock( strm_, block, start_, dims_ ) )
+	if ( !wrr_.writeBlock( block, start_, dims_ ) )
 	    { setErr(); return ErrorOccurred(); }
     }
 
@@ -565,8 +534,8 @@ void setErr( bool initial=false )
     strm_.addErrMsgTo( uirv_ );
 }
 
-    od_ostream		strm_;
     Writer&		wrr_;
+    od_ostream&		strm_;
     MemBlockColumn&	column_;
     HDimensions		dims_;
     HLocIdx		start_;
@@ -582,65 +551,45 @@ void setErr( bool initial=false )
 
 void Seis::Blocks::Writer::writeColumn( MemBlockColumn& column, uiRetVal& uirv )
 {
-    File::Path fp( basepath_ );
-    fp.add( filenamebase_ )
-      .add( fileNameFor(column.globIdx()) );
-    ColumnWriter wrr( *this, column, fp.fullPath() );
+    if ( !strm_ )
+	strm_ = new od_ostream( dataFileName() );
+    ColumnWriter wrr( *this, column );
     if ( !wrr.execute() )
 	uirv = wrr.uirv_;
 }
 
 
-bool Seis::Blocks::Writer::writeColumnHeader( od_ostream& strm,
-		    const MemBlockColumn& column, const HLocIdx& start,
-		    const HDimensions& dims ) const
+bool Seis::Blocks::Writer::writeColumnHeader( const MemBlockColumn& column,
+		    const HLocIdx& start, const HDimensions& dims ) const
 {
 
-    const HdrSzVersionType hdrsz = columnHeaderSize( version_ );
-    const HdrSzVersionType dfmt = (HdrSzVersionType)fprep_;
-    char* buf = new char [hdrsz];
+    const SzType hdrsz = columnHeaderSize( version_ );
+    const od_stream_Pos orgstrmpos = strm_->position();
 
-    strm.addBin( hdrsz ).addBin( version_ ).addBin( dfmt );
-    strm.addBin( dims.first ).addBin( dims.second ).addBin( dims_.third );
-    strm.addBin( column.globIdx().first ).addBin( column.globIdx().second );
-    strm.addBin( start.first ).addBin( start.second );
+    strm_->addBin( hdrsz );
+    strm_->addBin( dims.first ).addBin( dims.second ).addBin( dims_.third );
+    strm_->addBin( start.first ).addBin( start.second );
+    strm_->addBin( column.globIdx().first ).addBin( column.globIdx().second );
 
-    OD::memZero( buf, 2*sizeof(float) );
-    if ( scaler_ && !scaler_->isEmpty() )
-    {
-	// write the scaler needed to reconstruct the org values
-	LinScaler* invscaler = scaler_->inverse();
-	float* ptr = (float*)buf;
-	*ptr++ = (float)invscaler->constant_;
-	*ptr = (float)invscaler->factor_;
-	delete invscaler;
-    }
-    strm.addBin( buf, 2*sizeof(float) );
-
-    hgeom_.putMapInfo( buf );
-    strm.addBin( buf, hgeom_.bufSize4MapInfo() );
-    strm.addBin( zgeom_.start ).addBin( zgeom_.stop ).addBin( zgeom_.step );
-    ZDomain::Def::GenID zdomid = zdomaindef_.genID();
-    strm.addBin( zdomid );
-
-    const int bytes_left_in_hdr = hdrsz - (int)strm.position();
+    const int bytes_left_in_hdr = hdrsz - (int)(strm_->position()-orgstrmpos);
+    char* buf = new char [bytes_left_in_hdr];
     OD::memZero( buf, bytes_left_in_hdr );
-    strm.addBin( buf, bytes_left_in_hdr );
-
+    strm_->addBin( buf, bytes_left_in_hdr );
     delete [] buf;
-    return strm.isOK();
+
+    return strm_->isOK();
 }
 
 
-bool Seis::Blocks::Writer::writeBlock( od_ostream& strm, MemBlock& block,
-					HLocIdx wrstart, HDimensions wrhdims )
+bool Seis::Blocks::Writer::writeBlock( MemBlock& block, HLocIdx wrstart,
+				       HDimensions wrhdims )
 {
     const DataBuffer& dbuf = block.dbuf_;
     const Dimensions& blockdims = block.dims();
     const Dimensions wrdims( wrhdims.inl(), wrhdims.crl(), blockdims.z() );
 
     if ( wrdims == blockdims )
-	strm.addBin( dbuf.data(), dbuf.totalBytes() );
+	strm_->addBin( dbuf.data(), dbuf.totalBytes() );
     else
     {
 	const DataBuffer::buf_type* bufdata = dbuf.data();
@@ -659,27 +608,27 @@ bool Seis::Blocks::Writer::writeBlock( od_ostream& strm, MemBlock& block,
 			      + wrstart.crl() * bytesperentirecrl;
 	    for ( IdxType icrl=wrstart.crl(); icrl<wrstopcrl; icrl++ )
 	    {
-		strm.addBin( dataptr, bytes2write );
+		strm_->addBin( dataptr, bytes2write );
 		dataptr += bytesperentirecrl;
 	    }
 	}
     }
 
     block.retire();
-    return strm.isOK();
+    return strm_->isOK();
 }
 
 
-void Seis::Blocks::Writer::writeMainFile( uiRetVal& uirv )
+void Seis::Blocks::Writer::writeInfoFile( uiRetVal& uirv )
 {
-    od_ostream strm( mainFileName() );
+    od_ostream strm( infoFileName() );
     if ( strm.isBad() )
     {
 	uirv.add( uiStrings::phrCannotOpen( toUiString(strm.fileName()) ) );
 	return;
     }
 
-    if ( !writeMainFileData(strm) )
+    if ( !writeInfoFileData(strm) )
     {
 	uirv.add( uiStrings::phrCannotWrite( toUiString(strm.fileName()) ) );
 	return;
@@ -687,7 +636,7 @@ void Seis::Blocks::Writer::writeMainFile( uiRetVal& uirv )
 }
 
 
-bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
+bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
 {
     ascostream ascostrm( strm );
     if ( !ascostrm.putHeader(sKeyFileType()) )
@@ -737,6 +686,23 @@ bool Seis::Blocks::Writer::writeMainFileData( od_ostream& strm )
     iop.set( sKeyGlobCrlRg(), globcrlidxrg );
 
     iop.putTo( ascostrm );
+    if ( !strm.isOK() )
+	return false;
+
+    Pos::IdxPairDataSet::SPos spos;
+    IOPar offsiop( sKeyOffSection() );
+    while ( columns_.next(spos) )
+    {
+	const MemBlockColumn& column = *(MemBlockColumn*)columns_.getObj(spos);
+	if ( column.nruniquevisits_ > 0 )
+	{
+	    const HGlobIdx& gidx = column.globIdx();
+	    BufferString ky;
+	    ky.add( gidx.inl() ).add( '.' ).add( gidx.crl() );
+	    offsiop.add( ky, column.fileoffset_ );
+	}
+    }
+    offsiop.putTo( ascostrm );
     if ( !strm.isOK() )
 	return false;
 
@@ -826,13 +792,14 @@ namespace Seis
 namespace Blocks
 {
 
-class WriterFinisher : public ParallelTask
+class WriterFinisher : public Executor
 { mODTextTranslationClass(Seis::Blocks::WriterFinisher)
 public:
 
 WriterFinisher( Writer& wrr )
-    : ParallelTask("Seis Blocks Writer finisher")
+    : Executor("Seis Blocks Writer finisher")
     , wrr_(wrr)
+    , colidx_(0)
 {
     Pos::IdxPairDataSet::SPos spos;
     while ( wrr_.columns_.next(spos) )
@@ -845,7 +812,12 @@ WriterFinisher( Writer& wrr )
     }
 }
 
-virtual od_int64 nrIterations() const
+virtual od_int64 nrDone() const
+{
+    return colidx_;
+}
+
+virtual od_int64 totalNr() const
 {
     return towrite_.size();
 }
@@ -862,29 +834,28 @@ virtual uiString message() const
     return uirv_;
 }
 
-virtual bool doWork( od_int64 startidx, od_int64 stopidx, int )
+virtual int nextStep()
 {
-    uiRetVal uirv;
-    for ( int idx=(int)startidx; idx<=(int)stopidx; idx++ )
-    {
-	wrr_.writeColumn( *towrite_[idx], uirv );
-	if ( uirv.isError() )
-	    { uirv_.add( uirv ); return false; }
-	addToNrDone( 1 );
-    }
+    if ( !towrite_.validIdx(colidx_) )
+	return wrapUp();
 
-    return true;
+    wrr_.writeColumn( *towrite_[colidx_], uirv_ );
+    if ( uirv_.isError() )
+	return ErrorOccurred();
+
+    colidx_++;
+    return MoreToDo();
 }
 
-virtual bool doFinish( bool )
+int wrapUp()
 {
-    uiRetVal uirv;
-    wrr_.writeMainFile( uirv );
-    uirv_.add( uirv );
+    delete wrr_.strm_; wrr_.strm_ = 0;
+    wrr_.writeInfoFile( uirv_ );
     wrr_.isfinished_ = true;
-    return uirv.isOK();
+    return uirv_.isOK() ? Finished() : ErrorOccurred();
 }
 
+    int			colidx_;
     uiRetVal		uirv_;
     Writer&		wrr_;
     ObjectSet<MemBlockColumn> towrite_;

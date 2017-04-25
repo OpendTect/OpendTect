@@ -180,9 +180,7 @@ public:
     const ZDomain::Def&	zDomain() const		{ return zdomaindef_; }
 
     const Dimensions&	dimensions() const	{ return dims_; }
-    unsigned short	version() const		{ return version_; }
-    const File::Path&	basePath() const	{ return basepath_; }
-    const char*		fileNameBase() const	{ return filenamebase_; }
+    SzType		version() const		{ return version_; }
     const char*		cubeName() const	{ return cubename_; }
     const BufferStringSet& componentNames() const { return compnms_; }
     OD::FPDataRepType	fPRep() const		{ return fprep_; }
@@ -190,14 +188,14 @@ public:
     int			nrAuxInfo() const	{ return auxiops_.size(); }
     const IOPar&	getAuxInfo( int i ) const { return *auxiops_[i]; }
 
-    BufferString	dataDirName() const;
-    BufferString	mainFileName() const;
-
-    static BufferString	fileNameFor(const HGlobIdx&);
+    const File::Path&	basePath() const	{ return basepath_; }
+    BufferString	infoFileName() const;
+    BufferString	dataFileName() const;
 
     static const char*	sKeyFileType()	 { return "Column Cube"; }
     static const char*	sKeySectionPre() { return "Section-"; }
     static const char*	sKeyGenSection() { return "Section-General"; }
+    static const char*	sKeyOffSection() { return "Section-Offsets"; }
     static const char*	sKeyPosSection() { return "Section-Positions"; }
     static const char*	sKeySurveyName() { return "Name.Survey"; }
     static const char*	sKeyCubeName()	 { return "Name.Cube"; }
@@ -207,8 +205,6 @@ public:
     static const char*	sKeyGlobCrlRg()	 { return "Blocks.Crl ID Range"; }
     static const char*	sKeyGlobZRg()	 { return "Blocks.Z ID Range"; }
     static const char*	sKeyComponents() { return "Components"; }
-
-    typedef unsigned short  HdrSzVersionType;
 
 protected:
 
@@ -221,8 +217,7 @@ protected:
     Dimensions		dims_;
     ZGeom		zgeom_;
     ZDomain::Def	zdomaindef_;
-    HdrSzVersionType	version_;
-    BufferString	filenamebase_;
+    SzType		version_;
     BufferString	cubename_;
     BufferStringSet	compnms_;
     LinScaler*		scaler_;
@@ -233,7 +228,7 @@ protected:
     Column*		findColumn(const HGlobIdx&) const;
     void		addColumn(Column*) const;
     void		clearColumns();
-    static HdrSzVersionType columnHeaderSize(HdrSzVersionType);
+    static SzType	columnHeaderSize(SzType ver);
 
 };
 

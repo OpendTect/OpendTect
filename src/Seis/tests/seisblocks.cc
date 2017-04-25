@@ -12,7 +12,7 @@
 #include "moddepmgr.h"
 #include "oddirs.h"
 #include "genc.h"
-#include "paralleltask.h"
+#include "executor.h"
 
 
 static const char* sNormSeisIDStr = "100010.2";
@@ -53,7 +53,7 @@ static bool testWriting()
 	return true; // don't need e-mails from CDash
     }
 
-    /*
+    ///*
 
     Seis::Blocks::Writer wrr;
     if ( !usemonster )
@@ -104,21 +104,11 @@ static bool testWriting()
     PtrMan<Task> finisher = wrr.finisher();
     if ( finisher )
     {
-	bool parallel = false;
-	mDynamicCastGet(ParallelTask*,ptask,finisher.ptr());
-	bool res;
-	if ( ptask )
-	    res = ptask->executeParallel(parallel);
-	else
-	    res = finisher->execute();
-	if ( !res )
-	{
-	    tstStream(true) << finisher->message() << od_endl;
-	    return false;
-	}
+	TextTaskRunner ttr( tstStream(false) );
+	ttr.execute( *finisher );
     }
 
-    */
+    //*/
 
     return true;
 }
@@ -130,6 +120,7 @@ static bool testReading()
 	fp.add( usesteer ? "steering" : "org_seis" );
     else
 	fp.add( "monster" );
+    fp.setExtension( "info" );
 
     Seis::Blocks::Reader rdr( fp.fullPath() );
     if ( rdr.state().isError() )

@@ -31,6 +31,7 @@ namespace Blocks
 {
 
 class FileColumn;
+class OffsetTable;
 
 /*!\brief Reads data from Blocks Storage.
 
@@ -46,7 +47,7 @@ public:
 
     typedef PosInfo::CubeData	    CubeData;
 
-			Reader(const char* fnm_or_dirnm);
+			Reader(const char* fnm);    //!< data or info
 			Reader(od_istream& mainfilestrm);
 			~Reader();
 
@@ -55,8 +56,6 @@ public:
     const HGeom&	hGeom() const		    { return *hgeom_; }
     BufferString	surveyName() const	    { return survname_; }
     const CubeData&	positions() const	    { return cubedata_; }
-    Interval<int>	inlRange() const	    { return inlrg_; }
-    Interval<int>	crlRange() const	    { return crlrg_; }
     inline int		nrComponents() const
 			{ return componentNames().size(); }
     BoolTypeSet		compSelected()		    { return compsel_; }
@@ -69,37 +68,39 @@ public:
     uiRetVal		getNext(SeisTrc&) const;
     uiRetVal		get(const BinID&,SeisTrc&) const;
 
+    void		close(); //!< early retire
+
 protected:
 
     typedef PosInfo::CubeDataPos    CubeDataPos;
 
+    mutable od_istream*	strm_;
     HGeom*		hgeom_;
     SelData*		seldata_;
-    BufferString	survname_;
-    Interval<IdxType>	globinlidxrg_;
-    Interval<IdxType>	globcrlidxrg_;
+    LinScaler*		scaler_;
+    DataInterp*		interp_;
+    OffsetTable&	offstbl_;
     CubeData&		cubedata_;
     CubeDataPos&	curcdpos_;
-    Interval<int>	inlrg_;
-    Interval<int>	crlrg_;
-    int			maxnrfiles_;
+    BufferString	survname_;
+
     BoolTypeSet		compsel_;
     uiRetVal		state_;
+    const Interval<float> zrgintrace_;
+    const int		nrcomponentsintrace_;
+    mutable bool	lastopwasgetinfo_;
 
-    mutable ObjectSet<FileColumn> activitylist_;
-
-    void		readMainFile(od_istream&);
+    void		closeStream() const;
+    void		readInfoFile(od_istream&);
     bool		getGeneralSectionData(const IOPar&);
+    bool		getOffsetSectionData(const IOPar&);
     bool		reset(uiRetVal&) const;
     bool		isSelected(const CubeDataPos&) const;
     bool		advancePos(CubeDataPos&) const;
     bool		doGoTo(const BinID&,uiRetVal&) const;
     void		doGet(SeisTrc&,uiRetVal&) const;
-    void		doFillInfo(const BinID&,const FileColumn&,
-				   SeisTrcInfo&) const;
-    FileColumn*		getColumnAt(const BinID&,uiRetVal&) const;
+    void		fillInfo(const BinID&,SeisTrcInfo&) const;
     FileColumn*		getColumn(const HGlobIdx&,uiRetVal&) const;
-    bool		activateColumn(FileColumn*,uiRetVal&) const;
     void		readTrace(SeisTrc&,uiRetVal&) const;
 
     friend class	FileColumn;

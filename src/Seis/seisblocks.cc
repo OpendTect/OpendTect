@@ -17,14 +17,14 @@ ________________________________________________________________________
 #include "survgeom3d.h"
 #include "posidxpairdataset.h"
 
-static const unsigned short cVersion = 1;
-static const unsigned short cDefDim = 80;
-Seis::Blocks::IOClass::HdrSzVersionType
-Seis::Blocks::IOClass::columnHeaderSize( HdrSzVersionType ver ) { return 128; }
+static const Seis::Blocks::SzType cVersion	= 1;
+static const Seis::Blocks::SzType cDefDim	= 64;
+Seis::Blocks::SzType Seis::Blocks::IOClass::columnHeaderSize( SzType ver )
+						{ return 32; }
 
 
 Seis::Blocks::IOClass::IOClass()
-    : basepath_(GetBaseDataDir(),sSeismicSubDir())
+    : basepath_(GetBaseDataDir(),sSeismicSubDir(),"new_cube")
     , dims_(Block::defDims())
     , version_(cVersion)
     , scaler_(0)
@@ -45,28 +45,19 @@ Seis::Blocks::IOClass::~IOClass()
 }
 
 
-BufferString Seis::Blocks::IOClass::dataDirName() const
+BufferString Seis::Blocks::IOClass::infoFileName() const
 {
     File::Path fp( basepath_ );
-    fp.add( filenamebase_ );
+    fp.setExtension( "info", false );
     return fp.fullPath();
 }
 
 
-BufferString Seis::Blocks::IOClass::mainFileName() const
+BufferString Seis::Blocks::IOClass::dataFileName() const
 {
     File::Path fp( basepath_ );
-    fp.add( filenamebase_ );
-    fp.setExtension( "cube", false );
+    fp.setExtension( "data", false );
     return fp.fullPath();
-}
-
-
-BufferString Seis::Blocks::IOClass::fileNameFor( const HGlobIdx& globidx )
-{
-    BufferString ret;
-    ret.add( globidx.inl() ).add( "_" ).add( globidx.crl() ).add( ".bin" );
-    return ret;
 }
 
 

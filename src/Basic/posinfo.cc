@@ -394,6 +394,35 @@ bool PosInfo::CubeData::includes( int lnr, int crl ) const
 }
 
 
+void PosInfo::CubeData::getRanges( Interval<int>& inlrg,
+				   Interval<int>& crlrg ) const
+{
+    inlrg.start = inlrg.stop = crlrg.start = crlrg.stop = 0;
+    const int sz = size();
+    if ( sz < 1 )
+	return;
+
+    bool isfirst = true;
+    for ( int iln=0; iln<sz; iln++ )
+    {
+	const PosInfo::LineData& ld = *(*this)[iln];
+	if ( ld.segments_.isEmpty() )
+	    continue;
+
+	if ( isfirst )
+	{
+	    isfirst = false;
+	    inlrg.start = inlrg.stop = ld.linenr_;
+	    crlrg = ld.segments_[0];
+	}
+
+	inlrg.include( ld.linenr_ );
+	for ( int iseg=0; iseg<ld.segments_.size(); iseg++ )
+	    crlrg.include( ld.segments_[iseg], false );
+    }
+}
+
+
 bool PosInfo::CubeData::getInlRange( StepInterval<int>& rg,
 				     bool wantsorted ) const
 {

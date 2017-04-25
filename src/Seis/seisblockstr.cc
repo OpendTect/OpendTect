@@ -65,11 +65,10 @@ bool SeisBlocksSeisTrcTranslator::initRead_()
     }
 
     pinfo_.usrinfo = rdr_->cubeName();
-    pinfo_.stdinfo = rdr_->mainFileName();
+    pinfo_.stdinfo = rdr_->infoFileName();
     pinfo_.fullyrectandreg = false;
     pinfo_.cubedata = &rdr_->positions();
-    pinfo_.inlrg = rdr_->inlRange();
-    pinfo_.crlrg = rdr_->crlRange();
+    rdr_->positions().getRanges( pinfo_.inlrg, pinfo_.crlrg );
     insd_.start = rdr_->zGeom().start;
     insd_.step = rdr_->zGeom().step;
     innrsamples_ = rdr_->zGeom().nrSteps() + 1;
@@ -86,16 +85,12 @@ bool SeisBlocksSeisTrcTranslator::initRead_()
 bool SeisBlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
     StreamConn& sconn = *static_cast<StreamConn*>( conn_ );
-    const BufferString mainfnm( sconn.fileName() );
+    const BufferString infofnm( sconn.fileName() );
     const DBKey dbky = sconn.linkedTo();
     sconn.close( true ); // this preserves the original file for now
 
     wrr_ = new Seis::Blocks::Writer;
-    File::Path fp( mainfnm );
-    fp.setExtension( 0 );
-    wrr_->setFileNameBase( fp.fileName() );
-    fp.setFileName( 0 );
-    wrr_->setBasePath( fp );
+    wrr_->setFullPath( infofnm );
 
     PtrMan<IOObj> ioobj = DBM().get( dbky );
     if ( ioobj )
