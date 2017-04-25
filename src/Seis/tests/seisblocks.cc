@@ -53,7 +53,7 @@ static bool testWriting()
 	return true; // don't need e-mails from CDash
     }
 
-    ///*
+    /*
 
     Seis::Blocks::Writer wrr;
     if ( !usemonster )
@@ -108,7 +108,7 @@ static bool testWriting()
 	ttr.execute( *finisher );
     }
 
-    //*/
+    */
 
     return true;
 }

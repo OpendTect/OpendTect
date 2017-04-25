@@ -64,7 +64,8 @@ public:
 	int		startsamp_;
 	int		nrsamps_;
 	od_stream_Pos	offs_;
-	od_stream_Pos	trcpartnrbytes_;
+	int		trcpartnrbytes_;
+	int		blockznrbytes_;
     };
     ObjectSet<Chunk>    chunks_;
 
@@ -135,31 +136,36 @@ void Seis::Blocks::FileColumn::createOffsetTable()
     const od_stream_Pos nrbytespercompslice = ((od_stream_Pos)dims_.inl())
 				  * dims_.crl() * nrbytespersample;
 
-    Interval<IdxType> globzidxrg(
+    const IdxType lastglobzidxinfile = Block::globIdx4Z( rdr_.zgeom_,
+					rdr_.zgeom_.stop, dims_.z() );
+    Interval<IdxType> trcgzidxrg(
 	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start, dims_.z() ),
 	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop, dims_.z() ) );
     nrsamplesintrace_ = 0;
-    int nrfilesamplessofar = 0;
-    od_stream_Pos blockstartoffs = startoffsinfile_ + headernrbytes_;
-    for ( IdxType gzidx=globzidxrg.start; gzidx<=globzidxrg.stop; gzidx++ )
+    int blocknrbytes = dims_.z() * nrbytespercompslice;
+    od_stream_Pos blockstartoffs = startoffsinfile_ + headernrbytes_
+				 + trcgzidxrg.start * blocknrbytes * nrcomps_;
+    for ( IdxType gzidx=trcgzidxrg.start; gzidx<=trcgzidxrg.stop; gzidx++ )
     {
-	Dimensions rddims( dims_ );
-	if ( gzidx == globzidxrg.stop )
-	    rddims.z() = SzType(nrsamplesinfile - nrfilesamplessofar);
-	nrfilesamplessofar += rddims.z();
+	SzType blockzdim = dims_.z();
+	if ( gzidx == lastglobzidxinfile )
+	{
+	    SzType lastdim = SzType( nrsamplesinfile%dims_.z() );
+	    if ( lastdim > 0 )
+		blockzdim = lastdim;
+	}
 
 	IdxType startzidx = 0;
-	if ( gzidx == globzidxrg.start )
-	{
+	IdxType stopzidx = IdxType( blockzdim ) - 1;
+	if ( gzidx == trcgzidxrg.start )
 	    startzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start,
 					 dims_.z() );
-	    rddims.z() = dims_.z() - startzidx;
-	}
-	if ( gzidx == globzidxrg.stop )
-	    rddims.z() = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop,
-			 dims_.z() ) - startzidx + 1;
+	if ( gzidx == trcgzidxrg.stop )
+	    stopzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop,
+					 dims_.z() );
 
-	const od_stream_Pos blocknrbytes = nrbytespercompslice * rddims.z();
+	blocknrbytes = nrbytespercompslice * blockzdim;
+	int nrsampsthisblock = stopzidx - startzidx + 1;
 
 	for ( int icomp=0; icomp<nrcomps_; icomp++ )
 	{
@@ -169,14 +175,15 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 		chunk->comp_ = icomp;
 		chunk->offs_ = blockstartoffs + startzidx * nrbytespersample;
 		chunk->startsamp_ = nrsamplesintrace_;
-		chunk->nrsamps_ = rddims.z();
-		chunk->trcpartnrbytes_ = rddims.z() * nrbytespersample;
+		chunk->nrsamps_ = nrsampsthisblock;
+		chunk->trcpartnrbytes_ = nrsampsthisblock * nrbytespersample;
+		chunk->blockznrbytes_ = blockzdim * nrbytespersample;
 		chunks_ += chunk;
 	    }
 	    blockstartoffs += blocknrbytes;
 	}
 
-	nrsamplesintrace_ += rddims.z();
+	nrsamplesintrace_ += nrsampsthisblock;
     }
 
     delete [] trcpartbuf_;
@@ -208,7 +215,7 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
     for ( int idx=0; idx<chunks_.size(); idx++ )
     {
 	const Chunk& chunk = *chunks_[idx];
-	strm_.setReadPosition( chunk.offs_ + nrtrcs * chunk.trcpartnrbytes_ );
+	strm_.setReadPosition( chunk.offs_ + nrtrcs * chunk.blockznrbytes_ );
 	strm_.getBin( trcpartbuf_, chunk.trcpartnrbytes_ );
 	for ( int isamp=0; isamp<chunk.nrsamps_; isamp++ )
 	{
