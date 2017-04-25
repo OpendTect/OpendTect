@@ -154,7 +154,9 @@ void uiScalingAttrib::typeSel( CallBacker* )
     nfld->display( typeval==0 );
 
     statsfld->display( typeval==1 );
-    table->display( typeval==1 );
+    mDynamicCastGet(uiGroup*,tablegrp,table->parent())
+    if ( tablegrp )
+	tablegrp->display( typeval==1 );
 
     windowfld->display( typeval==2);
     lowenergymute->display( typeval==2);
