@@ -38,6 +38,7 @@ protected:
     uiGenInput*		nfld;
     uiGenInput*		statsfld;
     uiTable*		table;
+    uiGroup*		tblgrp;
     uiGenInput*         windowfld;
     uiGenInput*         lowenergymute;
     uiGenInput*         sqrgfld;

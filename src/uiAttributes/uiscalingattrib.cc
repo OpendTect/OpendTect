@@ -103,7 +103,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     statsfld->attach( alignedBelow, typefld );
     statsfld->valuechanged.notify( mCB(this,uiScalingAttrib,statsSel) );
 
-    uiGroup* tblgrp = new uiGroup( this );
+    tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, statsfld );
     table = new uiTable( tblgrp, uiTable::Setup()
 				.rowdesc(tr("Time Gate","Time Period Window"))
@@ -154,7 +154,7 @@ void uiScalingAttrib::typeSel( CallBacker* )
     nfld->display( typeval==0 );
 
     statsfld->display( typeval==1 );
-    table->display( typeval==1 );
+    tblgrp->display( typeval==1 );
 
     windowfld->display( typeval==2);
     lowenergymute->display( typeval==2);
