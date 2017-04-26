@@ -44,6 +44,7 @@ VolProc::ChainExecutor::ChainExecutor( Chain& vr )
 
 VolProc::ChainExecutor::~ChainExecutor()
 {
+    jobcomm.removeParam( this );
     deepErase( epochs_ );
     if ( curepoch_ )
 	delete curepoch_;
@@ -53,8 +54,6 @@ VolProc::ChainExecutor::~ChainExecutor()
 	return;
 
     seismgr.release( outputdp_->id() );
-
-    jobcomm.removeParam( this );
 }
 
 
