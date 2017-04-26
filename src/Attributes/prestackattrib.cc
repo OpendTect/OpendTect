@@ -103,7 +103,7 @@ void PSAttrib::initClass()
     desc->addParam( new BoolParam( useangleStr(), true, false ) );
     desc->addParam( new StringParam( rayTracerParamStr(), "", false ) );
 
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     desc->setLocality( Desc::SingleTrace );
     desc->setUsesTrcPos( true );

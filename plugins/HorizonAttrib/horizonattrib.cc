@@ -52,7 +52,7 @@ void Horizon::initClass()
     desc->addParam( surfidpar );
 
     desc->addInput( InputSpec("Input data for Horizon",true) );//positioning
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     desc->setLocality( Desc::SingleTrace );
     desc->setUsesTrcPos( true );

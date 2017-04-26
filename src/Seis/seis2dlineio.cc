@@ -282,7 +282,7 @@ bool SeisTrc2DTranslator::initRead_()
     if ( dset.nrLines() < 1 )
 	{ errmsg_ = tr("Data set is empty"); return false; }
     dset.getTxtInfo( dset.geomID(0), pinfo_.usrinfo, pinfo_.stdinfo );
-    addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
+    addComp( DataCharacteristics(), pinfo_.stdinfo );
 
     if ( seldata_ && !mIsUdf(seldata_->geomID()) )
 	geomid_ = seldata_->geomID();

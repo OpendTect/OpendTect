@@ -193,7 +193,7 @@ bool SeisTrcReader::startWork()
     if ( forcefloats )
     {
 	for ( int idx=0; idx<sttrl.componentInfo().size(); idx++ )
-	    sttrl.componentInfo()[idx]->datachar = DataCharacteristics();
+	    sttrl.componentInfo()[idx]->datachar_ = DataCharacteristics();
     }
     if ( selcomp_ >= 0 )
     {

@@ -210,21 +210,32 @@ void SeisTrc::convertToFPs( bool pres )
 }
 
 
-void SeisTrc::setNrComponents( int nrcomps )
+void SeisTrc::setNrComponents( int newnrcomps, OD::FPDataRepType fprep )
 {
-    while ( nrComponents() != nrcomps )
+    const int oldnrcomps = nrComponents();
+    const bool isautofprep = fprep == OD::AutoFPRep;
+    if ( oldnrcomps == newnrcomps )
     {
-	if ( nrComponents() > nrcomps )
-	    removeComponent( 0 );
-	else
-	{
-	    if ( nrComponents() < 1 )
-		addComponent();
-	    else
-		data().addComponent( size(),
-				     data().getInterpreter(0)->dataChar() );
-	}
+	if ( isautofprep )
+	    return;
+
+	bool isok = true;
+	for ( int icomp=0; icomp<oldnrcomps; icomp++ )
+	    if ( data().getInterpreter(icomp)->dataChar().userType() != fprep )
+		{ isok = false; break; }
+	if ( isok )
+	    return;
     }
+
+    const int sz = size();
+    if ( isautofprep )
+	fprep = data().getInterpreter(0)->dataChar().userType();
+
+    while ( nrComponents() > 0 )
+	data().delComponent( 0 );
+
+    for ( int icomp=0; icomp<newnrcomps; icomp++ )
+	data().addComponent( sz, DataCharacteristics(fprep) );
 }
 
 

@@ -21,7 +21,7 @@ InverseAttrib::InverseAttrib( Parameters* param )
     , pos1( param->pos1 )
     , common( 0 )
     , AttribCalc( new InverseAttrib::Task( *this ) )
-{ 
+{
     param->fillDefStr( desc );
     delete param;
 
@@ -37,7 +37,7 @@ InverseAttrib::InverseAttrib( Parameters* param )
 	spec->forbiddenDts += Seis::Frequency;
 	spec->forbiddenDts += Seis::Phase;
 	spec->forbiddenDts += Seis::AVOGradient;
-	spec->forbiddenDts += Seis::UnknowData;
+	spec->forbiddenDts += Seis::UnknownData;
 	inputspec += spec;
 
 	spec = new AttribInputSpec;
@@ -46,7 +46,7 @@ InverseAttrib::InverseAttrib( Parameters* param )
 	spec->forbiddenDts += Seis::Frequency;
 	spec->forbiddenDts += Seis::Phase;
 	spec->forbiddenDts += Seis::AVOGradient;
-	spec->forbiddenDts += Seis::UnknowData;
+	spec->forbiddenDts += Seis::UnknownData;
 	inputspec += spec;
     }
 
@@ -93,7 +93,7 @@ InverseAttrib::Task::Task( const InverseAttrib& calculator_ )
     , spectrumoutput( 0 )
     , traceoutput( 0 )
     , calculator( calculator_ )
-{ } 
+{ }
 
 
 InverseAttrib::Task::~Task()
@@ -125,9 +125,9 @@ InverseAttrib::Task::Input::~Input()
 
 AttribCalc::Task* InverseAttrib::Task::clone() const
 { return new InverseAttrib::Task( calculator ); }
-    
 
-bool InverseAttrib::Task::Input::set(const BinID& pos, 
+
+bool InverseAttrib::Task::Input::set(const BinID& pos,
 	const ObjectSet<AttribProvider>& inputproviders, const TypeSet<int>&
 	inputattribs, const TypeSet<float*>&)
 {
@@ -165,7 +165,7 @@ bool InverseAttrib::Task::Input::set(const BinID& pos,
     }
 
     return true;
-} 
+}
 
 
 
@@ -239,7 +239,7 @@ int InverseAttrib::Task::nextStep()
 					idy+neighbourhood.crl);
 
 		if ( trc )
-		{	
+		{
 		    float steeringoff = 0;
 
 		    if ( steering )
@@ -262,7 +262,7 @@ int InverseAttrib::Task::nextStep()
 		    calculator.window->apply( segm );
 		}
 		else
-		{	
+		{
 		    for ( int idz=0; idz<fftsz; idz++ )
 			segm->set( idz, float_complex( 0,0 ));
 		}
@@ -332,7 +332,7 @@ int InverseAttrib::Task::nextStep()
 	}
 
     }
-    
+
     return 0;
 }
 

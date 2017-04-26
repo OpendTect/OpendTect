@@ -29,7 +29,7 @@ Output:
 #include <seistrc.h>
 #include <attribparamimpl.h>
 
-    
+
 mClass(AttribExp) NearSubtractAttrib : public AttribCalc
 {
 public:
@@ -53,17 +53,17 @@ public:
 				NearSubtractAttrib( Parameters* );
 				~NearSubtractAttrib();
 
-    int                 	nrAttribs() const { return 1; }
-    const BinID*        	reqStepout(int inp, int ) const 
+    int	nrAttribs() const { return 1; }
+    const BinID*	reqStepout(int inp, int ) const
 				{
 				    if ( !inp ) return &stepout;
 				    return 0;
 				}
 
     Seis::DataType		dataType(int,const TypeSet<Seis::DataType>&) const
-				{ return Seis::UnknowData; }
+				{ return Seis::UnknownData; }
 
-    const char* 		definitionStr() const { return desc; }
+    const char*		definitionStr() const { return desc; }
 
     bool			init();
     void			setCommonInfo( const AttribProcessCommonInfo& ni )
@@ -72,10 +72,10 @@ public:
 protected:
     bool			usedip;
     bool			relampl;
-   
+
     float			inldist;
     float			crldist;
- 
+
     BufferString		desc;
 
     static const BinID		stepout;
@@ -94,8 +94,8 @@ protected:
 				    , inldiptrc( 0 )
 				    , crldiptrc( 0 ) {}
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool                set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>&  );
 
@@ -112,20 +112,20 @@ protected:
 	    int				inldiptrcattrib;
 	    int				crldiptrcattrib;
 
-	    const NearSubtractAttrib& 	calculator;
+	    const NearSubtractAttrib&	calculator;
 	};
 
 			    Task( const NearSubtractAttrib& calculator_ )
 				: outp( 0 )
 				, calculator( calculator_ ) {}
-	
+
 			    Task( const Task& );
 			    // Not impl. Only to give error if someone uses it
-	
-	void		    set( float t1_, int nrtimes_, float step_, 
+
+	void		    set( float t1_, int nrtimes_, float step_,
 					    const AttribCalc::Task::Input* inp,
                                             const TypeSet<float*>& outp_)
-				{ t1 = t1_; nrtimes = nrtimes_; 
+				{ t1 = t1_; nrtimes = nrtimes_;
 				  step = step_; input = inp; outp = outp_[0]; }
 
 	AttribCalc::Task*    clone() const;
@@ -139,7 +139,7 @@ protected:
 
     protected:
 	float*				outp;
-	const NearSubtractAttrib& 	calculator;
+	const NearSubtractAttrib&	calculator;
 
     };
 

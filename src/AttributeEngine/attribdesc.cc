@@ -317,7 +317,7 @@ void Desc::getAncestorIDs( DescID cid, TypeSet<Attrib::DescID>& aids,
 Seis::DataType Desc::dataType( int target ) const
 {
     if ( seloutput_==-1 || outputtypes_.isEmpty() )
-	return Seis::UnknowData;
+	return Seis::UnknownData;
 
     int outidx = target==-1 ? seloutput_ : target;
     if ( outidx >= outputtypes_.size() ) outidx = 0;
@@ -327,7 +327,7 @@ Seis::DataType Desc::dataType( int target ) const
 	return outputtypes_[outidx];
 
     return link < inputs_.size() && inputs_[link] ? inputs_[link]->dataType()
-						: Seis::UnknowData;
+						: Seis::UnknownData;
 }
 
 
@@ -595,7 +595,7 @@ void Desc::addOutputDataType( Seis::DataType dt )
 
 void Desc::addOutputDataTypeSameAs( int input )
 {
-    outputtypes_ += Seis::UnknowData;
+    outputtypes_ += Seis::UnknownData;
     outputtypelinks_ += input;
 }
 

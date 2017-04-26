@@ -45,7 +45,7 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 						 const char* nm )
 	: BasicComponentInfo(nm)
 {
-    datachar = trc.data().getInterpreter(icomp)->dataChar();
+    datachar_ = trc.data().getInterpreter(icomp)->dataChar();
 }
 
 
@@ -80,6 +80,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , enforce_regular_write( !GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION") )
     , enforce_survinfo_write( GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE") )
     , geomid_(mUdfGeomID)
+    , datatype_(Seis::UnknownData)
     , compnms_(0)
     , warnings_(*new BufferStringSet)
 {
@@ -400,10 +401,10 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
     {
         TraceData& td = trc.data();
         if ( td.nrComponents() <= idx )
-            td.addComponent( actualsz, tarcds_[ inpfor_[idx] ]->datachar );
+            td.addComponent( actualsz, tarcds_[ inpfor_[idx] ]->datachar_ );
         else
         {
-            td.setComponent( tarcds_[ inpfor_[idx] ]->datachar, idx );
+            td.setComponent( tarcds_[ inpfor_[idx] ]->datachar_, idx );
             td.reSize( actualsz, idx );
         }
     }
@@ -418,7 +419,7 @@ bool SeisTrcTranslator::forRead() const
 
 
 void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
-				 const char* nm, int dtype )
+				 const char* nm )
 {
     BufferString str( "Component " );
     if ( !nm || !*nm )
@@ -433,13 +434,12 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
     }
 
     ComponentData* newcd = new ComponentData( nm );
-    newcd->datachar = dc;
-    newcd->datatype = dtype;
+    newcd->datachar_ = dc;
     cds_ += newcd;
-    bool isl = newcd->datachar.littleendian_;
-    newcd->datachar.littleendian_ = __islittle__;
+    bool isl = newcd->datachar_.littleendian_;
+    newcd->datachar_.littleendian_ = __islittle__;
     tarcds_ += new TargetComponentData( *newcd );
-    newcd->datachar.littleendian_ = isl;
+    newcd->datachar_.littleendian_ = isl;
 }
 
 
@@ -469,9 +469,9 @@ SeisTrc* SeisTrcTranslator::getEmpty()
 {
     DataCharacteristics dc;
     if ( outcds_ )
-	dc = outcds_[0]->datachar;
+	dc = outcds_[0]->datachar_;
     else if ( !tarcds_.isEmpty() && inpfor_ )
-	dc = tarcds_[selComp()]->datachar;
+	dc = tarcds_[selComp()]->datachar_;
 
     return new SeisTrc( 0, dc );
 }
@@ -517,7 +517,7 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
     for ( int idx=0; idx<nrout_; idx++ )
     {
 	newtrc->data().addComponent( outnrsamples_,
-				     outcds_[idx]->datachar, true );
+				     outcds_[idx]->datachar_, true );
 	newtrc->info().sampling_ = outsd_;
     }
 

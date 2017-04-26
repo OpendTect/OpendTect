@@ -62,8 +62,7 @@ public:
     void		setForceUseCBVSInfo(bool yn)	{ forceusecbvsinfo_=yn;}
 
     void		setCoordPol(bool dowrite,bool intrailer);
-    void		setPreselDataType( OD::FPDataRepType dt )
-							{ preseldatatype_ = dt;}
+    void		setFPRep( OD::FPDataRepType fprep ) { fprep_ = fprep; }
 
     bool		isUserSelectable(bool) const	{ return true; }
 
@@ -81,7 +80,7 @@ protected:
     bool*		compsel_;
     unsigned char**	blockbufs_;
     TraceDataInterpreter** storinterps_;
-    OD::FPDataRepType	preseldatatype_;
+    OD::FPDataRepType	fprep_;
     VBrickSpec&		brickspec_;
 
     CBVSReadMgr*	rdmgr_;

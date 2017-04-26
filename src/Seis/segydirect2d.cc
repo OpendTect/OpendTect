@@ -370,7 +370,7 @@ bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
 	    for ( int idx=0; idx<ci.size(); idx++ )
 	    {
 		SeisTrcTranslator::TargetComponentData& cd = *ci[idx];
-		cd.datachar = dc;
+		cd.datachar_ = dc;
 	    }
 	}
     }

@@ -24,17 +24,17 @@ ________________________________________________________________________
 
 #define mStatsTypeRMS		0
 #define mStatsTypeMean		1
-#define mStatsTypeMax 		2
-#define mStatsTypeUser 		3
-#define mStatsTypeDetrend 	4
+#define mStatsTypeMax		2
+#define mStatsTypeUser		3
+#define mStatsTypeDetrend	4
 
 #define mScalingTypeZPower   0
 #define mScalingTypeWindow   1
-#define mScalingTypeAGC	     2			
-#define mScalingTypeSqueeze  3			
-#define mScalingTypeGain     4			
+#define mScalingTypeAGC	     2
+#define mScalingTypeSqueeze  3
+#define mScalingTypeGain     4
 
-static inline float interpolator( float fact1, float fact2, 
+static inline float interpolator( float fact1, float fact2,
 				  float t1, float t2, float curt )
 {
     if ( !mIsZero((t2-t1+2),mDefEps) )
@@ -49,8 +49,8 @@ static inline float interpolator( float fact1, float fact2,
 namespace Attrib
 {
 
-mAttrDefCreateInstance(Scaling)    
-    
+mAttrDefCreateInstance(Scaling)
+
 void Scaling::initClass()
 {
     mAttrStartInitClassWithUpdate
@@ -66,7 +66,7 @@ void Scaling::initClass()
     FloatParam* powerval = new FloatParam( powervalStr() );
     desc->setParamEnabled( powervalStr(), false );
     desc->addParam( powerval );
-    
+
     ZGateParam gate( gateStr() );
     gate.setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
 
@@ -111,18 +111,18 @@ void Scaling::initClass()
     desc->addParam( mutefractionval );
     mutefractionval->setDefaultValue( 0 );
 
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
     desc->addInput( InputSpec("Input data",true) );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }
 
-    
+
 void Scaling::updateDesc( Desc& desc )
 {
     BufferString type = desc.getValParam( scalingTypeStr() )->getStringValue();
-    
+
     desc.setParamEnabled( powervalStr(), false );
     desc.setParamEnabled( statsTypeStr(), false );
     desc.setParamEnabled( gateStr(), false );
@@ -131,7 +131,7 @@ void Scaling::updateDesc( Desc& desc )
     desc.setParamEnabled( mutefractionStr(), false );
     desc.setParamEnabled( sqrangeStr(), false );
     desc.setParamEnabled( squntouchedStr(), false );
-    
+
     if ( type == scalingTypeNamesStr(mScalingTypeZPower) )
 	desc.setParamEnabled( powervalStr(), true );
     else if ( type == scalingTypeNamesStr(mScalingTypeWindow) ||
@@ -220,7 +220,7 @@ Scaling::Scaling( Desc& desc )
 	interval.sort(); interval.scale( 1.f/zFactor() );
 	gates_ += interval;
     }
-    
+
     mGetEnum( statstype_, statsTypeStr() );
     if ( statstype_ == mStatsTypeUser || scalingtype_ == mScalingTypeGain )
     {
@@ -228,9 +228,9 @@ Scaling::Scaling( Desc& desc )
 	for ( int idx=0; idx<factorset->size(); idx++ )
 	    factors_ += ((ValParam&)((*factorset)[idx])).getFValue( 0 );
     }
-    
+
     desgate_ = Interval<int>( -(1024-1), 1024-1 );
-    window_ = Interval<float>( -width_/(2.f*SI().zDomain().userFactor()), 
+    window_ = Interval<float>( -width_/(2.f*SI().zDomain().userFactor()),
 				width_/(2.f*SI().zDomain().userFactor()) );
 }
 
@@ -257,7 +257,7 @@ bool Scaling::getInputData( const BinID& relpos, int zintv )
 
 void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 					TypeSet<float>& scalefactors,
-       					int z0 ) const
+					int z0 ) const
 {
     Stats::Type statstype = Stats::Max;
     if ( statstype_ == mStatsTypeRMS )
@@ -284,7 +284,7 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 	stats.clear();
     }
 }
-    
+
 
 void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
 				  int z0 )
@@ -317,16 +317,16 @@ void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
 	const float sumvalues = (float)stats.getValue( Stats::Sum );
 	const float sumidx = (float)statsidx.getValue( Stats::Sum );
 	const float sumsqidx = (float)statsidx.getValue( Stats::SqSum );
-	const float aval = ( nrindexes * crosssum - sumvalues * sumidx ) / 
-	    		   ( nrindexes * sumsqidx - sumidx * sumidx );
+	const float aval = ( nrindexes * crosssum - sumvalues * sumidx ) /
+			   ( nrindexes * sumsqidx - sumidx * sumidx );
 	const float bval = ( sumvalues * sumsqidx - sumidx * crosssum ) /
-	    		   ( nrindexes * sumsqidx - sumidx * sumidx );
+			   ( nrindexes * sumsqidx - sumidx * sumidx );
 	trends_ += Trend( aval, bval );
 	stats.clear();
 	statsidx.clear();
     }
 }
-    
+
 
 bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 			   int z0, int nrsamples, int threadid ) const
@@ -378,17 +378,17 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( !found && samplegates[sgidx].includes(csamp, true ) )
 	    {
 		if ( statstype_ == mStatsTypeDetrend )
-		    scalefactors[sgidx] = 
+		    scalefactors[sgidx] =
 				trends_[sgidx].valueAtX( mCast(float,csamp) );
-		if ( sgidx+1 < samplegates.size() && 
+		if ( sgidx+1 < samplegates.size() &&
 		     samplegates[sgidx+1].includes(csamp, true ) )
 		{
 		    if ( statstype_ == mStatsTypeDetrend )
 			scalefactors[sgidx+1] =
 			      trends_[sgidx+1].valueAtX( mCast(float,csamp) );
 
-		    scalefactor = interpolator( scalefactors[sgidx], 
-			    		scalefactors[sgidx+1],
+		    scalefactor = interpolator( scalefactors[sgidx],
+					scalefactors[sgidx+1],
 					mCast(float,samplegates[sgidx+1].start),
 					mCast(float,samplegates[sgidx].stop),
 					mCast(float,csamp) );
@@ -401,7 +401,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	}
 
 	const float outval = mIsUdf(trcval)
-	    			? trcval
+				? trcval
 			        : statstype_ == mStatsTypeDetrend
 					? trcval - scalefactor
 					: trcval * scalefactor;
@@ -421,7 +421,7 @@ void Scaling::scaleSqueeze( const DataHolder& output, int z0,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float v = getInputValue( *inputdata_, dataidx_, idx, z0 );
-       	setOutputValue( output, 0, idx, z0, dsq.value(v) );
+	setOutputValue( output, 0, idx, z0, dsq.value(v) );
     }
 }
 
@@ -432,9 +432,9 @@ void Scaling::scaleZN( const DataHolder& output, int z0, int nrsamples) const
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float curt = (idx+z0)*refstep_;
-	const float result = pow(curt,powerval_) * 
-	    		     getInputValue( *inputdata_, dataidx_, idx, z0 );
-       	setOutputValue( output, 0, idx, z0, result );
+	const float result = pow(curt,powerval_) *
+			     getInputValue( *inputdata_, dataidx_, idx, z0 );
+	setOutputValue( output, 0, idx, z0, result );
     }
 }
 
@@ -444,9 +444,9 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
     int curgateidx = 0;
     TypeSet< Interval<int> > gates;
     for ( int idx=0; idx<gates_.size(); idx++ )
-	gates += Interval<int>( (int)gates_[idx].start*1000, 
+	gates += Interval<int>( (int)gates_[idx].start*1000,
 				(int)gates_[idx].stop*1000 );
-    
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float curt = (idx+z0)*refstep_;
@@ -465,7 +465,7 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
 	    1.0f : interpolator( scalefacstart, scalefacstop,
 			         curgate.start, curgate.stop, curt );
 	const float result = val*factor;
-       	setOutputValue( output, 0, idx, z0, result );
+	setOutputValue( output, 0, idx, z0, result );
     }
 }
 
@@ -485,7 +485,7 @@ void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
 	}
 	return;
     }
-    
+
     ::AGC<float> agc;
     agc.setMuteFraction( mutefraction_ );
     agc.setSampleGate( samplewindow );
@@ -515,7 +515,7 @@ void Scaling::getSampleGates( const TypeSet< Interval<float> >& oldtgs,
 	}
 
 	if ( sg.start < inputdata_->z0_ ) sg.start = inputdata_->z0_;
-	if ( sg.stop >= inputdata_->z0_ + inputdata_->nrsamples_ ) 
+	if ( sg.stop >= inputdata_->z0_ + inputdata_->nrsamples_ )
 	    sg.stop = inputdata_->z0_ + inputdata_->nrsamples_ -1;
 	newsampgates += sg;
     }

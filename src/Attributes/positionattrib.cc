@@ -31,7 +31,7 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Position)
-    
+
 void Position::initClass()
 {
     mAttrStartInitClassWithUpdate
@@ -58,7 +58,7 @@ void Position::initClass()
 
     desc->addInput( InputSpec("Input attribute",true) );
     desc->addInput( InputSpec("Output attribute",true) );
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     InputSpec steerspec( "Steering data", false );
     steerspec.issteering_ = true;
@@ -82,7 +82,7 @@ const char* Position::operTypeStr( int type )
     return "Median";
 }
 
-    
+
 Position::Position( Desc& desc )
     : Provider( desc )
 {
@@ -112,10 +112,10 @@ Position::Position( Desc& desc )
 						   stepout_.crl()*2+1 );
 
     const float maxso = mMAX( stepout_.inl()*inlDist(),
-	    			stepout_.crl()*crlDist() );
+				stepout_.crl()*crlDist() );
     const float maxsecdip = maxSecureDip();
-    desgate_ = Interval<float>( gate_.start-maxso*maxsecdip, 
-	    			gate_.stop+maxso*maxsecdip );
+    desgate_ = Interval<float>( gate_.start-maxso*maxsecdip,
+				gate_.stop+maxso*maxsecdip );
 }
 
 
@@ -127,7 +127,7 @@ Position::~Position()
 
 bool Position::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( !dosteer_ || input==0 || input==1 ) 
+    if ( !dosteer_ || input==0 || input==1 )
 	return Provider::getInputOutput( input, res );
 
     for ( int idx=0; idx<positions_.size(); idx++ )
@@ -145,7 +145,7 @@ bool Position::getInputData( const BinID& relpos, int zintv )
 
     while ( inputdata_.size()<nrpos )
 	inputdata_ += 0;
-    
+
     for ( int posidx=0; posidx<nrpos; posidx++ )
     {
 	BinID truepos = relpos + positions_[posidx] * bidstep;
@@ -158,7 +158,7 @@ bool Position::getInputData( const BinID& relpos, int zintv )
 	outdata_->set( positions_[posidx].inl() + stepout_.inl(),
 		       positions_[posidx].crl() + stepout_.crl(), odata );
     }
-    
+
     inidx_ = getDataIndex( 0 );
     outidx_ = getDataIndex( 1 );
     steerdata_ = dosteer_ ? inputs_[2]->getData( relpos, zintv ) : 0;
@@ -171,7 +171,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
     if ( inputdata_.isEmpty() || !outdata_ ) return false;
-    
+
     const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
 				    mNINT32(gate_.stop/refstep_) );
 
@@ -190,7 +190,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	for ( int idp=0; idp<nrpos; idp++ )
 	{
 	    const DataHolder* dh = inputdata_[idp];
-	    if ( !dh || dh->isEmpty() || !dh->series(inidx_) ) 
+	    if ( !dh || dh->isEmpty() || !dh->series(inidx_) )
 		continue;
 
 	    int ds = samplegate.start;
@@ -199,7 +199,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	    const int steeridx = dosteer_ ? steerindexes_[idp] : -1;
 	    if ( dosteer_ && steerdata_->series(steeridx) )
 		sample += getInputValue( *steerdata_, steeridx, idx, z0 );
-		
+
 	    for ( int ids=0; ids<samplegate.width()+1; ids++ )
 	    {
 		float place = sample + ds;
@@ -210,15 +210,15 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	}
 
 	float val = mUdf(float);
-	if ( !stats.isEmpty() ) 
+	if ( !stats.isEmpty() )
 	{
-    	    const int posidx = stats.getIndex( statstype );
-    	    BinID bid = bidv[posidx];
-    	    const DataHolder* odata = outdata_->get( bid.inl()+stepout_.inl(), 
+	    const int posidx = stats.getIndex( statstype );
+	    BinID bid = bidv[posidx];
+	    const DataHolder* odata = outdata_->get( bid.inl()+stepout_.inl(),
 						     bid.crl()+stepout_.crl() );
 	    val = 0;
-    	    if ( odata && !odata->isEmpty() && odata->series(outidx_) )
-    		val = getInterpolInputValue( *odata, outidx_,
+	    if ( odata && !odata->isEmpty() && odata->series(outidx_) )
+		val = getInterpolInputValue( *odata, outidx_,
 			bidv[posidx].val(), z0 );
 	}
 

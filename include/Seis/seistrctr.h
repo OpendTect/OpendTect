@@ -181,6 +181,9 @@ public:
     virtual bool	isSingleComponent() const	{ return true; }
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const
 							{ return false; }
+
+    Seis::DataType	dataType() const		 { return datatype_; }
+    void		setDataType( Seis::DataType dt ) { datatype_ = dt; }
 			//!< The returned CubeData is assumed to be sorted!
     virtual bool	isUserSelectable(bool) const	{ return false; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
@@ -255,13 +258,10 @@ protected:
     int					outnrsamples_;
     Interval<int>			samprg_;
     Pos::GeomID				geomid_;
+    Seis::DataType			datatype_;
 
     virtual bool	forRead() const;
-    void		addComp(const DataCharacteristics&,
-				const char* nm=0,int dtype=0);
-
-    void		setDataType( int icomp, int d )
-			{ cds_[icomp]->datatype = tarcds_[icomp]->datatype = d;}
+    void		addComp(const DataCharacteristics&,const char* nm=0);
 
 			/* Subclasses will need to implement the following: */
     virtual bool	initRead_()			{ return true; }

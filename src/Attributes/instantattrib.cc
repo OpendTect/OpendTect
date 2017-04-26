@@ -46,7 +46,7 @@ void Instantaneous::initClass()
     mAttrStartInitClassWithUpdate
 
     desc->addInput( InputSpec("Imag Data",true) );
-    desc->setNrOutputs( Seis::UnknowData, 14 );
+    desc->setNrOutputs( Seis::UnknownData, 14 );
 
     FloatParam* rotangle_ = new FloatParam( rotateAngle() );
     rotangle_->setLimits( Interval<float>(-180,180) );

@@ -183,8 +183,8 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	int sz = cinf.name().size();
 	strm_.addBin( &sz, integersize );
 	strm_.addBin( cinf.name(), sz );
-	strm_.addBin( &cinf.datatype, integersize );
-	cinf.datachar.dump( dcdump[0], dcdump[1] );
+	strm_.addBin( &cinf.datatype_, integersize );
+	cinf.datachar_.dump( dcdump[0], dcdump[1] );
 	strm_.addBin( dcdump, 4 );
 	strm_.addBin( &info.sd_.start, sizeof(float) );
 	strm_.addBin( &info.sd_.step, sizeof(float) );
@@ -193,7 +193,7 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	strm_.addBin( &a, sizeof(float) );
 	strm_.addBin( &b, sizeof(float) );
 
-	nrbytespersample_[icomp] = cinf.datachar.nrBytes();
+	nrbytespersample_[icomp] = cinf.datachar_.nrBytes();
 	cnrbytes_[icomp] = info.nrsamples_ * nrbytespersample_[icomp];
     }
 }

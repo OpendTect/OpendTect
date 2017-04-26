@@ -43,7 +43,7 @@ void StorageProvider::initClass()
     mAttrStartInitClassWithUpdate
 
     desc->addParam( new SeisStorageRefParam(keyStr()) );
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     mAttrEndInitClass
 }
@@ -88,7 +88,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	*compnms = provcompnms;
 
     for ( int idx=desc.nrOutputs(); idx<dtyps.size(); idx++ )
-	desc.addOutputDataType( Seis::UnknowData );
+	desc.addOutputDataType( Seis::UnknownData );
 
     //safety, might be removed afterwards but we still use old surveys/cubes
     if ( desc.isSteering() )

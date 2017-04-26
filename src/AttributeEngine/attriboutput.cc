@@ -514,14 +514,8 @@ bool SeisTrcStorOutput::writeTrc()
 	    }
 	}
 
-	if ( transl )
-	{
-	    ObjectSet<SeisTrcTranslator::TargetComponentData>& cis
-		             = transl->componentInfo();
-	    for ( int idx=0; idx<cis.size(); idx++ )
-		cis[idx]->datatype = outptypes_.size() ? outptypes_[idx] :
-							Seis::UnknowData;
-	}
+	if ( transl && !outptypes_.isEmpty() )
+	    transl->setDataType( (Seis::DataType)outptypes_[0] );
 
 	storinited_ = true;
     }

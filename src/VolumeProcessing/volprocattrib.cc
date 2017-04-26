@@ -28,7 +28,7 @@ void VolProcAttrib::initClass()
     StringParam* setup = new StringParam( sKeySetup() );
     desc->addParam( setup );
 
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
     mAttrEndInitClass
 }
 

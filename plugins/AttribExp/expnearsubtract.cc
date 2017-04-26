@@ -20,7 +20,7 @@ NearSubtractAttrib::NearSubtractAttrib( Parameters* params )
     , relampl( params->relampl )
     , common( 0 )
     , AttribCalc( new NearSubtractAttrib::Task( *this ) )
-{ 
+{
     params->fillDefStr( desc );
     delete params;
 
@@ -37,7 +37,7 @@ NearSubtractAttrib::NearSubtractAttrib( Parameters* params )
 	spec->forbiddenDts += Seis::Frequency;
 	spec->forbiddenDts += Seis::Phase;
 	spec->forbiddenDts += Seis::AVOGradient;
-	spec->forbiddenDts += Seis::UnknowData;
+	spec->forbiddenDts += Seis::UnknownData;
 	inputspec += spec;
 
 	spec = new AttribInputSpec;
@@ -46,7 +46,7 @@ NearSubtractAttrib::NearSubtractAttrib( Parameters* params )
 	spec->forbiddenDts += Seis::Frequency;
 	spec->forbiddenDts += Seis::Phase;
 	spec->forbiddenDts += Seis::AVOGradient;
-	spec->forbiddenDts += Seis::UnknowData;
+	spec->forbiddenDts += Seis::UnknownData;
 	inputspec += spec;
     }
 
@@ -103,7 +103,7 @@ bool NearSubtractAttrib::Task::Input::set( const BinID& pos,
 
 int NearSubtractAttrib::Task::nextStep()
 {
-    const NearSubtractAttrib::Task::Input* inp = 
+    const NearSubtractAttrib::Task::Input* inp =
 			(const NearSubtractAttrib::Task::Input*) input;
 
     const SeisTrc* trc0 = inp->trc0;

@@ -74,7 +74,7 @@ void SpecDecomp::initClass()
 
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
@@ -99,7 +99,7 @@ void SpecDecomp::updateDesc( Desc& desc )
     mGetFloatFromDesc( desc, dfreq, deltafreqStr() );
     const float nyqfreq = 0.5f / SI().zStep();
     const int nrattribs = (int)( nyqfreq / dfreq );
-    desc.setNrOutputs( Seis::UnknowData, nrattribs );
+    desc.setNrOutputs( Seis::UnknownData, nrattribs );
 }
 
 

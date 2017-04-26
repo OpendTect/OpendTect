@@ -55,7 +55,7 @@ void Convolve::initClass()
     StringParam* waveletid = new StringParam( waveletStr() );
     desc->addParam( waveletid );
 
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
     desc->addInput( InputSpec("Signal to be convolved",true) );
 
     mAttrEndInitClass
@@ -134,7 +134,7 @@ void Convolve::updateDesc( Desc& desc )
     desc.setParamEnabled(waveletStr(),iswavelet);
 
     if ( isprewitt )
-	desc.setNrOutputs( Seis::UnknowData, desc.is2D() ? 3 : 4 );
+	desc.setNrOutputs( Seis::UnknownData, desc.is2D() ? 3 : 4 );
 }
 
 

@@ -46,7 +46,7 @@ Output
 #include "wavelettrans.h"
 
 class SeisTrc;
-    
+
 mClass(AttribExp) Wavelet1DAttrib : public AttribCalc
 {
 public:
@@ -78,7 +78,7 @@ public:
 
     enum WaveletLen	{ s2, s4, s8, s16, s32, s64, s128,
 			  s256, s512, s1024, s2048, s4196 };
-    			DeclareEnumUtils(WaveletLen);
+			DeclareEnumUtils(WaveletLen);
 
 			Wavelet1DAttrib( Parameters* );
 
@@ -92,18 +92,18 @@ public:
 
 
     Seis::DataType	dataType(int,const TypeSet<Seis::DataType>&) const
-			{ return Seis::UnknowData; }
+			{ return Seis::UnknownData; }
 
-    const char* 	definitionStr() const { return desc; }
+    const char*	definitionStr() const { return desc; }
 
 protected:
 
     WaveletLen		minwaveletlen;
-    WaveletLen		maxwaveletlen;    
+    WaveletLen		maxwaveletlen;
     int			scalelen;
 
     WaveletTransform::WaveletType	wavelet;
-    
+
     Interval<int>	dsg;
     BufferString	desc;
 
@@ -116,8 +116,8 @@ protected:
 				Input( const Wavelet1DAttrib& calculator_ )
 				: calculator ( calculator_ ) {}
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool                set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>& );
 
@@ -136,11 +136,11 @@ protected:
 
 			    Task( const Task& );
 			    // Not impl. Only to give error if someone uses it
-	
-	void		    set( float t1_, int nrtimes_, float step_, 
+
+	void		    set( float t1_, int nrtimes_, float step_,
 					    const AttribCalc::Task::Input* inp,
                                             const TypeSet<float*>& outp_)
-				{ t1 = t1_; nrtimes = nrtimes_; 
+				{ t1 = t1_; nrtimes = nrtimes_;
 				  step = step_; input = inp; outp = outp_; }
 
 	AttribCalc::Task*    clone() const;
@@ -154,7 +154,7 @@ protected:
 
     protected:
 
-	TypeSet<float*>		    	outp;
+	TypeSet<float*>			outp;
 	const Wavelet1DAttrib&		calculator;
 
     };

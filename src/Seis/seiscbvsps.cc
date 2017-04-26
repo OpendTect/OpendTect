@@ -333,7 +333,7 @@ bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
 				? trc.data().getInterpreter()->dataChar()
 				: DataCharacteristics( reqdtype_ ) );
     for ( int idx=0; idx<ci.size(); idx++ )
-	ci[idx]->datachar = dc;
+	ci[idx]->datachar_ = dc;
     return true;
 }
 

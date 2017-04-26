@@ -32,6 +32,7 @@ Seis::Blocks::IOClass::IOClass()
     , columns_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
     , needreset_(true)
     , zdomaindef_(ZDomain::SI())
+    , datatype_(UnknownData)
 {
 }
 

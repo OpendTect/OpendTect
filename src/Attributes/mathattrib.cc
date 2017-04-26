@@ -57,7 +57,7 @@ void Attrib::Mathematics::initClass()
     desc->addParam( new StringParam(recstartvalsStr(), 0, false) );
 
     desc->addInput( InputSpec("Data",true) );
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass

@@ -94,7 +94,7 @@ void FreqFilter::initClass()
     freqf4_->setRequired( false );
     desc->addParam( freqf4_ );
 
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );

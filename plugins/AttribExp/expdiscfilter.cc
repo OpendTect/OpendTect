@@ -55,7 +55,7 @@ DiscFilterAttrib::DiscFilterAttrib( Parameters* param )
     spec->forbiddenDts += Seis::Frequency;
     spec->forbiddenDts += Seis::Phase;
     spec->forbiddenDts += Seis::AVOGradient;
-    spec->forbiddenDts += Seis::UnknowData;
+    spec->forbiddenDts += Seis::UnknownData;
     inputspec += spec;
 
     spec = new AttribInputSpec;
@@ -64,7 +64,7 @@ DiscFilterAttrib::DiscFilterAttrib( Parameters* param )
     spec->forbiddenDts += Seis::Frequency;
     spec->forbiddenDts += Seis::Phase;
     spec->forbiddenDts += Seis::AVOGradient;
-    spec->forbiddenDts += Seis::UnknowData;
+    spec->forbiddenDts += Seis::UnknownData;
     inputspec += spec;
 
     if ( !constantvel )
@@ -85,7 +85,7 @@ Seis::DataType DiscFilterAttrib::dataType(int val,
 				const TypeSet<Seis::DataType>& dts) const
 {
     if ( val == mDiscFilterStdDev || val == mDiscFilterVar )
-        return Seis::UnknowData;
+        return Seis::UnknownData;
 
     return dts[0];
 }

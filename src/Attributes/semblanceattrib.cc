@@ -70,7 +70,7 @@ void Semblance::initClass()
     desc->addParam( steering );
 
     desc->addInput( InputSpec("Input data",true) );
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     InputSpec steeringspec( "Steering data", false );
     steeringspec.issteering_ = true;

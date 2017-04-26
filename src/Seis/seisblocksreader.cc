@@ -166,18 +166,20 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 	blocknrbytes = nrbytespercompslice * blockzdim;
 	int nrsampsthisblock = stopzidx - startzidx + 1;
 
+	int compintrc = 0;
 	for ( int icomp=0; icomp<nrcomps_; icomp++ )
 	{
 	    if ( rdr_.compsel_[icomp] )
 	    {
 		Chunk* chunk = new Chunk;
-		chunk->comp_ = icomp;
+		chunk->comp_ = compintrc;
 		chunk->offs_ = blockstartoffs + startzidx * nrbytespersample;
 		chunk->startsamp_ = nrsamplesintrace_;
 		chunk->nrsamps_ = nrsampsthisblock;
 		chunk->trcpartnrbytes_ = nrsampsthisblock * nrbytespersample;
 		chunk->blockznrbytes_ = blockzdim * nrbytespersample;
 		chunks_ += chunk;
+		compintrc++;
 	    }
 	    blockstartoffs += blocknrbytes;
 	}
@@ -207,7 +209,7 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 	return;
     }
 
-    trc.setNrComponents( rdr_.nrcomponentsintrace_ );
+    trc.setNrComponents( rdr_.nrcomponentsintrace_, rdr_.fprep_ );
     trc.reSize( nrsamplesintrace_, false );
 
     const int nrtrcs = ((int)locidx.inl()) * dims_.crl() + locidx.crl();
@@ -438,6 +440,7 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 	}
     }
 
+    datatype_ = dataTypeOf( iop.find( sKeyDataType() ) );
     return true;
 }
 

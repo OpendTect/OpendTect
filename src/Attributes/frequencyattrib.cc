@@ -54,7 +54,7 @@ void Frequency::initClass()
 
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );
-    desc->setNrOutputs( Seis::UnknowData, 8 );
+    desc->setNrOutputs( Seis::UnknownData, 8 );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass

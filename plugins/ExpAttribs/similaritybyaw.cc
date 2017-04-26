@@ -31,7 +31,7 @@ void SimilaritybyAW::initClass()
 {
     mAttrStartInitClassWithUpdate;
 
-    desc -> addOutputDataType ( Seis::UnknowData );
+    desc -> addOutputDataType ( Seis::UnknownData );
     desc -> addInput( InputSpec("Input Data", true) );
 
     FloatGateParam* refTimeGate = new FloatGateParam( refTimeGateStr() );

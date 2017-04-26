@@ -21,7 +21,7 @@ DeConvolveAttrib::DeConvolveAttrib( Parameters* param )
     , pos1( param->pos1 )
     , common( 0 )
     , AttribCalc( new DeConvolveAttrib::Task( *this ) )
-{ 
+{
     param->fillDefStr( desc );
     delete param;
 
@@ -37,7 +37,7 @@ DeConvolveAttrib::DeConvolveAttrib( Parameters* param )
 	spec->forbiddenDts += Seis::Frequency;
 	spec->forbiddenDts += Seis::Phase;
 	spec->forbiddenDts += Seis::AVOGradient;
-	spec->forbiddenDts += Seis::UnknowData;
+	spec->forbiddenDts += Seis::UnknownData;
 	inputspec += spec;
 
 	spec = new AttribInputSpec;
@@ -46,7 +46,7 @@ DeConvolveAttrib::DeConvolveAttrib( Parameters* param )
 	spec->forbiddenDts += Seis::Frequency;
 	spec->forbiddenDts += Seis::Phase;
 	spec->forbiddenDts += Seis::AVOGradient;
-	spec->forbiddenDts += Seis::UnknowData;
+	spec->forbiddenDts += Seis::UnknownData;
 	inputspec += spec;
     }
 
@@ -93,7 +93,7 @@ DeConvolveAttrib::Task::Task( const DeConvolveAttrib& calculator_ )
     , spectrumoutput( 0 )
     , traceoutput( 0 )
     , calculator( calculator_ )
-{ } 
+{ }
 
 
 DeConvolveAttrib::Task::~Task()
@@ -125,9 +125,9 @@ DeConvolveAttrib::Task::Input::~Input()
 
 AttribCalc::Task* DeConvolveAttrib::Task::clone() const
 { return new DeConvolveAttrib::Task(calculator); }
-    
 
-bool DeConvolveAttrib::Task::Input::set(const BinID& pos, 
+
+bool DeConvolveAttrib::Task::Input::set(const BinID& pos,
 	const ObjectSet<AttribProvider>& inputproviders, const TypeSet<int>&
 	inputattribs, const TypeSet<float*>&)
 {
@@ -165,7 +165,7 @@ bool DeConvolveAttrib::Task::Input::set(const BinID& pos,
     }
 
     return true;
-} 
+}
 
 
 
@@ -238,7 +238,7 @@ int DeConvolveAttrib::Task::nextStep()
 					idy+neighbourhood.crl);
 
 		if ( trc )
-		{	
+		{
 		    float steeringoff = 0;
 
 		    if ( steering )
@@ -261,7 +261,7 @@ int DeConvolveAttrib::Task::nextStep()
 		    calculator.window->apply( segm );
 		}
 		else
-		{	
+		{
 		    for ( int idz=0; idz<fftsz; idz++ )
 			segm->set( idz, float_complex( 0,0 ));
 		}
@@ -331,7 +331,7 @@ int DeConvolveAttrib::Task::nextStep()
 	}
 
     }
-    
+
     return 0;
 }
 

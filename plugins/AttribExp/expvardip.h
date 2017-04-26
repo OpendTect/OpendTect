@@ -72,7 +72,7 @@ public:
 		, true
 	    )
 	, mAttribParamFormHasUpdate);
-	
+
 
 			MinVarianceDipAttrib( Parameters* );
 			~MinVarianceDipAttrib();
@@ -97,14 +97,14 @@ public:
 
 
     Seis::DataType	dataType(int val,const TypeSet<Seis::DataType>&) const
-			{ return val < 2 ? Seis::Dip : Seis::UnknowData; }
+			{ return val < 2 ? Seis::Dip : Seis::UnknownData; }
 
-    const char* 	definitionStr() const { return desc; }
+    const char*	definitionStr() const { return desc; }
     void		setCommonInfo( const AttribProcessCommonInfo& ni )
 			{ common = &ni; }
 
 protected:
-    
+
     BufferString		desc;
     Interval<int>		sg;
     BinID			stepout;
@@ -112,11 +112,11 @@ protected:
     float			inldist;
     float			crldist;
 
-    int 			sz;
-    int 			resolution;
+    int			sz;
+    int			resolution;
     float			velocity;
     bool			constantvel;
-    bool 			fast;
+    bool			fast;
     const AttribProcessCommonInfo*	common;
 
     mClass(AttribExp) Task : public AttribCalc::Task
@@ -130,8 +130,8 @@ protected:
 				    , veltrc( 0 )
 				    , trcs( 0 ) {}
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool                set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>& );
 
@@ -153,7 +153,7 @@ protected:
 
 			    Task( const Task& );
 			    // Not impl. Only to give error if someone uses it
-	
+
 	void		    set( float , int , float ,
 				 const AttribCalc::Task::Input* ,
                                  const TypeSet<float*>& );

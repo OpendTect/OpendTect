@@ -22,7 +22,7 @@ void SampleValue::initClass()
 {
     mAttrStartInitClass
     desc->addInput( InputSpec("Input Data",true) );
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass

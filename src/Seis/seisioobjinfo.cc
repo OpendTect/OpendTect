@@ -346,7 +346,7 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
     if ( comps.isEmpty() )
 	return false;
 
-    dc = comps.first()->datachar;
+    dc = comps.first()->datachar_;
     return true;
 }
 
@@ -395,7 +395,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 		= sttr->componentInfo();
 	for ( int idx=0; idx<comps.size(); idx++ )
 	{
-	    int thisbps = (int)comps[idx]->datachar.nrBytes();
+	    int thisbps = (int)comps[idx]->datachar_.nrBytes();
 	    if ( icomp < 0 )
 		bps += thisbps;
 	    else if ( icomp == idx )

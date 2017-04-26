@@ -19,11 +19,11 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Shift)
-    
+
 void Shift::initClass()
 {
     mAttrStartInitClassWithUpdate
-    
+
     BinIDParam* pos = new BinIDParam( posStr() );
     pos->setDefaultValue( BinID(0,0) );
     desc->addParam( pos );
@@ -36,7 +36,7 @@ void Shift::initClass()
     steering->setDefaultValue(false);
     desc->addParam( steering );
 
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     desc->addInput( InputSpec("Input data",true) );
 
@@ -119,7 +119,7 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
     float sampleshift = time_/(zFactor()*refstep_);
     const int sampleidx = mNINT32(sampleshift);
     const float extrasamp = output.extrazfromsamppos_/refstep_;
-    const bool dointerpolate = dosteer_ || 
+    const bool dointerpolate = dosteer_ ||
 			       !mIsEqual(sampleshift,sampleidx,0.001);
 
     for ( int idx=0; idx<nrsamples; idx++ )
@@ -128,11 +128,11 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
 	if ( dosteer_ && steeringdata_->series(steeridx_) )
 	    tmpsampshift += getInputValue( *steeringdata_, steeridx_, idx, z0 );
 
-	const float val = dointerpolate 
+	const float val = dointerpolate
 			    ? getInterpolInputValue( *inputdata_, dataidx_,
-				    		     idx+tmpsampshift,z0 )
+						     idx+tmpsampshift,z0 )
 			    : getInputValue( *inputdata_, dataidx_,
-				    	     idx+sampleidx, z0 );
+					     idx+sampleidx, z0 );
 
 	setOutputValue( output, 0, idx, z0, val );
     }
@@ -176,16 +176,16 @@ void Shift::prepPriorToBoundsCalc()
 
 
 const Interval<float>* Shift::reqZMargin( int inp, int ) const
-{ 
+{
     return inp==1 ? 0 : &interval_;
 }
 
 
 const Interval<float>* Shift::desZMargin( int inp, int ) const
-{ 
+{
    if ( inp==1 || !dosteer_ )
 	return 0;
-   
+
     return &desinterval_;
 }
 

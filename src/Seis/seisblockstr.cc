@@ -18,7 +18,7 @@
 
 
 BlocksSeisTrcTranslator::BlocksSeisTrcTranslator( const char* s1,
-							  const char* s2 )
+						  const char* s2 )
     : SeisTrcTranslator(s1,s2)
     , rdr_(0)
     , wrr_(0)
@@ -99,6 +99,7 @@ bool BlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 	    wrr_->setFPRep( fprep );
 	ZDomain::Def zdom = ZDomain::Def::get( ioobj->pars() );
 	wrr_->setZDomain( zdom );
+	wrr_->setCubeName( ioobj->name() );
     }
 
     for ( int idx=0; idx<trc.nrComponents(); idx++ )
@@ -115,13 +116,28 @@ bool BlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool BlocksSeisTrcTranslator::commitSelections_()
 {
-    if ( seldata_ && rdr_ )
-	rdr_->setSelData( seldata_ );
-    if ( wrr_ && compnms_ && !compnms_->isEmpty() )
+    if ( rdr_ )
     {
-	for ( int icomp=0; icomp<compnms_->size(); icomp++ )
-	    wrr_->addComponentName( compnms_->get(icomp) );
+	if ( seldata_ )
+	    rdr_->setSelData( seldata_ );
+	for ( int idx=0; idx<tarcds_.size(); idx++ )
+	    rdr_->compSelected()[idx] = tarcds_[idx]->selected_;
     }
+    else if ( wrr_ )
+    {
+	if ( compnms_ && !compnms_->isEmpty() )
+	{
+	    for ( int icomp=0; icomp<compnms_->size(); icomp++ )
+		wrr_->addComponentName( compnms_->get(icomp) );
+	}
+	else
+	{
+	    for ( int idx=0; idx<tarcds_.size(); idx++ )
+		wrr_->addComponentName( tarcds_[idx]->name() );
+	}
+    }
+    else
+	return false;
 
     return true;
 }
@@ -172,7 +188,7 @@ bool BlocksSeisTrcTranslator::goTo( const BinID& bid )
 }
 
 
-bool BlocksSeisTrcTranslator::write( const SeisTrc& trc )
+bool BlocksSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 {
     uiRetVal uirv = wrr_->add( trc );
     if ( uirv.isError() )

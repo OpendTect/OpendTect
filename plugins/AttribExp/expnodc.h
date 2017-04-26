@@ -41,14 +41,14 @@ public:
     int                 nrAttribs() const { return 1; }
 
     Seis::DataType	dataType(int,const TypeSet<Seis::DataType>&) const
-			{ return Seis::UnknowData; }
+			{ return Seis::UnknownData; }
 
     const Interval<float>* inlDipMargin(int,int) const { return 0; }
     const Interval<float>* crlDipMargin(int,int) const { return 0; }
 
-    const char* 	definitionStr() const { return desc; }
+    const char*	definitionStr() const { return desc; }
 protected:
-    
+
     BufferString	desc;
 
     mClass(AttribExp) Task : public AttribCalc::Task
@@ -62,8 +62,8 @@ protected:
 				    , trc( 0 )
 				{}
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool                set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>& );
 
@@ -71,21 +71,21 @@ protected:
 				{ return new NoDCAttrib::Task::Input(*this);}
 
 	    SeisTrc*		trc;
-	    int 		attribute;
+	    int		attribute;
 	    const NoDCAttrib&	calculator;
 	};
 
 			    Task( const NoDCAttrib& calculator_ )
 				: outp( 0 )
 				, calculator( calculator_ ) {}
-	
+
 			    Task( const Task& );
 			    // Not impl. Only to give error if someone uses it
-	
-	void		    set( float t1_, int nrtimes_, float step_, 
+
+	void		    set( float t1_, int nrtimes_, float step_,
 					    const AttribCalc::Task::Input* inp,
                                             const TypeSet<float*>& outp_)
-				{ t1 = t1_; nrtimes = nrtimes_; 
+				{ t1 = t1_; nrtimes = nrtimes_;
 				  step = step_; input = inp; outp = outp_[0]; }
 
 	AttribCalc::Task*    clone() const;

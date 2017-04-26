@@ -31,7 +31,7 @@
 #include <math.h>
 #include <ctype.h>
 
-#define mBPS(cd) (int)cd->datachar.nrBytes()
+#define mBPS(cd) (int)cd->datachar_.nrBytes()
 #define mInDepth \
     (othdomain_ && SI().zIsTime()) || (!othdomain_ && !SI().zIsTime())
 #define mZStepFac ( mInDepth ? 0.001 : 1.e-6 )
@@ -296,7 +296,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     }
 
     addComp( getDataChar(filepars_.fmt_)  );
-    DataCharacteristics& dc = tarcds_[0]->datachar;
+    DataCharacteristics& dc = tarcds_[0]->datachar_;
     dc.fmt_ = DataCharacteristics::Ieee;
     const float scfac = trchead_.postScale(filepars_.fmt_ ? filepars_.fmt_ : 1);
     if ( !mIsEqual(scfac,1,mDefEps)
@@ -507,8 +507,8 @@ bool SEGYSeisTrcTranslator::commitSelections_()
     fileopts_.setGeomType( Seis::geomTypeOf( is_2d, is_prestack ) );
 
     inpcd_ = inpcds_[0]; outcd_ = outcds_[0];
-    storinterp_ = new TraceDataInterpreter( forread ? inpcd_->datachar
-						   : outcd_->datachar );
+    storinterp_ = new TraceDataInterpreter( forread ? inpcd_->datachar_
+						   : outcd_->datachar_ );
     if ( mIsEqual(outsd_.start,insd_.start,Seis::cDefZEps())
       && mIsEqual(outsd_.step,insd_.step,Seis::cDefZEps()) )
 	useinpsd_ = true;
@@ -518,8 +518,9 @@ bool SEGYSeisTrcTranslator::commitSelections_()
     int bufsz = innrsamples_;
     if ( outnrsamples_ > bufsz ) bufsz = outnrsamples_;
     bufsz += 10;
-    int nbts = inpcd_->datachar.nrBytes();
-    if ( outcd_->datachar.nrBytes() > nbts ) nbts = outcd_->datachar.nrBytes();
+    int nbts = inpcd_->datachar_.nrBytes();
+    if ( outcd_->datachar_.nrBytes() > nbts )
+	nbts = outcd_->datachar_.nrBytes();
 
     blockbuf_ = new unsigned char [ nbts * bufsz ];
     return forread || writeTapeHeader();
@@ -560,7 +561,7 @@ bool SEGYSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 	addComp( dc );
 	toSupported( dc );
 	selectWriteDataChar( dc );
-	tarcds_[idx]->datachar = dc;
+	tarcds_[idx]->datachar_ = dc;
 	if ( idx != selcomp_ )
 	    tarcds_[idx]->selected_ = false;
     }
@@ -869,7 +870,7 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
     }
 
     if ( !sConn().oStream().addBin( blockbuf_,
-			 outnrsamples_ * outcd_->datachar.nrBytes() ) )
+			 outnrsamples_ * outcd_->datachar_.nrBytes() ) )
 	mErrRet(tr("Cannot write trace data"))
 
     headerdone_ = false;

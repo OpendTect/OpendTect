@@ -36,7 +36,7 @@ Output:
 
 #include <arrayndalgo.h>
 
-    
+
 mClass(AttribExp) DeConvolveAttrib : public AttribCalc
 {
 public:
@@ -78,9 +78,9 @@ public:
     const BinID*		reqStepout( int i, int ) const
 				{ return i ? 0 : &neighbourhood; }
 
-    int                 	nrAttribs() const { return 2; }
+    int	nrAttribs() const { return 2; }
 
-    const char*         	attribName(int val) const
+    const char*	attribName(int val) const
 				{
 				    switch (val)
 				    {
@@ -91,11 +91,12 @@ public:
 				    return 0;
 				}
 
-    Seis::DataType		dataType(int,const TypeSet<Seis::DataType>&) const
-				{ return Seis::UnknowData; }
+    Seis::DataType		dataType(int,
+					 const TypeSet<Seis::DataType>&) const
+				{ return Seis::UnknownData; }
 
-    const char* 		definitionStr() const { return desc; }
-    void                	setCommonInfo( const AttribProcessCommonInfo& ni )
+    const char*		definitionStr() const { return desc; }
+    void	setCommonInfo( const AttribProcessCommonInfo& ni )
 				{ common = &ni; }
 
 
@@ -104,10 +105,10 @@ protected:
     bool			steering;
     BinID			neighbourhood;
     BinID			pos1;
-    
+
     FFT				fft;
     FFT				ifft;
-    int 			fftsz;
+    int			fftsz;
     ArrayNDWindow::WindowType	windowtype;
     ArrayNDWindow*		window;
     float			inpstep;
@@ -131,8 +132,8 @@ protected:
 
 				~Input();
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool                set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>& );
 
@@ -147,23 +148,23 @@ protected:
 	    int				inldipattrib;
 	    int				crldipattrib;
 
-	    const DeConvolveAttrib& 	calculator;
+	    const DeConvolveAttrib&	calculator;
 	};
 
 			    Task( const DeConvolveAttrib& calculator_ );
 			    Task( const Task& );
 			    // Not impl. Only to give error if someone uses it
-	
+
 			    ~Task();
-	
-	void		    set( float t1_, int nrtimes_, float step_, 
+
+	void		    set( float t1_, int nrtimes_, float step_,
 					    const AttribCalc::Task::Input* inp,
                                             const TypeSet<float*>& outp_)
 				{
 				    t1 = t1_;
-				    nrtimes = nrtimes_; 
+				    nrtimes = nrtimes_;
 				    step = step_;
-				    input = inp; 
+				    input = inp;
 				    out0 = outp_[0];
 				    out1 = outp_[1];
 				}
@@ -182,7 +183,7 @@ protected:
 	float*				out1;
 
 	const DeConvolveAttrib&		calculator;
-	Array2D<Array1D<float_complex>*>*	tracesegments;	
+	Array2D<Array1D<float_complex>*>*	tracesegments;
 	Array1D<float_complex>*		spectrum0;
 	Array1D<float_complex>*		spectrum1;
 	Array1D<float_complex>*		spectrumaverage;

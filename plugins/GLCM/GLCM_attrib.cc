@@ -147,7 +147,7 @@ void GLCM_attrib::initClass()
     steering->setDefaultValue( false );
     desc->addParam( steering );
 
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
     desc->addInput( InputSpec("Input data",true) );
 
     InputSpec steerspec( "Steering data", false );

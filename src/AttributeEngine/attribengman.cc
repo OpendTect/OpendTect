@@ -781,7 +781,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     if ( !desc ) return DescID::undef();
 
     desc->setDescSet( &descset );
-    desc->setNrOutputs( Seis::UnknowData, outids.size() );
+    desc->setNrOutputs( Seis::UnknownData, outids.size() );
 
     desc->setHidden( true );
 

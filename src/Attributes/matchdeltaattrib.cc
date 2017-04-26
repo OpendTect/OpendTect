@@ -19,20 +19,20 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-    
+
 mAttrDefCreateInstance(MatchDelta)
-    
+
 void MatchDelta::initClass()
 {
     mAttrStartInitClass
-	
+
     FloatParam* maxshift = new FloatParam( maxshiftStr() );
     desc->addParam( maxshift );
-    
+
     desc->addInput( InputSpec("Ref cube",true) );
     desc->addInput( InputSpec("Match cube",true) );
-    
-    desc->setNrOutputs( Seis::UnknowData, 2 );
+
+    desc->setNrOutputs( Seis::UnknownData, 2 );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
@@ -78,7 +78,7 @@ const Interval<int>* MatchDelta::desZSampMargin(int,int) const
 void MatchDelta::findEvents( int z0, int nrsamples ) const
 {
     Interval<int> worksamps( z0 + dessamps_.start,
-	    		     z0 + dessamps_.stop + nrsamples - 1 );
+			     z0 + dessamps_.stop + nrsamples - 1 );
     worksamps.limitTo( refintv_ ); worksamps.limitTo( mtchintv_ );
 
     SamplingData<float> refsd( mCast(float,refintv_.start), 1 );
@@ -196,7 +196,7 @@ void MatchDelta::fillOutput( const DataHolder& output,
 }
 
 
-bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos, 
+bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos,
 			      int z0, int nrsamples, int threadid ) const
 {
     poss_.erase(); deltas_.erase();

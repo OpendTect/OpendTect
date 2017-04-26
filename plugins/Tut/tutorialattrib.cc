@@ -22,8 +22,8 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-mAttrDefCreateInstance(Tutorial)    
-    
+mAttrDefCreateInstance(Tutorial)
+
 void Tutorial::initClass()
 {
     mAttrStartInitClassWithUpdate
@@ -33,7 +33,7 @@ void Tutorial::initClass()
     action->addEnum( "Square" );
     action->addEnum( "Smooth" );
     desc->addParam( action );
-    
+
     FloatParam* factor = new FloatParam( factorStr() );
     factor->setLimits( Interval<float>(0,mUdf(float)) );
     factor->setDefaultValue( 1 );
@@ -57,9 +57,9 @@ void Tutorial::initClass()
     stepout->setDefaultValue( BinID(1,1) );
     desc->addParam( stepout );
 
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
     desc->addInput( InputSpec("Input data",true) );
-    
+
     InputSpec steeringspec( "Steering data", false );
     steeringspec.issteering_ = true;
     desc->addInput( steeringspec );
@@ -67,7 +67,7 @@ void Tutorial::initClass()
     mAttrEndInitClass
 }
 
-    
+
 void Tutorial::updateDesc( Desc& desc )
 {
     BufferString action = desc.getValParam( actionStr() )->getStringValue();
@@ -123,7 +123,7 @@ Tutorial::Tutorial( Desc& desc )
 bool Tutorial::getInputOutput( int input, TypeSet<int>& res ) const
 {
     if ( input == 0 )
-    	return Provider::getInputOutput( input, res );
+	return Provider::getInputOutput( input, res );
 
     for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
 	    res += posandsteeridx_.steeridx_[idx];
@@ -147,7 +147,7 @@ bool Tutorial::getInputData( const BinID& relpos, int zintv )
 	const int maxlength  = mMAX(stepout_.inl(), stepout_.crl())*2 + 1;
 	while ( inpdata_.size() < maxlength * maxlength )
 	    inpdata_ += 0;
-    
+
 	const BinID bidstep = inputs_[0]->getStepoutStep();
 	for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
 	{
@@ -183,7 +183,7 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 	if ( action_==0 || action_==1 )
 	{
 	    const float trcval = getInputValue( *inpdata_[0], dataidx_,
-		    				idx, z0 );
+						idx, z0 );
 	    outval = action_==0 ? trcval * factor_ + shift_ :
 					trcval * trcval;
 	}
@@ -210,11 +210,11 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 	    for ( int posidx=0; posidx<inpdata_.size(); posidx++ )
 	    {
 		if ( !inpdata_[posidx] ) continue;
-		const float shift = steeringdata_ ? 
-		    	getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
+		const float shift = steeringdata_ ?
+			getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
 		const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT32(shift) );
-		if ( sampidx < 0 || sampidx >= nrsamples ) continue; 
-		const float val = getInputValue( *inpdata_[posidx], 
+		if ( sampidx < 0 || sampidx >= nrsamples ) continue;
+		const float val = getInputValue( *inpdata_[posidx],
 					dataidx_, sampidx, z0 );
 		if ( !mIsUdf(val) )
 		{

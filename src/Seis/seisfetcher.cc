@@ -316,7 +316,7 @@ uiRetVal Seis::Fetcher2D::gtComponentInfo( BufferStringSet& nms,
     const BufferString dtyp = ds->dataType();
     nms.add( ds->name() );
     if ( dtyp != sKey::Steering() )
-	dts += Seis::UnknowData;
+	dts += Seis::UnknownData;
     else
     {
 	nms.add( ds->name() );

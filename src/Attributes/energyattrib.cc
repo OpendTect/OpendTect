@@ -22,7 +22,7 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Energy)
-    
+
 void Energy::initClass()
 {
     mAttrStartInitClassWithDefaultsUpdate
@@ -37,7 +37,7 @@ void Energy::initClass()
     desc->addParam( dograd );
 
     desc->addInput( InputSpec("Input Data",true) );
-    desc->setNrOutputs( Seis::UnknowData, 3 );
+    desc->setNrOutputs( Seis::UnknownData, 3 );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
@@ -143,7 +143,7 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 			const int startidx = xtratops ? samplegate.start-1
 						      : samplegate.start;
 			const int lastidx = sz + (xtratops ? 1 : 0)
-			    		       + (xtrabots ? 1 : 0);
+					       + (xtrabots ? 1 : 0);
 			for ( int idx=0; idx<lastidx; idx++ )
 			{
 			    wcalc += getInputValue( *inputdata_, dataidx_,
@@ -156,13 +156,13 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 				enval = Math::Log(enval);
 
 			    if ( idx==sz-1 && xtratops )
-				prevval = enval; 
+				prevval = enval;
 			    else if ( (idx==sz+1) || ( idx==sz && !xtratops) )
 				nextval = enval;
 			}
 		    }
 		}
-		
+
 		if ( mIsUdf(prevval) )
 		{
 		    if ( mIsUdf(nextval) )

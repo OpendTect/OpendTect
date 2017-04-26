@@ -187,6 +187,7 @@ public:
     const LinScaler*	scaler() const		{ return scaler_; }
     int			nrAuxInfo() const	{ return auxiops_.size(); }
     const IOPar&	getAuxInfo( int i ) const { return *auxiops_[i]; }
+    DataType		dataType() const	{ return datatype_; }
 
     const File::Path&	basePath() const	{ return basepath_; }
     BufferString	infoFileName() const;
@@ -205,6 +206,7 @@ public:
     static const char*	sKeyGlobCrlRg()	  { return "Blocks.Crl ID Range"; }
     static const char*	sKeyGlobZRg()	  { return "Blocks.Z ID Range"; }
     static const char*	sKeyComponents()  { return "Components"; }
+    static const char*	sKeyDataType()    { return "Data Type"; }
     static const char*	sKeyDepthInFeet() { return "Depth in Feet"; }
 
 protected:
@@ -224,6 +226,7 @@ protected:
     LinScaler*		scaler_;
     OD::FPDataRepType	fprep_;
     ObjectSet<IOPar>	auxiops_;
+    DataType		datatype_;
     mutable bool	needreset_;
 
     Column*		findColumn(const HGlobIdx&) const;

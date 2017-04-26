@@ -58,7 +58,7 @@ public:
     const CubeData&	positions() const	    { return cubedata_; }
     inline int		nrComponents() const
 			{ return componentNames().size(); }
-    BoolTypeSet		compSelected()		    { return compsel_; }
+    BoolTypeSet&	compSelected()		    { return compsel_; }
     bool		depthInFeet() const	    { return depthinfeet_; }
 
     void		setSelData(const SelData*);

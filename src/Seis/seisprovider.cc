@@ -156,7 +156,7 @@ uiRetVal Seis::Provider::doGetComponentInfo( BufferStringSet& nms,
 					 TypeSet<Seis::DataType>& dts ) const
 {
     nms.add( sKey::Data() );
-    dts += UnknowData;
+    dts += UnknownData;
     return uiRetVal::OK();
 }
 

@@ -35,7 +35,7 @@ void WellLog::initClass()
     scaletype->setDefaultValue( (int)Stats::Average );
     desc->addParam( scaletype );
 
-    desc->setNrOutputs( Seis::UnknowData, 1 );
+    desc->setNrOutputs( Seis::UnknownData, 1 );
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
 }

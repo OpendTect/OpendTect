@@ -249,11 +249,11 @@ bool CBVSReader::readComps()
 	BasicComponentInfo* newinf = new BasicComponentInfo( (const char*)bs );
 
 	strm_.getBin( ucbuf, integersize );
-	    newinf->datatype = iinterp_.get( ucbuf, 0 );
+	    newinf->datatype_ = iinterp_.get( ucbuf, 0 );
 	strm_.getBin( ucbuf, 4 );
-	    newinf->datachar.set( ucbuf[0], ucbuf[1] );
+	    newinf->datachar_.set( ucbuf[0], ucbuf[1] );
 	    // extra 2 bytes reserved for compression type
-	    newinf->datachar.fmt_ = DataCharacteristics::Ieee;
+	    newinf->datachar_.fmt_ = DataCharacteristics::Ieee;
 	strm_.getBin( ucbuf, sizeof(float) );
 	    info_.sd_.start = finterp_.get( ucbuf, 0 );
 	strm_.getBin( ucbuf, sizeof(float) );
@@ -264,7 +264,7 @@ bool CBVSReader::readComps()
 	strm_.getBin( ucbuf, 2*sizeof(float) );
 	    // reserved for per-component scaling: LinScaler( a, b )
 
-	if ( info_.nrsamples_ < 0 || newinf->datatype < 0 )
+	if ( info_.nrsamples_ < 0 )
 	{
 	    delete newinf;
 	    mErrRet(tr("Corrupt CBVS format: Component desciption error"))
@@ -272,7 +272,7 @@ bool CBVSReader::readComps()
 
 	info_.compinfo_ += newinf;
 
-	cnrbytes_[icomp] = info_.nrsamples_ * newinf->datachar.nrBytes();
+	cnrbytes_[icomp] = info_.nrsamples_ * newinf->datachar_.nrBytes();
 	bytespertrace_ += cnrbytes_[icomp];
 	samprg_ = Interval<int>( 0, info_.nrsamples_-1 );
     }
@@ -618,7 +618,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	iselc++;
 
 	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
-	int bps = compinfo->datachar.nrBytes();
+	int bps = compinfo->datachar_.nrBytes();
 	if ( samps->start )
 	    strm_.setReadPosition( samps->start*bps, od_stream::Rel );
 	if ( !strm_.getBin(((char*)bufs[iselc]) + offs*bps,

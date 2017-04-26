@@ -33,7 +33,7 @@ void Hilbert::initClass()
     desc->addParam( halflen );
 
     desc->addInput( InputSpec("Input data",true) );
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->addOutputDataType( Seis::UnknownData );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass

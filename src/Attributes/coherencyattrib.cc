@@ -21,7 +21,7 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Coherency)
-    
+
 void Coherency::initClass()
 {
     Desc* desc = new Desc( attribName(), updateDesc );
@@ -54,7 +54,7 @@ void Coherency::initClass()
 
     desc->addInput( InputSpec("Real data for Coherency",true) );
     desc->addInput( InputSpec("Imag data for Coherency",true) );
-    desc->setNrOutputs( Seis::UnknowData, 3 );
+    desc->setNrOutputs( Seis::UnknownData, 3 );
 
     desc->setLocality( Desc::SingleTrace );
     mAttrEndInitClass
@@ -68,7 +68,7 @@ void Coherency::updateDesc( Desc& desc )
 	desc.inputSpec(1).enabled_ = true;
 
     if ( desc.is2D() )
-	desc.setNrOutputs( Seis::UnknowData, 2 );
+	desc.setNrOutputs( Seis::UnknownData, 2 );
 }
 
 
@@ -76,13 +76,13 @@ Coherency::Coherency( Desc& desc )
     : Provider( desc )
     , realdataholder_ ( 0 )
     , imagdataholder_ ( 0 )
-{ 
+{
     if ( !isOK() ) return;
 
     inputdata_.allowNull(true);
-    
+
     mGetInt( type_, sKeyType() );
-    
+
     mGetFloatInterval( gate_, sKeyGate() );
     gate_.start = gate_.start / zFactor(); gate_.stop = gate_.stop / zFactor();
 
@@ -96,7 +96,7 @@ Coherency::Coherency( Desc& desc )
     stepout_.inl = is2D() ? 0 : abs( stepout_.inl );
     stepout_.crl = abs( stepout_.crl );
 
-    const float extraz = 
+    const float extraz =
 		    (stepout_.inl*inlDist()+stepout_.crl*crlDist()) * maxdip_;
     desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
 }
@@ -108,7 +108,7 @@ Coherency::~Coherency()
     if ( imagdataholder_ ) delete imagdataholder_;
 }
 
-    
+
 float Coherency::calc1( float s1, float s2, const Interval<int>& sg,
 			   const DataHolder& dh1, const DataHolder& dh2 ) const
 {
@@ -120,7 +120,7 @@ float Coherency::calc1( float s1, float s2, const Interval<int>& sg,
     ValueSeriesInterpolator<float> interp2(dh2.nrsamples_-1);
     if ( needinterp_ )
     {
-	//We can afford using extrapolation with polyReg1DWithUdf because 
+	//We can afford using extrapolation with polyReg1DWithUdf because
 	//even if extrapolation is needed, position will be anyway close to v0
 	interp1.extrapol_ = true;
 	interp2.extrapol_ = true;
@@ -162,8 +162,8 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 	    float inlpos = (idy - (inlsz/2)) * distinl_;
 	    for ( int idz=0; idz<crlsz; idz++ )
 	    {
-		ValueSeriesInterpolator<float> 
-		    	interp( re.get(idy,idz)->nrsamples_-1 );
+		ValueSeriesInterpolator<float>
+			interp( re.get(idy,idz)->nrsamples_-1 );
 		if ( needinterp_ )
 		{
 		    //We can afford using extrapolation with polyReg1DWithUdf
@@ -173,15 +173,15 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 		}
 
 		float crlpos = (idz - (crlsz/2)) * distcrl_;
-		float place = s - re.get(idy,idz)->z0_ + idx + 
+		float place = s - re.get(idy,idz)->z0_ + idx +
 			 (inlpos*inldip)/refstep_ + (crlpos*crldip)/refstep_;
-		    
-		float real = 
+
+		float real =
 		    interp.value( *(re.get(idy,idz)->series(realidx_)), place );
 
-		float imag =  
+		float imag =
 		   interp.value( *(im.get(idy,idz)->series(imagidx_)), place );
-		
+
 		realsum += real;
 		imagsum += imag;
 
@@ -190,9 +190,9 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 	}
 
 	numerator += realsum * realsum + imagsum * imagsum;
-    }	
+    }
 
-    return denominator? numerator / ( inlsz * crlsz * denominator ) : 0 ;	
+    return denominator? numerator / ( inlsz * crlsz * denominator ) : 0 ;
 }
 
 
@@ -223,7 +223,7 @@ void Coherency::prepPriorToBoundsCalc()
 void Coherency::prepareForComputeData()
 {
     BinID step = inputs_[0]->getStepoutStep();
-	
+
     distinl_ = fabs(inlDist()*step.inl);
     distcrl_ = fabs(crlDist()*step.crl);
 }
@@ -232,12 +232,12 @@ void Coherency::prepareForComputeData()
 bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
 			     int z0, int nrsamples, int threadid ) const
 {
-    return type_ == 1 ? computeData1(output, z0, nrsamples) 
+    return type_ == 1 ? computeData1(output, z0, nrsamples)
 		     : computeData2(output, z0, nrsamples);
 }
 
 
-bool Coherency::computeData1( const DataHolder& output, int z0, 
+bool Coherency::computeData1( const DataHolder& output, int z0,
 			      int nrsamples ) const
 {
     Interval<int> samplegate( mNINT32(gate_.start/refstep_),
@@ -276,12 +276,12 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
 	    curdip += ddip_;
 	}
-	
+
 	float cohres = maxcoh;
 	float inldip = dipatmax;
 
 	maxcoh = 0;
-	
+
 	curdip = -maxdip_;
 
 	while ( curdip <= maxdip_ )
@@ -309,7 +309,7 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 }
 
 
-bool Coherency::computeData2( const DataHolder& output, int z0, 
+bool Coherency::computeData2( const DataHolder& output, int z0,
 			      int nrsamples ) const
 {
     const bool is2d = is2D();
@@ -331,7 +331,7 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 	float crldipatmax;
 
 	//in 2D suppress loop over inldip
-	float inldip = is2d ? maxdip_ : -maxdip_;	
+	float inldip = is2d ? maxdip_ : -maxdip_;
 
 	while ( inldip <= maxdip_ )
 	{
@@ -339,7 +339,7 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 
 	    while ( crldip <= maxdip_ )
 	    {
-		float coh = calc2( cursample+extras, samplegate, inldip, 
+		float coh = calc2( cursample+extras, samplegate, inldip,
 				crldip, *realdataholder_, *imagdataholder_ );
 
 		if ( coh > maxcoh )
@@ -350,7 +350,7 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 
 	    inldip += ddip_;
 	}
-	
+
 	setOutputValue( output, 0, idx, z0, maxcoh );
 	setOutputValue( output, 1, idx, z0, is2d ? crldipatmax * dipFactor()
 						 : inldipatmax * dipFactor() );
@@ -366,7 +366,7 @@ bool Coherency::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );
 }
-	
+
 
 bool Coherency::getInputData( const BinID& relpos, int idx )
 {
@@ -402,29 +402,29 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 	                                      stepout_.crl * 2 + 1 );
 
 	for ( int idy=-stepout_.inl; idy<=stepout_.inl; idy++ )
-	{ 
+	{
 	    for ( int idz=-stepout_.crl; idz<=stepout_.crl; idz++ )
 	    {
-		BinID bid = BinID( relpos.inl + idy * bidstep.inl, 
+		BinID bid = BinID( relpos.inl + idy * bidstep.inl,
 				   relpos.crl + idz * bidstep.crl );
 		const DataHolder* dh = inputs_[0]->getData( bid, idx );
 		if ( !dh )
 		    return false;
 
-		realdataholder_->set(idy+stepout_.inl,idz+stepout_.crl, 
+		realdataholder_->set(idy+stepout_.inl,idz+stepout_.crl,
 			const_cast<DataHolder*>(dh) );
 
 		const DataHolder* data = inputs_[1]->getData( bid, idx );
 		if ( !data )
 		    return false;
-		
-		imagdataholder_->set(idy+stepout_.inl,idz+stepout_.crl, 
+
+		imagdataholder_->set(idy+stepout_.inl,idz+stepout_.crl,
 				     const_cast<DataHolder*>(data) );
 	    }
 	}
 	realidx_ = getDataIndex( 0 );
 	imagidx_ = getDataIndex( 1 );
-    } 
+    }
     return true;
 }
 

@@ -62,7 +62,7 @@ void Texture::initClass()
     steeringspec.issteering_ = true;
     desc->addInput( steeringspec );
 
-    desc->setNrOutputs( Seis::UnknowData, 10 );
+    desc->setNrOutputs( Seis::UnknownData, 10 );
 
     mAttrEndInitClass
 }

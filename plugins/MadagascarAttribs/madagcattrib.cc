@@ -18,9 +18,9 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-    
+
 mAttrDefCreateInstance(MadAGC)
-    
+
 void MadAGC::initClass()
 {
     mAttrStartInitClass
@@ -33,7 +33,7 @@ void MadAGC::initClass()
     desc->addParam( new IntParam( smoothzradiusStr(), 125 ) );
 
     desc->addInput( InputSpec("Input cube",true) );
-    desc->setNrOutputs( Seis::UnknowData, 1 );
+    desc->setNrOutputs( Seis::UnknownData, 1 );
 
     mAttrEndInitClass
 }
@@ -80,7 +80,7 @@ const BinID* MadAGC::reqStepout(int input,int output) const
 { return &reqstepout_; }
 
 
-bool MadAGC::computeData( const DataHolder& output, const BinID& relpos, 
+bool MadAGC::computeData( const DataHolder& output, const BinID& relpos,
 			      int z0, int nrsamples, int threadid ) const
 {
     //TODO: connect with Madagascar sfagc

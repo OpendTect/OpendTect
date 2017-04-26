@@ -37,7 +37,7 @@ Output:
 
 #include <arrayndalgo.h>
 
-    
+
 mClass(AttribExp) TraceSpectrumAttrib : public AttribCalc
 {
 public:
@@ -71,8 +71,8 @@ public:
 
 
     Seis::DataType	dataType(int,const TypeSet<Seis::DataType>&) const
-			{ return Seis::UnknowData; }
-    const char* 	definitionStr() const { return desc; }
+			{ return Seis::UnknownData; }
+    const char*	definitionStr() const { return desc; }
 
 protected:
     ArrayNDWindow::WindowType	windowtype;
@@ -90,8 +90,8 @@ protected:
 				Input( const TraceSpectrumAttrib& calculator_ )
 				: calculator ( calculator_ ) {}
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool                set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>& );
 
@@ -104,7 +104,7 @@ protected:
 	    int				reattrib;
 	    int				imattrib;
 
-	    const TraceSpectrumAttrib& 	calculator;
+	    const TraceSpectrumAttrib&	calculator;
 	};
 
 			    Task( const TraceSpectrumAttrib& calculator_ )
@@ -119,13 +119,13 @@ protected:
 
 			    Task( const Task& );
 			    // Not impl. Only to give error if someone uses it
-	
+
 			    ~Task();
-	
-	void		    set( float t1_, int nrtimes_, float step_, 
+
+	void		    set( float t1_, int nrtimes_, float step_,
 					    const AttribCalc::Task::Input* inp,
                                             const TypeSet<float*>& outp_)
-				{ t1 = t1_; nrtimes = nrtimes_; 
+				{ t1 = t1_; nrtimes = nrtimes_;
 				  step = step_; input = inp; power = outp_[0];
 				  realout = outp_[1]; imagout = outp_[2]; }
 

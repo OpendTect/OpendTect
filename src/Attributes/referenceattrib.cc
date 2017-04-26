@@ -21,7 +21,7 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Reference)
-    
+
 void Reference::initClass()
 {
     mAttrStartInitClassWithUpdate
@@ -37,7 +37,7 @@ void Reference::initClass()
 void Reference::updateDesc( Desc& ds )
 {
     const bool is2d = ds.descSet() ? ds.descSet()->is2D() : false;
-    ds.setNrOutputs( Seis::UnknowData, is2d ? 7 : 9 );
+    ds.setNrOutputs( Seis::UnknownData, is2d ? 7 : 9 );
 }
 
 
@@ -45,7 +45,7 @@ Reference::Reference( Desc& ds )
     : Provider(ds)
 {
     if ( !isOK() ) return;
-    
+
     is2d_ = is2D();
 }
 
@@ -69,7 +69,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
     const float step = refstep_ ? refstep_ : SI().zStep();
     Coord coord;
     const BinID truepos = currentbid_ + relpos;
-    if ( isOutputEnabled(0) || isOutputEnabled(1) ) 
+    if ( isOutputEnabled(0) || isOutputEnabled(1) )
 	coord = SI().transform( truepos );
 
     for ( int idx=0; idx<nrsamples; idx++ )
@@ -91,7 +91,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 		    }
 		}
 		float exacttime = idi>-1 && idi<exactz_.size() ? exactz_[idi]
-		    					       : (z0+idx)*step;
+							       : (z0+idx)*step;
 		setOutputValue( output, 2, idx, z0, exacttime );
 	    }
 	    else

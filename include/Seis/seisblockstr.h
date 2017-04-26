@@ -37,8 +37,6 @@ public:
     virtual bool	isUserSelectable(bool) const	{ return true; }
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
 
-    virtual bool	write(const SeisTrc&);
-
     virtual void	usePar(const IOPar&);
 
     virtual bool	close();
@@ -59,6 +57,7 @@ protected:
     virtual bool	commitSelections_();
     virtual bool	initRead_();
     virtual bool	initWrite_(const SeisTrc&);
+    virtual bool	writeTrc_(const SeisTrc&);
     virtual bool	wantBuffering() const		{ return false; }
 
 };

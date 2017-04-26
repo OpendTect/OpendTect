@@ -681,6 +681,8 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
 	fms += nm;
     }
     iop.set( sKeyComponents(), fms );
+    if ( datatype_ != UnknownData )
+	iop.set( sKeyDataType(), nameOf(datatype_) );
 
     hgeom_.putMapInfo( iop );
     iop.set( sKeyDimensions(), dims_.inl(), dims_.crl(), dims_.z() );

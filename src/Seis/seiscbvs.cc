@@ -31,7 +31,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	, forread_(true)
 	, storinterps_(0)
 	, blockbufs_(0)
-	, preseldatatype_(OD::AutoFPRep)
+	, fprep_(OD::AutoFPRep)
 	, rdmgr_(0)
 	, wrmgr_(0)
 	, nrdone_(0)
@@ -180,7 +180,9 @@ bool CBVSSeisTrcTranslator::initRead_()
     for ( int idx=0; idx<nrcomp; idx++ )
     {
 	const BasicComponentInfo& cinf = *info.compinfo_[idx];
-	addComp( cinf.datachar, cinf.name(), cinf.datatype );
+	addComp( cinf.datachar_, cinf.name() );
+	if ( idx == 0 )
+	    setDataType( (Seis::DataType)cinf.datatype_ );
     }
 
     pinfo_.usrinfo = info.usertext_;
@@ -205,15 +207,19 @@ bool CBVSSeisTrcTranslator::initRead_()
 
 bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
-    if ( !trc.data().nrComponents() ) return false;
+    if ( !trc.data().nrComponents() )
+	return false;
     forread_ = false;
 
     for ( int idx=0; idx<trc.data().nrComponents(); idx++ )
     {
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	addComp( dc, 0 );
-	if ( preseldatatype_ != OD::AutoFPRep )
-	    tarcds_[idx]->datachar = DataCharacteristics(preseldatatype_);
+	if ( fprep_ == OD::AutoFPRep )
+	    tarcds_[idx]->datachar_ = trc.data().getInterpreter()->dataChar();
+	else
+	    tarcds_[idx]->datachar_ = DataCharacteristics(fprep_);
+	tarcds_[idx]->datatype_ = (int)dataType();
     }
 
     return true;
@@ -246,15 +252,15 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     storinterps_ = new TraceDataInterpreter* [nrcomps];
     for ( int idx=0; idx<nrcomps; idx++ )
 	storinterps_[idx] = new TraceDataInterpreter(
-                  forread_ ? inpcds_[idx]->datachar : outcds_[idx]->datachar );
+	      forread_ ? inpcds_[idx]->datachar_ : outcds_[idx]->datachar_ );
 
     blockbufs_ = new unsigned char* [nrcomps];
     int bufsz = innrsamples_ + 1;
     for ( int iselc=0; iselc<nrcomps; iselc++ )
     {
-	int nbts = inpcds_[iselc]->datachar.nrBytes();
-	if ( outcds_[iselc]->datachar.nrBytes() > nbts )
-	    nbts = outcds_[iselc]->datachar.nrBytes();
+	int nbts = inpcds_[iselc]->datachar_.nrBytes();
+	if ( outcds_[iselc]->datachar_.nrBytes() > nbts )
+	    nbts = outcds_[iselc]->datachar_.nrBytes();
 
 	blockbufs_[iselc] = new unsigned char [ nbts * bufsz ];
 	if (!blockbufs_[iselc])
@@ -506,7 +512,7 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 {
     SeisTrcTranslator::usePar( iopar );
 
-    DataCharacteristics::getUserTypeFromPar( iopar, preseldatatype_ );
+    DataCharacteristics::getUserTypeFromPar( iopar, fprep_ );
 
     const char* res = iopar.find( sKeyOptDir() );
     if ( res && *res )
