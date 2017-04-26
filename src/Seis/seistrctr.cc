@@ -28,6 +28,7 @@
 #include "trckeyzsampling.h"
 #include "envvars.h"
 #include "file.h"
+#include "genc.h"
 #include "od_stream.h"
 #include <math.h>
 
@@ -625,7 +626,7 @@ void SeisTrcTranslator::removeAuxFiles( const IOObj& ioobj ) const
     File::Path fp( ioobj.mainFileName() );
     fp.setExtension( "par" );
     File::remove( fp.fullPath() );
-    fp.setExtension( "stats" );
+    fp.setExtension( sStatsFileExtension() );
     File::remove( fp.fullPath() );
     fp.setExtension( "proc" );
     File::remove( fp.fullPath() );

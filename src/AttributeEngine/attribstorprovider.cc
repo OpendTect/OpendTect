@@ -163,7 +163,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 
     mscprov_ = new Seis::MSCProvider( mid );
     if ( !initMSCProvider() )
-	mErrRet( mscprov_->errMsg() )
+	mErrRet( errmsg_ )
 
     const bool is2d = mscprov_->is2D();
     desc_.set2D( is2d );
@@ -365,8 +365,14 @@ bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 
 bool StorageProvider::initMSCProvider()
 {
-    if ( !mscprov_ )
+    if ( !mscprov_ || !mscprov_->errMsg().isEmpty() )
+    {
+	if ( !mscprov_ )
+	    errmsg_ = uiStrings::phrInternalError( "mscprov_ null" );
+	else
+	    errmsg_ = mscprov_->errMsg();
 	return false;
+    }
 
     updateStorageReqs();
     return true;

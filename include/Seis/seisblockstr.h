@@ -15,18 +15,18 @@ ________________________________________________________________________
 namespace Seis { namespace Blocks { class Reader; class Writer; } }
 
 
-mExpClass(Seis) SeisBlocksSeisTrcTranslator : public SeisTrcTranslator
-{ mODTextTranslationClass(SeisBlocksSeisTrcTranslator);
-  isTranslator(SeisBlocks,SeisTrc)
+mExpClass(Seis) BlocksSeisTrcTranslator : public SeisTrcTranslator
+{ mODTextTranslationClass(BlocksSeisTrcTranslator);
+  isTranslator(Blocks,SeisTrc)
 
 public:
 
       typedef Seis::Blocks::Reader  Reader;
       typedef Seis::Blocks::Writer  Writer;
 
-			SeisBlocksSeisTrcTranslator(const char*,const char*);
-			~SeisBlocksSeisTrcTranslator();
-    virtual const char*	defExtension() const		{ return "info"; }
+			BlocksSeisTrcTranslator(const char*,const char*);
+			~BlocksSeisTrcTranslator();
+    virtual const char*	defExtension() const		{ return "blocks"; }
     virtual bool	forRead() const			{ return !wrr_; }
 
     virtual bool	readInfo(SeisTrcInfo&);
@@ -49,7 +49,7 @@ public:
     virtual bool	isSingleComponent() const	{ return false; }
     virtual int		estimatedNrTraces() const;
 
-    static const char*	sKeyTrName()			{ return "SeisBlocks"; }
+    static const char*	sKeyTrName()			{ return "Blocks"; }
 
 protected:
 

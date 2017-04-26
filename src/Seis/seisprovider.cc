@@ -174,7 +174,7 @@ uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 {
     Threads::Locker locker( lock_ );
     dbky_ = dbky;
-    setSelData( 0 );
+    delete seldata_; seldata_ = 0;
     setupchgd_ = true;
     return reset();
 }

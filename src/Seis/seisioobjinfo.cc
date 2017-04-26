@@ -10,6 +10,7 @@
 #include "bufstringset.h"
 #include "cbvsreadmgr.h"
 #include "conn.h"
+#include "genc.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
@@ -363,7 +364,7 @@ bool SeisIOObjInfo::getStats( IOPar& iop ) const
 {
     mChk(false);
     File::Path fp( ioobj_->mainFileName() );
-    fp.setExtension( "stats" );
+    fp.setExtension( sStatsFileExtension() );
     return iop.read( fp.fullPath(), sKey::Stats() );
 }
 

@@ -48,7 +48,7 @@ Seis::Blocks::IOClass::~IOClass()
 BufferString Seis::Blocks::IOClass::infoFileName() const
 {
     File::Path fp( basepath_ );
-    fp.setExtension( "info", false );
+    fp.setExtension( sInfoFileExtension(), false );
     return fp.fullPath();
 }
 
@@ -56,7 +56,7 @@ BufferString Seis::Blocks::IOClass::infoFileName() const
 BufferString Seis::Blocks::IOClass::dataFileName() const
 {
     File::Path fp( basepath_ );
-    fp.setExtension( "data", false );
+    fp.setExtension( "blocks", false );
     return fp.fullPath();
 }
 

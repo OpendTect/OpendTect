@@ -699,12 +699,16 @@ static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return 0; }
+
+
 RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
 {
     PtrMan<EngineMan> aem = createEngMan( &tkzs );
-    if ( !aem ) return 0;
+    if ( !aem )
+	mErrRet( uiStrings::phrInternalError("Cannot make AEM") )
 
     bool atsamplepos = true;
 
@@ -732,7 +736,8 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	    Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
 	    RefMan<Provider> tmpprov =
 			Provider::create( *nonconsttargetdesc, errmsg );
-	    if ( !tmpprov ) return 0;
+	    if ( !tmpprov )
+		mErrRet( errmsg )
 
 	    tmpprov->computeRefStep();
 	    tmpprov->computeRefZ0();
@@ -749,7 +754,8 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     RefMan<RegularSeisDataPack> output = 0;
     if ( !preloadeddatapack && !atsamplepos )//note: 1 attrib computed at a time
     {
-	if ( !targetdesc ) return 0;
+	if ( !targetdesc )
+	    return 0;
 	Pos::RangeProvider3D rgprov3d;
 	rgprov3d.setSampling( tkzs );
 	DataColDef* dtcd = new DataColDef( targetdesc->userRef() );
@@ -1880,6 +1886,7 @@ IOObj* uiAttribPartServer::getIOObj( const SelSpec& as ) const
 }
 
 
+#undef mErrRet
 #define mErrRet(msg) { uiMSG().error(msg); return; }
 
 void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )

@@ -27,6 +27,7 @@
 #include "survgeom.h"
 #include "od_iostream.h"
 #include "survinfo.h"
+#include "genc.h"
 #include "uistrings.h"
 
 namespace SEGY
@@ -609,7 +610,7 @@ bool SEGY::FileIndexer::writeStats() const
 	{ msg_ = uirv; return false; }
 
     File::Path fp( ioobj_->mainFileName() );
-    fp.setExtension( "stats" );
+    fp.setExtension( sStatsFileExtension() );
     if ( !statspar.write(fp.fullPath(),sKey::Stats()) )
 	msg_ = uiStrings::phrCannotWrite( toUiString(fp.fullPath()) );
 

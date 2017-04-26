@@ -17,7 +17,7 @@
 #include "posinfo.h"
 
 
-SeisBlocksSeisTrcTranslator::SeisBlocksSeisTrcTranslator( const char* s1,
+BlocksSeisTrcTranslator::BlocksSeisTrcTranslator( const char* s1,
 							  const char* s2 )
     : SeisTrcTranslator(s1,s2)
     , rdr_(0)
@@ -26,13 +26,13 @@ SeisBlocksSeisTrcTranslator::SeisBlocksSeisTrcTranslator( const char* s1,
 }
 
 
-SeisBlocksSeisTrcTranslator::~SeisBlocksSeisTrcTranslator()
+BlocksSeisTrcTranslator::~BlocksSeisTrcTranslator()
 {
     cleanUp();
 }
 
 
-bool SeisBlocksSeisTrcTranslator::close()
+bool BlocksSeisTrcTranslator::close()
 {
     // stop (potentially early)
     delete rdr_; rdr_ = 0;
@@ -41,18 +41,17 @@ bool SeisBlocksSeisTrcTranslator::close()
 }
 
 
-void SeisBlocksSeisTrcTranslator::cleanUp()
+void BlocksSeisTrcTranslator::cleanUp()
 {
     // prepare for re-initialization
     SeisTrcTranslator::cleanUp();
 }
 
 
-bool SeisBlocksSeisTrcTranslator::initRead_()
+bool BlocksSeisTrcTranslator::initRead_()
 {
     StreamConn& sconn = *static_cast<StreamConn*>( conn_ );
     rdr_ = new Seis::Blocks::Reader( sconn.iStream() );
-    sconn.close();
     if ( !rdr_->state().isOK() )
     {
 	errmsg_ = rdr_->state();
@@ -82,7 +81,7 @@ bool SeisBlocksSeisTrcTranslator::initRead_()
 }
 
 
-bool SeisBlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
+bool BlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
     StreamConn& sconn = *static_cast<StreamConn*>( conn_ );
     const BufferString infofnm( sconn.fileName() );
@@ -114,7 +113,7 @@ bool SeisBlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 }
 
 
-bool SeisBlocksSeisTrcTranslator::commitSelections_()
+bool BlocksSeisTrcTranslator::commitSelections_()
 {
     if ( seldata_ && rdr_ )
 	rdr_->setSelData( seldata_ );
@@ -128,7 +127,7 @@ bool SeisBlocksSeisTrcTranslator::commitSelections_()
 }
 
 
-bool SeisBlocksSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
+bool BlocksSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
     uiRetVal uirv = rdr_->getTrcInfo( ti );
     if ( uirv.isError() )
@@ -143,7 +142,7 @@ bool SeisBlocksSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 }
 
 
-bool SeisBlocksSeisTrcTranslator::read( SeisTrc& trc )
+bool BlocksSeisTrcTranslator::read( SeisTrc& trc )
 {
     uiRetVal uirv = rdr_->getNext( trc );
     if ( uirv.isError() )
@@ -158,7 +157,7 @@ bool SeisBlocksSeisTrcTranslator::read( SeisTrc& trc )
 }
 
 
-bool SeisBlocksSeisTrcTranslator::skip( int ntrcs )
+bool BlocksSeisTrcTranslator::skip( int ntrcs )
 {
     uiRetVal uirv = rdr_->skip( ntrcs );
     if ( uirv.isError() )
@@ -167,13 +166,13 @@ bool SeisBlocksSeisTrcTranslator::skip( int ntrcs )
 }
 
 
-bool SeisBlocksSeisTrcTranslator::goTo( const BinID& bid )
+bool BlocksSeisTrcTranslator::goTo( const BinID& bid )
 {
     return rdr_->goTo( bid );
 }
 
 
-bool SeisBlocksSeisTrcTranslator::write( const SeisTrc& trc )
+bool BlocksSeisTrcTranslator::write( const SeisTrc& trc )
 {
     uiRetVal uirv = wrr_->add( trc );
     if ( uirv.isError() )
@@ -182,20 +181,20 @@ bool SeisBlocksSeisTrcTranslator::write( const SeisTrc& trc )
 }
 
 
-bool SeisBlocksSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
+bool BlocksSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 {
     cd = rdr_->positions();
     return true;
 }
 
 
-int SeisBlocksSeisTrcTranslator::estimatedNrTraces() const
+int BlocksSeisTrcTranslator::estimatedNrTraces() const
 {
     return rdr_->positions().totalSize();
 }
 
 
-void SeisBlocksSeisTrcTranslator::usePar( const IOPar& iop )
+void BlocksSeisTrcTranslator::usePar( const IOPar& iop )
 {
     SeisTrcTranslator::usePar( iop );
     // DataCharacteristics::getUserTypeFromPar( iopar, preseldatatype_ );

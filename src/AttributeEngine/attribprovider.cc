@@ -187,17 +187,17 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     if ( !newprov->checkInpAndParsAtStart() )
     {
 	existing.removeRange( existing.indexOf(newprov), existing.size()-1 );
+	uiString proverrmsg = newprov->errmsg_;
+	if ( proverrmsg.isEmpty() )
+	    { pFreeFnErrMsg("No error message. Hunt this down and add one."); }
 	BufferString attribnm = newprov->desc_.attribName();
 	if ( attribnm == StorageProvider::attribName() )
-	{
-	    errstr = tr("Cannot load Stored Cube '%1'.")
-		     .arg( newprov->desc_.userRef() );
-	}
+	    errstr = tr("Cannot load Stored Cube '%1':\n%2")
+		     .arg( newprov->desc_.userRef() ).arg( proverrmsg );
 	else
-	{
-	    errstr = tr("Attribute \"%1\" of type \"%2\" cannot be initialized")
-		     .arg( newprov->desc_.userRef() ).arg( attribnm );
-	}
+	    errstr = tr("Attribute \"%1\" (%2) cannot be initialized:\n%3")
+		     .arg( newprov->desc_.userRef() ).arg( attribnm )
+		     .arg( proverrmsg );
 	newprov->unRef();
 	return 0;
     }

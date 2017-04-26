@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "ascstream.h"
 #include "zdomain.h"
+#include "genc.h"
 #include <map>
 
 
@@ -236,12 +237,43 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
     , curcdpos_(*new PosInfo::CubeDataPos) \
     , seldata_(0) \
     , nrcomponentsintrace_(0) \
+    , depthinfeet_(false) \
     , lastopwasgetinfo_(false)
 
 
 
 Seis::Blocks::Reader::Reader( const char* inp )
     : mSeisBlocksReaderInitList()
+    , strmmine_(true)
+{
+    initFromFileName( inp );
+}
+
+
+Seis::Blocks::Reader::Reader( od_istream& strm )
+    : mSeisBlocksReaderInitList()
+{
+    basepath_.set( strm.fileName() );
+    const BufferString ext = basepath_.extension();
+    if ( ext == sInfoFileExtension() )
+    {
+	strmmine_ = true;
+	readInfoFile( strm );
+    }
+    else
+    {
+	strmmine_ = false;
+	strm_ = &strm;
+	File::Path fp( basepath_ );
+	fp.setExtension( sInfoFileExtension() );
+	initFromFileName( fp.fullPath() );
+    }
+    basepath_.setExtension( 0 );
+}
+
+
+
+void Seis::Blocks::Reader::initFromFileName( const char* inp )
 {
     if ( !File::exists(inp) )
     {
@@ -268,16 +300,6 @@ Seis::Blocks::Reader::Reader( const char* inp )
 }
 
 
-Seis::Blocks::Reader::Reader( od_istream& strm )
-    : mSeisBlocksReaderInitList()
-{
-    basepath_.set( strm.fileName() );
-    basepath_.setExtension( 0 );
-
-    readInfoFile( strm );
-}
-
-
 Seis::Blocks::Reader::~Reader()
 {
     closeStream();
@@ -299,7 +321,9 @@ void Seis::Blocks::Reader::close()
 
 void Seis::Blocks::Reader::closeStream() const
 {
-    delete strm_; strm_ = 0;
+    if ( strmmine_ )
+	delete strm_;
+    strm_ = 0;
 }
 
 
@@ -383,6 +407,7 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
     hgeom_->getMapInfo( iop );
     iop.get( sKey::ZRange(), zgeom_ );
     zdomaindef_ = ZDomain::Def::get( iop );
+    iop.getYN( sKeyDepthInFeet(), depthinfeet_ );
 
     DataCharacteristics::getUserTypeFromPar( iop, fprep_ );
     interp_ = DataInterp::create( DataCharacteristics(fprep_), true );
@@ -492,7 +517,6 @@ bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
 {
     needreset_ = false;
     lastopwasgetinfo_ = false;
-    closeStream();
 
     curcdpos_.toPreStart();
     if ( !advancePos(curcdpos_) )
@@ -502,7 +526,12 @@ bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
     }
 
     const BufferString fnm( dataFileName() );
-    strm_ = new od_istream( fnm );
+    if ( strm_ && fnm != strm_->fileName() )
+	closeStream();
+    if ( !strm_ )
+	strm_ = new od_istream( fnm );
+    else
+	strm_->setReadPosition( 0 );
     if ( !strm_->isOK() )
     {
 	closeStream();

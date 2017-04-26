@@ -109,7 +109,7 @@ void SeisTrcWriter::writeCollectedStats() const
 	return;
 
     File::Path fp( ioobj_->mainFileName() );
-    fp.setExtension( "stats" );
+    fp.setExtension( sStatsFileExtension() );
     statspar.write( fp.fullPath(), sKey::Stats() );
 }
 

@@ -48,7 +48,7 @@ public:
     typedef PosInfo::CubeData	    CubeData;
 
 			Reader(const char* fnm);    //!< data or info
-			Reader(od_istream& mainfilestrm);
+			Reader(od_istream&);	    //!< data or info
 			~Reader();
 
     const uiRetVal&	state() const		    { return state_; }
@@ -59,6 +59,7 @@ public:
     inline int		nrComponents() const
 			{ return componentNames().size(); }
     BoolTypeSet		compSelected()		    { return compsel_; }
+    bool		depthInFeet() const	    { return depthinfeet_; }
 
     void		setSelData(const SelData*);
 
@@ -75,6 +76,7 @@ protected:
     typedef PosInfo::CubeDataPos    CubeDataPos;
 
     mutable od_istream*	strm_;
+    bool		strmmine_;
     HGeom*		hgeom_;
     SelData*		seldata_;
     LinScaler*		scaler_;
@@ -83,6 +85,7 @@ protected:
     CubeData&		cubedata_;
     CubeDataPos&	curcdpos_;
     BufferString	survname_;
+    bool		depthinfeet_;
 
     BoolTypeSet		compsel_;
     uiRetVal		state_;
@@ -91,9 +94,6 @@ protected:
     mutable bool	lastopwasgetinfo_;
 
     void		closeStream() const;
-    void		readInfoFile(od_istream&);
-    bool		getGeneralSectionData(const IOPar&);
-    bool		getOffsetSectionData(const IOPar&);
     bool		reset(uiRetVal&) const;
     bool		isSelected(const CubeDataPos&) const;
     bool		advancePos(CubeDataPos&) const;
@@ -104,6 +104,13 @@ protected:
     void		readTrace(SeisTrc&,uiRetVal&) const;
 
     friend class	FileColumn;
+
+private:
+
+    void		initFromFileName(const char*);
+    void		readInfoFile(od_istream&);
+    bool		getGeneralSectionData(const IOPar&);
+    bool		getOffsetSectionData(const IOPar&);
 
 };
 

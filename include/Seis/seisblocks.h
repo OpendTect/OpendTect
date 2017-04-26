@@ -192,19 +192,20 @@ public:
     BufferString	infoFileName() const;
     BufferString	dataFileName() const;
 
-    static const char*	sKeyFileType()	 { return "Column Cube"; }
-    static const char*	sKeySectionPre() { return "Section-"; }
-    static const char*	sKeyGenSection() { return "Section-General"; }
-    static const char*	sKeyOffSection() { return "Section-Offsets"; }
-    static const char*	sKeyPosSection() { return "Section-Positions"; }
-    static const char*	sKeySurveyName() { return "Name.Survey"; }
-    static const char*	sKeyCubeName()	 { return "Name.Cube"; }
-    static const char*	sKeyFmtVersion() { return "Blocks.Version"; }
-    static const char*	sKeyDimensions() { return "Blocks.Max Dimensions"; }
-    static const char*	sKeyGlobInlRg()	 { return "Blocks.Inl ID Range"; }
-    static const char*	sKeyGlobCrlRg()	 { return "Blocks.Crl ID Range"; }
-    static const char*	sKeyGlobZRg()	 { return "Blocks.Z ID Range"; }
-    static const char*	sKeyComponents() { return "Components"; }
+    static const char*	sKeyFileType()	  { return "Column Cube"; }
+    static const char*	sKeySectionPre()  { return "Section-"; }
+    static const char*	sKeyGenSection()  { return "Section-General"; }
+    static const char*	sKeyOffSection()  { return "Section-Offsets"; }
+    static const char*	sKeyPosSection()  { return "Section-Positions"; }
+    static const char*	sKeySurveyName()  { return "Name.Survey"; }
+    static const char*	sKeyCubeName()	  { return "Name.Cube"; }
+    static const char*	sKeyFmtVersion()  { return "Blocks.Version"; }
+    static const char*	sKeyDimensions()  { return "Blocks.Max Dimensions"; }
+    static const char*	sKeyGlobInlRg()	  { return "Blocks.Inl ID Range"; }
+    static const char*	sKeyGlobCrlRg()	  { return "Blocks.Crl ID Range"; }
+    static const char*	sKeyGlobZRg()	  { return "Blocks.Z ID Range"; }
+    static const char*	sKeyComponents()  { return "Components"; }
+    static const char*	sKeyDepthInFeet() { return "Depth in Feet"; }
 
 protected:
 

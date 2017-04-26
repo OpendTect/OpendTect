@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "posinfo.h"
 #include "survgeom3d.h"
-#include "survinfo.h" // for survey name only
+#include "survinfo.h" // for survey name and zInFeet
 #include "ascstream.h"
 #include "separstr.h"
 
@@ -667,6 +667,8 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
     iop.set( sKey::CrlRange(), crlrg );
     iop.set( sKey::ZRange(), zgeom_ );
     zdomaindef_.set( iop );
+    if ( zdomaindef_.isDepth() && SI().zInFeet() )
+	iop.setYN( sKeyDepthInFeet(), true );
 
     FileMultiString fms;
     for ( int icomp=0; icomp<nrcomps_; icomp++ )

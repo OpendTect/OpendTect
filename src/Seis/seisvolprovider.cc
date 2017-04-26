@@ -143,8 +143,8 @@ void Seis::VolFetcher::openCube()
 
     getNextTranslator();
 
-    if ( !trl_ )
-	{ uirv_ = tr( "No selected data found" ); return; }
+    if ( !trl_ && uirv_.isEmpty() )
+	uirv_ = tr( "No selected data found" );
 }
 
 
