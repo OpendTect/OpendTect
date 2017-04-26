@@ -17,6 +17,7 @@ if ( BUILD_CRS )
     set( OD_MODULE_DEPS Basic)
     set( OD_IS_PLUGIN yes)
     set( OD_MODULE_SOURCES 
+		crssystem.cc
 		crspi.cc )
 
     OD_INIT_MODULE()
