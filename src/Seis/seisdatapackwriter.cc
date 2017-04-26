@@ -212,12 +212,12 @@ int SeisDataPackWriter::nextStep()
     if ( !trc_ && !setTrc() )
 	return ErrorOccurred();
 
+    const od_int64 posidx = iterator_.curIdx();
     BinID currentpos;
     if ( !iterator_.next(currentpos) )
 	return Finished();
 
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
-    const od_int64 posidx = iterator_.curIdx();
     if ( posinfo_ && !posinfo_->isValid(posidx,hs) )
 	return MoreToDo();
 
