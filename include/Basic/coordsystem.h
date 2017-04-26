@@ -89,10 +89,41 @@ public:
 				 tr("Unlocated XY") );
 
 			UnlocatedXY();
-			UnlocatedXY(const Coord&,const LatLong&);
     virtual uiString	description() const
 			{ return
 			   tr("Coordinate system in an undefined projection.");}
+
+    void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
+    bool		geographicTransformOK() const	{ return false; }
+
+    virtual LatLong	toGeographicWGS84(const Coord&) const;
+    virtual Coord	fromGeographicWGS84(const LatLong&) const;
+
+    virtual bool	isOK() const		{ return true; }
+    virtual bool	isOrthogonal() const	{ return true; }
+    virtual bool	isFeet() const		{ return isfeet_; }
+    virtual bool	isMeter() const		{ return !isfeet_; }
+
+    virtual bool	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+
+private:
+
+    bool		isfeet_;
+};
+
+
+mExpClass(Basic) AnchorBasedXY : public PositionSystem
+{ mODTextTranslationClass(AnchorBasedXY);
+public:
+    mDefaultFactoryInstantiation( PositionSystem,AnchorBasedXY,"AnchorBased XY",
+				 tr("Anchor Point Based XY") );
+
+			AnchorBasedXY();
+			AnchorBasedXY(const LatLong&,const Coord&);
+    virtual uiString	description() const
+			{ return tr("Coordinate system has an anchor point "
+				    "for which Latitude/Longitude is known");}
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const;

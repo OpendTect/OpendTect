@@ -387,32 +387,35 @@ bool SurveyInfo::usePar( const IOPar& par )
 
     if ( !coordsystem_ )
     {
-	RefMan<Coords::UnlocatedXY> coordsystem = new Coords::UnlocatedXY;
-	coordsystem_ = coordsystem;
-
 	/*Try to read the parameters, there should be reference latlog and
 	  Coordinates in there. */
-	if ( !coordsystempar || !coordsystem->usePar( *coordsystempar ) )
+	bool xyinfeet = false;
+	par.getYN( sKeyXYInFt(), xyinfeet );
+	BufferString anchor;
+	if ( par.get(sKeyLatLongAnchor,anchor) )
 	{
-	    //Read from old format keys
-	    bool xyinfeet = false;
-	    par.getYN( sKeyXYInFt(), xyinfeet );
-	    coordsystem->setIsFeet( xyinfeet );
-
-	    BufferString anchor;
-	    if ( par.get(sKeyLatLongAnchor,anchor) )
+	    char* ptr = anchor.find( '=' );
+	    if ( !ptr ) return false;
+	    *ptr++ = '\0';
+	    Coord c; LatLong l;
+	    if ( !c.fromString(anchor) || !l.fromString(ptr) )
+		return false;
+	    else if ( mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3) )
+		return false;
+	    else
 	    {
-		char* ptr = anchor.find( '=' );
-		if ( !ptr ) return false;
-		*ptr++ = '\0';
-		Coord c; LatLong l;
-		if ( !c.fromString(anchor) || !l.fromString(ptr) )
-		    return false;
-		else if ( mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3) )
-		    return false;
-
-		coordsystem->setLatLongEstimate( l, c );
+		RefMan<Coords::AnchorBasedXY> anchoredsystem =
+		    			new Coords::AnchorBasedXY( l, c );
+		anchoredsystem->setIsFeet( xyinfeet );
+		coordsystem_ = anchoredsystem;
 	    }
+	}
+
+	if ( !coordsystem_ )
+	{
+	    RefMan<Coords::UnlocatedXY> undefsystem = new Coords::UnlocatedXY;
+	    undefsystem->setIsFeet( xyinfeet );
+	    coordsystem_ = undefsystem;
 	}
     }
 

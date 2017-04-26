@@ -445,6 +445,34 @@ void uiLatLongInp::set( const LatLong& ll, int opt )
 uiUnlocatedXYSystem::uiUnlocatedXYSystem( uiParent* p )
     : uiPositionSystem( p,sFactoryDisplayName() )
 {
+    xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
+    xyinftfld_->setChecked( false );
+}
+
+
+bool uiUnlocatedXYSystem::initFields( const Coords::PositionSystem* sys )
+{
+    mDynamicCastGet( const Coords::UnlocatedXY*, from,	sys );
+    if ( !from )
+	return false;
+
+    xyinftfld_->setChecked( from->isFeet() );
+    return true;
+}
+
+
+bool uiUnlocatedXYSystem::acceptOK()
+{
+    RefMan<UnlocatedXY> res = new UnlocatedXY;
+    res->setIsFeet( xyinftfld_->isChecked() );
+    outputsystem_ = res;
+    return true;
+}
+
+
+uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
+    : uiPositionSystem( p,sFactoryDisplayName() )
+{
     helpkey_ = mODHelpKey(mLatLong2CoordDlgHelpID);
 
     coordfld_ = new uiGenInput( this, tr("Coordinate in or near survey"),
@@ -463,12 +491,13 @@ uiUnlocatedXYSystem::uiUnlocatedXYSystem( uiParent* p )
     xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
     xyinftfld_->attach( rightOf, coordfld_ );
     xyinftfld_->setChecked( false );
+    setHAlignObj( coordfld_ );
 }
 
 
-bool uiUnlocatedXYSystem::initFields( const Coords::PositionSystem* sys )
+bool uiAnchorBasedXYSystem::initFields( const Coords::PositionSystem* sys )
 {
-    mDynamicCastGet( const Coords::UnlocatedXY*, from,	sys );
+    mDynamicCastGet( const Coords::AnchorBasedXY*, from, sys );
     if ( !from || !from->geographicTransformOK() )
 	return false;
 
@@ -480,7 +509,7 @@ bool uiUnlocatedXYSystem::initFields( const Coords::PositionSystem* sys )
 }
 
 
-bool uiUnlocatedXYSystem::acceptOK()
+bool uiAnchorBasedXYSystem::acceptOK()
 {
     LatLong ll;
     latlngfld_->get( ll );
@@ -500,7 +529,7 @@ bool uiUnlocatedXYSystem::acceptOK()
 	    return false;
     }
 
-    RefMan<UnlocatedXY> res = new UnlocatedXY( crd, ll );
+    RefMan<AnchorBasedXY> res = new AnchorBasedXY( ll, crd );
     if ( !res->geographicTransformOK() )
     {
 	uiMSG().error(tr("Sorry, your Lat/Long definition has a problem"));

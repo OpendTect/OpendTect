@@ -190,29 +190,65 @@ Coord PositionSystem::fromString( const char* str ) const
 
 
 UnlocatedXY::UnlocatedXY()
+{
+}
+
+
+LatLong UnlocatedXY::toGeographicWGS84( const Coord& c ) const
+{
+    return LatLong::udf();
+}
+
+
+Coord UnlocatedXY::fromGeographicWGS84( const LatLong& ll ) const
+{
+    return Coord::udf();
+}
+
+
+static const char* sKeyIsFeet = "XY in Feet";
+
+bool UnlocatedXY::usePar( const IOPar& par )
+{
+    if ( !PositionSystem::usePar(par) )
+	return false;
+
+    par.getYN( sKeyIsFeet, isfeet_ );
+    return true;
+}
+
+
+void UnlocatedXY::fillPar( IOPar& par ) const
+{
+    PositionSystem::fillPar( par );
+    par.setYN( sKeyIsFeet, isfeet_ );
+}
+
+
+AnchorBasedXY::AnchorBasedXY()
     : lngdist_(mUdf(float))
 {
 }
 
 
-UnlocatedXY::UnlocatedXY( const Coord& c, const LatLong& l )
+AnchorBasedXY::AnchorBasedXY( const LatLong& l, const Coord& c )
 {
-    setLatLongEstimate( c, l );
+    setLatLongEstimate( l, c );
 }
 
 
-bool UnlocatedXY::geographicTransformOK() const
+bool AnchorBasedXY::geographicTransformOK() const
 { return !mIsUdf(lngdist_); }
 
 
-void UnlocatedXY::setLatLongEstimate( const LatLong& ll, const Coord& c )
+void AnchorBasedXY::setLatLongEstimate( const LatLong& ll, const Coord& c )
 {
     refcoord_ = c; reflatlng_ = ll;
     lngdist_ = mDeg2RadD * cos( ll.lat_ * mDeg2RadD ) * cAvgEarthRadius;
 }
 
 
-LatLong UnlocatedXY::toGeographicWGS84( const Coord& c ) const
+LatLong AnchorBasedXY::toGeographicWGS84( const Coord& c ) const
 {
     if ( !geographicTransformOK() ) return reflatlng_;
 
@@ -232,7 +268,7 @@ LatLong UnlocatedXY::toGeographicWGS84( const Coord& c ) const
 }
 
 
-Coord UnlocatedXY::fromGeographicWGS84( const LatLong& ll ) const
+Coord AnchorBasedXY::fromGeographicWGS84( const LatLong& ll ) const
 {
     if ( !geographicTransformOK() ) return Coord::udf();
 
@@ -245,11 +281,10 @@ Coord UnlocatedXY::fromGeographicWGS84( const LatLong& ll ) const
 }
 
 
-static const char* sKeyIsFeet = "XY in Feet";
 static const char* sKeyRefLatLong = "Reference Lat/Long";
 static const char* sKeyRefCoord = "Reference Coordinate";
 
-bool UnlocatedXY::usePar( const IOPar& par )
+bool AnchorBasedXY::usePar( const IOPar& par )
 {
     if ( !PositionSystem::usePar(par) )
 	return false;
@@ -268,7 +303,7 @@ bool UnlocatedXY::usePar( const IOPar& par )
 }
 
 
-void UnlocatedXY::fillPar( IOPar& par ) const
+void AnchorBasedXY::fillPar( IOPar& par ) const
 {
     PositionSystem::fillPar( par );
     par.setYN( sKeyIsFeet, isfeet_ );

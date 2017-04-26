@@ -58,6 +58,7 @@ mDefModInitFn(Basic)
 
     PosInfo::Survey2D::initClass();
     Coords::UnlocatedXY::initClass();
+    Coords::AnchorBasedXY::initClass();
 
 #ifdef mUseCrashDumper
     //Force init of handler.

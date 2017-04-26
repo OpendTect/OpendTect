@@ -87,6 +87,27 @@ public:
 
 protected:
 
+    uiCheckBox*		xyinftfld_;
+
+    bool		acceptOK();
+
+};
+
+
+mExpClass(uiIo) uiAnchorBasedXYSystem : public uiPositionSystem
+{ mODTextTranslationClass(uiAnchorBasedXYSystem);
+public:
+    mDefaultFactoryInstantiation1Param( uiPositionSystem, uiAnchorBasedXYSystem,
+			       uiParent*, AnchorBasedXY::sFactoryKeyword(),
+			       AnchorBasedXY::sFactoryDisplayName() );
+
+			uiAnchorBasedXYSystem(uiParent*);
+
+
+    virtual bool	initFields(const PositionSystem*);
+
+protected:
+
     uiGenInput*		coordfld_;
     uiLatLongInp*	latlngfld_;
 

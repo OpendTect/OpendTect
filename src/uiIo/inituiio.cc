@@ -180,6 +180,7 @@ mDefModInitFn(uiIo)
 
     uiProcSettings::initClass();
     Coords::uiUnlocatedXYSystem::initClass();
+    Coords::uiAnchorBasedXYSystem::initClass();
 
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
     uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );
