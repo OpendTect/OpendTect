@@ -420,7 +420,7 @@ protected:
 #define mParOnOffPre( objnm, onoff, checked, checkable ) \
 { \
     const bool ischeckable = (checkable); \
-    if ( onoff && !ischeckable ) \
+    if ( onoff!=0 && !ischeckable ) \
     { \
 	mWinWarnStrm << "This " << objnm << " has no on/off switch" \
 		     << od_endl; \
