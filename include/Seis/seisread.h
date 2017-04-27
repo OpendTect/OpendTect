@@ -26,55 +26,21 @@ namespace PosInfo
 }
 
 
-/*!\brief reads from a seismic data store.
+/*!\brief read from a seismic data store. Deprecated. Use Seis::Provider. */
 
-If you don't want all of the stored data, you must set use the
-SeisTrcTranslator facilities (SelData and ComponentData) after calling
-prepareWork(). If you don't call prepareWork(), the reader will do that but
-you cannot use SeisTrcTranslator facilities then.
-
-Then, the routine is: get(trc.info()) possibly followed by get(trc).
-Not keeping this sequence is at your own risk.
-
-Note: 2D Prestack data cannot (yet) be read via this class.
-
-*/
-
-mExpClass(Seis) mDeprecated SeisTrcReader : public SeisStoreAccess
+mExpClass(Seis) SeisTrcReader : public SeisStoreAccess
 { mODTextTranslationClass(SeisTrcReader);
 public:
-mStartAllowDeprecatedSection
 
-			SeisTrcReader(const IOObj* =0);
-				//!< Open 'real user entries from '.omf' file
-				//!< Can be anything: SEGY - CBVS - database
-			SeisTrcReader(const char* fnm);
-				//!< Open 'loose' CBVS files only.
+			mDeprecated SeisTrcReader(const IOObj* =0);
+			mDeprecated SeisTrcReader(const char* fnm);
 			~SeisTrcReader();
 
     void		forceFloatData( bool yn=true )	{ forcefloats = yn; }
-			//!< Only effective if called before prepareWork()
     bool		prepareWork(Seis::ReadMode rm=Seis::Prod);
-			//!< After this, you can set stuff on the translator
-			//!< If not called, will be done automatically
-
     int			get(SeisTrcInfo&);
-			/*!< -1 = Error. errMsg() will return a message.
-			      0 = End
-			      1 = Usable info
-			      2 = Not usable (trace needs to be skipped)
-			      If 1 is returned, then you should also call
-			      get(SeisTrc&). */
-
     bool		get(SeisTrc&);
-			/*!< It is possible to directly call this without
-			     checking the get(SeisTrcInfo&) result. Beware that
-			     the trace selections in the SelData may be
-			     ignored then - depending on the Translator's
-			     capabilities. */
-
     void		fillPar(IOPar&) const;
-
     bool		isPrepared() const		{ return prepared; }
     Seis::Bounds*	getBounds() const;
 			//!< use after prepareWork(). If not avail: survinfo
@@ -135,5 +101,4 @@ protected:
 				    const StepInterval<float>&) const;
     bool		initBounds2D(const PosInfo::Line2DData&,
 				     Seis::Bounds2D&) const;
-mStopAllowDeprecatedSection
 };

@@ -72,6 +72,8 @@ SeisTrcReader::SeisTrcReader( const char* fname )
     init();
 }
 
+mStopAllowDeprecatedSection
+
 
 #define mDelOuter if ( outer != mUndefPtr(TrcKeySampling) ) delete outer
 
@@ -204,11 +206,13 @@ bool SeisTrcReader::startWork()
     }
 
     sttrl.setSelData( seldata_ );
+mStartAllowDeprecatedSection
     if ( sttrl.inlCrlSorted() && seldata_ && !seldata_->isAll() )
     {
 	outer = new TrcKeySampling;
 	outer->set( seldata_->inlRange(), seldata_->crlRange() );
     }
+mStopAllowDeprecatedSection
 
     if ( !sttrl.commitSelections() )
 	{ errmsg_ = sttrl.errMsg(); return false; }
@@ -352,8 +356,10 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 
     if ( selres )
     {
+mStartAllowDeprecatedSection
 	if ( !entryis2d && sttrl.inlCrlSorted() )
 	{
+mStopAllowDeprecatedSection
 	    bool neednewinl = outer && !outer->includes(ti.binID());
 	    if ( neednewinl )
 	    {
@@ -938,5 +944,3 @@ bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd ) const
     delete rdr3d;
     return true;
 }
-
-mStopAllowDeprecatedSection
