@@ -102,8 +102,12 @@ const char* dgbVolProcessingTranslator::read( VolProc::Chain& chain,
     par.getFrom( astrm );
     if ( par.isEmpty() )
 	return "Input file contains no data";
-    if ( !chain.usePar( par ) )
-	return chain.errMsg().getFullString();
+    if ( !chain.usePar(par) )
+    {
+	mDeclStaticString(errmsg);
+	errmsg = chain.errMsg().getFullString();
+	return errmsg;
+    }
 
     return 0;
 }
