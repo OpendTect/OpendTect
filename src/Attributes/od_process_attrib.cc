@@ -329,7 +329,7 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( ioobj )
 	{
 	    File::Path fp( ioobj->mainFileName() );
-	    fp.setExtension( "proc" );
+	    fp.setExtension( sProcFileExtension() );
 	    pars().write( fp.fullPath(), sKey::Pars() );
 	}
 

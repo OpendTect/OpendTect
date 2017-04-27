@@ -122,7 +122,7 @@ bool SeisCBVS2DLineIOProvider::removeImpl( const IOObj& obj,
 
     const bool ret = File::remove( fnm.buf() );
     File::Path parfp( fnm );
-    parfp.setExtension( "par" );
+    parfp.setExtension( sParFileExtension() );
     if ( File::exists(parfp.fullPath()) )
        File::remove( parfp.fullPath() );
 
@@ -151,11 +151,11 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
 	    ret = false;
 
 	File::Path oldparfp( dl.fullPath(idx) );
-	oldparfp.setExtension( "par" );
+	oldparfp.setExtension( sParFileExtension() );
 	if ( !File::exists(oldparfp.fullPath()) )
 	    continue;
 
-	fp.setExtension( "par" );
+	fp.setExtension( sParFileExtension() );
 	File::rename( oldparfp.fullPath(), fp.fullPath() );
     }
 

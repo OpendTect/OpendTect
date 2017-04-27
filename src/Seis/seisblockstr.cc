@@ -15,6 +15,7 @@
 #include "survgeom3d.h"
 #include "ioman.h"
 #include "posinfo.h"
+#include "file.h"
 
 
 BlocksSeisTrcTranslator::BlocksSeisTrcTranslator( const char* s1,
@@ -22,6 +23,7 @@ BlocksSeisTrcTranslator::BlocksSeisTrcTranslator( const char* s1,
     : SeisTrcTranslator(s1,s2)
     , rdr_(0)
     , wrr_(0)
+    , preselfprep_(OD::AutoFPRep)
 {
 }
 
@@ -45,6 +47,7 @@ void BlocksSeisTrcTranslator::cleanUp()
 {
     // prepare for re-initialization
     SeisTrcTranslator::cleanUp();
+    preselfprep_ = OD::AutoFPRep;
 }
 
 
@@ -94,9 +97,12 @@ bool BlocksSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     PtrMan<IOObj> ioobj = DBM().get( dbky );
     if ( ioobj )
     {
-	OD::FPDataRepType fprep;
-	if ( DataCharacteristics::getUserTypeFromPar(ioobj->pars(),fprep) )
-	    wrr_->setFPRep( fprep );
+	OD::FPDataRepType fprep = OD::AutoFPRep;
+	if ( preselfprep_ != OD::AutoFPRep )
+	    fprep = preselfprep_;
+	else
+	    DataCharacteristics::getUserTypeFromPar( ioobj->pars(), fprep );
+	wrr_->setFPRep( fprep );
 	ZDomain::Def zdom = ZDomain::Def::get( ioobj->pars() );
 	wrr_->setZDomain( zdom );
 	wrr_->setCubeName( ioobj->name() );
@@ -210,8 +216,47 @@ int BlocksSeisTrcTranslator::estimatedNrTraces() const
 }
 
 
+bool BlocksSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+{
+    if ( !ioobj )
+	return false;
+
+    implRemoveAux( *ioobj );
+    const BufferString fnm = ioobj->mainFileName();
+    const BufferString infofnm = Seis::Blocks::IOClass::infoFileNameFor( fnm );
+    File::remove( infofnm );
+    File::remove( fnm );
+    return !File::exists( fnm );
+}
+
+
+bool BlocksSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
+					const CallBack* cb ) const
+{
+    if ( !ioobj )
+	return false;
+    //TODO
+    return false;
+}
+
+
+bool BlocksSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj,
+					       bool yn ) const
+{
+    if ( !ioobj )
+	return false;
+
+    implSetReadOnlyAux( *ioobj, yn );
+    const BufferString fnm = ioobj->mainFileName();
+    const BufferString infofnm = Seis::Blocks::IOClass::infoFileNameFor( fnm );
+    File::makeWritable( infofnm, !yn, false );
+    File::makeWritable( fnm, !yn, false );
+    return File::isWritable( fnm );
+}
+
+
 void BlocksSeisTrcTranslator::usePar( const IOPar& iop )
 {
     SeisTrcTranslator::usePar( iop );
-    // DataCharacteristics::getUserTypeFromPar( iopar, preseldatatype_ );
+    DataCharacteristics::getUserTypeFromPar( iop, preselfprep_ );
 }

@@ -355,7 +355,7 @@ bool SeisIOObjInfo::getPars( IOPar& iop ) const
 {
     mChk(false);
     File::Path fp( ioobj_->mainFileName() );
-    fp.setExtension( "par" );
+    fp.setExtension( sParFileExtension() );
     return iop.read( fp.fullPath(), sKey::Pars() );
 }
 
@@ -783,6 +783,6 @@ void SeisIOObjInfo::saveDisplayPars( const IOPar& par )
 	return;
 
     File::Path fp( ioobj_->mainFileName() );
-    fp.setExtension( "par" );
+    fp.setExtension( sParFileExtension() );
     par.write( fp.fullPath(), sKey::Pars() );
 }

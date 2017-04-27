@@ -393,7 +393,7 @@ bool EMManager::readParsFromDisplayInfoFile( const DBKey& mid,
 
     const BufferString filenm = Surface::getParFileName( *ioobjinfo.ioObj() );
     File::Path fp( filenm );
-    fp.setExtension( "par" );
+    fp.setExtension( sParFileExtension() );
     od_istream strm( fp );
 
     if( !strm.isOK() )
@@ -481,7 +481,7 @@ Undo& EMManager::undo( const EM::ObjectID& id )
 
     EMObjUndo* newemobjundo = new EMObjUndo( id );
     undolist_ += newemobjundo;
-    
+
     return newemobjundo->undo_;
 }
 

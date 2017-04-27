@@ -272,7 +272,7 @@ BufferString Surface::getParFileName( const IOObj& ioobj )
 	return BufferString::empty();
 
     File::Path fp( ioobj.mainFileName() );
-    fp.setExtension( "par" );
+    fp.setExtension( sParFileExtension() );
     return fp.fullPath();
 }
 

@@ -34,6 +34,21 @@ protected:
 };
 
 
+mExpClass(uiSeis) uiSeisBlocksOpts : public uiIOObjTranslatorWriteOpts
+{ mODTextTranslationClass(uiSeisBlocksOpts);
+public:
+
+			uiSeisBlocksOpts(uiParent*);
+
+    mDecluiIOObjTranslatorWriteOptsStdFns(uiSeisBlocksOpts);
+
+protected:
+
+    uiGenInput*		stortypfld_;
+
+};
+
+
 mExpClass(uiSeis) uiCBVSPS3DOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiCBVSPS3DOpts);
 public:

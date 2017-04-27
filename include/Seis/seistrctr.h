@@ -236,6 +236,8 @@ public:
     bool		haveWarnings() const;
     const BufferStringSet& warnings() const		{ return warnings_; }
 
+    static void		getAuxFileNames(const IOObj&,BufferStringSet&);
+
 protected:
 
     Conn*		conn_;
@@ -288,8 +290,8 @@ protected:
     BufferStringSet&	warnings_;
     virtual void	addWarn(int,const char*);
 
-    virtual bool	implRemove(const IOObj*) const;
-    void		removeAuxFiles(const IOObj&) const;
+    bool		implRemoveAux(const IOObj&) const;
+    bool		implSetReadOnlyAux(const IOObj&,bool yn) const;
 
 private:
 

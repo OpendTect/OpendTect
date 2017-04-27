@@ -139,8 +139,8 @@ int nextStep()
 
     File::Path srcfp( src );
     File::Path destfp( dest );
-    srcfp.setExtension( "par" );
-    destfp.setExtension( "par" );
+    srcfp.setExtension( sParFileExtension() );
+    destfp.setExtension( sParFileExtension() );
     if ( File::exists(srcfp.fullPath()) && !File::exists(destfp.fullPath()) )
     {
 	if ( !File::copy(srcfp.fullPath(),destfp.fullPath(),&errmsg_) )
@@ -529,7 +529,7 @@ void OD_2DLineSetTo2DDataSetConverter::removeDuplicateData(
     {
 	File::Path fp( oldfilepath.get(idx) );
 	File::remove( fp.fullPath() );
-	fp.setExtension( "par" );
+	fp.setExtension( sParFileExtension() );
 	File::remove( fp.fullPath() );
     }
 }

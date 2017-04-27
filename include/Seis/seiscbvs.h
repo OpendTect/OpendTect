@@ -65,6 +65,7 @@ public:
     void		setFPRep( OD::FPDataRepType fprep ) { fprep_ = fprep; }
 
     bool		isUserSelectable(bool) const	{ return true; }
+    virtual const char*	iconName() const		{ return "od6"; }
 
     static const char*	sKeyOptDir()		{ return "Optimized direction";}
 

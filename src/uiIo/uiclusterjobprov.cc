@@ -137,7 +137,7 @@ int nextStep()
     filenm += curidx_;
     File::Path fp( dirnm_.buf() );
     fp.add( filenm );
-    fp.setExtension( "par" );
+    fp.setExtension( sParFileExtension() );
     BufferString parfnm = fp.fullPath();
     fp.setExtension( "log" );
     BufferString logfnm = fp.fullPath();

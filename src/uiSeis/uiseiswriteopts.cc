@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "datachar.h"
 #include "iopar.h"
 #include "seiscbvs.h"
+#include "seisblockstr.h"
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
 
@@ -20,6 +21,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 
 #define mCBVSVolTranslInstance mTranslTemplInstance(SeisTrc,CBVS)
+#define mSeisBlocksTranslInstance mTranslTemplInstance(SeisTrc,Blocks)
 #define mCBVSPS3DTranslInstance mTranslTemplInstance(SeisPS3D,CBVS)
 
 
@@ -65,6 +67,39 @@ bool uiCBVSVolOpts::fill( IOPar& iop ) const
 void uiCBVSVolOpts::initClass()
 {
     factory().addCreator( create, mCBVSVolTranslInstance.getDisplayName() );
+}
+
+
+uiSeisBlocksOpts::uiSeisBlocksOpts( uiParent* p )
+    : uiIOObjTranslatorWriteOpts(p,mSeisBlocksTranslInstance)
+{
+    stortypfld_ = new uiGenInput( this, tr("Storage"),
+		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
+    stortypfld_->setValue( (int)OD::AutoFPRep );
+
+    setHAlignObj( stortypfld_ );
+}
+
+
+void uiSeisBlocksOpts::use( const IOPar& iop )
+{
+    DataCharacteristics::UserType ut;
+    if ( DataCharacteristics::getUserTypeFromPar(iop,ut) )
+	stortypfld_->setValue( (int)ut );
+}
+
+
+bool uiSeisBlocksOpts::fill( IOPar& iop ) const
+{
+    DataCharacteristics::putUserTypeToPar( iop,
+	    DataCharacteristics::UserType( stortypfld_->getIntValue() ) );
+    return true;
+}
+
+
+void uiSeisBlocksOpts::initClass()
+{
+    factory().addCreator( create, mSeisBlocksTranslInstance.getDisplayName() );
 }
 
 

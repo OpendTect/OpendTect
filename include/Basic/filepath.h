@@ -110,4 +110,13 @@ protected:
 } // namespace File;
 
 
+mGlobal(Basic) inline const char* sSeismicSubDir()	{ return "Seismics"; }
+mGlobal(Basic) inline const char* sWellSubDir()		{ return "WellInfo"; }
+mGlobal(Basic) inline const char* sSurfaceSubDir()	{ return "Surfaces"; }
+mGlobal(Basic) inline const char* sParFileExtension()	{ return "par"; }
+mGlobal(Basic) inline const char* sInfoFileExtension()	{ return "info"; }
+mGlobal(Basic) inline const char* sProcFileExtension()	{ return "proc"; }
+mGlobal(Basic) inline const char* sStatsFileExtension()	{ return "stats"; }
+
+
 mDeprecated typedef File::Path FilePath;

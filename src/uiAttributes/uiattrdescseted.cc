@@ -1197,7 +1197,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
 	return;
 
     File::Path fp( ioobj->mainFileName() );
-    fp.setExtension( "proc" );
+    fp.setExtension( sProcFileExtension() );
     if ( !File::exists(fp.fullPath()) )
     {
 	uiMSG().error( tr("No attributeset stored with this dataset") );

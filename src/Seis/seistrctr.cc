@@ -613,21 +613,45 @@ void SeisTrcTranslator::addWarn( int nr, const char* msg )
 }
 
 
-bool SeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+bool SeisTrcTranslator::implRemoveAux( const IOObj& ioobj ) const
 {
-    if ( ioobj )
-	removeAuxFiles( *ioobj );
-    return true;
+    BufferStringSet fnms;
+    getAuxFileNames( ioobj, fnms );
+    bool ret = true;
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	const BufferString fnm = fnms.get( idx );
+	File::remove( fnm ) ;
+	if ( File::exists( fnm ) )
+	    ret = false;
+    }
+    return ret;
 }
 
 
-void SeisTrcTranslator::removeAuxFiles( const IOObj& ioobj ) const
+bool SeisTrcTranslator::implSetReadOnlyAux( const IOObj& ioobj, bool yn ) const
+{
+    BufferStringSet fnms;
+    getAuxFileNames( ioobj, fnms );
+    bool ret = true;
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	const BufferString fnm = fnms.get( idx );
+	if ( File::exists(fnm) && !File::makeWritable( fnm, !yn, false ) )
+	    ret = false;
+    }
+    return ret;
+}
+
+
+void SeisTrcTranslator::getAuxFileNames( const IOObj& ioobj,
+					 BufferStringSet& fnms )
 {
     File::Path fp( ioobj.mainFileName() );
-    fp.setExtension( "par" );
-    File::remove( fp.fullPath() );
+    fp.setExtension( sParFileExtension() );
+    fnms.add( fp.fullPath() );
     fp.setExtension( sStatsFileExtension() );
-    File::remove( fp.fullPath() );
-    fp.setExtension( "proc" );
-    File::remove( fp.fullPath() );
+    fnms.add( fp.fullPath() );
+    fp.setExtension( sProcFileExtension() );
+    fnms.add( fp.fullPath() );
 }

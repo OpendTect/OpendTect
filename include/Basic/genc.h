@@ -101,9 +101,3 @@ mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
 mGlobal(Basic) bool AreProgramArgsSet(void);
 mGlobal(Basic) char** GetArgV(void);
 mGlobal(Basic) int& GetArgC(void);
-
-mGlobal(Basic) inline const char* sSeismicSubDir()	{ return "Seismics"; }
-mGlobal(Basic) inline const char* sWellSubDir()		{ return "WellInfo"; }
-mGlobal(Basic) inline const char* sSurfaceSubDir()	{ return "Surfaces"; }
-mGlobal(Basic) inline const char* sInfoFileExtension()	{ return "info"; }
-mGlobal(Basic) inline const char* sStatsFileExtension()	{ return "stats"; }

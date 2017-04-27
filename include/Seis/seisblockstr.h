@@ -46,6 +46,10 @@ public:
     virtual int		bytesOverheadPerTrace() const	{ return 0; }
     virtual bool	isSingleComponent() const	{ return false; }
     virtual int		estimatedNrTraces() const;
+    virtual bool	implRemove(const IOObj*) const;
+    virtual bool	implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const;
+    virtual bool	implSetReadOnly(const IOObj*,bool) const;
 
     static const char*	sKeyTrName()			{ return "Blocks"; }
 
@@ -53,6 +57,7 @@ protected:
 
     Reader*		rdr_;
     Writer*		wrr_;
+    OD::FPDataRepType	preselfprep_;
 
     virtual bool	commitSelections_();
     virtual bool	initRead_();

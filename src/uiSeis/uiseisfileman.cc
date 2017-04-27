@@ -232,7 +232,7 @@ void uiSeisFileMan::setToolButtonProperties()
 	if ( curioobj_ )
 	{
 	     File::Path fp( curioobj_->mainFileName() );
-	     fp.setExtension( "proc" );
+	     fp.setExtension( sProcFileExtension() );
 	     attribbut_->setSensitive( File::exists(fp.fullPath()) );
 	     mSetButToolTip(attribbut_,tr("Show AttributeSet for "),
 			    toUiString(cursel),uiStrings::sEmptyString(),
@@ -493,6 +493,6 @@ void uiSeisFileMan::showAttribSet( CallBacker* )
     if ( !curioobj_ ) return;
 
     File::Path fp( curioobj_->mainFileName() );
-    fp.setExtension( "proc" );
+    fp.setExtension( sProcFileExtension() );
     File::launchViewer( fp.fullPath(), File::ViewPars() );
 }

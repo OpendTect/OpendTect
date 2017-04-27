@@ -217,7 +217,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 
 void dgbSurfaceReader::mergeExternalPar( const char* horfnm )
 {
-    File::Path fp( horfnm ); fp.setExtension( "par" );
+    File::Path fp( horfnm ); fp.setExtension( sParFileExtension() );
     od_istream strm( fp );
     if ( !strm.isOK() )
 	return;

@@ -582,8 +582,8 @@ static void renameAuxFile( const IOObj* ioobj, const char* newnm,
 
 bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
-    SeisTrcTranslator::implRemove( ioobj );
     mImplStart( implRemove() );
+    implRemoveAux( *ioobj );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
@@ -606,8 +606,9 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 {
     mImplStart( implRename(newnm) );
 
-    renameAuxFile( ioobj, newnm, "par" );
-    renameAuxFile( ioobj, newnm, "proc" );
+    renameAuxFile( ioobj, newnm, sParFileExtension() );
+    renameAuxFile( ioobj, newnm, sProcFileExtension() );
+    renameAuxFile( ioobj, newnm, sStatsFileExtension() );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
@@ -630,6 +631,7 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 bool CBVSSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 {
     mImplStart( implSetReadOnly(yn) );
+    implSetReadOnlyAux( *ioobj, yn );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
