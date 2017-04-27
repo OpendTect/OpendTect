@@ -236,7 +236,13 @@ public:
     bool		haveWarnings() const;
     const BufferStringSet& warnings() const		{ return warnings_; }
 
-    static void		getAuxFileNames(const IOObj&,BufferStringSet&);
+    virtual bool	implRemove(const IOObj*) const;
+    virtual bool	implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const;
+    virtual bool	implSetReadOnly(const IOObj*,bool yn) const;
+
+    static BufferStringSet stdAuxExtensions();
+    virtual BufferStringSet auxExtensions() const;
 
 protected:
 
@@ -290,8 +296,11 @@ protected:
     BufferStringSet&	warnings_;
     virtual void	addWarn(int,const char*);
 
-    bool		implRemoveAux(const IOObj&) const;
-    bool		implSetReadOnlyAux(const IOObj&,bool yn) const;
+    virtual bool	removeMainObj(const IOObj&) const;
+    virtual bool	renameMainObj(const IOObj&,const char*,
+			      const CallBack* cb=0) const;
+    virtual bool	setROMainObj(const IOObj&,bool) const;
+    void		getAuxFileNames(const IOObj&,BufferStringSet&) const;
 
 private:
 

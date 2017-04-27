@@ -174,7 +174,6 @@ public:
 
     virtual void	usePar(const IOPar&);
 
-    virtual bool	implRemove(const IOObj*) const;
     virtual bool	close();
     virtual void	cleanUp();
     virtual IOObj*	createWriteIOObj(const IOObjContext&,

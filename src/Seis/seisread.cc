@@ -37,6 +37,8 @@
 
 #define mUndefPtr(clss) ((clss*)0xdeadbeef) // Like on AIX. Nothing special.
 
+mStartAllowDeprecatedSection
+
 
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
@@ -202,9 +204,7 @@ bool SeisTrcReader::startWork()
     }
 
     sttrl.setSelData( seldata_ );
-mStartAllowDeprecatedSection
     if ( sttrl.inlCrlSorted() && seldata_ && !seldata_->isAll() )
-mStopAllowDeprecatedSection
     {
 	outer = new TrcKeySampling;
 	outer->set( seldata_->inlRange(), seldata_->crlRange() );
@@ -352,9 +352,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 
     if ( selres )
     {
-mStartAllowDeprecatedSection
 	if ( !entryis2d && sttrl.inlCrlSorted() )
-mStopAllowDeprecatedSection
 	{
 	    bool neednewinl = outer && !outer->includes(ti.binID());
 	    if ( neednewinl )
@@ -940,3 +938,5 @@ bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd ) const
     delete rdr3d;
     return true;
 }
+
+mStopAllowDeprecatedSection

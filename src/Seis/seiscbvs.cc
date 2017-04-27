@@ -536,33 +536,6 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 }
 
 
-
-static StreamProvider* getStrmProv( const IOObj* ioobj, const char* ext )
-{
-    File::Path fp( ioobj->fullUserExpr(true) );
-    if ( ext && *ext )
-	fp.setExtension( ext );
-    StreamProvider* sp = new StreamProvider( fp.fullPath() );
-    if ( !sp->exists(true) )
-	{ delete sp; sp = 0; }
-
-    return sp;
-}
-
-
-static void renameAuxFile( const IOObj* ioobj, const char* newnm,
-			   const char* ext )
-{
-    PtrMan<StreamProvider> sp = getStrmProv( ioobj, ext );
-    if ( sp )
-    {
-	File::Path fpnew( newnm );
-	fpnew.setExtension( ext );
-	sp->rename( fpnew.fullPath() );
-    }
-}
-
-
 #define mImplStart(fn) \
     if ( !ioobj || ioobj->translator()!="CBVS" ) return false; \
     mDynamicCastGet(const IOStream*,iostrm,ioobj) \
@@ -583,10 +556,11 @@ static void renameAuxFile( const IOObj* ioobj, const char* newnm,
 bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
     mImplStart( implRemove() );
-    implRemoveAux( *ioobj );
+    if ( !SeisTrcTranslator::implRemove(ioobj) )
+	return false;
 
     bool rv = true;
-    for ( int nr=0; ; nr++ )
+    for ( int nr=1; ; nr++ )
     {
 	mImplLoopStart;
 
@@ -605,13 +579,11 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 					const CallBack* cb ) const
 {
     mImplStart( implRename(newnm) );
-
-    renameAuxFile( ioobj, newnm, sParFileExtension() );
-    renameAuxFile( ioobj, newnm, sProcFileExtension() );
-    renameAuxFile( ioobj, newnm, sStatsFileExtension() );
+    if ( !SeisTrcTranslator::implRename(ioobj,newnm,cb) )
+	return false;
 
     bool rv = true;
-    for ( int nr=0; ; nr++ )
+    for ( int nr=1; ; nr++ )
     {
 	mImplLoopStart;
 
@@ -631,10 +603,11 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 bool CBVSSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 {
     mImplStart( implSetReadOnly(yn) );
-    implSetReadOnlyAux( *ioobj, yn );
+    if ( !SeisTrcTranslator::implSetReadOnly(ioobj,yn) )
+	return false;
 
     bool rv = true;
-    for ( int nr=0; ; nr++ )
+    for ( int nr=1; ; nr++ )
     {
 	mImplLoopStart;
 

@@ -160,10 +160,21 @@ protected:
     BufferString		usrname_;
     TranslatorGroup*		group_;
 
+    static BufferString		getAssociatedFileName(const IOObj&,
+						const char* extension);
+    static BufferString		getAssociatedFileName(const char* fnm,
+						const char* extension);
+    static bool			renameAssociatedFile(const char* fnm,
+				    const char* ext,const char* newnm);
+    static bool			renameLargeFile(const char* fnm,
+				    const char* newfnm,const CallBack* cb=0);
+
 public:
+
     static uiString		sNoIoobjMsg();
     static uiString		sBadConnection();
     uiString			sSelObjectIsWrongType();
+
 };
 
 

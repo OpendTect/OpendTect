@@ -605,13 +605,6 @@ IOObj* SEGYDirectSeisTrcTranslator::createWriteIOObj( const IOObjContext& ctxt,
 }
 
 
-bool SEGYDirectSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
-{
-    // Remove SEG-Y file too? Only if we have created it?
-    return SeisTrcTranslator::implRemove( ioobj );
-}
-
-
 void SEGYDirectSeisTrcTranslator::usePar( const IOPar& iop )
 {
     segypars_ = iop;

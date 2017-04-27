@@ -12,6 +12,9 @@
 #include "iostrm.h"
 #include "iopar.h"
 #include "debug.h"
+#include "file.h"
+#include "filepath.h"
+#include "strmprov.h"
 #include "keystrs.h"
 #include "perthreadrepos.h"
 
@@ -357,7 +360,8 @@ bool Translator::implReadOnly( const IOObj* ioobj ) const
 
 bool Translator::implRemove( const IOObj* ioobj ) const
 {
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
     return ioobj->implRemove();
 }
 
@@ -371,13 +375,64 @@ bool Translator::implManagesObjects( const IOObj* ioobj ) const
 bool Translator::implRename( const IOObj* ioobj, const char* newnm,
 			     const CallBack* cb ) const
 {
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
     return const_cast<IOObj*>(ioobj)->implRename( newnm, cb );
 }
 
 
 bool Translator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 {
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
     return ioobj->implSetReadOnly( yn );
+}
+
+
+BufferString Translator::getAssociatedFileName( const char* fnm,
+						const char* ext )
+{
+    File::Path fp( fnm );
+    fp.setExtension( ext );
+    return fp.fullPath();
+}
+
+
+BufferString Translator::getAssociatedFileName( const IOObj& ioobj,
+						const char* ext )
+{
+    return getAssociatedFileName( ioobj.mainFileName(), ext );
+}
+
+
+bool Translator::renameAssociatedFile( const char* fnm, const char* ext,
+					const char* newnm )
+{
+    if ( !newnm || !*newnm )
+	return false;
+
+    const BufferString assocoldfnm( getAssociatedFileName(fnm,ext) );
+    if ( !File::exists(assocoldfnm) )
+	return true;
+
+    File::Path fpnew( newnm );
+    fpnew.setExtension( ext );
+    if ( !fpnew.isAbsolute() )
+	fpnew.setPath( File::Path(assocoldfnm).pathOnly() );
+    const BufferString assocnewfnm( fpnew.fullPath() );
+    return File::rename( assocoldfnm, assocnewfnm );
+}
+
+
+bool Translator::renameLargeFile( const char* fnm, const char* newnm,
+				  const CallBack* cb )
+{
+    if ( !fnm || !*fnm || !newnm || !*newnm || !File::exists(fnm) )
+	return false;
+
+    const BufferString orgdir = File::Path(fnm).pathOnly();
+    StreamProvider sp( fnm );
+    StreamProvider spnew( newnm );
+    spnew.addPathIfNecessary( File::Path(fnm).pathOnly() );
+    return sp.rename( spnew.fileName(), cb );
 }

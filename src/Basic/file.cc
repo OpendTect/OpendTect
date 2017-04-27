@@ -699,7 +699,7 @@ bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 
 bool File::makeWritable( const char* fnm, bool yn, bool recursive )
 {
-    if ( !isSane(fnm) )
+    if ( !isSane(fnm) || !exists(fnm) )
 	return false;
     else if ( fnmIsURI(fnm) )
 	return true;

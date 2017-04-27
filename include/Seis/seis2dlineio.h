@@ -147,10 +147,10 @@ public:
 			: SeisTrcTranslator(s1,s2)      {}
 
     const char*		defExtension() const		{ return "2ds"; }
-    bool		implRemove(const IOObj*) const;
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
 
+    bool		implRemove(const IOObj*) const;
     bool		implRename( const IOObj*,const char*,
 				    const CallBack* cb=0) const;
 

@@ -14,6 +14,7 @@
 #include "seisselection.h"
 #include "survgeom3d.h"
 #include "ioman.h"
+#include "strmprov.h"
 #include "posinfo.h"
 #include "file.h"
 
@@ -216,42 +217,11 @@ int BlocksSeisTrcTranslator::estimatedNrTraces() const
 }
 
 
-bool BlocksSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+BufferStringSet BlocksSeisTrcTranslator::auxExtensions() const
 {
-    if ( !ioobj )
-	return false;
-
-    implRemoveAux( *ioobj );
-    const BufferString fnm = ioobj->mainFileName();
-    const BufferString infofnm = Seis::Blocks::IOClass::infoFileNameFor( fnm );
-    File::remove( infofnm );
-    File::remove( fnm );
-    return !File::exists( fnm );
-}
-
-
-bool BlocksSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
-					const CallBack* cb ) const
-{
-    if ( !ioobj )
-	return false;
-    //TODO
-    return false;
-}
-
-
-bool BlocksSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj,
-					       bool yn ) const
-{
-    if ( !ioobj )
-	return false;
-
-    implSetReadOnlyAux( *ioobj, yn );
-    const BufferString fnm = ioobj->mainFileName();
-    const BufferString infofnm = Seis::Blocks::IOClass::infoFileNameFor( fnm );
-    File::makeWritable( infofnm, !yn, false );
-    File::makeWritable( fnm, !yn, false );
-    return File::isWritable( fnm );
+    BufferStringSet extnms = stdAuxExtensions();
+    extnms.add( sInfoFileExtension() );
+    return extnms;
 }
 
 
