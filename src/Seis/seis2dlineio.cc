@@ -138,26 +138,17 @@ uiRetVal Seis2DTraceGetter::getNext( SeisTrc& trc ) const
 }
 
 
-
-Seis2DLineGetter::Seis2DLineGetter( SeisTrcBuf& trcbuf, int trcsperstep,
-				    const Seis::SelData* sd )
-    : Executor("Reading 2D Traces")
-    , tbuf_(trcbuf)
-    , seldata_(0)
+bool Seis2DTraceGetter::getComponentInfo( BufferStringSet& nms ) const
 {
-    if ( sd )
-	seldata_ = sd->clone();
-    else
-    {
-	seldata_ = Seis::SelData::get( Seis::Range );
-	seldata_->setIsAll( true );
-    }
-}
+    if ( !ensureTranslator() )
+	return false;
 
+    nms.setEmpty();
+    const int nrcomps = tr_->componentInfo().size();
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+	nms.add( tr_->componentInfo()[icomp]->name() );
 
-Seis2DLineGetter::~Seis2DLineGetter()
-{
-    delete seldata_;
+    return true;
 }
 
 
@@ -420,7 +411,7 @@ bool Seis2DLineMerger::nextGetter()
     if ( dslineidx<0 )
 	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d->getName()) )
     uiRetVal uirv;
-    getter_ = ds_->lineGetter( lid, tbuf, 0, uirv );
+    getter_ = ds_->traceGetter( lid, 0, uirv );
     if ( !getter_ )
 	mErrRet( uirv );
 
@@ -453,11 +444,24 @@ int Seis2DLineMerger::doWork()
 	if ( !currentlyreading_ )
 	    return nextGetter() ? Executor::MoreToDo()
 				: Executor::ErrorOccurred();
-	const int res = getter_->doStep();
-	if ( res < 0 )
-	    { msg_ = getter_->message(); return res; }
-	else if ( res == 1 )
-	    { nrdone_++; return Executor::MoreToDo(); }
+
+	SeisTrcBuf& tbuf = currentlyreading_==1 ? tbuf1_ : tbuf2_;
+	while ( true )
+	{
+	    SeisTrc* trc = new SeisTrc;
+	    const uiRetVal uirv = getter_->getNext( *trc );
+	    if ( !uirv.isOK() )
+	    {
+		delete trc;
+		if ( isFinished(uirv) )
+		    { nrdone_++; break; }
+
+		msg_ = uirv;
+		return ErrorOccurred();
+	    }
+
+	    tbuf.add( trc );
+	}
 
 	return nextGetter() ? Executor::MoreToDo()
 			    : Executor::ErrorOccurred();

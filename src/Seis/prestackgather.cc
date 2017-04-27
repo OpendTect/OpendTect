@@ -19,7 +19,6 @@
 #include "seistrc.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
-#include "seisread.h"
 #include "seistrctr.h"
 #include "seistrcprop.h"
 #include "survinfo.h"

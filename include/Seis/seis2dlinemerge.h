@@ -17,6 +17,7 @@ ________________________________________________________________________
 class SeisTrcBuf;
 class SeisIOObjInfo;
 class BufferStringSet;
+class Seis2DTraceGetter;
 class Seis2DLinePutter;
 namespace PosInfo { class Line2DData; }
 
@@ -58,7 +59,7 @@ protected:
     SeisTrcBuf&		tbuf1_;
     SeisTrcBuf&		tbuf2_;
     SeisTrcBuf&		outbuf_;
-    Executor*		getter_;
+    Seis2DTraceGetter*	getter_;
     Seis2DLinePutter*	putter_;
     BufferStringSet&	attrnms_;
     int			curattridx_;

@@ -52,34 +52,6 @@ public:
 };
 
 
-/*!\brief interface for object that reads entire or parts of entire 2D lines. */
-
-mExpClass(Seis) Seis2DLineGetter : public Executor
-{ mODTextTranslationClass(Seis2DLineGetter);
-public:
-			Seis2DLineGetter(SeisTrcBuf&,int trcsperstep,
-					 const Seis::SelData*);
-    virtual		~Seis2DLineGetter();
-
-    uiString		message() const		{ return msg_; }
-    uiString		nrDoneText() const	{ return tr("Traces read"); }
-
-    virtual od_int64	nrDone() const			= 0;
-    virtual od_int64	totalNr() const			= 0;
-
-    virtual const SeisTrcTranslator* translator() const	{ return 0; }
-
-protected:
-
-    virtual int		nextStep()			= 0;
-
-    SeisTrcBuf&		tbuf_;
-    uiString		msg_;
-    Seis::SelData*	seldata_;
-
-};
-
-
 /*!\brief Provides access to 2D seismic line data. */
 
 mExpClass(Seis) Seis2DTraceGetter
@@ -96,6 +68,8 @@ public:
 
     uiRetVal		get(TrcNrType,SeisTrc&) const;
     uiRetVal		getNext(SeisTrc&) const;
+
+    bool		getComponentInfo(BufferStringSet&) const;
 
 protected:
 
@@ -136,9 +110,6 @@ public:
 
     virtual Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,
 				    const Seis::SelData*,uiRetVal&)	= 0;
-    virtual Executor*		getLineGetter(const IOObj&,Pos::GeomID,
-					SeisTrcBuf&,const Seis::SelData*,
-					uiRetVal&,int trcsperfetch=16)	= 0;
     virtual Seis2DLinePutter*	getPutter(const IOObj&,Pos::GeomID,
 					  uiRetVal&)			= 0;
 

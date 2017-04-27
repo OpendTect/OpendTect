@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "segyhdr.h"
 #include "seisioobjinfo.h"
 #include "seisimporter.h"
-#include "seisread.h"
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "survgeom2d.h"

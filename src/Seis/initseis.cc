@@ -87,8 +87,6 @@ mDefModInitFn(Seis)
     LinearD2TTransform::initClass();
     Time2DepthStretcher::initClass();
     Depth2TimeStretcher::initClass();
-    Seis::ODSeqInp::initClass();
-    Seis::ODSeqOut::initClass();
     Survey::GMAdmin().updateGeometries( 0 ); //Those using a transl from Seis.
 
 	Seis2DTo3DImpl::initClass();

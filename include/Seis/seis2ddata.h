@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 class IOObj;
-class Executor;
 class SeisTrcBuf;
 class TrcKeyZSampling;
 class BinIDValueSet;
@@ -65,10 +64,6 @@ public:
 
     Seis2DTraceGetter*	traceGetter(Pos::GeomID,const Seis::SelData*,
 				    uiRetVal&) const;
-				//!< May return null
-    Executor*		lineGetter(Pos::GeomID,SeisTrcBuf&,
-				    const Seis::SelData*,uiRetVal&,
-				    int nrtrcsperstep=16) const;
 				//!< May return null
     Seis2DLinePutter*	linePutter(Pos::GeomID,uiRetVal&);
 				//!< May return null.

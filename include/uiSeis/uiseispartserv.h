@@ -53,8 +53,6 @@ public:
     void		get2DZdomainAttribs(const char* linenm,
 					    const char* zdomainstr,
 					    BufferStringSet& attribs);
-    bool		create2DOutput(const DBKey&,const char* linekey,
-				       TrcKeyZSampling&,SeisTrcBuf&);
     void		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
 

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "dbkey.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"

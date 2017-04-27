@@ -25,8 +25,8 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "msgh.h"
 #include "seistrc.h"
-#include "seisread.h"
 #include "seisbufadapters.h"
+#include "seisprovider.h"
 #include "segytr.h"
 #include "segyhdr.h"
 #include "iopar.h"
@@ -63,7 +63,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	: uiDialog(p,su)
 	, setup_(su)
 	, tbuf_(*new SeisTrcBuf(true))
-	, rdr_(0)
+	, prov_(0)
 {
     setCtrlStyle( CloseOnly );
 
@@ -119,7 +119,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     toStatusBar( toUiString(setup_.fs_.dispName()), 1 );
     outInfo( tr("Opening input") );
-    rdr_ = getReader( setup_, txtinfo_ );
+    prov_ = getProvider( setup_, txtinfo_ );
     txtfld_->setText( txtinfo_ );
 
     uiString str( m3Dots(tr("Reading first %1 traces").arg(su.nrtrcs_)) );
@@ -131,7 +131,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
 uiSEGYExamine::~uiSEGYExamine()
 {
-    delete rdr_;
+    delete prov_;
     delete &tbuf_;
 }
 
@@ -144,7 +144,7 @@ void uiSEGYExamine::rowClck( CallBacker* )
 
 void uiSEGYExamine::saveHdr( CallBacker* )
 {
-    if ( !rdr_ ) return;
+    if ( !prov_ ) return;
     uiFileDialog dlg( this, false,
 		      File::Path(GetDataDir(),sSeismicSubDir()).fullPath(), 0,
 		      tr("Save SEG-Y Textual Header to") );
@@ -154,8 +154,17 @@ void uiSEGYExamine::saveHdr( CallBacker* )
     if ( !strm.isOK() )
 	{ uiMSG().error(tr("Cannot open file for writing")); return; }
 
-    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr_->translator())
-    const SEGY::TxtHeader& th = *trans->txtHeader();
+    PtrMan<IOObj> ioobj = DBM().get( prov_->dbKey() );
+    if ( !ioobj ) return;
+
+    PtrMan<Translator> trans = ioobj->createTranslator();
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytrans,trans.ptr());
+    if ( !segytrans ) return;
+
+    Conn* conn = ioobj->getConn( true );
+    segytrans->initRead( conn );
+
+    const SEGY::TxtHeader& th = *segytrans->txtHeader();
     BufferString buf; th.getText( buf );
     strm << buf << od_endl;
 }
@@ -220,87 +229,47 @@ void uiSEGYExamine::setRow( int irow )
 }
 
 
-SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
-					 BufferString& emsg )
-{
-    IOObj* ioobj = su.fs_.getIOObj( true );
-    if ( !ioobj )
-	return 0;
-
-    DBM().setEntry( *ioobj );
-    su.fp_.fillPar( ioobj->pars() );
-
-    SeisTrcReader* rdr = new SeisTrcReader( ioobj );
-    delete ioobj;
-    if ( !rdr->errMsg().isEmpty() || !rdr->prepareWork(Seis::PreScan) )
-	{ emsg = rdr->errMsg().getFullString(); delete rdr; return 0; }
-
-    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr->translator())
-    if ( !trans )
-	{ emsg = "Internal: cannot obtain SEG-Y Translator";
-		delete rdr; return 0; }
-
-    return rdr;
-}
-
-
-SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
+Seis::Provider* uiSEGYExamine::getProvider( const uiSEGYExamine::Setup& su,
 					 uiString& emsg )
 {
-    IOObj* ioobj = su.fs_.getIOObj( true );
+    PtrMan<IOObj> ioobj = su.fs_.getIOObj( true );
     if ( !ioobj )
 	return 0;
 
     DBM().setEntry( *ioobj );
     su.fp_.fillPar( ioobj->pars() );
 
-    SeisTrcReader* rdr = new SeisTrcReader( ioobj );
-    delete ioobj;
-    if ( !rdr->errMsg().isEmpty() || !rdr->prepareWork(Seis::PreScan) )
-	{ emsg = rdr->errMsg(); delete rdr; return 0; }
+    uiRetVal uirv;
+    Seis::Provider* prov = Seis::Provider::create( ioobj->key(), &uirv );
+    if ( !prov )
+	{ emsg = uirv; delete prov; return 0; }
 
-    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr->translator())
-    if ( !trans )
-	{ emsg = tr("Internal: cannot obtain SEG-Y Translator");
-		delete rdr; return 0; }
-
-    return rdr;
-}
-
-
-int uiSEGYExamine::getRev() const
-{
-    return rdr_ ? getRev( *rdr_ ) : -1;
-}
-
-
-int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, BufferString& emsg )
-{
-    uiString errmsg;
-    PtrMan<SeisTrcReader> rdr = getReader( su, errmsg );
-    emsg = mFromUiStringTodo(errmsg);
-    if ( !rdr && emsg.isEmpty() )
-	emsg.set( "Error opening file."
-	    "\nPlease check whether the file size is at least 3600 bytes." );
-    return rdr ? getRev( *rdr ) : -1;
+    return prov;
 }
 
 
 int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, uiString& emsg )
 {
-    PtrMan<SeisTrcReader> rdr = getReader( su, emsg );
-    if ( !rdr && emsg.isEmpty() )
+    PtrMan<Seis::Provider> prov = getProvider( su, emsg );
+    if ( !prov && emsg.isEmpty() )
 	emsg = uiStrings::phrCannotOpen(tr("file."
 	    "\nPlease check whether the file size is at least 3600 bytes."));
-    return rdr ? getRev( *rdr ) : -1;
+    return prov ? getRev( su ) : -1;
 }
 
 
-int uiSEGYExamine::getRev( const SeisTrcReader& rdr )
+int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su )
 {
-    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr.translator());
-    if ( !trans ) return -1;
-    return trans->isRev0() ? 0 : 1;
+    PtrMan<IOObj> ioobj = su.fs_.getIOObj( true );
+    if ( !ioobj ) return -1;
+
+    PtrMan<Translator> trans = ioobj->createTranslator();
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytrans,trans.ptr());
+    if ( !segytrans ) return -1;
+
+    Conn* conn = ioobj->getConn( true );
+    segytrans->initRead( conn );
+    return segytrans->isRev0() ? 0 : 1;
 }
 
 
@@ -333,21 +302,34 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 
 void uiSEGYExamine::updateInp()
 {
-    if ( !rdr_ || !tbuf_.isEmpty() ) return;
+    if ( !prov_ || !tbuf_.isEmpty() ) return;
 
-    const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
-    const int nrvals = hdef.size();
-    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr_->translator())
-    const SEGY::TrcHeader& trhead = trans->trcHeader();
+    PtrMan<IOObj> ioobj = DBM().get( prov_->dbKey() );
+    if ( !ioobj ) return;
 
+    PtrMan<Translator> trans = ioobj->createTranslator();
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytrans,trans.ptr());
+    if ( !segytrans ) return;
+
+    Conn* conn = ioobj->getConn( true );
+    segytrans->initRead( conn );
+
+    const SEGY::TrcHeader& trhead = segytrans->trcHeader();
     SeisTrc trc; int nrdone = 0;
     bool stoppedatend = false;
+    const int nrvals = SEGY::TrcHeader::hdrDef().size();
     for ( int itrc=0; itrc<setup_.nrtrcs_; itrc++ )
     {
-	if ( !rdr_->get(trc) )
+	const uiRetVal uirv = prov_->getNext( trc );
+	if ( !uirv.isOK() )
+	{
+	    if ( !isFinished(uirv) )
+		break;
+
 	    stoppedatend = true;
+	}
 	if ( nrdone == 0 )
-	    handleFirstTrace( trc, *trans );
+	    handleFirstTrace( trc, *segytrans );
 	if ( stoppedatend )
 	    break;
 

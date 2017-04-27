@@ -13,8 +13,8 @@ ________________________________________________________________________
 #include "seisstor.h"
 #include "uistring.h"
 class SeisTrc;
-class Executor;
 class TrcKeySampling;
+class Seis2DTraceGetter;
 class SeisTrcBuf;
 class SeisPS3DReader;
 class SeisPS2DReader;
@@ -40,7 +40,7 @@ Note: 2D Prestack data cannot (yet) be read via this class.
 
 */
 
-mExpClass(Seis) SeisTrcReader : public SeisStoreAccess
+mExpClass(Seis) mDeprecated SeisTrcReader : public SeisStoreAccess
 { mODTextTranslationClass(SeisTrcReader);
 public:
 
@@ -100,7 +100,7 @@ protected:
     int			nrlinegetters_;
     TrcKeySampling*	outer;
     SeisTrcBuf*		tbuf_;
-    Executor*		linegetter_;
+    Seis2DTraceGetter*	tracegetter_;
     Seis::ReadMode	readmode;
     bool		entryis2d;
     StepInterval<int>	curtrcnrrg;

@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "seiseventsnapper.h"
 #include "seistrc.h"
-#include "seisread.h"
 #include "posinfo2dsurv.h"
 
 namespace EM { class Hor2DSeisLineIterator; class Horizon2D; }

@@ -33,8 +33,6 @@ public:
 				    PosInfo::Line2DData&) const;
     Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,
 					const Seis::SelData*,uiRetVal&);
-    Seis2DLineGetter*	getLineGetter(const IOObj&,Pos::GeomID,SeisTrcBuf&,
-				   const Seis::SelData*,uiRetVal&,int n=16);
     Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID,uiRetVal&);
 
     bool		getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
@@ -72,34 +70,6 @@ public:
     SEGYSeisTrcTranslator* tr_;
     BinID		bid_;
     DataCharacteristics::UserType preseldt_;
-
-};
-
-
-mExpClass(Seis) SEGYDirect2DLineGetter : public Seis2DLineGetter
-{
-public:
-			SEGYDirect2DLineGetter(const char* fnm,SeisTrcBuf&,
-					     int trcsperstep,
-					     const Seis::SelData*);
-			~SEGYDirect2DLineGetter();
-
-    od_int64		nrDone() const		{ return curnr_; }
-    od_int64		totalNr() const		{ return totnr_; }
-
-    const SeisTrcTranslator* translator() const;
-
-protected:
-
-    void		addTrc(SeisTrc*);
-    int			nextStep();
-
-    int			curnr_;
-    int			totnr_;
-    BufferString	fname_;
-    SEGYSeisTrcTranslator* tr_;
-    const int		trcsperstep_;
-    Pos::GeomID		geomid_;
 
 };
 

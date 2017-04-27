@@ -19,9 +19,9 @@ class SeisTrc;
 class uiTable;
 class uiTextEdit;
 class SeisTrcBuf;
-class SeisTrcReader;
 class uiSEGYTrcHdrValPlot;
 class SEGYSeisTrcTranslator;
+namespace Seis { class Provider; }
 
 
 /* The dialog for examining SEG-Y files */
@@ -45,20 +45,18 @@ public:
 			uiSEGYExamine(uiParent*,const Setup&);
 			~uiSEGYExamine();
 
-    int			getRev() const;		//!< -1 = err, 1 = Rev 1
     const uiString&	errMsg() const		{ return txtinfo_; }
 
-    mDeprecated static SeisTrcReader* getReader(const Setup&,BufferString&);
-    static SeisTrcReader* getReader(const Setup&,uiString& errmsg);
-    static int		getRev(const SeisTrcReader&); // -1 = err, 1 = Rev 1
-    mDeprecated static int getRev(const Setup&,BufferString& emsg);
+    static Seis::Provider* getProvider(const Setup&,uiString& errmsg);
+    static int		getRev(const uiSEGYExamine::Setup&);
+			//!< -1 = err, 1 = Rev 1
     static int		getRev(const Setup&,uiString& emsg);
     static bool		launch(const Setup&);
 
 protected:
 
     Setup		setup_;
-    SeisTrcReader*	rdr_;
+    Seis::Provider*	prov_;
     uiString		txtinfo_;
     BufferString	fname_;
     SeisTrcBuf&		tbuf_;

@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "scaler.h"
 #include "seis2ddata.h"
+#include "seis2dlineio.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisjobexecprov.h"
@@ -167,9 +168,26 @@ bool Seis2DTo3D::read()
     for ( int iline=0; iline<ds.nrLines(); iline++)
     {
 	uiRetVal uirv;
-	PtrMan<Executor> lf = ds.lineGetter( ds.geomID(iline), tmpbuf, 0, uirv);
-	if ( !lf || !lf->execute() )
+	PtrMan<Seis2DTraceGetter> getter =
+		ds.traceGetter( ds.geomID(iline), 0, uirv );
+	if ( !getter )
 	    continue;
+
+	while ( true )
+	{
+	    SeisTrc* trc = new SeisTrc;
+	    uirv = getter->getNext( *trc );
+	    if ( !uirv.isOK() )
+	    {
+		delete trc;
+		if ( isFinished(uirv) )
+		    break;
+
+		mErrRet( uirv );
+	    }
+
+	    tmpbuf.add( trc );
+	}
 
 	for ( int idx=tmpbuf.size()-1; idx>=0; idx-- )
 	{

@@ -24,7 +24,6 @@ _______________________________________________________________________
 #include "uimsg.h"
 
 #include "seistrc.h"
-#include "seisread.h"
 #include "segytr.h"
 #include "wellmanager.h"
 #include "welltrack.h"
@@ -33,8 +32,6 @@ _______________________________________________________________________
 #include "ioobj.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
-#include "keystrs.h"
-#include "survinfo.h"
 #include "unitofmeasure.h"
 #include "od_helpids.h"
 
@@ -71,20 +68,18 @@ void selPush( CallBacker* )
     if ( nrexam > 0 )
 	uiSEGYExamine::launch( exsu );
 
-    uiString emsg;
-    PtrMan<SeisTrcReader> rdr = uiSEGYExamine::getReader( exsu, emsg );
-    if ( !rdr )
-    {
-	if ( !emsg.isEmpty() )
-	    uiMSG().warning( emsg );
-	return;
-    }
+    PtrMan<IOObj> ioobj = exsu.fs_.getIOObj( true );
+    if ( !ioobj ) return;
 
-    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr->translator())
-    if ( !trans ) return;
+    PtrMan<Translator> trans = ioobj->createTranslator();
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytrans,trans.ptr());
+    if ( !segytrans ) return;
+
+    Conn* conn = ioobj->getConn( true );
+    segytrans->initRead( conn );
 
     SeisTrc trc;
-    if ( !trans->read(trc) ) return;
+    if ( !segytrans->read(trc) ) return;
     imp_.use( trc );
 }
 

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"
-#include "seisread.h"
 #include "seiscbvs.h"
 #include "seisselection.h"
 #include "seissingtrcproc.h"

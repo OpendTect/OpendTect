@@ -143,25 +143,6 @@ Seis2DTraceGetter* Seis2DDataSet::traceGetter( Pos::GeomID geomid,
 }
 
 
-Executor* Seis2DDataSet::lineGetter( Pos::GeomID geomid, SeisTrcBuf& tbuf,
-	      const Seis::SelData* sd, uiRetVal& uirv, int npts ) const
-{
-    if ( !liop_ )
-    {
-	uirv.set( tr("No suitable 2D line extraction object found") );
-	return 0;
-    }
-
-    if ( !isPresent(geomid) )
-    {
-	uirv.set( tr("Requested line not found in Dataset") );
-	return 0;
-    }
-
-    return liop_->getLineGetter( ioobj_, geomid, tbuf, sd, uirv, npts );
-}
-
-
 Seis2DLinePutter* Seis2DDataSet::linePutter( Pos::GeomID geomid,
 					     uiRetVal& uirv )
 {

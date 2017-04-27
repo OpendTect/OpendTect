@@ -17,9 +17,7 @@ ________________________________________________________________________
 
 class IOObj;
 class Scaler;
-class SeisTrcReader;
 class SeisTrcTranslator;
-
 
 namespace VolProc
 {
@@ -59,7 +57,6 @@ protected:
     static const char*		sKeyVolumeID()		{ return "Volume ID"; }
 
     DBKey			mid_;
-    ObjectSet<SeisTrcReader>	readers_;
     ObjectSet<SeisTrcTranslator> translators_;
     TypeSet<int>		components_;
     ObjectSet<Scaler>		compscalers_;

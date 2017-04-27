@@ -425,33 +425,6 @@ void uiSeisPartServer::get2DStoredAttribs( const char* linenm,
 }
 
 
-bool uiSeisPartServer::create2DOutput( const DBKey& mid, const char* linekey,
-				       TrcKeyZSampling& cs, SeisTrcBuf& buf )
-{
-    mGet2DDataSet(false)
-
-    const int lidx = dataset.indexOf( linekey );
-    if ( lidx < 0 ) return false;
-
-    StepInterval<int> trcrg;
-    dataset.getRanges( dataset.geomID(lidx), trcrg, cs.zsamp_ );
-    cs.hsamp_.setCrlRange( trcrg );
-    uiRetVal uirv;
-    PtrMan<Executor> exec = dataset.lineGetter( dataset.geomID(lidx), buf, 0,
-	    					uirv );
-    if ( uirv.isError() )
-    {
-	uiMSG().error( uirv );
-	return false;
-    }
-    else
-    {
-	uiTaskRunner dlg( parent() );
-	return TaskRunner::execute( &dlg, *exec );
-    }
-}
-
-
 void uiSeisPartServer::getStoredGathersList( bool for3d,
 					     BufferStringSet& nms ) const
 {

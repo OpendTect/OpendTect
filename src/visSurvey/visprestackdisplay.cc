@@ -23,7 +23,6 @@ _______________________________________________________________________________
 #include "prestackprocessor.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
-#include "seisread.h"
 #include "seispsioprov.h"
 #include "sorting.h"
 #include "survinfo.h"

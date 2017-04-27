@@ -48,7 +48,6 @@ ___________________________________________________________________
 #include "ranges.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
-#include "seisread.h"
 #include "seiswrite.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"

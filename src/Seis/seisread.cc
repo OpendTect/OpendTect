@@ -8,6 +8,7 @@
 
 #include "seisread.h"
 
+#include "seis2dlineio.h"
 #include "seisbounds.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
@@ -20,7 +21,6 @@
 #include "seis2ddata.h"
 
 #include "binidvalset.h"
-#include "executor.h"
 #include "file.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -41,7 +41,7 @@
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
 	, outer(mUndefPtr(TrcKeySampling))
-	, linegetter_(0)
+	, tracegetter_(0)
 	, psrdr2d_(0)
 	, psrdr3d_(0)
 	, tbuf_(0)
@@ -59,7 +59,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 SeisTrcReader::SeisTrcReader( const char* fname )
 	: SeisStoreAccess(fname,false,false)
 	, outer(mUndefPtr(TrcKeySampling))
-	, linegetter_(0)
+	, tracegetter_(0)
 	, psrdr2d_(0)
 	, psrdr3d_(0)
 	, pscditer_(0)
@@ -89,7 +89,7 @@ void SeisTrcReader::init()
     readmode = Seis::Prod;
     if ( tbuf_ ) tbuf_->deepErase();
     mDelOuter; outer = mUndefPtr(TrcKeySampling);
-    delete linegetter_; linegetter_ = 0;
+    delete tracegetter_; tracegetter_ = 0;
     delete psrdr2d_; psrdr2d_ = 0;
     delete psrdr3d_; psrdr3d_ = 0;
     delete pscditer_; pscditer_ = 0;
@@ -577,10 +577,10 @@ bool SeisTrcReader::mkNextGetter()
 
     prev_inl = mUdf(int);
     uiRetVal uirv;
-    linegetter_ = dataset_->lineGetter( dataset_->geomID(curlineidx),
-					*tbuf_, seldata_, uirv );
+    tracegetter_ = dataset_->traceGetter( dataset_->geomID(curlineidx),
+					  seldata_, uirv );
     nrlinegetters_++;
-    return linegetter_;
+    return tracegetter_;
 }
 
 
@@ -589,17 +589,23 @@ bool SeisTrcReader::readNext2D()
     if ( tbuf_->size() )
 	tbuf_->deepErase();
 
-    int res = linegetter_->doStep();
-    if ( res == Executor::ErrorOccurred() )
+    while ( true )
     {
-	errmsg_ = linegetter_->message();
-	return false;
-    }
-    else if ( res == 0 )
-    {
-	if ( !mkNextGetter() )
-	    return false;
-	return readNext2D();
+	SeisTrc* trc = new SeisTrc;
+	const uiRetVal uirv = tracegetter_->getNext( *trc );
+	if ( !uirv.isOK() )
+	{
+	    delete trc;
+	    if ( !isFinished(uirv) )
+		{ errmsg_ = uirv; return false; }
+
+	    if ( tbuf_->isEmpty() )
+		return mkNextGetter() && readNext2D();
+
+	    break;
+	}
+
+	tbuf_->add( trc );
     }
 
     return tbuf_->size();
@@ -608,7 +614,7 @@ bool SeisTrcReader::readNext2D()
 
 int SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
-    if ( !linegetter_ && !mkNextGetter() )
+    if ( !tracegetter_ && !mkNextGetter() )
 	return errmsg_.isEmpty() ? 0 : -1;
 
     if ( !readNext2D() )

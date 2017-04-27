@@ -27,7 +27,6 @@
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
 #include "seispsioprov.h"
-#include "seisread.h"
 #include "seisselection.h"
 #include "seistrc.h"
 #include "survinfo.h"
@@ -610,34 +609,19 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 
 	int lidx = dataset->indexOf( geomid );
 	if ( lidx < 0 ) lidx = 0;
-	SeisTrcBuf tbuf( true );
+
 	uiRetVal uirv;
-	Executor* ex = dataset->lineGetter( dataset->geomID(lidx), tbuf, 0,
-					    uirv, 1 );
-	if ( ex )
-	    ex->doStep();
-	ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
-	if ( nms )
-	{
-	    mDynamicCastGet(Seis2DLineGetter*,lg,ex)
-	    if ( !lg )
-	    {
-		for ( int icomp=0; icomp<ret; icomp++ )
-		    nms->add( BufferString("[",icomp+1,"]") );
-	    }
-	    else
-	    {
-		ret = lg->translator() ?
-		      lg->translator()->componentInfo().size() : 0;
-		if ( nms )
-		{
-		    for ( int icomp=0; icomp<ret; icomp++ )
-			nms->add(
-			    lg->translator()->componentInfo()[icomp]->name() );
-		}
-	    }
-	}
-	delete ex;
+	Seis2DTraceGetter* getter = dataset->traceGetter(
+					dataset->geomID(lidx), 0, uirv );
+	if ( !uirv.isOK() )
+	    return 0;
+
+	BufferStringSet names;
+	if ( !nms )
+	    nms = &names;
+
+	getter->getComponentInfo( *nms );
+	return nms->size();
     }
 
     return ret;
