@@ -903,7 +903,7 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
 	return accepted;
 
     if ( !accepted && stagenr_<2 && !selchanged_ )
-	return false;
+	mRefuseAndQuit();
 
     BufferString notifiername;
     char* msgnexxt; int itemidx = -1;
@@ -1018,6 +1018,8 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
 	reInit();
 	if ( accepted )
 	    return accept( ev );
+
+	mRefuseAndQuit();
     }
 
     return accepted;
