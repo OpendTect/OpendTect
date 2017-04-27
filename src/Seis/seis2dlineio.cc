@@ -185,6 +185,8 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
     BufferString bakfnm( fnm ); bakfnm += ".bak";
     if ( File::exists(bakfnm) )
 	File::remove( bakfnm );
+
+    return true;
 }
 
 
