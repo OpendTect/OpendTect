@@ -747,7 +747,8 @@ protected:
     } \
 \
     int errkeyidx; \
-    if ( !objfinder.selectNodes(objsfound, keys, &errkeyidx) && warn ) \
+    const bool dowarn = warn; \
+    if ( !objfinder.selectNodes(objsfound, keys, &errkeyidx) && dowarn ) \
     { \
 	mWinWarnStrm << "No object with key \"" << keys[errkeyidx] << "\" in " \
 		     << ( localSearchEnv() ? "local search environment" \
