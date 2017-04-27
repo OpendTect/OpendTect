@@ -417,16 +417,18 @@ protected:
     if ( !onoff ) \
 	parnext = parstr; \
 
-#define mParOnOffPre( objnm, onoff, ischecked, checkable ) \
+#define mParOnOffPre( objnm, onoff, checked, checkable ) \
 { \
-    if ( onoff && !(checkable) ) \
+    const bool ischeckable = (checkable); \
+    if ( onoff && !ischeckable ) \
     { \
 	mWinWarnStrm << "This " << objnm << " has no on/off switch" \
 		     << od_endl; \
 	onoff = 0; \
     } \
 \
-    if ( onoff == ((ischecked) ? 1 : -1) ) \
+    const bool ischecked = (checked); \
+    if ( onoff == (ischecked ? 1 : -1) ) \
     { \
 	mWinErrStrm << "This " << objnm << " was switched " \
 		    << (onoff==1 ? "on" : "off") << " already" << od_endl; \
@@ -435,9 +437,10 @@ protected:
     } \
 }
 
-#define mParOnOffPost( objnm, onoff, ischecked ) \
+#define mParOnOffPost( objnm, onoff, checked ) \
 { \
-    if ( onoff == ((ischecked) ? -1 : 1) ) \
+    const bool ischecked = (checked); \
+    if ( onoff == (ischecked ? -1 : 1) ) \
     { \
 	mWinWarnStrm << "Switching " << (onoff==1 ? "on" : "off") \
 		     << " this " << objnm << " has been overruled" \
