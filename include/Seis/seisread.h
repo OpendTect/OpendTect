@@ -32,8 +32,10 @@ mExpClass(Seis) SeisTrcReader : public SeisStoreAccess
 { mODTextTranslationClass(SeisTrcReader);
 public:
 
-			mDeprecated SeisTrcReader(const IOObj* =0);
+			SeisTrcReader();
+			mDeprecated SeisTrcReader(const IOObj*);
 			mDeprecated SeisTrcReader(const char* fnm);
+    mDeprecated void	setIOObj(const IOObj*);
 			~SeisTrcReader();
 
     void		forceFloatData( bool yn=true )	{ forcefloats = yn; }

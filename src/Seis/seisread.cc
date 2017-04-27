@@ -40,6 +40,21 @@
 mStartAllowDeprecatedSection
 
 
+SeisTrcReader::SeisTrcReader()
+	: SeisStoreAccess(0)
+	, outer(mUndefPtr(TrcKeySampling))
+	, tracegetter_(0)
+	, psrdr2d_(0)
+	, psrdr3d_(0)
+	, tbuf_(0)
+	, pscditer_(0)
+	, pslditer_(0)
+	, selcomp_(-1)
+{
+    init();
+}
+
+
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
 	, outer(mUndefPtr(TrcKeySampling))
@@ -56,8 +71,6 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	entryis2d = SeisTrcTranslator::is2D( *ioob, false );
 }
 
-
-
 SeisTrcReader::SeisTrcReader( const char* fname )
 	: SeisStoreAccess(fname,false,false)
 	, outer(mUndefPtr(TrcKeySampling))
@@ -71,6 +84,13 @@ SeisTrcReader::SeisTrcReader( const char* fname )
 {
     init();
 }
+
+
+void SeisTrcReader::setIOObj( const IOObj* ioobj )
+{
+    SeisStoreAccess::setIOObj( ioobj );
+}
+
 
 mStopAllowDeprecatedSection
 

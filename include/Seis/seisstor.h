@@ -45,7 +45,7 @@ public:
 
     const IOObj*	ioObj() const
 			{ return ioobj_; }
-    void		setIOObj(const IOObj*);
+    virtual void	setIOObj(const IOObj*);
     const Seis::SelData* selData() const
 			{ return seldata_; }
     virtual void	setSelData(Seis::SelData*);
