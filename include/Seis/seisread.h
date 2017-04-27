@@ -43,6 +43,7 @@ Note: 2D Prestack data cannot (yet) be read via this class.
 mExpClass(Seis) mDeprecated SeisTrcReader : public SeisStoreAccess
 { mODTextTranslationClass(SeisTrcReader);
 public:
+mStartAllowDeprecatedSection
 
 			SeisTrcReader(const IOObj* =0);
 				//!< Open 'real user entries from '.omf' file
@@ -134,4 +135,5 @@ protected:
 				    const StepInterval<float>&) const;
     bool		initBounds2D(const PosInfo::Line2DData&,
 				     Seis::Bounds2D&) const;
+mStopAllowDeprecatedSection
 };
