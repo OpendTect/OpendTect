@@ -595,7 +595,7 @@ bool execute()
 		const float trcval = scaler
 				   ? mCast(float,scaler->scale(rawval) )
 				   : rawval;
-		arr.set( idx0, idx1, zidx, trcval );
+		arr.set( idx0, idx1, zidx+startidx, trcval );
 	    }
 	}
     }
