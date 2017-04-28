@@ -437,6 +437,20 @@ void SeisIOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 }
 
 
+bool SeisIOObjInfo::isCompatibleType( const char* typestr1,
+				      const char* typestr2 )
+{
+    const FixedString typ1( typestr1 ); const FixedString typ2( typestr2 );
+    if ( typ1 == typ2 )
+	return true;
+
+    // One extra chance: 'Attribute' is compatible with 'no type'.
+    const bool isnorm1 = typ1.isEmpty() || typ1 == sKey::Attribute();
+    const bool isnorm2 = typ2.isEmpty() || typ2 == sKey::Attribute();
+    return isnorm1 && isnorm2;
+}
+
+
 void SeisIOObjInfo::getNms( BufferStringSet& bss,
 			    const SeisIOObjInfo::Opts2D& o2d ) const
 {
