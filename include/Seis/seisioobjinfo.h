@@ -114,7 +114,9 @@ public:
 			//!< Function useful in attribute environments
 			//!< The 'MultiID' must be IOObj_ID
     static void		getLinesWithData(BufferStringSet& lnms,
-	    				 TypeSet<Pos::GeomID>& gids);
+					 TypeSet<Pos::GeomID>& gids);
+    static bool		isCompatibleType(const char* omftypestr1,
+					 const char* omftypestr2);
 
 			mDeprecated SeisIOObjInfo(const char* ioobjnm);
 protected:
