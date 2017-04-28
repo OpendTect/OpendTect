@@ -17,11 +17,12 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
-class uiGenInput;
-class uiFileInput;
-class uiListBox;
 class uiButtonGroup;
+class uiFileInput;
+class uiGenInput;
 class uiLabel;
+class uiListBox;
+class uiTable;
 class uiWellSel;
 
 namespace Well { class Log; class Data; }
@@ -33,7 +34,8 @@ namespace Well { class Log; class Data; }
 mExpClass(uiWell) uiImportLogsDlg : public uiDialog
 { mODTextTranslationClass(uiImportLogsDlg);
 public:
-			uiImportLogsDlg(uiParent*,const IOObj*);
+			uiImportLogsDlg(uiParent*,const IOObj*,
+					bool wtable=false);
 
 protected:
 
@@ -43,8 +45,10 @@ protected:
     uiGenInput*		istvdfld_;
     uiGenInput*		udffld_;
     uiLabel*		unitlbl_;
-    uiListBox*		logsfld_;
     uiWellSel*		wellfld_;
+    uiTable*		logstable_;
+    uiGenInput*		lognmfld_;
+    uiListBox*		logsfld_;
 
     bool		acceptOK(CallBacker*);
     void		lasSel(CallBacker*);

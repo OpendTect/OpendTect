@@ -51,8 +51,12 @@ public:
 			    , depthcolnr(-1)
 			    , revz(false)
 			    , undefval(-999.25)	{}
-			~FileInfo()		{ deepErase(lognms); }
+			~FileInfo()		{}
 
+	int		size() const		{ return lognms.size(); }
+
+	BufferStringSet	logcurves;
+	BufferStringSet	logunits;
 	BufferStringSet	lognms;
 	Interval<float>	zrg;
 	bool		revz;

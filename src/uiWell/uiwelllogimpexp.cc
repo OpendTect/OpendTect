@@ -11,15 +11,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelllogimpexp.h"
 
+#include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uibutton.h"
-#include "uibuttongroup.h"
-#include "uiwellsel.h"
+#include "uistring.h"
+#include "uitable.h"
 #include "uiunitsel.h"
+#include "uiwellsel.h"
 
 #include "od_iostream.h"
 #include "od_helpids.h"
@@ -44,9 +46,11 @@ static const float defundefval = -999.25;
 #endif
 
 
-uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
+uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
     : uiDialog(p,uiDialog::Setup(tr("Import Well Logs"),mNoDlgTitle,
 				 mODHelpKey(mImportLogsHelpID)))
+    , logsfld_(0)
+    , logstable_(0)
 {
     setOkText( uiStrings::sImport() );
 
@@ -77,13 +81,32 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 		    FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Logs to import") );
-    logsfld_ = new uiListBox( this, su );
-    logsfld_->attach( alignedBelow, udffld_ );
+    if ( wtable )
+    {
+	BufferStringSet colnms;
+	colnms.add( "Curve" ).add( "Unit" ).add( "Description" );
+	logstable_ = new uiTable( this, uiTable::Setup(), "Logs in file" );
+	logstable_->setColumnLabels( colnms );
+	logstable_->setSelectionMode( uiTable::Multi );
+	logstable_->setSelectionBehavior( uiTable::SelectRows );
+	logstable_->attach( ensureBelow, udffld_ );
+    }
+    else
+    {
+	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Logs to import") );
+	logsfld_ = new uiListBox( this, su );
+	logsfld_->attach( alignedBelow, udffld_ );
+	logsfld_->display( false );
+    }
+
+    lognmfld_ = new uiGenInput( this, tr("Name log after"),
+		BoolInpSpec(true,tr("Curve"),tr("Description")) );
+    lognmfld_->attach( alignedBelow, udffld_ );
+    lognmfld_->attach( ensureBelow, logstable_ );
 
     wellfld_ = new uiWellSel( this, true, tr("Add to Well"), false );
     if ( ioobj ) wellfld_->setInput( *ioobj );
-    wellfld_->attach( alignedBelow, logsfld_ );
+    wellfld_->attach( alignedBelow, lognmfld_ );
 }
 
 
@@ -98,9 +121,25 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     const char* res = wdai.getLogInfo( lasfnm, lfi );
     if ( res ) { uiMSG().error( mToUiStringTodo(res) ); return; }
 
-    logsfld_->setEmpty();
-    logsfld_->addItems( lfi.lognms );
-    logsfld_->chooseAll( true );
+    if ( logstable_ )
+    {
+	logstable_->setNrRows( lfi.size() );
+	for ( int idx=0; idx<lfi.size(); idx++ )
+	{
+	    logstable_->setText( RowCol(idx,0), lfi.logcurves.get(idx) );
+	    logstable_->setText( RowCol(idx,1), lfi.logunits.get(idx) );
+	    logstable_->setText( RowCol(idx,2), lfi.lognms.get(idx) );
+	}
+
+	logstable_->setColumnResizeMode( uiTable::ResizeToContents );
+	logstable_->setColumnStretchable( 2, true );
+    }
+    else if ( logsfld_ )
+    {
+	logsfld_->setEmpty();
+	logsfld_->addItems( lfi.lognms );
+	logsfld_->chooseAll( true );
+    }
 
     uiString lbl = toUiString("(%1)").arg(mToUiStringTodo(lfi.zunitstr.buf()));
     unitlbl_->setText( lbl );
@@ -181,7 +220,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( nrexisting > 0 )
     {
 	uiString msg = tr("The following logs already exist and will not "
-	                  "be imported:\n\n%1\n\nPlease remove them before " 
+	                  "be imported:\n\n%1\n\nPlease remove them before "
 			  "import.").arg(existlogs.getDispString());
 	if ( lognms.isEmpty() )
 	    mErrRet( msg )
@@ -284,7 +323,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;
-    outfld_ = new uiFileInput( this, multiwells ? 
+    outfld_ = new uiFileInput( this, multiwells ?
 			              mJoinUiStrs(sFile(),sDirectory())
 				    : uiStrings::phrOutput(uiStrings::sFile()),
 			      uiFileInput::Setup().forread(false)
