@@ -238,7 +238,7 @@ int SeisDataPackWriter::nextStep()
 	const Array3D<float>& outarr = dp_->data( compidxs_[idx] );
 	const float* dataptr = outarr.getData();
 	const Scaler* scaler = compscalers_[idx];
-	dataptr += offset;
+	if ( dataptr ) dataptr += offset;
 	zsample = zrg_.start;
 	cubesample = zsample - cubezrgidx_.start;
 	for ( int zidx=0; zidx<trcsz; zidx++, zsample++ )
