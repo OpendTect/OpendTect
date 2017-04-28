@@ -7,7 +7,6 @@
 
 #include "monitorchangerecorder.h"
 #include "sharedobject.h"
-#include "thread.h"
 #include "uistrings.h"
 
 static const int maxnrchangerecs_ = 100;

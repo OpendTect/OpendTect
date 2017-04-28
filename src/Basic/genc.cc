@@ -7,7 +7,7 @@
 
 #include "genc.h"
 
-#include "envvars.h"
+// #include "envvars.h"
 #include "debug.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -26,7 +26,7 @@
 #include <iostream>
 #include <string.h>
 
-#include <math.h>
+// #include <math.h>
 #include <stdlib.h>
 #ifdef __win__
 # include <float.h>
@@ -37,12 +37,6 @@
 #else
 # include <unistd.h>
 # include <errno.h>
-# include <netdb.h>
-# include <stdio.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/types.h>
 # include <signal.h>
 #endif
 

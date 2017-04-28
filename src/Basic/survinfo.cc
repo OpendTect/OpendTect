@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "coordsystem.h"
 #include "trckeyzsampling.h"
 #include "latlong.h"
-#include "undefval.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "oddirs.h"

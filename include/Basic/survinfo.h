@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "zdomain.h"
 
-class ascostream;
-
 namespace Coords { class PositionSystem; }
 namespace Survey { class Geometry3D; }
 
