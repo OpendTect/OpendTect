@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "seiscbvsimpfromothersurv.h"
+#include "seiscubeimpfromothersurv.h"
 
 class uiGenInput;
 class uiLabeledSpinBox;
@@ -19,16 +19,16 @@ class uiSeisSel;
 class uiSeisSubSel;
 
 
-mExpClass(uiSeis) uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
-{ mODTextTranslationClass(uiSeisImpCBVSFromOtherSurveyDlg)
+mExpClass(uiSeis) uiSeisImpCubeFromOtherSurveyDlg : public uiDialog
+{ mODTextTranslationClass(uiSeisImpCubeFromOtherSurveyDlg)
 public:
 
-			uiSeisImpCBVSFromOtherSurveyDlg(uiParent*);
+			uiSeisImpCubeFromOtherSurveyDlg(uiParent*);
 
 protected:
 
-    SeisImpCBVSFromOtherSurvey* import_;
-    SeisImpCBVSFromOtherSurvey::Interpol interpol_;
+    SeisCubeImpFromOtherSurvey* import_;
+    SeisCubeImpFromOtherSurvey::Interpol interpol_;
     bool		issinc_;
 
     uiGenInput*		finpfld_;

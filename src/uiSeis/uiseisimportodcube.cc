@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseisimportcbvs.h"
+#include "uiseisimportodcube.h"
 
 #include "ioobjctxt.h"
 #include "dbman.h"
@@ -19,10 +19,12 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "ptrman.h"
 #include "seiscbvs.h"
+#include "seisblockstr.h"
+#include "seisblocksreader.h"
 #include "seisselection.h"
 #include "seissingtrcproc.h"
 #include "seistrc.h"
-#include "survinfo.h"
+#include "survgeom3d.h"
 #include "veldesc.h"
 #include "velocitycalc.h"
 #include "zdomain.h"
@@ -40,8 +42,8 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
-    : uiDialog(p,Setup(tr("Import CBVS cube"),mNoDlgTitle,
+uiSeisImportODCube::uiSeisImportODCube( uiParent* p )
+    : uiDialog(p,Setup(tr("Import OpendTect Cube"),mNoDlgTitle,
 		       mODHelpKey(mSeisImpCBVSHelpID)).modal(false))
     , outioobj_(0)
 {
@@ -51,9 +53,10 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     setCtrlStyle( RunAndClose );
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.filter("CBVS (*.cbvs)").defseldir( GetBaseDataDir() );
-    inpfld_ = new uiFileInput( this, tr("(First) CBVS file name"), fisu );
-    inpfld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,inpSel) );
+    fisu.filter("Blocks (*.blocks); CBVS (*.cbvs)")
+		.defseldir( GetBaseDataDir() );
+    inpfld_ = new uiFileInput( this, tr("(First) file name"), fisu );
+    inpfld_->valuechanged.notify( mCB(this,uiSeisImportODCube,inpSel) );
 
     StringListInpSpec spec;
     spec.addString( uiStrings::phrInput(uiStrings::phrData(tr("Cube"))) );
@@ -61,13 +64,13 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     spec.addString( tr("SteeringCube") );
     typefld_ = new uiGenInput( this, tr("Cube type"), spec );
     typefld_->attach( alignedBelow, inpfld_ );
-    typefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,typeChg) );
+    typefld_->valuechanged.notify( mCB(this,uiSeisImportODCube,typeChg) );
 
     modefld_ = new uiGenInput( this, tr("Import mode"),
 			       BoolInpSpec( false, tr("Copy the data"),
 						   tr("Use in-place") ) );
     modefld_->attach( alignedBelow, typefld_ );
-    modefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,modeSel) );
+    modefld_->valuechanged.notify( mCB(this,uiSeisImportODCube,modeSel) );
 
     uiSeisTransfer::Setup sts( Seis::Vol );
     sts.withnullfill(false).withstep(true).onlyrange(false)
@@ -78,46 +81,61 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     uiSeisSel::Setup sssu( Seis::Vol );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     sssu.enabotherdomain( true );
+    sssu.withwriteopts( false );
     IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
-    outctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 
-    postFinalise().notify( mCB(this,uiSeisImportCBVS,typeChg) );
-    postFinalise().notify( mCB(this,uiSeisImportCBVS,modeSel) );
+    postFinalise().notify( mCB(this,uiSeisImportODCube,typeChg) );
+    postFinalise().notify( mCB(this,uiSeisImportODCube,modeSel) );
 }
 
 
-uiSeisImportCBVS::~uiSeisImportCBVS()
+uiSeisImportODCube::~uiSeisImportODCube()
 {
     delete outioobj_;
 }
 
 
-IOObj* uiSeisImportCBVS::getInpIOObj( const char* inp ) const
+static bool isCBVS( const char* fnm )
 {
+    const BufferString ext( File::Path(fnm).extension() );
+    return ext == "cbvs";
+}
+
+
+static BufferString getTranslKey( bool iscbvs )
+{
+    return iscbvs ? CBVSSeisTrcTranslator::translKey()
+		  : BlocksSeisTrcTranslator::translKey();
+}
+
+
+IOObj* uiSeisImportODCube::getInpIOObj( const char* inp ) const
+{
+    File::Path fp( inp );
     IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
     iostrm->setGroup( mTranslGroupName(SeisTrc) );
-    iostrm->setTranslator( CBVSSeisTrcTranslator::translKey() );
+    iostrm->setTranslator( getTranslKey(isCBVS(inp)) );
     iostrm->setDirName( sSeismicSubDir() );
     iostrm->fileSpec().setFileName( inp );
     return iostrm;
 }
 
 
-void uiSeisImportCBVS::modeSel( CallBacker* )
+void uiSeisImportODCube::modeSel( CallBacker* )
 {
     transffld_->display( modefld_->getBoolValue() );
 }
 
 
-void uiSeisImportCBVS::typeChg( CallBacker* )
+void uiSeisImportODCube::typeChg( CallBacker* )
 {
     transffld_->setSteering( typefld_->getIntValue() == 2 );
 }
 
 
-void uiSeisImportCBVS::inpSel( CallBacker* )
+void uiSeisImportODCube::inpSel( CallBacker* )
 {
     BufferString inp = inpfld_->text();
     if ( inp.isEmpty() )
@@ -139,8 +157,9 @@ void uiSeisImportCBVS::inpSel( CallBacker* )
 
 
 #define rmTmpIOObj() DBM().removeEntry( tmpid_ )
+#define mErrRet(s) { uiMSG().error( s ); return false; }
 
-bool uiSeisImportCBVS::acceptOK()
+bool uiSeisImportODCube::acceptOK()
 {
     const IOObj* selioobj = outfld_->ioobj();
     if ( !selioobj )
@@ -151,11 +170,21 @@ bool uiSeisImportCBVS::acceptOK()
     const bool dolink = modefld_ && !modefld_->getBoolValue();
 
     BufferString fname = inpfld_->text();
-    if ( !fname.str() )
+    if ( fname.isEmpty() )
+	mErrRet( uiStrings::phrSelect(tr("the input filename")) );
+
+    const bool iscbvs = isCBVS( fname );
+    if ( !iscbvs )
     {
-	uiMSG().error( uiStrings::phrSelect(tr("the input filename")) );
-	return false;
+
+	Seis::Blocks::Reader rdr( fname );
+	if ( rdr.state().isError() )
+	    mErrRet( rdr.state() )
+	if ( !rdr.hGeom().isCompatibleWith(Survey::Geometry::default3D()) )
+	    mErrRet( tr("The selected cube is not usable in this survey") )
+
     }
+    const BufferString translkey = getTranslKey( iscbvs );
 
     if ( dolink )
     {
@@ -178,7 +207,7 @@ bool uiSeisImportCBVS::acceptOK()
 	outioobj_->pars().set( sKey::Type(), seltyp == 1 ?
 				    sKey::Attribute() : sKey::Steering() );
 
-    outioobj_->setTranslator( CBVSSeisTrcTranslator::translKey() );
+    outioobj_->setTranslator( translkey );
     PtrMan<IOObj> inioobj = 0;
     if ( dolink )
 	iostrm->fileSpec().setFileName( fname );
@@ -200,8 +229,8 @@ bool uiSeisImportCBVS::acceptOK()
 
     if ( dolink )
     {
-	 uiString msg = tr("CBVS cube successfully imported."
-		      "\n\nDo you want to import more cubes?");
+	 uiString msg = tr("%1 cube successfully imported."
+		      "\n\nDo you want to import more cubes?").arg(translkey);
 	 bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
 	 return !ret;
@@ -212,7 +241,7 @@ bool uiSeisImportCBVS::acceptOK()
 	{ rmTmpIOObj(); return false; }
 
     PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj, *outioobj_,
-		    "Importing CBVS seismic cube", tr("Loading data") );
+		    "Importing OpendTect seismic cube", tr("Loading data") );
     if ( !exec )
 	{ rmTmpIOObj(); return false; }
 

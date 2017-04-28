@@ -21,14 +21,14 @@ class uiSeisSel;
 class uiSeisTransfer;
 class uiLabeledComboBox;
 
-/*!\brief Imports or links to a CBVS file */
+/*!\brief Imports or links to an OpendTect specific cube file */
 
-mExpClass(uiSeis) uiSeisImportCBVS : public uiDialog
-{ mODTextTranslationClass(uiSeisImportCBVS);
+mExpClass(uiSeis) uiSeisImportODCube : public uiDialog
+{ mODTextTranslationClass(uiSeisImportODCube);
 public:
 
-			uiSeisImportCBVS(uiParent*);
-			~uiSeisImportCBVS();
+			uiSeisImportODCube(uiParent*);
+			~uiSeisImportODCube();
 
     const IOObj*	newIOObj() const	{ return outioobj_; }
 

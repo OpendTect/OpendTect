@@ -8,25 +8,28 @@ ________________________________________________________________________
 
 -*/
 
-#include "seiscbvsimpfromothersurv.h"
+#include "seiscubeimpfromothersurv.h"
 
 #include "arrayndalgo.h"
 #include "cbvsreadmgr.h"
+#include "seisblocksreader.h"
 #include "seistrc.h"
 #include "seiscbvs.h"
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "survinfo.h"
+#include "survgeom3d.h"
 #include "odcomplex.h"
 
 
-SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp )
-    : Executor("Importing CBVS")
+SeisCubeImpFromOtherSurvey::SeisCubeImpFromOtherSurvey( const IOObj& inp )
+    : Executor("Importing Seismic Data")
     , inioobj_(inp)
     , wrr_(0)
     , outioobj_(0)
     , nrdone_(0)
-    , tr_(0)
+    , rdr_(0)
+    , cbvstr_(0)
     , fullusrexp_(0)
     , fft_(0)
     , arr_(0)
@@ -36,10 +39,11 @@ SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp )
 }
 
 
-SeisImpCBVSFromOtherSurvey::~SeisImpCBVSFromOtherSurvey()
+SeisCubeImpFromOtherSurvey::~SeisCubeImpFromOtherSurvey()
 {
     deepErase( trcsset_ );
-    delete tr_;
+    delete rdr_;
+    delete cbvstr_;
     delete wrr_;
     delete data_.hsit_;
     delete fft_;
@@ -49,22 +53,44 @@ SeisImpCBVSFromOtherSurvey::~SeisImpCBVSFromOtherSurvey()
 }
 
 
+static bool isCBVS( const char* fnm )
+{
+    const BufferString ext( File::Path(fnm).extension() );
+    return ext == "cbvs";
+}
+
+
 #define mErrRet( str ) \
     { errmsg_ = str; return false; }
 
-bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
+bool SeisCubeImpFromOtherSurvey::prepareRead( const char* mainfilenm )
 {
-    if ( !createTranslators( fulluserexp ) )
-	mErrRet( tr("Can not read cube") )
+    if ( !createReader( mainfilenm ) )
+	return false;
 
-    const CBVSInfo& info = tr_->readMgr()->info();
-    const Pos::IdxPair2Coord& b2c = tr_->getTransform();
-    const CBVSInfo::SurvGeom& geom = info.geom_;
-    olddata_.tkzs_.hsamp_.start_ = BinID( geom.start.inl(), geom.start.crl() );
-    olddata_.tkzs_.hsamp_.stop_  = BinID( geom.stop.inl(), geom.stop.crl() );
-    olddata_.tkzs_.hsamp_.step_  = BinID( geom.step.inl(), geom.step.crl() );
+    Pos::IdxPair2Coord b2c;
+    if ( cbvstr_ )
+    {
+	const CBVSInfo& info = cbvstr_->readMgr()->info();
+	b2c = cbvstr_->getTransform();
+	const CBVSInfo::SurvGeom& geom = info.geom_;
+	olddata_.tkzs_.hsamp_.start_ = BinID(geom.start.inl(),geom.start.crl());
+	olddata_.tkzs_.hsamp_.stop_  = BinID(geom.stop.inl(),geom.stop.crl());
+	olddata_.tkzs_.hsamp_.step_  = BinID(geom.step.inl(),geom.step.crl());
+	olddata_.tkzs_.zsamp_ = info.sd_.interval( info.nrsamples_ );
+    }
+    else
+    {
+	b2c = rdr_->hGeom().binID2Coord();
+	Interval<int> inlrg, crlrg;
+	rdr_->positions().getRanges( inlrg, crlrg );
+	olddata_.tkzs_.hsamp_.start_ = BinID( inlrg.start, crlrg.start );
+	olddata_.tkzs_.hsamp_.stop_ = BinID( inlrg.stop, crlrg.stop );
+	olddata_.tkzs_.hsamp_.step_  = rdr_->hGeom().sampling().hsamp_.step_;
+	olddata_.tkzs_.zsamp_ = rdr_->zGeom();
+    }
+
     data_.hsit_ = new TrcKeySamplingIterator( olddata_.tkzs_.hsamp_ );
-    olddata_.tkzs_.zsamp_ = info.sd_.interval( info.nrsamples_ );
     data_.tkzs_.zsamp_ = olddata_.tkzs_.zsamp_;
     data_.tkzs_.zsamp_.step = SI().zStep();
 
@@ -89,7 +115,7 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 }
 
 
-void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
+void SeisCubeImpFromOtherSurvey::setPars( Interpol& interp, int cellsz,
 					const TrcKeyZSampling& cs )
 {
     interpol_ = interp;
@@ -111,7 +137,7 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
 }
 
 
-float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const Pos::IdxPair2Coord& b2c,
+float SeisCubeImpFromOtherSurvey::getInlXlnDist( const Pos::IdxPair2Coord& b2c,
 						 bool inldir, int step ) const
 {
     BinID orgbid = BinID( 0, 0 );
@@ -122,26 +148,50 @@ float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const Pos::IdxPair2Coord& b2c,
 }
 
 
-bool SeisImpCBVSFromOtherSurvey::createTranslators( const char* fulluserexp )
+bool SeisCubeImpFromOtherSurvey::createReader( const char* mainfilenm )
 {
-    BufferString fnm( fulluserexp ? fulluserexp : inioobj_.fullUserExpr(true) );
-    tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, 0, true );
-    return tr_ ? true : false;
+    BufferString fnm( mainfilenm ? mainfilenm : inioobj_.mainFileName().str() );
+    if ( isCBVS(fnm) )
+    {
+	cbvstr_ = CBVSSeisTrcTranslator::make( fnm, false,false,&errmsg_,true );
+	if ( !cbvstr_->errMsg().isEmpty() )
+	{
+	    errmsg_ = cbvstr_->errMsg();
+	    delete cbvstr_; cbvstr_ = 0;
+	    return false;
+	}
+    }
+    else
+    {
+	rdr_ = new Seis::Blocks::Reader( fnm );
+	if ( rdr_->state().isError() )
+	{
+	    errmsg_ = rdr_->state();
+	    delete rdr_; rdr_ = 0;
+	    return false;
+	}
+    }
+    return true;
 }
 
 
 
-int SeisImpCBVSFromOtherSurvey::nextStep()
+int SeisCubeImpFromOtherSurvey::nextStep()
 {
     if ( !data_.hsit_->next() )
 	return Executor::Finished();
 
-    if ( !tr_ || !tr_->readMgr() )
+    if ( !cbvstr_ && !rdr_ )
+	return Executor::ErrorOccurred();
+    if ( cbvstr_ && !cbvstr_->readMgr() )
+	return Executor::ErrorOccurred();
+    if ( rdr_ && rdr_->state().isError() )
 	return Executor::ErrorOccurred();
 
     data_.curbid_ = data_.hsit_->curBinID();
     const Coord curcoord = SI().transform( data_.curbid_ );
-    const Pos::IdxPair2Coord& b2c = tr_->getTransform();
+    const Pos::IdxPair2Coord& b2c = rdr_ ? rdr_->hGeom().binID2Coord()
+				         : cbvstr_->getTransform();
     const BinID oldbid = b2c.transformBack( curcoord,
 	olddata_.tkzs_.hsamp_.start_, olddata_.tkzs_.hsamp_.step_ );
     SeisTrc* outtrc = 0;
@@ -197,21 +247,26 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 }
 
 
-SeisTrc* SeisImpCBVSFromOtherSurvey::readTrc( const BinID& bid ) const
+SeisTrc* SeisCubeImpFromOtherSurvey::readTrc( const BinID& bid ) const
 {
     SeisTrc* trc = 0;
-    if ( tr_->goTo( bid )  )
+    if ( rdr_ )
     {
 	trc = new SeisTrc;
-	trc->info().setBinID( bid );
-	tr_->readInfo( trc->info() );
-	tr_->read( *trc );
+	if ( rdr_->get(bid,*trc).isError() )
+	    { delete trc; return 0; }
+    }
+    else if ( cbvstr_ && cbvstr_->goTo( bid )  )
+    {
+	trc = new SeisTrc;
+	if ( !cbvstr_->read(*trc) )
+	    { delete trc; return 0; }
     }
     return trc;
 }
 
 
-bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
+bool SeisCubeImpFromOtherSurvey::findSquareTracesAroundCurbid(
 					    ObjectSet<SeisTrc>& trcs ) const
 {
     deepErase( trcs );
@@ -255,7 +310,7 @@ Zero Padding in FFT domain ( 2D example )
     fft_->run(true);\
 }
 
-void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
+void SeisCubeImpFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 {
     if ( trcs.size() < 2 )
 	return;

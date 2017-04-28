@@ -115,6 +115,8 @@ public:
 			//!< The 'DBKey' must be IOObj_ID
     static void		getLinesWithData(BufferStringSet& lnms,
 					 TypeSet<Pos::GeomID>& gids);
+    static bool		isCompatibleType(const char* omftypestr1,
+					 const char* omftypestr2);
 
 protected:
 

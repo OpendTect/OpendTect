@@ -210,7 +210,7 @@ public:
     static uiString sAdd();
     static uiString sAddColBlend()	{ return tr("Add Color Blended"); }
     static uiString sAdvanced()		{ return tr("Advanced"); }
-    static uiString sAlignment()	{ return tr("OD::Alignment"); }
+    static uiString sAlignment()	{ return tr("Alignment"); }
     static uiString sAll()		{ return tr("All"); }
     static uiString sAlpha()		{ return tr("Alpha"); }
     static uiString sAmplitude(int num=1){ return tr("Amplitude",0,num); }
@@ -396,6 +396,7 @@ public:
     static uiString sNone()		{ return tr("None"); }
     static uiString sNormal()		{ return tr("Normal"); }
     static uiString sNoValidData()	{ return tr("No valid data found"); }
+    static uiString sOpendTect()	{ return tr("OpendTect"); }
     static uiString sOffset()		{ return tr("Offset"); }
     static uiString sOk()		{ return tr("OK"); }
     static uiString sOnlyAtSections()	{ return tr("Only at Sections"); }

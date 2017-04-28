@@ -24,11 +24,11 @@ set(OD_MODULE_SOURCES
 	uiseisamplspectrum.cc
 	uiseisbayesclass.cc
 	uiseisbrowser.cc
-	uiseiscbvsimpfromothersurv.cc
+	uiseisimpcubefromothersurv.cc
 	uiseiscopy.cc
 	uiseisfileman.cc
 	uiseisfmtscale.cc
-	uiseisimportcbvs.cc
+	uiseisimportodcube.cc
 	uiseisioobjinfo.cc
 	uiseisiosimple.cc
 	uiseislinesel.cc

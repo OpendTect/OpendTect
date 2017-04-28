@@ -320,11 +320,11 @@ void uiODMenuMgr::fillImportMenu()
     }
     impseis->insertItem( impseissimple );
 
-    uiMenu* impcbvsseis = new uiMenu( &appl_, tr("CBVS"), "od" );
+    uiMenu* impcbvsseis = new uiMenu( &appl_, uiStrings::sOpendTect(), "od" );
     mInsertItem( impcbvsseis, m3Dots(tr("From File")),
-		 mImpSeisCBVSMnuItm );
+		 mImpSeisODCubeMnuItm );
     mInsertItem( impcbvsseis, m3Dots(tr("From Other Survey")),
-		 mImpSeisCBVSOtherSurvMnuItm );
+		 mImpSeisODCubeOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
 
     uiMenu* imphorasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
@@ -1313,12 +1313,12 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpAttrMnuItm:		mDoOp(Imp,Attr,0); break;
     case mImpAttrOthSurvMnuItm:		mDoOp(Imp,Attr,1); break;
     case mImpColTabMnuItm:		mDoOp(Imp,ColTab,0); break;
-    case mImpSeisCBVSMnuItm:		mDoOp(Imp,Seis,0); break;
+    case mImpSeisODCubeMnuItm:		mDoOp(Imp,Seis,0); break;
     case mImpSeisSimple3DMnuItm:	mDoOp(Imp,Seis,5); break;
     case mImpSeisSimple2DMnuItm:	mDoOp(Imp,Seis,6); break;
     case mImpSeisSimplePS3DMnuItm:	mDoOp(Imp,Seis,7); break;
     case mImpSeisSimplePS2DMnuItm:	mDoOp(Imp,Seis,8); break;
-    case mImpSeisCBVSOtherSurvMnuItm:	mDoOp(Imp,Seis,9); break;
+    case mImpSeisODCubeOtherSurvMnuItm:	mDoOp(Imp,Seis,9); break;
     case mExpSeisSimple3DMnuItm:	mDoOp(Exp,Seis,5); break;
     case mExpSeisSimple2DMnuItm:	mDoOp(Exp,Seis,6); break;
     case mExpSeisSimplePS3DMnuItm:	mDoOp(Exp,Seis,7); break;

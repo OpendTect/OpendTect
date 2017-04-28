@@ -46,12 +46,12 @@ ________________________________________________________________________
 #define mImpAttrOthSurvMnuItm	(mFileImpMnu + 6)
 #define mImpColTabMnuItm	(mFileImpMnu + 7)
 
-#define mImpSeisCBVSMnuItm	(mFileImpMnu + 10)
+#define mImpSeisODCubeMnuItm	(mFileImpMnu + 10)
 #define mImpSeisSimple3DMnuItm	(mFileImpMnu + 15)
 #define mImpSeisSimple2DMnuItm	(mFileImpMnu + 16)
 #define mImpSeisSimplePS3DMnuItm (mFileImpMnu + 17)
 #define mImpSeisSimplePS2DMnuItm (mFileImpMnu + 18)
-#define mImpSeisCBVSOtherSurvMnuItm (mFileImpMnu + 19)
+#define mImpSeisODCubeOtherSurvMnuItm (mFileImpMnu + 19)
 
 #define mImpHorAsciiMnuItm	(mFileImpMnu + 30)
 #define mImpHorAsciiAttribMnuItm (mFileImpMnu + 31)

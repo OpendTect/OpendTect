@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseiscbvsimpfromothersurv.h"
+#include "uiseisimpcubefromothersurv.h"
 
 #include "ctxtioobj.h"
 
@@ -26,8 +26,8 @@ ________________________________________________________________________
 
 static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 
-uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Import CBVS cube from other survey"),
+uiSeisImpCubeFromOtherSurveyDlg::uiSeisImpCubeFromOtherSurveyDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Import cube from other survey"),
 		       tr("Specify import parameters"),
 		       mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID))
 		 .modal(false))
@@ -35,9 +35,9 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 {
     setCtrlStyle( RunAndClose );
 
-    finpfld_ = new uiGenInput( this, tr("CBVS file name") );
+    finpfld_ = new uiGenInput( this, tr("File name") );
     finpfld_->setReadOnly();
-    CallBack cb = mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,cubeSel);
+    CallBack cb = mCB(this,uiSeisImpCubeFromOtherSurveyDlg,cubeSel);
     uiPushButton* selbut = new uiPushButton( this,
 				m3Dots(uiStrings::sSelect()),
 				 cb, true );
@@ -53,7 +53,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 			    BoolInpSpec( true, toUiString(interpols[0]),
 			    toUiString(interpols[1]) ) );
     interpfld_->valuechanged.notify(
-		mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
+		mCB(this,uiSeisImpCubeFromOtherSurveyDlg,interpSelDone) );
     interpfld_->attach( ensureBelow, sep1 );
     interpfld_->attach( alignedBelow, subselfld_ );
 
@@ -74,16 +74,16 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 }
 
 
-void uiSeisImpCBVSFromOtherSurveyDlg::interpSelDone( CallBacker* )
+void uiSeisImpCubeFromOtherSurveyDlg::interpSelDone( CallBacker* )
 {
     const bool curitm = interpfld_->getBoolValue() ? 0 : 1;
-    interpol_ = (SeisImpCBVSFromOtherSurvey::Interpol)(curitm);
-    issinc_ = interpol_ == SeisImpCBVSFromOtherSurvey::Sinc;
+    interpol_ = (SeisCubeImpFromOtherSurvey::Interpol)(curitm);
+    issinc_ = interpol_ == SeisCubeImpFromOtherSurvey::Sinc;
     cellsizefld_->display( issinc_ );
 }
 
 
-void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
+void uiSeisImpCubeFromOtherSurveyDlg::cubeSel( CallBacker* )
 {
     uiSelObjFromOtherSurvey objsel( this,
 				    uiSeisSel::ioContext( Seis::Vol, true ) );
@@ -91,7 +91,7 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
     {
 	if ( import_ )
 	    delete import_;
-	import_ = new SeisImpCBVSFromOtherSurvey( *objsel.ioObj() );
+	import_ = new SeisCubeImpFromOtherSurvey( *objsel.ioObj() );
 	BufferString fusrexp = objsel.fullUserExpression();
 	if ( import_->prepareRead( fusrexp ) )
 	{
@@ -105,7 +105,7 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 
 
 #define mErrRet(msg ) { uiMSG().error( msg ); return false; }
-bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK()
+bool uiSeisImpCubeFromOtherSurveyDlg::acceptOK()
 {
     if ( !import_ )
 	mErrRet( tr("No valid input, please select a new input file") )
@@ -123,7 +123,7 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK()
     if ( !TaskRunner::execute( &taskrunner, *import_ ) )
 	return false;
 
-    uiString msg = tr("CBVS cube successfully imported\n\n"
+    uiString msg = tr("Cube successfully imported\n\n"
 		      "Do you want to import more cubes?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				 tr("No, close window") );

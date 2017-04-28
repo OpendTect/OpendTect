@@ -24,15 +24,17 @@ class SeisTrc;
 class SeisTrcWriter;
 class SeisTrcInfo;
 namespace Pos { class IdxPair2Coord; }
+namespace Seis { namespace Blocks { class Reader; } }
 
-mExpClass(Seis) SeisImpCBVSFromOtherSurvey : public Executor
-{ mODTextTranslationClass(SeisImpCBVSFromOtherSurvey);
+
+mExpClass(Seis) SeisCubeImpFromOtherSurvey : public Executor
+{ mODTextTranslationClass(SeisCubeImpFromOtherSurvey);
 public:
 
     enum Interpol	{ Sinc, Nearest };
 
-			SeisImpCBVSFromOtherSurvey(const IOObj&);
-			~SeisImpCBVSFromOtherSurvey();
+			SeisCubeImpFromOtherSurvey(const IOObj&);
+			~SeisCubeImpFromOtherSurvey();
 
     uiString		message() const	{ return tr("Importing CBVS"); }
     od_int64		nrDone() const          { return nrdone_; }
@@ -51,7 +53,8 @@ protected:
     const IOObj&	inioobj_;
     IOObj*		outioobj_;
     SeisTrcWriter*	wrr_;
-    CBVSSeisTrcTranslator* tr_;
+    CBVSSeisTrcTranslator* cbvstr_;
+    Seis::Blocks::Reader* rdr_;
 
     od_int64		nrdone_;
     mutable od_int64	totnr_;
@@ -62,12 +65,12 @@ protected:
 
 	mStruct(Seis)	PosData
 	{
-			    PosData()
-				: hsit_(0)
-				, tkzs_(false) {}
+				PosData()
+				    : hsit_(0)
+				    , tkzs_(false) {}
 
 	    BinID		curbid_;
-	    TrcKeyZSampling tkzs_;
+	    TrcKeyZSampling	tkzs_;
 	    TrcKeySamplingIterator* hsit_;
 	};
 
@@ -84,7 +87,7 @@ protected:
     Array3DImpl<float_complex>* fftarr_;
     ArrayNDWindow*	taper_;
 
-    bool		createTranslators(const char*);
+    bool		createReader(const char*);
     bool		createWriter();
 
     bool		findSquareTracesAroundCurbid(ObjectSet<SeisTrc>&) const;

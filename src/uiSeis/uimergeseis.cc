@@ -87,7 +87,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     DBKeySet chosenids;
     inpfld_->getChosen( chosenids );
     if ( chosenids.size()  < 2 )
-	{ uiMSG().error( uiStrings::phrSelect(tr("at least 2 inputs")) ); 
+	{ uiMSG().error( uiStrings::phrSelect(tr("at least 2 inputs")) );
 								return false;}
 
     outpar.set( sKey::ID(), outioobj->key() );
@@ -99,20 +99,22 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	if ( !ioobj )
 	    continue;
 
+	const BufferString curtypestr( ioobj->pars().find( sKey::Type() ) );
+	const BufferString curzdomstr( ioobj->pars().find( ZDomain::sKey() ) );
 	if ( !idx )
 	{
-	    typestr = ioobj->pars().find( sKey::Type() );
-	    zdomstr = ioobj->pars().find( ZDomain::sKey() );
+	    typestr = curtypestr;
+	    zdomstr = curzdomstr;
 	}
 	else
 	{
-	    if ( typestr != ioobj->pars().find(sKey::Type()) )
+	    if ( !SeisIOObjInfo::isCompatibleType( typestr, curtypestr ) )
 	    {
-		uiMSG().error( tr("Input cubes should be of the same type") );
+		uiMSG().error( tr("Input cubes are of incompatible types") );
 		return false;
 	    }
 
-	    if ( zdomstr != ioobj->pars().find(ZDomain::sKey()) )
+	    if ( zdomstr != curzdomstr )
 	    {
 		uiMSG().error( tr("Input cubes should belong to the same"
 			          " Z domain") );
@@ -129,8 +131,8 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     if ( typestr.isEmpty() && zdomstr.isEmpty() )
 	return true;
 
-    if ( !typestr.isEmpty() ) outioobj->pars().set( sKey::Type(), typestr );
-    if ( !zdomstr.isEmpty() ) outioobj->pars().set( ZDomain::sKey(), zdomstr );
+    outioobj->pars().update( sKey::Type(), typestr );
+    outioobj->pars().update( ZDomain::sKey(), zdomstr );
     DBM().setEntry( *outioobj );
 
     return true;

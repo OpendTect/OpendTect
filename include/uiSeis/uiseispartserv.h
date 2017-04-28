@@ -21,9 +21,9 @@ class IOPar;
 class SeisTrcBuf;
 class uiFlatViewWin;
 class uiSeisFileMan;
-class uiSeisImportCBVS;
+class uiSeisImportODCube;
+class uiSeisImpCubeFromOtherSurveyDlg;
 class uiSeisIOSimple;
-class uiSeisImpCBVSFromOtherSurveyDlg;
 class uiSeisPreStackMan;
 class uiSeisWvltMan;
 
@@ -89,8 +89,8 @@ protected:
     uiSeisIOSimple*	expps3dseisdlg_;
     uiSeisIOSimple*	impps2dseisdlg_;
     uiSeisIOSimple*	expps2dseisdlg_;
-    uiSeisImportCBVS*	impcbvsdlg_;
-    uiSeisImpCBVSFromOtherSurveyDlg* impcbvsothsurvdlg_;
+    uiSeisImportODCube*	impodcubedlg_;
+    uiSeisImpCubeFromOtherSurveyDlg* impcubeothsurvdlg_;
 
 private:
     uiString		mkDlgCaption( bool forread, bool is2d, bool isps );

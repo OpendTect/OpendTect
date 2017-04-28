@@ -46,8 +46,8 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimergeseis.h"
 #include "uimsg.h"
-#include "uiseisimportcbvs.h"
-#include "uiseiscbvsimpfromothersurv.h"
+#include "uiseisimportodcube.h"
+#include "uiseisimpcubefromothersurv.h"
 #include "uiseisfileman.h"
 #include "uiseisioobjinfo.h"
 #include "uiseisiosimple.h"
@@ -75,8 +75,8 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     , man2dprestkdlg_(0)
     , man3dprestkdlg_(0)
     , manwvltdlg_(0)
-    , impcbvsdlg_(0)
-    , impcbvsothsurvdlg_(0)
+    , impodcubedlg_(0)
+    , impcubeothsurvdlg_(0)
     , imp3dseisdlg_(0)
     , exp3dseisdlg_(0)
     , imp2dseisdlg_(0)
@@ -98,8 +98,8 @@ uiSeisPartServer::~uiSeisPartServer()
     delete man2dprestkdlg_;
     delete man3dprestkdlg_;
     delete manwvltdlg_;
-    delete impcbvsdlg_;
-    delete impcbvsothsurvdlg_;
+    delete impodcubedlg_;
+    delete impcubeothsurvdlg_;
     delete imp3dseisdlg_;
     delete exp3dseisdlg_;
     delete imp2dseisdlg_;
@@ -121,8 +121,8 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
 
     Seis::PLDM().removeAll();
 
-    delete impcbvsdlg_; impcbvsdlg_ = 0;
-    delete impcbvsothsurvdlg_; impcbvsothsurvdlg_ = 0;
+    delete impodcubedlg_; impodcubedlg_ = 0;
+    delete impcubeothsurvdlg_; impcubeothsurvdlg_ = 0;
     delete imp3dseisdlg_; imp3dseisdlg_ = 0;
     delete exp3dseisdlg_; exp3dseisdlg_ = 0;
     delete imp2dseisdlg_; imp2dseisdlg_ = 0;
@@ -163,19 +163,19 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
     {
 	case 0:
 	    {
-		if ( !impcbvsdlg_ )
-		    impcbvsdlg_ = new uiSeisImportCBVS( parent() );
+		if ( !impodcubedlg_ )
+		    impodcubedlg_ = new uiSeisImportODCube( parent() );
 
-		impcbvsdlg_->show();
+		impodcubedlg_->show();
 		break;
 	    }
 	case 9:
 	    {
-		if ( !impcbvsothsurvdlg_ )
-		    impcbvsothsurvdlg_ =
-				new uiSeisImpCBVSFromOtherSurveyDlg( parent() );
+		if ( !impcubeothsurvdlg_ )
+		    impcubeothsurvdlg_ =
+				new uiSeisImpCubeFromOtherSurveyDlg( parent() );
 
-		impcbvsothsurvdlg_->show();
+		impcubeothsurvdlg_->show();
 		break;
 	    }
 	case 5:
