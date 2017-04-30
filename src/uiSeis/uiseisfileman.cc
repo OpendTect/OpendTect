@@ -360,7 +360,7 @@ void uiSeisFileMan::mkFileInfo()
     BufferString dsstr = curioobj_->pars().find( sKey::DataStorage() );
     SeisTrcTranslator* tri = (SeisTrcTranslator*)curioobj_->createTranslator();
     if ( tri && tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
-				Conn::Read) ), Seis::Scan )
+				Conn::Read), Seis::Scan ) )
     {
 	const BasicComponentInfo& bci = *tri->componentInfo()[0];
 	const DataCharacteristics::UserType ut = bci.datachar_.userType();

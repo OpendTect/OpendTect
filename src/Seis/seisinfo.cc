@@ -22,6 +22,7 @@
 #include "keystrs.h"
 #include "timeser.h"
 #include "ioobjctxt.h"
+#include "seisblockstr.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seis2dlineio.h"
@@ -586,7 +587,7 @@ IOObjContext* Seis::getIOObjContext( Seis::GeomType gt, bool forread )
     if ( gt == Seis::Line )
 	ret->deftransl_ = CBVSSeisTrc2DTranslator::translKey();
     else if ( gt == Seis::Vol )
-	ret->deftransl_ = CBVSSeisTrcTranslator::translKey();
+	ret->deftransl_ = BlocksSeisTrcTranslator::translKey();
     else if ( gt == Seis::VolPS )
 	ret->deftransl_ = CBVSSeisPS3DTranslator::translKey();
     else

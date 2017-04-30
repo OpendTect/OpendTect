@@ -29,8 +29,8 @@ uiString SeisTrcTranslatorGroup::sTypeName( int num )
 { return uiStrings::sVolDataName(false,true,false,false,false); }
 
 defineTranslatorGroup(SeisTrc,"Seismic Data");
-defineTranslator(CBVS,SeisTrc,"CBVS");
 defineTranslator(Blocks,SeisTrc,BlocksSeisTrcTranslator::sKeyTrName());
+defineTranslator(CBVS,SeisTrc,"CBVS");
 defineTranslator(SEGY,SeisTrc,"SEG-Y");
 defineTranslator(TwoD,SeisTrc,"2D");
 defineTranslator(TwoDData,SeisTrc,"TwoD DataSet");
@@ -66,8 +66,8 @@ mDefModInitFn(Seis)
 
     // The order here is important!
     // The first one is the default unless explicitly changed.
-    CBVSSeisTrcTranslator::initClass();
     BlocksSeisTrcTranslator::initClass();
+    CBVSSeisTrcTranslator::initClass();
     TwoDSeisTrcTranslator::initClass();
     TwoDDataSeisTrcTranslator::initClass();
     CBVSSeisTrc2DTranslator::initClass();

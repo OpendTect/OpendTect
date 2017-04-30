@@ -248,8 +248,9 @@ void Seis::Blocks::StepFinder::finish( uiRetVal& uirv )
 {
     Pos::IdxPairDataSet::SPos spos;
     int inlstate = -1, crlstate = -1;
-    int previnl, prevcrl;
-    int inlstep, crlstep;
+	// initialising these four because of alarmist code analysers
+    int previnl = -1, prevcrl = -1;
+    int inlstep = 1, crlstep = 1;
     while ( positions_.next(spos) )
     {
 	const BinID bid( positions_.getIdxPair(spos) );

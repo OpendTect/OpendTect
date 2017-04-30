@@ -7,6 +7,7 @@
 
 
 #include "seisseqio.h"
+#include "seisblockstr.h"
 #include "seiscbvs.h"
 #include "seiswrite.h"
 #include "seisbounds.h"
@@ -56,7 +57,8 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
     iostrm.setGroup( !isps ?
 	   ( is2d_ ? mTranslGroupName(SeisTrc2D) : mTranslGroupName(SeisTrc) )
 	 : ( is2d_ ? mTranslGroupName(SeisPS2D) : mTranslGroupName(SeisPS3D)) );
-    iostrm.setTranslator( CBVSSeisTrcTranslator::translKey() );
+    iostrm.setTranslator( is2d_ || isps	? CBVSSeisTrcTranslator::translKey()
+					: BlocksSeisTrcTranslator::translKey());
     iostrm.fileSpec().setFileName( fnm && *fnm ? fnm
 						: StreamProvider::sStdIO() );
     setIOObj( &iostrm );
