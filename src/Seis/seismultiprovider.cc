@@ -159,13 +159,13 @@ void Seis::MultiProvider::setReadMode( ReadMode rm )
 
 
 uiRetVal Seis::MultiProvider::getComponentInfo( int iprov,
-	BufferStringSet& nms, TypeSet<Seis::DataType>* dts ) const
+			BufferStringSet& nms, DataType* dt ) const
 {
     Threads::Locker locker( lock_ );
     if ( !provs_.validIdx(iprov) )
-	return uiRetVal( tr("Internal: component does not exist") );
+	return uiRetVal(tr("Internal: Info requested for bad component index"));
 
-    return provs_[iprov]->getComponentInfo( nms, dts );
+    return provs_[iprov]->getComponentInfo( nms, dt );
 }
 
 

@@ -68,7 +68,7 @@ public:
 
     ZSampling			getZRange() const;
     uiRetVal			getComponentInfo(int iprov,BufferStringSet&,
-				      TypeSet<Seis::DataType>* dts=0) const;
+						  DataType* dt=0) const;
     virtual od_int64		totalNr() const;
 
     uiRetVal			fillPar(IOPar&) const;

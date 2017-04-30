@@ -110,8 +110,7 @@ public:
 
     Seis2DDataSet*	mkDataSet() const;
 
-    uiRetVal		gtComponentInfo(BufferStringSet&,
-					TypeSet<Seis::DataType>&) const;
+    uiRetVal		gtComponentInfo(BufferStringSet&,DataType&) const;
     int			gtNrLines() const;
     Pos::GeomID		gtGeomID(int) const;
     BufferString	gtLineName(int) const;

@@ -70,8 +70,7 @@ public:
     Pos::GeomID		firstGeomID() const	{ return curGeomID(); }
     DBKey		dbKey() const		{ return dbky_; }
     ZSampling		getZRange() const	{ return doGetZRange(); }
-    uiRetVal		getComponentInfo(BufferStringSet&,
-					 TypeSet<Seis::DataType>* dts=0) const;
+    uiRetVal		getComponentInfo(BufferStringSet&,DataType* dt=0) const;
     int			nrOffsets() const; //!< at a representative location
 					   //!< always 1 for post-stack data
 
@@ -141,8 +140,7 @@ protected:
     virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
 
     virtual int		gtNrOffsets() const			{ return 1; }
-    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
-					   TypeSet<Seis::DataType>&) const;
+    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,DataType&) const;
 				//!< def impl: { sKey::Data(), UnknownData }
     virtual Pos::GeomID doGetCurGeomID() const				= 0;
     virtual ZSampling	doGetZRange() const				= 0;

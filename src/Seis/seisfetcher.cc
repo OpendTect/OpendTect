@@ -304,7 +304,7 @@ Pos::GeomID Seis::Fetcher2D::curGeomID() const
 
 
 uiRetVal Seis::Fetcher2D::gtComponentInfo( BufferStringSet& nms,
-				       TypeSet<Seis::DataType>& dts ) const
+					   DataType& dt ) const
 {
     Seis2DDataSet* ds = dataset_;
     PtrMan<Seis2DDataSet> ptrds;
@@ -316,11 +316,11 @@ uiRetVal Seis::Fetcher2D::gtComponentInfo( BufferStringSet& nms,
     const BufferString dtyp = ds->dataType();
     nms.add( ds->name() );
     if ( dtyp != sKey::Steering() )
-	dts += Seis::UnknownData;
+	dt = Seis::UnknownData;
     else
     {
 	nms.add( ds->name() );
-	dts += Seis::Dip; dts += Seis::Dip;
+	dt = Seis::Dip;
     }
 
     uirv_.setEmpty();

@@ -282,9 +282,9 @@ SeisPS2DReader* Seis::PS2DProvider::mkReader( Pos::GeomID geomid ) const
 
 
 uiRetVal Seis::PS2DProvider::doGetComponentInfo( BufferStringSet& nms,
-			TypeSet<Seis::DataType>& dts ) const
+						 DataType& dt ) const
 {
-    return fetcher_.gtComponentInfo(nms,dts);
+    return fetcher_.gtComponentInfo(nms,dt);
 }
 
 

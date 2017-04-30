@@ -193,9 +193,9 @@ int Seis::LineProvider::curLineIdx() const
 
 
 uiRetVal Seis::LineProvider::doGetComponentInfo( BufferStringSet& nms,
-			TypeSet<Seis::DataType>& dts ) const
+						 DataType& dt ) const
 {
-    return fetcher_.gtComponentInfo(nms,dts);
+    return fetcher_.gtComponentInfo(nms,dt);
 }
 
 

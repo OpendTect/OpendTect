@@ -79,16 +79,16 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     if ( !prov )
 	{ desc.setErrMsg( uirv ); return; }
 
-    BufferStringSet provcompnms; TypeSet<Seis::DataType> dtyps;
-    uirv = prov->getComponentInfo( provcompnms, &dtyps );
+    BufferStringSet provcompnms; Seis::DataType dtyp;
+    uirv = prov->getComponentInfo( provcompnms, &dtyp );
     if ( uirv.isError() )
 	{ desc.setErrMsg( uirv ); return; }
 
     if ( compnms )
 	*compnms = provcompnms;
 
-    for ( int idx=desc.nrOutputs(); idx<dtyps.size(); idx++ )
-	desc.addOutputDataType( Seis::UnknownData );
+    for ( int idx=0; idx<desc.nrOutputs(); idx++ )
+	desc.changeOutputDataType( idx, dtyp );
 
     //safety, might be removed afterwards but we still use old surveys/cubes
     if ( desc.isSteering() )

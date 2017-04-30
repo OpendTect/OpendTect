@@ -343,14 +343,14 @@ Seis::VolProvider::~VolProvider()
 
 
 uiRetVal Seis::VolProvider::doGetComponentInfo( BufferStringSet& nms,
-			TypeSet<Seis::DataType>& dts ) const
+						Seis::DataType& dt ) const
 {
     if ( fetcher_.dp_ )
     {
 	for ( int icd=0; icd<fetcher_.dp_->nrComponents(); icd++ )
 	{
 	    nms.add( fetcher_.dp_->getComponentName(icd) );
-	    dts.add( Seis::UnknownData );
+	    dt = Seis::UnknownData;
 	}
     }
     else
@@ -362,7 +362,7 @@ uiRetVal Seis::VolProvider::doGetComponentInfo( BufferStringSet& nms,
 		const SeisTrcTranslator::ComponentData& cd
 			    = *fetcher_.trl_->componentInfo()[icd];
 		nms.add( cd.name() );
-		dts.add( fetcher_.trl_->dataType() );
+		dt = fetcher_.trl_->dataType();
 	    }
 	}
 	else
@@ -372,8 +372,7 @@ uiRetVal Seis::VolProvider::doGetComponentInfo( BufferStringSet& nms,
 	    if ( nms.isEmpty() )
 		return tr( "No data found" );
 
-	    for ( int idx=0; idx<nms.size(); idx++ )
-		dts.add( Seis::UnknownData );
+	    dt = Seis::UnknownData;
 	}
     }
 

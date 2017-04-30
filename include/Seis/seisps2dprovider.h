@@ -48,8 +48,7 @@ protected:
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
-    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
-					    TypeSet<Seis::DataType>&) const;
+    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,DataType&) const;
     virtual int		gtNrOffsets() const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;

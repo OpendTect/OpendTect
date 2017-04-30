@@ -138,25 +138,23 @@ int Seis::Provider::nrOffsets() const
 
 
 uiRetVal Seis::Provider::getComponentInfo( BufferStringSet& nms,
-				       TypeSet<Seis::DataType>* pdts ) const
+					   DataType* pdt ) const
 {
-    TypeSet<Seis::DataType> dts;
     nms.setEmpty();
-    if ( pdts )
-	pdts->setEmpty();
+    Seis::DataType dtype;
+    uiRetVal uirv = doGetComponentInfo( nms, dtype );
+    if ( uirv.isOK() && pdt )
+	*pdt = dtype;
 
-    uiRetVal uirv = doGetComponentInfo( nms, dts );
-    if ( uirv.isOK() && pdts )
-	*pdts = dts;
     return uirv;
 }
 
 
 uiRetVal Seis::Provider::doGetComponentInfo( BufferStringSet& nms,
-					 TypeSet<Seis::DataType>& dts ) const
+					     DataType& dt ) const
 {
     nms.add( sKey::Data() );
-    dts += UnknownData;
+    dt = UnknownData;
     return uiRetVal::OK();
 }
 
