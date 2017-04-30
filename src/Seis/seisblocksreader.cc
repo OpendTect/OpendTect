@@ -48,6 +48,7 @@ public:
     void		fillTrace(const BinID&,SeisTrc&,uiRetVal&) const;
 
     const Reader&	rdr_;
+    const HGeom&	hgeom_;
     od_istream&		strm_;
 
     od_stream_Pos	startoffsinfile_;
@@ -55,7 +56,6 @@ public:
     HLocIdx		start_;
     const Dimensions	dims_;
     int			nrsamplesintrace_;
-    const HGeom&	hgeom_;
 
     struct Chunk
     {
@@ -89,7 +89,7 @@ Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const HGlobIdx& gidx,
     , strm_(*rdr.strm_)
     , nrsamplesintrace_(0)
     , trcpartbuf_(0)
-    , hgeom_(*rdr_.hgeom_)
+    , hgeom_(rdr_.hGeom())
     , startoffsinfile_(rdr.offstbl_[globidx_])
 {
     uirv.setEmpty();
@@ -195,10 +195,9 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 					  uiRetVal& uirv ) const
 {
-    const HGeom& hgeom = *rdr_.hgeom_;
     const HLocIdx locidx(
-	Block::locIdx4Inl(hgeom,bid.inl(),rdr_.dims_.inl()) - start_.inl(),
-	Block::locIdx4Crl(hgeom,bid.crl(),rdr_.dims_.crl()) - start_.crl() );
+	Block::locIdx4Inl(hgeom_,bid.inl(),rdr_.dims_.inl()) - start_.inl(),
+	Block::locIdx4Crl(hgeom_,bid.crl(),rdr_.dims_.crl()) - start_.crl() );
     if ( locidx.inl() < 0 || locidx.crl() < 0
       || locidx.inl() >= dims_.inl() || locidx.crl() >= dims_.crl() )
     {
@@ -232,7 +231,6 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 #define mSeisBlocksReaderInitList() \
       offstbl_(*new OffsetTable) \
     , strm_(0) \
-    , hgeom_(0) \
     , scaler_(0) \
     , interp_(0) \
     , cubedata_(*new PosInfo::CubeData) \
@@ -306,7 +304,6 @@ Seis::Blocks::Reader::~Reader()
 {
     closeStream();
     delete seldata_;
-    delete hgeom_;
     delete &cubedata_;
     delete &curcdpos_;
     delete &offstbl_;
@@ -405,10 +402,10 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 	cubename_ = basepath_.fileName();
     iop.get( sKeySurveyName(), survname_ );
 
-    hgeom_ = new HGeom( cubename_, ZDomain::SI() );
-    hgeom_->getMapInfo( iop );
+    hgeom_.getMapInfo( iop );
+    hgeom_.setName( cubename_ );
+    hgeom_.setZDomain( ZDomain::Def::get(iop) );
     iop.get( sKey::ZRange(), zgeom_ );
-    zdomaindef_ = ZDomain::Def::get( iop );
     iop.getYN( sKeyDepthInFeet(), depthinfeet_ );
 
     DataCharacteristics::getUserTypeFromPar( iop, fprep_ );
@@ -644,7 +641,7 @@ void Seis::Blocks::Reader::fillInfo( const BinID& bid, SeisTrcInfo& ti ) const
     ti.sampling_.start = zrgintrace_.start;
     ti.sampling_.step = zgeom_.step;
     ti.setBinID( bid );
-    ti.coord_ = hgeom_->transform( bid );
+    ti.coord_ = hgeom_.transform( bid );
 }
 
 
@@ -685,8 +682,8 @@ Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumn(
 void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
 {
     const BinID bid = cubedata_.binID( curcdpos_ );
-    const HGlobIdx globidx( Block::globIdx4Inl(*hgeom_,bid.inl(),dims_.inl()),
-			    Block::globIdx4Crl(*hgeom_,bid.crl(),dims_.crl()) );
+    const HGlobIdx globidx( Block::globIdx4Inl(hgeom_,bid.inl(),dims_.inl()),
+			    Block::globIdx4Crl(hgeom_,bid.crl(),dims_.crl()) );
 
     FileColumn* column = getColumn( globidx, uirv );
     if ( column )

@@ -120,8 +120,6 @@ public:
     inline int		nrInl() const		{ return nrLines(); }
     inline int		nrCrl() const		{ return nrTrcs(); }
 
-    mDeprecated TrcKeySampling&		hrg;
-    mDeprecated ZSampling&		zrg;
 };
 
 

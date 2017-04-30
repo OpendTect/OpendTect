@@ -53,7 +53,6 @@ public:
 
     const uiRetVal&	state() const		    { return state_; }
 
-    const HGeom&	hGeom() const		    { return *hgeom_; }
     BufferString	surveyName() const	    { return survname_; }
     const CubeData&	positions() const	    { return cubedata_; }
     inline int		nrComponents() const
@@ -77,7 +76,6 @@ protected:
 
     mutable od_istream*	strm_;
     bool		strmmine_;
-    HGeom*		hgeom_;
     SelData*		seldata_;
     LinScaler*		scaler_;
     DataInterp*		interp_;

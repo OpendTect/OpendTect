@@ -50,6 +50,12 @@ const Survey::Geometry& Survey::Geometry::default3D()
 }
 
 
+bool Survey::Geometry::isCompatibleWith( const Geometry& geom ) const
+{
+    return compare( geom, false ) != UnRelated;
+}
+
+
 TrcKey Survey::Geometry::getTrace( const Coord& crd, float maxdist ) const
 {
     float dist;
@@ -580,41 +586,18 @@ const Survey::Geometry3D* Survey::Geometry::as3D() const
 }
 
 
-Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
-    : name_( nm )
-    , zdomain_( zd )
+Survey::Geometry3D::Geometry3D()
+    : zdomain_( ZDomain::SI() )
 {
     sampling_.hsamp_.survid_ = getID();
 }
 
 
-
-static bool isCompatible4BinID( const Survey::Geometry3D& sg1,
-	const Survey::Geometry3D& sg2, const BinID& bid )
+Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
+    : name_( nm )
+    , zdomain_( zd )
 {
-    const Coord coord1( sg1.transform(bid) );
-    const Coord coord2( sg2.transform(bid) );
-    if ( coord1.sqDistTo(coord2) > 1 )
-	return false;
-    const BinID bid1 = sg1.transform( coord2 );
-    const BinID bid2 = sg2.transform( coord1 );
-    return bid1 == bid2;
-}
-
-
-bool Survey::Geometry3D::isCompatibleWith( const Geometry& geom ) const
-{
-    if ( geom.is2D() )
-	return false;
-
-    const Geometry3D& oth = static_cast<const Geometry3D&>( geom );
-
-    return isCompatible4BinID( *this, oth, sampling_.hsamp_.start_ )
-	&& isCompatible4BinID( *this, oth, sampling_.hsamp_.stop_ )
-	&& sampling_.hsamp_.start_ == oth.sampling_.hsamp_.start_
-	&& sampling_.hsamp_.step_ == oth.sampling_.hsamp_.step_
-	&& idx4Z(sampling_.zsamp_.start) == oth.idx4Z(sampling_.zsamp_.start)
-	&& idx4Z(sampling_.zsamp_.stop) == oth.idx4Z(sampling_.zsamp_.stop);
+    sampling_.hsamp_.survid_ = getID();
 }
 
 
@@ -842,23 +825,36 @@ float Survey::Geometry3D::crlDistance() const
 }
 
 
+static bool rendersSamePositions( const Survey::Geometry3D& sg1,
+	const Survey::Geometry3D& sg2, const BinID& bid )
+{
+    const Coord coord1( sg1.transform(bid) );
+    const Coord coord2( sg2.transform(bid) );
+    return coord1.sqDistTo(coord2) < 1;
+}
+
+
 Survey::Geometry::RelationType Survey::Geometry3D::compare(
 				const Geometry& geom, bool usezrg ) const
 {
-    mDynamicCastGet( const Survey::Geometry3D*, geom3d, &geom );
+    mDynamicCastGet( const Geometry3D*, geom3d, &geom );
     if ( !geom3d )
 	return UnRelated;
 
-    const bool havesametransform = b2c_ == geom3d->b2c_;
-    if ( !havesametransform )
+    const Geometry3D& oth = *geom3d;
+
+    if ( !(b2c_ == oth.b2c_) // this check is rather lenient
+      || !rendersSamePositions( *this, oth, sampling_.hsamp_.start_ )
+      || !rendersSamePositions( *this, oth, sampling_.hsamp_.start_ )
+      || !rendersSamePositions( *this, oth, oth.sampling_.hsamp_.stop_ ) )
 	return UnRelated;
 
     const StepInterval<int> myinlrg = inlRange();
     const StepInterval<int> mycrlrg = crlRange();
     const StepInterval<float> myzrg = zRange();
-    const StepInterval<int> othinlrg = geom3d->inlRange();
-    const StepInterval<int> othcrlrg = geom3d->crlRange();
-    const StepInterval<float> othzrg = geom3d->zRange();
+    const StepInterval<int> othinlrg = oth.inlRange();
+    const StepInterval<int> othcrlrg = oth.crlRange();
+    const StepInterval<float> othzrg = oth.zRange();
     if ( myinlrg == othinlrg && mycrlrg == othcrlrg &&
 	    (!usezrg || myzrg.isEqual(othzrg,1e-3)) )
 	return Identical;
@@ -871,4 +867,3 @@ Survey::Geometry::RelationType Survey::Geometry3D::compare(
 
     return Related;
 }
-

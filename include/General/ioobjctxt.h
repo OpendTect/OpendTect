@@ -113,12 +113,5 @@ public:
     void		fixTranslator( const char* trusrnm )
 			{ deftransl_ = toselect_.allowtransls_ = trusrnm; }
 
-    mDeprecated StdSelType&		stdseltype = stdseltype_;
-    mDeprecated const TranslatorGroup*& trgroup = trgroup_;
-    mDeprecated bool&			multi = multi_;
-    mDeprecated bool&			forread = forread_;
-    mDeprecated BufferString&		deftransl = deftransl_;
-    mDeprecated IOObjSelConstraints&	toselect = toselect_;
-    mDeprecated DBDirID			getSelKey() const
-					{ return getSelDirID(); }
+    mDeprecated DBDirID	getSelKey() const   { return getSelDirID(); }
 };

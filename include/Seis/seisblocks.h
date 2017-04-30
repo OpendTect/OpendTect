@@ -175,9 +175,10 @@ mExpClass(Seis) IOClass
 public:
 
     virtual		~IOClass();
-    virtual const HGeom& hGeom() const	= 0;
+
+    virtual const HGeom& hGeom() const		{ return hgeom_; }
     const ZGeom&	zGeom() const		{ return zgeom_; }
-    const ZDomain::Def&	zDomain() const		{ return zdomaindef_; }
+    const ZDomain::Def&	zDomain() const;
 
     const Dimensions&	dimensions() const	{ return dims_; }
     SzType		version() const		{ return version_; }
@@ -220,9 +221,9 @@ protected:
     Pos::IdxPairDataSet& columns_;
 
     File::Path		basepath_;
-    Dimensions		dims_;
+    HGeom&		hgeom_;
     ZGeom		zgeom_;
-    ZDomain::Def	zdomaindef_;
+    Dimensions		dims_;
     SzType		version_;
     BufferString	cubename_;
     BufferStringSet	compnms_;

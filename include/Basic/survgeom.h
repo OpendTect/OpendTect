@@ -50,6 +50,8 @@ public:
     enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
 			/*!< 'Related' means the two geometries have the same
 			  transform but neither includes the other. */
+    virtual RelationType compare(const Geometry&,bool usezrg) const = 0;
+    bool		isCompatibleWith(const Geometry&) const;
 
     virtual bool	is2D() const			= 0;
     Pos::SurvID		getSurvID() const;
@@ -76,11 +78,10 @@ public:
     virtual TrcKey	getTrace(const Coord&,float maxdist) const;
     virtual TrcKey	nearestTrace(const Coord&,float* distance=0) const = 0;
 
+    TrcKeyZSampling&		sampling()		{ return sampling_; }
     const TrcKeyZSampling&	sampling() const	{ return sampling_; }
 
     virtual float		averageTrcDist() const			= 0;
-    virtual RelationType	compare(const Geometry&,bool usezrg) const
-				{ return UnRelated; }
 
     //Convenience functions for the most commone geometries
     virtual Geometry2D*		as2D()			{ return 0; }

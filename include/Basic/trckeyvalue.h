@@ -34,8 +34,6 @@ public:
 
     Pos::LineID		lineNr() const		{ return tk_.lineNr(); }
     Pos::TraceID	trcNr() const		{ return tk_.trcNr(); }
-    // mDeprecated Pos::LineID&	lineNr()	{ return tk_.lineNr(); }
-    // mDeprecated Pos::TraceID& trcNr()	{ return tk_.trcNr(); }
     TrcKeyValue&	setLineNr( Pos::LineID nr )
 			{ tk_.setLineNr(nr); return *this; }
     TrcKeyValue&	setTrcNr( Pos::TraceID nr )

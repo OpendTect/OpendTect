@@ -23,8 +23,11 @@ namespace Seis
 namespace Blocks
 {
 
+class ColumnWriter;
 class MemBlock;
 class MemBlockColumn;
+class StepFinder;
+class WriterFinisher;
 
 
 /*!\brief Writes provided data into Blocks Storage.
@@ -47,8 +50,6 @@ public:
 
 			Writer(const HGeom* sg=0);
 			~Writer();
-
-    const HGeom&	hGeom() const		{ return hgeom_; }
 
     void		setFullPath(const char*); //!< with or w/o extension
     void		setFileNameBase(const char*);
@@ -73,8 +74,6 @@ public:
 
 protected:
 
-    const HGeom&	hgeom_;
-    ZGeom		zgeom_;
     OD::FPDataRepType	specifiedfprep_;
     int			nrcomps_;
     bool		isfinished_;
@@ -83,9 +82,11 @@ protected:
 
     IdxType		nrglobzidxs_;
     ObjectSet<ZEvalPosSet> zevalpositions_;
+    StepFinder*		stepfinder_;
 
     virtual void	setEmpty();
     void		resetZ();
+    void		doAdd(const SeisTrc&,uiRetVal&);
     void		add2Block(MemBlock&,const ZEvalPosSet&,const HLocIdx&,
 				    const SeisTrc&,int);
     MemBlockColumn*	getColumn(const HGlobIdx&);
@@ -102,6 +103,7 @@ protected:
 		            Interval<int>&,Interval<int>&,
 			    Interval<double>&,Interval<double>&);
 
+    friend class	StepFinder;
     friend class	ColumnWriter;
     friend class	WriterFinisher;
 

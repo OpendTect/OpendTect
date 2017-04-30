@@ -978,12 +978,13 @@ float Survey::Geometry2D::averageTrcDist() const
 Survey::Geometry::RelationType Survey::Geometry2D::compare(
 				const Geometry& geom, bool usezrg ) const
 {
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d, &geom );
+    mDynamicCastGet( const Geometry2D*, geom2d, &geom );
     if ( !geom2d )
 	return UnRelated;
+    const Geometry2D& oth = *geom2d;
 
     const PosInfo::Line2DData& mydata = data();
-    const PosInfo::Line2DData& otherdata = geom2d->data();
+    const PosInfo::Line2DData& otherdata = oth.data();
     if ( !mydata.coincidesWith(otherdata) )
 	return UnRelated;
 

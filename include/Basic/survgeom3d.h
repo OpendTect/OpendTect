@@ -32,15 +32,19 @@ mExpClass(Basic) Geometry3D : public Survey::Geometry
 {
 public:
 
+			Geometry3D();
 			Geometry3D(const char* nm,const ZDomain::Def& zd );
 
     virtual bool	is2D() const		{ return false; }
     virtual const char*	getName() const		{ return name_.buf(); }
+    virtual void	setName( const char* nm ) { name_ = nm; }
 
     const ZDomain::Def&	zDomain() const		{ return zdomain_; }
+    void		setZDomain( const ZDomain::Def& def )
+						{ zdomain_ = def; }
     float		zScale() const		{ return zscale_; }
 
-    virtual bool	isCompatibleWith(const Geometry&) const;
+    virtual RelationType compare(const Geometry&,bool usezrg) const;
 
     StepInterval<int>	inlRange() const;
     StepInterval<int>	crlRange() const;
@@ -76,7 +80,6 @@ public:
     void		setGeomData(const Pos::IdxPair2Coord&,
 					const TrcKeyZSampling&,float zscl);
     float		averageTrcDist() const;
-    RelationType	compare(const Geometry&,bool usezrg) const;
 
     Geometry3D*		as3D()			{ return this; }
 
@@ -100,6 +103,7 @@ protected:
     Pos::IdxPair2Coord	b2c_;
     ZDomain::Def	zdomain_;
     float		zscale_;
+
 };
 
 

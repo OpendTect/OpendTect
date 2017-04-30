@@ -213,8 +213,6 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
 }
 
 
-mStartAllowDeprecatedSection
-
 IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
     : NamedObject(prefname)
     , trgroup_(trg)
@@ -230,7 +228,7 @@ IOObjContext::IOObjContext( const IOObjContext& oth )
 {
     *this = oth;
 }
-mStopAllowDeprecatedSection
+
 
 #define mCpMemb(nm) nm = oth.nm
 

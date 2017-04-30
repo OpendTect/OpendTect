@@ -15,40 +15,27 @@
 
 #include <math.h>
 
-mStartAllowDeprecatedSection
 
 TrcKeySampling::TrcKeySampling()
-    : start( start_ )
-    , stop( stop_ )
-    , step( step_ )
-    , survid_( mUdf(int) )
+    : survid_( mUdf(int) )
 {
     init( true );
 }
 
 
 TrcKeySampling::TrcKeySampling( const TrcKeySampling& tks )
-    : start( start_ )
-    , stop( stop_ )
-    , step( step_ )
 {
     *this = tks;
 }
 
 
 TrcKeySampling::TrcKeySampling( Pos::GeomID gid )
-    : start( start_ )
-    , stop( stop_ )
-    , step( step_ )
 {
     init( gid );
 }
 
 
 TrcKeySampling::TrcKeySampling( const TrcKey& tk )
-    : start( start_ )
-    , stop( stop_ )
-    , step( step_ )
 {
     init( true );
     survid_ = tk.survID();
@@ -58,15 +45,11 @@ TrcKeySampling::TrcKeySampling( const TrcKey& tk )
 
 
 TrcKeySampling::TrcKeySampling( bool settosi )
-    : start( start_ )
-    , stop( stop_ )
-    , step( step_ )
-    , survid_( mUdf(int) )
+    : survid_( mUdf(int) )
 {
     init( settosi );
 }
 
-mStopAllowDeprecatedSection
 
 Pos::GeomID TrcKeySampling::getGeomID() const
 { return is2D() ? start_.lineNr() : survid_; }
@@ -1001,25 +984,23 @@ void TrcKeyZSampling::getDefaultNormal( Coord3& ret ) const
 od_int64 TrcKeyZSampling::totalNr() const
 { return ((od_int64) nrZ()) * ((od_int64) hsamp_.totalNr()); }
 
-mStartAllowDeprecatedSection
 
 TrcKeyZSampling::TrcKeyZSampling()
-    : hrg(hsamp_),zrg(zsamp_)
-{ init( true ); }
+{
+    init( true );
+}
 
 
 TrcKeyZSampling::TrcKeyZSampling( const TrcKeyZSampling& tkzs )
-    : hrg(hsamp_),zrg(zsamp_)
 {
     *this = tkzs;
 }
 
 
 TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
-    : hrg(hsamp_),zrg(zsamp_)
-{ init( settoSI ); }
-
-mStopAllowDeprecatedSection
+{
+    init( settoSI );
+}
 
 
 int TrcKeyZSampling::lineIdx(int lineid)const

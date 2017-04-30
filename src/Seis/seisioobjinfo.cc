@@ -28,6 +28,7 @@
 #include "seiscbvs2d.h"
 #include "seispsioprov.h"
 #include "seisselection.h"
+#include "seispacketinfo.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
@@ -257,9 +258,18 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 }
 
 
+
+static bool isCBVSFile( const char* fnm )
+{
+    const File::Path filepath( fnm );
+    return FixedString( filepath.extension() ) == "cbvs";
+}
+
+
 od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
 {
-    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
+    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) )
+	return -1;
 
     od_int64 totalsz = 0;
     nrfiles = 0;
@@ -268,24 +278,28 @@ od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
 	DirList dl( filenm, DirList::FilesOnly );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
-	    File::Path filepath = dl.fullPath( idx );
-	    FixedString ext = filepath.extension();
-	    if ( ext != "cbvs" )
-		continue;
-
-	    totalsz += File::getKbSize( filepath.fullPath() );
-	    nrfiles++;
+	    const BufferString fnm( dl.fullPath(idx) );
+	    if ( isCBVSFile(fnm) )
+	    {
+		totalsz += File::getKbSize( fnm );
+		nrfiles++;
+	    }
 	}
     }
-    else
+    else if ( File::exists(filenm) )
     {
-	while ( true )
+	totalsz += File::getKbSize( filenm );
+	nrfiles++;
+	if ( isCBVSFile(filenm) )
 	{
-	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
-	    if ( !File::exists(fullnm) ) break;
+	    while ( true )
+	    {
+		BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
+		if ( !File::exists(fullnm) ) break;
 
-	    totalsz += File::getKbSize( fullnm );
-	    nrfiles++;
+		totalsz += File::getKbSize( fullnm );
+		nrfiles++;
+	    }
 	}
     }
 
@@ -337,7 +351,7 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 	{ pErrMsg("Translator not SeisTrcTranslator!"); return false; }
 
     Conn* conn = ioobj_->getConn( Conn::Read );
-    if ( !sttr->initRead(conn) )
+    if ( !sttr->initRead(conn,Seis::Scan) )
 	return false;
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& comps
@@ -386,7 +400,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 	{ pErrMsg("No Translator!"); return false; }
 
     Conn* conn = ioobj_->getConn( Conn::Read );
-    bool isgood = sttr->initRead(conn);
+    bool isgood = sttr->initRead(conn,Seis::Scan);
     bps = 0;
     if ( isgood )
     {
@@ -606,7 +620,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 	if ( !sttr )
 	    { pErrMsg("No Translator!"); return 0; }
 	Conn* conn = ioobj_->getConn( Conn::Read );
-	if ( sttr->initRead(conn) )
+	if ( sttr->initRead(conn,Seis::Scan) )
 	{
 	    ret = sttr->componentInfo().size();
 	    if ( nms )
@@ -719,15 +733,14 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 bool SeisIOObjInfo::isFullyRectAndRegular() const
 {
     PtrMan<Translator> trl = ioobj_->createTranslator();
-    mDynamicCastGet(CBVSSeisTrcTranslator*,cbvstrl,trl.ptr())
-    if ( !cbvstrl ) return false;
+    mDynamicCastGet(SeisTrcTranslator*,strl,trl.ptr())
+    if ( !strl ) return false;
 
     Conn* conn = ioobj_->getConn( Conn::Read );
-    if ( !cbvstrl->initRead(conn) || !cbvstrl->readMgr() )
+    if ( !strl->initRead(conn,Seis::Scan) )
 	return false;
 
-    const CBVSInfo& info = cbvstrl->readMgr()->info();
-    return info.geom_.fullyrectandreg;
+    return strl->packetInfo().fullyrectandreg;
 }
 
 

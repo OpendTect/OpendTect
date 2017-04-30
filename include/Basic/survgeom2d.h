@@ -46,7 +46,7 @@ public:
     static BufferString		makeUniqueLineName(const char* lsnm,
 						   const char* lnm);
     float			averageTrcDist() const;
-    RelationType		compare(const Geometry&,bool usezrg) const;
+    virtual RelationType	compare(const Geometry&,bool usezrg) const;
 
     Geometry2D*			as2D()			{ return this; }
     static ID			getIDFrom(const DBKey&);

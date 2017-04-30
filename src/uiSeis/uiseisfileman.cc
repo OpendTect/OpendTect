@@ -358,19 +358,15 @@ void uiSeisFileMan::mkFileInfo()
     }
 
     BufferString dsstr = curioobj_->pars().find( sKey::DataStorage() );
-    if ( mIsOfTranslType(CBVS) )
+    SeisTrcTranslator* tri = (SeisTrcTranslator*)curioobj_->createTranslator();
+    if ( tri && tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
+				Conn::Read) ), Seis::Scan )
     {
-	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
-	if ( tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
-				Conn::Read) ) )
-	{
-	    const BasicComponentInfo& bci =
-		*tri->readMgr()->info().compinfo_[0];
-	    const DataCharacteristics::UserType ut = bci.datachar_.userType();
-	    dsstr = DataCharacteristics::toString(ut);
-	}
-	delete tri;
+	const BasicComponentInfo& bci = *tri->componentInfo()[0];
+	const DataCharacteristics::UserType ut = bci.datachar_.userType();
+	dsstr = DataCharacteristics::toString(ut);
     }
+    delete tri;
     if ( dsstr.size() > 4 )
 	txt.add( "\nStorage: " ).add( dsstr.buf() + 4 );
 

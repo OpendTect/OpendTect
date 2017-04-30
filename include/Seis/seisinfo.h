@@ -82,14 +82,4 @@ public:
 
     float		zref_;		// not stored
 
-    mDeprecated Coord&	coord;
-    mDeprecated SamplingData<float>& sampling;
-    mDeprecated IdxType& nr;
-    mDeprecated float&	offset;
-    mDeprecated float&	azimuth;
-    mDeprecated float&	refnr;
-    mDeprecated float&	pick;
-    mDeprecated BinID&	binid;
-			//!< in new code, use binID()/setBinID() instead
-
 };

@@ -140,17 +140,20 @@ public:
 			    //!< Will add if necessary
 			    //!< If returned SPos is not valid memory was full
 
-    inline ArrIdxType	nrFirst() const		{ return frsts_.size(); }
-    ArrIdxType		nrSecond(IdxType firstidx) const;
+    GlobIdxType		totalSize() const;
     inline bool		includes( const IdxPair& ip ) const
 						{ return find(ip).j > -1; }
+    inline ArrIdxType	nrFirst() const		{ return frsts_.size(); }
+    ArrIdxType		nrSecond(IdxType firstidx) const;
+    ArrIdxType		nrSecondAtIdx(ArrIdxType firstidx) const;
+    ArrIdxType		firstAtIdx(ArrIdxType firstidx) const;
+    IdxPair		positionAtIdxs(ArrIdxType,ArrIdxType) const;
     bool		hasFirst(IdxType) const;
     bool		hasSecond(IdxType) const;
-    IdxPair		firstIdxPair() const; //!< when empty returns udf()
-    GlobIdxType		totalSize() const;
     Interval<IdxType>	firstRange() const;
-    Interval<IdxType>	secondRange(IdxType firsidx=-1) const;
+    Interval<IdxType>	secondRange(IdxType firstidx=-1) const;
 
+    IdxPair		firstIdxPair() const; //!< when empty returns udf()
     bool		hasDuplicateIdxPairs() const;
     ArrIdxType		nrDuplicateIdxPairs() const;
     void		removeDuplicateIdxPairs();

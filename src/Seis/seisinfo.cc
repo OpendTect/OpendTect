@@ -202,31 +202,18 @@ mDefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
 };
 
 
-#define mDeclDeprecCompatStuff \
-    sampling(sampling_), refnr(refnr_), pick(pick_) \
-  , offset(offset_), coord(coord_), azimuth(azimuth_)
-
-
-mStartAllowDeprecatedSection
 SeisTrcInfo::SeisTrcInfo()
     : sampling_(0,defaultSampleInterval())
     , refnr_(mUdf(float)), pick_(mUdf(float))
     , offset_(0), azimuth_(0), zref_(0)
-    , binid(const_cast<BinID&>(trckey_.binID()))
-    , nr(const_cast<BinID&>(trckey_.binID()).crl())
-    , mDeclDeprecCompatStuff
 {
 }
 
 
 SeisTrcInfo::SeisTrcInfo( const SeisTrcInfo& oth )
-    : binid(const_cast<BinID&>(oth.trckey_.binID()))
-    , nr(const_cast<BinID&>(trckey_.binID()).crl())
-    , mDeclDeprecCompatStuff
 {
     *this = oth;
 }
-mStopAllowDeprecatedSection
 
 
 SeisTrcInfo& SeisTrcInfo::operator=( const SeisTrcInfo& oth )

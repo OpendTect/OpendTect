@@ -405,10 +405,37 @@ void Pos::IdxPairDataSet::remove( const IdxPairDataSet& oth )
 
 
 Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::nrSecond(
-						    IdxType frst ) const
+						IdxType frst ) const
 {
     const IdxType frstidx = frsts_.indexOf( frst );
     return frstidx<0 ? 0 : gtScndSet(frstidx).size();
+}
+
+
+Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::nrSecondAtIdx(
+						ArrIdxType frst ) const
+{
+    return frsts_.validIdx(frst) ? gtScndSet(frst).size() : 0;
+}
+
+
+Pos::IdxPairDataSet::ArrIdxType Pos::IdxPairDataSet::firstAtIdx(
+						ArrIdxType frst ) const
+{
+    return frsts_.validIdx(frst) ? frsts_[frst] : mUdf(ArrIdxType);
+}
+
+
+Pos::IdxPair Pos::IdxPairDataSet::positionAtIdxs( ArrIdxType frst,
+						  ArrIdxType scnd ) const
+{
+    if ( frsts_.validIdx(frst) )
+    {
+	const IdxSet& scnds = gtScndSet( frst );
+	if ( scnds.validIdx(scnd) )
+	    return IdxPair( frsts_[frst], scnds[scnd] );
+    }
+    return IdxPair::udf();
 }
 
 

@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "seisblockswriter.h"
 #include "seistrc.h"
+#include "seisbuf.h"
 #include "posidxpairdataset.h"
 #include "paralleltask.h"
 #include "executor.h"
@@ -74,6 +75,22 @@ public:
     od_stream_Pos	fileoffset_;
     bool**		visited_;
     ObjectSet<BlockSet> blocksets_; // one set per component
+
+};
+
+class StepFinder
+{
+public:
+
+		StepFinder(Writer&);
+
+    bool	isFinished() const	{ return tbuf_.isEmpty(); }
+    void	finish(uiRetVal&);
+    void	addTrace(const SeisTrc&,uiRetVal&);
+
+    Writer&		wrr_;
+    Pos::IdxPairDataSet positions_;
+    SeisTrcBuf		tbuf_;
 
 };
 
@@ -184,14 +201,120 @@ void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& defstart,
 }
 
 
+Seis::Blocks::StepFinder::StepFinder( Writer& wrr )
+    : wrr_(wrr)
+    , positions_(0,false)
+    , tbuf_(false)
+{
+}
+
+
+// Algo: first collect at least 2000 traces. If 3 inls and 3 crls found,
+// finish the procedure.
+
+void Seis::Blocks::StepFinder::addTrace( const SeisTrc& trc, uiRetVal& uirv )
+{
+    const BinID bid( trc.info().binID() );
+    if ( positions_.includes(bid) )
+	return;
+    tbuf_.add( new SeisTrc(trc) );
+    positions_.add( bid );
+    if ( positions_.totalSize() % 2000 )
+	return;
+    const int nrinls = positions_.nrFirst();
+    if ( nrinls < 3 )
+	return;
+
+    bool found3crls = false;
+    for ( int iinl=0; iinl<nrinls; iinl++ )
+    {
+	if ( positions_.nrSecondAtIdx(iinl) > 2 )
+	    { found3crls = true; break; }
+    }
+    if ( !found3crls )
+	return;
+
+    finish( uirv );
+}
+
+
+// Algo: if enough inls/crls found - or at the end, finish() will be called.
+// If at least one step was seen, the default (SI or provided) is replaced.
+// Now add the collected traces to the writer so it can start off making
+// the appropriate blocks.
+// The writer will know the detection is finished because the tbuf is empty.
+
+void Seis::Blocks::StepFinder::finish( uiRetVal& uirv )
+{
+    Pos::IdxPairDataSet::SPos spos;
+    int inlstate = -1, crlstate = -1;
+    int previnl, prevcrl;
+    int inlstep, crlstep;
+    while ( positions_.next(spos) )
+    {
+	const BinID bid( positions_.getIdxPair(spos) );
+	if ( inlstate < 0 )
+	{
+	    previnl = bid.inl();
+	    prevcrl = bid.crl();
+	    inlstate = crlstate = 0;
+	}
+	const int inldiff = bid.inl() - previnl;
+	if ( inldiff )
+	{
+	    previnl = bid.inl();
+	    if ( inlstate < 1 )
+	    {
+		inlstep = inldiff;
+		inlstate = 1;
+	    }
+	    else if ( inldiff < inlstep )
+		inlstep = inldiff;
+	    continue;
+	}
+	const int crldiff = bid.crl() - prevcrl;
+	if ( crldiff < 1 )
+	    continue;
+	prevcrl = bid.crl();
+	if ( crlstate < 1 )
+	{
+	    crlstep = crldiff;
+	    crlstate = 1;
+	}
+	else if ( crldiff < crlstep )
+	    crlstep = crldiff;
+    }
+
+    if ( inlstate > 0 )
+	wrr_.hgeom_.sampling().hsamp_.step_.inl() = inlstep;
+    if ( crlstate > 0 )
+	wrr_.hgeom_.sampling().hsamp_.step_.crl() = crlstep;
+
+    for ( int idx=0; idx<tbuf_.size(); idx++ )
+    {
+	SeisTrc* trc = tbuf_.get( idx );
+	wrr_.doAdd( *trc, uirv );
+	if ( uirv.isError() )
+	    break;
+    }
+
+    tbuf_.deepErase(); // finished!
+}
+
+
+
 Seis::Blocks::Writer::Writer( const HGeom* geom )
-    : hgeom_(*(geom ? geom : static_cast<const HGeom*>(&HGeom::default3D())))
-    , specifiedfprep_(OD::AutoFPRep)
+    : specifiedfprep_(OD::AutoFPRep)
     , nrcomps_(1)
     , isfinished_(false)
+    , stepfinder_(0)
     , interp_(new DataInterp(DataCharacteristics()))
     , strm_(0)
 {
+    if ( geom )
+	hgeom_ = *geom;
+    else
+	hgeom_ = static_cast<const HGeom&>( HGeom::default3D() );
     zgeom_ = hgeom_.sampling().zsamp_;
 }
 
@@ -211,6 +334,7 @@ Seis::Blocks::Writer::~Writer()
     delete strm_;
     deepErase( zevalpositions_ );
     delete interp_;
+    delete stepfinder_;
 }
 
 
@@ -265,7 +389,7 @@ void Seis::Blocks::Writer::setCubeName( const char* nm )
 
 void Seis::Blocks::Writer::setZDomain( const ZDomain::Def& def )
 {
-    zdomaindef_ = def;
+    hgeom_.setZDomain( def );
 }
 
 
@@ -334,6 +458,7 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 {
     uiRetVal uirv;
     Threads::Locker locker( accesslock_ );
+
     if ( needreset_ )
     {
 	needreset_ = false;
@@ -356,8 +481,26 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
 	zgeom_.step = trc.stepPos();
 	nrcomps_ = trc.nrComponents();
 	resetZ();
+
+	delete stepfinder_;
+	stepfinder_ = new StepFinder( *const_cast<Writer*>(this) );
     }
 
+    if ( stepfinder_ )
+    {
+	stepfinder_->addTrace( trc, uirv );
+	if ( stepfinder_->isFinished() )
+	    { delete stepfinder_; stepfinder_ = 0; }
+	return uirv;
+    }
+
+    doAdd( trc, uirv );
+    return uirv;
+}
+
+
+void Seis::Blocks::Writer::doAdd( const SeisTrc& trc, uiRetVal& uirv )
+{
     const BinID bid = trc.info().binID();
     const HGlobIdx globidx( Block::globIdx4Inl(hgeom_,bid.inl(),dims_.inl()),
 			    Block::globIdx4Crl(hgeom_,bid.crl(),dims_.crl()) );
@@ -367,10 +510,10 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
     {
 	uirv.set( tr("Memory needed for writing process unavailable.") );
 	setEmpty();
-	return uirv;
+	return;
     }
     else if ( isCompleted(*column) )
-	return uirv; // this check is absolutely necessary to for MT writing
+	return; // this check is absolutely necessary to for MT writing
 
     const HLocIdx locidx( Block::locIdx4Inl(hgeom_,bid.inl(),dims_.inl()),
 			  Block::locIdx4Crl(hgeom_,bid.crl(),dims_.crl()) );
@@ -394,12 +537,7 @@ uiRetVal Seis::Blocks::Writer::add( const SeisTrc& trc )
     }
 
     if ( isCompleted(*column) )
-    {
-	locker.unlockNow();
 	writeColumn( *column, uirv );
-    }
-
-    return uirv;
 }
 
 
@@ -666,8 +804,8 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
     iop.set( sKey::InlRange(), inlrg );
     iop.set( sKey::CrlRange(), crlrg );
     iop.set( sKey::ZRange(), zgeom_ );
-    zdomaindef_.set( iop );
-    if ( zdomaindef_.isDepth() && SI().zInFeet() )
+    hgeom_.zDomain().set( iop );
+    if ( hgeom_.zDomain().isDepth() && SI().zInFeet() )
 	iop.setYN( sKeyDepthInFeet(), true );
 
     FileMultiString fms;
@@ -805,6 +943,13 @@ WriterFinisher( Writer& wrr )
     , wrr_(wrr)
     , colidx_(0)
 {
+    if ( wrr_.stepfinder_ )
+    {
+	wrr_.stepfinder_->finish( uirv_ );
+	if ( uirv_.isError() )
+	    return;
+    }
+
     Pos::IdxPairDataSet::SPos spos;
     while ( wrr_.columns_.next(spos) )
     {
@@ -840,6 +985,9 @@ virtual uiString message() const
 
 virtual int nextStep()
 {
+    if ( uirv_.isError() )
+	return ErrorOccurred();
+
     if ( !towrite_.validIdx(colidx_) )
 	return wrapUp();
 

@@ -29,9 +29,9 @@ Seis::Blocks::IOClass::IOClass()
     , version_(cVersion)
     , scaler_(0)
     , fprep_(OD::F32)
+    , hgeom_(*new HGeom("",ZDomain::SI()))
     , columns_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
     , needreset_(true)
-    , zdomaindef_(ZDomain::SI())
     , datatype_(UnknownData)
 {
 }
@@ -43,6 +43,13 @@ Seis::Blocks::IOClass::~IOClass()
     delete scaler_;
     clearColumns();
     delete &columns_;
+    delete &hgeom_;
+}
+
+
+const ZDomain::Def& Seis::Blocks::IOClass::zDomain() const
+{
+    return hgeom_.zDomain();
 }
 
 
