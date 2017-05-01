@@ -596,6 +596,12 @@ float SeisDataPack::nrKBytes() const
 void SeisDataPack::dumpInfo( IOPar& iop ) const
 {
     DataPack::dumpInfo( iop );
+
+    const DataCharacteristics dc( desc_ );
+    const DataCharacteristics::UserType tp = dc.userType();
+    const BufferString fmtstr = DataCharacteristics::getUserTypeString( tp );
+    iop.set( "Loaded as", fmtstr.buf()+4 );
+
     if ( scaler_ )
     {
 	BufferString info;

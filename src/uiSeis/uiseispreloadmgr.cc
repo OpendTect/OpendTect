@@ -80,21 +80,21 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 
     if ( has3d )
     {
-	mAddBut(tr("Add Cube"),cubeLoadPush,"seismiccube")
+	mAddBut(tr("Load Cube"),cubeLoadPush,"seismiccube")
     }
     if ( has2d )
     {
 	if ( has3d )
-	    mAddBut(tr("Add 2D DataSet"),linesLoadPush,"seismicline2d")
+	    mAddBut(tr("Load 2D DataSet"),linesLoadPush,"seismicline2d")
 	else
-	    mAddBut(tr("Add DataSet"),linesLoadPush,"seismicline2d")
+	    mAddBut(tr("Load DataSet"),linesLoadPush,"seismicline2d")
     }
     mAddBut(tr("Unload Checked"),unloadPush,"unload");
 
-    uiToolButton* savetb = new uiToolButton( topgrp, "save",
+    uiToolButton* savetb = new uiToolButton( listfld_, "save",
 	    tr("Save pre-loads"), mCB(this,uiSeisPreLoadMgr,savePush) );
-    savetb->attach( rightAlignedBelow, listfld_ );
-    uiToolButton* opentb = new uiToolButton( topgrp, "open",
+    savetb->attach( rightAlignedAbove, listfld_->box() );
+    uiToolButton* opentb = new uiToolButton( listfld_, "open",
 	    tr("Retrieve pre-loads"), mCB(this,uiSeisPreLoadMgr,openPush) );
     opentb->attach( leftOf, savetb );
 
@@ -134,7 +134,10 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     const int selidx = listfld_->currentItem();
     const ObjectSet<PreLoadDataEntry>& entries = PLDM().getEntries();
     if ( !entries.validIdx(selidx) )
-    { infofld_->setText(""); return; }
+    {
+	infofld_->setText( "No pre-loaded seismics" );
+	return;
+    }
 
     const MultiID mid = entries[selidx]->mid_;
     SeisIOObjInfo ioinf( mid );
@@ -434,6 +437,8 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 }
 
 
+#define mDefaultNrTrcs 1000
+
 // uiSeisPreLoadSel
 uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 				    const MultiID& input )
@@ -489,13 +494,13 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 
     torgfld_ = new uiGenInput( leftgrp, tr("Scale To"),
 	FloatInpIntervalSpec().setName("To start",0).setName("To stop",1) );
-    torgfld_->setReadOnly( true );
     torgfld_->attach( alignedBelow, fromrgfld_ );
 
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
     rightgrp->attach( rightOf, leftgrp );
-    nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"), IntInpSpec(1000) );
-    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Rescan"), true);
+    nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"),
+				 IntInpSpec(mDefaultNrTrcs) );
+    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Rescan"), true );
     scanbut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
     scanbut->attach( rightTo, nrtrcsfld_ );
     histfld_ = new uiMapperRangeEditor( rightgrp, -1, false );
