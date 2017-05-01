@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "scaler.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
@@ -21,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hiddenparam.h"
 
 HiddenParam<VolProc::VolumeReader,TypeSet<int>*> volproccompmgr_(0);
+HiddenParam<VolProc::VolumeReader,ObjectSet<Scaler>*> volprocscalmgr_(0);
 
 namespace VolProc
 {
@@ -30,10 +32,12 @@ class VolumeReaderExecutor : public SequentialTask
 public:
 
 VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
+		      const ObjectSet<Scaler>& compscalers,
 		      RegularSeisDataPack& output )
     : SequentialTask()
     , ioobj_(ioobj.clone())
     , components_(components)
+    , compscalers_(compscalers)
     , output_(&output)
 {}
 
@@ -62,6 +66,14 @@ int nextStep()
     if ( !rdr.setDataPack(*output_) )
 	mErrRet()
 
+    for ( int idx=0; idx<compscalers_.size(); idx++ )
+    {
+	if ( !compscalers_[idx] )
+	    continue;
+
+	rdr.setComponentScaler( *compscalers_[idx], idx );
+    }
+
     rdr.setProgressMeter( progressmeter_ );
     if ( !rdr.execute() )
 	mErrRet()
@@ -73,6 +85,7 @@ private:
 
 const IOObj*	ioobj_;
 const TypeSet<int>& components_;
+const ObjectSet<Scaler>& compscalers_;
 RegularSeisDataPack* output_;
 uiString	msg_;
 
@@ -87,6 +100,13 @@ VolumeReader::~VolumeReader()
     {
 	delete volproccompmgr_.getParam( this );
 	volproccompmgr_.removeParam( this );
+    }
+
+    if ( volprocscalmgr_.hasParam( this ) )
+    {
+	deepErase( *volprocscalmgr_.getParam(this) );
+	delete volprocscalmgr_.getParam(this);
+	volprocscalmgr_.removeParam( this );
     }
 }
 
@@ -106,6 +126,9 @@ bool VolumeReader::prepareWork( const IOObj& ioobj )
 
     if ( !volproccompmgr_.hasParam(this) )
 	volproccompmgr_.setParam( this, new TypeSet<int> );
+
+    if ( !volprocscalmgr_.hasParam(this) )
+	volprocscalmgr_.setParam( this, new ObjectSet<Scaler> );
 
     TypeSet<int>& components = *volproccompmgr_.getParam(this);
 
@@ -162,8 +185,12 @@ Task* VolumeReader::createTask()
     const TypeSet<int>& components = volproccompmgr_.hasParam( this )
 				   ? *volproccompmgr_.getParam( this )
 				   : emptycomponents;
+    ObjectSet<Scaler> emptyscalerset;
+    const ObjectSet<Scaler>& compscalers = volprocscalmgr_.hasParam(this)
+					 ? *volprocscalmgr_.getParam(this)
+					 : emptyscalerset;
 
-    return new VolumeReaderExecutor( *ioobj, components, *output );
+    return new VolumeReaderExecutor( *ioobj, components, compscalers, *output );
 }
 
 
@@ -186,6 +213,21 @@ void VolumeReader::fillPar( IOPar& par ) const
 
     par.set( sKeyVolumeID(), mid_ );
     par.set( sKey::Component(), components );
+
+    if ( !volprocscalmgr_.hasParam(this) ||
+	 !volprocscalmgr_.getParam(this) )
+	return;
+
+    const ObjectSet<Scaler>& compscalers = *volprocscalmgr_.getParam( this );
+    for ( int idx=0; idx<compscalers.size(); idx++ )
+    {
+	if ( !compscalers[idx] || compscalers[idx]->isEmpty() )
+	    continue;
+
+	BufferString scalerstr;
+	compscalers[idx]->put( scalerstr.getCStr() );
+	par.set( IOPar::compKey(sKey::Scale(),idx), scalerstr );
+    }
 }
 
 
@@ -198,6 +240,34 @@ bool VolumeReader::usePar( const IOPar& par )
 	volproccompmgr_.setParam( this, new TypeSet<int> );
 
     par.get( sKey::Component(), *volproccompmgr_.getParam( this ) );
+    if ( !volprocscalmgr_.hasParam(this) )
+	volprocscalmgr_.setParam( this, new ObjectSet<Scaler> );
+
+    ObjectSet<Scaler>& compscalers = *volprocscalmgr_.getParam( this );
+    compscalers.allowNull( true );
+    PtrMan<IOPar> scalerpar = par.subselect( sKey::Scale() );
+    if ( scalerpar.ptr() )
+    {
+	for ( int idx=0; idx<scalerpar->size(); idx++ )
+	{
+	    const BufferString compidxstr( scalerpar->getKey(idx) );
+	    const int compidx = compidxstr.toInt();
+	    BufferString scalerstr;
+	    if ( !scalerpar->get(compidxstr,scalerstr) || scalerstr.isEmpty() )
+		continue;
+
+	    Scaler* scaler = Scaler::get( scalerstr );
+	    if ( !scaler ) continue;
+
+	    for ( int idy=0; idy<=compidx; idy++ )
+	    {
+		if ( !compscalers.validIdx(idy) )
+		    compscalers += 0;
+	    }
+
+	    delete compscalers.replace( compidx, scaler );
+	}
+    }
 
     MultiID mid;
     return par.get( sKeyVolumeID(), mid ) ? setVolumeID( mid ) : true;
