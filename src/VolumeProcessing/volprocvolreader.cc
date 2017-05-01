@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "scaler.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
@@ -27,10 +28,12 @@ class VolumeReaderExecutor : public SequentialTask
 public:
 
 VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
+		      const ObjectSet<Scaler>& compscalers,
 		      RegularSeisDataPack& output )
     : SequentialTask()
     , ioobj_(ioobj.clone())
     , components_(components)
+    , compscalers_(compscalers)
     , output_(&output)
 {}
 
@@ -59,6 +62,14 @@ int nextStep()
     if ( !rdr.setDataPack(*output_) )
 	mErrRet()
 
+    for ( int idx=0; idx<compscalers_.size(); idx++ )
+    {
+	if ( !compscalers_[idx] )
+	    continue;
+
+	rdr.setComponentScaler( *compscalers_[idx], idx );
+    }
+
     rdr.setProgressMeter( progressmeter_ );
     if ( !rdr.execute() )
 	mErrRet()
@@ -70,6 +81,7 @@ private:
 
 const IOObj*	ioobj_;
 const TypeSet<int>& components_;
+const ObjectSet<Scaler>& compscalers_;
 RegularSeisDataPack* output_;
 uiString	msg_;
 
@@ -80,6 +92,7 @@ uiString	msg_;
 VolumeReader::~VolumeReader()
 {
     releaseData();
+    deepErase( compscalers_ );
 }
 
 
@@ -145,7 +158,8 @@ Task* VolumeReader::createTask()
 	return 0;
     }
 
-    return new VolumeReaderExecutor( *ioobj, components_, *output );
+    return new VolumeReaderExecutor( *ioobj, components_, compscalers_,
+				     *output );
 }
 
 
@@ -160,8 +174,18 @@ bool VolumeReader::setVolumeID( const MultiID& mid )
 void VolumeReader::fillPar( IOPar& par ) const
 {
     Step::fillPar( par );
+
     par.set( sKeyVolumeID(), mid_ );
     par.set( sKey::Component(), components_ );
+    for ( int idx=0; idx<compscalers_.size(); idx++ )
+    {
+	if ( !compscalers_[idx] || compscalers_[idx]->isEmpty() )
+	    continue;
+
+	BufferString scalerstr;
+	compscalers_[idx]->put( scalerstr.getCStr() );
+	par.set( IOPar::compKey(sKey::Scale(),idx), scalerstr );
+    }
 }
 
 
@@ -171,6 +195,30 @@ bool VolumeReader::usePar( const IOPar& par )
 	return false;
 
     par.get( sKey::Component(), components_ );
+    compscalers_.allowNull( true );
+    PtrMan<IOPar> scalerpar = par.subselect( sKey::Scale() );
+    if ( scalerpar.ptr() )
+    {
+	for ( int idx=0; idx<scalerpar->size(); idx++ )
+	{
+	    const BufferString compidxstr( scalerpar->getKey(idx) );
+	    const int compidx = compidxstr.toInt();
+	    BufferString scalerstr;
+	    if ( !scalerpar->get(compidxstr,scalerstr) || scalerstr.isEmpty() )
+		continue;
+
+	    Scaler* scaler = Scaler::get( scalerstr );
+	    if ( !scaler ) continue;
+
+	    for ( int idy=0; idy<=compidx; idy++ )
+	    {
+		if ( !compscalers_.validIdx(idy) )
+		    compscalers_ += 0;
+	    }
+
+	    delete compscalers_.replace( compidx, scaler );
+	}
+    }
 
     MultiID mid;
     return par.get( sKeyVolumeID(), mid ) ? setVolumeID( mid ) : true;

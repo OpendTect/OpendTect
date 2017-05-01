@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class IOObj;
+class Scaler;
 class SeisTrcReader;
 class SeisTrcTranslator;
 
@@ -64,6 +65,7 @@ protected:
     ObjectSet<SeisTrcReader>		readers_;
     ObjectSet<SeisTrcTranslator>	translators_;
     TypeSet<int>			components_;
+    ObjectSet<Scaler>			compscalers_;
 
 };
 
