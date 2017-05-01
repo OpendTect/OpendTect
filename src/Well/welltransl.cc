@@ -23,7 +23,8 @@ mDefSimpleTranslatorSelector(Well);
 uiString WellTranslatorGroup::sTypeName( int num )
 { return uiStrings::sWell( num ); }
 
-mDefSimpleTranslatorioContext(Well,WllInf)
+mDefSimpleTranslatorioContextWithExtra(Well,WllInf,
+	ctxt->destpolicy_ = IOObjContext::AllowShared)
 
 
 #define mImplStart(fn) \

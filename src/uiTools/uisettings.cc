@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "settingsaccess.h"
 #include "survinfo.h"
 
+#include "uichecklist.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -271,7 +272,7 @@ const uiString uiSettingsGroup::errMsg() const
 { return errmsg_; }
 
 
-#define mUpdateSettings( type, setfunc ) \
+#define mDefUpdateSettings( type, setfunc ) \
 void uiSettingsGroup::updateSettings( type oldval, type newval, \
 				      const char* key ) \
 { \
@@ -282,10 +283,10 @@ void uiSettingsGroup::updateSettings( type oldval, type newval, \
     } \
 }
 
-mUpdateSettings( bool, setYN )
-mUpdateSettings( int, set )
-mUpdateSettings( float, set )
-mUpdateSettings( const OD::String&, set )
+mDefUpdateSettings( bool, setYN )
+mDefUpdateSettings( int, set )
+mDefUpdateSettings( float, set )
+mDefUpdateSettings( const OD::String&, set )
 
 
 
@@ -297,9 +298,16 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     , showcrlprogress_(true)
     , showrdlprogress_(true)
     , enabvirtualkeyboard_(false)
+    , enabsharedstor_(false)
 {
+    setts_.getYN( SettingsAccess::sKeyEnabSharedStor(), enabsharedstor_ );
+    enablesharedstorfld_ = new uiGenInput( this,
+				tr("Enable shared survey data storage"),
+				BoolInpSpec(enabsharedstor_) );
+
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
-				 IntInpSpec(iconsz_,10,64) );
+				 IntInpSpec(iconsz_,12,128) );
+    iconszfld_->attach( alignedBelow, enablesharedstorfld_ );
 
     setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
 		  enabvirtualkeyboard_ );
@@ -308,25 +316,19 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 		BoolInpSpec(enabvirtualkeyboard_) );
     virtualkeyboardfld_->attach( alignedBelow, iconszfld_ );
 
-    uiLabel* lbl = new uiLabel( this,
-	tr("Show progress when loading stored data on:") );
-    lbl->attach( leftAlignedBelow, virtualkeyboardfld_ );
-
     setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
-    showinlprogressfld_ = new uiGenInput( this, uiStrings::sInline(mPlural),
-					  BoolInpSpec(showinlprogress_) );
-    showinlprogressfld_->attach( alignedBelow, virtualkeyboardfld_ );
-    showinlprogressfld_->attach( ensureBelow, lbl );
-
     setts_.getYN( SettingsAccess::sKeyShowCrlProgress(), showcrlprogress_ );
-    showcrlprogressfld_ = new uiGenInput( this, uiStrings::sCrossline(mPlural),
-					  BoolInpSpec(showcrlprogress_) );
-    showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
-
     setts_.getYN( SettingsAccess::sKeyShowRdlProgress(), showrdlprogress_ );
-    showrdlprogressfld_ = new uiGenInput( this, uiStrings::sRandomLine(mPlural),
-					  BoolInpSpec(showrdlprogress_) );
-    showrdlprogressfld_->attach( alignedBelow, showcrlprogressfld_ );
+    showprogressfld_ = new uiCheckList( this );
+    showprogressfld_->setLabel( tr("Show progress when loading for") );
+    showprogressfld_->addItem( uiStrings::sInline(mPlural), "cube_inl" );
+    showprogressfld_->addItem( uiStrings::sCrossline(mPlural), "cube_crl" );
+    showprogressfld_->addItem( uiStrings::sRandomLine(mPlural),
+			       "cube_randomline" );
+    showprogressfld_->setChecked( 0, showinlprogress_ );
+    showprogressfld_->setChecked( 1, showcrlprogress_ );
+    showprogressfld_->setChecked( 2, showrdlprogress_ );
+    showprogressfld_->attach( alignedBelow, virtualkeyboardfld_ );
 }
 
 
@@ -351,11 +353,13 @@ bool uiGeneralSettingsGroup::acceptOK()
 	theiconsz = newiconsz;
     }
 
-    updateSettings( showinlprogress_, showinlprogressfld_->getBoolValue(),
+    updateSettings( enabsharedstor_, enablesharedstorfld_->getBoolValue(0),
+		    SettingsAccess::sKeyEnabSharedStor() );
+    updateSettings( showinlprogress_, showprogressfld_->isChecked(0),
 		    SettingsAccess::sKeyShowInlProgress() );
-    updateSettings( showcrlprogress_, showcrlprogressfld_->getBoolValue(),
+    updateSettings( showcrlprogress_, showprogressfld_->isChecked(1),
 		    SettingsAccess::sKeyShowCrlProgress() );
-    updateSettings( showrdlprogress_, showrdlprogressfld_->getBoolValue(),
+    updateSettings( showrdlprogress_, showprogressfld_->isChecked(2),
 		    SettingsAccess::sKeyShowRdlProgress() );
     updateSettings( enabvirtualkeyboard_, virtualkeyboardfld_->getBoolValue(),
 		    uiVirtualKeyboard::sKeyEnabVirtualKeyboard() );

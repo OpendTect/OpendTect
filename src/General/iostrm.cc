@@ -169,7 +169,7 @@ Conn* IOStream::getConn( bool forread ) const
     if ( isBad() )
 	const_cast<IOStream*>(this)->genFileName();
 
-    StreamConn*	ret = new StreamConn( fullUserExpr(forread), forread );
+    StreamConn*	ret = new StreamConn( mainFileName(), forread );
     if ( ret )
 	ret->setLinkedTo( key() );
 

@@ -217,9 +217,9 @@ IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
     : NamedObject(prefname)
     , trgroup_(trg)
     , stdseltype_(None)
+    , destpolicy_(SurveyOnly)
+    , forread_(true)
 {
-    multi_ = false;
-    forread_ = true;
 }
 
 
@@ -236,7 +236,7 @@ IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
 {
     if ( this != &oth )
     {
-	mCpMemb(stdseltype_); mCpMemb(trgroup_); mCpMemb(multi_);
+	mCpMemb(stdseltype_); mCpMemb(trgroup_); mCpMemb(destpolicy_);
 	mCpMemb(forread_); mCpMemb(dirid_); mCpMemb(deftransl_);
 	mCpMemb(toselect_);
     }
@@ -364,25 +364,41 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
     if ( dirnm )
 	iostrm->setDirName( dirnm );
     iostrm->setExt( transl.defExtension() );
+    iostrm->updateCreationPars();
 
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( ky.dirID() );
-    if ( dbdir )
+    if ( !dbdir )
+	return iostrm;
+
+    dbdir->prepObj( *iostrm );
+    const BufferString uniqnm( iostrm->name() );
+    int ifnm = 0;
+    while ( true )
     {
+	iostrm->genFileName();
+	if ( !File::exists(iostrm->mainFileName()) )
+	    break;
+	ifnm++;
+	iostrm->setName( BufferString(uniqnm,ifnm) );
 	dbdir->prepObj( *iostrm );
-	const BufferString uniqnm( iostrm->name() );
-	int ifnm = 0;
-	while ( true )
-	{
-	    iostrm->genFileName();
-	    if ( !File::exists(iostrm->mainFileName()) )
-		break;
-	    ifnm++;
-	    iostrm->setName( BufferString(uniqnm,ifnm) );
-	    dbdir->prepObj( *iostrm );
-	}
     }
 
-    iostrm->updateCreationPars();
+    if ( destpolicy_ == PreferShared )
+    {
+	const BufferString subdirnm( File::Path(dbdir->dirName()).fileName() );
+	File::Path fpsh( GetBaseDataDir(), subdirnm );
+	const BufferString shdirnm( fpsh.fullPath() );
+	const bool exists = File::exists( shdirnm );
+	if ( exists && !File::isDirectory(shdirnm) )
+	    return iostrm;
+	else if ( !exists && !File::createDir(shdirnm) )
+	    return iostrm;
+
+	const File::Path fpold( iostrm->mainFileName() );
+	File::Path fpnew( "${DTECT_DATA}", subdirnm, fpold.fileName() );
+	iostrm->fileSpec().setFileName( fpnew.fullPath() );
+    }
+
     return iostrm;
 }
 

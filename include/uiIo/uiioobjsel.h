@@ -17,6 +17,7 @@ ________________________________________________________________________
 class IOObj;
 class CtxtIOObj;
 class IOObjContext;
+class uiCheckBox;
 class uiIOObjRetDlg;
 class uiIOObjInserter;
 class uiIOObjSelWriteTranslator;
@@ -96,6 +97,7 @@ public:
 protected:
 
     uiIOObjSelWriteTranslator* wrtrselfld_;
+    uiCheckBox*		usesharedbut_;
 
     CtxtIOObj&		inctio_;
     CtxtIOObj&		workctio_;

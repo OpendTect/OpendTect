@@ -237,10 +237,12 @@ void uiIOObjSelWriteTranslator::selChg( CallBacker* )
 }
 
 
-IOObj* uiIOObjSelWriteTranslator::mkEntry( const char* nm ) const
+IOObj* uiIOObjSelWriteTranslator::mkEntry( const char* nm, bool inshared ) const
 {
     CtxtIOObj ctio( ctxt_ );
     ctio.ioobj_ = 0; ctio.setName( nm );
+    if ( inshared )
+	ctio.ctxt_.destpolicy_ = IOObjContext::PreferShared;
     ctio.fillObj( false, translIdx() );
     if ( ctio.ioobj_ )
 	updatePars( *ctio.ioobj_ );

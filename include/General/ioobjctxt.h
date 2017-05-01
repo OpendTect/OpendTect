@@ -50,10 +50,24 @@ public:
 /*!\brief Holds the context for selecting and/or creating IOObjs.
 
   Usually, this object is obtained by calling the ioContext() method of a
-  certain TranslatorGroup.
+  certain TranslatorGroup. A Translator Group corresponds to an actual data
+  type ('3D Horizon', 'Pre-Stack 3D seismics', ...).
 
-  Note, that if the StdSelType is set to None, you must provide the groupnr_ or
-  we'll be blobbing stuff in the root of the survey.
+  * stdseltype_: corresponds to the subdirectory in the data store.
+	None for 'custom' data directories.
+  * trgroup_:  needed because one subdirectory in the data store usually
+	contains a number of data types.
+  * dirid_: no matter what stdseltype_ says, this will be the DBDir ID used
+	for finding and creating IOObj's.
+  * forread_: in many cases, it necessary to know the purpose: select
+	something existing or make a new object
+  * toselect_: constraints on the keys in the IOObjs pars()
+  * destpolicy_: Some objects are 'publishable' outside the survey. To make
+	this happen for 3D seismic cubes, a new seismic format was created that
+	stores the full relevant part of the survey setup in the .info file.
+  * deftransl_: a translator is what you could call a 'data format handler'. If
+	filled, will overrule the 'normal' default translator.
+
 */
 
 mExpClass(General) IOObjContext : public NamedObject
@@ -66,6 +80,8 @@ public:
     enum StdSelType	{ Seis=0, Surf, Loc, Feat, WllInf, NLA, Misc, Attr, Mdl,
 			  Geom, None };
 			mDeclareEnumUtils(StdSelType);
+    enum DestPolicy	{ SurveyOnly, AllowShared, PreferShared };
+			//!< keeps 'allow shared' and 'want shared' in one flag
 
 			IOObjContext(const TranslatorGroup*,
 				     const char* prefname=0);
@@ -76,13 +92,13 @@ public:
     //! intrinsics
     StdSelType		stdseltype_;
     const TranslatorGroup* trgroup_;	//!< Mandatory, must never be 0
-    bool		multi_;		//!< If true, multi allowed
 
     //! this selection only
     bool		forread_;
     DBDirID		dirid_;		//!< If set, overrules the 'standard'
     BufferString	deftransl_;	//!< Translator to use for new entry
     IOObjSelConstraints toselect_;
+    DestPolicy		destpolicy_;
 
     bool		validIOObj(const IOObj&) const;
 

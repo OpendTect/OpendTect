@@ -274,9 +274,10 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
 
 void uiIOObjSel::init()
 {
-    workctio_.ctxt_.fillTrGroup();
-    wrtrselfld_ = 0;
-    if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
+    const IOObjContext& ctxt = workctio_.ctxt_;
+    ctxt.fillTrGroup();
+    wrtrselfld_ = 0; usesharedbut_ = 0;
+    if ( ctxt.forread_ && setup_.withinserters_ )
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
 					    insbuts_ );
@@ -284,10 +285,26 @@ void uiIOObjSel::init()
 	    inserters_[idx]->objectInserted.notify(
 					mCB(this,uiIOObjSel,objInserted) );
     }
-    else if ( setup_.withwriteopts_ )
+    else if ( !ctxt.forread_ )
     {
-	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_, false );
-	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
+	uiObject* curendobj = uiIOSelect::endObj( false );
+	if ( setup_.withwriteopts_ )
+	{
+	    wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_,
+							 false );
+	    wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
+	    curendobj = wrtrselfld_->attachObj();
+	}
+	if ( ctxt.destpolicy_ != IOObjContext::SurveyOnly )
+	{
+	    usesharedbut_ = new uiCheckBox( this, uiString::emptyString() );
+	    usesharedbut_->setIcon( "shared_data" );
+	    usesharedbut_->setChecked(
+			    ctxt.destpolicy_ == IOObjContext::PreferShared );
+	    usesharedbut_->setToolTip(
+	      tr("Put the output data in the common (shared) data directory") );
+	    usesharedbut_->attach( rightOf, curendobj );
+	}
     }
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
     mAttachCB( DBM().afterSurveyChange, uiIOObjSel::survChangedCB );
@@ -353,8 +370,13 @@ void uiIOObjSel::initRead()
 
 uiObject* uiIOObjSel::endObj( bool left )
 {
-    if ( wrtrselfld_ && !left && !wrtrselfld_->isEmpty() )
-	return wrtrselfld_->attachObj();
+    if ( !left )
+    {
+	if ( usesharedbut_ )
+	    return usesharedbut_;
+	else if ( wrtrselfld_ && !wrtrselfld_->isEmpty() )
+	    return wrtrselfld_->attachObj();
+    }
     return uiIOSelect::endObj( left );
 }
 
@@ -699,9 +721,12 @@ IOObj* uiIOObjSel::createEntry( const char* nm )
     if ( !nm || !*nm )
 	return 0;
 
+    const bool mkinshared = usesharedbut_ && usesharedbut_->isChecked();
     if ( wrtrselfld_ )
-	return wrtrselfld_->mkEntry( nm );
+	return wrtrselfld_->mkEntry( nm, mkinshared );
 
+    workctio_.ctxt_.destpolicy_ = mkinshared
+	    ? IOObjContext::PreferShared : IOObjContext::AllowShared;
     workctio_.setName( nm );
     workctio_.fillObj( false );
     return workctio_.ioobj_ ? workctio_.ioobj_->clone() : 0;

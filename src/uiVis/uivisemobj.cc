@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "uicolseqsel.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
-#include "uilabel.h"
 #include "uimenu.h"
 #include "uimpe.h"
 #include "uimsg.h"
@@ -557,12 +556,9 @@ uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
     colseqnm_ = ColTab::defSeqName();
     setts.get( sKeyHorizonColSeqName, colseqnm_ );
     colseqfld_ = new uiColSeqSel( this, OD::Horizontal,
-				  uiStrings::sColorTable() );
+				  tr("Default Colortable") );
     colseqfld_->setSeqName( colseqnm_ );
     colseqfld_->attach( alignedBelow, resolutionfld_ );
-
-    uiLabel* lbl = new uiLabel( this, tr("Default Colortable") );
-    lbl->attach( leftOf, colseqfld_ );
 }
 
 

@@ -12,6 +12,9 @@ ________________________________________________________________________
 #include "envvars.h"
 
 
+const char* SettingsAccess::sKeyEnabSharedStor()
+{ return "Use DATA for sharing"; }
+
 const char* SettingsAccess::sKeyIcons()
 { return "dTect.Icons"; }
 

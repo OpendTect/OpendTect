@@ -86,7 +86,7 @@ public:
     void		setTranslator(const Translator*);
     const Translator*	selectedTranslator() const;
 
-    IOObj*		mkEntry(const char*) const;
+    IOObj*		mkEntry(const char*,bool in_shared=false) const;
     void		use(const IOObj&);
     void		updatePars(IOObj&) const;
 

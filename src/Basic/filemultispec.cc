@@ -120,6 +120,9 @@ const char* File::MultiSpec::fileName( int fidx ) const
 const char* File::MultiSpec::absFileName( int fidx ) const
 {
     const char* fnm = fileName( fidx );
+    if ( FixedString(fnm).startsWith( "${" ) )
+	return fnm;
+
     File::Path fp( fnm );
     if ( fp.isAbsolute() )
 	return fnm;

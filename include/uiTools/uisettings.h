@@ -18,9 +18,10 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class Settings;
+class uiCheckList;
 class uiComboBox;
-class uiLabeledComboBox;
 class uiGenInput;
+class uiLabeledComboBox;
 class uiTable;
 
 
@@ -128,16 +129,16 @@ public:
 protected:
 
     uiGenInput*		iconszfld_;
-    uiGenInput*		showinlprogressfld_;
-    uiGenInput*		showcrlprogressfld_;
-    uiGenInput*		showrdlprogressfld_;
     uiGenInput*		virtualkeyboardfld_;
+    uiGenInput*		enablesharedstorfld_;
+    uiCheckList*	showprogressfld_;
 
     int			iconsz_;
     bool		showinlprogress_;
     bool		showcrlprogress_;
     bool		showrdlprogress_;
     bool		enabvirtualkeyboard_;
+    bool		enabsharedstor_;
 };
 
 

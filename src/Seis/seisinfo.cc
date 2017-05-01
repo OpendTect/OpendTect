@@ -584,10 +584,13 @@ IOObjContext* Seis::getIOObjContext( Seis::GeomType gt, bool forread )
 	 (Seis::is2D(gt) ? mIOObjContext(SeisPS2D) : mIOObjContext(SeisPS3D))
        : (Seis::is2D(gt) ? mIOObjContext(SeisTrc2D) : mIOObjContext(SeisTrc)) );
     ret->forread_ = forread;
-    if ( gt == Seis::Line )
-	ret->deftransl_ = CBVSSeisTrc2DTranslator::translKey();
-    else if ( gt == Seis::Vol )
+    if ( gt == Seis::Vol )
+    {
 	ret->deftransl_ = BlocksSeisTrcTranslator::translKey();
+	ret->destpolicy_ = IOObjContext::AllowShared;
+    }
+    else if ( gt == Seis::Line )
+	ret->deftransl_ = CBVSSeisTrc2DTranslator::translKey();
     else if ( gt == Seis::VolPS )
 	ret->deftransl_ = CBVSSeisPS3DTranslator::translKey();
     else
