@@ -6,7 +6,8 @@
 
 
 #include "odplugin.h"
-#include "crsmod.h"
+#include "crsproj.h"
+#include "oddirs.h"
 
 mDefODPluginEarlyLoad(CRS)
 mDefODPluginInfo(CRS)
@@ -23,6 +24,10 @@ mDefODPluginInfo(CRS)
 
 mDefODInitPlugin(CRS)
 {
+    Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( "EPSG",
+	    			toUiString("Standard EPSG Projectons") );
+    BufferString epsgfnm = mGetSetupFileName( "epsg" );
+    repos->readFromFile( epsgfnm );
     return 0;
 }
 

@@ -12,11 +12,13 @@ if ( BUILD_CRS )
 	message( FATAL_ERROR "PROJ4_DIR is not set or not valid" )
     endif()
 
-    list ( APPEND OD_MODULE_INCLUDESYSPATH ${PROJ4_DIR/include} )
+    list ( APPEND OD_MODULE_INCLUDESYSPATH ${PROJ4_DIR}/include )
+    list(APPEND OD_MODULE_EXTERNAL_LIBS ${PROJ4_DIR}/lib/libproj.so )
 
     set( OD_MODULE_DEPS Basic)
     set( OD_IS_PLUGIN yes)
     set( OD_MODULE_SOURCES 
+		crsproj.cc
 		crssystem.cc
 		crspi.cc )
 
