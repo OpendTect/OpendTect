@@ -50,7 +50,7 @@ static char* getNewDebugStr( char* strvar, const OD::String& newstr )
 
 #endif
 
-const uiString uiString::emptystring_( toUiString(sKey::EmptyString()) );
+const uiString uiString::emptystring_( toUiString("") );
 
 #ifndef OD_NO_QT
 static const QString emptyqstring;
@@ -142,7 +142,7 @@ void uiStringData::set( const char* orig )
     changecount_ = mForceUpdate;
     tolower_ = false;
 #ifndef OD_NO_QT
-    qstring_ = sKey::EmptyString().buf();
+    qstring_.clear();
 #endif
 }
 
@@ -398,7 +398,7 @@ const OD::String& uiString::getFullString( BufferString* res ) const
 
     Threads::Locker datalocker( datalock_ );
     if ( !data_ )
-	*res = sKey::EmptyString();
+	res->setEmpty();
     else
 	data_->getFullString( *res );
     return *res;

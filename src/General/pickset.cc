@@ -27,7 +27,8 @@ Pick::Set::Set( const char* nm, const char* cat )
     : SharedObject(nm)
     , curlocidnr_(0)
 {
-    setCategory( cat );
+    if ( cat )
+    	setCategory( cat );
     mTriggerInstanceCreatedNotifier();
 }
 
