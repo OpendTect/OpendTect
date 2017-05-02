@@ -95,7 +95,11 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
 
 #define mCheckTracker( typestr, typekey, legalclick, condition ) \
     if ( EM##typekey##TranslatorGroup::sGroupName()==typestr ) \
-	legalclick = legalclick || (condition);
+    { \
+	const bool condval = (condition); \
+	legalclick = legalclick || condval; \
+    }
+
 
 #define mCheckPlaneDataDisplay( typ, dataobj, plane, legalclick ) \
     mDynamicCastGet( PlaneDataDisplay*, plane, dataobj ); \
@@ -200,7 +204,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( OD::altKeyboardButton(eventinfo.buttonstate_) )
 	    return;
     }
-    
+
     info().setCtrlClicked( OD::ctrlKeyboardButton(eventinfo.buttonstate_) );
     info().setShiftClicked( OD::shiftKeyboardButton(eventinfo.buttonstate_) );
     info().setAltClicked( OD::altKeyboardButton(eventinfo.buttonstate_) );
@@ -322,7 +326,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 }
 
 
-void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp, 
+void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp,
     const Coord3 worldpickedpos )
 {
     DataPack::ID datapackid = DataPack::cNoID();
@@ -419,7 +423,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     }
 
     const Scene* scene = seis2dclosest->getScene();
-    const double zscale = scene ? 
+    const double zscale = scene ?
 	scene->getZScale()*scene->getFixedZStretch() : 0.0;
     const Coord3 onesteptranslation = SI().oneStepTranslation( Coord3(0,0,1) );
     const double onestepdist = Coord3( 1, 1, zscale ).dot( onesteptranslation );
