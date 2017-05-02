@@ -281,13 +281,14 @@ const OD::LineStyle& Well::lineStyle() const
 
 
 void Well::updateText( Text* tx, const uiString& chr, const Coord3* pos,
-		       const FontData& fnt)
+		       const FontData& fnt,bool sizedynamic)
 {
     tx->setText( chr );
     tx->setFontData( fnt, getPixelDensity() );
     tx->setPosition( *pos );
     tx->setJustification( Text::Left );
-    tx->setCharacterSizeMode( Text::Object );
+    if ( sizedynamic )
+	tx->setCharacterSizeMode( Text::Object );
     tx->setAxisAlignment( Text::OnScreen );
 }
 
@@ -313,11 +314,11 @@ void Well::setWellName( const TrackParams& tp )
 
     updateText( welltoptxt_->text(0),tp.isdispabove_ ?
 		tp.name_ : uiString::emptyString(), &crdtop,
-		tp.font_ );
+		tp.font_, tp.nmsizedynamic_ );
 
     updateText( wellbottxt_->text(0),tp.isdispbelow_ ?
 		tp.name_ : uiString::emptyString(), &crdbot,
-		tp.font_ );
+		tp.font_, tp.nmsizedynamic_ );
 
 }
 
@@ -396,7 +397,8 @@ void Well::addMarker( const MarkerParams& mp )
     Text* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
 
-    updateText( txt,toUiString( mp.name_ ),&markerpos,mp.font_ );
+    updateText( 
+	txt,toUiString( mp.name_ ),&markerpos,mp.font_, mp.nmsizedynamic_ );
 
     return;
 }

@@ -238,6 +238,7 @@ void WellDisplay::fillTrackParams( visBase::Well::TrackParams& tp )
     tp.isdispbelow_	= mGetTrackDispPar( dispBelow );
     tp.font_		= mGetTrackDispPar( font );
     tp.size_		= mGetTrackDispPar( size );
+    tp.nmsizedynamic_   = mGetTrackDispPar( nameSizeDynamic );
 }
 
 
@@ -250,6 +251,7 @@ void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
     mp.shapeint_	= mGetMarkersDispPar( shapeType );
     mp.cylinderheight_	= mGetMarkersDispPar( cylinderHeight );
     mp.namecol_		= mGetMarkersDispPar( nameColor );
+    mp.nmsizedynamic_   = mGetMarkersDispPar( nameSizeDynamic );
 }
 
 

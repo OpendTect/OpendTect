@@ -103,6 +103,7 @@ protected:
     uiCheckBox*		dispbelowfld_;
     uiLabeledSpinBox*	nmsizefld_;
     uiComboBox*		nmstylefld_;
+    uiCheckBox*		nmsizedynamicfld_;
 };
 
 
@@ -137,6 +138,7 @@ protected:
     uiColorInput*	nmcolfld_;
     uiLabeledSpinBox*	cylinderheightfld_;
     uiListBox*		displaymarkersfld_;
+    uiCheckBox*		nmsizedynamicfld_;
 };
 
 

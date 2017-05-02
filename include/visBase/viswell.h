@@ -74,6 +74,7 @@ public:
 	bool			isdispabove_;
 	bool			isdispbelow_;
 	FontData		font_;
+	bool			nmsizedynamic_;
     };
 
     void			setTrack(const TypeSet<Coord3>&);
@@ -93,7 +94,8 @@ public:
 	int			cylinderheight_;
 	FontData		font_;
 	Color			namecol_;
-	Coord3*		pos_;
+	Coord3*			pos_;
+	bool			nmsizedynamic_;
     };
 
     void			setMarkerSetParams(const MarkerParams&);
@@ -245,7 +247,8 @@ private:
 
     void			updateText(Text* tx, const uiString& chr,
 					   const Coord3* pos,
-					   const FontData& fnt);
+					   const FontData& fnt, 
+					   bool sizedynamic = true);
 
     void			getLinScale(const LogParams&,
 					    LinScaler&,

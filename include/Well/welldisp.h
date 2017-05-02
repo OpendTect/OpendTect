@@ -70,6 +70,8 @@ public:
 				dispabove_,cDispPosChg());
     mImplSimpleMonitoredGetSet(inline,dispBelow,setDispBelow,bool,
 				dispbelow_,cDispPosChg());
+    mImplSimpleMonitoredGetSet(inline,nameSizeDynamic,setNameSizeDynamic,
+				bool,nmsizedynamic_,cSizeChg());
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
@@ -81,6 +83,7 @@ protected:
 
     bool		dispabove_;
     bool		dispbelow_;
+    bool		nmsizedynamic_;
 
 };
 
@@ -101,6 +104,8 @@ public:
 				HeightType,cylinderheight_,cShapeChg());
     mImplSimpleMonitoredGetSet(inline,singleColor,setSingleColor,bool,
 				issinglecol_,cColorChg());
+    mImplSimpleMonitoredGetSet(inline,nameSizeDynamic,setNameSizeDynamic,bool,
+				nmsizedynamic_,cSizeChg());
     mImplSimpleMonitoredGetSet(inline,nameColor,setNameColor,Color,
 				nmcol_,cColorChg());
     mImplSimpleMonitoredGetSet(inline,sameNameCol,setSameNameCol,bool,
@@ -126,6 +131,7 @@ protected:
     Color		nmcol_;
     bool		samenmcol_;
     BufferStringSet	selmarkernms_;
+    bool		nmsizedynamic_;
 
 };
 
