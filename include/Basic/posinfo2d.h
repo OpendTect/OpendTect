@@ -30,7 +30,8 @@ mExpClass(Basic) Line2DPos
 {
 public:
 
-		Line2DPos( int n=0 ) : nr_(n)		{}
+		Line2DPos( int trcnr=0, int spnr=0 )
+			: nr_(trcnr), spnr_(spnr)		{}
     bool	operator ==( const Line2DPos& p ) const	{ return nr_ == p.nr_; }
     bool	operator !=( const Line2DPos& p ) const	{ return nr_ != p.nr_; }
     bool	operator >( const Line2DPos& p ) const	{ return nr_ > p.nr_; }
@@ -39,6 +40,7 @@ public:
     bool	operator <=( const Line2DPos& p ) const	{ return nr_<=p.nr_; }
 
     int		nr_;
+    int		spnr_;
     Coord	coord_;
 
 };
@@ -52,7 +54,9 @@ mExpClass(Basic) Line2DPos3D : public Line2DPos
 {
 public:
 		Line2DPos3D( int n=0, float z=mUdf(float) )
-		    : Line2DPos(n), z_(z)		{}
+		    : Line2DPos(n,0), z_(z)		{}
+		Line2DPos3D( int n=0, int spn=0, float z=mUdf(float) )
+		    : Line2DPos(n,spn), z_(z)		{}
 
     float	z_;
 };
@@ -97,13 +101,13 @@ public:
 			       float threshold_distance) const;
     bool		getPos(int trcnr,Line2DPos&) const;
 
-    void                dump(od_ostream&,bool pretty=true) const;
+    void		dump(od_ostream&,bool pretty=true) const;
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc,bool newlns=false) const;
 
     StepInterval<Pos::TraceID>	trcNrRange() const;
     Coord		getNormal(int trcnr) const;
-    void		compDistBetwTrcsStats(float& max, float& median) const;
+    void		compDistBetwTrcsStats(float& max,float& median) const;
     float		distBetween(int startnr,int stopnr) const;
 
     bool		coincidesWith(const Line2DData&) const;

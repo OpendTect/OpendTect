@@ -97,7 +97,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
     table_->attach( ensureBelow, titllbl );
     table_->setPrefWidth( 400 );
     BufferStringSet collbls;
-    collbls.add( "Trace Number" ); collbls.add( "X" ); collbls.add( "Y" );
+    collbls.add("Trace Number").add("ShotPoint Number").add("X").add("Y");
     table_->setColumnLabels( collbls );
     if ( readonly )
 	table_->setTableReadOnly( true );
@@ -189,8 +189,9 @@ void fillTable( const PosInfo::Line2DData& geom )
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
-	table_->setValue( RowCol(idx,1), positions[idx].coord_.x );
-	table_->setValue( RowCol(idx,2), positions[idx].coord_.y );
+	table_->setValue( RowCol(idx,1), positions[idx].spnr_ );
+	table_->setValue( RowCol(idx,2), positions[idx].coord_.x );
+	table_->setValue( RowCol(idx,3), positions[idx].coord_.y );
     }
 }
 

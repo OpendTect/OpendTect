@@ -180,13 +180,14 @@ void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
 	const int fac = SI().zDomain().userFactor();
 	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
-	strm << "\n\nTrcNr\tX-coord\tY-coord" << od_newline;
+	strm << "\n\nTrcNr\tSPNr\tX-coord\tY-coord" << od_newline;
     }
 
     for ( int idx=0; idx<posns_.size(); idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
-	strm << pos.nr_ << '\t' << pos.coord_.x << '\t' << pos.coord_.y << '\n';
+	strm << pos.nr_ << '\t' << pos.spnr_ << '\t'
+	     << pos.coord_.x << '\t' << pos.coord_.y << '\n';
     }
     strm.flush();
 }
@@ -246,11 +247,12 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
 	if ( !asc )
-	    strm.addBin(pos.nr_).addBin(pos.coord_.x).addBin(pos.coord_.y);
+	    strm.addBin(pos.nr_).addBin(pos.spnr_)
+		.addBin(pos.coord_.x).addBin(pos.coord_.y);
 	else
 	{
 	    BufferString str; str.set( pos.coord_.x );
-	    strm << '\t' << pos.nr_ << '\t' << str;
+	    strm << '\t' << pos.nr_ << '\t' << pos.spnr_ << '\t' << str;
 	    str.set( pos.coord_.y );
 	    strm << '\t' << str;
 	    if ( withnls && idx < linesz-1 ) strm << od_newline;

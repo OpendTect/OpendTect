@@ -305,13 +305,12 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
     if ( !res )
 	errmsg_ = putter_->errMsg();
 
-    PosInfo::Line2DPos pos( trc.info().nr );
+    PosInfo::Line2DPos pos( trc.info().nr, mNINT32(trc.info().refnr) );
     pos.coord_ = trc.info().coord;
     linedata_->add( pos );
 
     return res;
 }
-
 
 
 bool SeisTrcWriter::put( const SeisTrc& trc )
