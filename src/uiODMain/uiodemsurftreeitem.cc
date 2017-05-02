@@ -74,7 +74,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     savemnuitem_.iconfnm = "save";
     saveasmnuitem_.iconfnm = "saveas";
     enabletrackingmnuitem_.checkable = true;
-    changesetupmnuitem_.iconfnm = "tools";
+    changesetupmnuitem_.iconfnm = "seedpicksettings";
     NotSavedPrompter::NSP().promptSaving.notify(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
 }
@@ -206,7 +206,7 @@ void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb )
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
 
     mDynamicCastGet(visSurvey::Scene*,scene,
@@ -225,7 +225,8 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 	      !hastransform )
     {
 	mAddMenuItem( &trackmenuitem_, &starttrackmnuitem_, false, false );
-	mAddMenuItem( &trackmenuitem_, &changesetupmnuitem_, true, false );
+	mAddMenuOrTBItem( istb, menu, &trackmenuitem_, &changesetupmnuitem_,
+			  true, false );
 	mAddMenuItem( &trackmenuitem_, &enabletrackingmnuitem_, true,
 		      istrackingallowed_ );
     }
@@ -241,22 +242,23 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
     const MultiID mid = EM::EMM().getMultiID( emid_ );
     const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked()
 			&& EM::canOverwrite( mid );
-    mAddMenuItem( menu, &trackmenuitem_, enab, false );
+    mAddMenuOrTBItem( istb, 0, menu, &trackmenuitem_, enab, false );
 
     const EM::IOObjInfo eminfo( mid );
     const BufferString curtime = eminfo.timeLastModified();
     const bool isnewer = Time::isEarlier( timelastmodified_, curtime );
     const bool allowreload = !hastracker && isnewer;
-    mAddMenuItem( menu, &reloadmnuitem_, allowreload, false );
+    mAddMenuOrTBItem( istb, 0, menu, &reloadmnuitem_, allowreload, false );
 
-    mAddMenuItem( menu, &savemnuitem_,
+    mAddMenuOrTBItem( istb, menu, menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) &&
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
 		  EM::canOverwrite( mid ) &&
 		  !isshifted, false );
 
     const bool istransformedandshifted = hastransform && isshifted;
-    mAddMenuItem( menu, &saveasmnuitem_, !istransformedandshifted, false );
+    mAddMenuOrTBItem( istb, 0, menu, &saveasmnuitem_,
+		      !istransformedandshifted, false );
     mResetMenuItem( &createflatscenemnuitem_ );
 }
 
@@ -521,16 +523,16 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     bool isdttransform = false;
     if ( scene && scene->getZAxisTransform() )
-    {							   
+    {
 	const BufferString zaxistrstr = scene->getZAxisTransform()
 							    ->toZDomainKey();
-	isdttransform = zaxistrstr == ZDomain::sKeyDepth() || 
-				    zaxistrstr == ZDomain::sKeyTime();   
+	isdttransform = zaxistrstr == ZDomain::sKeyDepth() ||
+				    zaxistrstr == ZDomain::sKeyTime();
     }
     const bool enabsave = changed_ ||
 	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
 	 as->id()!=Attrib::SelSpec::cAttribNotSel()) || isdttransform ;
-	     
+
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
     const bool enabletool = !MPE::engine().trackingInProgress();
     mAddMenuItem( menu, &algomnuitem_, enabletool, false );
@@ -566,7 +568,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( scene && scene->getZAxisTransform() )
 	{
 	    zaxstrstr = scene->getZAxisTransform()->toZDomainKey();
-	    isdttransform = ( zaxstrstr == ZDomain::sKeyDepth() )  || 
+	    isdttransform = ( zaxstrstr == ZDomain::sKeyDepth() )  ||
 					   ( zaxstrstr == ZDomain::sKeyTime() );
 	}
 	if ( vals.size() )
