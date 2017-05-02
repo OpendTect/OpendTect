@@ -147,6 +147,7 @@ public:
 
     bool			acceptOK();
     void			setDistanceUnit(const uiString&);
+    void			setValuesFrom(const Array2DInterpol&);
 
 protected:
 
@@ -166,12 +167,13 @@ public:
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
+    void			setValuesFrom(const Array2DInterpol&);
 
     bool			acceptOK();
 
 protected:
 
     virtual Array2DInterpol*	createResult() const;
-
+    int				nrsteps_;
     uiGenInput*                 nrstepsfld_;
 };

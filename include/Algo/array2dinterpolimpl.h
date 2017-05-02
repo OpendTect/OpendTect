@@ -151,6 +151,10 @@ public:
     void	doInterpolation(bool yn)	{ dointerpolation_ = yn; }
     float	getMaxDistance() const		{ return maxdistance_; }
     void	setMaxDistance(float r)		{ maxdistance_ = r; }
+    bool	isMaxInterPolChecked() const
+					  { return ismaxdistfldchecked_; }
+    void      setMaxDistInterPolChecekd(bool yn)
+					  { ismaxdistfldchecked_ = yn; }
 
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -170,6 +174,7 @@ protected:
 
 				//triangulation stuff
     bool			dointerpolation_;
+    bool			ismaxdistfldchecked_;
     float			maxdistance_;
     DAGTriangleTree*		triangulation_;
     Triangle2DInterpolator*	triangleinterpolator_;

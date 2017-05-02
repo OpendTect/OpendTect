@@ -393,6 +393,23 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
 }
 
 
+void uiTriangulationArray2DInterpol::setValuesFrom(
+						const Array2DInterpol& arr )
+{
+    mDynamicCastGet(const TriangulationArray2DInterpol*, triang, &arr );
+    if ( !triang )
+	return;
+
+   useneighborfld_->setChecked( !triang->doInterpolation() );
+   maxdistfld_->setChecked( triang->isMaxInterPolChecked()  );
+   if ( maxdistfld_->isChecked() )
+   {
+       maxdistfld_->setValue( triang->getMaxDistance() );
+       maxdistfld_->setSensitive( true );
+   }
+}
+
+
 void uiTriangulationArray2DInterpol::intCB( CallBacker* )
 {
     maxdistfld_->display( !useneighborfld_->isChecked() );
@@ -457,6 +474,16 @@ uiExtensionArray2DInterpol::uiExtensionArray2DInterpol(uiParent* p)
 
 Array2DInterpol* uiExtensionArray2DInterpol::createResult() const
 { return new ExtensionArray2DInterpol; }
+
+
+void uiExtensionArray2DInterpol::setValuesFrom( const Array2DInterpol& arr )
+{
+    mDynamicCastGet(const ExtensionArray2DInterpol*, extarr, &arr );
+    if ( !extarr )
+	return;
+
+   nrstepsfld_->setValue( mCast(int,extarr->getNrSteps()) );
+}
 
 
 bool uiExtensionArray2DInterpol::acceptOK()
