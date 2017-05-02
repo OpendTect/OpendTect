@@ -273,6 +273,21 @@ bool uiODWellTreeItem::init()
 }
 
 
+bool uiODWellTreeItem::doubleClick( uiTreeViewItem* item )
+{
+    if ( item != uitreeviewitem_ )
+	return uiTreeItem::doubleClick( item );
+
+    mDynamicCastGet(visSurvey::WellDisplay*,wd,
+		    visserv_->getObject(displayid_));
+    if ( !wd ) return false;
+
+    wd->restoreDispProp();
+    applMgr()->wellServer()->editDisplayProperties( wd->getMultiID() );
+    return true;
+}
+
+
 void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );

@@ -62,6 +62,7 @@ protected:
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
+    bool		doubleClick(uiTreeViewItem*);
     const char*		parentType() const
 			{ return typeid(uiODWellParentTreeItem).name(); }
 
