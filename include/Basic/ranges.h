@@ -618,7 +618,14 @@ StepInterval<T>::StepInterval( const T& t1, const T& t2, const T& t3 )
 template <class T>
 StepInterval<T>::StepInterval( const Interval<T>& intv )
     : Interval<T>(intv)
-{ step = intv.hasStep() ? ((StepInterval<T>&)intv).step : 1; }
+{
+    step = 1;
+    if ( intv.hasStep() )
+    {
+	mDynamicCastGet(const StepInterval<T>*,sintv,&intv);
+	step = sintv ? sintv->step : 1;
+    }
+}
 
 
 template <class T>
