@@ -258,11 +258,12 @@ bool StringProcessor::convertToDouble( double* val ) const
 }
 
 
-#define mAddToFMS( fms, startptr, endptr, acceptempty ) \
+#define mAddToFMS( fms, startptr, endptr, emptyok ) \
 { \
     *endptr = '\0'; \
     mTrimBlanks( startptr ); \
-    if (*(startptr) || (acceptempty)) fms += startptr; \
+    const bool acceptempty = (emptyok); \
+    if (*(startptr) || acceptempty) fms += startptr; \
     startptr = endptr+1; \
 }
 

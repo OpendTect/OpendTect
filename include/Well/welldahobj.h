@@ -41,7 +41,7 @@ public:
     inline float	dah(int idx) const		{ return dah_[idx]; }
     virtual float	value(int idx) const		= 0;
     virtual bool	insertAtDah(float dah, float val) = 0;
-    int			indexOf(float dah) const;	
+    int			indexOf(float dah) const;
     virtual void	remove( int idx )
 			{ dah_.removeSingle(idx); removeAux(idx); }
     virtual void	setEmpty()
@@ -57,8 +57,8 @@ public:
 
     void		deInterpolate();
     			//!< Remove unnecessary points
-    float*              dahArr()                        { return dah_.arr(); }
-    const float*        dahArr() const                  { return dah_.arr(); }
+    float*		dahArr()			{ return dah_.arr(); }
+    const float*	dahArr() const			{ return dah_.arr(); }
 
 protected:
 
@@ -69,9 +69,10 @@ protected:
 };
 
 
-#define mWellDahObjInsertAtDah(dh,v,vals,ascendingvalonly)\
+#define mWellDahObjInsertAtDah(dh,v,vals,ascvalonly)\
 {\
     if ( mIsUdf(v) ) return false;\
+    const bool ascendingvalonly = (ascvalonly); \
     if ( dah_.isEmpty() || dh >= dah_[dah_.size()-1] )\
     {\
 	if ( !dah_.isEmpty() && ascendingvalonly && v <= vals[dah_.size()-1] )\
