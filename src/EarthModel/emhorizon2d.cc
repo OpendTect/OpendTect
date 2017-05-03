@@ -392,7 +392,6 @@ mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::sGroupName() )
 Horizon2D::Horizon2D( EMManager& emm )
     : Horizon(emm)
     , geometry_(*this)
-    , selectioncolor_( Color::Blue() )
     , nodesource_( 0 )
 {
     geometry_.addSection( "", false );
@@ -744,21 +743,6 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid, Pos::GeomID geomid,
     }
 
     return arr;
-}
-
-
-void  Horizon2D::setSelectionColor( const Color& clr )
-{
-    selectioncolor_ = clr;
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::PrefColorChange;
-    change.trigger(cbdata);
-}
-
-
-const Color& Horizon2D::getSelectionColor() const
-{
-    return selectioncolor_;
 }
 
 

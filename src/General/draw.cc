@@ -35,11 +35,20 @@ mDefineEnumUtils(MarkerStyle3D,Type,"Marker type")
 mDefineEnumUtils(OD::LineStyle,Type,"Line style")
 { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 
+template <>
+void EnumDefImpl<MarkerStyle3D::Type>::init()
+{
+    for ( int idx=0; idx<enums_.size(); idx++ )
+	enums_[idx]--;
+}
+
+
 Alignment::Alignment( HPos h, VPos v )
-    : hor_(h), ver_(v)                                  {}
+    : hor_(h), ver_(v)					{}
+
 Alignment::Alignment( Pos h, Pos v )
     : hor_(h==Start?Left:(h==Stop?Right:HCenter))
-    , ver_(v==Start?Top:(v==Stop?Bottom:VCenter))       {}
+    , ver_(v==Start?Top:(v==Stop?Bottom:VCenter))	{}
 
 
 Alignment::HPos Alignment::opposite( HPos p )
@@ -48,6 +57,7 @@ Alignment::HPos Alignment::opposite( HPos p )
 
 Alignment::VPos Alignment::opposite( VPos p )
 { return p == Top ? Bottom : (p == Bottom ? Top : VCenter); }
+
 
 Alignment::Pos Alignment::pos( bool hor ) const
 {
@@ -83,7 +93,7 @@ void Alignment::setUiValue( int v )
 void clss::toString( BufferString& bs ) const \
 { \
     FileMultiString fms; \
-    fms = getTypeString(type_); \
+    fms = toString(type_); \
     fms += par; \
     color_.fill( bs ); \
     fms += FileMultiString(bs); \
@@ -95,7 +105,7 @@ void clss::toString( BufferString& bs ) const \
 void clss::fromString( const char* s ) \
 { \
     FileMultiString fms( s ); \
-    parseEnumType( fms[0], type_ ); \
+    parseEnum( fms[0], type_ ); \
     par = fms.getIValue( 1 ); \
     FileMultiString colfms( fms.from(2) ); \
     color_.use( colfms ); \

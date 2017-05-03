@@ -193,15 +193,9 @@ public:
     void			lockAll();
     void			unlockAll();
     const Array2D<char>*	getLockedNodes() const;
-    bool			hasLockedNodes() const
-				{ return haslockednodes_; }
 
     void			setParentColor(const Color&);
     const Color&		getParentColor() const;
-    void			setSelectionColor(const Color&);
-    const Color&		getSelectionColor() const;
-    void			setLockColor(const Color&);
-    const Color&		getLockColor() const;
 
     virtual bool		setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory);
@@ -212,7 +206,10 @@ protected:
     enum			ArrayType{Parents,Children,LockNode,NodeSource};
 
     void			fillPar(IOPar&) const;
-    bool			usePar( const IOPar& );
+    bool			usePar(const IOPar&);
+    void			fillDisplayPar(IOPar&) const;
+    bool			useDisplayPar(const IOPar&);
+
     const IOObjContext&		getIOObjContext() const;
     void			initNodeArraysSize(const StepInterval<int>&,
 						   const StepInterval<int>&);
@@ -236,11 +233,8 @@ protected:
     Array2D<od_int64>*		parents_;
 
     Color			parentcolor_;
-    Color			selectioncolor_;
-    Color			lockcolor_;
 
     Pos::GeomID			survgeomid_;
-    bool			haslockednodes_;
     Array2D<char>*		nodesource_;
 				/*!< '0'- non interpreted, '1'- manual
 				interpreted,'2' - auto interpreted.

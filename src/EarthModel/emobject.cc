@@ -33,11 +33,13 @@ int EMObject::sTerminationNode()	{ return PosAttrib::TerminationNode; }
 int EMObject::sSeedNode()		{ return PosAttrib::SeedNode; }
 int EMObject::sIntersectionNode()	{ return PosAttrib::IntersectionNode; }
 
-const char* EMObject::posattrprefixstr()    { return "Pos Attrib "; }
-const char* EMObject::posattrsectionstr()   { return " Section"; }
-const char* EMObject::posattrposidstr()	    { return " SubID"; }
-const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
+const char* EMObject::posattrprefixstr()	{ return "Pos Attrib "; }
+const char* EMObject::posattrsectionstr()	{ return " Section"; }
+const char* EMObject::posattrposidstr()		{ return " SubID"; }
+const char* EMObject::nrposattrstr()		{ return "Nr Pos Attribs"; }
 
+static const char* sLockColor()			{ return "Lock Color"; }
+static const char* sSelectionColor()		{ return "Selection Color"; }
 
 
 EMObject::EMObject( EMManager& emm )
@@ -45,8 +47,9 @@ EMObject::EMObject( EMManager& emm )
     , change( this )
     , id_( -1 )
     , storageid_(MultiID::udf())
-    , preferredcolor_( *new Color(Color::Green()) )
+    , preferredcolor_(*new Color(Color::Green()))
     , lockcolor_(Color::Blue())
+    , selectioncolor_(Color::Orange())
     , changed_( false )
     , fullyloaded_( false )
     , locked_( false )
@@ -153,8 +156,7 @@ Coord3 EMObject::getPos( const EM::SectionID& sid,
 
 #define mRetErr( msg ) { errmsg_ = msg; return false; }
 
-bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
-			bool addtoundo )
+bool EMObject::setPos( const PosID& pid, const Coord3& newpos, bool addtoundo )
 {
     if ( pid.objectID()!=id() )
 	mRetErr(uiString::emptyString());
@@ -163,8 +165,8 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
 }
 
 
-bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
-			const Coord3& newpos, bool addtoundo )
+bool EMObject::setPos( const SectionID& sid, const SubID& subid,
+		       const Coord3& newpos, bool addtoundo )
 {
     Threads::Locker locker( setposlock_ );
 
@@ -260,6 +262,32 @@ void EMObject::setPreferredColor( const Color& col, bool addtoundo )
 
     saveDisplayPars();
 }
+
+
+void EMObject::setSelectionColor( const Color& clr )
+{
+    selectioncolor_ = clr;
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PrefColorChange;
+    change.trigger(cbdata);
+}
+
+
+const Color& EMObject::getSelectionColor() const
+{ return selectioncolor_; }
+
+
+void EMObject::setLockColor( const Color& col )
+{
+    lockcolor_ = col;
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::LockColorChange;
+    change.trigger( cbdata );
+}
+
+
+const Color& EMObject::getLockColor() const
+{ return lockcolor_; }
 
 
 void EMObject::setBurstAlert( bool yn )
@@ -626,38 +654,6 @@ uiString EMObject::errMsg() const
 }
 
 
-void EMObject::useDisplayPars( const IOPar& par )
-{
-    IOPar displaypar;
-
-    if( !EMM().readDisplayPars(storageid_,displaypar) )
-	displaypar = par;
-
-    Color col;
-    if( displaypar.get(sKey::Color(),col) )
-    {
-	col.setTransparency( 0 );
-	setPreferredColor( col );
-    }
-
-    BufferString lnststr;
-    OD::LineStyle lnst;
-    if( displaypar.get(sKey::LineStyle(),lnststr) )
-    {
-	lnst.fromString( lnststr );
-	setPreferredLineStyle( lnst );
-    }
-
-    BufferString mkststr;
-    MarkerStyle3D mkst;
-    if( displaypar.get(sKey::MarkerStyle(),mkststr) )
-    {
-	mkst.fromString( mkststr );
-	setPreferredMarkerStyle3D( mkst );
-    }
-}
-
-
 bool EMObject::usePar( const IOPar& par )
 {
    useDisplayPars( par );
@@ -703,24 +699,6 @@ bool EMObject::usePar( const IOPar& par )
 }
 
 
-void EMObject::saveDisplayPars() const
-{
-    IOPar displaypar;
-
-    displaypar.set( sKey::Color(), preferredColor() );
-    BufferString lnststr;
-
-    preferredlinestyle_.toString( lnststr );
-    displaypar.set( sKey::LineStyle(), lnststr );
-
-    BufferString mkststr;
-    preferredmarkerstyle_.toString( mkststr );
-    displaypar.set( sKey::MarkerStyle(), mkststr );
-
-    EMM().writeDisplayPars( storageid_, displaypar );
-}
-
-
 void EMObject::fillPar( IOPar& par ) const
 {
     saveDisplayPars();
@@ -754,6 +732,75 @@ void EMObject::fillPar( IOPar& par ) const
     }
 
     par.set( nrposattrstr(), keyid );
+}
+
+
+bool EMObject::useDisplayPar( const IOPar& par )
+{
+    Color col;
+    if ( par.get(sKey::Color(),col) )
+    {
+	col.setTransparency( 0 );
+	preferredcolor_ = col;
+    }
+
+    if ( par.get(sLockColor(),col) )
+	lockcolor_ = col;
+
+    if ( par.get(sSelectionColor(),col) )
+	selectioncolor_ = col;
+
+    BufferString lnststr;
+    if ( par.get(sKey::LineStyle(),lnststr) )
+    {
+	OD::LineStyle lnst;
+	lnst.fromString( lnststr );
+	preferredlinestyle_ = lnst;
+    }
+
+    BufferString mkststr;
+    if ( par.get(sKey::MarkerStyle(),mkststr) )
+    {
+	MarkerStyle3D mkst;
+	mkst.fromString( mkststr );
+	preferredmarkerstyle_ = mkst;
+    }
+
+    return true;
+}
+
+
+void EMObject::fillDisplayPar( IOPar& par ) const
+{
+    par.set( sKey::Color(), preferredColor() );
+    par.set( sLockColor(), getLockColor() );
+    par.set( sSelectionColor(), getSelectionColor() );
+
+    BufferString lnststr;
+    preferredlinestyle_.toString( lnststr );
+    par.set( sKey::LineStyle(), lnststr );
+
+    BufferString mkststr;
+    preferredmarkerstyle_.toString( mkststr );
+    par.set( sKey::MarkerStyle(), mkststr );
+}
+
+
+void EMObject::useDisplayPars( const IOPar& par )
+{
+    IOPar displaypar;
+    if ( !EMM().readDisplayPars(storageid_,displaypar) )
+	displaypar = par;
+
+    useDisplayPar( displaypar );
+}
+
+
+void EMObject::saveDisplayPars() const
+{
+    IOPar displaypar;
+    fillDisplayPar( displaypar );
+    EMM().writeDisplayPars( storageid_, displaypar );
 }
 
 

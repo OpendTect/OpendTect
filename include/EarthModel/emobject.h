@@ -195,9 +195,12 @@ public:
     virtual void		unlockAll(){}
     virtual const Array2D<char>*
 				getLockedNodes() const { return 0; }
-    virtual void		setLockColor(const Color&) {}
-    virtual const Color&	getLockColor() const { return lockcolor_; }
+    virtual void		setLockColor(const Color&);
+    virtual const Color&	getLockColor() const;
     virtual bool		hasLockedNodes() const {return haslockednodes_;}
+
+    void			setSelectionColor(const Color&);
+    const Color&		getSelectionColor() const;
 
     virtual bool		enableGeometryChecks(bool);
     virtual bool		isGeometryChecksEnabled() const;
@@ -278,6 +281,9 @@ public:
     virtual void		fillPar(IOPar&) const;
     void			saveDisplayPars() const;
 
+    virtual bool		useDisplayPar(const IOPar&);
+    virtual void		fillDisplayPar(IOPar&) const;
+
     static int			sPermanentControlNode();
     static int			sTemporaryControlNode();
     static int			sEdgeControlNode();
@@ -317,6 +323,7 @@ protected:
     Threads::Lock		setposlock_;
     bool			haslockednodes_;
     Color			lockcolor_;
+    Color			selectioncolor_;
 
     bool			insideselremoval_;
     bool			selremoving_;

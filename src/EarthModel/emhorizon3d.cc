@@ -45,8 +45,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace EM {
 
-    Color Horizon3D::sDefaultSelectionColor() { return Color::Orange(); }
-    Color Horizon3D::sDefaultLockColor() { return Color::Blue(); }
+Color Horizon3D::sDefaultSelectionColor()	{ return Color::Orange(); }
+Color Horizon3D::sDefaultLockColor()		{ return Color::Blue(); }
+
 
 class AuxDataImporter : public Executor
 { mODTextTranslationClass(AuxDataImporter);
@@ -290,6 +291,8 @@ protected:
 };
 
 
+static const char* sParentColor()	{ return "Parent Color"; }
+
 // EM::Horizon3D
 Horizon3D::Horizon3D( EMManager& man )
     : Horizon(man)
@@ -299,10 +302,7 @@ Horizon3D::Horizon3D( EMManager& man )
     , parents_(0)
     , children_(0)
     , parentcolor_(Color::Yellow())
-    , selectioncolor_(sDefaultSelectionColor())
-    , lockcolor_(Color::Blue())
     , survgeomid_( Survey::GM().default3DSurvID() )
-    , haslockednodes_(false)
     , nodesource_( 0 )
     , arrayinited_( false )
 
@@ -339,6 +339,23 @@ bool Horizon3D::usePar( const IOPar& par )
     return Surface::usePar( par ) &&
 	auxdata.usePar( par ) &&
 	Horizon::usePar( par );
+}
+
+
+void Horizon3D::fillDisplayPar( IOPar& par ) const
+{
+    EMObject::fillDisplayPar( par );
+    par.set( sParentColor(), parentcolor_ );
+}
+
+
+bool Horizon3D::useDisplayPar( const IOPar& par )
+{
+    Color col;
+    if ( par.get(sParentColor(),col) )
+	setParentColor( col );
+
+    return EMObject::useDisplayPar( par );
 }
 
 
@@ -1259,30 +1276,6 @@ void Horizon3D::setParentColor( const Color& col )
 
 const Color& Horizon3D::getParentColor() const
 { return parentcolor_; }
-
-
-void Horizon3D::setSelectionColor( const Color& col )
-{
-    selectioncolor_ = col;
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::PrefColorChange;
-    change.trigger( cbdata );
-}
-
-
-const Color& Horizon3D::getSelectionColor() const
-{ return selectioncolor_; }
-
-void Horizon3D::setLockColor( const Color& col )
-{
-    lockcolor_ = col;
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::LockColorChange;
-    change.trigger( cbdata );
-}
-
-const Color& Horizon3D::getLockColor() const
-{ return lockcolor_; }
 
 
 bool Horizon3D::setPos( const PosID& pid, const Coord3& crd, bool addtoundo )

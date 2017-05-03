@@ -553,8 +553,6 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 	    setupgrp_->mainwin()->raise();
 	    setupgrp_->mainwin()->show();
 	}
-
-	return true;
     }
 
     const int trackerid = getTrackerID( emid );

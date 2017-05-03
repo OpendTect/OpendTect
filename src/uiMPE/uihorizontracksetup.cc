@@ -232,7 +232,7 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 	{
 	    toolbar_->setSensitive(
 		undobutid_,EM::EMM().undo(obj->id()).canUnDo() );
-	    toolbar_->setSensitive( 
+	    toolbar_->setSensitive(
 		redobutid_,EM::EMM().undo(obj->id()).canReDo() );
 	}
     }
@@ -247,6 +247,7 @@ void uiHorizonSetupGroup::enabTrackCB( CallBacker* )
 
 void uiHorizonSetupGroup::startCB( CallBacker* )
 {
+    setFocus();
     uiString errmsg;
     if ( !engine().startTracking(errmsg) && !errmsg.isEmpty() )
 	uiMSG().error( errmsg );
@@ -255,12 +256,14 @@ void uiHorizonSetupGroup::startCB( CallBacker* )
 
 void uiHorizonSetupGroup::stopCB( CallBacker* )
 {
+    setFocus();
     engine().stopTracking();
 }
 
 
 void uiHorizonSetupGroup::saveCB( CallBacker* )
 {
+    setFocus();
     if ( !mps_ ) return;
 
     mps_->sendMPEEvent( uiMPEPartServer::evStoreEMObject() );
@@ -269,6 +272,7 @@ void uiHorizonSetupGroup::saveCB( CallBacker* )
 
 void uiHorizonSetupGroup::retrackCB( CallBacker* )
 {
+    setFocus();
     uiString errmsg;
     if ( !engine().startRetrack(errmsg) && !errmsg.isEmpty() )
 	uiMSG().error( errmsg );
@@ -396,8 +400,10 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
     linewidthfld_->attach( alignedBelow, colorfld_ );
 
+    BufferStringSet seedtypenames( MarkerStyle3D::TypeNames() );
+    seedtypenames.removeSingle( 0 ); // Remove 'None'
     seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
-			StringListInpSpec(MarkerStyle3D::TypeNames()) );
+			StringListInpSpec(seedtypenames) );
     seedtypefld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
     seedtypefld_->attach( alignedBelow, linewidthfld_ );
@@ -525,7 +531,7 @@ void uiHorizonSetupGroup::colorChangeCB( CallBacker* )
 void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 {
     const MarkerStyle3D::Type newtype =
-	(MarkerStyle3D::Type)(MarkerStyle3D::None+seedtypefld_->getIntValue());
+	(MarkerStyle3D::Type)(seedtypefld_->getIntValue());
     if ( markerstyle_.type_ == newtype )
 	return;
 
@@ -568,7 +574,6 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 
     correlationgrp_->setSectionTracker( st );
     eventgrp_->setSectionTracker( st );
-    specColorChangeCB( 0 );
 }
 
 
@@ -611,7 +616,19 @@ void uiHorizonSetupGroup::initPropertyGroup()
 {
     seedsliderfld_->setValue( markerstyle_.size_ );
     seedcolselfld_->setColor( markerstyle_.color_ );
-    seedtypefld_->setValue( markerstyle_.type_ - MarkerStyle3D::None );
+    seedtypefld_->setValue( markerstyle_.type_ );
+
+    if ( !sectiontracker_ )
+	return;
+
+    const EM::EMObject& emobj = sectiontracker_->emObject();
+    lockcolfld_->setColor( emobj.getLockColor() );
+    selectioncolfld_->setColor( emobj.getSelectionColor() );
+
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,&emobj)
+    if ( hor3d )
+	parentcolfld_->setColor( hor3d->getParentColor() );
+
 }
 
 
