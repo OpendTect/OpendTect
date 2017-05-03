@@ -1451,10 +1451,12 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 	desc = ds->getDesc( as.id() );
     else if ( nonstoredds && nonstoredds->getDesc(as.id()) )
 	desc = nonstoredds->getDesc( as.id() );
-    SelInfo attrinf( ds, 0, is2d, DescID::undef(), issteer, issteer, multcomp );
+    const SelInfo attrinf( ds, 0, is2d, DescID::undef(),
+			   issteer, issteer, multcomp );
 
     const bool isstored = desc ? desc->isStored() : false;
-    BufferStringSet bfset = issteer ? attrinf.steerids_ : attrinf.ioobjids_;
+    const BufferStringSet bfset =
+		issteer ? attrinf.steerids_ : attrinf.ioobjids_;
 
     MenuItem* mnu = menu;
     if ( multcomp && needext )
@@ -1467,13 +1469,14 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
     int nritems = bfset.size();
     if ( nritems <= cMaxMenuSize )
     {
+	const bool correcttype = desc ? isstored : true;
 	const int start = 0; const int stop = nritems;
 	if ( issteer )
 	    insertItems( *mnu, attrinf.steernms_, &attrinf.steerids_,
-			 as.userRef(), start, stop, isstored );
+			 as.userRef(), start, stop, correcttype );
 	else
 	    insertItems( *mnu, attrinf.ioobjnms_, &attrinf.ioobjids_,
-			 as.userRef(), start, stop, isstored );
+			 as.userRef(), start, stop, correcttype );
     }
 
     menu->text = getMenuText( is2d, issteer, nritems>cMaxMenuSize );
