@@ -55,8 +55,6 @@ mExpClass(Basic) Line2DPos3D : public Line2DPos
 public:
 		Line2DPos3D( int n=0, float z=mUdf(float) )
 		    : Line2DPos(n,0), z_(z)		{}
-		Line2DPos3D( int n=0, int spn=0, float z=mUdf(float) )
-		    : Line2DPos(n,spn), z_(z)		{}
 
     float	z_;
 };
