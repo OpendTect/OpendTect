@@ -223,9 +223,10 @@ bool GetButtonMenuItemCmd::act( const char* parstr )
     return true;
 }
 
-#define mTitleBarButWarn( butnm, noaccess, cmdkey ) \
+#define mTitleBarButWarn( butnm, noaccss, cmdkey ) \
 { \
     BufferString buf("Use \""); buf += cmdkey; buf += "\"-command to access"; \
+    const bool noaccess = (noaccss); \
     if ( noaccess ) \
 	buf = "This window offers no access to"; \
 \

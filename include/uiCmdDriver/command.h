@@ -750,7 +750,7 @@ protected:
     } \
 \
     int errkeyidx; \
-    const bool dowarn = warn; \
+    const bool dowarn = (warn); \
     if ( !objfinder.selectNodes(objsfound, keys, &errkeyidx) && dowarn ) \
     { \
 	mWinWarnStrm << "No object with key \"" << keys[errkeyidx] << "\" in " \
