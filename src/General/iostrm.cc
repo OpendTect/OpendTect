@@ -146,6 +146,8 @@ Conn* IOStream::getConn( bool forread ) const
 {
     if ( isBad() )
 	const_cast<IOStream*>(this)->genFileName();
+    else if ( !forread && transl_ == "Blocks" )
+	return 0; // protect 6.X users against removing their data
 
     StreamConn*	ret = new StreamConn( fullUserExpr(forread), forread );
     if ( ret )
