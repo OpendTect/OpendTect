@@ -34,7 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 
 #include <string.h>
-#include "hiddenparam.h"
 
 namespace Seis
 {
