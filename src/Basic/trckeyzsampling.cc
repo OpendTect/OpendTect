@@ -593,8 +593,8 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 
     if ( trcrgok )
     {
-	start_.lineNr() = 0;
-	stop_.lineNr() = mUdf(int);
+	subpars->get( sKey::GeomID(), start_.lineNr() );
+	stop_.lineNr() = start_.lineNr();
 	step_.lineNr() = step_.trcNr() = 1;
 	survid_ = Survey::GM().get2DSurvID();
 
