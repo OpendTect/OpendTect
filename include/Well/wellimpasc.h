@@ -72,9 +72,9 @@ public:
     const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
     const char*		getLogInfo(od_istream& lasstrm,FileInfo&) const;
     const char*		getLogs(const char* lasfnm,const FileInfo&,
-				bool istvd=true);
+				bool istvd=true,bool usecurvenms=false);
     const char*		getLogs(od_istream& lasstrm,const FileInfo&,
-				bool istvd=true);
+				bool istvd=true,bool usecurvenms=false);
 
     bool		willConvertToSI() const		{ return useconvs_; }
 			//!< Note that depth is always converted

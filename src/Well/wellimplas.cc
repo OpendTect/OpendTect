@@ -244,16 +244,16 @@ void Well::LASImporter::parseHeader( char* startptr, char*& val1, char*& val2,
 
 
 const char* Well::LASImporter::getLogs( const char* fnm, const FileInfo& lfi,
-					bool istvd )
+					bool istvd, bool usecurvenms )
 {
     mOpenFile( fnm );
-    const char* res = getLogs( strm, lfi, istvd );
+    const char* res = getLogs( strm, lfi, istvd, usecurvenms );
     return res;
 }
 
 
-const char* Well::LASImporter::getLogs( od_istream& strm,
-					const FileInfo& lfi, bool istvd )
+const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
+					bool istvd, bool usecurvenms )
 {
     FileInfo inplfi;
     const char* res = getLogInfo( strm, inplfi );
@@ -267,12 +267,14 @@ const char* Well::LASImporter::getLogs( od_istream& strm,
     if ( lfi.depthcolnr < 0 )
 	const_cast<FileInfo&>(lfi).depthcolnr = inplfi.depthcolnr;
     const int addstartidx = wd_->logs().size();
-    BoolTypeSet issel( inplfi.lognms.size(), false );
+    BoolTypeSet issel( inplfi.size(), false );
 
-    for ( int idx=0; idx<inplfi.lognms.size(); idx++ )
+    const BufferStringSet& lognms =
+		usecurvenms ? inplfi.logcurves : inplfi.lognms;
+    for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	const int colnr = idx + (idx >= lfi.depthcolnr ? 1 : 0);
-	const BufferString& lognm = inplfi.lognms.get(idx);
+	const BufferString& lognm = lognms.get(idx);
 	const bool ispresent = indexOf( lfi.lognms, lognm ) >= 0;
 	if ( !ispresent )
 	    continue;
@@ -298,7 +300,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm,
     }
 
     return getLogData( strm, issel, lfi, istvd, addstartidx,
-			inplfi.lognms.size() + 1 );
+			inplfi.size()+1 );
 }
 
 

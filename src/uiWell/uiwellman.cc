@@ -536,7 +536,7 @@ void uiWellMan::logTools( CallBacker* )
 
 void uiWellMan::importLogs( CallBacker* )
 {
-    uiImportLogsDlg dlg( this, curioobj_ );
+    uiImportLogsDlg dlg( this, curioobj_, true );
     if ( dlg.go() )
 	wellsChgd();
 }

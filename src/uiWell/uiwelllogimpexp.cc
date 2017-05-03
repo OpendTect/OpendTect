@@ -81,32 +81,34 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
 		    FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 
+    uiObject* attachobj = 0;
     if ( wtable )
     {
 	BufferStringSet colnms;
 	colnms.add( "Curve" ).add( "Unit" ).add( "Description" );
-	logstable_ = new uiTable( this, uiTable::Setup(), "Logs in file" );
+	logstable_ = new uiTable( this, uiTable::Setup(3,3), "Logs in file" );
 	logstable_->setColumnLabels( colnms );
 	logstable_->setSelectionMode( uiTable::Multi );
 	logstable_->setSelectionBehavior( uiTable::SelectRows );
 	logstable_->attach( ensureBelow, udffld_ );
+
+	lognmfld_ = new uiGenInput( this, tr("Name log after"),
+		BoolInpSpec(true,tr("Curve"),tr("Description")) );
+	lognmfld_->attach( alignedBelow, udffld_ );
+	lognmfld_->attach( ensureBelow, logstable_ );
+	attachobj = lognmfld_->attachObj();
     }
     else
     {
 	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Logs to import") );
 	logsfld_ = new uiListBox( this, su );
 	logsfld_->attach( alignedBelow, udffld_ );
-	logsfld_->display( false );
+	attachobj = logsfld_->attachObj();
     }
-
-    lognmfld_ = new uiGenInput( this, tr("Name log after"),
-		BoolInpSpec(true,tr("Curve"),tr("Description")) );
-    lognmfld_->attach( alignedBelow, udffld_ );
-    lognmfld_->attach( ensureBelow, logstable_ );
 
     wellfld_ = new uiWellSel( this, true, tr("Add to Well"), false );
     if ( ioobj ) wellfld_->setInput( *ioobj );
-    wellfld_->attach( alignedBelow, lognmfld_ );
+    wellfld_->attach( alignedBelow, attachobj );
 }
 
 
@@ -202,7 +204,20 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( !lasfnm || !*lasfnm )
 	mErrRet( tr("Please enter a valid file name") )
 
-    BufferStringSet lognms; logsfld_->getChosen( lognms );
+    const bool usecurvenms = lognmfld_ ? lognmfld_->getBoolValue() : false;
+    BufferStringSet lognms;
+    if ( logstable_ )
+    {
+	const int colidx = usecurvenms ? 0 : 2;
+	for ( int idx=0; idx<logstable_->nrRows(); idx++ )
+	{
+	    if ( logstable_->isRowSelected(idx) )
+		lognms.add( logstable_->text(RowCol(idx,colidx)) );
+	}
+    }
+    else if ( logsfld_ )
+	logsfld_->getChosen( lognms );
+
     if ( lognms.isEmpty() )
 	mErrRet( tr("Please select at least one log to import") )
 
@@ -228,7 +243,8 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     }
 
     lfi.lognms = lognms;
-    const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue() );
+    const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue(),
+				    usecurvenms );
     if ( res )
 	mErrRet( mToUiStringTodo(res) )
 

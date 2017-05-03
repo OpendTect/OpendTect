@@ -155,7 +155,7 @@ void uiWellPartServer::importTrack()
 
 void uiWellPartServer::importLogs()
 {
-    uiImportLogsDlg dlg( parent(), 0 );
+    uiImportLogsDlg dlg( parent(), 0, true );
     dlg.go();
 }
 

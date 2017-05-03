@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellwriter.h"
 
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uifiledlg.h"
 #include "uifileinput.h"
 #include "uimsg.h"
@@ -53,6 +54,8 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     , fd_(BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
+    setOkText( uiStrings::sImport() );
+
     inpfld_ = new uiFileInput( this,
 		      uiStrings::sInputFile(),
 		      uiFileInput::Setup()
@@ -233,9 +236,12 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 				 mODHelpKey(mBulkLogImportHelpID))
 			   .modal(false))
 {
+    setOkText( uiStrings::sImport() );
+
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(tr("LAS files")),
 		  uiFileInput::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
+    inpfld_->valuechanged.notify( mCB(this,uiBulkLogImport,lasSel) );
 
     istvdfld_ = new uiGenInput( this, tr("Depth values are"),
 		    BoolInpSpec(false,tr("TVDSS"),tr("MD")) );
@@ -245,11 +251,48 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     udffld_ = new uiGenInput( this, tr("Undefined value in logs"),
 		    FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
+
+    lognmfld_ = new uiGenInput( this, tr("Name log after"),
+		BoolInpSpec(true,tr("Curve"),tr("Description")) );
+    lognmfld_->attach( alignedBelow, udffld_ );
+
+    BufferStringSet colnms;
+    colnms.add( "Well in LAS" ).add( "Well in OpendTect" );
+    wellstable_ = new uiTable( this, uiTable::Setup(3,2), "Wells" );
+    wellstable_->setColumnLabels( colnms );
+    wellstable_->attach( ensureBelow, lognmfld_ );
 }
 
 
 uiBulkLogImport::~uiBulkLogImport()
 {}
+
+
+void uiBulkLogImport::lasSel( CallBacker* )
+{
+    BufferStringSet filenms;
+    inpfld_->getFileNames( filenms );
+    wellstable_->setNrRows( filenms.size() );
+
+    for ( int idx=0; idx<filenms.size(); idx++ )
+    {
+	const BufferString& fnm = filenms.get( idx );
+	Well::LASImporter lasimp;
+	Well::LASImporter::FileInfo info;
+	info.undefval = udffld_->getfValue();
+	BufferString errmsg = lasimp.getLogInfo( fnm, info );
+
+	wellstable_->setText( RowCol(idx,0), info.wellnm );
+
+	uiComboBox* odwellsbox = new uiComboBox( 0, "Select Well" );
+	wellstable_->setCellObject( RowCol(idx,1), odwellsbox );
+
+	const IOObj* ioobj = findIOObj( info.wellnm, info.uwi );
+	if ( ioobj )
+	{
+	}
+    }
+}
 
 
 bool uiBulkLogImport::acceptOK( CallBacker* )
@@ -263,6 +306,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
     }
 
     const bool zistvd = istvdfld_->getBoolValue();
+    const bool usecurvenms = lognmfld_->getBoolValue();
     uiStringSet errors;
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
@@ -294,7 +338,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	}
 
 	lasimp.setData( wd );
-	errmsg = lasimp.getLogs( fnm, info, zistvd );
+	errmsg = lasimp.getLogs( fnm, info, zistvd, usecurvenms );
 	if ( !errmsg.isEmpty() )
 	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
 					    .arg(toUiString(errmsg)) );
@@ -456,6 +500,8 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
 		       mODHelpKey(mBulkD2TModelImportHelpID)).modal(false))
     , fd_(BulkD2TModelAscIO::getDesc())
 {
+    setOkText( uiStrings::sImport() );
+
     uiFileInput::Setup fs;
     fs.withexamine(true).examstyle(File::Table);
     inpfld_ = new uiFileInput( this,

@@ -13,6 +13,7 @@
 
 class uiFileInput;
 class uiGenInput;
+class uiTable;
 class uiTableImpDataSel;
 class BufferStringSet;
 
@@ -52,10 +53,13 @@ public:
 protected:
 
     bool		acceptOK(CallBacker*);
+    void		lasSel(CallBacker*);
 
     uiFileInput*	inpfld_;
     uiGenInput*		istvdfld_;
     uiGenInput*		udffld_;
+    uiGenInput*		lognmfld_;
+    uiTable*		wellstable_;
 };
 
 
