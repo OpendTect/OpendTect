@@ -142,7 +142,7 @@ public:
 
   \code
   #include <myclass.h>
-  
+
   mDefineEnumUtils(MyClass,State,"My class state")
 	  { "Good", "Bad", "Not very handsome", 0 };
   mDefineEnumUtils(MyClass,Type,"My class type")
@@ -156,10 +156,10 @@ public:
   This will expand to (added newlines, removed some superfluous stuff:
 
   \code
-  
+
   class MyClass
   {
-  public: 
+  public:
 
       enum 			  State { Good, Bad, Ugly };
       static const EnumDef&       StateDef();
@@ -348,7 +348,7 @@ EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[], short nrs )
     : EnumDef( nm, nms, nrs )
 {
     init();
-    if ( uistrings_.size()!=size() )
+    if ( !uistrings_.isEmpty() && uistrings_.size()!=size() )
     {
 	pErrMsg( "Wrong number of uistrings" );
     }
@@ -356,7 +356,7 @@ EnumDefImpl<ENUM>::EnumDefImpl( const char* nm, const char* nms[], short nrs )
     for ( int idx=uistrings_.size(); idx<size(); idx++ )
 	uistrings_ += ::toUiString( keys_.get(idx) );
 
-    if ( iconfiles_.size() && iconfiles_.size()!=size() )
+    if ( !iconfiles_.isEmpty() && iconfiles_.size()!=size() )
     {
 	pErrMsg( "Wrong number of iconfiles" );
     }
