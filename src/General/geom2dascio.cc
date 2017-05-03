@@ -21,6 +21,7 @@ Table::FormatDesc* Geom2dAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Geom2D" );
     fd->bodyinfos_ += new Table::TargetInfo( "Trace Nr", IntInpSpec() );
+    fd->bodyinfos_ += new Table::TargetInfo( "SP Nr", IntInpSpec() );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
 
     return fd;
@@ -41,9 +42,9 @@ bool Geom2dAscIO::getData( PosInfo::Line2DData& geom )
 	 if ( mIsUdf(trcnr) )
 	     continue;
 
-	 PosInfo::Line2DPos pos( getIntValue(0) );
-	 pos.coord_.x = getDValue( 1 );
-	 pos.coord_.y = getDValue( 2 );
+	 PosInfo::Line2DPos pos( getIntValue(0), getIntValue(1) );
+	 pos.coord_.x = getDValue( 2 );
+	 pos.coord_.y = getDValue( 3 );
 	 geom.add( pos );
      }
 

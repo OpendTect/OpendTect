@@ -212,9 +212,10 @@ bool acceptOK( CallBacker* )
     geomdata.setEmpty();
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
-	PosInfo::Line2DPos l2d( table_->getIntValue(RowCol(idx,0)) );
-	l2d.coord_.x = table_->getdValue( RowCol(idx,1) );
-	l2d.coord_.y = table_->getdValue( RowCol(idx,2) );
+	PosInfo::Line2DPos l2d( table_->getIntValue(RowCol(idx,0)),
+				table_->getIntValue(RowCol(idx,1)) );
+	l2d.coord_.x = table_->getdValue( RowCol(idx,2) );
+	l2d.coord_.y = table_->getdValue( RowCol(idx,3) );
 	geomdata.add( l2d );
     }
 

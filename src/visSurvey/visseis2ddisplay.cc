@@ -867,7 +867,10 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     int dataidx = -1;
     float minsqdist;
     if ( getNearestTrace(pos,dataidx,minsqdist) )
-	info.add( " [" ).add( geometry_.positions()[dataidx].nr_ ).add( "]" );
+    {
+	info.add( ", TrcNr: " ).add( geometry_.positions()[dataidx].nr_ )
+	    .add( ", SP: " ).add( geometry_.positions()[dataidx].spnr_ );
+    }
 }
 
 

@@ -7,11 +7,15 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "posinfo2d.h"
+
+#include "ascstream.h"
 #include "math2.h"
+#include "od_iostream.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
-#include "od_iostream.h"
 
+
+static const char* sKeyFileType = "2D Geometry";
 
 PosInfo::Line2DData::Line2DData( const char* lnm )
     : lnm_(lnm)
@@ -195,6 +199,21 @@ void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
 
 bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 {
+    ascistream astrm( strm );
+    const bool hasheader = astrm.hasStandardHeader();
+    int version = 1;
+    if ( hasheader )
+    {
+	if ( astrm.atEOS() ) astrm.next();
+	if ( astrm.hasKeyword(sKey::Version()) )
+	{
+	    version = astrm.getIValue();
+	    astrm.next();
+	}
+    }
+    else
+	strm.setPosition( 0 );
+
     int linesz = -1;
     if ( asc )
 	strm >> zrg_.start >> zrg_.stop >> zrg_.step >> linesz;
@@ -217,7 +236,20 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 	if ( trcnr<0 || !strm.isOK() )
 	    return false;
 
-	PosInfo::Line2DPos pos( trcnr );
+	int spnr = -1;
+	if ( version > 1 )
+	{
+	    if ( asc )
+		strm >> spnr;
+	    else
+		strm.getBin( spnr );
+	    if ( spnr<0 || !strm.isOK() )
+		return false;
+	}
+	else
+	    spnr = 0;
+
+	PosInfo::Line2DPos pos( trcnr, spnr );
 	if ( asc )
 	    strm >> pos.coord_.x >> pos.coord_.y;
 	else
@@ -232,6 +264,11 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 				 bool withnls ) const
 {
+    ascostream astream( strm );
+    astream.putHeader( sKeyFileType );
+    astream.put( sKey::Version(), 2 );
+    astream.newParagraph();
+
     const int linesz = posns_.size();
     if ( !asc )
 	strm.addBin( zrg_.start ).addBin( zrg_.stop ).addBin( zrg_.step )
