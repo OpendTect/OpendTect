@@ -69,9 +69,9 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     const bool is2d = ad.is2D();
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
 
-    setCaption( is2d ? tr("Create Data Attribute") :
-       ( multioutput ? tr("Create Multi-attribute Output")
-		     : tr("Create Volume Attribute")) );
+    setCaption( is2d ? tr("Create 2D Data Attribute") :
+       ( multioutput ? tr("Create Multi-Attribute Volume")
+		     : tr("Create Single-Attribute Volume")) );
 
     setHelpKey( is2d ? mODHelpKey(mAttrVolOut2DHelpID)
 		     : mODHelpKey(mAttrVolOutHelpID) );
@@ -96,10 +96,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     }
 
     transffld_ = new uiSeisTransfer( pargrp_,
-				     uiSeisTransfer::Setup(is2d,false)
-						     .fornewentry(true)
-						     .withstep(!is2d)
-						     .multiline(true) );
+		uiSeisTransfer::Setup(is2d,false)
+			.fornewentry(true).withstep(!is2d).multiline(true) );
     if ( todofld_ )
 	transffld_->attach( alignedBelow, todofld_ );
     else
