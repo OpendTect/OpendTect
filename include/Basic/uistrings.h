@@ -340,6 +340,7 @@ public:
     static uiString sHorizon(int num=1);
     static uiString sHorizonData()	{ return tr("Horizon Data"); }
     static uiString sHorizontal()	{ return tr("Horizontal"); }
+    static uiString sID()		{ return tr("ID"); }
     static uiString sImport();
     static uiString sImpSuccess()	{ return tr("Import successful"); }
     static uiString sInfo()		{ return tr("info"); }

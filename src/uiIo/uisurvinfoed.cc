@@ -717,7 +717,7 @@ bool uiSurveyInfoEditor::acceptOK()
 	si_.setFreshSetupData( iop );
     }
 
-    if ( latlongsel_->outputSystem() )
+    if ( latlongsel_->acceptOK() && latlongsel_->outputSystem() )
 	si_.setCoordSystem( latlongsel_->outputSystem() );
 
     if ( !si_.write() )

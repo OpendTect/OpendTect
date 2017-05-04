@@ -6,8 +6,9 @@
 
 
 #include "odplugin.h"
-#include "crsproj.h"
+#include "crssystem.h"
 #include "oddirs.h"
+#include "survinfo.h"
 
 mDefODPluginEarlyLoad(CRS)
 mDefODPluginInfo(CRS)
@@ -24,10 +25,13 @@ mDefODPluginInfo(CRS)
 
 mDefODInitPlugin(CRS)
 {
+    Coords::ProjectionBasedSystem::initClass();
     Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( "EPSG",
 	    			toUiString("Standard EPSG Projectons") );
     BufferString epsgfnm = mGetSetupFileName( "epsg" );
     repos->readFromFile( epsgfnm );
+    Coords::ProjectionRepos::addRepos( repos );
+    SI().readSavedCoordSystem();
     return 0;
 }
 

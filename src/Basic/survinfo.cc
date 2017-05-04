@@ -1329,6 +1329,30 @@ bool SurveyInfo::setCoordSystem( Coords::PositionSystem* system )
 }
 
 
+void SurveyInfo::readSavedCoordSystem() const
+{
+    File::Path fp( getFullDirPath() );
+    fp.add( sSetupFileName() );
+    SafeFileIO sfio( fp.fullPath(), false );
+    if ( !sfio.open(true) )
+	return;
+
+    ascistream astream( sfio.istrm() );
+    if ( !astream.isOfFileType(sKeySI) )
+    { sfio.closeSuccess(); return; }
+
+    astream.next();
+    const IOPar survpar( astream );
+
+    PtrMan<IOPar> coordsystempar = survpar.subselect( sKeyCoordinateSystem );
+    if ( coordsystempar )
+	const_cast<SurveyInfo*>(this)->coordsystem_ =
+	    	Coords::PositionSystem::createSystem( *coordsystempar );
+
+    sfio.closeSuccess();
+}
+
+
 uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
 {
     uiRetVal ret;

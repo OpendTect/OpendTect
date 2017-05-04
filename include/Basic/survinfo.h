@@ -263,6 +263,9 @@ public:
     const uiString	set3PtsUiMsg(const Coord c[3],const BinID b[2],int);
     void		gen3Pts();
     bool		setCoordSystem(Coords::PositionSystem*);
+    void		readSavedCoordSystem() const;
+    			//!< Useful after loading plugins.
+
     void		update3DGeometry();
 
     bool		usePar(const IOPar&);

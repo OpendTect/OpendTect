@@ -58,10 +58,11 @@ public:
 				~uiPositionSystemSel();
     RefMan<PositionSystem>	outputSystem() { return outputsystem_; }
 				//!<After AcceptOK();
+    bool			acceptOK();
+
 private:
 
     void			convertFileCB(CallBacker*);
-    bool			acceptOK();
     void			systemChangedCB(CallBacker*);
     uiGenInput*			coordsystemsel_;
     uiLabel*			coordsystemdesc_;

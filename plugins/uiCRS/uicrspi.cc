@@ -5,8 +5,7 @@
 -*/
 
 
-#include "uicrsmod.h"
-
+#include "uicrssystem.h"
 #include "uimsg.h"
 #include "odplugin.h"
 
@@ -26,6 +25,13 @@ mDefODPluginInfo(uiCRS)
 
 mDefODInitPlugin(uiCRS)
 {
+    Coords::uiProjectionBasedSystem::initClass();
     return 0;
 }
+
+mDefODPluginSurvRelToolsLoadFn(uiCRS)
+{
+    Coords::uiProjectionBasedSystem::initClass();
+}
+
 

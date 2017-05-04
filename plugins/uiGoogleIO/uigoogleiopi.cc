@@ -62,7 +62,8 @@ public:
     uiVisMenuItemHandler psmnuitmhandler_;
     uiVisMenuItemHandler rlmnuitmhandler_;
 
-    void		exportSurv(CallBacker*);
+    static void		exportSurv(CallBacker*);
+
     void		exportWells(CallBacker*);
     void		exportLines(CallBacker*);
     void		exportPolygon(CallBacker*);
@@ -211,7 +212,7 @@ public:
 
 uiGoogleIOSurveyManagerUtil()
     : uiSurveyManager::Util( "google", uiGoogleIOMgr::sUtilTTText(),
-			mCB(theinst_,uiGoogleIOMgr,exportSurv) )
+			mSCB(uiGoogleIOMgr::exportSurv) )
 {
 }
 

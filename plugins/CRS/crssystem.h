@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "crsmod.h"
+#include "crsproj.h"
 #include "coordsystem.h"
 
 
@@ -20,6 +20,10 @@ namespace Coords
 mExpClass(CRS) ProjectionBasedSystem : public PositionSystem
 { mODTextTranslationClass(ProjectionBasedSystem);
 public:
+
+    mDefaultFactoryInstantiation( PositionSystem,ProjectionBasedSystem,
+	    			  "ProjectionBased System",
+				 tr("Projection Based System") );
 
     				ProjectionBasedSystem();
 
@@ -33,21 +37,19 @@ public:
     virtual LatLong		toGeographicWGS84(const Coord&) const;
     virtual Coord		fromGeographicWGS84(const LatLong&) const;
 
-    virtual uiString		toUiString(const Coord&) const;
-    virtual BufferString	toString(const Coord&,
-					 bool withsystem=false) const;
-				/*!<Returns string. If withsystem is turned on
-				    it will start with the factory name of the
-				    system, followed by a space. */
-    virtual Coord		fromString(const char*) const;
-
     virtual bool		isOrthogonal() const;
     virtual bool		isFeet() const;
     virtual bool		isMeter() const;
 
+    bool			setProjection(ProjectionID);
+    const Projection*		getProjection() const;
+
     virtual bool		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
 
+protected:
+
+    const Projection*		proj_;
 };
 
 }; //namespace

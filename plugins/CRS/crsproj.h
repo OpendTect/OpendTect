@@ -16,14 +16,12 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "uistring.h"
 
-#include "projects.h"
-#include "proj_api.h"
-
+class BufferStringSet;
 
 namespace Coords
 {
 
-mDefIntegerIDType(od_uint16,ProjectionID);
+mDefIntegerIDType(int,ProjectionID);
 
 mExpClass(CRS) Projection
 { mODTextTranslationClass(Projection);
@@ -37,20 +35,22 @@ public:
     BufferString		userName() const	{ return usernm_; }
     BufferString		defStr() const		{ return defstr_; }    
 
-    bool			isOK() const;
+    virtual bool		isOK() const;
 
-    LatLong			toGeographicWGS84(const Coord&) const;
-    Coord			fromGeographicWGS84(const LatLong&) const;
+    virtual LatLong		toGeographicWGS84(const Coord&) const;
+    virtual Coord		fromGeographicWGS84(const LatLong&) const;
+    virtual Coord		transformTo(const Projection& target,
+	    				    Coord pos) const;
 
-    bool			isFeet() const;
-    bool			isMeter() const;
+    virtual bool		isOrthogonal() const;
+    virtual bool		isFeet() const;
+    virtual bool		isMeter() const;
 
+    static void			getAll( TypeSet<ProjectionID>&,
+	    				BufferStringSet& names,
+					bool orthogonalonly=false );
     static const Projection*	getByID(ProjectionID);
     static const Projection*	getByName(const char*);
-
-    static Coord		transform(const Projection& from,
-	    				  const Projection& to,
-					  Coord pos);
 
 protected:
 
@@ -59,7 +59,6 @@ protected:
     ProjectionID		id_;
     BufferString		usernm_;
     BufferString		defstr_;
-    projPJ			proj_;
 };
 
 

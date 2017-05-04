@@ -6,44 +6,82 @@
 
 
 #include "crssystem.h"
+#include "iopar.h"
+
+static const char* sKeyProjectionID = "Projection.ID";
 
 Coords::ProjectionBasedSystem::ProjectionBasedSystem()
+    : proj_(0)
 {}
 
 
 bool Coords::ProjectionBasedSystem::isOK() const
-{ return false; }
+{ return proj_ && proj_->isOK(); }
 
 bool Coords::ProjectionBasedSystem::geographicTransformOK() const
-{ return false; }
+{ return isOK(); }
 
-LatLong Coords::ProjectionBasedSystem::toGeographicWGS84( const Coord& ) const
-{ return LatLong::udf(); }
+LatLong Coords::ProjectionBasedSystem::toGeographicWGS84(
+						const Coord& crd ) const
+{
+    if ( !isOK() )
+	return LatLong::udf();
 
-Coord Coords::ProjectionBasedSystem::fromGeographicWGS84( const LatLong& ) const
-{ return Coord::udf(); }
+    return proj_->toGeographicWGS84( crd );
+}
 
-uiString Coords::ProjectionBasedSystem::toUiString( const Coord& ) const
-{ return uiString::emptyString(); }
 
-BufferString Coords::ProjectionBasedSystem::toString( const Coord&,
-						      bool withsystem ) const
-{ return BufferString::empty(); }
+Coord Coords::ProjectionBasedSystem::fromGeographicWGS84(
+						const LatLong& ll ) const
+{
+    if ( !isOK() )
+	return Coord::udf();
 
-Coord Coords::ProjectionBasedSystem::fromString( const char* ) const
-{ return Coord::udf(); }
+    return proj_->fromGeographicWGS84( ll );
+}
+
 
 bool Coords::ProjectionBasedSystem::isOrthogonal() const
-{ return false; }
+{ return !proj_ || proj_->isOrthogonal(); }
 
 bool Coords::ProjectionBasedSystem::isFeet() const
-{ return false; }
+{ return proj_ && proj_->isFeet(); }
 
 bool Coords::ProjectionBasedSystem::isMeter() const
-{ return false; }
+{ return !proj_ || proj_->isMeter(); }
 
-bool Coords::ProjectionBasedSystem::usePar( const IOPar& )
-{ return false; }
+bool Coords::ProjectionBasedSystem::usePar( const IOPar& par )
+{
+    if ( !PositionSystem::usePar(par) )
+	return false;
 
-void Coords::ProjectionBasedSystem::fillPar( IOPar& ) const
-{}
+    Coords::ProjectionID projid;
+    if ( par.get(sKeyProjectionID,projid) )
+	setProjection( projid );
+
+    return true;
+}
+
+
+void Coords::ProjectionBasedSystem::fillPar( IOPar& par ) const
+{
+    PositionSystem::fillPar( par );
+    if ( proj_ )
+	par.set( sKeyProjectionID, proj_->id() );
+}
+
+
+bool Coords::ProjectionBasedSystem::setProjection( Coords::ProjectionID pid )
+{
+    const Coords::Projection* proj = Coords::Projection::getByID( pid );
+    if ( !proj )
+	return false;
+
+    proj_ = proj;
+    return true;
+}
+
+
+const Coords::Projection* Coords::ProjectionBasedSystem::getProjection() const
+{ return proj_; }
+

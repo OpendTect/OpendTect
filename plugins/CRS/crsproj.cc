@@ -7,8 +7,14 @@
 
 #include "crsproj.h"
 #include "od_istream.h"
+#include "bufstringset.h"
+#include "typeset.h"
+
+#include "projects.h"
+#include "proj_api.h"
 
 static FixedString sKeyUnitsArg()	{ return FixedString("+units="); }
+
 static const Coords::ProjectionID cWGS84ID()
 { return Coords::ProjectionID::get( 4326 ); }
 
@@ -22,29 +28,13 @@ static const Coords::Projection* getWGS84Proj()
 Coords::Projection::Projection( Coords::ProjectionID pid, const char* usrnm,
 				const char* defstr )
     : id_(pid),usernm_(usrnm),defstr_(defstr)
-    , proj_(0)
-{
-    init();
-}
-
+{}
 
 Coords::Projection::~Projection()
-{
-    pj_free( proj_ );
-}
-
+{}
 
 bool Coords::Projection::isOK() const
-{
-    return proj_;
-}
-
-
-void Coords::Projection::init()
-{
-    proj_ = pj_init_plus( defstr_.buf() );
-}
-
+{ return false; }
 
 LatLong Coords::Projection::toGeographicWGS84( const Coord& crd ) const
 {
@@ -52,8 +42,8 @@ LatLong Coords::Projection::toGeographicWGS84( const Coord& crd ) const
     if ( !isOK() || !wgs84proj )
 	return LatLong::udf();
 
-    const Coord llpos = transform( *this, *wgs84proj, crd );
-    return LatLong( llpos.x_, llpos.y_ );
+    const Coord llpos = transformTo( *wgs84proj, crd );
+    return LatLong( mRad2DegD*llpos.y_, mRad2DegD*llpos.x_ );
 }
 
 
@@ -63,36 +53,40 @@ Coord Coords::Projection::fromGeographicWGS84( const LatLong& ll ) const
     if ( !isOK() || !wgs84proj )
 	return Coord::udf();
 
-    const Coord llpos( ll.lat_, ll.lng_ );
-    return transform( *wgs84proj, *this, llpos );
+    const Coord llpos( mDeg2RadD*ll.lng_, mDeg2RadD*ll.lat_ );
+    return wgs84proj->transformTo( *this, llpos );
 }
 
+Coord Coords::Projection::transformTo( const Coords::Projection& target,
+					Coord pos ) const
+{ return Coord::udf(); }
 
-Coord Coords::Projection::transform( const Coords::Projection& from,
-				     const Coords::Projection& to, Coord pos )
-{
-    if ( !from.isOK() || !to.isOK() )
-	return Coord::udf();
-
-    Coord ret = pos;
-    if ( pj_transform(from.proj_,to.proj_,1,1,&ret.x_,&ret.y_,0) )
-	return Coord::udf();
-
-    return ret;
-}
-
+bool Coords::Projection::isOrthogonal() const
+{ return true; }
 
 bool Coords::Projection::isFeet() const
 { return !isMeter(); }
 
 bool Coords::Projection::isMeter() const
-{
-    const char* unitstr = defstr_.find( sKeyUnitsArg().buf() );
-    if ( !unitstr )
-	return true;
+{ return true; }
 
-    BufferString unitval( unitstr + sKeyUnitsArg().size() );
-    return unitval.firstChar() == 'm';
+void Coords::Projection::getAll( TypeSet<ProjectionID>& pids,
+				 BufferStringSet& usrnms, bool orthogonalonly )
+{
+    for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
+    {
+	const Coords::ProjectionRepos* repos =
+	    		Coords::ProjectionRepos::reposSet().get( idx );
+	for ( int idy=0; idy<repos->size(); idy++ )
+	{
+	    const Coords::Projection* proj = repos->get( idy );
+	    if ( !orthogonalonly || proj->isOrthogonal() )
+	    {
+		pids.add( proj->id() );
+		usrnms.add( proj->userName() );
+	    }
+	}
+    }
 }
 
 
@@ -126,6 +120,89 @@ const Coords::Projection* Coords::Projection::getByName( const char* usrnm )
     return 0;
 }
 
+namespace Coords
+{
+class Proj4Projection : public Projection
+{
+public:
+    			Proj4Projection(Coords::ProjectionID,
+					const char* usrnm,
+					const char* defstr);
+			~Proj4Projection();
+
+    bool		isOK() const;
+    bool		isOrthogonal() const;
+    bool		isMeter() const;
+
+    Coord		transformTo(const Projection& target,Coord pos) const;
+
+protected:
+
+    void		init();
+
+    projPJ		proj_;
+};
+} // Namespace
+
+Coords::Proj4Projection::Proj4Projection( Coords::ProjectionID pid,
+					  const char* usrnm, const char* defstr)
+    : Projection(pid,usrnm,defstr)
+    , proj_(0)
+{
+    init();
+}
+
+
+Coords::Proj4Projection::~Proj4Projection()
+{
+    pj_free( proj_ );
+}
+
+
+bool Coords::Proj4Projection::isOK() const
+{
+    return proj_;
+}
+
+
+void Coords::Proj4Projection::init()
+{
+    proj_ = pj_init_plus( defstr_.buf() );
+}
+
+bool Coords::Proj4Projection::isMeter() const
+{
+    const char* unitstr = defstr_.find( sKeyUnitsArg().buf() );
+    if ( !unitstr )
+	return true;
+
+    BufferString unitval( unitstr + sKeyUnitsArg().size() );
+    return unitval.firstChar() == 'm';
+}
+
+
+Coord Coords::Proj4Projection::transformTo( const Coords::Projection& target,
+					    Coord pos ) const
+{
+    if ( !isOK() || !target.isOK() )
+	return Coord::udf();
+
+    mDynamicCastGet(const Proj4Projection*,targetproj4,&target)
+    if ( !targetproj4 )
+	return Coord::udf();
+
+    Coord ret = pos;
+    if ( pj_transform(proj_,targetproj4->proj_,1,1,&ret.x_,&ret.y_,0) )
+	return Coord::udf();
+
+    return ret;
+}
+
+
+bool Coords::Proj4Projection::isOrthogonal() const
+{ return isOK() && !pj_is_latlong( proj_ ) && !pj_is_geocent( proj_ ); }
+
+
 
 ObjectSet<Coords::ProjectionRepos> Coords::ProjectionRepos::reposset_;
 
@@ -156,7 +233,7 @@ bool Coords::ProjectionRepos::readFromFile( const char* fnm )
 	if ( !firstspace ) mContinue
 	*firstspace = '\0';
 	idstr.unEmbed( '<', '>' );
-	const od_uint16 idnum = mCast( od_uint16, idstr.toInt() );
+	const int idnum = idstr.toInt();
 	const Coords::ProjectionID pid = Coords::ProjectionID::get( idnum );
 
 	// Trim defstr
@@ -167,7 +244,8 @@ bool Coords::ProjectionRepos::readFromFile( const char* fnm )
 	if ( bracesptr )
 	    *bracesptr = '\0';
 
-	Coords::Projection* proj = new Coords::Projection( pid, usrnm, defstr );
+	Coords::Projection* proj =
+	    		new Coords::Proj4Projection( pid, usrnm, defstr );
 	add( proj );
     }
 
@@ -221,3 +299,5 @@ const Coords::ProjectionRepos* Coords::ProjectionRepos::getRepos(
 
     return 0;
 }
+
+
