@@ -192,12 +192,6 @@ const char* GMTSurfaceGrid::sType()
 { return "Continuous curvature(GMT)"; }
 
 
-void GMTSurfaceGrid::initClass()
-{
-    Array2DInterpol::factory().addCreator( create, sType() );
-}
-
-
 Array2DInterpol* GMTSurfaceGrid::create()
 {
     return new GMTSurfaceGrid;
@@ -260,12 +254,6 @@ GMTNearNeighborGrid::GMTNearNeighborGrid()
 
 const char* GMTNearNeighborGrid::sType()
 { return "Nearest neighbor(GMT)"; }
-
-
-void GMTNearNeighborGrid::initClass()
-{
-    Array2DInterpol::factory().addCreator( create, sType() );
-}
 
 
 Array2DInterpol* GMTNearNeighborGrid::create()

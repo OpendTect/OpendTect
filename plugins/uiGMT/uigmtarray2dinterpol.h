@@ -29,6 +29,7 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			acceptOK();
+    void			setValuesFrom(const Array2DInterpol&);
 
 protected:
     void			gmtPushCB(CallBacker*);
@@ -49,6 +50,7 @@ public:
     BufferString		mkCommand();
     void			fillPar(IOPar&) const;
     bool			acceptOK();
+    void			setValuesFrom(const Array2DInterpol&);
 
 protected:
     void			gmtPushCB(CallBacker*);
