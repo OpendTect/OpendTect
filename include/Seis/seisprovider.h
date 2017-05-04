@@ -80,6 +80,7 @@ public:
     void		selectComponents(const TypeSet<int>&);
     void		forceFPData(bool yn=true);
     void		setReadMode(ReadMode);
+    bool		goTo(const TrcKey&);
     uiRetVal		fillPar(IOPar&) const;
     uiRetVal		usePar(const IOPar&);
 
@@ -93,6 +94,8 @@ public:
     const TypeSet<int>& getSelectedComponents() const	{ return selcomps_;}
     bool		haveSelComps() const;
 
+    TrcKey		curPosition() const
+			{ return doGetCurPosition(); }
     Pos::GeomID		curGeomID() const	{ return doGetCurGeomID(); }
     od_int64		nrDone() const			{ return nrdone_; }
     od_int64		totalNr() const;
@@ -136,6 +139,8 @@ protected:
 
     virtual od_int64	getTotalNrInInput() const			= 0;
     virtual void	doReset(uiRetVal&) const			= 0;
+    virtual TrcKey	doGetCurPosition() const			= 0;
+    virtual bool	doGoTo(const TrcKey&)				= 0;
     virtual void	doFillPar(IOPar&,uiRetVal&) const;
     virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
 

@@ -8,8 +8,24 @@
 
 #include "seisselectionimpl.h"
 #include "testprog.h"
-#include "trckeysampling.h"
+#include "trckeyzsampling.h"
 #include "moddepmgr.h"
+
+/*!
+Test program for Seis::Provider for testing standard usages of provider
+class for all four geom types: Vol, Line, VolPS, LinePS. Uses
+Seis::ProviderTester for testing various functionalities.
+
+Required surveys: F3_Test_Survey and Penobscot_Test_survey.
+
+Covered cases: Output of get, getNext functions for preloaded and
+non-preloaded data with and without subselection for various data types.
+Behaviour of these functions for special cases like end of data, missing and
+non-existent traces have also been covered. More functionality tests include
+IOPar usage etc., Additional test cases can be added if required. Can be
+tested for other datastores simply by changing the static dbkey and/or
+trckey members.
+*/
 
 // Using F3_Test_Survey
 static const char* dbkeyvol = "100010.2";
@@ -42,13 +58,14 @@ static bool testVol()
     TrcKeySampling tks;
     tks.start_ = tks.stop_ = tk_last.binID();
     tester.testSubselection( new Seis::RangeSelData(tks),
-			     "Subselection to last trc:" );
+			     "Subselection to last trc" );
 
     tks.stop_ = tks.start_ = tk_non_existent.binID();
     tester.testSubselection( new Seis::RangeSelData(tks),
-			     "Subselection to outside data range:" );
-
+			     "Subselection to outside data range" );
+    tester.testPreLoad( TrcKeyZSampling(true) );
     tester.testPreLoadTrc( false );
+    tester.testIOParUsage();
 
     od_cout() << "\n---- 3D Volume with gaps ----\n" << od_endl;
     tester.setInput( dbkeyvol_with_missing_trcs );
@@ -72,6 +89,7 @@ static bool testLine()
     tester.testGetNext();
     tester.testPreLoadTrc();
     tester.testComponentSelection();
+    tester.testIOParUsage();
 
     od_cout() << "\n---- 2D Line with a gap ----\n" << od_endl;
 
@@ -96,6 +114,7 @@ static bool testPS3D()
     tester.testSubselection( new Seis::RangeSelData(tks),
 			     "Subselection to tk_1300_1200:" );
     tester.testPreLoadTrc();
+    tester.testIOParUsage();
     tester.testComponentSelection();
     return true;
 }
@@ -115,6 +134,7 @@ static bool testPS2D()
     tester.testSubselection( new Seis::RangeSelData(tks),
 			     "Subselection to non-existent trc:" );
     tester.testPreLoadTrc();
+    tester.testIOParUsage();
     tester.testComponentSelection();
     return true;
 }

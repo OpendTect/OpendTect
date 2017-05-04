@@ -15,14 +15,39 @@ ________________________________________________________________________
 #include "seisselectionimpl.h"
 #include "od_iostream.h"
 #include "seispreload.h"
+#include "seistype.h"
+
+#define mPrintTestResult( testname, withcomps, withoffs ) \
+{ \
+    prTrc( testname, uirv, withcomps, withoffs, false ); \
+    od_cout() << " Failure\n"; \
+    return; \
+} \
+else \
+{ \
+    prTrc( testname, uirv, withcomps, withoffs, false ); \
+    od_cout() << " Success\n"; \
+}
+
+#define mPrintBufTestResult( testname ) \
+{ \
+    prBuf( testname, tbuf, uirv, false ); \
+    od_cout() << " Failure\n"; \
+    return; \
+} \
+else \
+{ \
+    prBuf( testname, tbuf, uirv, false ); \
+    od_cout() << " Success\n"; \
+}
 
 #define mRetIfNotOK( uirv ) \
 if ( !uirv.isOK() ) \
 { \
    if ( isFinished(uirv) ) \
-       od_cout() << ">At End<" << od_endl; \
+       od_cout() << ">At End<"; \
    else \
-       od_cout() << uirv << od_endl; \
+       od_cout() << uirv; \
    \
    return; \
 }
@@ -55,7 +80,8 @@ uiRetVal Seis::ProviderTester::setInput( const char* dbkystr )
 
 
 void Seis::ProviderTester::prTrc( const char* start, const uiRetVal& uirv,
-				  bool withcomps, bool withoffs )
+				  bool withcomps, bool withoffs,
+				  bool addnewline )
 {
     if ( start )
 	od_cout() << start << ": ";
@@ -70,12 +96,13 @@ void Seis::ProviderTester::prTrc( const char* start, const uiRetVal& uirv,
     if ( withoffs )
 	od_cout() << " O=" << trc_.info().offset_;
 
-    od_cout() << od_endl;
+    if ( addnewline )
+	od_cout() << od_endl;
 }
 
 
 void Seis::ProviderTester::prBuf( const char* start, const SeisTrcBuf& tbuf,
-				  const uiRetVal& uirv )
+				  const uiRetVal& uirv, bool addnewline )
 {
     if ( start )
 	od_cout() << start << ": ";
@@ -94,6 +121,9 @@ void Seis::ProviderTester::prBuf( const char* start, const SeisTrcBuf& tbuf,
 	od_cout() << " [" << sz << "] O=" << trc0.info().offset_;
 	od_cout() << "-" << trc1.info().offset_ << od_endl;
     }
+
+    if ( addnewline )
+	od_cout() << od_endl;
 }
 
 
@@ -103,12 +133,15 @@ void Seis::ProviderTester::testGet( const TrcKey& tk, const char* start )
 
     uiRetVal uirv;
     uirv = prov_->get( tk, trc_ );
-    prTrc( start, uirv, false, prov_->isPS() );
+    if ( uirv.isError() )
+	mPrintTestResult( start, false, prov_->isPS() );
+
     if ( prov_->isPS() )
     {
 	SeisTrcBuf tbuf( false );
 	uirv = prov_->getGather( tk, tbuf );
-	prBuf( start, tbuf, uirv );
+	if ( uirv.isError() )
+	    mPrintBufTestResult( start );
     }
 }
 
@@ -118,35 +151,23 @@ void Seis::ProviderTester::testGetNext()
     if ( !prov_ ) return;
 
     uiRetVal uirv;
+    while ( uirv.isOK() )
+	uirv = prov_->getNext( trc_ );
+
     const bool isps = prov_->isPS();
-    uirv = prov_->getNext( trc_ );
-    prTrc( "First next", uirv, false, isps );
-    uirv = prov_->getNext( trc_ );
-    prTrc( "Second next", uirv, false, isps );
-    if ( prov_->is2D() )
-    {
-	const int curlinenr = trc_.info().lineNr();
-	while ( trc_.info().lineNr() == curlinenr )
-	{
-	    uirv = prov_->getNext( trc_ );
-	    if ( isFinished(uirv) )
-		break;
-	    mRetIfNotOK( uirv );
-	}
-	if ( !isFinished(uirv) )
-	    prTrc( "First on following line", uirv, false, isps );
-	od_cout() << od_endl;
-    }
+    if ( !isFinished(uirv) )
+	mPrintTestResult( "Iteration by calling getNext", false, isps );
 
     if ( isps )
     {
 	mRetIfNotOK( prov_->reset() );
 
 	SeisTrcBuf tbuf( false );
-	uirv = prov_->getNextGather( tbuf );
-	prBuf( "First next gather", tbuf, uirv );
-	uirv = prov_->getNextGather( tbuf );
-	prBuf( "Second next gather", tbuf, uirv );
+	while ( uirv.isOK() )
+	    uirv = prov_->getNextGather( tbuf );
+
+	if ( !isFinished(uirv) )
+	    mPrintBufTestResult( "Iteration by calling getNextGather" );
     }
 
     od_cout() << od_endl;
@@ -159,11 +180,23 @@ void Seis::ProviderTester::testSubselection(
     if ( !prov_ || !seldata )
 	return;
 
-    od_cout() << txt << od_endl;
-
     prov_->setSelData( seldata );
-    testGetNext();
+
+    uiRetVal uirv; int nrtrcs = 0;
+    while ( true )
+    {
+	uirv = prov_->getNext( trc_ );
+	if ( !uirv.isOK() )
+	    break;
+	nrtrcs++;
+    }
+
+    if ( !isFinished(uirv) || nrtrcs!=seldata->expectedNrTraces() )
+	mPrintTestResult( txt, false, false );
+
     prov_->setSelData( 0 );
+
+    od_cout() << od_endl;
 }
 
 
@@ -178,7 +211,13 @@ void Seis::ProviderTester::testPreLoadTrc( bool currenttrc )
 	tkzs.set2DDef();
     tkzs.hsamp_.start_ = tkzs.hsamp_.stop_ = trc_.info().binID();
 
-    const Pos::GeomID geomid = tkzs.is2D() ? trc_.info().lineNr()
+    testPreLoad( tkzs );
+}
+
+
+void Seis::ProviderTester::testPreLoad( const TrcKeyZSampling& tkzs )
+{
+    const Pos::GeomID geomid = tkzs.is2D() ? tkzs.hsamp_.start_.inl()
 					   : Survey::GM().default3DSurvID();
     Seis::PreLoader pl( dbky_, geomid );
     TextTaskRunner taskrunner( od_cout() );
@@ -197,7 +236,7 @@ void Seis::ProviderTester::testPreLoadTrc( bool currenttrc )
     }
 
     testSubselection( new Seis::RangeSelData(tkzs.hsamp_),
-		      "\nSubselection to preloaded data range:" );
+		      "Subselection to preloaded data range" );
     pl.unLoad();
 }
 
@@ -206,7 +245,7 @@ void Seis::ProviderTester::testComponentSelection( bool currenttrc )
 {
     if ( !prov_ ) return;
 
-    od_cout() << "\nComponent selection:" << od_endl;
+    od_cout() << "Component selection:" << od_endl;
 
     mResetIfNotCurrentTrc( currenttrc );
 
@@ -216,29 +255,56 @@ void Seis::ProviderTester::testComponentSelection( bool currenttrc )
     mRetIfNotOK( uirv );
 
     const BufferString prstr = compnms.getDispString( 4 );
-    od_cout() << prstr << od_endl;
+    od_cout() << prstr << "\n\n";
 
+    const int nrcomps = compnms.size();
     uirv = prov_->getNext( trc_ );
-    prTrc( "\nFirst next", uirv, true );
+    if ( trc_.nrComponents() != nrcomps )
+	mPrintTestResult( "No comp selected", true, false );
 
     prov_->selectComponent( 0 );
     uirv = prov_->get( trc_.info().trckey_, trc_ );
-    prTrc( "1st comp selected", uirv, true );
+    if ( trc_.nrComponents() != 1 )
+	mPrintTestResult( "1st comp selected", true, false );
 
-    if ( compnms.size() > 1 )
+    if ( nrcomps > 1 )
     {
 	prov_->selectComponent( 1 );
 	uirv = prov_->get( trc_.info().trckey_, trc_ );
-	prTrc( "2nd comp selected", uirv, true );
+	if ( trc_.nrComponents() != 1 )
+	    mPrintTestResult( "2nd comp selected", true, false );
 
 	int comps[2] = { 0, 1 };
 	prov_->selectComponents( TypeSet<int>(comps,2) );
 	uirv = prov_->get( trc_.info().trckey_, trc_ );
-	prTrc( "Both comps selected", uirv, true );
+	if ( trc_.nrComponents() != 2 )
+	    mPrintTestResult( "Both comps selected", true, false );
     }
 
     prov_->selectComponent( -1 );
     uirv = prov_->get( trc_.info().trckey_, trc_ );
-    prTrc( "No comp selected", uirv, true );
+    if ( trc_.nrComponents() != nrcomps )
+	mPrintTestResult( "After removing comp selections", true, false );
+
+    od_cout() << od_endl;
+}
+
+
+void Seis::ProviderTester::testIOParUsage( bool currenttrc )
+{
+    od_cout() << "IOPar usage:" << od_endl;
+
+    mResetIfNotCurrentTrc( currenttrc );
+
+    uiRetVal uirv; IOPar iop;
+    uirv = prov_->fillPar( iop );
+    mRetIfNotOK( uirv );
+
+    uirv = prov_->usePar( iop );
+    mRetIfNotOK( uirv );
+
+    if ( prov_->curPosition() != trc_.info().trckey_ )
+	mPrintTestResult( "Position restoration after usePar", false,false);
+
     od_cout() << od_endl;
 }

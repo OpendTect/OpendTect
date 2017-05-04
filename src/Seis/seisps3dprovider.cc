@@ -349,6 +349,18 @@ void Seis::PS3DProvider::doReset( uiRetVal& uirv ) const
 }
 
 
+TrcKey Seis::PS3DProvider::doGetCurPosition() const
+{
+    return TrcKey( fetcher_.nextbid_ );
+}
+
+
+bool Seis::PS3DProvider::doGoTo( const TrcKey& tk )
+{
+    return fetcher_.prepGetAt( tk.binID() );
+}
+
+
 void Seis::PS3DProvider::doGetNextGather( SeisTrcBuf& tbuf,
 					  uiRetVal& uirv ) const
 {

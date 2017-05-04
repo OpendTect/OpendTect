@@ -41,6 +41,8 @@ protected:
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
+    virtual TrcKey	doGetCurPosition() const;
+    virtual bool	doGoTo(const TrcKey&);
     virtual int		gtNrOffsets() const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;

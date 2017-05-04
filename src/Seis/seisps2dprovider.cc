@@ -374,6 +374,18 @@ void Seis::PS2DProvider::doReset( uiRetVal& uirv ) const
 }
 
 
+TrcKey Seis::PS2DProvider::doGetCurPosition() const
+{
+    return TrcKey( curGeomID(), fetcher_.iter_->trcNr() );
+}
+
+
+bool Seis::PS2DProvider::doGoTo( const TrcKey& tk )
+{
+    return fetcher_.prepGetAt( tk );
+}
+
+
 void Seis::PS2DProvider::doGetNextGather( SeisTrcBuf& tbuf,
 					  uiRetVal& uirv ) const
 {

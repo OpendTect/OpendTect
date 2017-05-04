@@ -428,6 +428,22 @@ void Seis::VolProvider::doReset( uiRetVal& uirv ) const
 }
 
 
+TrcKey Seis::VolProvider::doGetCurPosition() const
+{
+    return TrcKey( fetcher_.nextbid_ );
+}
+
+
+bool Seis::VolProvider::doGoTo( const TrcKey& tk )
+{
+    if ( !fetcher_.trl_ || !fetcher_.trl_->goTo(tk.binID()) )
+	return false;
+
+    fetcher_.nextbid_ = tk.binID();
+    return true;
+}
+
+
 void Seis::VolProvider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 {
     fetcher_.getNext( trc );

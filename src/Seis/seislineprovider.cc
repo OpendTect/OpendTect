@@ -66,6 +66,7 @@ const LineProvider& prov() const
 
     void		reset();
     void		findDataPack();
+    bool		goTo(const TrcKey&);
     bool		getNextGetter();
     bool		readNextTraces();
 
@@ -107,6 +108,40 @@ void Seis::LineFetcher::findDataPack()
 }
 
 
+bool Seis::LineFetcher::goTo( const TrcKey& tk )
+{
+    uirv_.setEmpty();
+    if ( !tk.hasValidGeomID() )
+	{ uirv_.set( tr("Invalid position requested") ); return false; }
+
+    curlidx_ = lineIdxFor( tk.geomID() );
+    if ( curlidx_ < 0 )
+	{ uirv_.set(tr("Requested position not available")); return false; }
+
+    if ( !getter_ || tk.geomID()!=curGeomID() )
+    {
+	delete getter_;
+	getter_ = dataset_->traceGetter( curGeomID(), prov().seldata_, uirv_ );
+	if ( !getter_ )
+	{
+	    if ( uirv_.isEmpty() )
+		uirv_.set( tr("Requested position not available") );
+	    return false;
+	}
+    }
+
+    if ( !iter_ || iter_->geomID()!=curGeomID() )
+    {
+	delete iter_;
+	iter_ = new PosInfo::Line2DDataIterator( *line2ddata_[curlidx_] );
+    }
+
+    nexttrcky_ = tk;
+    iter_->setTrcNr( tk.trcNr() );
+    return true;
+}
+
+
 bool Seis::LineFetcher::getNextGetter()
 {
     delete getter_; getter_ = 0;
@@ -124,33 +159,11 @@ bool Seis::LineFetcher::getNextGetter()
 
 void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 {
-    nexttrcky_ = tk;
-    iter_->setTrcNr( tk.trcNr() );
-    if ( !tk.hasValidGeomID() )
-    {
-	uirv_.set( tr("Invalid position requested") );
+    if ( !goTo(tk) )
 	return;
-    }
 
-    uirv_.setEmpty();
     if ( dp_ && dp_->sampling().hsamp_.includes(tk) )
 	{ dp_->fillTrace( tk, trc ); return; }
-
-    if ( !getter_ || tk.geomID() != curGeomID() )
-    {
-	curlidx_ = lineIdxFor( tk.geomID() );
-	if ( curlidx_ < 0 )
-	    { uirv_.set( tr("Requested position not available") ); return; }
-
-	delete getter_;
-	getter_ = dataset_->traceGetter( curGeomID(), prov().seldata_, uirv_ );
-	if ( !getter_ )
-	{
-	    if ( uirv_.isEmpty() )
-		uirv_.set( tr("Requested position not available") );
-	    return;
-	}
-    }
 
     uirv_ = getter_->get( tk.trcNr(), trc );
 }
@@ -259,6 +272,18 @@ void Seis::LineProvider::doReset( uiRetVal& uirv ) const
 {
     fetcher_.reset();
     uirv = fetcher_.uirv_;
+}
+
+
+TrcKey Seis::LineProvider::doGetCurPosition() const
+{
+    return TrcKey( curGeomID(), fetcher_.iter_->trcNr() );
+}
+
+
+bool Seis::LineProvider::doGoTo( const TrcKey& tk )
+{
+    return fetcher_.goTo( tk );
 }
 
 

@@ -48,6 +48,8 @@ protected:
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
+    virtual TrcKey	doGetCurPosition() const;
+    virtual bool	doGoTo(const TrcKey&);
     virtual uiRetVal	doGetComponentInfo(BufferStringSet&,DataType&) const;
     virtual int		gtNrOffsets() const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
