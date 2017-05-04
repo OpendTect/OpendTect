@@ -19,7 +19,7 @@ class uiComboBox;
 namespace Coords
 {
 
-mExpClass(uiIo) uiProjectionBasedSystem : public uiPositionSystem
+mExpClass(uiCRS) uiProjectionBasedSystem : public uiPositionSystem
 { mODTextTranslationClass(uiProjectionBasedSystem);
 public:
     mDefaultFactoryInstantiation1Param( uiPositionSystem,
