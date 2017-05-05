@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "crssystem.h"
 
 class uiListBox;
-class uiComboBox;
+class uiLineEdit;
 
 namespace Coords
 {
@@ -34,15 +34,19 @@ public:
 protected:
 
     uiListBox*		projselfld_;
-    uiComboBox*		sortselfld_;
+    uiLineEdit*		searchfld_;
 
     TypeSet<ProjectionID>	ids_;
     BufferStringSet		names_;
+    int				curselidx_;
+    TypeSet<int>		dispidxs_;
+    				// Indexes of ids_/names_ displayed in ListBox.
     
     bool		acceptOK();
     void		fetchList();
-    void		fillList(bool);
-    void		setCurrent(ProjectionID);
+    void		fillList();
+    void		setCurrent();
+    void		searchCB(CallBacker*);
 
 };
 

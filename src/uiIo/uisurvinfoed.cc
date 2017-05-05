@@ -455,7 +455,7 @@ void uiSurveyInfoEditor::mkTransfGrp()
 
 void uiSurveyInfoEditor::mkLatLongGrp()
 {
-    latlonggrp_ = new uiGroup( tabs_->tabGroup(), "Lat/Long Setup" );
+    latlonggrp_ = new uiGroup( tabs_->tabGroup(), "Coordinate System" );
     uiLabel* emptyspace = new uiLabel( latlonggrp_, uiStrings::sEmptyString() );
     latlongsel_ = new Coords::uiPositionSystemSel( latlonggrp_, true, &si_,
 					     si_.getCoordSystem() );
