@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "iodir.h"
+#include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
@@ -257,9 +258,10 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     lognmfld_->attach( alignedBelow, udffld_ );
 
     BufferStringSet colnms;
-    colnms.add( "Well in LAS" ).add( "Well in OpendTect" );
+    colnms.add( "Well name in LAS" ).add( "Well name in OpendTect" );
     wellstable_ = new uiTable( this, uiTable::Setup(3,2), "Wells" );
     wellstable_->setColumnLabels( colnms );
+    wellstable_->setColumnReadOnly( 0, true );
     wellstable_->attach( ensureBelow, lognmfld_ );
 }
 
@@ -268,12 +270,25 @@ uiBulkLogImport::~uiBulkLogImport()
 {}
 
 
+static void getWellNames( BufferStringSet& wellnms )
+{
+    const IOObjContext ctxt = mIOObjContext( Well );
+    const IODir iodir( ctxt.getSelKey() );
+    IODirEntryList list( iodir, ctxt );
+    list.sort();
+    list.getIOObjNames( wellnms );
+}
+
+
 void uiBulkLogImport::lasSel( CallBacker* )
 {
     BufferStringSet filenms;
     inpfld_->getFileNames( filenms );
     wellstable_->setNrRows( filenms.size() );
 
+    BufferStringSet wellnms;
+    wellnms.add( "-- (Do not import)" );
+    getWellNames( wellnms );
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
 	const BufferString& fnm = filenms.get( idx );
@@ -284,13 +299,11 @@ void uiBulkLogImport::lasSel( CallBacker* )
 
 	wellstable_->setText( RowCol(idx,0), info.wellnm );
 
-	uiComboBox* odwellsbox = new uiComboBox( 0, "Select Well" );
-	wellstable_->setCellObject( RowCol(idx,1), odwellsbox );
-
-	const IOObj* ioobj = findIOObj( info.wellnm, info.uwi );
-	if ( ioobj )
-	{
-	}
+	uiComboBox* wellsbox = new uiComboBox( 0, "Select Well" );
+	wellsbox->addItems( wellnms );
+	wellstable_->setCellObject( RowCol(idx,1), wellsbox );
+	const int selidx = wellnms.nearestMatch( info.wellnm );
+	wellsbox->setCurrentItem( selidx<0 ? 0 : selidx );
     }
 }
 
@@ -322,10 +335,16 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	const IOObj* ioobj = findIOObj( info.wellnm, info.uwi );
+	const uiObject* uiobj = wellstable_->getCellObject( RowCol(idx,1) );
+	mDynamicCastGet(const uiComboBox*,cb,uiobj)
+	if ( cb && cb->currentItem()==0 )
+	    continue;
+
+	const BufferString wellnm = cb ? cb->text() : info.wellnm.buf();
+	const IOObj* ioobj = findIOObj( wellnm, info.uwi );
 	if ( !ioobj )
 	{
-	    errors.add(tr("%1: Cannot find %2").arg(fnm).arg(info.wellnm));
+	    errors.add(tr("%1: Cannot find %2").arg(fnm).arg(wellnm));
 	    continue;
 	}
 
