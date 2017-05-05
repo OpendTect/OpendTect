@@ -280,7 +280,7 @@ void uiPolyPosProvGroup::initClass()
 
 
 uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
-					const uiPosProvGroup::Setup& su )
+		const uiPosProvGroup::Setup& su, bool onlypointset )
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
@@ -288,18 +288,29 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 
     selfld_ = new uiGenInput(this, tr("Data from"),
 		    BoolInpSpec(true,uiStrings::sPickSet(),
-		    uiStrings::phrJoinStrings(uiStrings::sTable(),
-					      uiStrings::sFile())));
+			uiStrings::phrJoinStrings(uiStrings::sTable(),
+						  uiStrings::sFile())));
     selfld_->valuechanged.notify( selcb );
-    psfld_ = new uiIOObjSel( this, ctio_ );
+
+    psfld_ = new uiIOObjSel( this, ctio_, uiStrings::sPointSet() );
     psfld_->attach( alignedBelow, selfld_ );
     tffld_ = new uiIOFileSelect( this, toUiString(sKey::FileName()), true,
 				 GetDataDir(), true );
     tffld_->getHistory( uiIOFileSelect::ixtablehistory() );
     tffld_->attach( alignedBelow, selfld_ );
 
+    selfld_->display( !onlypointset );
+    tffld_->display( !onlypointset );
+
     setHAlignObj( selfld_ );
     postFinalise().notify( selcb );
+}
+
+
+uiTablePosProvGroup::~uiTablePosProvGroup()
+{
+    delete ctio_.ioobj_;
+    delete &ctio_;
 }
 
 
@@ -372,5 +383,6 @@ bool uiTablePosProvGroup::getFileName( BufferString& fnm ) const
 
 void uiTablePosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Table() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Table(),
+					  uiStrings::sPointSet() );
 }

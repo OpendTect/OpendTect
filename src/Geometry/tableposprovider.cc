@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "survinfo.h"
 #include "survgeom.h"
+#include "uistrings.h"
 #include <math.h>
 
 #define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
@@ -209,5 +210,6 @@ void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
 
 void Pos::TableProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Table() );
+    Pos::Provider3D::factory().addCreator( create, sKey::Table(),
+					   uiStrings::sPointSet() );
 }

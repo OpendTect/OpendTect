@@ -96,7 +96,9 @@ mExpClass(uiIo) uiTablePosProvGroup : public uiPosProvGroup
 { mODTextTranslationClass(uiTablePosProvGroup)
 public:
 			uiTablePosProvGroup(uiParent*,
-					   const uiPosProvGroup::Setup&);
+					   const uiPosProvGroup::Setup&,
+					   bool onlypointset=true);
+			~uiTablePosProvGroup();
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
