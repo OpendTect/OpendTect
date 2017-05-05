@@ -78,8 +78,6 @@ protected:
     BufferStringSet	newwildcardstrings_;
 };
 
-
-}; // namespace CmdDrive
-
+} // namespace CmdDrive
 
 #endif
