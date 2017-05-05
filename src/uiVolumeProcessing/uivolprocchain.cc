@@ -673,6 +673,8 @@ uiString uiChain::getPossibleInitialStepNames( bool is2d )
 		uiStepDialog::factory().getNames()[idx]->buf();
 
 	    PtrMan<Step> step = Step::factory().create( steptype );
+	    if ( !step ) continue;
+
 	    if ( is2d && !step->canHandle2D() )
 		continue;
 
