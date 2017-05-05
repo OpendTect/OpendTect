@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "trckeyzsampling.h"
 #include "bufstringset.h"
+#include "uigeninput.h"
+#include "enums.h"
 
 class uiComboBox;
 class uiColorInput;
@@ -26,6 +28,7 @@ class uiListBox;
 class uiPosProvider;
 class uiPosFilterSetSel;
 class DataPointSet;
+class EnumDef;
 namespace Pick { class Set; }
 
 /*! \brief Dialog for creating (a) pick set(s) */
@@ -51,22 +54,36 @@ public:
 mExpClass(uiIo) uiCreatePicks : public uiDialog
 { mODTextTranslationClass(uiCreatePicks);
 public:
+    enum DepthType	{ Feet=0, Meter };
+			mDeclareEnumUtils(DepthType);
+    enum TimeType	{ Seconds=0, MilliSeconds, MicroSeconds };
+			mDeclareEnumUtils(TimeType);
 			uiCreatePicks(uiParent*,bool aspolygon=false,
-				      bool addstdfields=true);
+				   bool addstdfields=true, bool zvalreq=false);
 			~uiCreatePicks() {}
 
     virtual Pick::Set*	getPickSet() const;	//!< Set is yours
-
+    float		getZVal() { return zvalfld_->getFValue(); }
+    float		getZValInSurvUnit() { return zval_; }
+    DepthType		getZValType() { return zvaltyp_; }
 protected:
 
     uiGenInput*		nmfld_;
     uiColorInput*	colsel_;
+    uiGenInput*		zvalfld_;
+    uiComboBox*		zvaltypfld_;
     BufferString	name_;
+
+    bool		calcZValAccToSurvDepth();
 
     bool		aspolygon_;
 
     virtual bool	acceptOK(CallBacker*);
     virtual void	addStdFields(uiObject* lastobj=0);
+    bool		iszvalreq_;
+    float		zval_;
+    DepthType		zvaltyp_;
+
 };
 
 

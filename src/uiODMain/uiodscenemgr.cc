@@ -1227,7 +1227,8 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 int uiODSceneMgr::addPickSetItem( const MultiID& mid, int sceneid )
 {
     Pick::Set* ps = applMgr().pickServer()->loadSet( mid );
-    if ( !ps ) return -1;
+    if ( !ps )
+	ps = new Pick::Set(mid);
 
     return addPickSetItem( *ps, sceneid );
 }

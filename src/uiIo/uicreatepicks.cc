@@ -45,13 +45,21 @@ static int defnrpicks = 500;
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
 				  "Between Horizons", 0 };
 
+mDefineEnumUtils( uiCreatePicks, DepthType, "DepthType" )
+{ "Feet", "Meter", 0 };
 
-uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds )
+mDefineEnumUtils( uiCreatePicks, TimeType, "TimeType" )
+{ "Seconds", "MilliSeconds", "MicroSeconds", 0 };
+
+
+uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
+								bool zvalreq )
     : uiDialog(p,uiDialog::Setup(
 			aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
 			       : uiStrings::phrCreateNew(uiStrings::sPickSet()),
 			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
     , aspolygon_(aspoly)
+    , iszvalreq_(zvalreq)
 {
     if ( addstdflds )
 	addStdFields( 0 );
@@ -69,6 +77,16 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
     colsel_->attach( alignedBelow, nmfld_ );
     if ( lastobject )
 	nmfld_->attach( alignedBelow, lastobject );
+
+    zvalfld_ = new uiGenInput( this, tr("Depth for Picks") );
+    zvalfld_->attach( alignedBelow, colsel_ );
+    EnumDef filldeftype = SI().zDomain().isDepth() ?
+		    (EnumDef)DepthTypeDef() : (EnumDef)TimeTypeDef();
+    zvaltypfld_ = new uiComboBox(this, filldeftype, "Depth value type");
+    zvaltypfld_->attach( rightOf, zvalfld_ );
+
+    zvalfld_->display(iszvalreq_);
+    zvaltypfld_->display(iszvalreq_);
 }
 
 
@@ -87,7 +105,49 @@ Pick::Set* uiCreatePicks::getPickSet() const
 bool uiCreatePicks::acceptOK( CallBacker* )
 {
     name_.set( nmfld_->text() ).trimBlanks();
+    if ( iszvalreq_ )
+    {
+	const int selid = zvaltypfld_->getIntValue();
+	zvaltyp_ = DepthTypeDef().getEnumForIndex(selid);
+	if ( !calcZValAccToSurvDepth() )
+	    return false;
+    }
+
     return true;
+}
+
+
+bool uiCreatePicks::calcZValAccToSurvDepth()
+{
+    float zval = zvalfld_->getFValue();
+    StepInterval<float> zrg = SI().zRange(false);
+    if ( SI().zDomain().isDepth() )
+    {
+	if ( SI().zInMeter() && zvaltyp_ == Feet )
+	    zval_ = mFromFeetFactorF*zval;
+	else if ( SI().zInFeet() && zvaltyp_ == Meter )
+	    zval_ = zval/mFromFeetFactorF;
+	else
+	    zval_ = zval;
+    }
+    else
+    {
+	if ( zvaltyp_ == MilliSeconds )
+	    zval_ = zval/1000;
+	else if ( zvaltyp_ == MicroSeconds )
+	    zval_ = zval/1000000;
+	else
+	    zval_ = zval;
+    }
+    if ( SI().zRange(false).includes(zval_,true) )
+	return true;
+    else
+    {
+	uiMSG().error(tr("Input Depth Value lies outside the survey range.\n"
+			 "Survey Range is: %1-%2%3").arg(zrg.start)
+			 .arg(zrg.stop).arg(SI().zDomain().uiUnitStr()));
+	return false;
+    }
 }
 
 
@@ -133,7 +193,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
     if ( !prov )
-	mErrRet(toUiString("Internal: no Pos::Provider"))
+	mErrRet(::toUiString("Internal: no Pos::Provider"))
 
     uiTaskRunner taskrunner( this );
     if ( !prov->initialize( &taskrunner ) )
