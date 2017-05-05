@@ -39,7 +39,7 @@ static void convert2DPSData()
 	if ( psdir.isEmpty() || !File::isDirectory(psdir) )
 	    continue;
 
-	const DirList flist( psdir, DirList::FilesOnly, "*.*" );
+	const DirList flist( psdir, File::FilesInDir, "*.*" );
 	for ( int fidx=0; fidx<flist.size(); fidx++ )
 	{
 	    const File::Path fp( flist.fullPath(fidx) );

@@ -135,7 +135,7 @@ bool OD::IconFile::findIcons( const char* id, bool indef )
 	havesimple = true;
     }
 
-    DirList dl( dirnm, DirList::FilesOnly, BufferString(id,".*",sFileNameEnd) );
+    DirList dl( dirnm, File::FilesInDir, BufferString(id,".*",sFileNameEnd) );
     if ( dl.isEmpty() )
 	return havesimple;
 

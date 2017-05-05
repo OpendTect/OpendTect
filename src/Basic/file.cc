@@ -10,6 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "file.h"
+#include "filesystemaccess.h"
 
 #include "filepath.h"
 #include "bufstringset.h"
@@ -276,7 +277,7 @@ void File::makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
     if ( !isSane(dir) )
 	return;
 
-    DirList files( dir, DirList::FilesOnly );
+    DirList files( dir, File::FilesInDir );
     for ( int idx=0; idx<files.size(); idx++ )
     {
 	if ( !followlinks )
@@ -285,7 +286,7 @@ void File::makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 	    filelist.addIfNew( files.fullPath(idx) );
     }
 
-    DirList dirs( dir, DirList::DirsOnly );
+    DirList dirs( dir, DirsInDir );
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
 	BufferString curdir( dirs.fullPath(idx) );
@@ -515,15 +516,26 @@ bool File::isInUse( const char* fnm )
 
 bool File::createDir( const char* fnm )
 {
-    if ( !isLocal(fnm) )
+    if ( !isSane(fnm) )
 	return false;
 
-#ifndef OD_NO_QT
-    QDir qdir; return qdir.mkpath( fnm );
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    return fsa && fsa->createDirectory( fnm );
+}
+
+
+bool File::listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
+		    const char* mask )
+{
+    if ( !isSane(dirnm) )
+	return false;
+
+    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( dirnm );
+    if ( !fsa || !fsa->listDirectory(dirnm,dlt,fnames,mask) )
+	return false;
+
+    fnames.sort();
+    return true;
 }
 
 
@@ -1122,15 +1134,21 @@ RefMan<File::SystemAccess> File::SystemAccess::get( const char* fnm )
 }
 
 
+#define mGetFileNameAndRetFalseIfEmpty() \
+    const BufferString fnm = removeProtocol( url ); \
+    if ( fnm.isEmpty() ) \
+	return false
+
+
 bool File::LocalFileSystemAccess::exists( const char* url, bool forread ) const
 {
-    const BufferString fnm = removeProtocol( url );
+    mGetFileNameAndRetFalseIfEmpty();
     return QFile::exists( fnm.buf() );
 }
 
 bool File::LocalFileSystemAccess::isReadable( const char* url ) const
 {
-    const BufferString fnm = removeProtocol( url );
+    mGetFileNameAndRetFalseIfEmpty();
     QFileInfo qfi( fnm.buf() );
     return qfi.isReadable();
 }
@@ -1138,21 +1156,62 @@ bool File::LocalFileSystemAccess::isReadable( const char* url ) const
 
 bool File::LocalFileSystemAccess::isFile( const char* url ) const
 {
-    const BufferString fnm = removeProtocol( url );
+    mGetFileNameAndRetFalseIfEmpty();
     QFileInfo qfi( fnm.buf() );
     return qfi.isFile();
 }
 
 
+bool File::LocalFileSystemAccess::createDirectory( const char* url ) const
+{
+    mGetFileNameAndRetFalseIfEmpty();
+    QDir qdir;
+    return qdir.mkpath( fnm.str() );
+}
+
+
+bool File::LocalFileSystemAccess::listDirectory( const char* url,
+	DirListType dlt, BufferStringSet& filenames, const char* mask ) const
+{
+    if ( !isDirectory(url) )
+	return false;
+
+    const BufferString fnm = removeProtocol( url );
+
+    QDir qdir( fnm.str() );
+    if ( mask && *mask )
+    {
+	QStringList filters;
+	filters << mask;
+	qdir.setNameFilters( filters );
+    }
+
+    QDir::Filters dirfilters;
+    if ( dlt == FilesInDir )
+	dirfilters = QDir::Files | QDir::Hidden;
+    else if ( dlt == DirsInDir )
+	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden;
+    else
+	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files
+				| QDir::Hidden;
+
+    QStringList qlist = qdir.entryList( dirfilters );
+    for ( int idx=0; idx<qlist.size(); idx++ )
+	filenames.add( qlist[idx] );
+
+    return true;
+}
+
+
 bool File::LocalFileSystemAccess::isDirectory( const char* url ) const
 {
-    const BufferString fnm = removeProtocol( url );
-    QFileInfo qfi( fnm.buf() );
+    mGetFileNameAndRetFalseIfEmpty();
+    QFileInfo qfi( fnm.str() );
     if ( qfi.isDir() )
 	return true;
 
     BufferString lnkfnm( fnm, ".lnk" );
-    qfi.setFile( lnkfnm.buf() );
+    qfi.setFile( lnkfnm.str() );
     return qfi.isDir();
 }
 
@@ -1161,10 +1220,9 @@ bool File::LocalFileSystemAccess::isDirectory( const char* url ) const
 bool File::LocalFileSystemAccess::remove( const char* url,
 					  bool recursive ) const
 {
-    const BufferString fnm = removeProtocol( url );
-
+    mGetFileNameAndRetFalseIfEmpty();
     if ( isFile(fnm) || isLink(fnm) )
-	return QFile::remove( fnm.buf() );
+	return QFile::remove( fnm.str() );
 
     if ( recursive && isDirectory( fnm ) )
     {
@@ -1192,7 +1250,7 @@ bool File::LocalFileSystemAccess::remove( const char* url,
 bool File::LocalFileSystemAccess::setWritable( const char* url, bool yn,
 					       bool recursive ) const
 {
-    const BufferString fnm = removeProtocol( url );
+    mGetFileNameAndRetFalseIfEmpty();
 
 #ifdef OD_NO_QT
     return false;
@@ -1219,7 +1277,7 @@ bool File::LocalFileSystemAccess::setWritable( const char* url, bool yn,
 
 bool File::LocalFileSystemAccess::isWritable( const char* url ) const
 {
-    const BufferString fnm = removeProtocol( url );
+    mGetFileNameAndRetFalseIfEmpty();
     const QFileInfo qfi( fnm.buf() );
     return qfi.isWritable();
 }
@@ -1230,6 +1288,8 @@ bool File::LocalFileSystemAccess::rename( const char* fromurl,
 {
     const BufferString from = removeProtocol( fromurl );
     const BufferString to = removeProtocol( tourl );
+    if ( from.isEmpty() || to.isEmpty() )
+	return false;
 
     return QFile::rename( from.buf(), to.buf() );
 }
@@ -1241,6 +1301,8 @@ bool File::LocalFileSystemAccess::copy( const char* fromurl,
 {
     const BufferString from = removeProtocol( fromurl );
     const BufferString to = removeProtocol( tourl );
+    if ( from.isEmpty() || to.isEmpty() )
+	return false;
 
     if ( isDirectory(from) || isDirectory(to)  )
 	return copyDir( from, to, errmsg );
@@ -1263,9 +1325,11 @@ bool File::LocalFileSystemAccess::copy( const char* fromurl,
 
 
 od_int64 File::LocalFileSystemAccess::getFileSize( const char* url,
-						   bool followlink )
+						   bool followlink ) const
 {
     const BufferString fnm = removeProtocol( url );
+    if ( fnm.isEmpty() )
+	return 0;
 
     if ( !followlink && isLink(fnm) )
     {
@@ -1293,6 +1357,8 @@ StreamData File::LocalFileSystemAccess::createOStream(const char* url,
 					bool binary, bool editmode ) const
 {
     const BufferString fnm = removeProtocol( url );
+    if ( fnm.isEmpty() )
+	return StreamData();
 
     StreamData res;
     StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
@@ -1327,6 +1393,8 @@ StreamData File::LocalFileSystemAccess::createIStream(const char* url,
 						      bool binary ) const
 {
     BufferString fnm = removeProtocol( url );
+    if ( fnm.isEmpty() )
+	return StreamData();
 
     StreamData res;
     StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;

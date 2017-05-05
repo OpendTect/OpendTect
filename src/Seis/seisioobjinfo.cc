@@ -275,7 +275,7 @@ od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
     nrfiles = 0;
     if ( File::isDirectory(filenm) )
     {
-	DirList dl( filenm, DirList::FilesOnly );
+	DirList dl( filenm, File::FilesInDir );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    const BufferString fnm( dl.fullPath(idx) );

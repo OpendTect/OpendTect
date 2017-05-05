@@ -11,7 +11,7 @@
 #include "bufstring.h"
 #include "compoundkey.h"
 #include "dbkey.h"
-#include "file.h"
+#include "filesystemaccess.h"
 #include "filepath.h"
 #include "fixedstring.h"
 #include "fixedstreambuf.h"

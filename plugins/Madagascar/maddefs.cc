@@ -99,7 +99,7 @@ ProgInfoScanner( ODMad::ProgInfo& pi )
     pi_.scanned_ = true;
     if ( !pi_.errmsg_.isEmpty() ) return;
 
-    dl_ = new DirList( pi_.defdir_, DirList::FilesOnly, "*.txt" );
+    dl_ = new DirList( pi_.defdir_, File::FilesInDir, "*.txt" );
     totnr_ = dl_->size();
     if ( totnr_ < 1 )
     {

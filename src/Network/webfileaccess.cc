@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "netfilecache.h"
 #include "odnetworkaccess.h"
 #include "odhttp.h"
-#include "file.h"
 #include <streambuf>
 #ifndef OD_NO_QT
 # include <QNetworkAccessManager>
@@ -565,7 +564,14 @@ bool HttpFileAccess::copy(const char* from,const char* to,
 { return false; }
 
 
-od_int64 HttpFileAccess::getFileSize(const char*, bool followlink)
+od_int64 HttpFileAccess::getFileSize( const char*, bool followlink ) const
+{ return 0; }
+
+bool HttpFileAccess::createDirectory( const char* ) const
+{ return false; }
+
+bool HttpFileAccess::listDirectory( const char*, File::DirListType,
+				    BufferStringSet&, const char* ) const
 { return false; }
 
 

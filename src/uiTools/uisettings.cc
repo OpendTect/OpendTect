@@ -39,7 +39,7 @@ static void getGrps( BufferStringSet& grps )
     const char* dtectuser = GetSoftwareUser();
     const bool needdot = dtectuser && *dtectuser;
     if ( needdot ) msk += ".*";
-    DirList dl( GetSettingsDir(), DirList::FilesOnly, msk );
+    DirList dl( GetSettingsDir(), File::FilesInDir, msk );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );

@@ -8,7 +8,7 @@
 
 #include "od_iostream.h"
 #include "testprog.h"
-#include "file.h"
+#include "filesystemaccess.h"
 #include "filepath.h"
 #include "ptrman.h"
 #include "strmprov.h"

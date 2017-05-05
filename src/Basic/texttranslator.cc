@@ -119,7 +119,7 @@ bool TextTranslatorLanguage::load()
 
     File::Path basedir;
     TextTranslateMgr::GetLocalizationDir(basedir);
-    DirList dl( basedir.fullPath(), DirList::FilesOnly, filenamesearch.buf() );
+    DirList dl( basedir.fullPath(), File::FilesInDir, filenamesearch.buf() );
 
     for( int idx=0; idx<dl.size(); idx++ )
     {

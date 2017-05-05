@@ -87,7 +87,7 @@ void SVNAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 {
     entries.erase();
     const File::Path fp( dir_, dir, ".svn", "text-base" );
-    DirList dl( fp.fullPath(), DirList::FilesOnly );
+    DirList dl( fp.fullPath(), File::FilesInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );

@@ -624,7 +624,7 @@ BufferString Strat::getStdFileName( const char* inpnm, const char* basenm )
 
 void Strat::LevelSet::getStdNames( BufferStringSet& nms )
 {
-    DirList dl( getStdFileName(0,0), DirList::FilesOnly, "Levels.*" );
+    DirList dl( getStdFileName(0,0), File::FilesInDir, "Levels.*" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );

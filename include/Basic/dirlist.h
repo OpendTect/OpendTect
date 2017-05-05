@@ -11,34 +11,38 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "file.h"
 #include "bufstringset.h"
 
 
-/*!
-\brief Provides file and directory names in a certain directory.
-*/
+/*!\brief Provides file and directory names in a certain directory. */
 
 mExpClass(Basic) DirList : public BufferStringSet
 {
 public:
 
-    enum Type		{ AllEntries, FilesOnly, DirsOnly };
+    typedef File::DirListType	DLType;
 
-			DirList(const char*,Type t=AllEntries,
+			DirList(const char*,DLType t=File::AllEntriesInDir,
 				const char* msk=0);
-				/*!< msk can be a glob expression */
+				    /*!< msk should be a glob expression */
 
     void		update();
 
-    Type		type() const		{ return type_; }
+    DLType		type() const		{ return type_; }
     const char*		dirName() const		{ return dir_; }
     const char*		dirMask() const		{ return mask_; }
     const char*		fullPath(int) const;
 
 private:
 
-    Type		type_;
+    DLType		type_;
     BufferString	dir_;
     BufferString	mask_;
+
+public:
+
+    enum		Type { AllEntries, FilesOnly, DirsOnly };
+    mDeprecated		DirList(const char*,Type,const char* msk=0);
 
 };

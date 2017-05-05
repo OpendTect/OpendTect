@@ -67,7 +67,7 @@ ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
     , curidx_(0)
 {
     File::Path fp( dirnm_.buf() ); fp.add( "X" );
-    DirList dl( dirnm_.buf(), DirList::FilesOnly );
+    DirList dl( dirnm_.buf(), File::FilesInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	fp.setFileName( dl.get(idx) );

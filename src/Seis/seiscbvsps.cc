@@ -79,7 +79,7 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
 				       TypeSet<Pos::GeomID>& geomids ) const
 {
     geomids.erase();
-    DirList dl( dirnm, DirList::FilesOnly, "*.cbvs" );
+    DirList dl( dirnm, File::FilesInDir, "*.cbvs" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString filenm = dl.get( idx );
@@ -179,7 +179,7 @@ bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
     if ( !dirNmOK(true) )
 	return false;
 
-    DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
+    DirList dl( dirnm_, File::FilesInDir, selmask_.buf() );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	if ( inlrg )
@@ -373,7 +373,7 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
 	return;
     }
 
-    DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
+    DirList dl( dirnm_, File::FilesInDir, selmask_.buf() );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const int inlnr = getInlNr( dl.get(idx) );

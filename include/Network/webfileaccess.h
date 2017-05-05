@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "networkmod.h"
 
-#include "file.h"
+#include "filesystemaccess.h"
 
 
 
@@ -31,7 +31,11 @@ public:
     virtual bool	rename(const char* from,const char*);
     virtual bool	copy(const char* from,const char* to,
 			     uiString* errmsg=0) const;
-    virtual od_int64	getFileSize(const char*, bool followlink);
+    virtual od_int64	getFileSize(const char*,bool followlink) const;
+
+    virtual bool	createDirectory(const char*) const;
+    virtual bool	listDirectory(const char*,File::DirListType,
+				      BufferStringSet&,const char* mask) const;
 
     virtual StreamData	createOStream(const char*,
 				      bool binary,bool editmode) const;

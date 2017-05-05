@@ -58,7 +58,7 @@ public:
 bool SEGYDirectPSIOProvider::getLineNames( const char* dirnm,
 					   BufferStringSet& nms ) const
 {
-    DirList dl( dirnm, DirList::FilesOnly, "*.sgydef" );
+    DirList dl( dirnm, File::FilesInDir, "*.sgydef" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	File::Path fp( dl.fullPath(idx) );

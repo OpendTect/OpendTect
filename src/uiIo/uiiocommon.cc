@@ -29,7 +29,7 @@ void uiSurvey::getDirectoryNames( BufferStringSet& list, bool addfullpath,
     BufferString basedir = dataroot;
     if ( basedir.isEmpty() )
 	basedir = GetBaseDataDir();
-    DirList dl( basedir, DirList::DirsOnly );
+    DirList dl( basedir, File::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString& dirnm = dl.get( idx );

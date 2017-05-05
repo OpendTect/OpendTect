@@ -127,7 +127,7 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
 void uiStartBatchJobDialog::fillList( CallBacker* )
 {
     jobsfld_->setEmpty();
-    DirList dl( GetProcFileName(0), DirList::FilesOnly, "*.par" );
+    DirList dl( GetProcFileName(0), File::FilesInDir, "*.par" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	filenames_.add( dl.fullPath(idx) );

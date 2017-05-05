@@ -78,7 +78,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     toStatusBar( mJoinUiStrs(sScanning(),sDirectory()));
     const BufferString msk( maskfld->text() );
     const BufferString dirnm( dirfld->text() );
-    DirList dl( dirnm, DirList::FilesOnly, msk.isEmpty() ? 0 : msk.buf() );
+    DirList dl( dirnm, File::FilesInDir, msk.isEmpty() ? 0 : msk.buf() );
     if ( dl.size() == 0 )
 	mRet(uiStrings::phrCannotFind(uiStrings::sFile()))
 

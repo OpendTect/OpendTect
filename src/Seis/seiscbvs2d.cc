@@ -134,7 +134,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
 					   const char* newnm ) const
 {
     const BufferString msk( "*.", sExtCBVS );
-    DirList dl( obj.mainFileName(), DirList::FilesOnly, msk );
+    DirList dl( obj.mainFileName(), File::FilesInDir, msk );
     bool ret = true;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -168,7 +168,7 @@ uiRetVal SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
 {
     geomids.erase();
     const BufferString msk( "*.", sExtCBVS );
-    DirList dl( obj.mainFileName(), DirList::FilesOnly, msk );
+    DirList dl( obj.mainFileName(), File::FilesInDir, msk );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );
