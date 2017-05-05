@@ -5,7 +5,7 @@
  * FUNCTION : IODir entries for selectors
 
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "iodirentry.h"
@@ -183,4 +183,15 @@ int IODirEntryList::indexOf( const char* nm ) const
 	    return idx;
     }
     return -1;
+}
+
+
+void IODirEntryList::getIOObjNames( BufferStringSet& nms ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const IOObj* ioobj = (*this)[idx]->ioobj_;
+	if ( ioobj )
+	    nms.add( ioobj->name() );
+    }
 }

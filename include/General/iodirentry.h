@@ -11,13 +11,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "generalmod.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "objectset.h"
-class IOObj;
+
+class BufferStringSet;
 class IODir;
+class IOObj;
 class IOObjContext;
 class TranslatorGroup;
 
@@ -50,7 +52,7 @@ public:
     void		setSelected(const MultiID&);
     void		sort();
     void		setCurrent( int idx )	{ cur_ = idx; }
-    const IODirEntry*	current() const	
+    const IODirEntry*	current() const
     			{ return cur_ < 0 || cur_ >= size() ? 0
 			    	: (*(IODirEntryList*)this)[cur_]; }
     const IOObj*	selected() const
@@ -59,6 +61,7 @@ public:
     int			indexOf(const char*) const;
     int			indexOf( const IODirEntry* e ) const
 			{ return ObjectSet<IODirEntry>::indexOf(e); }
+    void		getIOObjNames(BufferStringSet&) const;
 
     MultiID		lastiokey;
     IOObjContext&	ctxt;
