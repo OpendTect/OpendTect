@@ -609,6 +609,7 @@ void TrcKeySampling::fillPar( IOPar& pars ) const
     if ( is2D() )
     {
 	IOPar tmppar;
+	tmppar.set( sKey::GeomID(), start_.lineNr() );
 	tmppar.set( sKey::FirstTrc(), start_.trcNr() );
 	tmppar.set( sKey::LastTrc() , stop_.trcNr() );
 	tmppar.set( sKey::StepCrl(), step_.trcNr() );
