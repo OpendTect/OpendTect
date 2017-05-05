@@ -41,7 +41,7 @@ class Provider;
 */
 
 mExpClass(Algo) Filter
-{
+{ mODTextTranslationClass(Filter)
 public:
 
     virtual Filter*	clone() const				= 0;

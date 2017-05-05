@@ -542,7 +542,8 @@ void Pos::EMSurfaceProvider2D::getExtent( Interval<int>& intv, int lidx ) const
 
 
 void Pos::EMSurfaceProvider2D::initClass()
-{ Provider2D::factory().addCreator( create, sKey::Surface() ); }
+{ Provider2D::factory().addCreator( create, sKey::Surface(),
+						    uiStrings::sSurface() ); }
 
 
 // ***** EMSurface2DProvider3D ****
@@ -911,7 +912,8 @@ int Pos::EMImplicitBodyProvider::estNrZPerPos() const
 
 
 void Pos::EMImplicitBodyProvider::initClass()
-{ Provider3D::factory().addCreator( create, sKey::Body() ); }
+{ Provider3D::factory().addCreator( create, sKey::Body(),
+						    uiStrings::sBody() ); }
 
 
 bool Pos::EMImplicitBodyProvider::toNextPos()
@@ -1064,7 +1066,7 @@ int Pos::EMRegion3DProvider::estNrZPerPos() const
 }
 
 
-void Pos::EMRegion3DProvider::initClass()
-{
-    Provider3D::factory().addCreator( create, "Region3D" );
-}
+void EMRegion3DProvider::initClass()
+{ Provider3D::factory().addCreator( create, "Region3D", tr("3D Region") ); }
+
+} // namespace Pos

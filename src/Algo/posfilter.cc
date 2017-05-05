@@ -15,6 +15,7 @@
 #include "survinfo.h"
 #include "survgeom3d.h"
 #include "statrand.h"
+#include "uistrings.h"
 
 mImplClassFactory(Pos::Filter3D,factory);
 mImplClassFactory(Pos::Filter2D,factory);
@@ -284,13 +285,13 @@ void Pos::RandomFilter::getSummary( BufferString& txt ) const
 
 void Pos::RandomFilter3D::initClass()
 {
-    Pos::Filter3D::factory().addCreator( create, sKey::Random() );
+    Pos::Filter3D::factory().addCreator( create, sKey::Random(), tr("Random") );
 }
 
 
 void Pos::RandomFilter2D::initClass()
 {
-    Pos::Filter2D::factory().addCreator( create, sKey::Random() );
+    Pos::Filter2D::factory().addCreator( create, sKey::Random(), tr("Random") );
 }
 
 
@@ -321,13 +322,15 @@ void Pos::SubsampFilter::getSummary( BufferString& txt ) const
 
 void Pos::SubsampFilter3D::initClass()
 {
-    Pos::Filter3D::factory().addCreator( create, sKey::Subsample() );
+    Pos::Filter3D::factory().addCreator( create, sKey::Subsample(),
+							    tr("Sub-Sample") );
 }
 
 
 void Pos::SubsampFilter2D::initClass()
 {
-    Pos::Filter2D::factory().addCreator( create, sKey::Subsample() );
+    Pos::Filter2D::factory().addCreator( create, sKey::Subsample(),
+							    tr("Sub-Sample") );
 }
 
 

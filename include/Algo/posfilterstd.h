@@ -77,7 +77,7 @@ mSimpPosFilterDefFnsBase
 
 mExpClass(Algo) RandomFilter3D : public Filter3D
 		     , public RandomFilter
-{
+{ mODTextTranslationClass(RandomFilter3D)
 public:
 
     mSimpPosFilterDefFns3D(Random);
@@ -91,7 +91,7 @@ public:
 
 mExpClass(Algo) RandomFilter2D : public Filter2D
 		     , public RandomFilter
-{
+{ mODTextTranslationClass(RandomFilter2D)
 public:
 
     mSimpPosFilterDefFns2D(Random);
@@ -138,7 +138,7 @@ protected:
 
 mExpClass(Algo) SubsampFilter3D : public Filter3D
 		      , public SubsampFilter
-{
+{ mODTextTranslationClass(SubsampFilter3D)
 public:
 
     mSimpPosFilterDefFns3D(Subsamp);
@@ -152,7 +152,7 @@ public:
 
 mExpClass(Algo) SubsampFilter2D : public Filter2D
 		      , public SubsampFilter
-{
+{ mODTextTranslationClass(SubsampFilter2D)
 public:
 
     mSimpPosFilterDefFns2D(Subsamp);
