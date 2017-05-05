@@ -79,7 +79,11 @@ uiIOSurface::~uiIOSurface()
 
 void uiIOSurface::mkAttribFld( bool labelabove )
 {
-    uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Calculated attributes"),
+    const BufferString trnm =
+	ctio_->ctxt.trgroup_ ? ctio_->ctxt.trgroup_->groupName() : "";
+    uiString lbl = trnm == EMHorizon3DTranslatorGroup::sGroupName()
+	? tr("Horizon Data") : tr("Calculated attributes");
+    uiListBox::Setup su( OD::ChooseZeroOrMore, lbl,
 	labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
     attribfld_ = new uiListBox( this, su );
     attribfld_->setStretch( 2, 2 );
