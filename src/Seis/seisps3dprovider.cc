@@ -336,9 +336,21 @@ void Seis::PS3DProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 }
 
 
+void Seis::PS3DProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
+{
+    Seis::Provider3D::doFillPar( iop, uirv );
+    
+    IOPar par;
+    fetcher_.doFillPar( iop, uirv );
+    iop.merge( par );
+}
+
+
 void Seis::PS3DProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 {
-    uirv.set( mTODONotImplPhrase() );
+    Seis::Provider3D::doUsePar( iop, uirv );
+    
+    fetcher_.doUsePar( iop, uirv );
 }
 
 

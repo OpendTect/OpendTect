@@ -189,7 +189,8 @@ void Seis::Fetcher2D::reset()
     for ( int iln=0; iln<gtNrLines(); iln++ )
     {
 	const Pos::GeomID geomid = dataset_->geomID( iln );
-	PosInfo::Line2DData* l2dd = new PosInfo::Line2DData();
+	PosInfo::Line2DData* l2dd = new PosInfo::Line2DData(
+					dataset_->lineName(iln) );
 	dataset_->getGeometry( geomid, *l2dd );
 	line2ddata_ += l2dd;
 
