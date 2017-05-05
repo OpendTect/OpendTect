@@ -56,6 +56,7 @@ SET(OD_MODULE_SOURCES
 	seismulticubeps.cc
 	seisparallelreader.cc
 	seisposindexer.cc
+	seisposprovider.cc
 	seispreload.cc
 	seispsioprov.cc
 	seispsmerge.cc

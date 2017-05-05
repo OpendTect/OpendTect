@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiveldesc.h"
 #include "uiseismmjobdispatch.h"
 #include "uiseiswriteopts.h"
+#include "uiseisposprovgroup.h"
 
 
 mDefModInitFn(uiSeis)
@@ -26,4 +27,6 @@ mDefModInitFn(uiSeis)
 
     uiCBVSVolOpts::initClass();
     uiCBVSPS3DOpts::initClass();
+
+    uiSeisPosProvGroup::initClass();
 }
