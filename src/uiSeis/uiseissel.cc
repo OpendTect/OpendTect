@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiseissel.h"
+#include "uiseisposprovgroup.h"
 
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uiselsurvranges.h"
 #include "uiioobjselwritetransl.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -37,6 +39,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
+
 
 
 uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
@@ -474,4 +477,71 @@ const char* uiSteerCubeSel::getDefaultKey( Seis::GeomType gt ) const
 {
     BufferString defkey = uiSeisSel::getDefaultKey( gt );
     return IOPar::compKey( defkey, sKey::Steering() );
+}
+
+
+uiSeisPosProvGroup::uiSeisPosProvGroup( uiParent* p,
+					  const uiPosProvGroup::Setup& su )
+    : uiPosProvGroup(p,su)
+    , zrgfld_(0)
+{
+    uiSeisSel::Setup ssu( Seis::Vol );
+    ssu.seltxt( tr("Cube for positions") );
+    seissel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true), ssu );
+
+    if ( su.withz_ )
+    {
+	zrgfld_ = new uiSelZRange( this, su.withstep_, false, 0, su.zdomkey_ );
+	zrgfld_->attach( alignedBelow, seissel_ );
+    }
+
+    setHAlignObj( seissel_ );
+}
+
+
+#define mGetSeis3DKey(k) IOPar::compKey(sKeyType(),k)
+
+void uiSeisPosProvGroup::usePar( const IOPar& iop )
+{
+    PtrMan<IOPar> subiop = iop.subselect( sKeyType() );
+    if ( !subiop || subiop->isEmpty() )
+	return;
+
+    seissel_->usePar( *subiop );
+    if ( zrgfld_ )
+    {
+	ZSampling zsamp;
+	if ( subiop->get(sKey::ZRange(),zsamp) )
+	    zrgfld_->setRange( zsamp );
+    }
+}
+
+
+bool uiSeisPosProvGroup::fillPar( IOPar& iop ) const
+{
+    iop.set( sKey::Type(), sKeyType() );
+    IOPar subiop;
+    seissel_->fillPar( subiop );
+
+    if ( zrgfld_ )
+	subiop.set( sKey::ZRange(), zrgfld_->getRange() );
+
+    iop.mergeComp( subiop, sKeyType() );
+    return true;
+}
+
+
+void uiSeisPosProvGroup::getSummary( BufferString& txt ) const
+{
+    txt.set( "From 3D Seismics" );
+    const IOObj* ioobj = seissel_->ioobj( true );
+    if ( ioobj )
+	txt.add( " '" ).add( ioobj->name() ).add( "." );
+}
+
+
+void uiSeisPosProvGroup::initClass()
+{
+    uiPosProvGroup::factory().addCreator( create, sKeyType(),
+					  tr("Seismic Cube Positions") );
 }

@@ -14,34 +14,38 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "posprovider.h"
 #include "posinfo.h"
+#include "dbkey.h"
 
 namespace PosInfo { class Line2DData; }
 
-mDeclEmptyTranslatorBundle(General,PosProviders,dgb,"subsel")
 
 namespace Pos
 {
 
-/*!\brief 3D provider based on TrcKeyZSampling */
+/*!\brief 3D provider based on cube of PS data store */
 
-mExpClass(General) SeisCubeProvider3D : public Provider3D
+mExpClass(Seis) SeisProvider3D : public Provider3D
 {
 public:
 
-			SeisCubeProvider3D();
-			SeisCubeProvider3D(const SeisCubeProvider3D&);
-			~SeisCubeProvider3D();
-    SeisCubeProvider3D&	operator =(const SeisCubeProvider3D&);
-    const char*		type() const		{ return "Seismic Cube"; }
+			SeisProvider3D();
+			SeisProvider3D(const SeisProvider3D&);
+			~SeisProvider3D();
+    SeisProvider3D&	operator =(const SeisProvider3D&);
+    const char*		type() const		{ return sKeyType(); }
     const char*		factoryKeyword() const	{ return type(); }
-    virtual Provider*	clone() const	{ return new SeisCubeProvider3D(*this);}
+    static const char*	sKeyType()	{ return "Seismic Cube Positions"; }
+    virtual Provider*	clone() const	{ return new SeisProvider3D(*this); }
+
+    uiRetVal		setSeisID(const DBKey&);
+    DBKey		seisID() const		{ return id_; }
 
     virtual void	reset();
 
     virtual bool	toNextPos();
     virtual bool	toNextZ();
 
-    virtual BinID	curBinID() const	{ return curbid_; }
+    virtual BinID	curBinID() const;
     virtual float	curZ() const;
     virtual bool	includes(const BinID&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
@@ -56,12 +60,13 @@ public:
     const ZSampling&	zSampling() const	{ return zsamp_; }
     void		setZSampling( const ZSampling& zrg )
 						{ zsamp_ = zrg; }
-
+    int			nrSamples() const	{ return zsamp_.nrSteps()+1; }
     virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
 			{ return Pos::Provider3D::includes(c,z); }
 
 protected:
 
+    DBKey		id_;
     PosInfo::CubeData	cubedata_;
     ZSampling		zsamp_;
     PosInfo::CubeDataPos curpos_;
@@ -70,7 +75,7 @@ protected:
 public:
 
     static void		initClass();
-    static Provider3D*	create()	{ return new SeisCubeProvider3D; }
+    static Provider3D*	create()	{ return new SeisProvider3D; }
 
 };
 

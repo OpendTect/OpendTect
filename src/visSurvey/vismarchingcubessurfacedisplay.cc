@@ -445,9 +445,9 @@ void MarchingCubesDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 
 void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 			    Coord3& xyzpos, BufferString& val,
-			    BufferString& info) const
+			    BufferString& info ) const
 {
-    val = sKey::EmptyString();
+    val.setEmpty();
     info = "Body: ";
     info += mFromUiStringTodo(name());
 

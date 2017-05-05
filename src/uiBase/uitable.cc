@@ -273,25 +273,29 @@ void uiTableBody::keyPressEvent( QKeyEvent* ev )
 void uiTableBody::copy()
 {
     QList<QTableWidgetSelectionRange> ranges = selectedRanges();
-    if ( ranges.isEmpty() ) return;
+    if ( ranges.isEmpty() )
+	return;
 
     const QTableWidgetSelectionRange& range = ranges.first();
     BufferString str;
     for ( int i=0; i<range.rowCount(); i++ )
     {
-	if ( i > 0 ) str += "\n";
+	if ( i > 0 )
+	    str.addNewLine();
 
 	for ( int j=0; j<range.columnCount(); j++ )
 	{
-	    if ( j > 0 ) str += "\t";
+	    if ( j > 0 )
+		str.addTab();
 
 	    QTableWidgetItem* itm =
 		item( range.topRow()+i, range.leftColumn()+j );
-	    str += itm ? BufferString(itm->text()) : sKey::EmptyString();
+	    if ( itm )
+		str.add( itm->text() );
 	}
     }
 
-    str += "\n";
+    str.addNewLine();
     uiClipboard::setText( toUiString(str) );
 }
 

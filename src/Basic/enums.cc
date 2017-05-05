@@ -6,9 +6,8 @@
 
 
 #include "enums.h"
-
 #include "string2.h"
-#include "keystrs.h"
+
 
 EnumDef::EnumDef()
 {}
@@ -78,7 +77,7 @@ void EnumDef::setIconFileForIndex( int i, const char* iconname )
     if ( !iconfiles_.size() )
     {
 	for ( int idx=0; idx<size(); idx++ )
-	    iconfiles_.add( sKey::EmptyString() );
+	    iconfiles_.add( OD::EmptyString() );
     }
     iconfiles_.get(i) = iconname;
 }

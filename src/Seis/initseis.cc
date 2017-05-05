@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "seismulticubeps.h"
 #include "seispacketinfo.h"
 #include "seis2dto3d.h"
+#include "seisposprovider.h"
 
 #include "uistrings.h"
 
@@ -89,5 +90,6 @@ mDefModInitFn(Seis)
     Depth2TimeStretcher::initClass();
     Survey::GMAdmin().updateGeometries( 0 ); //Those using a transl from Seis.
 
-	Seis2DTo3DImpl::initClass();
+    Seis2DTo3DImpl::initClass();
+    Pos::SeisProvider3D::initClass();
 }

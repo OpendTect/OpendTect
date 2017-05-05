@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "odinst.h"
 #include "odversion.h"
 #include "odnetworkaccess.h"
-#include "keystrs.h"
 #include "uimsg.h"
 
 
@@ -139,12 +138,12 @@ BufferString DevDocHelp::getUrl() const
     const bool foundclspkg = !classpkgver.isEmpty() &&
 			     !classpkgver.find( "error" );
     if ( !foundclspkg )
-	return BufferString( sKey::EmptyString() );
+	return BufferString::empty();
 
     File::Path basefile = mGetProgrammerDocDir();
     basefile.add( "index.html" );
     if ( !File::exists( basefile.fullPath()) )
-	return BufferString( sKey::EmptyString() );
+	return BufferString::empty();
 
     return BufferString( fileprot, basefile.fullPath(File::Path::Unix) );
 }

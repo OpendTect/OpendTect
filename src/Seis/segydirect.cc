@@ -322,7 +322,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 FixedString SEGY::DirectDef::fileName( int idx ) const
 {
     if ( !fds_ )
-	return sKey::EmptyString();
+	return OD::EmptyString();
 
     return fds_->fileName( idx );
 }

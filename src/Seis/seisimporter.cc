@@ -24,7 +24,6 @@
 #include "file.h"
 #include "filepath.h"
 #include "iostrm.h"
-#include "keystrs.h"
 #include "ptrman.h"
 #include "scaler.h"
 #include "survinfo.h"
@@ -386,7 +385,7 @@ SeisStdImporterReader::~SeisStdImporterReader()
 
 const char* SeisStdImporterReader::implName() const
 {
-    return prov_ ? prov_->name() : sKey::EmptyString();
+    return prov_ ? prov_->name().str() : OD::EmptyString();
 }
 
 

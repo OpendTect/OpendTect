@@ -7,7 +7,6 @@
 
 
 #include "separstr.h"
-#include "keystrs.h"
 #include "dbkey.h"
 #include "bufstringset.h"
 #include <string.h>
@@ -159,7 +158,7 @@ int SeparString::size() const
 FixedString SeparString::operator[]( int elemnr ) const
 {
     if ( elemnr < 0 )
-	return sKey::EmptyString();
+	return OD::EmptyString();
 
     const char* startptr = rep_.buf();
     while ( *startptr )
@@ -170,13 +169,13 @@ FixedString SeparString::operator[]( int elemnr ) const
 	    return getUnescaped( startptr, nextsep );
 
 	if ( !nextsep )
-	    return sKey::EmptyString();
+	    return OD::EmptyString();
 
 	elemnr--;
 	startptr = nextsep+1;
     }
 
-    return sKey::EmptyString();
+    return OD::EmptyString();
 }
 
 

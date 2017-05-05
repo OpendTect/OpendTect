@@ -172,7 +172,7 @@ FixedString uiZAxisTransformSel::selectedToDomain() const
     if ( transflds_.validIdx(idx) )
 	return transflds_[idx]->toDomain();
 
-    return sKey::EmptyString();
+    return OD::EmptyString();
 }
 
 

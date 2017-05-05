@@ -276,7 +276,8 @@ bool uiComboBox::isPresent( const char* txt ) const
 
 const char* uiComboBox::itemText( int idx ) const
 {
-    if ( idx < 0 || idx >= body_->count() ) return sKey::EmptyString();
+    if ( idx < 0 || idx >= body_->count() )
+	return OD::EmptyString();
 
     if ( isReadOnly() && enumdef_ && idx<enumdef_->size() )
 	return enumdef_->getKeyForIndex( idx );

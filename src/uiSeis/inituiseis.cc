@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiveldesc.h"
 #include "uiseismmjobdispatch.h"
 #include "uiseiswriteopts.h"
+#include "uiseisposprovgroup.h"
 
 
 mDefModInitFn(uiSeis)
@@ -26,4 +27,6 @@ mDefModInitFn(uiSeis)
     uiSeisBlocksOpts::initClass();
     uiCBVSVolOpts::initClass();
     uiCBVSPS3DOpts::initClass();
+
+    uiSeisPosProvGroup::initClass();
 }

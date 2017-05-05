@@ -355,7 +355,7 @@ void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
 void uiDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
     const BufferString selnm = mrklist_->nrChosen() ? mrklist_->getText()
-						    : sKey::EmptyString().buf();
+						    : OD::EmptyString();
     if ( mrklist_->size() ) mrklist_->setEmpty();
     BufferStringSet mrknms; TypeSet<Color> mrkcols; TypeSet<float> dahs;
 

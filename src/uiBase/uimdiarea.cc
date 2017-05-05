@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "bufstringset.h"
 #include "perthreadrepos.h"
-#include "keystrs.h"
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -256,7 +255,7 @@ const char* uiMdiArea::getActiveWin() const
     mDeclStaticString( nm );
     QWidget* widget = body_->activeSubWindow();
 
-    nm = sKey::EmptyString();
+    nm.setEmpty();
 
     if ( widget )
     {

@@ -7,7 +7,6 @@
 
 
 #include "helpview.h"
-#include "keystrs.h"
 
 
 mImplFactory( HelpProvider, HelpProvider::factory );
@@ -39,4 +38,4 @@ bool HelpKey::isEmpty() const
 
 
 HelpKey HelpKey::emptyHelpKey()
-{ return HelpKey( 0 , sKey::EmptyString() ); }
+{ return HelpKey( 0 , OD::EmptyString() ); }

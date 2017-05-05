@@ -238,7 +238,10 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 
 void uiPolyPosProvGroup::getSummary( BufferString& txt ) const
 {
-    txt += "Within polygon";
+    txt.set( "Within polygon" );
+    const IOObj* ioobj = polyfld_->ioobj( true );
+    if ( ioobj )
+	txt.add( " '" ).add( ioobj->name() ).add( "." );
 }
 
 

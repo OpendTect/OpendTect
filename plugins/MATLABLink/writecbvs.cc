@@ -124,7 +124,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 
 	const int cubeidx = idx-1;
 	cubeidxs += cubeidx;
-	output->addComponent( sKey::EmptyString() );
+	output->addComponent( OD::EmptyString() );
 	mxArrayCopier copier( *mxarr, output->data(cubeidx) );
 	copier.init();
 	copier.execute();

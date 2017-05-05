@@ -408,8 +408,8 @@ DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
     regsdp->setSampling( tkzs );
     for ( int idx=1; idx<bivset->nrVals(); idx++ )
     {
-	const char* name = names.validIdx(idx-1) ? names[idx-1]->buf()
-						 : sKey::EmptyString().buf();
+	const char* name = names.validIdx(idx-1) ? names[idx-1]->str()
+						 : OD::EmptyString();
 	regsdp->addComponent( name );
 	BinIDValueSet::SPos pos;
 	BinID bid;

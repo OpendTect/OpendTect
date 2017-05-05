@@ -10,7 +10,6 @@
 #include "ptrman.h"
 #include "perthreadrepos.h"
 #include "enums.h"
-#include "keystrs.h"
 
 
 const char* DataInpSpec::valuestr = "Val";
@@ -430,7 +429,7 @@ void StringListInpSpec::setEnumDef( const EnumDef& enums )
 const char* StringListInpSpec::text( int ) const
 {
     if ( isUndef() )
-	return sKey::EmptyString();
+	return OD::EmptyString();
 
     if ( enumdef_ )
     {

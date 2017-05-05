@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "genc.h"
 #include "file.h"
 #include "filepath.h"
-#include "keystrs.h"
 #include "perthreadrepos.h"
 #ifndef OD_NO_QT
 #include "qglobal.h"
@@ -68,7 +67,7 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
 const char* GetGCCVersion()
 {
 #ifndef __GNUC__
-    return sKey::EmptyString();
+    return OD::EmptyString();
 #else
     mDeclStaticString( ret );
     if ( !ret.isEmpty() ) return ret.buf();
@@ -84,7 +83,7 @@ const char* GetGCCVersion()
 const char* GetMSVCVersion()
 {
 #ifndef __msvc__
-    return sKey::EmptyString();
+    return OD::EmptyString();
 #else
     mDeclStaticString( ret );
     if ( !ret.isEmpty() ) return ret.buf();
@@ -97,7 +96,7 @@ const char* GetMSVCVersion()
 const char* GetMSVCVersionStr()
 {
 #ifndef __msvc__
-    return sKey::EmptyString();
+    return OD::EmptyString();
 #else
     mDeclStaticString( ret );
     if ( !ret.isEmpty() ) return ret.buf();

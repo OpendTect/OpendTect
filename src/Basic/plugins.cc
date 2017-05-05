@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 #include "moddepmgr.h"
 #include "msgh.h"
-#include "keystrs.h"
 #include "od_istream.h"
 #include <string.h>
 
@@ -310,9 +309,8 @@ const char* PluginManager::moduleName( const char* nm )
 
 static PluginInfo* mkEmptyInfo()
 {
-    return new PluginInfo( sKeyNoDispName, sKey::EmptyString(),
-			   sKey::EmptyString(),
-			   sKey::EmptyString(),"No info available");
+    return new PluginInfo( sKeyNoDispName, OD::EmptyString(), OD::EmptyString(),
+			   OD::EmptyString(), "No info available" );
 }
 
 

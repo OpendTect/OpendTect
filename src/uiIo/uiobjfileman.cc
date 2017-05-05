@@ -174,14 +174,14 @@ void uiObjFileMan::readNotes()
 {
     if ( !curioobj_ )
     {
-	notesfld_->setText( sKey::EmptyString() );
+	notesfld_->setText( OD::EmptyString() );
 	return;
     }
 
     od_istream istrm( getNotesFileName(*curioobj_) );
     if ( !istrm.isOK() )
     {
-	notesfld_->setText( sKey::EmptyString() );
+	notesfld_->setText( OD::EmptyString() );
 	return;
     }
 

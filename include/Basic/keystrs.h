@@ -59,7 +59,7 @@ namespace sKey
     inline FixedString DepthUnit()	{ return "Depth-Unit"; }
     inline FixedString Desc()		{ return "Description"; }
     inline FixedString Distribution()	{ return "Distribution"; }
-    inline FixedString EmptyString()	{ return ""; }
+    inline FixedString Empty()		{ return OD::EmptyString(); }
     inline FixedString Factor()		{ return "Factor"; }
     inline FixedString Fault()		{ return "Fault"; }
     inline FixedString FileName()	{ return "File name"; }

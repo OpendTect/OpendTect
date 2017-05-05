@@ -171,7 +171,7 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
 	if ( desout >= output_->nrComponents() )
-	    output_->addComponent( sKey::EmptyString() );
+	    output_->addComponent( OD::EmptyString() );
 
     //something went wrong during memory allocation
     if ( output_->nrComponents() < desoutputs_.size() )
@@ -250,7 +250,7 @@ RegularSeisDataPack* DataPackOutput::getDataPack( float refstep )
 
 void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 {
-    output_ = new RegularSeisDataPack( sKey::EmptyString(), bdd );
+    output_ = new RegularSeisDataPack( OD::EmptyString(), bdd );
     output_->setSampling( dcsampling_ );
     DPM(DataPackMgr::SeisID()).add( output_ );
     const_cast<StepInterval<float>& >(output_->sampling().zsamp_).step=refstep;

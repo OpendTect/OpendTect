@@ -1129,7 +1129,7 @@ bool doPrepare( int nrthreads )
     for ( int idx=0; idx<input_.dataset_[0]->validSeriesIdx().size(); idx++ )
     {
 	const char* compname = compnames_.validIdx(idx) ?
-		compnames_[idx]->buf() : sKey::EmptyString().buf();
+		compnames_[idx]->str() : OD::EmptyString();
 	if ( !outputdp_->addComponent(compname) )
 	    continue;
     }

@@ -32,8 +32,6 @@ public:
 			 { if ( is_2d ) tkzs_.set2DDef(); }
 
 	virtual	~Setup()				{}
-	Setup& cs(TrcKeyZSampling d) { tkzs_ = d; return *this; }
-	//!<For legacy compliance
 	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(BufferString,zdomkey)

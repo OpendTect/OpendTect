@@ -257,7 +257,7 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
 FixedString SEGY::FileDataSet::fileName( int idx ) const
 {
     if ( !filenames_.validIdx(idx) )
-	return sKey::EmptyString();
+	return OD::EmptyString();
 
     return filenames_[idx]->buf();
 }

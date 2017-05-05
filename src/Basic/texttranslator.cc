@@ -18,8 +18,6 @@ ________________________________________________________________________
 #ifndef OD_NO_QT
 # include <QTranslator>
 # include <QLocale>
-#else
-# include "keystrs.h"
 #endif
 
 void TextTranslateMgr::GetLocalizationDir( File::Path& res )
@@ -86,11 +84,13 @@ TextTranslatorLanguage::getTranslator( const char* appl ) const
 
 BufferString TextTranslatorLanguage::getLocaleName() const
 {
+    return BufferString(
 #ifndef OD_NO_QT
-    return BufferString( locale_->name() );
+	locale_->name()
 #else
-    return sKey::EmptyString();
+	OD::EmptyString()
 #endif
+    );
 }
 
 

@@ -166,6 +166,13 @@ private: \
 #define mExportInst( mod, tp )		Extern_##mod tp mExp(mod)
 #define mExportTemplClassInst(mod)	mExportInst(mod,template class)
 
+//!< An empty string that shows the world it's empty
+
+namespace OD
+{
+    mGlobal(Basic) inline const char* EmptyString() { return ""; }
+}
+
 
 //--- Local static variable initialization ---
 // The circus below is because the M$ VS compiler does not properly initialise
