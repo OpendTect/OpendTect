@@ -44,6 +44,92 @@ bool PosInfo::LineData::operator ==( const PosInfo::LineData& oth ) const
 }
 
 
+int PosInfo::LineData::minStep() const
+{
+    const int nrsegs = segments_.size();
+    if ( nrsegs < 1 )
+	return 1;
+
+    int minstep = std::abs( segments_[0].step );
+    for ( int iseg=1; iseg<nrsegs; iseg++ )
+    {
+	const int stp = std::abs( segments_[iseg].step );
+	if ( stp && stp < minstep )
+	    minstep = stp;
+    }
+
+    return minstep;
+}
+
+
+int PosInfo::LineData::centerNumber() const
+{
+    const int nr = (segments_.first().start + segments_.last().stop) / 2;
+    return nearestNumber( nr );
+}
+
+
+int PosInfo::LineData::nearestNumber( int nr ) const
+{
+    const int nrsegs = segments_.size();
+    if ( nrsegs < 1 )
+	return -1;
+
+    Interval<int> nrrg( segments_.first().start, segments_.last().stop );
+    const bool isrev = nrrg.start > nrrg.stop;
+    nrrg.sort();
+    if ( nr <= nrrg.start )
+	return nrrg.start;
+    if ( nr >= nrrg.stop )
+	return nrrg.stop;
+
+    for ( int idx=0; idx<nrsegs; idx++ )
+    {
+	const int iseg = isrev ? nrsegs-idx-1 : idx;
+	const Segment& seg = segments_[iseg];
+	if ( isrev )
+	{
+	    if ( nr > seg.start )
+	    {
+		if ( idx > 0 )
+		{
+		    const int prevstop = segments_[iseg-1].stop;
+		    if ( prevstop - nr < nr - seg.start )
+			return prevstop;
+		}
+		return seg.start;
+	    }
+	    if ( nr >= seg.stop )
+	    {
+		const int segidx = seg.nearestIndex( nr );
+		return seg.atIndex( segidx );
+	    }
+	}
+	else
+	{
+	    if ( nr < seg.start )
+	    {
+		if ( idx > 0 )
+		{
+		    const int prevstop = segments_[iseg-1].stop;
+		    if ( nr - prevstop < seg.start - nr )
+			return prevstop;
+		}
+		return seg.start;
+	    }
+	    if ( nr <= seg.stop )
+	    {
+		const int segidx = seg.nearestIndex( nr );
+		return seg.atIndex( segidx );
+	    }
+	}
+    }
+
+    pErrMsg( "Shld not be reachable" );
+    return -1;
+}
+
+
 int PosInfo::LineData::nearestSegment( double x ) const
 {
     const int nrsegs = segments_.size();
@@ -53,7 +139,7 @@ int PosInfo::LineData::nearestSegment( double x ) const
     int ret = 0; float mindist = mUdf(float);
     for ( int iseg=0; iseg<nrsegs; iseg++ )
     {
-	const PosInfo::LineData::Segment& seg = segments_[iseg];
+	const Segment& seg = segments_[iseg];
 
 	const bool isrev = seg.step < 0;
 	const float hstep = (float)seg.step * 0.5f;
@@ -65,7 +151,8 @@ int PosInfo::LineData::nearestSegment( double x ) const
 	else
 	    { ret = iseg; break; }
 
-	if ( dist < 0 ) dist = -dist;
+	if ( dist < 0 )
+	    dist = -dist;
 	if ( dist < mindist )
 	    { ret = iseg; mindist = dist; }
     }
@@ -108,6 +195,61 @@ Interval<int> PosInfo::LineData::range() const
     }
 
     return ret;
+}
+
+
+bool PosInfo::LineData::isValid( const PosInfo::LineDataPos& ldp ) const
+{
+    if ( ldp.segnr_ < 0 || ldp.segnr_ >= segments_.size() )
+	return false;
+    return ldp.sidx_ >= 0 && ldp.sidx_ <= segments_[ldp.segnr_].nrSteps();
+}
+
+
+bool PosInfo::LineData::toNext( PosInfo::LineDataPos& ldp ) const
+{
+    if ( !isValid(ldp) )
+    {
+	ldp.toStart();
+	return isValid(ldp);
+    }
+    else
+    {
+	ldp.sidx_++;
+	if ( ldp.sidx_ > segments_[ldp.segnr_].nrSteps() )
+	{
+	    ldp.segnr_++; ldp.sidx_ = 0;
+	    if ( ldp.segnr_ >= segments_.size() )
+		return false;
+	}
+	return true;
+    }
+}
+
+
+bool PosInfo::LineData::toPrev( PosInfo::LineDataPos& ldp ) const
+{
+    if ( !isValid(ldp) )
+    {
+	if ( segments_.isEmpty() )
+	    return false;
+
+	ldp.segnr_ = segments_.size() - 1;
+	ldp.sidx_ = segments_[ldp.segnr_].nrSteps();
+	return true;
+    }
+    else
+    {
+	ldp.sidx_--;
+	if ( ldp.sidx_ < 0 )
+	{
+	    ldp.segnr_--;
+	    if ( ldp.segnr_ < 0 )
+		return false;
+	    ldp.sidx_ = segments_[ldp.segnr_].nrSteps();
+	}
+	return true;
+    }
 }
 
 
@@ -526,6 +668,79 @@ bool PosInfo::CubeData::isValid( od_int64 globalidx,
 }
 
 
+BinID PosInfo::CubeData::minStep() const
+{
+    const int sz = size();
+    if ( sz < 1 )
+	return BinID(1,1);
+
+    BinID minstep( 1, first()->minStep() );
+    if ( sz == 1 )
+	return minstep;
+
+    minstep.inl() = std::abs( (*this)[1]->linenr_ - first()->linenr_ );
+    for ( int iln=1; iln<sz; iln++ )
+    {
+	const LineData& ld = *((*this)[iln]);
+	int istp = std::abs( ld.linenr_ - (*this)[iln-1]->linenr_ );
+	if ( istp && istp < minstep.inl() )
+	    minstep.inl() = istp;
+	int cstp = ld.minStep();
+	if ( cstp && cstp < minstep.crl() )
+	    minstep.crl() = cstp;
+    }
+
+    return minstep;
+}
+
+
+BinID PosInfo::CubeData::centerPos() const
+{
+    if ( isEmpty() )
+	return BinID(0,0);
+
+    const LineData& ld = *((*this)[size() / 2]);
+    return BinID( ld.linenr_, ld.centerNumber() );
+}
+
+
+BinID PosInfo::CubeData::nearestBinID( const BinID& bid ) const
+{
+    if ( isEmpty() )
+	return BinID(0,0);
+
+    int newidx;
+    int inlidx = indexOf( bid.inl(), &newidx );
+    if ( inlidx < 0 )
+    {
+	inlidx = newidx;
+	if ( inlidx > size() - 1 )
+	    inlidx = size() - 1;
+    }
+    else if ( (*this)[inlidx]->includes(bid.crl()) )
+	return bid; // exact match
+
+    BinID ret( 0, 0 );
+    int minnroff = mUdf( int );
+    for ( int idx=inlidx-2; idx<=inlidx+2; idx++ )
+    {
+	if ( !validIdx(idx) )
+	    continue;
+	const LineData& ld = *((*this)[idx]);
+	int nearcrl = ld.nearestNumber( bid.crl() );
+	int nroff = std::abs(ld.linenr_-bid.inl())
+		  + std::abs(nearcrl-bid.crl());
+	if ( nroff < minnroff )
+	{
+	    minnroff = nroff;
+	    ret = BinID( ld.linenr_, nearcrl );
+	}
+    }
+
+    return ret;
+}
+
+
 bool PosInfo::CubeData::toNext( PosInfo::CubeDataPos& cdp ) const
 {
     if ( !isValid(cdp) )
@@ -545,6 +760,39 @@ bool PosInfo::CubeData::toNext( PosInfo::CubeDataPos& cdp ) const
 		if ( cdp.lidx_ >= size() )
 		    return false;
 	    }
+	}
+	return true;
+    }
+}
+
+
+bool PosInfo::CubeData::toPrev( PosInfo::CubeDataPos& cdp ) const
+{
+    if ( !isValid(cdp) )
+    {
+	if ( isEmpty() )
+	    return false;
+
+	cdp.lidx_ = size() - 1;
+	const LineData::SegmentSet& segs = (*this)[cdp.lidx_]->segments_;
+	cdp.segnr_ = segs.size() - 1;
+	cdp.sidx_ = segs[cdp.segnr_].nrSteps();
+	return true;
+    }
+    else
+    {
+	cdp.sidx_--;
+	if ( cdp.sidx_ < 0 )
+	{
+	    cdp.segnr_--;
+	    if ( cdp.segnr_ < 0 )
+	    {
+		cdp.lidx_--;
+		if ( cdp.lidx_ < 0 )
+		    return false;
+		cdp.segnr_ = (*this)[cdp.lidx_]->segments_.size() - 1;
+	    }
+	    cdp.sidx_ = ((*this)[cdp.lidx_]->segments_)[cdp.segnr_].nrSteps();
 	}
 	return true;
     }

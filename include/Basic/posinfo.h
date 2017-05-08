@@ -38,13 +38,33 @@ numbers.
 namespace PosInfo
 {
 
+
+/*!\brief Position in a LineData. */
+
+mExpClass(Basic) LineDataPos
+{
+public:
+		LineDataPos( int isn=0, int sidx=-1 )
+		    : segnr_(isn), sidx_(sidx)		    {}
+
+    int		segnr_;
+    int		sidx_;
+
+    void	toPreStart()	{ segnr_ = 0; sidx_ = -1; }
+    void	toStart()	{ segnr_ = sidx_ = 0; }
+    bool	isValid() const	{ return segnr_>=0 && sidx_>=0; }
+
+};
+
 /*!\brief Position info for a line - in a 3D cube, that would be an inline.
   Stored as (crossline-)number segments. */
 
 mExpClass(Basic) LineData
 {
 public:
+
     typedef StepInterval<int>	Segment;
+    typedef TypeSet<Segment>	SegmentSet;
 
 				LineData( int i ) : linenr_(i)	{}
     bool			operator ==(const LineData&) const;
@@ -52,14 +72,22 @@ public:
 				{ return !(*this == oth); }
 
     const int			linenr_;
-    TypeSet<Segment>		segments_;
+    SegmentSet			segments_;
 
     int				size() const;
     int				segmentOf(int) const;
+    inline bool			includes( int nr ) const
+					{ return segmentOf(nr) >= 0; }
     Interval<int>		range() const;
+    int				minStep() const;
+    bool			isValid(const LineDataPos&) const;
+    bool			toNext(LineDataPos&) const;
+    bool			toPrev(LineDataPos&) const;
     void			merge(const LineData&,bool incl);
 				//!< incl=union, !incl=intersection
 
+    int				centerNumber() const;  //!< not exact
+    int				nearestNumber(int) const;
     int				nearestSegment(double) const;
 
 };
@@ -115,7 +143,11 @@ public:
 
     bool		isValid(const CubeDataPos&) const;
     bool		isValid(od_int64 globalidx,const TrcKeySampling&) const;
+    BinID		minStep() const;
+    BinID		nearestBinID(const BinID&) const;
+    BinID		centerPos() const;  //!< not exact
     bool		toNext(CubeDataPos&) const;
+    bool		toPrev(CubeDataPos&) const;
     BinID		binID(const CubeDataPos&) const;
     CubeDataPos		cubeDataPos(const BinID&) const;
 

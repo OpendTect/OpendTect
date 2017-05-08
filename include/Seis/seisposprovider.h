@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "dbkey.h"
 
-namespace PosInfo { class Line2DData; }
-
 
 namespace Pos
 {

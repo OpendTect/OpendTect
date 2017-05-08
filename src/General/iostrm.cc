@@ -17,6 +17,42 @@
 #include "envvars.h"
 #include "oddirs.h"
 
+
+static void getFullSpecFileName( BufferString& fnm, BufferString* specfnm )
+{
+    if ( !fnm.startsWith( "${" ) )
+	return;
+
+    BufferString dirnm( fnm.str()+2 );
+    char* ptr = dirnm.find( "}" );
+    if ( !ptr )
+	{ fnm = dirnm; return; }
+
+    if ( specfnm )
+	*specfnm = fnm;
+    *ptr++ = '\0';
+    fnm = ptr;
+
+    if ( dirnm == "DTECT_DATA" )
+	dirnm = GetBaseDataDir();
+    else if ( dirnm == "DTECT_APPL" )
+	dirnm = GetSoftwareDir(true);
+    else if ( dirnm == "DTECT_APPL_SETUP" )
+	dirnm = GetApplSetupDir();
+    else if ( dirnm == "DTECT_SETTINGS" )
+	dirnm = GetSettingsDir();
+    else
+    {
+	dirnm = GetEnvVar( dirnm );
+	if ( dirnm.isEmpty() )
+	    dirnm = GetBaseDataDir();
+    }
+
+    File::Path fp( dirnm, fnm );
+    fnm = fp.fullPath();
+}
+
+
 class IOStreamProducer : public IOObjProducer
 {
     bool	canMake( const char* typ ) const
@@ -152,7 +188,20 @@ bool IOStream::implRename( const char* newnm, const CallBack* cb )
 
     const BufferString newfnm( newnm );
     const BufferString oldfnm( mainFileName() );
-    return File::rename( oldfnm, newfnm );
+    if ( !File::rename(oldfnm,newfnm) )
+	return false;
+    if ( specfname_.isEmpty() )
+	return true;
+
+    File::Path fpnew( newfnm );
+    File::Path newfpspec( specfname_ );
+    newfpspec.setFileName( fpnew.fileName() );
+    BufferString newfullspecfnm = newfpspec.fullPath();
+    getFullSpecFileName( newfullspecfnm, 0 );
+    if ( newfnm == newfullspecfnm )
+	specfname_ = newfpspec.fullPath();
+
+    return true;
 }
 
 
@@ -219,41 +268,6 @@ bool IOStream::locateInSharedDir( const char* dirnm )
     const File::Path newfp( "${DTECT_DATA}", dirnm, curfp.fileName() );
     fs_.setFileName( newfp.fullPath() );
     return true;
-}
-
-
-static void getFullSpecFileName( BufferString& fnm, BufferString* specfnm )
-{
-    if ( !fnm.startsWith( "${" ) )
-	return;
-
-    BufferString dirnm( fnm.str()+2 );
-    char* ptr = dirnm.find( "}" );
-    if ( !ptr )
-	{ fnm = dirnm; return; }
-
-    if ( specfnm )
-	*specfnm = fnm;
-    *ptr++ = '\0';
-    fnm = ptr;
-
-    if ( dirnm == "DTECT_DATA" )
-	dirnm = GetBaseDataDir();
-    else if ( dirnm == "DTECT_APPL" )
-	dirnm = GetSoftwareDir(true);
-    else if ( dirnm == "DTECT_APPL_SETUP" )
-	dirnm = GetApplSetupDir();
-    else if ( dirnm == "DTECT_SETTINGS" )
-	dirnm = GetSettingsDir();
-    else
-    {
-	dirnm = GetEnvVar( dirnm );
-	if ( dirnm.isEmpty() )
-	    dirnm = GetBaseDataDir();
-    }
-
-    File::Path fp( dirnm, fnm );
-    fnm = fp.fullPath();
 }
 
 
