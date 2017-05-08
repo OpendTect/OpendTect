@@ -184,6 +184,12 @@ void uiLabel::setPixmap( const uiPixmap& pixmap )
 }
 
 
+void uiLabel::setIcon( const char* iconnm )
+{
+    setPixmap( uiPixmap(iconnm) );
+}
+
+
 void uiLabel::setAlignment( Alignment::HPos hal )
 {
     Alignment al( hal, Alignment::VCenter );

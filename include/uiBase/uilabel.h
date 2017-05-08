@@ -40,6 +40,7 @@ public:
     const uiString&	text() const;
     void		setTextSelectable(bool yn=true);
     void		setPixmap(const uiPixmap&);
+    void		setIcon(const char* iconnm);
 
 /*!
     setting an alignment only makes sense if you reserve space using
