@@ -21,6 +21,7 @@ uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
 			      OD::Orientation orient )
     : uiGroup( p ,nm )
     , orientation_(orient)
+    , newrowcol_(false)
 {
     qbuttongrp_ = new QButtonGroup();
 }
@@ -32,14 +33,31 @@ uiButtonGroup::~uiButtonGroup()
 }
 
 
+void uiButtonGroup::nextButtonOnNewRowCol()
+{ newrowcol_ = true; }
+
+
 int uiButtonGroup::addButton( uiButton* button )
 {
     const bool vertical = orientation_ == OD::Vertical;
     const int id = qbuttongrp_->buttons().size();
     qbuttongrp_->addButton( button->qButton(), id );
-    if ( !uibuts_.isEmpty() )
+    const bool firstbut = uibuts_.isEmpty();
+    if ( firstbut )
+    {
+	uibuts_ += button;
+	return id;
+    }
+
+    if ( newrowcol_ )
+    {
+	button->attach( vertical ? rightTo : leftAlignedBelow, uibuts_.first());
+	newrowcol_ = false;
+    }
+    else
 	button->attach( vertical ? leftAlignedBelow : rightTo,
 			uibuts_[uibuts_.size()-1] );
+
     uibuts_ += button;
     return id;
 }
