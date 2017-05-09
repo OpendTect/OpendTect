@@ -87,7 +87,7 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     infofld_ = new uiTextEdit( infogrp, "Info", true );
     infofld_->setPrefHeightInChar( 7 );
 
-    uiSplitter* spl = new uiSplitter( this, "Splitter", false );
+    uiSplitter* spl = new uiSplitter( this, "Splitter", OD::Horizontal );
     spl->addGroup( topgrp );
     spl->addGroup( infogrp );
 
