@@ -82,7 +82,7 @@ uiSeisSampleEditor::Setup::Setup( const DBKey& ky )
     , startz_(mUdf(float))
     , readonly_(false)
 {
-    wintitle_ = tr( "Browse '%1'" ).arg( DBM().nameOf( id_ ) );
+    wintitle_ = tr( "Browse/Edit '%1'" ).arg( DBM().nameOf( id_ ) );
 }
 
 
@@ -300,12 +300,11 @@ void uiSeisSampleEditor::createTable()
 }
 
 
-BinID uiSeisSampleEditor::getNextBid( const BinID& cur, int idx,
-				      bool before ) const
+BinID uiSeisSampleEditor::getBinID4RelIdx( const BinID& bid, int idx ) const
 {
     return crlwise_
-	? BinID( cur.inl() + (before?-1:1)*stepbid_.inl()*idx, cur.crl() )
-	: BinID( cur.inl(), cur.crl() + (before?-1:1)*stepbid_.crl()*idx );
+	? BinID( bid.inl() + idx*stepbid_.inl(), bid.crl() )
+	: BinID( bid.inl(), bid.crl() + idx*stepbid_.crl() );
 }
 
 
@@ -332,14 +331,7 @@ bool uiSeisSampleEditor::doSetPos( const BinID& bid, bool force )
     BinID binid( bid );
     const bool inldef = is2d_ || !mIsUdf(bid.inl());
     const bool crldef = !mIsUdf(bid.crl());
-    if ( inldef && crldef )
-    {
-	if ( is2d_ )
-	    binid.crl() = linedata_.nearestNumber( bid.crl() );
-	else
-	    binid = cubedata_.nearestBinID( bid );
-    }
-    else
+    if ( !inldef || !crldef )
     {
 	if ( is2d_ )
 	    binid.crl() = linedata_.centerNumber();
@@ -347,23 +339,13 @@ bool uiSeisSampleEditor::doSetPos( const BinID& bid, bool force )
 	    binid = cubedata_.centerPos();
     }
 
-    SeisTrc* trc = new SeisTrc;
-    uiRetVal uirv = prov_->get( trcKey4BinID(binid), *trc );
-    if ( uirv.isError() )
-    {
-	delete trc;
-	uiMSG().error( uirv );
-	return false;
-    }
-
     tbuf_.deepErase();
     viewtbuf_.deepErase();
-    tbuf_.add( trc );
-    ctrc_ = trc;
-    for ( int idx=1; idx<stepout_+1; idx++ )
+    for ( int idx=-stepout_; idx<=stepout_; idx++ )
     {
-	addTrc( getNextBid(binid,idx,true), true );
-	addTrc( getNextBid(binid,idx,false), false );
+	addTrc( getBinID4RelIdx(binid,idx) );
+	if ( idx == 0 )
+	    ctrc_ = tbuf_.last();
     }
 
     tbuf_.copyInto( viewtbuf_ );
@@ -372,28 +354,25 @@ bool uiSeisSampleEditor::doSetPos( const BinID& bid, bool force )
 }
 
 
-void uiSeisSampleEditor::addTrc( const BinID& bid, bool atend )
+void uiSeisSampleEditor::addTrc( const BinID& bid )
 {
-    SeisTrc* newtrc = new SeisTrc;
+    SeisTrc* trc = new SeisTrc;
 
     Pos::IdxPairDataSet::SPos spos = edtrcs_.find( bid );
     if ( spos.isValid() )
-	*newtrc = *((SeisTrc*)edtrcs_.getObj( spos ));
+	*trc = *((SeisTrc*)edtrcs_.getObj( spos ));
     else
     {
 	const TrcKey tk( trcKey4BinID(bid) );
-	if ( !prov_->get(tk,*newtrc).isOK() )
+	if ( !prov_->get(tk,*trc).isOK() )
 	{
-	    newtrc->info().setBinID( bid );
-	    newtrc->info().coord_ = survgeom_->toCoord( bid );
-	    fillUdf( *newtrc );
+	    trc->info().setBinID( bid );
+	    trc->info().coord_ = survgeom_->toCoord( bid );
+	    fillUdf( *trc );
 	}
     }
 
-    if ( atend )
-	tbuf_.add( newtrc );
-    else
-	tbuf_.insert( newtrc );
+    tbuf_.add( trc );
 }
 
 
@@ -472,8 +451,8 @@ void uiSeisSampleEditor::fillTableColumn( const SeisTrc& trc, int colidx )
     }
     tbl_->setColumnLabel( colidx, toUiString(coltxt) );
 
-    RowCol rc( colidx, 0 );
-    for ( rc.row()=0; rc.row()<nrsamples_; rc.row()++ )
+    RowCol rc( 0, colidx );
+    for ( ; rc.row()<nrsamples_; rc.row()++ )
     {
 	const float val = trc.get( rc.row(), compnr_ );
 	tbl_->setValue( rc, val );
@@ -542,11 +521,18 @@ uiSeisSampleEditorGoToDlg( uiSeisSampleEditor* p )
 	trcnrfld_->attach( rightOf, lbsb );
     }
 
+    tonearestbut_ = new uiToolButton( this, "tonearestpos",
+			    tr("Adjust to existing position"),
+			    mCB(this,uiSeisSampleEditorGoToDlg,toNearestCB) );
+
     const TrcKey curpos = ed_.curPos();
     trcnrfld_->setValue( curpos.trcNr() );
-    mAttachCB( trcnrfld_->valueChanged, uiSeisSampleEditorGoToDlg::valChgCB );
-    if ( inlfld_ )
+    mAttachCB( trcnrfld_->valueChanging, uiSeisSampleEditorGoToDlg::valChgCB );
+    if ( !inlfld_ )
+	tonearestbut_->attach( rightOf, lbsb );
+    else
     {
+	tonearestbut_->attach( rightOf, trcnrfld_ );
 	inlfld_->setValue( curpos.inl() );
 	mAttachCB( inlfld_->valueChanged, uiSeisSampleEditorGoToDlg::valChgCB );
     }
@@ -580,10 +566,10 @@ void valChgCB( CallBacker* )
 {
     const bool is2d = !inlfld_;
     pos_.crl() = trcnrfld_->getIntValue();
-    if ( !is2d )
+    if ( inlfld_ )
 	pos_.inl() = inlfld_->getIntValue();
 
-    uiString lbl;
+    uiString lbl; bool isok = false;
     if ( !posIsReasonable() )
 	lbl = is2d ? tr("Invalid trace number") : tr( "Invalid position" );
     else if ( !posIsInside() )
@@ -593,12 +579,26 @@ void valChgCB( CallBacker* )
     {
 	lbl = tr("Not present in data");
 	if ( ed_.is2D() && ed_.linedata_.includes(pos_.trcNr()) )
-	    lbl = tr("Trace number present");
+	    { isok = true; lbl = tr("Trace number present"); }
 	else if ( !ed_.is2D() && ed_.cubedata_.includes(pos_) )
-	    lbl = tr("Position present");
+	    { isok = true; lbl = tr("Position present"); }
     }
 
     statelbl_->setText( lbl );
+    tonearestbut_->display( !isok );
+}
+
+void toNearestCB( CallBacker* )
+{
+    if ( !inlfld_ )
+	pos_.crl() = ed_.linedata_.nearestNumber( pos_.crl() );
+    else
+    {
+	pos_ = ed_.cubedata_.nearestBinID( pos_ );
+	inlfld_->setValue( pos_.inl() );
+    }
+    trcnrfld_->setValue( pos_.crl() );
+    tonearestbut_->display( false );
 }
 
 bool acceptOK()
@@ -616,6 +616,7 @@ bool acceptOK()
     uiSpinBox*		inlfld_;
     uiSpinBox*		trcnrfld_;
     uiLabel*		statelbl_;
+    uiToolButton*	tonearestbut_;
 
     BinID		pos_;
 
@@ -638,7 +639,7 @@ void uiSeisSampleEditor::goToPush( CallBacker* cb )
 
 void uiSeisSampleEditor::rightArrowPush( CallBacker* cb )
 {
-    if ( !goTo( getNextBid(curBinID(),stepout_,false) ) )
+    if ( !goTo( getBinID4RelIdx(curBinID(),stepout_) ) )
 	return;
     setTrcBufViewTitle();
     if ( trcbufvwr_ )
@@ -649,7 +650,7 @@ void uiSeisSampleEditor::rightArrowPush( CallBacker* cb )
 
 void uiSeisSampleEditor::leftArrowPush( CallBacker* cb )
 {
-    if ( !goTo( getNextBid(curBinID(),stepout_,true) ) )
+    if ( !goTo( getBinID4RelIdx(curBinID(),-stepout_) ) )
 	return;
     setTrcBufViewTitle();
     if ( trcbufvwr_ )
@@ -717,8 +718,8 @@ void uiSeisSampleEditor::commitChanges()
 }
 
 
-void uiSeisSampleEditor::doBrowse( uiParent* p, const DBKey& dbky,
-				   Pos::GeomID geomid )
+void uiSeisSampleEditor::launch( uiParent* p, const DBKey& dbky,
+				 Pos::GeomID geomid )
 {
     uiSeisSampleEditor::Setup setup( dbky );
     setup.geomid_ = geomid;

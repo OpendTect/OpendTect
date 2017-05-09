@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "uimergeseis.h"
 #include "uiseispsman.h"
 #include "uiseisbrowser.h"
+#include "uiseissampleeditor.h"
 #include "uiseiscopy.h"
 #include "uiseisioobjinfo.h"
 #include "uiseis2dfileman.h"
@@ -49,16 +50,15 @@ ________________________________________________________________________
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
-class uiSeisCBVSBrowerMgr : public CallBacker
-{ mODTextTranslationClass(uiSeisCBVSBrowerMgr)
+class uiSeisSampleEdBrowserMgr : public CallBacker
+{ mODTextTranslationClass(uiSeisSampleEdBrowserMgr)
 public:
 
-uiSeisCBVSBrowerMgr()
+uiSeisSampleEdBrowserMgr()
 {
-    uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
-			    CBVSSeisTrcTranslator::translKey() );
-    bdef->tooltip_ = tr( "Browse/Edit CBVS cube '%1'" );
-    bdef->cb_ = mCB(this,uiSeisCBVSBrowerMgr,doBrowse);
+    uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef;
+    bdef->tooltip_ = tr( "Browse/Edit cube '%1'" );
+    bdef->cb_ = mCB(this,uiSeisSampleEdBrowserMgr,doBrowse);
     uiSeisFileMan::addBrowser( bdef );
 }
 
@@ -66,12 +66,12 @@ void doBrowse( CallBacker* cb )
 {
     mDynamicCastGet(uiSeisFileMan*,sfm,cb)
     if ( sfm && sfm->curIOObj() )
-	uiSeisBrowser::doBrowse( sfm, *sfm->curIOObj(), false );
+	uiSeisSampleEditor::launch( sfm, sfm->curIOObj()->key() );
 }
 
 };
 
-static uiSeisCBVSBrowerMgr* cbvsbrowsermgr_ = 0;
+static uiSeisSampleEdBrowserMgr* sampleedbrowsermgr_ = 0;
 
 
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
@@ -88,8 +88,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     , man2dlinesbut_(0)
     , mergecubesbut_(0)
 {
-    if ( !cbvsbrowsermgr_ )
-	cbvsbrowsermgr_ = new uiSeisCBVSBrowerMgr;
+    if ( !sampleedbrowsermgr_ )
+	sampleedbrowsermgr_ = new uiSeisSampleEdBrowserMgr;
 
     IOObjContext* freshctxt = Seis::getIOObjContext(
 					is2d_ ? Seis::Line : Seis::Vol, true );
@@ -248,11 +248,16 @@ const uiSeisFileMan::BrowserDef* uiSeisFileMan::getBrowserDef() const
 {
     if ( curioobj_ )
     {
-	for ( int idx=0; idx<browserdefs_.size(); idx++ )
+	for ( int ipass=0; ipass<2; ipass++ )
 	{
-	    const BrowserDef* bdef = browserdefs_[idx];
-	    if ( bdef->name_ == curioobj_->translator() )
-		return bdef;
+	    for ( int idx=0; idx<browserdefs_.size(); idx++ )
+	    {
+		const BrowserDef* bdef = browserdefs_[idx];
+		if ( ipass == 0 && bdef->name_ == curioobj_->translator() )
+		    return bdef;
+		else if ( ipass == 1 && bdef->name_.isEmpty() )
+		    return bdef;
+	    }
 	}
     }
 

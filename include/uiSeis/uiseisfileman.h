@@ -27,11 +27,11 @@ public:
     {
     public:
 
-			BrowserDef( const char* nm )
+			BrowserDef( const char* nm=0 )
 			    : name_(nm)
 			    , for2d_(false)	{}
 
-	BufferString	name_;		// translator name for 3D
+	BufferString	name_;		// translator name for 3D, empty=all
 	uiString	tooltip_;	// %1 will be filled by object name
 	CallBack	cb_;		// this will be passed
 	bool		for2d_;		// only 3D supported yet

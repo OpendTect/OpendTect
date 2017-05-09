@@ -67,7 +67,7 @@ public :
     int			compNr() const		{ return compnr_; }
     void		setCompNr(int);
 
-    static void		doBrowse(uiParent*,const DBKey&,
+    static void		launch(uiParent*,const DBKey&,
 				 Pos::GeomID geomid=mUdfGeomID);
 
 protected:
@@ -109,7 +109,7 @@ protected:
     Seis::Provider3D&	prov3D();
     TrcKey		trcKey4BinID(const BinID&) const;
     SeisTrc*		curTrace(bool);
-    BinID		getNextBid(const BinID&,int,bool) const;
+    BinID		getBinID4RelIdx(const BinID&,int) const;
 
     void		createMenuAndToolBar();
     void		createTable();
@@ -119,7 +119,7 @@ protected:
     void		fillTableColumn(const SeisTrc&,int);
     void		commitChanges();
     bool		doSetPos(const BinID&,bool force);
-    void		addTrc(const BinID&,bool atend);
+    void		addTrc(const BinID&);
     void		updateWiggleButtonStatus();
     void		setTrcBufViewTitle();
     bool		storeChgdData();
