@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class CtxtIOObj;
+class IOObj;
 class uiGenInput;
 class uiIOObjSel;
 class uiFileInput;
@@ -24,7 +25,7 @@ namespace Table { class FormatDesc; }
 
 
 mExpClass(uiSeis) uiSeisWvltImp : public uiDialog
-{ mODTextTranslationClass(uiSeisWvltImp);
+{ mODTextTranslationClass(uiSeisWvltImp)
 public:
 			uiSeisWvltImp(uiParent*);
 			~uiSeisWvltImp();
@@ -47,9 +48,10 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisWvltExp : public uiDialog
-{ mODTextTranslationClass(uiSeisWvltExp);
+{ mODTextTranslationClass(uiSeisWvltExp)
 public:
 			uiSeisWvltExp(uiParent*);
+			~uiSeisWvltExp();
 
 protected:
 
@@ -61,5 +63,23 @@ protected:
 
 };
 
+
+mExpClass(uiSeis) uiSeisWvltCopy : public uiDialog
+{ mODTextTranslationClass(uiSeisWvltCopy)
+public:
+			uiSeisWvltCopy(uiParent*,const IOObj*);
+			~uiSeisWvltCopy();
+
+    MultiID		getMultiID() const;
+
+protected:
+
+    uiIOObjSel*		wvltinfld_;
+    uiIOObjSel*		wvltoutfld_;
+    uiGenInput*		scalefld_;
+
+    bool		acceptOK(CallBacker*);
+
+};
 
 #endif

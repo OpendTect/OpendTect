@@ -151,7 +151,7 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 
     wvltfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
 
-    addzfld_ = new uiGenInput( this, uiStrings::phrOutput(SI().zIsTime() ? 
+    addzfld_ = new uiGenInput( this, uiStrings::phrOutput(SI().zIsTime() ?
 				     uiStrings::sTime() : uiStrings::sDepth()),
 				     BoolInpSpec(true) );
     addzfld_->attach( alignedBelow, wvltfld_ );
@@ -160,6 +160,11 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 				uiStrings::sFile())), uiFileInput::Setup()
 				.forread(false) );
     outpfld_->attach( alignedBelow, addzfld_ );
+}
+
+
+uiSeisWvltExp::~uiSeisWvltExp()
+{
 }
 
 
@@ -199,5 +204,63 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 
     uiString msg = tr("Wavelet successfully exported."
 	              "\nDo you want to export more Wavelets?");
+    return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
+}
+
+
+
+// uiSeisWvltCopy
+uiSeisWvltCopy::uiSeisWvltCopy( uiParent* p, const IOObj* inioobj )
+    : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sWavelet()),
+		       mNoDlgTitle,mTODOHelpKey))
+{
+    setOkText( uiStrings::sCopy() );
+
+    IOObjContext ctxt = mIOObjContext(Wavelet);
+    wvltinfld_ = new uiIOObjSel( this, ctxt );
+    if ( inioobj )
+	wvltinfld_->setInput( inioobj->key() );
+
+    scalefld_ = new uiGenInput( this, tr("Scale factor for samples"),
+				FloatInpSpec(1) );
+    scalefld_->attach( alignedBelow, wvltinfld_ );
+
+    ctxt.forread = false;
+    wvltoutfld_ = new uiIOObjSel( this, ctxt );
+    wvltoutfld_->attach( alignedBelow, scalefld_ );
+}
+
+
+uiSeisWvltCopy::~uiSeisWvltCopy()
+{
+}
+
+
+MultiID uiSeisWvltCopy::getMultiID() const
+{
+    return wvltoutfld_->key();
+}
+
+
+bool uiSeisWvltCopy::acceptOK( CallBacker* )
+{
+    const IOObj* inioobj = wvltinfld_->ioobj();
+    if ( !inioobj ) return false;
+    const IOObj* outioobj = wvltoutfld_->ioobj();
+    if ( !outioobj ) return false;
+
+    PtrMan<Wavelet> wvlt = Wavelet::get( inioobj );
+    if ( !wvlt )
+	mErrRet( uiStrings::phrCannotRead( uiStrings::sWavelet()) )
+
+    const float fac = scalefld_->getfValue();
+    if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
+	wvlt->transform( 0.f, fac );
+
+    if ( !wvlt->put(outioobj) )
+	mErrRet( tr("Cannot store wavelet on disk") )
+
+    uiString msg = tr("Wavelet successfully copied."
+		      "\nDo you want to copy more Wavelets?");
     return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
 }
