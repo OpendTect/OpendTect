@@ -580,7 +580,7 @@ bool TrcKeySampling::usePar( const IOPar& pars )
     if ( inlok && crlok )
 	return true;
 
-    IOPar* subpars = pars.subselect( IOPar::compKey( sKey::Line(), 0 ) );
+    PtrMan<IOPar> subpars = pars.subselect( IOPar::compKey( sKey::Line(), 0 ) );
     if ( !subpars ) return false;
 
     bool trcrgok = getRange( *subpars, sKey::TrcRange(),
@@ -1284,7 +1284,8 @@ bool TrcKeyZSampling::usePar( const IOPar& par )
     bool isok = hsamp_.usePar( par );
     if ( hsamp_.is2D() )
     {
-	IOPar* subpars = par.subselect( IOPar::compKey( sKey::Line(), 0 ) );
+	PtrMan<IOPar> subpars =
+			par.subselect( IOPar::compKey( sKey::Line(), 0 ) );
 	if ( !subpars ) return false;
 	return isok && subpars->get( sKey::ZRange(), zsamp_ );
     }
