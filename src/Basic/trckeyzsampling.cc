@@ -521,19 +521,55 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 	survid_ = Survey::GM().default3DSurvID();
     }
 
-    return inlok && crlok;
+    if ( inlok && crlok )
+	return true;
+
+    IOPar* subpars = pars.subselect( IOPar::compKey( sKey::Line(), 0 ) );
+    if ( !subpars ) return false;
+
+    bool trcrgok = getRange( *subpars, sKey::TrcRange(),
+			     start_.trcNr(), stop_.trcNr(), step_.trcNr() );
+    if ( !trcrgok )
+    {
+	trcrgok = subpars->get( sKey::FirstTrc(), start_.trcNr() );
+	trcrgok = subpars->get( sKey::LastTrc(), stop_.trcNr() ) || trcrgok;
+    }
+
+    if ( trcrgok )
+    {
+	subpars->get( sKey::GeomID(), start_.lineNr() );
+	stop_.lineNr() = start_.lineNr();
+	step_.lineNr() = step_.trcNr() = 1;
+	survid_ = Survey::GM().get2DSurvID();
+
+    }
+
+    return trcrgok;
 }
 
 
 void TrcKeySampling::fillPar( IOPar& pars ) const
 {
-    pars.set( sKey::FirstInl(), start_.lineNr() );
-    pars.set( sKey::FirstCrl(), start_.trcNr() );
-    pars.set( sKey::LastInl(), stop_.lineNr() );
-    pars.set( sKey::LastCrl(), stop_.trcNr() );
-    pars.set( sKey::StepInl(), step_.lineNr() );
-    pars.set( sKey::StepCrl(), step_.trcNr() );
-    pars.set( sKey::SurveyID(), survid_ );
+    if ( is2D() )
+    {
+	IOPar tmppar;
+	tmppar.set( sKey::GeomID(), start_.lineNr() );
+	tmppar.set( sKey::FirstTrc(), start_.trcNr() );
+	tmppar.set( sKey::LastTrc() , stop_.trcNr() );
+	tmppar.set( sKey::StepCrl(), step_.trcNr() );
+	tmppar.set( sKey::SurveyID(), survid_ );
+	pars.mergeComp( tmppar, IOPar::compKey( sKey::Line(), 0 ) );
+    }
+    else
+    {
+	pars.set( sKey::FirstInl(), start_.lineNr() );
+	pars.set( sKey::FirstCrl(), start_.trcNr() );
+	pars.set( sKey::LastInl(), stop_.lineNr() );
+	pars.set( sKey::LastCrl(), stop_.trcNr() );
+	pars.set( sKey::StepInl(), step_.lineNr() );
+	pars.set( sKey::StepCrl(), step_.trcNr() );
+	pars.set( sKey::SurveyID(), survid_ );
+    }
 }
 
 
