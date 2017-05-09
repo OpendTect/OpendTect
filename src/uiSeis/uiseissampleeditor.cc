@@ -776,6 +776,28 @@ od_int64 nrDone() const         { return nrdone_; }
 uiString message() const	{ return msg_; }
 uiString nrDoneText() const	{ return tr("Traces done"); }
 
+void createIter2D()
+{
+    //TODO support 2D
+}
+
+void createIter3D()
+{
+    Interval<int> inlrg, crlrg;
+    ed_.cubedata_.getRanges( inlrg, crlrg );
+    TrcKeySampling tks;
+    tks.set( inlrg, crlrg );
+    tks.step_ = ed_.cubedata_.minStep();
+    Pos::IdxPairDataSet::SPos spos;
+    while ( ed_.edtrcs_.next(spos) )
+    {
+	const SeisTrc* trc = (const SeisTrc*)ed_.edtrcs_.getObj( spos );
+	tks.include( TrcKey(trc->info().binID()) );
+    }
+    tksampiter_ = new TrcKeySamplingIterator( tks );
+    curbinid_ = tksampiter_->curBinID();
+}
+
 int startWork()
 {
     //TODO support 2D
@@ -792,16 +814,10 @@ int startWork()
 	return ErrorOccurred();
     }
 
-    //TODO support 2D
-    if ( !ed_.is2D() )
-    {
-	tksampiter_ = new TrcKeySamplingIterator(
-				ed_.survgeom_->sampling().hsamp_ );
-	curbinid_ = tksampiter_->curBinID();
-    }
+    if ( ed_.is2D() )
+	createIter2D();
     else
-    {
-    }
+	createIter3D();
 
     return MoreToDo();
 }
