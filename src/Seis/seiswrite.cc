@@ -32,6 +32,15 @@
 
 #define mCurGeomID (seldata_ ? seldata_->geomID() : mUdfGeomID)
 
+SeisTrcWriter::SeisTrcWriter( const DBKey& dbky )
+	: SeisStoreAccess(dbky)
+	, auxpars_(*new IOPar)
+	, linedata_(0)
+	, seisstatscollector_(*new SeisStatsCollector)
+{
+    init();
+}
+
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
 	, auxpars_(*new IOPar)

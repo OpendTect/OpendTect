@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "position.h"
 #include "samplingdata.h"
 #include "zdomain.h"
+#include "seistype.h"
+#include "survgeom.h"
 
 class SeisTrc;
 class SeisTrcBuf;
@@ -26,7 +28,7 @@ class uiSeisSampleEditorInfoVwr;
 class uiSpinBox;
 class uiTable;
 namespace Pos { class IdxPairDataSet; }
-namespace PosInfo { class CubeData; class Line2DData; }
+namespace PosInfo { class CubeData; class LineData; }
 namespace Seis { class Provider; class Provider2D; class Provider3D; }
 
 
@@ -42,27 +44,28 @@ public :
 	mDefSetupMemb(DBKey,	id)
 	mDefSetupMemb(Pos::GeomID,geomid)
 	mDefSetupMemb(bool,	readonly)
-	mDefSetupMemb(TrcKey,	startpos)
+	mDefSetupMemb(BinID,	startpos)
 	mDefSetupMemb(float,	startz)
 
     };
 			uiSeisSampleEditor(uiParent*,const Setup&);
 			~uiSeisSampleEditor();
 
-    bool		isOK() const			{ return prov_; }
-    void		setPos(const BinID&);
-    void		setCrlWise(bool yn)		{ crlwise_ = yn; }
-    void		commitChanges();
-    bool		storeChgdData();
-    bool		goTo(const BinID&);
+    bool		isOK() const		{ return prov_; }
+    bool		is2D() const		{ return is2d_; }
+    Seis::GeomType	geomType() const;
 
-    int			stepOut()			{ return stepout_; }
+    void		setCrlWise(bool yn)	{ crlwise_ = yn; }
+    int			stepOut()		{ return stepout_; }
     void		setStepout(int);
-    bool		is2D() const;
-
-    const BinID&	curBinID() const;
+    TrcKey		curPos() const;
+    BinID		curBinID() const	{ return curPos().binID(); }
+    bool		setPos(const BinID&);
+    bool		setPos(const TrcKey&);
     float		curZ() const;
-    void		setCompNr( int compnr )		{ compnr_ = compnr; }
+    void		setZ(float);
+    int			compNr() const		{ return compnr_; }
+    void		setCompNr(int);
 
     static void		doBrowse(uiParent*,const DBKey&,
 				 Pos::GeomID geomid=mUdfGeomID);
@@ -75,15 +78,15 @@ protected:
     uiToolBar*		toolbar_;
 
     const Setup		setup_;
-    uiSeisSampleEditorInfoVwr* infovwr_;
-    uiSeisTrcBufViewer*	trcbufvwr_;
-    SeisTrcBuf&		tbuf_;
-    Pos::IdxPairDataSet& changedtraces_;
-    SeisTrc*		ctrc_;
     Seis::Provider*	prov_;
+    SeisTrcBuf&		tbuf_;
+    SeisTrcBuf&		viewtbuf_;
+    Pos::IdxPairDataSet& edtrcs_;
+    SeisTrc*		ctrc_;
+    const Survey::Geometry* survgeom_;
     ZDomain::Def	zdomdef_;
     PosInfo::CubeData&	cubedata_;
-    PosInfo::Line2DData& linedata_;
+    PosInfo::LineData&	linedata_;
 
     Seis::DataType	datatype_;
     bool		is2d_;
@@ -98,10 +101,15 @@ protected:
     int			showwgglbutidx_;
     uiString		toinlwisett_;
     uiString		tocrlwisett_;
+    uiSeisSampleEditorInfoVwr* infovwr_;
+    uiSeisTrcBufViewer*	trcbufvwr_;
 
     int			nrComponents() const	{ return compnms_.size(); }
     Seis::Provider2D&	prov2D();
     Seis::Provider3D&	prov3D();
+    TrcKey		trcKey4BinID(const BinID&) const;
+    SeisTrc*		curTrace(bool);
+    BinID		getNextBid(const BinID&,int,bool) const;
 
     void		createMenuAndToolBar();
     void		createTable();
@@ -109,27 +117,32 @@ protected:
     void		fillTable();
     void		fillUdf(SeisTrc&);
     void		fillTableColumn(const SeisTrc&,int);
-    void		doSetPos(const BinID&,bool force);
-    void		addTrc(SeisTrcBuf&,const BinID&);
+    void		commitChanges();
+    bool		doSetPos(const BinID&,bool force);
+    void		addTrc(const BinID&,bool atend);
     void		updateWiggleButtonStatus();
     void		setTrcBufViewTitle();
+    bool		storeChgdData();
+    bool		goTo( const BinID& bid )
+			{ return doSetPos(bid,true); }
 
     void		goToPush(CallBacker*);
     void		infoPush(CallBacker*);
-    void		infoClose(CallBacker*);
+    void		infoClose(CallBacker*)	    { infovwr_ = 0; }
+    void		bufVwrClose(CallBacker*);
     void		rightArrowPush(CallBacker*);
     void		leftArrowPush(CallBacker*);
     void		switchViewTypePush(CallBacker*);
-    bool		acceptOK();
     void		dispTracesPush(CallBacker*);
-    void		trcbufViewerClosed(CallBacker*);
-    void		trcselectionChanged(CallBacker*);
+    void		selChgCB(CallBacker*);
     void		tblValChgCB(CallBacker*);
     void		chgCompNrCB(CallBacker*);
     void		nrTracesChgCB(CallBacker*);
 
-private:
+    bool		acceptOK();
 
-    SeisTrcBuf&		tbufbefore_;
-    SeisTrcBuf&		tbufafter_;
+    friend class	uiSeisSampleEditorGoToDlg;
+    friend class	uiSeisSampleEditorWriter;
+    friend class	uiSeisSampleEditorInfoVwr;
+
 };

@@ -75,9 +75,10 @@ public:
     SegmentSet			segments_;
 
     int				size() const;
+    bool			isEmpty() const	{ return segments_.isEmpty(); }
     int				segmentOf(int) const;
     inline bool			includes( int nr ) const
-					{ return segmentOf(nr) >= 0; }
+						{ return segmentOf(nr) >= 0; }
     Interval<int>		range() const;
     int				minStep() const;
     bool			isValid(const LineDataPos&) const;
@@ -135,6 +136,7 @@ public:
     virtual int		indexOf(int inl,int* newidx=0) const;
 			//!< newidx only filled if not null and -1 is returned
     bool		includes(int inl,int crl) const;
+    bool		includes(const BinID&) const;
     void		getRanges(Interval<int>& inl,Interval<int>& crl) const;
     bool		getInlRange(StepInterval<int>&,bool sorted=true) const;
 			//!< Returns whether fully regular.

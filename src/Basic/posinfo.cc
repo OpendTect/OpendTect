@@ -526,6 +526,12 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 }
 
 
+bool PosInfo::CubeData::includes( const BinID& bid ) const
+{
+    return includes( bid.inl(), bid.crl() );
+}
+
+
 bool PosInfo::CubeData::includes( int lnr, int crl ) const
 {
     int ilnr = indexOf( lnr ); if ( ilnr < 0 ) return false;

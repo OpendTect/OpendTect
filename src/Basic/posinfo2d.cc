@@ -6,6 +6,7 @@
 
 
 #include "posinfo2d.h"
+#include "posinfo.h"
 #include "math2.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
@@ -398,4 +399,45 @@ bool PosInfo::Line2DData::coincidesWith( const PosInfo::Line2DData& oth ) const
     }
 
     return foundcommon;
+}
+
+
+void PosInfo::Line2DData::getSegments( LineData& ld ) const
+{
+    ld.segments_.setEmpty();
+    const int nrposns = posns_.size();
+    if ( nrposns < 1 )
+	return;
+
+    bool havestep = false;
+    int prevnr = posns_[0].nr_;
+    LineData::Segment curseg( prevnr, prevnr, 1 );
+    if ( nrposns < 2 )
+	{ ld.segments_ += curseg; return; }
+
+    for ( int ipos=1; ipos<nrposns; ipos++ )
+    {
+	const int curnr = posns_[ipos].nr_;
+	if ( curnr == prevnr )
+	    continue;
+
+	const int curstep = curnr - prevnr;
+	if ( !havestep )
+	{
+	    curseg.step = curstep;
+	    havestep = true;
+	}
+	else if ( curstep != curseg.step )
+	{
+	    ld.segments_ += curseg;
+	    curseg.start = curnr;
+	    havestep = false;
+	}
+
+	curseg.stop = curnr;
+	prevnr = curnr;
+
+	if ( ipos == nrposns-1 )
+	    ld.segments_ += curseg;
+    }
 }

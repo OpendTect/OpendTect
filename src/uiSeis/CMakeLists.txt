@@ -24,6 +24,7 @@ set(OD_MODULE_SOURCES
 	uiseisamplspectrum.cc
 	uiseisbayesclass.cc
 	uiseisbrowser.cc
+	uiseissampleeditor.cc
 	uiseisimpcubefromothersurv.cc
 	uiseiscopy.cc
 	uiseisfileman.cc

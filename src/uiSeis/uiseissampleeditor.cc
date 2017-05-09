@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiseissel.h"
 #include "uiseistrcbufviewer.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
@@ -33,13 +34,17 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "filepath.h"
 #include "dbman.h"
+#include "posidxpairdataset.h"
+#include "posinfo.h"
+#include "posinfo2d.h"
 #include "ranges.h"
 #include "seis2ddata.h"
 #include "seisbuf.h"
 #include "seisprovider.h"
 #include "seistrc.h"
 #include "seisinfo.h"
-#include "seisioobjinfo.h"
+#include "seiswrite.h"
+#include "survgeom.h"
 #include "zdomain.h"
 #include "od_helpids.h"
 
@@ -48,14 +53,15 @@ class uiSeisSampleEditorInfoVwr : public uiAmplSpectrum
 { mODTextTranslationClass(uiSeisSampleEditorInfoVwr);
 public :
 
-			uiSeisSampleEditorInfoVwr(uiParent*,const SeisTrc&,bool,
-				const ZDomain::Def&);
+			uiSeisSampleEditorInfoVwr(uiSeisSampleEditor&,
+						  const SeisTrc&);
 
     void		setTrace(const SeisTrc&);
 
 protected:
 
-    bool		is2d_;
+    uiSeisSampleEditor&	ed_;
+    const bool		is2d_;
     const ZDomain::Def&	zdomdef_;
 
     uiGenInput*		coordfld_;
@@ -68,7 +74,7 @@ protected:
 };
 
 
-uiSeisSampleEditor::Setup::Setup( const DBKey& ky, Seis::GeomType gt )
+uiSeisSampleEditor::Setup::Setup( const DBKey& ky )
     : uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
                       mODHelpKey(mSeisBrowserHelpID) )
     , id_(ky)
@@ -93,11 +99,13 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
     : uiDialog(p,su)
     , prov_(0)
     , tbl_(0)
+    , ctrc_(0)
     , toolbar_(0)
     , tbuf_(*new SeisTrcBuf(false))
-    , changedtraces_(*new Pos::IdxPairDataSet(sizeof(SeisTrc*),false,false))
+    , viewtbuf_(*new SeisTrcBuf(true))
+    , edtrcs_(*new Pos::IdxPairDataSet(sizeof(SeisTrc*),false,false))
     , cubedata_(*new PosInfo::CubeData)
-    , linedata_(*new PosInfo::Line2DData)
+    , linedata_(*new PosInfo::LineData(su.geomid_))
     , crlwise_(false)
     , stepout_(25)
     , compnr_(0)
@@ -105,16 +113,16 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
     , infovwr_(0)
     , trcbufvwr_(0)
     , setup_(su)
-    , zdomdef_(&ZDomain::SI())
+    , zdomdef_(ZDomain::SI())
     , toinlwisett_(tr("Switch to Inline-wise display"))
     , tocrlwisett_(tr("Switch to Crossline-wise display"))
 {
-    uiRetval uirv;
+    uiRetVal uirv;
     prov_ = Seis::Provider::create( su.id_, &uirv );
     if ( !prov_ )
 	mRetNoGo( uirv )
 
-    uirv = prov_->getComponentInfo( compnms_, datatype_ );
+    uirv = prov_->getComponentInfo( compnms_, &datatype_ );
     if ( compnms_.isEmpty() )
     {
 	if ( uirv.isOK() )
@@ -130,13 +138,22 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
     nrsamples_ = zrg.nrSteps() + 1;
 
     if ( !is2d_ )
+    {
+	survgeom_ = &Survey::Geometry::default3D();
 	prov3D().getGeometryInfo( cubedata_ );
+    }
     else
     {
+	survgeom_ = Survey::GM().getGeometry( setup_.geomid_ );
+	if ( !survgeom_ )
+	    mRetNoGo( tr("Cannot find line geometry for ID=%1)")
+			.arg(setup_.geomid_) );
 	int linenr = prov2D().lineNr( setup_.geomid_ );
 	if ( linenr < 0 )
-	    mRetNoGo( tr("Cannot find line (ID=%1)").arg(setup_.geomid_) )
-	prov_->getGeometryInfo( linenr, linedata_ );
+	    mRetNoGo( tr("Line not present for ID=%1").arg(setup_.geomid_) )
+	PosInfo::Line2DData l2dd;
+	prov2D().getGeometryInfo( linenr, l2dd );
+	l2dd.getSegments( linedata_ );
     }
 
     if ( (is2d_ ? linedata_.isEmpty() : cubedata_.isEmpty()) )
@@ -153,19 +170,22 @@ uiSeisSampleEditor::uiSeisSampleEditor( uiParent* p, const Setup& su )
     createMenuAndToolBar();
     createTable();
 
-    doSetPos( su.startpos_, true );
-    setZ( su.startz_ );
+    if ( setPos(su.startpos_) )
+	setZ( su.startz_ );
+
     tbl_->selectionChanged.notify(
-	    mCB(this,uiSeisSampleEditor,trcselectionChanged) );
+	    mCB(this,uiSeisSampleEditor,selChgCB) );
 }
 
 
 uiSeisSampleEditor::~uiSeisSampleEditor()
 {
     clearEditedTraces();
-    deepErase( tbuf_ );
+    tbuf_.deepErase();
+    viewtbuf_.deepErase();
     delete prov_;
     delete &tbuf_;
+    delete &viewtbuf_;
     delete &cubedata_;
     delete &linedata_;
 }
@@ -174,9 +194,9 @@ uiSeisSampleEditor::~uiSeisSampleEditor()
 void uiSeisSampleEditor::clearEditedTraces()
 {
     Pos::IdxPairDataSet::SPos spos;
-    while ( changedtraces_.next(spos) )
-	delete (SeisTrc*)changedtraces_.getObj( spos );
-    changedtraces_.setEmpty();
+    while ( edtrcs_.next(spos) )
+	delete (SeisTrc*)edtrcs_.getObj( spos );
+    edtrcs_.setEmpty();
 }
 
 
@@ -192,23 +212,36 @@ Seis::Provider3D& uiSeisSampleEditor::prov3D()
 }
 
 
-const BinID& uiSeisSampleEditor::curBinID() const
+Seis::GeomType uiSeisSampleEditor::geomType() const
 {
-    return ctrc_.info().binID();
+    return is2d_ ? Seis::Line : Seis::Vol;
+}
+
+
+TrcKey uiSeisSampleEditor::trcKey4BinID( const BinID& bid ) const
+{
+    TrcKey tk( bid );
+    if ( is2d_ )
+	tk.setGeomID( setup_.geomid_ );
+    return tk;
+}
+
+
+TrcKey uiSeisSampleEditor::curPos() const
+{
+    return ctrc_ ? ctrc_->info().binID() : BinID(0,0);
 }
 
 
 float uiSeisSampleEditor::curZ() const
 {
-    return sampling_.start + tbl_->currentRow() * sampling_.step;
+    return sampling_.atIndex( tbl_->currentRow() );
 }
 
 
 void uiSeisSampleEditor::setZ( float z )
 {
-    if ( mIsUdf(z) ) return;
-
-    int newrow = (int)((int)z - (int)sampling_.start) / (int)sampling_.step;
+    const int newrow = mIsUdf(z) ? nrsamples_/2 : sampling_.nearestIndex( z );
     tbl_->setCurrentCell( RowCol(tbl_->currentCol(),newrow) );
 }
 
@@ -268,7 +301,7 @@ void uiSeisSampleEditor::createTable()
 
 
 BinID uiSeisSampleEditor::getNextBid( const BinID& cur, int idx,
-				   bool before ) const
+				      bool before ) const
 {
     return crlwise_
 	? BinID( cur.inl() + (before?-1:1)*stepbid_.inl()*idx, cur.crl() )
@@ -276,42 +309,30 @@ BinID uiSeisSampleEditor::getNextBid( const BinID& cur, int idx,
 }
 
 
-void uiSeisSampleEditor::addTrc( SeisTrcBuf& tbuf, const BinID& bid )
+bool uiSeisSampleEditor::setPos( const TrcKey& tk )
 {
-    SeisTrc* newtrc = new SeisTrc;
-    const int chgbufidx = tbufchgdtrcs_.find( bid, false );
-    if ( chgbufidx >= 0 )
-	*newtrc = *tbufchgdtrcs_.get( chgbufidx );
-    else if ( !tr_->goTo(bid) || !tr_->read(*newtrc) )
-    {
-	newtrc->info().setBinID( bid );
-	newtrc->info().coord_ = SI().transform( bid );
-	fillUdf( *newtrc );
-    }
-    tbuf.add( newtrc );
+    return doSetPos( tk.binID(), false );
 }
 
 
-void uiSeisSampleEditor::setPos( const BinID& bid )
+bool uiSeisSampleEditor::setPos( const BinID& bid )
 {
-    doSetPos( bid, false );
+    return doSetPos( bid, false );
 }
 
 
-void uiSeisSampleEditor::doSetPos( const BinID& bid, bool force )
+bool uiSeisSampleEditor::doSetPos( const BinID& bid, bool force )
 {
     if ( !tbl_ )
 	return false;
-    if ( !force && bid == ctrc_.info().binID() )
+    if ( !force && ctrc_ && bid == ctrc_->info().binID() )
 	return true;
-
-    NotifyStopper notifstop( tbl_->valueChanged );
 
     commitChanges();
     BinID binid( bid );
-    const bool inlok = is2d_ || !mIsUdf(bid.inl());
-    const bool crlok = !mIsUdf(bid.crl());
-    if ( inlok && crlok )
+    const bool inldef = is2d_ || !mIsUdf(bid.inl());
+    const bool crldef = !mIsUdf(bid.crl());
+    if ( inldef && crldef )
     {
 	if ( is2d_ )
 	    binid.crl() = linedata_.nearestNumber( bid.crl() );
@@ -323,45 +344,56 @@ void uiSeisSampleEditor::doSetPos( const BinID& bid, bool force )
 	if ( is2d_ )
 	    binid.crl() = linedata_.centerNumber();
 	else
-	    binid = posinfo_.centerPos();
+	    binid = cubedata_.centerPos();
+    }
+
+    SeisTrc* trc = new SeisTrc;
+    uiRetVal uirv = prov_->get( trcKey4BinID(binid), *trc );
+    if ( uirv.isError() )
+    {
+	delete trc;
+	uiMSG().error( uirv );
+	return false;
     }
 
     tbuf_.deepErase();
-
-
-
-    const bool havetrc = tr_->goTo( binid );
-    const bool canread = havetrc && tr_->read( ctrc_ );
-    if ( !canread )
-    {
-	if ( !veryfirst )
-	    uiMSG().error( tr("Cannot read data at specified location") );
-	else
-	    fillUdf( ctrc_ );
-    }
-    if ( !havetrc || !canread )
-	binid = ctrc_.info().binID();
-
+    viewtbuf_.deepErase();
+    tbuf_.add( trc );
+    ctrc_ = trc;
     for ( int idx=1; idx<stepout_+1; idx++ )
     {
-	addTrc( tbufbefore_, getNextBid(binid,idx,true) );
-	addTrc( tbufafter_, getNextBid(binid,idx,false) );
+	addTrc( getNextBid(binid,idx,true), true );
+	addTrc( getNextBid(binid,idx,false), false );
     }
 
-    for ( int idx=0; idx<stepout_; idx++ )
-	tbuf_.add( tbufbefore_.get(stepout_-idx-1) );
-    tbuf_.add( &ctrc_ );
-    for ( int idx=0; idx<stepout_; idx++ )
-	tbuf_.add( tbufafter_.get(idx) );
-
+    tbuf_.copyInto( viewtbuf_ );
     fillTable();
     return true;
 }
 
 
-bool uiSeisSampleEditor::is2D() const
+void uiSeisSampleEditor::addTrc( const BinID& bid, bool atend )
 {
-    return tr_->is2D();
+    SeisTrc* newtrc = new SeisTrc;
+
+    Pos::IdxPairDataSet::SPos spos = edtrcs_.find( bid );
+    if ( spos.isValid() )
+	*newtrc = *((SeisTrc*)edtrcs_.getObj( spos ));
+    else
+    {
+	const TrcKey tk( trcKey4BinID(bid) );
+	if ( !prov_->get(tk,*newtrc).isOK() )
+	{
+	    newtrc->info().setBinID( bid );
+	    newtrc->info().coord_ = survgeom_->toCoord( bid );
+	    fillUdf( *newtrc );
+	}
+    }
+
+    if ( atend )
+	tbuf_.add( newtrc );
+    else
+	tbuf_.insert( newtrc );
 }
 
 
@@ -402,42 +434,45 @@ static BufferString getZValStr( float z, int zfac )
 
 void uiSeisSampleEditor::fillTable()
 {
-    const CBVSInfo& info = tr_->readMgr()->info();
-    const int zfac = zdomdef_->userFactor();
-    const BufferString zunstr = zdomdef_->unitStr(false).getFullString();
-    for ( int idx=0; idx<info.nrsamples_; idx++ )
+    NotifyStopper notifstop( tbl_->valueChanged );
+
+    const int zfac = zdomdef_.userFactor();
+    const BufferString zunstr = zdomdef_.unitStr(false).getFullString();
+    for ( int idx=0; idx<nrsamples_; idx++ )
     {
-	const BufferString zvalstr( getZValStr(info.sd_.atIndex(idx),zfac) );
+	const BufferString zvalstr( getZValStr(sampling_.atIndex(idx),zfac) );
 	tbl_->setRowLabel( idx, toUiString(zvalstr) );
 	uiString tt;
-	tt = toUiString("%1 %2 sample at %3 %4").arg(idx+1)
+	tt = toUiString("%1%2 sample at %3 %4").arg(idx+1)
 			.arg(getRankPostFix(idx+1)).arg(zvalstr).arg(zunstr);
 	tbl_->setRowToolTip( idx, tt );
     }
 
     for ( int idx=0; idx<tbuf_.size(); idx++ )
-    {
-	const SeisTrc& buftrc = *tbuf_.get(idx);
-	const int chidx = tbufchgdtrcs_.find(buftrc.info().binID(),is2D());
-	if ( chidx < 0 )
-	    fillTableColumn( buftrc, idx );
-	else
-	    fillTableColumn( *(tbufchgdtrcs_.get(chidx)), idx );
-    }
+	fillTableColumn( *tbuf_.get(idx), idx );
 
     tbl_->resizeRowsToContents();
     const int middlecol = tbuf_.size()/2;
     tbl_->selectColumn( middlecol );
-    tbl_->ensureCellVisible( RowCol(0,middlecol) );
+    tbl_->ensureCellVisible( RowCol(nrsamples_/2,middlecol) );
 }
 
 
 void uiSeisSampleEditor::fillTableColumn( const SeisTrc& trc, int colidx )
 {
-    tbl_->setColumnLabel( colidx,
-			  toUiString(trc.info().binID().toString(is2D())) );
+    BufferString coltxt;
+    if ( !is2d_ )
+	coltxt.set( trc.info().binID().toString(false) );
+    else
+    {
+	coltxt.set( trc.info().trcNr() );
+	const float refnr = trc.info().refnr_;
+	if ( !mIsUdf(refnr) && refnr > 0.5 )
+	    coltxt.add( " [" ).add( refnr ).add( "]" );
+    }
+    tbl_->setColumnLabel( colidx, toUiString(coltxt) );
 
-    RowCol rc; rc.col() = colidx;
+    RowCol rc( colidx, 0 );
     for ( rc.row()=0; rc.row()<nrsamples_; rc.row()++ )
     {
 	const float val = trc.get( rc.row(), compnr_ );
@@ -446,84 +481,154 @@ void uiSeisSampleEditor::fillTableColumn( const SeisTrc& trc, int colidx )
 }
 
 
+void uiSeisSampleEditor::infoPush( CallBacker* )
+{
+    const SeisTrc* trc = curTrace( true );
+    if ( !trc )
+	return;
+
+    if ( !infovwr_ )
+    {
+	infovwr_ = new uiSeisSampleEditorInfoVwr( *this, *trc );
+	infovwr_->windowClosed.notify( mCB(this,uiSeisSampleEditor,infoClose) );
+    }
+
+    infovwr_->setTrace( *trc );
+    infovwr_->show();
+}
+
+
+SeisTrc* uiSeisSampleEditor::curTrace( bool forview )
+{
+    const int curcol = tbl_->currentCol();
+    if ( curcol < 0 )
+	return ctrc_;
+
+    SeisTrcBuf& tbuf = forview ? viewtbuf_ : tbuf_;
+    return curcol < tbuf.size() ? tbuf.get( curcol ) : 0;
+}
+
+
+void uiSeisSampleEditor::selChgCB( CallBacker* )
+{
+    const SeisTrc* trc = curTrace( true );
+    if ( trc && infovwr_ )
+	infovwr_->setTrace( *trc );
+}
+
+
 class uiSeisSampleEditorGoToDlg : public uiDialog
 { mODTextTranslationClass(uiSeisSampleEditorGoToDlg);
 public:
 
-uiSeisSampleEditorGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
+uiSeisSampleEditorGoToDlg( uiSeisSampleEditor* p )
     : uiDialog( p, uiDialog::Setup(tr("Reposition"),
 				   tr("Specify a new position"),
 				   mNoHelpKey) )
+    , ed_(*p)
+    , inlfld_(0)
 {
-    PositionInpSpec inpspec(
-	    PositionInpSpec::Setup(false,is2d,isps).binid(cur) );
-    posfld_ = new uiGenInput( this, tr("New Position"),
-			      inpspec.setName("Inline",0)
-				     .setName("Crossline",1) );
+    const bool is2d = ed_.is2D();
+
+    uiLabeledSpinBox* lbsb = new uiLabeledSpinBox( this,
+		is2d ? tr("New trace number") : tr("New position") );
+
+    if ( is2d )
+	trcnrfld_ = lbsb->box();
+    else
+    {
+	inlfld_ = lbsb->box();
+	trcnrfld_ = new uiSpinBox( this );
+	trcnrfld_->attach( rightOf, lbsb );
+    }
+
+    const TrcKey curpos = ed_.curPos();
+    trcnrfld_->setValue( curpos.trcNr() );
+    mAttachCB( trcnrfld_->valueChanged, uiSeisSampleEditorGoToDlg::valChgCB );
+    if ( inlfld_ )
+    {
+	inlfld_->setValue( curpos.inl() );
+	mAttachCB( inlfld_->valueChanged, uiSeisSampleEditorGoToDlg::valChgCB );
+    }
+
+    statelbl_ = new uiLabel( this, uiString::emptyString() );
+    statelbl_->setPrefWidthInChar( 30 );
+    statelbl_->attach( alignedBelow, lbsb );
+
+    valChgCB( 0 );
+}
+
+
+bool posIsReasonable() const
+{
+    if ( inlfld_ )
+	return SI().isReasonable(pos_);
+
+    return pos_.trcNr() > 0;
+}
+
+
+bool posIsInside() const
+{
+    if ( inlfld_ )
+       return SI().includes( pos_ );
+    return ed_.survgeom_->includes( ed_.setup_.geomid_, pos_.trcNr() );
+}
+
+
+void valChgCB( CallBacker* )
+{
+    const bool is2d = !inlfld_;
+    pos_.crl() = trcnrfld_->getIntValue();
+    if ( !is2d )
+	pos_.inl() = inlfld_->getIntValue();
+
+    uiString lbl;
+    if ( !posIsReasonable() )
+	lbl = is2d ? tr("Invalid trace number") : tr( "Invalid position" );
+    else if ( !posIsInside() )
+	lbl = is2d ? tr("Trace number not in line geometry")
+		   : tr("Position is outside survey");
+    else
+    {
+	lbl = tr("Not present in data");
+	if ( ed_.is2D() && ed_.linedata_.includes(pos_.trcNr()) )
+	    lbl = tr("Trace number present");
+	else if ( !ed_.is2D() && ed_.cubedata_.includes(pos_) )
+	    lbl = tr("Position present");
+    }
+
+    statelbl_->setText( lbl );
 }
 
 bool acceptOK()
 {
-    pos_ = posfld_->getBinID();
-    if ( !SI().isReasonable(pos_) )
+    if ( !posIsInside() )
     {
-	uiMSG().error(uiStrings::phrSpecify(tr("a valid position")));
+	uiMSG().error(uiStrings::phrSpecify(tr("a usable position")));
 	return false;
     }
 
     return true;
 }
 
-    BinID	pos_;
-    uiGenInput*	posfld_;
+    uiSeisSampleEditor&	ed_;
+    uiSpinBox*		inlfld_;
+    uiSpinBox*		trcnrfld_;
+    uiLabel*		statelbl_;
+
+    BinID		pos_;
 
 };
 
 
-bool uiSeisSampleEditor::goTo( const BinID& bid )
-{
-    return doSetPos( bid, true );
-}
-
-
-void uiSeisSampleEditor::infoPush( CallBacker* )
-{
-    const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_
-					      : *tbuf_.get(tbl_->currentCol());
-    if ( !infovwr_ )
-    {
-	infovwr_ = new uiSeisSampleEditorInfoVwr( this, trc, is2d_, *zdomdef_ );
-	infovwr_->windowClosed.notify( mCB(this,uiSeisSampleEditor,infoClose) );
-    }
-    infovwr_->setTrace( trc );
-    infovwr_->show();
-}
-
-
-void uiSeisSampleEditor::infoClose( CallBacker* )
-{
-    infovwr_ = 0;
-}
-
-
-void uiSeisSampleEditor::trcselectionChanged( CallBacker* )
-{
-    if ( infovwr_ )
-    {
-	const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_
-				      : *tbuf_.get(tbl_->currentCol());
-	infovwr_->setTrace( trc );
-    }
-}
-
-
 void uiSeisSampleEditor::goToPush( CallBacker* cb )
 {
-    uiSeisSampleEditorGoToDlg dlg( this, curBinID(),is2D() );
+    uiSeisSampleEditorGoToDlg dlg( this );
     if ( dlg.go() )
     {
 	if ( doSetPos( dlg.pos_, false ) )
-	    trcselectionChanged( cb );
+	    selChgCB( cb );
     }
     setTrcBufViewTitle();
     if ( trcbufvwr_ )
@@ -538,7 +643,7 @@ void uiSeisSampleEditor::rightArrowPush( CallBacker* cb )
     setTrcBufViewTitle();
     if ( trcbufvwr_ )
 	trcbufvwr_->handleBufChange();
-    trcselectionChanged( cb );
+    selChgCB( cb );
 }
 
 
@@ -549,7 +654,7 @@ void uiSeisSampleEditor::leftArrowPush( CallBacker* cb )
     setTrcBufViewTitle();
     if ( trcbufvwr_ )
 	trcbufvwr_->handleBufChange();
-    trcselectionChanged( cb );
+    selChgCB( cb );
 }
 
 
@@ -567,7 +672,8 @@ void uiSeisSampleEditor::switchViewTypePush( CallBacker* )
 
 void uiSeisSampleEditor::commitChanges()
 {
-    if ( tbuf_.size() < 1 ) return;
+    if ( !ctrc_ )
+	return;
 
     BoolTypeSet changed( tbuf_.size(), false );
     for ( RowCol pos(0,0); pos.col()<tbuf_.size(); pos.col()++)
@@ -577,8 +683,15 @@ void uiSeisSampleEditor::commitChanges()
 	{
 	    const float tableval = tbl_->getFValue( pos );
 	    const float trcval = trc.get( pos.row(), compnr_ );
-	    const float diff = tableval - trcval;
-	    if ( !mIsZero(diff,1e-6) )
+	    const bool isudftbl = mIsUdf( tableval );
+	    const bool isudftrc = mIsUdf( trcval );
+	    bool ischgd = isudftbl != isudftrc;
+	    if ( !ischgd )
+	    {
+		const float diff = tableval - trcval;
+		ischgd = !mIsZero( diff, 1e-6f );
+	    }
+	    if ( ischgd )
 	    {
 		trc.set( pos.row(), tableval, compnr_ );
 		changed[pos.col()] = true;
@@ -588,16 +701,17 @@ void uiSeisSampleEditor::commitChanges()
 
     for ( int idx=0; idx<changed.size(); idx++ )
     {
-	if ( !changed[idx] ) continue;
+	if ( !changed[idx] )
+	    continue;
 
-	const SeisTrc& buftrc = *tbuf_.get(idx);
-	const int chidx = tbufchgdtrcs_.find( buftrc.info().binID(),is2D() );
-	if ( chidx < 0 )
-	    tbufchgdtrcs_.add( new SeisTrc( buftrc ) );
+	const SeisTrc& buftrc = *tbuf_.get( idx );
+	Pos::IdxPairDataSet::SPos spos = edtrcs_.find( buftrc.info().binID() );
+	if ( !spos.isValid() )
+	    edtrcs_.add( buftrc.info().binID(), new SeisTrc(buftrc) );
 	else
 	{
-	    SeisTrc& chbuftrc = *tbufchgdtrcs_.get( chidx );
-	    chbuftrc = buftrc;
+	    SeisTrc* trc = (SeisTrc*)edtrcs_.getObj( spos );
+	    *trc = buftrc;
 	}
     }
 }
@@ -615,11 +729,11 @@ void uiSeisSampleEditor::doBrowse( uiParent* p, const DBKey& dbky,
 
 bool uiSeisSampleEditor::acceptOK()
 {
-    if ( !prov_ )
+    if ( !tbl_ || !prov_ )
 	return true;
 
     commitChanges();
-    if ( tbufchgdtrcs_.isEmpty() )
+    if ( edtrcs_.isEmpty() )
 	return true;
 
     const int res =
@@ -636,96 +750,113 @@ class uiSeisSampleEditorWriter : public Executor
 { mODTextTranslationClass(uiSeisSampleEditorWriter);
 public:
 
-uiSeisSampleEditorWriter( const uiSeisSampleEditor::Setup& setup, const SeisTrcBuf& tbuf,
-		    bool is2d )
-    : Executor( "Writing Back Changed Traces" )
-    , nrdone_(0)
-    , is2d_(is2d)
-    , tbufchgdtrcs_(tbuf)
-    , trc_(*new SeisTrc())
+uiSeisSampleEditorWriter( uiSeisSampleEditor& ed, const DBKey& dbky )
+    : Executor( "Writing Edited Seismics" )
     , msg_(tr("Initializing"))
+    , ed_(ed)
+    , prov_(*ed.prov_)
+    , dbky_(dbky)
+    , wrr_(0)
+    , tksampiter_(0)
 {
-    prov_ = Seis::Provider::create( setup.id_, uirv_ );
-    if ( !prov_ )
-    {
-	new uiLabel( this, uirv_ );
-	return;
-    }
-
-    totalnr_ = prov_->totalNr();
+    nrdone_ = 0;
+    totalnr_ = prov_.totalNr();
 }
 
 
 ~uiSeisSampleEditorWriter()
 {
+    delete wrr_;
+    delete tksampiter_;
 }
 
+od_int64 totalNr() const	{ return totalnr_; }
+od_int64 nrDone() const         { return nrdone_; }
+uiString message() const	{ return msg_; }
+uiString nrDoneText() const	{ return tr("Traces done"); }
 
-bool init()
+int startWork()
 {
-    if ( !tri_ ||  !tro_ )
+    //TODO support 2D
+    if ( ed_.is2D() )
     {
-	uiMSG().error( uiString::emptyString() );
-	return false;
+	msg_ = mTODONotImplPhrase();
+	return ErrorOccurred();
     }
-    if ( !safeio_->open(false) )
+
+    wrr_ = new SeisTrcWriter( dbky_ );
+    if ( !wrr_->errMsg().isEmpty() )
     {
-	uiMSG().error( tr("Unable to open the file") );
-	return false;
+	msg_ = wrr_->errMsg();
+	return ErrorOccurred();
     }
-    StreamConn* conno = new StreamConn( safeio_->ostrm() );
-    if ( !tro_->initWrite( conno, *tbufchgdtrcs_.first()) )
+
+    //TODO support 2D
+    if ( !ed_.is2D() )
     {
-	uiMSG().error( tr("Unable to write") );
-	return false;
+	tksampiter_ = new TrcKeySamplingIterator(
+				ed_.survgeom_->sampling().hsamp_ );
+	curbinid_ = tksampiter_->curBinID();
     }
-    if ( !tri_->readInfo(trc_.info()) || !tri_->read(trc_) )
-	{ uiMSG().error( tr("Input cube is empty") ); return false; }
-    msg_ = tr("Writing");
-    return true;
+    else
+    {
+    }
+
+    return MoreToDo();
 }
 
-    od_int64		totalNr() const		{ return totalnr_; }
-    od_int64		nrDone() const          { return nrdone_; }
-    uiString		message() const	{ return msg_; }
-    uiString		nrDoneText() const	{ return tr("Traces done"); }
+bool toNextPos()
+{
+    if ( tksampiter_ )
+    {
+	if ( !tksampiter_->next() )
+	    return false;
+	curbinid_ = tksampiter_->curBinID();
+	return true;
+    }
 
-protected:
+    return false; //TODO support 2D
+}
 
 int nextStep()
 {
-    if ( nrdone_ == 0 && !init() )
-	return ErrorOccurred();
+    if ( !wrr_ )
+	return startWork();
 
-    if ( tri_->read(trc_) )
+    const SeisTrc* towrite = 0;
+    while ( !towrite )
     {
-	const int chgidx = tbufchgdtrcs_.find( trc_.info().binID(), is2d_ );
-	const bool res = chgidx<0 ? tro_->write( trc_ )
-				  : tro_->write( *tbufchgdtrcs_.get(chgidx) );
-	if ( !res )
+	Pos::IdxPairDataSet::SPos spos = ed_.edtrcs_.find( curbinid_ );
+	if ( spos.isValid() )
+	    towrite = (const SeisTrc*)ed_.edtrcs_.getObj( spos );
+	else
 	{
-	    msg_ = tro_->errMsg();
-	    safeio_->closeFail();
-	    return ErrorOccurred();
+	    const TrcKey tk( ed_.trcKey4BinID(curbinid_) );
+	    if ( prov_.get(tk,trc_).isOK() )
+		towrite = &trc_;
+	    else if ( !toNextPos() )
+		return Finished();
 	}
-
-	nrdone_++;
-	return MoreToDo();
     }
 
-    safeio_->closeSuccess();
-    return Finished();
+    if ( !wrr_->put(*towrite) )
+    {
+	msg_ = wrr_->errMsg();
+	return ErrorOccurred();
+    }
+
+    return toNextPos() ? MoreToDo() : Finished();
 }
 
-    CBVSSeisTrcTranslator* tri_;
-    CBVSSeisTrcTranslator* tro_;
-    SafeFileIO*		safeio_;
-
-    int			totalnr_;
-    int                 nrdone_;
-    const SeisTrcBuf&	tbufchgdtrcs_;
-    SeisTrc&		trc_;
-    bool                is2d_;
+    uiSeisSampleEditor&	ed_;
+    DBKey		dbky_;
+    const Seis::Provider& prov_;
+    SeisTrcWriter*	wrr_;
+    TrcKeySamplingIterator* tksampiter_;
+    od_int64		totalnr_;
+    od_int64		nrdone_;
+    SeisTrc		trc_;
+    BinID		curbinid_;
     uiString		msg_;
 
 };
@@ -733,10 +864,17 @@ int nextStep()
 
 bool uiSeisSampleEditor::storeChgdData()
 {
+    CtxtIOObj ctio( uiSeisSel::ioContext(geomType(),false) );
+    uiSeisSel::Setup selsu( geomType() );
+    selsu.allowsetdefault( false );
+    uiSeisSelDlg dlg( this, ctio, selsu );
+    if ( !dlg.go() )
+	return false;
+
     PtrMan<uiSeisSampleEditorWriter> wrtr =
-	new uiSeisSampleEditorWriter( *prov_, changedtraces_ );
-    uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, *wrtr );
+	new uiSeisSampleEditorWriter( *this, dlg.ioObj()->key() );
+    uiTaskRunner uitr( this );
+    return TaskRunner::execute( &uitr, *wrtr );
 }
 
 
@@ -749,14 +887,13 @@ void uiSeisSampleEditor::dispTracesPush( CallBacker* )
 	uiSeisTrcBufViewer::Setup stbvsetup( uiString::emptyString() );
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	trcbufvwr_->selectDispTypes( true, false );
-	trcbufvwr_->windowClosed.notify(
-			 mCB(this,uiSeisSampleEditor,trcbufViewerClosed) );
+	mAttachCB( trcbufvwr_->windowClosed, uiSeisSampleEditor::bufVwrClose );
 
-	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
+	trcbufvwr_->setTrcBuf( &viewtbuf_, geomType(), "Browsed seismic data",
 				    DBM().nameOf(setup_.id_), compnr_ );
 	trcbufvwr_->start(); trcbufvwr_->handleBufChange();
 
-	if ( (tbuf_.isEmpty()) )
+	if ( (viewtbuf_.isEmpty()) )
 	    uiMSG().error( tr("No data at the specified position ") );
     }
 
@@ -772,7 +909,7 @@ void uiSeisSampleEditor::updateWiggleButtonStatus()
 }
 
 
-void uiSeisSampleEditor::trcbufViewerClosed( CallBacker* )
+void uiSeisSampleEditor::bufVwrClose( CallBacker* )
 {
     trcbufvwr_ = 0;
     updateWiggleButtonStatus();
@@ -781,11 +918,11 @@ void uiSeisSampleEditor::trcbufViewerClosed( CallBacker* )
 
 void uiSeisSampleEditor::tblValChgCB( CallBacker* )
 {
-    commitChanges();
     const RowCol rc = tbl_->currentCell();
-    if ( rc.row()<0 || rc.col()<0 ) return;
+    if ( rc.row()<0 || rc.col()<0 )
+	return;
 
-    SeisTrc* trace = tbuf_.get( rc.col() );
+    SeisTrc* trace = viewtbuf_.get( rc.col() );
     const float chgdval = tbl_->getFValue( rc );
     trace->set( rc.row(), chgdval, compnr_ );
     if ( trcbufvwr_ )
@@ -797,8 +934,7 @@ void uiSeisSampleEditor::setTrcBufViewTitle()
 {
     if ( trcbufvwr_ )
 	trcbufvwr_->setWinTitle( tr( "Central Trace: %1")
-			       .arg(curBinID()
-			  .toString(Seis::is2D(setup_.geom_)) ) );
+			       .arg(curBinID().toString(is2d_) ) );
 
 }
 
@@ -821,19 +957,20 @@ void uiSeisSampleEditor::nrTracesChgCB( CallBacker* )
     doSetPos( curBinID(), true );
     if ( trcbufvwr_ )
     {
-	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
+	trcbufvwr_->setTrcBuf( &viewtbuf_, geomType(), "Browsed seismic data",
 				    DBM().nameOf(setup_.id_), compnr_ );
 	trcbufvwr_->handleBufChange();
     }
 }
 
 
-// uiSeisSampleEditorInfoVwr
-uiSeisSampleEditorInfoVwr::uiSeisSampleEditorInfoVwr( uiParent* p, const SeisTrc& trc,
-					    bool is2d, const ZDomain::Def& zd )
-    : uiAmplSpectrum(p)
-    , is2d_(is2d)
-    , zdomdef_(zd)
+
+uiSeisSampleEditorInfoVwr::uiSeisSampleEditorInfoVwr( uiSeisSampleEditor& p,
+							const SeisTrc& trc )
+    : uiAmplSpectrum(&p)
+    , ed_(p)
+    , is2d_(ed_.is2D())
+    , zdomdef_(ed_.zdomdef_)
 {
     setDeleteOnClose( true );
     setCaption( tr("Trace information") );
@@ -852,7 +989,9 @@ uiSeisSampleEditorInfoVwr::uiSeisSampleEditorInfoVwr( uiParent* p, const SeisTrc
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );
     trcnrbinidfld_->setReadOnly();
 
-    minamplfld_ = new uiGenInput( valgrp, tr("Minimum amplitude"),
+    uiString dtypstr( ed_.datatype_ == Seis::UnknownData ? tr("amplitude")
+				 : toUiString(ed_.datatype_) );
+    minamplfld_ = new uiGenInput( valgrp, tr("Minimum %1").arg(dtypstr),
 				  FloatInpSpec() );
     minamplfld_->attach( alignedBelow, trcnrbinidfld_ );
     minamplfld_->setElemSzPol( uiObject::Small );
@@ -864,7 +1003,7 @@ uiSeisSampleEditorInfoVwr::uiSeisSampleEditorInfoVwr( uiParent* p, const SeisTrc
     uiLabel* lbl = new uiLabel( valgrp, zdomdef_.unitStr(true) );
     lbl->attach( rightOf, minamplatfld_ );
 
-    maxamplfld_ = new uiGenInput( valgrp, tr("Maximum amplitude"),
+    maxamplfld_ = new uiGenInput( valgrp, tr("Maximum %1").arg(dtypstr),
 				  FloatInpSpec() );
     maxamplfld_->attach( alignedBelow, minamplfld_ );
     maxamplfld_->setElemSzPol( uiObject::Small );

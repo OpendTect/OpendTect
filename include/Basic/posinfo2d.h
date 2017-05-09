@@ -20,6 +20,8 @@ ________________________________________________________________________
 namespace PosInfo
 {
 
+class LineData;
+
 /*!
 \brief One position on a 2D line.
 */
@@ -113,6 +115,8 @@ public:
 			/*!< A true return value means they have at least one
 			  trace number in common and all common trace numbers
 			  have the same coordinates on either line. */
+
+    void		getSegments(LineData&) const;
 
 protected:
 

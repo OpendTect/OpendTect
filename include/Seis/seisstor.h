@@ -77,6 +77,7 @@ public:
 
 protected:
 
+			SeisStoreAccess(const DBKey&);
 			SeisStoreAccess(const IOObj*);
 			SeisStoreAccess(const char*,bool is2d,bool isps);
     virtual void	init()			{}

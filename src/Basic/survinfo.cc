@@ -405,7 +405,7 @@ bool SurveyInfo::usePar( const IOPar& par )
 	    else
 	    {
 		RefMan<Coords::AnchorBasedXY> anchoredsystem =
-		    			new Coords::AnchorBasedXY( l, c );
+					new Coords::AnchorBasedXY( l, c );
 		anchoredsystem->setIsFeet( xyinfeet );
 		coordsystem_ = anchoredsystem;
 	    }
@@ -773,6 +773,12 @@ void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
     if ( intv.stop < rg.start )  intv.stop = rg.start;
     snapZ( intv.start, 1 );
     snapZ( intv.stop, -1 );
+}
+
+
+bool SurveyInfo::includes( const BinID& bid ) const
+{
+    return sampling(false).hsamp_.includes( bid );
 }
 
 
@@ -1347,7 +1353,7 @@ void SurveyInfo::readSavedCoordSystem() const
     PtrMan<IOPar> coordsystempar = survpar.subselect( sKeyCoordinateSystem );
     if ( coordsystempar )
 	const_cast<SurveyInfo*>(this)->coordsystem_ =
-	    	Coords::PositionSystem::createSystem( *coordsystempar );
+		Coords::PositionSystem::createSystem( *coordsystempar );
 
     sfio.closeSuccess();
 }

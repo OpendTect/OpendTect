@@ -31,6 +31,19 @@ const char* SeisStoreAccess::sNrTrcs = "Nr of traces";
 const char* Seis::SeqIO::sKeyODType = "OpendTect";
 
 
+SeisStoreAccess::SeisStoreAccess( const DBKey& dbky )
+	: ioobj_(0)
+	, trl_(0)
+	, dataset_(0)
+	, seldata_(0)
+	, is2d_(false)
+	, psioprov_(0)
+{
+    PtrMan<IOObj> inpioobj = DBM().get( dbky );
+    setIOObj( inpioobj );
+}
+
+
 SeisStoreAccess::SeisStoreAccess( const IOObj* ioob )
 	: ioobj_(0)
 	, trl_(0)

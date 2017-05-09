@@ -39,6 +39,7 @@ mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
 { mODTextTranslationClass(SeisTrcWriter);
 public:
 
+			SeisTrcWriter(const DBKey&);
 			SeisTrcWriter(const IOObj*);
 				//!< Write to real user entries from '.omf' file
 				//!< Can be anything: SEGY - CBVS - database

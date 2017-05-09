@@ -107,6 +107,7 @@ public:
     void		checkInlRange(Interval<int>&,bool work) const;
     void		checkCrlRange(Interval<int>&,bool work) const;
     void		checkZRange(Interval<float>&,bool work) const;
+    bool		includes(const BinID&) const;
     bool		includes(const BinID&,const float,bool work) const;
 
     void		snap(BinID&,const BinID& dir=BinID(0,0)) const;
@@ -264,7 +265,7 @@ public:
     void		gen3Pts();
     bool		setCoordSystem(Coords::PositionSystem*);
     void		readSavedCoordSystem() const;
-    			//!< Useful after loading plugins.
+			//!< Useful after loading plugins.
 
     void		update3DGeometry();
 
