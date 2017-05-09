@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "factory.h"
 #include "trckeysampling.h"
 #include "uistrings.h"
+#include "survgeom.h"
+
 class Task;
 class VelocityDesc;
 class ProgressMeter;
@@ -72,7 +74,8 @@ public:
     virtual TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
 				/*!<When computing TrcKeySampling, how
 				     big input is needed? */
-    virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
+    virtual StepInterval<int>	getInputZRg(const StepInterval<int>&,
+					    Survey::Geometry::ID) const;
 				/*!<When computing Z Sampling, how
 				     big input is needed?*/
     const PosInfo::CubeData*	getPosSamplingOfNonNullTraces(InputSlotID,

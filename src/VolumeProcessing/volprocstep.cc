@@ -248,7 +248,8 @@ TrcKeySampling VolProc::Step::getInputHRg( const TrcKeySampling& hr ) const
 
 
 StepInterval<int> VolProc::Step::getInputZRg(
-				const StepInterval<int>& si ) const
+				const StepInterval<int>& si,
+				Survey::Geometry::ID ) const
 {
     return si;
 }

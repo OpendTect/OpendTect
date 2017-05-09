@@ -43,7 +43,8 @@ public:
     float		getOperatorParam() const;
 
     virtual TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
-    virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
+    virtual StepInterval<int>	getInputZRg(const StepInterval<int>&,
+					    Survey::Geometry::ID) const;
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
