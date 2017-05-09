@@ -962,15 +962,12 @@ bool StorageProvider::useInterTrcDist() const
     if ( useintertrcdist_ )
 	return true;
 
-    if ( getDesc().is2D() )
+    const Desc& dsc = getDesc();
+    if ( dsc.is2D() && nrOutputs() >=2 )
     {
-	BufferStringSet compnms;
-	getCompNames( compnms );
-	if ( compnms.size()>=2
-		&& compnms.get(1)== BufferString(Desc::sKeyLineDipComp()) )
+	if ( dsc.dataType(0) == Seis::Dip && dsc.dataType(1) == Seis::Dip )
 	{
-	    const_cast<Attrib::StorageProvider*>(this)
-						  ->useintertrcdist_ = true;
+	    const_cast<Attrib::StorageProvider*>(this)->useintertrcdist_ = true;
 	    return useintertrcdist_;
 	}
     }
