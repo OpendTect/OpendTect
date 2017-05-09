@@ -223,10 +223,12 @@ virtual Util* clone() const
 
 virtual bool willRunFor( const SurveyInfo& si ) const
 {
-    return si.getCoordSystem()->geographicTransformOK();
+    return si.getCoordSystem() ? si.getCoordSystem()->geographicTransformOK()
+			       : false;
 }
 
 };
+
 
 mDefODPluginSurvRelToolsLoadFn( uiGoogleIO )
 {
