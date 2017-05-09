@@ -524,7 +524,7 @@ bool TrcKeySampling::usePar( const IOPar& pars )
     if ( inlok && crlok )
 	return true;
 
-    IOPar* subpars = pars.subselect( IOPar::compKey( sKey::Line(), 0 ) );
+    PtrMan<IOPar> subpars = pars.subselect( IOPar::compKey( sKey::Line(), 0 ) );
     if ( !subpars ) return false;
 
     bool trcrgok = getRange( *subpars, sKey::TrcRange(),
@@ -1296,14 +1296,31 @@ bool TrcKeyZSampling::isEqual( const TrcKeyZSampling& tkzs, float zeps ) const
 
 bool TrcKeyZSampling::usePar( const IOPar& par )
 {
-    return hsamp_.usePar( par ) && par.get( sKey::ZRange(), zsamp_ );
+    bool isok = hsamp_.usePar( par );
+    if ( hsamp_.is2D() )
+    {
+	PtrMan<IOPar> subpars =
+			par.subselect( IOPar::compKey( sKey::Line(), 0 ) );
+	if ( !subpars ) return false;
+	return isok && subpars->get( sKey::ZRange(), zsamp_ );
+    }
+
+    return isok && par.get( sKey::ZRange(), zsamp_ );
 }
 
 
 void TrcKeyZSampling::fillPar( IOPar& par ) const
 {
     hsamp_.fillPar( par );
-    par.set( sKey::ZRange(), zsamp_.start, zsamp_.stop, zsamp_.step );
+    if ( hsamp_.is2D() )
+    {
+	IOPar tmppar;
+	tmppar.set( sKey::ZRange(), zsamp_.start, zsamp_.stop, zsamp_.step );
+	par.mergeComp( tmppar, IOPar::compKey( sKey::Line(), 0 ) );
+
+    }
+    else
+	par.set( sKey::ZRange(), zsamp_.start, zsamp_.stop, zsamp_.step );
 }
 
 
