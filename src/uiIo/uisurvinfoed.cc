@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisip.h"
 
 #include "bufstringset.h"
+#include "coordsystem.h"
 #include "trckeyzsampling.h"
 #include "file.h"
 #include "filepath.h"
@@ -34,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
+#include "uilatlong2coord.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -71,7 +73,9 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 	, lastsip_(0)
 	, impiop_(0)
 	, topgrp_(0)
+	, xyinftfld_(0)
 	, isnew_(isnew)
+	, coordsystem_(si.getCoordSystem())
 {
     orgstorepath_ = si_.datadir_.buf();
 
@@ -169,11 +173,10 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 			    mCB(this,uiSurveyInfoEditor,appButPushed), true );
     applybut->attach( alignedBelow, crdgrp_ );
 
-    xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
-    xyinftfld_->attach( rightTo, applybut );
-    xyinftfld_->attach( rightBorder );
-    xyinftfld_->setChecked( si_.xyInFeet() );
-    xyinftfld_->activated.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
+    coordsysfld_ = new uiPushButton( this, tr("Define Coordinate System"),
+			mCB(this,uiSurveyInfoEditor,coordSystemCB), false );
+    coordsysfld_->attach( rightTo, coordset );
+    coordsysfld_->attach( rightBorder );
 
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
     sipCB(0);
@@ -413,7 +416,6 @@ void uiSurveyInfoEditor::setValues()
     zunitfld_->setCurrentItem( zistime	? 0 : (zinfeet ? 2 : 1) );
     depthdispfld_->setValue( !zinfeet );
     depthdispfld_->setSensitive( zistime && !xyinfeet );
-    xyinftfld_->setChecked( xyinfeet );
 
     const float srd = si_.seismicReferenceDatum();
     const UnitOfMeasure* datauom = zistime || !zinfeet ? UoMR().get( "Meter" )
@@ -672,10 +674,8 @@ bool uiSurveyInfoEditor::setRanges()
 
     const bool zistime = zunitfld_->currentItem() == 0;
     const bool zinfeet = !depthdispfld_->getBoolValue();
-    const bool xyinft = xyinftfld_->isChecked();
     si_.setZUnit( zistime, zinfeet );
     si_.getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
-    si_.setXYInFeet( xyinft );
 
     const float srd = refdatumfld_->getFValue();
     const UnitOfMeasure* datauom = zistime || !zinfeet ? UoMR().get( "Meter" )
@@ -720,6 +720,9 @@ bool uiSurveyInfoEditor::setCoords()
     if ( msg ) { uiMSG().error( mToUiStringTodo(msg) ); return false; }
     else if ( mUseAdvanced() )
 	si_.gen3Pts();
+
+    if ( coordsystem_ )
+	si_.setCoordSystem( coordsystem_ );
 
     return true;
 }
@@ -851,6 +854,20 @@ void uiSurveyInfoEditor::setInl1Fld( CallBacker* )
 }
 
 
+bool uiSurveyInfoEditor::xyInFeet() const
+{
+    return coordsystem_ ? coordsystem_->isFeet() : false;
+}
+
+
+void uiSurveyInfoEditor::coordSystemCB( CallBacker* cb )
+{
+    Coords::uiCoordSystemDlg dlg( this, coordsystem_ );
+    if ( dlg.go() )
+	coordsystem_ = dlg.getCoordSystem();
+}
+
+
 void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
 {
     if ( cb == inlfld_ )
@@ -901,7 +918,7 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 
     const bool zintime = zunitfld_->currentItem() == 0;
     const bool zinft = zunitfld_->currentItem() == 2;
-    const bool xyinft = xyinftfld_->isChecked();
+    const bool xyinft = xyInFeet();
     depthdispfld_->setSensitive( zintime && !xyinft );
     if ( zintime )
     {

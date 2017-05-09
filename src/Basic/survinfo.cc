@@ -13,6 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
+#include "coordsystem.h"
 #include "trckeyzsampling.h"
 #include "latlong.h"
 #include "undefval.h"
@@ -44,11 +46,13 @@ const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
-
+static const char* sKeyCoordinateSystem = "Coordinate system";
 
 mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
+#define mXYInFeet() (coordsystem_ && coordsystem_->isFeet())
+#define mXYUnit() (mXYInFeet() ? Feet : Meter)
 
 Coord Survey::Geometry3D::toCoord( int linenr, int tracenr ) const
 {
@@ -356,6 +360,7 @@ SurveyInfo::SurveyInfo()
     , survdatatype_(Both2DAnd3D)
     , survdatatypeknown_(false)
     , seisrefdatum_(0.f)
+    , coordsystem_(0)
 {
     rdxtr_.b = rdytr_.c = 1;
     set3binids_[2].crl() = 0;
@@ -409,6 +414,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     zdef_ = si.zdef_;
     datadir_ = si.datadir_;
     dirname_ = si.dirname_;
+    coordsystem_ = si.coordsystem_;
     xyinfeet_ = si.xyinfeet_;
     depthsinfeet_ = si.depthsinfeet_;
     b2c_ = si.b2c_;
@@ -467,6 +473,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     si->datadir_ = fpsurvdir.pathOnly();
     if ( !survdir || si->dirname_.isEmpty() ) return si;
 
+    IOPar coordsystempar;
     while ( !atEndOfSection(astream) )
     {
 	keyw = astream.keyWord();
@@ -522,11 +529,40 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	    si->xyinfeet_ = astream.getYN();
 	else if ( keyw == sKeySeismicRefDatum() )
 	    si->seisrefdatum_ = astream.getFValue();
+	else if ( keyw.startsWith(sKeyCoordinateSystem) )
+	    coordsystempar.add( keyw, astream.value() );
 	else
 	    si->handleLineRead( keyw, astream.value() );
 
 	astream.next();
     }
+
+    if ( !coordsystempar.isEmpty() )
+    {
+	PtrMan<IOPar> coordsyssubpar =
+	    coordsystempar.subselect( sKeyCoordinateSystem );
+	si->coordsystem_ =
+		Coords::PositionSystem::createSystem( *coordsyssubpar );
+    }
+
+    if ( !si->coordsystem_ )
+    {
+	if ( si->ll2c_.isOK() )
+	{
+	    RefMan<Coords::AnchorBasedXY> anchoredsystem =
+			new Coords::AnchorBasedXY( si->ll2c_.refLatLong(),
+						   si->ll2c_.refCoord() );
+	    anchoredsystem->setIsFeet( si->xyinfeet_ );
+	    si->coordsystem_ = anchoredsystem;
+	}
+	else
+	{
+	    RefMan<Coords::UnlocatedXY> undefsystem = new Coords::UnlocatedXY;
+	    undefsystem->setIsFeet( si->xyinfeet_ );
+	    si->coordsystem_ = undefsystem;
+	}
+    }
+
     si->tkzs_.normalise();
     si->wcs_ = si->tkzs_;
 
@@ -1191,4 +1227,55 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
     const Interval<int> inlrg( inlRange(work) );
     const Interval<int> crlrg( crlRange(work) );
     return inlrg.includes(bid.inl(),false) && crlrg.includes(bid.crl(),false);
+}
+
+
+RefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem()
+{
+    return coordsystem_;
+}
+
+
+ConstRefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem() const
+{
+    return ConstRefMan<Coords::PositionSystem>( coordsystem_.ptr() );
+}
+
+
+bool SurveyInfo::xyInFeet() const
+{
+    return mXYInFeet();
+}
+
+
+bool SurveyInfo::setCoordSystem( Coords::PositionSystem* system )
+{
+    if ( system && !system->isOrthogonal() )
+	return false;
+
+    coordsystem_ = system;
+    return false;
+}
+
+
+void SurveyInfo::readSavedCoordSystem() const
+{
+    FilePath fp( datadir_, dirname_, sKeySetupFileName() );
+    SafeFileIO sfio( fp.fullPath(), false );
+    if ( !sfio.open(true) )
+	return;
+
+    ascistream astream( sfio.istrm() );
+    if ( !astream.isOfFileType(sKeySI) )
+    { sfio.closeSuccess(); return; }
+
+    astream.next();
+    const IOPar survpar( astream );
+
+    PtrMan<IOPar> coordsystempar = survpar.subselect( sKeyCoordinateSystem );
+    if ( coordsystempar )
+	const_cast<SurveyInfo*>(this)->coordsystem_ =
+		Coords::PositionSystem::createSystem( *coordsystempar );
+
+    sfio.closeSuccess();
 }

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "latlong.h"
 #include "survinfo.h"
 #include "separstr.h"
+#include "coordsystem.h"
 #include <math.h>
 
 const double cAvgEarthRadius = 6367450;
@@ -20,13 +21,13 @@ const double cAvgEarthRadius = 6367450;
 
 Coord LatLong::transform( const LatLong& ll )
 {
-    return SI().latlong2Coord().transform( ll );
+    return SI().getCoordSystem()->fromGeographicWGS84( ll );
 }
 
 
 LatLong LatLong::transform( const Coord& c )
 {
-    return SI().latlong2Coord().transform( c );
+    return SI().getCoordSystem()->toGeographicWGS84( c );
 }
 
 

@@ -72,6 +72,7 @@ set( OD_MODULES
 )
 
 set( OD_PLUGINS
+	CRS
 	ExpAttribs
 	GLCM
 	GMT
@@ -82,6 +83,7 @@ set( OD_PLUGINS
 	MATLABLink
 	Tut
 	VoxelConnectivityFilter
+	uiCRS
 	uiDPSDemo
 	uiExpAttribs
 	uiGLCM

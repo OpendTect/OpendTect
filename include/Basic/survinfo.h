@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 class ascostream;
 class LatLong2Coord;
+namespace Coords { class PositionSystem; }
 
 
 
@@ -73,7 +74,7 @@ public:
     BinID		transform(const Coord&) const;
 			/*!<\note BinID will be snapped using work step. */
 
-    inline bool		xyInFeet() const	{ return xyinfeet_;}
+    bool		xyInFeet() const;
     const char*		getXYUnitString(bool withparens=true) const;
     uiString		getUiXYUnitString(bool abbrviated=true,
 						    bool withparens=true) const;
@@ -136,6 +137,8 @@ public:
     void		putZDomain(IOPar&) const;
 
     RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
+    RefMan<Coords::PositionSystem>	getCoordSystem();
+    ConstRefMan<Coords::PositionSystem> getCoordSystem() const;
 
     enum Pol2D	{ No2D=0, Both2DAnd3D=1, Only2D=2 };
 
@@ -156,6 +159,7 @@ protected:
     TrcKeyZSampling&	wcs_;
     float		seisrefdatum_;
     IOPar&		pars_;
+    RefMan<Coords::PositionSystem> coordsystem_;
 
     mutable Threads::AtomicPointer<Survey::Geometry3D>	s3dgeom_;
     mutable Threads::AtomicPointer<Survey::Geometry3D>	work_s3dgeom_;
@@ -270,6 +274,10 @@ public:
     void		setRange(const TrcKeyZSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
+    bool		setCoordSystem(Coords::PositionSystem*);
+    void		readSavedCoordSystem() const;
+			//!< Useful after loading plugins.
+
     void		update3DGeometry();
 
     static const char*	curSurveyName();

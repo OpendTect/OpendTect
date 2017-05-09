@@ -53,6 +53,7 @@ set( OD_MODULE_SOURCES
 	color.cc
 	compoundkey.cc
 	commandlineparser.cc
+	coordsystem.cc
 	dateinfo.cc
 	datapack.cc
 	debug.cc

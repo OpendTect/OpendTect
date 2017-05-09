@@ -23,7 +23,9 @@ class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
 class uiGroup;
+class uiPushButton;
 class uiSurvInfoProvider;
+namespace Coords { class PositionSystem; }
 
 /*!
 \brief The survey info editor.
@@ -63,6 +65,8 @@ protected:
     ObjectSet<uiSurvInfoProvider> sips_;
     uiSurvInfoProvider*	lastsip_;
 
+    RefMan<Coords::PositionSystem>	coordsystem_;
+
     uiGenInput*		survnmfld_;
     uiGenInput*		pathfld_;
     uiGenInput*		inlfld_;
@@ -90,10 +94,12 @@ protected:
     uiGroup*		rangegrp_;
     uiComboBox*		sipfld_;
     uiCheckBox*		overrulefld_;
+    uiPushButton*	coordsysfld_;
     uiCheckBox*		xyinftfld_;
     uiGenInput*		depthdispfld_;
     uiGenInput*		refdatumfld_;
 
+    bool		xyInFeet() const;
     bool		dirnamechanged;
     void		mkSIPFld(uiObject*);
     void		mkRangeGrp();
@@ -119,6 +125,7 @@ protected:
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
     void		appButPushed(CallBacker*);
+    void		coordSystemCB(CallBacker*);
 
     static uiString	getSRDString(bool infeet);
 

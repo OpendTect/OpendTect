@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispicksetdisplay.h"
 #include "visrandomtrackdisplay.h"
 
-#include "latlong.h"
+#include "coordsystem.h"
 #include "odplugin.h"
 #include "pickset.h"
 #include "survinfo.h"
@@ -108,8 +108,8 @@ uiGoogleIOMgr::~uiGoogleIOMgr()
 void uiGoogleIOMgr::exportSurv( CallBacker* cb )
 {
     mDynamicCastGet(uiSurvey*,uisurv,cb)
-    if ( !uisurv
-    || !uiLatLong2CoordDlg::ensureLatLongDefined(uisurv,uisurv->curSurvInfo()) )
+    if ( !uisurv || !uisurv->curSurvInfo() ||
+	 !uisurv->curSurvInfo()->getCoordSystem()->geographicTransformOK() )
 	return;
 
     uiGoogleExportSurvey dlg( uisurv );
@@ -131,7 +131,7 @@ void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
 void uiGoogleIOMgr::exportWells( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
-    if ( !tb || !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
+    if ( !tb || !SI().getCoordSystem()->geographicTransformOK() )
 	return;
 
     uiGoogleExportWells dlg( tb->mainwin() );
@@ -153,7 +153,7 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
 
 void uiGoogleIOMgr::exportLines( CallBacker* cb )
 {
-    if ( !cur2dfm_ || !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
+    if ( !cur2dfm_ || !SI().getCoordSystem()->geographicTransformOK() )
 	return;
 
     uiGoogleExport2DSeis dlg( cur2dfm_ );
@@ -173,7 +173,7 @@ void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
     if ( ps.size() < 3 )
 	{ uiMSG().error(tr("Polygon needs at least 3 points")); return; }
 
-    if ( !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
+    if ( !SI().getCoordSystem()->geographicTransformOK() )
 	return;
 
     uiGoogleExportPolygon dlg( &appl_, ps );
@@ -193,7 +193,7 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
     TypeSet<BinID> knots;
     rtd->getAllNodePos( knots );
 
-    if ( !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
+    if ( !SI().getCoordSystem()->geographicTransformOK() )
 	return;
 
     TypeSet<Coord> crds;

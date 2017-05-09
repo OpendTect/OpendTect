@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibatchjobdispatcherlauncher.h"
 #include "uibatchlaunch.h"
 #include "uiclusterjobprov.h"
+#include "uilatlong2coord.h"
 #include "uimsg.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
@@ -70,4 +71,7 @@ mDefModInitFn(uiIo)
 	uiClusterJobDispatcherLauncher::initClass();
 
     uiProcSettings::initClass();
+    Coords::uiUnlocatedXYSystem::initClass();
+    Coords::uiAnchorBasedXYSystem::initClass();
+
 }

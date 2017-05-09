@@ -26,8 +26,12 @@ mExpClass(Basic) LatLong
 public:
     			LatLong( double la=0, double lo=0 )
 			    : lat_(la), lng_(lo)  {}
+
     			LatLong( const Coord& c ) { *this = transform(c);}
 			operator Coord() const	  { return transform(*this); }
+
+    bool		isDefined() const {return !mIsUdf(lat_)&&!mIsUdf(lng_);}
+    static LatLong	udf() { return LatLong(mUdf(double),mUdf(double)); }
 
     static Coord	transform(const LatLong&); //!< Uses SI()
     static LatLong	transform(const Coord&);   //!< Uses SI()

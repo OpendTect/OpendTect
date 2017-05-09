@@ -75,6 +75,11 @@ public:
 				//!< Removes all items present in other set.
 
     inline virtual void		swap(od_int64,od_int64);
+    inline virtual void		move(size_type from,size_type to);
+    inline virtual void		getReOrdered(const size_type*,
+					     TypeSetBase<T,I>&);
+				//!< Fills as per the given array of indexes.
+
     inline virtual void		reverse();
 
     inline virtual void		erase();
@@ -364,6 +369,32 @@ void TypeSetBase<T,I>::swap( od_int64 idx0, od_int64 idx1 )
     T tmp = vec_[(I)idx0];
     vec_[(I)idx0] = vec_[(I)idx1];
     vec_[(I)idx1] = tmp;
+}
+
+
+template <class T, class I> inline
+void TypeSetBase<T,I>::move( I idxfrom, I idxto )
+{
+    if ( !validIdx(idxfrom) || !validIdx(idxto) )
+	return;
+
+    T tmp = vec_[idxfrom];
+    insert( idxto, tmp );
+    vec_.remove( idxfrom < idxto ? idxfrom : idxfrom+1 );
+}
+
+
+template <class T, class I> inline
+void TypeSetBase<T,I>::getReOrdered( const I* idxs, TypeSetBase<T,I>& out )
+{
+    const I sz = size();
+    if ( !idxs || sz < 2 )
+	return;
+
+    out.erase();
+    out.setCapacity( sz, true );
+    for ( size_type idx=0; idx<sz; idx++ )
+	out.add( vec_[idxs[idx]] );
 }
 
 
