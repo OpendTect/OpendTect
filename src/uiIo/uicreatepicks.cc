@@ -132,9 +132,9 @@ bool uiCreatePicks::calcZValAccToSurvDepth()
     }
     else
     {
-	if ( zvaltyp_ == MilliSeconds )
+	if ( (int)zvaltyp_ == (int)MilliSeconds )
 	    zval_ = zval/1000;
-	else if ( zvaltyp_ == MicroSeconds )
+	else if ( (int)zvaltyp_ == (int)MicroSeconds )
 	    zval_ = zval/1000000;
 	else
 	    zval_ = zval;
