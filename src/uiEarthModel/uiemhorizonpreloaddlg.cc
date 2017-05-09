@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiioobjseldlg.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uisplitter.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
 
@@ -50,41 +51,45 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
 		     mNoDlgTitle, mODHelpKey(mHorizonPreLoadDlgHelpID)) )
 {
     setCtrlStyle( CloseOnly );
-    listfld_ = new uiListBox( this, "Loaded entries", OD::ChooseAtLeastOne );
+    uiGroup* topgrp = new uiGroup( this, "Top group" );
+    listfld_ = new uiListBox( topgrp, "Loaded entries", OD::ChooseAtLeastOne );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
-    uiToolButton* opentb = new uiToolButton( this, "open",
-    tr("Retrieve pre-loads"), mCB(this,uiHorizonPreLoadDlg,openPushCB) );
-    opentb->attach( leftAlignedBelow, listfld_ );
-
-    savebut_ = new uiToolButton( this, "save", uiStrings::phrSave(
-							    tr("pre-load")),
-		     mCB(this,uiHorizonPreLoadDlg,savePushCB) );
-    savebut_->attach( rightAlignedBelow, listfld_ );
-
-    uiButtonGroup* butgrp = new uiButtonGroup( this, "Manip buttons",
+    uiButtonGroup* butgrp = new uiButtonGroup( listfld_, "Manip buttons",
 					       OD::Vertical );
-    butgrp->attach( rightOf, listfld_ );
+    butgrp->attach( rightOf, listfld_->box() );
 
     if ( SI().has2D() )
     {
-	uiPushButton* add2dbut mUnusedVar =
-	    new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s2D()) ,
+	uiPushButton* add2dbut =
+	    new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s2D()),
 			      mCB(this,uiHorizonPreLoadDlg,add2DPushCB), false);
+	add2dbut->setIcon( "tree-horizon2d" );
     }
 
-    uiPushButton* add3dbut mUnusedVar =
+    uiPushButton* add3dbut =
 	new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s3D()),
 			  mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
+    add3dbut->setIcon( "tree-horizon3d" );
 
-    unloadbut_ = new uiPushButton( this, tr("Unload Checked"),
+    unloadbut_ = new uiPushButton( butgrp, tr("Unload Checked"),
 		mCB(this,uiHorizonPreLoadDlg,unloadPushCB), false );
-    unloadbut_->attach( alignedBelow, butgrp );
+    unloadbut_->setIcon( "unload" );
 
-    infofld_ = new uiTextEdit( this, "Info", true );
-    infofld_->attach( alignedBelow, opentb );
-    infofld_->setPrefWidthInChar( 60 );
+    savebut_ = new uiToolButton( listfld_, "save",
+	tr("Save pre-loads"), mCB(this,uiHorizonPreLoadDlg,savePushCB) );
+    savebut_->attach( rightAlignedAbove, listfld_->box() );
+    uiToolButton* opentb = new uiToolButton( listfld_, "open",
+	tr("Retrieve pre-loads"), mCB(this,uiHorizonPreLoadDlg,openPushCB) );
+    opentb->attach( leftOf, savebut_ );
+
+    uiGroup* infogrp = new uiGroup( this, "Info Group" );
+    infofld_ = new uiTextEdit( infogrp, "Info", true );
     infofld_->setPrefHeightInChar( 7 );
+
+    uiSplitter* spl = new uiSplitter( this, "Splitter", false );
+    spl->addGroup( topgrp );
+    spl->addGroup( infogrp );
 
     EM::HorizonPreLoader& hpl = EM::HPreL();
     const BufferStringSet& preloadnames = hpl.getPreloadedNames();
