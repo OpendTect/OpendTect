@@ -104,7 +104,7 @@ void uiBatchSetup::editPushCB( CallBacker* )
     if ( !retrieveChain() )
 	return;
 
-    uiChain dlg( this, *chain_, is2d_, false );
+    uiChain dlg( this, *chain_, false, is2d_ );
     if ( dlg.go() )
 	setupsel_->setInput( dlg.storageID() );
 }
