@@ -82,8 +82,22 @@ void Coords::Projection::getAll( TypeSet<ProjectionID>& pids,
 	    const Coords::Projection* proj = (*repos)[idy];
 	    if ( !orthogonalonly || proj->isOrthogonal() )
 	    {
-		pids.add( proj->id() );
-		usrnms.add( proj->userName() );
+		// sort by ID
+		int index = pids.size()-1;
+		while ( index >= 0 && pids[index] > proj->id() )
+		    index--;
+
+		index++;
+		if ( index >= pids.size()-1 )
+		{
+		    pids.add( proj->id() );
+		    usrnms.add( proj->userName() );
+		}
+		else
+		{
+		    pids.insert( index, proj->id() );
+		    usrnms.insertAt( new BufferString(proj->userName()), index);
+		}
 	    }
 	}
     }
