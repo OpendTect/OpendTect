@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uicrssystem.h"
 
+#include "sorting.h"
 #include "uilistbox.h"
 #include "uilineedit.h"
 #include "uimsg.h"
@@ -108,13 +109,8 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 void uiProjectionBasedSystem::fetchList()
 {
     Projection::getAll( ids_, names_, true );
-    int* idxs = names_.getSortIndexes();
-    names_.useIndexes( idxs );
-    TypeSet<Coords::ProjectionID> tmp( ids_ );
-    tmp.getReOrdered( idxs, ids_ );
-    delete [] idxs;
-    dispidxs_.setCapacity( ids_.size(), true );
-    for ( int idx=0; idx<ids_.size(); idx++ )
+    dispidxs_.setCapacity( ids_.size(), true ); \
+    for ( int idx=0; idx<ids_.size(); idx++ ) \
 	dispidxs_.add( idx );
 }
 
@@ -146,10 +142,10 @@ void uiProjectionBasedSystem::setCurrent()
 bool uiProjectionBasedSystem::acceptOK()
 {
     const int selidx = projselfld_->currentItem();
-    if ( !ids_.validIdx(selidx) )
+    if ( !dispidxs_.validIdx(selidx) )
 	return false;
 
-    const ProjectionID pid = ids_[selidx];
+    const ProjectionID pid = ids_[dispidxs_[selidx]];
     RefMan<ProjectionBasedSystem> res = new ProjectionBasedSystem();
     res->setProjection( pid );
     outputsystem_ = res;
