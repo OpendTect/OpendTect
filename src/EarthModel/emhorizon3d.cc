@@ -408,7 +408,7 @@ bool Horizon3D::hasNodeSourceType( const PosID& posid ) const
 {
     const TrcKey tk = geometry_.getTrcKey( posid );
     return nodesource_ ? nodesource_->getData()[tk.trcNr()] !=
-	(char)EMObject::NodeSourceType::None : false;
+	(char)None : false;
 }
 
 
@@ -515,7 +515,7 @@ void Horizon3D::setArray( const SectionID& sid, const BinID& start,
 	if ( posid.objectID() == -1 )
 	    break;
 	if ( !hasNodeSourceType(posid) )
-	    setNodeSourceType( posid, EMObject::NodeSourceType::Gridding );
+	    setNodeSourceType( posid, Gridding );
     }
     geometry().sectionGeometry(sid)->setArray( start, step, arr, true );
 }
