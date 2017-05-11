@@ -208,6 +208,9 @@ bool EMObject::setPos( const SectionID& sid, const SubID& subid,
 	change.trigger( cbdata );
     }
 
+    const BinID bid = BinID::fromInt64(subid);
+    const TrcKey tk = TrcKey(bid);
+    setNodeSourceType( tk, None );
     changed_ = true;
     return true;
 }

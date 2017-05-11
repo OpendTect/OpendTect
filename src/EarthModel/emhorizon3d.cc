@@ -397,10 +397,9 @@ void Horizon3D::setNodeSourceType( const PosID& posid, NodeSourceType type )
 }
 
 
-void Horizon3D::setNodeSourceType( const TrcKey& tk, NodeSourceType type )
+void Horizon3D::setNodeSourceType(const TrcKey& tk,NodeSourceType type)
 {
     if ( !nodesource_ ) return;
-
     nodesource_->getData()[trackingsamp_.globalIdx(tk)] = (char)type;
 }
 
@@ -409,40 +408,66 @@ bool Horizon3D::hasNodeSourceType( const PosID& posid ) const
 {
     const TrcKey tk = geometry_.getTrcKey( posid );
     return nodesource_ ? nodesource_->getData()[tk.trcNr()] !=
-	(char)EMObject::None : false;
+	(char)NodeSourceType::None : false;
 }
 
 
-bool Horizon3D::isNodeSourceType( const PosID& posid, NodeSourceType type) const
+bool Horizon3D::isNodeSourceType( const PosID& posid, 
+    NodeSourceType type ) const
 {
     const TrcKey tk = geometry_.getTrcKey( posid );
     return !tk.isUdf() ? isNodeSourceType( tk, type ) : false;
 }
 
 
-bool  Horizon3D::isNodeSourceType( const TrcKey& tk, NodeSourceType type ) const
+bool  Horizon3D::isNodeSourceType( const TrcKey& tk, 
+    NodeSourceType type ) const
 {
     return nodesource_ ?
-	nodesource_->getData()[trackingsamp_.globalIdx(tk)]==(char)type : false;
+	nodesource_->getData()[trackingsamp_.globalIdx(tk)]
+	== (char)type : false;
 }
 
 
 bool Horizon3D::setZ( const TrcKey& tk, float z, bool addtohist )
 {
-    return
-	setPos( sectionID(0), tk.binID().toInt64(), Coord3(0,0,z), addtohist );
+    return setPos( 
+	sectionID(0), tk.binID().toInt64(), Coord3(0,0,z), addtohist);
 }
 
 
 float Horizon3D::getZ( const TrcKey& tk ) const
-{
-    return (float) getPos( sectionID(0), tk.pos().toInt64() ).z;
+{ return (float) getPos( sectionID(0), tk.pos().toInt64() ).z; }
+
+bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
+{ 
+    return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z), 
+	addtohist ); 
 }
 
 
-bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
+bool Horizon3D::setZAndNodeSourceType( const TrcKey& tk, float z, 
+    bool addtohist, NodeSourceType type )
 {
-    return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z), addtohist );
+    const SectionID sid = sectionID( 0 );
+    if ( !arrayinited_ )
+    {
+	mDynamicCastGet( const Survey::Geometry3D*,geom3d,
+	    Survey::GM().getGeometry(tk.geomID()) );
+	if ( !geom3d ) return false;
+
+	StepInterval<int> inlrg = geom3d->inlRange();
+	StepInterval<int> trcrg = geom3d->crlRange();
+	initNodeArraysSize( inlrg, trcrg );
+    }
+
+    const Coord3 newpos = Coord3( 0, 0, z );
+    if ( isNodeLocked(tk) ) return false;
+    const bool retval = EMObject::setPos( 
+	sid, tk.binID().toInt64(), newpos, addtohist );
+    const NodeSourceType tp = newpos.isDefined() ? type : None;
+    setNodeSourceType( tk, tp );
+    return retval;
 }
 
 
@@ -477,7 +502,7 @@ float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 }
 
 
-void Horizon3D::setArray( const SectionID& sid, const BinID& start,
+void Horizon3D::setArray( const SectionID& sid, const BinID& start, 
     const BinID& step, Array2D<float>* arr, bool takeover )
 {
     PtrMan<EM::EMObjectIterator> iterator = createIterator( sid );
@@ -490,7 +515,7 @@ void Horizon3D::setArray( const SectionID& sid, const BinID& start,
 	if ( posid.objectID() == -1 )
 	    break;
 	if ( !hasNodeSourceType(posid) )
-	    setNodeSourceType( posid, EMObject::Gridding );
+	    setNodeSourceType( posid, NodeSourceType::Gridding );
     }
     geometry().sectionGeometry(sid)->setArray( start, step, arr, true );
 }
@@ -721,7 +746,7 @@ TrcKeySampling Horizon3D::getSectionTrckeySampling() const
     TrcKeySampling tks;
     const SectionID sid = sectionID( 0 );
     const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
-    if ( !geom || geom->isEmpty() )
+    if ( !geom || geom->isEmpty() ) 
 	return tks;
 
     const TrcKeySampling curtks = getTrackingSampling();
@@ -734,11 +759,11 @@ TrcKeySampling Horizon3D::getSectionTrckeySampling() const
 
 bool Horizon3D::saveNodeArrays()
 {
-    if ( !parents_ || !nodesource_ || !lockednodes_ || !children_ )
+    if ( !parents_ || !nodesource_ || !lockednodes_ || !children_ ) 
 	return true;
 
-    if ( parents_->info().getTotalSz()!=nodesource_->info().getTotalSz()
-	|| parents_->info().getTotalSz() != lockednodes_->info().getTotalSz()
+    if ( parents_->info().getTotalSz()!=nodesource_->info().getTotalSz() 
+	|| parents_->info().getTotalSz() != lockednodes_->info().getTotalSz() 
 	|| parents_->info().getTotalSz() != children_->info().getTotalSz() )
 	return true;
 
@@ -748,7 +773,7 @@ bool Horizon3D::saveNodeArrays()
     const char* lckdata = lockednodes_->getData();
     const char* chddata = children_->getData();
 
-    if ( totalsz<1 || !ptdata || !itpnodesdata || !lckdata || !children_ )
+    if ( totalsz<1 || !ptdata || !itpnodesdata || !lckdata || !children_ ) 
 	return false;
 
     IOObjInfo ioobjinfo( multiID() );
@@ -787,7 +812,7 @@ bool Horizon3D::readNodeArrays()
     if ( !strm.isOK() ) return false;
 
     ascistream astream( strm );
-    const char* oldheader = "Parent-Child Data";
+    const char* oldheader = "Parent-Child Data"; 
 
     if ( astream.fileType() == oldheader )
 	return readParentArray(); // old version
@@ -855,7 +880,7 @@ bool Horizon3D::saveParentArray()
 }
 
 
-void Horizon3D::initNodeArraysSize( const StepInterval<int>& inlrg,
+void Horizon3D::initNodeArraysSize( const StepInterval<int>& inlrg, 
     const StepInterval<int>& crlrg)
 {
    setNodeArraySize( inlrg, crlrg, Parents );
@@ -866,7 +891,7 @@ void Horizon3D::initNodeArraysSize( const StepInterval<int>& inlrg,
 }
 
 
-void Horizon3D::setNodeArraySize( const StepInterval<int>& inlrg,
+void Horizon3D::setNodeArraySize( const StepInterval<int>& inlrg, 
     const StepInterval<int>& crlrg, ArrayType arrtype )
 {
     const TrcKeySampling curtks = getTrackingSampling();
@@ -899,13 +924,13 @@ void Horizon3D::setNodeArraySize( const StepInterval<int>& inlrg,
 }
 
 
-void Horizon3D::updateNodeSourceArray( const TrcKeySampling tks,
+void Horizon3D::updateNodeSourceArray( const TrcKeySampling tks, 
     ArrayType arrtype )
 {
     const TrcKeySampling curtks = getTrackingSampling();
     if ( arrtype == Parents )
     {
-	Array2DImpl<od_int64>* newparent =
+	Array2DImpl<od_int64>* newparent = 
 	    new Array2DImpl<od_int64>( tks.nrLines(),tks.nrTrcs() );
 	newparent->setAll( -1 );
 
@@ -926,7 +951,7 @@ void Horizon3D::updateNodeSourceArray( const TrcKeySampling tks,
 	return;
     }
 
-    Array2DImpl<char>* newnodes =
+    Array2DImpl<char>* newnodes = 
 	new Array2DImpl<char>( tks.nrLines(),tks.nrTrcs() );
     newnodes->setAll( (char)None );
 
@@ -1214,8 +1239,8 @@ bool Horizon3D::isNodeLocked( const TrcKey& node ) const
 }
 
 
-bool Horizon3D::isNodeLocked( const PosID& posid )const
-{
+bool Horizon3D::isNodeLocked( const PosID& posid )const 
+{ 
     const TrcKey tk = geometry_.getTrcKey( posid );
     return !tk.isUdf() ? isNodeLocked( tk ) : false;
 }
@@ -1278,9 +1303,9 @@ const Color& Horizon3D::getParentColor() const
 { return parentcolor_; }
 
 
-bool Horizon3D::setPos( const PosID& pid, const Coord3& crd, bool addtoundo )
+bool Horizon3D::setPos( const PosID& pid,const Coord3& crd,bool addtoundo )
 {
-    return setPos( pid.sectionID(), pid.subID(), crd, addtoundo );
+    return setPos( pid.sectionID(),pid.subID(),crd,addtoundo );
 }
 
 
@@ -1299,8 +1324,6 @@ bool Horizon3D::setPos( const SectionID& sid, const SubID& subid,
 	StepInterval<int> trcrg = geom3d->crlRange();
 	initNodeArraysSize( inlrg, trcrg );
     }
-
-    if ( isNodeLocked(tk) ) return false;
 
     return EMObject::setPos( sid, subid, crd, addtoundo );
 }

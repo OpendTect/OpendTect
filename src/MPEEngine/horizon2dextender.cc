@@ -105,7 +105,8 @@ void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
     if ( hasz && !isintersection )
 	return;
 
-    hor2d_.setZ( neighbor, hor2d_.getZ(src), true );
+    hor2d_.setZAndNodeSourceType( 
+	neighbor, hor2d_.getZ(src), true, EM::EMObject::Auto );
     addTarget( neighbor, src );
 }
 

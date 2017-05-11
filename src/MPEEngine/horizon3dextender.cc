@@ -151,7 +151,8 @@ int BaseHorizon3DExtender::nextStep()
 		{
 		    const float depth = getDepth( srcbid, neighbbid );
 		    if ( !mIsUdf(depth) &&
-			 horizon_.setZ(neighbbid,depth,setundo_) )
+			 horizon_.setZAndNodeSourceType(
+			 neighbbid,depth,setundo_,EM::EMObject::Auto) )
 		    {
 			addTarget( neighbbid, srcbid );
 			change = true;

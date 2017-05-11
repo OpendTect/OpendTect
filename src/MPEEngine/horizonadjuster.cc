@@ -329,7 +329,7 @@ TrcKeyZSampling
 
 void HorizonAdjuster::setHorizonPick( const TrcKey& tk, float val )
 {
-    horizon_.setZ( tk, val, setundo_ );
+    horizon_.setZAndNodeSourceType( tk, val, setundo_, EM::EMObject::Auto );
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_);
     if ( !hor3d ) return;

@@ -111,6 +111,8 @@ public:
 
     virtual float		getZ(const TrcKey&) const;
     virtual bool		setZ(const TrcKey&,float z,bool addtohist);
+    virtual bool		setZAndNodeSourceType(const TrcKey&,float z, 
+				    bool addtohist, NodeSourceType type=Auto);
     virtual bool		hasZ(const TrcKey&) const;
     virtual Coord3		getCoord(const TrcKey&) const;
     virtual void		setAttrib(const TrcKey&,int attr,int yn,
@@ -144,11 +146,11 @@ public:
 				       int trcnr,float z,bool addtohist);
 
     bool			setPos(const EM::PosID&,const Coord3&,
-				       bool addtohist);
+					bool addtohist);
     bool			setPos(const EM::SectionID&,const EM::SubID&,
 				       const Coord3&,bool addtohist);
 
-    Horizon2DGeometry&		geometry()		{ return geometry_; }
+Horizon2DGeometry&		geometry()		{ return geometry_; }
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }
 
     virtual void		removeAll();
@@ -178,10 +180,11 @@ protected:
 
     Horizon2DGeometry		geometry_;
     Array1D<char>*		nodesource_;
-				/*!< '0'- non interpreted,
+				/*!< '0'- non interpreted, 
 				'1'- manual interpreted,
-				'2' - auto interpreted. see
-				 enum NodeSourceType*/
+				'2' - auto interpreted. 
+				'3' - Gridding.
+				enum NodeSourceType*/
 };
 
 } // namespace EM

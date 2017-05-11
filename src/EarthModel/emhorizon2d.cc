@@ -412,11 +412,49 @@ float Horizon2D::getZ( const TrcKey& tk ) const
 
 bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist )
 {
-//    const NodeSourceType tp = !mIsUdf(z) ? type : None;
-//    setNodeSourceType( tk, tp );
-
     return setPos( sectionID(0), tk.geomID(), tk.trcNr(), z, addtohist );
 }
+
+
+bool Horizon2D::setZAndNodeSourceType( const TrcKey& tk, float z,
+    bool addtohist, NodeSourceType type )
+{
+    if ( !nodesource_ )
+	initNodeSourceArray(tk);
+
+    const bool retval = setPos( 
+	sectionID(0), tk.geomID(), tk.trcNr(), z, addtohist );
+    const NodeSourceType tp = !mIsUdf(z) ? type : None;
+    setNodeSourceType( tk, tp );
+    return retval;
+}
+
+//
+//bool Horizon2D::setPosAndNodeSourceType( const EM::SectionID& sid,
+//    const EM::SubID& subid,
+//    const Coord3& newpos,
+//    bool addtohistory,
+//    NodeSourceType type )
+//{
+//    const bool retval = EMObject::setPos( sid, subid, newpos, addtohistory );
+//    const NodeSourceType tp = newpos.isDefined() ? type : None;
+//    const PosID pid (id(), sid, subid );
+//    const TrcKey tk = geometry_.getTrcKey( pid );
+//    setNodeSourceType( tk, tp );
+//    return retval;
+//}
+//
+//
+//bool Horizon2D::setPosAndNodeSourceType( const EM::PosID& pid, 
+//    const Coord3& newpos,
+//    bool addtohistory,
+//    NodeSourceType type)
+//{
+//    const bool retval = EMObject::setPos( pid, newpos, addtohistory );
+//    const TrcKey tk = geometry_.getTrcKey(pid);
+//    setNodeSourceType( tk, type );
+//    return retval;
+//}
 
 
 void Horizon2D::initNodeSourceArray( const TrcKey& tk )
@@ -432,26 +470,27 @@ void Horizon2D::initNodeSourceArray( const TrcKey& tk )
 }
 
 
-void Horizon2D::setNodeSourceType( const TrcKey& tk, NodeSourceType type )
+void Horizon2D::setNodeSourceType( const TrcKey& tk, 
+    NodeSourceType type )
 {
-    if ( !nodesource_ )
-	initNodeSourceArray( tk );
-
+    if ( !nodesource_ ) return;
     nodesource_->getData()[tk.trcNr()] = (char)type;
 }
 
 
-bool Horizon2D::isNodeSourceType( const PosID& posid, NodeSourceType type) const
+bool Horizon2D::isNodeSourceType( const PosID& posid, 
+    NodeSourceType type ) const
 {
     const TrcKey tk = geometry_.getTrcKey(posid);
     return !tk.isUdf() ? isNodeSourceType( tk, type ) : false;
 }
 
 
-bool Horizon2D::isNodeSourceType( const TrcKey& tk, NodeSourceType type ) const
+bool Horizon2D::isNodeSourceType( const TrcKey& tk, 
+    NodeSourceType type ) const
 {
-    return nodesource_ ?
-	nodesource_->getData()[tk.trcNr()] == (char)type : false;
+    return nodesource_ ? nodesource_->getData()[tk.trcNr()] ==
+	(char)type : false;
 }
 
 
