@@ -40,7 +40,12 @@ bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
 
 bool Batch::SeisMMProgDef::canHandle( const Batch::JobSpec& js ) const
 {
-    return isSuitedFor( js.prognm_ );
+    if ( !isSuitedFor(js.prognm_) )
+	return false;
+
+    FixedString outtyp = js.pars_.find(
+		IOPar::compKey(sKey::Output(),sKey::Type()) );
+    return outtyp != sKey::Surface();
 }
 
 bool Batch::SeisMMProgDef::canResume( const Batch::JobSpec& js ) const
