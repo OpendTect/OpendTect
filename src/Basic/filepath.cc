@@ -253,7 +253,7 @@ bool FilePath::makeRelativeTo( const FilePath&  b )
 
 BufferString FilePath::fullPath( Style f, bool cleanup ) const
 {
-    const BufferString res = dirUpTo(-1);
+    const BufferString res = dirUpTo(lvls_.size());
     return cleanup ? mkCleanPath(res,f) : res;
 }
 
@@ -320,7 +320,7 @@ const OD::String& FilePath::dir( int nr ) const
 
 BufferString FilePath::dirUpTo( int lvl ) const
 {
-    if ( lvl < 0 || lvl >= lvls_.size() )
+    if ( lvl >= lvls_.size() )
 	lvl = lvls_.size() - 1;
 
     BufferString ret;
@@ -496,3 +496,10 @@ BufferString FilePath::winDrive() const
     BufferString windrive = File::getRootPath( fullPath() );
     return windrive;
 }
+
+
+bool FilePath::isEmpty() const
+{
+    return prefix_.isEmpty() && lvls_.isEmpty();
+}
+

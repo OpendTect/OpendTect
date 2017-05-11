@@ -50,7 +50,7 @@ public:
     bool		operator ==(const char* fnm) const;
     bool		operator !=(const FilePath&) const;
     bool		operator !=(const char* fnm) const;
-    bool		isEmpty() const		{ return lvls_.isEmpty(); }
+    bool		isEmpty() const;
 
     FilePath&		set(const char* fullinp);
     FilePath&		add(const char*);	//!< at end
