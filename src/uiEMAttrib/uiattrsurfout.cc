@@ -65,7 +65,9 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );
     pargrp_->setHAlignObj( objfld_ );
 
-    batchjobfld_->setSensitive( false );
+    batchjobfld_->jobSpec().pars_.set( IOPar::compKey(sKey::Output(),
+				sKey::Type()), Output::surfkey() );
+    batchjobfld_->jobSpecUpdated();
 }
 
 

@@ -78,6 +78,9 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 
     if ( usesinglehor_ || ads_->is2D() )
 	cubeBoundsSel(0);
+
+    batchjobfld_->jobSpec().pars_.set( IOPar::compKey(sKey::Output(),
+				sKey::Type()), Output::tskey() );
 }
 
 
