@@ -193,6 +193,9 @@ bool Batch::VolMMProgDef::isSuitedFor( const char* prognm ) const
 
 bool Batch::VolMMProgDef::canHandle( const Batch::JobSpec& js ) const
 {
+    if ( !isSuitedFor(js.prognm_) )
+	return false;
+
     const IOPar& par = js.pars_;
     bool needsfullvol = false;
     par.getYN( Batch::VolMMProgDef::sKeyNeedsFullVolYN(), needsfullvol );
