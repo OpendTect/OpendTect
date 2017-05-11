@@ -284,9 +284,12 @@ void uiProgressViewer::quitFn( CallBacker* )
 bool uiProgressViewer::closeOK()
 {
     if ( haveProcess() && canTerminate() )
+    {
 	killFn( 0 );
+	return true;
+    }
 
-    return true;
+    return false;
 }
 
 
