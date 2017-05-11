@@ -251,10 +251,10 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	uiAmplSpectrum* asd = new uiAmplSpectrum( menu->getParent() );
 	asd->setDeleteOnClose( true );
-	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID() );
+	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID(),0);
         const uiString pos = psv->is3DSeis()
-            ? toUiString( "%1/%2")
-                .arg( psv->getPosition().inl() ).arg( psv->getPosition().crl() )
+            ? toUiString( "%1/%2").arg(psv->getPosition().inl())
+	    			  .arg( psv->getPosition().crl() )
             : toUiString( psv->getPosition().crl() );
 
 	const uiString capt = tr( "Amplitude spectrum for %1 at %2" )

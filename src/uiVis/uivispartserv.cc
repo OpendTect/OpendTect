@@ -754,8 +754,9 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
     const bool res = so->setDataPackID( attrib, dpid, &taskrunner );
 
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
-	multirgeditwin_->setDataPackID( attrib, dpid );
-
+	multirgeditwin_->setDataPackID(
+		attrib, dpid, so->selectedTexture(attrib) );
+    
     return res;
 }
 
@@ -2296,7 +2297,8 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
 	if ( dpid.getI() < 1 )
 	    continue;
 
-	multirgeditwin_->setDataPackID( statsidx, dpid );
+	const int textureidx = selectedTexture( visid, dpidx );
+	multirgeditwin_->setDataPackID( statsidx, dpid, textureidx );
 	const ColTab::Mapper& mpr = getColTabMapper( visid, dpidx );
 	multirgeditwin_->setColTabMapper( statsidx, mpr );
 

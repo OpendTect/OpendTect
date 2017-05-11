@@ -29,7 +29,8 @@ public:
 					~uiMultiMapperRangeEditWin();
 
     uiMapperRangeEditor*		getuiMapperRangeEditor(int);
-    void				setDataPackID(int,DataPack::ID);
+    void				setDataPackID(int visid,
+	    				       DataPack::ID,int version);
     void				setColTabMapper(int,
 							const ColTab::Mapper&);
     void				setColTabSeq(int,

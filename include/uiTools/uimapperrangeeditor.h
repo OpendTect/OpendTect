@@ -38,7 +38,8 @@ public:
     int				ID() const		{ return id_; }
 
     void			setEmpty();
-    bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
+    bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
+	    				      int version);
     void			setData(const Array2D<float>*);
     bool			setData(const IOPar&);
     void			setMarkValue(float,bool forx);

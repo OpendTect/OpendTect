@@ -14,10 +14,10 @@ _______________________________________________________________________
 #include "seisdatapack.h"
 
 
-void uiSeisAmplSpectrum::setDataPackID( DataPack::ID dpid,
-					DataPackMgr::ID dmid )
+void uiSeisAmplSpectrum::setDataPackID(
+		DataPack::ID dpid, DataPackMgr::ID dmid, int version )
 {
-    uiAmplSpectrum::setDataPackID( dpid, dmid );
+    uiAmplSpectrum::setDataPackID( dpid, dmid, version );
 
     if ( dmid == DataPackMgr::SeisID() )
     {
@@ -26,7 +26,7 @@ void uiSeisAmplSpectrum::setDataPackID( DataPack::ID dpid,
 	if ( vdp )
 	{
 	    setup_.nyqvistspspace_ = vdp->getZRange().step;
-	    setData( vdp->data() );
+	    setData( vdp->data(version) );
 	}
     }
 }

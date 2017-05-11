@@ -75,7 +75,8 @@ void uiHistogramDisplay::setEmpty()
 }
 
 
-bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
+bool uiHistogramDisplay::setDataPackID(
+	DataPack::ID dpid, DataPackMgr::ID dmid, int version )
 {
     rc_.setEmpty();
     ConstRefMan<DataPack> dp = DPM(dmid).get( dpid );
@@ -86,7 +87,7 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 	mDynamicCastGet(const VolumeDataPack*,voldp,dp.ptr());
 	if ( !voldp || voldp->isEmpty() ) return false;
 
-	const Array3D<float>* arr3d = &voldp->data( 0 );
+	const Array3D<float>* arr3d = &voldp->data( version );
 	setData( arr3d );
     }
     else if ( dmid == DataPackMgr::FlatID() )
