@@ -331,14 +331,17 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==statisticsmnuitem_.id )
     {
-	const DataPack::ID dpid =
-			    visserv->getDataPackID( displayID(), attribNr() );
-	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
+	const DataPack::ID dpid = visserv->getDataPackID(
+					displayID(), attribNr() );
+	const DataPackMgr::ID dmid =
+		visserv->getDataPackMgrID( displayID() );
+	const int version = visserv->selectedTexture(
+					displayID(), attribNr() );
 	uiStatsDisplay::Setup su; su.countinplot( false );
 	uiStatsDisplayWin* dwin =
 	    new uiStatsDisplayWin( applMgr()->applService().parent(),
 				   su, 1, false );
-	dwin->statsDisplay()->setDataPackID( dpid, dmid );
+	dwin->statsDisplay()->setDataPackID( dpid, dmid, version );
 	dwin->setDataName( DPM(dmid).nameOf(dpid)  );
 	dwin->windowClosed.notify( mCB(OBJDISP(),ObjDisposer,go) );
 	dwin->show();
@@ -346,12 +349,15 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==amplspectrummnuitem_.id )
     {
-	const DataPack::ID dpid =
-			    visserv->getDataPackID( displayID(), attribNr() );
-	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
+	const DataPack::ID dpid = visserv->getDataPackID(
+					displayID(), attribNr() );
+	const DataPackMgr::ID dmid =
+		visserv->getDataPackMgrID( displayID() );
+	const int version = visserv->selectedTexture(
+					displayID(), attribNr() );
 	uiSeisAmplSpectrum* asd = new uiSeisAmplSpectrum(
 				  applMgr()->applService().parent() );
-	asd->setDataPackID( dpid, dmid );
+	asd->setDataPackID( dpid, dmid, version );
 	asd->windowClosed.notify( mCB(OBJDISP(),ObjDisposer,go) );
 	asd->show();
 	menu->setIsHandled( true );

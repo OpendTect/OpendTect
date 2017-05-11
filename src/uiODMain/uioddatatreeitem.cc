@@ -376,6 +376,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const int attribid = attribNr();
 	DataPack::ID dpid = visserv_->getDataPackID( visid, attribid );
 	const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( visid );
+	const int version = visserv_->selectedTexture( visid, attribid );
 	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attribid );
 	const FixedString dpname = DPM(dmid).nameOf( dpid );
 	if ( as && dpname != as->userRef() )
@@ -407,14 +408,14 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 		    delete ampspectrumwin_;
 		    ampspectrumwin_ = new uiSeisAmplSpectrum(
 				      applMgr()->applService().parent() );
-		    ampspectrumwin_->setDataPackID( dpid, dmid );
+		    ampspectrumwin_->setDataPackID( dpid, dmid, version );
 		    ampspectrumwin_->show();
 		}
 		else
 		{
 		    fkspectrumwin_ =
 			new uiFKSpectrum( applMgr()->applService().parent() );
-		    fkspectrumwin_->setDataPackID( dpid, dmid );
+		    fkspectrumwin_->setDataPackID( dpid, dmid, version );
 		    fkspectrumwin_->show();
 		}
 	    }

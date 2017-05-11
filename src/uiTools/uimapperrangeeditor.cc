@@ -73,10 +73,10 @@ void uiMapperRangeEditor::setEmpty()
 }
 
 
-bool uiMapperRangeEditor::setDataPackID( DataPack::ID dpid,
-					 DataPackMgr::ID dmid )
+bool uiMapperRangeEditor::setDataPackID(
+		DataPack::ID dpid, DataPackMgr::ID dmid, int version )
 {
-    const bool retval = histogramdisp_->setDataPackID( dpid, dmid );
+    const bool retval = histogramdisp_->setDataPackID( dpid, dmid,version);
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();

@@ -115,7 +115,8 @@ uiAmplSpectrum::~uiAmplSpectrum()
 }
 
 
-void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
+void uiAmplSpectrum::setDataPackID(
+		DataPack::ID dpid, DataPackMgr::ID dmid, int version )
 {
     ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
     if ( datapack )

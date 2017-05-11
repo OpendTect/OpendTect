@@ -101,11 +101,12 @@ void uiStatsDisplay::setDataName( const char* nm )
 }
 
 
-bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
+bool uiStatsDisplay::setDataPackID(
+	DataPack::ID dpid, DataPackMgr::ID dmid, int version )
 {
     TypeSet<float> valarr;
-    if ( !histgramdisp_ ||
-	 (histgramdisp_ && !histgramdisp_->setDataPackID(dpid,dmid)) )
+    if ( !histgramdisp_ || (histgramdisp_ &&
+		!histgramdisp_->setDataPackID(dpid,dmid,version)) )
     {
 	Stats::ParallelCalc<float> rc( (Stats::CalcSetup()
 						.require(Stats::Min)
@@ -122,7 +123,7 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	if ( dmid == DataPackMgr::SeisID() )
 	{
 	    mDynamicCastGet(const SeisDataPack*,sdp,datapack.ptr());
-	    const Array3D<float>* arr3d = sdp ? &sdp->data() : 0;
+	    const Array3D<float>* arr3d = sdp ? &sdp->data(version) : 0;
 	    if ( !arr3d ) return false;
 
 	    const float* array = arr3d->getData();

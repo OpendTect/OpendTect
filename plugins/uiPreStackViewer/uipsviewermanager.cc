@@ -251,7 +251,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	uiAmplSpectrum* asd = new uiAmplSpectrum( menu->getParent() );
 	asd->setDeleteOnClose( true );
-	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID() );
+	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID(),0);
 	BufferString capt( "Amplitude spectrum for " );
 	capt += psv->getObjectName();
 	capt += " at ";

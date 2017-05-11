@@ -26,7 +26,8 @@ public:
 				    : uiAmplSpectrum(p)
 				{}
 
-    void			setDataPackID(DataPack::ID,DataPackMgr::ID);
+    void			setDataPackID(DataPack::ID,DataPackMgr::ID,
+					      int version=0);
 };
 
 #endif

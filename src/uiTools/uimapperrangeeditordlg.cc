@@ -104,7 +104,7 @@ void uiMultiMapperRangeEditWin::showStatDlg( CallBacker* )
     for ( int idx=0; idx<datapackids_.size(); idx++ )
     {
 	statswin->statsDisplay( idx )->setDataPackID(
-		datapackids_[idx], dpm_.id() );
+				datapackids_[idx], dpm_.id(), 0 );
 	datanms.add(  DPM(dpm_.id()).nameOf(datapackids_[idx]) );
     }
 
@@ -117,18 +117,19 @@ uiMapperRangeEditor* uiMultiMapperRangeEditWin::getuiMapperRangeEditor( int idx)
 { return mapperrgeditors_.validIdx(idx) ? mapperrgeditors_[idx] : 0; }
 
 
-void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
+void uiMultiMapperRangeEditWin::setDataPackID(
+		int idx, DataPack::ID dpid, int version )
 {
     if ( !mapperrgeditors_.validIdx(idx) )
 	return;
 
-    mapperrgeditors_[idx]->setDataPackID( dpid, dpm_.id() );
+    mapperrgeditors_[idx]->setDataPackID( dpid, dpm_.id(), version );
     mapperrgeditors_[idx]->display( true );
     if ( datapackids_.validIdx(idx) )
 	datapackids_[idx] = dpid;
 
     if ( statsdisplays_.validIdx(idx) )
-	statsdisplays_[idx]->setDataPackID( dpid, dpm_.id() );
+	statsdisplays_[idx]->setDataPackID( dpid, dpm_.id(), version );
 }
 
 

@@ -187,7 +187,8 @@ void uiFKSpectrum::mousePressCB( CallBacker* )
 }
 
 
-void uiFKSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
+void uiFKSpectrum::setDataPackID(
+	DataPack::ID dpid, DataPackMgr::ID dmid, int version )
 {
     ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
     setCaption( !datapack ? tr("No data")
@@ -203,7 +204,7 @@ void uiFKSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	    	regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
 	const int dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
 
-	Array2DSlice<float> slice2d( seisdp->data(0) );
+	Array2DSlice<float> slice2d( seisdp->data(version) );
 	slice2d.setDimMap( 0, dim0 );
 	slice2d.setDimMap( 1, 2 );
 	slice2d.setPos( dir, 0 );
