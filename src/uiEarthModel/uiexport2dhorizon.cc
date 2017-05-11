@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "od_ostream.h"
 #include "surfaceinfo.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 
 #include "uichecklist.h"
@@ -156,10 +157,15 @@ bool uiExport2DHorizon::doExport()
 	BufferString linename = linenms.get( idx );
 	const int lineidx = hor->geometry().lineIndex( linename );
 	StepInterval<int> trcrg = geom->colRange( lineidx );
+	mDynamicCastGet(const Survey::Geometry2D*,survgeom2d,
+		Survey::GM().getGeometry(hor->geometry().geomID(lineidx)))
+	PosInfo::Line2DData l2ddata = survgeom2d->data();
 	for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
 	{
 	    Coord3 pos = geom->getKnot( RowCol(lineidx,trcnr) );
 
+	    PosInfo::Line2DPos l2dpos;
+	    l2ddata.getPos(trcnr, l2dpos );
 	    if ( mIsUdf(pos.x) || mIsUdf(pos.y) )
 		continue;
 	    const bool zudf = mIsUdf(pos.z);
@@ -174,12 +180,13 @@ bool uiExport2DHorizon::doExport()
 	    {
 		if ( !wrlnms )
 		    line.set( pos.x ).add( "\t" ).add( pos.y )
-			.add( "\t" ).add( undefstr );
+				     .add("\t" ).add( l2dpos.spnr_ )
+				     .add( "\t" ).add( undefstr );
 		else
 		{
-		    controlstr += "%16.2lf%16.2lf%8d%16s";
+		    controlstr += "%16.2lf%16.2lf%8d%8d%16s";
 		    sprintf( line.getCStr(), controlstr.buf(), linename.buf(),
-			     pos.x, pos.y, trcnr, undefstr.buf() );
+			     pos.x, pos.y, l2dpos.spnr_, trcnr, undefstr.buf());
 		}
 	    }
 	    else
@@ -187,14 +194,16 @@ bool uiExport2DHorizon::doExport()
 		pos.z *= zfac;
 		if ( wrlnms )
 		{
-		    controlstr += "%16.2lf%16.2lf%8d%16.4lf";
+		    controlstr += "%16.2lf%16.2lf%8d%8d%16.4lf";
 		    sprintf( line.getCStr(), controlstr.buf(),
-			    linename.buf(), pos.x, pos.y, trcnr, pos.z );
+			    linename.buf(), pos.x, pos.y, l2dpos.spnr_,
+			    trcnr, pos.z );
 		}
 		else
 		{
-		    line.set( pos.x ).add( "\t" ).add( pos.y )
-			.add( "\t" ).add( pos.z );
+		    line.set( pos.x ).add( "\t" ).add( pos.y ).add("\t" )
+				     .add( l2dpos.spnr_ ).add( "\t" )
+				     .add( pos.z );
 		}
 	    }
 
@@ -225,7 +234,8 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	wrtlnm ? headerstr = "\"Line name\"\t\"X\"\t\"Y\"\t\"TrcNr\"\t"
 	       : headerstr = " \"X\"\t\"Y\"\t";
 
-	headerstr.add( "\"" ).add( zstr ).add( "\"" );
+	headerstr.add( "\"" ).add( "ShotPointNr" ).add( "\"\t" )
+		 .add( "\"" ).add( zstr ).add( "\"" );
     }
     else
     {
