@@ -98,6 +98,9 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     nmstylefld_ = new uiComboBox( this, fontstyles, "Fontstyle" );
     nmstylefld_->attach( rightOf, nmsizefld_ );
 
+    nmsizedynamicfld_ = new uiCheckBox( this,tr("Dynamic") );
+    nmsizedynamicfld_->attach( rightOf,nmstylefld_ );
+
     doPutToScreen();
 
     dispabovefld_->activated.notify(
@@ -108,6 +111,9 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 		mCB(this,uiWellTrackDispProperties,propChg) );
     nmstylefld_->selectionChanged.notify(
 	    mCB(this,uiWellTrackDispProperties,propChg) );
+    nmsizedynamicfld_->activated.notify(
+	mCB(this,uiWellTrackDispProperties,propChg) );
+
 }
 
 
@@ -122,6 +128,7 @@ void uiWellTrackDispProperties::doPutToScreen()
     dispbelowfld_->setChecked( trackprops().dispbelow_ );
     dispabovefld_->setChecked( trackprops().dispabove_ );
     nmsizefld_->box()->setValue( trackprops().font_.pointSize());
+    nmsizedynamicfld_->setChecked( trackprops().nmsizedynamic_ );
 
     int style = trackprops().font_.weight()>FontData::Normal ? 1 : 0;
     if ( trackprops().font_.isItalic() )
@@ -136,6 +143,7 @@ void uiWellTrackDispProperties::doGetFromScreen()
     trackprops().dispbelow_ = dispbelowfld_->isChecked();
     trackprops().dispabove_ = dispabovefld_->isChecked();
     trackprops().font_.setPointSize( nmsizefld_->box()->getValue() );
+    trackprops().nmsizedynamic_ = nmsizedynamicfld_->isChecked();
     const int fontstyle = nmstylefld_->getIntValue();
     const bool bold = fontstyle==1 || fontstyle==3;
     trackprops().font_.setWeight( bold ? FontData::Bold : FontData::Normal );
@@ -184,6 +192,9 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmstylefld_->attach( rightOf, nmsizefld_ );
     nmstylefld_->display( !setup_.onlyfor2ddisplay_ );
 
+    nmsizedynamicfld_ = new uiCheckBox( this, tr("Dynamic") );
+    nmsizedynamicfld_->attach( rightOf, nmstylefld_ );
+
     uiString dlgtxt = tr( "Names color" );
     uiColorInput::Setup csu( mrkprops().color_ ); csu.lbltxt( dlgtxt );
     nmcolfld_ = new uiColorInput( this, csu, dlgtxt.getFullString() );
@@ -217,6 +228,9 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     samecolasmarkerfld_->activated.notify(
 		mCB(this,uiWellMarkersDispProperties,markerFldsChged));
+    nmsizedynamicfld_->activated.notify(
+		mCB(this,uiWellMarkersDispProperties,propChg) );
+
     singlecolfld_->activated.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     singlecolfld_->activated.notify(
@@ -283,6 +297,7 @@ void uiWellMarkersDispProperties::doPutToScreen()
     shapefld_->box()->setCurrentItem( mrkprops().shapeint_ );
     cylinderheightfld_->box()->setValue( mrkprops().cylinderheight_ );
     singlecolfld_->setChecked( mrkprops().issinglecol_ );
+    nmsizedynamicfld_->setChecked( mrkprops().nmsizedynamic_ );
     const int sz = mrkprops().font_.pointSize();
     if ( sz > 0 )
 	nmsizefld_->box()->setValue( sz );
@@ -311,6 +326,7 @@ void uiWellMarkersDispProperties::doGetFromScreen()
     mrkprops().font_.setItalic( fontstyle==2 || fontstyle==3 );
     mrkprops().samenmcol_ = samecolasmarkerfld_->isChecked();
     mrkprops().nmcol_ = nmcolfld_->color();
+    mrkprops().nmsizedynamic_ = nmsizedynamicfld_->isChecked();
     getSelNames();
 }
 

@@ -80,12 +80,14 @@ public:
 			    , dispabove_(true)
 			    , dispbelow_(true)
 			    , font_(10)
+			    , nmsizedynamic_(true)
 			    {}
 
 	virtual const char* subjectName() const	{ return "Track"; }
 
 	bool		dispabove_;
 	bool		dispbelow_;
+	bool		nmsizedynamic_;
 	FontData	font_;
 
     protected:
@@ -105,6 +107,7 @@ public:
 			    , issinglecol_(false)
 			    , font_(10)
 			    , samenmcol_(true)
+			    , nmsizedynamic_(true)
 			    {}
 
 	virtual const char* subjectName() const	{ return "Markers"; }
@@ -116,6 +119,7 @@ public:
 	Color		nmcol_;
 	bool		samenmcol_;
 	BufferStringSet	selmarkernms_;
+	bool		nmsizedynamic_;
 
     protected:
 

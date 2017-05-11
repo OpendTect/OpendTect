@@ -104,6 +104,7 @@ protected:
     uiCheckBox*		dispbelowfld_;
     uiLabeledSpinBox*	nmsizefld_;
     uiComboBox*		nmstylefld_;
+    uiCheckBox*		nmsizedynamicfld_;
 };
 
 
@@ -142,6 +143,7 @@ protected:
     uiLabeledSpinBox*	cylinderheightfld_;
     uiListBox*		displaymarkersfld_;
     bool		is2d_;
+    uiCheckBox*		nmsizedynamicfld_;
 };
 
 
