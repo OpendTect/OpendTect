@@ -57,20 +57,18 @@ bool StatsCalculator::usePar( const IOPar& par )
 TrcKeySampling StatsCalculator::getInputHRg( const TrcKeySampling& hrg ) const
 {
     TrcKeySampling res = hrg;
-    res.start_.inl() = hrg.start_.inl() - res.step_.inl() * stepout_.row();
-    res.start_.crl() = hrg.start_.crl() - res.step_.crl() * stepout_.col();
-    res.stop_.inl() = hrg.stop_.inl() + res.step_.inl() * stepout_.row();
-    res.stop_.crl() = hrg.stop_.crl() + res.step_.crl() * stepout_.col();
+    res.expand( stepout_.row(), stepout_.col() );
+
     return res;
 }
 
 /*
-StepInterval<int> StatsCalculator::getInputZRg(
-				const StepInterval<int>& zrg ) const
+StepInterval<int> StatsCalculator::getInputZRgWithGeom(
+				const StepInterval<int>& zrg,
+				Survey::Geometry::ID geomid ) const
 {
     StepInterval<int> res = zrg;
-    res.start = zrg.start - res.step * nzsampextra_;
-    res.stop = zrg.stop + res.step * nzsampextra_;
+    res.widen( nzsampextra_ );
     return res;
 }
 */

@@ -181,7 +181,8 @@ void VolProc::ChainExecutor::computeComputationScope( Step::ID stepid,
 	    stepoutputhrg = requiredhrg;
 
 	const StepInterval<int> requiredzrg =
-		nextstep->getInputZRg( nextstepzrg );
+		nextstep->getInputZRgWithGeom( nextstepzrg,
+					       nextstephrg.getGeomID() );
 	if ( stepoutputzrg.isUdf() )
 	    stepoutputzrg = requiredzrg;
 	else

@@ -44,20 +44,29 @@ TrcKeySampling Smoother::getInputHRg( const TrcKeySampling& hrg ) const
     const int inlstepout = smoother_->getWindowSize( 0 ) / 2;
     const int crlstepout = smoother_->getWindowSize( 1 ) / 2;
 
-    res.start_.inl() = hrg.start_.inl() - res.step_.inl() * inlstepout;
-    res.start_.crl() = hrg.start_.crl() - res.step_.crl() * crlstepout;
-    res.stop_.inl() = hrg.stop_.inl() + res.step_.inl() * inlstepout;
-    res.stop_.crl() = hrg.stop_.crl() + res.step_.crl() * crlstepout;
+    res.expand( inlstepout, crlstepout );
+
     return res;
 }
 
 
 StepInterval<int> Smoother::getInputZRg( const StepInterval<int>& inrg ) const
 {
+    const Survey::Geometry3D* geomsi =
+		  Survey::GM().getGeometry3D( Survey::GM().default3DSurvID() );
+    const Survey::Geometry::ID geomid = geomsi ? geomsi->getID()
+				      : Survey::GeometryManager::cUndefGeomID();
+
+    return getInputZRgWithGeom( inrg, geomid );
+}
+
+
+StepInterval<int> Smoother::getInputZRgWithGeom( const StepInterval<int>& inrg,
+					 Survey::Geometry::ID geomid ) const
+{
     StepInterval<int> res = inrg;
     const int zstepout =  smoother_->getWindowSize( 2 ) / 2;
-    res.start -= res.step*zstepout;
-    res.stop += res.step*zstepout;
+    res.widen( zstepout );
 
     return res;
 }

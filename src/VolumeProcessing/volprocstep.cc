@@ -255,6 +255,14 @@ StepInterval<int> VolProc::Step::getInputZRg(
 }
 
 
+StepInterval<int> VolProc::Step::getInputZRgWithGeom(
+				const StepInterval<int>& si,
+				Survey::Geometry::ID ) const
+{
+    return si;
+}
+
+
 void VolProc::Step::setInput( InputSlotID slotid,
 			      const RegularSeisDataPack* dc )
 {
