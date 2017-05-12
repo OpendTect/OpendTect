@@ -56,17 +56,17 @@ protected:
     uiGenInput*		freqfld_;
     uiGenInput*		srfld_;
     uiGenInput*		peakamplfld_;
-    
+
     bool		acceptOK(CallBacker*);
 };
 
 
 mExpClass(uiSeis) uiSeisWvltMerge : public uiSeisWvltCreate
-{ mODTextTranslationClass(uiSeisWvltMerge);
+{ mODTextTranslationClass(uiSeisWvltMerge)
 public:
 
     mExpClass(uiSeis) WvltMathFunction : public FloatMathFunction
-    { mODTextTranslationClass(WvltMathFunction);
+    { mODTextTranslationClass(WvltMathFunction)
     public:
 			WvltMathFunction(const Wavelet*);
 
@@ -85,7 +85,9 @@ public:
 protected:
 
     BufferString 	curwvltnm_;
-    int 		maxwvltsize_;			
+    int			maxwvltsize_;
+    StepInterval<float> wvltsampling_;
+
     BufferStringSet	namelist_;
     Wavelet*		stackedwvlt_;
     ObjectSet<WvltMathFunction> wvltfuncset_;
@@ -97,17 +99,17 @@ protected:
     uiLabeledComboBox*	centerchoicefld_;
 
     void 		constructDrawer(bool);
-    void 		clearStackedWvlt(uiFuncSelDraw*);   
-    uiFuncSelDraw* 	getCurrentDrawer(); 
-    void 		centerToMaxEnergyPos(Wavelet&); 
-    void 		centerToMaxAmplPos(Wavelet&); 
-    void 		makeStackedWvlt();    
+    void		clearStackedWvlt(uiFuncSelDraw*);
+    uiFuncSelDraw*	getCurrentDrawer();
+    void		centerToMaxEnergyPos(Wavelet&);
+    void		centerToMaxAmplPos(Wavelet&);
+    void		makeStackedWvlt();
     void 		reloadWvlts();
     void 		reloadFunctions();
 
     bool		acceptOK(CallBacker*);
     void 		centerChged(CallBacker*);
-    void 		funcSelChg(CallBacker*);    
+    void		funcSelChg(CallBacker*);
     void 		reloadAll(CallBacker*);
 };
 

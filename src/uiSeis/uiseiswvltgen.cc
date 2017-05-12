@@ -163,7 +163,6 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
 
     for ( int idx=0; idx<wvltdrawer_.size(); idx++ )
     {
-	wvltdrawer_[idx]->setAsCurrent( curwvltnm );
 	wvltdrawer_[idx]->display( !idx );
 	wvltdrawer_[idx]->funclistselChged.notify(
 				mCB(this,uiSeisWvltMerge,funcSelChg) );
@@ -193,7 +192,7 @@ void uiSeisWvltMerge::funcSelChg( CallBacker* )
     if ( selsz==1 && wd->isSelected( wd->getListSize()-1 ) )
 	return;
 
-    clearStackedWvlt( wd );
+    clearStackedWvlt(0);
     wvltfld_->setSensitive( selsz > 1 );
     if ( selsz <= 1 ) return;
 
@@ -201,14 +200,13 @@ void uiSeisWvltMerge::funcSelChg( CallBacker* )
 }
 
 
-void uiSeisWvltMerge::clearStackedWvlt( uiFuncSelDraw* wd )
+void uiSeisWvltMerge::clearStackedWvlt( uiFuncSelDraw* )
 {
-    if ( stackedwvlt_ )
-    {
-	delete wvltfuncset_.removeSingle( wd->removeLastItem() );
-	wvltset_.removeSingle( wvltset_.size()-1 );
-	delete stackedwvlt_; stackedwvlt_=0;
-    }
+    if ( !stackedwvlt_ )
+	return;
+
+    for ( int idx=0; idx<stackedwvlt_->size(); idx++ )
+	stackedwvlt_->samples()[idx] = 0;
 }
 
 
@@ -217,33 +215,20 @@ void uiSeisWvltMerge::makeStackedWvlt()
     mGetCurDrawer();
     TypeSet<int> selitems;
     wd->getSelectedItems( selitems );
-    const int selsize = selitems.size();
-
-    const char* wvltname = "Stacked Wavelet";
-    stackedwvlt_ = new Wavelet( wvltname );
-    wvltset_ += stackedwvlt_;
-    stackedwvlt_->reSize( maxwvltsize_ );
-    for ( int idx=0; idx<maxwvltsize_; idx++ )
-	stackedwvlt_->samples()[idx] = 0;
+    int selsize = selitems.size();
+    if ( selitems.last() == wvltset_.size()-1 )
+	selsize--;
 
     for ( int selidx=0; selidx<selsize; selidx++ )
     {
-	Wavelet* curwvlt = wvltset_[selitems[selidx]];
-	stackedwvlt_->setSampleRate( curwvlt->sampleRate() );
-	stackedwvlt_->setCenterSample( maxwvltsize_/2 );
 	WvltMathFunction* func = wvltfuncset_[selitems[selidx]];
-	for ( int idx=0; idx<maxwvltsize_; idx++ )
+	for ( int idx=0; idx<=maxwvltsize_; idx++ )
 	{
-	    const int shift = maxwvltsize_%2 ? 1 : 0;
-	    const float coeff = mCast( float, 2*idx-maxwvltsize_ + shift );
-	    const float val = func->getValue( coeff*5*SI().zStep());
+	    const float xval = wvltsampling_.atIndex( idx );
+	    const float val = func->getValue( xval );
 	    stackedwvlt_->samples()[idx] += val/selsize;
 	}
     }
-    WvltMathFunction* stackedfunc = new WvltMathFunction( stackedwvlt_ );
-    wvltfuncset_ += stackedfunc;
-    wd->addFunction( wvltname, stackedfunc, false );
-    wd->setAsCurrent( wvltname );
 }
 
 
@@ -254,23 +239,25 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
     {
 	Wavelet* wvlt = new Wavelet( *wvltset_[wvltidx] );
 	if ( isnormalized ) wvlt->normalize();
-	const int wvltsz = wvlt->size();
+
 	const float minval = wvlt->getExtrValue(false);
 	const float maxval = wvlt->getExtrValue(true);
-	if ( wvltsz > maxwvltsize_ ) maxwvltsize_ = wvltsz;
 	if ( minval < minhght ) minhght = minval;
 	if ( maxval > maxhght ) maxhght = maxval;
 	delete wvlt;
     }
-    const float stopx = SI().zStep()*maxwvltsize_*5;
-    const float startx = -stopx;
-    const StepInterval<float> xaxrg( startx, stopx, ( stopx - startx)/20 );
+
+    StepInterval<float> xaxrg( wvltsampling_ );
     const StepInterval<float> yaxrg( minhght, maxhght, (maxhght-minhght)/8);
 
     uiFunctionDrawer::Setup su; su.name_ = "Wavelet Stacking";
     su.funcrg_ = xaxrg;
-    su.xaxrg_ = xaxrg;		 su.yaxrg_ = yaxrg;
-    su.xaxcaption_ = tr("time (s)"); su.yaxcaption_ = tr("Amplitude");
+    xaxrg.scale( (float)SI().zDomain().userFactor() );
+    su.xaxrg_ = xaxrg;
+    su.yaxrg_ = yaxrg;
+
+    su.xaxcaption_ = tr("Time %1").arg(SI().getUiZUnitString());
+    su.yaxcaption_ = tr("Amplitude");
 
     wvltdrawer_ += new uiFuncSelDraw( this, su );
 }
@@ -288,15 +275,36 @@ void uiSeisWvltMerge::reloadWvlts()
     if ( del.size() < 2 )
     { uiMSG().error( tr("not enough wavelets available") ); return; }
 
+    Interval<float> xrg;
+    float minsampling = mUdf(float);
     for ( int delidx=0; delidx<del.size(); delidx++ )
     {
 	const IOObj* ioobj = del[delidx]->ioobj_;
 	if ( !ioobj ) continue;
 	Wavelet* wvlt = Wavelet::get( ioobj );
 	if ( !wvlt ) continue;
+
 	wvltset_ += wvlt;
+	namelist_.add( ioobj->name() );
+
+	xrg.include( wvlt->samplePositions() );
+	if ( wvlt->sampleRate() < minsampling )
+	    minsampling = wvlt->sampleRate();
+    }
+
+    wvltsampling_.set( xrg.start, xrg.stop, minsampling );
+    maxwvltsize_ = wvltsampling_.nrSteps() + 1;
+
+    for ( int idx=0; idx<wvltset_.size(); idx++ )
+    {
+	Wavelet* wvlt = wvltset_[idx];
+
+	if ( !mIsEqual(wvltsampling_.step,wvlt->sampleRate(),mDefEps) )
+	    wvlt->reSample( wvltsampling_.step );
+
 	if ( normalizefld_->isChecked() )
 	    wvlt->normalize();
+
 	if ( centerfld_->isChecked() )
 	{
 	    if ( centerchoicefld_->box()->currentItem() )
@@ -304,8 +312,17 @@ void uiSeisWvltMerge::reloadWvlts()
 	    else
 		centerToMaxAmplPos( *wvlt );
 	}
-	namelist_.add( ioobj->name() );
     }
+
+    const char* wvltname = "<Stacked Wavelet>";
+    stackedwvlt_ = new Wavelet( wvltname );
+    wvltset_ += stackedwvlt_;
+    namelist_.add( wvltname );
+    stackedwvlt_->reSize( maxwvltsize_ );
+    stackedwvlt_->setSampleRate( wvltsampling_.step );
+    stackedwvlt_->setCenterSample( maxwvltsize_/2 );
+    for ( int idx=0; idx<maxwvltsize_; idx++ )
+	stackedwvlt_->samples()[idx] = 0;
 }
 
 
@@ -316,6 +333,7 @@ void uiSeisWvltMerge::reloadFunctions()
 	for ( int idx=wvltdrawer_[widx]->getListSize()-1; idx>=0; idx-- )
 	    wvltdrawer_[widx]->removeItem( idx );
     }
+
     deepErase( wvltfuncset_ );
     for ( int widx=0; widx<wvltdrawer_.size(); widx++ )
     {
@@ -325,7 +343,10 @@ void uiSeisWvltMerge::reloadFunctions()
 	    wvltdrawer_[widx]->addFunction( namelist_[idx]->buf(),
 					    wvltfuncset_[idx] );
 	}
+
+	wvltdrawer_[widx]->setAsCurrent( namelist_.get(0).buf() );
     }
+
 }
 
 
@@ -337,7 +358,6 @@ void uiSeisWvltMerge::reloadAll( CallBacker* )
     reloadWvlts();
     reloadFunctions();
 
-    wvltdrawer_[normalizefld_->isChecked()]->setAsCurrent( curwvltnm_ );
     funcSelChg( 0 );
     wvltdrawer_[0]->display( !normalizefld_->isChecked() );
     wvltdrawer_[1]->display( normalizefld_->isChecked() );
@@ -406,7 +426,7 @@ uiSeisWvltMerge::WvltMathFunction::WvltMathFunction( const Wavelet* wvlt )
 
 float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 {
-    float x = ( t*0.1f - samppos_.start );
+    float x = t - samppos_.start;
     x /= samppos_.step;
     const int x1 = int(x);
     if ( x1 > size_-1 || x1<0 )

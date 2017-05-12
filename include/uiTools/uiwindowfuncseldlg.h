@@ -49,16 +49,16 @@ public:
     {
 			Setup()
 			    : xaxrg_(-1.2,1.2,0.25)
-			    , yaxrg_(0,1,0.25) 
+			    , yaxrg_(0,1,0.25)
 			    , funcrg_(-1.2,1.2)
 			{}
-					      
+
 	mDefSetupMemb(StepInterval<float>,xaxrg)
-	mDefSetupMemb(StepInterval<float>,yaxrg)	
-	mDefSetupMemb(const char*,name)	
+	mDefSetupMemb(StepInterval<float>,yaxrg)
+	mDefSetupMemb(const char*,name)
 	mDefSetupMemb(uiString,xaxcaption)
 	mDefSetupMemb(uiString,yaxcaption)
-	mDefSetupMemb(Interval<float>,funcrg)	
+	mDefSetupMemb(Interval<float>,funcrg)
     };
 
     mStruct(uiTools) DrawFunction
@@ -75,7 +75,7 @@ public:
 
 			uiFunctionDrawer(uiParent*,const Setup&);
 			~uiFunctionDrawer();
-    
+
     void		addFunction(DrawFunction* f) { functions_ += f; }
     void		clearFunctions(){ deepErase( functions_ ); }
     void		clearFunction(int idx);
@@ -85,7 +85,7 @@ public:
     void 		setFunctionRange(Interval<float>& rg) {funcrg_ = rg;}
     void 		setUpAxis();
 
-    
+
 protected:
 
     Interval<float>  	funcrg_;
@@ -97,7 +97,7 @@ protected:
     uiGraphicsItemGroup* polyitemgrp_;
     ObjectSet<DrawFunction> functions_;
     TypeSet<int> 	selitemsidx_;
-    
+
     void		createLine(DrawFunction*);
     void		setFrame();
 };
@@ -112,23 +112,24 @@ public:
     Notifier<uiFuncSelDraw> funclistselChged;
 
     void		addFunction(const char* nm=0, FloatMathFunction* f=0,
-	    				bool withcolor=true); 
+					bool withcolor=true);
     int			getListSize() const;
     int			getNrSel() const;
     const char*		getCurrentListName() const;
-    void		getSelectedItems(TypeSet<int>&) const; 
+    void		getSelectedItems(TypeSet<int>&) const;
     bool		isSelected(int) const;
-    void		removeItem(int); 
-    int			removeLastItem(); 
-    void		setAsCurrent(const char*); 
+    void		removeItem(int);
+    int			removeLastItem();
+    void		setAsCurrent(const char*);
     void		setSelected(int);
     void		setFunctionRange(Interval<float>);
     void		setAxisRange(Interval<float>);
 
     void		funcSelChg(CallBacker*);
+    void		funcCheckChg(CallBacker*);
 
 protected:
-				
+
     uiFunctionDrawer*	view_;
     uiListBox*		funclistfld_;
     TypeSet<Color>	colors_;
@@ -146,19 +147,19 @@ public:
     void		funcSelChg(CallBacker*);
     const char*		getCurrentWindowName() const;
     void		setCurrentWindowFunc(const char*,float);
-    void		setVariable(float); 
+    void		setVariable(float);
     float		getVariable();
 
 protected:
-				
+
     BufferStringSet	funcnames_;
     float		variable_;
     bool		isfrequency_;
     uiGenInput*		varinpfld_;
     uiFuncSelDraw*	funcdrawer_;
     ObjectSet<WindowFunction>	winfunc_;
-    
-    WindowFunction* 	getWindowFuncByName(const char*); 
+
+    WindowFunction*	getWindowFuncByName(const char*);
 };
 
 #endif

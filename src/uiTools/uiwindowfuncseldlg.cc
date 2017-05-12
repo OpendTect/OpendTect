@@ -171,6 +171,7 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFunctionDrawer::Setup& su )
     funclistfld_->attach( topBorder, 0 );
     funclistfld_->setHSzPol( uiObject::MedVar );
     funclistfld_->selectionChanged.notify( mCB(this,uiFuncSelDraw,funcSelChg) );
+    funclistfld_->itemChosen.notify( mCB(this,uiFuncSelDraw,funcCheckChg) );
 
     view_ = new uiFunctionDrawer( this, su );
     view_->attach( rightOf, funclistfld_ );
@@ -213,7 +214,7 @@ void uiFuncSelDraw::removeItem( int idx )
 }
 
 
-void uiFuncSelDraw::funcSelChg( CallBacker* cb )
+void uiFuncSelDraw::funcCheckChg( CallBacker* cb )
 {
     funclistselChged.trigger();
 
@@ -222,6 +223,16 @@ void uiFuncSelDraw::funcSelChg( CallBacker* cb )
 
     view_->setSelItems( selecteditems );
     view_->draw( cb );
+}
+
+
+void uiFuncSelDraw::funcSelChg(CallBacker *)
+{
+    const int nrchecked = funclistfld_->nrChosen();
+    if ( nrchecked > 1 ) return;
+
+    funclistfld_->chooseAll( false );
+    funclistfld_->setChosen( funclistfld_->currentItem() );
 }
 
 
