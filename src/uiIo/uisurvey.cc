@@ -595,6 +595,32 @@ void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
 }
 
 
+void uiSurvey::updateSurveyNames()
+{
+    surveynames_.erase(); surveydirs_.erase();
+
+    BufferString basedir = dataroot_;
+    if ( basedir.isEmpty() )
+	basedir = GetBaseDataDir();
+    DirList dl( basedir, DirList::DirsOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const BufferString& dirnm = dl.get( idx );
+	const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
+	if ( !File::exists(fp.fullPath()) )
+	    continue;
+
+	IOPar survpar; survpar.read( fp.fullPath(), "Survey Info", true );
+	BufferString survname; survpar.get( sKey::Name(), survname );
+	if ( !survname.isEmpty() )
+	{
+	    surveynames_.add( survname );
+	    surveydirs_.add( dirnm );
+	}
+    }
+}
+
+
 bool uiSurvey::survTypeOKForUser( bool is2d )
 {
     const bool dowarn = (is2d && !SI().has2D()) || (!is2d && !SI().has3D());
@@ -1009,6 +1035,8 @@ void uiSurvey::updateSurvList()
     dirfld_->setEmpty();
     BufferStringSet dirlist; getSurveyList( dirlist, dataroot_ );
     dirfld_->addItems( dirlist );
+//    updateSurveyNames();
+//    dirfld_->addItems( surveynames_ );
 
     if ( dirfld_->isEmpty() )
 	return;

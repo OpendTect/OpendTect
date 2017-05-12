@@ -76,6 +76,8 @@ protected:
     uiSurveyMap*	survmap_;
     IOPar*		impiop_;
     uiSurvInfoProvider*	impsip_;
+    BufferStringSet	surveynames_;
+    BufferStringSet	surveydirs_;
 
     uiLineEdit*		datarootlbl_;
     uiListBox*		dirfld_;
@@ -102,6 +104,7 @@ protected:
     void		selChange(CallBacker*);
     void		updateInfo( CallBacker* )	{ putToScreen(); }
 
+    void		updateSurveyNames();
     void		readSurvInfoFromFile();
     void		setCurrentSurvInfo(SurveyInfo*,bool updscreen=true);
     void		updateDataRootLabel();
