@@ -13,8 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelltiesavedatadlg.h"
 
 #include "createlogcube.h"
-#include "seiscbvs.h"
-#include "seistrctr.h"
 #include "wavelet.h"
 #include "waveletio.h"
 #include "wellextractdata.h"
@@ -28,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uichecklist.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
@@ -43,12 +42,12 @@ namespace WellTie
 {
 
 uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
-    : uiDialog( p, uiDialog::Setup(tr("Save current data"),
-		tr("Check the items to be saved"),
-                mODHelpKey(mWellTieSaveDataDlgHelpID) ) )
+    : uiDialog(p,uiDialog::Setup(tr("Save current data"),
+			tr("Check the items to be saved"),
+			mODHelpKey(mWellTieSaveDataDlgHelpID)))
     , dataserver_(wdserv)
 {
-    setCtrlStyle( RunAndClose );
+    setOkCancelText( uiStrings::sSave(), uiStrings::sClose() );
     const Data& data = dataserver_.data();
 
     uiGroup* loggrp = new uiGroup( this, "Log parameters" );
@@ -59,19 +58,18 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     for ( int idx=cLogShift; idx<data.logset_.size(); idx++)
 	lognms.add( data.logset_.getLog(idx).name() );
 
-    logsfld_ = new uiCheckList( loggrp );
+    logsfld_ = new uiCheckList( loggrp, uiCheckList::Unrel, OD::Horizontal );
     logsfld_->addItems( lognms );
-    logsfld_->attach( alignedBelow, logchk_ );
+    logsfld_->attach( rightOf, logchk_ );
 
     saveasfld_ = new uiGenInput( loggrp, uiStrings::sSaveAs(),
-				BoolInpSpec( true, tr("Log"),
-					     tr("Seismic cube")) );
+			BoolInpSpec(true,tr("Log"),tr("Seismic cube")) );
     saveasfld_->attach( alignedBelow, logsfld_ );
     saveasfld_->valuechanged.notify(
 			mCB(this,uiSaveDataDlg,changeLogUIOutput) );
 
     outputgrp_ = new uiCreateLogCubeOutputSel( loggrp, true );
-    outputgrp_->attach( alignedBelow, saveasfld_ );
+    outputgrp_->attach( leftAlignedBelow, saveasfld_ );
     changeLogUIOutput(0);
 
     uiSeparator* horSepar = new uiSeparator( this );
@@ -80,8 +78,16 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     uiGroup* wvltgrp = new uiGroup( this, "Wavelet parameters" );
     wvltgrp->attach( ensureBelow, horSepar );
 
-    wvltchk_ = new uiCheckBox( wvltgrp, uiStrings::sWavelet() );
-    wvltchk_->activated.notify( mCB(this,uiSaveDataDlg,saveWvltSelCB) );
+    uiString wtxt( uiStrings::sWavelet() ); wtxt.append( ":" );
+    uiLabel* wvltlbl = new uiLabel( wvltgrp, wtxt );
+    wvltlbl->attach( leftBorder );
+
+    uiString txt = tr("Sample interval %1").arg(SI().getUiZUnitString());
+    samplefld_ = new uiGenInput( wvltgrp, txt, FloatInpSpec() );
+    samplefld_->setValue(
+	data.estimatedwvlt_.sampleRate() * SI().zDomain().userFactor() );
+    samplefld_->setElemSzPol( uiObject::Small );
+    samplefld_->attach( ensureBelow, wvltlbl );
 
     IOObjContext ctxt = mIOObjContext(Wavelet);
     ctxt.forread_ = false;
@@ -89,9 +95,9 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
 
     initwvltsel_ = new uiIOObjSel( wvltgrp, ctxt, su );
     initwvltsel_->setInputText( data.initwvlt_.name() );
-    initwvltsel_->attach( alignedBelow, wvltchk_ );
+    initwvltsel_->attach( alignedBelow, samplefld_ );
 
-    su.seltxt_ = tr("Estimated wavelet");
+    su.seltxt_ = tr("Deterministic wavelet");
     estimatedwvltsel_ = new uiIOObjSel( wvltgrp, ctxt, su );
     estimatedwvltsel_->setInputText( data.estimatedwvlt_.name() );
     estimatedwvltsel_->attach( alignedBelow, initwvltsel_ );
@@ -209,18 +215,26 @@ bool uiSaveDataDlg::saveWvlt( bool isestimated )
 	return true;
 
     const Data& data = dataserver_.data();
-    const Wavelet& wvlt = isestimated ? data.estimatedwvlt_ : data.initwvlt_;
+    Wavelet wvlt( isestimated ? data.estimatedwvlt_ : data.initwvlt_ );
     if ( !wvlt.size() && isestimated )
     {
-	uiString msg = tr( "No estimated wavelet yet" );
+	uiString msg = tr( "No deterministic wavelet yet" );
 	msg.append(
-	   tr( "Press 'Display additional information' before saving" ), true );
+	   tr( "Press 'Quality Control' before saving" ), true );
 	mErrRet( msg )
     }
 
     const IOObj* wvltioobj = wvltsel.ioobj();
     if ( !wvltioobj )
 	return false;
+
+    float sr = samplefld_->getFValue();
+    if ( mIsUdf(sr) || sr <= 0 )
+	mErrRet( tr("The sample interval is not valid") )
+
+    sr /= SI().zDomain().userFactor();
+    if ( !mIsEqual(sr,wvlt.sampleRate(),mDefEps) )
+	wvlt.reSample( sr );
 
     if ( !wvlt.put(wvltioobj) )
 	mErrRet( tr( "Cannot write output wavelet" ) )

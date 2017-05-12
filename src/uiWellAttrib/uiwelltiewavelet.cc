@@ -60,13 +60,12 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
 {
     grp->setHSpacing( 40 );
 
-    const Wavelet* initw = wvltset_[0];
-    uiString initwnm = tr("Initial : %1").arg(toUiString(initw->name()));
-    uiString estwnm = tr("Estimated");
+    uiString initwnm = tr("Initial");
+    uiString estwnm = tr("Deterministic");
 
     uiLabel* wvltlbl = new uiLabel( this, tr("Set active Wavelet : "));
-    activewvltfld_ = new uiGenInput(this, uiString::emptyString(),
-                                    BoolInpSpec(true,initwnm,estwnm));
+    activewvltfld_ = new uiGenInput( this, uiString::emptyString(),
+				     BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
     activewvltfld_->valuechanged.notify(
 			 mCB(this, uiWaveletView, activeWvltChanged) );

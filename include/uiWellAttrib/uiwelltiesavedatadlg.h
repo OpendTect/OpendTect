@@ -43,6 +43,7 @@ protected :
     uiCreateLogCubeOutputSel*	outputgrp_;
     uiGenInput*			saveasfld_;
     uiCheckBox*			wvltchk_;
+    uiGenInput*			samplefld_;
     uiIOObjSel*			initwvltsel_;
     uiIOObjSel*			estimatedwvltsel_;
     Server&			dataserver_;

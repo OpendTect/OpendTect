@@ -102,7 +102,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     , wd_(&wdata)
     , setup_(wts)
     , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
-    , estimatedwvlt_(*new Wavelet("Estimated wavelet"))
+    , estimatedwvlt_(*new Wavelet("Deterministic wavelet"))
     , seistrc_(*new SeisTrc)
     , synthtrc_(*new SeisTrc)
     , trunner_(0)
@@ -365,6 +365,7 @@ bool DataWriter::removeLogs( const Well::LogSet& logset ) const
 
 Server::Server( const WellTie::Setup& wts )
     : wellid_(wts.wellid_)
+    , data_(0)
 {
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     mAttachCB( wdmgr_->datadeleted_, Server::wellDataDel );
@@ -403,6 +404,24 @@ void Server::wellDataDel( CallBacker* )
     d2tmgr_->setWD( data_->wd_ );
     hormgr_->setWD( data_->wd_ );
     datawriter_->setWD( data_->wd_ );
+}
+
+
+bool Server::setNewWavelet( const MultiID& mid )
+{
+    if ( !data_ ) return false;
+
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return false;
+
+    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+    if ( !wvlt ) return false;
+
+    wvlt->reSample( Data::cDefSeisSr() );
+    data_->initwvlt_ = *wvlt;
+    data_->initwvlt_.setName( wvlt->name() );
+    const_cast<WellTie::Setup&>(data_->setup()).wvltid_ = mid;
+    return updateSynthetics( data_->initwvlt_ );
 }
 
 
