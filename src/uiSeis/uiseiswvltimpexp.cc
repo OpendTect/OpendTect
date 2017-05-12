@@ -238,7 +238,7 @@ bool uiSeisWvltCopy::acceptOK()
     if ( wvlt->size() < 1 )
 	mErrRet( tr("Empty wavelet") )
 
-    const float fac = scalefld_->getfValue();
+    const float fac = scalefld_->getFValue();
     if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
 	wvlt->transform( 0.f, fac );
 
