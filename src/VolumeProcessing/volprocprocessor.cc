@@ -39,9 +39,19 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
     }
 
     DBKey chainid, outid;
-    if ( !procpars_.get(VolProcessingTranslatorGroup::sKeyChainID(),chainid)
-	    || !procpars_.get("Output.0.Seismic.ID",outid) )
+    PtrMan<IOPar> chainpar = procpars_.subselect( sKey::Chain() );
+    if ( !chainpar &&
+	!procpars_.get(VolProcessingTranslatorGroup::sKeyChainID(),chainid) )
+    {
+	strm << "\nNo Volume Processing chain found\n";
 	return false;
+    }
+
+    if ( !procpars_.get("Output.0.Seismic.ID",outid) )
+    {
+	strm << "\nNo Output ID found\n";
+	return false;
+    }
 
     if ( nrgeoms > 1 )
 	strm << "\nNumber of Geometries to process: " << nrgeoms << od_endl;
@@ -49,7 +59,7 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
     for ( int idx=0; idx<nrgeoms; idx++ )
     {
 	PtrMan<IOPar> geompar = subselpar->subselect( idx );
-	if ( !geompar && nrgeoms > 1 )
+	if ( !geompar && nrgeoms>1 )
 	    return false;
 
 	TrcKeyZSampling tkzs;
@@ -62,8 +72,7 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
 	    strm << "\nProcessing for 3D survey " << geomname << od_endl;
 
 	VolProc::ChainOutput vco;
-	vco.setChainID( chainid );
-	vco.setOutputID( outid );
+	vco.usePar( procpars_ );
 	vco.setTrcKeyZSampling( tkzs );
 	vco.setJobCommunicator( comm );
 	if ( !vco.go(strm) )
@@ -113,5 +122,3 @@ bool VolProc::Processor::run( TaskRunner* tskr )
 
     return nrgeoms ? TaskRunner::execute( tskr, taskgrp ) : false;
 }
-
-
