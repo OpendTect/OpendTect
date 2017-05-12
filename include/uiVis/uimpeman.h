@@ -27,23 +27,7 @@ namespace visSurvey
 }
 
 class uiVisPartServer;
-class Timer;
-
-mClass(uiVis) HorizonTimer : public CallBacker
-{
-public:
-		    HorizonTimer(visSurvey::HorizonDisplay*);
-		    ~HorizonTimer();
-
-    void	    start(int msec);
-
-protected:
-    Timer*			 timer_;
-    visSurvey::HorizonDisplay*	 hordispl_;
-    void	    timerHideLockedCB(CallBacker*);
-
-
-};
+class LockedDisplayTimer;
 
 
 /*! \brief Dialog for tracking properties
@@ -127,8 +111,7 @@ protected:
     void			updatePatchDisplay();
 
     bool			seedpickwason_;
-    TrcKeyZSampling		oldactivevol_;
     bool			sowingmode_;
-
-    HorizonTimer*		hortimer_;
+    TrcKeyZSampling		oldactivevol_;
+    LockedDisplayTimer*		lockeddisplaytimer_;
 };
