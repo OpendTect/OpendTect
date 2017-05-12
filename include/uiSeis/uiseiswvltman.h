@@ -33,6 +33,7 @@ protected:
 
     uiWaveletExtraction*	extrdlg_;
     uiWaveletDispPropDlg*	propdlg_;
+    uiToolButton*		copybut_;
     uiToolButton*		disppropbut_;
     uiToolButton*		revpolbut_;
     uiToolButton*		rotatephbut_;
@@ -51,6 +52,7 @@ protected:
     void			mrgPush(CallBacker*);
     void			extractPush(CallBacker*);
     void			matchPush(CallBacker*);
+    void			copyPush(CallBacker*);
 
     void			getFromOtherSurvey(CallBacker*);
     void			reversePolarity(CallBacker*);

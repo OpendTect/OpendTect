@@ -45,9 +45,8 @@ mDefineInstanceCreatedNotifierAccess(uiSeisWvltMan)
 
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(
-            uiStrings::phrManage(uiStrings::sWavelet(mPlural)),mNoDlgTitle,
-                                     mODHelpKey(mSeisWvltManHelpID) )
-				     .nrstatusflds(1).modal(false),
+		uiStrings::phrManage(uiStrings::sWavelet(mPlural)),mNoDlgTitle,
+		mODHelpKey(mSeisWvltManHelpID) ).nrstatusflds(1).modal(false),
 		   WaveletTranslatorGroup::ioContext() )
     , extrdlg_(0)
     , propdlg_(0)
@@ -55,6 +54,10 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
+    copybut_ = manipgrp->addButton( "copyobj",
+		uiStrings::phrCopy(uiStrings::sWavelet()),
+		mCB(this,uiSeisWvltMan,copyPush) );
+    manipgrp->nextButtonOnNewRowCol();
     manipgrp->addButton( "impfromothsurv", tr("Get from other survey"),
 			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
     disppropbut_ = manipgrp->addButton( "info", mJoinUiStrs(sDisplay(),
@@ -178,6 +181,14 @@ void uiSeisWvltMan::matchPush( CallBacker* )
     uiWaveletMatchDlg dlg( this );
     if ( dlg.go() )
 	selgrp_->fullUpdate( dlg.getDBKey() );
+}
+
+
+void uiSeisWvltMan::copyPush( CallBacker* )
+{
+    uiSeisWvltCopy copydlg( this, curioobj_ );
+    if ( copydlg.go() )
+	selgrp_->fullUpdate( copydlg.getDBKey() );
 }
 
 

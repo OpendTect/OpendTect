@@ -133,8 +133,6 @@ DBKey uiSeisWvltImp::selKey() const
 
 
 // uiSeisWvltExp
-
-
 uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
     : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( uiStrings::sWavelet() ),
 				  mNoDlgTitle,
@@ -191,5 +189,63 @@ bool uiSeisWvltExp::acceptOK()
 
     uiString msg = tr("Wavelet successfully exported."
 	              "\nDo you want to export more Wavelets?");
+    return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
+}
+
+
+
+// uiSeisWvltCopy
+uiSeisWvltCopy::uiSeisWvltCopy( uiParent* p, const IOObj* inioobj )
+    : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sWavelet()),
+		       mNoDlgTitle,mTODOHelpKey))
+{
+    setOkText( uiStrings::sCopy() );
+
+    wvltinfld_ = new uiWaveletIOObjSel( this, true );
+    if ( inioobj )
+	wvltinfld_->setInput( inioobj->key() );
+
+    scalefld_ = new uiGenInput( this, tr("Scale factor for samples"),
+				FloatInpSpec(1) );
+    scalefld_->attach( alignedBelow, wvltinfld_ );
+
+    wvltoutfld_ = new uiWaveletIOObjSel( this, false );
+    wvltoutfld_->attach( alignedBelow, scalefld_ );
+}
+
+
+uiSeisWvltCopy::~uiSeisWvltCopy()
+{
+}
+
+
+DBKey uiSeisWvltCopy::getDBKey() const
+{
+    return wvltoutfld_->key();
+}
+
+
+bool uiSeisWvltCopy::acceptOK()
+{
+    const IOObj* inioobj = wvltinfld_->ioobj();
+    if ( !inioobj ) return false;
+    const IOObj* outioobj = wvltoutfld_->ioobj();
+    if ( !outioobj ) return false;
+
+    RefMan<Wavelet> wvlt = wvltinfld_->getWaveletForEdit();
+    if ( !wvlt )
+	mErrRet( uiStrings::phrCannotRead( uiStrings::sWavelet()) )
+    if ( wvlt->size() < 1 )
+	mErrRet( tr("Empty wavelet") )
+
+    const float fac = scalefld_->getfValue();
+    if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
+	wvlt->transform( 0.f, fac );
+
+    if ( !wvltoutfld_->store(*wvlt,false) )
+	mErrRet( tr("Cannot store wavelet on disk") )
+
+    uiString msg = tr("Wavelet successfully copied."
+		      "\nDo you want to copy more Wavelets?");
     return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
 }

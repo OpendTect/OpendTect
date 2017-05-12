@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 
 class CtxtIOObj;
+class IOObj;
 class uiGenInput;
 class uiWaveletIOObjSel;
 class uiFileInput;
@@ -22,7 +23,7 @@ namespace Table { class FormatDesc; }
 
 
 mExpClass(uiSeis) uiSeisWvltImp : public uiDialog
-{ mODTextTranslationClass(uiSeisWvltImp);
+{ mODTextTranslationClass(uiSeisWvltImp)
 public:
 			uiSeisWvltImp(uiParent*);
 			~uiSeisWvltImp();
@@ -44,7 +45,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisWvltExp : public uiDialog
-{ mODTextTranslationClass(uiSeisWvltExp);
+{ mODTextTranslationClass(uiSeisWvltExp)
 public:
 			uiSeisWvltExp(uiParent*);
 
@@ -53,6 +54,25 @@ protected:
     uiWaveletIOObjSel*	wvltfld_;
     uiFileInput*	outpfld_;
     uiGenInput*		addzfld_;
+
+    bool		acceptOK();
+
+};
+
+
+mExpClass(uiSeis) uiSeisWvltCopy : public uiDialog
+{ mODTextTranslationClass(uiSeisWvltCopy)
+public:
+			uiSeisWvltCopy(uiParent*,const IOObj*);
+			~uiSeisWvltCopy();
+
+    DBKey		getDBKey() const;
+
+protected:
+
+    uiWaveletIOObjSel*	wvltinfld_;
+    uiWaveletIOObjSel*	wvltoutfld_;
+    uiGenInput*		scalefld_;
 
     bool		acceptOK();
 
