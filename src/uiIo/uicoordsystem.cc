@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uicoordsystem.h"
 
+#include "uiconvpos.h"
 #include "uilatlonginp.h"
 #include "latlong.h"
 #include "manobjectset.h"
@@ -39,116 +40,12 @@ uiPositionSystem::uiPositionSystem( uiParent* p, const uiString& caption )
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
 
-class uiLatLong2CoordFileTransDlg : public uiDialog
-{ mODTextTranslationClass(uiLatLong2CoordFileTransDlg)
-public:
-
-uiLatLong2CoordFileTransDlg( uiParent* p, const PositionSystem* ll2c )
-    : uiDialog( p, Setup(tr("Transform file"),
-		     tr("Transform a file, Lat Long <=> X Y"),
-		     mODHelpKey(mLatLong2CoordFileTransDlgHelpID)))
-    , ll2c_(ll2c)
-{
-    uiFileInput::Setup fisu( uiFileDialog::Txt );
-    fisu.forread( true ).exameditable( true );
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()),
-			      fisu );
-
-    tollfld_ = new uiGenInput( this, uiStrings::sTransform(),
-	    BoolInpSpec( true,
-		tr("X Y to Lat Long"), tr("Lat Long to X Y") ) );
-    tollfld_->attach( alignedBelow, inpfld_ );
-
-    fisu.forread( false ).withexamine( false );
-    outfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()),
-			      fisu );
-    outfld_->attach( alignedBelow, tollfld_ );
-}
-
-
-bool acceptOK()
-{
-    const BufferString inpfnm = inpfld_->fileName();
-    if ( inpfnm.isEmpty() )
-    {
-	mErrRet(uiStrings::phrEnter(mJoinUiStrs(
-				 sInput().toLower(),sFileName().toLower())));
-    }
-
-    if ( !File::exists(inpfnm) )
-    {
-	mErrRet( uiStrings::phrDoesntExist(toUiString(inpfnm)) );
-    }
-
-    const BufferString outfnm = outfld_->fileName();
-    if ( outfnm.isEmpty() )
-    {
-	mErrRet(uiStrings::phrEnter(
-		    mJoinUiStrs(sOutput().toLower(),sFileName().toLower())));
-    }
-
-    od_istream inpstrm( inpfnm );
-    if ( !inpstrm.isOK() )
-    {
-	mErrRet(tr("Empty input file"));
-    }
-
-    od_ostream outstrm( outfnm );
-    if ( !outstrm.isOK() )
-    {
-	mErrRet(uiStrings::phrCannotOpen( toUiString( outfnm ) ) );
-
-    }
-
-    const bool toll = tollfld_->getBoolValue();
-
-    double d1, d2;
-    Coord coord; LatLong ll;
-    while ( inpstrm.isOK() )
-    {
-	mSetUdf(d1); mSetUdf(d2);
-	inpstrm >> d1 >> d2;
-	if ( mIsUdf(d1) || mIsUdf(d2) )
-	    continue;
-
-	if ( toll )
-	{
-	    coord.x_ = d1;
-	    coord.y_ = d2;
-	    if ( !SI().isReasonable(coord) )
-		continue;
-	    ll = ll2c_->toGeographicWGS84( coord );
-	    outstrm << ll.lat_ << od_tab << ll.lng_;
-	}
-	else
-	{
-	    ll.lat_ = d1; ll.lng_ = d2;
-	    coord = ll2c_->fromGeographicWGS84( ll );
-	    if ( !SI().isReasonable(coord) )
-		continue;
-	    outstrm << coord.x_ << od_tab << coord.y_;
-	}
-	if ( !outstrm.isOK() )
-	    break;
-	outstrm << od_endl;
-    }
-
-    return true;
-}
-
-    uiFileInput*			inpfld_;
-    uiGenInput*				tollfld_;
-    uiFileInput*			outfld_;
-    ConstRefMan<PositionSystem>		ll2c_;
-};
-
-
-
 uiPositionSystemSel::uiPositionSystemSel( uiParent* p,
 					      bool onlyorthogonal,
 					      const SurveyInfo* si,
 					      const PositionSystem* fillfrom )
     : uiDlgGroup( p, tr("Coordinate system properties") )
+    , si_(si ? si : &SI())
 {
     uiStringSet names;
     PositionSystem::getSystemNames( onlyorthogonal, names, coordsystempars_ );
@@ -187,6 +84,7 @@ uiPositionSystemSel::uiPositionSystemSel( uiParent* p,
     {
 	coordsystemsel_ = new uiGenInput( this, tr("Coordinate system"),
 				      StringListInpSpec(names) );
+	coordsystemsel_->attach( leftBorder );
 	mAttachCB( coordsystemsel_->valuechanged,
 	       uiPositionSystemSel::systemChangedCB);
     }
@@ -228,21 +126,6 @@ void uiPositionSystemSel::systemChangedCB(CallBacker *)
 	if ( coordsystemsuis_[idx] )
 	    coordsystemsuis_[idx]->display(idx==selidx);
     }
-}
-
-
-void uiPositionSystemSel::convertFileCB(CallBacker *)
-{
-    const int selidx = coordsystemsel_ ? coordsystemsel_->getIntValue() : 0;
-
-    if ( coordsystemsuis_[selidx]->acceptOK() )
-	return;
-
-    ConstRefMan<PositionSystem> system =
-	coordsystemsuis_[selidx]->outputSystem();
-
-    uiLatLong2CoordFileTransDlg dlg( this, system );
-    dlg.go();
 }
 
 
@@ -477,12 +360,7 @@ uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
 
     coordfld_ = new uiGenInput( this, tr("Coordinate in or near survey"),
 				DoubleInpSpec(), DoubleInpSpec() );
-/*    uiToolButton* tb = new uiToolButton( this, "xy2ll",
-			    tr("Transform file from/to lat long"),
-			    mCB(this,uiLatLong2CoordDlg,transfFile) );
-    tb->attach( rightTo, coordfld_ );
-    tb->attach( rightBorder );
-*/
+
     latlngfld_ = new uiLatLongInp( this );
     latlngfld_->attach( alignedBelow, coordfld_ );
     new uiLabel( this, tr("Corresponds to"), latlngfld_ );

@@ -62,12 +62,13 @@ public:
 
 private:
 
-    void			convertFileCB(CallBacker*);
     void			systemChangedCB(CallBacker*);
+
     uiGenInput*			coordsystemsel_;
     uiLabel*			coordsystemdesc_;
     ObjectSet<uiPositionSystem> coordsystemsuis_;
     ManagedObjectSet<IOPar>	coordsystempars_;
+    const SurveyInfo*		si_;
 
     RefMan<PositionSystem>	outputsystem_;
 };

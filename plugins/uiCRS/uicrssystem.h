@@ -11,13 +11,18 @@ ________________________________________________________________________
 
 #include "uicrsmod.h"
 #include "uicoordsystem.h"
+#include "uidialog.h"
 #include "crssystem.h"
 
+class uiFileInput;
 class uiListBox;
 class uiLineEdit;
+class uiLatLongInp;
 
 namespace Coords
 {
+
+class uiConvertGeographicPos;
 
 mExpClass(uiCRS) uiProjectionBasedSystem : public uiPositionSystem
 { mODTextTranslationClass(uiProjectionBasedSystem);
@@ -36,6 +41,8 @@ protected:
     uiListBox*		projselfld_;
     uiLineEdit*		searchfld_;
 
+    uiConvertGeographicPos*	convdlg_;
+
     TypeSet<ProjectionID>	ids_;
     BufferStringSet		names_;
     int				curselidx_;
@@ -46,8 +53,42 @@ protected:
     void		fetchList();
     void		fillList();
     void		setCurrent();
+    void		selChgCB(CallBacker*);
+    void		convCB(CallBacker*);
     void		searchCB(CallBacker*);
 
+};
+
+
+mExpClass(uiCRS) uiConvertGeographicPos : public uiDialog
+{ mODTextTranslationClass(uiConvertGeographicPos);
+
+public:
+                        uiConvertGeographicPos(uiParent*,
+					ConstRefMan<PositionSystem>,
+					const Coord& initialpos);
+
+    void		setCoordSystem(ConstRefMan<PositionSystem>);
+
+private:
+
+    ConstRefMan<PositionSystem>	coordsystem_;
+
+    uiGenInput*		ismanfld_;
+    uiGroup*		mangrp_;
+    uiGroup*		filegrp_;
+    uiGenInput*		dirfld_;
+    uiGenInput*		xfld_;
+    uiGenInput*		yfld_;
+    uiLatLongInp*	latlngfld_;
+    uiFileInput*	inpfilefld_;
+    uiFileInput*	outfilefld_;
+
+    void		finaliseCB(CallBacker*);
+    void		selChg(CallBacker*);
+    void		applyCB(CallBacker*);
+    void		convPos();
+    void		convFile();
 };
 
 } //Namespace

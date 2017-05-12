@@ -10,7 +10,14 @@ ________________________________________________________________________
 
 #include "uicrssystem.h"
 
+#include "oddirs.h"
+#include "od_iostream.h"
 #include "sorting.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
+#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uilatlonginp.h"
 #include "uilistbox.h"
 #include "uilineedit.h"
 #include "uimsg.h"
@@ -24,9 +31,12 @@ using namespace Coords;
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     : uiPositionSystem( p,sFactoryDisplayName() )
     , curselidx_(-1)
+    , convdlg_(0)
 {
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select projection") );
     projselfld_ = new uiListBox( this, su, "ProjectionList" );
+    projselfld_->selectionChanged.notify(
+	    			mCB(this,uiProjectionBasedSystem,selChgCB) );
 
     uiButton* searchbut = new uiToolButton( projselfld_, "search", tr("Search"),
 	    			mCB(this,uiProjectionBasedSystem,searchCB) );
@@ -37,6 +47,12 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     searchfld_->attach( leftOf, searchbut );
     searchfld_->editingFinished.notify(
 	    			mCB(this,uiProjectionBasedSystem,searchCB) );
+
+    uiToolButton* tb = new uiToolButton( projselfld_, "xy2ll",
+			tr("Transform XY from/to lat long"),
+			mCB(this,uiProjectionBasedSystem,convCB) );
+    tb->attach( rightTo, projselfld_->box() );
+    tb->attach( rightBorder );
 
     setHAlignObj( projselfld_ );
     fetchList();
@@ -146,8 +162,205 @@ bool uiProjectionBasedSystem::acceptOK()
 	return false;
 
     const ProjectionID pid = ids_[dispidxs_[selidx]];
-    RefMan<ProjectionBasedSystem> res = new ProjectionBasedSystem();
+    RefMan<ProjectionBasedSystem> res = new ProjectionBasedSystem;
     res->setProjection( pid );
     outputsystem_ = res;
     return true;
 }
+
+
+void uiProjectionBasedSystem::selChgCB( CallBacker* )
+{
+    if ( !convdlg_ || !acceptOK() )
+	return;
+
+    convdlg_->setCoordSystem( outputsystem_ );
+}
+
+
+void uiProjectionBasedSystem::convCB( CallBacker* )
+{
+    if ( !acceptOK() )
+	return;
+
+    if ( !convdlg_ )
+    {
+	const TrcKeyZSampling survtkzs = si_->sampling( true );
+	const Coord centerpos = survtkzs.hsamp_.center().getCoord();
+	convdlg_ = new uiConvertGeographicPos( this, outputsystem_, centerpos );
+    }
+
+    convdlg_->go();
+}
+
+
+static BufferString lastinpfile;
+static BufferString lastoutfile;
+
+uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
+				ConstRefMan<Coords::PositionSystem> coordsystem,
+				const Coord& initialpos )
+	: uiDialog(p, uiDialog::Setup(tr("Convert Geographical Positions"),
+		   mNoDlgTitle, mODHelpKey(mConvertPosHelpID)).modal(false))
+	, coordsystem_(coordsystem)
+{
+    dirfld_ = new uiGenInput( this, tr("Direction"),
+	          BoolInpSpec(true,tr("X/Y to Lat/Lng"),tr("Lat/Lng to X/Y")) );
+
+    ismanfld_ = new uiGenInput( this, tr("Conversion"),
+	           BoolInpSpec(true,uiStrings::sManual(),uiStrings::sFile()) );
+    ismanfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,selChg) );
+    ismanfld_->attach( alignedBelow, dirfld_ );
+
+    mangrp_ = new uiGroup( this, "Manual group" );
+    uiGroup* xygrp = new uiGroup( mangrp_, "XY group" );
+    xfld_ = new uiGenInput( xygrp, tr("X-coordinate"),
+			   DoubleInpSpec().setName("X-field") );
+    xfld_->setElemSzPol( uiObject::Medium );
+    xfld_->setValue( initialpos.x_ );
+    yfld_ = new uiGenInput( xygrp, tr("Y-coordinate"),
+			   DoubleInpSpec().setName("Y-field") );
+    yfld_->setElemSzPol( uiObject::Medium );
+    yfld_->setValue( initialpos.y_ );
+    yfld_->attach( alignedBelow, xfld_ );
+    xygrp->setHAlignObj( xfld_ );
+
+    latlngfld_ = new uiLatLongInp( mangrp_ );
+    latlngfld_->attach( alignedBelow, xygrp );
+
+    mangrp_->attach( alignedBelow, ismanfld_ );
+
+    filegrp_ = new uiGroup( this, "File group" );
+    uiFileInput::Setup fipsetup( lastinpfile );
+    fipsetup.forread(true).withexamine(true)
+	    .examstyle(File::Table).defseldir(GetDataDir());
+    inpfilefld_ = new uiFileInput( filegrp_, uiStrings::phrInput(
+					   uiStrings::sFile()), fipsetup );
+
+    fipsetup.fnm = lastoutfile;
+    fipsetup.forread(false).withexamine(false);
+    outfilefld_ = new uiFileInput( filegrp_, uiStrings::phrOutput(
+					   uiStrings::sFile()), fipsetup );
+    outfilefld_->attach( alignedBelow, inpfilefld_ );
+    filegrp_->setHAlignObj( inpfilefld_ );
+    filegrp_->attach( alignedBelow, ismanfld_ );
+
+    uiPushButton* convbut = new uiPushButton( this, tr("Convert"),
+	    		mCB(this,uiConvertGeographicPos,applyCB), true );
+    convbut->attach( centeredBelow, mangrp_ );
+
+    setCtrlStyle( CloseOnly );
+    postFinalise().notify( mCB(this,uiConvertGeographicPos,finaliseCB) );
+}
+
+
+void uiConvertGeographicPos::finaliseCB( CallBacker* )
+{
+    selChg(0);
+    convPos();
+}
+
+
+void uiConvertGeographicPos::setCoordSystem(
+				ConstRefMan<Coords::PositionSystem> newsys )
+{
+    coordsystem_ = newsys;
+    convPos();
+}
+
+
+void uiConvertGeographicPos::selChg( CallBacker* )
+{
+    const bool isman = ismanfld_->getBoolValue();
+    mangrp_->display( isman );
+    filegrp_->display( !isman );
+}
+
+
+void uiConvertGeographicPos::applyCB( CallBacker* )
+{
+    if ( !coordsystem_ || !coordsystem_->geographicTransformOK() )
+	return;
+
+    const bool isman = ismanfld_->getBoolValue();
+    if ( isman )
+	convPos();
+    else
+	convFile();
+}
+
+
+void uiConvertGeographicPos::convPos()
+{
+    const bool tolatlong = dirfld_->getBoolValue();
+    if ( tolatlong )
+    {
+	const Coord inpcoord( xfld_->getDValue(), yfld_->getDValue() );
+	if ( inpcoord.isUdf() ) return;
+	const LatLong outputpos = coordsystem_->toGeographicWGS84( inpcoord );
+	latlngfld_->set( outputpos );
+    }
+    else
+    {
+	LatLong inputpos;
+	latlngfld_->get( inputpos );
+	if ( !inputpos.isDefined() ) return;
+	const Coord ouputcoord = coordsystem_->fromGeographicWGS84( inputpos );
+	xfld_->setValue( ouputcoord.x_ );
+	yfld_->setValue( ouputcoord.y_ );
+    }
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return; }
+
+void uiConvertGeographicPos::convFile()
+{
+    const BufferString inpfnm = inpfilefld_->fileName();
+
+    od_istream istream( inpfnm );
+    if ( !istream.isOK() )
+	mErrRet(tr("Input file is not readable") );
+
+    const BufferString outfnm = outfilefld_->fileName();
+    od_ostream ostream( outfnm );
+    if ( !ostream.isOK() )
+    { mErrRet(uiStrings::sCantOpenOutpFile()); }
+
+    lastinpfile = inpfnm; lastoutfile = outfnm;
+
+    BufferString linebuf; Coord c;
+    const bool toll = dirfld_->getBoolValue();
+    double d1, d2;
+    Coord coord; LatLong ll;
+    while ( istream.isOK() )
+    {
+	mSetUdf(d1); mSetUdf(d2);
+	istream >> d1 >> d2;
+	if ( mIsUdf(d1) || mIsUdf(d2) )
+	    continue;
+
+	if ( toll )
+	{
+	    coord.x_ = d1;
+	    coord.y_ = d2;
+	    if ( !SI().isReasonable(coord) )
+		continue;
+	    ll = coordsystem_->toGeographicWGS84( coord );
+	    ostream << ll.lat_ << od_tab << ll.lng_;
+	}
+	else
+	{
+	    ll.lat_ = d1; ll.lng_ = d2;
+	    coord = coordsystem_->fromGeographicWGS84( ll );
+	    if ( !SI().isReasonable(coord) )
+		continue;
+	    ostream << coord.x_ << od_tab << coord.y_;
+	}
+	if ( !ostream.isOK() )
+	    break;
+	ostream << od_endl;
+    }
+}
+
+
