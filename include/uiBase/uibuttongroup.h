@@ -41,6 +41,7 @@ public:
     bool		isFrameDisplayed() const;
     void		setExclusive(bool);
     bool		isExclusive() const;
+    void		nextButtonOnNewRowCol();
 
     int			addButton(uiButton*);
 			//!< Only use if you need ID. Then, set 0 as parent
@@ -51,5 +52,6 @@ protected:
     mQtclass(QButtonGroup*)	qbuttongrp_;
     ObjectSet<uiButton>		uibuts_;
     OD::Orientation		orientation_;
+    bool			newrowcol_;
 
 };
