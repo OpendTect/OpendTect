@@ -50,9 +50,11 @@ void uiCrossHairItem::mouseMoveCB( CallBacker* )
 
 void uiCrossHairItem::setLineStyle( const OD::LineStyle& ls )
 {
+    ls_ = ls;
     horline_->setPenStyle( ls );
     vertline_->setPenStyle( ls );
 }
+
 
 const OD::LineStyle& uiCrossHairItem::getLineStyle() const
 { return ls_; }
@@ -64,14 +66,39 @@ bool uiCrossHairItem::isShown() const
 { return itemgrp_->isVisible(); }
 
 
+void uiCrossHairItem::showLine( OD::Orientation orient, bool yn )
+{
+    uiLineItem* itm = orient==OD::Horizontal ? horline_ : vertline_;
+    itm->setVisible( yn );
+}
 
 
+bool uiCrossHairItem::isLineShown( OD::Orientation orient ) const
+{
+    uiLineItem* itm = orient==OD::Horizontal ? horline_ : vertline_;
+    return itm->isVisible();
+}
+
+
+// uiGraphicsView
 uiGraphicsView::uiGraphicsView( uiParent* p, const char* nm )
     : uiGraphicsViewBase(p,nm)
     , enableimagesave_(true)
 {
     scene_->ctrlPPressed.notify( mCB(this,uiGraphicsView,saveImageCB) );
+    crosshairitem_ = new uiCrossHairItem( *this );
+    crosshairitem_->show( false );
 }
+
+
+uiGraphicsView::~uiGraphicsView()
+{
+    delete crosshairitem_;
+}
+
+
+uiCrossHairItem* uiGraphicsView::getCrossHairItem()
+{ return crosshairitem_; }
 
 
 uiToolButton* uiGraphicsView::getSaveImageButton( uiParent* p )
