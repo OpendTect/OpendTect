@@ -76,14 +76,14 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 
     if ( has3d )
     {
-	mAddBut(tr("Add Cube"),cubeLoadPush,"seismiccube")
+	mAddBut(tr("Load Cube"),cubeLoadPush,"seismiccube")
     }
     if ( has2d )
     {
 	if ( has3d )
-	    mAddBut(tr("Add 2D DataSet"),linesLoadPush,"seismicline2d")
+	    mAddBut(tr("Load 2D DataSet"),linesLoadPush,"seismicline2d")
 	else
-	    mAddBut(tr("Add DataSet"),linesLoadPush,"seismicline2d")
+	    mAddBut(tr("Load DataSet"),linesLoadPush,"seismicline2d")
     }
     if ( has3d )
     {
@@ -102,10 +102,10 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     }
     mAddBut(tr("Unload Checked"),unloadPush,"unload");
 
-    uiToolButton* savetb = new uiToolButton( topgrp, "save",
+    uiToolButton* savetb = new uiToolButton( listfld_, "save",
 	    tr("Save pre-loads"), mCB(this,uiSeisPreLoadMgr,savePush) );
-    savetb->attach( rightAlignedBelow, listfld_ );
-    uiToolButton* opentb = new uiToolButton( topgrp, "open",
+    savetb->attach( rightAlignedAbove, listfld_->box() );
+    uiToolButton* opentb = new uiToolButton( listfld_, "open",
 	    tr("Retrieve pre-loads"), mCB(this,uiSeisPreLoadMgr,openPush) );
     opentb->attach( leftOf, savetb );
 
@@ -145,7 +145,10 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     const int selidx = listfld_->currentItem();
     const ObjectSet<PreLoadDataEntry>& entries = PLDM().getEntries();
     if ( !entries.validIdx(selidx) )
-	{ infofld_->setText(""); return; }
+    {
+	infofld_->setText( "No pre-loaded seismics" );
+	return;
+    }
 
     const DBKey mid = entries[selidx]->dbkey_;
     SeisIOObjInfo ioinf( mid );
