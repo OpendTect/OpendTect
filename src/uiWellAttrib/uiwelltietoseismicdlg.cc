@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiseiswvltsel.h"
 #include "uiseparator.h"
 #include "uistatusbar.h"
 #include "uistrings.h"
@@ -60,19 +61,19 @@ const WellTie::Setup& uiTieWin::welltieSetup() const
 }
 
 uiTieWin::uiTieWin( uiParent* p, Server& wts )
-	: uiFlatViewMainWin(p,
-			    uiFlatViewMainWin::Setup(uiString::emptyString())
-			    .deleteonclose(false))
-	, server_(wts)
-	, stretcher_(*new EventStretch(server_.pickMgr(),server_.d2TModelMgr()))
-	, controlview_(0)
-	, infodlg_(0)
-	, params_(server_.dispParams())
+    : uiFlatViewMainWin(p,
+			uiFlatViewMainWin::Setup(uiString::emptyString())
+			.deleteonclose(false))
+    , server_(wts)
+    , stretcher_(*new EventStretch(server_.pickMgr(),server_.d2TModelMgr()))
+    , controlview_(0)
+    , infodlg_(0)
+    , params_(server_.dispParams())
 {
     drawer_ = new uiTieView( this, &viewer(), server_.data() );
     drawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
     server_.pickMgr().pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
-    server_.setTaskRunner( new uiTaskRunner( p ) );
+    server_.setTaskRunner( new uiTaskRunner(p) );
 
     mGetWD(return)
     uiString title = tr("Tie %1 to %2").arg(toUiString(wd->name()))
@@ -133,15 +134,15 @@ void uiTieWin::displayUserMsg( CallBacker* )
 		      "the 'Apply Changes' button to compute a new depth/time "
 		      "model and to re-extract the data.\n"
 		      "Repeat the picking operation if needed.\n"
-		      "To cross-check your operation, press the 'Display "
-		      "additional information' button.\n\n"
+		      "To cross-check your operation, press the 'Quality "
+		      "Control' button.\n\n"
 		      "Press 'OK/Save' to store your new depth/time model.");
 
     uiMSG().message( msg );
 }
 
 
-void uiTieWin::doWork( CallBacker* cb )
+void uiTieWin::doWork( CallBacker* )
 {
     drawer_->enableCtrlNotifiers( false );
     const Wavelet& wvlt = infodlg_ ? infodlg_->getWavelet()
@@ -263,9 +264,14 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 	eventtypefld_->box()->addItem( toUiString(eventtypes[idx]->buf()) );
 
     eventtypefld_->box()->setCurrentItem( server_.pickMgr().getEventType() );
+    eventtypefld_->box()->selectionChanged.notify(
+				mCB(this,uiTieWin,eventTypeChg) );
 
-    eventtypefld_->box()->selectionChanged.
-	notify(mCB(this,uiTieWin,eventTypeChg));
+    IntInpSpec iis( 5 );
+    iis.setLimits( StepInterval<int>(1,99,2) );
+    nrtrcsfld_ = new uiGenInput( taskgrp, tr("Nr Traces"), iis );
+    nrtrcsfld_->valuechanging.notify( mCB(this,uiTieWin,nrtrcsCB) );
+    nrtrcsfld_->attach( alignedBelow, eventtypefld_ );
 
     applybut_ = new uiPushButton( taskgrp, tr("Apply Changes"),
 	   mCB(this,uiTieWin,applyPushed), true );
@@ -292,7 +298,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 		       mCB(this,uiTieWin,matchHorMrks), true );
     matchhormrksbut_->attach( rightBorder );
 
-    infobut_ = new uiPushButton( taskgrp, tr("Display additional information"),
+    infobut_ = new uiPushButton( taskgrp, tr("Quality Control"),
 	               mCB(this,uiTieWin,infoPushed), false );
     infobut_->attach( ensureBelow, applybut_ );
     infobut_->attach( leftOf, matchhormrksbut_ );
@@ -314,6 +320,11 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     const CallBack pccb( mCB(this,uiTieWin,dispPropChg) );
     zintimefld_->activated.notify( pccb );
     zinftfld_->activated.notify( pccb );
+
+    wvltfld_ = new uiSeisWaveletSel( dispgrp, "Wavelet", false, false );
+    wvltfld_->setInput( server_.data().setup().wvltid_ );
+    wvltfld_->newSelection.notify( mCB(this,uiTieWin,wvltSelCB) );
+    wvltfld_->attach( rightTo, zintimefld_ );
 }
 
 
@@ -336,9 +347,9 @@ void uiTieWin::dispPropChg( CallBacker*cb )
     getDispParams();
     if ( cb == zintimefld_ )
 	zinftfld_->setChecked( !params_.iszintime_ );
-    else 
+    else
 	zintimefld_->setChecked( !params_.iszinft_ );
-    
+
     reDrawAll(0);
 }
 
@@ -379,10 +390,12 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
 }
 
 
-bool uiTieWin::saveDataPushed( CallBacker* cb )
+bool uiTieWin::saveDataPushed( CallBacker* )
 {
     uiSaveDataDlg dlg( this, server_ );
-    return dlg.go();
+    dlg.go();
+    wvltfld_->rebuildList();
+    return true;
 }
 
 
@@ -491,8 +504,30 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 }
 
 
+void uiTieWin::nrtrcsCB( CallBacker* )
+{
+    const int nrtrcs = nrtrcsfld_->getIntValue();
+    drawer_->setNrTrcs( nrtrcs );
+}
+
+
+void uiTieWin::wvltSelCB( CallBacker* )
+{
+    const PtrMan<Wavelet> selwvlt = wvltfld_->getWavelet();
+    if ( !selwvlt ) return;
+
+    if ( !server_.setNewWavelet(wvltfld_->getID()) )
+	mErrRet( server_.errMsg() )
+
+    drawer_->redrawViewer();
+
+    if ( infodlg_ )
+	infodlg_->updateInitialWavelet();
+}
+
+
 bool uiTieWin::rejectOK( CallBacker* )
-{   
+{
     drawer_->enableCtrlNotifiers( false );
     close();
     return true;
@@ -503,8 +538,8 @@ void uiTieWin::cleanUp( CallBacker* )
 {
     server_.d2TModelMgr().cancel();
     if ( Well::MGR().isLoaded( server_.wellID() ) )
-        Well::MGR().reload( server_.wellID() );
-    return;    
+	Well::MGR().reload( server_.wellID() );
+    return;
 }
 
 
@@ -550,7 +585,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	: uiDialog(p,uiDialog::Setup(tr("Cross-checking parameters"),
 				     uiString::emptyString(),
 				     mODHelpKey(mWellTieInfoDlgHelpID) )
-                                     .modal(false))
+				.modal(false))
 	, server_(server)
 	, selidx_(0)
 	, crosscorr_(0)
@@ -568,16 +603,17 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     wvlts += &data_.initwvlt_;
     wvlts += &data_.estimatedwvlt_;
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, wvlts );
-    wvltdraw_->activeWvltChged.notify( mCB(this,WellTie::uiInfoDlg,
-				       wvltChanged) );
+    wvltdraw_->activeWvltChged.notify(
+		mCB(this,WellTie::uiInfoDlg,wvltChanged) );
     wvltdraw_->setActiveWavelet( true );
+
     wvltscaler_ = new uiLabel( wvltgrp, uiStrings::sEmptyString() );
     wvltscaler_->attach( leftAlignedBelow, wvltdraw_ );
     const int initwvltsz = data_.initwvlt_.size() - 1;
     const int maxwvltsz = mNINT32( server_.data().getTraceRange().width() *
 				   SI().zDomain().userFactor() );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,
-				       tr("Estimated wavelet length (ms)"),
+				       tr("Deterministic wavelet length (ms)"),
 	IntInpSpec(initwvltsz,mMinWvltLength,maxwvltsz) );
     estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
     estwvltlengthfld_->setElemSzPol( uiObject::Small );
@@ -652,6 +688,14 @@ uiInfoDlg::~uiInfoDlg()
 {
     delete crosscorr_;
     delete wvltdraw_;
+}
+
+
+void uiInfoDlg::updateInitialWavelet()
+{
+    computeNewWavelet();
+    server_.computeCrossCorrelation();
+    drawData();
 }
 
 

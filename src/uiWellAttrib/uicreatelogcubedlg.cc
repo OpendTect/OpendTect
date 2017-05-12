@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uimultiwelllogsel.h"
-#include "uiseparator.h"
 #include "uispinbox.h"
 #include "uitaskrunner.h"
 #include "uistring.h"
@@ -94,22 +93,17 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
     repeatfld_->box()->setInterval( 0, 20, 1 );
     repeatfld_->box()->setValue( 1 );
 
-    uiSeparator* sep = new uiSeparator( this, "Save Separ" );
-    sep->attach( stretchedBelow, repeatfld_ );
-
-    uiGroup* outputgrp = new uiGroup( this, "Output name group" );
-    outputgrp->attach( ensureBelow, sep );
-
-    uiLabel* savelbl = new uiLabel( outputgrp,
-			       uiStrings::phrOutput(uiStrings::sName()) );
-    savesuffix_ = new uiGenInput( outputgrp, tr("with suffix"), "log cube" );
+    uiLabel* savelbl = new uiLabel( this,
+			uiStrings::phrOutput(uiStrings::sName()) );
+    savelbl->attach( leftAlignedBelow, repeatfld_ );
+    savesuffix_ = new uiGenInput( this, tr("with suffix"), "log cube" );
     savesuffix_->setWithCheck( true );
     savesuffix_->setChecked( true );
     savesuffix_->attach( rightOf, savelbl );
 
     if ( withwllnm )
     {
-	savewllnmfld_ = new uiCheckBox( outputgrp, tr("With well name") );
+	savewllnmfld_ = new uiCheckBox( this, tr("With well name") );
 	savewllnmfld_->setChecked( true );
 	savewllnmfld_->attach( rightOf, savesuffix_ );
     }

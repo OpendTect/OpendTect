@@ -42,22 +42,31 @@ namespace WellTie
 {
 
 uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
-	: vwr_(vwr)
-	, parent_(p)
-	, trcbuf_(*new SeisTrcBuf(true))
-	, params_(data.dispparams_)
-	, data_(data)
-	, synthpickset_(data.pickdata_.synthpicks_)
-	, seispickset_(data.pickdata_.seispicks_)
-	, zrange_(data.getTraceRange())
-	, checkshotitm_(0)
-	, wellcontrol_(0)
-	, seisdp_(0)
-	, infoMsgChanged(this)
+    : vwr_(vwr)
+    , parent_(p)
+    , trcbuf_(*new SeisTrcBuf(true))
+    , params_(data.dispparams_)
+    , data_(data)
+    , synthpickset_(data.pickdata_.synthpicks_)
+    , seispickset_(data.pickdata_.seispicks_)
+    , zrange_(data.getTraceRange())
+    , checkshotitm_(0)
+    , wellcontrol_(0)
+    , seisdp_(0)
+    , nrtrcs_(5)
+    , infoMsgChanged(this)
 {
     initFlatViewer();
     initLogViewers();
     initWellControl();
+
+    linelog1_ = logsdisp_[0]->scene().addItem( new uiLineItem );
+    linelog2_ = logsdisp_[1]->scene().addItem( new uiLineItem );
+    lineseis_ = vwr_->rgbCanvas().scene().addItem( new uiLineItem );
+    OD::LineStyle ls( OD::LineStyle::Dot, 1, Color::Black() );
+    linelog1_->setPenStyle( ls );
+    linelog2_->setPenStyle( ls );
+    lineseis_->setPenStyle( ls );
 }
 
 
@@ -65,6 +74,13 @@ uiTieView::~uiTieView()
 {
     delete wellcontrol_;
     delete &trcbuf_;
+}
+
+
+void uiTieView::setNrTrcs( int nrtrcs )
+{
+    nrtrcs_ = nrtrcs > 0 ? nrtrcs : 5;
+    redrawViewer();
 }
 
 
@@ -126,6 +142,8 @@ void uiTieView::initLogViewers()
 	logsdisp_[idx]->setPrefWidth( vwr_->prefHNrPics()/2 );
 	logsdisp_[idx]->setPrefHeight( vwr_->prefVNrPics() );
 	logsdisp_[idx]->disableScrollZoom();
+	logsdisp_[idx]->getMouseEventHandler().movement.notify(
+				mCB(this,uiTieView,mouseMoveCB) );
     }
     logsdisp_[0]->attach( leftOf, logsdisp_[1] );
     logsdisp_[1]->attach( leftOf, vwr_ );
@@ -153,8 +171,10 @@ void uiTieView::initFlatViewer()
     app.annot_.title_ = "Synthetics<--------------------"
 			"------------------------------->Seismics";
     vwr_->viewChanged.notify( mCB(this,uiTieView,zoomChg) );
-    vwr_->rgbCanvas().scene().getMouseEventHandler().movement.notify(
-					mCB( this, uiTieView, setInfoMsg ) );
+    vwr_->getMouseEventHandler().movement.notify(
+				mCB(this,uiTieView,setInfoMsg) );
+    vwr_->getMouseEventHandler().movement.notify(
+				mCB(this,uiTieView,mouseMoveCB) );
 }
 
 
@@ -192,11 +212,10 @@ void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
 }
 
 
-#define mNrTrcs 14
 void uiTieView::drawTraces()
 {
     trcbuf_.erase();
-    const int nrtrcs = mNrTrcs;
+    const int nrtrcs = nrtrcs_*2 + 4;
     for ( int idx=0; idx<nrtrcs; idx++ )
     {
 	const int midtrc = nrtrcs/2-1;
@@ -220,7 +239,6 @@ void uiTieView::setUdfTrc( SeisTrc& trc ) const
     for ( int idx=0; idx<trc.size(); idx++)
 	trc.set( idx, mUdf(float), 0 );
 }
-
 
 
 void uiTieView::setDataPack()
@@ -250,12 +268,12 @@ void uiTieView::zoomChg( CallBacker* )
     const uiWorldRect& curwr = vwr_->curView();
     const float userfac = SI().showZ2UserFactor();
     Interval<float> zrg;
-    		
+
     if ( !params_.iszintime_  && SI().depthsInFeet() )
     {
-	float zrgstart = data_.wd_->d2TModel()->getDah( (float) curwr.top(), 
+	float zrgstart = data_.wd_->d2TModel()->getDah( (float) curwr.top(),
 							  data_.wd_->track() );
-	float zrgstop = data_.wd_->d2TModel()->getDah( (float) curwr.bottom(), 
+	float zrgstop = data_.wd_->d2TModel()->getDah( (float) curwr.bottom(),
 							  data_.wd_->track() );
 	if ( mIsUdf(zrgstop) )
 	{
@@ -265,7 +283,7 @@ void uiTieView::zoomChg( CallBacker* )
 
 	zrgstop = (float) data_.wd_->track().getPos(zrgstop).z;
 
-	zrg.start = zrgstart*mToFeetFactorF; 
+	zrg.start = zrgstart*mToFeetFactorF;
 	zrg.stop = zrgstop*mToFeetFactorF;
     }
     else
@@ -433,6 +451,23 @@ void uiTieView::setInfoMsg( CallBacker* cb )
     }
     CBCapsule<BufferString> caps( infomsg, this );
     infoMsgChanged.trigger( &caps );
+}
+
+
+void uiTieView::mouseMoveCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,mevh,cb)
+    if ( !mevh ) return;
+
+    const MouseEvent& ev = mevh->event();
+    uiRect rect = logDisps()[0]->getViewArea();
+    linelog1_->setLine( rect.left(), ev.y(), rect.right(), ev.y() );
+
+    rect = logDisps()[1]->getViewArea();
+    linelog2_->setLine( rect.left(), ev.y(), rect.right(), ev.y() );
+
+    rect = vwr_->rgbCanvas().getViewArea();
+    lineseis_->setLine( rect.left(), ev.y(), rect.right(), ev.y() );
 }
 
 

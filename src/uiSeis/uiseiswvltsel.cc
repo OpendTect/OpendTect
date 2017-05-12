@@ -33,7 +33,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
     , newSelection(this)
 {
     uiLabeledComboBox* lcb =
-	new uiLabeledComboBox( this, seltxt ? mToUiStringTodo(seltxt) : 
+	new uiLabeledComboBox( this, seltxt ? mToUiStringTodo(seltxt) :
 							uiStrings::sWavelet() );
     nmfld_ = lcb->box();
     uiObject* lastfld = lcb->attachObj();
@@ -41,8 +41,8 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
     if ( withman )
     {
 	uiToolButtonSetup tbsu( "man_wvlt",
-                            uiStrings::phrManage(uiStrings::sWavelet(mPlural)),
-                            mCB(this,uiSeisWaveletSel,startMan) );
+			uiStrings::phrManage(uiStrings::sWavelet(mPlural)),
+			mCB(this,uiSeisWaveletSel,startMan) );
 	uiButton* but;
 	if ( compact )
 	    but = tbsu.getToolButton( this );

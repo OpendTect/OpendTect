@@ -255,6 +255,7 @@ public :
     const uiString&		errMsg() const	{ return errmsg_; }
     const uiString&		warnMsg() const { return warnmsg_; }
 
+    bool			setNewWavelet(const MultiID&);
     bool			computeSynthetics(const Wavelet&);
     bool			extractSeismics();
     bool			updateSynthetics(const Wavelet&);

@@ -20,13 +20,14 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class Wavelet;
-class uiGroup;
-class uiToolBar;
+class uiCheckBox;
 class uiGenInput;
-class uiPushButton;
+class uiGroup;
 class uiLabel;
 class uiLabeledComboBox;
-class uiCheckBox;
+class uiPushButton;
+class uiSeisWaveletSel;
+class uiToolBar;
 class uiWellLogDisplay;
 
 namespace Well	 { class Data; }
@@ -71,6 +72,8 @@ protected:
     uiCheckBox*			zintimefld_;
     uiGroup*			vwrgrp_;
     uiLabeledComboBox*		eventtypefld_;
+    uiGenInput*			nrtrcsfld_;
+    uiSeisWaveletSel*		wvltfld_;
     uiPushButton*		infobut_;
     uiPushButton*		applybut_;
     uiPushButton*		undobut_;
@@ -125,6 +128,8 @@ protected:
     void			userDepthsChanged(CallBacker*);
     void			snapshotCB(CallBacker*);
     void			cleanUp(CallBacker*);
+    void			nrtrcsCB(CallBacker*);
+    void			wvltSelCB(CallBacker*);
 
 };
 
@@ -137,13 +142,15 @@ public:
 				uiInfoDlg(uiParent*,Server&);
 				~uiInfoDlg();
 
-    Notifier<uiInfoDlg> redrawNeeded;
+    Notifier<uiInfoDlg>		redrawNeeded;
 
     void			drawData();
     bool			getMarkerDepths(Interval<float>& zrg );
     void			dtmodelChanged(CallBacker*);
     const Wavelet&		getWavelet() const;
     bool			isInitWvltActive() const;
+
+    void			updateInitialWavelet();
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);

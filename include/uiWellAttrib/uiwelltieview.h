@@ -23,17 +23,18 @@ class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcBufDataPack;
 class uiFunctionDisplay;
-class uiPolyLineItem;
-class uiWellLogDisplay;
 class uiLabel;
+class uiLineItem;
+class uiPolyLineItem;
 class uiTextItem;
 class uiWellDisplayControl;
+class uiWellLogDisplay;
 
 namespace Well
 {
     class Data;
     class Marker;
-};
+}
 
 namespace WellTie
 {
@@ -52,18 +53,21 @@ public:
     void			redrawViewerAuxDatas();
     void			redrawLogsAuxDatas();
 
+    void			setNrTrcs(int);
+    int				nrTrcs() const		{ return nrtrcs_; }
+
     void			enableCtrlNotifiers(bool);
 
     ObjectSet<uiWellLogDisplay>& logDisps() { return logsdisp_; }
 
-    Notifier<uiTieView>	infoMsgChanged;
+    Notifier<uiTieView>		infoMsgChanged;
 
 protected:
 
     uiFlatViewer*		vwr_;
     uiParent*			parent_;
     ObjectSet<uiWellLogDisplay> logsdisp_;
-    uiWellDisplayControl*       wellcontrol_;
+    uiWellDisplayControl*	wellcontrol_;
 
     const DispParams&		params_;
     const Data&			data_;
@@ -72,6 +76,7 @@ protected:
     const TypeSet<Marker>&	synthpickset_;
     SeisTrcBuf&			trcbuf_;
     SeisTrcBufDataPack*		seisdp_;
+    int				nrtrcs_;
 
     ObjectSet<FlatView::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::AuxData> wellmarkerauxdatas_;
@@ -79,6 +84,10 @@ protected:
     ObjectSet<uiTextItem>	hortxtnms_;
     ObjectSet<uiTextItem>	mrktxtnms_;
     uiPolyLineItem*		checkshotitm_;
+
+    uiLineItem*			linelog1_;
+    uiLineItem*			linelog2_;
+    uiLineItem*			lineseis_;
 
     void		drawLog(const char*,bool,int,bool);
     void		drawTraces();
@@ -97,6 +106,7 @@ protected:
     void		setDataPack();
     void		setInfoMsg(CallBacker*);
     void		zoomChg(CallBacker*);
+    void		mouseMoveCB(CallBacker*);
 };
 
 
