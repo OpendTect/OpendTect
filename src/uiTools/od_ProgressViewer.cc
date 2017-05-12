@@ -280,13 +280,15 @@ void uiProgressViewer::quitFn( CallBacker* )
 
 bool uiProgressViewer::closeOK()
 {
-    if ( haveProcess() && canTerminate() )
+    if ( haveProcess() )
     {
-	killFn( 0 );
-	return true;
+	if ( !canTerminate() )
+	    return false;
+
+        killFn( 0 );
     }
 
-    return false;
+    return true;
 }
 
 
