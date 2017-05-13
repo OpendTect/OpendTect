@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiocommon.h"
+#include "uitoolsmod.h"
 #include "uigroup.h"
 class LatLong;
 class uiLineEdit;
@@ -17,7 +17,7 @@ class uiRadioButton;
 class uiLatLongDMSInp;
 
 
-mExpClass(uiIo) uiLatLongInp : public uiGroup
+mExpClass(uiTools) uiLatLongInp : public uiGroup
 { mODTextTranslationClass(uiLatLongInp)
 public:
 

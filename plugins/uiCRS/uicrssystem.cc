@@ -60,6 +60,9 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
 }
 
 
+uiProjectionBasedSystem::~uiProjectionBasedSystem()
+{ delete convdlg_; }
+
 bool uiProjectionBasedSystem::initFields( const Coords::PositionSystem* sys )
 {
     mDynamicCastGet( const Coords::ProjectionBasedSystem*, from, sys );

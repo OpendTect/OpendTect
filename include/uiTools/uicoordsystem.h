@@ -24,7 +24,7 @@ class uiCheckBox;
 namespace Coords
 {
 
-mExpClass(uiIo) uiPositionSystem : public uiDlgGroup
+mExpClass(uiTools) uiPositionSystem : public uiDlgGroup
 {
 public:
     mDefineFactory1ParamInClass(uiPositionSystem,uiParent*,factory);
@@ -47,7 +47,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiPositionSystemSelGrp : public uiDlgGroup
+mExpClass(uiTools) uiPositionSystemSelGrp : public uiDlgGroup
 { mODTextTranslationClass(uiPositionSystemSel);
 public:
 				uiPositionSystemSelGrp(uiParent*,
@@ -74,7 +74,7 @@ private:
 };
 
 
-mExpClass(uiIo) uiPositionSystemDlg : public uiDialog
+mExpClass(uiTools) uiPositionSystemDlg : public uiDialog
 { mODTextTranslationClass(uiPositionSystemDlg);
 public:
 			uiPositionSystemDlg(uiParent*,bool orthogonalonly,
@@ -94,7 +94,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiPositionSystemSel : public uiCompoundParSel
+mExpClass(uiTools) uiPositionSystemSel : public uiCompoundParSel
 { mODTextTranslationClass(uiPositionSystemSel);
 public:
 			uiPositionSystemSel(uiParent*,const uiString& seltxt,
@@ -117,7 +117,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiUnlocatedXYSystem : public uiPositionSystem
+mExpClass(uiTools) uiUnlocatedXYSystem : public uiPositionSystem
 { mODTextTranslationClass(uiUnlocatedXYSystem);
 public:
     mDefaultFactoryInstantiation1Param( uiPositionSystem, uiUnlocatedXYSystem,
@@ -138,7 +138,7 @@ protected:
 };
 
 
-mExpClass(uiIo) uiAnchorBasedXYSystem : public uiPositionSystem
+mExpClass(uiTools) uiAnchorBasedXYSystem : public uiPositionSystem
 { mODTextTranslationClass(uiAnchorBasedXYSystem);
 public:
     mDefaultFactoryInstantiation1Param( uiPositionSystem, uiAnchorBasedXYSystem,

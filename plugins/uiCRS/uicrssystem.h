@@ -33,6 +33,7 @@ public:
 				ProjectionBasedSystem::sFactoryDisplayName() );
 
 			uiProjectionBasedSystem(uiParent*);
+			~uiProjectionBasedSystem();
 
     virtual bool	initFields(const PositionSystem*);
 
