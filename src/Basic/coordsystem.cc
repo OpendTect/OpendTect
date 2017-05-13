@@ -125,7 +125,7 @@ RefMan<PositionSystem> PositionSystem::createSystem( const IOPar& par )
 Coord PositionSystem::convert( const Coord& in, const PositionSystem& from,
 		       const PositionSystem& to )
 {
-    const Coord geomwgs84 = from.toGeographicWGS84( in );
+    const LatLong geomwgs84 = from.toGeographicWGS84( in );
     return to.fromGeographicWGS84( geomwgs84 );
 }
 

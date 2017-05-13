@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uicompoundparsel.h"
+#include "uicoordsystem.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilineedit.h"
@@ -40,6 +41,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 		     int nrlns )
     : uiGroup(p,tinf.name())
     , unitfld_(0)
+    , crsfld_(0)
     , tinf_(tinf)
     , formfld_(0)
     , specfld_(0)
@@ -98,6 +100,14 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	    unitfld_->setUnit( tinf_.selection_.unit_->name() );
 	else
 	    unitfld_->setUnit();
+    }
+
+    if ( tinf_.selection_.coordsys_
+	    && tinf_.selection_.coordsys_->isProjection() )
+    {
+	crsfld_ = new Coords::uiPositionSystemSel(this, tr("Coordinate System"),
+					true, true, tinf_.selection_.coordsys_);
+	crsfld_->attach( alignedBelow, rightmostfld_ );
     }
 
     postFinalise().notify( boxcb );
@@ -245,6 +255,9 @@ void boxChg( CallBacker* )
 		colinps[ifld]->display( isselform && isspec );
 	}
     }
+
+    if ( crsfld_ )
+	crsfld_->display( !selformidx );	// When Position is XY.
 }
 
 bool commit()
@@ -328,6 +341,9 @@ bool commit()
     }
 
     tinf_.selection_.unit_ = unitfld_ ? unitfld_->getUnit() : 0;
+    if ( crsfld_ )
+	tinf_.selection_.coordsys_ = crsfld_->getCoordSystem();
+
     return true;
 }
 
@@ -339,6 +355,7 @@ bool commit()
     uiComboBox*				formfld_;
     uiComboBox*				specfld_;
     uiUnitSel*				unitfld_;
+    Coords::uiPositionSystemSel*	crsfld_;
     ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;

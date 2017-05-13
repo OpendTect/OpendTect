@@ -7,6 +7,7 @@
 
 #include "wellimpasc.h"
 
+#include "coordsystem.h"
 #include "idxable.h"
 #include "ioobj.h"
 #include "mathfunc.h"
@@ -35,7 +36,9 @@ static bool convToDah( const Well::Track& trck, float& val,
 Table::FormatDesc* Well::TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    Table::TargetInfo* xyti = Table::TargetInfo::mkHorPosition( true );
+    xyti->selection_.coordsys_ = SI().getCoordSystem();
+    fd->bodyinfos_ += xyti;
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( false );
     zti->setName( "Z (TVDSS)" );
     fd->bodyinfos_ += zti;
@@ -55,6 +58,10 @@ bool Well::TrackAscIO::readTrackData( TypeSet<Coord3>& pos,
 	return false;
 
     const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
+    ConstRefMan<Coords::PositionSystem> inpcrs =
+				fd_.bodyinfos_[0]->selection_.coordsys_;
+    ConstRefMan<Coords::PositionSystem> outcrs = SI().getCoordSystem();
+    const bool needsconv = isxy && inpcrs && outcrs && !(*inpcrs == *outcrs);
     const uiString nozpts = tr("At least one point had neither Z nor MD");
     bool nozptsfound = false;
 
@@ -67,6 +74,9 @@ bool Well::TrackAscIO::readTrackData( TypeSet<Coord3>& pos,
 	Coord3 curpos;
 	curpos.x_ = getDValue(0);
 	curpos.y_ = getDValue(1);
+	if ( needsconv )
+	    curpos.setXY( outcrs->convertFrom(curpos.getXY(),*inpcrs) );
+
 	if ( !isxy && !mIsUdf(curpos.x_) && !mIsUdf(curpos.y_) )
 	{
 	    Coord wc( SI().transform(

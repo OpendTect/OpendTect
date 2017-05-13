@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "propertyref.h"
 
 class UnitOfMeasure;
+namespace Coords { class PositionSystem; }
 
 
 namespace Table
@@ -164,9 +165,10 @@ public:
 	int			form_;
 	TypeSet<Elem>		elems_;
 	const UnitOfMeasure*	unit_;
+	ConstRefMan<Coords::PositionSystem>	coordsys_;
 
 			Selection()
-			    	: form_(0), unit_(0)	{}
+			    	: form_(0), unit_(0), coordsys_(0)	{}
 
 	bool		havePos( int ielem ) const
 			    { return ielem < elems_.size()
@@ -189,7 +191,7 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static TargetInfo*	mkHorPosition( bool isreq, bool withcrs=false )
+    static TargetInfo*	mkHorPosition( bool isreq )
     				{ return mkPos(true,isreq); }
     			//!< form(0)=(X,Y), form(1)=inl/crl
     static TargetInfo*	mkZPosition( bool isreq, bool withunits=true )
