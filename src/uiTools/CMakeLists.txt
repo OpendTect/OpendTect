@@ -30,6 +30,7 @@ set( OD_MODULE_SOURCES
 	uicoltabgraphicsitem.cc
 	uicompparsel.cc
 	uiconstvel.cc
+	uicoordsystem.cc
 	uidirectionalplot.cc
 	uidlggroup.cc
 	uifileinput.cc

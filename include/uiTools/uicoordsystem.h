@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uitoolsmod.h"
 #include "coordsystem.h"
 #include "factory.h"
 #include "uicompoundparsel.h"

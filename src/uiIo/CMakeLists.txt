@@ -15,7 +15,6 @@ set( OD_MODULE_SOURCES
 	uibatchprogs.cc
 	uiclusterjobprov.cc
 	uiconvpos.cc
-	uicoordsystem.cc
 	uicrdevenv.cc
 	uicreatedpspdf.cc
 	uicreatepicks.cc
