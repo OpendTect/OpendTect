@@ -28,7 +28,7 @@ class uiSurvInfoProvider;
 class uiSurveyMap;
 class uiTabStack;
 
-namespace Coords{ class uiPositionSystemSel; }
+namespace Coords{ class uiPositionSystemSelGrp; }
 
 /*!
 \brief The survey info editor.
@@ -85,7 +85,7 @@ protected:
     uiGenInput*		xy0fld_;
     uiGenInput*		xy1fld_;
     uiGenInput*		xy2fld_;
-    Coords::uiPositionSystemSel* latlongsel_;
+    Coords::uiPositionSystemSelGrp* latlongsel_;
 
     uiGroup*		gengrp_;
     uiGroup*		crdgrp_;

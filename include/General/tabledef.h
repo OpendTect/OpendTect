@@ -189,7 +189,7 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static TargetInfo*	mkHorPosition( bool isreq )
+    static TargetInfo*	mkHorPosition( bool isreq, bool withcrs=false )
     				{ return mkPos(true,isreq); }
     			//!< form(0)=(X,Y), form(1)=inl/crl
     static TargetInfo*	mkZPosition( bool isreq, bool withunits=true )

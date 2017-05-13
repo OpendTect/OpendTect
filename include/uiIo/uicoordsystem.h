@@ -9,21 +9,20 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiocommon.h"
+#include "uiiomod.h"
 #include "coordsystem.h"
 #include "factory.h"
+#include "uicompoundparsel.h"
 #include "uidlggroup.h"
 
-class LatLong2Coord;
 class SurveyInfo;
 class uiGenInput;
-class uiLatLongInp;
 class uiLabel;
+class uiLatLongInp;
 class uiCheckBox;
 
 namespace Coords
 {
-
 
 mExpClass(uiIo) uiPositionSystem : public uiDlgGroup
 {
@@ -48,14 +47,15 @@ protected:
 };
 
 
-mExpClass(uiIo) uiPositionSystemSel : public uiDlgGroup
-{ mODTextTranslationClass(uiCoordinateSystemSel);
+mExpClass(uiIo) uiPositionSystemSelGrp : public uiDlgGroup
+{ mODTextTranslationClass(uiPositionSystemSel);
 public:
-				uiPositionSystemSel(uiParent*,
+				uiPositionSystemSelGrp(uiParent*,
 						bool onlyorthogonal,
+						bool onlyprojection,
 						const SurveyInfo*,
 						const Coords::PositionSystem*);
-				~uiPositionSystemSel();
+				~uiPositionSystemSelGrp();
     RefMan<PositionSystem>	outputSystem() { return outputsystem_; }
 				//!<After AcceptOK();
     bool			acceptOK();
@@ -73,6 +73,48 @@ private:
     RefMan<PositionSystem>	outputsystem_;
 };
 
+
+mExpClass(uiIo) uiPositionSystemDlg : public uiDialog
+{ mODTextTranslationClass(uiPositionSystemDlg);
+public:
+			uiPositionSystemDlg(uiParent*,bool orthogonalonly,
+				bool projectiononly,const PositionSystem*);
+			~uiPositionSystemDlg();
+
+    RefMan<PositionSystem> getCoordSystem();
+
+    static bool		ensureLatLongDefined(uiParent*,SurveyInfo* si=0);
+
+protected:
+
+    uiPositionSystemSelGrp* coordsysselfld_;
+
+    bool		acceptOK();
+
+};
+
+
+mExpClass(uiIo) uiPositionSystemSel : public uiCompoundParSel
+{ mODTextTranslationClass(uiPositionSystemSel);
+public:
+			uiPositionSystemSel(uiParent*,const uiString& seltxt,
+					bool orthogonalonly,bool projectiononly,
+					const PositionSystem*);
+
+    RefMan<PositionSystem> getCoordSystem()	{ return coordsystem_; }
+
+protected:
+
+    uiPositionSystemDlg* dlg_;
+
+    RefMan<PositionSystem> coordsystem_;
+    bool		orthogonalonly_;
+    bool		projectiononly_;
+
+    BufferString	getSummary() const;
+    void		selCB(CallBacker*);
+
+};
 
 
 mExpClass(uiIo) uiUnlocatedXYSystem : public uiPositionSystem
@@ -115,7 +157,6 @@ protected:
 
     uiCheckBox*		xyinftfld_;
 
-//    void		transfFile(CallBacker*);
     bool		acceptOK();
 
 };

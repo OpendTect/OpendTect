@@ -27,9 +27,11 @@ public:
 
     				ProjectionBasedSystem();
 
+    virtual PositionSystem*	clone() const;
 
     virtual uiString		description() const
 				{ return tr("Geographical Coordinate System"); }
+    virtual BufferString	summary() const;
 
     virtual bool		isOK() const;
 
@@ -38,6 +40,7 @@ public:
     virtual Coord		fromGeographicWGS84(const LatLong&) const;
 
     virtual bool		isOrthogonal() const;
+    virtual bool		isProjection() const		{ return true; }
     virtual bool		isFeet() const;
     virtual bool		isMeter() const;
 

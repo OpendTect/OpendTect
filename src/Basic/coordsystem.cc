@@ -49,8 +49,8 @@ void PositionSystem::initRepository( NotifierAccess* na )
 }
 
 
-void PositionSystem::getSystemNames( bool orthogonalonly, uiStringSet& strings,
-			     ObjectSet<IOPar>& pars )
+void PositionSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
+				uiStringSet& strings, ObjectSet<IOPar>& pars )
 {
     deepErase( pars );
     strings.setEmpty();
@@ -68,10 +68,11 @@ void PositionSystem::getSystemNames( bool orthogonalonly, uiStringSet& strings,
 	systempar->set( sKeyFactoryName(), factorynames.get(idx) );
 	systempar->set( sKeyUiName(), factoryuinames[idx] );
 
-	if ( orthogonalonly )
+	if ( orthogonalonly || projectiononly )
 	{
 	    RefMan<PositionSystem> system = createSystem( *systempar );
-	    if ( !system || !system->isOrthogonal() )
+	    if ( !system || ( orthogonalonly && !system->isOrthogonal() )
+		    || ( projectiononly && !system->isProjection() ) )
 		continue;
 	}
 
@@ -194,6 +195,14 @@ UnlocatedXY::UnlocatedXY()
 }
 
 
+PositionSystem* UnlocatedXY::clone() const
+{
+    UnlocatedXY* cp = new UnlocatedXY;
+    cp->isfeet_ = isfeet_;
+    return cp;
+}
+
+
 LatLong UnlocatedXY::toGeographicWGS84( const Coord& c ) const
 {
     return LatLong::udf();
@@ -237,8 +246,23 @@ AnchorBasedXY::AnchorBasedXY( const LatLong& l, const Coord& c )
 }
 
 
+PositionSystem* AnchorBasedXY::clone() const
+{
+    AnchorBasedXY* cp = new AnchorBasedXY( reflatlng_, refcoord_ );
+    cp->isfeet_ = isfeet_;
+    return cp;
+}
+
+
 bool AnchorBasedXY::geographicTransformOK() const
 { return !mIsUdf(lngdist_); }
+
+BufferString AnchorBasedXY::summary() const
+{
+    BufferString ret( "Anchor: LL:" );
+    ret.add( reflatlng_.toString() ).add( refcoord_.toPrettyString() );
+    return ret;
+}
 
 
 void AnchorBasedXY::setLatLongEstimate( const LatLong& ll, const Coord& c )
