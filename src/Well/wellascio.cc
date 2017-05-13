@@ -38,7 +38,9 @@ namespace Well
 Table::FormatDesc* TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    Table::TargetInfo* xyti = Table::TargetInfo::mkHorPosition( true );
+    xyti->selection_.coordsys_ = SI().getCoordSystem();
+    fd->bodyinfos_ += xyti;
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( false );
     zti->setName( Well::Info::sKeyTVDSS() );
     fd->bodyinfos_ += zti;
@@ -58,6 +60,10 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	return false;
 
     const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
+    ConstRefMan<Coords::PositionSystem> inpcrs =
+				fd_.bodyinfos_[0]->selection_.coordsys_;
+    ConstRefMan<Coords::PositionSystem> outcrs = SI().getCoordSystem();
+    const bool needsconv = isxy && inpcrs && outcrs && !(*inpcrs == *outcrs);
     const uiString nozpts = tr("At least one point had neither Z nor MD");
     bool nozptsfound = false;
 
@@ -70,6 +76,9 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	Coord3 curpos;
 	curpos.x = getDValue(0);
 	curpos.y = getDValue(1);
+	if ( needsconv )
+	    curpos.coord() = outcrs->convertFrom( curpos.coord(), *inpcrs );
+
 	if ( !isxy && !mIsUdf(curpos.x) && !mIsUdf(curpos.y) )
 	{
 	    Coord wc( SI().transform(

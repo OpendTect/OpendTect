@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+#include "coordsystem.h"
 #include "sets.h"
 #include "rowcol.h"
 #include "namedobj.h"
@@ -20,7 +21,6 @@ ________________________________________________________________________
 #include "propertyref.h"
 
 class UnitOfMeasure;
-
 
 namespace Table
 {
@@ -166,9 +166,10 @@ public:
 	int			form_;
 	TypeSet<Elem>		elems_;
 	const UnitOfMeasure*	unit_;
+	ConstRefMan<Coords::PositionSystem>	coordsys_;
 
 			Selection()
-			    	: form_(0), unit_(0)	{}
+			    	: form_(0), unit_(0), coordsys_(0)	{}
 
 	bool		havePos( int ielem ) const
 			    { return ielem < elems_.size()
