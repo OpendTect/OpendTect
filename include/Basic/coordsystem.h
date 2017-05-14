@@ -41,7 +41,9 @@ public:
 				mDefineFactoryInClass(PositionSystem,factory);
 				//!<Creates the subclasses without settings
 
-    static void			getSystemNames(bool onlyorthogonal,uiStringSet&,
+    static void			getSystemNames(bool onlyorthogonal,
+	    				       bool onlyprojection,
+					       uiStringSet&,
 					       ObjectSet<IOPar>&);
 				/*!Gets a list of coordinate systems and the
 				   corresponding IOPars to create them.
@@ -49,7 +51,10 @@ public:
 
     static RefMan<PositionSystem> createSystem(const IOPar&);
 				//!<Creates subclass with settings
+    virtual PositionSystem*	clone() const				= 0;
+
     virtual uiString		description() const			= 0;
+    virtual BufferString	summary() const				= 0;
 
     virtual bool		isOK() const				= 0;
 
@@ -71,6 +76,7 @@ public:
     virtual Coord		fromString(const char*) const;
 
     virtual bool		isOrthogonal() const			= 0;
+    virtual bool		isProjection() const	{ return false; }
     virtual bool		isFeet() const		{ return false; }
     virtual bool		isMeter() const		{ return false; }
 
@@ -89,9 +95,13 @@ public:
 				 tr("Unlocated XY") );
 
 			UnlocatedXY();
+
+    virtual PositionSystem*	clone() const;
     virtual uiString	description() const
 			{ return
 			   tr("Coordinate system in an undefined projection.");}
+    virtual BufferString	summary() const
+    				{ return sFactoryKeyword(); }
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const	{ return false; }
@@ -121,9 +131,11 @@ public:
 
 			AnchorBasedXY();
 			AnchorBasedXY(const LatLong&,const Coord&);
+    virtual PositionSystem*	clone() const;
     virtual uiString	description() const
 			{ return tr("Coordinate system has an anchor point "
 				    "for which Latitude/Longitude is known");}
+    virtual BufferString	summary() const;
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const;

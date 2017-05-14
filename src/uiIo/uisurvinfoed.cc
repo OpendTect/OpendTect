@@ -862,7 +862,7 @@ bool uiSurveyInfoEditor::xyInFeet() const
 
 void uiSurveyInfoEditor::coordSystemCB( CallBacker* cb )
 {
-    Coords::uiCoordSystemDlg dlg( this, coordsystem_ );
+    Coords::uiPositionSystemDlg dlg( this, true, false, coordsystem_ );
     if ( dlg.go() )
 	coordsystem_ = dlg.getCoordSystem();
 }

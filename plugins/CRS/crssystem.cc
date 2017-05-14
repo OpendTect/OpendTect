@@ -15,6 +15,25 @@ Coords::ProjectionBasedSystem::ProjectionBasedSystem()
 {}
 
 
+Coords::PositionSystem* Coords::ProjectionBasedSystem::clone() const
+{
+    Coords::ProjectionBasedSystem* cp = new Coords::ProjectionBasedSystem;
+    cp->proj_ = proj_;
+    return cp;
+}
+
+
+BufferString Coords::ProjectionBasedSystem::summary() const
+{
+    if ( !proj_ )
+	return "No Projection Selected";
+
+    BufferString ret( "P: [" );
+    ret.add( proj_->id() ).add( "] " ).add( proj_->userName() );
+    return ret;
+}
+
+
 bool Coords::ProjectionBasedSystem::isOK() const
 { return proj_ && proj_->isOK(); }
 

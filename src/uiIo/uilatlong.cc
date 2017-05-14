@@ -26,15 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Coords;
 
-mImplFactory1Param( uiPositionSystem, uiParent*,
-		    uiPositionSystem::factory );
-
-
-uiPositionSystem::uiPositionSystem( uiParent* p )
-    : uiGroup(p,"PositionSystem")
-    , si_(0)
-{}
-
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
 class uiLatLongDMSInp : public uiGroup
@@ -384,182 +375,8 @@ bool uiLatLong2CoordDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
 }
 
 
-
-uiPositionSystemSel::uiPositionSystemSel( uiParent* p, bool onlyorthogonal,
-					  const PositionSystem* fillfrom )
-    : uiGroup( p, "Coordinate system" )
-{
-    uiStringSet names;
-    PositionSystem::getSystemNames( onlyorthogonal, names, coordsystempars_ );
-
-    coordsystemsuis_.allowNull();
-
-    for ( int idx=0; idx<coordsystempars_.size(); idx++ )
-    {
-	BufferString key;
-	if ( !coordsystempars_[idx]->get( PositionSystem::sKeyFactoryName(),
-					  key ) )
-	{
-	    coordsystempars_.removeSingle( idx );
-	    names.removeSingle( idx );
-	    idx--;
-	    continue;
-	}
-
-	uiPositionSystem* systemui =
-		uiPositionSystem::factory().create( key, this );
-
-	coordsystemsuis_ += systemui;
-
-	if ( !systemui )
-	    continue;
-
-	if ( fillfrom && key==systemui->factoryKeyword() )
-	    systemui->initFields( fillfrom );
-
-	systemui->display( false );
-    }
-
-    if ( names.size() > 1 )
-    {
-	coordsystemsel_ = new uiGenInput( this, tr("Coordinate system"),
-				      StringListInpSpec(names) );
-	mAttachCB( coordsystemsel_->valuechanged,
-	       uiPositionSystemSel::systemChangedCB);
-    }
-    else
-    {
-	coordsystemsel_ = 0;
-    }
-
-    if ( coordsystemsel_ )
-    {
-	const BufferString selname = fillfrom ? fillfrom->factoryKeyword() : "";
-	for ( int idx=0; idx<coordsystemsuis_.size(); idx++ )
-	{
-	    if ( coordsystemsuis_[idx] )
-		coordsystemsuis_[idx]->attach( alignedBelow, coordsystemsel_ );
-
-	    if ( selname==coordsystemsuis_[idx]->factoryKeyword() )
-	    {
-		coordsystemsel_->setValue(idx);
-	    }
-	}
-    }
-
-    systemChangedCB( 0 );
-}
-
-
-uiPositionSystemSel::~uiPositionSystemSel()
-{
-
-}
-
-void uiPositionSystemSel::systemChangedCB(CallBacker *)
-{
-    const int selidx = coordsystemsel_ ? coordsystemsel_->getIntValue() : 0;
-
-    for ( int idx=0; idx<coordsystemsuis_.size(); idx++ )
-    {
-	if ( coordsystemsuis_[idx] )
-	    coordsystemsuis_[idx]->display(idx==selidx);
-    }
-}
-
-
-bool uiPositionSystemSel::acceptOK()
-{
-    outputsystem_ = 0;
-
-    const int selidx = coordsystemsel_ ? coordsystemsel_->getIntValue() : 0;
-
-    if ( coordsystemsuis_[selidx] )
-    {
-	if ( !coordsystemsuis_[selidx]->acceptOK() )
-	    return false;
-
-	outputsystem_ = coordsystemsuis_[selidx]->outputSystem();
-    }
-    else
-    {
-	BufferString key;
-	coordsystempars_[selidx]->get( sKey::Name(), key );
-	outputsystem_ = PositionSystem::factory().create( key );
-	if ( !outputsystem_->usePar(*coordsystempars_[selidx]) )
-	{
-	    outputsystem_ = 0;
-	}
-    }
-
-    return outputsystem_;
-}
-
-uiCoordSystemDlg::uiCoordSystemDlg( uiParent* p,
-				    const PositionSystem* coordsys )
-    : uiDialog(p,uiDialog::Setup(tr("Coordinate Reference System"),mNoDlgTitle,
-				 mODHelpKey(mLatLong2CoordDlgHelpID) ))
-{
-    coordsysselfld_ = new Coords::uiPositionSystemSel( this, true, coordsys );
-    uiToolButton* tb = new uiToolButton( this, "xy2ll",
-			    tr("Transform file from/to lat long"),
-			    mCB(this,uiCoordSystemDlg,transfFile) );
-    tb->attach( rightTo, coordsysselfld_ );
-    tb->attach( rightBorder );
-}
-
-
-uiCoordSystemDlg::~uiCoordSystemDlg()
-{
-}
-
-
-void uiCoordSystemDlg::transfFile( CallBacker* )
-{
-    if ( !getCoordSystem() || !getCoordSystem()->geographicTransformOK() )
-	return;
-
-    uiLatLong2CoordFileTransDlg dlg( this, getCoordSystem().ptr() );
-    dlg.go();
-}
-
-
-RefMan<PositionSystem> uiCoordSystemDlg::getCoordSystem()
-{
-    if ( !coordsysselfld_->outputSystem() )
-	coordsysselfld_->acceptOK();
-
-    return coordsysselfld_->outputSystem();
-}
-
-
-bool uiCoordSystemDlg::acceptOK( CallBacker* )
-{
-    if ( !getCoordSystem() )
-	return false;
-
-    return true;
-}
-
-
-bool uiCoordSystemDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
-{
-    if ( !si ) si = const_cast<SurveyInfo*>( &SI() );
-    if ( si->getCoordSystem() && si->getCoordSystem()->geographicTransformOK() )
-	return true;
-
-    uiCoordSystemDlg dlg( p, si->getCoordSystem() );
-    if ( !dlg.go() || !dlg.getCoordSystem()
-	    || !dlg.getCoordSystem()->geographicTransformOK() )
-	return false;
-
-    si->setCoordSystem( dlg.getCoordSystem() );
-    return true;
-}
-
-
 uiUnlocatedXYSystem::uiUnlocatedXYSystem( uiParent* p )
-    : uiPositionSystem(p)
+    : uiPositionSystem(p,sFactoryDisplayName())
 {
     xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
     xyinftfld_->setChecked( false );
@@ -587,7 +404,7 @@ bool uiUnlocatedXYSystem::acceptOK()
 
 
 uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
-    : uiPositionSystem(p)
+    : uiPositionSystem(p,sFactoryDisplayName())
 {
     helpkey_ = mODHelpKey(mLatLong2CoordDlgHelpID);
 
