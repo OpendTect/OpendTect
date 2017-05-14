@@ -107,7 +107,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     {
 	crsfld_ = new Coords::uiPositionSystemSel(this, tr("Coordinate System"),
 					true, true, tinf_.selection_.coordsys_);
-	crsfld_->attach( alignedBelow, rightmostfld_ );
+	crsfld_->attach( stretchedBelow, rightmostfld_ );
     }
 
     postFinalise().notify( boxcb );

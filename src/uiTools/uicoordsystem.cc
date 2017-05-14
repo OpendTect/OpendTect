@@ -475,6 +475,7 @@ uiPositionSystemSel::uiPositionSystemSel( uiParent* p, const uiString& seltxt,
     if ( coordsys )
 	coordsystem_ = coordsys->clone();
 
+    txtfld_->setElemSzPol( uiObject::Wide );
     butPush.notify( mCB(this,uiPositionSystemSel,selCB) );
 }
 
