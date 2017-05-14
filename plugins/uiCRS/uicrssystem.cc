@@ -28,6 +28,8 @@ ________________________________________________________________________
 using namespace Coords;
 
 
+static const int cDefProjID = 32631;
+
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     : uiPositionSystem( p,sFactoryDisplayName() )
     , curselidx_(-1)
@@ -130,6 +132,7 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 void uiProjectionBasedSystem::fetchList()
 {
     Projection::getAll( ids_, names_, true );
+    curselidx_ = ids_.indexOf( cDefProjID );
     dispidxs_.setCapacity( ids_.size(), true ); \
     for ( int idx=0; idx<ids_.size(); idx++ ) \
 	dispidxs_.add( idx );

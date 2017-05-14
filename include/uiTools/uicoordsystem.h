@@ -82,7 +82,7 @@ public:
 
     RefMan<PositionSystem> getCoordSystem();
 
-    static bool		ensureLatLongDefined(uiParent*,SurveyInfo* si=0);
+    static bool		ensureGeographicTransformOK(uiParent*,SurveyInfo* si=0);
 
 protected:
 

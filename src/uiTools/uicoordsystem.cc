@@ -183,11 +183,19 @@ bool uiPositionSystemDlg::acceptOK( CallBacker* )
 }
 
 
-bool uiPositionSystemDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
+bool uiPositionSystemDlg::ensureGeographicTransformOK( uiParent* p,
+						       SurveyInfo* si )
 {
     if ( !si ) si = const_cast<SurveyInfo*>( &SI() );
     if ( si->getCoordSystem() && si->getCoordSystem()->geographicTransformOK() )
 	return true;
+
+    uiString msg( tr("The survey '%1' does not have a Coordinate System defined"
+	       " that can convert the X/Y coordinates to Geographical Lat/Long."
+	       " Do you want to define it now?").arg(si->name()) );
+    if ( !uiMSG().askGoOn(msg,tr("Define Coordinate System"),
+				uiStrings::sCancel()) )
+	return false;
 
     uiPositionSystemDlg dlg( p, true, false, si->getCoordSystem() );
     if ( !dlg.go() || !dlg.getCoordSystem()

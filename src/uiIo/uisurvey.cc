@@ -82,9 +82,6 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 	*newutils += new uiSurvey::Util( "xy2ic",od_static_tr("getUtils",
 		"Convert (X,Y) to/from (%1,%2)").arg(uiStrings::sInline())
 		.arg(uiStrings::sCrossline()), CallBack() );
-	*newutils += new uiSurvey::Util( "spherewire", od_static_tr("getUtils",
-				"Setup geographical coordinates"), CallBack() );
-
 
 	if ( !utils.setIfNull(newutils) )
 	    delete newutils;
@@ -1004,14 +1001,6 @@ void uiSurvey::utilButPush( CallBacker* cb )
     {
 	uiConvertPos dlg( this, *cursurvinfo_ );
 	dlg.go();
-    }
-    else if ( butidx == 1 )
-    {
-	if ( !cursurvinfo_ ) return;
-	uiLatLong2CoordDlg dlg( this, cursurvinfo_->latlong2Coord(),
-					cursurvinfo_ );
-	if ( dlg.go() && !cursurvinfo_->write() )
-	    mErrRetVoid(tr("Could not write the setup"))
     }
     else
     {

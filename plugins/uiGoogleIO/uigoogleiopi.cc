@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibuttongroup.h"
 #include "uiioobjmanip.h"
-#include "uilatlong2coord.h"
+#include "uicoordsystem.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
@@ -104,12 +104,17 @@ uiGoogleIOMgr::~uiGoogleIOMgr()
     detachAllNotifiers();
 }
 
+#define mEnsureTransformOK(p,si) \
+    Coords::uiPositionSystemDlg::ensureGeographicTransformOK(p,si)
 
 void uiGoogleIOMgr::exportSurv( CallBacker* cb )
 {
     mDynamicCastGet(uiSurvey*,uisurv,cb)
-    if ( !uisurv || !uisurv->curSurvInfo() ||
-	 !uisurv->curSurvInfo()->getCoordSystem()->geographicTransformOK() )
+    if ( !uisurv )
+	return;
+
+    SurveyInfo* si = uisurv->curSurvInfo();
+    if ( !si || !mEnsureTransformOK(uisurv,si) )
 	return;
 
     uiGoogleExportSurvey dlg( uisurv );
@@ -131,7 +136,7 @@ void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
 void uiGoogleIOMgr::exportWells( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
-    if ( !tb || !SI().getCoordSystem()->geographicTransformOK() )
+    if ( !tb || !mEnsureTransformOK(tb->mainwin(),0) )
 	return;
 
     uiGoogleExportWells dlg( tb->mainwin() );
@@ -153,7 +158,7 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
 
 void uiGoogleIOMgr::exportLines( CallBacker* cb )
 {
-    if ( !cur2dfm_ || !SI().getCoordSystem()->geographicTransformOK() )
+    if ( !cur2dfm_ || !mEnsureTransformOK(cur2dfm_,0) )
 	return;
 
     uiGoogleExport2DSeis dlg( cur2dfm_ );
@@ -173,7 +178,7 @@ void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
     if ( ps.size() < 3 )
 	{ uiMSG().error(tr("Polygon needs at least 3 points")); return; }
 
-    if ( !SI().getCoordSystem()->geographicTransformOK() )
+    if ( !mEnsureTransformOK(&appl_,0) )
 	return;
 
     uiGoogleExportPolygon dlg( &appl_, ps );
@@ -193,7 +198,7 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
     TypeSet<BinID> knots;
     rtd->getAllNodePos( knots );
 
-    if ( !SI().getCoordSystem()->geographicTransformOK() )
+    if ( !mEnsureTransformOK(&appl_,0) )
 	return;
 
     TypeSet<Coord> crds;
