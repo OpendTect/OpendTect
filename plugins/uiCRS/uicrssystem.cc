@@ -35,14 +35,16 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
 {
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select projection") );
     projselfld_ = new uiListBox( this, su, "ProjectionList" );
+    projselfld_->setFieldWidth( 30 );
+    projselfld_->setNrLines( 10 );
     projselfld_->selectionChanged.notify(
 	    			mCB(this,uiProjectionBasedSystem,selChgCB) );
 
-    uiButton* searchbut = new uiToolButton( projselfld_, "search", tr("Search"),
+    uiButton* searchbut = new uiToolButton( this, "search", tr("Search"),
 				mCB(this,uiProjectionBasedSystem,searchCB) );
-    searchbut->attach( rightAlignedAbove, projselfld_->box() );
+    searchbut->attach( rightAlignedAbove, projselfld_ );
 
-    searchfld_ = new uiLineEdit( projselfld_, "Search" );
+    searchfld_ = new uiLineEdit( this, "Search" );
     searchfld_->setPlaceholderText( tr("ID or name") );
     searchfld_->attach( leftOf, searchbut );
     searchfld_->editingFinished.notify(
@@ -54,7 +56,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     tb->attach( rightTo, projselfld_->box() );
     tb->attach( rightBorder );
 
-    setHAlignObj( projselfld_ );
+    setHAlignObj( searchfld_ );
     fetchList();
     fillList();
 }
