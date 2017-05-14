@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uibatchjobdispatcherlauncher.h"
 #include "uibatchlaunch.h"
 #include "uiclusterjobprov.h"
-#include "uicoordsystem.h"
 #include "uimsg.h"
 #include "plugins.h"
 #include "uiposprovgroupstd.h"
@@ -179,8 +178,6 @@ mDefModInitFn(uiIo)
 	uiClusterJobDispatcherLauncher::initClass();
 
     uiProcSettings::initClass();
-    Coords::uiUnlocatedXYSystem::initClass();
-    Coords::uiAnchorBasedXYSystem::initClass();
 
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
     uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );

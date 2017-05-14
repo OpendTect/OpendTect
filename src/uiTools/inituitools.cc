@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "uiarray2dinterpol.h"
 #include "uibatchjobdispatcherlauncher.h"
+#include "uicoordsystem.h"
 #include "uifontsel.h"
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
@@ -34,4 +35,7 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
+
+    Coords::uiUnlocatedXYSystem::initClass();
+    Coords::uiAnchorBasedXYSystem::initClass();
 }
