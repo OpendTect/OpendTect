@@ -61,16 +61,16 @@ public:
 			//!< pre-6.0.1 sets will return the survID of first loc
 
     bool		isPolygon() const;
-    void		getPolygon(ODPolygon<double>&) const;
-    void		getLocations(ObjectSet<Location>&);
-    void		getLocations(ObjectSet<const Location>&) const;
-    float		getXYArea() const;
+    void		getPolygon(ODPolygon<double>&,int idx=0) const;
+    void		getLocations(ObjectSet<Location>&,int idx=0);
+    void		getLocations(ObjectSet<const Location>&,int idx=0)const;
+    float		getXYArea(int idx=0) const;
 			//!<Only for closed polygons. Returns in m^2.
     size_type		find(const TrcKey&) const;
     size_type		nearestLocation(const Coord&) const;
     size_type		nearestLocation(const Coord3&,bool ignorez=false) const;
 
-    static const char*	sKeyMarkerType()       { return "Marker Type"; }
+    static const char*	sKeyMarkerType()	{ return "Marker Type"; }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
@@ -83,10 +83,16 @@ public:
     inline Location&	get( size_type idx )		{ return (*this)[idx]; }
     inline const Location& get( size_type idx ) const	{ return (*this)[idx]; }
 
+    void		addStartIdx(int locidx);
+    void		setStartIdx(int setidx,int locidx);
+    int			nrSets() const		{ return startidxs_.size(); }
+
 private:
 
-    enum EventType      { Insert, PolygonClose, Remove, Move };
+    enum EventType	{ Insert, PolygonClose, Remove, Move };
     void		addUndoEvent(EventType,size_type,const Pick::Location&);
+
+    TypeSet<int>	startidxs_;
 
 };
 
@@ -143,7 +149,7 @@ public:
 
     static Table::FormatDesc*   getDesc(bool iszreq);
     static void			updateDesc(Table::FormatDesc&,bool iszreq);
-    static void                 createDescBody(Table::FormatDesc*,bool iszreq);
+    static void			createDescBody(Table::FormatDesc*,bool iszreq);
 
     bool			isXY() const;
     bool			get(od_istream&,Pick::Set&,bool iszreq,

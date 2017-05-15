@@ -17,7 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include <ctype.h>
 
-static const char* sKeyConnect = "Connect";
+static const char* sKeyConnect()	{ return "Connect"; }
+static const char* sKeyStartIdx()	{ return "Start index"; }
 
 namespace Pick
 {
@@ -489,7 +490,18 @@ bool Set::isPolygon() const
 }
 
 
-void Set::getPolygon( ODPolygon<double>& poly ) const
+void Set::addStartIdx( int locidx )
+{ startidxs_ += locidx; }
+
+
+void Set::setStartIdx( int setidx, int locidx )
+{
+    if ( startidxs_.validIdx(setidx) )
+	startidxs_[setidx] = locidx;
+}
+
+
+void Set::getPolygon( ODPolygon<double>& poly, int setidx ) const
 {
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
@@ -500,33 +512,27 @@ void Set::getPolygon( ODPolygon<double>& poly ) const
 }
 
 
-void Set::getLocations( ObjectSet<Location>& locs )
+void Set::getLocations( ObjectSet<Location>& locs, int setidx )
 {
     for ( int idx=0; idx<size(); idx++ )
 	locs += &((*this)[idx]);
 }
 
 
-void Set::getLocations( ObjectSet<const Location>& locs ) const
+void Set::getLocations( ObjectSet<const Location>& locs, int setidx ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	locs += &((*this)[idx]);
 }
 
 
-float Set::getXYArea() const
+float Set::getXYArea( int setidx ) const
 {
     if ( size()<3 || disp_.connect_==Set::Disp::None )
 	return mUdf(float);
 
-    TypeSet<Geom::Point2D<float> > posxy;
-    for ( int idx=size()-1; idx>=0; idx-- )
-    {
-	const Coord localpos = (*this)[idx].pos_;
-	posxy += Geom::Point2D<float>(( float )localpos.x,( float )localpos.y);
-    }
-
-    ODPolygon<float> polygon( posxy );
+    ODPolygon<double> polygon;
+    getPolygon( polygon, setidx );
     if ( polygon.isSelfIntersecting() )
 	return mUdf(float);
 
@@ -568,8 +574,8 @@ void Set::fillPar( IOPar& par ) const
 
     par.set( sKey::Size(), disp_.pixsize_ );
     par.set( sKeyMarkerType(), disp_.markertype_ );
-    par.set( sKeyConnect, Disp::getConnectionString(disp_.connect_) );
-
+    par.set( sKeyConnect(), Disp::getConnectionString(disp_.connect_) );
+    par.set( sKeyStartIdx(), startidxs_ );
     par.merge( pars_ );
 }
 
@@ -585,19 +591,27 @@ bool Set::usePar( const IOPar& par )
     par.get( sKey::Size(), disp_.pixsize_ );
     par.get( sKeyMarkerType(), disp_.markertype_ );
     bool doconnect;
-    par.getYN( sKeyConnect, doconnect );	// For Backward Compatibility
+    par.getYN( sKeyConnect(), doconnect );	// For Backward Compatibility
     if ( doconnect ) disp_.connect_ = Disp::Close;
     else
     {
-	if ( !Disp::parseEnumConnection(par.find(sKeyConnect), disp_.connect_) )
+	if ( !Disp::parseEnumConnection(par.find(sKeyConnect()),disp_.connect_))
 	    disp_.connect_ = Disp::None;
     }
+
+    TypeSet<int> startidx;
+    par.get( sKeyStartIdx(), startidx );
+    if ( startidx.isEmpty() )
+	startidxs_ += 0;
+    else
+	startidxs_ = startidx;
 
     pars_ = par;
     pars_.removeWithKey( sKey::Color() );
     pars_.removeWithKey( sKey::Size() );
     pars_.removeWithKey( sKeyMarkerType() );
-    pars_.removeWithKey( sKeyConnect );
+    pars_.removeWithKey( sKeyConnect() );
+    pars_.removeWithKey( sKeyStartIdx() );
 
     return true;
 }
