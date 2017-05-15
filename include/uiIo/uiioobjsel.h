@@ -46,7 +46,7 @@ public:
 			    : uiIOSelect::Setup(seltext)
 			    , confirmoverwr_(true)
 			    , withinserters_(true)
-			    , withwriteopts_(true)
+			    , withwriteopts_(false)
 			    , filldef_(true)		{}
 
 	mDefSetupMemb(bool,confirmoverwr)
