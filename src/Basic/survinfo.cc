@@ -1131,9 +1131,17 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	astream.put( ky.buf(), fms.buf() );
     }
 
-    if ( ll2c_.isOK() )
-	astream.put( sKeyLatLongAnchor, ll2c_.toString() );
-    astream.putYN( sKeyXYInFt(), xyinfeet_ );
+    if ( coordsystem_ )
+    {
+	IOPar par;
+	coordsystem_->fillPar( par );
+	for ( int idx=0; idx<par.size(); idx++ )
+	    astream.put( IOPar::compKey(sKeyCoordinateSystem,par.getKey(idx)),
+		    	 par.getValue(idx) );
+    }
+    else
+	astream.putYN( sKeyXYInFt(), xyinfeet_ );
+
     astream.put( sKeySeismicRefDatum(), seisrefdatum_ );
 }
 
