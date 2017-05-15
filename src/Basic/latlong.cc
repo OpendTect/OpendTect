@@ -18,6 +18,12 @@ const double cAvgEarthRadius = 6367450;
 
 
 
+bool LatLong::operator==( const LatLong& ll ) const
+{
+    return mIsEqual(ll.lat_,lat_,mDefEps) &&
+	   mIsEqual(ll.lng_,lng_,mDefEps);
+}
+
 Coord LatLong::transform( const LatLong& ll )
 {
     return SI().getCoordSystem()->fromGeographicWGS84( ll );

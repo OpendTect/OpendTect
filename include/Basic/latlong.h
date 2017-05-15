@@ -10,7 +10,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "basicmod.h"
 #include "coord.h"
 
@@ -24,6 +24,10 @@ mExpClass(Basic) LatLong
 public:
 			LatLong( double la=0, double lo=0 )
 			    : lat_(la), lng_(lo)  {}
+			LatLong( const LatLong& ll )
+			    : lat_(ll.lat_), lng_(ll.lng_)	{}
+
+    bool		operator ==(const LatLong&) const;
 
 			LatLong( const Coord& c ) { *this = transform(c);}
 			operator Coord() const	  { return transform(*this); }
