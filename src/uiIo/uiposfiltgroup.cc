@@ -64,7 +64,8 @@ void uiRandPosFiltGroup::getSummary( BufferString& txt ) const
 
 void uiRandPosFiltGroup::initClass()
 {
-    uiPosFiltGroup::factory().addCreator( create, sKey::Random() );
+    uiPosFiltGroup::factory().addCreator( create, sKey::Random(),
+								tr("Random") );
 }
 
 
@@ -104,5 +105,6 @@ void uiSubsampPosFiltGroup::getSummary( BufferString& txt ) const
 
 void uiSubsampPosFiltGroup::initClass()
 {
-    uiPosFiltGroup::factory().addCreator( create, sKey::Subsample() );
+    uiPosFiltGroup::factory().addCreator( create, sKey::Subsample(),
+							    tr("Sub Sample") );
 }

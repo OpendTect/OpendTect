@@ -165,7 +165,8 @@ void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 
 void uiRangePosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Range() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Range(),
+							uiStrings::sRange() );
 }
 
 
@@ -271,7 +272,8 @@ void uiPolyPosProvGroup::getZRange( StepInterval<float>& zrg ) const
 
 void uiPolyPosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Polygon() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Polygon(),
+						    uiStrings::sPolygon() );
 }
 
 

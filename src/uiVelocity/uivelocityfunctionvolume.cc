@@ -21,7 +21,8 @@ namespace Vel
 
 void uiVolumeFunction::initClass()
 {
-    uiFunctionSettings::factory().addCreator( create, "Volume" );
+    uiFunctionSettings::factory().addCreator( create, "Volume",	
+						    uiStrings::sVolume() );
 }
 
 

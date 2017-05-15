@@ -25,7 +25,8 @@ namespace Vel
 
 void uiLinearVelTransform::initClass()
 {
-    uiZAxisTransform::factory().addCreator( createInstance, "Linear velocity" );
+    uiZAxisTransform::factory().addCreator( createInstance, "Linear velocity",
+						    tr("Linear Velocity") );
 }
 
 

@@ -24,7 +24,7 @@ namespace Pos
 /*!\brief 3D provider based on cube of PS data store */
 
 mExpClass(Seis) SeisProvider3D : public Provider3D
-{
+{ mODTextTranslationClass(SeisProvider3D)
 public:
 
 			SeisProvider3D();
@@ -34,6 +34,7 @@ public:
     const char*		type() const		{ return sKeyType(); }
     const char*		factoryKeyword() const	{ return type(); }
     static const char*	sKeyType()	{ return sKey::SeisCubePositions(); }
+    static uiString	dispType()	{ return tr("Seismic Cube Positions");}
     virtual Provider*	clone() const	{ return new SeisProvider3D(*this); }
 
     uiRetVal		setSeisID(const DBKey&);

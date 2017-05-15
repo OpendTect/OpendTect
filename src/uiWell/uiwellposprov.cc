@@ -113,5 +113,6 @@ void uiWellPosProvGroup::getZRange( StepInterval<float>& zrg ) const
 
 void uiWellPosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Well() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Well(),	
+							 uiStrings::sWell() );
 }

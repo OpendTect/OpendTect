@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "mpeengine.h"
+#include "uistrings.h"
 
 
 namespace MPE
@@ -34,7 +35,10 @@ ObjectEditor* HorizonEditor::create( EM::Object& emobj )
 
 
 void HorizonEditor::initClass()
-{ MPE::ObjectEditor::factory().addCreator( create, EM::Horizon3D::typeStr() ); }
+{
+    MPE::EditorFactory().addCreator( create, EM::Horizon3D::typeStr(),
+				uiStrings::sHorizon(1,uiStrings::s3D()) );
+}
 
 
 Geometry::ElementEditor* HorizonEditor::createEditor()
@@ -69,7 +73,10 @@ ObjectEditor* Horizon2DEditor::create( EM::Object& emobj )
 
 
 void Horizon2DEditor::initClass()
-{ MPE::ObjectEditor::factory().addCreator( create, EM::Horizon2D::typeStr() ); }
+{
+    MPE::EditorFactory().addCreator( create, EM::Horizon2D::typeStr(),
+	    uiStrings::sHorizon(1,uiStrings::s2D()) );
+}
 
 
 Geometry::ElementEditor* Horizon2DEditor::createEditor()

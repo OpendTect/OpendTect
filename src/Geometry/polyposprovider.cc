@@ -15,6 +15,7 @@
 #include "dbman.h"
 #include "ptrman.h"
 #include "picksetmanager.h"
+#include "uistrings.h"
 #include <math.h>
 
 
@@ -238,5 +239,6 @@ od_int64 Pos::PolyProvider3D::estNrPos() const
 
 void Pos::PolyProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Polygon() );
+    Pos::Provider3D::factory().addCreator( create, sKey::Polygon(),
+						    uiStrings::sPolygon() );
 }

@@ -23,7 +23,7 @@ namespace Pos
 /*!\brief Provider based on BinIDValueSet table */
 
 mExpClass(Geometry) TableProvider3D : public Provider3D
-{
+{ mODTextTranslationClass(TableProvider3D)
 public:
 
 			TableProvider3D();

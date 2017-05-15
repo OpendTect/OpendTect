@@ -27,7 +27,8 @@ namespace Vel
 
 void VolumeFunctionSource::initClass()
 {
-    FunctionSource::factory().addCreator( create, sFactoryKeyword() );
+    FunctionSource::factory().addCreator( create, sFactoryKeyword(),
+						    sFactoryDisplayName() );
 }
 
 

@@ -415,7 +415,8 @@ Array2DInterpol* uiArray2DInterpol::getResult()
 void uiInverseDistanceArray2DInterpol::initClass()
 {
     uiArray2DInterpol::factory().addCreator( create,
-	    InverseDistanceArray2DInterpol::sFactoryKeyword() );
+	    InverseDistanceArray2DInterpol::sFactoryKeyword(),
+						     tr("Inverse Distance") );
 }
 
 
@@ -473,7 +474,8 @@ HelpKey uiInverseDistanceArray2DInterpol::helpKey() const
 void uiTriangulationArray2DInterpol::initClass()
 {
     uiArray2DInterpol::factory().addCreator( create,
-	    TriangulationArray2DInterpol::sFactoryKeyword() );
+	    TriangulationArray2DInterpol::sFactoryKeyword(),
+					tr("Triangulation Interpolation") );
 }
 
 
@@ -562,7 +564,8 @@ bool uiTriangulationArray2DInterpol::acceptOK()
 void uiExtensionArray2DInterpol::initClass()
 {
     uiArray2DInterpol::factory().addCreator( create,
-	    ExtensionArray2DInterpol::sFactoryKeyword() );
+	    ExtensionArray2DInterpol::sFactoryKeyword(),
+					    tr("Extension Interpolation") );
 }
 
 

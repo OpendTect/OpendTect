@@ -12,6 +12,7 @@
 #include "iopar.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
+#include "uistrings.h"
 
 
 #define mGet2DGeometry(gid) \
@@ -186,7 +187,8 @@ void Pos::RangeProvider3D::getTrcKeyZSampling( TrcKeyZSampling& tkzs ) const
 
 void Pos::RangeProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Range() );
+    Pos::Provider3D::factory().addCreator( create, sKey::Range(),
+							uiStrings::sRange() );
 }
 
 
@@ -659,4 +661,7 @@ void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
 
 
 void Pos::RangeProvider2D::initClass()
-{ Pos::Provider2D::factory().addCreator( create, sKey::Range() ); }
+{
+    Pos::Provider2D::factory().addCreator( create, sKey::Range(),
+						    uiStrings::sRange() );
+}

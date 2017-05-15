@@ -36,7 +36,8 @@ const char* uiGMTSurfaceGrid::sName()
 
 void uiGMTSurfaceGrid::initClass()
 {
-    uiArray2DInterpol::factory().addCreator( create, sName() );
+    uiArray2DInterpolSel::factory().addCreator( create, sName(),
+					tr("Continuous curvature(GMT)") );
 }
 
 
@@ -135,7 +136,8 @@ const char* uiGMTNearNeighborGrid::sName()
 
 void uiGMTNearNeighborGrid::initClass()
 {
-    uiArray2DInterpol::factory().addCreator( create, sName() );
+    uiArray2DInterpolSel::factory().addCreator( create, sName(),
+						tr("Nearest neighbor(GMT)") );
 }
 
 

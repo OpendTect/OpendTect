@@ -483,7 +483,7 @@ FixedString uiVelModelZAxisTransform::getZDomain() const
 void uiTime2Depth::initClass()
 {
     uiZAxisTransform::factory().addCreator( createInstance,
-		Time2DepthStretcher::sFactoryKeyword(), tr("Velocity volume") );
+	    Time2DepthStretcher::sFactoryKeyword(), tr("Velocity volume") );
 }
 
 

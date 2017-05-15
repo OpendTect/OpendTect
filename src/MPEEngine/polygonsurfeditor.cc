@@ -18,6 +18,7 @@ ___________________________________________________________________
 #include "selector.h"
 #include "survinfo.h"
 #include "trigonometry.h"
+#include "uistrings.h"
 
 #include "undo.h"
 

@@ -125,5 +125,6 @@ bool uiBodyPosProvGroup::getID( DBKey& ky ) const
 
 void uiBodyPosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Body() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Body(),	
+							uiStrings::sBody() );
 }

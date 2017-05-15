@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "horizon2dselector.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 
 #include <math.h>
@@ -50,7 +51,8 @@ EMTracker* Horizon2DTracker::create( EM::Object* emobj )
 
 void Horizon2DTracker::initClass()
 {
-    EMTracker::factory().addCreator( create, EM::Horizon2D::typeStr() );
+    TrackerFactory().addCreator( create, EM::Horizon2D::typeStr(),
+				uiStrings::sHorizon(1,uiStrings::s2D()) );
 }
 
 

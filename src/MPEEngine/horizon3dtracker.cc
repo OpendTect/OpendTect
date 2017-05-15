@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "sectionselectorimpl.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 
 #include <math.h>
@@ -54,7 +55,8 @@ EMTracker* Horizon3DTracker::create( EM::Object* emobj )
 
 
 void Horizon3DTracker::initClass()
-{ EMTracker::factory().addCreator( create, EM::Horizon3D::typeStr() ); }
+{ TrackerFactory().addCreator( create, EM::Horizon3D::typeStr(),
+				uiStrings::sHorizon(1,uiStrings::s3D()) ); }
 
 
 #define mErrRet(msg) { errmsg = msg; return false; }

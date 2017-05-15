@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "wellinfo.h"
 #include "wellmanager.h"
+#include "uistrings.h"
 
 namespace Pos
 {
@@ -254,7 +255,8 @@ const Well::Data* WellProvider3D::wellData( int idx ) const
 
 void WellProvider3D::initClass()
 {
-    Provider3D::factory().addCreator( create, sKey::Well() );
+    Provider3D::factory().addCreator( create, sKey::Well(),
+							uiStrings::sWell() );
 }
 
 } // namespace Pos

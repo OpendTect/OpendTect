@@ -224,5 +224,6 @@ void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
 
 void Pos::TableProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKey::Table() );
+    Pos::Provider3D::factory().addCreator( create, sKey::Table(),
+						    tr("Table","data table") );
 }

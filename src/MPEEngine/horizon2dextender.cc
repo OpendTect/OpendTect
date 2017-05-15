@@ -15,6 +15,7 @@ ___________________________________________________________________
 #include "horizon2dtracker.h"
 #include "math2.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 namespace MPE
 {
@@ -36,7 +37,8 @@ SectionExtender* Horizon2DExtender::create( EM::Object* emobj )
 
 void Horizon2DExtender::initClass()
 {
-    SectionExtender::factory().addCreator( create, Horizon2DTracker::keyword());
+    ExtenderFactory().addCreator( create, Horizon2DTracker::keyword(),
+	uiStrings::phrJoinStrings(uiStrings::s2D(),uiStrings::sHorizon()) );
 }
 
 

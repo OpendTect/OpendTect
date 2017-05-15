@@ -25,7 +25,7 @@ namespace MPE
 */
 
 mExpClass(MPEEngine) BaseHorizon3DExtender : public SectionExtender
-{
+{ mODTextTranslationClass(BaseHorizon3DExtender)
 public:
     void			setDirection(const TrcKeyValue&);
     const TrcKeyValue*		getDirection() const { return &direction_; }
@@ -53,7 +53,7 @@ protected:
 */
 
 mExpClass(MPEEngine) Horizon3DExtender : public BaseHorizon3DExtender
-{
+{ mODTextTranslationClass(Horizon3DExtender)
 public:
     static void			initClass();
     static SectionExtender*	create(EM::Object*);

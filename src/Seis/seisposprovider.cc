@@ -188,5 +188,5 @@ int Pos::SeisProvider3D::estNrZPerPos() const
 
 void Pos::SeisProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, sKeyType() );
+    Pos::Provider3D::factory().addCreator( create, sKeyType(), dispType() );
 }
