@@ -926,21 +926,21 @@ void uiGenInput::displayField( bool yn, int elemnr, int fldnr )
 }
 
 
-void uiGenInput::setReadOnly( bool yn, int nr )
+void uiGenInput::setReadOnly( bool yn, int elemnr, int fldnr )
 {
     if ( !finalised_ ) { rdonly_ = yn; rdonlyset_=true; return; }
 
-    if ( nr >= 0  )
+    if ( fldnr >= 0  )
     {
-	if ( nr<flds_.size() && flds_[nr] )
-	    flds_[nr]->setReadOnly(yn);
+	if ( fldnr<flds_.size() && flds_[fldnr] )
+	    flds_[fldnr]->setReadOnly(yn,elemnr);
 	return;
     }
 
     rdonly_ = yn; rdonlyset_=true;
 
     for( int idx=0; idx<flds_.size(); idx++ )
-	flds_[idx]->setReadOnly( yn );
+	flds_[idx]->setReadOnly( yn, elemnr );
 }
 
 
