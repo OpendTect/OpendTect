@@ -28,6 +28,7 @@ public:
 			    : lat_(ll.lat_), lng_(ll.lng_)	{}
 
     bool		operator ==(const LatLong&) const;
+    bool		isEqualTo(const LatLong&) const;
 
 			LatLong( const Coord& c ) { *this = transform(c);}
 			operator Coord() const	  { return transform(*this); }

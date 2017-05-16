@@ -24,6 +24,16 @@ bool LatLong::operator==( const LatLong& ll ) const
 	   mIsEqual(ll.lng_,lng_,mDefEps);
 }
 
+
+bool LatLong::isEqualTo( const LatLong& ll ) const
+{
+    const Coord llpos( ll.lat_, ll.lng_ );
+    const Coord pos( lat_, lng_ );
+
+    return mIsEqual(pos,llpos,mDefEps);
+}
+
+
 Coord LatLong::transform( const LatLong& ll )
 {
     return SI().getCoordSystem()->fromGeographicWGS84( ll );
