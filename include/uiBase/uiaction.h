@@ -156,6 +156,7 @@ public:
 
     int				nrActions() const;
     const ObjectSet<uiAction>&	actions() const;
+    bool			isEmpty() const;
 
     uiAction*			findAction(const uiActionSeparString&);
     uiAction*			findAction(const char* itmtxt);
