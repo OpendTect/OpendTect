@@ -98,7 +98,7 @@ void Axes::setAnnotationTextSize( int size )
 void Axes::setAnnotationText( int dim, const uiString& str )
 {
     ArrPtrMan<wchar_t> wchar = str.createWCharString();
-    axesnode_->setAnnotationText( dim, osgText::String(str.getFullString().buf()) );
+    axesnode_->setAnnotationText( dim, osgText::String(wchar.ptr()) );
 }
 
 

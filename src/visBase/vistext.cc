@@ -117,11 +117,11 @@ void Text::setText( const uiString& newtext )
     ArrPtrMan<wchar_t> wcharbuf = newtext.createWCharString();
 
     osgtext_->setText( newtext.getOriginalString() );
-   /* if ( !wcharbuf )
+    if ( !wcharbuf )
 	osgtext_->setText( emptystring );
-   /* else
+    else
 	osgtext_->setText( wcharbuf );
-*/
+
     text_ = newtext;
 }
 
