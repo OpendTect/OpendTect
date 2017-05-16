@@ -544,7 +544,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 	setValues();
 
     chgSetMode(0);
-    ic1fld_->setReadOnly( true, 0 );
+    ic1fld_->setReadOnly( true, 0, 0 );
 }
 
 

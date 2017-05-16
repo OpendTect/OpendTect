@@ -190,7 +190,7 @@ Returns true, if changes are accepted.
     void		setValue(const Interval<double>&); //!< and StepIntv
 
     void		displayField(bool yn=true,int elemnr=-1,int fldnr=-1);
-    void		setReadOnly( bool yn=true,int nr=-1);
+    void		setReadOnly( bool yn=true,int elemnr=-1,int fldnr=-1);
     void		setSensitive(bool yn=true,int elemnr=-1,int fldnr=-1);
     void		setEmpty(int nr=-1);
 
