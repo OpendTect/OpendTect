@@ -151,12 +151,13 @@ bool uiPositionSystemSelGrp::acceptOK()
 
 
 uiPositionSystemDlg::uiPositionSystemDlg( uiParent* p, bool orthogonalonly,
-			bool projectiononly, const PositionSystem* coordsys )
+			bool projectiononly, const SurveyInfo* si,
+			const PositionSystem* coordsys )
     : uiDialog(p,uiDialog::Setup(tr("Coordinate Reference System"),mNoDlgTitle,
 				 mODHelpKey(mLatLong2CoordDlgHelpID) ))
 {
     coordsysselfld_ = new Coords::uiPositionSystemSelGrp( this, orthogonalonly,
-	    					projectiononly, 0, coordsys );
+	    					projectiononly, si, coordsys );
 }
 
 
@@ -197,7 +198,7 @@ bool uiPositionSystemDlg::ensureGeographicTransformOK( uiParent* p,
 				uiStrings::sCancel()) )
 	return false;
 
-    uiPositionSystemDlg dlg( p, true, false, si->getCoordSystem() );
+    uiPositionSystemDlg dlg( p, true, false, si, si->getCoordSystem() );
     if ( !dlg.go() || !dlg.getCoordSystem()
 	    || !dlg.getCoordSystem()->geographicTransformOK() )
 	return false;
@@ -226,7 +227,7 @@ void uiPositionSystemSel::selCB( CallBacker* )
 {
     if ( !dlg_ )
 	dlg_ = new uiPositionSystemDlg( this, orthogonalonly_, projectiononly_,
-					coordsystem_ );
+					&SI(), coordsystem_ );
 
     if ( dlg_->go() )
     {

@@ -77,7 +77,8 @@ mExpClass(uiTools) uiPositionSystemDlg : public uiDialog
 { mODTextTranslationClass(uiPositionSystemDlg);
 public:
 			uiPositionSystemDlg(uiParent*,bool orthogonalonly,
-				bool projectiononly,const PositionSystem*);
+					bool projectiononly,const SurveyInfo*,
+					const PositionSystem*);
 			~uiPositionSystemDlg();
 
     RefMan<PositionSystem> getCoordSystem();
