@@ -766,11 +766,29 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 
     IOPar& pars = si_.getPars();
     sip->fillPar( pars );
-    Coord llcrd; LatLong llll;
-    if ( sip->getLatLongAnchor(llcrd,llll) )
-	si_.getLatlong2Coord().set( llll, llcrd );
+    PtrMan<IOPar> crspar = sip->getCoordSystemPars();
+    RefMan<Coords::PositionSystem> coordsys =
+		crspar ? Coords::PositionSystem::createSystem( *crspar ) : 0;
+    
+    if ( !coordsys )
+    {
+	Coord llcrd; LatLong llll;
+	if ( sip->getLatLongAnchor(llcrd,llll) )
+	{
+	    RefMan<Coords::AnchorBasedXY> anchoredsystem =
+				new Coords::AnchorBasedXY( llll, llcrd );
+	    anchoredsystem->setIsFeet( sip->xyInFeet() );
+	    coordsys = anchoredsystem;
+	}
+    }
 
-    const bool xyinfeet = sip->xyInFeet();
+    if ( coordsys )
+    {
+	si_.setCoordSystem( coordsys );
+	coordsystem_ = coordsys;
+    }
+
+    const bool xyinfeet = si_.getCoordSystem()->isFeet();
     uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo();
     bool zistime = si_.zIsTime();
     if ( tdinfo != uiSurvInfoProvider::Uknown )

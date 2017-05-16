@@ -74,6 +74,8 @@ public:
     virtual const char*		importAskQuestion() const
 				{ return "Proceed to import?"; }
 
+    virtual IOPar*		getCoordSystemPars() const	{ return 0; }
+
 };
 
 
