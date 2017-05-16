@@ -22,6 +22,7 @@ uiScaleBarItem::uiScaleBarItem( int pxwidth, int pxheight )
     , pxwidth_(pxwidth)
     , pxheight_(pxheight)
     , w2ui_(uiWorld2Ui())
+    , unitstr_(SI().getUiXYUnitString(true,false))
     , worldwidth_((float)pxwidth)
 {
     initDefaultScale();
@@ -74,11 +75,10 @@ void uiScaleBarItem::update()
     adjustValues();
     setPolygons( pxwidth_/4, pxheight_ );
 
-    uiString unit = SI().getUiXYUnitString( true, false );
     startnr_->setPlainText( toUiString("0") );
     midnr_->setPlainText( toUiString(worldwidth_/2) );
     stopnr_->setPlainText( (toUiString("%1 %2")).arg(toUiString(worldwidth_))
-								.arg(unit) );
+								.arg(unitstr_));
 }
 
 

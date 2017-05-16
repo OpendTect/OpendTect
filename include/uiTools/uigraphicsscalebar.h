@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uitoolsmod.h"
 #include "uigraphicsitem.h"
 #include "uiworld2ui.h"
 
@@ -24,7 +24,7 @@ class SurveyInfo;
 \brief It adds a graphic scale made from polygons
 */
 
-mExpClass(uiIo) uiScaleBarItem : public uiGraphicsItem
+mExpClass(uiTools) uiScaleBarItem : public uiGraphicsItem
 {
 public:
 			uiScaleBarItem(int pxwidth=100,int pxheight=6);
@@ -37,6 +37,7 @@ public:
     inline void		setLength(float len)	{ worldwidth_ = len; }
     inline void		setPxWidth(int pxw)	{ pxwidth_ = pxw;
 						  preferablepxwidth_ = pxw; }
+    inline void		setUnit( const uiString& unit )	{ unitstr_=unit; }
 
     void		setWorld2Ui(const uiWorld2Ui&);
 
@@ -46,6 +47,7 @@ protected:
     float		worldwidth_;
     int			pxwidth_;
     int			pxheight_;
+    uiString		unitstr_;
 
     uiRectItem*		upperright_;
     uiRectItem*		uppermid_;
