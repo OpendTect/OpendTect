@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewer.h"
 #include "uigraphicsview.h"
 #include "uigraphicsscene.h"
+#include "uigraphicsscalebar.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
@@ -29,6 +30,7 @@ AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
     , axis2nm_(0)
     , arrowitem1_(0)
     , arrowitem2_(0)
+    , scalebaritem_(0)
     , titletxt_(0)
 {}
 
@@ -41,6 +43,7 @@ AxesDrawer::~AxesDrawer()
     mRemoveAnnotItem( arrowitem2_ );
     mRemoveAnnotItem( axis2nm_ );
     mRemoveAnnotItem( titletxt_ );
+    mRemoveAnnotItem( scalebaritem_ );
 }
 
 
@@ -67,6 +70,7 @@ void AxesDrawer::setZValue( int z )
     if ( axis2nm_ ) axis2nm_->setZValue( z+1 );
     if ( arrowitem2_ ) arrowitem2_->setZValue( z+1 );
     if ( titletxt_ ) titletxt_->setZValue( z+1 );
+    if ( scalebaritem_ ) scalebaritem_->setZValue( z+1 );
 }
 
 
@@ -84,6 +88,8 @@ uiBorder AxesDrawer::getAnnotBorder( bool withextraborders ) const
     { l += axiswidth; r += 5; }
     if ( annot.haveAxisAnnot(true) )
     { b += axisheight;	t += axisheight; }
+    if ( annot.showscalebar_ && scalebaritem_ )
+	b += scalebaritem_->getPxHeight()*4;
     uiBorder annotborder(l,t,r,b);
     return annotborder;
 }
@@ -244,6 +250,18 @@ void AxesDrawer::updateViewRect()
     else if ( titletxt_ )
 	titletxt_->setVisible( false );
 
+    if ( annot.showscalebar_ )
+    {
+	if ( !scalebaritem_ )
+	    scalebaritem_ = view_.scene().addItem( new uiScaleBarItem(150) );
+	scalebaritem_->setVisible( true );
+	scalebaritem_->setPos( view_.mapToScene(uiPoint(view_.width()/2+30,
+							view_.height()-20)) );
+	scalebaritem_->update();
+    }
+    else if ( scalebaritem_ )
+	scalebaritem_->setVisible( false );
+
     setZValue( uiGraphicsSceneAxisMgr::getZValue() );
 }
 
@@ -282,6 +300,7 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
     ConstDataPackRef<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
     transformAndSetAuxAnnotation( true );
     transformAndSetAuxAnnotation( false );
+    setScaleBarWorld2UI( wr );
     const float userfac = mCast(float,vwr_.zDomain().userFactor());
 
     if ( !fdp || altdim0_<0 )
@@ -321,4 +340,30 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
     const uiWorldRect altwr( dim0rg2.start, dim1rg.start,
 			     dim0rg2.stop, dim1rg.stop );
     uiGraphicsSceneAxisMgr::setWorldCoords( altwr );
+}
+
+void AxesDrawer::setScaleBarWorld2UI( const uiWorldRect& wr )
+{
+    if ( !vwr_.appearance().annot_.showscalebar_ )
+	return;
+
+    ConstDataPackRef<FlatDataPack> fdp =
+	vwr_.obtainPack( !vwr_.isVisible(false), true );
+    if ( !fdp )
+	return;
+
+    const StepInterval<double> dim0rg1 = fdp->posData().range( true );
+    const float startindex = dim0rg1.getfIndex( wr.left() );
+    const float stopindex = dim0rg1.getfIndex( wr.right() );
+    const float pos0diststart = fdp->getPosDistance( true, startindex );
+    const float pos0diststop = fdp->getPosDistance( true, stopindex );
+    uiWorldRect scalebarwr( wr );
+    scalebarwr.setLeft( pos0diststart );
+    scalebarwr.setRight( pos0diststop );
+    uiWorld2Ui scalebarw2ui( vwr_.getViewRect(), scalebarwr );
+    if ( scalebaritem_ )
+    {
+	scalebaritem_->setWorld2Ui( scalebarw2ui );
+	scalebaritem_->update();
+    }
 }

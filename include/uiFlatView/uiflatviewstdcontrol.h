@@ -63,6 +63,7 @@ public:
 			    , withflip_(true)
 			    , withrubber_(true)
 			    , withzoombut_(true)
+			    , withscalebarbut_(false)
 			    , isvertical_(false)
 			    , withfixedaspectratio_(false)
 			    , withhomebutton_(false)
@@ -88,6 +89,7 @@ public:
 	mDefSetupMemb(bool,withhomebutton)
 	mDefSetupMemb(float,initialx1pospercm)
 	mDefSetupMemb(float,initialx2pospercm)
+	mDefSetupMemb(bool,withscalebarbut)
 	mDefSetupMemb(uiWorldPoint,initialcentre);
     };
 
@@ -125,6 +127,7 @@ protected:
     uiToolButton*	cancelzoombut_;
     uiToolButton*	sethomezoombut_;
     uiToolButton*	gotohomezoombut_;
+    uiToolButton*	scalebarbut_;
     uiToolButton*	fittoscrnbut_;
     uiToolButton*	parsbut_;
     uiToolButton*	editbut_;
@@ -155,6 +158,7 @@ protected:
     void		keyPressCB(CallBacker*);
     void		homeZoomOptSelCB(CallBacker*);
     void		fitToScreenCB(CallBacker*);
+    void		viewScaleBarCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*)	{}
     virtual void	wheelMoveCB(CallBacker*);

@@ -74,6 +74,8 @@ public:
     const Array2D<float>&	data() const
 				{ return const_cast<FlatDataPack*>(this)
 							->data(); }
+    virtual float		getPosDistance(bool dim0,float posfidx) const
+				{ return mUdf(float); }	
 
     virtual FlatPosData&	posData()		{ return posdata_; }
     const FlatPosData&		posData() const

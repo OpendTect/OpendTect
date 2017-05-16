@@ -172,6 +172,12 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	tb_->addObject( vwr_.rgbCanvas().getPrintImageButton(tb_) );
     }
 
+    if ( setup.withscalebarbut_ )
+    {
+	mDefBut(scalebarbut_,"scale",viewScaleBarCB,tr("View scale bar"));
+	scalebarbut_->setToggleButton();
+    }
+
     tb_->addSeparator();
     mDefBut(parsbut_,"2ddisppars",parsCB,tr("Set display parameters"));
 
@@ -604,6 +610,17 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
 void uiFlatViewStdControl::flipCB( CallBacker* )
 {
     flip( true );
+}
+
+
+void uiFlatViewStdControl::viewScaleBarCB( CallBacker* )
+{
+    const bool doshowscalebar = scalebarbut_->isOn();
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	vwrs_[idx]->appearance().annot_.showscalebar_ = doshowscalebar;
+	vwrs_[idx]->handleChange( FlatView::Viewer::Annot );
+    }
 }
 
 

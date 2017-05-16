@@ -199,6 +199,7 @@ public:
     bool			isVertical() const
 				{ return dir_ != TrcKeyZSampling::Z; }
     const TrcKeyPath&		getPath() const		{ return path_; }
+    float			getPosDistance(bool dim0,float trcfidx) const;
 
     const TrcKeyZSampling&	sampling() const	{ return sampling_; }
     Coord3			getCoord(int i0,int i1) const;
@@ -232,6 +233,7 @@ public:
     bool			isVertical() const	{ return true; }
     const TrcKeyPath&		getPath() const		{ return path_; }
     Coord3			getCoord(int i0,int i1) const;
+    float			getPosDistance(bool dim0,float trcfidx) const;
 
     const char*			dimName( bool dim0 ) const
 				{ return dim0 ? "Distance" : "Z"; }
