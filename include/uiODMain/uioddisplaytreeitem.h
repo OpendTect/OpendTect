@@ -30,7 +30,8 @@ public:
 			//!< and adds it to the tree
 
 			uiODDisplayTreeItem();
-			~uiODDisplayTreeItem();
+    virtual		~uiODDisplayTreeItem();
+
     void		updateColumnText(int);
     bool		showSubMenu();
     virtual bool	actModeWhenSelected() const	{ return false; }

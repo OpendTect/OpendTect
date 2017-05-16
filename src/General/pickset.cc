@@ -443,12 +443,14 @@ static typename PicksType::size_type getNearestLocation( const PicksType& ps,
 Set::Set( const char* nm )
     : NamedObject(nm)
     , pars_(*new IOPar)
+    , readonly_(false)
 {
 }
 
 
 Set::Set( const Set& s )
     : pars_(*new IOPar)
+    , readonly_(false)
 {
     *this = s;
 }
@@ -464,6 +466,7 @@ Set& Set::operator=( const Set& s )
     if ( &s == this ) return *this;
     copy( s ); setName( s.name() );
     disp_ = s.disp_; pars_ = s.pars_;
+    readonly_ = s.readonly_;
     return *this;
 }
 

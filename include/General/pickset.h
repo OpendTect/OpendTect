@@ -31,7 +31,6 @@ namespace Pick
 mExpClass(General) Set : public NamedObject, public TypeSet<Location>
 {
 public:
-
 			Set(const char* nm=0);
 			Set(const Set&);
 			~Set();
@@ -83,6 +82,9 @@ public:
     inline Location&	get( size_type idx )		{ return (*this)[idx]; }
     inline const Location& get( size_type idx ) const	{ return (*this)[idx]; }
 
+    void		setReadOnly( bool yn )		{ readonly_ = yn; }
+    bool		isReadOnly() const		{ return readonly_; }
+
     void		addStartIdx(int locidx);
     void		setStartIdx(int setidx,int locidx);
     int			nrSets() const		{ return startidxs_.size(); }
@@ -93,6 +95,7 @@ private:
     void		addUndoEvent(EventType,size_type,const Pick::Location&);
 
     TypeSet<int>	startidxs_;
+    bool		readonly_;
 
 };
 

@@ -46,7 +46,8 @@ mExpClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODPickSetTreeItem)
 public:
     			uiODPickSetTreeItem(int dispid,Pick::Set&);
-    			~uiODPickSetTreeItem();
+    virtual		~uiODPickSetTreeItem();
+
     virtual bool	actModeWhenSelected() const	{ return true; }
     void		showAllPicks(bool yn);
     Pick::Set&		getSet()			{ return set_; }
@@ -61,7 +62,7 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     bool		doubleClick(uiTreeViewItem*);
-    const char*		parentType() const
+    virtual const char*	parentType() const
     			{ return typeid(uiODPickSetParentTreeItem).name(); }
 
     Pick::Set&		set_;
@@ -104,7 +105,8 @@ mExpClass(uiODMain) uiODPolygonTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODPolygonTreeItem)
 public:
 			uiODPolygonTreeItem(int dispid,Pick::Set&);
-			~uiODPolygonTreeItem();
+    virtual		~uiODPolygonTreeItem();
+
     virtual bool	actModeWhenSelected() const	{ return true; }
     void		showAllPicks(bool yn);
     Pick::Set&		getSet()			{ return set_; }
@@ -119,7 +121,7 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     bool		doubleClick(uiTreeViewItem*);
-    const char*		parentType() const
+    virtual const char*	parentType() const
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
 
     Pick::Set&		set_;
