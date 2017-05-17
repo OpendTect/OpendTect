@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigraphicssceneaxismgr.h"
 
 class uiFlatViewer;
+class uiScaleBarItem;
 
 /*!
 \brief Axis drawer for flat viewers.
@@ -45,5 +46,8 @@ protected:
     uiTextItem*		titletxt_;
     uiArrowItem*        arrowitem1_;
     uiArrowItem*        arrowitem2_;
+    uiScaleBarItem*	scalebaritem_;
     uiBorder		extraborder_;
+
+    void		setScaleBarWorld2UI(const uiWorldRect&);
 };

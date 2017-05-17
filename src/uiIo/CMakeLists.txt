@@ -34,7 +34,6 @@ set( OD_MODULE_SOURCES
 	uieditpdf.cc
 	uifixinvaliddataroot.cc
 	uigraphicslegend.cc
-	uigraphicsscalebar.cc
 	uiimppickset.cc
 	uiimpexpselgrp.cc
 	uiimpexppdf.cc

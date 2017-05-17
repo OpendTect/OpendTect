@@ -227,6 +227,7 @@ FlatView::Annotation::Annotation( bool drkbg )
     : color_(drkbg ? Color::White() : Color::Black())
     , showaux_(true)
     , editable_(false)
+    , showscalebar_(false)
     , allowuserchange_(true)
     , allowuserchangereversedaxis_(true)
 {

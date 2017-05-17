@@ -413,6 +413,7 @@ void uiODViewer2D::createViewWin()
 			.initialx1pospercm(dispsetup_.initialx1pospercm_)
 			.initialx2pospercm(initialx2pospercm)
 			.initialcentre(dispsetup_.initialcentre_)
+			.withscalebarbut(true)
 			.managecoltab(!tifs_) );
 
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );

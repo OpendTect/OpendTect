@@ -834,6 +834,35 @@ const char* RegularFlatDataPack::dimName( bool dim0 ) const
 }
 
 
+float RegularFlatDataPack::getPosDistance( bool dim0, float posfidx) const
+{
+    const int posidx = floor( posfidx );
+    const float dfposidx = posfidx - posidx;
+    if ( dim0 )
+    {
+	TrcKey idxtrc = getTrcKey( posidx );
+	if ( !idxtrc.is2D() )
+	{
+	    const bool isinl = dir() == TrcKeyZSampling::Inl;
+	    const float dposdistance =
+		isinl ? SI().inlDistance() : SI().crlDistance();
+	    return (dposdistance*(float)posidx) + (dposdistance*dfposidx);
+	}
+
+	double posdistatidx = posdata_.position( true, posidx );
+	if ( nrTrcs()>=posidx+1 )
+	{
+	    double posdistatatnextidx = posdata_.position( true, posidx+1 );
+	    posdistatidx += (posdistatatnextidx - posdistatidx)*dfposidx;
+	}
+
+	return posdistatidx;
+    }
+
+    return mUdf(float);
+}
+
+
 void RegularFlatDataPack::setSourceDataFromMultiCubes()
 {
     const int nrcomps = source_->nrComponents();
@@ -861,8 +890,9 @@ void RegularFlatDataPack::setSourceData()
     if ( !is2D() )
     {
 	const bool isinl = dir()==TrcKeyZSampling::Inl;
-	posdata_.setRange( true, isinl ? mStepIntvD(sampling().hsamp_.crlRange())
-				: mStepIntvD(sampling().hsamp_.inlRange()) );
+	posdata_.setRange(
+		true, isinl ? mStepIntvD(sampling().hsamp_.crlRange())
+			    : mStepIntvD(sampling().hsamp_.inlRange()) );
 	posdata_.setRange( false, isz ? mStepIntvD(sampling().hsamp_.crlRange())
 				      : mStepIntvD(sampling().zsamp_) );
     }
@@ -938,4 +968,24 @@ void RandomFlatDataPack::setSourceData()
     slice2d->init();
     arr2d_ = slice2d;
     setTrcInfoFlds();
+}
+
+
+float RandomFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
+{
+    const int posidx = floor( posfidx );
+    const float dfposidx = posfidx - posidx;
+    if ( dim0 )
+    {
+	double posdistatidx = posdata_.position( true, posidx );
+	if ( nrTrcs()>=posidx+1 )
+	{
+	    double posdistatatnextidx = posdata_.position( true, posidx+1 );
+	    posdistatidx += (posdistatatnextidx - posdistatidx)*dfposidx;
+	}
+
+	return posdistatidx;
+    }
+
+    return mUdf(float);
 }

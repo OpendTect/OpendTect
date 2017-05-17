@@ -141,6 +141,7 @@ public:
     AxisData			x2_;
 
     bool			showaux_;
+    bool			showscalebar_;
     bool			editable_;
     bool			allowuserchange_;
     bool			allowuserchangereversedaxis_;
