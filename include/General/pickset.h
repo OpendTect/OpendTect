@@ -88,6 +88,7 @@ public:
     void		addStartIdx(int locidx);
     void		setStartIdx(int setidx,int locidx);
     int			nrSets() const		{ return startidxs_.size(); }
+    void		getStartStopIdx(int setidx,int& start,int&stop) const;
     const TypeSet<int>&	startIndexs() const { return startidxs_; }
 
 private:

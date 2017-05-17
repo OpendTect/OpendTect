@@ -349,16 +349,15 @@ void PickSetDisplay::redrawLine()
 
     if ( set_->nrSets()==0 && set_->disp_.connect_!=Pick::Set::Disp::None )
     {
-	// this is for a default new polygon, we should have a default start 
+	// this is for a default new polygon, we should have a default start
 	// index. it should be changed in trunk version.
 	set_->addStartIdx( 0 );
     }
 
-    const TypeSet<int> startindexs = set_->startIndexs();
     for ( int idx=0; idx<set_->nrSets(); idx++ )
     {
 	ObjectSet<const Pick::Location > positions;
-	set_->getLocations( positions,startindexs[idx] );
+	set_->getLocations( positions, idx );
 	TypeSet<int> ps;
 	bool first = true;
 	int firstidx = 0;
@@ -614,7 +613,7 @@ void PickSetDisplay::updateLineAtSection()
     if ( polylines_ )
     {
        TypeSet<Coord3> polycoords;
-       for ( int idx = 0; idx<markerset_->getCoordinates()->size(); idx++ )
+       for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
 	   polycoords += markerset_->getCoordinates()->getPos(idx);
 
 	polylines_->removeAllPrimitiveSets();
@@ -626,14 +625,13 @@ void PickSetDisplay::updateLineAtSection()
 	{
 	    if ( markerset_->markerOn(pidx) )
 	    {
-		const int idx = 
+		const int idx =
 		    polylines_->getCoordinates()->addPos( polycoords[pidx] );
 		defaultps += idx;
 	    }
-
 	}
 
-	if ( pidx && set_->isPolygon() )
+	if ( !defaultps.isEmpty() && pidx && set_->isPolygon() )
 	    defaultps += defaultps[0];
 
 	Geometry::IndexedPrimitiveSet* lineprimitiveset =

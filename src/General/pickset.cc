@@ -493,6 +493,18 @@ bool Set::isPolygon() const
 }
 
 
+
+void Set::getStartStopIdx( int setidx, int& start, int& stop ) const
+{
+    start = 0; stop = size()-1;
+    if ( !startidxs_.validIdx(setidx) )
+	return;
+
+    start = startidxs_[setidx];
+    stop = setidx==startidxs_.size()-1 ? size()-1 : startidxs_[setidx+1]-1;
+}
+
+
 void Set::addStartIdx( int locidx )
 { startidxs_ += locidx; }
 
@@ -506,8 +518,9 @@ void Set::setStartIdx( int setidx, int locidx )
 
 void Set::getPolygon( ODPolygon<double>& poly, int setidx ) const
 {
-    const int sz = size();
-    for ( int idx=0; idx<sz; idx++ )
+    int start, stop;
+    getStartStopIdx( setidx, start, stop );
+    for ( int idx=start; idx<=stop; idx++ )
     {
 	const Coord c( (*this)[idx].pos_ );
 	poly.add( Geom::Point2D<double>( c.x, c.y ) );
@@ -517,14 +530,18 @@ void Set::getPolygon( ODPolygon<double>& poly, int setidx ) const
 
 void Set::getLocations( ObjectSet<Location>& locs, int setidx )
 {
-    for ( int idx=0; idx<size(); idx++ )
+    int start, stop;
+    getStartStopIdx( setidx, start, stop );
+    for ( int idx=start; idx<=stop; idx++ )
 	locs += &((*this)[idx]);
 }
 
 
 void Set::getLocations( ObjectSet<const Location>& locs, int setidx ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    int start, stop;
+    getStartStopIdx( setidx, start, stop );
+    for ( int idx=start; idx<=stop; idx++ )
 	locs += &((*this)[idx]);
 }
 
