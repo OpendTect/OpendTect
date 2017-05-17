@@ -328,8 +328,8 @@ void AxesDrawer::setScaleBarWorld2UI( const uiWorldRect& wr )
     if ( !vwr_.appearance().annot_.showscalebar_ )
 	return;
 
-    ConstDataPackRef<FlatDataPack> fdp =
-	vwr_.obtainPack( !vwr_.isVisible(false), true );
+    ConstRefMan<FlatDataPack> fdp =
+	vwr_.getPack( !vwr_.isVisible(false), true );
     if ( !fdp )
 	return;
 
