@@ -29,12 +29,11 @@ class LevelSet;
 mExpClass(Strat) RefTree : public NodeOnlyUnitRef
 {
 public:
-
 			RefTree();
 			~RefTree();
 
     Repos::Source	source() const			{ return src_; }
-    
+
     LithologySet&	lithologies()			{ return liths_; }
     const LithologySet&	lithologies() const		{ return liths_; }
     ContentSet&		contents()			{ return contents_; }
@@ -46,7 +45,7 @@ public:
     Notifier<RefTree>	unitChanged;
     Notifier<RefTree>	unitToBeDeleted;
     const UnitRef*	notifUnit() const		{ return notifun_; }
-    			//!< if null, assume everything has changed
+			//!< if null, assume everything has changed
 
     const LeafUnitRef&	undefLeaf() const		{ return udfleaf_; }
     virtual int		level() const			{ return 0; }
@@ -55,7 +54,7 @@ public:
     static RefTree*	createStd(const char*);
 
     void		createFromLevelSet(const LevelSet&);
-    			//!< keep contents and lithologies
+			//!< keep contents and lithologies
     const LeavedUnitRef* getLevelSetUnit(const char* lvlnm) const;
 
     Notifier<RefTree>	deleteNotif;
@@ -75,9 +74,10 @@ protected:
 public:
 
     Repos::Source	src_;
+    BufferString	name_;
 
-    				// for printing, export or something.
-    				// otherwise, use RepositoryAccess::write()
+				// for printing, export or something.
+				// otherwise, use RepositoryAccess::write()
     bool		read(od_istream&);
     bool		write(od_ostream&) const;
 
@@ -103,7 +103,7 @@ mGlobal(Strat) void setRT(RefTree*);
 //!< Used by tree manager, and not by *you*. Very very likely not.
 
 
-}; // namespace Strat
+} // namespace Strat
 
 
 #endif
