@@ -188,13 +188,13 @@ public:
     uiString		uiNrDoneText() const;
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
-    int			nextStep();
 
     bool		init();
 
 protected:
 
     void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
+    virtual int		nextStep();
 
     IOObj*			ioobj_;
     bool			is2d_;
