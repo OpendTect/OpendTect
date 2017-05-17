@@ -34,7 +34,7 @@ ________________________________________________________________________
 
 
 uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
-    : uiODVw2DTreeItem( uiStrings::sPickSet() )
+    : uiODVw2DTreeItem( uiStrings::sPointSet() )
     , picksetmgr_(Pick::Mgr())
 {
 }
@@ -355,7 +355,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
 		if ( picksetmgr_.isChanged(picksetidx) )
 		{
 		    const int res = uiMSG().askSave(
-			tr("PickSet '%1' has been modified. "
+			tr("PointSet '%1' has been modified. "
 			   "Do you want to save it?").arg(pickset_.name()) );
 		    if ( res==-1 )
 			return false;

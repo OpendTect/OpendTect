@@ -244,7 +244,7 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 	BufferString msg;
 	if ( !ioobj )
 	{
-	    msg = "Cannot find PickSet with key "; msg += key;
+	    msg = "Cannot find PointSet with key "; msg += key;
 	    ErrMsg( msg ); return false;
 	}
 

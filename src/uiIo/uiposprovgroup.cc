@@ -287,7 +287,7 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     const CallBack selcb( mCB(this,uiTablePosProvGroup,selChg) );
 
     selfld_ = new uiGenInput(this, tr("Data from"),
-		    BoolInpSpec(true,uiStrings::sPickSet(),
+		    BoolInpSpec(true,uiStrings::sPointSet(),
 			uiStrings::phrJoinStrings(uiStrings::sTable(),
 						  uiStrings::sFile())));
     selfld_->valuechanged.notify( selcb );
@@ -340,7 +340,7 @@ bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
     if ( selfld_->getBoolValue() )
     {
 	if ( !psfld_->fillPar(iop,sKey::Table()) )
-	    mErrRet(uiStrings::phrSelect(uiStrings::sPickSet()))
+	    mErrRet(uiStrings::phrSelect(uiStrings::sPointSet()))
 	iop.removeWithKey( mGetTableKey(sKey::FileName()) );
     }
     else

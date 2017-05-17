@@ -103,18 +103,18 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     calcobj_ = new calcFingParsObject( this );
 
     refgrp_ = new uiButtonGroup( this, "", OD::Horizontal );
-    uiRadioButton* manualbut = new uiRadioButton( refgrp_, 
+    uiRadioButton* manualbut = new uiRadioButton( refgrp_,
                                                   uiStrings::sManual() );
     manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     refposbut_ = new uiRadioButton( refgrp_,tr("Reference position"));
     refposbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
-    picksetbut_ = new uiRadioButton( refgrp_, uiStrings::sPickSet() );
+    picksetbut_ = new uiRadioButton( refgrp_, uiStrings::sPointSet() );
     picksetbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     uiLabel* lbl = new uiLabel( this, tr("Get values from") );
     lbl->attach( centeredLeftOf, refgrp_ );
 
     refposfld_ = new uiGenInput( this,
-			is2d_ ? tr("%1 Number").arg(uiStrings::sTrace()) 
+			is2d_ ? tr("%1 Number").arg(uiStrings::sTrace())
 			: tr("Position (Inl/Crl)"),
 			PositionInpSpec(PositionInpSpec::Setup(false,is2d_))
 			.setName("Inl position",0).setName("Crl position",1) );
@@ -139,12 +139,12 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	linefld_->attach( alignedBelow, refposfld_ );
     }
 
-    picksetfld_ = new uiIOObjSel( this, ctio_, mJoinUiStrs(sPickSet(),
+    picksetfld_ = new uiIOObjSel( this, ctio_, mJoinUiStrs(sPointSet(),
 							   sFile().toLower()) );
     picksetfld_->attach( alignedBelow, refgrp_ );
     picksetfld_->display( false );
 
-    statsfld_ = new uiGenInput( this, tr("PickSet statistic"),
+    statsfld_ = new uiGenInput( this, tr("PointSet statistic"),
 			       StringListInpSpec(statstrs) );
     statsfld_->attach( alignedBelow, picksetfld_ );
     statsfld_->display( false );
@@ -600,8 +600,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
 	if ( values.isEmpty() )
 	{
-	    uiMSG().error(tr("Cannot extract values at PickSet locations."
-		     " PickSet might be empty."));
+	    uiMSG().error(tr("Cannot extract values at PointSet locations."
+		     " PointSet might be empty."));
 	    return 0;
 	}
 
@@ -658,16 +658,16 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     , calcobj_(*calcobj)
 {
     rangesgrp_ = new uiButtonGroup( this, "Get ranges from", OD::Horizontal );
-    uiRadioButton* manualbut = new uiRadioButton( rangesgrp_, 
+    uiRadioButton* manualbut = new uiRadioButton( rangesgrp_,
                                                   uiStrings::sManual() );
     manualbut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
-    picksetbut_ = new uiRadioButton( rangesgrp_,uiStrings::sPickSet());
+    picksetbut_ = new uiRadioButton( rangesgrp_,uiStrings::sPointSet());
     picksetbut_->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     uiRadioButton* autobut = new uiRadioButton( rangesgrp_, tr("Automatic") );
     autobut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     rangesgrp_->selectButton( calcobj_.getRgRefType() );
 
-    picksetfld_ = new uiIOObjSel( this, ctio_, mJoinUiStrs(sPickSet(),
+    picksetfld_ = new uiIOObjSel( this, ctio_, mJoinUiStrs(sPointSet(),
 							   sFile().toLower()) );
     picksetfld_->attach( alignedBelow, (uiParent*)rangesgrp_ );
     picksetfld_->setInput( MultiID(calcobj_.getRgRefPick().buf()) );
@@ -705,7 +705,7 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 	wgtflds_ += spinbox;
 	spinbox->setName( BufferString("Weight ",attrnm) );
 
-	minmaxflds_ += new uiGenInput( attrvalsgrp, uiStrings::sEmptyString(), 
+	minmaxflds_ += new uiGenInput( attrvalsgrp, uiStrings::sEmptyString(),
 				       FloatInpIntervalSpec()
 				      .setName(BufferString("Min ",attrnm),0)
 				      .setName(BufferString("Max ",attrnm),1));

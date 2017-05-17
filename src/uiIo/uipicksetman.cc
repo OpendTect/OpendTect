@@ -32,7 +32,7 @@ mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 uiPickSetMan::uiPickSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(
              uiStrings::phrManage( toUiString("%1/%2")
-                .arg( uiStrings::sPickSet(mPlural) )
+                .arg( uiStrings::sPointSet(mPlural) )
                 .arg( uiStrings::sPolygon(mPlural))),
              mNoDlgTitle,
              mODHelpKey(mPickSetManHelpID) )
@@ -41,7 +41,7 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
 {
     createDefaultUI();
     mergebut_ = selgrp_->getManipGroup()->addButton( "mergepicksets",
-				    uiStrings::phrMerge(uiStrings::sPickSet()),
+				    uiStrings::phrMerge(uiStrings::sPointSet()),
 				    mCB(this,uiPickSetMan,mergeSets) );
     mTriggerInstanceCreatedNotifier();
     selChg( this );
@@ -61,7 +61,7 @@ void uiPickSetMan::ownSelChg()
     if ( chsnnms.size() > 1 )
 	tt = uiStrings::phrMerge( mToUiStringTodo(chsnnms.getDispString(2)) );
     else
-	tt = uiStrings::phrMerge(uiStrings::sPickSet());
+	tt = uiStrings::phrMerge(uiStrings::sPointSet());
 
     mergebut_->setToolTip( tt );
 }

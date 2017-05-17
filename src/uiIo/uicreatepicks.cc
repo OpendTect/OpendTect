@@ -56,7 +56,7 @@ uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
 								bool zvalreq )
     : uiDialog(p,uiDialog::Setup(
 			aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
-			       : uiStrings::phrCreateNew(uiStrings::sPickSet()),
+			       : uiStrings::phrCreateNew(uiStrings::sPointSet()),
 			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
     , aspolygon_(aspoly)
     , iszvalreq_(zvalreq)
@@ -70,7 +70,7 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
 {
     nmfld_ = new uiGenInput( this,
 		tr("Name for new %1").arg(aspolygon_ ? uiStrings::sPolygon() :
-						       uiStrings::sPickSet()) );
+						       uiStrings::sPointSet()) );
     colsel_ = new uiColorInput( this,
 			      uiColorInput::Setup(getRandStdDrawColor()).
 			      lbltxt(uiStrings::sColor()) );
@@ -223,7 +223,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 
     if ( size>50000 )
     {
-	uiString msg = tr("PickSet would contain %1 "
+	uiString msg = tr("PointSet would contain %1 "
 			  "points which might consume unexpected time & memory."
 			  "\n\nDo you want to continue?")
 		     .arg(dpssize);

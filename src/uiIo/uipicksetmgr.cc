@@ -75,7 +75,7 @@ IOObj* uiPickSetMgr::getSetIOObj( const Pick::Set& ps ) const
     IOObj* ioobj = IOM().get( setmgr_.id(setidx) );
     if ( !ioobj )
     {
-	uiString msg = tr("The PickSet '%1' no longer has "
+	uiString msg = tr("The PointSet '%1' no longer has "
 			  "an entry in the data store.\n"
 			  "Please use 'Save As' to store this set.")
 		     .arg(ps.name());
@@ -162,7 +162,7 @@ class uiMergePickSets : public uiDialog
 public:
 
 uiMergePickSets( uiParent* p, MultiID& mid )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrMerge(uiStrings::sPickSet()),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrMerge(uiStrings::sPointSet()),
 				 tr("Specify sets to merge"),
 				 mODHelpKey(mMergePickSetsHelpID) ))
     , ctioin_( PickSetTranslatorGroup::ioContext() )
@@ -171,7 +171,7 @@ uiMergePickSets( uiParent* p, MultiID& mid )
 {
     ctioin_.setObj( IOM().get(mid_) );
     selfld = new uiIOObjSelGrp( this, ctioin_, uiStrings::phrSelect(
-	     uiStrings::phrJoinStrings(uiStrings::sPickSet(), tr("to Merge"))),
+	     uiStrings::phrJoinStrings(uiStrings::sPointSet(), tr("to Merge"))),
 	     uiIOObjSelGrp::Setup(OD::ChooseZeroOrMore) );
     ctioout_.ctxt_.forread_ = false;
     outfld = new uiIOObjSel( this, ctioout_, uiStrings::phrOutput(
