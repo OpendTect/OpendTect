@@ -229,6 +229,9 @@ bool LocationDisplay::displayedOnlyAtSections() const
 
 void LocationDisplay::pickCB( CallBacker* cb )
 {
+    if ( set_->isReadOnly() )
+	return;
+
     if ( !isSelected() || !isOn() || isLocked() ) return;
 
     mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
@@ -528,6 +531,9 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 
 void LocationDisplay::locChg( CallBacker* cb )
 {
+    if ( set_->isReadOnly() )
+	return;
+
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb)
     if ( !cd )
     {
@@ -706,6 +712,9 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 
 void LocationDisplay::removePick( int removeidx, bool setundo )
 {
+    if ( set_->isReadOnly()  )
+	return;
+
     if ( !picksetmgr_ )
 	return;
 
@@ -893,6 +902,9 @@ const SurveyObject* LocationDisplay::getPickedSurveyObject() const
 
 bool LocationDisplay::removeSelections( TaskRunner* taskr )
 {
+    if ( set_->isReadOnly() )
+	return false;
+
     bool changed = false;
     const Selector< Coord3>* selector = scene_ ? scene_->getSelector() : 0;
     if ( selector && selector->isOK() )

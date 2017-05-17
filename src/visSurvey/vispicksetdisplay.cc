@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispolygonselection.h"
 #include "zaxistransform.h"
 #include "callback.h"
+#include "commondefs.h"
 
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
@@ -33,11 +34,13 @@ const char* PickSetDisplay::sKeyNrPicks()       { return "No Picks"; }
 const char* PickSetDisplay::sKeyPickPrefix()    { return "Pick "; }
 const char* PickSetDisplay::sKeyDisplayBody()	{ return "Show Body"; }
 
+#define mCheckReadyOnly(set) { if (set->isReadOnly()) return; }
 
 PickSetDisplay::PickSetDisplay()
     : bodydisplay_(0)
     , markerset_(visBase::MarkerSet::create())
     , polyline_(0)
+    , polylines_(0)
     , shoulddisplaybody_( false )
     , needline_(0)
     , dragger_(0)
@@ -64,10 +67,10 @@ PickSetDisplay::~PickSetDisplay()
     removeChild( markerset_->osgNode() );
     unRefAndZeroPtr( markerset_ );
 
-    if ( polyline_ )
+    if ( polylines_ )
     {
-	removeChild( polyline_->osgNode() );
-	unRefAndZeroPtr( polyline_ );
+	removeChild( polylines_->osgNode() );
+	unRefAndZeroPtr( polylines_ );
     }
 
     Pick::SetMgr& mgr = Pick::Mgr();
@@ -105,6 +108,8 @@ void PickSetDisplay::setSet( Pick::Set* newset )
 
 void PickSetDisplay::updateDragger()
 {
+    mCheckReadyOnly( set_ )
+
     if ( dragger_ )
     dragger_->updateDragger( false );
 }
@@ -156,11 +161,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     const int oldpixsz = (int)(markerset_->getScreenSize() + .5);
     if ( oldpixsz != set_->disp_.pixsize_ )
     {
-	if ( needLine() && polyline_ )
-	{
-	    OD::LineStyle ls; ls.width_ = set_->disp_.pixsize_;
-	    polyline_->setLineStyle( ls );
-	}
+	updateLineStyle();
 
 	markerset_->setScreenSize(  mCast(float,set_->disp_.pixsize_) );
     }
@@ -177,6 +178,17 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     markerset_->setMarkersSingleColor( set_->disp_.color_  );
     markerset_->forceRedraw( true );
     showLine( needLine() );
+}
+
+
+void PickSetDisplay::updateLineStyle()
+{
+    if ( !polylines_ || !set_ )
+	return;
+    const int sz = set_->disp_.pixsize_;
+    const int width = (int)mMAX( sz+3.0f, 1.0f );
+    polylines_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid, width) );
+
 }
 
 
@@ -226,16 +238,16 @@ Coord3 PickSetDisplay::getPosition( int loc ) const
 
 void PickSetDisplay::setPolylinePos( int idx, const Coord3& pos )
 {
-    if ( !polyline_ )
+    if ( !polylines_ )
 	createLine();
-
-    polyline_->setPoint( idx, pos );
-    polyline_->dirtyCoordinates();
+    redrawAll();
 }
 
 
 void PickSetDisplay::removePosition( int idx )
 {
+    mCheckReadyOnly( set_ );
+
     if ( set_->disp_.connect_ == Pick::Set::Disp::Close )
     {
 	redrawAll( idx );
@@ -254,10 +266,7 @@ void PickSetDisplay::removePosition( int idx )
 
 void PickSetDisplay::removePolylinePos( int idx )
 {
-    if ( !polyline_ || idx>polyline_->size() )
-	return;
-
-    polyline_->removePoint( idx );
+    mCheckReadyOnly( set_ );
     redrawLine();
 }
 
@@ -267,7 +276,7 @@ void PickSetDisplay::redrawAll( int drageridx )
     if ( !markerset_ )
 	return;
 
-    if ( !polyline_ && needLine() )
+    if ( !polylines_ && needLine() )
 	createLine();
 
     markerset_->clearMarkers();
@@ -303,54 +312,80 @@ void PickSetDisplay::removeAll()
 	markerset_->forceRedraw( true );
     }
 
-    if ( polyline_ )
-	polyline_->removeAllPoints();
+    if ( polylines_ )
+    {
+	polylines_->removeAllPrimitiveSets();
+	polylines_->getCoordinates()->setEmpty();
+    }
 }
 
 
 void PickSetDisplay::createLine()
 {
-    if ( polyline_ || !set_ )
+     if ( polylines_ || !set_ )
 	return;
 
-    polyline_ = visBase::PolyLine::create();
-    polyline_->ref();
-    addChild( polyline_->osgNode() );
-    polyline_->setDisplayTransformation( transformation_ );
-    polyline_->setMaterial( 0 );
+    polylines_ = visBase::PolyLine3D::create();
+    polylines_->ref();
 
-    int pixsize = set_->disp_.pixsize_;
-    OD::LineStyle ls;
-    ls.width_ = pixsize;
-    polyline_->setLineStyle( ls );
+    addChild( polylines_->osgNode() );
+    polylines_->setDisplayTransformation( transformation_ );
+    if ( !polylines_->getMaterial() )
+	polylines_->setMaterial( new visBase::Material );
+
+    polylines_->getMaterial()->setColor( Color::Green() );
+
+    updateLineStyle();
 }
 
 
 void PickSetDisplay::redrawLine()
 {
-    if ( !polyline_ )
+    if ( !polylines_ || !set_ )
 	return;
 
-    int pixsize = set_->disp_.pixsize_;
-    OD::LineStyle ls;
-    ls.width_ = pixsize;
-    polyline_->setLineStyle( ls );
+    polylines_->removeAllPrimitiveSets();
+    polylines_->getCoordinates()->setEmpty();
 
-    polyline_->removeAllPoints();
-    int idx=0;
-    for ( ; idx<set_->size(); idx++ )
+    if ( set_->nrSets()==0 && set_->disp_.connect_!=Pick::Set::Disp::None )
     {
-	Coord3 pos = (*set_)[idx].pos_;
-	if ( datatransform_ )
-	    pos.z = datatransform_->transform( pos );
-	if ( !mIsUdf(pos.z) )
-	    polyline_->addPoint( pos );
+	// this is for a default new polygon, we should have a default start 
+	// index. it should be changed in trunk version.
+	set_->addStartIdx( 0 );
     }
 
-    if ( idx && set_->disp_.connect_==Pick::Set::Disp::Close )
-	polyline_->setPoint( idx, polyline_->getPoint(0) );
+    const TypeSet<int> startindexs = set_->startIndexs();
+    for ( int idx=0; idx<set_->nrSets(); idx++ )
+    {
+	ObjectSet<const Pick::Location > positions;
+	set_->getLocations( positions,startindexs[idx] );
+	TypeSet<int> ps;
+	bool first = true;
+	int firstidx = 0;
+	for ( int idy=0; idy<positions.size(); idy++ )
+	{
+	    Coord3 pos = positions[idy]->pos();
+	    if ( datatransform_ )
+		pos.z = datatransform_->transform( pos );
+	    if ( !mIsUdf(pos.z) )
+		ps += polylines_->getCoordinates()->addPos( pos );
+	    if ( first )
+	    {
+		firstidx = ps[ps.size()-1];
+		first = false;
+	    }
+	}
+	if ( set_->disp_.connect_==Pick::Set::Disp::Close )
+	    ps += firstidx;
+	if ( ps.isEmpty() )
+	    continue;
+	Geometry::IndexedPrimitiveSet* lineprimitiveset =
+	    Geometry::IndexedPrimitiveSet::create( false );
+	lineprimitiveset->ref();
+	lineprimitiveset->set( ps.arr(), ps.size() );
+	polylines_->addPrimitiveSet( lineprimitiveset );
+    }
 
-    polyline_->dirtyCoordinates();
 }
 
 
@@ -366,17 +401,17 @@ void PickSetDisplay::showLine( bool yn )
     if ( !needLine() && !lineShown() )
 	return;
 
-    if ( !polyline_ )
+    if ( !polylines_ )
 	createLine();
 
     redrawLine();
-    polyline_->turnOn( yn );
+    polylines_->turnOn( yn );
 }
 
 
 bool PickSetDisplay::lineShown() const
 {
-    return polyline_ ? polyline_->isOn() : false;
+    return polylines_ ? polylines_->isOn() : false;
 }
 
 
@@ -576,22 +611,36 @@ bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
 
 void PickSetDisplay::updateLineAtSection()
 {
-   if ( polyline_ )
-   {
+    if ( polylines_ )
+    {
        TypeSet<Coord3> polycoords;
        for ( int idx = 0; idx<markerset_->getCoordinates()->size(); idx++ )
 	   polycoords += markerset_->getCoordinates()->getPos(idx);
 
-	polyline_->removeAllPoints();
+	polylines_->removeAllPrimitiveSets();
+	polylines_->getCoordinates()->setEmpty();
+
 	int pidx = 0;
+	TypeSet<int> defaultps;
 	for ( pidx=0; pidx<polycoords.size(); pidx++ )
 	{
 	    if ( markerset_->markerOn(pidx) )
-		polyline_->addPoint( polycoords[pidx] );
+	    {
+		const int idx = 
+		    polylines_->getCoordinates()->addPos( polycoords[pidx] );
+		defaultps += idx;
+	    }
+
 	}
 
-	if ( pidx && set_->disp_.connect_ == Pick::Set::Disp::Close )
-	    polyline_->setPoint( pidx, polyline_->getPoint(0) );
+	if ( pidx && set_->isPolygon() )
+	    defaultps += defaultps[0];
+
+	Geometry::IndexedPrimitiveSet* lineprimitiveset =
+	    Geometry::IndexedPrimitiveSet::create(false);
+	lineprimitiveset->ref();
+	lineprimitiveset->set( defaultps.arr(), defaultps.size() );
+	polylines_->addPrimitiveSet( lineprimitiveset );
     }
 }
 
@@ -658,8 +707,8 @@ void PickSetDisplay::setPixelDensity( float dpi )
        markerset_->setPixelDensity( dpi );
     if ( bodydisplay_ )
 	bodydisplay_->setPixelDensity( dpi );
-    if ( polyline_ )
-	polyline_->setPixelDensity( dpi );
+    if ( polylines_ )
+	polylines_->setPixelDensity( dpi );
 
 }
 
@@ -675,8 +724,8 @@ void PickSetDisplay::setDisplayTransformation( const mVisTrans* newtr )
 	bodydisplay_->setDisplayTransformation( newtr );
     if ( markerset_ )
 	markerset_->setDisplayTransformation( newtr );
-    if ( polyline_ )
-	polyline_->setDisplayTransformation( newtr );
+    if ( polylines_ )
+	polylines_->setDisplayTransformation( newtr );
     if ( dragger_ )
 	dragger_->setDisplayTransformation( newtr );
 }
@@ -734,6 +783,8 @@ void PickSetDisplay::turnOnSelectionMode( bool yn )
 
 void PickSetDisplay::polygonFinishedCB(CallBacker*)
 {
+    mCheckReadyOnly( set_ );
+
     if ( !scene_ || ! scene_->getPolySelection() )
 	return;
 

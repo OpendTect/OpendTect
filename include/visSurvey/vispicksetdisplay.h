@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 namespace visBase { class MarkerSet; class PolyLine;
 		    class DrawStyle; class RandomPos2Body; 
-		    class Dragger; }
+		    class Dragger; class PolyLine3D; }
 
 namespace visSurvey
 {
@@ -116,6 +116,7 @@ protected:
 
     visBase::MarkerSet*		markerset_;
     visBase::PolyLine*		polyline_;
+				//<don't use it, only for keep ABI
     bool			needline_;
 
     static const char*		sKeyNrPicks();
@@ -131,8 +132,10 @@ protected:
 private:
     void			setPickSelect(int,bool);
     void			unSelectAll();
+    void			updateLineStyle();
     Color			color_;
     BoolTypeSet			pickselstatus_;
+    visBase::PolyLine3D*	polylines_;
 };
 
 } // namespace visSurvey
