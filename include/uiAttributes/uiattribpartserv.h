@@ -107,6 +107,10 @@ public:
     void		getPossibleOutputs(bool is2d,BufferStringSet&) const;
 
     void		setTargetSelSpec(const Attrib::SelSpec&);
+    void		setTargetSelSpecs(
+				const TypeSet<Attrib::SelSpec>& specs )
+			{ targetspecs_ = specs; }
+
     const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const
 			    { return targetspecs_; }
 

@@ -106,8 +106,10 @@ public:
     Color			singleColor() const;
 
     void			allowShading(bool);
-    const Attrib::SelSpec*	getSelSpec(int) const;
+    const Attrib::SelSpec*	getSelSpec(int channel,int version=0) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
+    void			setSelSpecs(int attrib,
+					   const TypeSet<Attrib::SelSpec>&);
     void			setDepthAsAttrib(int);
     void			setDisplayDataPackIDs(int attrib,
 					const TypeSet<DataPack::ID>&);
@@ -314,7 +316,7 @@ private:
 
     bool				displayintersectionlines_;
 
-    ObjectSet<Attrib::SelSpec>		as_;
+    ObjectSet<TypeSet<Attrib::SelSpec> > as_;
     ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;

@@ -131,7 +131,8 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
     const bool selok = am_.attrserv_->selectAttrib( myas, issi ? 0 : zdinf,
 						    geomid, attribposname);
     if ( selok )
-	am_.visserv_->setSelSpec( id, attrib, myas );
+	am_.visserv_->setSelSpecs(
+		id, attrib, am_.attrserv_->getTargetSelSpecs() );
     return selok;
 }
 

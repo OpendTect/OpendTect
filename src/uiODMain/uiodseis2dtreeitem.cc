@@ -738,27 +738,26 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
     if ( !s2d ) return;
 
     const TrcKeyZSampling tkzs = s2d->getTrcKeyZSampling( false );
-    Attrib::SelSpec as = *s2d->getSelSpec( attribnr );
-    as.set2DFlag();
+    const TypeSet<Attrib::SelSpec>& as = *s2d->getSelSpecs( attribnr );
 
-    uiTaskRunner uitr( ODMainWin() );
     DataPack::ID dpid = DataPack::cNoID();
-    LineKey lk( mFromUiStringTodo(s2d->name()) );
-    if ( as.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
+    if ( as[0].id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
 	PtrMan<Attrib::ExtAttribCalc> calc =
-	    Attrib::ExtAttrFact().create( 0, as, false );
+	    Attrib::ExtAttrFact().create( 0, as[0], false );
 	if ( !calc )
 	{
 	    uiMSG().error( tr("Attribute cannot be created") );
 	    return;
 	}
 
+	uiTaskRunner uitr( ODMainWin() );
+	LineKey lk( mFromUiStringTodo(s2d->name()) );
 	dpid = calc->createAttrib( tkzs, lk, &uitr );
     }
     else
     {
-	applMgr()->attrServer()->setTargetSelSpec( as );
+	applMgr()->attrServer()->setTargetSelSpecs( as );
 	dpid = applMgr()->attrServer()->createOutput( tkzs, 0 );
     }
 
@@ -1034,23 +1033,25 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     if ( !attribid.isValid() ) return false;
 
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), 0 );
-    Attrib::SelSpec myas( *as );
-    myas.set( attribnm, attribid, false, 0 );
-    myas.set2DFlag();
-    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
-    if ( !ds ) return false;
-    myas.setRefFromID( *ds );
-    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
-    if ( !targetdesc ) return false;
+    TypeSet<Attrib::SelSpec> as = *visserv->getSelSpecs( displayID(), 0 );
+    for ( int idx=0; idx<as.size(); idx++ )
+    {
+	as[idx].set( attribnm, attribid, false, 0 );
+	as[idx].set2DFlag();
+	const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
+	if ( !ds ) return false;
+	as[idx].setRefFromID( *ds );
+	const Attrib::Desc* targetdesc = ds->getDesc( attribid );
+	if ( !targetdesc ) return false;
 
-    BufferString defstring;
-    targetdesc->getDefStr( defstring );
-    myas.setDefString( defstring );
-    attrserv->setTargetSelSpec( myas );
+	BufferString defstring;
+	targetdesc->getDefStr( defstring );
+	as[idx].setDefString( defstring );
+    }
 
+    attrserv->setTargetSelSpecs( as );
     mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
-    const FixedString zdomainkey = myas.zDomainKey();
+    const FixedString zdomainkey = as[0].zDomainKey();
     const bool alreadytransformed = scene && zdomainkey == scene->zDomainKey();
     const DataPack::ID dpid = attrserv->createOutput(
 			s2d->getTrcKeyZSampling(alreadytransformed), 0 );
@@ -1058,7 +1059,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	return false;
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    s2d->setSelSpec( attribNr(), myas );
+    s2d->setSelSpecs( attribNr(), as );
     applMgr()->useDefColTab( displayID(), attribNr() );
     s2d->setDataPackID( attribNr(), dpid, &taskrunner );
     s2d->showPanel( true );
@@ -1086,7 +1087,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
     if ( dpid == DataPack::cNoID() )
 	return;
 
-    s2d->setSelSpec( attribNr(), myas );
+    s2d->setSelSpecs( attribNr(), TypeSet<Attrib::SelSpec>(1,myas) );
     s2d->setDataPackID( attribNr(), dpid, 0 );
     s2d->showPanel( true );
 

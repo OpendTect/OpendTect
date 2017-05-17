@@ -269,7 +269,7 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 }
 
 
-const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib ) const
+const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib, int version ) const
 {
     return attrib ? 0 : &as_;
 }

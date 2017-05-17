@@ -310,7 +310,7 @@ HorizonDisplay::HorizonDisplay()
 	mMAX( SI().inlDistance() * SI().inlRange(true).width(),
 	      SI().crlDistance() * SI().crlRange(true).width() );
 
-    as_ += new Attrib::SelSpec;
+    as_ += new TypeSet<Attrib::SelSpec>( 1, Attrib::SelSpec() );
     coltabmappersetups_ += ColTab::MapperSetup();
     coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
 
@@ -580,7 +580,8 @@ void HorizonDisplay::useTexture( bool yn, bool trigger )
     {
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
-	    if ( as_[idx]->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt())
+	    const Attrib::SelSpec* selspec = getSelSpec( idx );
+	    if ( selspec->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
 	    {
 		usestexture_ = yn;
 		setDepthAsAttrib(idx);
@@ -636,17 +637,6 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
     curtextureidx_ = textureidx;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->selectActiveVersion( channel, textureidx );
-
-    if ( !as_.validIdx(channel) || !userrefs_.validIdx(channel) ||
-	 userrefs_[channel]->isEmpty() )
-	return;
-
-    if ( userrefs_[channel]->get(0) == sKeySectionID() )
-	textureidx++;
-
-    BufferString usrref = userrefs_[channel]->validIdx(textureidx) ?
-	userrefs_[channel]->get(textureidx) : "<No name>";
-    as_[channel]->setUserRef( usrref );
 }
 
 
@@ -708,7 +698,7 @@ void HorizonDisplay::setAttribShift( int channel, const TypeSet<float>& shifts )
 
 bool HorizonDisplay::addAttrib()
 {
-    as_ += new Attrib::SelSpec;
+    as_ += new TypeSet<Attrib::SelSpec>( 1, Attrib::SelSpec() );
     TypeSet<float> shift;
     shift += 0.0;
     curshiftidx_ += 0;
@@ -833,16 +823,37 @@ void HorizonDisplay::allowShading( bool yn )
 }
 
 
-const Attrib::SelSpec* HorizonDisplay::getSelSpec( int channel ) const
-{ return as_.validIdx( channel ) ? as_[channel] : 0; }
+const Attrib::SelSpec* HorizonDisplay::getSelSpec(
+				int channel, int version ) const
+{
+    return as_.validIdx(channel) && as_[channel]->validIdx(version)
+		? &(*as_[channel])[version] : 0;
+}
 
 
 void HorizonDisplay::setSelSpec( int channel, const Attrib::SelSpec& as )
 {
     SurveyObject::setSelSpec( channel, as );
 
-    if ( as_.validIdx(channel) && as_[channel] )
-	(*as_[channel]) = as;
+    if ( as_.validIdx(channel) && as_[channel] && !as_[channel]->isEmpty() )
+	(*as_[channel])[0] = as;
+}
+
+
+void HorizonDisplay::setSelSpecs(
+		int channel, const TypeSet<Attrib::SelSpec>& as )
+{
+    SurveyObject::setSelSpecs( channel, as );
+
+    if ( !as_.validIdx(channel) )
+	return;
+
+    *as_[channel] = as;
+
+    BufferStringSet* attrnms = new BufferStringSet();
+    for ( int idx=0; idx<as.size(); idx++ )
+	attrnms->add( as[idx].userRef() );
+    delete userrefs_.replace( channel, attrnms );
 }
 
 
@@ -851,10 +862,9 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     if ( !as_.validIdx(channel) )
 	return;
 
-    const bool attribwasdepth =
-			FixedString(as_[channel]->userRef()) == sKeyZValues();
-
-    as_[channel]->set( sKeyZValues(), Attrib::SelSpec::cNoAttrib(), false, "" );
+    Attrib::SelSpec& as = (*as_[channel])[0];
+    const bool attribwasdepth = FixedString(as.userRef())==sKeyZValues();
+    as.set( sKeyZValues(), Attrib::SelSpec::cNoAttrib(), false, "" );
 
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> defs;
@@ -995,11 +1005,6 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     validtexture_ = true;
     updateSingleColor();
 
-    BufferStringSet* attrnms = new BufferStringSet();
-    for ( int idx=0; idx<data->nrCols(); idx++ )
-	attrnms->add( data->colDef(idx).name_ );
-    delete userrefs_.replace( channel, attrnms );
-
     createDisplayDataPacks( channel, data );
 }
 
@@ -1033,7 +1038,6 @@ void HorizonDisplay::createDisplayDataPacks(
 
     TypeSet<DataPack::ID> dpids;
     const char* catnm = "Horizon Data";
-    const char* dpnm = as_[channel]->userRef();
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-line").add("Cross-line");
 
@@ -1046,7 +1050,10 @@ void HorizonDisplay::createDisplayDataPacks(
 	mDeclareAndTryAlloc(MapDataPack*,mapdp,MapDataPack(catnm,bvsarr));
 	if ( !mapdp ) continue;
 
-	mapdp->setName( dpnm );
+	const Attrib::SelSpec* as = getSelSpec( channel, idx );
+	if ( as )
+	    mapdp->setName( as->userRef() );
+
 	mapdp->setProps( inlrg, crlrg, true, &dimnames );
 	DPM(DataPackMgr::FlatID()).add( mapdp );
 	dpids += mapdp->id();
@@ -1058,14 +1065,14 @@ void HorizonDisplay::createDisplayDataPacks(
 
 bool HorizonDisplay::hasStoredAttrib( int channel ) const
 {
-    const char* userref = as_[channel]->userRef();
-    return as_[channel]->id()==Attrib::SelSpec::cOtherAttrib() &&
-	   userref && *userref;
+    const Attrib::SelSpec* selspec = getSelSpec( channel );
+    return selspec->id()==Attrib::SelSpec::cOtherAttrib() &&
+		!FixedString(selspec->userRef()).isEmpty();
 }
 
 
 bool HorizonDisplay::hasDepth( int channel ) const
-{ return as_[channel]->id()==Attrib::SelSpec::cNoAttrib(); }
+{ return getSelSpec(channel)->id()==Attrib::SelSpec::cNoAttrib(); }
 
 
 Coord3 HorizonDisplay::getTranslation() const
@@ -1396,11 +1403,9 @@ Color HorizonDisplay::singleColor() const
 
 int HorizonDisplay::getChannelIndex( const char* nm ) const
 {
-    for ( int idx=0; idx<as_.size(); idx++ )
-    {
-	const FixedString usrref = as_[idx]->userRef();
-	if ( usrref == nm ) return idx;
-    }
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+	if ( FixedString(getSelSpec(idx)->userRef()) == nm )
+	    return idx;
 
     return -1;
 }
@@ -1662,9 +1667,10 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
     const BinID bid( SI().transform(pos) );
 
-    for ( int idx=as_.size()-1; idx>=0; idx-- )
+    for ( int idx=nrAttribs()-1; idx>=0; idx-- )
     {
-	if ( as_[idx]->id().isUnselInvalid() )
+	const Attrib::SelSpec* selspec = getSelSpec( idx );
+	if ( selspec->id().isUnselInvalid() )
 	    return;
 
 	if ( !sections_[sectionidx]->getChannels2RGBA()->isEnabled(idx) ||
@@ -1720,13 +1726,14 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 	    const bool hasshift = !mIsZero(attribshift,0.1) ||
 				  !mIsZero(zshift,0.1);
-	    if ( as_.size() > 1 || hasshift )
+	    const int nrattribs = nrAttribs();
+	    if ( nrattribs>1 || hasshift )
 	    {
 		BufferString channelstr = "(";
 		bool first = true;
-		if ( as_.size()>1 )
+		if ( nrattribs > 1 )
 		{
-		    channelstr += as_[idx]->userRef();
+		    channelstr += selspec->userRef();
 		    first = false;
 		}
 
@@ -2390,10 +2397,10 @@ void HorizonDisplay::fillPar( IOPar& par ) const
     par.set( sKeyResolution(), getResolution() );
     par.setYN( sKeySurfaceGrid(), displaysSurfaceGrid() );
 
-    for ( int channel=as_.size()-1; channel>=0; channel-- )
+    for ( int channel=nrAttribs()-1; channel>=0; channel-- )
     {
 	IOPar channelpar;
-	as_[channel]->fillPar( channelpar );
+	(*as_[channel])[0].fillPar( channelpar );
 
 	getColTabMapperSetup(channel)->fillPar( channelpar );
 	if ( getColTabSequence(channel) )
@@ -2406,7 +2413,7 @@ void HorizonDisplay::fillPar( IOPar& par ) const
 	par.mergeComp( channelpar, key );
     }
 
-    par.set( sKeyNrAttribs(), as_.size() );
+    par.set( sKeyNrAttribs(), nrAttribs() );
 }
 
 

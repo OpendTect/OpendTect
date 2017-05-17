@@ -408,6 +408,17 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	attrdata.attribid_.asInt() = dlg.attribID().asInt();
 	attrdata.outputnr_ = dlg.outputNr();
 	attrdata.setAttrSet( &dlg.getAttrSet() );
+	if ( attrdata.compnr_ == -1 )
+	{
+	    const MultiID dbky =
+		dlg.getAttrSet().getStoredKey( attrdata.attribid_ );
+	    SeisIOObjInfo info( dbky );
+	    TypeSet<int> selectedcomps( info.nrComponents(), 0 );
+	    for ( int idx=1; idx<selectedcomps.size(); idx++ )
+		selectedcomps[idx] = idx;
+
+	    return prepMultCompSpecs( selectedcomps, dbky, false, true );
+	}
     }
 
     const bool isnla = !attrdata.attribid_.isValid() && attrdata.outputnr_ >= 0;

@@ -89,6 +89,7 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 
 VolumeDisplay::AttribData::AttribData()
     : as_( *new Attrib::SelSpec )
+    , selspec_(new TypeSet<Attrib::SelSpec>(1,Attrib::SelSpec()))
     , cache_( 0 )
 {}
 
@@ -96,6 +97,7 @@ VolumeDisplay::AttribData::AttribData()
 VolumeDisplay::AttribData::~AttribData()
 {
     delete &as_;
+    delete selspec_;
     DPM( DataPackMgr::SeisID() ).release( cache_ );
 }
 
@@ -1063,20 +1065,33 @@ SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat( int ) const
 { return visSurvey::SurveyObject::Cube; }
 
 
-const Attrib::SelSpec* VolumeDisplay::getSelSpec( int attrib ) const
+const Attrib::SelSpec* VolumeDisplay::getSelSpec(
+				int attrib, int version ) const
 {
-    return attribs_.validIdx(attrib) ? &attribs_[attrib]->as_ : 0;
+    return attribs_.validIdx(attrib)? &(*attribs_[attrib]->selspec_)[version]:0;
+}
+
+
+const TypeSet<Attrib::SelSpec>* VolumeDisplay::getSelSpecs( int attrib ) const
+{
+    return attribs_.validIdx(attrib) ? attribs_[attrib]->selspec_ : 0;
 }
 
 
 void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 {
-    SurveyObject::setSelSpec( attrib, as );
+    setSelSpecs( attrib, TypeSet<Attrib::SelSpec>(1,as) );
+}
 
-    if ( !attribs_.validIdx(attrib) || attribs_[attrib]->as_==as )
+
+void VolumeDisplay::setSelSpecs( int attrib, const TypeSet<Attrib::SelSpec>& as)
+{
+    SurveyObject::setSelSpecs( attrib, as );
+
+    if ( !attribs_.validIdx(attrib) || *attribs_[attrib]->selspec_==as )
 	return;
 
-    attribs_[attrib]->as_ = as;
+    *attribs_[attrib]->selspec_ = as;
     DPM( DataPackMgr::SeisID() ).release( attribs_[attrib]->cache_ );
     attribs_[attrib]->cache_ = 0;
 
@@ -1335,7 +1350,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 	while ( attrib >= vd->nrAttribs() )
 	    vd->addAttrib();
 
-	vd->setSelSpec( attrib, attribs_[attrib]->as_ );
+	vd->setSelSpecs( attrib, *attribs_[attrib]->selspec_ );
 	vd->setDataVolume( attrib, attribs_[attrib]->cache_, tr );
 	vd->setColTabMapperSetup( attrib,
 			    scalarfield_->getColTabMapper(attrib).setup_, tr );
@@ -1492,7 +1507,7 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	sequence.usePar(*texturepar );
 	setColTabMapperSetup( 0, mappersetup, 0 );
 	setColTabSequence( 0, sequence, 0 );
-	if ( !attribs_[0]->as_.usePar(par) )
+	if ( !(*attribs_[0]->selspec_)[0].usePar(par) )
 	    return false;
     }
 

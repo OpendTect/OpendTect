@@ -474,9 +474,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferStringSet compnms;
     SeisIOObjInfo::getCompNames( key, compnms );
     compfld_->box()->setEmpty();
-    if ( !showsteerdata_ )	//trick to prevent ALL coming to the display
-	compfld_->box()->addItem( uiStrings::sAll() );
-
+    compfld_->box()->addItem( uiStrings::sAll() );
     compfld_->box()->addItems( compnms );
     compfld_->display( compnms.size()>=2 );
 }
@@ -537,11 +535,12 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     }
     else
     {
-	const bool canuseallcomps = BufferString(compfld_->box()->textOfItem(0))
+	const int curselitmidx = compfld_->box()->currentItem();
+	const bool canuseallcomps =
+	    BufferString(compfld_->box()->textOfItem(curselitmidx))
 			== BufferString(uiStrings::sAll().getFullString())
 			&& compfld_->mainObject()->visible();
-	const int curselitmidx = compfld_->box()->currentItem();
-	attrdata_.compnr_ = canuseallcomps ? curselitmidx -1 : curselitmidx;
+	attrdata_.compnr_ = canuseallcomps ? -1 : curselitmidx-1;
 	if ( attrdata_.compnr_< 0 && !canuseallcomps )
 	    attrdata_.compnr_ = 0;
 	const char* ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )

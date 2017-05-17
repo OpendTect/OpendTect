@@ -258,7 +258,18 @@ void MarchingCubesDisplay::setSelSpec( int attrib, const Attrib::SelSpec& spec )
 }
 
 
-const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec( int attrib ) const
+void MarchingCubesDisplay::setSelSpecs(
+		int attrib, const TypeSet<Attrib::SelSpec>& spec )
+{
+    SurveyObject::setSelSpecs( attrib, spec );
+
+    if ( !attrib )
+	selspec_ = spec[0];
+}
+
+
+const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec(
+					int attrib, int version ) const
 {
     return attrib ? 0 : &selspec_;
 }
