@@ -10,12 +10,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratreftree.h"
 #include "safefileio.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "uistrings.h"
-
-const char* Strat::RepositoryAccess::fileNameBase() 	{ return "StratUnits"; }
 
 namespace Strat
 {
+
+const char* RepositoryAccess::fileNameBase() 	{ return "StratUnits"; }
 
 class RefTreeMgr : public CallBacker
 {
@@ -59,20 +60,18 @@ RefTree& curTree()
 
 };
 
-} // namespace
 
-
-static Strat::RefTreeMgr& refTreeMgr()
-{ mDefineStaticLocalObject( Strat::RefTreeMgr, mgr, ); return mgr; }
-const Strat::RefTree& Strat::RT()
+static RefTreeMgr& refTreeMgr()
+{ mDefineStaticLocalObject( RefTreeMgr, mgr, ); return mgr; }
+const RefTree& RT()
 { return refTreeMgr().curTree(); }
-void Strat::pushRefTree( Strat::RefTree* rt )
+void pushRefTree( RefTree* rt )
 { refTreeMgr().rts_ += rt; }
-void Strat::popRefTree()
+void popRefTree()
 { delete refTreeMgr().rts_.removeSingle( refTreeMgr().rts_.size()-1 ); }
 
 
-void Strat::setRT( RefTree* rt )
+void setRT( RefTree* rt )
 {
     if ( !rt ) return;
 
@@ -80,13 +79,14 @@ void Strat::setRT( RefTree* rt )
 	refTreeMgr().rts_ += rt;
     else
     {
-	const int currentidx = refTreeMgr().rts_.indexOf( &Strat::RT() );
+	const int currentidx = refTreeMgr().rts_.indexOf( &RT() );
 	delete refTreeMgr().rts_.replace( currentidx < 0 ? 0 : currentidx, rt );
     }
 }
 
 
-Strat::RefTree* Strat::RepositoryAccess::readTree()
+// RepositoryAccess
+RefTree* RepositoryAccess::readTree()
 {
     Repos::FileProvider rfp( fileNameBase(), true );
     while ( rfp.next() )
@@ -105,13 +105,8 @@ Strat::RefTree* Strat::RepositoryAccess::readTree()
 }
 
 
-#define mAddFilenameToMsg(fnm) msg_.arg(" '").arg(fnm).arg("'")
-
-Strat::RefTree* Strat::RepositoryAccess::readTree( Repos::Source src )
+RefTree* RepositoryAccess::readFromFile( const char* fnm )
 {
-    src_ = src;
-    Repos::FileProvider rfp( fileNameBase() );
-    const BufferString fnm( rfp.fileName(src) );
     SafeFileIO sfio( fnm );
     if ( !sfio.open(true) )
 	{ msg_ = uiStrings::phrCannotOpen(toUiString(fnm)); return 0; }
@@ -130,12 +125,28 @@ Strat::RefTree* Strat::RepositoryAccess::readTree( Repos::Source src )
 }
 
 
-bool Strat::RepositoryAccess::writeTree( const Strat::RefTree& rt,
-					 Repos::Source src )
+RefTree* RepositoryAccess::read( const MultiID& key )
+{
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if  ( !ioobj ) return 0;
+
+    RefTree* tree = readFromFile( ioobj->fullUserExpr() );
+    if ( tree ) tree->name_ = IOM().nameOf( key );
+    return tree;
+}
+
+
+RefTree* RepositoryAccess::readTree( Repos::Source src )
 {
     src_ = src;
     Repos::FileProvider rfp( fileNameBase() );
     const BufferString fnm( rfp.fileName(src) );
+    return readFromFile( fnm );
+}
+
+
+bool RepositoryAccess::writeToFile( const RefTree& rt, const char* fnm )
+{
     SafeFileIO sfio( fnm, true );
     if ( !sfio.open(false) )
 	{ msg_ = tr("Cannot write to %1").arg(fnm); return 0; }
@@ -150,3 +161,21 @@ bool Strat::RepositoryAccess::writeTree( const Strat::RefTree& rt,
     msg_ = tr("Stratigraphic tree written to %1").arg(fnm);
     return true;
 }
+
+
+bool RepositoryAccess::write( const RefTree& rt, const MultiID& key )
+{
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    return writeToFile( rt, ioobj->fullUserExpr() );
+}
+
+
+bool RepositoryAccess::writeTree( const RefTree& rt, Repos::Source src )
+{
+    src_ = src;
+    Repos::FileProvider rfp( fileNameBase() );
+    const BufferString fnm( rfp.fileName(src) );
+    return writeToFile( rt, fnm );
+}
+
+} // namespace Strat

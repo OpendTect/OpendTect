@@ -8,8 +8,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "stratlevel.h"
 #include "bufstringset.h"
-#include "iopar.h"
 #include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
 #include "file.h"
 #include "filepath.h"
 #include "color.h"
@@ -21,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "dirlist.h"
 
+static const char* sLevelExt = "stratlevels";
 
 namespace Strat
 {
@@ -63,11 +65,11 @@ void doNull( CallBacker* )
 void createSet()
 {
     Repos::FileProvider rfp( "StratLevels", true );
-    Strat::LevelSet* ls = 0;
+    LevelSet* ls = 0;
     while ( rfp.next() )
     {
 	const BufferString fnm( rfp.fileName() );
-	Strat::LevelSet* tmp = new Strat::LevelSet;
+	LevelSet* tmp = new LevelSet;
 	if ( !tmp->readFrom(rfp.fileName()) || tmp->isEmpty() )
 	    delete tmp;
 	else
@@ -76,7 +78,7 @@ void createSet()
 
     if ( !ls )
     {
-	ls = new Strat::LevelSet;
+	ls = new LevelSet;
 	Repos::Source rsrc = ls->readOldRepos();
 	if ( rsrc != Repos::Temp )
 	    ls->store( rsrc );
@@ -94,22 +96,20 @@ LevelSet& curSet()
     ObjectSet<LevelSet>	lss_;
 };
 
-} // namespace
 
-
-static Strat::LevelSetMgr& lvlSetMgr()
-{ mDefineStaticLocalObject( Strat::LevelSetMgr, mgr, ); return mgr; }
-const Strat::LevelSet& Strat::LVLS()
+static LevelSetMgr& lvlSetMgr()
+{ mDefineStaticLocalObject( LevelSetMgr, mgr, ); return mgr; }
+const LevelSet& LVLS()
 { return lvlSetMgr().curSet(); }
-void Strat::pushLevelSet( Strat::LevelSet* ls )
+void pushLevelSet( LevelSet* ls )
 { lvlSetMgr().lss_ += ls; }
-void Strat::popLevelSet()
+void popLevelSet()
 { delete lvlSetMgr().lss_.removeSingle( lvlSetMgr().lss_.size()-1 ); }
-const Strat::LevelSet& Strat::unpushedLVLS()
+const LevelSet& unpushedLVLS()
 { return *lvlSetMgr().lss_[0]; }
 
 
-void Strat::setLVLS( LevelSet* ls )
+void setLVLS( LevelSet* ls )
 {
     if ( !ls ) return;
 
@@ -123,7 +123,7 @@ void Strat::setLVLS( LevelSet* ls )
 }
 
 
-Strat::Level::Level( const char* nm, const Strat::LevelSet* ls )
+Level::Level( const char* nm, const LevelSet* ls )
     : NamedObject(nm)
     , id_(-1)
     , lvlset_(ls)
@@ -134,7 +134,7 @@ Strat::Level::Level( const char* nm, const Strat::LevelSet* ls )
 }
 
 
-Strat::Level::Level( const Level& oth )
+Level::Level( const Level& oth )
     : NamedObject(oth)
     , id_(-1)
     , color_(oth.color_)
@@ -146,20 +146,20 @@ Strat::Level::Level( const Level& oth )
 }
 
 
-Strat::Level::~Level()
+Level::~Level()
 {
     toBeRemoved.trigger();
     delete &pars_;
 }
 
 
-bool Strat::Level::operator ==( const Level& lvl ) const
+bool Level::operator ==( const Level& lvl ) const
 {
     return id_ == -1 ? this == &lvl : id_ == lvl.id_;
 }
 
 
-bool Strat::Level::isDifferentFrom( const Level& lvl ) const
+bool Level::isDifferentFrom( const Level& lvl ) const
 {
     if ( this == &lvl ) return false;
 
@@ -169,7 +169,7 @@ bool Strat::Level::isDifferentFrom( const Level& lvl ) const
 }
 
 
-const char* Strat::Level::checkName( const char* nm ) const
+const char* Level::checkName( const char* nm ) const
 {
     if ( !nm || !*nm )
 	return "Level names may not be empty";
@@ -179,7 +179,7 @@ const char* Strat::Level::checkName( const char* nm ) const
 }
 
 
-void Strat::Level::setName( const char* nm )
+void Level::setName( const char* nm )
 {
     if ( checkName(nm) || name() == nm )
 	return;
@@ -188,21 +188,21 @@ void Strat::Level::setName( const char* nm )
 }
 
 
-void Strat::Level::setColor( Color c )
+void Level::setColor( Color c )
 {
     if ( color_ != c )
 	{ color_ = c; changed.trigger(); }
 }
 
 
-void Strat::Level::setPars( const IOPar& iop )
+void Level::setPars( const IOPar& iop )
 {
     if ( pars_ != iop )
 	{ pars_ = iop; changed.trigger(); }
 }
 
 
-void Strat::Level::fillPar( IOPar& iop ) const
+void Level::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::ID(), id_ );
     iop.set( sKey::Name(), name() );
@@ -211,7 +211,7 @@ void Strat::Level::fillPar( IOPar& iop ) const
 }
 
 
-void Strat::Level::usePar( const IOPar& iop )
+void Level::usePar( const IOPar& iop )
 {
     iop.get( sKey::ID(), id_ );
     BufferString nm; iop.get( sKey::Name(), nm ); setName( nm );
@@ -231,11 +231,11 @@ void Strat::Level::usePar( const IOPar& iop )
     , levelToBeRemoved(this) \
     , ischanged_(false)
 
-Strat::LevelSet::LevelSet() mLvlSetInitList(0)				{}
-Strat::LevelSet::LevelSet( Strat::Level::ID id ) mLvlSetInitList(id)	{}
+LevelSet::LevelSet() mLvlSetInitList(0)				{}
+LevelSet::LevelSet( Level::ID id ) mLvlSetInitList(id)	{}
 
 
-Strat::LevelSet::LevelSet( const Strat::LevelSet& oth )
+LevelSet::LevelSet( const LevelSet& oth )
     : lastlevelid_(oth.lastlevelid_)
     , levelAdded(this)
     , levelChanged(this)
@@ -246,7 +246,7 @@ Strat::LevelSet::LevelSet( const Strat::LevelSet& oth )
 }
 
 
-Strat::LevelSet::~LevelSet()
+LevelSet::~LevelSet()
 {
     for ( int idx=0; idx<size(); idx++ )
 	lvls_[idx]->toBeRemoved.disable();
@@ -254,7 +254,7 @@ Strat::LevelSet::~LevelSet()
 }
 
 
-Strat::LevelSet& Strat::LevelSet::operator =( const Strat::LevelSet& oth )
+LevelSet& LevelSet::operator =( const LevelSet& oth )
 {
     if ( this != &oth )
     {
@@ -267,19 +267,19 @@ Strat::LevelSet& Strat::LevelSet::operator =( const Strat::LevelSet& oth )
 }
 
 
-void Strat::LevelSet::getLevelsFrom( const Strat::LevelSet& oth )
+void LevelSet::getLevelsFrom( const LevelSet& oth )
 {
     deepErase(lvls_);
 
     for ( int ilvl=0; ilvl<oth.size(); ilvl++ )
     {
-	Strat::Level* newlvl = new Strat::Level( *oth.lvls_[ilvl] );
+	Level* newlvl = new Level( *oth.lvls_[ilvl] );
 	addLvl( newlvl );
     }
 }
 
 
-void Strat::LevelSet::makeMine( Strat::Level& lvl )
+void LevelSet::makeMine( Level& lvl )
 {
     lvl.lvlset_ = this;
     lvl.changed.notify( mCB(this,LevelSet,lvlChgCB) );
@@ -287,7 +287,7 @@ void Strat::LevelSet::makeMine( Strat::Level& lvl )
 }
 
 
-int Strat::LevelSet::gtIdxOf( const char* nm, Level::ID id ) const
+int LevelSet::gtIdxOf( const char* nm, Level::ID id ) const
 {
     const bool useid = id >= 0;
     for ( int ilvl=0; ilvl<size(); ilvl++ )
@@ -300,21 +300,21 @@ int Strat::LevelSet::gtIdxOf( const char* nm, Level::ID id ) const
 }
 
 
-Strat::Level* Strat::LevelSet::gtLvl( const char* nm, Level::ID id ) const
+Level* LevelSet::gtLvl( const char* nm, Level::ID id ) const
 {
     const int ilvl = gtIdxOf( nm, id );
     return ilvl < 0 ? 0 : const_cast<Level*>( lvls_[ilvl] );
 }
 
 
-void Strat::LevelSet::getNames( BufferStringSet& nms ) const
+void LevelSet::getNames( BufferStringSet& nms ) const
 {
     for ( int ilvl=0; ilvl<size(); ilvl++ )
 	nms.add( lvls_[ilvl]->name().buf() );
 }
 
 
-Strat::Level* Strat::LevelSet::getNew( const Level* lvl ) const
+Level* LevelSet::getNew( const Level* lvl ) const
 {
     Level* newlvl = 0;
     const char* newnmbase = lvl ? lvl->name().buf() : "New";
@@ -331,12 +331,12 @@ Strat::Level* Strat::LevelSet::getNew( const Level* lvl ) const
     }
 
     newlvl->id_ = ++lastlevelid_;
-    const_cast<Strat::LevelSet*>(this)->makeMine( *newlvl );
+    const_cast<LevelSet*>(this)->makeMine( *newlvl );
     return newlvl;
 }
 
 
-Strat::Level* Strat::LevelSet::add( const Strat::Level& lvl )
+Level* LevelSet::add( const Level& lvl )
 {
     Level* newlvl = getNew( &lvl );
     addLvl( newlvl );
@@ -344,7 +344,7 @@ Strat::Level* Strat::LevelSet::add( const Strat::Level& lvl )
 }
 
 
-void Strat::LevelSet::remove( Level::ID id )
+void LevelSet::remove( Level::ID id )
 {
     if ( !isPresent( id ) ) return;
 
@@ -357,7 +357,7 @@ void Strat::LevelSet::remove( Level::ID id )
 }
 
 
-void Strat::LevelSet::add( const BufferStringSet& lvlnms,
+void LevelSet::add( const BufferStringSet& lvlnms,
 				const TypeSet<Color>& cols )
 {
     for ( int idx=0; idx<lvlnms.size(); idx++ )
@@ -365,7 +365,7 @@ void Strat::LevelSet::add( const BufferStringSet& lvlnms,
 }
 
 
-void Strat::LevelSet::addLvl( Level* lvl )
+void LevelSet::addLvl( Level* lvl )
 {
     if ( !lvl ) return;
     makeMine( *lvl );
@@ -375,7 +375,7 @@ void Strat::LevelSet::addLvl( Level* lvl )
 }
 
 
-Strat::Level* Strat::LevelSet::set( const char* nm, const Color& col, int idx )
+Level* LevelSet::set( const char* nm, const Color& col, int idx )
 {
     int curidx = indexOf( nm );
     Level* lvl = 0;
@@ -419,7 +419,7 @@ Strat::Level* Strat::LevelSet::set( const char* nm, const Color& col, int idx )
 }
 
 
-void Strat::LevelSet::notif( CallBacker* cb, bool chg )
+void LevelSet::notif( CallBacker* cb, bool chg )
 {
     mDynamicCastGet(Level*,lvl,cb) if ( !lvl ) return;
 
@@ -432,7 +432,7 @@ void Strat::LevelSet::notif( CallBacker* cb, bool chg )
 }
 
 
-void Strat::LevelSet::readPars( ascistream& astrm, bool isold )
+void LevelSet::readPars( ascistream& astrm, bool isold )
 {
     while ( true )
     {
@@ -463,7 +463,7 @@ void Strat::LevelSet::readPars( ascistream& astrm, bool isold )
 }
 
 
-bool Strat::LevelSet::readFrom( const char* fnm )
+bool LevelSet::readFrom( const char* fnm )
 {
     SafeFileIO sfio( fnm );
     if ( !sfio.open(true) )
@@ -481,7 +481,7 @@ bool Strat::LevelSet::readFrom( const char* fnm )
 }
 
 
-Repos::Source Strat::LevelSet::readOldRepos()
+Repos::Source LevelSet::readOldRepos()
 {
     Repos::FileProvider rfp( "StratUnits" );
     BufferString bestfile;
@@ -507,21 +507,21 @@ Repos::Source Strat::LevelSet::readOldRepos()
 }
 
 
-bool Strat::LevelSet::store( Repos::Source rsrc ) const
+bool LevelSet::store( Repos::Source rsrc ) const
 {
     Repos::FileProvider rfp( "StratLevels" );
     return writeTo( rfp.fileName(rsrc) );
 }
 
 
-bool Strat::LevelSet::read( Repos::Source rsrc ) 
+bool LevelSet::read( Repos::Source rsrc )
 {
     Repos::FileProvider rfp( "StratLevels" );
     return readFrom( rfp.fileName(rsrc) );
 }
 
 
-bool Strat::LevelSet::writeTo( const char* fnm ) const
+bool LevelSet::writeTo( const char* fnm ) const
 {
     SafeFileIO sfio( fnm, true );
     if ( !sfio.open(false) )
@@ -543,7 +543,7 @@ bool Strat::LevelSet::writeTo( const char* fnm ) const
 }
 
 
-BufferString Strat::getStdFileName( const char* inpnm, const char* basenm )
+BufferString getStdFileName( const char* inpnm, const char* basenm )
 {
     BufferString nm( inpnm );
     nm.replace( ' ', '_' );
@@ -556,7 +556,7 @@ BufferString Strat::getStdFileName( const char* inpnm, const char* basenm )
 }
 
 
-void Strat::LevelSet::getStdNames( BufferStringSet& nms )
+void LevelSet::getStdNames( BufferStringSet& nms )
 {
     DirList dl( getStdFileName(0,0), DirList::FilesOnly, "Levels.*" );
     for ( int idx=0; idx<dl.size(); idx++ )
@@ -569,9 +569,39 @@ void Strat::LevelSet::getStdNames( BufferStringSet& nms )
 }
 
 
-Strat::LevelSet* Strat::LevelSet::createStd( const char* nm )
+LevelSet* LevelSet::createStd( const char* nm )
 {
     LevelSet* ret = new LevelSet;
     ret->readFrom( getStdFileName(nm,"Levels") );
     return ret;
 }
+
+
+LevelSet* LevelSet::read( const MultiID& key )
+{
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj ) return 0;
+
+    FilePath fp( ioobj->fullUserExpr() );
+    fp.setExtension( sLevelExt );
+
+    LevelSet* ret = new LevelSet;
+    if ( !ret->readFrom(fp.fullPath()) )
+    { delete ret; ret = 0; }
+
+    return ret;
+}
+
+
+bool LevelSet::write( const LevelSet& ls, const MultiID& key )
+{
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj ) return 0;
+
+    FilePath fp( ioobj->fullUserExpr() );
+    fp.setExtension( sLevelExt );
+
+    return ls.writeTo( fp.fullPath() );
+}
+
+} // namespace Strat

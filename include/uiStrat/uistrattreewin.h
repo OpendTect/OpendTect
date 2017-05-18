@@ -15,7 +15,8 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uimainwin.h"
 #include "manobjectset.h"
-#include "uitoolbutton.h"
+#include "menuhandler.h"
+#include "multiid.h"
 
 class uiAction;
 class uiStratLvlList;
@@ -23,7 +24,7 @@ class uiStratRefTree;
 class uiStratTreeWin;
 class uiStratDisplay;
 class uiToolBar;
-class uiToolButton;
+class uiToolButtonSetup;
 
 namespace Strat { class RepositoryAccess; }
 
@@ -44,62 +45,79 @@ public:
     virtual bool	closeOK();
 
     static void		addTool(uiToolButtonSetup*); //!< becomes mine
-    static void		makeEditable(bool allow); 
-    
+    static void		makeEditable(bool allow);
+
 protected:
 
     uiStratRefTree*		uitree_;
     uiStratDisplay*		uistratdisp_;
     uiStratLvlList*		lvllist_;
     Strat::RepositoryAccess&	repos_;
-    uiAction*			expandmnuitem_;
-    uiAction*			editmnuitem_;
-    uiAction*			savemnuitem_;
-    uiAction*			saveasmnuitem_;
-    uiAction*			resetmnuitem_;
+
     uiToolBar*			tb_;
-    uiToolButton*		colexpbut_;
-    uiToolButton*		lockbut_;
-    uiToolButton*		newbut_;
-    uiToolButton*		savebut_;
-    uiToolButton*		moveunitupbut_;
-    uiToolButton*		moveunitdownbut_;
-    uiToolButton*		switchviewbut_;
-    uiToolButton*		lithobut_;
-    uiToolButton*		contentsbut_;
+    uiToolBar*			stratvwtb_;
+    uiToolBar*			treevwtb_;
+    uiToolBar*			othertb_;
+
+    MenuItem			newitem_;
+    MenuItem			openitem_;
+    MenuItem			defaultitem_;
+    MenuItem			saveitem_;
+    MenuItem			saveasitem_;
+    MenuItem			lockitem_;
+    MenuItem			resetitem_;
+
+    MenuItem			expanditem_;
+    MenuItem			collapseitem_;
+    MenuItem			moveupitem_;
+    MenuItem			movedownitem_;
+    MenuItem			switchviewitem_;
+    MenuItem			lithoitem_;
+    MenuItem			contentsitem_;
+    MenuItem			helpitem_;
+
     bool			needsave_;
     bool			istreedisp_;
+    MultiID			treekey_;
 
+    void			initItem(MenuItem&,const uiString&,const char*);
+    void			initMenuItems();
     void			createMenu();
     void			createToolBar();
     void			createGroups();
+    void			updateDisplay();
+    void			updateCaption();
+
+    void			actionCB(CallBacker*);
+    void			newTree();
+    void			openTree();
+    void			defaultTree();
+    bool			save(bool saveas);
+    void			reset();
     void			setNewRT();
+    void			switchView();
     void			setIsLocked(bool yn);
+    bool			isLocked() const;
     void			setEditable(bool yn);
 
-    void			newCB(CallBacker*);
-    void			editCB(CallBacker*);
-    void			resetCB(CallBacker*);
-    void			saveCB(CallBacker*);
-    void                        selLvlChgCB(CallBacker*);
-    void                        rClickLvlCB(CallBacker*);
-    void			saveAsCB(CallBacker*);
-    void			setExpCB(CallBacker*);
-    void			switchViewCB(CallBacker*);
-    void			unitSelCB(CallBacker*);
-    void			unitRenamedCB(CallBacker*);
     void			moveUnitCB(CallBacker*);
-    void			forceCloseCB(CallBacker*);
-    void			helpCB(CallBacker*);
+
     void			manLiths(CallBacker*);
     void			manConts(CallBacker*);
+
+    void			editCB(CallBacker*);
+    void			selLvlChgCB(CallBacker*);
+    void			rClickLvlCB(CallBacker*);
+    void			unitSelCB(CallBacker*);
+    void			unitRenamedCB(CallBacker*);
+    void			survChgCB(CallBacker*);
+    void			appCloseCB(CallBacker*);
+    void			helpCB(CallBacker*);
 
 private:
 
     friend const uiStratTreeWin& StratTWin();
     static ManagedObjectSet<uiToolButtonSetup> tbsetups_;
-    uiString			sExpandTxt();
-    uiString			sCollapseTxt();
     uiString			sEditTxt(bool domenu);
     uiString			sLockTxt(bool domenu);
 
@@ -107,6 +125,5 @@ public:
     void			changeLayerModelNumber(bool add);
 
 };
-
 
 #endif

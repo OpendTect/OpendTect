@@ -119,7 +119,7 @@ public:
     			{ return gtIdxOf(nm,-1); }
     inline int		indexOf( Level::ID id ) const
     			{ return gtIdxOf(0,id); }
-    
+
     Level* 		get( const char* nm )		{ return gtLvl(nm,-1); }
     const Level* 	get( const char* nm ) const	{ return gtLvl(nm,-1); }
     Level* 		get( Level::ID id )		{ return gtLvl(0,id); }
@@ -142,14 +142,14 @@ public:
     int			notifLvlIdx() const	{ return notiflvlidx_; }
     			//!< if < 0 then more than one level have changed
 
-    bool		store(Repos::Source) const;
-    bool		read(Repos::Source);
     bool		readFrom(const char*);
     bool		writeTo(const char*) const;
     bool		needStore() const		{ return ischanged_; }
 
     static void		getStdNames(BufferStringSet&);
     static LevelSet*	createStd(const char*);
+    static LevelSet*	read(const MultiID&);
+    static bool		write(const LevelSet&,const MultiID&);
 
     inline const Level&	getLevel( int idx ) const
 			{ return idx<size() ? *lvls_[idx] : Level::undef(); }
@@ -187,6 +187,8 @@ public:
     Repos::Source	readOldRepos();
     friend class	LevelSetMgr;
 
+    bool		store(Repos::Source) const;
+    bool		read(Repos::Source);
 };
 
 mGlobal(General) const LevelSet& LVLS();
@@ -203,7 +205,6 @@ mGlobal(General) void setLVLS(LevelSet*);
 mGlobal(General) BufferString getStdFileName(const char* inpnm,const char* basenm);
 //!< example: getStdFileName("North Sea","Levels")
 
-
-}; //namespace
+} // namespace Strat
 
 #endif

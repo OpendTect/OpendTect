@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "repos.h"
 #include "uistring.h"
 
+class MultiID;
+
 namespace Strat
 {
 class RefTree;
@@ -31,12 +33,10 @@ mExpClass(Strat) RepositoryAccess
 public:
 
     bool		haveTree() const;
-    Repos::Source	lastSource() const	{ return src_; }
     uiString		lastMsg() const		{ return msg_; }
 
-    RefTree*		readTree(Repos::Source);
-    bool		writeTree(const RefTree&,
-				  Repos::Source src=Repos::Survey);
+    RefTree*		read(const MultiID&);
+    bool		write(const RefTree&,const MultiID&);
 
     static const char*	fileNameBase();
 
@@ -44,9 +44,17 @@ public:
 
 protected:
 
-    mutable uiString	        msg_;
+    RefTree*		readFromFile(const char*);
+    bool		writeToFile(const RefTree&,const char*);
+
+    mutable uiString		msg_;
     mutable Repos::Source	src_;
 
+public:
+    Repos::Source	lastSource() const	{ return src_; }
+    RefTree*		readTree(Repos::Source);
+    bool		writeTree(const RefTree&,
+					  Repos::Source src=Repos::Survey);
 };
 
 } // namespace Strat

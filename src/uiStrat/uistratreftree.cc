@@ -68,6 +68,12 @@ uiStratRefTree::~uiStratRefTree()
 }
 
 
+void uiStratRefTree::setTree()
+{
+    setTree( Strat::eRT(), true );
+}
+
+
 void uiStratRefTree::setTree( Strat::RefTree& rt, bool force )
 {
     if ( !force && &rt == tree_ ) return;
