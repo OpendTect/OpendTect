@@ -752,7 +752,7 @@ void RegularFlatDataPack::setSourceData()
 
 float RegularFlatDataPack::getPosDistance( bool dim0, float posfidx) const
 {
-    const int posidx = floor( posfidx );
+    const int posidx = mCast(int,floor(posfidx));
     const float dfposidx = posfidx - posidx;
     if ( dim0 )
     {
@@ -772,7 +772,7 @@ float RegularFlatDataPack::getPosDistance( bool dim0, float posfidx) const
 	    posdistatidx += (posdistatatnextidx - posdistatidx)*dfposidx;
 	}
 
-	return posdistatidx;
+	return mCast(float,posdistatidx);
     }
 
     return mUdf(float);
@@ -824,7 +824,7 @@ void RandomFlatDataPack::setSourceData()
 
 float RandomFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 {
-    const int posidx = floor( posfidx );
+    const int posidx = mCast(int,floor(posfidx));
     const float dfposidx = posfidx - posidx;
     if ( dim0 )
     {
@@ -835,7 +835,7 @@ float RandomFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 	    posdistatidx += (posdistatatnextidx - posdistatidx)*dfposidx;
 	}
 
-	return posdistatidx;
+	return mCast(float,posdistatidx);
     }
 
     return mUdf(float);
