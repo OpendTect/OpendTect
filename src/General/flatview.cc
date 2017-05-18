@@ -446,7 +446,7 @@ FlatView::Viewer::Viewer()
     , wvapack_(0)
     , vdpack_(0)
     , needstatusbarupd_(true)
-    , zdinfo_(new ZDomain::Info(SI().zDomain()))
+    , zdinfo_(new ZDomain::Info(ZDomain::SI()))
 {
     dpm_.packToBeRemoved.notifyIfNotNotified(
 			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
