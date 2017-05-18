@@ -21,7 +21,7 @@ static const Coords::ProjectionID cWGS84ID()
 static const Coords::Projection* getWGS84Proj()
 {
     mDefineStaticLocalObject(const Coords::Projection*,proj,
-	    		      = Coords::Projection::getByID(cWGS84ID()) );
+			      = Coords::Projection::getByID(cWGS84ID()) );
     return proj;
 }
 
@@ -36,30 +36,32 @@ Coords::Projection::~Projection()
 bool Coords::Projection::isOK() const
 { return false; }
 
-LatLong Coords::Projection::toGeographicWGS84( const Coord& crd ) const
+LatLong Coords::Projection::toGeographic( const Coord& crd, bool wgs84 ) const
 {
-    const Coords::Projection* wgs84proj = getWGS84Proj();
-    if ( !isOK() || !wgs84proj )
+    const Coords::Projection* proj = wgs84 ? getWGS84Proj() : this;
+    if ( !proj || !proj->isOK() )
 	return LatLong::udf();
 
-    const Coord llpos = transformTo( *wgs84proj, crd );
-    return LatLong( mRad2DegD*llpos.y_, mRad2DegD*llpos.x_ );
+    return transformTo( *proj, crd );
 }
 
 
-Coord Coords::Projection::fromGeographicWGS84( const LatLong& ll ) const
+Coord Coords::Projection::fromGeographic( const LatLong& ll, bool wgs84 ) const
 {
-    const Coords::Projection* wgs84proj = getWGS84Proj();
-    if ( !isOK() || !wgs84proj )
+    const Coords::Projection* proj = wgs84 ? getWGS84Proj() : this;
+    if ( !proj || !proj->isOK() )
 	return Coord::udf();
 
-    const Coord llpos( mDeg2RadD*ll.lng_, mDeg2RadD*ll.lat_ );
-    return wgs84proj->transformTo( *this, llpos );
+    return proj->transformTo( *this, ll );
 }
 
 Coord Coords::Projection::transformTo( const Coords::Projection& target,
-					Coord pos ) const
+				       LatLong ll ) const
 { return Coord::udf(); }
+
+LatLong Coords::Projection::transformTo( const Coords::Projection& target,
+					 Coord pos ) const
+{ return LatLong::udf(); }
 
 bool Coords::Projection::isOrthogonal() const
 { return true; }
@@ -76,7 +78,7 @@ void Coords::Projection::getAll( TypeSet<ProjectionID>& pids,
     for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
     {
 	const Coords::ProjectionRepos* repos =
-	    		Coords::ProjectionRepos::reposSet().get( idx );
+			Coords::ProjectionRepos::reposSet().get( idx );
 	for ( int idy=0; idy<repos->size(); idy++ )
 	{
 	    const Coords::Projection* proj = repos->get( idy );
@@ -110,7 +112,7 @@ const Coords::Projection* Coords::Projection::getByID(
     for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
     {
 	const Coords::ProjectionRepos* repos =
-	    		Coords::ProjectionRepos::reposSet().get( idx );
+			Coords::ProjectionRepos::reposSet().get( idx );
 	const Coords::Projection* proj = repos->getByID( pid );
 	if ( proj )
 	    return proj;
@@ -125,7 +127,7 @@ const Coords::Projection* Coords::Projection::getByName( const char* usrnm )
     for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
     {
 	const Coords::ProjectionRepos* repos =
-	    		Coords::ProjectionRepos::reposSet().get( idx );
+			Coords::ProjectionRepos::reposSet().get( idx );
 	const Coords::Projection* proj = repos->getByName( usrnm );
 	if ( proj )
 	    return proj;
@@ -139,16 +141,18 @@ namespace Coords
 class Proj4Projection : public Projection
 {
 public:
-    			Proj4Projection(Coords::ProjectionID,
+			Proj4Projection(Coords::ProjectionID,
 					const char* usrnm,
 					const char* defstr);
 			~Proj4Projection();
 
     bool		isOK() const;
     bool		isOrthogonal() const;
+    bool		isLatLong() const;
     bool		isMeter() const;
 
-    Coord		transformTo(const Projection& target,Coord pos) const;
+    Coord		transformTo(const Projection& target,LatLong) const;
+    LatLong		transformTo(const Projection& target,Coord) const;
 
 protected:
 
@@ -184,6 +188,12 @@ void Coords::Proj4Projection::init()
     proj_ = pj_init_plus( defstr_.buf() );
 }
 
+
+bool Coords::Proj4Projection::isLatLong() const
+{
+    return pj_is_latlong( proj_ );
+}
+
 bool Coords::Proj4Projection::isMeter() const
 {
     const char* unitstr = defstr_.find( sKeyUnitsArg().buf() );
@@ -196,20 +206,41 @@ bool Coords::Proj4Projection::isMeter() const
 
 
 Coord Coords::Proj4Projection::transformTo( const Coords::Projection& target,
-					    Coord pos ) const
+					    LatLong ll ) const
 {
     if ( !isOK() || !target.isOK() )
 	return Coord::udf();
 
+    projPJ srcproj4 = isLatLong() ? proj_ : pj_latlong_from_proj( proj_ );
     mDynamicCastGet(const Proj4Projection*,targetproj4,&target)
-    if ( !targetproj4 )
+    if ( !srcproj4 || !targetproj4 || targetproj4->isLatLong() )
 	return Coord::udf();
 
-    Coord ret = pos;
-    if ( pj_transform(proj_,targetproj4->proj_,1,1,&ret.x_,&ret.y_,0) )
+    Coord ret( ll.lng_ * mDeg2RadD, ll.lat_ * mDeg2RadD );
+    if ( pj_transform(srcproj4,targetproj4->proj_,1,1,&ret.x_,&ret.y_,NULL) )
 	return Coord::udf();
 
     return ret;
+}
+
+
+LatLong Coords::Proj4Projection::transformTo( const Coords::Projection& target,
+					      Coord pos ) const
+{
+    if ( !isOK() || !target.isOK() )
+	return LatLong::udf();
+
+    mDynamicCastGet(const Proj4Projection*,targetproj4,&target)
+    projPJ targetproj4ll = targetproj4 && !targetproj4->isLatLong()
+			 ? pj_latlong_from_proj( targetproj4->proj_ )
+			 : targetproj4->isLatLong() ? targetproj4->proj_ : 0;
+    if ( !targetproj4ll )
+	return LatLong::udf();
+
+    if ( pj_transform(proj_,targetproj4ll,1,1,&pos.x_,&pos.y_,NULL) )
+	return LatLong::udf();
+
+    return LatLong( pos.y_ * mRad2DegD, pos.x_ * mRad2DegD );
 }
 
 
@@ -240,7 +271,7 @@ bool Coords::ProjectionRepos::readFromFile( const char* fnm )
 	    break;
 
 	const BufferString usrnm( prevlinebuf.getCStr() + 2 );
-	
+
 	// Get ID
 	BufferString idstr = linebuf;
 	char* firstspace = idstr.find( ' ' );
@@ -259,7 +290,7 @@ bool Coords::ProjectionRepos::readFromFile( const char* fnm )
 	    *bracesptr = '\0';
 
 	Coords::Projection* proj =
-	    		new Coords::Proj4Projection( pid, usrnm, defstr );
+			new Coords::Proj4Projection( pid, usrnm, defstr );
 	add( proj );
     }
 

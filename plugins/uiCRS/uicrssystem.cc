@@ -38,7 +38,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     projselfld_->setFieldWidth( 30 );
     projselfld_->setNrLines( 10 );
     projselfld_->selectionChanged.notify(
-	    			mCB(this,uiProjectionBasedSystem,selChgCB) );
+				mCB(this,uiProjectionBasedSystem,selChgCB) );
 
     uiButton* searchbut = new uiToolButton( this, "search", tr("Search"),
 				mCB(this,uiProjectionBasedSystem,searchCB) );
@@ -48,7 +48,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     searchfld_->setPlaceholderText( tr("ID or name") );
     searchfld_->attach( leftOf, searchbut );
     searchfld_->editingFinished.notify(
-	    			mCB(this,uiProjectionBasedSystem,searchCB) );
+				mCB(this,uiProjectionBasedSystem,searchCB) );
 
     uiToolButton* tb = new uiToolButton( projselfld_, "xy2ll",
 			tr("Transform XY from/to lat long"),
@@ -102,7 +102,7 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 	if ( selidx < 0 )
 	{
 	    uiMSG().message( tr("Projection ID %1 was not found")
-		    		.arg(searchid.getI()) );
+				.arg(searchid.getI()) );
 	    return;
 	}
 
@@ -144,10 +144,10 @@ void uiProjectionBasedSystem::fillList()
     {
 	const int index = dispidxs_[idx];
 	uiString itmtxt = toUiString("[%1] %2" ).arg(ids_[index].getI())
-	    			.arg(names_.get(index));
+				.arg(names_.get(index));
 	itemstodisplay.add( itmtxt );
     }
-    
+
     projselfld_->addItems( itemstodisplay );
     setCurrent();
 }
@@ -211,11 +211,23 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
 {
     dirfld_ = new uiGenInput( this, tr("Direction"),
 	          BoolInpSpec(true,tr("X/Y to Lat/Lng"),tr("Lat/Lng to X/Y")) );
+    dirfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,applyCB) );
+    dirfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,selChg) );
+
+    towgs84fld_ = new uiCheckBox( this, tr("Output to WGS84 CRS") );
+    towgs84fld_->setChecked( false );
+    towgs84fld_->activated.notify( mCB(this,uiConvertGeographicPos,applyCB) );
+    towgs84fld_->attach( alignedBelow, dirfld_ );
+
+    fromwgs84fld_ = new uiCheckBox( this, tr("Input is WGS84 CRS") );
+    fromwgs84fld_->setChecked( false );
+    fromwgs84fld_->activated.notify( mCB(this,uiConvertGeographicPos,applyCB) );
+    fromwgs84fld_->attach( alignedBelow, dirfld_ );
 
     ismanfld_ = new uiGenInput( this, tr("Conversion"),
 	           BoolInpSpec(true,uiStrings::sManual(),uiStrings::sFile()) );
     ismanfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,selChg) );
-    ismanfld_->attach( alignedBelow, dirfld_ );
+    ismanfld_->attach( alignedBelow, towgs84fld_ );
 
     mangrp_ = new uiGroup( this, "Manual group" );
     uiGroup* xygrp = new uiGroup( mangrp_, "XY group" );
@@ -251,7 +263,7 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
     filegrp_->attach( alignedBelow, ismanfld_ );
 
     uiPushButton* convbut = new uiPushButton( this, tr("Convert"),
-	    		mCB(this,uiConvertGeographicPos,applyCB), true );
+			mCB(this,uiConvertGeographicPos,applyCB), true );
     convbut->attach( centeredBelow, mangrp_ );
 
     setCtrlStyle( CloseOnly );
@@ -262,7 +274,7 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
 void uiConvertGeographicPos::finaliseCB( CallBacker* )
 {
     selChg(0);
-    convPos();
+    applyCB(0);
 }
 
 
@@ -270,19 +282,23 @@ void uiConvertGeographicPos::setCoordSystem(
 				ConstRefMan<Coords::PositionSystem> newsys )
 {
     coordsystem_ = newsys;
-    convPos();
+    applyCB(0);
 }
 
 
 void uiConvertGeographicPos::selChg( CallBacker* )
 {
+    const bool tolatlong = dirfld_->getBoolValue();
+    towgs84fld_->display( tolatlong );
+    fromwgs84fld_->display( !tolatlong );
+
     const bool isman = ismanfld_->getBoolValue();
     mangrp_->display( isman );
     filegrp_->display( !isman );
 }
 
 
-void uiConvertGeographicPos::applyCB( CallBacker* )
+void uiConvertGeographicPos::applyCB( CallBacker* cb )
 {
     if ( !coordsystem_ || !coordsystem_->geographicTransformOK() )
 	return;
@@ -290,7 +306,7 @@ void uiConvertGeographicPos::applyCB( CallBacker* )
     const bool isman = ismanfld_->getBoolValue();
     if ( isman )
 	convPos();
-    else
+    else if ( !isman && cb )
 	convFile();
 }
 
@@ -298,19 +314,20 @@ void uiConvertGeographicPos::applyCB( CallBacker* )
 void uiConvertGeographicPos::convPos()
 {
     const bool tolatlong = dirfld_->getBoolValue();
+    const bool wgs84 = tolatlong ? towgs84fld_->isChecked()
+				 : fromwgs84fld_->isChecked();
     if ( tolatlong )
     {
 	const Coord inpcoord( xfld_->getDValue(), yfld_->getDValue() );
 	if ( inpcoord.isUdf() ) return;
-	const LatLong outputpos = coordsystem_->toGeographicWGS84( inpcoord );
-	latlngfld_->set( outputpos );
+	latlngfld_->set( LatLong::transform(inpcoord,wgs84,coordsystem_) );
     }
     else
     {
 	LatLong inputpos;
 	latlngfld_->get( inputpos );
 	if ( !inputpos.isDefined() ) return;
-	const Coord ouputcoord = coordsystem_->fromGeographicWGS84( inputpos );
+	const Coord ouputcoord(LatLong::transform(inputpos,wgs84,coordsystem_));
 	xfld_->setValue( ouputcoord.x_ );
 	yfld_->setValue( ouputcoord.y_ );
     }
@@ -336,6 +353,8 @@ void uiConvertGeographicPos::convFile()
 
     BufferString linebuf; Coord c;
     const bool toll = dirfld_->getBoolValue();
+    const bool wgs84 = toll ? towgs84fld_->isChecked()
+			    : fromwgs84fld_->isChecked();
     double d1, d2;
     Coord coord; LatLong ll;
     while ( istream.isOK() )
@@ -351,13 +370,13 @@ void uiConvertGeographicPos::convFile()
 	    coord.y_ = d2;
 	    if ( !SI().isReasonable(coord) )
 		continue;
-	    ll = coordsystem_->toGeographicWGS84( coord );
+	    ll = LatLong::transform( coord, wgs84, coordsystem_ );
 	    ostream << ll.lat_ << od_tab << ll.lng_;
 	}
 	else
 	{
 	    ll.lat_ = d1; ll.lng_ = d2;
-	    coord = coordsystem_->fromGeographicWGS84( ll );
+	    coord = LatLong::transform( ll, wgs84, coordsystem_ );
 	    if ( !SI().isReasonable(coord) )
 		continue;
 	    ostream << coord.x_ << od_tab << coord.y_;

@@ -12,8 +12,10 @@ ________________________________________________________________________
 #include "uicrsmod.h"
 #include "uicoordsystem.h"
 #include "uidialog.h"
+
 #include "crssystem.h"
 
+class uiCheckBox;
 class uiFileInput;
 class uiListBox;
 class uiLineEdit;
@@ -28,7 +30,7 @@ mExpClass(uiCRS) uiProjectionBasedSystem : public uiPositionSystem
 { mODTextTranslationClass(uiProjectionBasedSystem);
 public:
     mDefaultFactoryInstantiation1Param( uiPositionSystem,
-	    			uiProjectionBasedSystem, uiParent*,
+				uiProjectionBasedSystem, uiParent*,
 				ProjectionBasedSystem::sFactoryKeyword(),
 				ProjectionBasedSystem::sFactoryDisplayName() );
 
@@ -48,8 +50,8 @@ protected:
     BufferStringSet		names_;
     int				curselidx_;
     TypeSet<int>		dispidxs_;
-    				// Indexes of ids_/names_ displayed in ListBox.
-    
+				// Indexes of ids_/names_ displayed in ListBox.
+
     bool		acceptOK();
     void		fetchList();
     void		fillList();
@@ -81,6 +83,8 @@ private:
     uiGenInput*		dirfld_;
     uiGenInput*		xfld_;
     uiGenInput*		yfld_;
+    uiCheckBox*		towgs84fld_;
+    uiCheckBox*		fromwgs84fld_;
     uiLatLongInp*	latlngfld_;
     uiFileInput*	inpfilefld_;
     uiFileInput*	outfilefld_;

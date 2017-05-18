@@ -15,6 +15,13 @@ Coords::ProjectionBasedSystem::ProjectionBasedSystem()
 {}
 
 
+Coords::ProjectionBasedSystem::ProjectionBasedSystem( ProjectionID projid )
+    : proj_(0)
+{
+    setProjection( projid );
+}
+
+
 Coords::PositionSystem* Coords::ProjectionBasedSystem::clone() const
 {
     Coords::ProjectionBasedSystem* cp = new Coords::ProjectionBasedSystem;
@@ -40,23 +47,23 @@ bool Coords::ProjectionBasedSystem::isOK() const
 bool Coords::ProjectionBasedSystem::geographicTransformOK() const
 { return isOK(); }
 
-LatLong Coords::ProjectionBasedSystem::toGeographicWGS84(
-						const Coord& crd ) const
+LatLong Coords::ProjectionBasedSystem::toGeographic(
+					const Coord& crd, bool wgs84 ) const
 {
     if ( !isOK() )
 	return LatLong::udf();
 
-    return proj_->toGeographicWGS84( crd );
+    return proj_->toGeographic( crd, wgs84 );
 }
 
 
-Coord Coords::ProjectionBasedSystem::fromGeographicWGS84(
-						const LatLong& ll ) const
+Coord Coords::ProjectionBasedSystem::fromGeographic(
+					const LatLong& ll, bool wgs84 ) const
 {
     if ( !isOK() )
 	return Coord::udf();
 
-    return proj_->fromGeographicWGS84( ll );
+    return proj_->fromGeographic( ll, wgs84 );
 }
 
 

@@ -8,9 +8,6 @@
 
 #include "testprog.h"
 
-#include "projects.h"
-#include "proj_api.h"
-
 #include "crssystem.h"
 #include "oddirs.h"
 #include "survinfo.h"
@@ -18,8 +15,14 @@
 static const char* sKeyRepoNm = "EPSG";
 static Coords::ProjectionID cWGS84ID = Coords::ProjectionID::get( 32631 );
 static Coords::ProjectionID cED50ID = Coords::ProjectionID::get( 23031 );
+static Coords::ProjectionID cWGS72ID = Coords::ProjectionID::get( 32231 );
 
 static double mDefEpsCoord = 1e-4;
+
+/* Input points tested through:
+http://epsg.io/transform
+https://mygeodata.cloud/cs2cs
+   */
 
 // First set to be matched upon:
 static const Coord wgs84xy[] = { Coord(468173.499868268,5698143.01523399),
@@ -33,18 +36,27 @@ static const LatLong wgs84ll[] = { LatLong(51.4335905100652,2.5421530888879),
 
 // Second set, not to be mixed with the first
 static const Coord ed50xy[] = { Coord(468264.5625,5698352.5),
-			      Coord(725867.0625,5698352.5),
-			      Coord(725867.0625,6180123.5),
-			      Coord(468264.5625,6180123.5) };
+				Coord(725867.0625,5698352.5),
+				Coord(725867.0625,6180123.5),
+				Coord(468264.5625,6180123.5) };
 static const LatLong ed50ll[] = { LatLong(51.4344233527787,2.54347672444672),
 				  LatLong(51.3903314270213,6.24641371865591),
 				  LatLong(55.7129190137682,6.59561538614129),
 				  LatLong(55.7645193631684,2.49425017922724) };
 static const LatLong ed50aswgs84ll[] =
-				{ LatLong(51.4335905047152,2.54215313942492),
-				  LatLong(51.3895376692996,6.24517875726681),
-				  LatLong(55.7122701473909,6.59425717215963),
-				  LatLong(55.7638250930593,2.49278262567497) };
+				{ LatLong(51.4335855247148,2.54212440807778),
+				  LatLong(51.3895335885033,6.24515019573659),
+				  LatLong(55.7122667919298,6.59422556382703),
+				  LatLong(55.7638206858426,2.49275079504226) };
+static const Coord ed50towgs84xy[] = {
+				  Coord(468171.5027124056,5698142.473264048),
+				  Coord(725772.2610005473,5698142.416446488),
+				  Coord(725772.4885505616,6179910.409241279),
+				  Coord(468171.4706640901,6179910.456494385) };
+static const Coord wgs72xy[] =	{ Coord(468160.7972588778,5698137.987990135),
+				  Coord(725761.6150399777,5698137.388245675),
+				  Coord(725762.8921176088,6179905.486340908),
+				  Coord(468161.8054061992,6179906.107376129) };
 
 #define mRunTest( func ) \
     if ( (func)==false ) \
@@ -59,34 +71,34 @@ static const LatLong ed50aswgs84ll[] =
 
 
 static bool testCoordToLatLong( const Coord& pos, const LatLong& ll,
-				const Coords::Projection& proj )
+				const Coords::PositionSystem& pbs )
 {
-    mRunTest( ll.isEqualTo(proj.toGeographicWGS84(pos)) )
+    mRunTest( ll == LatLong::transform(pos,false,&pbs) );
     return true;
 }
 
 
 static bool testLatLongToCoord( const LatLong& ll, const Coord& pos,
-				const Coords::Projection& proj )
+				const Coords::PositionSystem& pbs, bool wgs84 )
 {
-    mRunTest( mIsEqual(proj.fromGeographicWGS84(ll),pos,mDefEpsCoord) )
+    mRunTest( mIsEqual(LatLong::transform(ll,wgs84,&pbs),pos,mDefEpsCoord) )
     return true;
 }
 
 
-static bool testWGS84()
+static bool testReversibility( bool wgs84 )
 {
-    const Coords::ProjectionRepos* epsgrepos =
-				Coords::ProjectionRepos::getRepos( sKeyRepoNm );
-    const Coords::Projection* projwgs84 = epsgrepos->getByID( cWGS84ID );
-    if ( !projwgs84 || !projwgs84->isOK() )
+    const Coords::ProjectionBasedSystem pbs( wgs84 ? cWGS84ID : cED50ID );
+    if ( !pbs.isOK() )
 	return false;
 
+    const Coord* xy = wgs84 ? wgs84xy : ed50xy;
+    const LatLong* ll = wgs84 ? wgs84ll : ed50ll;
     const int sz = sizeof(wgs84xy) / sizeof(Coord);
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( !testCoordToLatLong(wgs84xy[idx],wgs84ll[idx],*projwgs84) ||
-	     !testLatLongToCoord(wgs84ll[idx],wgs84xy[idx],*projwgs84) )
+	if ( !testCoordToLatLong(xy[idx],ll[idx],pbs) ||
+	     !testLatLongToCoord(ll[idx],xy[idx],pbs,false) )
 	    return false;
     }
 
@@ -94,42 +106,36 @@ static bool testWGS84()
 }
 
 
-static bool testED50()
+static bool testTransfer()
 {
-    const Coords::ProjectionRepos* epsgrepos =
-				Coords::ProjectionRepos::getRepos( sKeyRepoNm );
-    const Coords::Projection* projwgs84 = epsgrepos->getByID( cWGS84ID );
-    const Coords::Projection* projed50 = epsgrepos->getByID( cED50ID );
-    if ( !projwgs84 || !projwgs84->isOK() || !projed50 || !projed50->isOK() )
+    const Coords::ProjectionBasedSystem wgs84pbs( cWGS84ID );
+    const Coords::ProjectionBasedSystem ed50pbs( cED50ID );
+    const Coords::ProjectionBasedSystem wgs72pbs( cWGS72ID );
+    if ( !wgs84pbs.isOK() || !ed50pbs.isOK() || !wgs72pbs.isOK() )
 	return false;
 
-    const projPJ proj4wgs84utm = pj_init_plus( projwgs84->defStr().str() );
-    const projPJ proj4wgs84ll = pj_latlong_from_proj( proj4wgs84utm );
-    const projPJ proj4ed50utm = pj_init_plus( projed50->defStr().str() );
-    const projPJ proj4ed50ll = pj_latlong_from_proj( proj4ed50utm );
-
     const int sz = sizeof(wgs84xy) / sizeof(Coord);
-    Coord tmppos;
     for ( int idx=0; idx<sz; idx++ )
     {
-	tmppos = ed50xy[idx];
-	pj_transform( proj4ed50utm, proj4ed50ll, 1, 1.f, &tmppos.x_,
-							 &tmppos.y_, NULL );
-	LatLong llret( tmppos.y_ * mRad2DegD, tmppos.x_ * mRad2DegD );
-	mRunTest( llret.isEqualTo(ed50ll[idx]) )
-        tmppos.x_ = ed50ll[idx].lng_ * mDeg2RadD;
-	tmppos.y_ = ed50ll[idx].lat_ * mDeg2RadD;
-	pj_transform( proj4ed50ll, proj4wgs84ll, 1, 1.f, &tmppos.x_,
-							 &tmppos.y_, NULL );
-	llret.lng_ = tmppos.x_ * mRad2DegD;
-	llret.lat_ = tmppos.y_ * mRad2DegD;
-	mRunTest( llret.isEqualTo(ed50aswgs84ll[idx]) );
+	const LatLong retll( LatLong::transform(ed50xy[idx],true,&ed50pbs) );
+	mRunTest( retll == ed50aswgs84ll[idx] );
+	if ( !testLatLongToCoord(retll,ed50towgs84xy[idx],wgs84pbs,true) )
+	    return false;
     }
 
-    pj_free( proj4wgs84utm );
-    pj_free( proj4ed50utm );
-    pj_free( proj4wgs84ll );
-    pj_free( proj4ed50ll );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	mRunTest( mIsEqual(ed50towgs84xy[idx],
+		  Coords::PositionSystem::convert(ed50xy[idx],ed50pbs,wgs84pbs),
+		  mDefEpsCoord) );
+	mRunTest( mIsEqual(ed50towgs84xy[idx],
+		  wgs84pbs.convertFrom(ed50xy[idx],ed50pbs),mDefEpsCoord) );
+	mRunTest( mIsEqual(wgs72xy[idx],
+		  Coords::PositionSystem::convert(ed50xy[idx],ed50pbs,wgs72pbs),
+		  mDefEpsCoord) );
+	mRunTest( mIsEqual(wgs72xy[idx],
+		  wgs72pbs.convertFrom(ed50xy[idx],ed50pbs),mDefEpsCoord) );
+    }
 
     return true;
 }
@@ -156,7 +162,9 @@ int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !initPlugin() || !testWGS84() || !testED50() )
+    if ( !initPlugin() ||
+	 !testReversibility(true) || !testReversibility(false) ||
+	 !testTransfer() )
 	return 1;
 
     return 0;

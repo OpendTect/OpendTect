@@ -14,9 +14,12 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "coord.h"
 
+namespace Coords { class PositionSystem; }
+
 
 /*!
-\brief Geographical coordinates, decimal but with conv to deg, min, sec.
+\brief Geographical coordinates in Decimal Degrees
+       but with conv to deg, min, sec.
 */
 
 mExpClass(Basic) LatLong
@@ -28,16 +31,18 @@ public:
 			    : lat_(ll.lat_), lng_(ll.lng_)	{}
 
     bool		operator ==(const LatLong&) const;
-    bool		isEqualTo(const LatLong&) const;
 
-			LatLong( const Coord& c ) { *this = transform(c);}
+			LatLong( const Coord& c ) { *this = transform(c); }
 			operator Coord() const	  { return transform(*this); }
+			//Using SI()
 
     bool		isDefined() const {return !mIsUdf(lat_)&&!mIsUdf(lng_);}
     static LatLong	udf() { return LatLong(mUdf(double),mUdf(double)); }
 
-    static Coord	transform(const LatLong&); //!< Uses SI()
-    static LatLong	transform(const Coord&);   //!< Uses SI()
+    static Coord	transform(const LatLong&,bool towgs84=false,
+				  const Coords::PositionSystem* si=0);
+    static LatLong	transform(const Coord&,bool towgs84=false,
+				  const Coords::PositionSystem* si=0);
 
     const char*		toString() const;
     bool		fromString(const char*);

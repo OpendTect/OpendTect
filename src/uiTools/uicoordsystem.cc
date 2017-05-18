@@ -127,19 +127,19 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     isdmsbut->activated.notify( tscb );
 
     uiGroup* lblgrp = new uiGroup( this, "Lat/Long Label grp" );
-    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLat() );
     uiLabel* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude() );
-    lnglbl->attach( alignedBelow, latlbl );
-    lblgrp->setHAlignObj( latlbl );
+    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLat() );
+    latlbl->attach( alignedBelow, lnglbl );
+    lblgrp->setHAlignObj( lnglbl );
 
     uiGroup* inpgrp = new uiGroup( this, "Lat/Long inp grp" );
-    latdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Latitude" );
     lngdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Longitude" );
-    lngdecfld_->attach( alignedBelow, latdecfld_ );
-    latdmsfld_ = new uiLatLongDMSInp( inpgrp, true );
+    latdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Latitude" );
+    latdecfld_->attach( alignedBelow, lngdecfld_ );
     lngdmsfld_ = new uiLatLongDMSInp( inpgrp, false );
-    lngdmsfld_->attach( alignedBelow, latdmsfld_ );
-    inpgrp->setHAlignObj( latdecfld_ );
+    latdmsfld_ = new uiLatLongDMSInp( inpgrp, true );
+    latdmsfld_->attach( alignedBelow, lngdmsfld_ );
+    inpgrp->setHAlignObj( lngdecfld_ );
 
     lblgrp->attach( rightOf, bgrp );
     inpgrp->attach( rightOf, lblgrp );
@@ -307,7 +307,7 @@ uiPositionSystemSelGrp::uiPositionSystemSelGrp( uiParent* p,
 {
     uiStringSet names;
     PositionSystem::getSystemNames( onlyorthogonal, projectiononly,
-	    			    names, coordsystempars_ );
+				    names, coordsystempars_ );
 
     coordsystemsuis_.allowNull();
 
@@ -422,7 +422,7 @@ uiPositionSystemDlg::uiPositionSystemDlg( uiParent* p, bool orthogonalonly,
 				 mODHelpKey(mLatLong2CoordDlgHelpID) ))
 {
     coordsysselfld_ = new Coords::uiPositionSystemSelGrp( this, orthogonalonly,
-	    					projectiononly, 0, coordsys );
+						projectiononly, 0, coordsys );
 }
 
 

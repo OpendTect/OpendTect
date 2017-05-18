@@ -25,24 +25,23 @@ bool LatLong::operator==( const LatLong& ll ) const
 }
 
 
-bool LatLong::isEqualTo( const LatLong& ll ) const
+Coord LatLong::transform( const LatLong& ll, bool towgs84,
+			  const Coords::PositionSystem* coordsys )
 {
-    const Coord llpos( ll.lat_, ll.lng_ );
-    const Coord pos( lat_, lng_ );
+    if ( !coordsys )
+	coordsys = SI().getCoordSystem();
 
-    return mIsEqual(pos,llpos,mDefEps);
+    return coordsys->fromGeographic( ll, towgs84 );
 }
 
 
-Coord LatLong::transform( const LatLong& ll )
+LatLong LatLong::transform( const Coord& c, bool towgs84,
+			    const Coords::PositionSystem* coordsys )
 {
-    return SI().getCoordSystem()->fromGeographicWGS84( ll );
-}
+    if ( !coordsys )
+	coordsys = SI().getCoordSystem();
 
-
-LatLong LatLong::transform( const Coord& c )
-{
-    return SI().getCoordSystem()->toGeographicWGS84( c );
+    return coordsys->toGeographic( c, towgs84 );
 }
 
 
