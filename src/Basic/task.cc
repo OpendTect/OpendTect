@@ -308,7 +308,11 @@ int SequentialTask::doStep()
 	}
 
 	if ( res<1 )
+	{
+	    mUpdateProgressMeter
 	    progressmeter_->setFinished();
+
+	}
     }
 
     return res;
