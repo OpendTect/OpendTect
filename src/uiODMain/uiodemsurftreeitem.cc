@@ -24,6 +24,7 @@ ___________________________________________________________________
 #include "survinfo.h"
 #include "threadwork.h"
 #include "timefun.h"
+#include "ioman.h"
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"
@@ -383,6 +384,30 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	ODMainWin()->sceneMgr().tile();
 	ODMainWin()->sceneMgr().addScene( true, transform, scenenm );
     }
+}
+
+
+bool uiODEarthModelSurfaceTreeItem::isHorReady( const EM::ObjectID& emid )
+{
+    const DBKey dbkey = EM::EMM().getDBKey(emid_);
+    EM::EMObject* emobj = EM::EMM().getObject(emid_);
+    if ( !emobj )
+	return false;
+
+    if ( !DBM().get(dbkey) )
+    {
+	uiString msg = tr(" To continue, "
+	    "%1'%2' has to be saved.\n\nDo you want to save it?")
+	    .arg(emobj->getTypeStr()).arg(emobj->name());
+
+	const int ret = uiMSG().askSave( msg, false );
+	if ( ret!=1 )
+	    return false;
+
+	saveCB( 0 );
+    }
+
+    return true;
 }
 
 
