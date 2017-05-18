@@ -73,7 +73,7 @@ void uiODPickSetParentTreeItem::setRemovedCB( CallBacker* cb )
     {
 	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
 	if ( !itm ) continue;
-	if ( itm->getSet() == ps )
+	if ( &itm->getSet() == ps )
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    uiTreeItem::removeChild( itm );
