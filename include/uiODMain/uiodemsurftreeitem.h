@@ -49,6 +49,7 @@ protected:
 
     void		askSaveCB(CallBacker*);
     void		saveCB(CallBacker*);
+    bool		isHorReady(const EM::ObjectID&);
 
     EM::ObjectID	emid_;
     uiVisEMObject*	uivisemobj_;

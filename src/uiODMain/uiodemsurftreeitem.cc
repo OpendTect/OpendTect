@@ -383,6 +383,29 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
+bool uiODEarthModelSurfaceTreeItem::isHorReady( const EM::ObjectID& emid )
+{
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj )
+	return false;
+
+    if ( !IOM().get(emobj->multiID()) )
+    {
+	uiString msg = tr(" To continue, "
+	    "%1'%2' has to be saved.\n\nDo you want to save it?")
+	    .arg(emobj->getTypeStr()).arg(emobj->name());
+
+	const int ret = uiMSG().askSave( msg, false );
+	if ( ret!=1 )
+	    return false;
+
+	saveCB( 0 );
+    }
+
+    return true;
+}
+
+
 void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
 {
     uiEMPartServer* ems = applMgr()->EMServer();
