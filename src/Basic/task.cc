@@ -290,7 +290,10 @@ int SequentialTask::doStep()
 	    mUpdateProgressMeter
 
 	if ( res<1 )
+	{
+	    mUpdateProgressMeter
 	    progressmeter_->setFinished();
+	}
 	if ( doupdate )
 	    lastupdate_ = Time::getMilliSeconds();
     }
