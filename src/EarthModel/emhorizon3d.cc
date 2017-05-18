@@ -195,7 +195,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	totalnr_ += mCast( int, bvs.totalSize() );
 
 	TrcKeySampling sectrg;
-	sectrg.set( bvs.inlRange(), bvs.crlRange(-1) );
+	sectrg.set( bvs.inlRange(), bvs.crlRange(mUdf(int)) );
 	sectrg.step_ = step;
 	sectrg.limitTo( hs_ );
 	mDeclareAndTryAlloc( Array2D<float>*, arr,
