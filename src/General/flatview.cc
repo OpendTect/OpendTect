@@ -479,7 +479,7 @@ FlatView::Viewer::Viewer()
     , vdpack_(0)
     , needstatusbarupd_(true)
 {
-    zdinfos.setParam( this, new ZDomain::Info(SI().zDomain()) );
+    zdinfos.setParam( this, new ZDomain::Info(ZDomain::SI()) );
     dpm_.packToBeRemoved.notifyIfNotNotified(
 			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
     flatviewergeom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
