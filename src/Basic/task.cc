@@ -295,7 +295,10 @@ int SequentialTask::doStep()
 	    mUpdateProgressMeter
 
 	if ( res<1 )
+	{
+	    mUpdateProgressMeter
 	    progressmeter_->setFinished();
+	}
 	if ( doupdate )
 	    seqtaskmgr_lastupdate_.setParam( this, Time::getMilliSeconds() );
     }
