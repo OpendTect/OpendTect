@@ -9,7 +9,7 @@
 #include "proj_api.h"
 
 #include "crsproj.h"
-#include "od_istream.h"
+#include "od_iostream.h"
 #include "bufstringset.h"
 #include "separstr.h"
 #include "typeset.h"
@@ -97,7 +97,9 @@ bool Coords::Projection::isMeter() const
 { return true; }
 
 void Coords::Projection::getAll( TypeSet<Coords::AuthorityCode>& codes,
-				 BufferStringSet& usrnms, bool orthogonalonly )
+				 BufferStringSet& usrnms,
+				 BufferStringSet& defstrs,
+				 bool orthogonalonly )
 {
     for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
     {
@@ -120,11 +122,13 @@ void Coords::Projection::getAll( TypeSet<Coords::AuthorityCode>& codes,
 		{
 		    codes.add( proj->authCode() );
 		    usrnms.add( proj->userName() );
+		    defstrs.add( proj->defStr() );
 		}
 		else
 		{
 		    codes.insert( index, proj->authCode() );
 		    usrnms.insertAt( new BufferString(proj->userName()), index);
+		    defstrs.insertAt( new BufferString(proj->defStr()), index);
 		}
 	    }
 	}
@@ -161,6 +165,103 @@ const Coords::Projection* Coords::Projection::getByName( const char* usrnm )
 
     return 0;
 }
+
+
+static BufferString getArgVal( const char* defstr, const char* argkey )
+{
+    FixedString argstr( argkey );
+    BufferString str( defstr );
+    char* ptr = str.find( argkey );
+    if ( !ptr )
+	return BufferString::empty();
+
+    str = ptr + argstr.size();
+    ptr = str.find( ' ' );
+    if ( ptr ) *ptr = '\0';
+
+    return str;	
+}
+
+
+BufferString Coords::Projection::getInfoText( const char* defstr )
+{
+    BufferString info;
+    const BufferString projstr = getArgVal( defstr, "+proj=" );
+    if ( !projstr.isEmpty() )
+    {
+	PJ_LIST* pjlist = pj_get_list_ref();
+	for ( int idx=0; pjlist[idx].id != 0; idx++ )
+	{
+	    if ( projstr == pjlist[idx].id )
+	    {
+		BufferString projnm = pjlist[idx].descr[0];
+		char* nl = projnm.find( '\n' );
+		if ( nl ) *nl = '\0';
+		info.add( "Projection: " ).add( projnm ).addNewLine();
+		break;
+	    }
+	}
+    }
+
+    BufferString datumellipsid;
+    const BufferString datumstr = getArgVal( defstr, "+datum=" );
+    if ( !datumstr.isEmpty() )
+    {
+	PJ_DATUMS* pjlist = pj_get_datums_ref();
+	for ( int idx=0; pjlist[idx].id != 0; idx++ )
+	{
+	    if ( datumstr == pjlist[idx].id )
+	    {
+		datumellipsid = pjlist[idx].ellipse_id;
+		BufferString datumnm = pjlist[idx].comments;
+		if ( datumnm.isEmpty() )
+		    datumnm = datumstr;
+		info.add( "Datum: " ).add( datumnm ).addNewLine();
+		break;
+	    }
+	}
+    }
+
+    BufferString ellipsestr = getArgVal( defstr, "+ellps=" );
+    if ( ellipsestr.isEmpty() )
+	ellipsestr = datumellipsid;
+    if ( !ellipsestr.isEmpty() )
+    {
+	PJ_ELLPS* pjlist = pj_get_ellps_ref();
+	for ( int idx=0; pjlist[idx].id != 0; idx++ )
+	{
+	    if ( ellipsestr == pjlist[idx].id )
+	    {
+		info.add( "Ellipse: " ).add( pjlist[idx].name ).addNewLine();
+		break;
+	    }
+	}
+    }
+
+    BufferString zonestr = getArgVal( defstr, "+zone=" );
+    if ( !zonestr.isEmpty() )
+    {
+	zonestr += FixedString(defstr).find("+south") ? "S" : "N";
+	info.add( "Zone: " ).add( zonestr ).addNewLine();
+    }
+
+    const BufferString unitstr = getArgVal( defstr, "+units=" );
+    if ( !unitstr.isEmpty() )
+    {
+	PJ_UNITS* pjlist = pj_get_units_ref();
+	for ( int idx=0; pjlist[idx].id != 0; idx++ )
+	{
+	    if ( unitstr == pjlist[idx].id )
+	    {
+		info.add( "Unit: " ).add( pjlist[idx].name ).addNewLine();
+		break;
+	    }
+	}
+    }
+
+    return info;
+}
+
 
 namespace Coords
 {
@@ -315,8 +416,9 @@ bool Coords::ProjectionRepos::readFromFile( const char* fnm )
 	if ( bracesptr )
 	    *bracesptr = '\0';
 
-	Coords::Projection* proj = new Coords::Proj4Projection(
-			Coords::AuthorityCode(key_,pid), usrnm, defstr );
+	Coords::Proj4Projection* proj = new Coords::Proj4Projection(
+		Coords::AuthorityCode(key_,pid), usrnm, defstr );
+
 	add( proj );
     }
 

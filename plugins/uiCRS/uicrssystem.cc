@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uilatlonginp.h"
 #include "uilistbox.h"
 #include "uilineedit.h"
@@ -54,11 +55,16 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     searchfld_->returnPressed.notify(
 				mCB(this,uiProjectionBasedSystem,searchCB) );
 
+    uiToolButton* infobut = new uiToolButton( projselfld_, "info",
+	    	tr("View details"), mCB(this,uiProjectionBasedSystem,infoCB) );
+    infobut->attach( rightTo, projselfld_->box() );
+    infobut->attach( rightBorder );
+
+
     uiToolButton* tb = new uiToolButton( projselfld_, "xy2ll",
-			tr("Transform XY from/to lat long"),
-			mCB(this,uiProjectionBasedSystem,convCB) );
-    tb->attach( rightTo, projselfld_->box() );
-    tb->attach( rightBorder );
+				tr("Transform XY from/to lat long"),
+				mCB(this,uiProjectionBasedSystem,convCB) );
+    tb->attach( alignedBelow, infobut );
 
     setHAlignObj( searchfld_ );
     fetchList();
@@ -147,7 +153,7 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 
 void uiProjectionBasedSystem::fetchList()
 {
-    Projection::getAll( ids_, names_, true );
+    Projection::getAll( ids_, names_, defstrs_, true );
     curselidx_ = ids_.indexOf( cDefProjID() );
     dispidxs_.setCapacity( ids_.size(), true ); \
     for ( int idx=0; idx<ids_.size(); idx++ ) \
@@ -201,6 +207,28 @@ void uiProjectionBasedSystem::selChgCB( CallBacker* )
 	return;
 
     convdlg_->setCoordSystem( outputsystem_.ptr() );
+}
+
+
+void uiProjectionBasedSystem::infoCB( CallBacker* )
+{
+    const int selidx = projselfld_->currentItem();
+    if ( !dispidxs_.validIdx(selidx) )
+	return;
+
+    BufferString disptxt( "Name: " );
+    disptxt.add( names_.get(dispidxs_[selidx]) ).addNewLine();
+    const AuthorityCode pid = ids_[dispidxs_[selidx]];
+    disptxt.add( "Authority Code: " ).add( pid.authority() ).add( ":" )
+				     .add( pid.id() ).addNewLine();
+    disptxt.add( Projection::getInfoText(defstrs_.get(dispidxs_[selidx])) );
+
+    uiDialog dlg( this, uiDialog::Setup(projselfld_->textOfItem(selidx),
+					mNoDlgTitle,mNoHelpKey) );
+    dlg.setCtrlStyle( uiDialog::CloseOnly );
+    uiLabel* infolbl = new uiLabel( &dlg, toUiString(disptxt) );
+    infolbl->setTextSelectable();
+    dlg.go();
 }
 
 

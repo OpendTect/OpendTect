@@ -66,9 +66,11 @@ public:
 
     static void			getAll( TypeSet<AuthorityCode>&,
 					BufferStringSet& names,
+					BufferStringSet& defstrs,
 					bool orthogonalonly=false );
     static const Projection*	getByAuthCode(AuthorityCode);
     static const Projection*	getByName(const char*);
+    static BufferString		getInfoText(const char* defstr);
 
 protected:
 
