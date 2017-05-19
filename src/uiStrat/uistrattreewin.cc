@@ -37,7 +37,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistratreftree.h"
 #include "uistratutildlgs.h"
 #include "uitoolbar.h"
-#include "uitoolbutton.h"
 #include "uitreeview.h"
 
 using namespace Strat;
