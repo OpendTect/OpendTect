@@ -92,17 +92,14 @@ TypeSet<uiWorldRect> uiFlatViewControl::getBoundingBoxes() const
 
 void uiFlatViewControl::onFinalise( CallBacker* )
 {
-    const bool canreuse = zoommgr_.current().width() > 10
+    const bool canreuse = !zoommgr_.atStart()
 			 && canReUseZoomSettings( vwrs_[0]->curView().centre(),
 						  zoommgr_.current() );
     if ( !canreuse )
-	zoommgr_.init( getBoundingBoxes() );
-
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	uiFlatViewer& vwr = *vwrs_[idx];
-	if ( !vwr.rgbCanvas().mainwin()->poppedUp() || !canreuse )
-	    setViewToCustomZoomLevel( vwr );
+	zoommgr_.init( getBoundingBoxes() );
+	for ( int idx=0; idx<vwrs_.size(); idx++ )
+	    setViewToCustomZoomLevel( *vwrs_[idx] );
     }
 
     finalPrepare();
