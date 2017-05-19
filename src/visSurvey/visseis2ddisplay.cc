@@ -914,8 +914,10 @@ int Seis2DDisplay::getNearestTraceNr( const Coord3& pos ) const
 {
     int trcidx = -1;
     float minsqdist;
-    getNearestTrace( pos, trcidx, minsqdist );
-    return geometry_.positions()[trcidx].nr_;
+    if ( getNearestTrace(pos,trcidx,minsqdist) )
+	return geometry_.positions()[trcidx].nr_;
+
+    return mUdf(int);
 }
 
 
