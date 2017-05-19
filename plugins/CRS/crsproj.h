@@ -36,12 +36,8 @@ public:
 
     virtual bool		isOK() const;
 
-    virtual LatLong		toGeographicWGS84(const Coord&) const;
-    virtual Coord		fromGeographicWGS84(const LatLong&) const;
-    virtual Coord		transformTo(const Projection& target,
-					    Coord pos) const;
-
     virtual bool		isOrthogonal() const;
+    virtual bool		isLatLong() const	{ return false; }
     virtual bool		isFeet() const;
     virtual bool		isMeter() const;
 
@@ -54,10 +50,24 @@ public:
 protected:
 
     void			init();
+    virtual LatLong		toGeographic(const Coord&,
+					     bool wgs84=false) const;
+    virtual Coord		fromGeographic(const LatLong&,
+					       bool wgs84=false) const;
+
+    BufferString		defstr_;
+
+private:
+
+    virtual Coord		transformTo(const Projection& target,
+					    LatLong) const;
+    virtual LatLong		transformTo(const Projection& target,
+					    Coord) const;
 
     ProjectionID		id_;
     BufferString		usernm_;
-    BufferString		defstr_;
+
+    friend class ProjectionBasedSystem;
 };
 
 

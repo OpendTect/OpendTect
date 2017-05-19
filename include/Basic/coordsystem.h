@@ -26,7 +26,9 @@ namespace Coords
 
 /*! Base class for Coordinate Systems, these are all two-dimensional and
     coordinates can be stored in Coord. They may use any projection, but they
-    must be able to return Geographic coordinates using the WGS84 datum.  */
+    must be able to return Geographic coordinates using
+    either the WGS84 datum or its own datum if applicable.
+ */
 
 mExpClass(Basic) PositionSystem : CallBacker
 { mRefCountImpl(PositionSystem);
@@ -42,7 +44,7 @@ public:
 				//!<Creates the subclasses without settings
 
     static void			getSystemNames(bool onlyorthogonal,
-	    				       bool onlyprojection,
+					       bool onlyprojection,
 					       uiStringSet&,
 					       ObjectSet<IOPar>&);
 				/*!Gets a list of coordinate systems and the
@@ -59,8 +61,6 @@ public:
     virtual bool		isOK() const				= 0;
 
     virtual bool		geographicTransformOK() const		= 0;
-    virtual LatLong		toGeographicWGS84(const Coord&) const	= 0;
-    virtual Coord		fromGeographicWGS84(const LatLong&) const = 0;
 
     static Coord		convert(const Coord&,const PositionSystem& from,
 					const PositionSystem& to);
@@ -85,6 +85,17 @@ public:
 
     static const char*		sKeyFactoryName()	{ return "System name";}
     static const char*		sKeyUiName()		{ return "UI Name"; }
+
+protected:
+
+    virtual LatLong		toGeographic(const Coord&,
+					     bool wgs84=false) const	= 0;
+    virtual Coord		fromGeographic(const LatLong&,
+					       bool wgs84=false) const = 0;
+
+private:
+
+    friend class ::LatLong;
 };
 
 
@@ -106,9 +117,6 @@ public:
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const	{ return false; }
 
-    virtual LatLong	toGeographicWGS84(const Coord&) const;
-    virtual Coord	fromGeographicWGS84(const LatLong&) const;
-
     virtual bool	isOK() const		{ return true; }
     virtual bool	isOrthogonal() const	{ return true; }
     virtual bool	isFeet() const		{ return isfeet_; }
@@ -118,6 +126,9 @@ public:
     virtual void	fillPar(IOPar&) const;
 
 private:
+
+    virtual LatLong	toGeographic(const Coord&,bool wgs84=false) const;
+    virtual Coord	fromGeographic(const LatLong&,bool wgs84=false) const;
 
     bool		isfeet_;
 };
@@ -141,10 +152,6 @@ public:
     bool		geographicTransformOK() const;
     void		setLatLongEstimate(const LatLong&,const Coord&);
 
-    virtual LatLong	toGeographicWGS84(const Coord&) const;
-			//!<Very aproximate! Be Aware!
-    virtual Coord	fromGeographicWGS84(const LatLong&) const;
-
     virtual bool	isOK() const		{ return true; }
     virtual bool	isOrthogonal() const	{ return true; }
     virtual bool	isFeet() const		{ return isfeet_; }
@@ -158,13 +165,16 @@ public:
 
 private:
 
+    virtual LatLong	toGeographic(const Coord&,bool wgs84=false) const;
+			//!<Very approximate! Be Aware!
+    virtual Coord	fromGeographic(const LatLong&,bool wgs84=false) const;
+
     bool		isfeet_;
     Coord		refcoord_;
     LatLong		reflatlng_;
 
     double		lngdist_;
 };
-
 
 }; //namespace
 

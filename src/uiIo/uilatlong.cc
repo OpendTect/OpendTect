@@ -69,7 +69,7 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     secfld_->attach( rightOf, minfld_ );
     secfld_->setValue( 0 );
 
-    swfld_ = new uiCheckBox( this, islat_ ? uiStrings::sSouth(true) : 
+    swfld_ = new uiCheckBox( this, islat_ ? uiStrings::sSouth(true) :
 					    uiStrings::sWest(true) );
     swfld_->attach( rightOf, secfld_ );
     swfld_->setHSzPol( uiObject::Small );
@@ -116,19 +116,19 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     isdmsbut->activated.notify( tscb );
 
     uiGroup* lblgrp = new uiGroup( this, "Lat/Long Label grp" );
-    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLat() );
     uiLabel* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude() );
-    lnglbl->attach( alignedBelow, latlbl );
-    lblgrp->setHAlignObj( latlbl );
+    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLat() );
+    latlbl->attach( alignedBelow, lnglbl );
+    lblgrp->setHAlignObj( lnglbl );
 
     uiGroup* inpgrp = new uiGroup( this, "Lat/Long inp grp" );
-    latdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Latitude" );
     lngdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Longitude" );
-    lngdecfld_->attach( alignedBelow, latdecfld_ );
-    latdmsfld_ = new uiLatLongDMSInp( inpgrp, true );
+    latdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Latitude" );
+    latdecfld_->attach( alignedBelow, lngdecfld_ );
     lngdmsfld_ = new uiLatLongDMSInp( inpgrp, false );
-    lngdmsfld_->attach( alignedBelow, latdmsfld_ );
-    inpgrp->setHAlignObj( latdecfld_ );
+    latdmsfld_ = new uiLatLongDMSInp( inpgrp, true );
+    latdmsfld_->attach( alignedBelow, lngdmsfld_ );
+    inpgrp->setHAlignObj( lngdecfld_ );
 
     lblgrp->attach( leftAlignedBelow, bgrp );
     inpgrp->attach( rightOf, lblgrp );
@@ -238,7 +238,7 @@ uiLatLong2CoordFileTransDlg( uiParent* p, ConstRefMan<PositionSystem> coordsys )
 {
     uiFileInput::Setup fisu( uiFileDialog::Txt );
     fisu.forread( true ).exameditable( true );
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()), 
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()),
 									fisu );
 
     tollfld_ = new uiGenInput( this, tr("Transform"), BoolInpSpec( true,
@@ -280,13 +280,13 @@ bool acceptOK( CallBacker* )
 	    coord.x = d1; coord.y = d2;
 	    if ( !SI().isReasonable(coord) )
 		continue;
-	    ll = coordsys_->toGeographicWGS84( coord );
+	    ll = LatLong::transform( coord, true, coordsys_ );
 	    outstrm << ll.lat_ << od_tab << ll.lng_;
 	}
 	else
 	{
 	    ll.lat_ = d1; ll.lng_ = d2;
-	    coord = coordsys_->fromGeographicWGS84( ll );
+	    coord = LatLong::transform( ll, true, coordsys_ );
 	    if ( !SI().isReasonable(coord) )
 		continue;
 	    outstrm << coord.x << od_tab << coord.y;

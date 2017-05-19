@@ -19,15 +19,30 @@ const double cAvgEarthRadius = 6367450;
 
 
 
-Coord LatLong::transform( const LatLong& ll )
+bool LatLong::operator==( const LatLong& ll ) const
 {
-    return SI().getCoordSystem()->fromGeographicWGS84( ll );
+    return mIsEqual(ll.lat_,lat_,mDefEps) &&
+	   mIsEqual(ll.lng_,lng_,mDefEps);
 }
 
 
-LatLong LatLong::transform( const Coord& c )
+Coord LatLong::transform( const LatLong& ll, bool towgs84,
+			  const Coords::PositionSystem* coordsys )
 {
-    return SI().getCoordSystem()->toGeographicWGS84( c );
+    if ( !coordsys )
+	coordsys = SI().getCoordSystem();
+
+    return coordsys->fromGeographic( ll, towgs84 );
+}
+
+
+LatLong LatLong::transform( const Coord& c, bool towgs84,
+			    const Coords::PositionSystem* coordsys )
+{
+    if ( !coordsys )
+	coordsys = SI().getCoordSystem();
+
+    return coordsys->toGeographic( c, towgs84 );
 }
 
 

@@ -124,10 +124,11 @@ RefMan<PositionSystem> PositionSystem::createSystem( const IOPar& par )
 
 
 Coord PositionSystem::convert( const Coord& in, const PositionSystem& from,
-		       const PositionSystem& to )
+			       const PositionSystem& to )
 {
-    const LatLong geomwgs84 = from.toGeographicWGS84( in );
-    return to.fromGeographicWGS84( geomwgs84 );
+    const LatLong geomwgs84( LatLong::transform(in,true,&from) );
+
+    return LatLong::transform( geomwgs84, true, &to );
 }
 
 
@@ -204,13 +205,13 @@ PositionSystem* UnlocatedXY::clone() const
 }
 
 
-LatLong UnlocatedXY::toGeographicWGS84( const Coord& c ) const
+LatLong UnlocatedXY::toGeographic( const Coord&, bool ) const
 {
     return LatLong::udf();
 }
 
 
-Coord UnlocatedXY::fromGeographicWGS84( const LatLong& ll ) const
+Coord UnlocatedXY::fromGeographic( const LatLong&, bool ) const
 {
     return Coord::udf();
 }
@@ -273,7 +274,7 @@ void AnchorBasedXY::setLatLongEstimate( const LatLong& ll, const Coord& c )
 }
 
 
-LatLong AnchorBasedXY::toGeographicWGS84( const Coord& c ) const
+LatLong AnchorBasedXY::toGeographic( const Coord& c, bool ) const
 {
     if ( !geographicTransformOK() ) return reflatlng_;
 
@@ -293,7 +294,7 @@ LatLong AnchorBasedXY::toGeographicWGS84( const Coord& c ) const
 }
 
 
-Coord AnchorBasedXY::fromGeographicWGS84( const LatLong& ll ) const
+Coord AnchorBasedXY::fromGeographic( const LatLong& ll, bool ) const
 {
     if ( !geographicTransformOK() ) return Coord::udf();
 

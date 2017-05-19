@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uilatlong2coord.h"
 #include "crssystem.h"
 
+class uiCheckBox;
 class uiFileInput;
 class uiListBox;
 class uiLineEdit;
@@ -80,6 +81,8 @@ private:
     uiGenInput*		dirfld_;
     uiGenInput*		xfld_;
     uiGenInput*		yfld_;
+    uiCheckBox*		towgs84fld_;
+    uiCheckBox*		fromwgs84fld_;
     uiLatLongInp*	latlngfld_;
     uiFileInput*	inpfilefld_;
     uiFileInput*	outfilefld_;

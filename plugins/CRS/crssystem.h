@@ -26,6 +26,7 @@ public:
 				 tr("Projection Based System") );
 
 				ProjectionBasedSystem();
+				ProjectionBasedSystem(ProjectionID);
 
     virtual PositionSystem*	clone() const;
 
@@ -36,8 +37,6 @@ public:
     virtual bool		isOK() const;
 
     virtual bool		geographicTransformOK() const;
-    virtual LatLong		toGeographicWGS84(const Coord&) const;
-    virtual Coord		fromGeographicWGS84(const LatLong&) const;
 
     virtual bool		isOrthogonal() const;
     virtual bool		isProjection() const		{ return true; }
@@ -53,6 +52,14 @@ public:
 protected:
 
     const Projection*		proj_;
+
+private:
+
+    virtual LatLong		toGeographic(const Coord&,
+					     bool wgs84=false) const;
+    virtual Coord		fromGeographic(const LatLong&,
+					       bool wgs84=false) const;
+
 };
 
 }; //namespace

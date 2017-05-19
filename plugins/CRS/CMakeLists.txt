@@ -30,5 +30,8 @@ if ( BUILD_CRS )
 		crssystem.cc
 		crspi.cc )
 
+    set( OD_TEST_PROGS
+		crs.cc )
+
     OD_INIT_MODULE()
 endif()
