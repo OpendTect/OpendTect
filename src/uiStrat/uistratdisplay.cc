@@ -121,8 +121,7 @@ void uiStratDisplay::createDispParamGrp()
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
 
     const CallBack cbv = mCB( this, uiStratDisplay, selCols );
-    viewcolbutton_ = new uiPushButton( dispparamgrp_,uiStrings::sView(),
-                                       cbv,true );
+    viewcolbutton_ = new uiPushButton( dispparamgrp_, tr("Colums"), cbv, false);
     viewcolbutton_->attach( rightOf, rangefld_ );
 }
 
@@ -183,7 +182,7 @@ public :
 protected:
 
     ObjectSet<uiCheckBox>	colboxflds_;
-    uiCheckBox*		allboxfld_;
+    uiCheckBox*			allboxfld_;
     uiStratDrawer&		drawer_;
     StratDispData&		data_;
 };
@@ -252,6 +251,13 @@ void uiStratDisplay::mouseMoveCB( CallBacker* )
     uiString agetxt = agerg.includes(age,false) ? tr("Age: %1 My").arg( agestr )
 						: uiStrings::sEmptyString();
     mainwin()->toStatusBar( agetxt, 0 );
+
+    const StratDispData::Unit* unit = getUnitFromPos();
+    if ( unit )
+    {
+	const BufferString code = unit->fullCode();
+	mainwin()->toStatusBar( toUiString(code), 1 );
+    }
 }
 
 
@@ -453,9 +459,12 @@ void uiStratDrawer::drawColumns()
 
     for ( int idcol=0; idcol<nrcols; idcol++ )
     {
-	if ( !data_.getCol( idcol )->isdisplayed_ ) continue;
-	ColumnItem* colitm = new ColumnItem( data_.getCol( idcol )->name_ );
+	ColumnItem* colitm = new ColumnItem( data_.getCol(idcol)->name_ );
 	colitms_ += colitm;
+
+	if ( !data_.getCol(idcol)->isdisplayed_ )
+	    continue;
+
 	colitm->pos_ = pos;
 	colitm->size_ = (int)xax_->getVal( (int)(scene_.width()+10) )
 		      /( data_.nrDisplayedCols() ) ;

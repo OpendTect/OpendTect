@@ -22,12 +22,12 @@ ________________________________________________________________________
 
 
 namespace Strat
-{ 
-    class UnitRef; 
+{
+    class UnitRef;
     class LeavedUnitRef;
-    class NodeOnlyUnitRef; 
-    class NodeUnitRef; 
-    class RefTree; 
+    class NodeOnlyUnitRef;
+    class NodeUnitRef;
+    class RefTree;
 }
 
 class uiStratRefTree;
@@ -36,7 +36,7 @@ class uiTreeViewItem;
 mExpClass(uiStrat) StratDispData
 {
 public:
-			StratDispData() {};
+			StratDispData() {}
 			~StratDispData() { eraseData(); }
 
     mStruct(uiStrat) Unit
@@ -46,8 +46,8 @@ public:
 				: name_( nm )
 			 	, fullcode_(fullcode)
 				, color_(col)
-				, isdisplayed_(true)		 
-				{}	 
+				, isdisplayed_(true)
+				{}
 
 	const char* 	name() const 	{ return name_.buf(); }
 	const char* 	fullCode() const { return fullcode_.buf(); }
@@ -70,7 +70,7 @@ public:
 			Level(const char* nm,const char* unitcode)
 				: unitcode_(unitcode)
 				, name_( nm )
-				{} 
+				{}
 
 	const BufferString name_;
 	const BufferString unitcode_;
@@ -79,7 +79,7 @@ public:
     };
 
 
-    mStruct(uiStrat) Column 
+    mStruct(uiStrat) Column
     {
 			Column( const char* nm )
 			    : name_(nm)
@@ -95,8 +95,8 @@ public:
 
 
 
-    void		eraseData() 
-			{ 
+    void		eraseData()
+			{
 			    for ( int idx=0; idx<cols_.size(); idx++ )
 			    {
 				cols_[idx]->units_.erase();
@@ -108,28 +108,28 @@ public:
     void		addCol( Column* col )
 			    { cols_ += col; }
 
-    int 		nrCols() const 
+    int 		nrCols() const
 			    { return cols_.size(); }
-    int			nrUnits( int colidx ) const 
+    int			nrUnits( int colidx ) const
 			    { return cols_[colidx]->units_.size(); }
     void		addUnit( int colidx, Unit* un )
 			    { cols_[colidx]->units_ += un; un->colidx_=colidx; }
 
-    const Column*	getCol( int idx ) const 
+    const Column*	getCol( int idx ) const
 			    { return cols_[idx]; }
-    Column*		getCol( int idx ) 
+    Column*		getCol( int idx )
 			    { return cols_[idx]; }
-    Unit*		getUnit( int colidx, int uidx ) 
+    Unit*		getUnit( int colidx, int uidx )
 			    { return gtUnit( colidx, uidx ); }
-    const Unit*		getUnit( int colidx, int uidx ) const 
+    const Unit*		getUnit( int colidx, int uidx ) const
 			    { return gtUnit( colidx, uidx ); }
 
-    int			nrLevels( int colidx ) const 
+    int			nrLevels( int colidx ) const
 			    { return cols_[colidx]->levels_.size(); }
-    const Level*	getLevel( int colidx, int lidx ) const 
+    const Level*	getLevel( int colidx, int lidx ) const
 			    { return cols_[colidx]->levels_[lidx]; }
 
-    int 		nrDisplayedCols() const				
+    int 		nrDisplayedCols() const
 			{
 			    int nr = 0;
 			    for ( int idx=0; idx<cols_.size(); idx++)
@@ -139,8 +139,8 @@ public:
 
 protected :
 
-    Unit*		gtUnit( int colidx, int uidx ) const 
-			    { return const_cast<Unit*>( 
+    Unit*		gtUnit( int colidx, int uidx ) const
+			    { return const_cast<Unit*>(
 					cols_[colidx]->units_[uidx] ); }
 
     ObjectSet<Column> cols_;
@@ -160,7 +160,7 @@ public:
 
     void		setTree();
     Notifier<uiStratTreeToDisp> newtreeRead;
-    
+
     int			levelColIdx() const 	{ return levelcolidx_; }
 
 protected:
@@ -180,7 +180,7 @@ protected:
     void		addLithologies(const Strat::LeavedUnitRef&);
     void		addLevel(const Strat::LeavedUnitRef&);
     void		addAnnot(const char*,Interval<float>& posrg,bool);
-    void 		readFromTree();				
+    void 		readFromTree();
 
     void		triggerDataChange(CallBacker*);
     void		treeDel(CallBacker*);
@@ -193,8 +193,8 @@ protected:
 mExpClass(uiStrat) uiStratDispToTree : public CallBacker
 {
 public:
-    			uiStratDispToTree(uiStratRefTree&);
-	                ~uiStratDispToTree(){};
+			uiStratDispToTree(uiStratRefTree&);
+			~uiStratDispToTree();
 
     uiTreeViewItem*	getItemFromTree(const char*);
 

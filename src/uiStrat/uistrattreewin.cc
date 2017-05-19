@@ -58,7 +58,7 @@ uiStratTreeWin& StratTreeWin()
 
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
-    : uiMainWin(p,uiStrings::phrManage(uiStrings::sStratigraphy()),2)
+    : uiMainWin(p,uiStrings::phrManage(uiStrings::sStratigraphy()),3)
     , needsave_(false)
     , istreedisp_(false)
     , treekey_(MultiID::udf())
@@ -73,8 +73,8 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     initMenuItems();
     createMenu();
     createToolBar();
-    editCB(0);
-    moveUnitCB(0);
+    setIsLocked( false );
+    updateButtonSensitivity();
 }
 
 
@@ -100,7 +100,8 @@ void uiStratTreeWin::initMenuItems()
     initItem( saveasitem_, uiStrings::sSaveAs(), "saveas" );
     initItem( resetitem_, uiStrings::sReset(), "undo" );
     initItem( lockitem_, uiStrings::sLock(), "unlock" );
-    initItem( switchviewitem_, tr("Switch View"), "strat_tree" );
+    initItem( switchviewitem_, tr("Switch to tree view"),
+	      "stratframeworkgraph" );
 
     initItem( expanditem_, tr("Expand all"), "expand_tree" );
     initItem( collapseitem_, tr("Collapse all"), "collapse_tree" );
@@ -108,9 +109,9 @@ void uiStratTreeWin::initMenuItems()
     initItem( movedownitem_, tr("Move unit down"), "downarrow" );
 
     initItem( lithoitem_, uiStrings::phrManage(uiStrings::sLithology(mPlural)),
-	  "lithologies" );
+	      "lithologies" );
     initItem( contentsitem_, uiStrings::phrManage(tr("Content Types")),
-	  "contents" );
+	      "contents" );
     initItem( helpitem_, tr("Help on this window"), "contexthelp" );
 }
 
@@ -182,10 +183,10 @@ void uiStratTreeWin::createGroups()
     rightgrp->setStretch( 1, 1 );
 
     uitree_ = new uiStratRefTree( leftgrp );
-    CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
-    CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
-    uitree_->treeView()->selectionChanged.notify( selcb );
-    uitree_->treeView()->itemRenamed.notify( renmcb );
+    uitree_->treeView()->selectionChanged.notify(
+			mCB(this,uiStratTreeWin,unitSelCB) );
+    uitree_->treeView()->itemRenamed.notify(
+			mCB(this,uiStratTreeWin,unitRenamedCB) );
     uitree_->treeView()->display( false );
 
     if ( !uitree_->haveTimes() )
@@ -274,6 +275,8 @@ void uiStratTreeWin::actionCB( CallBacker* cb )
 	save( false );
     else if ( id==saveasitem_.id )
 	save( true );
+    else if ( id==lockitem_.id )
+	setIsLocked( !isLocked() );
     else if ( id==switchviewitem_.id )
 	switchView();
     else if ( id==expanditem_.id )
@@ -284,12 +287,18 @@ void uiStratTreeWin::actionCB( CallBacker* cb )
 	uitree_->moveUnit( true );
     else if ( id==movedownitem_.id )
 	uitree_->moveUnit( false );
+    else if ( id==lithoitem_.id )
+	manLiths();
+    else if ( id==contentsitem_.id )
+	manConts();
+    else if ( id==helpitem_.id )
+	HelpProvider::provideHelp( HelpKey(mODHelpKey(mStratTreeWinHelpID) ) );
 }
 
 
 void uiStratTreeWin::unitSelCB( CallBacker* )
 {
-    moveUnitCB(0);
+    updateButtonSensitivity();
 }
 
 
@@ -321,7 +330,6 @@ void uiStratTreeWin::openTree()
     uiIOObjSelDlg dlg( this, ctio, tr("Open Stratigraphic Framework") );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
-    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
     treekey_ = dlg.ioObj()->key();
     delete ctio.ioobj_;
 
@@ -368,47 +376,25 @@ bool uiStratTreeWin::save( bool saveas )
     if ( saveok )
 	treekey_ = key;
 
+    updateCaption();
 // TODO: message when !saveok
     return saveok;
 }
 
 
-
-void uiStratTreeWin::editCB( CallBacker* )
-{
-//    setEditable( editmnuitem_->text().isEqualTo(sEditTxt(true)) );
-}
-
-
-void uiStratTreeWin::setEditable( bool doedit )
-{
-/*
-    uitree_->makeTreeEditable( doedit );
-    editmnuitem_->setText( doedit ? sLockTxt(true) : sEditTxt(true) );
-    editmnuitem_->setIcon( doedit ? "unlock" : "readonly" );
-    lockbut_->setIcon( doedit ? "unlock" : "readonly" );
-    lockbut_->setToolTip( doedit ? sLockTxt(false) : sEditTxt(false) );
-    lockbut_->setOn( !doedit );
-    setIsLocked( !doedit );
-*/
-}
+void uiStratTreeWin::setEditable( bool yn )
+{ setIsLocked( !yn ); }
 
 
 void uiStratTreeWin::setIsLocked( bool yn )
 {
     uistratdisp_->setIsLocked( yn );
     lvllist_->setIsLocked( yn );
-/*
-    lithobut_->setSensitive( !yn );
-    contentsbut_->setSensitive( !yn );
-    newbut_->setSensitive( !yn );
-    saveasmnuitem_->setEnabled( !yn );
-    resetmnuitem_->setEnabled( !yn );
-    moveunitupbut_->setSensitive(
-	    !lockbut_->isOn() && uitree_->canMoveUnit( true ) );
-    moveunitdownbut_->setSensitive(
-	    !lockbut_->isOn()  && uitree_->canMoveUnit( false ) );
-*/
+
+    uitree_->makeTreeEditable( !yn );
+    tb_->setIcon( lockitem_.id, yn ? "readonly" : "unlock" );
+    tb_->setToolTip( lockitem_.id,
+		     yn ? uiStrings::sUnlock() : uiStrings::sLock() );
 }
 
 
@@ -440,10 +426,13 @@ void uiStratTreeWin::switchView()
 	uistratdisp_->control()->setSensitive( !istreedisp_ );
 
     uitree_->treeView()->display( istreedisp_ );
+    uitree_->expand( true );
     treevwtb_->setSensitive( istreedisp_ );
 
     tb_->setIcon( switchviewitem_.id,
-		istreedisp_ ? "stratframeworkgraph" : "strat_tree" );
+		istreedisp_ ? "strat_tree" : "stratframeworkgraph" );
+    tb_->setToolTip( switchviewitem_.id, istreedisp_ ?
+		tr("Switch to graph view") : tr("Switch to tree view") );
 }
 
 
@@ -507,22 +496,22 @@ void uiStratTreeWin::survChgCB( CallBacker* )
 }
 
 
-void uiStratTreeWin::moveUnitCB( CallBacker* cb )
+void uiStratTreeWin::updateButtonSensitivity()
 {
+    const bool islocked = isLocked();
     treevwtb_->setSensitive( moveupitem_.id,
-		       !isLocked() && uitree_->canMoveUnit(true) );
+		       !islocked && uitree_->canMoveUnit(true) );
     treevwtb_->setSensitive( movedownitem_.id,
-		       !isLocked() && uitree_->canMoveUnit(false) );
+		       !islocked && uitree_->canMoveUnit(false) );
+
+    tb_->setSensitive( saveitem_.id, !islocked );
+
+    othertb_->setSensitive( lithoitem_.id, !islocked );
+    othertb_->setSensitive( contentsitem_.id, !islocked );
 }
 
 
-void uiStratTreeWin::helpCB( CallBacker* )
-{
-    HelpProvider::provideHelp( HelpKey(mODHelpKey(mStratTreeWinHelpID) ) );
-}
-
-
-void uiStratTreeWin::manLiths( CallBacker* )
+void uiStratTreeWin::manLiths()
 {
     uiStratLithoDlg dlg( this );
     dlg.go();
@@ -531,7 +520,7 @@ void uiStratTreeWin::manLiths( CallBacker* )
 }
 
 
-void uiStratTreeWin::manConts( CallBacker* )
+void uiStratTreeWin::manConts()
 {
     uiStratContentsDlg dlg( this );
     dlg.go();

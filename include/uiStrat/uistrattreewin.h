@@ -100,19 +100,18 @@ protected:
     bool			isLocked() const;
     void			setEditable(bool yn);
 
-    void			moveUnitCB(CallBacker*);
+    void			updateButtonSensitivity();
 
-    void			manLiths(CallBacker*);
-    void			manConts(CallBacker*);
+    void			manLiths();
+    void			manConts();
+    void			help();
 
-    void			editCB(CallBacker*);
     void			selLvlChgCB(CallBacker*);
     void			rClickLvlCB(CallBacker*);
     void			unitSelCB(CallBacker*);
     void			unitRenamedCB(CallBacker*);
     void			survChgCB(CallBacker*);
     void			appCloseCB(CallBacker*);
-    void			helpCB(CallBacker*);
 
 private:
 

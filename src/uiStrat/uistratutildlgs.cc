@@ -73,13 +73,10 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	uiSeparator* sep = new uiSeparator( this, "HorSep" );
 	sep->attach( stretchedBelow, lblbox1 );
 
-	unitlithfld_ = new uiStratLithoBox( this );
-	unitlithfld_->setMultiChoice( true );
+	uiListBox::Setup lbsetup( OD::ChooseZeroOrMore, tr("Lithologies") );
+	unitlithfld_ = new uiStratLithoBox( this, lbsetup );
 	unitlithfld_->attach( alignedBelow, lblbox1 );
 	unitlithfld_->attach( ensureBelow, sep );
-
-	uiLabel* lbl = new uiLabel( this, tr("Lithologies") );
-	lbl->attach( leftOf, unitlithfld_ );
 
 	const CallBack cb( mCB(this,uiStratUnitEditDlg,selLithCB) );
 	uiButton* sellithbut = uiButton::getStd( this, OD::Edit, cb, false );
@@ -200,7 +197,16 @@ void uiStratUnitEditDlg::selLithCB( CallBacker* )
 
 
 uiStratLithoBox::uiStratLithoBox( uiParent* p )
-    : uiListBox( p, "Lithologies" )
+    : uiListBox(p,"Lithologies")
+{
+    fillLiths( 0 );
+    Strat::LithologySet& lithos = Strat::eRT().lithologies();
+    lithos.anyChange.notify( mCB( this, uiStratLithoBox, fillLiths ) );
+}
+
+
+uiStratLithoBox::uiStratLithoBox( uiParent* p, const uiListBox::Setup& setup )
+    : uiListBox(p,setup,"Lithologies")
 {
     fillLiths( 0 );
     Strat::LithologySet& lithos = Strat::eRT().lithologies();

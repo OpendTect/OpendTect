@@ -14,11 +14,11 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 #include "uidialog.h"
+#include "uilistbox.h"
+#include "uistring.h"
 #include "uitable.h"
 #include "ranges.h"
 #include "stratunitref.h"
-#include "uilistbox.h"
-#include "uistring.h"
 
 class uiColorInput;
 class uiGenInput;
@@ -32,10 +32,11 @@ namespace Strat { class Lithology; }
 /*!\brief Displays a dialog to create/edit a new stratigraphic unit */
 
 mExpClass(uiStrat) uiStratLithoBox : public uiListBox
-{ mODTextTranslationClass(uiStratLithoBox);
+{ mODTextTranslationClass(uiStratLithoBox)
 public:
-    			uiStratLithoBox(uiParent*);
-    			~uiStratLithoBox();
+			uiStratLithoBox(uiParent*);
+			uiStratLithoBox(uiParent*,const uiListBox::Setup&);
+			~uiStratLithoBox();
 
 protected:
 
@@ -44,7 +45,7 @@ protected:
 
 
 mExpClass(uiStrat) uiStratUnitEditDlg : public uiDialog
-{ mODTextTranslationClass(uiStratUnitEditDlg);
+{ mODTextTranslationClass(uiStratUnitEditDlg)
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
 
@@ -59,7 +60,7 @@ protected:
     uiSpinBox*		agestartfld_;
     uiSpinBox*		agestopfld_;
     uiStratLithoBox*	unitlithfld_;
-    
+
     Strat::NodeUnitRef& unit_;
 
     BufferString	entrancename_;
@@ -74,7 +75,7 @@ protected:
 
 
 mExpClass(uiStrat) uiStratLithoDlg : public uiDialog
-{ mODTextTranslationClass(uiStratLithoDlg);
+{ mODTextTranslationClass(uiStratLithoDlg)
 public:
 
 			uiStratLithoDlg(uiParent*);
@@ -105,18 +106,18 @@ protected:
 /*!\brief Displays a Table to create new units from an existing one */
 
 mExpClass(uiStrat) uiStratUnitDivideDlg : public uiDialog
-{ mODTextTranslationClass(uiStratUnitDivideDlg);
+{ mODTextTranslationClass(uiStratUnitDivideDlg)
 public:
 				uiStratUnitDivideDlg(uiParent*,
 						const Strat::LeavedUnitRef&);
 
-    void			gatherUnits(ObjectSet<Strat::LeavedUnitRef>&); 
+    void			gatherUnits(ObjectSet<Strat::LeavedUnitRef>&);
 
 protected :
 
     mExpClass(uiStrat) uiDivideTable : public uiTable
-    { mODTextTranslationClass(uiDivideTable);
-	public: 	
+    { mODTextTranslationClass(uiDivideTable)
+	public:
 				uiDivideTable(uiParent* p,
 						const uiTable::Setup& s)
 				    : uiTable(p,s,"Subdivide unit table")
@@ -126,7 +127,7 @@ protected :
     };
 
 
-    uiTable*                    table_;
+    uiTable*			table_;
     const Strat::LeavedUnitRef& rootunit_;
 
     bool			areTimesOK(ObjectSet<Strat::LeavedUnitRef>&,
@@ -143,23 +144,23 @@ protected :
 /*!\brief Displays a dialog to create new lithology */
 
 mExpClass(uiStrat) uiStratLevelDlg : public uiDialog
-{ mODTextTranslationClass(uiStratLevelDlg);
+{ mODTextTranslationClass(uiStratLevelDlg)
 public:
 
-    uiStratLevelDlg(uiParent*);
+			uiStratLevelDlg(uiParent*);
 
-    void                setLvlInfo(const char*,const Color& col);
+    void		setLvlInfo(const char*,const Color& col);
     void		getLvlInfo(BufferString&,Color& col) const;
 
 protected:
 
-    uiGenInput*         lvlnmfld_;
-    uiColorInput*       lvlcolfld_;
+    uiGenInput*		lvlnmfld_;
+    uiColorInput*	lvlcolfld_;
 };
 
 
 mExpClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
-{ mODTextTranslationClass(uiStratLinkLvlUnitDlg);
+{ mODTextTranslationClass(uiStratLinkLvlUnitDlg)
 public:
 
     			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
@@ -170,7 +171,7 @@ protected:
 
     Strat::LeavedUnitRef& unit_;
 
-    uiGenInput*         lvllistfld_;
+    uiGenInput*		lvllistfld_;
     TypeSet<int>	ids_;
 
     bool		acceptOK(CallBacker*);
@@ -178,17 +179,15 @@ protected:
 
 
 mExpClass(uiStrat) uiStratContentsDlg : public uiDialog
-{ mODTextTranslationClass(uiStratContentsDlg);
+{ mODTextTranslationClass(uiStratContentsDlg)
 public:
 			uiStratContentsDlg(uiParent*);
-     bool		anyChg() const		{ return anychg_; }
+    bool		anyChg() const		{ return anychg_; }
 
 protected:
 
-     bool		anychg_;
+    bool		anychg_;
 
 };
-
-
 
 #endif

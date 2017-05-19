@@ -192,9 +192,13 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
 
 
 
-
+// uiStratDispToTree
 uiStratDispToTree::uiStratDispToTree( uiStratRefTree& uitree )
     : uitree_(uitree)
+{}
+
+
+uiStratDispToTree::~uiStratDispToTree()
 {}
 
 
