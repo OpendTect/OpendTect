@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 mFDQtclass(QTreeWidget)
 mFDQtclass(QTreeWidgetItem)
+mFDQtclass(QTreeWidgetItemIterator)
 mFDQtclass(QString)
 mFDQtclass(QStringList)
 
@@ -174,6 +175,7 @@ private:
     friend class	i_treeVwMessenger;
     friend class	uiTreeViewBody;
     friend class	uiTreeViewItem;
+    friend class	uiTreeViewItemIterator;
 
     uiTreeViewBody*	body_;
 
@@ -348,6 +350,22 @@ protected:
     bool			ischeckable_;
     bool			isenabled_;
     bool			checked_;
+};
+
+
+mExpClass(uiBase) uiTreeViewItemIterator : public CallBacker
+{
+public:
+				uiTreeViewItemIterator(uiTreeView&);
+				~uiTreeViewItemIterator();
+
+    uiTreeViewItem*		next();
+
+protected:
+    uiTreeView&			view_;
+
+private:
+    mQtclass(QTreeWidgetItemIterator*)	iter_;
 };
 
 #endif

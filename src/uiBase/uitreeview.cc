@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QSize>
 #include <QString>
 #include <QTreeWidgetItem>
+#include <QTreeWidgetItemIterator>
 
 #include "i_qtreeview.h"
 
@@ -1215,3 +1216,30 @@ uiTreeViewItem* uiTreeViewItem::itemFor( QTreeWidgetItem* itm )
 
 const uiTreeViewItem* uiTreeViewItem::itemFor( const QTreeWidgetItem* itm )
 { return odqtobjects_.getODObject( *itm ); }
+
+
+// uiTreeViewItemIterator
+uiTreeViewItemIterator::uiTreeViewItemIterator( uiTreeView& view )
+    : view_(view)
+{
+    iter_ = new QTreeWidgetItemIterator( view_.lvbody() );
+}
+
+
+uiTreeViewItemIterator::~uiTreeViewItemIterator()
+{
+    delete iter_;
+}
+
+
+uiTreeViewItem* uiTreeViewItemIterator::next()
+{
+    QTreeWidgetItem* qitm = *(*iter_);
+    if ( !qitm )
+	return 0;
+
+    uiTreeViewItem* itm = uiTreeViewItem::itemFor( qitm );
+    ++(*iter_);
+    return itm;
+}
+
