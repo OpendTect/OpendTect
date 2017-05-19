@@ -485,7 +485,8 @@ uiPixmap* uiStratRefTree::createUnitPixmap( const Color& col ) const
 
 uiTreeViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
 {
-    uiTreeViewItem* lvit = lv_->firstItem();
+    uiTreeViewItemIterator it( *lv_ );
+    uiTreeViewItem* lvit = it.next();
     while ( lvit )
     {
         uiTreeViewItem* item = lvit;
@@ -500,7 +501,7 @@ uiTreeViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
 	if ( bs == code )
 	    return lvit;
 
-	lvit = lvit->itemBelow();
+	lvit = it.next();
     }
     return 0;
 }

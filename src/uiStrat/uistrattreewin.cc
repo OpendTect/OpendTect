@@ -426,7 +426,6 @@ void uiStratTreeWin::switchView()
 	uistratdisp_->control()->setSensitive( !istreedisp_ );
 
     uitree_->treeView()->display( istreedisp_ );
-    uitree_->expand( true );
     treevwtb_->setSensitive( istreedisp_ );
 
     tb_->setIcon( switchviewitem_.id,
