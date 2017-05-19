@@ -48,6 +48,7 @@ protected:
 
     TypeSet<AuthorityCode>	ids_;
     BufferStringSet		names_;
+    BufferStringSet		defstrs_;
     int				curselidx_;
     TypeSet<int>		dispidxs_;
 				// Indexes of ids_/names_ displayed in ListBox.
@@ -59,6 +60,7 @@ protected:
     void		selChgCB(CallBacker*);
     void		convCB(CallBacker*);
     void		searchCB(CallBacker*);
+    void		infoCB(CallBacker*);
 
 };
 
