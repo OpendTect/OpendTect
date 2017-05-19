@@ -15,10 +15,10 @@ Coords::ProjectionBasedSystem::ProjectionBasedSystem()
 {}
 
 
-Coords::ProjectionBasedSystem::ProjectionBasedSystem( ProjectionID projid )
+Coords::ProjectionBasedSystem::ProjectionBasedSystem( AuthorityCode code )
     : proj_(0)
 {
-    setProjection( projid );
+    setProjection( code );
 }
 
 
@@ -36,7 +36,7 @@ BufferString Coords::ProjectionBasedSystem::summary() const
 	return "No Projection Selected";
 
     BufferString ret( "P: [" );
-    ret.add( proj_->id().getI() ).add( "] " ).add( proj_->userName() );
+    ret.add( proj_->authCode().toString() ).add( "] " ).add( proj_->userName());
     return ret;
 }
 
@@ -81,9 +81,9 @@ bool Coords::ProjectionBasedSystem::usePar( const IOPar& par )
     if ( !PositionSystem::usePar(par) )
 	return false;
 
-    Coords::ProjectionID projid;
-    if ( par.get(sKeyProjectionID,projid) )
-	setProjection( projid );
+    BufferString authcodestr;
+    if ( par.get(sKeyProjectionID,authcodestr) )
+	setProjection( Coords::AuthorityCode::fromString(authcodestr) );
 
     return true;
 }
@@ -93,13 +93,13 @@ void Coords::ProjectionBasedSystem::fillPar( IOPar& par ) const
 {
     PositionSystem::fillPar( par );
     if ( proj_ )
-	par.set( sKeyProjectionID, proj_->id() );
+	par.set( sKeyProjectionID, proj_->authCode().toString() );
 }
 
 
-bool Coords::ProjectionBasedSystem::setProjection( Coords::ProjectionID pid )
+bool Coords::ProjectionBasedSystem::setProjection( Coords::AuthorityCode code )
 {
-    const Coords::Projection* proj = Coords::Projection::getByID( pid );
+    const Coords::Projection* proj = Coords::Projection::getByAuthCode( code );
     if ( !proj )
 	return false;
 

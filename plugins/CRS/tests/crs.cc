@@ -12,10 +12,14 @@
 #include "oddirs.h"
 #include "survinfo.h"
 
+
 static const char* sKeyRepoNm = "EPSG";
-static Coords::ProjectionID cWGS84ID = Coords::ProjectionID::get( 32631 );
-static Coords::ProjectionID cED50ID = Coords::ProjectionID::get( 23031 );
-static Coords::ProjectionID cWGS72ID = Coords::ProjectionID::get( 32231 );
+static Coords::AuthorityCode cWGS84ID()
+{ return Coords::AuthorityCode( sKeyRepoNm, Coords::ProjectionID::get(32631) );}
+static Coords::AuthorityCode cED50ID()
+{ return Coords::AuthorityCode( sKeyRepoNm, Coords::ProjectionID::get(23031) );}
+static Coords::AuthorityCode cWGS72ID()
+{ return Coords::AuthorityCode( sKeyRepoNm, Coords::ProjectionID::get(32231) );}
 
 static double mDefEpsCoord = 1e-4;
 
@@ -88,7 +92,7 @@ static bool testLatLongToCoord( const LatLong& ll, const Coord& pos,
 
 static bool testReversibility( bool wgs84 )
 {
-    const Coords::ProjectionBasedSystem pbs( wgs84 ? cWGS84ID : cED50ID );
+    const Coords::ProjectionBasedSystem pbs( wgs84 ? cWGS84ID() : cED50ID() );
     if ( !pbs.isOK() )
 	return false;
 
@@ -108,9 +112,9 @@ static bool testReversibility( bool wgs84 )
 
 static bool testTransfer()
 {
-    const Coords::ProjectionBasedSystem wgs84pbs( cWGS84ID );
-    const Coords::ProjectionBasedSystem ed50pbs( cED50ID );
-    const Coords::ProjectionBasedSystem wgs72pbs( cWGS72ID );
+    const Coords::ProjectionBasedSystem wgs84pbs( cWGS84ID() );
+    const Coords::ProjectionBasedSystem ed50pbs( cED50ID() );
+    const Coords::ProjectionBasedSystem wgs72pbs( cWGS72ID() );
     if ( !wgs84pbs.isOK() || !ed50pbs.isOK() || !wgs72pbs.isOK() )
 	return false;
 
@@ -144,11 +148,7 @@ static bool testTransfer()
 bool initPlugin()
 {
     Coords::ProjectionBasedSystem::initClass();
-    Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( sKeyRepoNm,
-				    toUiString("Standard EPSG Projectons") );
-    BufferString epsgfnm = mGetSetupFileName( "epsg" );
-    repos->readFromFile( epsgfnm );
-    Coords::ProjectionRepos::addRepos( repos );
+    Coords::ProjectionRepos::initStdRepos();
     SI().readSavedCoordSystem();
 
     mRunTest( Coords::ProjectionRepos::getRepos(sKeyRepoNm) )

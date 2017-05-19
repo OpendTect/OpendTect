@@ -11,23 +11,48 @@
 #include "crsproj.h"
 #include "od_istream.h"
 #include "bufstringset.h"
+#include "filepath.h"
+#include "oddirs.h"
+#include "separstr.h"
 #include "typeset.h"
 
 static FixedString sKeyUnitsArg()	{ return FixedString("+units="); }
+static FixedString sKeyEPSG()		{ return FixedString("EPSG"); }
 
-static const Coords::ProjectionID cWGS84ID()
-{ return Coords::ProjectionID::get( 4326 ); }
+static Coords::AuthorityCode cWGS84AuthCode()
+{ return Coords::AuthorityCode( sKeyEPSG(), Coords::ProjectionID::get(4326) ); }
+
+bool Coords::AuthorityCode::operator==( const Coords::AuthorityCode& oth ) const
+{ return authority_ == oth.authority_ && id_ == oth.id_; }
+
+Coords::AuthorityCode Coords::AuthorityCode::fromString( const char* str )
+{
+    FileMultiString fms( str );
+    const bool hasauth = fms.size() == 2;
+    const BufferString authstr = hasauth ? fms[0] : sKeyEPSG();
+    const int idnum = fms.getIValue( hasauth ? 1 : 0 );
+    return Coords::AuthorityCode( authstr, Coords::ProjectionID::get(idnum) );
+}
+
+
+BufferString Coords::AuthorityCode::toString() const
+{
+    FileMultiString ret( authority_ );
+    ret.add( id_.getI() );
+    return BufferString( ret.buf() );
+}
+
 
 static const Coords::Projection* getWGS84Proj()
 {
     mDefineStaticLocalObject(const Coords::Projection*,proj,
-			      = Coords::Projection::getByID(cWGS84ID()) );
+			= Coords::Projection::getByAuthCode(cWGS84AuthCode()) );
     return proj;
 }
 
-Coords::Projection::Projection( Coords::ProjectionID pid, const char* usrnm,
+Coords::Projection::Projection( Coords::AuthorityCode code, const char* usrnm,
 				const char* defstr )
-    : id_(pid),usernm_(usrnm),defstr_(defstr)
+    : authcode_(code),usernm_(usrnm),defstr_(defstr)
 {}
 
 Coords::Projection::~Projection()
@@ -72,32 +97,34 @@ bool Coords::Projection::isFeet() const
 bool Coords::Projection::isMeter() const
 { return true; }
 
-void Coords::Projection::getAll( TypeSet<ProjectionID>& pids,
+void Coords::Projection::getAll( TypeSet<Coords::AuthorityCode>& codes,
 				 BufferStringSet& usrnms, bool orthogonalonly )
 {
     for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
     {
 	const Coords::ProjectionRepos* repos =
-			Coords::ProjectionRepos::reposSet().get( idx );
+			Coords::ProjectionRepos::reposSet()[idx];
 	for ( int idy=0; idy<repos->size(); idy++ )
 	{
-	    const Coords::Projection* proj = repos->get( idy );
+	    const Coords::Projection* proj = (*repos)[idy];
 	    if ( !orthogonalonly || proj->isOrthogonal() )
 	    {
-		// sort by ID
-		int index = pids.size()-1;
-		while ( index >= 0 && pids[index].getI() > proj->id().getI() )
+		// sort by AuthorityCode
+		int index = codes.size()-1;
+		while ( index >= 0 &&
+			codes[index].authority() == proj->authCode().authority()
+		     && codes[index].id().getI()>proj->authCode().id().getI() )
 		    index--;
 
 		index++;
-		if ( index >= pids.size()-1 )
+		if ( index >= codes.size()-1 )
 		{
-		    pids.add( proj->id() );
+		    codes.add( proj->authCode() );
 		    usrnms.add( proj->userName() );
 		}
 		else
 		{
-		    pids.insert( index, proj->id() );
+		    codes.insert( index, proj->authCode() );
 		    usrnms.insertAt( new BufferString(proj->userName()), index);
 		}
 	    }
@@ -106,14 +133,14 @@ void Coords::Projection::getAll( TypeSet<ProjectionID>& pids,
 }
 
 
-const Coords::Projection* Coords::Projection::getByID(
-						Coords::ProjectionID pid )
+const Coords::Projection* Coords::Projection::getByAuthCode(
+						Coords::AuthorityCode code )
 {
     for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
     {
 	const Coords::ProjectionRepos* repos =
-			Coords::ProjectionRepos::reposSet().get( idx );
-	const Coords::Projection* proj = repos->getByID( pid );
+			Coords::ProjectionRepos::reposSet()[idx];
+	const Coords::Projection* proj = repos->getByAuthCode( code );
 	if ( proj )
 	    return proj;
     }
@@ -127,7 +154,7 @@ const Coords::Projection* Coords::Projection::getByName( const char* usrnm )
     for ( int idx=0; idx<Coords::ProjectionRepos::reposSet().size(); idx++ )
     {
 	const Coords::ProjectionRepos* repos =
-			Coords::ProjectionRepos::reposSet().get( idx );
+			Coords::ProjectionRepos::reposSet()[idx];
 	const Coords::Projection* proj = repos->getByName( usrnm );
 	if ( proj )
 	    return proj;
@@ -141,7 +168,7 @@ namespace Coords
 class Proj4Projection : public Projection
 {
 public:
-			Proj4Projection(Coords::ProjectionID,
+			Proj4Projection(Coords::AuthorityCode,
 					const char* usrnm,
 					const char* defstr);
 			~Proj4Projection();
@@ -162,9 +189,9 @@ protected:
 };
 } // Namespace
 
-Coords::Proj4Projection::Proj4Projection( Coords::ProjectionID pid,
+Coords::Proj4Projection::Proj4Projection( Coords::AuthorityCode code,
 					  const char* usrnm, const char* defstr)
-    : Projection(pid,usrnm,defstr)
+    : Projection(code,usrnm,defstr)
     , proj_(0)
 {
     init();
@@ -289,8 +316,8 @@ bool Coords::ProjectionRepos::readFromFile( const char* fnm )
 	if ( bracesptr )
 	    *bracesptr = '\0';
 
-	Coords::Projection* proj =
-			new Coords::Proj4Projection( pid, usrnm, defstr );
+	Coords::Projection* proj = new Coords::Proj4Projection(
+		Coords::AuthorityCode(key_,pid), usrnm, defstr );
 	add( proj );
     }
 
@@ -298,13 +325,16 @@ bool Coords::ProjectionRepos::readFromFile( const char* fnm )
 }
 
 
-const Coords::Projection* Coords::ProjectionRepos::getByID(
-					Coords::ProjectionID pid ) const
+const Coords::Projection* Coords::ProjectionRepos::getByAuthCode(
+					Coords::AuthorityCode code ) const
 {
+    if ( code.authority() != key_ )
+	return 0;
+
     for ( int idx=0; idx<size(); idx++ )
     {
-	const Coords::Projection* proj = get( idx );
-	if ( proj && proj->id() == pid )
+	const Coords::Projection* proj = (*this)[idx];
+	if ( proj && proj->authCode() == code )
 	    return proj;
     }
 
@@ -317,7 +347,7 @@ const Coords::Projection* Coords::ProjectionRepos::getByName(
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const Coords::Projection* proj = get( idx );
+	const Coords::Projection* proj = (*this)[idx];
 	if ( proj && proj->userName() == nm )
 	    return proj;
     }
@@ -337,7 +367,7 @@ const Coords::ProjectionRepos* Coords::ProjectionRepos::getRepos(
 {
     for ( int idx=0; idx<reposset_.size(); idx++ )
     {
-	const Coords::ProjectionRepos* repos = reposset_.get( idx );
+	const Coords::ProjectionRepos* repos = reposset_[idx];
 	if ( repos && repos->key_ == reposkey )
 	    return repos;
     }
@@ -346,3 +376,27 @@ const Coords::ProjectionRepos* Coords::ProjectionRepos::getRepos(
 }
 
 
+void Coords::ProjectionRepos::getAuthKeys( BufferStringSet& keys )
+{
+    for ( int idx=0; idx<reposset_.size(); idx++ )
+    {
+	const Coords::ProjectionRepos* repos = reposset_[idx];
+	keys.add( repos->key_ );
+    }
+}
+
+
+void Coords::ProjectionRepos::initStdRepos()
+{
+    File::Path fp( mGetSetupFileName("CRS") );
+    Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( "EPSG",
+	    			toUiString("Standard EPSG Projectons") );
+    fp.add( "epsg" );
+    repos->readFromFile( fp.fullPath() );
+    Coords::ProjectionRepos::addRepos( repos );
+
+    repos = new Coords::ProjectionRepos( "ESRI", toUiString("ESRI Projectons"));
+    fp.setFileName( "esri" );
+    repos->readFromFile( fp.fullPath() );
+    Coords::ProjectionRepos::addRepos( repos );
+}
