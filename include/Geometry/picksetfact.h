@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "uistrings.h"
 
-defineTranslatorGroup(PickSet,"PickSet Group");
-defineTranslator(dgb,PickSet,mDGBKey);
+defineTranslatorGroup(PickSet,"PickSet Group")
+defineTranslator(dgb,PickSet,mDGBKey)
 
 uiString PickSetTranslatorGroup::sTypeName( int num)
-{ return uiStrings::sPickSet( num ); }
+{ return uiStrings::sPointSet( num ); }
 
 #endif
