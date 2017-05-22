@@ -44,7 +44,7 @@ protected:
 
     uiConvertGeographicPos*	convdlg_;
 
-    TypeSet<ProjectionID>	ids_;
+    TypeSet<AuthorityCode>	ids_;
     BufferStringSet		names_;
     int				curselidx_;
     TypeSet<int>		dispidxs_;

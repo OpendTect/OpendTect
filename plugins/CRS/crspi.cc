@@ -7,6 +7,7 @@
 
 #include "odplugin.h"
 #include "crssystem.h"
+#include "filepath.h"
 #include "oddirs.h"
 #include "survinfo.h"
 
@@ -26,11 +27,18 @@ mDefODPluginInfo(CRS)
 mDefODInitPlugin(CRS)
 {
     Coords::ProjectionBasedSystem::initClass();
+    FilePath fp( mGetSetupFileName("CRS") );
     Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( "EPSG",
 				toUiString("Standard EPSG Projectons") );
-    BufferString epsgfnm = mGetSetupFileName( "epsg" );
-    repos->readFromFile( epsgfnm );
+    fp.add( "epsg" );
+    repos->readFromFile( fp.fullPath() );
     Coords::ProjectionRepos::addRepos( repos );
+
+    repos = new Coords::ProjectionRepos( "ESRI", toUiString("ESRI Projectons"));
+    fp.setFileName( "esri" );
+    repos->readFromFile( fp.fullPath() );
+    Coords::ProjectionRepos::addRepos( repos );
+
     SI().readSavedCoordSystem();
     return 0;
 }

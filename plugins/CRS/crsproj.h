@@ -22,15 +22,38 @@ namespace Coords
 
 typedef int ProjectionID;
 
+mExpClass(CRS) AuthorityCode
+{
+public:
+			AuthorityCode(const char* auth,ProjectionID i)
+			    : authority_(auth),id_(i) {}
+			AuthorityCode(const AuthorityCode& oth)
+			    : authority_(oth.authority_),id_(oth.id_) {}
+
+    BufferString	authority() const { return authority_; }
+    ProjectionID	id() const	  { return id_; }
+
+    bool		operator ==(const AuthorityCode&) const;
+
+    static AuthorityCode	fromString(const char*);
+    BufferString	toString() const;
+
+protected:
+
+    BufferString	authority_;
+    ProjectionID	id_;
+};
+
+
 mExpClass(CRS) Projection
 { mODTextTranslationClass(Projection);
 public:
 
-				Projection(ProjectionID id,const char* usernm,
+				Projection(AuthorityCode,const char* usernm,
 					   const char* defstr);
 				~Projection();
 
-    ProjectionID		id() const		{ return id_; }
+    AuthorityCode		authCode() const	{ return authcode_; }
     BufferString		userName() const	{ return usernm_; }
     BufferString		defStr() const		{ return defstr_; }
 
@@ -41,10 +64,10 @@ public:
     virtual bool		isFeet() const;
     virtual bool		isMeter() const;
 
-    static void			getAll( TypeSet<ProjectionID>&,
+    static void			getAll( TypeSet<AuthorityCode>&,
 					BufferStringSet& names,
 					bool orthogonalonly=false );
-    static const Projection*	getByID(ProjectionID);
+    static const Projection*	getByAuthCode(AuthorityCode);
     static const Projection*	getByName(const char*);
 
 protected:
@@ -64,7 +87,7 @@ private:
     virtual LatLong		transformTo(const Projection& target,
 					    Coord) const;
 
-    ProjectionID		id_;
+    AuthorityCode		authcode_;
     BufferString		usernm_;
 
     friend class ProjectionBasedSystem;
@@ -78,19 +101,19 @@ public:
 				ProjectionRepos(const char* key,
 						uiString desc);
 
-
     const char*			key() const		{ return key_.buf(); }
     uiString			description() const	{ return desc_; }
 
     bool			readFromFile(const char* fnm);
 
-    const Projection*		getByID(ProjectionID) const;
+    const Projection*		getByAuthCode(AuthorityCode) const;
     const Projection*		getByName(const char*) const;
 
     static void					addRepos(ProjectionRepos*);
     static const ProjectionRepos*		getRepos(const char* key);
     static const ObjectSet<ProjectionRepos>&	reposSet()
 						{ return reposset_; }
+    static void					getAuthKeys(BufferStringSet&);
 
 protected:
 

@@ -13,9 +13,12 @@
 #include "survinfo.h"
 
 static const char* sKeyRepoNm = "EPSG";
-static Coords::ProjectionID cWGS84ID = 32631;
-static Coords::ProjectionID cED50ID = 23031;
-static Coords::ProjectionID cWGS72ID = 32231;
+static Coords::AuthorityCode cWGS84ID()
+{ return Coords::AuthorityCode(sKeyRepoNm,32631); }
+static Coords::AuthorityCode cED50ID()
+{ return Coords::AuthorityCode(sKeyRepoNm,23031); }
+static Coords::AuthorityCode cWGS72ID()
+{ return Coords::AuthorityCode(sKeyRepoNm,32231); }
 
 static double mDefEpsCoord = 1e-4;
 
@@ -95,7 +98,7 @@ static bool testLatLongToCoord( const LatLong& ll, const Coord& pos,
 
 static bool testReversibility( bool wgs84 )
 {
-    const Coords::ProjectionBasedSystem pbs( wgs84 ? cWGS84ID : cED50ID );
+    const Coords::ProjectionBasedSystem pbs( wgs84 ? cWGS84ID() : cED50ID() );
     if ( !pbs.isOK() )
 	return false;
 
@@ -115,9 +118,9 @@ static bool testReversibility( bool wgs84 )
 
 static bool testTransfer()
 {
-    const Coords::ProjectionBasedSystem wgs84pbs( cWGS84ID );
-    const Coords::ProjectionBasedSystem ed50pbs( cED50ID );
-    const Coords::ProjectionBasedSystem wgs72pbs( cWGS72ID );
+    const Coords::ProjectionBasedSystem wgs84pbs( cWGS84ID() );
+    const Coords::ProjectionBasedSystem ed50pbs( cED50ID() );
+    const Coords::ProjectionBasedSystem wgs72pbs( cWGS72ID() );
     if ( !wgs84pbs.isOK() || !ed50pbs.isOK() || !wgs72pbs.isOK() )
 	return false;
 

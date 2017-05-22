@@ -27,8 +27,10 @@ ________________________________________________________________________
 
 using namespace Coords;
 
+static FixedString sKeyEPSG()	{ return FixedString("EPSG"); }
 
-static const int cDefProjID = 32631;
+static AuthorityCode cDefProjID()
+{ return AuthorityCode(sKeyEPSG(),32631); }
 
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     : uiPositionSystem( p,sFactoryDisplayName() )
@@ -49,7 +51,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     searchfld_ = new uiLineEdit( this, "Search" );
     searchfld_->setPlaceholderText( tr("ID or name") );
     searchfld_->attach( leftOf, searchbut );
-    searchfld_->editingFinished.notify(
+    searchfld_->returnPressed.notify(
 				mCB(this,uiProjectionBasedSystem,searchCB) );
 
     uiToolButton* tb = new uiToolButton( projselfld_, "xy2ll",
@@ -73,7 +75,7 @@ bool uiProjectionBasedSystem::initFields( const Coords::PositionSystem* sys )
     if ( !from || !from->isOK() )
 	return false;
 
-    Coords::ProjectionID pid = from->getProjection()->id();
+    Coords::AuthorityCode pid = from->getProjection()->authCode();
     curselidx_ = ids_.indexOf( pid );
     setCurrent();
     return true;
@@ -82,7 +84,7 @@ bool uiProjectionBasedSystem::initFields( const Coords::PositionSystem* sys )
 
 void uiProjectionBasedSystem::searchCB( CallBacker* )
 {
-    const BufferString str = searchfld_->text();
+    BufferString str = searchfld_->text();
     if ( str.isEmpty() ) // No Filter, display all.
     {
 	dispidxs_.erase();
@@ -97,23 +99,37 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
     if ( str.size() < 3 ) return; // Not enough to search for.
 
     MouseCursorChanger mcch( MouseCursor::Wait );
-    if ( str.isNumber(true) ) // Search for ID
+    dispidxs_.erase();
+    if ( str.isNumber(true) || str.find(':') ) // Search for ID
     {
-	Coords::ProjectionID searchid = str.toInt();
-	const int selidx = ids_.indexOf( searchid );
-	if ( selidx < 0 )
+	BufferStringSet authkeys;
+	ProjectionRepos::getAuthKeys( authkeys );
+	BufferString authstr, idstr;
+	char* sep = str.find( ':' );
+	if ( !sep )	// ID only
+	    idstr = str;
+	else		// Auth:ID
 	{
-	    uiMSG().message( tr("Projection ID %1 was not found")
-				.arg(searchid) );
-	    return;
+	    authstr = str;
+	    sep = authstr.find( ':' );
+	    idstr = (const char*) ( sep + 1 );
+	    *sep = '\0';
 	}
 
-	dispidxs_.erase();
-	dispidxs_ += selidx;
+	Coords::ProjectionID searchid = idstr.toInt();
+	for ( int idx=0; idx<authkeys.size(); idx++ )
+	{
+	    if ( !authstr.isEmpty() && authstr != authkeys.get(idx) )
+		continue;
+
+	    AuthorityCode code( authkeys.get(idx), searchid );
+	    const int selidx = ids_.indexOf( code );
+	    if ( selidx >= 0 )
+		dispidxs_ += selidx;
+	}
     }
     else // Search for Name
     {
-	dispidxs_.erase();
 	BufferString gestr = str;
 	if ( !str.find('*') )
 	{ gestr = '*'; gestr += str; gestr += '*'; }
@@ -132,7 +148,7 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 void uiProjectionBasedSystem::fetchList()
 {
     Projection::getAll( ids_, names_, true );
-    curselidx_ = ids_.indexOf( cDefProjID );
+    curselidx_ = ids_.indexOf( cDefProjID() );
     dispidxs_.setCapacity( ids_.size(), true ); \
     for ( int idx=0; idx<ids_.size(); idx++ ) \
 	dispidxs_.add( idx );
@@ -146,7 +162,9 @@ void uiProjectionBasedSystem::fillList()
     for ( int idx=0; idx<dispidxs_.size(); idx++ )
     {
 	const int index = dispidxs_[idx];
-	uiString itmtxt = toUiString("[%1] %2" ).arg(ids_[index])
+	uiString itmtxt = toUiString("[%1:%2] %3" )
+				.arg(ids_[index].authority())
+				.arg(ids_[index].id())
 				.arg(names_.get(index));
 	itemstodisplay.add( itmtxt );
     }
@@ -169,7 +187,7 @@ bool uiProjectionBasedSystem::acceptOK()
     if ( !dispidxs_.validIdx(selidx) )
 	return false;
 
-    const ProjectionID pid = ids_[dispidxs_[selidx]];
+    const AuthorityCode pid = ids_[dispidxs_[selidx]];
     RefMan<ProjectionBasedSystem> res = new ProjectionBasedSystem;
     res->setProjection( pid );
     outputsystem_ = res;

@@ -26,7 +26,7 @@ public:
 				 tr("Projection Based System") );
 
 				ProjectionBasedSystem();
-				ProjectionBasedSystem(ProjectionID);
+				ProjectionBasedSystem(AuthorityCode);
 
     virtual PositionSystem*	clone() const;
 
@@ -43,7 +43,7 @@ public:
     virtual bool		isFeet() const;
     virtual bool		isMeter() const;
 
-    bool			setProjection(ProjectionID);
+    bool			setProjection(AuthorityCode);
     const Projection*		getProjection() const;
 
     virtual bool		usePar(const IOPar&);
