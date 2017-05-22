@@ -1211,9 +1211,18 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 {
     Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false, false,
-			     false, false );
+			     false, true );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
+    {
+	//This is horrible, trust I know it, but that's the only way to solve
+	//the problem so close to the release date
+	BufferString usrnm = attrinf.attrnms_.get(idx);
+	if ( usrnm.startsWith("CentralSteering")
+	  || usrnm.startsWith("FullSteering")
+	  || usrnm.startsWith("ConstantSteering") )
+	    continue;
 	inplist.addIfNew( attrinf.attrnms_.get(idx) );
+    }
 
     for ( int idx=0; idx<attrinf.ioobjnms_.size(); idx++ )
 	inplist.addIfNew( BufferString("[",attrinf.ioobjnms_.get(idx),"]") );
