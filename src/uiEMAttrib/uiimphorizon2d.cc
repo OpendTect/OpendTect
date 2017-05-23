@@ -148,7 +148,7 @@ int nextStep()
 void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
 			    int prevtrcnr, float curval, float prevval )
 {
-    if ( curlinegeom_ ) return;
+    if ( !curlinegeom_ ) return;
 
     const int nrpos = abs( curtrcnr - prevtrcnr ) - 1;
     const bool isrev = curtrcnr < prevtrcnr;
