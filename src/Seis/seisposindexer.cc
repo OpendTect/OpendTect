@@ -330,13 +330,14 @@ bool Seis::PosIndexer::readLineCompressed( KeyIdxSet& crlset,
 	{
 	    // single crl; special case ...
 	    strm_->getBin( crlseg.start ).getBin( fiseg.start );
-	    crlset += crlseg.start;
-	    fileidxs += fiseg.start;
+	    crlset[0] = crlseg.start;
+	    fileidxs[0] = fiseg.start;
 	}
     }
     else
     {
 	int nrsegs = 0;
+	crlset.erase(); fileidxs.erase();
 	strm_->getBin( nrsegs );
 	if ( nrsegs > cMaxReasonableNrSegs )
 	{
