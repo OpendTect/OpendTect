@@ -202,22 +202,19 @@ void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
 bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 {
     int version = 1;
-    if ( asc )
+    const od_stream_Pos oldpos = strm.position();
+    ascistream astrm( strm );
+    const bool hasheader = astrm.hasStandardHeader();
+    if ( !hasheader )
+	strm.setPosition( oldpos );
+    else
     {
-	const od_stream_Pos oldpos = strm.position();
-	ascistream astrm( strm );
-	const bool hasheader = astrm.hasStandardHeader();
-	if ( !hasheader )
-	    strm.setPosition( oldpos );
-	else
+	if ( astrm.atEOS() )
+	    astrm.next();
+	if ( astrm.hasKeyword(sKey::Version()) )
 	{
-	    if ( astrm.atEOS() )
-		astrm.next();
-	    if ( astrm.hasKeyword(sKey::Version()) )
-	    {
-		version = astrm.getIValue();
-		astrm.next();
-	    }
+	    version = astrm.getIValue();
+	    astrm.next();
 	}
     }
 
