@@ -44,6 +44,7 @@ public:
     static const char*	defaultUserInfoFile();
     void		launchBrowser(const char* fnm=0) const;
     void		report(IOPar&) const;
+    bool		hasGaps();
 
 protected:
     virtual int		nextStep();
@@ -66,6 +67,9 @@ protected:
     BufferStringSet	validnms_;
     BufferStringSet	invalidnms_;
     BinIDValueSet*	bvalset_;
+
+protected:
+    bool		istracenr_;
 };
 
 

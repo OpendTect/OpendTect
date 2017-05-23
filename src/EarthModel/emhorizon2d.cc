@@ -803,7 +803,7 @@ Table::FormatDesc* Horizon2DAscIO::getDesc()
 bool Horizon2DAscIO::isFormatOK(  const Table::FormatDesc& fd,
 				  BufferString& msg )
 {
-    const bool trccoldefined = fd.bodyinfos_[2]->selection_.isInFile( 0 );
+    const bool trccoldefined = fd.bodyinfos_[3]->selection_.isInFile( 0 );
     const bool xycolsdefined = fd.bodyinfos_[1]->selection_.isInFile( 0 )
 			       &&  fd.bodyinfos_[1]->selection_.isInFile( 1 );
      if ( trccoldefined || xycolsdefined )
@@ -822,8 +822,13 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 					    Table::Optional );
     ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
     fd->bodyinfos_ += ti;
-    fd->bodyinfos_ += new Table::TargetInfo( "Trace nr", IntInpSpec(),
-					     Table::Optional );
+    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Required );
+    trcspti->form(0).setName( "Trace Nr" );
+    Table::TargetInfo::Form* spform =
+			new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );
+    trcspti->add( spform );
+    fd->bodyinfos_ += trcspti;
+
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	BufferString fldname = hornms.get( idx );
@@ -845,7 +850,7 @@ void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
 
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
-int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
+int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
 				 TypeSet<float>& data )
 {
     data.erase();
@@ -864,12 +869,18 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
     lnm = text( 0 );
     crd.x = getDValue( 1 );
     crd.y = getDValue( 2 );
-    trcnr = getIntValue( 3 );
+    nr = getIntValue( 3 );
     const int nrhors = vals_.size() - 4;
     for ( int idx=0; idx<nrhors; idx++ )
 	data += getFValue( idx+4, udfval_ );
 
     return ret;
+}
+
+
+bool Horizon2DAscIO::isTraceNr() const
+{
+	    return formOf( false, 2 ) == 0;
 }
 
 } // namespace EM

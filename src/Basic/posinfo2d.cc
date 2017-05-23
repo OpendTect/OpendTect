@@ -25,14 +25,15 @@ PosInfo::Line2DData::Line2DData( const char* lnm )
 
 
 // Returns the index, or the index just before if not found
-int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
+int PosInfo::Line2DData::gtIndex( int nr, bool& found, bool issp ) const
 {
     const int sz = posns_.size();
     if ( sz==0 )
 	{ found = false; return -1; }
 
     int i0 = 0, i1 = sz - 1;
-    int nr0 = posns_[i0].nr_; int nr1 = posns_[i1].nr_;
+    int nr0 = issp ? posns_[i0].spnr_ : posns_[i0].nr_;
+    int nr1 = issp ? posns_[i1].spnr_ : posns_[i1].nr_;
     if ( nr < nr0 )
 	{ found = false; return -1; }
     if ( nr > nr1 )
@@ -45,7 +46,7 @@ int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
     while ( i1 - i0 > 1 )
     {
 	int newi = (i0 + i1) / 2;
-	int newnr = posns_[newi].nr_;
+	int newnr = issp ? posns_[newi].spnr_ : posns_[newi].nr_;
 	if ( newnr == nr )
 	    return newi;
 	if ( newnr > nr )	{ i1 = newi; nr1 = newnr; }
@@ -165,9 +166,10 @@ bool PosInfo::Line2DData::getPos( const Coord& coord,
 }
 
 
-bool PosInfo::Line2DData::getPos( int nr, PosInfo::Line2DPos& pos ) const
+bool PosInfo::Line2DData::getPos( int nr, PosInfo::Line2DPos& pos,
+				  bool issp ) const
 {
-    bool found; int idx = gtIndex( nr, found );
+    bool found; int idx = gtIndex( nr, found, issp );
     if ( !found ) return false;
     pos = posns_[idx];
     return true;

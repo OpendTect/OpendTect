@@ -34,6 +34,7 @@ Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
     , bvalset_(0)
     , fileidx_(0)
     , curlinegeom_(0)
+    , istracenr_(false)
 {
     filenames_ = fnms;
     init();
@@ -167,12 +168,16 @@ int Horizon2DScanner::nextStep()
 	return Executor::ErrorOccurred();
 
     BufferString linenm;
-    Coord crd; int trcnr;
+    Coord crd;
+    int nr;
     TypeSet<float> data;
-    const int ret = ascio_->getNextLine( linenm, crd, trcnr, data );
+    const int ret = ascio_->getNextLine( linenm, crd, nr, data );
     if ( ret < 0 ) return Executor::ErrorOccurred();
     if ( ret == 0 )
     {
+	if ( !istracenr_ )
+	    istracenr_ = ascio_->isTraceNr();
+
 	fileidx_++;
 	delete ascio_;
 	ascio_ = 0;
@@ -201,12 +206,11 @@ int Horizon2DScanner::nextStep()
 	return Executor::ErrorOccurred();
 
     PosInfo::Line2DPos pos;
-    if ( !mIsUdf(trcnr) )
+    bool isspnr = !ascio_->isTraceNr();
+    if ( !mIsUdf(nr) )
     {
-	if ( !curlinegeom_->data().getPos(trcnr,pos) )
+	if ( !curlinegeom_->data().getPos(nr,pos,isspnr) )
 	    return Executor::MoreToDo();
-
-	crd = pos.coord_;
     }
     else if ( crd.isDefined() )
     {
@@ -214,7 +218,7 @@ int Horizon2DScanner::nextStep()
 	    return Executor::MoreToDo();
     }
     else
-	// no valid x/y nor trcnr
+	// no valid x/y nor trace number
 	return Executor::ErrorOccurred();
 
     if ( !bvalset_ )
@@ -231,12 +235,12 @@ int Horizon2DScanner::nextStep()
 	while ( valranges_.size() < nrvals )
 	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
 
-	const float val = data[validx];
+	const float attrval = data[validx];
 
-	if ( mIsUdf(val) || !validzrg.includes(val,false) )
+	if ( mIsUdf(attrval) || !validzrg.includes(attrval,false) )
 	    data[validx] = mUdf(float);
 	else
-	    valranges_[validx].include( val, false );
+	    valranges_[validx].include( attrval, false );
 
 	validx++;
     }
@@ -254,4 +258,23 @@ bool Horizon2DScanner::getLineNames( BufferStringSet& nms ) const
     deepErase( nms );
     nms = validnms_;
     return nms.size();
+}
+
+
+bool Horizon2DScanner::hasGaps()
+{
+    BufferStringSet lnms;
+    getLineNames( lnms );
+    int totalpos = 0;
+    for ( int idx=0; idx<lnms.size(); idx++ )
+    {
+	mDynamicCastGet( const Survey::Geometry2D*, curlinegeom,
+		      Survey::GM().getGeometry(lnms.get(idx).buf()) );
+
+	PosInfo::Line2DData l2ddata =  curlinegeom->data();
+	StepInterval<Pos::TraceID> trcrg = l2ddata.trcNrRange();
+	totalpos += trcrg.nrSteps() + 1;
+    }
+
+    return totalpos != bvalset_->totalSize();
 }

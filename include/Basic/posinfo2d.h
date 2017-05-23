@@ -98,7 +98,7 @@ public:
 			       float* dist=0) const;
     bool		getPos(const Coord& crd,Line2DPos& l2p,
 			       float threshold_distance) const;
-    bool		getPos(int trcnr,Line2DPos&) const;
+    bool		getPos(int nr,Line2DPos&, bool isspnr=false) const;
 
     void		dump(od_ostream&,bool pretty=true) const;
     bool		read(od_istream&,bool asc);
@@ -120,7 +120,7 @@ protected:
     BufferString	lnm_;
     TypeSet<Line2DPos>  posns_;
 
-    int			gtIndex(int,bool&) const;
+    int			gtIndex(int,bool&,bool issp=false) const;
     int			gtIndex(const Coord&,double* sqdist=0) const;
 
     friend class	Line2DDataIterator;

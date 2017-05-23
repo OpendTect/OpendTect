@@ -80,6 +80,7 @@ public:
 					   BufferString&);
     int				getNextLine(BufferString& lnm,Coord& crd,
 					    int& trcnr,TypeSet<float>& data);
+    bool			isTraceNr() const;
 
 protected:
 
