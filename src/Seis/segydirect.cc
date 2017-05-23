@@ -27,15 +27,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "od_iostream.h"
 #include "survinfo.h"
+#include "genc.h"
 #include "uistrings.h"
 #include "envvars.h"
 
-
-static bool wantCompr()
-{
-    return GetEnvVarYN( "OD_SEGYDIRECT_COMPRESS_FILEOFFSETTABLE" );
-}
-
+static const int cCurVersion = 3;
 
 namespace SEGY
 {
@@ -215,7 +211,7 @@ SEGY::FileDataSet::TrcIdx SEGY::DirectDef::findOcc( const Seis::PosKey& pk,
 #define mErrRet(s) { errmsg_ = s; return false; }
 #define mGetInterp( str, type, interp ) \
     PtrMan<DataInterpreter<type> > interp = 0; \
-    if ( iop1.get(str,dc ) ) \
+    if ( hdriop.get(str,dc ) ) \
     { \
 	DataCharacteristics writtentype; \
 	writtentype.set( dc.buf() ); \
@@ -237,17 +233,17 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     if ( !astrm.isOfFileType(sKeyFileType()) )
 	mErrRet(tr("Input file '%1' has wrong file type").arg( fnm ) )
 
-    IOPar iop1; iop1.getFrom( astrm );
+    IOPar hdriop; hdriop.getFrom( astrm );
     int version = 1;
-    iop1.get( sKey::Version(), version );
-    if ( version<1 || version>3 )
+    hdriop.get( sKey::Version(), version );
+    if ( version<1 || version>cCurVersion )
 	mErrRet(tr("Input file '%1' is written by a later version of OpendTect")
 		  .arg(fnm) );
 
     if ( version==1 )
     {
 	delete myfds_;
-	fds_ = myfds_ = new FileDataSet( iop1, astrm );
+	fds_ = myfds_ = new FileDataSet( hdriop, astrm );
 
 	keylist_ = new SEGY::PosKeyList();
 	keylist_->setFDS( fds_ );
@@ -262,18 +258,18 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	BufferString dc;
 
 	PtrMan<DataInterpreter<float> > floatinterp =
-	    DataInterpreter<float>::create(iop1,sKeyFloatDataChar(),false );
+	    DataInterpreter<float>::create(hdriop,sKeyFloatDataChar(),false);
 	PtrMan<DataInterpreter<od_int64> > int64interp =
-	    DataInterpreter<od_int64>::create(iop1,sKeyInt64DataChar(),false );
+	    DataInterpreter<od_int64>::create(hdriop,sKeyInt64DataChar(),false);
 	PtrMan<DataInterpreter<od_int32> > int32interp =
-	    DataInterpreter<od_int32>::create(iop1,sKeyInt32DataChar(),false );
+	    DataInterpreter<od_int32>::create(hdriop,sKeyInt32DataChar(),false);
 
 	IOPar segypars;
 	segypars.getFrom( astrm );
 
 	const od_stream::Pos datastart =
 	    DataInterpreter<od_int64>::get(int64interp,strm);
-	const od_stream::Pos textpars =
+	const od_stream::Pos finalparstart =
 	    DataInterpreter<od_int64>::get(int64interp,strm);
 	const od_stream::Pos cubedatastart =
 	    DataInterpreter<od_int64>::get(int64interp,strm);
@@ -282,33 +278,26 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	if ( !strm.isOK() )
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 
-	strm.setPosition( textpars );
-	ascistream astrm2( strm, false );
-
-	IOPar iop2;
-	iop2.getFrom( astrm2 );
+	strm.setReadPosition( finalparstart );
+	ascistream finalparastrm( strm, false );
+	IOPar finalpariop;
+	finalpariop.getFrom( finalparastrm );
 	if ( !strm.isOK() )
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 
-	FixedString int32typestr = iop1.find( sKeyInt32DataChar() );
+	FixedString int32typestr = hdriop.find( sKeyInt32DataChar() );
 	DataCharacteristics int32type;
 	int32type.set( int32typestr );
 	FileDataSet* fds = new FileDataSet(segypars,fnm,datastart,int32type);
-	if ( !fds->usePar(iop2) )
-	{
-	    delete fds;
-	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
-	}
+	if ( !fds->usePar(finalpariop) )
+	    { delete fds; mErrRet(uiStrings::phrCannotRead(toUiString(fnm)));}
 
 	const od_stream::Pos curpos = strm.position();
 	if ( curpos!=cubedatastart )
 	    strm.setPosition( cubedatastart );
 
 	if ( !cubedata_.read(strm,false) || !linedata_.read(strm,false) )
-	{
-	    delete fds;
-	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
-	}
+	    { delete fds; mErrRet(uiStrings::phrCannotRead(toUiString(fnm))); }
 
 	delete keylist_;
 	delete indexer_;
@@ -320,7 +309,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	keylist_->setFDS( fds_ );
 
 	indexer_ = new Seis::PosIndexer( *keylist_, false, true );
-	indexer_->setIOCompressed( iop1.isTrue(sKeyIOCompr()) );
+	indexer_->setIOCompressed( hdriop.isTrue(sKeyIOCompr()) );
 
 	if ( !indexer_->readFrom( fnm, indexstart, false, int32interp,
 				  int64interp, floatinterp ) )
@@ -358,7 +347,7 @@ const IOPar* SEGY::DirectDef::segyPars() const
 
 #define mWriteOffset(var) strm.addBin( var )
 #define mWriteOffsets \
-    mWriteOffset(datastart_); mWriteOffset(textparstart_); \
+    mWriteOffset(datastart_); mWriteOffset(finalparstart_); \
     mWriteOffset(cubedatastart_); mWriteOffset(indexstart_)
 
 
@@ -376,28 +365,20 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     ascostream astrm( strm );
     astrm.putHeader( sKeyFileType() );
 
-    IOPar iop1;
-    int ver = 2;
-    if ( wantCompr() )
-	ver = 3;
-    iop1.set( sKey::Version(), ver );
-
-    if ( ver == 3 )
-	iop1.setYN( sKeyIOCompr(), true );
-    if ( indexer_ )
-	indexer_->setIOCompressed( ver == 3 );
-
+    IOPar hdriop;
+    hdriop.set( sKey::Version(), 3 );
+    hdriop.setYN( sKeyIOCompr(), !indexer_ || indexer_->ioCompressed() );
     BufferString dc;
-    mSetDc( iop1, od_int64, sKeyInt64DataChar() );
-    mSetDc( iop1, od_int32, sKeyInt32DataChar() );
-    mSetDc( iop1, float, sKeyFloatDataChar() );
-    iop1.putTo( astrm );
+    mSetDc( hdriop, od_int64, sKeyInt64DataChar() );
+    mSetDc( hdriop, od_int32, sKeyInt32DataChar() );
+    mSetDc( hdriop, float, sKeyFloatDataChar() );
+    hdriop.putTo( astrm );
     fds_->segyPars().putTo( astrm );
 
     offsetstart_ = strm.position();
 
     //Reserve space for offsets, which are written at the end
-    datastart_ = textparstart_ = cubedatastart_ = indexstart_ = 0;
+    datastart_ = finalparstart_ = cubedatastart_ = indexstart_ = 0;
 
     mWriteOffsets;
 
@@ -406,6 +387,8 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
 
     return strm.isOK();
 }
+
+#undef mErrRet
 
 
 bool SEGY::DirectDef::readFooter( const char* fnm, IOPar& pars,
@@ -419,25 +402,25 @@ bool SEGY::DirectDef::readFooter( const char* fnm, IOPar& pars,
     if ( !astrm.isOfFileType(sKeyFileType()) )
 	return false;
 
-    IOPar iop1; iop1.getFrom( astrm );
+    IOPar hdriop; hdriop.getFrom( astrm );
     int version = 1;
-    iop1.get( sKey::Version(), version );
-    if ( version<=1 || version>2 )
+    hdriop.get( sKey::Version(), version );
+    if ( version<=1 || version>cCurVersion )
 	return false;
 
     IOPar segypars;
     segypars.getFrom( astrm );
 
     PtrMan<DataInterpreter<od_int64> > int64interp =
-	DataInterpreter<od_int64>::create(iop1,sKeyInt64DataChar(),false );
+	DataInterpreter<od_int64>::create(hdriop,sKeyInt64DataChar(),false );
 
     const od_stream::Pos datastart mUnusedVar =
 	DataInterpreter<od_int64>::get(int64interp,istrm);
     offset = DataInterpreter<od_int64>::get(int64interp,istrm);
 
-    istrm.setPosition( offset );
-    ascistream astrm2( istrm, false );
-    pars.getFrom( astrm2 );
+    istrm.setReadPosition( offset );
+    ascistream finalparastrm( istrm, false );
+    pars.getFrom( finalparastrm );
     return istrm.isOK();
 }
 
@@ -449,10 +432,10 @@ bool SEGY::DirectDef::updateFooter( const char* fnm, const IOPar& pars,
     if ( !ostrm.isOK() )
 	return false;
 
-    ostrm.setPosition( offset );
-    ascostream astrm2( ostrm );
-    pars.putTo( astrm2 );
-    od_stream_Pos endpos = ostrm.endPosition();
+    ostrm.setWritePosition( offset );
+    ascostream finalparastrm( ostrm );
+    pars.putTo( finalparastrm );
+    od_stream_Pos endpos = ostrm.lastWrittenPosition();
     od_stream_Pos usedsize = ostrm.position();
     od_stream_Pos nrcharstopadup = endpos - usedsize;
     for ( int idx=0; idx<nrcharstopadup-1; idx++ )
@@ -488,20 +471,22 @@ bool SEGY::DirectDef::writeFootersToFile()
 
     indexer_->dumpTo( strm );
 
+    strm << "\n!\n"; //Just for nice formatting
+
     //Put this at the end, so one can manipulate the filenames without
     //breaking the indexing
-    textparstart_ = strm.position();
-    IOPar iop2;
-    fds_->fillPar( iop2 );
+    finalparstart_ = strm.position();
+    IOPar finalpariop;
+    fds_->fillPar( finalpariop );
 
-    ascostream astrm2( strm );
-    iop2.putTo( astrm2 );
+    ascostream finalparastrm( strm );
+    finalpariop.putTo( finalparastrm );
 
     const od_stream::Pos eofpos = strm.position();
-    strm.setPosition( offsetstart_ );
+    strm.setWritePosition( offsetstart_ );
     mWriteOffsets;
 
-    strm.setPosition( eofpos );
+    strm.setWritePosition( eofpos );
     const bool res = strm.isOK();
     delete outstream_;
     outstream_ = 0;
@@ -571,7 +556,7 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
     FilePath fp( dirnm );
     BufferString nm( fp.fileName(), "^", toString(geomid) );
     fp.add( nm );
-    fp.setExtension( "sgydef" );
+    fp.setExtension( "sgydef", false );
     ret = fp.fullPath();
     return ret.buf();
 }
@@ -580,8 +565,7 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
 const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( unm );
-    return geomid == Survey::GM().cUndefGeomID() ? 0
-				: get2DFileName( dirnm, geomid );
+    return mIsUdfGeomID(geomid) ? 0 : get2DFileName( dirnm, geomid );
 }
 
 
@@ -605,7 +589,7 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
 	    geomid_ = Survey::GM().getGeomID( linename );
     }
 
-    if ( is2d && geomid_ == mUdfGeomID )
+    if ( is2d && mIsUdfGeomID(geomid_) )
     {
 	delete ioobj_; ioobj_ = 0; msg_ = tr("2D Line ID not specified");
 	return;
@@ -624,23 +608,13 @@ SEGY::FileIndexer::~FileIndexer()
 }
 
 
-#undef mErrRet
-#define mErrRet( s1, s2 ) \
-{ \
-    msg_ = s1; \
-    msg_ += " "; \
-    msg_ += s2; \
-    return ErrorOccurred(); \
-}
-
-
 int SEGY::FileIndexer::nextStep()
 {
     if ( !ioobj_ ) return ErrorOccurred();
 
     if ( !directdef_ )
     {
-	BufferString outfile = ioobj_->fullUserExpr( false );
+	BufferString outfile = ioobj_->mainFileName();
 	if ( outfile.isEmpty() )
 	{ msg_ = tr("Output filename empty"); return ErrorOccurred(); }
 

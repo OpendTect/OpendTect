@@ -77,6 +77,7 @@ public:
     virtual const OD::String&	group() const			{return group_;}
     virtual void		setGroup( const char* s )	{group_ = s; }
     virtual const char*		fullUserExpr(bool forread=true) const = 0;
+    virtual BufferString	mainFileName() const { return fullUserExpr(); }
 
     virtual bool		implExists(bool forread) const	= 0;
     virtual bool		implReadOnly() const		{ return true; }

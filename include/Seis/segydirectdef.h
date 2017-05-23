@@ -99,9 +99,9 @@ protected:
     od_ostream*		outstream_;
     od_stream_Pos	offsetstart_;
     od_stream_Pos	datastart_;
-    od_stream_Pos	textparstart_;
     od_stream_Pos	cubedatastart_;
     od_stream_Pos	indexstart_;
+    od_stream_Pos	finalparstart_;
 };
 
 
@@ -128,7 +128,7 @@ protected:
     Pos::GeomID		geomid_;
 
     Scanner*		scanner_;
-    uiString		msg_;
+    mutable uiString	msg_;
     DirectDef*		directdef_;
     bool		is2d_;
     bool		isvol_;

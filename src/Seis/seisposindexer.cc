@@ -321,12 +321,13 @@ bool Seis::PosIndexer::readLineCompressed( KeyIdxSet& crlset,
 	{
 	    // single crl; special case ...
 	    strm_->getBin( crlseg.start ).getBin( fiseg.start );
-	    crlset += crlseg.start;
-	    fileidxs += fiseg.start;
+	    crlset[0] = crlseg.start;
+	    fileidxs[0] = fiseg.start;
 	}
     }
     else
     {
+	crlset.erase(); fileidxs.erase();
 	int nrsegs = 0;
 	strm_->getBin( nrsegs );
 	if ( nrsegs > cMaxReasonableNrSegs )
@@ -464,7 +465,9 @@ int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 
     const TypeSet<int>* crlsetptr = 0;
 
-    if ( strm_ )
+    if ( !strm_ )
+	crlsetptr = crlsets_[inlidx];
+    else
     {
 	if ( curinl_!=bid.inl() )
 	{
@@ -476,8 +479,6 @@ int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 
 	crlsetptr = &curcrlset_;
     }
-    else
-	crlsetptr = crlsets_[inlidx];
 
     crlidx = getIndex( *crlsetptr, bid.crl(), pres );
     if ( !pres )

@@ -87,6 +87,11 @@ public:
     static od_ostream&	nullStream();
     static od_ostream&	logStream(); //!< used by ErrMsg and UsrMsg
 
+    inline void		setWritePosition( Pos p, Ref r=Abs )
+			{ setPosition( p, r ); }
+    inline Pos		lastWrittenPosition() const
+			{ return endPosition(); }
+
 };
 
 

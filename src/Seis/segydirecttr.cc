@@ -426,12 +426,15 @@ BinID SEGYDirectSeisTrcTranslator::curBinID() const
 bool SEGYDirectSeisTrcTranslator::positionTranslator()
 {
     const BinID bid( curBinID() );
-    SEGY::FileDataSet::TrcIdx fdsidx = def_->find( Seis::PosKey(bid), false );
-    if ( !fdsidx.isValid() )
-        { pErrMsg("Huh"); return false; }
-
-    if ( fdsidx.filenr_ != curfilenr_ )
+    SEGY::FileDataSet::TrcIdx fdsidx;
+    while ( true )
     {
+	fdsidx = def_->find( Seis::PosKey(bid), false );
+	if ( !fdsidx.isValid() )
+	    { pErrMsg("Huh"); return false; }
+	else if ( fdsidx.filenr_ == curfilenr_ )
+	    break;
+
 	curfilenr_ = fdsidx.filenr_;
 	delete tr_;
 	tr_ = SEGYDirectSeisTrcTranslator::createTranslator( *def_, curfilenr_);
@@ -443,7 +446,11 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
 
 bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( !def_ || def_->isEmpty() || ild_ < 0 || !positionTranslator() )
+    if ( !def_ || def_->isEmpty() )
+	return false;
+    else if ( ild_ < 0 && !toNextTrace() )
+	return false;
+    else if ( !positionTranslator() )
 	return false;
 
     if ( !tr_->readInfo(ti) || ti.binid != curBinID() )
