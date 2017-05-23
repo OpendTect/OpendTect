@@ -98,6 +98,7 @@ void uiWellPartServer::survChangedCB( CallBacker* )
     delete impbulklogdlg_; impbulklogdlg_ = 0;
     delete impbulkmrkrdlg_; impbulkmrkrdlg_ = 0;
     delete impbulkd2tdlg_; impbulkd2tdlg_ = 0;
+    delete rdmlinedlg_; rdmlinedlg_ = 0;
     deepErase( wellpropdlgs_ );
 }
 
