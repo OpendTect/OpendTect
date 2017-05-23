@@ -52,7 +52,7 @@ public:
 
 				Projection(AuthorityCode,const char* usernm,
 					   const char* defstr);
-				~Projection();
+    virtual			~Projection();
 
     AuthorityCode		authCode() const	{ return authcode_; }
     BufferString		userName() const	{ return usernm_; }
