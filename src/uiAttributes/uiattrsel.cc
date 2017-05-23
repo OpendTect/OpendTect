@@ -333,11 +333,11 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->attach( rightOf, selgrp_ );
 
     filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
-    filtfld_->attach( alignedBelow, storoutfld_ );
-    filtfld_->attach( ensureBelow, steeroutfld_ );
+    filtfld_->attach( centeredAbove, storoutfld_ );
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
-    compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld");
-    compfld_->attach( rightTo, filtfld_ );
+    compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld" );
+    compfld_->attach( rightAlignedBelow, storoutfld_ );
+    compfld_->attach( ensureBelow, steeroutfld_ );
 
     if ( haveattribs )
     {
