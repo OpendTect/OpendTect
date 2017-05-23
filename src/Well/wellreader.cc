@@ -442,7 +442,8 @@ bool Well::odReader::getTrack( od_istream& strm ) const
     while ( strm.isOK() )
     {
 	strm >> c.x_ >> c.y_ >> c.z_ >> dah;
-	if ( !strm.isOK() || c.distTo<float>(c0) < 1 ) break;
+	if ( !strm.isOK() || c.distTo<float>(c0) < 1 )
+	    break;
 	wd_.track().addPoint( c.getXY(), (float) c.z_*zfac, dah*zfac );
     }
     if ( wd_.track().isEmpty() )
@@ -581,9 +582,6 @@ bool Well::odReader::addLog( od_istream& strm ) const
     TypeSet<float> dahvals, zvals;
     newlog->getData( dahvals, zvals );
 
-
-    mGetZFac();
-
     if ( wd_.track().isEmpty() )
 	getTrack();
     if ( !wd_.track().isEmpty() )
@@ -592,18 +590,26 @@ bool Well::odReader::addLog( od_istream& strm ) const
 	for ( int idx=0; idx<dahvals.size(); idx++ )
 	{
 	    if ( !trackdahrg.includes(dahvals[idx],false) )
-		dahvals[idx] = mUdf(float);
+	    {
+		dahvals.removeSingle( idx );
+		zvals.removeSingle( idx );
+		idx--;
+	    }
 	}
     }
 
+    mGetZFac();
     for ( int idx=0; idx<dahvals.size(); idx++ )
-		dahvals[idx] *= zfac;
+	dahvals[idx] *= zfac;
+
     PropertyRef::StdType proptyp =  newlog->propType();
     if ( proptyp == PropertyRef::Son ||  proptyp == PropertyRef::Vel )
     {
 	for ( int idx=0; idx<zvals.size(); idx++ )
 	{
-	    if ( proptyp == PropertyRef::Son )
+	    if ( mIsUdf(zvals[idx]) )
+		continue;
+	    else if ( proptyp == PropertyRef::Son )
 		zvals[idx] /= zfac;
 	    else if ( proptyp == PropertyRef::Vel )
 		zvals[idx] *= zfac;

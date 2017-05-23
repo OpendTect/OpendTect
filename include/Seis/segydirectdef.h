@@ -96,9 +96,9 @@ protected:
     od_ostream*		outstream_;
     od_stream_Pos	offsetstart_;
     od_stream_Pos	datastart_;
-    od_stream_Pos	textparstart_;
     od_stream_Pos	cubedatastart_;
     od_stream_Pos	indexstart_;
+    od_stream_Pos	finalparstart_;
 };
 
 
