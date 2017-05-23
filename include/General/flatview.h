@@ -66,6 +66,7 @@ public:
     OD::Alignment		namealignment_;
     int				namepos_;	//!<nodraw=udf, before first=-1,
 					    //!< center=0, after last=1
+    bool			fitnameinview_;
     Interval<double>*		x1rg_;		//!<if 0, use viewer's rg & zoom
     Interval<double>*		x2rg_;		//!<if 0, use viewer's rg & zoom
 
