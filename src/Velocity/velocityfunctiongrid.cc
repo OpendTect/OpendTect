@@ -92,52 +92,64 @@ void GriddedFunction::fetchPerfectFit( const BinID& bid )
 }
 
 
+#define mVelFuncCreator() \
+    if ( !velfunc ) \
+    { \
+	pErrMsg("Error"); \
+	deepUnRef( velfuncs ); \
+	return false; \
+    } \
+    velfunc->ref(); \
+    velfuncs += velfunc; \
+    velfuncsource += funcsource; \
+
+
 bool GriddedFunction::fetchSources()
 {
     ObjectSet<const Function> velfuncs;
     TypeSet<int> velfuncsource;
 
-    if ( !gridder_->getPoints() )
-	return false;
+    const TypeSet<Coord>* gridderpoints = gridder_->getPoints();
 
-    const TypeSet<Coord>& gridderpoints = *gridder_->getPoints();
     TypeSet<double> weights;
     TypeSet<int> usedpoints;
     mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
-    if ( rbfgridder )
+    if ( gridderpoints )
     {
-	const TypeSet<Coord>::size_type nrpoints = gridderpoints.size();
-	for ( TypeSet<Coord>::size_type idx=0; idx<nrpoints; idx++ )
-	    usedpoints += idx;
-    }
-    else
-    {
-	if ( mIsUdf(bid_.inl()) || mIsUdf(bid_.crl() ) )
-	    return false;
+	if ( rbfgridder )
+	{
+	    const TypeSet<Coord>::size_type nrpoints = gridderpoints->size();
+	    for ( TypeSet<Coord>::size_type idx=0; idx<nrpoints; idx++ )
+		usedpoints += idx;
+	}
+	else
+	{
+	    if ( mIsUdf(bid_.inl()) || mIsUdf(bid_.crl() ) )
+		return false;
 
-	const Coord workpos = SI().transform( bid_ );
-	if ( gridder_ && !gridder_->getWeights(workpos,weights,usedpoints) )
-	    return false;
+	    const Coord workpos = SI().transform( bid_ );
+	    gridder_->getWeights(workpos,weights,usedpoints);
+	}
     }
 
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     const TypeSet<BinID>& binids = gvs.gridsourcebids_;
+
+    if ( binids.isEmpty() ) return false;
+    int funcsource;
+
     for ( TypeSet<Coord>::size_type idx=0; idx<usedpoints.size(); idx++ )
     {
 	const BinID curbid = binids[usedpoints[idx]];
-
-	int funcsource;
 	ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
-	if ( !velfunc )
-	{
-	    pErrMsg("Error");
-	    deepUnRef( velfuncs );
-	    return false;
-	}
+	mVelFuncCreator();
+    }
 
-	velfunc->ref();
-	velfuncs += velfunc;
-	velfuncsource += funcsource;
+    if ( usedpoints.isEmpty() )
+    {
+	const BinID curbid = binids[0];
+	ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
+	mVelFuncCreator();
     }
 
     if ( velfuncs.isEmpty() )
