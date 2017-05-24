@@ -51,9 +51,11 @@ mDefModInitFn(Basic)
     Threads::setCurrentThreadProcessorAffinity(-1);
 
 #ifdef __win__
+#if ( _MSC_VER < 1900 ) // Incorporated as default in VS 14.0 (1900) onwards
     _set_output_format(_TWO_DIGIT_EXPONENT);
     // From MSDN:
     // "is used to configure the output of formatted I/O functions"
+#endif
 #endif
 
     PosInfo::Survey2D::initClass();
