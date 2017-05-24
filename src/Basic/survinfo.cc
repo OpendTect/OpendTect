@@ -537,13 +537,13 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	astream.next();
     }
 
-    if ( !coordsystempar.isEmpty() )
-    {
-	PtrMan<IOPar> coordsyssubpar =
-	    coordsystempar.subselect( sKeyCoordinateSystem );
+    PtrMan<IOPar> coordsyssubpar =
+	coordsystempar.subselect( sKeyCoordinateSystem );
+    if ( !coordsyssubpar )
+	coordsyssubpar = si->pars().subselect( sKeyCoordinateSystem );
+    if ( coordsyssubpar )
 	si->coordsystem_ =
 		Coords::PositionSystem::createSystem( *coordsyssubpar );
-    }
 
     if ( !si->coordsystem_ )
     {
@@ -1138,10 +1138,16 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	for ( int idx=0; idx<par.size(); idx++ )
 	    astream.put( IOPar::compKey(sKeyCoordinateSystem,par.getKey(idx)),
 		    	 par.getValue(idx) );
+
+	const_cast<SurveyInfo*>(this)->pars_.mergeComp( par,
+							 sKeyCoordinateSystem );
     }
     else
 	astream.putYN( sKeyXYInFt(), xyinfeet_ );
 
+    if ( ll2c_.isOK() )
+	astream.put( sKeyLatLongAnchor, ll2c_.toString() );
+    astream.putYN( sKeyXYInFt(), xyInFeet() );
     astream.put( sKeySeismicRefDatum(), seisrefdatum_ );
 }
 
