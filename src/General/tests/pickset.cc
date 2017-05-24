@@ -45,7 +45,7 @@ static void runThread( CallBacker* )
 
 static void startThread( int nr )
 {
-    const BufferString thrdnm( "PickSet Test Thread ", nr );
+    const BufferString thrdnm( "PointSet Test Thread ", nr );
     new Threads::Thread( mSCB(runThread), thrdnm );
     tstStream( false ) << "Started thread " << thrdnm << od_endl;
 }

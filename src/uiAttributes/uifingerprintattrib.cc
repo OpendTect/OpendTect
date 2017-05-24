@@ -96,7 +96,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     refposbut_ = new uiRadioButton( refgrp_,tr("Reference position"));
     refposbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
-    picksetbut_ = new uiRadioButton( refgrp_, uiStrings::sPickSet() );
+    picksetbut_ = new uiRadioButton( refgrp_, uiStrings::sPointSet() );
     picksetbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     uiLabel* lbl = new uiLabel( this, tr("Get values from") );
     lbl->attach( centeredLeftOf, refgrp_ );
@@ -140,7 +140,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     def_.remove( def_.getKey(Stats::SqSum) );
     def_.remove( def_.getKey(Stats::MostFreq) );
 
-    statsfld_ = new uiComboBox( this, def_, "PickSet statistic" );
+    statsfld_ = new uiComboBox( this, def_, "PointSet statistic" );
     statsfld_->attach( alignedBelow, picksetfld_ );
     statsfld_->display( false );
 
@@ -658,7 +658,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     uiRadioButton* manualbut = new uiRadioButton( rangesgrp_,
                                                   uiStrings::sManual() );
     manualbut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
-    picksetbut_ = new uiRadioButton( rangesgrp_,uiStrings::sPickSet());
+    picksetbut_ = new uiRadioButton( rangesgrp_,uiStrings::sPointSet());
     picksetbut_->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     uiRadioButton* autobut = new uiRadioButton( rangesgrp_, tr("Automatic") );
     autobut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );

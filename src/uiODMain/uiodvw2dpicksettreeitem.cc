@@ -244,7 +244,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
 	    if ( Pick::SetMGR().needsSave(pickset_) )
 	    {
 		const int res = uiMSG().askSave(
-		    tr("PickSet '%1' has been modified. "
+		    tr("PointSet '%1' has been modified. "
 		       "Do you want to save it?").arg( pickset_.name() ) );
 		if ( res < 0 )
 		    return false;

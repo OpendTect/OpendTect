@@ -259,7 +259,7 @@ void uiODMenuMgr::fillImportMenu()
     uiMenu* impfault = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
     uiMenu* impfaultstick = new uiMenu( &appl_, tr("FaultStickSets") );
     uiMenu* impwell = new uiMenu( &appl_, uiStrings::sWell(mPlural) );
-    uiMenu* imppick = new uiMenu( &appl_, tr("PickSets/Polygons") );
+    uiMenu* imppick = new uiMenu( &appl_, tr("PointSets/Polygons") );
     uiMenu* impwvlt = new uiMenu( &appl_, tr("Wavelets") );
     uiMenu* impmute = new uiMenu( &appl_, tr("Mute Functions") );
     uiMenu* impcpd = new uiMenu( &appl_, tr("Cross-plot Data") );
@@ -405,7 +405,7 @@ void uiODMenuMgr::fillExportMenu()
     uiMenu* expflt = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
     uiMenu* expfltss = new uiMenu( &appl_, uiStrings::sFaultStickSet(mPlural) );
     uiMenu* expgeom2d = new uiMenu( &appl_, tr("Geometry 2D") );
-    uiMenu* exppick = new uiMenu( &appl_, tr("PickSets") );
+    uiMenu* exppick = new uiMenu( &appl_, tr("PointSets") );
     uiMenu* exppoly = new uiMenu( &appl_, tr("Polygons") );
     uiMenu* expwvlt = new uiMenu( &appl_, tr("Wavelets") );
     uiMenu* expmute = new uiMenu( &appl_, tr("Mute Functions") );
@@ -530,7 +530,7 @@ void uiODMenuMgr::fillManMenu()
 
     mInsertPixmapItem( manmnu_, m3Dots(tr("Layer Properties")), mManPropsMnuItm,
 			"man_props" );
-    mInsertPixmapItem( manmnu_, m3Dots(tr("PickSets/Polygons")), mManPickMnuItm,
+    mInsertPixmapItem( manmnu_, m3Dots(tr("PointSets/Polygons")),mManPickMnuItm,
 			"man_picks" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Probability Density Functions")),
 		 mManPDFMnuItm, "man_prdfs" );
@@ -1070,7 +1070,7 @@ void uiODMenuMgr::fillManTB()
            uiStrings::phrManage( uiStrings::sWells()),false,manWll);
     mAddTB(mantb_,"man_picks", uiStrings::phrManage(
 			toUiString("%1/%2")
-			   .arg(uiStrings::sPickSet(mPlural))
+			   .arg(uiStrings::sPointSet(mPlural))
 			   .arg(uiStrings::sPolygon(mPlural))),
                             false,manPick);
     mAddTB(mantb_,"man_body",

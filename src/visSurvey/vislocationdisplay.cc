@@ -624,7 +624,7 @@ LocationDisplay::LocID LocationDisplay::addPick( const Coord3& pos,
 
 BufferString LocationDisplay::getManipulationString() const
 {
-    BufferString str = set_->isPolygon() ? "Polygon: " : "PickSet: ";
+    BufferString str = set_->isPolygon() ? "Polygon: " : "PointSet: ";
     str += mFromUiStringTodo(name());
     return str;
 }
@@ -899,5 +899,4 @@ const Coord3 LocationDisplay::getActivePlaneNormal(
 
     return normal;
 }
-
 } // namespace visSurvey

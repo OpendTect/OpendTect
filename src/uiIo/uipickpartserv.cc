@@ -169,7 +169,7 @@ bool uiPickPartServer::storePickSet( const Pick::Set& ps )
     Pick::SetManager::ObjID setid = Pick::SetMGR().getID( ps );
     if ( setid.isInvalid() )
     {
-	uiMSG().error( tr("Internal: Request to store an unmanaged PickSet") );
+	uiMSG().error( tr("Internal: Request to store an unmanaged PointSet") );
 	return false;
     }
     else if ( !Pick::SetMGR().canSave(setid) )
@@ -191,7 +191,7 @@ bool uiPickPartServer::storePickSetAs( const Pick::Set& ps )
     Pick::SetManager::ObjID setid = Pick::SetMGR().getID( ps );
     if ( setid.isInvalid() )
     {
-	uiMSG().error( tr("Internal: Request to Save-As an unmanaged PickSet"));
+	uiMSG().error(tr("Internal: Request to Save-As an unmanaged PointSet"));
 	return false;
     }
 
@@ -286,7 +286,7 @@ bool uiPickPartServer::doLoadSets( DBKeySet& psids )
 	uiMSG().errorWithDetails( psloader.errMsgs(),
 		tr("%1 occurred while loading %2")
 			.arg( uiStrings::sProblem(nrerrmsg) )
-			.arg( uiStrings::sPickSet(nrps) ) );
+			.arg( uiStrings::sPointSet(nrps) ) );
 	return false;
     }
 

@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 			      visSurvey::PickSetDisplay* psd )
-    : uiVisMarkerStyleDlg( p, tr("PickSet Display Properties") )
+    : uiVisMarkerStyleDlg( p, tr("PointSet Display Properties") )
     , set_( set )
     , psd_( psd )
 {

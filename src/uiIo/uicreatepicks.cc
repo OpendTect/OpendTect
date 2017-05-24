@@ -51,14 +51,14 @@ static const TypeSet<OD::MarkerStyle3D::Type>
 uiNewPickSetDlg::uiNewPickSetDlg( uiParent* p, bool ispoly, const char* cat )
     : uiDialog(p,uiDialog::Setup(
 			ispoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
-			       : uiStrings::phrCreateNew(uiStrings::sPickSet()),
+			      : uiStrings::phrCreateNew(uiStrings::sPointSet()),
 			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
     , ispolygon_(ispoly)
     , category_(cat)
 {
     nmfld_ = new uiGenInput( this,
 		tr("Name for new %1").arg(ispolygon_ ? uiStrings::sPolygon() :
-						       uiStrings::sPickSet()) );
+						      uiStrings::sPointSet()) );
 
     markerstylefld_ = new uiMarkerStyle3D( this, true,
 		    Interval<int>(1,uiMarkerStyle3D::cDefMaxMarkerSize()),
@@ -200,7 +200,7 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 
     if ( size>50000 )
     {
-	uiString msg = tr("PickSet would contain %1 "
+	uiString msg = tr("PointSet would contain %1 "
 			  "points which might consume unexpected time & memory."
 			  "\n\nDo you want to continue?")
 		     .arg(dpssize);
