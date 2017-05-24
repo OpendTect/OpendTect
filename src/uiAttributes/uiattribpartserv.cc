@@ -86,6 +86,9 @@ const char* uiAttribPartServer::attridstr()	{ return "Attrib ID"; }
 static const int cMaxNrClasses = 100;
 static const int cMaxMenuSize = 150;
 
+const char* uiAttribPartServer::sKeyUserSettingAttrErrMsg()
+{ return "dTect.Display attribute positioning error messages"; }
+
 
 uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -116,6 +119,13 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     steering3dmnuitem_.checkable = true;
     multcomp3d_.checkable = true;
     multcomp2d_.checkable = true;
+
+    bool yn;
+    if ( !Settings::common().getYN( sKeyUserSettingAttrErrMsg(), yn ) )
+    {
+	Settings::common().setYN( sKeyUserSettingAttrErrMsg(), true );
+	Settings::common().write();
+    }
 
     mAttachCB( IOM().surveyChanged, uiAttribPartServer::survChangedCB );
     handleAutoSet();
@@ -812,7 +822,9 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	if ( !process )
 	    { uiMSG().error(errmsg); return 0; }
 
-	process->showDataAvailabilityErrors( !aem->hasCache() );
+	bool displayerrmsg;
+	Settings::common().getYN( sKeyUserSettingAttrErrMsg(), displayerrmsg );
+	process->showDataAvailabilityErrors( !aem->hasCache() && displayerrmsg);
 
 	bool showinlprogress = true;
 	bool showcrlprogress = true;

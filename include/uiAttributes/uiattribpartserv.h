@@ -192,6 +192,8 @@ public:
 
 protected:
 
+    static const char*	sKeyUserSettingAttrErrMsg();
+
     MenuItem		stored2dmnuitem_;
     MenuItem		stored3dmnuitem_;
     MenuItem		calc2dmnuitem_;
