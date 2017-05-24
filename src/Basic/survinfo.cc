@@ -380,10 +380,10 @@ bool SurveyInfo::usePar( const IOPar& par )
     }
 
     PtrMan<IOPar> coordsystempar = par.subselect( sKeyCoordinateSystem );
+    if ( !coordsystempar )
+	coordsystempar = defpars_.subselect( sKeyCoordinateSystem );
     if ( coordsystempar )
-    {
 	coordsystem_ = Coords::PositionSystem::createSystem( *coordsystempar );
-    }
 
     if ( !coordsystem_ )
     {
@@ -1139,6 +1139,14 @@ void SurveyInfo::fillPar( IOPar& par ) const
     IOPar coordsystempar;
     coordsystem_->fillPar( coordsystempar );
     par.mergeComp( coordsystempar, sKeyCoordinateSystem );
+
+    // To prevent overwring by v6.0 and older
+    const_cast<SurveyInfo*>(this)->defpars_.mergeComp( coordsystempar,
+	    						sKeyCoordinateSystem );
+
+    // Needed by v6.0 and older
+    par.setYN( sKeyXYInFt(), xyInFeet() );
+
     par.set( sKeySeismicRefDatum(), seisrefdatum_ );
 }
 
