@@ -185,9 +185,10 @@ void PickSetDisplay::updateLineStyle()
 {
     if ( !polylines_ || !set_ )
 	return;
+
     const int sz = set_->disp_.pixsize_;
-    const int width = (int)mMAX( sz+3.0f, 1.0f );
-    polylines_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid, width) );
+    const int width = (int)mMAX( sz, 1.0f );
+    polylines_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,width) );
 
 }
 
@@ -240,6 +241,7 @@ void PickSetDisplay::setPolylinePos( int idx, const Coord3& pos )
 {
     if ( !polylines_ )
 	createLine();
+
     redrawAll();
 }
 
@@ -333,7 +335,7 @@ void PickSetDisplay::createLine()
     if ( !polylines_->getMaterial() )
 	polylines_->setMaterial( new visBase::Material );
 
-    polylines_->getMaterial()->setColor( Color::Green() );
+    polylines_->getMaterial()->setColor( set_->disp_.color_ );
 
     updateLineStyle();
 }
