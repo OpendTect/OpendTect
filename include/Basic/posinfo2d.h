@@ -30,8 +30,7 @@ mExpClass(Basic) Line2DPos
 {
 public:
 
-		Line2DPos( int trcnr=0, int spnr=0 )
-			: nr_(trcnr), spnr_(spnr)		{}
+		Line2DPos( int n=0 ) : nr_(n)		{}
     bool	operator ==( const Line2DPos& p ) const	{ return nr_ == p.nr_; }
     bool	operator !=( const Line2DPos& p ) const	{ return nr_ != p.nr_; }
     bool	operator >( const Line2DPos& p ) const	{ return nr_ > p.nr_; }
@@ -40,7 +39,6 @@ public:
     bool	operator <=( const Line2DPos& p ) const	{ return nr_<=p.nr_; }
 
     int		nr_;
-    int		spnr_;
     Coord	coord_;
 
 };
@@ -54,7 +52,7 @@ mExpClass(Basic) Line2DPos3D : public Line2DPos
 {
 public:
 		Line2DPos3D( int n=0, float z=mUdf(float) )
-		    : Line2DPos(n,0), z_(z)		{}
+		    : Line2DPos(n), z_(z)		{}
 
     float	z_;
 };
@@ -98,7 +96,7 @@ public:
 			       float* dist=0) const;
     bool		getPos(const Coord& crd,Line2DPos& l2p,
 			       float threshold_distance) const;
-    bool		getPos(int nr,Line2DPos&, bool isspnr=false) const;
+    bool		getPos(int trcnr,Line2DPos&) const;
 
     void		dump(od_ostream&,bool pretty=true) const;
     bool		read(od_istream&,bool asc);
@@ -120,7 +118,7 @@ protected:
     BufferString	lnm_;
     TypeSet<Line2DPos>  posns_;
 
-    int			gtIndex(int,bool&,bool issp=false) const;
+    int			gtIndex(int,bool&) const;
     int			gtIndex(const Coord&,double* sqdist=0) const;
 
     friend class	Line2DDataIterator;

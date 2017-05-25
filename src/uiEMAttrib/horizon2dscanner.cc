@@ -189,8 +189,8 @@ int Horizon2DScanner::nextStep()
 	if ( invalidnms_.isPresent(linenm) )
 	    return Executor::MoreToDo();
 
-	mDynamicCast( const Survey::Geometry2D*, curlinegeom_,
-		      Survey::GM().getGeometry(linenm) );
+	mDynamicCast(const Survey::Geometry2D*,curlinegeom_,
+		     Survey::GM().getGeometry(linenm))
 
 	if ( !curlinegeom_ )
 	{
@@ -205,17 +205,22 @@ int Horizon2DScanner::nextStep()
     if ( !curlinegeom_ )
 	return Executor::ErrorOccurred();
 
-    PosInfo::Line2DPos pos;
-    bool isspnr = !ascio_->isTraceNr();
+    const bool isspnr = !ascio_->isTraceNr();
     if ( !mIsUdf(nr) )
     {
-	if ( !curlinegeom_->data().getPos(nr,pos,isspnr) )
+	int othernr;
+	const bool res = isspnr ? curlinegeom_->getPosBySPNr(nr,crd,othernr)
+				: curlinegeom_->getPosByTrcNr(nr,crd,othernr);
+	if ( !res )
 	    return Executor::MoreToDo();
     }
     else if ( crd.isDefined() )
     {
+	PosInfo::Line2DPos pos;
 	if ( !curlinegeom_->data().getPos(crd,pos,SI().inlDistance()) )
 	    return Executor::MoreToDo();
+
+	nr = pos.nr_;
     }
     else
 	// no valid x/y nor trace number
@@ -246,7 +251,7 @@ int Horizon2DScanner::nextStep()
     }
 
     const int lineidx = validnms_.indexOf( linenm );
-    const BinID bid( lineidx, pos.nr_ );
+    const BinID bid( lineidx, nr );
     bvalset_->add( bid, data.arr() );
 
     return Executor::MoreToDo();

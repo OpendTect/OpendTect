@@ -7,15 +7,11 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "posinfo2d.h"
-
-#include "ascstream.h"
 #include "math2.h"
 #include "od_iostream.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 
-
-static const char* sKeyFileType = "2D Geometry";
 
 PosInfo::Line2DData::Line2DData( const char* lnm )
     : lnm_(lnm)
@@ -25,15 +21,14 @@ PosInfo::Line2DData::Line2DData( const char* lnm )
 
 
 // Returns the index, or the index just before if not found
-int PosInfo::Line2DData::gtIndex( int nr, bool& found, bool issp ) const
+int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
 {
     const int sz = posns_.size();
     if ( sz==0 )
 	{ found = false; return -1; }
 
     int i0 = 0, i1 = sz - 1;
-    int nr0 = issp ? posns_[i0].spnr_ : posns_[i0].nr_;
-    int nr1 = issp ? posns_[i1].spnr_ : posns_[i1].nr_;
+    int nr0 = posns_[i0].nr_; int nr1 = posns_[i1].nr_;
     if ( nr < nr0 )
 	{ found = false; return -1; }
     if ( nr > nr1 )
@@ -46,7 +41,7 @@ int PosInfo::Line2DData::gtIndex( int nr, bool& found, bool issp ) const
     while ( i1 - i0 > 1 )
     {
 	int newi = (i0 + i1) / 2;
-	int newnr = issp ? posns_[newi].spnr_ : posns_[newi].nr_;
+	int newnr = posns_[newi].nr_;
 	if ( newnr == nr )
 	    return newi;
 	if ( newnr > nr )	{ i1 = newi; nr1 = newnr; }
@@ -166,10 +161,9 @@ bool PosInfo::Line2DData::getPos( const Coord& coord,
 }
 
 
-bool PosInfo::Line2DData::getPos( int nr, PosInfo::Line2DPos& pos,
-				  bool issp ) const
+bool PosInfo::Line2DData::getPos( int nr, PosInfo::Line2DPos& pos ) const
 {
-    bool found; int idx = gtIndex( nr, found, issp );
+    bool found; int idx = gtIndex( nr, found );
     if ( !found ) return false;
     pos = posns_[idx];
     return true;
@@ -186,14 +180,13 @@ void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
 	const int fac = SI().zDomain().userFactor();
 	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
-	strm << "\n\nTrcNr\tSPNr\tX-coord\tY-coord" << od_newline;
+	strm << "\n\nTrcNr\tX-coord\tY-coord" << od_newline;
     }
 
     for ( int idx=0; idx<posns_.size(); idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
-	strm << pos.nr_ << '\t' << pos.spnr_ << '\t'
-	     << pos.coord_.x << '\t' << pos.coord_.y << '\n';
+	strm << pos.nr_ << '\t' << pos.coord_.x << '\t' << pos.coord_.y << '\n';
     }
     strm.flush();
 }
@@ -201,23 +194,6 @@ void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
 
 bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 {
-    int version = 1;
-    const od_stream_Pos oldpos = strm.position();
-    ascistream astrm( strm );
-    const bool hasheader = astrm.hasStandardHeader();
-    if ( !hasheader )
-	strm.setPosition( oldpos );
-    else
-    {
-	if ( astrm.atEOS() )
-	    astrm.next();
-	if ( astrm.hasKeyword(sKey::Version()) )
-	{
-	    version = astrm.getIValue();
-	    astrm.next();
-	}
-    }
-
     int linesz = -1;
     if ( asc )
 	strm >> zrg_.start >> zrg_.stop >> zrg_.step >> linesz;
@@ -240,20 +216,7 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 	if ( trcnr<0 || !strm.isOK() )
 	    return false;
 
-	int spnr = -1;
-	if ( version > 1 )
-	{
-	    if ( asc )
-		strm >> spnr;
-	    else
-		strm.getBin( spnr );
-	    if ( spnr<0 || !strm.isOK() )
-		return false;
-	}
-	else
-	    spnr = 0;
-
-	PosInfo::Line2DPos pos( trcnr, spnr );
+	PosInfo::Line2DPos pos( trcnr );
 	if ( asc )
 	    strm >> pos.coord_.x >> pos.coord_.y;
 	else
@@ -268,11 +231,6 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 				 bool withnls ) const
 {
-    ascostream astream( strm );
-    astream.putHeader( sKeyFileType );
-    astream.put( sKey::Version(), 2 );
-    astream.newParagraph();
-
     const int linesz = posns_.size();
     if ( !asc )
 	strm.addBin( zrg_.start ).addBin( zrg_.stop ).addBin( zrg_.step )
@@ -288,12 +246,11 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
 	if ( !asc )
-	    strm.addBin(pos.nr_).addBin(pos.spnr_)
-		.addBin(pos.coord_.x).addBin(pos.coord_.y);
+	    strm.addBin(pos.nr_).addBin(pos.coord_.x).addBin(pos.coord_.y);
 	else
 	{
 	    BufferString str; str.set( pos.coord_.x );
-	    strm << '\t' << pos.nr_ << '\t' << pos.spnr_ << '\t' << str;
+	    strm << '\t' << pos.nr_ << '\t' << str;
 	    str.set( pos.coord_.y );
 	    strm << '\t' << str;
 	    if ( withnls && idx < linesz-1 ) strm << od_newline;

@@ -100,6 +100,7 @@ set( OD_MODULE_SOURCES
 	strmoper.cc
 	strmprov.cc
 	survgeom.cc
+	survgeom2d.cc
 	survinfo.cc
 	task.cc
 	thread.cc

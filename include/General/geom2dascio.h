@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "tableascio.h"
 
 namespace PosInfo { class Line2DData; }
+namespace Survey { class Geometry2D; }
 namespace Table { class FormatDesc; }
 
 /*!
@@ -30,6 +31,7 @@ public:
 					    od_istream&);
     static Table::FormatDesc*	getDesc();
     bool			getData(PosInfo::Line2DData&);
+    bool			getData(Survey::Geometry2D&);
 
 protected:
 

@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
+#include "survgeom2d.h"
 #include "zaxistransform.h"
 
 //For parsing old pars
@@ -162,7 +163,7 @@ void Seis2DDisplay::enableAttrib( int attrib, bool yn )
 void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 {
     geomid_ = geomid;
-    uiString lnm = mToUiStringTodo(Survey::GM().getName( geomid_ ));
+    uiString lnm = mToUiStringTodo(Survey::GM().getName(geomid_));
     if ( lnm.isEmpty() )
 	lnm = toUiString(geomid);
 
@@ -868,8 +869,12 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     float minsqdist;
     if ( getNearestTrace(pos,dataidx,minsqdist) )
     {
-	info.add( ", TrcNr: " ).add( geometry_.positions()[dataidx].nr_ )
-	    .add( ", SP: " ).add( geometry_.positions()[dataidx].spnr_ );
+	info.add( ", TrcNr: " ).add( geometry_.positions()[dataidx].nr_ );
+
+	const Survey::Geometry* geom = Survey::GM().getGeometry(geomid_);
+	const Survey::Geometry2D* geom2d = geom ? geom->as2D() : 0;
+	if ( geom2d )
+	    info.add( ", SP: " ).add( geom2d->spnrs()[dataidx] );
     }
 }
 

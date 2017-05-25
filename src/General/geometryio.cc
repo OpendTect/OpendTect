@@ -95,7 +95,7 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
 			      const char* createfromstr ) const
 {
     RefMan< Geometry2D > geom2d;
-    mDynamicCast( Geometry2D*, geom2d, &geom );
+    mDynamicCast(Geometry2D*,geom2d,&geom);
     if ( !geom2d )
 	return false;
 

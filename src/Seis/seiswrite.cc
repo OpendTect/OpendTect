@@ -44,8 +44,8 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
 }
 
 
-SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
-	: SeisStoreAccess(fnm,is_2d,isps)
+SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is2d, bool isps )
+	: SeisStoreAccess(fnm,is2d,isps)
 	, auxpars_(*new IOPar)
 	, gidp_(0)
 	, worktrc_(*new SeisTrc)
@@ -90,6 +90,7 @@ bool SeisTrcWriter::close()
 	{
 	    uiString st;
 	    geom2d->dataAdmin() = *linedata_;
+	    geom2d->spnrs() = spnrs_;
 	    geom2d->touch();
 	    Survey::GMAdmin().write( *geom2d, st );
 	}
@@ -104,21 +105,24 @@ bool SeisTrcWriter::close()
 }
 
 
-void SeisTrcWriter::setGeomIDProvider( const GeomIDProvider* l )
+void SeisTrcWriter::setGeomIDProvider( const GeomIDProvider* prov )
 {
-    gidp_ = l;
+    gidp_ = prov;
     delete linedata_;
     linedata_ = new PosInfo::Line2DData( Survey::GM().getName(mCurGeomID) );
+    spnrs_.erase();
 }
 
 
 void SeisTrcWriter::setSelData( Seis::SelData* tsel )
 {
     SeisStoreAccess::setSelData( tsel );
+    delete linedata_;
+    spnrs_.erase();
+
     if ( !is2D() )
 	return;
 
-    delete linedata_;
     linedata_ = new PosInfo::Line2DData( Survey::GM().getName(mCurGeomID) );
 }
 
@@ -305,9 +309,10 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
     if ( !res )
 	errmsg_ = putter_->errMsg();
 
-    PosInfo::Line2DPos pos( trc.info().nr, mNINT32(trc.info().refnr) );
+    PosInfo::Line2DPos pos( trc.info().nr );
     pos.coord_ = trc.info().coord;
     linedata_->add( pos );
+    spnrs_ += mNINT32(trc.info().refnr);
 
     return res;
 }
@@ -344,6 +349,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	    PosInfo::Line2DPos pos( trc.info().nr );
 	    pos.coord_ = trc.info().coord;
 	    linedata_->add( pos );
+	    spnrs_ += mNINT32(trc.info().refnr);
 	}
     }
     else if ( is2d_ )

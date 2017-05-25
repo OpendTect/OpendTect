@@ -368,11 +368,14 @@ Geometry::ID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 {
     if ( !geom )
 	return cUndefGeomID();
+
     if ( !geom->is2D() )
 	return default3DSurvID();
+
     Geometry::ID geomid = getGeomID( geom->getName() );
     if ( geomid!=cUndefGeomID() )
 	return geomid;
+
     PtrMan<GeometryWriter> geomwriter =
 	GeometryWriter::factory().create( sKey::TwoD() );
 
@@ -380,6 +383,7 @@ Geometry::ID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
     geomid = geomwriter->createNewGeomID( geom->getName() );
     if ( !write(*geom,errmsg) )
 	return cUndefGeomID();
+
     return geomid;
 }
 

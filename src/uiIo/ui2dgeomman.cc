@@ -117,7 +117,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
 	readnewbut_->attach( centeredBelow, rgfld_ );
     }
 
-    fillTable( geom2d->data() );
+    fillTable( *geom2d );
 }
 
 
@@ -171,25 +171,25 @@ void impLineGeom( CallBacker* )
 	if ( !strm.isOK() )
 	{ uiMSG().error(uiStrings::sCantOpenInpFile()); return; }
 
-	PosInfo::Line2DData geom( linenm_ );
+	RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D( linenm_ );
 	Geom2dAscIO geomascio( dlg.dataselfld_->desc(), strm );
-	if ( !geomascio.getData( geom ) )
+	if ( !geomascio.getData(*geom) )
 	    uiMSG().error(uiStrings::phrCannotRead( toUiString(filenm)) );
 
 	table_->clearTable();
-	fillTable( geom );
+	fillTable( *geom );
     }
 }
 
 
-void fillTable( const PosInfo::Line2DData& geom )
+void fillTable( const Survey::Geometry2D& geom2d )
 {
-    const TypeSet<PosInfo::Line2DPos>& positions = geom.positions();
+    const TypeSet<PosInfo::Line2DPos>& positions = geom2d.data().positions();
     table_->setNrRows( positions.size() );
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
-	table_->setValue( RowCol(idx,1), positions[idx].spnr_ );
+	table_->setValue( RowCol(idx,1), geom2d.spnrs()[idx] );
 	table_->setValue( RowCol(idx,2), positions[idx].coord_.x );
 	table_->setValue( RowCol(idx,3), positions[idx].coord_.y );
     }
@@ -208,18 +208,16 @@ bool acceptOK( CallBacker* )
     if ( !geom2d )
 	return true;
 
-    PosInfo::Line2DData& geomdata = geom2d->dataAdmin();
-    geomdata.setEmpty();
+    geom2d->setEmpty();
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
-	PosInfo::Line2DPos l2d( table_->getIntValue(RowCol(idx,0)),
-				table_->getIntValue(RowCol(idx,1)) );
-	l2d.coord_.x = table_->getdValue( RowCol(idx,2) );
-	l2d.coord_.y = table_->getdValue( RowCol(idx,3) );
-	geomdata.add( l2d );
+	geom2d->add( table_->getdValue(RowCol(idx,2)),
+		     table_->getdValue(RowCol(idx,3)),
+		     table_->getIntValue(RowCol(idx,0)),
+		     table_->getIntValue(RowCol(idx,1)) );
     }
 
-    geomdata.setZRange( rgfld_->getFStepInterval() );
+    geom2d->dataAdmin().setZRange( rgfld_->getFStepInterval() );
     geom2d->touch();
 
     uiString errmsg;
@@ -250,7 +248,16 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
     if ( !transl )
 	return;
 
-    uiManageLineGeomDlg dlg( this, curioobj_->name(),
+    const BufferString linenm = curioobj_->name();
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+		    Survey::GM().getGeometry(linenm) )
+    if ( !geom2d )
+    {
+	uiMSG().error(tr("Cannot find geometry for %1").arg(linenm));
+	return;
+    }
+
+    uiManageLineGeomDlg dlg( this, linenm,
 			     !transl->isUserSelectable(false) );
     dlg.go();
 }
@@ -263,7 +270,33 @@ void ui2DGeomManageDlg::ownSelChg()
 
 void ui2DGeomManageDlg::mkFileInfo()
 {
-    const BufferString txt = getFileInfo();
+    if ( !curioobj_ )
+    {
+	setInfo( getFileInfo() );
+	return;
+    }
+
+    BufferString txt;
+
+    const BufferString linenm = curioobj_->name();
+    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : 0;
+
+    if ( geom2d )
+    {
+	const StepInterval<int> trcrg = geom2d->data().trcNrRange();
+	const BufferString diststr = toString(geom2d->averageTrcDist(),2);
+	const BufferString lengthstr = toString(geom2d->lineLength(),0);
+	txt.add( "Number of traces: " ).add( trcrg.nrSteps()+1 )
+	   .add( "\nTrace range: " ).add( trcrg.start ).add( " - " )
+	   .add( trcrg.stop )
+	   .add( "\nAverage distance: " ).add( diststr )
+	   .add( "\nLine length: " ).add( lengthstr )
+	   .addNewLine();
+    }
+
+    txt.add( getFileInfo() );
     setInfo( txt );
 }
 

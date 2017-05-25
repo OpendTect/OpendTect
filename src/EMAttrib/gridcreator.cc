@@ -176,10 +176,10 @@ const bool islinepresent = geomid != Survey::GeometryManager::cUndefGeomID(); \
 if ( !islinepresent ) \
 { \
     PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm ); \
-    Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( l2d ); \
-    newgoem2d->ref(); \
-    geomid = Survey::GMAdmin().addNewEntry( newgoem2d, errmsg ); \
-    newgoem2d->unRef(); \
+    Survey::Geometry2D* newgeom2d = new Survey::Geometry2D( l2d ); \
+    newgeom2d->ref(); \
+    geomid = Survey::GMAdmin().addNewEntry( newgeom2d, errmsg ); \
+    newgeom2d->unRef(); \
     if ( geomid == Survey::GeometryManager::cUndefGeomID() ) \
     { \
 	failedlines_.add( linenm ); \

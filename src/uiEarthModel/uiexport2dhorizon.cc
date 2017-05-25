@@ -83,7 +83,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     optsfld_->setChecked( 0, true )
 	     .setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
 
-    outfld_ = new uiFileInput( this, 
+    outfld_ = new uiFileInput( this,
 		  uiStrings::phrOutput(uiStrings::phrASCII(uiStrings::sFile())),
 		  uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, optsfld_ );
@@ -152,26 +152,26 @@ bool uiExport2DHorizon::doExport()
 	mErrRet(uiStrings::sCantOpenOutpFile())
 
     writeHeader( strm );
-    for ( int idx=0; idx< linenms.size(); idx++ )
+    for ( int idx=0; idx<linenms.size(); idx++ )
     {
-	BufferString linename = linenms.get( idx );
-	const int lineidx = hor->geometry().lineIndex( linename );
-	StepInterval<int> trcrg = geom->colRange( lineidx );
+	const BufferString linename = linenms.get( idx );
+	const Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+	const StepInterval<int> trcrg = hor->geometry().colRange( geomid );
 	mDynamicCastGet(const Survey::Geometry2D*,survgeom2d,
-		Survey::GM().getGeometry(hor->geometry().geomID(lineidx)))
-	PosInfo::Line2DData l2ddata = survgeom2d->data();
+			Survey::GM().getGeometry(geomid))
+	if ( !survgeom2d ) continue;
+
+	TrcKey tk( geomid, -1 );
+	Coord crd; int spnr = mUdf(int);
 	for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
 	{
-	    Coord3 pos = geom->getKnot( RowCol(lineidx,trcnr) );
-
-	    PosInfo::Line2DPos l2dpos;
-	    l2ddata.getPos(trcnr, l2dpos );
-	    if ( mIsUdf(pos.x) || mIsUdf(pos.y) )
-		continue;
-	    const bool zudf = mIsUdf(pos.z);
+	    tk.setTrcNr( trcnr );
+	    const float z = hor->getZ( tk );
+	    const bool zudf = mIsUdf(z);
 	    if ( zudf && !wrudfs )
 		continue;
 
+	    survgeom2d->getPosByTrcNr( trcnr, crd, spnr );
 	    const bool hasspace = linename.contains( ' ' ) ||
 				  linename.contains( '\t' );
 	    BufferString controlstr = hasspace ? "\"%15s\"" : "%15s";
@@ -179,31 +179,31 @@ bool uiExport2DHorizon::doExport()
 	    if ( zudf )
 	    {
 		if ( !wrlnms )
-		    line.set( pos.x ).add( "\t" ).add( pos.y )
-				     .add("\t" ).add( l2dpos.spnr_ )
+		    line.set( crd.x ).add( "\t" ).add( crd.y )
+				     .add("\t" ).add( spnr )
 				     .add( "\t" ).add( undefstr );
 		else
 		{
 		    controlstr += "%16.2lf%16.2lf%8d%8d%16s";
 		    sprintf( line.getCStr(), controlstr.buf(), linename.buf(),
-			     pos.x, pos.y, l2dpos.spnr_, trcnr, undefstr.buf());
+			     crd.x, crd.y, spnr, trcnr, undefstr.buf());
 		}
 	    }
 	    else
 	    {
-		pos.z *= zfac;
+		const float scaledz = z * zfac;
 		if ( wrlnms )
 		{
 		    controlstr += "%16.2lf%16.2lf%8d%8d%16.4lf";
 		    sprintf( line.getCStr(), controlstr.buf(),
-			    linename.buf(), pos.x, pos.y, l2dpos.spnr_,
-			    trcnr, pos.z );
+			    linename.buf(), crd.x, crd.y, spnr,
+			    trcnr, scaledz );
 		}
 		else
 		{
-		    line.set( pos.x ).add( "\t" ).add( pos.y ).add("\t" )
-				     .add( l2dpos.spnr_ ).add( "\t" )
-				     .add( pos.z );
+		    line.set( crd.x ).add( "\t" ).add( crd.y ).add("\t" )
+				     .add( spnr ).add( "\t" )
+				     .add( scaledz );
 		}
 	    }
 

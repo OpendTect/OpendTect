@@ -39,7 +39,7 @@ namespace PosInfo { class Line2DData; }
 
 
 mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
-{ mODTextTranslationClass(SeisTrcWriter);
+{ mODTextTranslationClass(SeisTrcWriter)
 public:
 
 			SeisTrcWriter(const IOObj*,
@@ -104,6 +104,7 @@ protected:
     BufferString	attribnm_;
     Seis2DLinePutter*	putter_;
     PosInfo::Line2DData* linedata_;
+    TypeSet<int>	spnrs_;
     Pos::GeomID		prevgeomid_;
     const GeomIDProvider* gidp_;
     BufferString	datatype_;
