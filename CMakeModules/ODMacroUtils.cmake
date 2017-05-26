@@ -104,6 +104,9 @@ if( (UNIX OR WIN32)  AND OD_USEZLIB )
     endif()
 endif()
 
+if(OD_USEPROJ4)
+    OD_SETUP_PROJ4()
+endif()
 
 #Add current module to include-path
 set( CMAKE_BINARY_DIR "${OD_BINARY_BASEDIR}" )

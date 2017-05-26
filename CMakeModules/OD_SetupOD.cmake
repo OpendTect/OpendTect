@@ -8,6 +8,7 @@ SET( INCLUDES
     ODUtils
     ODZlibUtils
     ODOsgUtils
+    ODProj4Utils
     ODBreakPadUtils
     ODMacroUtils
     ODModDeps
