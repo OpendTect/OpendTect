@@ -40,7 +40,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
 {
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select projection") );
     projselfld_ = new uiListBox( this, su, "ProjectionList" );
-    projselfld_->setFieldWidth( 30 );
+    projselfld_->setHSzPol( uiObject::WideVar );
     projselfld_->setNrLines( 10 );
     projselfld_->selectionChanged.notify(
 				mCB(this,uiProjectionBasedSystem,selChgCB) );
