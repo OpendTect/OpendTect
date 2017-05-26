@@ -33,7 +33,9 @@ template <class T>
 mClass(Basic) Atomic
 {
 public:
+
 		Atomic(T val=0);
+		Atomic(const Atomic&);
 		~Atomic();
 
 		operator T() const { return get(); }
@@ -67,8 +69,6 @@ public:
 
 
 private:
-			Atomic(const Atomic<T>&)
-			{ }
 
 #ifdef __STDATOMICS__
     std::atomic<T>	val_;
@@ -236,6 +236,12 @@ Atomic<T>::Atomic( T val )
     : val_( val )
 {}
 
+template <class T> inline
+Atomic<T>::Atomic( const Atomic<T>& oth )
+    : val_( oth.val_ )
+{
+}
+
 
 template <class T> inline
 Atomic<T>::Atomic( const Atomic<T>& val )
@@ -321,6 +327,11 @@ Atomic<T>::Atomic( T val )
     : val_( val )
 {}
 
+template <class T> inline
+Atomic<T>::Atomic( const Atomic<T>& oth )
+    : val_( oth.val_ )
+{
+}
 
 template <class T> inline
 Atomic<T>::~Atomic<T>()
@@ -431,6 +442,14 @@ Atomic<T>::Atomic( T val )
     , valptr_( values_ )
 {
     *valptr_ = val;
+}
+
+template <class T> inline
+Atomic<T>::Atomic( const Atomic<T>& oth )
+    , lock_( new Mutex )
+    , valptr_( values_ )
+{
+    *this = (T)oth;
 }
 
 template <class T> inline

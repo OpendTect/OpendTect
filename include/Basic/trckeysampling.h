@@ -76,6 +76,8 @@ public:
 
     int			lineIdx(Pos::LineID) const;
     int			trcIdx(Pos::TraceID) const;
+    inline Pos::LineID	lineID(int) const;
+    inline Pos::TraceID	traceID(int) const;
 
     od_int64		globalIdx(const TrcKey&) const;
     od_int64		globalIdx(const BinID&) const;
@@ -151,7 +153,7 @@ public:
     inline bool		crlOK( int crl ) const { return trcOK(crl); }
 
     inline bool		includes(const BinID& bid, bool ignoresteps) const
-			{ return lineOK(bid.inl(), ignoresteps ) && 
+			{ return lineOK(bid.inl(), ignoresteps ) &&
 				 trcOK(bid.crl(), ignoresteps ); }
 
     mDeprecated BinID&	start;
@@ -230,6 +232,16 @@ inline int TrcKeySampling::trcIdx( Pos::TraceID trcid ) const
 }
 
 
+inline Pos::LineID TrcKeySampling::lineID( int lidx ) const
+{
+    return start_.lineNr() + step_.lineNr() * lidx;
+}
+
+
+inline Pos::TraceID TrcKeySampling::traceID( int tidx ) const
+{
+    return start_.trcNr() + step_.trcNr() * tidx;
+}
 
 
 #endif

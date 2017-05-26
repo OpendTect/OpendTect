@@ -244,6 +244,7 @@ mExpClass(Basic) uiRetVal
 {
 public:
 
+			uiRetVal()	    {}
 			uiRetVal(const uiString&);
 			uiRetVal(const uiStringSet&);
 			uiRetVal(const uiRetVal&);
@@ -257,6 +258,7 @@ public:
     inline bool		isError() const	    { return !isOK(); }
     bool		isMultiMessage() const;
     uiStringSet		messages() const;
+    bool		isSingleWord(const uiString&) const;
 
     uiRetVal&		setOK();
     uiRetVal&		set(const uiRetVal&);
@@ -274,10 +276,12 @@ private:
     uiStringSet		msgs_;
     mutable Threads::Lock lock_;
 
-			uiRetVal()	    {}
     static const uiRetVal ok_;
 
 };
+
+mGlobal(Basic) bool isFinished(const uiRetVal&);
+mGlobal(Basic) bool isCancelled(const uiRetVal&);
 
 
 mGlobal(Basic) uiString toUiString(const uiString&);

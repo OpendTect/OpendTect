@@ -28,6 +28,8 @@ static const Pos::IdxPair udfposidxpair( mUdfIdx, mUdfIdx );
 #define mUdfOrd mUdf(Coord::OrdType)
 static const Coord udfcoord( mUdfOrd, mUdfOrd );
 static const Coord3 udfcoord3( mUdfOrd, mUdfOrd, mUdfOrd );
+static const char* sKeyXTransf = "Coord-X-BinID";
+static const char* sKeyYTransf = "Coord-Y-BinID";
 
 
 const IdxPair& IdxPair::udf()
@@ -591,4 +593,18 @@ Coord Pos::IdxPair2Coord::transform( const Coord& ip_coord ) const
 {
     return Coord( xtr.a + xtr.b*ip_coord.x + xtr.c*ip_coord.y,
 		  ytr.a + ytr.b*ip_coord.x + ytr.c*ip_coord.y );
+}
+
+
+void Pos::IdxPair2Coord::fillPar( IOPar& iop ) const
+{
+    iop.set( sKeyXTransf, xtr.a, xtr.b, xtr.c );
+    iop.set( sKeyYTransf, ytr.a, ytr.b, ytr.c );
+}
+
+
+void Pos::IdxPair2Coord::usePar( const IOPar& iop )
+{
+    iop.get( sKeyXTransf, xtr.a, xtr.b, xtr.c );
+    iop.get( sKeyYTransf, ytr.a, ytr.b, ytr.c );
 }

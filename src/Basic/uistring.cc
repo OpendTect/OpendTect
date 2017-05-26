@@ -1048,6 +1048,14 @@ uiRetVal& uiRetVal::set( const uiStringSet& strs )
 }
 
 
+uiRetVal& uiRetVal::setOK()
+{
+    Threads::Locker locker( lock_ );
+    msgs_.setEmpty();
+    return *this;
+}
+
+
 uiRetVal& uiRetVal::add( const uiRetVal& oth )
 {
     if ( this != &oth )
@@ -1087,4 +1095,23 @@ BufferString uiRetVal::getText() const
     }
 
     return BufferString( uistr.getFullString() );
+}
+
+
+bool uiRetVal::isSingleWord( const uiString& str ) const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_.size() == 1 && msgs_[0].isEqualTo( str );
+}
+
+
+bool isFinished( const uiRetVal& uirv )
+{
+    return uirv.isSingleWord( uiStrings::sFinished() );
+}
+
+
+bool isCancelled( const uiRetVal& uirv )
+{
+    return uirv.isSingleWord( uiStrings::sCancelled() );
 }

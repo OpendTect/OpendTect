@@ -353,6 +353,12 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 }
 
 
+bool PosInfo::CubeData::includes( const BinID& bid ) const
+{
+    return includes( bid.inl(), bid.crl() );
+}
+
+
 bool PosInfo::CubeData::includes( int lnr, int crl ) const
 {
     int ilnr = indexOf( lnr ); if ( ilnr < 0 ) return false;
@@ -361,6 +367,36 @@ bool PosInfo::CubeData::includes( int lnr, int crl ) const
 	    return true;
     return false;
 }
+
+
+void PosInfo::CubeData::getRanges( Interval<int>& inlrg,
+				   Interval<int>& crlrg ) const
+{
+    inlrg.start = inlrg.stop = crlrg.start = crlrg.stop = 0;
+    const int sz = size();
+    if ( sz < 1 )
+	return;
+
+    bool isfirst = true;
+    for ( int iln=0; iln<sz; iln++ )
+    {
+	const PosInfo::LineData& ld = *(*this)[iln];
+	if ( ld.segments_.isEmpty() )
+	    continue;
+
+	if ( isfirst )
+	{
+	    isfirst = false;
+	    inlrg.start = inlrg.stop = ld.linenr_;
+	    crlrg = ld.segments_[0];
+	}
+
+	inlrg.include( ld.linenr_ );
+	for ( int iseg=0; iseg<ld.segments_.size(); iseg++ )
+	    crlrg.include( ld.segments_[iseg], false );
+    }
+}
+
 
 
 bool PosInfo::CubeData::getInlRange( StepInterval<int>& rg,
@@ -599,7 +635,7 @@ bool PosInfo::CubeData::isCrlReversed() const
 	    if ( ld.segments_[0].start==ld.segments_[1].start )
 	    {
 		BufferString msg( "Two segemnts in line nr " );
-		msg += ld.linenr_; msg += " have same start"; 
+		msg += ld.linenr_; msg += " have same start";
 		pErrMsg( msg );
 		continue;
 	    }

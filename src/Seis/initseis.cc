@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisseqio.h"
 #include "segytr.h"
 #include "seiscbvs.h"
+#include "seisblockstr.h"
 #include "seis2dlineio.h"
 #include "seispscubetr.h"
 #include "segydirecttr.h"
@@ -36,6 +37,7 @@ defineTranslator(TwoD,SeisTrc,"2D");
 defineTranslator(TwoDData,SeisTrc,"TwoD DataSet");
 defineTranslator(SEGYDirect,SeisTrc,mSEGYDirectTranslNm);
 defineTranslator(SeisPSCube,SeisTrc,"PS Cube");
+defineTranslator(Blocks,SeisTrc,BlocksSeisTrcTranslator::sKeyTrName());
 
 mDefSimpleTranslatorioContext(SeisTrc,Seis)
 mDefSimpleTranslatorSelector(SeisTrc);
@@ -73,6 +75,7 @@ mDefModInitFn(Seis)
     SEGYDirectSeisTrcTranslator::initClass();
     SEGYDirectSeisTrc2DTranslator::initClass();
     SEGYDirectSurvGeom2DTranslator::initClass();
+    BlocksSeisTrcTranslator::initClass();
 
     CBVSSeisPS3DTranslator::initClass();
     CBVSSeisPS2DTranslator::initClass();

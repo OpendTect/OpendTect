@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom2d.h"
 #include "thread.h"
 #include "threadwork.h"
+#include "uistrings.h"
 
 
 #define mCurGeomID (gidp_ \
@@ -262,6 +263,13 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
     if ( neednewconn )
     {
 	Conn* conn = crConn( trc.info().binid.inl(), first );
+	if ( !conn )
+	{
+	    errmsg_ = tr("Cannot create output stream");
+	    if ( ioobj_ && FixedString(ioobj_->translator()) == "Blocks" )
+		errmsg_ = uiStrings::phrNotImplInThisVersion( "7.X" );
+	    return false;
+	}
 	if ( !conn || !start3DWrite(conn,trc) )
 	    return false;
     }

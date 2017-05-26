@@ -76,6 +76,9 @@ public:
     const DirTransform&	getTransform( bool x ) const
 			{ return x ? xtr : ytr; }
 
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+
     // aliases
 
     inline Coord	rowDir() const	{ return firstDir(); }

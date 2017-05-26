@@ -32,6 +32,10 @@ uiString uiStrings::phrCrossline( const uiString& string )
 uiString uiStrings::phrTODONotImpl( const char* clssnm )
 { return toUiString( "[%1] TODO: Not Implemented" ).arg( clssnm ); }
 
+uiString uiStrings::phrNotImplInThisVersion( const char* fromver )
+{ return tr("Not implemented in this version of OpendTect."
+	  "\nPlease use version %1 or higher").arg( fromver ); }
+
 uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
 { return immediate ? string : toUiString( "%1 ..." ).arg( string ); }
 

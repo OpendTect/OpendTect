@@ -11,7 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "basicmod.h"
 #include "survgeom.h"
 #include "trckeyzsampling.h"
@@ -28,20 +28,21 @@ namespace Survey
 mExpClass(Basic) Geometry3D : public Survey::Geometry
 {
 public:
-    
+
 			Geometry3D(const char* nm,const ZDomain::Def& zd );
 
     virtual bool	is2D() const		{ return false; }
-    virtual const char*	getName() const		{ return name_.buf(); }
-    			    
-    float		zScale() const 		{ return zscale_; }
+    virtual const char*	getName() const		{ return name_; }
+    virtual void	setName( const char* nm ) { name_ = nm; }
+
+    float		zScale() const		{ return zscale_; }
 
     StepInterval<int>	inlRange() const;
     StepInterval<int>	crlRange() const;
     StepInterval<float> zRange() const;
     int			inlStep() const;
     int			crlStep() const;
-    
+
     float		zStep() const;
 
     virtual Coord	toCoord(int line,int tracenr) const;
@@ -56,12 +57,14 @@ public:
     float		crlDistance() const;
 
     bool		isRightHandSystem() const;
-    			/*!< Orientation is determined by rotating the
+			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
     bool		isClockWise() const { return isRightHandSystem(); }
 			/*!< Legacy, will be removed. */
 
     const ZDomain::Def&	zDomain() const		{ return zdomain_; }
+    void		setZDomain( const ZDomain::Def& def )
+						{ zdomain_ = def; }
 
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
     void		setGeomData(const Pos::IdxPair2Coord&,
@@ -78,9 +81,9 @@ public:
     void		snapZ(float&,int direction=0) const;
 			//!< see snap() for direction
 protected:
-    
+
     BufferString	name_;
-    const ZDomain::Def	zdomain_;
+    ZDomain::Def	zdomain_;
     Pos::IdxPair2Coord	b2c_;
 
     float		zscale_;

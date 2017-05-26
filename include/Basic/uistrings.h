@@ -159,7 +159,9 @@ public:
     static uiString phrSuccessfullyExported(const uiString&);
     //!<"Successfully exported <string>"
     static uiString phrTODONotImpl(const char* clssname);
-    //!<"[clssname] TO DO: Not Implemented"> ...
+    //!<"[clssname] TO DO: Not Implemented">
+    static uiString phrNotImplInThisVersion(const char* fromver);
+    //!<"Not impl in this version of OpendTect. Please use version xx or up">
     static uiString phrThreeDots(const uiString& string,bool immediate=false);
     //!<string> ...
     static uiString phrWriting(const uiString&);
@@ -208,6 +210,7 @@ public:
     static uiString sCalculate();
     static uiString sCalculateFrom();
     static uiString sCancel()		{ return tr("Cancel"); }
+    static uiString sCancelled()	{ return tr("Cancelled"); }
     static uiString sCantCreateHor();
     static uiString sCannotExtract();
     static uiString sCantFindAttrName();
@@ -291,6 +294,7 @@ public:
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
     static uiString sFileName()	        { return tr("File name"); }
     static uiString sFinish()		{ return tr("Finish"); }
+    static uiString sFinished()		{ return tr("Finished"); }
     static uiString sFilter(int num=1)  { return tr("Filter",0,num); }
     static uiString sFilters()		{ return sFilter(mPlural); }
     static uiString sFlip()		{ return tr("Flip"); }

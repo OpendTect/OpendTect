@@ -111,7 +111,9 @@ public:
 
     virtual int		indexOf(int inl,int* newidx=0) const;
 			//!< newidx only filled if not null and -1 is returned
+    bool		includes(const BinID&) const;
     bool		includes(int inl,int crl) const;
+    void		getRanges(Interval<int>& inl,Interval<int>& crl) const;
     bool		getInlRange(StepInterval<int>&,bool sorted=true) const;
 			//!< Returns whether fully regular.
     bool		getCrlRange(StepInterval<int>&,bool sorted=true) const;
