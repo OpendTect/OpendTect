@@ -269,7 +269,12 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
     if ( neednewconn )
     {
 	Conn* conn = crConn( trc.info().lineNr(), first );
-	if ( !conn || !start3DWrite(conn,trc) )
+	if ( !conn )
+	{
+	    errmsg_ = tr("Cannot create output stream");
+	    return false;
+	}
+	if ( !start3DWrite(conn,trc) )
 	    return false;
     }
 

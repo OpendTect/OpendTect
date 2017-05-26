@@ -183,6 +183,8 @@ public:
     //!<"Successfully exported <string>"
     static uiString phrTODONotImpl(const char* clssname);
     //!<"[clssname] TO DO: Not Implemented"> ...
+    static uiString phrNotImplInThisVersion(const char* fromver);
+    //!<"Not impl in this version of OpendTect. Please use version xx or up">
     static uiString phrThreeDots(const uiString& string,bool immediate=false);
     //!<string> ...
     static uiString phrWriting(const uiString&);
