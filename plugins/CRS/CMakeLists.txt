@@ -5,33 +5,15 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-option( BUILD_CRS "Build the CRS/uiCRS plugins" OFF )
-if ( BUILD_CRS )
-    set( PROJ4_DIR "" CACHE PATH "Directory containing Proj4 Installation" )
-    if ( NOT EXISTS ${PROJ4_DIR}/include/proj_api.h )
-	message( FATAL_ERROR "PROJ4_DIR is not set or not valid" )
-    endif()
+set( OD_USEPROJ4 1 )
+set( OD_MODULE_DEPS Basic)
+set( OD_IS_PLUGIN yes)
+set( OD_MODULE_SOURCES 
+	    crsproj.cc
+	    crssystem.cc
+	    crspi.cc )
 
-    list ( APPEND OD_MODULE_INCLUDESYSPATH ${PROJ4_DIR}/include )
-    if ( UNIX )
-	if ( APPLE )
-	    list(APPEND OD_MODULE_EXTERNAL_LIBS ${PROJ4_DIR}/lib/libproj.dylib )
-	else ()
-	    list(APPEND OD_MODULE_EXTERNAL_LIBS ${PROJ4_DIR}/lib/libproj.so )
-	endif()
-    elseif ( WIN32 )
-	list(APPEND OD_MODULE_EXTERNAL_LIBS ${PROJ4_DIR}/lib/proj.lib )
-    endif ()
+set( OD_TEST_PROGS
+	    crs.cc )
 
-    set( OD_MODULE_DEPS Basic)
-    set( OD_IS_PLUGIN yes)
-    set( OD_MODULE_SOURCES
-		crsproj.cc
-		crssystem.cc
-		crspi.cc )
-
-    set( OD_TEST_PROGS
-		crs.cc )
-
-    OD_INIT_MODULE()
-endif()
+OD_INIT_MODULE()

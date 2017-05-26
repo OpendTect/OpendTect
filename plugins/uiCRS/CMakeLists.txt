@@ -5,14 +5,11 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-option( BUILD_CRS "Build the CRS/uiCRS plugins" OFF )
-if ( BUILD_CRS )
-    set( OD_MODULE_DEPS uiIo CRS )
-    set( OD_IS_PLUGIN yes)
-    set( OD_MODULE_SOURCES
-		uicrssystem.cc
-		uicrspi.cc )
+set( OD_MODULE_DEPS uiIo CRS )
+set( OD_IS_PLUGIN yes)
+set( OD_MODULE_SOURCES 
+	    uicrssystem.cc
+	    uicrspi.cc )
 
-    set ( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} ${OD_SURVEY_EXECS} )
-    OD_INIT_MODULE()
-endif()
+set ( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} ${OD_SURVEY_EXECS} )
+OD_INIT_MODULE()
