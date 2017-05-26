@@ -317,13 +317,13 @@ public:
     static uiString sExtract();
     static uiString sFaultStickSet(int num=1);
     static uiString sFactor(int num=1)	{ return tr("Factor",0,num); }
-    static uiString sFinished()		{ return tr("Finished"); }
     static uiString sFault(int num=1);
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
     static uiString sFileName()	        { return tr("File name"); }
     static uiString sFinish()		{ return tr("Finish"); }
+    static uiString sFinished()		{ return tr("Finished"); }
     static uiString sFilter(int num=1)  { return tr("Filter",0,num); }
     static uiString sFilters()		{ return sFilter(mPlural); }
     static uiString sFlip()		{ return tr("Flip"); }

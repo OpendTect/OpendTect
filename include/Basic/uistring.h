@@ -319,8 +319,8 @@ public:
     uiStringSet		messages() const;
     bool		isSingleWord(const uiString&) const;
 
-    inline uiRetVal&	setOK()			{ *this = ok_; return *this; }
-    inline uiRetVal&	setEmpty()		{ return setOK(); }
+    uiRetVal&		setEmpty();
+    inline uiRetVal&	setOK()			{ return setEmpty(); }
     uiRetVal&		insert(const uiString&);
     uiRetVal&		set(const uiRetVal&);
     uiRetVal&		set(const uiString&);

@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "survgeom3d.h"
 #include "posinfo2dsurv.h"
+#include "coordsystem.h"
 
 #include "keystrs.h"
 #include "dbkey.h"
@@ -36,7 +37,6 @@ const Survey::GeometryManager& Survey::GM()
 Survey::Geometry::Geometry()
     : id_(mUdfGeomID)
     , sampling_(false)
-    , coordsysid_(0)
 {}
 
 
@@ -702,10 +702,7 @@ void Survey::Geometry3D::snapZ( float& z, int dir ) const
 void Survey::Geometry3D::putMapInfo( IOPar& iop ) const
 {
     b2c_.fillPar( iop );
-    FileMultiString fms;
-    fms += (int)coordsysid_;
-    fms += "Coordinate system"; //TODO CoordSys::usrText4ID(coordsysid_);
-    iop.set( sKey::CoordSys(), fms );
+    SI().getCoordSystem()->fillPar( iop );
     iop.set( sKey::FirstInl(), sampling_.hsamp_.start_.inl() );
     iop.set( sKey::FirstCrl(), sampling_.hsamp_.start_.crl() );
     iop.set( sKey::StepInl(), sampling_.hsamp_.step_.inl() );
@@ -718,62 +715,12 @@ void Survey::Geometry3D::putMapInfo( IOPar& iop ) const
 void Survey::Geometry3D::getMapInfo( const IOPar& iop )
 {
     b2c_.usePar( iop );
-    const char* res = iop.find( sKey::CoordSys() );
-    if ( res && *res )
-    {
-	FileMultiString fms( res );
-	coordsysid_ = (CoordSysID)toInt( fms[0] );
-    }
     iop.get( sKey::FirstInl(), sampling_.hsamp_.start_.inl() );
     iop.get( sKey::FirstCrl(), sampling_.hsamp_.start_.crl() );
     iop.get( sKey::StepInl(), sampling_.hsamp_.step_.inl() );
     iop.get( sKey::StepCrl(), sampling_.hsamp_.step_.crl() );
     iop.get( sKey::LastInl(), sampling_.hsamp_.stop_.inl() );
     iop.get( sKey::LastCrl(), sampling_.hsamp_.stop_.crl() );
-}
-
-
-int Survey::Geometry3D::bufSize4MapInfo() const
-{
-    return b2c_.sizeInBuf()		// +48 =	48
-	+ sizeof(coordsysid_)		// +2 =		50
-	+ 6 * sizeof(Pos::Index_Type);	// +24 =	74
-}
-
-
-#define mPutAndIncrement(var,typ) \
-    *((typ*)ptr) = var; ptr += sizeof(typ)
-#define mGetAndIncrement(var,typ) \
-    var = *((const typ*)buf); ptr += sizeof(const typ)
-
-
-void Survey::Geometry3D::putMapInfo( void* buf ) const
-{
-    char* ptr = (char*)buf;
-    b2c_.fillBuf( ptr );
-    ptr += b2c_.sizeInBuf();
-    mPutAndIncrement( coordsysid_, CoordSysID );
-    mPutAndIncrement( sampling_.hsamp_.start_.inl(), Pos::Index_Type );
-    mPutAndIncrement( sampling_.hsamp_.start_.crl(), Pos::Index_Type );
-    mPutAndIncrement( sampling_.hsamp_.stop_.inl(), Pos::Index_Type );
-    mPutAndIncrement( sampling_.hsamp_.stop_.crl(), Pos::Index_Type );
-    mPutAndIncrement( sampling_.hsamp_.step_.inl(), Pos::Index_Type );
-    mPutAndIncrement( sampling_.hsamp_.step_.crl(), Pos::Index_Type );
-}
-
-
-void Survey::Geometry3D::getMapInfo( const void* buf )
-{
-    const char* ptr = (const char*)buf;
-    b2c_.useBuf( ptr );
-    ptr += b2c_.sizeInBuf();
-    mGetAndIncrement( coordsysid_, CoordSysID );
-    mGetAndIncrement( sampling_.hsamp_.start_.inl(), Pos::Index_Type );
-    mGetAndIncrement( sampling_.hsamp_.start_.crl(), Pos::Index_Type );
-    mGetAndIncrement( sampling_.hsamp_.stop_.inl(), Pos::Index_Type );
-    mGetAndIncrement( sampling_.hsamp_.stop_.crl(), Pos::Index_Type );
-    mGetAndIncrement( sampling_.hsamp_.step_.inl(), Pos::Index_Type );
-    mGetAndIncrement( sampling_.hsamp_.step_.crl(), Pos::Index_Type );
 }
 
 

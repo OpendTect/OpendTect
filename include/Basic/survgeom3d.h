@@ -93,9 +93,6 @@ public:
 			// MapInfo = B2C and CoordSys
     void		getMapInfo(const IOPar&);
     void		putMapInfo(IOPar&) const;
-    int			bufSize4MapInfo() const; // 66
-    void		getMapInfo(const void*);
-    void		putMapInfo(void*) const;
 
 protected:
 

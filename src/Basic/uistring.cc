@@ -1209,6 +1209,14 @@ uiRetVal& uiRetVal::set( const uiStringSet& strs )
 }
 
 
+uiRetVal& uiRetVal::setEmpty()
+{
+    Threads::Locker locker( lock_ );
+    msgs_.setEmpty();
+    return *this;
+}
+
+
 uiRetVal& uiRetVal::insert( const uiString& str )
 {
     Threads::Locker locker( lock_ );
