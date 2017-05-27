@@ -38,9 +38,10 @@ class WriterFinisher;
 
   All files are put in a subdir of the base path. At the end the columns
   that have never been fully filled (edge columns, columns with data gaps) will
-  be written. Lastly, the main file ".cube" will be written.
+  be written. Lastly, the main file ".info" will be written.
 
-  The Writer supports MT add's, and the output writing can be parallel.
+  The Writer is prepared to be used in a MT setting, but the actual output
+  writing may not be parallel.
 
 */
 

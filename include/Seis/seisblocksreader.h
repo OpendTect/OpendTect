@@ -37,7 +37,8 @@ class OffsetTable;
 
   if ( state().isError() ) do not attempt anything.
 
-  The get() and getNext() should be MT-safe, but reading is not parallel.
+  The get() and getNext() should be MT-safe, but reading is not parallel. For
+  parallel reads, simply make multiple readers.
 
 */
 

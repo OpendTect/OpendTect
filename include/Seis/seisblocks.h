@@ -32,12 +32,11 @@ namespace Seis
 
 A 3D survey Geometry defines a full 'Lattice' that in turns defines
 a unique set of indices for inlines, crosslines and Z. We can group the
-positions into blocks of a size that is not too big, but big enough to not
-make a huge number of files.
+positions into blocks of a size that makes it reasonable for efficient storage.
 
 With these predefined dimensions, we can set up indexes for each block in each
 dimension (the GlobIdx). Within the blocks, you then have local, relative
-indices 0 - N-1 in LocIdx.
+indices 0 - N-1 (the LocIdx).
 
   */
 
