@@ -198,6 +198,16 @@ void RandomTrackDisplay::setProbe( Probe* probe )
 }
 
 
+const char* RandomTrackDisplay::getRandomLineName() const
+{
+    mDynamicCastGet( const RandomLineProbe*,rdlprobe, probe_.ptr() );
+    if ( !rdlprobe )
+	return mFromUiStringTodo(name()).buf();
+
+    return rdlprobe->getDisplayName();
+}
+
+
 int RandomTrackDisplay::getRandomLineID() const
 { return rl_ ? rl_->ID() : -1; }
 

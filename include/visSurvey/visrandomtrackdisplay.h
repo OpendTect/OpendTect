@@ -156,6 +156,9 @@ public:
 
     void			setRightHandSystem(bool);
 
+    visBase::TexturePanelStrip* getTexturePanelStrip() const
+				{ return panelstrip_; }
+    const char*			getRandomLineName() const;
 
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> nodemoving_;
