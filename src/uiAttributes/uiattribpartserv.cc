@@ -417,8 +417,11 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 
 	attrdata.attribid_.asInt() = dlg.attribID().asInt();
 	attrdata.outputnr_ = dlg.outputNr();
+	attrdata.compnr_ = dlg.compNr();
 	attrdata.setAttrSet( &dlg.getAttrSet() );
-	if ( attrdata.compnr_ == -1 )
+	const Attrib::Desc* desc =
+	    attrdata.attrSet().getDesc( attrdata.attribid_ );
+	if ( desc && desc->isStored() && attrdata.compnr_==-1 )
 	{
 	    const MultiID dbky =
 		dlg.getAttrSet().getStoredKey( attrdata.attribid_ );
@@ -452,6 +455,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	selspec.setRefFromID( attrdata.attrSet() );
     //selspec.setZDomainKey( dlg.zDomainKey() );
 
+    setTargetSelSpec( selspec );
     return true;
 }
 

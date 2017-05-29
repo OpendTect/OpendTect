@@ -104,6 +104,8 @@ public:
     Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
 			//!< -1 if not selected
     int			outputNr() const	{ return attrdata_.outputnr_; }
+    			//!< -1 if not selected
+    int			compNr() const		{ return attrdata_.compnr_; }
 			//!< -1 if not selected
     const char*		zDomainKey() const;
 
