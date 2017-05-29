@@ -139,6 +139,12 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    }
 	    else
 	    {
+
+		BufferString usrref = desc.userRef();
+		if ( usrref.startsWith("CentralSteering")
+		    || usrref.startsWith("FullSteering") )
+		    return 0;
+
 		errstr = tr( "%1 for '%2' attribute.")
 			 .arg( errmsg ).arg( desc.userRef() );
 	    }
