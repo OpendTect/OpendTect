@@ -673,8 +673,11 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 					    urkey += userRefStr();
 					    copypar.get( urkey.buf(),
 							 depattribnm );
+					    break;
 					}
-					break;
+					else
+					    tmpcpypar.removeWithKey(
+							    compkey2.buf() );
 				    }
 				}
 			    }
