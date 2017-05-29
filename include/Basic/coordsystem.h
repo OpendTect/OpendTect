@@ -30,17 +30,17 @@ namespace Coords
     either the WGS84 datum or its own datum if applicable.
  */
 
-mExpClass(Basic) PositionSystem : CallBacker
-{ mRefCountImpl(PositionSystem);
+mExpClass(Basic) CoordSystem : CallBacker
+{ mRefCountImpl(CoordSystem);
 public:
 
-    bool			operator==(const PositionSystem&) const;
+    bool			operator==(const CoordSystem&) const;
 
     static void			initRepository(NotifierAccess* = 0);
 				/*!<To be called from initGeneral with a
 				    pointer to survey change notifier. */
 
-				mDefineFactoryInClass(PositionSystem,factory);
+				mDefineFactoryInClass(CoordSystem,factory);
 				//!<Creates the subclasses without settings
 
     static void			getSystemNames(bool onlyorthogonal,
@@ -51,9 +51,9 @@ public:
 				   corresponding IOPars to create them.
 				   IOPars become yours! */
 
-    static RefMan<PositionSystem> createSystem(const IOPar&);
+    static RefMan<CoordSystem> createSystem(const IOPar&);
 				//!<Creates subclass with settings
-    virtual PositionSystem*	clone() const				= 0;
+    virtual CoordSystem*	clone() const				= 0;
 
     virtual uiString		description() const			= 0;
     virtual BufferString	summary() const				= 0;
@@ -62,10 +62,10 @@ public:
 
     virtual bool		geographicTransformOK() const		= 0;
 
-    static Coord		convert(const Coord&,const PositionSystem& from,
-					const PositionSystem& to);
+    static Coord		convert(const Coord&,const CoordSystem& from,
+					const CoordSystem& to);
     Coord			convertFrom(const Coord&,
-					const PositionSystem& from) const;
+					const CoordSystem& from) const;
 
     virtual uiString		toUiString(const Coord&) const;
     virtual BufferString	toString(const Coord&,
@@ -99,15 +99,15 @@ private:
 };
 
 
-mExpClass(Basic) UnlocatedXY : public PositionSystem
+mExpClass(Basic) UnlocatedXY : public CoordSystem
 { mODTextTranslationClass(UnlocatedXY);
 public:
-    mDefaultFactoryInstantiation( PositionSystem,UnlocatedXY,"Unlocated XY",
+    mDefaultFactoryInstantiation( CoordSystem,UnlocatedXY,"Unlocated XY",
 				 tr("Unlocated XY") );
 
 			UnlocatedXY();
 
-    virtual PositionSystem*	clone() const;
+    virtual CoordSystem*	clone() const;
     virtual uiString	description() const
 			{ return
 			   tr("Coordinate system in an undefined projection.");}
@@ -134,15 +134,15 @@ private:
 };
 
 
-mExpClass(Basic) AnchorBasedXY : public PositionSystem
+mExpClass(Basic) AnchorBasedXY : public CoordSystem
 { mODTextTranslationClass(AnchorBasedXY);
 public:
-    mDefaultFactoryInstantiation( PositionSystem,AnchorBasedXY,"AnchorBased XY",
+    mDefaultFactoryInstantiation( CoordSystem,AnchorBasedXY,"AnchorBased XY",
 				 tr("Anchor Point Based XY") );
 
 			AnchorBasedXY();
 			AnchorBasedXY(const LatLong&,const Coord&);
-    virtual PositionSystem*	clone() const;
+    virtual CoordSystem*	clone() const;
     virtual uiString	description() const
 			{ return tr("Coordinate system has an anchor point "
 				    "for which Latitude/Longitude is known");}

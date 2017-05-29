@@ -27,7 +27,7 @@ bool LatLong::operator==( const LatLong& ll ) const
 
 
 Coord LatLong::transform( const LatLong& ll, bool towgs84,
-			  const Coords::PositionSystem* coordsys )
+			  const Coords::CoordSystem* coordsys )
 {
     if ( !coordsys )
 	coordsys = SI().getCoordSystem();
@@ -37,7 +37,7 @@ Coord LatLong::transform( const LatLong& ll, bool towgs84,
 
 
 LatLong LatLong::transform( const Coord& c, bool towgs84,
-			    const Coords::PositionSystem* coordsys )
+			    const Coords::CoordSystem* coordsys )
 {
     if ( !coordsys )
 	coordsys = SI().getCoordSystem();

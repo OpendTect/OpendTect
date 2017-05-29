@@ -230,7 +230,7 @@ class uiLatLong2CoordFileTransDlg : public uiDialog
 { mODTextTranslationClass(uiLatLong2CoordFileTransDlg)
 public:
 
-uiLatLong2CoordFileTransDlg( uiParent* p, ConstRefMan<PositionSystem> coordsys )
+uiLatLong2CoordFileTransDlg( uiParent* p, ConstRefMan<CoordSystem> coordsys )
     : uiDialog(p,Setup(tr("Transform file"),
 		       tr("Transform a file, Lat Long <=> X Y"),
 		       mODHelpKey(mLatLong2CoordFileTransDlgHelpID)))
@@ -302,7 +302,7 @@ bool acceptOK( CallBacker* )
     uiFileInput*	inpfld_;
     uiGenInput*		tollfld_;
     uiFileInput*	outfld_;
-    ConstRefMan<PositionSystem>  coordsys_;
+    ConstRefMan<CoordSystem>  coordsys_;
 
 };
 
@@ -376,14 +376,14 @@ bool uiLatLong2CoordDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
 
 
 uiUnlocatedXYSystem::uiUnlocatedXYSystem( uiParent* p )
-    : uiPositionSystem(p,sFactoryDisplayName())
+    : uiCoordSystem(p,sFactoryDisplayName())
 {
     xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
     xyinftfld_->setChecked( false );
 }
 
 
-bool uiUnlocatedXYSystem::initFields( const Coords::PositionSystem* sys )
+bool uiUnlocatedXYSystem::initFields( const Coords::CoordSystem* sys )
 {
     mDynamicCastGet( const Coords::UnlocatedXY*, from,	sys );
     if ( !from )
@@ -404,7 +404,7 @@ bool uiUnlocatedXYSystem::acceptOK()
 
 
 uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
-    : uiPositionSystem(p,sFactoryDisplayName())
+    : uiCoordSystem(p,sFactoryDisplayName())
 {
     helpkey_ = mODHelpKey(mLatLong2CoordDlgHelpID);
 
@@ -422,7 +422,7 @@ uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
 }
 
 
-bool uiAnchorBasedXYSystem::initFields( const Coords::PositionSystem* sys )
+bool uiAnchorBasedXYSystem::initFields( const Coords::CoordSystem* sys )
 {
     mDynamicCastGet( const Coords::AnchorBasedXY*, from, sys );
     if ( !from || !from->geographicTransformOK() )

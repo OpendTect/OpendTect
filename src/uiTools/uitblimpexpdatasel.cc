@@ -106,7 +106,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( tinf_.selection_.coordsys_
 	    && tinf_.selection_.coordsys_->isProjection() )
     {
-	crsfld_ = new Coords::uiPositionSystemSel(this, tr("Coordinate System"),
+	crsfld_ = new Coords::uiCoordSystemSel(this, tr("Coordinate System"),
 					true, true, tinf_.selection_.coordsys_);
 	crsfld_->attach( stretchedBelow, rightmostfld_ );
     }
@@ -356,7 +356,7 @@ bool commit()
     uiComboBox*				formfld_;
     uiComboBox*				specfld_;
     uiUnitSel*				unitfld_;
-    Coords::uiPositionSystemSel*	crsfld_;
+    Coords::uiCoordSystemSel*	crsfld_;
     ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;

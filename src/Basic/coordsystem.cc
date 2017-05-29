@@ -13,7 +13,7 @@
 static const double cAvgEarthRadius = 6367450;
 static const double latdist = cAvgEarthRadius*mDeg2RadD;
 
-mImplFactory( Coords::PositionSystem, Coords::PositionSystem::factory );
+mImplFactory( Coords::CoordSystem, Coords::CoordSystem::factory );
 
 using namespace Coords;
 
@@ -29,10 +29,10 @@ static void reloadRepository(CallBacker*)
     //Todo
 }
 
-PositionSystem::~PositionSystem()
+CoordSystem::~CoordSystem()
 {}
 
-bool PositionSystem::operator==( const PositionSystem& oth ) const
+bool CoordSystem::operator==( const CoordSystem& oth ) const
 {
     IOPar myiop; fillPar( myiop );
     IOPar othiop; oth.fillPar( othiop );
@@ -40,7 +40,7 @@ bool PositionSystem::operator==( const PositionSystem& oth ) const
 }
 
 
-void PositionSystem::initRepository( NotifierAccess* na )
+void CoordSystem::initRepository( NotifierAccess* na )
 {
     reloadRepository( 0 );
 
@@ -50,7 +50,7 @@ void PositionSystem::initRepository( NotifierAccess* na )
 }
 
 
-void PositionSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
+void CoordSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
 				uiStringSet& strings, ObjectSet<IOPar>& pars )
 {
     deepErase( pars );
@@ -71,7 +71,7 @@ void PositionSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
 
 	if ( orthogonalonly || projectiononly )
 	{
-	    RefMan<PositionSystem> system = createSystem( *systempar );
+	    RefMan<CoordSystem> system = createSystem( *systempar );
 	    if ( !system || ( orthogonalonly && !system->isOrthogonal() )
 		    || ( projectiononly && !system->isProjection() ) )
 		continue;
@@ -87,7 +87,7 @@ void PositionSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
     for ( int idx=0; idx<systemrepos.size(); idx++ )
     {
 	PtrMan<IOPar> systempar = new IOPar( *systemrepos[idx] );
-	RefMan<PositionSystem> system = createSystem( *systempar );
+	RefMan<CoordSystem> system = createSystem( *systempar );
 	if ( !system )
 	    continue;
 
@@ -106,13 +106,13 @@ void PositionSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
 }
 
 
-RefMan<PositionSystem> PositionSystem::createSystem( const IOPar& par )
+RefMan<CoordSystem> CoordSystem::createSystem( const IOPar& par )
 {
     BufferString factorykey;
     if ( !par.get( sKeyFactoryName(), factorykey ) )
 	return 0;
 
-    RefMan<PositionSystem> res = factory().create( factorykey );
+    RefMan<CoordSystem> res = factory().create( factorykey );
     if ( !res )
 	return 0;
 
@@ -123,8 +123,8 @@ RefMan<PositionSystem> PositionSystem::createSystem( const IOPar& par )
 }
 
 
-Coord PositionSystem::convert( const Coord& in, const PositionSystem& from,
-			       const PositionSystem& to )
+Coord CoordSystem::convert( const Coord& in, const CoordSystem& from,
+			       const CoordSystem& to )
 {
     const LatLong geomwgs84( LatLong::transform(in,true,&from) );
 
@@ -132,31 +132,31 @@ Coord PositionSystem::convert( const Coord& in, const PositionSystem& from,
 }
 
 
-Coord PositionSystem::convertFrom( const Coord& in,
-				   const PositionSystem& from ) const
+Coord CoordSystem::convertFrom( const Coord& in,
+				   const CoordSystem& from ) const
 { return convert( in, from, *this ); }
 
 
-bool PositionSystem::usePar( const IOPar& par )
+bool CoordSystem::usePar( const IOPar& par )
 {
     BufferString nm;
     return par.get( sKeyFactoryName(), nm ) && nm == factoryKeyword();
 }
 
 
-void PositionSystem::fillPar( IOPar& par ) const
+void CoordSystem::fillPar( IOPar& par ) const
 {
     par.set( sKeyFactoryName(), factoryKeyword() );
 }
 
 
-uiString PositionSystem::toUiString( const Coord& crd ) const
+uiString CoordSystem::toUiString( const Coord& crd ) const
 {
     return ::toUiString( toString(crd,false) );
 }
 
 
-BufferString PositionSystem::toString( const Coord& crd, bool withsystem ) const
+BufferString CoordSystem::toString( const Coord& crd, bool withsystem ) const
 {
     BufferString res;
     const char* space = " ";
@@ -170,7 +170,7 @@ BufferString PositionSystem::toString( const Coord& crd, bool withsystem ) const
 }
 
 
-Coord PositionSystem::fromString( const char* str ) const
+Coord CoordSystem::fromString( const char* str ) const
 {
     const SeparString sepstr( str, ' ' );
     const int nrparts = sepstr.size();
@@ -197,7 +197,7 @@ UnlocatedXY::UnlocatedXY()
 }
 
 
-PositionSystem* UnlocatedXY::clone() const
+CoordSystem* UnlocatedXY::clone() const
 {
     UnlocatedXY* cp = new UnlocatedXY;
     cp->isfeet_ = isfeet_;
@@ -221,7 +221,7 @@ static const char* sKeyIsFeet = "XY in Feet";
 
 bool UnlocatedXY::usePar( const IOPar& par )
 {
-    if ( !PositionSystem::usePar(par) )
+    if ( !CoordSystem::usePar(par) )
 	return false;
 
     par.getYN( sKeyIsFeet, isfeet_ );
@@ -231,7 +231,7 @@ bool UnlocatedXY::usePar( const IOPar& par )
 
 void UnlocatedXY::fillPar( IOPar& par ) const
 {
-    PositionSystem::fillPar( par );
+    CoordSystem::fillPar( par );
     par.setYN( sKeyIsFeet, isfeet_ );
 }
 
@@ -248,7 +248,7 @@ AnchorBasedXY::AnchorBasedXY( const LatLong& l, const Coord& c )
 }
 
 
-PositionSystem* AnchorBasedXY::clone() const
+CoordSystem* AnchorBasedXY::clone() const
 {
     AnchorBasedXY* cp = new AnchorBasedXY( reflatlng_, refcoord_ );
     cp->isfeet_ = isfeet_;
@@ -312,7 +312,7 @@ static const char* sKeyRefCoord = "Reference Coordinate";
 
 bool AnchorBasedXY::usePar( const IOPar& par )
 {
-    if ( !PositionSystem::usePar(par) )
+    if ( !CoordSystem::usePar(par) )
 	return false;
 
     Coord crd;
@@ -331,7 +331,7 @@ bool AnchorBasedXY::usePar( const IOPar& par )
 
 void AnchorBasedXY::fillPar( IOPar& par ) const
 {
-    PositionSystem::fillPar( par );
+    CoordSystem::fillPar( par );
     par.setYN( sKeyIsFeet, isfeet_ );
     par.set( sKeyRefLatLong, reflatlng_.lat_, reflatlng_.lng_);
     par.set( sKeyRefCoord, refcoord_ );

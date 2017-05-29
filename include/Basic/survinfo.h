@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 class ascostream;
 class LatLong2Coord;
-namespace Coords { class PositionSystem; }
+namespace Coords { class CoordSystem; }
 
 
 
@@ -137,8 +137,8 @@ public:
     void		putZDomain(IOPar&) const;
 
     RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
-    RefMan<Coords::PositionSystem>	getCoordSystem();
-    ConstRefMan<Coords::PositionSystem> getCoordSystem() const;
+    RefMan<Coords::CoordSystem>	getCoordSystem();
+    ConstRefMan<Coords::CoordSystem> getCoordSystem() const;
 
     enum Pol2D	{ No2D=0, Both2DAnd3D=1, Only2D=2 };
 
@@ -159,7 +159,7 @@ protected:
     TrcKeyZSampling&	wcs_;
     float		seisrefdatum_;
     IOPar&		pars_;
-    RefMan<Coords::PositionSystem> coordsystem_;
+    RefMan<Coords::CoordSystem> coordsystem_;
 
     mutable Threads::AtomicPointer<Survey::Geometry3D>	s3dgeom_;
     mutable Threads::AtomicPointer<Survey::Geometry3D>	work_s3dgeom_;
@@ -274,7 +274,7 @@ public:
     void		setRange(const TrcKeyZSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
-    bool		setCoordSystem(Coords::PositionSystem*);
+    bool		setCoordSystem(Coords::CoordSystem*);
     void		readSavedCoordSystem() const;
 			//!< Useful after loading plugins.
 

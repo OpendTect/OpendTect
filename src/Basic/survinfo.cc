@@ -543,7 +543,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	coordsyssubpar = si->pars().subselect( sKeyCoordinateSystem );
     if ( coordsyssubpar )
 	si->coordsystem_ =
-		Coords::PositionSystem::createSystem( *coordsyssubpar );
+		Coords::CoordSystem::createSystem( *coordsyssubpar );
 
     if ( !si->coordsystem_ )
     {
@@ -1244,15 +1244,15 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
 }
 
 
-RefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem()
+RefMan<Coords::CoordSystem> SurveyInfo::getCoordSystem()
 {
     return coordsystem_;
 }
 
 
-ConstRefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem() const
+ConstRefMan<Coords::CoordSystem> SurveyInfo::getCoordSystem() const
 {
-    return ConstRefMan<Coords::PositionSystem>( coordsystem_.ptr() );
+    return ConstRefMan<Coords::CoordSystem>( coordsystem_.ptr() );
 }
 
 
@@ -1262,7 +1262,7 @@ bool SurveyInfo::xyInFeet() const
 }
 
 
-bool SurveyInfo::setCoordSystem( Coords::PositionSystem* system )
+bool SurveyInfo::setCoordSystem( Coords::CoordSystem* system )
 {
     if ( system && !system->isOrthogonal() )
 	return false;
@@ -1289,7 +1289,7 @@ void SurveyInfo::readSavedCoordSystem() const
     PtrMan<IOPar> coordsystempar = survpar.subselect( sKeyCoordinateSystem );
     if ( coordsystempar )
 	const_cast<SurveyInfo*>(this)->coordsystem_ =
-		Coords::PositionSystem::createSystem( *coordsystempar );
+		Coords::CoordSystem::createSystem( *coordsystempar );
 
     sfio.closeSuccess();
 }

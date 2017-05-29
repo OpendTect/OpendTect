@@ -21,16 +21,16 @@ class uiLatLongInp;
 namespace Coords
 {
 
-mExpClass(uiIo) uiUnlocatedXYSystem : public uiPositionSystem
+mExpClass(uiIo) uiUnlocatedXYSystem : public uiCoordSystem
 { mODTextTranslationClass(uiUnlocatedXYSystem);
 public:
-    mDefaultFactoryInstantiation1Param( uiPositionSystem, uiUnlocatedXYSystem,
+    mDefaultFactoryInstantiation1Param( uiCoordSystem, uiUnlocatedXYSystem,
 			       uiParent*, UnlocatedXY::sFactoryKeyword(),
 			       UnlocatedXY::sFactoryDisplayName() );
 
 			uiUnlocatedXYSystem(uiParent*);
 
-    virtual bool	initFields(const PositionSystem*);
+    virtual bool	initFields(const CoordSystem*);
 
 protected:
 
@@ -41,16 +41,16 @@ protected:
 };
 
 
-mExpClass(uiIo) uiAnchorBasedXYSystem : public uiPositionSystem
+mExpClass(uiIo) uiAnchorBasedXYSystem : public uiCoordSystem
 { mODTextTranslationClass(uiAnchorBasedXYSystem);
 public:
-    mDefaultFactoryInstantiation1Param( uiPositionSystem, uiAnchorBasedXYSystem,
+    mDefaultFactoryInstantiation1Param( uiCoordSystem, uiAnchorBasedXYSystem,
 			       uiParent*, AnchorBasedXY::sFactoryKeyword(),
 			       AnchorBasedXY::sFactoryDisplayName() );
 
 			uiAnchorBasedXYSystem(uiParent*);
 
-    virtual bool	initFields(const PositionSystem*);
+    virtual bool	initFields(const CoordSystem*);
 
 protected:
 

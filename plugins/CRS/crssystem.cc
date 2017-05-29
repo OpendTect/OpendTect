@@ -22,7 +22,7 @@ Coords::ProjectionBasedSystem::ProjectionBasedSystem( AuthorityCode code )
 }
 
 
-Coords::PositionSystem* Coords::ProjectionBasedSystem::clone() const
+Coords::CoordSystem* Coords::ProjectionBasedSystem::clone() const
 {
     Coords::ProjectionBasedSystem* cp = new Coords::ProjectionBasedSystem;
     cp->proj_ = proj_;
@@ -78,7 +78,7 @@ bool Coords::ProjectionBasedSystem::isMeter() const
 
 bool Coords::ProjectionBasedSystem::usePar( const IOPar& par )
 {
-    if ( !PositionSystem::usePar(par) )
+    if ( !CoordSystem::usePar(par) )
 	return false;
 
     BufferString authcodestr;
@@ -91,7 +91,7 @@ bool Coords::ProjectionBasedSystem::usePar( const IOPar& par )
 
 void Coords::ProjectionBasedSystem::fillPar( IOPar& par ) const
 {
-    PositionSystem::fillPar( par );
+    CoordSystem::fillPar( par );
     if ( proj_ )
 	par.set( sKeyProjectionID, proj_->authCode().toString() );
 }

@@ -25,7 +25,7 @@ class uiGenInput;
 class uiGroup;
 class uiPushButton;
 class uiSurvInfoProvider;
-namespace Coords { class PositionSystem; }
+namespace Coords { class CoordSystem; }
 
 /*!
 \brief The survey info editor.
@@ -65,7 +65,7 @@ protected:
     ObjectSet<uiSurvInfoProvider> sips_;
     uiSurvInfoProvider*	lastsip_;
 
-    RefMan<Coords::PositionSystem>	coordsystem_;
+    RefMan<Coords::CoordSystem>	coordsystem_;
 
     uiGenInput*		survnmfld_;
     uiGenInput*		pathfld_;

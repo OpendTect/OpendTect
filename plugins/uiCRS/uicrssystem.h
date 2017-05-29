@@ -24,10 +24,10 @@ namespace Coords
 
 class uiConvertGeographicPos;
 
-mExpClass(uiCRS) uiProjectionBasedSystem : public uiPositionSystem
+mExpClass(uiCRS) uiProjectionBasedSystem : public uiCoordSystem
 { mODTextTranslationClass(uiProjectionBasedSystem);
 public:
-    mDefaultFactoryInstantiation1Param( uiPositionSystem,
+    mDefaultFactoryInstantiation1Param( uiCoordSystem,
 				uiProjectionBasedSystem, uiParent*,
 				ProjectionBasedSystem::sFactoryKeyword(),
 				ProjectionBasedSystem::sFactoryDisplayName() );
@@ -35,7 +35,7 @@ public:
 			uiProjectionBasedSystem(uiParent*);
 			~uiProjectionBasedSystem();
 
-    virtual bool	initFields(const PositionSystem*);
+    virtual bool	initFields(const CoordSystem*);
 
 protected:
 
@@ -68,14 +68,14 @@ mExpClass(uiCRS) uiConvertGeographicPos : public uiDialog
 
 public:
                         uiConvertGeographicPos(uiParent*,
-					ConstRefMan<PositionSystem>,
+					ConstRefMan<CoordSystem>,
 					const Coord& initialpos);
 
-    void		setCoordSystem(ConstRefMan<PositionSystem>);
+    void		setCoordSystem(ConstRefMan<CoordSystem>);
 
 private:
 
-    ConstRefMan<PositionSystem>	coordsystem_;
+    ConstRefMan<CoordSystem>	coordsystem_;
 
     uiGenInput*		ismanfld_;
     uiGroup*		mangrp_;

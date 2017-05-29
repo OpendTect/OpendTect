@@ -225,7 +225,7 @@ void TargetInfo::usePar( const IOPar& iopar )
     PtrMan<IOPar> crspar =
 		iopar.subselect( IOPar::compKey(nm,sKeyCoordinateSystem) );
     if ( crspar )
-	selection_.coordsys_ = Coords::PositionSystem::createSystem( *crspar );
+	selection_.coordsys_ = Coords::CoordSystem::createSystem( *crspar );
 
     const char* res = iopar.find( IOPar::compKey("Selection",nm) );
     if ( !res || !*res )

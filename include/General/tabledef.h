@@ -166,7 +166,7 @@ public:
 	int			form_;
 	TypeSet<Elem>		elems_;
 	const UnitOfMeasure*	unit_;
-	ConstRefMan<Coords::PositionSystem>	coordsys_;
+	ConstRefMan<Coords::CoordSystem>	coordsys_;
 
 			Selection()
 			    	: form_(0), unit_(0), coordsys_(0)	{}

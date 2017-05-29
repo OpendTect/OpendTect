@@ -105,7 +105,7 @@ uiGoogleIOMgr::~uiGoogleIOMgr()
 }
 
 #define mEnsureTransformOK(p,si) \
-    Coords::uiPositionSystemDlg::ensureGeographicTransformOK(p,si)
+    Coords::uiCoordSystemDlg::ensureGeographicTransformOK(p,si)
 
 void uiGoogleIOMgr::exportSurv( CallBacker* cb )
 {

@@ -767,8 +767,8 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     IOPar& pars = si_.getPars();
     sip->fillPar( pars );
     PtrMan<IOPar> crspar = sip->getCoordSystemPars();
-    RefMan<Coords::PositionSystem> coordsys =
-		crspar ? Coords::PositionSystem::createSystem( *crspar ) : 0;
+    RefMan<Coords::CoordSystem> coordsys =
+		crspar ? Coords::CoordSystem::createSystem( *crspar ) : 0;
     
     if ( !coordsys )
     {
@@ -880,7 +880,7 @@ bool uiSurveyInfoEditor::xyInFeet() const
 
 void uiSurveyInfoEditor::coordSystemCB( CallBacker* cb )
 {
-    Coords::uiPositionSystemDlg dlg( this, true, false, &si_, coordsystem_ );
+    Coords::uiCoordSystemDlg dlg( this, true, false, &si_, coordsystem_ );
     if ( dlg.go() )
 	coordsystem_ = dlg.getCoordSystem();
 }
