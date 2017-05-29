@@ -37,7 +37,7 @@ Interval<float> A2DBitMapInpData::scale( const A2DBitMapClips& clipratio ) const
 void A2DBitMapInpData::determineMidVal()
 {
     const LargeValVec<float>& statpts = clipper_.statPts();
-    const int nrpts = statpts.size();
+    const od_int64 nrpts = statpts.size();
     if ( nrpts < 3 )
     {
 	if ( nrpts < 1 )
@@ -52,7 +52,7 @@ void A2DBitMapInpData::determineMidVal()
     midval_ = statpts[nrpts/2]; // using median value
     // but, if we are near zero, users expect 0 as true mid in those cases
 
-    const int n10pct = nrpts / 10;
+    const od_int64 n10pct = nrpts / 10;
     const Interval<float> tstrg( statpts[n10pct], statpts[nrpts-n10pct] );
     if ( tstrg.start >= 0.f || tstrg.stop <= 0.f )
 	return;
