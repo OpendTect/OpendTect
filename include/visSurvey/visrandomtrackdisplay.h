@@ -158,6 +158,9 @@ public:
 
     bool			canBDispOn2DViewer() const	{ return true; }
     void			setSceneEventCatcher(visBase::EventCatcher*);
+    visBase::TexturePanelStrip* getTexturePanelStrip() const
+				{ return panelstrip_; }
+    const char*			getRandomLineName() const;
 
 
     Notifier<RandomTrackDisplay> moving_;

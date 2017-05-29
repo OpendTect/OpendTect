@@ -201,6 +201,12 @@ RandomTrackDisplay::~RandomTrackDisplay()
 }
 
 
+const char* RandomTrackDisplay::getRandomLineName() const
+{
+    return mFromUiStringTodo(name()).buf();
+}
+
+
 void RandomTrackDisplay::setRandomLineID( int rlid )
 {
     if ( rl_ )
