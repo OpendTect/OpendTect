@@ -101,7 +101,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
     display_->setZValue( zvalue_ );
 
-    if ( x1rg_ || x2rg_ )
+    if ( x1rg_ || x2rg_ || fitnameinview_ )
     {
 	viewer_->viewChanged.notifyIfNotNotified(
 	    mCB(this,uiAuxDataDisplay,updateTransformCB) );
@@ -248,20 +248,46 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
     double xpos = 0, ypos = 0, xscale = 1, yscale = 1;
     const uiWorldRect& curview = viewer_->curView();
 
-    if ( x1rg_ )
+    if ( fitnameinview_ && nameitem_ )
     {
-	xscale = curview.width()/x1rg_->width();
-	xpos = curview.left()-xscale*x1rg_->start;
+	int listpos = namepos_;
+	if ( listpos < 0 ) listpos=0;
+	if ( listpos > poly_.size() ) listpos = poly_.size()-1;
+	FlatView::Point modnamepos = poly_[listpos];
+
+	Interval<float> vwrxrg;
+	vwrxrg.start = mCast(float,curview.topLeft().x);
+	vwrxrg.stop = mCast(float,curview.bottomRight().x);
+	Interval<float> vwryrg;
+	vwryrg.start = mCast(float,curview.topLeft().y);
+	vwryrg.stop = mCast(float,curview.bottomRight().y);
+
+	Geom::Point2D<double> pt(display_->getUiItem(listpos)->getPos().x,
+				    display_->getUiItem(listpos)->getPos().y);
+
+	bool isitminxview = vwrxrg.includes(pt.x,true);
+	bool isitminyview = vwryrg.includes(pt.y,true);
+
+	if ( isitminxview || isitminyview  )
+	    modnamepos = curview.moveInside( modnamepos );
+	nameitem_->setPos( modnamepos );
     }
 
-    if ( x2rg_ )
+    if ( x1rg_ || x2rg_ )
     {
-	yscale = curview.height()/x2rg_->width();
-	ypos = curview.top()-yscale*x2rg_->start;
+	if ( x1rg_ )
+	{
+	    xscale = curview.width()/x1rg_->width();
+	    xpos = curview.left()-xscale*x1rg_->start;
+	}
+	if( x2rg_ )
+	{
+	    yscale = curview.height()/x2rg_->width();
+	    ypos = curview.top()-yscale*x2rg_->start;
+	}
+	display_->setPos( (float) xpos, (float) ypos );
+	display_->setScale( (float) xscale, (float) yscale );
     }
-
-    display_->setPos( (float) xpos, (float) ypos );
-    display_->setScale( (float) xscale, (float) yscale );
 }
 
 
