@@ -26,11 +26,11 @@ ________________________________________________________________________
 
 using namespace Coords;
 
-mImplFactory1Param( uiPositionSystem, uiParent*,
-		    uiPositionSystem::factory );
+mImplFactory1Param( uiCoordSystem, uiParent*,
+		    uiCoordSystem::factory );
 
 
-uiPositionSystem::uiPositionSystem( uiParent* p, const uiString& caption )
+uiCoordSystem::uiCoordSystem( uiParent* p, const uiString& caption )
     : uiDlgGroup( p, caption )
     , si_( 0 )
 {}
@@ -203,14 +203,14 @@ void uiLatLongInp::set( const LatLong& ll, int opt )
 
 
 uiUnlocatedXYSystem::uiUnlocatedXYSystem( uiParent* p )
-    : uiPositionSystem( p,sFactoryDisplayName() )
+    : uiCoordSystem( p,sFactoryDisplayName() )
 {
     xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
     xyinftfld_->setChecked( false );
 }
 
 
-bool uiUnlocatedXYSystem::initFields( const Coords::PositionSystem* sys )
+bool uiUnlocatedXYSystem::initFields( const Coords::CoordSystem* sys )
 {
     mDynamicCastGet( const Coords::UnlocatedXY*, from,	sys );
     if ( !from )
@@ -231,7 +231,7 @@ bool uiUnlocatedXYSystem::acceptOK()
 
 
 uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
-    : uiPositionSystem( p,sFactoryDisplayName() )
+    : uiCoordSystem( p,sFactoryDisplayName() )
 {
     helpkey_ = mODHelpKey(mLatLong2CoordDlgHelpID);
 
@@ -250,7 +250,7 @@ uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
 }
 
 
-bool uiAnchorBasedXYSystem::initFields( const Coords::PositionSystem* sys )
+bool uiAnchorBasedXYSystem::initFields( const Coords::CoordSystem* sys )
 {
     mDynamicCastGet( const Coords::AnchorBasedXY*, from, sys );
     if ( !from || !from->geographicTransformOK() )
@@ -297,16 +297,16 @@ bool uiAnchorBasedXYSystem::acceptOK()
 
     return true;
 }
-uiPositionSystemSelGrp::uiPositionSystemSelGrp( uiParent* p,
+uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 					      bool onlyorthogonal,
 					      bool projectiononly,
 					      const SurveyInfo* si,
-					      const PositionSystem* fillfrom )
+					      const CoordSystem* fillfrom )
     : uiDlgGroup( p, tr("Coordinate system properties") )
     , si_(si ? si : &SI())
 {
     uiStringSet names;
-    PositionSystem::getSystemNames( onlyorthogonal, projectiononly,
+    CoordSystem::getSystemNames( onlyorthogonal, projectiononly,
 				    names, coordsystempars_ );
 
     coordsystemsuis_.allowNull();
@@ -314,7 +314,7 @@ uiPositionSystemSelGrp::uiPositionSystemSelGrp( uiParent* p,
     for ( int idx=0; idx<coordsystempars_.size(); idx++ )
     {
 	BufferString key;
-	if ( !coordsystempars_[idx]->get( PositionSystem::sKeyFactoryName(),
+	if ( !coordsystempars_[idx]->get( CoordSystem::sKeyFactoryName(),
 					  key ) )
 	{
 	    coordsystempars_.removeSingle( idx );
@@ -323,8 +323,8 @@ uiPositionSystemSelGrp::uiPositionSystemSelGrp( uiParent* p,
 	    continue;
 	}
 
-	uiPositionSystem* systemui =
-		uiPositionSystem::factory().create( key, this );
+	uiCoordSystem* systemui =
+		uiCoordSystem::factory().create( key, this );
 
 	coordsystemsuis_ += systemui;
 
@@ -345,7 +345,7 @@ uiPositionSystemSelGrp::uiPositionSystemSelGrp( uiParent* p,
 				      StringListInpSpec(names) );
 	coordsystemsel_->attach( leftBorder );
 	mAttachCB( coordsystemsel_->valuechanged,
-	       uiPositionSystemSelGrp::systemChangedCB);
+	       uiCoordSystemSelGrp::systemChangedCB);
     }
     else
     {
@@ -371,12 +371,12 @@ uiPositionSystemSelGrp::uiPositionSystemSelGrp( uiParent* p,
 }
 
 
-uiPositionSystemSelGrp::~uiPositionSystemSelGrp()
+uiCoordSystemSelGrp::~uiCoordSystemSelGrp()
 {
 
 }
 
-void uiPositionSystemSelGrp::systemChangedCB(CallBacker *)
+void uiCoordSystemSelGrp::systemChangedCB(CallBacker *)
 {
     const int selidx = coordsystemsel_ ? coordsystemsel_->getIntValue() : 0;
 
@@ -388,7 +388,7 @@ void uiPositionSystemSelGrp::systemChangedCB(CallBacker *)
 }
 
 
-bool uiPositionSystemSelGrp::acceptOK()
+bool uiCoordSystemSelGrp::acceptOK()
 {
     outputsystem_ = 0;
 
@@ -405,7 +405,7 @@ bool uiPositionSystemSelGrp::acceptOK()
     {
 	BufferString key;
 	coordsystempars_[selidx]->get( sKey::Name(), key );
-	outputsystem_ = PositionSystem::factory().create( key );
+	outputsystem_ = CoordSystem::factory().create( key );
 	if ( !outputsystem_->usePar(*coordsystempars_[selidx]) )
 	{
 	    outputsystem_ = 0;
@@ -416,22 +416,22 @@ bool uiPositionSystemSelGrp::acceptOK()
 }
 
 
-uiPositionSystemDlg::uiPositionSystemDlg( uiParent* p, bool orthogonalonly,
-			bool projectiononly, const PositionSystem* coordsys )
+uiCoordSystemDlg::uiCoordSystemDlg( uiParent* p, bool orthogonalonly,
+			bool projectiononly, const CoordSystem* coordsys )
     : uiDialog(p,uiDialog::Setup(tr("Coordinate Reference System"),mNoDlgTitle,
 				 mODHelpKey(mLatLong2CoordDlgHelpID) ))
 {
-    coordsysselfld_ = new Coords::uiPositionSystemSelGrp( this, orthogonalonly,
+    coordsysselfld_ = new Coords::uiCoordSystemSelGrp( this, orthogonalonly,
 						projectiononly, 0, coordsys );
 }
 
 
-uiPositionSystemDlg::~uiPositionSystemDlg()
+uiCoordSystemDlg::~uiCoordSystemDlg()
 {
 }
 
 
-RefMan<PositionSystem> uiPositionSystemDlg::getCoordSystem()
+RefMan<CoordSystem> uiCoordSystemDlg::getCoordSystem()
 {
     if ( !coordsysselfld_->outputSystem() )
 	coordsysselfld_->acceptOK();
@@ -440,7 +440,7 @@ RefMan<PositionSystem> uiPositionSystemDlg::getCoordSystem()
 }
 
 
-bool uiPositionSystemDlg::acceptOK()
+bool uiCoordSystemDlg::acceptOK()
 {
     if ( !getCoordSystem() )
 	return false;
@@ -449,13 +449,13 @@ bool uiPositionSystemDlg::acceptOK()
 }
 
 
-bool uiPositionSystemDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
+bool uiCoordSystemDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
 {
     if ( !si ) si = const_cast<SurveyInfo*>( &SI() );
     if ( si->getCoordSystem() && si->getCoordSystem()->geographicTransformOK() )
 	return true;
 
-    uiPositionSystemDlg dlg( p, true, false, si->getCoordSystem() );
+    uiCoordSystemDlg dlg( p, true, false, si->getCoordSystem() );
     if ( !dlg.go() || !dlg.getCoordSystem()
 	    || !dlg.getCoordSystem()->geographicTransformOK() )
 	return false;
@@ -465,9 +465,9 @@ bool uiPositionSystemDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
 }
 
 
-uiPositionSystemSel::uiPositionSystemSel( uiParent* p, const uiString& seltxt,
+uiCoordSystemSel::uiCoordSystemSel( uiParent* p, const uiString& seltxt,
 				bool orthogonalonly, bool projectiononly,
-				const PositionSystem* coordsys )
+				const CoordSystem* coordsys )
     : uiCompoundParSel(p,seltxt)
     , orthogonalonly_(orthogonalonly), projectiononly_(projectiononly)
     , dlg_(0)
@@ -476,14 +476,14 @@ uiPositionSystemSel::uiPositionSystemSel( uiParent* p, const uiString& seltxt,
 	coordsystem_ = coordsys->clone();
 
     txtfld_->setElemSzPol( uiObject::Wide );
-    butPush.notify( mCB(this,uiPositionSystemSel,selCB) );
+    butPush.notify( mCB(this,uiCoordSystemSel,selCB) );
 }
 
 
-void uiPositionSystemSel::selCB( CallBacker* )
+void uiCoordSystemSel::selCB( CallBacker* )
 {
     if ( !dlg_ )
-	dlg_ = new uiPositionSystemDlg( this, orthogonalonly_, projectiononly_,
+	dlg_ = new uiCoordSystemDlg( this, orthogonalonly_, projectiononly_,
 					coordsystem_ );
 
     if ( dlg_->go() )
@@ -494,7 +494,7 @@ void uiPositionSystemSel::selCB( CallBacker* )
 }
 
 
-BufferString uiPositionSystemSel::getSummary() const
+BufferString uiCoordSystemSel::getSummary() const
 {
     if ( !coordsystem_ )
 	return BufferString::empty();

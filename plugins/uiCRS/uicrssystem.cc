@@ -34,7 +34,7 @@ static AuthorityCode cDefProjID()
 { return AuthorityCode( sKeyEPSG(), ProjectionID::get(32631) ); }
 
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
-    : uiPositionSystem( p,sFactoryDisplayName() )
+    : uiCoordSystem( p,sFactoryDisplayName() )
     , curselidx_(-1)
     , convdlg_(0)
 {
@@ -75,7 +75,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
 uiProjectionBasedSystem::~uiProjectionBasedSystem()
 { delete convdlg_; }
 
-bool uiProjectionBasedSystem::initFields( const Coords::PositionSystem* sys )
+bool uiProjectionBasedSystem::initFields( const Coords::CoordSystem* sys )
 {
     mDynamicCastGet( const Coords::ProjectionBasedSystem*, from, sys );
     if ( !from || !from->isOK() )
@@ -252,7 +252,7 @@ static BufferString lastinpfile;
 static BufferString lastoutfile;
 
 uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
-				ConstRefMan<Coords::PositionSystem> coordsystem,
+				ConstRefMan<Coords::CoordSystem> coordsystem,
 				const Coord& initialpos )
 	: uiDialog(p, uiDialog::Setup(tr("Convert Geographical Positions"),
 		   mNoDlgTitle, mODHelpKey(mConvertPosHelpID)).modal(false))
@@ -328,7 +328,7 @@ void uiConvertGeographicPos::finaliseCB( CallBacker* )
 
 
 void uiConvertGeographicPos::setCoordSystem(
-				ConstRefMan<Coords::PositionSystem> newsys )
+				ConstRefMan<Coords::CoordSystem> newsys )
 {
     coordsystem_ = newsys;
     applyCB(0);

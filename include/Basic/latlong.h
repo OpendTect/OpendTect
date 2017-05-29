@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "coord.h"
 
-namespace Coords { class PositionSystem; }
+namespace Coords { class CoordSystem; }
 
 
 /*!
@@ -40,9 +40,9 @@ public:
     static LatLong	udf() { return LatLong(mUdf(double),mUdf(double)); }
 
     static Coord	transform(const LatLong&,bool towgs84=false,
-				  const Coords::PositionSystem* si=0);
+				  const Coords::CoordSystem* si=0);
     static LatLong	transform(const Coord&,bool towgs84=false,
-				  const Coords::PositionSystem* si=0);
+				  const Coords::CoordSystem* si=0);
 
     const char*		toString() const;
     bool		fromString(const char*);

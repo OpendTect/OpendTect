@@ -75,7 +75,7 @@ static const Coord wgs72xy[] =	{ Coord(468160.7972588778,5698137.987990135),
 
 
 static bool testCoordToLatLong( const Coord& pos, const LatLong& ll,
-				const Coords::PositionSystem& pbs )
+				const Coords::CoordSystem& pbs )
 {
     mRunTest( ll == LatLong::transform(pos,false,&pbs) );
     return true;
@@ -83,7 +83,7 @@ static bool testCoordToLatLong( const Coord& pos, const LatLong& ll,
 
 
 static bool testLatLongToCoord( const LatLong& ll, const Coord& pos,
-				const Coords::PositionSystem& pbs, bool wgs84 )
+				const Coords::CoordSystem& pbs, bool wgs84 )
 {
     mRunTest( mIsEqual(LatLong::transform(ll,wgs84,&pbs),pos,mDefEpsCoord) )
     return true;
@@ -130,12 +130,12 @@ static bool testTransfer()
     for ( int idx=0; idx<sz; idx++ )
     {
 	mRunTest( mIsEqual(ed50towgs84xy[idx],
-		  Coords::PositionSystem::convert(ed50xy[idx],ed50pbs,wgs84pbs),
+		  Coords::CoordSystem::convert(ed50xy[idx],ed50pbs,wgs84pbs),
 		  mDefEpsCoord) );
 	mRunTest( mIsEqual(ed50towgs84xy[idx],
 		  wgs84pbs.convertFrom(ed50xy[idx],ed50pbs),mDefEpsCoord) );
 	mRunTest( mIsEqual(wgs72xy[idx],
-		  Coords::PositionSystem::convert(ed50xy[idx],ed50pbs,wgs72pbs),
+		  Coords::CoordSystem::convert(ed50xy[idx],ed50pbs,wgs72pbs),
 		  mDefEpsCoord) );
 	mRunTest( mIsEqual(wgs72xy[idx],
 		  wgs72pbs.convertFrom(ed50xy[idx],ed50pbs),mDefEpsCoord) );

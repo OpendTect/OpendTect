@@ -80,5 +80,5 @@ GeneralModuleIniter::GeneralModuleIniter()
     DBM().initFirst(); //Trigger creation & reading of geometries
 
     //After DBM is created
-    Coords::PositionSystem::initRepository( &DBM().afterSurveyChange );
+    Coords::CoordSystem::initRepository( &DBM().afterSurveyChange );
 }

@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "zdomain.h"
 
-namespace Coords { class PositionSystem; }
+namespace Coords { class CoordSystem; }
 namespace Survey { class Geometry3D; }
 
 
@@ -135,8 +135,8 @@ public:
 			//!< std creation entries and some SIP stuff
 
     RefMan<Survey::Geometry3D>		get3DGeometry(bool work) const;
-    RefMan<Coords::PositionSystem>	getCoordSystem();
-    ConstRefMan<Coords::PositionSystem> getCoordSystem() const;
+    RefMan<Coords::CoordSystem>	getCoordSystem();
+    ConstRefMan<Coords::CoordSystem> getCoordSystem() const;
 
     enum Pol2D		{ No2D=0, Both2DAnd3D=1, Only2D=2 };
 			mDeclareEnumUtils(Pol2D);
@@ -177,7 +177,7 @@ protected:
     TrcKeyZSampling&	workcs_;
     float		seisrefdatum_;
     IOPar		defpars_;
-    RefMan<Coords::PositionSystem> coordsystem_;
+    RefMan<Coords::CoordSystem> coordsystem_;
 
     Survey::Geometry3D*	s3dgeom_;
     Survey::Geometry3D*	work_s3dgeom_;
@@ -263,7 +263,7 @@ public:
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     const uiString	set3PtsUiMsg(const Coord c[3],const BinID b[2],int);
     void		gen3Pts();
-    bool		setCoordSystem(Coords::PositionSystem*);
+    bool		setCoordSystem(Coords::CoordSystem*);
     void		readSavedCoordSystem() const;
 			//!< Useful after loading plugins.
 

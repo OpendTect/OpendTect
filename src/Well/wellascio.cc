@@ -58,9 +58,9 @@ bool Well::TrackAscIO::readTrackData( TypeSet<Coord3>& pos,
 	return false;
 
     const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
-    ConstRefMan<Coords::PositionSystem> inpcrs =
+    ConstRefMan<Coords::CoordSystem> inpcrs =
 				fd_.bodyinfos_[0]->selection_.coordsys_;
-    ConstRefMan<Coords::PositionSystem> outcrs = SI().getCoordSystem();
+    ConstRefMan<Coords::CoordSystem> outcrs = SI().getCoordSystem();
     const bool needsconv = isxy && inpcrs && outcrs && !(*inpcrs == *outcrs);
     const uiString nozpts = tr("At least one point had neither Z nor MD");
     bool nozptsfound = false;

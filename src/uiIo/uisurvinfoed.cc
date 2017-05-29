@@ -457,7 +457,7 @@ void uiSurveyInfoEditor::mkLatLongGrp()
 {
     latlonggrp_ = new uiGroup( tabs_->tabGroup(), "Coordinate System" );
     uiLabel* emptyspace = new uiLabel( latlonggrp_, uiStrings::sEmptyString() );
-    latlongsel_ = new Coords::uiPositionSystemSelGrp( latlonggrp_, true, false,
+    latlongsel_ = new Coords::uiCoordSystemSelGrp( latlonggrp_, true, false,
 	    					&si_, si_.getCoordSystem() );
     latlongsel_->attach( alignedBelow, emptyspace );
     tabs_->addTab( latlonggrp_ );

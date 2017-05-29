@@ -24,14 +24,14 @@ class uiCheckBox;
 namespace Coords
 {
 
-mExpClass(uiTools) uiPositionSystem : public uiDlgGroup
+mExpClass(uiTools) uiCoordSystem : public uiDlgGroup
 {
 public:
-    mDefineFactory1ParamInClass(uiPositionSystem,uiParent*,factory);
+    mDefineFactory1ParamInClass(uiCoordSystem,uiParent*,factory);
 
-    virtual bool		initFields(const PositionSystem*)= 0;
+    virtual bool		initFields(const CoordSystem*)= 0;
 
-    RefMan<PositionSystem>	outputSystem() { return outputsystem_; }
+    RefMan<CoordSystem>	outputSystem() { return outputsystem_; }
 				//!<After AcceptOK();
 
     virtual HelpKey		helpKey() const { return helpkey_; }
@@ -40,23 +40,23 @@ public:
 				{ si_ = si; }
 
 protected:
-				uiPositionSystem(uiParent*,const uiString&);
-    RefMan<PositionSystem>	outputsystem_;
+				uiCoordSystem(uiParent*,const uiString&);
+    RefMan<CoordSystem>	outputsystem_;
     HelpKey			helpkey_;
     const SurveyInfo*		si_;
 };
 
 
-mExpClass(uiTools) uiPositionSystemSelGrp : public uiDlgGroup
-{ mODTextTranslationClass(uiPositionSystemSel);
+mExpClass(uiTools) uiCoordSystemSelGrp : public uiDlgGroup
+{ mODTextTranslationClass(uiCoordSystemSel);
 public:
-				uiPositionSystemSelGrp(uiParent*,
+				uiCoordSystemSelGrp(uiParent*,
 						bool onlyorthogonal,
 						bool onlyprojection,
 						const SurveyInfo*,
-						const Coords::PositionSystem*);
-				~uiPositionSystemSelGrp();
-    RefMan<PositionSystem>	outputSystem() { return outputsystem_; }
+						const Coords::CoordSystem*);
+				~uiCoordSystemSelGrp();
+    RefMan<CoordSystem>	outputSystem() { return outputsystem_; }
 				//!<After AcceptOK();
     bool			acceptOK();
 
@@ -66,48 +66,48 @@ private:
 
     uiGenInput*			coordsystemsel_;
     uiLabel*			coordsystemdesc_;
-    ObjectSet<uiPositionSystem> coordsystemsuis_;
+    ObjectSet<uiCoordSystem> coordsystemsuis_;
     ManagedObjectSet<IOPar>	coordsystempars_;
     const SurveyInfo*		si_;
 
-    RefMan<PositionSystem>	outputsystem_;
+    RefMan<CoordSystem>	outputsystem_;
 };
 
 
-mExpClass(uiTools) uiPositionSystemDlg : public uiDialog
-{ mODTextTranslationClass(uiPositionSystemDlg);
+mExpClass(uiTools) uiCoordSystemDlg : public uiDialog
+{ mODTextTranslationClass(uiCoordSystemDlg);
 public:
-			uiPositionSystemDlg(uiParent*,bool orthogonalonly,
-				bool projectiononly,const PositionSystem*);
-			~uiPositionSystemDlg();
+			uiCoordSystemDlg(uiParent*,bool orthogonalonly,
+				bool projectiononly,const CoordSystem*);
+			~uiCoordSystemDlg();
 
-    RefMan<PositionSystem> getCoordSystem();
+    RefMan<CoordSystem> getCoordSystem();
 
     static bool		ensureLatLongDefined(uiParent*,SurveyInfo* si=0);
 
 protected:
 
-    uiPositionSystemSelGrp* coordsysselfld_;
+    uiCoordSystemSelGrp* coordsysselfld_;
 
     bool		acceptOK();
 
 };
 
 
-mExpClass(uiTools) uiPositionSystemSel : public uiCompoundParSel
-{ mODTextTranslationClass(uiPositionSystemSel);
+mExpClass(uiTools) uiCoordSystemSel : public uiCompoundParSel
+{ mODTextTranslationClass(uiCoordSystemSel);
 public:
-			uiPositionSystemSel(uiParent*,const uiString& seltxt,
+			uiCoordSystemSel(uiParent*,const uiString& seltxt,
 					bool orthogonalonly,bool projectiononly,
-					const PositionSystem*);
+					const CoordSystem*);
 
-    RefMan<PositionSystem> getCoordSystem()	{ return coordsystem_; }
+    RefMan<CoordSystem> getCoordSystem()	{ return coordsystem_; }
 
 protected:
 
-    uiPositionSystemDlg* dlg_;
+    uiCoordSystemDlg* dlg_;
 
-    RefMan<PositionSystem> coordsystem_;
+    RefMan<CoordSystem> coordsystem_;
     bool		orthogonalonly_;
     bool		projectiononly_;
 
@@ -117,17 +117,17 @@ protected:
 };
 
 
-mExpClass(uiTools) uiUnlocatedXYSystem : public uiPositionSystem
+mExpClass(uiTools) uiUnlocatedXYSystem : public uiCoordSystem
 { mODTextTranslationClass(uiUnlocatedXYSystem);
 public:
-    mDefaultFactoryInstantiation1Param( uiPositionSystem, uiUnlocatedXYSystem,
+    mDefaultFactoryInstantiation1Param( uiCoordSystem, uiUnlocatedXYSystem,
 			       uiParent*, UnlocatedXY::sFactoryKeyword(),
 			       UnlocatedXY::sFactoryDisplayName() );
 
 			uiUnlocatedXYSystem(uiParent*);
 
 
-    virtual bool	initFields(const PositionSystem*);
+    virtual bool	initFields(const CoordSystem*);
 
 protected:
 
@@ -138,17 +138,17 @@ protected:
 };
 
 
-mExpClass(uiTools) uiAnchorBasedXYSystem : public uiPositionSystem
+mExpClass(uiTools) uiAnchorBasedXYSystem : public uiCoordSystem
 { mODTextTranslationClass(uiAnchorBasedXYSystem);
 public:
-    mDefaultFactoryInstantiation1Param( uiPositionSystem, uiAnchorBasedXYSystem,
+    mDefaultFactoryInstantiation1Param( uiCoordSystem, uiAnchorBasedXYSystem,
 			       uiParent*, AnchorBasedXY::sFactoryKeyword(),
 			       AnchorBasedXY::sFactoryDisplayName() );
 
 			uiAnchorBasedXYSystem(uiParent*);
 
 
-    virtual bool	initFields(const PositionSystem*);
+    virtual bool	initFields(const CoordSystem*);
 
 protected:
 

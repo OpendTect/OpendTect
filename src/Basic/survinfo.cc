@@ -383,7 +383,7 @@ bool SurveyInfo::usePar( const IOPar& par )
     if ( !coordsystempar )
 	coordsystempar = defpars_.subselect( sKeyCoordinateSystem );
     if ( coordsystempar )
-	coordsystem_ = Coords::PositionSystem::createSystem( *coordsystempar );
+	coordsystem_ = Coords::CoordSystem::createSystem( *coordsystempar );
 
     if ( !coordsystem_ )
     {
@@ -1312,14 +1312,14 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
 }
 
 
-RefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem()
+RefMan<Coords::CoordSystem> SurveyInfo::getCoordSystem()
 {
     mLock4Read();
     return coordsystem_;
 }
 
 
-ConstRefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem() const
+ConstRefMan<Coords::CoordSystem> SurveyInfo::getCoordSystem() const
 {
     mLock4Read();
     return coordsystem_;
@@ -1333,7 +1333,7 @@ bool SurveyInfo::xyInFeet() const
 }
 
 
-bool SurveyInfo::setCoordSystem( Coords::PositionSystem* system )
+bool SurveyInfo::setCoordSystem( Coords::CoordSystem* system )
 {
     if ( system && !system->isOrthogonal() )
 	return false;
@@ -1361,7 +1361,7 @@ void SurveyInfo::readSavedCoordSystem() const
     PtrMan<IOPar> coordsystempar = survpar.subselect( sKeyCoordinateSystem );
     if ( coordsystempar )
 	const_cast<SurveyInfo*>(this)->coordsystem_ =
-		Coords::PositionSystem::createSystem( *coordsystempar );
+		Coords::CoordSystem::createSystem( *coordsystempar );
 
     sfio.closeSuccess();
 }

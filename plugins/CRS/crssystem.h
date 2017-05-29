@@ -17,18 +17,18 @@ ________________________________________________________________________
 namespace Coords
 {
 
-mExpClass(CRS) ProjectionBasedSystem : public PositionSystem
+mExpClass(CRS) ProjectionBasedSystem : public CoordSystem
 { mODTextTranslationClass(ProjectionBasedSystem);
 public:
 
-    mDefaultFactoryInstantiation( PositionSystem,ProjectionBasedSystem,
+    mDefaultFactoryInstantiation( CoordSystem,ProjectionBasedSystem,
 				  "ProjectionBased System",
 				 tr("Projection Based System") );
 
 				ProjectionBasedSystem();
 				ProjectionBasedSystem(AuthorityCode);
 
-    virtual PositionSystem*	clone() const;
+    virtual CoordSystem*	clone() const;
 
     virtual uiString		description() const
 				{ return tr("Geographical Coordinate System"); }
