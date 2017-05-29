@@ -105,9 +105,6 @@ void BitMapMgr::setup()
     if ( !wva_ ) pars = &appearance_.ddpars_.vd_;
 
     gen_->pars().clipratio_ = pars->mapper_->setup().clipRate();
-    gen_->pars().midvalue_ =
-	pars->mapper_->setup().guessSymmetry() ? mUdf(float)
-					 : pars->mapper_->setup().symMidVal();
     gen_->pars().nointerpol_ = pars->blocky_;
     gen_->pars().scale_ = pars->mapper_->getRange();
     gen_->pars().autoscale_ = false;

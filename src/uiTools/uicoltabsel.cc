@@ -66,14 +66,6 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
     clipfld_->setElemSzPol( uiObject::Small );
     clipfld_->attach( alignedBelow, histeqfld_ );
 
-    skipsymscanfld_ = new uiGenInput( this, tr("Skip data symmetry scan"),
-	     BoolInpSpec(true,tr("Symmetry"), tr("No symmetry")) );
-    skipsymscanfld_->setWithCheck( true );
-    skipsymscanfld_->attach( alignedBelow, clipfld_ );
-
-    midvalfld_ = new uiGenInput( this, tr("Symmetry is around"),FloatInpSpec());
-    midvalfld_->attach( alignedBelow, skipsymscanfld_ );
-
     mAttachCB( postFinalise(), uiEdMapperSetupDlg::initFldsCB );
 }
 
@@ -89,8 +81,6 @@ void initFldsCB( CallBacker* )
 
     mAttachCB( rangefld_->checked, uiEdMapperSetupDlg::fldSelCB );
     mAttachCB( rangefld_->valuechanged, uiEdMapperSetupDlg::fldSelCB );
-    mAttachCB( skipsymscanfld_->checked, uiEdMapperSetupDlg::fldSelCB );
-    mAttachCB( skipsymscanfld_->valuechanged, uiEdMapperSetupDlg::fldSelCB );
     mAttachCB( rangefld_->updateRequested, uiEdMapperSetupDlg::updReqCB );
     mAttachCB( clipfld_->updateRequested, uiEdMapperSetupDlg::updReqCB );
 }
@@ -117,12 +107,6 @@ void putToScreen()
     ColTab::ClipRatePair clipperc( setup().clipRate() );
     ColTab::convToPerc( clipperc );
     clipfld_->setValues( clipperc.first, clipperc.second );
-
-    skipsymscanfld_->setChecked( !setup().guessSymmetry() );
-    const float symmidval = setup().symMidVal();
-    const bool knownsymm = !mIsUdf(symmidval);
-    skipsymscanfld_->setValue( knownsymm );
-    midvalfld_->setValue( knownsymm ? symmidval : 0.f );
 }
 
 void getFromScreen()
@@ -141,11 +125,6 @@ void getFromScreen()
 	cliprate.first = fabs( clipfld_->getFValue(0) * 0.01f );
 	cliprate.second = fabs( clipfld_->getFValue(1) * 0.01f );
 	newms->setClipRate( cliprate );
-	const bool guesssymm = !skipsymscanfld_->isChecked();
-	newms->setGuessSymmetry( guesssymm );
-	if ( !guesssymm )
-	    newms->setSymMidVal( skipsymscanfld_->getBoolValue()
-		    ? midvalfld_->getFValue() : mUdf(float) );
     }
 
     setup() = *newms;
@@ -155,11 +134,7 @@ void getFromScreen()
 void updateFldStates()
 {
     const bool isfixed = isFixed();
-    const bool guesssymm = !isfixed && !skipsymscanfld_->isChecked();
     clipfld_->display( !isfixed );
-    skipsymscanfld_->display( !isfixed );
-    midvalfld_->display( !isfixed && !guesssymm
-		    && skipsymscanfld_->getBoolValue() );
     setSaveButtonChecked( false );
     setButtonSensitive( SAVE, !isfixed );
 }
@@ -175,8 +150,7 @@ bool acceptOK()
     getFromScreen();
 
     if ( !isFixed() && saveButtonChecked() )
-	ColTab::setMapperDefaults( setup().clipRate(), setup().symMidVal(),
-			       setup().guessSymmetry(), setup().doHistEq() );
+	ColTab::setMapperDefaults( setup().clipRate(), setup().doHistEq() );
 
     seltool_.refreshReq.trigger( this );
     return false;
@@ -190,8 +164,6 @@ protected:
 
     uiGenInput*		rangefld_;
     uiGenInput*		clipfld_;
-    uiGenInput*		skipsymscanfld_;
-    uiGenInput*		midvalfld_;
     uiGenInput*		histeqfld_;
     uiColSeqUseModeSel*	usemodefld_;
 

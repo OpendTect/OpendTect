@@ -728,8 +728,6 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 	    {
 		RefMan<ColTab::MapperSetup> newmapsu
 				= psapp.ddpars_.vd_.mapper_->setup().clone();
-		newmapsu->setGuessSymmetry( false );
-		newmapsu->setSymMidVal( mUdf(float) );
 		newmapsu->setFixedRange( Interval<float>(0.f,60.f) );
 		psapp.ddpars_.vd_.mapper_->setup() = *newmapsu;
 		psapp.ddpars_.vd_.colseqname_
@@ -737,8 +735,6 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 
 		*newmapsu = psapp.ddpars_.wva_.mapper_->setup();
 		newmapsu->setClipRate( ColTab::ClipRatePair(0.0f,0.0f) );
-		newmapsu->setGuessSymmetry( false );
-		newmapsu->setSymMidVal( 0.0f );
 		psapp.ddpars_.wva_.mapper_->setup() = *newmapsu;
 	    }
 	}
@@ -1171,8 +1167,6 @@ void uiStoredViewer2DMainWin::displayAngle()
 	{
 	    psapp.ddpars_.vd_.show_ = true;
 	    psapp.ddpars_.wva_.show_ = true;
-	    newmapsu->setGuessSymmetry( false );
-	    newmapsu->setSymMidVal( mUdf(float) );
 	    newmapsu->setFixedRange( Interval<float>(
 			(float)angleparams_->anglerange_.start,
 			(float)angleparams_->anglerange_.stop ) );
@@ -1186,8 +1180,6 @@ void uiStoredViewer2DMainWin::displayAngle()
 	    psapp.ddpars_.vd_.colseqname_ = "Seismics";
 	    newmapsu->setNotFixed();
 	    newmapsu->setClipRate( ColTab::ClipRatePair(0.025f,0.025f) );
-	    newmapsu->setGuessSymmetry( true );
-	    newmapsu->setSymMidVal( 0.f );
 	}
 	psapp.ddpars_.vd_.mapper_->setup() = *newmapsu;
     }

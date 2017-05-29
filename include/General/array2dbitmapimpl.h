@@ -26,7 +26,7 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
 		  , minpixperdim0_(2)
 		  , overlap_(0.5)
 		  , reflinevalue_(mUdf(float))
-		  , x1reversed_(false)	{ midvalue_ = 0; }
+		  , x1reversed_(false)	{}
 
     bool	drawwiggles_;	//!< Draw the wiggles themselves
     bool	drawrefline_;	//!< Draw reference line for each trace
@@ -35,8 +35,8 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
     bool	x1reversed_;	//!< If reversed, draw wiggles flipped
 
     float	overlap_;	//!< If > 0, part of the trace is drawn on
-    				//!< both neighbours' display strip
-    				//!< If < 0, uses less than entire strip
+				//!< both neighbours' display strip
+				//!< If < 0, uses less than entire strip
     float	reflinevalue_;
     int		minpixperdim0_;	//!< Set to 0 or neg for dump everything
 
@@ -117,7 +117,7 @@ public:
 
     VDA2DBitMapGenPars&		vdpars()	{ return gtPars(); }
     const VDA2DBitMapGenPars&	vdpars() const	{ return gtPars(); }
-    
+
     void			linearInterpolate(bool yn)
 				{ gtPars().lininterp_ = yn; }
 

@@ -1009,8 +1009,6 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
 	mapsu.setNotFixed();
 	const float cliprate = wva ? 0.0f : 0.025f;
 	mapsu.setClipRate( ColTab::ClipRatePair(cliprate,cliprate) );
-	mapsu.setGuessSymmetry( true );
-	mapsu.setSymMidVal( prsd ? mUdf(float) : 0.0f );
 	if ( sd->dispPars().colseqname_.isEmpty() )
 	    dispsd->dispPars().colseqname_
 		= vwr_->appearance().ddpars_.vd_.colseqname_
@@ -1030,7 +1028,6 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
 
     if ( rgnotsaved )
     {
-	mapsu.setGuessSymmetry( false );
 	mapsu.setFixedRange( dispparsmapsu.range() );
 	dispparsmapsu = mapsu;
     }
@@ -1127,15 +1124,11 @@ void uiStratSynthDisp::setPreStackMapper()
 				vwr.appearance().ddpars_.vd_.mapper_->setup() );
 	newmapsu->setNotFixed();
 	newmapsu->setClipRate( ColTab::ClipRatePair(0.f,0.f) );
-	newmapsu->setGuessSymmetry( true );
-	newmapsu->setSymMidVal( mUdf(float) );
 	vwr.appearance().ddpars_.vd_.mapper_->setup() = *newmapsu;
 	vwr.appearance().ddpars_.vd_.colseqname_
 			= ColTab::Sequence::sDefaultName();
 	*newmapsu = vwr.appearance().ddpars_.wva_.mapper_->setup();
 	newmapsu->setClipRate( ColTab::ClipRatePair(0.f,0.f) );
-	newmapsu->setGuessSymmetry( false );
-	newmapsu->setSymMidVal( 0.0f );
 	vwr.appearance().ddpars_.wva_.mapper_->setup() = *newmapsu;
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }

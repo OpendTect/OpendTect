@@ -152,7 +152,6 @@ void uiWavelet::initWaveletViewer()
     app.ddpars_.wva_.mapper_->setup().setClipRate(
 					ColTab::ClipRatePair(0.f,0.f) );
     app.ddpars_.wva_.refline_ = Color::Black();
-    app.ddpars_.wva_.mapper_->setup().setSymMidVal( 0.f );
     app.setDarkBG( false );
     viewer_->setInitialSize( uiSize(80,100) );
     viewer_->setStretch( 1, 2 );

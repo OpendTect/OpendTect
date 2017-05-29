@@ -32,7 +32,6 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
     app.ddpars_.wva_.refline_ = Color::Black();
     app.ddpars_.wva_.mapper_->setup().setClipRate(
 					ColTab::ClipRatePair(0.0f,0.0f) );
-    app.ddpars_.wva_.mapper_->setup().setSymMidVal( mUdf(float) );
     app.setDarkBG( false );
 
     setExtraBorders( uiSize(-10,5), uiSize(2,5) );

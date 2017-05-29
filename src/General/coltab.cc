@@ -15,16 +15,10 @@ namespace ColTab
 {
 
 static ClipRatePair	defcliprate_ = ClipRatePair( mUdf(float), mUdf(float) );
-static ValueType	defsymmidval_ = mUdf(ValueType);
-static int		defautosymm_ = -1;
 static int		defhisteq_ = -1;
 
 static const char*	sKeyDefClipPerc
 			= "dTect.Disp.Default clip perc";
-static const char*	sKeyDefSymmZero
-			= "dTect.Disp.Default symmetry zero";
-static const char*	sKeyDefAutoSymm
-			= "dTect.Disp.Default auto symmetry";
 static const char*	sKeyDefHistEq
 			= "dTect.Disp.Default histogram equalisation";
 
@@ -178,25 +172,9 @@ ColTab::ClipRatePair ColTab::defClipRate()
 	    clipperc.second = clipperc.first;
 	convFromPerc( clipperc );
 	defcliprate_ = clipperc;
-
-	float mv = mUdf(float);
-	Settings::common().get( sKeyDefSymmZero, mv );
-	defsymmidval_ = mv;
     }
 
     return defcliprate_;
-}
-
-
-bool ColTab::defAutoSymmetry()
-{
-    if ( defautosymm_ < 0 )
-    {
-	bool yn = false;
-	Settings::common().getYN( sKeyDefAutoSymm, yn );
-	defautosymm_ = yn ? 1 : 0;
-    }
-    return defautosymm_;
 }
 
 
@@ -212,24 +190,11 @@ bool ColTab::defHistEq()
 }
 
 
-float ColTab::defSymMidval()
-{
-    if ( mIsUdf(defcliprate_.first) || mIsUdf(defcliprate_.second) )
-	(void)defClipRate();
-    return defsymmidval_;
-}
-
-
-void ColTab::setMapperDefaults( ClipRatePair clips, float sm, bool asym,
-				bool histeq )
+void ColTab::setMapperDefaults( ClipRatePair clips, bool histeq )
 {
     defcliprate_ = clips;
-    defsymmidval_ = sm;
-    defautosymm_ = asym;
     convToPerc( clips );
     Settings::common().set( sKeyDefClipPerc, clips );
-    Settings::common().set( sKeyDefSymmZero, sm );
-    Settings::common().setYN( sKeyDefAutoSymm, asym );
     Settings::common().setYN( sKeyDefHistEq, histeq );
     Settings::common().write();
 }

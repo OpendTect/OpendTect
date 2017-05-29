@@ -23,28 +23,46 @@ char VDA2DBitMapGenPars::cMaxFill()		{ return 120; }
 #define mXPMEndLn "\",\n"
 
 
-Interval<float> A2DBitMapInpData::scale( const A2DBitMapClips& clipratio,
-					 float midval ) const
+Interval<float> A2DBitMapInpData::scale( const A2DBitMapClips& clipratio ) const
 {
     Interval<float> res;
-    if ( mIsUdf(midval) )
-    {
-	if ( mIsUdf(clipratio.second) )
-	    clipper_.getRange( clipratio.first, res );
-	else
-	    clipper_.getRange( clipratio.first, clipratio.second, res );
-    }
+    if ( mIsUdf(clipratio.second) )
+	clipper_.getRange( clipratio.first, res );
     else
-	clipper_.getSymmetricRange( clipratio.first, midval, res );
-
+	clipper_.getRange( clipratio.first, clipratio.second, res );
     return res;
 }
 
 
-float A2DBitMapInpData::midVal() const
+void A2DBitMapInpData::determineMidVal()
 {
     const LargeValVec<float>& statpts = clipper_.statPts();
-    return statpts.size() ? statpts[statpts.size()/2] : mUdf(float);
+    const int nrpts = statpts.size();
+    if ( nrpts < 3 )
+    {
+	if ( nrpts < 1 )
+	    midval_ = 0.f;
+	else if ( nrpts == 1 )
+	    midval_ = statpts[0];
+	else
+	    midval_ = (statpts[0] + statpts[1]) * .5f;
+	return;
+    }
+
+    midval_ = statpts[nrpts/2]; // using median value
+    // but, if we are near zero, users expect 0 as true mid in those cases
+
+    const int n10pct = nrpts / 10;
+    const Interval<float> tstrg( statpts[n10pct], statpts[nrpts-n10pct] );
+    if ( tstrg.start >= 0.f || tstrg.stop <= 0.f )
+	return;
+
+    const float rgcenter = tstrg.center();
+    Interval<float> nobiasrg( tstrg ); nobiasrg.shift( -rgcenter );
+    Interval<float> twopctzone( nobiasrg.start*0.02f, nobiasrg.stop*0.02f );
+    twopctzone.shift( rgcenter );
+    if ( twopctzone.includes(0.f,false) )
+	midval_ = 0.f;
 }
 
 
@@ -54,6 +72,7 @@ void A2DBitMapInpData::collectData()
     clipper_.setApproxNrValues( data_.info().getTotalSz(), mMaxNrStatPts );
     clipper_.putData( data_ );
     clipper_.fullSort();
+    determineMidVal();
 }
 
 
@@ -224,7 +243,7 @@ void A2DBitMapGenerator::fill()
     dim1perpix_ = 1.f / setup_.getPixPerDim(1);
 
     scalerg_ = pars_.autoscale_ || pars_.scale_.isUdf()
-		    ? data_.scale( pars_.clipratio_, pars_.midvalue_ )
+		    ? data_.scale( pars_.clipratio_ )
 		    : pars_.scale_;
     pars_.scale_ = scalerg_;
     scalewidth_ = scalerg_.stop - scalerg_.start;
@@ -301,8 +320,7 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
     Interpolate::PolyReg1DWithUdf<float> pr1d;
     const Array2D<float>& inpdata = data_.data();
 
-    float midval = wvapars().midvalue_;
-    if ( mIsUdf(midval) ) midval = data_.midVal();
+    const float midval = data_.midVal();
     const float middim0pos = dim0pos_[idim0] + getDim0Offset(midval);
     const float dim1wdth = dim1pos_.width();
     const float dim1fac = (szdim1_ - 1) / (dim1wdth ? dim1wdth : 1);

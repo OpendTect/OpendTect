@@ -265,7 +265,6 @@ public:
     static const char*	sKeyLowFillCol();
     static const char*	sKeyHighFillCol();
     static const char*	sKeyOverlap();
-    static const char*	sKeySymMidValue();
     static const char*	sKeyRefLineValue();
 };
 

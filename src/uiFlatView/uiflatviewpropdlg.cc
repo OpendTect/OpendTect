@@ -70,22 +70,6 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     symclipratiofld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
-    usemidvalfld_ = new uiGenInput(this,
-				   tr("Specify mid value"),BoolInpSpec(true));
-    usemidvalfld_->attach( alignedBelow, symclipratiofld_ );
-    usemidvalfld_->display( useclipfld_->getIntValue()==1 );
-    usemidvalfld_->valuechanged.notify(
-	    mCB(this,uiFlatViewDataDispPropTab,useMidValSel) );
-
-    symmidvalfld_ = new uiGenInput( this,
-				    tr("Mid value"), FloatInpSpec() );
-    symmidvalfld_->setElemSzPol(uiObject::Small);
-    symmidvalfld_->attach( alignedBelow, usemidvalfld_ );
-    symmidvalfld_->display( useclipfld_->getIntValue()==1 &&
-			    usemidvalfld_->getBoolValue() );
-    symmidvalfld_->valuechanged.notify(
-	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
-
     assymclipratiofld_ = new uiGenInput( this, tr("Percentage clip"),
 				    FloatInpSpec(), FloatInpSpec() );
     assymclipratiofld_->setElemSzPol(uiObject::Small);
@@ -100,18 +84,9 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 
     blockyfld_ = new uiGenInput( this, tr("Display blocky (no interpolation)"),
 				 BoolInpSpec(true) );
-    blockyfld_->attach( alignedBelow, symmidvalfld_ );
+    blockyfld_->attach( alignedBelow, symclipratiofld_ );
 
     lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
-}
-
-
-void uiFlatViewDataDispPropTab::useMidValSel( CallBacker* )
-{
-    symmidvalfld_->display( useclipfld_->getIntValue()==1 &&
-			    usemidvalfld_->getBoolValue() );
-    commonPars().mapper_->setup().setSymMidVal( mUdf(float) );
-    symmidvalfld_->setValue( mUdf(float) );
 }
 
 
@@ -141,8 +116,6 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
 	    ColTab::ClipRatePair cliprate( perc, perc );
 	    ColTab::convFromPerc( cliprate );
 	    msu->setClipRate( cliprate );
-	    msu->setSymMidVal( usemidvalfld_->getBoolValue() ?
-				symmidvalfld_->getFValue() : mUdf(float) );
 	}
 	else if ( clip == 2 )
 	{
@@ -151,7 +124,6 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
 	    ColTab::ClipRatePair cliprate( perc0, perc1 );
 	    ColTab::convFromPerc( cliprate );
 	    msu->setClipRate( cliprate );
-	    msu->setSymMidVal( mUdf(float) );
 	}
     }
 
@@ -170,9 +142,6 @@ void uiFlatViewDataDispPropTab::clipSel(CallBacker*)
     const bool dodisp = doDisp();
     const int clip = useclipfld_->getIntValue();
     symclipratiofld_->display( dodisp && clip==1 );
-    symmidvalfld_->display( dodisp && clip==1 &&
-			    usemidvalfld_->getBoolValue() );
-    usemidvalfld_->display( dodisp && clip==1 );
     assymclipratiofld_->display( dodisp && clip==2 );
     rgfld_->display( dodisp && !clip );
 
@@ -252,15 +221,6 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     assymclipratiofld_->setValue( cliprate.first * 100.f, 0 );
     assymclipratiofld_->setValue( cliprate.second * 100.f, 1 );
 
-    const float symmidval = msu.symMidVal();
-    const bool havesymmidval = !mIsUdf(symmidval);
-    const bool show = doDisp() && useclipfld_->getIntValue()==1
-		    && havesymmidval;
-    usemidvalfld_->setValue( havesymmidval );
-    usemidvalfld_->display( show );
-    symmidvalfld_->setValue( symmidval );
-    symmidvalfld_->display( show );
-
     if ( blockyfld_ )
 	blockyfld_->setValue( pars.blocky_ );
 
@@ -306,8 +266,6 @@ bool uiFlatViewDataDispPropTab::acceptOK()
 	else
 	    val *= 0.01f;
 	msu->setClipRate( ColTab::ClipRatePair(val,val) );
-	msu->setSymMidVal( usemidvalfld_->getBoolValue() ?
-				symmidvalfld_->getFValue() : mUdf(float) );
     }
     else
     {

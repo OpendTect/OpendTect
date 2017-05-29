@@ -18,8 +18,6 @@ ColTab::MapperSetup::MapperSetup()
     , dohisteq_(defHistEq())
     , range_(RangeType::udf())
     , cliprate_(defClipRate())
-    , guesssymmetry_(defAutoSymmetry())
-    , symmidval_(defSymMidval())
     , nrsegs_(0)
     , sequsemode_(ColTab::UnflippedSingle)
     , rangeCalculated(this)
@@ -32,8 +30,6 @@ ColTab::MapperSetup::MapperSetup( const RangeType& rg )
     , dohisteq_(defHistEq())
     , range_(rg)
     , cliprate_(defClipRate())
-    , guesssymmetry_(defAutoSymmetry())
-    , symmidval_(defSymMidval())
     , nrsegs_(0)
     , sequsemode_(ColTab::UnflippedSingle)
     , rangeCalculated(this)
@@ -65,8 +61,6 @@ void ColTab::MapperSetup::copyClassData( const ColTab::MapperSetup& oth )
     dohisteq_ = oth.dohisteq_;
     range_ = oth.range_;
     cliprate_ = oth.cliprate_;
-    guesssymmetry_ = oth.guesssymmetry_;
-    symmidval_ = oth.symmidval_;
     nrsegs_ = oth.nrsegs_;
     sequsemode_ = oth.sequsemode_;
 }
@@ -87,8 +81,6 @@ Monitorable::ChangeType ColTab::MapperSetup::compareClassData(
     else
     {
 	mHandleMonitorableCompare( cliprate_, cAutoScaleChange() );
-	mHandleMonitorableCompare( guesssymmetry_, cAutoScaleChange() );
-	mHandleMonitorableCompare( symmidval_, cAutoScaleChange() );
     }
     mDeliverMonitorableCompare();
 }
@@ -176,8 +168,6 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
 				     : (isfixed_ ? "Fixed" : "Auto") );
     par.set( sKeyRange(), range_ );
     par.set( sKeyClipRate(), cliprate_ );
-    par.set( sKeySymMidVal(), symmidval_ );
-    par.setYN( sKeyAutoSym(), guesssymmetry_ );
     par.setYN( sKeyFlipSeq(), isFlipped(sequsemode_) );
     par.setYN( sKeyCycleSeq(), isCyclic(sequsemode_) );
     par.removeWithKey( sKeyStartWidth );
@@ -223,8 +213,6 @@ void ColTab::MapperSetup::usePar( const IOPar& par )
     }
 
     par.get( sKeyClipRate(), cliprate_ );
-    par.get( sKeySymMidVal(), symmidval_ );
-    par.getYN( sKeyAutoSym(), guesssymmetry_ );
     if ( !isfixed_ )
     {
 	if ( mIsUdf(cliprate_.first) )
@@ -344,6 +332,21 @@ ColTab::PosType ColTab::Mapper::getHistEqRelPos( const RangeType& rg,
 }
 
 
+static void snapRangeIfNearZeroSymmetry( ColTab::Mapper::RangeType& rg )
+{
+    if ( rg.start >= 0.f || rg.stop <= 0.f )
+	return;
+
+    const float rgcenter = rg.center();
+    Interval<float> nobiasrg( rg ); nobiasrg.shift( -rgcenter );
+    Interval<float> twopctzone( nobiasrg.start*0.02f, nobiasrg.stop*0.02f );
+    twopctzone.shift( rgcenter );
+
+    if ( twopctzone.includes(0.f,false) )
+	rg.shift( -rgcenter );
+}
+
+
 void ColTab::Mapper::determineRange() const
 {
     mLock4Read();
@@ -358,10 +361,12 @@ void ColTab::Mapper::determineRange() const
 			       (1.0f-clips.second) * sumvals );
 	rg.start = distrib_->positionForCumulative( distrvals.first );
 	rg.stop = distrib_->positionForCumulative( distrvals.second );
+	snapRangeIfNearZeroSymmetry( rg );
     }
 
     setup_->setCalculatedRange( rg );
 }
+
 
 
 ColTab::Mapper::RangeType ColTab::Mapper::getRange() const

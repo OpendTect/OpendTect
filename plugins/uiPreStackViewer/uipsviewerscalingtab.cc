@@ -160,13 +160,6 @@ bool uiViewer3DScalingTab::settingCheck()
 	    uiMSG().error( tr("Clip percentage should between 0 and 100") );
 	    return false;
 	}
-
-	if ( usemidvalfld_->getBoolValue() &&
-	     mIsUdf(symmidvalfld_->getFValue()) )
-	{
-	    uiMSG().error( tr("Midvalue is not set") );
-	    return false;
-	}
     }
     else
     {

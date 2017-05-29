@@ -31,14 +31,12 @@ mStruct(General) A2DBitMapGenPars
 		  : nointerpol_(false)
 		  , autoscale_(true)
 		  , clipratio_(0.025f,0.025f)
-		  , midvalue_( mUdf(float) )
 		  , scale_(0,1)			{}
 
     bool	nointerpol_;	//!< Do not interpolate between actual samples
     bool	autoscale_;	//!< If not, use the scale_
     A2DBitMapClips clipratio_;	//!< ratio of numbers to be clipped before
 				//!< determining min/max, only when autoscale_
-    float	midvalue_;	//!< if mUdf(float), use the median data value
     Interval<float> scale_;	//!< Used when autoscale_ is false
 
     static char cNoFill();	//!< -127, = background/transparent
@@ -59,16 +57,19 @@ public:
     virtual		~A2DBitMapInpData()			{}
 
     const Array2D<float>& data() const	{ return data_; }
-    Interval<float>	scale(const A2DBitMapClips& clipratio,
-			      float midval) const;
-    virtual float	midVal() const;
+    Interval<float>	scale(const A2DBitMapClips& clipratio) const;
+    virtual float	midVal() const	{ return midval_; }
 
-    void		collectData(); //!< again.
+    void		collectData(); //!< in case the Array2D data changes
 
 protected:
+
     DataClipper			clipper_;
+    float			midval_;
 
     const Array2D<float>&	data_;
+
+    void			determineMidVal();
 };
 
 

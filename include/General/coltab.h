@@ -46,12 +46,9 @@ mGlobal(General) inline const char*	sKeySeqUseMode()
 
 mGlobal(General) const char*		defSeqName();
 mGlobal(General) ClipRatePair		defClipRate();
-mGlobal(General) ValueType		defSymMidval();
-mGlobal(General) bool			defAutoSymmetry();
 mGlobal(General) bool			defHistEq();
 mGlobal(General) void			setMapperDefaults(ClipRatePair,
-						ValueType simmid,bool autosym,
-						bool histeq);
+							  bool histeq);
 
 
 class Mapper;

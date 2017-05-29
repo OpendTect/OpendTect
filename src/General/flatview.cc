@@ -46,7 +46,6 @@ const char* DataDispPars::sKeyRefLineCol()	{ return "Ref line color"; }
 const char* DataDispPars::sKeyLowFillCol()	{ return "Low fill color"; }
 const char* DataDispPars::sKeyHighFillCol()	{ return "High fill color"; }
 const char* DataDispPars::sKeyOverlap()  { return "Overlap"; }
-const char* DataDispPars::sKeySymMidValue()  { return "Sym Mid value"; }
 const char* DataDispPars::sKeyRefLineValue() { return "Ref Line value"; }
 
 }
@@ -360,7 +359,6 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     ColTab::ClipRatePair clipperc = vd_.mapper_->setup().clipRate();
     ColTab::convToPerc( clipperc );
     mIOPDoVD( set, sKeyClipPerc(), clipperc );
-    mIOPDoVD( set, sKeySymMidValue(), vd_.mapper_->setup().symMidVal() );
 
     mIOPDoWVA( setYN, sKeyShow(), wva_.show_ );
     mIOPDoWVA( setYN, sKeyBlocky(), wva_.blocky_ );
@@ -376,7 +374,6 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     clipperc = wva_.mapper_->setup().clipRate();
     ColTab::convToPerc( clipperc );
     mIOPDoWVA( set, sKeyClipPerc(), clipperc );
-    mIOPDoWVA( set, sKeySymMidValue(), wva_.mapper_->setup().symMidVal() );
 }
 
 
@@ -409,9 +406,6 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
 	clpperc.second = clpperc.first;
     ColTab::convFromPerc( clpperc );
     vd_.mapper_->setup().setClipRate( clpperc );
-    float symmidval = vd_.mapper_->setup().symMidVal();
-    mIOPDoVD( get, sKeySymMidValue(), symmidval );
-    vd_.mapper_->setup().setSymMidVal( symmidval );
 
     mIOPDoWVA( getYN, sKeyShow(), wva_.show_ );
     mIOPDoWVA( getYN, sKeyBlocky(), wva_.blocky_ );
@@ -438,9 +432,6 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
 	clpperc.second = clpperc.first;
     ColTab::convFromPerc( clpperc );
     wva_.mapper_->setup().setClipRate( clpperc );
-    symmidval = wva_.mapper_->setup().symMidVal();
-    mIOPDoWVA( get, sKeySymMidValue(), symmidval );
-    wva_.mapper_->setup().setSymMidVal( symmidval );
 }
 
 

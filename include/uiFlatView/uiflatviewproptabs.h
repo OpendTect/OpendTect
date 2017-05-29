@@ -66,8 +66,6 @@ protected:
     uiGenInput*		useclipfld_;
     uiGenInput*		symclipratiofld_;
     uiGenInput*		assymclipratiofld_;
-    uiGenInput*		symmidvalfld_;
-    uiGenInput*		usemidvalfld_;
     uiGenInput*		rgfld_;
     uiGenInput*		blockyfld_;
     bool		showdisplayfield_;
@@ -75,7 +73,6 @@ protected:
     uiObject*		lastcommonfld_;
 
     void		updateNonclipRange(CallBacker*);
-    void		useMidValSel(CallBacker*);
     void		dispSel(CallBacker*);
     void		clipSel(CallBacker*);
     virtual void	handleFieldDisplay(bool)	= 0;

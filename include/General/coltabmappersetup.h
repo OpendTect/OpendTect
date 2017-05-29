@@ -39,6 +39,9 @@ public:
     mImplSimpleMonitoredGet(	range,RangeType,range_);
     void			setNotFixed();
     void			setFixedRange(RangeType);
+    // When auto-scaling, need a clip rate
+    mImplSimpleMonitoredGetSet(inline,clipRate,setClipRate,
+				ClipRatePair,cliprate_,cAutoScaleChange());
 
     // Use Histogram equalisation?
     mImplSimpleMonitoredGetSet(inline,doHistEq,setDoHistEq,
@@ -47,18 +50,10 @@ public:
     // Do we, and how do we segment?
     mImplSimpleMonitoredGetSet(inline,nrSegs,setNrSegs,
 				int,nrsegs_,cSegChange());
+
     // How do we use the Sequence?
     mImplSimpleMonitoredGetSet(inline,seqUseMode,setSeqUseMode,
 				SeqUseMode,sequsemode_,cUseModeChange());
-
-
-    // The parameters for auto-scaling
-    mImplSimpleMonitoredGetSet(inline,clipRate,setClipRate,
-				ClipRatePair,cliprate_,cAutoScaleChange());
-    mImplSimpleMonitoredGetSet(inline,guessSymmetry,setGuessSymmetry,
-				bool,guesssymmetry_,cAutoScaleChange());
-    mImplSimpleMonitoredGetSet(inline,symMidVal,setSymMidVal,
-				ValueType,symmidval_,cAutoScaleChange());
 
     bool			hasSegmentation() const
 				{ return nrSegs() != 0; }
@@ -70,8 +65,6 @@ public:
 
     static const char*		sKeyRange()	{ return "Range"; }
     static const char*		sKeyClipRate()	{ return "Clip Rate"; }
-    static const char*		sKeyAutoSym()	{ return "Auto Sym"; }
-    static const char*		sKeySymMidVal()	{ return "Sym Mid Value"; }
     static const char*		sKeyFlipSeq()	{ return "Flip seq"; }
     static const char*		sKeyCycleSeq()	{ return "Cycle seq"; }
 
@@ -92,8 +85,6 @@ protected:
     bool			dohisteq_;
     RangeType			range_;
     ClipRatePair		cliprate_;
-    bool			guesssymmetry_;
-    ValueType			symmidval_;
     int				nrsegs_;
     SeqUseMode			sequsemode_;
 
