@@ -957,7 +957,7 @@ bool SequentialFSLoader::getTrcsPosForRead( int& desirednrpos,
 	const int nrtrcs = tkzs_.hsamp_.nrTrcs();
 	for ( int idx=0; idx<desirednrpos; idx++ )
 	{
-	    const int itrc = nrdone_+idx;
+	    const int itrc = mCast(int,nrdone_)+idx;
 	    if ( itrc >= nrtrcs )
 		break;
 
