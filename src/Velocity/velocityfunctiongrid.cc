@@ -78,20 +78,31 @@ void GriddedFunction::fetchPerfectFit( const BinID& bid )
 }
 
 
+#define mVelFuncCreator() \
+    ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource); \
+    if ( !velfunc ) \
+    { \
+	pErrMsg("Error"); \
+	deepUnRef( velfuncs ); \
+	return false; \
+    } \
+    velfunc->ref(); \
+    velfuncs += velfunc; \
+    velfuncsource += funcsource; \
+
+
 bool GriddedFunction::fetchSources()
 {
     ObjectSet<const Function> velfuncs;
     TypeSet<int> velfuncsource;
 
-    if ( !gridder_->getPoints() )
-	return false;
+    const TypeSet<Coord>* gridderpoints = gridder_->getPoints();
 
-    const TypeSet<Coord>& gridderpoints = *gridder_->getPoints();
     TypeSet<double> weights;
     TypeSet<int> usedpoints;
-    if ( gridder_->allPointsAreRelevant() )
+    if ( gridder_->allPointsAreRelevant() && gridderpoints )
     {
-	const TypeSet<Coord>::size_type nrpoints = gridderpoints.size();
+	const TypeSet<Coord>::size_type nrpoints = gridderpoints->size();
 	for ( TypeSet<Coord>::size_type idx=0; idx<nrpoints; idx++ )
 	    usedpoints += idx;
     }
@@ -101,28 +112,26 @@ bool GriddedFunction::fetchSources()
 	    return false;
 
 	const Coord workpos = SI().transform( bid_ );
-	if ( gridder_ && !gridder_->getWeights(workpos,weights,usedpoints) )
-	    return false;
+	gridder_->getWeights(workpos,weights,usedpoints);
     }
+
 
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     const TypeSet<BinID>& binids = gvs.gridsourcebids_;
+
+    if ( binids.isEmpty() ) return false;
+    int funcsource;
+
     for ( TypeSet<Coord>::size_type idx=0; idx<usedpoints.size(); idx++ )
     {
 	const BinID curbid = binids[usedpoints[idx]];
+	mVelFuncCreator();
+    }
 
-	int funcsource;
-	ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
-	if ( !velfunc )
-	{
-	    pErrMsg("Error");
-	    deepUnRef( velfuncs );
-	    return false;
-	}
-
-	velfunc->ref();
-	velfuncs += velfunc;
-	velfuncsource += funcsource;
+    if ( usedpoints.isEmpty() )
+    {
+	const BinID curbid = binids[0];
+	mVelFuncCreator();
     }
 
     if ( velfuncs.isEmpty() )
@@ -222,7 +231,7 @@ StepInterval<float> GriddedFunction::getAvailableZ() const
 bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
-    const bool nogridding = directsource_;
+    const bool nogridding = directsource_ || (velocityfunctions_.size() == 1);
     const bool doinverse = nogridding ? false :getDesc().isVelocity();
     const Coord workpos = nogridding ? Coord::udf() : SI().transform( bid_ );
 						//TODO: Get a TrcKeySampling
@@ -246,12 +255,14 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 
     mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
     const TrcKey tk( bid_ ); //TODO: Get a SurvID from TrcKeySampling
+    const Vel::Function* velsrc = directsource_ ? directsource_ :
+		velocityfunctions_.size() == 1 ?  velocityfunctions_[0] : 0;
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;
-	if ( nogridding )
+	if ( velsrc && nogridding )
 	{
-	    res[idx] = directsource_->getVelocity( z );
+	    res[idx] = velsrc->getVelocity( z );
 	    continue;
 	}
 

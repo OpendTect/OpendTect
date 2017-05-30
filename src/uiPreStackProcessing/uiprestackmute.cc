@@ -44,7 +44,8 @@ uiMute::uiMute( uiParent* p, Mute* mute )
 
     const IOObjContext ctxt = mIOObjContext( MuteDef );
     mutedeffld_ = new uiIOObjSel( this, ctxt, mutesu );
-    mutedeffld_->setChecked(!mute || !mute->muteDefID().isUdf());
+    mutedeffld_->setChecked(!processor_->muteDefID().isUdf() &&
+					!processor_->muteDefID().isEmpty());
 
     topfld_ = new uiGenInput( this, tr("Mute type"),
 			      BoolInpSpec(true,tr("Outer"),tr("Inner")) );

@@ -229,7 +229,7 @@ void uiProcessorManager::addCB( CallBacker* )
 
     manager_.addProcessor( proc );
     updateList();
-    if ( !showPropDialog(*proc) )
+    if ( proc->mustHaveUserInput() && !showPropDialog(*proc) )
     {
 	const int idx = manager_.indexOf( proc );
 	manager_.removeProcessor( idx );
