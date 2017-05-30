@@ -10,12 +10,12 @@ ________________________________________________________________________
 
 */
 
-#include "seistrc.h"
-#include "trckeyzsampling.h"
-#include "dbkey.h"
 #include "atomic.h"
-#include "threadlock.h"
+#include "dbkey.h"
+#include "seistrc.h"
 #include "survgeom.h"
+#include "threadlock.h"
+#include "trckeyzsampling.h"
 
 class SeisTrcBuf;
 namespace PosInfo { class CubeData; class Line2DData; }
@@ -24,10 +24,12 @@ namespace PosInfo { class CubeData; class Line2DData; }
 namespace Seis
 {
 
-class SelData;
 class Fetcher;
 class Fetcher2D;
 class Fetcher3D;
+class ObjectSummary;
+class RawTrcsSequence;
+class SelData;
 
 
 /*!\brief is the access point for seismic traces. Instantiate a subclass and ask
@@ -80,7 +82,7 @@ public:
     void		selectComponents(const TypeSet<int>&);
     void		forceFPData(bool yn=true);
     void		setReadMode(ReadMode);
-    bool		goTo(const TrcKey&);
+    uiRetVal		goTo(const TrcKey&);
     uiRetVal		fillPar(IOPar&) const;
     uiRetVal		usePar(const IOPar&);
 
@@ -90,6 +92,7 @@ public:
     uiRetVal		getNextGather(SeisTrcBuf&) const;
     uiRetVal		get(const TrcKey&,SeisTrc&) const;
     uiRetVal		getGather(const TrcKey&,SeisTrcBuf&) const;
+    uiRetVal		getSequence(RawTrcsSequence&) const;
 
     const TypeSet<int>& getSelectedComponents() const	{ return selcomps_;}
     bool		haveSelComps() const;
@@ -156,6 +159,7 @@ protected:
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
+    virtual void	doGetSequence(RawTrcsSequence&,uiRetVal&) const;
 
     friend class	Fetcher;
     friend class	Fetcher2D;
@@ -224,5 +228,82 @@ protected:
 };
 
 
+
+/*!\brief Buffer to a set of entire traces ( header + component data )
+	  Can contain traces for several positions. */
+
+
+mClass(Seis) RawTrcsSequence
+{ mODTextTranslationClass(Seis::RawTrcsSequence);
+public:
+			RawTrcsSequence(const ObjectSummary&,int nrpos);
+			~RawTrcsSequence();
+
+    bool		isOK() const;
+    bool		isPS() const;
+    const ZSampling&	getZRange() const;
+    int			nrPositions() const;
+    float		get(int idx,int pos,int comp) const;
+    float		getValue(float,int pos,int comp) const;
+
+    void		set(int idx,float val,int pos,int comp);
+    void		setPositions(const TypeSet<TrcKey>&);	//Becomes mine
+    void		copyFrom(const SeisTrc&,int* ipos=0);
+    void		copyFrom(const SeisTrcBuf&)		{}
+
+    //No checks
+    const DataBuffer::buf_type* getData(int ipos,int icomp,int is=0) const;
+    DataBuffer::buf_type*	getData(int ipos,int icomp,int is=0);
+    const TrcKey&	getPosition(int ipos) const;
+
+private:
+
+    od_int64		getOffset(int ipos,int comp) const;
+
+    const ValueSeriesInterpolator<float>&	interpolator() const;
+
+    DataBuffer::buf_type*	data_;
+    const ObjectSummary&	info_;
+    int				nrpos_;
+    const TypeSet<TrcKey>*	tks_;
+
+    mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
+    DataInterpreter<float>*	interpreter_;
+};
+
+
+/*!> Seismic traces conforming the ValueSeries<float> interface.
+
+  One of the components of a RawTrcsSequence can be selected to form
+  a ValueSeries.
+
+*/
+
+
+mClass(Seis) RawTrcsSequenceValueSeries : public ValueSeries<float>
+{
+public:
+			RawTrcsSequenceValueSeries(const RawTrcsSequence&,
+						   int pos, int comp);
+			~RawTrcsSequenceValueSeries();
+
+    ValueSeries<float>* clone() const;
+
+    inline void		setPosition( int pos )		{ ipos_ = pos; }
+    inline void		setComponent( int idx )		{ icomp_ = idx; }
+    void		setValue(od_int64,float);
+    float*		arr();
+
+    float		value(od_int64) const;
+    bool		writable() const		{ return true; }
+    const float*	arr() const;
+
+
+private:
+
+    RawTrcsSequence&	seq_;
+    int			ipos_;
+    int			icomp_;
+};
 
 } // namespace Seis

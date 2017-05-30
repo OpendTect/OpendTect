@@ -11,18 +11,75 @@ ________________________________________________________________________
 -*/
 
 #include "seiscommon.h"
+
+#include "bufstring.h"
+#include "datachar.h"
 #include "samplingdata.h"
 #include "seistype.h"
 #include "survgeom.h"
-#include "bufstring.h"
 
 
-class DataCharacteristics;
-class IOObj;
-class TrcKeyZSampling;
 class BinIDValueSet;
 class BufferStringSet;
+class IOObj;
+class SeisIOObjInfo;
+class TrcKeyZSampling;
 namespace ZDomain { class Def; }
+
+namespace Seis {
+
+mExpClass(Seis) ObjectSummary
+{
+public:
+			ObjectSummary(const DBKey&);
+			ObjectSummary(const IOObj&);
+			ObjectSummary(const ObjectSummary&);
+			~ObjectSummary();
+
+    ObjectSummary&	operator =(const ObjectSummary&);
+
+    inline bool		isOK() const	{ return !bad_; }
+    inline bool		is2D() const	{ return Seis::is2D(geomtype_); }
+    inline bool		isPS() const	{ return Seis::isPS(geomtype_); }
+
+    bool		hasSameFormatAs(const BinDataDesc&) const;
+    inline const DataCharacteristics&	getDataChar() const
+					{ return datachar_;}
+    inline DataType	dataType() const	{ return datatype_; }
+    inline GeomType	geomType() const	{ return geomtype_; }
+    const StepInterval<float>& zRange() const	{ return zsamp_; }
+
+    const SeisIOObjInfo&	getFullInformation() const
+				{ return ioobjinfo_; }
+
+protected:
+
+    const SeisIOObjInfo&	ioobjinfo_;
+
+    DataCharacteristics datachar_;
+    ZSampling		zsamp_;
+    DataType		datatype_;
+    GeomType		geomtype_;
+    BufferStringSet	compnms_;
+
+    //Cached
+    bool		bad_;
+    int			nrcomp_;
+    int			nrsamppertrc_;
+    int			nrbytespersamp_;
+    int			nrdatabytespespercomptrc_;
+    int			nrdatabytespertrc_;
+    int			nrbytestrcheader_;
+    int			nrbytespertrc_;
+
+private:
+
+    void		init();
+    friend class RawTrcsSequence;
+
+};
+
+}; //namespace Seis
 
 /*!\brief Info on IOObj for seismics */
 
@@ -39,9 +96,8 @@ public:
     SeisIOObjInfo&	operator =(const SeisIOObjInfo&);
 
     inline bool		isOK() const	{ return !bad_; }
-    inline bool		is2D() const	{ return geomtype_ > Seis::VolPS; }
-    inline bool		isPS() const	{ return geomtype_ == Seis::VolPS
-					      || geomtype_ == Seis::LinePS; }
+    inline bool		is2D() const	{ return Seis::is2D(geomtype_); }
+    inline bool		isPS() const	{ return Seis::isPS(geomtype_); }
 
     Seis::GeomType	geomType() const	{ return geomtype_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
@@ -64,7 +120,7 @@ public:
     od_int64		getFileSize() const;
     static od_int64	getFileSize(const char* fnm,int& nrfiles);
     bool		getRanges(TrcKeyZSampling&) const;
-    bool		isFullyRectAndRegular() const; // Only CBVS
+    bool		isFullyRectAndRegular() const;
     bool		getDataChar(DataCharacteristics&) const;
     bool		getBPS(int&,int icomp) const;
 			//!< max bytes per sample, component -1 => add all

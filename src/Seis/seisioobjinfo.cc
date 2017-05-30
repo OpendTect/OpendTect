@@ -35,6 +35,65 @@
 #include "zdomain.h"
 
 
+Seis::ObjectSummary::ObjectSummary( const DBKey& dbkey )
+    : ioobjinfo_(*new SeisIOObjInfo(dbkey))		{ init(); }
+Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj )
+    : ioobjinfo_(*new SeisIOObjInfo(ioobj))		{ init(); }
+Seis::ObjectSummary::ObjectSummary( const Seis::ObjectSummary& oth )
+    : ioobjinfo_(*new SeisIOObjInfo(oth.ioobjinfo_))	{ init(); }
+
+Seis::ObjectSummary::~ObjectSummary()
+{
+    delete &ioobjinfo_;
+}
+
+
+Seis::ObjectSummary& Seis::ObjectSummary::operator =(
+						const Seis::ObjectSummary& oth )
+{
+    const_cast<SeisIOObjInfo&>( ioobjinfo_ ) = oth.ioobjinfo_;
+    init();
+
+    return *this;
+}
+
+
+void Seis::ObjectSummary::init()
+{
+    bad_ = !ioobjinfo_.isOK();
+    if ( bad_ ) return;
+
+    ioobjinfo_.getDataChar( datachar_ );
+    TrcKeyZSampling tkzs( false );
+    ioobjinfo_.getRanges( tkzs );
+    zsamp_ = tkzs.zsamp_;
+    geomtype_ = ioobjinfo_.geomType();
+    ioobjinfo_.getComponentNames( compnms_, tkzs.hsamp_.getGeomID() );
+
+    nrcomp_ = compnms_.size();
+    nrsamppertrc_ = tkzs.nrZ();
+    nrbytespersamp_ = datachar_.nrBytes();
+    nrdatabytespespercomptrc_ = nrbytespersamp_ * nrsamppertrc_;
+    nrdatabytespertrc_ = nrdatabytespespercomptrc_ * nrcomp_;
+
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		    ioobjinfo_.ioObj()->createTranslator() );
+    if ( !sttr )
+	{ pErrMsg("Translator not SeisTrcTranslator!"); bad_ = true; return; }
+
+    datatype_ = sttr->dataType();
+    nrbytestrcheader_ = sttr->bytesOverheadPerTrace();
+    nrbytespertrc_ = nrbytestrcheader_ + nrdatabytespertrc_;
+}
+
+
+bool Seis::ObjectSummary::hasSameFormatAs( const BinDataDesc& desc ) const
+{
+    return datachar_ == desc;
+}
+
+
+
 #define mGetDataSet(nm,rv) \
     if ( !isOK() || !is2D() || isPS() ) return rv; \
  \

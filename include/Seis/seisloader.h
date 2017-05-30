@@ -26,10 +26,12 @@ class Scaler;
 template <class T> class Array2D;
 template <class T> class Array3D;
 class GatherSetDataPack;
+namespace PosInfo { class CubeData; class CubeDataIterator; }
 
 namespace Seis
 {
 
+class ObjectSummary;
 class Provider;
 class SelData;
 
@@ -59,8 +61,7 @@ public:
     virtual uiString	nrDoneText() const;
     virtual uiString	message() const			{ return msg_; }
 
-    od_int64		totalNr() const
-			{ return tkzs_.hsamp_.totalNr(); }
+    virtual od_int64	totalNr() const { return tkzs_.hsamp_.totalNr(); }
 
 protected:
 			Loader(const IOObj&,const TrcKeyZSampling*,
@@ -77,6 +78,7 @@ protected:
     ObjectSet<Scaler>	compscalers_; //Same size as components_
     TypeSet<int>*	outcomponents_;
     Scaler*		scaler_;
+    ObjectSummary*	seissummary_;
 
     uiString		msg_;
 };
@@ -179,16 +181,30 @@ public:
 			*/
 
     od_int64		nrDone() const			{ return nrdone_; }
+    virtual od_int64	totalNr() const			{ return totalnr_; }
+
     virtual uiString	nrDoneText() const;
     virtual uiString	message() const;
 
 protected:
+
     bool		init();
     int			nextStep();
 
-    Seis::Provider*	prov_;
-    Seis::SelData*	sd_;
+private:
+
+    bool		getTrcsPosForRead(int& desirednrpos,
+					  TypeSet<TrcKey>&) const;
+
+    Provider*		prov_;
+    SelData*		sd_;
     Interval<int>	samprg_;
+    PosInfo::CubeData*	trcssampling_;
+    PosInfo::CubeDataIterator*	trcsiterator3d_;
+    od_int64		totalnr_;
+    bool		samedatachar_;
+    StepInterval<float> dpzsamp_;
+    bool		needresampling_;
 
     int			queueid_;
 
@@ -223,8 +239,8 @@ protected:
 
     RefMan<GatherSetDataPack>	gatherdp_;
 
-    Seis::Provider*	prov_;
-    Seis::SelData*	sd_;
+    Provider*		prov_;
+    SelData*		sd_;
     Pos::GeomID		geomid_;
     IOObj*		ioobj_;
 

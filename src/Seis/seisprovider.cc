@@ -8,17 +8,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "seisvolprovider.h"
+
+#include "dbman.h"
+#include "ioobj.h"
+#include "keystrs.h"
+#include "seisbuf.h"
+#include "seisioobjinfo.h"
 #include "seislineprovider.h"
 #include "seisps2dprovider.h"
 #include "seisps3dprovider.h"
-#include "seisioobjinfo.h"
+#include "seistrc.h"
 #include "seisselection.h"
-#include "seisbuf.h"
-#include "ioobj.h"
-#include "keystrs.h"
+#include "seisvolprovider.h"
 #include "uistrings.h"
-#include "dbman.h"
 
 
 Seis::Provider::Provider()
@@ -341,6 +343,19 @@ bool Seis::Provider::handleSetupChanges( uiRetVal& uirv ) const
 }
 
 
+uiRetVal Seis::Provider::goTo( const TrcKey& tk )
+{
+    uiRetVal uirv;
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
+
+    doGoTo( tk );
+    return uirv;
+}
+
+
 uiRetVal Seis::Provider::getNext( SeisTrc& trc ) const
 {
     uiRetVal uirv;
@@ -404,6 +419,21 @@ uiRetVal Seis::Provider::getGather( const TrcKey& trcky,
 
     if ( uirv.isOK() )
 	handleTraces( tbuf );
+    return uirv;
+}
+
+
+uiRetVal Seis::Provider::getSequence( Seis::RawTrcsSequence& databuf ) const
+{
+    uiRetVal uirv;
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
+
+    doGetSequence( databuf, uirv );
+    locker.unlockNow();
+
     return uirv;
 }
 
@@ -506,6 +536,28 @@ void Seis::Provider::doGetGather( const TrcKey& tkey, SeisTrcBuf& tbuf,
 }
 
 
+void Seis::Provider::doGetSequence( Seis::RawTrcsSequence& databuf,
+				    uiRetVal& uirv ) const
+{
+    SeisTrc trc; SeisTrcBuf tbuf( true );
+    const int nrpos = databuf.nrPositions();
+    const bool isps = databuf.isPS();
+    for ( int ipos=0; ipos<nrpos; ipos++ )
+    {
+	if ( isps )
+	{
+	    getNextGather( tbuf );
+	    databuf.copyFrom( tbuf );
+	}
+	else
+	{
+	    getNext( trc );
+	    databuf.copyFrom( trc, &ipos );
+	}
+    }
+}
+
+
 void Seis::Provider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
 {
     iop.set( sKey::ID(), dbKey() );
@@ -540,3 +592,185 @@ ZSampling Seis::Provider2D::doGetZRange() const
     getRanges( curLineIdx(), trcrg, zsamp );
     return zsamp;
 }
+
+
+
+Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
+    : info_(info)
+    , nrpos_(nrpos)
+    , tks_(0)
+    , intpol_(0)
+    , interpreter_(DataInterpreter<float>::create(info.getDataChar(),true))
+{
+    const od_int64 nrelements = mCast(od_int64,nrpos) * info.nrbytespertrc_;
+    mTryAlloc( data_, unsigned char[nrelements] )
+}
+
+
+Seis::RawTrcsSequence::~RawTrcsSequence()
+{
+    delete [] data_;
+    delete tks_;
+    delete interpreter_;
+}
+
+
+bool Seis::RawTrcsSequence::isOK() const
+{
+    return data_ && info_.isOK() && tks_ && tks_->size() == nrpos_;
+}
+
+
+const ValueSeriesInterpolator<float>&
+				  Seis::RawTrcsSequence::interpolator() const
+{
+    if ( !intpol_ )
+    {
+	ValueSeriesInterpolator<float>* newintpol =
+					new ValueSeriesInterpolator<float>();
+	newintpol->snapdist_ = cDefSampleSnapDist();
+	newintpol->smooth_ = true;
+	newintpol->extrapol_ = false;
+	newintpol->udfval_ = 0;
+
+	intpol_.setIfNull(newintpol,true);
+    }
+
+    intpol_->maxidx_ = info_.nrsamppertrc_ - 1;
+
+    return *intpol_;
+}
+
+
+bool Seis::RawTrcsSequence::isPS() const
+{ return info_.isPS(); }
+
+
+const ZSampling& Seis::RawTrcsSequence::getZRange() const
+{ return info_.zsamp_; }
+
+
+int Seis::RawTrcsSequence::nrPositions() const
+{
+    return tks_ ? nrpos_ : 0;
+}
+
+
+void Seis::RawTrcsSequence::setPositions( const TypeSet<TrcKey>& tks )
+{ tks_ = &tks; }
+
+
+const TrcKey& Seis::RawTrcsSequence::getPosition( int ipos ) const
+{ return (*tks_)[ipos]; }
+
+
+float Seis::RawTrcsSequence::get( int idx, int pos, int comp ) const
+{ return interpreter_->get( getData(pos,comp,idx), 0 ); }
+
+
+float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
+{
+    const int sz = info_.nrsamppertrc_-1;
+    const int sampidx = info_.zsamp_.getIndex( z );
+    if ( sampidx < 0 || sampidx >= sz )
+	return interpolator().udfval_;
+
+    const float samppos = ( z - info_.zsamp_.start ) / info_.zsamp_.step;
+    if ( sampidx-samppos > -cDefSampleSnapDist() &&
+	 sampidx-samppos <  cDefSampleSnapDist() )
+	return get( sampidx, pos, comp );
+
+    return interpolator().value( RawTrcsSequenceValueSeries(*this,pos,comp),
+				 samppos );
+}
+
+
+void Seis::RawTrcsSequence::set( int idx, float val, int pos, int comp )
+{ interpreter_->put( getData(pos,comp,idx), 0, val ); }
+
+
+od_int64 Seis::RawTrcsSequence::getOffset( int ipos, int targetcomp ) const
+{
+    od_int64 offset = mCast(od_int64,ipos) * info_.nrbytespertrc_
+					   + info_.nrbytestrcheader_;
+    for ( int icomp=0; icomp<targetcomp-1; icomp++ )
+	offset += info_.nrdatabytespespercomptrc_;
+
+    return offset;
+}
+
+
+const DataBuffer::buf_type* Seis::RawTrcsSequence::getData( int ipos, int icomp,
+							    int is ) const
+{
+    od_int64 offset = getOffset( ipos, icomp );
+    if ( is != 0 )
+	offset += is * info_.nrbytespersamp_;
+
+    return data_ + offset;
+}
+
+
+DataBuffer::buf_type* Seis::RawTrcsSequence::getData( int ipos, int icomp,
+						      int is )
+{
+    return const_cast<DataBuffer::buf_type*>(
+     const_cast<const Seis::RawTrcsSequence&>( *this ).getData(ipos,icomp,is) );
+}
+
+
+void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
+{
+    int pos = ipos ? *ipos : -1;
+    if ( !ipos && tks_ )
+    {
+	for ( int idx=0; idx<nrpos_; idx++ )
+	{
+	    if ( trc.info().trckey_ != (*tks_)[idx] )
+		continue;
+
+	    pos = idx;
+	    break;
+	}
+    }
+
+    DataBuffer::buf_type* out = getData( pos, 0 );
+    const od_int64 nrbytes = info_.nrdatabytespespercomptrc_;
+    for ( int icomp=0; icomp<info_.nrcomp_; icomp++, out+=nrbytes )
+	OD::memCopy( out, trc.data().getComponent( icomp )->data(), nrbytes );
+}
+
+
+
+Seis::RawTrcsSequenceValueSeries::RawTrcsSequenceValueSeries(
+					const Seis::RawTrcsSequence& seq,
+					int pos, int comp )
+    : seq_(const_cast<Seis::RawTrcsSequence&>(seq))
+    , ipos_(pos)
+    , icomp_(comp)
+{
+}
+
+
+Seis::RawTrcsSequenceValueSeries::~RawTrcsSequenceValueSeries()
+{
+}
+
+
+ValueSeries<float>* Seis::RawTrcsSequenceValueSeries::clone() const
+{ return new RawTrcsSequenceValueSeries( seq_, ipos_, icomp_ ); }
+
+
+void Seis::RawTrcsSequenceValueSeries::setValue( od_int64 idx, float val )
+{ seq_.set( (int)idx, val, ipos_, icomp_ ); }
+
+
+float* Seis::RawTrcsSequenceValueSeries::arr()
+{ return (float*)seq_.getData(ipos_,icomp_); }
+
+
+float Seis::RawTrcsSequenceValueSeries::value( od_int64 idx ) const
+{ return seq_.get( (int)idx, ipos_, icomp_ ); }
+
+const float* Seis::RawTrcsSequenceValueSeries::arr() const
+{ return (float*)seq_.getData(ipos_,icomp_); }
