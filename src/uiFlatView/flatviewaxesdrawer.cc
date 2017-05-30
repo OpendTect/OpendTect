@@ -361,9 +361,11 @@ void AxesDrawer::setScaleBarWorld2UI( const uiWorldRect& wr )
     scalebarwr.setLeft( pos0diststart );
     scalebarwr.setRight( pos0diststop );
     uiWorld2Ui scalebarw2ui( vwr_.getViewRect(), scalebarwr );
-    if ( scalebaritem_ )
-    {
-	scalebaritem_->setWorld2Ui( scalebarw2ui );
-	scalebaritem_->update();
-    }
+    if ( !scalebaritem_ )
+	    scalebaritem_ = view_.scene().addItem( new uiScaleBarItem(150) );
+    scalebaritem_->setVisible( true );
+    scalebaritem_->setPos( view_.mapToScene(uiPoint(view_.width()/2+30,
+						    view_.height()-20)) );
+    scalebaritem_->setWorld2Ui( scalebarw2ui );
+    scalebaritem_->update();
 }
