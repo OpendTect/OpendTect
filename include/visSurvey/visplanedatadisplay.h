@@ -14,18 +14,15 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
+#include "visdepthtabplanedragger.h"
+#include "vistexturerect.h"
 
 #include "mousecursor.h"
 #include "oduicommon.h"
 #include "undo.h"
 
 template <class T> class Array2D;
-namespace visBase
-{
-    class DepthTabPlaneDragger;
-    class GridLines;
-    class TextureRectangle;
-}
+namespace visBase{ class GridLines; }
 
 class BinIDValueSet;
 

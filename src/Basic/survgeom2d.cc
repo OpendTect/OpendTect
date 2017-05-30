@@ -163,8 +163,8 @@ float Survey::Geometry2D::lineLength() const
 
     linelength_ = 0;
     for ( int idx=1; idx<data_.positions().size(); idx++ )
-	linelength_ += data_.positions()[idx].coord_.distTo(
-			data_.positions()[idx-1].coord_ );
+	linelength_ += mCast(float,data_.positions()[idx].coord_.distTo(
+			data_.positions()[idx-1].coord_));
 
     return linelength_;
 }
