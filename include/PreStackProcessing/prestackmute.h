@@ -58,6 +58,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    bool		mustHaveUserInput() { return false; }
 
 protected:
 

@@ -74,6 +74,7 @@ public:
     virtual bool		usesPreStackInput() const	{ return true; }
     virtual void		adjustPossibleCompArea(TrcKeySampling&){return;}
     virtual void		retainCurBID( const BinID& ) {};
+    virtual bool		mustHaveUserInput() { return true; }
 
 protected:
 				Processor( const char* nm );

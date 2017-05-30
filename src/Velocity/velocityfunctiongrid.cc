@@ -250,7 +250,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
     const Function* directsource = directsourcemgr_.getParam( this );
-    const bool nogridding = directsource;
+    const bool nogridding = directsource || (velocityfunctions_.size() == 1);
     mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
     const bool weightsarevaluesdependent = rbfgridder;
 
@@ -274,12 +274,15 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	    return false;
     }
 
+    const Vel::Function* velsrc = directsource ? directsource :
+		velocityfunctions_.size() == 1 ?  velocityfunctions_[0] : 0;
+
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;
-	if ( nogridding )
+	if ( velsrc && nogridding )
 	{
-	    res[idx] = directsource->getVelocity( z );
+	    res[idx] = velsrc->getVelocity(z);
 	    continue;
 	}
 
