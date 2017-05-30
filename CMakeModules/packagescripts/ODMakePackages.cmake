@@ -18,7 +18,7 @@ else()
 endif()
 include( ${SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
-if( UNIX )
+#if( UNIX ) #commented temporarily
     foreach ( BASEPACKAGE ${BASEPACKAGES} )
 	if ( EXISTS  CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
 	   include( CMakeModules/packagescripts/${BASEPACKAGE}.cmake)
@@ -28,7 +28,7 @@ if( UNIX )
 	init_destinationdir( ${PACK} )
 	create_basepackages( ${PACK} )
     endforeach()
-endif()
+#endif()
 
 foreach ( PACKAGE ${PACKAGELIST} )
     if ( ("${PACKAGE}" STREQUAL "doc") OR ("${PACKAGE}" STREQUAL "dgbdoc") OR
