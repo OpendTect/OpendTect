@@ -446,7 +446,7 @@ Atomic<T>::Atomic( T val )
 
 template <class T> inline
 Atomic<T>::Atomic( const Atomic<T>& oth )
-    , lock_( new Mutex )
+    : lock_( new Mutex )
     , valptr_( values_ )
 {
     *this = (T)oth;
