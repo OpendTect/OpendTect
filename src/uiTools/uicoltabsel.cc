@@ -14,10 +14,11 @@ ________________________________________________________________________
 #include "uicolseqman.h"
 #include "coltabmapper.h"
 #include "datadistributiontools.h"
+#include "settings.h"
 #include "uimenu.h"
 #include "uidialog.h"
 #include "uigeninput.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uilabel.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitemimpl.h"
@@ -46,6 +47,8 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
 	    .modal(false).savebutton(true) )
     , seltool_(st)
 {
+    dispbothclips_ = Settings::common().isTrue(
+			    "dTect.Enable Asymmetric Clipping" );
     showAlwaysOnTop();
     setDeleteOnClose( true );
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
@@ -61,9 +64,15 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
 				 BoolInpSpec(false) );
     histeqfld_->attach( alignedBelow, usemodefld_ );
 
-    clipfld_ = new uiGenInput( this, tr("Percentage clipped"),
-			      FloatInpIntervalSpec() );
-    clipfld_->setElemSzPol( uiObject::Small );
+    if ( !dispbothclips_ )
+	clipfld_ = new uiGenInput( this, tr("Percentage clipped"),
+				  FloatInpSpec(1.f,0.f,100.f,0.1f) );
+    else
+    {
+	clipfld_ = new uiGenInput( this, tr("Percentages clipped (low/high)"),
+				  FloatInpIntervalSpec() );
+	clipfld_->setElemSzPol( uiObject::Small );
+    }
     clipfld_->attach( alignedBelow, histeqfld_ );
 
     mAttachCB( postFinalise(), uiEdMapperSetupDlg::initFldsCB );
@@ -106,7 +115,10 @@ void putToScreen()
 
     ColTab::ClipRatePair clipperc( setup().clipRate() );
     ColTab::convToPerc( clipperc );
-    clipfld_->setValues( clipperc.first, clipperc.second );
+    if ( dispbothclips_ )
+	clipfld_->setValues( clipperc.first, clipperc.second );
+    else
+	clipfld_->setValue( (clipperc.first+clipperc.second) * 0.5 );
 }
 
 void getFromScreen()
@@ -123,7 +135,10 @@ void getFromScreen()
 	newms->setNotFixed();
 	ColTab::ClipRatePair cliprate;
 	cliprate.first = fabs( clipfld_->getFValue(0) * 0.01f );
-	cliprate.second = fabs( clipfld_->getFValue(1) * 0.01f );
+	if ( dispbothclips_ )
+	    cliprate.second = fabs( clipfld_->getFValue(1) * 0.01f );
+	else
+	    cliprate.second = cliprate.first;
 	newms->setClipRate( cliprate );
     }
 
@@ -161,6 +176,7 @@ protected:
     uiColTabSelTool&		    seltool_;
     ColTab::MapperSetup&	    setup()
 				    { return seltool_.mapper_->setup(); }
+    bool		dispbothclips_;
 
     uiGenInput*		rangefld_;
     uiGenInput*		clipfld_;
@@ -272,12 +288,15 @@ void mouseMoveCB( CallBacker* )
 	{ pErrMsg("Huh"); return; }
 
     int pix = xIsLong() ? event.x() : event.y();
+    const bool iszeromirrored = maprg_.start + maprg_.stop < 1e-6f;
     if ( movingside_ < 0 )
     {
 	const int othsidepix = pix4Val( maprg_.stop );
 	if ( othsidepix - pix < 1 )
 	    pix = othsidepix - 1;
 	maprg_.start = val4Pix( pix );
+	if ( iszeromirrored )
+	    maprg_.stop = -maprg_.start;
     }
     else
     {
@@ -285,6 +304,8 @@ void mouseMoveCB( CallBacker* )
 	if ( pix - othsidepix < 1 )
 	    pix = othsidepix + 1;
 	maprg_.stop = val4Pix( pix );
+	if ( iszeromirrored )
+	    maprg_.start = -maprg_.stop;
     }
 
     setup().setFixedRange( maprg_ );
@@ -540,13 +561,19 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 					  uiString::emptyString() );
 
     manip_ = new uiManipMapper( *this );
+    histeqbut_ = new uiToolButton( getParent(), "histeq",
+			    tr("Toggle using histogram equalisation"),
+			    mCB(this,uiColTabSelTool,histeqButChgCB) );
+    histeqbut_->setToggleButton( true );
+
     if ( isGroup() )
     {
 	usemodesel_->attach( rightOf, disp_ );
 	manip_->attach( rightOf, usemodesel_ );
+	histeqbut_->attach( rightOf, manip_ );
     }
 
-    mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeChgCB );
+    mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeSelChgCB );
     addSetupNotifs();
 
     disp_->setMapper( mapper_ );
@@ -580,6 +607,7 @@ void uiColTabSelTool::addObjectsToToolBar( uiToolBar& tbar )
     uiColSeqSelTool::addObjectsToToolBar( tbar );
     usemodesel_->addObjectsToToolBar( tbar );
     manip_->addObjectsToToolBar( tbar );
+    tbar.addObject( histeqbut_ );
 }
 
 
@@ -618,9 +646,15 @@ void uiColTabSelTool::setRange( Interval<float> rg )
 }
 
 
-void uiColTabSelTool::modeChgCB( CallBacker* )
+void uiColTabSelTool::modeSelChgCB( CallBacker* )
 {
     mapper_->setup().setSeqUseMode( usemodesel_->mode() );
+}
+
+
+void uiColTabSelTool::histeqButChgCB( CallBacker* )
+{
+    mapper_->setup().setDoHistEq( histeqbut_->isOn() );
 }
 
 
@@ -639,6 +673,7 @@ void uiColTabSelTool::handleMapperSetupChange()
 {
     usemodesel_->setMode( mapper_->setup().seqUseMode() );
     manip_->handleMapperSetupChange();
+    histeqbut_->setOn( mapper_->setup().doHistEq() );
     mappingChanged.trigger();
 }
 

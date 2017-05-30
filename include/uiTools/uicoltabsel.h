@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uicolseqsel.h"
 #include "coltabmapper.h"
+class uiToolButton;
 class uiManipMapper;
 class uiEdMapperSetupDlg;
 class uiColSeqUseModeSel;
@@ -55,6 +56,7 @@ protected:
 
     uiManipMapper*		manip_;
     uiColSeqUseModeSel*		usemodesel_;
+    uiToolButton*		histeqbut_;
 
     void			initialise(OD::Orientation);
     void			addSetupNotifs();
@@ -62,7 +64,8 @@ protected:
     void			handleMapperSetupChange();
     void			handleDistribChange();
 
-    void			modeChgCB(CallBacker*);
+    void			modeSelChgCB(CallBacker*);
+    void			histeqButChgCB(CallBacker*);
     void			mapSetupChgCB(CallBacker*);
     void			mapRangeChgCB(CallBacker*);
     void			distribChgCB(CallBacker*);

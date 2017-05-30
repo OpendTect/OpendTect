@@ -132,7 +132,9 @@ const char* IOStream::fullUserExpr( bool forread ) const
 
 BufferString IOStream::mainFileName() const
 {
-    return BufferString( fs_.absFileName(curfidx_) );
+    BufferString ret( fs_.absFileName(curfidx_) );
+    getFullSpecFileName( ret, 0 );
+    return ret;
 }
 
 
