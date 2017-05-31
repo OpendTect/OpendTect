@@ -688,7 +688,7 @@ bool doTrace( int itrc )
 protected:
 
     const RawTrcsSequence&	databuf_;
-    const StepInterval<float>	zsamp_;
+    const StepInterval<float>&	zsamp_;
     const TypeSet<int>&		components_;
     const ObjectSet<Scaler>&	compscalers_;
     const TypeSet<int>&		outcomponents_;
@@ -895,6 +895,9 @@ bool SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 }
 
 
+#define cTrcChunkSz	1000
+
+
 int SequentialFSLoader::nextStep()
 {
     if ( !init() )
@@ -907,7 +910,7 @@ int SequentialFSLoader::nextStep()
 	 100*Threads::WorkManager::twm().nrThreads() )
 	return MoreToDo();
 
-    int nrposperchunk = 10;	//TODO: Check optimal value
+    int nrposperchunk = cTrcChunkSz;
     TypeSet<TrcKey>* tks = new TypeSet<TrcKey>;
     if ( !getTrcsPosForRead(nrposperchunk,*tks) )
 	{ delete tks; return Finished(); }
