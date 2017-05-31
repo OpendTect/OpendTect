@@ -168,6 +168,7 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
 				     : (isfixed_ ? "Fixed" : "Auto") );
     par.set( sKeyRange(), range_ );
     par.set( sKeyClipRate(), cliprate_ );
+    par.set( sKeyNrSegs(), nrsegs_ );
     par.setYN( sKeyFlipSeq(), isFlipped(sequsemode_) );
     par.setYN( sKeyCycleSeq(), isCyclic(sequsemode_) );
     par.removeWithKey( sKeyStartWidth );
@@ -230,6 +231,9 @@ void ColTab::MapperSetup::usePar( const IOPar& par )
     bool cycleseq = isCyclic( sequsemode_ );
     par.getYN( sKeyFlipSeq(), flipseq );
     par.getYN( sKeyCycleSeq(), cycleseq );
+
+    par.get( sKeyNrSegs(), nrsegs_ );
+
     sequsemode_ = getSeqUseMode( flipseq, cycleseq );
 
     mSendEntireObjChgNotif();

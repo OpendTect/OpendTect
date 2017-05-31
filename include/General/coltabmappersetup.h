@@ -64,6 +64,7 @@ public:
     void			usePar(const IOPar&);
 
     static const char*		sKeyRange()	{ return "Range"; }
+    static const char*		sKeyNrSegs()	{ return "Nr Segments"; }
     static const char*		sKeyClipRate()	{ return "Clip Rate"; }
     static const char*		sKeyFlipSeq()	{ return "Flip seq"; }
     static const char*		sKeyCycleSeq()	{ return "Cycle seq"; }

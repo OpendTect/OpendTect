@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uitoolbutton.h"
 #include "uilabel.h"
+#include "uislider.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
@@ -57,13 +58,6 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
 				      FloatInpIntervalSpec() );
     rangefld_->setWithCheck( true );
 
-    usemodefld_ = new uiColSeqUseModeSel( this, false );
-    usemodefld_->attach( alignedBelow, rangefld_ );
-
-    histeqfld_ = new uiGenInput( this, tr("Use Histogram Equalisation"),
-				 BoolInpSpec(false) );
-    histeqfld_->attach( alignedBelow, usemodefld_ );
-
     if ( !dispbothclips_ )
 	clipfld_ = new uiGenInput( this, tr("Percentage clipped"),
 				  FloatInpSpec(1.f,0.f,100.f,0.1f) );
@@ -73,7 +67,20 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
 				  FloatInpIntervalSpec() );
 	clipfld_->setElemSzPol( uiObject::Small );
     }
-    clipfld_->attach( alignedBelow, histeqfld_ );
+    clipfld_->attach( alignedBelow, rangefld_ );
+
+    usemodefld_ = new uiColSeqUseModeSel( this, false );
+    usemodefld_->attach( alignedBelow, clipfld_ );
+
+    histeqfld_ = new uiGenInput( this, tr("Use Histogram Equalisation"),
+				 BoolInpSpec(false) );
+    histeqfld_->attach( alignedBelow, usemodefld_ );
+
+    nrsegsfld_ = new uiSlider( this, uiSlider::Setup() );
+    nrsegsfld_->setInterval( StepInterval<int>(1,25,1) );
+    nrsegsfld_->attach( alignedBelow, histeqfld_ );
+    dosegbox_ = new uiCheckBox( this, tr("Segmentize") );
+    dosegbox_->attach( leftOf, nrsegsfld_ );
 
     mAttachCB( postFinalise(), uiEdMapperSetupDlg::initFldsCB );
 }
@@ -87,11 +94,16 @@ bool isFixed() const
 void initFldsCB( CallBacker* )
 {
     handleMapperSetupChange();
+    int nrsegs = setup().nrSegs();
+    if ( nrsegs < 0 )
+	nrsegsfld_->setValue( 5 );
 
     mAttachCB( rangefld_->checked, uiEdMapperSetupDlg::fldSelCB );
     mAttachCB( rangefld_->valuechanged, uiEdMapperSetupDlg::fldSelCB );
     mAttachCB( rangefld_->updateRequested, uiEdMapperSetupDlg::updReqCB );
     mAttachCB( clipfld_->updateRequested, uiEdMapperSetupDlg::updReqCB );
+    mAttachCB( dosegbox_->activated, uiEdMapperSetupDlg::updReqCB );
+    mAttachCB( nrsegsfld_->valueChanged, uiEdMapperSetupDlg::updReqCB );
 }
 
 void fldSelCB( CallBacker* )
@@ -119,6 +131,16 @@ void putToScreen()
 	clipfld_->setValues( clipperc.first, clipperc.second );
     else
 	clipfld_->setValue( (clipperc.first+clipperc.second) * 0.5 );
+
+    int nrsegs = setup().nrSegs();
+    dosegbox_->setChecked( nrsegs > 0 );
+    if ( nrsegs > 0 )
+    {
+	if ( nrsegs > 25 )
+	    nrsegs = 25;
+	nrsegsfld_->setValue( nrsegs );
+    }
+
 }
 
 void getFromScreen()
@@ -142,6 +164,11 @@ void getFromScreen()
 	newms->setClipRate( cliprate );
     }
 
+    int nrsegs = -1;
+    if ( dosegbox_->isChecked() )
+	nrsegs = nrsegsfld_->getIntValue();
+    newms->setNrSegs( nrsegs );
+
     setup() = *newms;
 }
 
@@ -150,6 +177,7 @@ void updateFldStates()
 {
     const bool isfixed = isFixed();
     clipfld_->display( !isfixed );
+    nrsegsfld_->setSensitive( dosegbox_->isChecked() );
     setSaveButtonChecked( false );
     setButtonSensitive( SAVE, !isfixed );
 }
@@ -182,6 +210,8 @@ protected:
     uiGenInput*		clipfld_;
     uiGenInput*		histeqfld_;
     uiColSeqUseModeSel*	usemodefld_;
+    uiCheckBox*		dosegbox_;
+    uiSlider*		nrsegsfld_;
 
 };
 
