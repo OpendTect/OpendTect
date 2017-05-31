@@ -195,6 +195,10 @@ void uiViewer2DMainWin::setUpView()
 	nrvwr++;
     }
 
+    GatherInfo dummyginfo;
+    dummyginfo.isselected_ = true;
+    setGather( dummyginfo );
+
     control_->setGatherInfos( gatherinfos_ );
 
     displayMutes();
@@ -226,8 +230,15 @@ void uiViewer2DMainWin::reSizeItems()
     const int w =
 	mNINT32( (hslval_*startwidth_- sWidthForX2Annot)/(float)nritems );
     const int h = mNINT32( vslval_*startheight_ );
-    for ( int idx=0; idx<nritems; idx++ )
-	mainviewer_->reSizeItem( idx, uiSize(idx ? w : w+sWidthForX2Annot, h) );
+    for ( int idx=0; idx<nritems-1; idx++ )
+    {
+	uiSize sz( idx ? w : w+sWidthForX2Annot, h);
+	mainviewer_->reSizeItem( idx, sz );
+    }
+
+    uiSize dumyyitemsz( 20, h );
+    mainviewer_->reSizeItem( nritems-1, dumyyitemsz );
+    mainviewer_->getItem( nritems-1 )->setVisible( false );
 
     infobar_->reSizeItems();
     mainviewer_->resetViewArea(0);
