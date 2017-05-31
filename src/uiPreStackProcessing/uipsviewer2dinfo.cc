@@ -46,6 +46,9 @@ void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl,
 					bool  is2d, const char* datanm )
 {
     datalbl_->setText( toUiString(datanm) );
+    if ( mIsUdf(pos.inl()) && mIsUdf(pos.crl()) )
+	return;
+
     uiString posstr = toUiString("%1 %2").arg(is2d ? uiStrings::sTrace() : 
 					  isinl ? tr("Crl ") : tr("Inl "))
 					  .arg(isinl ? toUiString( pos.crl() ) 
