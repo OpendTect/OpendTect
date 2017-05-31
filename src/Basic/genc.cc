@@ -306,11 +306,10 @@ mExternC(Basic) void ForkProcess(void)
 bool isProcessAlive( int pid )
 {
 #ifdef __win__
-    HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE,
-				   pid );
-    const bool ret = hProcess != NULL;
+    HANDLE hProcess = OpenProcess( SYNCHRONIZE, FALSE, pid );
+    DWORD ret = WaitForSingleObject( hProcess, 0 );
     CloseHandle( hProcess );
-    return ret;
+    return ret == WAIT_TIMEOUT;
 #else
     const int res = kill( pid, 0 );
     return res == 0;
