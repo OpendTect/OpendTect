@@ -77,7 +77,8 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
     histeqfld_->attach( alignedBelow, usemodefld_ );
 
     nrsegsfld_ = new uiSlider( this, uiSlider::Setup() );
-    nrsegsfld_->setInterval( StepInterval<int>(1,25,1) );
+    nrsegsfld_->setInterval( StepInterval<int>(1,20,1) );
+    nrsegsfld_->setTickMarks( uiSlider::Below );
     nrsegsfld_->attach( alignedBelow, histeqfld_ );
     dosegbox_ = new uiCheckBox( this, tr("Segmentize") );
     dosegbox_->attach( leftOf, nrsegsfld_ );

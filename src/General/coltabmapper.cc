@@ -400,18 +400,13 @@ ColTab::PosType ColTab::Mapper::relPosition( ValueType val ) const
 
     const bool dohisteq = !distrib_->isEmpty() && setup_->doHistEq();
     float relpos = dohisteq ? getHistEqRelPos(rg,val) : getLinRelPos(rg,val);
-    const int nrsegs = setup_->nrSegs();
 
+    const int nrsegs = setup_->nrSegs();
     if ( nrsegs > 0 )
     {
 	relpos *= nrsegs;
-	relpos = (0.5f + ((int)relpos)) / nrsegs;
+	relpos = getLimitedRelPos( (((int)relpos) + 0.5f) / nrsegs );
     }
-
-    if ( relpos > 1.f )
-	relpos = 1.f;
-    else if ( relpos < 0.f )
-	relpos = 0.f;
 
     return relpos;
 }
