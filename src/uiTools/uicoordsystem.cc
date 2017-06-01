@@ -449,7 +449,8 @@ bool uiCoordSystemDlg::acceptOK()
 }
 
 
-bool uiCoordSystemDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
+bool uiCoordSystemDlg::ensureGeographicTransformOK( uiParent* p,
+						    SurveyInfo* si )
 {
     if ( !si ) si = const_cast<SurveyInfo*>( &SI() );
     if ( si->getCoordSystem() && si->getCoordSystem()->geographicTransformOK() )
