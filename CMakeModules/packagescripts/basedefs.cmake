@@ -28,10 +28,9 @@ endif()
 set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackViewer
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
 	     GMT uiGMT uiImpGPR Madagascar uiMadagascar
-	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM uiSEGY uiPresentationMaker )
-if ( BUILD_CRS )
-   set( PLUGINS ${PLUGINS} CRS uiCRS )
-endif()
+	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM uiSEGY uiPresentationMaker
+	     CRS uiCRS )
+
 if( NOT MATLAB_DIR STREQUAL "" )
     set( PLUGINS ${PLUGINS} MATLABLink uiMATLABLink )
 endif()
