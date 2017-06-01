@@ -20,21 +20,27 @@ ________________________________________________________________________
 #include "sets.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
+#include "valseriesinterpol.h"
 
 class BinDataDesc;
 class BinIDValueSet;
 class IOObj;
 class RegularSeisDataPack;
 class Scaler;
+class SeisTrc;
+class SeisTrcBuf;
 class SeisTrcReader;
 
 template <class T> class Array2D;
 template <class T> class Array3D;
+template <class T> class DataInterpreter;
+namespace PosInfo { class CubeData; class CubeDataIterator; }
 
 
 namespace Seis
 {
 
+class ObjectSummary;
 class SelData;
 
 /*!Reads a 3D Seismic volume in parallel into an Array3D<float> or
@@ -193,19 +199,30 @@ public:
 
 protected:
 
-    void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
     virtual int		nextStep();
+
+private:
+
+    void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
+    bool		getTrcsPosForRead(int& desirednrpos,
+					  TypeSet<TrcKey>&) const;
 
     IOObj*			ioobj_;
     bool			is2d_;
     SeisTrcReader&		rdr_;
-    Seis::SelData*		sd_;
+    SelData*			sd_;
     RegularSeisDataPack*	dp_;
     TrcKeyZSampling		tkzs_;
     TypeSet<int>		components_;
     Interval<int>		samprg_;
+    PosInfo::CubeData*		trcssampling_;
+    PosInfo::CubeDataIterator*	trcsiterator3d_;
+    bool			samedatachar_;
+    StepInterval<float>		dpzsamp_;
+    bool			needresampling_;
     DataCharacteristics		dc_;
     Scaler*			scaler_;
+    ObjectSummary*		seissummary_;
 
     int				queueid_;
 
@@ -213,8 +230,85 @@ protected:
     od_int64			nrdone_;
     uiString			msg_;
     bool			initialized_;
-    TypeSet<int>		seqrdroutcompmgr_;
-    ObjectSet<Scaler>		seqrdrcompscalers_;
+    TypeSet<int>		outcomponents_;
+    ObjectSet<Scaler>		compscalers_;
+};
+
+
+/*!\brief Buffer to a set of entire traces ( header + component data )
+	  Can contain traces for several positions. */
+
+
+mClass(Seis) RawTrcsSequence
+{ mODTextTranslationClass(Seis::RawTrcsSequence);
+public:
+			RawTrcsSequence(const ObjectSummary&,int nrpos);
+			~RawTrcsSequence();
+
+    bool		isOK() const;
+    bool		isPS() const;
+    const StepInterval<float>&	getZRange() const;
+    int			nrPositions() const;
+    float		get(int idx,int pos,int comp) const;
+    float		getValue(float,int pos,int comp) const;
+
+    void		set(int idx,float val,int pos,int comp);
+    void		setPositions(const TypeSet<TrcKey>&); //Becomes mine
+    void		copyFrom(const SeisTrc&,int* ipos=0);
+    void		copyFrom(const SeisTrcBuf&)		{}
+
+    //No checks
+    const unsigned char* getData(int ipos,int icomp,int is=0) const;
+    unsigned char*	getData(int ipos,int icomp,int is=0);
+    const TrcKey&	getPosition(int ipos) const;
+
+private:
+
+    od_int64		getOffset(int ipos,int comp) const;
+
+    const ValueSeriesInterpolator<float>&	interpolator() const;
+
+    unsigned char*		data_;
+    const ObjectSummary&	info_;
+    int				nrpos_;
+    const TypeSet<TrcKey>*	tks_;
+
+    mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
+    DataInterpreter<float>*	interpreter_;
+};
+
+
+/*!> Seismic traces conforming the ValueSeries<float> interface.
+
+  One of the components of a RawTrcsSequence can be selected to form
+  a valueSeries
+
+*/
+
+
+mClass(Seis) RawTrcsSequenceValueSeries : public ValueSeries<float>
+{
+public:
+			RawTrcsSequenceValueSeries(const RawTrcsSequence&,
+						   int pos, int comp);
+			~RawTrcsSequenceValueSeries();
+
+    ValueSeries<float>* clone() const;
+
+    inline void		setPosition( int pos )		{ ipos_ = pos; }
+    inline void		setComponent( int idx )		{ icomp_ = idx; }
+    void		setValue(od_int64,float);
+    float*		arr();
+
+    float		value(od_int64) const;
+    bool		writable() const		{ return true; }
+    const float*	arr() const;
+
+private:
+
+    RawTrcsSequence&	seq_;
+    int			ipos_;
+    int			icomp_;
 };
 
 } // namespace Seis

@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "samplingdata.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
+#include "seiscommon.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
@@ -517,33 +518,49 @@ RegularSeisDataPack* ParallelReader2D::getDataPack()
 class ArrayFiller : public Task
 {
 public:
-ArrayFiller( SeisTrc& trc, const TypeSet<int>& components,
+ArrayFiller( const RawTrcsSequence& databuf, const StepInterval<float>& zsamp,
+	     bool samedatachar, bool needresampling,
+	     const TypeSet<int>& components,
 	     const ObjectSet<Scaler>& compscalers,
-	     const TypeSet<int>& outcomponents, RegularSeisDataPack& dp,
-	     bool is2d )
-    : trc_(trc)
+	     const TypeSet<int>& outcomponents,
+	     RegularSeisDataPack& dp, bool is2d )
+    : databuf_(databuf)
+    , zsamp_(zsamp)
+    , samedatachar_(samedatachar)
+    , needresampling_(needresampling)
     , components_(components)
     , compscalers_(compscalers)
     , outcomponents_(outcomponents)
     , dp_(dp),is2d_(is2d)
-{}
+{
+}
 
 
 ~ArrayFiller()
-{ delete &trc_; }
+{
+    delete &databuf_;
+}
 
 bool execute()
 {
-    const int idx0 = is2d_ ? 0
-		: dp_.sampling().hsamp_.lineIdx( trc_.info().binid.inl() );
-    const int idx1 = dp_.sampling().hsamp_.trcIdx(
-			is2d_ ? trc_.info().nr : trc_.info().binid.crl() );
+    const int nrpos = databuf_.nrPositions();
+    for ( int itrc=0; itrc<nrpos; itrc++ )
+    {
+	if ( !doTrace(itrc) )
+	    return false;
+    }
 
-    StepInterval<float> dpzsamp = dp_.sampling().zsamp_;
-    const StepInterval<float>& trczsamp = trc_.zRange();
-    dpzsamp.limitTo( trczsamp );
-    const int startidx = dp_.sampling().zsamp_.nearestIndex( dpzsamp.start );
-    const int nrzsamples = dpzsamp.nrSteps()+1;
+    return true;
+}
+
+bool doTrace( int itrc )
+{
+    const TrcKey& tk = databuf_.getPosition( itrc );
+    const int idx0 = is2d_ ? 0 : dp_.sampling().hsamp_.lineIdx( tk.lineNr() );
+    const int idx1 = dp_.sampling().hsamp_.trcIdx( tk.trcNr() );
+
+    const int startidx = dp_.sampling().zsamp_.nearestIndex( zsamp_.start );
+    const int nrzsamples = zsamp_.nrSteps()+1;
 
     for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
     {
@@ -554,43 +571,51 @@ bool execute()
 	ValueSeries<float>* stor = arr.getStorage();
 	mDynamicCastGet(ConvMemValueSeries<float>*,storptr,stor);
 	char* storarr = storptr ? storptr->storArr() : (char*)stor->arr();
-	const BinDataDesc trcdatadesc =
-		trc_.data().getInterpreter(idcin)->dataChar();
-	if ( storarr && dp_.getDataDesc()==trcdatadesc )
+	if ( storarr && samedatachar_ )
 	{
-	    const DataBuffer* databuf = trc_.data().getComponent( idcin );
-	    const int bytespersamp = databuf->bytesPerSample();
+	    const int bytespersamp = dp_.getDataDesc().nrBytes();
 	    const od_int64 offset = arr.info().getOffset( idx0, idx1, 0 );
 	    char* dststartptr = storarr + offset*bytespersamp;
-
-	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
+	    if ( needresampling_ || scaler )
 	    {
-		// Check if amplitude equals undef value of underlying data
-		// type knowing that array has been initialized with undefs
-		const float zval = dpzsamp.atIndex( zidx );
-		const int trczidx = trc_.nearestSample( zval );
-		const unsigned char* srcptr =
-			databuf->data() + trczidx*bytespersamp;
-		char* dstptr = dststartptr + (zidx+startidx)*bytespersamp;
-		if ( !scaler && memcmp(dstptr,srcptr,bytespersamp) )
+		for ( int zidx=0; zidx<nrzsamples; zidx++ )
 		{
-		    OD::sysMemCopy(dstptr,srcptr,bytespersamp );
-		    continue;
-		}
+		    // Check if amplitude equals undef value of underlying data
+		    // type knowing that array has been initialized with undefs
+		    const float zval = zsamp_.atIndex( zidx );
+		    const int trczidx = databuf_.getZRange().nearestIndex(zval);
+		    const unsigned char* srcptr =
+					 databuf_.getData(itrc,idcin,trczidx);
+		    char* dstptr = dststartptr + (zidx+startidx)*bytespersamp;
+		    if ( !scaler && memcmp(dstptr,srcptr,bytespersamp) )
+		    {
+			OD::sysMemCopy(dstptr,srcptr,bytespersamp );
+			continue;
+		    }
 
-		const float rawval = trc_.getValue( zval, idcin );
-		const float trcval = scaler
-				   ? mCast(float,scaler->scale(rawval) )
-				   : rawval;
-		arr.set( idx0, idx1, zidx+startidx, trcval );
+		    const float rawval = databuf_.getValue( zval, itrc, idcin );
+		    const float trcval = scaler
+				       ? mCast(float,scaler->scale(rawval) )
+				       : rawval;
+		    arr.set( idx0, idx1, zidx+startidx, trcval );
+		}
+	    }
+	    else
+	    {
+		const int trczidx = databuf_.getZRange().nearestIndex(
+						zsamp_.atIndex( 0 ) );
+		const unsigned char* srcptr = databuf_.getData( itrc, idcin,
+								trczidx );
+		char* dstptr = dststartptr;
+		OD::memCopy(dstptr,srcptr,bytespersamp*nrzsamples );
 	    }
 	}
 	else
 	{
 	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
 	    {
-		const float zval = dpzsamp.atIndex( zidx );
-		const float rawval = trc_.getValue( zval, idcin );
+		const float zval = zsamp_.atIndex( zidx );
+		const float rawval = databuf_.getValue( zval, itrc, idcin );
 		const float trcval = scaler
 				   ? mCast(float,scaler->scale(rawval) )
 				   : rawval;
@@ -604,13 +629,17 @@ bool execute()
 
 protected:
 
-    SeisTrc&			trc_;
+    const RawTrcsSequence&	databuf_;
+    const StepInterval<float>&	zsamp_;
     const TypeSet<int>&		components_;
     const ObjectSet<Scaler>&	compscalers_;
     const TypeSet<int>&		outcomponents_;
     RegularSeisDataPack&	dp_;
     bool			is2d_;
+    bool			samedatachar_;
+    bool			needresampling_;
 };
+
 
 
 SequentialReader::SequentialReader( const IOObj& ioobj,
@@ -625,8 +654,13 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     , dc_(DataCharacteristics::Auto)
     , initialized_(false)
     , is2d_(false)
+    , trcssampling_(0)
+    , trcsiterator3d_(0)
+    , samedatachar_(false)
+    , needresampling_(true)
+    , seissummary_(0)
 {
-    seqrdrcompscalers_.allowNull( true );
+    compscalers_.allowNull( true );
     SeisIOObjInfo info( ioobj );
     info.getDataChar( dc_ );
     if ( !comps )
@@ -635,18 +669,23 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 	for ( int idx=0; idx<nrcomps; idx++ )
 	{
 	    components_ += idx;
-	    seqrdrcompscalers_ += 0;
+	    compscalers_ += 0;
 	}
     }
     else
     {
 	components_ = *comps;
 	for ( int idx=0; idx<components_.size(); idx++ )
-	    seqrdrcompscalers_ += 0;
+	    compscalers_ += 0;
     }
 
     if ( tkzs )
 	tkzs_ = *tkzs;
+
+    seissummary_ = new ObjectSummary( ioobj );
+    msg_ = uiStrings::phrReading( tr(" %1 \'%2\'")
+				.arg( uiStrings::sVolume() )
+				.arg( ioobj.uiName() ) );
 
     queueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::MultiThread,
@@ -658,11 +697,14 @@ SequentialReader::~SequentialReader()
 {
     delete &rdr_; delete ioobj_;
     delete scaler_;
+    delete seissummary_;
+    delete trcssampling_;
+    delete trcsiterator3d_;
 
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 
-    deepErase( seqrdrcompscalers_ );
+    deepErase( compscalers_ );
 }
 
 
@@ -677,7 +719,7 @@ bool SequentialReader::setOutputComponents( const TypeSet<int>& compnrs )
     if ( compnrs.size() != components_.size() )
 	return false;
 
-    seqrdroutcompmgr_ = compnrs;
+    outcomponents_ = compnrs;
     return true;
 }
 
@@ -701,11 +743,11 @@ void SequentialReader::setComponentScaler( const Scaler& scaler, int compidx )
 
     for ( int idx=0; idx<=compidx; idx++ )
     {
-	if ( !seqrdrcompscalers_.validIdx(idx) )
-	    seqrdrcompscalers_ += 0;
+	if ( !compscalers_.validIdx(idx) )
+	    compscalers_ += 0;
     }
 
-    delete seqrdrcompscalers_.replace( compidx, scaler.clone() );
+    delete compscalers_.replace( compidx, scaler.clone() );
 }
 
 
@@ -717,10 +759,10 @@ void SequentialReader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 	return;
 
     bool needadjust = false;
-    for ( int idx=0; idx<seqrdrcompscalers_.size(); idx++ )
+    for ( int idx=0; idx<compscalers_.size(); idx++ )
     {
-	if ( !seqrdrcompscalers_[idx] ||
-	     seqrdrcompscalers_[idx]->isEmpty() || trcdesc == floatdesc )
+	if ( !compscalers_[idx] ||
+	     compscalers_[idx]->isEmpty() || trcdesc == floatdesc )
 	    continue;
 
 	needadjust = true;
@@ -765,8 +807,16 @@ bool SequentialReader::init()
 	return true;
 
     msg_ = tr("Initializing reader");
-    const SeisIOObjInfo seisinfo( *ioobj_ );
-    if ( !seisinfo.isOK() ) return false;
+    delete seissummary_;
+    seissummary_ = new ObjectSummary( *ioobj_ );
+    if ( !seissummary_ || !seissummary_->isOK() )
+	{ deleteAndZeroPtr(seissummary_); return false; }
+
+    is2d_ = seissummary_->is2D();
+    const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
+    TrcKeyZSampling seistkzs( tkzs_ );
+    seisinfo.getRanges( seistkzs );
+    const DataCharacteristics datasetdc( seissummary_->getDataChar() );
 
     if ( components_.isEmpty() )
     {
@@ -777,14 +827,11 @@ bool SequentialReader::init()
 
     for ( int idx=0; idx<components_.size(); idx++ )
     {
-	if ( !seqrdrcompscalers_.validIdx(idx) )
-	    seqrdrcompscalers_ += 0;
+	if ( !compscalers_.validIdx(idx) )
+	    compscalers_ += 0;
     }
 
-    DataCharacteristics datasetdc;
-    seisinfo.getDataChar( datasetdc );
     adjustDPDescToScalers( datasetdc );
-    is2d_ = seisinfo.is2D();
     if ( is2d_ && !tkzs_.is2D() )
     {
 	pErrMsg("TrcKeySampling for 2D data needed with GeomID as lineNr");
@@ -834,10 +881,29 @@ bool SequentialReader::init()
 	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
     }
 
-    totalnr_ = tkzs_.hsamp_.totalNr();
     nrdone_ = 0;
 
     mSetSelData()
+    if ( dp_->is2D() )
+    {
+	totalnr_ = tkzs_.hsamp_.nrTrcs();
+    }
+    else
+    {
+	if ( !trcssampling_ )
+	    trcssampling_ = new PosInfo::CubeData( *dp_->getTrcsSampling() );
+
+	trcssampling_->limitTo( tkzs_.hsamp_ );
+	delete trcsiterator3d_;
+	trcsiterator3d_ = new PosInfo::CubeDataIterator( *trcssampling_ );
+	totalnr_ = trcssampling_->totalSize();
+    }
+
+    samedatachar_ = seissummary_->hasSameFormatAs( dp_->getDataDesc() );
+    dpzsamp_ = dp_->sampling().zsamp_;
+    dpzsamp_.limitTo( seissummary_->zRange() );
+    needresampling_ = !dpzsamp_.isCompatible( seissummary_->zRange() );
+
     initialized_ = true;
     msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() )
 						  .arg( ioobj_->uiName() ) );
@@ -872,14 +938,33 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
 	return false;
     }
 
-    if ( seqrdrcompscalers_.size() < components_.size() )
+    if ( compscalers_.size() < components_.size() )
     {
-	for ( int idx=seqrdrcompscalers_.size();idx<components_.size(); idx++ )
-	    seqrdrcompscalers_ += 0;
+	for ( int idx=compscalers_.size();idx<components_.size(); idx++ )
+	    compscalers_ += 0;
     }
 
     return true;
 }
+
+
+static bool fillTrcsBuffer( SeisTrcReader& rdr, RawTrcsSequence& databuf )
+{
+    SeisTrc trc;
+    const int nrpos = databuf.nrPositions();
+    for ( int ipos=0; ipos<nrpos; ipos++ )
+    {
+	if ( !rdr.get(trc) )
+	    return false;
+
+	databuf.copyFrom( trc, &ipos );
+    }
+
+    return true;
+}
+
+
+#define cTrcChunkSz	1000
 
 
 int SequentialReader::nextStep()
@@ -887,29 +972,255 @@ int SequentialReader::nextStep()
     if ( !initialized_ && !init() )
 	return ErrorOccurred();
 
+    if ( nrdone_ >= totalnr_ )
+	return Finished();
+
     if ( Threads::WorkManager::twm().queueSize(queueid_) >
 	 100*Threads::WorkManager::twm().nrThreads() )
 	return MoreToDo();
 
-    SeisTrc* trc = new SeisTrc;
-    const int res = rdr_.get( trc->info() );
-    if ( res==-1 )
-    { delete trc; msg_ = rdr_.errMsg(); return ErrorOccurred(); }
-    if ( res==0 ) { delete trc; return Finished(); }
-    if ( res==2 ) { delete trc; return MoreToDo(); }
+    int nrposperchunk = cTrcChunkSz;
+    TypeSet<TrcKey>* tks = new TypeSet<TrcKey>;
+    if ( !getTrcsPosForRead(nrposperchunk,*tks) )
+	{ delete tks; return Finished(); }
 
-    if ( !rdr_.get(*trc) )
-    { delete trc; msg_ = rdr_.errMsg(); return ErrorOccurred(); }
+    RawTrcsSequence* databuf = new RawTrcsSequence( *seissummary_,
+						    tks->size() );
+    if ( databuf ) databuf->setPositions( *tks );
+    if ( !databuf || !databuf->isOK() || !fillTrcsBuffer(rdr_,*databuf) )
+    {
+	delete databuf;
+	msg_ = tr("Cannot allocate trace data");
+	return ErrorOccurred();
+    }
 
-    const TypeSet<int>& outcomponents = !seqrdroutcompmgr_.isEmpty()
-				      ? seqrdroutcompmgr_ : components_;
-    Task* task = new ArrayFiller( *trc, components_, seqrdrcompscalers_,
-				  outcomponents, *dp_, is2d_ );
+    nrdone_ += databuf->nrPositions();
+
+    const TypeSet<int>& outcomponents = !outcomponents_.isEmpty()
+				      ? outcomponents_ : components_;
+    Task* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
+				  needresampling_, components_,
+				  compscalers_, outcomponents, *dp_, is2d_ );
     Threads::WorkManager::twm().addWork(
-	Threads::Work(*task,true), 0, queueid_, false, false, true );
+		Threads::Work(*task,true), 0, queueid_, false, false, true );
 
-    nrdone_++;
     return MoreToDo();
 }
+
+
+bool SequentialReader::getTrcsPosForRead( int& desirednrpos,
+					  TypeSet<TrcKey>& tks ) const
+{
+    tks.setEmpty();
+    if ( dp_->is2D() )
+    {
+	const int nrtrcs = tkzs_.hsamp_.nrTrcs();
+	for ( int idx=0; idx<desirednrpos; idx++ )
+	{
+	    const int itrc = mCast(int,nrdone_)+idx;
+	    if ( itrc >= nrtrcs )
+		break;
+
+	    tks += tkzs_.hsamp_.trcKeyAt( -1, itrc );
+	}
+    }
+    else
+    {
+	BinID bid;
+	for ( int idx=0; idx<desirednrpos; idx++ )
+	{
+	    if ( !trcsiterator3d_->next(bid) )
+		break;
+
+	    tks += TrcKey( tkzs_.hsamp_.survid_, bid );
+	}
+    }
+
+    desirednrpos = tks.size();
+
+    return !tks.isEmpty();
+}
+
+
+
+Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
+    : info_(info)
+    , nrpos_(nrpos)
+    , tks_(0)
+    , intpol_(0)
+    , interpreter_(DataInterpreter<float>::create(info.getDataChar(),true))
+{
+    const od_int64 nrelements = mCast(od_int64,nrpos) * info.nrbytespertrc_;
+    mTryAlloc( data_, unsigned char[nrelements] )
+}
+
+
+Seis::RawTrcsSequence::~RawTrcsSequence()
+{
+    delete [] data_;
+    delete tks_;
+    delete interpreter_;
+}
+
+
+bool Seis::RawTrcsSequence::isOK() const
+{
+    return data_ && info_.isOK() && tks_ && tks_->size() == nrpos_;
+}
+
+
+const ValueSeriesInterpolator<float>&
+				  Seis::RawTrcsSequence::interpolator() const
+{
+    if ( !intpol_ )
+    {
+	ValueSeriesInterpolator<float>* newintpol =
+					new ValueSeriesInterpolator<float>();
+	newintpol->snapdist_ = Seis::cDefSampleSnapDist();
+	newintpol->smooth_ = true;
+	newintpol->extrapol_ = false;
+	newintpol->udfval_ = 0;
+
+	if ( !intpol_.setIfNull(newintpol) )
+	    delete newintpol;
+    }
+
+    intpol_->maxidx_ = info_.nrsamppertrc_ - 1;
+
+    return *intpol_;
+}
+
+
+bool Seis::RawTrcsSequence::isPS() const
+{ return info_.isPS(); }
+
+
+const StepInterval<float>& Seis::RawTrcsSequence::getZRange() const
+{ return info_.zsamp_; }
+
+
+int Seis::RawTrcsSequence::nrPositions() const
+{
+    return tks_ ? nrpos_ : 0;
+}
+
+
+void Seis::RawTrcsSequence::setPositions( const TypeSet<TrcKey>& tks )
+{ tks_ = &tks; }
+
+
+const TrcKey& Seis::RawTrcsSequence::getPosition( int ipos ) const
+{ return (*tks_)[ipos]; }
+
+
+float Seis::RawTrcsSequence::get( int idx, int pos, int comp ) const
+{ return interpreter_->get( getData(pos,comp,idx), 0 ); }
+
+
+float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
+{
+    const int sz = info_.nrsamppertrc_-1;
+    const int sampidx = info_.zsamp_.getIndex( z );
+    if ( sampidx < 0 || sampidx >= sz )
+	return interpolator().udfval_;
+
+    const float samppos = ( z - info_.zsamp_.start ) / info_.zsamp_.step;
+    if ( sampidx-samppos > -cDefSampleSnapDist() &&
+	 sampidx-samppos <  cDefSampleSnapDist() )
+	return get( sampidx, pos, comp );
+
+    return interpolator().value( RawTrcsSequenceValueSeries(*this,pos,comp),
+				 samppos );
+}
+
+
+void Seis::RawTrcsSequence::set( int idx, float val, int pos, int comp )
+{ interpreter_->put( getData(pos,comp,idx), 0, val ); }
+
+
+od_int64 Seis::RawTrcsSequence::getOffset( int ipos, int targetcomp ) const
+{
+    od_int64 offset = mCast(od_int64,ipos) * info_.nrbytespertrc_
+					   + info_.nrbytestrcheader_;
+    for ( int icomp=0; icomp<targetcomp-1; icomp++ )
+	offset += info_.nrdatabytespespercomptrc_;
+
+    return offset;
+}
+
+
+const unsigned char* Seis::RawTrcsSequence::getData( int ipos, int icomp,
+						     int is ) const
+{
+    od_int64 offset = getOffset( ipos, icomp );
+    if ( is != 0 )
+	offset += is * info_.nrbytespersamp_;
+
+    return data_ + offset;
+}
+
+
+unsigned char* Seis::RawTrcsSequence::getData( int ipos, int icomp, int is )
+{
+    return const_cast<unsigned char*>(
+     const_cast<const Seis::RawTrcsSequence&>( *this ).getData(ipos,icomp,is) );
+}
+
+
+void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
+{
+    int pos = ipos ? *ipos : -1;
+    if ( !ipos && tks_ )
+    {
+	for ( int idx=0; idx<nrpos_; idx++ )
+	{
+	    if ( trc.info().binID() != (*tks_)[idx].position() )
+		continue;
+
+	    pos = idx;
+	    break;
+	}
+    }
+
+    unsigned char* out = getData( pos, 0 );
+    const od_int64 nrbytes = info_.nrdatabytespespercomptrc_;
+    for ( int icomp=0; icomp<info_.nrcomp_; icomp++, out+=nrbytes )
+	OD::memCopy( out, trc.data().getComponent( icomp )->data(), nrbytes );
+}
+
+
+
+Seis::RawTrcsSequenceValueSeries::RawTrcsSequenceValueSeries(
+					const Seis::RawTrcsSequence& seq,
+					int pos, int comp )
+    : seq_(const_cast<Seis::RawTrcsSequence&>(seq))
+    , ipos_(pos)
+    , icomp_(comp)
+{
+}
+
+
+Seis::RawTrcsSequenceValueSeries::~RawTrcsSequenceValueSeries()
+{
+}
+
+
+ValueSeries<float>* Seis::RawTrcsSequenceValueSeries::clone() const
+{ return new RawTrcsSequenceValueSeries( seq_, ipos_, icomp_ ); }
+
+
+void Seis::RawTrcsSequenceValueSeries::setValue( od_int64 idx, float val )
+{ seq_.set( (int)idx, val, ipos_, icomp_ ); }
+
+
+float* Seis::RawTrcsSequenceValueSeries::arr()
+{ return (float*)seq_.getData(ipos_,icomp_); }
+
+
+float Seis::RawTrcsSequenceValueSeries::value( od_int64 idx ) const
+{ return seq_.get( (int)idx, ipos_, icomp_ ); }
+
+const float* Seis::RawTrcsSequenceValueSeries::arr() const
+{ return (float*)seq_.getData(ipos_,icomp_); }
 
 } // namespace Seis

@@ -13,19 +13,76 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "seismod.h"
+
+#include "datachar.h"
 #include "samplingdata.h"
 #include "seistype.h"
 #include "survgeom.h"
 #include "bufstring.h"
 
 
-class DataCharacteristics;
-class IOObj;
-class TrcKeyZSampling;
 class BinIDValueSet;
 class BufferStringSet;
+class IOObj;
+class SeisIOObjInfo;
+class TrcKeyZSampling;
 namespace ZDomain { class Def; }
+
+
+/*!\brief Summary for a Seismic object */
+
+namespace Seis {
+
+mExpClass(Seis) ObjectSummary
+{
+public:
+			ObjectSummary(const MultiID&);
+			ObjectSummary(const IOObj&);
+			ObjectSummary(const ObjectSummary&);
+			~ObjectSummary();
+
+    ObjectSummary&	operator =(const ObjectSummary&);
+
+    inline bool		isOK() const	{ return !bad_; }
+    inline bool		is2D() const	{ return Seis::is2D(geomtype_); }
+    inline bool		isPS() const	{ return Seis::isPS(geomtype_); }
+
+    bool		hasSameFormatAs(const BinDataDesc&) const;
+    inline const DataCharacteristics	getDataChar() const
+					{ return datachar_; }
+    inline GeomType	geomType() const	{ return geomtype_; }
+    const StepInterval<float>&	zRange() const		{ return zsamp_; }
+
+    const SeisIOObjInfo&	getFullInformation() const
+				{ return ioobjinfo_; }
+
+protected:
+
+    const SeisIOObjInfo&	ioobjinfo_;
+
+    DataCharacteristics datachar_;
+    StepInterval<float> zsamp_;
+    GeomType		geomtype_;
+    BufferStringSet	compnms_;
+
+    //Cached
+    bool		bad_;
+    int			nrcomp_;
+    int			nrsamppertrc_;
+    int			nrbytespersamp_;
+    int			nrdatabytespespercomptrc_;
+    int			nrdatabytespertrc_;
+    int			nrbytestrcheader_;
+    int			nrbytespertrc_;
+
+private:
+
+    void		init();
+    friend class RawTrcsSequence;
+
+};
+
+}; // namespace Seis
 
 /*!\brief Info on IOObj for seismics */
 
