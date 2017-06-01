@@ -36,9 +36,9 @@
 
 #include <string.h>
 
+
 namespace Seis
 {
-
 
 static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 			   TypeSet<int>& selcomponents, uiString& msg )
@@ -77,9 +77,11 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
     return true;
 }
 
+}; // namespace Seis
 
-Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
-		const TypeSet<int>* components )
+
+Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
+		      const TypeSet<int>* components )
     : ioobj_(ioobj.clone())
     , tkzs_(false)
     , dc_(OD::AutoFPRep)
@@ -96,7 +98,7 @@ Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
 }
 
 
-Loader::~Loader()
+Seis::Loader::~Loader()
 {
     delete ioobj_;
     deepErase( compscalers_ );
@@ -106,11 +108,11 @@ Loader::~Loader()
 }
 
 
-void Loader::setDataChar( DataCharacteristics::UserType type )
+void Seis::Loader::setDataChar( DataCharacteristics::UserType type )
 { dc_ = DataCharacteristics(type); }
 
 
-void Loader::setComponents( const TypeSet<int>& components )
+void Seis::Loader::setComponents( const TypeSet<int>& components )
 {
     components_ = components;
     for ( int idx=0; idx<components.size(); idx++ )
@@ -118,7 +120,7 @@ void Loader::setComponents( const TypeSet<int>& components )
 }
 
 
-void Loader::setComponentScaler( const Scaler& scaler, int compidx )
+void Seis::Loader::setComponentScaler( const Scaler& scaler, int compidx )
 {
     if ( scaler.isEmpty() )
 	return;
@@ -133,7 +135,7 @@ void Loader::setComponentScaler( const Scaler& scaler, int compidx )
 }
 
 
-bool Loader::setOutputComponents( const TypeSet<int>& compnrs )
+bool Seis::Loader::setOutputComponents( const TypeSet<int>& compnrs )
 {
     if ( compnrs.size() != components_.size() )
 	return false;
@@ -145,20 +147,20 @@ bool Loader::setOutputComponents( const TypeSet<int>& compnrs )
 }
 
 
-void Loader::setScaler( const Scaler* newsc )
+void Seis::Loader::setScaler( const Scaler* newsc )
 {
     delete scaler_;
     scaler_ = newsc ? newsc->clone() : 0;
 }
 
 
-uiString Loader::nrDoneText() const
+uiString Seis::Loader::nrDoneText() const
 {
     return uiStrings::phrJoinStrings( uiStrings::sTrace(mPlural), tr("read") );
 }
 
 
-void Loader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
+void Seis::Loader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 {
     const DataCharacteristics floatdc( OD::F32 );
     const BinDataDesc floatdesc( floatdc );
@@ -194,9 +196,9 @@ void Loader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 
 
 
-ParallelFSLoader3D::ParallelFSLoader3D( const IOObj& ioobj,
-					const TrcKeyZSampling& tkzs )
-    : Loader(ioobj,&tkzs,0)
+Seis::ParallelFSLoader3D::ParallelFSLoader3D( const IOObj& ioobj,
+					      const TrcKeyZSampling& tkzs )
+    : Seis::Loader(ioobj,&tkzs,0)
     , bidvals_(0)
     , totalnr_(tkzs.hsamp_.totalNr())
 {
@@ -205,10 +207,10 @@ ParallelFSLoader3D::ParallelFSLoader3D( const IOObj& ioobj,
 }
 
 
-ParallelFSLoader3D::ParallelFSLoader3D( const IOObj& ioobj,
-					BinIDValueSet& bidvals,
-					const TypeSet<int>& components )
-    : Loader(ioobj,0,&components)
+Seis::ParallelFSLoader3D::ParallelFSLoader3D( const IOObj& ioobj,
+					      BinIDValueSet& bidvals,
+					      const TypeSet<int>& components )
+    : Seis::Loader(ioobj,0,&components)
     , bidvals_( &bidvals )
     , totalnr_(bidvals.totalSize())
 {
@@ -217,20 +219,20 @@ ParallelFSLoader3D::ParallelFSLoader3D( const IOObj& ioobj,
 }
 
 
-void ParallelFSLoader3D::setDataPack( RegularSeisDataPack* dp )
+void Seis::ParallelFSLoader3D::setDataPack( RegularSeisDataPack* dp )
 {
     dp_ = dp;
 }
 
 
-uiString ParallelFSLoader3D::nrDoneText() const
-{ return Loader::nrDoneText(); }
+uiString Seis::ParallelFSLoader3D::nrDoneText() const
+{ return Seis::Loader::nrDoneText(); }
 
-uiString ParallelFSLoader3D::message() const
-{ return Loader::message(); }
+uiString Seis::ParallelFSLoader3D::message() const
+{ return Seis::Loader::message(); }
 
 
-bool ParallelFSLoader3D::doPrepare( int nrthreads )
+bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 {
     uiString allocprob = tr("Cannot allocate memory");
     SeisIOObjInfo seisinfo( *ioobj_ );
@@ -289,7 +291,7 @@ bool ParallelFSLoader3D::doPrepare( int nrthreads )
 }
 
 
-bool ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop, int threadid)
+bool Seis::ParallelFSLoader3D::doWork(od_int64 start,od_int64 stop,int threadid)
 {
     uiRetVal uirv;
     PtrMan<IOObj> ioobj = ioobj_->clone();
@@ -414,10 +416,10 @@ bool ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop, int threadid)
 
 
 // ParallelFSLoader3D (probably replace by a SequentialFSLoader)
-ParallelFSLoader2D::ParallelFSLoader2D( const IOObj& ioobj,
-					const TrcKeyZSampling& tkzs,
-					const TypeSet<int>* comps )
-    : Loader(ioobj,&tkzs,comps)
+Seis::ParallelFSLoader2D::ParallelFSLoader2D( const IOObj& ioobj,
+					      const TrcKeyZSampling& tkzs,
+					      const TypeSet<int>* comps )
+    : Seis::Loader(ioobj,&tkzs,comps)
     , dpclaimed_(false)
     , totalnr_(tkzs.hsamp_.totalNr())
 {
@@ -426,14 +428,14 @@ ParallelFSLoader2D::ParallelFSLoader2D( const IOObj& ioobj,
 }
 
 
-uiString ParallelFSLoader2D::nrDoneText() const
-{ return Loader::nrDoneText(); }
+uiString Seis::ParallelFSLoader2D::nrDoneText() const
+{ return Seis::Loader::nrDoneText(); }
 
-uiString ParallelFSLoader2D::message() const
-{ return Loader::message(); }
+uiString Seis::ParallelFSLoader2D::message() const
+{ return Seis::Loader::message(); }
 
 
-bool ParallelFSLoader2D::doPrepare( int nrthreads )
+bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 {
     const SeisIOObjInfo seisinfo( *ioobj_ );
     if ( !seisinfo.isOK() )
@@ -470,7 +472,7 @@ bool ParallelFSLoader2D::doPrepare( int nrthreads )
 }
 
 
-bool ParallelFSLoader2D::doWork( od_int64 start, od_int64 stop, int threadid )
+bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
 {
     if ( !dp_ || dp_->isEmpty() )
 	return false;
@@ -563,15 +565,18 @@ bool ParallelFSLoader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 
 
 
-RegularSeisDataPack* ParallelFSLoader2D::getDataPack()
+RegularSeisDataPack* Seis::ParallelFSLoader2D::getDataPack()
 {
     dpclaimed_ = true;
-    return Loader::getDataPack();
+    return Seis::Loader::getDataPack();
 }
 
 
 
 // SequentialReader
+namespace Seis
+{
+
 class ArrayFiller : public Task
 {
 public:
@@ -698,12 +703,14 @@ protected:
     bool			needresampling_;
 };
 
+}; // namespace Seis
 
 
-SequentialFSLoader::SequentialFSLoader( const IOObj& ioobj,
-					const TrcKeyZSampling* tkzs,
-					const TypeSet<int>* comps )
-    : Loader(ioobj,tkzs,comps)
+
+Seis::SequentialFSLoader::SequentialFSLoader( const IOObj& ioobj,
+					      const TrcKeyZSampling* tkzs,
+					      const TypeSet<int>* comps )
+    : Seis::Loader(ioobj,tkzs,comps)
     , Executor("Volume Reader")
     , sd_(0)
     , prov_(0)
@@ -732,7 +739,7 @@ SequentialFSLoader::SequentialFSLoader( const IOObj& ioobj,
 }
 
 
-SequentialFSLoader::~SequentialFSLoader()
+Seis::SequentialFSLoader::~SequentialFSLoader()
 {
     delete prov_;
     delete trcsiterator3d_;
@@ -741,14 +748,25 @@ SequentialFSLoader::~SequentialFSLoader()
 }
 
 
-uiString SequentialFSLoader::nrDoneText() const
-{ return Loader::nrDoneText(); }
+uiString Seis::SequentialFSLoader::nrDoneText() const
+{ return Seis::Loader::nrDoneText(); }
 
-uiString SequentialFSLoader::message() const
-{ return Loader::message(); }
+uiString Seis::SequentialFSLoader::message() const
+{ return Seis::Loader::message(); }
 
 
-bool SequentialFSLoader::init()
+bool Seis::SequentialFSLoader::goImpl( od_ostream* strm, bool first, bool last,
+				       int delay )
+{
+    const bool success = Executor::goImpl( strm, first, last, delay );
+    if  ( !success )
+	Threads::WorkManager::twm().emptyQueue( queueid_, true );
+
+    return success;
+}
+
+
+bool Seis::SequentialFSLoader::init()
 {
     if ( initialized_ )
 	return true;
@@ -867,8 +885,8 @@ bool SequentialFSLoader::init()
 }
 
 
-bool SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
-				    od_ostream* extstrm )
+bool Seis::SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
+					    od_ostream* extstrm )
 {
     initialized_ = false;
     dp_ = &dp;
@@ -898,7 +916,7 @@ bool SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 #define cTrcChunkSz	1000
 
 
-int SequentialFSLoader::nextStep()
+int Seis::SequentialFSLoader::nextStep()
 {
     if ( !init() )
 	return ErrorOccurred();
@@ -951,8 +969,8 @@ int SequentialFSLoader::nextStep()
 }
 
 
-bool SequentialFSLoader::getTrcsPosForRead( int& desirednrpos,
-					    TypeSet<TrcKey>& tks ) const
+bool Seis::SequentialFSLoader::getTrcsPosForRead( int& desirednrpos,
+						  TypeSet<TrcKey>& tks ) const
 {
     tks.setEmpty();
     if ( dp_->is2D() )
@@ -986,9 +1004,9 @@ bool SequentialFSLoader::getTrcsPosForRead( int& desirednrpos,
 
 
 
-SequentialPSLoader::SequentialPSLoader( const IOObj& ioobj,
-					const Interval<int>* linerg,
-					Pos::GeomID geomid )
+Seis::SequentialPSLoader::SequentialPSLoader( const IOObj& ioobj,
+					      const Interval<int>* linerg,
+					      Pos::GeomID geomid )
     : Executor("Volume Reader")
     , ioobj_(ioobj.clone())
     , geomid_(geomid)
@@ -1032,27 +1050,27 @@ SequentialPSLoader::SequentialPSLoader( const IOObj& ioobj,
 }
 
 
-SequentialPSLoader::~SequentialPSLoader()
+Seis::SequentialPSLoader::~SequentialPSLoader()
 {
     delete ioobj_;
     delete prov_;
 }
 
 
-od_int64 SequentialPSLoader::totalNr() const
+od_int64 Seis::SequentialPSLoader::totalNr() const
 {
     return prov_ ? prov_->totalNr() : 0;
 }
 
 
-uiString SequentialPSLoader::nrDoneText() const
+uiString Seis::SequentialPSLoader::nrDoneText() const
 {
     return uiStrings::phrJoinStrings( uiStrings::sTrace(mPlural),
 				      tr("read") );
 }
 
 
-bool SequentialPSLoader::init()
+bool Seis::SequentialPSLoader::init()
 {
     gatherdp_ = new GatherSetDataPack( ioobj_->name() );
     const StringPair strpair( prov_->name(), Survey::GM().getName(geomid_));
@@ -1061,7 +1079,7 @@ bool SequentialPSLoader::init()
 }
 
 
-int SequentialPSLoader::nextStep()
+int Seis::SequentialPSLoader::nextStep()
 {
     if ( !prov_ || !gatherdp_ )
 	return ErrorOccurred();
@@ -1085,4 +1103,3 @@ int SequentialPSLoader::nextStep()
     return MoreToDo();
 }
 
-} // namespace Seis

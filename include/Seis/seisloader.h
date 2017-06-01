@@ -190,6 +190,7 @@ protected:
 
     bool		init();
     int			nextStep();
+    bool		goImpl(od_ostream*,bool,bool,int);
 
 private:
 
