@@ -10,9 +10,6 @@ SET( LIBLIST omf Attribs BasicSurvey ColTabs MouseControls BatchPrograms
 	     RockPhysics ModDeps.od Strat
 	     prodlist.txt Vendors
 	     BatchHosts_example_for_nodes_of_a_linux_server.txt
-	     BatchHosts_example_for_nodes_of_a_windows_server.txt Scripts )
-if ( BUILD_CRS )
-    set( LIBLIST $LIBLIST epsg )
-endif()
+	     BatchHosts_example_for_nodes_of_a_windows_server.txt Scripts CRS )
 SET( EXECLIST  )
 SET( PACK "basedata")
