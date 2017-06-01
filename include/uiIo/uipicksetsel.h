@@ -37,8 +37,9 @@ public:
     ODPolygon<double>*	getCoordPolygon() const;
 
     static IOObjContext	getCtxt(Type t=NoPolygon,bool forread=true,
-				const char* cat=0);
+				const char* cat=0,const char* transl=0);
     static void		updateCtxt(IOObjContext&,Type t=NoPolygon,
-				   bool forread=true,const char* cat=0);
+				   bool forread=true,const char* cat=0,
+				   const char* transl=0);
 
 };

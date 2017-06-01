@@ -246,12 +246,12 @@ RefMan<Pick::Set> uiPickPartServer::loadSet( const DBKey& mid )
 
 
 bool uiPickPartServer::loadSets( DBKeySet& psids, bool poly,
-				 const char* cat )
+				 const char* cat, const char* transl )
 {
     psids.setEmpty();
 
     IOObjContext ctxt( uiPickSetIOObjSel::getCtxt( mObjSelType(poly),
-						   true, cat ) );
+						   true, cat, transl ) );
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg dlg( parent(), sdsu, ctxt );
     dlg.showAlwaysOnTop();

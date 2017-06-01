@@ -30,15 +30,15 @@ static ODPolygon<T>* gtPolygon( const uiPickSetIOObjSel* objsel )
 
 
 IOObjContext uiPickSetIOObjSel::getCtxt( Type typ, bool forread,
-					 const char* cat )
+					 const char* cat, const char* transl )
 {
     IOObjContext ret( mIOObjContext(PickSet) );
-    updateCtxt( ret, typ, forread, cat );
+    updateCtxt( ret, typ, forread, cat, transl );
     return ret;
 }
 
 void uiPickSetIOObjSel::updateCtxt( IOObjContext& ctxt, Type typ, bool forread,
-				    const char* cat )
+				    const char* cat, const char* transl )
 {
     ctxt.forread_ = forread;
 
@@ -51,6 +51,8 @@ void uiPickSetIOObjSel::updateCtxt( IOObjContext& ctxt, Type typ, bool forread,
 
     ctxt.toselect_.require_.removeWithKey( sKey::Category() );
     ctxt.toselect_.require_.update( sKey::Category(), cat );
+    if ( transl && *transl )
+	ctxt.fixTranslator( transl );
 }
 
 

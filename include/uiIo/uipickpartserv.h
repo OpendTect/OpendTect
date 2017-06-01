@@ -54,7 +54,8 @@ public:
     void			fetchHors(bool);
     RefMan<Pick::Set>		loadSet(const DBKey&);
     bool			loadSets(DBKeySet&,bool polygons,
-					 const char* cat=0);
+					 const char* cat=0,
+					 const char* transl=0);
 					//!< You have to ref/unref the sets
     RefMan<Pick::Set>		createEmptySet(bool aspolygon);
     RefMan<Pick::Set>		create3DGenSet();
