@@ -404,8 +404,13 @@ ColTab::PosType ColTab::Mapper::relPosition( ValueType val ) const
     const int nrsegs = setup_->nrSegs();
     if ( nrsegs > 0 )
     {
-	relpos *= nrsegs;
-	relpos = getLimitedRelPos( (((int)relpos) + 0.5f) / nrsegs );
+	const float segwidth = 1.f / nrsegs;
+	int segnr = (int)( relpos / segwidth );
+	if ( segnr < 0 ) // can happen due to clipping
+	    segnr = 0;
+	else if ( segnr >= nrsegs )
+	    segnr = nrsegs - 1;
+	relpos = getLimitedRelPos( (segnr + 0.5f) * segwidth );
     }
 
     return relpos;
