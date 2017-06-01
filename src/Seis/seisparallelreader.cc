@@ -36,9 +36,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <string.h>
 
+
 namespace Seis
 {
-
 
 static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 			   TypeSet<int>& selcomponents, uiString& msg )
@@ -76,9 +76,12 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
     return true;
 }
 
+}; // namespace Seis
 
 
-ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
+
+Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
+				      const TrcKeyZSampling& cs )
     : dp_(0)
     , bidvals_(0)
     , tkzs_(cs)
@@ -92,9 +95,8 @@ ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
 }
 
 
-ParallelReader::ParallelReader( const IOObj& ioobj,
-				BinIDValueSet& bidvals,
-				const TypeSet<int>& components )
+Seis::ParallelReader::ParallelReader( const IOObj& ioobj,BinIDValueSet& bidvals,
+				      const TypeSet<int>& components )
     : dp_(0)
     , components_( components )
     , bidvals_( &bidvals )
@@ -105,14 +107,14 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
 }
 
 
-ParallelReader::~ParallelReader()
+Seis::ParallelReader::~ParallelReader()
 {
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     delete ioobj_;
 }
 
 
-bool ParallelReader::setOutputComponents( const TypeSet<int>& compnrs )
+bool Seis::ParallelReader::setOutputComponents( const TypeSet<int>& compnrs )
 {
     if ( compnrs.size() != components_.size() )
 	return false;
@@ -122,7 +124,7 @@ bool ParallelReader::setOutputComponents( const TypeSet<int>& compnrs )
 }
 
 
-void ParallelReader::setDataPack( RegularSeisDataPack* dp )
+void Seis::ParallelReader::setDataPack( RegularSeisDataPack* dp )
 {
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     dp_ = dp;
@@ -130,24 +132,24 @@ void ParallelReader::setDataPack( RegularSeisDataPack* dp )
 }
 
 
-RegularSeisDataPack* ParallelReader::getDataPack()
+RegularSeisDataPack* Seis::ParallelReader::getDataPack()
 {
     return dp_;
 }
 
 
-uiString ParallelReader::uiNrDoneText() const
+uiString Seis::ParallelReader::uiNrDoneText() const
 { return tr("Traces read"); }
 
 
-uiString ParallelReader::uiMessage() const
+uiString Seis::ParallelReader::uiMessage() const
 {
     return errmsg_.isEmpty() ? tr("Reading volume \'%1\'").arg(ioobj_->name())
 			     : errmsg_;
 }
 
 
-bool ParallelReader::doPrepare( int nrthreads )
+bool Seis::ParallelReader::doPrepare( int nrthreads )
 {
     uiString allocprob = tr("Cannot allocate memory");
 
@@ -184,7 +186,7 @@ bool ParallelReader::doPrepare( int nrthreads )
 }
 
 
-bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
+bool Seis::ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     PtrMan<IOObj> ioobj = ioobj_->clone();
     PtrMan<SeisTrcReader> reader = new SeisTrcReader( ioobj );
@@ -322,15 +324,15 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 }
 
 
-bool ParallelReader::doFinish( bool success )
+bool Seis::ParallelReader::doFinish( bool success )
 { return success; }
 
 
 
 // ParallelReader2D (probably replace by a Sequential reader)
-ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
-				    const TrcKeyZSampling* tkzs,
-				    const TypeSet<int>* comps )
+Seis::ParallelReader2D::ParallelReader2D( const IOObj& ioobj,Pos::GeomID geomid,
+					  const TrcKeyZSampling* tkzs,
+					  const TypeSet<int>* comps )
     : geomid_(geomid)
     , ioobj_(ioobj.clone())
     , dc_(DataCharacteristics::Auto)
@@ -348,13 +350,13 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
 }
 
 
-bool ParallelReader2D::doPrepare( int )
+bool Seis::ParallelReader2D::doPrepare( int )
 {
     return init();
 }
 
 
-bool ParallelReader2D::init()
+bool Seis::ParallelReader2D::init()
 {
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
@@ -394,7 +396,7 @@ bool ParallelReader2D::init()
 }
 
 
-ParallelReader2D::~ParallelReader2D()
+Seis::ParallelReader2D::~ParallelReader2D()
 {
     delete ioobj_;
     delete scaler_;
@@ -403,28 +405,28 @@ ParallelReader2D::~ParallelReader2D()
 }
 
 
-void ParallelReader2D::setDataChar( DataCharacteristics::UserType type )
+void Seis::ParallelReader2D::setDataChar( DataCharacteristics::UserType type )
 { dc_ = DataCharacteristics(type); }
 
 
-void ParallelReader2D::setScaler( Scaler* newsc )
+void Seis::ParallelReader2D::setScaler( Scaler* newsc )
 {
     delete scaler_;
     scaler_ = newsc ? newsc->clone() : 0;
 }
 
 
-uiString ParallelReader2D::uiNrDoneText() const
+uiString Seis::ParallelReader2D::uiNrDoneText() const
 { return tr("Traces read"); }
 
-uiString ParallelReader2D::uiMessage() const
+uiString Seis::ParallelReader2D::uiMessage() const
 { return msg_.isEmpty() ? tr("Reading") : msg_; }
 
-od_int64 ParallelReader2D::nrIterations() const
+od_int64 Seis::ParallelReader2D::nrIterations() const
 { return totalnr_; }
 
 
-bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
+bool Seis::ParallelReader2D::doWork( od_int64 start,od_int64 stop,int threadid )
 {
     if ( !dp_ || dp_->nrComponents()==0 )
 	return false;
@@ -502,11 +504,11 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 }
 
 
-bool ParallelReader2D::doFinish( bool success )
+bool Seis::ParallelReader2D::doFinish( bool success )
 { return success; }
 
 
-RegularSeisDataPack* ParallelReader2D::getDataPack()
+RegularSeisDataPack* Seis::ParallelReader2D::getDataPack()
 {
     dpclaimed_ = true;
     return dp_;
@@ -515,6 +517,8 @@ RegularSeisDataPack* ParallelReader2D::getDataPack()
 
 
 // SequentialReader
+namespace Seis {
+
 class ArrayFiller : public Task
 {
 public:
@@ -640,11 +644,13 @@ protected:
     bool			needresampling_;
 };
 
+}; //namespace Seis
 
 
-SequentialReader::SequentialReader( const IOObj& ioobj,
-				    const TrcKeyZSampling* tkzs,
-				    const TypeSet<int>* comps )
+
+Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
+					  const TrcKeyZSampling* tkzs,
+					  const TypeSet<int>* comps )
     : Executor("Volume Reader")
     , ioobj_(ioobj.clone())
     , dp_(0)
@@ -693,7 +699,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 }
 
 
-SequentialReader::~SequentialReader()
+Seis::SequentialReader::~SequentialReader()
 {
     delete &rdr_; delete ioobj_;
     delete scaler_;
@@ -708,13 +714,24 @@ SequentialReader::~SequentialReader()
 }
 
 
-uiString SequentialReader::uiNrDoneText() const
+uiString Seis::SequentialReader::uiNrDoneText() const
 {
     return uiStrings::phrJoinStrings( uiStrings::sTrace(mPlural), tr("read") );
 }
 
 
-bool SequentialReader::setOutputComponents( const TypeSet<int>& compnrs )
+bool Seis::SequentialReader::goImpl( od_ostream* strm, bool first, bool last,
+				     int delay )
+{
+    const bool success = Executor::goImpl( strm, first, last, delay );
+    if ( !success )
+	Threads::WorkManager::twm().emptyQueue( queueid_, true );
+
+    return success;
+}
+
+
+bool Seis::SequentialReader::setOutputComponents( const TypeSet<int>& compnrs )
 {
     if ( compnrs.size() != components_.size() )
 	return false;
@@ -724,11 +741,11 @@ bool SequentialReader::setOutputComponents( const TypeSet<int>& compnrs )
 }
 
 
-void SequentialReader::setDataChar( DataCharacteristics::UserType type )
+void Seis::SequentialReader::setDataChar( DataCharacteristics::UserType type )
 { dc_ = DataCharacteristics(type); }
 
 
-void SequentialReader::setScaler( Scaler* newsc )
+void Seis::SequentialReader::setScaler( Scaler* newsc )
 {
     delete scaler_;
     scaler_ = newsc ? newsc->clone() : 0;
@@ -736,7 +753,8 @@ void SequentialReader::setScaler( Scaler* newsc )
 }
 
 
-void SequentialReader::setComponentScaler( const Scaler& scaler, int compidx )
+void Seis::SequentialReader::setComponentScaler( const Scaler& scaler,
+						 int compidx )
 {
     if ( scaler.isEmpty() )
 	return;
@@ -751,7 +769,7 @@ void SequentialReader::setComponentScaler( const Scaler& scaler, int compidx )
 }
 
 
-void SequentialReader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
+void Seis::SequentialReader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 {
     const DataCharacteristics floatdc( DataCharacteristics::F32 );
     const BinDataDesc floatdesc( floatdc );
@@ -786,7 +804,7 @@ void SequentialReader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 }
 
 
-RegularSeisDataPack* SequentialReader::getDataPack()
+RegularSeisDataPack* Seis::SequentialReader::getDataPack()
 { return dp_; }
 
 
@@ -801,7 +819,7 @@ RegularSeisDataPack* SequentialReader::getDataPack()
     } \
 }
 
-bool SequentialReader::init()
+bool Seis::SequentialReader::init()
 {
     if ( initialized_ )
 	return true;
@@ -911,8 +929,8 @@ bool SequentialReader::init()
 }
 
 
-bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
-				    od_ostream* extstrm )
+bool Seis::SequentialReader::setDataPack( RegularSeisDataPack& dp,
+					  od_ostream* extstrm )
 {
     nrdone_ = 0;
     DPM( DataPackMgr::SeisID() ).release( dp_ );
@@ -947,6 +965,8 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
     return true;
 }
 
+namespace Seis
+{
 
 static bool fillTrcsBuffer( SeisTrcReader& rdr, RawTrcsSequence& databuf )
 {
@@ -963,11 +983,12 @@ static bool fillTrcsBuffer( SeisTrcReader& rdr, RawTrcsSequence& databuf )
     return true;
 }
 
+}; //namespace Seis
 
 #define cTrcChunkSz	1000
 
 
-int SequentialReader::nextStep()
+int Seis::SequentialReader::nextStep()
 {
     if ( !initialized_ && !init() )
 	return ErrorOccurred();
@@ -1008,8 +1029,8 @@ int SequentialReader::nextStep()
 }
 
 
-bool SequentialReader::getTrcsPosForRead( int& desirednrpos,
-					  TypeSet<TrcKey>& tks ) const
+bool Seis::SequentialReader::getTrcsPosForRead( int& desirednrpos,
+						TypeSet<TrcKey>& tks ) const
 {
     tks.setEmpty();
     if ( dp_->is2D() )
@@ -1222,5 +1243,3 @@ float Seis::RawTrcsSequenceValueSeries::value( od_int64 idx ) const
 
 const float* Seis::RawTrcsSequenceValueSeries::arr() const
 { return (float*)seq_.getData(ipos_,icomp_); }
-
-} // namespace Seis

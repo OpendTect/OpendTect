@@ -200,6 +200,7 @@ public:
 protected:
 
     virtual int		nextStep();
+    virtual bool	goImpl(od_ostream*,bool,bool,int);
 
 private:
 
