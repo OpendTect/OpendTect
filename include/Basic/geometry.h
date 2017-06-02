@@ -61,10 +61,10 @@ public:
     inline Point2D<T>		normalize() const;
     template <class FT> FT	abs() const;
     inline T			sqAbs() const;
-    				//!<Squared absolute value
+				//!<Squared absolute value
     template <class FT> FT	distTo(const Point2D<T>&) const;
     inline T			sqDistTo(const Point2D<T>&) const;
-    				//!<Squared distance
+				//!<Squared distance
     template <class FT> FT	angle(const Point2D<T>& from,
 				      const Point2D<T>& to) const;
     template <class FT> FT	cosAngle(const Point2D<T>& from,
@@ -147,7 +147,7 @@ public:
     inline bool			isUdf() const { return !isDefined(); }
     template <class FT> FT	abs() const;
     inline T			sqAbs() const;
-                    		//!<Squared absolute value
+		//!<Squared absolute value
     template <class FT> FT	distTo(const Point3D<T>&) const;
     inline T			sqDistTo(const Point3D<T>&) const;
 				//!<Squared distance
@@ -218,7 +218,7 @@ protected:
 \brief %Basic 2D rectangle class.
 
   This class is a bit more complicated than would be expected at first sight.
-  This is caused by the problem of coordinate system sign. For example, in
+  This is caused by the problem of coord system sign. For example, in
   user interfaces, top is a lower number than bottom. But for normal
   coordinates, this is (of course) not the case. Still, also for floating point
   types, reverse axes are common.
@@ -685,7 +685,7 @@ Point3D<T>::Point3D( T x, T y, T z)
 
 template <class T> template <class TT> inline
 Point3D<T>& Point3D<T>::setFrom( const Point3D<TT>& a )
-{ x_=(T)a.x_; y_=(T)a.y_; z_=(T)a.z_; 	return *this;}
+{ x_=(T)a.x_; y_=(T)a.y_; z_=(T)a.z_;	return *this;}
 
 
 template <class T> template <class TT> inline

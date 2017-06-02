@@ -26,7 +26,7 @@ class uiTextItem;
 class uiLineItem;
 class uiBorder;
 
-/*!\brief To draw simple axes for a 2D coordinate system.
+/*!\brief To draw simple axes for a 2D coord system.
 
   This class is designed for normal axis drawing and is not applicable to axes
   which are oblique to the X/Y axis of window. The area for drawing axis can be

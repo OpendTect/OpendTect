@@ -164,7 +164,6 @@ bool FileFormatRepository::write( Repos::Source src ) const
 }
 
 
-static const char* sKeyCoordinateSystem = "Coordinate system";
 
 void TargetInfo::fillPar( IOPar& iopar ) const
 {
@@ -180,7 +179,7 @@ void TargetInfo::fillPar( IOPar& iopar ) const
     {
 	IOPar crspar;
 	selection_.coordsys_->fillPar( crspar );
-	iopar.mergeComp( crspar, IOPar::compKey(nm,sKeyCoordinateSystem) );
+	iopar.mergeComp( crspar, IOPar::compKey(nm,sKey::CoordSys()) );
     }
 
     if ( selection_.elems_.size() < 1 || selection_.elems_[0].isEmpty() )
@@ -223,7 +222,7 @@ void TargetInfo::usePar( const IOPar& iopar )
 
     selection_.unit_ = UoMR().get( iopar.find(IOPar::compKey(nm,"Unit")) );
     PtrMan<IOPar> crspar =
-		iopar.subselect( IOPar::compKey(nm,sKeyCoordinateSystem) );
+		iopar.subselect( IOPar::compKey(nm,sKey::CoordSys()) );
     if ( crspar )
 	selection_.coordsys_ = Coords::CoordSystem::createSystem( *crspar );
 

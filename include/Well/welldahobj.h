@@ -24,7 +24,7 @@ namespace Well
 
 /*!\brief object with a geometry defined by depth along hole.
 
-  Well tracks define a new coordinate system that determines the position of
+  Well tracks define a new coord system that determines the position of
   any point in the well by a single coordinate: the depth-along-hole (aka MD).
 
   Every DahObject has at least one value that determines the object's raison

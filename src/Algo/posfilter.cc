@@ -178,7 +178,7 @@ void Pos::FilterSet::fillPar( IOPar& iop ) const
 	filtpar.set( sKey::Type(), filt.type() );
 	filt.fillPar( filtpar );
 	const BufferString keybase( IOPar::compKey(sKey::Filter(),idx) );
-	iop.mergeComp( filtpar, keybase );
+	iop.updateComp( filtpar, keybase );
     }
 }
 

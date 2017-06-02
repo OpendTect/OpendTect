@@ -267,36 +267,59 @@ const char* IOPar::compKey( const char* key1, const char* key2 )
 }
 
 
+#define mGetKeyPfx(ky) \
+    BufferString pfx( ky ); \
+    if ( !pfx.endsWith(".") ) \
+	pfx.add( '.' ); \
+
+bool IOPar::hasSubSelection( int nr ) const
+{
+    BufferString s; s+= nr;
+    return hasSubSelection( s.str() );
+}
+
+
+bool IOPar::hasSubSelection( const char* kystr ) const
+{
+    mGetKeyPfx( kystr );
+    for ( int idx=0; idx<keys_.size(); idx++ )
+    {
+	const BufferString& curky = keys_.get(idx).buf();
+	if ( curky.startsWith( pfx ) )
+	    return true;
+    }
+    return false;
+}
+
+
 IOPar* IOPar::subselect( int nr ) const
 {
     BufferString s; s+= nr;
-    return subselect( s.buf() );
+    return subselect( s.str() );
 }
 
 
 IOPar* IOPar::subselect( const char* kystr ) const
 {
-    FixedString key( kystr );
-    if ( key.isEmpty() ) return 0;
+    mGetKeyPfx( kystr );
+    const int pfxlen = pfx.size();
 
     IOPar* iopar = new IOPar( name() );
     for ( int idx=0; idx<keys_.size(); idx++ )
     {
-	const char* nm = keys_.get(idx).buf();
-	if ( !key.isStartOf(nm) )
-	    continue;
-
-	nm += key.size();
-	if ( *nm == '.' && *(nm+1) )
-	    iopar->add( nm+1, vals_.get(idx) );
+	const BufferString& curky = keys_.get(idx).buf();
+	if ( curky.startsWith( pfx ) )
+	{
+	    const char* ky = curky.str() + pfxlen;
+	    iopar->add( ky, vals_.get(idx) );
+	}
     }
+
+    if ( iopar->isEmpty() )
+	{ delete iopar; return 0; }
 
     iopar->majorversion_ = majorversion_;
     iopar->minorversion_ = minorversion_;
-
-    if ( iopar->size() == 0 )
-	{ delete iopar; iopar = 0; }
-
     return iopar;
 }
 
@@ -308,41 +331,49 @@ void IOPar::removeSubSelection( int nr )
 }
 
 
-void IOPar::removeSubSelection( const char* kystr )
+void IOPar::removeSubSelection( const char* ky )
 {
-    FixedString key( kystr );
-    if ( key.isEmpty() ) return;
+    mGetKeyPfx( ky );
+    if ( pfx.isEmpty() )
+	return;
 
     for ( int idx=0; idx<keys_.size(); idx++ )
     {
-	const char* nm = keys_.get(idx).buf();
-	if ( !key.isStartOf(nm) )
-	    continue;
-
-	nm += key.size();
-	if ( *nm == '.' && *(nm+1) )
+	if ( keys_.get(idx).startsWith(pfx) )
 	    { remove( idx ); idx--; }
+    }
+}
+
+
+void IOPar::updateComp( const IOPar& oth, const char* ky )
+{
+    if ( &oth != this )
+    {
+	removeSubSelection( ky );
+	doMergeComp( oth, ky, true );
     }
 }
 
 
 void IOPar::mergeComp( const IOPar& oth, const char* ky )
 {
-    BufferString key( ky );
-    char* ptr = key.getCStr() + key.size()-1;
-    while ( ptr != key.buf() && *ptr == '.' )
-	*ptr = '\0';
+    if ( &oth != this )
+	doMergeComp( oth, ky, false );
+}
 
-    const bool havekey = !key.isEmpty();
-    if ( !havekey && &oth == this ) return;
 
-    BufferString buf;
+void IOPar::doMergeComp( const IOPar& oth, const char* ky, bool doupd )
+{
+    mGetKeyPfx( ky );
+
     for ( int idx=0; idx<oth.size(); idx++ )
     {
-	buf = key;
-	if ( havekey ) buf += ".";
-	buf += oth.keys_.get(idx);
-	set( buf, oth.vals_.get(idx) );
+	const BufferString entryky( pfx, oth.keys_.get(idx) );
+	const char* valstr = oth.vals_.get( idx );
+	if ( doupd )
+	    update( entryky, valstr );
+	else
+	    set( entryky, valstr );
     }
 }
 

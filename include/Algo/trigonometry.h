@@ -501,8 +501,8 @@ public:
 
 
 /*!
-\brief Defines a 2D coordinate system on a 3D plane and transforms between the
-3D space and the coordinate system.
+\brief Defines a 2D coord system on a 3D plane and transforms between the
+3D space and the coord system.
 */
 
 mExpClass(Algo) Plane3CoordSystem

@@ -275,6 +275,7 @@ public:
     static uiString sColumn(int num=1)	{ return tr("Column",0,num); }
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sConstant()		{ return tr("Constant"); }
+    static uiString sCoordSys()		{ return tr("Coordinate System"); }
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sContour(int num=1)	{ return tr("Contour",0,num); }
     static uiString sCoordinate(int num=1) { return tr("Coordinate",0,num); }

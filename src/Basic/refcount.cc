@@ -154,19 +154,11 @@ void Counter::ref()
 	    pErrMsg("Invalid ref");
 #ifdef __debug__
 	    DBG::forceCrash(false);
-	    newcount = 0; //To fool unitialized code warning
-#else
-	    newcount = 1; //Hoping for the best
 #endif
-	}
-	else if ( oldcount==mStartRefCount )
-	{
-	    newcount = 1;
+	    newcount = 1; //Hoping for the best
 	}
 	else
-	{
-	    newcount = oldcount+1;
-	}
+	    newcount = oldcount==mStartRefCount ? 1 : oldcount+1;
 
     } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
 }
@@ -422,7 +414,7 @@ void RefCount::WeakPtrSetBase::blockCleanup()
         int prevval = blockcleanup_;
         if ( prevval==-1 ) //cleanup in session
             continue;
-        
+
         if ( blockcleanup_.setIfValueIs( prevval, prevval+1 ) )
             break;
     }

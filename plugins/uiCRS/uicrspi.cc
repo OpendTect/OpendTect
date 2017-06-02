@@ -33,5 +33,3 @@ mDefODPluginSurvRelToolsLoadFn(uiCRS)
 {
     Coords::uiProjectionBasedSystem::initClass();
 }
-
-

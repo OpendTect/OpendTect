@@ -371,7 +371,7 @@ void DescSet::fillPar( IOPar& par ) const
 	    apar.set( key, getID( *dsc.getInput(input) ).asInt() );
 	}
 
-	par.mergeComp( apar, BufferString("",ids_[idx].asInt()) );
+	par.updateComp( apar, BufferString("",ids_[idx].asInt()) );
 
 	if ( ids_[idx].asInt() > maxid ) maxid = ids_[idx].asInt();
     }
@@ -802,7 +802,7 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 
 	dsc->updateParams();
 	addDesc( dsc, DescID(id,storedattronly_) );
-	copypar.mergeComp( *descpar, toString(id) );
+	copypar.updateComp( *descpar, toString(id) );
     }
 
     // sort_coupled();

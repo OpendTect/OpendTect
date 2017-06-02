@@ -592,6 +592,7 @@ static bool getStringEndsWith( const char* str1, const char* str2, int ci )
     if ( !*str2 )		return false;
     const char* start1 = str1; const char* start2 = str2;
     while ( *str1 ) str1++; while ( *str2 ) str2++;
+    str1-- ; str2--;
 
     while ( true )
     {
@@ -600,9 +601,9 @@ static bool getStringEndsWith( const char* str1, const char* str2, int ci )
 	else
 	    { if ( *str1 != *str2 ) return false; }
 	str1-- ; str2--;
-	if ( str1 == start1 )
+	if ( str1 == start1-1 )
 	    break;
-	if ( str2 == start2 )
+	if ( str2 == start2-1 )
 	    return false;
     }
     return true;

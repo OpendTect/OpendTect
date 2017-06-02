@@ -24,7 +24,7 @@ namespace Coords
 
 
 
-/*! Base class for Coordinate Systems, these are all two-dimensional and
+/*! Base class for Coord systems, these are all two-dimensional and
     coordinates can be stored in Coord. They may use any projection, but they
     must be able to return Geographic coordinates using
     either the WGS84 datum or its own datum if applicable.
@@ -47,7 +47,7 @@ public:
 					       bool onlyprojection,
 					       uiStringSet&,
 					       ObjectSet<IOPar>&);
-				/*!Gets a list of coordinate systems and the
+				/*!Gets a list of coord systems and the
 				   corresponding IOPars to create them.
 				   IOPars become yours! */
 
@@ -75,23 +75,25 @@ public:
 				    system, followed by a space. */
     virtual Coord		fromString(const char*) const;
 
-    virtual bool		isOrthogonal() const			= 0;
+    virtual bool		isOrthogonal() const	= 0;
     virtual bool		isProjection() const	{ return false; }
     virtual bool		isFeet() const		{ return false; }
     virtual bool		isMeter() const		{ return false; }
 
-    virtual bool		usePar(const IOPar&);
-    virtual void		fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
 
-    static const char*		sKeyFactoryName()	{ return "System name";}
-    static const char*		sKeyUiName()		{ return "UI Name"; }
+    static const char*		sKeyFactoryName();
+    static const char*		sKeyUiName();
 
 protected:
 
     virtual LatLong		toGeographic(const Coord&,
-					     bool wgs84=false) const	= 0;
+					     bool wgs84) const		= 0;
     virtual Coord		fromGeographic(const LatLong&,
-					       bool wgs84=false) const = 0;
+					       bool wgs84) const	= 0;
+    virtual void		doFillPar(IOPar&) const			= 0;
+    virtual bool		doUsePar(const IOPar&)			= 0;
 
 private:
 
@@ -108,10 +110,9 @@ public:
 			UnlocatedXY();
 
     virtual CoordSystem*	clone() const;
-    virtual uiString	description() const
-			{ return
+    virtual uiString	description() const { return
 			   tr("Coordinate system in an undefined projection.");}
-    virtual BufferString	summary() const
+    virtual BufferString summary() const
 				{ return sFactoryKeyword(); }
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
@@ -122,13 +123,12 @@ public:
     virtual bool	isFeet() const		{ return isfeet_; }
     virtual bool	isMeter() const		{ return !isfeet_; }
 
-    virtual bool	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-
 private:
 
-    virtual LatLong	toGeographic(const Coord&,bool wgs84=false) const;
-    virtual Coord	fromGeographic(const LatLong&,bool wgs84=false) const;
+    virtual LatLong	toGeographic(const Coord&,bool wgs84) const;
+    virtual Coord	fromGeographic(const LatLong&,bool wgs84) const;
+    virtual bool	doUsePar(const IOPar&);
+    virtual void	doFillPar(IOPar&) const;
 
     bool		isfeet_;
 };
@@ -142,11 +142,11 @@ public:
 
 			AnchorBasedXY();
 			AnchorBasedXY(const LatLong&,const Coord&);
-    virtual CoordSystem*	clone() const;
-    virtual uiString	description() const
-			{ return tr("Coordinate system has an anchor point "
+    virtual CoordSystem* clone() const;
+    virtual uiString	description() const { return
+				tr("Coordinate system has an anchor point "
 				    "for which Latitude/Longitude is known");}
-    virtual BufferString	summary() const;
+    virtual BufferString summary() const;
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const;
@@ -157,23 +157,24 @@ public:
     virtual bool	isFeet() const		{ return isfeet_; }
     virtual bool	isMeter() const		{ return !isfeet_; }
 
-    virtual bool	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-
     const Coord&	refCoord() const { return refcoord_; }
     const LatLong&	refLatLong() const { return reflatlng_; }
 
 private:
 
-    virtual LatLong	toGeographic(const Coord&,bool wgs84=false) const;
+    virtual LatLong	toGeographic(const Coord&,bool wgs84) const;
 			//!<Very approximate! Be Aware!
-    virtual Coord	fromGeographic(const LatLong&,bool wgs84=false) const;
+    virtual Coord	fromGeographic(const LatLong&,bool wgs84) const;
 
     bool		isfeet_;
     Coord		refcoord_;
     LatLong		reflatlng_;
 
     double		lngdist_;
+
+    virtual bool	doUsePar(const IOPar&);
+    virtual void	doFillPar(IOPar&) const;
+
 };
 
 }; //namespace

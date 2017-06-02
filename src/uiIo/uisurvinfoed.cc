@@ -455,10 +455,10 @@ void uiSurveyInfoEditor::mkTransfGrp()
 
 void uiSurveyInfoEditor::mkLatLongGrp()
 {
-    latlonggrp_ = new uiGroup( tabs_->tabGroup(), "Coordinate System" );
+    latlonggrp_ = new uiGroup( tabs_->tabGroup(), sKey::CoordSys() );
     uiLabel* emptyspace = new uiLabel( latlonggrp_, uiStrings::sEmptyString() );
     latlongsel_ = new Coords::uiCoordSystemSelGrp( latlonggrp_, true, false,
-	    					&si_, si_.getCoordSystem() );
+						&si_, si_.getCoordSystem() );
     latlongsel_->attach( alignedBelow, emptyspace );
     tabs_->addTab( latlonggrp_ );
     tabs_->setTabIcon( latlonggrp_, "spherewire" );

@@ -211,6 +211,7 @@ private:
 
 				// For DBMan only
     static uiRetVal	setSurveyLocation(const char*,const char*,bool);
+    void		setToUnlocatedCoordSys(bool);
 
 public:
 

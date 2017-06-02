@@ -341,7 +341,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 
     if ( names.size() > 1 )
     {
-	coordsystemsel_ = new uiGenInput( this, tr("Coordinate system"),
+	coordsystemsel_ = new uiGenInput( this, uiStrings::sCoordSys(),
 				      StringListInpSpec(names) );
 	coordsystemsel_->attach( leftBorder );
 	mAttachCB( coordsystemsel_->valuechanged,

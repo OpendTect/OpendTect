@@ -99,12 +99,16 @@ public:
 			//!< The composite key where int will be --> string
     static const char*	compKey( const char* ky1, const OD::String& ky2 )
 			{ return compKey(ky1,ky2.str()); }
+    bool		hasSubSelection(const char*) const;
+    bool		hasSubSelection(int) const;
+    bool		hasSubSelection( const OD::String& str ) const
+			{ return hasSubSelection( str.str() ); }
     IOPar*		subselect(const char*) const;
 			//!< returns iopar with key that start with <str>.
     IOPar*		subselect(int) const;
 			//!< returns iopar with key that start with number.
-    IOPar*		subselect( const OD::String& fs ) const
-			{ return subselect( fs.str() ); }
+    IOPar*		subselect( const OD::String& str ) const
+			{ return subselect( str.str() ); }
     void		removeSubSelection(const char*);
 			//!< removes with key that start with <str>.
     void		removeSubSelection(int);
@@ -113,6 +117,8 @@ public:
 			{ removeSubSelection( fs.str() ); }
     void		mergeComp(const IOPar&,const char*);
 			//!< merge entries, where IOPar's entries get a prefix
+    void		updateComp(const IOPar&,const char*);
+			//!< use update to comp-merge. May remove stuff.
 
 // GET functions
 
@@ -325,6 +331,8 @@ protected:
 
     BufferStringSet&	keys_;
     BufferStringSet&	vals_;
+
+    void		doMergeComp(const IOPar&,const char*,bool);
 
 };
 

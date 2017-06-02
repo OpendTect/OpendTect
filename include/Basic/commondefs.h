@@ -129,9 +129,7 @@ inline T getLimited( T v, T min, T max )
 #define mDefSetupMemb(typ,memb) mDefSetupClssMemb(Setup,typ,memb)
 
 #define mDefNoAssignmentOper(clss) \
-private: \
-    inline clss& operator =( const clss& ) \
-	    { pErrMsg("No assignment"); return *this; }
+    clss& operator =( const clss& ) = delete;
 
 
 

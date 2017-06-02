@@ -705,7 +705,7 @@ void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tskr )
 	setDefaultRGBAValue( attr );
 
     // Reverse the index order, because osgVolume turns out to perform well
-    // for one sense of the coordinate system only, and OD uses the other. A
+    // for one sense of the coord sys only, and OD uses the other. A
     // transform in visSurvey::VolumeDisplay does the geometrical mirroring.
 
     const int idxstep = -attribs_[attr]->indexcachestep_;

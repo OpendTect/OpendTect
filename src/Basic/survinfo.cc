@@ -51,7 +51,6 @@ const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
-static const char* sKeyCoordinateSystem = "Coordinate system";
 mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
@@ -108,6 +107,8 @@ SurveyInfo::SurveyInfo()
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
     fullcs_.hsamp_.survid_ = workcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
+
+    setToUnlocatedCoordSys( false );
 }
 
 
@@ -202,6 +203,14 @@ Monitorable::ChangeType SurveyInfo::compareClassData(
     mCmpRet( comments_, cCommentChange );
 
     return cNoChange();
+}
+
+
+void SurveyInfo::setToUnlocatedCoordSys( bool xyinfeet )
+{
+    RefMan<Coords::UnlocatedXY> undefsystem = new Coords::UnlocatedXY;
+    undefsystem->setIsFeet( xyinfeet );
+    coordsystem_ = undefsystem;
 }
 
 
@@ -379,15 +388,11 @@ bool SurveyInfo::usePar( const IOPar& par )
 	setSurvDataType( var );
     }
 
-    PtrMan<IOPar> coordsystempar = par.subselect( sKeyCoordinateSystem );
-    if ( !coordsystempar )
-	coordsystempar = defpars_.subselect( sKeyCoordinateSystem );
-    if ( coordsystempar )
-	coordsystem_ = Coords::CoordSystem::createSystem( *coordsystempar );
+    coordsystem_ = Coords::CoordSystem::createSystem( par );
 
     if ( !coordsystem_ )
     {
-	/*Try to read the parameters, there should be reference latlog and
+	/*Try to read the parameters, there may be reference latlog and
 	  Coordinates in there. */
 	bool xyinfeet = false;
 	par.getYN( sKeyXYInFt(), xyinfeet );
@@ -412,11 +417,7 @@ bool SurveyInfo::usePar( const IOPar& par )
 	}
 
 	if ( !coordsystem_ )
-	{
-	    RefMan<Coords::UnlocatedXY> undefsystem = new Coords::UnlocatedXY;
-	    undefsystem->setIsFeet( xyinfeet );
-	    coordsystem_ = undefsystem;
-	}
+	    setToUnlocatedCoordSys( xyinfeet );
     }
 
     par.get( sKeySeismicRefDatum(), seisrefdatum_ );
@@ -1136,13 +1137,13 @@ void SurveyInfo::fillPar( IOPar& par ) const
 	par.set( ky.buf(), fms.buf() );
     }
 
-    IOPar coordsystempar;
-    coordsystem_->fillPar( coordsystempar );
-    par.mergeComp( coordsystempar, sKeyCoordinateSystem );
+    par.removeSubSelection( sKey::CoordSys() );
+    coordsystem_->fillPar( par );
 
     // To prevent overwring by v6.0 and older
-    const_cast<SurveyInfo*>(this)->defpars_.mergeComp( coordsystempar,
-	    						sKeyCoordinateSystem );
+    const_cast<SurveyInfo*>(this)->defpars_.removeSubSelection(
+							sKey::CoordSys() );
+    coordsystem_->fillPar( const_cast<SurveyInfo*>(this)->defpars_ );
 
     // Needed by v6.0 and older
     par.setYN( sKeyXYInFt(), xyInFeet() );
@@ -1353,17 +1354,18 @@ void SurveyInfo::readSavedCoordSystem() const
 
     ascistream astream( sfio.istrm() );
     if ( !astream.isOfFileType(sKeySI) )
-    { sfio.closeSuccess(); return; }
+	{ sfio.closeSuccess(); return; }
 
     astream.next();
     const IOPar survpar( astream );
 
-    PtrMan<IOPar> coordsystempar = survpar.subselect( sKeyCoordinateSystem );
-    if ( !coordsystempar )
-	coordsystempar = defpars_.subselect( sKeyCoordinateSystem );
-    if ( coordsystempar )
-	const_cast<SurveyInfo*>(this)->coordsystem_ =
-		Coords::CoordSystem::createSystem( *coordsystempar );
+    const IOPar* iop2use = &survpar;
+    if ( !iop2use->hasSubSelection(sKey::CoordSys()) )
+	iop2use = &defpars_;
+    RefMan<Coords::CoordSystem> newsys
+		    = Coords::CoordSystem::createSystem( *iop2use );
+    if ( newsys )
+	const_cast<SurveyInfo*>(this)->coordsystem_ = newsys;
 
     sfio.closeSuccess();
 }

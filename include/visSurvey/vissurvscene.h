@@ -49,19 +49,19 @@ Use <code>addObject(visBase::SceneObject*)</code> to add an object to the Scene.
 
 It also manages the size of the survey cube. The ranges in each direction are
 obtained from <code>SurveyInfo</code> class.<br>
-The display coordinate system is given in [m/m/ms] if the survey's depth is
+The display coord system is given in [m/m/ms] if the survey's depth is
 given in time. If the survey's depth is given in meters, the display coordinate
-system is given as [m/m/m]. The display coordinate system is _righthand_
+system is given as [m/m/m]. The display coord system is _righthand_
 oriented!<br>
 
 OpenInventor(OI) has difficulties handling real-world coordinates (like xy UTM).
 Therefore the coordinates given to OI must be transformed from the UTM system
-to the display coordinate system. This is done by the display transform, which
+to the display coord system. This is done by the display transform, which
 is given to all objects in the UTM system. These object are responsible to
 transform their coords themselves before giving them to OI.<br>
 
 The visSurvey::Scene has two domains:<br>
-1) the UTM coordinate system. It is advised that most objects are here.
+1) the UTM coord system. It is advised that most objects are here.
 The objects added to this domain will have their transforms set to the
 displaytransform which transforms their coords from UTM lefthand
 (x, y, time[s] or depth[m] ) to display coords (righthand).<br>

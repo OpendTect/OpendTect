@@ -124,7 +124,7 @@ public:
 				     in the vis.
 				 */
     virtual void		setRightHandSystem(bool yn)	{}
-				/*!<Sets whether the coordinate system is
+				/*!<Sets whether the coord system is
 				    right or left handed. */
     virtual bool		isRightHandSystem() const	{ return true; }
 

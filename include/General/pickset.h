@@ -42,9 +42,9 @@ mExpClass(General) Set	: public SharedObject
 {
 public:
 
-    typedef TypeSet<Location>::size_type    size_type;
-    typedef size_type			    IdxType;
-    mDefIntegerIDType(IdxType,		    LocID);
+    typedef TypeSet<Location>::size_type	size_type;
+    typedef size_type				IdxType;
+    mDefIntegerIDType(IdxType,			LocID);
 
 			Set(const char* nm=0,const char* category=0);
 			mDeclInstanceCreatedNotifierAccess(Set);
@@ -185,8 +185,6 @@ public:
     Coord		getPos() const;
     double		getZ() const;
 
-    mDefNoAssignmentOper(SetIter)
-
 };
 
 
@@ -211,8 +209,6 @@ public:
     Location&		get() const;
     void		removeCurrent();
     void		insert(const Pick::Location&);
-
-    mDefNoAssignmentOper(SetIter4Edit)
 
 };
 

@@ -217,8 +217,7 @@ bool BatchProgram::go( od_ostream& strm )
 		if ( linename.isEmpty() )
 		    break;
 
-		procpar.removeSubSelection( subselkey );
-		procpar.mergeComp( *linepar, subselkey );
+		procpar.updateComp( *linepar, subselkey );
 	    }
 
 	    proc = attrengman->usePar( procpar, attribset,

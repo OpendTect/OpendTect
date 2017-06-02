@@ -10,6 +10,14 @@
 #include "iopar.h"
 #include "notify.h"
 #include "separstr.h"
+#include "keystrs.h"
+
+static const BufferString coordsysfactorynm_(
+		IOPar::compKey(sKey::CoordSys(),"System name") );
+static const BufferString coordsysusrnm_(
+		IOPar::compKey(sKey::CoordSys(),"Description") );
+const char* Coords::CoordSystem::sKeyFactoryName() { return coordsysfactorynm_;}
+const char* Coords::CoordSystem::sKeyUiName() { return coordsysusrnm_; }
 
 static const double cAvgEarthRadius = 6367450;
 static const double latdist = cAvgEarthRadius*mDeg2RadD;
@@ -139,13 +147,36 @@ Coord CoordSystem::convertFrom( const Coord& in,
 bool CoordSystem::usePar( const IOPar& par )
 {
     BufferString nm;
-    return par.get( sKeyFactoryName(), nm ) && nm == factoryKeyword();
+    if ( !par.get(sKeyFactoryName(),nm) || nm != factoryKeyword() )
+	return false;
+
+    PtrMan<IOPar> subpar = par.subselect( sKey::CoordSys() );
+    if ( !subpar || subpar->isEmpty() )
+	{ pErrMsg("Huh"); return false; }
+
+    return doUsePar( *subpar );
 }
 
 
 void CoordSystem::fillPar( IOPar& par ) const
 {
+    par.removeSubSelection( sKey::CoordSys() );
+
     par.set( sKeyFactoryName(), factoryKeyword() );
+    BufferString uinm( summary() );
+    char* dispnm = uinm.find( ']' );
+    if ( !dispnm )
+	dispnm = uinm.getCStr();
+    else
+    {
+	*dispnm++ = '\0';
+	mSkipBlanks( dispnm );
+    }
+    par.set( sKeyUiName(), dispnm );
+
+    IOPar subpar;
+    doFillPar( subpar );
+    par.mergeComp( subpar, sKey::CoordSys() );
 }
 
 
@@ -218,19 +249,15 @@ Coord UnlocatedXY::fromGeographic( const LatLong&, bool ) const
 
 static const char* sKeyIsFeet = "XY in Feet";
 
-bool UnlocatedXY::usePar( const IOPar& par )
+bool UnlocatedXY::doUsePar( const IOPar& par )
 {
-    if ( !CoordSystem::usePar(par) )
-	return false;
-
     par.getYN( sKeyIsFeet, isfeet_ );
     return true;
 }
 
 
-void UnlocatedXY::fillPar( IOPar& par ) const
+void UnlocatedXY::doFillPar( IOPar& par ) const
 {
-    CoordSystem::fillPar( par );
     par.setYN( sKeyIsFeet, isfeet_ );
 }
 
@@ -309,29 +336,23 @@ Coord AnchorBasedXY::fromGeographic( const LatLong& ll, bool ) const
 static const char* sKeyRefLatLong = "Reference Lat/Long";
 static const char* sKeyRefCoord = "Reference Coordinate";
 
-bool AnchorBasedXY::usePar( const IOPar& par )
+bool AnchorBasedXY::doUsePar( const IOPar& par )
 {
-    if ( !CoordSystem::usePar(par) )
-	return false;
-
     Coord crd;
     LatLong latlong;
     par.getYN( sKeyIsFeet, isfeet_ );
 
     if ( par.get(sKeyRefLatLong,latlong.lat_,latlong.lng_) &&
 	 par.get(sKeyRefCoord,crd) )
-    {
 	setLatLongEstimate( latlong, crd );
-    }
 
     return true;
 }
 
 
-void AnchorBasedXY::fillPar( IOPar& par ) const
+void AnchorBasedXY::doFillPar( IOPar& par ) const
 {
-    CoordSystem::fillPar( par );
     par.setYN( sKeyIsFeet, isfeet_ );
-    par.set( sKeyRefLatLong, reflatlng_.lat_, reflatlng_.lng_);
+    par.set( sKeyRefLatLong, reflatlng_.lat_, reflatlng_.lng_ );
     par.set( sKeyRefCoord, refcoord_ );
 }
