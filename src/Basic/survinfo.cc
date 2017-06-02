@@ -1359,6 +1359,8 @@ void SurveyInfo::readSavedCoordSystem() const
     const IOPar survpar( astream );
 
     PtrMan<IOPar> coordsystempar = survpar.subselect( sKeyCoordinateSystem );
+    if ( !coordsystempar )
+	coordsystempar = defpars_.subselect( sKeyCoordinateSystem );
     if ( coordsystempar )
 	const_cast<SurveyInfo*>(this)->coordsystem_ =
 		Coords::CoordSystem::createSystem( *coordsystempar );
