@@ -17,11 +17,11 @@ macro ( create_package PACKAGE_NAME )
 			     ${COPYTODATADIR}/. )
 	endif()
 
-    if( NOT MATLAB_DIR STREQUAL "" )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/MATLAB )
-   endif()
+	if( NOT MATLAB_DIR STREQUAL "" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/MATLAB )
+	endif()
 
 	copy_thirdpartylibs()
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
