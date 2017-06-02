@@ -32,20 +32,8 @@ namespace Seis
 mGlobal(Seis) inline const char* sSeismicSubDir() { return "Seismics"; }
 mGlobal(Seis) inline const char* sInfoFileExtension() { return "info"; }
 
-/*!\brief Storage and access of data in survey-geometry driven blocks.
-
-A 3D survey Geometry defines a full 'Lattice' that in turns defines
-a unique set of indices for inlines, crosslines and Z. We can group the
-positions into blocks of a size that is not too big, but big enough to not
-make a huge number of files.
-
-With these predefined dimensions, we can set up indexes for each block in each
-dimension (the GlobIdx). Within the blocks, you then have local, relative
-indices 0 - N-1 in LocIdx.
-
-Note for 6.2: this will be the default 3D seismics storage format in 7.X.
-
-  */
+/*!\brief 3D seismic storage. In 6.2, can be read only.
+   For comments see master branch. */
 
 namespace Blocks
 {
@@ -55,7 +43,7 @@ namespace Blocks
     typedef DataInterpreter<float> DataInterp;
     typedef unsigned short	CoordSysID;
 
-    // in 7.x, this will be a typedef from Survey::Geometry3D
+    // From 7.x, this will be a simple typedef from Survey::Geometry3D
     mExpClass(Seis) HGeom : public Survey::Geometry3D
     {
     public:
@@ -181,16 +169,7 @@ protected:
 };
 
 
-/*!\brief Base class for Reader and Writer.
-
-  The format is designed with these principles in mind:
-  * Bricking helps keep performance similar and reasonably OK in all directions
-  * The total geometry setup is stored in a human-readbale summary file, which
-    will make the data usable accross surveys
-  * When writing, no sorting is required, although some sorting will help keep
-    memory consumption down
-
-*/
+/*!\brief Base class for Reader and Writer. For comments see master branch. */
 
 mExpClass(Seis) IOClass
 {

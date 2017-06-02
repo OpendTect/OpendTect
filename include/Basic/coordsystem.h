@@ -110,9 +110,9 @@ public:
     virtual CoordSystem*	clone() const;
     virtual uiString	description() const
 			{ return
-			   tr("Coordinate system in an undefined projection.");}
+			   tr("Coordinate System in an undefined projection.");}
     virtual BufferString	summary() const
-    				{ return sFactoryKeyword(); }
+				{ return sFactoryKeyword(); }
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const	{ return false; }
@@ -144,7 +144,7 @@ public:
 			AnchorBasedXY(const LatLong&,const Coord&);
     virtual CoordSystem*	clone() const;
     virtual uiString	description() const
-			{ return tr("Coordinate system has an anchor point "
+			{ return tr("Coordinate System has an anchor point "
 				    "for which Latitude/Longitude is known");}
     virtual BufferString	summary() const;
 

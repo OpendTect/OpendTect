@@ -164,7 +164,7 @@ bool FileFormatRepository::write( Repos::Source src ) const
 }
 
 
-static const char* sKeyCoordinateSystem = "Coordinate system";
+static const char* sKeyCoordinateSystem = "Coordinate System";
 
 void TargetInfo::fillPar( IOPar& iopar ) const
 {

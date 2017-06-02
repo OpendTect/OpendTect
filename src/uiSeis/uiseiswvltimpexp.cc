@@ -225,7 +225,7 @@ uiSeisWvltCopy::uiSeisWvltCopy( uiParent* p, const IOObj* inioobj )
 				FloatInpSpec(1) );
     scalefld_->attach( alignedBelow, wvltinfld_ );
 
-    ctxt.forread = false;
+    ctxt.forread_ = false;
     wvltoutfld_ = new uiIOObjSel( this, ctxt );
     wvltoutfld_->attach( alignedBelow, scalefld_ );
 }

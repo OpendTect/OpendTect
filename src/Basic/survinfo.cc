@@ -46,7 +46,7 @@ const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
-static const char* sKeyCoordinateSystem = "Coordinate system";
+static const char* sKeyCoordinateSystem = "Coordinate System";
 
 mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
@@ -1137,7 +1137,7 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	coordsystem_->fillPar( par );
 	for ( int idx=0; idx<par.size(); idx++ )
 	    astream.put( IOPar::compKey(sKeyCoordinateSystem,par.getKey(idx)),
-		    	 par.getValue(idx) );
+			 par.getValue(idx) );
 
 	const_cast<SurveyInfo*>(this)->pars_.mergeComp( par,
 							 sKeyCoordinateSystem );

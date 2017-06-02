@@ -33,13 +33,7 @@ namespace Blocks
 class FileColumn;
 class OffsetTable;
 
-/*!\brief Reads data from Blocks Storage.
-
-  if ( state().isError() ) do not attempt anything.
-
-  The get() and getNext() should be MT-safe, but reading is not parallel.
-
-*/
+/*!\brief Reads data from Blocks Storage. For comments see master branch. */
 
 mExpClass(Seis) Reader : public IOClass
 { mODTextTranslationClass(Seis::Blocks::Reader);

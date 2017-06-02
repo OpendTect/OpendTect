@@ -36,12 +36,12 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 					      bool projectiononly,
 					      const SurveyInfo* si,
 					      const CoordSystem* fillfrom )
-    : uiDlgGroup( p, tr("Coordinate system properties") )
+    : uiDlgGroup( p, tr("Coordinate System properties") )
     , si_(si ? si : &SI())
 {
     uiStringSet names;
     CoordSystem::getSystemNames( onlyorthogonal, projectiononly,
-	    			    names, coordsystempars_ );
+				    names, coordsystempars_ );
 
     coordsystemsuis_.allowNull();
 
@@ -75,7 +75,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 
     if ( names.size() > 1 )
     {
-	coordsystemsel_ = new uiGenInput( this, tr("Coordinate system"),
+	coordsystemsel_ = new uiGenInput( this, tr("Coordinate System"),
 				      StringListInpSpec(names) );
 	coordsystemsel_->attach( leftBorder );
 	mAttachCB( coordsystemsel_->valuechanged,
@@ -157,7 +157,7 @@ uiCoordSystemDlg::uiCoordSystemDlg( uiParent* p, bool orthogonalonly,
 				 mODHelpKey(mLatLong2CoordDlgHelpID) ))
 {
     coordsysselfld_ = new Coords::uiCoordSystemSelGrp( this, orthogonalonly,
-	    					projectiononly, si, coordsys );
+						projectiononly, si, coordsys );
 }
 
 
