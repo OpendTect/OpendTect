@@ -150,7 +150,9 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 	      uiString::emptyString(),mODHelpKey(mSeisCopyLineSetHelpID)))
 {
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
-    inpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
+    uiSeisSel::Setup sssu( Seis::Line );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    inpfld_ = new uiSeisSel( this, ioctxt, sssu );
     inpfld_->selectionDone.notify( mCB(this,uiSeisCopy2DDataSet,inpSel) );
 
     subselfld_ = new uiSeis2DMultiLineSel( this, uiStrings::phrSelect(
@@ -193,6 +195,9 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
     const IOObj* outioobj = outpfld_->ioobj();
     if ( !outioobj )
 	return false;
+
+    IOPar& outpars = outioobj->pars();
+    outpars.addFrom( inioobj->pars() );
 
     IOPar procpars;
     subselfld_->fillPar( procpars );
