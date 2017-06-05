@@ -354,24 +354,6 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 #define mGetZDomainGE \
     const GlobExpr zdomge( o2d.zdomky_.isEmpty() ? ZDomain::SI().key() \
 						 : o2d.zdomky_.buf() )
-#define mChkOpts \
-   if ( o2d.steerpol_ != 2 ) \
-    { \
-	const char* dt = dset->dataType(); \
-	const char* attrnm = dset->name(); \
-	const bool issteer = (dt && sKey::Steering()==dt) || \
-				(!dt && sKey::Steering()==attrnm); \
-	if ( (o2d.steerpol_ == 0 && issteer) \
-	  || (o2d.steerpol_ == 1 && !issteer) ) \
-	    continue; \
-    } \
-    BufferString zdomainkey; \
-    if ( !ioobj_->pars().get(ZDomain::sKey(),zdomainkey) || \
-	 zdomainkey.isEmpty() ) \
-	zdomainkey = ZDomain::SI().key(); \
-    if ( !zdomge.matches(zdomainkey.buf()) ) \
-	continue
-
 
 void SeisIOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
@@ -438,7 +420,6 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 		continue;
 	}
 
-	mChkOpts;
 	bss.add( nm );
     }
 
