@@ -256,7 +256,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
     mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
     const TrcKey tk( bid_ ); //TODO: Get a SurvID from TrcKeySampling
     const Vel::Function* velsrc = directsource_ ? directsource_ :
-		velocityfunctions_.size() == 1 ?  velocityfunctions_[0] : 0;
+		!velocityfunctions_.isEmpty() ?  velocityfunctions_[0] : 0;
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;
@@ -268,7 +268,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 
 	const float layeridx = layermodel_ ?
 		    layermodel_->getLayerIndex( tk, z ) : mUdf(float);
-	if ( mIsUdf(layeridx) )
+	if ( mIsUdf(layeridx) && !velsrc )
 	{
 	    res[idx] = mUdf(float);
 	    continue;
