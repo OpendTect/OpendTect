@@ -656,12 +656,10 @@ void uiODMenuMgr::fillAnalMenu()
 	analmnu_->insertSeparator();
     }
 
-    if ( survtype!=SurveyInfo::Only2D )
-    {
-	analmnu_->insertItem( new uiAction( m3Dots(tr("Volume Builder")),
-				mCB(&applMgr(),uiODApplMgr,doVolProcCB),
-				VolProc::uiChain::pixmapFileName() ) );
-    }
+    add2D3DMenuItem( *analmnu_, VolProc::uiChain::pixmapFileName(),
+	    	     tr("Volume Builder"),
+		     mCB(&applMgr(),uiODApplMgr,doVolProc2DCB),
+		     mCB(&applMgr(),uiODApplMgr,doVolProcCB) );
 
     uiMenu* xplotmnu = new uiMenu( &appl_, tr("Cross-plot Data"),
 				   "xplot");
