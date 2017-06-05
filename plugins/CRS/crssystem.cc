@@ -9,6 +9,7 @@
 #include "iopar.h"
 
 static const char* sKeyProjectionID = "Projection.ID";
+static const char* sKeyProjectionName = "Projection.Name";
 
 Coords::ProjectionBasedSystem::ProjectionBasedSystem()
     : proj_(0)
@@ -89,8 +90,11 @@ bool Coords::ProjectionBasedSystem::doUsePar( const IOPar& par )
 
 void Coords::ProjectionBasedSystem::doFillPar( IOPar& par ) const
 {
-    if ( proj_ )
-	par.set( sKeyProjectionID, proj_->authCode().toString() );
+    if ( !proj_ )
+	return;
+
+    par.set( sKeyProjectionID, proj_->authCode().toString() );
+    par.set( sKeyProjectionName, proj_->userName() );
 }
 
 
