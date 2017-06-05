@@ -53,6 +53,8 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
     DataPack* vddp = DPM( DataPackMgr::FlatID() ).obtain( vdid );
     mDynamicCastGet( PreStack::Gather*, vdgather, vddp );
     viewer_.appearance().ddpars_.vd_.show_ = vdgather;
+    Interval<float> rng;
+    viewer_.appearance().ddpars_.vd_.mappersetup_.range_ = rng.udf();
     if ( vdgather )
     {
 	inputvdgather_ = vdgather;
