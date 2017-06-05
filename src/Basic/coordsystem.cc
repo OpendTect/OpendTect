@@ -164,16 +164,6 @@ void CoordSystem::fillPar( IOPar& par ) const
     par.removeSubSelection( sKey::CoordSys() );
 
     par.set( sKeyFactoryName(), factoryKeyword() );
-    BufferString uinm( summary() );
-    char* dispnm = uinm.find( ']' );
-    if ( !dispnm )
-	dispnm = uinm.getCStr();
-    else
-    {
-	*dispnm++ = '\0';
-	mSkipBlanks( dispnm );
-    }
-    par.set( sKeyUiName(), dispnm );
 
     IOPar subpar;
     doFillPar( subpar );
