@@ -72,6 +72,7 @@ set ( OD_API_VERSION "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${Op
 set ( OD_MAIN_EXEC od_main od_main_console )
 set ( OD_ATTRIB_EXECS od_process_attrib od_process_attrib_em od_stratamp )
 set ( OD_VOLUME_EXECS od_process_volume )
+set( OD_SEIS_EXECS od_copy_seis.cc od_process_2dto3d.cc od_process_segyio.cc )
 set ( OD_PRESTACK_EXECS od_process_prestack )
 set ( OD_ZAXISTRANSFORM_EXECS od_process_time2depth )
 set ( OD_SURVEY_EXECS od_Edit_Survey od_Manage_Surveys )
