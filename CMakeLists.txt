@@ -49,7 +49,6 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 set( OD_SUBSYSTEM "od" )
 
 include( OD_SetupOD )
-include( ODInternal )
 
 #Add osgGeo
 OD_ADD_OSGGEO()
@@ -113,6 +112,7 @@ OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
 OD_ADD_MODULES( spec ${OD_SPECPROGS} )
 
+include( ODInternal )
 OD_WRITE_MODDEPS( ${OD_BINARY_BASEDIR}/data )
 OD_WRITE_FINDFILE()
 OD_WRITE_TEST_PROJECT_DESC( ${OD_BINARY_BASEDIR}/test )
