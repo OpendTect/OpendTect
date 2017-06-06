@@ -16,9 +16,6 @@ macro ( create_package PACKAGE_NAME )
 			     ${COPYFROMDATADIR}/od.icns
 			     ${COPYTODATADIR}/. )
 	endif()
-    if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
-	copy_unix_systemlibs()
-    endif()
 
     if( NOT MATLAB_DIR STREQUAL "" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -162,6 +159,12 @@ macro ( create_package PACKAGE_NAME )
 			     ${COPYTOLIBDIR}/od_main_debug.bat )
 	endif()
     endif()
+    foreach( EXTERNALLIB ${EXTERNALLIBS} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${COPYFROMLIBDIR}/${EXTERNALLIB}
+			 ${COPYTOLIBDIR}/${EXTERNALLIB} )
+    endforeach()
+    set( EXTERNALLIBS "")
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
     message( "DONE" )
