@@ -192,10 +192,12 @@ public:
     const File::Path&	basePath() const	{ return basepath_; }
     BufferString	infoFileName() const;
     BufferString	dataFileName() const;
+    BufferString	overviewFileName() const;
     static BufferString	infoFileNameFor(const char*);
     static BufferString	dataFileNameFor(const char*);
 
     static const char*	sKeyDataFileExt() { return "blocks"; }
+    static const char*	sKeyOvvwFileExt() { return "ovvw"; }
     static const char*	sKeyFileType()	  { return "Column Cube"; }
     static const char*	sKeySectionPre()  { return "Section-"; }
     static const char*	sKeyGenSection()  { return "Section-General"; }

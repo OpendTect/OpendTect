@@ -69,6 +69,14 @@ BufferString Seis::Blocks::IOClass::dataFileName() const
 }
 
 
+BufferString Seis::Blocks::IOClass::overviewFileName() const
+{
+    File::Path fp( basepath_ );
+    fp.setExtension( sKeyOvvwFileExt(), false );
+    return fp.fullPath();
+}
+
+
 BufferString Seis::Blocks::IOClass::infoFileNameFor( const char* fnm )
 {
     File::Path fp( fnm );

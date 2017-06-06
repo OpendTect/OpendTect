@@ -86,7 +86,7 @@ protected:
     IdxType		gtIdxByName(const char*) const;
     Log*		gtLogByName(const char*) const;
     Log*		gtLogByIdx(IdxType) const;
-    void		updateDahIntv(const Well::Log&);
+    void		updateDahIntv(const Log&);
     void		recalcDahIntv();
     Log*		doRemove(IdxType);
     void		doSetEmpty();
