@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 #include "uistrings.h"
 
-defineTranslatorGroup(SeisPS3D,"Pre-Stack Seismics");
+defineTranslatorGroup(SeisPS3D,sKey::PreStackSeis());
 mDefSimpleTranslatorSelector(SeisPS3D);
 uiString SeisPS3DTranslatorGroup::sTypeName( int num)
 { return uiStrings::sVolDataName(false,true,true,false,false); }
