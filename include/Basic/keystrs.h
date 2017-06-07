@@ -95,6 +95,7 @@ namespace sKey
     inline FixedString Output()		{ return "Output"; }
     inline FixedString Pars()		{ return "Parameters"; }
     inline FixedString PickSet()	{ return "PickSet"; }
+    inline FixedString PreStackSeis()	{ return "PreStack Seismic"; }
     inline FixedString Polygon()	{ return "Polygon"; }
     inline FixedString Position()	{ return "Position"; }
     inline FixedString Property()	{ return "Property"; }
