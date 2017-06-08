@@ -42,12 +42,14 @@ public:
 				ProviderTester();
 				~ProviderTester()	{}
 
-    uiRetVal			setInput(const char*);
+    uiRetVal			setSurveyName(const char*);
+    uiRetVal			setInput(const char* dbky);
 
     void			testGet(const TrcKey&,const char*txt="");
 
     void			testGetNext();
-    void			testSubselection(SelData*,const char* txt);
+    void			testSubselection(SelData*,const char* txt,
+	    					 bool outsidedatarg=false);
 				/*!< Will subselect and checks no. of traces
 				read by iterating through the subselection,
 				after which the subselection will be

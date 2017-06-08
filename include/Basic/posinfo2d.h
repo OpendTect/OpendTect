@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "coord.h"
 #include "bufstring.h"
 #include "od_iosfwd.h"
-#include "survgeom.h"
 
 namespace PosInfo
 {
@@ -71,11 +70,11 @@ public:
 			: zrg_(l2d.zRange())
 			, lnm_(l2d.lineName())
 			, posns_(l2d.positions()){}
+			~Line2DData()			{}
 
     const StepInterval<float>& zRange() const		{ return zrg_; }
     const OD::String&	lineName() const		{ return lnm_; }
-    Pos::GeomID		geomID() const
-			{ return Survey::GM().getGeomID( lnm_ ); }
+    Pos::GeomID		geomID() const;
     void		setZRange( const StepInterval<float>& zrg )
 							{ zrg_ = zrg; }
     void		setLineName( const char* lnm )	{ lnm_ = lnm; }
@@ -150,7 +149,8 @@ public:
     inline void		reset()		{ idx_ = -1; }
     inline const Line2DPos& line2DPos() const { return ld_.posns_[idx_]; }
     inline Pos::GeomID	geomID() const	{ return ld_.geomID(); }
-    inline int		trcNr() const	{ return ld_.posns_[idx_].nr_; }
+    inline int		trcNr() const
+    			{ return idx_>=0 ? ld_.posns_[idx_].nr_:mUdf(int);}
     inline void		setTrcNr( int trcnr )
 			{ idx_ = ld_.indexOf( trcnr ); }
 

@@ -9,6 +9,7 @@
 #include "posinfo.h"
 #include "math2.h"
 #include "survinfo.h"
+#include "survgeom.h"
 #include "trckeyzsampling.h"
 #include "od_iostream.h"
 
@@ -82,6 +83,12 @@ int PosInfo::Line2DData::gtIndex( const Coord& coord, double* sqdist ) const
 	*sqdist = sqd0 < sqd1 ? sqd0 : sqd1;
 
     return sqd0 < sqd1 ? i0 : i1;
+}
+
+
+Pos::GeomID PosInfo::Line2DData::geomID() const
+{
+    return lnm_ ? Survey::GM().getGeomID(lnm_) : mUdfGeomID;
 }
 
 

@@ -10,12 +10,15 @@ ________________________________________________________________________
 
 #include "seisprovidertester.h"
 
+#include "dbman.h"
+#include "filepath.h"
+#include "od_iostream.h"
 #include "seisprovider.h"
 #include "seisbuf.h"
 #include "seisselectionimpl.h"
-#include "od_iostream.h"
 #include "seispreload.h"
 #include "seistype.h"
+#include "survinfo.h"
 
 #define mPrintTestResult( testname, withcomps, withoffs ) \
 { \
@@ -65,9 +68,17 @@ Seis::ProviderTester::ProviderTester()
 {}
 
 
-uiRetVal Seis::ProviderTester::setInput( const char* dbkystr )
+uiRetVal Seis::ProviderTester::setSurveyName( const char* survname )
 {
-    dbky_ = DBKey::getFromString( dbkystr );
+    FilePath fp( SI().getFullDirPath() );
+    fp.setFileName( survname );
+    return DBM().setDataSource( fp.fullPath() );
+}
+
+
+uiRetVal Seis::ProviderTester::setInput( const char* dbky )
+{
+    dbky_ = DBKey::getFromString( dbky );
     trc_.erase();
 
     uiRetVal uirv;
@@ -175,23 +186,23 @@ void Seis::ProviderTester::testGetNext()
 
 
 void Seis::ProviderTester::testSubselection(
-		SelData* seldata, const char* txt )
+		SelData* seldata, const char* txt, bool outsidedatarg )
 {
     if ( !prov_ || !seldata )
 	return;
 
     prov_->setSelData( seldata );
-
+    
     uiRetVal uirv; int nrtrcs = 0;
+    const int expectednrtrcs = seldata->expectedNrTraces();
     while ( true )
     {
 	uirv = prov_->getNext( trc_ );
-	if ( !uirv.isOK() )
+	if ( !uirv.isOK() || ++nrtrcs>expectednrtrcs )
 	    break;
-	nrtrcs++;
     }
 
-    if ( !isFinished(uirv) || nrtrcs!=seldata->expectedNrTraces() )
+    if ( (!isFinished(uirv) || nrtrcs!=expectednrtrcs) && !outsidedatarg )
 	mPrintTestResult( txt, false, false );
 
     prov_->setSelData( 0 );
@@ -300,10 +311,11 @@ void Seis::ProviderTester::testIOParUsage( bool currenttrc )
     uirv = prov_->fillPar( iop );
     mRetIfNotOK( uirv );
 
+    const TrcKey prevposition = prov_->curPosition();
     uirv = prov_->usePar( iop );
     mRetIfNotOK( uirv );
 
-    if ( prov_->curPosition() != trc_.info().trckey_ )
+    if ( prov_->curPosition() != prevposition )
 	mPrintTestResult( "Position restoration after usePar", false,false);
 
     od_cout() << od_endl;

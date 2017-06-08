@@ -7,6 +7,7 @@
 #include "seisprovidertester.h"
 
 #include "seisselectionimpl.h"
+#include "seisioobjinfo.h"
 #include "testprog.h"
 #include "trckeyzsampling.h"
 #include "moddepmgr.h"
@@ -27,6 +28,10 @@ tested for other datastores simply by changing the static dbkey and/or
 trckey members.
 */
 
+// Surveys
+static const char* survname = "F3_Test_Survey";
+static const char* pssurvname = "Penobscot_Test_Survey";
+
 // Using F3_Test_Survey
 static const char* dbkeyvol = "100010.2";
 static const char* dbkeyvol_with_missing_trcs = "100010.14";
@@ -40,7 +45,7 @@ static const TrcKey tk_before_first_missing_trc( 17, 170 );
 
 // Using Penobscot_Test_survey for Pre-Stack
 static const char* dbkeyps3d = "100010.5";
-static const char* dbkeyps2d = "100010.13";
+static const char* dbkeyps2d = "100010.9"; // 17
 static const TrcKey tk_1300_1200( BinID(1300,1200) );
 
 // Non-existent trace
@@ -52,6 +57,7 @@ static bool testVol()
     od_cout() << "\n---- 3D Volume ----\n" << od_endl;
 
     Seis::ProviderTester tester;
+    tester.setSurveyName( survname );
     tester.setInput( dbkeyvol );
     tester.testGetNext();
 
@@ -62,7 +68,7 @@ static bool testVol()
 
     tks.stop_ = tks.start_ = tk_non_existent.binID();
     tester.testSubselection( new Seis::RangeSelData(tks),
-			     "Subselection to outside data range" );
+			     "Subselection to outside data range", true );
     tester.testPreLoad( TrcKeyZSampling(true) );
     tester.testPreLoadTrc( false );
     tester.testIOParUsage();
@@ -85,12 +91,13 @@ static bool testLine()
     od_cout() << "\n---- 2D Lines ----\n" << od_endl;
 
     Seis::ProviderTester tester;
+    tester.setSurveyName( survname );
     tester.setInput( dbkeyline );
     tester.testGetNext();
     tester.testPreLoadTrc();
     tester.testComponentSelection();
     tester.testIOParUsage();
-
+    
     od_cout() << "\n---- 2D Line with a gap ----\n" << od_endl;
 
     tester.setInput( dbkeyline_with_missing_trcs );
@@ -106,8 +113,16 @@ static bool testPS3D()
     od_cout() << "\n---- 3D Pre-Stack ----\n" << od_endl;
 
     Seis::ProviderTester tester;
+    tester.setSurveyName( pssurvname );
     tester.setInput( dbkeyps3d );
     tester.testGetNext();
+
+    SeisIOObjInfo info( dbkeyps3d );
+    TrcKeyZSampling tkzs;
+    info.getRanges( tkzs );
+    tkzs.hsamp_.stop_.inl() = tkzs.hsamp_.start_.inl();
+    tester.testSubselection( new Seis::RangeSelData(tkzs.hsamp_),
+	    		     "Subselection to one in-line:" );
 
     TrcKeySampling tks;
     tks.start_ = tks.stop_ = tk_1300_1200.binID();
@@ -125,6 +140,7 @@ static bool testPS2D()
     od_cout() << "\n---- 2D Pre-Stack ----\n" << od_endl;
 
     Seis::ProviderTester tester;
+    tester.setSurveyName( pssurvname );
     tester.setInput( dbkeyps2d );
     tester.testGetNext();
 
@@ -132,7 +148,7 @@ static bool testPS2D()
     tks.set2DDef();
     tks.start_ = tks.stop_ = tk_non_existent.binID();
     tester.testSubselection( new Seis::RangeSelData(tks),
-			     "Subselection to non-existent trc:" );
+			     "Subselection to non-existent trc", true );
     tester.testPreLoadTrc();
     tester.testIOParUsage();
     tester.testComponentSelection();

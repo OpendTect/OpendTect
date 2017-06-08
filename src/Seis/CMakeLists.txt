@@ -11,6 +11,7 @@ set(OD_TEST_PROGS
 	seisblocks.cc
 	seisbuf.cc
 	seiskeytracker.cc
+	seisprovider.cc
 )
 
 set(OD_MODULE_SOURCES

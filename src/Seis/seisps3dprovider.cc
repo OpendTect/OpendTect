@@ -180,14 +180,13 @@ void Seis::PS3DFetcher::getAt( const BinID& bid, SeisTrcBuf& tbuf )
     if ( !prepGetAt(bid) )
 	return;
 
-    if ( dp_ )
-	{ dp_->fillGatherBuf( tbuf, bid ); return; }
-
     uirv_.setEmpty();
-    if ( !rdr_->getGather(nextbid_,tbuf) )
-	uirv_.set( rdr_->errMsg() );
-    else
-	moveNextBinID();
+    if ( dp_ )
+	dp_->fillGatherBuf( tbuf, bid );
+    else if ( !rdr_->getGather(nextbid_,tbuf) )
+    	{ uirv_.set( rdr_->errMsg() ); return; }
+    
+    moveNextBinID();
 }
 
 
@@ -196,22 +195,20 @@ void Seis::PS3DFetcher::getSingleAt( const BinID& bid, SeisTrc& trc )
     if ( !prepGetAt(bid) )
 	return;
 
+    uirv_.setEmpty();
     const int offsetidx = prov().haveSelComps() ? prov().selcomps_[0] : 0;
+    const SeisTrc* seistrc = 0;
     if ( dp_ )
+	seistrc = dp_->getTrace( bid, offsetidx );
+    else if ( !seistrc )
     {
-	const SeisTrc* seistrc = dp_->getTrace( bid, offsetidx );
-	if ( seistrc )
-	    { trc = *seistrc; return; }
+    	seistrc = rdr_->getTrace( nextbid_, offsetidx );
+    	if ( !seistrc )
+	    { uirv_.set( rdr_->errMsg() ); return; }
     }
-
-    SeisTrc* rdtrc = rdr_->getTrace( nextbid_, offsetidx );
-    if ( !rdtrc )
-	uirv_.set( rdr_->errMsg() );
-    else
-    {
-	trc = *rdtrc;
-	moveNextBinID();
-    }
+    
+    trc = *seistrc;
+    moveNextBinID();
 }
 
 
