@@ -70,7 +70,7 @@ Seis::ProviderTester::ProviderTester()
 
 uiRetVal Seis::ProviderTester::setSurveyName( const char* survname )
 {
-    FilePath fp( SI().getFullDirPath() );
+    File::Path fp( SI().getFullDirPath() );
     fp.setFileName( survname );
     return DBM().setDataSource( fp.fullPath() );
 }

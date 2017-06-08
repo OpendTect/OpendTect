@@ -45,7 +45,7 @@ static const TrcKey tk_before_first_missing_trc( 17, 170 );
 
 // Using Penobscot_Test_survey for Pre-Stack
 static const char* dbkeyps3d = "100010.5";
-static const char* dbkeyps2d = "100010.9"; // 17
+static const char* dbkeyps2d = "100010.9";
 static const TrcKey tk_1300_1200( BinID(1300,1200) );
 
 // Non-existent trace
