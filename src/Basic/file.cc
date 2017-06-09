@@ -1079,7 +1079,7 @@ BufferString File::SystemAccess::removeProtocol( const char* url )
 static Threads::Atomic<int> lfsinit = mLocalFileSystemNotInited;
 
 /* Keep one copy as it is always handy to have (and LocalFileSystemAccess does
- not change.
+ not change).
  */
 
 static RefMan<File::SystemAccess> lfsinst = 0;
@@ -1088,7 +1088,7 @@ static void shutdownCB()
     lfsinst = 0;
 }
 
-static WeakPtrSet<File::SystemAccess> systemlist;
+static WeakPtrSet<File::SystemAccess> systemaccesslist_;
 
 void File::LocalFileSystemAccess::initClass()
 {
@@ -1103,7 +1103,7 @@ void File::LocalFileSystemAccess::initClass()
 						     sFactoryDisplayName());
 
 	    lfsinst = new File::LocalFileSystemAccess;
-	    systemlist += lfsinst;
+	    systemaccesslist_ += lfsinst;
 	    NotifyExitProgram( shutdownCB );
 	    lfsinit = mLocalFileSystemInited;
 	}
@@ -1119,16 +1119,16 @@ RefMan<File::SystemAccess> File::SystemAccess::get( const char* fnm )
 
     BufferString protocol = getProtocol( fnm, false );
 
-    for ( int idx=0; idx<systemlist.size(); idx++ )
+    for ( int idx=0; idx<systemaccesslist_.size(); idx++ )
     {
-	RefMan<SystemAccess> item = systemlist[idx];
+	RefMan<SystemAccess> item = systemaccesslist_[idx];
 	if ( item && protocol==item->factoryKeyword() )
 	    return item;
     }
 
     RefMan<SystemAccess> res = factory().create( protocol );
     if ( res )
-	systemlist += res;
+	systemaccesslist_ += res;
 
     return res;
 }
