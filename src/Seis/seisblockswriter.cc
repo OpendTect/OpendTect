@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisblockswriter.h"
+#include "seismemblocks.h"
 #include "seistrc.h"
 #include "seisbuf.h"
 #include "posidxpairdataset.h"
@@ -24,59 +25,13 @@ ________________________________________________________________________
 #include "survinfo.h" // for survey name and zInFeet
 #include "ascstream.h"
 #include "separstr.h"
+#include "arrayndimpl.h"
 
 
 namespace Seis
 {
 namespace Blocks
 {
-
-/*!\brief Block with data buffer collecting data to be written. */
-
-class MemBlock : public Block
-{
-public:
-
-			MemBlock(GlobIdx,const Dimensions&,const DataInterp&);
-
-    void		zero()			{ dbuf_.zero(); }
-    void		retire()		{ dbuf_.reSize( 0, false ); }
-    bool		isRetired() const	{ return dbuf_.isEmpty(); }
-
-    float		value(const LocIdx&) const;
-    void		setValue(const LocIdx&,float);
-
-    DataBuffer		dbuf_;
-    const DataInterp&	interp_;
-
-protected:
-
-    int			getBufIdx(const LocIdx&) const;
-
-};
-
-
-class MemBlockColumn : public Column
-{
-public:
-
-    typedef ManagedObjectSet<MemBlock>	BlockSet;
-
-			MemBlockColumn(const HGlobIdx&,const Dimensions&,
-					int ncomps);
-			~MemBlockColumn();
-
-    void		retire();
-    inline bool		isRetired() const
-			{ return blocksets_.first()->first()->isRetired(); }
-    void		getDefArea(HLocIdx&,HDimensions&) const;
-
-    int			nruniquevisits_;
-    od_stream_Pos	fileoffset_;
-    bool**		visited_;
-    ObjectSet<BlockSet> blocksets_; // one set per component
-
-};
 
 class StepFinder
 {
@@ -99,108 +54,6 @@ public:
 } // namespace Seis
 
 
-Seis::Blocks::MemBlock::MemBlock( GlobIdx gidx, const Dimensions& dms,
-				  const DataInterp& interp )
-    : Block(gidx,HLocIdx(),dms)
-    , dbuf_(0)
-    , interp_(interp)
-{
-    const int bytesperval = interp_.nrBytes();
-    dbuf_.reByte( bytesperval, false );
-    const int totsz = (((int)dims_.inl())*dims_.crl()) * dims_.z();
-    dbuf_.reSize( totsz, false );
-}
-
-
-int Seis::Blocks::MemBlock::getBufIdx( const LocIdx& sidx ) const
-{
-    return ((int)dims_.z()) * (sidx.inl()*dims_.crl() + sidx.crl()) + sidx.z();
-}
-
-
-float Seis::Blocks::MemBlock::value( const LocIdx& sidx ) const
-{
-    return interp_.get( dbuf_.data(), getBufIdx(sidx) );
-}
-
-
-void Seis::Blocks::MemBlock::setValue( const LocIdx& sidx, float val )
-{
-    interp_.put( dbuf_.data(), getBufIdx(sidx), val );
-}
-
-
-Seis::Blocks::MemBlockColumn::MemBlockColumn( const HGlobIdx& gidx,
-					      const Dimensions& bldims,
-					      int nrcomps )
-    : Column(gidx,bldims,nrcomps)
-    , nruniquevisits_(0)
-    , fileoffset_(0)
-{
-    for ( int icomp=0; icomp<nrcomps_; icomp++ )
-	blocksets_ += new BlockSet;
-
-    visited_ = new bool* [dims_.inl()];
-    for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
-    {
-	visited_[iinl] = new bool [dims_.crl()];
-	for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
-	    visited_[iinl][icrl] = false;
-    }
-}
-
-
-Seis::Blocks::MemBlockColumn::~MemBlockColumn()
-{
-    deepErase(blocksets_);
-    for ( IdxType idx=0; idx<dims_.inl(); idx++ )
-	delete [] visited_[idx];
-    delete [] visited_;
-}
-
-
-void Seis::Blocks::MemBlockColumn::retire()
-{
-    for ( int iset=0; iset<blocksets_.size(); iset++ )
-    {
-	BlockSet& bset = *blocksets_[iset];
-	for ( int iblock=0; iblock<bset.size(); iblock++ )
-	    bset[iblock]->retire();
-    }
-}
-
-
-void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& defstart,
-					       HDimensions& defdims ) const
-{
-    IdxType mininl = dims_.inl()-1, mincrl = dims_.crl()-1;
-    IdxType maxinl = 0, maxcrl = 0;
-
-    for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
-    {
-	for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
-	{
-	    if ( visited_[iinl][icrl] )
-	    {
-		if ( mininl > iinl )
-		    mininl = iinl;
-		if ( mincrl > icrl )
-		    mincrl = icrl;
-		if ( maxinl < iinl )
-		    maxinl = iinl;
-		if ( maxcrl < icrl )
-		    maxcrl = icrl;
-	    }
-	}
-    }
-
-    defstart.inl() = mininl;
-    defstart.crl() = mincrl;
-    defdims.inl() = maxinl - mininl + 1;
-    defdims.crl() = maxcrl - mincrl + 1;
-}
-
-
 Seis::Blocks::StepFinder::StepFinder( Writer& wrr )
     : wrr_(wrr)
     , positions_(0,false)
@@ -209,7 +62,7 @@ Seis::Blocks::StepFinder::StepFinder( Writer& wrr )
 }
 
 
-// Algo: first collect at least 2000 traces. If 3 inls and 3 crls found,
+// Algo: first collect at least 2000 traces. Once 3 inls and 3 crls found,
 // finish the procedure.
 
 void Seis::Blocks::StepFinder::addTrace( const SeisTrc& trc, uiRetVal& uirv )
@@ -647,30 +500,36 @@ virtual uiString message() const
     return tr("Writing Traces");
 }
 
+
+int finish()
+{
+    column_.retire();
+    return uirv_.isError() ? ErrorOccurred() : Finished();
+}
+
+void setErr( bool initial=false )
+{
+    uiString uifnm( toUiString(strm_.fileName()) );
+    uirv_.set( initial	? uiStrings::phrCannotOpen(uifnm)
+			: uiStrings::phrCannotWrite(uifnm) );
+    strm_.addErrMsgTo( uirv_ );
+}
+
 virtual int nextStep()
 {
-    if ( uirv_.isError() )
-	return ErrorOccurred();
-    else if ( iblock_ >= nrblocks_ )
-	return Finished();
+    if ( uirv_.isError() || iblock_ >= nrblocks_ )
+	return finish();
 
     for ( int icomp=0; icomp<wrr_.nrcomps_; icomp++ )
     {
 	MemBlockColumn::BlockSet& blockset = *column_.blocksets_[icomp];
 	MemBlock& block = *blockset[iblock_];
 	if ( !wrr_.writeBlock( block, start_, dims_ ) )
-	    { setErr(); return ErrorOccurred(); }
+	    { setErr(); return finish(); }
     }
 
     iblock_++;
     return MoreToDo();
-}
-
-void setErr( bool initial=false )
-{
-    uirv_.set( initial ? uiStrings::phrCannotOpen(toUiString(strm_.fileName()))
-	    : uiStrings::phrCannotWrite( toUiString(strm_.fileName()) ) );
-    strm_.addErrMsgTo( uirv_ );
 }
 
     Writer&		wrr_;
@@ -753,25 +612,37 @@ bool Seis::Blocks::Writer::writeBlock( MemBlock& block, HLocIdx wrstart,
 	}
     }
 
-    block.retire();
     return strm_->isOK();
 }
 
 
-void Seis::Blocks::Writer::writeInfoFile( uiRetVal& uirv )
+void Seis::Blocks::Writer::writeInfoFiles( uiRetVal& uirv )
 {
-    od_ostream strm( infoFileName() );
-    if ( strm.isBad() )
+    const BufferString ovvwfnm( overviewFileName() );
+    if ( File::exists(ovvwfnm) )
+	File::remove( ovvwfnm );
+
+    od_ostream infostrm( infoFileName() );
+    if ( infostrm.isBad() )
     {
-	uirv.add( uiStrings::phrCannotOpen( toUiString(strm.fileName()) ) );
+	uirv.add( uiStrings::phrCannotOpen( toUiString(infostrm.fileName()) ) );
 	return;
     }
 
-    if ( !writeInfoFileData(strm) )
+    if ( !writeInfoFileData(infostrm) )
     {
-	uirv.add( uiStrings::phrCannotWrite( toUiString(strm.fileName()) ) );
+	uirv.add( uiStrings::phrCannotWrite( toUiString(infostrm.fileName()) ));
 	return;
     }
+
+    od_ostream ovvwstrm( ovvwfnm );
+    if ( ovvwstrm.isBad() )
+    {
+	ErrMsg( uiStrings::phrCannotOpen(toUiString(ovvwfnm)).getFullString() );
+	return;
+    }
+    if ( !writeOverviewFileData(ovvwstrm) )
+	File::remove( ovvwfnm );
 }
 
 
@@ -783,10 +654,8 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
 
     PosInfo::CubeData cubedata;
     Interval<IdxType> globinlidxrg, globcrlidxrg;
-    Interval<int> inlrg, crlrg;
     Interval<double> xrg, yrg;
-    scanPositions( cubedata, globinlidxrg, globcrlidxrg,
-		    inlrg, crlrg, xrg, yrg );
+    scanPositions( cubedata, globinlidxrg, globcrlidxrg, xrg, yrg );
 
     IOPar iop( sKeyGenSection() );
     iop.set( sKeyFmtVersion(), version_ );
@@ -802,8 +671,8 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
     }
     iop.set( sKey::XRange(), xrg );
     iop.set( sKey::YRange(), yrg );
-    iop.set( sKey::InlRange(), inlrg );
-    iop.set( sKey::CrlRange(), crlrg );
+    iop.set( sKey::InlRange(), finalinlrg_ );
+    iop.set( sKey::CrlRange(), finalcrlrg_ );
     iop.set( sKey::ZRange(), zgeom_ );
     hgeom_.zDomain().set( iop );
     if ( hgeom_.zDomain().isDepth() && SI().zInFeet() )
@@ -861,9 +730,30 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
 }
 
 
+bool Seis::Blocks::Writer::writeOverviewFileData( od_ostream& strm )
+{
+    ascostream ascostrm( strm );
+    if ( !ascostrm.putHeader("Cube Overview") )
+	return false;
+
+    const int nrinls = finalinlrg_.width()
+		     / hgeom_.sampling().hsamp_.step_.inl() + 1;
+    const int nrcrls = finalcrlrg_.width()
+		     / hgeom_.sampling().hsamp_.step_.crl() + 1;
+    Array2DImpl<float> data( nrinls, nrcrls );
+    Pos::IdxPairDataSet::SPos spos;
+    while ( columns_.next(spos) )
+    {
+    //const MemBlockColumn& column = *(MemBlockColumn*)columns_.getObj(spos);
+	//TODO impl
+	data.set(0,0,0.f); // avoid waings for now
+    }
+    return false;
+}
+
+
 void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
 	Interval<IdxType>& globinlrg, Interval<IdxType>& globcrlrg,
-	Interval<int>& inlrg, Interval<int>& crlrg,
 	Interval<double>& xrg, Interval<double>& yrg )
 {
     Pos::IdxPairDataSet sortedpositions( 0, false );
@@ -900,15 +790,15 @@ void Seis::Blocks::Writer::scanPositions( PosInfo::CubeData& cubedata,
 		const Coord coord = hgeom_.toCoord( inl, crl );
 		if ( first )
 		{
-		    inlrg.start = inlrg.stop = inl;
-		    crlrg.start = crlrg.stop = crl;
+		    finalinlrg_.start = finalinlrg_.stop = inl;
+		    finalcrlrg_.start = finalcrlrg_.stop = crl;
 		    xrg.start = xrg.stop = coord.x_;
 		    yrg.start = yrg.stop = coord.y_;
 		}
 		else
 		{
-		    inlrg.include( inl, false );
-		    crlrg.include( crl, false );
+		    finalinlrg_.include( inl, false );
+		    finalcrlrg_.include( crl, false );
 		    xrg.include( coord.x_, false );
 		    yrg.include( coord.y_, false );
 		}
@@ -1003,7 +893,7 @@ virtual int nextStep()
 int wrapUp()
 {
     delete wrr_.strm_; wrr_.strm_ = 0;
-    wrr_.writeInfoFile( uirv_ );
+    wrr_.writeInfoFiles( uirv_ );
     wrr_.isfinished_ = true;
     return uirv_.isOK() ? Finished() : ErrorOccurred();
 }

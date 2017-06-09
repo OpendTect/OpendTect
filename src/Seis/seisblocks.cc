@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisblocks.h"
+#include "seismemblocks.h"
 #include "envvars.h"
 #include "datainterp.h"
 #include "oddirs.h"
@@ -220,3 +221,175 @@ float Seis::Blocks::Block::z4Idxs( const ZGeom& zg, SzType zdim,
 {
     return zg.atIndex( (((int)zdim) * globidx) + sampidx );
 }
+
+
+Seis::Blocks::MemBlock::MemBlock( GlobIdx gidx, const Dimensions& dms,
+				  const DataInterp& interp )
+    : Block(gidx,HLocIdx(),dms)
+    , dbuf_(0)
+    , interp_(interp)
+{
+    const int bytesperval = interp_.nrBytes();
+    dbuf_.reByte( bytesperval, false );
+    const int totsz = (((int)dims_.inl())*dims_.crl()) * dims_.z();
+    dbuf_.reSize( totsz, false );
+}
+
+
+int Seis::Blocks::MemBlock::getBufIdx( const LocIdx& sidx ) const
+{
+    return ((int)dims_.z()) * (sidx.inl()*dims_.crl() + sidx.crl()) + sidx.z();
+}
+
+
+float Seis::Blocks::MemBlock::value( const LocIdx& sidx ) const
+{
+    return interp_.get( dbuf_.data(), getBufIdx(sidx) );
+}
+
+
+void Seis::Blocks::MemBlock::setValue( const LocIdx& sidx, float val )
+{
+    interp_.put( dbuf_.data(), getBufIdx(sidx), val );
+}
+
+
+void Seis::Blocks::MemBlock::retire( MemColumnSummary* summary,
+				     const bool* const* visited )
+{
+    if ( summary )
+	summary->fill( *this, visited );
+    dbuf_.reSize( 0, false );
+}
+
+
+Seis::Blocks::MemColumnSummary::~MemColumnSummary()
+{
+    if ( vals_ )
+    {
+	for ( int iinl=0; iinl<dims_.inl(); iinl++ )
+	    delete vals_[iinl];
+	delete [] vals_;
+    }
+}
+
+
+void Seis::Blocks::MemColumnSummary::fill( const MemBlock& block,
+					  const bool* const* visited )
+{
+    dims_ = block.dims();
+    if ( dims_.inl() == 0 || dims_.crl() == 0 || dims_.z() == 0 )
+	return;
+
+    vals_ = new float* [dims_.inl()];
+    for ( int iinl=0; iinl<dims_.inl(); iinl++ )
+	vals_[iinl] = new float [dims_.crl()];
+
+    LocIdx locidx;
+    float* valtrc = new float[dims_.z()];
+    for ( locidx.inl()=0; locidx.inl()<dims_.inl(); locidx.inl()++ )
+    {
+	for ( locidx.crl()=0; locidx.crl()<dims_.inl(); locidx.crl()++ )
+	{
+	    float val = mUdf(float);
+	    if ( visited[locidx.inl()][locidx.crl()] )
+	    {
+		for ( locidx.z()=0; locidx.z()<dims_.z(); locidx.z()++ )
+		    valtrc[locidx.z()] = block.value( locidx );
+		val = calcVal( valtrc );
+	    }
+	    vals_[locidx.inl()][locidx.crl()] = val;
+	}
+    }
+}
+
+
+float Seis::Blocks::MemColumnSummary::calcVal( float* valtrc ) const
+{
+    const SzType totns = dims_.z();
+    float sumsq = 0.f; int ns = 0;
+    for ( int isamp=0; isamp<totns; isamp++ )
+    {
+	const float val = valtrc[isamp];
+	if ( !mIsUdf(val) )
+	{
+	    ns++;
+	    sumsq += val * val;
+	}
+    }
+    return Math::Sqrt( sumsq / ns );
+}
+
+
+Seis::Blocks::MemBlockColumn::MemBlockColumn( const HGlobIdx& gidx,
+					      const Dimensions& bldims,
+					      int nrcomps )
+    : Column(gidx,bldims,nrcomps)
+    , nruniquevisits_(0)
+    , fileoffset_(0)
+{
+    for ( int icomp=0; icomp<nrcomps_; icomp++ )
+	blocksets_ += new BlockSet;
+
+    visited_ = new bool* [dims_.inl()];
+    for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
+    {
+	visited_[iinl] = new bool [dims_.crl()];
+	for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
+	    visited_[iinl][icrl] = false;
+    }
+}
+
+
+Seis::Blocks::MemBlockColumn::~MemBlockColumn()
+{
+    deepErase(blocksets_);
+    for ( IdxType idx=0; idx<dims_.inl(); idx++ )
+	delete [] visited_[idx];
+    delete [] visited_;
+}
+
+
+void Seis::Blocks::MemBlockColumn::retire()
+{
+    const int midblockidx = blocksets_.size() / 2;
+    for ( int iset=0; iset<blocksets_.size(); iset++ )
+    {
+	BlockSet& bset = *blocksets_[iset];
+	for ( int iblock=0; iblock<bset.size(); iblock++ )
+	    bset[iblock]->retire( iset == midblockidx ? &summary_ : 0,
+				  visited_ );
+    }
+}
+
+
+void Seis::Blocks::MemBlockColumn::getDefArea( HLocIdx& defstart,
+					       HDimensions& defdims ) const
+{
+    IdxType mininl = dims_.inl()-1, mincrl = dims_.crl()-1;
+    IdxType maxinl = 0, maxcrl = 0;
+
+    for ( IdxType iinl=0; iinl<dims_.inl(); iinl++ )
+    {
+	for ( IdxType icrl=0; icrl<dims_.crl(); icrl++ )
+	{
+	    if ( visited_[iinl][icrl] )
+	    {
+		if ( mininl > iinl )
+		    mininl = iinl;
+		if ( mincrl > icrl )
+		    mincrl = icrl;
+		if ( maxinl < iinl )
+		    maxinl = iinl;
+		if ( maxcrl < icrl )
+		    maxcrl = icrl;
+	    }
+	}
+    }
+
+    defstart.inl() = mininl;
+    defstart.crl() = mincrl;
+    defdims.inl() = maxinl - mininl + 1;
+    defdims.crl() = maxcrl - mincrl + 1;
+}
+

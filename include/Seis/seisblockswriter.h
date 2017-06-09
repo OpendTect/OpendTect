@@ -84,6 +84,8 @@ protected:
     IdxType		nrglobzidxs_;
     ObjectSet<ZEvalPosSet> zevalpositions_;
     StepFinder*		stepfinder_;
+    Interval<int>	finalinlrg_;
+    Interval<int>	finalcrlrg_;
 
     virtual void	setEmpty();
     void		resetZ();
@@ -97,11 +99,11 @@ protected:
     bool		writeColumnHeader(const MemBlockColumn&,
 				    const HLocIdx&,const HDimensions&) const;
     bool		writeBlock(MemBlock&,HLocIdx,HDimensions);
-    void		writeInfoFile(uiRetVal&);
+    void		writeInfoFiles(uiRetVal&);
     bool		writeInfoFileData(od_ostream&);
+    bool		writeOverviewFileData(od_ostream&);
     void		scanPositions(PosInfo::CubeData& cubedata,
 			    Interval<IdxType>&,Interval<IdxType>&,
-		            Interval<int>&,Interval<int>&,
 			    Interval<double>&,Interval<double>&);
 
     friend class	StepFinder;
