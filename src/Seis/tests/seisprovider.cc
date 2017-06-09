@@ -117,7 +117,7 @@ static bool testPS3D()
     tester.setInput( dbkeyps3d );
     tester.testGetNext();
 
-    SeisIOObjInfo info( dbkeyps3d );
+    SeisIOObjInfo info( DBKey::getFromString(dbkeyps3d) );
     TrcKeyZSampling tkzs;
     info.getRanges( tkzs );
     tkzs.hsamp_.stop_.inl() = tkzs.hsamp_.start_.inl();
