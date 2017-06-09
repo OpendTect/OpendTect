@@ -46,9 +46,6 @@ public:
     bool			setProjection(AuthorityCode);
     const Projection*		getProjection() const;
 
-    virtual bool		usePar(const IOPar&);
-    virtual void		fillPar(IOPar&) const;
-
 protected:
 
     const Projection*		proj_;
@@ -56,9 +53,11 @@ protected:
 private:
 
     virtual LatLong		toGeographic(const Coord&,
-					     bool wgs84=false) const;
+					     bool wgs84) const;
     virtual Coord		fromGeographic(const LatLong&,
-					       bool wgs84=false) const;
+					       bool wgs84) const;
+    virtual bool		doUsePar(const IOPar&);
+    virtual void		doFillPar(IOPar&) const;
 
 };
 

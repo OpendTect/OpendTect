@@ -76,11 +76,9 @@ bool Coords::ProjectionBasedSystem::isFeet() const
 bool Coords::ProjectionBasedSystem::isMeter() const
 { return !proj_ || proj_->isMeter(); }
 
-bool Coords::ProjectionBasedSystem::usePar( const IOPar& par )
-{
-    if ( !CoordSystem::usePar(par) )
-	return false;
 
+bool Coords::ProjectionBasedSystem::doUsePar( const IOPar& par )
+{
     BufferString authcodestr;
     if ( par.get(sKeyProjectionID,authcodestr) )
 	setProjection( Coords::AuthorityCode::fromString(authcodestr) );
@@ -89,9 +87,8 @@ bool Coords::ProjectionBasedSystem::usePar( const IOPar& par )
 }
 
 
-void Coords::ProjectionBasedSystem::fillPar( IOPar& par ) const
+void Coords::ProjectionBasedSystem::doFillPar( IOPar& par ) const
 {
-    CoordSystem::fillPar( par );
     if ( proj_ )
 	par.set( sKeyProjectionID, proj_->authCode().toString() );
 }

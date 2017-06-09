@@ -44,6 +44,7 @@ namespace sKey
     inline FixedString Category()	{ return "Category"; }
     inline FixedString Chain()		{ return "Chain"; }
     inline FixedString Color()		{ return "Color"; }
+    inline FixedString CoordSys()	{ return "Coordinate System"; }
     inline FixedString Component()	{ return "Component"; }
     inline FixedString Content()	{ return "Content"; }
     inline FixedString Crossline()	{ return "Cross-line"; }

@@ -46,7 +46,6 @@ const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
-static const char* sKeyCoordinateSystem = "Coordinate System";
 
 mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
@@ -529,7 +528,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	    si->xyinfeet_ = astream.getYN();
 	else if ( keyw == sKeySeismicRefDatum() )
 	    si->seisrefdatum_ = astream.getFValue();
-	else if ( keyw.startsWith(sKeyCoordinateSystem) )
+	else if ( keyw.startsWith(sKey::CoordSys()) )
 	    coordsystempar.add( keyw, astream.value() );
 	else
 	    si->handleLineRead( keyw, astream.value() );
@@ -538,9 +537,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     }
 
     PtrMan<IOPar> coordsyssubpar =
-	coordsystempar.subselect( sKeyCoordinateSystem );
+	coordsystempar.subselect( sKey::CoordSys() );
     if ( !coordsyssubpar )
-	coordsyssubpar = si->pars().subselect( sKeyCoordinateSystem );
+	coordsyssubpar = si->pars().subselect( sKey::CoordSys() );
     if ( coordsyssubpar )
 	si->coordsystem_ =
 		Coords::CoordSystem::createSystem( *coordsyssubpar );
@@ -1136,11 +1135,11 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	IOPar par;
 	coordsystem_->fillPar( par );
 	for ( int idx=0; idx<par.size(); idx++ )
-	    astream.put( IOPar::compKey(sKeyCoordinateSystem,par.getKey(idx)),
+	    astream.put( IOPar::compKey(sKey::CoordSys(),par.getKey(idx)),
 			 par.getValue(idx) );
 
 	const_cast<SurveyInfo*>(this)->pars_.mergeComp( par,
-							 sKeyCoordinateSystem );
+							 sKey::CoordSys() );
     }
     else
 	astream.putYN( sKeyXYInFt(), xyinfeet_ );
@@ -1286,9 +1285,9 @@ void SurveyInfo::readSavedCoordSystem() const
     astream.next();
     const IOPar survpar( astream );
 
-    PtrMan<IOPar> coordsystempar = survpar.subselect( sKeyCoordinateSystem );
+    PtrMan<IOPar> coordsystempar = survpar.subselect( sKey::CoordSys() );
     if ( !coordsystempar )
-	coordsystempar = pars_.subselect( sKeyCoordinateSystem );
+	coordsystempar = pars_.subselect( sKey::CoordSys() );
     if ( coordsystempar )
 	const_cast<SurveyInfo*>(this)->coordsystem_ =
 		Coords::CoordSystem::createSystem( *coordsystempar );
