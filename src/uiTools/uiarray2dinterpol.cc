@@ -324,6 +324,8 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
 {
     radiusfld_ = new  uiGenInput( this, uiStrings::sEmptyString(), 
 				  FloatInpSpec() );
+    radiusfld_->setWithCheck( true );
+    radiusfld_->setChecked( false );
 
     parbut_ = new uiPushButton( this, tr("Parameters"),
 		    mCB(this,uiInverseDistanceArray2DInterpol,doParamDlg),
@@ -341,7 +343,9 @@ void uiInverseDistanceArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
     if ( !ptr )
 	return;
 
-    radiusfld_->setValue( ptr->getSearchRadius() );
+    const float radius = ptr->getSearchRadius();
+    radiusfld_->setValue( radius );
+    radiusfld_->setChecked( !mIsUdf(radius) );
 
     nrsteps_ = ptr->getNrSteps();
     cornersfirst_ = ptr->getCornersFirst();
@@ -568,11 +572,10 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
 	{ delete result_; result_ = 0; }
 
     const float radius = radiusfld_->getFValue(0);
-
-    if ( mIsUdf(radius) || radius<=0 )
+    if ( radiusfld_->isChecked() && (mIsUdf(radius) || radius<=0 ) )
     {
-	uiMSG().error(tr("Please enter a positive value for the search radius\n"
-		         "(or uncheck the field)") );
+	uiMSG().error(uiStrings::phrEnter(tr("a positive value for the search "
+			 "radius\n(or uncheck the field)")) );
 	return false;
     }
 
