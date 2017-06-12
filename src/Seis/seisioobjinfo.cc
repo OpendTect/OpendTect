@@ -277,7 +277,7 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
     if ( !isPS() )
 	return SeisTrcTranslator::getRanges( *ioobj_, cs );
 
-    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *ioobj_ );
+    PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *ioobj_ );
     if ( !rdr )
 	return false;
 
