@@ -1028,8 +1028,11 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 		const od_int64 source = definedidxs_[idy];
 		if ( source == idx )
 		{
-		    weights[idy] = 0;
-		    continue;
+		    // We are at a data point, so other sources are discarded.
+		    for ( int widx=0; widx<definedidxs_.size(); widx++ )
+			weights[widx] = 0;
+		    weights[idy] = 1;
+		    break;
 		}
 
 		const float sourcerow = mCast(float,source/nrcols_);
