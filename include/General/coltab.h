@@ -23,7 +23,7 @@ namespace ColTab
 typedef float				ValueType;
 typedef float				PosType;
 typedef SamplingData<ValueType>		SamplingType;
-typedef std::pair<float,float>		ClipRatePair;
+typedef float_pair			ClipRatePair;
 enum SeqUseMode
 {
     UnflippedSingle, UnflippedCyclic, FlippedSingle, FlippedCyclic

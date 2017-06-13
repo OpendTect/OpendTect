@@ -231,7 +231,7 @@ void PosInfo::Survey2D::writeIdxFile( bool lines ) const
 
     ascostream astrm( sfio.ostrm() );
     astrm.putHeader("File Name Table");
-    (lines ? lineindex_ : lsindex_).putTo( astrm );
+    (lines ? lineindex_ : lsindex_).putTo( astrm, true );
     if ( astrm.isOK() )
     {
 	mGetWriteLocker( wrlocker );

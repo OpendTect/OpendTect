@@ -193,7 +193,7 @@ bool Batch::JobDispatcher::writeParFile() const
 
     od_ostream parstrm( parfnm_ ); ascostream astrm( parstrm );
     astrm.putHeader( "Parameters" );
-    wrpar.putTo( astrm );
+    wrpar.putTo( astrm, true );
     const bool ret = parstrm.isOK();
     parstrm.close();
     if ( !ret )

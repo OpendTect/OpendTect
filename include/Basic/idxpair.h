@@ -12,28 +12,24 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
-#ifdef __win__
-# include <tuple>
-#endif
-#include <utility>
 
 
-typedef std::pair<Index_Type,Index_Type> Index_Type_Pair;
+typedef Twins<Index_Type> Index_Type_Twins;
 typedef IdxPair IdxPairDelta;
 typedef IdxPair IdxPairStep;
 
 
 /*!\brief A pair of numbers; base class for BinID et al. */
 
-mExpClass(Basic) IdxPair : public Index_Type_Pair
+mExpClass(Basic) IdxPair : public Index_Type_Twins
 {
 public:
 
     typedef Index_Type		IdxType;
 
-    				IdxPair() : Index_Type_Pair(0,0)	{}
-    				IdxPair( IdxType f, IdxType s )
-				    : Index_Type_Pair(f,s)		{}
+				IdxPair() : Index_Type_Twins(0,0)	{}
+				IdxPair( IdxType f, IdxType s )
+				    : Index_Type_Twins(f,s)		{}
     inline bool			operator ==(const IdxPair&) const;
     inline bool			operator !=( const IdxPair& oth ) const
 						{ return !(*this == oth); }

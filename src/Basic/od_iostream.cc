@@ -686,7 +686,7 @@ od_istream& od_istream::get( IOPar& iop )
 od_ostream& od_ostream::add( const IOPar& iop )
 {
     ascostream astrm( *this );
-    mAddWithRetry( iop.putTo( astrm ), *this );
+    mAddWithRetry( iop.putTo( astrm, true ), *this );
 }
 
 

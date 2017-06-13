@@ -198,7 +198,7 @@ bool Repos::IOParSet::write( const Repos::Source* reqsrc ) const
 	ascostream astrm( sfio.ostrm() );
 	astrm.putHeader( basenm_ );
 	for ( int idx=0; idx<srcentries.size(); idx++ )
-	    srcentries[idx]->putTo( astrm );
+	    srcentries[idx]->putTo( astrm, true );
 
 	if ( sfio.ostrm().isOK() )
 	    sfio.closeSuccess();

@@ -296,17 +296,17 @@ float DataPackMgr::nrKBytes() const
 RefMan<DataPack> DataPackMgr::get( DataPack::ID dpid ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
-    
+
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
         RefMan<DataPack> pack = packs_[idx];
         if ( pack && pack->id() == dpid )
             return pack;
-            
-    
+
+
         pack.setNoDelete( true );
     }
-    
+
     return 0;
 }
 
@@ -323,7 +323,7 @@ WeakPtr<DataPack> DataPackMgr::observe( DataPack::ID dpid ) const
             return pack;
         }
     }
-    
+
     return 0;
 }
 
@@ -332,7 +332,7 @@ WeakPtr<DataPack> DataPackMgr::observe( DataPack::ID dpid ) const
 void DataPackMgr::getPackIDs( TypeSet<DataPack::ID>& ids ) const
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
-    
+
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
         ConstRefMan<DataPack> pack = packs_[idx];
@@ -353,7 +353,7 @@ void DataPackMgr::dumpInfo( od_ostream& strm ) const
 			     << od_newline;
     ascostream astrm( strm );
     astrm.newParagraph();
-    
+
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( packs_ );
     for ( int idx=0; idx<packs_.size(); idx++ )
     {
@@ -364,7 +364,7 @@ void DataPackMgr::dumpInfo( od_ostream& strm ) const
 
 	IOPar iop;
 	pack->dumpInfo( iop );
-	iop.putTo( astrm );
+	iop.putTo( astrm, true );
     }
 }
 
@@ -376,7 +376,7 @@ void DataPackMgr::doAdd( DataPack* dp )
     RefMan<DataPack> keeper = dp;
     keeper.setNoDelete( true );
     dp->setManager( this );
-    
+
     packs_ += dp;
 
     mTrackDPMsg( BufferString("[DP]: add ",dp->id().getI(),
@@ -404,7 +404,7 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
 	mTrackDPMsg( BufferString("[DP]: add+obtain [existing!] ",
 		    dp->id().getI(), BufferString(" nrusers=",dp->nrRefs())) );
     }
-    
+
     if ( added )
 	newPack.trigger( dp );
 
@@ -447,7 +447,7 @@ bool DataPackMgr::unRef( DataPack::ID dpid )
         pack->unRef();
         return true;
     }
-    
+
     return false;
 }
 
@@ -478,7 +478,7 @@ const char* DataPackMgr::nameOf( const DataPack::ID dpid ) const
     RefMan<DataPack> pack = get( dpid );
     if ( !pack )
         return 0;
-    
+
     pack.setNoDelete( true );
     return pack->name();
 }
@@ -489,7 +489,7 @@ const char* DataPackMgr::categoryOf( const DataPack::ID dpid ) const
     RefMan<DataPack> pack = get( dpid );
     if ( !pack )
         return 0;
-    
+
     pack.setNoDelete( true );
     return pack->category();
 }
@@ -500,7 +500,7 @@ float DataPackMgr::nrKBytesOf( const DataPack::ID dpid ) const
     RefMan<DataPack> pack = get( dpid );
     if ( !pack )
         return 0;
-    
+
     pack.setNoDelete( true );
     return pack->nrKBytes();
 }

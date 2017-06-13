@@ -197,7 +197,7 @@ bool Settings::write( bool do_merge ) const
 
     ascostream stream( sfio.ostrm() );
     stream.putHeader( sKeyDeflt );
-    wriop.putTo( stream );
+    wriop.putTo( stream, true );
     if ( !sfio.closeSuccess() )
     {
 	BufferString msg( "Error closing user settings file:\n" );

@@ -202,6 +202,25 @@ Seis::Blocks::IdxType Seis::Blocks::Block::locIdx4Z( const ZGeom& zg,
 }
 
 
+int Seis::Blocks::Block::startInl4GlobIdx( const HGeom& hg,
+					   IdxType gidx, SzType inldim )
+{
+    return inl4Idxs( hg, inldim, gidx, 0 );
+}
+
+int Seis::Blocks::Block::startCrl4GlobIdx( const HGeom& hg,
+					   IdxType gidx, SzType crldim )
+{
+    return crl4Idxs( hg, crldim, gidx, 0 );
+}
+
+float Seis::Blocks::Block::startZ4GlobIdx( const ZGeom& zg,
+					   IdxType gidx, SzType zdim )
+{
+    return z4Idxs( zg, zdim, gidx, 0 );
+}
+
+
 int Seis::Blocks::Block::inl4Idxs( const HGeom& hg, SzType inldim,
 				  IdxType globidx, IdxType sampidx )
 {

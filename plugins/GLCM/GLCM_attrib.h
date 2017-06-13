@@ -15,7 +15,7 @@
 
 namespace Attrib
 {
-	
+
 mExpClass(GLCM) GLCM_attrib : public Provider
 { mODTextTranslationClass(GLCM_attrib);
 public:
@@ -71,7 +71,7 @@ private:
     Interval<int>		sampgate_;
     Interval<float>		gate_;
     Interval<float>		desgate_;
-	
+
     ObjectSet<const DataHolder> inpdata_;
     const DataHolder*		steerdata_;
     int				dataidx_;
@@ -97,9 +97,9 @@ private:
     PosAndSteeridx		posandsteeridx_;
 
     int				computeGreyLevel(float) const;
-    std::pair<double, double>	computeMu(Node* LinkedList,
+    double_pair			computeMu(Node* LinkedList,
 					  int elements) const;
-    std::pair<double, double>	computeSigma(Node* LinkedList,
+    double_pair			computeSigma(Node* LinkedList,
 					     int elements,double MuX,
 					     double MuY) const;
     double			computeMean(Node* LinkedList,

@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "ranges.h"
 class od_ostream;
-
+class ascostream;
 class Task;
+template <typename T> class Array2D;
 
 namespace Seis
 {
@@ -102,6 +103,10 @@ protected:
     void		writeInfoFiles(uiRetVal&);
     bool		writeInfoFileData(od_ostream&);
     bool		writeOverviewFileData(od_ostream&);
+    bool		writeFullSummary(ascostream&,
+				const Array2D<float>&) const;
+    void		writeLevelSummary(od_ostream&,
+				const Array2D<float>&,int_pair) const;
     void		scanPositions(PosInfo::CubeData& cubedata,
 			    Interval<IdxType>&,Interval<IdxType>&,
 			    Interval<double>&,Interval<double>&);

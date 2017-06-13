@@ -13,6 +13,7 @@ ________________________________________________________________________
 #ifndef commondefs_h
 # include "commondefs.h"
 #endif
+#include <utility>
 
 class IOPar;
 class Color;
@@ -64,15 +65,39 @@ namespace OD
 	{ AutoFPRep=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64, SI64 };
 }
 
-template <class T> mClass(Basic) Triplet
+/*
+template <typename T> mClass(Basic) Twins : public std::pair<T,T>
 {
 public:
-		    Triplet( T f, T s, T t )
-			: first(f), second(s), third(t)		{}
-		    Triplet()
-			: Triplet(T(0),T(0),T(0))		{}
 
-    T		    first, second, third;
+    inline	    Twins()
+			: std::pair<T,T>((T)0,(T)0)		{}
+    inline	    Twins( T f, T s )
+			: std::pair<T,T>(f,s)			{}
+    inline bool	    operator ==( const Twins<T>& oth ) const
+		    { return first == oth.first && second == oth.second; }
+
+};
+*/
+
+template <typename T> using Twins = std::pair<T,T>;
+typedef Twins<int>	int_pair;
+typedef Twins<od_int64>	int64_pair;
+typedef Twins<float>	float_pair;
+typedef Twins<double>	double_pair;
+
+template <typename T> mClass(Basic) Triplets : public Twins<T>
+{
+public:
+
+    inline	    Triplets()
+			: Twins<T>((T)0,(T)0), third((T)0)	{}
+    inline	    Triplets( T f, T s, T t )
+			: Twins<T>(f,s), third(t)		{}
+    inline bool	    operator ==( const Triplets<T>& oth ) const
+		    { return Twins<T>::operator ==(oth) && third == oth.third; }
+
+    T		    third;
 };
 
 typedef Geom::Point3D<Pos::Ordinate_Type> Coord3d;

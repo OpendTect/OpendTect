@@ -18,12 +18,9 @@ ________________________________________________________________________
 
 typedef Array2D<char>	A2DBitMap;
 #define A2DBitMapImpl	Array2DImpl<char>
+typedef float_pair A2DBitMapClips;
 
-/*!
-\brief Array2D Bitmap generation parameters.
-*/
-typedef std::pair<float,float> A2DBitMapClips;
-
+/*!\brief Array2D Bitmap generation parameters. */
 
 mStruct(General) A2DBitMapGenPars
 {
@@ -44,9 +41,7 @@ mStruct(General) A2DBitMapGenPars
 };
 
 
-/*!
-\brief Array2D<float>& + statistics.
-*/
+/*!\brief Array2D<float>& + statistics. */
 
 mExpClass(General) A2DBitMapInpData
 {

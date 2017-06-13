@@ -32,19 +32,19 @@ public:
     inline			BinID()				{}
     inline			BinID(IdxType i,IdxType x);
     inline			BinID(const Pos::IdxPair&);
-    				//!< To make BinID from RowCol, should disappear
+				//!< To make BinID from RowCol, should disappear
 
     inline const BinID&		operator+=(const BinIDAbsDelta&);
     inline const BinID&		operator-=(const BinIDAbsDelta&);
-    inline BinID	 	operator+(const BinIDAbsDelta&) const;
-    inline BinID	 	operator-(const BinIDAbsDelta&) const;
+    inline BinID		operator+(const BinIDAbsDelta&) const;
+    inline BinID		operator-(const BinIDAbsDelta&) const;
 
-    				// BinIDRelDelta operator:
-    inline BinIDAbsDelta	operator*(const Pos::Index_Type_Pair&) const;
-    				// BinIDAbsDelta operator:
-    inline BinIDRelDelta	operator/(const Pos::Index_Type_Pair&) const;
+				// BinIDRelDelta operator:
+    inline BinIDAbsDelta	operator*(const Pos::Index_Type_Twins&) const;
+				// BinIDAbsDelta operator:
+    inline BinIDRelDelta	operator/(const Pos::Index_Type_Twins&) const;
 
-    				// BinID[Abs|Rel]Delta operators:
+				// BinID[Abs|Rel]Delta operators:
     // 'BinID' below should be either BinIDRelDelta or BinIDAbsDelta
     inline BinID		operator*(int) const;
     inline BinID		operator/(int) const;
@@ -82,10 +82,10 @@ inline BinID BinID::operator-( const BinIDAbsDelta& bid ) const
 inline BinID BinID::operator-() const
 { return BinID( -inl(), -crl() ); }
 
-inline BinIDAbsDelta BinID::operator*( const Pos::Index_Type_Pair& ip ) const
+inline BinIDAbsDelta BinID::operator*( const Pos::Index_Type_Twins& ip ) const
 { return BinID( first*ip.first, second*ip.second ); }
 
-inline BinIDAbsDelta BinID::operator/( const Pos::Index_Type_Pair& ip ) const
+inline BinIDAbsDelta BinID::operator/( const Pos::Index_Type_Twins& ip ) const
 { return BinID( first/ip.first, second/ip.second ); }
 
 inline BinID BinID::operator*( int factor ) const

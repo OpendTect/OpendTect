@@ -1160,13 +1160,14 @@ void IOPar::getFrom( ascistream& strm )
 }
 
 
-void IOPar::putTo( ascostream& strm ) const
+void IOPar::putTo( ascostream& strm, bool endparagraph ) const
 {
     if ( !name().isEmpty() )
 	strm.stream() << name() << od_endl;
     for ( int idx=0; idx<size(); idx++ )
 	strm.put( keys_.get(idx), vals_.get(idx) );
-    strm.newParagraph();
+    if ( endparagraph )
+	strm.newParagraph();
 }
 
 
@@ -1303,7 +1304,7 @@ bool IOPar::write( od_ostream& strm, const char* typ ) const
 	ascostream astream( strm );
 	if ( typ && *typ )
 	    astream.putHeader( typ );
-	putTo( astream );
+	putTo( astream, true );
     }
 
     return strm.isOK();

@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "separstr.h"
 #include "arrayndimpl.h"
+#include "odmemory.h"
 
 
 namespace Seis
@@ -730,25 +731,164 @@ bool Seis::Blocks::Writer::writeInfoFileData( od_ostream& strm )
 }
 
 
+#define mGetNrInlCrlAndRg() \
+    const int stepinl = hgeom_.sampling().hsamp_.step_.inl(); \
+    const int stepcrl = hgeom_.sampling().hsamp_.step_.crl(); \
+    const StepInterval<int> inlrg( finalinlrg_.start, finalinlrg_.stop, \
+				   stepinl ); \
+    const StepInterval<int> crlrg( finalcrlrg_.start, finalcrlrg_.stop, \
+				   stepcrl ); \
+    const int nrinl = inlrg.nrSteps() + 1; \
+    const int nrcrl = crlrg.nrSteps() + 1
+
 bool Seis::Blocks::Writer::writeOverviewFileData( od_ostream& strm )
 {
-    ascostream ascostrm( strm );
-    if ( !ascostrm.putHeader("Cube Overview") )
+    ascostream astrm( strm );
+    if ( !astrm.putHeader("Cube Overview") )
 	return false;
 
-    const int nrinls = finalinlrg_.width()
-		     / hgeom_.sampling().hsamp_.step_.inl() + 1;
-    const int nrcrls = finalcrlrg_.width()
-		     / hgeom_.sampling().hsamp_.step_.crl() + 1;
-    Array2DImpl<float> data( nrinls, nrcrls );
+    mGetNrInlCrlAndRg();
+
+    Array2DImpl<float> data( nrinl, nrcrl );
+    MemSetter<float> memsetter( data.getData(), mUdf(float),
+			 (od_int64)data.info().getTotalSz() );
+    memsetter.execute();
+
     Pos::IdxPairDataSet::SPos spos;
     while ( columns_.next(spos) )
     {
-    //const MemBlockColumn& column = *(MemBlockColumn*)columns_.getObj(spos);
-	//TODO impl
-	data.set(0,0,0.f); // avoid waings for now
+	const MemBlockColumn& column = *(MemBlockColumn*)columns_.getObj(spos);
+	const Dimensions bdims( column.dims() );
+	const BinID start(
+	    Block::startInl4GlobIdx(hgeom_,column.globIdx().inl(),bdims.inl()),
+	    Block::startCrl4GlobIdx(hgeom_,column.globIdx().crl(),bdims.crl()));
+	const MemColumnSummary& summary = column.summary_;
+
+	for ( IdxType iinl=0; iinl<bdims.inl(); iinl++ )
+	{
+	    const int inl = start.inl() + inlrg.step * iinl;
+	    const int ia2dinl = inlrg.nearestIndex( inl );
+	    if ( ia2dinl < 0 || ia2dinl >= nrinl )
+		continue;
+	    for ( IdxType icrl=0; icrl<bdims.crl(); icrl++ )
+	    {
+		const int crl = start.crl() + crlrg.step * icrl;
+		const int ia2dcrl = crlrg.nearestIndex( crl );
+		if ( ia2dcrl < 0 || ia2dcrl >= nrcrl )
+		    continue;
+		data.set( ia2dinl, ia2dcrl, summary.vals_[iinl][icrl] );
+	    }
+	}
     }
-    return false;
+
+    return writeFullSummary( astrm, data );
+}
+
+
+bool Seis::Blocks::Writer::writeFullSummary( ascostream& astrm,
+				const Array2D<float>& data ) const
+{
+    mGetNrInlCrlAndRg();
+    const Coord origin(
+	    hgeom_.transform(BinID(finalinlrg_.start,finalcrlrg_.start)) );
+    const Coord endinl0(
+	    hgeom_.transform(BinID(finalinlrg_.start,finalcrlrg_.stop)) );
+    const Coord endcrl0(
+	    hgeom_.transform(BinID(finalinlrg_.stop,finalcrlrg_.start)) );
+    const double fullinldist = origin.distTo<double>( endinl0 );
+    const double fullcrldist = origin.distTo<double>( endcrl0 );
+
+    IOPar iop;
+    iop.set( sKey::InlRange(), inlrg );
+    iop.set( sKey::CrlRange(), crlrg );
+    hgeom_.putMapInfo( iop );
+    iop.putTo( astrm, false );
+
+    const int smallestdim = nrinl > nrcrl ? nrcrl : nrinl;
+    TypeSet<int_pair> levelnrblocks;
+    int nodesperblock = smallestdim / 2;
+    int nrlevels = 0;
+    while ( nodesperblock > 1 )
+    {
+	const float finlnrnodes = ((float)nrinl) / nodesperblock;
+	const float fcrlnrnodes = ((float)nrcrl) / nodesperblock;
+	const int_pair nrblocks( mNINT32(finlnrnodes), mNINT32(fcrlnrnodes) );
+	levelnrblocks += nrblocks;
+	const Coord blockdist( fullcrldist/nrblocks.first,
+				fullinldist/nrblocks.second );
+	const double avglvlblcksz = (blockdist.x_ + blockdist.y_) * .5;
+	astrm.put( IOPar::compKey(sKey::Level(),nrlevels), avglvlblcksz );
+	nodesperblock /= 2; nrlevels++;
+    }
+    astrm.newParagraph();
+
+    for ( int ilvl=0; ilvl<nrlevels; ilvl++ )
+    {
+	writeLevelSummary( astrm.stream(), data, levelnrblocks[ilvl] );
+	astrm.newParagraph();
+	if ( !astrm.isOK() )
+	    return false;
+    }
+
+    return true;
+}
+
+
+void Seis::Blocks::Writer::writeLevelSummary( od_ostream& strm,
+				const Array2D<float>& data,
+				int_pair nrblocks ) const
+{
+    mGetNrInlCrlAndRg();
+    const float_pair fcellsz( ((float)nrinl) / nrblocks.first,
+			     ((float)nrcrl) / nrblocks.second );
+    const float_pair fhcellsz( fcellsz.first * .5f, fcellsz.second * .5f );
+    const int_pair cellsz( mNINT32(fcellsz.first), mNINT32(fcellsz.second) );
+    const int_pair hcellsz( mNINT32(fhcellsz.first), mNINT32(fhcellsz.second) );
+
+    for ( int cix=0; ; cix++ )
+    {
+	const float fcenterx = fhcellsz.first + cix * fcellsz.first;
+	int_pair center( mNINT32(fcenterx), 0 );
+	if ( center.first >= nrinl )
+	    break;
+
+	for ( int ciy=0; ; ciy++ )
+	{
+	    const float fcentery = fhcellsz.second + ciy * fcellsz.second;
+	    center.second = mNINT32( fcentery );
+	    if ( center.second > nrcrl )
+		break;
+
+	    float sumv = 0.f; int nrv = 0;
+	    for ( int ix=center.first-hcellsz.first;
+		      ix<=center.first+hcellsz.first; ix++ )
+	    {
+		if ( ix < 0 )
+		    continue;
+		if ( ix >= nrinl )
+		    break;
+		for ( int iy=center.second-hcellsz.second;
+			  iy<=center.second+hcellsz.second; iy++ )
+		{
+		    if ( iy < 0 )
+			continue;
+		    if ( iy >= nrcrl )
+			break;
+		    const float v = data.get( ix, iy );
+		    if ( !mIsUdf(v) )
+			{ sumv += v; nrv++; }
+		}
+	    }
+	    if ( nrv > 0 )
+	    {
+		const BinID cbid( finalinlrg_.atIndex(center.first,stepinl),
+				  finalcrlrg_.atIndex(center.second,stepcrl) );
+		const Coord centercoord( hgeom_.transform(cbid) );
+		strm << centercoord.x_ << '\t' << centercoord.y_ << '\t'
+				<< sumv / nrv << '\n';
+	    }
+	}
+    }
 }
 
 

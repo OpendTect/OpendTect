@@ -296,7 +296,7 @@ public:
 
     // to/from file
     void		getFrom(ascistream&);
-    void		putTo(ascostream&) const;
+    void		putTo(ascostream&,bool endparagraph=true) const;
     bool		read(const char* filename,const char* filetype,
 				bool chktype=false);
 			//!< filetype null will assume no file header

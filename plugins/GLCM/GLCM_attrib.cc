@@ -1460,8 +1460,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-std::pair<double, double>  GLCM_attrib::computeMu( Node* LinkedList,
-						   int elements ) const
+double_pair GLCM_attrib::computeMu( Node* LinkedList, int elements ) const
 {
     double MuX = 0.0;
     double MuY = 0.0;
@@ -1478,9 +1477,8 @@ std::pair<double, double>  GLCM_attrib::computeMu( Node* LinkedList,
     return std::make_pair(MuX, MuY);
 }
 
-std::pair<double, double>  GLCM_attrib::computeSigma( Node* LinkedList,
-						      int elements, double MuX,
-						      double MuY ) const
+double_pair GLCM_attrib::computeSigma( Node* LinkedList, int elements,
+					 double MuX, double MuY ) const
 {
     double SigmaX = 0.0;
     double SigmaY = 0.0;
@@ -1730,9 +1728,9 @@ double GLCM_attrib::computeContrast( Node* LinkedList,
 double GLCM_attrib::computeCorrelation( Node* LinkedList,
 					int elements ) const
 {
-    std::pair<double, double> Mu(0.0, 0.0);
+    double_pair Mu(0.0, 0.0);
     Mu = computeMu(LinkedList, elements);
-    std::pair<double, double> Sigma(0.0, 0.0);
+    double_pair Sigma(0.0, 0.0);
     Sigma = computeSigma(LinkedList, elements, Mu.first, Mu.second);
 
     double trcval = 0;
@@ -1971,7 +1969,7 @@ double GLCM_attrib::computeMaximumProbability( Node* LinkedList,
 double GLCM_attrib::computeClusterTendency( Node* LinkedList,
 					    int elements ) const
 {
-    std::pair<double, double> Mu(0.0, 0.0);
+    double_pair Mu( 0.0, 0.0 );
     Mu = computeMu(LinkedList, elements);
 
     double trcval = 0;
@@ -1992,7 +1990,7 @@ double GLCM_attrib::computeClusterTendency( Node* LinkedList,
 
 double GLCM_attrib::computeClusterShade( Node* LinkedList, int elements ) const
 {
-    std::pair<double, double> Mu(0.0, 0.0);
+    double_pair Mu(0.0, 0.0);
     Mu = computeMu( LinkedList, elements );
 
     double trcval = 0;
@@ -2013,7 +2011,7 @@ double GLCM_attrib::computeClusterShade( Node* LinkedList, int elements ) const
 double GLCM_attrib::computeClusterProminence( Node* LinkedList,
 					      int elements ) const
 {
-    std::pair<double, double> Mu(0.0, 0.0);
+    double_pair Mu( 0.0, 0.0 );
     Mu = computeMu( LinkedList, elements );
 
     double trcval = 0;

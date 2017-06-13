@@ -49,7 +49,7 @@ namespace Blocks
     typedef DataInterpreter<float> DataInterp;
 
 #define mDefSeisBlockPairClass(clss,typ) \
-mExpClass(Seis) clss : public std::pair<typ,typ> \
+mExpClass(Seis) clss : public Twins<typ> \
 { \
 public: \
 \
@@ -111,6 +111,9 @@ public:
     static IdxType	locIdx4Inl(const HGeom&,int inl,SzType inldim);
     static IdxType	locIdx4Crl(const HGeom&,int crl,SzType crldim);
     static IdxType	locIdx4Z(const ZGeom&,float z,SzType zdim);
+    static int		startInl4GlobIdx(const HGeom&,IdxType,SzType inldim);
+    static int		startCrl4GlobIdx(const HGeom&,IdxType,SzType crldim);
+    static float	startZ4GlobIdx(const ZGeom&,IdxType,SzType zdim);
     static int		inl4Idxs(const HGeom&,SzType inldim,IdxType globidx,
 				IdxType sampidx);
     static int		crl4Idxs(const HGeom&,SzType crldim,IdxType globidx,
