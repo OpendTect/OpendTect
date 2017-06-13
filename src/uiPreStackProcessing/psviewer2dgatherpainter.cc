@@ -42,9 +42,7 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
 
     inputvdgather_ =
 	DPM( DataPackMgr::FlatID() ).getAndCast<Gather>( vdid );
-
     viewer_.appearance().ddpars_.vd_.show_ = inputvdgather_;
-
     if ( inputvdgather_ )
         viewer_.setPack( false, vdid, !hadpack );
 }

@@ -78,6 +78,7 @@ void Processor::setInput( const BinID& relbid, DataPack::ID id )
 	return;
 
     unRefPtr( inputs_[offset] );
+    Gather* gth = input.ptr();
     inputs_.replace( offset, input );
     refPtr( input );
 }

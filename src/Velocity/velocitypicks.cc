@@ -1104,8 +1104,8 @@ Picks* PicksMgr::get( const DBKey& mid, bool sgmid, bool create,
     Picks* res = 0;
     for ( int idx=0; idx<velpicks_.size(); idx++ )
     {
-	if ( (!sgmid && velpicks_[idx]->storageID()==mid ) ||
-	     (sgmid && velpicks_[idx]->gatherID()==mid ) )
+	if ( mid.isValid() && ((!sgmid && velpicks_[idx]->storageID()==mid) ||
+	     (sgmid && velpicks_[idx]->gatherID()==mid)) )
 	{
 	    res = velpicks_[idx];
 	    res->ref();
