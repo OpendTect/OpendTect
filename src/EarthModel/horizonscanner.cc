@@ -36,6 +36,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , fileidx_(0)
     , curmsg_(tr("Scanning"))
     , nrdone_(0)
+    , strm_(0)
 {
     filenames_ = fnms;
     init();
@@ -46,6 +47,7 @@ HorizonScanner::~HorizonScanner()
 {
     delete &dtctor_;
     deepErase( sections_ );
+    delete strm_;
 }
 
 
@@ -187,12 +189,12 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
 
 bool HorizonScanner::reInitAscIO( const char* fnm )
 {
-    od_istream strm( fnm );
-    if ( !strm.isOK() )
+    delete ascio_; ascio_ = 0;
+    delete strm_; strm_ = new od_istream( fnm );
+    if ( !strm_->isOK() )
 	return false;
 
-    ascio_ = new EM::Horizon3DAscIO( fd_, strm );
-    if ( !ascio_ ) return false;
+    ascio_ = new EM::Horizon3DAscIO( fd_, *strm_ );
     return true;
 }
 

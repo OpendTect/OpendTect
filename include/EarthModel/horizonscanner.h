@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class BinIDValueSet;
+class od_istream;
 namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
@@ -74,6 +75,7 @@ protected:
     bool		doscale_;
     TypeSet<Interval<float> > valranges_;
     Table::FormatDesc&	fd_;
+    od_istream*		strm_;
 
     BinIDValueSet*	bvalset_;
     ObjectSet<BinIDValueSet> sections_;
