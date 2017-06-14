@@ -22,7 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <sstream>
 #include <string.h>
 
-const char* od_stream::sStdIO()	{ return StreamProvider::sStdIO(); }
+const char* od_stream::sStdIO()		{ return StreamProvider::sStdIO(); }
+const char* od_stream::sStdErr()	{ return StreamProvider::sStdErr(); }
 
 
 od_istream& od_istream::nullStream()

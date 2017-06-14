@@ -92,6 +92,8 @@ public:
 				//!< returns null on failure, never a bad stream
     static const char*		sStdIO();
 				//!< pass this as filename to get cin or cout
+    static const char*		sStdErr();
+				//!< pass this as filename to get cerr
 
 protected:
 

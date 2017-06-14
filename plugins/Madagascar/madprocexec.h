@@ -13,7 +13,6 @@
 #include "od_ostream.h"
 #include "uistring.h"
 
-class StreamData;
 class TextStreamProgressMeter;
 
 
@@ -57,8 +56,8 @@ protected:
     float*		trc_;
 
     MadStream*		madstream_;
-    StreamData&		procstream_;
-    StreamData&		plotstream_;
+    od_ostream*		procstream_;
+    od_ostream*		plotstream_;
 
     TextStreamProgressMeter* progmeter_;
 
