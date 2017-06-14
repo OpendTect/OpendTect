@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "typeset.h"
 #include "seisinfo.h"
-#include "strmdata.h"
 #include "commondefs.h"
 
+class od_stream;
 
 namespace ODMad
 {
@@ -143,9 +143,10 @@ public:
 protected:
 
     bool		is2d_;
-    StreamData&		sd_;
+    od_stream&		strm_;
     TrcHdrDef&		trchdrdef_;
     RSFHeader*		rsfheader_;
+    BufferString	errmsg_;
 };
 
 

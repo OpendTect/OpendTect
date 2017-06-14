@@ -30,13 +30,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "seispacketinfo.h"
 #include "seiswrite.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 #include "uistrings.h"
 #include "od_iostream.h"
-#include <iostream>
 
 
 using namespace ODMad;
@@ -122,20 +120,20 @@ static bool getScriptForScons( BufferString& str )
 
 #ifdef __win__
     BufferString scriptfile = FilePath::getTempName( "bat" );
-    StreamData sd = StreamProvider(scriptfile).makeOStream();
-    *sd.ostrm << "@echo off" << std::endl;
-    *sd.ostrm << "Pushd " << fp.pathOnly() << std::endl;
-    *sd.ostrm << sconsfp.fullPath() << std::endl;
-    *sd.ostrm << "Popd" << std::endl;
+    od_ostream ostrm( scriptfile );
+    ostrm << "@echo off" << od_endl;
+    ostrm << "Pushd " << fp.pathOnly() << od_endl;
+    ostrm << sconsfp.fullPath() << od_endl;
+    ostrm << "Popd" << od_endl;
 #else
     BufferString scriptfile = FilePath::getTempName();
-    StreamData sd = StreamProvider(scriptfile).makeOStream();
-    *sd.ostrm << "#!/bin/csh -f" << std::endl;
-    *sd.ostrm << "pushd " << fp.pathOnly() << std::endl;
-    *sd.ostrm << sconsfp.fullPath() << std::endl;
-    *sd.ostrm << "popd" << std::endl;
+    od_ostream ostrm( scriptfile );
+    ostrm << "#!/bin/csh -f" << od_endl;
+    ostrm << "pushd " << fp.pathOnly() << od_endl;
+    ostrm << sconsfp.fullPath() << od_endl;
+    ostrm << "popd" << od_endl;
 #endif
-    sd.close();
+    ostrm.close();
     File::setPermissions( scriptfile, "744", 0 );
 
     str = "@";
@@ -172,9 +170,7 @@ void MadStream::initRead( IOPar* par )
 	inpstr += " form=ascii_float out=stdout";
 #endif
 	const char* str = inpstr.isEmpty() ? 0 : inpstr.buf();
-        std::istream* istrm = StreamProvider(str).makeIStream().istrm;
-
-	istrm_ = istrm ? new od_istream( *istrm ) : 0;
+        istrm_ = new od_istream( str );
 
 	fillHeaderParsFromStream();
 	if (!headerpars_) mErrRet(tr("Error reading RSF header"));;
@@ -182,13 +178,12 @@ void MadStream::initRead( IOPar* par )
 	BufferString insrc( headerpars_->find(sKeyIn) );
 	if ( insrc == "" || insrc == sKeyStdIn ) return;
 
-	StreamData sd = StreamProvider(insrc).makeIStream();
-	if (!sd.usable())
-	    mErrRet( uiStrings::phrCannotRead(tr("RSF data file")));
-
         deleteAndZeroPtr( istrm_ );
 
-	istrm_ = sd.istrm ? new od_istream( sd.istrm ) : 0;
+	istrm_ = new od_istream( insrc );
+	if ( !istrm_->isOK() )
+	    mErrRet( uiStrings::phrCannotRead(tr("RSF data file")));
+
 	headerpars_->set( sKeyIn, sKeyStdIn );
 	return;
     }
@@ -234,7 +229,7 @@ void MadStream::initWrite( IOPar* par )
 
     is2d_ = gt == Seis::Line || gt == Seis::LinePS;
     isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
-    istrm_ = new od_istream( &std::cin );
+    istrm_ = new od_istream( od_stream::sStdIO() );
     MultiID outpid;
     if (!par->get(sKey::ID(), outpid))
 	mErrRet(uiStrings::phrCannotRead( tr("paramter file")) );
@@ -404,7 +399,7 @@ void MadStream::fillHeaderParsFromSeis()
 	    headerpars_->set( "n3", inlrg.nrSteps()+1 );
 	    headerpars_->set( "d3", inlrg.step );
 	    if ( File::exists(posfnm) )
-		StreamProvider(posfnm).remove(); // While overwriting rsf
+		File::remove( posfnm ); // While overwriting rsf
 	}
     }
 
