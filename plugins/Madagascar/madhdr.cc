@@ -11,9 +11,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "madhdr.h"
-#include "strmprov.h"
-
-#include <iostream>
+#include "od_iostream.h"
 
 
 using namespace ODMad;
@@ -72,7 +70,7 @@ bool RSFHeader::read( const char* fnm )
 }
 
 
-bool RSFHeader::read( std::istream& istrm )
+bool RSFHeader::read( od_istream& istrm )
 {
     char linebuf[256];
     if ( !istrm ) return false;
@@ -117,14 +115,14 @@ bool RSFHeader::write( const char* fnm ) const
 }
 
 
-bool RSFHeader::write( std::ostream& ostrm ) const
+bool RSFHeader::write( od_ostream& ostrm ) const
 {
     if ( !size() ) return false;
 
     for ( int idx = 0; idx < size(); idx++ )
     {
 	ostrm << "\t" << getKey(idx);
-	ostrm << "=" << getValue(idx) << std::endl;
+	ostrm << "=" << getValue(idx) << od_endl;
     }
 
     ostrm << sKeyRSFEndOfHeader;
@@ -352,7 +350,7 @@ bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
 
 #define mbuflen 2048
 
-bool TrcHeader::read( std::istream& istrm )
+bool TrcHeader::read( od_istream& istrm )
 {
     for ( int idx = 0; idx < trchdrdef_.size_; idx++ )
     {
@@ -366,7 +364,7 @@ bool TrcHeader::read( std::istream& istrm )
 }
 
 
-void TrcHeader::write( std::ostream& ostrm ) const
+void TrcHeader::write( od_ostream& ostrm ) const
 {
     for ( int idx = 0; idx < trchdrdef_.size_; idx++ )
     {
@@ -382,16 +380,14 @@ void TrcHeader::write( std::ostream& ostrm ) const
 TrcHdrStrm::TrcHdrStrm( bool is2d, bool read, const char* fnm, TrcHdrDef& def )
 	      : is2d_(is2d)
 	      , trchdrdef_(def)
-	      , sd_(*new StreamData)
+	      , stream_(*(od_stream::create(fnm,read,errmsg_)))
 {
-    sd_ = read ? StreamProvider(fnm).makeIStream()
-			: StreamProvider(fnm).makeOStream();
 }
 
 
 bool TrcHdrStrm::initRead()
 {
-    if ( !rsfheader_->read(*sd_.istrm) ) return false;
+    if ( !rsfheader_->read(stream_) ) return false;
     trchdrdef_.size_ = rsfheader_->nrVals(1);
 
     trchdrdef_.isbinary_ =
@@ -399,31 +395,28 @@ bool TrcHdrStrm::initRead()
 
     const char* datasrc = rsfheader_->getDataSource();
     if ( datasrc != sKeyStdIn )
-	sd_ = StreamProvider(datasrc).makeIStream();
+	stream_.setFileName( datasrc );
     return true;
 }
 
 
 bool TrcHdrStrm::initWrite() const
 {
-    return rsfheader_->write(*sd_.ostrm);
+    return rsfheader_->write(stream_);
 }
 
 
 TrcHeader* TrcHdrStrm::readNextTrc()
 {
     TrcHeader* trchdr = new TrcHeader( is2d_, trchdrdef_ );
-    while ( *sd_.istrm )
-    {
-	trchdr->read( *sd_.istrm );
-    }
+    trchdr->read( stream_ );
     return trchdr;
 }
 
 
 bool TrcHdrStrm::writeNextTrc( const TrcHeader& trchdr ) const
 {
-    trchdr.write( *sd_.ostrm );
+    trchdr.write( stream_ );
     return true;
 }
 
