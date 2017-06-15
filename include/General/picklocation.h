@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
+#include "picklabel.h"
 #include "coord.h"
 class TrcKey;
 class Sphere;
@@ -44,6 +44,9 @@ If no direction is available, you'll get nullSphere().
 mExpClass(General) Location
 {
 public:
+
+    typedef Label::ID	LabelID;
+
 			Location();
 			Location(double x,double y,double z=0);
 			Location(const Coord&,float z=0);
@@ -74,6 +77,7 @@ public:
     const BinID&	binID() const;
     const Sphere&	dir() const;
     const BufferString&	text() const;
+    LabelID		labelID() const		{ return lblid_; }
 
     inline Location&	setPos( const Coord3& c )
 			{ pos_ = c; return *this; }
@@ -86,6 +90,7 @@ public:
     template <class FT>
     inline Location&	setZ( FT zval )
 			{ pos_.z_ = zval; return *this; }
+    inline Location&	setLabelID( LabelID id ) { lblid_ = id; return *this; }
 
     Location&		setTrcKey(const TrcKey&);
     Location&		setDir(const Sphere&);
@@ -115,6 +120,7 @@ protected:
     Coord3		pos_;
     TrcKey*		trckey_;
     Sphere*		dir_;
+    LabelID		lblid_;
     BufferString*	text_;
 
     void		setTK(const TrcKey*);

@@ -201,7 +201,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
     if ( atEndOfSection(astrm) )
 	return uiStrings::sNoValidData();
 
-    if ( astrm.hasKeyword("Ref") ) // Keep support for pre v3.2 format
+    if ( astrm.hasKeyword("Ref") )
     {
 	Pick::Set::Disp disp;
 	// In old format we can find mulitple pick sets. Just gather them all
@@ -242,7 +242,7 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	}
 	ps.setDisp( disp );
     }
-    else // New format
+    else // Post-3.2 format
     {
 	IOPar iopar; iopar.getFrom( astrm );
 	ps.usePar( iopar );

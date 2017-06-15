@@ -224,6 +224,7 @@ BufferStringSet BlocksSeisTrcTranslator::auxExtensions() const
 {
     BufferStringSet extnms = stdAuxExtensions();
     extnms.add( sInfoFileExtension() );
+    extnms.add( Seis::Blocks::IOClass::sKeyOvvwFileExt() );
     return extnms;
 }
 

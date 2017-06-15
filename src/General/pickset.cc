@@ -20,15 +20,26 @@ Pick::Set Pick::Set::dummyset_;
 static const char* sKeyConnect = "Connect";
 
 
+#define mPrepRead(sz) \
+    mLock4Read(); \
+    const size_type sz = locs_.size()
+#define mPrepLocChange(id) \
+    mSendChgNotif( cLocationPreChange(), id.getI() ); \
+    mReLock(); mLock2Write()
+#define mSendLocChgNotif(istmp,id) \
+    mSendChgNotif( istmp?cLocationChangeTemp():cLocationChange(), id.getI() )
+
+
 mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", 0 };
 
 Pick::Set::Set( const char* nm, const char* cat )
     : SharedObject(nm)
     , curlocidnr_(0)
+    , curlabelidnr_(0)
 {
     if ( cat )
-    	setCategory( cat );
+	setCategory( cat );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -36,6 +47,7 @@ Pick::Set::Set( const char* nm, const char* cat )
 Pick::Set::Set( const Set& oth )
     : SharedObject(oth)
     , curlocidnr_(oth.curlocidnr_)
+    , curlabelidnr_(oth.curlabelidnr_)
 {
     copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
@@ -56,7 +68,9 @@ void Pick::Set::copyClassData( const Set& oth )
     locids_ = oth.locids_;
     disp_ = oth.disp_;
     pars_ = oth.pars_;
+    labels_ = oth.labels_;
     curlocidnr_ = oth.curlocidnr_;
+    curlabelidnr_ = oth.curlabelidnr_;
 }
 
 
@@ -68,6 +82,7 @@ Monitorable::ChangeType Pick::Set::compareClassData( const Set& oth ) const
     mStartMonitorableCompare();
     mHandleMonitorableCompare( disp_, cDispChange() );
     mHandleMonitorableCompare( pars_, cParsChange() );
+    mHandleMonitorableCompare( labels_, cLabelsChange() );
     mDeliverMonitorableCompare();
 }
 
@@ -214,9 +229,138 @@ BufferString Pick::Set::category() const
 }
 
 
-#define mPrepRead(sz) \
-    mLock4Read(); \
-    const size_type sz = locs_.size()
+void Pick::Set::addLabel( const Label& lbl )
+{
+    mLock4Write();
+    Label newlbl( lbl );
+    newlbl.id_ = LabelID::get( curlabelidnr_++ );
+    labels_ += newlbl;
+    mSendChgNotif( cLabelsChange(), newlbl.id_.getI() );
+}
+
+
+int Pick::Set::gtLblIdx( LabelID lblid ) const
+{
+    if ( lblid.isInvalid() )
+	return -1;
+
+    const int sz = labels_.size();
+    for ( int idx=0; idx<sz; idx++ )
+	if ( labels_[idx].id() == lblid )
+	    return idx;
+
+    return -1;
+}
+
+
+void Pick::Set::removeLabel( LabelID lblid )
+{
+    mLock4Write();
+    const int idxof = gtLblIdx( lblid );
+    if ( idxof >= 0 )
+    {
+	labels_.removeSingle( idxof );
+	mSendChgNotif( cLabelsChange(), labels_[idxof].id_.getI() );
+    }
+}
+
+
+Pick::Label Pick::Set::getLabel( LabelID lblid ) const
+{
+    mLock4Read();
+    const int idxof = gtLblIdx( lblid );
+    return idxof < 0 ? Label() : labels_[idxof];
+}
+
+
+Pick::Set::LabelID Pick::Set::getLabelByText( const char* lbltxt ) const
+{
+    mLock4Read();
+    const int sz = labels_.size();
+    for ( int idx=0; idx<sz; idx++ )
+	if ( labels_[idx].text() == lbltxt )
+	    return labels_[idx].id();
+    return LabelID::getInvalid();
+}
+
+
+void Pick::Set::setLabel( const Label& lbl )
+{
+    mLock4Read();
+    const int idxof = gtLblIdx( lbl.id() );
+    if ( idxof < 0 )
+    {
+	mUnlockAllAccess();
+	addLabel( lbl );
+	return;
+    }
+
+    mLock2Write();
+    labels_[idxof] = lbl;
+    mSendChgNotif( cLabelsChange(), lbl.id_.getI() );
+}
+
+
+bool Pick::Set::haveLabels() const
+{
+    mPrepRead( sz );
+    if ( labels_.isEmpty() )
+	return false;
+
+    for ( int idx=0; idx<sz; idx++ )
+	if ( locs_[idx].labelID().isValid() )
+	    return true;
+
+    return false;
+}
+
+
+Pick::Set::LabelID Pick::Set::labelID( LocID locid ) const
+{
+    mLock4Read();
+    const IdxType locidx = gtIdxFor( locid );
+    return locidx < 0 ? LabelID::getInvalid() : locs_[locidx].labelID();
+}
+
+
+Pick::Set::LabelID Pick::Set::labelIDByIdx( IdxType locidx ) const
+{
+    mLock4Read();
+    return locidx < 0 ? LabelID::getInvalid() : locs_[locidx].labelID();
+}
+
+
+void Pick::Set::setLabelID( LocID locid, LabelID labelid )
+{
+    mLock4Read();
+    IdxType locidx = gtIdxFor( locid );
+    if ( locidx < 0 || locs_[locidx].labelID() == labelid )
+	return;
+
+    if ( !mLock2Write() )
+    {
+	locidx = gtIdxFor( locid );
+	if ( locidx < 0 || locs_[locidx].labelID() == labelid )
+	    return;
+    }
+
+    mPrepLocChange( locid );
+    locs_[locidx].setLabelID( labelid );
+    mSendLocChgNotif( false, locid );
+}
+
+
+void Pick::Set::setLabelIDs( Interval<IdxType> idxs, LabelID labelid )
+{
+    mLock4Write();
+    idxs.sort();
+    while ( idxs.start <= idxs.stop )
+    {
+	locs_[idxs.start].setLabelID( labelid );
+	idxs.start++;
+    }
+    mSendEntireObjChgNotif();
+}
 
 
 bool Pick::Set::isMultiGeom() const
@@ -551,13 +695,6 @@ Pick::Set::LocID Pick::Set::insertBefore( LocID id, const Location& loc )
     locs_.insert( idx, loc );
     return insNewLocID( idx, mAccessLocker() );
 }
-
-
-#define mPrepLocChange(id) \
-    mSendChgNotif( cLocationPreChange(), id.getI() ); \
-    mReLock(); mLock2Write()
-#define mSendLocChgNotif(istmp,id) \
-    mSendChgNotif( istmp?cLocationChangeTemp():cLocationChange(), id.getI() )
 
 
 Pick::Set& Pick::Set::set( LocID id, const Location& loc, bool istmp )

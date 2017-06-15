@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "picklocation.h"
+#include "picklabel.h"
 #include "sharedobject.h"
 #include "monitoriter.h"
 #include "enums.h"
@@ -20,7 +21,6 @@ ________________________________________________________________________
 #include "sets.h"
 #include "draw.h"
 #include "iopar.h"
-#include "integerid.h"
 template <class T> class ODPolygon;
 
 
@@ -45,6 +45,7 @@ public:
     typedef TypeSet<Location>::size_type	size_type;
     typedef size_type				IdxType;
     mDefIntegerIDType(IdxType,			LocID);
+    typedef Label::ID				LabelID;
 
 			Set(const char* nm=0,const char* category=0);
 			mDeclInstanceCreatedNotifierAccess(Set);
@@ -79,6 +80,20 @@ public:
     Set&		setPos(LocID,const Coord&,bool istemp=false);
     Set&		setZ(LocID,double,bool istemp=false);
     Set&		setByIndex(IdxType,const Location&,bool istemp=false);
+
+			// Manipulate the defined labels
+    void		addLabel(const Label&);
+    void		removeLabel(LabelID);
+    Label		getLabel(LabelID) const;
+    LabelID		getLabelByText(const char*) const; //!< first match
+    void		setLabel(const Label&); //!< adds if ID udf
+
+			// Get/set location labels
+    bool		haveLabels() const; //!< at any of the locations
+    LabelID		labelID(LocID) const;
+    LabelID		labelIDByIdx(IdxType) const;
+    void		setLabelID(LocID,LabelID);
+    void		setLabelIDs(Interval<IdxType>,LabelID);
 
     bool		isMultiGeom() const;
     Pos::GeomID		firstGeomID() const;
@@ -130,17 +145,18 @@ public:
 
     static ChangeType	cDispChange()		{ return 2; }
     static ChangeType	cParsChange()		{ return 3; }
-    static ChangeType	cLocationInsert()	{ return 4; }
-    static ChangeType	cLocationRemove()	{ return 5; }
-    static ChangeType	cLocationPreChange()	{ return 6; }
-    static ChangeType	cLocationChange()	{ return 7; }
-    static ChangeType	cLocationChangeTemp()	{ return 8; }
+    static ChangeType	cLabelsChange()		{ return 4; }
+    static ChangeType	cLocationInsert()	{ return 5; }
+    static ChangeType	cLocationRemove()	{ return 6; }
+    static ChangeType	cLocationPreChange()	{ return 7; }
+    static ChangeType	cLocationChange()	{ return 8; }
+    static ChangeType	cLocationChangeTemp()	{ return 9; }
     static inline bool	isLocationUpdate( ChangeType ct )
-			{ return ct > cDispChange(); }
+			{ return ct > cLabelsChange(); }
     static inline bool	isLocationChange( ChangeType ct )
-			{ return ct > 5; }
+			{ return ct > 6; }
     static inline bool	isTempChange( ChangeType ct )
-			{ return ct > 7; }
+			{ return ct > 8; }
 
     static const Set&	emptySet()		{ return emptyset_; }
     static Set&		dummySet()		{ return dummyset_; }
@@ -153,15 +169,18 @@ protected:
 
     TypeSet<Location>	locs_;
     TypeSet<LocID>	locids_;
+    TypeSet<Label>	labels_;
     Disp		disp_;
     IOPar		pars_;
     mutable Threads::Atomic<IdxType> curlocidnr_;
+    mutable Threads::Atomic<int>     curlabelidnr_;
     static const Set	emptyset_;
     static Set		dummyset_;
 
     IdxType		gtIdxFor(LocID) const;
     LocID		insNewLocID(IdxType,AccessLocker&);
     void		replaceID(LocID from,LocID to);
+    int			gtLblIdx(LabelID) const;
 
     friend class	SetIter;
     friend class	SetIter4Edit;
