@@ -18,36 +18,40 @@ ________________________________________________________________________
 namespace Pick
 {
 
-/*!\brief Label that can be attached to pick locations via the ID.  */
+/*!\brief Group Label that can be attached to pick locations via the ID.  */
 
-mExpClass(General) Label
+mExpClass(General) GroupLabel
 {
 public:
 
     mDefIntegerIDType(int,	ID);
 
-				Label( const char* t=0 )
+				GroupLabel( const char* t=0 )
 				    : txt_(t)		{}
 
-    bool			operator ==( const Label& oth ) const
+    bool			operator ==( const GroupLabel& oth ) const
 				{ return id_ == oth.id_; }
-    inline bool			operator !=( const Label& oth ) const
+    inline bool			operator !=( const GroupLabel& oth ) const
 				{ return !(*this == oth); }
 
     inline ID			id() const	{ return id_; }
     inline BufferString		text() const	{ return txt_; }
 
-    inline Label&		setID( ID i )
+    inline GroupLabel&		setID( ID i )
 				{ id_ = i; return *this; }
-    inline Label&		setText( const char* t )
+    inline GroupLabel&		setText( const char* t )
 				{ txt_ = t; return *this; }
+
+    void			fillPar(IOPar&,int nr) const;
+    bool			usePar(const IOPar&,int nr);
+    static void			removeFromPar(IOPar&);
 
 protected:
 
     ID			id_;
     BufferString	txt_;
 
-			Label( ID i, const char* t )
+			GroupLabel( ID i, const char* t )
 			    : id_(i), txt_(t)	{}
 
     friend class	Set;

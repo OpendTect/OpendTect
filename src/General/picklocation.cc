@@ -357,20 +357,42 @@ static int getNextInt( char*& str )
 }
 
 
-bool Pick::Location::fromString( const char* s )
+bool Pick::Location::fromString( const char* inp )
 {
-    if ( !s || !*s )
+    if ( !inp || !*inp )
 	return false;
 
-    // The location may start with the text_
-    if ( *s == '"' )
+    BufferString inpstr( inp );
+    char* str = inpstr.getCStr();
+    mSkipBlanks(str);
+
+    // The location may start with a Label ID
+    if ( *str != '@' )
+	grplblid_.setInvalid();
+    else
     {
-	s++;
+	str++;
+	char* idstr = inpstr.getCStr();
+	mSkipNonBlanks( str );
+	*str++ = '\0';
+	grplblid_.setI( toInt(idstr) );
+	mSkipBlanks(str);
+    }
+
+    // Then we may have the text_
+    if ( *str != '"' )
+    {
+	if ( text_ )
+	    { delete text_; text_ = 0; }
+    }
+    else
+    {
+	str++;
 
 	if ( !text_ )
-	    text_ = new BufferString( s );
+	    text_ = new BufferString( str );
 	else
-	    *text_ = s;
+	    text_->set( str );
 
 	char* start = text_->getCStr();
 	char* stop = firstOcc( start, '"' );
@@ -379,15 +401,11 @@ bool Pick::Location::fromString( const char* s )
 	else
 	{
 	    *stop = '\0';
-	    s += stop - start + 1;
+	    str += stop - start + 1;
 	    text_->replace( newlinechar, pipechar );
 	}
     }
-    else if ( text_ )
-	{ delete text_; text_ = 0; }
 
-    BufferString bufstr( s );
-    char* str = bufstr.getCStr();
     mSkipBlanks(str);
 
     // Then, we always have the actual payload, the coordinate
@@ -440,6 +458,10 @@ bool Pick::Location::fromString( const char* s )
 void Pick::Location::toString( BufferString& str, bool forexport ) const
 {
     str.setEmpty();
+
+    if ( !forexport && grplblid_.isValid() )
+	str.add( "@" ).add( grplblid_.getI() ).add( od_tab );
+
     if ( text_ && *text_ )
     {
 	BufferString txt( *text_ );
@@ -472,4 +494,41 @@ void Pick::Location::toString( BufferString& str, bool forexport ) const
 
     if ( trckey_ && !mIsUdf(trckey_->geomID()) )
 	str.add( od_tab ).add( trckey_->geomID() );
+}
+
+
+static const char* sKeyGroupLabel = "Group Label";
+
+
+void Pick::GroupLabel::fillPar( IOPar& iop, int nr ) const
+{
+    FileMultiString fms;
+    fms += id_.getI(); fms += txt_;
+    iop.set( IOPar::compKey(sKeyGroupLabel,nr), fms );
+}
+
+
+bool Pick::GroupLabel::usePar( const IOPar& iop, int nr )
+{
+    const char* res = iop.find( IOPar::compKey(sKeyGroupLabel,nr) );
+    if ( !res || !*res )
+	return false;
+
+    FileMultiString fms( res );
+    id_.setI( toInt(fms[0]) );
+    txt_.set( fms[1] );
+    return true;
+}
+
+
+void Pick::GroupLabel::removeFromPar( IOPar& iop )
+{
+    for ( int nr=0; ; nr++ )
+    {
+	const BufferString ky( IOPar::compKey(sKeyGroupLabel,nr) );
+	if ( !iop.hasKey(ky) )
+	    break;
+
+	iop.removeWithKey( ky );
+    }
 }

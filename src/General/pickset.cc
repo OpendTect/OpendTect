@@ -68,7 +68,7 @@ void Pick::Set::copyClassData( const Set& oth )
     locids_ = oth.locids_;
     disp_ = oth.disp_;
     pars_ = oth.pars_;
-    labels_ = oth.labels_;
+    grouplabels_ = oth.grouplabels_;
     curlocidnr_ = oth.curlocidnr_;
     curlabelidnr_ = oth.curlabelidnr_;
 }
@@ -82,7 +82,7 @@ Monitorable::ChangeType Pick::Set::compareClassData( const Set& oth ) const
     mStartMonitorableCompare();
     mHandleMonitorableCompare( disp_, cDispChange() );
     mHandleMonitorableCompare( pars_, cParsChange() );
-    mHandleMonitorableCompare( labels_, cLabelsChange() );
+    mHandleMonitorableCompare( grouplabels_, cGroupLabelsChange() );
     mDeliverMonitorableCompare();
 }
 
@@ -229,134 +229,161 @@ BufferString Pick::Set::category() const
 }
 
 
-void Pick::Set::addLabel( const Label& lbl )
+Pick::Set::GroupLabelID Pick::Set::addGroupLabel( const GroupLabel& lbl )
 {
     mLock4Write();
-    Label newlbl( lbl );
-    newlbl.id_ = LabelID::get( curlabelidnr_++ );
-    labels_ += newlbl;
-    mSendChgNotif( cLabelsChange(), newlbl.id_.getI() );
+    GroupLabel newlbl( lbl );
+    newlbl.id_ = GroupLabelID::get( curlabelidnr_++ );
+    grouplabels_ += newlbl;
+    mSendChgNotif( cGroupLabelsChange(), newlbl.id_.getI() );
+    return newlbl.id_;
 }
 
 
-int Pick::Set::gtLblIdx( LabelID lblid ) const
+int Pick::Set::gtLblIdx( GroupLabelID lblid ) const
 {
     if ( lblid.isInvalid() )
 	return -1;
 
-    const int sz = labels_.size();
+    const int sz = grouplabels_.size();
     for ( int idx=0; idx<sz; idx++ )
-	if ( labels_[idx].id() == lblid )
+	if ( grouplabels_[idx].id() == lblid )
 	    return idx;
 
     return -1;
 }
 
 
-void Pick::Set::removeLabel( LabelID lblid )
+void Pick::Set::getGroupLabelIDs( TypeSet<GroupLabelID>& gids,
+				 bool onlyused ) const
+{
+    mLock4Read();
+    if ( onlyused )
+    {
+	const int sz = locs_.size();
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    const GroupLabelID gid = locs_[idx].groupLabelID();
+	    if ( gid.isValid() && !gids.isPresent(gid) )
+		gids += gid;
+	}
+    }
+    else
+    {
+	const int sz = grouplabels_.size();
+	for ( int idx=0; idx<sz; idx++ )
+	    gids += grouplabels_[idx].id();
+    }
+}
+
+
+void Pick::Set::removeGroupLabel( GroupLabelID lblid )
 {
     mLock4Write();
     const int idxof = gtLblIdx( lblid );
     if ( idxof >= 0 )
     {
-	labels_.removeSingle( idxof );
-	mSendChgNotif( cLabelsChange(), labels_[idxof].id_.getI() );
+	grouplabels_.removeSingle( idxof );
+	mSendChgNotif( cGroupLabelsChange(), grouplabels_[idxof].id_.getI() );
     }
 }
 
 
-Pick::Label Pick::Set::getLabel( LabelID lblid ) const
+Pick::GroupLabel Pick::Set::getGroupLabel( GroupLabelID lblid ) const
 {
     mLock4Read();
     const int idxof = gtLblIdx( lblid );
-    return idxof < 0 ? Label() : labels_[idxof];
+    return idxof < 0 ? GroupLabel() : grouplabels_[idxof];
 }
 
 
-Pick::Set::LabelID Pick::Set::getLabelByText( const char* lbltxt ) const
+Pick::Set::GroupLabelID Pick::Set::getGroupLabelByText(
+						const char* lbltxt ) const
 {
     mLock4Read();
-    const int sz = labels_.size();
+    const int sz = grouplabels_.size();
     for ( int idx=0; idx<sz; idx++ )
-	if ( labels_[idx].text() == lbltxt )
-	    return labels_[idx].id();
-    return LabelID::getInvalid();
+	if ( grouplabels_[idx].text() == lbltxt )
+	    return grouplabels_[idx].id();
+    return GroupLabelID::getInvalid();
 }
 
 
-void Pick::Set::setLabel( const Label& lbl )
+void Pick::Set::setGroupLabel( const GroupLabel& lbl )
 {
     mLock4Read();
     const int idxof = gtLblIdx( lbl.id() );
     if ( idxof < 0 )
     {
 	mUnlockAllAccess();
-	addLabel( lbl );
+	addGroupLabel( lbl );
 	return;
     }
 
     mLock2Write();
-    labels_[idxof] = lbl;
-    mSendChgNotif( cLabelsChange(), lbl.id_.getI() );
+    grouplabels_[idxof] = lbl;
+    mSendChgNotif( cGroupLabelsChange(), lbl.id_.getI() );
 }
 
 
-bool Pick::Set::haveLabels() const
+bool Pick::Set::haveGroupLabels() const
 {
     mPrepRead( sz );
-    if ( labels_.isEmpty() )
+    if ( grouplabels_.isEmpty() )
 	return false;
 
     for ( int idx=0; idx<sz; idx++ )
-	if ( locs_[idx].labelID().isValid() )
+	if ( locs_[idx].groupLabelID().isValid() )
 	    return true;
 
     return false;
 }
 
 
-Pick::Set::LabelID Pick::Set::labelID( LocID locid ) const
+Pick::Set::GroupLabelID Pick::Set::groupLabelID( LocID locid ) const
 {
     mLock4Read();
     const IdxType locidx = gtIdxFor( locid );
-    return locidx < 0 ? LabelID::getInvalid() : locs_[locidx].labelID();
+    return locidx < 0 ? GroupLabelID::getInvalid()
+		      : locs_[locidx].groupLabelID();
 }
 
 
-Pick::Set::LabelID Pick::Set::labelIDByIdx( IdxType locidx ) const
+Pick::Set::GroupLabelID Pick::Set::groupLabelIDByIdx( IdxType locidx ) const
 {
     mLock4Read();
-    return locidx < 0 ? LabelID::getInvalid() : locs_[locidx].labelID();
+    return locidx < 0 ? GroupLabelID::getInvalid()
+		      : locs_[locidx].groupLabelID();
 }
 
 
-void Pick::Set::setLabelID( LocID locid, LabelID labelid )
+void Pick::Set::setGroupLabelID( LocID locid, GroupLabelID labelid )
 {
     mLock4Read();
     IdxType locidx = gtIdxFor( locid );
-    if ( locidx < 0 || locs_[locidx].labelID() == labelid )
+    if ( locidx < 0 || locs_[locidx].groupLabelID() == labelid )
 	return;
 
     if ( !mLock2Write() )
     {
 	locidx = gtIdxFor( locid );
-	if ( locidx < 0 || locs_[locidx].labelID() == labelid )
+	if ( locidx < 0 || locs_[locidx].groupLabelID() == labelid )
 	    return;
     }
 
     mPrepLocChange( locid );
-    locs_[locidx].setLabelID( labelid );
+    locs_[locidx].setGroupLabelID( labelid );
     mSendLocChgNotif( false, locid );
 }
 
 
-void Pick::Set::setLabelIDs( Interval<IdxType> idxs, LabelID labelid )
+void Pick::Set::setGroupLabelIDs( Interval<IdxType> idxs, GroupLabelID labelid )
 {
     mLock4Write();
     idxs.sort();
     while ( idxs.start <= idxs.stop )
     {
-	locs_[idxs.start].setLabelID( labelid );
+	locs_[idxs.start].setGroupLabelID( labelid );
 	idxs.start++;
     }
     mSendEntireObjChgNotif();
@@ -569,6 +596,21 @@ void Pick::Set::fillPar( IOPar& par ) const
     disp_.mkstyle_.toString( parstr );
     par.set( sKey::MarkerStyle(), parstr );
     par.set( sKeyConnect, Disp::toString(disp_.connect_) );
+    if ( !grouplabels_.isEmpty() )
+    {
+	for ( int igrp=0; igrp<grouplabels_.size(); igrp++ )
+	{
+	    const GroupLabelID grplblid = grouplabels_[igrp].id();
+	    bool present = false;
+	    for ( int iloc=0; iloc<locs_.size(); iloc++ )
+	    {
+		if ( locs_[iloc].groupLabelID() == grplblid )
+		    { present = true; break; }
+	    }
+	    if ( present )
+		grouplabels_[igrp].fillPar( par, igrp );
+	}
+    }
 }
 
 
@@ -599,11 +641,20 @@ bool Pick::Set::usePar( const IOPar& par )
 					   disp_.connect_) )
 	disp_.connect_ = Disp::None;
 
+    for ( int grpnr=0; ; grpnr++ )
+    {
+	GroupLabel glbl;
+	if ( !glbl.usePar(par,grpnr) )
+	    break;
+	grouplabels_ += glbl;
+    }
+
     pars_ = par;
     pars_.removeWithKey( sKey::Color() );
     pars_.removeWithKey( sKey::Size() );
     pars_.removeWithKey( sKeyMarkerType() );
     pars_.removeWithKey( sKeyConnect );
+    GroupLabel::removeFromPar( pars_ );
 
     mSendEntireObjChgNotif();
     return true;

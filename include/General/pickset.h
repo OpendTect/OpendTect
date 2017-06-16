@@ -45,7 +45,7 @@ public:
     typedef TypeSet<Location>::size_type	size_type;
     typedef size_type				IdxType;
     mDefIntegerIDType(IdxType,			LocID);
-    typedef Label::ID				LabelID;
+    typedef GroupLabel::ID			GroupLabelID;
 
 			Set(const char* nm=0,const char* category=0);
 			mDeclInstanceCreatedNotifierAccess(Set);
@@ -82,18 +82,20 @@ public:
     Set&		setByIndex(IdxType,const Location&,bool istemp=false);
 
 			// Manipulate the defined labels
-    void		addLabel(const Label&);
-    void		removeLabel(LabelID);
-    Label		getLabel(LabelID) const;
-    LabelID		getLabelByText(const char*) const; //!< first match
-    void		setLabel(const Label&); //!< adds if ID udf
+    GroupLabelID	addGroupLabel(const GroupLabel&);
+    void		removeGroupLabel(GroupLabelID);
+    GroupLabel		getGroupLabel(GroupLabelID) const;
+    GroupLabelID	getGroupLabelByText(const char*) const; //!< first match
+    void		setGroupLabel(const GroupLabel&); //!< adds if ID udf
 
 			// Get/set location labels
-    bool		haveLabels() const; //!< at any of the locations
-    LabelID		labelID(LocID) const;
-    LabelID		labelIDByIdx(IdxType) const;
-    void		setLabelID(LocID,LabelID);
-    void		setLabelIDs(Interval<IdxType>,LabelID);
+    bool		haveGroupLabels() const; //!< at any of the locations
+    void		getGroupLabelIDs(TypeSet<GroupLabelID>&,
+					 bool include_used_only=false) const;
+    GroupLabelID	groupLabelID(LocID) const;
+    GroupLabelID	groupLabelIDByIdx(IdxType) const;
+    void		setGroupLabelID(LocID,GroupLabelID);
+    void		setGroupLabelIDs(Interval<IdxType>,GroupLabelID);
 
     bool		isMultiGeom() const;
     Pos::GeomID		firstGeomID() const;
@@ -145,14 +147,14 @@ public:
 
     static ChangeType	cDispChange()		{ return 2; }
     static ChangeType	cParsChange()		{ return 3; }
-    static ChangeType	cLabelsChange()		{ return 4; }
+    static ChangeType	cGroupLabelsChange()	{ return 4; }
     static ChangeType	cLocationInsert()	{ return 5; }
     static ChangeType	cLocationRemove()	{ return 6; }
     static ChangeType	cLocationPreChange()	{ return 7; }
     static ChangeType	cLocationChange()	{ return 8; }
     static ChangeType	cLocationChangeTemp()	{ return 9; }
     static inline bool	isLocationUpdate( ChangeType ct )
-			{ return ct > cLabelsChange(); }
+			{ return ct > cGroupLabelsChange(); }
     static inline bool	isLocationChange( ChangeType ct )
 			{ return ct > 6; }
     static inline bool	isTempChange( ChangeType ct )
@@ -169,7 +171,7 @@ protected:
 
     TypeSet<Location>	locs_;
     TypeSet<LocID>	locids_;
-    TypeSet<Label>	labels_;
+    TypeSet<GroupLabel>	grouplabels_;
     Disp		disp_;
     IOPar		pars_;
     mutable Threads::Atomic<IdxType> curlocidnr_;
@@ -180,7 +182,7 @@ protected:
     IdxType		gtIdxFor(LocID) const;
     LocID		insNewLocID(IdxType,AccessLocker&);
     void		replaceID(LocID from,LocID to);
-    int			gtLblIdx(LabelID) const;
+    int			gtLblIdx(GroupLabelID) const;
 
     friend class	SetIter;
     friend class	SetIter4Edit;
