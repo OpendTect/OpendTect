@@ -323,6 +323,13 @@ bool Pick::Location::fromString( const char* s )
 {
     if ( !s || !*s )
 	return false;
+    mSkipBlanks(s);
+    if ( !*s )
+	return false;
+
+    // The location may start with the label ID (will be introduced in 7.0)
+    if ( *s == '@' )
+	{ s++; mSkipNonBlanks(s); mSkipBlanks(s); }
 
     // The location may start with the text_
     if ( *s == '"' )

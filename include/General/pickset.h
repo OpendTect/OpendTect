@@ -85,6 +85,8 @@ public:
     void		setReadOnly( bool yn )		{ readonly_ = yn; }
     bool		isReadOnly() const		{ return readonly_; }
 
+    // The following stuff with indexes is a kludge that will be replaced
+    // by the Group Label in 7.X
     void		addStartIdx(int locidx);
     void		setStartIdx(int setidx,int locidx);
     int			nrSets() const		{ return startidxs_.size(); }
