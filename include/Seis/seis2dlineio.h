@@ -49,6 +49,7 @@ public:
     virtual uiString	errMsg() const		= 0;
     //!< Only when put or close returns false
     virtual int		nrWritten() const	= 0;
+    virtual void	setComponentNames(const BufferStringSet&){};
 
 };
 

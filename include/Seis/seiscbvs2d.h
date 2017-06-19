@@ -64,6 +64,7 @@ public:
     int			nrWritten() const		{ return nrwr_; }
     bool		put(const SeisTrc&);
     bool		close();
+    void		setComponentNames(const BufferStringSet&);
 
     int                 		nrwr_;
     BufferString        		fname_;

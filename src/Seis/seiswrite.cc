@@ -299,6 +299,8 @@ bool SeisTrcWriter::next2DLine()
 	return false;
     }
 
+    linePutter()->setComponentNames( compnames_ );
+
     return true;
 }
 
@@ -389,6 +391,15 @@ bool SeisTrcWriter::isMultiConn() const
 }
 
 
+void SeisTrcWriter::setComponentNames( const BufferStringSet& compname )
+{
+    compnames_ = compname;
+    if ( strl() ) strl()->setComponentNames( compnames_ );
+    if ( putter_ ) linePutter()->setComponentNames( compnames_ );
+}
+
+
+//SeisSequentialWriter
 SeisSequentialWriter::SeisSequentialWriter( SeisTrcWriter* writer,
 					    int buffsize )
     : writer_( writer )

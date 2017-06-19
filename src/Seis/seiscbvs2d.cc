@@ -430,3 +430,10 @@ bool SeisCBVS2DLinePutter::close()
     if ( ret ) errmsg_ = tr_->errMsg();
     return ret;
 }
+
+
+void SeisCBVS2DLinePutter::setComponentNames(const BufferStringSet& names )
+{
+    if ( tr_ )
+	tr_->setComponentNames( names );
+}

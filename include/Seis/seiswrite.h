@@ -78,6 +78,7 @@ public:
 
     void		setCrFrom( const char* str )	{ crfrom_ = str; }
     void		setCrUserInfo( const char* str ) { crusrinfo_ = str; }
+    void		setComponentNames(const BufferStringSet&);
 
 protected:
 
@@ -113,6 +114,7 @@ protected:
 
     BufferString	crfrom_;
     BufferString	crusrinfo_;
+    BufferStringSet	compnames_;
 
 };
 

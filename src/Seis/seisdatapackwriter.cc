@@ -200,9 +200,7 @@ bool SeisDataPackWriter::setTrc()
 	compnames.add( dp_->getComponentName(idx) );
     }
 
-    SeisTrcTranslator* transl = writer_->seisTranslator();
-    if ( transl ) transl->setComponentNames( compnames );
-
+    writer_->setComponentNames( compnames );
     return true;
 }
 
