@@ -90,6 +90,7 @@ void uiWellLogInterpolator::finaliseCB( CallBacker* )
     layermodelfld_->setModel( hwinterpolator_.getLayerModel() );
     initWellLogSel();
     algoChg( 0 );
+    welllogsel_->setWellExtractParams( hwinterpolator_.getWellExtractParams() );
 }
 
 
@@ -138,6 +139,7 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
     }
 
     hwinterpolator_.setWellData( wellids, lognms.get(0) );
+    hwinterpolator_.setWellExtractParams( welllogsel_->params() );
     return true;
 }
 

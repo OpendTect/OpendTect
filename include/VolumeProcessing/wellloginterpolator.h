@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "arrayndalgo.h"
 #include "multiid.h"
 #include "volprocstep.h"
+#include "wellextractdata.h"
 
 class BufferStringSet;
 class Gridder2D;
@@ -71,7 +72,9 @@ public:
     bool			needsFullVolume() const		{ return false;}
 
     uiString			errMsg() const	{ return errmsg_; }
-
+    void			setWellExtractParams(Well::ExtractParams params)
+				{ params_ = params;}
+    Well::ExtractParams		getWellExtractParams() { return params_; }
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
 					 const StepInterval<int>&) const;
@@ -92,6 +95,7 @@ protected:
 
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;
+    Well::ExtractParams		params_;
 };
 
 } // namespace VolProc
