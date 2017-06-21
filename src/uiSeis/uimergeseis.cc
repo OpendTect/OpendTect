@@ -114,6 +114,13 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 		uiMSG().error( tr("Input cubes are of incompatible types") );
 		return false;
 	    }
+	    else if ( &ZDomain::Def::get(zdomstr)
+		    != &ZDomain::Def::get(curzdomstr) )
+	    {
+		uiMSG().error( tr("Input cubes should belong to the same"
+				  " Z domain") );
+		return false;
+	    }
 	}
 
 	IOPar* iop = new IOPar;
