@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 
 #include "trckeyzsampling.h"
+#include "attribsel.h"
 #include "datapack.h"
 #include "keyboardevent.h"
 #include "menuhandler.h"
@@ -44,7 +45,6 @@ class uiVisModeMgr;
 class uiVisPickRetriever;
 template <class T> class Selector;
 
-namespace Attrib    { class SelSpec; }
 namespace ColTab    { class Sequence; }
 namespace FlatView  { class DataDispPars; }
 namespace Threads   { class Mutex; }

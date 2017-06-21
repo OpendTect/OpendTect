@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+#include "attribsel.h"
 #include "color.h"
 #include "trckeyzsampling.h"
 #include "datapack.h"
@@ -40,7 +41,6 @@ namespace visBase
     class TextureChannels;
     class TextureChannel2RGBA;
 };
-namespace Attrib  { class SelSpec; }
 
 
 namespace visSurvey
