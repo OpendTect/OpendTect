@@ -255,7 +255,7 @@ protected:
 				MiscSurvInfo()
 				: xyunit_(1)
 				, zunit_(0)
-				, zstep_(0.004) {}
+				, zstep_(0.004f) {}
 
 	void			refresh();
 
