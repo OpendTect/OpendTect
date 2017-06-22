@@ -66,6 +66,14 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
 		 mToUiStringTodo(VolProcessingTranslatorGroup::sGroupName()));
 	return false;
     }
+    else if ( ioobj->implExists(false) && ioobj->implReadOnly() )
+    {
+	bs = uiStrings::phrJoinStrings(
+			    uiStrings::phrCannotWrite( uiStrings::sFile() ),
+			    toUiString(ioobj->fullUserExpr()) );
+	return false;
+    }
+
     mDynamicCast(VolProcessingTranslator*,PtrMan<VolProcessingTranslator> tr,
 		 ioobj->createTranslator())
     if ( !tr )

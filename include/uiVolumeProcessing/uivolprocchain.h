@@ -55,6 +55,7 @@ protected:
     void			updateList();
     void			updateButtons();
     void			updObj(const IOObj&);
+    void			updWriteStatus(const IOObj*);
     bool			showPropDialog(int);
 
     void			readPush(CallBacker*);

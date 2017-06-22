@@ -31,6 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
 
 namespace VolProc
 {
@@ -201,6 +203,10 @@ bool uiStepDialog::acceptOK( CallBacker* )
 }
 
 
+HiddenParam<uiChain,int> uichainsavebutmgr_(-1);
+HiddenParam<uiChain,uiToolBar*> uichaindlgtbmgr_(0);
+
+
 // uiChain
 uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Setup"),
@@ -213,8 +219,12 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     uiToolBar* tb = new uiToolBar( this, tr("Load/Save toolbar"),
 				   uiToolBar::Right);
     tb->addButton( "open", tr("Read stored setup"), mCB(this,uiChain,readPush));
-    tb->addButton( "save", tr("Save setup"), mCB(this,uiChain,savePush) );
+    const int savebutpos =
+	  tb->addButton( "save", tr("Save setup"), mCB(this,uiChain,savePush) );
     tb->addButton( "saveas", tr("Save setup as"), mCB(this,uiChain,saveAsPush));
+
+    uichainsavebutmgr_.setParam( this, savebutpos );
+    uichaindlgtbmgr_.setParam( this, tb );
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
@@ -291,6 +301,8 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 uiChain::~uiChain()
 {
     chain_.unRef();
+    uichainsavebutmgr_.removeParam( this );
+    uichaindlgtbmgr_.removeParam( this );
 }
 
 
@@ -309,6 +321,26 @@ void uiChain::updObj( const IOObj& ioobj )
 {
     chain_.setStorageID( ioobj.key() );
     objfld_->setInput( ioobj.key() );
+    updWriteStatus( &ioobj );
+}
+
+
+void uiChain::updWriteStatus( const IOObj* ioobj )
+{
+    const bool readonlyvbs = !ioobj || ioobj->implReadOnly();
+    if ( readonlyvbs )
+    {
+	setCaption( uiStrings::phrJoinStrings( setup().wintitle_,
+					       tr("[Read-only]") ) );
+	objfld_->setEmpty();
+    }
+    else
+    {
+	setCaption( setup().wintitle_ );
+    }
+
+    const int savebutpos = uichainsavebutmgr_.getParam( this );
+    uichaindlgtbmgr_.getParam( this )->setSensitive( savebutpos, !readonlyvbs );
 }
 
 
@@ -355,14 +387,16 @@ bool uiChain::doSave()
 	return doSaveAs();
 
     uiString errmsg;
-    if ( VolProcessingTranslator::store(chain_,ioobj,errmsg) )
+    if ( !VolProcessingTranslator::store(chain_,ioobj,errmsg) )
     {
-	chain_.setStorageID( ioobj->key() );
-	return true;
+	uiMSG().error( errmsg );
+	return false;
     }
 
-    uiMSG().error( errmsg );
-    return false;
+    chain_.setStorageID( ioobj->key() );
+    updWriteStatus( ioobj );
+
+    return true;
 }
 
 
@@ -376,15 +410,15 @@ bool uiChain::doSaveAs()
 
     uiString errmsg;
     const IOObj* ioobj = dlg.ioObj();
-    if ( VolProcessingTranslator::store(chain_,ioobj,errmsg) )
+    if ( !VolProcessingTranslator::store(chain_,ioobj,errmsg) )
     {
-	chain_.setStorageID( ioobj->key() );
-	updObj( *ioobj );
-	return true;
+	uiMSG().error( errmsg );
+	return false;
     }
 
-    uiMSG().error( errmsg );
-    return false;
+    updObj( *ioobj );
+
+    return true;
 }
 
 
@@ -463,18 +497,23 @@ void uiChain::readPush( CallBacker* )
     uiIOObjSelDlg dlg( this, ctxt );
     dlg.selGrp()->setConfirmOverwrite( false );
     if ( !dlg.go() || !dlg.nrChosen() )
-	return;
-
-    uiString errmsg;
-    if ( VolProcessingTranslator::retrieve( chain_, dlg.ioObj(), errmsg ) )
     {
-	updObj( *dlg.ioObj() );
-	updateList();
+	if ( !objfld_->ioobj(true)->implExists(false) )
+	    updWriteStatus(0);
+
 	return;
     }
 
+    uiString errmsg;
+    if ( !VolProcessingTranslator::retrieve(chain_,dlg.ioObj(),errmsg) )
+    {
+	updateList();
+	uiMSG().error( errmsg );
+	return;
+    }
+
+    updObj( *dlg.ioObj() );
     updateList();
-    uiMSG().error(errmsg);
 }
 
 
