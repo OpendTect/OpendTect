@@ -16,9 +16,10 @@ ________________________________________________________________________
 #include "uivolprocstepdlg.h"
 
 class IOObj;
-class uiListBox;
 class uiButton;
 class uiIOObjSel;
+class uiListBox;
+class uiToolBar;
 
 
 namespace VolProc
@@ -44,7 +45,7 @@ public:
 
     static const char*		pixmapFileName()    { return "volproc"; }
 
-protected:
+private:
 
     static const char*		sKeySettingKey();
 
@@ -54,6 +55,7 @@ protected:
     void			updateList();
     void			updateButtons();
     void			updObj(const IOObj&);
+    void			updWriteStatus(const IOObj*);
     bool			showPropDialog(int);
 
     void			readPush(CallBacker*);
@@ -76,6 +78,8 @@ protected:
     bool			is2d_;
     BufferStringSet		factorysteptypes_;
 
+    uiToolBar*			tb_;
+    int				savebuttonid_;
     uiListBox*			factorylist_;
     uiButton*			addstepbutton_;
     uiButton*			removestepbutton_;
@@ -84,6 +88,8 @@ protected:
     uiButton*			movedownbutton_;
     uiButton*			propertiesbutton_;
     uiIOObjSel*			objfld_;
+
+
 };
 
 } // namespace VolProc

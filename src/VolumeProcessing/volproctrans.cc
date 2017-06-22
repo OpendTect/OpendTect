@@ -77,6 +77,13 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
                  VolProcessingTranslatorGroup::sTypeName());
 	return false;
     }
+    else if ( ioobj->implExists(false) && ioobj->implReadOnly() )
+    {
+	errmsg = uiStrings::phrJoinStrings(
+				uiStrings::phrCannotWrite( uiStrings::sFile() ),
+				toUiString(ioobj->fullUserExpr()) );
+	return false;
+    }
 
     errmsg = uiString::emptyString();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
