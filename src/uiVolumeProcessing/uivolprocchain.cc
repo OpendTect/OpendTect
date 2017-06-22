@@ -222,6 +222,7 @@ bool getNamesFromFactory( uiStringSet& uinms, BufferStringSet& nms, bool is2d )
 
 // uiChain
 
+
 #define mGetIOObjContext is2d_ ? VolProcessing2DTranslatorGroup::ioContext() \
 				: VolProcessingTranslatorGroup::ioContext();
 
@@ -234,11 +235,11 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow, bool is2d )
 {
     chain_.ref();
 
-    uiToolBar* tb = new uiToolBar( this, tr("Load/Save toolbar"),
-				   uiToolBar::Right);
-    tb->addButton( "open", tr("Read stored setup"), mCB(this,uiChain,readPush));
-    tb->addButton( "save", tr("Save setup"), mCB(this,uiChain,savePush) );
-    tb->addButton( "saveas", tr("Save setup as"), mCB(this,uiChain,saveAsPush));
+    tb_ = new uiToolBar( this, tr("Load/Save toolbar"), uiToolBar::Right);
+    tb_->addButton( "open", tr("Read stored setup"),mCB(this,uiChain,readPush));
+    savebuttonid_ =
+	  tb_->addButton( "save", tr("Save setup"),mCB(this,uiChain,savePush) );
+    tb_->addButton( "saveas", tr("Save setup as"),mCB(this,uiChain,saveAsPush));
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
@@ -335,6 +336,25 @@ void uiChain::updObj( const IOObj& ioobj )
 {
     chain_.setStorageID( ioobj.key() );
     objfld_->setInput( ioobj.key() );
+    updWriteStatus( &ioobj );
+}
+
+
+void uiChain::updWriteStatus( const IOObj* ioobj )
+{
+    const bool readonlyvbs = !ioobj || ioobj->implReadOnly();
+    if ( readonlyvbs )
+    {
+	setCaption( uiStrings::phrJoinStrings( setup().wintitle_,
+					       tr("[Read-only]") ) );
+	objfld_->setEmpty();
+    }
+    else
+    {
+	setCaption( setup().wintitle_ );
+    }
+
+    tb_->setSensitive( savebuttonid_, !readonlyvbs );
 }
 
 
@@ -381,14 +401,16 @@ bool uiChain::doSave()
 	return doSaveAs();
 
     uiString errmsg;
-    if ( VolProcessingTranslator::store(chain_,ioobj,errmsg) )
+    if ( !VolProcessingTranslator::store(chain_,ioobj,errmsg) )
     {
-	chain_.setStorageID( ioobj->key() );
-	return true;
+	uiMSG().error( errmsg );
+	return false;
     }
 
-    uiMSG().error( errmsg );
-    return false;
+    chain_.setStorageID( ioobj->key() );
+    updWriteStatus( ioobj );
+
+    return true;
 }
 
 
@@ -402,15 +424,14 @@ bool uiChain::doSaveAs()
 
     uiString errmsg;
     const IOObj* ioobj = dlg.ioObj();
-    if ( VolProcessingTranslator::store(chain_,ioobj,errmsg) )
+    if ( !VolProcessingTranslator::store(chain_,ioobj,errmsg) )
     {
-	chain_.setStorageID( ioobj->key() );
-	updObj( *ioobj );
-	return true;
+	uiMSG().error( errmsg );
+	return false;
     }
 
-    uiMSG().error( errmsg );
-    return false;
+    updObj( *ioobj );
+    return true;
 }
 
 
@@ -488,19 +509,24 @@ void uiChain::readPush( CallBacker* )
     uiIOObjSelDlg dlg( this, ctxt );
     dlg.selGrp()->setConfirmOverwrite( false );
     if ( !dlg.go() || !dlg.nrChosen() )
-	return;
-
-    uiString errmsg;
-    const IOObj* ioobj = dlg.ioObj();
-    if ( VolProcessingTranslator::retrieve(chain_,ioobj,errmsg) )
     {
-	updObj( *dlg.ioObj() );
-	updateList();
+	if ( !objfld_->ioobj(true)->implExists(false) )
+	    updWriteStatus(0);
+
 	return;
     }
 
+    uiString errmsg;
+    const IOObj* ioobj = dlg.ioObj();
+    if ( !VolProcessingTranslator::retrieve(chain_,ioobj,errmsg) )
+    {
+	updateList();
+	uiMSG().error( errmsg );
+	return;
+    }
+
+    updObj( *ioobj );
     updateList();
-    uiMSG().error(errmsg);
 }
 
 

@@ -18,9 +18,10 @@ ________________________________________________________________________
 #include "uivolprocstepdlg.h"
 
 class IOObj;
-class uiListBox;
 class uiButton;
 class uiIOObjSel;
+class uiListBox;
+class uiToolBar;
 
 
 namespace VolProc
@@ -56,6 +57,7 @@ protected:
     void			updateList();
     void			updateButtons();
     void			updObj(const IOObj&);
+    void			updWriteStatus(const IOObj*);
     bool			showPropDialog(int);
 
     void			readPush(CallBacker*);
@@ -86,6 +88,11 @@ protected:
     uiButton*			movedownbutton_;
     uiButton*			propertiesbutton_;
     uiIOObjSel*			objfld_;
+
+private:
+    uiToolBar*			tb_;
+    int				savebuttonid_;
+
 };
 
 } // namespace VolProc
