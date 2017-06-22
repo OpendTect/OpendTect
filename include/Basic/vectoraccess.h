@@ -25,11 +25,11 @@ ________________________________________________________________________
   Use TypeSet, ObjectSet or SortedList instead. If you need to have the
   std::vector to pass to an external C++ object, use the TypeSet::vec() or
   SortedList::vec().
-  
+
   NOTE: because this class is based directly upon the STL vector, we have a
   problem for the bool type. In STL, they have made the vector<bool> implemented
   in terms of the bit_vector. That really sucks because we cannot return a
-  reference to T! This is why there is a 'BoolTypeSet'. 
+  reference to T! This is why there is a 'BoolTypeSet'.
 */
 
 template <class T,class I>
@@ -57,11 +57,11 @@ public:
     inline const T&	last() const			{ return v_.back(); }
     inline I		size() const			{ return (I)v_.size(); }
     inline bool		setCapacity(I sz, bool withmargin);
-    			/*!<Allocates mem for sz, does not change size.*/
-    inline I		getCapacity() const		{ return v_.capacity();}
-    			/*!<\returns max size without reallocation.*/
+			/*!<Allocates mem for sz, does not change size.*/
+    inline I		getCapacity() const		{ return (I)v_.capacity();}
+			/*!<\returns max size without reallocation.*/
     inline bool		setSize(I sz,T val);
-    
+
     inline bool		validIdx(I idx) const { return idx>=0 && idx<size(); }
     inline I		indexOf(const T&,bool forward,I start=-1) const;
     inline I		count(const T&) const;
@@ -74,7 +74,7 @@ public:
     inline void		insert( I pos, const T& val )
 			{ v_.insert(v_.begin() + pos,val); }
     inline void		erase()
-    			{ v_.clear(); }
+			{ v_.clear(); }
     inline void		erase( const T& t )
 			{
 			    for ( I idx=size()-1; idx!=-1; idx-- )
@@ -249,12 +249,12 @@ I VectorAccess<T,I>::indexOf( const T& t, bool forward, I start ) const
 	const typename std::vector<T>::const_iterator end = v_.end();
 	if ( start>0 )
 	    begin += start;
-	
+
 	const typename std::vector<T>::const_iterator res =
 						    std::find( begin, end, t );
 	if ( res==end )
 	    return -1;
-	
+
 	return mCast(I,res-v_.begin());
     }
 
@@ -265,15 +265,15 @@ I VectorAccess<T,I>::indexOf( const T& t, bool forward, I start ) const
 	const I nrskipped = size()-1-start;
 	begin += nrskipped;
     }
-    
+
     const typename std::vector<T>::const_reverse_iterator res =
 						    std::find( begin, end, t );
     if ( res==end )
 	return -1;
-    
+
     return mCast(I,end-res)-1;
 }
-    
+
 
 template<class T,class I> inline
 I VectorAccess<T,I>::count( const T& t ) const
