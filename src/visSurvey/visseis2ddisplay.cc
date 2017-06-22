@@ -1128,8 +1128,19 @@ void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 
 void Seis2DDisplay::clearTexture( int attribnr )
 {
+    if ( channels_->nrChannels() > 1 )
+    {
+	Attrib::SelSpec as;
+	as.set2DFlag(true);
+	setSelSpec( attribnr, as );
+	channels_->unfreezeOldData( attribnr );
+	enableAttrib( attribnr, false );
+	return;
+    }
+
     channels_->setNrVersions( attribnr, 1 );
     channels_->setUnMappedVSData( attribnr, 0, 0, OD::UsePtr, 0 );
+    channels_->unfreezeOldData( attribnr );
     channels_->turnOn( false );
 
     Attrib::SelSpec as;

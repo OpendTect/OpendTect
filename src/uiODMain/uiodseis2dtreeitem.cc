@@ -1063,6 +1063,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     applMgr()->useDefColTab( displayID(), attribNr() );
     s2d->setDataPackID( attribNr(), dpid, &taskrunner );
     s2d->showPanel( true );
+    s2d->enableAttrib( attribNr(), true );
 
     updateColumnText(0);
 
