@@ -91,6 +91,8 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 								return false;}
 
     outpar.set( sKey::ID(), outioobj->key() );
+    bool icompattypefound = false;
+    bool icompatzdomfound = false;
 
     BufferString typestr, zdomstr;
     for ( int idx=0; idx<chosenids.size(); idx++ )
@@ -109,17 +111,9 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	else
 	{
 	    if ( !SeisIOObjInfo::isCompatibleType( typestr, curtypestr ) )
-	    {
-		uiMSG().error( tr("Input cubes are of incompatible types") );
-		return false;
-	    }
-
-	    if ( zdomstr != curzdomstr )
-	    {
-		uiMSG().error( tr("Input cubes should belong to the same"
-			          " Z domain") );
-		return false;
-	    }
+		icompattypefound = true;
+	    if ( &ZDomain::Def::get(zdomstr) != &ZDomain::Def::get(curzdomstr) )
+		icompatzdomfound = true;
 	}
 
 	IOPar* iop = new IOPar;
@@ -128,12 +122,18 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	inpars += iop;
     }
 
-    if ( typestr.isEmpty() && zdomstr.isEmpty() )
-	return true;
-
-    outioobj->pars().update( sKey::Type(), typestr );
-    outioobj->pars().update( ZDomain::sKey(), zdomstr );
-    DBM().setEntry( *outioobj );
+    if ( icompattypefound || icompatzdomfound )
+    {
+	if ( !uiMSG().askGoOn( tr("Input cubes have incompatible type."
+				  "\nAre you sure you want to continue?") ) )
+	    return false;
+    }
+    else if ( !typestr.isEmpty() || !zdomstr.isEmpty() )
+    {
+	outioobj->pars().update( sKey::Type(), typestr );
+	outioobj->pars().update( ZDomain::sKey(), zdomstr );
+	DBM().setEntry( *outioobj );
+    }
 
     return true;
 }

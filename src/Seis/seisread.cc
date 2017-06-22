@@ -35,14 +35,14 @@
 #include "uistrings.h"
 
 
-#define mUndefPtr(clss) ((clss*)0xdeadbeef) // Like on AIX. Nothing special.
+static TrcKeySampling* udftks_ = new TrcKeySampling( false );
 
 mStartAllowDeprecatedSection
 
 
 SeisTrcReader::SeisTrcReader()
 	: SeisStoreAccess(0)
-	, outer(mUndefPtr(TrcKeySampling))
+	, outer(udftks_)
 	, tracegetter_(0)
 	, psrdr2d_(0)
 	, psrdr3d_(0)
@@ -57,7 +57,7 @@ SeisTrcReader::SeisTrcReader()
 
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
-	, outer(mUndefPtr(TrcKeySampling))
+	, outer(udftks_)
 	, tracegetter_(0)
 	, psrdr2d_(0)
 	, psrdr3d_(0)
@@ -73,7 +73,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 
 SeisTrcReader::SeisTrcReader( const char* fname )
 	: SeisStoreAccess(fname,false,false)
-	, outer(mUndefPtr(TrcKeySampling))
+	, outer(udftks_)
 	, tracegetter_(0)
 	, psrdr2d_(0)
 	, psrdr3d_(0)
@@ -95,7 +95,7 @@ void SeisTrcReader::setIOObj( const IOObj* ioobj )
 mStopAllowDeprecatedSection
 
 
-#define mDelOuter if ( outer != mUndefPtr(TrcKeySampling) ) delete outer
+#define mDelOuter if ( outer != udftks_ ) delete outer
 
 SeisTrcReader::~SeisTrcReader()
 {
@@ -112,7 +112,7 @@ void SeisTrcReader::init()
     prev_inl = mUdf(int);
     readmode = Seis::Prod;
     if ( tbuf_ ) tbuf_->deepErase();
-    mDelOuter; outer = mUndefPtr(TrcKeySampling);
+    mDelOuter; outer = udftks_;
     delete tracegetter_; tracegetter_ = 0;
     delete psrdr2d_; psrdr2d_ = 0;
     delete psrdr3d_; psrdr3d_ = 0;
@@ -333,7 +333,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 {
     if ( !prepared && !prepareWork(readmode) )
 	return -1;
-    else if ( outer == mUndefPtr(TrcKeySampling) && !startWork() )
+    else if ( outer == udftks_ && !startWork() )
 	return -1;
 
     if ( psioprov_ )
@@ -418,7 +418,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
     needskip = false;
     if ( !prepared && !prepareWork(readmode) )
 	return false;
-    else if ( outer == mUndefPtr(TrcKeySampling) && !startWork() )
+    else if ( outer == udftks_ && !startWork() )
 	return false;
 
     if ( psioprov_ )
