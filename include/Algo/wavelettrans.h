@@ -23,7 +23,7 @@ ________________________________________________________________________
 
   \par
   Specify wavelet at creation, and use in the same way as any TransformND.
-  The algorithm is based on the one from NumericalRecipies, and additional 
+  The algorithm is based on the one from NumericalRecipies, and additional
   kernel support comes from the Matlab library "WaveLab" (Stanford University).
 */
 
@@ -42,37 +42,37 @@ public:
 
 			mDeclareEnumUtils(WaveletType);
 
-    static void		getInfo(WaveletType tp,int& len,TypeSet<float>&);
+    static void		getInfo(WaveletType tp,int& len,TypeSet<double>&);
 
-    static const float 	haar[3];
+    static const double	haar[3];
 
-    static const float 	daub4[5];
-    static const float 	daub6[7];
-    static const float 	daub8[9];
-    static const float 	daub10[11];
-    static const float 	daub12[13];
-    static const float 	daub14[15];
-    static const float 	daub16[17];
-    static const float 	daub18[19];
-    static const float 	daub20[21];
+    static const double	daub4[5];
+    static const double	daub6[7];
+    static const double	daub8[9];
+    static const double	daub10[11];
+    static const double	daub12[13];
+    static const double	daub14[15];
+    static const double	daub16[17];
+    static const double	daub18[19];
+    static const double	daub20[21];
 
-    static const float	beylkin[19];
+    static const double	beylkin[19];
 
-    static const float	coiflet1[7];
-    static const float	coiflet2[13];
-    static const float	coiflet3[19];
-    static const float	coiflet4[25];
-    static const float	coiflet5[31];
+    static const double	coiflet1[7];
+    static const double	coiflet2[13];
+    static const double	coiflet3[19];
+    static const double	coiflet4[25];
+    static const double	coiflet5[31];
 
-    static const float	symmlet4[9];
-    static const float	symmlet5[11];
-    static const float	symmlet6[13];
-    static const float	symmlet7[15];
-    static const float	symmlet8[17];
-    static const float	symmlet9[19];
-    static const float	symmlet10[21];
+    static const double	symmlet4[9];
+    static const double	symmlet5[11];
+    static const double	symmlet6[13];
+    static const double	symmlet7[15];
+    static const double	symmlet8[17];
+    static const double	symmlet9[19];
+    static const double	symmlet10[21];
 
-    static const float	vaidyanathan[25];
+    static const double	vaidyanathan[25];
 
     static bool		isCplx( WaveletType );
 };
@@ -93,14 +93,14 @@ protected:
     mExpClass(Algo) FilterWT1D : public GenericTransformND::Transform1D
     {
     public:
-	
+
 	bool		init();
 	bool		run(bool);
 			FilterWT1D()
 			    : cc_( 0 )
 			    , cr_( 0 )
 			    , wt_( WaveletTransform::Haar )
-			{}	
+			{}
 
 			~FilterWT1D() { delete [] cr_; delete [] cc_; }
 
@@ -129,7 +129,7 @@ protected:
 \brief Continuous Wavelet Transform
 */
 
-mExpClass(Algo) CWT 
+mExpClass(Algo) CWT
 {
 public:
 			CWT();
@@ -139,14 +139,14 @@ public:
 
 
     enum		WaveletType { Morlet, Gaussian, MexicanHat };
-    			mDeclareEnumUtils(WaveletType);
+			mDeclareEnumUtils(WaveletType);
 
     void		setWavelet(CWT::WaveletType);
 
     void		setTransformRange( const StepInterval<float>& rg )
 			{ freqrg_ = rg; }
     void		setDeltaT( float dt )		{ dt_ = dt; }
-			
+
     bool		setInputInfo(const ArrayNDInfo&);
     const ArrayNDInfo&	getInputInfo() const		{ return *info_; }
 
@@ -167,7 +167,7 @@ public:
 				   ArrayND<float_complex>& ) const
 			{ return false; }
     bool		transform(const ArrayND<float_complex>& input,
-	    				ArrayND<float>& output);
+					ArrayND<float>& output);
 
     float		getScale(int ns,float dt,float freq) const;
 
@@ -199,14 +199,14 @@ protected:
     bool		isFast( int ) const { return true; }
 
     void		transform(int,float,int,
-	    			  const Array1DImpl<float_complex>&,
+				  const Array1DImpl<float_complex>&,
 				  Array2DImpl<float>&);
 
     Fourier::CC*	fft_;
     Fourier::CC*	ifft_;
 
     ArrayNDInfo*	info_;
-	    			     
+
     bool		inited_;
     float		dt_;
     WaveletType		wt_;

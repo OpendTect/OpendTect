@@ -21,7 +21,7 @@ mDefineEnumUtils(WaveletTransform,WaveletType,"Wavelet Type")
 
 
 
-bool WaveletTransform::isCplx(WaveletType wt)
+bool WaveletTransform::isCplx( WaveletType )
 {
     return false;
 }
@@ -31,10 +31,10 @@ bool WaveletTransform::isCplx(WaveletType wt)
 from the Stanford University Wavelet package 'WaveLab'. */
 
 
-const float WaveletTransform::haar[3] =
+const double WaveletTransform::haar[3] =
 				{ 0.0,  0.70710678,  0.70710678 };
 
-const float WaveletTransform::beylkin[19] =
+const double WaveletTransform::beylkin[19] =
 				{ 0.0,   0.099305765374,  0.424215360813,
 					 0.699825214057,  0.449718251149,
 					-0.110927598348, -0.264497231446,
@@ -45,29 +45,29 @@ const float WaveletTransform::beylkin[19] =
 					 0.010040411845,  0.001484234782,
 					-0.002736031626,  0.000640485329};
 
-const float WaveletTransform::daub4[5] =
+const double WaveletTransform::daub4[5] =
 				{ 0.0,  0.482962913145,  0.836516303738,
 					0.224143868042, -0.129409522551 };
 
-const float WaveletTransform::daub6[7] =
+const double WaveletTransform::daub6[7] =
 				{ 0.0,   0.332670552950,  0.806891509311,
 					 0.459877502118, -0.135011020010,
 					-0.085441273882,  0.035226291882 };
 
-const float WaveletTransform::daub8[9] =
+const double WaveletTransform::daub8[9] =
 				{ 0.0,   0.230377813309,  0.714846570553,
 					 0.630880767930, -0.027983769410,
 					-0.187034811719,  0.030841381836,
 					 0.032883011667, -0.010597401785  };
 
-const float WaveletTransform::daub10[11] =
+const double WaveletTransform::daub10[11] =
 				{ 0.0,   0.160102397974,  0.603829269797,
 					 0.724308528438,  0.138428145901,
 					-0.242294887066, -0.032244869585,
 					 0.077571493840, -0.006241490213,
 					-0.012580751999,  0.003335725285 };
 
-const float WaveletTransform::daub12[13] =
+const double WaveletTransform::daub12[13] =
 				{ 0.0,   0.111540743350,  0.494623890398,
 					 0.751133908021,  0.315250351709,
 					-0.226264693965, -0.129766867567,
@@ -75,7 +75,7 @@ const float WaveletTransform::daub12[13] =
 					-0.031582039317,  0.000553842201,
 					 0.004777257511, -0.001077301085 };
 
-const float WaveletTransform::daub14[15] =
+const double WaveletTransform::daub14[15] =
 				{ 0.0,   0.077852054085,  0.396539319482,
 					 0.729132090846,  0.469782287405,
 					-0.143906003929, -0.224036184994,
@@ -84,7 +84,7 @@ const float WaveletTransform::daub14[15] =
 					 0.012550998556,  0.000429577973,
 					-0.001801640704,  0.000353713800 };
 
-const float WaveletTransform::daub16[17] =
+const double WaveletTransform::daub16[17] =
 				{ 0.0,   0.054415842243,  0.312871590914,
 					 0.675630736297,  0.585354683654,
 					-0.015829105256, -0.284015542962,
@@ -94,7 +94,7 @@ const float WaveletTransform::daub16[17] =
 					-0.004870352993, -0.000391740373,
 					 0.000675449406, -0.000117476784 };
 
-const float WaveletTransform::daub18[19] =
+const double WaveletTransform::daub18[19] =
 				{ 0.0,   0.038077947364,  0.243834674613,
 					 0.604823123690,  0.657288078051,
 					 0.133197385825, -0.293273783279,
@@ -105,7 +105,7 @@ const float WaveletTransform::daub18[19] =
 					 0.001847646883,  0.000230385764,
 					-0.000251963189,  0.000039347320 };
 
-const float WaveletTransform::daub20[21] =
+const double WaveletTransform::daub20[21] =
 				{ 0.0,   0.026670057901,  0.188176800078,
 					 0.527201188932,  0.688459039454,
 					 0.281172343661, -0.249846424327,
@@ -117,13 +117,13 @@ const float WaveletTransform::daub20[21] =
 					-0.000685856695, -0.000116466855,
 					 0.000093588670, -0.000013264203 };
 
-const float WaveletTransform::coiflet1[7] =
+const double WaveletTransform::coiflet1[7] =
 				{ 0.0,   0.038580777748, -0.126969125396,
 					-0.077161555496, 0.607491641386,
 					 0.745687558934, 0.226584265197 };
 
 
-const float WaveletTransform::coiflet2[13] =
+const double WaveletTransform::coiflet2[13] =
 				{ 0.0,   0.016387336463, -0.041464936782,
 					-0.067372554722,  0.386110066823,
 					 0.812723635450,  0.417005184424,
@@ -132,7 +132,7 @@ const float WaveletTransform::coiflet2[13] =
 					-0.001823208871, -.000720549445 };
 
 
-const float WaveletTransform::coiflet3[19] =
+const double WaveletTransform::coiflet3[19] =
 				{ 0.0,  -0.003793512864,  0.007782596426,
 					 0.023452696142, -0.065771911281,
 					-0.061123390003,  0.405176902410,
@@ -144,7 +144,7 @@ const float WaveletTransform::coiflet3[19] =
 					-0.000070983303, -0.000034599773 };
 
 
-const float WaveletTransform::coiflet4[25] =
+const double WaveletTransform::coiflet4[25] =
 				{ 0.0,   0.000892313668, -0.001629492013,
 					-0.007346166328,  0.016068943964,
 					 0.026682300156, -0.081266699680,
@@ -158,7 +158,7 @@ const float WaveletTransform::coiflet4[25] =
 					 0.000062339034,  0.000031229876,
 					-0.000003259680, -0.000001784985 };
 
-const float WaveletTransform::coiflet5[31] =
+const double WaveletTransform::coiflet5[31] =
 				{ 0.0,  -0.000212080863,  0.000358589677,
 					 0.002178236305, -0.004159358782,
 					-0.010131117538,  0.023408156762,
@@ -175,20 +175,20 @@ const float WaveletTransform::coiflet5[31] =
 					 0.000003734597,  0.000002063806,
 					-0.000000167408, -0.000000095158};
 
-const float WaveletTransform::symmlet4[9] =
+const double WaveletTransform::symmlet4[9] =
 				{ 0.0,  -0.107148901418, -0.041910965125,
 					 0.703739068656,  1.136658243408,
 					 0.421234534204, -0.140317624179,
 					-0.017824701442,  0.045570345896};
 
-const float WaveletTransform::symmlet5[11] =
+const double WaveletTransform::symmlet5[11] =
 				{ 0.0,   0.038654795955,  0.041746864422,
 					-0.055344186117,  0.281990696854,
 					 1.023052966894,  0.896581648380,
 					 0.023478923136, -0.247951362613,
 					-0.029842499869,  0.027632152958};
 
-const float WaveletTransform::symmlet6[13] =
+const double WaveletTransform::symmlet6[13] =
                                 { 0.0,   0.021784700327,  0.004936612372,
 					-0.166863215412, -0.068323121587,
 					 0.694457972958,  1.113892783926,
@@ -197,7 +197,7 @@ const float WaveletTransform::symmlet6[13] =
 					 0.002499922093, -0.011031867509};
 
 
-const float WaveletTransform::symmlet7[15] =
+const double WaveletTransform::symmlet7[15] =
 				{ 0.0,   0.003792658534, -0.001481225915,
 					-0.017870431651,  0.043155452582,
 					 0.096014767936, -0.070078291222,
@@ -207,7 +207,7 @@ const float WaveletTransform::symmlet7[15] =
 					 0.005671342686,  0.014521394762};
 
 
-const float WaveletTransform::symmlet8[17] =
+const double WaveletTransform::symmlet8[17] =
 				{ 0.0,   0.002672793393, -0.000428394300,
 					-0.021145686528,  0.005386388754,
 					 0.069490465911, -0.038493521263,
@@ -218,7 +218,7 @@ const float WaveletTransform::symmlet8[17] =
 					-0.000766690896, -0.004783458512};
 
 
-const float WaveletTransform::symmlet9[19] =
+const double WaveletTransform::symmlet9[19] =
 				{ 0.0,   0.001512487309, -0.000669141509,
 					-0.014515578553,  0.012528896242,
 					 0.087791251554, -0.025786445930,
@@ -229,7 +229,7 @@ const float WaveletTransform::symmlet9[19] =
 					-0.016303351226, -0.018769396836,
 					 0.000876502539,  0.001981193736};
 
-const float WaveletTransform::symmlet10[21] =
+const double WaveletTransform::symmlet10[21] =
 				{ 0.0,   0.001089170447,  0.000135245020,
 					-0.012220642630, -0.002072363923,
 					 0.064950924579,  0.016418869426,
@@ -241,7 +241,7 @@ const float WaveletTransform::symmlet10[21] =
 					-0.001137535314,  0.006495728375,
 					 0.000080661204, -0.000649589896};
 
-const float WaveletTransform::vaidyanathan[25] =
+const double WaveletTransform::vaidyanathan[25] =
 				{ 0.0,  -0.000062906118,  0.000343631905,
 					-0.000453956620, -0.000944897136,
 					 0.002843834547,  0.000708137504,
@@ -257,11 +257,11 @@ const float WaveletTransform::vaidyanathan[25] =
 
 
 void WaveletTransform::getInfo( WaveletType wt, int& len,
-				TypeSet<float>& wavelet )
+				TypeSet<double>& wavelet )
 {
-    const float* wc = 0;
+    const double* wc = 0;
     len = 0;
-    wavelet.erase();
+    wavelet.setEmpty();
 
     switch ( wt )
     {
@@ -315,8 +315,10 @@ void WaveletTransform::getInfo( WaveletType wt, int& len,
 		len = 24;	wc = WaveletTransform::vaidyanathan;	break;
     }
 
+    wavelet.setSize( len );
+    double* mODRestrict wvltarr = wavelet.arr();
     for ( int idx=0; idx<len; idx++ )
-	wavelet += wc[idx];
+	wvltarr[idx] = wc[idx];
 }
 
 
@@ -343,18 +345,18 @@ bool DWT::FilterWT1D::init()
 {
     if ( sz_ < 0 ) return false;
 
-    TypeSet<float> tcc;
+    TypeSet<double> tcc;
     WaveletTransform::getInfo( wt_, filtersz_, tcc );
 
     if ( cc_ ) delete [] cc_;
     cc_ = new float[filtersz_+1];
 
-    float len = 0;
+    double len = 0;
     for ( int idx=0; idx<=filtersz_; idx++ )
     { len += tcc[idx]*tcc[idx]; }
 
     for ( int idx=0; idx<=filtersz_; idx++ )
-    { cc_[idx] = tcc[idx] / len; }
+	cc_[idx] = mCast(float,tcc[idx]/len);
 
     if ( cr_ ) delete [] cr_;
     cr_ = new float[filtersz_+1];
@@ -362,7 +364,7 @@ bool DWT::FilterWT1D::init()
     int sig = -1;
     for ( int k=1; k<=filtersz_; k++ )
     {
-	cr_[filtersz_+1-k]=sig*cc_[k];
+	cr_[filtersz_+1-k] = cc_[k]*sig;
 	sig = -sig;
     }
 
@@ -423,11 +425,11 @@ void CWT::CWTWavelets::createMorletWavelet( int nrsamples, float scale,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
-	float omega0 = idx<=nrsamples/2 ? 5.f : -5.f;
-	float omega =  2 * M_PIf * omidx / scale;
-        float val = (omega-omega0) * (omega-omega0) / 2;
-	wavelet += exp( -val );
+	const int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
+	const double omega0 = idx<=nrsamples/2 ? 5. : -5.;
+	const double omega =  2. * M_PI * omidx / scale;
+        const double val = (omega-omega0) * (omega-omega0) / 2.;
+	wavelet += mCast(float,exp( -val ));
     }
 }
 
@@ -437,10 +439,10 @@ void CWT::CWTWavelets::createMexhatWavelet( int nrsamples, float scale,
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
-	float omega = (float) ( 2 * M_PI * omidx / scale );
-        float omega2 = omega*omega;
-	wavelet += omega2 * exp( -omega2/2 );
+	const int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
+	const double omega = 2. * M_PI * omidx / scale;
+        const double omega2 = omega*omega;
+	wavelet += mCast(float,omega2 * exp( -omega2/2. ));
     }
 }
 
@@ -450,10 +452,10 @@ void CWT::CWTWavelets::createGaussWavelet( int nrsamples, float scale,
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
-	float omega = (float) ( 2 * M_PI * omidx / scale );
-        float omega2 = omega*omega;
-	wavelet += exp( -omega2/2 );
+	const int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
+	const double omega = 2. * M_PI * omidx / scale;
+        const double omega2 = omega*omega;
+	wavelet += mCast(float,exp( -omega2/2. ));
     }
 }
 
@@ -464,7 +466,7 @@ const TypeSet<float>* CWT::CWTWavelets::getWavelet( float scale ) const
     int nearidx = -1;
     for ( int idx=0; idx<scales_.size(); idx++ )
     {
-	float newdiff = fabs( scales_[idx] - scale );
+	const float newdiff = fabs( scales_[idx] - scale );
 	if ( newdiff < diff ) { diff = newdiff; nearidx = idx; }
     }
 
@@ -616,12 +618,7 @@ void CWT::transform( int nrsamples, float curscale, int scaleidx,
     ifft_->run( true );
 
     for ( int idx=0; idx<nrsamples; idx++ )
-    {
-	float real = newsignal.get(idx).real();
-	float imag = newsignal.get(idx).imag();
-	float val = Math::Sqrt( real*real + imag*imag );
-	outp.set( idx, scaleidx, val );
-    }
+	outp.set( idx, scaleidx, std::abs(newsignal.get(idx)) );
 }
 
 
@@ -630,16 +627,16 @@ float CWT::getScale( int nrsamples, float dt, float freq ) const
     if ( !nrsamples || mIsZero(dt, mDefEps) )
 	return mUdf(float);
 
-    const float df = 1.f / ( dt * nrsamples );
-    const float freqidx = freq / df;
+    const double df = 1. / ( dt * nrsamples );
+    const double freqidx = freq / df;
 
-    float omega0 = 5;
+    double omega0 = 5.;
     if ( wt_ == Gaussian )
-	omega0 =  M_SQRT2f;
+	omega0 =  M_SQRT2;
     else if ( wt_ == Morlet )
-	omega0 = 5;
+	omega0 = 5.;
     else if ( wt_ == MexicanHat )
-	omega0 = M_SQRT2f;
+	omega0 = M_SQRT2;
 
-    return (float) ( freqidx * (2*M_PI) / omega0 );
+    return mCast(float,freqidx * M_2PI / omega0 );
 }
