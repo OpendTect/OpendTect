@@ -216,7 +216,7 @@ void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
     auxdata->linestyle_.color_ = prefcol;
     auxdata->fillcolor_ = prefcol;
     auxdata->enabled_ = linenabled_;
-    auxdata->name_ = hor3d.name();
+    auxdata->name_ = toUiString(hor3d.name());
     marker = new Marker3D;
     secmarkerln += marker;
     marker->marker_ = auxdata;

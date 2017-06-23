@@ -149,8 +149,8 @@ void uiTieView::initFlatViewer()
     app.annot_.x2_.showgridlines_ = true;
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.mapper_->setup().setNoClipping();
-    app.annot_.x1_.name_ = data_.sKeySeismic();
-    app.annot_.x2_.name_ =  "TWT";
+    app.annot_.x1_.name_ = uiStrings::sVolDataName(true,true,false);
+    app.annot_.x2_.name_ =  uiStrings::sTWT();
     app.annot_.title_ = tr("Synthetics<--------------------"
 			"------------------------------->Seismics");
     vwr_->viewChanged.notify( mCB(this,uiTieView,zoomChg) );
@@ -356,7 +356,7 @@ void uiTieView::drawViewerWellMarkers()
 	mtxt.insertAt( 0, " " );
 	if ( !params_.dispmrkfullnames_ && mtxt.size()>4 )
 	    mtxt[4] = '\0';
-	auxdata->name_ = mtxt;
+	auxdata->name_ = toUiString(mtxt);
 	auxdata->namealignment_ = OD::Alignment(OD::Alignment::Left,
 						OD::Alignment::Top);
 	auxdata->namepos_ = 0;
@@ -413,7 +413,7 @@ void uiTieView::drawHorizons()
 	BufferString mtxt( hor.name_ );
 	if ( !params_.disphorfullnames_ && mtxt.size() > 3 )
 	    mtxt[3] = '\0';
-	auxdata->name_ = mtxt;
+	auxdata->name_ = toUiString(mtxt);
 	auxdata->namealignment_ = OD::Alignment(OD::Alignment::HCenter,
 						OD::Alignment::Top);
 	auxdata->namepos_ = 0;

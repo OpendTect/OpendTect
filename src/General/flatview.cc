@@ -185,8 +185,8 @@ void FlatView::DataDispPars::VD::tabNmChg( CallBacker* cb )
 	return;
 
     mGetMonitoredChgDataWithAux( cb, cd, NamedMonitorable::NameChgData, ncd );
-    if ( ncd && colseqname_ == ncd->oldnm_ )
-	colseqname_ = ncd->newnm_;
+    if ( ncd && mFromUiStringTodo(colseqname_) == ncd->oldnm_ )
+	colseqname_ = toUiString(ncd->newnm_);
 }
 
 
@@ -231,8 +231,8 @@ FlatView::Annotation::Annotation( bool drkbg )
     , allowuserchange_(true)
     , allowuserchangereversedaxis_(true)
 {
-    x1_.name_ = "X1";
-    x2_.name_ = "X2";
+    x1_.name_ = toUiString("X1");
+    x2_.name_ = toUiString("X2");
 }
 
 
@@ -287,7 +287,7 @@ FlatView::AuxData::EditPermissions::EditPermissions()
 
 
 FlatView::AuxData::AuxData( const char* nm )
-    : name_( nm )
+    : name_( toUiString(nm) )
     , namepos_( mUdf(int) )
     , namealignment_(mAlignment(Center,Center))
     , linestyle_( OD::LineStyle::None, 1, Color::NoColor() )
@@ -538,8 +538,8 @@ const ZDomain::Info& FlatView::Viewer::zDomain() const
 
 void FlatView::Viewer::getAuxInfo( const Point& pt, IOPar& iop ) const
 {
-    BufferString txt( appearance().annot_.x1_.name_ );
-    txt += " vs "; txt += appearance().annot_.x2_.name_;
+    BufferString txt( mFromUiStringTodo(appearance().annot_.x1_.name_) );
+    txt += " vs "; txt += mFromUiStringTodo(appearance().annot_.x2_.name_);
     iop.set( "Positioning", txt );
     addAuxInfo( true, pt, iop );
     addAuxInfo( false, pt, iop );
@@ -731,17 +731,21 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 	useStoredDefaults( fdp->category() );
 
     FlatView::Annotation& annot = appearance().annot_;
-    if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == "X1" )
+    if ( annot.x1_.name_.isEmpty() || 
+			    mFromUiStringTodo(annot.x1_.name_) == "X1" )
     {
-	annot.x1_.name_ = fdp->dimName( true );
+	annot.x1_.name_ = toUiString(fdp->dimName( true ));
 	BufferStringSet altdimnms; fdp->getAltDim0Keys( altdimnms );
-	setAnnotChoice( altdimnms.indexOf(annot.x1_.name_) );
+	setAnnotChoice( altdimnms.indexOf(
+					 mFromUiStringTodo(annot.x1_.name_)) );
     }
 
-    if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
+    if ( annot.x2_.name_.isEmpty() || 
+				  mFromUiStringTodo(annot.x2_.name_) == "X2" )
     {
-	annot.x2_.name_ = fdp->dimName( false );
-	annot.x2_.annotinint_ = fdp->dimValuesInInt( annot.x2_.name_ );
+	annot.x2_.name_ = toUiString(fdp->dimName( false ));
+	annot.x2_.annotinint_ = fdp->dimValuesInInt( 
+				    mFromUiStringTodo(annot.x2_.name_) );
     }
 
     handleChange( BitmapData );

@@ -23,8 +23,8 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
     , curid_(DataPack::cNoID())
 {
     FlatView::Appearance& app = appearance();
-    app.annot_.x1_.name_ = " ";
-    app.annot_.x2_.name_ = " ";
+    app.annot_.x1_.name_ = toUiString(" ");
+    app.annot_.x2_.name_ = toUiString(" ");
     app.annot_.setAxesAnnot( true );
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );

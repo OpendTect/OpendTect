@@ -176,6 +176,18 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
     vwr_->dispPropChanged.notify( mCB(this,uiStratSynthDisp,parsChangedCB) );
+    FlatView::Appearance& app = vwr_->appearance();
+    app.setGeoDefaults( true );
+    app.setDarkBG( false );
+    app.annot_.allowuserchangereversedaxis_ = false;
+    app.annot_.title_.setEmpty();
+    app.annot_.x1_.showAll( true );
+    app.annot_.x2_.showAll( true );
+    app.annot_.x1_.annotinint_ = true;
+    app.annot_.x2_.name_ = uiStrings::sTWT();
+    app.ddpars_.show( true, true );
+    app.ddpars_.wva_.allowuserchangedata_ = false;
+    app.ddpars_.vd_.allowuserchangedata_ = false;
     vwr_->viewChanged.notify( mCB(this,uiStratSynthDisp,viewChg) );
     setDefaultAppearance( vwr_->appearance() );
 
@@ -741,7 +753,8 @@ void uiStratSynthDisp::parsChangedCB( CallBacker* )
     if ( currentvdsynthetic_ )
     {
 	SynthFVSpecificDispPars& disppars = currentvdsynthetic_->dispPars();
-	disppars.colseqname_ = vwr_->appearance().ddpars_.vd_.colseqname_;
+	disppars.colseqname_ = 
+		mFromUiStringTodo(vwr_->appearance().ddpars_.vd_.colseqname_);
 	*disppars.vdmapsetup_ = vwr_->appearance().ddpars_.vd_.mapper_->setup();
     }
 
@@ -984,7 +997,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( sd->name() );
     if ( !wva )
-	vwr_->appearance().ddpars_.vd_.colseqname_ = sd->dispPars().colseqname_;
+	vwr_->appearance().ddpars_.vd_.colseqname_ = 
+			    toUiString(sd->dispPars().colseqname_);
     else
 	vwr_->appearance().ddpars_.wva_.overlap_ = sd->dispPars().overlap_;
     ColTab::MapperSetup& mapsu =
@@ -1004,10 +1018,11 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
 	mapsu.setNotFixed();
 	const float cliprate = wva ? 0.0f : 0.025f;
 	mapsu.setClipRate( ColTab::ClipRatePair(cliprate,cliprate) );
+	BufferString colseqnm = mFromUiStringTodo(vwr_->appearance()
+						    .ddpars_.vd_.colseqname_);
 	if ( sd->dispPars().colseqname_.isEmpty() )
 	    dispsd->dispPars().colseqname_
-		= vwr_->appearance().ddpars_.vd_.colseqname_
-			= ColTab::Sequence::sDefaultName( !prsd );
+		= colseqnm = ColTab::Sequence::sDefaultName( !prsd );
     }
 
     vwr_->setPack( wva, dp->id(), !hadpack );
@@ -1121,7 +1136,7 @@ void uiStratSynthDisp::setPreStackMapper()
 	newmapsu->setNoClipping();
 	vwr.appearance().ddpars_.vd_.mapper_->setup() = *newmapsu;
 	vwr.appearance().ddpars_.vd_.colseqname_
-			= ColTab::Sequence::sDefaultName();
+			= toUiString(ColTab::Sequence::sDefaultName());
 	*newmapsu = vwr.appearance().ddpars_.wva_.mapper_->setup();
 	newmapsu->setNoClipping();
 	vwr.appearance().ddpars_.wva_.mapper_->setup() = *newmapsu;

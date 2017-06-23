@@ -76,8 +76,8 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     app.annot_.title_.setEmpty();
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
-    app.annot_.x1_.name_ = "Model Nr";
-    app.annot_.x2_.name_ = "Depth";
+    app.annot_.x1_.name_ = tr("Model Nr");
+    app.annot_.x2_.name_ = uiStrings::sDepth();
     app.ddpars_.wva_.allowuserchange_ = false;
     app.ddpars_.vd_.allowuserchange_ = false;
     app.ddpars_.wva_.allowuserchangedata_ = false;

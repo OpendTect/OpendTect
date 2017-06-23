@@ -62,7 +62,7 @@ public:
     bool			enabled_;	//!<Turns on/off everything
     bool			turnon_;	//!<Turns on/off display
 
-    BufferString		name_;
+    uiString			name_;
     OD::Alignment		namealignment_;
     int				namepos_;	//!<nodraw=udf, before first=-1,
 					    //!< center=0, after last=1
@@ -119,7 +119,7 @@ public:
     {
 				AxisData();
 
-	BufferString		name_;
+	uiString		name_;
 	SamplingData<float>	sampling_;
 	bool			showannot_;
 	bool			showgridlines_;
@@ -213,7 +213,7 @@ public:
 
 			VD();
 
-	BufferString	colseqname_;
+	uiString	colseqname_;
 	bool		lininterp_; // Use bi-linear interpol, not poly
 
     protected:

@@ -39,7 +39,8 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
 {
     coltabsel_ = new uiColTabSel( this, OD::Horizontal,
 				 uiStrings::sColorTable() );
-    coltabsel_->setSeqName( vwr_->appearance().ddpars_.vd_.colseqname_ );
+    coltabsel_->setSeqName( mFromUiStringTodo(vwr_->appearance()
+					    .ddpars_.vd_.colseqname_) );
     coltabsel_->setMapper( *vwr_->appearance().ddpars_.vd_.mapper_ );
     mAttachCB( coltabsel_->seqChanged, uiViewer3DAppearanceTab::colTabChanged );
 
@@ -116,7 +117,7 @@ uiViewer3DAppearanceTab::~uiViewer3DAppearanceTab()
 void uiViewer3DAppearanceTab::colTabChanged( CallBacker* )
 {
     FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
-    pars.colseqname_ = coltabsel_->seqName();
+    pars.colseqname_ = toUiString(coltabsel_->seqName());
     *pars.mapper_ = coltabsel_->mapper();
     vwr_->handleChange( FlatView::Viewer::DisplayPars );
 }
@@ -126,7 +127,7 @@ void uiViewer3DAppearanceTab::updateColTab( CallBacker* )
 {
     FlatView::DataDispPars::VD& pars = vwr_->appearance().ddpars_.vd_;
     coltabsel_->setMapper( *pars.mapper_ );
-    coltabsel_->setSeqName( pars.colseqname_ );
+    coltabsel_->setSeqName( mFromUiStringTodo(pars.colseqname_) );
     coltabsel_->setRange( vwr_->getDataRange(false) );
 }
 
@@ -203,7 +204,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 
     FlatView::DataDispPars& ddp = vwr_->appearance().ddpars_;
     *ddp.vd_.mapper_ = coltabsel_->mapper();
-    ddp.vd_.colseqname_ = coltabsel_->seqName();
+    ddp.vd_.colseqname_ = toUiString(coltabsel_->seqName());
     vwr_->handleChange( FlatView::Viewer::DisplayPars );
 
     const bool showzgridlines = zgridfld_->getBoolValue();
@@ -270,7 +271,8 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	if ( fvwr==vwr_ )
 	    continue;
 
-	fvwr->appearance().ddpars_.vd_.colseqname_ = coltabsel_->seqName();
+	fvwr->appearance().ddpars_.vd_.colseqname_ = 
+					toUiString(coltabsel_->seqName());
 
 	fvwr->appearance().annot_.x2_.showgridlines_ = showzgridlines;
 	fvwr->appearance().annot_.x1_.showgridlines_ = showoffsgridlines;

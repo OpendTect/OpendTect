@@ -99,7 +99,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
 	    displayMiniCtab(0);
 	else
 	    displayMiniCtab( ColTab::SeqMGR().getAny(
-			vwr.appearance().ddpars_.vd_.colseqname_) );
+		mFromUiStringTodo(vwr.appearance().ddpars_.vd_.colseqname_)) );
     }
 
     return uiODVw2DTreeItem::init();
@@ -175,7 +175,8 @@ void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
 
     const FlatView::DataDispPars::VD& vdpars = coltabed->displayPars();
     NotifyStopper ns( viewer2D()->viewControl()->colTabEd()->colTabChgd, this );
-    attrlayer_->setSequence( *ColTab::SeqMGR().getAny(vdpars.colseqname_) );
+    attrlayer_->setSequence( *ColTab::SeqMGR().getAny(
+				    mFromUiStringTodo(vdpars.colseqname_)) );
     attrlayer_->mapper() = *vdpars.mapper_;
 }
 
@@ -197,7 +198,7 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 	viewer2D()->viewControl()->colTabEd()->setDisplayPars( ddp.vd_ );
 
     displayMiniCtab( ColTab::SeqMGR().getAny(
-		vwr.appearance().ddpars_.vd_.colseqname_) );
+		mFromUiStringTodo(vwr.appearance().ddpars_.vd_.colseqname_)) );
 }
 
 

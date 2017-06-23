@@ -465,7 +465,7 @@ void uiFVVDPropTab::dispChgCB( CallBacker* )
 
 void uiFVVDPropTab::putToScreen()
 {
-    colseqsel_->setSeqName( pars_.colseqname_ );
+    colseqsel_->setSeqName( mFromUiStringTodo(pars_.colseqname_) );
     colsequsemodesel_->setMode( pars_.mapper_->setup().seqUseMode() );
     putCommonToScreen();
     const FlatView::DataDispPars::Common& pars = commonPars();
@@ -482,7 +482,7 @@ bool uiFVVDPropTab::acceptOK()
 
     pars_.mapper_->setup().setSeqUseMode( colsequsemodesel_->mode() );
     if ( pars_.show_ )
-	pars_.colseqname_ = colseqsel_->seqName();
+	pars_.colseqname_ = toUiString(colseqsel_->seqName());
 
     return true;
 }
@@ -636,7 +636,7 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 	    : OD::MarkerStyle2D();
 	x1rgs_ += auxdata.x1rg_ ? *auxdata.x1rg_ : Interval<double>( 0, 1 );
 	x2rgs_ += auxdata.x2rg_ ? *auxdata.x2rg_ : Interval<double>( 0, 1 );
-	auxnames.add( auxdata.name_.buf() );
+	auxnames.add( mFromUiStringTodo(auxdata.name_) );
     }
 
     if ( !auxnames.size() )

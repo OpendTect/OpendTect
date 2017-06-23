@@ -145,7 +145,7 @@ void FlatViewer::handleChange( unsigned int dt)
 		    channels_->setUnMappedData( 0, 0, arr, cp, 0 );
 
 		    appearance().ddpars_.vd_.colseqname_ =
-			channel2rgba_->getSequence(0).name();
+			toUiString(channel2rgba_->getSequence(0).name());
 		    channels_->turnOn( appearance().ddpars_.vd_.show_ );
 
 		    dataChanged.trigger();
@@ -164,9 +164,10 @@ void FlatViewer::handleChange( unsigned int dt)
 
 		const ColTab::Sequence& sequence
 			= channel2rgba_->getSequence( 0 );
-		if ( vd.colseqname_ != sequence.name() )
+		if ( mFromUiStringTodo(vd.colseqname_) != sequence.name() )
 		    channel2rgba_->setSequence( 0,
-				*ColTab::SeqMGR().getAny(vd.colseqname_) );
+				    *ColTab::SeqMGR().getAny(
+					  mFromUiStringTodo(vd.colseqname_)) );
 		dispParsChanged.trigger();
 	    }
     }

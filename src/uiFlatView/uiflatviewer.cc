@@ -324,7 +324,7 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
     if ( !bss.isEmpty() )
 	bss.addIfNew( fdp->dimName(true) );
 
-    return bss.indexOf( appearance().annot_.x1_.name_ );
+    return bss.indexOf( mFromUiStringTodo(appearance().annot_.x1_.name_) );
 }
 
 
@@ -336,9 +336,10 @@ void uiFlatViewer::setAnnotChoice( int sel )
     FlatView::Annotation::AxisData& x1axisdata = appearance().annot_.x1_;
     BufferStringSet altdim0keys; fdp->getAltDim0Keys( altdim0keys );
     const int altdim0 = altdim0keys.validIdx(sel) ? sel : -1;
-    x1axisdata.name_ = altdim0>=0 ? altdim0keys.get(altdim0).buf()
-				  : fdp->dimName(true);
-    x1axisdata.annotinint_ = fdp->dimValuesInInt( x1axisdata.name_ );
+    x1axisdata.name_ = altdim0>=0 ? toUiString(altdim0keys.get(altdim0).buf())
+				  : toUiString(fdp->dimName(true));
+    x1axisdata.annotinint_ = fdp->dimValuesInInt( 
+				    mFromUiStringTodo(x1axisdata.name_) );
     axesdrawer_.altdim0_ = altdim0;
 }
 
@@ -357,7 +358,7 @@ void uiFlatViewer::reGenerate( FlatView::AuxData& ad )
 
 
 FlatView::AuxData* uiFlatViewer::createAuxData(const char* nm) const
-{ return new FlatView::uiAuxDataDisplay(nm); }
+{ return new FlatView::uiAuxDataDisplay(toUiString(nm)); }
 
 
 FlatView::AuxData* uiFlatViewer::getAuxData(int idx)

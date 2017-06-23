@@ -46,9 +46,9 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     app.setDarkBG( false );
     app.setGeoDefaults( false );
     app.annot_.setAxesAnnot(true);
-    app.annot_.x1_.name_ = SI().xyInFeet() ? "K (/ft)" : "K (/m)";
-    app.annot_.x2_.name_ = SI().zIsTime() ? "F (Hz)" :
-		SI().zInMeter() ? "Kz (/m)" : "Kz (/ft)";
+    app.annot_.x1_.name_ = SI().xyInFeet() ? tr("K (/ft)") : tr("K (/m)");
+    app.annot_.x2_.name_ = SI().zIsTime() ? tr("F (Hz)") :
+		SI().zInMeter() ? tr("Kz (/m)") : tr("Kz (/ft)");
     app.ddpars_.wva_.allowuserchange_ = false;
     app.ddpars_.vd_.show_ = true;
     app.ddpars_.vd_.mapper_->setup().setClipRate(

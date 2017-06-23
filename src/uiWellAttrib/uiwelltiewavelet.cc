@@ -143,8 +143,8 @@ uiWavelet::~uiWavelet()
 void uiWavelet::initWaveletViewer()
 {
     FlatView::Appearance& app = viewer_->appearance();
-    app.annot_.x1_.name_ = "Amplitude";
-    app.annot_.x2_.name_ =  "Time";
+    app.annot_.x1_.name_ = uiStrings::sAmplitude();
+    app.annot_.x2_.name_ =  uiStrings::sTime();
     app.annot_.setAxesAnnot( false );
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );

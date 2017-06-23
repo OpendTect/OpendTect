@@ -61,9 +61,10 @@ static const char* sKeySynthetic()	{ return "Synthteic"; }
 
 static void setAnnotationPars( FlatView::Annotation& annot )
 {
-    annot.x1_.name_ = "Offset";
+    annot.x1_.name_ = uiStrings::sOffset();
     annot.x1_.reversed_ = false;
-    annot.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
+    annot.x2_.name_ = SI().zIsTime() ? od_static_tr("setAnnotationPars", "TWT") 
+					    : uiStrings::sDepth();
     annot.x2_.reversed_ = true;
     annot.x1_.showauxannot_ = false;
     annot.x2_.showauxannot_ = false;
@@ -741,7 +742,7 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 		newmapsu->setFixedRange( Interval<float>(0.f,60.f) );
 		psapp.ddpars_.vd_.mapper_->setup() = *newmapsu;
 		psapp.ddpars_.vd_.colseqname_
-				= ColTab::Sequence::sDefaultName();
+				= toUiString(ColTab::Sequence::sDefaultName());
 
 		*newmapsu = psapp.ddpars_.wva_.mapper_->setup();
 		newmapsu->setNoClipping();
@@ -1181,13 +1182,15 @@ void uiStoredViewer2DMainWin::displayAngle()
 			(float)angleparams_->anglerange_.start,
 			(float)angleparams_->anglerange_.stop ) );
 	    newmapsu->setSeqUseMode( ColTab::UnflippedCyclic );
-	    psapp.ddpars_.vd_.colseqname_ = ColTab::Sequence::sDefaultName();
+	    psapp.ddpars_.vd_.colseqname_ = 
+				toUiString(ColTab::Sequence::sDefaultName());
 	}
 	else
 	{
 	    psapp.ddpars_.vd_.show_ = true;
 	    psapp.ddpars_.wva_.show_ = false;
-	    psapp.ddpars_.vd_.colseqname_ = "Seismics";
+	    psapp.ddpars_.vd_.colseqname_ = uiStrings::sVolDataName(
+							    true,true,false);
 	    newmapsu->setNotFixed();
 	    newmapsu->setClipRate( ColTab::ClipRatePair(0.025f,0.025f) );
 	}
@@ -1463,7 +1466,7 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
 				    uiStrings::sColorTable() );
     colseqsel_->seqChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
     vwr_.dispParsChanged.notify( mCB(this,uiViewer2DControl,updateColTabCB) );
-    colseqsel_->setSeqName( dispPars().vd_.colseqname_ );
+    colseqsel_->setSeqName( mFromUiStringTodo(dispPars().vd_.colseqname_) );
     colseqsel_->addObjectsToToolBar( *tb_ );
     tb_->addSeparator();
 }
@@ -1482,13 +1485,13 @@ void uiViewer2DControl::propertiesDlgCB( CallBacker* )
 void uiViewer2DControl::updateColTabCB( CallBacker* )
 {
     app_ = vwr_.appearance();
-    colseqsel_->setSeqName( dispPars().vd_.colseqname_ );
+    colseqsel_->setSeqName( mFromUiStringTodo(dispPars().vd_.colseqname_) );
 }
 
 
 void uiViewer2DControl::coltabChg( CallBacker* )
 {
-    dispPars().vd_.colseqname_ = colseqsel_->seqName();
+    dispPars().vd_.colseqname_ = toUiString(colseqsel_->seqName());
     for( int ivwr=0; ivwr<vwrs_.size(); ivwr++ )
     {
 	if ( !vwrs_[ivwr] ) continue;
@@ -1520,7 +1523,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 
     app_ = vwrs_[ actvwridx ]->appearance();
     propChanged.trigger();
-    colseqsel_->setSeqName( app_.ddpars_.vd_.colseqname_ );
+    colseqsel_->setSeqName( mFromUiStringTodo(app_.ddpars_.vd_.colseqname_) );
 
     ConstRefMan<FlatDataPack> vddatapack = vwrs_[actvwridx]->getPack( false );
     ConstRefMan<FlatDataPack> wvadatapack = vwrs_[actvwridx]->getPack( true );

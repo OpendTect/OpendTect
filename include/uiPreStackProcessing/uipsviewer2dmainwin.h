@@ -36,7 +36,7 @@ namespace PreStackView
     class uiPSMultiPropDlg;
 
 mExpClass(uiPreStackProcessing) PSViewAppearance : public FlatView::Appearance
-{
+{ mODTextTranslationClass(PSViewAppearance)
 public:
     BufferString	datanm_;
     bool operator==( const PSViewAppearance& psapp ) const

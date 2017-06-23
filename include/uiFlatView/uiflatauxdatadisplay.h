@@ -40,7 +40,7 @@ public:
 
 protected:
     				friend class ::uiFlatViewer;
-				uiAuxDataDisplay(const char* nm);
+				uiAuxDataDisplay(const uiString nm);
 				uiAuxDataDisplay(const uiAuxDataDisplay&);
 
     void			removeItems();

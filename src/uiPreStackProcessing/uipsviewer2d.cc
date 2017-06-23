@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uiobjectitemview.h"
 #include "uirgbarraycanvas.h"
+#include "uistrings.h"
 
 namespace PreStackView
 {
@@ -36,9 +37,9 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p  )
     viewer_->appearance().setDarkBG( false );
     viewer_->appearance().annot_.color_ = Color::Black();
     viewer_->appearance().annot_.x1_.showannot_ = true;
-    viewer_->appearance().annot_.x1_.name_ = "Offset";
+    viewer_->appearance().annot_.x1_.name_ = uiStrings::sOffset();
     viewer_->appearance().annot_.x2_.showannot_ = false;
-    viewer_->appearance().annot_.x2_.name_ = "Depth";
+    viewer_->appearance().annot_.x2_.name_ = uiStrings::sDepth();
     viewer_->appearance().ddpars_.wva_.show_ = false;
     viewer_->appearance().ddpars_.vd_.show_ = true;
     viewer_->appearance().ddpars_.vd_.lininterp_ = true;

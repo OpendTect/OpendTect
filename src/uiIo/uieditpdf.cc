@@ -347,13 +347,13 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    FlatView::Appearance& app = vwr.appearance();
 	    app.ddpars_.show( false, true );
 	    app.ddpars_.vd_.colseqname_
-			= ColTab::SeqMGR().getDefault(false)->name();
+		    = toUiString(ColTab::SeqMGR().getDefault(false)->name());
 	    app.ddpars_.vd_.mapper_->setup().setNoClipping();
 	    app.ddpars_.vd_.blocky_ = true;
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.setAxesAnnot( true );
-	    ann.x1_.name_ = pdf_.dimName(0);
-	    ann.x2_.name_ = pdf_.dimName(1);
+	    ann.x1_.name_ = toUiString(pdf_.dimName(0));
+	    ann.x2_.name_ = toUiString(pdf_.dimName(1));
 	    vwwinnd_->windowClosed.notify( clsecb );
 	}
 
