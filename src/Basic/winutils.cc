@@ -5,6 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
+// These get rid of warnings about casting HINSTANCE to int
 #pragma warning( disable : 4302 )
 #pragma warning( disable : 4311 )
 
