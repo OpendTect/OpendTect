@@ -5,7 +5,8 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-
+#pragma warning( disable : 4302 )
+#pragma warning( disable : 4311 )
 
 #include "winutils.h"
 
@@ -267,11 +268,7 @@ const char* getFullWinVersion()
 
 bool execShellCmd( const char* comm, const char* parm, const char* runin )
 {
-   int res = (int) ShellExecute( NULL, "runas",
-				 comm,
-				 parm,    // params
-				 runin, // directory
-				 SW_SHOW );
+    int res = (int)ShellExecute( NULL, "runas", comm, parm, runin, SW_SHOW );
     return res > 32;
 }
 
