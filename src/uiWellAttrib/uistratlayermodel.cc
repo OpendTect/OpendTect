@@ -306,7 +306,7 @@ void uiStratLayerModel::setWinTitle()
 
 BufferString uiStratLayerModel::levelName() const
 {
-    return modtools_->selLevel();
+    return modtools_->getFlattenLvlNm();
 }
 
 
@@ -378,15 +378,6 @@ void uiStratLayerModel::dispEachChg( CallBacker* )
 }
 
 
-bool uiStratLayerModel::canShowFlattened() const
-{
-    TypeSet<float> zlvls = moddisp_->flattenLevelDepths();
-    for ( int idx=0; idx<zlvls.size(); idx++ )
-	if ( !mIsUdf(zlvls[idx]) ) return true;
-    return false;
-}
-
-
 void uiStratLayerModel::mkSynthChg( CallBacker* cb )
 {
     automksynth_ = modtools_->mkSynthetics();
@@ -405,8 +396,8 @@ void uiStratLayerModel::lmViewChangedCB( CallBacker* )
 void uiStratLayerModel::flattenChg( CallBacker* cb )
 {
     moddisp_->setFlattened( modtools_->showFlattened() );
+    synthdisp_->setFlattenLvl( modtools_->getFlattenStratLevel() );
     synthdisp_->setFlattened( modtools_->showFlattened() );
-    synthdisp_->setFlattenLvlNm( modtools_->getFlattenLvlNm() );
 }
 
 
@@ -414,18 +405,7 @@ void uiStratLayerModel::levelChg( CallBacker* cb )
 {
     synthdisp_->setDispMrkrs( modtools_->getSelLvlNmSet(),
 						moddisp_->getLevelDepths() );
-    modtools_->setFlatTBSensitive( canShowFlattened() );
-    if ( !canShowFlattened() && moddisp_->isFlattened() )
-    {
-	modtools_->setShowFlattened( false );
-	moddisp_->setFlattened( false );
-	synthdisp_->setFlattened( false, true );
-    }
-    else if ( modtools_->showFlattened() )
-    {
-	moddisp_->setFlattened( modtools_->showFlattened() );
-	synthdisp_->setFlattened( modtools_->showFlattened(), true );
-    }
+    modtools_->setFlatTBSensitive( moddisp_->canBeFlattened() );
 }
 
 
@@ -488,7 +468,7 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     uiStratSynthCrossplot dlg( this, layerModel(),synthdisp_->getSynthetics());
     if ( !dlg.errMsg().isEmpty() )
 	{ uiMSG().error( dlg.errMsg() ); return; }
-    BufferString lvlnm = modtools_->selLevel();
+    BufferString lvlnm = modtools_->getFlattenLvlNm();
     if ( !lvlnm.isEmpty() ) dlg.setRefLevel( lvlnm );
     dlg.go();
 }

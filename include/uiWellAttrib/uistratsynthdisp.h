@@ -123,9 +123,9 @@ public:
     void		setRelativeViewRect(const uiWorldRect& relwr);
     const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }
     void		setSavedViewRect();
-    void		setFlattenLvlNm(const BufferString flatlvlnm)
-			{ flattenlvlnm_ = flatlvlnm; }
-    const BufferString	getFlattenLvlNm() { return flattenlvlnm_; }
+    void		setFlattenLvl(const Strat::Level& lvl)
+			{ flattenlvl_ = lvl; }
+    const Strat::Level& getFlattenLvl() { return flattenlvl_; }
 
 protected:
 
@@ -166,7 +166,6 @@ protected:
     uiSynthGenDlg*			synthgendlg_;
     uiSynthSlicePos*			offsetposfld_;
     PtrMan<TaskRunner>			taskrunner_;
-    StratSynthLevelSet*			lvlset_;
 
     PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
 
@@ -215,8 +214,7 @@ protected:
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
-    int			lvlidx_;
-    BufferString	flattenlvlnm_;
+    Strat::Level	flattenlvl_;
 };
 
 

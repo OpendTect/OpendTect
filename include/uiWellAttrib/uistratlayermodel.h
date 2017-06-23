@@ -107,7 +107,6 @@ protected:
     int				nrmodels_;
 
 
-    bool			canShowFlattened() const;
     void			setWinTitle();
     void			handleNewModel();
     void			setModelProps();

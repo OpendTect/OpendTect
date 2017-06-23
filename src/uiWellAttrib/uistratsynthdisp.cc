@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistratsynthdisp.h"
+#include "uistratlaymodtools.h"
 #include "uisynthgendlg.h"
 #include "uistratsynthexport.h"
 #include "uiwaveletsel.h"
@@ -92,8 +93,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , taskrunner_( new uiTaskRunner(this) )
     , relzoomwr_(0,0,1,1)
     , savedzoomwr_(mUdf(double),0,0,0)
-    , lvlset_(0)
-    , lvlidx_(mUdf(int))
+    , flattenlvl_(Strat::Level::undef())
 {
     levelaux_ += new FlatView::AuxData("");
     stratsynth_->setTaskRunner( taskrunner_ );
@@ -441,8 +441,7 @@ void uiStratSynthDisp::setFlattened( bool flattened, bool trigger )
 void uiStratSynthDisp::setDispMrkrs( const BufferStringSet lvlnmset,
 			    const uiStratLayerModelDisp::LVLZValsSet& zvalset )
 {
-    lvlset_ = new StratSynthLevelSet( lvlnmset, zvalset );
-    curSS().setLevels( *lvlset_ );
+    curSS().setLevels( lvlnmset, zvalset );
     levelSnapChanged(0);
 }
 
@@ -533,9 +532,9 @@ void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
 
 void uiStratSynthDisp::levelSnapChanged( CallBacker* )
 {
-    if ( !lvlset_ ) return;
     const StratSynthLevelSet* lvl = curSS().getLevels();
     if ( !lvl )  return;
+
     StratSynthLevelSet* edlvl = const_cast<StratSynthLevelSet*>( lvl );
     edlvl->setSnapEv( VSEvent::TypeDef().parse(levelsnapselfld_->text()) );
     drawLevel();
@@ -566,55 +565,50 @@ void uiStratSynthDisp::displayFRText()
 
 void uiStratSynthDisp::drawLevel()
 {
-    if ( !lvlset_ ) return;
     vwr_->removeAuxDatas( levelaux_ );
-    for( int lvlidx=0; lvlidx<lvlset_->size(); lvlidx++ )
+    const float offset =
+	prestackgrp_->sensitive() ? mCast(float, offsetposfld_->getValue())
+				  : 0.0f;
+    ObjectSet<const TimeDepthModel> curd2tmodels;
+    getCurD2TModel( currentwvasynthetic_ ? currentwvasynthetic_
+					 : currentvdsynthetic_,
+		    curd2tmodels, offset );
+    TypeSet<float> fltlvltimevals;
+    const bool canshowflatten =
+	dispflattened_ && !flattenlvl_.isUndef() && !curd2tmodels.isEmpty();
+    if ( canshowflatten )
+	curSS().getLevelTimes( flattenlvl_, curd2tmodels, fltlvltimevals );
+    const StratSynthLevelSet* lvls = curSS().getLevels();
+    for( int lvlidx=0; lvlidx<lvls->size(); lvlidx++ )
     {
-	const StratSynthLevel* lvl = curSS().getLevel(lvlidx);
+	const StratSynthLevel* lvl = curSS().getLevel( lvlidx );
 	if ( !lvl ) return;
 	BufferString checkstr = lvl->getName();
-	const Strat::Level stratlvl = Strat::LVLS().getByName(
-							    lvl->getName()) ;
-	const float offset =
-	    prestackgrp_->sensitive() ? mCast(float, offsetposfld_->getValue())
-				      : 0.0f;
-	ObjectSet<const TimeDepthModel> curd2tmodels;
-	getCurD2TModel( currentwvasynthetic_ ? currentwvasynthetic_
-					   : currentvdsynthetic_, curd2tmodels,
-					     offset );
+	const Strat::Level stratlvl = Strat::LVLS().getByName( lvl->getName()) ;
 
 	if ( !curd2tmodels.isEmpty() )
 	{
-	    TypeSet<float> fltlvltimeval;
-	    if ( dispflattened_ )
-		curSS().getLevelTimes(Strat::LVLS().getByName( flattenlvlnm_ ),
-					    curd2tmodels, fltlvltimeval );
+	    TypeSet<float> strattimevals;
+	    curSS().getLevelTimes( stratlvl, curd2tmodels, strattimevals );
+	    if ( strattimevals.isEmpty() )
+		continue;
+
 	    FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
-	    TypeSet<float> timeval;
-	    curSS().getLevelTimes( stratlvl, curd2tmodels, timeval );
-
-
 	    auxd->linestyle_.type_ = OD::LineStyle::None;
-	    for ( int imdl=0; imdl<timeval.size(); imdl ++ )
+	    for ( int imdl=0; imdl<strattimevals.size(); imdl++ )
 	    {
-		float tval = timeval[imdl];
-		if ( dispflattened_ )
-		    tval = tval - fltlvltimeval[imdl];
+		float tval = strattimevals[imdl];
+		if ( canshowflatten )
+		    tval -= fltlvltimevals[imdl];
 
 		auxd->markerstyles_ += OD::MarkerStyle2D(
 			OD::MarkerStyle2D::Target,   cMarkerSize, lvl->col_ );
 		auxd->poly_ += FlatView::Point( (imdl*dispeach_)+1, tval );
 		auxd->zvalue_ = 3;
-		if ( dispflattened_ && (stratlvl.name() == flattenlvlnm_) )
-		    auxd->zvalue_ = 5;
 	    }
-	    if ( auxd->isEmpty() )
-		delete auxd;
-	    else
-	    {
-		vwr_->addAuxData( auxd );
-		levelaux_ += auxd;
-	    }
+
+	    vwr_->addAuxData( auxd );
+	    levelaux_ += auxd;
 	}
     }
 
@@ -700,17 +694,18 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 		         "Please regenerate the synthetic."));
 	return false;
     }
-    BufferString levelname;
-    if ( curSS().getLevel(0) )
-	levelname = curSS().getLevel(0)->name();
-    if ( levelname.isEmpty() || levelname.startsWith( "--" ) )
-    {
-	uiMSG().error(uiStrings::phrSelect(tr("a Stratigraphic Level.\n"
-			 "The scaling tool compares the amplitudes there\n"
-			 "to real amplitudes along a horizon")));
-	return false;
-    }
 
+    uiStringSet sellvlnms;
+    const StratSynthLevelSet* sellvls = curSS().getLevels();
+    for ( int ilvl=0; ilvl<sellvls->size(); ilvl++ )
+	sellvlnms.add( toUiString(sellvls->getStratLevel(ilvl)->name()) );
+
+    uiDialog::Setup su( uiStrings::phrSelect(tr("Stratigraphic Level")),
+			tr("The scaling tool compares the amplitudes there to "
+			   "real amplitudes along a horizon"), mTODOHelpKey );
+    const char* sellvlnm =
+	uiStratLayModEditTools::getSelLevelFromDlg( this, su, sellvlnms,
+						    flattenlvl_.name() );
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
@@ -723,9 +718,11 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 
     bool rv = false;
     PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
-    curSS().getLevelTimes( *scaletbuf,
-			   currentwvasynthetic_->zerooffsd2tmodels_ );
-    uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->key(true),levelname);
+    const Strat::Level sellvl = Strat::LVLS().getByName( sellvlnm );
+    curSS().setLevelTimesInTrcs( sellvl, *scaletbuf,
+				 currentwvasynthetic_->zerooffsd2tmodels_);
+    uiSynthToRealScale dlg( this, is2d, *scaletbuf, wvltfld_->key(true),
+			    sellvlnm );
     if ( dlg.go() )
     {
 	const DBKey wvltid( dlg.selWvltID() );
@@ -977,7 +974,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
     reSampleTraces( sd, *disptbuf );
     if ( dispflattened_ )
     {
-	curSS().getLevelTimes( *disptbuf, curd2tmodels, dispeach_ );
+	curSS().setLevelTimesInTrcs( flattenlvl_, *disptbuf, curd2tmodels,
+				     dispeach_ );
 	curSS().flattenTraces( *disptbuf );
     }
     else

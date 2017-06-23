@@ -14,8 +14,7 @@ ________________________________________________________________________
 
 StratSynthLevelSet::StratSynthLevelSet(  const BufferStringSet& lvlnmset,
 					 const LVLZValsSet& dptset )
-    : StratSynthLevel("",Color::Black())
-    , snapev_(VSEvent::None)
+    : snapev_(VSEvent::None)
     , lvlnmset_(lvlnmset)
 {
     if ( dptset.size() > 0 )
@@ -58,6 +57,12 @@ void StratSynthLevelSet::setEmpty()
 
 
 StratSynthLevel* StratSynthLevelSet::getStratLevel( const int idx )
+{
+    return stratsynthlvl_[idx];
+}
+
+
+const StratSynthLevel* StratSynthLevelSet::getStratLevel( const int idx ) const
 {
     return stratsynthlvl_[idx];
 }

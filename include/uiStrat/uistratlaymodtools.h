@@ -67,7 +67,6 @@ public:
     void	setContentNames(const BufferStringSet&);
 
     const char*	selProp() const;		//!< May return null
-    BufferString selLevel() const;		//!< May return null
     const char*	selContent() const;		//!< May return null
     int		dispEach() const;
     bool	dispZoomed() const;
@@ -96,6 +95,10 @@ public:
     Notifier<uiStratLayModEditTools>	flattenChg;
     Notifier<uiStratLayModEditTools>	mkSynthChg;
 
+    static const char*		getSelLevelFromDlg(uiParent*,
+						   const uiDialog::Setup&,
+						   const uiStringSet&,
+						   const char* sellvl=0);
     int				selPropIdx() const;	//!< May return -1
     Strat::Level::ID		flattenSelLevelID() const;
     Strat::Level		getFlattenStratLevel() const;
@@ -111,7 +114,7 @@ public:
 
     bool			allownoprop_;
     const BufferStringSet 	getSelLvlNmSet() { return choosenlvlnms_; }
-    const BufferString	  	getFlattenLvlNm() { return sellevelnm_; }
+    const BufferString		getFlattenLvlNm() { return flatlvlnm_; }
 
 protected:
 
@@ -143,7 +146,7 @@ protected:
     void	flattenMenuCB( CallBacker* );
 
     BufferStringSet		choosenlvlnms_;
-    BufferString		sellevelnm_;
+    BufferString		flatlvlnm_;
 
 };
 

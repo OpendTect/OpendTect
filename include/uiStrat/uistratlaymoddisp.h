@@ -66,12 +66,12 @@ public:
     virtual bool	canSetDisplayProperties() const	{ return false; }
 
     const Strat::LayerModel& layerModel() const;
-    const LVLZVals&	flattenLevelDepths() const;
     int			selectedSequence() const	{ return selseqidx_; }
     void		selectSequence(int seqidx);
 
     uiFlatViewer*	getViewer() { return &vwr_; }
     bool		isFlattened() const		{ return flattened_; }
+    bool		canBeFlattened() const;
     void		setFlattened(bool yn,bool trigger=true);
     bool		isFluidReplOn() const		{ return fluidreplon_; }
     void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }

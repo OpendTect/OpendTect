@@ -728,11 +728,8 @@ uiColTabSel::uiColTabSel( uiParent* p, OD::Orientation orient,
 {
     initialise( orient );
 
-    if ( !lbltxt.isEmpty() )
-    {
-	uiLabel* lbl = new uiLabel( this, lbltxt );
-	lbl->attach( leftOf, disp_ );
-    }
+    lbl_ = new uiLabel( this, lbltxt );
+    lbl_->attach( leftOf, disp_ );
 }
 
 

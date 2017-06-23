@@ -266,11 +266,8 @@ uiColSeqSel::uiColSeqSel( uiParent* p, OD::Orientation orient, uiString lbltxt )
 {
     initialise( orient );
 
-    if ( !lbltxt.isEmpty() )
-    {
-	lbl_ = new uiLabel( this, lbltxt );
-	lbl_->attach( leftOf, disp_ );
-    }
+    lbl_ = new uiLabel( this, lbltxt );
+    lbl_->attach( leftOf, disp_ );
 
     setHAlignObj( disp_ );
 }

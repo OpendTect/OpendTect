@@ -232,6 +232,7 @@ void Seis::MultiProvider::ensureRightZSampling(
 	const ZSampling trczrg = trcs[idx]->zRange();
 	const int nrpts = zsampling_.nrSteps() + 1;
 	SeisTrc trc( nrpts );
+	trc.info() = trcs[idx]->info();
 	for ( int icomp=0; icomp<trc.nrComponents(); icomp++ )
 	{
 	    if ( icomp > 0 ) trc.addComponent( nrpts );

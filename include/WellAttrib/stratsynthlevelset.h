@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "stratsynthlevel.h"
 
 
-mExpClass(WellAttrib) StratSynthLevelSet : public StratSynthLevel
+mExpClass(WellAttrib) StratSynthLevelSet
 {
 public:
     typedef TypeSet<float> LVLZVals;
@@ -38,6 +38,7 @@ public:
 				{ snapev_ = snapev; }
     void			setEmpty();
     StratSynthLevel*		getStratLevel(const int idx=0);
+    const StratSynthLevel*	getStratLevel(const int idx=0) const;
 protected:
     BufferStringSet		lvlnmset_;
     LVLZValsSet			zvals_;

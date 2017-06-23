@@ -1261,7 +1261,7 @@ static void convD2T( TypeSet<float>& zvals,
 }
 
 
-bool StratSynth::setLevelTimes( const char* sdnm )
+bool StratSynth::setLevelTimes( const Strat::Level& lvl, const char* sdnm )
 {
     RefMan<SyntheticData> sd = getSynthetic( sdnm );
     if ( !sd ) return false;
@@ -1269,7 +1269,7 @@ bool StratSynth::setLevelTimes( const char* sdnm )
     mDynamicCastGet(PostStackSyntheticData*,postsd,sd.ptr());
     if ( !postsd ) return false;
     SeisTrcBuf& tb = postsd->postStackPack().trcBuf();
-    getLevelTimes( tb, sd->zerooffsd2tmodels_ );
+    setLevelTimesInTrcs( lvl, tb, sd->zerooffsd2tmodels_ );
     return true;
 }
 
@@ -1283,46 +1283,42 @@ void StratSynth::getLevelTimes( const Strat::Level& lvl,
 }
 
 
-void StratSynth::getLevelTimes( SeisTrcBuf& trcs,
+void StratSynth::setLevelTimesInTrcs( const Strat::Level& lvl, SeisTrcBuf& trcs,
 			const ObjectSet<const TimeDepthModel>& d2ts,
 			int dispeach ) const
 {
-    if ( !stratlevelset_->size() ) return;
+    if ( !stratlevelset_ )
+	return;
 
-    for( int lvlidx=0; lvlidx< stratlevelset_->size(); lvlidx++ )
+    TypeSet<float> times;
+    getLevelTimes( lvl, d2ts, times );
+    VSEvent::Type snapev = stratlevelset_->getSnapEv();
+    for ( int idx=0; idx<trcs.size(); idx++ )
     {
-	TypeSet<float> times = stratlevelset_->getLevelZVals()[lvlidx];
-	convD2T( times, d2ts );
-
-	for ( int idx=0; idx<trcs.size(); idx++ )
+	const SeisTrc& trc = *trcs.get( idx );
+	SeisTrcPropCalc stp( trc );
+	const int d2tidx = dispeach==-1 ? idx : idx*dispeach;
+	float z = times.validIdx( d2tidx ) ? times[d2tidx] : mUdf( float );
+	trcs.get( idx )->info().zref_ = z;
+	if ( !mIsUdf( z ) && snapev != VSEvent::None )
 	{
-	    const SeisTrc& trc = *trcs.get( idx );
-	    SeisTrcPropCalc stp( trc );
-	    const int d2tidx = dispeach==-1 ? idx : idx*dispeach;
-	    float z = times.validIdx( d2tidx ) ? times[d2tidx] : mUdf( float );
-	    trcs.get( idx )->info().zref_ = z;
-	    if ( !mIsUdf( z ) && stratlevelset_->getSnapEv() != VSEvent::None )
-	    {
-		Interval<float> tg( z, trc.startPos() );
-		mFlValSerEv ev1 = stp.find( stratlevelset_->getSnapEv(),
-								      tg, 1 );
-		tg.start = z; tg.stop = trc.endPos();
-		mFlValSerEv ev2 = stp.find( stratlevelset_->getSnapEv(),
-								      tg, 1 );
-		float tmpz = ev2.pos;
-		const bool ev1invalid = mIsUdf(ev1.pos) || ev1.pos < 0;
-		const bool ev2invalid = mIsUdf(ev2.pos) || ev2.pos < 0;
-		if ( ev1invalid && ev2invalid )
-		    continue;
-		else if ( ev2invalid )
-		    tmpz = ev1.pos;
-		else if ( fabs(z-ev1.pos) < fabs(z-ev2.pos) )
-		    tmpz = ev1.pos;
+	    Interval<float> tg( z, trc.startPos() );
+	    mFlValSerEv ev1 = stp.find( snapev, tg, 1 );
+	    tg.start = z; tg.stop = trc.endPos();
+	    mFlValSerEv ev2 = stp.find( snapev, tg, 1 );
+	    float tmpz = ev2.pos;
+	    const bool ev1invalid = mIsUdf(ev1.pos) || ev1.pos < 0;
+	    const bool ev2invalid = mIsUdf(ev2.pos) || ev2.pos < 0;
+	    if ( ev1invalid && ev2invalid )
+		continue;
+	    else if ( ev2invalid )
+		tmpz = ev1.pos;
+	    else if ( fabs(z-ev1.pos) < fabs(z-ev2.pos) )
+		tmpz = ev1.pos;
 
-		z = tmpz;
-	    }
-	    trcs.get( idx )->info().pick_ = z;
+	    z = tmpz;
 	}
+	trcs.get( idx )->info().pick_ = z;
     }
 }
 

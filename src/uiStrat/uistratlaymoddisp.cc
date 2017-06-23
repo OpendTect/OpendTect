@@ -143,11 +143,14 @@ int uiStratLayerModelDisp::getFlattenLevelIdx() const
 }
 
 
-const uiStratLayerModelDisp::LVLZVals& uiStratLayerModelDisp::
-						    flattenLevelDepths() const
+bool uiStratLayerModelDisp::canBeFlattened() const
 {
-    return ( getFlattenLevelIdx() < 0 || !flattened_ ) ? lvldpths_[0]:
-					    lvldpths_[getFlattenLevelIdx()];
+    if ( getFlattenLevelIdx()<0 )
+	return false;
+    const TypeSet<float>& flatzlvls = lvldpths_[getFlattenLevelIdx()];
+    for ( int idx=0; idx<flatzlvls.size(); idx++ )
+	if ( !mIsUdf(flatzlvls[idx]) ) return true;
+    return false;
 }
 
 
