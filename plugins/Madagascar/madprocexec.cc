@@ -25,6 +25,38 @@ const char* ODMad::ProcExec::sKeyCurProc()	{ return "Current proc"; }
 mDefineEnumUtils(ODMad::ProcExec,FlowStage,"Flow Stage")
 { "Start", "Intermediate", "Finish", 0 };
 
+#ifdef __win__
+
+/* Windows needs this approach as Madagascar binaries on Windows are not native
+   Windows executables, they are Cygwin executables. */
+
+#include <fstream>
+
+std::ostream* makeOStream( const char* comm )
+{
+    BufferString cmd( comm );
+
+    FILE* fp = _popen(cmd, "w");
+    bool ispipe = true;
+    std::ostream* ostrm = 0;
+
+    if ( fp )
+    {
+	std::filebuf* fb = new std::filebuf( fp );
+	ostrm = new std::ostream(fb);
+    }
+
+    return ostrm;
+}
+
+#define mGetOStreamFromCmd(cmd) new od_ostream( makeOStream(cmd) )
+
+#else // UNIX
+
+#define mGetOStreamFromCmd(cmd) new od_ostream( cmd )
+
+#endif
+
 
 ODMad::ProcExec::ProcExec( const IOPar& iop, od_ostream& reportstrm )
     : Executor("Madagascar processing")
@@ -100,7 +132,7 @@ bool ODMad::ProcExec::init()
 	if ( FixedString(comm) == od_stream::sStdIO() )
 	    procstream_ = new od_ostream( od_stream::sStdIO() );
 	else
-	    procstream_ = new od_ostream( comm );
+	    procstream_ = mGetOStreamFromCmd( comm );
 
 	if ( !procstream_->isOK() )
 	    mErrRet(tr("Failed to create output stream"))
@@ -113,7 +145,9 @@ bool ODMad::ProcExec::init()
 	    BufferString plotcomm = "@";
 	    plotcomm += getPlotString();
 	    od_cerr() << "About to plot: " << plotcomm << od_endl;
-	    plotstream_ = new od_ostream( plotcomm.buf() );
+	    plotstream_ = mGetOStreamFromCmd( plotcomm.buf() );
+	    if ( !plotstream_->isOK() )
+		mErrRet(tr("Failed to create plot output stream"))
 	    if ( !madstream_->putHeader(*plotstream_) )
 		mErrRet(tr("Failed to put RSF header in plot stream"))
 	}
