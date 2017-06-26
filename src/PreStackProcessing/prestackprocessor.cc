@@ -408,6 +408,4 @@ bool ProcessManager::usePar( const IOPar& par )
     return true;
 }
 
-
-
 }; //namespace
