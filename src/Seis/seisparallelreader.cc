@@ -1140,7 +1140,7 @@ float Seis::RawTrcsSequence::get( int idx, int pos, int comp ) const
 
 float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
 {
-    const int sz = info_.nrsamppertrc_-1;
+    const int sz = info_.nrsamppertrc_;
     const int sampidx = info_.zsamp_.getIndex( z );
     if ( sampidx < 0 || sampidx >= sz )
 	return interpolator().udfval_;
