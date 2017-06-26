@@ -113,6 +113,7 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 			      const char* idlbl, const char* outid )
 {
+    iopar.set( IOPar::compKey( sKey::Output(), sKey::Type()), outtyp );
     BufferString key;
     BufferString tmpkey;
     mDefineStaticLocalObject( const BufferString, keybase,
