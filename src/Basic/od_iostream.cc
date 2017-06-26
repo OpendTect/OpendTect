@@ -27,6 +27,7 @@
 #include <string.h>
 
 const char* od_stream::sStdIO()	{ return StreamProvider::sStdIO(); }
+const char* od_stream::sStdErr()	{ return StreamProvider::sStdErr(); }
 
 static PtrMan<od_istream> nullistream = 0;
 
