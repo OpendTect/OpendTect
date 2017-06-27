@@ -107,6 +107,8 @@ public:
 
     void			allowShading(bool);
     const Attrib::SelSpec*	getSelSpec(int channel,int version=0) const;
+    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
+
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setSelSpecs(int attrib,
 					   const TypeSet<Attrib::SelSpec>&);
@@ -215,7 +217,7 @@ private:
     EM::PosID			findClosestNode(const Coord3&) const;
     void			createDisplayDataPacks(
 					int attrib,const DataPointSet*);
-    
+
     void			removeSectionDisplay(const EM::SectionID&);
     visBase::VisualObject*	createSection(const EM::SectionID&) const;
     bool			addSection(const EM::SectionID&,TaskRunner*);
@@ -288,9 +290,9 @@ private:
     bool			isValidIntersectionObject(
 				   const ObjectSet<const SurveyObject>&,
 				   int& objidx,int objid) const;
-				/*!<Check if the active object is one of 
+				/*!<Check if the active object is one of
 				planedata, z-slice, 2dline,..., if it is
-				get the the idx in the stored object 
+				get the the idx in the stored object
 				collection.*/
     ManagedObjectSet<IntersectionData>	intersectiondata_;
     					//One per object we intersect with

@@ -247,8 +247,8 @@ unsigned char MultiTextureSurveyObject::getAttribTransparency(int attrib) const
 }
 
 
-const TypeSet<Attrib::SelSpec>* MultiTextureSurveyObject::getSelSpecs(
-							int attrib ) const
+const TypeSet<Attrib::SelSpec>*
+	MultiTextureSurveyObject::getSelSpecs( int attrib ) const
 {
     return as_.validIdx(attrib) ? as_[attrib] : 0;
 }
@@ -433,10 +433,10 @@ void MultiTextureSurveyObject::selectTexture( int attrib, int idx )
 {
     if ( !as_.validIdx(attrib) || idx<0 )
 	return;
-    
+
     if ( idx>=channels_->nrVersions(attrib) )
 	return;
-    
+
     channels_->setCurrentVersion( attrib, idx );
 }
 
