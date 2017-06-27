@@ -741,10 +741,11 @@ Seis::SequentialFSLoader::SequentialFSLoader( const IOObj& ioobj,
 
 Seis::SequentialFSLoader::~SequentialFSLoader()
 {
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
+
     delete prov_;
     delete trcsiterator3d_;
     delete trcssampling_;
-    Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
 
@@ -759,8 +760,7 @@ bool Seis::SequentialFSLoader::goImpl( od_ostream* strm, bool first, bool last,
 				       int delay )
 {
     const bool success = Executor::goImpl( strm, first, last, delay );
-    if  ( !success )
-	Threads::WorkManager::twm().emptyQueue( queueid_, true );
+    Threads::WorkManager::twm().emptyQueue( queueid_, success );
 
     return success;
 }
@@ -938,6 +938,7 @@ int Seis::SequentialFSLoader::nextStep()
     if ( databuf ) databuf->setPositions( *tks );
     if ( !databuf || !databuf->isOK() )
     {
+	if ( !databuf ) delete tks;
 	delete databuf;
 	msg_ = tr("Cannot allocate trace data");
 	return ErrorOccurred();
@@ -957,11 +958,10 @@ int Seis::SequentialFSLoader::nextStep()
     const TypeSet<int>& outcomponents = outcomponents_
 				      ? *outcomponents_ : components_;
 
-    nrdone_ += databuf->nrPositions();
-
     Task* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
 				  needresampling_, components_, compscalers_,
 				   outcomponents, *dp_, (*tks)[0].is2D() );
+    nrdone_ += databuf->nrPositions();
     Threads::WorkManager::twm().addWork(
 		Threads::Work(*task,true), 0, queueid_, false, false, true );
 

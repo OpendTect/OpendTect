@@ -722,17 +722,30 @@ DataBuffer::buf_type* Seis::RawTrcsSequence::getData( int ipos, int icomp,
 void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 {
     int pos = ipos ? *ipos : -1;
-    if ( !ipos && tks_ )
+    if ( tks_ )
     {
-	for ( int idx=0; idx<nrpos_; idx++ )
+	if ( !ipos )
 	{
-	    if ( trc.info().trckey_ != (*tks_)[idx] )
-		continue;
+	    for ( int idx=0; idx<nrpos_; idx++ )
+	    {
+		if ( trc.info().trckey_ != (*tks_)[idx] )
+		{
+		    pErrMsg("wrong position");
+		    continue;
+		}
 
-	    pos = idx;
-	    break;
+		pos = idx;
+		break;
+	    }
 	}
     }
+#ifdef __debug__
+    else
+    {
+	if ( trc.info().trckey_ != (*tks_)[*ipos] )
+	    pErrMsg("wrong position");
+    }
+#endif
 
     DataBuffer::buf_type* out = getData( pos, 0 );
     const od_int64 nrbytes = info_.nrdatabytespespercomptrc_;
