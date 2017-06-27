@@ -181,6 +181,7 @@ void Seis::Fetcher2D::reset()
 {
     Fetcher::reset();
     curlidx_ = -1;
+    deleteAndZeroPtr( iter_ );
     deepErase( line2ddata_ );
     openDataSet();
     if ( !dataset_ )
@@ -195,7 +196,7 @@ void Seis::Fetcher2D::reset()
 	line2ddata_ += l2dd;
 
 	const TypeSet<PosInfo::Line2DPos>& positions = l2dd->positions();
-	for ( int idx=0; idx<positions.size(); idx++ )
+	for ( int idx=positions.size()-1; idx>=0; idx-- )
 	{
 	    const int trcnr = positions[idx].nr_;
 	    if ( !isSelectedBinID(BinID(geomid,trcnr)) )

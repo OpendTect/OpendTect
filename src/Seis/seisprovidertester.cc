@@ -303,6 +303,8 @@ void Seis::ProviderTester::testComponentSelection( bool currenttrc )
 
 void Seis::ProviderTester::testIOParUsage( bool currenttrc )
 {
+    if ( !prov_ ) return;
+    
     od_cout() << "IOPar usage:" << od_endl;
 
     mResetIfNotCurrentTrc( currenttrc );

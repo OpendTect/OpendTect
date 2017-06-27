@@ -70,7 +70,6 @@ public:
 			: zrg_(l2d.zRange())
 			, lnm_(l2d.lineName())
 			, posns_(l2d.positions()){}
-			~Line2DData()			{}
 
     const StepInterval<float>& zRange() const		{ return zrg_; }
     const OD::String&	lineName() const		{ return lnm_; }

@@ -13,6 +13,8 @@ set(OD_TEST_PROGS
 	seiskeytracker.cc
 )
 
+set( OD_NIGHTLY_TEST_PROGS seisprovider.cc )
+
 set(OD_MODULE_SOURCES
 	initseis.cc
 	offsetazimuth.cc
