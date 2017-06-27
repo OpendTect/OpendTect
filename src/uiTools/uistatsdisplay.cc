@@ -104,7 +104,6 @@ void uiStatsDisplay::setDataName( const char* nm )
 bool uiStatsDisplay::setDataPackID(
 	DataPack::ID dpid, DataPackMgr::ID dmid, int version )
 {
-    TypeSet<float> valarr;
     if ( !histgramdisp_ || (histgramdisp_ &&
 		!histgramdisp_->setDataPackID(dpid,dmid,version)) )
     {
@@ -127,7 +126,30 @@ bool uiStatsDisplay::setDataPackID(
 	    if ( !arr3d ) return false;
 
 	    const float* array = arr3d->getData();
-	    rc.setValues( array, mCast(int,arr3d->info().getTotalSz()) );
+	    if ( array )
+		rc.setValues( array, mCast(int,arr3d->info().getTotalSz()) );
+	    else
+	    {
+		TypeSet<float> valarr;
+		valarr.setCapacity(mCast(int,arr3d->info().getTotalSz()),false);
+		const int sz0 = arr3d->info().getSize( 0 );
+		const int sz1 = arr3d->info().getSize( 1 );
+		const int sz2 = arr3d->info().getSize( 2 );
+		for ( int idx=0; idx<sz0; idx++ )
+		{
+		    for ( int idy=0; idy<sz1; idy++ )
+		    {
+			for ( int idz=0; idz<sz2; idz++ )
+			{
+			    const float val = arr3d->get( idx, idy, idz );
+			    if ( !mIsUdf(val) )
+				valarr += val;
+			}
+		    }
+		}
+
+		rc.setValues( valarr.arr(), valarr.size() );
+	    }
 	}
 	else if ( dmid == DataPackMgr::FlatID() )
 	{
@@ -147,6 +169,8 @@ bool uiStatsDisplay::setDataPackID(
 				mCast(int,array->info().getTotalSz()) );
 	    else
 	    {
+		TypeSet<float> valarr;
+		valarr.setCapacity(mCast(int,array->info().getTotalSz()),false);
 		const int sz2d0 = array->info().getSize( 0 );
 		const int sz2d1 = array->info().getSize( 1 );
 		for ( int idx0=0; idx0<sz2d0; idx0++ )
@@ -169,6 +193,8 @@ bool uiStatsDisplay::setDataPackID(
 	    if ( !dpset )
 		return false;
 
+	    TypeSet<float> valarr;
+	    valarr.setCapacity( dpset->size(), false );
 	    for ( int idx=0; idx<dpset->size(); idx++ )
 		valarr += dpset->value( 2, idx );
 
