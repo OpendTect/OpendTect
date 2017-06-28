@@ -423,7 +423,7 @@ bool uiODHorizonTreeItem::init()
     }
 
     if ( rgba_ )
-	selectRGBA();
+	selectRGBA( mUdfGeomID );
 
     return res;
 }

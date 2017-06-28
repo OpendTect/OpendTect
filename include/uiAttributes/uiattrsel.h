@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uiiosel.h"
 #include "attribdescid.h"
 #include "datapack.h"
+#include "survgeom.h"
 
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
 namespace ZDomain { class Info; }
@@ -52,7 +53,7 @@ public:
     bool			is2D() const;
     const Attrib::DescSet&	attrSet() const		{ return *attrset_; }
     void			setAttrSet( const Attrib::DescSet* ds )
-						    { if ( ds ) attrset_ = ds; }
+						{ if ( ds ) attrset_ = ds; }
     void			fillSelSpec(Attrib::SelSpec&) const;
 
 protected:
@@ -85,12 +86,14 @@ public:
 		    , ignoreid_(Attrib::DescID::undef())
 		    , isinp4otherattrib_(false)
 		    , showsteeringdata_(false)
+		    , geomid_(mUdfGeomID)
 		{}
 
 		mDefSetupMemb(uiString,seltxt)
 		mDefSetupMemb(Attrib::DescID,ignoreid)
 		mDefSetupMemb(bool,isinp4otherattrib)
 		mDefSetupMemb(bool,showsteeringdata)
+		mDefSetupMemb(Pos::GeomID,geomid)
     };
 
 			uiAttrSelDlg(uiParent*,const uiAttrSelData&,
@@ -104,7 +107,7 @@ public:
     Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
 			//!< -1 if not selected
     int			outputNr() const	{ return attrdata_.outputnr_; }
-    			//!< -1 if not selected
+			//!< -1 if not selected
     int			compNr() const		{ return attrdata_.compnr_; }
 			//!< -1 if not selected
     const char*		zDomainKey() const;
@@ -122,6 +125,7 @@ protected:
     bool		in_action_;
     bool		showsteerdata_;
     BufferString	zdomainkey_;
+    Pos::GeomID		geomid_;
 
     TypeSet<DataPack::FullID> dpfids_;
     MultiID		insertedobjmid_;
@@ -155,7 +159,7 @@ protected:
     void		selDone(CallBacker*);
     void		filtChg(CallBacker*);
     void		cubeSel(CallBacker*);
-    void                objInserted(CallBacker*);
+    void		objInserted(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
 };
 
@@ -194,6 +198,9 @@ public:
     void		setIgnoreDesc(const Attrib::Desc*);
     void		setIgnoreID( Attrib::DescID id ) { ignoreid_ = id; }
     void		setPossibleDataPacks(const TypeSet<DataPack::FullID>&);
+    void		showSteeringData( bool yn )	{ showsteeringdata_=yn;}
+    void		setGeomID( Pos::GeomID id )	{ geomid_ = id; }
+    Pos::GeomID		getGeomID() const		{ return geomid_; }
 
     virtual void	getHistory(const IOPar&);
     virtual void	processInput();
@@ -218,6 +225,8 @@ protected:
     BufferString	errmsg_;
     mutable BufferString usrnm_;
     int			seltype_;
+    bool		showsteeringdata_;
+    Pos::GeomID		geomid_;
 
     TypeSet<DataPack::FullID> dpfids_;
 

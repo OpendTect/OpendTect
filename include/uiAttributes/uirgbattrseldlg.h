@@ -21,7 +21,8 @@ class uiAttrSel;
 mExpClass(uiAttributes) uiRGBAttrSelDlg : public uiDialog
 { mODTextTranslationClass(uiRGBAttrSelDlg);
 public:
-			uiRGBAttrSelDlg(uiParent*,const Attrib::DescSet&);
+			uiRGBAttrSelDlg(uiParent*,const Attrib::DescSet&,
+					Pos::GeomID);
 			~uiRGBAttrSelDlg();
 
     void		setSelSpec(const TypeSet<Attrib::SelSpec>&);

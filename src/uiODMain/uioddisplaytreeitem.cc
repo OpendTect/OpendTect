@@ -279,12 +279,11 @@ bool uiODDisplayTreeItem::displayedOnlyAtSections() const
 { return visserv_->displayedOnlyAtSections( displayid_ ); }
 
 
-void uiODDisplayTreeItem::selectRGBA()
+void uiODDisplayTreeItem::selectRGBA( const Pos::GeomID& geomid )
 {
     if ( !applMgr() || !applMgr()->attrServer() )
 	return;
 
-    Pos::GeomID geomid = mUdfGeomID; // TODO: 
     TypeSet<Attrib::SelSpec> rgbaspecs( 4, Attrib::SelSpec() );
     for ( int idx=0; idx<4; idx++ )
     {
@@ -374,8 +373,8 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 				 visserv_->canHaveMultipleAttribs(displayid_);
     if ( visserv_->hasMaterial(displayid_) || hasmultiattribs )
     {
-        mAddMenuItem( menu, &displaymnuitem_, true, false );
-        displaymnuitem_.removeItems();
+	mAddMenuItem( menu, &displaymnuitem_, true, false );
+	displaymnuitem_.removeItems();
     }
 
     if ( hasmultiattribs )

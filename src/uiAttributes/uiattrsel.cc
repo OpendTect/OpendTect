@@ -130,8 +130,9 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 	, zdomoutfld_(0) \
 	, in_action_(false) \
 	, showsteerdata_(stp.showsteeringdata_) \
-	, usedasinput_(stp.isinp4otherattrib_)\
-	, insertedobjmid_(MultiID::udf())
+	, usedasinput_(stp.isinp4otherattrib_) \
+	, insertedobjmid_(MultiID::udf()) \
+	, geomid_(stp.geomid_)
 
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
@@ -300,7 +301,7 @@ void uiAttrSelDlg::createSelectionButtons()
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
 	zdomainfld_ = new uiRadioButton( selgrp_,
-			           toUiString(attrdata_.zdomaininfo_->key()) );
+				   toUiString(attrdata_.zdomaininfo_->key()) );
 	zdomainfld_->setSensitive( !nms.isEmpty() );
 	zdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
@@ -472,7 +473,14 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     compfld_->box()->setCurrentItem(0);
     const MultiID key( ioobjkey.buf() );
     BufferStringSet compnms;
-    SeisIOObjInfo::getCompNames( key, compnms );
+    if ( is2d )
+    {
+	SeisIOObjInfo info( key );
+	info.getComponentNames( compnms, geomid_ );
+    }
+    else
+	SeisIOObjInfo::getCompNames( key, compnms );
+
     compfld_->box()->setEmpty();
     compfld_->box()->addItem( uiStrings::sAll() );
     compfld_->box()->addItems( compnms );
@@ -630,7 +638,9 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
     , usedasinput_(isinp4otherattrib)
+    , showsteeringdata_(false)
     , seltype_(-1)
+    , geomid_(mUdfGeomID)
 {
     attrdata_.attribid_ = curid;
     updateInput();
@@ -646,7 +656,9 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
     , attrdata_(ad)
     , ignoreid_(DescID::undef())
     , usedasinput_(isinp4otherattrib)
+    , showsteeringdata_(false)
     , seltype_(-1)
+    , geomid_(mUdfGeomID)
 {
     updateInput();
     inp_->setEditable( true );
@@ -770,7 +782,8 @@ bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
 void uiAttrSel::doSel( CallBacker* )
 {
     uiAttrSelDlg::Setup setup( lbl_ ? lbl_->text() : cDefLabel() );
-    setup.ignoreid(ignoreid_).isinp4otherattrib(usedasinput_);
+    setup.ignoreid(ignoreid_).isinp4otherattrib(usedasinput_)
+	 .showsteeringdata(showsteeringdata_);
     uiAttrSelDlg dlg( this, attrdata_, dpfids_, setup );
     if ( dlg.go() )
     {
@@ -881,7 +894,7 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
     if ( !inpdesc || inpdesc->isStored() )
     {
 	Attrib::SelSpec* tmpss = new Attrib::SelSpec(0,Attrib::DescID::undef());
-        setSelSpec( tmpss );	//only to reset attrdata_.attribid_=-1
+	setSelSpec( tmpss );	//only to reset attrdata_.attribid_=-1
 	delete tmpss;
     }
 

@@ -226,13 +226,11 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	applMgr()->seisServer()->select2DLines( geomids, action );
 	const bool rgba = action==3;
 
-	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	{
 	    setMoreObjectsToDoHint( idx>0 );
 	    addChild( new uiOD2DLineTreeItem(geomids[idx],-1,rgba), false );
 	}
-	cursorchgr.restore();
 
 	if ( action==0 || geomids.isEmpty() ) return true;
 
@@ -240,12 +238,6 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	    loadDefaultData();
 	else if ( action==2 )
 	    selectLoadAttribute( geomids );
-
-	if ( rgba )
-	{
-	    for ( int attridx=0; attridx<4; attridx++ )
-		selectLoadAttribute( geomids, sKeyRightClick(), attridx );
-	}
     }
     else if ( mnuid == mGridFrom3D )
 	ODMainWin()->applMgr().create2DGrid();
@@ -579,6 +571,9 @@ bool uiOD2DLineTreeItem::init()
     if ( applMgr() )
 	applMgr()->getOtherFormatData.notify(
 	    mCB(this,uiOD2DLineTreeItem,getNewData) );
+
+    if ( rgba_ )
+	selectRGBA( geomid_ );
 
     return uiODDisplayTreeItem::init();
 }
