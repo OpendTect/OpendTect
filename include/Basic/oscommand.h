@@ -163,6 +163,7 @@ protected:
 				  bool createstreams=false );
     int			catchError();
     bool		startDetached(const char*,bool inconsole=false);
+    bool		startProgressViewer(const char* prgcmd, const char* pr);
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
