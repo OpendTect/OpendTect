@@ -181,8 +181,8 @@ void uiODDataTreeItem::addToToolBarCB( CallBacker* cb )
 	return;
 
     createMenu( tb, true );
-    bool enab = !visserv_->isLocked(displayID()) &&
-			visserv_->canRemoveDisplay(displayID());
+    const bool enab = !visserv_->isLocked(displayID()) &&
+			visserv_->canRemoveAttrib(displayID());
     mAddMenuItem( tb, &removemnuitem_, enab, false );
 }
 
@@ -264,7 +264,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &fkspectrumitem_ )
     }
 
-    const bool enab = !islocked && visserv_->canRemoveDisplay( displayID());
+    const bool enab = !islocked && visserv_->canRemoveAttrib( displayID());
     mAddMenuOrTBItem( istb, 0, menu, &removemnuitem_, enab, false );
 
     if ( visserv_->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu())
