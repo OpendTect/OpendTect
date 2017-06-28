@@ -159,7 +159,6 @@ void uiProgressViewer::handleProcessStatus()
 
     if ( procstatus_ == None )
     {
-	txtfld_->stopTimer();
 	sleepSeconds( 1 );
 	strm_.reOpen();
 	BufferString lines;
