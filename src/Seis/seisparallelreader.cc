@@ -701,14 +701,14 @@ Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
 
 Seis::SequentialReader::~SequentialReader()
 {
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
+
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
     delete &rdr_; delete ioobj_;
     delete scaler_;
     delete seissummary_;
     delete trcssampling_;
     delete trcsiterator3d_;
-
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
-    Threads::WorkManager::twm().removeQueue( queueid_, false );
 
     deepErase( compscalers_ );
 }
@@ -724,8 +724,7 @@ bool Seis::SequentialReader::goImpl( od_ostream* strm, bool first, bool last,
 				     int delay )
 {
     const bool success = Executor::goImpl( strm, first, last, delay );
-    if ( !success )
-	Threads::WorkManager::twm().emptyQueue( queueid_, true );
+    Threads::WorkManager::twm().emptyQueue( queueid_, success );
 
     return success;
 }
@@ -1010,18 +1009,18 @@ int Seis::SequentialReader::nextStep()
     if ( databuf ) databuf->setPositions( *tks );
     if ( !databuf || !databuf->isOK() || !fillTrcsBuffer(rdr_,*databuf) )
     {
+	if ( !databuf ) delete tks;
 	delete databuf;
 	msg_ = tr("Cannot allocate trace data");
 	return ErrorOccurred();
     }
-
-    nrdone_ += databuf->nrPositions();
 
     const TypeSet<int>& outcomponents = !outcomponents_.isEmpty()
 				      ? outcomponents_ : components_;
     Task* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
 				  needresampling_, components_,
 				  compscalers_, outcomponents, *dp_, is2d_ );
+    nrdone_ += databuf->nrPositions();
     Threads::WorkManager::twm().addWork(
 		Threads::Work(*task,true), 0, queueid_, false, false, true );
 
@@ -1191,16 +1190,29 @@ unsigned char* Seis::RawTrcsSequence::getData( int ipos, int icomp, int is )
 void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 {
     int pos = ipos ? *ipos : -1;
-    if ( !ipos && tks_ )
+    if ( tks_ )
     {
-	for ( int idx=0; idx<nrpos_; idx++ )
+	if ( !ipos )
 	{
-	    if ( trc.info().binID() != (*tks_)[idx].position() )
-		continue;
+	    for ( int idx=0; idx<nrpos_; idx++ )
+	    {
+		if ( trc.info().binID() != (*tks_)[idx].position() )
+		{
+		    pErrMsg("wrong position");
+		    continue;
+		}
 
-	    pos = idx;
-	    break;
+		pos = idx;
+		break;
+	    }
 	}
+#ifdef __debug__
+	else
+	{
+	    if ( trc.info().binID() != (*tks_)[*ipos].position() )
+		pErrMsg("wrong position");
+	}
+#endif
     }
 
     unsigned char* out = getData( pos, 0 );
