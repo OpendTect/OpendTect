@@ -229,7 +229,7 @@ bool LocationDisplay::displayedOnlyAtSections() const
 
 void LocationDisplay::pickCB( CallBacker* cb )
 {
-    if ( set_->isReadOnly() )
+    if ( !set_ || set_->isReadOnly() )
 	return;
 
     if ( !isSelected() || !isOn() || isLocked() ) return;
