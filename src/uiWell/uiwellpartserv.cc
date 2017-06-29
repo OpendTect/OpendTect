@@ -89,13 +89,13 @@ uiWellPartServer::~uiWellPartServer()
 
 void uiWellPartServer::survChangedCB( CallBacker* )
 {
-    delete manwelldlg_; manwelldlg_ = 0;
-    delete impsimpledlg_; impsimpledlg_ = 0;
-    delete impbulktrackdlg_; impbulktrackdlg_ = 0;
-    delete impbulklogdlg_; impbulklogdlg_ = 0;
-    delete impbulkmrkrdlg_; impbulkmrkrdlg_ = 0;
-    delete impbulkd2tdlg_; impbulkd2tdlg_ = 0;
-    delete rdmlinedlg_; rdmlinedlg_ = 0;
+    deleteAndZeroPtr( manwelldlg_ );
+    deleteAndZeroPtr( impsimpledlg_ );
+    deleteAndZeroPtr( impbulktrackdlg_ );
+    deleteAndZeroPtr( impbulklogdlg_ );
+    deleteAndZeroPtr( impbulkmrkrdlg_ );
+    deleteAndZeroPtr( impbulkd2tdlg_ );
+    deleteAndZeroPtr( rdmlinedlg_ );
     deepErase( wellpropdlgs_ );
 }
 
