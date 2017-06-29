@@ -54,7 +54,7 @@ public:
     const char*		fileName() const	{ return fn; }
     void		getFileNames(BufferStringSet&) const;
 
-    void		setMode( Mode m)	{ mode_=m; }
+    void		setMode( Mode m )	{ mode_ = m; }
     Mode		mode() const		{ return mode_; }
 
     void		setSelectedFilter(const char* fltr)
@@ -76,9 +76,9 @@ public:
 
     static const char*	filesep_;
 
-    static void		list2String(const BufferStringSet&,
+    static void		joinFileNamesIntoSingleString(const BufferStringSet&,
 				    BufferString&);
-    static void		string2List(const BufferString&,
+    static void		separateFileNamesFromSingleString(const BufferString&,
 				    BufferStringSet&);
 
 			// To be used by cmddriver to select filename(s)

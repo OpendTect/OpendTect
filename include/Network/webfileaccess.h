@@ -20,6 +20,7 @@ ________________________________________________________________________
 mExpClass(Network) HttpFileAccess : public File::SystemAccess
 { mODTextTranslationClass(HttpFileAccess);
 public:
+
     virtual bool	exists(const char*,bool forread) const;
     virtual bool	isReadable(const char*) const;
     virtual bool	isFile(const char*) const;
@@ -39,18 +40,18 @@ public:
 
     virtual StreamData	createOStream(const char*,
 				      bool binary,bool editmode) const;
-
     virtual StreamData	createIStream(const char*,bool binary) const;
 
     static void		initClass();
-    static const char*	sFactoryKeyword() { return "http"; }
-    static uiString	sFactoryDisplayName() { return tr("Web file"); }
+    static const char*	sFactoryKeyword()	{ return "http"; }
+    static uiString	sFactoryDisplayName()	{ return tr("Web file"); }
 
-    virtual const char* factoryKeyword() const { return sFactoryKeyword(); }
+    virtual const char* factoryKeyword() const	{ return sFactoryKeyword(); }
     virtual uiString	factoryDisplayName() const
 			{ return sFactoryDisplayName(); }
 
-
 private:
+
     static SystemAccess* createInstance() { return new HttpFileAccess; }
+
 };

@@ -29,7 +29,7 @@ uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p,
     survsel_ = new uiSurveySelect( this );
 
     uiListBox::Setup lbsu( OD::ChooseOnlyOne,
-	    		   toUiString(ctxt.objectTypeName()) );
+			   toUiString(ctxt.objectTypeName()) );
     objfld_ = new uiListBox( this, lbsu );
     objfld_->setHSzPol( uiObject::WideVar );
     objfld_->setStretch( 2, 2 );
@@ -56,6 +56,7 @@ void uiSelObjFromOtherSurvey::survSelCB( CallBacker* )
     BufferStringSet objnms;
     deepErase( ioobjs_ );
     DBDirIter iter( *dbdir );
+    ObjectSet<IOObj> objs;
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();
@@ -63,12 +64,21 @@ void uiSelObjFromOtherSurvey::survSelCB( CallBacker* )
 	{
 	    IOObj* toadd = ioobj.clone();
 	    toadd->setAbsDirectory( datadirnm );
-	    ioobjs_ += toadd;
+	    objs += toadd;
 	    objnms.add( toadd->name() );
 	}
     }
 
     objfld_->setEmpty();
+    if ( objnms.isEmpty() )
+	return;
+
+    BufferStringSet::size_type* idxs = objnms.getSortIndexes();
+    objnms.useIndexes( idxs );
+    for ( int idx=0; idx<objs.size(); idx++ )
+	ioobjs_ += objs[ idxs[idx] ];
+    delete [] idxs;
+
     objfld_->addItems( objnms.getUiStringSet() );
     if ( !objnms.isEmpty() )
 	objfld_->setCurrentItem( 0 );

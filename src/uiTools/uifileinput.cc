@@ -234,9 +234,8 @@ void uiFileInput::doSelect( CallBacker* )
     {
 	BufferStringSet filenames;
 	dlg->getFileNames( filenames );
-	uiFileDialog::list2String( filenames, newfname );
+	uiFileDialog::joinFileNamesIntoSingleString( filenames, newfname );
 	setFileName( newfname );
-	filenames.setEmpty();
     }
     else
     {
@@ -287,7 +286,7 @@ const char* uiFileInput::fileName() const
 void uiFileInput::getFileNames( BufferStringSet& list ) const
 {
     BufferString string = text();
-    uiFileDialog::string2List( string, list );
+    uiFileDialog::separateFileNamesFromSingleString( string, list );
 }
 
 

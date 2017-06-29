@@ -24,6 +24,7 @@ mExpClass(uiSeis) uiSeisImpCubeFromOtherSurveyDlg : public uiDialog
 public:
 
 			uiSeisImpCubeFromOtherSurveyDlg(uiParent*);
+			~uiSeisImpCubeFromOtherSurveyDlg();
 
 protected:
 

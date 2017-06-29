@@ -179,7 +179,10 @@ bool SeisCubeImpFromOtherSurvey::createReader( const char* mainfilenm )
 int SeisCubeImpFromOtherSurvey::nextStep()
 {
     if ( !data_.hsit_->next() )
+    {
+	delete wrr_; wrr_ = 0; // close stuff asap
 	return Executor::Finished();
+    }
 
     if ( !cbvstr_ && !rdr_ )
 	return Executor::ErrorOccurred();

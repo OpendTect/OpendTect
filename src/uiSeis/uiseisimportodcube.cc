@@ -53,7 +53,7 @@ uiSeisImportODCube::uiSeisImportODCube( uiParent* p )
     setCtrlStyle( RunAndClose );
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.filter("Blocks (*.blocks); CBVS (*.cbvs)")
+    fisu.filter("OpendTect seismic files (*.blocks *.cbvs)")
 		.defseldir( GetBaseDataDir() );
     inpfld_ = new uiFileInput( this, tr("(First) file name"), fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSeisImportODCube,inpSel) );

@@ -35,12 +35,10 @@ uiSeisImpCubeFromOtherSurveyDlg::uiSeisImpCubeFromOtherSurveyDlg( uiParent* p )
 {
     setCtrlStyle( RunAndClose );
 
-    finpfld_ = new uiGenInput( this, tr("File name") );
+    finpfld_ = new uiGenInput( this, uiStrings::sFileName(), FileNameInpSpec());
     finpfld_->setReadOnly();
     CallBack cb = mCB(this,uiSeisImpCubeFromOtherSurveyDlg,cubeSel);
-    uiPushButton* selbut = new uiPushButton( this,
-				m3Dots(uiStrings::sSelect()),
-				 cb, true );
+    uiButton* selbut = uiButton::getStd( this, OD::Select, cb, true );
     selbut->attach( rightOf, finpfld_ );
 
     subselfld_ = new uiSeis3DSubSel( this, Seis::SelSetup( false ) );
@@ -71,6 +69,12 @@ uiSeisImpCubeFromOtherSurveyDlg::uiSeisImpCubeFromOtherSurveyDlg( uiParent* p )
     outfld_->attach( ensureBelow, sep2 );
 
     interpSelDone(0);
+}
+
+
+uiSeisImpCubeFromOtherSurveyDlg::~uiSeisImpCubeFromOtherSurveyDlg()
+{
+    delete import_;
 }
 
 

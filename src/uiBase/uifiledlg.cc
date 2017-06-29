@@ -36,13 +36,9 @@ class ODFileDialog : public QFileDialog
 public:
 
 ODFileDialog( const QString& dirname, const QString& fltr=QString::null,
-	      QWidget* p=0, const char* caption=0, bool modal=false )
+	      QWidget* p=0, const char* caption=0 )
     : QFileDialog(p,caption,dirname,fltr)
-{ setModal( modal ); }
-
-ODFileDialog( QWidget* p=0, const char* caption=0, bool modal=false )
-    : QFileDialog(p,caption)
-{ setModal( modal ); }
+{ setModal( true ); }
 
 };
 
@@ -177,7 +173,7 @@ int uiFileDialog::go()
     const BufferString utfwintitle( caption_.getFullString(), addendum );
     int refnr = beginCmdRecEvent( utfwintitle.buf() );
     PtrMan<ODFileDialog> fd = new ODFileDialog( QString(dirname), QString(flt),
-					 qparent, "File dialog", true );
+					 qparent, "File dialog" );
     fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
 				: QFileDialog::AcceptSave );
@@ -241,7 +237,7 @@ void uiFileDialog::getFileNames( BufferStringSet& fnms ) const
 }
 
 
-void uiFileDialog::list2String( const BufferStringSet& list,
+void uiFileDialog::joinFileNamesIntoSingleString( const BufferStringSet& list,
 				BufferString& string )
 {
     QStringList qlist;
@@ -252,8 +248,8 @@ void uiFileDialog::list2String( const BufferStringSet& list,
 }
 
 
-void uiFileDialog::string2List( const BufferString& string,
-				BufferStringSet& list )
+void uiFileDialog::separateFileNamesFromSingleString(
+			const BufferString& string, BufferStringSet& list )
 {
     QString qstr( string.buf() );
     QStringList qlist = qstr.split( (QString)filesep_ );
