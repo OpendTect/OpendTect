@@ -283,7 +283,7 @@ void uiPluginSel::createUI()
     }
 
     treefld_->expandAll();
-    treefld_->setPrefHeightInChar( height+1 );
+    treefld_->setPrefHeightInChar( height ? height+1 : height );
 }
 
 
