@@ -11,8 +11,8 @@ ________________________________________________________________________
 #include "filesystemaccess.h"
 #include "file.h"
 #include "filepath.h"
+#include "winutils.h"
 #include "genc.h"
-# include <fstream>
 
 #ifdef __win__
 # include <direct.h>
@@ -21,6 +21,8 @@ ________________________________________________________________________
 # include "sys/stat.h"
 # include <unistd.h>
 #endif
+
+# include <fstream>
 
 #ifndef OD_NO_QT
 # include <QDateTime>
@@ -424,7 +426,7 @@ od_int64 File::LocalFileSystemAccess::getFileSize( const char* uri,
     {
 	od_int64 filesize = 0;
 #ifdef __win__
-	HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
+	HANDLE file = CreateFile( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
 				  FILE_ATTRIBUTE_NORMAL, NULL );
 	filesize = GetFileSize( file, NULL );
 	CloseHandle( file );

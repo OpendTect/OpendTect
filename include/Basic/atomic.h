@@ -56,13 +56,15 @@ public:
  value of 'val'.
  */
 
-inline bool atomicSetIfValueIs( volatile int& val, int curval, int newval,
-			       int* actualvalptr = 0 )
+mGlobal(Basic) inline
+bool atomicSetIfValueIs( volatile int& val, int curval, int newval,
+			 int* actualvalptr )
 {
 # ifdef __win__
-    const int oldval =InterlockedCompareExchange( (volatile long*) &val, newval,
-                                                 curval );
-    if ( oldval!=curval )
+
+    const int oldval = InterlockedCompareExchange( (volatile long*)&val, newval,
+						   curval );
+    if ( oldval != curval )
     {
 	if ( actualvalptr ) *actualvalptr = oldval;
         return false;
@@ -71,14 +73,16 @@ inline bool atomicSetIfValueIs( volatile int& val, int curval, int newval,
     return true;
 
 # else
-    const int old = __sync_val_compare_and_swap( &val, curval, newval );
-    if ( old!=curval )
+
+    const int oldval = __sync_val_compare_and_swap( &val, curval, newval );
+    if ( oldval != curval )
     {
-	if ( actualvalptr ) *actualvalptr = old;
+	if ( actualvalptr ) *actualvalptr = oldval;
         return false;
     }
 
     return true;
+
 #endif
 }
 
@@ -147,13 +151,13 @@ public:
 
 protected:
     Atomic<void*>		lockingthread_;
-    				/*!<0 if unlocked, otherwise set to locking
+				/*!<0 if unlocked, otherwise set to locking
 				      thread */
     Atomic<int>			count_;
     bool			recursive_;
 
 public:
-    int				count() const 	{ return count_; }
+    int				count() const	{ return count_; }
 				/*!<Only for debugging.  */
 };
 

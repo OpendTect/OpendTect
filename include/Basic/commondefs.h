@@ -211,12 +211,7 @@ mUnlockStaticInitLock( static##var##lck__ );
 
 namespace Threads
 {
-#if mODVersion < 700
-    mGlobal(Basic) bool atomicSetIfValueIs(volatile int&,int,int,int* );
-    //Force developer to use three arguments
-#else
-    mGlobal(Basic) bool atomicSetIfValueIs(volatile int&,int,int,int* = 0 );
-#endif
+    mGlobal(Basic) bool atomicSetIfValueIs(volatile int&,int,int,int* =0);
 }
 
 //! Macro that does something except the very first time reached. The header file atomic.h must be included as it defines Threads::atomicSetIfValueIs.
