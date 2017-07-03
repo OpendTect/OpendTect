@@ -113,10 +113,12 @@ bool GriddedFunction::fetchSources()
 
     TypeSet<double> weights;
     TypeSet<int> usedpoints;
+    mDynamicCastGet(InverseDistanceGridder2D*,invdistgridder,gridder_)
     mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
     if ( gridderpoints )
     {
-	if ( rbfgridder )
+	if ( ( invdistgridder && mIsUdf(invdistgridder->getSearchRadius()) ) ||
+		rbfgridder )
 	{
 	    const TypeSet<Coord>::size_type nrpoints = gridderpoints->size();
 	    for ( TypeSet<Coord>::size_type idx=0; idx<nrpoints; idx++ )
