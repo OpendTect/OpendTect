@@ -71,12 +71,12 @@ if ( !tester.testPreLoad(tkzs) ) \
 if ( !tester.testPreLoadTrc(currenttrc) ) \
     return false;
 
-#define mTestIOParUsage() \
-if ( !tester.testIOParUsage() ) \
+#define mTestIOParUsage( currenttrc ) \
+if ( !tester.testIOParUsage(currenttrc) ) \
     return false;
 
-#define mTestComponentSelection() \
-if ( !tester.testComponentSelection() ) \
+#define mTestComponentSelection( currenttrc ) \
+if ( !tester.testComponentSelection(currenttrc) ) \
     return false;
 
 static bool testVol()
@@ -98,7 +98,7 @@ static bool testVol()
 	    	       "Subselection to outside data range", true );
     mTestPreLoad( TrcKeyZSampling(true) );
     mTestPreLoadTrc( false );
-    mTestIOParUsage();
+    mTestIOParUsage( true );
 
     od_cout() << "\n---- 3D Volume with gaps ----\n" << od_endl;
     tester.setInput( dbkeyvol_with_missing_trcs );
@@ -107,7 +107,7 @@ static bool testVol()
 
     od_cout() << "\n---- 3D Steering Cube ----\n" << od_endl;
     tester.setInput( dbkeysteer );
-    mTestComponentSelection();
+    mTestComponentSelection( true );
     return true;
 }
 
@@ -121,9 +121,9 @@ static bool testLine()
     tester.setInput( dbkeyline );
 
     mTestGetNext();
-    mTestPreLoadTrc();
-    mTestIOParUsage();
-    mTestComponentSelection();
+    mTestPreLoadTrc( true );
+    mTestIOParUsage( true );
+    mTestComponentSelection( true );
     
     od_cout() << "\n---- 2D Line with a gap ----\n" << od_endl;
 
@@ -154,9 +154,9 @@ static bool testPS3D()
     tks.start_ = tks.stop_ = tk_1300_1200.binID();
     mTestSubselection( new Seis::RangeSelData(tks),
 	    	       "Subselection to tk_1300_1200:", false );
-    mTestPreLoadTrc();
-    mTestIOParUsage();
-    mTestComponentSelection();
+    mTestPreLoadTrc( true );
+    mTestIOParUsage( true );
+    mTestComponentSelection( true );
     return true;
 }
 
@@ -175,9 +175,9 @@ static bool testPS2D()
     tks.start_ = tks.stop_ = tk_non_existent.binID();
     mTestSubselection( new Seis::RangeSelData(tks),
 	    	       "Subselection to non-existent trc", true );
-    mTestPreLoadTrc();
-    mTestIOParUsage();
-    mTestComponentSelection();
+    mTestPreLoadTrc( true );
+    mTestIOParUsage( true );
+    mTestComponentSelection( true );
     return true;
 }
 
