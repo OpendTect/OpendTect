@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "survgeom.h"
 
-namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
+namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; }
 namespace ZDomain { class Info; }
 
 class IOObj;
