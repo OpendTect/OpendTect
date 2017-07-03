@@ -51,6 +51,33 @@ static const TrcKey tk_1300_1200( BinID(1300,1200) );
 // Non-existent trace
 static const TrcKey tk_non_existent( 9999999, 9999999 );
 
+#define mTestGet( tk, txt ) \
+if ( !tester.testGet(tk,txt) ) \
+    return false;
+
+#define mTestGetNext() \
+if ( !tester.testGetNext() ) \
+    return false;
+
+#define mTestSubselection( seldata, txt, outsidedatarg ) \
+if ( !tester.testSubselection(seldata,txt,outsidedatarg) ) \
+    return false;
+
+#define mTestPreLoad( tkzs ) \
+if ( !tester.testPreLoad(tkzs) ) \
+    return false;
+
+#define mTestPreLoadTrc( currenttrc ) \
+if ( !tester.testPreLoadTrc(currenttrc) ) \
+    return false;
+
+#define mTestIOParUsage() \
+if ( !tester.testIOParUsage() ) \
+    return false;
+
+#define mTestComponentSelection() \
+if ( !tester.testComponentSelection() ) \
+    return false;
 
 static bool testVol()
 {
@@ -59,29 +86,28 @@ static bool testVol()
     Seis::ProviderTester tester;
     tester.setSurveyName( survname );
     tester.setInput( dbkeyvol );
-    tester.testGetNext();
 
+    mTestGetNext();
     TrcKeySampling tks;
     tks.start_ = tks.stop_ = tk_last.binID();
-    tester.testSubselection( new Seis::RangeSelData(tks),
-			     "Subselection to last trc" );
+    mTestSubselection( new Seis::RangeSelData(tks),
+	    	       "Subselection to last trc", false );
 
     tks.stop_ = tks.start_ = tk_non_existent.binID();
-    tester.testSubselection( new Seis::RangeSelData(tks),
-			     "Subselection to outside data range", true );
-    tester.testPreLoad( TrcKeyZSampling(true) );
-    tester.testPreLoadTrc( false );
-    tester.testIOParUsage();
+    mTestSubselection( new Seis::RangeSelData(tks),
+	    	       "Subselection to outside data range", true );
+    mTestPreLoad( TrcKeyZSampling(true) );
+    mTestPreLoadTrc( false );
+    mTestIOParUsage();
 
     od_cout() << "\n---- 3D Volume with gaps ----\n" << od_endl;
     tester.setInput( dbkeyvol_with_missing_trcs );
-    tester.testGet( tk_before_first_missing_inl,
-		    "Trc before first missing inline" );
-    tester.testGetNext();
+    mTestGet( tk_before_first_missing_inl, "Trc before first missing inline" );
+    mTestGetNext();
 
     od_cout() << "\n---- 3D Steering Cube ----\n" << od_endl;
     tester.setInput( dbkeysteer );
-    tester.testComponentSelection();
+    mTestComponentSelection();
     return true;
 }
 
@@ -93,17 +119,17 @@ static bool testLine()
     Seis::ProviderTester tester;
     tester.setSurveyName( survname );
     tester.setInput( dbkeyline );
-    tester.testGetNext();
-    tester.testPreLoadTrc();
-    tester.testComponentSelection();
-    tester.testIOParUsage();
+
+    mTestGetNext();
+    mTestPreLoadTrc();
+    mTestIOParUsage();
+    mTestComponentSelection();
     
     od_cout() << "\n---- 2D Line with a gap ----\n" << od_endl;
 
     tester.setInput( dbkeyline_with_missing_trcs );
-    tester.testGet( tk_before_first_missing_trc,
-		    "Trc before first missing trc" );
-    tester.testGetNext();
+    mTestGet( tk_before_first_missing_trc, "Trc before first missing trc" );
+    mTestGetNext();
     return true;
 }
 
@@ -115,22 +141,22 @@ static bool testPS3D()
     Seis::ProviderTester tester;
     tester.setSurveyName( pssurvname );
     tester.setInput( dbkeyps3d );
-    tester.testGetNext();
+    mTestGetNext();
 
     SeisIOObjInfo info( DBKey::getFromString(dbkeyps3d) );
     TrcKeyZSampling tkzs;
     info.getRanges( tkzs );
     tkzs.hsamp_.stop_.inl() = tkzs.hsamp_.start_.inl();
-    tester.testSubselection( new Seis::RangeSelData(tkzs.hsamp_),
-	    		     "Subselection to one in-line:" );
+    mTestSubselection( new Seis::RangeSelData(tkzs.hsamp_),
+	    	       "Subselection to one in-line:", false );
 
     TrcKeySampling tks;
     tks.start_ = tks.stop_ = tk_1300_1200.binID();
-    tester.testSubselection( new Seis::RangeSelData(tks),
-			     "Subselection to tk_1300_1200:" );
-    tester.testPreLoadTrc();
-    tester.testIOParUsage();
-    tester.testComponentSelection();
+    mTestSubselection( new Seis::RangeSelData(tks),
+	    	       "Subselection to tk_1300_1200:", false );
+    mTestPreLoadTrc();
+    mTestIOParUsage();
+    mTestComponentSelection();
     return true;
 }
 
@@ -142,16 +168,16 @@ static bool testPS2D()
     Seis::ProviderTester tester;
     tester.setSurveyName( pssurvname );
     tester.setInput( dbkeyps2d );
-    tester.testGetNext();
-
+    mTestGetNext();
+    
     TrcKeySampling tks;
     tks.set2DDef();
     tks.start_ = tks.stop_ = tk_non_existent.binID();
-    tester.testSubselection( new Seis::RangeSelData(tks),
-			     "Subselection to non-existent trc", true );
-    tester.testPreLoadTrc();
-    tester.testIOParUsage();
-    tester.testComponentSelection();
+    mTestSubselection( new Seis::RangeSelData(tks),
+	    	       "Subselection to non-existent trc", true );
+    mTestPreLoadTrc();
+    mTestIOParUsage();
+    mTestComponentSelection();
     return true;
 }
 

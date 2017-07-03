@@ -24,7 +24,7 @@ ________________________________________________________________________
 { \
     prTrc( testname, uirv, withcomps, withoffs, false ); \
     od_cout() << " Failure\n"; \
-    return; \
+    return false; \
 } \
 else \
 { \
@@ -36,7 +36,7 @@ else \
 { \
     prBuf( testname, tbuf, uirv, false ); \
     od_cout() << " Failure\n"; \
-    return; \
+    return false; \
 } \
 else \
 { \
@@ -52,7 +52,7 @@ if ( !uirv.isOK() ) \
    else \
        od_cout() << uirv; \
    \
-   return; \
+   return isFinished( uirv ); \
 }
 
 #define mResetIfNotCurrentTrc( currenttrc ) \
@@ -90,7 +90,7 @@ uiRetVal Seis::ProviderTester::setInput( const char* dbky )
 }
 
 
-void Seis::ProviderTester::prTrc( const char* start, const uiRetVal& uirv,
+bool Seis::ProviderTester::prTrc( const char* start, const uiRetVal& uirv,
 				  bool withcomps, bool withoffs,
 				  bool addnewline )
 {
@@ -109,10 +109,12 @@ void Seis::ProviderTester::prTrc( const char* start, const uiRetVal& uirv,
 
     if ( addnewline )
 	od_cout() << od_endl;
+
+    return true;
 }
 
 
-void Seis::ProviderTester::prBuf( const char* start, const SeisTrcBuf& tbuf,
+bool Seis::ProviderTester::prBuf( const char* start, const SeisTrcBuf& tbuf,
 				  const uiRetVal& uirv, bool addnewline )
 {
     if ( start )
@@ -135,12 +137,14 @@ void Seis::ProviderTester::prBuf( const char* start, const SeisTrcBuf& tbuf,
 
     if ( addnewline )
 	od_cout() << od_endl;
+
+    return true;
 }
 
 
-void Seis::ProviderTester::testGet( const TrcKey& tk, const char* start )
+bool Seis::ProviderTester::testGet( const TrcKey& tk, const char* start )
 {
-    if ( !prov_ ) return;
+    if ( !prov_ ) return false;
 
     uiRetVal uirv;
     uirv = prov_->get( tk, trc_ );
@@ -154,12 +158,14 @@ void Seis::ProviderTester::testGet( const TrcKey& tk, const char* start )
 	if ( uirv.isError() )
 	    mPrintBufTestResult( start );
     }
+    
+    return true;
 }
 
 
-void Seis::ProviderTester::testGetNext()
+bool Seis::ProviderTester::testGetNext()
 {
-    if ( !prov_ ) return;
+    if ( !prov_ ) return false;
 
     uiRetVal uirv;
     while ( uirv.isOK() )
@@ -182,14 +188,15 @@ void Seis::ProviderTester::testGetNext()
     }
 
     od_cout() << od_endl;
+    return true;
 }
 
 
-void Seis::ProviderTester::testSubselection(
+bool Seis::ProviderTester::testSubselection(
 		SelData* seldata, const char* txt, bool outsidedatarg )
 {
     if ( !prov_ || !seldata )
-	return;
+	return false;
 
     prov_->setSelData( seldata );
     
@@ -208,12 +215,13 @@ void Seis::ProviderTester::testSubselection(
     prov_->setSelData( 0 );
 
     od_cout() << od_endl;
+    return true;
 }
 
 
-void Seis::ProviderTester::testPreLoadTrc( bool currenttrc )
+bool Seis::ProviderTester::testPreLoadTrc( bool currenttrc )
 {
-    if ( !prov_ ) return;
+    if ( !prov_ ) return false;
 
     mResetIfNotCurrentTrc( currenttrc );
 
@@ -222,12 +230,14 @@ void Seis::ProviderTester::testPreLoadTrc( bool currenttrc )
 	tkzs.set2DDef();
     tkzs.hsamp_.start_ = tkzs.hsamp_.stop_ = trc_.info().binID();
 
-    testPreLoad( tkzs );
+    return testPreLoad( tkzs );
 }
 
 
-void Seis::ProviderTester::testPreLoad( const TrcKeyZSampling& tkzs )
+bool Seis::ProviderTester::testPreLoad( const TrcKeyZSampling& tkzs )
 {
+    if ( !prov_ ) return false;
+
     const Pos::GeomID geomid = tkzs.is2D() ? tkzs.hsamp_.start_.inl()
 					   : Survey::GM().default3DSurvID();
     Seis::PreLoader pl( dbky_, geomid );
@@ -246,15 +256,16 @@ void Seis::ProviderTester::testPreLoad( const TrcKeyZSampling& tkzs )
 	}
     }
 
-    testSubselection( new Seis::RangeSelData(tkzs.hsamp_),
-		      "Subselection to preloaded data range" );
+    const bool res = testSubselection( new Seis::RangeSelData(tkzs.hsamp_),
+	    			       "Subselection to preloaded data range" );
     pl.unLoad();
+    return res;
 }
 
 
-void Seis::ProviderTester::testComponentSelection( bool currenttrc )
+bool Seis::ProviderTester::testComponentSelection( bool currenttrc )
 {
-    if ( !prov_ ) return;
+    if ( !prov_ ) return false;
 
     od_cout() << "Component selection:" << od_endl;
 
@@ -298,12 +309,13 @@ void Seis::ProviderTester::testComponentSelection( bool currenttrc )
 	mPrintTestResult( "After removing comp selections", true, false );
 
     od_cout() << od_endl;
+    return true;
 }
 
 
-void Seis::ProviderTester::testIOParUsage( bool currenttrc )
+bool Seis::ProviderTester::testIOParUsage( bool currenttrc )
 {
-    if ( !prov_ ) return;
+    if ( !prov_ ) return false;
     
     od_cout() << "IOPar usage:" << od_endl;
 
@@ -321,4 +333,5 @@ void Seis::ProviderTester::testIOParUsage( bool currenttrc )
 	mPrintTestResult( "Position restoration after usePar", false,false);
 
     od_cout() << od_endl;
+    return true;
 }
