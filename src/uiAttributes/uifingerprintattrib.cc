@@ -573,7 +573,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	if ( mIsUdf(refpos.inl()) || mIsUdf(refpos.crl()) || mIsUdf(refposz) )
 	{
 	    if ( is2d_ )
-		uiMSG().error(tr("2D lineset is not OK"));
+		uiMSG().error(tr("2D line is not OK"));
 	    else
 		uiMSG().error(tr("Please fill in the position fields first"));
 	    return 0;
