@@ -45,33 +45,33 @@ public:
     uiRetVal			setSurveyName(const char*);
     uiRetVal			setInput(const char* dbky);
 
-    void			testGet(const TrcKey&,const char*txt="");
+    bool			testGet(const TrcKey&,const char*txt="");
 
-    void			testGetNext();
-    void			testSubselection(SelData*,const char* txt,
+    bool			testGetNext();
+    bool			testSubselection(SelData*,const char* txt,
 	    					 bool outsidedatarg=false);
 				/*!< Will subselect and checks no. of traces
 				read by iterating through the subselection,
 				after which the subselection will be
 				removed. */
-    void			testPreLoadTrc(bool currenttrc=true);
+    bool			testPreLoadTrc(bool currenttrc=true);
 				//!< Will reset if currenttrc is false.
-    void			testPreLoad(const TrcKeyZSampling&);
+    bool			testPreLoad(const TrcKeyZSampling&);
 				/*!< Preloads the entire specified
 				volume/line, subselects and iterates through
 				it before unloading it. */
-    void			testComponentSelection(bool currenttrc=true);
+    bool			testComponentSelection(bool currenttrc=true);
 				//!< Will reset if currenttrc is false.
-    void			testIOParUsage(bool currenttrc=true);
+    bool			testIOParUsage(bool currenttrc=true);
 				//!< Will reset if currenttrc is false.
 
 protected:
 
-    void			prTrc(const char* start,const uiRetVal&,
+    bool			prTrc(const char* start,const uiRetVal&,
 				      bool withcomps=false,
 				      bool withoffs=false,
 				      bool addnewline=true);
-    void			prBuf(const char* start,const SeisTrcBuf&,
+    bool			prBuf(const char* start,const SeisTrcBuf&,
 				      const uiRetVal&,
 				      bool addnewline=true);
 
