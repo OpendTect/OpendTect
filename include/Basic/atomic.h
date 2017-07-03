@@ -56,35 +56,8 @@ public:
  value of 'val'.
  */
 
-mGlobal(Basic) inline
-bool atomicSetIfValueIs( volatile int& val, int curval, int newval,
-			 int* actualvalptr )
-{
-# ifdef __win__
-
-    const int oldval = InterlockedCompareExchange( (volatile long*)&val, newval,
-						   curval );
-    if ( oldval != curval )
-    {
-	if ( actualvalptr ) *actualvalptr = oldval;
-        return false;
-    }
-
-    return true;
-
-# else
-
-    const int oldval = __sync_val_compare_and_swap( &val, curval, newval );
-    if ( oldval != curval )
-    {
-	if ( actualvalptr ) *actualvalptr = oldval;
-        return false;
-    }
-
-    return true;
-
-#endif
-}
+mGlobal(Basic) bool atomicSetIfValueIs(volatile int& val,int curval,int newval,
+					int* actualvalptr);
 
 
 /*!
