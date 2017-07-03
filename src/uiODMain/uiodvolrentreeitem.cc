@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiodbodydisplaytreeitem.h"
+#include "uiposprovider.h"
 #include "uiseisamplspectrum.h"
 #include "uislicesel.h"
 #include "uistatsdisplay.h"
@@ -261,18 +262,32 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	TrcKeyZSampling maxcs = SI().sampling( true );
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
 	if ( scene && scene->getZAxisTransform() )
-	    maxcs = scene->getTrcKeyZSampling();
+	{
+	    const TrcKeyZSampling maxcs = scene->getTrcKeyZSampling();
+	    CallBack dummycb;
+	    uiSliceSelDlg dlg( getUiParent(),
+			vd->getTrcKeyZSampling(true,true,-1),
+			maxcs, dummycb, uiSliceSel::Vol,
+			scene->zDomainInfo() );
+	    if ( !dlg.go() ) return;
 
-	CallBack dummycb;
-	uiSliceSelDlg dlg( getUiParent(), vd->getTrcKeyZSampling(true,true,-1),
-			   maxcs, dummycb, uiSliceSel::Vol,
-			   scene->zDomainInfo() );
-	if ( !dlg.go() ) return;
-	TrcKeyZSampling cs = dlg.getTrcKeyZSampling();
-	vd->setTrcKeyZSampling( cs );
+	    TrcKeyZSampling cs = dlg.getTrcKeyZSampling();
+	    vd->setTrcKeyZSampling( cs );
+	}
+	else
+	{
+	    uiPosProvider::Setup su( false, false, true );
+	    uiPosProvDlg dlg( getUiParent(), su, tr("Set Volume Area") );
+	    dlg.setSampling( vd->getTrcKeyZSampling(true,true,-1) );
+	    if ( !dlg.go() ) return;
+
+	    TrcKeyZSampling tkzs;
+	    dlg.getSampling( tkzs );
+	    vd->setTrcKeyZSampling( tkzs );
+	}
+
 	visserv_->calculateAttrib( displayid_, 0, false );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
