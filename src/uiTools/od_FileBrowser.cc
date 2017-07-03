@@ -51,6 +51,8 @@ int main( int argc, char** argv )
     if ( nrargs < 1 )
 	mErrRet()
 
+    OD::ModDeps().ensureLoaded( "Network" );
+
     BufferString fnm;
     if ( clp.hasKey(File::ViewPars::sKeyFile()) )
 	clp.getVal( File::ViewPars::sKeyFile(), fnm );

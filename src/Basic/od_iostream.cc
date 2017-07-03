@@ -93,12 +93,15 @@ od_istream& od_istream::operator=( od_istream&& o )
 
 od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
 {
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    File::SystemAccess::Ref fsa = File::SystemAccess::get( fnm );
 
-    if ( forwrite )
-	sd_ = fsa->createOStream( fnm, useexist );
-    else
-	sd_ = fsa->createIStream( fnm );
+    if ( fsa )
+    {
+	if ( forwrite )
+	    sd_ = fsa->createOStream( fnm, useexist );
+	else
+	    sd_ = fsa->createIStream( fnm );
+    }
 }
 
 

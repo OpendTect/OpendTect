@@ -54,7 +54,7 @@ bool Network::downloadFile( const char* url, const char* path,
 {
     BufferStringSet urls; urls.add( url );
     BufferStringSet outputpath; outputpath.add( path );
-    return Network::downloadFiles( urls, outputpath, errmsg, taskr );
+    return downloadFiles( urls, outputpath, errmsg, taskr );
 }
 
 
@@ -74,7 +74,7 @@ bool Network::downloadFiles( BufferStringSet& urls, const char* path,
 	outputpaths.add( destpath.fullPath() );
     }
 
-    return Network::downloadFiles( urls, outputpaths, errmsg, taskr );
+    return downloadFiles( urls, outputpaths, errmsg, taskr );
 }
 
 
@@ -106,13 +106,13 @@ bool Network::downloadToBuffer( const char* url, DataBuffer& databuffer,
 bool Network::getRemoteFileSize( const char* url, od_int64& size,
 				 uiString& errmsg )
 {
+    if ( !url || !*url )
+	{ size = -1; return false; }
+
     FileDownloader dl( url );
     size = dl.getDownloadSize();
     if ( size < 0 )
-    {
-	errmsg = dl.message();
-	return false;
-    }
+	{ errmsg = dl.message(); return false; }
 
     return true;
 }
@@ -121,7 +121,7 @@ bool Network::getRemoteFileSize( const char* url, od_int64& size,
 bool Network::ping( const char* url, uiString& msg )
 {
     od_int64 pseudosize;
-    return Network::getRemoteFileSize( url, pseudosize, msg );
+    return getRemoteFileSize( url, pseudosize, msg );
 }
 
 
@@ -453,7 +453,7 @@ int DataUploader::nextStep()
     if ( init_ )
     {
 	RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
-	       				       Network::HttpRequest::Post );
+					       Network::HttpRequest::Post );
 	req->contentType( header_ );
 	req->payloadData( data_ );
 

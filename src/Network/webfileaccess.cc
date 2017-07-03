@@ -9,12 +9,14 @@ ________________________________________________________________________
 -*/
 
 
-#include "webfileaccess.h"
-
+#include "filesystemaccess.h"
 #include "netfilecache.h"
 #include "odnetworkaccess.h"
 #include "odhttp.h"
+#include "genc.h"
+
 #include <streambuf>
+
 #ifndef OD_NO_QT
 # include <QNetworkAccessManager>
 # include <QNetworkReply>
@@ -522,72 +524,68 @@ webostream( webostreambuf* sb )
 
 };
 
+
+class HttpFileSystemAccess : public File::SystemAccess
+{ mODTextTranslationClass(HttpFileSystemAccess)
+public:
+
+    virtual bool	    isReadable(const char*) const;
+    virtual od_int64	    getFileSize(const char*,bool) const;
+    StreamData		    createIStream(const char*,bool) const;
+    StreamData		    createOStream(const char*,bool,bool) const;
+    virtual const char*	    factoryKeyword() const { return sFactoryKeyword(); }
+    virtual uiString	    factoryDisplayName() const
+			    { return sFactoryDisplayName(); }
+
+    static void		    initClass();
+    static File::SystemAccess* createInstance()
+			    { return new HttpFileSystemAccess; }
+    static const char*	    sFactoryKeyword() { return "http"; }
+    static uiString	    sFactoryDisplayName() { return tr("Web file)"); }
+
+};
+
 } // namespace Network
 
 
-// HttpFileAccess
-
-bool HttpFileAccess::exists(const char*,bool forread) const
-{ return false; }
-
-
-bool HttpFileAccess::isReadable(const char*) const
-{ return false; }
+bool Network::HttpFileSystemAccess::isReadable( const char* uri ) const
+{
+    return Network::exists( uri );
+}
 
 
-bool HttpFileAccess::isFile(const char*) const
-{ return false; }
+od_int64 Network::HttpFileSystemAccess::getFileSize( const char* uri,
+						     bool ) const
+{
+    return Network::getFileSize( uri );
+}
 
 
-bool HttpFileAccess::isDirectory(const char*) const
-{ return false; }
+StreamData Network::HttpFileSystemAccess::createIStream( const char* fnm,
+							 bool binary ) const
+{
+    StreamData sd;
+    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
+    impl->fname_ = fnm;
+    impl->istrm_ = new Network::webistream( new Network::webistreambuf( fnm ) );
+    if ( !impl->istrm_->good() )
+	deleteAndZeroPtr( impl->istrm_ );
+
+    sd.setImpl( impl );
+    return sd;
+}
 
 
-bool HttpFileAccess::remove(const char*,bool recursive) const
-{ return false; }
-
-
-bool HttpFileAccess::setWritable(const char*,bool yn,bool recursive) const
-{ return false; }
-
-
-bool HttpFileAccess::isWritable(const char*) const
-{ return false; }
-
-
-bool HttpFileAccess::rename(const char* from,const char*)
-{ return false; }
-
-
-bool HttpFileAccess::copy(const char* from,const char* to,
-			     uiString* errmsg) const
-{ return false; }
-
-
-od_int64 HttpFileAccess::getFileSize( const char*, bool followlink ) const
-{ return 0; }
-
-bool HttpFileAccess::createDirectory( const char* ) const
-{ return false; }
-
-bool HttpFileAccess::listDirectory( const char*, File::DirListType,
-				    BufferStringSet&, const char* ) const
-{ return false; }
-
-
-StreamData HttpFileAccess::createOStream( const char* fnm,
+StreamData Network::HttpFileSystemAccess::createOStream( const char* fnm,
 				      bool binary,bool editmode) const
 {
     StreamData sd;
     if ( editmode )
-    {
 	return sd;
-    }
 
     StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
     impl->fname_ = fnm;
-    impl->ostrm_ = new Network::webostream(
-				new Network::webostreambuf( fnm ) );
+    impl->ostrm_ = new Network::webostream( new Network::webostreambuf( fnm ) );
     if ( !impl->ostrm_->good() )
 	deleteAndZeroPtr( impl->ostrm_ );
 
@@ -596,19 +594,39 @@ StreamData HttpFileAccess::createOStream( const char* fnm,
 }
 
 
-StreamData HttpFileAccess::createIStream( const char* fnm, bool binary ) const
-{
-    StreamData sd;
-    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
-    impl->fname_ = fnm;
-    impl->istrm_ = new Network::webistream(
-					   new Network::webistreambuf( fnm ) );
-    if ( !impl->istrm_->good() )
-	deleteAndZeroPtr( impl->istrm_ );
+#define mHttpAccessNotInited	0
+#define mHttpAccessIniting		1
+#define mHttpAccessInited		2
+static Threads::Atomic<int> httpaccessinitstate = mHttpAccessNotInited;
 
-    sd.setImpl( impl );
-    return sd;
+static RefMan<File::SystemAccess> nethttpfileaccinst_ = 0;
+static void destroyHttpFileAccInst()
+{ nethttpfileaccinst_ = 0; }
+
+static WeakPtrSet<File::SystemAccess> systemaccesslist_;
+
+void Network::HttpFileSystemAccess::initClass()
+{
+    while ( httpaccessinitstate != mHttpAccessInited )
+    {
+	if ( httpaccessinitstate.setIfValueIs( mHttpAccessNotInited,
+				   mHttpAccessIniting ) )
+	{
+	    //We are the first to do it
+	    File::SystemAccess::factory().addCreator( createInstance,
+						      sFactoryKeyword(),
+						      sFactoryDisplayName());
+
+	    nethttpfileaccinst_ = new Network::HttpFileSystemAccess;
+	    systemaccesslist_ += nethttpfileaccinst_;
+	    NotifyExitProgram( destroyHttpFileAccInst );
+	    httpaccessinitstate = mHttpAccessInited;
+	}
+    }
 }
 
-void HttpFileAccess::initClass()
-mDefaultFactoryInitClassImpl( File::SystemAccess, createInstance )
+void NetworkHttpFileSystemAccessinitClass()
+{
+    Network::HttpFileSystemAccess::initClass();
+}
+

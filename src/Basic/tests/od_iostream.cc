@@ -175,15 +175,15 @@ bool testPipeOutput()
 bool testPrefix()
 {
     mRunStandardTest(
-	    File::SystemAccess::removeProtocol( "file://")=="",
+	    File::SystemAccess::withoutProtocol( "file://")=="",
 	    "Remove protocol from emtpy file name");
 
     mRunStandardTest(
-	    File::SystemAccess::removeProtocol( "file://abcde")=="abcde",
+	    File::SystemAccess::withoutProtocol( "file://abcde")=="abcde",
 	    "Remove protocol file name with protocol");
 
     mRunStandardTest(
-	     File::SystemAccess::removeProtocol( "abcde")=="abcde",
+	     File::SystemAccess::withoutProtocol( "abcde")=="abcde",
 	     "Remove protocol file name without protocol");
 
     mRunStandardTest(
@@ -194,8 +194,7 @@ bool testPrefix()
 		"Get non-existing protocol" );
 
     mRunStandardTest(
-	     File::SystemAccess::getProtocol( "abcde", false )==
-		 File::LocalFileSystemAccess::sFactoryKeyword(),
+	     File::SystemAccess::getProtocol( "abcde", false )=="file",
 	     "Get non-existing protocol - obtain default" );
 
     return true;
@@ -214,7 +213,7 @@ int doExit( int retval )
 int testMain( int argc, char** argv )
 {
     mInitTestProg();
-    DBG::turnOn(0); //Turn off all debug-stuff as it screwes the pipes
+    DBG::turnOn( 0 ); //Turn off all debug-stuff as it screws the pipes
 
     bool isok;
 #define mDoTest(strm,content,tstfn) \
@@ -234,13 +233,13 @@ int testMain( int argc, char** argv )
     mDoTest(strm6,"123",testOnlyIntRead);
     mDoTest(strm7,"\n123\n \n",testOnlyIntRead);
 
-    if (!testPipeInput())
-	return doExit(1);
+    if ( !testPipeInput() )
+	return doExit( 1 );
 
-    if (!testPipeOutput())
+    if ( !testPipeOutput() )
     {
-	if (File::exists(tmpfnm))
-	    File::remove(tmpfnm);
+	if ( File::exists(tmpfnm) )
+	    File::remove( tmpfnm );
 
 	return doExit(1);
     }

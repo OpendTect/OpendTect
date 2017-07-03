@@ -5,7 +5,6 @@
 -*/
 
 
-#include "webfileaccess.h"
 #include "testprog.h"
 #include "applicationdata.h"
 #include "od_iostream.h"
@@ -95,7 +94,6 @@ int testMain(int argc, char** argv)
 
     if ( !testReadSmallFile() || !testIsLocalFlag() )
 	return 1;
-
 
     if ( !testReadBigFile() )
 	return 1;

@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "uistrings.h"
 
+
 #ifdef __win__
 # include <direct.h>
 # include "winstreambuf.h"
@@ -42,14 +43,10 @@ ________________________________________________________________________
 # include <QProcess>
 #endif
 
-#include <fstream>
-
 
 #define mMBFactor (1024*1024)
 const char* not_implemented_str = "Not implemented";
 
-
-mImplFactory( File::SystemAccess, File::SystemAccess::factory );
 
 mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 {
@@ -309,7 +306,7 @@ void File::makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 
 od_int64 File::getFileSize( const char* fnm, bool followlink )
 {
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    SystemAccess::Ref fsa = SystemAccess::get( fnm );
     return fsa ? fsa->getFileSize( fnm, followlink ) : 0;
 }
 
@@ -319,8 +316,8 @@ bool File::exists( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
-    return fsa && fsa->exists( fnm, true );
+    SystemAccess::Ref fsa = SystemAccess::get( fnm );
+    return fsa && fsa->exists( fnm );
 }
 
 
@@ -350,7 +347,7 @@ bool File::isFile( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    SystemAccess::Ref fsa = SystemAccess::get( fnm );
     return fsa && fsa->isFile( fnm );
 }
 
@@ -360,7 +357,7 @@ bool File::isDirectory( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    SystemAccess::Ref fsa = SystemAccess::get( fnm );
     return fsa && fsa->isDirectory( fnm );
 }
 
@@ -457,7 +454,7 @@ bool File::isReadable( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    SystemAccess::Ref fsa = SystemAccess::get( fnm );
     return fsa && fsa->isReadable( fnm );
 }
 
@@ -467,7 +464,7 @@ bool File::isWritable( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    SystemAccess::Ref fsa = SystemAccess::get( fnm );
     return fsa && fsa->isWritable( fnm );
 }
 
@@ -483,7 +480,7 @@ bool File::isExecutable( const char* fnm )
 #else
     struct stat st_buf;
     int status = stat(fnm, &st_buf);
-    if (status != 0)
+    if ( status != 0 )
 	return false;
 
     return st_buf.st_mode & S_IXUSR;
@@ -519,7 +516,7 @@ bool File::createDir( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    SystemAccess::Ref fsa = SystemAccess::get( fnm );
     return fsa && fsa->createDirectory( fnm );
 }
 
@@ -530,7 +527,7 @@ bool File::listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
     if ( !isSane(dirnm) )
 	return false;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( dirnm );
+    SystemAccess::Ref fsa = SystemAccess::get( dirnm );
     if ( !fsa || !fsa->listDirectory(dirnm,dlt,fnames,mask) )
 	return false;
 
@@ -544,11 +541,11 @@ bool File::rename( const char* oldname, const char* newname )
     if ( !isSane(oldname) || !isSane(newname) )
 	return false;
 
-    if ( File::SystemAccess::getProtocol( oldname, false ) !=
-	 File::SystemAccess::getProtocol( newname, false ) )
+    if ( SystemAccess::getProtocol( oldname, false ) !=
+	 SystemAccess::getProtocol( newname, false ) )
 	return false;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( newname );
+    SystemAccess::Ref fsa = SystemAccess::get( newname );
     return fsa && fsa->rename( oldname, newname );
 }
 
@@ -600,13 +597,11 @@ bool File::copy( const char* from, const char* to, uiString* errmsg )
     if ( !isSane(from) || !isSane(to) )
 	return false;
 
-    if ( File::SystemAccess::getProtocol( from, false ) !=
-	 File::SystemAccess::getProtocol( to, false ) )
-    {
+    if ( SystemAccess::getProtocol( from, false ) !=
+	 SystemAccess::getProtocol( to, false ) )
 	return false;
-    }
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( from );
+    SystemAccess::Ref fsa = SystemAccess::get( from );
     if ( !fsa ) return false;
 
     if ( fsa->isDirectory(from) || fsa->isDirectory(to)  )
@@ -653,7 +648,7 @@ bool File::remove( const char* fnm )
     if ( !isSane(fnm) )
 	return true;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
+    SystemAccess::Ref fsa = SystemAccess::get( fnm );
     return fsa && fsa->remove( fnm );
 }
 
@@ -663,7 +658,7 @@ bool File::removeDir( const char* dirnm )
     if ( !isSane(dirnm) )
 	return true;
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( dirnm );
+    SystemAccess::Ref fsa = SystemAccess::get( dirnm );
     return fsa && fsa->remove( dirnm, true );
 }
 
@@ -689,8 +684,9 @@ bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 	return false;
     }
 
-    RefMan<File::SystemAccess> fsa = File::SystemAccess::get( fnm );
-    if ( !fsa ) return false;
+    SystemAccess::Ref fsa = SystemAccess::get( fnm );
+    if ( !fsa )
+	return false;
 
     Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
@@ -1033,398 +1029,4 @@ bool File::launchViewer( const char* fnm, const ViewPars& vp )
     OS::CommandLauncher cl = OS::MachineCommand( cmd );
     OS::CommandExecPars pars; pars.launchtype_ = OS::RunInBG;
     return cl.execute( pars );
-}
-
-static const char* prefixsearch = "://";
-static const int searchlen = strlen( prefixsearch );
-
-BufferString File::SystemAccess::getProtocol( const char* filename,
-					      bool acceptnone )
-{
-    BufferString res = filename;
-    char* prefixend = res.find( prefixsearch );
-    if ( !prefixend )
-    {
-	if ( !acceptnone )
-	    res = File::LocalFileSystemAccess::sFactoryKeyword();
-	else
-	    res = BufferString::empty();
-    }
-    else
-    {
-	*prefixend = 0;
-    }
-
-    return res;
-}
-
-
-BufferString File::SystemAccess::removeProtocol( const char* url )
-{
-    BufferString input( url );
-    char* prefixend = input.find( prefixsearch );
-    if ( !prefixend )
-	return input;
-
-    return BufferString( prefixend + searchlen );
-}
-
-
-//We only wish to run initClass once. Since we want to make it threadsafe
-//an atomic variable is added to protect the init function.
-
-#define mLocalFileSystemNotInited	0
-#define mLocalFileSystemIniting		1
-#define mLocalFileSystemInited		2
-static Threads::Atomic<int> lfsinit = mLocalFileSystemNotInited;
-
-/* Keep one copy as it is always handy to have (and LocalFileSystemAccess does
- not change).
- */
-
-static RefMan<File::SystemAccess> lfsinst = 0;
-static void shutdownCB()
-{
-    lfsinst = 0;
-}
-
-static WeakPtrSet<File::SystemAccess> systemaccesslist_;
-
-void File::LocalFileSystemAccess::initClass()
-{
-    while ( lfsinit!=mLocalFileSystemInited )
-    {
-	if ( lfsinit.setIfValueIs( mLocalFileSystemNotInited,
-				   mLocalFileSystemIniting ) )
-	{
-	    //We are the first to do it
-	    File::SystemAccess::factory().addCreator(createInstance,
-						     sFactoryKeyword(),
-						     sFactoryDisplayName());
-
-	    lfsinst = new File::LocalFileSystemAccess;
-	    systemaccesslist_ += lfsinst;
-	    NotifyExitProgram( shutdownCB );
-	    lfsinit = mLocalFileSystemInited;
-	}
-    }
-}
-
-
-
-RefMan<File::SystemAccess> File::SystemAccess::get( const char* fnm )
-{
-    if ( lfsinit!=mLocalFileSystemInited )
-	LocalFileSystemAccess::initClass();
-
-    BufferString protocol = getProtocol( fnm, false );
-
-    for ( int idx=0; idx<systemaccesslist_.size(); idx++ )
-    {
-	RefMan<SystemAccess> item = systemaccesslist_[idx];
-	if ( item && protocol==item->factoryKeyword() )
-	    return item;
-    }
-
-    RefMan<SystemAccess> res = factory().create( protocol );
-    if ( res )
-	systemaccesslist_ += res;
-
-    return res;
-}
-
-
-#define mGetFileNameAndRetFalseIfEmpty() \
-    const BufferString fnm = removeProtocol( url ); \
-    if ( fnm.isEmpty() ) \
-	return false
-
-
-bool File::LocalFileSystemAccess::exists( const char* url, bool forread ) const
-{
-    mGetFileNameAndRetFalseIfEmpty();
-    return QFile::exists( fnm.buf() );
-}
-
-bool File::LocalFileSystemAccess::isReadable( const char* url ) const
-{
-    mGetFileNameAndRetFalseIfEmpty();
-    QFileInfo qfi( fnm.buf() );
-    return qfi.isReadable();
-}
-
-
-bool File::LocalFileSystemAccess::isFile( const char* url ) const
-{
-    mGetFileNameAndRetFalseIfEmpty();
-    QFileInfo qfi( fnm.buf() );
-    return qfi.isFile();
-}
-
-
-bool File::LocalFileSystemAccess::createDirectory( const char* url ) const
-{
-    mGetFileNameAndRetFalseIfEmpty();
-    QDir qdir;
-    return qdir.mkpath( fnm.str() );
-}
-
-
-bool File::LocalFileSystemAccess::listDirectory( const char* url,
-	DirListType dlt, BufferStringSet& filenames, const char* mask ) const
-{
-    if ( !isDirectory(url) )
-	return false;
-
-    const BufferString fnm = removeProtocol( url );
-
-    QDir qdir( fnm.str() );
-    if ( mask && *mask )
-    {
-	QStringList filters;
-	filters << mask;
-	qdir.setNameFilters( filters );
-    }
-
-    QDir::Filters dirfilters;
-    if ( dlt == FilesInDir )
-	dirfilters = QDir::Files | QDir::Hidden;
-    else if ( dlt == DirsInDir )
-	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden;
-    else
-	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files
-				| QDir::Hidden;
-
-    QStringList qlist = qdir.entryList( dirfilters );
-    for ( int idx=0; idx<qlist.size(); idx++ )
-	filenames.add( qlist[idx] );
-
-    return true;
-}
-
-
-bool File::LocalFileSystemAccess::isDirectory( const char* url ) const
-{
-    mGetFileNameAndRetFalseIfEmpty();
-    QFileInfo qfi( fnm.str() );
-    if ( qfi.isDir() )
-	return true;
-
-    BufferString lnkfnm( fnm, ".lnk" );
-    qfi.setFile( lnkfnm.str() );
-    return qfi.isDir();
-}
-
-
-
-bool File::LocalFileSystemAccess::remove( const char* url,
-					  bool recursive ) const
-{
-    mGetFileNameAndRetFalseIfEmpty();
-    if ( isFile(fnm) || isLink(fnm) )
-	return QFile::remove( fnm.str() );
-
-    if ( recursive && isDirectory( fnm ) )
-    {
-#if QT_VERSION >= 0x050000
-	QDir dir( fnm.buf() );
-	return dir.removeRecursively();
-#else
-# ifdef __win__
-	return winRemoveDir( fnm );
-# else
-	BufferString cmd;
-	cmd = "/bin/rm -rf";
-	cmd.add(" \"").add(fnm).add("\"");
-	bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
-	if ( res ) res = !exists(fnm,true);
-	return res;
-# endif
-#endif
-    }
-
-    return false;
-}
-
-
-bool File::LocalFileSystemAccess::setWritable( const char* url, bool yn,
-					       bool recursive ) const
-{
-    mGetFileNameAndRetFalseIfEmpty();
-
-#ifdef OD_NO_QT
-    return false;
-#else
-    BufferString cmd;
-# ifdef __win__
-    cmd = "attrib"; cmd += yn ? " -R " : " +R ";
-    cmd.add("\"").add(fnm).add("\"");
-    if ( recursive && isDirectory(fnm) )
-	cmd += "\\*.* /S ";
-# else
-    cmd = "chmod";
-    if ( recursive && isDirectory(fnm) )
-	cmd += " -R ";
-    cmd.add(yn ? " ug+w \"" : " a-w \"").add(fnm).add("\"");
-# endif
-
-    return QProcess::execute( QString(cmd.buf()) ) >= 0;
-#endif
-
-
-}
-
-
-bool File::LocalFileSystemAccess::isWritable( const char* url ) const
-{
-    mGetFileNameAndRetFalseIfEmpty();
-    const QFileInfo qfi( fnm.buf() );
-    return qfi.isWritable();
-}
-
-
-bool File::LocalFileSystemAccess::rename( const char* fromurl,
-					  const char* tourl )
-{
-    const BufferString from = removeProtocol( fromurl );
-    const BufferString to = removeProtocol( tourl );
-    if ( from.isEmpty() || to.isEmpty() )
-	return false;
-
-    return QFile::rename( from.buf(), to.buf() );
-}
-
-
-bool File::LocalFileSystemAccess::copy( const char* fromurl,
-					const char* tourl,
-					uiString* errmsg ) const
-{
-    const BufferString from = removeProtocol( fromurl );
-    const BufferString to = removeProtocol( tourl );
-    if ( from.isEmpty() || to.isEmpty() )
-	return false;
-
-    if ( isDirectory(from) || isDirectory(to)  )
-	return copyDir( from, to, errmsg );
-
-    uiString errmsgloc;
-    if ( !File::checkDirectory(from,true,errmsg ? *errmsg : errmsgloc) ||
-	 !File::checkDirectory(to,false,errmsg ? *errmsg : errmsgloc) )
-	return false;
-
-    if ( exists(to,true) && !isDirectory(to) )
-	remove( to );
-
-    QFile qfile( from.buf() );
-    const bool ret = qfile.copy( to.buf() );
-    if ( !ret && errmsg )
-	errmsg->setFrom( qfile.errorString() );
-
-    return ret;
-}
-
-
-od_int64 File::LocalFileSystemAccess::getFileSize( const char* url,
-						   bool followlink ) const
-{
-    const BufferString fnm = removeProtocol( url );
-    if ( fnm.isEmpty() )
-	return 0;
-
-    if ( !followlink && isLink(fnm) )
-    {
-	od_int64 filesize = 0;
-#ifdef __win__
-	HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
-				  FILE_ATTRIBUTE_NORMAL, NULL );
-	filesize = GetFileSize( file, NULL );
-	CloseHandle( file );
-#else
-	struct stat filestat;
-	filesize = lstat( fnm, &filestat )>=0 ? filestat.st_size : 0;
-#endif
-
-	return filesize;
-    }
-
-    QFileInfo qfi( fnm.buf() );
-    return qfi.size();
-}
-
-
-
-StreamData File::LocalFileSystemAccess::createOStream(const char* url,
-					bool binary, bool editmode ) const
-{
-    const BufferString fnm = removeProtocol( url );
-    if ( fnm.isEmpty() )
-	return StreamData();
-
-    StreamData res;
-    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
-    impl->fname_ = url;
-
-    std::ios_base::openmode openmode = std::ios_base::out;
-    if ( binary )
-	openmode |= std::ios_base::binary;
-
-    if ( editmode )
-	openmode |= std::ios_base::in;
-
-#ifdef __msvc__
-    if ( isHidden(fnm.buf() ) )
-	hide( fnm.buf(), false );
-
-    impl->ostrm_ = new std::winofstream( fnm.buf(), openmode );
-#else
-    impl->ostrm_ = new std::ofstream( fnm.buf(), openmode );
-#endif
-
-    if ( !impl->ostrm_ || !impl->ostrm_->good() )
-	deleteAndZeroPtr( impl->ostrm_ );
-
-    res.setImpl( impl );
-
-    return res;
-}
-
-
-StreamData File::LocalFileSystemAccess::createIStream(const char* url,
-						      bool binary ) const
-{
-    BufferString fnm = removeProtocol( url );
-    if ( fnm.isEmpty() )
-	return StreamData();
-
-    StreamData res;
-    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
-    impl->fname_ = url;
-
-    if ( !exists( fnm, true ) )
-    {
-	File::Path fp( fnm );
-	BufferString fullpath = fp.fullPath( File::Path::Local, true );
-	if ( !exists(fullpath,true) )
-	    fullpath = fp.fullPath( File::Path::Local, false );
-	// Sometimes the filename _is_ weird, and the cleanup is wrong
-	if ( exists( fullpath, true ) )
-	    impl->fname_ = fullpath;
-    }
-
-    std::ios_base::openmode openmode = std::ios_base::in;
-    if ( binary )
-	openmode = openmode | std::ios_base::binary;
-
-
-#ifdef __msvc__
-    impl->istrm_ = new std::winifstream( impl->fname_, openmode );
-#else
-    impl->istrm_ = new std::ifstream( impl->fname_, openmode );
-#endif
-
-    if ( !impl->istrm_ || !impl->istrm_->good() )
-	deleteAndZeroPtr( impl->istrm_ );
-
-    res.setImpl( impl );
-    return res;
 }

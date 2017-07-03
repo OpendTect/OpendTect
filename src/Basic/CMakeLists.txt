@@ -75,6 +75,7 @@ set( OD_MODULE_SOURCES
 	filepath.cc
 	filemonitor.cc
 	filemultispec.cc
+	filesystemaccess.cc
 	genc.cc
 	gpuprog.cc
 	globexpr.cc

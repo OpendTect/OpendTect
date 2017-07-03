@@ -8,17 +8,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "webfileaccess.h"
-
-
-#include "odnetworkaccess.h"
-#include "atomic.h"
+#include "networkmod.h"
 #include "moddepmgr.h"
+
+void NetworkHttpFileSystemAccessinitClass();
 
 
 mDefModInitFn(Network)
 {
     mIfNotFirstTime( return );
 
-    HttpFileAccess::initClass();
+    NetworkHttpFileSystemAccessinitClass();
 }
