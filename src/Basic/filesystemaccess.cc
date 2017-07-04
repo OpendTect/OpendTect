@@ -158,7 +158,8 @@ mDefFileSystemAccessFn3Args(	listDirectory, DirListType, BufferStringSet&,
 #define mLocalFileSystemInited		2
 static Threads::Atomic<int> lfsinitstate_ = mLocalFileSystemNotInited;
 static File::SystemAccess::Ref lfsinst_ = 0;
-static ObjectSet<const File::SystemAccess> systemaccesslist_;
+static ObjectSet<const void> systemaccesses_;
+		// VS complained when used actual type
 
 
 void File::LocalFileSystemAccess::initClass()
@@ -175,7 +176,7 @@ void File::LocalFileSystemAccess::initClass()
 
 	    lfsinst_ = new File::LocalFileSystemAccess;
 	    lfsinst_->ref();
-	    systemaccesslist_ += lfsinst_.ptr();
+	    systemaccesses_ += lfsinst_.ptr();
 	    lfsinitstate_ = mLocalFileSystemInited;
 	}
     }
@@ -205,16 +206,16 @@ File::SystemAccess::Ref File::SystemAccess::gtByProt( BufferString& protocol )
 	return lfsinst_;
 
     // search for previously used instance. First exact match (e.g. "http")
-    for ( int idx=0; idx<systemaccesslist_.size(); idx++ )
+    for ( int idx=0; idx<systemaccesses_.size(); idx++ )
     {
-	Ref item = systemaccesslist_[idx];
+	Ref item = (SystemAccess*)systemaccesses_[idx];
 	if ( item && protocol==item->factoryKeyword() )
 	    return item;
     }
     // maybe we've been passed a variant (e.g. "https" for "http")
-    for ( int idx=0; idx<systemaccesslist_.size(); idx++ )
+    for ( int idx=0; idx<systemaccesses_.size(); idx++ )
     {
-	Ref item = systemaccesslist_[idx];
+	Ref item = (SystemAccess*)systemaccesses_[idx];
 	if ( item && protocol.startsWith(item->factoryKeyword()) )
 	    return item;
     }
@@ -233,7 +234,7 @@ File::SystemAccess::Ref File::SystemAccess::gtByProt( BufferString& protocol )
     if ( res )
     {
 	res->ref();
-	systemaccesslist_ += res;
+	systemaccesses_ += res;
     }
 
     return res;
