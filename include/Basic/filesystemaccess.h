@@ -32,12 +32,13 @@ mExpClass(Basic) SystemAccess : public RefCount::Referenced
 {
 public:
 
-    typedef RefMan<SystemAccess>    Ref;
+    typedef RefMan<const SystemAccess>    Ref;
 
     static Ref		get(const char* fnm);
 			    /*!<Looks at first part of filename to determine
 				what system it belongs to. If nothing matches,
 				LocalFileSystemAccess will be returned. */
+    static Ref		getByProtocol(const char* prot);
 
     virtual bool	exists(const char*) const;
     virtual bool	isReadable(const char*) const			= 0;
@@ -65,7 +66,7 @@ public:
 			/*!< keep binary==true also for text files unless you
 			     know what you are doing. win32 thing only. */
 
-    mDefineFactoryInClass(SystemAccess, factory);
+    mDefineFactoryInClass( SystemAccess, factory );
 
     static BufferString getProtocol(const char* fnm,bool acceptnone);
     static BufferString withoutProtocol(const char*);
@@ -73,6 +74,7 @@ public:
 protected:
 
     virtual		~SystemAccess() {}
+    static Ref		gtByProt(BufferString&);
 
 };
 

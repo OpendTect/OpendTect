@@ -149,7 +149,7 @@ mDefFileSystemAccessFn3Args(	listDirectory, DirListType, BufferStringSet&,
 						 const char*, false )
 
 
-// Set up a mechanism to run initClass once. Since this will be done at the
+// Set up a mechanism to run initClass once. Since this will likely be done
 // while initialising the static file and global variables, we cannot
 // put this in initbasic.cc.
 
@@ -158,9 +158,7 @@ mDefFileSystemAccessFn3Args(	listDirectory, DirListType, BufferStringSet&,
 #define mLocalFileSystemInited		2
 static Threads::Atomic<int> lfsinitstate_ = mLocalFileSystemNotInited;
 static File::SystemAccess::Ref lfsinst_ = 0;
-static WeakPtrSet<File::SystemAccess> systemaccesslist_;
-static void destroyLocalFileSystemAccInst()
-{ lfsinst_ = 0; }
+static ObjectSet<const File::SystemAccess> systemaccesslist_;
 
 
 void File::LocalFileSystemAccess::initClass()
@@ -170,27 +168,41 @@ void File::LocalFileSystemAccess::initClass()
 	if ( lfsinitstate_.setIfValueIs( mLocalFileSystemNotInited,
 				   mLocalFileSystemIniting ) )
 	{
-	    //We are the first to do it
+	    // first thread to get here ...
 	    File::SystemAccess::factory().addCreator(createInstance,
 						     sFactoryKeyword(),
 						     sFactoryDisplayName());
 
 	    lfsinst_ = new File::LocalFileSystemAccess;
-	    systemaccesslist_ += lfsinst_;
-	    NotifyExitProgram( destroyLocalFileSystemAccInst );
+	    lfsinst_->ref();
+	    systemaccesslist_ += lfsinst_.ptr();
 	    lfsinitstate_ = mLocalFileSystemInited;
 	}
     }
 }
 
 
-
 File::SystemAccess::Ref File::SystemAccess::get( const char* fnm )
+{
+    BufferString protocol = getProtocol( fnm, false );
+    return gtByProt( protocol );
+}
+
+
+File::SystemAccess::Ref File::SystemAccess::getByProtocol( const char* prot )
+{
+    BufferString protocol( prot );
+    return gtByProt( protocol );
+}
+
+
+File::SystemAccess::Ref File::SystemAccess::gtByProt( BufferString& protocol )
 {
     if ( lfsinitstate_ != mLocalFileSystemInited )
 	LocalFileSystemAccess::initClass();
 
-    BufferString protocol = getProtocol( fnm, false );
+    if ( protocol.isEmpty() )
+	return lfsinst_;
 
     // search for previously used instance. First exact match (e.g. "http")
     for ( int idx=0; idx<systemaccesslist_.size(); idx++ )
@@ -199,7 +211,7 @@ File::SystemAccess::Ref File::SystemAccess::get( const char* fnm )
 	if ( item && protocol==item->factoryKeyword() )
 	    return item;
     }
-    // maybe we've used a variant (e.g. "https" for "http")
+    // maybe we've been passed a variant (e.g. "https" for "http")
     for ( int idx=0; idx<systemaccesslist_.size(); idx++ )
     {
 	Ref item = systemaccesslist_[idx];
@@ -217,9 +229,12 @@ File::SystemAccess::Ref File::SystemAccess::get( const char* fnm )
 		// no break, we want to use the last one added
     }
 
-    Ref res = factory().create( protocol );
+    SystemAccess* res = factory().create( protocol );
     if ( res )
+    {
+	res->ref();
 	systemaccesslist_ += res;
+    }
 
     return res;
 }

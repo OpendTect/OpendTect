@@ -26,6 +26,8 @@ ________________________________________________________________________
 
 #include <iostream>
 
+static const int remote_file_exist_cache_time = 10000; // 10 seconds
+
 
 namespace Network
 {
@@ -543,6 +545,8 @@ public:
     static const char*	    sFactoryKeyword() { return "http"; }
     static uiString	    sFactoryDisplayName() { return tr("Web file)"); }
 
+    mutable std::map<std::string,int>	existcache_;
+
 };
 
 } // namespace Network
@@ -550,7 +554,34 @@ public:
 
 bool Network::HttpFileSystemAccess::isReadable( const char* uri ) const
 {
-    return Network::exists( uri );
+    if ( !uri || !*uri )
+	return false;
+
+    // Find entry and clean up old entries in one go
+    const std::string uristr( uri );
+    const int curmsecs = Time::getMilliSeconds();
+    bool okfromcache = false;
+    for ( auto it=existcache_.cbegin(); it!=existcache_.cend(); )
+    {
+	const int tdiff = curmsecs - it->second;
+	if ( tdiff > remote_file_exist_cache_time )
+	    it = existcache_.erase( it );
+	else
+	{
+	    if ( it->first == uristr )
+		okfromcache = true;
+	    ++it;
+	}
+    }
+
+    if ( okfromcache )
+	return true;
+
+    if ( !Network::exists(uri) )
+	return false;
+
+    existcache_[uristr] = curmsecs;
+    return true;
 }
 
 
@@ -594,35 +625,11 @@ StreamData Network::HttpFileSystemAccess::createOStream( const char* fnm,
 }
 
 
-#define mHttpAccessNotInited	0
-#define mHttpAccessIniting		1
-#define mHttpAccessInited		2
-static Threads::Atomic<int> httpaccessinitstate = mHttpAccessNotInited;
-
-static RefMan<File::SystemAccess> nethttpfileaccinst_ = 0;
-static void destroyHttpFileAccInst()
-{ nethttpfileaccinst_ = 0; }
-
-static WeakPtrSet<File::SystemAccess> systemaccesslist_;
-
 void Network::HttpFileSystemAccess::initClass()
 {
-    while ( httpaccessinitstate != mHttpAccessInited )
-    {
-	if ( httpaccessinitstate.setIfValueIs( mHttpAccessNotInited,
-				   mHttpAccessIniting ) )
-	{
-	    //We are the first to do it
-	    File::SystemAccess::factory().addCreator( createInstance,
-						      sFactoryKeyword(),
-						      sFactoryDisplayName());
-
-	    nethttpfileaccinst_ = new Network::HttpFileSystemAccess;
-	    systemaccesslist_ += nethttpfileaccinst_;
-	    NotifyExitProgram( destroyHttpFileAccInst );
-	    httpaccessinitstate = mHttpAccessInited;
-	}
-    }
+    File::SystemAccess::factory().addCreator( createInstance,
+					      sFactoryKeyword(),
+					      sFactoryDisplayName());
 }
 
 void NetworkHttpFileSystemAccessinitClass()
