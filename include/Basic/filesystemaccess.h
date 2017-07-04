@@ -28,17 +28,17 @@ namespace File
 
   */
 
-mExpClass(Basic) SystemAccess : public RefCount::Referenced
+mExpClass(Basic) SystemAccess
 {
 public:
 
-    typedef RefMan<const SystemAccess>    Ref;
+    typedef const SystemAccess&	const_ref;
 
-    static Ref		get(const char* fnm);
+    static const_ref	get(const char* fnm);
 			    /*!<Looks at first part of filename to determine
 				what system it belongs to. If nothing matches,
 				LocalFileSystemAccess will be returned. */
-    static Ref		getByProtocol(const char* prot);
+    static const_ref	getByProtocol(const char* prot);
 
     virtual bool	exists(const char*) const;
     virtual bool	isReadable(const char*) const			= 0;
@@ -74,7 +74,7 @@ public:
 protected:
 
     virtual		~SystemAccess() {}
-    static Ref		gtByProt(BufferString&);
+    static const_ref	gtByProt(BufferString&);
 
 };
 

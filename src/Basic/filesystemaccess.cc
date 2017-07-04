@@ -157,9 +157,8 @@ mDefFileSystemAccessFn3Args(	listDirectory, DirListType, BufferStringSet&,
 #define mLocalFileSystemIniting		1
 #define mLocalFileSystemInited		2
 static Threads::Atomic<int> lfsinitstate_ = mLocalFileSystemNotInited;
-static File::SystemAccess::Ref lfsinst_ = 0;
-static ObjectSet<const void> systemaccesses_;
-		// VS complained when used actual type
+static const File::SystemAccess* lfsinst_ = 0;
+static ObjectSet<const File::SystemAccess> systemaccesses_;
 
 
 void File::LocalFileSystemAccess::initClass()
@@ -175,50 +174,52 @@ void File::LocalFileSystemAccess::initClass()
 						     sFactoryDisplayName());
 
 	    lfsinst_ = new File::LocalFileSystemAccess;
-	    lfsinst_->ref();
-	    systemaccesses_ += lfsinst_.ptr();
+	    systemaccesses_ += lfsinst_;
 	    lfsinitstate_ = mLocalFileSystemInited;
 	}
     }
 }
 
 
-File::SystemAccess::Ref File::SystemAccess::get( const char* fnm )
+const File::SystemAccess& File::SystemAccess::get( const char* fnm )
 {
     BufferString protocol = getProtocol( fnm, false );
     return gtByProt( protocol );
 }
 
 
-File::SystemAccess::Ref File::SystemAccess::getByProtocol( const char* prot )
+const File::SystemAccess& File::SystemAccess::getByProtocol( const char* prot )
 {
     BufferString protocol( prot );
     return gtByProt( protocol );
 }
 
 
-File::SystemAccess::Ref File::SystemAccess::gtByProt( BufferString& protocol )
+const File::SystemAccess& File::SystemAccess::gtByProt( BufferString& protocol )
 {
     if ( lfsinitstate_ != mLocalFileSystemInited )
 	LocalFileSystemAccess::initClass();
 
     if ( protocol.isEmpty() )
-	return lfsinst_;
+	return *lfsinst_;
 
     // search for previously used instance. First exact match (e.g. "http")
     for ( int idx=0; idx<systemaccesses_.size(); idx++ )
     {
-	Ref item = (SystemAccess*)systemaccesses_[idx];
-	if ( item && protocol==item->factoryKeyword() )
+	const SystemAccess& item = *systemaccesses_[idx];
+	if ( protocol == item.factoryKeyword() )
 	    return item;
     }
     // maybe we've been passed a variant (e.g. "https" for "http")
     for ( int idx=0; idx<systemaccesses_.size(); idx++ )
     {
-	Ref item = (SystemAccess*)systemaccesses_[idx];
-	if ( item && protocol.startsWith(item->factoryKeyword()) )
+	const SystemAccess& item = *systemaccesses_[idx];
+	if ( protocol.startsWith(item.factoryKeyword()) )
 	    return item;
     }
+
+    // OK, so we have not made an instantiation of the protocol yet
+    // See if we have anything for it in the factory
 
     const BufferStringSet nms = factory().getNames();
     if ( !nms.isPresent(protocol) )
@@ -231,13 +232,14 @@ File::SystemAccess::Ref File::SystemAccess::gtByProt( BufferString& protocol )
     }
 
     SystemAccess* res = factory().create( protocol );
-    if ( res )
+    if ( !res )
     {
-	res->ref();
-	systemaccesses_ += res;
+	ErrMsg( BufferString("Unknown file access protocol:\n",protocol) );
+	return *lfsinst_;
     }
 
-    return res;
+    systemaccesses_ += res;
+    return *res;
 }
 
 

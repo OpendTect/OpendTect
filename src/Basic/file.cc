@@ -305,8 +305,8 @@ void File::makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 
 od_int64 File::getFileSize( const char* fnm, bool followlink )
 {
-    SystemAccess::Ref fsa = SystemAccess::get( fnm );
-    return fsa ? fsa->getFileSize( fnm, followlink ) : 0;
+    const SystemAccess& fsa = SystemAccess::get( fnm );
+    return fsa.getFileSize( fnm, followlink );
 }
 
 
@@ -315,8 +315,8 @@ bool File::exists( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    SystemAccess::Ref fsa = SystemAccess::get( fnm );
-    return fsa && fsa->exists( fnm );
+    const SystemAccess& fsa = SystemAccess::get( fnm );
+    return fsa.exists( fnm );
 }
 
 
@@ -346,8 +346,8 @@ bool File::isFile( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    SystemAccess::Ref fsa = SystemAccess::get( fnm );
-    return fsa && fsa->isFile( fnm );
+    const SystemAccess& fsa = SystemAccess::get( fnm );
+    return fsa.isFile( fnm );
 }
 
 
@@ -356,8 +356,8 @@ bool File::isDirectory( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    SystemAccess::Ref fsa = SystemAccess::get( fnm );
-    return fsa && fsa->isDirectory( fnm );
+    const SystemAccess& fsa = SystemAccess::get( fnm );
+    return fsa.isDirectory( fnm );
 }
 
 
@@ -453,8 +453,8 @@ bool File::isReadable( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    SystemAccess::Ref fsa = SystemAccess::get( fnm );
-    return fsa && fsa->isReadable( fnm );
+    const SystemAccess& fsa = SystemAccess::get( fnm );
+    return fsa.isReadable( fnm );
 }
 
 
@@ -463,8 +463,8 @@ bool File::isWritable( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    SystemAccess::Ref fsa = SystemAccess::get( fnm );
-    return fsa && fsa->isWritable( fnm );
+    const SystemAccess& fsa = SystemAccess::get( fnm );
+    return fsa.isWritable( fnm );
 }
 
 
@@ -515,8 +515,8 @@ bool File::createDir( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    SystemAccess::Ref fsa = SystemAccess::get( fnm );
-    return fsa && fsa->createDirectory( fnm );
+    const SystemAccess& fsa = SystemAccess::get( fnm );
+    return fsa.createDirectory( fnm );
 }
 
 
@@ -526,8 +526,8 @@ bool File::listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
     if ( !isSane(dirnm) )
 	return false;
 
-    SystemAccess::Ref fsa = SystemAccess::get( dirnm );
-    if ( !fsa || !fsa->listDirectory(dirnm,dlt,fnames,mask) )
+    const SystemAccess& fsa = SystemAccess::get( dirnm );
+    if ( !fsa.listDirectory(dirnm,dlt,fnames,mask) )
 	return false;
 
     fnames.sort();
@@ -544,8 +544,8 @@ bool File::rename( const char* oldname, const char* newname )
 	 SystemAccess::getProtocol( newname, false ) )
 	return false;
 
-    SystemAccess::Ref fsa = SystemAccess::get( newname );
-    return fsa && fsa->rename( oldname, newname );
+    const SystemAccess& fsa = SystemAccess::get( newname );
+    return fsa.rename( oldname, newname );
 }
 
 
@@ -600,13 +600,12 @@ bool File::copy( const char* from, const char* to, uiString* errmsg )
 	 SystemAccess::getProtocol( to, false ) )
 	return false;
 
-    SystemAccess::Ref fsa = SystemAccess::get( from );
-    if ( !fsa ) return false;
+    const SystemAccess& fsa = SystemAccess::get( from );
 
-    if ( fsa->isDirectory(from) || fsa->isDirectory(to)  )
+    if ( fsa.isDirectory(from) || fsa.isDirectory(to)  )
 	return copyDir( from, to, errmsg );
 
-    return fsa->copy( from, to, errmsg );
+    return fsa.copy( from, to, errmsg );
 }
 
 
@@ -647,8 +646,8 @@ bool File::remove( const char* fnm )
     if ( !isSane(fnm) )
 	return true;
 
-    SystemAccess::Ref fsa = SystemAccess::get( fnm );
-    return fsa && fsa->remove( fnm );
+    const SystemAccess& fsa = SystemAccess::get( fnm );
+    return fsa.remove( fnm );
 }
 
 
@@ -657,8 +656,8 @@ bool File::removeDir( const char* dirnm )
     if ( !isSane(dirnm) )
 	return true;
 
-    SystemAccess::Ref fsa = SystemAccess::get( dirnm );
-    return fsa && fsa->remove( dirnm, true );
+    const SystemAccess& fsa = SystemAccess::get( dirnm );
+    return fsa.remove( dirnm, true );
 }
 
 
@@ -683,16 +682,13 @@ bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 	return false;
     }
 
-    SystemAccess::Ref fsa = SystemAccess::get( fnm );
-    if ( !fsa )
-	return false;
+    const SystemAccess& fsa = SystemAccess::get( fnm );
 
     Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
 
-    const bool success = forread
-	? fsa->isReadable( dirnm )
-	: fsa->isWritable( dirnm );
+    const bool success = forread ? fsa.isReadable( dirnm )
+				 : fsa.isWritable( dirnm );
 
     uiString postfix = od_static_tr( "FilecheckDirectory", "in folder: %1" )
 				   .arg( dirnm );
