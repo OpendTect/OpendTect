@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "survgeometrytransl.h"
 
 #include "uibutton.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
@@ -138,9 +138,9 @@ uiGeom2DImpDlg( uiParent* p, const char* linenm )
 {
     setOkText( uiStrings::sImport() );
     Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
-    geom2dinfld_ = new uiFileInput( this, mJoinUiStrs(s2D(), phrJoinStrings(
+    geom2dinfld_ = new uiFileSel( this, mJoinUiStrs(s2D(), phrJoinStrings(
 				   uiStrings::sGeometry(), uiStrings::sFile())),
-				   uiFileInput::Setup().withexamine(true) );
+				   uiFileSel::Setup().withexamine(true) );
     dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
     dataselfld_->attach( alignedBelow, geom2dinfld_ );
 }
@@ -152,7 +152,7 @@ bool acceptOK()
     return true;
 }
 
-    uiFileInput*	geom2dinfld_;
+    uiFileSel*	geom2dinfld_;
     uiTableImpDataSel*	dataselfld_;
 };
 

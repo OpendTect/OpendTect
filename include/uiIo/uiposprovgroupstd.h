@@ -19,7 +19,7 @@ class uiSelSteps;
 class uiSelHRange;
 class uiSelZRange;
 class uiSelNrRange;
-class uiFileInput;
+class uiFileSel;
 
 
 /*! \brief UI for RangePosProvider */
@@ -107,7 +107,7 @@ protected:
 
     uiGenInput*		selfld_;
     uiPickSetIOObjSel*	psfld_;
-    uiFileInput*	tffld_;
+    uiFileSel*		tffld_;
 
     void		selChg(CallBacker*);
 

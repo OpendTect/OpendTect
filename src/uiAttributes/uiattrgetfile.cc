@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 #include "uiattrsrchprocfiles.h"
 #include "uibutton.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uisrchprocfiles.h"
@@ -43,13 +43,13 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     , attrset_(*new DescSet(is2d))
     , isattrset_(isads)
 {
-    fileinpfld = new uiFileInput(this, uiStrings::sFileName());
+    fileinpfld = new uiFileSel(this, uiStrings::sFileName());
     fileinpfld->setFilter( isattrset_ ? "AttributeSet files (*.attr)" \
                                       : "Job specifications (*.par)" );
 
     fileinpfld->setDefaultSelectionDir( isattrset_ ? GetBaseDataDir()
 						   : GetProcFileName(0) );
-    fileinpfld->valuechanged.notify( mCB(this,uiGetFileForAttrSet,selChg) );
+    fileinpfld->newSelection.notify( mCB(this,uiGetFileForAttrSet,selChg) );
     if ( !isattrset_ )
     {
 	uiPushButton* but = new uiPushButton( this,
@@ -169,8 +169,8 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
 	sImportDir = GetDataDir();
 
     const char* fltr = "Attribute Sets (*.attr)";
-    fileinpfld_ = new uiFileInput( this, uiStrings::phrSelect(
-		      mJoinUiStrs(sInput(),sFile())), uiFileInput::Setup().
+    fileinpfld_ = new uiFileSel( this, uiStrings::phrSelect(
+		      mJoinUiStrs(sInput(),sFile())), uiFileSel::Setup().
 		      defseldir(sImportDir).forread(true).filter(fltr) );
 
     IOObjContext ctxt = mIOObjContext(AttribDescSet);

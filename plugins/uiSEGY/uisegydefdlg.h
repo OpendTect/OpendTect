@@ -17,7 +17,7 @@ class uiSEGYFileSpec;
 class uiSEGYFilePars;
 class uiComboBox;
 class uiCheckBox;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiTable;
 
@@ -90,7 +90,7 @@ protected:
     int			nrfiles_;
     bool		isusable_;
 
-    uiFileInput*	dirsel_;
+    uiFileSel*		dirsel_;
     uiTable*		filetable_;
 
     void		fillFileTable();

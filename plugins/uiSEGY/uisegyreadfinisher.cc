@@ -17,7 +17,8 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uiseisioobjinfo.h"
 #include "uibatchjobdispatchersel.h"
 #include "uicombobox.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uichecklist.h"
 #include "uibutton.h"
 #include "uitaskrunner.h"
@@ -196,7 +197,7 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
     }
     else
     {
-	coordfilefld_ = new uiFileInput( this, uiStrings::sFileName() );
+	coordfilefld_ = new uiFileSel( this, uiStrings::sFileName() );
 	coordfilefld_->attach( alignedBelow, lcb );
 
 	const Coord mincoord( SI().minCoord(true) );

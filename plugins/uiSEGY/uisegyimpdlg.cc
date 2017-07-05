@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uiseissubsel.h"
 #include "uiseisioobjinfo.h"
 #include "uiseparator.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uibatchjobdispatchersel.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
@@ -139,9 +139,9 @@ uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
     fp.setFileName( newfnm );
     uiString txt( tr("Input ('%1' will become line name)")
 				    .arg(uiSEGYFileSpec::sKeyLineNmToken()) );
-    uiFileInput::Setup fisu( fp.fullPath() );
+    uiFileSel::Setup fisu( fp.fullPath() );
     fisu.forread( true ).objtype( tr("SEG-Y") );
-    fnmfld_ = new uiFileInput( this, txt, fisu );
+    fnmfld_ = new uiFileSel( this, txt, fisu );
 }
 
 
@@ -252,7 +252,7 @@ bool doImp( const File::Path& fp )
     return nofails;
 }
 
-    uiFileInput*	fnmfld_;
+    uiFileSel*		fnmfld_;
     uiSEGYImpDlg*	impdlg_;
 
     const IOObj&	inioobj_;

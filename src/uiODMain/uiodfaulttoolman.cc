@@ -32,7 +32,7 @@ ___________________________________________________________________
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uicursor.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uiiosurface.h"
 #include "uiioobjsel.h"
@@ -972,7 +972,7 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 
     srcfault->geometry().removeSelectedSticks( true );
     srcfault->setChangedFlag();
-    EM::EMM().undo(srcemobj->id()).setUserInteractionEnd( 
+    EM::EMM().undo(srcemobj->id()).setUserInteractionEnd(
 	EM::EMM().undo(srcemobj->id()).currentEventID());
 }
 

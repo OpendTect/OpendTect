@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uidesktopservices.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimain.h"
@@ -54,7 +54,7 @@ uiPythonInstallGrp( uiParent* p )
     uiLabel* lbl = new uiLabel( this, msg );
 
     const BufferString filter( __iswin__ ? "Application (*.exe)" : "" );
-    pythonfld_ = new uiFileInput( this, tr("Python Executable") );
+    pythonfld_ = new uiFileSel( this, tr("Python Executable") );
     pythonfld_->setFilter( filter );
     pythonfld_->setFileName( PresentationSpec::getPyExec() );
     pythonfld_->attach( leftAlignedBelow, lbl );
@@ -69,7 +69,9 @@ bool acceptOK()
 }
 
 protected:
-    uiFileInput*	pythonfld_;
+
+    uiFileSel*	pythonfld_;
+
 };
 
 
@@ -226,15 +228,15 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     templatefld_->attach( alignedBelow, titlefld_ );
 
     BufferString filter( "PowerPoint (*.pptx)" );
-    uiFileInput::Setup fis;
+    uiFileSel::Setup fis;
     fis.forread(true).filter( filter );
-    masterfld_ = new uiFileInput( this, tr("Template pptx"), fis );
+    masterfld_ = new uiFileSel( this, tr("Template pptx"), fis );
     masterfld_->setDefaultExtension( "pptx" );
     masterfld_->setFileName( templfnm );
     masterfld_->attach( alignedBelow, templatefld_ );
 
     fis.forread(false);
-    outputfld_ = new uiFileInput( this, tr("Output pptx"), fis );
+    outputfld_ = new uiFileSel( this, tr("Output pptx"), fis );
     outputfld_->setDefaultExtension( "pptx" );
     outputfld_->attach( alignedBelow, masterfld_ );
 

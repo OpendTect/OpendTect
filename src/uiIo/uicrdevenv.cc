@@ -11,7 +11,8 @@ ________________________________________________________________________
 #include "uicrdevenv.h"
 
 #include "uidesktopservices.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uimain.h"
 #include "uimsg.h"
 
@@ -53,9 +54,9 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 
     setTitleText( titltxt );
 
-    basedirfld = new uiFileInput( this, uiStrings::phrJoinStrings(
+    basedirfld = new uiFileSel( this, uiStrings::phrJoinStrings(
 			      tr("Parent"),uiStrings::sDirectory()),
-			      uiFileInput::Setup(basedirnm).directories(true) );
+			      uiFileSel::Setup(basedirnm).directories(true) );
 
     workdirfld = new uiGenInput( this, mJoinUiStrs(sDirectory(),sName()),
 								    workdirnm );

@@ -13,20 +13,21 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiGenInput;
-class uiFileInput;
+class uiFileSel;
 
 mExpClass(uiIo) uiCrDevEnv : public uiDialog
 { mODTextTranslationClass(uiCrDevEnv);
 public:
 
-    static void		crDevEnv(uiParent*);		
+    static void		crDevEnv(uiParent*);
     static bool		isOK(const char* dir=0); //!< default dir: $WORK
 
 protected:
 			uiCrDevEnv(uiParent*,const char*,const char*);
 
     uiGenInput*		workdirfld;
-    uiFileInput*	basedirfld;
+    uiFileSel*		basedirfld;
 
     bool		acceptOK();
+
 };

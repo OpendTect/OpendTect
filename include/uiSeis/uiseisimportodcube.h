@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 class IOObj;
 class uiCheckBox;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiSeisSel;
 class uiSeisTransfer;
@@ -40,7 +40,7 @@ protected:
     uiGenInput*		typefld_;
     uiGenInput*		modefld_;
     uiSeisTransfer*	transffld_;
-    uiFileInput*	inpfld_;
+    uiFileSel*		inpfld_;
     uiSeisSel*		outfld_;
 
     void		inpSel(CallBacker*);

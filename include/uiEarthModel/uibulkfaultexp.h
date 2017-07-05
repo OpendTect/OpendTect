@@ -8,11 +8,12 @@
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiFileSel;
 
 mExpClass(uiEarthModel) uiBulkFaultExport : public uiDialog
 { mODTextTranslationClass(uiBulkFaultExport)
 public:
+
 			uiBulkFaultExport(uiParent*);
 			~uiBulkFaultExport();
 
@@ -20,5 +21,6 @@ protected:
 
     bool		acceptOK();
 
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
+
 };

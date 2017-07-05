@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uiwindowgrabber.h"
 
 #include "uicombobox.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uipixmap.h"
@@ -65,24 +65,24 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 
     if ( dirname_.isEmpty() )
 	dirname_ = File::Path(GetDataDir()).add("Misc").fullPath();
-    fileinputfld_ = new uiFileInput( this, mJoinUiStrs(sFile(), sName()),
-				    uiFileInput::Setup(uiFileDialog::Gen)
-				    .forread(false)
-				    .defseldir(dirname_)
-				    .directories(false)
-				    .allowallextensions(false) );
-    fileinputfld_->valuechanged.notify( mCB(this,uiWindowGrabDlg,fileSel) );
+    inpfilefld_ = new uiFileSel( this, mJoinUiStrs(sFile(), sName()),
+				   uiFileSel::Setup(uiFileDialog::Gen)
+				   .forread(false)
+				   .defseldir(dirname_)
+				   .directories(false)
+				   .allowallextensions(false) );
+    inpfilefld_->newSelection.notify( mCB(this,uiWindowGrabDlg,fileSel) );
     if ( windowfld_ )
-	fileinputfld_->attach( alignedBelow, windowfld_ );
+	inpfilefld_->attach( alignedBelow, windowfld_ );
     updateFilter();
 
     qualityfld_ = new uiSlider( this,
 	    uiSlider::Setup(tr("Image quality")).withedit(true),
 	    "Quality slider" );
-    qualityfld_->attach( alignedBelow, fileinputfld_ );
+    qualityfld_->attach( alignedBelow, inpfilefld_ );
     qualityfld_->setInterval( StepInterval<float>(0,100,1) );
     qualityfld_->setValue(50);
-    qualityfld_->attach( alignedBelow, fileinputfld_ );
+    qualityfld_->attach( alignedBelow, inpfilefld_ );
 
     infofld_ = new uiLabel( this, tr("Arrange your windows before confirming"));
     infofld_->attach( alignedBelow, qualityfld_ );
@@ -116,7 +116,7 @@ void uiWindowGrabDlg::updateFilter()
 	}
 
 	if ( supportedformats.isPresent(imageformats[idx]) )
-	    fileinputfld_->setSelectedFilter( filters[idx] );
+	    inpfilefld_->setSelectedFilter( filters[idx] );
 	break;
     }
 
@@ -133,15 +133,15 @@ void uiWindowGrabDlg::updateFilter()
 	idx++;
     }
 
-    fileinputfld_->setFilter( filter );
+    inpfilefld_->setFilter( filter );
 }
 
 
 void uiWindowGrabDlg::fileSel( CallBacker* )
 {
-    BufferString filename = fileinputfld_->fileName();
+    BufferString filename = inpfilefld_->fileName();
     addFileExtension( filename );
-    fileinputfld_->setFileName( filename );
+    inpfilefld_->setFileName( filename );
 }
 
 
@@ -155,7 +155,7 @@ void uiWindowGrabDlg::addFileExtension( BufferString& filename )
 
 bool uiWindowGrabDlg::filenameOK() const
 {
-    BufferString filename = fileinputfld_->fileName();
+    BufferString filename = inpfilefld_->fileName();
     if ( filename.isEmpty() )
     {
 	uiMSG().error( uiStrings::phrSelect(uiStrings::sFileName().toLower()) );
@@ -178,7 +178,7 @@ bool uiWindowGrabDlg::acceptOK()
     if ( !filenameOK() )
 	return false;
 
-    File::Path filepath( fileinputfld_->fileName() );
+    File::Path filepath( inpfilefld_->fileName() );
     dirname_ = filepath.pathOnly();
     filename_ = filepath.fullPath();
     return true;
@@ -188,7 +188,7 @@ bool uiWindowGrabDlg::acceptOK()
 const char* uiWindowGrabDlg::getExtension() const
 {
     int ifmt = -1;
-    File::Path fp( fileinputfld_->fileName() );
+    File::Path fp( inpfilefld_->fileName() );
     const BufferString ext( fp.extension() );
     for ( int idx=0; imageformats[idx]; idx++ )
     {
@@ -198,7 +198,7 @@ const char* uiWindowGrabDlg::getExtension() const
 
     if ( ifmt < 0 )
     {
-	const FixedString selectedfilter = fileinputfld_->selectedFilter();
+	const FixedString selectedfilter = inpfilefld_->selectedFilter();
 	for ( ifmt=0; filters[ifmt]; ifmt++ )
 	{
 	    if ( selectedfilter == filters[ifmt] )

@@ -15,7 +15,7 @@ ________________________________________________________________________
 class uiIOObjSel;
 class uiGenInput;
 class uiPosSubSel;
-class uiFileInput;
+class uiFileSel;
 class uiComboBox;
 
 
@@ -28,7 +28,7 @@ public :
 			uiResortSEGYDlg(uiParent*);
 
     Seis::GeomType	geomType() const;
-    uiString		sFldNm() { return tr("Scanned input"); } 
+    uiString		sFldNm() { return tr("Scanned input"); }
 
 protected:
 
@@ -40,7 +40,7 @@ protected:
     uiPosSubSel*	subselfld_;
     uiGenInput*		newinleachfld_;
     uiGenInput*		inlnmsfld_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
 
     uiIOObjSel*		objSel();
 

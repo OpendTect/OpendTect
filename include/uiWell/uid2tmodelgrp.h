@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiConstantVel;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
@@ -59,7 +59,7 @@ protected:
     mutable uiString	errmsg_;
     mutable uiString	warnmsg_;
 
-    uiFileInput*	filefld_;
+    uiFileSel*		filefld_;
     uiConstantVel*	velfld_;
     uiGenInput*		csfld_;
     uiTableImpDataSel*  dataselfld_;

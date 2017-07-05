@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimatlabstep.h"
 
 #include "uibutton.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitable.h"
@@ -44,8 +44,8 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step, bool is2d )
     , fileloaded_(false)
 {
     const File::Path sofiledir = getSODefaultDir();
-    filefld_ = new uiFileInput( this, tr("Select shared object file"),
-				uiFileInput::Setup(uiFileDialog::Gen)
+    filefld_ = new uiFileSel( this, tr("Select shared object file"),
+				uiFileSel::Setup(uiFileDialog::Gen)
 				.filter(sofileflt)
 				.defseldir(sofiledir.fullPath()) );
     filefld_->valuechanged.notify( mCB(this,uiMatlabStep,fileSelCB) );

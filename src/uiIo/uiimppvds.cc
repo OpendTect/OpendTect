@@ -11,7 +11,8 @@ ________________________________________________________________________
 
 #include "uiimppvds.h"
 
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uiioobjsel.h"
 #include "uibutton.h"
 #include "uitaskrunner.h"
@@ -43,10 +44,9 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 {
     setOkText( uiStrings::sImport() );
 
-    uiFileInput::Setup su( uiFileDialog::Txt );
+    uiFileSel::Setup su( uiFileDialog::Txt );
     su.withexamine(true).examstyle(File::Table).forread(true);
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()),
-			       su );
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::sFile()), su);
 
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );
     fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );

@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiimpexp2dgeom.h"
 
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uiioobjselgrp.h"
 #include "uimsg.h"
 
@@ -35,8 +35,8 @@ uiExp2DGeom::uiExp2DGeom( uiParent* p )
     geomfld_ = new uiIOObjSelGrp( this, ctxt,
 				  uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
-			       uiFileInput::Setup().forread(false) );
+    outfld_ = new uiFileSel( this, uiStrings::sOutputFile(),
+			       uiFileSel::Setup().forread(false) );
     outfld_->attach( alignedBelow, geomfld_ );
 }
 

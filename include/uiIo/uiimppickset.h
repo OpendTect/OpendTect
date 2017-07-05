@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiColorInput;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiLabeledComboBox;
@@ -46,7 +46,7 @@ protected:
     uiLabeledComboBox*  horinpfld_;
     uiGenInput*		constzfld_;
     uiTableImpDataSel*  dataselfld_;
-    uiFileInput*	filefld_;
+    uiFileSel*		filefld_;
 
     uiPickPartServer*	serv_;
 

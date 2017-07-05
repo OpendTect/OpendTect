@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicolor.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -479,8 +479,8 @@ uiReadMarkerFile( uiParent* p )
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
-    fnmfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-			       uiFileInput::Setup().withexamine(true)
+    fnmfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
+			       uiFileSel::Setup().withexamine(true)
 			       .forread(true) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
@@ -514,7 +514,7 @@ bool acceptOK()
     BufferString	fnm_;
     bool		keep_;
 
-    uiFileInput*	fnmfld_;
+    uiFileSel*		fnmfld_;
     uiGenInput*		replfld_;
     uiTableImpDataSel*	dataselfld_;
 };

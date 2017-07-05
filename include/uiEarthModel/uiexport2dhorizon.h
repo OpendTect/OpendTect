@@ -17,7 +17,7 @@ class uiListBox;
 class uiComboBox;
 class uiGenInput;
 class uiCheckList;
-class uiFileInput;
+class uiFileSel;
 class od_ostream;
 
 
@@ -36,7 +36,7 @@ protected:
     uiComboBox*		horselfld_;
     uiListBox*		linenmfld_;
     uiGenInput*		udffld_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
     uiCheckList*	optsfld_;
     uiGenInput*		headerfld_;
 

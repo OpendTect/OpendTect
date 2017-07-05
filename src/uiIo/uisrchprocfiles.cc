@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uisrchprocfiles.h"
 
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "uiselsimple.h"
@@ -33,8 +33,8 @@ uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
 {
     ctio_.ctxt_.forread_ = true;
 
-    dirfld = new uiFileInput( this, tr("Directory to search in"),
-		 uiFileInput::Setup(GetProcFileName(0)).directories(true) );
+    dirfld = new uiFileSel( this, tr("Directory to search in"),
+		 uiFileSel::Setup(GetProcFileName(0)).directories(true) );
     maskfld = new uiGenInput( this, tr("Filename subselection"), "*.par" );
     maskfld->attach( alignedBelow, dirfld );
     objfld = new uiIOObjSel( this, ctio_, uiStrings::phrOutput(tr(

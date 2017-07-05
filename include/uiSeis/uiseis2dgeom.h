@@ -15,7 +15,7 @@ class IOObj;
 class uiSeisSel;
 class CtxtIOObj;
 class uiGenInput;
-class uiFileInput;
+class uiFileSel;
 
 
 mExpClass(uiSeis) uiSeisDump2DGeom : public uiDialog
@@ -28,7 +28,7 @@ protected:
 
     uiSeisSel*		seisfld_;
     uiGenInput*		lnmsfld_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
 
     virtual bool	acceptOK();
 

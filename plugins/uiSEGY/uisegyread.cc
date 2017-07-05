@@ -12,7 +12,8 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uichecklist.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
 #include "uisegydef.h"
@@ -232,10 +233,9 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     BufferString fnm( fs.fileName() );
     fnm.replace( '*', 'x' );
     File::Path fp( fnm ); fp.setExtension( "txt" );
-    uiFileInput::Setup fisu( GetProcFileName(fp.fileName()) );
-    fisu.forread( false ).objtype( tr("Report") );
-    saveasfld_ = new uiFileInput( this, tr("Save report as"), fisu );
-    saveasfld_->setWithCheck( true );
+    uiFileSel::Setup fssu( GetProcFileName(fp.fileName()) );
+    fssu.forread( false ).objtype( tr("Report") ).checkable( true );
+    saveasfld_ = new uiFileSel( this, tr("Save report as"), fssu );
     saveasfld_->attach( alignedBelow, nrtrcsfld_ );
     saveasfld_->setChecked( true );
 
@@ -272,7 +272,7 @@ bool acceptOK()
     const IOPar&	pars_;
 
     uiGenInput*		nrtrcsfld_;
-    uiFileInput*	saveasfld_;
+    uiFileSel*		saveasfld_;
 
     bool		res_;
     IOPar		rep_;

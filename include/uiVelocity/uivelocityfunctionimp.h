@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uivelocitymod.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiFileSel;
 class uiIOObjSel;
 class CtxtIOObj;
 class uiTableImpDataSel;
@@ -27,12 +27,12 @@ namespace Vel
 mExpClass(uiVelocity) uiImportVelFunc : public uiDialog
 { mODTextTranslationClass(uiImportVelFunc);
 public:
-    			uiImportVelFunc(uiParent*);
+			uiImportVelFunc(uiParent*);
 			~uiImportVelFunc();
 
 protected:
-	
-    uiFileInput*	inpfld_;
+
+    uiFileSel*		inpfld_;
     uiVelocityDesc*	typefld_;
     uiIOObjSel*		outfld_;
 

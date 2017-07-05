@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiFileSel;
 class uiIOObjSelGrp;
 
 mExpClass(uiIo) uiExp2DGeom : public uiDialog
@@ -27,5 +27,5 @@ protected:
     bool		acceptOK();
 
     uiIOObjSelGrp*	geomfld_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
 };

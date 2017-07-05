@@ -17,13 +17,13 @@ ________________________________________________________________________
 class IOObj;
 class uiIOObjSel;
 class uiGenInput;
-class uiFileInput;
+class uiFileSel;
 class DataPointSet;
 class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
 
-mExpClass(uiIo) uiImpPVDS : public uiDialog 
+mExpClass(uiIo) uiImpPVDS : public uiDialog
 { mODTextTranslationClass(uiImpPVDS);
 public:
 			uiImpPVDS(uiParent*,bool is2d=false);
@@ -34,7 +34,7 @@ protected:
     Table::FormatDesc&	fd_;
     const bool		is2d_;
 
-    uiFileInput*	inpfld_;
+    uiFileSel*		inpfld_;
     uiTableImpDataSel*	dataselfld_;
     uiGenInput*		row1isdatafld_;
     uiIOObjSel*		outfld_;

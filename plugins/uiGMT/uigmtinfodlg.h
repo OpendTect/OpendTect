@@ -14,8 +14,9 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiCheckBox;
-class uiFileInput;
+class uiFileSel;
 class uiLabel;
+
 
 mExpClass(uiGMT) uiGMTInfoDlg : public uiDialog
 { mODTextTranslationClass(uiGMTInfoDlg);
@@ -27,6 +28,6 @@ protected:
     void		selCB(CallBacker*);
 
     uiCheckBox*		chkbut_;
-    uiFileInput*	gmtpath_;
+    uiFileSel*		gmtpath_;
     uiLabel*		label_;
 };

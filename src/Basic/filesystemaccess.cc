@@ -47,6 +47,8 @@ mExpClass(Basic) LocalFileSystemAccess : public SystemAccess
 { mODTextTranslationClass(LocalFileSystemAccess);
 public:
 
+    virtual const char*	protocol() const    { return "file"; }
+
     virtual bool	exists(const char*) const;
     virtual bool	isReadable(const char*) const;
     virtual bool	isFile(const char*) const;
@@ -70,7 +72,7 @@ public:
 
     static void		initClass();
     static const char*	sFactoryKeyword() { return "file"; }
-    static uiString	sFactoryDisplayName() { return tr("Local file"); }
+    static uiString	sFactoryDisplayName() { return tr("Local"); }
 
     virtual const char* factoryKeyword() const { return sFactoryKeyword(); }
     virtual uiString	factoryDisplayName() const
@@ -112,6 +114,12 @@ BufferString File::SystemAccess::withoutProtocol( const char* uri )
 	return input;
 
     return BufferString( prefixend + searchlen );
+}
+
+
+BufferString File::SystemAccess::iconForProtocol( const char* prot )
+{
+    return BufferString( "fileaccess_", prot );
 }
 
 
@@ -254,6 +262,7 @@ bool File::LocalFileSystemAccess::exists( const char* uri ) const
     mGetFileNameAndRetFalseIfEmpty();
     return QFile::exists( fnm.buf() );
 }
+
 
 bool File::LocalFileSystemAccess::isReadable( const char* uri ) const
 {

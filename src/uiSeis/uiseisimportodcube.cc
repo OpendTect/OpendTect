@@ -31,7 +31,8 @@ ________________________________________________________________________
 #include "filepath.h"
 
 #include "uicombobox.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
@@ -52,11 +53,11 @@ uiSeisImportODCube::uiSeisImportODCube( uiParent* p )
 	const_cast<DBKey&>(tmpid_) = dbdir->newTmpKey();
     setCtrlStyle( RunAndClose );
 
-    uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.filter("OpendTect seismic files (*.blocks *.cbvs)")
+    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    fssu.filter("OpendTect seismic files (*.blocks *.cbvs)")
 		.defseldir( GetBaseDataDir() );
-    inpfld_ = new uiFileInput( this, tr("(First) file name"), fisu );
-    inpfld_->valuechanged.notify( mCB(this,uiSeisImportODCube,inpSel) );
+    inpfld_ = new uiFileSel( this, tr("(First) file name"), fssu );
+    inpfld_->newSelection.notify( mCB(this,uiSeisImportODCube,inpSel) );
 
     StringListInpSpec spec;
     spec.addString( uiStrings::phrInput(uiStrings::phrData(tr("Cube"))) );

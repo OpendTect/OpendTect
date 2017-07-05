@@ -27,7 +27,8 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "uibutton.h"
 #include "uichecklist.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -98,8 +99,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-			       uiFileInput::Setup().forread(false) );
+    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
+			       uiFileSel::Setup().forread(false) );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else

@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uitblimpexpdatasel.h"
 
 #include "uiconstvel.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 
 #include "ioobjctxt.h"
@@ -43,11 +43,12 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     , setup_(su)
     , fd_( *Well::D2TModelAscIO::getDesc(setup_.withunitfld_) )
 {
-    filefld_ = new uiFileInput( this, toUiString(setup_.filefldlbl_),
-				uiFileInput::Setup().withexamine(true) );
+    uiFileSel::Setup fssu;
+    fssu.withexamine( true ).checkable( setup_.fileoptional_ );
+    filefld_ = new uiFileSel( this, toUiString(setup_.filefldlbl_), fssu );
     if ( setup_.fileoptional_ )
     {
-	filefld_->setWithCheck( true ); filefld_->setChecked( true );
+	filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 	const uiString vellbl( sKeyTemporaryVel() );
 	velfld_ = new uiConstantVel( this, getDefaultTemporaryVelocity(),
@@ -57,9 +58,10 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
                                         mODHelpKey(mD2TModelGroupHelpID) );
-    dataselfld_->attach( alignedBelow,
-			 setup_.fileoptional_ ? (uiGenInput*)velfld_
-					      : filefld_ );
+    if ( setup_.fileoptional_ )
+	dataselfld_->attach( alignedBelow, velfld_ );
+    else
+	dataselfld_->attach( alignedBelow, filefld_ );
 
     if ( setup_.asksetcsmdl_ )
     {

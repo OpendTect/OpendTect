@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uifiledlg.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
@@ -94,9 +94,9 @@ uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, 
+    inpfld_ = new uiFileSel( this,
 		      uiStrings::sInputASCIIFile(),
-		      uiFileInput::Setup().withexamine(true)
+		      uiFileSel::Setup().withexamine(true)
 		      .examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,

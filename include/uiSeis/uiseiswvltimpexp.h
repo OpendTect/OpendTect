@@ -17,7 +17,7 @@ class CtxtIOObj;
 class IOObj;
 class uiGenInput;
 class uiWaveletIOObjSel;
-class uiFileInput;
+class uiFileSel;
 class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
@@ -34,7 +34,7 @@ protected:
 
     Table::FormatDesc&	fd_;
 
-    uiFileInput*	inpfld_;
+    uiFileSel*		inpfld_;
     uiTableImpDataSel*	dataselfld_;
     uiGenInput*		scalefld_;
     uiWaveletIOObjSel*	wvltfld_;
@@ -52,7 +52,7 @@ public:
 protected:
 
     uiWaveletIOObjSel*	wvltfld_;
-    uiFileInput*	outpfld_;
+    uiFileSel*		outpfld_;
     uiGenInput*		addzfld_;
 
     bool		acceptOK();

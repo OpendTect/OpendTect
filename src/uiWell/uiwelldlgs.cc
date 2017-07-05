@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uicolor.h"
 #include "uid2tmodelgrp.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -318,10 +319,10 @@ uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 	, fd_(fd)
 {
     setOkText( uiStrings::sImport() );
-    wtinfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
+    wtinfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(
 		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
-		   uiFileInput::Setup().withexamine(true) );
-    wtinfld_->valuechanged.notify( mCB(this,uiWellTrackReadDlg,inputChgd) );
+		   uiFileSel::Setup().withexamine(true) );
+    wtinfld_->newSelection.notify( mCB(this,uiWellTrackReadDlg,inputChgd) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 				      mODHelpKey(mWellImportAscDataSelHelpID) );
@@ -424,7 +425,7 @@ bool acceptOK()
     return true;
 }
 
-    uiFileInput*	wtinfld_;
+    uiFileSel*		wtinfld_;
     uiGenInput*		kbelevfld_;
     uiGenInput*		tdfld_;
     BufferString	fnm_;

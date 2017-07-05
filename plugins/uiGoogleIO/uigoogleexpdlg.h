@@ -7,19 +7,19 @@
 
 #include "uidialog.h"
 #include "filepath.h"
-class uiFileInput;
+class uiFileSel;
 
 #define mDecluiGoogleExpStd \
-    uiFileInput*	fnmfld_; \
+    uiFileSel*		fnmfld_; \
     bool		acceptOK()
 
 #define mImplFileNameFld(nm) \
     BufferString deffnm( nm ); \
     deffnm.clean( BufferString::AllowDots ); \
     File::Path deffp( GetDataDir() ); deffp.add( deffnm ).setExtension( "kml" ); \
-    uiFileInput::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() ); \
+    uiFileSel::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() ); \
     fiinpsu.forread( false ).filter( "*.kml" ); \
-    fnmfld_ = new uiFileInput( this, uiStrings::sOutputFile(), fiinpsu );
+    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fiinpsu );
 
 
 #define mCreateWriter(typ,survnm) \

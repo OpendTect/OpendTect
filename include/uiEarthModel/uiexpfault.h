@@ -16,7 +16,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class uiCheckBox;
 class uiCheckList;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiUnitSel;
@@ -40,7 +40,7 @@ protected:
     uiUnitSel*		zunitsel_;
     uiCheckList*	stickidsfld_;
     uiCheckBox*		linenmfld_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
 
     CtxtIOObj&		ctio_;
     bool		getInputDBKeys(DBKeySet&);

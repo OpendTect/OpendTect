@@ -20,7 +20,6 @@ ________________________________________________________________________
 class uiButtonGroup;
 class uiCheckBox;
 class uiD2TModelGroup;
-class uiFileInput;
 class uiGenInput;
 class uiLabel;
 class uiMultiWellSel;

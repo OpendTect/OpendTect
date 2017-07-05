@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "crssystem.h"
 
 class uiCheckBox;
-class uiFileInput;
+class uiFileSel;
 class uiListBox;
 class uiLineEdit;
 class uiLatLongInp;
@@ -88,8 +88,8 @@ private:
     uiCheckBox*		towgs84fld_;
     uiCheckBox*		fromwgs84fld_;
     uiLatLongInp*	latlngfld_;
-    uiFileInput*	inpfilefld_;
-    uiFileInput*	outfilefld_;
+    uiFileSel*		inpfilefld_;
+    uiFileSel*		outfilefld_;
 
     void		finaliseCB(CallBacker*);
     void		selChg(CallBacker*);

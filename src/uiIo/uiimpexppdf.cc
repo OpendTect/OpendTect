@@ -11,7 +11,8 @@ ________________________________________________________________________
 
 #include "uiimpexppdf.h"
 
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uiioobjsel.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
@@ -47,12 +48,12 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this,
+    inpfld_ = new uiFileSel( this,
 	    uiStrings::sInputASCIIFile(),
-	    uiFileInput::Setup(uiFileDialog::Gen)
+	    uiFileSel::Setup(uiFileDialog::Gen)
 	    .withexamine(true).forread(true).filter(filefilter) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    inpfld_->valuechanged.notify( mCB(this,uiImpRokDocPDF,selChg) );
+    inpfld_->newSelection.notify( mCB(this,uiImpRokDocPDF,selChg) );
 
     varnmsfld_ = new uiGenInput( this, tr("Output variable names"),
 				 StringInpSpec(), StringInpSpec() );
@@ -475,8 +476,8 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     inpfld_ = new uiIOObjSel( this, ioobjctxt );
     inpfld_->setLabelText( uiStrings::phrInput(tr("PDF")) );
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
-	    uiFileInput::Setup(uiFileDialog::Gen)
+    outfld_ = new uiFileSel( this, uiStrings::sOutputFile(),
+	    uiFileSel::Setup(uiFileDialog::Gen)
 	    .withexamine(false).forread(false).filter(filefilter) );
     outfld_->setSelectMode( uiFileDialog::AnyFile );
     outfld_->attach( alignedBelow, inpfld_ );

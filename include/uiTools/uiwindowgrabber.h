@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiLabeledComboBox;
-class uiFileInput;
+class uiFileSel;
 class uiSlider;
 class uiLabel;
 class uiMainWin;
@@ -33,8 +33,9 @@ public:
     int			getQuality() const;
 
 protected:
+
     uiLabeledComboBox*	windowfld_;
-    uiFileInput*	fileinputfld_;
+    uiFileSel*		inpfilefld_;
     uiSlider*		qualityfld_;
     uiLabel*		infofld_;
 
@@ -52,6 +53,7 @@ protected:
 
     static BufferString dirname_;
     BufferString	filename_;
+
 };
 
 

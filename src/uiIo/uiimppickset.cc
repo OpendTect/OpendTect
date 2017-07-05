@@ -12,7 +12,8 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uicombobox.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uipickpartserv.h"
@@ -76,11 +77,11 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	? uiStrings::sInputASCIIFile()
 	: uiStrings::sOutputASCIIFile();
 
-    filefld_ = new uiFileInput( this, label, uiFileInput::Setup()
-					    .withexamine(import_)
-					    .forread(import_) );
+    filefld_ = new uiFileSel( this, label, uiFileSel::Setup()
+					   .withexamine(import_)
+					   .forread(import_) );
     if ( import_ )
-	filefld_->valuechanged.notify( mCB(this,uiImpExpPickSet,inputChgd) );
+	filefld_->newSelection.notify( mCB(this,uiImpExpPickSet,inputChgd) );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.forread_ = !import_;

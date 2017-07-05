@@ -7,7 +7,7 @@
 
 #include "uigoogleexpwells.h"
 #include "googlexmlwriter.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uiwellsel.h"
 #include "uimsg.h"
 #include "oddirs.h"

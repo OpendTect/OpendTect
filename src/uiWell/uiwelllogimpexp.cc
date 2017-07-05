@@ -10,7 +10,8 @@ ________________________________________________________________________
 
 #include "uiwelllogimpexp.h"
 
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -48,11 +49,11 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 {
     setOkText( uiStrings::sImport() );
 
-    lasfld_ = new uiFileInput( this, uiStrings::phrInput(
-			       tr("(pseudo-)LAS logs file")),
-			       uiFileInput::Setup(uiFileDialog::Gen)
-			       .filter(lasfileflt).withexamine(true) );
-    lasfld_->valuechanged.notify( mCB(this,uiImportLogsDlg,lasSel) );
+    lasfld_ = new uiFileSel( this, uiStrings::phrInput(
+			     tr("(pseudo-)LAS logs file")),
+			     uiFileSel::Setup(uiFileDialog::Gen)
+			     .filter(lasfileflt).withexamine(true) );
+    lasfld_->newSelection.notify( mCB(this,uiImportLogsDlg,lasSel) );
 
     intvfld_ = new uiGenInput( this, tr("Depth interval to load (empty=all)"),
 			      FloatInpIntervalSpec(false) );
@@ -274,11 +275,11 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;
-    outfld_ = new uiFileInput( this, multiwells ?
-				      mJoinUiStrs(sFile(),sDirectory())
+    outfld_ = new uiFileSel( this, multiwells ?
+			      mJoinUiStrs(sFile(),sDirectory())
 				    : uiStrings::phrOutput(uiStrings::sFile()),
-			      uiFileInput::Setup().forread(false)
-						  .directories(multiwells) );
+			      uiFileSel::Setup().forread(false)
+						.directories(multiwells) );
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )
     {

@@ -9,7 +9,8 @@
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uidialog.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -94,10 +95,10 @@ uiDZTImporter( uiParent* p )
     if ( !SI().has2D() )
 	{ new uiLabel(this,tr("TODO: implement 3D loading")); return; }
 
-    uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.filter( "*.dzt" ).forread( true );
-    inpfld_ = new uiFileInput(this, uiStrings::phrInput(tr("DZT file")), fisu);
-    inpfld_->valuechanged.notify( mCB(this,uiDZTImporter,inpSel) );
+    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    fssu.filter( "*.dzt" ).forread( true );
+    inpfld_ = new uiFileSel(this, uiStrings::phrInput(tr("DZT file")), fssu);
+    inpfld_->newSelection.notify( mCB(this,uiDZTImporter,inpSel) );
 
     nrdeffld_ = new uiGenInput( this, tr("%1 definition: start, step")
 					.arg( uiStrings::sTraceNumber() ),
@@ -172,7 +173,7 @@ bool acceptOK()
     return TaskRunner::execute( &taskrunner, importer );
 }
 
-    uiFileInput*	inpfld_;
+    uiFileSel*		inpfld_;
     uiGenInput*		lnmfld_;
     uiGenInput*		nrdeffld_;
     uiGenInput*		startposfld_;

@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiCheckBox;
-class uiFileInput;
+class uiFileSel;
 class uiTextEdit;
 class uiLabel;
 class uiLabeledComboBox;
@@ -22,7 +22,7 @@ class uiPushButton;
 
 namespace CmdDrive
 {
-   
+
 class CmdDriver;
 class CmdRecorder;
 class InteractSpec;
@@ -75,9 +75,9 @@ protected:
     void			setDefaultSelDirs();
     void			setDefaultLogFile();
 
-    uiFileInput*                inpfld_;
-    uiFileInput*                outfld_;
-    uiFileInput*                logfld_;
+    uiFileSel*			inpfld_;
+    uiFileSel*			outfld_;
+    uiFileSel*			logfld_;
 
     bool			inpfldsurveycheck_;
     bool			outfldsurveycheck_;

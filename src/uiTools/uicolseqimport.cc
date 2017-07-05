@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uicolseqimport.h"
 #include "uicolseqdisp.h"
 
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -46,11 +46,11 @@ uiColSeqImport::uiColSeqImport( uiParent* p )
     choicefld_->valuechanged.notify( mCB(this,uiColSeqImport,choiceSel) );
 
     sHomePath = sFilePath = GetPersonalDir();
-    dirfld_ = new uiFileInput( this, getLabelText(true),
-			       uiFileInput::Setup(sHomePath)
+    dirfld_ = new uiFileSel( this, getLabelText(true),
+			       uiFileSel::Setup(sHomePath)
 			       .directories(true) );
-    dirfld_->setReadOnly();
-    dirfld_->valuechanged.notify( mCB(this,uiColSeqImport,usrSel) );
+    dirfld_->setNoManualEdit();
+    dirfld_->newSelection.notify( mCB(this,uiColSeqImport,usrSel) );
     dirfld_->attach( alignedBelow, choicefld_ );
 
     dtectusrfld_ = new uiGenInput( this, tr("DTECT_USER (if any)") );
@@ -89,7 +89,7 @@ void uiColSeqImport::choiceSel( CallBacker* )
     const bool fromuser = choicefld_->getBoolValue();
     dirfld_->setSelectMode(
 	fromuser ? uiFileDialog::DirectoryOnly : uiFileDialog::ExistingFile );
-    dirfld_->setTitleText( getLabelText(fromuser) );
+    dirfld_->setLabelText( getLabelText(fromuser) );
     dirfld_->setFileName( fromuser ? sHomePath : sFilePath );
 
     dtectusrfld_->display( fromuser );

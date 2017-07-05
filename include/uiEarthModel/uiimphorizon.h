@@ -21,7 +21,7 @@ class HorizonScanner;
 
 class uiCheckBox;
 class uiColorInput;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiListBox;
@@ -49,7 +49,7 @@ public:
 
 protected:
 
-    uiFileInput*	inpfld_;
+    uiFileSel*		inpfld_;
     uiPushButton*	scanbut_;
     uiListBox*		attrlistfld_;
     uiPosSubSel*	subselfld_;

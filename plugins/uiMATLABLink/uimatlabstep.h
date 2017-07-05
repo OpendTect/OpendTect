@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "matlabstep.h"
 
-class uiFileInput;
+class uiFileSel;
 class uiPushButton;
 class uiTable;
 
@@ -46,7 +46,7 @@ protected:
     bool		readTable(BufferStringSet&,BufferStringSet&) const;
     static File::Path	getSODefaultDir();
 
-    uiFileInput*	filefld_;
+    uiFileSel*		filefld_;
     uiPushButton*	loadbut_;
     uiTable*		partable_;
 

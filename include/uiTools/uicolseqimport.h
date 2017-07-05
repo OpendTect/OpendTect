@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 namespace ColTab { class Sequence; }
 
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiLabel;
 class uiListBox;
@@ -33,7 +33,7 @@ public:
 protected:
 
     uiGenInput*			choicefld_;
-    uiFileInput*		dirfld_;
+    uiFileSel*			dirfld_;
     uiGenInput*			dtectusrfld_;
     uiListBox*			listfld_;
     uiLabel*			messagelbl_;

@@ -24,7 +24,8 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uidesktopservices.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uigmtbasemap.h"
 #include "uigmtclip.h"
 #include "uigmtoverlay.h"
@@ -102,8 +103,8 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     flowgrp_->setHAlignObj( flowfld_ );
     BufferString defseldir = File::Path(GetDataDir()).add("Misc").fullPath();
-    filefld_ = new uiFileInput( this, uiStrings::sOutputFile(),
-			uiFileInput::Setup(uiFileDialog::Gen)
+    filefld_ = new uiFileSel( this, uiStrings::sOutputFile(),
+			uiFileSel::Setup(uiFileDialog::Gen)
 			.forread(false).filter("*.ps").defseldir(defseldir) );
     filefld_->attach( alignedBelow, flowgrp_ );
     filefld_->attach( ensureLeftOf, sep );
@@ -256,9 +257,9 @@ void uiGMTMainWin::butPush( CallBacker* cb )
 	const int newcur = curidx + (isup ? -1 : 1);
 	if ( newcur >= 0 && newcur < sz )
 	{
-	    const uiString curtxt( 
+	    const uiString curtxt(
 				toUiString(flowfld_->textOfItem(curidx)) );
-	    const uiString newcurtxt( 
+	    const uiString newcurtxt(
 				toUiString(flowfld_->textOfItem(newcur)) );
 	    flowfld_->setItemText( newcur, curtxt );
 	    flowfld_->setItemText( curidx, newcurtxt );

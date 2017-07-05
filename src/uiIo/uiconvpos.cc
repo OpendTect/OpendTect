@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "uitoolbutton.h"
 #include "uidialog.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "od_iostream.h"
@@ -71,15 +72,15 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     mangrp->attach( alignedBelow, ismanfld );
 
     filegrp = new uiGroup( this, "File group" );
-    uiFileInput::Setup fipsetup( lastinpfile );
+    uiFileSel::Setup fipsetup( lastinpfile );
     fipsetup.forread(true).withexamine(true)
 	    .examstyle(File::Table).defseldir(GetDataDir());
-    inpfilefld = new uiFileInput( filegrp, uiStrings::phrInput(
+    inpfilefld = new uiFileSel( filegrp, uiStrings::phrInput(
 					   uiStrings::sFile()), fipsetup );
 
     fipsetup.fnm = lastoutfile;
     fipsetup.forread(false).withexamine(false);
-    outfilefld = new uiFileInput( filegrp, uiStrings::phrOutput(
+    outfilefld = new uiFileSel( filegrp, uiStrings::phrOutput(
 					   uiStrings::sFile()), fipsetup );
     outfilefld->attach( alignedBelow, inpfilefld );
     isxy2bidfld = new uiGenInput( filegrp, uiStrings::sType(),

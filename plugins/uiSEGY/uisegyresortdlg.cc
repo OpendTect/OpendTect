@@ -10,7 +10,8 @@ ________________________________________________________________________
 
 #include "uisegyresortdlg.h"
 #include "uiioobjsel.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uitaskrunner.h"
 #include "uiseparator.h"
 #include "uipossubsel.h"
@@ -88,10 +89,10 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "Sep" );
     sep->attach( stretchedBelow, algrp );
 
-    uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.forread( false ).objtype( tr("SEG-Y") )
+    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    fssu.forread( false ).objtype( tr("SEG-Y") )
 	.filter( uiSEGYFileSpec::fileFilter() );
-    outfld_ = new uiFileInput( this, uiStrings::sOutputFile(), fisu );
+    outfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
     outfld_->attach( ensureBelow, sep );
     outfld_->attach( alignedWith, algrp );
 

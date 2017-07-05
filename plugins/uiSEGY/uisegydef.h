@@ -22,7 +22,7 @@ class uiButton;
 class uiCheckBox;
 class uiGenInput;
 class uiTabStack;
-class uiFileInput;
+class uiFileSel;
 class uiSEGYByteSpec;
 
 
@@ -92,7 +92,7 @@ public:
 
 protected:
 
-    uiFileInput*	fnmfld_;
+    uiFileSel*		fnmfld_;
     uiGenInput*		multifld_;
     uiButton*		manipbut_;
     bool		is2d_;
@@ -215,7 +215,7 @@ protected:
     uiGenInput*		coordsstartfld_;
     uiGenInput*		coordsstepfld_;
     uiGenInput*		coordsextfld_;
-    uiFileInput*	coordsfnmfld_;
+    uiFileSel*		coordsfnmfld_;
     uiCheckBox*		coordsspecfnmbox_;
     uiLabel*		ensurepsxylbl_;
 
@@ -245,7 +245,7 @@ protected:
     void		setToggled(IOPar&,const char*,uiGenInput*,
 				   bool isz=false) const;
 
-public: 
+public:
     const uiString	sPreScanFiles() { return tr("Pre-scan the files"); }
 
 };

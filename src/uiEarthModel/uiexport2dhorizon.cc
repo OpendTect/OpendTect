@@ -29,7 +29,8 @@ ________________________________________________________________________
 
 #include "uichecklist.h"
 #include "uicombobox.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -81,8 +82,8 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     optsfld_->setChecked( 0, true )
 	     .setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-			       uiFileInput::Setup().forread(false) );
+    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
+			       uiFileSel::Setup().forread(false) );
     outfld_->attach( alignedBelow, optsfld_ );
 
     horChg( 0 );

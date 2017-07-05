@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiFileSel;
 class CtxtIOObj;
 class uiIOObjSel;
 class uiGenInput;
@@ -26,25 +26,25 @@ namespace PreStack
 mExpClass(uiPreStackProcessing) uiImportMute : public uiDialog
 { mODTextTranslationClass(uiImportMute);
 public:
-  			uiImportMute(uiParent*);
-		    	~uiImportMute();
+			uiImportMute(uiParent*);
+			~uiImportMute();
 
 protected:
-    
-    uiFileInput*	inpfld_;
+
+    uiFileSel*		inpfld_;
     uiGenInput*		inpfilehaveposfld_;
     uiGenInput*		posdatainfld_;
     uiGenInput*		inlcrlfld_;
     uiIOObjSel*		outfld_;
 
     CtxtIOObj&		ctio_;
-    
+
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;
 
     bool		haveInpPosData() const;
-    
-    void 		formatSel(CallBacker*);
+
+    void		formatSel(CallBacker*);
     void		changePrefPosInfo(CallBacker*);
 
     virtual bool	acceptOK();

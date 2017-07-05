@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiflatviewer.h"
@@ -219,9 +220,9 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
     if ( !fixeddumpfnm.isEmpty() )
 	fnm_ = BufferString( fixeddumpfnm );
 
-    uiFileInput::Setup su( uiFileDialog::Gen, fnm_ );
+    uiFileSel::Setup su( uiFileDialog::Gen, fnm_ );
     su.forread_ = doread;
-    filefld_ = new uiFileInput( this, uiStrings::sFileName(), su );
+    filefld_ = new uiFileSel( this, uiStrings::sFileName(), su );
 
     if ( doread )
     {
@@ -361,7 +362,7 @@ bool acceptOK()
     return true;
 }
 
-    uiFileInput*		filefld_;
+    uiFileSel*			filefld_;
     uiGenInput*			doreplacefld_;
     uiGenInput*			eachfld_;
     uiGenInput*			nrdisplayfld_;

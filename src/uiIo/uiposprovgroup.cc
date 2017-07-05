@@ -10,7 +10,8 @@ ________________________________________________________________________
 
 
 #include "uiposprovgroupstd.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uipicksetsel.h"
 #include "uiselsurvranges.h"
 #include "uimsg.h"
@@ -288,8 +289,8 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     selfld_->valuechanged.notify( selcb );
     psfld_ = new uiPickSetIOObjSel( this, true );
     psfld_->attach( alignedBelow, selfld_ );
-    uiFileInput::Setup fisu( uiFileDialog::Gen );
-    tffld_ = new uiFileInput( this, uiStrings::sFileName(), fisu );
+    uiFileSel::Setup fisu( uiFileDialog::Gen );
+    tffld_ = new uiFileSel( this, uiStrings::sFileName(), fisu );
     tffld_->attach( alignedBelow, selfld_ );
 
     setHAlignObj( selfld_ );

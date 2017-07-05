@@ -14,7 +14,7 @@
 #include "od_ostream.h"
 #include "prestackeventascio.h"
 #include "prestackeventtransl.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uiseissubsel.h"
 #include "uiioobjsel.h"
@@ -42,8 +42,8 @@ uiEventExport::uiEventExport( uiParent* p, const DBKey* mid )
     subsel_ = uiSeisSubSel::get(this, Seis::SelSetup(Seis::Vol).withoutz(true));
     subsel_->attach( alignedBelow, eventsel_ );
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-			       uiFileInput::Setup(0).forread(false) );
+    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
+			       uiFileSel::Setup(0).forread(false) );
     outfld_->attach( alignedBelow, subsel_ );
 }
 

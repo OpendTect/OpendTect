@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "tabledef.h"
 #include "od_istream.h"
 
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -79,11 +79,11 @@ const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 
 void uiImportFault::createUI()
 {
-    infld_ = new uiFileInput( this,
+    infld_ = new uiFileSel( this,
 		uiStrings::sInputASCIIFile(),
-		uiFileInput::Setup().withexamine(true)
+		uiFileSel::Setup().withexamine(true)
 		.defseldir(GetDataDir()) );
-    infld_->valuechanged.notify( mCB(this,uiImportFault,inputChgd) );
+    infld_->newSelection.notify( mCB(this,uiImportFault,inputChgd) );
 
     if ( !isfss_ )
     {
@@ -93,8 +93,8 @@ void uiImportFault::createUI()
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
 
-	formatfld_ = new uiFileInput( this, tr("Input Landmark formatfile"),
-				      uiFileInput::Setup(uiFileDialog::Gen)
+	formatfld_ = new uiFileSel( this, tr("Input Landmark formatfile"),
+				      uiFileSel::Setup(uiFileDialog::Gen)
 				      .filter("*.fault_fmt") );
 	formatfld_->attach( alignedBelow, typefld_ );
 

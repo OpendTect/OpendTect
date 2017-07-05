@@ -49,7 +49,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uidesktopservices.h"
 #include "uievaluatedlg.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uihelpview.h"
 #include "uiioobjsel.h"
@@ -1410,7 +1410,7 @@ uiWhereIsDotDlg( uiParent* p )
     BufferString pathfromsetts;
     Settings::common().get( "Dot path", pathfromsetts );
 
-    dotfld_ = new uiFileInput( this, tr("Dot executable"),
+    dotfld_ = new uiFileSel( this, tr("Dot executable"),
 			       pathfromsetts.buf() );
     dotfld_->attach( leftAlignedBelow, lbl );
 }
@@ -1442,7 +1442,7 @@ bool acceptOK()
     return false;
 }
 
-    uiFileInput*	dotfld_;
+    uiFileSel*	dotfld_;
 };
 
 

@@ -531,6 +531,12 @@ class HttpFileSystemAccess : public File::SystemAccess
 { mODTextTranslationClass(HttpFileSystemAccess)
 public:
 
+    virtual const char*	protocol() const		{ return "http"; }
+    virtual bool	readingSupported() const	{ return true; }
+    virtual bool	writingSupported() const	{ return false; }
+    virtual bool	queriesSupported() const	{ return false; }
+    virtual bool	operationsSupported() const	{ return false; }
+
     virtual bool	    isReadable(const char*) const;
     virtual od_int64	    getFileSize(const char*,bool) const;
     StreamData		    createIStream(const char*,bool) const;
@@ -543,7 +549,7 @@ public:
     static File::SystemAccess* createInstance()
 			    { return new HttpFileSystemAccess; }
     static const char*	    sFactoryKeyword() { return "http"; }
-    static uiString	    sFactoryDisplayName() { return tr("Web file)"); }
+    static uiString	    sFactoryDisplayName() { return tr("Web"); }
 
     mutable std::map<std::string,int>	existcache_;
 

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiFileSel;
 class uiIOObjSel;
 class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
@@ -32,7 +32,7 @@ protected:
 
     Table::FormatDesc&	fd_;
 
-    uiFileInput*	filefld_;
+    uiFileSel*		filefld_;
     uiTableImpDataSel*	dataselfld_;
     uiIOObjSel*		outputfld_;
 };

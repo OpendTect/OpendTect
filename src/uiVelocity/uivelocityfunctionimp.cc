@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uivelocityfunctionimp.h"
 
 #include "file.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -45,9 +45,9 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-			       uiFileInput::Setup().withexamine(true)
-			       .defseldir(GetDataDir()) );
+    inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
+			     uiFileSel::Setup().withexamine(true)
+			     .defseldir(GetDataDir()) );
 
     uiVelocityDesc::Setup su;
     su.desc_.type_ = VelocityDesc::Interval;

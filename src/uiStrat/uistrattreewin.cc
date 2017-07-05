@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 #include "uicolor.h"
 #include "uidialog.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uimain.h"

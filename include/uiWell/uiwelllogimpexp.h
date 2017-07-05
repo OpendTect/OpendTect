@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class IOObj;
 class uiGenInput;
-class uiFileInput;
+class uiFileSel;
 class uiListBox;
 class uiButtonGroup;
 class uiLabel;
@@ -35,7 +35,7 @@ public:
 
 protected:
 
-    uiFileInput*	lasfld_;
+    uiFileSel*		lasfld_;
     uiGenInput*		intvfld_;
     uiGenInput*		intvunfld_;
     uiGenInput*		istvdfld_;
@@ -66,7 +66,7 @@ protected:
     uiGenInput*		typefld_;
     uiButtonGroup*	zunitgrp_;
     uiGenInput*		zrangefld_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
     uiGenInput*		multiwellsnamefld_;
 
     void		setDefaultRange(bool);

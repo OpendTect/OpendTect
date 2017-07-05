@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "prestackeventascio.h"
 #include "prestackeventio.h"
 #include "prestackeventtransl.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uiioobjsel.h"
 #include "uitaskrunner.h"
@@ -38,8 +38,8 @@ uiEventImport::uiEventImport( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    filefld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-				uiFileInput::Setup(0).forread(true)
+    filefld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
+				uiFileSel::Setup(0).forread(true)
 						     .withexamine(true) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,

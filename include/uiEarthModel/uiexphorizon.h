@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "fixedstring.h"
 
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiSurfaceRead;
 class uiUnitSel;
@@ -33,7 +33,7 @@ public:
 protected:
 
     uiSurfaceRead*	infld_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
     uiGenInput*		headerfld_;
     uiGenInput*		typfld_;
     uiGenInput*		zfld_;

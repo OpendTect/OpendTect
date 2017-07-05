@@ -7,7 +7,8 @@
 
 #include "uigoogleexprandline.h"
 #include "googlexmlwriter.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uisellinest.h"
 #include "uimsg.h"
 #include "oddirs.h"
@@ -32,10 +33,10 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
     const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };
     putlnmfld_ = new uiGenInput( this, tr("Annotate line"),
-	    			 StringListInpSpec(choices) );
+				 StringListInpSpec(choices) );
     putlnmfld_->setValue( 2 );
     putlnmfld_->valuechanged.notify(
-	    			mCB(this,uiGoogleExportRandomLine,putSel) );
+				mCB(this,uiGoogleExportRandomLine,putSel) );
 
     lnmfld_ = new uiGenInput( this, tr("Line annotation"),
 			      StringInpSpec(mFromUiStringTodo(nm)) );

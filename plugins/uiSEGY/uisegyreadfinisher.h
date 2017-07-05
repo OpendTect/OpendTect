@@ -19,7 +19,7 @@ class uiSeisSel;
 class uiComboBox;
 class uiCheckBox;
 class uiGenInput;
-class uiFileInput;
+class uiFileSel;
 class uiBatchJobDispatcherSel;
 class uiSeisTransfer;
 class SeisImporter;
@@ -61,7 +61,7 @@ protected:
     uiGenInput*		coordfileextfld_;
     uiGenInput*		coordsstartfld_;
     uiGenInput*		coordsstepfld_;
-    uiFileInput*	coordfilefld_;
+    uiFileSel*		coordfilefld_;
     uiBatchJobDispatcherSel* batchfld_;
 
     void		crVSPFields(bool);

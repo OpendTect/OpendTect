@@ -9,7 +9,8 @@
 #include "googlexmlwriter.h"
 #include "uisurveymanager.h"
 #include "uisellinest.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "oddirs.h"
 #include "strmprov.h"
@@ -37,9 +38,9 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurveyManager* uisurv )
 
     File::Path deffp( GetBaseDataDir(), si_->getDirName() );
     deffp.add( "survbounds" ).setExtension( "kml" );
-    uiFileInput::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() );
+    uiFileSel::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() );
     fiinpsu.forread( false ).filter( "*.kml" );
-    fnmfld_ = new uiFileInput( this, uiStrings::sOutputFile(), fiinpsu );
+    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fiinpsu );
     fnmfld_->attach( alignedBelow, hghtfld_ );
 }
 

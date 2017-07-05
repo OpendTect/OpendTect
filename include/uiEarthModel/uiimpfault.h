@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 class CtxtIOObj;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiTableImpDataSel;
@@ -47,8 +47,8 @@ protected:
     virtual bool	getFromAscIO(od_istream&,EM::Fault&);
     EM::Fault*		createFault() const;
 
-    uiFileInput*	infld_;
-    uiFileInput*	formatfld_;
+    uiFileSel*		infld_;
+    uiFileSel*		formatfld_;
     uiGenInput*		typefld_;
     uiIOObjSel*		outfld_;
     uiGenInput*		sortsticksfld_;
@@ -74,7 +74,7 @@ protected:
 mExpClass(uiEarthModel) uiImportFault3D : public uiImportFault
 {
 public:
-    			uiImportFault3D(uiParent*,const char* type);
+			uiImportFault3D(uiParent*,const char* type);
 protected:
     bool		acceptOK();
 };
@@ -85,7 +85,7 @@ protected:
 mExpClass(uiEarthModel) uiImportFaultStickSet2D : public uiImportFault
 {
 public:
-    			uiImportFaultStickSet2D(uiParent*,const char* type);
+			uiImportFaultStickSet2D(uiParent*,const char* type);
 
 protected:
 

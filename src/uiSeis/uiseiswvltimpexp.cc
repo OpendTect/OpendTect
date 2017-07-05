@@ -20,7 +20,8 @@ ________________________________________________________________________
 #include "waveletio.h"
 #include "waveletattrib.h"
 
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uiwaveletsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -38,8 +39,8 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::phrASCII(
-		      uiStrings::sFile())), uiFileInput::Setup()
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::phrASCII(
+		      uiStrings::sFile())), uiFileSel::Setup()
 		      .withexamine(true).examstyle(File::Table) );
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
@@ -148,8 +149,8 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 				     BoolInpSpec(true) );
     addzfld_->attach( alignedBelow, wvltfld_ );
 
-    outpfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-				uiFileInput::Setup().forread(false) );
+    outpfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
+				uiFileSel::Setup().forread(false) );
     outpfld_->attach( alignedBelow, addzfld_ );
 }
 

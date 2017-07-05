@@ -12,7 +12,8 @@
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uistrings.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "seistrctr.h"
@@ -103,10 +104,10 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	subsel2dpsfld_->attach( alignedBelow, seis2dfld_ );
     }
 
-    uiFileInput::Setup fisu;
-    fisu.defseldir( ODMad::FileSpec::defPath() ).forread( isinp );
-    madfld_ = new uiFileInput( this, uiStrings::phrSelect(
-					 uiStrings::sFile().toLower()), fisu );
+    uiFileSel::Setup fssu;
+    fssu.defseldir( ODMad::FileSpec::defPath() ).forread( isinp );
+    madfld_ = new uiFileSel( this, uiStrings::phrSelect(
+					 uiStrings::sFile().toLower()), fssu );
     madfld_->attach( alignedBelow, typfld_ );
 
     sconsfld_ = new uiCheckBox( this, tr("SCons script"),

@@ -15,7 +15,8 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uitoolbutton.h"
 #include "uilabel.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uigeninputdlg.h"
 #include "uicompoundparsel.h"
 #include "uisplitter.h"
@@ -219,10 +220,10 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     uiSeparator* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, spl );
 
-    uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.forread( false ).objtype( uiStrings::sSEGY() )
+    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    fssu.forread( false ).objtype( uiStrings::sSEGY() )
 	.filter( uiSEGYFileSpec::fileFilter() );
-    fnmfld_ = new uiFileInput( this, uiStrings::sOutputFile(), fisu );
+    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
     File::Path inpfp( fname_ );
     fnmfld_->setDefaultSelectionDir( inpfp.pathOnly() );
     fnmfld_->attach( ensureBelow, sep );

@@ -37,7 +37,7 @@ ________________________________________________________________________
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpsaddcolumndlg.h"
 #include "uidpsselectednessdlg.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uiioobjseldlg.h"
@@ -1398,9 +1398,9 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 		  uiStrings::sOutput(),tr("to")),
 		  BoolInpSpec(false,tr("Text file"),tr("OpendTect object")) );
     tabfld_->valuechanged.notify( tccb );
-    uiFileInput::Setup su;
+    uiFileSel::Setup su;
     su.defseldir(GetDataDir()).forread(false).filter("*.txt");
-    txtfld_ = new uiFileInput( this, uiStrings::sOutputFile(), su );
+    txtfld_ = new uiFileSel( this, uiStrings::sOutputFile(), su );
     txtfld_->attach( alignedBelow, tabfld_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, tabfld_ );
@@ -1450,7 +1450,7 @@ bool acceptOK()
     BufferString	fname_;
     BufferString	type_;
     uiGenInput*		tabfld_;
-    uiFileInput*	txtfld_;
+    uiFileSel*		txtfld_;
     uiIOObjSelGrp*	selgrp_;
     bool		istab_;
 };

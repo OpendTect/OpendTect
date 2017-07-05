@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicursor.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitextedit.h"
@@ -119,9 +119,9 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 
     const uiString commandfile = tr( "command file" );
 
-    inpfld_ = new uiFileInput( this,
+    inpfld_ = new uiFileSel( this,
 			uiStrings::phrInput(commandfile),
-			uiFileInput::Setup(uiFileDialog::Gen)
+			uiFileSel::Setup(uiFileDialog::Gen)
 			.filter("Script files (*.odcmd *.cmd)")
 			.forread(true)
 			.withexamine(true)
@@ -129,18 +129,18 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.displaylocalpath(true) );
     inpfld_->attach( alignedBelow, cmdoptionfld_ );
 
-    logfld_ = new uiFileInput( this,
+    logfld_ = new uiFileSel( this,
 			uiStrings::phrOutput(uiStrings::sLogFile()),
-			uiFileInput::Setup()
+			uiFileSel::Setup()
 			.forread(false)
 			.withexamine(true)
 			.examstyle(File::Log)
 			.displaylocalpath(true) );
     logfld_->attach( alignedBelow, inpfld_ );
 
-    outfld_ = new uiFileInput( this,
+    outfld_ = new uiFileSel( this,
 			uiStrings::phrOutput(commandfile),
-			uiFileInput::Setup(uiFileDialog::Gen)
+			uiFileSel::Setup(uiFileDialog::Gen)
 			.filter("Script files (*.odcmd)")
 			.forread(false)
 			.confirmoverwrite(false)
@@ -222,9 +222,9 @@ void uiCmdDriverDlg::popUp()
 void uiCmdDriverDlg::refreshDisplay( bool runmode, bool idle )
 {
     cmdoptionfld_->box()->setCurrentItem( runmode ? "Run" : "Record" );
-    logfld_->displayField( runmode );
-    inpfld_->displayField( runmode );
-    outfld_->displayField( !runmode );
+    logfld_->display( runmode );
+    inpfld_->display( runmode );
+    outfld_->display( !runmode );
 
     gobut_->display( runmode && idle );
     abortbut_->setText( uiStrings::sAbort() );
@@ -238,12 +238,13 @@ void uiCmdDriverDlg::refreshDisplay( bool runmode, bool idle )
 
     cmdoptionfld_->setSensitive( idle );
     inpfld_->setSensitive( idle );
-    inpfld_->enableExamine( true );
 
     logfld_->setSensitive( idle );
-    logfld_->enableExamine( true );
     outfld_->setSensitive( idle );
-    outfld_->enableExamine( true );
+
+    // inpfld_->enableExamine( true );
+    // logfld_->enableExamine( true );
+    // outfld_->enableExamine( true );
 }
 
 
@@ -282,7 +283,7 @@ void uiCmdDriverDlg::selChgCB( CallBacker* )
 }
 
 
-static bool isRefToDataDir( uiFileInput& fld, bool base=false )
+static bool isRefToDataDir( uiFileSel& fld, bool base=false )
 {
     File::Path fp( fld.fileName() );
     BufferString dir = base ? GetBaseDataDir() : GetDataDir();
@@ -291,7 +292,7 @@ static bool isRefToDataDir( uiFileInput& fld, bool base=false )
 }
 
 
-static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
+static bool passSurveyCheck( uiFileSel& fld, bool& surveycheck )
 {
     if ( !surveycheck ) return true;
 
@@ -301,7 +302,7 @@ static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
 	uiString msg =
 	    od_static_tr( "passSurveyCheck" ,
 			  "%1 - path is referring to previous survey!" )
-			.arg( fld.titleText().getFullString() );
+			.arg( fld.labelText().getFullString() );
 	res = uiMSG().question(msg, uiStrings::sContinue(), uiStrings::sReset(),
 				  uiStrings::sCancel(), uiStrings::sWarning() );
 	surveycheck = res<0;
@@ -347,7 +348,7 @@ void uiCmdDriverDlg::selectGoCB( CallBacker* )
 
     if ( !drv_.getActionsFromFile(fnm) )
     {
-	uiMSG().error( drv_.errMsg() ); 
+	uiMSG().error( drv_.errMsg() );
 	return;
     }
 

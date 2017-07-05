@@ -20,7 +20,8 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegysipclassic.h"
 #include "uisegydef.h"
 #include "uisegyread.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uifiledlg.h"
 #include "uiseparator.h"
 #include "uisurvmap.h"
@@ -90,12 +91,12 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     }
 
     topgrp_ = new uiGroup( this, "Top group" );
-    uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
-    fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
+    uiFileSel::Setup fssu( uiFileDialog::Gen, filespec_.fileName() );
+    fssu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
 	.objtype( tr("SEG-Y") );
-    inpfld_ = new uiFileInput( topgrp_, uiStrings::phrJoinStrings(
-			       uiStrings::sInputFile(),tr("*=wildcard")),fisu );
-    inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
+    inpfld_ = new uiFileSel( topgrp_, uiStrings::phrJoinStrings(
+			     uiStrings::sInputFile(),tr("*=wildcard")),fssu );
+    inpfld_->newSelection.notify( mCB(this,uiSEGYReadStarter,inpChg) );
     editbut_ = uiButton::getStd( topgrp_, OD::Edit,
 			         mCB(this,uiSEGYReadStarter,editFile), false );
     editbut_->attach( rightOf, inpfld_ );

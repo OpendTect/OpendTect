@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class CtxtIOObj;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiIOObjSel;
 
@@ -25,18 +25,18 @@ mExpClass(uiPreStackProcessing) uiExportMute : public uiDialog
 { mODTextTranslationClass(uiExportMute);
 public:
 			uiExportMute(uiParent*);
-		    	~uiExportMute();
+			~uiExportMute();
 
 protected:
 
     uiIOObjSel*		infld_;
     uiGenInput*		coordfld_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
 
     CtxtIOObj&		ctio_;
 
     virtual bool	acceptOK();
-    bool		writeAscii();    
+    bool		writeAscii();
 };
 
 } //namespace PreStack

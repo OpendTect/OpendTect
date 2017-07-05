@@ -17,7 +17,8 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uiseparator.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uitable.h"
 #include "uimsg.h"
@@ -255,10 +256,10 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
 			.arg(fp.pathOnly()) );
     lbl = new uiLabel( this, olddirtxt );
 
-    dirsel_ = new uiFileInput( this, tr("New location"), fp.pathOnly() );
+    dirsel_ = new uiFileSel( this, tr("New location"), fp.pathOnly() );
     dirsel_->setSelectMode( uiFileDialog::Directory );
     dirsel_->setObjType( tr("Location") );
-    dirsel_->valuechanged.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
+    dirsel_->newSelection.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
     dirsel_->attach( leftAlignedBelow, lbl );
 
     fillFileTable();

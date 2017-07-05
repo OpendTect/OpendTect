@@ -20,7 +20,7 @@ class uiSpinBox;
 class uiListBox;
 class uiTextEdit;
 class uiCheckBox;
-class uiFileInput;
+class uiFileSel;
 class uiToolButton;
 class uiSEGYBinHdrEd;
 namespace SEGY { class TxtHeader; class BinHeader; class HdrCalcSet; }
@@ -32,8 +32,8 @@ mExpClass(uiSEGY) uiSEGYFileManip : public uiDialog
 { mODTextTranslationClass(uiSEGYFileManip);
 public:
 
-    			uiSEGYFileManip(uiParent*,const char* filenm);
-    			~uiSEGYFileManip();
+			uiSEGYFileManip(uiParent*,const char* filenm);
+			~uiSEGYFileManip();
 
     const char*		fileName() const	{ return fname_; }
     inline od_istream&	strm()			{ return *strm_; }
@@ -57,7 +57,7 @@ protected:
     uiSEGYBinHdrEd*	binhdrfld_;
     uiListBox*		trchdrfld_;
     uiListBox*		avtrchdrsfld_;
-    uiFileInput*	fnmfld_;
+    uiFileSel*		fnmfld_;
     uiToolButton*	edbut_;
     uiToolButton*	rmbut_;
     uiToolButton*	savebut_;

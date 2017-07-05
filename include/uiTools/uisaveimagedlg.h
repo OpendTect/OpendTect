@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class Settings;
 class uiCheckBox;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiLabel;
 class uiLabeledSpinBox;
@@ -44,6 +44,7 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
+
     void		setDirName(const char*);
 
     uiLabeledSpinBox*	pixheightfld_;
@@ -55,7 +56,7 @@ protected:
     uiGenInput*		unitfld_;
     uiCheckBox*		lockfld_;
     uiGenInput*		useparsfld_;
-    uiFileInput*	fileinputfld_;
+    uiFileSel*		inpfilefld_;
     uiCheckBox*		cliboardselfld_;
 
     BufferString	filters_;

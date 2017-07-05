@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uiconstvel.h"
 #include "uifiledlg.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitable.h"
@@ -69,9 +69,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     , fd_(Well::BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
-    inpfld_ = new uiFileInput( this,
-		      uiStrings::sInputFile(),
-		      uiFileInput::Setup()
+    inpfld_ = new uiFileSel( this, uiStrings::sInputFile(), uiFileSel::Setup()
 		      .withexamine(true).examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
@@ -223,8 +221,8 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 				 mODHelpKey(mBulkLogImportHelpID))
 			   .modal(false))
 {
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(tr("LAS files")),
-		  uiFileInput::Setup() );
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(tr("LAS files")),
+		  uiFileSel::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
 
     istvdfld_ = new uiGenInput( this, tr("Depth values are"),
@@ -311,10 +309,10 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
 			   .modal(false))
     , fd_(Well::BulkMarkerAscIO::getDesc())
 {
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(
-			       mJoinUiStrs(sMarker(),sFile())),
-			       uiFileInput::Setup().withexamine(true)
-			       .examstyle(File::Table) );
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(
+			     mJoinUiStrs(sMarker(),sFile())),
+			     uiFileSel::Setup().withexamine(true)
+			     .examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
                                        mODHelpKey(mTableImpDataSelwellsHelpID));
@@ -434,9 +432,9 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
     mNoDlgTitle, mODHelpKey(mBulkD2TModelImportHelpID)).modal(false))
     , fd_(Well::BulkD2TModelAscIO::getDesc())
 {
-    uiFileInput::Setup fs;
+    uiFileSel::Setup fs;
     fs.withexamine(true).examstyle(File::Table);
-    inpfld_ = new uiFileInput( this,
+    inpfld_ = new uiFileSel( this,
 			 uiStrings::phrInput(tr("Depth/Time Model file")), fs );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,

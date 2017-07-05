@@ -20,7 +20,7 @@ class Horizon2DScanner;
 class SurfaceInfo;
 
 class uiComboBox;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiListBox;
 class uiPushButton;
@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    uiFileInput*	inpfld_;
+    uiFileSel*		inpfld_;
     uiPushButton*       scanbut_;
     uiListBox*		horselfld_;
     uiTableImpDataSel*  dataselfld_;

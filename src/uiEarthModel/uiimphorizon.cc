@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uicompoundparsel.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
+#include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
@@ -86,12 +87,12 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     ctio_.ctxt_.forread_ = !isgeom_;
 
     BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::phrASCII(
-		  uiStrings::sFile())), uiFileInput::Setup(uiFileDialog::Gen)
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::phrASCII(
+		  uiStrings::sFile())), uiFileSel::Setup(uiFileDialog::Gen)
 		  .withexamine(true).forread(true).filter(fltr)
 		  .defseldir(sImportFromPath) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
+    inpfld_->newSelection.notify( mCB(this,uiImportHorizon,inputChgd) );
 
     OD::ChoiceMode mode =
 	isgeom ? OD::ChooseZeroOrMore : OD::ChooseAtLeastOne;

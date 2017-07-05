@@ -14,7 +14,7 @@
 class uiCheckBox;
 class uiGenInput;
 class uiSeisSel;
-class uiFileInput;
+class uiFileSel;
 class uiSeisSubSel;
 class uiSeis2DSubSel;
 class uiSeis3DSubSel;
@@ -28,7 +28,7 @@ public:
     void		usePar(const IOPar&);
     void		useParIfNeeded(const IOPar&);
     bool		fillPar( IOPar& iop ) const
-    			{ iop.merge(iop_); return iop_.size(); }
+			{ iop.merge(iop_); return iop_.size(); }
 
     Notifier<uiMadIOSel>	selectionMade;
 protected:
@@ -49,7 +49,7 @@ public:
 			uiMadIOSelDlg(uiParent*,IOPar&,bool isinp);
 
     inline bool		isInp() const
-    			{ return isinp_; }
+			{ return isinp_; }
     bool		isNone() const;
     bool		isMad() const;
     bool		isSU() const;
@@ -61,7 +61,7 @@ public:
 				 : (ODMad::ProcFlow::IOType)geomType());
 			}
 
-    			// Functions only valid if isOD()
+			// Functions only valid if isOD()
     Seis::GeomType	geomType() const;
     uiSeisSel*		seisSel(Seis::GeomType);
     uiSeisSubSel*	seisSubSel(Seis::GeomType);
@@ -82,7 +82,7 @@ protected:
     uiSeisSel*		seis2dfld_;
     uiSeisSel*		seisps3dfld_;
     uiSeisSel*		seisps2dfld_;
-    uiFileInput*	madfld_;
+    uiFileSel*		madfld_;
     uiCheckBox*		sconsfld_;
     // Inp only:
     uiSeis3DSubSel*	subsel3dfld_;

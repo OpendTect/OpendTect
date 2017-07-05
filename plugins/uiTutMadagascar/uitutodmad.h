@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "iopar.h"
 
 class SeisTrcBufDataPack;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 
 /*! \brief Madagascar tutorial plugin interface */
@@ -31,7 +31,7 @@ protected:
     void		createAndDisplay2DViewer();
     bool		acceptOK();
 
-    uiFileInput*	maddatafld_;
+    uiFileSel*		maddatafld_;
     uiGenInput*		dowigglesfld_;
     IOPar		iop_;
     SeisTrcBufDataPack* bufdtpack_;

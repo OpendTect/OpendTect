@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiGenInput;
-class uiFileInput;
+class uiFileSel;
 class uiSeisIOObjInfo;
 class SeisJobExecProv;
 
@@ -35,7 +35,7 @@ protected:
     bool		lsfileemitted_;
     int			nrinlperjob_;
 
-    uiFileInput*	tmpstordirfld_;
+    uiFileSel*		tmpstordirfld_;
     uiGenInput*		inlperjobfld_;
     uiCheckBox*		saveasdeffld_;
 

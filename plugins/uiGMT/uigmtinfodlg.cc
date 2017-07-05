@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 
@@ -47,8 +47,8 @@ uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
     label_->attach( alignedBelow, chkbut_ );
     label_->display( false );
 
-    gmtpath_ = new uiFileInput( this, tr("Enter path"),
-		    uiFileInput::Setup(uiFileDialog::Gen).directories(true) );
+    gmtpath_ = new uiFileSel( this, tr("Enter path"),
+		    uiFileSel::Setup(uiFileDialog::Gen).directories(true) );
     gmtpath_->attach( alignedBelow, label_ );
     gmtpath_->display( false );
 }

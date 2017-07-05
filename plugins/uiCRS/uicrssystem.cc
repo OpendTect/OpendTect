@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "sorting.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilatlonginp.h"
@@ -56,7 +56,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
 				mCB(this,uiProjectionBasedSystem,searchCB) );
 
     uiToolButton* infobut = new uiToolButton( projselfld_, "info",
-	    	tr("View details"), mCB(this,uiProjectionBasedSystem,infoCB) );
+		tr("View details"), mCB(this,uiProjectionBasedSystem,infoCB) );
     infobut->attach( rightTo, projselfld_->box() );
     infobut->attach( rightBorder );
 
@@ -297,16 +297,16 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
     mangrp_->attach( alignedBelow, ismanfld_ );
 
     filegrp_ = new uiGroup( this, "File group" );
-    uiFileInput::Setup fipsetup( lastinpfile );
-    fipsetup.forread(true).withexamine(true)
-	    .examstyle(File::Table).defseldir(GetDataDir());
-    inpfilefld_ = new uiFileInput( filegrp_, uiStrings::phrInput(
-					   uiStrings::sFile()), fipsetup );
+    uiFileSel::Setup fssetup( lastinpfile );
+    fssetup.forread(true).withexamine(true)
+	   .examstyle(File::Table).defseldir(GetDataDir());
+    inpfilefld_ = new uiFileSel( filegrp_, uiStrings::phrInput(
+					   uiStrings::sFile()), fssetup );
 
-    fipsetup.fnm = lastoutfile;
-    fipsetup.forread(false).withexamine(false);
-    outfilefld_ = new uiFileInput( filegrp_, uiStrings::phrOutput(
-					   uiStrings::sFile()), fipsetup );
+    fssetup.fnm = lastoutfile;
+    fssetup.forread(false).withexamine(false);
+    outfilefld_ = new uiFileSel( filegrp_, uiStrings::phrOutput(
+					   uiStrings::sFile()), fssetup );
     outfilefld_->attach( alignedBelow, inpfilefld_ );
     filegrp_->setHAlignObj( inpfilefld_ );
     filegrp_->attach( alignedBelow, ismanfld_ );

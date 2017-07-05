@@ -36,7 +36,7 @@ ________________________________________________________________________
 
 #include "uichecklist.h"
 #include "uielasticpropsel.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewwin.h"

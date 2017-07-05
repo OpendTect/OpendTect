@@ -12,15 +12,11 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiFileSel;
 class uiIOObjSel;
 class uiTextEdit;
-class uiFileInput;
 namespace Attrib { class DescSet; }
 
-/*!
-\brief 
-*/
 
 mExpClass(uiAttributes) uiGetFileForAttrSet : public uiDialog
 { mODTextTranslationClass(uiGetFileForAttrSet);
@@ -33,7 +29,7 @@ public:
 
 protected:
 
-    uiFileInput*	fileinpfld;
+    uiFileSel*		fileinpfld;
     uiTextEdit*		infofld;
     BufferString	fname_;
     Attrib::DescSet&	attrset_;
@@ -59,6 +55,6 @@ public:
 protected:
     bool		acceptOK();
 
-    uiFileInput*	fileinpfld_;
+    uiFileSel*		fileinpfld_;
     uiIOObjSel*		attrsetfld_;
 };

@@ -31,7 +31,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uid2tmodelgrp.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -59,10 +59,10 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     havetrckbox_->setChecked( true );
     havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 
-    trckinpfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
+    trckinpfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(
 		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
-		   uiFileInput::Setup().withexamine(true) );
-    trckinpfld_->valuechanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
+		   uiFileSel::Setup().withexamine(true) );
+    trckinpfld_->newSelection.notify( mCB(this,uiWellImportAsc,inputChgd) );
     trckinpfld_->attach( rightOf, havetrckbox_ );
 
     vertwelllbl_ = new uiLabel( this, tr("-> Vertical well") );

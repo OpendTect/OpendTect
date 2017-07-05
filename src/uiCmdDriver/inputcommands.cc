@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include <math.h>
 
 #include "uicombobox.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 
 
@@ -71,7 +71,7 @@ bool InputCmd::act( const char* parstr )
 	}
 
 	BufferString inpbs( inpstr );
-	mDynamicCastGet( const uiFileInput*, uifileinp, uilined->parent() );
+	mDynamicCastGet( const uiFileSel*, uifileinp, uilined->parent() );
 	if ( inpstr && uifileinp )
 	{
 	    StringProcessor(inpbs).makeDirSepIndep();
@@ -132,12 +132,12 @@ bool GetInputCmd::act( const char* parstr )
     if ( uicombo )
 	inptxt = uicombo->text();
 
-    mDynamicCastGet( const uiFileInput*, uifileinp,
+    mDynamicCastGet( const uiFileSel*, uifilesel,
 		     uilined ? uilined->parent() : 0 );
 
-    const char* filepath = uifileinp ? uifileinp->fileName() : "";
-    if ( uifileinp && !*filepath )
-	filepath = uifileinp->defaultSelectionDir();
+    const char* filepath = uifilesel ? uifilesel->fileName() : "";
+    if ( uifilesel && !*filepath )
+	filepath = uifilesel->defaultSelectionDir();
 
     mParForm( answer, form, inptxt, filepath );
     mParIdentPost( identname, answer, parnext );

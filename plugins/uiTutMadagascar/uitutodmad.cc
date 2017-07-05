@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "madstream.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
@@ -27,11 +27,11 @@ uiTutODMad::uiTutODMad( uiParent* p )
 			 tr("Specify data settings"), mNoHelpKey) )
     , iop_("Madagascar display parameters")
 {
-    uiFileInput::Setup fisu;
-    fisu.defseldir( ODMad::FileSpec::defPath() );
-    fisu.forread( true );
-    maddatafld_ = new uiFileInput( this, mJoinUiStrs(sData(),sFile().toLower()),
-									fisu );
+    uiFileSel::Setup fssu;
+    fssu.defseldir( ODMad::FileSpec::defPath() );
+    fssu.forread( true );
+    maddatafld_ = new uiFileSel( this, mJoinUiStrs(sData(),sFile().toLower()),
+									fssu );
     maddatafld_->setFilter( "*.rsf" );
 
     dowigglesfld_ = new uiGenInput ( this, uiStrings::sDisplay(),

@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uidialog.h"
 class uiGenInput;
-class uiFileInput;
+class uiFileSel;
 class SurveyInfo;
 
 
@@ -35,8 +35,8 @@ private:
     uiGenInput*		crlfld;
     uiGenInput*		xfld;
     uiGenInput*		yfld;
-    uiFileInput*	inpfilefld;
-    uiFileInput*	outfilefld;
+    uiFileSel*		inpfilefld;
+    uiFileSel*		outfilefld;
     uiGenInput*		isxy2bidfld;
 
     void		selChg(CallBacker*);

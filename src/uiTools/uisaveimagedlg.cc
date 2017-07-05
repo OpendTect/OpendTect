@@ -12,7 +12,8 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimsg.h"
@@ -88,7 +89,7 @@ void uiSaveImageDlg::copyToClipBoardClicked( CallBacker* )
     unitfld_->display( disp );
     lockfld_->display( disp );
     if ( useparsfld_ ) useparsfld_->display( disp );
-    fileinputfld_->display( disp );
+    inpfilefld_->display( disp );
     pixlable_->display( disp );
 }
 
@@ -98,7 +99,7 @@ void uiSaveImageDlg::updateFilter()
     BufferString filterstr;
     getImageFileFilter( filterstr, false, supportPrintFormats() );
     filters_ = filterstr;
-    fileinputfld_->setFilter( filterstr );
+    inpfilefld_->setFilter( filterstr );
 }
 
 
@@ -195,15 +196,15 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 
     if ( dirname_.isEmpty() )
 	dirname_ = File::Path(GetDataDir()).add("Misc").fullPath();
-    fileinputfld_ = new uiFileInput( this, uiStrings::phrSelect(tr("filename")),
-				    uiFileInput::Setup(uiFileDialog::Gen)
-				    .forread(false)
-				    .defseldir(dirname_)
-				    .directories(false)
-				    .allowallextensions(false) );
-    fileinputfld_->setDefaultExtension( "jpg" );
-    fileinputfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
-    fileinputfld_->attach( alignedBelow, dpifld_ );
+    inpfilefld_ = new uiFileSel( this, uiStrings::phrSelect(tr("filename")),
+				   uiFileSel::Setup(uiFileDialog::Gen)
+				   .forread(false)
+				   .defseldir(dirname_)
+				   .directories(false)
+				   .allowallextensions(false) );
+    inpfilefld_->setDefaultExtension( "jpg" );
+    inpfilefld_->newSelection.notify( mCB(this,uiSaveImageDlg,fileSel) );
+    inpfilefld_->attach( alignedBelow, dpifld_ );
 
 }
 
@@ -345,12 +346,12 @@ void uiSaveImageDlg::updateSizes()
 
 void uiSaveImageDlg::fileSel( CallBacker* )
 {
-    BufferString filename = fileinputfld_->fileName();
+    BufferString filename = inpfilefld_->fileName();
     if ( filename.isEmpty() ) return;
 
     if ( !File::isDirectory(filename) )
 	addFileExtension( filename );
-    fileinputfld_->setFileName( filename );
+    inpfilefld_->setFileName( filename );
 }
 
 
@@ -364,7 +365,7 @@ void uiSaveImageDlg::addFileExtension( BufferString& filename )
 
 bool uiSaveImageDlg::filenameOK() const
 {
-    BufferString filename = fileinputfld_->fileName();
+    BufferString filename = inpfilefld_->fileName();
     if ( filename.isEmpty() )
     {
 	uiMSG().error( uiStrings::phrSelect(tr("filename")) );
@@ -384,7 +385,7 @@ bool uiSaveImageDlg::filenameOK() const
 
 const char* uiSaveImageDlg::getExtension()
 {
-    File::Path fp( fileinputfld_->fileName() );
+    File::Path fp( inpfilefld_->fileName() );
     const BufferString ext( fp.extension() );
     BufferStringSet imageformats;
     supportedImageFormats( imageformats, false );
@@ -395,7 +396,7 @@ const char* uiSaveImageDlg::getExtension()
     if ( ifmt < 0 )
     {
 	ifmt = 0;
-	selfilter_ = fileinputfld_->selectedFilter();
+	selfilter_ = inpfilefld_->selectedFilter();
 	BufferString filter;
 	for ( int idx=0; idx<filters_.size(); idx++ )
 	{
@@ -487,7 +488,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
     getImageFormatDescs( descs, false, supportPrintFormats() );
     const int idx = formats.indexOf( res );
     if ( descs.validIdx(idx) )
-	fileinputfld_->setSelectedFilter( formats.get(idx) );
+	inpfilefld_->setSelectedFilter( formats.get(idx) );
 
     if ( ispixel )
 	setSizeInPix( (int)sizepix_.width(), (int)sizepix_.height() );
@@ -558,13 +559,13 @@ bool uiSaveWinImageDlg::acceptOK()
 
     BufferString ext( getExtension() );
     if ( ext == "pdf" )
-	mw->saveAsPDF( fileinputfld_->fileName(),(int)sizepix_.width(),
+	mw->saveAsPDF( inpfilefld_->fileName(),(int)sizepix_.width(),
 		       (int)sizepix_.height(),dpifld_->box()->getIntValue());
     else if ( ext == "ps" || ext == "eps" )
-	mw->saveAsPS( fileinputfld_->fileName(),(int)sizepix_.width(),
+	mw->saveAsPS( inpfilefld_->fileName(),(int)sizepix_.width(),
 		      (int)sizepix_.height(),dpifld_->box()->getIntValue());
     else
-	mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
+	mw->saveImage( inpfilefld_->fileName(), (int)sizepix_.width(),
 		       (int)sizepix_.height(), dpifld_->box()->getIntValue());
     return true;
 }

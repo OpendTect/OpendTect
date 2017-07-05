@@ -12,7 +12,8 @@ ________________________________________________________________________
 #include "vistopbotimage.h"
 #include "vissurvscene.h"
 #include "uislider.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uiseparator.h"
 #include "vismaterial.h"
 
@@ -33,12 +34,12 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     , img_(p->scene_->getTopBotImage(istop))
     , zrng_(zrng)
 {
-    uiFileInput::Setup su( uiFileDialog::Img ); su.defseldir( GetDataDir() );
-    fnmfld_ = new uiFileInput( this,
-	    istop_ ? tr("Top image") : tr("Bottom image"), su);
-    fnmfld_->setWithCheck( true );
-    fnmfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
-    mAttachCB( fnmfld_->checked,uiSurvTopBotImageGrp::onOff );
+    uiFileSel::Setup su( uiFileDialog::Img );
+    su.defseldir( GetDataDir() ).checkable( true );
+    fnmfld_ = new uiFileSel( this,
+		    istop_ ? tr("Top image") : tr("Bottom image"), su );
+    fnmfld_->newSelection.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
+    mAttachCB( fnmfld_->checked, uiSurvTopBotImageGrp::onOff );
     fnmfld_->setChecked( img_ && img_->isOn() );
 
 #define mAddCoordchgCB( notif ) \
@@ -146,7 +147,7 @@ void transpChg( CallBacker* )
     uiSurvTopBotImageDlg* dlg_;
     visBase::TopBotImage* img_;
 
-    uiFileInput*	fnmfld_;
+    uiFileSel*		fnmfld_;
     uiGenInput*		tlfld_;
     uiGenInput*		brfld_;
     uiSlider*		transpfld_;

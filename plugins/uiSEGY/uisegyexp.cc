@@ -13,7 +13,8 @@ ________________________________________________________________________
 
 #include "uibatchjobdispatchersel.h"
 #include "uicompoundparsel.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uifiledlg.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -289,9 +290,9 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     uiString txt( tr("Output (Line name replaces '%1'")
 				    .arg(uiSEGYFileSpec::sKeyLineNmToken()) );
 
-    uiFileInput::Setup fisu( fp.fullPath() );
-    fisu.forread( false ).objtype( uiStrings::sSEGY() );
-    fnmfld_ = new uiFileInput( this, txt, fisu );
+    uiFileSel::Setup fssu( fp.fullPath() );
+    fssu.forread( false ).objtype( uiStrings::sSEGY() );
+    fnmfld_ = new uiFileSel( this, txt, fssu );
     fnmfld_->attach( alignedBelow, lnmsfld_ );
 }
 
@@ -374,7 +375,7 @@ bool doExp( const File::Path& fp )
     return nofails;
 }
 
-    uiFileInput*	fnmfld_;
+    uiFileSel*		fnmfld_;
     uiListBox*		lnmsfld_;
     uiSEGYExp*		segyexp_;
 

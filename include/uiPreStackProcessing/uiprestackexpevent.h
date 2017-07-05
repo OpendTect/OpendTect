@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiprestackprocessingmod.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiFileSel;
 class uiIOObjSel;
 class uiSeisSubSel;
 
@@ -24,14 +24,14 @@ namespace PreStack
 mExpClass(uiPreStackProcessing) uiEventExport : public uiDialog
 { mODTextTranslationClass(uiEventExport);
 public:
-    			uiEventExport(uiParent*,const DBKey*);
+			uiEventExport(uiParent*,const DBKey*);
 
 protected:
     bool		acceptOK();
 
     uiIOObjSel*		eventsel_;
     uiSeisSubSel*	subsel_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
 };
 
 } // namespace PreStack

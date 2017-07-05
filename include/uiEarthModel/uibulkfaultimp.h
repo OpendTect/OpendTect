@@ -8,7 +8,7 @@
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiTableImpDataSel;
 
@@ -24,8 +24,9 @@ protected:
 
     bool		acceptOK();
 
-    uiFileInput*	inpfld_;
+    uiFileSel*		inpfld_;
     uiGenInput*		sortsticksfld_;
     uiTableImpDataSel*	dataselfld_;
     Table::FormatDesc*	fd_;
+
 };

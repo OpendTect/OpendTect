@@ -17,9 +17,11 @@ class uiGraphicsScene;
 mExpClass(uiTools) uiGraphicsSaveImageDlg : public uiSaveImageDlg
 { mODTextTranslationClass(uiGraphicsSaveImageDlg);
 public:
+
 			uiGraphicsSaveImageDlg(uiParent*,uiGraphicsScene*);
 
 protected:
+
     uiGraphicsScene*	scene_;
 
     bool		supportPrintFormats() const	{ return true; }
@@ -27,4 +29,5 @@ protected:
     void		setAspectRatio(CallBacker*);
     void		setFldVals(CallBacker*);
     bool		acceptOK();
+
 };

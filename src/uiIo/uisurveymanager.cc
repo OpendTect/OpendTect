@@ -21,7 +21,8 @@ ________________________________________________________________________
 #include "uiconvpos.h"
 #include "uicoordsystem.h"
 #include "uidesktopservices.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
+#include "uigeninput.h"
 #include "uifont.h"
 #include "uigroup.h"
 #include "uilabel.h"
@@ -92,9 +93,9 @@ uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
     newsurvnmfld_ = new uiGenInput( this, tr("New survey name") );
     newsurvnmfld_->attach( alignedBelow, survdirsfld_ );
 
-    uiFileInput::Setup fisu( dataroot_ );
+    uiFileSel::Setup fisu( dataroot_ );
     fisu.defseldir( dataroot_ ).directories( true );
-    targetpathfld_ = new uiFileInput( this, tr("Target location"), fisu );
+    targetpathfld_ = new uiFileSel( this, tr("Target location"), fisu );
     targetpathfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     targetpathfld_->attach( alignedBelow, newsurvnmfld_ );
 #ifdef __win__
@@ -142,7 +143,7 @@ bool anySurvey() const
     const BufferString	dataroot_;
     uiListBox*		survdirsfld_;
     uiGenInput*		newsurvnmfld_;
-    uiFileInput*	targetpathfld_;
+    uiFileSel*		targetpathfld_;
     BufferString	survdirname_;
 
 };
@@ -467,9 +468,9 @@ void uiSurveyManager::compressButPushed( CallBacker* )
     uiDialog dlg( this,
     uiDialog::Setup(title,mNoDlgTitle,
 		    mODHelpKey(mSurveyCompressButPushedHelpID) ));
-    uiFileInput* fnmfld = new uiFileInput( &dlg,uiStrings::phrSelect(
+    uiFileSel* fnmfld = new uiFileSel( &dlg,uiStrings::phrSelect(
 		    uiStrings::phrOutput(tr("Destination"))),
-		    uiFileInput::Setup().directories(false).forread(false)
+		    uiFileSel::Setup().directories(false).forread(false)
 		    .allowallextensions(false));
     fnmfld->setDefaultExtension( "zip" );
     fnmfld->setFilter( sZipFileMask );

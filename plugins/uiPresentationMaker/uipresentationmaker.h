@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class uiButtonGroup;
 class uiComboBox;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiTable;
 class uiToolButton;
@@ -64,6 +64,6 @@ protected:
     uiComboBox*		scenefld_;
     uiComboBox*		screenfld_;
     uiTable*		slidestbl_;
-    uiFileInput*	masterfld_;
-    uiFileInput*	outputfld_;
+    uiFileSel*		masterfld_;
+    uiFileSel*		outputfld_;
 };

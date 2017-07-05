@@ -18,7 +18,7 @@ class Timer;
 class uiBatchJobDispatcherSel;
 class uiGMTBaseMapGrp;
 class uiGMTOverlayGrp;
-class uiFileInput;
+class uiFileSel;
 class uiListBox;
 class uiPushButton;
 class uiToolButton;
@@ -27,7 +27,7 @@ class uiTabStack;
 mClass(uiGMT) uiGMTMainWin : public uiDialog
 { mODTextTranslationClass(uiGMTMainWin);
 public:
-    			uiGMTMainWin(uiParent*);
+			uiGMTMainWin(uiParent*);
 			~uiGMTMainWin();
 
 protected:
@@ -40,7 +40,7 @@ protected:
     uiToolButton*	downbut_;
     uiToolButton*	rmbut_;
 
-    uiFileInput*	filefld_;
+    uiFileSel*		filefld_;
     uiPushButton*	createbut_;
     uiPushButton*	viewbut_;
 

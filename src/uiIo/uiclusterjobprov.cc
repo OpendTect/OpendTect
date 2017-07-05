@@ -10,7 +10,8 @@ ________________________________________________________________________
 
 #include "uiclusterjobprov.h"
 
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
@@ -189,12 +190,12 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     nrjobsfld_ = new uiLabel( this, tr("Total no. of jobs: 0000") );
     nrjobsfld_->attach( alignedBelow, nrinlfld_ );
 
-    parfilefld_ = new uiFileInput( this, uiStrings::sParFile(),
-		    uiFileInput::Setup(uiFileDialog::Gen,parfnm)
+    parfilefld_ = new uiFileSel( this, uiStrings::sParFile(),
+		    uiFileSel::Setup(uiFileDialog::Gen,parfnm)
 		    .forread(false).filter("*.par;;").confirmoverwrite(false) );
     parfilefld_->attach( alignedBelow, nrjobsfld_ );
 
-    tmpstordirfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
+    tmpstordirfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(
 				    tr("Temporary"), uiStrings::sStorageDir()),
 				    tempstordir_.buf() );
     tmpstordirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
@@ -207,7 +208,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     fp.setFileName( filenm.buf() );
     if ( !File::isDirectory(fp.fullPath()) )
 	File::createDir( fp.fullPath() );
-    scriptdirfld_ = new uiFileInput( this, uiStrings::phrStorageDir(
+    scriptdirfld_ = new uiFileSel( this, uiStrings::phrStorageDir(
 				     tr("for scripts")), fp.fullPath() );
     scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );

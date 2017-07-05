@@ -8,6 +8,7 @@ ________________________________________________________________________
 
 -*/
 
+
 #include "uifileinput.h"
 #include "uifiledlg.h"
 #include "uilabel.h"
@@ -54,6 +55,8 @@ uiFileInput::Setup::Setup( uiFileDialog::Type t, const char* filenm )
 {
 }
 
+
+mStartAllowDeprecatedSection
 
 uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     : uiGenInput( p, txt, FileNameInpSpec(setup.fnm) )
@@ -114,6 +117,8 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     setWithSelect( true );
     valuechanged.notify( mCB(this,uiFileInput,fnmEntered) );
 }
+
+mStopAllowDeprecatedSection
 
 
 uiFileInput::~uiFileInput()

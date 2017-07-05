@@ -11,7 +11,8 @@ ________________________________________________________________________
 #include "uiseismmproc.h"
 
 #include "uibutton.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
@@ -163,10 +164,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	}
 	else
 	{
-	    uiFileInput::Setup fisu( uiFileDialog::Gen );
+	    uiFileSel::Setup fisu( uiFileDialog::Gen );
 	    fisu.directories( true );
-	    tmpstordirfld_ = new uiFileInput( specparsgroup_,
-					      uiStrings::sTmpStor(), fisu );
+	    tmpstordirfld_ = new uiFileSel( specparsgroup_,
+					    uiStrings::sTmpStor(), fisu );
 	    if ( !tmpstordir.isEmpty() && File::isDirectory(tmpstordir) )
 		tmpstordirfld_->setFileName( tmpstordir );
 	    inlperjobattach = tmpstordirfld_->mainObject();

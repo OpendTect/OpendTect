@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "survinfo.h"
 
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
@@ -33,9 +33,9 @@ uiBulkFaultExport::uiBulkFaultExport( uiParent* p )
 {
     setOkText( uiStrings::sExport() );
 
-    outfld_ = new uiFileInput( this,
+    outfld_ = new uiFileSel( this,
 		      uiStrings::sInputASCIIFile(),
-		      uiFileInput::Setup().withexamine(true)
+		      uiFileSel::Setup().withexamine(true)
 		      .examstyle(File::Table) );
 }
 

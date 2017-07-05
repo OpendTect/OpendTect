@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicolseqimport.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"

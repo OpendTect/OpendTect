@@ -16,7 +16,7 @@ class uiScaler;
 class uiSeisSel;
 class uiCheckBox;
 class uiGenInput;
-class uiFileInput;
+class uiFileSel;
 class uiSeparator;
 class uiSeisSubSel;
 class uiSeis2DLineNameSel;
@@ -30,7 +30,7 @@ public:
 
 protected:
 
-    uiFileInput*	fnmfld_;
+    uiFileSel*		fnmfld_;
     uiGenInput*		isascfld_;
     uiGenInput*		is2dfld_;
     uiGenInput*		havesdfld_;

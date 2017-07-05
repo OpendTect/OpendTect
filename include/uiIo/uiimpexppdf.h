@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uidialog.h"
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiToolButton;
@@ -31,7 +31,7 @@ public:
 
 protected:
 
-    uiFileInput*	inpfld_;
+    uiFileSel*		inpfld_;
     uiGenInput*		varnmsfld_;
     uiGenInput*		xrgfld_;
     uiGenInput*		xnrbinfld_;
@@ -63,7 +63,7 @@ public:
 protected:
 
     uiIOObjSel*		inpfld_;
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
 
     bool		acceptOK();
 

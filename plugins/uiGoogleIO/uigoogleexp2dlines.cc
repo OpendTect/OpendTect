@@ -7,7 +7,8 @@
 
 #include "uigoogleexp2dlines.h"
 #include "googlexmlwriter.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uilistbox.h"
 #include "uisellinest.h"
 #include "uiseis2dfileman.h"
@@ -42,7 +43,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     const int nrsel = sellnms_.size();
 
     if ( !allsel_ )
-	putallfld_ = new uiGenInput( this, uiStrings::sExport(), 
+	putallfld_ = new uiGenInput( this, uiStrings::sExport(),
                                      BoolInpSpec(true,uiStrings::sAll(),
 		    nrsel > 1 ? tr("Selected lines"):tr("Selected line")) );
 

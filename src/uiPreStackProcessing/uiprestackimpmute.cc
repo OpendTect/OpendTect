@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiprestackimpmute.h"
 
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -42,8 +42,8 @@ uiImportMute::uiImportMute( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-				uiFileInput::Setup().withexamine(true)
+    inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
+				uiFileSel::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
     inpfilehaveposfld_ = new uiGenInput( this, tr("File contains position"),

@@ -11,7 +11,8 @@
 #include "uiseislinesel.h"
 #include "uiseissel.h"
 #include "uimultcomputils.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uitaskrunner.h"
 #include "uiseparator.h"
@@ -94,8 +95,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     if ( isimp_ )
     {
 	mkIsAscFld();
-	fnmfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()
-			.toLower()), uiFileInput::Setup("")
+	fnmfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::sFile()
+			.toLower()), uiFileSel::Setup("")
 			.forread( true )
 			.withexamine( true ) );
 	fnmfld_->attach( alignedBelow, isascfld_ );
@@ -267,8 +268,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     {
 	mkIsAscFld();
 	isascfld_->attach( alignedBelow, havesdfld_ );
-	fnmfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()
-			.toLower()), uiFileInput::Setup("")
+	fnmfld_ = new uiFileSel( this, uiStrings::phrOutput(uiStrings::sFile()
+			.toLower()), uiFileSel::Setup("")
 			.forread( false )
 			.withexamine( false ) );
 	fnmfld_->attach( alignedBelow, isascfld_ );
@@ -368,7 +369,7 @@ void uiSeisIOSimple::lsSel( CallBacker* )
 
 void uiSeisIOSimple::isascSel( CallBacker* )
 {
-    fnmfld_->enableExamine( isascfld_->getBoolValue() );
+    // fnmfld_->enableExamine( isascfld_->getBoolValue() );
 }
 
 

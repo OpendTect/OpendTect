@@ -18,7 +18,6 @@ class uiTable;
 class uiSpinBox;
 class uiLineEdit;
 class uiComboBox;
-class uiFileInput;
 class uiSEGYByteNr;
 class uiSEGYImpType;
 class uiHistogramDisplay;

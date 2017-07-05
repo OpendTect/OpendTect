@@ -29,7 +29,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uiconstvel.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uitable.h"
 #include "uid2tmodelgrp.h"
@@ -173,9 +173,9 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     , par_(p)
     , fd_("Simple multi-welldata")
 {
-    inpfld_ = new uiFileInput( this, uiStrings::sInputFile(),
-			       uiFileInput::Setup().withexamine(true)
-			       .examstyle(File::Table) );
+    inpfld_ = new uiFileSel( this, uiStrings::sInputFile(),
+			     uiFileSel::Setup().withexamine(true)
+			     .examstyle(File::Table) );
 
     fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
@@ -222,7 +222,7 @@ bool acceptOK()
     uiSimpleMultiWellCreate&	par_;
     Table::FormatDesc		fd_;
 
-    uiFileInput*		inpfld_;
+    uiFileSel*			inpfld_;
     uiTableImpDataSel*		dataselfld_;
 
 };

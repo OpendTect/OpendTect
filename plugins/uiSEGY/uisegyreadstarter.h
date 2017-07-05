@@ -26,7 +26,7 @@ class uiButton;
 class uiSpinBox;
 class uiLineEdit;
 class uiCheckBox;
-class uiFileInput;
+class uiFileSel;
 class uiSurveyMap;
 class uiRadioButton;
 class uiHistogramDisplay;
@@ -79,7 +79,7 @@ protected:
     uiGroup*		midgrp_;
     uiGroup*		botgrp_;
     uiSEGYImpType*	typfld_;
-    uiFileInput*	inpfld_;
+    uiFileSel*		inpfld_;
     uiSEGYReadStartInfo* infofld_;
     uiHistogramDisplay*	ampldisp_;
     uiSurveyMap*	survmap_;

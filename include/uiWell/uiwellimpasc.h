@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiD2TModelGroup;
-class uiFileInput;
+class uiFileSel;
 class uiGenInput;
 class uiLabel;
 class uiTableImpDataSel;
@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    uiFileInput*	trckinpfld_;
+    uiFileSel*		trckinpfld_;
     uiCheckBox*		havetrckbox_;
     uiGenInput*		coordfld_;
     uiGenInput*		kbelevfld_;

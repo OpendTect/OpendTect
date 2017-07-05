@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uiprestackexpmute.h"
 
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -43,8 +43,8 @@ uiExportMute::uiExportMute( uiParent* p )
 			        BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-			       uiFileInput::Setup().forread(false) );
+    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
+			       uiFileSel::Setup().forread(false) );
     outfld_->attach( alignedBelow, coordfld_ );
 }
 

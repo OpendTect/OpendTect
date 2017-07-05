@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "zdomain.h"
 
 #include "uibutton.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
@@ -96,8 +96,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 			      StringInpSpec(sKey::FloatUdf()) );
     udffld_->attach( alignedBelow, headerfld_ );
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-			       uiFileInput::Setup().forread(false) );
+    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
+			       uiFileSel::Setup().forread(false) );
     outfld_->attach( alignedBelow, udffld_ );
 
     typChg( 0 );

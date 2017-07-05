@@ -13,7 +13,8 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uiempartserv.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
+#include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -202,12 +203,12 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-				     uiFileInput::Setup()
+    inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
+				     uiFileSel::Setup()
 				     .withexamine(true)
 				     .forread(true) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    inpfld_->valuechanged.notify( mCB(this,uiImportHorizon2D,formatSel) );
+    inpfld_->newSelection.notify( mCB(this,uiImportHorizon2D,formatSel) );
 
     BufferStringSet hornms;
     uiEMPartServer::getAllSurfaceInfo( horinfos_, true );

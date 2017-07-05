@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uifiledlg.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
@@ -27,9 +27,9 @@ uiBulkHorizonExport::uiBulkHorizonExport( uiParent* p )
 {
     setOkText( uiStrings::sExport() );
 
-    outfld_ = new uiFileInput( this, 
+    outfld_ = new uiFileSel( this,
 		      uiStrings::sOutputASCIIFile(),
-		      uiFileInput::Setup().withexamine(false) );
+		      uiFileSel::Setup().withexamine(false) );
 }
 
 

@@ -70,6 +70,15 @@ public:
 
     static BufferString getProtocol(const char* fnm,bool acceptnone);
     static BufferString withoutProtocol(const char*);
+    static BufferString	iconForProtocol(const char*);
+
+    virtual const char*	protocol() const	= 0;
+    virtual BufferString iconName() const
+			{ return iconForProtocol(protocol()); }
+    virtual bool	readingSupported() const	{ return true; }
+    virtual bool	writingSupported() const	{ return true; }
+    virtual bool	queriesSupported() const	{ return true; }
+    virtual bool	operationsSupported() const	{ return true; }
 
 protected:
 

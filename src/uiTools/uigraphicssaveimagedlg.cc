@@ -11,7 +11,8 @@ ________________________________________________________________________
 #include "uigraphicssaveimagedlg.h"
 
 #include "uibutton.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uigraphicsscene.h"
 #include "uimain.h"
 #include "uimsg.h"
@@ -31,7 +32,7 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 {
     screendpi_ = mCast( float, uiMain::getDPI() );
     createGeomInpFlds( cliboardselfld_ );
-    fileinputfld_->attach( alignedBelow, dpifld_ );
+    inpfilefld_->attach( alignedBelow, dpifld_ );
 
     PtrMan<IOPar> ctiopar;
     getSettingsPar( ctiopar, BufferString("2D") );
@@ -72,7 +73,7 @@ bool uiGraphicsSaveImageDlg::acceptOK()
 
     if ( !filenameOK() ) return false;
 
-    const char* fnm = fileinputfld_->fileName();
+    const char* fnm = inpfilefld_->fileName();
     const int pixw = mCast(int,sizepix_.width());
     const int pixh = mCast(int,sizepix_.height());
     const int dpi = dpifld_->box()->getIntValue();

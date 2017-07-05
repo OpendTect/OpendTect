@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class InlineSplitJobDescProv;
 class uiGenInput;
-class uiFileInput;
+class uiFileSel;
 class uiLabel;
 namespace Batch { class ClusterJobDispatcher; }
 
@@ -41,9 +41,9 @@ protected:
 
     uiGenInput*		nrinlfld_;
     uiLabel*		nrjobsfld_;
-    uiFileInput*	parfilefld_;
-    uiFileInput*	tmpstordirfld_;
-    uiFileInput*	scriptdirfld_;
+    uiFileSel*		parfilefld_;
+    uiFileSel*		tmpstordirfld_;
+    uiFileSel*		scriptdirfld_;
     uiGenInput*		cmdfld_;
 
     void		nrJobsCB(CallBacker*);

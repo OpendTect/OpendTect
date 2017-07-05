@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "latlong.h"
 #include "manobjectset.h"
 #include "survinfo.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
 #include "uilabel.h"
 #include "uilatlonginp.h"
 #include "uitoolbutton.h"

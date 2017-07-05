@@ -9,7 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "uibatchprogs.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uitextfile.h"
 #include "uicombobox.h"
 #include "uitextedit.h"
@@ -201,7 +202,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
     for ( int ibpi=0; ibpi<pil_.size(); ibpi++ )
     {
 	const BatchProgInfo& bpi = *pil_[ibpi];
-	ObjectSet<uiGenInput>* inplst = new ObjectSet<uiGenInput>;
+	ObjectSet<uiGroup>* inplst = new ObjectSet<uiGroup>;
 	inps_ += inplst;
 	for ( int iarg=0; iarg<bpi.args.size(); iarg++ )
 	{
@@ -212,7 +213,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	    else
 		txt = toUiString(bpp.desc);
 
-	    uiGenInput* newinp;
+	    uiGroup* newinp;
 	    if ( bpp.type == BatchProgPar::Words ||
 		 bpp.type == BatchProgPar::QWord )
 		newinp = new uiGenInput( this, txt );
@@ -222,8 +223,8 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 		if ( bpp.desc == "Parameter file" )
 		    filt = "Parameter files (*.par)";
 		bool forread = bpp.type == BatchProgPar::FileRead;
-		newinp = new uiFileInput( this, txt,
-			uiFileInput::Setup(uiFileDialog::Gen)
+		newinp = new uiFileSel( this, txt,
+			uiFileSel::Setup(uiFileDialog::Gen)
 			.forread(forread).filter(filt.buf()) );
 	    }
 
@@ -270,7 +271,7 @@ void uiBatchProgLaunch::progSel( CallBacker* )
 
     for ( int ilst=0; ilst<inps_.size(); ilst++ )
     {
-	ObjectSet<uiGenInput>& inplst = *inps_[ilst];
+	ObjectSet<uiGroup>& inplst = *inps_[ilst];
 	for ( int iinp=0; iinp<inplst.size(); iinp++ )
 	    inplst[iinp]->display( ilst == selidx );
     }
@@ -315,7 +316,7 @@ bool uiBatchProgLaunch::acceptOK()
 
     const int selidx = progfld_->currentItem();
     const BatchProgInfo& bpi = *pil_[selidx];
-    ObjectSet<uiGenInput>& inplst = *inps_[selidx];
+    ObjectSet<uiGroup>& inplst = *inps_[selidx];
 
     BufferString prognm = progfld_->text();
     if ( prognm.isEmpty() )
@@ -324,22 +325,24 @@ bool uiBatchProgLaunch::acceptOK()
     int firstinp = 0;
     if ( prognm.firstChar() == '[' )
     {
-	prognm = inplst[0]->text();
+	mDynamicCastGet(uiGenInput*,inp,inplst[0])
+	prognm = inp->text();
 	firstinp = 1;
     }
 
     BufferString args;
     for ( int iinp=firstinp; iinp<inplst.size(); iinp++ )
     {
-	uiGenInput* inp = inplst[iinp];
+	uiGroup* curinp = inplst[iinp];
+	mDynamicCastGet(uiFileSel*,finp,curinp)
+	mDynamicCastGet(uiGenInput*,inp,curinp)
 	BufferString val;
-	mDynamicCastGet(uiFileInput*,finp,inp)
 	if ( finp )
 	{
 	    val = finp->fileName();
 	    val.quote( '"' );
 	}
-	else
+	else if ( inp )
 	{
 	    val = inp->text();
 	    if ( bpi.args[iinp]->type == BatchProgPar::QWord )
@@ -354,7 +357,7 @@ bool uiBatchProgLaunch::acceptOK()
 	    .needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
 	    .isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI )
 	    .createstreams( bpi.uitype_ == BatchProgInfo::NoUI );
-    if ( pil_[selidx] && !inplst.size() &&
+    if ( pil_[selidx] && inplst.isEmpty() &&
 	 pil_[selidx]->uitype_==BatchProgInfo::NoUI )
 	execpars.prioritylevel_ = 0;
 
@@ -374,12 +377,11 @@ void uiBatchProgLaunch::filenmUpd( CallBacker* cb )
 
     const int selidx = progfld_->currentItem();
 
-    ObjectSet<uiGenInput>& inplst = *inps_[selidx];
+    ObjectSet<uiGroup>& inplst = *inps_[selidx];
     for ( int iinp=0; iinp<inplst.size(); iinp++ )
     {
-	uiGenInput* inp = inplst[iinp];
-	mDynamicCastGet(uiFileInput*,finp,inp)
-	BufferString val;
+	uiGroup* curinp = inplst[iinp];
+	mDynamicCastGet(uiFileSel*,finp,curinp)
 	if ( finp )
 	    finp->setText( uitf->fileName() );
     }

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiComboBox;
-class uiGenInput;
+class uiGroup;
 class uiPushButton;
 class uiTextEdit;
 class uiTextFileDlg;
@@ -34,7 +34,7 @@ protected:
     uiTextEdit*		commfld_;
     uiTextFileDlg*	browser_;
     uiPushButton*	exbut_;
-    ObjectSet< ObjectSet<uiGenInput> > inps_;
+    ObjectSet< ObjectSet<uiGroup> > inps_;
 
     BatchProgInfoList&	pil_;
 

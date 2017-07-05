@@ -12,7 +12,8 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimsg.h"
@@ -260,7 +261,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     else
 	createGeomInpFlds( fldabove );
 
-    fileinputfld_->attach( alignedBelow, dpifld_ );
+    inpfilefld_->attach( alignedBelow, dpifld_ );
 
     sceneSel(0);
     PtrMan<IOPar> ctiopar;
@@ -430,7 +431,7 @@ bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
     if ( !filenameOK() || !widthfld_ || !mainimg )
 	return false;
 
-    File::Path filepath( fileinputfld_->fileName() );
+    File::Path filepath( inpfilefld_->fileName() );
     setDirName( filepath.pathOnly() );
 
     const char* fmt = uiSaveImageDlg::getExtension();

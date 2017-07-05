@@ -8,7 +8,7 @@
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiFileSel;
 
 mExpClass(uiEarthModel) uiBulkHorizonExport : public uiDialog
 { mODTextTranslationClass(uiBulkHorizonExport);
@@ -20,5 +20,6 @@ protected:
 
     bool		acceptOK();
 
-    uiFileInput*	outfld_;
+    uiFileSel*		outfld_;
+
 };

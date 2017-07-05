@@ -25,7 +25,8 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "seisioobjinfo.h"
 
-#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uifilesel.h"
 #include "uisegymanip.h"
 #include "uilabel.h"
 #include "uiseparator.h"
@@ -62,14 +63,14 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     uiString disptxt( forread_ ? uiStrings::sInput() : uiStrings::sOutput() );
     disptxt.append(tr(" SEG-Y file"));
     if ( needmulti_ ) disptxt.append("(s)");
-    uiFileInput::Setup fisu( uiFileDialog::Gen );
+    uiFileSel::Setup fisu( uiFileDialog::Gen );
     fisu.forread( forread_ ).filter( fileFilter() ).objtype( tr("SEG-Y") );
-    fnmfld_ = new uiFileInput( this, disptxt, fisu );
+    fnmfld_ = new uiFileSel( this, disptxt, fisu );
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
     if ( defdir.isEmpty() ) defdir = GetDataDir();
     fnmfld_->setDefaultSelectionDir( defdir );
     if ( !forread_ ) fnmfld_->setDefaultExtension( "sgy" );
-    fnmfld_->valuechanged.notify( mCB(this,uiSEGYFileSpec,fileSel) );
+    fnmfld_->newSelection.notify( mCB(this,uiSEGYFileSpec,fileSel) );
     if ( forread_ )
     {
 	manipbut_ = new uiPushButton( this, tr("Manipulate"),
@@ -338,7 +339,7 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
 
     uiGroup* grp = new uiGroup( this, "Main uiSEGYFilePars group" );
     if ( forread )
-	nrsamplesfld_ = mkOverruleFld( grp, 
+	nrsamplesfld_ = mkOverruleFld( grp,
 				       tr("Overrule SEG-Y number of samples"),
 				       iop, FilePars::sKeyNrSamples(),
 				       false, true );
@@ -816,8 +817,8 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	    readcoordsfld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_->valuechanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
-	    coordsfnmfld_ = new uiFileInput( grp, uiStrings::sName(),
-			uiFileInput::Setup(uiFileDialog::Gen)
+	    coordsfnmfld_ = new uiFileSel( grp, uiStrings::sName(),
+			uiFileSel::Setup(uiFileDialog::Gen)
 			.forread(forread_).objtype(tr("Bend Points")) );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsextfld_ = new uiGenInput( grp, tr("Extension"),
@@ -897,7 +898,7 @@ uiGroup* uiSEGYFileOpts::mkORuleGrp( const IOPar& iop )
 		    tr("Overrule SEG-Y coordinate scaling"), &iop,
 		    FileReadOpts::sKeyCoordScale(), false );
     uiString overrulestr = tr("Overrule SEG-Y start ");
-    overrulestr.append(SI().zIsTime() ? uiStrings::sTime().toLower() : 
+    overrulestr.append(SI().zIsTime() ? uiStrings::sTime().toLower() :
 					uiStrings::sDepth().toLower());
     timeshiftfld_ = mkOverruleFld( grp, overrulestr, &iop,
 			    FileReadOpts::sKeyTimeShift(),

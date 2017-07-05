@@ -20,7 +20,7 @@
 #include "uitoolbar.h"
 #include "uiseparator.h"
 #include "uiioobjseldlg.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uimsg.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"

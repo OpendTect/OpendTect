@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiIOObjSel;
-class uiFileInput;
+class uiFileSel;
 class CtxtIOObj;
 
 /*!\brief Finds created objects in processing specification files */
@@ -29,7 +29,7 @@ public:
 
 protected:
 
-    uiFileInput*	dirfld;
+    uiFileSel*		dirfld;
     uiGenInput*		maskfld;
     uiGenInput*		fnamefld;
     uiIOObjSel*		objfld;
