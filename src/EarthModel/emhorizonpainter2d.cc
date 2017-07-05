@@ -47,10 +47,7 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 
     intsectmarkers_.setParam( this, new ObjectSet<HorizonPainter2D::Marker2D> );
     lnintsectset_.setParam( this, new Line2DInterSectionSet );
-
-    delete selectionpoints_.getParam( this );
     selectionpoints_.setParam( this, 0 );
-
 }
 
 
