@@ -204,6 +204,8 @@ public:
     void			getVWR2DDataGeomIDs(const uiODViewer2D*,
 						   TypeSet<Pos::GeomID>&) const;
     void			surveyChangedCB(CallBacker*);
+    void			applClosing(CallBacker*);
+    void			cleanup();
     void			setupCurInterpItem(uiODViewer2D*);
 };
 

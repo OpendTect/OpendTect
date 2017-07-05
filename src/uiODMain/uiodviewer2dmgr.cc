@@ -85,6 +85,7 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs3d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 6500 );
 
     IOM().surveyChanged.notify( mCB(this,uiODViewer2DMgr,surveyChangedCB) );
+    IOM().applicationClosing.notify( mCB(this,uiODViewer2DMgr,applClosing) );
 
     BufferStringSet lnms;
     SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
@@ -106,7 +107,7 @@ int uiODViewer2DMgr::nr2DViewers() const
 { return viewers2d_.size(); }
 
 
-void uiODViewer2DMgr::surveyChangedCB( CallBacker* )
+void uiODViewer2DMgr::cleanup()
 {
     if ( l2dintersections_ )
 	deepErase( *l2dintersections_ );
@@ -114,6 +115,14 @@ void uiODViewer2DMgr::surveyChangedCB( CallBacker* )
     deepErase( viewers2d_ );
     geom2dids_.erase();
 }
+
+
+void uiODViewer2DMgr::applClosing( CallBacker* )
+{ cleanup(); }
+
+
+void uiODViewer2DMgr::surveyChangedCB( CallBacker* )
+{ cleanup(); }
 
 
 bool uiODViewer2DMgr::isItemPresent( const uiTreeItem* item ) const
