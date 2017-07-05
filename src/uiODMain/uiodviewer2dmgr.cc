@@ -90,6 +90,7 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs3d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 6500 );
 
     IOM().surveyChanged.notify( mCB(this,uiODViewer2DMgr,surveyChangedCB) );
+    IOM().applicationClosing.notify( mCB(this,uiODViewer2DMgr,surveyChangedCB));
     uiodviewer2dmgrgeom2dids_.setParam( this, new TypeSet<Pos::GeomID>() );
 
     BufferStringSet lnms;
