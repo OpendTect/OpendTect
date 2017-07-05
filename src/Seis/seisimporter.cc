@@ -423,10 +423,10 @@ bool SeisStdImporterReader::fetch( SeisTrc& trc )
 	const uiRetVal uirv = prov_->getNext( trc );
 	if ( !uirv.isOK() )
 	{
-	    if ( isFinished(uirv) )
-		return true;
-
-	    errmsg_ = uirv;
+	    if ( !isFinished(uirv) )
+		errmsg_ = uirv;
+	    else
+		errmsg_.setEmpty();
 	    return false;
 	}
 
