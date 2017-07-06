@@ -287,7 +287,7 @@ void Well::updateText( Text* tx, const uiString& chr, const Coord3* pos,
     tx->setFontData( fnt, getPixelDensity() );
     tx->setPosition( *pos );
     tx->setJustification( Text::Left );
-    tx->setCharacterSizeMode( sizedynamic ? Text::Object : Text::Screen );
+    tx->setCharacterSizeMode( Text::Object );
     tx->setAxisAlignment( Text::OnScreen );
 }
 
