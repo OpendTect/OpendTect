@@ -719,9 +719,14 @@ void uiODEarthModelSurfaceDataTreeItem::setDataPointSet(
     const int visid = displayID();
     const int attribnr = attribNr();
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
-    visserv->setSelSpec( visid, attribnr,
-	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
+    TypeSet<Attrib::SelSpec> specs;
+    for ( int idx=1; idx<vals.nrCols(); idx++ ) // Skip SectionID
+    {
+	const char* attrnm = vals.colName( idx );
+	specs += Attrib::SelSpec( attrnm, Attrib::SelSpec::cOtherAttrib() );
+    }
+
+    visserv->setSelSpecs( visid, attribnr, specs );
     visserv->setRandomPosData( visid, attribnr, &vals );
     visserv->selectTexture( visid, attribnr, 0 );
     updateColumnText( uiODSceneMgr::cNameColumn() );
