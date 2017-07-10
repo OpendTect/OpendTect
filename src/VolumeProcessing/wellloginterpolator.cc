@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellman.h"
 #include "wellreader.h"
 #include "welltrack.h"
-
+#include "wellextractdata.h"
 #include "hiddenparam.h"
 
 
@@ -194,6 +194,7 @@ PointBasedMathFunction	mdfunc_;
 HiddenParam<WellLogInterpolator,InverseDistanceGridder2D*> invdistgridder_(0);
 HiddenParam<WellLogInterpolator,PolyTrend::Order>
 					   trendorder_(PolyTrend::Order(0));
+HiddenParam<WellLogInterpolator,Well::ExtractParams*> params_( 0 );
 
 WellLogInterpolator::WellLogInterpolator()
     : gridder_(0)
@@ -203,6 +204,7 @@ WellLogInterpolator::WellLogInterpolator()
 {
     invdistgridder_.setParam( this, new InverseDistanceGridder2D() );
     trendorder_.setParam( this, PolyTrend::None );
+    params_.setParam( this, new Well::ExtractParams() );
 }
 
 
@@ -230,6 +232,20 @@ void WellLogInterpolator::setLayerModel( InterpolationLayerModel* mdl )
 {
     delete layermodel_;
     layermodel_ = mdl;
+}
+
+
+void WellLogInterpolator::setWellExtractParams( const Well::ExtractParams& params )
+{
+    params_.removeParam( this );
+
+    params_.setParam( this, new Well::ExtractParams(params) );
+}
+
+
+const Well::ExtractParams& WellLogInterpolator::getWellExtractParams()
+{
+    return *params_.getParam( this );
 }
 
 

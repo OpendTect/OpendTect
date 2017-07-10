@@ -110,6 +110,8 @@ public:
 
     Well::ExtractParams& params()
 			{ return static_cast<Well::ExtractParams&>(*params_); }
+    void		setWellExtractParams(const Well::ExtractParams& param);
+
 
 protected:
 

@@ -308,6 +308,12 @@ void uiWellExtractParams::onFinalise( CallBacker* )
     putToScreen();
 }
 
+void uiWellExtractParams::setWellExtractParams(const Well::ExtractParams& param)
+{
+    params() = param;
+    putToScreen();
+}
+
 
 void uiWellExtractParams::putToScreen()
 {

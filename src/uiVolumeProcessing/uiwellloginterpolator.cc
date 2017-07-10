@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gridder2d.h"
 #include "survinfo.h"
 #include "volprocchain.h"
+#include "hiddenparam.h"
 
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -24,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace VolProc
 {
+
 
 uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
 					      WellLogInterpolator& hwi )
@@ -98,6 +100,8 @@ void uiWellLogInterpolator::finaliseCB( CallBacker* )
     layermodelfld_->setModel( hwinterpolator_.getLayerModel() );
     initWellLogSel();
     algoChg( 0 );
+    welllogsel_->setWellExtractParams(
+				    hwinterpolator_.getWellExtractParams() );
 }
 
 
@@ -150,6 +154,7 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
     }
 
     hwinterpolator_.setWellData( wellids, lognms.get(0) );
+    hwinterpolator_.setWellExtractParams( welllogsel_->params() );
     return true;
 }
 
