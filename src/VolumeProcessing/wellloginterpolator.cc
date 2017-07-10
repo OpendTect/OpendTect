@@ -213,6 +213,7 @@ WellLogInterpolator::~WellLogInterpolator()
     releaseData();
     invdistgridder_.removeParam( this );
     trendorder_.removeParam( this );
+    params_.removeParam( this );
 }
 
 
@@ -224,6 +225,9 @@ void WellLogInterpolator::releaseData()
     deepErase( infos_ );
     InverseDistanceGridder2D* invdistgridder = invdistgridder_.getParam( this );
     delete invdistgridder;
+    Well::ExtractParams* params = params_.getParam( this );
+    delete params;
+    params_.setParam( this, 0);
     invdistgridder_.setParam( this, 0 );
 }
 
@@ -238,8 +242,11 @@ void WellLogInterpolator::setLayerModel( InterpolationLayerModel* mdl )
 void WellLogInterpolator::setWellExtractParams( const Well::ExtractParams& params )
 {
     params_.removeParam( this );
-
-    params_.setParam( this, new Well::ExtractParams(params) );
+    Well::ExtractParams* curparams = params_.getParam( this );
+    if ( curparams )
+	*curparams = params;
+    else
+     params_.setParam( this, new Well::ExtractParams(params) );
 }
 
 

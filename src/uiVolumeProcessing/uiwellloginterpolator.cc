@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gridder2d.h"
 #include "survinfo.h"
 #include "volprocchain.h"
-#include "hiddenparam.h"
 
 #include "uidialog.h"
 #include "uigeninput.h"
