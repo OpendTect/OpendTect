@@ -237,6 +237,46 @@ bool uiExportFault::writeAscii()
 
 	BufferString str;
 
+	TrcKeyZSampling bbox(true);
+	bool first = true;
+	int zatvoi = -1;
+	if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
+	{
+	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
+	    {
+		const int nrknots = nrKnots( emobj, sectionid, stickidx );
+		for ( int knotidx=0; knotidx<nrknots; knotidx++ )
+		{
+		    Coord3 crd = getCoord( emobj, sectionid,
+						stickidx, knotidx );
+		    if ( !crd.isDefined() )
+			continue;
+		    const BinID bid = SI().transform( crd.coord() );
+		    if ( first )
+		    {
+			first = false;
+			bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
+			bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z;
+		    }
+		    else
+		    {
+			bbox.hsamp_.include( bid );
+			bbox.zsamp_.include( (float) crd.z );
+		    }
+		}
+	    }
+
+	    uiTaskRunner taskrunner( this );
+	    if ( bbox.isDefined() )
+	    {
+		if ( zatvoi == -1 )
+		    zatvoi = zatf->addVolumeOfInterest( bbox, false );
+		else
+		    zatf->setVolumeOfInterest( zatvoi, bbox, false );
+		if ( zatvoi>=0 )
+			zatf->loadDataIfMissing( zatvoi, &taskrunner );
+	    }
+	}
 
 	for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	{
@@ -250,8 +290,10 @@ bool uiExportFault::writeAscii()
 		if ( !issingle_ )
 		    ostrm << "\""<< objnm <<"\"" << "\t";
 		const BinID bid = SI().transform( crd.coord() );
+
 		if ( zatf )
 		    crd.z =  zatf->transformTrc( bid, (float)crd.z );
+
 		if ( !doxy )
 		{
 		    ostrm << bid.inl() << '\t' << bid.crl();
@@ -273,9 +315,7 @@ bool uiExportFault::writeAscii()
 
 		if ( fss )
 		{
-		const int sticknr = stickNr( emobj, sectionid,
-								    stickidx );
-
+		    const int sticknr = stickNr( emobj, sectionid, stickidx );
 		    bool pickedon2d =
 			fss->geometry().pickedOn2DLine( sectionid, sticknr );
 		    if ( pickedon2d && linenmfld_->isChecked() )
@@ -359,6 +399,9 @@ bool uiExportFault::acceptOK( CallBacker* )
     if ( outfnm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() );
 
+    if ( !issingle_ )
+	bulkinfld_->updateCtxtIOObj();
+
     if ( File::exists(outfnm)
       && !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()))
 	return false;
@@ -380,7 +423,7 @@ bool uiExportFault::acceptOK( CallBacker* )
 	: uiStrings::sFault(mPlural);
     uiString msg = tr( "%1 successfully exported.\n\n"
 		    "Do you want to export more %2?" )
-	.arg(tp).arg(tps);
+	.arg(issingle_ ? tp : tps).arg(tps);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;
