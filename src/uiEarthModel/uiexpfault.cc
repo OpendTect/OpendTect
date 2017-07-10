@@ -247,11 +247,12 @@ bool uiExportFault::writeAscii()
 		const int nrknots = nrKnots( emobj, sectionid, stickidx );
 		for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 		{
-		    Coord3 crd = getCoord( emobj, sectionid,
+		    const Coord3 crd = getCoord( emobj, sectionid,
 						stickidx, knotidx );
 		    if ( !crd.isDefined() )
 			continue;
-		    const BinID bid = SI().transform( crd.coord() );
+		    const TrcKey tk( bbox.hsamp_.toTrcKey(crd) );
+		    const BinID& bid = tk.position();
 		    if ( first )
 		    {
 			first = false;
@@ -289,7 +290,9 @@ bool uiExportFault::writeAscii()
 		    continue;
 		if ( !issingle_ )
 		    ostrm << "\""<< objnm <<"\"" << "\t";
-		const BinID bid = SI().transform( crd.coord() );
+
+		const TrcKey tk( bbox.hsamp_.toTrcKey(crd) );
+		const BinID& bid = tk.position();
 
 		if ( zatf )
 		    crd.z =  zatf->transformTrc( bid, (float)crd.z );
