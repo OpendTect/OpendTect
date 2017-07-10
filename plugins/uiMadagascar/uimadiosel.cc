@@ -181,7 +181,8 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     madfld_->display( filesel );
     sconsfld_->display( choice == idxmad_ );
     if ( choice == idxsu_ )
-	madfld_->setFilter( "*.su" );
+	madfld_->setFormats(
+		File::FormatList(File::Format(tr("SU files"),"su")) );
     else if ( choice == idxmad_ )
 	sconsCB(0);
 
@@ -199,7 +200,10 @@ void uiMadIOSelDlg::sconsCB( CallBacker* )
     if ( typfld_->getIntValue() != idxmad_ )
 	return;
 
-    madfld_->setFilter( sconsfld_->isChecked() ? "*" : "*.rsf" );
+    File::FormatList fmts;
+    if ( sconsfld_->isChecked() )
+	fmts.addFormat( File::Format( tr("RSF files"), "rsf" ) );
+    madfld_->setFormats( fmts );
 }
 
 

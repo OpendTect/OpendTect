@@ -91,7 +91,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 
     uiFileSel::Setup fssu( uiFileDialog::Gen );
     fssu.forread( false ).objtype( tr("SEG-Y") )
-	.filter( uiSEGYFileSpec::fileFilter() );
+	.formats( uiSEGYFileSpec::fileFmts() );
     outfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
     outfld_->attach( ensureBelow, sep );
     outfld_->attach( alignedWith, algrp );

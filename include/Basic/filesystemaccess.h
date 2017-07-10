@@ -68,7 +68,7 @@ public:
 
     mDefineFactoryInClass( SystemAccess, factory );
 
-    static BufferString getProtocol(const char* fnm,bool acceptnone);
+    static BufferString getProtocol(const char* fnm);
     static BufferString withoutProtocol(const char*);
     static BufferString	iconForProtocol(const char*);
 

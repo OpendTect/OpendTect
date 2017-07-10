@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "file.h"
 #include "filepath.h"
+#include "fileformat.h"
 #include "odiconfile.h"
 #include "settings.h"
 
@@ -116,72 +117,44 @@ bool uiPixmap::isPresent( const char* icnm )
     return OD::IconFile::isPresent( icnm );
 }
 
-static int sPDFfmtIdx = 5;
-static int sPSfmtIdx = 6;
-static int sEPSfmtIdx = 7;
+static File::FormatList* readimgfmtsinst_ = 0;
+static File::FormatList* writeimgfmtsinst_ = 0;
+static File::FormatList* printimgfmtsinst_ = 0;
 
-static const char* sImageFormats[] =
-{ "jpg", "png", "tiff", "bmp", "xpm", "pdf", "ps", "eps", 0 };
-
-static const char* sImageFormatDescs[] =
+static void ensureImgFmtsLists()
 {
-    "JPEG (*.jpg *.jpeg)",
-    "PNG (*.png)",
-    "TIFF (*.tiff)",
-    "Bitmap (*.bmp)",
-    "XPM (*.xpm)",
-    "Portable Doc Format (*.pdf)",
-    "Postscript (*.ps)",
-    "EPS (*.eps)",
-    0
-};
+    if ( readimgfmtsinst_ )
+	return;
 
+    readimgfmtsinst_ = new File::FormatList;
+    writeimgfmtsinst_ = new File::FormatList;
+    printimgfmtsinst_ = new File::FormatList;
+    const uiString fmtnm( od_static_tr("ImgFmtsLists","Image files") );
 
-void supportedImageFormats( BufferStringSet& formats, bool forread,
-			    bool withprintformats )
-{
-    QList<QByteArray> imgfrmts = forread
-	? QImageReader::supportedImageFormats()
-	: QImageWriter::supportedImageFormats();
-
+    File::Format rdfmt( fmtnm );
+    QList<QByteArray> imgfrmts = QImageReader::supportedImageFormats();
     for ( int idx=0; idx<imgfrmts.size(); idx++ )
-	formats.add( imgfrmts[idx].data() );
+	rdfmt.addExtension( imgfrmts[idx].data() );
+    readimgfmtsinst_->addFormat( rdfmt );
 
-    if ( withprintformats )
-    {
-	formats.add( sImageFormats[sPDFfmtIdx] );
-	formats.add( sImageFormats[sPSfmtIdx] );
-	formats.add( sImageFormats[sEPSfmtIdx] );
-    }
+    imgfrmts = QImageWriter::supportedImageFormats();
+    File::Format wrfmt( fmtnm );
+    for ( int idx=0; idx<imgfrmts.size(); idx++ )
+	wrfmt.addExtension( imgfrmts[idx].data() );
+    writeimgfmtsinst_->addFormat( wrfmt );
+
+    File::Format prfmt( od_static_tr("ImgFmtsLists","Printable files"),
+		        "pdf", "ps", "eps" );
+    printimgfmtsinst_->addFormat( prfmt );
 }
 
 
-void getImageFormatDescs( BufferStringSet& descs, bool forread,
-			  bool withprintformats )
+void OD::GetSupportedImageFormats( File::FormatList& formats, bool forread,
+				   bool withprint )
 {
-    BufferStringSet formats; supportedImageFormats( formats, forread );
+    ensureImgFmtsLists();
 
-    int idx = 0;
-    while ( sImageFormats[idx] )
-    {
-	if ( formats.isPresent(sImageFormats[idx]) )
-	    descs.add( sImageFormatDescs[idx] );
-	idx++;
-    }
-
-    if ( withprintformats )
-    {
-	descs.add( sImageFormatDescs[sPDFfmtIdx] );
-	descs.add( sImageFormatDescs[sPSfmtIdx] );
-	descs.add( sImageFormatDescs[sEPSfmtIdx] );
-    }
-}
-
-
-void getImageFileFilter( BufferString& filter, bool forread,
-			 bool withprintformats )
-{
-    BufferStringSet descs;
-    getImageFormatDescs( descs, forread, withprintformats );
-    filter = descs.cat( ";;" );
+    formats = forread ? *readimgfmtsinst_ : *writeimgfmtsinst_;
+    if ( withprint )
+	formats.addFormats( *printimgfmtsinst_ );
 }

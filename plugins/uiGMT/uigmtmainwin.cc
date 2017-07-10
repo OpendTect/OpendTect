@@ -105,7 +105,8 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     BufferString defseldir = File::Path(GetDataDir()).add("Misc").fullPath();
     filefld_ = new uiFileSel( this, uiStrings::sOutputFile(),
 			uiFileSel::Setup(uiFileDialog::Gen)
-			.forread(false).filter("*.ps").defseldir(defseldir) );
+			.forread(false).setFormat(tr("Postscript files"),"ps")
+			.defseldir(defseldir) );
     filefld_->attach( alignedBelow, flowgrp_ );
     filefld_->attach( ensureLeftOf, sep );
 

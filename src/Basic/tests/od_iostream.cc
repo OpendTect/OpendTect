@@ -187,15 +187,11 @@ bool testPrefix()
 	     "Remove protocol file name without protocol");
 
     mRunStandardTest(
-	     File::SystemAccess::getProtocol( "s3://abcd", true )=="s3",
+	     File::SystemAccess::getProtocol( "s3://abcd" )=="s3",
 	     "Get protocol" );
     mRunStandardTest(
-		File::SystemAccess::getProtocol( "abcde", true ).isEmpty(),
+		File::SystemAccess::getProtocol( "abcde" )=="file",
 		"Get non-existing protocol" );
-
-    mRunStandardTest(
-	     File::SystemAccess::getProtocol( "abcde", false )=="file",
-	     "Get non-existing protocol - obtain default" );
 
     return true;
 }

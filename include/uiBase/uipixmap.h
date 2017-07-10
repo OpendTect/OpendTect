@@ -20,7 +20,15 @@ mFDQtclass(QPixmap)
 
 class BufferStringSet;
 namespace ColTab { class Sequence; }
+namespace File { class FormatList; }
 class uiRGBArray;
+
+
+namespace OD
+{
+    mGlobal(uiBase) void GetSupportedImageFormats(File::FormatList&,
+					  bool forread,bool withprint=false);
+}
 
 
 /*!\brief Off-screen pixel-based paint device
@@ -68,12 +76,3 @@ protected:
     mQtclass(QPixmap*)	qpixmap_;
     BufferString	srcname_;
 };
-
-
-
-mGlobal(uiBase) void supportedImageFormats(BufferStringSet&,bool forread=false,
-					   bool withprintformats=false);
-mGlobal(uiBase) void getImageFormatDescs(BufferStringSet& descs,bool forread,
-					bool withprintformats=false);
-mGlobal(uiBase) void getImageFileFilter(BufferString& filter,bool forread,
-					bool withprintformats=false);

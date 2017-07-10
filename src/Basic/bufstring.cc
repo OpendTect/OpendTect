@@ -565,14 +565,18 @@ bool BufferStringSet::operator ==( const BufferStringSet& bss ) const
 }
 
 
-BufferStringSet::size_type BufferStringSet::indexOf( const char* s ) const
+BufferStringSet::size_type BufferStringSet::indexOf( const char* str,
+						     CaseSensitivity cs ) const
 {
-    if ( s )
+    if ( str )
     {
 	const size_type sz = size();
 	for ( size_type idx=0; idx<sz; idx++ )
-	    if ( get(idx) == s )
+	{
+	    const BufferString& bs = get( idx );
+	    if ( bs.isEqual(str,cs) )
 		return idx;
+	}
     }
     return -1;
 }

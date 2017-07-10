@@ -35,6 +35,10 @@
 static const int cPSMnuIdx = -995;
 static const int cRLMnuIdx = -995;
 
+uiString kmlFileuiString()
+{
+    return od_static_tr( "uiGoogleExport", "KML files" );
+}
 
 mDefODPluginInfo(uiGoogleIO)
 {

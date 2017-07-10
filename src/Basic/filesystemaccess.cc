@@ -87,20 +87,15 @@ private:
 } // namespace File
 
 
-BufferString File::SystemAccess::getProtocol( const char* filename,
-					      bool acceptnone )
+BufferString File::SystemAccess::getProtocol( const char* filename )
 {
     BufferString res = filename;
+
     char* prefixend = res.find( prefixsearch );
     if ( prefixend )
 	*prefixend = 0;
     else
-    {
-	if ( !acceptnone )
-	    res = LocalFileSystemAccess::sFactoryKeyword();
-	else
-	    res = BufferString::empty();
-    }
+	res = LocalFileSystemAccess::sFactoryKeyword();
 
     return res;
 }
@@ -191,7 +186,7 @@ void File::LocalFileSystemAccess::initClass()
 
 const File::SystemAccess& File::SystemAccess::get( const char* fnm )
 {
-    BufferString protocol = getProtocol( fnm, false );
+    BufferString protocol = getProtocol( fnm );
     return gtByProt( protocol );
 }
 

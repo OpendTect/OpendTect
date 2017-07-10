@@ -303,7 +303,7 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
     inpfilefld_ = new uiFileSel( filegrp_, uiStrings::phrInput(
 					   uiStrings::sFile()), fssetup );
 
-    fssetup.fnm = lastoutfile;
+    fssetup.filename_ = lastoutfile;
     fssetup.forread(false).withexamine(false);
     outfilefld_ = new uiFileSel( filegrp_, uiStrings::phrOutput(
 					   uiStrings::sFile()), fssetup );

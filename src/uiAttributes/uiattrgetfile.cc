@@ -44,9 +44,12 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     , isattrset_(isads)
 {
     fileinpfld = new uiFileSel(this, uiStrings::sFileName());
-    fileinpfld->setFilter( isattrset_ ? "AttributeSet files (*.attr)" \
-                                      : "Job specifications (*.par)" );
-
+    File::FormatList fmts;
+    if ( isattrset_ )
+	fmts.addFormat( File::Format( tr("AttributeSet files"), "attr" ) );
+    else
+	fmts.addFormat( File::Format( tr("Job specifications"), "par" ) );
+    fileinpfld->setFormats( fmts );
     fileinpfld->setDefaultSelectionDir( isattrset_ ? GetBaseDataDir()
 						   : GetProcFileName(0) );
     fileinpfld->newSelection.notify( mCB(this,uiGetFileForAttrSet,selChg) );
@@ -168,10 +171,10 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
     if ( sImportDir.isEmpty() )
 	sImportDir = GetDataDir();
 
-    const char* fltr = "Attribute Sets (*.attr)";
     fileinpfld_ = new uiFileSel( this, uiStrings::phrSelect(
 		      mJoinUiStrs(sInput(),sFile())), uiFileSel::Setup().
-		      defseldir(sImportDir).forread(true).filter(fltr) );
+		      defseldir(sImportDir).forread(true).
+		      setFormat(tr("Attribute Sets"),"attr") );
 
     IOObjContext ctxt = mIOObjContext(AttribDescSet);
     ctxt.forread_ = false;

@@ -72,16 +72,16 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     mangrp->attach( alignedBelow, ismanfld );
 
     filegrp = new uiGroup( this, "File group" );
-    uiFileSel::Setup fipsetup( lastinpfile );
-    fipsetup.forread(true).withexamine(true)
+    uiFileSel::Setup fssu( lastinpfile );
+    fssu.forread(true).withexamine(true)
 	    .examstyle(File::Table).defseldir(GetDataDir());
     inpfilefld = new uiFileSel( filegrp, uiStrings::phrInput(
-					   uiStrings::sFile()), fipsetup );
+					   uiStrings::sFile()), fssu );
 
-    fipsetup.fnm = lastoutfile;
-    fipsetup.forread(false).withexamine(false);
+    fssu.filename_ = lastoutfile;
+    fssu.forread(false).withexamine(false);
     outfilefld = new uiFileSel( filegrp, uiStrings::phrOutput(
-					   uiStrings::sFile()), fipsetup );
+					   uiStrings::sFile()), fssu );
     outfilefld->attach( alignedBelow, inpfilefld );
     isxy2bidfld = new uiGenInput( filegrp, uiStrings::sType(),
 	           BoolInpSpec(true,tr("X/Y to I/C"),tr("I/C to X/Y")) );

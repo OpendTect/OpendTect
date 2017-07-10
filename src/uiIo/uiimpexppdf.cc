@@ -38,7 +38,6 @@ static const char* sKeyXNoBins = "X No of Bins";
 static const char* sKeyYNoBins = "Y No of Bins";
 static const char* sKeyFirstXBin = "X Bin 0";
 static const char* sKeyFirstYBin = "Y Bin 0";
-static const char* filefilter = "Text (*.txt *.dat)";
 
 
 uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
@@ -46,12 +45,10 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 				 mNoDlgTitle, mODHelpKey(mImpRokDocPDFHelpID))
 			   .modal(false))
 {
-    setOkText( uiStrings::sImport() );
-
-    inpfld_ = new uiFileSel( this,
-	    uiStrings::sInputASCIIFile(),
-	    uiFileSel::Setup(uiFileDialog::Gen)
-	    .withexamine(true).forread(true).filter(filefilter) );
+    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    fssu.withexamine( true ).forread( true )
+	.setFormat( tr("Text files"), "txt", "dat" );
+    inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(), fssu );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->newSelection.notify( mCB(this,uiImpRokDocPDF,selChg) );
 
@@ -478,7 +475,8 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
 
     outfld_ = new uiFileSel( this, uiStrings::sOutputFile(),
 	    uiFileSel::Setup(uiFileDialog::Gen)
-	    .withexamine(false).forread(false).filter(filefilter) );
+	    .withexamine(false).forread(false)
+	    .setFormat( tr("Text files"), "txt", "dat" ) );
     outfld_->setSelectMode( uiFileDialog::AnyFile );
     outfld_->attach( alignedBelow, inpfld_ );
 }

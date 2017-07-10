@@ -36,11 +36,6 @@ ________________________________________________________________________
 
 
 static const float defundefval = -999.25;
-#ifdef __win__
-    static const char* lasfileflt = "Las files (*.las *.dat)";
-#else
-    static const char* lasfileflt = "Las files (*.las *.LAS *.dat *.DAT)";
-#endif
 
 
 uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
@@ -52,7 +47,8 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     lasfld_ = new uiFileSel( this, uiStrings::phrInput(
 			     tr("(pseudo-)LAS logs file")),
 			     uiFileSel::Setup(uiFileDialog::Gen)
-			     .filter(lasfileflt).withexamine(true) );
+			     .setFormat(tr("LAS files"), "las", "dat")
+			     .withexamine(true) );
     lasfld_->newSelection.notify( mCB(this,uiImportLogsDlg,lasSel) );
 
     intvfld_ = new uiGenInput( this, tr("Depth interval to load (empty=all)"),

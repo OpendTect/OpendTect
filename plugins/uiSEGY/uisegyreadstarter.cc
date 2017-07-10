@@ -92,7 +92,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
     topgrp_ = new uiGroup( this, "Top group" );
     uiFileSel::Setup fssu( uiFileDialog::Gen, filespec_.fileName() );
-    fssu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
+    fssu.formats( uiSEGYFileSpec::fileFmts() ).forread( true )
 	.objtype( tr("SEG-Y") );
     inpfld_ = new uiFileSel( topgrp_, uiStrings::phrJoinStrings(
 			     uiStrings::sInputFile(),tr("*=wildcard")),fssu );
@@ -499,9 +499,9 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
 {
     timer_->tick.remove( mCB(this,uiSEGYReadStarter,firstSel));
 
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0,
-	    uiSEGYFileSpec::fileFilter(),
-	    tr("Select (one of) the SEG-Y file(s)") );
+    const BufferString filefilt = uiSEGYFileSpec::fileFmts().getFileFilters();
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0, filefilt,
+			tr("Select (one of) the SEG-Y file(s)") );
     if ( mForSurvSetup )
 	dlg.setDirectory( GetBaseDataDir() );
     else

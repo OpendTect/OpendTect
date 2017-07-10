@@ -49,7 +49,6 @@ uiColSeqImport::uiColSeqImport( uiParent* p )
     dirfld_ = new uiFileSel( this, getLabelText(true),
 			       uiFileSel::Setup(sHomePath)
 			       .directories(true) );
-    dirfld_->setNoManualEdit();
     dirfld_->newSelection.notify( mCB(this,uiColSeqImport,usrSel) );
     dirfld_->attach( alignedBelow, choicefld_ );
 

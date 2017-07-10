@@ -54,7 +54,7 @@ uiSeisImportODCube::uiSeisImportODCube( uiParent* p )
     setCtrlStyle( RunAndClose );
 
     uiFileSel::Setup fssu( uiFileDialog::Gen );
-    fssu.filter("OpendTect seismic files (*.blocks *.cbvs)")
+    fssu.setFormat( tr("OpendTect seismic files"), "blocks", "cbvs" )
 		.defseldir( GetBaseDataDir() );
     inpfld_ = new uiFileSel( this, tr("(First) file name"), fssu );
     inpfld_->newSelection.notify( mCB(this,uiSeisImportODCube,inpSel) );

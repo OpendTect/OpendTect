@@ -119,34 +119,27 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 
     const uiString commandfile = tr( "command file" );
 
-    inpfld_ = new uiFileSel( this,
-			uiStrings::phrInput(commandfile),
-			uiFileSel::Setup(uiFileDialog::Gen)
-			.filter("Script files (*.odcmd *.cmd)")
-			.forread(true)
-			.withexamine(true)
-			.exameditable(true)
-			.displaylocalpath(true) );
+    const File::Format fmt( tr("Script files"), "odcmd", "cmd" );
+    uiFileSel::Setup fisu( uiFileDialog::Gen );
+    fisu.forread(true).withexamine(true).exameditable(true)
+		      .displaylocalpath(true).formats(fmt);
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(commandfile), fisu );
     inpfld_->attach( alignedBelow, cmdoptionfld_ );
 
     logfld_ = new uiFileSel( this,
 			uiStrings::phrOutput(uiStrings::sLogFile()),
-			uiFileSel::Setup()
-			.forread(false)
-			.withexamine(true)
-			.examstyle(File::Log)
+			uiFileSel::Setup().forread(false)
+			.withexamine(true).examstyle(File::Log)
 			.displaylocalpath(true) );
     logfld_->attach( alignedBelow, inpfld_ );
 
+    const File::Format fmtout( tr("Script files"), "odcmd" );
     outfld_ = new uiFileSel( this,
 			uiStrings::phrOutput(commandfile),
 			uiFileSel::Setup(uiFileDialog::Gen)
-			.filter("Script files (*.odcmd)")
-			.forread(false)
-			.confirmoverwrite(false)
-			.withexamine(true)
-			.examstyle(File::Log)
-			.displaylocalpath(true) );
+			.forread(false).formats(fmtout)
+			.withexamine(true).examstyle(File::Log)
+			.confirmoverwrite(false).displaylocalpath(true) );
     outfld_->attach( alignedBelow, cmdoptionfld_ );
 
     gobut_ = new uiPushButton( this, uiStrings::sGo(),

@@ -29,10 +29,9 @@ uiTutODMad::uiTutODMad( uiParent* p )
 {
     uiFileSel::Setup fssu;
     fssu.defseldir( ODMad::FileSpec::defPath() );
-    fssu.forread( true );
+    fssu.forread( true ).setFormat( tr("RSF file"), "rsf" );
     maddatafld_ = new uiFileSel( this, mJoinUiStrs(sData(),sFile().toLower()),
 									fssu );
-    maddatafld_->setFilter( "*.rsf" );
 
     dowigglesfld_ = new uiGenInput ( this, uiStrings::sDisplay(),
 			             BoolInpSpec(true,tr("Wiggles"),

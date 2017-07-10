@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class IOObj;
 namespace SEGY { class TrcHeaderDef; }
+namespace File { class FormatList; }
 class uiLabel;
 class uiButton;
 class uiCheckBox;
@@ -84,9 +85,8 @@ public:
     bool		isIEEEFmt() const		{ return isieee_; }
     bool		isProbablySeisWare() const	{ return issw_; }
 
-    static const char*	sKeyLineNmToken()	{ return "#L"; }
-    static const char*	fileFilter()
-			{ return  "SEG-Y files (*.sgy *.SGY *.segy)"; }
+    static const char*	sKeyLineNmToken()		{ return "#L"; }
+    static const File::FormatList& fileFmts();
 
     Notifier<uiSEGYFileSpec>	fileSelected;
 

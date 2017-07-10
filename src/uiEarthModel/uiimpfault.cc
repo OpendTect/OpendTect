@@ -94,8 +94,8 @@ void uiImportFault::createUI()
 	typefld_->attach( alignedBelow, infld_ );
 
 	formatfld_ = new uiFileSel( this, tr("Input Landmark formatfile"),
-				      uiFileSel::Setup(uiFileDialog::Gen)
-				      .filter("*.fault_fmt") );
+			      uiFileSel::Setup(uiFileDialog::Gen)
+			      .setFormat(tr("Landmark fault"),"fault_fmt") );
 	formatfld_->attach( alignedBelow, typefld_ );
 
 	BufferStringSet stickselopt; stickselopt.add( sKeyAutoStickSel() )

@@ -86,11 +86,12 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     setDeleteOnClose( false );
     ctio_.ctxt_.forread_ = !isgeom_;
 
-    BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
+    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    fssu.withexamine(true).forread(true).defseldir(sImportFromPath);
+    fssu.formats_.addFormat( File::Format(tr("Text file"),"txt","dat") );
+    fssu.formats_.addFormat( File::Format(tr("Position file"),"xy","ic","ix") );
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::phrASCII(
-		  uiStrings::sFile())), uiFileSel::Setup(uiFileDialog::Gen)
-		  .withexamine(true).forread(true).filter(fltr)
-		  .defseldir(sImportFromPath) );
+		  uiStrings::sFile())), fssu );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->newSelection.notify( mCB(this,uiImportHorizon,inputChgd) );
 

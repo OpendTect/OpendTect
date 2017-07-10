@@ -96,7 +96,7 @@ uiDZTImporter( uiParent* p )
 	{ new uiLabel(this,tr("TODO: implement 3D loading")); return; }
 
     uiFileSel::Setup fssu( uiFileDialog::Gen );
-    fssu.filter( "*.dzt" ).forread( true );
+    fssu.setFormat( tr("DZT files"), "dzt" ).forread( true );
     inpfld_ = new uiFileSel(this, uiStrings::phrInput(tr("DZT file")), fssu);
     inpfld_->newSelection.notify( mCB(this,uiDZTImporter,inpSel) );
 

@@ -91,8 +91,9 @@ void agSel( CallBacker* )
 void readPush( CallBacker* )
 {
     File::Path fp( GetDataDir(), sSeismicSubDir() );
-    uiFileDialog dlg( this, true, fp.fullPath(), uiSEGYFileSpec::fileFilter(),
-	    tr("Read SEG-Y Textual Header from file") );
+    const BufferString filefilt = uiSEGYFileSpec::fileFmts().getFileFilters();
+    uiFileDialog dlg( this, true, fp.fullPath(), filefilt,
+			tr("Read SEG-Y Textual Header from file") );
     if ( !dlg.go() ) return;
 
     od_istream strm( dlg.fileName() );

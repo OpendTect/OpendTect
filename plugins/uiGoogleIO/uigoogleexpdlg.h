@@ -9,6 +9,8 @@
 #include "filepath.h"
 class uiFileSel;
 
+uiString kmlFileuiString();
+
 #define mDecluiGoogleExpStd \
     uiFileSel*		fnmfld_; \
     bool		acceptOK()
@@ -18,7 +20,7 @@ class uiFileSel;
     deffnm.clean( BufferString::AllowDots ); \
     File::Path deffp( GetDataDir() ); deffp.add( deffnm ).setExtension( "kml" ); \
     uiFileSel::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() ); \
-    fiinpsu.forread( false ).filter( "*.kml" ); \
+    fiinpsu.forread( false ).setFormat( kmlFileuiString(), "kml" ); \
     fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fiinpsu );
 
 

@@ -190,9 +190,10 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     nrjobsfld_ = new uiLabel( this, tr("Total no. of jobs: 0000") );
     nrjobsfld_->attach( alignedBelow, nrinlfld_ );
 
-    parfilefld_ = new uiFileSel( this, uiStrings::sParFile(),
-		    uiFileSel::Setup(uiFileDialog::Gen,parfnm)
-		    .forread(false).filter("*.par;;").confirmoverwrite(false) );
+    uiFileSel::Setup fssu( uiFileDialog::Gen, parfnm );
+    fssu.forread(false).confirmoverwrite(false);
+    fssu.setFormat( tr("Parameter file"), "par" );
+    parfilefld_ = new uiFileSel( this, uiStrings::sParFile(), fssu );
     parfilefld_->attach( alignedBelow, nrjobsfld_ );
 
     tmpstordirfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(

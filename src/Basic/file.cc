@@ -540,8 +540,8 @@ bool File::rename( const char* oldname, const char* newname )
     if ( !isSane(oldname) || !isSane(newname) )
 	return false;
 
-    if ( SystemAccess::getProtocol( oldname, false ) !=
-	 SystemAccess::getProtocol( newname, false ) )
+    if ( SystemAccess::getProtocol(oldname) !=
+	 SystemAccess::getProtocol(newname) )
 	return false;
 
     const SystemAccess& fsa = SystemAccess::get( newname );
@@ -596,8 +596,7 @@ bool File::copy( const char* from, const char* to, uiString* errmsg )
     if ( !isSane(from) || !isSane(to) )
 	return false;
 
-    if ( SystemAccess::getProtocol( from, false ) !=
-	 SystemAccess::getProtocol( to, false ) )
+    if ( SystemAccess::getProtocol(from) != SystemAccess::getProtocol(to) )
 	return false;
 
     const SystemAccess& fsa = SystemAccess::get( from );

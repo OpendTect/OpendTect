@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "uifiledlg.h"
+#include "fileformat.h"
 #include "file.h"
 
 class uiButton;
@@ -35,9 +36,7 @@ public:
 			Setup(const char* filenm=0);
 			Setup(uiFileDialog::Type t,const char* filenm=0);
 
-	BufferString	fnm;
-
-	mDefSetupMemb(BufferString,filter)	//!< empty
+	mDefSetupMemb(BufferString,filename)
 	mDefSetupMemb(BufferString,defseldir)	//!< empty
 	mDefSetupMemb(bool,forread)		//!< true
 	mDefSetupMemb(bool,withexamine)		//!< false (unless spec. Txt)
@@ -51,6 +50,16 @@ public:
 	mDefSetupMemb(bool,checkable)		//!< false
 	mDefSetupMemb(uiFileDialog::Type,filedlgtype) //!< Gen
 	mDefSetupMemb(uiString,objtype)		//!< empty
+	mDefSetupMemb(File::FormatList,formats)	//!< empty
+	mDefSetupMemb(BufferString,defaultext)	//!< empty
+
+	Setup& setFormat( const uiString& ftype, const char* ext,
+			  const char* ext2=0, const char* ext3=0 )
+	{
+	    formats_.setEmpty();
+	    formats_.addFormat( File::Format(ftype,ext,ext2,ext3) );
+	    return *this;
+	}
     };
 
 			uiFileSel(uiParent*,const uiString& seltxt,
@@ -59,18 +68,23 @@ public:
 				    const Setup&);
 			~uiFileSel();
 
+    const Setup&	setup() const		{ return setup_; }
+    uiString		labelText() const;
+
     void		setFileName(const char*);
     void		setDefaultSelectionDir(const char*);
-    const char*		defaultSelectionDir() const	   { return defseldir_;}
-    void		setFilter( const char* fltr )	   { filter_ = fltr; }
-    const char*		selectedFilter() const		   { return selfltr_; }
-    void		setSelectedFilter( const char* f ) { selfltr_ = f; }
+    void		setDefaultExtension( const char* s )
+						{ setup_.defaultext_ = s; }
+    const char*		defaultSelectionDir() const
+			{ return setup_.defseldir_;}
+    void		setFormats( const File::FormatList& fmts )
+			{ setup_.formats_ = fmts; }
     void		setObjType( const uiString& s )    { objtype_ = s; }
     void		setExamine( const CallBack& cb )   { examinecb_ = cb; }
-			//!< Overrules the simple stand-alone file browser
-    void		setNoManualEdit();
-    uiString		labelText() const;
+			    //!< Overrules the simple stand-alone file browser
     void		setLabelText(const uiString&);
+    BufferString	selectedExtension() const;
+    BufferString	selectedProtocol() const;
 
     const char*		fileName() const;
     void		getFileNames(BufferStringSet&) const;
@@ -80,8 +94,6 @@ public:
     bool		inDirectorySelectMode() const;
 
     void		setSensitive(bool yn);
-    void		setDefaultExtension(const char* ext);
-			// only when forread is false
 
     void		selectFile( CallBacker* cb )	{ doSelCB(cb); }
 
@@ -95,23 +107,12 @@ public:
 
 protected:
 
-    bool		forread_;
-    BufferString	filter_;
-    BufferString	defseldir_;
-    bool		displaylocalpath_;
-    BufferString	selfltr_;
-    bool		addallexts_;
-    File::ViewStyle	examstyle_;
-    bool		exameditable_;
-    bool		confirmoverwrite_;
+    Setup		setup_;
     CallBack		examinecb_;
-    BufferString	defaultext_;
     uiString		objtype_;
     BufferStringSet	factnms_;
-
     bool		selmodset_;
     uiFileDialog::Mode  selmode_;
-    uiFileDialog::Type  filedlgtype_;
 
     uiCheckBox*		checkbox_;
     uiComboBox*		protfld_;
@@ -133,7 +134,7 @@ protected:
 
 private:
 
-    void		init(const Setup&,const uiString&);
+    void		init(const uiString&);
 
 public:
 

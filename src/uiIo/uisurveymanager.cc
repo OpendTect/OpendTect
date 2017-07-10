@@ -473,7 +473,7 @@ void uiSurveyManager::compressButPushed( CallBacker* )
 		    uiFileSel::Setup().directories(false).forread(false)
 		    .allowallextensions(false));
     fnmfld->setDefaultExtension( "zip" );
-    fnmfld->setFilter( sZipFileMask );
+    fnmfld->setFormats( File::FormatList(sZipFileMask) );
     uiLabel* sharfld = new uiLabel( &dlg,
 			  tr("You can share surveys to Open Seismic Repository."
 			   "To know more ") );

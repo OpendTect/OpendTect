@@ -38,14 +38,16 @@ public:
     inline bool		isEmpty() const		{ return strs_.isEmpty(); }
     inline bool		validIdx( size_type i ) const
 						{ return strs_.validIdx(i); }
-    size_type		indexOf(const char*) const;	//!< first match
+    size_type		indexOf(const char*,CaseSensitivity s=CaseSensitive
+						) const; //!< first match
     size_type		indexOf(const GlobExpr&) const;	//!< first match
     size_type		indexOf( const BufferString* b ) const
 						{ return strs_.indexOf(b); }
     inline bool		isPresent( const BufferString* b ) const
 						{ return strs_.isPresent(b);}
-    inline bool		isPresent( const char* s ) const
-						{ return indexOf(s) >= 0; }
+    inline bool		isPresent( const char* s,
+				   CaseSensitivity c=CaseSensitive ) const
+						{ return indexOf(s,c) >= 0; }
     BufferString&	get( size_type idx )	{ return *strs_.get(idx); }
     const BufferString&	get( size_type idx ) const { return *strs_.get(idx); }
     BufferString*	first()			{ return strs_.first(); }

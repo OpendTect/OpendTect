@@ -72,9 +72,10 @@ set( OD_MODULE_SOURCES
 	executor.cc
 	factory.cc
 	file.cc
-	filepath.cc
+	fileformat.cc
 	filemonitor.cc
 	filemultispec.cc
+	filepath.cc
 	filesystemaccess.cc
 	genc.cc
 	gpuprog.cc

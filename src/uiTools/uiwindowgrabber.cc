@@ -26,20 +26,8 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 BufferString uiWindowGrabDlg::dirname_ = "";
-
-static const char* imageformats[] =
+static const char* wantedimageextensions[] =
 { "jpg", "png", "bmp", "ppm", "xpm", 0 };
-
-static const char* filters[] =
-{
-    "JPEG (*.jpg *.jpeg)",
-    "PNG (*.png)",
-    "Bitmap (*.bmp)",
-    "PPM (*.ppm)",
-    "XPM (*.xpm)",
-    0
-};
-
 
 
 uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
@@ -71,7 +59,6 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 				   .defseldir(dirname_)
 				   .directories(false)
 				   .allowallextensions(false) );
-    inpfilefld_->newSelection.notify( mCB(this,uiWindowGrabDlg,fileSel) );
     if ( windowfld_ )
 	inpfilefld_->attach( alignedBelow, windowfld_ );
     updateFilter();
@@ -101,55 +88,31 @@ void uiWindowGrabDlg::updateFilter()
 {
     Settings& settings = Settings::fetch("snapshot");
     PtrMan<IOPar> iopar = settings.subselect( "3D" );
-    BufferString deftype = imageformats[0];
-    if ( iopar ) iopar->get( "File type", deftype );
+    BufferString deftype;
+    if ( iopar )
+	iopar->get( "File type", deftype );
 
-    BufferStringSet supportedformats;
-    supportedImageFormats( supportedformats );
-    int idx = 0;
-    while ( imageformats[idx] )
+    fileformats_.setEmpty();
+    OD::GetSupportedImageFormats( fileformats_, false );
+    for ( int ifmt=0; ifmt<fileformats_.size(); ifmt++ )
     {
-	if ( deftype != imageformats[idx] )
+	const File::Format fmt = fileformats_.format( ifmt );
+	bool found = false;
+	for ( int idx=0; wantedimageextensions[idx]; idx++ )
 	{
-	    idx++;
-	    continue;
+	    if ( fmt.hasExtension(wantedimageextensions[idx]) )
+		{ found = true; break ; }
 	}
-
-	if ( supportedformats.isPresent(imageformats[idx]) )
-	    inpfilefld_->setSelectedFilter( filters[idx] );
-	break;
+	if ( !found )
+	{
+	    fileformats_.removeFormat( ifmt );
+	    ifmt--; continue;
+	}
+	if ( fmt.hasExtension(deftype) )
+	    inpfilefld_->setDefaultExtension( deftype );
     }
 
-    BufferString filter;
-    idx = 0;
-    while ( imageformats[idx] )
-    {
-	const int idy = supportedformats.indexOf( imageformats[idx] );
-	if ( idy>=0 )
-	{
-	    if ( !filter.isEmpty() ) filter += ";;";
-	    filter += filters[idx];
-	}
-	idx++;
-    }
-
-    inpfilefld_->setFilter( filter );
-}
-
-
-void uiWindowGrabDlg::fileSel( CallBacker* )
-{
-    BufferString filename = inpfilefld_->fileName();
-    addFileExtension( filename );
-    inpfilefld_->setFileName( filename );
-}
-
-
-void uiWindowGrabDlg::addFileExtension( BufferString& filename )
-{
-    File::Path fp( filename.buf() );
-    fp.setExtension( getExtension() );
-    filename = fp.fullPath();
+    inpfilefld_->setFormats( fileformats_ );
 }
 
 
@@ -162,10 +125,19 @@ bool uiWindowGrabDlg::filenameOK() const
 	return false;
     }
 
-    if (File::exists(filename) && !File::isWritable(filename))
+    if ( File::exists(filename) && !File::isWritable(filename) )
     {
 	uiString msg = tr("The file %1 is not writable").arg(filename);
-	uiMSG().error(msg);
+	uiMSG().error( msg );
+	return false;
+    }
+
+    const BufferString ext( File::Path(filename).extension() );
+    if ( ext.isEmpty() || !fileformats_.isPresent(ext) )
+    {
+	uiString msg = tr("The file %1 is not in a supported format")
+			.arg(filename);
+	uiMSG().error( msg );
 	return false;
     }
 
@@ -182,31 +154,6 @@ bool uiWindowGrabDlg::acceptOK()
     dirname_ = filepath.pathOnly();
     filename_ = filepath.fullPath();
     return true;
-}
-
-
-const char* uiWindowGrabDlg::getExtension() const
-{
-    int ifmt = -1;
-    File::Path fp( inpfilefld_->fileName() );
-    const BufferString ext( fp.extension() );
-    for ( int idx=0; imageformats[idx]; idx++ )
-    {
-	if ( ext == imageformats[idx] )
-	    { ifmt = idx; break; }
-    }
-
-    if ( ifmt < 0 )
-    {
-	const FixedString selectedfilter = inpfilefld_->selectedFilter();
-	for ( ifmt=0; filters[ifmt]; ifmt++ )
-	{
-	    if ( selectedfilter == filters[ifmt] )
-		break;
-	}
-    }
-
-    return imageformats[ifmt] ? imageformats[ifmt] : imageformats[0];
 }
 
 

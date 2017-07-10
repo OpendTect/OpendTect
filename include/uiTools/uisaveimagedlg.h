@@ -43,6 +43,8 @@ public:
     void		fillPar(IOPar&,bool is2d);
     bool		usePar(const IOPar&);
 
+    BufferString	getExtension() const;
+
 protected:
 
     void		setDirName(const char*);
@@ -92,7 +94,6 @@ protected:
 
     void		updateSizes();
     void		setNotifiers(bool enable);
-    virtual const char*	getExtension();
     virtual void	writeToSettings()		{}
 
     static const char*  sKeyType()	{ return "Type"; }

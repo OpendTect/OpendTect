@@ -53,10 +53,10 @@ uiPythonInstallGrp( uiParent* p )
 		   "For more information please click the Help button.");
     uiLabel* lbl = new uiLabel( this, msg );
 
-    const BufferString filter( __iswin__ ? "Application (*.exe)" : "" );
-    pythonfld_ = new uiFileSel( this, tr("Python Executable") );
-    pythonfld_->setFilter( filter );
-    pythonfld_->setFileName( PresentationSpec::getPyExec() );
+    uiFileSel::Setup fssu( PresentationSpec::getPyExec() );
+    if ( __iswin__ )
+	fssu.setFormat( tr("Application"), "exe" );
+    pythonfld_ = new uiFileSel( this, tr("Python Executable"), fssu );
     pythonfld_->attach( leftAlignedBelow, lbl );
 }
 
@@ -228,15 +228,15 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     templatefld_->attach( alignedBelow, titlefld_ );
 
     BufferString filter( "PowerPoint (*.pptx)" );
-    uiFileSel::Setup fis;
-    fis.forread(true).filter( filter );
-    masterfld_ = new uiFileSel( this, tr("Template pptx"), fis );
+    uiFileSel::Setup fssu;
+    fssu.forread(true).setFormat( tr("PowerPoint"), "pptx" );
+    masterfld_ = new uiFileSel( this, tr("Template pptx"), fssu );
     masterfld_->setDefaultExtension( "pptx" );
     masterfld_->setFileName( templfnm );
     masterfld_->attach( alignedBelow, templatefld_ );
 
-    fis.forread(false);
-    outputfld_ = new uiFileSel( this, tr("Output pptx"), fis );
+    fssu.forread(false);
+    outputfld_ = new uiFileSel( this, tr("Output pptx"), fssu );
     outputfld_->setDefaultExtension( "pptx" );
     outputfld_->attach( alignedBelow, masterfld_ );
 

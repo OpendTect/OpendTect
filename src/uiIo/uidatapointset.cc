@@ -1399,7 +1399,8 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 		  BoolInpSpec(false,tr("Text file"),tr("OpendTect object")) );
     tabfld_->valuechanged.notify( tccb );
     uiFileSel::Setup su;
-    su.defseldir(GetDataDir()).forread(false).filter("*.txt");
+    su.defseldir(GetDataDir()).forread(false)
+	.setFormat( tr("Text files"), "txt" );
     txtfld_ = new uiFileSel( this, uiStrings::sOutputFile(), su );
     txtfld_->attach( alignedBelow, tabfld_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );

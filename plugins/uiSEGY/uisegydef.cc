@@ -42,6 +42,18 @@ static const char* sKeyEnableByteSwapWrite = "Enable SEG-Y byte swap writing";
 static int enabbyteswapwrite = -1;
 static BufferString lastreaddir;
 static BufferString lastwritedir;
+static File::FormatList* file_formats_ = 0;
+
+const File::FormatList& uiSEGYFileSpec::fileFmts()
+{
+    if ( !file_formats_ )
+    {
+	file_formats_ = new File::FormatList;
+	file_formats_->addFormat(
+		File::Format( tr("SEG-Y files"), "sgy", "segy", "seg" ) );
+    }
+    return *file_formats_;
+}
 
 
 //--- uiSEGYFileSpec ----
@@ -64,7 +76,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     disptxt.append(tr(" SEG-Y file"));
     if ( needmulti_ ) disptxt.append("(s)");
     uiFileSel::Setup fisu( uiFileDialog::Gen );
-    fisu.forread( forread_ ).filter( fileFilter() ).objtype( tr("SEG-Y") );
+    fisu.forread( forread_ ).formats( fileFmts() ).objtype( tr("SEG-Y") );
     fnmfld_ = new uiFileSel( this, disptxt, fisu );
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
     if ( defdir.isEmpty() ) defdir = GetDataDir();

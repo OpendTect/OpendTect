@@ -367,8 +367,9 @@ void uiEditSEGYFileDataDlg::fileSelCB( CallBacker* cb )
     BufferString newfnm = filetable_->text( RowCol(rowidx,1) );
     File::Path fp( dirsel_->fileName(), newfnm );
     const bool selexists = File::exists( fp.fullPath() );
-    uiFileDialog dlg( this, true, selexists ? fp.fullPath() : 0,
-		      uiSEGYFileSpec::fileFilter(), tr("SEG-Y") );
+    const BufferString filefilt = uiSEGYFileSpec::fileFmts().getFileFilters();
+    uiFileDialog dlg( this, true, selexists ? fp.fullPath() : 0, filefilt,
+		      tr("SEG-Y") );
     if ( !selexists )
 	dlg.setDirectory( fp.pathOnly() );
     if ( !dlg.go() )

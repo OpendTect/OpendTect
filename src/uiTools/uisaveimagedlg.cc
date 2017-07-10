@@ -96,10 +96,9 @@ void uiSaveImageDlg::copyToClipBoardClicked( CallBacker* )
 
 void uiSaveImageDlg::updateFilter()
 {
-    BufferString filterstr;
-    getImageFileFilter( filterstr, false, supportPrintFormats() );
-    filters_ = filterstr;
-    inpfilefld_->setFilter( filterstr );
+    File::FormatList fmts;
+    OD::GetSupportedImageFormats( fmts, false, supportPrintFormats() );
+    inpfilefld_->setFormats( fmts );
 }
 
 
@@ -383,57 +382,17 @@ bool uiSaveImageDlg::filenameOK() const
 }
 
 
-const char* uiSaveImageDlg::getExtension()
+BufferString uiSaveImageDlg::getExtension() const
 {
-    File::Path fp( inpfilefld_->fileName() );
-    const BufferString ext( fp.extension() );
-    BufferStringSet imageformats;
-    supportedImageFormats( imageformats, false );
-    BufferStringSet formatdescs;
-    getImageFormatDescs( formatdescs, false );
-
-    int ifmt = imageformats.indexOf( ext.buf() );
-    if ( ifmt < 0 )
-    {
-	ifmt = 0;
-	selfilter_ = inpfilefld_->selectedFilter();
-	BufferString filter;
-	for ( int idx=0; idx<filters_.size(); idx++ )
-	{
-	    if ( filters_[idx] == ';' )
-	    {
-		if ( !filter.isEmpty() )
-		{
-		    if ( filter == selfilter_ )
-			break;
-		}
-		filter.setEmpty();
-		continue;
-	    }
-
-	    char tempstr[2];
-	    tempstr[0] = filters_[idx];
-	    tempstr[1] = '\0';
-	    filter += tempstr;
-	}
-
-	for ( int idx=0; idx<formatdescs.size(); idx++ )
-	{
-	    if ( !strncmp(formatdescs.get(idx).buf(),filter.buf(),3) )
-		ifmt = idx;
-	}
-    }
-
-    ifmt = imageformats.validIdx(ifmt) ? ifmt : 0;
-    mDeclStaticString(ret);
-    ret = imageformats.get(ifmt);
-    return ret.buf();
+    return inpfilefld_->selectedExtension();
 }
 
 
 void uiSaveImageDlg::getSettingsPar( PtrMan<IOPar>& ctiopar,
 				     BufferString typenm )
-{ ctiopar = settings_.subselect( typenm.buf() ); }
+{
+    ctiopar = settings_.subselect( typenm.buf() );
+}
 
 
 void uiSaveImageDlg::fillPar( IOPar& par, bool is2d )
@@ -482,13 +441,8 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 
     res.setEmpty();
     par.get( sKeyFileType(), res );
-
-    BufferStringSet formats, descs;
-    supportedImageFormats( formats, false, supportPrintFormats() );
-    getImageFormatDescs( descs, false, supportPrintFormats() );
-    const int idx = formats.indexOf( res );
-    if ( descs.validIdx(idx) )
-	inpfilefld_->setSelectedFilter( formats.get(idx) );
+    if ( !res.isEmpty() )
+	inpfilefld_->setDefaultExtension( res );
 
     if ( ispixel )
 	setSizeInPix( (int)sizepix_.width(), (int)sizepix_.height() );

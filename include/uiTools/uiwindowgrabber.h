@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
+#include "fileformat.h"
 
 class uiLabeledComboBox;
 class uiFileSel;
@@ -40,16 +41,13 @@ protected:
     uiLabel*		infofld_;
 
     ObjectSet<uiMainWin> windowlist_;
+    File::FormatList	fileformats_;
 
     void		updateFilter();
-    void		fileSel(CallBacker*);
-    void		addFileExtension(BufferString&);
     bool		filenameOK() const;
 
     bool		acceptOK();
     void		surveyChanged(CallBacker*);
-
-    const char*		getExtension() const;
 
     static BufferString dirname_;
     BufferString	filename_;
