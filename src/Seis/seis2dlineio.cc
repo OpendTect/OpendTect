@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seis2dlineio.h"
+
 #include "seis2ddata.h"
 #include "seis2dlinemerge.h"
 #include "seisselection.h"
@@ -15,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "survgeom2d.h"
+#include "posinfo.h"
 #include "posinfo2dsurv.h"
 #include "bufstringset.h"
 #include "trckeyzsampling.h"
@@ -174,6 +176,53 @@ bool SeisTrc2DTranslator::initRead_()
     pinfo_.crlrg.step = trcrg.step;
     return true;
 }
+
+
+void SeisTrc2DTranslator::setDataSet( const Seis2DDataSet& ds )
+{
+    dataset_ = &ds;
+}
+
+
+bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
+{
+    cd.setEmpty();
+    if ( !dataset_ )
+	return false;
+
+    SeisTrcBuf tbuf( true );
+    PosInfo::CubeData rawcd;
+    for ( int idx=0; idx<dataset_->nrLines(); idx++ )
+    {
+	Pos::GeomID geomid = dataset_->geomID( idx );
+	Executor* linefetcher = dataset_->lineFetcher( geomid, tbuf );
+	mDynamicCastGet(Seis2DLineGetter*,linegetter,linefetcher)
+	const SeisTrcTranslator* trl = linegetter ? linegetter->translator() :0;
+	if ( !trl ) continue;
+
+	PosInfo::CubeData linecd;
+	const bool hasgeometry = trl->getGeometryInfo( linecd );
+	delete linefetcher;
+	if ( !hasgeometry ) continue;
+
+	for ( int idy=0; idy<linecd.size(); idy++ )
+	{ //There should be only one, but in case...
+	    PosInfo::LineData* linecdy = linecd[idy];
+	    if ( !linecdy ) continue;
+	    PosInfo::LineData* linecdcopy = new PosInfo::LineData( geomid );
+	    linecdcopy->segments_ = linecdy->segments_;
+	    const int lineidx = rawcd.indexOf( geomid );
+	    if ( lineidx == -1 )
+		rawcd.add( linecdcopy );
+	    else
+		rawcd[lineidx]->merge( *linecdcopy, true );
+	}
+    }
+
+    cd = PosInfo::SortedCubeData( rawcd );
+    return true;
+}
+
 
 
 #define mStdInit \

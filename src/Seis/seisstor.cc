@@ -92,6 +92,9 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
 	dataset_ = new Seis2DDataSet( *ioobj_ );
 	if ( !ioobj_->name().isEmpty() )
 	    dataset_->setName( ioobj_->name() );
+
+	mDynamicCastGet(SeisTrc2DTranslator*,trtrl2d,trl_)
+	if ( trtrl2d ) trtrl2d->setDataSet( *dataset_ );
     }
     else
     {

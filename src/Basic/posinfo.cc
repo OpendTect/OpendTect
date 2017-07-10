@@ -299,7 +299,8 @@ int PosInfo::SortedCubeData::indexOf( int reqlnr, int* newidx ) const
 
 void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 {
-    TrcKeySampling hs ( hsin );
+    TrcKeySampling hs( hsin );
+    const bool is2d = hs.is2D();
     hs.normalise();
     for ( int iidx=size()-1; iidx>=0; iidx-- )
     {
@@ -311,40 +312,58 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 	for ( int iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
 	{
 	    StepInterval<int>& seg = ld->segments_[iseg];
-	    if ( seg.start > hs.stop_.crl() || seg.stop < hs.start_.crl() )
+	    const bool isrev = seg.start > seg.stop;
+	    int segstart = is2d && isrev ? seg.stop : seg.start;
+	    int segstop = is2d && isrev ? seg.start : seg.stop;
+	    if ( segstart > hs.stop_.crl() || segstop < hs.start_.crl() )
 	    { ld->segments_.removeSingle( iseg ); continue; }
+
+	    if ( is2d && isrev )
+		seg.step = -1*seg.step;
 
 	    seg.step = Math::LCMOf( seg.step, hs.step_.crl() );
 	    if ( !seg.step )
 	    { ld->segments_.removeSingle( iseg ); continue; }
 
-	    if ( seg.start < hs.start_.crl() )
+	    if ( segstart < hs.start_.crl() )
 	    {
 		int newstart = hs.start_.crl();
-		int diff = newstart - seg.start;
+		int diff = newstart - segstart;
 		if ( diff % seg.step )
 		{
 		    diff += seg.step - diff % seg.step;
-		    newstart = seg.start + diff;
+		    newstart = segstart + diff;
 		}
 
-		seg.start = newstart;
+		if ( is2d && isrev )
+		    seg.stop = newstart;
+		else
+		    segstart = newstart;
 	    }
-	    if ( seg.stop > hs.stop_.crl() )
+	    if ( segstop > hs.stop_.crl() )
 	    {
 		int newstop = hs.stop_.crl();
-		int diff = seg.stop - newstop;
+		int diff = segstop - newstop;
 		if ( diff % seg.step )
 		{
 		    diff += seg.step - diff % seg.step;
-		    newstop = seg.stop - diff;
+		    newstop = segstop - diff;
 		}
 
-		seg.stop = newstop;
+		if ( is2d && isrev )
+		    seg.start = newstop;
+		else
+		    segstop = newstop;
 	    }
-	    if ( seg.start > seg.stop )
+	    if ( segstart > segstop )
 		ld->segments_.removeSingle( iseg );
-	    else nrvalidsegs++;
+	    else
+	    {
+		if ( is2d && isrev )
+		    seg.step = -1*seg.step;
+
+		nrvalidsegs++;
+	    }
 	}
 
 	if ( !nrvalidsegs )

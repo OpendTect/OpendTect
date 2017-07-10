@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "uistring.h"
 
+class Seis2DDataSet;
 class SeisTrc;
 class SeisTrcBuf;
 namespace PosInfo	{ class Line2DData; }
@@ -157,7 +158,8 @@ mExpClass(Seis) SeisTrc2DTranslator : public SeisTrcTranslator
 { mODTextTranslationClass(SeisTrc2DTranslator);
 public:
 			SeisTrc2DTranslator(const char* s1,const char* s2)
-			: SeisTrcTranslator(s1,s2)	{}
+			    : SeisTrcTranslator(s1,s2)
+			    , dataset_(0)			{}
 
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
@@ -167,6 +169,14 @@ public:
     bool		implRemove(const IOObj*) const;
     bool		implRename( const IOObj*,const char*,
 				    const CallBack* cb=0) const;
+
+    virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
+
+    void		setDataSet(const Seis2DDataSet&);
+
+protected:
+
+    const Seis2DDataSet*	dataset_;
 
 };
 

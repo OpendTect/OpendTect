@@ -942,32 +942,12 @@ int SeisTrcReader::getNrOffsets( int maxnrpostobechecked ) const
 
 bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd ) const
 {
-    if ( is2D() )
-	return false;
-
     if ( !isPS() )
     {
 	if ( !isPrepared() &&
 		!const_cast<SeisTrcReader*>(this)->prepareWork(Seis::Prod) )
 	    return false;
-
-	// Kludge for 6.0 - because I could not add a virtual function to the
-	// SEGYDirect translator
-
-	SeisTrcTranslator* seistrl = strl();
-	if ( !seistrl )
-	    return false;
-
-	const bool haveinfo = seistrl->getGeometryInfo( cd );
-	if ( haveinfo )
-	    return true;
-
-	mDynamicCastGet(SEGYDirectSeisTrcTranslator*,sgytr,seistrl)
-	if ( !sgytr )
-	    return false;
-
-	cd = sgytr->getDef()->cubeData();
-	return true;
+	return strl() ? strl()->getGeometryInfo( cd ) : false;
     }
     else if ( !ioobj_ )
 	return false;

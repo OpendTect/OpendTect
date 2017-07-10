@@ -857,18 +857,9 @@ bool Seis::SequentialReader::init()
 
     if ( !dp_ )
     {
-	if ( !is2d_ )
+	if ( is2d_ )
 	{
-	    TrcKeyZSampling storedtkzs;
-	    seisinfo.getRanges( storedtkzs );
-	    if ( tkzs_.isDefined() )
-		tkzs_. limitTo( storedtkzs );
-	    else
-		tkzs_ = storedtkzs;
-	}
-	else
-	{
-	    Pos::GeomID geomid = tkzs_.hsamp_.start_.lineNr();
+	    const Pos::GeomID geomid = tkzs_.hsamp_.start_.lineNr();
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
 	    if ( !seisinfo.getRanges(geomid,trcrg,zrg) )
@@ -877,6 +868,15 @@ bool Seis::SequentialReader::init()
 	    trcrg.limitTo( tkzs_.hsamp_.trcRange() );
 	    tkzs_.zsamp_.limitTo( zrg );
 	    tkzs_.hsamp_.setTrcRange( trcrg );
+	}
+	else
+	{
+	    TrcKeyZSampling storedtkzs;
+	    seisinfo.getRanges( storedtkzs );
+	    if ( tkzs_.isDefined() )
+		tkzs_. limitTo( storedtkzs );
+	    else
+		tkzs_ = storedtkzs;
 	}
 
 	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false),
@@ -891,30 +891,20 @@ bool Seis::SequentialReader::init()
 	    return false;
     }
 
-    if ( !is2d_ )
-    {
-	PosInfo::CubeData cubedata;
-	if ( rdr_.get3DGeometryInfo(cubedata) )
-	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
-    }
+    PosInfo::CubeData cubedata;
+    if ( rdr_.get3DGeometryInfo(cubedata) )
+	dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
 
     nrdone_ = 0;
 
     mSetSelData()
-    if ( dp_->is2D() )
-    {
-	totalnr_ = tkzs_.hsamp_.nrTrcs();
-    }
-    else
-    {
-	if ( !trcssampling_ )
-	    trcssampling_ = new PosInfo::CubeData( *dp_->getTrcsSampling() );
+    if ( !trcssampling_ )
+	trcssampling_ = new PosInfo::CubeData( *dp_->getTrcsSampling() );
 
-	trcssampling_->limitTo( tkzs_.hsamp_ );
-	delete trcsiterator3d_;
-	trcsiterator3d_ = new PosInfo::CubeDataIterator( *trcssampling_ );
-	totalnr_ = trcssampling_->totalSize();
-    }
+    trcssampling_->limitTo( tkzs_.hsamp_ );
+    delete trcsiterator3d_;
+    trcsiterator3d_ = new PosInfo::CubeDataIterator( *trcssampling_ );
+    totalnr_ = trcssampling_->totalSize();
 
     samedatachar_ = seissummary_->hasSameFormatAs( dp_->getDataDesc() );
     dpzsamp_ = dp_->sampling().zsamp_;
@@ -1032,28 +1022,13 @@ bool Seis::SequentialReader::getTrcsPosForRead( int& desirednrpos,
 						TypeSet<TrcKey>& tks ) const
 {
     tks.setEmpty();
-    if ( dp_->is2D() )
+    BinID bid;
+    for ( int idx=0; idx<desirednrpos; idx++ )
     {
-	const int nrtrcs = tkzs_.hsamp_.nrTrcs();
-	for ( int idx=0; idx<desirednrpos; idx++ )
-	{
-	    const int itrc = mCast(int,nrdone_)+idx;
-	    if ( itrc >= nrtrcs )
-		break;
+	if ( !trcsiterator3d_->next(bid) )
+	    break;
 
-	    tks += tkzs_.hsamp_.trcKeyAt( -1, itrc );
-	}
-    }
-    else
-    {
-	BinID bid;
-	for ( int idx=0; idx<desirednrpos; idx++ )
-	{
-	    if ( !trcsiterator3d_->next(bid) )
-		break;
-
-	    tks += TrcKey( tkzs_.hsamp_.survid_, bid );
-	}
+	tks += TrcKey( tkzs_.hsamp_.survid_, bid );
     }
 
     desirednrpos = tks.size();
@@ -1190,13 +1165,15 @@ unsigned char* Seis::RawTrcsSequence::getData( int ipos, int icomp, int is )
 void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 {
     int pos = ipos ? *ipos : -1;
+    const bool is2d = info_.is2D();
     if ( tks_ )
     {
 	if ( !ipos )
 	{
 	    for ( int idx=0; idx<nrpos_; idx++ )
 	    {
-		if ( trc.info().binID() != (*tks_)[idx].position() )
+		if ( (is2d && trc.info().nr != (*tks_)[idx].trcNr() ) ||
+		    (!is2d && trc.info().binID() != (*tks_)[idx].position() ) )
 		{
 		    pErrMsg("wrong position");
 		    continue;
@@ -1209,7 +1186,8 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 #ifdef __debug__
 	else
 	{
-	    if ( trc.info().binID() != (*tks_)[*ipos].position() )
+	    if ( (is2d && trc.info().nr != (*tks_)[*ipos].trcNr() ) ||
+		(!is2d && trc.info().binID() != (*tks_)[*ipos].position() ) )
 		pErrMsg("wrong position");
 	}
 #endif

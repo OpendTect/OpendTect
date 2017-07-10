@@ -240,16 +240,13 @@ bool RegularSeisDataPack::copyFrom( const RegularSeisDataPack& oth )
 
 void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
 {
-    if ( is2D() )
-	return;
-
     rgldpckposinfo_ = newposdata;
 }
 
 
 const PosInfo::CubeData* RegularSeisDataPack::getTrcsSampling() const
 {
-    return is2D() ? 0 : rgldpckposinfo_;
+    return rgldpckposinfo_;
 }
 
 
