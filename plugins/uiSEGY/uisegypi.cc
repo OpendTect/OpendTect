@@ -12,6 +12,8 @@
 #include "survinfo.h"
 #include "dbman.h"
 
+#include "uisegybulkimporter.h"
+#include "uisegydef.h"
 #include "uisegydirectinserter.h"
 #include "uisegywriteopts.h"
 #include "uisegysip.h"
@@ -25,6 +27,8 @@
 #include "uisegyimptype.h"
 #include "uisegyread.h"
 
+#include "uifiledlg.h"
+#include "uilabel.h"
 #include "uiseisfileman.h"
 #include "uiseispsman.h"
 #include "uisurvinfoed.h"
@@ -33,6 +37,8 @@
 #include "uimsg.h"
 #include "uitoolbar.h"
 #include "envvars.h"
+#include "fileformat.h"
+#include "oddirs.h"
 
 #include "odplugin.h"
 
@@ -264,8 +270,27 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 
 void uiSEGYMgr::readStarterCB( CallBacker* )
 {
-    uiSEGYReadStarter dlg( ODMainWin(), false );
-    dlg.go();
+    uiFileDialog filedlg( ODMainWin(), uiFileDialog::ExistingFiles, 0,
+		      uiSEGYFileSpec::fileFmts().getFileFilters(),
+		      tr("Select SEG-Y files") );
+    filedlg.setDirectory( GetDataDir() );
+    filedlg.go();
+
+    BufferStringSet selfiles;
+    filedlg.getFileNames( selfiles );
+    if ( !selfiles.size() )
+	return;
+
+    if ( selfiles.size() == 1 )
+    {
+	uiSEGYReadStarter readstdlg( ODMainWin(), false, 0, selfiles.get(0) );
+	readstdlg.go();
+    }
+    else
+    {
+	uiSEGYBulkImporter bulkimpdlg( ODMainWin(), selfiles );
+	bulkimpdlg.go();
+    }
 }
 
 

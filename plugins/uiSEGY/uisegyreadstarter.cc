@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "posinfodetector.h"
 #include "dataclipper.h"
 #include "filepath.h"
+#include "fileformat.h"
 #include "dirlist.h"
 #include "oddirs.h"
 #include "genc.h"
@@ -57,9 +58,9 @@ static const char* rcsID mUsedVar = "$Id:$";
 static const char* sKeyClipRatio = "Amplitudes.Clip Ratio";
 static const char* sKeyIncludeZeros = "Amplitudes.Include Zeros";
 
-
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
-					const SEGY::ImpType* imptyp )
+					const SEGY::ImpType* imptyp,
+				      const char* fnm )
     : uiDialog(p,uiDialog::Setup(forsurvsetup
 	    ? tr("Extract Survey Setup from SEG-Y") : tr("Import SEG-Y Data"),
             mNoDlgTitle, mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1))
@@ -80,6 +81,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , survinfook_(false)
     , classicsip_(0)
     , timer_(0)
+    , inpfld_(0)
 {
     if ( mForSurvSetup )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
@@ -91,15 +93,27 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     }
 
     topgrp_ = new uiGroup( this, "Top group" );
-    uiFileSel::Setup fssu( uiFileDialog::Gen, filespec_.fileName() );
-    fssu.formats( uiSEGYFileSpec::fileFmts() ).forread( true )
-	.objtype( tr("SEG-Y") );
-    inpfld_ = new uiFileSel( topgrp_, uiStrings::phrJoinStrings(
-			     uiStrings::sInputFile(),tr("*=wildcard")),fssu );
-    inpfld_->newSelection.notify( mCB(this,uiSEGYReadStarter,inpChg) );
+    uiLabel* selfilelbl = 0;
+    if ( mForSurvSetup )
+    {
+	uiFileSel::Setup fssu( uiFileDialog::Gen, filespec_.fileName() );
+	fssu.formats( uiSEGYFileSpec::fileFmts() ).forread( true )
+	    .objtype( tr("SEG-Y") );
+	inpfld_ = new uiFileSel( topgrp_, uiStrings::phrJoinStrings(
+				 uiStrings::sInputFile(),tr("*=wildcard")),
+				 fssu );
+	inpfld_->newSelection.notify( mCB(this,uiSEGYReadStarter,inpChg) );
+    }
+    else
+    {
+	selfilelbl = new uiLabel( topgrp_, fnm );
+	userfilename_.set( fnm );
+    }
+
+#define mInpSelFld mForSurvSetup ? (uiObject*)inpfld_: (uiObject*)selfilelbl
     editbut_ = uiButton::getStd( topgrp_, OD::Edit,
 			         mCB(this,uiSEGYReadStarter,editFile), false );
-    editbut_->attach( rightOf, inpfld_ );
+    editbut_->attach( rightOf, mInpSelFld );
     editbut_->setSensitive( false );
 
     uiLabel* typlbl = 0;
@@ -108,13 +122,13 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	fixedimptype_ = *imptyp;
 	typlbl = new uiLabel( topgrp_,
 			tr( "Import %1" ).arg( imptyp->dispText() ) );
-	typlbl->attach( ensureBelow, inpfld_ );
+	typlbl->attach( ensureBelow, mInpSelFld );
     }
     else
     {
 	typfld_ = new uiSEGYImpType( topgrp_, !mForSurvSetup );
 	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
-	typfld_->attach( alignedBelow, inpfld_ );
+	typfld_->attach( alignedBelow, mInpSelFld );
     }
 
     zdombox_ = new uiCheckBox( topgrp_, SI().zIsTime() ? uiStrings::sDepth()
@@ -497,23 +511,25 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 
 void uiSEGYReadStarter::firstSel( CallBacker* )
 {
-    timer_->tick.remove( mCB(this,uiSEGYReadStarter,firstSel));
+    if ( timer_ )
+	timer_->tick.remove( mCB(this,uiSEGYReadStarter,firstSel));
 
-    const BufferString filefilt = uiSEGYFileSpec::fileFmts().getFileFilters();
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0, filefilt,
-			tr("Select (one of) the SEG-Y file(s)") );
     if ( mForSurvSetup )
-	dlg.setDirectory( GetBaseDataDir() );
-    else
-	dlg.setDirectory( GetDataDir() );
-
-    if ( !dlg.go() )
-	done();
-    else
     {
-	inpfld_->setFileName( dlg.fileName() );
-	forceRescan( KeepNone );
+	const BufferString filefilt =
+				uiSEGYFileSpec::fileFmts().getFileFilters();
+	uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0, filefilt,
+			  tr("Select (one of) the SEG-Y file(s)") );
+	if ( mForSurvSetup )
+	    dlg.setDirectory( GetBaseDataDir() );
+
+	if ( !dlg.go() )
+	    done();
+	else
+	    inpfld_->setFileName( dlg.fileName() );
     }
+
+    forceRescan( KeepNone );
 }
 
 
@@ -625,7 +641,9 @@ void uiSEGYReadStarter::editFile( CallBacker* )
     uiSEGYFileManip dlg( this, fnm );
     if ( dlg.go() )
     {
-	inpfld_->setFileName( dlg.fileName() );
+	if ( mForSurvSetup )
+	    inpfld_->setFileName( dlg.fileName() );
+
 	forceRescan( KeepNone );
     }
 }
@@ -633,22 +651,30 @@ void uiSEGYReadStarter::editFile( CallBacker* )
 
 void uiSEGYReadStarter::forceRescan( LoadDefChgType ct, bool fullscan )
 {
-    userfilename_.setEmpty();
+    if ( mForSurvSetup )
+	userfilename_.setEmpty();
+
     handleNewInputSpec( ct, fullscan );
 }
 
 
 void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
 {
-    const BufferString newusrfnm( inpfld_->fileName() );
-    if ( newusrfnm.isEmpty() )
-	{ clearDisplay(); return; }
-
-    if ( fullscan || newusrfnm != userfilename_ )
+    if ( mForSurvSetup )
     {
-	userfilename_ = newusrfnm;
-	execNewScan( ct, fullscan );
+	const BufferString newusrfnm( inpfld_->fileName() );
+	if ( newusrfnm.isEmpty() )
+	    { clearDisplay(); return; }
+
+	if ( fullscan || newusrfnm != userfilename_ )
+	{
+	    userfilename_ = newusrfnm;
+	    execNewScan( ct, fullscan );
+	}
     }
+    else
+	execNewScan( ct, fullscan );
+
     zDomChgCB( 0 );
 }
 

@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 #include "uisegyimptype.h"
 #include "uicombobox.h"
+#include "uilabel.h"
 #include "survinfo.h"
 #include "keystrs.h"
 
@@ -91,12 +92,16 @@ void SEGY::ImpType::fillPar( IOPar& iop ) const
 
 
 uiSEGYImpType::uiSEGYImpType( uiParent* p, bool withvsp,
-				const uiString* lbltxt )
+				const uiString* lbltxt, bool defaultlbl )
     : uiGroup(p,"Import Type")
     , typeChanged(this)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-					lbltxt ? *lbltxt : tr("Data type") );
+					lbltxt ? *lbltxt
+					       : uiStrings::sEmptyString() );
+    if (!lbltxt && defaultlbl )
+	lcb->label()->setText( tr("Data type") );
+
     fld_ = lcb->box();
     fld_->setHSzPol( uiObject::MedVar );
     fld_->selectionChanged.notify( mCB(this,uiSEGYImpType,typChg) );

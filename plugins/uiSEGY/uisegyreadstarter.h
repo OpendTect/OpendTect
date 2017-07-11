@@ -44,7 +44,8 @@ mExpClass(uiSEGY) uiSEGYReadStarter : public uiDialog
 public:
 
 			uiSEGYReadStarter(uiParent*,bool forsurvsetup,
-					  const SEGY::ImpType* fixedtype=0);
+					  const SEGY::ImpType* fixedtype=0,
+					  const char* fnm=0);
 			~uiSEGYReadStarter();
 
     bool		isMulti() const		{ return filespec_.isMulti(); }
@@ -95,7 +96,6 @@ protected:
     uiCheckBox*		zdombox_;
     uiCheckBox*		inc0sbox_;
     uiCheckBox*		keepzsampbox_;
-    uiLabel*		nrfileslbl_;
     Timer*		timer_;
 
     BufferString	userfilename_;

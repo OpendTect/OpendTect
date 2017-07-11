@@ -60,7 +60,8 @@ mExpClass(uiSEGY) uiSEGYImpType : public uiGroup
 public:
 
 			uiSEGYImpType(uiParent*,bool withvsp,
-				      const uiString* lbltxt=0);
+				      const uiString* lbltxt=0,
+				      bool defaultlbl=true);
 
     const SEGY::ImpType& impType() const;
     void		setTypIdx(int);
