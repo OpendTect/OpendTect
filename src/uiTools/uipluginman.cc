@@ -40,10 +40,10 @@ uiPluginMan::uiPluginMan( uiParent* p )
     listfld->selectionChanged.notify( mCB(this,uiPluginMan,selChg) );
 
     uiPushButton* loadbut = new uiPushButton( leftgrp, tr(" Load a plugin "),
-	    			mCB(this,uiPluginMan,loadPush), false );
+				mCB(this,uiPluginMan,loadPush), false );
     loadbut->attach( alignedBelow, listfld );
-    selatstartfld = new uiCheckBox( leftgrp, 
-                                    tr("Select auto-loaded at startup") ); 
+    selatstartfld = new uiCheckBox( leftgrp,
+                                    tr("Select auto-loaded at startup") );
     selatstartfld->attach( alignedBelow, loadbut );
     selatstartfld->setChecked(
 	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup()) );
@@ -172,8 +172,7 @@ void uiPluginMan::loadPush( CallBacker* )
 	    loaddir = PIM().getAutoDir( false );
     }
 
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt, 
-		      captn );
+    uiFileDialog dlg( this, OD::SelectExistingFile, loaddir, filt, captn );
     if ( !dlg.go() ) return;
 
     BufferString fnm = dlg.fileName();

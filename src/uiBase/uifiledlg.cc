@@ -43,18 +43,15 @@ ODFileDialog( const QString& dirname, const QString& fltr=QString::null,
 };
 
 
-static QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
+static QFileDialog::FileMode qmodeForUiMode( OD::FileSelectionMode mode )
 {
     switch( mode )
     {
-    case uiFileDialog::AnyFile		: return QFileDialog::AnyFile;
-    case uiFileDialog::ExistingFile	: return QFileDialog::ExistingFile;
-    case uiFileDialog::Directory	: return QFileDialog::Directory;
-    case uiFileDialog::DirectoryOnly	: return QFileDialog::DirectoryOnly;
-    case uiFileDialog::ExistingFiles	: return QFileDialog::ExistingFiles;
+    case OD::SelectExistingFile		: return QFileDialog::ExistingFile;
+    case OD::SelectDirectory		: return QFileDialog::DirectoryOnly;
+    case OD::SelectExistingFiles	: return QFileDialog::ExistingFiles;
+    default				: return QFileDialog::AnyFile;
     }
-
-    return QFileDialog::AnyFile;
 }
 
 #define mCommon \
@@ -64,15 +61,12 @@ static QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
     confirmoverwrite_ = true; \
 \
     if ( caption.isEmpty() ) \
-    { \
 	setDefaultCaption(); \
-    }
 
 
-uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
-			    const char* fname, const char* fltr,
-			    const uiString& caption )
-	: mode_(forread ? ExistingFile : AnyFile)
+uiFileDialog::uiFileDialog( uiParent* parnt, bool forread, const char* fname,
+			    const char* fltr, uiString caption )
+	: mode_(forread ? OD::SelectExistingFile : OD::SelectAnyFile)
         , forread_( forread )
 	, filter_( fltr )
 	, addallexts_(forread)
@@ -81,7 +75,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 
 uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
 			    const char* fname, const char* fltr,
-			    const uiString& caption )
+			    uiString caption )
 	: mode_(md)
         , forread_(true)
 	, filter_(fltr)
@@ -89,9 +83,9 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
 { mCommon }
 
 
-uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
-			    const char* fname, const uiString& caption )
-	: mode_(AnyFile)
+uiFileDialog::uiFileDialog( uiParent* parnt, Type typ,
+			    const char* fname, uiString caption )
+	: mode_(OD::SelectAnyFile)
         , forread_(true)
 	, addallexts_(true)
 {
@@ -99,9 +93,12 @@ uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
 
     switch ( typ )
     {
-	case Img: filter_ = "JPEG (*.jpg *.jpeg);;PNG (*.png)"; break;
-	case Txt: filter_ = "Text (*.txt *.dat)"; break;
-	case Html: filter_ = "Html (*.htm *.html)"; break;
+	case OD::ImageContent:
+	    filter_ = "JPEG (*.jpg *.jpeg);; PNG (*.png)"; break;
+	case OD::TextContent:
+	    filter_ = "Text (*.txt *.dat)"; break;
+	case OD::HtmlContent:
+	    filter_ = "Html (*.htm *.html)"; break;
 	default: break;
     }
 }
@@ -120,7 +117,8 @@ int uiFileDialog::go()
 	    fname_ = "";
 	}
 	else if ( !File::exists(fname_) &&
-		  (mode_ == ExistingFile || mode_ == ExistingFiles) )
+		  (mode_ == OD::SelectExistingFile
+		    || mode_ == OD::SelectExistingFiles) )
 	{
 	    dirname = fp.pathOnly();
 	    fname_ = "";
@@ -343,7 +341,8 @@ int uiFileDialog::processExternalFilenames( const char* dir,
     fn.setEmpty();
 
     if ( externalfilenames_->isEmpty() )
-	mRetErrMsg( "", mode_==ExistingFiles ? 0 : "should not be empty" );
+	mRetErrMsg( "", mode_==OD::SelectExistingFiles ? 0
+				: "should not be empty" );
 
     if ( !dir )
 	dir = currentdir_.isEmpty() ? GetPersonalDir() : currentdir_.buf();
@@ -368,24 +367,25 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 	    fp = File::Path( dir, fname );
 	fname = fp.fullPath();
 
-	if ( !idx && externalfilenames_->size()>1 && mode_!=ExistingFiles )
+	if ( !idx && externalfilenames_->size()>1
+		&& mode_!=OD::SelectExistingFiles )
 	    mRetErrMsg( fname, "expected to be solitary" );
 
 	if ( File::isDirectory(fname) )
 	{
-	    if ( mode_!=Directory && mode_!=DirectoryOnly )
+	    if ( isFile(mode_) )
 		mRetErrMsg( fname, "specifies an existing directory" );
 	    if ( !forread_ && !File::isWritable(fname) )
 		mRetErrMsg( fname, "specifies a read-only directory" );
 	}
 	else
 	{
-	    if ( mode_==Directory || mode_==DirectoryOnly )
+	    if ( isDirectory(mode_) )
 		mRetErrMsg( fname, "specifies no existing directory" );
 
 	    if ( !File::exists(fname) )
 	    {
-		if ( mode_ != AnyFile )
+		if ( mode_ != OD::SelectAnyFile )
 		    mRetErrMsg( fname, "specifies no existing file" );
 		if ( fp.nrLevels() > 1 )
 		{
@@ -474,15 +474,17 @@ void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
 
 void uiFileDialog::setDefaultCaption()
 {
-    caption_ = (mode_==Directory || mode_==DirectoryOnly)
-        ? tr("Directory selection")
-        : tr("File selection");
+    caption_ = isDirectory(mode_) ? tr("Select Directory") : tr("Select File");
 }
 
 
 void uiFileDialog::setDefaultExtension( const char* ext )
-{ defaultextension_ = ext; }
+{
+    defaultextension_ = ext;
+}
 
 
 const char* uiFileDialog::getDefaultExtension() const
-{ return defaultextension_.buf(); }
+{
+    return defaultextension_.buf();
+}

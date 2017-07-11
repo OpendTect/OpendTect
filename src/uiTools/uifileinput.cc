@@ -33,18 +33,18 @@ uiFileInput::Setup::Setup( const char* filenm )
     , directories_(false)
     , allowallextensions_(true)
     , confirmoverwrite_(true)
-    , filedlgtype_(uiFileDialog::Gen)
+    , filedlgtype_(OD::GeneralContent)
     , defseldir_(GetDataDir())
     , displaylocalpath_(false)
 {
 }
 
 
-uiFileInput::Setup::Setup( uiFileDialog::Type t, const char* filenm )
+uiFileInput::Setup::Setup( OD::FileContentType t, const char* filenm )
     : fnm(filenm)
     , forread_(true)
-    , withexamine_(t==uiFileDialog::Txt)
-    , examstyle_(t==uiFileDialog::Img?File::Bin:File::Text)
+    , withexamine_(t==OD::TextContent)
+    , examstyle_(t==OD::ImageContent?File::Bin:File::Text)
     , exameditable_(false)
     , directories_(false)
     , allowallextensions_(true)
@@ -65,7 +65,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     , defseldir_(setup.defseldir_)
     , displaylocalpath_(setup.displaylocalpath_)
     , selmodset_(false)
-    , selmode_(uiFileDialog::AnyFile)
+    , selmode_(OD::SelectAnyFile)
     , filedlgtype_(setup.filedlgtype_)
     , examinebut_(0)
     , addallexts_(setup.allowallextensions_)
@@ -89,7 +89,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     if ( setup.directories_ )
     {
 	selmodset_ = true;
-	selmode_ = uiFileDialog::DirectoryOnly;
+	selmode_ = OD::SelectDirectory;
 	defaultext_.setEmpty();
     }
 
@@ -103,9 +103,9 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     : uiGenInput( p, txt, FileNameInpSpec(fnm) )
     , forread_(true)
     , filter_("")
-    , filedlgtype_(uiFileDialog::Gen)
+    , filedlgtype_(OD::GeneralContent)
     , selmodset_(false)
-    , selmode_(uiFileDialog::AnyFile)
+    , selmode_(OD::SelectAnyFile)
     , examinebut_(0)
     , addallexts_(true)
     , confirmoverwrite_(true)
@@ -204,12 +204,10 @@ void uiFileInput::doSelect( CallBacker* )
 	fname = defseldir_;
     BufferString oldfltr = selfltr_;
 
-    const bool usegendlg = selmode_ == uiFileDialog::Directory
-			|| selmode_ == uiFileDialog::DirectoryOnly
-			|| filedlgtype_ == uiFileDialog::Gen;
+    const bool usegendlg = selmode_ == OD::SelectDirectory
+			|| filedlgtype_ == OD::GeneralContent;
     uiString seltyp( usegendlg && selmodset_
-	    && (selmode_ == uiFileDialog::Directory
-	     || selmode_ == uiFileDialog::DirectoryOnly)
+		&& selmode_ == OD::SelectDirectory
 	    ? uiStrings::sDirectory().toLower() : uiStrings::sFile().toLower());
     uiString capt( forread_ ? tr("Choose input %1 %2")
 			    : tr("Specify output %1 %2" ) );
@@ -235,7 +233,7 @@ void uiFileInput::doSelect( CallBacker* )
     selfltr_ = dlg->selectedFilter();
     BufferString oldfname( fname );
     BufferString newfname;
-    if ( selmode_ == uiFileDialog::ExistingFiles )
+    if ( isMultiSelect(selmode_) )
     {
 	BufferStringSet filenames;
 	dlg->getFileNames( filenames );
@@ -295,15 +293,14 @@ void uiFileInput::getFileNames( BufferStringSet& list ) const
 }
 
 
-uiFileDialog::Mode uiFileInput::selectMode() const
+OD::FileSelectionMode uiFileInput::selectMode() const
 {
-    return selmodset_ ? selmode_
-		      : (forread_ ? uiFileDialog::ExistingFile
-				  : uiFileDialog::AnyFile);
+    return selmodset_ ? selmode_ : (forread_ ? OD::SelectExistingFile
+					     : OD::SelectAnyFile);
 }
 
 
-void uiFileInput::setSelectMode( uiFileDialog::Mode m )
+void uiFileInput::setSelectMode( OD::FileSelectionMode m )
 {
     selmodset_ = true;
     selmode_ = m;
@@ -312,8 +309,7 @@ void uiFileInput::setSelectMode( uiFileDialog::Mode m )
 
 bool uiFileInput::inDirectorySelectMode() const
 {
-    return selmode_ == uiFileDialog::Directory ||
-	   selmode_ == uiFileDialog::DirectoryOnly;
+    return selmode_ == OD::SelectDirectory;
 }
 
 

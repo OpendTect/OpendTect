@@ -71,8 +71,9 @@ public:
     static BufferString getProtocol(const char* fnm);
     static BufferString withoutProtocol(const char*);
     static BufferString	iconForProtocol(const char*);
+    static BufferString	withProtocol(const char* fnm,const char* prot);
 
-    virtual const char*	protocol() const	= 0;
+    virtual const char*	protocol() const		= 0;
     virtual BufferString iconName() const
 			{ return iconForProtocol(protocol()); }
     virtual bool	readingSupported() const	{ return true; }

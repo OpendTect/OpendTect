@@ -220,7 +220,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     uiSeparator* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, spl );
 
-    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    uiFileSel::Setup fssu( OD::GeneralContent );
     fssu.forread( false ).objtype( uiStrings::sSEGY() )
 	.formats( uiSEGYFileSpec::fileFmts() );
     fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );

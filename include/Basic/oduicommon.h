@@ -25,6 +25,16 @@ enum Orientation
 };
 
 
+/*!\brief State of check objects */
+
+enum CheckState
+{
+    Unchecked=0,
+    PartiallyChecked=1,
+    Checked=2
+};
+
+
 /*!\brief OpendTect flat slice types */
 
 enum SliceType
@@ -46,15 +56,29 @@ enum ChoiceMode
 };
 
 
-/*!\brief State of check objects */
+/*!\brief How to select files or directories */
 
-enum CheckState
+enum FileSelectionMode
 {
-    Unchecked=0,
-    PartiallyChecked=1,
-    Checked=2
+    SelectExistingFile,	/*!< The name of a single existing file. */
+    SelectExistingFiles, /*!< The names of zero or more existing files. */
+    SelectAnyFile,	/*!< The name of a file, whether it exists or not. */
+    SelectDirectory	/*!< The name of a directory. */
 };
 
+
+/*!\brief Describes special file contents that may be considered 'known'. */
+
+enum FileContentType
+{
+    GeneralContent=0,
+    ImageContent,
+    TextContent,
+    HtmlContent
+};
+
+
+/*!\brief Actions that appear often on buttons and menus. */
 
 enum StdActionType
 {
@@ -90,3 +114,9 @@ inline bool isMultiChoice( OD::ChoiceMode cm )
 				{ return cm > 1; }
 inline bool isOptional( OD::ChoiceMode cm )
 				{ return cm == OD::ChooseZeroOrMore; }
+inline bool isFile( OD::FileSelectionMode mode )
+				{ return mode != OD::SelectDirectory; }
+inline bool isDirectory( OD::FileSelectionMode mode )
+				{ return mode == OD::SelectDirectory; }
+inline bool isMultiSelect( OD::FileSelectionMode mode )
+				{ return mode == OD::SelectExistingFiles; }

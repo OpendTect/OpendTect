@@ -355,8 +355,8 @@ void uiTextFileDlg::fileNmChgd( CallBacker* )
 
 void uiTextFileDlg::open( CallBacker* )
 {
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile,
-		      editor_->fileName(), "", tr("Select file") );
+    uiFileDialog dlg( this, OD::SelectExistingFile, editor_->fileName(),
+			"", tr("Select file") );
     if ( dlg.go() )
 	editor_->open( dlg.fileName() );
 }
@@ -370,7 +370,7 @@ void uiTextFileDlg::save( CallBacker* )
 
 void uiTextFileDlg::saveAs( CallBacker* )
 {
-    uiFileDialog dlg( this, uiFileDialog::AnyFile,
+    uiFileDialog dlg( this, OD::SelectAnyFile,
 		      editor_->fileName(), "", tr("Select new file name") );
     if ( dlg.go() )
 	editor_->saveAs( dlg.fileName() );
@@ -445,7 +445,7 @@ bool uiTextFileDlg::okToExit()
     if ( opt == -1 )
 	return false;
     else if ( opt == 1 && !editor_->save() )
-	{ doMsg( uiStrings::phrCannotSave(tr(".\nPlease try 'Save As'")) ); 
+	{ doMsg( uiStrings::phrCannotSave(tr(".\nPlease try 'Save As'")) );
 								return false; }
 
     return true;

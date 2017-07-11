@@ -86,8 +86,8 @@ const char* uiColSeqImport::currentSeqName() const
 void uiColSeqImport::choiceSel( CallBacker* )
 {
     const bool fromuser = choicefld_->getBoolValue();
-    dirfld_->setSelectMode(
-	fromuser ? uiFileDialog::DirectoryOnly : uiFileDialog::ExistingFile );
+    dirfld_->setSelectMode( fromuser ? OD::SelectDirectory
+				     : OD::SelectExistingFile );
     dirfld_->setLabelText( getLabelText(fromuser) );
     dirfld_->setFileName( fromuser ? sHomePath : sFilePath );
 

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "bufstringset.h"
 #include "uistring.h"
+#include "oduicommon.h"
 
 class uiParent;
 class FileMultiString;
@@ -23,33 +24,22 @@ class FileMultiString;
 mExpClass(uiBase) uiFileDialog
 { mODTextTranslationClass(uiFileDialog);
 public:
-    //! File selection mode
-    enum Mode
-    {
-	AnyFile,	/*!< The name of a file, whether it exists or not. */
-	ExistingFile,	/*!< The name of a single existing file. */
-	Directory,	/*!< The name of a directory. Both files and
-			     directories displayed. */
-	DirectoryOnly,	/*!< The name of a directory. The file dialog will
-			     only display directories. */
-	ExistingFiles	/*!< The names of zero or more existing files. */
-    };
 
+    typedef OD::FileSelectionMode	Mode;
+    typedef OD::FileContentType		Type;
 
 			uiFileDialog(uiParent*,bool forread,
 				     const char* fname=0,
 				     const char* filter=0,
-			const uiString& caption=uiString::emptyString());
-
-			uiFileDialog(uiParent*,Mode mode=AnyFile,
+				     uiString caption=uiString::emptyString());
+			uiFileDialog(uiParent*,Mode mode=OD::SelectAnyFile,
 				     const char* fname=0,
 				     const char* filter=0,
-			const uiString& caption=uiString::emptyString());
-    enum Type		{ Gen, Img, Txt, Html };
+				     uiString caption=uiString::emptyString());
 			uiFileDialog(uiParent*,Type,
 				     const char* fname=0,
-			const uiString& caption=uiString::emptyString());
-						//!< Always AnyFile
+				     uiString caption=uiString::emptyString());
+						//!< Uses SelectAnyFile
 
     const char*		fileName() const	{ return fn; }
     void		getFileNames(BufferStringSet&) const;
@@ -109,7 +99,9 @@ protected:
     static BufferString		extfilenameserrmsg_;
 
 private:
+
     void		setDefaultCaption();
     int			beginCmdRecEvent( const char* wintitle );
     void		endCmdRecEvent(int refnr, bool ok);
+
 };

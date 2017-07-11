@@ -270,7 +270,7 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 
 void uiSEGYMgr::readStarterCB( CallBacker* )
 {
-    uiFileDialog filedlg( ODMainWin(), uiFileDialog::ExistingFiles, 0,
+    uiFileDialog filedlg( ODMainWin(), OD::SelectExistingFiles, 0,
 		      uiSEGYFileSpec::fileFmts().getFileFilters(),
 		      tr("Select SEG-Y files") );
     filedlg.setDirectory( GetDataDir() );

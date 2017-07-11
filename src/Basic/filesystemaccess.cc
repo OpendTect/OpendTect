@@ -118,6 +118,29 @@ BufferString File::SystemAccess::iconForProtocol( const char* prot )
 }
 
 
+BufferString File::SystemAccess::withProtocol( const char* fnm,
+						const char* prot )
+{
+    if ( !fnm || !*fnm )
+	return BufferString( prot, prefixsearch );
+
+    if ( FixedString(prot) == LocalFileSystemAccess::sFactoryKeyword() )
+	prot = 0;
+
+    const char* prefixend = firstOcc( fnm, prefixsearch );
+    BufferString newfnm;
+    if ( prot )
+	newfnm.add( prot ).add( prefixsearch );
+
+    if ( !prefixend )
+	newfnm.add( fnm );
+    else
+	newfnm.add( prefixend + FixedString(prefixsearch).size() );
+
+    return newfnm;
+}
+
+
 #define mDefFileSystemAccessFn(nm,result) \
 bool File::SystemAccess::nm( const char* uri ) const \
 { return result; }

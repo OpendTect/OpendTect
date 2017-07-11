@@ -223,7 +223,7 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 {
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(tr("LAS files")),
 		  uiFileSel::Setup() );
-    inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
+    inpfld_->setSelectMode( OD::SelectExistingFiles );
 
     istvdfld_ = new uiGenInput( this, tr("Depth values are"),
 		    BoolInpSpec(false,tr("TVDSS"),tr("MD")) );

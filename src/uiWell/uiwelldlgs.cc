@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uid2tmodelgrp.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"

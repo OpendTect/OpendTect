@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uimsg.h"

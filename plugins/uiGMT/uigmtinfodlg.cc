@@ -48,7 +48,7 @@ uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
     label_->display( false );
 
     gmtpath_ = new uiFileSel( this, tr("Enter path"),
-		    uiFileSel::Setup(uiFileDialog::Gen).directories(true) );
+		    uiFileSel::Setup(OD::GeneralContent).directories(true) );
     gmtpath_->attach( alignedBelow, label_ );
     gmtpath_->display( false );
 }

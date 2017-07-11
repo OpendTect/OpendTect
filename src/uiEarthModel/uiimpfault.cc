@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -94,7 +95,7 @@ void uiImportFault::createUI()
 	typefld_->attach( alignedBelow, infld_ );
 
 	formatfld_ = new uiFileSel( this, tr("Input Landmark formatfile"),
-			      uiFileSel::Setup(uiFileDialog::Gen)
+			      uiFileSel::Setup(OD::GeneralContent)
 			      .setFormat(tr("Landmark fault"),"fault_fmt") );
 	formatfld_->attach( alignedBelow, typefld_ );
 

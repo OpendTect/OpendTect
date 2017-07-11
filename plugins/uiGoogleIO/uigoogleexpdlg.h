@@ -19,7 +19,7 @@ uiString kmlFileuiString();
     BufferString deffnm( nm ); \
     deffnm.clean( BufferString::AllowDots ); \
     File::Path deffp( GetDataDir() ); deffp.add( deffnm ).setExtension( "kml" ); \
-    uiFileSel::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() ); \
+    uiFileSel::Setup fiinpsu( OD::HtmlContent, deffp.fullPath() ); \
     fiinpsu.forread( false ).setFormat( kmlFileuiString(), "kml" ); \
     fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fiinpsu );
 

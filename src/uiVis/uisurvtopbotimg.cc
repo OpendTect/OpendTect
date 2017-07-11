@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uiseparator.h"
 #include "vismaterial.h"
 
@@ -34,7 +35,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     , img_(p->scene_->getTopBotImage(istop))
     , zrng_(zrng)
 {
-    uiFileSel::Setup su( uiFileDialog::Img );
+    uiFileSel::Setup su( OD::ImageContent );
     su.defseldir( GetDataDir() ).checkable( true );
     fnmfld_ = new uiFileSel( this,
 		    istop_ ? tr("Top image") : tr("Bottom image"), su );

@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uidesktopservices.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uigmtbasemap.h"
 #include "uigmtclip.h"
 #include "uigmtoverlay.h"
@@ -104,7 +105,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     flowgrp_->setHAlignObj( flowfld_ );
     BufferString defseldir = File::Path(GetDataDir()).add("Misc").fullPath();
     filefld_ = new uiFileSel( this, uiStrings::sOutputFile(),
-			uiFileSel::Setup(uiFileDialog::Gen)
+			uiFileSel::Setup(OD::GeneralContent)
 			.forread(false).setFormat(tr("Postscript files"),"ps")
 			.defseldir(defseldir) );
     filefld_->attach( alignedBelow, flowgrp_ );

@@ -196,7 +196,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     if ( dirname_.isEmpty() )
 	dirname_ = File::Path(GetDataDir()).add("Misc").fullPath();
     inpfilefld_ = new uiFileSel( this, uiStrings::phrSelect(tr("filename")),
-				   uiFileSel::Setup(uiFileDialog::Gen)
+				   uiFileSel::Setup(OD::GeneralContent)
 				   .forread(false)
 				   .defseldir(dirname_)
 				   .directories(false)

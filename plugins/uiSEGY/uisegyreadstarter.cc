@@ -96,7 +96,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     uiLabel* selfilelbl = 0;
     if ( mForSurvSetup )
     {
-	uiFileSel::Setup fssu( uiFileDialog::Gen, filespec_.fileName() );
+	uiFileSel::Setup fssu( OD::GeneralContent, filespec_.fileName() );
 	fssu.formats( uiSEGYFileSpec::fileFmts() ).forread( true )
 	    .objtype( tr("SEG-Y") );
 	inpfld_ = new uiFileSel( topgrp_, uiStrings::phrJoinStrings(
@@ -106,7 +106,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     }
     else
     {
-	selfilelbl = new uiLabel( topgrp_, fnm );
+	selfilelbl = new uiLabel( topgrp_, toUiString(fnm) );
 	userfilename_.set( fnm );
     }
 
@@ -518,7 +518,7 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
     {
 	const BufferString filefilt =
 				uiSEGYFileSpec::fileFmts().getFileFilters();
-	uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0, filefilt,
+	uiFileDialog dlg( this, OD::SelectExistingFile, 0, filefilt,
 			  tr("Select (one of) the SEG-Y file(s)") );
 	if ( mForSurvSetup )
 	    dlg.setDirectory( GetBaseDataDir() );

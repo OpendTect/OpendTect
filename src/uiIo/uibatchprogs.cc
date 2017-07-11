@@ -219,7 +219,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 		newinp = new uiGenInput( this, txt );
 	    else
 	    {
-		uiFileSel::Setup fssu( uiFileDialog::Gen );
+		uiFileSel::Setup fssu( OD::GeneralContent );
 		fssu.forread( bpp.type == BatchProgPar::FileRead );
 		if ( bpp.desc == "Parameter file" )
 		    fssu.setFormat( tr("Parameter file"),"par" );

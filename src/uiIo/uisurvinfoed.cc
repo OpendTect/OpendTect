@@ -890,7 +890,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 
 void uiSurveyInfoEditor::pathbutPush( CallBacker* )
 {
-    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, pathfld_->text() );
+    uiFileDialog dlg( this, OD::SelectDirectory, pathfld_->text() );
     if ( dlg.go() )
     {
 	BufferString dirnm( dlg.fileName() );

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
@@ -164,7 +165,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	}
 	else
 	{
-	    uiFileSel::Setup fisu( uiFileDialog::Gen );
+	    uiFileSel::Setup fisu( OD::GeneralContent );
 	    fisu.directories( true );
 	    tmpstordirfld_ = new uiFileSel( specparsgroup_,
 					    uiStrings::sTmpStor(), fisu );

@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
@@ -53,7 +54,7 @@ uiSeisImportODCube::uiSeisImportODCube( uiParent* p )
 	const_cast<DBKey&>(tmpid_) = dbdir->newTmpKey();
     setCtrlStyle( RunAndClose );
 
-    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    uiFileSel::Setup fssu( OD::GeneralContent );
     fssu.setFormat( tr("OpendTect seismic files"), "blocks", "cbvs" )
 		.defseldir( GetBaseDataDir() );
     inpfld_ = new uiFileSel( this, tr("(First) file name"), fssu );

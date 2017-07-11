@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uicoordsystem.h"
 #include "uidesktopservices.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uifont.h"
 #include "uigroup.h"
@@ -96,7 +97,7 @@ uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
     uiFileSel::Setup fisu( dataroot_ );
     fisu.defseldir( dataroot_ ).directories( true );
     targetpathfld_ = new uiFileSel( this, tr("Target location"), fisu );
-    targetpathfld_->setSelectMode( uiFileDialog::DirectoryOnly );
+    targetpathfld_->setSelectMode( OD::SelectDirectory );
     targetpathfld_->attach( alignedBelow, newsurvnmfld_ );
 #ifdef __win__
     targetpathfld_->setSensitive( false );

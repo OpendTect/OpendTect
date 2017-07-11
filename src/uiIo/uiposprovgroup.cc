@@ -289,7 +289,7 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     selfld_->valuechanged.notify( selcb );
     psfld_ = new uiPickSetIOObjSel( this, true );
     psfld_->attach( alignedBelow, selfld_ );
-    uiFileSel::Setup fisu( uiFileDialog::Gen );
+    uiFileSel::Setup fisu( OD::GeneralContent );
     tffld_ = new uiFileSel( this, uiStrings::sFileName(), fisu );
     tffld_->attach( alignedBelow, selfld_ );
 

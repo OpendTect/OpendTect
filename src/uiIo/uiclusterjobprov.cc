@@ -190,7 +190,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     nrjobsfld_ = new uiLabel( this, tr("Total no. of jobs: 0000") );
     nrjobsfld_->attach( alignedBelow, nrinlfld_ );
 
-    uiFileSel::Setup fssu( uiFileDialog::Gen, parfnm );
+    uiFileSel::Setup fssu( OD::GeneralContent, parfnm );
     fssu.forread(false).confirmoverwrite(false);
     fssu.setFormat( tr("Parameter file"), "par" );
     parfilefld_ = new uiFileSel( this, uiStrings::sParFile(), fssu );
@@ -199,7 +199,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     tmpstordirfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(
 				    tr("Temporary"), uiStrings::sStorageDir()),
 				    tempstordir_.buf() );
-    tmpstordirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
+    tmpstordirfld_->setSelectMode( OD::SelectDirectory );
     tmpstordirfld_->attach( alignedBelow, parfilefld_ );
 
     File::Path fp( parfnm );
@@ -211,7 +211,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 	File::createDir( fp.fullPath() );
     scriptdirfld_ = new uiFileSel( this, uiStrings::phrStorageDir(
 				     tr("for scripts")), fp.fullPath() );
-    scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
+    scriptdirfld_->setSelectMode( OD::SelectDirectory );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
 
     const Settings& setts = Settings::common();

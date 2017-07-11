@@ -84,7 +84,7 @@ void uiDataRootSel::selButCB( CallBacker* )
 {
     const BufferString defdir = getInput();
     const char* defdirnm = mIsUsable(defdir) ? defdir.str() : 0;
-    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, defdirnm, 0,
+    uiFileDialog dlg( this, OD::SelectDirectory, defdirnm, 0,
 		      uiStrings::phrSelect(userDataRootString()) );
     if ( dlg.go() )
 	addChoice( dlg.fileName(), true );

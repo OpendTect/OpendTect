@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uicompoundparsel.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
@@ -86,13 +87,13 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     setDeleteOnClose( false );
     ctio_.ctxt_.forread_ = !isgeom_;
 
-    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    uiFileSel::Setup fssu( OD::GeneralContent );
     fssu.withexamine(true).forread(true).defseldir(sImportFromPath);
     fssu.formats_.addFormat( File::Format(tr("Text file"),"txt","dat") );
     fssu.formats_.addFormat( File::Format(tr("Position file"),"xy","ic","ix") );
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::phrASCII(
 		  uiStrings::sFile())), fssu );
-    inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
+    inpfld_->setSelectMode( OD::SelectExistingFiles );
     inpfld_->newSelection.notify( mCB(this,uiImportHorizon,inputChgd) );
 
     OD::ChoiceMode mode =

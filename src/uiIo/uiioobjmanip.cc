@@ -412,7 +412,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
     }
     filefilt += "All Files(*)";
 
-    uiFileDialog dlg( this, uiFileDialog::Directory, oldfnm, filefilt, caption);
+    uiFileDialog dlg( this, OD::SelectDirectory, oldfnm, filefilt, caption );
     if ( !dlg.go() ) return false;
 
     IOStream chiostrm;

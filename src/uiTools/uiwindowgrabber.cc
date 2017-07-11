@@ -54,7 +54,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
     if ( dirname_.isEmpty() )
 	dirname_ = File::Path(GetDataDir()).add("Misc").fullPath();
     inpfilefld_ = new uiFileSel( this, mJoinUiStrs(sFile(), sName()),
-				   uiFileSel::Setup(uiFileDialog::Gen)
+				   uiFileSel::Setup(OD::GeneralContent)
 				   .forread(false)
 				   .defseldir(dirname_)
 				   .directories(false)

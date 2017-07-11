@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "uifiledlg.h"
 #include "fileformat.h"
 #include "file.h"
 
@@ -30,17 +29,21 @@ mExpClass(uiTools) uiFileSel : public uiGroup
 { mODTextTranslationClass(uiFileSel);
 public:
 
+    typedef OD::FileSelectionMode	SelectionMode;
+    typedef OD::FileContentType		ContentType;
+    typedef File::ViewStyle		ViewStyle;
+
     mExpClass(uiTools) Setup
     {
     public:
 			Setup(const char* filenm=0);
-			Setup(uiFileDialog::Type t,const char* filenm=0);
+			Setup(OD::FileContentType,const char* filenm=0);
 
 	mDefSetupMemb(BufferString,filename)
 	mDefSetupMemb(BufferString,defseldir)	//!< empty
 	mDefSetupMemb(bool,forread)		//!< true
 	mDefSetupMemb(bool,withexamine)		//!< false (unless spec. Txt)
-	mDefSetupMemb(File::ViewStyle,examstyle) //!< File::Text (Bin if Img)
+	mDefSetupMemb(ViewStyle,examstyle)	//!< File::Text (Bin if Img)
 	mDefSetupMemb(bool,exameditable)	//!< false
 	mDefSetupMemb(bool,displaylocalpath)	//!< false
 
@@ -48,7 +51,7 @@ public:
 	mDefSetupMemb(bool,allowallextensions)	//!< true
 	mDefSetupMemb(bool,confirmoverwrite)	//!< true
 	mDefSetupMemb(bool,checkable)		//!< false
-	mDefSetupMemb(uiFileDialog::Type,filedlgtype) //!< Gen
+	mDefSetupMemb(ContentType,contenttype)	//!< General
 	mDefSetupMemb(uiString,objtype)		//!< empty
 	mDefSetupMemb(File::FormatList,formats)	//!< empty
 	mDefSetupMemb(BufferString,defaultext)	//!< empty
@@ -89,8 +92,8 @@ public:
     const char*		fileName() const;
     void		getFileNames(BufferStringSet&) const;
 
-    uiFileDialog::Mode	selectMode() const;
-    void		setSelectMode(uiFileDialog::Mode);
+    OD::FileSelectionMode selectMode() const;
+    void		setSelectMode(OD::FileSelectionMode);
     bool		inDirectorySelectMode() const;
 
     void		setSensitive(bool yn);
@@ -112,7 +115,7 @@ protected:
     uiString		objtype_;
     BufferStringSet	factnms_;
     bool		selmodset_;
-    uiFileDialog::Mode  selmode_;
+    SelectionMode	selmode_;
 
     uiCheckBox*		checkbox_;
     uiComboBox*		protfld_;

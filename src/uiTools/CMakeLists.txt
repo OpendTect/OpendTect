@@ -7,7 +7,6 @@
 set( OD_MODULE_DEPS uiBase MMProc )
 set( OD_MODULE_SOURCES
 	inituitools.cc
-	annotbuffill.cc
 	uiamplspectrum.cc
 	uiapplserv.cc
 	uiarray2dchg.cc

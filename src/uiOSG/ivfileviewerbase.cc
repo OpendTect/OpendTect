@@ -45,7 +45,7 @@ int main( int narg, char** argv )
 
     while ( filebuf.isEmpty() || !File::exists( filebuf.buf() ) )
     {
-	uiFileDialog dlg( 0, uiFileDialog::ExistingFile, 0,
+	uiFileDialog dlg( 0, OD::SelectExistingFile, 0,
 			  "IV files (*.iv)", "Select file to view" );
 	if ( !dlg.go() )
 	    return 1;

@@ -44,7 +44,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 {
     setOkText( uiStrings::sImport() );
 
-    uiFileSel::Setup su( uiFileDialog::Txt );
+    uiFileSel::Setup su( OD::TextContent );
     su.withexamine(true).examstyle(File::Table).forread(true);
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::sFile()), su);
 

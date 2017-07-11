@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiflatviewer.h"
@@ -220,7 +221,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
     if ( !fixeddumpfnm.isEmpty() )
 	fnm_ = BufferString( fixeddumpfnm );
 
-    uiFileSel::Setup su( uiFileDialog::Gen, fnm_ );
+    uiFileSel::Setup su( OD::GeneralContent, fnm_ );
     su.forread_ = doread;
     filefld_ = new uiFileSel( this, uiStrings::sFileName(), su );
 

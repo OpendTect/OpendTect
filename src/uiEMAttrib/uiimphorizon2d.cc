@@ -207,7 +207,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 				     uiFileSel::Setup()
 				     .withexamine(true)
 				     .forread(true) );
-    inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
+    inpfld_->setSelectMode( OD::SelectExistingFiles );
     inpfld_->newSelection.notify( mCB(this,uiImportHorizon2D,formatSel) );
 
     BufferStringSet hornms;

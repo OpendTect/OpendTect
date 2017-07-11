@@ -120,7 +120,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     const uiString commandfile = tr( "command file" );
 
     const File::Format fmt( tr("Script files"), "odcmd", "cmd" );
-    uiFileSel::Setup fisu( uiFileDialog::Gen );
+    uiFileSel::Setup fisu( OD::GeneralContent );
     fisu.forread(true).withexamine(true).exameditable(true)
 		      .displaylocalpath(true).formats(fmt);
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(commandfile), fisu );
@@ -136,7 +136,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     const File::Format fmtout( tr("Script files"), "odcmd" );
     outfld_ = new uiFileSel( this,
 			uiStrings::phrOutput(commandfile),
-			uiFileSel::Setup(uiFileDialog::Gen)
+			uiFileSel::Setup(OD::GeneralContent)
 			.forread(false).formats(fmtout)
 			.withexamine(true).examstyle(File::Log)
 			.confirmoverwrite(false).displaylocalpath(true) );

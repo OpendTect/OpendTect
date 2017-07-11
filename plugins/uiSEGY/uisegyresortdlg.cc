@@ -89,7 +89,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "Sep" );
     sep->attach( stretchedBelow, algrp );
 
-    uiFileSel::Setup fssu( uiFileDialog::Gen );
+    uiFileSel::Setup fssu( OD::GeneralContent );
     fssu.forread( false ).objtype( tr("SEG-Y") )
 	.formats( uiSEGYFileSpec::fileFmts() );
     outfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );

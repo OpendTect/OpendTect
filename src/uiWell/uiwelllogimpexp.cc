@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uigeninput.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -46,7 +47,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 
     lasfld_ = new uiFileSel( this, uiStrings::phrInput(
 			     tr("(pseudo-)LAS logs file")),
-			     uiFileSel::Setup(uiFileDialog::Gen)
+			     uiFileSel::Setup(OD::GeneralContent)
 			     .setFormat(tr("LAS files"), "las", "dat")
 			     .withexamine(true) );
     lasfld_->newSelection.notify( mCB(this,uiImportLogsDlg,lasSel) );

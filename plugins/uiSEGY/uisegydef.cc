@@ -75,7 +75,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     uiString disptxt( forread_ ? uiStrings::sInput() : uiStrings::sOutput() );
     disptxt.append(tr(" SEG-Y file"));
     if ( needmulti_ ) disptxt.append("(s)");
-    uiFileSel::Setup fisu( uiFileDialog::Gen );
+    uiFileSel::Setup fisu( OD::GeneralContent );
     fisu.forread( forread_ ).formats( fileFmts() ).objtype( tr("SEG-Y") );
     fnmfld_ = new uiFileSel( this, disptxt, fisu );
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
@@ -830,7 +830,7 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	    readcoordsfld_->valuechanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
 	    coordsfnmfld_ = new uiFileSel( grp, uiStrings::sName(),
-			uiFileSel::Setup(uiFileDialog::Gen)
+			uiFileSel::Setup(OD::GeneralContent)
 			.forread(forread_).objtype(tr("Bend Points")) );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsextfld_ = new uiGenInput( grp, tr("Extension"),

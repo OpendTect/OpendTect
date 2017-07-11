@@ -21,6 +21,7 @@
 #include "uiseparator.h"
 #include "uiioobjseldlg.h"
 #include "uifilesel.h"
+#include "uifiledlg.h"
 #include "uimsg.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
