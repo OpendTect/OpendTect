@@ -22,6 +22,7 @@ class uiIOObjSel;
 class uiUnitSel;
 class uiIOObjSelGrp;
 class StreamData;
+class uiT2DConvSel;
 
 /*! \brief Dialog for horizon export */
 
@@ -41,9 +42,15 @@ protected:
     uiCheckList*	stickidsfld_;
     uiCheckBox*		linenmfld_;
     uiFileSel*		outfld_;
+    uiGenInput*		zfld_;
+    uiT2DConvSel*	transfld_;
 
     CtxtIOObj&		ctio_;
     bool		getInputDBKeys(DBKeySet&);
+
+    void		addZChg(CallBacker*);
+    FixedString		getZDomain() const;
+
     virtual bool	acceptOK();
     bool		writeAscii();
     bool		issingle_;

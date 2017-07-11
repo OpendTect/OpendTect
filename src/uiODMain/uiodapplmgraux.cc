@@ -228,6 +228,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->importFaultStickSet();
 	    else if ( opt == 1 )
 		am_.emserv_->import2DFaultStickset();
+	    else if ( opt == 2 )
+	      am_.emserv_->importBulkFaultStickSet();
+	  else if ( opt == 3 )
+	      am_.emserv_->importBulk2DFaultStickset();
 	    break;
 	    mCase(Exp):
 		am_.emserv_->exportFaultStickSet( opt==0 );

@@ -62,7 +62,9 @@ public:
     bool		export2DHorizon();
     bool		importFault(bool bulk);
     bool		importFaultStickSet();
+    bool		importBulkFaultStickSet(bool is2d=false);
     void		import2DFaultStickset();
+    void		importBulk2DFaultStickset();
     bool		exportFault(bool single=true);
     bool		exportFaultStickSet(bool single=true);
     void		createHorWithConstZ(bool is2d);
@@ -206,8 +208,9 @@ protected:
     uiExportFault*	expfltdlg_;
     uiExportFault*	expfltstickdlg_;
     uiCreateHorizon*	crhordlg_;
+    uiBulkFaultImport*	impbulkfssdlg_;
 
-    TrcKeySampling		selectedrg_;
+    TrcKeySampling	selectedrg_;
     bool		disponcreation_;
 
     ObjectSet<uiVariogramDisplay>	variodlgs_;

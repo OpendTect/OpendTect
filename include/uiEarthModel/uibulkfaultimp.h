@@ -17,7 +17,8 @@ namespace Table { class FormatDesc; }
 mExpClass(uiEarthModel) uiBulkFaultImport : public uiDialog
 { mODTextTranslationClass(uiBulkFaultImport)
 public:
-			uiBulkFaultImport(uiParent*);
+			uiBulkFaultImport(uiParent*,const char*typ=0,
+							    bool is2d=false);
 			~uiBulkFaultImport();
 
 protected:
@@ -28,5 +29,6 @@ protected:
     uiGenInput*		sortsticksfld_;
     uiTableImpDataSel*	dataselfld_;
     Table::FormatDesc*	fd_;
+    bool		isfss_;
 
 };

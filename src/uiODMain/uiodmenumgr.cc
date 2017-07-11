@@ -347,11 +347,21 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impfltasc, m3Dots(tr("Bulk Faults")), mImpFaultBulkMnuItm );
     impfault->insertItem( impfltasc );
     if ( has2d )
-	mInsertPixmapItem( impfaultstick, m3Dots(tr("ASCII 2D")),
-		     mImpFaultSSAscii2DMnuItm, ascic );
-    mInsertPixmapItem( impfaultstick,
-		 has2d ? m3Dots(tr("ASCII 3D")) : m3Dots(uiStrings::sASCII()),
-		 mImpFaultSSAscii3DMnuItm, ascic );
+    {
+	uiMenu* impfltss2Dasc = new uiMenu( &appl_, tr("ASCII 2D"), ascic );
+	mInsertItem( impfltss2Dasc, m3Dots(tr("Single 2D FaultStiCKSet")),
+				    mImpFaultSSAscii2DMnuItm );
+	mInsertItem( impfltss2Dasc, m3Dots(tr("Bulk 2D FaultStiCKSet")),
+				    mImpFaultSSAscii2DBulkMnuItm );
+	impfaultstick->insertItem( impfltss2Dasc );
+    }
+
+    uiMenu* impfltss3Dasc = new uiMenu( &appl_, tr("ASCII 3D"), ascic );
+    mInsertItem( impfltss3Dasc, m3Dots(tr("Single 3D FaultStiCKSet")),
+					mImpFaultSSAscii3DMnuItm );
+    mInsertItem( impfltss3Dasc, m3Dots(tr("Bulk 3D FaultStiCKSet")),
+					mImpFaultSSAscii3DBulkMnuItm );
+    impfaultstick->insertItem( impfltss3Dasc );
 
     uiMenu* impwellasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     mInsertItem( impwellasc, m3Dots(uiStrings::sTrack()),
@@ -1349,6 +1359,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpFaultBulkMnuItm:		mDoOp(Imp,Flt,1); break;
     case mImpFaultSSAscii3DMnuItm:	mDoOp(Imp,Fltss,0); break;
     case mImpFaultSSAscii2DMnuItm:	mDoOp(Imp,Fltss,1); break;
+    case mImpFaultSSAscii3DBulkMnuItm:	mDoOp(Imp,Fltss,2); break;
+    case mImpFaultSSAscii2DBulkMnuItm:	mDoOp(Imp,Fltss,3); break;
     case mImpMuteDefAsciiMnuItm:	mDoOp(Imp,MDef,0); break;
     case mExpMuteDefAsciiMnuItm:	mDoOp(Exp,MDef,0); break;
     case mImpPVDSAsciiMnuItm:		mDoOp(Imp,PVDS,0); break;

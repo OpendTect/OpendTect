@@ -81,8 +81,9 @@ ________________________________________________________________________
 #define mImpPDFAsciiMnuItm	(mFileImpMnu + 101)
 #define mImpPVDSMnuItm		(mFileImpMnu + 110)
 #define mImpPVDSAsciiMnuItm	(mFileImpMnu + 111)
-
 #define mImpFaultBulkMnuItm	(mFileImpMnu + 112)
+#define mImpFaultSSAscii3DBulkMnuItm   (mFileImpMnu + 113)
+#define mImpFaultSSAscii2DBulkMnuItm   (mFileImpMnu + 114)
 
 #define mExpSeisSimple3DMnuItm	(mFileExpMnu + 15)
 #define mExpSeisSimple2DMnuItm	(mFileExpMnu + 16)

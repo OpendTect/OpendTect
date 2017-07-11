@@ -112,6 +112,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , ma3dfaultdlg_(0)
     , manfssdlg_(0)
     , manbodydlg_(0)
+    , impbulkfssdlg_(0)
 {
     DBM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
@@ -127,24 +128,26 @@ uiEMPartServer::~uiEMPartServer()
     delete manfssdlg_;
     delete manbodydlg_;
     delete crhordlg_;
+    delete impbulkfssdlg_;
 }
 
 
 void uiEMPartServer::survChangedCB( CallBacker* )
 {
-    delete imphorattrdlg_; imphorattrdlg_ = 0;
-    delete imphorgeomdlg_; imphorgeomdlg_ = 0;
-    delete impfltdlg_; impfltdlg_ = 0;
-    delete impbulkfltdlg_; impbulkfltdlg_ = 0;
-    delete impbulkhordlg_; impbulkhordlg_ = 0;
-    delete exphordlg_; exphordlg_ = 0;
-    delete expfltdlg_; expfltdlg_ = 0;
-    delete man3dhordlg_; man3dhordlg_ = 0;
-    delete man2dhordlg_; man2dhordlg_ = 0;
-    delete ma3dfaultdlg_; ma3dfaultdlg_ = 0;
-    delete manfssdlg_; manfssdlg_ = 0;
-    delete manbodydlg_; manbodydlg_ = 0;
-    delete crhordlg_; crhordlg_ = 0;
+    deleteAndZeroPtr ( imphorattrdlg_ );
+    deleteAndZeroPtr ( imphorgeomdlg_ );
+    deleteAndZeroPtr ( impfltdlg_ );
+    deleteAndZeroPtr ( impbulkfltdlg_ );
+    deleteAndZeroPtr ( impbulkhordlg_ );
+    deleteAndZeroPtr ( exphordlg_ );
+    deleteAndZeroPtr ( expfltdlg_ );
+    deleteAndZeroPtr ( man3dhordlg_ );
+    deleteAndZeroPtr ( man2dhordlg_ );
+    deleteAndZeroPtr ( ma3dfaultdlg_ );
+    deleteAndZeroPtr ( manfssdlg_ );
+    deleteAndZeroPtr ( manbodydlg_ );
+    deleteAndZeroPtr ( crhordlg_ );
+    deleteAndZeroPtr ( impbulkfssdlg_ );
     deepErase( variodlgs_ );
 }
 
@@ -292,7 +295,8 @@ bool uiEMPartServer::importFault( bool bulk )
     if ( bulk )
     {
 	if ( !impbulkfltdlg_ )
-	    impbulkfltdlg_ = new uiBulkFaultImport( parent() );
+	    impbulkfltdlg_ = new uiBulkFaultImport( parent(),
+				    EMFault3DTranslatorGroup::sGroupName() );
 
 	return impbulkfltdlg_->go();
     }
@@ -328,6 +332,23 @@ bool uiEMPartServer::importFaultStickSet()
 }
 
 
+bool uiEMPartServer::importBulkFaultStickSet( bool is2d )
+{
+    if ( !impbulkfssdlg_ )
+      impbulkfssdlg_ =
+	  new uiBulkFaultImport( parent(),
+		      EMFaultStickSetTranslatorGroup::sGroupName(), is2d );
+
+    return impbulkfssdlg_->go();
+}
+
+
+void uiEMPartServer::importBulk2DFaultStickset()
+{
+    importBulkFaultStickSet(true);
+}
+
+
 void uiEMPartServer::import2DFaultStickset()
 {
     if ( impfss2ddlg_ )
@@ -354,10 +375,7 @@ bool uiEMPartServer::exportFault( bool issingle )
 
 bool uiEMPartServer::exportFaultStickSet( bool isbulk )
 {
-    if ( expfltstickdlg_ )
-	expfltstickdlg_->raise();
-    else
-	expfltstickdlg_ =
+    expfltstickdlg_ =
 	    new uiExportFault( parent(),
 			EMFaultStickSetTranslatorGroup::sGroupName(), isbulk );
     return expfltstickdlg_->go();

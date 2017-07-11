@@ -33,11 +33,17 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
+#include "od_helpids.h"
+#include "ioman.h"
 #include "uiunitsel.h"
 #include "od_helpids.h"
 #include "dbman.h"
 #include "emioobjinfo.h"
 #include "uiioobjselgrp.h"
+#include "unitofmeasure.h"
+#include "od_ostream.h"
+#include "uit2dconvsel.h"
+#include "zaxistransform.h"
 
 #define mGet( tp, fss, f3d ) \
     FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
@@ -80,16 +86,32 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     else
 	coordfld_->attach( alignedBelow, bulkinfld_ );
 
+    uiStringSet zmodes;
+    zmodes.add(uiStrings::sYes());
+    zmodes.add(uiStrings::sNo());
+    zmodes.add(tr("Transformed"));
+
+    zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
+			    StringListInpSpec(zmodes) );
+    zfld_->valuechanged.notify( mCB(this,uiExportFault,addZChg ) );
+    zfld_->attach( alignedBelow, coordfld_ );
+
+    uiT2DConvSel::Setup stup( 0, false );
+    stup.ist2d( SI().zIsTime() );
+    transfld_ = new uiT2DConvSel( this, stup );
+    transfld_->display( false );
+    transfld_->attach( alignedBelow, zfld_ );
+
     uiUnitSel::Setup unitselsu( PropertyRef::surveyZType(), tr("Z in") );
     zunitsel_ = new uiUnitSel( this, unitselsu );
-    zunitsel_->attach( rightTo, coordfld_ );
+    zunitsel_->attach( alignedBelow, transfld_ );
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
 				    OD::Horizontal );
     stickidsfld_->setLabel( uiStrings::sWrite() );
     stickidsfld_->addItem( tr("Stick index") ).addItem( tr("Node index" ));
     stickidsfld_->setChecked( 0, true ); stickidsfld_->setChecked( 1, true );
-    stickidsfld_->attach( alignedBelow, coordfld_ );
+    stickidsfld_->attach( alignedBelow, zunitsel_ );
 
     if ( mGet(typ,true,false) )
     {
@@ -99,7 +121,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
 
-    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
+    outfld_ = new uiFileSel( this, uiStrings::phrOutput(uiStrings::phrASCII(
+			       uiStrings::sFile())),
 			       uiFileSel::Setup().forread(false) );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
@@ -149,6 +172,40 @@ static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
+void uiExportFault::addZChg( CallBacker* )
+{
+    transfld_->display( zfld_->getIntValue()==2 );
+
+    const bool displayunit = zfld_->getIntValue()!=1;
+    if ( displayunit )
+    {
+	FixedString zdomain = getZDomain();
+	if ( zdomain==ZDomain::sKeyDepth() )
+	    zunitsel_->setPropType( PropertyRef::Dist );
+	else if ( zdomain==ZDomain::sKeyTime() )
+	{
+	    zunitsel_->setPropType( PropertyRef::Time );
+	    zunitsel_->setUnit( "Milliseconds" );
+	}
+    }
+
+    zunitsel_->display( displayunit );
+}
+
+
+FixedString uiExportFault::getZDomain() const
+{
+    FixedString zdomain = ZDomain::SI().key();
+
+    if ( zfld_->getIntValue()==2 )
+    {
+	zdomain = transfld_->selectedToDomain();
+    }
+
+    return zdomain;
+}
+
+
 bool uiExportFault::getInputDBKeys( DBKeySet& dbkeyset )
 {
     if ( issingle_ )
@@ -158,7 +215,7 @@ bool uiExportFault::getInputDBKeys( DBKeySet& dbkeyset )
 	dbkeyset.add(ioobj->key());
     }
     else
-	dbkeyset = bulkinfld_->getIOObjIds();
+	bulkinfld_->getChosen(dbkeyset);
     return true;
 }
 
@@ -171,15 +228,39 @@ bool uiExportFault::writeAscii()
     const BufferString fname = outfld_->fileName();
 
     StreamData sdo = StreamProvider( fname ).makeOStream();
+
+    RefMan<ZAxisTransform> zatf = 0;
+    if ( zfld_->getIntValue()==2 )
+    {
+	zatf = transfld_->getSelection();
+	if ( !zatf )
+	{
+	    uiMSG().message(tr("Transform of selected option is "
+							"not implemented"));
+	    return false;
+	}
+    }
+
+    uiTaskRunner taskrunner( this );
+    PtrMan<Executor> objloader = EM::EMM().objectLoader( dbkeyset );
+
+    if ( !objloader || !TaskRunner::execute(&taskrunner, *objloader) )
+    {
+	mErrRet( uiStrings::phrCannotRead(tr("the object") ));
+	return false;
+    }
+
+    const UnitOfMeasure* unit = zunitsel_->getUnit();
+    const bool doxy = coordfld_->getBoolValue();
+    const bool inclstickidx = stickidsfld_->isChecked( 0 );
+    const bool inclknotidx = stickidsfld_->isChecked( 1 );
+
     for ( int idx=0; idx<dbkeyset.size(); idx++ )
     {
-	DBKey dbkey = dbkeyset.get( idx );
-	if ( !dbkey.isValid() ) mErrRet(tr("Cannot find object in database"));
-	BufferString typnm = issingle_ ? ctio_.ioobj_->group() :
-				    bulkinfld_->getCtxtIOObj().ioobj_->group();
-	RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( typnm );
-	if ( !emobj ) mErrRet(tr("Cannot add object to EarthModel"))
-	emobj->setDBKey( dbkey );
+	EM::ObjectID objid = EM::EMM().getObjectID( dbkeyset[idx] );
+	if ( objid < 0 ) continue;
+	RefMan<EM::EMObject> emobj = EM::EMM().getObject(objid);
+	emobj->setDBKey( dbkeyset.get(idx) );
 	mDynamicCastGet(EM::Fault3D*,f3d,emobj.ptr())
 	mDynamicCastGet(EM::FaultStickSet*,fss,emobj.ptr())
 	if ( !f3d && !fss ) return false;
@@ -197,30 +278,73 @@ bool uiExportFault::writeAscii()
 	    sdo.close();
 	    mErrRet( uiStrings::sCantOpenOutpFile() );
 	}
-	BufferString objnm;
-	BufferString str;
-	const UnitOfMeasure* unit = zunitsel_->getUnit();
-	const bool doxy = coordfld_->getBoolValue();
-	const bool inclstickidx = stickidsfld_->isChecked( 0 );
-	const bool inclknotidx = stickidsfld_->isChecked( 1 );
 	const EM::SectionID sectionid = emobj->sectionID( 0 );
 	const int nrsticks = nrSticks( emobj.ptr(), sectionid );
+
+	BufferString objnm = f3d ? f3d->name() : fss->name();
+
+	BufferString str;
+
+	TrcKeyZSampling bbox(true);
+	bool first = true;
+	int zatvoi = -1;
+	if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
+	{
+	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
+	    {
+		const int nrknots = nrKnots( emobj, sectionid, stickidx );
+		for ( int knotidx=0; knotidx<nrknots; knotidx++ )
+		{
+		    Coord3 crd = getCoord( emobj, sectionid,
+						stickidx, knotidx );
+		    if ( !crd.isDefined() )
+			continue;
+		    const BinID bid = SI().transform( crd.getXY() );
+		    if ( first )
+		    {
+			first = false;
+			bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
+			bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
+		    }
+		    else
+		    {
+			bbox.hsamp_.include( bid );
+			bbox.zsamp_.include( (float) crd.z_ );
+		    }
+		}
+	    }
+
+	    uiTaskRunner taskrunner( this );
+	    if ( bbox.isDefined() )
+	    {
+		if ( zatvoi == -1 )
+		    zatvoi = zatf->addVolumeOfInterest( bbox, false );
+		else
+		    zatf->setVolumeOfInterest( zatvoi, bbox, false );
+		if ( zatvoi>=0 )
+			zatf->loadDataIfMissing( zatvoi, &taskrunner );
+	    }
+	}
+
+
+
+
 	for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	{
-	    objnm = f3d ? f3d->name() : fss->name();
-
 	    const int nrknots = nrKnots( emobj.ptr(), sectionid, stickidx );
 	    for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 	    {
-		const Coord3 crd = getCoord( emobj.ptr(), sectionid,
+		Coord3 crd = getCoord( emobj.ptr(), sectionid,
 					     stickidx, knotidx );
 		if ( !crd.isDefined() )
 		    continue;
 		if ( !issingle_ )
 		    *sdo.oStrm() << objnm << "\t";
+		const BinID bid = SI().transform( crd.getXY() );
+		if ( zatf )
+		    crd.z_ =  zatf->transformTrc( bid, (float)crd.z_ );
 		if ( !doxy )
 		{
-		    const BinID bid = SI().transform( crd.getXY() );
 		    *sdo.oStrm() << bid.inl() << '\t' << bid.crl();
 		}
 		else
@@ -269,6 +393,12 @@ bool uiExportFault::writeAscii()
 
 bool uiExportFault::acceptOK()
 {
+    if ( zfld_->getIntValue()==2 )
+    {
+	if ( !transfld_->acceptOK() )
+	    return false;
+    }
+
     BufferStringSet fltnms;
     bool isobjsel(true);
     if ( issingle_ )

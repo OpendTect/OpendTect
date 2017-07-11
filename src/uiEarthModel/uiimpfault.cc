@@ -238,7 +238,8 @@ bool uiImportFault::handleAscii()
 {
     EM::Fault* fault = createFault();
     if ( !fault )
-	mErrRet( uiStrings::phrCannotCreate(uiStrings::sFault()) )
+	mErrRet( uiStrings::phrCannotCreate(isfss_ ?
+	  uiStrings::sFaultStickSet() : uiStrings::sFault()) )
 
     fault->ref();
 
