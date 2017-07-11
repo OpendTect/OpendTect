@@ -50,6 +50,7 @@ void uiSEGYBulkImporter::fillTable()
 	uiPushButton* advancebut = new uiPushButton(0, "Options",
 				mCB(this,uiSEGYBulkImporter,advanceCB), true );
 	bulktable_->setCellObject(RowCol(idx,3), advancebut );
+	bulktable_->setCellToolTip( RowCol(idx,0), selfilenms_.get(idx) );
     }
 
     bulktable_->setColumnReadOnly( 0, true );
