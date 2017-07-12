@@ -42,15 +42,16 @@ void uiSEGYBulkImporter::fillTable()
     bulktable_->setNrRows( nrselfiles );
     for ( int idx=0; idx<nrselfiles; idx++ )
     {
-	FilePath fp( selfilenms_.get(idx) );
+	File::Path fp( selfilenms_.get(idx) );
 	bulktable_->setText( RowCol(idx,0), fp.fileName().str() );
 	uiSEGYImpType* typfld = new uiSEGYImpType( 0, false, 0, false );
 	bulktable_->setCellObject( RowCol(idx,1), &typfld->asUiObject() );
 	bulktable_->setText( RowCol(idx,2), fp.baseName().str() );
-	uiPushButton* advancebut = new uiPushButton(0, "Options",
+	uiPushButton* advancebut = new uiPushButton(0, uiStrings::sOptions(),
 				mCB(this,uiSEGYBulkImporter,advanceCB), true );
 	bulktable_->setCellObject(RowCol(idx,3), advancebut );
-	bulktable_->setCellToolTip( RowCol(idx,0), selfilenms_.get(idx) );
+	bulktable_->setCellToolTip( RowCol(idx,0),
+				    toUiString(selfilenms_.get(idx)) );
     }
 
     bulktable_->setColumnReadOnly( 0, true );
