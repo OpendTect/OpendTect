@@ -22,10 +22,10 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
+#include "wellmanager.h"
 #include "welltrack.h"
 #include "wellinfo.h"
 #include "welltransl.h"
-#include "wellwriter.h"
 
 #include "uibutton.h"
 #include "uiconstvel.h"
@@ -259,11 +259,11 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 	d2t.makeFromTrack( wd->track(), vel_, wd->info().replacementVelocity());
     }
 
-    Well::Writer wr( ioobj, *wd );
-    if ( !wr.put() )
+    const uiRetVal uirv = Well::MGR().store( *wd, ioobj.key() );
+    if ( !uirv.isOK() )
     {
 	uiString msg = tr( "Cannot write data for '%1':\n%2" )
-		     .arg( wcd.nm_ ).arg( wr.errMsg() );
+		     .arg( wcd.nm_ ).arg( uirv );
 	uiMSG().error( msg );
 	return false;
     }

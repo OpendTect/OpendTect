@@ -29,7 +29,7 @@ class SeisTrc;
 class SyntheticData;
 class TaskRunner;
 
-namespace Well { class Data; class Log; class LogSet; class Writer; }
+namespace Well { class Data; class Log; class LogSet; }
 
 namespace WellTie
 {
@@ -169,23 +169,20 @@ mExpClass(WellAttrib) DataWriter
 { mODTextTranslationClass(DataWriter);
 public:
 				DataWriter(Well::Data&,const DBKey&);
-				~DataWriter();
 
     bool			writeD2TM() const;
     bool			writeLogs(const Well::LogSet&,
 					  bool todisk) const;
     bool			removeLogs(const Well::LogSet&) const;
 
-    void			setWD(Well::Data* wd)
-				{ wd_ = wd; setWellWriter(); }
+    void			setWD( Well::Data* wd ) { wd_ = wd; }
+    const uiString&		errMsg() const		{ return errmsg_; }
 
 protected:
 
-    Well::Writer*		wtr_;
     Well::Data*			wd_;
     const DBKey&		wellid_;
-
-    void			setWellWriter();
+    mutable uiString		errmsg_;
 };
 
 

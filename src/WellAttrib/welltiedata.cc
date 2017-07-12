@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "wellmanager.h"
 #include "wellmarker.h"
 #include "welltrack.h"
-#include "wellwriter.h"
 
 #include "welltiecshot.h"
 #include "welltiedata.h"
@@ -280,41 +279,25 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 
 
 DataWriter::DataWriter( Well::Data& wd, const DBKey& wellid )
-    : wtr_(0)
-    , wd_(&wd)
+    : wd_(&wd)
     , wellid_(wellid)
-{
-    setWellWriter();
-}
-
-
-DataWriter::~DataWriter()
-{
-    delete wtr_;
-}
-
-
-void DataWriter::setWellWriter()
-{
-    delete wtr_; wtr_ = 0;
-    IOObj* ioobj = DBM().get( wellid_ );
-    if ( ioobj && wd_ )
-    {
-	wtr_ = new Well::Writer( *ioobj, *wd_ );
-	delete ioobj;
-    }
-}
+{}
 
 
 bool DataWriter::writeD2TM() const
 {
-    return wtr_ && wtr_->putD2T();
+    if ( !wd_ ) return false;
+    const uiRetVal uirv = Well::MGR().store( *wd_, wellid_ );
+    if ( !uirv.isOK() )
+	{ errmsg_ = uirv; return false; }
+
+    return true;
 }
 
 
 bool DataWriter::writeLogs( const Well::LogSet& logset, bool todisk ) const
 {
-    if ( !wd_ || !wtr_ ) return false;
+    if ( !wd_ ) return false;
     Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
     Well::LogSetIter iter( logset );
     while ( iter.next() )
@@ -322,8 +305,11 @@ bool DataWriter::writeLogs( const Well::LogSet& logset, bool todisk ) const
     iter.retire();
 
     if ( todisk )
-	if ( !wtr_->putLogs() )
-	    return false;
+    {
+	const uiRetVal uirv = Well::MGR().store( *wd_, wellid_ );
+	if ( !uirv.isOK() )
+	    { errmsg_ = uirv; return false; }
+    }
 
     return true;
 }

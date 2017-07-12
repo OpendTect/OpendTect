@@ -25,9 +25,9 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellimpasc.h"
+#include "wellmanager.h"
 #include "welltrack.h"
 #include "wellinfo.h"
-#include "wellwriter.h"
 
 #include "uibutton.h"
 #include "uid2tmodelgrp.h"
@@ -421,9 +421,9 @@ bool uiWellImportAsc::doWork()
 	    wd_.checkShotModel() = wd_.d2TModel();
     }
 
-    Well::Writer wwr( *outioobj, wd_ );
-    if ( !wwr.put() )
-	mErrRet( wwr.errMsg() );
+    const uiRetVal uirv = Well::MGR().store( wd_, outioobj->key() );
+    if ( !uirv.isOK() )
+	mErrRet( uirv );
 
     outioobj->pars().update( sKey::CrFrom(), datasrcnms.cat("`") );
     outioobj->updateCreationPars();

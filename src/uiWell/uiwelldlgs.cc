@@ -46,7 +46,7 @@ ________________________________________________________________________
 #include "wellinfo.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "wellreader.h"
+#include "wellmanager.h"
 #include "welltrack.h"
 #include "welltransl.h"
 #include "wellwriter.h"
@@ -1834,21 +1834,17 @@ void uiSetD2TFromOtherWell::setSelected( const DBKeySet& keys )
 
 bool uiSetD2TFromOtherWell::acceptOK()
 {
-    const IOObj* inpioobj = inpwellfld_->ioobj();
-    if ( !inpioobj )
-	return false;
-
-    RefMan<Well::Data> inpwd = new Well::Data;
-    PtrMan<Well::Reader> inprdr = new Well::Reader( *inpioobj, *inpwd );
-    if ( !inprdr->getD2T() )
+    const DBKey dbky = inpwellfld_->key();
+    ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky );
+    if ( !wd || !wd->haveD2TModel() )
     {
 	uiMSG().message( tr("Can not read input model.") );
 	return false;
     }
 
-    const Well::D2TModel& d2t = inpwd->d2TModel();
+    const Well::D2TModel& d2t = wd->d2TModel();
     TimeDepthModel dtmodel;
-    if ( !d2t.getTimeDepthModel(*inpwd,dtmodel) )
+    if ( !d2t.getTimeDepthModel(*wd,dtmodel) )
     {
 	uiMSG().error( tr("Input Depth-Time Model is invalid") );
 	return false;
@@ -1874,26 +1870,26 @@ bool uiSetD2TFromOtherWell::acceptOK()
     uiStringSet errmsgs;
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
-	RefMan<Well::Data> wd = new Well::Data;
-	PtrMan<Well::Reader> rdr = new Well::Reader( selwells[idx], *wd );
-	if ( !rdr->getD2T() )
+	RefMan<Well::Data> welldata = Well::MGR().fetchForEdit( selwells[idx] );
+	if ( !welldata || !welldata->haveD2TModel() )
 	    continue;
 
 	TypeSet<double> depths( inputdepths );
 	TypeSet<double> times( inputtimes );
 	uiString errmsg;
-	const bool res =
-		wd->d2TModel().ensureValid( *wd, errmsg, &depths, &times );
+	const bool res = welldata->d2TModel().ensureValid(
+				*welldata, errmsg, &depths, &times );
 	if ( !res )
 	{
 	    uiString msgtoadd;
-	    msgtoadd.append( wd->name() ).append( " : " ).append( errmsg );
+	    msgtoadd.append(welldata->name()).append(" : ").append( errmsg );
 	    errmsgs.add( errmsg );
 	    continue;
 	}
 
-	Well::Writer wtr( selwells[idx], *wd );
-	wtr.putD2T();
+	const uiRetVal uirv = Well::MGR().store( *welldata, selwells[idx] );
+	if ( !uirv.isOK() )
+	    errmsgs.add( uirv );
     }
 
     if ( !errmsgs.isEmpty() )

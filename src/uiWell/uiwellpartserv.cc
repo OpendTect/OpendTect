@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "uibulkwellimp.h"
 #include "uibuttongroup.h"
 #include "uid2tmodelgrp.h"
-#include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -40,6 +39,7 @@ ________________________________________________________________________
 #include "uiwelllogtools.h"
 #include "uiwellman.h"
 #include "uiwellmarkerdlg.h"
+#include "uiwellsel.h"
 
 #include "arrayndimpl.h"
 #include "color.h"
@@ -196,14 +196,15 @@ void uiWellPartServer::importReadyCB( CallBacker* cb )
 
 bool uiWellPartServer::selectWells( DBKeySet& wellids )
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    ctio->ctxt_.forread_ = true;
-    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
-    uiIOObjSelDlg dlg( parent(), sdsu, *ctio  );
-    if ( !dlg.go() ) return false;
+    const uiDialog::Setup setup( uiStrings::phrLoad(tr("Well(s)")),
+				 uiStrings::phrSelect(tr("input Well(s)")),
+				 mNoHelpKey );
+    uiDialog dlg( parent(), setup );
+    PtrMan<uiMultiWellSel> multiwellsel = new uiMultiWellSel( &dlg, false );
+    if ( !dlg.go() )
+	return false;
 
-    wellids.setEmpty();
-    dlg.getChosen( wellids );
+    multiwellsel->getSelected( wellids );
     return !wellids.isEmpty();
 }
 
@@ -348,14 +349,13 @@ uiWellRockPhysLauncher( uiParent* p )
 		tr("Select one or more wells to add well logs to"),
                 mODHelpKey(mWellRockPhysLauncherHelpID)))
 {
-    selgrp_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
-			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+    multiwellsel_ = new uiMultiWellSel( this, false );
 }
 
 bool acceptOK()
 {
     DBKeySet mids;
-    selgrp_->getChosen( mids );
+    multiwellsel_->getSelected( mids );
     if ( mids.isEmpty() )
 	return false;
 
@@ -364,7 +364,7 @@ bool acceptOK()
     return true;
 }
 
-    uiIOObjSelGrp*	selgrp_;
+    uiMultiWellSel*	multiwellsel_;
 
 };
 
@@ -372,15 +372,14 @@ bool acceptOK()
 void uiWellPartServer::launchRockPhysics()
 {
     uiWellRockPhysLauncher dlg( parent() );
-    const int sz = dlg.selgrp_->size();
+    const int sz = dlg.multiwellsel_->nrWells();
     if ( sz == 0 )
 	uiMSG().error( uiStrings::phrCreate(tr("one or more wells first")) );
     else if ( sz > 1 )
 	dlg.go();
     else
     {
-	dlg.selgrp_->chooseAll();
-	DBKeySet mids; dlg.selgrp_->getChosen( mids );
+	const DBKeySet mids( 1, dlg.multiwellsel_->currentID() );
 	uiWellLogCalc lcdlg( parent(), mids, true );
 	lcdlg.go();
     }
@@ -543,9 +542,9 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 	d2t.setValueAt( stopdah, tdmodel.getTime( (float)trackrg.stop ) );
     }
 
-    Well::Writer wwr( *ctio->ioobj_, *well );
-    if ( !wwr.put() )
-	mErrRet( wwr.errMsg() )
+    const uiRetVal uirv = Well::MGR().store( *well, ctio->ioobj_->key() );
+    if ( !uirv.isOK() )
+	mErrRet( uirv );
 
     mid = ctio->ioobj_->key();
     if ( manwelldlg_ )

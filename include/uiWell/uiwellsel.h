@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uiioobjselgrp.h"
 #include "dbkey.h"
+#include "welldata.h"
 
 class uiWellSingLineMultiSel;
 
@@ -26,6 +27,9 @@ public:
 			uiWellSel(uiParent*,bool forread,
 				const uiString& seltxt=uiString::emptyString(),
 				bool withinserters=true);
+
+    ConstRefMan<Well::Data>	getWellData() const;
+    RefMan<Well::Data>		getWellDataForEdit() const;
 
 protected:
 
@@ -42,6 +46,7 @@ public:
 			uiMultiWellSel(uiParent*,bool single_line,
 					const uiIOObjSelGrp::Setup* su=0);
 
+    int			nrWells() const;
     int			nrSelected() const;
     void		setSelected(const DBKeySet&);
     void		getSelected(DBKeySet&) const;

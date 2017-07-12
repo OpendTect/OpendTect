@@ -16,14 +16,50 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "ptrman.h"
+#include "wellmanager.h"
 #include "welltransl.h"
 
 #include "uicompoundparsel.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
+#include "uimsg.h"
 
 #define mSelTxt seltxt && *seltxt ? seltxt \
 				  : ( forread ? "Input Well" : "Output Well" )
+
+ConstRefMan<Well::Data> uiWellSel::getWellData() const
+{
+    const IOObj* wellioobj = ioobj();
+    if ( !wellioobj )
+	return 0;
+
+    uiRetVal uirv;
+    ConstRefMan<Well::Data> wd = Well::MGR().fetch(
+				wellioobj->key(), Well::LoadReqs(), uirv );
+    if ( !wd && uirv.isEmpty() )
+	uirv.set( tr("No well data found") );
+
+    uiMSG().handleErrors( uirv );
+    return wd;
+}
+
+
+RefMan<Well::Data> uiWellSel::getWellDataForEdit() const
+{
+    const IOObj* wellioobj = ioobj();
+    if ( !wellioobj )
+	return 0;
+
+    uiRetVal uirv;
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit(
+				wellioobj->key(), Well::LoadReqs(), uirv );
+    if ( !wd && uirv.isEmpty() )
+	uirv.set( tr("No well data found") );
+
+    uiMSG().handleErrors( uirv );
+    return wd;
+}
+
 
 uiIOObjSel::Setup uiWellSel::getSetup( bool forread, const uiString& seltxt,
 					bool withinserters ) const
@@ -187,6 +223,12 @@ uiMultiWellSel::uiMultiWellSel( uiParent* p, bool singleline,
 	mAttachCB( multilnfld_->selectionChanged,
 		   uiMultiWellSel::newCurrentCB );
     }
+}
+
+
+int uiMultiWellSel::nrWells() const
+{
+    return multilnfld_ ? multilnfld_->size() : 1;
 }
 
 
