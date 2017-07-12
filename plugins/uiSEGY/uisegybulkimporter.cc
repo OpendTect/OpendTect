@@ -66,7 +66,13 @@ void uiSEGYBulkImporter::advanceCB( CallBacker* cb )
 	return;
 
     RowCol curcell = bulktable_->getCell( obj );
-    uiSEGYReadStarter readstdlg( this, false, 0,
+    uiGroup* dataobj = bulktable_->getCellGroup( RowCol(curcell.row(),1) );
+    mDynamicCastGet(uiSEGYImpType*,datatype,dataobj)
+    if ( !datatype )
+	return;
+
+    const SEGY::ImpType imptype = datatype->impType();
+    uiSEGYReadStarter readstdlg( this, false, &imptype,
 				 selfilenms_.get(curcell.row()) );
     readstdlg.go();
 }
