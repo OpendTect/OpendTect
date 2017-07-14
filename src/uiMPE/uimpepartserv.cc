@@ -74,11 +74,13 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     MPE::engine().setValidator( new MPE::uiTrackSettingsValidator() );
 
     MPE::engine().activevolumechange.notify(
-	    mCB(this, uiMPEPartServer, activeVolumeChange) );
+		mCB(this,uiMPEPartServer,activeVolumeChange) );
     MPE::engine().loadEMObject.notify(
-	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
+		mCB(this,uiMPEPartServer,loadEMObjectCB) );
     MPE::engine().trackeraddremove.notify(
-	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
+		mCB(this,uiMPEPartServer,loadTrackSetupCB) );
+    MPE::engine().settingsChanged.notify(
+		mCB(this,uiMPEPartServer,settingsChangedCB) );
     EM::EMM().addRemove.notify( mCB(this,uiMPEPartServer,nrHorChangeCB) );
 }
 
@@ -86,11 +88,13 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
 uiMPEPartServer::~uiMPEPartServer()
 {
     MPE::engine().activevolumechange.remove(
-	    mCB(this, uiMPEPartServer, activeVolumeChange) );
+		mCB(this,uiMPEPartServer,activeVolumeChange) );
     MPE::engine().loadEMObject.remove(
-	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
+		mCB(this,uiMPEPartServer,loadEMObjectCB) );
     MPE::engine().trackeraddremove.remove(
-	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
+		mCB(this,uiMPEPartServer,loadTrackSetupCB) );
+    MPE::engine().settingsChanged.remove(
+		mCB(this,uiMPEPartServer,settingsChangedCB) );
     EM::EMM().addRemove.remove( mCB(this,uiMPEPartServer,nrHorChangeCB) );
 
     trackercurrentobject_ = -1;
@@ -529,6 +533,12 @@ void uiMPEPartServer::fillTrackerSettings( int trackerid )
 		tr("Horizon Tracking Settings - %1").arg( emobj->name() );
 	setupgrp_->mainwin()->setCaption( caption );
     }
+}
+
+
+void uiMPEPartServer::settingsChangedCB( CallBacker* )
+{
+    fillTrackerSettings( activetrackerid_ );
 }
 
 

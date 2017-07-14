@@ -155,6 +155,8 @@ public:
     void			unRefTracker(EM::ObjectID,bool nodel=false);
     bool			hasTracker(EM::ObjectID) const;
 
+    Notifier<Engine>		settingsChanged;
+
 protected:
 
     BufferString		errmsg_;

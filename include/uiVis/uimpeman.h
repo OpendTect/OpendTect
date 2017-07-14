@@ -79,6 +79,7 @@ protected:
     void			showParentsPath();
     void			showSetupDlg();
     void			restrictCurrentHorizon();
+    void			changeMode(int);
 
     void			trackFromSeedsOnly();
     void			trackFromSeedsAndEdges();
