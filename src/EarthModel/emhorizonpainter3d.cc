@@ -21,7 +21,7 @@ namespace EM
 {
 
 static HiddenParam<HorizonPainter3D,TrcKeySampling*> updatesamplings_( 0 );
-static HiddenParam<HorizonPainter3D, HorizonPainter3D::Marker3D*>	
+static HiddenParam<HorizonPainter3D, HorizonPainter3D::Marker3D*>
 					selectionpoints_( 0 );
 
 HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
@@ -110,7 +110,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
     if ( emobj && markerseeds_ && nrseeds_==1 )
     {
 	for ( int idx=0;idx<markerseeds_->marker_->markerstyles_.size(); idx++ )
-	    markerseeds_->marker_->markerstyles_[idx].color_= 
+	    markerseeds_->marker_->markerstyles_[idx].color_=
 	    emobj->preferredColor();
     }
 
@@ -120,7 +120,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
 }
 
 
-HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker( 
+HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
     const EM::SectionID& sid )
 {
     FlatView::AuxData* seedauxdata = viewer_.createAuxData(0);
@@ -217,6 +217,17 @@ bool HorizonPainter3D::addPolyLine()
 	    if ( addDataToMarker( bid, crd, posid, *hor3d, *marker ) )
 		nrseeds_++;
 	}
+
+	for ( int idx=0; idx<secmarkerln->size(); idx++ )
+	{
+	    if ( !(*secmarkerln)[idx]->marker_ ||
+		 (*secmarkerln)[idx]->marker_->poly_.size() != 1 )
+		continue;
+
+	    MarkerStyle2D ms = markerstyle_;
+	    ms.color_ = hor3d->preferredColor();
+	    (*secmarkerln)[idx]->marker_->markerstyles_ += ms;
+	}
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
@@ -291,12 +302,13 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 				   : EM::EMObject::sIntersectionNode();
 	EM::EMObject* emobj = EM::EMM().getObject( id_ );
 	MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
-	markerstyle_.color_ = ms3d.color_;
+	MarkerStyle2D ms2d = markerstyle_;
+	ms2d.color_ = ms3d.color_;
 	if ( isintersec )
-	    markerstyle_.color_ = emobj->preferredColor();
-	markerstyle_.size_ = ms3d.size_*2;
-	markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
-	markerseeds_->marker_->markerstyles_ += markerstyle_;
+	    ms2d.color_ = emobj->preferredColor();
+	ms2d.size_ = ms3d.size_*2;
+	ms2d.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
+	markerseeds_->marker_->markerstyles_ += ms2d;
 	markerseeds_->marker_->poly_ += FlatView::Point( x, z );
 	return true;
     }
@@ -334,7 +346,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		const BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
 		const TrcKey tk = Survey::GM().traceKey(
 			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
-		if ( tkzs_.hsamp_.includes(bid) || 
+		if ( tkzs_.hsamp_.includes(bid) ||
 		    (path_&&path_->isPresent(tk)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
@@ -516,7 +528,7 @@ void HorizonPainter3D::enableSeed( bool yn )
 }
 
 
-void HorizonPainter3D::setUpdateTrcKeySampling( 
+void HorizonPainter3D::setUpdateTrcKeySampling(
     const TrcKeySampling& samplings )
 {
     delete updatesamplings_.getParam(this);
@@ -525,11 +537,11 @@ void HorizonPainter3D::setUpdateTrcKeySampling(
 }
 
 
-void HorizonPainter3D::displaySelections( 
+void HorizonPainter3D::displaySelections(
     const TypeSet<EM::PosID>& pointselections )
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
-    if ( !emobj ) 
+    if ( !emobj )
 	return;
 
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
@@ -538,7 +550,7 @@ void HorizonPainter3D::displaySelections(
     removeSelections();
 
     selectionpoints_.setParam( this, create3DMarker(0) );
-    
+
     for ( int idx=0; idx<pointselections.size(); idx++ )
     {
 	const Coord3 pos = emobj->getPos( pointselections[idx] );
@@ -548,17 +560,18 @@ void HorizonPainter3D::displaySelections(
 	    x = tk.crl();
 	else if ( tkzs_.nrTrcs()==1 )
 	    x = tk.inl();
-	const bool isseed = 
+	const bool isseed =
 	    hor3d->isPosAttrib(pointselections[idx],EM::EMObject::sSeedNode());
 	const int postype = isseed ? EM::EMObject::sSeedNode()
 	    : EM::EMObject::sIntersectionNode();
 	const MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
-	markerstyle_.color_ = ms3d.color_;
-	markerstyle_.color_ = hor3d->getSelectionColor();
-	markerstyle_.size_ = ms3d.size_*2;
-	markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
-	selectionpoints_.getParam(this)->marker_->markerstyles_ += markerstyle_;
-	selectionpoints_.getParam(this)->marker_->poly_ += 
+	MarkerStyle2D ms2d = markerstyle_;
+	ms2d.color_ = ms3d.color_;
+	ms2d.color_ = hor3d->getSelectionColor();
+	ms2d.size_ = ms3d.size_*2;
+	ms2d.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
+	selectionpoints_.getParam(this)->marker_->markerstyles_ += ms2d;
+	selectionpoints_.getParam(this)->marker_->poly_ +=
 	    FlatView::Point( x, pos.z );
     }
 

@@ -103,9 +103,10 @@ bool HorizonPainter2D::addPolyLine()
 
     const MarkerStyle3D ms3d =
 	emobj->getPosAttrMarkerStyle( EM::EMObject::sSeedNode() );
-    markerstyle_.color_ = ms3d.color_;
-    markerstyle_.size_ = ms3d.size_*2;
-    markerstyle_.type_ = MarkerStyle3D::getMS2DType(ms3d.type_);
+    MarkerStyle2D ms2d = markerstyle_;
+    ms2d.color_ = ms3d.color_;
+    ms2d.size_ = ms3d.size_*2;
+    ms2d.type_ = MarkerStyle3D::getMS2DType(ms3d.type_);
 
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d ) return false;
@@ -123,7 +124,7 @@ bool HorizonPainter2D::addPolyLine()
 					    : MouseCursor::Arrow;
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
-	seedauxdata->markerstyles_ += markerstyle_;
+	seedauxdata->markerstyles_ += ms2d;
 	viewer_.addAuxData( seedauxdata );
 
 	markerseeds_ = new Marker2D;
@@ -197,6 +198,17 @@ bool HorizonPainter2D::addPolyLine()
 		    FlatView::Point( distances_[idx], z );
 
 	    bid.inl() = inlfromcs;
+	}
+
+	for ( int idx=0; idx<secmarkerln->size(); idx++ )
+	{
+	    if ( !(*secmarkerln)[idx]->marker_ ||
+		 (*secmarkerln)[idx]->marker_->poly_.size() != 1 )
+		continue;
+
+	    MarkerStyle2D ms = markerstyle_;
+	    ms.color_ = hor2d->preferredColor();
+	    (*secmarkerln)[idx]->marker_->markerstyles_ += ms;
 	}
     }
 
@@ -476,10 +488,11 @@ void HorizonPainter2D::displaySelections( const
 	const int postype = isseed ? EM::EMObject::sSeedNode()
 	    : EM::EMObject::sIntersectionNode();
 	const MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
-	markerstyle_.color_ = hor2d->getSelectionColor();
-	markerstyle_.size_ = ms3d.size_*2;
-	markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
-	selectionpoints_.getParam(this)->marker_->markerstyles_ += markerstyle_;
+	MarkerStyle2D ms2d = markerstyle_;
+	ms2d.color_ = hor2d->getSelectionColor();
+	ms2d.size_ = ms3d.size_*2;
+	ms2d.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
+	selectionpoints_.getParam(this)->marker_->markerstyles_ += ms2d;
 	selectionpoints_.getParam(this)->marker_->poly_ +=
 	    FlatView::Point(distances_[didx],z);
     }
