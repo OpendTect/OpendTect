@@ -60,14 +60,14 @@ enum ChoiceMode
 
 enum FileSelectionMode
 {
-    SelectExistingFile,	/*!< The name of a single existing file. */
-    SelectExistingFiles, /*!< The names of zero or more existing files. */
-    SelectAnyFile,	/*!< The name of a file, whether it exists or not. */
+    SelectFileForRead,	/*!< The name of a single existing file. */
+    SelectFileForWrite,	/*!< The name of a file, whether it exists or not. */
+    SelectMultiFile,	/*!< The names of zero or more existing files. */
     SelectDirectory	/*!< The name of a directory. */
 };
 
 
-/*!\brief Describes special file contents that may be considered 'known'. */
+/*!\brief File content types, for which operations may be known. */
 
 enum FileContentType
 {
@@ -118,5 +118,7 @@ inline bool isFile( OD::FileSelectionMode mode )
 				{ return mode != OD::SelectDirectory; }
 inline bool isDirectory( OD::FileSelectionMode mode )
 				{ return mode == OD::SelectDirectory; }
-inline bool isMultiSelect( OD::FileSelectionMode mode )
-				{ return mode == OD::SelectExistingFiles; }
+inline bool isSingle( OD::FileSelectionMode mode )
+				{ return mode != OD::SelectMultiFile; }
+inline bool isForRead( OD::FileSelectionMode mode )
+				{ return mode != OD::SelectFileForWrite; }

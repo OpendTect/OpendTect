@@ -120,26 +120,20 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     const uiString commandfile = tr( "command file" );
 
     const File::Format fmt( tr("Script files"), "odcmd", "cmd" );
-    uiFileSel::Setup fisu( OD::GeneralContent );
-    fisu.forread(true).withexamine(true).exameditable(true)
-		      .displaylocalpath(true).formats(fmt);
-    inpfld_ = new uiFileSel( this, uiStrings::phrInput(commandfile), fisu );
+    uiFileSel::Setup fssu( OD::GeneralContent );
+    fssu.withexamine(true).exameditable(true)
+	.displaylocalpath(true).formats(fmt);
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(commandfile), fssu );
     inpfld_->attach( alignedBelow, cmdoptionfld_ );
 
+    fssu.examstyle(File::Log).setForWrite();
     logfld_ = new uiFileSel( this,
-			uiStrings::phrOutput(uiStrings::sLogFile()),
-			uiFileSel::Setup().forread(false)
-			.withexamine(true).examstyle(File::Log)
-			.displaylocalpath(true) );
+			uiStrings::phrOutput(uiStrings::sLogFile()), fssu );
     logfld_->attach( alignedBelow, inpfld_ );
 
-    const File::Format fmtout( tr("Script files"), "odcmd" );
-    outfld_ = new uiFileSel( this,
-			uiStrings::phrOutput(commandfile),
-			uiFileSel::Setup(OD::GeneralContent)
-			.forread(false).formats(fmtout)
-			.withexamine(true).examstyle(File::Log)
-			.confirmoverwrite(false).displaylocalpath(true) );
+    fssu.formats( File::Format( tr("Script files"), "odcmd" ) )
+	.confirmoverwrite(false).contenttype( OD::GeneralContent );
+    outfld_ = new uiFileSel( this, uiStrings::phrOutput(commandfile), fssu );
     outfld_->attach( alignedBelow, cmdoptionfld_ );
 
     gobut_ = new uiPushButton( this, uiStrings::sGo(),
@@ -487,14 +481,13 @@ void uiCmdDriverDlg::afterSurveyChg()
 
 void uiCmdDriverDlg::setDefaultSelDirs()
 {
-    const char* dir = defaultscriptsdir_.isEmpty() ? GetScriptsDir(0)
-				: defaultscriptsdir_.buf();
-    inpfld_->setDefaultSelectionDir( dir );
-    outfld_->setDefaultSelectionDir( dir );
+    BufferString dir = defaultscriptsdir_.isEmpty() ? GetScriptsDir(0)
+						    : defaultscriptsdir_.buf();
+    inpfld_->setup().initialselectiondir( dir );
+    outfld_->setup().initialselectiondir( dir );
 
-    dir = defaultlogdir_.isEmpty() ? GetProcFileName(0)
-		      : defaultlogdir_.buf();
-    logfld_->setDefaultSelectionDir( dir );
+    dir = defaultlogdir_.isEmpty() ? GetProcFileName(0) : defaultlogdir_.buf();
+    logfld_->setup().initialselectiondir( dir );
 }
 
 

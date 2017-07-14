@@ -10,7 +10,7 @@
 #include "ptrman.h"
 #include "typeset.h"
 #include "position.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 #include <math.h>
 

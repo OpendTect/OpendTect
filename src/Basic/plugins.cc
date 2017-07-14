@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "moddepmgr.h"
 #include "msgh.h"
 #include "od_istream.h"

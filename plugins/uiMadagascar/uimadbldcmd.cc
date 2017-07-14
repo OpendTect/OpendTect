@@ -21,7 +21,7 @@
 #include "executor.h"
 #include "maddefs.h"
 #include "madproc.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 static const char* sKeyAll = "All";
 static const char* sKeySrchRes = "Search results";

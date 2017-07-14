@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "transl.h"
 
 #include "uibuttongroup.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uigeninputdlg.h"
 #include "uiioobj.h"
 #include "uimsg.h"
@@ -403,23 +403,19 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
     mDynamicCastGet(IOStream&,iostrm,ioobj)
     uiString caption = tr("New file location for '%1'").arg(ioobj.uiName());
     BufferString oldfnm( iostrm.mainFileName() );
-    BufferString filefilt;
-    BufferString defext( subj_.defExt() );
-    if ( !defext.isEmpty() )
-    {
-	filefilt += "OpendTect Files (*."; filefilt += defext;
-	filefilt += ");;";
-    }
-    filefilt += "All Files(*)";
 
-    uiFileDialog dlg( this, OD::SelectDirectory, oldfnm, filefilt, caption );
-    if ( !dlg.go() ) return false;
+    uiFileSelector::Setup fssu( oldfnm );
+    fssu.selectDirectory();
+    uiFileSelector uifs( this, fssu );
+    uifs.caption() = caption;
+    if ( !uifs.go() )
+	return false;
 
     IOStream chiostrm;
     chiostrm.copyFrom( iostrm );
-    const char* newdir = dlg.fileName();
+    const char* newdir = uifs.fileName();
     if ( !File::isDirectory(newdir) )
-    { uiMSG().error(tr("Selected path is not a directory")); return false; }
+	{ uiMSG().error(tr("Selected path is not a directory")); return false; }
 
     File::Path fp( oldfnm ); fp.setPath( newdir );
     chiostrm.fileSpec().setFileName( fp.fullPath() );

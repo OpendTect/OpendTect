@@ -20,7 +20,8 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "tabledef.h"
-#include "file.h"
+#include "fileview.h"
+#include "staticstring.h"
 
 
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms,

@@ -28,10 +28,10 @@ uiTutODMad::uiTutODMad( uiParent* p )
     , iop_("Madagascar display parameters")
 {
     uiFileSel::Setup fssu;
-    fssu.defseldir( ODMad::FileSpec::defPath() );
-    fssu.forread( true ).setFormat( tr("RSF file"), "rsf" );
-    maddatafld_ = new uiFileSel( this, mJoinUiStrs(sData(),sFile().toLower()),
-									fssu );
+    fssu.initialselectiondir( ODMad::FileSpec::defPath() )
+	.setFormat( tr("RSF file"), "rsf" );
+    maddatafld_ = new uiFileSel( this,
+				 mJoinUiStrs(sData(),sFile().toLower()), fssu );
 
     dowigglesfld_ = new uiGenInput ( this, uiStrings::sDisplay(),
 			             BoolInpSpec(true,tr("Wiggles"),

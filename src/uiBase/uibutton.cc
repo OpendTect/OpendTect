@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 #include "objdisposer.h"
 #include "odiconfile.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 
 #include <QApplication>

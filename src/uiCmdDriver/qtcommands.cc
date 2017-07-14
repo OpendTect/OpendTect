@@ -140,7 +140,7 @@ bool ColorOkCmd::act( const char* parstr )
 	}
     }
 
-    mParChannel( uiStrings::sTransparency(), parnexxxt, partail, 
+    mParChannel( uiStrings::sTransparency(), parnexxxt, partail,
 		 transparency, true );
     col.setTransparency( transparency );
     mParTail( partail );
@@ -217,7 +217,9 @@ bool SnapshotCmd::act( const char* parstr )
     mParTail( partail );
 
     const char* writeexts = "*.bmp;;*.jpg;;*.jpeg;;*.png;;*.ppm;;*.xbm;;*.xpm";
+mStartAllowDeprecatedSection
     uiFileDialog tmpfiledlg( 0, false, 0, writeexts );
+mStopAllowDeprecatedSection
     if ( File::isDirectory(outputDir()) )
 	tmpfiledlg.setDirectory( outputDir() );
     uiFileDialog::setExternalFilenames( fms );

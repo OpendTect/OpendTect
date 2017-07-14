@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uid2tmodelgrp.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
-#include "uifiledlg.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -320,9 +319,10 @@ uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 	, fd_(fd)
 {
     setOkText( uiStrings::sImport() );
+    uiFileSel::Setup fssu; fssu.withexamine( true );
     wtinfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(
 		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
-		   uiFileSel::Setup().withexamine(true) );
+		   fssu );
     wtinfld_->newSelection.notify( mCB(this,uiWellTrackReadDlg,inputChgd) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
@@ -698,16 +698,17 @@ void uiWellTrackDlg::exportCB( CallBacker* )
 	return;
     }
 
-    uiFileDialog fdlg( this, false, 0, 0, tr("File name for export") );
-    fdlg.setDefaultExtension( "dat" );
-    fdlg.setDirectory( GetDataDir() );
-    if ( !fdlg.go() )
+    uiFileSelector::Setup fssu;
+    fssu.defaultextension("dat")
+	.setForWrite().setFormat( File::Format::textFiles() );
+    uiFileSelector uifs( this, fssu );
+    if ( !uifs.go() )
 	return;
 
-    od_ostream strm( fdlg.fileName() );
+    od_ostream strm( uifs.fileName() );
     if ( !strm.isOK() )
     {
-	uiMSG().error( tr( "Cannot open '%1' for write").arg(fdlg.fileName()) );
+	uiMSG().error( tr( "Cannot open '%1' for write").arg(strm.fileName()) );
 	return;
     }
 
@@ -1420,12 +1421,14 @@ void uiD2TModelDlg::expData( CallBacker* )
     if ( !d2t || d2t->size() < 2 )
 	{ uiMSG().error( tr("No valid data entered") ); return; }
 
-    uiFileDialog dlg( this, false, 0, 0, tr("Filename for export") );
-    dlg.setDirectory( GetDataDir() );
-    if ( !dlg.go() )
+    uiFileSelector::Setup fssu;
+    fssu.defaultextension("dat")
+	.setForWrite().setFormat( File::Format::textFiles() );
+    uiFileSelector uifs( this, fssu );
+    if ( !uifs.go() )
 	return;
 
-    const BufferString fnm( dlg.fileName() );
+    const BufferString fnm( uifs.fileName() );
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {

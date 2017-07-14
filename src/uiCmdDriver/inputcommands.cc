@@ -137,7 +137,7 @@ bool GetInputCmd::act( const char* parstr )
 
     const char* filepath = uifilesel ? uifilesel->fileName() : "";
     if ( uifilesel && !*filepath )
-	filepath = uifilesel->defaultSelectionDir();
+	filepath = uifilesel->setup().initialselectiondir_;
 
     mParForm( answer, form, inptxt, filepath );
     mParIdentPost( identname, answer, parnext );

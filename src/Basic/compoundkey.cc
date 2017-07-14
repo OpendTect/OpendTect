@@ -7,7 +7,7 @@
 
 
 #include "compoundkey.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 
 char* CompoundKey::fromKey( IdxType keynr ) const

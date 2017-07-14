@@ -12,7 +12,7 @@
 #include "keystrs.h"
 #include "nrbytes2string.h"
 #include "odcomplex.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "survinfo.h"
 #include "undefval.h"
 

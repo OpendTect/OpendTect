@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "dirlist.h"
 #include "settings.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 static const char* sFileNameEnd = ".png";
 #define mIconDirStart "icons."

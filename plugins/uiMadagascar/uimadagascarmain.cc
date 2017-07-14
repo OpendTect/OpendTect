@@ -21,7 +21,6 @@
 #include "uiseparator.h"
 #include "uiioobjseldlg.h"
 #include "uifilesel.h"
-#include "uifiledlg.h"
 #include "uimsg.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
@@ -333,9 +332,10 @@ void uiMadagascarMain::updateCaption()
 
 void uiMadagascarMain::exportFlow( CallBacker* )
 {
-    uiFileDialog dlg( this, false );
-    if ( dlg.go() )
-	uiMSG().error( toUiString("export needs implementation" ) );
+    uiMSG().error( toUiString("export needs implementation" ) );
+    uiFileSelector::Setup fssu; fssu.setForWrite();
+    uiFileSelector uifs( this, fssu );
+    uifs.go();
 }
 
 

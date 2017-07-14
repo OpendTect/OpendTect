@@ -298,13 +298,12 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
 
     filegrp_ = new uiGroup( this, "File group" );
     uiFileSel::Setup fssetup( lastinpfile );
-    fssetup.forread(true).withexamine(true)
-	   .examstyle(File::Table).defseldir(GetDataDir());
+    fssetup.withexamine(true).examstyle(File::Table);
     inpfilefld_ = new uiFileSel( filegrp_, uiStrings::phrInput(
 					   uiStrings::sFile()), fssetup );
 
-    fssetup.filename_ = lastoutfile;
-    fssetup.forread(false).withexamine(false);
+    fssetup.setFileName( lastoutfile );
+    fssetup.withexamine(false).setForWrite(false);
     outfilefld_ = new uiFileSel( filegrp_, uiStrings::phrOutput(
 					   uiStrings::sFile()), fssetup );
     outfilefld_->attach( alignedBelow, inpfilefld_ );

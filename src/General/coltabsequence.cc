@@ -18,7 +18,7 @@
 #include "separstr.h"
 #include "settings.h"
 #include "envvars.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "od_ostream.h"
 
 const char* ColTab::Sequence::sKeyValCol()	{ return "Value-Color"; }

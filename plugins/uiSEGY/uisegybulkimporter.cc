@@ -73,6 +73,6 @@ void uiSEGYBulkImporter::advanceCB( CallBacker* cb )
 
     const SEGY::ImpType imptype = datatype->impType();
     uiSEGYReadStarter readstdlg( this, false, &imptype,
-				 selfilenms_.get(curcell.row()) );
+				 selfilenms_.get(curcell.row()), true );
     readstdlg.go();
 }

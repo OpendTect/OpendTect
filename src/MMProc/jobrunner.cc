@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "queue.h"
 #include "timefun.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "mmcommunicdefs.h"
 #include "uistrings.h"
 

@@ -19,7 +19,7 @@
 #include "separstr.h"
 #include "strmoper.h"
 #include "strmprov.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "uistrings.h"
 #include <iostream>
 #include <fstream>

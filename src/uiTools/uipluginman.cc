@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uitextedit.h"
 #include "uibutton.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "plugins.h"
@@ -152,18 +152,6 @@ void uiPluginMan::selChg( CallBacker* )
 
 void uiPluginMan::loadPush( CallBacker* )
 {
-#ifdef __win__
-    const char* filt = "*.DLL;;*.*";
-    const uiString& captn = uiStrings::phrSelect(tr("plugin DLL"));
-#else
-    const uiString& captn = uiStrings::phrSelect(tr("plugin shared library"));
-# ifdef __mac__
-    const char* filt = "*.dylib*;;*";
-# else
-    const char* filt = "*.so*;;*";
-# endif
-#endif
-
     mDefineStaticLocalObject( BufferString, loaddir, );
     if ( loaddir.isEmpty() )
     {
@@ -172,10 +160,15 @@ void uiPluginMan::loadPush( CallBacker* )
 	    loaddir = PIM().getAutoDir( false );
     }
 
-    uiFileDialog dlg( this, OD::SelectExistingFile, loaddir, filt, captn );
-    if ( !dlg.go() ) return;
+    uiFileSelector::Setup fssu;
+    fssu.initialselectiondir( loaddir )
+	.setFormat( File::Format::shlibFiles() )
+	.onlylocal( true );
+    uiFileSelector uifs( this, fssu );
+    if ( !uifs.go() )
+	return;
 
-    BufferString fnm = dlg.fileName();
+    const BufferString fnm = uifs.fileName();
     if ( !File::exists(fnm) )
 	uiMSG().error( uiStrings::sFileDoesntExist() );
     else if ( !PIM().load(fnm) )

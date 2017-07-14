@@ -73,13 +73,12 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 
     filegrp = new uiGroup( this, "File group" );
     uiFileSel::Setup fssu( lastinpfile );
-    fssu.forread(true).withexamine(true)
-	    .examstyle(File::Table).defseldir(GetDataDir());
+    fssu.withexamine( true ).examstyle( File::Table );
     inpfilefld = new uiFileSel( filegrp, uiStrings::phrInput(
 					   uiStrings::sFile()), fssu );
 
-    fssu.filename_ = lastoutfile;
-    fssu.forread(false).withexamine(false);
+    fssu.setFileName( lastoutfile );
+    fssu.setForWrite();
     outfilefld = new uiFileSel( filegrp, uiStrings::phrOutput(
 					   uiStrings::sFile()), fssu );
     outfilefld->attach( alignedBelow, inpfilefld );

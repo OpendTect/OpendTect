@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "veldesc.h"
 #include "velocitycalc.h"
 #include "zdomain.h"
+#include "file.h"
 #include "filepath.h"
 
 #include "uicombobox.h"
@@ -54,9 +55,8 @@ uiSeisImportODCube::uiSeisImportODCube( uiParent* p )
 	const_cast<DBKey&>(tmpid_) = dbdir->newTmpKey();
     setCtrlStyle( RunAndClose );
 
-    uiFileSel::Setup fssu( OD::GeneralContent );
-    fssu.setFormat( tr("OpendTect seismic files"), "blocks", "cbvs" )
-		.defseldir( GetBaseDataDir() );
+    uiFileSel::Setup fssu;
+    fssu.setFormat( tr("OpendTect seismic files"), "blocks", "cbvs" );
     inpfld_ = new uiFileSel( this, tr("(First) file name"), fssu );
     inpfld_->newSelection.notify( mCB(this,uiSeisImportODCube,inpSel) );
 

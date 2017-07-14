@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "prog.h"
 
 #include "uidesktopservices.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uifont.h"
 #include "uigroup.h"
 #include "uimain.h"
@@ -300,12 +300,13 @@ void uiProgressViewer::helpFn( CallBacker* )
 
 void uiProgressViewer::saveFn( CallBacker* )
 {
-    uiFileDialog dlg( this, false, GetProcFileName("log.txt"),
-		      "*.txt", uiStrings::phrSave(uiStrings::sLogs()) );
-    dlg.setAllowAllExts( true );
-    if ( dlg.go() )
+    uiFileSelector::Setup fssu( GetProcFileName("log.txt") );
+    fssu.setFormat( tr("Progress logs"), "txt" );
+    uiFileSelector uifs( this, fssu );
+    uifs.caption() = uiStrings::phrSave( uiStrings::sLogs() );
+    if ( uifs.go() )
     {
-	od_ostream strm( dlg.fileName() );
+	od_ostream strm( uifs.fileName() );
 	if ( strm.isOK() )
 	   strm << txtfld_->text() << od_endl;
     }

@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "zdomain.h"
 #include "separstr.h"
 #include "timedepthconv.h"
+#include "fileview.h"
 
 #include "ui2dgeomman.h"
 #include "uitoolbutton.h"

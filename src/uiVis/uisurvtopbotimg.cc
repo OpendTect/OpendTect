@@ -35,10 +35,10 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     , img_(p->scene_->getTopBotImage(istop))
     , zrng_(zrng)
 {
-    uiFileSel::Setup su( OD::ImageContent );
-    su.defseldir( GetDataDir() ).checkable( true );
+    uiFileSel::Setup fssu( OD::ImageContent );
+    fssu.checkable( true );
     fnmfld_ = new uiFileSel( this,
-		    istop_ ? tr("Top image") : tr("Bottom image"), su );
+		    istop_ ? tr("Top image") : tr("Bottom image"), fssu );
     fnmfld_->newSelection.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
     mAttachCB( fnmfld_->checked, uiSurvTopBotImageGrp::onOff );
     fnmfld_->setChecked( img_ && img_->isOn() );

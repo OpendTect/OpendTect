@@ -35,8 +35,8 @@ uiExp2DGeom::uiExp2DGeom( uiParent* p )
     geomfld_ = new uiIOObjSelGrp( this, ctxt,
 				  uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
-    outfld_ = new uiFileSel( this, uiStrings::sOutputFile(),
-			       uiFileSel::Setup().forread(false) );
+    uiFileSel::Setup fss; fss.setForWrite();
+    outfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fss );
     outfld_->attach( alignedBelow, geomfld_ );
 }
 

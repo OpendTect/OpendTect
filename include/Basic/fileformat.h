@@ -39,7 +39,11 @@ public:
 
     void		addExtension(const char*);
 
-    const Format&	allFiles();
+    static const Format& allFiles();
+    static const Format& textFiles();
+    static const Format& parFiles();
+    static const Format& zipFiles();
+    static const Format& shlibFiles();
 
     BufferString	getFileFilter() const;
 

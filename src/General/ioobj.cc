@@ -22,7 +22,7 @@
 #include "keystrs.h"
 #include "dateinfo.h"
 #include "compoundkey.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 static const int cKpTmpObjsInDays = 7;
 

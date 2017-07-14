@@ -10,7 +10,7 @@
 #include "keystrs.h"
 #include "dbman.h"
 #include "iopar.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 
 const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset(); }

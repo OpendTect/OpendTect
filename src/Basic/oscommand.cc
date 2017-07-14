@@ -14,7 +14,7 @@
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "filepath.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "fixedstring.h"
 #include "separstr.h"
 #include "iopar.h"

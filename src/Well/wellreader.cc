@@ -21,6 +21,7 @@
 #include "keystrs.h"
 #include "ptrman.h"
 #include "separstr.h"
+#include "staticstring.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "wellinfo.h"

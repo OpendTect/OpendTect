@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiobjbody.h"
 #include "bufstringset.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 #include <QApplication>
 #include <QCloseEvent>

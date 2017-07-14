@@ -16,7 +16,7 @@
 #include "interpolnd.h"
 #include "idxable.h"
 #include "statrand.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "od_iostream.h"
 
 static const float snappos = 1e-5;

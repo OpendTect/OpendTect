@@ -80,10 +80,8 @@ const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 
 void uiImportFault::createUI()
 {
-    infld_ = new uiFileSel( this,
-		uiStrings::sInputASCIIFile(),
-		uiFileSel::Setup().withexamine(true)
-		.defseldir(GetDataDir()) );
+    infld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
+			    uiFileSel::Setup(OD::TextContent) );
     infld_->newSelection.notify( mCB(this,uiImportFault,inputChgd) );
 
     if ( !isfss_ )
@@ -94,9 +92,10 @@ void uiImportFault::createUI()
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
 
+	uiFileSel::Setup fssu;
+	fssu.setFormat( tr("Landmark fault"), "fault_fmt" );
 	formatfld_ = new uiFileSel( this, tr("Input Landmark formatfile"),
-			      uiFileSel::Setup(OD::GeneralContent)
-			      .setFormat(tr("Landmark fault"),"fault_fmt") );
+				    fssu );
 	formatfld_->attach( alignedBelow, typefld_ );
 
 	BufferStringSet stickselopt; stickselopt.add( sKeyAutoStickSel() )

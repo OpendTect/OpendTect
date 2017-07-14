@@ -17,7 +17,7 @@ static const char* __rcsID mUsedVar = "$Id$";
 # include "moddepmgr.h"
 # include "genc.h"
 # include "file.h"
-# include "uifiledlg.h"
+# include "uifileselector.h"
 # ifdef __msvc__
 #  include "winmain.h"
 # endif
@@ -45,12 +45,13 @@ int main( int narg, char** argv )
 
     while ( filebuf.isEmpty() || !File::exists( filebuf.buf() ) )
     {
-	uiFileDialog dlg( 0, OD::SelectExistingFile, 0,
-			  "IV files (*.iv)", "Select file to view" );
-	if ( !dlg.go() )
+	uiFileSelector::Setup fssu;
+	fssu.setFormat( toUiString("IV files"), "iv" );
+	uiFileSelector uifs( 0, fssu );
+	if ( !uifs.go() )
 	    return 1;
 
-	filename = filebuf = dlg.fileName();
+	filename = filebuf = uifs.fileName();
     }
 #endif
 

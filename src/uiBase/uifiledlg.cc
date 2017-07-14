@@ -47,9 +47,9 @@ static QFileDialog::FileMode qmodeForUiMode( OD::FileSelectionMode mode )
 {
     switch( mode )
     {
-    case OD::SelectExistingFile		: return QFileDialog::ExistingFile;
+    case OD::SelectFileForRead		: return QFileDialog::ExistingFile;
     case OD::SelectDirectory		: return QFileDialog::DirectoryOnly;
-    case OD::SelectExistingFiles	: return QFileDialog::ExistingFiles;
+    case OD::SelectMultiFile		: return QFileDialog::ExistingFiles;
     default				: return QFileDialog::AnyFile;
     }
 }
@@ -63,10 +63,11 @@ static QFileDialog::FileMode qmodeForUiMode( OD::FileSelectionMode mode )
     if ( caption.isEmpty() ) \
 	setDefaultCaption(); \
 
+mStartAllowDeprecatedSection
 
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread, const char* fname,
 			    const char* fltr, uiString caption )
-	: mode_(forread ? OD::SelectExistingFile : OD::SelectAnyFile)
+	: mode_(forread ? OD::SelectFileForRead : OD::SelectFileForWrite)
         , forread_( forread )
 	, filter_( fltr )
 	, addallexts_(forread)
@@ -85,7 +86,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
 
 uiFileDialog::uiFileDialog( uiParent* parnt, Type typ,
 			    const char* fname, uiString caption )
-	: mode_(OD::SelectAnyFile)
+	: mode_(OD::SelectFileForWrite)
         , forread_(true)
 	, addallexts_(true)
 {
@@ -103,6 +104,8 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Type typ,
     }
 }
 
+mStopAllowDeprecatedSection
+
 
 int uiFileDialog::go()
 {
@@ -117,8 +120,8 @@ int uiFileDialog::go()
 	    fname_ = "";
 	}
 	else if ( !File::exists(fname_) &&
-		  (mode_ == OD::SelectExistingFile
-		    || mode_ == OD::SelectExistingFiles) )
+		  (mode_ == OD::SelectFileForWrite
+		    || mode_ == OD::SelectMultiFile) )
 	{
 	    dirname = fp.pathOnly();
 	    fname_ = "";
@@ -341,7 +344,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
     fn.setEmpty();
 
     if ( externalfilenames_->isEmpty() )
-	mRetErrMsg( "", mode_==OD::SelectExistingFiles ? 0
+	mRetErrMsg( "", mode_==OD::SelectMultiFile ? 0
 				: "should not be empty" );
 
     if ( !dir )
@@ -368,7 +371,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 	fname = fp.fullPath();
 
 	if ( !idx && externalfilenames_->size()>1
-		&& mode_!=OD::SelectExistingFiles )
+		&& mode_!=OD::SelectMultiFile )
 	    mRetErrMsg( fname, "expected to be solitary" );
 
 	if ( File::isDirectory(fname) )
@@ -385,7 +388,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 
 	    if ( !File::exists(fname) )
 	    {
-		if ( mode_ != OD::SelectAnyFile )
+		if ( mode_ != OD::SelectFileForWrite )
 		    mRetErrMsg( fname, "specifies no existing file" );
 		if ( fp.nrLevels() > 1 )
 		{

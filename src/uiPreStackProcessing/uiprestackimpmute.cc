@@ -43,8 +43,7 @@ uiImportMute::uiImportMute( uiParent* p )
     setOkText( uiStrings::sImport() );
 
     inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
-				uiFileSel::Setup().withexamine(true)
-			       .defseldir(GetDataDir()) );
+				uiFileSel::Setup().withexamine(true) );
 
     inpfilehaveposfld_ = new uiGenInput( this, tr("File contains position"),
 					 BoolInpSpec(true) );

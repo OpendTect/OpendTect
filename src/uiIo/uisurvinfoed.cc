@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicoordsystem.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
@@ -890,10 +890,12 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 
 void uiSurveyInfoEditor::pathbutPush( CallBacker* )
 {
-    uiFileDialog dlg( this, OD::SelectDirectory, pathfld_->text() );
-    if ( dlg.go() )
+    uiFileSelector::Setup fssu( pathfld_->text() );
+    fssu.selectDirectory();
+    uiFileSelector uifs( this, fssu );
+    if ( uifs.go() )
     {
-	BufferString dirnm( dlg.fileName() );
+	BufferString dirnm( uifs.fileName() );
 	if ( !File::isWritable(dirnm) )
 	{
 	    uiMSG().error( tr("Directory is not writable") );

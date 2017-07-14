@@ -39,8 +39,7 @@ uiEventImport::uiEventImport( uiParent* p )
     setOkText( uiStrings::sImport() );
 
     filefld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
-				uiFileSel::Setup(0).forread(true)
-						     .withexamine(true) );
+				uiFileSel::Setup().withexamine(true) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 				mODHelpKey(mTableImpDataSelpicksHelpID) );

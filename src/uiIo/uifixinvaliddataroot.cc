@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiselsimple.h"
 #include "uibutton.h"
 #include "uidesktopservices.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uimsg.h"
 #include "file.h"
 #include "filepath.h"
@@ -132,12 +132,14 @@ void uiFixInvalidDataRoot::offerCreateSomeSurveys( const char* datadir )
     if ( (havedemosurv && uigc.choice() == 2) ||
          (!havedemosurv && uigc.choice() == 1))
     {
-        uiFileDialog dlg( this, true, "", "*.zip", tr("Select zip file") );
-        dlg.setDirectory( datadir );
-        if ( !dlg.go() )
+	uiFileSelector::Setup fssu;
+	fssu.setFormat( File::Format::zipFiles() )
+	    .initialselectiondir( datadir );
+        uiFileSelector uifs( this, fssu );
+        if ( !uifs.go() )
             return;
 
-        zipfilenm = dlg.fileName();
+        zipfilenm = uifs.fileName();
     }
 
     (void)uiSurvey::unzipFile( this, zipfilenm, datadir );

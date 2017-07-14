@@ -46,8 +46,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     setOkText( uiStrings::sImport() );
 
     inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
-			     uiFileSel::Setup().withexamine(true)
-			     .defseldir(GetDataDir()) );
+			     uiFileSel::Setup().withexamine(true) );
 
     uiVelocityDesc::Setup su;
     su.desc_.type_ = VelocityDesc::Interval;

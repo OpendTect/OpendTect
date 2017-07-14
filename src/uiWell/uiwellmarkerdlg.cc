@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uifilesel.h"
-#include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -123,16 +122,15 @@ static float uiMarkerDlgzFactor( uiCheckBox* cb=0 )
 void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 			const Well::Track& trck, uiCheckBox* cb )
 {
-    uiFileDialog fdlg( p, false, 0, 0, tr("%1 for export")
-				       .arg(uiStrings::sFileName()) );
-    fdlg.setDirectory( GetDataDir() );
-    if ( !fdlg.go() )
+    uiFileSelector::Setup fssu; fssu.setForWrite();
+    uiFileSelector uifs( p, fssu );
+    if ( !uifs.go() )
 	return;
 
-    od_ostream strm( fdlg.fileName() );
+    od_ostream strm( uifs.fileName() );
     if ( !strm.isOK() )
     {
-	BufferString msg( "Cannot open '", fdlg.fileName(), "' for write" );
+	BufferString msg( "Cannot open '", strm.fileName(), "' for write" );
 	strm.addErrMsgTo( msg );
 	return;
     }
@@ -480,9 +478,8 @@ uiReadMarkerFile( uiParent* p )
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
-    fnmfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
-			       uiFileSel::Setup().withexamine(true)
-			       .forread(true) );
+    uiFileSel::Setup fssu; fssu.withexamine( true );
+    fnmfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(), fssu );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
                       mODHelpKey(mTableImpDataSelmarkersHelpID) );

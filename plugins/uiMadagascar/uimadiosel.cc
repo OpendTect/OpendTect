@@ -105,7 +105,8 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     }
 
     uiFileSel::Setup fssu;
-    fssu.defseldir( ODMad::FileSpec::defPath() ).forread( isinp );
+    fssu.initialselectiondir( ODMad::FileSpec::defPath() )
+	.setForWrite( !isinp );
     madfld_ = new uiFileSel( this, uiStrings::phrSelect(
 					 uiStrings::sFile().toLower()), fssu );
     madfld_->attach( alignedBelow, typfld_ );
@@ -181,7 +182,7 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     madfld_->display( filesel );
     sconsfld_->display( choice == idxmad_ );
     if ( choice == idxsu_ )
-	madfld_->setFormats(
+	madfld_->setup().formats(
 		File::FormatList(File::Format(tr("SU files"),"su")) );
     else if ( choice == idxmad_ )
 	sconsCB(0);
@@ -203,7 +204,7 @@ void uiMadIOSelDlg::sconsCB( CallBacker* )
     File::FormatList fmts;
     if ( sconsfld_->isChecked() )
 	fmts.addFormat( File::Format( tr("RSF files"), "rsf" ) );
-    madfld_->setFormats( fmts );
+    madfld_->setup().formats( fmts );
 }
 
 

@@ -11,9 +11,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+#include "fileview.h"
 #include "uigroup.h"
-#include "fileformat.h"
-#include "file.h"
+#include "uifileselector.h"
 
 class uiButton;
 class uiCheckBox;
@@ -22,6 +22,7 @@ class uiLabel;
 class uiLineEdit;
 class BufferStringSet;
 namespace File { class SystemAccess; }
+
 
 /*! \brief A selector of file names, local, web or cloud. */
 
@@ -33,36 +34,19 @@ public:
     typedef OD::FileContentType		ContentType;
     typedef File::ViewStyle		ViewStyle;
 
-    mExpClass(uiTools) Setup
+    mExpClass(uiTools) Setup : public uiFileSelectorSetup
     {
     public:
 			Setup(const char* filenm=0);
 			Setup(OD::FileContentType,const char* filenm=0);
 
-	mDefSetupMemb(BufferString,filename)
-	mDefSetupMemb(BufferString,defseldir)	//!< empty
-	mDefSetupMemb(bool,forread)		//!< true
 	mDefSetupMemb(bool,withexamine)		//!< false (unless spec. Txt)
 	mDefSetupMemb(ViewStyle,examstyle)	//!< File::Text (Bin if Img)
 	mDefSetupMemb(bool,exameditable)	//!< false
 	mDefSetupMemb(bool,displaylocalpath)	//!< false
-
-	mDefSetupMemb(bool,directories)		//!< false
-	mDefSetupMemb(bool,allowallextensions)	//!< true
-	mDefSetupMemb(bool,confirmoverwrite)	//!< true
 	mDefSetupMemb(bool,checkable)		//!< false
 	mDefSetupMemb(ContentType,contenttype)	//!< General
 	mDefSetupMemb(uiString,objtype)		//!< empty
-	mDefSetupMemb(File::FormatList,formats)	//!< empty
-	mDefSetupMemb(BufferString,defaultext)	//!< empty
-
-	Setup& setFormat( const uiString& ftype, const char* ext,
-			  const char* ext2=0, const char* ext3=0 )
-	{
-	    formats_.setEmpty();
-	    formats_.addFormat( File::Format(ftype,ext,ext2,ext3) );
-	    return *this;
-	}
     };
 
 			uiFileSel(uiParent*,const uiString& seltxt,
@@ -71,51 +55,36 @@ public:
 				    const Setup&);
 			~uiFileSel();
 
+    Setup&		setup()			{ return setup_; }
     const Setup&	setup() const		{ return setup_; }
     uiString		labelText() const;
+    bool		isCheckable() const	{ return checkbox_; }
 
     void		setFileName(const char*);
-    void		setDefaultSelectionDir(const char*);
-    void		setDefaultExtension( const char* s )
-						{ setup_.defaultext_ = s; }
-    const char*		defaultSelectionDir() const
-			{ return setup_.defseldir_;}
-    void		setFormats( const File::FormatList& fmts )
-			{ setup_.formats_ = fmts; }
-    void		setObjType( const uiString& s )    { objtype_ = s; }
-    void		setExamine( const CallBack& cb )   { examinecb_ = cb; }
-			    //!< Overrules the simple stand-alone file browser
+    void		setFileNames(const BufferStringSet&);
+    void		setSelectionMode(SelectionMode);
+    void		setObjType( const uiString& s )	    { objtype_ = s; }
     void		setLabelText(const uiString&);
+    void		setSensitive(bool yn);
+    void		setChecked(bool);
+
+    const char*		fileName() const;	//!< the first if multiple
+    void		getFileNames(BufferStringSet&) const;
     BufferString	selectedExtension() const;
     BufferString	selectedProtocol() const;
-
-    const char*		fileName() const;
-    void		getFileNames(BufferStringSet&) const;
-
-    OD::FileSelectionMode selectMode() const;
-    void		setSelectMode(OD::FileSelectionMode);
-    bool		inDirectorySelectMode() const;
-
-    void		setSensitive(bool yn);
-
-    void		selectFile( CallBacker* cb )	{ doSelCB(cb); }
-
-    void		setChecked(bool);
-    bool		isCheckable() const		{ return checkbox_; }
     bool		isChecked() const;
 
     Notifier<uiFileSel>	newSelection;
     Notifier<uiFileSel>	acceptReq;
     Notifier<uiFileSel>	checked;
 
+    void		selectFile( CallBacker* cb )	{ doSelCB(cb); }
+
 protected:
 
     Setup		setup_;
-    CallBack		examinecb_;
     uiString		objtype_;
     BufferStringSet	factnms_;
-    bool		selmodset_;
-    SelectionMode	selmode_;
 
     uiCheckBox*		checkbox_;
     uiComboBox*		protfld_;
@@ -133,7 +102,10 @@ protected:
     void		protChgCB(CallBacker*);
 
     void		setButtonStates();
+    const char*		protKy(int) const;
     const File::SystemAccess& fsAccess(int) const;
+    const char*		curProtKy() const;
+    void		setSel(const BufferStringSet&);
 
 private:
 

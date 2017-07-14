@@ -90,7 +90,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     sep->attach( stretchedBelow, algrp );
 
     uiFileSel::Setup fssu( OD::GeneralContent );
-    fssu.forread( false ).objtype( tr("SEG-Y") )
+    fssu.objtype( tr("SEG-Y") )
 	.formats( uiSEGYFileSpec::fileFmts() );
     outfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
     outfld_->attach( ensureBelow, sep );

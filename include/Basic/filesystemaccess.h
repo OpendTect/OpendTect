@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "file.h"
+#include "factory.h"
 
 
 namespace File
@@ -74,8 +75,10 @@ public:
     static BufferString	withProtocol(const char* fnm,const char* prot);
 
     virtual const char*	protocol() const		= 0;
+    virtual uiString	userName() const		= 0;
     virtual BufferString iconName() const
 			{ return iconForProtocol(protocol()); }
+
     virtual bool	readingSupported() const	{ return true; }
     virtual bool	writingSupported() const	{ return true; }
     virtual bool	queriesSupported() const	{ return true; }

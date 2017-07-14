@@ -41,7 +41,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uitaskrunner.h"
 #include "uitable.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uifont.h"
 #include "uibuttongroup.h"
 #include "uispinbox.h"
@@ -1058,15 +1058,18 @@ void uiContourTreeItem::getZVSAreaValues( TypeSet<float>& zvals,
 
 void uiContourTreeItem::saveAreasAsCB(CallBacker*)
 {
-    uiFileDialog dlg( ODMainWin(), 0, "*.txt",
-                     "Select file to store contour areas" );
-    if ( dlg.go() )
+    uiFileSelector::Setup fssu;
+    fssu.setForWrite().setFormat( File::Format::textFiles() );
+    uiFileSelector uifs( ODMainWin(), fssu );
+    if ( uifs.go() )
     {
-        od_ostream stream( dlg.fileName() );
+	const BufferString fnm( uifs.fileName() );
+        od_ostream stream( fnm );
         RefMan<visSurvey::Scene> mDynamicCast( visSurvey::Scene*, scene,
                             applMgr()->visServer()->getObject(sceneID()) );
 
-        if ( !scene ) { pErrMsg("No scene"); return; }
+        if ( !scene )
+	    { pErrMsg("No scene"); return; }
 
         const ZDomain::Info& zinfo = scene->zDomainInfo();
 
@@ -1077,12 +1080,12 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
         getZVSAreaValues( zvals, areas );
 
         for ( int idx=0; idx<areas.size(); idx++ )
-        {
             stream << zvals[idx] * zinfo.userFactor() << od_tab
                    << areas[idx] << od_newline;
-        }
 
-        if ( stream.isBad() )
+        if ( !stream.isBad() )
+	    uiMSG().message( tr("Area table saved as:\n%1.").arg(fnm) );
+        else
         {
 	    uiString errmsg = uiStrings::phrCannotSave(tr("file %1"));
 
@@ -1092,11 +1095,6 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
 		errmsg.arg(".");
 
 	    uiMSG().error(errmsg);
-        }
-        else
-        {
-	    uiMSG().message(tr("Area table saved as %1.")
-			  .arg(dlg.fileName()));
         }
     }
 }

@@ -9,7 +9,7 @@
 #include "globexpr.h"
 #include <string.h>
 
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 
 static FixedString emptyfixedstring( "" );

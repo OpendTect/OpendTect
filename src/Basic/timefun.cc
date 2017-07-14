@@ -8,7 +8,7 @@
 
 #include "timefun.h"
 #include "bufstring.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 #ifndef OD_NO_QT
 # include <QDateTime>

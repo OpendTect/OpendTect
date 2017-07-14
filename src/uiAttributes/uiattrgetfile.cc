@@ -43,16 +43,15 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     , attrset_(*new DescSet(is2d))
     , isattrset_(isads)
 {
-    fileinpfld = new uiFileSel(this, uiStrings::sFileName());
-    File::FormatList fmts;
+    uiFileSel::Setup fssu( OD::TextContent );
     if ( isattrset_ )
-	fmts.addFormat( File::Format( tr("AttributeSet files"), "attr" ) );
+	fssu.setFormat( File::Format( tr("AttributeSet files"), "attr" ) );
     else
-	fmts.addFormat( File::Format( tr("Job specifications"), "par" ) );
-    fileinpfld->setFormats( fmts );
-    fileinpfld->setDefaultSelectionDir( isattrset_ ? GetBaseDataDir()
-						   : GetProcFileName(0) );
+	fssu.setFormat( File::Format( tr("Job specifications"), "par" ) )
+	    .initialselectiondir( GetProcFileName(0) );
+    fileinpfld = new uiFileSel(this, uiStrings::sFileName(), fssu );
     fileinpfld->newSelection.notify( mCB(this,uiGetFileForAttrSet,selChg) );
+
     if ( !isattrset_ )
     {
 	uiPushButton* but = new uiPushButton( this,
@@ -60,6 +59,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
 				mCB(this,uiGetFileForAttrSet,srchDir), false );
 	but->attach( rightOf, fileinpfld );
     }
+
     infofld = new uiTextEdit( this, "Attribute info", true );
     infofld->attach( ensureBelow, fileinpfld );
     infofld->attach( widthSameAs, fileinpfld );
@@ -171,10 +171,11 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
     if ( sImportDir.isEmpty() )
 	sImportDir = GetDataDir();
 
+    uiFileSel::Setup fssu( OD::TextContent );
+    fssu.initialselectiondir( sImportDir )
+	.setFormat( tr("Attribute Sets"), "attr" );
     fileinpfld_ = new uiFileSel( this, uiStrings::phrSelect(
-		      mJoinUiStrs(sInput(),sFile())), uiFileSel::Setup().
-		      defseldir(sImportDir).forread(true).
-		      setFormat(tr("Attribute Sets"),"attr") );
+		      mJoinUiStrs(sInput(),sFile())), fssu );
 
     IOObjContext ctxt = mIOObjContext(AttribDescSet);
     ctxt.forread_ = false;

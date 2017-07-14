@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "convert.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "i_layoutitem.h"
 #include "i_qtable.h"
 

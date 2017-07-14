@@ -19,9 +19,9 @@ uiString kmlFileuiString();
     BufferString deffnm( nm ); \
     deffnm.clean( BufferString::AllowDots ); \
     File::Path deffp( GetDataDir() ); deffp.add( deffnm ).setExtension( "kml" ); \
-    uiFileSel::Setup fiinpsu( OD::HtmlContent, deffp.fullPath() ); \
-    fiinpsu.forread( false ).setFormat( kmlFileuiString(), "kml" ); \
-    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fiinpsu );
+    uiFileSel::Setup fssu( OD::HtmlContent, deffp.fullPath() ); \
+    fssu.setForWrite().setFormat( kmlFileuiString(), "kml" ); \
+    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
 
 
 #define mCreateWriter(typ,survnm) \

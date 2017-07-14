@@ -17,9 +17,10 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "picksetmanager.h"
 #include "uivispartserv.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "visimagedisplay.h"
 #include "uistrings.h"
+#include "uipixmap.h"
 
 
 ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
@@ -125,12 +126,9 @@ void ImageSubItem::selectFileName() const
     if ( !id )
 	return;
 
-    BufferString filename = id->getFileName();
-    BufferString filter = "JPEG (*.jpg *.jpeg);;PNG (*.png)";
-    uiFileDialog dlg( getUiParent(), true, filename, filter );
-    if ( !dlg.go() )
-	return;
-
-    filename = dlg.fileName();
-    id->setFileName( filename );
+    uiFileSelector::Setup fssu( id->getFileName() );
+    OD::GetSupportedImageFormats( fssu.formats_, true );
+    uiFileSelector uifs( getUiParent(), fssu );
+    if ( uifs.go() )
+	id->setFileName( uifs.fileName() );
 }

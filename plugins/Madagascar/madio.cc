@@ -13,7 +13,7 @@
 #include "envvars.h"
 #include "oddirs.h"
 #include "iopar.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 const char* ODMad::FileSpec::sKeyMaskFile()	{ return "Mask File Name"; }
 const char* ODMad::sKeyMadagascar()		{ return "Madagascar"; }

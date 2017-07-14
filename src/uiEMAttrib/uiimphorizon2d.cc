@@ -203,11 +203,8 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(),
-				     uiFileSel::Setup()
-				     .withexamine(true)
-				     .forread(true) );
-    inpfld_->setSelectMode( OD::SelectExistingFiles );
+    uiFileSel::Setup fssu( OD::TextContent ); fssu.selectMultiFile();
+    inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(), fssu );
     inpfld_->newSelection.notify( mCB(this,uiImportHorizon2D,formatSel) );
 
     BufferStringSet hornms;

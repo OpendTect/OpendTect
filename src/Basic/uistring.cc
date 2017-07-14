@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "keystrs.h"
 #include "od_iostream.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "ptrman.h"
 #include "refcount.h"
 #include "texttranslator.h"

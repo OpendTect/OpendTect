@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "ioobj.h"
 #include "dbman.h"
+#include "file.h"
 
 
 static const float defundefval = -999.25;
@@ -45,11 +46,10 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 {
     setOkText( uiStrings::sImport() );
 
+    uiFileSel::Setup fssu( OD::TextContent );
+    fssu.setFormat( tr("LAS files"), "las", "dat" );
     lasfld_ = new uiFileSel( this, uiStrings::phrInput(
-			     tr("(pseudo-)LAS logs file")),
-			     uiFileSel::Setup(OD::GeneralContent)
-			     .setFormat(tr("LAS files"), "las", "dat")
-			     .withexamine(true) );
+			     tr("(pseudo-)LAS logs file")), fssu );
     lasfld_->newSelection.notify( mCB(this,uiImportLogsDlg,lasSel) );
 
     intvfld_ = new uiGenInput( this, tr("Depth interval to load (empty=all)"),
@@ -272,11 +272,14 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;
-    outfld_ = new uiFileSel( this, multiwells ?
-			      mJoinUiStrs(sFile(),sDirectory())
-				    : uiStrings::phrOutput(uiStrings::sFile()),
-			      uiFileSel::Setup().forread(false)
-						.directories(multiwells) );
+    uiFileSel::Setup fssu;
+    if ( multiwells )
+	fssu.selectDirectory();
+    else
+	fssu.setForWrite();
+    outfld_ = new uiFileSel( this,
+		multiwells ? mJoinUiStrs(sFile(),sDirectory())
+			   : uiStrings::phrOutput(uiStrings::sFile()), fssu );
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )
     {

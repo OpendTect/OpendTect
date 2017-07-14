@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uitoolbutton.h"
 #include "uiflatviewer.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uimsg.h"
 #include "uiseistrcbufviewer.h"
 #include "uistatsdisplaywin.h"
@@ -144,13 +144,18 @@ void uiSEGYExamine::rowClck( CallBacker* )
 
 void uiSEGYExamine::saveHdr( CallBacker* )
 {
-    if ( !prov_ ) return;
-    uiFileDialog dlg( this, false,
-		      File::Path(GetDataDir(),sSeismicSubDir()).fullPath(), 0,
-		      tr("Save SEG-Y Textual Header to") );
-    if ( !dlg.go() ) return;
+    if ( !prov_ )
+	return;
 
-    od_ostream strm( dlg.fileName() );
+    uiFileSelector::Setup fssu;
+    fssu.setForWrite().initialselectiondir(
+		    File::Path(GetDataDir(),sSeismicSubDir()).fullPath() );
+    uiFileSelector uifs( this, fssu );
+    uifs.caption() = tr("Save SEG-Y Textual Header to");
+    if ( !uifs.go() )
+	return;
+
+    od_ostream strm( uifs.fileName() );
     if ( !strm.isOK() )
 	{ uiMSG().error(tr("Cannot open file for writing")); return; }
 

@@ -234,7 +234,8 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     fnm.replace( '*', 'x' );
     File::Path fp( fnm ); fp.setExtension( "txt" );
     uiFileSel::Setup fssu( GetProcFileName(fp.fileName()) );
-    fssu.forread( false ).objtype( tr("Report") ).checkable( true );
+    fssu.objtype( tr("Report") ).checkable( true )
+	.setForWrite();
     saveasfld_ = new uiFileSel( this, tr("Save report as"), fssu );
     saveasfld_->attach( alignedBelow, nrtrcsfld_ );
     saveasfld_->setChecked( true );

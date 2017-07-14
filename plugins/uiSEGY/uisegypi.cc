@@ -27,7 +27,7 @@
 #include "uisegyimptype.h"
 #include "uisegyread.h"
 
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uilabel.h"
 #include "uiseisfileman.h"
 #include "uiseispsman.h"
@@ -270,27 +270,35 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 
 void uiSEGYMgr::readStarterCB( CallBacker* )
 {
-    uiFileDialog filedlg( ODMainWin(), OD::SelectExistingFiles, 0,
-		      uiSEGYFileSpec::fileFmts().getFileFilters(),
-		      tr("Select SEG-Y files") );
-    filedlg.setDirectory( GetDataDir() );
-    filedlg.go();
-
-    BufferStringSet selfiles;
-    filedlg.getFileNames( selfiles );
-    if ( !selfiles.size() )
+    //TODO replace with nice special-purpose, uiCheckList-based dialog
+    // alternatively, make the action button have a menu
+    int res = uiMSG().question( tr("What type of import do you want?"),
+		      tr("Single or Same-Vintage"), tr("Bulk import"),
+		      uiStrings::sCancel() );
+    if ( res < 0 )
 	return;
 
-    if ( selfiles.size() == 1 )
+    if ( res == 1 )
     {
-	uiSEGYReadStarter readstdlg( ODMainWin(), false, 0, selfiles.get(0) );
+	uiSEGYReadStarter readstdlg( ODMainWin(), false );
 	readstdlg.go();
+	return;
     }
-    else
-    {
-	uiSEGYBulkImporter bulkimpdlg( ODMainWin(), selfiles );
-	bulkimpdlg.go();
-    }
+
+    uiFileSelector::Setup fssu;
+    fssu.selectMultiFile()
+	.formats( uiSEGYFileSpec::fileFmts() );
+    uiFileSelector uifs( ODMainWin(), fssu );
+    uifs.caption() = tr( "Select SEG-Y files" );
+    uifs.go();
+
+    BufferStringSet selfiles;
+    uifs.getSelected( selfiles );
+    if ( selfiles.isEmpty() )
+	return;
+
+    uiSEGYBulkImporter bulkimpdlg( ODMainWin(), selfiles );
+    bulkimpdlg.go();
 }
 
 

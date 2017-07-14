@@ -47,6 +47,7 @@ set(OD_MODULE_SOURCES
 	uidockwin.cc
 	uieventfilter.cc
 	uifiledlg.cc
+	uifileselector.cc
 	uifont.cc
 	uigraphicsitem.cc
 	uigraphicsitemimpl.cc

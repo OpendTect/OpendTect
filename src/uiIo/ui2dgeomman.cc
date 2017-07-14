@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
+#include "file.h"
 #include "od_helpids.h"
 
 static IOObjContext mkCtxt()

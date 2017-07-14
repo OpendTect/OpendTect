@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "keystrs.h"
 #include "iopar.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "uistrings.h"
 
 

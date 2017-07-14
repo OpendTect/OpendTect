@@ -10,7 +10,7 @@
 #include "fixedstring.h"
 #include "iopar.h"
 #include "arrayndimpl.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "separstr.h"
 #include "string2.h"
 #include "globexpr.h"

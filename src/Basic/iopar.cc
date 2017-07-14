@@ -15,7 +15,7 @@
 #include "separstr.h"
 #include "ascstream.h"
 #include "samplingdata.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"

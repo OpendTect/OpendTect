@@ -18,6 +18,7 @@
 #include "settings.h"
 #include "survinfo.h"
 #include "od_istream.h"
+#include "staticstring.h"
 #include <iostream>
 
 #ifdef __msvc__

@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uiparentbody.h"
 
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include <QDockWidget>
 
 mUseQtnamespace

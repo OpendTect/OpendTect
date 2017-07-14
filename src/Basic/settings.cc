@@ -14,7 +14,7 @@
 #include "genc.h"
 #include "oddirs.h"
 #include "safefileio.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 static const char* sKeyDeflt = "Default settings";
 static const char* sKeyCommon = "Common";

@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uitextfile.h"
 
 #include "uibutton.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 #include "filepath.h"
 #include "od_iostream.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "tableconvimpl.h"
 
 
@@ -355,10 +355,9 @@ void uiTextFileDlg::fileNmChgd( CallBacker* )
 
 void uiTextFileDlg::open( CallBacker* )
 {
-    uiFileDialog dlg( this, OD::SelectExistingFile, editor_->fileName(),
-			"", tr("Select file") );
-    if ( dlg.go() )
-	editor_->open( dlg.fileName() );
+    uiFileSelector uifs( this, editor_->fileName() );
+    if ( uifs.go() )
+	editor_->open( uifs.fileName() );
 }
 
 
@@ -370,10 +369,11 @@ void uiTextFileDlg::save( CallBacker* )
 
 void uiTextFileDlg::saveAs( CallBacker* )
 {
-    uiFileDialog dlg( this, OD::SelectAnyFile,
-		      editor_->fileName(), "", tr("Select new file name") );
-    if ( dlg.go() )
-	editor_->saveAs( dlg.fileName() );
+    uiFileSelector::Setup fssu( editor_->fileName() );
+    fssu.setForWrite();
+    uiFileSelector uifs( this, fssu );
+    if ( uifs.go() )
+	editor_->saveAs( uifs.fileName() );
 }
 
 

@@ -190,16 +190,17 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     nrjobsfld_ = new uiLabel( this, tr("Total no. of jobs: 0000") );
     nrjobsfld_->attach( alignedBelow, nrinlfld_ );
 
-    uiFileSel::Setup fssu( OD::GeneralContent, parfnm );
-    fssu.forread(false).confirmoverwrite(false);
-    fssu.setFormat( tr("Parameter file"), "par" );
+    uiFileSel::Setup fssu( parfnm );
+    fssu.setForWrite().confirmoverwrite( false )
+	.setFormat( File::Format::parFiles() );
     parfilefld_ = new uiFileSel( this, uiStrings::sParFile(), fssu );
     parfilefld_->attach( alignedBelow, nrjobsfld_ );
 
+    uiFileSel::Setup dirfssu( tempstordir_ );
+    dirfssu.selectDirectory();
     tmpstordirfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(
 				    tr("Temporary"), uiStrings::sStorageDir()),
-				    tempstordir_.buf() );
-    tmpstordirfld_->setSelectMode( OD::SelectDirectory );
+				    dirfssu );
     tmpstordirfld_->attach( alignedBelow, parfilefld_ );
 
     File::Path fp( parfnm );
@@ -207,11 +208,12 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     BufferString filenm = fp.fileName();
     filenm += "_scriptdir";
     fp.setFileName( filenm.buf() );
-    if ( !File::isDirectory(fp.fullPath()) )
-	File::createDir( fp.fullPath() );
+    const BufferString scriptsdirnm( fp.fullPath() );
+    if ( !File::isDirectory(scriptsdirnm) )
+	File::createDir( scriptsdirnm );
+    dirfssu.setFileName( scriptsdirnm );
     scriptdirfld_ = new uiFileSel( this, uiStrings::phrStorageDir(
-				     tr("for scripts")), fp.fullPath() );
-    scriptdirfld_->setSelectMode( OD::SelectDirectory );
+				     tr("for scripts")), dirfssu );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
 
     const Settings& setts = Settings::common();

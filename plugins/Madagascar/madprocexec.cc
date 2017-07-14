@@ -15,7 +15,7 @@
 #include "od_ostream.h"
 #include "oddirs.h"
 #include "progressmeterimpl.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "uistrings.h"
 
 const char* ODMad::ProcExec::sKeyFlowStage()	{ return "Flow Stage"; }

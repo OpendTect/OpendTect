@@ -9,49 +9,40 @@ ________________________________________________________________________
 -*/
 
 #include "uifilesel.h"
-#include "uifiledlg.h"
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uifileseltool.h"
 #include "uimsg.h"
 #include "filepath.h"
+#include "fileview.h"
 #include "filesystemaccess.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "oddirs.h"
 #include "uistrings.h"
 
 
 uiFileSel::Setup::Setup( const char* filenm )
-    : filename_(filenm)
-    , forread_(true)
+    : uiFileSelectorSetup(filenm)
     , withexamine_(false)
     , examstyle_(File::Text)
     , exameditable_(false)
-    , directories_(false)
-    , allowallextensions_(true)
-    , confirmoverwrite_(true)
-    , contenttype_(OD::GeneralContent)
-    , defseldir_(GetDataDir())
     , displaylocalpath_(false)
     , checkable_(false)
+    , contenttype_(OD::GeneralContent)
 {
 }
 
 
-uiFileSel::Setup::Setup( OD::FileContentType t, const char* filenm )
-    : filename_(filenm)
-    , forread_(true)
-    , withexamine_(t==OD::TextContent)
-    , examstyle_(t==OD::ImageContent?File::Bin:File::Text)
+uiFileSel::Setup::Setup( ContentType ct, const char* filenm )
+    : uiFileSelectorSetup(filenm)
+    , withexamine_(ct==OD::TextContent)
+    , examstyle_(ct==OD::ImageContent?File::Bin:File::Text)
     , exameditable_(false)
-    , directories_(false)
-    , allowallextensions_(true)
-    , confirmoverwrite_(true)
-    , contenttype_(t)
-    , defseldir_(GetDataDir())
     , displaylocalpath_(false)
     , checkable_(false)
+    , contenttype_(ct)
 {
 }
 
@@ -74,16 +65,14 @@ uiFileSel::uiFileSel( uiParent* p, const uiString& txt, const char* fnm )
     , acceptReq(this)
     , checked(this)
 {
-    setup_.forread( true ).defseldir( GetDataDir() ).withexamine( true );
+    setup_.withexamine( true );
     init( txt );
 }
 
 
 void uiFileSel::init( const uiString& lbltxt )
 {
-    lbl_ = 0; examinebut_ = 0; checkbox_ = 0;
-    selmode_ = OD::SelectAnyFile;
-    selmodset_ = false;
+    lbl_ = 0; examinebut_ = 0; checkbox_ = 0; protfld_ = 0;
 
     if ( setup_.checkable_ )
     {
@@ -95,38 +84,46 @@ void uiFileSel::init( const uiString& lbltxt )
     const Factory<File::SystemAccess>& fact = File::SystemAccess::factory();
     uiStringSet protnms( fact.getUserNames() );
     factnms_ = fact.getNames();
+    const bool forread = isForRead( setup_.selmode_ );
     for ( int idx=0; idx<factnms_.size(); idx++ )
     {
 	const File::SystemAccess& fsa = fsAccess( idx );
-	if ( (setup_.forread_ && !fsa.readingSupported())
-	  || (!setup_.forread_ && !fsa.writingSupported()) )
+	if ( (forread && !fsa.readingSupported())
+	  || (!forread && !fsa.writingSupported()) )
 	{
 	    protnms.removeSingle( idx );
 	    factnms_.removeSingle( idx );
 	    idx--;
 	}
     }
-    protfld_ = new uiComboBox( this, "Protocol" );
-    protfld_->addItems( protnms );
-    for ( int idx=0; idx<factnms_.size(); idx++ )
-	protfld_->setIcon( idx, fsAccess(idx).iconName() );
-    if ( checkbox_ )
-	protfld_->attach( rightOf, checkbox_ );
-    mAttachCB( protfld_->selectionChanged, uiFileSel::protChgCB );
-    protfld_->setHSzPol( uiObject::Small );
 
-    fnmfld_ = new uiLineEdit( this, FileNameInpSpec(setup_.filename_),
-				    "File Name" );
-    setFileName( setup_.filename_ );
+    if ( !setup_.onlylocal_ )
+    {
+	protfld_ = new uiComboBox( this, "Protocol" );
+	protfld_->addItems( protnms );
+	for ( int idx=0; idx<factnms_.size(); idx++ )
+	    protfld_->setIcon( idx, fsAccess(idx).iconName() );
+	if ( checkbox_ )
+	    protfld_->attach( rightOf, checkbox_ );
+	mAttachCB( protfld_->selectionChanged, uiFileSel::protChgCB );
+	protfld_->setHSzPol( uiObject::Small );
+    }
+
+    fnmfld_ = new uiLineEdit( this, FileNameInpSpec(), "File Name" );
+    setFileNames( setup_.initialselection_ );
     setHAlignObj( fnmfld_ );
     fnmfld_->setHSzPol( uiObject::WideVar );
 
     if ( lbltxt.isEmpty() )
-	protfld_->attach( leftOf, fnmfld_ );
+    {
+	if ( protfld_ )
+	    protfld_->attach( leftOf, fnmfld_ );
+    }
     else
     {
 	lbl_ = new uiLabel( this, lbltxt, fnmfld_ );
-	protfld_->attach( leftOf, lbl_ );
+	if ( protfld_ )
+	    protfld_->attach( leftOf, lbl_ );
     }
 
     selbut_ = uiButton::getStd( this, OD::Select,
@@ -141,12 +138,6 @@ void uiFileSel::init( const uiString& lbltxt )
 	examinebut_->setText( setup_.exameditable_
 			    ? uiStrings::sEdit() : uiStrings::sExamine() );
 	examinebut_->attach( rightOf, selbut_ );
-    }
-
-    if ( setup_.directories_ )
-    {
-	selmodset_ = true;
-	selmode_ = OD::SelectDirectory;
     }
 
     fnmfld_->editingFinished.notify( mCB(this,uiFileSel,inputChgCB) );
@@ -167,22 +158,23 @@ void uiFileSel::atFinaliseCB( CallBacker* )
 }
 
 
-const File::SystemAccess& uiFileSel::fsAccess( int protnr ) const
+const char* uiFileSel::protKy( int protnr ) const
 {
     if ( !factnms_.validIdx(protnr) )
 	{ pErrMsg("Huh"); protnr = 0; }
-    return File::SystemAccess::getByProtocol( factnms_.get(protnr) );
+    return factnms_.get( protnr ).str();
 }
 
 
-void uiFileSel::setDefaultSelectionDir( const char* s )
+const File::SystemAccess& uiFileSel::fsAccess( int protnr ) const
 {
-    BufferString fname = text();
-    if ( !fname.isEmpty() )
-	fname = fileName();
+    return File::SystemAccess::getByProtocol( protKy(protnr) );
+}
 
-    setup_.defseldir_ = s ? s : GetDataDir();
-    setFileName( fname );
+
+const char* uiFileSel::curProtKy() const
+{
+    return protfld_ ? protKy( protfld_->currentItem() ) : "file";
 }
 
 
@@ -230,24 +222,43 @@ const char* uiFileSel::text() const
 }
 
 
-void uiFileSel::setFileName( const char* fnm )
+void uiFileSel::setSel( const BufferStringSet& fnms )
 {
-    setText( fnm );
+    setText( uiFileSelTool::joinSelection(fnms) );
+}
 
-    const BufferString filename = fileName();
-    if ( setup_.displaylocalpath_ )
+
+void uiFileSel::setFileNames( const BufferStringSet& fnms )
+{
+    if ( !setup_.displaylocalpath_ )
+	{ setSel(fnms); return; }
+
+    const BufferString seldir =
+	File::Path(setup_.initialselectiondir_).fullPath();
+    BufferStringSet dispfnms;
+    for ( int idx=0; idx<fnms.size(); idx++ )
     {
-	BufferString seldir = File::Path(setup_.defseldir_).fullPath();
-	if ( filename.startsWith(seldir) )
+	const BufferString filename = fnms.get( idx );
+	if ( !filename.startsWith(seldir) )
+	    dispfnms.add( filename );
+	else
 	{
 	    const char* ptr = filename.str() + seldir.size();
 	    if ( *ptr=='\\' || *ptr=='/' )
-		setText( ptr+1 );
+		dispfnms.add( ptr+1 );
 	}
     }
 
-    const BufferString prot = File::SystemAccess::getProtocol( filename );
-    protfld_->setText( prot );
+    setSel( dispfnms );
+}
+
+
+void uiFileSel::setFileName( const char* fnm )
+{
+    BufferStringSet bss;
+    if ( fnm && *fnm )
+	bss.add( fnm );
+    setFileNames( bss );
 }
 
 
@@ -256,13 +267,19 @@ void uiFileSel::setButtonStates()
     if ( examinebut_ )
 	examinebut_->setSensitive( File::exists(fileName()) );
 
-    const int protnr = protfld_->currentItem();
-    selbut_->setSensitive( fsAccess(protnr).queriesSupported() );
+    if ( protfld_ )
+    {
+	const int protnr = protfld_->currentItem();
+	selbut_->setSensitive( fsAccess(protnr).queriesSupported() );
+    }
 }
 
 
 void uiFileSel::protChgCB( CallBacker* )
 {
+    if ( !protfld_ )
+	return;
+
     BufferString fnm( fileName() );
     const BufferString prot( File::SystemAccess::getProtocol(fnm) );
     const BufferString newprot = factnms_.get( protfld_->currentItem() );
@@ -278,22 +295,19 @@ void uiFileSel::protChgCB( CallBacker* )
 void uiFileSel::inputChgCB( CallBacker* )
 {
     setButtonStates();
+    if ( protfld_ )
+	protfld_->setText( selectedProtocol() );
     newSelection.trigger();
 }
 
 
 void uiFileSel::fnmEnteredCB( CallBacker* )
 {
-    if ( setup_.forread_ || setup_.defaultext_.isEmpty()
-	|| inDirectorySelectMode() )
+    if ( !setup_.isForWrite() || setup_.defaultextension_.isEmpty() )
 	return;
 
     File::Path fp( fileName() );
-    const FixedString ext = fp.extension();
-    if ( !ext.isEmpty() )
-	return;
-
-    fp.setExtension( setup_.defaultext_ );
+    fp.setExtension( setup_.defaultextension_ );
     setFileName( fp.fullPath() );
 
     acceptReq.trigger();
@@ -328,146 +342,98 @@ void uiFileSel::checkCB( CallBacker* )
 {
     if ( !checkbox_ )
 	return;
+
     const bool ischecked = checkbox_->isChecked();
-    protfld_->setSensitive( ischecked );
     fnmfld_->setSensitive( ischecked );
     selbut_->setSensitive( ischecked );
+    if ( protfld_ )
+	protfld_->setSensitive( ischecked );
     if ( examinebut_ )
 	examinebut_->setSensitive( ischecked );
+
+    checked.trigger();
 }
 
 
 void uiFileSel::doSelCB( CallBacker* )
 {
-    BufferString fname = fileName();
-    if ( fname.isEmpty() )
-	fname = setup_.defseldir_;
+    uiFileSelector::Setup fssu( setup_ );
+    fssu.initialselection_.setEmpty();
+    getFileNames( fssu.initialselection_ );
+    if ( fssu.initialselection_.isEmpty()
+      && !setup_.initialselectiondir_.isEmpty() )
+	fssu.initialselection_.add( setup_.initialselectiondir_ );
 
-    const bool usegendlg = isDirectory(selmode_)
-			|| setup_.contenttype_ == OD::GeneralContent;
-    uiString seltyp( usegendlg && selmodset_ && isDirectory(selmode_)
+    const uiString seltyp( isDirectory(setup_.selmode_)
 	    ? uiStrings::sDirectory().toLower() : uiStrings::sFile().toLower());
-    uiString capt( setup_.forread_ ? tr("Choose input %1 %2")
-			    : tr("Specify output %1 %2" ) );
-    capt.arg( objtype_ );
-    capt.arg( seltyp );
 
-    const BufferString filter = setup_.formats_.getFileFilters();
-    PtrMan<uiFileDialog> dlg = usegendlg
-	? new uiFileDialog( this, setup_.forread_, fname, filter, capt )
-	: new uiFileDialog( this, setup_.contenttype_, fname, filter, capt );
-
-    if ( !setup_.defaultext_.isEmpty() )
-    {
-	const int fmtidx = setup_.formats_.indexOf( setup_.defaultext_ );
-	if ( fmtidx >= 0 )
-	    dlg->setSelectedFilter(
-		    setup_.formats_.format(fmtidx).getFileFilter() );
-    }
-    if ( usegendlg )
-    {
-	dlg->setAllowAllExts( setup_.allowallextensions_ );
-	if ( selmodset_ )
-	    dlg->setMode( selmode_ );
-    }
-    dlg->setConfirmOverwrite( setup_.confirmoverwrite_ );
-
-    if ( !dlg->go() )
+    const BufferString prot = curProtKy();
+    const uiFileSelToolProvider& fsp = uiFileSelToolProvider::get( prot );
+    PtrMan<uiFileSelTool> uifs = fsp.getSelTool( this, fssu );
+    if ( !uifs )
+	{ pErrMsg( BufferString("No selector for ",prot) ); return; }
+    uifs->caption() = setup_.isForWrite() ? tr("Specify output %1 %2" )
+					  : tr("Choose input %1 %2");
+    uifs->caption().arg( objtype_ ).arg( seltyp );
+    if ( !uifs->go() )
 	return;
 
-    BufferString oldfname( fname );
-    BufferString newfname;
-    if ( isMultiSelect(selmode_) )
+    BufferStringSet newselection;
+    uifs->getSelected( newselection );
+    setFileNames( newselection );
+}
+
+
+void uiFileSel::getFileNames( BufferStringSet& nms ) const
+{
+    uiFileSelTool::separateSelection( text(), nms );
+    for ( int idx=0; idx<nms.size(); idx++ )
     {
-	BufferStringSet filenames;
-	dlg->getFileNames( filenames );
-	uiFileDialog::joinFileNamesIntoSingleString( filenames, newfname );
-	setFileName( newfname );
-    }
-    else
-    {
-	newfname = dlg->fileName();
-	if ( !setup_.forread_ && !setup_.defaultext_.isEmpty()
-		&& !inDirectorySelectMode() )
+	BufferString& fname = nms.get( idx );
+	File::Path fp( fname );
+	if ( !fp.isAbsolute() && !setup_.initialselectiondir_.isEmpty() )
 	{
-	    File::Path fp( newfname );
-	    const FixedString ext = fp.extension();
-	    if ( ext.isEmpty() )
-		fp.setExtension( setup_.defaultext_ );
-	    newfname = fp.fullPath();
+	    fp.insert( setup_.initialselectiondir_ );
+	    fname = fp.fullPath();
 	}
-
-	setFileName( newfname );
     }
-
-    if ( newfname != oldfname )
-	newSelection.trigger();
 }
 
 
 const char* uiFileSel::fileName() const
 {
+    BufferStringSet nms;
+    getFileNames( nms );
     mDeclStaticString( fname );
-    fname = text();
-    fname.trimBlanks();
-    if ( fname.isEmpty() || fname.firstChar() == '@' )
-	return fname;
-
-#ifdef __win__
-    if ( fname.size() == 2 )
-	fname += "\\";
-#endif
-
-    File::Path fp( fname );
-    if ( !fp.isAbsolute() && !setup_.defseldir_.isEmpty() )
-    {
-	fp.insert( setup_.defseldir_ );
-	fname = fp.fullPath(); //fname is cleaned here.
-    }
+    if ( nms.isEmpty() )
+	fname.setEmpty();
     else
-	fname = File::Path::mkCleanPath( fname, File::Path::Local );
-
-    return fname;
+	fname.set( nms.get(0) );
+    return fname.buf();
 }
 
 
-void uiFileSel::getFileNames( BufferStringSet& list ) const
+void uiFileSel::setSelectionMode( SelectionMode mode )
 {
-    BufferString string = text();
-    uiFileDialog::separateFileNamesFromSingleString( string, list );
-}
-
-
-OD::FileSelectionMode uiFileSel::selectMode() const
-{
-    return selmodset_ ? selmode_
-		      : (setup_.forread_ ? OD::SelectExistingFile
-					 : OD::SelectAnyFile);
-}
-
-
-void uiFileSel::setSelectMode( OD::FileSelectionMode mode )
-{
-    selmodset_ = true;
-    selmode_ = mode;
-}
-
-
-bool uiFileSel::inDirectorySelectMode() const
-{
-    return isDirectory( selmode_ );
+    const bool tosingle = isSingle( mode ) && !isSingle( setup_.selmode_ );
+    setup_.selmode_ = mode;
+    if ( tosingle )
+    {
+	BufferString curtxt = text();
+	char* ptrsep = curtxt.find( ';' );
+	if ( ptrsep )
+	{
+	    *ptrsep = '\0';
+	    setText( curtxt );
+	}
+    }
 }
 
 
 void uiFileSel::examineFileCB( CallBacker* )
 {
-    if ( examinecb_.willCall() )
-	examinecb_.doCall( this );
-    else
-    {
-	File::ViewPars vp( setup_.examstyle_ );
-	vp.editable_ = setup_.exameditable_;
-	if ( !File::launchViewer(fileName(),vp) )
-	    uiMSG().error( tr("Cannot launch file browser") );
-    }
+    File::ViewPars vp( setup_.examstyle_ );
+    vp.editable_ = setup_.exameditable_;
+    if ( !File::launchViewer(fileName(),vp) )
+	uiMSG().error( tr("Cannot launch file browser") );
 }

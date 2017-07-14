@@ -104,10 +104,10 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     flowgrp_->setHAlignObj( flowfld_ );
     BufferString defseldir = File::Path(GetDataDir()).add("Misc").fullPath();
-    filefld_ = new uiFileSel( this, uiStrings::sOutputFile(),
-			uiFileSel::Setup(OD::GeneralContent)
-			.forread(false).setFormat(tr("Postscript files"),"ps")
-			.defseldir(defseldir) );
+    uiFileSel::Setup fssu;
+    fssu.setForWrite().initialselectiondir( defseldir )
+	.setFormat( tr("Postscript files"), "ps", "eps" );
+    filefld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
     filefld_->attach( alignedBelow, flowgrp_ );
     filefld_->attach( ensureLeftOf, sep );
 

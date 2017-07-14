@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "i_qspinbox.h"
 #include "mouseevent.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "uiobjbody.h"
 #include "uivirtualkeyboard.h"
 

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uicombobox.h"
 #include "uibutton.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uimsg.h"
 #include "dbman.h"
 #include "uistrings.h"
@@ -84,10 +84,12 @@ void uiDataRootSel::selButCB( CallBacker* )
 {
     const BufferString defdir = getInput();
     const char* defdirnm = mIsUsable(defdir) ? defdir.str() : 0;
-    uiFileDialog dlg( this, OD::SelectDirectory, defdirnm, 0,
-		      uiStrings::phrSelect(userDataRootString()) );
-    if ( dlg.go() )
-	addChoice( dlg.fileName(), true );
+    uiFileSelector::Setup fssu( defdirnm );
+    fssu.selectDirectory();
+    uiFileSelector uifs( this, fssu );
+    uifs.caption() = uiStrings::phrSelect( userDataRootString() );
+    if ( uifs.go() )
+	addChoice( uifs.fileName(), true );
 }
 
 

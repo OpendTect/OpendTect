@@ -220,9 +220,9 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	    else
 	    {
 		uiFileSel::Setup fssu( OD::GeneralContent );
-		fssu.forread( bpp.type == BatchProgPar::FileRead );
+		fssu.setForWrite( bpp.type != BatchProgPar::FileRead );
 		if ( bpp.desc == "Parameter file" )
-		    fssu.setFormat( tr("Parameter file"),"par" );
+		    fssu.setFormat( File::Format::parFiles() );
 		newinp = new uiFileSel( this, txt, fssu );
 	    }
 
@@ -381,6 +381,6 @@ void uiBatchProgLaunch::filenmUpd( CallBacker* cb )
 	uiGroup* curinp = inplst[iinp];
 	mDynamicCastGet(uiFileSel*,finp,curinp)
 	if ( finp )
-	    finp->setText( uitf->fileName() );
+	    finp->setFileName( uitf->fileName() );
     }
 }

@@ -531,25 +531,24 @@ class HttpFileSystemAccess : public File::SystemAccess
 { mODTextTranslationClass(HttpFileSystemAccess)
 public:
 
-    virtual const char*	protocol() const		{ return "http"; }
-    virtual bool	readingSupported() const	{ return true; }
-    virtual bool	writingSupported() const	{ return false; }
-    virtual bool	queriesSupported() const	{ return false; }
-    virtual bool	operationsSupported() const	{ return false; }
+    static const char*	    sFactoryKeyword() { return "http"; }
+    static uiString	    sFactoryUserName() { return tr("Web"); }
+
+    virtual const char*	    protocol() const { return sFactoryKeyword(); }
+    virtual uiString	    userName() const { return sFactoryUserName(); }
+    virtual bool	    readingSupported() const	{ return true; }
+    virtual bool	    writingSupported() const	{ return false; }
+    virtual bool	    queriesSupported() const	{ return false; }
+    virtual bool	    operationsSupported() const	{ return false; }
 
     virtual bool	    isReadable(const char*) const;
     virtual od_int64	    getFileSize(const char*,bool) const;
     StreamData		    createIStream(const char*,bool) const;
     StreamData		    createOStream(const char*,bool,bool) const;
-    virtual const char*	    factoryKeyword() const { return sFactoryKeyword(); }
-    virtual uiString	    factoryDisplayName() const
-			    { return sFactoryDisplayName(); }
 
     static void		    initClass();
     static File::SystemAccess* createInstance()
 			    { return new HttpFileSystemAccess; }
-    static const char*	    sFactoryKeyword() { return "http"; }
-    static uiString	    sFactoryDisplayName() { return tr("Web"); }
 
     mutable std::map<std::string,int>	existcache_;
 
@@ -635,7 +634,7 @@ void Network::HttpFileSystemAccess::initClass()
 {
     File::SystemAccess::factory().addCreator( createInstance,
 					      sFactoryKeyword(),
-					      sFactoryDisplayName());
+					      sFactoryUserName() );
 }
 
 void NetworkHttpFileSystemAccessinitClass()

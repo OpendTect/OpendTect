@@ -11,8 +11,62 @@ ________________________________________________________________________
 #include "fileformat.h"
 #include "uistrings.h"
 
-static File::Format allfilesfmt_(od_static_tr("File::Format","All files"),"");
-const File::Format& File::Format::allFiles() { return allfilesfmt_; }
+
+// cannot macro-ise these because of the text translations
+
+static File::Format* allfilesfmt_ = 0;
+const File::Format& File::Format::allFiles()
+{
+    if ( !allfilesfmt_ )
+	allfilesfmt_ = new File::Format( tr("All files"), "" );
+    return *allfilesfmt_;
+}
+
+static File::Format* parfilesfmt_ = 0;
+const File::Format& File::Format::parFiles()
+{
+    if ( !parfilesfmt_ )
+	parfilesfmt_ = new File::Format( tr("Parameter files"), "par" );
+    return *parfilesfmt_;
+}
+
+static File::Format* zipfilesfmt_ = 0;
+const File::Format& File::Format::zipFiles()
+{
+    if ( !zipfilesfmt_ )
+	zipfilesfmt_ = new File::Format( tr("Zip files"), "zip" );
+    return *zipfilesfmt_;
+}
+
+static File::Format* textfilesfmt_ = 0;
+const File::Format& File::Format::textFiles()
+{
+    if ( !textfilesfmt_ )
+	textfilesfmt_ = new File::Format( tr("Text files"), "txt", "dat" );
+    return *textfilesfmt_;
+}
+
+static File::Format* shlibwinfilesfmt_ = 0;
+static File::Format* shlibmacfilesfmt_ = 0;
+static File::Format* shlibothfilesfmt_ = 0;
+const File::Format& File::Format::shlibFiles()
+{
+    if ( !shlibwinfilesfmt_ )
+	shlibwinfilesfmt_ = new File::Format( tr("DLL files"), "dll" );
+    if ( !shlibmacfilesfmt_ )
+	shlibmacfilesfmt_ = new File::Format( tr("Dynamic Libs"), "dylib" );
+    if ( !shlibothfilesfmt_ )
+	shlibothfilesfmt_ = new File::Format( tr("Shared Libraries"), "so" );
+#ifdef __win__
+    return *shlibwinfilesfmt_;
+#else
+# ifdef __mac__
+    return *shlibmacfilesfmt_;
+# else
+    return *shlibothfilesfmt_;
+# endif
+#endif
+}
 
 
 // tradstr would be either a 'filter', or just an extension
@@ -110,7 +164,16 @@ BufferString File::Format::getFileFilter() const
     {
 	if ( iext > 0 )
 	    ret.addSpace();
-	ret.add( "*." ).add( exts_.get(iext) );
+	const BufferString& ext = exts_.get( iext );
+	if ( !ext.isEmpty() )
+	    ret.add( "*." ).add( ext );
+	else
+	{
+	    ret.add( "*" );
+#ifdef __win__
+	    ret.add( " *.*" );
+#endif
+	}
     }
     ret.add( ')' );
     return ret;
@@ -194,7 +257,7 @@ int File::FormatList::indexOf( const char* ext ) const
 File::Format File::FormatList::format( int ifmt ) const
 {
     if ( !fmts_.validIdx(ifmt) )
-	{ pErrMsg("Invalid list idx (fmt)"); return allfilesfmt_; }
+	{ pErrMsg("Invalid list idx (fmt)"); return Format::allFiles(); }
     return *fmts_[ifmt];
 }
 
@@ -254,7 +317,7 @@ BufferString File::FormatList::getFileFilters() const
     for ( int ifmt=0; ifmt<fmts_.size(); ifmt++ )
     {
 	if ( ifmt > 0 )
-	    ret.add( "; " );
+	    ret.add( ";; " );
 	ret.add( fmts_[ifmt]->getFileFilter() );
     }
 

@@ -82,8 +82,8 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     optsfld_->setChecked( 0, true )
 	     .setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
 
-    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
-			       uiFileSel::Setup().forread(false) );
+    uiFileSel::Setup fssu; fssu.setForWrite();
+    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(), fssu );
     outfld_->attach( alignedBelow, optsfld_ );
 
     horChg( 0 );

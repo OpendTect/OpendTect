@@ -12,7 +12,7 @@ _______________________________________________________________________
 
 #include "uiaxishandler.h"
 #include "uibutton.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -56,7 +56,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_ );
-    uiString disptitle = tr("Display between %1").arg(SI().zIsTime() ? 
+    uiString disptitle = tr("Display between %1").arg(SI().zIsTime() ?
 	      uiStrings::sFrequency() : uiStrings::sWaveNumber(true));
     rangefld_ = new uiGenInput( dispparamgrp_, disptitle, FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
@@ -68,10 +68,10 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiAmplSpectrum,dispRangeChgd) );
 
-    uiString lbl =  SI().zIsTime() ? 
-		    uiStrings::phrJoinStrings(uiStrings::sValue(), 
+    uiString lbl =  SI().zIsTime() ?
+		    uiStrings::phrJoinStrings(uiStrings::sValue(),
 		    tr("(%1, power)").arg(uiStrings::sFrequency(true))) :
-		    uiStrings::phrJoinStrings(uiStrings::sValue(), 
+		    uiStrings::phrJoinStrings(uiStrings::sValue(),
 		    tr("(%1, power)").arg(uiStrings::sWaveNumber(true)));
     valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
     valfld_->attach( alignedBelow, rangefld_ );
@@ -310,11 +310,12 @@ void uiAmplSpectrum::dispRangeChgd( CallBacker* )
 
 void uiAmplSpectrum::exportCB( CallBacker* )
 {
-    uiFileDialog dlg( this, false );
-    if ( !dlg.go() ) return;
+    uiFileSelector uifs( this );
+    if ( !uifs.go() )
+	return;
 
-    od_ostream strm( dlg.fileName() );
-    uiString fnm = toUiString(dlg.fileName());
+    const BufferString fnm( uifs.fileName() );
+    od_ostream strm( fnm );
     if ( strm.isBad() )
     {
         uiMSG().error( uiStrings::phrCannotOpen(uiStrings::phrOutput(

@@ -19,10 +19,10 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
-#include "uifiledlg.h"
 #include "uilabel.h"
 #include "uitable.h"
 #include "uimsg.h"
+#include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "segydirectdef.h"
@@ -257,9 +257,9 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
 			.arg(fp.pathOnly()) );
     lbl = new uiLabel( this, olddirtxt );
 
-    dirsel_ = new uiFileSel( this, tr("New location"), fp.pathOnly() );
-    dirsel_->setSelectMode( OD::SelectDirectory );
-    dirsel_->setObjType( tr("Location") );
+    uiFileSel::Setup fssu( fp.pathOnly() );
+    fssu.objtype( tr("Location") ).selectDirectory();
+    dirsel_ = new uiFileSel( this, tr("New location"), fssu );
     dirsel_->newSelection.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
     dirsel_->attach( leftAlignedBelow, lbl );
 
@@ -367,20 +367,20 @@ void uiEditSEGYFileDataDlg::fileSelCB( CallBacker* cb )
 
     BufferString newfnm = filetable_->text( RowCol(rowidx,1) );
     File::Path fp( dirsel_->fileName(), newfnm );
-    const bool selexists = File::exists( fp.fullPath() );
-    const BufferString filefilt = uiSEGYFileSpec::fileFmts().getFileFilters();
-    uiFileDialog dlg( this, true, selexists ? fp.fullPath() : 0, filefilt,
-		      tr("SEG-Y") );
-    if ( !selexists )
-	dlg.setDirectory( fp.pathOnly() );
-    if ( !dlg.go() )
+    const BufferString selfnm( fp.fullPath() );
+    const bool selexists = File::exists( selfnm );
+    uiFileSelector::Setup fssu( selexists ? selfnm.str() : 0 );
+    fssu.initialselectiondir( fp.pathOnly() )
+        .formats( uiSEGYFileSpec::fileFmts() );
+    uiFileSelector uifs( this, fssu );
+    if ( !uifs.go() )
 	return;
 
-    File::Path newfp( dlg.fileName() );
-    if ( newfp.pathOnly() != fp.pathOnly() )
+    File::Path newfp( uifs.fileName() );
+    const BufferString oldpath( fp.pathOnly() );
+    if ( newfp.pathOnly() != oldpath )
     {
-	uiMSG().error( uiStrings::phrSelect(tr("a file from %1")
-							.arg(fp.pathOnly())) );
+	uiMSG().error( uiStrings::phrSelect(tr("a file from %1").arg(oldpath)));
 	return;
     }
 

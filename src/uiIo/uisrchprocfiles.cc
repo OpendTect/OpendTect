@@ -33,8 +33,9 @@ uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
 {
     ctio_.ctxt_.forread_ = true;
 
-    dirfld = new uiFileSel( this, tr("Directory to search in"),
-		 uiFileSel::Setup(GetProcFileName(0)).directories(true) );
+    uiFileSel::Setup fssu( GetProcFileName(0) );
+    fssu.selectDirectory();
+    dirfld = new uiFileSel( this, tr("Directory to search in"), fssu );
     maskfld = new uiGenInput( this, tr("Filename subselection"), "*.par" );
     maskfld->attach( alignedBelow, dirfld );
     objfld = new uiIOObjSel( this, ctio_, uiStrings::phrOutput(tr(

@@ -15,7 +15,7 @@
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "string2.h"
 
 #ifdef __win__

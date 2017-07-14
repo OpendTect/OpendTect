@@ -39,9 +39,9 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurveyManager* uisurv )
 
     File::Path deffp( GetBaseDataDir(), si_->getDirName() );
     deffp.add( "survbounds" ).setExtension( "kml" );
-    uiFileSel::Setup fiinpsu( OD::HtmlContent, deffp.fullPath() );
-    fiinpsu.forread( false ).setFormat( kmlFileuiString(), "kml" );
-    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fiinpsu );
+    uiFileSel::Setup fssu( OD::HtmlContent, deffp.fullPath() );
+    fssu.setForWrite().setFormat( kmlFileuiString(), "kml" );
+    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
     fnmfld_->attach( alignedBelow, hghtfld_ );
 }
 

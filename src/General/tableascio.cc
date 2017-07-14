@@ -15,7 +15,7 @@
 #include "coordsystem.h"
 #include "keystrs.h"
 #include "file.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "od_iostream.h"
 
 namespace Table

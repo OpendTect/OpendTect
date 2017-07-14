@@ -43,8 +43,8 @@ uiExportMute::uiExportMute( uiParent* p )
 			        BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
 
-    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
-			       uiFileSel::Setup().forread(false) );
+    uiFileSel::Setup fssu; fssu.setForWrite();
+    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(), fssu );
     outfld_->attach( alignedBelow, coordfld_ );
 }
 

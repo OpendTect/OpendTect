@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "file.h"
+#include "fileview.h"
 #include "survinfo.h"
 #include "oddirs.h"
 #include "trckeyzsampling.h"

@@ -221,11 +221,11 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     sep->attach( stretchedBelow, spl );
 
     uiFileSel::Setup fssu( OD::GeneralContent );
-    fssu.forread( false ).objtype( uiStrings::sSEGY() )
-	.formats( uiSEGYFileSpec::fileFmts() );
-    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
     File::Path inpfp( fname_ );
-    fnmfld_->setDefaultSelectionDir( inpfp.pathOnly() );
+    fssu.objtype( uiStrings::sSEGY() )
+	.setForWrite().formats( uiSEGYFileSpec::fileFmts() )
+	.initialselectiondir( inpfp.pathOnly() );
+    fnmfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
     fnmfld_->attach( ensureBelow, sep );
     fnmfld_->attach( hCentered );
 

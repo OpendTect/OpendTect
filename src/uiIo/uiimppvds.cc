@@ -45,7 +45,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     setOkText( uiStrings::sImport() );
 
     uiFileSel::Setup su( OD::TextContent );
-    su.withexamine(true).examstyle(File::Table).forread(true);
+    su.withexamine( true ).examstyle( File::Table );
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::sFile()), su);
 
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );

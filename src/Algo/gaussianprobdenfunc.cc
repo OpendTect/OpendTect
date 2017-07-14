@@ -12,7 +12,7 @@
 #include "math2.h"
 #include "statrand.h"
 #include "separstr.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "array2dmatrix.h"
 
 static const char* sKeyDimStats = "DimStats";

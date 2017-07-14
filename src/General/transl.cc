@@ -16,7 +16,7 @@
 #include "filepath.h"
 #include "strmprov.h"
 #include "keystrs.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 uiString Translator::sNoIoobjMsg()
 { return toUiString("Internal error: No object to store set in data base."); }

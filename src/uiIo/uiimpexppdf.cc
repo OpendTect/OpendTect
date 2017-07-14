@@ -45,11 +45,11 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 				 mNoDlgTitle, mODHelpKey(mImpRokDocPDFHelpID))
 			   .modal(false))
 {
-    uiFileSel::Setup fssu( OD::GeneralContent );
-    fssu.withexamine( true ).forread( true )
-	.setFormat( tr("Text files"), "txt", "dat" );
+    uiFileSel::Setup fssu;
+    fssu.withexamine( true )
+	.selectMultiFile()
+	.setFormat( File::Format::textFiles() );
     inpfld_ = new uiFileSel( this, uiStrings::sInputASCIIFile(), fssu );
-    inpfld_->setSelectMode( OD::SelectExistingFiles );
     inpfld_->newSelection.notify( mCB(this,uiImpRokDocPDF,selChg) );
 
     varnmsfld_ = new uiGenInput( this, tr("Output variable names"),
@@ -473,11 +473,10 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     inpfld_ = new uiIOObjSel( this, ioobjctxt );
     inpfld_->setLabelText( uiStrings::phrInput(tr("PDF")) );
 
-    outfld_ = new uiFileSel( this, uiStrings::sOutputFile(),
-	    uiFileSel::Setup(OD::GeneralContent)
-	    .withexamine(false).forread(false)
-	    .setFormat( tr("Text files"), "txt", "dat" ) );
-    outfld_->setSelectMode( OD::SelectAnyFile );
+    uiFileSel::Setup fssu;
+    fssu.setFormat( File::Format::textFiles() )
+	.setForWrite();
+    outfld_ = new uiFileSel( this, uiStrings::sOutputFile(), fssu );
     outfld_->attach( alignedBelow, inpfld_ );
 }
 

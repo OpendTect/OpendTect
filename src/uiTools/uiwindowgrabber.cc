@@ -53,12 +53,10 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 
     if ( dirname_.isEmpty() )
 	dirname_ = File::Path(GetDataDir()).add("Misc").fullPath();
-    inpfilefld_ = new uiFileSel( this, mJoinUiStrs(sFile(), sName()),
-				   uiFileSel::Setup(OD::GeneralContent)
-				   .forread(false)
-				   .defseldir(dirname_)
-				   .directories(false)
-				   .allowallextensions(false) );
+    uiFileSel::Setup fssu( OD::GeneralContent );
+    fssu.setForWrite().initialselectiondir( dirname_ )
+		      .allowallextensions( false );
+    inpfilefld_ = new uiFileSel( this, mJoinUiStrs(sFile(), sName()), fssu );
     if ( windowfld_ )
 	inpfilefld_->attach( alignedBelow, windowfld_ );
     updateFilter();
@@ -109,10 +107,10 @@ void uiWindowGrabDlg::updateFilter()
 	    ifmt--; continue;
 	}
 	if ( fmt.hasExtension(deftype) )
-	    inpfilefld_->setDefaultExtension( deftype );
+	    inpfilefld_->setup().defaultextension( deftype );
     }
 
-    inpfilefld_->setFormats( fileformats_ );
+    inpfilefld_->setup().formats( fileformats_ );
 }
 
 

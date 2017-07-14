@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "oddirs.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "settings.h"
 #include "thread.h"
 

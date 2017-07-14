@@ -121,9 +121,9 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
 
+    uiFileSel::Setup fssu; fssu.setForWrite();
     outfld_ = new uiFileSel( this, uiStrings::phrOutput(uiStrings::phrASCII(
-			       uiStrings::sFile())),
-			       uiFileSel::Setup().forread(false) );
+			       uiStrings::sFile())), fssu );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else
@@ -269,8 +269,8 @@ bool uiExportFault::writeAscii()
 	if ( !loader ) mErrRet( uiStrings::phrCannotRead(
 							uiStrings::sFault() ))
 
-	uiTaskRunner taskrunner( this );
-	if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
+	uiTaskRunner taskrnnr( this );
+	if ( !TaskRunner::execute( &taskrnnr, *loader ) ) return false;
 
 
 	if ( !sdo.usable() )
@@ -314,7 +314,7 @@ bool uiExportFault::writeAscii()
 		}
 	    }
 
-	    uiTaskRunner taskrunner( this );
+	    uiTaskRunner taskrnr( this );
 	    if ( bbox.isDefined() )
 	    {
 		if ( zatvoi == -1 )
@@ -322,7 +322,7 @@ bool uiExportFault::writeAscii()
 		else
 		    zatf->setVolumeOfInterest( zatvoi, bbox, false );
 		if ( zatvoi>=0 )
-			zatf->loadDataIfMissing( zatvoi, &taskrunner );
+			zatf->loadDataIfMissing( zatvoi, &taskrnr );
 	    }
 	}
 

@@ -98,7 +98,7 @@ void uiSaveImageDlg::updateFilter()
 {
     File::FormatList fmts;
     OD::GetSupportedImageFormats( fmts, false, supportPrintFormats() );
-    inpfilefld_->setFormats( fmts );
+    inpfilefld_->setup().formats( fmts );
 }
 
 
@@ -195,16 +195,13 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 
     if ( dirname_.isEmpty() )
 	dirname_ = File::Path(GetDataDir()).add("Misc").fullPath();
+    uiFileSel::Setup fssu( OD::GeneralContent );
+    fssu.setForWrite().initialselectiondir( dirname_ )
+        .defaultextension( "jpg" ).allowallextensions( false );
     inpfilefld_ = new uiFileSel( this, uiStrings::phrSelect(tr("filename")),
-				   uiFileSel::Setup(OD::GeneralContent)
-				   .forread(false)
-				   .defseldir(dirname_)
-				   .directories(false)
-				   .allowallextensions(false) );
-    inpfilefld_->setDefaultExtension( "jpg" );
+				   fssu );
     inpfilefld_->newSelection.notify( mCB(this,uiSaveImageDlg,fileSel) );
     inpfilefld_->attach( alignedBelow, dpifld_ );
-
 }
 
 
@@ -442,7 +439,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
     res.setEmpty();
     par.get( sKeyFileType(), res );
     if ( !res.isEmpty() )
-	inpfilefld_->setDefaultExtension( res );
+	inpfilefld_->setup().defaultextension( res );
 
     if ( ispixel )
 	setSizeInPix( (int)sizepix_.width(), (int)sizepix_.height() );

@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "oscommand.h"
 #include "settings.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "bufstringset.h"
 
 #define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")

@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uitaskrunner.h"
 #include "uimsg.h"
 #include "file.h"
@@ -125,14 +125,17 @@ bool uiSurvey::unzipFile( uiParent* par, const char* inpfnm,
     BufferString zipfnm( inpfnm );
     if ( zipfnm.isEmpty() || !File::exists(zipfnm) )
     {
-	uiFileDialog fd( par, true, 0, "*.zip", uiStrings::phrSelect(
-			od_static_tr("uiSurvey_unzipFile","survey zip file")) );
-	if ( !fd.go() )
+	uiFileSelector::Setup fssu;
+	fssu.setFormat( File::Format::zipFiles() );
+	uiFileSelector uifs( par, fssu );
+	uifs.caption() = uiStrings::phrSelect(
+		    od_static_tr("uiSurvey_unzipFile","survey zip file") );
+	if ( !uifs.go() )
 	    return false;
-	zipfnm = fd.fileName();
+	zipfnm = uifs.fileName();
     }
 
-    // The uiFileDialog should make sure an actual existing file is selected
+    // The uiFileSelector should make sure an actual existing file is selected
     uiTaskRunner taskrunner( par, false ); uiString emsg;
     if ( !ZipUtils::unZipArchive(zipfnm,destdir,emsg,&taskrunner) )
     {
@@ -178,13 +181,16 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
     }
     if ( zipfnm.isEmpty() )
     {
-	uiFileDialog fd( par, false, 0,"*.zip",uiStrings::phrSelect(
+	uiFileSelector::Setup fssu;
+	fssu.setForWrite().setFormat( File::Format::zipFiles() );
+	uiFileSelector uifs( par, fssu );
+	uifs.caption() = uiStrings::phrSelect(
 			 uiStrings::phrOutput(uiStrings::phrJoinStrings(
 			 uiStrings::sSurvey(), uiStrings::sZip(),
-			 uiStrings::sFile()))));
-	if ( !fd.go() )
+			 uiStrings::sFile())));
+	if ( !uifs.go() )
 	    return false;
-	zipfnm = fd.fileName();
+	zipfnm = uifs.fileName();
     }
 
     uiTaskRunner taskrunner( par, false ); uiString emsg;

@@ -17,7 +17,7 @@
 #include "ptrman.h"
 #include "file.h"
 #include "filepath.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "threadlock.h"
 #include "survinfo.h"
 #include "od_iostream.h"

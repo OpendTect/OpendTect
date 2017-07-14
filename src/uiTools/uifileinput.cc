@@ -16,10 +16,11 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "oscommand.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "settings.h"
 #include "uistrings.h"
 
@@ -65,7 +66,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     , defseldir_(setup.defseldir_)
     , displaylocalpath_(setup.displaylocalpath_)
     , selmodset_(false)
-    , selmode_(OD::SelectAnyFile)
+    , selmode_(setup.forread_? OD::SelectFileForRead : OD::SelectFileForWrite)
     , filedlgtype_(setup.filedlgtype_)
     , examinebut_(0)
     , addallexts_(setup.allowallextensions_)
@@ -105,7 +106,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     , filter_("")
     , filedlgtype_(OD::GeneralContent)
     , selmodset_(false)
-    , selmode_(OD::SelectAnyFile)
+    , selmode_(OD::SelectFileForRead)
     , examinebut_(0)
     , addallexts_(true)
     , confirmoverwrite_(true)
@@ -214,9 +215,11 @@ void uiFileInput::doSelect( CallBacker* )
     capt.arg( objtype_ );
     capt.arg( seltyp );
 
+mStartAllowDeprecatedSection
     PtrMan<uiFileDialog> dlg = usegendlg
 	? new uiFileDialog( this, forread_, fname, filter_, capt )
 	: new uiFileDialog( this, filedlgtype_, fname, filter_, capt );
+mStopAllowDeprecatedSection
 
     dlg->setSelectedFilter( selfltr_ );
     if ( usegendlg )
@@ -233,7 +236,7 @@ void uiFileInput::doSelect( CallBacker* )
     selfltr_ = dlg->selectedFilter();
     BufferString oldfname( fname );
     BufferString newfname;
-    if ( isMultiSelect(selmode_) )
+    if ( !isSingle(selmode_) )
     {
 	BufferStringSet filenames;
 	dlg->getFileNames( filenames );
@@ -295,8 +298,8 @@ void uiFileInput::getFileNames( BufferStringSet& list ) const
 
 OD::FileSelectionMode uiFileInput::selectMode() const
 {
-    return selmodset_ ? selmode_ : (forread_ ? OD::SelectExistingFile
-					     : OD::SelectAnyFile);
+    return selmodset_ ? selmode_ : (forread_ ? OD::SelectFileForRead
+					     : OD::SelectFileForWrite);
 }
 
 

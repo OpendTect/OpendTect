@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 #include "keystrs.h"
 #include "odqtobjset.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "texttranslator.h"
 
 #include <QHeaderView>

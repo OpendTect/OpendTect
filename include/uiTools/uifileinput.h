@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigeninput.h"
 #include "uifiledlg.h"
-#include "file.h"
+#include "fileview.h"
 
 class uiButton;
 class BufferStringSet;

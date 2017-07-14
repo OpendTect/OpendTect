@@ -11,7 +11,7 @@
 #include "atomic.h"
 #include "limits.h"
 #include "math.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "ptrman.h"
 
 

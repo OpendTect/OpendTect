@@ -8,7 +8,7 @@
 #include "datainpspec.h"
 #include "iopar.h"
 #include "ptrman.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "enums.h"
 
 

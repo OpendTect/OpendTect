@@ -95,10 +95,9 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     if ( isimp_ )
     {
 	mkIsAscFld();
+	uiFileSel::Setup fssu; fssu.withexamine( true );
 	fnmfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::sFile()
-			.toLower()), uiFileSel::Setup("")
-			.forread( true )
-			.withexamine( true ) );
+			.toLower()), fssu );
 	fnmfld_->attach( alignedBelow, isascfld_ );
     }
     else
@@ -268,14 +267,13 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     {
 	mkIsAscFld();
 	isascfld_->attach( alignedBelow, havesdfld_ );
+	uiFileSel::Setup fssu; fssu.isForWrite();
 	fnmfld_ = new uiFileSel( this, uiStrings::phrOutput(uiStrings::sFile()
-			.toLower()), uiFileSel::Setup("")
-			.forread( false )
-			.withexamine( false ) );
+			.toLower()), fssu );
 	fnmfld_->attach( alignedBelow, isascfld_ );
     }
 
-    fnmfld_->setDefaultSelectionDir( data().fname_ );
+    fnmfld_->setup().initialselectiondir( data().fname_ );
     postFinalise().notify( mCB(this,uiSeisIOSimple,initFlds) );
 }
 

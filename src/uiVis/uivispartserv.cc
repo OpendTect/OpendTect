@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 #include "uiattribtransdlg.h"
 #include "uitoolbutton.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uimaterialdlg.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -756,7 +756,7 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
 	multirgeditwin_->setDataPackID(
 		attrib, dpid, so->selectedTexture(attrib) );
-    
+
     return res;
 }
 
@@ -1871,18 +1871,17 @@ void uiVisPartServer::setColor( int id, const Color& col )
 
 bool uiVisPartServer::writeSceneToFile( int id, const uiString& dlgtitle ) const
 {
-    uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(),
-			"*.osg", dlgtitle );
-    filedlg.setDefaultExtension( "osg" );
+    uiFileSelector::Setup fssu( GetPersonalDir() );
+    fssu.selectDirectory().defaultextension( "osg" )
+	.setFormat( tr("OSG files"), "osg" );
+    uiFileSelector uifs( appserv().parent(), fssu );
+    uifs.caption() = dlgtitle;
 
-    if ( filedlg.go() )
-    {
-	visBase::DataObject* obj = visBase::DM().getObject( id );
-	if ( !obj ) return false;
-	return obj->serialize( filedlg.fileName() );
-    }
+    if ( !uifs.go() )
+	return false;
 
-    return false;
+    visBase::DataObject* obj = visBase::DM().getObject( id );
+    return obj ? obj->serialize( uifs.fileName() ) : false;
 }
 
 

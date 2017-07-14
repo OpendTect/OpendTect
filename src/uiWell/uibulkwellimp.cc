@@ -221,9 +221,11 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 				 mODHelpKey(mBulkLogImportHelpID))
 			   .modal(false))
 {
+    uiFileSel::Setup fssu;
+    fssu.selectMultiFile()
+	.setFormat( tr("LAS files"), "las", "dat" );
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(tr("LAS files")),
-		  uiFileSel::Setup() );
-    inpfld_->setSelectMode( OD::SelectExistingFiles );
+			      fssu );
 
     istvdfld_ = new uiGenInput( this, tr("Depth values are"),
 		    BoolInpSpec(false,tr("TVDSS"),tr("MD")) );
@@ -309,10 +311,10 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
 			   .modal(false))
     , fd_(Well::BulkMarkerAscIO::getDesc())
 {
+    uiFileSel::Setup fssu;
+    fssu.withexamine(true).examstyle(File::Table);
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(
-			     mJoinUiStrs(sMarker(),sFile())),
-			     uiFileSel::Setup().withexamine(true)
-			     .examstyle(File::Table) );
+			     mJoinUiStrs(sMarker(),sFile())), fssu );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
                                        mODHelpKey(mTableImpDataSelwellsHelpID));
@@ -432,10 +434,10 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
     mNoDlgTitle, mODHelpKey(mBulkD2TModelImportHelpID)).modal(false))
     , fd_(Well::BulkD2TModelAscIO::getDesc())
 {
-    uiFileSel::Setup fs;
-    fs.withexamine(true).examstyle(File::Table);
+    uiFileSel::Setup fssu;
+    fssu.withexamine(true).examstyle(File::Table);
     inpfld_ = new uiFileSel( this,
-			 uiStrings::phrInput(tr("Depth/Time Model file")), fs );
+		     uiStrings::phrInput(tr("Depth/Time Model file")), fssu );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
         mODHelpKey(mTableImpDataSelwellsHelpID) );

@@ -47,7 +47,10 @@ mExpClass(Basic) LocalFileSystemAccess : public SystemAccess
 { mODTextTranslationClass(LocalFileSystemAccess);
 public:
 
-    virtual const char*	protocol() const    { return "file"; }
+    static const char*	sFactoryKeyword() { return "file"; }
+    static uiString	sFactoryUserName() { return tr("Local"); }
+    virtual const char* protocol() const { return sFactoryKeyword(); }
+    virtual uiString	userName() const { return sFactoryUserName(); }
 
     virtual bool	exists(const char*) const;
     virtual bool	isReadable(const char*) const;
@@ -71,12 +74,6 @@ public:
     virtual StreamData	createIStream(const char*,bool binary) const;
 
     static void		initClass();
-    static const char*	sFactoryKeyword() { return "file"; }
-    static uiString	sFactoryDisplayName() { return tr("Local"); }
-
-    virtual const char* factoryKeyword() const { return sFactoryKeyword(); }
-    virtual uiString	factoryDisplayName() const
-			{ return sFactoryDisplayName(); }
 
 private:
 
@@ -121,11 +118,12 @@ BufferString File::SystemAccess::iconForProtocol( const char* prot )
 BufferString File::SystemAccess::withProtocol( const char* fnm,
 						const char* prot )
 {
-    if ( !fnm || !*fnm )
-	return BufferString( prot, prefixsearch );
-
     if ( FixedString(prot) == LocalFileSystemAccess::sFactoryKeyword() )
 	prot = 0;
+
+    if ( !fnm || !*fnm )
+	return prot && *prot ? BufferString( prot, prefixsearch )
+			     : BufferString::empty();
 
     const char* prefixend = firstOcc( fnm, prefixsearch );
     BufferString newfnm;
@@ -195,9 +193,9 @@ void File::LocalFileSystemAccess::initClass()
 				   mLocalFileSystemIniting ) )
 	{
 	    // first thread to get here ...
-	    File::SystemAccess::factory().addCreator(createInstance,
-						     sFactoryKeyword(),
-						     sFactoryDisplayName());
+	    File::SystemAccess::factory().addCreator( createInstance,
+						      sFactoryKeyword(),
+						      sFactoryUserName() );
 
 	    lfsinst_ = new File::LocalFileSystemAccess;
 	    systemaccesses_ += lfsinst_;
@@ -233,14 +231,14 @@ const File::SystemAccess& File::SystemAccess::gtByProt( BufferString& protocol )
     for ( int idx=0; idx<systemaccesses_.size(); idx++ )
     {
 	const SystemAccess& item = *systemaccesses_[idx];
-	if ( protocol == item.factoryKeyword() )
+	if ( protocol == item.protocol() )
 	    return item;
     }
     // maybe we've been passed a variant (e.g. "https" for "http")
     for ( int idx=0; idx<systemaccesses_.size(); idx++ )
     {
 	const SystemAccess& item = *systemaccesses_[idx];
-	if ( protocol.startsWith(item.factoryKeyword()) )
+	if ( protocol.startsWith(item.protocol()) )
 	    return item;
     }
 

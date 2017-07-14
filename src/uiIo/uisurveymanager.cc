@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "uicoordsystem.h"
 #include "uidesktopservices.h"
 #include "uifilesel.h"
-#include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uifont.h"
 #include "uigroup.h"
@@ -61,7 +60,6 @@ ________________________________________________________________________
 #include "filemonitor.h"
 
 
-static const char* sZipFileMask = "ZIP files (*.zip *.ZIP)";
 static const int cMapWidth = 300;
 static const int cMapHeight = 300;
 
@@ -95,9 +93,8 @@ uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
     newsurvnmfld_->attach( alignedBelow, survdirsfld_ );
 
     uiFileSel::Setup fisu( dataroot_ );
-    fisu.defseldir( dataroot_ ).directories( true );
+    fisu.initialselectiondir( dataroot_ ).selectDirectory();
     targetpathfld_ = new uiFileSel( this, tr("Target location"), fisu );
-    targetpathfld_->setSelectMode( OD::SelectDirectory );
     targetpathfld_->attach( alignedBelow, newsurvnmfld_ );
 #ifdef __win__
     targetpathfld_->setSensitive( false );
@@ -451,12 +448,14 @@ void uiSurveyManager::extractButPushed( CallBacker* )
 {
     mCheckRootDirWritable();
 
-    uiFileDialog fdlg( this, true, 0, "*.zip", tr("Select survey zip file") );
-    fdlg.setSelectedFilter( sZipFileMask );
-    if ( !fdlg.go() )
+    uiFileSelector::Setup fssu;
+    fssu.setFormat( File::Format::zipFiles() );
+    uiFileSelector uifs( this, fssu );
+    uifs.caption() = tr("Select survey zip file");
+    if ( !uifs.go() )
 	return;
 
-    uiSurvey::unzipFile( this, fdlg.fileName(), dataroot_ );
+    uiSurvey::unzipFile( this, uifs.fileName(), dataroot_ );
     //TODO set unpacked survey as current but what is the name of it?
 }
 
@@ -469,12 +468,10 @@ void uiSurveyManager::compressButPushed( CallBacker* )
     uiDialog dlg( this,
     uiDialog::Setup(title,mNoDlgTitle,
 		    mODHelpKey(mSurveyCompressButPushedHelpID) ));
-    uiFileSel* fnmfld = new uiFileSel( &dlg,uiStrings::phrSelect(
-		    uiStrings::phrOutput(tr("Destination"))),
-		    uiFileSel::Setup().directories(false).forread(false)
-		    .allowallextensions(false));
-    fnmfld->setDefaultExtension( "zip" );
-    fnmfld->setFormats( File::FormatList(sZipFileMask) );
+    uiFileSel::Setup fssu;
+    fssu.setForWrite().setFormat( File::Format::zipFiles() );
+    uiFileSel* fnmfld = new uiFileSel( &dlg,
+			uiStrings::phrOutput(tr("Destination")), fssu );
     uiLabel* sharfld = new uiLabel( &dlg,
 			  tr("You can share surveys to Open Seismic Repository."
 			   "To know more ") );

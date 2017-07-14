@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "oddirs.h"
 #ifndef OD_NO_QT
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 #include <QHostAddress>
 #include <QHostInfo>

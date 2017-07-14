@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiarrowdlg.h"
 #include "uibutton.h"
 #include "uicolor.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uimenu.h"
@@ -735,10 +735,9 @@ AnchorGroup( uiParent* p, const char* url, bool urlenabled )
 
 void butPush( CallBacker* )
 {
-    uiFileDialog dlg( this, true, linkfld_->text() );
-    if ( !dlg.go() ) return;
-
-    linkfld_->setText( dlg.fileName() );
+    uiFileSelector uifs( this, linkfld_->text() );
+    if ( uifs.go() )
+	linkfld_->setText( uifs.fileName() );
 }
 
 
@@ -1070,14 +1069,13 @@ void ImageSubItem::selectFileName() const
 		    visserv_->getObject(displayid_))
     if ( !id ) return;
 
-    BufferString filename = id->getFileName();
-    BufferString filter = "JPEG (*.jpg *.jpeg);;PNG (*.png)";
-    uiFileDialog dlg( getUiParent(), true, filename, filter );
-    if ( !dlg.go() ) return;
+    uiFileSelector::Setup fssu( id->getFileName() );
+    OD::GetSupportedImageFormats( fssu.formats_, true );
+    uiFileSelector uifs( getUiParent(), fssu );
+    if ( !uifs.go() )
+	return;
 
-    filename = dlg.fileName();
-
-    id->setFileName(filename);
+    id->setFileName( uifs.fileName() );
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
     mgr.setUnChanged( setidx, false );

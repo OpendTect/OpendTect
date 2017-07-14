@@ -45,7 +45,8 @@ public:
 
 			uiSEGYReadStarter(uiParent*,bool forsurvsetup,
 					  const SEGY::ImpType* fixedtype=0,
-					  const char* fnm=0);
+					  const char* fnm=0,
+					  bool fixedfnm=false);
 			~uiSEGYReadStarter();
 
     bool		isMulti() const		{ return filespec_.isMulti(); }

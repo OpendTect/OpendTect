@@ -12,7 +12,7 @@
 #include "iopar.h"
 #include "envvars.h"
 #include "oscommand.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "uistrings.h"
 #include <stdio.h>
 #include <stdlib.h>

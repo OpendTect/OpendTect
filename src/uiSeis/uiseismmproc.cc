@@ -165,8 +165,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	}
 	else
 	{
-	    uiFileSel::Setup fisu( OD::GeneralContent );
-	    fisu.directories( true );
+	    uiFileSel::Setup fisu; fisu.selectDirectory();
 	    tmpstordirfld_ = new uiFileSel( specparsgroup_,
 					    uiStrings::sTmpStor(), fisu );
 	    if ( !tmpstordir.isEmpty() && File::isDirectory(tmpstordir) )

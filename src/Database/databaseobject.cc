@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "dateinfo.h"
 #include "separstr.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "sqlquery.h"
 
 #define mCrBackQuoteString(nm,str) BufferString nm( str ); nm.quote( '`' );

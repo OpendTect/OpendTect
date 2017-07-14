@@ -13,7 +13,7 @@
 #include "string2.h"
 #include "file.h"
 #include "filepath.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "envvars.h"
 #include "oddirs.h"
 

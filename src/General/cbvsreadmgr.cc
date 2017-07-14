@@ -15,6 +15,7 @@
 #include "trckeyzsampling.h"
 #include "strmprov.h"
 #include "od_iostream.h"
+#include "staticstring.h"
 
 
 #include <iostream>
@@ -94,7 +95,7 @@ void CBVSReadMgr::close()
 
 const uiString CBVSReadMgr::errMsg_() const
 {
-    return readers_.size() ? readers_[curnr_]->errMsg() : 
+    return readers_.size() ? readers_[curnr_]->errMsg() :
 			     uiString::emptyString();
 }
 

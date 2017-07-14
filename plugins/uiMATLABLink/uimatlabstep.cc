@@ -23,11 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "matlabstep.h"
 #include "matlablibmgr.h"
 
-#ifdef __win__
-    static const char* sofileflt = "Shared-Objects files (*.dll)";
-#else
-    static const char* sofileflt = "Shared-Objects files (*.so *.SO)";
-#endif
 
 namespace VolProc
 {
@@ -44,10 +39,11 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step, bool is2d )
     , fileloaded_(false)
 {
     const File::Path sofiledir = getSODefaultDir();
-    filefld_ = new uiFileSel( this, tr("Select shared object file"),
-				uiFileSel::Setup(uiFileDialog::Gen)
-				.filter(sofileflt)
-				.defseldir(sofiledir.fullPath()) );
+
+    uiFileSel::Setup fssu;
+    fssu.initialselectiondir( sofiledir.fullPath() ).
+	.setFormat( File::Format::shlibFiles() );
+    filefld_ = new uiFileSel( this, tr("Select shared object file"), fssu );
     filefld_->valuechanged.notify( mCB(this,uiMatlabStep,fileSelCB) );
 
     loadbut_ = new uiPushButton( this, uiStrings::sLoad(),

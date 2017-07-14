@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "ascstream.h"
 #include "od_iostream.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 namespace WellTie
 {

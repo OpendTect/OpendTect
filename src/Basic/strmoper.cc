@@ -10,7 +10,7 @@
 
 #include "genc.h"
 #include "strmdata.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "uistrings.h"
 
 #include <iostream>

@@ -70,19 +70,25 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     , issw_(false)
     , fileSelected(this)
 {
-    SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
+    SEGY::FileSpec spec;
+    if ( su.pars_ )
+	spec.usePar( *su.pars_ );
 
     uiString disptxt( forread_ ? uiStrings::sInput() : uiStrings::sOutput() );
     disptxt.append(tr(" SEG-Y file"));
-    if ( needmulti_ ) disptxt.append("(s)");
-    uiFileSel::Setup fisu( OD::GeneralContent );
-    fisu.forread( forread_ ).formats( fileFmts() ).objtype( tr("SEG-Y") );
-    fnmfld_ = new uiFileSel( this, disptxt, fisu );
+    if ( needmulti_ )
+	disptxt.append("(s)");
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
     if ( defdir.isEmpty() ) defdir = GetDataDir();
-    fnmfld_->setDefaultSelectionDir( defdir );
-    if ( !forread_ ) fnmfld_->setDefaultExtension( "sgy" );
+
+    uiFileSel::Setup fisu( OD::GeneralContent );
+    fisu.objtype( tr("SEG-Y") )
+	.setForWrite( !forread_ ).formats( fileFmts() )
+	.initialselectiondir( defdir )
+	.defaultextension( "sgy" );
+    fnmfld_ = new uiFileSel( this, disptxt, fisu );
     fnmfld_->newSelection.notify( mCB(this,uiSEGYFileSpec,fileSel) );
+
     if ( forread_ )
     {
 	manipbut_ = new uiPushButton( this, tr("Manipulate"),
@@ -104,7 +110,8 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 	multifld_->attach( alignedBelow, fnmfld_ );
     }
 
-    if ( su.pars_ ) usePar( *su.pars_ );
+    if ( su.pars_ )
+	usePar( *su.pars_ );
     setHAlignObj( fnmfld_ );
 }
 
@@ -829,9 +836,9 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	    readcoordsfld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_->valuechanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
-	    coordsfnmfld_ = new uiFileSel( grp, uiStrings::sName(),
-			uiFileSel::Setup(OD::GeneralContent)
-			.forread(forread_).objtype(tr("Bend Points")) );
+	    uiFileSel::Setup fssu( OD::TextContent );
+	    fssu.objtype( tr("Bend Points") ).setForWrite( !forread_ );
+	    coordsfnmfld_ = new uiFileSel( grp, uiStrings::sName(), fssu );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsextfld_ = new uiGenInput( grp, tr("Extension"),
 					    StringInpSpec("crd") );

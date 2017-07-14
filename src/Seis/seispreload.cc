@@ -11,7 +11,7 @@
 #include "filepath.h"
 #include "dbman.h"
 #include "keystrs.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "prestackgather.h"
 #include "seiscbvs.h"
 #include "seiscbvsps.h"

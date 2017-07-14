@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstringset.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "ptrman.h"
 #include "typeset.h"
 #include "uistring.h"
@@ -216,7 +216,7 @@ mClass(Basic) Factory2Param : public FactoryBase
 public:
     typedef		T* (*Creator)(P0,P1);
     inline void		addCreator(Creator,const char* nm=0,
-                        	const uiString& usernm=uiString::emptyString());
+	const uiString& usernm=uiString::emptyString());
                         /*!<Name may be be null
                            If nm is found, old creator is replaced.
                            nm can be a SeparString, separated by
@@ -278,7 +278,7 @@ protected:
 #define mDefaultFactoryInstanciationBase( keywrd, usernm ) \
     mDefaultFactoryStringImpl \
     static const char*	sFactoryKeyword() { return keywrd; } \
-    static uiString 	sFactoryDisplayName() { return usernm; } \
+    static uiString	sFactoryDisplayName() { return usernm; } \
     static void		initClass()
 
 #define mDefaultFactoryCreatorImpl( baseclss, clss ) \

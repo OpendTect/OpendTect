@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "safefileio.h"
 #include "settings.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "oscommand.h"
 #include "survinfo.h"
 #include "survgeom2d.h"

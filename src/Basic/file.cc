@@ -10,6 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "file.h"
+#include "fileview.h"
 #include "filesystemaccess.h"
 
 #include "filepath.h"
@@ -17,7 +18,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "dirlist.h"
 #include "envvars.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "winutils.h"
 #include "executor.h"
 #include "ptrman.h"

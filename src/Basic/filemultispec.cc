@@ -12,7 +12,7 @@
 #include "filepath.h"
 #include "keystrs.h"
 #include "separstr.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 const char* File::MultiSpec::sKeyFileNrs()	   { return "File numbers"; }
 

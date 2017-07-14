@@ -6,7 +6,7 @@
 
 
 #include "binidsorting.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 
 bool BinIDSorting::isValid( bool is2d, const BinID& prev, const BinID& cur,

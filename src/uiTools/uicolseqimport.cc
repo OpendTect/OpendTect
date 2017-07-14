@@ -46,9 +46,9 @@ uiColSeqImport::uiColSeqImport( uiParent* p )
     choicefld_->valuechanged.notify( mCB(this,uiColSeqImport,choiceSel) );
 
     sHomePath = sFilePath = GetPersonalDir();
-    dirfld_ = new uiFileSel( this, getLabelText(true),
-			       uiFileSel::Setup(sHomePath)
-			       .directories(true) );
+    uiFileSel::Setup fssu( sHomePath );
+    fssu.selectDirectory();
+    dirfld_ = new uiFileSel( this, getLabelText(true), fssu );
     dirfld_->newSelection.notify( mCB(this,uiColSeqImport,usrSel) );
     dirfld_->attach( alignedBelow, choicefld_ );
 
@@ -86,8 +86,8 @@ const char* uiColSeqImport::currentSeqName() const
 void uiColSeqImport::choiceSel( CallBacker* )
 {
     const bool fromuser = choicefld_->getBoolValue();
-    dirfld_->setSelectMode( fromuser ? OD::SelectDirectory
-				     : OD::SelectExistingFile );
+    dirfld_->setSelectionMode( fromuser ? OD::SelectDirectory
+					: OD::SelectFileForRead );
     dirfld_->setLabelText( getLabelText(fromuser) );
     dirfld_->setFileName( fromuser ? sHomePath : sFilePath );
 

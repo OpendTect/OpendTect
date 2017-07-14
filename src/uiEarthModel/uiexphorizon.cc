@@ -96,8 +96,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 			      StringInpSpec(sKey::FloatUdf()) );
     udffld_->attach( alignedBelow, headerfld_ );
 
-    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
-			       uiFileSel::Setup().forread(false) );
+    uiFileSel::Setup fssu; fssu.setForWrite();
+    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(), fssu );
     outfld_->attach( alignedBelow, udffld_ );
 
     typChg( 0 );

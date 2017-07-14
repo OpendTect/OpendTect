@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "ui3dviewer.h"
 #include "uiautosaverdlg.h"
 #include "uicrdevenv.h"
-#include "uifiledlg.h"
+#include "uifileselector.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -1460,11 +1460,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
 
     case mDumpDataPacksMnuItm: {
-	uiFileDialog dlg( &appl_, false, "/tmp/dpacks.txt",
-			  "*.txt", tr("Data pack dump") );
-	if ( dlg.go() )
+	uiFileSelector::Setup fssu( "/tmp/dpacks.txt" );
+	fssu.setForWrite().setFormat( File::Format::textFiles() );
+	uiFileSelector uifs( &appl_, fssu );
+	uifs.caption() = tr("Data pack dump");
+	if ( uifs.go() )
 	{
-	    od_ostream strm( dlg.fileName() );
+	    od_ostream strm( uifs.fileName() );
 	    if ( strm.isOK() )
 		DataPackMgr::dumpDPMs( strm );
 	}

@@ -7,7 +7,7 @@
 
 #include "visosg.h"
 #include "osgver.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 #include <osg/Referenced>
 #include <osg/Version>

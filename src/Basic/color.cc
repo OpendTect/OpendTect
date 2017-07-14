@@ -11,7 +11,7 @@
 #include "bufstringset.h"
 #include "typeset.h"
 #include "ptrman.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 
 Color::Color( unsigned char r_, unsigned char g_,

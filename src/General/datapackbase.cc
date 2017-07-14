@@ -11,7 +11,7 @@
 #include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "interpol2d.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "dbman.h"
 #include "iopar.h"
 #include "keystrs.h"

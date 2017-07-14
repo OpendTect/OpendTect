@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "file.h"
+#include "fileview.h"
 #include "uistring.h"
 class uiTextEdit;
 class uiTextBrowser;

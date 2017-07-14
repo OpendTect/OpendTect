@@ -6,7 +6,7 @@
 
 
 #include "wellimpasc.h"
-#include "perthreadrepos.h"
+#include "staticstring.h"
 #include "sorting.h"
 #include "strmprov.h"
 #include "tabledef.h"

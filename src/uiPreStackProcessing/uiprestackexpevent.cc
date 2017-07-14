@@ -42,8 +42,8 @@ uiEventExport::uiEventExport( uiParent* p, const DBKey* mid )
     subsel_ = uiSeisSubSel::get(this, Seis::SelSetup(Seis::Vol).withoutz(true));
     subsel_->attach( alignedBelow, eventsel_ );
 
-    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(),
-			       uiFileSel::Setup(0).forread(false) );
+    uiFileSel::Setup fssu; fssu.setForWrite();
+    outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(), fssu );
     outfld_->attach( alignedBelow, subsel_ );
 }
 

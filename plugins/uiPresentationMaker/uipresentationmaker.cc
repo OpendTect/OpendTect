@@ -229,15 +229,13 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
 
     BufferString filter( "PowerPoint (*.pptx)" );
     uiFileSel::Setup fssu;
-    fssu.forread(true).setFormat( tr("PowerPoint"), "pptx" );
+    fssu.setFormat( tr("PowerPoint"), "pptx" ).defaultextension( "pptx" );
     masterfld_ = new uiFileSel( this, tr("Template pptx"), fssu );
-    masterfld_->setDefaultExtension( "pptx" );
     masterfld_->setFileName( templfnm );
     masterfld_->attach( alignedBelow, templatefld_ );
 
-    fssu.forread(false);
+    fssu.setForWrite( true );
     outputfld_ = new uiFileSel( this, tr("Output pptx"), fssu );
-    outputfld_->setDefaultExtension( "pptx" );
     outputfld_->attach( alignedBelow, masterfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "HorSep", OD::Horizontal );

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uistring.h"
 
-#include "perthreadrepos.h"
+#include "staticstring.h"
 
 #include <QLabel>
 

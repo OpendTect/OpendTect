@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uicompoundparsel.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
-#include "uifiledlg.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -91,12 +90,15 @@ void agSel( CallBacker* )
 void readPush( CallBacker* )
 {
     File::Path fp( GetDataDir(), sSeismicSubDir() );
-    const BufferString filefilt = uiSEGYFileSpec::fileFmts().getFileFilters();
-    uiFileDialog dlg( this, true, fp.fullPath(), filefilt,
-			tr("Read SEG-Y Textual Header from file") );
-    if ( !dlg.go() ) return;
+    uiFileSelector::Setup fssu;
+    fssu.initialselectiondir( fp.fullPath() )
+	.formats( uiSEGYFileSpec::fileFmts() );
+    uiFileSelector uifs( this, fssu );
+    uifs.caption() = tr( "Read SEG-Y Textual Header from file" );
+    if ( !uifs.go() )
+	return;
 
-    od_istream strm( dlg.fileName() );
+    od_istream strm( uifs.fileName() );
     if ( !strm.isOK() )
 	{ uiMSG().error(tr("Cannot open file")); return; }
 
@@ -110,11 +112,16 @@ void readPush( CallBacker* )
 void writePush( CallBacker* )
 {
     File::Path fp( GetDataDir(), sSeismicSubDir() );
-    uiFileDialog dlg( this,false, fp.fullPath(), 0,
-	    tr("Write SEG-Y Textual Header to a file") );
-    if ( !dlg.go() ) return;
+    uiFileSelector::Setup fssu;
+    fssu.setForWrite()
+	.initialselectiondir( fp.fullPath() )
+	.formats( uiSEGYFileSpec::fileFmts() );
+    uiFileSelector uifs( this, fssu );
+    uifs.caption() = tr( "Write SEG-Y Textual Header to a file" );
+    if ( !uifs.go() )
+	return;
 
-    fp.set( dlg.fileName() );
+    fp.set( uifs.fileName() );
     if ( !File::isWritable(fp.pathOnly()) )
 	{ uiMSG().error(tr("Cannot write to this directory")); return; }
     const BufferString fnm( fp.fullPath() );
@@ -292,7 +299,8 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 				    .arg(uiSEGYFileSpec::sKeyLineNmToken()) );
 
     uiFileSel::Setup fssu( fp.fullPath() );
-    fssu.forread( false ).objtype( uiStrings::sSEGY() );
+    fssu.objtype( uiStrings::sSEGY() )
+	.setForWrite();
     fnmfld_ = new uiFileSel( this, txt, fssu );
     fnmfld_->attach( alignedBelow, lnmsfld_ );
 }

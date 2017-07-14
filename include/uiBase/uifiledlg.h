@@ -28,18 +28,18 @@ public:
     typedef OD::FileSelectionMode	Mode;
     typedef OD::FileContentType		Type;
 
-			uiFileDialog(uiParent*,bool forread,
+    mDeprecated		uiFileDialog(uiParent*,bool forread,
 				     const char* fname=0,
 				     const char* filter=0,
 				     uiString caption=uiString::emptyString());
-			uiFileDialog(uiParent*,Mode mode=OD::SelectAnyFile,
+    mDeprecated		uiFileDialog(uiParent*,Mode mode=OD::SelectFileForWrite,
 				     const char* fname=0,
 				     const char* filter=0,
 				     uiString caption=uiString::emptyString());
-			uiFileDialog(uiParent*,Type,
+    mDeprecated		uiFileDialog(uiParent*,Type,
 				     const char* fname=0,
 				     uiString caption=uiString::emptyString());
-						//!< Uses SelectAnyFile
+						//!< Uses SelectFileForWrite
 
     const char*		fileName() const	{ return fn; }
     void		getFileNames(BufferStringSet&) const;

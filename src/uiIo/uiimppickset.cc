@@ -77,9 +77,9 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	? uiStrings::sInputASCIIFile()
 	: uiStrings::sOutputASCIIFile();
 
-    filefld_ = new uiFileSel( this, label, uiFileSel::Setup()
-					   .withexamine(import_)
-					   .forread(import_) );
+    uiFileSel::Setup fssu;
+    fssu.setForWrite( !import_ );
+    filefld_ = new uiFileSel( this, label, fssu );
     if ( import_ )
 	filefld_->newSelection.notify( mCB(this,uiImpExpPickSet,inputChgd) );
 
