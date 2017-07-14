@@ -311,9 +311,6 @@ void uiFlatViewStdControl::aspectRatioCB( CallBacker* cb )
     if ( vwridx == -1 ) return;
 
     uiFlatViewer& vwr = *vwrs_[vwridx];
-    if ( !view->mainwin()->poppedUp() )
-	{ setViewToCustomZoomLevel( vwr ); return; }
-
     const uiWorldRect bb = vwr.boundingBox();
     const uiWorld2Ui& w2ui = vwr.getWorld2Ui();
     const uiWorldRect wr = w2ui.transform( vwr.getViewRect(false) );
