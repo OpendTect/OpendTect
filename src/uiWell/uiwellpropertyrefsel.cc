@@ -236,16 +236,25 @@ uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
 }
 
 
+void uiWellPropSel::setWellID( const DBKey& wid )
+{
+    if ( wid == wellid_ )
+	return;
+
+
+    wellid_ = wid;
+    wd_ = Well::MGR().fetch( wellid_ );
+}
+
+
 void uiWellPropSel::updateSelCB( CallBacker* c )
 {
-    if ( !c ) return;
+    if ( !c || !wd_ ) return;
 
     mDynamicCastGet(uiWellSinglePropSel*, fld, c);
     if ( !fld ) return;
-    ConstRefMan<Well::Data> wd = Well::MGR().fetch( wellid_ );
-    if  ( !wd ) return;
 
-    const Well::Log* log = wd->logs().getLogByName( fld->logName() );
+    const Well::Log* log = wd_->logs().getLogByName( fld->logName() );
     const char* logunitnm = log ? log->unitMeasLabel() : 0;
     const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
     if ( !logun )
@@ -386,17 +395,14 @@ void uiWellPropSel::viewLogPushed( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb);
     const int idxofbut = viewbuts_.indexOf( but );
-    if ( !propflds_.validIdx( idxofbut ) )
+    if ( !wd_ || !propflds_.validIdx(idxofbut) )
 	return;
 
     const BufferString lognm( propflds_[idxofbut]->logName() );
     if ( lognm == sKeyPlsSel )
 	return;
 
-    ConstRefMan<Well::Data> wd = Well::MGR().fetch( wellid_ );
-    if  ( !wd ) return;
-
-    const Well::LogSet& logs = wd->logs();
+    const Well::LogSet& logs = wd_->logs();
     const Well::Log* wl = logs.getLogByName( lognm );
     if ( !wl )
 	return; // the log was removed since popup of the window ... unlikely

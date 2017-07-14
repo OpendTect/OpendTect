@@ -89,7 +89,7 @@ public:
     uiWellSinglePropSel* getPropSelFromListByName(const BufferString&);
     uiWellSinglePropSel* getPropSelFromListByIndex(int);
     virtual bool	isOK() const;
-    void		setWellID( const DBKey& wid ) { wellid_ = wid; }
+    void		setWellID(const DBKey&);
 
     uiButton*		getRightmostButton( int idx ) { return viewbuts_[idx]; }
 
@@ -99,8 +99,9 @@ public:
 protected:
 
     ObjectSet<uiWellSinglePropSel> propflds_;
-    ObjectSet<uiButton> createbuts_;
-    ObjectSet<uiButton> viewbuts_;
+    ObjectSet<uiButton> 	createbuts_;
+    ObjectSet<uiButton> 	viewbuts_;
+    ConstRefMan<Well::Data>	wd_;
 
     void		updateSelCB(CallBacker*);
     void		createLogPushed(CallBacker*);
