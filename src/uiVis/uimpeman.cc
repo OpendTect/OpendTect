@@ -376,7 +376,9 @@ void uiMPEMan::handleAction( int res )
     case sAtSect: emod->setOnlyAtSectionsDisplay( true ); break;
     case sFull: emod->setOnlyAtSectionsDisplay( false ); break;
     case sSett: showSetupDlg(); break;
-    case sAutoMode ... sSnapMode: changeMode(res);
+    case sAutoMode:
+    case sManMode:
+    case sSnapMode: changeMode(res);
     default:
 	break;
     }
