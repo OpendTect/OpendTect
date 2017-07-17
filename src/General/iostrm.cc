@@ -219,11 +219,11 @@ bool IOStream::getFrom( ascistream& stream )
 	{ genFileName(); stream.next(); }
     else
     {
-	fs_.fnames_.add( fnm );
+	fs_.fnames_.add( FilePath(fnm).fullPath() );
 	mStrmNext()
 	while ( kw.startsWith("Name.") )
 	{
-	    fs_.fnames_.add( stream.value() );
+	    fs_.fnames_.add( FilePath(stream.value()).fullPath() );
 	    mStrmNext()
 	}
     }
