@@ -4,6 +4,35 @@ In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
 
+v6.0.7: July 17, 2017
+* Fix for removed part being different from (lasso tool)
+  selection if camera position is changed.
+* Fix for unexpected changes of seed color when using lasso tool
+* Fix for crash when opening a new 2D viewer from the existing one
+* Improvement for visualization of preloaded seismic when its
+  sampling rate is coarser than survey Z-step
+* Fix for merging cubes of type 'Attribute' and 'no type'
+* Fix for incorrect depth scaling while exporting
+  logs(multiplied by a scaling factor of 3.28) from depth surveys
+* Fix for incorrect mouse cursor reading of well MD values
+  in Depth Scene
+* Fix for 2D Gap decon attribute correlation window error message
+* Improved progress reporting for Batch programmes
+* Fix for Attribute Set name replaced with <not saved> on modification
+* Fix for displaying 2D line names in 3D scene
+* Fix for crash on closing OpendTect main window after locking a horizon
+* Fix for  crash while moving Z slice with the mouse and intersecting
+  3D horizon.
+* Fix for crash when setting Pickset direction in an empty survey
+* Fix for crash when switching to another survey with 2D viewers open
+* Fix for crash when switching to another survey when the Random Line
+  from wells window is open
+* Picksets "Calculate Volume..." option has been removed from
+  right-click menu
+* Fix for Input/Output issue between OpendTect and Madagascar Plugin
+  on Windows platform
+* Fix for browser not launching when ArkCLS plugins were installed
+
 v6.0.6: March 21, 2017
 * Added Area sub selection in 3D Horizon Gridding window
   to limit output within polygon/range
