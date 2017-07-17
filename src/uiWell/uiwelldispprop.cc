@@ -114,7 +114,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 	    mCB(this,uiWellTrackDispProperties,propChg) );
     nmsizedynamicfld_->activated.notify(
 	mCB(this,uiWellTrackDispProperties,propChg) );
-    
+
 }
 
 
@@ -550,10 +550,7 @@ void uiWellLogDispProperties::doGetFromScreen()
     bool isdatarange = cliprangefld_->getBoolValue();
     float cliprate = clipratefld_->getFValue();
     if ( mIsUdf(cliprate) || cliprate > 100 )
-    {
-	cliprate = 0.0f;
-        isdatarange = true;
-    }
+	{ cliprate = 0.0f; isdatarange = true; }
     logprops().setClipRate( cliprate );
     logprops().setIsDataRange( isdatarange );
 

@@ -313,13 +313,13 @@ bool IOStream::getFrom( ascistream& stream )
     else
     {
 	getFullSpecFileName( fnm, &specfname_ );
-	fs_.fnames_.add( fnm );
+	fs_.fnames_.add( File::Path(fnm).fullPath() );
 	mStrmNext()
 	while ( kw.startsWith("Name.") )
 	{
 	    fnm = stream.value();
 	    getFullSpecFileName( fnm, 0 );
-	    fs_.fnames_.add( stream.value() );
+	    fs_.fnames_.add( File::Path(stream.value()).fullPath() );
 	    mStrmNext()
 	}
     }
@@ -361,17 +361,26 @@ bool IOStream::putTo( ascostream& stream ) const
 		trymakerel = false;
 	    }
 	}
-	int offs = 0;
+	BufferString omffnm( fnm );
 	if ( trymakerel )
 	{
 	    BufferString head( fp.dirUpTo( fpsurvsubdir.nrLevels() - 1 ) );
 	    if ( head == survsubdir )
-		offs = head.size()+1;
+		omffnm = fnm.buf() + head.size()+1;
+	    else
+	    {
+		head.set( fp.dirUpTo( fpsurvsubdir.nrLevels() - 2 ) );
+		if ( head == GetDataDir() )
+		{
+		    File::Path fpomf( "..", fnm.buf() + head.size()+1 );
+		    omffnm.set( fpomf.fullPath() );
+		}
+	    }
 	}
 	if ( idx == 0 )
-	    stream.put( "$Name", fnm.buf() + offs );
+	    stream.put( "$Name", omffnm );
 	else
-	    stream.put( BufferString("$Name.",idx).buf(), fnm.buf() + offs );
+	    stream.put( BufferString("$Name.",idx).buf(), omffnm );
     }
 
     return true;

@@ -1,11 +1,10 @@
-#ifndef odversion_h
-#define odversion_h
+#pragma once
 
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H.Bril
+ Author:	Bert
  Date:		Mar 2006
 ________________________________________________________________________
 
@@ -20,5 +19,3 @@ permanent changes.
 #define mODPatchVersion		@OpendTect_VERSION_PATCH@
 
 #define mODVersion		@OpendTect_VERSION_MAJOR@@OpendTect_VERSION_MINOR@@OpendTect_VERSION_PATCH@
-
-#endif

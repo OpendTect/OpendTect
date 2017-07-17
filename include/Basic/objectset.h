@@ -10,13 +10,8 @@ ________________________________________________________________________
 
 -*/
 
-#ifndef odset_h
 #include "odset.h"
-#endif
-#ifndef vectoraccess_h
 #include "vectoraccess.h"
-#endif
-
 #ifdef __debug__
 # include "debug.h"
 #endif

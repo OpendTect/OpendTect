@@ -11,12 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#ifndef odset_h
 #include "odset.h"
-#endif
-#ifndef vectoraccess_h
 #include "vectoraccess.h"
-#endif
 
 
 /*!\brief Base class for TypeSet, usually not used as such. */
@@ -75,7 +71,7 @@ public:
     inline virtual void		swap(od_int64,od_int64);
     inline virtual void		move(size_type from,size_type to);
     inline virtual void		getReOrdered(const size_type*,
-	    				     TypeSetBase<T,I>&);
+					     TypeSetBase<T,I>&);
 				//!< Fills as per the given array of indexes.
 
     inline virtual void		reverse();
@@ -401,7 +397,7 @@ void TypeSetBase<T,I>::move( I idxfrom, I idxto )
 {
     if ( !validIdx(idxfrom) || !validIdx(idxto) )
 	return;
-    
+
     T tmp = vec_[idxfrom];
     insert( idxto, tmp );
     vec_.remove( idxfrom < idxto ? idxfrom : idxfrom+1 );

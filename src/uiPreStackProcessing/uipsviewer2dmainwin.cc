@@ -745,7 +745,7 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 				= ColTab::Sequence::sDefaultName();
 
 		*newmapsu = psapp.ddpars_.wva_.mapper_->setup();
-		newmapsu->setClipRate( ColTab::ClipRatePair(0.0f,0.0f) );
+		newmapsu->setNoClipping();
 		psapp.ddpars_.wva_.mapper_->setup() = *newmapsu;
 	    }
 	}

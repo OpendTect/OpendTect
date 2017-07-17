@@ -10,9 +10,7 @@ ________________________________________________________________________
 
 */
 
-#ifndef commondefs_h
-# include "commondefs.h"
-#endif
+#include "commondefs.h"
 #include <utility>
 
 class IOPar;

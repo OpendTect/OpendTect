@@ -10,9 +10,5 @@ ________________________________________________________________________
 
 -*/
 
-#ifndef typeset_h
 # include "typeset.h"
-#endif
-#ifndef objectset_h
 # include "objectset.h"
-#endif

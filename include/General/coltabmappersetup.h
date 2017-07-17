@@ -42,6 +42,8 @@ public:
     // When auto-scaling, need a clip rate
     mImplSimpleMonitoredGetSet(inline,clipRate,setClipRate,
 				ClipRatePair,cliprate_,cAutoScaleChange());
+    void			setNoClipping()
+				{ setClipRate( ClipRatePair(0.f,0.f) ); }
 
     // Use Histogram equalisation?
     mImplSimpleMonitoredGetSet(inline,doHistEq,setDoHistEq,

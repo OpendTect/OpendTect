@@ -10,15 +10,14 @@ ________________________________________________________________________
 
 -*/
 
-#ifndef gendefs_h
 # include "gendefs.h"
-#endif
+
 
 namespace OD
 {
 
 /*!
-\brief Base class for all sets used in OpendTect. 
+\brief Base class for all sets used in OpendTect.
 
 Guaranteed are also:
 
@@ -59,7 +58,7 @@ inline void removeRange( ODSET& inst, size_type start, size_type stop )
 
 
 /*!\brief Adds all names from a set to another set with an add() function
-  	(typically a BufferStringSet) */
+	(typically a BufferStringSet) */
 
 template <class ODSET,class WITHADD>
 inline void addNames( const ODSET& inp, WITHADD& withadd )

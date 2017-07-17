@@ -10,9 +10,8 @@ ________________________________________________________________________
 
 */
 
-#ifndef commondefs_h
-# include "commondefs.h"
-#endif
+#include "commondefs.h"
+
 
 mGlobal(Basic) void ErrMsg(const char*,bool progr=false);
 

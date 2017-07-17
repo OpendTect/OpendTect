@@ -12,12 +12,10 @@ Some general utilities, that need to be accessible in many places:
 
 -*/
 
-#ifndef gendefs_h
 #include "basicmod.h"
 #include "gendefs.h"
-#endif
-
 # include "string2.h"
+
 
 extern "C" {
 

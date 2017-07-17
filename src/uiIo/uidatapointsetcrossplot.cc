@@ -116,8 +116,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     y_.defaxsu_.border_ = setup_.minborder_;
     y2_.defaxsu_.border_ = setup_.minborder_;
 
-    y3mapper_->setup().setClipRate( ColTab::ClipRatePair(0.f,0.f) );
-    y4mapper_->setup().setClipRate( ColTab::ClipRatePair(0.f,0.f) );
+    y3mapper_->setup().setNoClipping();
+    y4mapper_->setup().setNoClipping();
 
     reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reSizeDrawCB) );
     reDrawNeeded.notify( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );

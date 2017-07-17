@@ -14,10 +14,8 @@ Beware that all functions may return a pointer to *the same* static buffer!
 
 -*/
 
-#ifndef gendefs_h
 #include "basicmod.h"
 #include "gendefs.h"
-#endif
 
 extern "C" {
 

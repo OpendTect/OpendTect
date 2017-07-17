@@ -148,8 +148,7 @@ void uiTieView::initFlatViewer()
     app.annot_.x2_.sampling_ = 0.1;
     app.annot_.x2_.showgridlines_ = true;
     app.ddpars_.show( true, false );
-    app.ddpars_.wva_.mapper_->setup().setClipRate(
-					ColTab::ClipRatePair(0.f,0.f) );
+    app.ddpars_.wva_.mapper_->setup().setNoClipping();
     app.annot_.x1_.name_ = data_.sKeySeismic();
     app.annot_.x2_.name_ =  "TWT";
     app.annot_.title_ = tr("Synthetics<--------------------"

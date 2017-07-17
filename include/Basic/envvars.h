@@ -10,10 +10,9 @@ ________________________________________________________________________
 
 -*/
 
-#ifndef gendefs_h
 #include "basicmod.h"
 #include "gendefs.h"
-#endif
+
 
 mGlobal(Basic) const char* GetEnvVar(const char*);
 		/*!< getenv or other source. Cannot be called before

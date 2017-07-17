@@ -1121,12 +1121,12 @@ void uiStratSynthDisp::setPreStackMapper()
 	RefMan<ColTab::MapperSetup> newmapsu = new ColTab::MapperSetup(
 				vwr.appearance().ddpars_.vd_.mapper_->setup() );
 	newmapsu->setNotFixed();
-	newmapsu->setClipRate( ColTab::ClipRatePair(0.f,0.f) );
+	newmapsu->setNoClipping();
 	vwr.appearance().ddpars_.vd_.mapper_->setup() = *newmapsu;
 	vwr.appearance().ddpars_.vd_.colseqname_
 			= ColTab::Sequence::sDefaultName();
 	*newmapsu = vwr.appearance().ddpars_.wva_.mapper_->setup();
-	newmapsu->setClipRate( ColTab::ClipRatePair(0.f,0.f) );
+	newmapsu->setNoClipping();
 	vwr.appearance().ddpars_.wva_.mapper_->setup() = *newmapsu;
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }

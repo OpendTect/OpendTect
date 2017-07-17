@@ -150,7 +150,7 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
 	RefMan<ColTab::MapperSetup> newmsu
 		    = y3coltabfld_->mapper().setup().clone();
 	newmsu->setNotFixed();
-	newmsu->setClipRate( ColTab::ClipRatePair(0.f,0.f) );
+	newmsu->setNoClipping();
 	y3coltabfld_->mapper().setup() = *newmsu;
 	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
 	plotter_.setOverlayY1AttMapr( y3coltabfld_->mapper() );
@@ -169,7 +169,7 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
 	RefMan<ColTab::MapperSetup> newmsu
 		    = y4coltabfld_->mapper().setup().clone();
 	newmsu->setNotFixed();
-	newmsu->setClipRate( ColTab::ClipRatePair(0.f,0.f) );
+	newmsu->setNoClipping();
 	y4coltabfld_->mapper().setup() = *newmsu;
 	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
 	plotter_.setOverlayY2AttMapr( y4coltabfld_->mapper() );

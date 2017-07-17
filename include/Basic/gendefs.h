@@ -25,15 +25,10 @@ ________________________________________________________________________
 
 -*/
 
-#ifndef undefval_h
-# include "undefval.h"
-#endif
-#ifndef commontypes_h
+#include "undefval.h"
 #include "commontypes.h"
-#endif
-#ifndef errmsg_h
 #include "errmsg.h"
-#endif
+
 
 #ifdef __cpp__
 

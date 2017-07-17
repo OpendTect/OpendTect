@@ -149,8 +149,7 @@ void uiWavelet::initWaveletViewer()
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.overlap_ = 0;
-    app.ddpars_.wva_.mapper_->setup().setClipRate(
-					ColTab::ClipRatePair(0.f,0.f) );
+    app.ddpars_.wva_.mapper_->setup().setNoClipping();
     app.ddpars_.wva_.refline_ = Color::Black();
     app.setDarkBG( false );
     viewer_->setInitialSize( uiSize(80,100) );
