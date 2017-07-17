@@ -83,7 +83,7 @@ inline IT DeSpiker<VT,IT>::getSpikeIdx( const VT* vals, IT sz,
 	    previdx = 1;
 	if ( nextidx >= sz )
 	    nextidx = sz-2;
-	*newvalptr = VT(0.5) * (vals[previdx] + vals[nextidx]);
+	*newvalptr = avg;
     }
 
     return targetidx;
@@ -102,7 +102,7 @@ inline bool DeSpiker<VT,IT>::deSpike( VT* vals, IT sz ) const
 {
     float newval;
     bool hadspikes = false;
-    while ( true )
+    for ( IT idx=0; idx<500 /* Max nr to ensure no infinite loops*/; idx++ )
     {
 	const IT spikeidx = getSpikeIdx( vals, sz, &newval );
 	if ( spikeidx < 0 )
