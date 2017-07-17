@@ -1621,7 +1621,9 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 
 	const uiString res = nlaserv_->prepareInputData( dpss );
-	if ( !res.isEqualTo(uiNLAPartServer::sKeyUsrCancel()) )
+	if ( res.isEqualTo(uiNLAPartServer::sKeyUsrCancel()) )
+	    return true;
+	else if ( !res.isEmpty() )
 	    uiMSG().warning( res );
 
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
