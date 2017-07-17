@@ -37,7 +37,9 @@ public:
 			uiBatchSetup(uiParent*,
 				     const IOObj* setupsel=0,
 				     bool is2d=false);
-                        ~uiBatchSetup();
+			~uiBatchSetup();
+
+    void		setIOObj(const IOObj*);
 
 protected:
 

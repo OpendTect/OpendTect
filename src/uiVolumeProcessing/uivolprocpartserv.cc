@@ -26,9 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 uiVolProcPartServer::uiVolProcPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , volprocchain_(0)
-    , volprocchaindlg_(0)
     , volprocchain2d_(0)
+    , volprocchaindlg_(0)
     , volprocchaindlg2d_(0)
+    , volprocdlg_(0)
+    , volprocdlg2d_(0)
 {
 }
 
@@ -36,9 +38,9 @@ uiVolProcPartServer::uiVolProcPartServer( uiApplService& a )
 uiVolProcPartServer::~uiVolProcPartServer()
 {
     if ( volprocchain_ ) volprocchain_->unRef();
-    delete volprocchaindlg_;
     if ( volprocchain2d_ ) volprocchain2d_->unRef();
-    delete volprocchaindlg2d_;
+    delete volprocchaindlg_; delete volprocchaindlg2d_;
+    delete volprocdlg_; delete volprocdlg2d_;
 }
 
 
@@ -80,8 +82,8 @@ void uiVolProcPartServer::doVolProc( const MultiID* mid, const char* steptype,
     else
 	vprocdlg->setChain( *vprocchain );
 
-    vprocdlg->raise();
     vprocdlg->show();
+    vprocdlg->raise();
     if ( steptype )
 	vprocdlg->addStep( steptype );
 }
@@ -104,8 +106,17 @@ void uiVolProcPartServer::volprocchainDlgClosed( CallBacker* cb )
 
 void uiVolProcPartServer::createVolProcOutput( const IOObj* sel, bool is2d )
 {
-    VolProc::uiBatchSetup dlg( parent(), sel, is2d );
-    dlg.go();
+    VolProc::uiBatchSetup*& dlg = is2d ? volprocdlg2d_ : volprocdlg_;
+    if ( !dlg )
+    {
+	dlg = new VolProc::uiBatchSetup( parent(), sel, is2d );
+	dlg->setModal( false );
+    }
+    else
+	dlg->setIOObj( sel );
+
+    dlg->show();
+    dlg->raise();
 }
 
 

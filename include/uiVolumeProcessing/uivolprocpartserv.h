@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class IOObj;
 class MultiID;
-namespace VolProc { class Chain; class uiChain; }
+namespace VolProc { class Chain; class uiBatchSetup; class uiChain; }
 
 /*!
 \brief Service provider for application level - VolumeProcessing
@@ -46,6 +46,8 @@ protected:
     VolProc::Chain*	volprocchain2d_;
     VolProc::uiChain*	volprocchaindlg_;
     VolProc::uiChain*	volprocchaindlg2d_;
+    VolProc::uiBatchSetup*	volprocdlg_;
+    VolProc::uiBatchSetup*	volprocdlg2d_;
 };
 
 #endif
