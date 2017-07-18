@@ -28,7 +28,6 @@
 #include "uisegyread.h"
 
 #include "uifileselector.h"
-#include "uilabel.h"
 #include "uiseisfileman.h"
 #include "uiseispsman.h"
 #include "uisurvinfoed.h"
@@ -37,8 +36,6 @@
 #include "uimsg.h"
 #include "uitoolbar.h"
 #include "envvars.h"
-#include "fileformat.h"
-#include "oddirs.h"
 
 #include "odplugin.h"
 
@@ -83,6 +80,7 @@ public:
     void		exp3DPSCB(CallBacker*);
     void		reSortCB(CallBacker*);
     void		readStarterCB(CallBacker*);
+    void		bulkImport(CallBacker*);
 
     void		impClassicCB( CallBacker* )	{ impClassic( false ); }
     void		linkClassicCB( CallBacker* )	{ impClassic( true ); }
@@ -208,8 +206,16 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     impclassmnu->insertItem( new uiAction( tr("Link"),
 		   muiSEGYMgrCB(linkClassicCB), "link") );
 
-    mnumgr_.dtectTB()->addButton( segyiconid_, tr("SEG-Y import"),
-				  mCB(this,uiSEGYMgr,readStarterCB) );
+    int segyimp = mnumgr_.dtectTB()->addButton( segyiconid_,
+						tr("SEG-Y import") );
+
+    uiMenu* mnu = new uiMenu();
+    mnu->insertItem(new uiAction(m3Dots(tr("Single-Vintage")),
+		    mCB(this,uiSEGYMgr,readStarterCB),"singlefile") );
+    mnu->insertItem(new uiAction(m3Dots(tr("Multiple-Vintage")),
+		    mCB(this,uiSEGYMgr,bulkImport),"copyobj") );
+    mnumgr_.dtectTB()->setButtonMenu( segyimp, mnu, uiToolButton::InstantPopup);
+
 }
 
 
@@ -268,23 +274,15 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 }
 
 
-void uiSEGYMgr::readStarterCB( CallBacker* )
+void uiSEGYMgr::readStarterCB( CallBacker* cb )
 {
-    //TODO replace with nice special-purpose, uiCheckList-based dialog
-    // alternatively, make the action button have a menu
-    int res = uiMSG().question( tr("What type of import do you want?"),
-		      tr("Single or Same-Vintage"), tr("Bulk import"),
-		      uiStrings::sCancel() );
-    if ( res < 0 )
-	return;
+    uiSEGYReadStarter readstdlg( ODMainWin(), false );
+    readstdlg.go();
+}
 
-    if ( res == 1 )
-    {
-	uiSEGYReadStarter readstdlg( ODMainWin(), false );
-	readstdlg.go();
-	return;
-    }
 
+void uiSEGYMgr::bulkImport( CallBacker* )
+{
     uiFileSelector::Setup fssu;
     fssu.selectMultiFile()
 	.formats( uiSEGYFileSpec::fileFmts() );
@@ -300,7 +298,6 @@ void uiSEGYMgr::readStarterCB( CallBacker* )
     uiSEGYBulkImporter bulkimpdlg( ODMainWin(), selfiles );
     bulkimpdlg.go();
 }
-
 
 mDefODInitPlugin(uiSEGY)
 {
