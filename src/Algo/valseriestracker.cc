@@ -128,11 +128,6 @@ EventTracker::EventTracker()
     , comparemethod_(SeedTrace)
     , allowamplsignchg_(true)
 {
-#define mAddAV(v) allowedvars_ += v
-//    mAddAV(0.01); mAddAV(0.02); mAddAV(0.05); mAddAV(0.1); mAddAV(0.2);
-    mAddAV( 0.25 );
-#undef mAddAV
-
 }
 
 
