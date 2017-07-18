@@ -246,25 +246,34 @@ bool IOStream::putTo( ascostream& stream ) const
 	stream.put( "$Multi", fms );
     }
 
-    const FilePath fpsurvdir( GetDataDir(), dirName() );
-    const BufferString survdir( fpsurvdir.fullPath() );
+    const FilePath fpsurvsubdir( GetDataDir(), dirName() );
+    const BufferString survsubdir( fpsurvsubdir.fullPath() );
     nrfiles = fs_.fnames_.size();
 
     for ( int idx=0; idx<nrfiles; idx++ )
     {
-	FilePath fp( fs_.fnames_.get(idx) );
-	BufferString fnm( fp.fullPath() );
-	int offs = 0;
+	const FilePath fp( fs_.fnames_.get(idx) );
+	const BufferString fnm( fp.fullPath() );
+	BufferString omffnm( fnm );
 	if ( fp.isAbsolute() )
 	{
-	    BufferString head( fp.dirUpTo( fpsurvdir.nrLevels() - 1 ) );
-	    if ( head == survdir )
-		offs = head.size()+1;
+	    BufferString head( fp.dirUpTo( fpsurvsubdir.nrLevels() - 1 ) );
+	    if ( head == survsubdir )
+		omffnm = fnm.buf() + head.size()+1;
+	    else
+	    {
+		head.set( fp.dirUpTo( fpsurvsubdir.nrLevels() - 2 ) );
+		if ( head == GetDataDir() )
+		{
+		    FilePath fpomf( "..", fnm.buf() + head.size()+1 );
+		    omffnm.set( fpomf.fullPath() );
+		}
+	    }
 	}
 	if ( idx == 0 )
-	    stream.put( "$Name", fnm.buf() + offs );
+	    stream.put( "$Name", omffnm );
 	else
-	    stream.put( BufferString("$Name.",idx).buf(), fnm.buf() + offs );
+	    stream.put( BufferString("$Name.",idx).buf(), omffnm );
     }
 
     return true;
