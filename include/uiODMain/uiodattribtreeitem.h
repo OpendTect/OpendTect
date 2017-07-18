@@ -33,6 +33,7 @@ public:
     static uiString	createDisplayName( int visid, int attrib );
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
+    static uiString	sKeyUseColSettingsMenuTxt();
     virtual void	updateDisplay();
 
 protected:
@@ -53,4 +54,5 @@ protected:
 
     MenuItem		selattrmnuitem_;
     MenuItem		colsettingsmnuitem_;
+    MenuItem		usecolsettingsmnuitem_;
 };
