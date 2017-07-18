@@ -44,6 +44,8 @@ public:
 
     bool		isForWrite() const
 			{ return !isForRead(selmode_); }
+    bool		isForDirectory() const
+			{ return isDirectory(selmode_); }
     Setup&		setFileName( const char* fnm )
 			{
 			    initialselection_.setEmpty();
