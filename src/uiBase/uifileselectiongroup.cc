@@ -29,6 +29,7 @@ uiFileSelectionGroup::uiFileSelectionGroup( uiParent* p, const Setup& su )
     if ( setup_.isForWrite() || setup_.isForDirectory() )
 	leftgrp = new uiGroup( this, "Left group" );
     dirselfld_ = new uiListBox( leftgrp ? leftgrp : this, lbsu, "Directories" );
+    mAttachCB( dirselfld_->selectionChanged, uiFileSelectionGroup::dirSelCB );
     if ( !leftgrp )
 	leftgrp = dirselfld_;
     else
@@ -37,7 +38,32 @@ uiFileSelectionGroup::uiFileSelectionGroup( uiParent* p, const Setup& su )
     }
 
     lbsu.prefwidth( 50 ).cm( sSingle(setup_.selmode_) ? OD::ChooseOnlyOne
-	    					      : OD::ChooseZeroOrMore );
+						      : OD::ChooseZeroOrMore );
     leafselfld_ = new uiListBox( this, lbsu, "Selectables" );
     leafselfld_->attach( rightOf, leftgrp );
+}
+
+
+void uiFileSelectionGroup::dirSelCB( CallBacker* )
+{
+}
+
+
+void uiFileSelectionGroup::fnmSelCB( CallBacker* )
+{
+}
+
+
+void uiFileSelectionGroup::filtChgCB( CallBacker* )
+{
+}
+
+
+void uiFileSelectionGroup::sortChgCB( CallBacker* )
+{
+}
+
+
+void uiFileSelectionGroup::fnmChgCB( CallBacker* )
+{
 }

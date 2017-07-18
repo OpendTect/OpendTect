@@ -128,7 +128,7 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
 
     uiGroup* lblgrp = new uiGroup( this, "Lat/Long Label grp" );
     uiLabel* lnglbl = new uiLabel( lblgrp, uiStrings::sLongitude() );
-    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLat() );
+    uiLabel* latlbl = new uiLabel( lblgrp, uiStrings::sLatitude() );
     latlbl->attach( alignedBelow, lnglbl );
     lblgrp->setHAlignObj( lnglbl );
 

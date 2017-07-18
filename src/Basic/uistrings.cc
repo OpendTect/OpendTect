@@ -482,11 +482,17 @@ uiString uiStrings::sInsert()
 uiString uiStrings::sInvalid()
 { return tr("Invalid"); }
 
+uiString uiStrings::sLatitude( bool abbrev )
+{ return abbrev ? tr("Lat") : tr("Latitude"); }
+
 uiString uiStrings::sLoad()
 { return tr("Load"); }
 
 uiString uiStrings::sLogs()
 { return sLog(mPlural); }
+
+uiString uiStrings::sLongitude( bool abbrev )
+{ return abbrev ? tr("Long") : tr("Longitude"); }
 
 uiString uiStrings::sManage()
 { return tr("Manage"); }

@@ -359,7 +359,7 @@ public:
     static uiString sInvalid();
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
     static uiString sInterpolation()	{ return tr("Interpolation"); }
-    static uiString sLat()		{ return tr("Latitude"); }
+    static uiString sLatitude(bool abbrev=false);
     static uiString sLayer(int num=1)	{ return tr("Layer",0,num); }
     static uiString sLine(int num=1)	{ return tr("Line",0,num); }
     static uiString sLineName(int num=1) { return tr("Line Name",0,num); }
@@ -372,7 +372,7 @@ public:
     static uiString sLog(int num=1)	{ return tr("Log",0,num); }
     static uiString sLogs();
     static uiString sLogFile()		{ return tr("Log File"); }
-    static uiString sLongitude()	{ return tr("Longitude"); }
+    static uiString sLongitude(bool abbrev=false);
     static uiString sManage();
     static uiString sManual()		{ return tr("Manual"); }
     static uiString sManWav(){ return uiStrings::phrManage( sWavelet(mPlural));}
