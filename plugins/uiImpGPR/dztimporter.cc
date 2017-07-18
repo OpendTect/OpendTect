@@ -55,8 +55,6 @@ bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
 #define mRetFalse nsamp = 0; return false
     if ( nsamp < 1 )
 	{ emsg = "Zero Nr of samples found."; mRetFalse; }
-    if ( sps < 1 )
-	{ emsg = "Zero scans per second found."; mRetFalse; }
     if ( range < 1 )
 	{ emsg = "Zero trace length found."; mRetFalse; }
     if ( data < 128 )
