@@ -47,9 +47,9 @@ uiFileSel::Setup::Setup( ContentType ct, const char* filenm )
 }
 
 
-uiFileSel::uiFileSel( uiParent* p, const uiString& txt, const Setup& setup )
+uiFileSel::uiFileSel( uiParent* p, const uiString& txt, const Setup& setp )
     : uiGroup(p,"File input")
-    , setup_(setup)
+    , setup_(setp)
     , newSelection(this)
     , acceptReq(this)
     , checked(this)
