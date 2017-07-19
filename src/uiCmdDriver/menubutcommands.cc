@@ -222,9 +222,10 @@ bool GetButtonMenuItemCmd::act( const char* parstr )
     return true;
 }
 
-#define mTitleBarButWarn( butnm, noaccess, cmdkey ) \
+#define mTitleBarButWarn( butnm, noaccss, cmdkey ) \
 { \
     BufferString buf("Use \""); buf += cmdkey; buf += "\"-command to access"; \
+    const bool noaccess = (noaccss); \
     if ( noaccess ) \
 	buf = "This window offers no access to"; \
 \
@@ -242,7 +243,7 @@ bool GetButtonMenuItemCmd::act( const char* parstr )
     nrmatches += key.isMatching("Maximize"); \
     nrmatches += key.isMatching("Restore Down") || key.isMatching("Restore"); \
 \
-    if ( objsfound.isEmpty() && !nrgrey && nrmatches!=0 ) \
+    if ( objsfound.isEmpty() && nrgrey==0 && nrmatches!=0 ) \
     { \
 	if ( key.isMatching("Menu") ) \
 	    mTitleBarButWarn( "Menu", true, 0 ); \
