@@ -14,9 +14,18 @@ ________________________________________________________________________
 #include "winutils.h"
 #include "genc.h"
 
+
 #ifdef __win__
-# include <direct.h>
-# include "winstreambuf.h"
+# include "winutils.h"
+# include <windows.h>
+# include <istream>
+# include <iostream>
+# ifdef __msvc__
+#  define popen _popen
+#  define pclose _pclose
+#  define fileno(s) _fileno(s)
+#  include "winstreambuf.h"
+# endif
 #else
 # include "sys/stat.h"
 # include <unistd.h>
@@ -43,7 +52,7 @@ namespace File
 {
 
 
-mExpClass(Basic) LocalFileSystemAccess : public SystemAccess
+class LocalFileSystemAccess : public SystemAccess
 { mODTextTranslationClass(LocalFileSystemAccess);
 public:
 
