@@ -51,6 +51,7 @@ private:
 
     void		setCubeIdxRange();
     bool		setTrc();
+    void			adjustSteeringScaler(int compidx);
 
     TypeSet<int>		compidxs_;
     ObjectSet<Scaler>		compscalers_; //Same size as compidxs_
