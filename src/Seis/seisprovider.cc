@@ -423,7 +423,7 @@ uiRetVal Seis::Provider::getGather( const TrcKey& trcky,
 }
 
 
-uiRetVal Seis::Provider::getSequence( Seis::RawTrcsSequence& databuf ) const
+uiRetVal Seis::Provider::getSequence( Seis::RawTrcsSequence& rawseq ) const
 {
     uiRetVal uirv;
 
@@ -431,7 +431,7 @@ uiRetVal Seis::Provider::getSequence( Seis::RawTrcsSequence& databuf ) const
     if ( !handleSetupChanges(uirv) )
 	return uirv;
 
-    doGetSequence( databuf, uirv );
+    doGetSequence( rawseq, uirv );
     locker.unlockNow();
 
     return uirv;
@@ -536,23 +536,24 @@ void Seis::Provider::doGetGather( const TrcKey& tkey, SeisTrcBuf& tbuf,
 }
 
 
-void Seis::Provider::doGetSequence( Seis::RawTrcsSequence& databuf,
+void Seis::Provider::doGetSequence( Seis::RawTrcsSequence& rawseq,
 				    uiRetVal& uirv ) const
 {
     SeisTrc trc; SeisTrcBuf tbuf( true );
-    const int nrpos = databuf.nrPositions();
-    const bool isps = databuf.isPS();
+    const int nrpos = rawseq.nrPositions();
+    const bool isps = rawseq.isPS();
     for ( int ipos=0; ipos<nrpos; ipos++ )
     {
+	const TrcKey& tk( rawseq.getPosition(ipos) );
 	if ( isps )
 	{
-	    getNextGather( tbuf );
-	    databuf.copyFrom( tbuf );
+	    getGather( tk, tbuf );
+	    rawseq.copyFrom( tbuf );
 	}
 	else
 	{
-	    getNext( trc );
-	    databuf.copyFrom( trc, &ipos );
+	    get( tk, trc );
+	    rawseq.copyFrom( trc, &ipos );
 	}
     }
 }
@@ -738,14 +739,14 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 		break;
 	    }
 	}
-    }
 #ifdef __debug__
-    else
-    {
-	if ( trc.info().trckey_ != (*tks_)[*ipos] )
-	    pErrMsg("wrong position");
-    }
+	else
+	{
+	    if ( trc.info().trckey_ != (*tks_)[*ipos] )
+		pErrMsg("wrong position");
+	}
 #endif
+    }
 
     DataBuffer::buf_type* out = getData( pos, 0 );
     const od_int64 nrbytes = info_.nrdatabytespespercomptrc_;

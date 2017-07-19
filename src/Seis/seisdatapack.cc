@@ -311,32 +311,36 @@ RegularSeisDataPack* RegularSeisDataPack::getSimilar() const
 
 void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
 {
-    if ( is2D() )
-	{ pErrMsg("Will not use CubeData for 2D"); return; }
-
     trcssampling_ = newposdata;
 }
 
 
 const PosInfo::CubeData* RegularSeisDataPack::trcsSampling() const
 {
-    return is2D() ? 0 : trcssampling_.ptr();
+    return trcssampling_.ptr();
 }
 
 
 void RegularSeisDataPack::getTrcPositions( PosInfo::CubeData& cd ) const
 {
     cd.setEmpty();
-    if ( !is2D() )
+    if ( trcssampling_ )
+	cd = *trcssampling_;
+    else if ( !is2D() && !sampling_.isDefined() )
+	cd.setEmpty();
+    else
     {
-	if ( trcssampling_ )
-	    cd = *trcssampling_;
-	else if ( !sampling_.isDefined() )
-	    cd.setEmpty();
+	const TrcKeySampling& tks = sampling_.hsamp_;
+	if ( is2D() )
+	{
+	    PosInfo::LineData* linedata =
+				   new PosInfo::LineData( tks.getGeomID() );
+	    linedata->segments_ += tks.trcRange();
+	    cd.add( linedata );
+	}
 	else
 	{
-	    const TrcKeySampling& hs = sampling_.hsamp_;
-	    cd.generate( hs.start_, hs.stop_, hs.step_ );
+	    cd.generate( tks.start_, tks.stop_, tks.step_ );
 	}
     }
 }

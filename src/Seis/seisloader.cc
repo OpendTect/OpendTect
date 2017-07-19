@@ -17,6 +17,7 @@
 #include "od_ostream.h"
 #include "odsysmem.h"
 #include "posinfo.h"
+#include "posinfo2d.h"
 #include "prestackgather.h"
 #include "samplingdata.h"
 #include "seisbuf.h"
@@ -518,8 +519,8 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
 			trc.data().getInterpreter(idcin)->dataChar();
 		if ( storarr && dp_->getDataDesc()==trcdatadesc )
 		{
-		    const DataBuffer* databuf = trc.data().getComponent(idcin);
-		    const int bytespersamp = databuf->bytesPerElement();
+		    const DataBuffer* rawseq = trc.data().getComponent(idcin);
+		    const int bytespersamp = rawseq->bytesPerElement();
 		    const od_int64 offset = arr.info().getOffset( 0, idy, 0 );
 		    char* dststartptr = storarr + offset*bytespersamp;
 
@@ -528,7 +529,7 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
 			const float zval = tkzs_.zsamp_.atIndex( zidx );
 			const int trczidx = trc.nearestSample( zval );
 			const unsigned char* srcptr =
-				databuf->data() + trczidx*bytespersamp;
+				rawseq->data() + trczidx*bytespersamp;
 			char* dstptr = dststartptr + zidx*bytespersamp;
 			// Checks if amplitude equals undef value of underlying
 			// data type as the array is initialized with undefs.
@@ -580,13 +581,13 @@ namespace Seis
 class ArrayFiller : public Task
 {
 public:
-ArrayFiller( const RawTrcsSequence& databuf, const StepInterval<float>& zsamp,
+ArrayFiller( const RawTrcsSequence& rawseq, const StepInterval<float>& zsamp,
 	     bool samedatachar, bool needresampling,
 	     const TypeSet<int>& components,
 	     const ObjectSet<Scaler>& compscalers,
 	     const TypeSet<int>& outcomponents,
 	     RegularSeisDataPack& dp, bool is2d )
-    : databuf_(databuf)
+    : rawseq_(rawseq)
     , zsamp_(zsamp)
     , samedatachar_(samedatachar)
     , needresampling_(needresampling)
@@ -600,13 +601,13 @@ ArrayFiller( const RawTrcsSequence& databuf, const StepInterval<float>& zsamp,
 
 ~ArrayFiller()
 {
-    delete &databuf_;
+    delete &rawseq_;
 }
 
 
 bool execute()
 {
-    const int nrpos = databuf_.nrPositions();
+    const int nrpos = rawseq_.nrPositions();
     for ( int itrc=0; itrc<nrpos; itrc++ )
     {
 	if ( !doTrace(itrc) )
@@ -618,7 +619,7 @@ bool execute()
 
 bool doTrace( int itrc )
 {
-    const TrcKey& tk = databuf_.getPosition( itrc );
+    const TrcKey& tk = rawseq_.getPosition( itrc );
     const int idx0 = is2d_ ? 0 : dp_.sampling().hsamp_.lineIdx( tk.lineNr() );
     const int idx1 = dp_.sampling().hsamp_.trcIdx( tk.trcNr() );
 
@@ -646,9 +647,9 @@ bool doTrace( int itrc )
 		    // Check if amplitude equals undef value of underlying data
 		    // type knowing that array has been initialized with undefs
 		    const float zval = zsamp_.atIndex( zidx );
-		    const int trczidx = databuf_.getZRange().nearestIndex(zval);
+		    const int trczidx = rawseq_.getZRange().nearestIndex(zval);
 		    const unsigned char* srcptr =
-					 databuf_.getData(itrc,idcin,trczidx);
+					 rawseq_.getData(itrc,idcin,trczidx);
 		    char* dstptr = dststartptr + (zidx+startidx)*bytespersamp;
 		    if ( !scaler && memcmp(dstptr,srcptr,bytespersamp) )
 		    {
@@ -656,7 +657,7 @@ bool doTrace( int itrc )
 			continue;
 		    }
 
-		    const float rawval = databuf_.getValue( zval, itrc, idcin );
+		    const float rawval = rawseq_.getValue( zval, itrc, idcin );
 		    const float trcval = scaler
 				       ? mCast(float,scaler->scale(rawval) )
 				       : rawval;
@@ -665,9 +666,9 @@ bool doTrace( int itrc )
 	    }
 	    else
 	    {
-		const int trczidx = databuf_.getZRange().nearestIndex(
+		const int trczidx = rawseq_.getZRange().nearestIndex(
 						zsamp_.atIndex( 0 ) );
-		const unsigned char* srcptr = databuf_.getData( itrc, idcin,
+		const unsigned char* srcptr = rawseq_.getData( itrc, idcin,
 								trczidx );
 		char* dstptr = dststartptr;
 		OD::memCopy(dstptr,srcptr,bytespersamp*nrzsamples );
@@ -678,7 +679,7 @@ bool doTrace( int itrc )
 	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
 	    {
 		const float zval = zsamp_.atIndex( zidx );
-		const float rawval = databuf_.getValue( zval, itrc, idcin );
+		const float rawval = rawseq_.getValue( zval, itrc, idcin );
 		const float trcval = scaler
 				   ? mCast(float,scaler->scale(rawval) )
 				   : rawval;
@@ -692,7 +693,7 @@ bool doTrace( int itrc )
 
 protected:
 
-    const RawTrcsSequence&	databuf_;
+    const RawTrcsSequence&	rawseq_;
     const StepInterval<float>&	zsamp_;
     const TypeSet<int>&		components_;
     const ObjectSet<Scaler>&	compscalers_;
@@ -716,7 +717,9 @@ Seis::SequentialFSLoader::SequentialFSLoader( const IOObj& ioobj,
     , prov_(0)
     , initialized_(false)
     , nrdone_(0)
+    , line2ddata_(0)
     , trcssampling_(0)
+    , trcsiterator2d_(0)
     , trcsiterator3d_(0)
     , samedatachar_(false)
     , needresampling_(true)
@@ -744,7 +747,9 @@ Seis::SequentialFSLoader::~SequentialFSLoader()
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 
     delete prov_;
+    delete trcsiterator2d_;
     delete trcsiterator3d_;
+    delete line2ddata_;
     delete trcssampling_;
 }
 
@@ -837,40 +842,41 @@ bool Seis::SequentialFSLoader::init()
 	    return false;
     }
 
-    if ( !is2d )
+    delete trcssampling_;
+    trcssampling_ = new PosInfo::CubeData();
+    if ( is2d )
     {
-	mDynamicCastGet(const Seis::Provider3D*,prov3d,prov_);
-	if ( !prov3d ) return false;
-
-	PosInfo::CubeData cubedata;
-	prov3d->getGeometryInfo( cubedata );
-	cubedata.limitTo( tkzs_.hsamp_ );
-	if ( !cubedata.isFullyRectAndReg() )
-	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
-    }
-
-    nrdone_ = 0;
-
-    if ( !prov_ ) return false;
-    seistkzs.hsamp_ = tkzs_.hsamp_;
-    sd_ = new Seis::RangeSelData( seistkzs );
-    prov_->setSelData( sd_ );
-
-    if ( dp_->is2D() )
-    {
-	totalnr_ = tkzs_.hsamp_.nrTrcs();
+	mDynamicCastGet(Provider2D*,prov2d,prov_)
+	if ( !prov2d ) return false;
+	const Pos::GeomID geomid( tkzs_.hsamp_.getGeomID() );
+	delete line2ddata_;
+	line2ddata_ = new PosInfo::Line2DData();
+	prov2d->getGeometryInfo( prov2d->lineNr(geomid), *line2ddata_ );
+	PosInfo::LineData* linedata = new PosInfo::LineData( geomid );
+	line2ddata_->limitTo( tkzs_.hsamp_.trcRange() );
+	line2ddata_->getSegments( *linedata );
+	trcssampling_->add( linedata );
+	delete trcsiterator2d_;
+	trcsiterator2d_ = new PosInfo::Line2DDataIterator( *line2ddata_ );
     }
     else
     {
-	if ( !trcssampling_ )
-	    trcssampling_ = new PosInfo::CubeData();
-
-	dp_->getTrcPositions( *trcssampling_ );
-	trcssampling_->limitTo( tkzs_.hsamp_ );
+	mDynamicCastGet(Provider3D*,prov3d,prov_)
+	if ( !prov3d ) return false;
+	prov3d->getGeometryInfo( *trcssampling_ );
 	delete trcsiterator3d_;
 	trcsiterator3d_ = new PosInfo::CubeDataIterator( *trcssampling_ );
-	totalnr_ = trcssampling_->totalSize();
     }
+
+    trcssampling_->limitTo( tkzs_.hsamp_ );
+    totalnr_ = line2ddata_ ? line2ddata_->size() : trcssampling_->totalSize();
+    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
+
+    nrdone_ = 0;
+
+    seistkzs.hsamp_ = tkzs_.hsamp_;
+    sd_ = new Seis::RangeSelData( seistkzs );
+    prov_->setSelData( sd_ );
 
     samedatachar_ = seissummary_->hasSameFormatAs( dp_->getDataDesc() );
     dpzsamp_ = dp_->sampling().zsamp_;
@@ -933,21 +939,21 @@ int Seis::SequentialFSLoader::nextStep()
     if ( !getTrcsPosForRead(nrposperchunk,*tks) )
 	{ delete tks; return Finished(); }
 
-    RawTrcsSequence* databuf = new RawTrcsSequence( *seissummary_,
+    RawTrcsSequence* rawseq = new RawTrcsSequence( *seissummary_,
 						    tks->size() );
-    if ( databuf ) databuf->setPositions( *tks );
-    if ( !databuf || !databuf->isOK() )
+    if ( rawseq ) rawseq->setPositions( *tks );
+    if ( !rawseq || !rawseq->isOK() )
     {
-	if ( !databuf ) delete tks;
-	delete databuf;
+	if ( !rawseq ) delete tks;
+	delete rawseq;
 	msg_ = tr("Cannot allocate trace data");
 	return ErrorOccurred();
     }
 
-    const uiRetVal uirv = prov_->getSequence( *databuf );
+    const uiRetVal uirv = prov_->getSequence( *rawseq );
     if ( !uirv.isOK() )
     {
-	delete databuf;
+	delete rawseq;
 	if ( isFinished(uirv) )
 	    return Finished();
 
@@ -958,10 +964,10 @@ int Seis::SequentialFSLoader::nextStep()
     const TypeSet<int>& outcomponents = outcomponents_
 				      ? *outcomponents_ : components_;
 
-    Task* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
+    Task* task = new ArrayFiller( *rawseq, dpzsamp_, samedatachar_,
 				  needresampling_, components_, compscalers_,
 				   outcomponents, *dp_, (*tks)[0].is2D() );
-    nrdone_ += databuf->nrPositions();
+    nrdone_ += rawseq->nrPositions();
     Threads::WorkManager::twm().addWork(
 		Threads::Work(*task,true), 0, queueid_, false, false, true );
 
@@ -973,28 +979,18 @@ bool Seis::SequentialFSLoader::getTrcsPosForRead( int& desirednrpos,
 						  TypeSet<TrcKey>& tks ) const
 {
     tks.setEmpty();
-    if ( dp_->is2D() )
+    BinID bid;
+    const bool is2d = !trcsiterator3d_;
+    const Pos::GeomID geomid( trcsiterator2d_ ? trcsiterator2d_->geomID()
+					      : mUdfGeomID );
+    for ( int idx=0; idx<desirednrpos; idx++ )
     {
-	const int nrtrcs = tkzs_.hsamp_.nrTrcs();
-	for ( int idx=0; idx<desirednrpos; idx++ )
-	{
-	    const int itrc = mCast(int,nrdone_)+idx;
-	    if ( itrc >= nrtrcs )
-		break;
+	if ( (is2d && !trcsiterator2d_->next()) ||
+	    (!is2d && !trcsiterator3d_->next(bid)) )
+	    break;
 
-	    tks += tkzs_.hsamp_.trcKeyAt( -1, itrc );
-	}
-    }
-    else
-    {
-	BinID bid;
-	for ( int idx=0; idx<desirednrpos; idx++ )
-	{
-	    if ( !trcsiterator3d_->next(bid) )
-		break;
-
-	    tks += TrcKey( tkzs_.hsamp_.survid_, bid );
-	}
+	tks += is2d ? TrcKey( geomid, trcsiterator2d_->trcNr() )
+		    : TrcKey( tkzs_.hsamp_.survid_, bid );
     }
 
     desirednrpos = tks.size();
