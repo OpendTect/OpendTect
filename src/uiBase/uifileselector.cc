@@ -174,6 +174,7 @@ class uiLocalFileSelTool : public uiFileSelTool
 public:
 
 			uiLocalFileSelTool(uiParent*,const Setup&);
+    virtual		~uiLocalFileSelTool()			{}
 
 protected:
 

@@ -21,6 +21,7 @@ ________________________________________________________________________
 mExpClass(uiBase) uiFileSelTool
 {
 public:
+    virtual		~uiFileSelTool()		{}
 
     typedef uiFileSelectorSetup	Setup;
 
