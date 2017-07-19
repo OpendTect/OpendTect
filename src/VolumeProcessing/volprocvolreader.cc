@@ -114,7 +114,7 @@ void adjustSteeringScaler()
     const LinScaler dipscaler( 0., scalefactor );
     ObjectSet<Scaler>& compscalersedit =
 				const_cast<ObjectSet<Scaler>&>( compscalers_ );
-    for ( int compidx; compidx<compscalers_.size(); compidx++ )
+    for ( int compidx=0; compidx<compscalers_.size(); compidx++ )
     {
 	if ( !compscalers_[compidx] || compscalers_[compidx]->isEmpty() )
 	    return;
