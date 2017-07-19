@@ -17,12 +17,15 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "scaler.h"
 #include "seisdatapack.h"
+#include "seisioobjinfo.h"
 #include "seisselectionimpl.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
 
 
 SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
@@ -100,8 +103,52 @@ void SeisDataPackWriter::setComponentScaler( const Scaler& scaler, int compidx )
     }
 
     delete compscalers_.replace( compidx, scaler.clone() );
+    adjustSteeringScaler( compidx );
 }
 
+
+void SeisDataPackWriter::adjustSteeringScaler( int compidx )
+{
+    if ( !writer_ || !dp_ || !dp_->is2D() ||
+	 !compscalers_[compidx] || compscalers_[compidx]->isEmpty() )
+	return;
+
+    const Seis::ObjectSummary summary( mid_ );
+    if ( !summary.is2D() )
+	return;
+
+    const IOObj* outioobj = summary.getFullInformation().ioObj();
+    BufferString type;
+    if ( !outioobj || !outioobj->pars().get(sKey::Type(),type) ||
+	 type != BufferString(sKey::Steering()) )
+	return;
+
+    const Survey::Geometry* geom = Survey::GM().getGeometry(
+					dp_->sampling().hsamp_.getGeomID() );
+    if ( !geom || !geom->as2D() )
+	return;
+
+    double trcdist = geom->as2D()->averageTrcDist();
+    const UnitOfMeasure* feetuom = UoMR().get( "Feet" );
+    if ( feetuom && SI().xyInFeet() )
+	trcdist = feetuom->getSIValue( trcdist );
+
+    double zstep = dp_->sampling().zsamp_.step;
+    const UnitOfMeasure* zuom = UnitOfMeasure::surveyDefZUnit();
+    const ZDomain::Def& zdef = SI().zDomain();
+    if ( zuom && zdef.isDepth() )
+	zstep = zuom->getSIValue( zstep );
+
+    const UnitOfMeasure* zdipuom = zdef.isDepth() ? UoMR().get( "Millimeters" )
+						  : UoMR().get( "Microseconds");
+    const UnitOfMeasure* targetzuom = zdipuom;
+    if ( targetzuom )
+	zstep = targetzuom->getUserValueFromSI( zstep );
+
+    const double scalefactor = zstep / trcdist;
+    const LinScaler dipscaler( 0., scalefactor );
+    delete compscalers_.replace( compidx, dipscaler.clone() );
+}
 
 
 od_int64 SeisDataPackWriter::nrDone() const

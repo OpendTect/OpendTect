@@ -53,6 +53,7 @@ private:
 
     void			setCubeIdxRange();
     bool			setTrc();
+    void			adjustSteeringScaler(int compidx);
 
     TypeSet<int>		compidxs_;
     MultiID			mid_;

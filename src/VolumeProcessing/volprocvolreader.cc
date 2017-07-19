@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seisparallelreader.h"
+#include "survgeom2d.h"
+#include "unitofmeasure.h"
 
 
 namespace VolProc
@@ -35,7 +37,9 @@ VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
     , components_(components)
     , compscalers_(compscalers)
     , output_(&output)
-{}
+{
+    adjustSteeringScaler();
+}
 
 
 ~VolumeReaderExecutor()
@@ -78,6 +82,51 @@ int nextStep()
 }
 
 private:
+
+void adjustSteeringScaler()
+{
+    if ( !output_ || !output_->is2D() || !ioobj_ )
+	return;
+
+    BufferString type;
+    if ( !ioobj_->pars().get(sKey::Type(),type) ||
+	 type != BufferString(sKey::Steering()) )
+	return;
+
+    const Survey::Geometry* geom = Survey::GM().getGeometry(
+				   output_->sampling().hsamp_.getGeomID() );
+    if ( !geom || !geom->as2D() )
+	return;
+
+    double trcdist = geom->as2D()->averageTrcDist();
+    const UnitOfMeasure* feetuom = UoMR().get( "Feet" );
+    if ( feetuom && SI().xyInFeet() )
+	trcdist = feetuom->getSIValue( trcdist );
+
+    double zstep = output_->sampling().zsamp_.step;
+    const UnitOfMeasure* zuom = UnitOfMeasure::surveyDefZUnit();
+    const ZDomain::Def& zdef = SI().zDomain();
+    if ( zuom && zdef.isDepth() )
+	zstep = zuom->getSIValue( zstep );
+
+    const UnitOfMeasure* zdipuom = zdef.isDepth() ? UoMR().get( "Millimeters" )
+						  : UoMR().get( "Microseconds");
+    const UnitOfMeasure* targetzuom = zdipuom;
+    if ( targetzuom )
+	zstep = targetzuom->getUserValueFromSI( zstep );
+
+    const double scalefactor = trcdist / zstep;
+    const LinScaler dipscaler( 0., scalefactor );
+    ObjectSet<Scaler>& compscalersedit =
+				const_cast<ObjectSet<Scaler>&>( compscalers_ );
+    for ( int compidx; compidx<compscalers_.size(); compidx++ )
+    {
+	if ( !compscalers_[compidx] || compscalers_[compidx]->isEmpty() )
+	    return;
+
+	delete compscalersedit.replace( compidx, dipscaler.clone() );
+    }
+}
 
 const IOObj*	ioobj_;
 const TypeSet<int>& components_;
