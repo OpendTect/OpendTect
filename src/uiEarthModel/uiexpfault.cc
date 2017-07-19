@@ -267,7 +267,7 @@ bool uiExportFault::writeAscii()
 		}
 	    }
 
-	    uiTaskRunner taskrunner( this );
+	    uiTaskRunner taskr( this );
 	    if ( bbox.isDefined() )
 	    {
 		if ( zatvoi == -1 )
@@ -275,7 +275,7 @@ bool uiExportFault::writeAscii()
 		else
 		    zatf->setVolumeOfInterest( zatvoi, bbox, false );
 		if ( zatvoi>=0 )
-			zatf->loadDataIfMissing( zatvoi, &taskrunner );
+			zatf->loadDataIfMissing( zatvoi, &taskr );
 	    }
 	}
 
@@ -411,7 +411,11 @@ bool uiExportFault::acceptOK( CallBacker* )
 
     const bool res = writeAscii();
 
-    if ( !res )	return false;
+    if ( !res )
+    {
+      uiMSG().error( uiStrings::phrCannotWrite(tr("output file.")));
+      return false;
+    }
 
     const IOObj* ioobj = issingle_ ? ctio_.ioobj_ :
 					   bulkinfld_->getCtxtIOObj().ioobj_;
