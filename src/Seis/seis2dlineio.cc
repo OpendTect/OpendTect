@@ -215,7 +215,10 @@ bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 	    if ( lineidx == -1 )
 		rawcd.add( linecdcopy );
 	    else
+	    {
 		rawcd[lineidx]->merge( *linecdcopy, true );
+		delete linecdcopy;
+	    }
 	}
     }
 
