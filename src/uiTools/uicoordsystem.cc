@@ -118,7 +118,7 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
 {
     const CallBack tscb( mCB(this,uiLatLongInp,typSel) );
     uiButtonGroup* bgrp = new uiButtonGroup( this, "Dec/DMS sel grp",
-					     OD::Vertical );
+					     OD::Horizontal );
     bgrp->setExclusive( true );
     isdecbut_ = new uiRadioButton( bgrp, uiStrings::sDecimal() );
     isdecbut_->setChecked( true );
@@ -141,7 +141,7 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     latdmsfld_->attach( alignedBelow, lngdmsfld_ );
     inpgrp->setHAlignObj( lngdecfld_ );
 
-    lblgrp->attach( rightOf, bgrp );
+    lblgrp->attach( leftAlignedBelow, bgrp );
     inpgrp->attach( rightOf, lblgrp );
     setHAlignObj( inpgrp );
     postFinalise().notify( tscb );

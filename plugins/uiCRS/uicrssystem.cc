@@ -295,6 +295,7 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
     latlngfld_->attach( alignedBelow, xygrp );
 
     mangrp_->attach( alignedBelow, ismanfld_ );
+    mangrp_->setHAlignObj( xygrp );
 
     filegrp_ = new uiGroup( this, "File group" );
     uiFileSel::Setup fssetup( lastinpfile );
