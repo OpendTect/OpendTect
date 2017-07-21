@@ -331,7 +331,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 	if ( !systemui )
 	    continue;
 
-	systemui->setSurveyInfo( si );
+	systemui->setSurveyInfo( si_ );
 
 	if ( fillfrom && key==systemui->factoryKeyword() )
 	    systemui->initFields( fillfrom );
