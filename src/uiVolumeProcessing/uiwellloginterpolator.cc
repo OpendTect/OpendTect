@@ -25,31 +25,21 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-
 uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
 					      WellLogInterpolator& hwi )
     : uiStepDialog( p, WellLogInterpolator::sFactoryDisplayName(), &hwi )
     , hwinterpolator_( hwi )
+    , extensfld_(0)
+    , logextenfld_(0)
 {
     setHelpKey( mODHelpKey(mWellLogInterpolHelpID) );
 
     layermodelfld_ = new uiInterpolationLayerModel( this );
 
-    const char* ext[] = { "None", "By top/bottom values only",
-			  "By parallel to top/base", 0 };
-    extensfld_ = new uiGenInput( this, tr("Vertical Extension"),
-	    StringListInpSpec(ext) );
-    extensfld_->setText( ext[hwi.extensionMethod()] );
-    extensfld_->attach( alignedBelow, layermodelfld_ );
-
-    logextenfld_ = new uiGenInput( this, tr("Log extension if needed"),
-	    BoolInpSpec(hwi.useLogExtension()) );
-    logextenfld_->attach( alignedBelow, extensfld_ );
-
     uiWellExtractParams::Setup su;
     su.singlelog(true).withextractintime(false).withsampling(true);
     welllogsel_ = new uiMultiWellLogSel( this, su );
-    welllogsel_->attach( alignedBelow, logextenfld_ );
+    welllogsel_->attach( alignedBelow, layermodelfld_ );
 
     uiStringSet algos;
     algos += InverseDistanceGridder2D::sFactoryDisplayName();
@@ -99,8 +89,6 @@ void uiWellLogInterpolator::finaliseCB( CallBacker* )
     layermodelfld_->setModel( hwinterpolator_.getLayerModel() );
     initWellLogSel();
     algoChg( 0 );
-    welllogsel_->setWellExtractParams(
-				    hwinterpolator_.getWellExtractParams() );
 }
 
 
@@ -125,18 +113,13 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
     InterpolationLayerModel* mdl = layermodelfld_->getModel();
     hwinterpolator_.setLayerModel( mdl );
 
-    hwinterpolator_.useLogExtension( logextenfld_->getBoolValue() );
-    hwinterpolator_.extensionMethod(
-	    (WellLogInterpolator::ExtensionModel)extensfld_->getIntValue() );
-    
-
     const bool validrad =  !algosel_->getIntValue() &&
 	radiusfld_->isChecked() && !mIsUdf(radiusfld_->getFValue());
     const float radius = validrad ? radiusfld_->getFValue() : mUdf(float);
     const int algoselint = algosel_->getIntValue();
     const char* nm = ( algoselint == 0 )
 	? InverseDistanceGridder2D::sFactoryKeyword()
-	: ( algoselint == 1 ) ? 
+	: ( algoselint == 1 ) ?
 	  TriangulatedGridder2D::sFactoryKeyword()
 	: RadialBasisFunctionGridder2D::sFactoryKeyword();
     hwinterpolator_.setGridder( nm, radius );
@@ -154,6 +137,7 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
 
     hwinterpolator_.setWellData( wellids, lognms.get(0) );
     hwinterpolator_.setWellExtractParams( welllogsel_->params() );
+
     return true;
 }
 
@@ -167,6 +151,7 @@ void uiWellLogInterpolator::initWellLogSel()
     BufferStringSet lognms;
     lognms.add( hwinterpolator_.getLogName() );
     welllogsel_->setSelLogNames( lognms );
+    welllogsel_->setWellExtractParams( hwinterpolator_.getWellExtractParams() );
 }
 
 } // namespace VolProc

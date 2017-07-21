@@ -13,10 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "volprocstep.h"
 
 #include "enums.h"
 #include "multiid.h"
+#include "volprocstep.h"
 #include "wellextractdata.h"
 
 class BufferStringSet;
@@ -43,43 +43,41 @@ public:
 
 				WellLogInterpolator();
 				~WellLogInterpolator();
+    void			releaseData();
 
-    bool			needsInput() const	{ return false;}
 
     bool			is2D() const;
 
-    void			setWellData(const TypeSet<MultiID>&,
-					    const char* lognm);
     void			getWellNames(BufferStringSet&) const;
     void			getWellIDs(TypeSet<MultiID>&) const;
     const char*			getLogName() const;
-
-    void			setGridder(const char* nm,float radius=0);
     const char*			getGridderName() const;
     float			getSearchRadius() const;
-
-    void			setLayerModel(InterpolationLayerModel*);
     const InterpolationLayerModel* getLayerModel() const;
+    const Well::ExtractParams&	getWellExtractParams();
+
+    void			setGridder(const char* nm,float radius=0);
+    void			setWellData(const TypeSet<MultiID>&,
+					    const char* lognm);
+    void			setWellExtractParams(
+						    const Well::ExtractParams&);
+    void			setLayerModel(InterpolationLayerModel*);
 
     enum ExtensionModel		{ None, EdgeValueOnly, ExtrapolateEdgeValue };
 				mDeclareEnumUtils(ExtensionModel)
     ExtensionModel		extensionMethod() const	{ return extension_; }
     void			extensionMethod(ExtensionModel ext)
 				{ extension_ = ext; }
-
     bool			useLogExtension() const  { return extlog_; }
     void			useLogExtension(bool yn) { extlog_ = yn; }
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
+    uiString			errMsg() const	{ return errmsg_; }
 
-    void			releaseData();
     bool			canInputAndOutputBeSame() const { return true; }
     bool			needsFullVolume() const		{ return false;}
-
-    uiString			errMsg() const	{ return errmsg_; }
-    void			setWellExtractParams(const Well::ExtractParams&);
-    const Well::ExtractParams&	getWellExtractParams();
+    bool			needsInput() const	{ return false;}
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
