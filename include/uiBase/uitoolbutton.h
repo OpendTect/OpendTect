@@ -27,7 +27,7 @@ public:
 
 				uiToolButton(uiParent*,
 					     const uiToolButtonSetup&);
-				uiToolButton(uiParent*,const char* filenm,
+				uiToolButton(uiParent*,const char* icon_id,
 					     const uiString& tooltip,
 					     const CallBack&);
 				uiToolButton(uiParent*,ArrowType,

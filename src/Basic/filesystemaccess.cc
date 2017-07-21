@@ -148,6 +148,24 @@ BufferString File::SystemAccess::withProtocol( const char* fnm,
 }
 
 
+void File::SystemAccess::getProtocolNames( BufferStringSet& factnms,
+					   bool forread )
+{
+    const Factory<SystemAccess>& fact = factory();
+    factnms = fact.getNames();
+    for ( int idx=0; idx<factnms.size(); idx++ )
+    {
+	const File::SystemAccess& fsa = getByProtocol( factnms.get(idx) );
+	if ( (forread && !fsa.readingSupported())
+	  || (!forread && !fsa.writingSupported()) )
+	{
+	    factnms.removeSingle( idx );
+	    idx--;
+	}
+    }
+}
+
+
 #define mDefFileSystemAccessFn(nm,result) \
 bool File::SystemAccess::nm( const char* uri ) const \
 { return result; }
@@ -225,6 +243,13 @@ const File::SystemAccess& File::SystemAccess::getByProtocol( const char* prot )
 {
     BufferString protocol( prot );
     return gtByProt( protocol );
+}
+
+
+const File::SystemAccess& File::SystemAccess::getLocal()
+{
+    BufferString empty;
+    return gtByProt( empty );
 }
 
 

@@ -81,28 +81,19 @@ void uiFileSel::init( const uiString& lbltxt )
 	checkbox_->activated.notify( mCB(this,uiFileSel,checkCB) );
     }
 
-    const Factory<File::SystemAccess>& fact = File::SystemAccess::factory();
-    uiStringSet protnms( fact.getUserNames() );
-    factnms_ = fact.getNames();
     const bool forread = isForRead( setup_.selmode_ );
-    for ( int idx=0; idx<factnms_.size(); idx++ )
-    {
-	const File::SystemAccess& fsa = fsAccess( idx );
-	if ( (forread && !fsa.readingSupported())
-	  || (!forread && !fsa.writingSupported()) )
-	{
-	    protnms.removeSingle( idx );
-	    factnms_.removeSingle( idx );
-	    idx--;
-	}
-    }
+    uiStringSet protnms;
+    File::SystemAccess::getProtocolNames( factnms_, forread );
 
-    if ( !setup_.onlylocal_ )
+    if ( factnms_.size() > 1 && !setup_.onlylocal_ )
     {
 	protfld_ = new uiComboBox( this, "Protocol" );
-	protfld_->addItems( protnms );
 	for ( int idx=0; idx<factnms_.size(); idx++ )
-	    protfld_->setIcon( idx, fsAccess(idx).iconName() );
+	{
+	    const File::SystemAccess& fsa = fsAccess( idx );
+	    protfld_->addItem( fsa.userName() );
+	    protfld_->setIcon( idx, fsa.iconName() );
+	}
 	if ( checkbox_ )
 	    protfld_->attach( rightOf, checkbox_ );
 	mAttachCB( protfld_->selectionChanged, uiFileSel::protChgCB );

@@ -324,7 +324,7 @@ public:
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
-    static uiString sFileName()	        { return tr("File name"); }
+    static uiString sFileName(int n=1)	{ return tr("File Name",0,n); }
     static uiString sFinish()		{ return tr("Finish"); }
     static uiString sFinished()		{ return tr("Finished"); }
     static uiString sFilter(int num=1)  { return tr("Filter",0,num); }

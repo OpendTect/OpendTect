@@ -38,8 +38,10 @@ public:
     static const_ref	get(const char* fnm);
 			    /*!<Looks at first part of filename to determine
 				what system it belongs to. If nothing matches,
-				LocalFileSystemAccess will be returned. */
+				local FileSystemAccess will be returned. */
     static const_ref	getByProtocol(const char* prot);
+    static const_ref	getLocal();
+    static void		getProtocolNames(BufferStringSet&,bool forread);
 
     virtual bool	exists(const char*) const;
     virtual bool	isReadable(const char*) const			= 0;
