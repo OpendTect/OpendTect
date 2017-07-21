@@ -689,6 +689,15 @@ Interval<float> PlaneDataDisplay::getDataTraceRange() const
 }
 
 
+TrcKeyZSampling PlaneDataDisplay::getDataPackSampling( int attrib ) const
+{
+    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPack::ID dpid = getDataPackID( attrib );
+    ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
+    return regsdp ? regsdp->sampling() : getTrcKeyZSampling( attrib );
+}
+
+
 void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* taskr )const
 {
     if ( !datatransform_ ) return;

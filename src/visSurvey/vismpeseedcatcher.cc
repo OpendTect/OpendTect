@@ -272,7 +272,6 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( pdd )
 	{
 	    info().setLegalClick( legalclick1 );
-	    info().setObjCS( pdd->getTrcKeyZSampling() );
 
 	    DataPack::ID datapackid = DataPack::cNoID();
 	    int attrib = pdd->nrAttribs();
@@ -286,6 +285,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		    break;
 	    }
 
+	    info().setObjCS( pdd->getDataPackSampling(attrib) );
 	    info().setObjDataPackID( datapackid );
 	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 
@@ -320,7 +320,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 }
 
 
-void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp, 
+void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp,
     const Coord3 worldpickedpos )
 {
     DataPack::ID datapackid = DataPack::cNoID();
@@ -418,7 +418,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     }
 
     const Scene* scene = seis2dclosest->getScene();
-    const double zscale = scene ? 
+    const double zscale = scene ?
 	scene->getZScale()*scene->getFixedZStretch() : 0.0;
     const Coord3 onesteptranslation = SI().oneStepTranslation( Coord3(0,0,1) );
     const double onestepdist = Coord3( 1, 1, zscale ).dot( onesteptranslation );
