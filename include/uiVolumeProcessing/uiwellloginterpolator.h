@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uivolprocstepdlg.h"
 #include "bufstringset.h"
 #include "wellloginterpolator.h"
-#include "uiwellextractparams.h"
 
 class uiGridder2DSel;
 class uiInterpolationLayerModel;

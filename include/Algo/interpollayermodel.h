@@ -37,9 +37,6 @@ public:
     virtual float	getLayerIndex(const TrcKey&,float z) const	= 0;
     virtual float	getInterpolatedZ(const TrcKey&,float layer) const;
 
-    bool		modelHasTop() const;
-    bool		modelHasBottom() const;
-
     static const char*	sKeyModelType();
 
     virtual void	fillPar(IOPar&) const;

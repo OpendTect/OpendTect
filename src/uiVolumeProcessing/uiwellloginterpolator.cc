@@ -128,7 +128,8 @@ void uiWellLogInterpolator::initWellLogSel()
     lognms.add( hwinterpolator_.getLogName() );
     welllogsel_->setSelLogNames( lognms );
     if ( welllogsel_->isWellExtractParamsUsed() )
-	welllogsel_->setWellExtractParams( hwinterpolator_.getSelParams() );
+	welllogsel_->setWellExtractParams(
+				hwinterpolator_.getWellExtractParams() );
 }
 
 } // namespace VolProc

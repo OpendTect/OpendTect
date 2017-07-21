@@ -23,13 +23,11 @@ class InterpolationLayerModel;
 class InverseDistanceGridder2D;
 namespace Well { class Data; class Log; }
 
-
 namespace VolProc
 {
 
 class WellLogInfo;
 class WellLogInfoSetup;
-
 
 /*! Fills a volume with well log values. */
 
@@ -53,13 +51,14 @@ public:
     const Gridder2D*		getGridder() const	{ return gridder_; }
     PolyTrend::Order		getTrendOrder() const	{ return trendorder_; }
     const InterpolationLayerModel* getLayerModel() const;
-    const Well::ExtractParams& getSelParams();
+    const Well::ExtractParams& getWellExtractParams()   { return params_; }
 
     void			setGridder(const IOPar&);
     void			setWellData(const DBKeySet&,
 					    const char* lognm);
     void			setWellExtractParams(
-						    const Well::ExtractParams&);
+					    const Well::ExtractParams& params )
+				{ params_ = params;}
     void			setLayerModel(InterpolationLayerModel*);
 
     virtual void		fillPar(IOPar&) const;

@@ -100,12 +100,6 @@ float InterpolationLayerModel::getInterpolatedZ( const TrcKey& tk,
 }
 
 
-bool InterpolationLayerModel::modelHasTop() const
-{ return !mIsUdf(zsamp_.start); }
-
-bool InterpolationLayerModel::modelHasBottom() const
-{ return !mIsUdf(zsamp_.stop); }
-
 const char* InterpolationLayerModel::sKeyModelType()
 { return sKey::Type(); }
 

@@ -7,7 +7,6 @@
 
 #include "wellloginterpolator.h"
 
-#include "arrayndimpl.h"
 #include "fftfilter.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
@@ -15,6 +14,7 @@
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "welldata.h"
+#include "welld2tmodel.h"
 #include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -46,7 +46,8 @@ bool init( InterpolationLayerModel& layermodel )
 {
     const bool zistime = SI().zIsTime();
     RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky_,
-				  Well::LoadReqs( Well::Trck, Well::D2T ) );
+				  Well::LoadReqs( Well::Trck, Well::D2T,
+						  Well::Logs ) );
     if ( !wd )
 	return false;
 
@@ -102,15 +103,27 @@ bool applyFilter( const InterpolationLayerModel& layermodel )
 
     const Well::Track& track = wd_->track();
     const Well::D2TModel* d2t = wd_->d2TModelPtr();
-    const Interval<float> zrg( bbox_.zsamp_ );
-    const float extractstep = bbox_.zsamp_.step / cLogStepFact;
+    Interval<float> mdrg;
+    BufferStringSet lognms; lognms.add( logname_ );
+    mdrg = params_.calcFrom( *wd_, lognms );
+
+    Interval<float> zrg;
     const bool zintime = SI().zIsTime();
+    if ( zintime )
+    {
+	if ( !d2t ) return false;
+	zrg.start = d2t->getTime( mdrg.start, track );
+	zrg.stop = d2t->getTime( mdrg.stop, track );
+	if ( zrg.isUdf() ) return false;
+    }
+
     ObjectSet<const Well::Log> logs;
     logs += inplog;
-    Well::LogSampler ls( d2t, &track, zrg, zintime, extractstep, zintime,
-			 params_.samppol_, logs ),
-		     lsnear( d2t, &track, zrg, zintime, extractstep, zintime,
-			     Stats::TakeNearest, logs );
+    const float extractstep = bbox_.zsamp_.step / cLogStepFact;
+    Well::LogSampler ls( d2t, &track, zrg, zintime, extractstep,
+			 zintime, params_.samppol_, logs ),
+		     lsnear( d2t, &track, zrg, zintime, extractstep,
+			     zintime, Stats::TakeNearest, logs );
     if ( !ls.execute() || !lsnear.execute() )
 	return false;
 
@@ -181,11 +194,11 @@ bool createInterpolationFunctions( const InterpolationLayerModel& layermodel )
 
 
 Well::Track*		track_;
-ConstRefMan<Well::Log>	log_;
 RefMan<Well::Data>	wd_;
 TrcKeyZSampling		bbox_;
 DBKey			dbky_;
 BufferString		logname_;
+ConstRefMan<Well::Log>	log_;
 Well::ExtractParams	params_;
 PointBasedMathFunction	logfunc_;
 PointBasedMathFunction	mdfunc_;
@@ -196,8 +209,8 @@ PointBasedMathFunction	mdfunc_;
 
 WellLogInterpolator::WellLogInterpolator()
     : gridder_(0)
-    , invdistgridder_(new InverseDistanceGridder2D())
     , layermodel_(0)
+    , invdistgridder_(new InverseDistanceGridder2D())
     , trendorder_(PolyTrend::None)
 {}
 
@@ -212,9 +225,9 @@ void WellLogInterpolator::releaseData()
 {
     Step::releaseData();
     deleteAndZeroPtr( gridder_ );
-    deleteAndZeroPtr( invdistgridder_ );
     deleteAndZeroPtr( layermodel_ );
     deepErase( infos_ );
+    deleteAndZeroPtr( invdistgridder_ );
     params_.setEmpty();
 }
 
@@ -288,13 +301,6 @@ void WellLogInterpolator::setWellData( const DBKeySet& ids, const char* lognm )
 }
 
 
-void WellLogInterpolator::setWellExtractParams(
-					    const Well::ExtractParams& param)
-{
-    params_ = param;
-}
-
-
 void WellLogInterpolator::getWellNames( BufferStringSet& res ) const
 {
     for ( int idx=0; idx<wellmids_.size(); idx++ )
@@ -316,7 +322,7 @@ bool WellLogInterpolator::prepareComp( int )
 	return false;
 
     if ( !gridder_ )
-	{ errmsg_ = tr("Gridder is not set"); return false; }
+	{ errmsg_ = tr("Cannot retrieve gridding method"); return false; }
 
     if ( !layermodel_ || !layermodel_->prepare(output->sampling()) )
     {
@@ -381,7 +387,6 @@ static void getCornerPoints( const BinID& bid, TypeSet<Coord>& corners )
 	const BinID& cornerbid = cornerbids[idx];
 	corners.add( tks.toCoord(cornerbid) );
     }
-
 }
 
 
@@ -391,8 +396,8 @@ static void addCornerPoints( const Gridder2D& gridder,
 			     TypeSet<Coord>& points, TypeSet<float>& vals )
 {
     if ( BufferString(gridder.factoryKeyword()) ==
-				InverseDistanceGridder2D::sFactoryKeyword() ||
-	 points.size() < 2 )
+	    InverseDistanceGridder2D::sFactoryKeyword() ||
+	    points.size() < 2 )
 	return;
 
     TypeSet<Coord> initialpoints( points );
@@ -421,7 +426,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     if ( !outputinlrg_.includes( bid.inl(), true ) ||
 	 !outputcrlrg_.includes( bid.crl(), true ) ||
          (bid.inl()-outputinlrg_.start)%outputinlrg_.step ||
-         (bid.crl()-outputcrlrg_.start)%outputcrlrg_.step )
+	 (bid.crl()-outputcrlrg_.start)%outputcrlrg_.step )
 	return true;
 
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
@@ -528,7 +533,11 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
     if ( !Step::usePar(pars) )
 	return false;
 
+    const bool hassamplepol = pars.find( Well::ExtractParams::sKeySamplePol() );
+    const Stats::UpscaleType samppol = params_.samppol_;
     params_.usePar( pars );
+    if ( !hassamplepol )
+	params_.samppol_ = samppol;
 
     pars.get( sKeyLogName(), logname_ );
 
@@ -564,12 +573,6 @@ od_int64 WellLogInterpolator::extraMemoryUsage( OutputSlotID,
 	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
 {
     return layermodel_ ? layermodel_->getMemoryUsage( hsamp ) : 0;
-}
-
-
-const Well::ExtractParams& WellLogInterpolator::getSelParams()
-{
-    return params_;
 }
 
 
