@@ -371,7 +371,8 @@ bool ButtonCmd::actQDlgButton( const char* parstr )
     mParTail( partail );
 
     mFindQDlgButtons( keys, butsfound, buttexts );
-    mTitleBarButtonCheck( butsfound, keys, 0 );
+    int nrgrey = 0;
+    mTitleBarButtonCheck( butsfound, keys, nrgrey );
     mParStrPre( "QDialog exit-button",butsfound,0,keys[0],selnr,"key",true );
     mParOnOffPre( "QDialog exit-button", onoff, false, false );
     wildcardMan().check( mSearchKey(keys[0]), buttexts.get(butsfound[0]) );
