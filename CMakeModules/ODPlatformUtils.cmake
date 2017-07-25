@@ -23,7 +23,7 @@ set ( SET_DEBUG -D__debug__ )
 set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 
-if(UNIX) #Apple an Linux
+if( UNIX ) #Apple and Linux
     if ( CMAKE_COMPILER_IS_GNUCC  )
 	set ( OD_GCC_COMPILER 1 )
 	execute_process( COMMAND ${CMAKE_C_COMPILER} -dumpversion
@@ -43,8 +43,8 @@ if(UNIX) #Apple an Linux
 	set( CMAKE_INSTALL_RPATH "@loader_path/../Frameworks" )
 	set ( OD_GCC_COMPILER 1 )
 	if ( ${CMAKE_GENERATOR} STREQUAL "Xcode" )
-	    set ( OD_EXTRA_OSGFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
-	    set ( OD_EXTRA_COINFLAGS "-Wno-shadow -Wno-overloaded-virtual" ) #Sysroot does not do the job
+	    set( SUPPRESS_SHADOW_WARNING yes )
+	    set( SUPPRESS_OVERLOADED_VIRTUAL_WARNING yes )
 	endif()
 
 	#For some versions of XCode
@@ -68,8 +68,9 @@ if(UNIX) #Apple an Linux
 	endif()
 
     else() #Linux
-	#Not on most platforms, but for the few that does, it's better
-	set (OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
+
+	#Not on most platforms, but for the few that do, it's better
+	set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1 )
 
 	if ( OD_64BIT )
 	    set ( OD_PLFSUBDIR "lux64" )
@@ -112,10 +113,16 @@ if(UNIX) #Apple an Linux
     add_definitions("'-DmUsedVar=__attribute__ ((used))'")
     set (OD_STATIC_EXTENSION ".a")
     if ( OD_GCC_COMPILER )
-	set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual -Wno-reorder ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS "-Wunused -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
+
+	if ( NOT DEFINED SUPPRESS_OVERLOADED_VIRTUAL_WARNING )
+	    set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual ${CMAKE_CXX_FLAGS}" )
+	endif()
+	if ( NOT DEFINED SUPPRESS_SHADOW_WARNING )
+	    set ( CMAKE_CXX_FLAGS "-Wshadow ${CMAKE_CXX_FLAGS}" )
+	endif()
+	set ( CMAKE_CXX_FLAGS "-Wno-reorder -Wunused -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wswitch -Wunused-function -Wunused-label ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS "-Wshadow -Wwrite-strings -Wpointer-arith -Winline ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wwrite-strings -Wpointer-arith -Winline ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wformat -Wmissing-field-initializers ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wreturn-type -Winit-self -Wno-char-subscripts ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wstrict-aliasing ${CMAKE_CXX_FLAGS}" )
@@ -142,7 +149,9 @@ if(UNIX) #Apple an Linux
 	set ( CMAKE_C_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SET_SYMBOLS} ${SET_DEBUG} -ggdb3" )
 
     else() # Intel compiler
-	set (EXTRA_LIBS "imf" "m") #avoid bogus warning: https://wiki.hpcc.msu.edu/display/Issues/feupdateenv+is+not+implemented+and+will+always+fail
+
+	set ( EXTRA_LIBS "imf" "m" ) #avoid bogus warning: https://wiki.hpcc.msu.edu/display/Issues/feupdateenv+is+not+implemented+and+will+always+fail
+
     endif( OD_GCC_COMPILER )
 
 endif(UNIX)
