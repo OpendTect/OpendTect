@@ -108,6 +108,7 @@ protected:
     SEGY::ImpType	fixedimptype_;
     SurveyInfo*		survinfo_;
     bool		survinfook_;
+    bool		lastscanwasfull_;
     uiSEGYRead*		classicrdr_;
     uiSEGYClassicSurvInfoProvider* classicsip_;
 

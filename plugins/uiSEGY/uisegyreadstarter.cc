@@ -76,6 +76,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , scaninfos_(0)
     , loaddef_(imptyp ? imptyp->is2D() : false)
     , clipsampler_(*new DataClipSampler(100000))
+    , lastscanwasfull_(false)
     , survinfo_(0)
     , survinfook_(false)
     , classicsip_(0)
@@ -406,6 +407,7 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 
     scaninfos_->finish();
     displayScanResults();
+    lastscanwasfull_ = full;
 }
 
 
@@ -1181,6 +1183,22 @@ bool uiSEGYReadStarter::acceptOK()
     {
 	if ( !survinfook_ )
 	    mErrRet( tr("No valid survey setup found" ) )
+	if ( !lastscanwasfull_ )
+	{
+	    const uiString msg( tr("We recommend doing a full file scan to "
+		"establish the true ranges and steps of the input file."
+		"\nIf you are sure the quick scan has got everything right, "
+		"you may want to continue without a full scan."
+		"\n\nDo you want to continue without a full scan?") );
+	    const int res = uiMSG().askGoOnAfter( msg, uiStrings::sCancel(),
+			tr("Yes, continue"), tr("No, execute full scan now") );
+	    if ( res < 1 )
+	    {
+		if ( res == 0 )
+		    execNewScan( KeepAll, true );
+		return false;
+	    }
+	}
 	return true;
     }
 
