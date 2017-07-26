@@ -43,8 +43,7 @@ if( UNIX ) #Apple and Linux
 	set( CMAKE_INSTALL_RPATH "@loader_path/../Frameworks" )
 	set ( OD_GCC_COMPILER 1 )
 	if ( ${CMAKE_GENERATOR} STREQUAL "Xcode" )
-	    set( SUPPRESS_SHADOW_WARNING yes )
-	    set( SUPPRESS_OVERLOADED_VIRTUAL_WARNING yes )
+	    set( OD_SUPPRESS_WARNINGS_NOT_ON_WINDOWS yes )
 	endif()
 
 	#For some versions of XCode
@@ -114,14 +113,11 @@ if( UNIX ) #Apple and Linux
     set (OD_STATIC_EXTENSION ".a")
     if ( OD_GCC_COMPILER )
 
-	if ( NOT DEFINED SUPPRESS_OVERLOADED_VIRTUAL_WARNING )
-	    set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual ${CMAKE_CXX_FLAGS}" )
+	if ( NOT DEFINED OD_SUPPRESS_WARNINGS_NOT_ON_WINDOWS )
+	    set ( CMAKE_CXX_FLAGS "-Woverloaded-virtual -Wshadow -Wunused ${CMAKE_CXX_FLAGS}" )
 	endif()
-	if ( NOT DEFINED SUPPRESS_SHADOW_WARNING )
-	    set ( CMAKE_CXX_FLAGS "-Wshadow ${CMAKE_CXX_FLAGS}" )
-	endif()
-	set ( CMAKE_CXX_FLAGS "-Wno-reorder -Wunused -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS "-Wswitch -Wunused-function -Wunused-label ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wno-reorder -Wmissing-braces -Wparentheses -Wsequence-point ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wswitch -Wunused-function ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wwrite-strings -Wpointer-arith -Winline ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wformat -Wmissing-field-initializers ${CMAKE_CXX_FLAGS}" )
 	set ( CMAKE_CXX_FLAGS "-Wreturn-type -Winit-self -Wno-char-subscripts ${CMAKE_CXX_FLAGS}" )
