@@ -7,6 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegyexamine.h"
 #include "uisegytrchdrvalplot.h"
@@ -26,7 +27,6 @@ ________________________________________________________________________
 #include "msgh.h"
 #include "seistrc.h"
 #include "seisbufadapters.h"
-#include "seisprovider.h"
 #include "segytr.h"
 #include "segyhdr.h"
 #include "iopar.h"
@@ -63,7 +63,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	: uiDialog(p,su)
 	, setup_(su)
 	, tbuf_(*new SeisTrcBuf(true))
-	, prov_(0)
+	, segytransl_(0)
 {
     setCtrlStyle( CloseOnly );
 
@@ -119,7 +119,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     toStatusBar( toUiString(setup_.fs_.dispName()), 1 );
     outInfo( tr("Opening input") );
-    prov_ = getProvider( setup_, txtinfo_ );
+    segytransl_ = getReader( setup_, txtinfo_ );
     txtfld_->setText( txtinfo_ );
 
     uiString str( m3Dots(tr("Reading first %1 traces").arg(su.nrtrcs_)) );
@@ -131,7 +131,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
 uiSEGYExamine::~uiSEGYExamine()
 {
-    delete prov_;
+    delete segytransl_;
     delete &tbuf_;
 }
 
@@ -144,12 +144,12 @@ void uiSEGYExamine::rowClck( CallBacker* )
 
 void uiSEGYExamine::saveHdr( CallBacker* )
 {
-    if ( !prov_ )
+    if ( !segytransl_ )
 	return;
 
     uiFileSelector::Setup fssu;
     fssu.setForWrite().initialselectiondir(
-		    File::Path(GetDataDir(),sSeismicSubDir()).fullPath() );
+		File::Path(GetDataDir(),sSeismicSubDir()).fullPath() );
     uiFileSelector uifs( this, fssu );
     uifs.caption() = tr("Save SEG-Y Textual Header to");
     if ( !uifs.go() )
@@ -159,17 +159,7 @@ void uiSEGYExamine::saveHdr( CallBacker* )
     if ( !strm.isOK() )
 	{ uiMSG().error(tr("Cannot open file for writing")); return; }
 
-    PtrMan<IOObj> ioobj = DBM().get( prov_->dbKey() );
-    if ( !ioobj ) return;
-
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    mDynamicCastGet(SEGYSeisTrcTranslator*,segytrans,trans.ptr());
-    if ( !segytrans ) return;
-
-    Conn* conn = ioobj->getConn( true );
-    segytrans->initRead( conn );
-
-    const SEGY::TxtHeader& th = *segytrans->txtHeader();
+    const SEGY::TxtHeader& th = *segytransl_->txtHeader();
     BufferString buf; th.getText( buf );
     strm << buf << od_endl;
 }
@@ -179,13 +169,11 @@ uiString uiSEGYExamine::sGetWinTitle()
 {
     const BufferString fnm( File::Path(setup_.fs_.dispName()).fileName() );
 
-    return ( tr("First %1 traces from %2").arg(tbuf_.size())
-			     .arg(fnm) );
+    return tr("First %1 traces from %2").arg( tbuf_.size() ).arg( fnm );
 }
 
 void uiSEGYExamine::dispSeis( CallBacker* )
 {
-    sGetWinTitle();
     uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this,
 				uiSeisTrcBufViewer::Setup(sGetWinTitle()) );
     vwr->selectDispTypes( true, true );
@@ -196,7 +184,6 @@ void uiSEGYExamine::dispSeis( CallBacker* )
 
 void uiSEGYExamine::dispHist( CallBacker* )
 {
-    sGetWinTitle();
     SeisTrcBufArray2D a2d( &tbuf_, 0 );
     uiStatsDisplay::Setup su; su.withname( false );
     uiStatsDisplayWin* mw = new uiStatsDisplayWin( this, su, 1, false );
@@ -234,47 +221,60 @@ void uiSEGYExamine::setRow( int irow )
 }
 
 
-Seis::Provider* uiSEGYExamine::getProvider( const uiSEGYExamine::Setup& su,
-					 uiString& emsg )
+SEGYSeisTrcTranslator* uiSEGYExamine::getReader(
+			const uiSEGYExamine::Setup& su, uiString& emsg )
 {
+    SEGYSeisTrcTranslator* segytr = 0;
+
+    if ( su.fs_.isEmpty() )
+	{ emsg = tr( "No input file specified" ); return 0; }
     PtrMan<IOObj> ioobj = su.fs_.getIOObj( true );
     if ( !ioobj )
-	return 0;
+	{ emsg = uiStrings::phrInternalError("Cannot create DB object");
+		return 0; }
 
     DBM().setEntry( *ioobj );
     su.fp_.fillPar( ioobj->pars() );
 
-    uiRetVal uirv;
-    Seis::Provider* prov = Seis::Provider::create( ioobj->key(), &uirv );
-    if ( !prov )
-	{ emsg = uirv; delete prov; return 0; }
+    segytr = static_cast<SEGYSeisTrcTranslator*>( ioobj->createTranslator() );
+    if ( !segytr )
+	{ emsg = uiStrings::phrInternalError("Cannot create Translator");
+		return 0; }
 
-    return prov;
+    Conn* conn = ioobj->getConn( true );
+    if ( !conn || conn->isBad() )
+	{ emsg = uiStrings::phrCannotOpen( toUiString(ioobj->mainFileName()) );
+		return 0; }
+
+    if ( !segytr->initRead(conn,Seis::PreScan) )
+	{ emsg = uiStrings::phrCannotRead( toUiString(ioobj->mainFileName()) );
+		return 0; }
+
+    return segytr;
+}
+
+
+int uiSEGYExamine::getRev() const
+{
+    return getRev( segytransl_ );
+}
+
+
+int uiSEGYExamine::getRev( const SEGYSeisTrcTranslator* transl )
+{
+    if ( !transl )
+	return -1;
+    return transl->isRev0() ? 0 : 1;
 }
 
 
 int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, uiString& emsg )
 {
-    PtrMan<Seis::Provider> prov = getProvider( su, emsg );
-    if ( !prov && emsg.isEmpty() )
-	emsg = uiStrings::phrCannotOpen(tr("file."
-	    "\nPlease check whether the file size is at least 3600 bytes."));
-    return prov ? getRev( su ) : -1;
-}
-
-
-int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su )
-{
-    PtrMan<IOObj> ioobj = su.fs_.getIOObj( true );
-    if ( !ioobj ) return -1;
-
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    mDynamicCastGet(SEGYSeisTrcTranslator*,segytrans,trans.ptr());
-    if ( !segytrans ) return -1;
-
-    Conn* conn = ioobj->getConn( true );
-    segytrans->initRead( conn );
-    return segytrans->isRev0() ? 0 : 1;
+    PtrMan<SEGYSeisTrcTranslator> rdr = getReader( su, emsg );
+    if ( !rdr && emsg.isEmpty() )
+	emsg = tr( "Error opening file."
+	    "\nPlease check whether the file size is at least 3600 bytes." );
+    return getRev( rdr );
 }
 
 
@@ -307,34 +307,21 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 
 void uiSEGYExamine::updateInp()
 {
-    if ( !prov_ || !tbuf_.isEmpty() ) return;
+    if ( !segytransl_ || !tbuf_.isEmpty() )
+	return;
 
-    PtrMan<IOObj> ioobj = DBM().get( prov_->dbKey() );
-    if ( !ioobj ) return;
+    const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
+    const int nrvals = hdef.size();
+    const SEGY::TrcHeader& trhead = segytransl_->trcHeader();
 
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    mDynamicCastGet(SEGYSeisTrcTranslator*,segytrans,trans.ptr());
-    if ( !segytrans ) return;
-
-    Conn* conn = ioobj->getConn( true );
-    segytrans->initRead( conn );
-
-    const SEGY::TrcHeader& trhead = segytrans->trcHeader();
     SeisTrc trc; int nrdone = 0;
     bool stoppedatend = false;
-    const int nrvals = SEGY::TrcHeader::hdrDef().size();
     for ( int itrc=0; itrc<setup_.nrtrcs_; itrc++ )
     {
-	const uiRetVal uirv = prov_->getNext( trc );
-	if ( !uirv.isOK() )
-	{
-	    if ( !isFinished(uirv) )
-		break;
-
+	if ( !segytransl_->read(trc) )
 	    stoppedatend = true;
-	}
 	if ( nrdone == 0 )
-	    handleFirstTrace( trc, *segytrans );
+	    handleFirstTrace( trc );
 	if ( stoppedatend )
 	    break;
 
@@ -346,6 +333,7 @@ void uiSEGYExamine::updateInp()
 	}
 
 	nrdone++;
+	trc.info().setTrcNr( nrdone );
 	tbuf_.add( new SeisTrc(trc) );
     }
     tbl_->setNrCols( nrdone > 0 ? nrdone : 1 );
@@ -370,11 +358,10 @@ void uiSEGYExamine::updateInp()
 }
 
 
-void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
-				      const SEGYSeisTrcTranslator& trans )
+void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc )
 {
-    const SEGY::TxtHeader& txthead = *trans.txtHeader();
-    const SEGY::BinHeader& binhead = trans.binHeader();
+    const SEGY::TxtHeader& txthead = *segytransl_->txtHeader();
+    const SEGY::BinHeader& binhead = segytransl_->binHeader();
     od_ostrstream thstrm, bhstrm;
     txthead.dump( thstrm );
     binhead.dump( bhstrm );

@@ -1,10 +1,12 @@
-#pragma once
+#ifndef uisegyexamine_h
+#define uisegyexamine_h
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -21,7 +23,6 @@ class uiTextEdit;
 class SeisTrcBuf;
 class uiSEGYTrcHdrValPlot;
 class SEGYSeisTrcTranslator;
-namespace Seis { class Provider; }
 
 
 /* The dialog for examining SEG-Y files */
@@ -45,18 +46,19 @@ public:
 			uiSEGYExamine(uiParent*,const Setup&);
 			~uiSEGYExamine();
 
+    int			getRev() const;		//!< -1 = err
     const uiString&	errMsg() const		{ return txtinfo_; }
 
-    static Seis::Provider* getProvider(const Setup&,uiString& errmsg);
-    static int		getRev(const uiSEGYExamine::Setup&);
-			//!< -1 = err, 1 = Rev 1
+    static SEGYSeisTrcTranslator* getReader(const Setup&,uiString& errmsg);
+    static int		getRev(const SEGYSeisTrcTranslator*); // -1 = err
     static int		getRev(const Setup&,uiString& emsg);
+
     static bool		launch(const Setup&);
 
 protected:
 
     Setup		setup_;
-    Seis::Provider*	prov_;
+    SEGYSeisTrcTranslator* segytransl_;
     uiString		txtinfo_;
     BufferString	fname_;
     SeisTrcBuf&		tbuf_;
@@ -75,13 +77,13 @@ protected:
 
     void		updateInp();
     void		setRow(int);
-    void		handleFirstTrace(const SeisTrc&,
-					 const SEGYSeisTrcTranslator&);
+    void		handleFirstTrace(const SeisTrc&);
     bool		rejectOK();
 
     void		outInfo(const uiString);
 
 public:
+
     uiString		sGetWinTitle();
 
 };
@@ -89,3 +91,6 @@ public:
 
 #define sKeySettNrTrcExamine \
     IOPar::compKey("SEG-Y",uiSEGYExamine::Setup::sKeyNrTrcs)
+
+
+#endif
