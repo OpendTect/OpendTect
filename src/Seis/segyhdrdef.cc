@@ -210,7 +210,8 @@ void SEGY::HdrDef::mkTrc()
     mAddHead4( "ep", "energy source point number" );
     mAddHead4( "cdp", "CDP ensemble number" );			// 5
     mAddHead4( "cdpt", "trace number within CDP ensemble" );
-    mAddHead( "trid", "trace identification code: anything < 2 is good." );
+    mAddHead( "trid", "trace identification code: "
+		      "anything < 2 is good, 2=dead trace." );
     mAddHead( "nvs", "number of vertically summed traces" );
     mAddHead( "nhs", "number of horizontally summed traces" );
     mAddHead( "duse", "data use: 1 = production 2 = test" );	// 10
