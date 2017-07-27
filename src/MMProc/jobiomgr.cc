@@ -493,7 +493,7 @@ bool JobIOMgr::mkIOParFile( const File::Path& basefp,
     }
 
     newiop.set( sKey::DataRoot(), remdata.fullPath(machpathstyle) );
-    newiop.set( sKey::Survey(), DBM().surveyName() );
+    newiop.set( sKey::Survey(), DBM().surveyDirectoryName() );
 
     const BufferString remotelogfnm( logfp.fullPath(machpathstyle) );
     const BufferString remoteiopfnm( iopfp.fullPath() );
