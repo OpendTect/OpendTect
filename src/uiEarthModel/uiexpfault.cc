@@ -41,19 +41,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uit2dconvsel.h"
 #include "zaxistransform.h"
 
+#define mGetObjNr \
+    issingle ? 1 : mPlural \
+
 #define mGet( tp, fss, f3d ) \
     FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
 
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
 #define mGetTitle(tp) \
-    mGet( tp, uiStrings::phrExport( uiStrings::sFaultStickSet() ), \
-	      uiStrings::phrExport( uiStrings::sFault() ) )
+    mGet( tp, uiStrings::phrExport( uiStrings::sFaultStickSet(mGetObjNr) ), \
+	      uiStrings::phrExport( uiStrings::sFault(mGetObjNr) ) )
 
 #define mGetLbl(tp) \
-    mGet( tp, uiStrings::phrInput( uiStrings::sFaultStickSet() ), \
-	      uiStrings::phrInput( uiStrings::sFault() ) )
-
+    mGet( tp, uiStrings::phrInput( uiStrings::sFaultStickSet(mGetObjNr) ), \
+	      uiStrings::phrInput( uiStrings::sFault(mGetObjNr) ) )
 
 uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
@@ -65,12 +67,12 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
     , infld_(0)
     , bulkinfld_(0)
 {
+
     setModal( false );
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
-    uiIOObjSelGrp::Setup su; su.choicemode_ = !issingle_ ?
-		    OD::ChooseAtLeastOne : OD::ChooseOnlyOne;
+    uiIOObjSelGrp::Setup su; su.choicemode_ = OD::ChooseAtLeastOne;
     if ( issingle_ )
 	infld_ = new uiIOObjSel( this, ctio_, mGetLbl(typ) );
     else
@@ -125,6 +127,10 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else
 	outfld_->attach( alignedBelow, stickidsfld_ );
+
+    dispstr_ = EMFaultStickSetTranslatorGroup::sGroupName() == typ
+				? uiStrings::sFaultStickSet(mGetObjNr)
+				: uiStrings::sFault(mGetObjNr);	
 }
 
 
@@ -211,11 +217,8 @@ bool uiExportFault::writeAscii()
     uiTaskRunner taskrunner( this );
     PtrMan<Executor> objloader = EM::EMM().objectLoader( midset );
 
-    if ( !objloader || !TaskRunner::execute(&taskrunner, *objloader) )
-    {
-	mErrRet( uiStrings::phrCannotRead(tr("the object") ));
+    if ( objloader && !TaskRunner::execute(&taskrunner, *objloader) )
 	return false;
-    }
 
     const UnitOfMeasure* unit = zunitsel_->getUnit();
     const bool doxy = coordfld_->getBoolValue();
@@ -402,35 +405,19 @@ bool uiExportFault::acceptOK( CallBacker* )
     if ( outfnm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() );
 
-    if ( !issingle_ )
-	bulkinfld_->updateCtxtIOObj();
-
     if ( File::exists(outfnm)
       && !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()))
 	return false;
 
-    const bool res = writeAscii();
-
-    if ( !res )
+    if ( !writeAscii() )
     {
-      uiMSG().error( uiStrings::phrCannotWrite(tr("output file.")));
-      return false;
+	uiMSG().error(uiStrings::phrCannotCreateDBEntryFor(
+						    tr("selected faults")));
+	return false;
     }
 
-    const IOObj* ioobj = issingle_ ? ctio_.ioobj_ :
-					   bulkinfld_->getCtxtIOObj().ioobj_;
-
-    const uiString tp =
-      EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()
-	? uiStrings::sFaultStickSet()
-	: uiStrings::sFault();
-    const uiString tps =
-     EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()
-	? uiStrings::sFaultStickSet(mPlural)
-	: uiStrings::sFault(mPlural);
     uiString msg = tr( "%1 successfully exported.\n\n"
-		    "Do you want to export more %2?" )
-	.arg(issingle_ ? tp : tps).arg(tps);
+		    "Do you want to export more %1?" ).arg(dispstr_);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

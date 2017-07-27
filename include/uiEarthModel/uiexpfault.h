@@ -59,6 +59,7 @@ protected:
 
     bool		writeAscii();
     bool		issingle_;
+    uiString		dispstr_;
 };
 
 #endif
