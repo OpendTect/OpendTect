@@ -44,8 +44,8 @@ ________________________________________________________________________
 
 mImplFactory( File::SystemAccess, File::SystemAccess::factory );
 
-static const char* prefixsearch = "://";
-static const int searchlen = strlen( prefixsearch );
+static const char* sProtSep = File::Path::uriProtocolSeparator();
+static const int cProtSepLen = FixedString(sProtSep).size();
 
 
 namespace File
@@ -97,9 +97,9 @@ BufferString File::SystemAccess::getProtocol( const char* filename )
 {
     BufferString res = filename;
 
-    char* prefixend = res.find( prefixsearch );
-    if ( prefixend )
-	*prefixend = 0;
+    char* protend = res.find( sProtSep );
+    if ( protend )
+	*protend = 0;
     else
 	res = LocalFileSystemAccess::sFactoryKeyword();
 
@@ -110,11 +110,11 @@ BufferString File::SystemAccess::getProtocol( const char* filename )
 BufferString File::SystemAccess::withoutProtocol( const char* uri )
 {
     BufferString input( uri );
-    char* prefixend = input.find( prefixsearch );
-    if ( !prefixend )
+    char* protend = input.find( sProtSep );
+    if ( !protend )
 	return input;
 
-    return BufferString( prefixend + searchlen );
+    return BufferString( protend + cProtSepLen );
 }
 
 
@@ -131,18 +131,18 @@ BufferString File::SystemAccess::withProtocol( const char* fnm,
 	prot = 0;
 
     if ( !fnm || !*fnm )
-	return prot && *prot ? BufferString( prot, prefixsearch )
+	return prot && *prot ? BufferString( prot, sProtSep )
 			     : BufferString::empty();
 
-    const char* prefixend = firstOcc( fnm, prefixsearch );
+    const char* protend = firstOcc( fnm, sProtSep );
     BufferString newfnm;
     if ( prot )
-	newfnm.add( prot ).add( prefixsearch );
+	newfnm.add( prot ).add( sProtSep );
 
-    if ( !prefixend )
+    if ( !protend )
 	newfnm.add( fnm );
     else
-	newfnm.add( prefixend + FixedString(prefixsearch).size() );
+	newfnm.add( protend + cProtSepLen );
 
     return newfnm;
 }

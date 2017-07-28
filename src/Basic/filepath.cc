@@ -98,7 +98,7 @@ File::Path& File::Path::set( const char* _fnm )
     if ( isuri_ )
     {
 	BufferString hostpart( fnm );
-	char* ptr = hostpart.find( "//" ) + 2;
+	char* ptr = hostpart.find( uriProtocolSeparator() ) + 2;
 	ptr = firstOcc( ptr, '/' );
 	if ( ptr ) *ptr = '\0';
 	prefix_ = hostpart;

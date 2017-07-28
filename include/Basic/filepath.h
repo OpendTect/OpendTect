@@ -93,6 +93,7 @@ public:
     const char*		dirSep() const;
     static const char*	dirSep(Style);
     static const char*	sPrefSep;
+    static const char*	uriProtocolSeparator()		{ return "://"; }
 
 protected:
 

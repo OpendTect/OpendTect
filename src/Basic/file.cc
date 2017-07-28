@@ -60,7 +60,7 @@ mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 
 static inline bool isSane( const char*& fnm )
 {
-    if ( !fnm || !*fnm )
+    if ( !fnm )
 	return false;
     mSkipBlanks( fnm );
     return *fnm;
@@ -68,18 +68,28 @@ static inline bool isSane( const char*& fnm )
 
 static inline bool fnmIsURI( const char*& fnm )
 {
-    if ( *fnm != 'f' && *fnm != 'h' && *fnm != 'F' && *fnm != 'H' )
+    if ( !isSane(fnm) )
 	return false;
 
+    const char* protsep = File::Path::uriProtocolSeparator();
     const FixedString uri( fnm );
-#   define mURIStartsWith(s) uri.startsWith( s, CaseInsensitive )
-
-    if ( mURIStartsWith( "file://" ) )
-	{ fnm += 7; return false; }
-    if ( mURIStartsWith( "http://" )
-      || mURIStartsWith( "https://" )
-      || mURIStartsWith( "ftp://" ) )
-	return true;
+    const char* ptrprotsep = uri.find( protsep );
+    if ( ptrprotsep )
+    {
+	if ( uri.startsWith( "file://", CaseInsensitive ) )
+	    fnm += 7;
+	else if ( ptrprotsep == fnm )
+	    fnm += FixedString(protsep).size();
+	else
+	{
+	    for ( const char* ptr=fnm; ptr!=ptrprotsep; ptr++ )
+	    {
+		if ( !isalnum(*ptr) || (ptr == fnm && isdigit(*ptr)) )
+		    return false;
+	    }
+	    return true;
+	}
+    }
 
     return false;
 }
