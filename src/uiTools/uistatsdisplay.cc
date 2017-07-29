@@ -119,6 +119,7 @@ bool uiStatsDisplay::setDataPackID(
 	ConstDataPackRef<DataPack> datapack = dpman.obtain( dpid );
 	if ( !datapack ) return false;
 
+	TypeSet<float> valarr;
 	if ( dmid == DataPackMgr::SeisID() )
 	{
 	    mDynamicCastGet(const SeisDataPack*,sdp,datapack.ptr());
@@ -130,7 +131,6 @@ bool uiStatsDisplay::setDataPackID(
 		rc.setValues( array, mCast(int,arr3d->info().getTotalSz()) );
 	    else
 	    {
-		TypeSet<float> valarr;
 		valarr.setCapacity(mCast(int,arr3d->info().getTotalSz()),false);
 		const int sz0 = arr3d->info().getSize( 0 );
 		const int sz1 = arr3d->info().getSize( 1 );
@@ -169,7 +169,6 @@ bool uiStatsDisplay::setDataPackID(
 				mCast(int,array->info().getTotalSz()) );
 	    else
 	    {
-		TypeSet<float> valarr;
 		valarr.setCapacity(mCast(int,array->info().getTotalSz()),false);
 		const int sz2d0 = array->info().getSize( 0 );
 		const int sz2d1 = array->info().getSize( 1 );
@@ -193,7 +192,6 @@ bool uiStatsDisplay::setDataPackID(
 	    if ( !dpset )
 		return false;
 
-	    TypeSet<float> valarr;
 	    valarr.setCapacity( dpset->size(), false );
 	    for ( int idx=0; idx<dpset->size(); idx++ )
 		valarr += dpset->value( 2, idx );
@@ -325,7 +323,7 @@ void uiStatsDisplayWin::mouseMoveCB( CallBacker* cb )
     const Geom::Point2D<int>& pos = disp->getMouseEventHandler().event().pos();
     Geom::Point2D<float> val = disp->getFuncXY( pos.x, false );
     uiString str = tr("Values/Count: %1/%2").arg(toUiString(val.x,4)).
-		   arg(toUiString(val.y,0)); 
+		   arg(toUiString(val.y,0));
     toStatusBar( str );
 }
 
