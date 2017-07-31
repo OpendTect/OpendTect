@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiiosel.h"
 #include "attribdescid.h"
 #include "datapack.h"
+#include "survgeom.h"
 
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; }
 namespace ZDomain { class Info; }
@@ -61,17 +62,18 @@ protected:
 
 
 
-mExpClass(uiAttributes) uiAttrSelDlgGroup : public uiDlgGroup
+mExpClass(uiAttributes) uiAttrSelGroup : public uiDlgGroup
 {
 public:
-    virtual			~uiAttrSelDlgGroup();
+    virtual		~uiAttrSelGroup();
+
+    virtual void	fillSelSpec(Attrib::SelSpec&) const		= 0;
 
 protected:
-				uiAttrSelDlgGroup(uiParent*,
-						  const uiString& caption);
+			uiAttrSelGroup(uiParent*,const uiString& caption);
 
-    uiListBox*			listfld_;
-    uiGenInput*			filterfld_;
+    uiListBox*		listfld_;
+    uiGenInput*		filterfld_;
 };
 
 
@@ -85,11 +87,10 @@ attribute set.
   'ignoreid'. Because stored cubes can also be considered attributes, the user
   can also select any cube, which is then automatically added to the set.
 */
-
-mExpClass(uiAttributes) uiAttrSelDlg : public uiDialog
-{ mODTextTranslationClass(uiAttrSelDlg);
+/* Work in progress
+mExpClass(uiAttributes) uiAttrSelDlg2 : public uiTabStackDlg
+{ mODTextTranslationClass(uiAttrSelDlg2)
 public:
-
     mExpClass(uiAttributes) Setup
     {
     public:
@@ -104,6 +105,62 @@ public:
 		mDefSetupMemb(Attrib::DescID,ignoreid)
 		mDefSetupMemb(bool,isinp4otherattrib)
 		mDefSetupMemb(bool,showsteeringdata)
+    };
+
+			uiAttrSelDlg2(uiParent*,const uiAttrSelData&,
+				     const Setup&);
+			~uiAttrSelDlg2();
+
+    Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
+			//!< -1 if not selected
+    int			outputNr() const	{ return attrdata_.outputnr_; }
+			//!< -1 if not selected
+    const char*		zDomainKey() const;
+
+    bool		is2D() const		{ return attrdata_.is2D(); }
+    const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }
+    int			selType() const;
+    void		fillSelSpec(Attrib::SelSpec&) const;
+
+protected:
+
+    uiAttrSelData	attrdata_;
+    Attrib::SelInfo*	attrinf_;
+    bool		usedasinput_;	//input for another attribute
+    bool		in_action_;
+    bool		showsteerdata_;
+    BufferString	zdomainkey_;
+
+    void		initAndBuild(const uiString&,Attrib::DescID,bool);
+
+    bool		getAttrData(bool);
+    void		doFinalise( CallBacker* );
+    virtual bool	acceptOK();
+
+};
+*/
+
+
+mExpClass(uiAttributes) uiAttrSelDlg : public uiDialog
+{ mODTextTranslationClass(uiAttrSelDlg)
+public:
+
+    mExpClass(uiAttributes) Setup
+    {
+    public:
+		Setup( const uiString& txt )
+		    : seltxt_(txt)
+		    , ignoreid_(Attrib::DescID::undef())
+		    , isinp4otherattrib_(false)
+		    , showsteeringdata_(false)
+		    , geomid_(mUdfGeomID)
+		{}
+
+		mDefSetupMemb(uiString,seltxt)
+		mDefSetupMemb(Attrib::DescID,ignoreid)
+		mDefSetupMemb(bool,isinp4otherattrib)
+		mDefSetupMemb(bool,showsteeringdata)
+		mDefSetupMemb(Pos::GeomID,geomid)
     };
 
 			uiAttrSelDlg(uiParent*,const uiAttrSelData&,
@@ -133,6 +190,7 @@ protected:
     bool		in_action_;
     bool		showsteerdata_;
     BufferString	zdomainkey_;
+    Pos::GeomID		geomid_;
 
     TypeSet<DataPack::FullID> dpfids_;
     DBKey		insertedobjmid_;
@@ -205,6 +263,9 @@ public:
     void		setIgnoreDesc(const Attrib::Desc*);
     void		setIgnoreID( Attrib::DescID id ) { ignoreid_ = id; }
     void		setPossibleDataPacks(const TypeSet<DataPack::FullID>&);
+    void		showSteeringData( bool yn )	{ showsteeringdata_=yn;}
+    void		setGeomID( Pos::GeomID id )	{ geomid_ = id; }
+    Pos::GeomID		getGeomID() const		{ return geomid_; }
 
     virtual void	getHistory(const IOPar&);
     virtual void	processInput();
@@ -229,6 +290,8 @@ protected:
     BufferString	errmsg_;
     mutable BufferString usrnm_;
     int			seltype_;
+    bool		showsteeringdata_;
+    Pos::GeomID		geomid_;
 
     TypeSet<DataPack::FullID> dpfids_;
 

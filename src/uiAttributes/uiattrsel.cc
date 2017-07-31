@@ -110,16 +110,41 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 }
 
 
-uiAttrSelDlgGroup::uiAttrSelDlgGroup( uiParent* p, const uiString& caption )
+uiAttrSelGroup::uiAttrSelGroup( uiParent* p, const uiString& caption )
     : uiDlgGroup(p,caption)
 {
+    filterfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
+
+    listfld_ = new uiListBox( this, "" );
+    listfld_->attach( centeredBelow, filterfld_ );
 }
 
 
-uiAttrSelDlgGroup::~uiAttrSelDlgGroup()
+uiAttrSelGroup::~uiAttrSelGroup()
 {
 }
 
+
+
+class uiStoredDataGroup : public uiAttrSelGroup
+{ mODTextTranslationClass(uiStoredDataGroup)
+public:
+uiStoredDataGroup( uiParent* p, Attrib::SelInfo& selinfo )
+    : uiAttrSelGroup(p,tr(""))
+    , selinfo_(selinfo)
+{
+    listfld_->addItems( selinfo_.ioobjnms_ );
+}
+
+
+void fillSelSpec( Attrib::SelSpec& ) const
+{
+}
+
+protected:
+
+    Attrib::SelInfo&	selinfo_;
+};
 
 
 #define mImplInitVar \
@@ -138,7 +163,8 @@ uiAttrSelDlgGroup::~uiAttrSelDlgGroup()
 	, zdomoutfld_(0) \
 	, in_action_(false) \
 	, showsteerdata_(stp.showsteeringdata_) \
-	, usedasinput_(stp.isinp4otherattrib_)
+	, usedasinput_(stp.isinp4otherattrib_) \
+	, geomid_(stp.geomid_)
 
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
@@ -340,11 +366,11 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->attach( rightOf, selgrp_ );
 
     filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
-    filtfld_->attach( alignedBelow, storoutfld_ );
-    filtfld_->attach( ensureBelow, steeroutfld_ );
+    filtfld_->attach( centeredAbove, storoutfld_ );
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
-    compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld");
-    compfld_->attach( rightTo, filtfld_ );
+    compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld" );
+    compfld_->attach( rightAlignedBelow, storoutfld_ );
+    compfld_->attach( ensureBelow, steeroutfld_ );
 
     if ( haveattribs )
     {
@@ -478,12 +504,17 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 
     compfld_->box()->setCurrentItem(0);
     BufferStringSet compnms;
-    SeisIOObjInfo::getCompNames( ioobjkey, compnms );
-    compfld_->box()->setEmpty();
-    if ( !showsteerdata_ )	//trick to prevent ALL coming to the display
-	compfld_->box()->addItem( uiStrings::sAll() );
+    if ( is2d )
+    {
+	SeisIOObjInfo info( ioobjkey );
+	info.getComponentNames( compnms, geomid_ );
+    }
+    else
+	SeisIOObjInfo::getCompNames( ioobjkey, compnms );
 
-    compfld_->box()->addItems( compnms.getUiStringSet() );
+    compfld_->box()->setEmpty();
+    compfld_->box()->addItem( uiStrings::sAll() );
+    compfld_->box()->addItems( compnms );
     compfld_->display( compnms.size()>=2 );
 }
 
@@ -640,7 +671,9 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
     , usedasinput_(isinp4otherattrib)
+    , showsteeringdata_(false)
     , seltype_(-1)
+    , geomid_(mUdfGeomID)
 {
     attrdata_.attribid_ = curid;
     updateInput();
@@ -656,7 +689,9 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
     , attrdata_(ad)
     , ignoreid_(DescID::undef())
     , usedasinput_(isinp4otherattrib)
+    , showsteeringdata_(false)
     , seltype_(-1)
+    , geomid_(mUdfGeomID)
 {
     updateInput();
     inp_->setEditable( true );
@@ -781,7 +816,8 @@ bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
 void uiAttrSel::doSel( CallBacker* )
 {
     uiAttrSelDlg::Setup setup( lbl_ ? lbl_->text() : cDefLabel() );
-    setup.ignoreid(ignoreid_).isinp4otherattrib(usedasinput_);
+    setup.ignoreid(ignoreid_).isinp4otherattrib(usedasinput_)
+	 .showsteeringdata(showsteeringdata_);
     uiAttrSelDlg dlg( this, attrdata_, dpfids_, setup );
     if ( dlg.go() )
     {

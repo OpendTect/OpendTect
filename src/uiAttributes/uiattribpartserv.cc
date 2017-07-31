@@ -446,7 +446,7 @@ bool uiAttribPartServer::selectRGBAttribs( TypeSet<SelSpec>& rgbaspecs,
     if ( !adsman->descSet() )
 	return false;
 
-    uiRGBAttrSelDlg dlg( parent(), *adsman->descSet() );
+    uiRGBAttrSelDlg dlg( parent(), *adsman->descSet(), geomid );
     dlg.setSelSpec( rgbaspecs );
     if ( !dlg.go() )
 	return false;
