@@ -220,7 +220,23 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 {
     txtfld_->setElemSzPol( uiObject::Wide );
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
-    SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
+    BufferStringSet lnms; TypeSet<Pos::GeomID> geomids;
+    SeisIOObjInfo::getLinesWithData( lnms, geomids );
+    const int* idxs = lnms.getSortIndexes( false );
+    if ( !idxs )
+    {
+	lnms_ = lnms;
+	geomids_ = geomids;
+    }
+    else
+    {
+	const int sz = lnms.size();
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    lnms_.add( lnms[ idxs[idx] ]->buf() );
+	    geomids_.add( geomids[ idxs[idx] ] );
+	}
+    }
 }
 
 
@@ -785,10 +801,10 @@ void uiSeis2DMultiLineSel::initRanges( const MultiID* datasetid )
 {
     zrgs_.erase(); trcrgs_.erase();
     maxzrgs_.erase(); maxtrcrgs_.erase();
-    
+
     PtrMan<IOObj> ioobj = datasetid ? IOM().get( *datasetid ) : 0;
     PtrMan<Seis2DDataSet> dataset = ioobj ?  new Seis2DDataSet( *ioobj ) : 0;
-    
+
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
 	StepInterval<int> trcrg(0,0,1);
