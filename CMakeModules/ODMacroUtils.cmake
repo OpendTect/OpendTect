@@ -69,7 +69,7 @@ if ( OD_MODULE_HAS_LIBRARY )
 endif(  OD_MODULE_HAS_LIBRARY )
 
 #Add all module dependencies
-set( OD_${OD_MODULE_NAME}_DEPS ${OD_MODULE_DEPS} )
+set( OD_${OD_MODULE_NAME}_DEPS ${OD_MODULE_DEPS} ${OD_EXT_MODULE_DEPS} )
 
 #Setup all deps and set runtime and includepath
 if( OD_MODULE_DEPS )

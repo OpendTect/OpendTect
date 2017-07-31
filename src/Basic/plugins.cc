@@ -403,6 +403,13 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	    if ( !strm.getLine(libnmbase) || libnmbase.isEmpty() )
 		continue;
 
+	    bool isext = false;
+	    if ( libnmbase.startsWith("EXT_LIB_") )
+	    {
+		libnmbase = BufferString( libnmbase.str() + 8 );
+		isext = true;
+	    }
+
 	    const BufferString libnm( mkLibName(libnmbase) );
 	    Data* data = findData( libnm.buf() );
 	    if ( !data )
@@ -413,6 +420,8 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	    }
 	    else if ( usrdir != Data::isUserDir(data->autosource_) )
 		data->autosource_ = Data::Both;
+
+	    data->isexternal_ = isext;
 	}
     }
 }
@@ -508,7 +517,8 @@ bool PluginManager::load( const char* libnm )
 	    return false;
 	}
 
-	if ( !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly,true) )
+	if ( !data->isexternal_
+	  && !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly,true) )
 	{
 	    existing->info_ = 0;
 	    existing->sla_->close();
@@ -520,7 +530,8 @@ bool PluginManager::load( const char* libnm )
     }
     else
     {
-	if ( !loadPlugin(data->sla_,GetArgC(),GetArgV(),libnmonly,true) )
+	if ( !data->isexternal_
+	  && !loadPlugin(data->sla_,GetArgC(),GetArgV(),libnmonly,true) )
 	{
 	    data->sla_->close();
 	    delete data;
@@ -554,7 +565,8 @@ void PluginManager::loadAuto( bool late )
 	if ( data.info_ && dontloadlist.isPresent(modnm) )
 	    continue;
 
-	if ( !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_,false) )
+	if ( !data.isexternal_
+	  && !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_,false) )
 	{
 	    data.info_ = 0;
 	    data.sla_->close();

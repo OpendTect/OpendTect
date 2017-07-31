@@ -109,8 +109,9 @@ public:
 				    , autosource_(None)
 				    , autotype_(PI_AUTO_INIT_NONE)
 				    , isloaded_( false )
-				    , sla_(0)	{}
-				~Data()		{ delete sla_; }
+				    , sla_(0)
+				    , isexternal_(false)	{}
+				~Data()				{ delete sla_; }
 
 	BufferString		name_;
 	const PluginInfo*	info_;
@@ -118,6 +119,7 @@ public:
 	int			autotype_;
 	SharedLibAccess*	sla_;
 	bool			isloaded_;
+	bool			isexternal_;
     };
 
     ObjectSet<Data>&	getData()		{ return data_; }
