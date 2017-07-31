@@ -138,13 +138,13 @@ bool uiSeisCopyCube::acceptOK()
     SeisCubeCopier copier( stp, compnr );
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(copier) )
-    	{ uiMSG().error( copier.message() ); return false; }
+	{ uiMSG().error( copier.message() ); return false; }
 
     const uiString msg = tr( "%1 successfully copied.\n\n"
-	    		     "Do you want to copy more %2?" )
+			     "Do you want to copy more %2?" )
 			     .arg(outioobj->name()).arg(outioobj->group());
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-	    			      tr("No, close window") );
+				      tr("No, close window") );
     return !ret;
 }
 
@@ -156,6 +156,8 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 	Setup(uiStrings::phrCopy(uiStrings::sVolDataName(true,false,false)),
 	      uiString::emptyString(),mODHelpKey(mSeisCopyLineSetHelpID)))
 {
+    setCtrlStyle( RunAndClose );
+
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
     uiSeisSel::Setup sssu( Seis::Line );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
@@ -178,7 +180,7 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
     if ( fixedoutputtransl )
 	ioctxt.fixTranslator( fixedoutputtransl );
 
-    outpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
+    outpfld_ = new uiSeisSel( this, ioctxt, sssu );
     outpfld_->attach( alignedBelow, scalefld_ );
 
     Batch::JobSpec js( sProgName ); js.execpars_.needmonitor_ = true;
@@ -205,21 +207,21 @@ bool uiSeisCopy2DDataSet::acceptOK()
 
     if ( outioobj->implExists(false) )
     {
-    	TypeSet<Pos::GeomID> ingeomids;
-    	subselfld_->getSelGeomIDs( ingeomids );
-	
+	TypeSet<Pos::GeomID> ingeomids;
+	subselfld_->getSelGeomIDs( ingeomids );
+
 	TypeSet<Pos::GeomID> outgeomids;
-    	const SeisIOObjInfo outinfo( outioobj );
-    	outinfo.getGeomIDs( outgeomids );
-	
-    	bool haveoverlap = false;
-    	for ( int idx=0; idx<ingeomids.size(); idx++ )
+	const SeisIOObjInfo outinfo( outioobj );
+	outinfo.getGeomIDs( outgeomids );
+
+	bool haveoverlap = false;
+	for ( int idx=0; idx<ingeomids.size(); idx++ )
 	    if ( outgeomids.isPresent(ingeomids[idx]) )
-	    	{ haveoverlap = true; break; }
-     	
-    	if ( haveoverlap &&
+		{ haveoverlap = true; break; }
+
+	if ( haveoverlap &&
 		!uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
-    	    return false;
+	    return false;
     }
 
     IOPar& outpars = outioobj->pars();
@@ -248,12 +250,12 @@ bool uiSeisCopy2DDataSet::acceptOK()
     Seis2DCopier copier( *inioobj, *outioobj, procpars );
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(copier) )
-    	{ uiMSG().error( copier.message() ); return false; }
+	{ uiMSG().error( copier.message() ); return false; }
 
     const uiString msg = tr( "%1 successfully copied.\n\n"
-	    		     "Do you want to copy more %2?" )
+			     "Do you want to copy more %2?" )
 			     .arg(outioobj->name()).arg(outioobj->group());
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-	    			      tr("No, close window") );    
+				      tr("No, close window") );
     return !ret;
 }
