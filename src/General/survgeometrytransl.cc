@@ -68,6 +68,8 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 	return 0;
 
     int version = 1;
+    float avgtrcdist = mUdf(float);
+    float linelength = mUdf(float);
     ascistream astrm( strm );
     const bool hasheader = astrm.hasStandardHeader();
     if ( !hasheader )
@@ -79,6 +81,16 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 	if ( astrm.hasKeyword(sKey::Version()) )
 	{
 	    version = astrm.getIValue();
+	    astrm.next();
+	}
+	if ( astrm.hasKeyword(sKeyAvgTrcDist()) )
+	{
+	    avgtrcdist = astrm.getFValue();
+	    astrm.next();
+	}
+	if ( astrm.hasKeyword(sKeyLineLength()) )
+	{
+	    linelength = astrm.getFValue();
 	    astrm.next();
 	}
     }
