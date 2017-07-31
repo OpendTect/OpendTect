@@ -68,6 +68,7 @@ public:
     virtual void	addItem(const uiString&);
     void		addItem(const uiString&,int id);
     void		addItems(const uiStringSet&);
+    void		addItems(const BufferStringSet&);
     void		addSeparator();
     void		insertItem(const uiString&,int index=-1,int id=-1);
     void		insertItem(const uiPixmap&,const uiString&,
@@ -101,7 +102,6 @@ protected:
     void		translateText();
     mDeprecated		uiComboBox(uiParent*,const BufferStringSet&,
 				   const char* nm);
-    mDeprecated void	addItems(const BufferStringSet&);
 private:
 
     int			oldnritems_;
