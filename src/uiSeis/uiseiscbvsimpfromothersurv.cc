@@ -38,10 +38,11 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     setCtrlStyle( RunAndClose );
 
     finpfld_ = new uiGenInput( this, tr("CBVS file name") );
+    finpfld_->setElemSzPol( uiObject::Wide );
     finpfld_->setReadOnly();
     CallBack cb = mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,cubeSel);
     uiPushButton* selbut = new uiPushButton( this, m3Dots(uiStrings::sSelect()),
-                                             cb, true );
+					     cb, true );
     selbut->attach( rightOf, finpfld_ );
 
     subselfld_ = new uiSeis3DSubSel( this, Seis::SelSetup( false ) );
@@ -51,8 +52,8 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     sep1->attach( stretchedBelow, subselfld_ );
 
     interpfld_ = new uiGenInput( this, tr("Interpolation"),
-			    BoolInpSpec( true, toUiString(interpols[0]),
-			    toUiString(interpols[1]) ) );
+			BoolInpSpec( true, toUiString(interpols[0]),
+				     toUiString(interpols[1]) ) );
     interpfld_->valuechanged.notify(
 		mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
     interpfld_->attach( ensureBelow, sep1 );
@@ -93,13 +94,16 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 	if ( import_ ) delete import_;
 	import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj_ );
 	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );
-	if ( import_->prepareRead( fusrexp ) )
+	if ( import_->prepareRead(fusrexp) )
 	{
 	    finpfld_->setText( fusrexp );
 	    subselfld_->setInput( import_->cubeSampling() );
 	}
 	else
-	    { delete import_; import_ = 0; }
+	{
+	    uiMSG().error( import_->errMsg() );
+	    delete import_; import_ = 0;
+	}
     }
 }
 
@@ -124,7 +128,7 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 
     uiString msg = tr("CBVS cube successfully imported\n\n"
 		      "Do you want to import more cubes?");
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(), 
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				 tr("No, close window") );
     return !ret;
 }

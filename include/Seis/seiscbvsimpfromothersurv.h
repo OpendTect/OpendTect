@@ -43,6 +43,7 @@ public:
     od_int64		totalNr() const		{ return totnr_; }
     int			nextStep();
 
+    uiString		errMsg() const		{ return errmsg_; }
     bool		prepareRead(const char*);
     void		setPars(Interpol&,int,const TrcKeyZSampling&);
     inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
