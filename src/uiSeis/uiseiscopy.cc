@@ -11,23 +11,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseiscopy.h"
 
-#include "seiscopy.h"
-#include "keystrs.h"
-#include "scaler.h"
 #include "ioman.h"
-#include "zdomain.h"
+#include "keystrs.h"
+#include "od_helpids.h"
+#include "scaler.h"
+#include "seiscopy.h"
 #include "seissingtrcproc.h"
+#include "zdomain.h"
 
+#include "uibatchjobdispatchersel.h"
+#include "uicombobox.h"
 #include "uimsg.h"
-#include "uiseissel.h"
+#include "uiscaler.h"
 #include "uiseisioobjinfo.h"
 #include "uiseislinesel.h"
+#include "uiseissel.h"
 #include "uiseistransf.h"
-#include "uiscaler.h"
-#include "uicombobox.h"
 #include "uitaskrunner.h"
-#include "uibatchjobdispatchersel.h"
-#include "od_helpids.h"
 
 static const char* sProgName = "od_copy_seis";
 
@@ -158,6 +158,8 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 	Setup(uiStrings::phrCopy(uiStrings::sVolDataName(true,false,false)),
 	      uiString::emptyString(),mODHelpKey(mSeisCopyLineSetHelpID)))
 {
+    setCtrlStyle( RunAndClose );
+
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
     uiSeisSel::Setup sssu( Seis::Line );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
@@ -180,7 +182,7 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
     if ( fixedoutputtransl )
 	ioctxt.fixTranslator( fixedoutputtransl );
 
-    outpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
+    outpfld_ = new uiSeisSel( this, ioctxt, sssu );
     outpfld_->attach( alignedBelow, scalefld_ );
 
     Batch::JobSpec js( sProgName ); js.execpars_.needmonitor_ = true;
