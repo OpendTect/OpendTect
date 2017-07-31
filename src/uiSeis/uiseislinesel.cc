@@ -218,7 +218,23 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 {
     txtfld_->setElemSzPol( uiObject::Wide );
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
-    SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
+    BufferStringSet lnms; TypeSet<Pos::GeomID> geomids;
+    SeisIOObjInfo::getLinesWithData( lnms, geomids );
+    const int* idxs = lnms.getSortIndexes( false );
+    if ( !idxs )
+    {
+	lnms_ = lnms;
+	geomids_ = geomids;
+    }
+    else
+    {
+	const int sz = lnms.size();
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    lnms_.add( lnms[ idxs[idx] ]->buf() );
+	    geomids_.add( geomids[ idxs[idx] ] );
+	}
+    }
 }
 
 
