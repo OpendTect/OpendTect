@@ -807,17 +807,6 @@ RegularSeisDataPack* Seis::SequentialReader::getDataPack()
 { return dp_; }
 
 
-#define mSetSelData() \
-{ \
-    sd_ = new Seis::RangeSelData( tkzs_ ); \
-    rdr_.setSelData( sd_ ); \
-    if ( !rdr_.prepareWork() ) \
-    { \
-	msg_ = rdr_.errMsg(); \
-	return false; \
-    } \
-}
-
 bool Seis::SequentialReader::init()
 {
     if ( initialized_ )
@@ -897,7 +886,15 @@ bool Seis::SequentialReader::init()
 
     nrdone_ = 0;
 
-    mSetSelData()
+    seistkzs.hsamp_.limitTo( tkzs_.hsamp_ );
+    sd_ = new Seis::RangeSelData( seistkzs );
+    rdr_.setSelData( sd_ );
+    if ( !rdr_.prepareWork() )
+    {
+	msg_ = rdr_.errMsg();
+	return false;
+    }
+
     if ( !trcssampling_ )
 	trcssampling_ = new PosInfo::CubeData( *dp_->getTrcsSampling() );
 
@@ -921,7 +918,7 @@ bool Seis::SequentialReader::init()
 bool Seis::SequentialReader::setDataPack( RegularSeisDataPack& dp,
 					  od_ostream* extstrm )
 {
-    nrdone_ = 0;
+    initialized_ = false;
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     dp_ = &dp;
     DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
@@ -935,7 +932,6 @@ bool Seis::SequentialReader::setDataPack( RegularSeisDataPack& dp,
     else
 	dp_->setSampling( tkzs_ );
 
-    mSetSelData()
     if ( dp.nrComponents() < components_.size() &&
 	 !addComponents(*dp_,*ioobj_,components_,msg_) )
     {
@@ -951,7 +947,7 @@ bool Seis::SequentialReader::setDataPack( RegularSeisDataPack& dp,
 	    compscalers_ += 0;
     }
 
-    return true;
+    return init(); // New datapack, hence re-init of trace reader
 }
 
 namespace Seis

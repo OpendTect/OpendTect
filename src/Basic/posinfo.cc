@@ -335,10 +335,10 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 		    newstart = segstart + diff;
 		}
 
-		if ( is2d && isrev )
+		if ( isrev )
 		    seg.stop = newstart;
 		else
-		    segstart = newstart;
+		    seg.start = newstart;
 	    }
 	    if ( segstop > hs.stop_.crl() )
 	    {
@@ -350,10 +350,10 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 		    newstop = segstop - diff;
 		}
 
-		if ( is2d && isrev )
+		if ( isrev )
 		    seg.start = newstop;
 		else
-		    segstop = newstop;
+		    seg.stop = newstop;
 	    }
 	    if ( segstart > segstop )
 		ld->segments_.removeSingle( iseg );
@@ -415,7 +415,6 @@ void PosInfo::CubeData::getRanges( Interval<int>& inlrg,
 	    crlrg.include( ld.segments_[iseg], false );
     }
 }
-
 
 
 bool PosInfo::CubeData::getInlRange( StepInterval<int>& rg,
