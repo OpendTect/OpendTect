@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -58,7 +58,7 @@
 <context>
     <name>TextTranslatorLanguage</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/texttranslator.cc" line="+58"/>
+        <location filename="../../../src/Basic/texttranslator.cc" line="+56"/>
         <source>Language Name</source>
         <translation>
             <numerusform>English</numerusform>
@@ -69,7 +69,7 @@
 <context>
     <name>VolProcessing2DTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+163"/>
+        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+174"/>
         <source>2D Volume Processing Setup</source>
         <translation>
             <numerusform>2D Volume Processing Setup</numerusform>
@@ -80,7 +80,7 @@
 <context>
     <name>VolProcessingTranslatorGroup</name>
     <message numerus="yes">
-        <location line="-142"/>
+        <location line="-153"/>
         <source>Volume Processing Setup</source>
         <translation>
             <numerusform>Volume Processing Setup</numerusform>
@@ -120,7 +120,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+142"/>
+        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+147"/>
         <source>Unload checked horizon(s)?
 (This will not delete the file(s) from disk)</source>
         <translation>
@@ -134,7 +134,7 @@
 <context>
     <name>uiSEGYExamine</name>
     <message numerus="yes">
-        <location filename="../../../plugins/uiSEGY/uisegyexamine.cc" line="+375"/>
+        <location filename="../../../plugins/uiSEGY/uisegyexamine.cc" line="+350"/>
         <source>file</source>
         <translation>
             <numerusform>file</numerusform>
@@ -155,7 +155,7 @@
 <context>
     <name>uiStrings</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="+50"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="+54"/>
         <source>%1 does not exist</source>
         <translation>
             <numerusform>%1 does not exist</numerusform>
@@ -164,7 +164,7 @@
     </message>
     <message numerus="yes">
         <source>ColorTable</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Color Table</numerusform>
             <numerusform>Color Tables</numerusform>
         </translation>
@@ -187,7 +187,7 @@
     </message>
     <message numerus="yes">
         <location line="+15"/>
-        <location line="+153"/>
+        <location line="+159"/>
         <source>output file</source>
         <translation>
             <numerusform>output file</numerusform>
@@ -195,7 +195,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="-111"/>
+        <location line="-117"/>
         <source>Fault</source>
         <translation>
             <numerusform>Fault</numerusform>
@@ -227,7 +227,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+36"/>
+        <location line="+42"/>
         <source>Marker</source>
         <translation>
             <numerusform>Marker</numerusform>
@@ -342,7 +342,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+205"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+207"/>
         <source>2D Plane</source>
         <translation>
             <numerusform>2D Plane</numerusform>
@@ -398,7 +398,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Contour</source>
         <translation>
             <numerusform>Contour</numerusform>
@@ -463,7 +463,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+8"/>
+        <location line="+5"/>
+        <source>File Name</source>
+        <translation>
+            <numerusform>File Name</numerusform>
+            <numerusform>File Names</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+3"/>
         <source>Filter</source>
         <translation>
             <numerusform>Filter</numerusform>
@@ -479,7 +487,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+14"/>
+        <location line="+15"/>
         <source>In-line</source>
         <translation>
             <numerusform>In-line</numerusform>
@@ -559,7 +567,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+23"/>
+        <location line="+24"/>
         <source>Parameter</source>
         <translation>
             <numerusform>Parameter</numerusform>
