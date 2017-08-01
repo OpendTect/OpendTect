@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 
 /*!
-\brief Gives access to shared libs on runtime. Plugins should be loaded via 
+\brief Gives access to shared libs on runtime. Plugins should be loaded via
  the Plugin Manager (see plugins.h).
 */
 
@@ -34,7 +34,7 @@ public:
 		SharedLibAccess(const char* file_name);
 		//!< handle is only closed if you do it explicitly.
     bool	isOK() const		{ return handle_; }
-    const uiString&  errMsg() const		{ return errmsg_; }
+    const OD::String& errMsg() const	{ return errmsg_; }
 
     void	close();
 
@@ -50,6 +50,6 @@ public:
 protected:
 
     Handletype		handle_;
-    uiString		errmsg_;
+    BufferString	errmsg_;
 
 };

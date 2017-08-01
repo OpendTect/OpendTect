@@ -78,7 +78,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
 			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
-	    errmsg_ = toUiString( ptr );
+	    errmsg_.set( ptr );
 	}
 	SetErrorMode( oldmod );
     }
@@ -90,7 +90,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	handle_ = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
 
 	if ( !handle_ )
-	    errmsg_ = toUiString( BufferString(dlerror()) );
+	    errmsg_.set( dlerror() );
 
 	dlerror();    /* Clear any existing error */
     }
@@ -99,7 +99,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
 #ifdef __debug__
     if ( !errmsg_.isEmpty() )
-	ErrMsg( mFromUiStringTodo(errmsg_) );
+	ErrMsg( errmsg_ );
 #endif
 
     if( DBG::isOn(DBG_PROGSTART) )
@@ -359,6 +359,9 @@ void PluginManager::openALOEntries()
 	data.sla_ = new SharedLibAccess( getFileName(data) );
 	if ( !data.sla_->isOK() )
 	{
+	    if ( !data.sla_->errMsg().isEmpty() )
+		ErrMsg( data.sla_->errMsg() );
+
 	    delete data.sla_; data.sla_ = 0;
 
 	    if ( data.autosource_ == Data::Both )
@@ -371,12 +374,15 @@ void PluginManager::openALOEntries()
 	    }
 	}
 
-	if ( !data.sla_ )
-	    OD::ModDeps().ensureLoaded( moduleName( data.name_ ) );
-	else
+	if ( !data.isexternal_ )
 	{
-	    data.autotype_ = getPluginType( data.sla_, data.name_ );
-	    data.info_ = getPluginInfo( data.sla_, data.name_ );
+	    if ( !data.sla_ )
+		OD::ModDeps().ensureLoaded( moduleName( data.name_ ) );
+	    else
+	    {
+		data.autotype_ = getPluginType( data.sla_, data.name_ );
+		data.info_ = getPluginInfo( data.sla_, data.name_ );
+	    }
 	}
     }
 }
@@ -489,7 +495,7 @@ bool PluginManager::load( const char* libnm )
     data->sla_ = new SharedLibAccess( libnm );
     if ( !data->sla_->isOK() )
     {
-	ErrMsg( mFromUiStringTodo(data->sla_->errMsg()), true );
+	ErrMsg( data->sla_->errMsg(), true );
 	delete data;
 	return false;
     }
