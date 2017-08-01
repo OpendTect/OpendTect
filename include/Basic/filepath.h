@@ -67,7 +67,8 @@ public:
 			/*!<If reldir is set, it will be filled with the
 			    relative path. */
     bool		makeRelativeTo(const Path&);
-    bool		makeCanonical();
+    bool		makeCanonical(); // i.e. follow links, expand '..'
+    void		makeCloudCompatible();
 
     BufferString	fullPath(Style s=Local,bool cleanup=true) const;
     const char*		prefix() const;

@@ -265,6 +265,61 @@ bool File::Path::makeCanonical()
     return true;
 }
 
+/*
+  A valid DNS name must conform to the following naming rules:
+  * Names must start with a letter or number, and can contain only
+    letters, numbers, and the dash (-) character.
+  * Every dash (-) character must be immediately preceded and followed by a
+    letter or number; consecutive dashes are not permitted.
+  * All letters in a container name must be lowercase.
+  * Names must be from 3 through 63 characters long.
+
+  Level 0 may be a domain name, so we'll also allow dots.
+
+*/
+
+
+#define mReplChar '0'
+
+void File::Path::makeCloudCompatible()
+{
+    compress();
+    for ( int ilvl=0; ilvl<lvls_.size()-1; ilvl++ )
+    {
+	BufferString& lvlnm = lvls_.get( ilvl );
+	lvlnm.toLower();
+
+	const int sz = lvlnm.size();
+	if ( sz < 3 )
+	{
+	    for ( int idx=sz; idx<3; idx++ )
+		lvlnm.add( mReplChar );
+	}
+
+	char* startptr = lvlnm.getCStr();
+	if ( sz > 63 )
+	    *(startptr+63) = '\0';
+
+	for ( char* ptr=startptr; *ptr; ptr++ )
+	{
+	    const bool isdash = *ptr == '-';
+	    const bool isdot = *ptr == '.';
+	    if ( isdash )
+	    {
+		if ( ptr == startptr || *(ptr-1) == '-' )
+		    *ptr = mReplChar;
+	    }
+	    else if ( isdot )
+	    {
+		if ( ilvl != 0 )
+		    *ptr = mReplChar;
+	    }
+	    else if ( !isalnum(*ptr) )
+		*ptr = mReplChar;
+	}
+    }
+}
+
 
 bool File::Path::makeRelativeTo( const Path& oth )
 {
