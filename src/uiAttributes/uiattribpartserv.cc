@@ -730,7 +730,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	    cache = 0;
 
 	const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == TrcKeyZSampling::Z;
-	if ( isz )
+	if ( !preloadeddatapack && isz )
 	{
 	    uiString errmsg;
 	    Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
