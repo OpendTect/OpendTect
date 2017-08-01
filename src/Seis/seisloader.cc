@@ -800,13 +800,13 @@ bool Seis::SequentialFSLoader::init()
 	setComponents( components );
     }
 
-    if ( is2d && !TrcKey::is2D(tkzs_.hsamp_.survid_) )
+    adjustDPDescToScalers( datasetdc );
+    if ( is2d && !tkzs_.is2D() )
     {
 	pErrMsg("TrcKeySampling for 2D data needed with GeomID as lineNr");
 	return false;
     }
 
-    adjustDPDescToScalers( datasetdc );
     if ( !dp_ )
     {
 	if ( is2d )
@@ -874,7 +874,7 @@ bool Seis::SequentialFSLoader::init()
 
     nrdone_ = 0;
 
-    seistkzs.hsamp_ = tkzs_.hsamp_;
+    seistkzs.hsamp_.limitTo( tkzs_.hsamp_ );
     sd_ = new Seis::RangeSelData( seistkzs );
     prov_->setSelData( sd_ );
 
@@ -915,7 +915,7 @@ bool Seis::SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 	return false;
     }
 
-    return init(); // New datapack, hence re-init of trace reader
+    return init(); // New datapack, hence re-init of provider
 }
 
 
