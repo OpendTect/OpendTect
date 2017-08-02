@@ -155,7 +155,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
     {
 	const TrcKeyZSampling& tkzs = tkzss[idx];
 	const Pos::GeomID& geomid = geomids[idx];
- 
+
 	ParallelReader2D* rdr =
 	    new ParallelReader2D( *ioobj, geomid, tkzs.isDefined() ? &tkzs : 0);
 	rdr->setScaler( scaler ); rdr->setDataChar( type );
@@ -174,7 +174,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 	if ( !dp ) continue;
 	PLDM().add( mid_, loadedgeomid, dp );
     }
-  
+
     return true;
 }
 
@@ -367,7 +367,8 @@ PreLoadDataEntry::PreLoadDataEntry( const MultiID& mid, Pos::GeomID geomid,
 
 bool PreLoadDataEntry::equals( const MultiID& mid, Pos::GeomID geomid ) const
 {
-    return mid_==mid && geomid_==geomid;
+    const bool samemid = mid_ == mid;
+    return geomid==-1 ? samemid : samemid && geomid_==geomid;
 }
 
 
@@ -375,6 +376,7 @@ bool PreLoadDataEntry::equals( const MultiID& mid, Pos::GeomID geomid ) const
 // PreLoadDataManager
 PreLoadDataManager::PreLoadDataManager()
     : dpmgr_(DPM(DataPackMgr::SeisID()))
+    , changed(this)
 {
 }
 
@@ -396,6 +398,7 @@ void PreLoadDataManager::add( const MultiID& mid, Pos::GeomID geomid,
 
     entries_ += new PreLoadDataEntry( mid, geomid, dp->id() );
     dpmgr_.addAndObtain( dp );
+    changed.trigger();
 
 }
 
@@ -418,6 +421,7 @@ void PreLoadDataManager::remove( int dpid )
 	{
 	    entries_.removeSingle( idx );
 	    dpmgr_.release( dpid );
+	    changed.trigger();
 	    return;
 	}
     }
@@ -431,6 +435,8 @@ void PreLoadDataManager::removeAll()
 	dpmgr_.release( entries_[0]->dpid_ );
 	entries_.removeSingle( 0 );
     }
+
+    changed.trigger();
 }
 
 

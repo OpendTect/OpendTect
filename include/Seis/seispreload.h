@@ -29,7 +29,7 @@ namespace Seis
 {
 
 mExpClass(Seis) PreLoader
-{ mODTextTranslationClass(PreLoader);
+{ mODTextTranslationClass(PreLoader)
 public:
 			PreLoader(const MultiID&,Pos::GeomID =-1,
 				  TaskRunner* =0);
@@ -97,7 +97,7 @@ public:
 };
 
 
-mExpClass(Seis) PreLoadDataManager
+mExpClass(Seis) PreLoadDataManager : public CallBacker
 {
 public:
     void		add(const MultiID&,DataPack*);
@@ -117,6 +117,8 @@ public:
     bool		isPresent(const MultiID&,Pos::GeomID =-1) const;
 
     const ObjectSet<PreLoadDataEntry>& getEntries() const;
+
+    Notifier<PreLoadDataManager>	changed;
 
 protected:
 
