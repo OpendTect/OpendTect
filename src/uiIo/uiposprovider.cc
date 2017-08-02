@@ -52,6 +52,8 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	{
 	    reqnms.add( sKey::Table() );
 	    reqnms.add( sKey::Polygon() );
+	    reqnms.add( "Seismic Cube Positions" );
+	    			// In 7.x, sKey::SeisCubePositions()
 	}
 	else if ( setup_.choicetype_ == Setup::VolumeTypes )
 	{
