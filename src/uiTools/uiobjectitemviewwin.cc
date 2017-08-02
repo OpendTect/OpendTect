@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #define mSldUnits 250
-#define mMaxObjectSize 60 //36 x object size
+#define mMaxObjectSize 30 //18 x object size
 #define mScrollBarSize mainviewer_->scrollBarSize(false).width()-2
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
