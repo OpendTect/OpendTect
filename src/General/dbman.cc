@@ -457,7 +457,8 @@ void DBMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	if ( ioobj )
 	{
 	    ioobj->pars().merge( ctio.ctxt_.toselect_.require_ );
-	    dbdir.getNonConstPtr()->commitChanges( *ioobj );
+	    if ( !dbdir.getNonConstPtr()->commitChanges(*ioobj) )
+		return;
 	}
     }
 
