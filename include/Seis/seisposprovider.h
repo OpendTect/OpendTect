@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "posprovider.h"
 #include "posinfo.h"
 #include "dbkey.h"
+#include "keystrs.h"
 
 
 namespace Pos
@@ -32,7 +33,7 @@ public:
     SeisProvider3D&	operator =(const SeisProvider3D&);
     const char*		type() const		{ return sKeyType(); }
     const char*		factoryKeyword() const	{ return type(); }
-    static const char*	sKeyType()	{ return "Seismic Cube Positions"; }
+    static const char*	sKeyType()	{ return sKey::SeisCubePositions(); }
     virtual Provider*	clone() const	{ return new SeisProvider3D(*this); }
 
     uiRetVal		setSeisID(const DBKey&);
