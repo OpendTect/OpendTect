@@ -308,6 +308,18 @@ void uiAttrSelDlg::createSelectionButtons()
 }
 
 
+static void setPreloadIcon( uiListBox* lb, const BufferStringSet& ids )
+{
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	const MultiID mid( ids.get(idx) );
+	const char* iconnm =
+		Seis::PLDM().isPresent(mid) ? "preloaded" : "empty";
+	lb->setIcon( idx, iconnm );
+    }
+}
+
+
 void uiAttrSelDlg::createSelectionFields()
 {
     const bool havenlaouts = attrinf_->nlaoutnms_.size();
@@ -319,19 +331,14 @@ void uiAttrSelDlg::createSelectionFields()
     storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     storoutfld_->attach( rightOf, selgrp_ );
-    for ( int idx=0; idx<attrinf_->ioobjids_.size(); idx++ )
-    {
-	const MultiID mid( attrinf_->ioobjids_.get(idx) );
-	const char* iconnm =
-		Seis::PLDM().isPresent(mid) ? "preloaded" : "empty";
-	storoutfld_->setIcon( idx, iconnm );
-    }
+    setPreloadIcon( storoutfld_, attrinf_->ioobjids_ );
 
     steeroutfld_ = new uiListBox( this, "Steered output" );
     steeroutfld_->addItems( attrinf_->steernms_ );
     steeroutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     steeroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     steeroutfld_->attach( rightOf, selgrp_ );
+    setPreloadIcon( steeroutfld_, attrinf_->steerids_ );
 
     filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
     filtfld_->attach( centeredAbove, storoutfld_ );
