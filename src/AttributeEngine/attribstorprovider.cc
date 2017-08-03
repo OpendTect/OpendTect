@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribparam.h"
 #include "attribdataholder.h"
 #include "datainpspec.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linesetposinfo.h"
@@ -38,6 +39,8 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(StorageProvider)
+
+static HiddenParam<StorageProvider,char> usetrcdistalreadyset_( 0 );
 
 void StorageProvider::initClass()
 {
@@ -180,6 +183,8 @@ StorageProvider::StorageProvider( Desc& desc )
 	DataPack::FullID fid( linenm+1 );
 	isondisc_ =  !DPM(fid).haveID( fid );
     }
+
+    usetrcdistalreadyset_.setParam( this, false );
 }
 
 
@@ -187,6 +192,8 @@ StorageProvider::~StorageProvider()
 {
     if ( mscprov_ ) delete mscprov_;
     if ( ls2ddata_ ) delete ls2ddata_;
+
+    usetrcdistalreadyset_.removeParam( this );
 }
 
 
@@ -981,7 +988,7 @@ bool StorageProvider::useInterTrcDist() const
     if ( useintertrcdist_ )
 	return true;
 
-    if ( getDesc().is2D() )
+    if ( getDesc().is2D() && !usetrcdistalreadyset_.getParam(this) )
     {
 	BufferStringSet compnms;
 	getCompNames( compnms );
@@ -992,6 +999,8 @@ bool StorageProvider::useInterTrcDist() const
 						  ->useintertrcdist_ = true;
 	    return useintertrcdist_;
 	}
+	usetrcdistalreadyset_.setParam(
+			    const_cast<Attrib::StorageProvider*>(this), true );
     }
 
     return false;
