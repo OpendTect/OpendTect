@@ -208,7 +208,7 @@ File::Path& File::Path::setExtension( const char* ext, bool replace )
     if ( ptr && replace )
 	strcpy( *ext ? ptr+1 : ptr, ext );
     else if ( *ext )
-	{ fname += "."; fname += ext; }
+	fname.add( "." ).add( ext );
     return *this;
 }
 
@@ -263,61 +263,6 @@ bool File::Path::makeCanonical()
     set( winpath );
 #endif
     return true;
-}
-
-/*
-  A valid DNS name must conform to the following naming rules:
-  * Names must start with a letter or number, and can contain only
-    letters, numbers, and the dash (-) character.
-  * Every dash (-) character must be immediately preceded and followed by a
-    letter or number; consecutive dashes are not permitted.
-  * All letters in a container name must be lowercase.
-  * Names must be from 3 through 63 characters long.
-
-  Level 0 may be a domain name, so we'll also allow dots.
-
-*/
-
-
-#define mReplChar '0'
-
-void File::Path::makeCloudCompatible()
-{
-    compress();
-    for ( int ilvl=0; ilvl<lvls_.size()-1; ilvl++ )
-    {
-	BufferString& lvlnm = lvls_.get( ilvl );
-	lvlnm.toLower();
-
-	const int sz = lvlnm.size();
-	if ( sz < 3 )
-	{
-	    for ( int idx=sz; idx<3; idx++ )
-		lvlnm.add( mReplChar );
-	}
-
-	char* startptr = lvlnm.getCStr();
-	if ( sz > 63 )
-	    *(startptr+63) = '\0';
-
-	for ( char* ptr=startptr; *ptr; ptr++ )
-	{
-	    const bool isdash = *ptr == '-';
-	    const bool isdot = *ptr == '.';
-	    if ( isdash )
-	    {
-		if ( ptr == startptr || *(ptr-1) == '-' )
-		    *ptr = mReplChar;
-	    }
-	    else if ( isdot )
-	    {
-		if ( ilvl != 0 )
-		    *ptr = mReplChar;
-	    }
-	    else if ( !isalnum(*ptr) )
-		*ptr = mReplChar;
-	}
-    }
 }
 
 
@@ -395,8 +340,7 @@ BufferString File::Path::getTimeStampFileName( const char* ext )
     datestr.replace( ", ", "-" );
     datestr.replace( ':', '.' );
     datestr.replace( ' ', '_' );
-    tsfnm += datestr.buf();
-    tsfnm += ext;
+    tsfnm.add( datestr ).add( ext );
 
     return tsfnm;
 }
@@ -432,12 +376,25 @@ BufferString File::Path::dirUpTo( int lvl ) const
     if ( isabs_ )
 	ret.add( dirSep() );
     if ( lvls_.size() )
-	ret += lvls_.get( 0 );
+	ret.add( lvls_.get( 0 ) );
 
     for ( int idx=1; idx<=lvl; idx++ )
+	ret.add( dirSep() ).add( lvls_.get( idx ) );
+
+    return ret;
+}
+
+
+BufferString File::Path::fileFrom( int lvl ) const
+{
+    BufferString ret;
+
+    const int sz = lvls_.size();
+    for ( int ilvl=lvl; ilvl<sz; ilvl++ )
     {
-	ret += dirSep();
-	ret += lvls_.get( idx );
+	ret.add( lvls_.get( ilvl ) );
+	if ( ilvl != sz-1 )
+	    ret.add( dirSep() );
     }
 
     return ret;

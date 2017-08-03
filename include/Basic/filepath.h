@@ -68,7 +68,6 @@ public:
 			    relative path. */
     bool		makeRelativeTo(const Path&);
     bool		makeCanonical(); // i.e. follow links, expand '..'
-    void		makeCloudCompatible();
 
     BufferString	fullPath(Style s=Local,bool cleanup=true) const;
     const char*		prefix() const;
@@ -85,6 +84,7 @@ public:
 			//!< nr < 0 returns last dir name
     BufferString	dirUpTo(int) const;
 			//!< nr < 0 returns last dir, including prefix
+    BufferString	fileFrom(int) const;
 
     static BufferString	getTempDir();
     static BufferString	getTempName(const char* ext=0);
