@@ -36,7 +36,7 @@ defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 mDefSimpleTranslatorSelector(AttribDescSet);
 
 #define mDestroyWorkers \
-{ delete proc; proc = 0; }
+{ deleteAndZeroPtr( proc ); }
 
 
 #define mRetFileProb(fdesc,fnm,s) \
@@ -144,7 +144,6 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !outputs )
 	mRetJobErr( "No outputs found" )
 
-    PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
     int indexoutp = 0; BufferStringSet alllinenames;
     while ( true )
     {
@@ -228,10 +227,12 @@ bool BatchProgram::go( od_ostream& strm )
 	    procpar.mergeComp( *linepar, subselkey );
 	}
 
-	proc = attrengman->usePar( procpar, attribset, alllinenames.get(idx),
-				   errmsg );
+	Attrib::EngineMan attrengman;
+	Attrib::DescSet attribsetlocal( attribset ); //May change
+	proc = attrengman.usePar( procpar, attribsetlocal,
+				  alllinenames.get(idx), errmsg );
 	if ( !proc )
-	    mRetJobErr( errmsg.getFullString() );
+	    mRetJobErr( BufferString(errmsg.getFullString()) );
 
 	progressmeter.setName( proc->name() );
 	progressmeter.setMessage( proc->uiMessage() );
@@ -266,21 +267,26 @@ bool BatchProgram::go( od_ostream& strm )
 		    mSetCommState(Working);
 		}
 
+		progressmeter.setNrDone( proc->nrDone() );
 		const int res = proc->nextStep();
+		if ( nriter == 0 )
+		{
+		    if ( is2d )
+		    {
+			strm << "\nProcessing attribute on line "
+			     << alllinenames.get(idx).buf()
+			     << " (" << idx+1 << "/" << alllinenames.size()
+			     << ")\n" << od_endl;
+		    }
+		    else
+		    {
+			strm << "Estimated number of positions to be processed"
+			     << " (assuming regular input): " << proc->totalNr()
+			     << "\n" << od_endl;
+		    }
 
-		if ( nriter == 0 && !is2d )
-		{
-		    strm << "Estimated number of positions to be processed"
-			 << " (assuming regular input): " << proc->totalNr()
-			 << od_endl << od_endl;
 		    progressmeter.setTotalNr( proc->totalNr() );
-		}
-		if ( nriter == 0 && is2d && alllinenames.size()>1 )
-		{
-		    strm << "\nProcessing attribute on line "
-			 << alllinenames.get(idx).buf()
-			 << " (" << idx+1 << "/" << alllinenames.size()
-			 << ")" << "\n" << od_endl;
+		    progressmeter.setStarted();
 		}
 
 		if ( res > 0 )
@@ -314,6 +320,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    }
 	}
 
+	progressmeter.setFinished();
 	bool closeok = true;
 	if ( nriter )
 	    closeok = proc->outputs_[0]->finishWrite();
@@ -323,33 +330,36 @@ bool BatchProgram::go( od_ostream& strm )
 	else
 	{
 	    if ( is2d && alllinenames.size()>1 )
-		strm << "\n\nProcessing on " << alllinenames.get(idx)
-		     << " finished.\n\n\n";
+		strm << "\nProcessing on " << alllinenames.get(idx)
+		     << " finished.\n" << od_endl;
 	}
 
 	mDestroyWorkers
     }
 
     PtrMan<IOObj> ioobj = IOM().get( seisid );
+    BufferString finishmsg( "\nFinished processing" );
     if ( ioobj )
     {
 	FilePath fp( ioobj->fullUserExpr() );
 	fp.setExtension( "proc" );
 	pars().write( fp.fullPath(), sKey::Pars() );
+	finishmsg.add( " of " ).add( ioobj->name() );
     }
 
-    // It is VERY important workers are destroyed BEFORE the last sendState!!!
-    progressmeter.setFinished();
-    mMessage( "Threads closed; Writing finish status" );
+    mMessage( finishmsg );
 
     if ( !comm_ ) return true;
 
+    mMessage( "\nWriting finish status: " );
+    // It is VERY important workers are destroyed BEFORE the last sendState!!!
     comm_->setState( JobCommunic::Finished );
     bool ret = comm_->sendState();
 
     if ( ret )
-	mMessage( "Successfully wrote finish status" );
+	mMessage( "Successfully wrote finish status." );
     else
-	mMessage( "Could not write finish status" );
+	mMessage( "Could not write finish status." );
+
     return ret;
 }
