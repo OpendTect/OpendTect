@@ -796,6 +796,13 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 }
 
 
+uiODTreeTop* uiODSceneMgr::getTreeItemMgr( int sceneid ) const
+{
+    const Scene* scene = getScene( sceneid );
+    return scene ? scene->itemmanager_ : 0;
+}
+
+
 void uiODSceneMgr::translateText()
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )

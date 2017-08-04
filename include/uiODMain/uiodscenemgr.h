@@ -116,6 +116,7 @@ public:
     Notifier<uiODSceneMgr>	activeSceneChanged;
 
     uiODTreeTop*		getTreeItemMgr(const uiTreeView*) const;
+    uiODTreeTop*		getTreeItemMgr(int sceneid) const;
 
     void			displayIn2DViewer(int visid,int attribid,
 						  bool wva);
