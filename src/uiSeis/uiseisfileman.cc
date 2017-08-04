@@ -223,8 +223,8 @@ void uiSeisFileMan::setToolButtonProperties()
 
     if ( histogrambut_ )
     {
-	const SeisIOObjInfo info( curioobj_ ); IOPar iop;
-	histogrambut_->setSensitive( info.getStats(iop) );
+	const SeisIOObjInfo info( curioobj_ );
+	histogrambut_->setSensitive( info.haveStats() );
     }
 
     if ( attribbut_ )

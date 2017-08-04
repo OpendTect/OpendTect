@@ -124,7 +124,9 @@ public:
     bool		getDataChar(DataCharacteristics&) const;
     bool		getBPS(int&,int icomp) const;
 			//!< max bytes per sample, component -1 => add all
+    bool		havePars() const;
     bool		getPars(IOPar&) const;
+    bool		haveStats() const;
     bool		getStats(IOPar&) const;
     bool		getDisplayPars( IOPar& iop ) const
 			{ return getPars(iop); }
@@ -184,5 +186,7 @@ protected:
 
     void		getNms(BufferStringSet&,const Opts2D&) const;
     int			getComponentInfo(Pos::GeomID,BufferStringSet*) const;
+    bool		haveAux(const char* ext) const;
+    bool		getAux(const char* ext,const char* ftyp,IOPar&) const;
 
 };

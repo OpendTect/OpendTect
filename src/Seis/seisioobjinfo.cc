@@ -423,22 +423,35 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 }
 
 
+bool SeisIOObjInfo::haveAux( const char* ext ) const
+{
+    mChk(false);
+    File::Path fp( ioobj_->mainFileName() );
+    fp.setExtension( ext );
+    return File::exists( fp.fullPath() );
+}
+
+
+bool SeisIOObjInfo::havePars() const
+{ return haveAux( sParFileExtension() ); }
+bool SeisIOObjInfo::haveStats() const
+{ return haveAux( sStatsFileExtension() ); }
+
+
+bool SeisIOObjInfo::getAux( const char* ext, const char* filetyp,
+			    IOPar& iop ) const
+{
+    mChk(false);
+    File::Path fp( ioobj_->mainFileName() );
+    fp.setExtension( ext );
+    return iop.read( fp.fullPath(), filetyp );
+}
+
+
 bool SeisIOObjInfo::getPars( IOPar& iop ) const
-{
-    mChk(false);
-    File::Path fp( ioobj_->mainFileName() );
-    fp.setExtension( sParFileExtension() );
-    return iop.read( fp.fullPath(), sKey::Pars() );
-}
-
-
+{ return getAux( sParFileExtension(), sKey::Pars(), iop ); }
 bool SeisIOObjInfo::getStats( IOPar& iop ) const
-{
-    mChk(false);
-    File::Path fp( ioobj_->mainFileName() );
-    fp.setExtension( sStatsFileExtension() );
-    return iop.read( fp.fullPath(), sKey::Stats() );
-}
+{ return getAux( sStatsFileExtension(), sKey::Stats(), iop ); }
 
 
 bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
