@@ -317,6 +317,7 @@ void uiEventGroup::init()
 	fldidx += 4;
     evfld_->setValue( fldidx );
 
+    NotifyStopper ns1( srchgatefld_->valuechanging );
     Interval<float> intvf( adjuster_->searchWindow() );
     intvf.scale( mCast(float,SI().zDomain().userFactor()) );
     Interval<int> srchintv; srchintv.setFrom( intvf );
