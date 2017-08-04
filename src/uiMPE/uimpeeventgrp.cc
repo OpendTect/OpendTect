@@ -76,7 +76,6 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     evfld_ = new uiGenInput( leftgrp, tr("Event type"),
 			     StringListInpSpec(sEventNames) );
     evfld_->valuechanged.notify( mCB(this,uiEventGroup,selEventType) );
-    evfld_->valuechanged.notify( mCB(this,uiEventGroup,changeCB) );
     leftgrp->setHAlignObj( evfld_ );
 
     uiStringSet strs;
@@ -151,6 +150,7 @@ uiEventGroup::~uiEventGroup()
 
 void uiEventGroup::updateSensitivity( bool )
 {
+    NotifyStopper ns( changed_ );
     selEventType( 0 );
 }
 
@@ -188,6 +188,8 @@ void uiEventGroup::selEventType( CallBacker* )
     ampthresholdfld_->setSensitive( thresholdneeded );
     if ( addstepbut_ )
 	addstepbut_->setSensitive( thresholdneeded );
+
+    changed_.trigger();
 }
 
 
@@ -230,6 +232,8 @@ void uiEventGroup::selAmpThresholdType( CallBacker* )
 	    ampthresholdfld_->setText( bs.buf() );
 	}
     }
+
+    changed_.trigger();
 }
 
 
@@ -307,6 +311,7 @@ void uiEventGroup::init()
     const int fldidx = getEventIdx( ev );
     evfld_->setValue( fldidx );
 
+    NotifyStopper ns1( srchgatefld_->valuechanging );
     Interval<float> intvf( adjuster_->searchWindow() );
     intvf.scale( mCast(float,SI().zDomain().userFactor()) );
     Interval<int> srchintv; srchintv.setFrom( intvf );
@@ -361,7 +366,7 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setSearchWindow( relintv );
     }
 
-    const bool useabs = thresholdtypefld_->getBoolValue() == 0;
+    const bool useabs = thresholdtypefld_->getIntValue() == 0;
     if ( adjuster_->useAbsThreshold() != useabs )
     {
 	fieldchange = true;
