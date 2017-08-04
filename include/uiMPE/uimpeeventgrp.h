@@ -60,7 +60,6 @@ protected:
     void			visibleDataChangeCB(CallBacker*);
 
     uiGenInput*			evfld_;
-    uiCheckBox*			allowsignchgfld_;
     uiGenInput*			srchgatefld_;
     uiGenInput*			thresholdtypefld_;
     uiGenInput*			ampthresholdfld_;

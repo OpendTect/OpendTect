@@ -45,6 +45,8 @@ static VSEvent::Type getEventType( int sel )
     if ( sel==1 )	return VSEvent::Min;
     if ( sel==2 )	return VSEvent::ZCPosNeg;
     if ( sel==3 )	return VSEvent::ZCNegPos;
+    if ( sel==4 )	return VSEvent::Max;
+    if ( sel==5 )	return VSEvent::Min;
 			return VSEvent::None;
 }
 
@@ -60,7 +62,8 @@ static int getEventIdx( VSEvent::Type tp )
 
 
 static const char* sEventNames[] =
-	{ "Peak", "Trough", "Zero Crossing +-", "Zero Crossing -+", 0 };
+{ "Peak", "Trough", "Zero Crossing +-", "Zero Crossing -+",
+  "Local Maximum", "Local Minimum", 0 };
 
 static bool sAllowSteps = false;
 
@@ -77,11 +80,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     evfld_ = new uiGenInput( leftgrp, tr("Event type"),
 			     StringListInpSpec(sEventNames) );
     evfld_->valuechanged.notify( mCB(this,uiEventGroup,selEventType) );
-    evfld_->valuechanged.notify( mCB(this,uiEventGroup,changeCB) );
     leftgrp->setHAlignObj( evfld_ );
-    allowsignchgfld_ = new uiCheckBox( leftgrp, tr("Positive only"),
-		mCB(this,uiEventGroup,changeCB) );
-    allowsignchgfld_->attach( rightTo, evfld_ );
 
     uiStringSet strs;
     strs.add( tr("Cut-off amplitude") ); strs.add( tr("Relative difference") );
@@ -155,6 +154,7 @@ uiEventGroup::~uiEventGroup()
 
 void uiEventGroup::updateSensitivity( bool )
 {
+    NotifyStopper ns( changed_ );
     selEventType( 0 );
 }
 
@@ -193,13 +193,7 @@ void uiEventGroup::selEventType( CallBacker* )
     if ( addstepbut_ )
 	addstepbut_->setSensitive( thresholdneeded );
 
-    const bool minormax = ev==VSEvent::Min || ev==VSEvent::Max;
-    allowsignchgfld_->display( minormax );
-
-    if ( ev == VSEvent::Max )
-	allowsignchgfld_->setText( tr("Positive only") );
-    else if ( ev == VSEvent::Min )
-	allowsignchgfld_->setText( tr("Negative only") );
+    changed_.trigger();
 }
 
 
@@ -242,6 +236,8 @@ void uiEventGroup::selAmpThresholdType( CallBacker* )
 	    ampthresholdfld_->setText( bs.buf() );
 	}
     }
+
+    changed_.trigger();
 }
 
 
@@ -316,7 +312,9 @@ void uiEventGroup::init()
     if ( !adjuster_ ) return;
 
     VSEvent::Type ev = adjuster_->trackEvent();
-    const int fldidx = getEventIdx( ev );
+    int fldidx = getEventIdx( ev );
+    if ( adjuster_->isAmplitudeSignChangeAllowed() )
+	fldidx += 4;
     evfld_->setValue( fldidx );
 
     Interval<float> intvf( adjuster_->searchWindow() );
@@ -362,7 +360,7 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setTrackEvent( evtyp );
     }
 
-    const bool allowsignchg = !allowsignchgfld_->isChecked();
+    const bool allowsignchg = evfld_->getIntValue() > 3;
     if ( adjuster_->isAmplitudeSignChangeAllowed() != allowsignchg )
     {
 	fieldchange = true;
@@ -380,7 +378,7 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setSearchWindow( relintv );
     }
 
-    const bool useabs = thresholdtypefld_->getBoolValue() == 0;
+    const bool useabs = thresholdtypefld_->getIntValue() == 0;
     if ( adjuster_->useAbsThreshold() != useabs )
     {
 	fieldchange = true;

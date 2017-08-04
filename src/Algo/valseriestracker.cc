@@ -126,7 +126,7 @@ EventTracker::EventTracker()
     , seeddepth_(mUdf(float))
     , seedsize_(0)
     , comparemethod_(SeedTrace)
-    , allowamplsignchg_(true)
+    , allowamplsignchg_(false)
 {
 }
 
