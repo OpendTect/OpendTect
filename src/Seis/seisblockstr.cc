@@ -52,6 +52,17 @@ void BlocksSeisTrcTranslator::cleanUp()
 }
 
 
+void BlocksSeisTrcTranslator::convToConnExpr( BufferString& fnm ) const
+{
+    if ( !fnm.isEmpty() )
+    {
+	File::Path fp( fnm );
+	fp.setExtension( sInfoFileExtension() );
+	fnm = fp.fullPath();
+    }
+}
+
+
 bool BlocksSeisTrcTranslator::initRead_()
 {
     StreamConn& sconn = *static_cast<StreamConn*>( conn_ );

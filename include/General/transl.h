@@ -143,6 +143,8 @@ public:
     virtual void		usePar(const IOPar&)		{}
     virtual const char*		defExtension() const
 				{ return group_ ? group_->defExtension() : 0; }
+    virtual void		convToConnExpr( BufferString& mainfnm ) const
+				{}
 
     void			setGroup( TranslatorGroup* g )	{ group_ = g; }
 

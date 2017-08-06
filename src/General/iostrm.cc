@@ -13,6 +13,7 @@
 #include "string2.h"
 #include "file.h"
 #include "filepath.h"
+#include "transl.h"
 #include "staticstring.h"
 #include "envvars.h"
 #include "oddirs.h"
@@ -220,7 +221,15 @@ Conn* IOStream::getConn( bool forread ) const
     if ( isBad() )
 	const_cast<IOStream*>(this)->genFileName();
 
-    StreamConn*	ret = new StreamConn( mainFileName(), forread );
+    BufferString fnm( mainFileName() );
+    if ( fnm.isEmpty() )
+	return 0;
+
+    PtrMan<Translator> trl = createTranslator();
+    if ( trl )
+	trl->convToConnExpr( fnm );
+
+    StreamConn*	ret = new StreamConn( fnm, forread );
     if ( ret )
 	ret->setLinkedTo( key() );
 
