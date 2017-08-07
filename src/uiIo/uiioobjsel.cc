@@ -509,6 +509,14 @@ void uiIOObjSel::doCommit( bool noerr ) const
     const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr);
     if ( !setup_.optional_ && !inctio_.ioobj_ && !alreadyerr )
     {
+
+	CtxtIOObj ctio( inctio_.ctxt_ );
+	if ( !ctio.ctxt_.forread_ && !ctio.ioobj_ )
+	{
+	    uiMSG().error( uiStrings::phrCannotCreateDBEntryFor(
+			    toUiString(workctio_.ctxt_.objectTypeName())) );
+	    return;
+	}
 	uiString txt( inctio_.ctxt_.forread_
 			 ? tr( "Please select the %1")
 			 : tr( "Please enter a valid name for the %1" ) );

@@ -722,7 +722,8 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	if ( ioobj )
 	{
 	    ioobj->pars().merge( ctio.ctxt_.toselect_.require_ );
-	    dirptr_->addObj( (IOObj*)ioobj );
+	    if ( !dirptr_->addObj((IOObj*)ioobj) )
+		return;
 	    needstrigger = true;
 	}
     }
