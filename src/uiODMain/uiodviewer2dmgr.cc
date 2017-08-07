@@ -891,7 +891,7 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs(
 void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 {
     const TrcKeyZSampling& tkzs = vwr2d->getTrcKeyZSampling();
-    if ( !tkzs.isFlat() ) return;
+    if ( !tkzs.isFlat() || !vwr2d->viewwin() ) return;
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer( 0 );
     TypeSet<PlotAnnotation>& x1auxannot = vwr.appearance().annot_.x1_.auxannot_;
