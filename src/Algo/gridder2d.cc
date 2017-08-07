@@ -312,7 +312,9 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 	    continue;
 
 	relevantpoints += index;
-	const double weight = 1./(dist*dist);
+	double weight = useradius ? ( radius_ - dist )/( radius_*dist )
+				  : 1. / dist;
+	weight *= weight;
 	weightsum += weight;
 	weights += weight;
     }
@@ -417,7 +419,8 @@ bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
 		continue;
 
 	    const Coord& pos = (*points_)[index];
-	    const double weight = 1. / gridpoint.distTo( pos );
+	    double weight = 1. / gridpoint.distTo( pos );
+	    weight *= weight;
 	    weightsum += weight;
 	    weights += weight;
 	}
