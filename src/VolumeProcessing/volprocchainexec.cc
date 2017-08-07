@@ -196,7 +196,7 @@ struct VolumeMemory
 			: creator_(creator)
 			, outputslot_(outputslot)
 			, nrbytes_(nrbytes)
-			, epoch_(epoch)				{};
+			, epoch_(epoch)				{}
 
     bool		operator==( VolumeMemory vm ) const
 			{
@@ -232,7 +232,7 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 		    continue;
 
 		const od_int64 extrasize = step->extraMemoryUsage( outputidx,
-								    hrg, zrg );
+								   hrg, zrg );
 
 		od_int64 outputsize = basesize + extrasize;
 		if ( step->getNrInputs() > 0 &&
@@ -502,9 +502,7 @@ RegularSeisDataPack* VolProc::ChainExecutor::getOutput()
     return outputdp_;
 }
 
-
-
-#define mCleanUpAndRet( ret ) \
+#define mCleanUpAndRet( prepare ) \
 { \
     uiStringSet errors; \
     const ObjectSet<Step>& cursteps = curepoch_->getSteps(); \
@@ -515,11 +513,13 @@ RegularSeisDataPack* VolProc::ChainExecutor::getOutput()
 \
 	errors.add( cursteps[istep]->errMsg() ); \
     } \
+    if ( !prepare && curepoch_->getTask().message().isSet() ) \
+	errors.add( curepoch_->getTask().message() ); \
+    \
     if ( !errors.isEmpty() ) \
 	errmsg_ = errors.cat(); \
-    delete curepoch_; \
-    curepoch_ = 0; \
-    return ret; \
+    deleteAndZeroPtr( curepoch_ ); \
+    return ErrorOccurred(); \
 }
 
 int VolProc::ChainExecutor::nextStep()
@@ -532,13 +532,13 @@ int VolProc::ChainExecutor::nextStep()
     curepoch_ = epochs_.pop();
 
     if ( !curepoch_->doPrepare(progressmeter_) )
-	mCleanUpAndRet( ErrorOccurred() )
+	mCleanUpAndRet( true )
 
     Task& curtask = curepoch_->getTask();
     curtask.setProgressMeter( progressmeter_ );
     curtask.enableWorkControl( true );
     if ( !curtask.execute() )
-	mCleanUpAndRet( ErrorOccurred() )
+	mCleanUpAndRet( false )
 
     const bool finished = epochs_.isEmpty();
     if ( finished )		//we just executed the last one

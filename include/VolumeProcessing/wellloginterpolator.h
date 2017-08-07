@@ -63,7 +63,7 @@ public:
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
-    virtual uiString		errMsg() const		{ return errmsg_; }
+    virtual uiString		errMsg() const	{ return errmsg_; }
 
     virtual bool		canInputAndOutputBeSame() const { return true; }
     virtual bool		needsFullVolume() const		{ return false;}
