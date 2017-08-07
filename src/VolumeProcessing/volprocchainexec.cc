@@ -513,7 +513,7 @@ RegularSeisDataPack* VolProc::ChainExecutor::getOutput()
 \
 	errors.add( cursteps[istep]->errMsg() ); \
     } \
-    if ( !prepare && curepoch_->getTask().message().isSet() ) \
+    if ( !prepare && !curepoch_->getTask().message().isEmpty() ) \
 	errors.add( curepoch_->getTask().message() ); \
     \
     if ( !errors.isEmpty() ) \
