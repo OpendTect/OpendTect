@@ -89,6 +89,7 @@ protected:
     ObjectSet<WellLogInfo>	infos_;
     TypeSet<MultiID>		wellmids_;
     BufferString		logname_;
+    bool			doinverse_;
 
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;

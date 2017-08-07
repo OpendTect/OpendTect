@@ -83,7 +83,7 @@ float Function::getVelocity( float z ) const
 	if ( !cache_ ) return mUdf(float);
 
 	if ( !computeVelocity( (float) cachesd_.start, (float) cachesd_.step,
-		    	       cache_->size(), cache_->arr() ) )
+			       cache_->size(), cache_->arr() ) )
 	{
 	    delete cache_;
 	    cache_ = 0;
@@ -92,17 +92,19 @@ float Function::getVelocity( float z ) const
     }
     cachelckr.unlockNow();
 
+    const int sz = cache_->size();
     const float fsample = cachesd_.getfIndex( z );
     const int isample = (int) fsample;
-    if ( isample<0 || isample>=cache_->size() )
+    if ( sz < 1 )
 	return mUdf(float);
+    else if ( isample<0 )
+	return (*cache_)[0];
+    else if ( isample>=sz-1 )
+	return (*cache_)[sz-1];
 
-    return Interpolate::linearReg1DWithUdf(
-	    (*cache_)[isample],
-	    isample<(cache_->size()-1)
-		? (*cache_)[isample+1]
-		: mUdf(float),
-	    fsample-isample );
+    return Interpolate::linearReg1DWithUdf( (*cache_)[isample],
+					    (*cache_)[isample+1],
+					    fsample-isample );
 }
 
 
@@ -215,17 +217,17 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
     int idx = findFunction( bid );
     if ( idx==-1 )
     {
- 	tmpfunc = createFunction( bid );
+	tmpfunc = createFunction( bid );
 	if ( !tmpfunc )
 	    return 0;
 
- 	functions_ += tmpfunc;
- 	refcounts_ += 1;
+	functions_ += tmpfunc;
+	refcounts_ += 1;
     }
     else
     {
-       	tmpfunc = functions_[idx];
-       	refcounts_[idx]++;
+	tmpfunc = functions_[idx];
+	refcounts_[idx]++;
     }
     lckr.unlockNow();
 

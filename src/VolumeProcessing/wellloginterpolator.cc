@@ -41,6 +41,7 @@ WellLogInfo( const MultiID& mid, const char* lognm, Well::ExtractParams params )
     , params_(params)
     , track_(0)
     , log_(0)
+    , logisvelocity_(false)
 {}
 
 ~WellLogInfo()
@@ -92,6 +93,8 @@ bool init( InterpolationLayerModel& layermodel )
     const Well::Log* log = wd->logs().getLog( logname_ );
     if ( !log )
 	return false;
+
+    logisvelocity_ = log->propType() == PropertyRef::Vel;
 
     delete log_;
     log_ = applyFilter( *wd, *log );
@@ -213,6 +216,8 @@ bool createInterpolationFunctions( const InterpolationLayerModel& layermodel )
 	mdfunc_.add( layerz, md );
     }
 
+    deleteAndZeroPtr( log_ );
+
     return !logfunc_.isEmpty();
 }
 
@@ -222,6 +227,7 @@ TrcKeyZSampling		bbox_;
 MultiID			mid_;
 BufferString		logname_;
 const Well::Log*	log_;
+bool			logisvelocity_;
 Well::ExtractParams	params_;
 PointBasedMathFunction	logfunc_;
 PointBasedMathFunction	mdfunc_;
@@ -235,6 +241,7 @@ WellLogInterpolator::WellLogInterpolator()
     , layermodel_(0)
     , invdistgridder_(new InverseDistanceGridder2D())
     , trendorder_(PolyTrend::None)
+    , doinverse_(false)
 {}
 
 
@@ -401,6 +408,14 @@ bool WellLogInterpolator::prepareComp( int )
 	return false;
     }
 
+    if ( infos_.isEmpty() )
+    {
+	errmsg_ = tr("All wells rejected for processing");
+	return false;
+    }
+
+    doinverse_ = infos_[0]->logisvelocity_;
+
     return true;
 }
 
@@ -457,9 +472,6 @@ static void addCornerPoints( const Gridder2D& gridder,
 
 bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 {
-    if ( infos_.isEmpty() )
-	return false;
-
     if ( !outputinlrg_.includes( bid.inl(), true ) ||
 	 !outputcrlrg_.includes( bid.crl(), true ) ||
          (bid.inl()-outputinlrg_.start)%outputinlrg_.step ||
@@ -504,7 +516,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 		continue;
 
 	    points += pos;
-	    logvals += logval;
+	    logvals += doinverse_ ? 1.f / logval : logval;
 	}
 
 	if ( points.isEmpty() )
@@ -521,7 +533,8 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	}
 
 	gridder->setTrend( trendorder_ );
-	const float val = gridder->getValue( gridpoint );
+	float val = gridder->getValue( gridpoint );
+	if ( doinverse_ ) val = 1.f / val;
 	outputarray.set( outputinlidx, outputcrlidx, idz, val );
     }
 
