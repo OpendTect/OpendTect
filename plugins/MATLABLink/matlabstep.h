@@ -35,7 +35,7 @@ public:
     bool		isInputPrevStep() const		{ return false; }
 
     bool		needsFullVolume() const		{ return true; }
-    uiString		errMsg() const			{ return errmsg_; }
+    virtual uiString	errMsg() const			{ return errmsg_; }
 
     Task*		createTask();
 
@@ -48,7 +48,9 @@ public:
     void		getParameters(BufferStringSet& nms,
 				      BufferStringSet& vals) const;
 
-    virtual od_int64	getProcTimeExtraMemory() const	{ return 2; }
+    mDeprecated virtual od_int64	getProcTimeExtraMemory() const
+			{ return 0; }
+
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
 					 const StepInterval<int>&) const;
 
@@ -57,7 +59,6 @@ protected:
 			MatlabStep();
 			~MatlabStep();
 
-    uiString		errmsg_;
     BufferString	sharedlibfnm_;
 
     int			nrinputs_;

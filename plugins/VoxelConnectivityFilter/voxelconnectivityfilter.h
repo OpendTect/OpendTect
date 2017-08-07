@@ -30,10 +30,10 @@ public:
 				"Voxel Connectivity Filter" );
 
     enum		Connectivity { Faces, Edges, Corners };
-    			mDeclareEnumUtils( Connectivity );
+			mDeclareEnumUtils( Connectivity );
 
     enum		AcceptOutput { Ranking, BodySize, Value, Transparent };
-    			mDeclareEnumUtils( AcceptOutput );
+			mDeclareEnumUtils( AcceptOutput );
 
     void		setConnectivity(Connectivity val){connectivity_ = val;}
 			/*!<Must be either 6, 12 or 26 */
@@ -67,11 +67,13 @@ public:
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return true; }
     bool		areSamplesIndependent() const	{ return false; }
-    uiString		errMsg() const			{ return errmsg_; }
+    virtual uiString	errMsg() const			{ return errmsg_; }
 
     Task*		createTask();
 
-    virtual od_int64	getProcTimeExtraMemory() const	{ return 4; }
+    mDeprecated virtual od_int64	getProcTimeExtraMemory() const
+			{ return 0; }
+
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
 					 const StepInterval<int>&) const;
 
@@ -87,7 +89,6 @@ protected:
     static const char*	sKeyAcceptOutput()	{ return "Accepted Output"; }
     static const char*	sKeyAcceptValue()	{ return "Accepted Value"; }
 
-    uiString		errmsg_;
     od_int64		minbodysize_;
     Interval<float>	range_;
     float		rejectvalue_;

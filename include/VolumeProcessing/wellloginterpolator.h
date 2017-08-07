@@ -45,7 +45,6 @@ public:
 				~WellLogInterpolator();
     void			releaseData();
 
-
     bool			is2D() const;
 
     void			getWellNames(BufferStringSet&) const;
@@ -63,14 +62,13 @@ public:
 				{ params_ = params;}
     void			setLayerModel(InterpolationLayerModel*);
 
-
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    uiString			errMsg() const	{ return errmsg_; }
+    virtual uiString		errMsg() const	{ return errmsg_; }
 
     bool			canInputAndOutputBeSame() const { return true; }
     bool			needsFullVolume() const		{ return false;}
-    bool			needsInput() const	{ return false;}
+    bool			needsInput() const		{ return false;}
 
     /* mDeprecated (this function will be protected virtual after 6.2) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,

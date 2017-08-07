@@ -95,12 +95,12 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     bool		useHorInterFillerPar(const IOPar&);
+    virtual uiString	errMsg() const			{ return errmsg_; }
 
     void		releaseData();
     bool		canInputAndOutputBeSame() const { return true; }
     bool		needsFullVolume() const		{ return false; }
     bool		canHandle2D() const		{ return false; }
-    uiString		errMsg() const			{return errmsg_;}
 
     /* mDeprecated (this function will be protected virtual after 6.0) */
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
@@ -156,7 +156,6 @@ protected:
     EM::Horizon*	refhorizon_;
     float		refz_;
     bool		userefz_;
-    uiString		errmsg_;
 
 			/*The following four have the same size, for any idx,
 			  faults_[idx] or hors_[idx] is 0. */

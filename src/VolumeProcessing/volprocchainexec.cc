@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "simpnumer.h" // for getCommonStepInterval
 #include "threadwork.h"
 
-
 uiString VolProc::ChainExecutor::sGetStepErrMsg()
 {
     return uiStrings::phrCannotFind( tr("output step with id: %1") );
@@ -191,48 +190,6 @@ void VolProc::ChainExecutor::computeComputationScope( Step::ID stepid,
     }
 }
 
-
-// 6.0 only:
-// Needed because we could not add a new virtual function (extraMemoryUsage)
-
-#include "velocitygridder.h"
-#include "volprocbodyfiller.h"
-#include "volprochorinterfiller.h"
-#include "volproclateralsmoother.h"
-#include "volprocsmoother.h"
-#include "volprocstatscomputer.h"
-#include "volprocsurfacelimitedfiller.h"
-#include "volprocvolreader.h"
-#include "wellloginterpolator.h"
-
-static od_int64 getExtraMem( const VolProc::Step* step, int outidx,
-		    const TrcKeySampling& hrg, const StepInterval<int>& zrg )
-{
-#define mTryRet(typ,varnm) \
-    mDynamicCastGet(const VolProc::typ*,varnm,step) \
-    if ( varnm ) \
-	return varnm->extraMemoryUsage( outidx, hrg, zrg )
-
-    mTryRet( VelocityGridder, vg );
-    mTryRet( BodyFiller, bf );
-    mTryRet( HorInterFiller, hif );
-    mTryRet( LateralSmoother, ls );
-    mTryRet( Smoother, sm );
-    mTryRet( StatsCalculator, sc );
-    mTryRet( SurfaceLimitedFiller, slf );
-    mTryRet( VolumeReader, vr );
-    mTryRet( WellLogInterpolator, wli );
-
-    // OK, must be from plugin.
-    // Hack: use output from deprecated virtual:
-    const od_int64 fac = step->getProcTimeExtraMemory();
-
-    return fac * VolProc::Step::getBaseMemoryUsage( hrg, zrg );
-}
-
-// End 6.0 only
-
-
 namespace VolProc
 {
 
@@ -285,8 +242,8 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 		if ( !step->validOutputSlotID(step->getOutputSlotID(outputidx)))
 		    continue;
 
-		const od_int64 extrasize = getExtraMem( step, outputidx,
-							hrg, zrg );
+		const od_int64 extrasize = step->extraMemoryUsage( outputidx,
+								   hrg, zrg );
 
 		od_int64 outputsize = basesize + extrasize;
 		if ( step->getNrInputs() > 0 &&
@@ -539,7 +496,7 @@ const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
 }
 
 
-#define mCleanUpAndRet( ret ) \
+#define mCleanUpAndRet( prepare ) \
 { \
     uiStringSet errors; \
     const ObjectSet<Step>& cursteps = curepoch_->getSteps(); \
@@ -550,11 +507,13 @@ const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
 \
 	errors.add( cursteps[istep]->errMsg() ); \
     } \
+    if ( !prepare && curepoch_->getTask().uiMessage().isSet() ) \
+	errors.add( curepoch_->getTask().uiMessage() ); \
+    \
     if ( !errors.isEmpty() ) \
 	errmsg_ = errors.cat(); \
-    delete curepoch_; \
-    curepoch_ = 0; \
-    return ret; \
+    deleteAndZeroPtr( curepoch_ ); \
+    return ErrorOccurred(); \
 }
 
 int VolProc::ChainExecutor::nextStep()
@@ -567,32 +526,16 @@ int VolProc::ChainExecutor::nextStep()
     curepoch_ = epochs_.pop();
 
     if ( !curepoch_->doPrepare(progressmeter_) )
-	mCleanUpAndRet( ErrorOccurred() )
+	mCleanUpAndRet( true )
 
     Task& curtask = curepoch_->getTask();
     curtask.setProgressMeter( progressmeter_ );
     curtask.enableWorkControl( true );
     if ( !curtask.execute() )
-    {
-	uiStringSet errors;
-	const ObjectSet<Step>& cursteps = curepoch_->getSteps();
-	for ( int istep=0; istep<cursteps.size(); istep++ )
-	{
-	    if ( !cursteps[istep] || cursteps[istep]->errMsg().isEmpty() )
-		continue;
-
-	    errors.add( cursteps[istep]->errMsg() );
-	}
-
-	if ( !errors.isEmpty() )
-	    errmsg_ = errors.cat();
-
-	deleteAndZeroPtr( curepoch_ );
-	return ErrorOccurred();
-    }
+	mCleanUpAndRet( false )
 
     const bool finished = epochs_.isEmpty();
-    if ( finished )			//we just executed the last one
+    if ( finished )		//we just executed the last one
     {
 	outputdp_ = curepoch_->getOutput();
 	DPM( DataPackMgr::SeisID() ).addAndObtain(

@@ -59,10 +59,9 @@ public:
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return true;}
 
-    uiString		errMsg() const		{ return errmsg_; }
-
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    virtual uiString	errMsg() const		{ return errmsg_; }
 
     static const char*	sKeyType()		{ return "Type"; }
     static const char*	sKeyID()		{ return "ID"; }
@@ -80,7 +79,6 @@ protected:
     InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;
     ObjectSet<Vel::FunctionSource>	sources_;
-    uiString				errmsg_;
 };
 
 } // namespace VolProc
