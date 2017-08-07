@@ -260,6 +260,7 @@ bool InverseDistanceGridder2D::operator==( const Gridder2D& b ) const
     return mIsEqual(radius_,bidg->radius_, 1e-5 );
 }
 
+
 bool InverseDistanceGridder2D::allPointsAreRelevant() const
 {
     return mIsUdf( radius_ );
@@ -311,15 +312,17 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 	weights += weight;
     }
 
+    const int finsz = weights.size();
+    double* mODRestrict weightvals = weights.arr();
     if ( useradius && mIsZero(weightsum,mDefEps) )
     { //All sources are exactly at (1) radius distance from the grid point
-	for ( int idx=0; idx<weights.size(); idx++ )
-	    weights[idx] = 1.;
+	for ( int idx=0; idx<finsz; idx++ )
+	    weightvals[idx] = 1.;
     }
     else
     {
-	for ( int idx=0; idx<weights.size(); idx++ )
-	    weights[idx] /= weightsum;
+	for ( int idx=0; idx<finsz; idx++ )
+	    weightvals[idx] /= weightsum;
     }
 
     return !relevantpoints.isEmpty();
