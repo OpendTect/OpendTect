@@ -373,10 +373,18 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
 {
     mChk(false);
     mDynamicCastGet(IOStream*,iostrm,ioobj_)
-    cs.init( true );
-    if ( is2D() || (iostrm && iostrm->isMulti()) )
-	return false;
+    if ( is2D() )
+    {
+	StepInterval<int> trcrg;
+	if ( (iostrm && iostrm->isMulti()) ||
+	     !getRanges(cs.hsamp_.getGeomID(),trcrg,cs.zsamp_) )
+	    return false;
 
+	cs.hsamp_.setTrcRange( trcrg );
+	return true;
+    }
+
+    cs.init( true );
     if ( !isPS() )
 	return SeisTrcTranslator::getRanges( *ioobj_, cs );
 
