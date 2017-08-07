@@ -306,6 +306,12 @@ static void interpolate( EM::Horizon3D* horizon,
 }
 
 
+#define mSetEngineMan() \
+    EngineMan aem; \
+    DescSet localattribset( attribset ); \
+    aem.setAttribSet( &localattribset ); \
+    aem.setAttribSpecs( selspecs ); \
+
 bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
@@ -437,15 +443,12 @@ bool BatchProgram::go( od_ostream& strm )
     if ( newattrnm != "" )
 	attribrefs.get(0) = newattrnm;
 
-    EngineMan aem;
-    aem.setAttribSet( &attribset );
-    aem.setAttribSpecs( selspecs );
-
     if ( !iscubeoutp )
     {
 	ObjectSet<BinIDValueSet> bivs;
 	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
 	uiString uierrmsg;
+	mSetEngineMan()
 	Processor* proc = aem.createLocationOutput( uierrmsg, bivs );
 	if ( !proc ) mErrRet( uierrmsg.getFullString() );
 
@@ -527,6 +530,7 @@ bool BatchProgram::go( od_ostream& strm )
 					      hsamp, extraz, geomid );
 		SeisTrcBuf seisoutp( false );
 		uiString uierrmsg;
+		mSetEngineMan()
 		aem.setGeomID( geomid );
 		Processor* proc = aem.create2DVarZOutput( uierrmsg, pars(),
 				dtps, outval, zboundsset ? &zbounds : 0 );
@@ -547,6 +551,7 @@ bool BatchProgram::go( od_ostream& strm )
 				extrawidth, provider );
 	    SeisTrcBuf seisoutp( false );
 	    uiString uierrmsg;
+	    mSetEngineMan()
 	    Processor* proc = aem.createTrcSelOutput( uierrmsg, bivs, seisoutp,
 					outval, zboundsset ? &zbounds : 0 );
 	    if ( !proc ) mErrRet( uierrmsg.getFullString() );
