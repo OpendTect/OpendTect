@@ -72,8 +72,7 @@ bool InterpolationLayerModel::prepare( const TrcKeyZSampling& tkzs,
 
 void InterpolationLayerModel::addSampling( const TrcKeySampling& tks )
 {
-    if ( ( hasSampling() && !tkss_[0]->includes(tks) ) ||
-	   !hasSampling() )
+    if ( ( hasSampling() && !tkss_[0]->includes(tks) ) || !hasSampling() )
 	tkss_.add( new TrcKeySampling(tks) );
 }
 

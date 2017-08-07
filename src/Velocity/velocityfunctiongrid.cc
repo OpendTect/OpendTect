@@ -276,7 +276,8 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 
 	const float layeridx = layermodel_ ?
 		    layermodel_->getLayerIndex( tk, z ) : mUdf(float);
-	if ( mIsUdf(layeridx) && !velsrc )
+	const bool validlayer = !mIsUdf(layeridx);
+	if ( !validlayer && !velsrc )
 	{
 	    res[idx] = mUdf(float);
 	    continue;
@@ -292,7 +293,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	{
 	    const Function* func = velocityfunctions_[idy];
 	    const TrcKey tkfunc( func->getBinID() ); //TODO: Get a SurvID
-	    const float zval = layermodel_ && !mIsUdf(layeridx) ?
+	    const float zval = layermodel_ && validlayer ?
 			  layermodel_->getInterpolatedZ( tkfunc, layeridx ) : z;
 	    const float value = func->getVelocity( zval );
 	    if ( doinverse && mIsZero(value,1e-3) )

@@ -73,17 +73,19 @@ float Function::getVelocity( float z ) const
     }
     cachelckr.unlockNow();
 
+    const int sz = cache_->size();
     const float fsample = cachesd_.getfIndex( z );
     const int isample = (int) fsample;
-    if ( isample<0 || isample>=cache_->size() )
+    if ( sz < 1 )
 	return mUdf(float);
+    else if ( isample<0 )
+	return (*cache_)[0];
+    else if ( isample>=sz-1 )
+	return (*cache_)[sz-1];
 
-    return Interpolate::linearReg1DWithUdf(
-	    (*cache_)[isample],
-	    isample<(cache_->size()-1)
-		? (*cache_)[isample+1]
-		: mUdf(float),
-	    fsample-isample );
+    return Interpolate::linearReg1DWithUdf( (*cache_)[isample],
+					    (*cache_)[isample+1],
+					    fsample-isample );
 }
 
 

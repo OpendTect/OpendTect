@@ -88,10 +88,10 @@ protected:
     DBKeySet			wellmids_;
     BufferString		logname_;
     Well::ExtractParams		params_;
+    bool			doinverse_;
 
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;
-
 };
 
 } // namespace VolProc
