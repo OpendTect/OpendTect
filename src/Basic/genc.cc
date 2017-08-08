@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "threadlock.h"
 #include "od_iostream.h"
+#include "odmemory.h"
 #include "convert.h"
 #include "iopar.h"
 #include <iostream>
@@ -104,10 +105,21 @@ void* operator new( std::size_t sz ) throw(std::bad_alloc)
 
     //By writing into the mem, we force the os to allocate the memory
     if ( memCanOverCommit() )
-	memset( p, 0, sz );
+	OD::sysMemZero( p, sz );
 
     return p;
 }
+
+
+mDefParallelCalc2Pars(MemPageMemorySetter,uiString::emptyString(),
+		      unsigned char*,data,std::size_t,step)
+mDefParallelCalcBody(
+	unsigned char* ptr = data_ + start * step_;
+    ,
+	*ptr = '\0';
+	ptr += step_;
+    ,
+)
 
 
 # ifdef __win__
@@ -121,8 +133,21 @@ void* operator new[]( std::size_t sz ) throw(std::bad_alloc)
 	throw std::bad_alloc();
 
     //By writing into the mem, we force the os to allocate the memory
-    if ( memCanOverCommit() )
-	memset( p, 0, sz );
+    if ( !memCanOverCommit() )
+	return p;
+
+    if ( sz > mODMemMinThreadSize )
+    {
+	/* Setting one or two values per memory page is sufficient
+	   to ensure memory is allocated */
+	const od_int64 step = sysconf( _SC_PAGESIZE ) - 2;
+	const od_int64 nriterations = mCast(od_int64,mCast(float,sz)/step);
+	MemPageMemorySetter setter( nriterations, (unsigned char*)p, step );
+	setter.setReport( false );
+	setter.execute();
+    }
+    else
+	OD::sysMemZero( p, sz );
 
     return p;
 }
