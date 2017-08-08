@@ -136,6 +136,7 @@ void* operator new[]( std::size_t sz ) throw(std::bad_alloc)
     if ( !memCanOverCommit() )
 	return p;
 
+#ifdef __lux__
     if ( sz > mODMemMinThreadSize )
     {
 	/* Setting one or two values per memory page is sufficient
@@ -147,6 +148,7 @@ void* operator new[]( std::size_t sz ) throw(std::bad_alloc)
 	setter.execute();
     }
     else
+# endif
 	OD::sysMemZero( p, sz );
 
     return p;
