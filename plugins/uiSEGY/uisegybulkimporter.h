@@ -14,17 +14,23 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiTable;
+class uiSEGYImpType;
 
 mExpClass(uiSEGY) uiSEGYBulkImporter : public uiDialog
 { mODTextTranslationClass(uiSEGYBulkImporter)
 public:
-			uiSEGYBulkImporter(uiParent*,const BufferStringSet&);
+			uiSEGYBulkImporter(uiParent*);
 
 protected:
-    void		fillTable();
-    void		advanceCB(CallBacker*);
+    bool		selectVintage();
+    void		addCB(CallBacker*);
+    void		removeCB(CallBacker*);
+    void		selectFilesCB(CallBacker*);
+    void		fillRow( int rowid);
+    bool		acceptOK();
 
-    const BufferStringSet&	selfilenms_;
-    uiTable*			bulktable_;
-
+    BufferStringSet	selfilenms_;
+    uiTable*		table_;
+    uiSEGYImpType*	imptypefld_;
+    BufferString	vintagenm_;
 };

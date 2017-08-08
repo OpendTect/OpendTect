@@ -223,7 +223,8 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 void uiSEGYMgr::imp##typ##CB( CallBacker* ) \
 { \
     const SEGY::ImpType imptyp( arg ); \
-    uiSEGYReadStarter dlg( appl_, false, &imptyp ); \
+    uiSEGYReadStarter::Setup su( false, &imptyp); \
+    uiSEGYReadStarter dlg( appl_, su ); \
     dlg.go(); \
 }
 
@@ -276,26 +277,14 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 
 void uiSEGYMgr::readStarterCB( CallBacker* cb )
 {
-    uiSEGYReadStarter readstdlg( ODMainWin(), false );
+    uiSEGYReadStarter readstdlg( ODMainWin(), uiSEGYReadStarter::Setup(false) );
     readstdlg.go();
 }
 
 
 void uiSEGYMgr::bulkImport( CallBacker* )
 {
-    uiFileSelector::Setup fssu;
-    fssu.selectMultiFile()
-	.formats( uiSEGYFileSpec::fileFmts() );
-    uiFileSelector uifs( ODMainWin(), fssu );
-    uifs.caption() = tr( "Select SEG-Y files" );
-    uifs.go();
-
-    BufferStringSet selfiles;
-    uifs.getSelected( selfiles );
-    if ( selfiles.isEmpty() )
-	return;
-
-    uiSEGYBulkImporter bulkimpdlg( ODMainWin(), selfiles );
+    uiSEGYBulkImporter bulkimpdlg( ODMainWin() );
     bulkimpdlg.go();
 }
 

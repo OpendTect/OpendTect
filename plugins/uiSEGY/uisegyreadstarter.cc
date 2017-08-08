@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegysipclassic.h"
 #include "uisegydef.h"
 #include "uisegyread.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
 #include "uiseparator.h"
@@ -47,9 +48,10 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "od_istream.h"
 #include "settings.h"
 #include "timer.h"
+#include "repos.h"
 
 
-#define mForSurvSetup forsurvsetup
+#define mForSurvSetup su.forsurvsetup_
 #define mSurvMapHeight 300
 #define mDefSize 250
 #define mClipSamplerBufSz 100000
@@ -57,10 +59,8 @@ static const char* rcsID mUsedVar = "$Id:$";
 static const char* sKeyClipRatio = "Amplitudes.Clip Ratio";
 static const char* sKeyIncludeZeros = "Amplitudes.Include Zeros";
 
-uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
-				      const SEGY::ImpType* imptyp,
-				      const char* fnm, bool fixedinp )
-    : uiDialog(p,uiDialog::Setup(forsurvsetup
+uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
+    : uiDialog(p,uiDialog::Setup(su.forsurvsetup_
 	    ? tr("Extract Survey Setup from SEG-Y") : tr("Import SEG-Y Data"),
             mNoDlgTitle, mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1))
     , filereadopts_(0)
@@ -74,7 +74,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , detectrev0flds_(true)
     , userfilename_("_") // any non-empty non-existing
     , scaninfos_(0)
-    , loaddef_(imptyp ? imptyp->is2D() : false)
+    , loaddef_(su.imptype_ ? su.imptype_->is2D() : false)
     , clipsampler_(*new DataClipSampler(100000))
     , lastscanwasfull_(false)
     , survinfo_(0)
@@ -82,23 +82,28 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , classicsip_(0)
     , timer_(0)
     , inpfld_(0)
+    , vintagecheckmode_(su.vintagecheckmode_)
 {
     if ( mForSurvSetup )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
     else
     {
-	setCtrlStyle( RunAndClose );
-	setOkText( tr("Next >>") );
+	if ( !vintagecheckmode_ )
+	{
+	    setCtrlStyle( RunAndClose );
+	    setOkText( tr("Next >>") );
+	}
+
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
     }
 
     topgrp_ = new uiGroup( this, "Top group" );
     uiLabel* selfilelbl = 0;
     uiObject* attachobj = 0;
-    if ( fixedinp )
+    if ( su.fixedfnm_ )
     {
-	selfilelbl = new uiLabel( topgrp_, toUiString(fnm) );
-	userfilename_.set( fnm );
+	selfilelbl = new uiLabel( topgrp_, toUiString(su.filenm_) );
+	userfilename_.set( su.filenm_ );
 	attachobj = selfilelbl;
     }
     else
@@ -119,11 +124,11 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     editbut_->setSensitive( false );
 
     uiLabel* typlbl = 0;
-    if ( imptyp )
+    if ( su.imptype_ )
     {
-	fixedimptype_ = *imptyp;
+	fixedimptype_ = *su.imptype_;
 	typlbl = new uiLabel( topgrp_,
-			tr( "Import %1" ).arg( imptyp->dispText() ) );
+			tr( "Import %1" ).arg( su.imptype_->dispText() ) );
 	typlbl->attach( ensureBelow, attachobj );
     }
     else
@@ -146,7 +151,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
     midgrp_ = new uiGroup( this, "Mid group" );
     midgrp_->attach( ensureBelow, sep );
-    infofld_ = new uiSEGYReadStartInfo( midgrp_, loaddef_, imptyp );
+    infofld_ = new uiSEGYReadStartInfo( midgrp_, loaddef_, su.imptype_ );
     infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
     infofld_->revChanged.notify( mCB(this,uiSEGYReadStarter,revChg) );
 
@@ -479,7 +484,7 @@ void uiSEGYReadStarter::setToolStates()
 void uiSEGYReadStarter::initWin( CallBacker* )
 {
     typChg( 0 );
-    if ( inpfld_ )
+    if ( !mForSurvSetup )
 	inpChg( 0 );
 
     if ( filespec_.isEmpty() )
@@ -493,21 +498,48 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 	return;
 
     uiButton* okbut = button( OK );
-    const CallBack impcb( mCB(this,uiSEGYReadStarter,runClassicImp) );
-    const CallBack linkcb( mCB(this,uiSEGYReadStarter,runClassicLink) );
-    uiPushButton* execoldbut = new uiPushButton( okbut->parent(),
-					tr("'Classic'"), impcb, false );
-    execoldbut->setIcon( "launch" );
-    execoldbut->setToolTip( tr("Run the classic SEG-Y loader") );
-    execoldbut->attach( leftTo, okbut );
-    execoldbut->attach( leftBorder );
-
-    if ( !mForSurvSetup )
+    if ( !vintagecheckmode_ )
     {
-	uiMenu* mnu = new uiMenu;
-	mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
-	mnu->insertAction( new uiAction(tr("Link"),linkcb) );
-	execoldbut->setMenu( mnu );
+	const CallBack impcb( mCB(this,uiSEGYReadStarter,runClassicImp) );
+	const CallBack linkcb( mCB(this,uiSEGYReadStarter,runClassicLink) );
+	uiPushButton* execoldbut = new uiPushButton( okbut->parent(),
+					    tr("'Classic'"), impcb, false );
+	execoldbut->setIcon( "launch" );
+	execoldbut->setToolTip( tr("Run the classic SEG-Y loader") );
+	execoldbut->attach( leftTo, okbut );
+	execoldbut->attach( leftBorder );
+
+	if ( !mForSurvSetup )
+	{
+	    uiMenu* mnu = new uiMenu;
+	    mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
+	    mnu->insertAction( new uiAction(tr("Link"),linkcb) );
+	    execoldbut->setMenu( mnu );
+	}
+    }
+    else
+    {
+	BufferStringSet vintnms;
+	vintnms.add( uiStrings::sEmptyString().getOriginalString() );
+	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+	    for ( int pidx=0; pidx<parset.size(); pidx++ )
+			vintnms.add( parset[pidx]->name() );
+	uiGroup* vntgrp = new uiGroup( okbut->parent(), "Vintage group" );
+	uiLabeledComboBox* vintage =
+			new uiLabeledComboBox( vntgrp,
+					       vintnms.getUiStringSet(),
+					       tr("Vintage name") );
+	vintagefld_ = vintage->box();
+	vintagefld_->setReadOnly( false );
+	const CallBack vintcb(mCB(this,uiSEGYReadStarter,vntChgCB));
+	vintagefld_->selectionChanged.notify( vintcb );
+
+	const CallBack vntrefresh(mCB(this,uiSEGYReadStarter,vntRefreshCB));
+	uiToolButton* resetbut = new uiToolButton(vntgrp, "refresh",
+					    tr("Refresh vintage"), vntrefresh);
+	resetbut->attach( rightOf, vintage );
+	vntgrp->attach( leftTo, okbut );
+	vntgrp->attach( leftBorder );
     }
 }
 
@@ -564,6 +596,8 @@ void uiSEGYReadStarter::inpChg( CallBacker* )
     detectrev0flds_ = true;
     handleNewInputSpec( KeepNone );
     setToolStates();
+    defaultpar_.setEmpty();
+    fillPar(defaultpar_);
 }
 
 
@@ -653,7 +687,9 @@ void uiSEGYReadStarter::editFile( CallBacker* )
 
 void uiSEGYReadStarter::forceRescan( LoadDefChgType ct, bool fullscan )
 {
-    userfilename_.setEmpty();
+    if ( inpfld_ )
+	userfilename_.setEmpty();
+
     handleNewInputSpec( ct, fullscan );
 }
 
@@ -733,6 +769,63 @@ void uiSEGYReadStarter::fillPar( IOPar& iop ) const
     iop.set( uiSEGYExamine::Setup::sKeyNrTrcs, examineNrTraces() );
     iop.set( sKeyClipRatio, ratioClip() );
     iop.setYN( sKeyIncludeZeros, incZeros() );
+}
+
+
+void uiSEGYReadStarter::vntChgCB( CallBacker* )
+{
+    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+    BufferString curselvint( vintagefld_->text() );
+    int selidx = parset.find( curselvint );
+    if ( selidx < 0 )
+	return;
+
+    Repos::IOPar* iop = parset[selidx];
+    usePar( *iop );
+    lastparname_ = curselvint;
+}
+
+
+void uiSEGYReadStarter::vntRefreshCB( CallBacker* )
+{
+    usePar( defaultpar_ );
+    vintagefld_->setCurrentItem( 0 );
+}
+
+
+bool uiSEGYReadStarter::getVintageParameters()
+{
+    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+    BufferString curvntnm( vintagefld_->text() );
+    if ( curvntnm.isEmpty() )
+    { uiMSG().message( tr("Please enter vnetage name") ); return false; }
+
+    int selidx = parset.find( curvntnm );
+    if ( selidx < 0 )
+    {
+	lastparname_ = curvntnm;
+	writeParsCB( 0 );
+    }
+    else
+    {
+	IOPar dlgpar;
+	fillPar(dlgpar);
+	Repos::IOPar* iop = parset[selidx];
+	iop->removeSubSelection( "Created" );
+	if ( !dlgpar.isEqual(*iop) )
+	{
+	    if (!uiMSG().askGoOn( tr("You have edited Vintage '%1'. "
+				     "\nDo You want to save the changes?")
+				  .arg( curvntnm )) )
+		return false;
+
+	    *parset[selidx] = dlgpar;
+	    parset[selidx]->setName( curvntnm );
+	    parset.write(Repos::Data);
+	}
+    }
+
+    return true;
 }
 
 
@@ -1176,6 +1269,9 @@ bool uiSEGYReadStarter::commit( bool permissive )
 
 bool uiSEGYReadStarter::acceptOK()
 {
+    if ( vintagecheckmode_ )
+	return getVintageParameters();
+
     if ( !commit(false) )
 	return false;
 

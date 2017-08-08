@@ -43,7 +43,8 @@ uiSEGYImpParsDlg::uiSEGYImpParsDlg( uiParent* p, bool isread, const char* dfnm )
     delbut_->attach( alignedBelow, renbut_ );
 
     updateButtons();
-    postFinalise().notify( mCB(this,uiSEGYImpParsDlg,selChgCB) );
+    if ( parname_.isEmpty() )
+	postFinalise().notify( mCB(this,uiSEGYImpParsDlg,selChgCB) );
 }
 
 

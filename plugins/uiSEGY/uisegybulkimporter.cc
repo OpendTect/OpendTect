@@ -9,70 +9,106 @@ ________________________________________________________________________
 -*/
 
 #include "uisegybulkimporter.h"
-#include "filepath.h"
 
 #include "uibutton.h"
-#include "uisegydef.h"
+#include "uicombobox.h"
 #include "uisegyreadstarter.h"
 #include "uitable.h"
+#include "uitoolbutton.h"
 
-uiSEGYBulkImporter::uiSEGYBulkImporter( uiParent* p,
-					const BufferStringSet& selfiles )
+#include "repos.h"
+#include "survinfo.h"
+#include "uisegyfileselector.h"
+
+
+uiSEGYBulkImporter::uiSEGYBulkImporter( uiParent* p )
     : uiDialog(p, uiDialog::Setup(tr("Import Bulk SEGY Data"),
 	       mNoDlgTitle,mNoHelpKey) )
-    , selfilenms_(selfiles)
 {
-    bulktable_ = new uiTable( this, uiTable::Setup(), "Bulk Import Table" );
-    bulktable_->setPrefWidth( 700 );
-    bulktable_->setSelectionMode( uiTable::SingleRow );
-    fillTable();
+    imptypefld_ = new uiSEGYImpType( this, false, 0, true );
+    table_ = new uiTable( this, uiTable::Setup(), "Bulk Import Table" );
+    table_->setPrefWidth( 650 );
+    table_->setSelectionMode( uiTable::SingleRow );
+    table_->attach( centeredBelow, imptypefld_ );
+    table_->setNrCols( 4 );
+    table_->setColumnLabel( 0, tr("Vintage") );
+    table_->setColumnLabel( 1, tr("Files") );
+    table_->setColumnLabel( 2, tr("Select") );
+    table_->setColumnLabel( 3, tr("Output name") );
+    table_->setNrRows(0);
+    uiGroup* toolgrp = new uiGroup( this, "Tool group" );
+    uiToolButton* addbut = new uiToolButton(toolgrp, "plus",
+					    uiStrings::phrAdd(tr("Vintage")),
+					    mCB(this,uiSEGYBulkImporter,addCB));
+    uiToolButton* removebut = new uiToolButton(toolgrp, "minus",
+					 uiStrings::phrRemove(tr("Vintage")),
+					 mCB(this,uiSEGYBulkImporter,removeCB));
+    removebut->attach( alignedBelow, addbut );
+    toolgrp->attach( rightOf, table_ );
+    addCB( 0 );
 }
 
 
-void uiSEGYBulkImporter::fillTable()
+bool uiSEGYBulkImporter::selectVintage()
 {
-    const char* collbls[] = { "File name", "Data type",
-			      "Output name","Advanced", 0 };
-    bulktable_->setNrCols( 4 );
-    bulktable_->setColumnLabels( collbls );
-    int nrselfiles = selfilenms_.size();
-    if( !nrselfiles )
-	return;
+    const SEGY::ImpType imptype = imptypefld_->impType();
+    uiSEGYReadStarter::Setup su( false, &imptype );
+    su.filenm(0).fixedfnm(false).vintagecheckmode(true);
+    uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su);
+    if ( !readstrdlg->go() )
+	return false;
 
-    bulktable_->setNrRows( nrselfiles );
-    for ( int idx=0; idx<nrselfiles; idx++ )
-    {
-	File::Path fp( selfilenms_.get(idx) );
-	bulktable_->setText( RowCol(idx,0), fp.fileName().str() );
-	uiSEGYImpType* typfld = new uiSEGYImpType( 0, false, 0, false );
-	bulktable_->setCellObject( RowCol(idx,1), &typfld->asUiObject() );
-	bulktable_->setText( RowCol(idx,2), fp.baseName().str() );
-	uiPushButton* advancebut = new uiPushButton(0, uiStrings::sOptions(),
-				mCB(this,uiSEGYBulkImporter,advanceCB), true );
-	bulktable_->setCellObject(RowCol(idx,3), advancebut );
-	bulktable_->setCellToolTip( RowCol(idx,0),
-				    toUiString(selfilenms_.get(idx)) );
-    }
+    readstrdlg->getVintagName( vintagenm_ );
+    uiSEGYFileSelector* fsdlg =
+			new uiSEGYFileSelector( this,
+						readstrdlg->userFileName(),
+						vintagenm_.buf() );
+    if ( fsdlg->go() )
+	fsdlg->getSelNames( selfilenms_ );
 
-    bulktable_->setColumnReadOnly( 0, true );
+    return true;
 }
 
 
-void uiSEGYBulkImporter::advanceCB( CallBacker* cb )
+void uiSEGYBulkImporter::addCB( CallBacker* )
 {
-    mDynamicCastGet(uiPushButton*,obj,cb);
-
-    if ( !obj )
+    if ( !selectVintage() )
 	return;
 
-    RowCol curcell = bulktable_->getCell( obj );
-    uiGroup* dataobj = bulktable_->getCellGroup( RowCol(curcell.row(),1) );
-    mDynamicCastGet(uiSEGYImpType*,datatype,dataobj)
-    if ( !datatype )
-	return;
+    table_->setNrRows( table_->nrRows() + 1 );
+    CallBack selcb = mCB(this,uiSEGYBulkImporter,selectFilesCB);
+    uiPushButton* selbut = new uiPushButton( 0, uiStrings::sSelect(),
+					     selcb, false );
+    selbut->setIcon( "selectfromlist" );
+    int rowidx =  table_->nrRows() - 1;
+    table_->setCellObject( RowCol(rowidx,2), selbut );
+    table_->setColumnStretchable( 2, false );
+    table_->setColumnReadOnly( 0, true );
+    fillRow( rowidx );
+}
 
-    const SEGY::ImpType imptype = datatype->impType();
-    uiSEGYReadStarter readstdlg( this, false, &imptype,
-				 selfilenms_.get(curcell.row()), true );
-    readstdlg.go();
+
+void uiSEGYBulkImporter::fillRow( int rowid )
+{
+    BufferString dispstr( selfilenms_.getDispString( selfilenms_.size(),
+						     true) );
+    table_->setText( RowCol(rowid,0), vintagenm_.buf() );
+    table_->setText( RowCol(rowid,1), dispstr );
+}
+
+
+void uiSEGYBulkImporter::selectFilesCB( CallBacker*)
+{
+}
+
+
+void uiSEGYBulkImporter::removeCB( CallBacker* )
+{
+}
+
+
+bool uiSEGYBulkImporter::acceptOK()
+{
+    //TODO Importing selected SEGY files
+    return true;
 }

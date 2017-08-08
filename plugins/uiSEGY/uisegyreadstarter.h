@@ -26,6 +26,7 @@ class uiButton;
 class uiSpinBox;
 class uiLineEdit;
 class uiCheckBox;
+class uiComboBox;
 class uiFileSel;
 class uiSurveyMap;
 class uiRadioButton;
@@ -34,7 +35,7 @@ class uiSEGYRead;
 class uiSEGYImpType;
 class uiSEGYReadStartInfo;
 class uiSEGYClassicSurvInfoProvider;
-namespace SEGY { class ScanInfoCollectors; }
+namespace SEGY { class ScanInfoCollectors; class ImpType; }
 
 
 /*!\brief Starts reading process of 'any SEG-Y file'. */
@@ -43,10 +44,25 @@ mExpClass(uiSEGY) uiSEGYReadStarter : public uiDialog
 { mODTextTranslationClass(uiSEGYReadStarter);
 public:
 
-			uiSEGYReadStarter(uiParent*,bool forsurvsetup,
-					  const SEGY::ImpType* fixedtype=0,
-					  const char* fnm=0,
-					  bool fixedfnm=false);
+    mExpClass(uiSEGY) Setup
+    {
+    public:
+		Setup(bool for_survsetup, const SEGY::ImpType* type=0)
+		    : forsurvsetup_(for_survsetup)
+		    , imptype_(type)
+		    , filenm_(0)
+		    , fixedfnm_(false)
+		    , vintagecheckmode_(false)
+		{}
+
+		mDefSetupMemb(bool, forsurvsetup);
+		mDefSetupMemb(const SEGY::ImpType*, imptype);
+		mDefSetupMemb(const char*, filenm);
+		mDefSetupMemb(bool, fixedfnm)
+		mDefSetupMemb(bool, vintagecheckmode)
+    };
+
+			uiSEGYReadStarter(uiParent*, const Setup&);
 			~uiSEGYReadStarter();
 
     bool		isMulti() const		{ return filespec_.isMulti(); }
@@ -71,6 +87,8 @@ public:
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
 
+    void		getVintagName(BufferString& vntnm)
+			{ vntnm = lastparname_; }
 protected:
 
     SEGY::FileSpec	filespec_;
@@ -98,6 +116,8 @@ protected:
     uiCheckBox*		inc0sbox_;
     uiCheckBox*		keepzsampbox_;
     Timer*		timer_;
+    uiComboBox*		vintagefld_;
+    IOPar		defaultpar_;
 
     BufferString	userfilename_;
     BufferString	lastparname_;
@@ -111,6 +131,7 @@ protected:
     bool		lastscanwasfull_;
     uiSEGYRead*		classicrdr_;
     uiSEGYClassicSurvInfoProvider* classicsip_;
+    bool		vintagecheckmode_;
 
     enum LoadDefChgType	{ KeepAll, KeepBasic, KeepNone };
 
@@ -162,6 +183,9 @@ protected:
     void		initClassic(CallBacker*);
     void		classicSurvSetupEnd(CallBacker*);
     bool		acceptOK();
+    void		vntChgCB(CallBacker*);
+    void		vntRefreshCB(CallBacker*);
+    bool		getVintageParameters();
 
     bool		commit(bool permissive=false);
 

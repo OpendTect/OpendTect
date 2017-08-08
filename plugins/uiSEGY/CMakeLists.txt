@@ -16,6 +16,7 @@ set(OD_MODULE_SOURCES
     uisegydirectinserter.cc
     uisegyexamine.cc
     uisegyexp.cc
+    uisegyfileselector.cc
     uisegyimpdlg.cc
     uisegyimpparsdlg.cc
     uisegyimptype.cc
