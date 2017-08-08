@@ -33,12 +33,6 @@ static od_int64 swapfree;
 #include <string.h>
 
 
-void OD::sysMemSet( void* dest, char val, od_int64 sz )
-{
-    memset( dest, val, (size_t)sz );
-}
-
-
 void OD::sysMemCopy( void* dest, const void* org, od_int64 sz )
 {
     memcpy( dest, org, (size_t)sz );
@@ -103,6 +97,12 @@ void OD::memMove( void* dest, const void* org, od_int64 sz )
 }
 
 
+void OD::sysMemSet( void* data, int setto, size_t sz )
+{
+    memset( data, setto, sz );
+}
+
+
 void OD::memSet( void* data, char setto, od_int64 sz )
 {
     if ( sz <= 0 )
@@ -111,12 +111,18 @@ void OD::memSet( void* data, char setto, od_int64 sz )
 	{ pFreeFnErrMsg("data null"); return; }
 
     if ( executeNonParallel(sz) )
-	sysMemSet( data, setto, sz );
+	sysMemSet( data, (int)setto, (size_t)sz );
     else
     {
 	MemSetter<char> msetter( (char*)data, setto, (size_t)sz );
 	msetter.execute();
     }
+}
+
+
+void OD::sysMemZero( void* data, size_t sz )
+{
+    sysMemSet( data, 0, sz );
 }
 
 

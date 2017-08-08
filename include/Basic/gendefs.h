@@ -36,6 +36,8 @@ namespace OD
 {
     // For guaranteed small or large operations: consider using odmemory.h
 
+    // If you are in parallel execution, use sysMemCopy, sysMemSet, sysMemZero
+
     //! Function will figure out which is fastest depending on size
     mGlobal(Basic) void	memCopy(void*,const void*,od_int64);
     //! Function will figure out which is fastest depending on size
