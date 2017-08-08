@@ -246,10 +246,12 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
+namespace OD { mGlobal(Basic) void sysMemSet(void*,int,size_t); }
+
 template <> inline
 bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 {
-    OD::memSet( ptr_+start, (int)val_, (size_t) size );
+    OD::sysMemSet( ptr_+start, (int)val_, (size_t) size );
     addToNrDone( size );
     return true;
 }
@@ -258,7 +260,7 @@ bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 {
-    OD::memSet( ptr_+start, (int)val_, (size_t) size );
+    OD::sysMemSet( ptr_+start, (int)val_, (size_t) size );
     addToNrDone( size );
     return true;
 }
@@ -267,7 +269,7 @@ bool MemSetter<unsigned char>::setPtr( od_int64 start, od_int64 size )
 template <> inline
 bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 {
-    OD::memSet( ptr_+start, (int)val_, (size_t) size );
+    OD::sysMemSet( ptr_+start, (int)val_, (size_t) size );
     addToNrDone( size );
     return true;
 }
@@ -285,13 +287,15 @@ bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
     return true;
 
 
+namespace OD { mGlobal(Basic) void sysMemZero(void*,size_t); }
+
 #define mODMemSpecialImpl( Type ) \
 template <> inline \
 bool MemSetter<Type>::setPtr( od_int64 start, od_int64 size ) \
 { \
     if ( val_==0 ) \
     { \
-	OD::memZero( ptr_+start, size*sizeof(Type) ); \
+	OD::sysMemZero( ptr_+start, size*sizeof(Type) ); \
 	addToNrDone( size ); \
 	return true; \
     } \
