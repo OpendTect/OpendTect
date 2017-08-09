@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "filepath.h"
 #include "sighndl.h"
+#include "threadwork.h"
 #include "hostdata.h"
 #include "plugins.h"
 #include "strmprov.h"
@@ -98,7 +99,10 @@ void BatchProgram::init()
     clparser_->getVal( sKeyJobID(), jobid_ );
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
+    {
 	comm_ = new JobCommunic( masterhost, masterport, jobid_, sdout_ );
+	Threads::WorkManager::twm().setQuickStop( true );
+    }
 
     BufferStringSet normalargs;
     clparser_->getNormalArguments( normalargs );

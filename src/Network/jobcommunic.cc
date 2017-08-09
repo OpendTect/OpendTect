@@ -138,11 +138,9 @@ bool JobCommunic::updateMsg( char tag , int status, const char* msg )
     return sendMsg( tag , status, msg );
 }
 
-
-bool JobCommunic::sendMsg( char tag , int status, const char* msg )
+BufferString JobCommunic::buildString( char tag , int status, const char* msg )
 {
     FileMultiString statstr;
-
     statstr += jobid_;
     statstr += status;
     statstr += HostData::localHostName();
@@ -151,21 +149,27 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     if ( msg && *msg )
 	statstr += msg;
 
-    if ( DBG::isOn(DBG_MM) )
-    {
-	BufferString dbmsg( "JobCommunic::sendMsg -- sending : " );
-	dbmsg += statstr;
-	DBG::message( dbmsg );
-    }
-
     char tagstr[3];
     tagstr[0] = tag;
     tagstr[1] = statstr.sepChar();
     tagstr[2] = '\0';
     BufferString buf( tagstr );
     buf += statstr;
-    const bool writestat = socket_->write( buf );
-    const BufferString logmsg( "Writing to socket ", buf );
+    return buf;
+}
+
+
+bool JobCommunic::sendMsg( char tag , int status, const char* msg )
+{
+    BufferString buf = buildString( tag , status, msg );
+    if ( DBG::isOn(DBG_MM) )
+    {
+	BufferString dbmsg( "JobCommunic::sendMsg -- sending : " );
+	dbmsg += buf;
+	DBG::message( dbmsg );
+    }
+    bool writestat = socket_->write( buf );
+    BufferString logmsg( "Writing to socket ", buf );
     logMsg( writestat, logmsg,
 	    !writestat ? socket_->errMsg().getFullString().str() : "" );
 
@@ -191,6 +195,11 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 
     else if ( masterinfo == mRSP_STOP )
     {
+	buf = buildString( tag , mSTAT_KILLED, msg );
+	writestat = socket_->write( buf );
+	logmsg = ( "Writing to socket ", buf );
+	logMsg( writestat, logmsg,
+	    !writestat ? socket_->errMsg().getFullString().str() : "" );
 	directMsg( "Exiting on request of Master." );
 	ExitProgram( -1 );
     }

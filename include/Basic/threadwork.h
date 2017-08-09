@@ -112,6 +112,8 @@ public:
 
     Notifier<WorkManager>	isShuttingDown;
     void			shutdown();
+    void			setQuickStop( bool yn ) { quickstop_ = yn; }
+				//!<Only for MMP batchprogs.
 
 protected:
 
@@ -142,6 +144,7 @@ protected:
 
     int				freeid_;
     const int			twmid_; //!<Only for debugging
+    bool			quickstop_;
 };
 
 

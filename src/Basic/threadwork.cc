@@ -19,6 +19,7 @@ namespace Threads
 const Threads::WorkManager* thetwm = 0;
 static Threads::Atomic<int> freetwmid( 0 );
 
+
 static void shutdownTWM()
 {
    WorkManager::twm().shutdown();
@@ -280,6 +281,7 @@ Threads::WorkManager::WorkManager( int nrthreads )
     , isShuttingDown( this )
     , freeid_( cDefaultQueueID() )
     , twmid_( freetwmid++ )
+    , quickstop_(false)
 {
     addQueue( MultiThread, "Default queue" );
 
@@ -302,7 +304,7 @@ Threads::WorkManager::WorkManager( int nrthreads )
 
 Threads::WorkManager::~WorkManager()
 {
-    if ( this==thetwm && queueids_.size() )
+    if ( this==thetwm && queueids_.size() && !quickstop_ )
     {
 	pErrMsg("Default queue is not empty. "
 		"Please call twm().shutdown() before exiting main program,"
@@ -317,6 +319,9 @@ Threads::WorkManager::~WorkManager()
 
 void Threads::WorkManager::shutdown()
 {
+    if ( quickstop_ )
+	return;
+
     isShuttingDown.trigger();
 
     if ( queueids_.size()>1 )

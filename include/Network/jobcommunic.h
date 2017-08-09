@@ -112,6 +112,7 @@ private:
 
     bool		updateMsg( char tag, int, const char* msg=0 );
     bool		sendMsg( char tag, int, const char* msg=0 );
+    BufferString	buildString(char tag, int, const char* msg=0 );
 
 			//! directly to bp.stdout.ostrem or std::cerr.
     void		directMsg( const char* msg );
