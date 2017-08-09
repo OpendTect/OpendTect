@@ -77,10 +77,10 @@ bool BatchProgram::go( od_ostream& strm )
 	commthrd = new CommThread( comm_, 0.6 );
 	commthrd->start();
     }
-
+    
     VolProc::Processor proc( pars() );
 
-    const bool ret = proc.run(strm,0);
+    const bool ret = proc.run(strm,comm_);
 
     if ( comm_ )
     {
