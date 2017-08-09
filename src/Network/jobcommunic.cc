@@ -197,7 +197,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     {
 	buf = buildString( tag , mSTAT_KILLED, msg );
 	writestat = socket_->write( buf );
-	logmsg = ( "Writing to socket ", buf );
+	logmsg = "Writing to socket "; logmsg += buf;
 	logMsg( writestat, logmsg,
 	    !writestat ? socket_->errMsg().getFullString().str() : "" );
 	directMsg( "Exiting on request of Master." );
