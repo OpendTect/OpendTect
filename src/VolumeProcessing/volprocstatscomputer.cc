@@ -87,7 +87,7 @@ Task* StatsCalculator::createTask()
 	if ( output->nrComponents()<=idx )
 	{
 	    if ( ! const_cast<RegularSeisDataPack*>(output)
-				->addComponent( input->getComponentName(idx) ) )
+			    ->addComponentNoInit(input->getComponentName(idx)) )
 		return 0;
 	}
 	else

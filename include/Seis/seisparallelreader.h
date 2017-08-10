@@ -190,6 +190,7 @@ public:
 protected:
 
     void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
+    void		submitUdfWriterTasks();
 
     IOObj*			ioobj_;
     SeisTrcReader&		rdr_;

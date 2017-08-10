@@ -255,6 +255,7 @@ protected:
 				SeisDataPack(const char*,const BinDataDesc*);
 
     bool			addArray(int sz0,int sz1,int sz2);
+    bool			addArrayNoInit(int sz0,int sz1,int sz2);
 
     BufferStringSet			componentnames_;
     ObjectSet<Array3DImpl<float> >	arrays_;

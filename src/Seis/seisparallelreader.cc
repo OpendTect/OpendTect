@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisparallelreader.h"
 
-#include "arrayndimpl.h"
+#include "arrayndalgo.h"
 #include "binidvalset.h"
 #include "cbvsreadmgr.h"
 #include "convmemvalseries.h"
@@ -70,7 +70,7 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 			  cnames.get(cidx).buf() : BufferString::empty().buf();
 
 	// LineKey assembles composite "<attribute>|<component>" name
-	if ( !dp.addComponent( LineKey(ioobj.name().str(),cnm) ) )
+	if ( !dp.addComponentNoInit( LineKey(ioobj.name().str(),cnm) ) )
 	    return false;
     }
 
@@ -635,6 +635,7 @@ protected:
 
 HiddenParam<SequentialReader,TypeSet<int>* > seisseqrdroutcompmgr( 0 );
 HiddenParam<SequentialReader,ObjectSet<Scaler>* > seisseqrdrcompscalers( 0 );
+HiddenParam<SequentialReader,PosInfo::CubeData*> seisloadertrcssamplingmgr( 0 );
 
 SequentialReader::SequentialReader( const IOObj& ioobj,
 				    const TrcKeyZSampling* tkzs,
@@ -649,6 +650,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     , initialized_(false)
 {
     seisseqrdroutcompmgr.setParam( this, 0 );
+    seisloadertrcssamplingmgr.setParam( this, 0 );
     ObjectSet<Scaler>* compscalers = new ObjectSet<Scaler>;
     compscalers->allowNull( true );
     seisseqrdrcompscalers.setParam( this, compscalers );
@@ -691,11 +693,13 @@ SequentialReader::~SequentialReader()
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 
-    delete seisseqrdroutcompmgr.getParam( this );
     deepErase( *seisseqrdrcompscalers.getParam( this ) );
+    delete seisseqrdroutcompmgr.getParam( this );
     delete seisseqrdrcompscalers.getParam( this );
+    delete seisloadertrcssamplingmgr.getParam( this );
     seisseqrdroutcompmgr.removeParam( this );
     seisseqrdrcompscalers.removeParam( this );
+    seisloadertrcssamplingmgr.removeParam( this );
 }
 
 
@@ -778,7 +782,7 @@ void SequentialReader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 
     dp_->setDataDesc( floatdesc ); //Will delete incompatible arrays
     for ( int idx=0; idx<compnms.size(); idx++ )
-	dp_->addComponent( compnms.get(idx).str() );
+	dp_->addComponentNoInit( compnms.get(idx).str() );
 }
 
 
@@ -802,8 +806,14 @@ bool SequentialReader::init()
     if ( initialized_ )
 	return true;
 
-    nrdone_ = 0;
     msg_ = tr("Initializing reader");
+    const SeisIOObjInfo seisinfo( *ioobj_ );
+    if ( !seisinfo.isOK() ) return false;
+
+    TrcKeyZSampling seistkzs( tkzs_ );
+    seisinfo.getRanges( seistkzs );
+    DataCharacteristics datasetdc;
+    seisinfo.getDataChar( datasetdc );
 
     ObjectSet<Scaler>& compscalers = *seisseqrdrcompscalers.getParam( this );
     for ( int idx=0; idx<components_.size(); idx++ )
@@ -812,33 +822,52 @@ bool SequentialReader::init()
 	    compscalers += 0;
     }
 
-    const SeisIOObjInfo seisinfo( *ioobj_ );
-    if ( !seisinfo.isOK() ) return false;
-
-    DataCharacteristics datasetdc;
-    seisinfo.getDataChar( datasetdc );
     adjustDPDescToScalers( datasetdc );
+    if ( !dp_ )
+    {
+	TrcKeyZSampling storedtkzs;
+	seisinfo.getRanges( storedtkzs );
+	if ( tkzs_.isDefined() )
+	    tkzs_. limitTo( storedtkzs );
+	else
+	    tkzs_ = storedtkzs;
 
-    mSetSelData()
+	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false),
+				       &dc_ );
+	DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+	dp_->setSampling( tkzs_ );
+	dp_->setName( ioobj_->name() );
+	if ( scaler_ && !scaler_->isEmpty() )
+	    dp_->setScaler( *scaler_ );
 
-    dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false), &dc_);
-    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
-    dp_->setSampling( tkzs_ );
-    dp_->setName( ioobj_->name() );
-    if ( scaler_ && !scaler_->isEmpty() )
-	dp_->setScaler( *scaler_ );
-
-    if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
-	return false;
+	if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
+	    return false;
+    }
 
     PosInfo::CubeData cubedata;
     if ( rdr_.get3DGeometryInfo(cubedata) )
+	dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+
+    nrdone_ = 0;
+
+    seistkzs.hsamp_.limitTo( tkzs_.hsamp_ );
+    sd_ = new Seis::RangeSelData( seistkzs );
+    rdr_.setSelData( sd_ );
+    if ( !rdr_.prepareWork() )
     {
-	cubedata.limitTo( tkzs_.hsamp_ );
-	if ( !cubedata.isFullyRectAndReg() )
-	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+	msg_ = rdr_.errMsg();
+	return false;
     }
 
+    PosInfo::CubeData* trcssampling = seisloadertrcssamplingmgr.getParam(this);
+    if ( !trcssampling )
+    {
+	trcssampling = new PosInfo::CubeData( *dp_->getTrcsSampling() );
+	seisloadertrcssamplingmgr.setParam( this, trcssampling );
+    }
+
+    trcssampling->limitTo( tkzs_.hsamp_ );
+    totalnr_ = trcssampling->totalSize();
 
     initialized_ = true;
     msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() )
@@ -882,14 +911,7 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
 	    compscalers += 0;
     }
 
-    PosInfo::CubeData cubedata;
-    if ( rdr_.get3DGeometryInfo(cubedata) )
-	dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
-
-    initialized_ = true;
-    msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() )
-						  .arg( ioobj_->uiName() ) );
-    return true;
+    return init();
 }
 
 
@@ -897,6 +919,9 @@ int SequentialReader::nextStep()
 {
     if ( !initialized_ && !init() )
 	return ErrorOccurred();
+
+    if ( nrdone_ == 0 )
+	submitUdfWriterTasks();
 
     if ( Threads::WorkManager::twm().queueSize(queueid_) >
 	 100*Threads::WorkManager::twm().nrThreads() )
@@ -924,6 +949,33 @@ int SequentialReader::nextStep()
 
     nrdone_++;
     return MoreToDo();
+}
+
+
+void Seis::SequentialReader::submitUdfWriterTasks()
+{
+    PosInfo::CubeData* trcssampling = seisloadertrcssamplingmgr.getParam(this);
+    if ( !trcssampling )
+    {
+	for ( int idx=0; idx<dp_->nrComponents(); idx++ )
+	    dp_->data(idx).setAll( mUdf(float) );
+
+	return;
+    }
+
+    if ( trcssampling->totalSize() >= tkzs_.hsamp_.totalNr() )
+	return;
+
+    TaskGroup* udfwriters = new TaskGroup;
+    for ( int idx=0; idx<dp_->nrComponents(); idx++ )
+    {
+	udfwriters->addTask(
+		new Array3DUdfTrcRestorer<float>( *trcssampling, tkzs_.hsamp_,
+						  dp_->data(idx) ) );
+    }
+
+    Threads::WorkManager::twm().addWork(
+	    Threads::Work(*udfwriters,true),0,queueid_,false,false,true);
 }
 
 } // namespace Seis

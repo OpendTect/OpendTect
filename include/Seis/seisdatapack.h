@@ -48,6 +48,7 @@ public:
     bool			is2D() const;
 
     bool			addComponent(const char* nm);
+    bool			addComponentNoInit(const char* nm);
 
     int				nrTrcs() const
 				{ return (int)sampling_.hsamp_.totalNr(); }
