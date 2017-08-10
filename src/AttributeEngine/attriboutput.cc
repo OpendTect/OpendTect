@@ -171,7 +171,7 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
 	if ( desout >= output_->nrComponents() )
-	    output_->addComponent( OD::EmptyString() );
+	    output_->addComponent( OD::EmptyString(), true );
 
     //something went wrong during memory allocation
     if ( output_->nrComponents() < desoutputs_.size() )

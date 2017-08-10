@@ -57,7 +57,7 @@ bool VolumeDataPackZAxisTransformer::doPrepare( int nrthreads )
 	outputdp_->setScaler( *voldp->getScaler() );
 
     for ( int idx=0; idx<voldp->nrComponents(); idx++ )
-	outputdp_->addComponent( voldp->getComponentName(idx) );
+	outputdp_->addComponent( voldp->getComponentName(idx), false );
 
     return true;
 }

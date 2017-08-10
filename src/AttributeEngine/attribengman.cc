@@ -615,7 +615,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
     {
 	const char* compnm = attrspecs_[idx].userRef();
 	if ( packset[0]->getComponentIdx(compnm,idx) >= 0 )
-	    output->addComponent( compnm );
+	    output->addComponent( compnm, true );
     }
 
     output->setZDomain(

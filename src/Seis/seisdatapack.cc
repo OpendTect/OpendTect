@@ -362,12 +362,13 @@ int RegularSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
 }
 
 
-bool RegularSeisDataPack::addComponent( const char* nm )
+bool RegularSeisDataPack::addComponent( const char* nm, bool initvals )
 {
     if ( !sampling_.isDefined() || sampling_.hsamp_.totalNr()>INT_MAX )
 	return false;
 
-    if ( !addArray(sampling_.nrLines(),sampling_.nrTrcs(),sampling_.nrZ()) )
+    if ( !addArray(sampling_.nrLines(),sampling_.nrTrcs(),sampling_.nrZ(),
+		   initvals) )
 	return false;
 
     componentnames_.add( nm );
@@ -414,7 +415,7 @@ DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
     {
 	const char* name = names.validIdx(idx-1) ? names[idx-1]->str()
 						 : OD::EmptyString();
-	regsdp->addComponent( name );
+	regsdp->addComponent( name, true );
 	BinIDValueSet::SPos pos;
 	BinID bid;
 	while ( bivset->next(pos,true) )
@@ -491,12 +492,12 @@ TrcKey RandomSeisDataPack::getTrcKey( int trcidx ) const
 }
 
 
-bool RandomSeisDataPack::addComponent( const char* nm )
+bool RandomSeisDataPack::addComponent( const char* nm, bool initvals )
 {
     if ( path_.isEmpty() || zsamp_.isUdf() )
 	return false;
 
-    if ( !addArray(1,nrTrcs(),zsamp_.nrSteps()+1) )
+    if ( !addArray(1,nrTrcs(),zsamp_.nrSteps()+1,initvals) )
 	return false;
 
     componentnames_.add( nm );
@@ -574,7 +575,7 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 
 	if ( regsdp.getComponentIdx(compnm,idx) >= 0 )
 	{
-	    randsdp->addComponent( compnm );
+	    randsdp->addComponent( compnm, true );
 	    Regular2RandomDataCopier copier( *randsdp, regsdp,
 					     randsdp->nrComponents()-1 );
 	    copier.execute();

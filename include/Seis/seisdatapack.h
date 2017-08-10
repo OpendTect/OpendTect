@@ -62,7 +62,7 @@ public:
 				//!< Only returns non-null if explictly set
     void			getTrcPositions(PosInfo::CubeData&) const;
 
-    bool			addComponent(const char* nm);
+    bool			addComponent(const char* nm,bool initvals);
 
     int				nrTrcs() const
 				{ return (int)sampling_.hsamp_.totalNr(); }
@@ -120,7 +120,7 @@ public:
     void			setRandomLineID(int);
     int				getRandomLineID() const	{ return rdlid_; }
 
-    bool			addComponent(const char* nm);
+    bool			addComponent(const char* nm,bool initvals);
 
     static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
 						int rdmlineid,

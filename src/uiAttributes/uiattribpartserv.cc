@@ -785,7 +785,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	    output = new RegularSeisDataPack(
 				VolumeDataPack::categoryStr(false,false) );
 	    output->setSampling( tkzs );
-	    if ( !output->addComponent(targetspecs_[0].userRef()) ||
+	    if ( !output->addComponent(targetspecs_[0].userRef(),true) ||
 		    !output->data(0).getStorage() )
 	    {
 		output = 0;
@@ -1004,7 +1004,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     newpack->setZRange( output.get(0)->zRange() );
     for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
     {
-	if ( !newpack->addComponent(targetspecs_[idx].userRef()) )
+	if ( !newpack->addComponent(targetspecs_[idx].userRef(),true) )
 	    continue;
 
 	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
@@ -1130,7 +1130,7 @@ bool doPrepare( int nrthreads )
     {
 	const char* compname = compnames_.validIdx(idx) ?
 		compnames_[idx]->str() : OD::EmptyString();
-	if ( !outputdp_->addComponent(compname) )
+	if ( !outputdp_->addComponent(compname,true) )
 	    continue;
     }
 

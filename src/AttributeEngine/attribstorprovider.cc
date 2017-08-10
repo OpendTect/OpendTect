@@ -864,7 +864,7 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dp ) const
 
 	cubeidx++;
 	if ( cubeidx>=dp->nrComponents() &&
-		!dp->addComponent(OD::EmptyString()) )
+		!dp->addComponent(OD::EmptyString(),true) )
 	    continue;
 
 	const int compnr = desc_.is2D() ? idx : cubeidx;

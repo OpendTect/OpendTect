@@ -23,8 +23,6 @@ class IOObj;
 class RegularSeisDataPack;
 class Scaler;
 
-template <class T> class Array2D;
-template <class T> class Array3D;
 class GatherSetDataPack;
 namespace PosInfo { class CubeData; class CubeDataIterator;
 		    class Line2DData; class Line2DDataIterator; }
@@ -69,6 +67,7 @@ protected:
 			       const TypeSet<int>* components);
 
     void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
+    void		submitUdfWriterTasks(int queueid);
 
     RefMan<RegularSeisDataPack> dp_;
     IOObj*		ioobj_;
@@ -80,6 +79,7 @@ protected:
     TypeSet<int>*	outcomponents_;
     Scaler*		scaler_;
     ObjectSummary*	seissummary_;
+    PosInfo::CubeData*	trcssampling_;
 
     uiString		msg_;
 };
@@ -195,14 +195,12 @@ protected:
 
 private:
 
-    bool		getTrcsPosForRead(int& desirednrpos,
-					  TypeSet<TrcKey>&) const;
+    bool		getTrcsPosForRead(TypeSet<TrcKey>&) const;
 
     Provider*		prov_;
     SelData*		sd_;
     Interval<int>	samprg_;
     PosInfo::Line2DData* line2ddata_;
-    PosInfo::CubeData*	trcssampling_;
     PosInfo::Line2DDataIterator* trcsiterator2d_;
     PosInfo::CubeDataIterator*	trcsiterator3d_;
     od_int64		totalnr_;

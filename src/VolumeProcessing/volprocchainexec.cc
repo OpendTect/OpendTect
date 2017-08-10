@@ -435,7 +435,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 				    new PosInfo::SortedCubeData(posdata) );
 	    }
 
-	    if ( !outcube->addComponent( 0 ) )
+	    if ( !outcube->addComponent(0,false) )
 	    { //TODO: allocate the step-required number of components
 		errmsg_ = "Cannot allocate enough memory.";
 		outcube = 0;

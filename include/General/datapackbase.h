@@ -48,7 +48,7 @@ public:
 protected:
 
 				PointDataPack(const char*);
-    				~PointDataPack();
+				~PointDataPack();
 
 };
 
@@ -179,7 +179,7 @@ public:
 
     void			getPath(TrcKeyPath&) const;
 
-    virtual bool		addComponent(const char* nm)		= 0;
+    virtual bool		addComponent(const char* nm,bool initvals) = 0;
 
     virtual const StepInterval<float>&	getZRange() const		= 0;
 
@@ -232,7 +232,7 @@ protected:
 				VolumeDataPack(const char*,const BinDataDesc*);
 				~VolumeDataPack();
 
-    bool			addArray(int sz0,int sz1,int sz2);
+    bool			addArray(int sz0,int sz1,int sz2,bool initvals);
 
     BufferStringSet			componentnames_;
     ObjectSet<Array3DImpl<float> >	arrays_;
@@ -243,7 +243,7 @@ protected:
 
     virtual int			gtNrArrays() const { return arrays_.size(); }
     virtual const ArrayND<float>* gtArrayData( int iarr ) const
-    				{ return arrays_.validIdx(iarr)
+				{ return arrays_.validIdx(iarr)
 				       ? arrays_[iarr] : 0; }
 
     float			gtNrKBytes() const;

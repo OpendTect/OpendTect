@@ -155,7 +155,7 @@ bool VolumeReader::prepareWork( const IOObj& ioobj )
 		output->setComponentName( compnms.get(idx), idx );
 	    else
 	    {
-		if ( !output->addComponent(compnms.get(idx).str()) )
+		if ( !output->addComponent(compnms.get(idx).str(),false) )
 		    return false;
 	    }
 
@@ -166,7 +166,7 @@ bool VolumeReader::prepareWork( const IOObj& ioobj )
     {
 	for ( int icomp=initialdpnrcomp; icomp<components_.size(); icomp++ )
 	{
-	    if ( !output->addComponent(0))
+	    if ( !output->addComponent(0,false))
 		return false;
 	}
 

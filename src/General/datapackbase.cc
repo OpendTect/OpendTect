@@ -712,7 +712,7 @@ void VolumeDataPack::doDumpInfo( IOPar& iop ) const
 }
 
 
-bool VolumeDataPack::addArray( int sz0, int sz1, int sz2 )
+bool VolumeDataPack::addArray( int sz0, int sz1, int sz2, bool initvals )
 {
     float dummy; const BinDataDesc floatdesc( dummy );
     Array3DImpl<float>* arr = 0;
@@ -739,7 +739,9 @@ bool VolumeDataPack::addArray( int sz0, int sz1, int sz2 )
 	}
     }
 
-    arr->setAll( mUdf(float) );
+    if ( initvals )
+	arr->setAll( mUdf(float) );
+
     arrays_ += arr;
     return true;
 }
