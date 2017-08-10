@@ -129,7 +129,7 @@ void AGC<T>::computeEnergyMute()
 	return;
 
     mAllocLargeVarLenArr( T, energies, size_ );
-    OD::memCopy( energies.ptr(), energies_.arr(), size_*sizeof(T) );
+    OD::sysMemCopy( energies.ptr(), energies_.arr(), size_*sizeof(T) );
     sortFor( energies.ptr(), size_, sample );
     energymute_ = energies[sample];
 }

@@ -25,12 +25,6 @@ namespace OD
 // 1M operations min per thread
 #define mODMemMinThreadSize 131072
 
-namespace OD
-{
-    template <class T> mGlobal(Basic) void memValueSet(T*,T,od_int64,
-						       TaskRunner* taskrun=0);
-}
-
 /*!\brief Sets large amounts of values to a constant using multiple threads.
 
   For simple initializations, use OD::memValueSet.
@@ -172,6 +166,8 @@ private:
 };
 
 
+namespace OD { mGlobal(Basic) void sysMemCopy(void*,const void*,od_int64); }
+
 #include "valseries.h"
 
 
@@ -247,7 +243,12 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
-namespace OD { mGlobal(Basic) void sysMemSet(void*,int,size_t); }
+namespace OD
+{
+    mGlobal(Basic) void sysMemSet(void*,int,size_t);
+
+    template <class T> mGlobal(Basic) T* sysMemValueSet(T*,T,od_int64 nrsamp);
+}
 
 template <> inline
 bool MemSetter<char>::setPtr( od_int64 start, od_int64 size )
@@ -276,18 +277,6 @@ bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 }
 
 
-#define mODMemSetterFullImpl(Type) \
-    Type* ptr = ptr_ + start; \
-    const Type* stopptr = ptr + size; \
-    while ( ptr != stopptr ) \
-    { \
-	*ptr = val_; \
-	ptr++; \
-    } \
- \
-    return true;
-
-
 namespace OD { mGlobal(Basic) void sysMemZero(void*,size_t); }
 
 #define mODMemSpecialImpl( Type ) \
@@ -295,13 +284,12 @@ template <> inline \
 bool MemSetter<Type>::setPtr( od_int64 start, od_int64 size ) \
 { \
     if ( val_==0 ) \
-    { \
 	OD::sysMemZero( ptr_+start, size*sizeof(Type) ); \
-	addToNrDone( size ); \
-	return true; \
-    } \
- \
-    mODMemSetterFullImpl(Type); \
+    else \
+	OD::sysMemValueSet( ptr_+start, val_, size ); \
+    \
+    addToNrDone( size ); \
+    return true; \
 }
 
 
@@ -319,11 +307,12 @@ mODMemSpecialImpl( od_uint64 );
 template <class T> inline
 bool MemSetter<T>::setPtr( od_int64 start, od_int64 size )
 {
-    mODMemSetterFullImpl(T);
+    OD::sysMemValueSet( ptr_+start, val_, size );
+    addToNrDone( size );
+    return true;
 }
 
 #undef mODMemSpecialImpl
-#undef mODMemSetterFullImpl
 
 
 template <class T> inline
@@ -378,8 +367,6 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
-
-namespace OD { mGlobal(Basic) void sysMemCopy(void*,const void*,od_int64); }
 
 template <class T> inline
 bool MemCopier<T>::setPtr( od_int64 start, od_int64 size )
@@ -501,23 +488,29 @@ namespace OD
 {
 
 template <class T>
-inline void memValueSet( T* arr, T val , od_int64 sz, TaskRunner* taskrun )
+inline T* sysMemValueSet( T* ptr, T val , od_int64 size )
 {
-    if ( !arr || sz<=0 )
-	return;
+    if ( !ptr || size<=0 )
+	return ptr ? ptr : 0;
 
-    if ( sz > cMinMemValSetParallelSize )
-    {
-	MemSetter<T> msetter( arr, val, sz );
-	taskrun ? taskrun->execute( msetter )
-		: msetter.execute();
-    }
-    else
-    {
-	const T* stopptr = arr + sz;
-	for ( T* curptr=arr; curptr!=stopptr; curptr++ )
-	    *curptr = val;
-    }
+    const T* stopptr = ptr + size;
+    while ( ptr != stopptr )
+	*ptr++ = val;
+
+    return ptr;
+}
+
+
+template <class T>
+inline T* memValueSet( T* ptr, T val, od_int64 size )
+{
+    if ( size < cMinMemValSetParallelSize )
+	return sysMemValueSet( ptr, val, size );
+
+    MemSetter<T> msetter( ptr, val, size );
+    msetter.execute();
+
+    return ptr+=size;
 }
 
 } // namespace OD

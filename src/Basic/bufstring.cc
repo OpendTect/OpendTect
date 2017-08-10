@@ -247,7 +247,7 @@ bool BufferString::setBufSize( unsigned int newlen )
 	    newsz = newlen;
 	    oldbuf[newsz-1] = '\0';
 	}
-	OD::memCopy( buf_, oldbuf, newsz );
+	OD::sysMemCopy( buf_, oldbuf, newsz );
     }
 
     delete [] oldbuf;

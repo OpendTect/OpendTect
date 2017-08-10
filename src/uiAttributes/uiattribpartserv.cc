@@ -1163,8 +1163,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	    const bool domemcopy = stor->arr() && data.getData();
 	    if ( domemcopy )
-		OD::memCopy( outputdp_->getTrcData(idx,trcidx),
-			     stor->arr(), nrzsamp*sizeof(float) );
+		OD::sysMemCopy( outputdp_->getTrcData(idx,trcidx),
+				stor->arr(), nrzsamp*sizeof(float) );
 	    else
 	    {
 		OffsetValueSeries<float> trcstor =

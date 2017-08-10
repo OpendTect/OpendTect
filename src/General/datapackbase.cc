@@ -562,7 +562,8 @@ bool VolumeDataPack::getCopiedTrcData( int comp, int globaltrcidx,
     {
 	if ( outptr )
 	{
-	    OD::memCopy( outptr, dataptr, mCast(od_int64,nrz) * sizeof(float) );
+	    OD::sysMemCopy( outptr, dataptr,
+			    mCast(od_int64,nrz) * sizeof(float) );
 	}
 	else
 	{

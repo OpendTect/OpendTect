@@ -700,7 +700,7 @@ bool MarchingCubes2Implicit::doPrepare( int nrthreads )
 	return false;
 
     //Set no position as seed
-    OD::memValueSet( newfloodfillers_, false, nrIterations() );
+    OD::memZero( newfloodfillers_, nrIterations() );
 
     nrdefined_ = 0;
     barrier_.setNrThreads( nrthreads );

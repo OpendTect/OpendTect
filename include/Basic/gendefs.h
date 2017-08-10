@@ -43,6 +43,9 @@ namespace OD
     //! Function will figure out which is fastest depending on size
     mGlobal(Basic) void	memSet(void*,char,od_int64);
     //! Function will figure out which is fastest depending on size
+    template <class T>
+    mGlobal(Basic) T* memValueSet(T*,T,od_int64 nrsamples);
+    //! Function will figure out which is fastest depending on size
     mGlobal(Basic) void	memZero(void*,od_int64);
     //! Function will figure out which is fastest depending on size
     mGlobal(Basic) void	memMove(void*,const void*,od_int64);

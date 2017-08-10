@@ -99,7 +99,7 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
     if ( mIsEqual(z0,velsampling_.start,1e-5) &&
 	 mIsEqual(velsampling_.step,dz,1e-5) &&
 	 velsz==nr )
-	OD::memCopy( res, vel_.arr(), sizeof(float)*velsz );
+	OD::sysMemCopy( res, vel_.arr(), sizeof(float)*velsz );
     else if ( source.getDesc().type_!=VelocityDesc::RMS ||
 	      !extrapolate_ ||
 	      velsampling_.atIndex(velsz-1)>z0+dz*(nr-1) )

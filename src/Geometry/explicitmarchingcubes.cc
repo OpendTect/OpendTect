@@ -9,6 +9,7 @@
 
 #include "task.h"
 #include "marchingcubes.h"
+#include "odmemory.h"
 #include "positionlist.h"
 #include "samplingdata.h"
 
@@ -83,7 +84,7 @@ protected:
 	    idx++, addToNrDone(1) )
 	{
 	    if ( usetable )
-		OD::memCopy( idxs, tableidxs+idx*3, sizeof(int)*3 );
+		OD::sysMemCopy( idxs, tableidxs+idx*3, sizeof(int)*3 );
 	    else if ( idx==start )
 	    {
 		if ( !models.getIndex(mCast(int,start),idxs) )

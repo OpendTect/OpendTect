@@ -236,7 +236,7 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
     Array1DImpl<float_complex> signal( sz_ );
     Array1DImpl<float_complex> timedomain( fftsz_ );
     Array1DImpl<float_complex> freqdomain( fftsz_ );
-    OD::memZero( timedomain.getData(), fftsz_*sizeof(float_complex) );
+    OD::sysMemZero( timedomain.getData(), fftsz_*sizeof(float_complex) );
 
     const int outputsz = outputinterest_.size();
     const int maxidx = fftsz_ - 1;

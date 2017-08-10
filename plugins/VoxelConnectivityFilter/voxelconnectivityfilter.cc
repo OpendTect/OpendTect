@@ -112,7 +112,11 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
     if ( !statusarr_ )
 	return false;
 
-    OD::memValueSet( statusarr_, mUnassignedValue, size );
+    if ( mUnassignedValue == 0 )
+	OD::memZero( statusarr_, size*sizeof(int) );
+    else
+	OD::memValueSet( statusarr_, mUnassignedValue, size );
+
     return true;
 }
 
@@ -180,7 +184,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
     }
 
 #define mDoEdge( dim0, dim1 ) \
-    OD::memCopy( neighbor, arrpos, 3*sizeof(int) ); \
+    OD::sysMemCopy( neighbor, arrpos, 3*sizeof(int) ); \
     neighbor[dim0]--; \
     neighbor[dim1]--; \
     mHandleNeighbor; \
@@ -195,7 +199,7 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
     mHandleNeighbor
 
 #define mDoCorner( op0, op1, op2 ) \
-	    OD::memCopy( neighbor, arrpos, 3*sizeof(int) ); \
+	    OD::sysMemCopy( neighbor, arrpos, 3*sizeof(int) ); \
 	    neighbor[0] op0; \
 	    neighbor[1] op1; \
 	    neighbor[2] op2; \

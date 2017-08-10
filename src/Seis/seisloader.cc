@@ -723,7 +723,7 @@ bool doTrace( int itrc )
 		const unsigned char* srcptr = rawseq_.getData( itrc, idcin,
 								trczidx );
 		char* dstptr = dststartptr;
-		OD::memCopy(dstptr,srcptr,bytespersamp*nrzsamples );
+		OD::sysMemCopy( dstptr, srcptr, nrzsamples*bytespersamp );
 	    }
 	}
 	else
