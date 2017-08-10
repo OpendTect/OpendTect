@@ -207,6 +207,7 @@ private:
     void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
     bool		getTrcsPosForRead(int& desirednrpos,
 					  TypeSet<TrcKey>&) const;
+    void		submitUdfWriterTasks();
 
     IOObj*			ioobj_;
     bool			is2d_;

@@ -436,7 +436,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 		}
 	    }
 
-	    if ( !outcube->addComponent( 0 ) )
+	    if ( !outcube->addComponentNoInit( 0 ) )
 	    { //TODO: allocate the step-required number of components
 		errmsg_ = "Cannot allocate enough memory.";
 		outcube->release();

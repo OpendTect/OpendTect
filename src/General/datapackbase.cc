@@ -611,7 +611,7 @@ void SeisDataPack::dumpInfo( IOPar& iop ) const
 }
 
 
-bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
+bool SeisDataPack::addArrayNoInit( int sz0, int sz1, int sz2 )
 {
     float dummy; const BinDataDesc floatdesc( dummy );
     Array3DImpl<float>* arr = 0;
@@ -638,8 +638,19 @@ bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
 	}
     }
 
-    arr->setAll( mUdf(float) );
     arrays_ += arr;
+
+    return true;
+}
+
+
+bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
+{
+    if ( !addArrayNoInit(sz0,sz1,sz2) )
+	return false;
+
+    arrays_[arrays_.size()-1]->setAll( mUdf(float) );
+
     return true;
 }
 

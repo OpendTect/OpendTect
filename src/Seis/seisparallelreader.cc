@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisparallelreader.h"
 
-#include "arrayndimpl.h"
+#include "arrayndalgo.h"
 #include "binidvalset.h"
 #include "cbvsreadmgr.h"
 #include "convmemvalseries.h"
@@ -69,7 +69,7 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 			  cnames.get(cidx).buf() : BufferString::empty().buf();
 
 	// LineKey assembles composite "<attribute>|<component>" name
-	if ( !dp.addComponent( LineKey(ioobj.name().str(),cnm) ) )
+	if ( !dp.addComponentNoInit(LineKey(ioobj.name().str(),cnm)) )
 	    return false;
     }
 
@@ -799,7 +799,7 @@ void Seis::SequentialReader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 
     dp_->setDataDesc( floatdesc ); //Will delete incompatible arrays
     for ( int idx=0; idx<compnms.size(); idx++ )
-	dp_->addComponent( compnms.get(idx).str() );
+	dp_->addComponentNoInit( compnms.get(idx).str() );
 }
 
 
@@ -978,6 +978,9 @@ int Seis::SequentialReader::nextStep()
     if ( !initialized_ && !init() )
 	return ErrorOccurred();
 
+    if ( nrdone_ == 0 )
+	submitUdfWriterTasks();
+
     if ( nrdone_ >= totalnr_ )
 	return Finished();
 
@@ -1030,6 +1033,24 @@ bool Seis::SequentialReader::getTrcsPosForRead( int& desirednrpos,
     desirednrpos = tks.size();
 
     return !tks.isEmpty();
+}
+
+
+void Seis::SequentialReader::submitUdfWriterTasks()
+{
+    if ( trcssampling_->totalSize() >= tkzs_.hsamp_.totalNr() )
+	return;
+
+    TaskGroup* udfwriters = new TaskGroup;
+    for ( int idx=0; idx<dp_->nrComponents(); idx++ )
+    {
+	udfwriters->addTask(
+		new Array3DUdfTrcRestorer<float>( *trcssampling_, tkzs_.hsamp_,
+						  dp_->data(idx) ) );
+    }
+
+    Threads::WorkManager::twm().addWork(
+	    Threads::Work(*udfwriters,true),0,queueid_,false,false,true);
 }
 
 

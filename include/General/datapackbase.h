@@ -75,7 +75,7 @@ public:
 				{ return const_cast<FlatDataPack*>(this)
 							->data(); }
     virtual float		getPosDistance(bool dim0,float posfidx) const
-				{ return mUdf(float); }	
+				{ return mUdf(float); }
 
     virtual FlatPosData&	posData()		{ return posdata_; }
     const FlatPosData&		posData() const
@@ -263,6 +263,7 @@ protected:
 				SeisDataPack(const char*,const BinDataDesc*);
 
     bool			addArray(int sz0,int sz1,int sz2);
+    bool			addArrayNoInit(int sz0,int sz1,int sz2);
 
     BufferStringSet			componentnames_;
     ObjectSet<Array3DImpl<float> >	arrays_;
