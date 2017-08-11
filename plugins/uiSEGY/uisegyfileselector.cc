@@ -23,7 +23,7 @@ uiSEGYFileSelector::uiSEGYFileSelector(uiParent* p, const char* fnm,
     uiString captstr;
     captstr = tr("Defined vintage: '%1' " ).arg( vntname );
     setTitleText( captstr );
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     BufferString path = fp.pathOnly();
     BufferString msk("*.", fp.extension() );
     DirList filelist( path, File::FilesInDir, msk );

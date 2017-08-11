@@ -82,7 +82,7 @@ void uiSEGYClassicSurvInfoProvider::showReport(
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {
-	fnm.set( FilePath::getTempName() );
+	fnm.set( File::Path::getTempName() );
 	strm.open( fnm );
     }
     if ( !strm.isOK() )
