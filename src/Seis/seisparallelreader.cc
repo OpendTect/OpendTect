@@ -1154,7 +1154,7 @@ od_int64 Seis::RawTrcsSequence::getOffset( int ipos, int targetcomp ) const
 {
     od_int64 offset = mCast(od_int64,ipos) * info_.nrbytespertrc_
 					   + info_.nrbytestrcheader_;
-    for ( int icomp=0; icomp<targetcomp-1; icomp++ )
+    for ( int icomp=1; icomp<=targetcomp; icomp++ )
 	offset += info_.nrdatabytespespercomptrc_;
 
     return offset;
