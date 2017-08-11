@@ -82,7 +82,7 @@ bool SampledExtremeFinderND<T>::doWork( od_int64 start, od_int64 stop, int )
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
 	  idx++, addToNrDone(1), iter.next() )
     {
-	OD::memCopy( currentextreme, iter.getPos(), ndim*sizeof(int) );
+	OD::sysMemCopy( currentextreme, iter.getPos(), ndim*sizeof(int) );
 	if ( !findExtreme( currentextreme ) )
 	    continue;
 
@@ -151,7 +151,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 
     mAllocVarLenArr( int, curpos, ndim );
     mAllocVarLenArr( int, bestpos, ndim );
-    OD::memCopy( bestpos, extremepos, ndim*sizeof(int) );
+    OD::sysMemCopy( bestpos, extremepos, ndim*sizeof(int) );
 
     bool change = true;
     bool anychange = false;
@@ -183,7 +183,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 	    const T val = array_.getND( curpos );
 	    if ( (minima_ && val<extremeval) || (!minima_ && val>extremeval) )
 	    {
-		OD::memCopy( bestpos, curpos, ndim*sizeof(int) );
+		OD::sysMemCopy( bestpos, curpos, ndim*sizeof(int) );
 		extremeval = val;
 		change = true;
 	    }
@@ -191,7 +191,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 
 	if ( change )
 	{
-	    OD::memCopy( extremepos, bestpos, ndim*sizeof(int) );
+	    OD::sysMemCopy( extremepos, bestpos, ndim*sizeof(int) );
 	    anychange = true;
 	}
     }

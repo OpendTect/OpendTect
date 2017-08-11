@@ -10,6 +10,7 @@
 #include "arrayndinfo.h"
 #include "fourier.h"
 #include "math2.h"
+#include "odmemory.h"
 #include "scaler.h"
 #include "varlenarray.h"
 
@@ -105,7 +106,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
     float_complex* buffer;
     buffer = threadidx ? buffers_[threadidx] : freqreflectivities_.arr();
     if ( threadidx )
-	OD::memZero( buffer, size*sizeof(float_complex) );
+	OD::sysMemZero( buffer, size*sizeof(float_complex) );
 
     TypeSet<float> frequencies;
     Fourier::CC::getFrequencies( outsampling_.step, size, frequencies );

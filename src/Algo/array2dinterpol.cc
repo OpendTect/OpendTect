@@ -247,8 +247,7 @@ else \
 }
 
 
-void Array2DInterpol::getNodesToFill( const bool* def,
-				      bool* shouldinterpol,
+void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 				      TaskRunner* taskrunner ) const
 {
     ArrPtrMan<bool> owndef;
@@ -271,7 +270,10 @@ void Array2DInterpol::getNodesToFill( const bool* def,
     }
 
     const bool defval = filltype_==Polygon ? false : filltype_!=ConvexHull;
-    OD::memValueSet( shouldinterpol, defval, nrcells_ );
+    if ( defval == false )
+	OD::memZero( shouldinterpol, nrcells_ );
+    else
+	OD::memValueSet( shouldinterpol, defval, nrcells_ );
 
     if ( filltype_==ConvexHull )
     {
