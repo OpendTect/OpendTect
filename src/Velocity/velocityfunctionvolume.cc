@@ -98,7 +98,7 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
     if ( mIsEqual(z0,velsampling_.start,1e-5) &&
 	 mIsEqual(velsampling_.step,dz,1e-5) &&
 	 velsz==nr )
-	OD::memCopy( res, vel_.arr(), sizeof(float)*velsz );
+	OD::sysMemCopy( res, vel_.arr(), sizeof(float)*velsz );
     else if ( source.getDesc().type_!=VelocityDesc::RMS ||
 	      !extrapolate_ ||
 	      velsampling_.atIndex(velsz-1)>z0+dz*(nr-1) )
@@ -237,7 +237,8 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
     {
 	const StepInterval<int>& inlrg = packetinfo.inlrg;
 	const StepInterval<int>& crlrg = packetinfo.crlrg;
-	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )                  {
+	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )
+	{
 	    for ( int crl=crlrg.start; crl<=crlrg.stop; crl +=crlrg.step )
 	    {
 		bids.add( BinID(inl,crl) );

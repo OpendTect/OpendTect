@@ -836,7 +836,8 @@ private:
 			      in_.info().getOffset(inlidxin,startcrlidyin) );
 			    outvals->setOffset(
 			      out_.info().getOffset(inlidxout,startcrlidyout) );
-			    OD::memCopy(outvals->arr(),invals->arr(),nrbytes);
+			    OD::sysMemCopy(outvals->arr(),invals->arr(),
+					   nrbytes);
 			    continue;
 			}
 			else
@@ -964,7 +965,7 @@ private:
 				: infoin.getOffset( inlidxin, crlidxin, z0in );
 			if ( hasarrayptr )
 			{
-			    OD::memCopy( outptr, inptr+offsetin, nrbytes );
+			    OD::sysMemCopy( outptr, inptr+offsetin, nrbytes );
 			}
 			else if ( hasstorage )
 			{
@@ -2150,8 +2151,8 @@ private:
 			{
 			    if ( hasarrayptr )
 			    {
-				OD::memValueSet(dataptr, replval, nrtrcsp);
-				dataptr+=nrtrcsp;
+				dataptr =
+				OD::sysMemValueSet( dataptr, replval, nrtrcsp );
 			    }
 			    else if ( hasstorage )
 			    {
@@ -2309,8 +2310,8 @@ private:
 
 			if ( hasarrayptr )
 			{
-			    OD::memValueSet( outpptr, mUdf(T), nrtrcsp );
-			    outpptr+=nrtrcsp;
+			    outpptr =
+				OD::sysMemValueSet( outpptr, mUdf(T), nrtrcsp );
 			}
 			else if ( hasstorage )
 			{

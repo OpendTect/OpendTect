@@ -611,7 +611,7 @@ bool doTrace( int itrc )
 		const unsigned char* srcptr = databuf_.getData( itrc, idcin,
 								trczidx );
 		char* dstptr = dststartptr;
-		OD::memCopy(dstptr,srcptr,bytespersamp*nrzsamples );
+		OD::sysMemCopy(dstptr,srcptr,nrzsamples*bytespersamp );
 	    }
 	}
 	else
@@ -1213,7 +1213,7 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
     unsigned char* out = getData( pos, 0 );
     const od_int64 nrbytes = info_.nrdatabytespespercomptrc_;
     for ( int icomp=0; icomp<info_.nrcomp_; icomp++, out+=nrbytes )
-	OD::memCopy( out, trc.data().getComponent( icomp )->data(), nrbytes );
+	OD::sysMemCopy( out, trc.data().getComponent( icomp )->data(), nrbytes);
 }
 
 

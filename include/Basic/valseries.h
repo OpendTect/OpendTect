@@ -153,10 +153,10 @@ protected:
 
 
 /*!
-\brief Valueseries that allocates its data in smaller chunks. By doing this, 
-it performs better in environments where the memory is fragmented 
+\brief Valueseries that allocates its data in smaller chunks. By doing this,
+it performs better in environments where the memory is fragmented
 (i.e. windows 32 bit).
-Default chunk size for windows 32 bit is 512MB and for all other platforms 
+Default chunk size for windows 32 bit is 512MB and for all other platforms
 default is 32 GB.
 */
 
@@ -226,7 +226,7 @@ bool		doWork( od_int64 start, od_int64 stop, int )
 		    const T* fromarr = from_.arr();
 		    T* toarr = toptr_ ? toptr_ : to_->arr();
 		    if ( toarr && fromarr )
-			OD::memCopy( toarr+start, fromarr+start,
+			OD::sysMemCopy( toarr+start, fromarr+start,
 			        (size_t) (nrleft*from_.bytesPerItem()) );
 		    else if ( toarr )
 		    {
