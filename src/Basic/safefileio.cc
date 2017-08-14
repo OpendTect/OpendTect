@@ -139,9 +139,9 @@ bool SafeFileIO::openWrite( bool ignorelock )
 {
     if ( strm_ )
 	{ pErrMsg("Stream open before openWrite"); closeFail(); }
-    if ( !File::isWritable( filenm_ ) )
+    if ( File::exists(filenm_) && !File::isWritable(filenm_) )
     {
-	errmsg_.set("File %1 is readonly").arg(toUiString(filenm_));
+	errmsg_ = tr( "File %1 is readonly" ).arg( filenm_ );
 	return false;
     }
 
