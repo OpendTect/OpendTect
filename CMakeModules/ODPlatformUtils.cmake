@@ -19,6 +19,7 @@ endif()
 
 set ( SET_SYMBOLS -D__hassymbols__ )
 set ( SET_DEBUG -D__debug__ )
+set ( SHLIB_EXTENSION dll )
 
 set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
 set ( CMAKE_C_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SET_SYMBOLS} ")
@@ -34,6 +35,7 @@ if( UNIX ) #Apple and Linux
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
     if(APPLE)
+	set ( SHLIB_EXTENSION dylib )
 	option( AVOID_CLANG_ERROR "Avoid CLang error" OFF )
 	if ( AVOID_CLANG_ERROR )
 	    set ( CMAKE_CXX_FLAGS
@@ -50,7 +52,6 @@ if( UNIX ) #Apple and Linux
 	set ( CMAKE_FIND_LIBRARY_PREFIXES lib )
 	set ( CMAKE_FIND_LIBRARY_SUFFIXES .dylib )
 
-	set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1 )
 	set ( OD_PLATFORM_LINK_OPTIONS "-arch x86_64" )
         add_definitions("-arch x86_64")
         find_library( APP_SERVICES_LIBRARY ApplicationServices
@@ -66,10 +67,9 @@ if( UNIX ) #Apple and Linux
 	    set ( CMAKE_CXX_FLAGS "-Wdelete-non-virtual-dtor ${CMAKE_CXX_FLAGS}" )
 	endif()
 
-    else() #Linux
+    else() # Not Apple
 
-	#Not on most platforms, but for the few that do, it's better
-	set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1 )
+	set ( SHLIB_EXTENSION so )
 
 	if ( OD_64BIT )
 	    set ( OD_PLFSUBDIR "lux64" )
@@ -157,7 +157,6 @@ if(WIN32)
     set ( OD_CREATE_LAUNCHERS 1 )
     set ( OD_SET_TARGET_PROPERTIES 1 )
 
-    set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
     set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
 
     if ( CTEST_MODEL STREQUAL "Experimental" )
