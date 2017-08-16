@@ -44,6 +44,7 @@ public:
 			~CBVSReader();
 
     const CBVSInfo&	info() const		{ return info_; }
+    int			bytesOverheadPerTrace() const;
     void		close();
     BinID		nextBinID() const;	//! returns 0/0 at end
 
@@ -71,6 +72,8 @@ public:
     int			trcNrAtPosition() const	{ return idxatpos_; }
 
     const TypeSet<Coord>& trailerCoords() const	{ return trailercoords_; }
+
+    static int		defHeaderSize()		{ return 52; }
 
 protected:
 

@@ -40,7 +40,7 @@ public:
     bool		supportsGoTo() const		{ return true; }
     bool		goTo(const BinID&);
     bool		toStart();
-    virtual int		bytesOverheadPerTrace() const	{ return 52; }
+    virtual int		bytesOverheadPerTrace() const;
     virtual bool	forRead() const;
 
     virtual void	usePar(const IOPar&);

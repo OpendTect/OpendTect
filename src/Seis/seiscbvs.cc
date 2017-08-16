@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiscbvs.h"
 
+#include "cbvsreader.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
 #include "filepath.h"
@@ -160,6 +161,13 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 
     conn_->close();
     return true;
+}
+
+
+int CBVSSeisTrcTranslator::bytesOverheadPerTrace() const
+{
+    return rdmgr_ ? rdmgr_->bytesOverheadPerTrace()
+		  : CBVSReader::defHeaderSize();
 }
 
 
