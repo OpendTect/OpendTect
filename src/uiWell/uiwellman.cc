@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+#include "wellmanager.h"
 #include "wellreader.h"
 #include "welltransl.h"
 #include "wellwriter.h"
@@ -408,29 +409,20 @@ void uiWellMan::edWellTrack( CallBacker* )
     if ( !curioobj_ )
 	return;
 
-    RefMan<Well::Data> wd = new Well::Data;
-    PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-
-    if ( !wrdr->getTrack() )
-	return;
-
-    const Well::Track origtrck = wd->track();
-    const Coord origpos = wd->info().surfaceCoord();
-    const float origgl = wd->info().groundElevation();
+    uiRetVal uirv;
+    Well::LoadReqs reqs( Well::Trck, Well::Inf );
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( curioobj_->key(),
+	    						reqs, uirv );
+    if ( !wd )
+	{ uiMSG().error( uirv ); return; }
 
     uiWellTrackDlg dlg( this, *wd );
     if ( !dlg.go() || !iswritable_ )
 	return;
 
-    DBKey curmid( curioobj_->key() );
-    Well::Writer wtr( curmid, *wd );
-    if ( !wtr.putInfoAndTrack( ) )
-    {
-	uiMSG().error( tr("Cannot write new track to disk") );
-	wd->track() = origtrck;
-	wd->info().setSurfaceCoord( origpos );
-	wd->info().setGroundElevation( origgl );
-    }
+    uirv = Well::MGR().store( *wd );
+    if ( !uirv.isOK() )
+	{ uiMSG().error( uirv ); return; }
 
     mkFileInfo();
 }
