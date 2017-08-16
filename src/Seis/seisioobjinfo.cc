@@ -80,7 +80,8 @@ void Seis::ObjectSummary::init()
 		    ioobjinfo_.ioObj()->createTranslator() );
     if ( !sttr )
 	{ pErrMsg("Translator not SeisTrcTranslator!"); bad_ = true; return; }
-
+    Conn* conn = ioobjinfo_.ioObj()->getConn( Conn::Read );
+    sttr->initRead( conn );
     datatype_ = sttr->dataType();
     nrbytestrcheader_ = sttr->bytesOverheadPerTrace();
     nrbytespertrc_ = nrbytestrcheader_ + nrdatabytespertrc_;

@@ -86,6 +86,13 @@ CBVSReadMgr::~CBVSReadMgr()
 }
 
 
+int CBVSReadMgr::bytesOverheadPerTrace() const
+{
+    return readers_.size() ? readers_[curnr_]->bytesOverheadPerTrace()
+			   : CBVSReader::defHeaderSize();
+}
+
+
 void CBVSReadMgr::close()
 {
     for ( int idx=0; idx<readers_.size(); idx++ )

@@ -420,7 +420,8 @@ BinID CBVSReader::nextBinID() const
 void CBVSReader::toOffs( od_int64 sp )
 {
     lastposfo_ = sp;
-    strm_.setReadPosition( lastposfo_, od_stream::Abs );
+    if ( strm_.position() != sp )
+	strm_.setReadPosition( lastposfo_, od_stream::Abs );
 }
 
 
@@ -511,6 +512,12 @@ bool CBVSReader::toNext()
     od_stream::Pos posadd = onetrcoffs;
     toOffs( lastposfo_ + posadd );
     return true;
+}
+
+
+int CBVSReader::bytesOverheadPerTrace() const
+{
+    return auxnrbytes_;
 }
 
 
@@ -612,7 +619,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
     {
 	if ( comps && !comps[icomp] )
 	{
-	    strm_.setReadPosition( cnrbytes_[icomp], od_stream::Rel );
+	    strm_.ignore( cnrbytes_[icomp] );
 	    continue;
 	}
 	iselc++;
@@ -620,14 +627,13 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
 	int bps = compinfo->datachar_.nrBytes();
 	if ( samps->start )
-	    strm_.setReadPosition( samps->start*bps, od_stream::Rel );
+	    strm_.ignore( samps->start*bps );
 	if ( !strm_.getBin(((char*)bufs[iselc]) + offs*bps,
 				   (samps->stop-samps->start+1) * bps ) )
 	    break;
 
 	if ( samps->stop < info_.nrsamples_-1 )
-	    strm_.setReadPosition((info_.nrsamples_-samps->stop-1)*bps,
-		    od_stream::Rel );
+	    strm_.ignore((info_.nrsamples_-samps->stop-1)*bps );
     }
 
     hinfofetched_ = false;

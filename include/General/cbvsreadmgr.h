@@ -38,6 +38,7 @@ public:
 			~CBVSReadMgr();
 
     const CBVSInfo&	info() const		{ return info_; }
+    int			bytesOverheadPerTrace() const;
     void		close();
 
     BinID		nextBinID() const;
@@ -66,7 +67,7 @@ public:
     const CBVSReader&	reader( int idx ) const
 			{ return *readers_[idx]; }
     int			pruneReaders(const TrcKeyZSampling&);
-    			//!< returns number of readers left.
+			//!< returns number of readers left.
 
     void		dumpInfo(od_ostream&,bool include_compinfo) const;
     const TypeSet<Coord>& trailerCoords() const;

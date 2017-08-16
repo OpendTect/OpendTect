@@ -38,7 +38,7 @@ public:
     bool		goTo(const BinID&);
     bool		toStart();
     virtual bool	isSingleComponent() const	{ return false; }
-    virtual int		bytesOverheadPerTrace() const	{ return 52; }
+    virtual int		bytesOverheadPerTrace() const;
     virtual bool	forRead() const;
 
     virtual void	usePar(const IOPar&);
