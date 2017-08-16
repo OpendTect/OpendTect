@@ -373,12 +373,12 @@ void uiWellMan::edMarkers( CallBacker* )
     if ( !curioobj_ )
 	return;
 
-    DBKey curmid( curioobj_->key() );
-    RefMan<Well::Data> wd = new Well::Data;
-    PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-
-    if ( !wrdr->getMarkers() )
-	return;
+    uiRetVal uirv;
+    Well::LoadReqs reqs( Well::Trck, Well::Inf, Well::Mrkrs );
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( curioobj_->key(),
+							reqs, uirv );
+    if ( !wd )
+	{ uiMSG().error( uirv ); return; }
 
     if ( !iswritable_ )
     {
@@ -386,21 +386,14 @@ void uiWellMan::edMarkers( CallBacker* )
 	dlg.go(); return;
     }
 
-    const Well::MarkerSet origmarkers = wd->markers();
-
-    wd->track().setName( curioobj_->name() );
     uiMarkerDlg dlg( this, wd->track() );
     dlg.setMarkerSet( wd->markers() );
     if ( !dlg.go() || !iswritable_ )
 	return;
 
-    dlg.getMarkerSet( wd->markers() );
-    Well::Writer wtr( curmid, *wd );
-    if ( !wtr.putMarkers() )
-    {
-	uiMSG().error( tr("Cannot write new markers to disk") );
-	wd->markers() = origmarkers;
-    }
+    uirv = Well::MGR().store( *wd );
+    if ( !uirv.isOK() )
+	uiMSG().error( uirv );
 }
 
 
@@ -412,7 +405,7 @@ void uiWellMan::edWellTrack( CallBacker* )
     uiRetVal uirv;
     Well::LoadReqs reqs( Well::Trck, Well::Inf );
     RefMan<Well::Data> wd = Well::MGR().fetchForEdit( curioobj_->key(),
-	    						reqs, uirv );
+							reqs, uirv );
     if ( !wd )
 	{ uiMSG().error( uirv ); return; }
 
@@ -422,7 +415,7 @@ void uiWellMan::edWellTrack( CallBacker* )
 
     uirv = Well::MGR().store( *wd );
     if ( !uirv.isOK() )
-	{ uiMSG().error( uirv ); return; }
+	uiMSG().error( uirv );
 
     mkFileInfo();
 }
@@ -442,50 +435,24 @@ void uiWellMan::edChckSh( CallBacker* )
 
 void uiWellMan::defD2T( bool chkshot )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
+    if ( !curioobj_ )
 	return;
 
-    RefMan<Well::Data> wd = new Well::Data;
-    PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-
-    if ( chkshot )
-	wrdr->getCSMdl();
-    else
-	wrdr->getD2T();
-
-    const float oldreplvel = wd->info().replacementVelocity();
-    Well::D2TModel& inpmdl = chkshot ? wd->checkShotModel() : wd->d2TModel();
-    PtrMan<Well::D2TModel> origd2t = new Well::D2TModel( inpmdl );
+    uiRetVal uirv;
+    Well::LoadReqs reqs( Well::Trck, Well::Inf,
+			 chkshot ? Well::CSMdl : Well::D2T );
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( curioobj_->key(),
+							reqs, uirv );
+    if ( !wd )
+	{ uiMSG().error( uirv ); return; }
 
     uiD2TModelDlg dlg( this, *wd, chkshot );
     if ( !dlg.go() || !iswritable_ )
 	return;
 
-    uiString errmsg;
-    DBKey curmid( curioobj_->key() );
-    Well::Writer wtr( curmid, *wd );
-    if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
-    {
-	errmsg = tr("Cannot write new model to disk");
-	if ( chkshot )
-	    wd->checkShotModel() = *origd2t;
-	else
-	{
-	    wd->d2TModel() = *origd2t;
-	    wd->info().setReplacementVelocity( oldreplvel );
-	}
-    }
-    else if ( !mIsEqual(oldreplvel,wd->info().replacementVelocity(),1e-2f) &&
-	      !wtr.putInfoAndTrack() )
-    {
-	if ( !errmsg.isEmpty() )
-	    errmsg.append( tr("Cannot write new %1 to disk")
-			   .arg(Well::Info::sReplVel()),true );
-	wd->info().setReplacementVelocity( oldreplvel );
-    }
-
-    if ( !errmsg.isEmpty() )
-	uiMSG().error( errmsg );
+    uirv = Well::MGR().store( *wd );
+    if ( !uirv.isOK() )
+	uiMSG().error( uirv );
 
     mkFileInfo();
 }
@@ -772,11 +739,15 @@ void uiWellMan::mkFileInfo()
     if ( !curioobj_ )
 	{ setInfo( "" ); return; }
 
-    RefMan<Well::Data> curwd = new Well::Data( curioobj_->name() );
-    const Well::Reader currdr( *curioobj_, *curwd );
+    uiRetVal uirv;
+    const bool survintime = SI().zIsTime();
+    Well::LoadReqs reqs( Well::Trck, Well::Inf );
+    if ( survintime )
+	reqs.add( Well::D2T );
+    ConstRefMan<Well::Data> curwd = Well::MGR().fetch( curioobj_->key(), reqs,
+							uirv );
     BufferString txt;
-
-    if ( currdr.getTrack() && currdr.getInfo() )
+    if ( curwd )
     {
 
     const Well::Info& info = curwd->info();
@@ -836,13 +807,9 @@ void uiWellMan::mkFileInfo()
 	    txt.addNewLine();
 	}
 
-	if ( SI().zIsTime() )
-	{
-	    currdr.getD2T();
-	    if ( !curwd->haveD2TModel() )
-		txt.add("** No valid Depth vs Time relation."
-			"\n\tUse 'Tie Well To Seismics' to add one.\n");
-	}
+	if ( survintime && !curwd->haveD2TModel() )
+	    txt.add("** No valid Depth vs Time relation."
+		    "\n\tUse 'Tie Well To Seismics' to add one.\n");
     }
 
     mAddWellInfo(Well::Info::sUwid(),info.UWI())
@@ -850,11 +817,10 @@ void uiWellMan::mkFileInfo()
     mAddWellInfo(Well::Info::sState(),info.getState())
     mAddWellInfo(Well::Info::sCounty(),info.getCounty())
 
+    } // if ( curwd )
+
     if ( txt.isEmpty() )
 	txt.set( "<No specific info available>\n" );
-
-    } // if ( currdr.getInfo() )
-
     txt.add( getFileInfo() );
     setInfo( txt );
 }
