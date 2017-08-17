@@ -81,7 +81,7 @@ void Seis::ObjectSummary::init()
     if ( !sttr )
 	{ pErrMsg("Translator not SeisTrcTranslator!"); bad_ = true; return; }
     Conn* conn = ioobjinfo_.ioObj()->getConn( Conn::Read );
-    sttr->initRead( conn );
+    sttr->initRead( conn, Seis::PreScan );
     datatype_ = sttr->dataType();
     nrbytestrcheader_ = sttr->bytesOverheadPerTrace();
     nrbytespertrc_ = nrbytestrcheader_ + nrdatabytespertrc_;
@@ -419,11 +419,11 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 	{ pErrMsg("Translator not SeisTrcTranslator!"); return false; }
 
     Conn* conn = ioobj_->getConn( Conn::Read );
-    if ( !sttr->initRead(conn,Seis::Scan) )
+    if ( !sttr->initRead(conn,Seis::PreScan) )
 	return false;
 
-    ObjectSet<SeisTrcTranslator::TargetComponentData>& comps
-		= sttr->componentInfo();
+    const ObjectSet<SeisTrcTranslator::ComponentData>& comps
+					    = sttr->inputComponentData();
     if ( comps.isEmpty() )
 	return false;
 

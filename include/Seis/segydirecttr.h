@@ -209,4 +209,8 @@ protected:
     bool		toNextTrace();
     bool		positionTranslator();
 
+private:
+
+    void		setCompDataFromInput();
+
 };

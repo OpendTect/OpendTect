@@ -539,7 +539,8 @@ void Seis::Provider::doGetGather( const TrcKey& tkey, SeisTrcBuf& tbuf,
 void Seis::Provider::doGetSequence( Seis::RawTrcsSequence& rawseq,
 				    uiRetVal& uirv ) const
 {
-    SeisTrc trc; SeisTrcBuf tbuf( true );
+    SeisTrc trc( 0, rawseq.getDataChar() );
+    SeisTrcBuf tbuf( true );
     const int nrpos = rawseq.nrPositions();
     const bool isps = rawseq.isPS();
     for ( int ipos=0; ipos<nrpos; ipos++ )
@@ -620,6 +621,11 @@ bool Seis::RawTrcsSequence::isOK() const
 {
     return data_ && info_.isOK() && tks_ && tks_->size() == nrpos_;
 }
+
+
+const DataCharacteristics Seis::RawTrcsSequence::getDataChar() const
+{ return info_.getDataChar(); }
+
 
 
 const ValueSeriesInterpolator<float>&
