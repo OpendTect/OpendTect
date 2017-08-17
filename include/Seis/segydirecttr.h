@@ -207,6 +207,10 @@ protected:
     bool		toNextTrace();
     bool		positionTranslator();
 
+private:
+
+    void		transferCompData();
+
 };
 
 

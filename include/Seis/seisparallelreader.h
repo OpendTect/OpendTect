@@ -249,6 +249,8 @@ public:
 
     bool		isOK() const;
     bool		isPS() const;
+    const DataCharacteristics	getDataChar() const;
+
     const StepInterval<float>&	getZRange() const;
     int			nrPositions() const;
     float		get(int idx,int pos,int comp) const;

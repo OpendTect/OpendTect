@@ -955,7 +955,7 @@ namespace Seis
 
 static bool fillTrcsBuffer( SeisTrcReader& rdr, RawTrcsSequence& databuf )
 {
-    SeisTrc trc;
+    SeisTrc trc( 0, databuf.getDataChar() );
     const int nrpos = databuf.nrPositions();
     for ( int ipos=0; ipos<nrpos; ipos++ )
     {
@@ -1105,6 +1105,10 @@ const ValueSeriesInterpolator<float>&
 
 bool Seis::RawTrcsSequence::isPS() const
 { return info_.isPS(); }
+
+
+const DataCharacteristics Seis::RawTrcsSequence::getDataChar() const
+{ return info_.getDataChar(); }
 
 
 const StepInterval<float>& Seis::RawTrcsSequence::getZRange() const
