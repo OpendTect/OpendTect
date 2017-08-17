@@ -1148,7 +1148,7 @@ int dgbSurfaceReader::skipRow( od_istream& strm )
 
 	    offset += int32interpreter_->nrBytes(); //firstcol
 
-	    strm.setReadPosition( offset, od_stream::Rel );
+	    strm.ignore( offset );
 	    if ( !strm.isOK() )
 	    {
 		msg_ = strm.errMsg();
@@ -1240,8 +1240,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    if ( colindex )
 	    {
 		fullyread_ = false;
-		strm.setReadPosition( colindex*int16interpreter_->nrBytes(),
-				  od_stream::Rel );
+		strm.ignore( colindex*int16interpreter_->nrBytes() );
 	    }
 	}
     }

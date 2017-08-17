@@ -238,6 +238,8 @@ void od_istream::setReadPosition( od_stream::Pos pos, od_stream::Ref ref )
     {
 	if ( ref == Abs )
 	    StrmOper::seek( *sd_.iStrm(), pos );
+	else if ( ref == Rel && pos >= 0 )
+	    sd_.iStrm()->ignore( pos );
 	else
 	    StrmOper::seek( *sd_.iStrm(), pos, getSeekdir(ref) );
     }

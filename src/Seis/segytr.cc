@@ -637,8 +637,7 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 	mPosErrRet(str);
     }
 
-    sConn().iStream().setReadPosition( innrsamples_*mBPS(inpcd_),
-				       od_stream::Rel );
+    sConn().iStream().ignore( innrsamples_*mBPS(inpcd_) );
     if ( !readTraceHeadBuffer() )
 	return false;
     if ( !tryInterpretBuf(ti) )
@@ -766,8 +765,8 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
 
     od_istream& strm = sConn().iStream();
     if ( !headerdone_ )
-	strm.setReadPosition( mSEGYTraceHeaderBytes, od_stream::Rel );
-    strm.setReadPosition( innrsamples_ * mBPS(inpcd_), od_stream::Rel );
+	strm.ignore( mSEGYTraceHeaderBytes );
+    strm.ignore( innrsamples_ * mBPS(inpcd_) );
     if ( ntrcs > 1 )
 	strm.setReadPosition( (ntrcs-1)
 		* (mSEGYTraceHeaderBytes + innrsamples_ * mBPS(inpcd_)) );
@@ -808,7 +807,7 @@ bool SEGYSeisTrcTranslator::readDataToBuf()
 {
     od_istream& strm = sConn().iStream();
     if ( samprg_.start > 0 )
-	strm.setReadPosition( samprg_.start * mBPS(inpcd_), od_stream::Rel );
+	strm.ignore( samprg_.start * mBPS(inpcd_) );
 
     int rdsz = (samprg_.width()+1) *  mBPS(inpcd_);
     if ( !sConn().iStream().getBin(blockbuf_,rdsz) )
@@ -820,8 +819,7 @@ bool SEGYSeisTrcTranslator::readDataToBuf()
     }
 
     if ( samprg_.stop < innrsamples_-1 )
-	strm.setReadPosition( (innrsamples_-samprg_.stop-1) * mBPS(inpcd_),
-				od_stream::Rel );
+	strm.ignore( (innrsamples_-samprg_.stop-1) * mBPS(inpcd_) );
 
     return !strm.isBad();
 }

@@ -745,7 +745,7 @@ bool ZipHandler::setCentralDirHeader()
 	mInsertToCharBuff( headerbuff, xtrafldlength, mLExtraFldLengthCentral,
 			   mSizeTwoBytes );
 	mInsertToCharBuff( headerbuff, extattr, mLExtFileAttr, mSizeFourBytes );
-	deststrm.setReadPosition( compfilesize_, od_stream::Rel );
+	deststrm.ignore( compfilesize_ );
 	ostrm_->addBin( headerbuff,
                         mCentralHeaderSize + srcfnmsize_ + xtrafldlength );
 	if ( !ostrm_->isOK() )
