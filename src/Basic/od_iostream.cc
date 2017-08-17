@@ -245,6 +245,8 @@ void od_stream::setPosition( od_stream::Pos pos, od_stream::Ref ref )
     {
 	if ( ref == Abs )
 	    StrmOper::seek( *sd_.istrm, pos );
+	else if ( ref == Rel && pos >= 0 )
+	    sd_.istrm->ignore( pos );
 	else
 	    StrmOper::seek( *sd_.istrm, pos, getSeekdir(ref) );
     }
