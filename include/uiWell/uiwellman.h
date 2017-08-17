@@ -12,15 +12,16 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uiobjfileman.h"
+#include "wellcommon.h"
 #include "bufstringset.h"
 #include "dbkey.h"
 
+namespace Well { class Data; }
 class uiListBox;
 class uiButton;
 class uiGroup;
 class uiToolButton;
 class uiPushButton;
-namespace Well { class Data; class Reader; }
 
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
@@ -31,9 +32,11 @@ public:
 
     mDeclInstanceCreatedNotifierAccess(uiWellMan);
 
-    const DBKeySet&	getSelWells() const	{ return curdbkeys_; }
+    const DBKeySet&		getSelWells() const	{ return selwellids_; }
+    const BufferStringSet&	getAvailableLogs() const
+							{ return avlognms_; }
     void			getSelLogs(BufferStringSet&) const;
-    const BufferStringSet&	getAvailableLogs() const;
+
     static void			setButToolTip(uiButton* but,
 				const uiString& oper,const uiString& objtyp,
 				const uiString& obj,
@@ -44,12 +47,9 @@ protected:
     uiListBox*			logsfld_;
     uiGroup*			logsgrp_;
 
-    bool			iswritable_;
-    ObjectSet<Well::Data>	curwds_;
-    ObjectSet<Well::Reader>	currdrs_;
-    DBKeySet			curdbkeys_;
-    BufferStringSet		curfnms_;
-    BufferStringSet		availablelognms_;
+    bool			curiswritable_;
+    DBKeySet			selwellids_;
+    BufferStringSet		avlognms_;
 
     uiToolButton*		logvwbut_;
     uiToolButton*		logrenamebut_;
@@ -69,19 +69,23 @@ protected:
     void			setWellToolButtonProperties();
     void			setLogToolButtonProperties();
     void			ownSelChg();
-    void			getCurrentWells();
     void			mkFileInfo();
-    void			writeLogs();
     void			fillLogsFld();
-    void			wellsChgd();
+    RefMan<Well::Data>		getWellData(DBKey,bool emiterr,
+					    Well::SubObjType t1=Well::Inf,
+					    Well::SubObjType t2=Well::Inf);
+    void			saveWell(const Well::Data&,bool showwait=true);
+    void			defD2T(bool);
+
     void			bulkD2TCB(CallBacker*);
     void			viewLogPush(CallBacker*);
     void			renameLogPush(CallBacker*);
     void			removeLogPush(CallBacker*);
     void			editLogPush(CallBacker*);
-    void			moveLogsPush(CallBacker*);
+    void			moveLogPush(CallBacker*);
     void			logSel(CallBacker*);
     void			logUOMPush(CallBacker*);
+    void			itmChosenCB(CallBacker*)    { ownSelChg(); }
 
     void			edMarkers(CallBacker*);
     void			edWellTrack(CallBacker*);
@@ -91,7 +95,5 @@ protected:
     void			calcLogs(CallBacker*);
     void			exportLogs(CallBacker*);
     void			logTools(CallBacker*);
-
-    void			defD2T(bool);
 
 };

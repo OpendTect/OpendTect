@@ -12,23 +12,58 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "gendefs.h"
-#include "uistring.h"
+#include "uistrings.h"
 #include "uiparent.h"
 #include "typeset.h"
 class uiMainWin;
 class uiStatusBar;
-mFDQtclass(QWidget)
 class BufferStringSet;
 class FileMultiString;
-class uiString;
+class MouseCursorChanger;
+mFDQtclass(QWidget)
+
+
+/*!\brief tells user something is happening.
+
+  Sets mouse cursor and puts something in status bar (if available). Will
+  automatically clean up on destruction.
+
+  Useful when something may take some time but there is no progress or when you
+  can't put it in an Executor.
+
+*/
+
+mExpClass(uiBase) uiUserShowWait
+{
+public:
+
+			uiUserShowWait(uiParent*,
+				const uiString& msg=uiStrings::sSavingChanges(),
+				int sbfld=0);
+			~uiUserShowWait()		{ readyNow(); }
+
+    void		setMessage(const uiString&);
+    void		readyNow();
+
+protected:
+
+    uiStatusBar*	sb_;
+    MouseCursorChanger*	mcc_;
+    const int		fldidx_;
+
+};
+
+
+
+class uiMsg;
+mGlobal(uiBase) uiMsg& uiMSG();
+
+/*!\brief pops up messages that must be clicked away by user.
+  Usually, you use the global uiMSG() instance. */
 
 
 mExpClass(uiBase) uiMsg	: public CallBacker
 { mODTextTranslationClass(uiMsg)
-
-friend class uiMain;
-mGlobal(uiBase) friend uiMsg& uiMSG();
-
 public:
 
     // Messages
@@ -111,10 +146,6 @@ public:
 
     uiMainWin*	setMainWin(uiMainWin*);	//!< return old
 
-    bool	toStatusbar(uiString,int fld=0,int msec=-1);
-		//!< returns false if there is none
-    uiStatusBar* statusBar();
-
     void	about(const uiString&);
     void	aboutOpendTect(const uiString&);
 
@@ -135,6 +166,7 @@ public:
     void		dispErrMsgCB(CallBacker*);
     void		dispWarnMsgCB(CallBacker*);
     void		errorWithDetailProc(uiStringSet&);
+
 protected:
 
 			uiMsg();
@@ -152,9 +184,12 @@ private:
 				const char* buttxt1=0,const char* buttxt2=0);
 
     uiMainWin*		uimainwin_;
-};
 
-mGlobal(uiBase) uiMsg& uiMSG();
+
+    mGlobal(uiBase) friend uiMsg&	uiMSG();
+    friend class			uiMain;
+
+};
 
 
 //!Sets the uiMSG's main window temporary during the scope of the object

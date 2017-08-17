@@ -49,6 +49,42 @@ uiMsg& uiMSG()
 }
 
 
+uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
+    : mcc_(new MouseCursorChanger(MouseCursor::Wait))
+    , fldidx_(fldidx)
+{
+    uiMainWin* mw = 0;
+    if ( p )
+	mw = p->mainwin();
+    if ( !mw || !mw->statusBar() )
+	mw = uiMainWin::activeWindow();
+    if ( !mw || !mw->statusBar() )
+	mw = uiMain::theMain().topLevel();
+    sb_ = mw ? mw->statusBar() : 0;
+
+    setMessage( msg );
+}
+
+
+void uiUserShowWait::setMessage( const uiString& msg )
+{
+    if ( sb_ )
+	sb_->message( msg, fldidx_ );
+}
+
+
+void uiUserShowWait::readyNow()
+{
+    if ( mcc_ )
+    {
+	setMessage( uiString::emptyString() );
+	mcc_->restore();
+	delete mcc_; mcc_ = 0;
+    }
+}
+
+
+
 uiMsg::uiMsg()
 	: uimainwin_(0)
 	, lock_(true)
@@ -65,21 +101,6 @@ uiMainWin* uiMsg::setMainWin( uiMainWin* m )
 }
 
 
-uiStatusBar* uiMsg::statusBar()
-{
-    uiMainWin* mw = uimainwin_;/* ? uimainwin_
-			       : uiMainWin::gtUiWinIfIsBdy( parent_ );*/
-
-    if ( !mw || !mw->statusBar() )
-	mw = uiMainWin::activeWindow();
-
-    if ( !mw || !mw->statusBar() )
-	mw = uiMain::theMain().topLevel();
-
-    return mw ? mw->statusBar() : 0;
-}
-
-
 QWidget* uiMsg::popParnt()
 {
     uiMainWin* mw = uimainwin_; //Always respect user's setting first.
@@ -88,16 +109,6 @@ QWidget* uiMsg::popParnt()
 
     if ( !mw  )		return 0;
     return mw->body()->qwidget();
-}
-
-
-bool uiMsg::toStatusbar( uiString msg, int fldidx, int msec )
-{
-    if ( !statusBar() )
-	return false;
-
-    statusBar()->message( msg, fldidx, msec );
-    return true;
 }
 
 
