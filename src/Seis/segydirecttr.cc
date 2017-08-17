@@ -296,11 +296,11 @@ bool SEGYDirectSeisTrcTranslator::close()
 
 void SEGYDirectSeisTrcTranslator::cleanUp()
 {
-    close();
+    SeisTrcTranslator::cleanUp();
 
-    delete def_; def_ = 0;
-    delete tr_; tr_ = 0;
-    delete fds_; fds_ = 0;
+    deleteAndZeroPtr( def_ );
+    deleteAndZeroPtr( tr_ );
+    deleteAndZeroPtr( fds_ );
     initVars( forread_ );
 }
 
@@ -311,6 +311,21 @@ void SEGYDirectSeisTrcTranslator::initVars( bool fr )
     ild_ = -1; iseg_ = itrc_ = 0;
     curfilenr_ = -1;
     headerread_ = false;
+}
+
+
+void SEGYDirectSeisTrcTranslator::setCompDataFromInput()
+{
+    if ( !tr_ )
+	return;
+
+    deepErase( cds_ );
+    deepErase( tarcds_ );
+    for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
+    {
+	cds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
+	tarcds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
+    }
 }
 
 
@@ -337,7 +352,13 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
     pinfo_.cubedata->getInlRange( pinfo_.inlrg );
     pinfo_.cubedata->getCrlRange( pinfo_.crlrg );
-    addComp( DataCharacteristics(), "Data" );
+
+    if ( !toNextTrace() || !positionTranslator() )
+	return false;
+
+    setCompDataFromInput();
+    initVars( true );
+
     return true;
 }
 
@@ -366,11 +387,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     if ( !tr_->initWrite( segyconn, trc ) )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
-    for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
-    {
-	cds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
-	tarcds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
-    }
+    setCompDataFromInput();
 
     return true;
 }
@@ -435,6 +452,7 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
 	curfilenr_ = fdsidx.filenr_;
 	delete tr_;
 	tr_ = SEGYDirectSeisTrcTranslator::createTranslator( *def_, curfilenr_);
+	setCompDataFromInput();
     }
 
     return tr_ && tr_->goToTrace( mCast(int,fdsidx.trcidx_) );
