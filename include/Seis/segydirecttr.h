@@ -209,7 +209,7 @@ protected:
 
 private:
 
-    void		transferCompData();
+    void		setCompDataFromInput();
 
 };
 

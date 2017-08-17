@@ -296,11 +296,9 @@ bool SEGYDirectSeisTrcTranslator::close()
 
 void SEGYDirectSeisTrcTranslator::cleanUp()
 {
-    close();
+    SeisTrcTranslator::cleanUp();
 
     deleteAndZeroPtr( def_ );
-    deepErase( cds_ );
-    deepErase( tarcds_ );
     deleteAndZeroPtr( tr_ );
     deleteAndZeroPtr( fds_ );
     initVars( forread_ );
@@ -316,7 +314,7 @@ void SEGYDirectSeisTrcTranslator::initVars( bool fr )
 }
 
 
-void SEGYDirectSeisTrcTranslator::transferCompData()
+void SEGYDirectSeisTrcTranslator::setCompDataFromInput()
 {
     if ( !tr_ )
 	return;
@@ -358,7 +356,7 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     if ( !toNextTrace() || !positionTranslator() )
 	return false;
 
-    transferCompData();
+    setCompDataFromInput();
     initVars( true );
 
     return true;
@@ -389,7 +387,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     if ( !tr_->initWrite( segyconn, trc ) )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
-    transferCompData();
+    setCompDataFromInput();
 
     return true;
 }
@@ -457,7 +455,7 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
 	curfilenr_ = fdsidx.filenr_;
 	delete tr_;
 	tr_ = SEGYDirectSeisTrcTranslator::createTranslator( *def_, curfilenr_);
-	transferCompData();
+	setCompDataFromInput();
     }
 
     return tr_ && tr_->goToTrace( mCast(int,fdsidx.trcidx_) );
