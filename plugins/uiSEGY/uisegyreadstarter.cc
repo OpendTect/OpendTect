@@ -876,7 +876,7 @@ void uiSEGYReadStarter::writeParsCB( CallBacker* )
     IOPar iop; fillPar( iop );
     uiSEGYStoreImpParsDlg dlg( this, iop, lastparname_ );
     if ( vintagecheckmode_ )
-	dlg.setCaption( "Store Vintage" );
+	dlg.setCaption( tr("Please specify name for this vintage") );
 
     if ( dlg.go() )
 	lastparname_ = dlg.parName();
