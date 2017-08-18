@@ -798,7 +798,9 @@ bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
     if ( samprg_.stop < innrsamples_-1 )
 	strm.ignore( (innrsamples_-samprg_.stop-1) * mBPS(inpcd_) );
 
-    return !strm.isBad() && (datareaddone_ = true);
+    if ( !strm.isBad() )
+	datareaddone_ = true;
+    return datareaddone_;
 }
 
 
