@@ -17,14 +17,15 @@ Translators for seismic traces.
 #include "ioobjctxt.h"
 #include "samplingdata.h"
 #include "basiccompinfo.h"
+#include "tracedata.h"
 
-class SeisTrc;
+class BufferStringSet;
 class LinScaler;
+class SeisPacketInfo;
+class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class TrcKeyZSampling;
-class SeisPacketInfo;
-class BufferStringSet;
 namespace PosInfo	{ class CubeData; }
 namespace Seis		{ class SelData; }
 
@@ -171,7 +172,7 @@ public:
 			     For write, this will put tape header (if any) */
 
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
-    virtual bool	read(SeisTrc&)			{ return false; }
+    bool		read(SeisTrc&);
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	supportsGoTo() const		{ return false; }
     virtual bool	goTo(const BinID&)		{ return false; }
@@ -269,6 +270,11 @@ protected:
     Interval<int>			samprg_;
     Pos::GeomID				geomid_;
     Seis::DataType			datatype_;
+    bool				headerdone_;
+    bool				datareaddone_;
+    TraceData*				storbuf_;
+    LinScaler*				trcscale_;
+    const LinScaler*			curtrcscale_;
 
     virtual bool	forRead() const;
     void		addComp(const DataCharacteristics&,const char* nm=0);
@@ -278,6 +284,7 @@ protected:
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
     virtual bool	wantBuffering() const		{ return true; }
+    virtual bool	readData(TraceData* extbuf=0)	{ return false; }
 
 			// These are called from the default write()
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
@@ -314,6 +321,7 @@ private:
     bool		initConn(Conn*);
     void		enforceBounds();
     bool		writeBlock();
+    bool		copyDataToTrace(SeisTrc&);
 
 public:
 

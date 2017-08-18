@@ -338,7 +338,7 @@ void SEGYDirectSeisTrcTranslator::initVars( bool fr )
     forread_ = fr;
     ild_ = -1; iseg_ = itrc_ = 0;
     curfilenr_ = -1;
-    headerread_ = false;
+    headerdone_ = false;
 }
 
 
@@ -504,22 +504,18 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !tr_->readInfo(ti) || ti.binID() != curBinID() )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
-    headerread_ = true;
-    return true;
+    return (headerdone_ = true);
 }
 
 
-bool SEGYDirectSeisTrcTranslator::read( SeisTrc& trc )
+bool SEGYDirectSeisTrcTranslator::readData( TraceData* extbuf )
 {
-    if ( !headerread_ && !readInfo(trc.info()) )
+    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    if ( !tr_->readData(&tdata) )
 	return false;
 
-    if ( !tr_->read(trc) )
-	return false;
-
-    headerread_ = false;
     toNextTrace();
-    return true;
+    return (datareaddone_ = true);
 }
 
 

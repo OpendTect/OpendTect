@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "cbvsinfo.h"
 
 class CBVSWriter;
+class TraceData;
 
 /*!\brief Vertical bricking specification */
 
@@ -49,12 +50,12 @@ public:
 			//!< After this amount of bytes, a new file will
 			//!< be created for the next inline.
 			//!< The default is 1.8 GB, 0 = unlimited
-    			//!< Only active without vertical bricking
+			//!< Only active without vertical bricking
     void		setBytesPerFile(unsigned long);
-    			//!< Only works without vertical bricking
+			//!< Only works without vertical bricking
     void		setForceTrailers(bool yn=true);
 
-    bool		put(void**);
+    bool		put(const TraceData&);
 			//!< See CBVSWriter::put, only now succeeds or fails
     void		close();
 			//!< See CBVSWriter::close

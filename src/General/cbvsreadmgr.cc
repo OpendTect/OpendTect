@@ -12,6 +12,7 @@
 #include "strmprov.h"
 #include "survinfo.h"
 #include "datachar.h"
+#include "tracedata.h"
 #include "trckeyzsampling.h"
 #include "strmprov.h"
 #include "od_iostream.h"
@@ -457,11 +458,11 @@ bool CBVSReadMgr::getAuxInfo( PosAuxInfo& pad )
 }
 
 
-bool CBVSReadMgr::fetch( void** d, const bool* c,
+bool CBVSReadMgr::fetch( TraceData& bufs, const bool* c,
 			 const Interval<int>* ss )
 {
     if ( !vertical_ )
-	return readers_[curnr_]->fetch( d, c, ss );
+	return readers_[curnr_]->fetch( bufs, c, ss );
 
     // Need to glue the parts into the buffer.
     // The code looks simple, but that's how it got after many cycles
@@ -476,7 +477,7 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
 	Interval<int> rdrsamps = selsamps;
 	if ( selsamps.stop >= rdr0nrsamps ) rdrsamps.stop = rdr0nrsamps-1;
 
-	if ( !readers_[0]->fetch(d,c,&rdrsamps,0) )
+	if ( !readers_[0]->fetch(bufs,c,&rdrsamps,0) )
 	    return false;
     }
 
@@ -493,7 +494,7 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
 	    const int sampoffs = selsamps.start - cursamps.start;
 	    Interval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
 				   cursamps.stop - cursamps.start );
-	    if ( !readers_[idx]->fetch( d, c, &rdrsamps,
+	    if ( !readers_[idx]->fetch( bufs, c, &rdrsamps,
 					sampoffs > 0 ? 0 : -sampoffs ) )
 		return false;
 	}

@@ -7,8 +7,8 @@
 
 
 #include "cbvswriter.h"
+#include "tracedata.h"
 #include "trckeyzsampling.h"
-#include "datainterp.h"
 #include "genc.h"
 #include "survinfo.h"
 
@@ -289,7 +289,7 @@ void CBVSWriter::getBinID()
 }
 
 
-int CBVSWriter::put( void** cdat, int offs )
+int CBVSWriter::put( const TraceData& cdat, int offs )
 {
 #ifdef __debug__
     // gdb says: "Couldn't find method ostream::tellp"
@@ -323,7 +323,7 @@ int CBVSWriter::put( void** cdat, int offs )
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
-	const char* ptr = ((const char*)cdat[icomp])
+	const char* ptr = ((const char*)cdat.getComponent(icomp)->data())
 			+ offs * nrbytespersample_[icomp];
 
 	if ( !strm_.addBin(ptr,cnrbytes_[icomp]) )

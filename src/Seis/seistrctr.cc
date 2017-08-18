@@ -81,7 +81,12 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , enforce_survinfo_write( GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE") )
     , geomid_(mUdfGeomID)
     , datatype_(Seis::UnknownData)
+    , headerdone_(false)
+    , datareaddone_(false)
+    , storbuf_(0)
     , compnms_(0)
+    , trcscale_(0)
+    , curtrcscale_(0)
     , warnings_(*new BufferStringSet)
 {
     if ( !DBM().isBad() )
@@ -123,11 +128,16 @@ void SeisTrcTranslator::cleanUp()
 {
     close();
 
+    headerdone_ = false;
+    datareaddone_ = false;
+    deleteAndZeroPtr( storbuf_ );
     deepErase( cds_ );
     deepErase( tarcds_ );
-    delete [] inpfor_; inpfor_ = 0;
-    delete [] inpcds_; inpcds_ = 0;
-    delete [] outcds_; outcds_ = 0;
+    deleteAndZeroArrPtr( inpfor_ );
+    deleteAndZeroArrPtr( inpcds_ );
+    deleteAndZeroArrPtr( outcds_ );
+    deleteAndZeroPtr( trcscale_ );
+    deleteAndZeroPtr( curtrcscale_ );
     nrout_ = 0;
     errmsg_.setEmpty();
 }
@@ -224,8 +234,8 @@ bool SeisTrcTranslator::commitSelections()
 	    inpfor_[idx] = selnrs[idx];
     }
 
-    inpcds_ = new ComponentData* [nrout_];
-    outcds_ = new TargetComponentData* [nrout_];
+    delete [] inpcds_; inpcds_ = new ComponentData* [nrout_];
+    delete [] outcds_; outcds_ = new TargetComponentData* [nrout_];
     for ( int idx=0; idx<nrout_; idx++ )
     {
 	inpcds_[idx] = cds_[ selComp(idx) ];
@@ -238,6 +248,23 @@ bool SeisTrcTranslator::commitSelections()
     float fsampnr = (outsd_.start - insd_.start) / insd_.step;
     samprg_.start = mNINT32( fsampnr );
     samprg_.stop = samprg_.start + outnrsamples_ - 1;
+
+    const bool forread = forRead();
+    const int nrcomps = nrSelComps();
+    const ComponentData** cds = forread ? (const ComponentData**)inpcds_
+					: (const ComponentData**)outcds_;
+    const int ns = forread ? innrsamples_ : outnrsamples_;
+    delete storbuf_;
+    storbuf_ = new TraceData;
+    for ( int iselc=0; iselc<nrcomps; iselc++ )
+	storbuf_->addComponent( ns+1, cds[iselc]->datachar_ , true );
+
+    if ( !storbuf_->allOk() )
+    {
+	errmsg_ = tr("Out of memory");
+	deleteAndZeroPtr( storbuf_ );
+	return false;
+    }
 
     return commitSelections_();
 }
@@ -501,6 +528,57 @@ void SeisTrcTranslator::getComponentNames( BufferStringSet& bss ) const
 
     for ( int idx=0; idx<cds_.size(); idx++ )
 	bss.add( cds_[idx]->name() );
+}
+
+
+bool SeisTrcTranslator::read( SeisTrc& trc )
+{
+    if ( !headerdone_ && !readInfo(trc.info()) )
+	return false;
+
+    if ( (!datareaddone_ && !readData()) || !copyDataToTrace(trc) )
+	return false;
+
+    headerdone_ = false;
+    datareaddone_ = false;
+
+    return true;
+}
+
+
+bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
+{
+    if ( !datareaddone_ )
+	return false;
+
+    prepareComponents( trc, outnrsamples_ );
+    if ( curtrcscale_ )
+	trc.convertToFPs();
+
+    const bool matchingdc = *trc.data().getInterpreter(0) ==
+			    *storbuf_->getInterpreter(0);
+    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
+    {
+	if ( matchingdc && outnrsamples_ > 1 && !curtrcscale_ )
+	{
+	    OD::memCopy( trc.data().getComponent(iselc)->data(),
+		    storbuf_->getComponent(iselc)->data(),
+		    outnrsamples_ * storbuf_->bytesPerSample( iselc ) );
+	}
+	else
+	{
+	    for ( int isamp=0; isamp<outnrsamples_; isamp++ )
+	    {
+		//Parallel !!
+		float inpval = storbuf_->getValue( isamp, iselc );
+		if ( curtrcscale_ )
+		    inpval = (float)curtrcscale_->scale(inpval);
+		trc.set( isamp, inpval, iselc );
+	    }
+	}
+    }
+
+    return true;
 }
 
 

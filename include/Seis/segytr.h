@@ -18,7 +18,6 @@ Translators for SEGY files traces.
 #include "strmdata.h"
 #include "uistring.h"
 
-class LinScaler;
 class BendPoints2Coords;
 namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 
@@ -34,7 +33,7 @@ public:
     virtual const char*	defExtension() const	{ return "sgy"; }
 
     virtual bool	readInfo(SeisTrcInfo&);
-    virtual bool	read(SeisTrc&);
+
     virtual bool	skip(int);
     bool		goToTrace(int);
     int			traceSizeOnDisk() const;
@@ -59,7 +58,6 @@ public:
     bool		rev0Forced() const	{ return forcedrev_ == 0; }
     SEGY::FilePars&	filePars()		{ return filepars_; }
     SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
-    const unsigned char* blockBuf() const	{ return blockbuf_; }
     void		setSelComp( int icomp )	{ selcomp_ = icomp; }
 
     virtual bool	implManagesObjects( const IOObj* ) const
@@ -79,12 +77,9 @@ protected:
     int			forcedrev_;
 
     bool		useinpsd_;
-    TraceDataInterpreter* storinterp_;
     unsigned char	headerbuf_[mSEGYTraceHeaderBytes];
-    bool		headerdone_;
 
     // Following variables are inited by commitSelections
-    unsigned char*	blockbuf_;
     ComponentData*	inpcd_;
     TargetComponentData* outcd_;
 
@@ -96,8 +91,6 @@ protected:
     virtual bool	writeTrc_(const SeisTrc&);
 
     bool		readTraceHeadBuffer();
-    bool		readDataToBuf();
-    bool		readData(SeisTrc&);
     bool		writeData(const SeisTrc&);
     virtual bool	readTapeHeader();
     virtual void	updateCDFromBuf();
@@ -123,5 +116,11 @@ protected:
     BendPoints2Coords*	bp2c_;
     int			estnrtrcs_;
     bool		othdomain_;
+
+private:
+
+    friend class SEGYDirectSeisTrcTranslator;
+
+    virtual bool	readData(TraceData* externalbuf);
 
 };

@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "od_ostream.h"
 
-template <class T> class DataInterpreter;
+class TraceData;
 
 
 /*!\brief Writer for CBVS format
@@ -46,19 +46,18 @@ public:
 			//!< For usage in CBVS pack
 			~CBVSWriter();
 
-    unsigned long	byteThreshold() const	{ return thrbytes_; }		
+    unsigned long	byteThreshold() const	{ return thrbytes_; }
 			//!< The default is unlimited
     void		setByteThreshold( unsigned long n )
-			    { thrbytes_ = n; }		
+			    { thrbytes_ = n; }
     void		forceLineStep( const BinID& stp )
 			    { forcedlinestep_ = stp; }
     void		forceNrTrcsPerPos( int nr )
 			    { nrtrcsperposn_ = nr; nrtrcsperposn_status_ = 0; }
     void		forceTrailer( bool yn=true )
-    			    { forcetrailer_ = yn; }
+			    { forcetrailer_ = yn; }
 
-    int			put(void**,int offs=0);
-			//!< Expects a buffer for each component
+    int			put(const TraceData&,int offs=0);
 			//!< returns -1 = error, 0 = OK,
 			//!< 1=not written (threshold reached)
     void		close()			{ doClose( true ); }

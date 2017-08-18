@@ -250,7 +250,7 @@ void CBVSWriteMgr::setBytesPerFile( unsigned long b )
 }
 
 
-bool CBVSWriteMgr::put( void** data )
+bool CBVSWriteMgr::put( const TraceData& tdata )
 {
     if ( writers_.isEmpty() ) return false;
 
@@ -259,7 +259,7 @@ bool CBVSWriteMgr::put( void** data )
     {
 	for ( int idx=0; idx<writers_.size(); idx++ )
 	{
-	    ret = writers_[idx]->put( data, idx ? endsamps_[idx-1]+1 : 0 );
+	    ret = writers_[idx]->put( tdata, idx ? endsamps_[idx-1]+1 : 0 );
 	    if ( ret < 0 )
 		break;
 	}
@@ -268,7 +268,7 @@ bool CBVSWriteMgr::put( void** data )
     else
     {
 	CBVSWriter* writer = writers_[0];
-	ret = writer->put( data );
+	ret = writer->put( tdata );
 	if ( ret == 1 )
 	{
 	    if ( single_file )
@@ -294,7 +294,7 @@ bool CBVSWriteMgr::put( void** data )
 		delete writer;
 		writer = newwriter;
 
-		ret = writer->put( data );
+		ret = writer->put( tdata );
 	    }
 	}
     }

@@ -539,7 +539,7 @@ void Seis::Provider::doGetGather( const TrcKey& tkey, SeisTrcBuf& tbuf,
 void Seis::Provider::doGetSequence( Seis::RawTrcsSequence& rawseq,
 				    uiRetVal& uirv ) const
 {
-    SeisTrc trc( 0, rawseq.getDataChar() );
+    SeisTrc trc( 0 );
     SeisTrcBuf tbuf( true );
     const int nrpos = rawseq.nrPositions();
     const bool isps = rawseq.isPS();
@@ -602,16 +602,33 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
     , nrpos_(nrpos)
     , tks_(0)
     , intpol_(0)
-    , interpreter_(DataInterpreter<float>::create(info.getDataChar(),true))
+    , interpreter_(DataInterpreter<float>::create(DataCharacteristics(OD::F32),
+		   true))
 {
-    const od_int64 nrelements = mCast(od_int64,nrpos) * info.nrbytespertrc_;
-    mTryAlloc( data_, unsigned char[nrelements] )
+    TraceData td;
+    for ( int icomp=0; icomp<info.nrcomp_; icomp++ )
+	td.addComponent( info.nrsamppertrc_, DataCharacteristics(OD::F32) );
+
+    if ( !td.allOk() )
+	return;
+
+    for ( int idx=0; idx<nrpos; idx++ )
+    {
+	TraceData* newtd = new TraceData( td );
+	if ( !newtd || !newtd->allOk() )
+	{
+	    delete newtd; deepErase( data_ );
+	    return;
+	}
+
+	data_ += newtd;
+    }
 }
 
 
 Seis::RawTrcsSequence::~RawTrcsSequence()
 {
-    delete [] data_;
+    deepErase( data_ );
     delete tks_;
     delete interpreter_;
 }
@@ -619,7 +636,8 @@ Seis::RawTrcsSequence::~RawTrcsSequence()
 
 bool Seis::RawTrcsSequence::isOK() const
 {
-    return data_ && info_.isOK() && tks_ && tks_->size() == nrpos_;
+    return data_.size() == nrpos_ && info_.isOK() && tks_ &&
+	   tks_->size() == nrpos_;
 }
 
 
@@ -672,7 +690,7 @@ const TrcKey& Seis::RawTrcsSequence::getPosition( int ipos ) const
 
 
 float Seis::RawTrcsSequence::get( int idx, int pos, int comp ) const
-{ return interpreter_->get( getData(pos,comp,idx), 0 ); }
+{ return interpreter_->get( getData(pos,comp,0), idx ); }
 
 
 float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
@@ -696,25 +714,13 @@ void Seis::RawTrcsSequence::set( int idx, float val, int pos, int comp )
 { interpreter_->put( getData(pos,comp,idx), 0, val ); }
 
 
-od_int64 Seis::RawTrcsSequence::getOffset( int ipos, int targetcomp ) const
-{
-    od_int64 offset = mCast(od_int64,ipos) * info_.nrbytespertrc_
-					   + info_.nrbytestrcheader_;
-    for ( int icomp=1; icomp<=targetcomp; icomp++ )
-	offset += info_.nrdatabytespespercomptrc_;
-
-    return offset;
-}
-
 
 const DataBuffer::buf_type* Seis::RawTrcsSequence::getData( int ipos, int icomp,
 							    int is ) const
 {
-    od_int64 offset = getOffset( ipos, icomp );
-    if ( is != 0 )
-	offset += is * info_.nrbytespersamp_;
+    const int offset = is > 0 ? is * info_.nrbytespersamp_ : 0;
 
-    return data_ + offset;
+    return data_[ipos]->getComponent(icomp)->data() + offset;
 }
 
 
@@ -735,7 +741,7 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 	{
 	    for ( int idx=0; idx<nrpos_; idx++ )
 	    {
-		if ( trc.info().trckey_ != (*tks_)[idx] )
+		if ( trc.info().trckey_.position() != (*tks_)[idx].position() )
 		{
 		    pErrMsg("wrong position");
 		    continue;
@@ -748,16 +754,18 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 #ifdef __debug__
 	else
 	{
-	    if ( trc.info().trckey_ != (*tks_)[*ipos] )
+	    if ( trc.info().trckey_.position() != (*tks_)[*ipos].position() )
 		pErrMsg("wrong position");
 	}
 #endif
     }
 
-    DataBuffer::buf_type* out = getData( pos, 0 );
     const od_int64 nrbytes = info_.nrdatabytespespercomptrc_;
-    for ( int icomp=0; icomp<info_.nrcomp_; icomp++, out+=nrbytes )
-	OD::sysMemCopy( out, trc.data().getComponent( icomp )->data(), nrbytes);
+    for ( int icomp=0; icomp<info_.nrcomp_; icomp++ )
+    {
+	OD::sysMemCopy( getData( pos, icomp ),
+			trc.data().getComponent( icomp )->data(), nrbytes);
+    }
 }
 
 

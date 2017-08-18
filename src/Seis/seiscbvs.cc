@@ -27,11 +27,9 @@ const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	: SeisTrcTranslator(nm,unm)
-	, headerdone_(false)
 	, donext_(false)
 	, forread_(true)
-	, storinterps_(0)
-	, blockbufs_(0)
+	, compsel_(0)
 	, fprep_(OD::AutoFPRep)
 	, rdmgr_(0)
 	, wrmgr_(0)
@@ -75,29 +73,19 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 
 void CBVSSeisTrcTranslator::cleanUp()
 {
-    const int nrcomps = nrSelComps();
     SeisTrcTranslator::cleanUp();
-    headerdone_ = donext_ =false;
+
+    donext_ =false;
     nrdone_ = 0;
-    destroyVars( nrcomps );
+    destroyVars();
 }
 
 
-void CBVSSeisTrcTranslator::destroyVars( int nrcomps )
+void CBVSSeisTrcTranslator::destroyVars()
 {
-    delete rdmgr_; rdmgr_ = 0;
-    delete wrmgr_; wrmgr_ = 0;
-    if ( !blockbufs_ ) return;
-
-    for ( int idx=0; idx<nrcomps; idx++ )
-    {
-	delete [] blockbufs_[idx];
-	delete storinterps_[idx];
-    }
-
-    delete [] blockbufs_; blockbufs_ = 0;
-    delete [] storinterps_; storinterps_ = 0;
-    delete [] compsel_; compsel_ = 0;
+    deleteAndZeroPtr( rdmgr_ );
+    deleteAndZeroPtr( wrmgr_ );
+    deleteAndZeroArrPtr( compsel_ );
 }
 
 
@@ -256,28 +244,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	    }
     }
 
-    const int nrcomps = nrSelComps();
-    storinterps_ = new TraceDataInterpreter* [nrcomps];
-    for ( int idx=0; idx<nrcomps; idx++ )
-	storinterps_[idx] = new TraceDataInterpreter(
-	      forread_ ? inpcds_[idx]->datachar_ : outcds_[idx]->datachar_ );
-
-    blockbufs_ = new unsigned char* [nrcomps];
-    int bufsz = innrsamples_ + 1;
-    for ( int iselc=0; iselc<nrcomps; iselc++ )
-    {
-	int nbts = inpcds_[iselc]->datachar_.nrBytes();
-	if ( outcds_[iselc]->datachar_.nrBytes() > nbts )
-	    nbts = outcds_[iselc]->datachar_.nrBytes();
-
-	blockbufs_[iselc] = new unsigned char [ nbts * bufsz ];
-	if (!blockbufs_[iselc])
-	{
-	    errmsg_ = tr("Out of memory");
-	    return false;
-	}
-    }
-
+    delete [] compsel_;
     compsel_ = new bool [tarcds_.size()];
     for ( int idx=0; idx<tarcds_.size(); idx++ )
 	compsel_[idx] = tarcds_[idx]->selected_;
@@ -380,7 +347,6 @@ bool CBVSSeisTrcTranslator::goTo( const BinID& bid )
 
 bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( !storinterps_ && !commitSelections() ) return false;
     if ( headerdone_ ) return true;
 
     donext_ = donext_ || selRes( rdmgr_->binID() );
@@ -402,36 +368,18 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 }
 
 
-bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
+bool CBVSSeisTrcTranslator::readData( TraceData* extbuf )
 {
-    if ( !headerdone_ && !readInfo(trc.info()) )
-	return false;
+    if ( !storbuf_ && !commitSelections() ) return false;
 
-    prepareComponents( trc, outnrsamples_ );
-    if ( !rdmgr_->fetch( (void**)blockbufs_, compsel_, &samprg_ ) )
+    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    if ( !rdmgr_->fetch(tdata,compsel_,&samprg_) )
     {
 	errmsg_ = toUiString(rdmgr_->errMsg());
 	return false;
     }
 
-    const bool matchingdc = *trc.data().getInterpreter(0) == *storinterps_[0];
-    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
-    {
-	if ( matchingdc && outnrsamples_ > 1 )
-	    OD::memCopy( trc.data().getComponent(iselc)->data(),
-		    blockbufs_[iselc],
-		    outnrsamples_ * storinterps_[iselc]->nrBytes() );
-	else
-	{
-	    for ( int isamp=0; isamp<outnrsamples_; isamp++ )
-		trc.set( isamp,
-			 storinterps_[iselc]->get( blockbufs_[iselc], isamp ),
-			 iselc );
-	}
-    }
-
-    headerdone_ = false;
-    return true;
+    return (datareaddone_ = true);
 }
 
 
@@ -494,15 +442,16 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	unsigned char* blockbuf = blockbufs_[iselc];
-	int icomp = selComp(iselc);
+	const int icomp = selComp(iselc);
 	for ( int isamp=samprg_.start; isamp<=samprg_.stop; isamp++ )
-	    storinterps_[iselc]->put( blockbuf, isamp-samprg_.start,
-				     trc.get(isamp,icomp) );
+	{
+	    //Parallel !!!
+	    storbuf_->setValue(isamp-samprg_.start,trc.get(isamp,icomp),iselc);
+	}
     }
 
     trc.info().putTo( auxinf_ );
-    if ( !wrmgr_->put( (void**)blockbufs_ ) )
+    if ( !wrmgr_->put(*storbuf_) )
 	{ errmsg_ = wrmgr_->errMsg(); return false; }
 
     return true;

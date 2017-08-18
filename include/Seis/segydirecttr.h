@@ -151,7 +151,7 @@ public:
 
 
 mExpClass(Seis) SEGYDirectSeisTrcTranslator : public SeisTrcTranslator
-				   , public SEGY::DirectReader
+					    , public SEGY::DirectReader
 { mODTextTranslationClass(SEGYDirectSeisTrcTranslator);
   isTranslator(SEGYDirect,SeisTrc)
 public:
@@ -161,7 +161,6 @@ public:
     virtual const char*	defExtension() const	{ return "sgydef"; }
 
     virtual bool	readInfo(SeisTrcInfo&);
-    virtual bool	read(SeisTrc&);
     virtual bool	skip(int);
     virtual bool	supportsGoTo() const		{ return true; }
     virtual bool	isUserSelectable( bool fr ) const { return true; }
@@ -195,7 +194,6 @@ protected:
 
     SEGY::DirectDef*	def_;
     SEGY::FileDataSet*	fds_;
-    bool		headerread_;
     int			ild_;
     int			iseg_;
     int			itrc_;
@@ -212,5 +210,6 @@ protected:
 private:
 
     void		setCompDataFromInput();
+    virtual bool	readData(TraceData* externalbuf);
 
 };

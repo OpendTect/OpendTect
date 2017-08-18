@@ -32,6 +32,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "varlenarray.h"
 #include "strmoper.h"
 #include "posinfo.h"
+#include "tracedata.h"
 #include "od_istream.h"
 
 #define mGetAuxFromStrm(auxinf,buf,memb,strm) \
@@ -603,7 +604,7 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
 }
 
 
-bool CBVSReader::fetch( void** bufs, const bool* comps,
+bool CBVSReader::fetch( TraceData& bufs, const bool* comps,
 			const Interval<int>* samps, int offs )
 {
     if ( !hinfofetched_ && auxnrbytes_ )
@@ -628,7 +629,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	int bps = compinfo->datachar_.nrBytes();
 	if ( samps->start )
 	    strm_.ignore( samps->start*bps );
-	if ( !strm_.getBin(((char*)bufs[iselc]) + offs*bps,
+	if ( !strm_.getBin(((char*)bufs.getComponent(iselc)->data()) + offs*bps,
 				   (samps->stop-samps->start+1) * bps ) )
 	    break;
 

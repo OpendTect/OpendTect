@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "datainterp.h"
 class CBVSInfo;
 class CBVSReader;
+class TraceData;
 class TrcKeyZSampling;
 class od_ostream;
 
@@ -47,7 +48,7 @@ public:
     bool		toStart();
 
     bool		getAuxInfo(PosAuxInfo&);
-    bool		fetch(void**,const bool* comps=0,
+    bool		fetch(TraceData&,const bool* comps=0,
 				const Interval<int>* samps=0);
 			//!< See CBVSReader::fetch comments
 
@@ -73,9 +74,9 @@ public:
     const TypeSet<Coord>& trailerCoords() const;
     void		getPositions(TypeSet<BinID>&) const;
     void		getPositions(TypeSet<Coord>&) const;
-    			//!< This may actually reset the position to the first
+			//!< This may actually reset the position to the first
     const uiString	sFoundIn() { return tr("found in:"); }
-    const uiString	sDiffFromFirstFile() 
+    const uiString	sDiffFromFirstFile()
 			{ return tr("differ from first file"); }
 
 protected:

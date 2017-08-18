@@ -13,7 +13,6 @@ CBVS-based seimic translator.
 -*/
 
 #include "seistrctr.h"
-#include "tracedata.h"
 #include "cbvsinfo.h"
 class CBVSReadMgr;
 class CBVSWriteMgr;
@@ -31,7 +30,6 @@ public:
 			~CBVSSeisTrcTranslator();
 
     bool		readInfo(SeisTrcInfo&);
-    bool		read(SeisTrc&);
     bool		skip(int nrtrcs=1);
 
     bool		supportsGoTo() const		{ return true; }
@@ -72,15 +70,12 @@ public:
 protected:
 
     bool		forread_;
-    bool		headerdone_;
     bool		donext_;
     int			nrdone_;
     int			coordpol_;
 
     // Following variables are inited by commitSelections_
     bool*		compsel_;
-    unsigned char**	blockbufs_;
-    TraceDataInterpreter** storinterps_;
     OD::FPDataRepType	fprep_;
     VBrickSpec&		brickspec_;
 
@@ -107,6 +102,7 @@ private:
 
     static const IOPar&	datatypeparspec;
 
-    void		destroyVars(int);
+    void		destroyVars();
+    virtual bool	readData(TraceData* externalbuf);
 
 };
