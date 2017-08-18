@@ -21,6 +21,8 @@ mExpClass(uiSEGY) uiSEGYBulkImporter : public uiDialog
 public:
 			uiSEGYBulkImporter(uiParent*);
 
+    int			nrSelFiles() { return selfilenms_.size(); }
+
 protected:
     bool		selectVintage();
     void		addCB(CallBacker*);

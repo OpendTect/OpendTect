@@ -263,6 +263,7 @@ bool uiSEGYStoreImpParsDlg::doIO()
     parstostore_->setStdCreationEntries();
     parstostore_->src_ = cSrcToManage;
     parset_.add( parstostore_ );
+    parname_ = parnm;
     parstostore_ = 0;
     setchgd_ = true;
 

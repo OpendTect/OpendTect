@@ -62,7 +62,7 @@ bool uiSEGYBulkImporter::selectVintage()
     uiSEGYFileSelector* fsdlg =
 			new uiSEGYFileSelector( this,
 						readstrdlg->userFileName(),
-						vintagenm_.buf() );
+						vintagenm_.buf(), imptype );
     if ( fsdlg->go() )
 	fsdlg->getSelNames( selfilenms_ );
 

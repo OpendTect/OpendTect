@@ -83,6 +83,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
     , timer_(0)
     , inpfld_(0)
     , vintagecheckmode_(su.vintagecheckmode_)
+    , fixedfnm_(su.fixedfnm_)
+    , fullscanbut_(0)
+    , editbut_(0)
 {
     if ( mForSurvSetup )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
@@ -96,6 +99,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
     }
+
+    if ( vintagecheckmode_ )
+	setCaption( tr("Example vintage information") );
 
     topgrp_ = new uiGroup( this, "Top group" );
     uiLabel* selfilelbl = 0;
@@ -118,10 +124,14 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 	attachobj = inpfld_->attachObj();
     }
 
-    editbut_ = uiButton::getStd( topgrp_, OD::Edit,
-			         mCB(this,uiSEGYReadStarter,editFile), false );
-    editbut_->attach( rightOf, attachobj );
-    editbut_->setSensitive( false );
+    if ( !vintagecheckmode_ )
+    {
+	editbut_ = uiButton::getStd( topgrp_, OD::Edit,
+				     mCB(this,uiSEGYReadStarter,editFile),
+				     false );
+	editbut_->attach( rightOf, attachobj );
+	editbut_->setSensitive( false );
+    }
 
     uiLabel* typlbl = 0;
     if ( su.imptype_ )
@@ -181,6 +191,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
     botgrp_->setStretch( 2, 1 );
 
     setToolStates();
+    if ( vintagecheckmode_ && fixedfnm_ )
+	setCtrlStyle( CloseOnly );
+
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
 }
 
@@ -192,23 +205,26 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 void uiSEGYReadStarter::createTools()
 {
     uiGroup* toolgrp = new uiGroup( midgrp_, "Tool group" );
-    toolgrp->attach( rightOf, infofld_ );
-    uiToolButton* openbut = new uiToolButton( toolgrp, "open",
-				tr("Use Saved SEG-Y setup"),
-				mCB(this,uiSEGYReadStarter,readParsCB) );
-    uiToolButton* savebut = new uiToolButton( toolgrp, "save",
-				tr("Store this setup"),
-				mCB(this,uiSEGYReadStarter,writeParsCB) );
-    savebut->attach( rightOf, openbut );
+    if ( !vintagecheckmode_ )
+    {
+	toolgrp->attach( rightOf, infofld_ );
+	uiToolButton* openbut = new uiToolButton( toolgrp, "open",
+				    tr("Use Saved SEG-Y setup"),
+				    mCB(this,uiSEGYReadStarter,readParsCB) );
+	uiToolButton* savebut = new uiToolButton( toolgrp, "save",
+				    tr("Store this setup"),
+				    mCB(this,uiSEGYReadStarter,writeParsCB) );
+	savebut->attach( rightOf, openbut );
 
-    fullscanbut_ = new uiToolButton( toolgrp, "fullscan",
+	fullscanbut_ = new uiToolButton( toolgrp, "fullscan",
 				    tr("Scan the entire input"),
 				    mCB(this,uiSEGYReadStarter,fullScanReq) );
-    fullscanbut_->attach( alignedBelow, openbut );
+	fullscanbut_->attach( alignedBelow, openbut );
+    }
+
     hdrentrysettsbut_ = new uiToolButton( toolgrp, "settings",
 			    tr("Settings for byte location scanning"),
 			    mCB(this,uiSEGYReadStarter,editHdrEntrySettings) );
-    hdrentrysettsbut_->attach( rightOf, fullscanbut_ );
 
     uiGroup* examinegrp = new uiGroup( toolgrp, "Examine group" );
     examinebut_ = new uiToolButton( examinegrp, "examine",
@@ -222,7 +238,7 @@ void uiSEGYReadStarter::createTools()
     int nrex = 1000; Settings::common().get( sKeySettNrTrcExamine, nrex );
     examinenrtrcsfld_->setInterval( 10, 1000000, 10 );
     examinenrtrcsfld_->setValue( nrex );
-    examinegrp->attach( alignedBelow, fullscanbut_ );
+    examinegrp->attach( alignedBelow, hdrentrysettsbut_ );
     examinegrp->setFrame( true );
 
     if ( imptypeFixed() && fixedimptype_.isVSP() )
@@ -449,7 +465,9 @@ void uiSEGYReadStarter::setToolStates()
     const bool haveany = nrfiles > 0;
     const bool ismulti = nrfiles > 1;
     examinebut_->setSensitive( haveany );
-    fullscanbut_->setSensitive( haveany );
+    if ( fullscanbut_ )
+	fullscanbut_->setSensitive( haveany );
+
     examinebut_->setToolTip( ismulti ? tr("Examine first input file")
 				     : tr("Examine input file") );
     const SEGY::ImpType imptyp = impType();
@@ -477,7 +495,9 @@ void uiSEGYReadStarter::setToolStates()
     if ( coordscalefld_ )
 	coordscalefld_->display( loaddef_.needXY() );
 
-    editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
+    if ( editbut_ )
+	editbut_->setSensitive( nrfiles==1 &&
+				File::exists(filespec_.fileName(0)) );
 }
 
 
@@ -497,9 +517,9 @@ void uiSEGYReadStarter::initWin( CallBacker* )
     if ( (imptypeFixed() && fixedimptype_.isVSP()) )
 	return;
 
-    uiButton* okbut = button( OK );
     if ( !vintagecheckmode_ )
     {
+	uiButton* okbut = button( OK );
 	const CallBack impcb( mCB(this,uiSEGYReadStarter,runClassicImp) );
 	const CallBack linkcb( mCB(this,uiSEGYReadStarter,runClassicLink) );
 	uiPushButton* execoldbut = new uiPushButton( okbut->parent(),
@@ -518,29 +538,38 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 	}
     }
     else
-    {
-	BufferStringSet vintnms;
-	vintnms.add( uiStrings::sEmptyString().getOriginalString() );
-	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
-	    for ( int pidx=0; pidx<parset.size(); pidx++ )
-			vintnms.add( parset[pidx]->name() );
-	uiGroup* vntgrp = new uiGroup( okbut->parent(), "Vintage group" );
-	uiLabeledComboBox* vintage =
-			new uiLabeledComboBox( vntgrp,
-					       vintnms.getUiStringSet(),
-					       tr("Vintage name") );
-	vintagefld_ = vintage->box();
-	vintagefld_->setReadOnly( false );
-	const CallBack vintcb(mCB(this,uiSEGYReadStarter,vntChgCB));
-	vintagefld_->selectionChanged.notify( vintcb );
+	addVintageUI();
+}
 
-	const CallBack vntrefresh(mCB(this,uiSEGYReadStarter,vntRefreshCB));
-	uiToolButton* resetbut = new uiToolButton(vntgrp, "refresh",
-					    tr("Refresh vintage"), vntrefresh);
-	resetbut->attach( rightOf, vintage );
-	vntgrp->attach( leftTo, okbut );
-	vntgrp->attach( leftBorder );
-    }
+
+void uiSEGYReadStarter::addVintageUI()
+{
+    if ( vintagecheckmode_ && fixedfnm_ )
+	return;
+
+    uiButton* okbut = button( OK );
+    BufferStringSet vintnms;
+    vintnms.add( uiStrings::sEmptyString().getOriginalString() );
+    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+	for ( int pidx=0; pidx<parset.size(); pidx++ )
+		    vintnms.add( parset[pidx]->name() );
+    uiGroup* vntgrp = new uiGroup( okbut->parent(), "Vintage group" );
+    uiLabeledComboBox* vintage =
+		    new uiLabeledComboBox( vntgrp,
+					   vintnms.getUiStringSet(),
+					   tr("Vintage name") );
+    vintagefld_ = vintage->box();
+    vintagefld_->setReadOnly( false );
+    const CallBack vintcb(mCB(this,uiSEGYReadStarter,vntChgCB));
+    vintagefld_->selectionChanged.notify( vintcb );
+
+    const CallBack vntrefresh(mCB(this,uiSEGYReadStarter,vntRefreshCB));
+    uiToolButton* resetbut = new uiToolButton(vntgrp, "refresh",
+					tr("Refresh vintage"), vntrefresh);
+    resetbut->attach( rightOf, vintage );
+    vntgrp->attach( leftTo, okbut );
+    vntgrp->attach( leftBorder );
+
 }
 
 
@@ -556,6 +585,11 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
 	if ( mForSurvSetup )
 	    fssu.initialselectiondir( GetBaseDataDir() );
 	uiFileSelector uifs( this, fssu );
+	if ( vintagecheckmode_ )
+	{
+	    uiString& capstr = uifs.caption();
+	    capstr.set( "Select example file for vintage" );
+	}
 
 	if ( !uifs.go() )
 	    done();
@@ -795,17 +829,14 @@ void uiSEGYReadStarter::vntRefreshCB( CallBacker* )
 
 bool uiSEGYReadStarter::getVintageParameters()
 {
+    if ( !vintagefld_ )
+	return false;
+
     Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
     BufferString curvntnm( vintagefld_->text() );
-    if ( curvntnm.isEmpty() )
-    { uiMSG().message( tr("Please enter vnetage name") ); return false; }
-
     int selidx = parset.find( curvntnm );
     if ( selidx < 0 )
-    {
-	lastparname_ = curvntnm;
 	writeParsCB( 0 );
-    }
     else
     {
 	IOPar dlgpar;
@@ -844,6 +875,9 @@ void uiSEGYReadStarter::writeParsCB( CallBacker* )
 {
     IOPar iop; fillPar( iop );
     uiSEGYStoreImpParsDlg dlg( this, iop, lastparname_ );
+    if ( vintagecheckmode_ )
+	dlg.setCaption( "Store Vintage" );
+
     if ( dlg.go() )
 	lastparname_ = dlg.parName();
 }

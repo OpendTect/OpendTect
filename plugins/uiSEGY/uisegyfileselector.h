@@ -14,17 +14,25 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiListBox;
+class uiTextEdit;
+namespace SEGY{ class ImpType; }
 
 mExpClass(uiSEGY) uiSEGYFileSelector : public uiDialog
 { mODTextTranslationClass(uiSEGYFileSelector)
 public:
 		uiSEGYFileSelector(uiParent*, const char* fnm,
-				   const char* vntname);
+				   const char* vntname,
+				   const SEGY::ImpType& imptype);
 
     void	getSelNames(BufferStringSet&);
 
 protected:
+    void	selChgCB(CallBacker*);
+    void	quickScanCB(CallBacker*);
     bool	acceptOK();
 
-    uiListBox*	filenmsfld_;
+    uiListBox*		filenmsfld_;
+    uiTextEdit*		txtfld_;
+    BufferString	dirnm_;
+    const SEGY::ImpType& imptype_;
 };

@@ -132,6 +132,7 @@ protected:
     uiSEGYRead*		classicrdr_;
     uiSEGYClassicSurvInfoProvider* classicsip_;
     bool		vintagecheckmode_;
+    bool		fixedfnm_;
 
     enum LoadDefChgType	{ KeepAll, KeepBasic, KeepNone };
 
@@ -186,6 +187,7 @@ protected:
     void		vntChgCB(CallBacker*);
     void		vntRefreshCB(CallBacker*);
     bool		getVintageParameters();
+    void		addVintageUI();
 
     bool		commit(bool permissive=false);
 
