@@ -260,14 +260,12 @@ public:
 
 private:
 
-    od_int64		getOffset(int ipos,int comp) const;
-
     const ValueSeriesInterpolator<float>&	interpolator() const;
 
-    DataBuffer::buf_type*	data_;
+    ObjectSet<TraceData>	data_;
     const ObjectSummary&	info_;
-    int				nrpos_;
     const TypeSet<TrcKey>*	tks_;
+    const int			nrpos_;
 
     mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
     DataInterpreter<float>*	interpreter_;
