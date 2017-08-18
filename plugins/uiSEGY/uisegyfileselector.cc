@@ -46,6 +46,7 @@ uiSEGYFileSelector::uiSEGYFileSelector(uiParent* p, const char* fnm,
     const CallBack scancb( mCB(this,uiSEGYFileSelector,quickScanCB) );
     uiToolButton* scanbut = new uiToolButton( toolgrp, "examine",
 					      tr("Quick scan"), scancb );
+    scanbut->setToolTip( tr("See the results of Quick Scan") );
     txtfld_ = new uiTextEdit( this, "Information", true );
     txtfld_->setPrefHeightInChar( 8 );
     txtfld_->setPrefWidthInChar( 80 );
