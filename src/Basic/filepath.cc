@@ -37,73 +37,86 @@ File::Path::Path( const char* p1, const char* p2, const char* p3,
 }
 
 
-File::Path::Path( const Path& fp, const char* p2, const char* p3,
+File::Path::Path( const Path& oth, const char* p2, const char* p3,
 		    const char* p4, const char* p5 )
 {
-    *this = fp;
+    *this = oth;
     addPart( p2 ); addPart( p3 ); addPart( p4 ); addPart( p5 );
     compress();
 }
 
 
-File::Path& File::Path::operator =( const Path& fp )
+File::Path& File::Path::operator =( const Path& oth )
 {
-    lvls_ = fp.lvls_;
-    prefix_ = fp.prefix_;
-    postfix_ = fp.postfix_;
-    isabs_ = fp.isabs_;
-    isuri_ = fp.isuri_;
+    lvls_ = oth.lvls_;
+    prefix_ = oth.prefix_;
+    domain_ = oth.domain_;
+    postfix_ = oth.postfix_;
+    isabs_ = oth.isabs_;
     return *this;
 }
 
 
 File::Path& File::Path::operator =( const char* fnm )
-{ return (*this = Path(fnm)); }
-
-
-bool File::Path::operator ==( const Path& fp ) const
 {
-    return lvls_ == fp.lvls_ && isabs_ == fp.isabs_
-	&& prefix_ == fp.prefix_ && postfix_ == fp.postfix_;
+    return (*this = Path(fnm));
+}
+
+
+bool File::Path::operator ==( const Path& oth ) const
+{
+    return lvls_ == oth.lvls_ && domain_ == oth.domain_
+	&& prefix_ == oth.prefix_ && postfix_ == oth.postfix_;
 }
 
 
 bool File::Path::operator ==( const char* fnm ) const
-{ return *this == Path(fnm); }
+{
+    return *this == Path(fnm);
+}
 
 
-bool File::Path::operator !=( const Path& fp ) const
-{ return !(*this == fp); }
+bool File::Path::operator !=( const Path& oth ) const
+{
+    return !(*this == oth);
+}
 
 
-bool File::Path::operator != ( const char* fnm ) const
-{ return !(*this == Path(fnm)); }
+bool File::Path::operator !=( const char* fnm ) const
+{
+    return !(*this == Path(fnm));
+}
 
 
-File::Path& File::Path::set( const char* _fnm )
+File::Path& File::Path::set( const char* inpfnm )
 {
     lvls_.erase();
-    prefix_.setEmpty(); postfix_.setEmpty();
-    isabs_ = isuri_ = false;
-    if ( !_fnm || !*_fnm )
+    prefix_.setEmpty(); postfix_.setEmpty(); domain_.setEmpty();
+    isabs_ = false;
+    if ( !inpfnm || !*inpfnm )
 	return *this;
 
-    const BufferString fnmbs( _fnm );
+    const BufferString fnmbs( inpfnm );
     const char* fnm = fnmbs.buf();
     mSkipBlanks( fnm );
     if ( !*fnm )
 	return *this;
 
-    isuri_ = File::isURI( fnm );
-    if ( isuri_ )
+    if ( File::isURI(fnm) )
     {
-	BufferString hostpart( fnm );
-	char* ptr = hostpart.find( uriProtocolSeparator() ) + 2;
-	ptr = firstOcc( ptr, '/' );
-	if ( ptr ) *ptr = '\0';
-	prefix_ = hostpart;
-	fnm += prefix_.size();
-	if ( ptr ) fnm++;
+	BufferString fnmcopy( fnm );
+	char* sepptr = fnmcopy.find( uriProtocolSeparator() );
+	*sepptr = '\0';
+	prefix_ = fnmcopy;
+	char* domptr = sepptr + 3;
+	while ( *domptr && *domptr != '/' )
+	{
+	    domain_.add( *domptr );
+	    domptr++;
+	}
+	fnm = 0;
+	if ( *domptr == '/' )
+	    fnm = fnmbs.buf() + (domptr - fnmcopy.buf());
 	isabs_ = true;
     }
     else
@@ -213,34 +226,29 @@ File::Path& File::Path::setExtension( const char* ext, bool replace )
 }
 
 
-bool File::Path::isAbsolute() const
-{ return isabs_; }
-
-
-bool File::Path::isSubDirOf( const Path& b, Path* relpath ) const
+bool File::Path::isSubDirOf( const Path& oth, Path* relpath ) const
 {
-    if ( b.isAbsolute()!=isAbsolute() )
+    if ( oth.isabs_ != isabs_ || oth.prefix_ != prefix_
+	|| oth.domain_ != domain_ )
 	return false;
 
-    if ( FixedString(b.prefix())!=prefix() )
+    const int nrlvls = nrLevels();
+    const int othnrlvls = oth.nrLevels();
+    if ( othnrlvls >= nrlvls )
 	return false;
 
-    const int nrblevels = b.nrLevels();
-    if ( nrblevels>=nrLevels() )
-	return false;
-
-    for ( int idx=0; idx<nrblevels; idx++ )
+    for ( int idx=0; idx<othnrlvls; idx++ )
     {
-	if ( *lvls_[idx]!=*b.lvls_[idx] )
+	if ( *lvls_[idx] != *oth.lvls_[idx] )
 	    return false;
     }
 
     if ( relpath )
     {
 	BufferString rel;
-	for ( int idx=nrblevels; idx<nrLevels(); idx++ )
+	for ( int idx=othnrlvls; idx<nrlvls; idx++ )
 	{
-	    if ( idx>nrblevels )
+	    if ( idx > othnrlvls )
 		rel.add( dirSep() );
 	    rel.add( dir( idx ) );
 	}
@@ -287,37 +295,22 @@ BufferString File::Path::fullPath( Style f, bool cleanup ) const
 }
 
 
-const char* File::Path::prefix() const
-{
-    return prefix_.buf();
-}
-
-
-const char* File::Path::postfix() const
-{
-    return postfix_.buf();
-}
-
-
-int File::Path::nrLevels() const
-{
-    return lvls_.size();
-}
-
-
 const char* File::Path::extension() const
 {
     if ( lvls_.isEmpty() )
 	return 0;
 
     const char* ret = lastOcc( fileName().buf(), '.' );
-    if ( ret ) ret++;
+    if ( ret )
+	ret++;
     return ret;
 }
 
 
 const OD::String& File::Path::fileName() const
-{ return dir(-1); }
+{
+    return dir( -1 );
+}
 
 
 BufferString File::Path::baseName() const
@@ -328,7 +321,9 @@ BufferString File::Path::baseName() const
 
     char* ptr = ret.getCStr();
     char* lastdot = lastOcc( ptr, '.' );
-    if ( lastdot ) *lastdot = '\0';
+    if ( lastdot )
+	*lastdot = '\0';
+
     return ret;
 }
 
@@ -347,7 +342,9 @@ BufferString File::Path::getTimeStampFileName( const char* ext )
 
 
 BufferString File::Path::pathOnly() const
-{ return dirUpTo(lvls_.size()-2); }
+{
+    return dirUpTo(lvls_.size()-2);
+}
 
 
 const OD::String& File::Path::dir( int nr ) const
@@ -360,14 +357,18 @@ const OD::String& File::Path::dir( int nr ) const
 
 BufferString File::Path::dirUpTo( int lvl ) const
 {
-    if ( lvl < 0 || lvl >= lvls_.size() )
-	lvl = lvls_.size() - 1;
+    const int nrlvls = lvls_.size();
+    if ( lvl < 0 || lvl > nrlvls-1 )
+	lvl = nrlvls - 1;
 
+    const bool isuri = isURI();
     BufferString ret;
     if ( !prefix_.isEmpty() )
     {
 	ret.set( prefix_ );
-	if ( !isuri_ )
+	if ( isuri )
+	    ret.add( uriProtocolSeparator() ).add( domain_ );
+	else
 	    ret.add( sPrefSep );
     }
     if ( lvl < 0 )
@@ -375,7 +376,7 @@ BufferString File::Path::dirUpTo( int lvl ) const
 
     if ( isabs_ )
 	ret.add( dirSep() );
-    if ( lvls_.size() )
+    if ( nrlvls > 0 )
 	ret.add( lvls_.get( 0 ) );
 
     for ( int idx=1; idx<=lvl; idx++ )
@@ -458,7 +459,7 @@ static const char* unixds = "/";
 
 const char* File::Path::dirSep() const
 {
-    return isuri_ ? unixds : dirSep( Local );
+    return isURI() ? unixds : dirSep( Local );
 }
 
 
@@ -512,7 +513,7 @@ void File::Path::addPart( const char* fnm )
     if ( lvls_.isEmpty() )
 	return;
 
-    if ( isuri_ )
+    if ( isURI() )
     {
 	BufferString& lastlvl = *lvls_.last();
 	char* postfixptr = lastlvl.find( '?' );
@@ -550,6 +551,8 @@ void File::Path::compress( int startlvl )
 void File::Path::conv2TrueDirIfLink()
 {
 #ifdef __win__
+    if ( isURI() )
+	return;
     BufferString dirnm = dirUpTo( -1 );
     if ( File::exists(dirnm) )
 	return;

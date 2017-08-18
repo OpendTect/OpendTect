@@ -62,7 +62,8 @@ public:
     Path&		setExtension(const char*,bool replace=true);
 						//!< !replace => bluntly add
 
-    bool		isAbsolute() const;
+    bool		isAbsolute() const	{ return isabs_; }
+    bool		isURI() const		{ return !domain_.isEmpty(); }
     bool		isSubDirOf(const Path&,Path* reldir = 0) const;
 			/*!<If reldir is set, it will be filled with the
 			    relative path. */
@@ -70,15 +71,16 @@ public:
     bool		makeCanonical(); // i.e. follow links, expand '..'
 
     BufferString	fullPath(Style s=Local,bool cleanup=true) const;
-    const char*		prefix() const;
-    const char*		postfix() const;
-    int			nrLevels() const;
+    const char*		prefix() const		{ return prefix_; }
+    const char*		postfix() const		{ return postfix_; }
+    const char*		domain() const		{ return domain_; }
+    int			nrLevels() const	{ return lvls_.size(); }
     const char*		extension() const;	//!< may return null
 
     const OD::String&	fileName() const;
-    BufferString	baseName() const; //!< name of file w/o path or ext
     BufferString	pathOnly() const;
     BufferString	winDrive() const;
+    BufferString	baseName() const;	//!< file w/o path or ext
 
     const OD::String&	dir(int nr=-1) const;
 			//!< nr < 0 returns last dir name
@@ -98,10 +100,11 @@ public:
 
 protected:
 
-    bool		isuri_;
     bool		isabs_;
     BufferString	prefix_;
+    BufferString	domain_;
     BufferString	postfix_;	    //!< after '?'
+
     BufferStringSet	lvls_;
 
     void		addPart(const char*);

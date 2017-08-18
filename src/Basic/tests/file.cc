@@ -86,6 +86,7 @@ bool testIStream( const char* file )
 
 bool testFilePath( const char* inputpath,
 		   const char* filename,
+		   const char* domain,
 		   const char* extension,
 		   const char* postfix,
 		   int nrlevels,
@@ -98,6 +99,9 @@ bool testFilePath( const char* inputpath,
 
     mRunStandardTest( path.fileName()==filename,
 	    BufferString( inputpath, " detects filename" ) );
+
+    mRunStandardTest( FixedString(path.domain())==domain,
+	    BufferString( inputpath, " detects domain" ) );
 
     mRunStandardTest( FixedString(path.extension())==extension,
 	    BufferString( inputpath, " detects extension" ) );
@@ -116,6 +120,7 @@ bool testFilePathParsing()
 {
     if ( !testFilePath( "C:\\path\\to\\me.txt",
 			"me.txt",	//filename
+			"",		//domain
 			"txt",		//extension
 			"",		//postfix
 			3,		//nrlevels
@@ -126,6 +131,7 @@ bool testFilePathParsing()
 
     if ( !testFilePath( "/data/apps/OpendTect 5.0.0/file.txt",
 			"file.txt",	//filename
+			"",		//domain
 			"txt",		//extension
 			"",		//postfix
 			4,		//nrlevels
@@ -136,6 +142,7 @@ bool testFilePathParsing()
 
     if ( !testFilePath( "C:\\Program Files/OpendTect\\5.0.0/file.txt",
 			"file.txt",	//filename
+			"",		//domain
 			"txt",		//extension
 			"",		//postfix
 			4,		//nrlevels
@@ -146,6 +153,7 @@ bool testFilePathParsing()
 
     if ( !testFilePath( "https://dgbes.com/surveys/aap/noot?x=y&&a=b",
 			"noot",		//filename
+			"dgbes.com",	//domain
 			"",		//extension
 			"x=y&&a=b",	//postfix
 			3,		//nrlevels
@@ -156,6 +164,7 @@ bool testFilePathParsing()
 
     if ( !testFilePath( "https://dgbes.amazon.com/surveys/F3 Demo/Seismics/median_filtered.cbvs",
 			"median_filtered.cbvs",	//filename
+			"dgbes.amazon.com",	//domain
 			"cbvs",		//extension
 			"",		//postfix
 			4,		//nrlevels
