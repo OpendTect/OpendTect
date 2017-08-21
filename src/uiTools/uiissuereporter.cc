@@ -192,7 +192,7 @@ bool uiIssueReporterDlg::acceptOK()
 	Settings::common().write();
     }
 
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( this, tr("Sending report") );
     setButSensitive( false );
 
     res = false;
@@ -201,18 +201,16 @@ bool uiIssueReporterDlg::acceptOK()
 
     if ( reporter_.send() )
     {
+	usw.readyNow();
 	if ( !reporter_.getMessage().isEmpty() )
-	{
 	    uiMSG().message( reporter_.getMessage() );
-	}
 	else
-	{
 	    uiMSG().message( tr("The report was successfully sent."
 		"\n\nThank you for your contribution to OpendTect!") );
-	}
     }
     else
     {
+	usw.setMessage( uiStrings::sSavingData() );
 	filename_ = reporter_.filePath();
 	SafeFileIO outfile( filename_, false );
 	if ( outfile.open( false ) )
@@ -225,7 +223,7 @@ bool uiIssueReporterDlg::acceptOK()
 		outfile.closeFail();
 	}
 
-	cursorchanger.restore();
+	usw.readyNow();
 	uiString msg = tr("The report could not be sent automatically.\n"
 			  "You can still send it manually by e-mail.\n"
 			  "Please send the file:\n\n%1"

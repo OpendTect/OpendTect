@@ -25,20 +25,20 @@ public:
     mExpClass(uiEarthModel) HorizonAuxDataInfo
     {
     public:
-			HorizonAuxDataInfo(bool load);
+			HorizonAuxDataInfo(bool load,uiParent* waitinfoprnt=0);
 			/*!<If load is true, object will fill itself with
 			    all horizons with at least one aux data. */
-			
+
 			HorizonAuxDataInfo(const HorizonAuxDataInfo& n);
 
 			~HorizonAuxDataInfo();
-					
+
 	BufferStringSet			hornms_;
-	DBKeySet		mids_;
-	TypeSet<BufferStringSet>	auxdatanms_;		    
+	DBKeySet			dbkys_;
+	TypeSet<BufferStringSet>	auxdatanms_;
     };
 
-    			uiHorizonAuxDataSel(uiParent*,const DBKey&,int auxidx,
+			uiHorizonAuxDataSel(uiParent*,const DBKey&,int auxidx,
 				const HorizonAuxDataInfo* auxinfo = 0);
 
     int			nrHorizonsWithData() const { return nrhorswithdata_; }
@@ -55,5 +55,5 @@ protected:
     DBKey		selmid_;
     int			auxidx_;
     int			nrhorswithdata_;
-    uiHorizonAuxDataDlg* dlg_; 
+    uiHorizonAuxDataDlg* dlg_;
 };

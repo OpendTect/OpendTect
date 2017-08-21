@@ -100,8 +100,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     }
     else
     {
-	uiHorizonAuxDataSel::HorizonAuxDataInfo auxdatainfo( true );
-	const bool hasauxdata = auxdatainfo.mids_.size();
+	uiHorizonAuxDataSel::HorizonAuxDataInfo auxdatainfo( true, this );
+	const bool hasauxdata = auxdatainfo.dbkys_.size();
 	const uiString fromhorattribstr = tr("From Horizon Data");
 
 	usestartvalfld_ = new uiGenInput( this, tr("Start value"),
@@ -314,11 +314,10 @@ void uiSurfaceLimitedFiller::useRefValCB( CallBacker* )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s) { usw.readyNow(); uiMSG().error(s); return false; }
 
 bool uiSurfaceLimitedFiller::acceptOK()
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     if ( !uiStepDialog::acceptOK() )
 	return false;
 
@@ -334,6 +333,7 @@ bool uiSurfaceLimitedFiller::acceptOK()
     surfacefiller_->setGradientVertical(
 	    gradienttypefld_ ? !gradienttypefld_->getIntValue() : false );
 
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
     TypeSet<char> sidesels;
     for ( int idx=0; idx<surfacelist_.size(); idx++ )
     {
@@ -394,8 +394,8 @@ bool uiSurfaceLimitedFiller::acceptOK()
 	if ( !obj )
 	    mErrRet(tr("Reference horizon does not exit"))
 
-	const DBKey mid = obj->key();
-	if ( !surfacefiller_->setRefHorizon( &mid ) )
+	const DBKey dbky = obj->key();
+	if ( !surfacefiller_->setRefHorizon( &dbky ) )
 	    mErrRet(tr("Cannot set reference horizon"))
     }
 

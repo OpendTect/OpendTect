@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "dbman.h"
 #include "marchingcubes.h"
+#include "mousecursor.h"
 #include "picksetmanager.h"
 #include "od_ostream.h"
 #include "seisdatapack.h"
@@ -112,6 +113,7 @@ VolumeDisplay::VolumeDisplay()
     , eventcatcher_(0)
     , onoffstatus_(true)
     , ismanip_(false)
+    , mousecursor_( *new MouseCursor )
 {
     addChild( boxdragger_->osgNode() );
 
@@ -172,6 +174,7 @@ VolumeDisplay::~VolumeDisplay()
     scalarfield_->unRef();
 
     setZAxisTransform( 0,0 );
+    delete &mousecursor_;
 }
 
 

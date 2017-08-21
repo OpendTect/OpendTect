@@ -275,9 +275,10 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     const bool docont = uiMSG().askContinue(
        tr("All selected 2D geometries will be deleted.\n"
 	  "This will invalidate all other data associated with this geometry"));
-    if ( !docont ) return;
+    if ( !docont )
+	return;
 
-    MouseCursorChanger chgr( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sUpdatingDB() );
     uiStringSet msgs;
     DBKeySet selids;
     selgrp_->getChosen( selids );
@@ -316,7 +317,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 	}
     }
 
-    chgr.restore();
+    usw.readyNow();
     selgrp_->fullUpdate( DBKey::getInvalid() );
 
     if ( !msgs.isEmpty() )

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uirgbarray.h"
 #include "uitaskrunner.h"
+#include "uimsg.h"
 
 #include "arrayndimpl.h"
 #include "coltabseqmgr.h"
@@ -183,7 +184,7 @@ void uiDataPointSetCrossPlotter::reSizeDrawCB( CallBacker* )
 
 void uiDataPointSetCrossPlotter::reDrawCB( CallBacker* )
 {
-    MouseCursorChanger cursorchanger(MouseCursor::Wait);
+    uiUserShowWait usw( parent(), uiStrings::sUpdatingDisplay() );
     setDraw();
     reDrawSelArea();
     drawContent();
@@ -281,7 +282,7 @@ void uiDataPointSetCrossPlotter::removeSelectionItems()
 
 void uiDataPointSetCrossPlotter::deleteSelections()
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sUpdatingDisplay() );
 
     uidps_.setUnsavedChg( true );
     if ( isdensityplot_ )
@@ -1684,7 +1685,7 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
     if ( !x_.axis_ || !y_.axis_ )
 	return;
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sUpdatingDisplay() );
     isdensityplot_ = true;
     drawTypeChanged.trigger( true );
     const uiAxisHandler& xah = *x_.axis_;
@@ -1776,7 +1777,7 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 	const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2,
 	OD::MarkerStyle2D& mstyle, bool removesel )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sUpdatingDisplay() );
     isdensityplot_ = false;
     drawTypeChanged.trigger( false );
     PtrMan<uiPixmap> pixmap = new uiPixmap( arrarea_.width(),arrarea_.height());
@@ -1813,10 +1814,10 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 void uiDataPointSetCrossPlotter::drawData(
     const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2, bool rempts )
 {
-    MouseCursorChanger ms( MouseCursor::Wait );
     if ( !x_.axis_ || !yad.axis_ )
 	return;
 
+    uiUserShowWait usw( parent(), uiStrings::sUpdatingDisplay() );
     uiAxisHandler& yah = *yad.axis_;
 
     OD::MarkerStyle2D mstyle( setup_.markerstyle_ );

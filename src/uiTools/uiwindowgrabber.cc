@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "settings.h"
 #include "timer.h"
+#include "mousecursor.h"
 #include "od_helpids.h"
 
 BufferString uiWindowGrabDlg::dirname_ = "";

@@ -14,13 +14,13 @@ ________________________________________________________________________
 #include "uibitmapdisplay.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
+#include "uimsg.h"
 
 #include "bufstringset.h"
 #include "uigraphicssceneaxismgr.h"
 #include "flatposdata.h"
 #include "flatviewaxesdrawer.h"
 #include "threadwork.h"
-#include "mousecursor.h"
 
 
 uiFlatViewer::uiFlatViewer( uiParent* p )
@@ -300,15 +300,17 @@ void uiFlatViewer::updateCB( CallBacker* cb )
 
 void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
-    MouseCursorChanger cursorchgr( MouseCursor::Wait );
-
     ConstRefMan<FlatDataPack> wvapack = getPack( true );
     ConstRefMan<FlatDataPack> vdpack = getPack( false );
     bitmapdisp_->setDataPack( wvapack.ptr(), true );
     bitmapdisp_->setDataPack( vdpack.ptr(), false );
 
     bitmapdisp_->setBoundingBox( boundingBox() );
+
+    uiUserShowWait usw( this, tr("Updating bitmaps") );
     bitmapdisp_->update();
+    usw.readyNow();
+
     dataChanged.trigger();
     dispParsChanged.trigger();
 }

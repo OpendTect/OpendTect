@@ -14,6 +14,7 @@ _______________________________________________________________________________
 #include "flatposdata.h"
 #include "dbman.h"
 #include "iopar.h"
+#include "mousecursor.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "posinfo.h"
@@ -69,6 +70,7 @@ PreStackDisplay::PreStackDisplay()
     , ioobj_( 0 )
     , movefinished_(this)
     , eventcatcher_( 0 )
+    , mousecursor_( *new MouseCursor )
 {
     setMaterial( 0 );
 
@@ -109,6 +111,7 @@ PreStackDisplay::~PreStackDisplay()
     delete reader_;
     delete ioobj_;
     delete &preprocmgr_;
+    delete &mousecursor_;
 }
 
 

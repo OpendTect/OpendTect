@@ -245,7 +245,6 @@ void uiClusterJobProv::nrJobsCB( CallBacker* )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiClusterJobProv::acceptOK()
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     const int nrinlperjob = nrinlfld_->getIntValue();
     if ( mIsUdf(nrinlperjob) || nrinlperjob < 1 )
 	mErrRet( uiStrings::phrSpecify(tr("number of inlines per job")) )
@@ -283,9 +282,11 @@ bool uiClusterJobProv::acceptOK()
     setts.set( sKeyClusterProcCommand(), cmd );
     setts.write();
 
+    uiUserShowWait usw( this, tr("Writing job parameters") );
     iopar_.set( "Command", cmd );
     if ( !iopar_.write(parfnm.buf(),sKey::Pars()) )
 	mErrRet(tr("Failed to write parameter file"))
+    usw.readyNow();
 
     if ( !createJobScripts(scriptdir.buf()) )
 	mErrRet(tr("Failed to split jobs"))
@@ -294,7 +295,6 @@ bool uiClusterJobProv::acceptOK()
 		      "have been created successfully. Execute now?");
     if ( uiMSG().askGoOn(msg) )
     {
-
 	BufferString comm( "@" );
 	comm += GetExecScript( false );
 	comm += " "; comm += "od_ClusterProc";

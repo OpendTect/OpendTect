@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "gendefs.h"
-#include "uistrings.h"
+#include "uistring.h"
 #include "uiparent.h"
 #include "typeset.h"
 class uiMainWin;
@@ -37,9 +37,8 @@ mExpClass(uiBase) uiUserShowWait
 {
 public:
 
-			uiUserShowWait(uiParent*,
-				const uiString& msg=uiStrings::sSavingChanges(),
-				int sbfld=0);
+			uiUserShowWait(uiParent*,const uiString&,
+					int statusbarfld=0);
 			~uiUserShowWait()		{ readyNow(); }
 
     void		setMessage(const uiString&);

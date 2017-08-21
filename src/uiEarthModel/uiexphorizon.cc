@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "mousecursor.h"
 #include "ptrman.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -258,7 +257,7 @@ bool uiExportHorizon::writeAscii()
 	if ( !TaskRunner::execute( &taskrunner, exgrp ) ) return false;
     }
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sSavingData() );
 
     const UnitOfMeasure* unit = unitsel_->getUnit();
     TypeSet<int>& sections = sels.selsections;

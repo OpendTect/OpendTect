@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uipixmap.h"
 #include "uislider.h"
+#include "uimsg.h"
 
 #include "iopar.h"
 #include "od_helpids.h"
@@ -223,9 +224,9 @@ void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch,
     if ( !scene )
 	return;
 
+    uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
     if ( permanent )
     {
-	MouseCursorChanger cursorchanger( MouseCursor::Busy );
 	scene->setTempZStretch( 1.f );
 	scene->setFixedZStretch( zstretch );
     }

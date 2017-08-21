@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
@@ -137,7 +136,7 @@ protected:
     TrcKey			trckey_;
     BinID			draggerpos_;
     visBase::EventCatcher*	eventcatcher_;
-    MouseCursor			mousecursor_;
+    MouseCursor&		mousecursor_;
     visBase::DepthTabPlaneDragger*	planedragger_;
     visBase::FlatViewer*	flatviewer_;
     PreStack::ProcessManager&	preprocmgr_;

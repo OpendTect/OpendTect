@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uiparent.h"
-#include "mousecursor.h"
 #include "uistring.h"
 
 mFDQtclass(QWidget)

@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "mousecursor.h"
 #include "picksetmanager.h"
 #include "picksettr.h"
 #include "picksetio.h"
@@ -337,7 +336,7 @@ void uiPickPartServer::mkRandLocs2D( CallBacker* cb )
     const RandLocGenPars& rp = dlg->randPars();
     Pick::Set& ps = *psref;
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sGenerating() );
 
     selectlines_ = rp.linenms_;
     selhorids_.setEmpty();

@@ -50,7 +50,7 @@ uiMsg& uiMSG()
 
 
 uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
-    : mcc_(new MouseCursorChanger(MouseCursor::Wait))
+    : mcc_(0)
     , fldidx_(fldidx)
 {
     uiMainWin* mw = 0;
@@ -68,6 +68,8 @@ uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
 
 void uiUserShowWait::setMessage( const uiString& msg )
 {
+    if ( !mcc_ )
+	mcc_ = new MouseCursorChanger( MouseCursor::Wait );
     if ( sb_ )
 	sb_->message( msg, fldidx_ );
 }

@@ -581,7 +581,7 @@ const Scaler* uiSeisPreLoadSel::getScaler() const
 
 void uiSeisPreLoadSel::fillHist( CallBacker* )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
     const IOObj* ioobj = seissel_->ioobj();
     if ( !ioobj ) return;
 

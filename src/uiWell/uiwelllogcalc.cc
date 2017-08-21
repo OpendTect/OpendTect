@@ -93,7 +93,7 @@ static uiString getDlgUiTitle( const DBKeySet& wllids )
 
 static uiString allUndef()
 {
-    return od_static_tr("allUndef","Unless all undef");	
+    return od_static_tr("allUndef","Unless all undef");
 }
 
 
@@ -122,8 +122,9 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const DBKeySet& wllids,
 	return;
     }
 
-    MouseCursorChanger mcc( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
     getAllLogs();
+    usw.readyNow();
     if ( superwls_.isEmpty() || lognms_.isEmpty() )
     {
 	new uiLabel( this, tr("Selected wells have no logs.\n"

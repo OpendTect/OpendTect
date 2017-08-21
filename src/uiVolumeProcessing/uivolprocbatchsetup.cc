@@ -87,7 +87,7 @@ bool uiBatchSetup::retrieveChain()
 	return true;
 
     uiString errmsg;
-    MouseCursorChanger mcc( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sReadingData() );
     if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
     {
 	chain_->unRef();

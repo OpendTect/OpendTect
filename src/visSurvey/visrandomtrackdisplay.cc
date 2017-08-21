@@ -76,6 +76,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , geomnodejustmoved_(false)
     , ispicking_(false)
     , pickstartnodeidx_(-1)
+    , mousecursor_( *new MouseCursor )
 {
     datapacks_.allowNull();
     transfdatapacks_.allowNull();
@@ -165,6 +166,7 @@ RandomTrackDisplay::~RandomTrackDisplay()
 
     if ( premovingselids_ )
 	delete premovingselids_;
+    delete &mousecursor_;
 }
 
 

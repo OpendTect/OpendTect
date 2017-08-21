@@ -208,7 +208,7 @@ protected:
 							const TrcKeyZSampling&);
 
     visBase::EventCatcher*		eventcatcher_;
-    MouseCursor				mousecursor_;
+    MouseCursor&			mousecursor_;
     RefMan<visBase::DepthTabPlaneDragger> dragger_;
 
     visBase::GridLines*			gridlines_;

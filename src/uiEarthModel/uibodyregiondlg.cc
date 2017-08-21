@@ -972,9 +972,6 @@ bool uiBodyRegionDlg::acceptOK()
 
 bool uiBodyRegionDlg::createImplicitBody()
 {
-    MouseCursorChanger mcc( MouseCursor::Wait );
-
-
 /*
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );

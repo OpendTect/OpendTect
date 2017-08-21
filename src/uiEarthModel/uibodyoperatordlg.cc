@@ -319,7 +319,6 @@ bool uiBodyOperatorDlg::acceptOK()
     if ( !emcs->getBodyOperator()->isOK() )
 	mRetErr(tr("Your operator is wrong"))
 
-    MouseCursorChanger bodyopration( MouseCursor::Wait );
     uiTaskRunner taskrunner( this );
     if ( !emcs->regenerateMCBody( &taskrunner ) )
 	mRetErr(tr("Generating body failed"))

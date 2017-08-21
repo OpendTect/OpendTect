@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+#include "mousecursor.h"
 
 #define mSldUnits 250
 #define mMaxObjectSize 30 //18 x object size
@@ -447,6 +448,7 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     , mainviewer_(mw)
     , manipdrawbut_(0)
     , toolbar_(0)
+    , cursor_(*new MouseCursor)
 {
     uiToolBar::ToolBarArea tba( uiToolBar::Top );
     toolbar_ = new uiToolBar( mw.parent(), uiStrings::phrJoinStrings(
@@ -459,6 +461,12 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     mainviewer_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.setDragMode( uiGraphicsViewBase::NoDrag );
+}
+
+
+uiObjectItemViewControl::~uiObjectItemViewControl()
+{
+    delete &cursor_;
 }
 
 

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "mathexpression.h"
 
 #include "linear.h"
+#include "mousecursor.h"
 #include "settings.h"
 
 #include "uigeninput.h"

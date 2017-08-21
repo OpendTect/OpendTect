@@ -79,9 +79,9 @@ void setSelection( const DBKey& mid, int auxidx )
 
     const bool hchanged = selmid_.isValid() && selmid_ != mid;
     selmid_ = mid;
-    for ( int idx=0; idx<auxinfo_->mids_.size(); idx++ )
+    for ( int idx=0; idx<auxinfo_->dbkys_.size(); idx++ )
     {
-	if ( auxinfo_->mids_[idx]==selmid_ )
+	if ( auxinfo_->dbkys_[idx]==selmid_ )
 	{
 	    horlistfld_->setCurrentItem( idx );
 	    return;
@@ -98,11 +98,11 @@ void auxidxChg( CallBacker* )
 void selChg( CallBacker* )
 {
     const int hidx = horlistfld_->currentItem();
-    if ( !auxinfo_->mids_.size() || hidx<0 )
+    if ( !auxinfo_->dbkys_.size() || hidx<0 )
 	return;
 
-    int oldidx =  auxinfo_->mids_[hidx]!=selmid_ ? 0 : auxidx_;
-    selmid_ = auxinfo_->mids_[hidx];
+    int oldidx =  auxinfo_->dbkys_[hidx]!=selmid_ ? 0 : auxidx_;
+    selmid_ = auxinfo_->dbkys_[hidx];
 
     datalistfld_->setEmpty();
     datalistfld_->addItems( auxinfo_->auxdatanms_[hidx].getUiStringSet() );
@@ -118,11 +118,14 @@ void selChg( CallBacker* )
 };
 
 
-uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
+uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load,
+				uiParent* par )
 {
-    if ( !load ) return;
+    if ( !load )
+	return;
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( par, uiStrings::sReadingData() );
+
     const DBDirEntryList horlist( mIOObjContext(EMHorizon3D) );
     for ( int idx=0; idx<horlist.size(); idx++ )
     {
@@ -132,7 +135,7 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
 	eminfo.getAttribNames( attrnms );
 	if ( attrnms.size() )
 	{
-	    mids_ += obj.key();
+	    dbkys_ += obj.key();
 	    hornms_.add( obj.name() );
 	    auxdatanms_ += attrnms;
 	}
@@ -144,14 +147,14 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo(
 	const HorizonAuxDataInfo& n )
 {
     hornms_ = n.hornms_;
-    mids_ = n.mids_;
+    dbkys_ = n.dbkys_;
     auxdatanms_ = n.auxdatanms_;
 }
 
 
 uiHorizonAuxDataSel::HorizonAuxDataInfo::~HorizonAuxDataInfo()
 {
-    mids_.erase();
+    dbkys_.erase();
     auxdatanms_.erase();
 }
 
@@ -195,13 +198,13 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const DBKey& mid,
     if ( auxinfo )
     {
 	dlg_ = new uiHorizonAuxDataDlg( p, *auxinfo );
-	nrhorswithdata_ = auxinfo->mids_.size();
+	nrhorswithdata_ = auxinfo->dbkys_.size();
     }
     else
     {
 	HorizonAuxDataInfo ainfo( true );
 	dlg_ = new uiHorizonAuxDataDlg( p, ainfo );
-	nrhorswithdata_ = ainfo.mids_.size();
+	nrhorswithdata_ = ainfo.dbkys_.size();
     }
 }
 

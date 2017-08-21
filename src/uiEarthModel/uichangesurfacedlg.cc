@@ -112,7 +112,6 @@ bool uiChangeHorizonDlg::doProcessing2D()
 
 bool uiChangeHorizonDlg::doProcessing3D()
 {
-    MouseCursorChanger chgr( MouseCursor::Wait );
     bool change = false;
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
        savefldgrp_->getNewHorizon() : horizon_;
@@ -122,6 +121,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
     if ( !hor3d )
 	return false;
 
+    uiUserShowWait( this, tr("Processing sections") );
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );

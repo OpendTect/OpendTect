@@ -405,7 +405,7 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
     if ( full )
 	trunner = new uiTaskRunner( this );
 
-    MouseCursorChanger chgr( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
     const BufferString fnm0 = filespec_.fileName( 0 );
     if ( !scanFile(fnm0,ct,trunner) )
 	return;
@@ -754,7 +754,7 @@ void uiSEGYReadStarter::examineCB( CallBacker* )
     if ( !commit() )
 	return;
 
-    MouseCursorChanger chgr( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
     uiSEGYExamine::Setup su( examineNrTraces() );
     su.fs_ = filespec_; su.fp_ = filepars_;
     uiSEGYExamine* dlg = new uiSEGYExamine( this, su );

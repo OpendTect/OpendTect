@@ -102,9 +102,10 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 	return;
     }
 
-    if ( str.size() < 3 ) return; // Not enough to search for.
+    if ( str.size() < 3 )
+	return; // Not enough to search for.
 
-    MouseCursorChanger mcch( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sSearching() );
     dispidxs_.erase();
     if ( str.isNumber(true) || str.find(':') ) // Search for ID
     {

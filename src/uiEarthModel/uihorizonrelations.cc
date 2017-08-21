@@ -266,13 +266,11 @@ protected:
 
 void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 {
-    MouseCursorChanger chgr( MouseCursor::Wait );
-
     HorizonSorter sorter( horids_,is2d_ );
     sorter.setName( "Check crossings" );
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, sorter ) ) return;
-    MouseCursorManager::restoreOverride();
+    if ( !TaskRunner::execute( &taskrunner, sorter ) )
+	return;
 
     int count = 0;
     for ( int idx=0; idx<horids_.size(); idx++ )

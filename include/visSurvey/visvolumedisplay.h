@@ -291,7 +291,7 @@ protected:
     BufferString		slicename_;
     TrcKeyZSampling		csfromsession_;
 
-    MouseCursor			mousecursor_;
+    MouseCursor&		mousecursor_;
     visBase::EventCatcher*	eventcatcher_;
 
     bool			isinited_;

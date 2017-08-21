@@ -149,8 +149,9 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
     ctio_.setObj( dlg.ioObj()->clone() );
 
     const BufferString fnm( ctio_.ioobj_->mainFileName() );
-    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     bool rv = false;
+    uiUserShowWait usw( this, forsave ? uiStrings::sSavingData()
+				      : uiStrings::sReadingData() );
     if ( forsave )
     {
 	od_ostream strm( fnm );
@@ -167,6 +168,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 	else
 	    rv = attrset_.getFrom( strm );
     }
+    usw.readyNow();
 
     if ( !rv )
     {
@@ -188,6 +190,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 		    { attrset_.removeSingle( idx ); idx--; }
 	    }
 	}
+	uiUserShowWait usw2( this, uiStrings::sUpdatingDisplay() );
 	for ( int idx=0; idx<attrset_.size(); idx++ )
 	    addItem( attrset_.attr(idx).name() );
     }

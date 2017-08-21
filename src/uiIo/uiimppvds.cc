@@ -90,12 +90,12 @@ bool uiImpPVDS::acceptOK()
     if ( !strm.isOK() )
 	mErrRet(uiStrings::sCantOpenInpFile())
 
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
     RefMan<DataPointSet> dps = new DataPointSet( is2d_ );
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-    bool rv = getData( strm, fd_, *dps );
-    MouseCursorManager::restoreOverride();
-
-    return rv ? writeData( *dps, *ioobj ) : false;
+    if ( !getData( strm, fd_, *dps ) )
+	return false;
+    usw.setMessage( uiStrings::sSavingData() );
+    return writeData( *dps, *ioobj );
 }
 
 
@@ -243,10 +243,8 @@ bool uiImpPVDS::writeData( const DataPointSet& dps, const IOObj& ioobj )
 	mErrRet(tr("No data read"))
 
     uiString errmsg;
-    MouseCursorManager::setOverride( MouseCursor::Wait );
     const bool isok = dps.dataSet().putTo( ioobj.fullUserExpr(false), errmsg,
 					   false);
-    MouseCursorManager::restoreOverride();
     if ( !isok )
 	mErrRet(errmsg)
 

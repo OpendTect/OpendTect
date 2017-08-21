@@ -471,7 +471,7 @@ void uiWellMan::logUOMPush( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    uiUserShowWait usw( this );
+    uiUserShowWait usw( this, uiStrings::sSavingData() );
     for ( int iwell=0; iwell<wds.size(); iwell++ )
 	saveWell( *wds[iwell], false );
 }
@@ -524,7 +524,7 @@ RefMan<Well::Data> uiWellMan::getWellData( DBKey dbky, bool emiterr,
     if ( typ2 != Well::Inf )
 	reqs.add( typ2 );
 
-    uiUserShowWait usw( this );
+    uiUserShowWait usw( this, uiStrings::sSavingData() );
     ret = Well::MGR().fetchForEdit( dbky, reqs, uirv );
     if ( emiterr && !ret )
     {
@@ -538,7 +538,8 @@ RefMan<Well::Data> uiWellMan::getWellData( DBKey dbky, bool emiterr,
 
 void uiWellMan::saveWell( const Well::Data& wd, bool showwait )
 {
-    PtrMan<uiUserShowWait> usw = showwait ? new uiUserShowWait(this) : 0;
+    PtrMan<uiUserShowWait> usw = showwait
+	? new uiUserShowWait(this,uiStrings::sSavingData()) : 0;
 
     uiRetVal uirv = Well::MGR().store( wd );
     if ( usw )
@@ -641,7 +642,7 @@ void uiWellMan::renameLogPush( CallBacker* )
     if ( logsfld_->isPresent(newnm) )
 	mErrRet(tr("Name already in use"))
 
-    uiUserShowWait usw( this );
+    uiUserShowWait usw( this, uiStrings::sSavingData() );
     for ( int iwell=0; iwell<selwellids_.size(); iwell++ )
     {
 	RefMan<Well::Data> wd = getWellData( selwellids_[iwell], false,
@@ -671,7 +672,7 @@ void uiWellMan::removeLogPush( CallBacker* )
 
     BufferStringSet logs2rem; logsfld_->getChosen( logs2rem );
 
-    uiUserShowWait usw( this );
+    uiUserShowWait usw( this, uiStrings::sSavingData() );
     for ( int iwell=0; iwell<selwellids_.size(); iwell++ )
     {
 	RefMan<Well::Data> wd = getWellData( selwellids_[iwell], false,

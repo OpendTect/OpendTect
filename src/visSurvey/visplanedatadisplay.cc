@@ -16,6 +16,7 @@
 #include "seisdatapack.h"
 #include "volumedatapackzaxistransformer.h"
 #include "settings.h"
+#include "mousecursor.h"
 #include "survinfo.h"
 
 #include "visdepthtabplanedragger.h"
@@ -84,6 +85,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , originalresolution_( -1 )
     , probe_(0)
     , undo_( *new Undo() )
+    , mousecursor_( *new MouseCursor )
 {
     texturerect_ = visBase::TextureRectangle::create();
     addChild( texturerect_->osgNode() );
@@ -145,6 +147,7 @@ PlaneDataDisplay::~PlaneDataDisplay()
     gridlines_->unRef();
     undo_.removeAll();
     delete &undo_;
+    delete &mousecursor_;
 }
 
 

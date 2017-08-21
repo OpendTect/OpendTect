@@ -143,7 +143,7 @@ public:
     StereoType			getStereoType() const;
     void			setStereoOffset(float);
     float			getStereoOffset() const;
-    
+
     void			updateZDomainInfo();
 
     void			setMapView(bool yn);
@@ -162,7 +162,7 @@ protected:
 
     virtual void			updateActModeCursor();
     void				mouseCursorChg(CallBacker*);
-    MouseCursor				actmodecursor_;
+    MouseCursor&			actmodecursor_;
 
     void				notifyManipulatorMovement(
 						    float dh,float dv,float df);

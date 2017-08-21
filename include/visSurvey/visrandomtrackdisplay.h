@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "seisdatapack.h"
@@ -256,15 +255,15 @@ protected:
     visBase::MarkerSet*		markerset_;
 
     visBase::EventCatcher*	eventcatcher_;
-    MouseCursor			mousecursor_;
+    MouseCursor&		mousecursor_;
 
     int					selnodeidx_;
     RefObjectSet<RandomSeisDataPack>	datapacks_;
     RefObjectSet<RandomSeisDataPack>	transfdatapacks_;
-    
+
     TypeSet<BinID>		trcspath_;
     TrcKeyPath			tkpath_;
-    				//TODO replace trcspath_ by tkpath_;
+				//TODO replace trcspath_ by tkpath_;
     TypeSet<BinID>		nodes_;
 
     ZAxisTransform*		datatransform_;

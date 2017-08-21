@@ -296,7 +296,7 @@ void uiDataPointSetCrossPlotWin::showTableSel( CallBacker* )
     {
 	if ( !plotter_.selAreaSize() ) return;
 
-	MouseCursorChanger cursorlock( MouseCursor::Wait );
+	uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 	Array2D<float>* data =
 	    new Array2DImpl<float>( plotter_.arrArea().width() + 1,
 				    plotter_.arrArea().height() +1 );
@@ -443,9 +443,9 @@ void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
 
 void uiDataPointSetCrossPlotWin::showY2( CallBacker* )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     if ( plotter_.y2_.axis_ )
     {
+	uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 	plotter_.showY2( disptb_.isOn(showy2tbid_) );
 	setSelComboSensitive( disptb_.isOn(showy2tbid_) );
     }
@@ -488,7 +488,6 @@ void uiDataPointSetCrossPlotWin::selOption( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     if ( mIsUdf(plotter_.plotperc_) ) return; // window is closing
 
     float newperc = eachfld_->getFValue();
@@ -542,6 +541,8 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 	    eachfld_->setSensitive( true );
 	    return;
 	}
+
+	uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
 	disptb_.turnOn( densityplottbid_, !wantnormalplot_ );
 	const bool ison = disptb_.isOn( densityplottbid_ );

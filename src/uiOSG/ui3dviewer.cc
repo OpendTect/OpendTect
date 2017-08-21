@@ -215,6 +215,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , mouseeventblocker_(*new uiMouseEventBlockerByGestures(500))
     , mapview_(false)
     , swapcallback_( 0 )
+    , actmodecursor_( *new MouseCursor )
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
@@ -254,6 +255,8 @@ ui3DViewerBody::~ui3DViewerBody()
     offscreenrenderswitch_->unref();
     offscreenrenderhudswitch_->unref();
     if ( swapcallback_ ) swapcallback_->unref();
+
+    delete &actmodecursor_;
 }
 
 

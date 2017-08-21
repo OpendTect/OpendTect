@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uihorsavefieldgrp.h"
 #include "uiimphorizon2d.h"
 #include "uiseiseventsnapper.h"
+#include "uimsg.h"
 
 #include "attribdescset.h"
 #include "datapointset.h"
@@ -250,9 +251,9 @@ const char* uiEMAttribPartServer::getAttribBaseNm() const
 
 
 void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
-       					    TaskRunner* )
+					    TaskRunner* )
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sCollectingData() );
 
     StepInterval<float> intv = horshiftdlg_->shiftRg();
 

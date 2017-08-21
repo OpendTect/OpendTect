@@ -270,6 +270,7 @@ public:
     static uiString sClear()		{ return tr("Clear"); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sCode(int num=1)	{ return tr("Code",0,num); }
+    static uiString sCollectingData()	{ return tr("Collecting Data"); }
     static uiString sColorTable(int num=1);
     static uiString sColor(int num=1)	{ return tr("Color",0, num); }
     static uiString sColumn(int num=1)	{ return tr("Column",0,num); }
@@ -358,6 +359,7 @@ public:
     static uiString sInsert();
     static uiString sInvalid();
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
+    static uiString sInterpolating()	{ return tr("Interpolating"); }
     static uiString sInterpolation()	{ return tr("Interpolation"); }
     static uiString sLatitude(bool abbrev=false);
     static uiString sLayer(int num=1)	{ return tr("Layer",0,num); }
@@ -436,6 +438,7 @@ public:
     static uiString sProperties();
     static uiString sRange(int num=1)	{ return tr("Range",0,num); }
     static uiString sRandomLine(int num=1) { return tr("Random Line",0,num); }
+    static uiString sReadingData()	{ return tr("Reading data"); }
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRed()		{ return tr("Red"); }
     static uiString sRedo()		{ return tr("Redo"); }
@@ -457,9 +460,11 @@ public:
     static uiString sSaveAsDefault()    { return tr("Save as Default"); }
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
     static uiString sSavingChanges()	{ return tr("Saving changes"); }
+    static uiString sSavingData()	{ return tr("Saving data"); }
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int num=1)	{ return tr("Scene",0,num); }
     static uiString sScenes()		{ return sScene(mPlural); }
+    static uiString sSearching()	{ return tr("Searching"); }
     static uiString sSec()		{ return tr("sec"); }
     static uiString sSize()		{ return tr("Size"); }
     static uiString sSEGY()		{ return tr("SEG-Y"); }
@@ -528,6 +533,8 @@ public:
     static uiString sVertical()		{ return tr("Vertical"); }
     static uiString sVolume(int num=1);
     static uiString sView()		{ return tr("View"); }
+    static uiString sUpdatingDB()	{ return tr("Updating database"); }
+    static uiString sUpdatingDisplay()	{ return tr("Updating display"); }
     static uiString sUseSingleColor()	{ return tr("Use Single Color"); }
     static uiString sWarning()		{ return tr("Warning"); }
     static uiString sWavelet(int num=1);

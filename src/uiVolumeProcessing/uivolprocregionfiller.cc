@@ -69,8 +69,8 @@ uiGroup* uiRegionFiller::createVelGrp()
 {
     uiGroup* grp = new uiGroup( this, "Velocity Group" );
 
-    uiHorizonAuxDataSel::HorizonAuxDataInfo auxdatainfo( true );
-    const bool hasauxdata = auxdatainfo.mids_.size();
+    uiHorizonAuxDataSel::HorizonAuxDataInfo auxdatainfo( true, this );
+    const bool hasauxdata = auxdatainfo.dbkys_.size();
     const uiString fromhorattribstr = tr("From Horizon Data");
 
     const DBKey& starthorid = regionfiller_->getStartValueHorizonID();

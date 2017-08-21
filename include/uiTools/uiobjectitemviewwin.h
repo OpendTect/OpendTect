@@ -29,9 +29,7 @@ class uiGraphicsObjectScene;
 class uiAxisHandler;
 class uiBorder;
 
-/*!
-\brief A uiMainWin that holds embedded uiObjects and controls.
-*/
+/*!\brief A uiMainWin that holds embedded uiObjects and controls.  */
 
 mExpClass(uiTools) uiObjectItemViewWin : public uiMainWin
 { mODTextTranslationClass(uiObjectItemViewWin);
@@ -146,6 +144,7 @@ mExpClass(uiTools) uiObjectItemViewControl : public uiGroup
 { mODTextTranslationClass(uiObjectItemViewControl);
 public :
 			uiObjectItemViewControl(uiObjectItemView&);
+			~uiObjectItemViewControl();
 
     virtual uiToolBar*	toolBar() { return toolbar_;}
 
@@ -157,7 +156,7 @@ protected:
     uiObjectItemView&	mainviewer_;
     uiToolBar*          toolbar_;
     uiToolButton*	manipdrawbut_;
-    MouseCursor		cursor_;
+    MouseCursor&	cursor_;
 
     void		setToolButtons();
     void		stateCB(CallBacker*);

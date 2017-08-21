@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "mathexpression.h"
-#include "mousecursor.h"
 #include "oddirs.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
@@ -1009,7 +1008,7 @@ void uiDataPointSet::reDoTable()
 
 void uiDataPointSet::redoAll()
 {
-    MouseCursorChanger mc( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
     reDoTable();
 
     if ( statswin_ )
@@ -1344,21 +1343,23 @@ void uiDataPointSet::retrieve( CallBacker* )
     curseldlg_ = 0;
     if ( !selok ) return;
 
-    MouseCursorManager::setOverride( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sReadingData() );
     PosVecDataSet pvds;
     uiString errmsg;
     bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
-    MouseCursorManager::restoreOverride();
+    usw.readyNow();
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-    { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
-    MouseCursorManager::setOverride( MouseCursor::Wait );
+	{ uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
+    usw.setMessage( tr("Generating data") );
     RefMan<DataPointSet> newdps = new DataPointSet( pvds, dps_->is2D(),
 					     dps_->isMinimal() );
+    usw.readyNow();
     if ( newdps->isEmpty() )
 	{ uiMSG().error(tr("Data set is not suitable"));return; }
 
+    usw.setMessage( uiStrings::sUpdatingDisplay() );
     setCaption( seldlg.ioObj()->uiName() );
     removeSelPts( 0 );
     tbl_->clearTable();
@@ -1374,7 +1375,6 @@ void uiDataPointSet::retrieve( CallBacker* )
 
     redoAll();
     mkToolBars();
-    MouseCursorManager::restoreOverride();
 }
 
 
@@ -1469,7 +1469,7 @@ bool uiDataPointSet::doSave()
     uiDataPointSetSave uidpss( this, storepars_.find(sKey::Type()) );
     if ( !uidpss.go() ) return false;
 
-    MouseCursorManager::setOverride( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sSavingData() );
     RefMan<DataPointSet> savedps = dps_->clone();
     savedps->dataSet().pars() = storepars_;
     if ( !grpnames_.isEmpty() )
@@ -1478,7 +1478,7 @@ bool uiDataPointSet::doSave()
     uiString errmsg;
     const bool ret = savedps->dataSet().
 			putTo( uidpss.fname_, errmsg, uidpss.istab_ );
-    MouseCursorManager::restoreOverride();
+    usw.readyNow();
     if ( !ret )
 	uiMSG().error( errmsg );
     else

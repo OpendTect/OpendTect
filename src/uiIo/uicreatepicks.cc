@@ -168,9 +168,6 @@ uiGenPosPicksDlg::~uiGenPosPicksDlg()
 }
 
 
-#define mSetCursor() MouseCursorManager::setOverride( MouseCursor::Wait )
-#define mRestorCursor() MouseCursorManager::restoreOverride()
-
 bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
 {
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
@@ -181,17 +178,17 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
     if ( !prov->initialize( &taskrunner ) )
 	return false;
 
-    mSetCursor();
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
     IOPar iop; posfiltfld_->fillPar( iop );
     PtrMan<Pos::Filter> filt = Pos::Filter::make( iop, prov->is2D() );
     if ( filt && !filt->initialize(&taskrunner) )
-	{ mRestorCursor(); return false; }
+	return false;
 
     RefMan<DataPointSet> dps = new DataPointSet( prov->is2D() );
     if ( !dps->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
 				 &taskrunner) )
 	return false;
-    mRestorCursor();
+    usw.readyNow();
 
     const int dpssize = dps->size();
     int size = maxnrpickfld_->getIntValue();
