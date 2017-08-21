@@ -630,3 +630,39 @@ bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
 		    notxt.getOriginalString() );
     return !checked;
 }
+
+
+uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
+    : mcc_(new MouseCursorChanger(MouseCursor::Wait))
+    , fldidx_(fldidx)
+{
+    uiMainWin* mw = 0;
+    if ( p )
+	mw = p->mainwin();
+    if ( !mw || !mw->statusBar() )
+	mw = uiMainWin::activeWindow();
+    if ( !mw || !mw->statusBar() )
+	mw = uiMain::theMain().topLevel();
+    sb_ = mw ? mw->statusBar() : 0;
+
+    setMessage( msg );
+}
+
+
+void uiUserShowWait::setMessage( const uiString& msg )
+{
+    if ( sb_ )
+	sb_->message( msg, fldidx_ );
+}
+
+
+void uiUserShowWait::readyNow()
+{
+    if ( mcc_ )
+    {
+	setMessage( uiString::emptyString() );
+	mcc_->restore();
+	delete mcc_; mcc_ = 0;
+    }
+}
+

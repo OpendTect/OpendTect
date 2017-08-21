@@ -405,6 +405,7 @@ public:
     static uiString sSaveAs();
     static uiString sSaveAsDefault()    { return tr("Save as Default"); }
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
+    static uiString sSavingChanges()	{ return tr("Saving changes"); }
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int num=1)	{ return tr("Scene",0,1); }
     static uiString sScenes()		{ return sScene(mPlural); }
