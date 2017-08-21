@@ -99,6 +99,7 @@ void uiSEGYBulkImporter::fillRow( int rowid )
 
 void uiSEGYBulkImporter::selectFilesCB( CallBacker*)
 {
+
 }
 
 
