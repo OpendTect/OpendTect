@@ -14,13 +14,14 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "gendefs.h"
-#include "uistring.h"
+#include "uistrings.h"
+class MouseCursorChanger;
 class uiMainWin;
 class uiStatusBar;
 mFDQtclass(QWidget)
 class BufferStringSet;
 class FileMultiString;
-class uiString;
+class uiParent;
 
 
 mExpClass(uiBase) uiMsg
@@ -63,7 +64,7 @@ public:
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
     void	errorWithDetails(const FileMultiString&);
-    		/*!<If input has multiple parts, the first will be displayed
+		/*!<If input has multiple parts, the first will be displayed
 		    directly, while the complete message is available under a
 		    'Details ...' button, separated by new lines. */
     void	errorWithDetails(const uiStringSet&,
@@ -87,18 +88,18 @@ public:
 			 const uiString& textcncl=uiString::emptyString(),
 			 const uiString& caption=uiString::emptyString());
     int		askSave(const uiString&,bool cancelbut=true);
-    		//!<\retval 0=Don't save 1=Save -1=Cancel
+		//!<\retval 0=Don't save 1=Save -1=Cancel
     int		askRemove(const uiString&,bool cancelbut=false);
-    		//!<\retval 0=Don't remove 1=Remove -1=Cancel
+		//!<\retval 0=Don't remove 1=Remove -1=Cancel
     int		askContinue(const uiString&);
-    		//!<\retval 0=Abort 1=Continue
+		//!<\retval 0=Abort 1=Continue
     int		askOverwrite(const uiString&);
 		//!<\retval 0=Abort 1=Overwrite
     int		ask2D3D(const uiString&,bool cancelbut=false);
 		//!<\retval 0=3D 1=2D -1=Cancel
 
     bool	askGoOn(const uiString&,bool withyesno=true);
-    		//!< withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
+		//!< withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
     bool	askGoOn(const uiString& msg,const uiString& textyes,
 			const uiString& textno);
     int		askGoOnAfter(const uiString&,
@@ -106,14 +107,14 @@ public:
 			     const uiString& textyes=uiString::emptyString(),
 			     const uiString& textno=uiString::emptyString());
     bool	askGoOn(const uiString&,bool withyesno,
-	    		bool* dontaskagain);
-    		/*!<withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
+			bool* dontaskagain);
+		/*!<withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
 		   If don't askagain is given, the user will have the
 		   option to not see this again, and the boolean will
 		   be filled in. */
     bool	askGoOn(const uiString& msg,const uiString& textyes,
 			const uiString& textno,
-	    		bool* dontaskagain);
+			bool* dontaskagain);
 		/*!<If don't askagain is given, the user will have the
 		   option to not see this again, and the boolean will
 		   be filled in. */
@@ -128,17 +129,17 @@ public:
 		   be filled in. */
     bool	showMsgNextTime(const uiString&,
 				const uiString& msg=uiString::emptyString());
-    		//!< The msg must be negative, like "Don't show msg again"
-    		//!< Be sure to store the ret val in the user settings
+		//!< The msg must be negative, like "Don't show msg again"
+		//!< Be sure to store the ret val in the user settings
 
     static void setNextCaption(const uiString&);
-    		//!< Sets the caption for the next call to any of the msg fns
-    		//!< After that, caption will be reset to default
+		//!< Sets the caption for the next call to any of the msg fns
+		//!< After that, caption will be reset to default
 
     uiMainWin*	setMainWin(uiMainWin*);	//!< return old
 
     bool	toStatusbar(uiString,int fld=0,int msec=-1);
-    		//!< returns false if there is none
+		//!< returns false if there is none
     uiStatusBar* statusBar();
 
     void	about(const uiString&);
@@ -181,7 +182,7 @@ mGlobal(uiBase) uiMsg& uiMSG();
 mExpClass(uiBase) uiMsgMainWinSetter
 {
 public:
-    			uiMsgMainWinSetter( uiMainWin* np )
+			uiMsgMainWinSetter( uiMainWin* np )
 			    : isset_( np )
 			    , oldparent_( 0 )
 			{
@@ -194,6 +195,38 @@ protected:
     uiMainWin*		oldparent_;
     bool		isset_;
 };
+
+
+
+/*!\brief tells user something is happening.
+
+  Sets mouse cursor and puts something in status bar (if available). Will
+  automatically clean up on destruction.
+
+  Used extensively from 7.X, added here to make porting easier.
+
+*/
+
+mExpClass(uiBase) uiUserShowWait
+{
+public:
+
+			uiUserShowWait(uiParent*,
+				const uiString& msg=uiStrings::sSavingChanges(),
+				int sbfld=0);
+			~uiUserShowWait()		{ readyNow(); }
+
+    void		setMessage(const uiString&);
+    void		readyNow();
+
+protected:
+
+    uiStatusBar*	sb_;
+    MouseCursorChanger*	mcc_;
+    const int		fldidx_;
+
+};
+
 
 
 #endif

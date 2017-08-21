@@ -248,7 +248,7 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 			   const uiString& cncltxt, const uiString& title )
 {
     return showMessageBox( icon, parent, txt, yestxt, notxt,
-	    		   cncltxt, title, 0 );
+			   cncltxt, title, 0 );
 }
 
 
@@ -311,8 +311,8 @@ bool uiMsg::message( const uiString& part1, const uiString& part2,
     bool dontshowagain = false;
     showMessageBox( Information, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Information"), 
-	   	    withdontshowgain ? &dontshowagain : 0 );
+		    tr("Information"),
+		    withdontshowgain ? &dontshowagain : 0 );
     return dontshowagain;
 }
 
@@ -333,8 +333,8 @@ bool uiMsg::warning( const uiString& part1, const uiString& part2,
     bool dontshowagain = false;
     showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Warning"), 
-	   	    withdontshowgain ? &dontshowagain : 0 );
+		    tr("Warning"),
+		    withdontshowgain ? &dontshowagain : 0 );
     return dontshowagain;
 }
 
@@ -355,8 +355,8 @@ bool uiMsg::error( const uiString& part1, const uiString& part2,
     bool dontshowagain = false;
     showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
-		    tr("Error"), 
-	   	    withdontshowgain ? &dontshowagain : 0 );
+		    tr("Error"),
+		    withdontshowgain ? &dontshowagain : 0 );
 
     return dontshowagain;
 }
@@ -585,7 +585,7 @@ bool uiMsg::askGoOn( const uiString& text, const uiString& textyes,
 
 int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 			 const uiString& textyesinp, const uiString& textnoinp,
-       			 bool* notagain	)
+			 bool* notagain	)
 {
     const uiString yestxt = textyesinp.isEmpty()
 	? uiStrings::sYes()
@@ -630,3 +630,39 @@ bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
 		    notxt.getOriginalString() );
     return !checked;
 }
+
+
+uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
+    : mcc_(new MouseCursorChanger(MouseCursor::Wait))
+    , fldidx_(fldidx)
+{
+    uiMainWin* mw = 0;
+    if ( p )
+	mw = p->mainwin();
+    if ( !mw || !mw->statusBar() )
+	mw = uiMainWin::activeWindow();
+    if ( !mw || !mw->statusBar() )
+	mw = uiMain::theMain().topLevel();
+    sb_ = mw ? mw->statusBar() : 0;
+
+    setMessage( msg );
+}
+
+
+void uiUserShowWait::setMessage( const uiString& msg )
+{
+    if ( sb_ )
+	sb_->message( msg, fldidx_ );
+}
+
+
+void uiUserShowWait::readyNow()
+{
+    if ( mcc_ )
+    {
+	setMessage( uiString::emptyString() );
+	mcc_->restore();
+	delete mcc_; mcc_ = 0;
+    }
+}
+
