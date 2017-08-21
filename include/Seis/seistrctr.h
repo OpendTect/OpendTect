@@ -172,7 +172,7 @@ public:
 			     For write, this will put tape header (if any) */
 
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
-    bool		read(SeisTrc&);
+    virtual bool	read(SeisTrc&);
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	supportsGoTo() const		{ return false; }
     virtual bool	goTo(const BinID&)		{ return false; }

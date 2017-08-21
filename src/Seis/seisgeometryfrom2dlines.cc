@@ -38,21 +38,25 @@ mGlobal(Seis) void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines()
 
 void OD_2DLineGeometryFrom2DLinesTransf::doTransf( CallBacker* )
 {
-    if ( !SI().has2D() ) return;
+    if ( !SI().has2D() )
+	return;
 
     BufferStringSet lsnms; DBKeySet lsids;
     SeisIOObjInfo::get2DLineInfo( lsnms, &lsids );
-    if ( lsnms.isEmpty() ) return;
+    if ( lsnms.isEmpty() )
+	return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
 
     for ( int ils=0; ils<lsids.size(); ils++ )
     {
 	IOObj* ioobj = DBM().get( lsids[ils] );
-	if ( !ioobj ) continue;
+	if ( !ioobj )
+	    continue;
 	Seis2DLineSet ls( *ioobj );
 	delete ioobj;
-	if ( ls.nrLines() < 1 ) continue;
+	if ( ls.nrLines() < 1 )
+	    continue;
 
 	S2DPOS().setCurLineSet( ls.name() );
 	BufferStringSet linesdone;
@@ -78,4 +82,3 @@ void OD_2DLineGeometryFrom2DLinesTransf::doTransf( CallBacker* )
 
     MouseCursorManager::restoreOverride();
 }
-

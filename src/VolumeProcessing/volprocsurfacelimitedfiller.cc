@@ -19,7 +19,6 @@
 #include "dbman.h"
 #include "ioobj.h"
 #include "executor.h"
-#include "mousecursor.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 
@@ -212,8 +211,6 @@ int SurfaceLimitedFiller::setDataHorizon( const DBKey& mid,
 
 bool SurfaceLimitedFiller::prepareComp( int )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-
     if ( !usestartval_ )
     {
 	startauxidx_ =
@@ -437,7 +434,6 @@ void SurfaceLimitedFiller::fillPar( IOPar& pars ) const
 
 bool SurfaceLimitedFiller::useHorInterFillerPar( const IOPar& pars )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     if ( !Step::usePar( pars ) )
 	return false;
 
@@ -496,7 +492,6 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
     if ( type == sKeyHorInterFiller() )
 	return useHorInterFillerPar( pars );
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     if ( !Step::usePar( pars ) )
 	return false;
 

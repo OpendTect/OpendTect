@@ -316,7 +316,11 @@ void Seis::VolFetcher::getNext( SeisTrc& trc )
 	    return;
 
 	if ( !trl_->read(trc) )
-	    { uirv_.set( trl_->errMsg() ); return; }
+	{
+	    const uiString errmsg = trl_->errMsg();
+	    uirv_.set( errmsg.isEmpty() ? uiStrings::sFinished() : errmsg );
+	    return;
+	}
 
 	havefilled = true;
     }

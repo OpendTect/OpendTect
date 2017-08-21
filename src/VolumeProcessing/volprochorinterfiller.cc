@@ -10,7 +10,6 @@
 #include "arrayndimpl.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
-#include "mousecursor.h"
 #include "dbkey.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
@@ -274,8 +273,6 @@ bool HorInterFiller::usePar( const IOPar& pars )
 {
     if ( !Step::usePar( pars ) )
 	return false;
-
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     topvalue_ = mUdf(float);
     bottomvalue_ = mUdf(float);

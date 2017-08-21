@@ -175,6 +175,7 @@ bool BlocksSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    errmsg_ = uirv;
 	return false;
     }
+    headerdone_ = true;
     return true;
 }
 
