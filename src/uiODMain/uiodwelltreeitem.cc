@@ -26,7 +26,6 @@ ___________________________________________________________________
 #include "draw.h"
 #include "ioobj.h"
 #include "dbman.h"
-#include "mousecursor.h"
 #include "survinfo.h"
 #include "welldata.h"
 
@@ -409,7 +408,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	wd->setupPicking( !yn );
 	if ( !yn )
 	{
-	    MouseCursorChanger cursorchgr( MouseCursor::Wait );
+	    uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	    wd->showKnownPositions();
 	}
     }

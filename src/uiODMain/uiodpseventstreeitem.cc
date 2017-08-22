@@ -189,15 +189,15 @@ void uiODPSEventsTreeItem::handleMenuCB( CallBacker* cb )
     if ( displaymnuitem_.id != -1 && displaymnuitem_.itemIndex(menuid) != -1 )
     {
 	dispidx_ = displaymnuitem_.itemIndex( menuid );
-	MouseCursorChanger cursorchanger( MouseCursor::Wait );
+	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	eventdisplay_->setDisplayMode(
-	    (visSurvey::PSEventDisplay::DisplayMode) dispidx_ );
+	    (visSurvey::PSEventDisplay::DisplayMode)dispidx_ );
 	menu->setIsHandled( true );
     }
     else if ( coloritem_->id!=-1 && coloritem_->itemIndex(menuid)!=-1 )
     {
 	coloridx_ = coloritem_->itemIndex( menuid );
-	MouseCursorChanger cursorchanger( MouseCursor::Wait );
+	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	updateColorMode( coloridx_ );
 	menu->setIsHandled( true );
     }

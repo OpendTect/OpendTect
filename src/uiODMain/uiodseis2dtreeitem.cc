@@ -320,7 +320,7 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	typetobeadded_ = getType( action );
-	MouseCursorChanger cursorchgr( MouseCursor::Wait );
+	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	{
 	    setMoreObjectsToDoHint( idx>0 );
@@ -328,7 +328,6 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	    if ( !addChildProbe() )
 		return;
 	}
-	cursorchgr.restore();
     }
     else if ( menuid == create2dgridfrom3ditm_.id )
 	ODMainWin()->applMgr().create2DGrid();

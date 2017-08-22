@@ -18,7 +18,6 @@ ___________________________________________________________________
 #include "mpeengine.h"
 #include "dbman.h"
 #include "ioobj.h"
-#include "mousecursor.h"
 #include "randcolor.h"
 
 #include "uiempartserv.h"
@@ -128,7 +127,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaults( objs, false );
-	MouseCursorChanger mcc( MouseCursor::Wait );
+	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );
@@ -447,7 +446,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs );
-	MouseCursorChanger uics( MouseCursor::Wait );
+	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "isocontourtracer.h"
 #include "axislayout.h"
 #include "math.h"
-#include "mousecursor.h"
 #include "polygon.h"
 #include "survinfo.h"
 #include "od_ostream.h"
@@ -1169,7 +1168,7 @@ void uiContourTreeItem::startCreateUICContours()
     visSurvey::HorizonDisplay* hordisp = getHorDisp();
     if( !hordisp ) return;
 
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( getUiParent(), tr("Generating contours") );
     const Array2D<float>*  field = getDataSet( hordisp );
 
     if ( !field ||

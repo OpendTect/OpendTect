@@ -219,7 +219,7 @@ static uiTreeItem* gtItm( const DBKey& mid, ObjectSet<uiTreeItem>& itms )
 
 void uiODHorizonParentTreeItem::sort()
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 
     DBKeySet mids, sortedmids;
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -470,7 +470,7 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
 
     mAddMenuItem( &displaymnuitem_, &positionmnuitem_, true, false );
-    mAddMenuItem( 
+    mAddMenuItem(
 	menu, &algomnuitem_, !MPE::engine().trackingInProgress(), false );
     mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
     mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
@@ -634,7 +634,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !dlg.go() )
 	    return;
 
-	MouseCursorChanger cursorlock( MouseCursor::Wait );
+	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	pp.fillPar( displaypar );
 
 	TrcKeyZSampling newcs;
@@ -814,7 +814,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 
 void uiODHorizon2DParentTreeItem::sort()
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 
     DBKeySet mids, sortedmids;
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -927,7 +927,7 @@ void uiODHorizon2DTreeItem::createMenu( MenuHandler* menu, bool istb )
 	const bool islocked = visserv_->isLocked( displayID() );
 	const bool isempty = applMgr()->EMServer()->isEmpty( emid_ );
 	const bool enab = !islocked && !isempty;
-	mAddMenuItem( 
+	mAddMenuItem(
 	    menu, &algomnuitem_, !MPE::engine().trackingInProgress(), false );
 	mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, enab, false );
 	mAddMenuItem( &algomnuitem_, &interpolatemnuitem_, enab, false );

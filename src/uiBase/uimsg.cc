@@ -49,13 +49,14 @@ uiMsg& uiMSG()
 }
 
 
-uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
+uiUserShowWait::uiUserShowWait( const uiParent* p, const uiString& msg,
+				int fldidx )
     : mcc_(0)
     , fldidx_(fldidx)
 {
     uiMainWin* mw = 0;
     if ( p )
-	mw = p->mainwin();
+	mw = const_cast<uiParent*>(p)->mainwin();
     if ( !mw || !mw->statusBar() )
 	mw = uiMainWin::activeWindow();
     if ( !mw || !mw->statusBar() )

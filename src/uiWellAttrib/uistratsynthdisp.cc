@@ -1292,13 +1292,12 @@ void uiStratSynthDisp::showFRResults()
 
 void uiStratSynthDisp::doModelChange()
 {
-    MouseCursorChanger mcs( MouseCursor::Busy );
-
-    if ( !autoupdate_ && !forceupdate_ ) return;
-
+    if ( !autoupdate_ && !forceupdate_ )
+	return;
     if ( !curSS().errMsg().isEmpty() )
 	mErrRet( curSS().errMsg(), return )
 
+    uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
     showInfoMsg( false );
     updateSyntheticList( true );
     updateSyntheticList( false );
@@ -1521,7 +1520,7 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     if ( !synthgendlg_ )
 	return;
 
-    MouseCursorChanger mcchger( MouseCursor::Wait );
+    uiUserShowWait usw( this, tr("Generating New Synthetics") );
     RefMan<SyntheticData> sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return )

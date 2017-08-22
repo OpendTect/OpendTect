@@ -11,7 +11,6 @@
 
 #include "ioobjctxt.h"
 #include "seistrctr.h"
-#include "mousecursor.h"
 #include "uigeninput.h"
 #include "uiseissel.h"
 #include "uivolprocchain.h"
@@ -64,7 +63,7 @@ uiStepDialog* uiVolumeReader::createInstance( uiParent* parent, Step* ps,
 
 bool uiVolumeReader::acceptOK()
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sReadingData() );
     if ( !uiStepDialog::acceptOK() )
 	return false;
 

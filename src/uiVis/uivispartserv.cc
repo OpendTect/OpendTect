@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "datadistribution.h"
 #include "flatview.h"
 #include "iopar.h"
-#include "mousecursor.h"
 #include "mouseevent.h"
 #include "oddirs.h"
 #include "seisbuf.h"
@@ -776,7 +775,7 @@ bool uiVisPartServer::setCubeData( int id, int attrib,
     if ( !so )
 	return false;
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sUpdatingDisplay() );
     return so->setDataVolume( attrib, attribdata, 0 );
 }
 
@@ -799,7 +798,6 @@ int uiVisPartServer::nrTextures( int id, int attrib ) const
 
 void uiVisPartServer::selectTexture( int id, int attrib, int textureidx )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so && isAttribEnabled(id,attrib) )
 	so->selectTexture( attrib, textureidx );
@@ -829,7 +827,7 @@ int uiVisPartServer::selectedTexture( int id, int attrib ) const
 
 void uiVisPartServer::getRandomPos( int id, DataPointSet& dtps ) const
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sCollectingData() );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
 
@@ -841,7 +839,7 @@ void uiVisPartServer::getRandomPos( int id, DataPointSet& dtps ) const
 void uiVisPartServer::getRandomPosCache( int id, int attrib,
 					 DataPointSet& dtps ) const
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sCollectingData() );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->getRandomPosCache( attrib, dtps );
 }
@@ -850,7 +848,6 @@ void uiVisPartServer::getRandomPosCache( int id, int attrib,
 void uiVisPartServer::setRandomPosData( int id, int attrib,
 					const DataPointSet* dtps )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
 
@@ -2265,7 +2262,7 @@ bool uiVisPartServer::isVerticalDisp( int id ) const
 void uiVisPartServer::displayMapperRangeEditForAttribs(
 					int visid, int attribid  )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sUpdatingDisplay() );
     mapperrgeditordisplayid_ = visid;
     if ( multirgeditwin_ )
     {

@@ -16,7 +16,6 @@
 
 #include "ctxtioobj.h"
 #include "emsurfacetr.h"
-#include "mousecursor.h"
 #include "od_helpids.h"
 #include "survinfo.h"
 #include "volprocchain.h"
@@ -111,7 +110,7 @@ uiStepDialog* uiHorInterFiller::createInstance( uiParent* parent, Step* ps,
 
 bool uiHorInterFiller::acceptOK()
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
     if ( !uiStepDialog::acceptOK() )
 	return false;
 

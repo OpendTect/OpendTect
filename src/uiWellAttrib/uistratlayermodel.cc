@@ -557,7 +557,7 @@ bool uiStratLayerModel::saveGenDesc() const
     const BufferString fnm( descctio_.ioobj_->mainFileName() );
     bool rv = false;
 
-    MouseCursorChanger mcch( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sSavingData() );
 
     fillWorkBenchPars( desc_.getWorkBenchParams() );
 
@@ -598,7 +598,7 @@ bool uiStratLayerModel::openGenDesc()
 
     delete elpropsel_; elpropsel_ = 0;
     deepErase( desc_ );
-    MouseCursorChanger mcch( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sReadingData() );
     bool rv = desc_.getFrom( strm );
     if ( !rv )
 	uiMSG().error(desc_.errMsg());
@@ -611,6 +611,7 @@ bool uiStratLayerModel::openGenDesc()
     if ( !rv )
 	return false;
 
+    usw.setMessage( uiStrings::sUpdatingDisplay() );
     moddisp_->clearDispPars();
     seqdisp_->setNeedSave( false );
     lmp_.setEmpty();
@@ -759,14 +760,13 @@ void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
     if ( nrmods < 1 )
 	{ uiMSG().error(tr("Enter a valid number of models")); return; }
 
-    MouseCursorChanger mcs( MouseCursor::Wait );
+    uiUserShowWait usw( this, tr("Generating Models") );
 
     seqdisp_->prepareDesc();
     seqdisp_->setFromEditDesc();
     Strat::LayerModel* newmodl = new Strat::LayerModel;
     newmodl->propertyRefs() = desc_.propSelection();
     newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
-    mcs.restore();
 
     Strat::LayerModelGenerator ex( desc_, *newmodl, nrmods );
     uiTaskRunner taskrunner( this );

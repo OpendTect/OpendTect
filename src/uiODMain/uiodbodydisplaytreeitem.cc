@@ -21,7 +21,6 @@ ___________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "marchingcubes.h"
-#include "mousecursor.h"
 #include "randcolor.h"
 
 #include "uibodyoperatordlg.h"
@@ -117,7 +116,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     }
     else if ( mnuid==2 || mnuid==3 )
     {
-	MouseCursorChanger mcc( MouseCursor::Wait );
+	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	const bool displayatsections = mnuid==2;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -180,7 +179,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	}
     }
 
-    MouseCursorChanger uics( MouseCursor::Wait );
+    uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
     for ( int idx=0; idx<oids.size(); idx++ )
     {
 	setMoreObjectsToDoHint( idx<oids.size()-1 );
@@ -389,7 +388,7 @@ void uiODBodyDisplayTreeItem::keyPressedCB( CallBacker* )
     {
 	EM::EMM().burstAlertToAll( true );
 	update = emundo->unDo( 1, true );
-	EM::EMM().burstAlertToAll( false );    
+	EM::EMM().burstAlertToAll( false );
     }
     else if ( KeyboardEvent::isReDo(kbe) )
     {

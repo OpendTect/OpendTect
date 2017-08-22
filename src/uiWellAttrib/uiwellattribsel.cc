@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 
 #include "uiattrsel.h"
-#include "mousecursor.h"
 #include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -106,7 +105,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     if ( !inputsOK() )
 	return false;
 
-    MouseCursorChanger cursor( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
 
     BinIDValueSet bidset( 2, true );
     TypeSet<BinIDValueSet::SPos> positions;

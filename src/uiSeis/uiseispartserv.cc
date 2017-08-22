@@ -394,7 +394,7 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
     uiDialog::Setup dsu( tr("Select 2D Lines"), mNoDlgTitle,
 			 mODHelpKey(mSeisPartServerselect2DLinesHelpID) );
     uiDialog dlg( parent(), dsu );
-    MouseCursorChanger cursorchgr( MouseCursor::Wait );
+    uiUserShowWait usw( parent(), uiStrings::sCollectingData() );
     uiSeis2DLineChoose* lchfld =
 		new uiSeis2DLineChoose( &dlg, OD::ChooseAtLeastOne );
     BufferStringSet options;
@@ -406,7 +406,7 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 	new uiGenInput( &dlg, tr("On OK"), StringListInpSpec(options) );
     optfld->setValue( seis2dloadaction );
     optfld->attach( alignedBelow, lchfld );
-    cursorchgr.restore();
+    usw.readyNow();
     if ( !dlg.go() )
 	return false;
 

@@ -979,8 +979,6 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 
 void uiODFaultToolMan::transferSticksCB( CallBacker* )
 {
-    MouseCursorChanger mcc( MouseCursor::Wait );
-
     if ( curemid_ < 0 )
 	return;
 
@@ -988,33 +986,25 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     mDynamicCastGet( EM::Fault*, srcfault, srcemobj.ptr() );
     if ( !srcfault )
 	return;
-
     const int oldnrselected = srcfault->geometry().nrSelectedSticks();
     if ( !oldnrselected )
-    {
-	uiMSG().error( tr("No selected fault stick(s) to transfer") );
-	return;
-    }
-
-    const DBKey destmid = getObjSel()->key();
-    if ( destmid.isInvalid() )
+	{ uiMSG().error( tr("No selected fault sticks to transfer") ); return; }
+    const DBKey destdbky = getObjSel()->key();
+    if ( destdbky.isInvalid() )
 	return;
 
-    EM::EMM().loadIfNotFullyLoaded( destmid );
-    const EM::ObjectID destemid = EM::EMM().getObjectID( destmid );
+    uiUserShowWait usw( 0, uiStrings::sReadingData() );
+    EM::EMM().loadIfNotFullyLoaded( destdbky );
+    usw.readyNow();
+    const EM::ObjectID destemid = EM::EMM().getObjectID( destdbky );
     RefMan<EM::EMObject> destemobj = EM::EMM().getObject( destemid );
     mDynamicCastGet( EM::Fault*, destfault, destemobj.ptr() );
-    if ( !destfault )
+    if ( !destfault || destfault == srcfault )
 	return;
-
-    if ( destfault == srcfault )
-    {
-	uiMSG().error( tr("No use to transfer selected sticks to myself") );
-	return;
-    }
 
     if ( flashcolor_==Color(255,0,0) &&
-	 !uiMSG().question(tr("Ignore output name warning?")) ) return;
+	 !uiMSG().question(tr("Ignore output name warning?")) )
+	return;
 
     mDynamicCastGet( EM::Fault3D*, destf3d, destfault );
     RefMan<EM::EMObject> tmpemobj = EM::FaultStickSet::create(EM::EMM());
@@ -1024,6 +1014,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 
     if ( !destfault->isEmpty() && (!merge || destf3d) )
     {
+	usw.setMessage( uiStrings::sUpdatingDisplay() );
 	destfault->geometry().selectAllSticks( true );
 
 	if ( merge )
@@ -1032,6 +1023,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 			    tmpfss->geometry(), tmpfss->sectionID(0), false );
 	}
 	destfault->geometry().removeSelectedSticks( displayAfterwards() );
+	usw.readyNow();
     }
 
     mDynamicCastGet( EM::FaultStickSet*, destfss, destfault );
@@ -1040,6 +1032,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 
     const bool copy = mCurItem( transfercombo_, sKeyCopySelection );
 
+    usw.setMessage( uiStrings::sUpdatingDisplay() );
     if ( copy )
 	srcfault->geometry().selectStickDoubles( false, &destfss->geometry() );
     else
@@ -1080,6 +1073,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     destfault->setFullyLoaded( true );
     destfault->setPreferredColor( colorbutcolor_, true );
     displayUpdate();
+    usw.readyNow();
 
     bool saved = false;
     if ( saveAfterwards() )
@@ -1090,18 +1084,18 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	    uiMSG().error( tr("Cannot save output object") );
     }
 
+    usw.setMessage( uiStrings::sUpdatingDisplay() );
     afterTransferUpdate();
 
     UndoEvent* undo = new FaultStickTransferUndoEvent( copy, saved );
     EM::EMM().undo(destfault->id()).setUserInteractionEnd(
 	EM::EMM().undo(destfault->id()).addEvent(undo) );
 
+    usw.readyNow();
+
     if ( newnrselected )
-    {
 	uiMSG().message(tr("Output object could not incorporate %1"
-			   " of the selected sticks!")
-		      .arg(newnrselected));
-    }
+			   " of the selected sticks.").arg(newnrselected));
 }
 
 
@@ -1115,9 +1109,9 @@ void uiODFaultToolMan::afterTransferUpdate()
 }
 
 
-#define mGetDisplayVars( objsel, destmid, curid, sceneid ) \
+#define mGetDisplayVars( objsel, destdbky, curid, sceneid ) \
 \
-    DBKey destmid = objsel->getKeyOnly(); \
+    DBKey destdbky = objsel->getKeyOnly(); \
 \
     const int curid = curfltd_ ? curfltd_->id() : \
 				 ( curfssd_ ? curfssd_->id() : -1 ); \
@@ -1127,13 +1121,13 @@ void uiODFaultToolMan::afterTransferUpdate()
 
 void uiODFaultToolMan::displayUpdate()
 {
-    mGetDisplayVars( getObjSel(), destmid, curid, sceneid );
-    if ( destmid.isInvalid() || isOutputDisplayed() )
+    mGetDisplayVars( getObjSel(), destdbky, curid, sceneid );
+    if ( destdbky.isInvalid() || isOutputDisplayed() )
 	return;
 
     if ( displayAfterwards() )
     {
-	const EM::ObjectID destemid = EM::EMM().getObjectID( destmid );
+	const EM::ObjectID destemid = EM::EMM().getObjectID( destdbky );
 	appl_.sceneMgr().addEMItem( destemid, sceneid );
 	appl_.sceneMgr().updateTrees();
 	appl_.applMgr().visServer()->setSelObjectId( curid );
@@ -1145,26 +1139,26 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
 {
     const uiIOObjSel* objsel = uisw ? uisw->getObjSel() : getObjSel();
 
-    mGetDisplayVars( objsel, destmid, curid, sceneid );
+    mGetDisplayVars( objsel, destdbky, curid, sceneid );
 
-    if ( destmid.isInvalid() || curid<0 || sceneid<0 )
+    if ( destdbky.isInvalid() || curid<0 || sceneid<0 )
 	return false;
 
     for ( int idx=0; idx<displaycache_.size(); idx++ )
     {
-	if ( displaycache_[idx]->mid_==destmid &&
+	if ( displaycache_[idx]->mid_==destdbky &&
 	     displaycache_[idx]->sceneid_==sceneid )
 	{
 	    return displaycache_[idx]->isdisplayed_;
 	}
     }
     displaycache_.insertAt( new DisplayCacheObj(), 0 );
-    displaycache_[0]->mid_ = destmid;
+    displaycache_[0]->mid_ = destdbky;
     displaycache_[0]->sceneid_ = sceneid;
     displaycache_[0]->isdisplayed_ = false;
 
     TypeSet<int> destids;
-    appl_.applMgr().visServer()->findObject( destmid, destids );
+    appl_.applMgr().visServer()->findObject( destdbky, destids );
 
     for ( int idx=0; idx<destids.size(); idx++ )
     {
@@ -1417,8 +1411,9 @@ void uiODFaultToolMan::undoCB( CallBacker* )
     if ( !curemobj )
 	return;
 
-    if ( !curfltd_ && !curfssd_ ) return;
-    MouseCursorChanger mcc( MouseCursor::Wait );
+    if ( !curfltd_ && !curfssd_ )
+	return;
+    uiUserShowWait usw( 0, uiStrings::sUpdatingDisplay() );
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo(curemobj->id()).unDo( 1, true  ) )
 	uiMSG().error(tr("Cannot undo everything."));
@@ -1434,8 +1429,9 @@ void uiODFaultToolMan::redoCB( CallBacker* )
     if ( !curemobj )
 	return;
 
-    if ( !curfltd_ && !curfssd_ ) return;
-    MouseCursorChanger mcc( MouseCursor::Wait );
+    if ( !curfltd_ && !curfssd_ )
+	return;
+    uiUserShowWait usw( 0, uiStrings::sUpdatingDisplay() );
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo(curemobj->id()).reDo( 1, true  ) )
 	uiMSG().error(tr("Cannot redo everything."));

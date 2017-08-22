@@ -36,7 +36,6 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "attribsel.h"
 #include "file.h"
 #include "filepath.h"
-#include "mousecursor.h"
 #include "oddirs.h"
 #include "od_ostream.h"
 #include "oscommand.h"
@@ -449,7 +448,7 @@ static const char* datefmt = "yyyyMMddhhsszzz";
 
 void uiPresentationMakerDlg::addCB( CallBacker* )
 {
-    MouseCursorChanger mcc( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
 
     File::Path imagefp( PresentationSpec::getPyScriptDir() );
     imagefp.add( BufferString("image-",Time::getDateTimeString(datefmt)) );

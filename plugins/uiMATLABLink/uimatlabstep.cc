@@ -105,15 +105,12 @@ void uiMatlabStep::loadCB( CallBacker* )
 {
     if ( fileloaded_ ) return;
 
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
-
     MatlabLibAccess* mla =
 	MLM().getMatlabLibAccess( filefld_->fileName(), true );
     if ( !mla )
-    {
-	uiMSG().error( MLM().errMsg() );
-	return;
-    }
+	{ uiMSG().error( MLM().errMsg() ); return; }
+
+    uiUserShowWait usw( this, uiStrings::sReadingData() );
 
     int nrinputs=1, nroutputs=1;
     BufferStringSet parnames, parvalues;

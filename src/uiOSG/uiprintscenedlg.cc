@@ -26,7 +26,6 @@ ________________________________________________________________________
 
 #include "filepath.h"
 #include "keystrs.h"
-#include "mousecursor.h"
 #include "settings.h"
 #include "visscene.h"
 #include "viscamera.h"
@@ -337,7 +336,7 @@ bool uiPrintSceneDlg::acceptOK()
 	return false;
 
     bool ret = false;
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
     ui3DViewer* vwr = const_cast<ui3DViewer*>(viewers_[vwridx]);

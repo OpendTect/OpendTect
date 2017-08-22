@@ -37,7 +37,7 @@ mExpClass(uiBase) uiUserShowWait
 {
 public:
 
-			uiUserShowWait(uiParent*,const uiString&,
+			uiUserShowWait(const uiParent*,const uiString&,
 					int statusbarfld=0);
 			~uiUserShowWait()		{ readyNow(); }
 

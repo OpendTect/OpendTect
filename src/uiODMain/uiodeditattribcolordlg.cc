@@ -16,11 +16,11 @@ ___________________________________________________________________
 #include "coltabmapper.h"
 #include "uicoltabsel.h"
 #include "uibutton.h"
-#include "mousecursor.h"
 #include "uiodapplmgr.h"
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uivispartserv.h"
 #include "od_helpids.h"
 
@@ -72,7 +72,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 
 void uiODEditAttribColorDlg::seqChg( CallBacker* )
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
     const ColTab::Sequence& newcolseq = coltabsel_->sequence();
 
     for ( int idx=0; idx<items_.size(); idx++ )
@@ -86,7 +86,7 @@ void uiODEditAttribColorDlg::seqChg( CallBacker* )
 
 void uiODEditAttribColorDlg::mapperChg( CallBacker* )
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
     const ColTab::Mapper& mapper = coltabsel_->mapper();
     for ( int idx=0; idx<items_.size(); idx++ )

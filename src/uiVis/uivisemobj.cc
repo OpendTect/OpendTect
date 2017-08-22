@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "keyboardevent.h"
-#include "mousecursor.h"
 #include "od_helpids.h"
 #include "settings.h"
 #include "survinfo.h"
@@ -51,7 +50,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     , visserv_(vps)
     , uiparent_(uip)
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( uiparent_, uiStrings::sUpdatingDisplay() );
 
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return;
@@ -263,7 +262,7 @@ const char* uiVisEMObject::getObjectType( int id )
 
 void uiVisEMObject::setDepthAsAttrib( int attrib )
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiUserShowWait usw( uiparent_, uiStrings::sUpdatingDisplay() );
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     if ( hordisp ) hordisp->setDepthAsAttrib( attrib );
     mDynamicCastGet( visSurvey::MarchingCubesDisplay*, mcdisp, getDisplay() );
