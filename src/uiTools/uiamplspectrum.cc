@@ -57,7 +57,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_ );
-    uiString disptitle = tr("Display between %1").arg(SI().zIsTime() ? 
+    uiString disptitle = tr("Display between %1").arg(SI().zIsTime() ?
 	      uiStrings::sFrequency() : uiStrings::sWaveNumber(true));
     rangefld_ = new uiGenInput( dispparamgrp_, disptitle, FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
@@ -69,10 +69,10 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiAmplSpectrum,dispRangeChgd) );
 
-    uiString lbl =  SI().zIsTime() ? 
-		    uiStrings::phrJoinStrings(uiStrings::sValue(), 
+    uiString lbl =  SI().zIsTime() ?
+		    uiStrings::phrJoinStrings(uiStrings::sValue(),
 		    tr("(%1, power)").arg(uiStrings::sFrequency(true))) :
-		    uiStrings::phrJoinStrings(uiStrings::sValue(), 
+		    uiStrings::phrJoinStrings(uiStrings::sValue(),
 		    tr("(%1, power)").arg(uiStrings::sWaveNumber(true)));
     valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
     valfld_->attach( alignedBelow, rangefld_ );
@@ -271,11 +271,11 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
 	dbspecvals.set( idx, val );
     }
 
-    float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
+    const float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
-    stepfld_->box()->setInterval( posrange_.start, posrange_.stop,
-				  (posrange_.stop-posrange_.start)/25 );
+    const float step = (posrange_.stop-posrange_.start)/25.f;
+    stepfld_->box()->setInterval( posrange_.start+step, posrange_.stop, step );
     stepfld_->box()->setValue( maxfreq/5 );
     disp_->yAxis(false)->setCaption( dbscale ? tr("Power (dB)")
 					     : tr("Amplitude") );
@@ -297,13 +297,20 @@ void uiAmplSpectrum::dispRangeChgd( CallBacker* )
 {
     StepInterval<float> rg = rangefld_->getFInterval();
     rg.step = stepfld_->box()->getFValue();
-    if ( posrange_.start > rg.start || posrange_.stop < rg.stop
-	    || rg.stop <=0 || rg.start >= rg.stop )
+    if ( mIsZero(rg.step,mDefEpsF) || rg.step<0 )
+	rg.step = ( rg.stop - rg.start )/5;
+
+    const float dstart = rg.start - posrange_.start;
+    const float dstop = rg.stop - posrange_.stop;
+    const bool startok = mIsZero(dstart,1e-5) || dstart > 0;
+    const bool stopok = mIsZero(dstop,1e-5) || dstop < 0;
+    if ( !startok || !stopok || rg.isRev() )
     {
-	rg.start = posrange_.start; rg.stop = posrange_.stop;
-        rg.step = ( rg.stop - rg.start )/5;
+	rg = posrange_;
+	rg.step = ( rg.stop - rg.start )/5;
 	rangefld_->setValue( posrange_ );
     }
+
     disp_->xAxis()->setRange( rg );
     disp_->draw();
 }
