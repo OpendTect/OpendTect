@@ -278,7 +278,6 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( pdd )
 	{
 	    info().setLegalClick( legalclick1 );
-	    info().setObjCS( pdd->getTrcKeyZSampling() );
 
 	    DataPack::ID datapackid = DataPack::cNoID();
 	    int attrib = pdd->nrAttribs();
@@ -292,6 +291,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		    break;
 	    }
 
+	    info().setObjCS( pdd->getDataPackSampling(attrib) );
 	    info().setObjDataPackID( datapackid );
 	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 

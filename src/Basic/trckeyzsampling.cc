@@ -511,11 +511,11 @@ bool TrcKeyZSampling::adjustTo( const TrcKeyZSampling& availabletkzs,
     TrcKeyZSampling adjustedtkzs( compatibletkzs );
     adjustedtkzs.shrinkTo( *this );
 
-    // Only keep adjustments for non-flat dimensions
+    // Only keep adjustments for non-flat dimensions. Preserve step if flat.
     if ( nrLines() == 1 )
-	adjustedtkzs.hsamp_.setLineRange( hsamp_.lineRange() );
+	adjustedtkzs.hsamp_.setLineRange( (Interval<int>)hsamp_.lineRange() );
     if ( nrTrcs() == 1 )
-	adjustedtkzs.hsamp_.setTrcRange( hsamp_.trcRange() );
+	adjustedtkzs.hsamp_.setTrcRange( (Interval<int>)hsamp_.trcRange() );
     if ( nrZ() == 1 )
 	adjustedtkzs.zsamp_ = zsamp_;
 

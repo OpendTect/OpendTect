@@ -60,7 +60,16 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 
     mGetHorizon( hor3d, false )
 
+    const RowCol curstep = hor3d->geometry().step();
     const TrcKeySampling hrg = engine().activeVolume().hsamp_;
+    if ( curstep != hrg.step_ )
+    {
+	const EM::SectionID sid = hor3d->sectionID( 0 );
+	hor3d->removeSection( sid, false );
+	hor3d->geometry().setStep( hrg.step_, hrg.step_ );
+	hor3d->geometry().addSection( "", sid, false );
+    }
+
     const StepInterval<float> zrg = engine().activeVolume().zsamp_;
     if ( !zrg.includes(seed.val_,false) || !hrg.includes(seed.tk_) )
 	return false;
