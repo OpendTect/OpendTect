@@ -29,7 +29,7 @@ uiSEGYFileSelector::uiSEGYFileSelector(uiParent* p, const char* fnm,
     , imptype_( imptype )
 {
     uiString titlestr;
-    titlestr = tr("Please select the file(s) belongs to vintage '%1' " )
+    titlestr = tr("Please select the file(s) belonging to vintage '%1' " )
 	      .arg( vntname );
     setTitleText( titlestr );
     File::Path fp( fnm );
