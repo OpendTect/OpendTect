@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "gendefs.h"
-#include "uistrings.h"
+#include "uistring.h"
 class MouseCursorChanger;
 class uiMainWin;
 class uiStatusBar;
@@ -211,9 +211,7 @@ mExpClass(uiBase) uiUserShowWait
 {
 public:
 
-			uiUserShowWait(uiParent*,
-				const uiString& msg=uiStrings::sSavingChanges(),
-				int sbfld=0);
+			uiUserShowWait(uiParent*,const uiString&,int sbfld=0);
 			~uiUserShowWait()		{ readyNow(); }
 
     void		setMessage(const uiString&);
