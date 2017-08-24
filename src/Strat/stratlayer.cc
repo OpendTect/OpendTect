@@ -484,7 +484,7 @@ int Strat::LayerSequence::positionOf( const Strat::Level& lvl ) const
     {
 	const Strat::LeavedUnitRef* un
 		= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
-	if ( foundlvl || un->levelID() == lvl.id() )
+	if ( un->levelID() == lvl.id() )
 	    { foundlvl = true; unlist += un; }
     }
     if ( !foundlvl )
