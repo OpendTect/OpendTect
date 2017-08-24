@@ -129,12 +129,12 @@ bool uiHistogramDisplay::setDataPackID(
 }
 
 
-void uiHistogramDisplay::setData( const DataPointSet& dpset )
+void uiHistogramDisplay::setData( const DataPointSet& dpset, int colid )
 {
     TypeSet<float> valarr;
     for ( int idx=0; idx<dpset.size(); idx++ )
     {
-	const float val = dpset.value( 2, idx );
+	const float val = dpset.value( colid, idx );
 	if ( mIsUdf(val) )
 	    continue;
 

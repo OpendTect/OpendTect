@@ -36,7 +36,7 @@ public:
 					      int version);
     void			setData(const float*,int sz);
     void			setData(const Array2D<float>*);
-    void			setData(const DataPointSet&);
+    void			setData(const DataPointSet&,int colid=2);
 
     void			useDrawRange(bool yn);
     const Interval<float>&	getDrawRange() const	{ return mydrawrg_; }
