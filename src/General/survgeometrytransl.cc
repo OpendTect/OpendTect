@@ -104,6 +104,8 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );
     geom->spnrs().setSize( data->size(), -1 );
+    geom->setAverageTrcDist( avgtrcdist );
+    geom->setLineLength( linelength );
 
     if ( version > 1 )
     {

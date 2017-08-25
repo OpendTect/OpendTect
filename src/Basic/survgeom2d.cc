@@ -155,6 +155,13 @@ float Survey::Geometry2D::averageTrcDist() const
 }
 
 
+void Survey::Geometry2D::setAverageTrcDist( float trcdist )
+{
+    Threads::Locker locker( lock_ );
+    trcdist_ = trcdist;
+}
+
+
 float Survey::Geometry2D::lineLength() const
 {
     Threads::Locker locker( lock_ );
@@ -167,6 +174,13 @@ float Survey::Geometry2D::lineLength() const
 			data_.positions()[idx-1].coord_));
 
     return linelength_;
+}
+
+
+void Survey::Geometry2D::setLineLength( float ll )
+{
+    Threads::Locker locker( lock_ );
+    linelength_ = ll;
 }
 
 

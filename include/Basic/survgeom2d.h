@@ -60,7 +60,9 @@ public:
     static BufferString		makeUniqueLineName(const char* lsnm,
 						   const char* lnm);
     float			averageTrcDist() const;
+    void			setAverageTrcDist(float);
     float			lineLength() const;
+    void			setLineLength(float);
     RelationType		compare(const Geometry&,bool usezrg) const;
 
     Geometry2D*			as2D()			{ return this; }
