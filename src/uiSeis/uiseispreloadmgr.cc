@@ -500,7 +500,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     rightgrp->attach( rightOf, leftgrp );
     nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"),
 				 IntInpSpec(mDefaultNrTrcs) );
-    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Rescan"), true );
+    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Scan"), true );
     scanbut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
     scanbut->attach( rightTo, nrtrcsfld_ );
     histfld_ = new uiMapperRangeEditor( rightgrp, -1, false );
@@ -685,7 +685,6 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
     sizediskfld_->setText( File::getFileSizeString(filesz) );
 
     selChangeCB( 0 );
-    fillHist( 0 );
 }
 
 
