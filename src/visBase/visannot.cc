@@ -159,13 +159,15 @@ Annotation::~Annotation()
 }
 
 
-void Annotation::setScene( visBase::Scene* scene )
+void Annotation::setScene( visBase::Scene* scn )
 {
-    if ( !scene )
+    if ( !scn )
 	return;
 
-    scene_ = scene;
+    if ( scene_ )
+	{ mDetachCB( scene_->contextIsUp, Annotation::firstTraversal ); }
 
+    scene_ = scn;
     mAttachCB( scene_->contextIsUp, Annotation::firstTraversal );
 }
 
@@ -179,7 +181,7 @@ void Annotation::firstTraversal(CallBacker*)
 	BufferString code =
 	    "void main(void)\n"
 	    "{\n"
-	    "	 gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"	
+	    "	 gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
 	    "	 gl_FrontColor = gl_FrontMaterial.diffuse;"
 	    "}\n";
 
