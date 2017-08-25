@@ -152,9 +152,9 @@ void FaultStickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 }
 
 
-void FaultStickSetDisplay::setScene( Scene* scene )
+void FaultStickSetDisplay::setScene( Scene* scn )
 {
-    SurveyObject::setScene( scene );
+    SurveyObject::setScene( scn );
 
     if ( fsseditor_ ) fsseditor_->setSceneIdx( mSceneIdx );
 }
@@ -1275,14 +1275,14 @@ const OD::MarkerStyle3D* FaultStickSetDisplay::markerStyle() const
 void FaultStickSetDisplay::setMarkerStyle( const OD::MarkerStyle3D& mkstyle )
 {
     // for stickset we do use fixed color for dragger, polygon, and selection.
-    // So to guarantee this here we set a fixed color. 
-    
+    // So to guarantee this here we set a fixed color.
+
     OD::MarkerStyle3D sstmkstyle = mkstyle;
     sstmkstyle.color_ = Color::Yellow();
 
     viseditor_->setMarkerStyle( sstmkstyle );
     setStickMarkerStyle( sstmkstyle );
-    
+
     if ( fault_ )
 	fault_->setPreferredMarkerStyle3D( sstmkstyle );
 }

@@ -98,9 +98,9 @@ void ImageDisplay::setSet( Pick::Set* set )
 }
 
 
-void ImageDisplay::setScene( visSurvey::Scene* scene )
+void ImageDisplay::setScene( visSurvey::Scene* scn )
 {
-    visSurvey::SurveyObject::setScene( scene );
+    visSurvey::SurveyObject::setScene( scn );
     updateCoords();
 }
 

@@ -417,9 +417,9 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	}
     }
 
-    const Scene* scene = seis2dclosest->getScene();
-    const double zscale = scene ?
-	scene->getZScale()*scene->getFixedZStretch() : 0.0;
+    const Scene* scn = seis2dclosest->getScene();
+    const double zscale = scn ?
+	scn->getZScale()*scn->getFixedZStretch() : 0.0;
     const Coord3 onesteptranslation = SI().oneStepTranslation( Coord3(0,0,1) );
     const double onestepdist = Coord3( 1, 1, zscale ).dot( onesteptranslation );
 

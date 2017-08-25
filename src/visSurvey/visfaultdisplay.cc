@@ -190,9 +190,9 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 }
 
 
-void FaultDisplay::setScene( Scene* scene )
+void FaultDisplay::setScene( Scene* scn )
 {
-    SurveyObject::setScene( scene );
+    SurveyObject::setScene( scn );
 
     if ( explicitsticks_ ) explicitsticks_->setSceneIdx( mSceneIdx );
     if ( explicitpanels_ ) explicitpanels_->setSceneIdx( mSceneIdx );

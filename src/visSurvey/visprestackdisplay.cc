@@ -996,8 +996,8 @@ bool PreStackDisplay::usePar( const IOPar& par )
 		return false;
     }
 
-    visBase::DataObject* parent = visBase::DM().getObject( parentid );
-    if ( !parent ) return false;
+    visBase::DataObject* parnt = visBase::DM().getObject( parentid );
+    if ( !parnt ) return false;
 
     DBKey mid;
     if ( !par.get( sKeyDBKey(), mid ) )
@@ -1010,8 +1010,8 @@ bool PreStackDisplay::usePar( const IOPar& par )
 
     setDBKey( mid );
 
-    mDynamicCastGet( PlaneDataDisplay*, pdd, parent );
-    mDynamicCastGet( Seis2DDisplay*, s2d, parent );
+    mDynamicCastGet( PlaneDataDisplay*, pdd, parnt );
+    mDynamicCastGet( Seis2DDisplay*, s2d, parnt );
     if ( !pdd && !s2d )
 	return false;
 

@@ -126,9 +126,9 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
     if ( mode_ != Idle )
 	mReturnHandled( false );
 
-    Scene* scene = STM().currentScene();
-    if ( scene && scene->getPolySelection()->getSelectionType() !=
-	    					visBase::PolygonSelection::Off )
+    Scene* scn = STM().currentScene();
+    if ( scn && scn->getPolySelection()->getSelectionType() !=
+						visBase::PolygonSelection::Off )
 	mReturnHandled( false );
 
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
@@ -195,20 +195,20 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
 
     visBase::DataObject* dataobj = visBase::DM().getObject( underlyingobjid_ );
     mDynamicCastGet( PlaneDataDisplay*, pdd, dataobj );
-    Scene* scene = STM().currentScene();
-    if ( !pdd || pdd->getOrientation()==OD::ZSlice || !scene )
+    Scene* scn = STM().currentScene();
+    if ( !pdd || pdd->getOrientation()==OD::ZSlice || !scn )
 	return;
 
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling( false, false );
     Coord3 p0( SI().transform(cs.hsamp_.start_), cs.zsamp_.start );
     transformation_->transform( p0 );
-    scene->getTempZStretchTransform()->transform( p0 );
+    scn->getTempZStretchTransform()->transform( p0 );
     Coord3 p1( SI().transform( cs.hsamp_.stop_), cs.zsamp_.start );
     transformation_->transform( p1 );
-    scene->getTempZStretchTransform()->transform( p1 );
+    scn->getTempZStretchTransform()->transform( p1 );
     Coord3 p2( SI().transform(cs.hsamp_.start_), cs.zsamp_.stop );
     transformation_->transform( p2 );
-    scene->getTempZStretchTransform()->transform( p2 );
+    scn->getTempZStretchTransform()->transform( p2 );
 
     double t;
     const Plane3 plane( p0, p1, p2 );
@@ -219,7 +219,7 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
 
     eventinfo.displaypickedpos = pos;
     eventinfo.pickdepth = t;
-    scene->getTempZStretchTransform()->transformBack( pos );
+    scn->getTempZStretchTransform()->transformBack( pos );
     transformation_->transformBack( pos, eventinfo.worldpickedpos );
 }
 
@@ -277,12 +277,12 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
     lastworldpos.setXY( lastbid.sqDistTo(start) < lastbid.sqDistTo(stop) ?
 		       SI().transform(start) : SI().transform(stop) );
 
-    Scene* scene = STM().currentScene();
-    if ( transformation_ && scene )
+    Scene* scn = STM().currentScene();
+    if ( transformation_ && scn )
     {
 	Coord3& displaypos = eventlist_[eventlist_.size()-1]->displaypickedpos;
 	transformation_->transform( lastworldpos, displaypos );
-	scene->getTempZStretchTransform()->transform( displaypos );
+	scn->getTempZStretchTransform()->transform( displaypos );
     }
 }
 
@@ -313,11 +313,11 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	    mReturnHandled( true );
 
 	Coord3 furrowpos = eventinfo.worldpickedpos;
-	Scene* scene = STM().currentScene();
-	if ( scene && transformation_ && eventinfo.displaypickedpos.isDefined())
+	Scene* scn = STM().currentScene();
+	if ( scn && transformation_ && eventinfo.displaypickedpos.isDefined())
 	{
 	    furrowpos = eventinfo.mouseline.getPoint(eventinfo.pickdepth-0.01);
-	    scene->getTempZStretchTransform()->transformBack( furrowpos );
+	    scn->getTempZStretchTransform()->transformBack( furrowpos );
 	    transformation_->transformBack( furrowpos );
 	}
 
@@ -449,7 +449,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	    mode_ = SequentSowing;
     }
 
-    
+
     if ( sow )
 	sowingEnd.trigger();
     reset();
