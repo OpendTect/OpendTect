@@ -68,6 +68,7 @@ protected:
     void			selChg(CallBacker*);
     virtual void		ownSelChg()		{}
     void			updateCB(CallBacker*);
+    virtual void		updateList()		{}
 };
 
 
