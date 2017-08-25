@@ -38,7 +38,9 @@ namespace visBase
 mExpClass(visBase) Scene : public DataObjectGroup
 {
 public:
+
     static Scene*	create()
+
 			mCreateDataObj(Scene);
 
     void		addObject(DataObject*);
@@ -80,12 +82,15 @@ public:
     static const char*	sKeyLight()	{ return "Light"; }
 
 protected:
+
     virtual		~Scene();
     EventCatcher&	events_;
 
     virtual void	runUpdateQueueCB(CallBacker*);
 
     void		fillOffsetPar( IOPar& ) const;
+    virtual Scene*	gtScene() const
+			{ return const_cast<Scene*>(this); }
 
 private:
 

@@ -138,7 +138,11 @@ public:
     bool			serialize(const char* filename,
 					  bool binary=false);
 
-    void			setParent(DataObjectGroup* g) { parent_ = g; }
+    void			setParent( DataObjectGroup* p ) { parent_ = p; }
+    DataObjectGroup*		parent()		{ return parent_; }
+    const DataObjectGroup*	parent() const		{ return parent_; }
+    virtual Scene*		scene()			{ return gtScene(); }
+    virtual const Scene*	scene() const		{ return gtScene(); }
 
     template <class T> T*	addNodeState(T* ns)
 				{ doAddNodeState(ns); return ns; }
@@ -182,14 +186,16 @@ protected:
     template <class T>
     T*				setOsgNode( T* t )
 				{
-				    setOsgNodeInternal( (osg::Node*) t );
+				    setOsgNodeInternal( (osg::Node*)t );
 				    return t;
 				}
 				//!<Must be called during construction.
 
     void			updateNodemask();
+    virtual Scene*		gtScene() const;
 
 private:
+
     void				setOsgNodeInternal(osg::Node*);
     void				updateOsgNodeData();
 
@@ -203,6 +209,7 @@ private:
     static Threads::ThreadID		visualizationthread_;
     static osgViewer::CompositeViewer*	commonviewer_;
     static Notifier<DataObject>		glinfoavailable_;
+
 };
 
 };

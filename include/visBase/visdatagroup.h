@@ -70,6 +70,7 @@ public:
     float			getPixelDensity() const { return pixeldensity_;}
 
     Notifier<DataObjectGroup>	change; //triggers on add/insert/remove
+
 protected:
 
     virtual			~DataObjectGroup();
