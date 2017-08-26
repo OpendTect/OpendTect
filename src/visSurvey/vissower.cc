@@ -10,11 +10,11 @@
 
 #include "bendpointfinder.h"
 #include "trckeyzsampling.h"
-#include "mousecursor.h"
 #include "mouseevent.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "timefun.h"
+#include "uistrings.h"
 #include "visevent.h"
 #include "vislocationdisplay.h"
 #include "vismarkerset.h"
@@ -364,7 +364,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	mReturnHandled( true );
     }
 
-    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+    UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
     if ( Time::passedSince(furrowstamp_) < 200 )
 	singleseeded_ = true;

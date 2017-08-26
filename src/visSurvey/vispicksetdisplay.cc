@@ -456,7 +456,7 @@ void PickSetDisplay::displayBody( bool yn )
 
 bool PickSetDisplay::setBodyDisplay()
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
     if ( !shoulddisplaybody_ || set_->isEmpty() )
 	return false;

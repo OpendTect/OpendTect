@@ -807,7 +807,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		slice2d.setPos( 0, 0 );
 		slice2d.init();
 
-		MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+		UserShowWait usw( this, uiStrings::sCollectingData() );
 		Array2DReSampler<float,float> resampler(
 			    slice2d, tmparr, sz0, sz1, true );
 		resampler.setInterpolate( true );

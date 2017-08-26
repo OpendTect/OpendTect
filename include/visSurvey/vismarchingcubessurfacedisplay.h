@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "attribsel.h"
 #include "emposid.h"
 #include "visobject.h"

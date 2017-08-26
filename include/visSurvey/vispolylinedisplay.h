@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "vistransform.h"
@@ -30,7 +30,7 @@ mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
 { mODTextTranslationClass(PolyLineDisplay);
 public:
 				PolyLineDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PolyLineDisplay,
 				    "PolyLineDisplay",
 				    toUiString(sFactoryKeyword()));
@@ -49,5 +49,5 @@ protected:
 				~PolyLineDisplay();
     visBase::PolyLine*		polyline_;
 };
-    
+
 };//namespace

@@ -15,7 +15,7 @@
 #include "vishorizonsectiontileglue.h"
 
 #include "binidsurface.h"
-#include "mousecursor.h"
+#include "uistrings.h"
 #include "survinfo.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
@@ -734,7 +734,7 @@ void HorizonSection::selectActiveVersion( int channel, int version )
 void HorizonSection::setResolution( char res, TaskRunner* tskr )
 {
     desiredresolution_ = res;
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
     hortilescreatorandupdator_->setFixedResolution( desiredresolution_, tskr );
     updatePrimitiveSets();

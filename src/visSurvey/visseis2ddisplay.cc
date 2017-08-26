@@ -23,12 +23,12 @@
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "bendpointfinder.h"
-#include "mousecursor.h"
 #include "probeimpl.h"
 #include "seisdatapack.h"
 #include "volumedatapackzaxistransformer.h"
 #include "zaxistransform.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "keystrs.h"
 
 //For parsing old pars
@@ -441,7 +441,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
     const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
     int sz0=mUdf(int), sz1=mUdf(int);
     for ( int idx=0; idx<nrversions; idx++ )
     {

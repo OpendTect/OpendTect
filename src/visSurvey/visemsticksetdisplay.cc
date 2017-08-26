@@ -17,8 +17,7 @@
 #include "keyenum.h"
 #include "emfault.h"
 #include "survgeom3d.h"
-#include "mousecursor.h"
-#include "mouseevent.h"
+#include "uistrings.h"
 
 namespace visSurvey
 {
@@ -122,11 +121,11 @@ void StickSetDisplay::polygonSelectionCB()
     if ( !ownerscene_ || ! ownerscene_->getPolySelection() ) return;
 
     visBase::PolygonSelection* selection =  ownerscene_->getPolySelection();
-    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
     if ( !selection->hasPolygon() && !selection->singleSelection()  )
 	return;
 
+    UserShowWait usw( ownerscene_, uiStrings::sUpdatingDisplay() );
     TypeSet<int> donenr;
     for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
     {

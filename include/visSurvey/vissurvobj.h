@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "attribsel.h"
 #include "color.h"
 #include "trckeyzsampling.h"
@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 #include "factory.h"
 #include "coltabmappersetup.h"
-
 
 class DataPointSet;
 namespace OD { class LineStyle; class MarkerStyle3D; };
@@ -46,9 +45,7 @@ namespace visBase
 namespace visSurvey
 {
 
-/*!
-\brief Base class for all 'Display' objects
-*/
+/*!\brief Base class for all 'Display' objects */
 
 mExpClass(visSurvey) SurveyObject
 { mODTextTranslationClass(SurveyObject)

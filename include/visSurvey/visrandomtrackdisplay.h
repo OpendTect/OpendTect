@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "vismultiattribsurvobj.h"
 #include "seisdatapack.h"
 #include "probe.h"

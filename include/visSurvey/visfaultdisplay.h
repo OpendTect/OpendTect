@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "vismultiattribsurvobj.h"
 #include "visemsticksetdisplay.h"
 
@@ -141,7 +141,7 @@ public:
 
     const OD::MarkerStyle3D*	markerStyle() const;
     void			setMarkerStyle(const OD::MarkerStyle3D&);
-    bool			markerStyleColorSelection() const 
+    bool			markerStyleColorSelection() const
 							    { return false; }
 
     virtual void		getMousePosInfo(const visBase::EventInfo& ei,

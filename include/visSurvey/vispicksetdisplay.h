@@ -11,7 +11,7 @@ _______________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "trigonometry.h"
 #include "vislocationdisplay.h"
 

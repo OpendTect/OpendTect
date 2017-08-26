@@ -10,21 +10,21 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "viscoord.h"
 #include "draw.h"
 
-namespace EM 
-{ 
-    class Fault; 
-    typedef od_int32 ObjectID; 
+namespace EM
+{
+    class Fault;
+    typedef od_int32 ObjectID;
 }
 
-namespace visBase 
-{  
-    class MarkerSet; 
+namespace visBase
+{
+    class MarkerSet;
     class EventCatcher;
-    class Transformation; 
+    class Transformation;
     class PolygonSelection;
 }
 
@@ -36,8 +36,8 @@ namespace visSurvey
 {
 class Scene;
 
-mExpClass(visSurvey) StickSetDisplay 
-{ 
+mExpClass(visSurvey) StickSetDisplay
+{
 public:
 				StickSetDisplay(bool);
 				~StickSetDisplay();
@@ -47,7 +47,7 @@ public:
     void			updateStickMarkerSet();
     void			setStickMarkerStyle(const OD::MarkerStyle3D&);
 
-    void	    		getMousePosInfo(const visBase::EventInfo&,
+    void			getMousePosInfo(const visBase::EventInfo&,
 					       Coord3& xyzpos,BufferString& val,
 					       BufferString& info) const;
 protected:

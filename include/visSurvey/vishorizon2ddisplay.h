@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "emposid.h"
 #include "dbkey.h"
 #include "visemobjdisplay.h"
@@ -32,7 +32,7 @@ public:
 				Horizon2DDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Horizon2DDisplay,
-				    "Horizon2DDisplay", 
+				    "Horizon2DDisplay",
 				    toUiString(sFactoryKeyword()));
 
     void			setDisplayTransformation(const mVisTrans*);
@@ -97,7 +97,7 @@ protected:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
     bool			calcLine2DIntersections(
-						const TypeSet<Pos::GeomID>&, 
+						const TypeSet<Pos::GeomID>&,
 						    Line2DInterSectionSet&);
 
     void			calcLine2DInterSectionSet();

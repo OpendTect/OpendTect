@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "bufstringset.h"
 #include "draw.h"
 #include "emposid.h"
@@ -48,7 +48,7 @@ struct EMChangeData
     {
 	if ( idx<emcallbackdata_.size() )
 	    return emcallbackdata_[idx];
-	return 0;    
+	return 0;
     }
 
     void    clearData()
@@ -147,7 +147,7 @@ public:
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj )	=0;
     virtual void		setPixelDensity(float dpi);
-    const visBase::MarkerSet*	getSeedMarkerSet() const; 
+    const visBase::MarkerSet*	getSeedMarkerSet() const;
 
 protected:
 				EMObjectDisplay();

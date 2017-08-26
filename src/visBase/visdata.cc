@@ -75,6 +75,7 @@ visBase::DataObject::DataObject()
     , osgnode_( 0 )
     , osgoffswitch_( 0 )
     , ison_( true )
+    , parent_( 0 )
 {
     DM().addObject( this );
 }

@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "pickset.h"

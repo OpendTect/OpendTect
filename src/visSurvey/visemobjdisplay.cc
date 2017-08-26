@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "undo.h"
 #include "callback.h"
-#include "mousecursor.h"
 #include "polygon.h"
 #include "survinfo.h"
 #include "emhorizon3d.h"
@@ -784,7 +783,6 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 	  return;
 
     visBase::PolygonSelection* polysel =  scene_->getPolySelection();
-    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
     if ( (!polysel->hasPolygon() && !polysel->singleSelection()) )
     {
@@ -795,8 +793,8 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
     if ( !ctrldown_ )
 	unSelectAll();
 
+    UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
     updateSelections();
-
     polysel->clear();
 }
 

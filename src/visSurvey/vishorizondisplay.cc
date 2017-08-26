@@ -395,7 +395,7 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     EMObjectDisplay::setDisplayTransformation( nt );
 
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setDisplayTransformation(transformation_);
@@ -850,7 +850,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     if ( !as_.validIdx(channel) )
 	return;
 
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 
     Attrib::SelSpec& as = (*as_[channel])[0];
     const bool attribwasdepth = FixedString(as.userRef())==sKeyZValues();
@@ -1150,7 +1150,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tskr )
     surf->setZAxisTransform( zaxistransform_, tskr );
     if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
 
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tskr );
     if ( !emobject_->isEmpty() && tskr && !tskr->execResult() )

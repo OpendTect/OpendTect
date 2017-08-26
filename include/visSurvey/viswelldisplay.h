@@ -12,9 +12,8 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
-#include "visobject.h"
 #include "vissurvobj.h"
+#include "visobject.h"
 #include "viswell.h"
 #include "dbkey.h"
 #include "ranges.h"

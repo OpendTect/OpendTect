@@ -13,11 +13,11 @@ ___________________________________________________________________
 
 #include "coord.h"
 #include "coltabmapper.h"
-#include "mousecursor.h"
 #include "settingsaccess.h"
 #include "valseriesimpl.h"
 #include "visosg.h"
 #include "vistexturechannel2rgba.h"
+#include "uistrings.h"
 
 #include <osgGeo/LayeredTexture>
 #include <osg/Image>
@@ -488,15 +488,21 @@ bool ChannelInfo::isCurrentDataPremapped() const
 
 
 
-class TextureChannels::TextureCallbackHandler :
-					public osgGeo::LayeredTexture::Callback
+class TextureChannels::TextureCallbackHandler
+		: public osgGeo::LayeredTexture::Callback
 {
 public:
-    TextureCallbackHandler()						{}
+
+		TextureCallbackHandler() : usw_(0)	{}
+		~TextureCallbackHandler()		{ delete usw_; }
+
     virtual void startWorkInProgress() const
-			{ MouseCursorManager::setOverride(MouseCursor::Wait); }
+	{ usw_ = new visBase::UserShowWait(0,uiStrings::sCollectingData()); }
     virtual void stopWorkInProgress() const
-			{ MouseCursorManager::restoreOverride(); }
+	{ delete usw_; usw_ = 0; }
+
+    mutable visBase::UserShowWait*  usw_;
+
 };
 
 

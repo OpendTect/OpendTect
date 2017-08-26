@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "visemobjdisplay.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"

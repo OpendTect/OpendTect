@@ -11,10 +11,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "mousecursor.h"
-#include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
+#include "mousecursor.h"
 
 namespace Attrib { class SelSpec; }
 template <class T> class Selector;

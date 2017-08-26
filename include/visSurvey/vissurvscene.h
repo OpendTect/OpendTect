@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "visscene.h"
 #include "bufstring.h"
 #include "keyboardevent.h"

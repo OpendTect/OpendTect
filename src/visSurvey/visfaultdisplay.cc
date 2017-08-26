@@ -1166,7 +1166,7 @@ void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* taskr ) const
 {
     if ( explicitpanels_ )
     {
-	MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+	UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
 	explicitpanels_->getTexturePositions( dpset, taskr );
 	paneldisplay_->touch( false, false );
     }

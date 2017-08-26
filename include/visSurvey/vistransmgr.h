@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "gendefs.h"
 #include "vistransform.h"
 
@@ -25,18 +25,18 @@ class Scene;
 mExpClass(visSurvey) SceneTransformManager : public CallBacker
 {
 public:
-    			SceneTransformManager()
+			SceneTransformManager()
 			    : scene_(0)
 			    , mouseCursorCall(this)
-    			{}
+			{}
 
     static void		computeUTM2DisplayTransform(const Survey::Geometry3D&,
 				    float zfactor, float zmidpt,mVisTrans* res);
-    			//!<Given to all objects in XY-space
+			//!<Given to all objects in XY-space
 
     static void		computeICRotationTransform(const Survey::Geometry3D&,
 						   float zfactor, float zmidpt,
-					      	   mVisTrans* rotation,
+						   mVisTrans* rotation,
 						   mVisTrans* disptrans );
 
     void		setCurrentScene( Scene* scn ) { scene_ = scn; }

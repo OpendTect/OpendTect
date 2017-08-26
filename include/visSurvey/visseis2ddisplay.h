@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "vismultiattribsurvobj.h"
 #include "posinfo2dsurv.h"
 #include "probe.h"

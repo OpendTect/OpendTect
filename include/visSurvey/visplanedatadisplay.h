@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "vismultiattribsurvobj.h"
 
 #include "mousecursor.h"

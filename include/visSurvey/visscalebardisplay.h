@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "vissurveycommon.h"
 #include "vislocationdisplay.h"
 
 /*!\brief

@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "vissurveycommon.h"
 #include "vislocationdisplay.h"
 
 namespace visBase { class Lines; class DrawStyle; };

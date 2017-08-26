@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 #include "iopar.h"

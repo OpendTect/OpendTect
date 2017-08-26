@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "emposid.h"
 #include "visobject.h"
 #include "vissower.h"
@@ -57,7 +57,7 @@ public:
 
     void		setDisplayTransformation( const mVisTrans* );
     const mVisTrans*	getDisplayTransformation() const
-    			{ return transformation_;}
+			{ return transformation_;}
 
     void		setMarkerSize(float);
     void		turnOnMarker(EM::PosID,bool on);
@@ -65,21 +65,21 @@ public:
     bool		allMarkersDisplayed() const;
 
     Notifier<MPEEditor>		nodeRightClick;
-    				/*!<\ the clicked position can be retrieved
+				/*!<\ the clicked position can be retrieved
 				      with getNodePosID(getRightClickNode) */
     int				getRightClickNode() const;
     EM::PosID			getNodePosID(int idx) const;
 
     bool			mouseClick( const EM::PosID&, bool shift,
 					    bool alt, bool ctrl );
-    				/*!<Notify the object that someone
+				/*!<Notify the object that someone
 				    has clicked on the object that's being
 				    edited. Clicks on the editor's draggers
 				    themselves are handled by clickCB.
 				    Returns true when click is handled. */
 
     bool			clickCB( CallBacker* );
-    				/*!<Since the event should be handled
+				/*!<Since the event should be handled
 				    with this object before the main object,
 				    the main object has to pass eventcatcher
 				    calls here manually.
@@ -97,7 +97,7 @@ public:
     void			cleanPatch();
     const ObjectSet<visBase::MarkerSet>& getDraggerMarkers() const;
 protected:
-    				~MPEEditor();
+				~MPEEditor();
 
     void			changeNumNodes( CallBacker* );
     void			nodeMovement( CallBacker* );

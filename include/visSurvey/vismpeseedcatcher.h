@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "visobject.h"
 
 #include "attribsel.h"
@@ -41,7 +41,7 @@ mExpClass(visSurvey) MPEClickInfo
 {
     friend class MPEClickCatcher;
 public:
-    				MPEClickInfo();
+				MPEClickInfo();
 
     bool			isLegalClick() const;
 
@@ -64,7 +64,7 @@ public:
     const RegularSeisDataPack*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
-    Pos::GeomID 		getGeomID() const;
+    Pos::GeomID		getGeomID() const;
     const char*			getObjLineName() const;
     const Attrib::Data2DHolder*	getObjLineData() const;
 
@@ -111,7 +111,7 @@ protected:
     Attrib::SelSpec			attrsel_;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
-    Pos::GeomID 			geomid_;
+    Pos::GeomID			geomid_;
     BufferString			linename_;
     DataPack::ID			datapackid_;
 };
@@ -151,10 +151,10 @@ protected:
 				~MPEClickCatcher();
     void			clickCB(CallBacker*);
 
-    void 			sendUnderlying2DSeis(
+    void			sendUnderlying2DSeis(
 					const EMObjectDisplay*,
 					const visBase::EventInfo&);
-    void 			sendUnderlyingPlanes(
+    void			sendUnderlyingPlanes(
 					const EMObjectDisplay*,
 					const visBase::EventInfo&);
     void			handleObjectOnSeis2DDisplay(Seis2DDisplay*,

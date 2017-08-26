@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "vissurveymod.h"
+#include "vissurveycommon.h"
 #include "emposid.h"
 #include "keyenum.h"
 #include "visobject.h"
@@ -65,7 +65,7 @@ public:
     bool		accept(const visBase::EventInfo&);
 
     bool		activate(const Color&,const visBase::EventInfo&,
-	    			 int underlyingobjid=-1,
+				 int underlyingobjid=-1,
 				 const TrcKeySampling* workrange=0);
     Notifier<Sower>	sowingEnd;
     Notifier<Sower>	sowing;
@@ -81,7 +81,7 @@ protected:
     bool		acceptLaser(const visBase::EventInfo&);
     bool		acceptEraser(const visBase::EventInfo&);
 
-    EM::PosID		getMarkerID(const visBase::EventInfo&) const; 
+    EM::PosID		getMarkerID(const visBase::EventInfo&) const;
 
     void		reset();
 
