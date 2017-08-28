@@ -279,7 +279,7 @@ void uiHorizonSetupGroup::retrackCB( CallBacker* )
 
 void uiHorizonSetupGroup::undoCB( CallBacker* )
 {
-    MouseCursorChanger mcc( MouseCursor::Wait );
+    uiUserShowWait( this, tr("Undoing changes") );
     uiString errmsg;
     engine().undo( errmsg );
     if ( !errmsg.isEmpty() )
@@ -291,7 +291,7 @@ void uiHorizonSetupGroup::undoCB( CallBacker* )
 
 void uiHorizonSetupGroup::redoCB( CallBacker* )
 {
-    MouseCursorChanger mcc( MouseCursor::Wait );
+    uiUserShowWait( this, tr("Re-doing changes") );
     uiString errmsg;
     engine().redo( errmsg );
     if ( !errmsg.isEmpty() )
