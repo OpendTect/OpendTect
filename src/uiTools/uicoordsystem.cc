@@ -230,10 +230,11 @@ bool uiUnlocatedXYSystem::acceptOK()
 }
 
 
+
 uiAnchorBasedXYSystem::uiAnchorBasedXYSystem( uiParent* p )
     : uiCoordSystem( p,sFactoryDisplayName() )
 {
-    helpkey_ = mODHelpKey(mLatLong2CoordDlgHelpID);
+    helpkey_ = mTODOHelpKey;
 
     coordfld_ = new uiGenInput( this, tr("Coordinate in or near survey"),
 				DoubleInpSpec(), DoubleInpSpec() );
@@ -419,7 +420,7 @@ bool uiCoordSystemSelGrp::acceptOK()
 uiCoordSystemDlg::uiCoordSystemDlg( uiParent* p, bool orthogonalonly,
 			bool projectiononly, const CoordSystem* coordsys )
     : uiDialog(p,uiDialog::Setup(tr("Coordinate Reference System"),mNoDlgTitle,
-				 mODHelpKey(mLatLong2CoordDlgHelpID) ))
+				 mTODOHelpKey ))
 {
     coordsysselfld_ = new Coords::uiCoordSystemSelGrp( this, orthogonalonly,
 						projectiononly, 0, coordsys );
