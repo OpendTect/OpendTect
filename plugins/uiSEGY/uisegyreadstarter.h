@@ -53,11 +53,13 @@ public:
 		    , filenm_(0)
 		    , fixedfnm_(false)
 		    , vintagecheckmode_(false)
+		    , vintagenm_(0)
 		{}
 
 		mDefSetupMemb(bool, forsurvsetup);
 		mDefSetupMemb(const SEGY::ImpType*, imptype);
 		mDefSetupMemb(const char*, filenm);
+		mDefSetupMemb(const char*, vintagenm);
 		mDefSetupMemb(bool, fixedfnm)
 		mDefSetupMemb(bool, vintagecheckmode)
     };
@@ -133,6 +135,7 @@ protected:
     uiSEGYClassicSurvInfoProvider* classicsip_;
     bool		vintagecheckmode_;
     bool		fixedfnm_;
+    BufferString	vintagenm_;
 
     enum LoadDefChgType	{ KeepAll, KeepBasic, KeepNone };
 
@@ -177,6 +180,7 @@ protected:
     void		examineCB(CallBacker*);
     void		readParsCB(CallBacker*);
     void		writeParsCB(CallBacker*);
+    bool		writePars();
     void		keepZChg(CallBacker*);
     void		icxyCB(CallBacker*);
     void		coordscaleChg(CallBacker*);

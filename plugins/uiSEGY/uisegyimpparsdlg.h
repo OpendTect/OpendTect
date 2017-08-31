@@ -79,7 +79,8 @@ mExpClass(uiSEGY) uiSEGYStoreImpParsDlg : public uiSEGYImpParsDlg
 public:
 
 			uiSEGYStoreImpParsDlg(uiParent*,const IOPar&,
-						const char* defnm=0);
+						const char* defnm=0,
+						bool vintagemode=false);
 			~uiSEGYStoreImpParsDlg();
 
 protected:

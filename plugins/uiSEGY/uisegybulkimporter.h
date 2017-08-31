@@ -28,6 +28,7 @@ protected:
     void		addCB(CallBacker*);
     void		removeCB(CallBacker*);
     void		selectFilesCB(CallBacker*);
+    void		editVntCB(CallBacker*);
     void		fillRow( int rowid);
     bool		acceptOK();
 

@@ -83,6 +83,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
     , timer_(0)
     , inpfld_(0)
     , vintagecheckmode_(su.vintagecheckmode_)
+    , vintagenm_(su.vintagenm_)
     , fixedfnm_(su.fixedfnm_)
     , fullscanbut_(0)
     , editbut_(0)
@@ -122,6 +123,12 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 				 fssu );
 	inpfld_->newSelection.notify( mCB(this,uiSEGYReadStarter,inpChg) );
 	attachobj = inpfld_->attachObj();
+    }
+    if ( !su.fixedfnm_ && vintagecheckmode_)
+    {
+	userfilename_ = su.filenm_;
+	filespec_.setUsrStr( userfilename_ );
+	filespec_.setFileName( userfilename_ );
     }
 
     if ( !vintagecheckmode_ )
@@ -191,7 +198,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
     botgrp_->setStretch( 2, 1 );
 
     setToolStates();
-    if ( vintagecheckmode_ && fixedfnm_ )
+    if ( vintagecheckmode_ && fixedfnm_ && vintagenm_.isEmpty() )
 	setCtrlStyle( CloseOnly );
 
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
@@ -544,32 +551,39 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 
 void uiSEGYReadStarter::addVintageUI()
 {
-    if ( vintagecheckmode_ && fixedfnm_ )
+    if ( vintagecheckmode_ && fixedfnm_ && vintagenm_.isEmpty() )
 	return;
 
     uiButton* okbut = button( OK );
-    BufferStringSet vintnms;
-    vintnms.add( uiStrings::sEmptyString().getOriginalString() );
-    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
-	for ( int pidx=0; pidx<parset.size(); pidx++ )
-		    vintnms.add( parset[pidx]->name() );
     uiGroup* vntgrp = new uiGroup( okbut->parent(), "Vintage group" );
     uiLabeledComboBox* vintage =
-		    new uiLabeledComboBox( vntgrp,
-					   vintnms.getUiStringSet(),
-					   tr("Vintage name") );
+		    new uiLabeledComboBox( vntgrp, tr("Vintage name") );
     vintagefld_ = vintage->box();
-    vintagefld_->setReadOnly( false );
+    vintagefld_->setReadOnly( !vintagenm_.isEmpty() );
     const CallBack vintcb(mCB(this,uiSEGYReadStarter,vntChgCB));
     vintagefld_->selectionChanged.notify( vintcb );
+    BufferStringSet vintnms;
+    if ( !vintagenm_.isEmpty() )
+    {
+	vintnms.add( vintagenm_ );
+	lastparname_ = vintagenm_;
+    }
+    else
+    {
+	vintnms.add( uiStrings::sEmptyString().getOriginalString() );
+	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+	    for ( int pidx=0; pidx<parset.size(); pidx++ )
+		vintnms.add( parset[pidx]->name() );
 
-    const CallBack vntrefresh(mCB(this,uiSEGYReadStarter,vntRefreshCB));
-    uiToolButton* resetbut = new uiToolButton(vntgrp, "refresh",
-					tr("Refresh vintage"), vntrefresh);
-    resetbut->attach( rightOf, vintage );
+	const CallBack vntrefresh(mCB(this,uiSEGYReadStarter,vntRefreshCB));
+	uiToolButton* resetbut = new uiToolButton(vntgrp, "refresh",
+					    tr("Refresh vintage"), vntrefresh);
+	resetbut->attach( rightOf, vintage );
+    }
+
+    vintagefld_->addItems( vintnms );
     vntgrp->attach( leftTo, okbut );
     vntgrp->attach( leftBorder );
-
 }
 
 
@@ -836,7 +850,19 @@ bool uiSEGYReadStarter::getVintageParameters()
     BufferString curvntnm( vintagefld_->text() );
     int selidx = parset.find( curvntnm );
     if ( selidx < 0 )
-	writeParsCB( 0 );
+    {
+	if ( curvntnm.isEmpty() )
+	    return writePars();
+	else
+	{
+	    Repos::IOPar* newpar = new Repos::IOPar( Repos::Data );
+	    fillPar(*newpar);
+	    newpar->setName( curvntnm );
+	    parset.add( newpar );
+	    parset.write(Repos::Data);
+	    lastparname_ = curvntnm;
+	}
+    }
     else
     {
 	IOPar dlgpar;
@@ -873,13 +899,22 @@ void uiSEGYReadStarter::readParsCB( CallBacker* )
 
 void uiSEGYReadStarter::writeParsCB( CallBacker* )
 {
+    writePars();
+}
+
+
+bool uiSEGYReadStarter::writePars()
+{
     IOPar iop; fillPar( iop );
-    uiSEGYStoreImpParsDlg dlg( this, iop, lastparname_ );
+    uiSEGYStoreImpParsDlg dlg( this, iop, lastparname_, vintagecheckmode_ );
     if ( vintagecheckmode_ )
 	dlg.setCaption( tr("Please specify name for this vintage") );
 
-    if ( dlg.go() )
-	lastparname_ = dlg.parName();
+    if ( !dlg.go() )
+	return false;
+
+    lastparname_ = dlg.parName();
+    return true;
 }
 
 

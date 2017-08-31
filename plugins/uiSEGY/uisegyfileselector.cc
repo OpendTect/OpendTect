@@ -27,19 +27,18 @@ uiSEGYFileSelector::uiSEGYFileSelector(uiParent* p, const char* fnm,
 	       mNoDlgTitle,mNoHelpKey) )
     , filenmsfld_(0)
     , imptype_( imptype )
+    , fp_(*new File::Path(fnm) )
 {
     uiString titlestr;
+    setOkCancelText( tr("<< Next"), tr("Back >>") );
     titlestr = tr("Please select the file(s) belonging to vintage '%1' " )
 	      .arg( vntname );
     setTitleText( titlestr );
-    File::Path fp( fnm );
-    BufferString path = fp.pathOnly();
-    dirnm_ = fp.pathOnly();
-    BufferString msk("*.", fp.extension() );
-    DirList filelist( path, File::FilesInDir, msk );
+    BufferString msk("*.", fp_.extension() );
+    DirList filelist( fp_.pathOnly(), File::FilesInDir, msk );
     filenmsfld_ = new uiListBox( this, "Select files", OD::ChooseAtLeastOne );
     filenmsfld_->addItems( filelist );
-    filenmsfld_->setCurrentItem( fp.fileName() );
+    filenmsfld_->setCurrentItem( fp_.fileName() );
     filenmsfld_->setChosen( filenmsfld_->currentItem() );
     uiGroup* toolgrp = new uiGroup( this, "Tools group" );
     toolgrp->attach( centeredRightOf, filenmsfld_ );
@@ -57,10 +56,16 @@ uiSEGYFileSelector::uiSEGYFileSelector(uiParent* p, const char* fnm,
 }
 
 
+uiSEGYFileSelector::~uiSEGYFileSelector()
+{
+    delete &fp_;
+}
+
+
 void uiSEGYFileSelector::selChgCB( CallBacker* )
 {
     BufferString info;
-    File::Path fp( dirnm_, filenmsfld_->getText() );
+    File::Path fp( fp_.fullPath(), filenmsfld_->getText() );
     info.add( "Location: " ).add( fp.fullPath() ).addNewLine();
     od_int64 szkb = File::getKbSize( fp.fullPath() );
     info.add( "Size: " ).add( szkb ).add( " KB" );
@@ -73,7 +78,7 @@ void uiSEGYFileSelector::selChgCB( CallBacker* )
 void uiSEGYFileSelector::quickScanCB( CallBacker* )
 {
     uiSEGYReadStarter::Setup su( false, &imptype_ );
-    File::Path fp( dirnm_, filenmsfld_->getText() );
+    File::Path fp( fp_.pathOnly(), filenmsfld_->getText() );
     const BufferString fnm ( fp.fullPath());
     su.filenm( fnm ).fixedfnm(true).vintagecheckmode(true);
     uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su);
@@ -94,4 +99,14 @@ bool uiSEGYFileSelector::acceptOK()
 	return false;
 
     return true;
+}
+
+
+bool uiSEGYFileSelector::rejectOK()
+{
+    uiSEGYReadStarter::Setup su( false, &imptype_ );
+    BufferString fnm( fp_.fullPath() );
+    su.filenm(fnm).fixedfnm(false).vintagecheckmode(true);
+    uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su);
+    return readstrdlg->go();
 }

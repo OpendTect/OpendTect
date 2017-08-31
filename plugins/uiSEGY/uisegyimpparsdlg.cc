@@ -230,14 +230,19 @@ bool uiSEGYReadImpParsDlg::doIO()
 
 
 uiSEGYStoreImpParsDlg::uiSEGYStoreImpParsDlg( uiParent* p, const IOPar& iop,
-					      const char* defnm )
+					      const char* defnm,
+					      bool vintagemode )
     : uiSEGYImpParsDlg(p,false,defnm)
     , parstostore_(new Repos::IOPar(iop))
 {
     setHelpKey(mODHelpKey(mSEGYStoreImpParsDlgHelpID));
 
-    namefld_ = new uiGenInput( this, tr("Store as"), StringInpSpec(defnm) );
+    namefld_ = new uiGenInput( this, vintagemode ? tr("Save vintage as")
+						 : tr("Store as"),
+				     StringInpSpec(defnm) );
     namefld_->attach( alignedBelow, listfld_ );
+    if ( vintagemode )
+	listfld_->setCurrentItem( -1 );
 }
 
 

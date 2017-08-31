@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "repos.h"
+#include "rowcol.h"
 #include "survinfo.h"
 #include "uisegyfileselector.h"
 
@@ -30,11 +31,10 @@ uiSEGYBulkImporter::uiSEGYBulkImporter( uiParent* p )
     table_->setPrefWidth( 650 );
     table_->setSelectionMode( uiTable::SingleRow );
     table_->attach( centeredBelow, imptypefld_ );
-    table_->setNrCols( 4 );
+    table_->setNrCols( 3 );
     table_->setColumnLabel( 0, tr("Vintage") );
-    table_->setColumnLabel( 1, tr("Files") );
+    table_->setColumnLabel( 1, tr("File names") );
     table_->setColumnLabel( 2, tr("Select") );
-    table_->setColumnLabel( 3, tr("Output name") );
     table_->setNrRows(0);
     uiGroup* toolgrp = new uiGroup( this, "Tool group" );
     uiToolButton* addbut = new uiToolButton(toolgrp, "plus",
@@ -44,6 +44,10 @@ uiSEGYBulkImporter::uiSEGYBulkImporter( uiParent* p )
 					 uiStrings::phrRemove(tr("Vintage")),
 					 mCB(this,uiSEGYBulkImporter,removeCB));
     removebut->attach( alignedBelow, addbut );
+    uiToolButton* editbut = new uiToolButton(toolgrp, "edit",
+					uiStrings::phrEdit(tr("Vintage")),
+					mCB(this,uiSEGYBulkImporter,editVntCB));
+    editbut->attach( alignedBelow, removebut );
     toolgrp->attach( rightOf, table_ );
     addCB( 0 );
 }
@@ -63,9 +67,10 @@ bool uiSEGYBulkImporter::selectVintage()
 			new uiSEGYFileSelector( this,
 						readstrdlg->userFileName(),
 						vintagenm_.buf(), imptype );
-    if ( fsdlg->go() )
-	fsdlg->getSelNames( selfilenms_ );
+    if ( !fsdlg->go() )
+	return false;
 
+    fsdlg->getSelNames( selfilenms_ );
     return true;
 }
 
@@ -84,6 +89,7 @@ void uiSEGYBulkImporter::addCB( CallBacker* )
     table_->setCellObject( RowCol(rowidx,2), selbut );
     table_->setColumnStretchable( 2, false );
     table_->setColumnReadOnly( 0, true );
+    table_->setColumnReadOnly( 1, true );
     fillRow( rowidx );
 }
 
@@ -105,6 +111,33 @@ void uiSEGYBulkImporter::selectFilesCB( CallBacker*)
 
 void uiSEGYBulkImporter::removeCB( CallBacker* )
 {
+}
+
+
+void uiSEGYBulkImporter::editVntCB( CallBacker* )
+{
+    int currow = table_->currentRow();
+    BufferString vntnm( table_->text( RowCol(currow,0)) );
+    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+    int selidx = parset.find( vntnm );
+    if ( selidx < 0 )
+	return;
+
+    Repos::IOPar* iop = parset[selidx];
+    if ( !iop )
+	return;
+
+    BufferString fnm;
+    iop->get( "File name", fnm );
+
+    uiSEGYReadStarter::Setup su( false, &imptypefld_->impType() );
+    su.filenm(fnm).fixedfnm(true).vintagecheckmode(true).vintagenm( vntnm );
+    uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su);
+    readstrdlg->setCaption( tr("Edit vintage '%1'").arg(vntnm) );
+    readstrdlg->usePar( *iop );
+
+    if ( !readstrdlg->go() )
+	return;
 }
 
 

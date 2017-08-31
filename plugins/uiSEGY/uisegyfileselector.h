@@ -16,6 +16,7 @@ ________________________________________________________________________
 class uiListBox;
 class uiTextEdit;
 namespace SEGY{ class ImpType; }
+namespace File{ class Path; }
 
 mExpClass(uiSEGY) uiSEGYFileSelector : public uiDialog
 { mODTextTranslationClass(uiSEGYFileSelector)
@@ -23,6 +24,7 @@ public:
 		uiSEGYFileSelector(uiParent*, const char* fnm,
 				   const char* vntname,
 				   const SEGY::ImpType& imptype);
+		~uiSEGYFileSelector();
 
     void	getSelNames(BufferStringSet&);
 
@@ -30,9 +32,10 @@ protected:
     void	selChgCB(CallBacker*);
     void	quickScanCB(CallBacker*);
     bool	acceptOK();
+    bool	rejectOK();
 
     uiListBox*		filenmsfld_;
     uiTextEdit*		txtfld_;
-    BufferString	dirnm_;
+    const File::Path&	fp_;
     const SEGY::ImpType& imptype_;
 };
