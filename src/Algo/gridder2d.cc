@@ -324,10 +324,11 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 
     const int finsz = weights.size();
     double* mODRestrict weightvals = weights.arr();
-    if ( useradius && mIsZero(weightsum,mDefEps) )
+    if ( useradius && mIsZero(weightsum,1e-30) )
     { //All sources are exactly at (1) radius distance from the grid point
+	const double equalweight = 1. / mCast(double,finsz);
 	for ( int idx=0; idx<finsz; idx++ )
-	    weightvals[idx] = 1.;
+	    weightvals[idx] = equalweight;
     }
     else
     {
