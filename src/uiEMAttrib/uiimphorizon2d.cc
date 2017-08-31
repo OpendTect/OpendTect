@@ -202,7 +202,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(), 
+    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
 				     uiFileInput::Setup()
 				     .withexamine(true)
 				     .forread(true) );
@@ -276,7 +276,7 @@ void uiImportHorizon2D::formatSel( CallBacker* cb )
 
 void uiImportHorizon2D::addHor( CallBacker* )
 {
-    uiGenInputDlg dlg( this, uiStrings::phrAdd(uiStrings::sHorizon()), 
+    uiGenInputDlg dlg( this, uiStrings::phrAdd(uiStrings::sHorizon()),
 		       uiStrings::sName(), new StringInpSpec() );
     if ( !dlg.go() ) return;
 
@@ -435,7 +435,7 @@ bool uiImportHorizon2D::doImport()
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
 	PtrMan<Executor> saver = horizons[idx]->saver();
-	if ( saver->execute() )
+	if ( saver && saver->execute() )
 	    emobjids_ += horizons[idx]->id();
     }
 

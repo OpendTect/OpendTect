@@ -422,7 +422,7 @@ bool Horizon2D::setZAndNodeSourceType( const TrcKey& tk, float z,
     if ( !nodesource_ )
 	initNodeSourceArray(tk);
 
-    const bool retval = setPos( 
+    const bool retval = setPos(
 	sectionID(0), tk.geomID(), tk.trcNr(), z, addtohist );
     const NodeSourceType tp = !mIsUdf(z) ? type : None;
     setNodeSourceType( tk, tp );
@@ -445,7 +445,7 @@ bool Horizon2D::setZAndNodeSourceType( const TrcKey& tk, float z,
 //}
 //
 //
-//bool Horizon2D::setPosAndNodeSourceType( const EM::PosID& pid, 
+//bool Horizon2D::setPosAndNodeSourceType( const EM::PosID& pid,
 //    const Coord3& newpos,
 //    bool addtohistory,
 //    NodeSourceType type)
@@ -470,7 +470,7 @@ void Horizon2D::initNodeSourceArray( const TrcKey& tk )
 }
 
 
-void Horizon2D::setNodeSourceType( const TrcKey& tk, 
+void Horizon2D::setNodeSourceType( const TrcKey& tk,
     NodeSourceType type )
 {
     if ( !nodesource_ ) return;
@@ -478,7 +478,7 @@ void Horizon2D::setNodeSourceType( const TrcKey& tk,
 }
 
 
-bool Horizon2D::isNodeSourceType( const PosID& posid, 
+bool Horizon2D::isNodeSourceType( const PosID& posid,
     NodeSourceType type ) const
 {
     const TrcKey tk = geometry_.getTrcKey(posid);
@@ -486,7 +486,7 @@ bool Horizon2D::isNodeSourceType( const PosID& posid,
 }
 
 
-bool Horizon2D::isNodeSourceType( const TrcKey& tk, 
+bool Horizon2D::isNodeSourceType( const TrcKey& tk,
     NodeSourceType type ) const
 {
     return nodesource_ ? nodesource_->getData()[tk.trcNr()] ==
@@ -822,7 +822,7 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 					    Table::Optional );
     ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Required );
+    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
     Table::TargetInfo::Form* spform =
 			new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );
@@ -880,7 +880,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
 
 bool Horizon2DAscIO::isTraceNr() const
 {
-	    return formOf( false, 2 ) == 0;
+    return formOf( false, 2 ) == 0;
 }
 
 } // namespace EM
