@@ -71,8 +71,6 @@ protected:
     SEGY::TxtHeader*	txthead_;
     SEGY::BinHeader&	binhead_;
     SEGY::TrcHeader&	trchead_; // must be *after* fileopts_
-    LinScaler*		trcscale_;
-    const LinScaler*	curtrcscale_;
     int			selcomp_;
     int			forcedrev_;
 
