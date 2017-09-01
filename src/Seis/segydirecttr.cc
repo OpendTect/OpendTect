@@ -504,6 +504,9 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !tr_->readInfo(ti) || ti.binID() != curBinID() )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
+    if ( tr_->curtrcscale_ )
+	curtrcscale_ = tr_->curtrcscale_;
+
     return (headerdone_ = true);
 }
 
