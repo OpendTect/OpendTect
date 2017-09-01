@@ -137,7 +137,7 @@ void SeisTrcTranslator::cleanUp()
     deleteAndZeroArrPtr( inpcds_ );
     deleteAndZeroArrPtr( outcds_ );
     deleteAndZeroPtr( trcscale_ );
-    deleteAndZeroPtr( curtrcscale_ );
+    curtrcscale_ = 0;
     nrout_ = 0;
     errmsg_.setEmpty();
 }
