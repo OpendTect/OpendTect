@@ -576,8 +576,9 @@ void uiSEGYReadStarter::addVintageUI()
 		vintnms.add( parset[pidx]->name() );
 
 	const CallBack vntrefresh(mCB(this,uiSEGYReadStarter,vntRefreshCB));
-	uiToolButton* resetbut = new uiToolButton(vntgrp, "refresh",
-					    tr("Refresh vintage"), vntrefresh);
+	uiToolButton* resetbut = new uiToolButton( vntgrp, "refresh",
+					    tr("Revert to initial vintage"),
+					    vntrefresh );
 	resetbut->attach( rightOf, vintage );
     }
 

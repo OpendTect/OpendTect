@@ -30,7 +30,7 @@ uiSEGYFileSelector::uiSEGYFileSelector(uiParent* p, const char* fnm,
     , fp_(*new File::Path(fnm) )
 {
     uiString titlestr;
-    setOkCancelText( tr("<< Next"), tr("Back >>") );
+    setOkCancelText( tr("Next >>"), tr("<< Back") );
     titlestr = tr("Please select the file(s) belonging to vintage '%1' " )
 	      .arg( vntname );
     setTitleText( titlestr );
