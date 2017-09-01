@@ -42,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
+// uiSeis2DLineChoose
 uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
     : uiGroup(p,"Line chooser")
     , lbchoiceio_(0)
@@ -211,6 +212,8 @@ void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
 }
 
 
+
+// uiSeis2DLineSel
 uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
     : uiCompoundParSel(p,multisel
 	? uiStrings::phrSelect(mJoinUiStrs(s2D(),sLine(2).toLower()))
@@ -460,6 +463,8 @@ void uiSeis2DLineSel::setSelLine( const Pos::GeomID geomid )
 }
 
 
+
+// uiSeis2DLineNameSel
 uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     : uiGroup(p,"2D line name sel")
     , forread_(forread)
@@ -538,15 +543,18 @@ void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
 }
 
 
+
+// uiSeis2DMultiLineSel
 class uiSeis2DMultiLineSelDlg : public uiDialog
-{ mODTextTranslationClass(uiSeis2DMultiLineSelDlg);
+{ mODTextTranslationClass(uiSeis2DMultiLineSelDlg)
 public:
 			uiSeis2DMultiLineSelDlg(uiParent*,
 				const TypeSet<Pos::GeomID>& geomids,
 				const BufferStringSet& lnms,
 				const TypeSet<StepInterval<int> >& maxtrcrgs,
 				const TypeSet<StepInterval<float> >& maxzrgs,
-				bool withz,bool withstep);
+				bool withz,bool withstep,
+				OD::ChoiceMode cm=OD::ChooseAtLeastOne);
 			~uiSeis2DMultiLineSelDlg()	{}
 
     BufferString	getSummary() const;
@@ -589,14 +597,15 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 				const BufferStringSet& lnms,
 				const TypeSet<StepInterval<int> >& maxtrcrgs,
 				const TypeSet<StepInterval<float> >& maxzrgs,
-				bool withz, bool withstep )
+				bool withz, bool withstep,
+				OD::ChoiceMode cm )
     : uiDialog( p, uiDialog::Setup(tr("Select 2D Lines"),mNoDlgTitle,
-                                    mODHelpKey(mSeis2DMultiLineSelDlgHelpID) ) )
+				   mODHelpKey(mSeis2DMultiLineSelDlgHelpID) ) )
     , maxtrcrgs_(maxtrcrgs), maxzrgs_(maxzrgs)
     , trcrgs_(maxtrcrgs), zrgs_(maxzrgs)
     , zrgfld_(0)
 {
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Select Lines") );
+    uiListBox::Setup su( cm, tr("Select Lines") );
     lnmsfld_ = new uiListBox( this, su );
     lnmsfld_->addItems( lnms );
     lnmsfld_->selectionChanged.notify(
@@ -743,6 +752,7 @@ bool uiSeis2DMultiLineSelDlg::acceptOK( CallBacker* )
 }
 
 
+// uiSeis2DMultiLineSel
 uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const uiString& text,
 					    bool withz, bool withstep )
     : uiSeis2DLineSel(p,true)
@@ -830,8 +840,9 @@ void uiSeis2DMultiLineSel::initRanges( const MultiID* datasetid )
 
 void uiSeis2DMultiLineSel::selPush( CallBacker* )
 {
+    OD::ChoiceMode cm = ismultisel_ ? OD::ChooseAtLeastOne : OD::ChooseOnlyOne;
     uiSeis2DMultiLineSelDlg dlg( this, geomids_, lnms_, maxtrcrgs_, maxzrgs_,
-				 withz_, withstep_ );
+				 withz_, withstep_, cm );
     if ( isall_ )
 	dlg.setAll( true );
     else
@@ -995,4 +1006,10 @@ void uiSeis2DMultiLineSel::setTrcRanges(
 
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	trcrgs_[selidxs_[idx]] = trcrgs[idx];
+}
+
+
+void uiSeis2DMultiLineSel::setSingleLine( bool yn )
+{
+    ismultisel_ = !yn;
 }
