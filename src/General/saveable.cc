@@ -12,6 +12,7 @@
 #include "dbman.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
+#include "uistrings.h"
 
 
 Saveable::Saveable( const SharedObject& obj )
@@ -393,6 +394,9 @@ uiRetVal SaveableManager::store( const SharedObject& newobj,
 	DBM().getEntry( ctio, tempobjsonly_ );
 	ioobj = ctio.ioobj_;
 	ctio.ioobj_ = 0;
+	if ( !ioobj )
+	    return uiStrings::phrCannotCreateDBEntryFor(
+			    toUiString(newobj.name()) );
     }
 
     return store( newobj, ioobj->key(), ioobjpars );
