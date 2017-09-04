@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "cbvsinfo.h"
 
 class CBVSWriter;
+class TraceData;
 
 /*!\brief Vertical bricking specification */
 
@@ -57,6 +58,7 @@ public:
     void		setForceTrailers(bool yn=true);
 
     bool		put(void**);
+    bool		put(const TraceData&);
 			//!< See CBVSWriter::put, only now succeeds or fails
     void		close();
 			//!< See CBVSWriter::close

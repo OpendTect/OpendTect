@@ -27,6 +27,7 @@ class SeisTrc;
 class LinScaler;
 class SeisTrcBuf;
 class SeisTrcInfo;
+class TraceData;
 class TrcKeyZSampling;
 class SeisPacketInfo;
 class BufferStringSet;
@@ -163,6 +164,8 @@ public:
     ObjectSet<TargetComponentData>& componentInfo()	{ return tarcds_; }
     const ObjectSet<TargetComponentData>&
 				componentInfo() const	{ return tarcds_; }
+    const ObjectSet<ComponentData>&
+				inputComponentData() const { return cds_; }
     const SamplingData<float>&	inpSD() const		{ return insd_; }
     int				inpNrSamples() const	{ return innrsamples_; }
     const SamplingData<float>&	outSD() const		{ return outsd_; }
@@ -175,7 +178,7 @@ public:
 			     For write, this will put tape header (if any) */
 
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
-    virtual bool	read(SeisTrc&)			{ return false; }
+    virtual bool	read(SeisTrc&);
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	write(const SeisTrc&);
 			// overrule if you don't need sorting/buffering
@@ -266,6 +269,11 @@ protected:
     Interval<int>			samprg_;
     Pos::GeomID				geomid_;
     LineKey				curlinekey_;
+    bool				headerdonenew_;
+    bool				datareaddone_;
+    TraceData*				storbuf_;
+    LinScaler*		trcscalebase_;
+    const LinScaler*	curtrcscalebase_;
 
     virtual bool	forRead() const;
     void		addComp(const DataCharacteristics&,
@@ -278,6 +286,7 @@ protected:
     virtual bool	initRead_()			{ return true; }
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
+    virtual bool	readData(TraceData* extbuf=0) { return false; }
 
 			// These are called from the default write()
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
@@ -308,6 +317,7 @@ private:
     bool		initConn(Conn*);
     void		enforceBounds();
     bool		writeBlock();
+    bool	copyDataToTrace(SeisTrc&);
 
 public:
 

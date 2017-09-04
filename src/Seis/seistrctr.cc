@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "survinfo.h"
 #include "bufstringset.h"
+#include "tracedata.h"
 #include "trckeyzsampling.h"
 #include "envvars.h"
 #include "file.h"
@@ -78,6 +79,11 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , enforce_regular_write( !GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION") )
     , enforce_survinfo_write( GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE") )
     , geomid_(mUdfGeomID)
+    , headerdonenew_(false)
+    , datareaddone_(false)
+    , storbuf_(0)
+    , trcscalebase_(0)
+    , curtrcscalebase_(0)
     , compnms_(0)
     , warnings_(*new BufferStringSet)
 {
@@ -117,11 +123,16 @@ void SeisTrcTranslator::cleanUp()
 {
     close();
 
+    headerdonenew_ = false;
+    datareaddone_ = false;
+    deleteAndZeroPtr( storbuf_ );
     deepErase( cds_ );
     deepErase( tarcds_ );
-    delete [] inpfor_; inpfor_ = 0;
-    delete [] inpcds_; inpcds_ = 0;
-    delete [] outcds_; outcds_ = 0;
+    deleteAndZeroArrPtr( inpfor_ );
+    deleteAndZeroArrPtr( inpcds_ );
+    deleteAndZeroArrPtr( outcds_ );
+    deleteAndZeroPtr( trcscalebase_ );
+    curtrcscalebase_ = 0;
     nrout_ = 0;
     errmsg_.setEmpty();
 }
@@ -222,8 +233,8 @@ bool SeisTrcTranslator::commitSelections()
 	    inpfor_[idx] = inpnrs[idx];
     }
 
-    inpcds_ = new ComponentData* [nrout_];
-    outcds_ = new TargetComponentData* [nrout_];
+    delete [] inpcds_; inpcds_ = new ComponentData* [nrout_];
+    delete [] outcds_; outcds_ = new TargetComponentData* [nrout_];
     for ( int idx=0; idx<nrout_; idx++ )
     {
 	inpcds_[idx] = cds_[ selComp(idx) ];
@@ -499,6 +510,18 @@ void SeisTrcTranslator::getComponentNames( BufferStringSet& bss ) const
 
     for ( int idx=0; idx<cds_.size(); idx++ )
 	bss.add( cds_[idx]->name() );
+}
+
+
+bool SeisTrcTranslator::read( SeisTrc& trc )
+{
+    return false;
+}
+
+
+bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
+{
+    return false;
 }
 
 

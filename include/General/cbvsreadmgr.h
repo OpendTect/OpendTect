@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "datainterp.h"
 class CBVSInfo;
 class CBVSReader;
+class TraceData;
 class TrcKeyZSampling;
 class od_ostream;
 
@@ -50,6 +51,8 @@ public:
 
     bool		getAuxInfo(PosAuxInfo&);
     bool		fetch(void**,const bool* comps=0,
+				const Interval<int>* samps=0);
+    bool		fetch(TraceData&,const bool* comps=0,
 				const Interval<int>* samps=0);
 			//!< See CBVSReader::fetch comments
 

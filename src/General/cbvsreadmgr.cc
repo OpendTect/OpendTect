@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "datachar.h"
+#include "tracedata.h"
 #include "trckeyzsampling.h"
 #include "strmprov.h"
 #include "od_iostream.h"
@@ -494,6 +495,55 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
 	    Interval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
 				   cursamps.stop - cursamps.start );
 	    if ( !readers_[idx]->fetch( d, c, &rdrsamps,
+					sampoffs > 0 ? 0 : -sampoffs ) )
+		return false;
+	}
+
+	if ( islast ) break;
+	cursamps.start = cursamps.stop + 1;
+    }
+
+    return true;
+}
+
+
+bool CBVSReadMgr::fetch( TraceData& bufs, const bool* c,
+			 const Interval<int>* ss )
+{
+    if ( !vertical_ )
+	return readers_[curnr_]->fetch( bufs, c, ss );
+
+    // Need to glue the parts into the buffer.
+    // The code looks simple, but that's how it got after many cycles
+    // of compression.
+
+    Interval<int> selsamps( ss ? ss->start : 0, ss ? ss->stop : mUdf(int) );
+    selsamps.sort();
+
+    const int rdr0nrsamps = readers_[0]->info().nrsamples_;
+    if ( selsamps.start < rdr0nrsamps )
+    {
+	Interval<int> rdrsamps = selsamps;
+	if ( selsamps.stop >= rdr0nrsamps ) rdrsamps.stop = rdr0nrsamps-1;
+
+	if ( !readers_[0]->fetch(bufs,c,&rdrsamps,0) )
+	    return false;
+    }
+
+    Interval<int> cursamps( rdr1firstsampnr_, rdr1firstsampnr_-1 );
+
+    for ( int idx=1; idx<readers_.size(); idx++ )
+    {
+	cursamps.stop += readers_[idx]->info().nrsamples_;
+
+	const bool islast = cursamps.stop >= selsamps.stop;
+	if ( islast ) cursamps.stop = selsamps.stop;
+	if ( cursamps.stop >= selsamps.start )
+	{
+	    const int sampoffs = selsamps.start - cursamps.start;
+	    Interval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
+				   cursamps.stop - cursamps.start );
+	    if ( !readers_[idx]->fetch( bufs, c, &rdrsamps,
 					sampoffs > 0 ? 0 : -sampoffs ) )
 		return false;
 	}

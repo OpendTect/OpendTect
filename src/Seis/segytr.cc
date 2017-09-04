@@ -98,9 +98,9 @@ void SEGYSeisTrcTranslator::cleanUp()
 {
     SeisTrcTranslator::cleanUp();
 
-    delete storinterp_; storinterp_ = 0;
-    delete [] blockbuf_; blockbuf_ = 0;
-    delete bp2c_; bp2c_ = 0;
+    deleteAndZeroPtr( storinterp_ );
+    deleteAndZeroArrPtr( blockbuf_ );
+    deleteAndZeroPtr( bp2c_ );
     headerdone_ = false;
 
     mSetUdf(curbid_.inl()); mSetUdf(prevbid_.inl());
@@ -404,7 +404,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	    txthead_->setEbcdic();
     }
     if ( !sConn().oStream().addBin( txthead_->txt_, SegyTxtHeaderLength ) )
-	mErrRet(tr("Cannot write SEG-Y textual header"))
+	mErrRet(tr("Cannot write SEG-Y Textual header"))
 
     binhead_.setForWrite();
     binhead_.setFormat( mCast(short,filepars_.fmt_ < 2 ? 1 : filepars_.fmt_) );
@@ -418,7 +418,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 					// To make Strata users happy
     binhead_.setInFeet( SI().xyInFeet() );
     if ( !sConn().oStream().addBin( binhead_.buf(), SegyBinHeaderLength ) )
-	mErrRet(tr("Cannot write SEG-Y binary header"))
+	mErrRet(tr("Cannot write SEG-Y Binary header"))
 
     return true;
 }
@@ -522,7 +522,7 @@ bool SEGYSeisTrcTranslator::commitSelections_()
 	useinpsd_ = true;
 
     if ( blockbuf_ )
-	{ delete [] blockbuf_; blockbuf_ = 0; }
+	deleteAndZeroArrPtr( blockbuf_ );
     int bufsz = innrsamples_;
     if ( outnrsamples_ > bufsz ) bufsz = outnrsamples_;
     bufsz += 10;
@@ -853,6 +853,9 @@ bool SEGYSeisTrcTranslator::readData( SeisTrc& trc )
     return true;
 }
 
+
+bool SEGYSeisTrcTranslator::readData( TraceData* externalbuf )
+{ return false; }
 
 bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 {

@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "datainterp.h"
 #include "trckeyzsampling.h"
 
+class TraceData;
+
 
 
 /*!\brief Reader for CBVS format
@@ -57,6 +59,9 @@ public:
 			//!< Gets the aux info. Follow by
 			//!< fetch() to get the sample data.
     bool		fetch(void** buffers,const bool* comps=0,
+				const Interval<int>* samps=0,
+				int offs=0);
+    bool		fetch(TraceData& buffers,const bool* comps=0,
 				const Interval<int>* samps=0,
 				int offs=0);
 			//!< Gets the sample data.

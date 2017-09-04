@@ -148,7 +148,7 @@ public:
 
 
 mExpClass(Seis) SEGYDirectSeisTrcTranslator : public SeisTrcTranslator
-				   , public SEGY::DirectReader
+					    , public SEGY::DirectReader
 { mODTextTranslationClass(SEGYDirectSeisTrcTranslator);
   isTranslator(SEGYDirect,SeisTrc)
 public:
@@ -193,7 +193,7 @@ protected:
 
     SEGY::DirectDef*	def_;
     SEGY::FileDataSet*	fds_;
-    bool		headerread_;
+    bool		headerread_; //Will be removed after 6.2
     int			ild_;
     int			iseg_;
     int			itrc_;
@@ -210,6 +210,7 @@ protected:
 private:
 
     void		setCompDataFromInput();
+    virtual bool	readData(TraceData* externalbuf);
 
 };
 

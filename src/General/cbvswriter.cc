@@ -366,6 +366,11 @@ int CBVSWriter::put( void** cdat, int offs )
 }
 
 
+int CBVSWriter::put( const TraceData& cdat, int offs )
+{
+return -1;
+}
+
 bool CBVSWriter::writeAuxInfo()
 {
     if ( auxinfo_ && auxnrbytes_ )

@@ -304,6 +304,12 @@ bool CBVSWriteMgr::put( void** data )
 }
 
 
+bool CBVSWriteMgr::put( const TraceData& data )
+{
+return false;
+}
+
+
 void CBVSWriteMgr::setForceTrailers( bool yn )
 {
     forcetrailers_ = yn;

@@ -479,6 +479,12 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 }
 
 
+bool SEGYDirectSeisTrcTranslator::readData( TraceData* externalbuf )
+{
+    return false;
+}
+
+
 bool SEGYDirectSeisTrcTranslator::read( SeisTrc& trc )
 {
     if ( !headerread_ && !readInfo(trc.info()) )

@@ -30,6 +30,7 @@ class Scaler;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcReader;
+class TraceData;
 
 template <class T> class Array2D;
 template <class T> class Array3D;
@@ -268,17 +269,14 @@ public:
 
 private:
 
-    od_int64		getOffset(int ipos,int comp) const;
-
     const ValueSeriesInterpolator<float>&	interpolator() const;
 
-    unsigned char*		data_;
+    ObjectSet<TraceData>	data_;
     const ObjectSummary&	info_;
-    int				nrpos_;
     const TypeSet<TrcKey>*	tks_;
+    const int			nrpos_;
 
     mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
-    DataInterpreter<float>*	interpreter_;
 };
 
 

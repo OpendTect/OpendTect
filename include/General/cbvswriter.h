@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "od_ostream.h"
 
 template <class T> class DataInterpreter;
+class TraceData;
 
 
 /*!\brief Writer for CBVS format
@@ -60,6 +61,7 @@ public:
     			    { forcetrailer_ = yn; }
 
     int			put(void**,int offs=0);
+    int			put(const TraceData&,int offs=0);
 			//!< Expects a buffer for each component
 			//!< returns -1 = error, 0 = OK,
 			//!< 1=not written (threshold reached)

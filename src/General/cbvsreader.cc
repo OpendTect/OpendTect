@@ -33,6 +33,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "varlenarray.h"
 #include "strmoper.h"
 #include "posinfo.h"
+#include "tracedata.h"
 #include "od_istream.h"
 
 #define mGetAuxFromStrm(auxinf,buf,memb,strm) \
@@ -630,6 +631,44 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	if ( samps->start )
 	    strm_.ignore( samps->start*bps );
 	if ( !strm_.getBin(((char*)bufs[iselc]) + offs*bps,
+				   (samps->stop-samps->start+1) * bps ) )
+	    break;
+
+	if ( samps->stop < info_.nrsamples_-1 )
+	    strm_.ignore((info_.nrsamples_-samps->stop-1)*bps );
+    }
+
+    hinfofetched_ = false;
+    return !strm_.isBad();
+}
+
+
+bool CBVSReader::fetch( TraceData& bufs, const bool* comps,
+			const Interval<int>* samps, int offs )
+{
+    if ( !hinfofetched_ && auxnrbytes_ )
+    {
+	PosAuxInfo dum;
+	if ( !getAuxInfo(dum) ) return false;
+    }
+
+    if ( !samps ) samps = &samprg_;
+
+    int iselc = -1;
+    for ( int icomp=0; icomp<nrcomps_; icomp++ )
+    {
+	if ( comps && !comps[icomp] )
+	{
+	    strm_.ignore( cnrbytes_[icomp] );
+	    continue;
+	}
+	iselc++;
+
+	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
+	int bps = compinfo->datachar.nrBytes();
+	if ( samps->start )
+	    strm_.ignore( samps->start*bps );
+	if ( !strm_.getBin(((char*)bufs.getComponent(iselc)) + offs*bps,
 				   (samps->stop-samps->start+1) * bps ) )
 	    break;
 

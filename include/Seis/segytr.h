@@ -80,12 +80,12 @@ protected:
     int			forcedrev_;
 
     bool		useinpsd_;
-    TraceDataInterpreter* storinterp_;
+    TraceDataInterpreter* storinterp_; //Will be removed after 6.2
     unsigned char	headerbuf_[mSEGYTraceHeaderBytes];
-    bool		headerdone_;
+    bool		headerdone_; //Will be in base class after 6.2
 
     // Following variables are inited by commitSelections
-    unsigned char*	blockbuf_;
+    unsigned char*	blockbuf_; //Will be removed after 6.2
     ComponentData*	inpcd_;
     TargetComponentData* outcd_;
 
@@ -124,6 +124,12 @@ protected:
     BendPoints2Coords*	bp2c_;
     int			estnrtrcs_;
     bool		othdomain_;
+
+private:
+
+    friend class SEGYDirectSeisTrcTranslator;
+
+    virtual bool	readData(TraceData* externalbuf);
 
 };
 

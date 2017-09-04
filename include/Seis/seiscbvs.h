@@ -73,15 +73,15 @@ public:
 protected:
 
     bool		forread_;
-    bool		headerdone_;
+    bool		headerdone_; // Will be in base class after 6.2
     bool		donext_;
     int			nrdone_;
     int			coordpol_;
 
     // Following variables are inited by commitSelections_
     bool*		compsel_;
-    unsigned char**	blockbufs_;
-    TraceDataInterpreter** storinterps_;
+    unsigned char**	blockbufs_; // Will be removed after 6.2
+    TraceDataInterpreter** storinterps_; // Will be removed after 6.2
     int			preseldatatype_;
     VBrickSpec&		brickspec_;
 
@@ -109,6 +109,7 @@ private:
     static const IOPar&	datatypeparspec;
 
     void		destroyVars(int);
+    virtual bool	readData(TraceData* externalbuf);
 
 };
 

@@ -33,6 +33,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	, forread_(true)
 	, storinterps_(0)
 	, blockbufs_(0)
+	, compsel_(0)
 	, preseldatatype_(0)
 	, rdmgr_(0)
 	, wrmgr_(0)
@@ -86,8 +87,9 @@ void CBVSSeisTrcTranslator::cleanUp()
 
 void CBVSSeisTrcTranslator::destroyVars( int nrcomps )
 {
-    delete rdmgr_; rdmgr_ = 0;
-    delete wrmgr_; wrmgr_ = 0;
+    deleteAndZeroPtr( rdmgr_ );
+    deleteAndZeroPtr( wrmgr_ );
+    deleteAndZeroArrPtr( compsel_ );
     if ( !blockbufs_ ) return;
 
     for ( int idx=0; idx<nrcomps; idx++ )
@@ -96,9 +98,9 @@ void CBVSSeisTrcTranslator::destroyVars( int nrcomps )
 	delete storinterps_[idx];
     }
 
-    delete [] blockbufs_; blockbufs_ = 0;
-    delete [] storinterps_; storinterps_ = 0;
-    delete [] compsel_; compsel_ = 0;
+    deleteAndZeroArrPtr( blockbufs_ );
+    deleteAndZeroArrPtr( storinterps_ );
+    deleteAndZeroArrPtr( compsel_ );
 }
 
 
@@ -398,6 +400,10 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     return (headerdone_ = true);
 }
+
+
+bool CBVSSeisTrcTranslator::readData( TraceData* externalbuf )
+{ return false; }
 
 
 bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
