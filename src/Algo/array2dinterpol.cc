@@ -541,7 +541,7 @@ void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
 	return;
     }
 
-    Stats::RunCalc<float> calc( *statsetup_ );
+    Stats::RunCalc<double> calc( *statsetup_ );
 
     float* ptr = arr_->getData();
     if ( ptr )

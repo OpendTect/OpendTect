@@ -173,9 +173,8 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
 	bool usepolygon = false;
 	if ( interpolhor3dsel_ )
-	    usepolygon =
-	    interpolhor3dsel_->getPolygonRange( polyinlrg, polycrlrg );
-
+	    usepolygon = interpolhor3dsel_->getPolygonRange( polyinlrg, polycrlrg );
+	
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
 	uiRetVal rv = HorizonGridder::executeGridding(
 		interpolator.ptr(), hor3d, sid, interpolhor3dsel_->getStep(),
@@ -513,6 +512,8 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
 
     uiString titletext( tr("Search radius %1").arg(SI().xyUnitString()) );
     radiusfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
+    radiusfld_->setWithCheck( true );
+    radiusfld_->setChecked( true );
     radiusfld_->attach( alignedBelow, fltselfld_ );
 
     parbut_ = new uiPushButton( this, tr("Parameters"),
@@ -537,13 +538,7 @@ void uiInvDistHor3DInterpol::doParamDlg( CallBacker* )
 
 bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
 {
-    const float radius = radiusfld_->getFValue(0);
-    if ( mIsUdf(radius) || radius<=0 )
-    {
-	uiMSG().error(
-		tr("Please enter a positive value for the search radius") );
-	return false;
-    }
+    const float radius = radiusfld_->isChecked() ? radiusfld_->getFValue(0) : mUdf(float);
 
     const DBKeySet& selfaultids = fltselfld_->selFaultIDs();
     par.set( HorizonGridder::sKeyNrFaults(), selfaultids.size() );
