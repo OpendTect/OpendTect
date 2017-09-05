@@ -578,7 +578,7 @@ void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
     }
 
 
-    Stats::RunCalc<float> calc( *statsetup_ );
+    Stats::RunCalc<double> calc( *statsetup_ );
 
     float* ptr = arr_->getData();
     if ( ptr )
@@ -945,7 +945,9 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 		if ( dist2>radius2 )
 		    continue;
 
-		const float weight = 1.0f/Math::Sqrt( dist2 );
+		const float dist = Math::Sqrt( dist2 );
+		float weight = (searchradius_ - dist) / (searchradius_ * dist);
+		weight *= weight;
 
 		neighbors_ += RowCol(relrow,relcol);
 		neighborweights_ += weight;
@@ -1029,7 +1031,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 		const float rowdist2 = rowdist*rowdist;
 		const float coldist = (targetcol-sourcecol)*colstep_;
 		const int coldist2 = mNINT32(coldist*coldist);
-		const float weight = 1.f/Math::Sqrt( coldist2+rowdist2 );
+		const float weight = 1.f/( coldist2+rowdist2 );
 
 		weights[idy] = weight;
 	    }
