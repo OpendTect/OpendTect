@@ -9,13 +9,14 @@ set(OD_USEQT OpenGL)
 set(OD_USEOSG 1)
 
 set(OD_MODULE_SOURCES
-		inituiosg.cc
-		keybindings.cc
-		uiosgfont.cc
-		uiprintscenedlg.cc
-		ui3dviewer.cc 
-		ui3dindirectviewer.cc 
-		uistereodlg.cc 
+	inituiosg.cc
+	keybindings.cc
+	uiglinfo.cc
+	uiosgfont.cc
+	uiprintscenedlg.cc
+	ui3dviewer.cc 
+	ui3dindirectviewer.cc 
+	uistereodlg.cc 
 )
 
 set(OD_MODULE_PROGS od_osgfileviewer.cc )
