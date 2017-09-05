@@ -205,6 +205,7 @@ ________________________________________________________________________
 
 #define mBatchProgMnuItm	(mUtilMnu + 10)
 #define mSetupBatchItm		(mUtilMnu + 15)
+#define mGraphicsInfoItm	(mUtilMnu + 16)
 #define mPluginsMnuItm		(mUtilMnu + 20)
 #define mPosconvMnuItm		(mUtilMnu + 25)
 #define mCrDevEnvMnuItm		(mUtilMnu + 30)

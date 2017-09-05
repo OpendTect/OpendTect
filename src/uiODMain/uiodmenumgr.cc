@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiautosaverdlg.h"
 #include "uicrdevenv.h"
 #include "uifileselector.h"
+#include "uiglinfo.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -931,6 +932,7 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( installmnu_, m3Dots(tr("Plugins")), mPluginsMnuItm );
     mInsertItem( installmnu_, m3Dots(tr("Setup Multi-Machine Processing")),
 		 mSetupBatchItm);
+    mInsertItem( installmnu_, tr("Graphics Information"), mGraphicsInfoItm );
 
     const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )
@@ -1434,6 +1436,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mBatchProgMnuItm:	applMgr().batchProgs(); break;
     case mPluginsMnuItm:	applMgr().pluginMan(); break;
     case mSetupBatchItm:	applMgr().setupBatchHosts(); break;
+    case mGraphicsInfoItm:	uiGLI().createAndShowMessage( true ); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
