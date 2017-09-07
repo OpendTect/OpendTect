@@ -54,7 +54,7 @@ public:
 
     bool		canInputAndOutputBeSame() const {return true;}
     bool		needsFullVolume() const		{return false;}
-    bool		canHandle2D() const		{ return true; }
+    bool		canHandle2D() const		{ return false; }
 
     Task*		createTask();
 
