@@ -234,7 +234,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	    for ( int idx=0; idx<outputs_.size(); idx++ )
 	    {
 		mDynamicCastGet( TableOutput*, taboutpn, outputs_[idx] );
-		if ( !tracekey.isUdf() && taboutpn )
+		if ( taboutpn )
 		    taboutpn->collectDataSpecial60(
 						*data, provider_->getRefStep(),
 						*curtrcinfo, tracekey );

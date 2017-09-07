@@ -1180,9 +1180,16 @@ TableOutput::~TableOutput()
 
 void TableOutput::initPairsTable()
 {
+    arebiddupl_ = false;
     BufferStringSet linenames;
     TypeSet<Survey::Geometry::ID> ids;
     Survey::GM().getList( linenames, ids, true );
+    if ( !ids.size() ) //synthetics
+    {
+	arebiddupl_ = datapointset_.bivSet().hasDuplicateBinIDs();
+	return;
+    }
+
     float mediandisttrcs = mediandisttrcsmanager.getParam( this );
     for ( int idx=0; idx<datapointset_.size(); idx++ )
     {
@@ -1275,7 +1282,6 @@ void TableOutput::initPairsTable()
     }
 
     sort( parpset_ );
-    arebiddupl_ = false;
     for ( int idx=1; idx<parpset_.size(); idx++ )
     {
 	TrcKey tkeytocompare( parpset_[idx-1].gid_, parpset_[idx-1].tid_ );
