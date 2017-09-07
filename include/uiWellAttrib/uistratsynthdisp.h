@@ -126,6 +126,7 @@ public:
     void		setFlattenLvl(const Strat::Level& lvl)
 			{ flattenlvl_ = lvl; }
     const Strat::Level& getFlattenLvl() { return flattenlvl_; }
+    uiGroup*		getDisplayClone(uiParent*) const;
 
 protected:
 
@@ -184,6 +185,7 @@ protected:
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
     void		copySyntheticDispPars();
+    void		setDefaultAppearance(FlatView::Appearance&);
     inline StratSynth&	altSS()
 			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 

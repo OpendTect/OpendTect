@@ -164,6 +164,9 @@ void launchLayerModel( const char* modnm, int opt )
     }
 }
 
+uiStratLayerModel* getDlg()
+{ return dlg_; }
+
 void addToTreeWin()
 {
     uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling",
@@ -200,5 +203,11 @@ static void doBasicLayerModel()
 {
     doLayerModel( uiBasicLayerSequenceGenDesc::typeStr(), 0 );
 }
+
+static uiStratLayerModel* getUILayerModel()
+{
+    return uislm_manager().getDlg();
+}
+
 
 };

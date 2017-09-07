@@ -249,6 +249,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     gentools_->saveReq.notify( mCB(this,uiStratLayerModel,saveGenDescCB) );
     gentools_->propEdReq.notify( mCB(this,uiStratLayerModel,manPropsCB) );
     gentools_->genReq.notify( mCB(this,uiStratLayerModel,genModels) );
+    gentools_->nrModelsChanged.notify(
+	    mCB(this,uiStratLayerModel,nrModelsChangedCB) );
     synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
     synthdisp_->viewChanged.notify( mCB(this,uiStratLayerModel,viewChgedCB) );
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
@@ -613,6 +615,7 @@ bool uiStratLayerModel::openGenDesc()
 
     usw.setMessage( uiStrings::sUpdatingDisplay() );
     moddisp_->clearDispPars();
+    moddisp_->retrievePars();
     seqdisp_->setNeedSave( false );
     lmp_.setEmpty();
 
@@ -743,6 +746,28 @@ void uiStratLayerModel::calcAndSetDisplayEach( bool overridedispeach )
     decimation =
 	mCast(int,floor(mCast(float,nrmods*nrseq)/sMaxNrLayToBeDisplayed)) + 1;
     desc_.getWorkBenchParams().set( sKeyDecimation(), decimation );
+}
+
+
+void uiStratLayerModel::setNrModels( int nrmodels )
+{
+    gentools_->setNrModels( nrmodels );
+    gentools_->fillPar( desc_.getWorkBenchParams() );
+}
+
+
+int uiStratLayerModel::nrModels() const
+{
+    int nrmodels = gentools_->getNrModelsFromPar( desc_.getWorkBenchParams() );
+    if ( nrmodels<0 )
+	nrmodels = gentools_->nrModels();
+    return nrmodels;
+}
+
+
+void uiStratLayerModel::nrModelsChangedCB( CallBacker* )
+{
+    gentools_->fillPar( desc_.getWorkBenchParams() );
 }
 
 
@@ -986,6 +1011,7 @@ void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
     gentools_->fillPar( par );
     if ( elpropsel_ )
 	elpropsel_->fillPar( par );
+    moddisp_->savePars();
     fillDisplayPars( par );
     fillSyntheticsPars( par );
 }

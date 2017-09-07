@@ -123,6 +123,19 @@ const Strat::LayerModel& uiStratLayerModelDisp::layerModel() const
 }
 
 
+uiGroup* uiStratLayerModelDisp::getDisplayClone( uiParent* p )	const
+{
+    uiFlatViewer* vwr = new uiFlatViewer( p );
+    vwr->rgbCanvas().disableImageSave();
+    vwr->setInitialSize( uiSize(800,300) );
+    vwr->setStretch( 2, 2 );
+    vwr->appearance() = vwr_.appearance();
+    vwr->setPack( true, vwr_.packID(true), false );
+    vwr->setPack( false, vwr_.packID(false), false );
+    return vwr;
+}
+
+
 void uiStratLayerModelDisp::selectSequence( int selidx )
 {
     selseqidx_ = selidx;

@@ -56,6 +56,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     , saveReq(this)
     , propEdReq(this)
     , genReq(this)
+    , nrModelsChanged(this)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     uiToolButton* opentb = new uiToolButton( leftgrp, "open",
@@ -78,7 +79,8 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     nrmodlsfld_->setFocusChangeTrigger( false );
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( tr("Number of models to generate") );
-    nrmodlsfld_->valueChanged.notify( gocb );
+    nrmodlsfld_->valueChanging.notify(
+	    mCB(this,uiStratGenDescTools,nrModelsChangedCB) );
     uiToolButton* gotb = new uiToolButton( rightgrp, "go",
 				tr("Generate this amount of models"), gocb );
     nrmodlsfld_->attach( leftOf, gotb );
@@ -90,6 +92,21 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 int uiStratGenDescTools::nrModels() const
 {
     return nrmodlsfld_->getIntValue();
+}
+
+
+void uiStratGenDescTools::setNrModels( int nrmodels )
+{
+    NotifyStopper notstop( nrmodlsfld_->valueChanged );
+    nrmodlsfld_->setValue( nrmodels );
+}
+
+
+int uiStratGenDescTools::getNrModelsFromPar( const IOPar& par ) const
+{
+    int nrmodels = -1;
+    par.get( sKeyNrModels(), nrmodels );
+    return nrmodels;
 }
 
 
@@ -112,7 +129,6 @@ bool uiStratGenDescTools::usePar( const IOPar& par )
 
     return true;
 }
-
 
 
 uiMultiStratLevelSel::uiMultiStratLevelSel(

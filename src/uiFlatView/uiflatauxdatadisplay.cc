@@ -216,7 +216,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
     {
 	int listpos = namepos_;
 	if ( listpos < 0 ) listpos=0;
-	if ( listpos > poly_.size() ) listpos = poly_.size()-1;
+	if ( listpos >= poly_.size() ) listpos = poly_.size()-1;
 
 	if ( !nameitem_ )
 	{

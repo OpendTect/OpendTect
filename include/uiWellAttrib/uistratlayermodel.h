@@ -49,6 +49,8 @@ public:
     mDeclInstanceCreatedNotifierAccess(uiStratLayerModel);
     uiToolBar*			analysisToolBar()	   { return analtb_; }
 
+    void				setNrModels(int);
+    int					nrModels() const;
     const Strat::LayerSequenceGenDesc&	genDesc() const	   { return desc_; }
     const Strat::LayerModel&		layerModelOriginal() const;
     Strat::LayerModel&			layerModelOriginal();
@@ -87,6 +89,7 @@ public:
 
     void			setSynthView(const uiWorldRect& wr);
     const uiWorldRect&		curSynthView() const;
+    uiStratSynthDisp*		getSynthDisp() const	{ return synthdisp_; }
 
 protected:
 
@@ -153,6 +156,6 @@ protected:
     void			modSelChg(CallBacker*);
     void			genModels(CallBacker*);
     void			xPlotReq(CallBacker*);
+    void			nrModelsChangedCB(CallBacker*);
     void			helpCB(CallBacker*);
-
 };

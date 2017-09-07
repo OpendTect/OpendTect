@@ -54,6 +54,8 @@ public:
     void		createFromLevelSet(const LevelSet&);
 			//!< keep contents and lithologies
     const LeavedUnitRef* getLevelSetUnit(const char* lvlnm) const;
+    void		addLevelUnit(const Level&);
+    void		removeLevelUnit(const Level&);
 
     Notifier<RefTree>	deleteNotif;
 
