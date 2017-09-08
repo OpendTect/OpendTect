@@ -251,6 +251,7 @@ bool TraceData::isValidComp( int icomp ) const
 
 float TraceData::getValue( int isamp, int icomp ) const
 {
+#ifdef __debug__
     if ( !isValidComp(icomp) )
     {
 	if ( icomp<0 && icomp>=nrcomp_ )
@@ -259,15 +260,18 @@ float TraceData::getValue( int isamp, int icomp ) const
 	    { pErrMsg("Sample requested from empty trace"); }
 	return 0.f;
     }
+#endif
     return interp_[icomp]->get( data_[icomp]->data(), isamp );
 }
 
 
 void TraceData::setValue( int isamp, float v, int icomp )
 {
+#ifdef __debug__
     if ( !isValidComp(icomp) )
 	{ pErrMsg("Component does not exist"); }
     else
+#endif
 	interp_[icomp]->put( data_[icomp]->data(), isamp, v );
 }
 

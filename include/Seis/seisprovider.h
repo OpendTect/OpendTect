@@ -91,6 +91,7 @@ public:
     uiRetVal		getNext(SeisTrc&) const;
     uiRetVal		getNextGather(SeisTrcBuf&) const;
     uiRetVal		get(const TrcKey&,SeisTrc&) const;
+    uiRetVal		getData(const TrcKey&,TraceData&) const;
     uiRetVal		getGather(const TrcKey&,SeisTrcBuf&) const;
     uiRetVal		getSequence(RawTrcsSequence&) const;
 
@@ -133,9 +134,9 @@ protected:
 
     mutable Threads::Atomic<od_int64> nrdone_;
 
-    void		ensureRightDataRep(SeisTrc&) const;
+    void		ensureRightDataRep(TraceData&) const;
     void		ensureRightZSampling(SeisTrc&) const;
-    void		ensureRightComponents(SeisTrc&) const;
+    void		ensureRightComponents(TraceData&) const;
     bool		handleSetupChanges(uiRetVal&) const;
     void		handleTrace(SeisTrc&) const;
     void		handleTraces(SeisTrcBuf&) const;
@@ -156,7 +157,9 @@ protected:
 
 			    // define at least either SeisTrc or SeisTrcBuf fns
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
+    virtual void	doGetNextData(TraceData&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
+    virtual void	doGetData(const TrcKey&,TraceData&,uiRetVal&) const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetSequence(RawTrcsSequence&,uiRetVal&) const;
@@ -237,7 +240,10 @@ mClass(Seis) RawTrcsSequence
 { mODTextTranslationClass(Seis::RawTrcsSequence);
 public:
 			RawTrcsSequence(const ObjectSummary&,int nrpos);
+			RawTrcsSequence(const RawTrcsSequence&);
 			~RawTrcsSequence();
+
+    RawTrcsSequence&	operator =(const RawTrcsSequence&);
 
     bool		isOK() const;
     bool		isPS() const;
@@ -258,6 +264,10 @@ public:
     DataBuffer::buf_type*	getData(int ipos,int icomp,int is=0);
     const TrcKey&	getPosition(int ipos) const;
 
+protected:
+
+    TraceData&		getTraceData( int pos ) { return *data_.get(pos); }
+
 private:
 
     const ValueSeriesInterpolator<float>&	interpolator() const;
@@ -268,7 +278,8 @@ private:
     const int			nrpos_;
 
     mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
-    DataInterpreter<float>*	interpreter_;
+
+    friend class Provider;
 };
 
 

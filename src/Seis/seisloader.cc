@@ -675,8 +675,10 @@ bool doTrace( int itrc )
     const int idx0 = is2d_ ? 0 : dp_.sampling().hsamp_.lineIdx( tk.lineNr() );
     const int idx1 = dp_.sampling().hsamp_.trcIdx( tk.trcNr() );
 
-    const int startidx = dp_.sampling().zsamp_.nearestIndex( zsamp_.start );
+    const int startidx0 = dp_.sampling().zsamp_.nearestIndex( zsamp_.start );
     const int nrzsamples = zsamp_.nrSteps()+1;
+    const int trczidx0 = rawseq_.getZRange().nearestIndex( zsamp_.atIndex(0) );
+    const int bytespersamp = dp_.getDataDesc().nrBytes();
 
     for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
     {
@@ -685,57 +687,41 @@ bool doTrace( int itrc )
 	const int idcout = outcomponents_[cidx];
 	Array3D<float>& arr = dp_.data( idcout );
 	ValueSeries<float>* stor = arr.getStorage();
-	mDynamicCastGet(ConvMemValueSeries<float>*,storptr,stor);
-	char* storarr = storptr ? storptr->storArr() : (char*)stor->arr();
-	if ( storarr && samedatachar_ )
+	float* storptr = stor ? stor->arr() : 0;
+	mDynamicCastGet(ConvMemValueSeries<float>*,convmemstor,stor);
+	char* storarr = convmemstor ? convmemstor->storArr()
+				    : (char*)storptr;
+	const od_int64 offset =  storarr ? arr.info().getOffset( idx0, idx1, 0 )
+					 : 0;
+	char* dststartptr = storarr ? storarr + offset*bytespersamp : 0;
+	if ( storarr && samedatachar_ && !needresampling_ && !scaler )
 	{
-	    const int bytespersamp = dp_.getDataDesc().nrBytes();
-	    const od_int64 offset = arr.info().getOffset( idx0, idx1, 0 );
-	    char* dststartptr = storarr + offset*bytespersamp;
-	    if ( needresampling_ || scaler )
-	    {
-		for ( int zidx=0; zidx<nrzsamples; zidx++ )
-		{
-		    // Check if amplitude equals undef value of underlying data
-		    // type knowing that array has been initialized with undefs
-		    const float zval = zsamp_.atIndex( zidx );
-		    const int trczidx = rawseq_.getZRange().nearestIndex(zval);
-		    const unsigned char* srcptr =
-					 rawseq_.getData(itrc,idcin,trczidx);
-		    char* dstptr = dststartptr + (zidx+startidx)*bytespersamp;
-		    if ( !scaler && memcmp(dstptr,srcptr,bytespersamp) )
-		    {
-			OD::sysMemCopy(dstptr,srcptr,bytespersamp );
-			continue;
-		    }
-
-		    const float rawval = rawseq_.getValue( zval, itrc, idcin );
-		    const float trcval = scaler
-				       ? mCast(float,scaler->scale(rawval) )
-				       : rawval;
-		    arr.set( idx0, idx1, zidx+startidx, trcval );
-		}
-	    }
-	    else
-	    {
-		const int trczidx = rawseq_.getZRange().nearestIndex(
-						zsamp_.atIndex( 0 ) );
-		const unsigned char* srcptr = rawseq_.getData( itrc, idcin,
-								trczidx );
-		char* dstptr = dststartptr;
-		OD::sysMemCopy( dstptr, srcptr, nrzsamples*bytespersamp );
-	    }
+	    const unsigned char* srcptr = rawseq_.getData( itrc, idcin,
+							   trczidx0 );
+	    OD::sysMemCopy( dststartptr, srcptr, nrzsamples*bytespersamp );
 	}
 	else
 	{
+	    int startidx = startidx0;
+	    od_int64 valueidx = stor ? offset+startidx : 0;
+	    int trczidx = trczidx0;
+	    float zval = zsamp_.start;
+	    float* destptr = storptr ? (float*)dststartptr : 0;
 	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
 	    {
-		const float zval = zsamp_.atIndex( zidx );
-		const float rawval = rawseq_.getValue( zval, itrc, idcin );
+		const float rawval = needresampling_
+				   ? rawseq_.getValue( zval, itrc, idcin )
+				   : rawseq_.get( trczidx++, itrc, idcin );
+		if ( needresampling_ ) zval += zsamp_.step;
 		const float trcval = scaler
 				   ? mCast(float,scaler->scale(rawval) )
 				   : rawval;
-		arr.set( idx0, idx1, zidx+startidx, trcval );
+		if ( storptr )
+		    *destptr++ = trcval;
+		else if ( stor )
+		    stor->setValue( valueidx++, trcval );
+		else
+		    arr.set( idx0, idx1, startidx++, trcval );
 	    }
 	}
     }

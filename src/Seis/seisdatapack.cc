@@ -208,39 +208,7 @@ mImplMonitorableAssignmentWithNoMembers( SeisVolumeDataPack, VolumeDataPack )
 
 void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
 {
-    const int nrcomps = nrComponents();
-    DataCharacteristics dc;
-    if ( !scaler_ )
-	dc = DataCharacteristics( getDataDesc() );
-    for ( int icomp=0; icomp<nrcomps; icomp++ )
-	trc.data().setComponent( dc, icomp );
-
-    const int trcsz = getZRange().nrSteps() + 1;
-    trc.reSize( trcsz, false );
-
-    const int globidx = getGlobalIdx( trcky );
-    if ( globidx < 0 )
-	{ trc.zero(); return; }
-
-    Array1DImpl<float> copiedtrc( trcsz );
-    for ( int icomp=0; icomp<nrcomps; icomp++ )
-    {
-	const float* vals = getTrcData( icomp, globidx );
-	if ( !vals && !getCopiedTrcData(icomp,globidx,copiedtrc) )
-	{
-	    trc.zero();
-	    return;
-	}
-
-	float* copiedtrcptr = copiedtrc.getData();
-	for ( int isamp=0; isamp<trcsz; isamp++ )
-	{
-	    const float val = vals ? vals[isamp] : copiedtrcptr
-						  ? copiedtrcptr[isamp]
-						  : copiedtrc.get( isamp );
-	    trc.set( isamp, val, icomp );
-	}
-    }
+    fillTraceData( trcky, trc.data() );
 
     SeisTrcInfo& inf = trc.info();
     const StepInterval<float> zrg = getZRange();
@@ -249,6 +217,41 @@ void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
     inf.trckey_ = trcky;
     inf.coord_ = trcky.getCoord();
     inf.offset_ = 0.f;
+}
+
+
+void SeisVolumeDataPack::fillTraceData( const TrcKey& trcky,
+					TraceData& tdata ) const
+{
+    const int nrcomps = nrComponents();
+    DataCharacteristics dc;
+    if ( !scaler_ )
+	dc = DataCharacteristics( getDataDesc() );
+    tdata.convertTo( dc, false );
+
+    const int trcsz = getZRange().nrSteps() + 1;
+    tdata.reSize( trcsz );
+
+    const int globidx = getGlobalIdx( trcky );
+    if ( globidx < 0 )
+	{ tdata.zero(); return; }
+
+    Array1DImpl<float> copiedtrc( trcsz );
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	const float* vals = getTrcData( icomp, globidx );
+	if ( !vals && !getCopiedTrcData(icomp,globidx,copiedtrc) )
+	    { tdata.zero(); return; }
+
+	float* copiedtrcptr = copiedtrc.getData();
+	for ( int isamp=0; isamp<trcsz; isamp++ )
+	{
+	    const float val = vals ? vals[isamp] : copiedtrcptr
+						  ? copiedtrcptr[isamp]
+						  : copiedtrc.get( isamp );
+	    tdata.setValue( isamp, val, icomp );
+	}
+    }
 }
 
 

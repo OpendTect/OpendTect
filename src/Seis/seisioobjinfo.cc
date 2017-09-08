@@ -51,6 +51,8 @@ Seis::ObjectSummary::~ObjectSummary()
 Seis::ObjectSummary& Seis::ObjectSummary::operator =(
 						const Seis::ObjectSummary& oth )
 {
+    if ( &oth == this ) return *this;
+
     const_cast<SeisIOObjInfo&>( ioobjinfo_ ) = oth.ioobjinfo_;
     init();
 

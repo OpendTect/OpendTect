@@ -173,6 +173,7 @@ public:
 
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&);
+    virtual bool	readData(TraceData* extbuf=0)	{ return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	supportsGoTo() const		{ return false; }
     virtual bool	goTo(const BinID&)		{ return false; }
@@ -284,7 +285,6 @@ protected:
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
     virtual bool	wantBuffering() const		{ return true; }
-    virtual bool	readData(TraceData* extbuf=0)	{ return false; }
 
 			// These are called from the default write()
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)

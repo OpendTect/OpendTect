@@ -321,9 +321,10 @@ void Seis::Provider::putGatherInTrace( const SeisTrcBuf& tbuf, SeisTrc& trc )
 
 void Seis::Provider::handleTrace( SeisTrc& trc ) const
 {
-    ensureRightComponents( trc );
+    TraceData& data = trc.data();
+    ensureRightComponents( data );
     ensureRightZSampling( trc );
-    ensureRightDataRep( trc );
+    ensureRightDataRep( data );
     nrdone_++;
 }
 
@@ -389,6 +390,22 @@ uiRetVal Seis::Provider::get( const TrcKey& trcky, SeisTrc& trc ) const
 }
 
 
+uiRetVal Seis::Provider::getData( const TrcKey& trcky, TraceData& data ) const
+{
+    uiRetVal uirv;
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
+    doGetData( trcky, data, uirv );
+    locker.unlockNow();
+
+    if ( uirv.isOK() )
+	nrdone_++;
+    return uirv;
+}
+
+
 uiRetVal Seis::Provider::getNextGather( SeisTrcBuf& tbuf ) const
 {
     uiRetVal uirv;
@@ -438,21 +455,21 @@ uiRetVal Seis::Provider::getSequence( Seis::RawTrcsSequence& rawseq ) const
 }
 
 
-void Seis::Provider::ensureRightComponents( SeisTrc& trc ) const
+void Seis::Provider::ensureRightComponents( TraceData& data ) const
 {
-    for ( int idx=trc.nrComponents()-1; idx>=nrcomps_; idx-- )
-	trc.removeComponent( idx );
+    for ( int idx=data.nrComponents()-1; idx>=nrcomps_; idx-- )
+	data.delComponent( idx );
 }
 
 
-void Seis::Provider::ensureRightDataRep( SeisTrc& trc ) const
+void Seis::Provider::ensureRightDataRep( TraceData& data ) const
 {
     if ( !forcefpdata_ )
 	return;
 
-    const int nrcomps = trc.nrComponents();
+    const int nrcomps = data.nrComponents();
     for ( int idx=0; idx<nrcomps; idx++ )
-	trc.data().convertToFPs();
+	data.convertToFPs();
 }
 
 
@@ -506,12 +523,29 @@ void Seis::Provider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 }
 
 
+void Seis::Provider::doGetNextData( TraceData& data, uiRetVal& uirv ) const
+{
+    SeisTrc trc;
+    doGetNext( trc , uirv );
+    data = trc.data();
+}
+
+
 void Seis::Provider::doGet( const TrcKey& tkey, SeisTrc& trc,
 			    uiRetVal& uirv ) const
 {
     SeisTrcBuf tbuf( true );
     doGetGather( tkey, tbuf, uirv );
     putGatherInTrace( tbuf, trc );
+}
+
+
+void Seis::Provider::doGetData( const TrcKey& tkey, TraceData& data,
+				uiRetVal& uirv ) const
+{
+    SeisTrc trc;
+    doGet( tkey, trc, uirv );
+    data = trc.data();
 }
 
 
@@ -548,13 +582,17 @@ void Seis::Provider::doGetSequence( Seis::RawTrcsSequence& rawseq,
 	const TrcKey& tk( rawseq.getPosition(ipos) );
 	if ( isps )
 	{
-	    getGather( tk, tbuf );
+	    uirv = getGather( tk, tbuf );
 	    rawseq.copyFrom( tbuf );
 	}
 	else
 	{
-	    get( tk, trc );
-	    rawseq.copyFrom( trc, &ipos );
+	    uirv = getData( tk, rawseq.getTraceData( ipos ) );
+	    if ( !uirv.isOK() )
+	    {
+		uirv = get( tk, trc );
+		rawseq.copyFrom( trc, &ipos );
+	    }
 	}
     }
 }
@@ -602,12 +640,10 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
     , nrpos_(nrpos)
     , tks_(0)
     , intpol_(0)
-    , interpreter_(DataInterpreter<float>::create(DataCharacteristics(OD::F32),
-		   true))
 {
     TraceData td;
     for ( int icomp=0; icomp<info.nrcomp_; icomp++ )
-	td.addComponent( info.nrsamppertrc_, DataCharacteristics(OD::F32) );
+	td.addComponent( info.nrsamppertrc_, info.getDataChar() );
 
     if ( !td.allOk() )
 	return;
@@ -626,11 +662,48 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
 }
 
 
+Seis::RawTrcsSequence::RawTrcsSequence( const Seis::RawTrcsSequence& oth )
+    : info_(oth.info_)
+    , nrpos_(oth.nrpos_)
+    , tks_(0)
+    , intpol_(0)
+{
+    *this = oth;
+}
+
+
 Seis::RawTrcsSequence::~RawTrcsSequence()
 {
     deepErase( data_ );
     delete tks_;
-    delete interpreter_;
+}
+
+
+Seis::RawTrcsSequence& Seis::RawTrcsSequence::operator =(
+					const Seis::RawTrcsSequence& oth )
+{
+    if ( &oth == this ) return *this;
+
+    Seis::RawTrcsSequence& thisseq = const_cast<Seis::RawTrcsSequence&>(*this);
+
+    deepErase( data_ );
+    deleteAndZeroPtr( thisseq.tks_ );
+    const int& thisnrpos = nrpos_;
+    const_cast<int&>( thisnrpos ) = oth.nrpos_;
+    TypeSet<TrcKey>* tks =  new TypeSet<TrcKey>;
+    for ( int ipos=0; ipos<nrpos_; ipos++ )
+    {
+	data_ += new TraceData( *oth.data_.get( ipos ) );
+	*tks += TrcKey( (*oth.tks_)[ipos] );
+    }
+
+    tks_ = tks;
+
+    intpol_ = 0;
+    if ( oth.intpol_ )
+	intpol_ = new ValueSeriesInterpolator<float>( *oth.intpol_ );
+
+    return *this;
 }
 
 
@@ -690,7 +763,7 @@ const TrcKey& Seis::RawTrcsSequence::getPosition( int ipos ) const
 
 
 float Seis::RawTrcsSequence::get( int idx, int pos, int comp ) const
-{ return interpreter_->get( getData(pos,comp,0), idx ); }
+{ return data_.get( pos )->getValue( idx, comp ); }
 
 
 float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
@@ -711,7 +784,7 @@ float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
 
 
 void Seis::RawTrcsSequence::set( int idx, float val, int pos, int comp )
-{ interpreter_->put( getData(pos,comp,idx), 0, val ); }
+{ data_.get( pos )->setValue( idx, val, comp ); }
 
 
 
@@ -760,11 +833,24 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 #endif
     }
 
-    const od_int64 nrbytes = info_.nrdatabytespespercomptrc_;
     for ( int icomp=0; icomp<info_.nrcomp_; icomp++ )
     {
-	OD::sysMemCopy( getData( pos, icomp ),
-			trc.data().getComponent( icomp )->data(), nrbytes);
+	if ( *trc.data().getInterpreter(icomp) ==
+	     *data_.get(pos)->getInterpreter(icomp) )
+	{
+	    const od_int64 nrbytes = info_.nrdatabytespespercomptrc_;
+	    OD::sysMemCopy( getData( pos, icomp ),
+			    trc.data().getComponent( icomp )->data(), nrbytes);
+	}
+	else
+	{
+	    const int nrz = info_.zRange().nrSteps()+1;
+	    for ( int idz=0; idz<nrz; idz++ )
+	    {
+		const float val = trc.get( idz, icomp );
+		set( idz, val, pos, icomp );
+	    }
+	}
     }
 }
 

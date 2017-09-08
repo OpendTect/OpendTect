@@ -91,6 +91,8 @@ const VolProvider& prov() const
 
     void		get(const BinID&,SeisTrc&);
     void		getNext(SeisTrc&);
+    void		getData(const BinID&,TraceData&);
+    void		getNextData(TraceData&);
 
     RefMan<RegularSeisDataPack> dp_;
     SeisTrcTranslator*	trl_;
@@ -262,6 +264,24 @@ void Seis::VolFetcher::get( const BinID& bid, SeisTrc& trc )
 }
 
 
+void Seis::VolFetcher::getData( const BinID& bid, TraceData& data )
+{
+    bool moveok = false;
+    nextbid_ = bid;
+    if ( dp_ && dp_->sampling().hsamp_.includes( nextbid_ ) )
+	moveok = true;
+    else if ( trl_ && trl_->goTo(nextbid_) )
+	moveok = true;
+
+    uirv_.setEmpty();
+    if ( moveok )
+	getNextData( data );
+    else
+	uirv_.set( tr("Position not present: %1/%2")
+		    .arg( nextbid_.inl() ).arg( nextbid_.crl() ) );
+}
+
+
 bool Seis::VolFetcher::advanceTrlToNextSelected( SeisTrcInfo& ti )
 {
     while ( true )
@@ -330,6 +350,47 @@ void Seis::VolFetcher::getNext( SeisTrc& trc )
 	trc.info().trckey_.setSurvID( TrcKey::std3DSurvID() );
 	moveNextBinID();
     }
+}
+
+
+void Seis::VolFetcher::getNextData( TraceData& data )
+{
+    bool havefilled = false;
+
+    if ( dp_ )
+    {
+	if ( dp_->sampling().hsamp_.includes(nextbid_) )
+	{
+	    dp_->fillTraceData( TrcKey(nextbid_), data );
+	    havefilled = true;
+	}
+	else if ( !trl_ )
+	{
+	    if ( !moveNextBinID() )
+		{ uirv_.set( uiStrings::sFinished() ); return; }
+	    dp_->fillTraceData( TrcKey(nextbid_), data );
+	    havefilled = true;
+	}
+    }
+
+    if ( trl_ && !havefilled )
+    {
+	SeisTrcInfo info;
+	if ( !advanceTrlToNextSelected(info) )
+	    return;
+
+	if ( !trl_->readData(&data) )
+	{
+	    const uiString errmsg = trl_->errMsg();
+	    uirv_.set( errmsg.isEmpty() ? uiStrings::sFinished() : errmsg );
+	    return;
+	}
+
+	havefilled = true;
+    }
+
+    if ( havefilled )
+	moveNextBinID();
 }
 
 
@@ -455,9 +516,24 @@ void Seis::VolProvider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 }
 
 
+void Seis::VolProvider::doGetNextData( TraceData& data, uiRetVal& uirv ) const
+{
+    fetcher_.getNextData( data );
+    uirv = fetcher_.uirv_;
+}
+
+
 void Seis::VolProvider::doGet( const TrcKey& trcky, SeisTrc& trc,
 				  uiRetVal& uirv ) const
 {
     fetcher_.get( trcky.binID(), trc );
+    uirv = fetcher_.uirv_;
+}
+
+
+void Seis::VolProvider::doGetData( const TrcKey& trcky, TraceData& data,
+				   uiRetVal& uirv ) const
+{
+    fetcher_.getData( trcky.binID(), data );
     uirv = fetcher_.uirv_;
 }

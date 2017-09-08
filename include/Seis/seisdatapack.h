@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 class BinIDValueSet;
+class TraceData;
 
 
 /*!\brief Seis Volume DataPack base class. */
@@ -28,6 +29,7 @@ public:
     mDeclAbstractMonitorableAssignment(SeisVolumeDataPack);
 
     void		fillTrace(const TrcKey&,SeisTrc&) const;
+    void		fillTraceData(const TrcKey&,TraceData&) const;
 
 protected:
 
