@@ -201,11 +201,7 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 
 void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 {
-    if ( set_->disp_.connect_ == Pick::Set::Disp::Close )
-    {
-	redrawAll( idx );
-	return;
-    }
+
     if ( add )
 	markerset_->insertPos( idx, loc.pos_, true );
     else
@@ -242,7 +238,17 @@ void PickSetDisplay::setPolylinePos( int idx, const Coord3& pos )
     if ( !polylines_ )
 	createLine();
 
-    redrawAll();
+    if ( set_->nrSets() > 1 )
+	return;
+
+     if ( set_->disp_.connect_==Pick::Set::Disp::Close )
+     {
+	redrawLine();
+	return;
+     }
+
+    polylines_->setPoint( idx, pos );
+    polylines_->dirtyCoordinates();
 }
 
 
@@ -269,7 +275,88 @@ void PickSetDisplay::removePosition( int idx )
 void PickSetDisplay::removePolylinePos( int idx )
 {
     mCheckReadyOnly( set_ );
-    redrawLine();
+    if ( !polylines_ || idx>polylines_->size() )
+	return;
+
+     if ( set_->disp_.connect_==Pick::Set::Disp::Close )
+     {
+	redrawLine();
+	return;
+     }
+
+    polylines_->removePoint( idx );
+
+    if ( set_->disp_.connect_==Pick::Set::Disp::Close )
+	redrawLine();
+}
+
+
+void PickSetDisplay::redrawMultiSets()
+{
+    if ( !markerset_ )
+	return;
+
+    if ( !polylines_ && needLine() )
+	createLine();
+
+    markerset_->clearMarkers();
+    if ( polylines_ )
+    {
+	polylines_->removeAllPrimitiveSets();
+	polylines_->getCoordinates()->setEmpty();
+    } 
+
+    if ( set_->nrSets()==0 && set_->disp_.connect_!=Pick::Set::Disp::None )
+    {
+	// this is for a default new polygon, we should have a default start
+	// index. it should be changed in trunk version.
+	set_->addStartIdx( 0 );
+    }
+
+    for ( int idx=0; idx<set_->nrSets(); idx++ )
+    {
+	ObjectSet<const Pick::Location > positions;
+	set_->getLocations( positions, idx );
+	TypeSet<int> ps;
+	bool first = true;
+	int firstidx = 0;
+	for ( int idy=0; idy<positions.size(); idy++ )
+	{
+	    Coord3 pos = positions[idy]->pos();
+	    if ( datatransform_ )
+		pos.z = datatransform_->transform( pos );
+	    if ( mIsUdf(pos.z) )
+		continue;
+
+	    markerset_->addPos( pos );
+	    if ( !polylines_ )
+		continue;
+	    
+	    ps += polylines_->getCoordinates()->addPos( pos );
+	    if ( first )
+	    {
+		firstidx = ps[ps.size()-1];
+		first = false;
+	    }
+
+	    if ( dragger_ )
+	    {
+		dragger_->setPos( pos );
+		dragger_->updateDragger( false );
+		dragger_->turnOn( showdragger_ );
+	    }
+	}
+	if ( set_->disp_.connect_==Pick::Set::Disp::Close )
+	    ps += firstidx;
+	if ( ps.isEmpty() )
+	    continue;
+
+	Geometry::IndexedPrimitiveSet* lineprimitiveset =
+	    Geometry::IndexedPrimitiveSet::create( false );
+	lineprimitiveset->ref();
+	lineprimitiveset->set( ps.arr(), ps.size() );
+	polylines_->addPrimitiveSet( lineprimitiveset );
+    }
 }
 
 
@@ -327,15 +414,12 @@ void PickSetDisplay::createLine()
      if ( polylines_ || !set_ )
 	return;
 
-    polylines_ = visBase::PolyLine3D::create();
+    polylines_ = visBase::PolyLine::create();
     polylines_->ref();
 
     addChild( polylines_->osgNode() );
     polylines_->setDisplayTransformation( transformation_ );
-    if ( !polylines_->getMaterial() )
-	polylines_->setMaterial( new visBase::Material );
-
-    polylines_->getMaterial()->setColor( set_->disp_.color_ );
+    polylines_->setMaterial( 0 );
 
     updateLineStyle();
 }
@@ -346,47 +430,26 @@ void PickSetDisplay::redrawLine()
     if ( !polylines_ || !set_ )
 	return;
 
-    polylines_->removeAllPrimitiveSets();
-    polylines_->getCoordinates()->setEmpty();
+    int pixsize = set_->disp_.pixsize_;
+    OD::LineStyle ls;
+    ls.width_ = pixsize;
+    polylines_->setLineStyle( ls );
 
-    if ( set_->nrSets()==0 && set_->disp_.connect_!=Pick::Set::Disp::None )
+    polylines_->removeAllPoints();
+    int idx=0;
+    for ( ; idx<set_->size(); idx++ )
     {
-	// this is for a default new polygon, we should have a default start
-	// index. it should be changed in trunk version.
-	set_->addStartIdx( 0 );
+	Coord3 pos = (*set_)[idx].pos_;
+	if ( datatransform_ )
+	    pos.z = datatransform_->transform( pos );
+	if ( !mIsUdf(pos.z) )
+	    polylines_->addPoint( pos );
     }
 
-    for ( int idx=0; idx<set_->nrSets(); idx++ )
-    {
-	ObjectSet<const Pick::Location > positions;
-	set_->getLocations( positions, idx );
-	TypeSet<int> ps;
-	bool first = true;
-	int firstidx = 0;
-	for ( int idy=0; idy<positions.size(); idy++ )
-	{
-	    Coord3 pos = positions[idy]->pos();
-	    if ( datatransform_ )
-		pos.z = datatransform_->transform( pos );
-	    if ( !mIsUdf(pos.z) )
-		ps += polylines_->getCoordinates()->addPos( pos );
-	    if ( first )
-	    {
-		firstidx = ps[ps.size()-1];
-		first = false;
-	    }
-	}
-	if ( set_->disp_.connect_==Pick::Set::Disp::Close )
-	    ps += firstidx;
-	if ( ps.isEmpty() )
-	    continue;
-	Geometry::IndexedPrimitiveSet* lineprimitiveset =
-	    Geometry::IndexedPrimitiveSet::create( false );
-	lineprimitiveset->ref();
-	lineprimitiveset->set( ps.arr(), ps.size() );
-	polylines_->addPrimitiveSet( lineprimitiveset );
-    }
+    if ( idx && set_->disp_.connect_==Pick::Set::Disp::Close )
+	polylines_->setPoint( idx, polylines_->getPoint(0) );
 
+    polylines_->dirtyCoordinates();
 }
 
 
@@ -544,6 +607,8 @@ bool PickSetDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
 void PickSetDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs, int )
 {
+    mCheckReadyOnly(set_)
+
     if ( showall_ && invalidpicks_.isEmpty() )
 	return;
 
@@ -612,35 +677,22 @@ bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
 
 void PickSetDisplay::updateLineAtSection()
 {
-    if ( polylines_ )
-    {
+   if ( polylines_ )
+   {
        TypeSet<Coord3> polycoords;
-       for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
+       for ( int idx = 0; idx<markerset_->getCoordinates()->size(); idx++ )
 	   polycoords += markerset_->getCoordinates()->getPos(idx);
 
-	polylines_->removeAllPrimitiveSets();
-	polylines_->getCoordinates()->setEmpty();
-
+	polylines_->removeAllPoints();
 	int pidx = 0;
-	TypeSet<int> defaultps;
 	for ( pidx=0; pidx<polycoords.size(); pidx++ )
 	{
 	    if ( markerset_->markerOn(pidx) )
-	    {
-		const int idx =
-		    polylines_->getCoordinates()->addPos( polycoords[pidx] );
-		defaultps += idx;
-	    }
+		polylines_->addPoint( polycoords[pidx] );
 	}
 
-	if ( !defaultps.isEmpty() && pidx && set_->isPolygon() )
-	    defaultps += defaultps[0];
-
-	Geometry::IndexedPrimitiveSet* lineprimitiveset =
-	    Geometry::IndexedPrimitiveSet::create(false);
-	lineprimitiveset->ref();
-	lineprimitiveset->set( defaultps.arr(), defaultps.size() );
-	polylines_->addPrimitiveSet( lineprimitiveset );
+	if ( pidx && set_->disp_.connect_ == Pick::Set::Disp::Close )
+	    polylines_->setPoint( pidx, polylines_->getPoint(0) );
     }
 }
 

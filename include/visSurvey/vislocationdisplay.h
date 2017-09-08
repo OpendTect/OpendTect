@@ -99,6 +99,7 @@ protected:
 					    bool add=false);
     virtual void		removePosition(int);
     virtual void		removeAll();
+    virtual void		redrawMultiSets() {}
 
     virtual bool		hasDirection() const { return false; }
     virtual bool		hasText() const { return false; }

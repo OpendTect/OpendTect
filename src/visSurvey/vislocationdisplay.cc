@@ -185,6 +185,12 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	return;
     }
 
+    if ( set_->nrSets() > 1 )
+    {
+	redrawMultiSets();
+	return;
+    }
+
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	Pick::Location loc = (*set_)[idx];

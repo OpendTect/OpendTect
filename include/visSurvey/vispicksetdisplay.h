@@ -84,6 +84,8 @@ protected:
     Coord3			getPosition(int loc) const;
     void			removePosition(int idx);
     void			removeAll();
+    virtual void		redrawMultiSets();
+
 
     void			setPolylinePos(int,const Coord3&);
     void			removePolylinePos(int);
@@ -135,7 +137,7 @@ private:
     void			updateLineStyle();
     Color			color_;
     BoolTypeSet			pickselstatus_;
-    visBase::PolyLine3D*	polylines_;
+    visBase::PolyLine*		polylines_;
 };
 
 } // namespace visSurvey

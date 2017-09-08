@@ -314,7 +314,8 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( menu, &convertbodymnuitem_, true, false )
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
-    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_, true,!psd->allShown());
+    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_,
+					   !set_.isReadOnly(),!psd->allShown());
     mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &dirmnuitem_, true, false );
 
@@ -682,7 +683,8 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &closepolyitem_ );
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
-    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_, true,!psd->allShown());
+    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_,
+					   !set_.isReadOnly(),!psd->allShown());
     mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
 
     const int setidx = Pick::Mgr().indexOf( set_ );
