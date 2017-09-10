@@ -119,7 +119,7 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
     AttribProbeLayer* attrprlayer = attribProbeLayer();
     if ( !attrprlayer )
 	return false;
-    
+
     coltabsel_.setSequence( attrprlayer->sequence() );
     coltabsel_.setMapper( attrprlayer->mapper() );
     coltabsel_.asParent()->display( true );
@@ -486,7 +486,7 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
 	    DPM(DataPackMgr::PointID()).add(new DataPointSet(false,true));
 
 	ZAxisTransformPointGenerator generator( *ztransform );
-	generator.setInput( probepos );
+	generator.setInput( probepos, SilentTaskRunnerProvider() );
 	generator.setOutputDPS( *data );
 	generator.execute();
 
@@ -561,7 +561,7 @@ void uiODAttribTreeItem::colSeqChg( const ColTab::Sequence& seq )
     AttribProbeLayer* attrprlayer = attribProbeLayer();
     if ( !attrprlayer )
 	return;
-    
+
     attrprlayer->setSequence( seq );
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }

@@ -28,7 +28,7 @@ HorizonSorter::HorizonSorter( const DBKeySet& ids, bool is2d )
     , result_(0)
     , is2d_(is2d)
     , message_(tr("Sorting"))
-    , taskrun_(0)
+    , trprov_(0)
 {}
 
 
@@ -40,9 +40,9 @@ HorizonSorter::~HorizonSorter()
 }
 
 
-void HorizonSorter::setTaskRunner( TaskRunner& taskrun )
+void HorizonSorter::setRunner( const TaskRunnerProvider& taskrun )
 {
-    taskrun_ = &taskrun;
+    trprov_ = &taskrun;
 }
 
 
@@ -187,8 +187,8 @@ int HorizonSorter::nextStep()
 	PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedids_ );
 	if ( horreader )
 	{
-	    if ( taskrun_ )
-		taskrun_->execute( *horreader.ptr() );
+	    if ( trprov_ )
+		trprov_->execute( *horreader.ptr() );
 	    else
 		horreader->execute();
 	}

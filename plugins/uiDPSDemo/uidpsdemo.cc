@@ -28,8 +28,8 @@ ________________________________________________________________________
 
 #include "uiseissel.h"
 #include "uigeninput.h"
-#include "uitaskrunner.h"
 #include "uidatapointset.h"
+#include "uitaskrunnerprovider.h"
 #include "uimsg.h"
 
 
@@ -77,9 +77,9 @@ bool uiDPSDemo::acceptOK()
 bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 			int nrpts )
 {
-    uiTaskRunner taskrunner( this );
+    uiTaskRunnerProvider trprov( this );
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( horioobj.key(),
-							  &taskrunner );
+							  trprov );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) return false;
 
@@ -97,7 +97,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 	sectionnms.add( hor->sectionName(isect) );
     hor->unRef();
 
-    if ( !isok || !getSeisData(seisioobj,*dps_,taskrunner) )
+    if ( !isok || !getSeisData(seisioobj,*dps_,trprov) )
 	return false;
 
     uiString wintitl( toUiString("%1/%2").arg(horioobj.name()).
@@ -182,7 +182,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 
 
 bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
-			     TaskRunner& taskrunner )
+			     TaskRunnerProvider& trprov )
 {
     uiRetVal uirv;
     Seis::Provider* prov = Seis::Provider::create( ioobj.key(), &uirv );
@@ -193,7 +193,7 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 
     SeisTrcBuf tbuf(true);
     SeisBufReader br( *prov, tbuf );
-    if ( !TaskRunner::execute( &taskrunner, br ) )
+    if ( !trprov.execute( br ) )
 	return false;
 
     const int icomp = 0; // ignore other components for now

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "perthreadrepos.h"
 #include "separstr.h"
+#include "task.h"
 
 #include "uibody.h"
 #include "uiicon.h"
@@ -86,6 +87,19 @@ void uiUserShowWait::readyNow()
     }
 }
 
+
+bool uiUSWTaskRunner::execute( Task& t )
+{
+    return (execres_ = t.execute());
+}
+
+
+TaskRunner& uiUSWTaskRunnerProvider::runner() const
+{
+    if ( !runner_ )
+	runner_ = new uiUSWTaskRunner( parent_, msg_, sbfld_ );
+    return *runner_;
+}
 
 
 uiMsg::uiMsg()

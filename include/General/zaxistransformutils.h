@@ -29,8 +29,8 @@ public:
 				ZAxisTransformPointGenerator(ZAxisTransform&);
 				~ZAxisTransformPointGenerator();
 
-    void			setInput(const TrcKeyZSampling& cs,
-					 TaskRunner* =0);
+    void			setInput(const TrcKeyZSampling&,
+					 const TaskRunnerProvider&);
     void			setOutputDPS( DataPointSet& dps )
 				{ dps_ = &dps; }
 
@@ -42,10 +42,11 @@ protected:
     od_int64			nrIterations() const
 				{ return tkzs_.hsamp_.totalNr(); }
 
-    int 			voiid_;
+    int			voiid_;
     ObjectSet<BinIDValueSet>	bidvalsets_;
-    TrcKeySamplingIterator 	iter_;
+    TrcKeySamplingIterator	iter_;
     TrcKeyZSampling		tkzs_;
     ZAxisTransform&		transform_;
     DataPointSet*		dps_;
+
 };

@@ -77,7 +77,7 @@ public:
 			//!< This may actually reset the position to the first
     const uiString	sFoundIn() { return tr("found in:"); }
     const uiString	sDiffFromFirstFile()
-			{ return tr("differ from first file"); }
+			{ return tr("differs from first file"); }
 
 protected:
 

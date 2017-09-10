@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class SeisTrc;
 class SeisTrcBuf;
-class TaskRunner;
+class TaskRunnerProvider;
 class uiSeisSel;
 class uiIOObjSel;
 class uiWaveletIOObjSel;
@@ -81,7 +81,7 @@ protected:
     bool		acceptOK();
 
     bool		getEvent();
-    bool		getHorData(TaskRunner&);
+    bool		getHorData(TaskRunnerProvider&);
     float		getTrcValue(const SeisTrc&,float) const;
     void		updSynthStats();
     void		updRealStats();

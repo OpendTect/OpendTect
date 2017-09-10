@@ -158,7 +158,7 @@ bool Seis::ProviderTester::testGet( const TrcKey& tk, const char* start )
 	if ( uirv.isError() )
 	    mPrintBufTestResult( start );
     }
-    
+
     return true;
 }
 
@@ -199,7 +199,7 @@ bool Seis::ProviderTester::testSubselection(
 	return false;
 
     prov_->setSelData( seldata );
-    
+
     uiRetVal uirv; int nrtrcs = 0;
     const int expectednrtrcs = seldata->expectedNrTraces();
     while ( true )
@@ -241,7 +241,7 @@ bool Seis::ProviderTester::testPreLoad( const TrcKeyZSampling& tkzs )
     const Pos::GeomID geomid = tkzs.is2D() ? tkzs.hsamp_.start_.inl()
 					   : Survey::GM().default3DSurvID();
     Seis::PreLoader pl( dbky_, geomid );
-    TextTaskRunner taskrunner( od_cout() );
+    LoggedTaskRunner taskrunner( od_cout() );
     pl.setTaskRunner( taskrunner );
     if ( !prov_->isPS() )
 	pl.load( tkzs );
@@ -257,7 +257,7 @@ bool Seis::ProviderTester::testPreLoad( const TrcKeyZSampling& tkzs )
     }
 
     const bool res = testSubselection( new Seis::RangeSelData(tkzs.hsamp_),
-	    			       "Subselection to preloaded data range" );
+				       "Subselection to preloaded data range" );
     pl.unLoad();
     return res;
 }
@@ -316,7 +316,7 @@ bool Seis::ProviderTester::testComponentSelection( bool currenttrc )
 bool Seis::ProviderTester::testIOParUsage( bool currenttrc )
 {
     if ( !prov_ ) return false;
-    
+
     od_cout() << "IOPar usage:" << od_endl;
 
     mResetIfNotCurrentTrc( currenttrc );

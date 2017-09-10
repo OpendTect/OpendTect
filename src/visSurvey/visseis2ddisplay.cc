@@ -516,7 +516,8 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
 		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
-	    datatransform_->loadDataIfMissing( voiidx_, taskr );
+	    ExistingTaskRunnerProvider trprov( taskr );
+	    datatransform_->loadDataIfMissing( voiidx_, trprov );
 	}
 
 	VolumeDataPackZAxisTransformer transformer( *datatransform_ );

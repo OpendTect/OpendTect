@@ -63,7 +63,8 @@ bool Gridder2D::isPointUsable(const Coord& cpt,const Coord& dpt) const
 { return true; }
 
 
-bool Gridder2D::setPoints( const TypeSet<Coord>& cl, TaskRunner* taskr )
+bool Gridder2D::setPoints( const TypeSet<Coord>& cl,
+			    const TaskRunnerProvider& trprov )
 {
     points_ = &cl;
 
@@ -77,12 +78,9 @@ bool Gridder2D::setPoints( const TypeSet<Coord>& cl, TaskRunner* taskr )
 	    usedpoints_ += idx;
     }
 
-    CBCapsule<TaskRunner*> taskruncaps( taskr, 0 );
-    if ( !pointsChangedCB(&taskruncaps) )
-    {
-	points_ = 0;
-	return false;
-    }
+    CBCapsule<const TaskRunnerProvider*> trprovcapsule( &trprov, 0 );
+    if ( !pointsChangedCB(&trprovcapsule) )
+	{ points_ = 0; return false; }
 
     return true;
 }
@@ -574,9 +572,8 @@ bool RadialBasisFunctionGridder2D::allPointsAreRelevant() const
 
 bool RadialBasisFunctionGridder2D::pointsChangedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(TaskRunner*,taskrunner,cb);
-
-    return updateSolver( taskrunner );
+    mCBCapsuleUnpack(TaskRunnerProvider*,trprov,cb);
+    return trprov ? updateSolver( *trprov ) : false;
 }
 
 
@@ -668,7 +665,8 @@ float RadialBasisFunctionGridder2D::getValue( const Coord& gridpoint,
 }
 
 
-bool RadialBasisFunctionGridder2D::updateSolver( TaskRunner* taskr )
+bool RadialBasisFunctionGridder2D::updateSolver(
+				const TaskRunnerProvider& trprov )
 {
     deleteAndZeroPtr( solv_ );
     deleteAndZeroPtr( globalweights_ ); //previous solution is invalid too
@@ -703,7 +701,7 @@ bool RadialBasisFunctionGridder2D::updateSolver( TaskRunner* taskr )
     }
 
     solv_ = new LinSolver<double>( a );
-    return solv_->init( taskr );
+    return solv_->init( trprov );
 }
 
 

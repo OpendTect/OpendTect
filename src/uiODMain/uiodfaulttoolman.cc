@@ -47,6 +47,7 @@ ___________________________________________________________________
 #include "uiseparator.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+#include "uitaskrunnerprovider.h"
 #include "uivispartserv.h"
 #include "uiodmenumgr.h"
 #include "od_helpids.h"
@@ -993,9 +994,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     if ( destdbky.isInvalid() )
 	return;
 
-    uiUserShowWait usw( 0, uiStrings::sReadingData() );
-    EM::EMM().loadIfNotFullyLoaded( destdbky );
-    usw.readyNow();
+    EM::EMM().loadIfNotFullyLoaded( destdbky, uiTaskRunnerProvider(&appl_) );
     const EM::ObjectID destemid = EM::EMM().getObjectID( destdbky );
     RefMan<EM::EMObject> destemobj = EM::EMM().getObject( destemid );
     mDynamicCastGet( EM::Fault*, destfault, destemobj.ptr() );
@@ -1006,6 +1005,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	 !uiMSG().question(tr("Ignore output name warning?")) )
 	return;
 
+    uiUserShowWait usw( 0, uiStrings::sReadingData() );
     mDynamicCastGet( EM::Fault3D*, destf3d, destfault );
     RefMan<EM::EMObject> tmpemobj = EM::FaultStickSet::create(EM::EMM());
     mDynamicCastGet( EM::FaultStickSet*, tmpfss, tmpemobj.ptr() );

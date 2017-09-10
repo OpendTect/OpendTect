@@ -41,7 +41,7 @@ public:
     bool		reInitAscIO(const char*);
     void		setPosIsXY(bool yn)		{ isxy_ = yn; }
     bool		posIsXY() const			{ return isxy_; }
-    bool		analyzeData();
+    bool		analyseData();
 
     int			nrPositions() const;
     StepInterval<int>	inlRg() const;

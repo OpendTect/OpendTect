@@ -19,12 +19,12 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "coord.h"
 #include "uistring.h"
+#include "taskrunner.h"
 
 class TrcKeyZSampling;
 class Executor;
 class IOObj;
 class IOObjContext;
-class TaskRunner;
 
 namespace Geometry { class Element; }
 
@@ -246,7 +246,7 @@ public:
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
     virtual void		removeSelected(const Selector<Coord3>&,
-					       TaskRunner*);
+					       const TaskRunnerProvider&);
     void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
 						   const EM::SectionID&);
     void			removeAllUnSeedPos();

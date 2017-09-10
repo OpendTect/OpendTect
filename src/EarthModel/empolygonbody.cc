@@ -170,7 +170,7 @@ PolygonBody::PolygonBody( EMManager& em )
 PolygonBody::~PolygonBody()
 {}
 
-ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
+ImplicitBody* PolygonBody::createImplicitBody( const TaskRunnerProvider& trprov,
 					       bool smooth ) const
 {
     const EM::SectionID sid = sectionID( 0 );
@@ -188,7 +188,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
 				    mCast(float,SI().zDomain().userFactor()) );
 
      BodyOperator bodyopt;
-     return bodyopt.createImplicitBody( pts, taskrunner );
+     return bodyopt.createImplicitBody( pts, trprov );
 }
 
 
@@ -273,7 +273,7 @@ void PolygonBody::fillBodyPar( IOPar& par ) const
 Executor* PolygonBody::saver()
 {
     PtrMan<IOObj> ioobj = DBM().get( dbKey() );
-    return saver( ioobj ); 
+    return saver( ioobj );
 }
 
 

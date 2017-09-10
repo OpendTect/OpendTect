@@ -44,7 +44,7 @@ public:
 
     od_istream&		get(char&);
 			/*<!Use this function to get regular text inputs.
-			  If you want to analyze an alien stream char-by-char,
+			  If you want to analyse an alien stream char-by-char,
 			  use peek()-ignore(1) call pairs.*/
 
     od_istream&		get(unsigned char&);

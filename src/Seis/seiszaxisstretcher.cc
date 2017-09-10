@@ -544,7 +544,8 @@ bool SeisZAxisStretcher::loadTransformChunk( int inl )
 	else
 	    ztransform_->setVolumeOfInterest( voiid_, cs, true );
 
-	res = ztransform_->loadDataIfMissing( voiid_ );
+	res = ztransform_->loadDataIfMissing( voiid_,
+					      SilentTaskRunnerProvider() );
     }
 
     return res;

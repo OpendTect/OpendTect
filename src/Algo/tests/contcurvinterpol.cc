@@ -15,13 +15,13 @@
 #include "testprog.h"
 #include "contcurvinterpol.h"
 
-#define epsilon 1e-5  
+#define epsilon 1e-5
 
 const Array2D<float>* getFixedGMTInterpolatedResult()
 {
    /* below data are created by GMT surface and grd2xyz applications.
    surface command: -- gmtxyz.txt -R0/5/0/5 -I1 -GFgmtgrd.grd -T0.25 -V1
-   gmtxyz -- is input asccii file which contains the exact same data in 
+   gmtxyz -- is input asccii file which contains the exact same data in
    function createArray2DData().
    -R0/5/0/5 --grid range( row and col )
    gmtgrd.grd -- out put gmt grd file
@@ -99,7 +99,7 @@ Array2D<float>* createArray2DData()
     arr->set( 3, 2, 0.904551 );
     arr->set( 3, 3, 0.903828 );
     arr->set( 3, 4, 0.902227 );
-   
+
     return arr;
 }
 
@@ -108,12 +108,13 @@ bool testContinuousCurvatureInterpolation()
 {
     PtrMan<Array2D<float> > arr = createArray2DData();
 
-    mDeclareAndTryAlloc( PtrMan<ContinuousCurvatureArray2DInterpol>, interpol, 
+    mDeclareAndTryAlloc( PtrMan<ContinuousCurvatureArray2DInterpol>, interpol,
 	ContinuousCurvatureArray2DInterpol() );
-    interpol->setArray( *arr, 0 );
+    SilentTaskRunnerProvider trprov;
+    interpol->setArray( *arr, trprov );
 
     mRunStandardTest( interpol->execute(), "Run intererpolation" );
-    
+
     ConstPtrMan<Array2D<float> > gmtarr = getFixedGMTInterpolatedResult();
     const int rows = gmtarr->info().getSize(0);
     const int cols = gmtarr->info().getSize(1);
@@ -132,14 +133,14 @@ bool testContinuousCurvatureInterpolation()
     }
 
     mRunStandardTest( diffsum<epsilon, " Interpolation has correct values" );
- 
+
     return true;
 }
 
 int testMain( int argc, char** argv )
 {
     mInitTestProg();
- 
+
     return testContinuousCurvatureInterpolation() ? 0 : 1;
 
 }

@@ -57,9 +57,9 @@ public:
 		InverseDistanceArray2DInterpol();
 		~InverseDistanceArray2DInterpol();
 
-    bool	setArray(Array2D<float>&,TaskRunner*);
+    bool	setArray(Array2D<float>&,const TaskRunnerProvider&);
     bool	canUseArrayAccess() const	{ return true; }
-    bool	setArray(ArrayAccess&,TaskRunner*);
+    bool	setArray(ArrayAccess&,const TaskRunnerProvider&);
 
     float	getSearchRadius() const		{ return searchradius_; }
     void	setSearchRadius(float r)	{ searchradius_ = r; }
@@ -88,7 +88,7 @@ protected:
     uiString		nrDoneText() const	{ return tr("Nodes gridded"); }
 
     bool		doPrepare(int);
-    virtual bool	initFromArray(TaskRunner*);
+    virtual bool	initFromArray(const TaskRunnerProvider&);
     od_int64		getNextIdx();
     void		reportDone(od_int64);
 
@@ -142,9 +142,9 @@ public:
 		TriangulationArray2DInterpol();
 		~TriangulationArray2DInterpol();
 
-    bool	setArray(Array2D<float>&,TaskRunner*);
+    bool	setArray(Array2D<float>&,const TaskRunnerProvider&);
     bool	canUseArrayAccess() const	{ return true; }
-    bool	setArray(ArrayAccess&,TaskRunner*);
+    bool	setArray(ArrayAccess&,const TaskRunnerProvider&);
     bool	nothingToFill() const		{ return nrIterations()<1; }
 
     bool	doInterpolation() const		{ return dointerpolation_; }
@@ -169,7 +169,7 @@ protected:
     uiString		nrDoneText() const	{ return tr("Nodes gridded"); }
 
     bool		doPrepare(int);
-    virtual bool	initFromArray(TaskRunner*);
+    virtual bool	initFromArray(const TaskRunnerProvider&);
     void		getNextNodes(TypeSet<od_int64>&);
 
 				//triangulation stuff

@@ -31,6 +31,7 @@ namespace visBase
 namespace ColTab { class Sequence; }
 namespace MPE { class Engine; };
 class TaskRunner;
+class TaskRunnerProvider;
 
 
 namespace visSurvey
@@ -103,7 +104,7 @@ public:
     void            updateSeedOnlyPropagation(bool);
     void            updateMPEActiveVolume();
     void            removeSelectionInPolygon(const Selector<Coord3>&,
-					     TaskRunner*);
+					     const TaskRunnerProvider&);
 
     virtual float	calcDist(const Coord3&) const;
     virtual float       maxDist() const;

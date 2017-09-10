@@ -35,7 +35,7 @@ public:
 
     static const char*	typeStr();		//!< "Set"
 
-    virtual bool	initialize(TaskRunner*);
+    virtual bool	initialize(const TaskRunnerProvider&);
     virtual void	reset();
     virtual bool	includes(const Coord&,float) const;
     virtual float	adjustedZ(const Coord&,float) const;

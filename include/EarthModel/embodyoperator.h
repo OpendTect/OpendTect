@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "paralleltask.h"
 #include "trigonometry.h"
 
-class TaskRunner;
+class TaskRunnerProvider;
 class Plane3;
 class DAGTetrahedraTree;
 
@@ -46,13 +46,14 @@ public:
 
     bool		isOK() const;
 
-    bool		createImplicitBody(ImplicitBody*&,TaskRunner*) const;
+    bool		createImplicitBody(ImplicitBody*&,
+					    const TaskRunnerProvider&) const;
 			/*<Make a body using b0 u/n/- b1. If use "Minus"
 			   b0-b1,it means the body part in b0 but not in b1.
 			   Set two inputs and one Action before use it. */
 
     ImplicitBody*	createImplicitBody(const TypeSet<Coord3>& bodypts,
-					   TaskRunner* tskr=0) const;
+					   const TaskRunnerProvider&) const;
 			/*<This is an independent function which creates an
 			   implicite body with position value -1,0,1 depends on
 			   the position is inside, on or outside the
@@ -81,7 +82,8 @@ public:
 
 protected:
 
-    ImplicitBody*	getOperandBody(bool body0,TaskRunner* tskr) const;
+    ImplicitBody*	getOperandBody(bool body0,
+				       const TaskRunnerProvider&) const;
 
     DBKey		inputbody0_;
     BodyOperator*	inputbodyop0_;

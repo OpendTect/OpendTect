@@ -12,12 +12,12 @@ ________________________________________________________________________
 
 #include "emattribmod.h"
 #include "executor.h"
+#include "taskrunner.h"
 
 #include "bufstringset.h"
 
 class TrcKeyZSampling;
 class IOObj;
-class TaskRunner;
 namespace EM { class Horizon2D; }
 
 /*!
@@ -27,7 +27,7 @@ namespace EM { class Horizon2D; }
 mExpClass(EMAttrib) Seis2DGridCreator : public ExecutorGroup
 { mODTextTranslationClass(Seis2DGridCreator);
 public:
-    			Seis2DGridCreator(const IOPar&);
+			Seis2DGridCreator(const IOPar&);
 			~Seis2DGridCreator();
 
     virtual uiString	nrDoneText() const;
@@ -69,15 +69,15 @@ protected:
 mExpClass(EMAttrib) Horizon2DGridCreator : public ExecutorGroup
 { mODTextTranslationClass(Horizon2DGridCreator);
 public:
-    			Horizon2DGridCreator();
+			Horizon2DGridCreator();
 			~Horizon2DGridCreator();
 
     virtual od_int64	totalNr() const;
     virtual od_int64	nrDone() const;
     virtual uiString	nrDoneText() const;
 
-    bool		init(const IOPar&,TaskRunner* tskr=0);
-    bool		finish(TaskRunner* tskr=0);
+    bool		init(const IOPar&,const TaskRunnerProvider&);
+    bool		finish(const TaskRunnerProvider&);
 
     static const char*	sKeyInputIDs();
     static const char*	sKeySeisID();

@@ -61,8 +61,10 @@ void ZAxisTransform::setVolumeOfInterest( int, const TrcKeyZSampling&, bool )
 
 void ZAxisTransform::removeVolumeOfInterest( int ) {}
 
-bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
-{ return !needsVolumeOfInterest(); }
+bool ZAxisTransform::loadDataIfMissing( int, const TaskRunnerProvider& )
+{
+    return !needsVolumeOfInterest();
+}
 
 
 float ZAxisTransform::transformTrc( const TrcKey& trckey, float z ) const

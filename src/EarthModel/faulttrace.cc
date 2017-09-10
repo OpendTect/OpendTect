@@ -1350,7 +1350,7 @@ bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
 
 bool FaultTrcDataProvider::init( const DBKeySet& faultids,
 				 const TrcKeySampling& hrg,
-				 TaskRunner* taskrunner )
+				 const TaskRunnerProvider& trprov )
 {
     clear();
     EM::SurfaceIOData sd;
@@ -1361,12 +1361,12 @@ bool FaultTrcDataProvider::init( const DBKeySet& faultids,
 	if ( EM::EMM().getObjectID(faultids[idx]) < 0 )
 	    loadergrp.add( EM::EMM().objectLoader(faultids[idx],&sel) );
 
-    const int res = TaskRunner::execute( taskrunner, loadergrp );
+    const int res = trprov.execute( loadergrp );
     if ( !res )
 	mErrRet( uiStrings::phrCannotRead( uiStrings::sFault(mPlural) ) )
 
     if ( is2d_ )
-	return get2DTraces( faultids, taskrunner );
+	return get2DTraces( faultids, trprov );
 
     TaskGroup taskgrp;
     for ( int idx=0; idx<faultids.size(); idx++ )
@@ -1389,7 +1389,7 @@ bool FaultTrcDataProvider::init( const DBKeySet& faultids,
 	taskgrp.addTask( new FaultTraceExtractor3D(*flt,*holder) );
     }
 
-    const bool ret = TaskRunner::execute( taskrunner, taskgrp );
+    const bool ret = trprov.execute( taskgrp );
     if ( !ret )
 	mErrRet(tr("Failed to extract Fault traces"))
 
@@ -1398,7 +1398,7 @@ bool FaultTrcDataProvider::init( const DBKeySet& faultids,
 
 
 bool FaultTrcDataProvider::get2DTraces( const DBKeySet& faultids,
-					TaskRunner* taskrunner )
+					const TaskRunnerProvider& trprov )
 {
     TaskGroup taskgrp;
     for ( int idx=0; idx<faultids.size(); idx++ )
@@ -1416,7 +1416,7 @@ bool FaultTrcDataProvider::get2DTraces( const DBKeySet& faultids,
 	taskgrp.addTask( new FaultTraceExtractor2D(*flt,*holder,geomid_) );
     }
 
-    return TaskRunner::execute( taskrunner, taskgrp );
+    return trprov.execute( taskgrp );
 }
 
 

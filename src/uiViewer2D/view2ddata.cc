@@ -85,18 +85,16 @@ bool Vw2DEMDataObject::usePar( const IOPar& par )
 {
     if ( !Vw2DDataObject::usePar( par ) )
 	return false;
-    DBKey mid;
-    if ( !par.get(sKeyMID(),mid) )
+    DBKey dbky;
+    if ( !par.get(sKeyMID(),dbky) )
 	return false;
 
-    TaskRunner exectr;
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, &exectr );
-    if ( emobj )
-    {
-	emid_ = emobj->id();
-	setEditors();
-	return true;
-    }
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( dbky,
+					SilentTaskRunnerProvider() );
+    if ( !emobj )
+	return false;
 
-    return false;
+    emid_ = emobj->id();
+    setEditors();
+    return true;
 }

@@ -302,8 +302,8 @@ bool uiAttribCrossPlot::acceptOK()
 	}
     }
 
-    uiTaskRunner taskrunner( this );
-    if ( !prov->initialize( &taskrunner ) )
+    uiTaskRunnerProvider trprov( this );
+    if ( !prov->initialize( trprov ) )
 	return false;
 
     ObjectSet<DataColDef> dcds;
@@ -320,12 +320,12 @@ bool uiAttribCrossPlot::acceptOK()
     IOPar iop; posfiltfld_->fillPar( iop );
     PtrMan<Pos::Filter> filt = Pos::Filter::make( iop, prov->is2D() );
     MouseCursorManager::restoreOverride();
-    if ( filt && !filt->initialize(&taskrunner) )
+    if ( filt && !filt->initialize(trprov) )
 	return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( prov->is2D() );
-    if ( !dps->extractPositions(*prov,dcds,filt,&taskrunner) )
+    if ( !dps->extractPositions(*prov,dcds,filt,&trprov.runner()) )
 	return false;
 
     MouseCursorManager::restoreOverride();
@@ -350,10 +350,8 @@ bool uiAttribCrossPlot::acceptOK()
     MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 
-    if ( !TaskRunner::execute( &taskrunner, *tabextr ) )
-    {
+    if ( !trprov.execute( *tabextr ) )
 	return false;
-    }
 
     uiDataPointSet* uidps = new uiDataPointSet( this, *dps,
 		uiDataPointSet::Setup(tr("Attribute data"),false),dpsdispmgr_ );

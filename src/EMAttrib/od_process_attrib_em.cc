@@ -292,7 +292,7 @@ static void interpolate( EM::Horizon3D* horizon,
 
 	TextStreamProgressMeter runner( strm );
 	arr2dint->setProgressMeter( &runner );
-	arr2dint->setArray( *attrarr );
+	arr2dint->setArray( *attrarr, LoggedTaskRunnerProvider(strm) );
 	arr2dint->execute();
 	runner.setFinished();
 	horizon->auxdata.setArray2D( dataid, horizon->sectionID(0),

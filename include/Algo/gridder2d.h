@@ -53,7 +53,8 @@ public:
 			    setGridPoint outside these ranges. May speed
 			    up calculation. */
 
-    bool		setPoints(const TypeSet<Coord>&,TaskRunner* =0);
+    bool		setPoints(const TypeSet<Coord>&,
+				  const TaskRunnerProvider&);
 			/*<!Points are assumed to remain in mem through
 			    getValue(). Points should correspond to the
 			    values in setValues. Don't re-set it unless they
@@ -225,7 +226,7 @@ protected:
     TypeSet<double>*	globalweights_;
     LinSolver<double>*	solv_;
 
-    bool		updateSolver(TaskRunner*);
+    bool		updateSolver(const TaskRunnerProvider&);
     bool		updateSolution();
     double		getRadius(const Coord& pos1,const Coord& pos2) const;
     static double	evaluateRBF(double radius,double scale=1.);

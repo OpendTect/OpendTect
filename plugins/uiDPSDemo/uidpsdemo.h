@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 class IOObj;
 class uiSeisSel;
-class TaskRunner;
+class TaskRunnerProvider;
 class uiIOObjSel;
 class uiGenInput;
 class DataPointSet;
@@ -25,7 +25,7 @@ namespace EM { class Horizon3D; }
 /*!\brief Show a few uses of (ui)DataPointSet.
 
   Case is: extract amplitudes and frequencies along a horizon.
- 
+
  */
 
 mExpClass(uiDPSDemo) uiDPSDemo : public uiDialog
@@ -49,7 +49,8 @@ protected:
 
     bool		doWork(const IOObj&,const IOObj&,int);
     bool		getRandPositions(const EM::Horizon3D&,int,
-	    				 DataPointSet&);
-    bool		getSeisData(const IOObj&,DataPointSet&,TaskRunner&);
+					 DataPointSet&);
+    bool		getSeisData(const IOObj&,DataPointSet&,
+				    TaskRunnerProvider&);
 
 };

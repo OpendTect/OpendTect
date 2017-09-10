@@ -34,8 +34,8 @@ public:
     const char*		factoryKeyword() const { return type(); }
     Provider*		clone() const	{ return new PolyProvider3D(*this); }
 
-    virtual bool	initialize(TaskRunner* tskr=0);
-    virtual void	reset()		{ initialize(); }
+    virtual bool	initialize(const TaskRunnerProvider&);
+    virtual void	reset();
 
     virtual bool	toNextPos();
     virtual bool	toNextZ();

@@ -187,10 +187,10 @@ void RegionHor3DBoundary::setKey( const DBKey& mid )
 }
 
 
-bool RegionHor3DBoundary::init( TaskRunner* taskrunner )
+bool RegionHor3DBoundary::init( const TaskRunnerProvider& trprov )
 {
     RefMan<EM::EMObject> emobj =
-	EM::EMM().loadIfNotFullyLoaded( key_, taskrunner );
+	EM::EMM().loadIfNotFullyLoaded( key_, trprov );
     mDynamicCast(EM::Horizon3D*,hor_,emobj.ptr())
     if ( hor_ ) hor_->ref();
     return hor_;
@@ -263,16 +263,16 @@ void RegionFaultBoundary::setKey( const DBKey& mid )
 }
 
 
-bool RegionFaultBoundary::init( TaskRunner* taskrunner )
+bool RegionFaultBoundary::init( const TaskRunnerProvider& trprov )
 {
     if ( flt_ ) flt_->unRef();
     RefMan<EM::EMObject> emobj =
-	EM::EMM().loadIfNotFullyLoaded( key_, taskrunner );
+	EM::EMM().loadIfNotFullyLoaded( key_, trprov );
     mDynamicCast(EM::Fault3D*,flt_,emobj.ptr())
     if ( flt_ ) flt_->ref();
 
     DBKeySet keys;  keys.add( key_ );
-    if ( !prov_.init(keys,TrcKeySampling(),taskrunner) )
+    if ( !prov_.init(keys,TrcKeySampling(),trprov) )
 	return false;
 
     return flt_;
@@ -444,12 +444,12 @@ bool Region3D::hasBoundary( const DBKey& mid ) const
 }
 
 
-bool Region3D::init( TaskRunner* tskr )
+bool Region3D::init( const TaskRunnerProvider& trprov )
 {
     for ( int idx=0; idx<boundaries_.size(); idx++ )
     {
 	RegionBoundary* bd = boundaries_[idx];
-	const bool res = bd->init( tskr );
+	const bool res = bd->init( trprov );
 	if ( !res ) return false;
     }
 

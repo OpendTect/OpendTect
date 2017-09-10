@@ -42,13 +42,13 @@ void HorizonGridder::setTrcKeySampling( const TrcKeySampling& hs )
     hs_ = hs;
 }
 
-bool HorizonGridder::init( TaskRunner* taskrunner )
+bool HorizonGridder::init( const TaskRunnerProvider& trprov )
 {
     infomsg_ = uiString::emptyString();
     if ( !fltdataprov_ && !faultids_.isEmpty() )
 	fltdataprov_ = new FaultTrcDataProvider();
 
-    if ( fltdataprov_ && !fltdataprov_->init(faultids_,hs_,taskrunner) )
+    if ( fltdataprov_ && !fltdataprov_->init(faultids_,hs_,trprov) )
     {
 	infomsg_ = uiStrings::phrCannotRead( uiStrings::sFault(mPlural) );
 	return false;
@@ -136,7 +136,7 @@ bool HorizonGridder::setFrom( float* data, od_int64 target,
 }
 
 
-bool HorizonGridder::setArray2D( Array2D<float>& arr, TaskRunner* taskrunner )
+bool HorizonGridder::setArray2D( Array2D<float>& arr, const TaskRunnerProvider&)
 {
     return true;
 }
@@ -180,18 +180,18 @@ void InvDistHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 
 
 bool InvDistHor3DGridder::setArray2D( Array2D<float>& arr,
-				      TaskRunner* taskrunner )
+				      const TaskRunnerProvider& trprov )
 {
-    return setArray( arr, taskrunner );
+    return setArray( arr, trprov );
 }
 
 
-bool InvDistHor3DGridder::initFromArray( TaskRunner* taskrunner )
+bool InvDistHor3DGridder::initFromArray( const TaskRunnerProvider& trprov )
 {
-    if ( !InverseDistanceArray2DInterpol::initFromArray(taskrunner) )
+    if ( !InverseDistanceArray2DInterpol::initFromArray(trprov) )
 	return false;
 
-    return HorizonGridder::init( taskrunner );
+    return HorizonGridder::init( trprov );
 }
 
 
@@ -229,18 +229,19 @@ void TriangulationHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 
 
 bool TriangulationHor3DGridder::setArray2D( Array2D<float>& arr,
-					    TaskRunner* taskrunner )
+					    const TaskRunnerProvider& trprov )
 {
-    return setArray( arr, taskrunner );
+    return setArray( arr, trprov );
 }
 
 
-bool TriangulationHor3DGridder::initFromArray( TaskRunner* taskrunner )
+bool TriangulationHor3DGridder::initFromArray(
+				    const TaskRunnerProvider& trprov )
 {
-    if ( !TriangulationArray2DInterpol::initFromArray(taskrunner) )
+    if ( !TriangulationArray2DInterpol::initFromArray(trprov) )
 	return false;
 
-    return HorizonGridder::init( taskrunner );
+    return HorizonGridder::init( trprov );
 }
 
 
@@ -278,9 +279,9 @@ void ExtensionHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 
 
 bool ExtensionHor3DGridder::setArray2D( Array2D<float>& arr,
-					TaskRunner* taskrunner )
+					const TaskRunnerProvider& trprov )
 {
-    return setArray( arr, taskrunner );
+    return setArray( arr, trprov );
 }
 
 
@@ -321,19 +322,19 @@ bool ContinuousCurvatureHor3DGridder::usePar( const IOPar& par )
 
 
 bool ContinuousCurvatureHor3DGridder::setArray2D( Array2D<float>& arr,
-     TaskRunner* taskrunner )
+     const TaskRunnerProvider& trprov )
 {
-     return setArray( arr,taskrunner );
+     return setArray( arr, trprov );
 }
 
 
 uiRetVal HorizonGridder::executeGridding(
 	HorizonGridder* interpolator, EM::Horizon3D* hor3d,
 	const EM::SectionID& sid,
-	const BinID& gridstep, 
+	const BinID& gridstep,
+	const TaskRunnerProvider& trprov,
 	const Interval<int>* polyinlrg,
-	const Interval<int>* polycrlrg,
-	TaskRunner* taskrunner)
+	const Interval<int>* polycrlrg )
 {
     StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
     rowrg.step = gridstep.inl();
@@ -384,14 +385,14 @@ uiRetVal HorizonGridder::executeGridding(
 	}
     }
 
-    if ( !interpolator->setArray2D(*arr,taskrunner) )
+    if ( !interpolator->setArray2D(*arr,trprov) )
 	return uiRetVal(
 	    od_static_tr("executeGridding",
 			 "Cannot setup interpolation on section %1")
 			     .arg(sid+1) );
 
     mDynamicCastGet(Task*,task,interpolator);
-    if ( !task || !TaskRunner::execute(taskrunner,*task) )
+    if ( !task || !trprov.execute(*task) )
 	return uiRetVal(
 		od_static_tr("executeGridding","Cannot interpolate section %1")
 			    .arg(sid+1) );

@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiselsurvranges.h"
 #include "uiseissubsel.h"
-#include "uitaskrunner.h"
+#include "uitaskrunnerprovider.h"
 
 #include "arrayndimpl.h"
 #include "binidvalset.h"
@@ -358,8 +358,8 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
     extractor->setTaperParamVal( paramval );
     extractor->setPhase( phase );
 
-    uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, *extractor ) )
+    uiTaskRunnerProvider trprov( this );
+    if ( !trprov.execute(*extractor) )
 	return false;
 
     RefMan<Wavelet> reswvlt = extractor->getWavelet();
@@ -402,9 +402,9 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	}
     }
 
-    uiTaskRunner dlg( this );
+    uiTaskRunnerProvider trprov( this );
     EM::EMObject* emobjsinglehor =
-	EM::EMM().loadIfNotFullyLoaded( surf1mid, &dlg );
+	EM::EMM().loadIfNotFullyLoaded( surf1mid, trprov );
 
     if ( !emobjsinglehor )
 	return false;
@@ -421,7 +421,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     {
 	EM::SectionID sid = horizon1->sectionID( 0 );
 	EM::EMObject* emobjdoublehor =
-	    EM::EMM().loadIfNotFullyLoaded( surf2mid, &dlg );
+	    EM::EMM().loadIfNotFullyLoaded( surf2mid, trprov );
 
 	if ( !emobjdoublehor )
 	    return false;

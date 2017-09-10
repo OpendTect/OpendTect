@@ -409,7 +409,8 @@ bool IOObjInfo::getBodyRange( TrcKeyZSampling& cs ) const
     if ( type_ != IOObjInfo::Body )
 	return false;
 
-    RefMan<EMObject> emobj = EMM().loadIfNotFullyLoaded( ioobj_->key() );
+    SilentTaskRunnerProvider trprov;
+    RefMan<EMObject> emobj = EMM().loadIfNotFullyLoaded( ioobj_->key(), trprov );
     if ( !emobj )
 	return false;
 

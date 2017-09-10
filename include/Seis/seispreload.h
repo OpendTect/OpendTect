@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "ranges.h"
 #include "survgeom.h"
-#include "task.h"
+#include "taskrunner.h"
 
 class IOObj;
 class Scaler;
@@ -71,7 +71,7 @@ protected:
     DBKey		dbkey_;
     Pos::GeomID		geomid_;
     TaskRunner*		tr_;
-    TaskRunner		deftr_;
+    SilentTaskRunner	deftr_;
     mutable uiString	errmsg_;
 
     TaskRunner&		getTr() const

@@ -119,7 +119,5 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 void uiImplBodyCalDlg::getImpBody()
 {
     delete impbody_;
-
-    uiTaskRunner taskrunner(this);
-    impbody_ = embody_.createImplicitBody(&taskrunner,false);
+    impbody_ = embody_.createImplicitBody( uiTaskRunnerProvider(this), false );
 }

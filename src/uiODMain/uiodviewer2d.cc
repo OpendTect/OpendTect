@@ -319,7 +319,6 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 void uiODViewer2D::updateTransformData()
 {
     const TrcKeyZSampling& probetkzs = probe_.position();
-    uiTaskRunner taskr( &appl_ );
     if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
     {
 	if ( voiidx_ < 0 )
@@ -327,7 +326,8 @@ void uiODViewer2D::updateTransformData()
 	else
 	    datatransform_->setVolumeOfInterest( voiidx_, probetkzs, true );
 
-	datatransform_->loadDataIfMissing( voiidx_, &taskr );
+	uiTaskRunnerProvider trprov( &appl_ );
+	datatransform_->loadDataIfMissing( voiidx_, trprov );
     }
 }
 
@@ -634,7 +634,7 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 	DPM(DataPackMgr::PointID()).add(new DataPointSet(false,true));
 
     ZAxisTransformPointGenerator generator( *datatransform_.ptr() );
-    generator.setInput( tkzs );
+    generator.setInput( tkzs, SilentTaskRunnerProvider() );
     generator.setOutputDPS( *data );
     generator.execute();
 

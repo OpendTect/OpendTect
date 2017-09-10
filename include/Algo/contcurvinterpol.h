@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "array2dinterpol.h"
 
-mExpClass(Algo) ContinuousCurvatureArray2DInterpol : public Array2DInterpol 
+mExpClass(Algo) ContinuousCurvatureArray2DInterpol : public Array2DInterpol
 { mODTextTranslationClass(ContinuousCurvatureArray2DInterpol);
 public:
 		    mDefaultFactoryInstantiation(Array2DInterpol,
@@ -24,23 +24,25 @@ public:
 			 ContinuousCurvatureArray2DInterpol();
 			~ContinuousCurvatureArray2DInterpol();
 
-    bool		setArray(Array2D<float>&,TaskRunner*);
-    bool		setArray(ArrayAccess&,TaskRunner*);
+    bool		setArray(Array2D<float>&,const TaskRunnerProvider&);
+    bool		setArray(ArrayAccess&,const TaskRunnerProvider&);
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
-    virtual bool	initFromArray(TaskRunner*);
+
+    virtual bool	initFromArray(const TaskRunnerProvider&);
     bool		doPrepare(int);
     bool		doWork(od_int64,od_int64,int);
     int			maxNrThreads() const	{ return 1; }
     od_int64		nrIterations() const	{ return 1; }
     od_int64		totalNr() const		{ return totalnr_; }
-    uiString		nrDoneText() const	
+    uiString		nrDoneText() const
 		       { return tr("Convergence iterations "); }
 
 private:
+
     bool		fillInputData();
     bool		removePlanarTrend();
     void		recoverPlanarTrend();
@@ -94,7 +96,7 @@ private:
 	double	    b5_;
     };
 
-    // below function will be used after get correct intersection line between 
+    // below function will be used after get correct intersection line between
     //fault and horizon
     void		InterpolatingFault(const TypeSet<HorizonData>&,int);
 
@@ -113,7 +115,7 @@ private:
     int			    nrdata_;
 
     int			    offset_[25][12];
-    double		    coeff_[2][12];	
+    double		    coeff_[2][12];
     TypeSet<int>	    factors_;
     ArrPtrMan<HorizonData>  hordata_;
     ArrPtrMan<float>	    griddata_;

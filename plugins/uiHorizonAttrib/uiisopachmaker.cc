@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uistrings.h"
-#include "uitaskrunner.h"
+#include "uitaskrunnerprovider.h"
 #include "od_helpids.h"
 
 uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
@@ -231,8 +231,8 @@ bool uiIsochronMakerDlg::doWork()
     DBKey mid1, mid2;
     par.get( IsochronMaker::sKeyHorizonID(), mid1 );
     par.get( IsochronMaker::sKeyCalculateToHorID(), mid2 );
-    uiTaskRunner taskrunner( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid2, &taskrunner );
+    uiTaskRunnerProvider trprov( this );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid2, trprov );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
     if ( !h2 )
 	mErrRet(tr("Cannot load selected horizon"))
@@ -260,7 +260,7 @@ bool uiIsochronMakerDlg::doWork()
 	ipmaker.setUnits( isinmsec );
     }
 
-    bool rv = TaskRunner::execute( &taskrunner, ipmaker );
+    bool rv = trprov.execute( ipmaker );
     h1->unRef(); h2->unRef();
     return rv;
 }

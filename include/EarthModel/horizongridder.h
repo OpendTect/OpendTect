@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 
 class FaultTrcDataProvider;
-class TaskRunner;
+class TaskRunnerProvider;
 
 namespace EM { class Horizon3D; }
 
@@ -30,6 +30,7 @@ namespace EM { class Horizon3D; }
 mExpClass(EarthModel) HorizonGridder
 { mODTextTranslationClass(HorizonGridder);
 public:
+
     mDefineFactoryInClass(HorizonGridder,factory);
 
     virtual		~HorizonGridder();
@@ -38,7 +39,7 @@ public:
     void		setFaultIds(const DBKeySet&);
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
-    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+    virtual bool	setArray2D(Array2D<float>&,const TaskRunnerProvider&);
 
     static const char*	sKeyMethod();
     static const char*	sKeyNrFaults();
@@ -48,9 +49,9 @@ public:
     virtual bool	usePar(const IOPar&);
     static uiRetVal	executeGridding(HorizonGridder*,EM::Horizon3D*,
 				const EM::SectionID&,const BinID& step,
+				const TaskRunnerProvider&,
 				const Interval<int>* polyinlrg = 0,
-				const Interval<int>* polycrlrg = 0,
-				TaskRunner* tr = 0);
+				const Interval<int>* polycrlrg = 0);
 
 protected:
 
@@ -62,7 +63,7 @@ protected:
     TrcKeySampling	hs_;
     DBKeySet	faultids_;
 
-    bool		init(TaskRunner*);
+    bool		init(const TaskRunnerProvider&);
     bool		blockSrcPoints(const float*,const od_int64*,int,
 				       ObjectSet< TypeSet<int> >&) const;
     bool		setFrom(float*,od_int64,const od_int64*,
@@ -81,14 +82,14 @@ public:
 				tr("Inverse distance") )
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
-    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+    virtual bool	setArray2D(Array2D<float>&,const TaskRunnerProvider&);
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
 
-    bool		initFromArray(TaskRunner*);
+    bool		initFromArray(const TaskRunnerProvider&);
     void		setFrom(od_int64 target, const od_int64* sources,
 	                        const float* weights, int nrsrc);
 };
@@ -104,14 +105,14 @@ public:
 				 ::toUiString(sFactoryKeyword()))
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
-    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+    virtual bool	setArray2D(Array2D<float>&,const TaskRunnerProvider&);
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
 
-    bool		initFromArray(TaskRunner*);
+    bool		initFromArray(const TaskRunnerProvider&);
     void		setFrom(od_int64 target, const od_int64* sources,
 	                        const float* weights, int nrsrc);
 };
@@ -127,7 +128,7 @@ public:
 				 "Extension", ::toUiString(sFactoryKeyword()))
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
-    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+    virtual bool	setArray2D(Array2D<float>&,const TaskRunnerProvider&);
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -148,7 +149,7 @@ public:
 			     tr("Continuous curvature") )
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
-    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+    virtual bool	setArray2D(Array2D<float>&,const TaskRunnerProvider&);
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

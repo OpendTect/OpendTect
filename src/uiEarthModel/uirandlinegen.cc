@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "uiselsurvranges.h"
 #include "uipicksetsel.h"
 #include "uimsg.h"
-#include "uitaskrunner.h"
+#include "uitaskrunnerprovider.h"
 #include "uiselsimple.h"
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -149,9 +149,8 @@ bool uiGenRanLinesByContour::acceptOK()
 	    return false;
     }
 
-    uiTaskRunner taskrunner( this ); EM::EMManager& em = EM::EMM();
-    EM::EMObject* emobj = em.loadIfNotFullyLoaded( horioobj->key(),
-						   &taskrunner );
+    uiTaskRunnerProvider trprov( this ); EM::EMManager& em = EM::EMM();
+    EM::EMObject* emobj = em.loadIfNotFullyLoaded( horioobj->key(), trprov );
     mDynamicCastGet( EM::Horizon3D*, hor, emobj )
     if ( !hor )
 	return false;

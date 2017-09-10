@@ -30,7 +30,7 @@ public:
 
 				~LinSolver();
 
-    bool			init(TaskRunner* =0);
+    bool			init(const TaskRunnerProvider&);
     bool			ready() const	{ return ready_; }
     int				size() const	{ return n_; }
 
@@ -195,10 +195,10 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 
 
 template <class T> inline
-bool LinSolver<T>::init( TaskRunner* taskr )
+bool LinSolver<T>::init( const TaskRunnerProvider& trprov )
 {
     LinSolverTask<T> task( croutsmatrix_, croutsidx_ );
-    ready_ = TaskRunner::execute( taskr, task );
+    ready_ = trprov.execute( task );
     return ready_;
 }
 
@@ -234,7 +234,7 @@ void LinSolver<T>::apply( const T* b, T* x ) const
 	pErrMsg("Cannot apply. Did you forget to call LinSolver::init()?");
 	return;
     }
-    
+
     for ( int idx=0; idx<n_; idx++ )
 	x[idx] = b[idx];
 

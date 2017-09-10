@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "typeset.h"
 
-class TaskRunner;
+class TaskRunnerProvider;
 
 mExpClass(Algo) InterpolationLayerModel
 {
@@ -28,7 +28,8 @@ public:
 
     virtual bool	isOK(const TrcKey* tk=0) const;
 
-    virtual bool	prepare(const TrcKeyZSampling&,TaskRunner* =0);
+    virtual bool	prepare(const TrcKeyZSampling&,
+				const TaskRunnerProvider&);
     virtual void	addSampling(const TrcKeySampling&);
     virtual od_int64	getMemoryUsage(const TrcKeySampling&) const;
 			/*!< returns total amount of bytes needed to store

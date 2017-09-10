@@ -343,7 +343,7 @@ float PlaneDataDisplay::maxDist() const
 
 
 bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat,
-					  TaskRunner* taskr )
+					  TaskRunner* tskr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
@@ -584,7 +584,7 @@ int PlaneDataDisplay::nrResolutions() const
 }
 
 
-void PlaneDataDisplay::setResolution( int res, TaskRunner* taskr )
+void PlaneDataDisplay::setResolution( int res, TaskRunner* tskr )
 {
     if ( res==resolution_ )
 	return;
@@ -592,7 +592,7 @@ void PlaneDataDisplay::setResolution( int res, TaskRunner* taskr )
     resolution_ = res;
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	updateChannels( idx, taskr );
+	updateChannels( idx, tskr );
 }
 
 
@@ -702,25 +702,27 @@ TrcKeyZSampling PlaneDataDisplay::getDataPackSampling( int attrib ) const
 }
 
 
-void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* taskr )const
+void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* tskr ) const
 {
-    if ( !datatransform_ ) return;
+    if ( !datatransform_ )
+	return;
 
     const TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 ); //attrib?
     ZAxisTransformPointGenerator generator( *datatransform_ );
-    generator.setInput( cs, taskr );
+    ExistingTaskRunnerProvider trprov( tskr );
+    generator.setInput( cs, trprov );
     generator.setOutputDPS( pos );
     generator.execute();
 }
 
 
 void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
-					 TaskRunner* taskr )
+					 TaskRunner* tskr )
 {
     if ( attrib>=nrAttribs() )
 	return;
 
-    setRandomPosDataNoCache( attrib, &data->bivSet(), taskr );
+    setRandomPosDataNoCache( attrib, &data->bivSet(), tskr );
 
     if ( rposcache_[attrib] )
 	delete rposcache_[attrib];
@@ -819,7 +821,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 
 
 bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
-				      TaskRunner* taskr )
+				      TaskRunner* tskr )
 {
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     ConstRefMan<RegularSeisDataPack> regsdp =
@@ -835,8 +837,8 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     datapackids_[attrib] = dpid;
     dpm.ref( dpid );
 
-    createTransformedDataPack( attrib, taskr );
-    updateChannels( attrib, taskr );
+    createTransformedDataPack( attrib, tskr );
+    updateChannels( attrib, tskr );
     datachanged_.trigger();
     return true;
 }
@@ -862,7 +864,7 @@ DataPack::ID PlaneDataDisplay::getDisplayedDataPackID( int attrib ) const
 
 
 void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
-			const BinIDValueSet* bivset, TaskRunner* taskr )
+			const BinIDValueSet* bivset, TaskRunner* tskr )
 {
     if ( !bivset || !datatransform_ )
 	return;
@@ -876,11 +878,11 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
     transfdatapackids_[attrib] = dpid;
     dpm.ref( dpid );
 
-    updateChannels( attrib, taskr );
+    updateChannels( attrib, tskr );
 }
 
 
-void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
+void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* tskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
@@ -941,7 +943,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 }
 
 
-void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
+void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* tskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
@@ -959,7 +961,8 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
 		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
-	    datatransform_->loadDataIfMissing( voiidx_, taskr );
+	    ExistingTaskRunnerProvider trprov( tskr );
+	    datatransform_->loadDataIfMissing( voiidx_, trprov );
 	}
 
 	VolumeDataPackZAxisTransformer transformer( *datatransform_ );
@@ -1087,12 +1090,12 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
 }
 
 
-SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
+SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tskr ) const
 {
     PlaneDataDisplay* pdd = new PlaneDataDisplay();
     pdd->setOrientation( orientation_ );
     pdd->setTrcKeyZSampling( getTrcKeyZSampling(false,true,0) );
-    pdd->setZAxisTransform( datatransform_, taskr );
+    pdd->setZAxisTransform( datatransform_, tskr );
 
     while ( nrAttribs() > pdd->nrAttribs() )
 	pdd->addAttrib();
@@ -1102,9 +1105,9 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
 	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
 	if ( selspecs ) pdd->setSelSpecs( idx, *selspecs );
 
-	pdd->setDataPackID( idx, getDataPackID(idx), taskr );
-	pdd->setColTabMapper( idx, getColTabMapper(idx), taskr );
-	pdd->setColTabSequence( idx, getColTabSequence( idx ), taskr );
+	pdd->setDataPackID( idx, getDataPackID(idx), tskr );
+	pdd->setColTabMapper( idx, getColTabMapper(idx), tskr );
+	pdd->setColTabSequence( idx, getColTabSequence( idx ), tskr );
     }
 
     return pdd;

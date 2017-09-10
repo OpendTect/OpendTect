@@ -175,9 +175,10 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
     if ( ng.getPoints() )
     {
 	//Hack to hope for a better randomization
+	SilentTaskRunnerProvider trprov;
 	for ( int idx=0; idx<3; idx++ )
 	{
-	    if ( gridder_->setPoints( *ng.getPoints() ) )
+	    if ( gridder_->setPoints( *ng.getPoints(), trprov ) )
 		break;
 	}
     }
@@ -513,8 +514,8 @@ bool GriddedSource::initGridder()
     }
 
     GridderSourceFilter filter( sourcepos_, gridsourcebids_,gridsourcecoords_);
-    if ( !filter.execute() ||
-	 !gridder_->setPoints( gridsourcecoords_ ) )
+    SilentTaskRunnerProvider trprov;
+    if ( !filter.execute() || !gridder_->setPoints(gridsourcecoords_,trprov) )
 	return false;
 
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
@@ -525,12 +526,11 @@ bool GriddedSource::initGridder()
 	    //Hack to hope for a better randomization
             for ( int idy=0; idy<3; idy++ )
 	    {
-		if ( func->getGridder()->setPoints( gridsourcecoords_ ) )
+		if ( func->getGridder()->setPoints(gridsourcecoords_,trprov) )
 		    break;
 	    }
 	}
     }
-
 
     gridderinited_ = true;
     return true;

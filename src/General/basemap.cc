@@ -82,7 +82,7 @@ bool BaseMapObject::fillPar( IOPar& par ) const
 }
 
 
-bool BaseMapObject::usePar( const IOPar& par, TaskRunner* )
+bool BaseMapObject::usePar( const IOPar& par, const TaskRunnerProvider& trprov )
 {
     BufferString nm, type;
     if ( par.get(sKey::Name(),nm) )
@@ -94,7 +94,7 @@ bool BaseMapObject::usePar( const IOPar& par, TaskRunner* )
     if ( par.get(sKey::Depth(),depth) )
 	setDepth( depth );
 
-    return true;
+    return doUsePar( par, trprov );
 }
 
 

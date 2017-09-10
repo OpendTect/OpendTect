@@ -2599,7 +2599,8 @@ void HorizonDisplay::IntersectionData::updateDataTransform(
 	    zaxistransform_->setVolumeOfInterest( voiid_,sampling,true);
 
 	if ( voiid_>=0 )
-	    zaxistransform_->loadDataIfMissing( voiid_ );
+	    zaxistransform_->loadDataIfMissing( voiid_,
+						SilentTaskRunnerProvider() );
     }
 }
 

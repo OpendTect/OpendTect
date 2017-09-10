@@ -587,8 +587,9 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	hordatahandler_->zaxistransformvoi_!=-1 )
     {
 	updateZAxisVOI();
+	ExistingTaskRunnerProvider trprov( tskr );
 	if ( !hordatahandler_->zaxistransform_->loadDataIfMissing(
-	      hordatahandler_->zaxistransformvoi_,tskr) )
+	      hordatahandler_->zaxistransformvoi_,trprov) )
 	    return;
     }
 

@@ -59,6 +59,21 @@ static uiParent* getParent( uiParent* p )
 }
 
 
+uiTaskRunnerProvider::uiTaskRunnerProvider( uiParent* p )
+    : parent_(getParent(p))
+{
+}
+
+
+TaskRunner& uiTaskRunnerProvider::runner() const
+{
+    if ( !runner_ )
+	runner_ = new uiTaskRunner( parent_ );
+    return *runner_;
+}
+
+
+
 uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     : uiDialog( getParent(prnt),
                 uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)

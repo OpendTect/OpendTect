@@ -586,13 +586,15 @@ void Picks::horizonChangeCB( CallBacker* cb )
 }
 
 
-void Picks::addHorizon( const DBKey& mid, bool addzeroonfail )
+void Picks::addHorizon( const DBKey& dbky, bool addzeroonfail )
 {
-    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
+    SilentTaskRunnerProvider tprov;
+    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( dbky, tprov );
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobj.ptr() );
     if ( !hor3d )
     {
-	if ( addzeroonfail ) horizons_ += 0;
+	if ( addzeroonfail )
+	    horizons_ += 0;
 	return;
     }
 

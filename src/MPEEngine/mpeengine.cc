@@ -196,7 +196,7 @@ void Engine::trackingFinishedCB( CallBacker* )
 {
     const EM::EMObject* emobj = getCurrentEMObject();
     if ( !emobj ) return;
-    
+
     Undo& emundo = EM::EMM().undo(emobj->id());
     const int currentevent = emundo.currentEventID();
     if ( currentevent != undoeventid_ )
@@ -388,7 +388,7 @@ bool Engine::trackInVolume()
 
 
 void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
-				       TaskRunner* taskr )
+				       const TaskRunnerProvider& trprov )
 {
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
@@ -396,7 +396,7 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	    continue;
 
 	EM::ObjectID oid = trackers_[idx]->objectID();
-	EM::EMM().removeSelected( oid, selector, taskr );
+	EM::EMM().removeSelected( oid, selector, trprov );
 
 	EM::EMObject* emobj = EM::EMM().getObject( oid );
 	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )

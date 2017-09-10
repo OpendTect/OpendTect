@@ -86,7 +86,8 @@ public:
     virtual Executor*		saver();
     virtual Executor*		saver(IOObj*);
 
-    ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
+    virtual ImplicitBody*	createImplicitBody(const TaskRunnerProvider&,
+						   bool) const;
     bool			getBodyRange(TrcKeyZSampling&);
 
     DBKey			storageID() const;

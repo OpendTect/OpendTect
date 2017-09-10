@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class Executor;
+class TaskRunnerProvider;
 
 namespace EM { class EMObject; }
 namespace Geometry { class Element; }
@@ -94,7 +95,7 @@ public:
 
     void			removeSelectionInPolygon(
 					const Selector<Coord3>&,
-					TaskRunner*);
+					const TaskRunnerProvider&);
     void			getAvailableTrackerTypes(BufferStringSet&)const;
 
     int				nrTrackersAlive() const;

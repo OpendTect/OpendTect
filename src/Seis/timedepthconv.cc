@@ -281,7 +281,8 @@ protected:
 };
 
 
-bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tskr )
+bool Time2DepthStretcher::loadDataIfMissing( int id,
+					     const TaskRunnerProvider& trprov )
 {
     if ( !velprovider_ ) return true;
 
@@ -294,7 +295,9 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tskr )
 
     const StepInterval<float> filezrg = velprovider_->getZRange();
     const int nrsamplesinfile = filezrg.nrSteps()+1;
-    if ( velintime_!=voiintime_[idx] )
+    if ( velintime_ == voiintime_[idx] )
+	readcs.zsamp_.setFrom( filezrg );
+    else
     {
 	int zstartidx = (int) filezrg.getIndex( readcs.zsamp_.start );
 	if ( zstartidx<0 ) zstartidx = 0;
@@ -305,10 +308,6 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tskr )
 	readcs.zsamp_.start = filezrg.atIndex( zstartidx );
 	readcs.zsamp_.stop = filezrg.atIndex( zstopidx );
 	readcs.zsamp_.step = filezrg.step;
-    }
-    else
-    {
-	readcs.zsamp_.setFrom( filezrg );
     }
 
     Array3D<float>* arr = voidata_[idx];
@@ -323,7 +322,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tskr )
 
     TimeDepthDataLoader loader( *arr, *velprovider_, readcs, veldesc_,
 	    SamplingData<double>(voi.zsamp_), velintime_, voiintime_[idx] );
-    if ( !TaskRunner::execute( tskr, loader ) )
+    if ( !trprov.execute( loader ) )
 	return false;
 
     return true;
@@ -681,8 +680,9 @@ void Depth2TimeStretcher::removeVolumeOfInterest( int id )
 { stretcher_->removeVolumeOfInterest( id ); }
 
 
-bool Depth2TimeStretcher::loadDataIfMissing( int id, TaskRunner* tskr )
-{ return stretcher_->loadDataIfMissing( id, tskr ); }
+bool Depth2TimeStretcher::loadDataIfMissing( int id,
+					     const TaskRunnerProvider& trprov )
+{ return stretcher_->loadDataIfMissing( id, trprov ); }
 
 
 void Depth2TimeStretcher::transformTrc(const TrcKey& trckey,

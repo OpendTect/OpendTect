@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "dbman.h"
 #include "ptrman.h"
+#include "taskrunner.h"
 #include "welldata.h"
 #include "wellinfo.h"
 #include "wellmanager.h"
@@ -97,7 +98,14 @@ void WellProvider3D::setHS()
 }
 
 
-bool WellProvider3D::initialize( TaskRunner* )
+void WellProvider3D::reset()
+{
+    SilentTaskRunnerProvider trprov;
+    initialize( trprov );
+}
+
+
+bool WellProvider3D::initialize( const TaskRunnerProvider& trprov )
 {
     welldata_.setEmpty();
     for ( int idx=0; idx<wellids_.size(); idx++ )
@@ -178,7 +186,7 @@ void WellProvider3D::usePar( const IOPar& iop )
 	wellids_ += mid;
     }
 
-    initialize(0);
+    reset();
 }
 
 

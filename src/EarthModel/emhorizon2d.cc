@@ -552,7 +552,7 @@ void Horizon2D::removeAll()
 
 
 void Horizon2D::removeSelected( const Selector<Coord3>& selector,
-				TaskRunner* taskrunner )
+				const TaskRunnerProvider& )
 {
     if ( !selector.isOK() )
 	return;

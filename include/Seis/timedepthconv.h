@@ -62,7 +62,7 @@ public:
     int			addVolumeOfInterest(const TrcKeyZSampling&,bool);
     void		setVolumeOfInterest(int,const TrcKeyZSampling&,bool);
     void		removeVolumeOfInterest(int);
-    bool		loadDataIfMissing(int,TaskRunner* =0);
+    bool		loadDataIfMissing(int,const TaskRunnerProvider&);
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
 				  int,float*) const;
     void		transformTrcBack(const TrcKey&,
@@ -121,7 +121,7 @@ public:
     int			addVolumeOfInterest(const TrcKeyZSampling&,bool);
     void		setVolumeOfInterest(int,const TrcKeyZSampling&,bool);
     void		removeVolumeOfInterest(int);
-    bool		loadDataIfMissing(int,TaskRunner* =0);
+    bool		loadDataIfMissing(int,const TaskRunnerProvider&);
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
 				  int,float*) const;
     void		transformTrcBack(const TrcKey&,

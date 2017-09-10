@@ -80,10 +80,12 @@ public:
     };
 
     virtual bool		nothingToFill() const	{ return false; }
-    virtual bool		setArray(Array2D<float>&,TaskRunner* =0);
+    virtual bool		setArray(Array2D<float>&,
+					 const TaskRunnerProvider&);
 				//!<Set AFTER all settings
     virtual bool		canUseArrayAccess() const { return false; }
-    virtual bool		setArray(ArrayAccess&,TaskRunner* =0);
+    virtual bool		setArray(ArrayAccess&,
+					 const TaskRunnerProvider&);
 				//!<Set AFTER all settings
 
 				//!<Trend is active only when setTrendOrder
@@ -114,7 +116,7 @@ protected:
     bool	doPrepare(int);
     bool	doFinish(bool success);
     void	getNodesToFill(const bool* isdef, bool* shouldinterpol,
-			       TaskRunner*) const;
+			       const TaskRunnerProvider&) const;
 		/*!<Fills shouldinterpol with true or false depending on if a
 		    certain node should be interpolated or not, based on
 		    filltype and maxholesize. If isdef is zero, the information

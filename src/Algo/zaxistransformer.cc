@@ -58,7 +58,7 @@ void ZAxisTransformer::setOutputRange( const TrcKeyZSampling& cs )
 }
 
 
-bool ZAxisTransformer::doPrepare(int) 
+bool ZAxisTransformer::doPrepare( int )
 {
     delete output_;
     output_ = new Array3DImpl<float>( outputcs_.hsamp_.nrInl(),
@@ -67,18 +67,18 @@ bool ZAxisTransformer::doPrepare(int)
     if ( !output_ || !output_->isOK() )
 	return false;
 
-    return loadTransformData();
+    return loadTransformData( SilentTaskRunnerProvider() );
 }
 
 
-bool ZAxisTransformer::loadTransformData( TaskRunner* taskrunner )
+bool ZAxisTransformer::loadTransformData( const TaskRunnerProvider& trprov )
 {
     if ( voiid_==-1 )
 	voiid_ = transform_.addVolumeOfInterest( outputcs_, forward_ );
     else
 	transform_.setVolumeOfInterest( voiid_, outputcs_, forward_ );
 
-    return transform_.loadDataIfMissing( voiid_, taskrunner );
+    return transform_.loadDataIfMissing( voiid_, trprov );
 }
 
 
@@ -110,7 +110,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
     if ( !input_ ) return true;
 
     ZAxisTransformSampler outpsampler( transform_, forward_,
-	SamplingData<double>(outputcs_.zsamp_.start, outputcs_.zsamp_.step), 
+	SamplingData<double>(outputcs_.zsamp_.start, outputcs_.zsamp_.step),
 	false );
 
     const int inputzsz = input_->info().getSize(mZ);
@@ -146,7 +146,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	    const float* inputptr = input_->getData() +
 		input_->info().getOffset(inlidx,crlidx,0);
 	    SampledFunctionImpl<float,const float*> inputfunc(
-	       inputptr, inputzsz, inputcs_.zsamp_.atIndex(0), 
+	       inputptr, inputzsz, inputcs_.zsamp_.atIndex(0),
 	       inputcs_.zsamp_.step);
 
 	    inputfunc.setHasUdfs( true );
@@ -158,7 +158,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	{
 	    const OffsetValueSeries<float> vs( *input_->getStorage(),
 		input_->info().getOffset(inlidx,crlidx,0) );
-		
+
 	    SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
 	       vs, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step);
 

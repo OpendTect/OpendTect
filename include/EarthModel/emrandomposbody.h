@@ -59,7 +59,8 @@ public:
     virtual Executor*		loader();
     virtual bool		isEmpty() const;
 
-    ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
+    virtual ImplicitBody*	createImplicitBody(const TaskRunnerProvider&,
+						   bool) const;
     bool			getBodyRange(TrcKeyZSampling&);
 
     DBKey			storageID() const;

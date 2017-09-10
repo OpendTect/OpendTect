@@ -19,10 +19,10 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "polygon.h"
 #include "position.h"
+#include "taskrunner.h"
 #include "trckeyzsampling.h"
 
 class FaultTrcDataProvider;
-class TaskRunner;
 
 namespace EM
 {
@@ -57,7 +57,7 @@ mExpClass(EarthModel) RegionBoundary : public NamedObject
 {
 public:
     virtual const char*	type() const				= 0;
-    virtual bool	init(TaskRunner*)			{ return true; }
+    virtual bool	init(const TaskRunnerProvider&)		{ return true; }
     virtual bool	hasName() const				{ return false;}
 
     virtual bool	onRightSide(const TrcKey&,float z) const = 0;
@@ -139,7 +139,7 @@ public:
     void		setKey(const DBKey&);
     DBKey		key() const		{ return key_; }
     bool		hasName() const		{ return true; }
-    bool		init(TaskRunner*);
+    bool		init(const TaskRunnerProvider&);
     void		getSideStrs(uiStringSet&) const;
     bool		onRightSide(const TrcKey&,float z) const;
 
@@ -164,7 +164,7 @@ public:
     void		setKey(const DBKey&);
     DBKey		key() const		{ return key_; }
     bool		hasName() const		{ return true; }
-    bool		init(TaskRunner*);
+    bool		init(const TaskRunnerProvider&);
     void		getSideStrs(uiStringSet&) const;
     bool		onRightSide(const TrcKey&,float z) const;
 
@@ -216,7 +216,7 @@ public:
     bool		isEmpty() const;
     void		setEmpty();
 
-    bool		init(TaskRunner*);
+    bool		init(const TaskRunnerProvider&);
     bool		isInside(const TrcKey&,float z,bool inclborder) const;
 
     void		fillPar(IOPar&) const;

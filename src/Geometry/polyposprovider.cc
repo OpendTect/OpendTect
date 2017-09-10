@@ -77,7 +77,14 @@ static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
 }
 
 
-bool Pos::PolyProvider3D::initialize( TaskRunner* )
+void Pos::PolyProvider3D::reset()
+{
+    SilentTaskRunnerProvider trprov;
+    initialize( trprov );
+}
+
+
+bool Pos::PolyProvider3D::initialize( const TaskRunnerProvider& )
 {
     if ( poly_.size() < 2 ) return false;
 

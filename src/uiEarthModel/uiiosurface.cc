@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uistratlvlsel.h"
+#include "uitaskrunnerprovider.h"
 #include "uitable.h"
 
 #include "ctxtioobj.h"
@@ -630,11 +631,12 @@ uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
 		tr("Available for 2D lines"),mNoHelpKey))
 {
     const DBDirEntryList entlst( mIOObjContext(EMFaultStickSet) );
+    uiTaskRunnerProvider trprov( this );
     for ( int idx=0; idx<entlst.size(); idx++ )
     {
 	const IOObj& obj = entlst.ioobj( idx );
 
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj.key());
+	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj.key(),trprov);
 	mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
 	if ( !fss ) continue;
 

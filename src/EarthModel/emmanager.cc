@@ -318,7 +318,7 @@ Executor* EMManager::objectLoader( const DBKey& mid,
 
 
 EMObject* EMManager::loadIfNotFullyLoaded( const DBKey& mid,
-					   TaskRunner* taskrunner )
+					   const TaskRunnerProvider& trprov )
 {
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
@@ -329,7 +329,7 @@ EMObject* EMManager::loadIfNotFullyLoaded( const DBKey& mid,
 	if ( !exec )
 	    return 0;
 
-	if ( !TaskRunner::execute( taskrunner, *exec ) )
+	if ( !trprov.execute(*exec) )
 	    return 0;
 
 	emid = EM::EMM().getObjectID( mid );
@@ -361,13 +361,13 @@ void EMManager::burstAlertToAll( bool yn )
 
 void EMManager::removeSelected( const ObjectID& id,
 				const Selector<Coord3>& selector,
-				TaskRunner* tskr )
+				const TaskRunnerProvider& trprov )
 {
     EM::EMObject* emobj = getObject( id );
     if ( !emobj ) return;
 
     emobj->ref();
-    emobj->removeSelected( selector, tskr );
+    emobj->removeSelected( selector, trprov );
     emobj->unRef();
 }
 

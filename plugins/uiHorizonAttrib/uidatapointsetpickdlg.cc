@@ -470,11 +470,10 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 	adapter.set( inlidx, crlidx, vals[0] );
     }
 
-    uiTaskRunner uitr( this );
-    if ( !interpol_->setArray(adapter,&uitr) )
+    uiTaskRunnerProvider trprov( this );
+    if ( !interpol_->setArray(adapter,trprov) )
 	return;
-
-    if ( !uitr.execute(*interpol_) )
+    if ( !trprov.execute(*interpol_) )
 	return;
 
     readyForDisplay.trigger();

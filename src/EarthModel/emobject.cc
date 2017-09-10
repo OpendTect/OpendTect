@@ -523,7 +523,7 @@ bool EMObject::isPosAttribLocked( int attr ) const
 
 
 void EMObject::removeSelected( const Selector<Coord3>& selector,
-			       TaskRunner* tskr )
+			       const TaskRunnerProvider& trprov )
 {
     if ( !selector.isOK() )
 	return;
@@ -531,13 +531,12 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
     insideselremoval_ = true;
     removebypolyposbox_.setEmpty();
 
-  
     for ( int idx=0; idx<nrSections(); idx++ )
     {
 	ObjectSet<const Selector<Coord3> > selectors;
 	selectors += &selector;
 	EMObjectPosSelector posselector( *this, sectionID(idx), selectors );
-	posselector.executeParallel( tskr );
+	trprov.execute( posselector );
 
 	const TypeSet<EM::SubID>& list = posselector.getSelected();
 	removeSelected( list );

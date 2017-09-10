@@ -126,10 +126,10 @@ void Pos::FilterSet::add( const IOPar& iop )
 }
 
 
-bool Pos::FilterSet::initialize( TaskRunner* tskr )
+bool Pos::FilterSet::initialize( const TaskRunnerProvider& trprov )
 {
     for ( int idx=0; idx<size(); idx++ )
-	if ( !filts_[idx]->initialize( tskr ) )
+	if ( !filts_[idx]->initialize( trprov ) )
 	    return false;
     return true;
 }

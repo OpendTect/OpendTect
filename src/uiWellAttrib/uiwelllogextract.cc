@@ -271,12 +271,8 @@ bool uiWellLogExtractGrp::extractDPS()
     {
 	IOPar iop; posfiltfld_->fillPar( iop );
 	filt = Pos::Filter::make( iop, false );
-	if ( filt )
-	{
-	    uiTaskRunner taskrunner( this );
-	    if ( !filt->initialize(&taskrunner) )
-		return false;
-	}
+	if ( filt && !filt->initialize(uiTaskRunnerProvider(this)) )
+	    return false;
     }
 
     MouseCursorManager::setOverride( MouseCursor::Wait );

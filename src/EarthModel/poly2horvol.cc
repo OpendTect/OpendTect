@@ -40,12 +40,12 @@ void Poly2HorVol::setHorizon( EM::Horizon3D* hor )
 }
 
 
-bool Poly2HorVol::setHorizon( const DBKey& mid, TaskRunner* tskr )
+bool Poly2HorVol::setHorizon( const DBKey& mid, const TaskRunnerProvider& trprov )
 {
     if ( hor_ )
 	{ hor_->unRef(); hor_ = 0; }
 
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, tskr );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, trprov );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
 
     setHorizon( hor );
@@ -83,7 +83,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
     psiter.retire();
 
     TriangulatedGridder2D grdr;
-    grdr.setPoints( pts );
+    grdr.setPoints( pts, SilentTaskRunnerProvider() );
     grdr.setValues( zvals );
     float avgz = 0.f;
     for ( int idx=0; idx<zvals.size(); idx++ )

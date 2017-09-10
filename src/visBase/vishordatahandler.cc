@@ -119,7 +119,8 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
 
     if ( zaxistransform_ && zaxistransformvoi_>=0 )
     {
-	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_) )
+	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_,
+				SilentTaskRunnerProvider()) )
 	    return;
     }
     const char* hrsectionid = "Section ID";

@@ -412,7 +412,9 @@ void uiWellMan::logTools( CallBacker* )
     for ( int iobj=0; iobj<selwellids_.size(); iobj++ )
 	wellnms.add( DBM().nameOf(selwellids_[iobj]) );
 
+    uiUserShowWait usw( this, uiStrings::sCollectingData() );
     uiWellLogToolWinMgr tooldlg( this, &wellnms, &lognms );
+    usw.readyNow();
     tooldlg.go();
 }
 

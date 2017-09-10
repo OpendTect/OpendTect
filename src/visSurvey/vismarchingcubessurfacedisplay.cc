@@ -294,8 +294,11 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 {
     mSetDataPointSet("Isopach");
 
-    if ( !impbody_ ) impbody_ = emsurface_->createImplicitBody(0,false);
-    if ( !impbody_ || !impbody_->arr_ ) return;
+    if ( !impbody_ )
+	impbody_ = emsurface_->createImplicitBody(SilentTaskRunnerProvider(),
+						  false);
+    if ( !impbody_ || !impbody_->arr_ )
+	return;
 
     const int inlsz = impbody_->tkzs_.nrInl();
     const int crlsz = impbody_->tkzs_.nrCrl();
@@ -866,8 +869,10 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
     if ( displayintersections_ )
     {
 	if ( !impbody_ )
-	    impbody_ = emsurface_->createImplicitBody(0,false);
-	if ( !impbody_ ) return;
+	    impbody_ = emsurface_->createImplicitBody(
+				    SilentTaskRunnerProvider(),false);
+	if ( !impbody_ )
+	    return;
 
 	for ( int idx=0; idx<intsinfo_.size(); idx++ )
 	{

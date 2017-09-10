@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "paralleltask.h"
 #include "trckeyzsampling.h"
 
-class TaskRunner;
+class TaskRunnerProvider;
 class ZAxisTransform;
 
 template <class T> class Array3D;
@@ -37,7 +37,7 @@ public:
     Array3D<float>*	getOutput(bool transfer);
 			/*!<\param transfer specifies whether the caller will
 			                    take over the array.  */
-    bool		loadTransformData(TaskRunner* =0);
+    bool		loadTransformData(const TaskRunnerProvider&);
 
     int			getVoiID() const		{ return voiid_; }
     void		removeVoiOnDelete( bool yn )	{ rmvoi_ = yn; }

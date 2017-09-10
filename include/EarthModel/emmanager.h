@@ -19,11 +19,11 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "emposid.h"
 #include "emundo.h"
+#include "taskrunner.h"
 
 class Undo;
 class IOObj;
 class IOObjContext;
-class TaskRunner;
 class Executor;
 class uiEMPartServer;
 
@@ -50,7 +50,8 @@ public:
     EM::ObjectID	objectID(int idx) const;
     bool		objectExists(const EMObject*) const;
 
-    EMObject*		loadIfNotFullyLoaded(const DBKey&,TaskRunner* =0);
+    EMObject*		loadIfNotFullyLoaded(const DBKey&,
+					     const TaskRunnerProvider&);
 			/*!<If fully loaded, the loaded instance
 			    will be returned. Otherwise, it will be loaded.
 			    Returned object must be reffed by caller
@@ -77,7 +78,7 @@ public:
     void		burstAlertToAll(bool yn);
 
     void		removeSelected(const ObjectID&,const Selector<Coord3>&,
-				       TaskRunner*);
+				       const TaskRunnerProvider&);
     bool		readDisplayPars(const DBKey&,IOPar&) const;
     bool		writeDisplayPars(const DBKey&,const IOPar&) const;
     bool		getSurfaceData(const DBKey&,SurfaceIOData&,
@@ -89,13 +90,13 @@ protected:
 
     ObjectSet<EMObject>		objects_;
 
-    mStruct(EarthModel) EMObjUndo	
+    mStruct(EarthModel) EMObjUndo
     {
 	EMObjUndo( const EM::ObjectID& id )
 	: undo_( *new EMUndo() ), id_ ( id ) {}
-	
+
 	~EMObjUndo() { delete &undo_; }
-	Undo&	     undo_;		
+	Undo&	     undo_;
 	EM::ObjectID id_;
     };
 

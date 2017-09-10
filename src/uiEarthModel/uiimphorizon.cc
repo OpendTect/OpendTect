@@ -601,7 +601,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
     const float crldist = SI().crlDistance();
     interpol_->setRowStep( inldist*hs.step_.inl() );
     interpol_->setColStep( crldist*hs.step_.crl());
-    uiTaskRunner taskrunner( this );
+    uiTaskRunnerProvider trprov( this );
     Array2DImpl<float> arr( hs.nrInl(), hs.nrCrl() );
     if ( !arr.isOK() )
 	return false;
@@ -627,10 +627,10 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	    }
 	}
 
-	if ( !interpol_->setArray( arr, &taskrunner ) )
+	if ( !interpol_->setArray( arr, trprov ) )
 	    return false;
 
-	if ( !TaskRunner::execute( &taskrunner, *interpol_ ) )
+	if ( !trprov.execute( *interpol_ ) )
 	    return false;
 
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
@@ -682,8 +682,7 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     Executor* loader = emobj->loader();
     if ( !loader ) mErrRet( uiStrings::sCantReadHor());
 
-    uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, *loader ) )
+    if ( !uiTaskRunner(this).execute( *loader ) )
 	return 0;
 
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)

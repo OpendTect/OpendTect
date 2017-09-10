@@ -241,10 +241,9 @@ bool uiExportFault::writeAscii()
 	}
     }
 
-    uiTaskRunner taskrunner( this );
+    uiTaskRunnerProvider trprov( this );
     PtrMan<Executor> objloader = EM::EMM().objectLoader( dbkeyset );
-
-    if ( !objloader || !TaskRunner::execute(&taskrunner, *objloader) )
+    if ( !objloader || !trprov.execute(*objloader) )
     {
 	mErrRet( uiStrings::phrCannotRead(tr("the object") ));
 	return false;
@@ -269,9 +268,8 @@ bool uiExportFault::writeAscii()
 	if ( !loader ) mErrRet( uiStrings::phrCannotRead(
 							uiStrings::sFault() ))
 
-	uiTaskRunner taskrnnr( this );
-	if ( !TaskRunner::execute( &taskrnnr, *loader ) ) return false;
-
+	if ( !trprov.execute( *loader ) )
+	    return false;
 
 	if ( !sdo.usable() )
 	{
@@ -314,7 +312,6 @@ bool uiExportFault::writeAscii()
 		}
 	    }
 
-	    uiTaskRunner taskrnr( this );
 	    if ( bbox.isDefined() )
 	    {
 		if ( zatvoi == -1 )
@@ -322,12 +319,9 @@ bool uiExportFault::writeAscii()
 		else
 		    zatf->setVolumeOfInterest( zatvoi, bbox, false );
 		if ( zatvoi>=0 )
-			zatf->loadDataIfMissing( zatvoi, &taskrnr );
+		    zatf->loadDataIfMissing( zatvoi, trprov );
 	    }
 	}
-
-
-
 
 	for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	{

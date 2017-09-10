@@ -201,7 +201,7 @@ bool BatchProgram::go( od_ostream& strm )
 	synthgen.enableFourierDomain( true );
 	synthgen.usePar( *raypar );
 
-	TaskRunner* taskr = new TaskRunner;
+	TaskRunner* taskr = new SilentTaskRunner;
 	if ( !testSynthGeneration(strm,TaskRunner::execute(taskr,synthgen),
 				  synthgen) )
 	    return false;

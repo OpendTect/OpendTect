@@ -58,7 +58,8 @@ public:
     void			setCrlSampling(const SamplingData<int>&);
     void			setZSampling(const SamplingData<float>&);
 
-    ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
+    virtual ImplicitBody*	createImplicitBody(const TaskRunnerProvider&,
+						   bool) const;
     bool			getBodyRange(TrcKeyZSampling& cs);
 
     void			refBody();
@@ -71,7 +72,7 @@ public:
     void			setBodyOperator(EM::BodyOperator*);
 				/*<Set operator only, to use it, call
 				   regenerateMCBody() to update the surface.*/
-    bool			regenerateMCBody(TaskRunner* tskr=0);
+    bool			regenerateMCBody(const TaskRunnerProvider&);
 
     bool			useBodyPar(const IOPar&);
     void			fillBodyPar(IOPar&) const;

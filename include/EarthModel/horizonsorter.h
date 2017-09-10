@@ -35,7 +35,7 @@ public:
 					      bool is2d=false);
 				~HorizonSorter();
 
-    void			setTaskRunner(TaskRunner&);
+    void			setRunner(const TaskRunnerProvider&);
 
     void			getSortedList(DBKeySet&);
     const TrcKeySampling&		getBoundingBox() const	{ return tks_; }
@@ -66,9 +66,9 @@ protected:
     TrcKeySampling			tks_;
     ObjectSet<EM::Horizon>	horizons_;
     Array3D<int>*		result_;
-    DBKeySet		unsortedids_;
-    DBKeySet		sortedids_;
-    TaskRunner*			taskrun_;
+    DBKeySet			unsortedids_;
+    DBKeySet			sortedids_;
+    const TaskRunnerProvider*	trprov_;
 
     uiString			message_;
 };

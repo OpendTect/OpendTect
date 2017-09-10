@@ -49,8 +49,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     iop.set( IOPar::compKey(sKey::Surface(),Pos::EMSurfaceProvider::id1Key()),
 	     hormid_ );
     pp_.usePar( iop );
-    uiTaskRunner taskrunner( p );
-    if ( !pp_.initialize(&taskrunner) )
+    if ( !pp_.initialize(uiTaskRunnerProvider(p)) )
     {
 	new uiLabel( this, tr("Cannot initialize %1")
 					.arg(uiStrings::sHorizon().toLower()) );
@@ -212,5 +211,5 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
     SeisTrcWriter wrr( &outioobj );
     uiWriteFlattenedCubeMaker cm( *prov, wrr, pp_, horzrg_, zval );
     MouseCursorManager::restoreOverride();
-    return TaskRunner::execute( &taskrunner, cm );
+    return taskrunner.execute( cm );
 }

@@ -576,7 +576,8 @@ bool BodyOperator::getChildOprt( int freeid, BodyOperator& res )
 }
 
 
-ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tskr ) const
+ImplicitBody* BodyOperator::getOperandBody( bool body0,
+				const TaskRunnerProvider& trprov ) const
 {
     ImplicitBody* body = 0;
     BodyOperator* oprt = body0 ? inputbodyop0_ : inputbodyop1_;
@@ -603,10 +604,10 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tskr ) const
 	    return 0;
 	}
 
-	body = embody->createImplicitBody( tskr, false );
+	body = embody->createImplicitBody( trprov, false );
 	obj->unRef();
     }
-    else if ( !oprt->createImplicitBody( body, tskr ) )
+    else if ( !oprt->createImplicitBody( body, trprov ) )
     {
 	delete body;
 	body = 0;
@@ -616,14 +617,14 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tskr ) const
 }
 
 bool BodyOperator::createImplicitBody( ImplicitBody*& res,
-							TaskRunner* tskr) const
+					const TaskRunnerProvider& trprov ) const
 {
     if ( !isOK() ) return false;
 
-    ImplicitBody* b0 = getOperandBody( true, tskr );
+    ImplicitBody* b0 = getOperandBody( true, trprov );
     if ( !b0 ) return false;
 
-    ImplicitBody* b1 = getOperandBody( false, tskr );
+    ImplicitBody* b1 = getOperandBody( false, trprov );
     if ( !b1 )
     {
 	delete b0;
@@ -737,7 +738,7 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res,
 
 
 ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
-						TaskRunner* tskr ) const
+					const TaskRunnerProvider& trprov ) const
 {
     if ( bodypts.size()<3 )
 	return 0;
@@ -800,12 +801,12 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	return 0;
 
     ParallelDTetrahedralator triangulator( dagtree );
-    if ( TaskRunner::execute( tskr, triangulator ) )
+    if ( trprov.execute( triangulator ) )
     {
 	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( mCast(float,zscale) );
 	PtrMan<Expl2ImplBodyExtracter> extract = new
 	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
-	if ( TaskRunner::execute( tskr, *extract ) )
+	if ( trprov.execute( *extract ) )
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;

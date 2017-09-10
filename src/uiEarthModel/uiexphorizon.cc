@@ -239,8 +239,9 @@ bool uiExportHorizon::writeAscii()
     PtrMan<Executor> loader = hor->geometry().loader( &sels );
     if ( !loader ) mErrRet( uiStrings::phrCannotRead( uiStrings::sHorizon() ) )
 
-    uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
+    uiTaskRunnerProvider trprov( this );
+    if ( !trprov.execute( *loader ) )
+	return false;
 
     infld_->getSelection( sels );
     if ( dogf && sels.selvalues.size() > 1 &&
@@ -254,7 +255,7 @@ bool uiExportHorizon::writeAscii()
 	for ( int idx=0; idx<sels.selvalues.size(); idx++ )
 	    exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
 
-	if ( !TaskRunner::execute( &taskrunner, exgrp ) ) return false;
+	if ( !trprov.execute( exgrp ) ) return false;
     }
 
     uiUserShowWait usw( this, uiStrings::sSavingData() );
@@ -299,7 +300,7 @@ bool uiExportHorizon::writeAscii()
 	if ( !first && zatf->needsVolumeOfInterest() )
 	{
 	    zatvoi = zatf->addVolumeOfInterest( bbox, false );
-	    if ( !zatf->loadDataIfMissing( zatvoi, &taskrunner ) )
+	    if ( !zatf->loadDataIfMissing( zatvoi, trprov ) )
 	    {
 		uiMSG().error( tr("Cannot load data for z-transform") );
 		return false;

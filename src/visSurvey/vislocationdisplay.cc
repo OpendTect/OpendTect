@@ -145,10 +145,11 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	    else
 		datatransform_->setVolumeOfInterest( voiidx_, cs, true );
 
-	    datatransform_->loadDataIfMissing( voiidx_ );
+	    datatransform_->loadDataIfMissing( voiidx_,
+					       SilentTaskRunnerProvider() );
 	}
     }
-    
+
     getMaterial()->setColor( set_->dispColor() );
 
     // TODO make ID based.
@@ -162,7 +163,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	else
 	    invalidpicks_ -= idx;
 
-	setPosition( idx, loc ); 
+	setPosition( idx, loc );
 	idx++;
     }
 }

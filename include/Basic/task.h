@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "taskrunner.h"
 #include "namedobj.h"
 #include "objectset.h"
 #include "threadlock.h"
@@ -115,7 +115,7 @@ public:
 
     void		setParallel(bool)			{}
     void		showCumulativeCount( bool yn )
-    			{ showcumulativecount_ = yn; }
+			{ showcumulativecount_ = yn; }
 
     void		setProgressMeter(ProgressMeter*);
     void		setEmpty();
@@ -179,32 +179,5 @@ protected:
 
     ProgressMeter*	progressmeter_;
     int			lastupdate_;
-
-};
-
-
-
-/*!\brief Class that can execute a task.
-
-  Can be used as such, be inherited by fancy subclasses with user interface
-  and progressbars etc.
-*/
-
-mExpClass(Basic) TaskRunner
-{
-public:
-    static bool		execute(TaskRunner* tskr, Task& );
-			//!<Taskrunner may be zero
-
-			TaskRunner() : execres_(false)	{}
-    virtual		~TaskRunner()			{}
-
-    virtual bool	execute(Task& t)
-			{ return (execres_ = t.execute()); }
-    virtual bool	execResult() const		{ return execres_; }
-
-protected:
-
-    bool		execres_;
 
 };

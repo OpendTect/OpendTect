@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "gendefs.h"
-class TaskRunner;
+class TaskRunnerProvider;
 namespace Pick	{ class Set; }
 namespace EM	{ class Horizon3D; }
 
@@ -33,7 +33,7 @@ public:
     void		setPickSet( const Pick::Set* ps )	{ ps_ = ps; }
     void		setHorizon(EM::Horizon3D*);
 
-    bool		setHorizon(const DBKey&,TaskRunner* tskr=0);
+    bool		setHorizon(const DBKey&,const TaskRunnerProvider&);
 
     float		getM3(float,bool upward,bool usenegvals);
     const char*		dispText(float m3,bool inft);

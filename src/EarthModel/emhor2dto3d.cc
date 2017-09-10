@@ -87,7 +87,7 @@ void add( const BinID& bid, float z )
 
 
 Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
-		     Horizon3D& h3d, TaskRunner* taskrunner )
+		     Horizon3D& h3d, const TaskRunnerProvider& trprov )
     : Executor( "Deriving 3D horizon from 2D" )
     , hor2d_(h2d)
     , hor3d_(h3d)
@@ -113,7 +113,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	const bool issingleline = hor2d_.geometry().nrLines()<2;
 	curinterp_->setFillType( issingleline ? Array2DInterpol::Full
 					      : Array2DInterpol::ConvexHull );
-	curinterp_->setArray( sd_[cursectnr_]->arr_, taskrunner );
+	curinterp_->setArray( sd_[cursectnr_]->arr_, trprov );
 
 	msg_ = curinterp_->message();
     }
@@ -260,7 +260,8 @@ int Hor2DTo3D::nextStep()
 	return Executor::Finished();
     else if ( curinterp_ )
     {
-	curinterp_->setArray( sd_[cursectnr_]->arr_ );
+	SilentTaskRunnerProvider trprov;
+	curinterp_->setArray( sd_[cursectnr_]->arr_, trprov );
     }
 
     return Executor::MoreToDo();

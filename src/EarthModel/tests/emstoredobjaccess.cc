@@ -47,8 +47,8 @@ int testMain( int argc, char** argv )
 	return 1;
 
     Executor* exec = soa.reader();
-    TextTaskRunner ttr( od_cout() );
-    if ( !ttr.execute(*exec) )
+    LoggedTaskRunner ltr( od_cout() );
+    if ( !ltr.execute(*exec) )
 	return 1;
 
     delete exec;

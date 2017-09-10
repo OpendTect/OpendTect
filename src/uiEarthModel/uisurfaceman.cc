@@ -46,7 +46,7 @@ ________________________________________________________________________
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
 #include "uitable.h"
-#include "uitaskrunner.h"
+#include "uitaskrunnerprovider.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 #include "od_helpids.h"
@@ -365,8 +365,9 @@ void uiSurfaceMan::calcVolCB( CallBacker* )
     if ( !curioobj_ )
 	return;
 
+    uiTaskRunnerProvider trprov( this );
     RefMan<EM::EMObject> emo =
-	EM::EMM().loadIfNotFullyLoaded( curioobj_->key(), 0 );
+	EM::EMM().loadIfNotFullyLoaded( curioobj_->key(), trprov );
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
     if ( !emb )
     {

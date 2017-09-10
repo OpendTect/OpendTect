@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
+#include "uitaskrunnerprovider.h"
 #include "uidialog.h"
 #include "threadlock.h"
 #include "task.h"
@@ -22,9 +22,10 @@ namespace Threads { class Thread; }
 
 
 mExpClass(uiTools) uiTaskRunner : public uiDialog
-		   , public TaskRunner
-{  mODTextTranslationClass(uiTaskRunner);
+			        , public TaskRunner
+{ mODTextTranslationClass(uiTaskRunner);
 public:
+
 			uiTaskRunner(uiParent*,bool dispmsgonerr=true);
 			~uiTaskRunner();
 
@@ -70,4 +71,5 @@ protected:
     virtual bool	rejectOK();
 
     void		init();
+
 };

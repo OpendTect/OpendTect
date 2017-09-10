@@ -224,17 +224,17 @@ ContinuousCurvatureArray2DInterpol::~ContinuousCurvatureArray2DInterpol()
 
 
 bool ContinuousCurvatureArray2DInterpol::setArray( Array2D<float>& arr,
-    TaskRunner* taskrunner )
+    const TaskRunnerProvider& trprov )
 {
-    if ( !Array2DInterpol::setArray(arr,taskrunner) )
+    if ( !Array2DInterpol::setArray(arr,trprov) )
 	return false;
 
-    return initFromArray( taskrunner );
+    return initFromArray( trprov );
 }
 
 
 bool ContinuousCurvatureArray2DInterpol::setArray( ArrayAccess& arr,
-    TaskRunner* taskrunner )
+    const TaskRunnerProvider& trprov )
 {
     if ( !canUseArrayAccess() )
 	return false;
@@ -245,13 +245,13 @@ bool ContinuousCurvatureArray2DInterpol::setArray( ArrayAccess& arr,
     nrcols_ = arr.getSize(1);
     nrcells_ = nrrows_*nrcols_;
 
-    return initFromArray( taskrunner );
+    return initFromArray( trprov );
 
 }
 
 
 bool ContinuousCurvatureArray2DInterpol::initFromArray(
-    TaskRunner* taskrunner )
+    const TaskRunnerProvider& trprov )
 {
     if ( !arr_ && !arrsetter_ )
 	return false;
@@ -277,7 +277,7 @@ bool ContinuousCurvatureArray2DInterpol::initFromArray(
     if ( !fillInputData() )
 	return false;
 
-    getNodesToFill( curdefined_, nodestofill_, taskrunner );
+    getNodesToFill( curdefined_, nodestofill_, trprov );
 
     return true;
 }

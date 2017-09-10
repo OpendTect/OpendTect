@@ -58,7 +58,7 @@ void HorizonScanner::init()
     firsttime_ = true;
     valranges_.erase();
     dtctor_.reInit();
-    analyzeData();
+    analyseData();
 }
 
 
@@ -202,7 +202,7 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 
 #define mGetZFac SI().zIsTime() ? 0.001f : 1
 
-bool HorizonScanner::analyzeData()
+bool HorizonScanner::analyseData()
 {
     if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
 
@@ -334,7 +334,7 @@ int HorizonScanner::nextStep()
     }
 
     if ( data.size() < 1 )
-	mErrRet(tr("Not enough data read to analyze"))
+	mErrRet(tr("Not enough data read to analyse"))
 
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
     bvalset_->allowDuplicateBinIDs(true);

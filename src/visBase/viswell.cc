@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "uistrings.h"
 #include "zaxistransform.h"
+#include "taskrunner.h"
 
 #include <osg/Switch>
 #include <osg/Node>
@@ -224,7 +225,8 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 	    voiidx_ = zaxistransform_->addVolumeOfInterest( cs, true );
 	else
 	    zaxistransform_->setVolumeOfInterest( voiidx_, cs, true );
-	zaxistransform_->loadDataIfMissing( voiidx_ );
+	zaxistransform_->loadDataIfMissing( voiidx_,
+					    SilentTaskRunnerProvider() );
     }
 
     int ptidx = 0;
@@ -396,7 +398,7 @@ void Well::addMarker( const MarkerParams& mp )
     Text* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
 
-    updateText( 
+    updateText(
 	txt,toUiString( mp.name_ ),&markerpos,mp.font_, mp.nmsizedynamic_ );
 
     return;

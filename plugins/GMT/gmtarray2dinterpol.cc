@@ -55,7 +55,7 @@ uiString GMTArray2DInterpol::message() const
 bool GMTArray2DInterpol::doPrepare( int nrthreads )
 {
     mTryAlloc( nodes_, bool[nrcells_] );
-    getNodesToFill( 0, nodes_, 0 );
+    getNodesToFill( 0, nodes_, SilentTaskRunnerProvider() );
     defundefpath_ =
 	File::Path(GetDataDir(),"Misc","defundefinfo.grd").fullPath();
     BufferString gmtcmd( "@xyz2grd" );

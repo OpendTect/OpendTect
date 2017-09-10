@@ -169,8 +169,9 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	if ( !dlg.go() )
 	    continue;
 
+	uiTaskRunnerProvider trprov( &dlg );
 	EM::EMObject* emobj =
-	    EM::EMM().loadIfNotFullyLoaded( dlg.getBodyMid() );
+	    EM::EMM().loadIfNotFullyLoaded( dlg.getBodyMid(), trprov );
 	if ( emobj )
 	{
 	    emobj->ref();

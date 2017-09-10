@@ -428,9 +428,9 @@ void MPEDisplay::updateMPEActiveVolume()
 
 
 void MPEDisplay::removeSelectionInPolygon( const Selector<Coord3>& selector,
-	TaskRunner* tskr )
+	const TaskRunnerProvider& trprov )
 {
-    engine_.removeSelectionInPolygon( selector, tskr );
+    engine_.removeSelectionInPolygon( selector, trprov );
     manipulated_ = true;
 }
 

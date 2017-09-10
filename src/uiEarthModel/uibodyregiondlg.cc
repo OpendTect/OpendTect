@@ -69,9 +69,10 @@ BodyExtractorFromHorizons( const DBKeySet& hlist,
     , plg_(p)
 {
     res_.setAll( 1 );
+    SilentTaskRunnerProvider tprov;
     for ( int idx=0; idx<hlist.size(); idx++ )
     {
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(hlist[idx]);
+	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(hlist[idx],tprov);
 	mDynamicCastGet(EM::Horizon3D*,hor,emobj);
 	if ( !hor ) continue;
 
@@ -177,9 +178,10 @@ ImplicitBodyRegionExtractor( const DBKeySet& surflist,
     c_[3] = Geom::Point2D<float>( mCast(float,tkzs_.hsamp_.start_.inl()),
 				  mCast(float,tkzs_.hsamp_.stop_.crl()) );
 
+    SilentTaskRunnerProvider tprov;
     for ( int idx=0; idx<surflist.size(); idx++ )
     {
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( surflist[idx] );
+	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(surflist[idx],tprov);
 	mDynamicCastGet( EM::Horizon3D*, hor, emobj );
 	if ( hor )
 	{

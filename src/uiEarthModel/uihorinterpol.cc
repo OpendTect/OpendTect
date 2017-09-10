@@ -159,11 +159,10 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !hor3d )
 	return false;
 
-    uiTaskRunner taskrunner( this );
-
     if ( !savefldgrp_->getNewHorizon() )
 	hor3d->setBurstAlert( true );
 
+    uiTaskRunnerProvider trprov( this );
     uiStringSet errors;
 
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
@@ -173,13 +172,15 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
 	bool usepolygon = false;
 	if ( interpolhor3dsel_ )
-	    usepolygon = interpolhor3dsel_->getPolygonRange( polyinlrg, polycrlrg );
-	
+	    usepolygon = interpolhor3dsel_->getPolygonRange( polyinlrg,
+							     polycrlrg );
+
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
 	uiRetVal rv = HorizonGridder::executeGridding(
 		interpolator.ptr(), hor3d, sid, interpolhor3dsel_->getStep(),
+		trprov,
 		usepolygon ? &polyinlrg : 0,
-		usepolygon ? &polycrlrg : 0, &taskrunner );
+		usepolygon ? &polycrlrg : 0 );
 
 	if ( rv.isError() )
 	    errors += rv;
@@ -237,7 +238,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	for ( int idx=0; idx<arr1d.size(); idx++ )
 	    execgrp.add( interpol1dsel_->getResult(idx) );
 
-	if ( !TaskRunner::execute( &taskrunner, execgrp ) )
+	if ( !taskrunner.execute(execgrp) )
 	{
 	    uiString msg = tr("Cannot interpolate section %1")
 	                 .arg(sid);

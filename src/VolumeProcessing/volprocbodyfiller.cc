@@ -320,7 +320,8 @@ Task* BodyFiller::createTask()
     plgbids_.erase();
     flatpolygon_.setEmpty();
     delete implicitbody_;
-    implicitbody_ = body_->createImplicitBody( 0, false );
+    implicitbody_ = body_->createImplicitBody( SilentTaskRunnerProvider(),
+						false );
 
     if ( implicitbody_ )
 	return Step::createTask();

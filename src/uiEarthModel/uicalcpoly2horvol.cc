@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "uichecklist.h"
 #include "uiseparator.h"
 #include "uistrings.h"
-#include "uitaskrunner.h"
+#include "uitaskrunnerprovider.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "od_helpids.h"
@@ -171,15 +171,11 @@ void uiCalcPolyHorVol::horSel( CallBacker* cb )
     const IOObj* ioobj = horsel_->ioobj( true );
     if ( !ioobj ) return;
 
-    uiTaskRunner taskrunner( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
-							  &taskrunner );
+    uiTaskRunnerProvider trprov( this );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(), trprov);
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( hor )
-    {
-	hor->ref();
-	hor_ = hor;
-    }
+	{ hor->ref(); hor_ = hor; }
 
     haveChg( cb );
 }

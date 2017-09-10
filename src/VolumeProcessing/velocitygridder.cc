@@ -335,14 +335,12 @@ od_int64 VelGriddingFromVolumeTask::nrIterations() const
 
 bool VelGriddingFromVolumeTask::doPrepare( int nrthreads )
 {
+    SilentTaskRunnerProvider trprov;
     for ( int idx=0; idx<nrthreads; idx++ )
     {
 	Gridder2D* gridder = task_.getStep().getGridder()->clone();
-	if ( !gridder->setPoints( task_.definedPts() ) )
-	{
-	    delete gridder;
-	    return false;
-	}
+	if ( !gridder->setPoints(task_.definedPts(),trprov) )
+	    { delete gridder; return false; }
 
 	gridders_ += gridder;
     }
@@ -563,7 +561,7 @@ Task* VelocityGridder::createTask()
     if ( !output || output->isEmpty() || !gridder_ ) return 0;
 
     const TrcKeyZSampling& tkzs = output->sampling();
-    if ( !layermodel_ || !layermodel_->prepare(tkzs) )
+    if ( !layermodel_ || !layermodel_->prepare(tkzs,SilentTaskRunnerProvider()))
 	return 0;
 
     BinIDValueSet valset( 1, true );

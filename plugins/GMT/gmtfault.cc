@@ -222,7 +222,8 @@ bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 {
     DBKey mid;
     get( ODGMT::sKeyHorizonID(), mid );
-    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
+    SilentTaskRunnerProvider trprov;
+    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid, trprov );
     if ( !emobj )
 	return false;
 
@@ -291,13 +292,14 @@ bool GMTFault::loadFaults( uiString& errmsg )
 	return false;
     }
 
+    SilentTaskRunnerProvider trprov;
     for ( int idx=0; idx<fltpar->size(); idx++ )
     {
 	DBKey mid;
 	if ( !fltpar->get( toString(idx), mid ) )
 	    break;
 
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid );
+	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, trprov );
 	mDynamicCastGet(EM::Fault3D*,fault3d,emobj)
 	if ( !fault3d )
 	{

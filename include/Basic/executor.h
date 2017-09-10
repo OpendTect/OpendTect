@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "progressmeter.h"
 #include "notify.h"
-#include "od_iosfwd.h"
 
 /*!
 \brief Specification to enable chunkwise execution of a process.
@@ -113,25 +112,5 @@ protected:
     ObjectSet<Executor>& executors_;
     TypeSet<int>	executorres_;
     bool		ownsexecs_;
-
-};
-
-
-/*!
-\brief TaskRunner to show progress of a Task in text format.
-*/
-
-mExpClass(Basic) TextTaskRunner : public TaskRunner
-{
-public:
-			TextTaskRunner( od_ostream& strm )
-			    : TaskRunner()
-			    , strm_(strm)	{}
-
-    bool		execute(Task&);
-
-protected:
-
-    od_ostream&		strm_;
 
 };

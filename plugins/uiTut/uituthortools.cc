@@ -22,7 +22,7 @@
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uistrings.h"
-#include "uitaskrunner.h"
+#include "uitaskrunnerprovider.h"
 #include "uistrings.h"
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
@@ -125,7 +125,7 @@ bool uiTutHorTools::acceptOK()
 
 #define mGetHor(varnm,fld) \
     RefMan<EM::EMObject> varnm##_emobj = \
-	EM::EMM().loadIfNotFullyLoaded( (fld)->key(), &taskrunner ); \
+	EM::EMM().loadIfNotFullyLoaded( (fld)->key(), trprov ); \
     mDynamicCastGet(EM::Horizon3D*,varnm,varnm##_emobj.ptr()) \
     if ( !varnm ) return false;
 
@@ -141,7 +141,7 @@ bool uiTutHorTools::doThicknessCalc()
     const bool cont = checkAttribName();
     if ( !cont ) return false;
 
-    uiTaskRunner taskrunner( this );
+    uiTaskRunnerProvider trprov( this );
     Tut::ThicknessCalculator* calc = new Tut::ThicknessCalculator;
     const bool top = selfld_->getBoolValue();
     mGetHor( hor1, top ? inpfld_ : inpfld2_ );
@@ -149,11 +149,11 @@ bool uiTutHorTools::doThicknessCalc()
     calc->setHorizons( hor1, hor2 );
     calc->init( attribnamefld_->text() );
 
-    if ( !taskrunner.execute(*calc) )
+    if ( !trprov.execute(*calc) )
 	return false;
 
     PtrMan<Executor> saver = calc->dataSaver();
-    return taskrunner.execute( *saver );
+    return trprov.execute( *saver );
 }
 
 
@@ -162,15 +162,15 @@ bool uiTutHorTools::doSmoother()
     if ( !outfld_->ioobj() )
 	return false;
 
-    uiTaskRunner taskrunner( this );
+    uiTaskRunnerProvider trprov( this );
     Tut::HorSmoother* calc = new Tut::HorSmoother;
     mGetHor( hor, inpfld_ );
     calc->setHorizons( hor );
     calc->setWeak( strengthfld_->getBoolValue() );
 
-    if ( !taskrunner.execute(*calc) )
+    if ( !trprov.execute(*calc) )
 	return false;
 
     PtrMan<Executor> saver = calc->dataSaver( outfld_->key() );
-    return taskrunner.execute( *saver );
+    return trprov.execute( *saver );
 }

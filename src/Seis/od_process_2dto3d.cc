@@ -116,7 +116,7 @@ bool BatchProgram::go( od_ostream& strm )
 	mRetJobErr("Cannot find necessary information in parameter file")
 
     TextStreamProgressMeter progressmeter(strm);
-    TextTaskRunner taskr( strm );
+    LoggedTaskRunner taskr( strm );
 
 	BufferString type;
 	if (!paramspar->get(Seis2DTo3D::sKeyType(), type) || type.isEmpty())

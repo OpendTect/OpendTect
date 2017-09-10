@@ -329,7 +329,8 @@ bool WellLogInterpolator::prepareComp( int )
     if ( !gridder_ )
 	{ errmsg_ = tr("Cannot retrieve gridding method"); return false; }
 
-    if ( !layermodel_ || !layermodel_->prepare(output->sampling()) )
+    if ( !layermodel_ || !layermodel_->prepare(output->sampling(),
+					SilentTaskRunnerProvider()) )
     {
 	errmsg_ = tr("Could not prepare the interpolation model");
 	return false;
@@ -415,7 +416,7 @@ static void addCornerPoints( const Gridder2D& gridder,
 
     TypeSet<Coord> initialpoints( points );
     TypeSet<float> initialvals( vals );
-    invdistgridder.setPoints( initialpoints );
+    invdistgridder.setPoints( initialpoints, SilentTaskRunnerProvider() );
     invdistgridder.setValues( initialvals );
 
     for ( int idx=0; idx<corners.size(); idx++ )
@@ -487,7 +488,8 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	}
 
 	addCornerPoints( *gridder, *invdistgridder, corners, points, logvals );
-	if ( !gridder->setPoints(points) || !gridder->setValues(logvals) )
+	if ( !gridder->setPoints(points,SilentTaskRunnerProvider())
+	  || !gridder->setValues(logvals) )
 	{
 	    outputarray.set( outputinlidx, outputcrlidx, idz, mUdf(float) );
 	    continue;

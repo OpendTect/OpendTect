@@ -226,7 +226,7 @@ public:
 			~FaultTrcDataProvider();
 
     bool		init(const DBKeySet&,const TrcKeySampling&,
-			     TaskRunner* =0);
+			     const TaskRunnerProvider&);
 
     bool		is2D() const		{ return is2d_; }
     int			nrFaults() const;
@@ -249,7 +249,7 @@ public:
 protected:
 
     bool		calcFaultBBox(const EM::Fault&,TrcKeySampling&) const;
-    bool		get2DTraces(const DBKeySet&,TaskRunner*);
+    bool		get2DTraces(const DBKeySet&,const TaskRunnerProvider&);
 
     ObjectSet<FaultTrcHolder>	holders_;
 

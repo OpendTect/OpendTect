@@ -32,7 +32,7 @@ ___________________________________________________________________
 #include "uimsg.h"
 #include "uipixmap.h"
 #include "uistrings.h"
-#include "uitaskrunner.h"
+#include "uitaskrunnerprovider.h"
 #include "uitoolbutton.h"
 #include "uitreeview.h"
 
@@ -319,8 +319,8 @@ bool uiBodyOperatorDlg::acceptOK()
     if ( !emcs->getBodyOperator()->isOK() )
 	mRetErr(tr("Your operator is wrong"))
 
-    uiTaskRunner taskrunner( this );
-    if ( !emcs->regenerateMCBody( &taskrunner ) )
+    uiTaskRunnerProvider trprov( this );
+    if ( !emcs->regenerateMCBody( trprov ) )
 	mRetErr(tr("Generating body failed"))
 
     emcs->setDBKey( outputfld_->key() );
@@ -342,11 +342,12 @@ bool uiBodyOperatorDlg::acceptOK()
 	    mRetErr( uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) )
     }
 
-    TaskRunner::execute( &taskrunner, *exec );
-
-    uiString msg = tr("The body %1 created successfully")
-                 .arg(outputfld_->getInput());
-    uiMSG().message( msg );
+    if ( trprov.execute(*exec) )
+    {
+	uiString msg = tr("The body %1 created successfully")
+		     .arg(outputfld_->getInput());
+	uiMSG().message( msg );
+    }
 
     return false;
 }
@@ -431,15 +432,14 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     if ( !outiobj )
 	return false;
 
-    uiTaskRunner taskrunner( this );
+    uiTaskRunnerProvider trprov( this );
     RefMan<EM::EMObject> emo =
-	EM::EMM().loadIfNotFullyLoaded( inpiobj->key(), &taskrunner );
+	EM::EMM().loadIfNotFullyLoaded( inpiobj->key(), trprov );
     mDynamicCastGet(EM::Body*,emb,emo.ptr());
     if ( !emb )
 	mRetErr( uiStrings::phrCannotRead( uiStrings::sBody()) );
 
-    PtrMan<EM::ImplicitBody> impbd =
-				emb->createImplicitBody( &taskrunner, false );
+    PtrMan<EM::ImplicitBody> impbd = emb->createImplicitBody( trprov, false );
     if ( !impbd || !impbd->arr_ )
 	mRetErr( tr("Creating implicit body failed") );
 
@@ -471,7 +471,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     RefMan<EM::MarchingCubesSurface> emcs =
 	new EM::MarchingCubesSurface( EM::EMM() );
 
-    emcs->surface().setVolumeData( 0, 0, 0, *impbd->arr_, 0, &taskrunner );
+    emcs->surface().setVolumeData( 0, 0, 0, *impbd->arr_, 0, &trprov.runner() );
     emcs->setInlSampling( SamplingData<int>(impbd->tkzs_.hsamp_.inlRange()) );
     emcs->setCrlSampling( SamplingData<int>(impbd->tkzs_.hsamp_.crlRange()) );
     emcs->setZSampling( SamplingData<float>(impbd->tkzs_.zsamp_) );
@@ -494,7 +494,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
 	    mRetErr( uiStrings::phrCannotWriteDBEntry( chgioobj->uiName() ) )
     }
 
-    if ( !TaskRunner::execute(&taskrunner,*exec) )
+    if ( !trprov.execute(*exec) )
 	mRetErr(uiStrings::sSaveBodyFail());
 
     return true;

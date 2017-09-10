@@ -6,11 +6,12 @@
 
 
 #include "paralleltask.h"
+#include "executor.h"
 
 #include "threadwork.h"
 #include "thread.h"
 #include "varlenarray.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "ptrman.h"
 #include "timefun.h"
 #include "uistrings.h"
@@ -569,4 +570,33 @@ bool TaskRunner::execute( TaskRunner* tskr, Task& task )
 	return tskr->execute( task );
 
     return task.execute();
+}
+
+
+bool SilentTaskRunner::execute( Task& t )
+{
+    return (execres_ = t.execute());
+}
+
+
+bool LoggedTaskRunner::execute( Task& tsk )
+{
+    mDynamicCastGet( Executor*, exec, &tsk )
+
+    if ( exec )
+	execres_ = exec->go( strm_ );
+    else
+    {
+	TextStreamProgressMeter progressmeter( strm_ );
+	tsk.setProgressMeter( &progressmeter );
+	execres_ = tsk.execute();
+    }
+
+    return execres_;
+}
+
+
+bool TaskRunnerProvider::execute( const TaskRunnerProvider* trprov, Task& task )
+{
+    return trprov ? trprov->execute( task ) : task.execute();
 }

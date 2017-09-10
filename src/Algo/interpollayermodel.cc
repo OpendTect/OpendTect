@@ -60,7 +60,7 @@ bool InterpolationLayerModel::hasSampling() const
 
 
 bool InterpolationLayerModel::prepare( const TrcKeyZSampling& tkzs,
-				       TaskRunner* )
+				       const TaskRunnerProvider& )
 {
     deepErase( tkss_ );
     tkss_.add( new TrcKeySampling( tkzs.hsamp_ ) );

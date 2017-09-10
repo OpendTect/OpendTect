@@ -237,19 +237,3 @@ uiString ExecutorGroup::nrDoneText() const
 
     return executors_[currentexec_]->nrDoneText();
 }
-
-
-bool TextTaskRunner::execute( Task& t )
-{
-    mDynamicCastGet(Executor*,exec,&t)
-    if ( exec )
-	execres_ = exec->go( strm_ );
-    else
-    {
-	TextStreamProgressMeter progressmeter(strm_);
-	t.setProgressMeter( &progressmeter );
-	execres_ = t.execute();
-    }
-
-    return execres_;
-}

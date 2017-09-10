@@ -41,7 +41,7 @@ public:
 			~EMSurfaceProvider();
     const char*		type() const;	//!< sKey::Surface()
 
-    virtual bool	initialize(TaskRunner* tskr=0);
+    virtual bool	initialize(const TaskRunnerProvider&);
     virtual void	reset();
 
     virtual bool	toNextPos();
@@ -205,7 +205,8 @@ public:
     const char*			factoryKeyword() const { return type(); }
     EMSurface2DProvider3D&	operator =( const EMSurface2DProvider3D& p );
 				//{ copyFrom(p); return *this; }
-    virtual bool		initialize(TaskRunner* tskr=0);
+    virtual bool		initialize(const TaskRunnerProvider&);
+    virtual void		reset();
     Provider*			clone() const
 				{ return new EMSurface2DProvider3D(*this); }
 
@@ -256,8 +257,8 @@ public:
     const char*			type() const		{ return sKey::Body(); }
     const char*			factoryKeyword() const	{ return type(); }
 
-    virtual bool		initialize(TaskRunner* tskr=0);
-    virtual void		reset()			{ initialize(); }
+    virtual bool		initialize(const TaskRunnerProvider&);
+    virtual void		reset();
 
     virtual BinID		curBinID() const	{ return curbid_; }
     virtual float		curZ() const		{ return curz_; }
@@ -323,8 +324,8 @@ public:
     const char*			type() const		{ return "Region3D"; }
     const char*			factoryKeyword() const	{ return type(); }
 
-    virtual bool		initialize(TaskRunner* tskr=0);
-    virtual void		reset()			{ initialize(); }
+    virtual bool		initialize(const TaskRunnerProvider&);
+    virtual void		reset();
 
     virtual BinID		curBinID() const	{ return curbid_; }
     virtual float		curZ() const		{ return curz_; }

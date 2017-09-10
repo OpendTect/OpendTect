@@ -73,7 +73,7 @@ ImplicitBody ImplicitBody::operator =( const ImplicitBody& ib )
 }
 
 
-ImplicitBody* Body::createImplicitBody( TaskRunner*, bool ) const
+ImplicitBody* Body::createImplicitBody( const TaskRunnerProvider&, bool ) const
 { return 0; }
 
 

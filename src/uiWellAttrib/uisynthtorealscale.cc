@@ -41,7 +41,7 @@
 #include "uibutton.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uitaskrunner.h"
+#include "uitaskrunnerprovider.h"
 #include "od_helpids.h"
 
 #define mErrRetBool(s)\
@@ -263,7 +263,7 @@ bool uiSynthToRealScale::getEvent()
 }
 
 
-bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
+bool uiSynthToRealScale::getHorData( TaskRunnerProvider& trprov )
 {
     delete polygon_; polygon_ = 0;
     if ( horizon_ )
@@ -282,7 +282,7 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     if ( !ioobj )
 	return false;
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
-							  &taskr );
+							  trprov );
     mDynamicCastGet(EM::Horizon*,hor,emobj);
     if ( !hor ) return false;
     horizon_ = hor;
@@ -469,8 +469,8 @@ void uiSynthToRealScale::updRealStats()
     if ( !getEvent() )
 	return;
 
-    uiTaskRunner taskrunner( this );
-    if ( !getHorData(taskrunner) )
+    uiTaskRunnerProvider trprov( this );
+    if ( !getHorData(trprov) )
 	return;
 
     if ( is2d_ )
@@ -501,7 +501,7 @@ void uiSynthToRealScale::updRealStats()
 	mErrRet( uirv );
 
     uiSynthToRealScaleRealStatCollector coll( *this, *prov );
-    if ( !TaskRunner::execute( &taskrunner, coll ) )
+    if ( !trprov.execute(coll) )
 	return;
 
     uiHistogramDisplay& histfld = *realstatsfld_->dispfld_;

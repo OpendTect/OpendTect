@@ -11,47 +11,15 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
-#include "gendefs.h"
-#include "uistring.h"
-#include "uiparent.h"
+#include "uiusershowwait.h"
 #include "typeset.h"
+#include "callback.h"
+#include "enums.h"
 class uiMainWin;
-class uiStatusBar;
 class BufferStringSet;
 class FileMultiString;
 class MouseCursorChanger;
 mFDQtclass(QWidget)
-
-
-/*!\brief tells user something is happening.
-
-  Sets mouse cursor and puts something in status bar (if available). Will
-  automatically clean up on destruction.
-
-  Useful when something may take some time but there is no progress or when you
-  can't put it in an Executor.
-
-*/
-
-mExpClass(uiBase) uiUserShowWait
-{
-public:
-
-			uiUserShowWait(const uiParent*,const uiString&,
-					int statusbarfld=0);
-			~uiUserShowWait()		{ readyNow(); }
-
-    void		setMessage(const uiString&);
-    void		readyNow();
-
-protected:
-
-    uiStatusBar*	sb_;
-    MouseCursorChanger*	mcc_;
-    const int		fldidx_;
-
-};
-
 
 
 class uiMsg;

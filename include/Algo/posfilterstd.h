@@ -31,9 +31,7 @@ public:
 			RandomFilter( const RandomFilter& rf )
 			    : passratio_(rf.passratio_)	{}
 
-    bool		initialize( TaskRunner* tskr=0 )
-						    { reset(); return true; }
-    void		reset()				{ initStats(); }
+    virtual void	reset()				{ initStats(); }
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;

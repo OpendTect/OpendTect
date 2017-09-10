@@ -122,13 +122,14 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 }
 
 
-bool EMSurfaceProvider::initialize( TaskRunner* taskr )
+bool EMSurfaceProvider::initialize( const TaskRunnerProvider& trprov )
 {
-    if ( nrSurfaces() == 0 ) return false;
+    if ( nrSurfaces() == 0 )
+	return false;
 
     EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(id1_) );
     if ( !emobj )
-	emobj = EM::EMM().loadIfNotFullyLoaded( id1_, taskr );
+	emobj = EM::EMM().loadIfNotFullyLoaded( id1_, trprov );
     mDynamicCastGet(EM::Surface*,surf1,emobj)
     if ( !surf1 ) return false;
     surf1_ = surf1; surf1_->ref();
@@ -139,7 +140,7 @@ bool EMSurfaceProvider::initialize( TaskRunner* taskr )
     {
 	emobj = EM::EMM().getObject( EM::EMM().getObjectID(id2_) );
 	if ( !emobj )
-	    emobj = EM::EMM().loadIfNotFullyLoaded( id2_, taskr );
+	    emobj = EM::EMM().loadIfNotFullyLoaded( id2_, trprov );
 	mDynamicCastGet(EM::Surface*,surf2,emobj)
 	if ( !surf2 ) return false;
 	surf2_ = surf2; surf2_->ref();
@@ -533,9 +534,16 @@ void EMSurface2DProvider3D::mkDPS( const EM::Surface& s, DataPointSet& dps )
 }
 
 
-bool EMSurface2DProvider3D::initialize( TaskRunner* taskr )
+void EMSurface2DProvider3D::reset()
 {
-    if ( !EMSurfaceProvider::initialize(taskr) || !surf1_ )
+    SilentTaskRunnerProvider trprov;
+    initialize( trprov );
+}
+
+
+bool EMSurface2DProvider3D::initialize( const TaskRunnerProvider& trprov )
+{
+    if ( !EMSurfaceProvider::initialize(trprov) || !surf1_ )
 	return false;
 
     mkDPS( *surf1_, dpssurf1_ );
@@ -655,12 +663,19 @@ void EMImplicitBodyProvider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 { cs = useinside_ ? tkzs_ : bbox_; }
 
 
-bool EMImplicitBodyProvider::initialize( TaskRunner* taskr )
+void EMImplicitBodyProvider::reset()
+{
+    SilentTaskRunnerProvider trprov;
+    initialize( trprov );
+}
+
+
+bool EMImplicitBodyProvider::initialize( const TaskRunnerProvider& trprov )
 {
     if ( !embody_ )
 	return false;
 
-    EM::ImplicitBody* body = embody_->createImplicitBody(taskr,false);
+    EM::ImplicitBody* body = embody_->createImplicitBody(trprov,false);
     if ( !body || !body->arr_ )
     {
 	delete imparr_; imparr_ = 0;
@@ -690,7 +705,10 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
 
     EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(mid) );
     if ( !emobj )
-	emobj = EM::EMM().loadIfNotFullyLoaded( mid );
+    {
+	SilentTaskRunnerProvider trprov;
+	emobj = EM::EMM().loadIfNotFullyLoaded( mid, trprov );
+    }
     mDynamicCastGet(EM::Body*,emb,emobj);
     if ( !emb )
 	return;
@@ -733,7 +751,8 @@ bool EMImplicitBodyProvider::isOK() const
     if ( !initializedbody_ )
     {
 	EMImplicitBodyProvider* ep = const_cast<EMImplicitBodyProvider*>(this);
-	ep->initialize( 0 );
+	SilentTaskRunnerProvider trprov;
+	ep->initialize( trprov );
     }
 
     return imparr_;
@@ -873,7 +892,12 @@ EMRegion3DProvider::~EMRegion3DProvider()
 }
 
 
-bool EMRegion3DProvider::initialize( TaskRunner* )
+void EMRegion3DProvider::reset()
+{
+}
+
+
+bool EMRegion3DProvider::initialize( const TaskRunnerProvider& )
 {
     return true;
 }

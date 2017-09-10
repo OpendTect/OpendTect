@@ -827,7 +827,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 
 void RandomTrackDisplay::createTransformedDataPack(
-				int attrib, TaskRunner* taskr )
+				int attrib, TaskRunner* tskr )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDataPackID( attrib );
@@ -851,7 +851,8 @@ void RandomTrackDisplay::createTransformedDataPack(
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
 		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
-	    datatransform_->loadDataIfMissing( voiidx_, taskr );
+	    ExistingTaskRunnerProvider trprov( tskr );
+	    datatransform_->loadDataIfMissing( voiidx_, trprov );
 	}
 
 	VolumeDataPackZAxisTransformer transformer( *datatransform_ );
@@ -1387,7 +1388,7 @@ bool RandomTrackDisplay::isGeometryLocked() const
 { return lockgeometry_; }
 
 
-SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
+SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* tskr ) const
 {
     RandomTrackDisplay* rtd = new RandomTrackDisplay;
     rtd->setDepthInterval( getDataTraceRange() );
@@ -1396,7 +1397,7 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 	positions += getNodePos( idx );
     rtd->setNodePositions( positions, false );
     rtd->lockGeometry( isGeometryLocked() );
-    rtd->setZAxisTransform( datatransform_, taskr );
+    rtd->setZAxisTransform( datatransform_, tskr );
 
     while ( nrAttribs() > rtd->nrAttribs() )
 	rtd->addAttrib();
@@ -1405,10 +1406,10 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
     {
 	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
 	if ( selspecs ) rtd->setSelSpecs( idx, *selspecs );
-	rtd->setDataPackID( idx, getDataPackID(idx), taskr );
-	rtd->setColTabMapper( idx, getColTabMapper(idx), taskr );
+	rtd->setDataPackID( idx, getDataPackID(idx), tskr );
+	rtd->setColTabMapper( idx, getColTabMapper(idx), tskr );
 	const ColTab::Sequence& colseq = getColTabSequence( idx );
-	rtd->setColTabSequence( idx, colseq, taskr );
+	rtd->setColTabSequence( idx, colseq, tskr );
     }
 
     return rtd;

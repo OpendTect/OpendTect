@@ -282,7 +282,7 @@ void prepareForTransform( int rowidx, Pos::GeomID geomid,
     else if ( voiid>=0 )
 	zaxt_->setVolumeOfInterest( voiid, cs );
 
-    zaxt_->loadDataIfMissing( voiid );
+    zaxt_->loadDataIfMissing( voiid, SilentTaskRunnerProvider() );
 }
 
 

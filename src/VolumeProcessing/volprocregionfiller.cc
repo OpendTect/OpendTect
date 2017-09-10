@@ -50,7 +50,7 @@ void RegionFiller::releaseData()
 bool RegionFiller::prepareComp( int )
 {
 // TODO: region should know about target TrcKeyZSampling
-    return region_.init( 0 );
+    return region_.init( SilentTaskRunnerProvider() );
 }
 
 

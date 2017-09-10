@@ -174,19 +174,19 @@ bool uiGenPosPicksDlg::fillData( Pick::Set& ps )
     if ( !prov )
 	mErrRet(toUiString("Internal: no Pos::Provider"))
 
-    uiTaskRunner taskrunner( this );
-    if ( !prov->initialize( &taskrunner ) )
+    uiTaskRunnerProvider trprov( this );
+    if ( !prov->initialize( trprov ) )
 	return false;
 
     uiUserShowWait usw( this, uiStrings::sCollectingData() );
     IOPar iop; posfiltfld_->fillPar( iop );
     PtrMan<Pos::Filter> filt = Pos::Filter::make( iop, prov->is2D() );
-    if ( filt && !filt->initialize(&taskrunner) )
+    if ( filt && !filt->initialize(trprov) )
 	return false;
 
     RefMan<DataPointSet> dps = new DataPointSet( prov->is2D() );
     if ( !dps->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
-				 &taskrunner) )
+				 &trprov.runner()) )
 	return false;
     usw.readyNow();
 

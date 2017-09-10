@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uimsg.h"
+#include "uiusershowwait.h"
 #include "uiwaveletsel.h"
 
 
@@ -121,7 +121,7 @@ void uiWaveletMatchDlg::filterSzCB( CallBacker* )
 }
 
 
-static void solveAxb( int sz, float* a, float* b, float* x )
+static void solveAxb( int sz, float* a, float* b, float* x, uiParent* p, uiString s )
 {
     Array2DImpl<float> A( sz, sz );
     A.setAll( 0 );
@@ -136,7 +136,8 @@ static void solveAxb( int sz, float* a, float* b, float* x )
     }
 
     LinSolver<float> ls( A );
-    if ( ls.init() )
+    uiUSWTaskRunnerProvider trprov( p, s );
+    if ( ls.init(trprov) )
 	ls.apply( b, x );
 }
 
@@ -174,7 +175,7 @@ bool uiWaveletMatchDlg::calcFilter()
     outputwvlt_.setCenterSample( filtersz2 );
     TypeSet<float> samps; outputwvlt_.getSamples( samps );
     float* psamps = samps.arr();
-    solveAxb( filtersz, autoref, crossref, psamps );
+    solveAxb( filtersz, autoref, crossref, psamps, this, tr("Calulating filter") );
     outputwvlt_.setSamples( samps );
 
     Interval<float> intv( -(float)filtersz2, (float)filtersz2 );

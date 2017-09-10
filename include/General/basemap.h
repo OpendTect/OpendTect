@@ -25,7 +25,7 @@ namespace OD
 
 
 class MouseEvent;
-class TaskRunner;
+class TaskRunnerProvider;
 template <class T> class ODPolygon;
 
 /*!Object that can be painted in a basemap. */
@@ -104,8 +104,8 @@ public:
     virtual void		getMousePosInfo(Coord3&,TrcKey&,float& val,
 						BufferString& info) const     {}
 
-    virtual bool		fillPar(IOPar&) const;
-    virtual bool		usePar(const IOPar&,TaskRunner* taskr=0);
+    bool			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&,const TaskRunnerProvider&);
 
     CNotifier<BaseMapObject,const MouseEvent&>	leftClicked;
     CNotifier<BaseMapObject,const MouseEvent&>	rightClicked;
@@ -115,9 +115,15 @@ public:
     CNotifier<BaseMapObject,const uiString&>	nameChanged;
 
 protected:
+
     int				depth_;
     int				id_;
     BufferString		typenm_;
+
+    virtual bool		doFillPar( IOPar& ) const		= 0;
+    virtual bool		doUsePar( const IOPar&, const TaskRunnerProvider& )
+									= 0;
+
 };
 
 static OD::ViewerTypeID theViewerBasemapTypeID( OD::ViewerTypeID::get(2) );
@@ -127,9 +133,9 @@ mExpClass(General) BaseMap : public OD::PresentationManagedViewer
 {
 public:
 
-    				BaseMap();
+				BaseMap();
     OD::ViewerTypeID		viewerTypeID() const
-    				{ return theViewerTypeID(); }
+				{ return theViewerTypeID(); }
     static OD::ViewerTypeID	theViewerTypeID()
 				{ return theViewerBasemapTypeID; }
     virtual void		addObject(BaseMapObject*)		= 0;

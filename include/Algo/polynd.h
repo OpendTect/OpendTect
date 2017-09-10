@@ -226,7 +226,7 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 	} while ( positer.next() );
 
 	solver = new LinSolver<T>( poscoeffs );
-	if ( !solver->init() )
+	if ( !solver->init(SilentTaskRunnerProvider()) )
 	    return false;
     }
 

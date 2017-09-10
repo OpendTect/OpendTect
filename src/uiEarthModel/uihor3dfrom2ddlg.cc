@@ -113,10 +113,10 @@ bool uiHor3DFrom2DDlg::acceptOK()
     if ( !interpolator )
 	mErrRet( toUiString("Cannot create interpolator") );
 
-    uiTaskRunner taskrunner( this );
+    uiTaskRunnerProvider trprov( this );
     //Takes over interpolator
-    EM::Hor2DTo3D converter( hor2d_, interpolator, *hor3d_, &taskrunner );
-    bool rv = TaskRunner::execute( &taskrunner, converter );
+    EM::Hor2DTo3D converter( hor2d_, interpolator, *hor3d_, trprov );
+    bool rv = trprov.execute( converter );
 
 #undef mErrRet
     if ( !rv ) return false;
@@ -125,7 +125,7 @@ bool uiHor3DFrom2DDlg::acceptOK()
     if ( !exec )
 	return false;
 
-    rv = TaskRunner::execute( &taskrunner, *exec );
+    rv = trprov.execute( *exec );
     if ( rv )
 	selid_ = ioobj->key();
     return rv;

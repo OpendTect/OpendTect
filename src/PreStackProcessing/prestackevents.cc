@@ -662,10 +662,12 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 		emhorizons_.replace( horidx, 0 );
 	    }
 
+	    SilentTaskRunnerProvider tprov;
 	    RefMan<EM::EMObject> emobj =
-		EM::EMM().loadIfNotFullyLoaded( horrefs_[horidx] );
+		EM::EMM().loadIfNotFullyLoaded( horrefs_[horidx], tprov );
 	    mDynamicCastGet( EM::Horizon3D*, hor, emobj.ptr() );
-	    if ( !hor ) return false;
+	    if ( !hor )
+		return false;
 
 	    hor->ref();
 	    emhorizons_.replace( horidx, hor );

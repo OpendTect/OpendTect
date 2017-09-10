@@ -1279,7 +1279,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     BIDValSetArrAdapter adapter( bivs, cid, step );
 
     PtrMan<Task> changer;
-    uiTaskRunner execdlg( parent() );
+    uiTaskRunnerProvider trprov( parent() );
     if ( interpolate )
     {
         uiSingleGroupDlg<uiArray2DInterpolSel> dlg( parent(),
@@ -1321,7 +1321,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	    interp->setMask( mask, OD::TakeOverPtr );
 	}
 
-	if ( !interp->setArray( adapter, &execdlg ) )
+	if ( !interp->setArray( adapter, trprov ) )
 	    return false;
     }
     else
@@ -1334,7 +1334,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	changer = filter;
     }
 
-    if ( !TaskRunner::execute( &execdlg, *changer ) )
+    if ( !trprov.execute( *changer ) )
 	return false;
 
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())

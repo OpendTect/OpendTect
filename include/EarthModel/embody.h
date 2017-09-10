@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "samplingdata.h"
 
-class TaskRunner;
+class TaskRunnerProvider;
 
 /*!\brief Earth Model objects like horizons, faults, fault-sticks and bodies.*/
 
@@ -49,7 +49,7 @@ mExpClass(EarthModel) Body
 {
 public:
 
-    virtual ImplicitBody*	createImplicitBody(TaskRunner*,
+    virtual ImplicitBody*	createImplicitBody(const TaskRunnerProvider&,
 						   bool smooth) const;
     virtual const char*		type() const = 0;
 
