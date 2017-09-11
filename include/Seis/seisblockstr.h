@@ -35,7 +35,7 @@ public:
     virtual bool	skip(int);
     virtual bool	supportsGoTo() const		{ return true; }
     virtual bool	goTo(const BinID&);
-    virtual bool	isUserSelectable(bool) const	{ return true; }
+    virtual bool	isUserSelectable(bool forread) const	{ return forread; }
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
 
     virtual void	usePar(const IOPar&);
