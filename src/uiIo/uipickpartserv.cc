@@ -75,7 +75,7 @@ void uiPickPartServer::survChangedCB( CallBacker* )
 void uiPickPartServer::managePickSets()
 {
     delete manpicksetsdlg_;
-    manpicksetsdlg_ = new uiPickSetMan( parent() );
+    manpicksetsdlg_ = new uiPickSetMan( parent(), dgbPickSetTranslator::translKey() );
     manpicksetsdlg_->go();
 }
 

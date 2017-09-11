@@ -27,8 +27,19 @@ ________________________________________________________________________
 
 mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 
+static IOObjContext getIOObjContext( const char* fixedtrkey )
+{
+    IOObjContext ctxt = mIOObjContext( PickSet );
+    if ( fixedtrkey )
+	ctxt.fixTranslator( fixedtrkey );
 
-uiPickSetMan::uiPickSetMan( uiParent* p )
+    BufferString types = sKey::PickSet();
+    types.add( "`" ).add( sKey::Polygon() ).add( "`" );
+    ctxt.toselect_.require_.set( sKey::Type(), types.buf() );
+    return ctxt;
+}
+
+uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
     : uiObjFileMan(p,uiDialog::Setup(
              uiStrings::phrManage( toUiString("%1/%2")
                 .arg( uiStrings::sPickSet(mPlural) )
@@ -36,7 +47,7 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
              mNoDlgTitle,
              mODHelpKey(mPickSetManHelpID) )
                  .nrstatusflds(1).modal(false),
-	           PickSetTranslatorGroup::ioContext())
+			getIOObjContext(fixedtrkey))
 {
     createDefaultUI();
     mergebut_ = selgrp_->getManipGroup()->addButton( "mergepicksets",

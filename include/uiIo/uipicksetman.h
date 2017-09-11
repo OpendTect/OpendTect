@@ -22,7 +22,7 @@ class uiToolButton;
 mExpClass(uiIo) uiPickSetMan : public uiObjFileMan
 { mODTextTranslationClass(uiPickSetMan);
 public:
-    				uiPickSetMan(uiParent*);
+    				uiPickSetMan(uiParent*,const char* fixedtrkey=0);
 				~uiPickSetMan();
 
     mDeclInstanceCreatedNotifierAccess(uiPickSetMan);
