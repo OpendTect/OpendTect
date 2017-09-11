@@ -55,8 +55,8 @@ mDefineEnumUtils( uiCreatePicks, TimeType, "TimeType" )
 uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
 								bool zvalreq )
     : uiDialog(p,uiDialog::Setup(
-			aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
-			       : uiStrings::phrCreateNew(uiStrings::sPointSet()),
+		aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
+		       : uiStrings::phrCreateNew(uiStrings::sPointSet()),
 			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
     , aspolygon_(aspoly)
     , iszvalreq_(zvalreq)
@@ -70,7 +70,7 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
 {
     nmfld_ = new uiGenInput( this,
 		tr("Name for new %1").arg(aspolygon_ ? uiStrings::sPolygon() :
-						       uiStrings::sPointSet()) );
+					      uiStrings::sPointSet()) );
     colsel_ = new uiColorInput( this,
 			      uiColorInput::Setup(getRandStdDrawColor()).
 			      lbltxt(uiStrings::sColor()) );
@@ -108,7 +108,10 @@ bool uiCreatePicks::acceptOK( CallBacker* )
     if ( iszvalreq_ )
     {
 	const int selid = zvaltypfld_->getIntValue();
-	zvaltyp_ = DepthTypeDef().getEnumForIndex(selid);
+	if ( SI().zDomain().isDepth() )
+	    zdepthvaltyp_ = DepthTypeDef().getEnumForIndex(selid);
+	else
+	    ztimevaltyp_ = TimeTypeDef().getEnumForIndex(selid);
 	if ( !calcZValAccToSurvDepth() )
 	    return false;
     }
@@ -121,20 +124,22 @@ bool uiCreatePicks::calcZValAccToSurvDepth()
 {
     float zval = zvalfld_->getFValue();
     StepInterval<float> zrg = SI().zRange(false);
+    if ( SI().zDomain().isTime() )
+	zrg.scale( (float)(SI().zDomain().userFactor()) );
     if ( SI().zDomain().isDepth() )
     {
-	if ( SI().zInMeter() && zvaltyp_ == Feet )
+	if ( SI().zInMeter() && zdepthvaltyp_ == Feet )
 	    zval_ = mFromFeetFactorF*zval;
-	else if ( SI().zInFeet() && zvaltyp_ == Meter )
+	else if ( SI().zInFeet() && zdepthvaltyp_ == Meter )
 	    zval_ = zval/mFromFeetFactorF;
 	else
 	    zval_ = zval;
     }
     else
     {
-	if ( (int)zvaltyp_ == (int)MilliSeconds )
+	if ( (int)ztimevaltyp_ == (int)MilliSeconds )
 	    zval_ = zval/1000;
-	else if ( (int)zvaltyp_ == (int)MicroSeconds )
+	else if ( (int)ztimevaltyp_ == (int)MicroSeconds )
 	    zval_ = zval/1000000;
 	else
 	    zval_ = zval;

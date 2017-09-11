@@ -65,7 +65,8 @@ public:
     virtual Pick::Set*	getPickSet() const;	//!< Set is yours
     float		getZVal() { return zvalfld_->getFValue(); }
     float		getZValInSurvUnit() { return zval_; }
-    DepthType		getZValType() { return zvaltyp_; }
+    DepthType		getDepthZValType() { return zdepthvaltyp_; }
+    TimeType		getTimeZValType()  { return ztimevaltyp_; }
 protected:
 
     uiGenInput*		nmfld_;
@@ -82,7 +83,8 @@ protected:
     virtual void	addStdFields(uiObject* lastobj=0);
     bool		iszvalreq_;
     float		zval_;
-    DepthType		zvaltyp_;
+    DepthType		zdepthvaltyp_;
+    TimeType		ztimevaltyp_;
 
 };
 
