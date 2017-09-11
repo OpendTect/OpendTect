@@ -114,6 +114,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , manbodydlg_(0)
     , impbulkfltdlg_(0)
     , impbulkfssdlg_(0)
+    , impbulk2dhordlg_(0)
 {
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
@@ -131,6 +132,7 @@ uiEMPartServer::~uiEMPartServer()
     delete crhordlg_;
     delete impbulkfltdlg_;
     delete impbulkfssdlg_;
+    delete impbulk2dhordlg_;
 }
 
 
@@ -152,6 +154,7 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete manbodydlg_; manbodydlg_ = 0;
     delete crhordlg_; crhordlg_ = 0;
     delete impbulkfssdlg_; impbulkfssdlg_ = 0;
+    delete impbulk2dhordlg_; impbulk2dhordlg_ = 0;
     deepErase( variodlgs_ );
 }
 
@@ -248,6 +251,17 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 }
 
 
+bool uiEMPartServer::importBulk2DHorizon()
+{
+    if ( !impbulk2dhordlg_ )
+	impbulk2dhordlg_ = new uiBulk2DHorizonImport( parent() );
+    else
+	impbulk2dhordlg_->raise();
+
+    return impbulk2dhordlg_->go();
+}
+
+
 void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
     MultiID mid = MultiID::udf();
@@ -273,21 +287,18 @@ void uiEMPartServer::importReadyCB( CallBacker* cb )
 }
 
 
-bool uiEMPartServer::export2DHorizon()
+bool uiEMPartServer::export2DHorizon( bool bulk )
 {
     ObjectSet<SurfaceInfo> hinfos;
     getAllSurfaceInfo( hinfos, true );
-    uiExport2DHorizon dlg( parent(), hinfos );
+    uiExport2DHorizon dlg( parent(), hinfos, bulk );
     return dlg.go();
 }
 
 
-bool uiEMPartServer::export3DHorizon()
+bool uiEMPartServer::export3DHorizon( bool bulk )
 {
-    if ( exphordlg_ )
-	exphordlg_->raise();
-    else
-	exphordlg_ = new uiExportHorizon( parent() );
+    exphordlg_ = new uiExportHorizon( parent(), bulk );
 
     return exphordlg_->go();
 }
@@ -296,8 +307,8 @@ bool uiEMPartServer::export3DHorizon()
 bool uiEMPartServer::importBulkFaults()
 {
     if ( !impbulkfltdlg_ )
-	impbulkfltdlg_ = new uiBulkFaultImport( parent(),
-				    EMFault3DTranslatorGroup::sGroupName() );
+	impbulkfltdlg_ = new uiBulkFaultImport( parent() );//,
+				    //EMFault3DTranslatorGroup::sGroupName() );
 
     return impbulkfltdlg_->go();
 }
@@ -356,8 +367,7 @@ bool uiEMPartServer::importBulkFaultStickSet( bool is2d )
 {
     if ( !impbulkfssdlg_ )
 	impbulkfssdlg_ =
-	    new uiBulkFaultImport( parent(),
-			EMFaultStickSetTranslatorGroup::sGroupName(), is2d );
+	    new uiBulkFaultImport( parent() );
 
     return impbulkfssdlg_->go();
 }
@@ -369,18 +379,18 @@ void uiEMPartServer::importBulk2DFaultStickset()
 }
 
 
-bool uiEMPartServer::exportFault( bool issingle )
+bool uiEMPartServer::exportFault( bool bulk )
 {
     expfltdlg_ = new uiExportFault( parent(),
-			    EMFault3DTranslatorGroup::sGroupName(), issingle);
+			    EMFault3DTranslatorGroup::sGroupName(), bulk);
     return expfltdlg_->go();
 }
 
 
-bool uiEMPartServer::exportFaultStickSet( bool issingle )
+bool uiEMPartServer::exportFaultStickSet( bool bulk )
 {
     expfltstickdlg_ = new uiExportFault( parent(),
-		    EMFaultStickSetTranslatorGroup::sGroupName(), issingle );
+		    EMFaultStickSetTranslatorGroup::sGroupName(), bulk );
     return expfltstickdlg_->go();
 }
 

@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "uiapplserv.h"
 #include "uistring.h"
+#include "uibulk2dhorizonimp.h"
 
 
 class BinIDValueSet;
@@ -62,16 +63,17 @@ public:
 			// Services
     bool		import3DHorGeom(bool bulk=false);
     bool		import3DHorAttr();
-    bool		export3DHorizon();
-    bool		export2DHorizon();
+    bool		export3DHorizon(bool bulk=false);
+    bool		export2DHorizon(bool bulk=false);
     bool		importFault();
     bool		importBulkFaults();
     bool		importFaultStickSet();
     bool		importBulkFaultStickSet(bool is2d=false);
     void		import2DFaultStickset();
     void		importBulk2DFaultStickset();
-    bool		exportFault(bool single=true);
-    bool		exportFaultStickSet(bool single=true);
+    bool		importBulk2DHorizon();
+    bool		exportFault(bool bulk=false);
+    bool		exportFaultStickSet(bool bulk=false);
     void		createHorWithConstZ(bool is2d);
 
     MultiID		getStorageID(const EM::ObjectID&) const;
@@ -214,8 +216,10 @@ protected:
     uiExportFault*	expfltstickdlg_;
     uiCreateHorizon*	crhordlg_;
     uiBulkFaultImport*	impbulkfssdlg_;
+    uiBulk2DHorizonImport* impbulk2dhordlg_;
 
-    TrcKeySampling		selectedrg_;
+
+    TrcKeySampling	selectedrg_;
     bool		disponcreation_;
 
     ObjectSet<uiVariogramDisplay>	variodlgs_;

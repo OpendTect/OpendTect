@@ -206,11 +206,11 @@ int Horizon2DScanner::nextStep()
 	return Executor::ErrorOccurred();
 
     const bool isspnr = !ascio_->isTraceNr();
-    if ( !mIsUdf(nr) )
+    int othernr=0;
+
+    if ( !mIsUdf(nr) && !isspnr )
     {
-	int othernr;
-	const bool res = isspnr ? curlinegeom_->getPosBySPNr(nr,crd,othernr)
-				: curlinegeom_->getPosByTrcNr(nr,crd,othernr);
+	const bool res = curlinegeom_->getPosByTrcNr(nr,crd,othernr);
 	if ( !res )
 	    return Executor::MoreToDo();
     }

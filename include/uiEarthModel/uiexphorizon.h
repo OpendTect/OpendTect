@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "fixedstring.h"
+#include "uiioobjselgrp.h"
 
 class uiFileInput;
 class uiGenInput;
@@ -28,7 +29,7 @@ class uiT2DConvSel;
 mExpClass(uiEarthModel) uiExportHorizon : public uiDialog
 { mODTextTranslationClass(uiExportHorizon);
 public:
-			uiExportHorizon(uiParent*);
+			uiExportHorizon(uiParent*,bool isbulk=false);
 			~uiExportHorizon();
 
 
@@ -43,6 +44,7 @@ protected:
     uiUnitSel*		unitsel_;
     uiGenInput*		udffld_;
     uiT2DConvSel*	transfld_;
+    uiIOObjSelGrp*	bulkinfld_;
 
     BufferString	gfname_;
     BufferString	gfcomment_;
@@ -55,6 +57,9 @@ protected:
     void		inpSel(CallBacker*);
     void		writeHeader(od_ostream&);
     bool		writeAscii();
+    bool		getInputMIDs(TypeSet<MultiID>&);
+
+    bool		isbulk_;
 
     FixedString		getZDomain() const;
 };

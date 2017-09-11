@@ -1,24 +1,24 @@
-#ifndef uibulkfaultimp_h
-#define uibulkfaultimp_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Nanne Hemstra
- * DATE     : May 2012
+ * AUTHOR   : Prajjaval Singh
+ * DATE     : July 2017
 -*/
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
+#include "uigeninput.h"
 
 class uiFileInput;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
 
-mExpClass(uiEarthModel) uiBulkFaultImport : public uiDialog
-{ mODTextTranslationClass(uiBulkFaultImport);
+mExpClass(uiEarthModel) uiBulk2DHorizonImport : public uiDialog
+{ mODTextTranslationClass(uiBul2DHorizonImport);
 public:
-			uiBulkFaultImport(uiParent*);
-			~uiBulkFaultImport();
+			uiBulk2DHorizonImport(uiParent*);
+			~uiBulk2DHorizonImport();
 
 protected:
 
@@ -26,8 +26,7 @@ protected:
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
+    uiGenInput*		udftreatfld_;
     Table::FormatDesc*	fd_;
-    bool		isfss_;
-};
 
-#endif
+};

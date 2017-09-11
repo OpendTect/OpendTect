@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
+#include "uiioobjselgrp.h"
 class SurfaceInfo;
 class uiListBox;
 class uiComboBox;
@@ -29,7 +30,8 @@ mExpClass(uiEarthModel) uiExport2DHorizon : public uiDialog
 { mODTextTranslationClass(uiExport2DHorizon);
 public:
 			uiExport2DHorizon(uiParent*,
-					  const ObjectSet<SurfaceInfo>&);
+					  const ObjectSet<SurfaceInfo>&,
+					  bool isbulk=true);
 			~uiExport2DHorizon();
 
 
@@ -48,6 +50,12 @@ protected:
     void		horChg(CallBacker*);
     bool		doExport();
     void		writeHeader(od_ostream&);
+protected:
+
+    uiIOObjSelGrp*	bulkinfld_;
+
+    bool		isbulk_;
+    bool		getInputMultiIDs(TypeSet<MultiID>&);
 };
 
 

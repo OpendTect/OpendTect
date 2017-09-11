@@ -188,12 +188,18 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emattrserv_->import2DHorizon();
 	    else if ( opt == 3 )
 		am_.emserv_->import3DHorGeom( true );
+	    else if ( opt == 4 )
+		am_.emserv_->importBulk2DHorizon();
 	    break;
 	mCase(Exp):
 	    if ( opt == 0 )
 		am_.emserv_->export3DHorizon();
 	    else if ( opt == 1 )
 		am_.emserv_->export2DHorizon();
+	    else if ( opt == 2 )
+		am_.emserv_->export3DHorizon(true);
+	    else if ( opt == 3 )
+		am_.emserv_->export2DHorizon(true);
 	    break;
 	mCase(Man):
 	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;

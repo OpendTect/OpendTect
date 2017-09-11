@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "emhorizonascio.h"
 #include "od_helpids.h"
+#include "randcolor.h"
 
 #include <math.h>
 
@@ -384,6 +385,8 @@ bool uiImportHorizon2D::doImport()
 	    if ( ioobj )
 		hor->setMultiID( ioobj->key() );
 
+	    hor->setPreferredColor(getRandomColor());
+
 	    hor->ref();
 	    hor->setBurstAlert( true );
 	    horizons += hor;
@@ -417,8 +420,11 @@ bool uiImportHorizon2D::doImport()
 	    if ( !uiMSG().askOverwrite(msg) )
 		mDeburstRet( false, unRef );
 	}
+	hor->setPreferredColor(getRandomColor());
 
 	hor->ref();
+	Color clr = getRandomColor();
+
 	horizons += hor;
 	if ( !hor->hasBurstAlert() )
 	    hor->setBurstAlert( true );
