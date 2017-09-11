@@ -82,7 +82,7 @@ int nextStep()
 
     bvalset_->get( pos_, bid, vals );
     if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
-    const int idx = geomids_.size() > bid.inl() ? bid.inl() : 0;
+
     const Pos::GeomID geomid = bid.inl();
 
     if ( bid.inl() != prevlineidx_ )
@@ -368,7 +368,6 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     ObjectSet<EM::Horizon2D> hor2ds;
     EM::EMManager& em = EM::EMM();
     EM::Horizon2D* hor(0);
-    bool saveit = true;
     PtrMan<IOObj> existioobj(0);
     BufferStringSet existinghornms;
     for ( int idx=0; idx<hornmset.size(); idx++ )
