@@ -15,6 +15,7 @@ SET(OD_MODULE_SOURCES
 	uibodyoperatordlg.cc
 	uibulkfaultimp.cc
 	uibulkhorizonimp.cc
+	uibulk2dhorizonimp.cc
 	uicalcpoly2horvol.cc
 	uichangesurfacedlg.cc
 	uicreatehorizon.cc
