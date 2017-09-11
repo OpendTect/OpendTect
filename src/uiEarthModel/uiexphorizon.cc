@@ -118,7 +118,6 @@ write3DHorASCII::write3DHorASCII(od_ostream& stream,const EM::Horizon3D* hor,
     const EM::SectionID sectionid = hor->sectionID( sectionidx );
     it_ = hor->createIterator( sectionid );
     maxsize_ = it_->maximumSize();
-    int i = 0;
 }
 
 
@@ -289,7 +288,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     unitsel_ = new uiUnitSel( this, "Z Unit" );
     unitsel_->attach( alignedBelow, transfld_ );
 
-    headerfld_ = new uiGenInput( this, tr("Header"), 
+    headerfld_ = new uiGenInput( this, tr("Header"),
                                  StringListInpSpec(hdrtyps) );
     headerfld_->attach( alignedBelow, unitsel_ );
 
@@ -517,7 +516,6 @@ bool uiExportHorizon::writeAscii()
 	}
 
 	const int nrattribs = hor->auxdata.nrAuxData();
-	const bool writemultiple = sections.size() > 1;
 	for ( int sidx=0; sidx<sections.size(); sidx++ )
 	{
 	    BufferString dispstr("Writing Horizon ");
