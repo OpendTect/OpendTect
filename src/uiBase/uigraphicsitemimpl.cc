@@ -930,6 +930,11 @@ void uiMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
 }
 
 
+const MarkerStyle2D* uiMarkerItem::getMarkerStyle()
+{
+    return qmarkeritem_->getMarkerStyle();
+}
+
 void uiMarkerItem::setFill( bool fill )
 {
     qmarkeritem_->setFill( fill );

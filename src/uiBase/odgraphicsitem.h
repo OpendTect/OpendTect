@@ -81,6 +81,7 @@ public:
     void			setSideLength( int side ) { side_ = side; }
 
     virtual int			type() const	{ return ODGraphicsType+2; }
+    const MarkerStyle2D*	getMarkerStyle() { return mstyle_; }
 
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);

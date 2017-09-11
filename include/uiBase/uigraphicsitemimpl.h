@@ -345,6 +345,7 @@ public:
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill(bool);
     void			setFillColor(const Color&,bool withalpha=false);
+    const MarkerStyle2D*	getMarkerStyle();
 
 protected:
 
