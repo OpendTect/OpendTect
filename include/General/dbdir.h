@@ -78,7 +78,7 @@ public:
     static ChangeType	cEntryRemoved()		{ return 5; }
 
 private:
-    
+
     bool		isok_;
     ObjectSet<IOObj>	objs_;
     const DirID		dirid_;

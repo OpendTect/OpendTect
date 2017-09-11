@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
-#include "namedobj.h"
+#include "namedmonitorable.h"
 #include "enums.h"
 #include "position.h"
 #include "uistring.h"
