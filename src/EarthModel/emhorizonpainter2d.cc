@@ -70,6 +70,14 @@ void HorizonPainter2D::setGeomID( Pos::GeomID geomid )
 }
 
 
+void HorizonPainter2D::setLine2DInterSectionSet( const Line2DInterSectionSet*
+							ln2dintersectionset )
+{
+    if ( ln2dintersectionset )
+	intsectset_ = *ln2dintersectionset;
+}
+
+
 void HorizonPainter2D::paint()
 {
     abouttorepaint_.trigger();

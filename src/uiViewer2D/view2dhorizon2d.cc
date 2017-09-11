@@ -43,6 +43,7 @@ Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* win,
 void Vw2DHorizon2D::setEditors()
 {
     deepErase( horeds_ );
+
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
@@ -59,6 +60,7 @@ void Vw2DHorizon2D::setEditors()
 	MPE::HorizonFlatViewEditor2D* hored =
 	    new MPE::HorizonFlatViewEditor2D(
 	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
+	hored->setLine2DInterSectionSet( line2dintersectionset_ );
 	horeds_ += hored;
     }
 }
@@ -132,6 +134,7 @@ void Vw2DHorizon2D::draw()
 	    dists += mCast(float,regfdp->posData().position(true,idx));
 	}
 
+	horeds_[ivwr]->setLine2DInterSectionSet( line2dintersectionset_ );
 	horeds_[ivwr]->paint();
 	horeds_[ivwr]->enableSeed( trackerenbed );
 	horeds_[ivwr]->enableIntersectionMarker( true );

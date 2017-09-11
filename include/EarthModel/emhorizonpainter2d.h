@@ -68,6 +68,9 @@ public:
 
     Notifier<HorizonPainter2D>	abouttorepaint_;
     Notifier<HorizonPainter2D>	repaintdone_;
+    void		setLine2DInterSectionSet(const Line2DInterSectionSet*);
+    const Line2DInterSectionSet* getLine2DInterSectionSet()
+					    { return &intsectset_; }
 
 protected:
 

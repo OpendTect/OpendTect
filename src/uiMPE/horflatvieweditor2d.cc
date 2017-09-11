@@ -181,6 +181,7 @@ bool HorizonFlatViewEditor2D::seedEnable() const
 
 void HorizonFlatViewEditor2D::paint()
 {
+    horpainter_->setLine2DInterSectionSet( line2dintersectionset_ );
     horpainter_->paint();
     fillAuxInfoContainer();
 }

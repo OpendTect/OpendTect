@@ -336,6 +336,8 @@ uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
 
 bool uiODVw2DHor2DTreeItem::init()
 {
+    const Line2DInterSectionSet* intersectionset =
+			ODMainWin()->viewer2DMgr().getLine2DInterSectionSet();
     EM::EMObject* emobj = 0;
     if ( displayid_ < 0 )
     {
@@ -386,6 +388,8 @@ bool uiODVw2DHor2DTreeItem::init()
 
     if ( viewer2D()->geomID() != Survey::GeometryManager::cUndefGeomID() )
 	horview_->setGeomID( viewer2D()->geomID() );
+
+    horview_->setLine2DInterSectionSet( intersectionset );
 
     horview_->draw();
 

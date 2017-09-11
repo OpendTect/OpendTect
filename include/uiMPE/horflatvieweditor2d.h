@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "emposid.h"
 #include "flatview.h"
+#include "geom2dintersections.h"
 
 class FlatDataPack;
 class MouseEvent;
@@ -60,6 +61,11 @@ public:
 			{ trackersetupactive_ = yn; }
     static bool		selectSeedData(const FlatView::AuxDataEditor* editor, 
 							      bool& pickinvd);
+    void		setLine2DInterSectionSet(const Line2DInterSectionSet*
+							ln2dintersectionset)
+			{ line2dintersectionset_ = ln2dintersectionset; }
+    const Line2DInterSectionSet* getLine2DInterSectionSet()
+					    { return line2dintersectionset_; }
 
     Notifier<HorizonFlatViewEditor2D> updseedpkingstatus_;
 
@@ -128,6 +134,7 @@ protected:
     FlatView::AuxData*		patchdata_;
     TypeSet<EM::PosID>		pointselections_;
     bool			sowingmode_;
+    const Line2DInterSectionSet*	line2dintersectionset_;
 
 };
 

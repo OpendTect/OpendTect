@@ -854,6 +854,7 @@ void HorizonFlatViewEditor3D::cleanAuxInfoContainer()
 
 void HorizonFlatViewEditor3D::fillAuxInfoContainer()
 {
+    cleanAuxInfoContainer();
     ObjectSet<EM::HorizonPainter3D::Marker3D> disphormrkinfos;
     horpainter_->getDisplayedHor( disphormrkinfos );
 
