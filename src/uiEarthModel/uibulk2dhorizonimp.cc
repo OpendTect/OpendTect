@@ -329,7 +329,6 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	    linenmset.addIfNew(linenm);
 
 	trnrset.add(trnr);
-	const int hidx = hornmset.indexOf( hornm );
 	if ( !bidvs || (prevhornm != hornm) )
 	    bidvs = new BinIDValueSet( 1, true );
 
@@ -367,7 +366,6 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     uiTaskRunner dlg( this );
     ObjectSet<EM::Horizon2D> hor2ds;
     EM::EMManager& em = EM::EMM();
-    EM::Horizon2D* hor(0);
     PtrMan<IOObj> existioobj(0);
     BufferStringSet existinghornms;
     for ( int idx=0; idx<hornmset.size(); idx++ )
