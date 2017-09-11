@@ -119,6 +119,9 @@ public:
     static const char*		sKeyAttrID()		{ return "Attrib ID"; }
     static const char*		sKeyWVA()		{ return "WVA"; }
 
+    const Line2DInterSectionSet* getLine2DInterSectionSet() 
+						{ return l2dintersections_; }
+
     CNotifier<uiODViewer2DMgr,int>  vw2dObjAdded;
     CNotifier<uiODViewer2DMgr,int>  vw2dObjToBeRemoved;
 
