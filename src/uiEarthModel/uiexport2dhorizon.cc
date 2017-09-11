@@ -53,8 +53,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 {
     setOkText( uiStrings::sExport() );
     IOObjContext ctxt = mIOObjContext( EMHorizon2D );
-    uiIOObjSelGrp::Setup stup; stup.choicemode_ =
-					OD::ChoiceMode::ChooseAtLeastOne;
+    uiIOObjSelGrp::Setup stup; stup.choicemode_ = OD::ChooseAtLeastOne;
     if ( !isbulk_ )
     {
 

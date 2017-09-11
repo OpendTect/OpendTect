@@ -248,8 +248,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     setModal( false );
     setDeleteOnClose( false );
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    uiIOObjSelGrp::Setup stup; stup.choicemode_ =
-				      OD::ChoiceMode::ChooseAtLeastOne;
+    uiIOObjSelGrp::Setup stup; stup.choicemode_ = OD::ChooseAtLeastOne;
     if ( !isbulk )
     {
 	infld_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
