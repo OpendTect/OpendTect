@@ -121,7 +121,7 @@ bool uiAutoAttrSelDlg::acceptOK()
 
     if ( attrset.is2D() != is2d_ )
     {
-	bs = tr("Attribute Set %1 is fo type %2 "
+	bs = tr("Attribute Set %1 is of type %2 "
 		"Please select another attribute set")
 	   .arg(ctio_.ioobj_->uiName())
 	   .arg(attrset.is2D() ? uiStrings::s2D()
