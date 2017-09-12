@@ -13,46 +13,52 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "fixedstring.h"
-
+#include "uiioobjselgrp.h"
+#include "zaxistransform.h"
 class uiFileSel;
 class uiGenInput;
 class uiSurfaceRead;
 class uiUnitSel;
 class uiPushButton;
 class uiT2DConvSel;
+class write3DHorASCII;
 
 /*! \brief Dialog for horizon export */
 
 mExpClass(uiEarthModel) uiExportHorizon : public uiDialog
 { mODTextTranslationClass(uiExportHorizon);
 public:
-			uiExportHorizon(uiParent*);
+			uiExportHorizon(uiParent*,bool issingle=true);
 			~uiExportHorizon();
 
 
 protected:
 
-    uiSurfaceRead*	infld_;
-    uiFileSel*		outfld_;
-    uiGenInput*		headerfld_;
-    uiGenInput*		typfld_;
-    uiGenInput*		zfld_;
-    uiPushButton*	settingsbutt_;
-    uiUnitSel*		unitsel_;
-    uiGenInput*		udffld_;
-    uiT2DConvSel*	transfld_;
+    uiSurfaceRead*	    infld_;
+    uiFileSel*		    outfld_;
+    uiGenInput*		    headerfld_;
+    uiGenInput*		    typfld_;
+    uiGenInput*		    zfld_;
+    uiPushButton*	    settingsbutt_;
+    uiUnitSel*		    unitsel_;
+    uiGenInput*		    udffld_;
+    uiT2DConvSel*	    transfld_;
+    uiIOObjSelGrp*	    bulkinfld_;
 
-    BufferString	gfname_;
-    BufferString	gfcomment_;
+    BufferString	    gfname_;
+    BufferString	    gfcomment_;
 
-    virtual bool	acceptOK();
-    void		typChg(CallBacker*);
-    void		addZChg(CallBacker*);
-    void		attrSel(CallBacker*);
-    void		settingsCB(CallBacker*);
-    void		inpSel(CallBacker*);
-    void		writeHeader(od_ostream&);
-    bool		writeAscii();
+    virtual bool	    acceptOK();
+    void		    typChg(CallBacker*);
+    void		    addZChg(CallBacker*);
+    void		    attrSel(CallBacker*);
+    void		    settingsCB(CallBacker*);
+    void		    inpSel(CallBacker*);
+    void		    writeHeader(od_ostream&);
+    bool		    writeAscii();
+    bool		    getInputDBKeys(DBKeySet&);
 
-    FixedString		getZDomain() const;
+    bool		    isbulk_;
+
+    FixedString		    getZDomain() const;
 };

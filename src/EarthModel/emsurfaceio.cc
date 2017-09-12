@@ -834,6 +834,7 @@ int dgbSurfaceReader::nextStep()
 
 	nrcols = callastcols - firstcol - noofcoltoskip + 1;
     }
+
     if ( !strm.isOK() )
     {
 	msg_ = sMsgReadError();

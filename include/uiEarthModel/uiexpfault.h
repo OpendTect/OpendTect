@@ -54,4 +54,5 @@ protected:
     virtual bool	acceptOK();
     bool		writeAscii();
     bool		issingle_;
+    uiString		dispstr_;
 };

@@ -39,6 +39,12 @@ ________________________________________________________________________
 #include "uiunitsel.h"
 #include "od_ostream.h"
 #include "od_helpids.h"
+#include "uiioobjselgrp.h"
+#include "transl.h"
+#include "emioobjinfo.h"
+
+#include "od_ostream.h"
+#include <ostream>
 
 #include <stdio.h> // for sprintf
 
@@ -47,25 +53,224 @@ static const char* zmodes[] = { sKey::Yes(), sKey::No(), "Transformed", 0 };
 static const char* exptyps[] = { "X/Y", "Inl/Crl", "IESX (3d_ci7m)", 0 };
 static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
+#define mHdr1GFLineLen 102
+#define mDataGFLineLen 148
+#define mGFUndefValue 3.4028235E+38
 
-uiExportHorizon::uiExportHorizon( uiParent* p )
-: uiDialog(p,uiDialog::Setup( uiStrings::phrExport( uiStrings::sHorizon() ),
+
+mExpClass(uiEarthModel) write3DHorASCII : public Executor
+{ mODTextTranslationClass(write3DHorASCII)
+public:
+			    write3DHorASCII(od_ostream&,const EM::Horizon3D*,
+			    const ZAxisTransform* zatf,const UnitOfMeasure*,
+			    const bool doxy,const bool addzpos,
+			    const bool dogf,const bool issingle,
+			    const int nrattrib,const int sectionidx,
+			    const int sidx,BufferString udfstr,
+			    BufferString dispstr);
+    int			    nextStep();
+    uiString		    message() const	{ return msg_; }
+    uiString		    nrDoneText() const;
+    od_int64		    nrDone() const;
+    od_int64		    totalNr() const;
+
+protected:
+    od_ostream&		    stream_;
+    const bool		    doxy_;
+    const bool		    addzpos_;
+    const bool		    dogf_;
+    const int		    nrattrib_;
+    const int		    sidx_;
+    int			    maxsize_;
+    BufferString	    udfstr_;
+    const EM::Horizon3D*    hor_;
+    const bool		    issingle_;
+    EM::EMObjectIterator*   it_;
+    const ZAxisTransform*    zatf_;
+    const UnitOfMeasure*    unit_;
+    uiString		    msg_;
+    int			    counter_;
+
+
+};
+
+
+
+write3DHorASCII::write3DHorASCII(od_ostream& stream,const EM::Horizon3D* hor,
+	const ZAxisTransform* zatf, const UnitOfMeasure* unit, const bool doxy,
+	const bool addzpos, const bool dogf, const bool issingle,
+	const int nrattrib, const int sectionidx,const int sidx,
+	BufferString udfstr, BufferString str )
+	: Executor( str )
+	, stream_(stream)
+	, doxy_(doxy)
+	, dogf_(dogf)
+	, addzpos_(addzpos)
+	, nrattrib_(nrattrib)
+	, udfstr_(udfstr)
+	, hor_(hor)
+	, issingle_(issingle)
+	, zatf_(zatf)
+	, unit_(unit)
+	, sidx_(sidx)
+	, counter_(0)
+{
+    const EM::SectionID sectionid = hor->sectionID( sectionidx );
+    it_ = hor->createIterator( sectionid );
+    maxsize_ = it_->maximumSize();
+    int i = 0;
+}
+
+
+od_int64 write3DHorASCII::nrDone() const
+{
+    return counter_ < maxsize_ ? counter_ : -1;
+}
+
+
+uiString write3DHorASCII::nrDoneText() const
+{
+    return tr("Number of points processed");
+}
+
+
+od_int64 write3DHorASCII::totalNr() const
+{
+    return maxsize_;
+}
+
+
+static void writeGF( od_ostream& strm, const BinID& bid, float z,
+		     float val, const Coord& crd, int segid )
+{
+    char buf[mDataGFLineLen+2];
+    const float crl = mCast( float, bid.crl() );
+    const float gfval = (float) ( mIsUdf(val) ? mGFUndefValue : val );
+    const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );
+    sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
+	  crd.x_, crd.y_, segid, 14, depth,
+	  crl, crl, bid.crl(), gfval, bid.inl(),
+	     "" );
+    buf[96] = buf[97] = 'X';
+    strm << buf;
+}
+
+
+int write3DHorASCII::nextStep()
+{
+    BufferString str;
+    const EM::PosID posid = it_->next();
+    if ( posid.objectID()==-1 || counter_ > maxsize_ )
+	return Executor::Finished();
+
+    if ( !issingle_ )
+	stream_ << hor_->name().quote('\"') << od_tab;
+
+    Coord3 crd = hor_->getPos( posid );
+    const BinID bid = SI().transform( crd.getXY() );
+    if ( zatf_ )
+	crd.z_ = zatf_->transformTrc( bid, (float)crd.z_ );
+
+    if ( zatf_ && SI().depthsInFeet() )
+    {
+	const UnitOfMeasure* uom = UoMR().get( "ft" );
+	crd.z_ = uom->getSIValue( crd.z_ );
+    }
+
+    if ( !mIsUdf(crd.z_) && unit_ )
+	crd.z_ = unit_->userValue( crd.z_ );
+
+    if ( dogf_ )
+    {
+	const float auxvalue = nrattrib_ > 0
+	    ? hor_->auxdata.getAuxDataVal(0,posid) : mUdf(float);
+	writeGF( stream_, bid, (float) crd.z_, auxvalue,
+		    crd.getXY(), sidx_ );
+	Executor::MoreToDo();
+    }
+
+    if ( !doxy_ )
+    {
+	stream_ << bid.inl() << od_tab << bid.crl();
+    }
+    else
+    {
+	// ostreams print doubles awfully
+	str.setEmpty();
+	str += crd.x_; str += od_tab; str += crd.y_;
+	stream_ << str;
+    }
+
+    if ( addzpos_ )
+    {
+	if ( mIsUdf(crd.z_) )
+	    stream_ << od_tab << udfstr_;
+	else
+	{
+	    str = od_tab; str += crd.z_;
+	    stream_ << str;
+	}
+    }
+
+    for ( int idx=0; idx<nrattrib_; idx++ )
+    {
+	const float auxvalue = hor_->auxdata.getAuxDataVal( idx, posid );
+	if ( mIsUdf(auxvalue) )
+	    stream_ << od_tab << udfstr_;
+	else
+	{
+	    str = od_tab; str += auxvalue;
+	    stream_ << str;
+	}
+    }
+
+    stream_ << od_newline;
+
+    if ( dogf_ ) stream_ << "EOD";
+    counter_++;
+    stream_.flush();
+    if ( stream_.isBad() )
+    {
+	msg_ =	tr("Cannot write output file");
+	Executor::ErrorOccurred();
+    }
+    return Executor::MoreToDo();
+}
+
+
+uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk)
+    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport(
+			      uiStrings::sHorizon(!isbulk?1:mPlural) ),
 			      mNoDlgTitle,
 			      mODHelpKey(mExportHorizonHelpID) ))
+    , isbulk_(isbulk)
+    , bulkinfld_(0)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     setModal( false );
     setDeleteOnClose( false );
-
-    infld_ = new uiSurfaceRead( this,
-		uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::sGroupName())
-		.withsubsel(true).withsectionfld(false) );
-    infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
-    infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
+    IOObjContext ctxt = mIOObjContext( EMHorizon3D );
+    uiIOObjSelGrp::Setup stup; stup.choicemode_ =
+					OD::ChoiceMode::ChooseAtLeastOne;
+    if ( !isbulk_ )
+    {
+	infld_ = new uiSurfaceRead( this,
+		 uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::sGroupName())
+		   .withsubsel(true).withsectionfld(false).multisubsel(true) );
+	infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
+	infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
+    }
+    else
+	bulkinfld_ = new uiIOObjSelGrp( this, ctxt,
+					uiStrings::sHorizon(mPlural), stup );
 
     typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
                               StringListInpSpec(exptyps) );
-    typfld_->attach( alignedBelow, infld_ );
+    if ( !isbulk_ )
+	typfld_->attach( alignedBelow, infld_ );
+    else
+	typfld_->attach( alignedBelow, bulkinfld_ );
+
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
 
     settingsbutt_ = new uiPushButton( this, uiStrings::sSettings(),
@@ -99,8 +304,11 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(), fssu );
     outfld_->attach( alignedBelow, udffld_ );
 
-    typChg( 0 );
-    inpSel( 0 );
+    if ( !isbulk_ )
+    {
+	typChg( 0 );
+	inpSel( 0 );
+    }
 }
 
 
@@ -110,8 +318,7 @@ uiExportHorizon::~uiExportHorizon()
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-#define mHdr1GFLineLen 102
-#define mDataGFLineLen 148
+
 
 static void initGF( od_ostream& strm, const char* hornm,
 		    const char* comment )
@@ -131,32 +338,14 @@ static void initGF( od_ostream& strm, const char* hornm,
 }
 
 
-#define mGFUndefValue 3.4028235E+38
-
-static void writeGF( od_ostream& strm, const BinID& bid, float z,
-		     float val, const Coord& crd, int segid )
-{
-    char buf[mDataGFLineLen+2];
-    const float crl = mCast( float, bid.crl() );
-    const float gfval = (float) ( mIsUdf(val) ? mGFUndefValue : val );
-    const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );
-    sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
-	  crd.x_, crd.y_, segid, 14, depth,
-	  crl, crl, bid.crl(), gfval, bid.inl(),
-	     "" );
-    buf[96] = buf[97] = 'X';
-    strm << buf;
-}
-
-
 void uiExportHorizon::writeHeader( od_ostream& strm )
 {
     if ( headerfld_->getIntValue() == 0 )
 	return;
 
     BufferStringSet selattribs;
-    if ( infld_->haveAttrSel() )
-	infld_->getSelAttributes( selattribs );
+    if ( !isbulk_ && infld_->haveAttrSel() )
+	    infld_->getSelAttributes( selattribs );
 
     const bool doxy = typfld_->getIntValue() == 0;
     const bool addzpos = zfld_->getIntValue() != 1;
@@ -198,6 +387,16 @@ void uiExportHorizon::writeHeader( od_ostream& strm )
 
 bool uiExportHorizon::writeAscii()
 {
+    DBKeySet dbkeyset;
+    if ( !getInputDBKeys(dbkeyset) )
+	mErrRet(tr("Cannot find object in database"))
+    ObjectSet<EM::IOObjInfo> emioinfoset;
+    for ( int idx=0; idx<dbkeyset.size(); idx++ )
+    {
+	EM::IOObjInfo* emioinfo =  new EM::IOObjInfo(dbkeyset.get(idx));
+	emioinfoset.add(emioinfo);
+    }
+
     const bool doxy = typfld_->getIntValue() == 0;
     const bool addzpos = zfld_->getIntValue() != 1;
     const bool dogf = typfld_->getIntValue() == 2;
@@ -218,124 +417,140 @@ bool uiExportHorizon::writeAscii()
 
     BufferString basename = outfld_->fileName();
 
-    const IOObj* ioobj = infld_->selIOObj();
-    if ( !ioobj ) mErrRet(tr("Cannot find horizon object"));
-
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !em.getSurfaceData(ioobj->key(),sd,errmsg) )
-	mErrRet( errmsg )
-
-    EM::SurfaceIODataSelection sels( sd );
-    infld_->getSelection( sels );
-    sels.selvalues.erase();
-
-    RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
-    if ( !emobj ) mErrRet(uiStrings::sCantCreateHor())
-
-    emobj->setDBKey( ioobj->key() );
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
-    PtrMan<Executor> loader = hor->geometry().loader( &sels );
-    if ( !loader ) mErrRet( uiStrings::phrCannotRead( uiStrings::sHorizon() ) )
-
-    uiTaskRunnerProvider trprov( this );
-    if ( !trprov.execute( *loader ) )
-	return false;
-
-    infld_->getSelection( sels );
-    if ( dogf && sels.selvalues.size() > 1 &&
-    !uiMSG().askContinue(tr("Only the first selected attribute will be used\n"
-			     "Do you wish to continue?")) )
-	return false;
-
-    if ( !sels.selvalues.isEmpty() )
+    BufferString fname( basename );
+    od_ostream stream( fname );
+    for ( int horidx=0; horidx<emioinfoset.size(); horidx++ )
     {
-	ExecutorGroup exgrp( "Reading aux data" );
-	for ( int idx=0; idx<sels.selvalues.size(); idx++ )
-	    exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
+	const IOObj* ioobj = !isbulk_ ? infld_->selIOObj() :
+					emioinfoset.get(horidx)->ioObj();
+	if ( !ioobj ) mErrRet(uiStrings::phrCannotFind( tr("horizon object")));
 
-	if ( !trprov.execute( exgrp ) ) return false;
-    }
+	if ( !em.getSurfaceData(ioobj->key(),sd,errmsg) )
+	    mErrRet( errmsg )
 
-    uiUserShowWait usw( this, uiStrings::sSavingData() );
+	EM::SurfaceIODataSelection sels( sd );
 
-    const UnitOfMeasure* unit = unitsel_->getUnit();
-    TypeSet<int>& sections = sels.selsections;
-    int zatvoi = -1;
-    if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
-    {
-	TrcKeyZSampling bbox;
-	bool first = true;
-	for ( int sidx=0; sidx<sections.size(); sidx++ )
+	if ( !isbulk_ )
+	    infld_->getSelection( sels );
+
+
+	sels.selvalues.erase();
+
+	RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
+	if ( !emobj ) mErrRet(uiStrings::sCantCreateHor())
+
+	emobj->setDBKey( ioobj->key() );
+	mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
+	PtrMan<Executor> loader = hor->geometry().loader( &sels );
+	if ( !loader )
+	    mErrRet( uiStrings::phrCannotRead( uiStrings::sHorizon() ) )
+	uiTaskRunnerProvider trprov( this );
+
+	if ( !trprov.execute( *loader ) ) return false;
+
+
+	if ( !isbulk_ )
+	    infld_->getSelection( sels );
+	else
+	    for( int idx=0; idx<sd.sections.size(); idx++ )
+		sels.selsections += idx;
+
+	uiUserShowWait usw( this, uiStrings::sSavingData() );
+	if ( dogf && sels.selvalues.size() > 1 &&
+	!uiMSG().askContinue(tr("Only the first selected attribute "
+				"will be used.\nDo you wish to continue?")) )
+	    return false;
+
+	if ( !isbulk_ && !sels.selvalues.isEmpty() )
 	{
-	    const EM::SectionID sectionid = hor->sectionID( sections[sidx] );
-	    PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
-	    while ( true )
+	    ExecutorGroup exgrp( "Reading aux data" );
+		for ( int idx=0; idx<sels.selvalues.size(); idx++ )
+		    exgrp.add( hor->auxdata.auxDataLoader(
+						    sels.selvalues[idx]) );
+
+	    if ( !trprov.execute( exgrp ) ) return false;
+	}
+
+	const UnitOfMeasure* unit = unitsel_->getUnit();
+	TypeSet<int>& sections = sels.selsections;
+	int zatvoi = -1;
+	if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
+	{
+	    TrcKeyZSampling bbox;
+	    bool first = true;
+	    for ( int sidx=0; sidx<sections.size(); sidx++ )
 	    {
-		const EM::PosID posid = it->next();
-		if ( posid.objectID()==-1 )
-		    break;
-
-		const Coord3 crd = hor->getPos( posid );
-		if ( !crd.isDefined() )
-		    continue;
-
-		const BinID bid = SI().transform( crd.getXY() );
-		if ( first )
+		const EM::SectionID sectionid = hor->sectionID(
+							    sections[sidx] );
+		PtrMan<EM::EMObjectIterator> it = hor->createIterator(
+							    sectionid );
+		while ( true )
 		{
-		    first = false;
-		    bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
-		    bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
-		}
-		else
-		{
-		    bbox.hsamp_.include( bid );
-		    bbox.zsamp_.include( (float) crd.z_ );
+		    const EM::PosID posid = it->next();
+		    if ( posid.objectID()==-1 )
+			break;
+
+		    const Coord3 crd = hor->getPos( posid );
+		    if ( !crd.isDefined() )
+			continue;
+
+		    const BinID bid = SI().transform( crd.getXY() );
+		    if ( first )
+		    {
+			first = false;
+			bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
+			bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
+		    }
+		    else
+		    {
+			bbox.hsamp_.include( bid );
+			bbox.zsamp_.include( (float) crd.z_ );
+		    }
 		}
 	    }
 
-	}
 
-	if ( !first && zatf->needsVolumeOfInterest() )
-	{
-	    zatvoi = zatf->addVolumeOfInterest( bbox, false );
-	    if ( !zatf->loadDataIfMissing( zatvoi, trprov ) )
+	    if ( !first && zatf->needsVolumeOfInterest() )
 	    {
-		uiMSG().error( tr("Cannot load data for z-transform") );
-		return false;
+		zatvoi = zatf->addVolumeOfInterest( bbox, false );
+		if ( !zatf->loadDataIfMissing( zatvoi, trprov ) )
+		{
+		    uiMSG().error( tr("Cannot load data for z-transform") );
+		    return false;
+		}
+
+		if ( !first && zatf->needsVolumeOfInterest() )
+		{
+		    zatvoi = zatf->addVolumeOfInterest( bbox, false );
+		    if ( !zatf->loadDataIfMissing( zatvoi, trprov ) )
+		    {
+			uiMSG().error( tr("Cannot load data for z-transform") );
+			return false;
+		    }
+		}
 	    }
 	}
-    }
 
     const int nrattribs = hor->auxdata.nrAuxData();
     const bool writemultiple = sections.size() > 1;
+
+
+
     for ( int sidx=0; sidx<sections.size(); sidx++ )
     {
-	const int sectionidx = sections[sidx];
-	BufferString fname( basename );
-	if ( writemultiple )
-	{
-	    File::Path fp( fname );
-	    BufferString ext( fp.extension() );
-	    if ( ext.isEmpty() )
-		{ fname += "_"; fname += sidx; }
-	    else
-	    {
-		fp.setExtension( 0 );
-		BufferString fnm = fp.fileName();
-		fnm += "_"; fname += sidx;
-		fp.setFileName( fnm );
-		fp.setExtension( ext );
-		fname = fp.fullPath();
-	    }
-	}
+	BufferString dispstr("Writing Horizon ");
+	dispstr.add(hor->name());
 
-        od_ostream stream( fname );
+	ExecutorGroup exphorgrp( dispstr );
+
+	const int sectionidx = sections[sidx];
 
 	if ( stream.isBad() )
 	{
-            mErrRet( uiStrings::sCantOpenOutpFile() );
+	    mErrRet( uiStrings::sCantOpenOutpFile() );
 	}
 
 	if ( dogf )
@@ -346,88 +561,19 @@ bool uiExportHorizon::writeAscii()
 	    writeHeader( stream );
 	}
 
-	const EM::SectionID sectionid = hor->sectionID( sectionidx );
-	PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
-	BufferString str;
-	while ( true )
-	{
-	    const EM::PosID posid = it->next();
-	    if ( posid.objectID()==-1 )
-		break;
 
-	    Coord3 crd = hor->getPos( posid );
-	    const BinID bid = SI().transform( crd.getXY() );
-	    if ( zatf )
-		crd.z_ = zatf->transformTrc( bid, (float)crd.z_ );
+	write3DHorASCII* executor = new write3DHorASCII(stream, hor,
+	    zatf.ptr(), unit, doxy, addzpos, dogf, !isbulk_, nrattribs,
+	    sectionidx, sidx, udfstr, dispstr);
+	exphorgrp.add(executor);
+	if ( !trprov.execute(exphorgrp) ) return false;
 
-	    if ( zatf && SI().depthsInFeet() )
-	    {
-		const UnitOfMeasure* uom = UoMR().get( "ft" );
-		crd.z_ = uom->getSIValue( crd.z_ );
-	    }
-
-	    if ( !mIsUdf(crd.z_) && unit )
-		crd.z_ = unit->userValue( crd.z_ );
-
-	    if ( dogf )
-	    {
-		const float auxvalue = nrattribs > 0
-		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-		writeGF( stream, bid, (float) crd.z_, auxvalue,
-			 crd.getXY(), sidx );
-		continue;
-	    }
-
-	    if ( !doxy )
-	    {
-		stream << bid.inl() << od_tab << bid.crl();
-	    }
-	    else
-	    {
-		// ostreams print doubles awfully
-		str.setEmpty();
-		str += crd.x_; str += od_tab; str += crd.y_;
-		stream << str;
-	    }
-
-	    if ( addzpos )
-	    {
-		if ( mIsUdf(crd.z_) )
-		    stream << od_tab << udfstr;
-		else
-		{
-		    str = od_tab; str += crd.z_;
-		    stream << str;
-		}
-	    }
-
-	    for ( int idx=0; idx<nrattribs; idx++ )
-	    {
-		const float auxvalue = hor->auxdata.getAuxDataVal( idx, posid );
-		if ( mIsUdf(auxvalue) )
-		    stream << od_tab << udfstr;
-		else
-		{
-		    str = od_tab; str += auxvalue;
-		    stream << str;
-		}
-	    }
-
-	    stream << od_newline;
+	if ( zatf && zatvoi>=0 )
+	    zatf->removeVolumeOfInterest( zatvoi );
 	}
-
-	if ( dogf ) stream << "EOD";
-
-        stream.flush();
-        if ( stream.isBad() )
-            mErrRet( tr("Cannot write output file") );
     }
-
-    if ( zatf && zatvoi>=0 )
-	zatf->removeVolumeOfInterest( zatvoi );
-
     return true;
-}
+ }
 
 
 bool uiExportHorizon::acceptOK()
@@ -447,9 +593,16 @@ bool uiExportHorizon::acceptOK()
 	return false;
 
     const bool res = writeAscii();
-    if ( res )
-	uiMSG().message( tr("Horizon successfully exported") );
-    return false;
+    if ( !res )
+    {
+	uiMSG().error( uiStrings::phrCannotWrite(tr("output file.")));
+	return false;
+    }
+    uiString msg = tr("%1 successfully exported").arg(
+				    uiStrings::sHorizon(!isbulk_?1:mPlural));
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
 
 
@@ -514,6 +667,20 @@ void uiExportHorizon::attrSel( CallBacker* )
 {
     const bool isgf = typfld_->getIntValue() == 2;
     udffld_->display( !isgf && infld_->haveAttrSel() );
+}
+
+
+bool uiExportHorizon::getInputDBKeys( DBKeySet& dbkeyset )
+{
+    if ( !isbulk_ )
+    {
+	const IOObj* ioobj = infld_->selIOObj();
+	if ( !ioobj ) return false;
+	dbkeyset.add(ioobj->key());
+    }
+    else
+	bulkinfld_->getChosen(dbkeyset);
+    return true;
 }
 
 

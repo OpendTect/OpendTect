@@ -113,6 +113,8 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , manfssdlg_(0)
     , manbodydlg_(0)
     , impbulkfssdlg_(0)
+    , impbulk2dhordlg_(0)
+    , expbulkhordlg_(0)
 {
     DBM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
@@ -129,6 +131,8 @@ uiEMPartServer::~uiEMPartServer()
     delete manbodydlg_;
     delete crhordlg_;
     delete impbulkfssdlg_;
+    delete impbulk2dhordlg_;
+    delete expbulkhordlg_;
 }
 
 
@@ -148,6 +152,8 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     deleteAndZeroPtr ( manbodydlg_ );
     deleteAndZeroPtr ( crhordlg_ );
     deleteAndZeroPtr ( impbulkfssdlg_ );
+    deleteAndZeroPtr ( impbulk2dhordlg_ );
+    deleteAndZeroPtr ( expbulkhordlg_ );
     deepErase( variodlgs_ );
 }
 
@@ -244,6 +250,17 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 }
 
 
+bool uiEMPartServer::importBulk2DHorizon()
+{
+    if ( !impbulk2dhordlg_ )
+	impbulk2dhordlg_ = new uiBulk2DHorizonImport( parent(), true );
+    else
+	impbulk2dhordlg_->raise();
+
+    return impbulk2dhordlg_->go();
+}
+
+
 void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
     DBKey mid;
@@ -270,23 +287,32 @@ void uiEMPartServer::importReadyCB( CallBacker* cb )
 }
 
 
-bool uiEMPartServer::export2DHorizon()
+bool uiEMPartServer::export2DHorizon( bool bulk )
 {
     ObjectSet<SurfaceInfo> hinfos;
     getAllSurfaceInfo( hinfos, true );
-    uiExport2DHorizon dlg( parent(), hinfos );
+    uiExport2DHorizon dlg( parent(), hinfos, bulk );
     return dlg.go();
 }
 
 
-bool uiEMPartServer::export3DHorizon()
+bool uiEMPartServer::export3DHorizon( bool bulk )
 {
-    if ( exphordlg_ )
-	exphordlg_->raise();
-    else
-	exphordlg_ = new uiExportHorizon( parent() );
+    if ( !bulk )
+    {
+	if ( !exphordlg_ )
+	    exphordlg_ = new uiExportHorizon( parent(), bulk );
 
-    return exphordlg_->go();
+	return exphordlg_->go();
+    }
+    else
+    {
+	if ( !expbulkhordlg_ )
+	    expbulkhordlg_ = new uiExportHorizon( parent(), bulk );
+
+	return expbulkhordlg_->go();
+    }
+
 }
 
 
@@ -365,10 +391,10 @@ void uiEMPartServer::import2DFaultStickset()
 }
 
 
-bool uiEMPartServer::exportFault( bool issingle )
+bool uiEMPartServer::exportFault( bool bulk )
 {
     expfltdlg_ = new uiExportFault( parent(),
-			    EMFault3DTranslatorGroup::sGroupName(), issingle );
+			    EMFault3DTranslatorGroup::sGroupName(), bulk );
     return expfltdlg_->go();
 }
 

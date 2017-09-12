@@ -57,6 +57,7 @@ ________________________________________________________________________
 #define mImpHorAsciiAttribMnuItm (mFileImpMnu + 31)
 #define mImpHor2DAsciiMnuItm	(mFileImpMnu + 32)
 #define mImpBulkHorAsciiMnuIm	(mFileImpMnu + 33)
+#define mImpBulkHor2DAsciiMnuItm (mFileImpMnu + 34)
 #define mImpWellAsciiTrackMnuItm (mFileImpMnu + 40)
 #define mImpWellAsciiLogsMnuItm	(mFileImpMnu + 41)
 #define mImpWellAsciiMarkersMnuItm (mFileImpMnu + 42)
@@ -92,6 +93,8 @@ ________________________________________________________________________
 
 #define mExpHorAscii3DMnuItm	(mFileExpMnu + 30)
 #define mExpHorAscii2DMnuItm	(mFileExpMnu + 31)
+#define mExpBulkHorAscii3DMnuItm (mFileExpMnu + 32)
+#define mExpBulkHorAscii2DMnuItm (mFileExpMnu + 33)
 #define mExpFltAsciiMnuItm	(mFileExpMnu + 50)
 #define mExpFltSSAsciiMnuItm	(mFileExpMnu + 51)
 #define mExpBulkFltAsciiMnuItm	(mFileExpMnu + 52)

@@ -531,7 +531,6 @@ StreamData File::LocalFileSystemAccess::createOStream(const char* uri,
     StreamData res;
     StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
     impl->fname_ = uri;
-
     std::ios_base::openmode openmode = std::ios_base::out;
     if ( binary )
 	openmode |= std::ios_base::binary;

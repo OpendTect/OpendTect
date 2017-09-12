@@ -189,8 +189,21 @@ bool uiBulkHorizonImport::acceptOK()
 
 	PtrMan<Executor> saver = hor3d->saver();
 	if ( !saver || !TaskRunner::execute( &dlg, *saver ) )
-	    continue;
+	{
+	    uiString msg = tr("Error while importing %1. Do you want to "
+		    "continue to import rest?").arg(toUiString(hor3d->name()));
+	    bool errocc = uiMSG().askGoOn( msg , uiStrings::sYes(),
+			    uiStrings::sNo() );
+	    if ( !errocc || (errocc && idx == hornms.size()) )
+		return !errocc;
+	    else
+		continue;
+	}
     }
 
-    return true;
+    uiString msg = tr( "3D Horizons successfully imported.\n\n"
+		    "Do you want to export more 2DHorizons?" );
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }

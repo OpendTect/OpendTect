@@ -62,11 +62,12 @@ mExpClass(EarthModel) Horizon2DAscIO : public Table::AscIO
 { mODTextTranslationClass(Horizon2DAscIO)
 public:
 				Horizon2DAscIO( const Table::FormatDesc& fd,
-						od_istream& strm )
+						BufferString fnm )
 				    : Table::AscIO(fd)
 				    , udfval_(mUdf(float))
 				    , finishedreadingheader_(false)
-				    , strm_(strm)		    {}
+				    , strm_(fnm)
+				{}
 
     static Table::FormatDesc*   getDesc();
     static void			updateDesc(Table::FormatDesc&,
@@ -79,10 +80,12 @@ public:
     static bool			isFormatOK(const Table::FormatDesc&,uiString&);
     int				getNextLine(BufferString& lnm,Coord& crd,
 					    int& trcnr,TypeSet<float>& data);
+    bool			isTraceNr() const;
+    bool			isOK()	{ return strm_.isOK(); }
 
 protected:
 
-    od_istream&			strm_;
+    od_istream			strm_;
     float			udfval_;
     bool			finishedreadingheader_;
 

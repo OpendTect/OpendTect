@@ -44,29 +44,42 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
-				      const ObjectSet<SurfaceInfo>& hinfos )
-    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("2D Horizon") ),
-	       mNoDlgTitle, mODHelpKey(mExportHorizonHelpID) ))
+		const ObjectSet<SurfaceInfo>& hinfos, bool isbulk )
+    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("2D %1").
+		arg(uiStrings::sHorizon(isbulk?mPlural:1)) ),
+		mNoDlgTitle, mODHelpKey(mExportHorizonHelpID) ))
     , hinfos_(hinfos)
+    , isbulk_(isbulk)
 {
     setOkText( uiStrings::sExport() );
-
-    uiLabeledComboBox* lcbox = new uiLabeledComboBox( this,
+    IOObjContext ctxt = mIOObjContext( EMHorizon2D );
+    uiIOObjSelGrp::Setup stup; stup.choicemode_ =
+					OD::ChoiceMode::ChooseAtLeastOne;
+    if ( !isbulk_ )
+    {
+	uiLabeledComboBox* lcbox = new uiLabeledComboBox( this,
 			 uiStrings::phrSelect( uiStrings::sHorizon() ),
 			 "Select 2D Horizon" );
-    horselfld_ = lcbox->box();
-    horselfld_->setHSzPol( uiObject::MedVar );
-    horselfld_->selectionChanged.notify( mCB(this,uiExport2DHorizon,horChg) );
-    for ( int idx=0; idx<hinfos_.size(); idx++ )
-	horselfld_->addItem( toUiString(hinfos_[idx]->name) );
+	horselfld_ = lcbox->box();
+	horselfld_->setHSzPol( uiObject::MedVar );
+	horselfld_->selectionChanged.notify( mCB(this,uiExport2DHorizon,
+								    horChg) );
+	for ( int idx=0; idx<hinfos_.size(); idx++ )
+	    horselfld_->addItem( toUiString(hinfos_[idx]->name) );
 
-    uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Select lines") );
-    linenmfld_ = new uiListBox( this, su );
-    linenmfld_->attach( alignedBelow, lcbox );
-
+	uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Select lines") );
+	linenmfld_ = new uiListBox( this, su );
+	linenmfld_->attach( alignedBelow, lcbox );
+    }
+    else
+	bulkinfld_ = new uiIOObjSelGrp( this, ctxt,
+					uiStrings::sHorizon(mPlural), stup );
     headerfld_ = new uiGenInput( this, tr("Header"),
 				 StringListInpSpec(hdrtyps) );
-    headerfld_->attach( alignedBelow, linenmfld_ );
+    if ( !isbulk_ )
+	headerfld_->attach( alignedBelow, linenmfld_ );
+    else
+	headerfld_->attach( alignedBelow, bulkinfld_ );
 
     udffld_ = new uiGenInput( this, tr("Write undefined parts? Undef value"),
 			      StringInpSpec(sKey::FloatUdf()) );
@@ -85,8 +98,8 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     uiFileSel::Setup fssu; fssu.setForWrite();
     outfld_ = new uiFileSel( this, uiStrings::sOutputASCIIFile(), fssu );
     outfld_->attach( alignedBelow, optsfld_ );
-
-    horChg( 0 );
+    if ( !isbulk_ )
+	horChg( 0 );
 }
 
 
@@ -99,38 +112,13 @@ uiExport2DHorizon::~uiExport2DHorizon()
 
 bool uiExport2DHorizon::doExport()
 {
-    BufferStringSet linenms;
-    linenmfld_->getChosen( linenms );
-    if ( !linenms.size() )
-	mErrRet(uiStrings::phrSelect(tr("at least one line to proceed")))
+    DBKeySet dbkeyset;
+    if ( !getInputDBKeys(dbkeyset) )
+	mErrRet(tr("Cannot find object in database"))
 
-    const int horidx = horselfld_->currentItem();
-    if ( horidx < 0 || horidx > hinfos_.size() )
-	mErrRet(tr("Invalid Horizon"))
 
-    DBKey horid = hinfos_[horidx]->dbkey;
-    EM::EMManager& em = EM::EMM();
-    EM::EMObject* obj = em.getObject( em.getObjectID(horid) );
-    if ( !obj )
-    {
-	PtrMan<Executor> exec = em.objectLoader( horid );
-	if ( !exec || !exec->execute() )
-	    mErrRet(uiStrings::sCantReadHor())
 
-	obj = em.getObject( em.getObjectID(horid) );
-	if ( !obj ) return false;
-
-	obj->ref();
-    }
-
-    mDynamicCastGet(EM::Horizon2D*,hor,obj);
-    if ( !hor )
-	mErrRet(uiStrings::sCantReadHor())
-
-    EM::SectionID sid = hor->sectionID( 0 );
-    const Geometry::Horizon2DLine* geom = hor->geometry().sectionGeometry(sid);
-    if ( !geom ) mErrRet(tr("Error Reading Horizon"))
-
+    od_ostream strm( outfld_->fileName() );
     const bool wrudfs = udffld_->isChecked();
     BufferString undefstr;
     if ( wrudfs )
@@ -140,69 +128,150 @@ bool uiExport2DHorizon::doExport()
 	    undefstr = "-";
     }
 
-    const float zfac = !optsfld_->isChecked(1) ? 1
-		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
-    const bool wrlnms = optsfld_->isChecked( 0 );
-    BufferString line( 180, false );
-
-    od_ostream strm( outfld_->fileName() );
-    if ( !strm.isOK() )
-	mErrRet(uiStrings::sCantOpenOutpFile())
-
-    writeHeader( strm );
-    for ( int idx=0; idx< linenms.size(); idx++ )
+    for ( int horidx=0; horidx<dbkeyset.size(); horidx++ )
     {
-	BufferString linename = linenms.get( idx );
-	const int lineidx = hor->geometry().lineIndex( linename );
-	StepInterval<int> trcrg = geom->colRange( lineidx );
-	for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
+	DBKey horid;
+	if ( !isbulk_ )
 	{
-	    Coord3 pos = geom->getKnot( RowCol(lineidx,trcnr) );
+	    const int selhoridx = horselfld_->currentItem();
+	    horid = hinfos_[selhoridx]->dbkey;
+	}
+	else
+	    horid = dbkeyset[horidx];
+	if ( horidx < 0 || horidx > hinfos_.size() )
+	    mErrRet(tr("Invalid Horizon"))
 
-	    if ( mIsUdf(pos.x_) || mIsUdf(pos.y_) )
-		continue;
-	    const bool zudf = mIsUdf(pos.z_);
-	    if ( zudf && !wrudfs )
-		continue;
+	BufferStringSet linenms;
 
-	    const bool hasspace = linename.contains( ' ' ) ||
-				  linename.contains( '\t' );
-	    BufferString controlstr = hasspace ? "\"%15s\"" : "%15s";
 
-	    if ( zudf )
+	EM::EMManager& em = EM::EMM();
+	EM::EMObject* obj = em.getObject( em.getObjectID(horid) );
+	if ( !obj )
+	{
+	    PtrMan<Executor> exec = em.objectLoader( horid );
+	    if ( !exec || !exec->execute() )
+		mErrRet(uiStrings::sCantReadHor())
+
+	    obj = em.getObject( em.getObjectID(horid) );
+	    if ( !obj ) return false;
+
+	    obj->ref();
+	}
+
+	if ( !isbulk_ )
+	{
+	    linenmfld_->getChosen( linenms );
+	    if ( !linenms.size() )
+		mErrRet( uiStrings::phrSelect(tr("at least one line to "
+								  "proceed")) )
+	}
+	else
+	{
+	    PtrMan<IOObj> ioobj = DBM().get( horid );
+	    if ( !ioobj )
+		mErrRet(uiStrings::phrCannotFindDBEntry(
+						uiStrings::sEmptyString()));
+
+	    EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );
+	    uiString errmsg;
+	    if ( !oi.getSurfaceData(emdata,errmsg) )
+		mErrRet( tr("Error in reading data") )
+	    linenms = emdata.linenames;
+	}
+	mDynamicCastGet(EM::Horizon2D*,hor,obj);
+	if ( !hor )
+	    mErrRet(uiStrings::sCantReadHor())
+
+	EM::SectionID sid = hor->sectionID( 0 );
+	const Geometry::Horizon2DLine* geom = hor->geometry().
+						    sectionGeometry(sid);
+	if ( !geom ) mErrRet(tr("Error Reading Horizon"))
+
+	BufferString horname = hor->name();
+	horname.quote('\"');
+
+	const float zfac = !optsfld_->isChecked(1) ? 1
+			 : (SI().zIsTime() ? 1000 : mToFeetFactorF);
+	const bool wrlnms = optsfld_->isChecked( 0 );
+	BufferString line( 180, false );
+
+
+	if ( !strm.isOK() )
+	    mErrRet(uiStrings::sCantOpenOutpFile())
+
+	writeHeader( strm );
+
+	for ( int idx=0; idx< linenms.size(); idx++ )
+	{
+	    BufferString linename = linenms.get( idx );
+
+	    const int lineidx = hor->geometry().lineIndex( linename );
+	    linename.quote('\"');
+	    StepInterval<int> trcrg = geom->colRange( lineidx );
+	    for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
 	    {
-		if ( !wrlnms )
-		    line.set( pos.x_ ).add( "\t" ).add( pos.y_ )
-			.add( "\t" ).add( undefstr );
+		Coord3 pos = geom->getKnot( RowCol(lineidx,trcnr) );
+
+		if ( mIsUdf(pos.x_) || mIsUdf(pos.y_) )
+		    continue;
+		const bool zudf = mIsUdf(pos.z_);
+		if ( zudf && !wrudfs )
+		    continue;
+
+		BufferString controlstr = !isbulk_ ? "%15s" : "%15s\t%15s";
+		if ( zudf )
+		{
+		    if ( !wrlnms )
+		    {
+			if ( isbulk_ )
+			    line.add(horname).add("\t");
+
+			line.add( pos.x_ ).add( "\t" ).add( pos.y_ )
+			    .add( "\t" ).add( undefstr );
+		    }
+		    else
+		    {
+			controlstr += "%16.2lf%16.2lf%8d%16s";
+			if ( isbulk_ )
+			    sprintf( line.getCStr(), controlstr.buf(),
+				 horname.buf(), linename.buf(), pos.x_, pos.y_,
+				  trcnr, undefstr.buf() );
+			else
+			    sprintf( line.getCStr(), controlstr.buf(),
+				 linename.buf(), pos.x_, pos.y_, trcnr,
+				 undefstr.buf() );
+		    }
+		}
 		else
 		{
-		    controlstr += "%16.2lf%16.2lf%8d%16s";
-		    sprintf( line.getCStr(), controlstr.buf(), linename.buf(),
-			     pos.x_, pos.y_, trcnr, undefstr.buf() );
+		    pos.z_ *= zfac;
+		    if ( wrlnms )
+		    {
+			 controlstr += "%16.2lf%16.2lf%8d%16.4lf";
+			 if ( isbulk_ )
+			    sprintf( line.getCStr(), controlstr.buf(),
+			    horname.buf(), linename.buf(), pos.x_, pos.y_,
+			    trcnr, pos.z_ );
+			else
+			    sprintf( line.getCStr(), controlstr.buf(),
+			      linename.buf(), pos.x_, pos.y_, trcnr, pos.z_ );
+		    }
+		    else
+		    {
+			if ( isbulk_ )
+			    line.add(horname).add("\t");
+			line.add( pos.x_ ).add( "\t" ).add( pos.y_ )
+			    .add( "\t" ).add( pos.z_ );
+		    }
 		}
-	    }
-	    else
-	    {
-		pos.z_ *= zfac;
-		if ( wrlnms )
-		{
-		    controlstr += "%16.2lf%16.2lf%8d%16.4lf";
-		    sprintf( line.getCStr(), controlstr.buf(),
-			    linename.buf(), pos.x_, pos.y_, trcnr, pos.z_ );
-		}
-		else
-		{
-		    line.set( pos.x_ ).add( "\t" ).add( pos.y_ )
-			.add( "\t" ).add( pos.z_ );
-		}
-	    }
 
-	    strm << line << od_newline;
-	    if ( !strm.isOK() )
-	    {
-		uiString msg = tr( "Error writing to the output file." );
-		strm.addErrMsgTo( msg );
-		mErrRet(msg)
+		strm << line << od_newline;
+		if ( !strm.isOK() )
+		{
+		    uiString msg = tr( "Error writing to the output file." );
+		    strm.addErrMsgTo( msg );
+		    mErrRet(msg)
+		}
 	    }
 	}
     }
@@ -271,6 +340,22 @@ bool uiExport2DHorizon::acceptOK()
     uiString msg = tr("2D Horizon successfully exported."
 		      "\n\nDo you want to export more horizons?");
     return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
+}
+
+
+bool uiExport2DHorizon::getInputDBKeys( DBKeySet& dbkeyset )
+{
+    if ( !isbulk_ )
+    {
+	const int horidx = horselfld_->currentItem();
+	if ( horidx < 0 || horidx > hinfos_.size() )
+	    return false;
+	DBKey horid = hinfos_[horidx]->dbkey;
+	dbkeyset.add(horid);
+    }
+    else
+	bulkinfld_->getChosen(dbkeyset);
+    return true;
 }
 
 

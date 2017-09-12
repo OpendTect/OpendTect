@@ -45,6 +45,9 @@ ________________________________________________________________________
 #include "uit2dconvsel.h"
 #include "zaxistransform.h"
 
+#define mGetObjNr \
+    issingle ? 1 : mPlural \
+
 #define mGet( tp, fss, f3d ) \
     FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
 
@@ -57,6 +60,12 @@ ________________________________________________________________________
 #define mGetLbl(tp) \
     mGet( tp, uiStrings::phrInput( uiStrings::sFaultStickSet() ), \
 	      uiStrings::phrInput( uiStrings::sFault() ) )
+
+#define mGetDispString(typ) \
+    dispstr_ = \
+      EMFaultStickSetTranslatorGroup::sGroupName() == typ \
+	? uiStrings::sFaultStickSet(mGetObjNr) \
+	: uiStrings::sFault(mGetObjNr); \
 
 
 uiExportFault::uiExportFault( uiParent* p, const char* typ, bool issingle )
@@ -280,6 +289,7 @@ bool uiExportFault::writeAscii()
 	const int nrsticks = nrSticks( emobj.ptr(), sectionid );
 
 	BufferString objnm = f3d ? f3d->name() : fss->name();
+	objnm.quote('\"');
 
 	BufferString str;
 
@@ -413,23 +423,16 @@ bool uiExportFault::acceptOK()
     if ( File::exists(outfnm)
       && !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()))
 	return false;
-    bool res = writeAscii();
 
-    if ( !res )	return false;
-    const IOObj* ioobj = issingle_ ? ctio_.ioobj_ :
-					    bulkinfld_->getCtxtIOObj().ioobj_;
+    if ( !writeAscii() )
+    {
+	uiMSG().error(uiStrings::phrCannotCreateDBEntryFor(
+						    tr("selected faults")));
+	return false;
+    }
 
-    const uiString tp =
-      EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()
-	? uiStrings::sFaultStickSet()
-	: uiStrings::sFault();
-    const uiString tps =
-     EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()
-	? uiStrings::sFaultStickSet(mPlural)
-	: uiStrings::sFault(mPlural);
     uiString msg = tr( "%1 successfully exported.\n\n"
-		    "Do you want to export more %2?" )
-	.arg(tp).arg(tps);
+		    "Do you want to export more %1?" ).arg(dispstr_);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

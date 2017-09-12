@@ -11,6 +11,7 @@ set(OD_MODULE_SOURCES
 	uibodyregiondlg.cc
 	uibodyoperatordlg.cc
 	uibulkfaultimp.cc
+	uibulk2dhorizonimp.cc
 	uibulkhorizonimp.cc
 	uicalcpoly2horvol.cc
 	uichangesurfacedlg.cc
@@ -39,5 +40,6 @@ set(OD_MODULE_SOURCES
 	uisurfaceman.cc
 	uisurfaceposprov.cc
 	uisurfacesel.cc
+	ui2dhorimporter.cc
 )
 OD_INIT_MODULE()

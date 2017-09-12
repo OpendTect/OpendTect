@@ -800,8 +800,12 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 					    Table::Optional );
     ti->form(0).add( DoubleInpSpec() ); ti->form(0).setName( "X Y" );
     fd->bodyinfos_ += ti;
-    fd->bodyinfos_ += new Table::TargetInfo( "Trace nr", IntInpSpec(),
-					     Table::Optional );
+    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Required );
+    trcspti->form(0).setName( "Trace Nr" );
+    Table::TargetInfo::Form* spform =
+			new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );
+    trcspti->add( spform );
+    fd->bodyinfos_ += trcspti;
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	BufferString fldname = hornms.get( idx );
@@ -829,7 +833,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
     data.erase();
     if ( !finishedreadingheader_ )
     {
-	if ( !getHdrVals(strm_) )
+	if ( !strm_.isOK() || !getHdrVals(strm_) )
 	    return -1;
 
 	udfval_ = getFValue( 0 );
@@ -848,6 +852,12 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
 	data += getFValue( idx+4, udfval_ );
 
     return ret;
+}
+
+
+bool Horizon2DAscIO::isTraceNr() const
+{
+    return formOf( false, 2 ) == 0;
 }
 
 } // namespace EM

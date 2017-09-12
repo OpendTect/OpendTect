@@ -16,6 +16,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <limits.h>
+#include <sstream>
+#include <iosfwd>
 
 #include "bufstring.h"
 #include "thread.h"
@@ -123,6 +125,7 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
 
     strm.clear();
     strm.write( (const char*)ptr, nrbytes );
+
     if ( strm.good() )
 	return true;
     if ( strm.fail() )

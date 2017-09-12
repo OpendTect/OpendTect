@@ -147,12 +147,10 @@ void Horizon2DScanner::launchBrowser( const char* fnm ) const
 
 bool Horizon2DScanner::reInitAscIO( const char* fnm )
 {
-    od_istream strm( fnm );
-    if ( !strm.isOK() )
-	return false;
-
     delete ascio_;
-    ascio_ = new EM::Horizon2DAscIO( fd_, strm );
+    ascio_ = new EM::Horizon2DAscIO( fd_, fnm );
+    if ( !ascio_->isOK() )
+	return false;
     return true;
 }
 
@@ -198,9 +196,9 @@ int Horizon2DScanner::nextStep()
 
     if ( !curlinegeom_ )
 	return Executor::ErrorOccurred();
-
+    const bool isspnr = !ascio_->isTraceNr();
     PosInfo::Line2DPos pos;
-    if ( !mIsUdf(trcnr) )
+    if ( !mIsUdf(trcnr) && !isspnr )
     {
 	if ( !curlinegeom_->data().getPos(trcnr,pos) )
 	    return Executor::MoreToDo();

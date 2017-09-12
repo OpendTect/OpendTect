@@ -328,20 +328,24 @@ void uiODMenuMgr::fillImportMenu()
 		 mImpSeisODCubeOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
 
-    uiMenu* imphorasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     if ( has2d )
-	mInsertItem( imphorasc, m3Dots(tr("Geometry 2D")),
-		     mImpHor2DAsciiMnuItm );
-    mInsertItem( imphorasc, has2d ? m3Dots(tr("Geometry 3D"))
-				  : m3Dots(tr("Geometry")),
-		 mImpHorAsciiMnuItm );
-    mInsertItem( imphorasc, has2d ? m3Dots(tr("Attributes 3D"))
-				  : m3Dots(tr("Attributes")),
-		mImpHorAsciiAttribMnuItm );
-    mInsertItem( imphorasc, has2d ? m3Dots(tr("Bulk 3D"))
-				  : m3Dots(tr("Bulk")),
-		 mImpBulkHorAsciiMnuIm );
-    imphor->insertItem( imphorasc );
+    {
+	uiMenu* imphor2Dasc = new uiMenu( &appl_, tr("ASCII 2D"), ascic );
+	mInsertItem( imphor2Dasc, m3Dots(tr("Single 2D Horizon")),
+	    mImpHor2DAsciiMnuItm );
+	mInsertItem( imphor2Dasc, m3Dots(tr("Bulk 2D Horizon")),
+	    mImpBulkHor2DAsciiMnuItm );
+	imphor->insertItem( imphor2Dasc );
+    }
+
+    uiMenu* imphor3Dasc = new uiMenu( &appl_, tr("ASCII 3D"), ascic );
+    mInsertItem( imphor3Dasc, m3Dots(tr("Single 3D Horizon")),
+	mImpHorAsciiMnuItm );
+    mInsertItem( imphor3Dasc, m3Dots(tr("Bulk 3D Horizon")),
+	mImpBulkHorAsciiMnuIm );
+    imphor->insertItem( imphor3Dasc );
+    mInsertPixmapItem( imphor, has2d ? m3Dots(tr("Attributes 3D")) :
+		   m3Dots(tr("Attributes")), mImpHorAsciiAttribMnuItm, ascic );
 
     uiMenu* impfltasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     mInsertItem( impfltasc, m3Dots(tr("Single Fault")), mImpFaultMnuItm );
@@ -464,10 +468,22 @@ void uiODMenuMgr::fillExportMenu()
     const uiString sascii = m3Dots(uiStrings::sASCII());
 
     if ( has2d )
-	mInsertPixmapItem( exphor, m3Dots(tr("ASCII 2D")),
-		     mExpHorAscii2DMnuItm, ascic );
-    mInsertPixmapItem( exphor, has2d ? m3Dots(tr("ASCII 3D")) : sascii,
-		 mExpHorAscii3DMnuItm, ascic );
+    {
+    uiMenu* exphor2Dasc = new uiMenu( &appl_, tr("ASCII 2D"), ascic );
+       mInsertItem( exphor2Dasc, m3Dots(tr("Single 2D Horizon")),
+			   mExpHorAscii2DMnuItm );
+    mInsertItem( exphor2Dasc, m3Dots(tr("Bulk 2D Horizons")),
+				  mExpBulkHorAscii2DMnuItm );
+      exphor->insertItem( exphor2Dasc );
+    }
+
+    uiMenu* exphor3Dasc = new uiMenu( &appl_, tr("ASCII 3D"), ascic );
+    mInsertItem( exphor3Dasc, m3Dots(tr("Single 3D Horizon")),
+				      mExpHorAscii3DMnuItm );
+    mInsertItem( exphor3Dasc, m3Dots(tr("Bulk 3D Horizons")),
+				      mExpBulkHorAscii3DMnuItm );
+    exphor->insertItem( exphor3Dasc );
+
     uiMenu* expfltasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     mInsertItem( expfltasc, m3Dots(tr("Single Fault")), mExpFltAsciiMnuItm );
     mInsertItem( expfltasc, m3Dots(tr("Bulk Faults")), mExpBulkFltAsciiMnuItm );
@@ -1339,8 +1355,11 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpHorAsciiAttribMnuItm:	mDoOp(Imp,Hor,1); break;
     case mImpHor2DAsciiMnuItm:		mDoOp(Imp,Hor,2); break;
     case mImpBulkHorAsciiMnuIm:		mDoOp(Imp,Hor,3); break;
+    case mImpBulkHor2DAsciiMnuItm:	mDoOp(Imp,Hor,4); break;
     case mExpHorAscii3DMnuItm:		mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:		mDoOp(Exp,Hor,1); break;
+    case mExpBulkHorAscii3DMnuItm:	mDoOp(Exp,Hor,2); break;
+    case mExpBulkHorAscii2DMnuItm:	mDoOp(Exp,Hor,3); break;
     case mExpFltAsciiMnuItm:		mDoOp(Exp,Flt,0); break;
     case mExpBulkFltAsciiMnuItm:	mDoOp(Exp,Flt,1); break;
     case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Fltss,0); break;

@@ -171,7 +171,8 @@ void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
 	const float prod = mCast(float,vec.dot(newvec));
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
-	hors_[hidx]->setZPos( hors_[hidx]->sectionID(0), geomid,trcnr,val,false);
+	hors_[hidx]->setZPos( hors_[hidx]->sectionID(0), geomid,trcnr,val,
+									false);
     }
 }
 
@@ -280,7 +281,7 @@ void uiImportHorizon2D::addHor( CallBacker* )
 
     const char* hornm = dlg.text();
     PtrMan<IOObj> existioobj = DBM().getByName( IOObjContext::Surf, hornm );
-    if ( hornm )
+    if ( existioobj )
     {
 	uiMSG().error(tr("Failed to add: a surface already "
                          "exists with name %1").arg(toUiString(hornm)));
@@ -380,6 +381,7 @@ bool uiImportHorizon2D::doImport()
 		if ( ioobj )
 		    hor->setDBKey( ioobj->key() );
 
+		hor->setPreferredColor(getRandomColor());
 		hor->ref();
 		hor->setBurstAlert( true );
 		horizons += hor;
@@ -415,6 +417,7 @@ bool uiImportHorizon2D::doImport()
 		    mDeburstRet( false, unRef );
 	    }
 
+	    hor->setPreferredColor(getRandomColor());
 	    hor->ref();
 	    horizons += hor;
 	    if ( !hor->hasBurstAlert() )
