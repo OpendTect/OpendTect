@@ -47,7 +47,7 @@ int FileSpec::nrFiles() const
 bool FileSpec::isRangeMulti() const
 {
     const int nrfnms = fnames_.size();
-    return nrfnms == 1 && !mIsUdf(nrs_.start);
+    return nrfnms > 1 && !mIsUdf(nrs_.start);
 }
 
 
@@ -121,6 +121,9 @@ const char* FileSpec::fileName( int fidx ) const
 const char* FileSpec::absFileName( int fidx ) const
 {
     const char* fnm = fileName( fidx );
+    if ( FixedString(fnm).startsWith( "${" ) )
+	return fnm;
+
     FilePath fp( fnm );
     if ( fp.isAbsolute() )
 	return fnm;
@@ -179,6 +182,27 @@ void FileSpec::ensureBaseDir( const char* dirnm )
 	}
     }
 
+}
+
+
+void FileSpec::makeAbsoluteIfRelative( const char* dirnm )
+{
+    if ( !dirnm || !*dirnm )
+	return;
+
+    FilePath basefp( dirnm );
+    if ( !basefp.isAbsolute() )
+	return;
+
+    const int sz = nrFiles();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	FilePath fp( fileName(idx) );
+	if ( fp.isAbsolute() )
+	    continue;
+	fp.setPath( dirnm );
+	fnames_.replace( idx, new BufferString(fp.fullPath()) );
+    }
 }
 
 

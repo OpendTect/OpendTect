@@ -28,10 +28,12 @@ mExpClass(General) IOStream : public IOObj
 public:
 			IOStream(const char* nm=0,const char* id=0,
 				 bool =false);
+			IOStream(const IOStream&);
     virtual bool	isBad() const;
 
     virtual void	copyFrom(const IOObj*);
     virtual const char*	fullUserExpr(bool forread=true) const;
+    virtual BufferString mainFileName() const;
     virtual const char*	connType() const;
     virtual Conn*	getConn(bool) const;
 
@@ -67,6 +69,7 @@ protected:
     FileSpec		fs_;
     mutable int		curfidx_;
     BufferString	extension_;
+    BufferString	specfname_;
 
     StreamProvider*	getStreamProv(bool,bool f=true) const;
     bool		implDoAll(bool,bool yn=true) const;
@@ -74,6 +77,7 @@ protected:
 public:
 
     virtual void	setDirName(const char*);
+    virtual void	setAbsDirectory(const char*);
 
 };
 

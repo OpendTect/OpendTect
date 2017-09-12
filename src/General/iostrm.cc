@@ -14,8 +14,46 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "string2.h"
 #include "file.h"
 #include "filepath.h"
+#include "transl.h"
 #include "perthreadrepos.h"
+#include "envvars.h"
 #include "oddirs.h"
+
+
+static void getFullSpecFileName( BufferString& fnm, BufferString* specfnm )
+{
+    if ( !fnm.startsWith( "${" ) )
+	return;
+
+    BufferString dirnm( fnm.str()+2 );
+    char* ptr = dirnm.find( "}" );
+    if ( !ptr )
+	{ fnm = dirnm; return; }
+
+    if ( specfnm )
+	*specfnm = fnm;
+    *ptr++ = '\0';
+    fnm = ptr;
+
+    if ( dirnm == "DTECT_DATA" )
+	dirnm = GetBaseDataDir();
+    else if ( dirnm == "DTECT_APPL" )
+	dirnm = GetSoftwareDir(true);
+    else if ( dirnm == "DTECT_APPL_SETUP" )
+	dirnm = GetApplSetupDir();
+    else if ( dirnm == "DTECT_SETTINGS" )
+	dirnm = GetSettingsDir();
+    else
+    {
+	dirnm = GetEnvVar( dirnm );
+	if ( dirnm.isEmpty() )
+	    dirnm = GetBaseDataDir();
+    }
+
+    FilePath fp( dirnm, fnm );
+    fnm = fp.fullPath();
+}
+
 
 class IOStreamProducer : public IOObjProducer
 {
@@ -39,10 +77,24 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 }
 
 
+IOStream::IOStream( const IOStream& oth )
+{
+    copyFrom( &oth );
+}
+
+
 void IOStream::setDirName( const char* dirnm )
 {
     IOObj::setDirName( dirnm );
     fs_.survsubdir_ = dirnm;
+}
+
+
+void IOStream::setAbsDirectory( const char* dirnm )
+{
+    FilePath fp( dirnm );
+    setDirName( fp.fileName() );
+    fs_.makeAbsoluteIfRelative( dirnm );
 }
 
 
@@ -70,25 +122,36 @@ void IOStream::copyFrom( const IOObj* obj )
 	fs_ = oth->fs_;
 	curfidx_ = oth->curfidx_;
 	extension_ = oth->extension_;
+	specfname_ = oth->specfname_;
     }
 }
 
 
 const char* IOStream::fullUserExpr( bool forread ) const
 {
-    return fs_.absFileName( curfidx_ );
+    mDeclStaticString( ret );
+    ret = mainFileName();
+    return ret;
+}
+
+
+BufferString IOStream::mainFileName() const
+{
+    BufferString ret( fs_.absFileName(curfidx_) );
+    getFullSpecFileName( ret, 0 );
+    return ret;
 }
 
 
 bool IOStream::implExists( bool fr ) const
 {
-    return File::exists( fullUserExpr(fr) );
+    return File::exists( mainFileName() );
 }
 
 
 bool IOStream::implReadOnly() const
 {
-    return !File::isWritable( fullUserExpr(true) );
+    return !File::isWritable( mainFileName() );
 }
 
 
@@ -130,7 +193,22 @@ bool IOStream::implRename( const char* newnm, const CallBack* cb )
     if ( nrfiles != 1 )
 	return false;
 
-    return File::rename( fullUserExpr(true), newnm );
+    const BufferString newfnm( newnm );
+    const BufferString oldfnm( mainFileName() );
+    if ( !File::rename(oldfnm,newfnm) )
+	return false;
+    if ( specfname_.isEmpty() )
+	return true;
+
+    FilePath fpnew( newfnm );
+    FilePath newfpspec( specfname_ );
+    newfpspec.setFileName( fpnew.fileName() );
+    BufferString newfullspecfnm = newfpspec.fullPath();
+    getFullSpecFileName( newfullspecfnm, 0 );
+    if ( newfnm == newfullspecfnm )
+	specfname_ = newfpspec.fullPath();
+
+    return true;
 }
 
 
@@ -149,7 +227,7 @@ Conn* IOStream::getConn( bool forread ) const
     else if ( !forread && transl_ == "Blocks" )
 	return 0; // protect 6.X users against removing their data
 
-    StreamConn*	ret = new StreamConn( fullUserExpr(forread), forread );
+    StreamConn*	ret = new StreamConn( mainFileName(), forread );
     if ( ret )
 	ret->setLinkedTo( key() );
 
@@ -187,6 +265,7 @@ void IOStream::genFileName()
 bool IOStream::getFrom( ascistream& stream )
 {
     fs_.setEmpty();
+    specfname_.setEmpty();
 
     BufferString kw = stream.keyWord() + 1;
     if ( kw == "Extension" )
@@ -219,10 +298,13 @@ bool IOStream::getFrom( ascistream& stream )
 	{ genFileName(); stream.next(); }
     else
     {
+	getFullSpecFileName( fnm, &specfname_ );
 	fs_.fnames_.add( FilePath(fnm).fullPath() );
 	mStrmNext()
 	while ( kw.startsWith("Name.") )
 	{
+	    fnm = stream.value();
+	    getFullSpecFileName( fnm, 0 );
 	    fs_.fnames_.add( FilePath(stream.value()).fullPath() );
 	    mStrmNext()
 	}
@@ -252,10 +334,21 @@ bool IOStream::putTo( ascostream& stream ) const
 
     for ( int idx=0; idx<nrfiles; idx++ )
     {
-	const FilePath fp( fs_.fnames_.get(idx) );
-	const BufferString fnm( fp.fullPath() );
+	FilePath fp( fs_.fnames_.get(idx) );
+	BufferString fnm( fp.fullPath() );
+	bool trymakerel = fp.isAbsolute();
+	if ( idx == 0 && !specfname_.isEmpty() )
+	{
+	    BufferString fullspecfnm = specfname_;
+	    getFullSpecFileName( fullspecfnm, 0 );
+	    if ( fullspecfnm == fnm )
+	    {
+		fnm = specfname_;
+		trymakerel = false;
+	    }
+	}
 	BufferString omffnm( fnm );
-	if ( fp.isAbsolute() )
+	if ( trymakerel )
 	{
 	    BufferString head( fp.dirUpTo( fpsurvsubdir.nrLevels() - 1 ) );
 	    if ( head == survsubdir )
