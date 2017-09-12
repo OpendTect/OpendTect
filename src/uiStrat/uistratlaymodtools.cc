@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
+static int defNrModels() { return 25; }
+
 const char* uiStratGenDescTools::sKeyNrModels()
 { return "Nr models"; }
 
@@ -54,6 +56,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     , saveReq(this)
     , propEdReq(this)
     , genReq(this)
+    , nrModelsChanged(this)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     uiToolButton* opentb = new uiToolButton( leftgrp, "open",
@@ -72,16 +75,26 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     const CallBack gocb( mCB(this,uiStratGenDescTools,genCB) );
     nrmodlsfld_ = new uiSpinBox( rightgrp );
     nrmodlsfld_->setInterval( Interval<int>(1,mUdf(int)) );
-    nrmodlsfld_->setValue( 25 );
+    nrmodlsfld_->setValue( defNrModels() );
     nrmodlsfld_->setFocusChangeTrigger( false );
     nrmodlsfld_->setStretch( 0, 0 );
     nrmodlsfld_->setToolTip( tr("Number of models to generate") );
-    nrmodlsfld_->valueChanged.notify( gocb );
+    nrmodlsfld_->valueChanging.notify(
+	    mCB(this,uiStratGenDescTools,nrModelsChangedCB) );
+    nrmodlsfld_->valueChanged.notify(
+	    mCB(this,uiStratGenDescTools,genCB) );
     uiToolButton* gotb = new uiToolButton( rightgrp, "go",
 				tr("Generate this amount of models"), gocb );
     nrmodlsfld_->attach( leftOf, gotb );
     rightgrp->attach( ensureRightOf, leftgrp );
     rightgrp->setFrame( true );
+}
+
+
+void uiStratGenDescTools::setNrModels( int nrmodels )
+{
+    NotifyStopper notstop( nrmodlsfld_->valueChanged );
+    nrmodlsfld_->setValue( nrmodels );
 }
 
 
@@ -96,6 +109,14 @@ void uiStratGenDescTools::enableSave( bool yn )
     savetb_->setSensitive( yn );
 }
 
+int uiStratGenDescTools::getNrModelsFromPar( const IOPar& par ) const
+{
+    int nrmodels = -1;
+    par.get( sKeyNrModels(), nrmodels );
+    return nrmodels;
+}
+
+
 void uiStratGenDescTools::fillPar( IOPar& par ) const
 {
     par.set( sKeyNrModels(), nrModels() );
@@ -104,13 +125,19 @@ void uiStratGenDescTools::fillPar( IOPar& par ) const
 
 bool uiStratGenDescTools::usePar( const IOPar& par )
 {
-    int nrmodels;
-    if ( par.get( sKeyNrModels(), nrmodels ) )
-	nrmodlsfld_->setValue( nrmodels );
+    int nrmodels = getNrModelsFromPar( par );
+    if ( nrmodels<0 )
+	nrmodels = defNrModels();
 
+    nrmodlsfld_->setValue( nrmodels );
     return true;
 }
 
+
+void uiStratGenDescTools::nrModelsChangedCB( CallBacker* )
+{
+    nrModelsChanged.trigger();
+}
 
 
 uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )

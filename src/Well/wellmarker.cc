@@ -94,6 +94,22 @@ int Well::MarkerSet::getIdxAbove( float reqz, const Well::Track* trck ) const
 }
 
 
+int Well::MarkerSet::getIdxBelow( float reqz, const Well::Track* trck ) const
+{
+    for ( int idx=size()-1; idx>=0; idx-- )
+    {
+	const Marker& mrk = *(*this)[idx];
+	float mrkz = mrk.dah();
+	if ( trck )
+	    mrkz = mCast(float,trck->getPos(mrkz).z);
+	if ( mrkz < reqz )
+	    return idx+1;
+    }
+    return 0;
+}
+
+
+
 int Well::MarkerSet::indexOf( const char* mname ) const
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -102,6 +118,27 @@ int Well::MarkerSet::indexOf( const char* mname ) const
 	    return idx;
     }
     return -1;
+}
+
+
+void Well::MarkerSet::sortByDAH()
+{
+    TypeSet<float> dahs; dahs.setSize( size(), mUdf(float) );
+    TypeSet<int> idxs; idxs.setSize( size(), -1 );
+
+    for ( int imrkr=0; imrkr<size(); imrkr++ )
+    {
+	dahs[imrkr] = (*this)[imrkr]->dah();
+	idxs[imrkr] = imrkr;
+    }
+
+    sort_coupled( dahs.arr(), idxs.arr(), idxs.size() );
+    ObjectSet<Well::Marker> newidxmarkers;
+    for ( int idx=0; idx<idxs.size(); idx++ )
+	newidxmarkers.add( (*this)[ idxs[idx] ] );
+    this->::ObjectSet<Marker>::erase();
+    for ( int imrkr=0; imrkr<newidxmarkers.size(); imrkr++ )
+	add( newidxmarkers[imrkr] );
 }
 
 
@@ -332,7 +369,10 @@ void Well::MarkerSet::mergeOtherWell( const ObjectSet<Well::Marker>& ms1 )
 	int loidx;
 	const float ms1dah = ms1[ms1idx]->dah();
 	if ( IdxAble::findFPPos(yvals,nrpts,ms1dah,ms1idxfirstmatch,loidx) )
-	    continue; // Two markers in ms1 at same pos. Ignore this one.
+	{
+	    addCopy( ms1, ms1idx, xvals[loidx] );
+	    continue;
+	}
 
 	const float relpos = (ms1dah - yvals[loidx])
 			   / (yvals[loidx+1]-yvals[loidx]);

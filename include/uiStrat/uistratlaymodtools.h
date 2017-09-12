@@ -31,13 +31,16 @@ public:
 		uiStratGenDescTools(uiParent*);
 
     int		nrModels() const;
+    void	setNrModels(int);
     void	enableSave(bool);
 
     Notifier<uiStratGenDescTools>	openReq;
     Notifier<uiStratGenDescTools>	saveReq;
     Notifier<uiStratGenDescTools>	propEdReq;
     Notifier<uiStratGenDescTools>	genReq;
+    Notifier<uiStratGenDescTools>	nrModelsChanged;
 
+    int		getNrModelsFromPar(const IOPar&) const;
     void	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
 
@@ -52,6 +55,7 @@ protected:
     void	saveCB(CallBacker*)	{ saveReq.trigger(); }
     void	propEdCB(CallBacker*)	{ propEdReq.trigger(); }
     void	genCB(CallBacker*)	{ genReq.trigger(); }
+    void	nrModelsChangedCB(CallBacker*);
 
 };
 

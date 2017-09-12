@@ -51,6 +51,8 @@ public:
     mDeclInstanceCreatedNotifierAccess(uiStratLayerModel);
     uiToolBar*			analysisToolBar()	   { return analtb_; }
 
+    void				setNrModels(int);
+    int					nrModels() const;
     const Strat::LayerSequenceGenDesc&	genDesc() const	   { return desc_; }
     const Strat::LayerModel&		layerModelOriginal() const;
     Strat::LayerModel&			layerModelOriginal();
@@ -82,6 +84,7 @@ public:
     static void			doBasicLayerModel(uiParent*);
     static void			doLayerModel(uiParent*,const char* modnm,
 								int opt=0);
+    static uiStratLayerModel*	getUILayerModel();
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
     void			displayFRResult(bool usefr,bool parschanged,
@@ -111,7 +114,6 @@ protected:
     bool			mostlyfilledwithbrine_;
     bool			needtoretrievefrpars_;
     bool			automksynth_;
-    int				nrmodels_;
 
 
     bool			canShowFlattened() const;
@@ -161,8 +163,11 @@ protected:
     void			modSelChg(CallBacker*);
     void			genModels(CallBacker*);
     void			xPlotReq(CallBacker*);
+    void			nrModelsChangedCB(CallBacker*);
     void			helpCB(CallBacker*);
 
+public:
+    uiStratSynthDisp*		getSynthDisp() const	{ return synthdisp_; }
 };
 
 

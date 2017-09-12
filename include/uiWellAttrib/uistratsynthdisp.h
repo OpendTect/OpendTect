@@ -36,7 +36,7 @@ class uiSynthSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
 namespace Strat { class LayerModel; class LayerModelProvider; }
-namespace FlatView { class AuxData; }
+namespace FlatView { class AuxData; class Appearance; }
 namespace PreStackView { class uiSyntheticViewer2DMainWin; }
 
 
@@ -122,6 +122,8 @@ public:
     const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }
     void		setSavedViewRect();
 
+    uiGroup*		getDisplayClone(uiParent*) const;
+
 protected:
 
     int			longestaimdl_;
@@ -177,6 +179,7 @@ protected:
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
     void		copySyntheticDispPars();
+    void		setDefaultAppearance(FlatView::Appearance&);
     inline StratSynth&	altSS()
 			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 

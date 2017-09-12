@@ -295,7 +295,48 @@ RefTree* RefTree::createStd( const char* nm )
 }
 
 
-void RefTree::createFromLevelSet( const LevelSet& ls )
+void Strat::RefTree::removeLevelUnit( const Strat::Level& lvl )
+{
+    Strat::UnitRefIter itr( *this, Strat::UnitRefIter::LeavedNodes );
+    while ( itr.next() )
+    {
+	if ( itr.unit()->code()==lvl.name() )
+	{
+	    Strat::NodeUnitRef* parentnode = itr.unit()->upNode();
+	    if ( parentnode )
+		parentnode->remove( itr.unit() );
+	    break;
+	}
+    }
+}
+
+
+void Strat::RefTree::addLevelUnit( const Strat::Level& lvl )
+{
+    Strat::UnitRefIter itr( *this, Strat::UnitRefIter::NodesOnly );
+    const Strat::NodeOnlyUnitRef* belownode = 0;
+    while ( itr.next() )
+    {
+	if ( itr.unit()->code()=="Below" )
+	{
+	    belownode = (const Strat::NodeOnlyUnitRef*)itr.unit();
+	    break;
+	}
+    }
+
+    Strat::NodeOnlyUnitRef* belownoderef =
+	const_cast<Strat::NodeOnlyUnitRef*> (belownode);
+    Strat::LeavedUnitRef* lur =
+	new Strat::LeavedUnitRef( belownoderef, lvl.name(),
+				  BufferString("Below",lvl.name()) );
+    lur->setLevelID( lvl.id() );
+    lur->add( new Strat::LeafUnitRef(lur) );
+    belownoderef->add( lur );
+
+}
+
+
+void Strat::RefTree::createFromLevelSet( const Strat::LevelSet& ls )
 {
     setEmpty();
     if ( ls.isEmpty() )

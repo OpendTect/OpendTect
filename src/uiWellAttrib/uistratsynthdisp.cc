@@ -177,19 +177,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
     vwr_->dispPropChanged.notify( mCB(this,uiStratSynthDisp,parsChangedCB) );
-    FlatView::Appearance& app = vwr_->appearance();
-    app.setGeoDefaults( true );
-    app.setDarkBG( false );
-    app.annot_.allowuserchangereversedaxis_ = false;
-    app.annot_.title_.setEmpty();
-    app.annot_.x1_.showAll( true );
-    app.annot_.x2_.showAll( true );
-    app.annot_.x1_.annotinint_ = true;
-    app.annot_.x2_.name_ = "TWT";
-    app.ddpars_.show( true, true );
-    app.ddpars_.wva_.allowuserchangedata_ = false;
-    app.ddpars_.vd_.allowuserchangedata_ = false;
     vwr_->viewChanged.notify( mCB(this,uiStratSynthDisp,viewChg) );
+    setDefaultAppearance( vwr_->appearance() );
 
     uiFlatViewStdControl::Setup fvsu( this );
     fvsu.withcoltabed(false).tba((int)uiToolBar::Right)
@@ -267,6 +256,9 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     float val;
     if ( pars.get(sKey::Offset(),val) )
     {
+	if ( SI().xyInFeet() )
+	    val *= mToFeetFactorF;
+
 	mAddSep(); mesg += "Offs="; mesg += val;
 	mesg += " "; mesg += SI().getXYUnitString();
     }
@@ -1743,6 +1735,35 @@ void uiStratSynthDisp::setDiffData()
 	    }
 	}
     }
+}
+
+
+uiGroup* uiStratSynthDisp::getDisplayClone( uiParent* p ) const
+{
+    uiFlatViewer* vwr = new uiFlatViewer( p );
+    vwr->rgbCanvas().disableImageSave();
+    vwr->setInitialSize( uiSize(800,300) );
+    vwr->setStretch( 2, 2 );
+    vwr->appearance() = vwr_->appearance();
+    vwr->setPack( true, vwr_->packID(true), false );
+    vwr->setPack( false, vwr_->packID(false), false );
+    return vwr;
+}
+
+
+void uiStratSynthDisp::setDefaultAppearance( FlatView::Appearance& app )
+{
+    app.setGeoDefaults( true );
+    app.setDarkBG( false );
+    app.annot_.allowuserchangereversedaxis_ = false;
+    app.annot_.title_.setEmpty();
+    app.annot_.x1_.showAll( true );
+    app.annot_.x2_.showAll( true );
+    app.annot_.x1_.annotinint_ = true;
+    app.annot_.x2_.name_ = "TWT";
+    app.ddpars_.show( true, true );
+    app.ddpars_.wva_.allowuserchangedata_ = false;
+    app.ddpars_.vd_.allowuserchangedata_ = false;
 }
 
 
