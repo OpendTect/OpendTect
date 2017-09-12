@@ -57,6 +57,7 @@ namespace Blocks
 	inline float	z4Idx(int) const;
 	void		getMapInfo(const IOPar&);
 	void		putMapInfo(IOPar&) const;
+	bool		isCompatibleWith(const Survey::Geometry&) const;
     };
 
 #define mDefSeisBlockPairClass(clss,typ) \
@@ -122,6 +123,9 @@ public:
     static IdxType	locIdx4Inl(const HGeom&,int inl,SzType inldim);
     static IdxType	locIdx4Crl(const HGeom&,int crl,SzType crldim);
     static IdxType	locIdx4Z(const ZGeom&,float z,SzType zdim);
+    static int		startInl4GlobIdx(const HGeom&,IdxType,SzType inldim);
+    static int		startCrl4GlobIdx(const HGeom&,IdxType,SzType crldim);
+    static float	startZ4GlobIdx(const ZGeom&,IdxType,SzType zdim);
     static int		inl4Idxs(const HGeom&,SzType inldim,IdxType globidx,
 				IdxType sampidx);
     static int		crl4Idxs(const HGeom&,SzType crldim,IdxType globidx,
@@ -196,10 +200,12 @@ public:
     const FilePath&	basePath() const	{ return basepath_; }
     BufferString	infoFileName() const;
     BufferString	dataFileName() const;
+    BufferString	overviewFileName() const;
     static BufferString	infoFileNameFor(const char*);
     static BufferString	dataFileNameFor(const char*);
 
     static const char*	sKeyDataFileExt() { return "blocks"; }
+    static const char*	sKeyOvvwFileExt() { return "ovvw"; }
     static const char*	sKeyFileType()	  { return "Column Cube"; }
     static const char*	sKeySectionPre()  { return "Section-"; }
     static const char*	sKeyGenSection()  { return "Section-General"; }

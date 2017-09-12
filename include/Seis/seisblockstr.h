@@ -43,6 +43,7 @@ public:
     virtual bool	close();
     virtual void	cleanUp();
     virtual const char*	iconName() const		{ return "blockscube"; }
+    virtual void	convToConnExpr(BufferString&) const;
 
     virtual int		bytesOverheadPerTrace() const	{ return 0; }
     virtual bool	isSingleComponent() const	{ return false; }

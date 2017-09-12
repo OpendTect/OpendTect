@@ -50,6 +50,17 @@ void BlocksSeisTrcTranslator::cleanUp()
 }
 
 
+void BlocksSeisTrcTranslator::convToConnExpr( BufferString& fnm ) const
+{
+    if ( !fnm.isEmpty() )
+    {
+	FilePath fp( fnm );
+	fp.setExtension( Seis::sInfoFileExtension() );
+	fnm = fp.fullPath();
+    }
+}
+
+
 bool BlocksSeisTrcTranslator::initRead_()
 {
     StreamConn& sconn = *static_cast<StreamConn*>( conn_ );
@@ -57,6 +68,12 @@ bool BlocksSeisTrcTranslator::initRead_()
     if ( !rdr_->state().isOK() )
     {
 	errmsg_ = rdr_->state();
+	return false;
+    }
+    else if ( read_mode == Seis::Prod
+	  && !rdr_->hGeom().isCompatibleWith( Survey::Geometry::default3D() ) )
+    {
+	errmsg_ = tr("The cube is not compatible with the survey setup");
 	return false;
     }
 
@@ -176,6 +193,7 @@ BufferStringSet BlocksSeisTrcTranslator::auxExtensions() const
     extnms.add( "stats" );
     extnms.add( "proc" );
     extnms.add( "info" );
+    extnms.add( "ovvw" );
     return extnms;
 }
 
