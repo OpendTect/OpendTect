@@ -95,7 +95,7 @@ od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
 {
     const File::SystemAccess& fsa = File::SystemAccess::get( fnm );
     if ( forwrite )
-	sd_ = fsa.createOStream( fnm, useexist );
+	sd_ = fsa.createOStream( fnm, true, useexist );
     else
 	sd_ = fsa.createIStream( fnm );
 }
@@ -357,7 +357,7 @@ bool od_istream::reOpen()
 
 bool od_ostream::open( const char* fnm, bool useexist )
 {
-    sd_ = File::SystemAccess::get( fnm ).createOStream( fnm, useexist );
+    sd_ = File::SystemAccess::get( fnm ).createOStream( fnm, true, useexist );
     return isOK();
 }
 
