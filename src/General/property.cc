@@ -164,6 +164,8 @@ float RangeProperty::gtVal( Property::EvalOpts eo ) const
 
 static const PropertyRef depthpropref( "Depth", PropertyRef::Dist );
 static const ValueProperty depthprop( depthpropref, 0 );
+static const PropertyRef reldepthpropref( "RelDepth", PropertyRef::Dist );
+static const ValueProperty reldepthprop( reldepthpropref, 0 );
 static const PropertyRef xpospropref( "XPos", PropertyRef::Volum );
 static const ValueProperty xposprop( xpospropref, 0 );
 static const FixedString sKeyMathForm( "Formula: " );
@@ -175,9 +177,11 @@ const Math::SpecVarSet& MathProperty::getSpecVars()
 
     if ( svs.isEmpty() )
     {
-	    svs.add( "Depth", "Depth", true, PropertyRef::Dist );
-	    svs.add( "Z", "Depth", true, PropertyRef::Dist );
-	    svs.add( "XPos", "Relative horizontal position (0-1)" );
+	svs.add( "Depth", "Depth", true, PropertyRef::Dist );
+	svs.add( "Z", "Depth", true, PropertyRef::Dist );
+	svs.add( "RelDepth", "Relative Depth", true, PropertyRef::Dist );
+	svs.add( "RelZ", "Relative Depth", true, PropertyRef::Dist );
+	svs.add( "XPos", "Relative horizontal position (0-1)" );
     }
 
     return svs;
@@ -251,7 +255,13 @@ bool MathProperty::init( const PropertySet& ps ) const
     {
 	const Property* prop = 0;
 	if ( form_.isSpec(iinp) )
-	    prop = form_.specIdx(iinp) < 2 ? &depthprop : &xposprop;
+	{
+	    const int specidx = form_.specIdx(iinp);
+	    if ( specidx > 4 )
+		prop = &xposprop;
+	    else
+		prop = specidx < 2 ? &depthprop : &reldepthprop;
+	}
 	else if ( !form_.isConst(iinp) )
 	{
 	    const char* inpnm = form_.inputDef( iinp );
@@ -400,9 +410,9 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	{
 	    if ( prop == &xposprop )
 		val = eo.relpos_;
-	    else if ( prop == &depthprop )
+	    else if ( prop == &depthprop || prop == &reldepthprop )
 	    {
-		val = eo.curz_;
+		val = prop == &depthprop ? eo.absz_ : eo.relz_;
 		if ( SI().depthsInFeet() )
 		    val *= mToFeetFactorF;
 	    }

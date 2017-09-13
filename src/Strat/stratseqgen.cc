@@ -570,7 +570,8 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	const int ipr = indexesofprsmath[mathidx];
 	const PropertyRef* pr = prs[ipr];
 	const Property& prop = props_.get( correspondingidxinprops[mathidx] );
-	if ( pr != &prop.ref() ) continue;	//huh? should never happen
+	if ( pr != &prop.ref() )
+	    { pErrMsg("Huh? should never happen"); continue; }
 	if ( eo.isPrev() )
 	    newlay->setValue( ipr, prop.value( eo ) );
 	else

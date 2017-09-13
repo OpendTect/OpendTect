@@ -121,7 +121,7 @@ public:
 uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 				bool supportform )
     : uiDialog(p,uiDialog::Setup(tr("Property definition"),
-		                 toUiString("%1 '%2' property").arg(isadd ? 
+		                 toUiString("%1 '%2' property").arg(isadd ?
 				 uiStrings::sAdd():uiStrings::sEdit()).
 				 arg( PropertyRef::toString(pr.stdType())),
 		                 mODHelpKey(mEditPropRefHelpID) ))
@@ -349,7 +349,7 @@ bool uiBuildPROPS::isPropRemovable( int propidx )
 	if ( subselprs.size()<=1 )
 	    mErrRet( tr( "Cannot remove this property.Need to have atleast one "
 			 "usable property of type '%1'")
-		    	.arg(PropertyRef::toString(propref->stdType())), false )
+			.arg(PropertyRef::toString(propref->stdType())), false )
     }
 
     return true;
@@ -448,9 +448,11 @@ uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
     : uiVarWizardDlg(p,uiDialog::Setup(toUiString("%1 %2 - %3")
 		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
 		.arg(uiStrings::sSelection()),
-		uiStrings::phrSelect(tr("layer properties to use")),
+		tr("You will be modeling layer properties, we have pre-selected"
+		    " essential ones.\nAdd properties if only you are interested in"
+		    " modeling those."),
 		mODHelpKey(mSelectPropRefsHelpID)),
-	    	pars, (uiVarWizardDlg::Position)pos )
+		pars, (uiVarWizardDlg::Position)pos )
 {
     proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }
@@ -469,7 +471,7 @@ uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
     , thref_(&PropertyRef::thickness())
     , structchg_(false)
 {
-    uiListBox::Setup su( OD::ChooseAtLeastOne, toUiString(lbl), 
+    uiListBox::Setup su( OD::ChooseAtLeastOne, toUiString(lbl),
 			 uiListBox::AboveMid );
     propfld_ = new uiListBox( this, su, "Available properties" );
     fillList();
