@@ -122,7 +122,7 @@ public:
 uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 				bool supportform )
     : uiDialog(p,uiDialog::Setup(tr("Property definition"),
-		                 toUiString("%1 '%2' property").arg(isadd ? 
+		                 toUiString("%1 '%2' property").arg(isadd ?
 				 uiStrings::sAdd():uiStrings::sEdit()).
 				 arg( PropertyRef::toString(pr.stdType())),
 		                 mODHelpKey(mEditPropRefHelpID) ))
@@ -350,7 +350,7 @@ bool uiBuildPROPS::isPropRemovable( int propidx )
 	if ( subselprs.size()<=1 )
 	    mErrRet( tr( "Cannot remove this property.Need to have atleast one "
 			 "usable property of type '%1'")
-		    	.arg(PropertyRef::toString(propref->stdType())), false )
+			.arg(PropertyRef::toString(propref->stdType())), false )
     }
 
     return true;
@@ -409,7 +409,7 @@ bool uiManPROPS::rejectOK( CallBacker* )
 						: Repos::User);
 
     if ( !PROPS().save(repsrc) )
-	uiMSG().warning( tr("Could not store the definitions to file."
+	uiMSG().warning( tr("Cannot store the definitions to file."
 			 "\nPlease check file/directory permissions.") );
     else if ( repsrc != Repos::Survey )
     {
@@ -449,9 +449,11 @@ uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
     : uiVarWizardDlg(p,uiDialog::Setup(toUiString("%1 %2 - %3")
 		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
 		.arg(uiStrings::sSelection()),
-		uiStrings::phrSelect(tr("layer properties to use")),
+		tr("You will be modeling layer properties, we have pre-selected"
+		    " essential ones.\nAdd properties if only you are interested in"
+		    " modeling those."),
 		mODHelpKey(mSelectPropRefsHelpID)),
-	    	pars, (uiVarWizardDlg::Position)pos )
+		pars, (uiVarWizardDlg::Position)pos )
 {
     proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }

@@ -46,7 +46,7 @@ public:
     virtual void	reset()			     { lastval_ = mUdf(float); }
     virtual bool	init(const PropertySet&) const;
 			    //!< clears 'memory' and makes property usable
-    virtual uiString	errMsg() const			{ 
+    virtual uiString	errMsg() const			{
 					    return uiString::emptyString();
 							}
 
@@ -71,10 +71,11 @@ public:
 			EvalOpts( ValOpt vo=New, float relpos=0.5 )
 			    : valopt_(vo)
 			    , relpos_(relpos)
-			    , curz_(0)		{}
+			    , absz_(0.f)
+			    , relz_(0.f)	{}
 	ValOpt		valopt_;
 	float		relpos_;
-	float		curz_;
+	float		absz_, relz_;
 
 	inline bool	isAvg() const		{ return valopt_==Avg; }
 	inline bool	isPrev() const		{ return valopt_==Prev;}
