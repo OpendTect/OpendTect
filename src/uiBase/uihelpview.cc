@@ -145,7 +145,7 @@ BufferString DevDocHelp::getUrl() const
     if ( !File::exists( basefile.fullPath()) )
 	return BufferString::empty();
 
-    return BufferString( fileprot, basefile.fullPath(File::Path::Unix) );
+    return BufferString( fileprot, basefile.fullPath() );
 }
 
 
