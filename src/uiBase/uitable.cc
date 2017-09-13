@@ -491,6 +491,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     // Horrible ... using setPrefWidthInChar will prevent events to be emitted
     cornerlabel_ = new uiLabel( parent(), tr("                    ") );
     cornerlabel_->attach( atSamePosition, this );
+    cornerlabel_->display( false );
 }
 
 
@@ -1063,6 +1064,7 @@ void uiTable::setTopLeftCornerLabel( const uiString& txt )
 
     uiString todisp( tr("  %1") ); todisp.arg( txt );
     cornerlabel_->setText( todisp );
+    cornerlabel_->display( true );
 }
 
 
@@ -1075,7 +1077,7 @@ void uiTable::setRowToolTip( int row, const char* tt )
 void uiTable::setLabelBGColor( int rc, Color c, bool isrow )
 {
     QTableWidgetItem& qw = body_->getRCItem( rc, isrow );
-    qw.setBackground( QBrush(QColor(c.r(),c.g(), c.b(),255)) );
+    qw.setBackground( QBrush(QColor(c.r(),c.g(),c.b(),255)) );
 }
 
 
