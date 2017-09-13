@@ -173,10 +173,7 @@ bool ui3DViewer2Image::saveImages( const osg::Image* mainimg,
 	    FOREGROUND_TRANSPARENCY, false, true );
     }
 
-    rgbmainimage.save( imgfnm_.buf(), fmt );
-
-    return true;
-
+    return rgbmainimage.save( imgfnm_.buf(), fmt );
 }
 
 
@@ -479,10 +476,8 @@ bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
 	rgbmainimage.blendWith( rgbhudimage, true,
 	    FOREGROUND_TRANSPARENCY, false, true );
     }
-    rgbmainimage.save( filepath.fullPath().buf(),fmt );
 
-    return true;
-
+    return rgbmainimage.save( filepath.fullPath().buf(), fmt );
 }
 
 
