@@ -344,15 +344,12 @@ mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
 mExternC(Basic) const char* GetDocFileDir( const char* filedir )
 {
     mDeclStaticString( dirnm );
-    if ( dirnm.isEmpty() )
-    {
 #ifdef __mac__
-	dirnm = FilePath(GetSoftwareDir(0),"Resources","doc",
-			 filedir).fullPath();
+    dirnm = FilePath(GetSoftwareDir(0),"Resources","doc",
+		     filedir).fullPath();
 #else
-	dirnm = FilePath(GetSoftwareDir(0),"doc",filedir).fullPath();
+    dirnm = FilePath(GetSoftwareDir(0),"doc",filedir).fullPath();
 #endif
-    }
 
     return dirnm;
 }
