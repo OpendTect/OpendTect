@@ -989,6 +989,12 @@ void uiMarkerItem::setMarkerStyle( const OD::MarkerStyle2D& mstyle )
 }
 
 
+const OD::MarkerStyle2D* uiMarkerItem::getMarkerStyle()
+{
+    return qmarkeritem_->getMarkerStyle();
+}
+
+
 void uiMarkerItem::setFill( bool fill )
 {
     qmarkeritem_->setFill( fill );

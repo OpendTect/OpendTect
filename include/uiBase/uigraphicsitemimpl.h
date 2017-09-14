@@ -355,7 +355,9 @@ public:
     ODGraphicsMarkerItem*	qMarkerItem()	{ return qmarkeritem_; }
     void			setMarkerStyle(const OD::MarkerStyle2D&);
     void			setFill(bool);
-    void			setFillColor(const Color&,bool withalpha=false);
+    void			setFillColor(const Color&,bool
+					    withalpha=false);
+    const OD::MarkerStyle2D*	getMarkerStyle();
 
 protected:
 
