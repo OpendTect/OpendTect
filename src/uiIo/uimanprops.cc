@@ -450,7 +450,7 @@ uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
 		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
 		.arg(uiStrings::sSelection()),
 		tr("You will be modeling layer properties, we have pre-selected"
-		    " essential ones.\nAdd properties if only you are interested in"
+		    " essential ones.\nAdd properties only if you are interested in"
 		    " modeling those."),
 		mODHelpKey(mSelectPropRefsHelpID)),
 		pars, (uiVarWizardDlg::Position)pos )
@@ -472,7 +472,7 @@ uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
     , thref_(&PropertyRef::thickness())
     , structchg_(false)
 {
-    uiListBox::Setup su( OD::ChooseAtLeastOne, mToUiStringTodo(lbl), 
+    uiListBox::Setup su( OD::ChooseAtLeastOne, mToUiStringTodo(lbl),
 			 uiListBox::AboveMid );
     propfld_ = new uiListBox( this, su, "Available properties" );
     fillList();
