@@ -449,7 +449,7 @@ uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
 		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
 		.arg(uiStrings::sSelection()),
 		tr("You will be modeling layer properties, we have pre-selected"
-		    " essential ones.\nAdd properties if only you are interested in"
+		    " essential ones.\nAdd properties only if you are interested in"
 		    " modeling those."),
 		mODHelpKey(mSelectPropRefsHelpID)),
 		pars, (uiVarWizardDlg::Position)pos )
