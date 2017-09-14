@@ -843,9 +843,12 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
     }
 
     const int sz = vals.size();
-    if ( sz < 1 ) return mUdf(float);
-    if ( sz == 1 ) return logisvel ? 1.f / vals[0] : vals[0];
-    if ( sz == 2 ) return samppol == Stats::UseAvg
+    if ( sz < 1 )
+	return mUdf(float);
+    if ( sz == 1 )
+	return logisvel ? 1.f / vals[0] : vals[0];
+    if ( sz == 2 )
+	return samppol == Stats::UseAvg
 		? ( logisvel ? 2.f/(vals[0]+vals[1]) : (vals[0]+vals[1])*0.5f )
 		: logisvel ? 1.f / vals[0] : vals[0];
 
