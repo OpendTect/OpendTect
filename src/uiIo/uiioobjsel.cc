@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiioobjsel.h"
 #include "uiioobjselgrp.h"
@@ -16,11 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjselwritetransl.h"
 
 #include "ctxtioobj.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "iopar.h"
-#include "linekey.h"
 #include "transl.h"
 
 #include "uimsg.h"
@@ -29,6 +26,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 #include "settings.h"
+#include "file.h"
+#include "filepath.h"
+#include "keystrs.h"
 
 
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
@@ -105,9 +105,19 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 #define mConstructorInitListStart(c) \
 	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.forread_), \
-		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
+		    mNoDlgTitle, mODHelpKey(mSessionManHelpID) ) \
 	    .nrstatusflds(1)) \
-    , selgrp_( 0 )
+    , selgrp_( 0 ) \
+    , crctio_( 0 )
+
+
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt )
+    : mConstructorInitListStart(ctxt)
+    , setup_(uiString::emptyString())
+{
+    crctio_ = new CtxtIOObj( ctxt );
+    init( *crctio_ );
+}
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
@@ -128,6 +138,13 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 }
 
 
+uiIOObjSelDlg::~uiIOObjSelDlg()
+{
+    if ( crctio_ )
+	{ delete crctio_->ioobj_; delete crctio_; }
+}
+
+
 uiString uiIOObjSelDlg::selTxt( bool forread )
 {
     return forread
@@ -145,7 +162,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     sgsu.withinserters( setup_.withinserters_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
     selgrp_->getListField()->setHSzPol( uiObject::WideVar );
-    statusBar()->setTxtAlign( 0, Alignment::Right );
+    statusBar()->setTxtAlign( 0, OD::Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
 
     uiString titletext( setup_.titletext_ );
@@ -201,22 +218,20 @@ const IOObj* uiIOObjSelDlg::ioObj() const
 void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const char*,msg,cb);
-    toStatusBar( mToUiStringTodo(msg) );
+    toStatusBar( toUiString(msg) );
 }
 
 
-void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
+void uiIOObjSelDlg::setSurveyDefaultSubsel( const char* subsel )
 {
     selgrp_->setSurveyDefaultSubsel(subsel);
-
 }
 
 
 #define mSelTxt(txt,ct) \
     !txt.isEmpty() ? txt \
 	: toUiString(ct.name().isEmpty() \
-	    ? ct.trgroup_->groupName().buf() \
-	    : ct.name().buf())
+	    ? ct.translatorGroupName().buf() : ct.name().buf())
 
 uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const uiString& txt)
     : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c)),
@@ -259,23 +274,42 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
 
 void uiIOObjSel::init()
 {
-    workctio_.ctxt_.fillTrGroup();
-    wrtrselfld_ = 0;
-    if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
+    const IOObjContext& ctxt = workctio_.ctxt_;
+    ctxt.fillTrGroup();
+    wrtrselfld_ = 0; usesharedbut_ = 0;
+    if ( ctxt.forread_ && setup_.withinserters_ )
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
-					    extselbuts_ );
+					    insbuts_ );
 	for ( int idx=0; idx<inserters_.size(); idx++ )
 	    inserters_[idx]->objectInserted.notify(
 					mCB(this,uiIOObjSel,objInserted) );
     }
-    else if ( setup_.withwriteopts_ )
+    else if ( !ctxt.forread_ )
     {
-	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_, false );
-	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
+	uiObject* curendobj = uiIOSelect::endObj( false );
+	if ( setup_.withwriteopts_ )
+	{
+	    wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_,
+							 false );
+	    wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
+	    curendobj = wrtrselfld_->attachObj();
+	}
+	if ( ctxt.destpolicy_ != IOObjContext::SurveyOnly )
+	{
+	    usesharedbut_ = new uiCheckBox( this, uiString::emptyString() );
+	    usesharedbut_->setIcon( "shared_data" );
+	    usesharedbut_->setChecked(
+			    ctxt.destpolicy_ == IOObjContext::PreferShared );
+	    usesharedbut_->setToolTip(
+	      tr("Put the output data in the common (shared) data directory") );
+	    usesharedbut_->attach( rightOf, curendobj );
+	}
     }
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
-    mAttachCB( IOM().afterSurveyChange, uiIOObjSel::survChangedCB );
+    mAttachCB( DBM().afterSurveyChange, uiIOObjSel::survChangedCB );
+    mAttachCB( DBM().entryAdded, uiIOObjSel::dbmChgCB );
+    mAttachCB( DBM().entryRemoved, uiIOObjSel::dbmChgCB );
 }
 
 
@@ -286,6 +320,12 @@ uiIOObjSel::~uiIOObjSel()
     if ( inctiomine_ )
 	{ delete inctio_.ioobj_; delete &inctio_; }
     delete workctio_.ioobj_; delete &workctio_;
+}
+
+
+bool uiIOObjSel::forRead() const
+{
+    return workctio_.ctxt_.forread_;
 }
 
 
@@ -304,6 +344,17 @@ void uiIOObjSel::survChangedCB( CallBacker* )
 }
 
 
+void uiIOObjSel::dbmChgCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( DBKey, id, cb );
+    if ( id.isInvalid() )
+	return;
+
+    if ( workctio_.ctxt_.getSelDirID() == id.dirID() )
+	initRead();
+}
+
+
 void uiIOObjSel::initRead()
 {
     {
@@ -319,15 +370,20 @@ void uiIOObjSel::initRead()
 
 uiObject* uiIOObjSel::endObj( bool left )
 {
-    if ( wrtrselfld_ && !left && !wrtrselfld_->isEmpty() )
-	return wrtrselfld_->attachObj();
+    if ( !left )
+    {
+	if ( usesharedbut_ )
+	    return usesharedbut_;
+	else if ( wrtrselfld_ && !wrtrselfld_->isEmpty() )
+	    return wrtrselfld_->attachObj();
+    }
     return uiIOSelect::endObj( left );
 }
 
 
 void uiIOObjSel::fillDefault()
 {
-    if ( setup_.filldef_ && !workctio_.ioobj_ && workctio_.ctxt_.forread_ )
+    if ( setup_.filldef_ && !workctio_.ioobj_ && forRead() )
 	workctio_.fillDefault();
 }
 
@@ -339,22 +395,15 @@ void uiIOObjSel::fillEntries()
 
     const bool hadselioobj = workctio_.ioobj_;
 
-    const IODir iodir ( inctio_.ctxt_.getSelKey() );
-    IODirEntryList del( iodir, inctio_.ctxt_ );
+    DBDirEntryList entrylist( inctio_.ctxt_ );
     BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
-    {
-	keys.add( "" );
-	names.add( "" );
-    }
+	{ keys.add( "" ); names.add( "" ); }
 
-    for ( int idx=0; idx<del.size(); idx++ )
+    for ( int idx=0; idx<entrylist.size(); idx++ )
     {
-	const IOObj* obj = del[idx]->ioobj_;
-	if ( !obj ) continue;
-
-	keys.add( obj->key().buf() );
-	names.add( obj->name().buf() );
+	keys.add( entrylist.key(idx).toString() );
+	names.add( entrylist.name(idx) );
     }
 
     setEntries( keys, names );
@@ -373,7 +422,7 @@ IOObjContext uiIOObjSel::getWriteIOObjCtxt( IOObjContext ctxt )
 bool uiIOObjSel::fillPar( IOPar& iopar ) const
 {
     iopar.set( sKey::ID(),
-	       workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID() );
+	       workctio_.ioobj_ ? workctio_.ioobj_->key() : DBKey() );
     return true;
 }
 
@@ -391,8 +440,9 @@ void uiIOObjSel::usePar( const IOPar& iopar )
     const char* res = iopar.find( sKey::ID() );
     if ( res && *res )
     {
-	workctio_.setObj( MultiID(res) );
-	setInput( MultiID(res) );
+	const DBKey dbky = DBKey::getFromString( res );
+	workctio_.setObj( dbky );
+	setInput( dbky );
     }
 }
 
@@ -413,23 +463,23 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* bky )
 }
 
 
-void uiIOObjSel::setInput( const MultiID& mid )
+void uiIOObjSel::setInput( const DBKey& dbky )
 {
-    workctio_.setObj( IOM().get( mid ) );
-    uiIOSelect::setInput( mid.buf() );
+    workctio_.setObj( DBM().get(dbky) );
+    uiIOSelect::setInput( dbky.toString() );
 }
 
 
 void uiIOObjSel::setInput( const IOObj& ioob )
 {
     workctio_.setObj( ioob.clone() );
-    uiIOSelect::setInput( ioob.key() );
+    uiIOSelect::setInput( ioob.key().toString() );
 }
 
 
 void uiIOObjSel::updateInput()
 {
-    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID("") );
+    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : DBKey::getInvalid());
 }
 
 
@@ -441,20 +491,21 @@ void uiIOObjSel::setEmpty()
 }
 
 
-const char* uiIOObjSel::userNameFromKey( const char* ky ) const
+const char* uiIOObjSel::userNameFromKey( const char* kystr ) const
 {
     mDeclStaticString( nm );
-    nm = "";
-    if ( ky && *ky )
-	nm = IOM().nameOf( ky );
-    return (const char*)nm;
+    nm.setEmpty();
+    const DBKey dbky = DBKey::getFromString( kystr );
+    if ( dbky.isValid() )
+	nm = DBM().nameOf( dbky );
+    return nm.buf();
 }
 
 
 void uiIOObjSel::obtainIOObj()
 {
-    LineKey lk( getInput() );
-    const BufferString inp( lk.lineName() );
+    StringPair strpair( getInput() );
+    const BufferString inp( strpair.first() );
     if ( inp.isEmpty() )
 	{ workctio_.setObj( 0 ); return; }
 
@@ -462,44 +513,36 @@ void uiIOObjSel::obtainIOObj()
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj_
-			      && workctio_.ioobj_->name()==inp.buf() )
+	if ( ( inp == itemusrnm || strpair.getCompString() == itemusrnm )
+		&& workctio_.ioobj_ && workctio_.ioobj_->name()==inp.buf() )
 	    return;
     }
 
-    const IODir iodir( workctio_.ctxt_.getSelKey() );
-    const IOObj* ioob = iodir.get( inp.buf(),
-				   workctio_.ctxt_.trgroup_->groupName() );
+    PtrMan<IOObj> ioob = DBM().getByName( workctio_.ctxt_, inp );
     workctio_.setObj( ioob && workctio_.ctxt_.validIOObj(*ioob)
-		    ? ioob->clone() : 0 );
+		    ? ioob.release() : 0 );
 }
 
 
 void uiIOObjSel::processInput()
 {
     obtainIOObj();
-    if ( workctio_.ioobj_ || workctio_.ctxt_.forread_ )
+    if ( workctio_.ioobj_ || forRead() )
 	updateInput();
 }
 
 
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
-    const IODir iodir ( workctio_.ctxt_.getSelKey() );
-    return iodir.get( nm, workctio_.ctxt_.trgroup_->groupName() );
+    PtrMan<IOObj> obj = DBM().getByName( workctio_.ctxt_, nm );
+    return obj;
 }
 
 
-MultiID uiIOObjSel::validKey() const
+DBKey uiIOObjSel::getKeyOnly() const
 {
-    const IODir iodir( workctio_.ctxt_.getSelKey() );
-    const IOObj* ioob = iodir.get( getInput(),
-				   workctio_.ctxt_.trgroup_->groupName() );
-
-    if ( ioob && workctio_.ctxt_.validIOObj(*ioob) )
-	return ioob->key();
-
-    return MultiID();
+    PtrMan<IOObj> ioob = DBM().getByName( workctio_.ctxt_, getInput() );
+    return ioob ? ioob->key() : DBKey();
 }
 
 
@@ -509,7 +552,6 @@ void uiIOObjSel::doCommit( bool noerr ) const
     const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr);
     if ( !setup_.optional_ && !inctio_.ioobj_ && !alreadyerr )
     {
-
 	CtxtIOObj ctio( inctio_.ctxt_ );
 	if ( !ctio.ctxt_.forread_ && !ctio.ioobj_ )
 	{
@@ -517,18 +559,18 @@ void uiIOObjSel::doCommit( bool noerr ) const
 			    toUiString(workctio_.ctxt_.objectTypeName())) );
 	    return;
 	}
-	uiString txt( inctio_.ctxt_.forread_
-			 ? tr( "Please select the %1")
-			 : tr( "Please enter a valid name for the %1" ) );
+	uiString txt(inctio_.ctxt_.forread_
+			 ? uiStrings::phrSelect(toUiString("%1"))
+			 : uiStrings::phrEnter(tr("a valid name for the %1" )));
 	uiMSG().error( txt.arg( workctio_.ctxt_.objectTypeName() ) );
     }
 }
 
 
-MultiID uiIOObjSel::key( bool noerr ) const
+DBKey uiIOObjSel::key( bool noerr ) const
 {
     doCommit(noerr);
-    return inctio_.ioobj_ ? inctio_.ioobj_->key() : MultiID::udf();
+    return inctio_.ioobj_ ? inctio_.ioobj_->key() : DBKey::getInvalid();
 }
 
 
@@ -560,8 +602,8 @@ return false; }
 
 bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 {
-    LineKey lk( getInput() );
-    const BufferString inp( lk.lineName() );
+    StringPair strpair( getInput() );
+    const BufferString inp( strpair.first() );
     if ( inp.isEmpty() )
     {
 	if ( !haveempty_ )
@@ -576,7 +618,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
     {
 	if ( workctio_.ioobj_ )
 	{
-	    if ( !workctio_.ctxt_.forread_ && wrtrselfld_
+	    if ( !forRead() && wrtrselfld_
 		&& !wrtrselfld_->isEmpty()
 		&& !wrtrselfld_->hasSelectedTranslator(*workctio_.ioobj_) )
 		mErrRet( tr("Cannot change the output format "
@@ -584,7 +626,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 
 	    const bool isalreadyok = inctio_.ioobj_
 			    && inctio_.ioobj_->key() == workctio_.ioobj_->key();
-	    if ( !alreadyerr && !isalreadyok && !workctio_.ctxt_.forread_ )
+	    if ( !alreadyerr && !isalreadyok && !forRead() )
 	    {
 		const bool exists = workctio_.ioobj_->implExists( false );
 		if ( exists )
@@ -607,7 +649,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	       "\nPlease enter another name.").arg(getInput()))
 
     }
-    if ( workctio_.ctxt_.forread_ )
+    if ( forRead() )
 	return false;
 
     workctio_.setObj( createEntry( getInput() ) );
@@ -621,7 +663,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 
 void uiIOObjSel::doObjSel( CallBacker* )
 {
-    if ( !workctio_.ctxt_.forread_ )
+    if ( !forRead() )
 	workctio_.setName( getInput() );
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg )
@@ -643,8 +685,8 @@ void uiIOObjSel::doObjSel( CallBacker* )
 
 void uiIOObjSel::objInserted( CallBacker* cb )
 {
-    mCBCapsuleUnpack( MultiID, ky, cb );
-    if ( !ky.isEmpty() )
+    mCBCapsuleUnpack( DBKey, ky, cb );
+    if ( ky.isValid() )
 	setInput( ky );
 }
 
@@ -655,7 +697,7 @@ void uiIOObjSel::objSel()
     if ( !ky || !*ky )
 	workctio_.setObj( 0 );
     else
-	workctio_.setObj( IOM().get(ky) );
+	workctio_.setObj( DBM().get( DBKey::getFromString(ky) ) );
 }
 
 
@@ -686,9 +728,12 @@ IOObj* uiIOObjSel::createEntry( const char* nm )
     if ( !nm || !*nm )
 	return 0;
 
+    const bool mkinshared = usesharedbut_ && usesharedbut_->isChecked();
     if ( wrtrselfld_ )
-	return wrtrselfld_->mkEntry( nm );
+	return wrtrselfld_->mkEntry( nm, mkinshared );
 
+    workctio_.ctxt_.destpolicy_ = mkinshared
+	    ? IOObjContext::PreferShared : IOObjContext::AllowShared;
     workctio_.setName( nm );
     workctio_.fillObj( false );
     return workctio_.ioobj_ ? workctio_.ioobj_->clone() : 0;
