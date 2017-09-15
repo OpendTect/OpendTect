@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "repos.h"
 #include "rowcol.h"
 #include "survinfo.h"
+#include "uimsg.h"
 #include "uisegyfileselector.h"
 
 
@@ -53,11 +54,18 @@ uiSEGYBulkImporter::uiSEGYBulkImporter( uiParent* p )
 }
 
 
+uiSEGYBulkImporter::~uiSEGYBulkImporter()
+{
+    deepErase( vntinfos_ );
+}
+
+
 bool uiSEGYBulkImporter::selectVintage()
 {
     const SEGY::ImpType imptype = imptypefld_->impType();
     uiSEGYReadStarter::Setup su( false, &imptype );
     su.filenm(0).fixedfnm(false).vintagecheckmode(true);
+    vntinfos_.isEmpty() ? su.vntinfos( 0 ) : su.vntinfos( &vntinfos_ );
     uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su);
     if ( !readstrdlg->go() )
 	return false;
@@ -66,11 +74,26 @@ bool uiSEGYBulkImporter::selectVintage()
     uiSEGYFileSelector* fsdlg =
 			new uiSEGYFileSelector( this,
 						readstrdlg->userFileName(),
-						vintagenm_.buf(), imptype );
+						vintagenm_.buf(), imptype,
+						vntinfos_ );
+    if ( fsdlg->isEmpty() )
+    {
+	uiMSG().message( tr("No files found."
+			    "\nAll the files at this location have already "
+			    "been added to a vintage in bulk import table.") );
+	delete fsdlg;
+	return false;
+    }
     if ( !fsdlg->go() )
 	return false;
 
     fsdlg->getSelNames( selfilenms_ );
+    uiSEGYVintageInfo* vntinfo = new uiSEGYVintageInfo();
+    vntinfo->vintagenm_ = vintagenm_;
+    vntinfo->filenms_ = selfilenms_;
+    vntinfo->fp_ = File::Path( readstrdlg->userFileName() );
+    vntinfos_.add( vntinfo );
+
     return true;
 }
 

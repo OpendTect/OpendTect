@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegysipclassic.h"
 #include "uisegydef.h"
 #include "uisegyread.h"
+#include "uisegybulkimporter.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uifilesel.h"
@@ -49,6 +50,8 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "settings.h"
 #include "timer.h"
 #include "repos.h"
+#include "iopar.h"
+#include "keystrs.h"
 
 
 #define mForSurvSetup su.forsurvsetup_
@@ -82,9 +85,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
     , classicsip_(0)
     , timer_(0)
     , inpfld_(0)
-    , vintagecheckmode_(su.vintagecheckmode_)
-    , vintagenm_(su.vintagenm_)
-    , fixedfnm_(su.fixedfnm_)
+    , setup_(su)
     , fullscanbut_(0)
     , editbut_(0)
 {
@@ -92,7 +93,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
     else
     {
-	if ( !vintagecheckmode_ )
+	if ( !setup_.vintagecheckmode_ )
 	{
 	    setCtrlStyle( RunAndClose );
 	    setOkText( tr("Next >>") );
@@ -101,13 +102,13 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
     }
 
-    if ( vintagecheckmode_ )
-	setCaption( tr("Example vintage information") );
+    if ( setup_.vintagecheckmode_ )
+	setCaption( tr("SEG-Y values and ranges") );
 
     topgrp_ = new uiGroup( this, "Top group" );
     uiLabel* selfilelbl = 0;
     uiObject* attachobj = 0;
-    if ( su.fixedfnm_ )
+    if ( setup_.fixedfnm_ )
     {
 	selfilelbl = new uiLabel( topgrp_, toUiString(su.filenm_) );
 	userfilename_.set( su.filenm_ );
@@ -124,14 +125,14 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 	inpfld_->newSelection.notify( mCB(this,uiSEGYReadStarter,inpChg) );
 	attachobj = inpfld_->attachObj();
     }
-    if ( !su.fixedfnm_ && vintagecheckmode_)
+    if ( !setup_.fixedfnm_ && setup_.vintagecheckmode_ )
     {
 	userfilename_ = su.filenm_;
 	filespec_.setUsrStr( userfilename_ );
 	filespec_.setFileName( userfilename_ );
     }
 
-    if ( !vintagecheckmode_ )
+    if ( !setup_.vintagecheckmode_ )
     {
 	editbut_ = uiButton::getStd( topgrp_, OD::Edit,
 				     mCB(this,uiSEGYReadStarter,editFile),
@@ -198,7 +199,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
     botgrp_->setStretch( 2, 1 );
 
     setToolStates();
-    if ( vintagecheckmode_ && fixedfnm_ && vintagenm_.isEmpty() )
+    if ( setup_.vintagecheckmode_ && setup_.fixedfnm_ &&
+	 setup_.vintagenm_.isEmpty() )
 	setCtrlStyle( CloseOnly );
 
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
@@ -212,7 +214,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 void uiSEGYReadStarter::createTools()
 {
     uiGroup* toolgrp = new uiGroup( midgrp_, "Tool group" );
-    if ( !vintagecheckmode_ )
+    if ( !setup_.vintagecheckmode_ )
     {
 	toolgrp->attach( rightOf, infofld_ );
 	uiToolButton* openbut = new uiToolButton( toolgrp, "open",
@@ -524,7 +526,7 @@ void uiSEGYReadStarter::initWin( CallBacker* )
     if ( (imptypeFixed() && fixedimptype_.isVSP()) )
 	return;
 
-    if ( !vintagecheckmode_ )
+    if ( !setup_.vintagecheckmode_ )
     {
 	uiButton* okbut = button( OK );
 	const CallBack impcb( mCB(this,uiSEGYReadStarter,runClassicImp) );
@@ -551,7 +553,8 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 
 void uiSEGYReadStarter::addVintageUI()
 {
-    if ( vintagecheckmode_ && fixedfnm_ && vintagenm_.isEmpty() )
+    if ( setup_.vintagecheckmode_ && setup_.fixedfnm_ &&
+	 setup_.vintagenm_.isEmpty() )
 	return;
 
     uiButton* okbut = button( OK );
@@ -559,14 +562,14 @@ void uiSEGYReadStarter::addVintageUI()
     uiLabeledComboBox* vintage =
 		    new uiLabeledComboBox( vntgrp, tr("Vintage name") );
     vintagefld_ = vintage->box();
-    vintagefld_->setReadOnly( !vintagenm_.isEmpty() );
+    vintagefld_->setReadOnly( !setup_.vintagenm_.isEmpty() );
     const CallBack vintcb(mCB(this,uiSEGYReadStarter,vntChgCB));
     vintagefld_->selectionChanged.notify( vintcb );
     BufferStringSet vintnms;
-    if ( !vintagenm_.isEmpty() )
+    if ( !setup_.vintagenm_.isEmpty() )
     {
-	vintnms.add( vintagenm_ );
-	lastparname_ = vintagenm_;
+	vintnms.add( setup_.vintagenm_ );
+	lastparname_ = setup_.vintagenm_;
     }
     else
     {
@@ -576,7 +579,7 @@ void uiSEGYReadStarter::addVintageUI()
 		vintnms.add( parset[pidx]->name() );
 
 	const CallBack vntrefresh(mCB(this,uiSEGYReadStarter,vntRefreshCB));
-	uiToolButton* resetbut = new uiToolButton( vntgrp, "refresh",
+	uiToolButton* resetbut = new uiToolButton( vntgrp, "undo",
 					    tr("Revert to initial vintage"),
 					    vntrefresh );
 	resetbut->attach( rightOf, vintage );
@@ -587,6 +590,14 @@ void uiSEGYReadStarter::addVintageUI()
     vntgrp->attach( leftBorder );
 }
 
+
+void uiSEGYReadStarter::showFileAlreadySelMsg()
+{
+    uiMSG().message( tr("The selected file is already assigned to vintage."
+			"\nPlease select another file as new for "
+			"example vintage."));
+
+}
 
 void uiSEGYReadStarter::firstSel( CallBacker* )
 {
@@ -600,7 +611,7 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
 	if ( mForSurvSetup )
 	    fssu.initialselectiondir( GetBaseDataDir() );
 	uiFileSelector uifs( this, fssu );
-	if ( vintagecheckmode_ )
+	if ( setup_.vintagecheckmode_ )
 	{
 	    uiString& capstr = uifs.caption();
 	    capstr.set( "Select example file for vintage" );
@@ -609,7 +620,15 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
 	if ( !uifs.go() )
 	    done();
 	else
-	    inpfld_->setFileName( uifs.fileName() );
+	{
+	    if ( isExampleVntSelected(uifs.fileName()) )
+	    {
+		showFileAlreadySelMsg();
+		return;
+	    }
+	    else
+		inpfld_->setFileName( uifs.fileName() );
+	}
     }
 
     forceRescan( KeepNone );
@@ -642,6 +661,13 @@ void uiSEGYReadStarter::zDomChgCB( CallBacker* )
 
 void uiSEGYReadStarter::inpChg( CallBacker* )
 {
+    if ( isExampleVntSelected(inpfld_->fileName()) )
+    {
+	showFileAlreadySelMsg();
+	inpfld_->setFileName( "" );
+	return;
+    }
+
     detectrev0flds_ = true;
     handleNewInputSpec( KeepNone );
     setToolStates();
@@ -825,7 +851,7 @@ void uiSEGYReadStarter::vntChgCB( CallBacker* )
 {
     Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
     BufferString curselvint( vintagefld_->text() );
-    int selidx = parset.find( curselvint );
+    const int selidx = parset.find( curselvint );
     if ( selidx < 0 )
 	return;
 
@@ -907,8 +933,9 @@ void uiSEGYReadStarter::writeParsCB( CallBacker* )
 bool uiSEGYReadStarter::writePars()
 {
     IOPar iop; fillPar( iop );
-    uiSEGYStoreImpParsDlg dlg( this, iop, lastparname_, vintagecheckmode_ );
-    if ( vintagecheckmode_ )
+    uiSEGYStoreImpParsDlg dlg( this, iop, lastparname_,
+			       setup_.vintagecheckmode_ );
+    if ( setup_.vintagecheckmode_ )
 	dlg.setCaption( tr("Please specify name for this vintage") );
 
     if ( !dlg.go() )
@@ -1339,7 +1366,7 @@ bool uiSEGYReadStarter::commit( bool permissive )
 
 bool uiSEGYReadStarter::acceptOK()
 {
-    if ( vintagecheckmode_ )
+    if ( setup_.vintagecheckmode_ )
 	return getVintageParameters();
 
     if ( !commit(false) )
@@ -1371,6 +1398,26 @@ bool uiSEGYReadStarter::acceptOK()
     const FullSpec fullspec = fullSpec();
     uiSEGYReadFinisher dlg( this, fullspec, userfilename_, fileIsInTime() );
     dlg.go();
+
+    return false;
+}
+
+
+bool uiSEGYReadStarter::isExampleVntSelected( const BufferString& inpnm )
+{
+    if ( !setup_.vntinfos_ )
+	return false;
+
+    for ( int vntidx=0; vntidx<setup_.vntinfos_->size(); vntidx++ )
+    {
+	BufferString fnm;
+	const uiSEGYVintageInfo* vntinfo = setup_.vntinfos_->get(vntidx);
+	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+	int selidx = parset.find( vntinfo->vintagenm_ );
+	Repos::IOPar* iop = selidx<0 ? 0 : parset[selidx];
+	if ( iop && inpnm == iop->find(sKey::FileName()) )
+	    return true;
+    }
 
     return false;
 }

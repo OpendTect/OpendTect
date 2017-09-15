@@ -35,6 +35,7 @@ class uiSEGYRead;
 class uiSEGYImpType;
 class uiSEGYReadStartInfo;
 class uiSEGYClassicSurvInfoProvider;
+class uiSEGYVintageInfo;
 namespace SEGY { class ScanInfoCollectors; class ImpType; }
 
 
@@ -50,18 +51,18 @@ public:
 		Setup(bool for_survsetup, const SEGY::ImpType* type=0)
 		    : forsurvsetup_(for_survsetup)
 		    , imptype_(type)
-		    , filenm_(0)
 		    , fixedfnm_(false)
 		    , vintagecheckmode_(false)
-		    , vintagenm_(0)
+		    , vntinfos_(0)
 		{}
 
 		mDefSetupMemb(bool, forsurvsetup);
 		mDefSetupMemb(const SEGY::ImpType*, imptype);
-		mDefSetupMemb(const char*, filenm);
-		mDefSetupMemb(const char*, vintagenm);
-		mDefSetupMemb(bool, fixedfnm)
-		mDefSetupMemb(bool, vintagecheckmode)
+		mDefSetupMemb(BufferString, filenm);
+		mDefSetupMemb(BufferString, vintagenm);
+		mDefSetupMemb(bool, fixedfnm);
+		mDefSetupMemb(bool, vintagecheckmode);
+		mDefSetupMemb(const ObjectSet<uiSEGYVintageInfo>*, vntinfos);
     };
 
 			uiSEGYReadStarter(uiParent*, const Setup&);
@@ -91,6 +92,7 @@ public:
 
     void		getVintagName(BufferString& vntnm)
 			{ vntnm = lastparname_; }
+    static void		showFileAlreadySelMsg();
 protected:
 
     SEGY::FileSpec	filespec_;
@@ -133,9 +135,7 @@ protected:
     bool		lastscanwasfull_;
     uiSEGYRead*		classicrdr_;
     uiSEGYClassicSurvInfoProvider* classicsip_;
-    bool		vintagecheckmode_;
-    bool		fixedfnm_;
-    BufferString	vintagenm_;
+    const Setup&	setup_;
 
     enum LoadDefChgType	{ KeepAll, KeepBasic, KeepNone };
 
@@ -195,4 +195,5 @@ protected:
 
     bool		commit(bool permissive=false);
 
+    bool		isExampleVntSelected(const BufferString& inpnm);
 };

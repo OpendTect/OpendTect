@@ -12,14 +12,26 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uidialog.h"
+#include "filepath.h"
 
-class uiTable;
 class uiSEGYImpType;
+class uiTable;
+
+mExpClass(uiSEGY) uiSEGYVintageInfo
+{ mODTextTranslationClass(uiSEGYVintageInfo)
+public:
+
+    BufferString	vintagenm_;
+    BufferStringSet	filenms_;
+    File::Path		fp_;
+};
+
 
 mExpClass(uiSEGY) uiSEGYBulkImporter : public uiDialog
 { mODTextTranslationClass(uiSEGYBulkImporter)
 public:
 			uiSEGYBulkImporter(uiParent*);
+			~uiSEGYBulkImporter();
 
     int			nrSelFiles() { return selfilenms_.size(); }
 
@@ -36,4 +48,5 @@ protected:
     uiTable*		table_;
     uiSEGYImpType*	imptypefld_;
     BufferString	vintagenm_;
+    ObjectSet<uiSEGYVintageInfo> vntinfos_;
 };

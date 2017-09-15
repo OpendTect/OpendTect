@@ -12,8 +12,9 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uidialog.h"
+#include "uilistbox.h"
+#include "uisegybulkimporter.h"
 
-class uiListBox;
 class uiTextEdit;
 namespace SEGY{ class ImpType; }
 namespace File{ class Path; }
@@ -23,8 +24,11 @@ mExpClass(uiSEGY) uiSEGYFileSelector : public uiDialog
 public:
 		uiSEGYFileSelector(uiParent*, const char* fnm,
 				   const char* vntname,
-				   const SEGY::ImpType& imptype);
+				   const SEGY::ImpType&,
+				   const ObjectSet<uiSEGYVintageInfo>&);
 		~uiSEGYFileSelector();
+    bool	isEmpty() const
+		{ return filenmsfld_->isEmpty(); }
 
     void	getSelNames(BufferStringSet&);
 
@@ -33,9 +37,12 @@ protected:
     void	quickScanCB(CallBacker*);
     bool	acceptOK();
     bool	rejectOK();
+    void	getSelectableFiles(const BufferString& dirpath,
+				   BufferStringSet&);
 
-    uiListBox*		filenmsfld_;
-    uiTextEdit*		txtfld_;
-    const File::Path&	fp_;
-    const SEGY::ImpType& imptype_;
+    uiListBox*				filenmsfld_;
+    uiTextEdit*				txtfld_;
+    const File::Path&			fp_;
+    const SEGY::ImpType&		imptype_;
+    const ObjectSet<uiSEGYVintageInfo>&		vntinfos_;
 };
