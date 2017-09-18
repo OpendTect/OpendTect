@@ -661,7 +661,7 @@ void uiSEGYReadStarter::zDomChgCB( CallBacker* )
 
 void uiSEGYReadStarter::inpChg( CallBacker* )
 {
-    if ( isExampleVntSelected(inpfld_->fileName()) )
+    if ( inpfld_ && isExampleVntSelected(inpfld_->fileName()) )
     {
 	showFileAlreadySelMsg();
 	inpfld_->setFileName( "" );
