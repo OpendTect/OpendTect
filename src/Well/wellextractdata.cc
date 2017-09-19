@@ -237,8 +237,8 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<ZType>& zrg,bool zistime,
     }
     else
     {
-	zrg.start = survrg.snap( zrg.start );
-	zrg.stop = survrg.snap( zrg.stop );
+	SI().snapZ( zrg.start, 1 );
+	SI().snapZ( zrg.stop, -1 );
     }
 }
 
@@ -866,14 +866,18 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	    break;
     }
 
+    const bool iscode = wl.valsAreCodes();
     const int sz = vals.size();
-    if ( sz < 1 ) return mUdf(float);
-    if ( sz == 1 ) return logisvel ? 1.f / vals[0] : vals[0];
-    if ( sz == 2 ) return samppol == Stats::UseAvg
+    if ( sz < 1 )
+	return iscode ? wl.valueAt( dah ) : mUdf(float);
+    if ( sz == 1 )
+	return logisvel ? 1.f / vals[0] : vals[0];
+    if ( sz == 2 )
+	return samppol == Stats::UseAvg && !iscode
 		? ( logisvel ? 2.f/(vals[0]+vals[1]) : (vals[0]+vals[1])*0.5f )
 		: logisvel ? 1.f / vals[0] : vals[0];
 
-    if ( samppol == Stats::UseMostFreq || wl.valsAreCodes() )
+    if ( samppol == Stats::UseMostFreq || iscode )
     {
 	TypeSet<float> valsseen;
 	TypeSet<int> valsseencount;
@@ -1094,12 +1098,12 @@ bool Well::LogSampler::doPrepare( int thread )
     Interval<float> dahrg;
     mGetDah( dahrg.start, zrg_.start, zrgisintime_ )
     mGetDah( dahrg.stop, zrg_.stop, zrgisintime_ )
-    dahrg.limitTo( track_.dahRange() );
     if ( dahrg.isUdf() )
     {
 	mErrRet( tr("Wrong extraction boundaries") )
     }
 
+    dahrg.limitTo( track_.dahRange() );
     if ( extrintime_ != zrgisintime_ )
     {
 	mGetZ( zrg_.start, dahrg.start, zrgisintime_ )
