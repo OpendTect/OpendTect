@@ -78,7 +78,12 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     extrabutgrp_->setPrefHeight( ft.height()*2 );
 
     infogrp_ = new uiGroup( this, "Info Group" );
+    uiLabel* infolbl = new uiLabel( infogrp_, uiString::emptyString() );
+    infolbl->setIcon( "info" );
+    infolbl->setToolTip( tr("Data Information") );
+
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
+    infofld_->attach( rightTo, infolbl );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
     uiToolButton* dummytb = new uiToolButton( infogrp_, "empty",
@@ -87,12 +92,15 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     dummytb->display( false );
 
     uiGroup* notesgrp = new uiGroup( this, "Notes Group" );
-    uiLabel* noteslbl = new uiLabel( notesgrp, tr("Notes:") );
+    uiLabel* noteslbl = new uiLabel( notesgrp, uiString::emptyString() );
+    noteslbl->setIcon( "notes" );
+    noteslbl->setToolTip( tr("Notes for selected data") );
+
     notesfld_ = new uiTextEdit( notesgrp, "User info" );
     notesfld_->setPrefHeightInChar( 5 );
     notesfld_->setStretch( 2, 2 );
     notesfld_->setToolTip( tr("Notes") );
-    notesfld_->attach( alignedBelow, noteslbl );
+    notesfld_->attach( rightTo, noteslbl );
     uiToolButton* savebut =
 		new uiToolButton( notesgrp, "save", tr("Save Notes"),
 	    mCB(this,uiObjFileMan,saveNotes) );
@@ -296,7 +304,6 @@ BufferString uiObjFileMan::getFileInfo()
 
 	const od_int64 totsz = getFileSize( fname, nrfiles );
 	const BufferString fileszstr( File::getFileSizeString( totsz ) );
-
 	if ( isdir )
 	{
 	    txt.add( "\nDirectory name: " ).add( usrnm );
@@ -313,10 +320,7 @@ BufferString uiObjFileMan::getFileInfo()
 	}
 	BufferString timestr; getTimeStamp( fname, timestr );
 	if ( !timestr.isEmpty() )
-	{
 	    txt.add( "\nLast modified: " ).add( timestr );
-	}
-
     }
     txt.add( "\n" );
 
