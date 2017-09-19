@@ -183,7 +183,7 @@ protected:
     TypeSet<xT>		x_;
     TypeSet<yT>		y_;
 
-    int			baseIdx(xT) const;
+    int			baseIdx(xT,bool&) const;
     yT			snapVal(xT) const;
     yT			interpVal(xT) const;
     yT			outsideVal(xT) const;
@@ -375,27 +375,41 @@ protected:
 
 
 template <class mXT, class mYT> inline
-int BendPointBasedMathFunction<mXT,mYT>::baseIdx( mXT x ) const
+int BendPointBasedMathFunction<mXT,mYT>::baseIdx( mXT x, bool& ispresent ) const
 {
+    ispresent = false;
     const int sz = x_.size();
-    if ( sz < 1 )		return -1;
+    if ( sz < 1 )
+	return -1;
+
     const mXT x0 = x_[0];
-    if ( x < x0 )		return -1;
-    if ( sz == 1 )		return x >= x0 ? 0 : -1;
+    if ( x == x0 )
+	{ ispresent = true; return 0; }
+    else if ( x < x0 )
+	return -1;
+    else if ( sz == 1 )
+	return x > x0 ? 0 : -1;
+
     const mXT xlast = x_[sz-1];
-    if ( x >= xlast )		return sz-1;
-    if ( sz == 2 )		return 0;
+    if ( x >= xlast )
+	{ ispresent = x == xlast; return sz-1; }
+    if ( sz == 2 )
+	return 0;
 
     int ilo = 0; int ihi = sz - 1;
     while ( ihi - ilo > 1 )
     {
 	int imid = (ihi+ilo) / 2;
-	if ( x < x_[imid] )
+	const mXT xmid = x_[imid];
+	if ( x == xmid )
+	    { ispresent = true; return imid; }
+	else if ( x < xmid )
 	    ihi = imid;
 	else
 	    ilo = imid;
     }
 
+    ispresent = x_[ilo] == x;
     return ilo;
 }
 
@@ -403,10 +417,13 @@ int BendPointBasedMathFunction<mXT,mYT>::baseIdx( mXT x ) const
 template <class mXT, class mYT> inline
 void BendPointBasedMathFunction<mXT,mYT>::add( mXT x, mYT y )
 {
-    if ( mIsUdf(x) ) return;
-    if ( x_.isPresent(x) ) return;
+    if ( mIsUdf(x) )
+	return;
+    bool ispresent;
+    const int baseidx = baseIdx( x, ispresent );
+    if ( ispresent )
+	return;
 
-    const int baseidx = baseIdx( x );
     x_ += x; y_ += y;
 
     const int sz = x_.size();
@@ -477,11 +494,14 @@ mYT BendPointBasedMathFunction<mXT,mYT>::snapVal( mXT x ) const
     if ( x < x_[0] || x > x_[sz-1] )
 	return outsideVal(x);
 
-    const int baseidx = baseIdx( x );
+    bool ispresent;
+    const int baseidx = baseIdx( x, ispresent );
 
-    if ( baseidx < 0 )
+    if ( ispresent )
+	return y_[baseidx];
+    else if ( baseidx < 0 )
 	return y_[0];
-    if ( baseidx > sz-2 )
+    else if ( baseidx > sz-2 )
 	return y_[sz - 1];
     return x - x_[baseidx] < x_[baseidx+1] - x ? y_[baseidx] : y_[baseidx+1];
 }
@@ -498,7 +518,11 @@ mYT BendPointBasedMathFunction<mXT,mYT>::interpVal( mXT x ) const
     else if ( sz < 2 )
 	return y_[0];
 
-    const int i0 = baseIdx( x );
+    bool ispresent;
+    const int i0 = baseIdx( x, ispresent );
+    if ( ispresent )
+	return y_[i0];
+
     const mYT v0 = y_[i0];
     if ( i0 == sz-1 )
 	return v0;
