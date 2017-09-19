@@ -79,6 +79,8 @@ bool WellLog::allowParallelComputation() const
 
 void WellLog::prepareForComputeData()
 {
+    deleteAndZeroPtr( logvals_ );
+
     RefMan<Well::Data> wd = new Well::Data;
     if ( Well::MGR().isLoaded(wellid_) )
     {
@@ -109,7 +111,6 @@ void WellLog::prepareForComputeData()
     }
 
     Well::ExtractParams pars;
-    pars.setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
     pars.zstep_ = SI().zStep();
     pars.extractzintime_ = SI().zIsTime();
     pars.snapZRangeToSurvey( !is2D() );
@@ -118,27 +119,18 @@ void WellLog::prepareForComputeData()
     BufferStringSet lognms; lognms.add( logname_ );
     Well::LogSampler logsamp( *wd, pars, lognms );
     if ( !logsamp.executeParallel(false) )
+    {
+	errmsg_ = logsamp.errMsg();
 	return;
+    }
 
-    StepInterval<float> zrg = logsamp.zRange();
-    zrg.step = SI().zStep();
-    arrzrg_ = SI().zRange( false );
+    arrzrg_ = logsamp.zRange();
+    arrzrg_.step = pars.zstep_;
     const int arrsz = arrzrg_.nrSteps()+1;
     logvals_ = new Array1DImpl<float>( arrsz );
 
     for ( int idx=0; idx<arrsz; idx++ )
-    {
-	const float depth = arrzrg_.atIndex( idx );
-	float val = mUdf(float);
-	if ( zrg.includes(depth,true) )
-	{
-	    const int idz = zrg.getIndex( depth );
-	    if ( idz >=0 && idz < logsamp.nrZSamples() )
-		val = logsamp.getLogVal( 0, idz );
-	}
-
-	logvals_->set( idx, val );
-    }
+	logvals_->set( idx, logsamp.getLogVal(0,idx) );
 }
 
 
@@ -152,8 +144,14 @@ bool WellLog::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float realz = (z0+idx)*step;
-	const int arridx = arrzrg_.getIndex( realz );
-	setOutputValue( output, 0, idx, z0, logvals_->get(arridx) );
+	float val = mUdf(float);
+	if ( arrzrg_.includes(realz,false) )
+	{
+	    const int arridx = arrzrg_.getIndex( realz );
+	    val = logvals_->get( arridx );
+	}
+
+	setOutputValue( output, 0, idx, z0, val );
     }
 
     return true;
