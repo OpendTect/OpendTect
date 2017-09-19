@@ -364,6 +364,7 @@ static const char* sKeyOldgroundelev()	{ return "Ground Level elevation"; }
 
 bool Well::odReader::getInfo( od_istream& strm ) const
 {
+    ChangeNotifyBlocker nb( wd_.info() );
     double version = 0.0;
     const char* hdrln = rdHdr( strm, sKeyWell(), version );
     if ( !hdrln )
@@ -440,6 +441,7 @@ bool Well::odReader::getTrack( od_istream& strm ) const
 
     mGetZFac();
 
+    ChangeNotifyBlocker nb( wd_.track() );
     while ( strm.isOK() )
     {
 	strm >> c.x_ >> c.y_ >> c.z_ >> dah;
@@ -625,6 +627,7 @@ bool Well::odReader::addLog( od_istream& strm ) const
 void Well::odReader::readLogData( Well::Log& wl, od_istream& strm,
 				int bintype ) const
 {
+    ChangeNotifyBlocker nb( wl );
     float v[2];
     while ( strm.isOK() )
     {
@@ -678,6 +681,7 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 
     mGetZFac();
 
+    ChangeNotifyBlocker nb( wd_.markers() );
     for ( int idx=1;  ; idx++ )
     {
 	BufferString basekey; basekey += idx;
@@ -685,6 +689,7 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	if ( !iopar.get(key,bs) ) break;
 
 	Well::Marker wm( bs );
+	ChangeNotifyBlocker mnb( wm, false );
 
 	key = IOPar::compKey( basekey, Well::Marker::sKeyDah() );
 	if ( !iopar.get(key,bs) )
@@ -736,6 +741,7 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 
     ascistream astrm( strm, false );
     Well::D2TModel d2t;
+    ChangeNotifyBlocker nb( d2t );
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(sKey::Name()) )
@@ -778,6 +784,8 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );
+    ChangeNotifyBlocker nb1( wd_.displayProperties(true) );
+    ChangeNotifyBlocker nb2( wd_.displayProperties(false) );
     wd_.displayProperties(true).usePar( iop );
     wd_.displayProperties(false).usePar( iop );
     return true;
