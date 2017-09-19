@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
 #include "uispinbox.h"
-#include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
@@ -90,14 +89,14 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , autoupdate_(true)
     , forceupdate_(false)
     , isbrinefilled_(true)
-    , taskrunner_( new uiTaskRunner(this) )
     , relzoomwr_(0,0,1,1)
     , savedzoomwr_(mUdf(double),0,0,0)
     , flattenlvl_(Strat::Level::undef())
+    , trprov_(this)
 {
     levelaux_ += new FlatView::AuxData("");
-    stratsynth_->setTaskRunner( taskrunner_ );
-    edstratsynth_->setTaskRunner( taskrunner_ );
+    stratsynth_->setRunner( trprov_ );
+    edstratsynth_->setRunner( trprov_ );
 
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );

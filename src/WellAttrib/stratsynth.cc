@@ -38,15 +38,19 @@ ________________________________________________________________________
 #include "waveletmanager.h"
 #include "stratlevel.h"
 
+static SilentTaskRunnerProvider silenttr;
+
+
 StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
     : lmp_(lmp)
     , useed_(useed)
-    , taskr_(0)
+    , trprov_(&silenttr)
     , wvlt_(0)
     , lastsyntheticid_(0)
     , swaveinfomsgshown_(0)
     , stratlevelset_(0)
-{}
+{
+}
 
 StratSynth::~StratSynth()
 {
@@ -59,6 +63,12 @@ StratSynth::~StratSynth()
 const Strat::LayerModel& StratSynth::layMod() const
 {
     return lmp_.getEdited( useed_ );
+}
+
+
+void StratSynth::setRunner( const TaskRunnerProvider& trprov )
+{
+    trprov_ = &trprov;
 }
 
 
@@ -425,7 +435,7 @@ RefMan<SyntheticData> StratSynth::createSynthData( const SyntheticData& sd,
     if ( !psattr )
 	mErrRet( proc->message(), return 0 );
 
-    if ( !TaskRunner::execute(taskr_,*proc) )
+    if ( !trprov_->execute(*proc) )
 	mErrRet( proc->message(), return 0 ) ;
     SeisTrcBufDataPack* angledp =
 	new SeisTrcBufDataPack( dptrcbufs, Seis::Line,
@@ -583,7 +593,7 @@ bool StratSynth::createElasticModels()
 	return false;
 
     ElasticModelCreator emcr( layMod(), aimodels_ );
-    if ( !TaskRunner::execute(taskr_,emcr) )
+    if ( !trprov_->execute(emcr) )
 	return false;
     bool modelsvalid = false;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
@@ -699,8 +709,8 @@ void StratSynth::createAngleData( PreStack::PreStackSyntheticData& pssd,
 				  const ObjectSet<RayTracer1D>& rts )
 {
     PSAngleDataCreator angledatacr( pssd, rts );
-    TaskRunner::execute( taskr_, angledatacr );
-    pssd.setAngleData( angledatacr.angleGathers() );
+    if ( trprov_->execute(angledatacr) )
+	pssd.setAngleData( angledatacr.angleGathers() );
 }
 
 
@@ -720,7 +730,7 @@ bool StratSynth::runSynthGen( RaySynthGenerator& synthgen,
     }
 
     synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
-    return TaskRunner::execute( taskr_, synthgen );
+    return trprov_->execute( synthgen );
 }
 
 
@@ -1077,7 +1087,7 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 {
     StratPropSyntheticDataCreator propcreator( synthetics_, sd, lm,
 					       lastsyntheticid_, useed_ );
-    TaskRunner::execute( taskr_, propcreator );
+    trprov_->execute( propcreator );
 }
 
 
@@ -1236,7 +1246,7 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 				     bool checksvel )
 {
     ElasticModelAdjuster emadjuster( lm, aimodels, checksvel );
-    const bool res = TaskRunner::execute( taskr_, emadjuster );
+    const bool res = trprov_->execute( emadjuster );
     infomsg_ = emadjuster.infoMsg();
     swaveinfomsgshown_ = checksvel;
     return res;

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "stratsynthlevelset.h"
 #include "uistratsimplelaymoddisp.h"
+#include "uitaskrunnerprovider.h"
 
 class TimeDepthModel;
 class SeisTrcBuf;
@@ -23,7 +24,6 @@ class StratSynth;
 class SyntheticData;
 class PropertyRef;
 class PropertyRefSelection;
-class TaskRunner;
 class Wavelet;
 class uiButton;
 class uiComboBox;
@@ -152,6 +152,7 @@ protected:
     uiMultiFlatViewControl*		control_;
     FlatView::AuxData*			selectedtraceaux_;
     ObjectSet<FlatView::AuxData>	levelaux_;
+    uiTaskRunnerProvider		trprov_;
 
     uiGroup*				topgrp_;
     uiGroup*				datagrp_;
@@ -166,7 +167,6 @@ protected:
     uiComboBox*				levelsnapselfld_;
     uiSynthGenDlg*			synthgendlg_;
     uiSynthSlicePos*			offsetposfld_;
-    PtrMan<TaskRunner>			taskrunner_;
 
     PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
 

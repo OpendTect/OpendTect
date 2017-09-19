@@ -24,7 +24,7 @@ namespace PreStack {  class PreStackSyntheticData; }
 class GatherSetDataPack;
 class RaySynthGenerator;
 class SeisTrcBuf;
-class TaskRunner;
+class TaskRunnerProvider;
 class Wavelet;
 class TrcKeyZSampling;
 class RayTracer1D;
@@ -114,7 +114,7 @@ public:
 				   float zskip) const;
     void		decimateTraces(SeisTrcBuf&,int fac) const;
 
-    void		setTaskRunner(TaskRunner* taskr) { taskr_ = taskr; }
+    void		setRunner(const TaskRunnerProvider&);
     uiString		errMsg() const;
     uiString		infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
@@ -136,7 +136,7 @@ protected:
 
     uiString				errmsg_;
     uiString				infomsg_;
-    TaskRunner*				taskr_;
+    const TaskRunnerProvider*		trprov_;
 
     const Strat::LayerModel&	layMod() const;
     bool		canRayModelsBeRemoved(const IOPar& raypar) const;
