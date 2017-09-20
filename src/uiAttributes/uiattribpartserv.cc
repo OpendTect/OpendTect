@@ -430,6 +430,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	    for ( int idx=1; idx<selectedcomps.size(); idx++ )
 		selectedcomps[idx] = idx;
 
+	    selspec.set( 0, Attrib::SelSpec::cOtherAttrib(), false, 0 );
 	    return prepMultCompSpecs( selectedcomps, dbky, false, true );
 	}
     }

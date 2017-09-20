@@ -262,9 +262,15 @@ bool uiODPlaneDataTreeItem::displayGuidance()
 			*as, issi ? 0 : zdinf, geomid, tr("first layer" ) );
     if ( selok )
     {
-	if ( as->isNLA() )
+	if ( as->isNLA()
+	     || as->id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
 	{
-	    visserv_->setSelSpec( displayid_, 0, *as );
+	    if ( as->isNLA() )
+		visserv_->setSelSpec( displayid_, 0, *as );
+	    else
+		visserv_->setSelSpecs( displayid_, 0,
+				 applMgr()->attrServer()->getTargetSelSpecs() );
+
 	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 			    visserv_->getObject(displayid_))
 	    if ( !pdd ) return false;
