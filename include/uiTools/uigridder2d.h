@@ -59,10 +59,11 @@ public:
     virtual bool		rejectOK()	{ return revertChanges(); }
     bool			revertChanges();
 
-    virtual const uiString	errMsg() const	{ return msg_; }
+    virtual uiString		errMsg() const	{ return msg_; }
 
 protected:
-				uiGridder2DGrp(uiParent*,const uiString,
+
+				uiGridder2DGrp(uiParent*,const uiString&,
 				      const BufferString&,bool withtrend=false);
 
     virtual void		getFromScreen() const	{}

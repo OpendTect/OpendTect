@@ -268,7 +268,7 @@ uiSettingsGroup::~uiSettingsGroup()
 {}
 
 
-const uiString uiSettingsGroup::errMsg() const
+uiString uiSettingsGroup::errMsg() const
 { return errmsg_; }
 
 

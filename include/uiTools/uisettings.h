@@ -69,9 +69,10 @@ public:
     bool		isChanged() const	{ return changed_; }
     bool		needsRestart() const	{ return needsrestart_; }
     bool		needsRenewal() const	{ return needsrenewal_; }
-    const uiString	errMsg() const;
+    uiString		errMsg() const;
 
 protected:
+
 			uiSettingsGroup(uiParent*,const uiString& caption,
 					Settings&);
 
@@ -88,6 +89,7 @@ protected:
     bool		changed_;
     bool		needsrestart_;
     bool		needsrenewal_;
+
 };
 
 
@@ -110,6 +112,7 @@ protected:
     bool		changed_;
     bool		needsrestart_;
     bool		needsrenewal_;
+
 };
 
 
@@ -139,6 +142,7 @@ protected:
     bool		showrdlprogress_;
     bool		enabvirtualkeyboard_;
     bool		enabsharedstor_;
+
 };
 
 
@@ -171,4 +175,5 @@ protected:
     bool		usevolshaders_;
     bool		enablemipmapping_;
     int			anisotropicpower_;
+
 };

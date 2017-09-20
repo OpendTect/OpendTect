@@ -121,7 +121,7 @@ void uiGridder2DSel::selChangeCB( CallBacker* )
 }
 
 
-uiGridder2DGrp::uiGridder2DGrp( uiParent* p, const uiString nm,
+uiGridder2DGrp::uiGridder2DGrp( uiParent* p, const uiString& nm,
 				const BufferString& griddernm, bool withtrend )
     : uiDlgGroup(p,nm)
     , gridder_(Gridder2D::factory().create(griddernm.buf()))
