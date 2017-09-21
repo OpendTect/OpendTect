@@ -314,10 +314,11 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
     {
 	tr_->toStart();
 	binid = tr_->readMgr()->binID();
+	const BinID step = tr_->readMgr()->info().geom_.step;
 	if ( crlwise_ )
-	    binid.inl() += stepout_;
+	    binid.inl() += stepout_ * step.inl();
 	else
-	    binid.crl() += stepout_;
+	    binid.crl() += stepout_ * step.crl();
     }
 
     tbuf_.erase();
@@ -396,6 +397,8 @@ static BufferString getZValStr( float z, int zfac )
 
 void uiSeisBrowser::fillTable()
 {
+    NotifyStopper notifstop( tbl_->valueChanged );
+
     const CBVSInfo& info = tr_->readMgr()->info();
     const int zfac = zdomdef_->userFactor();
     const BufferString zunstr = zdomdef_->unitStr(false).getFullString();
