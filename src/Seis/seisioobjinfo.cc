@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscbvs2d.h"
 #include "seispsioprov.h"
 #include "seisread.h"
-#include "seisselection.h"
+#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -42,6 +42,8 @@ Seis::ObjectSummary::ObjectSummary( const MultiID& mid )
     : ioobjinfo_(*new SeisIOObjInfo(mid))		{ init(); }
 Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj )
     : ioobjinfo_(*new SeisIOObjInfo(ioobj))		{ init(); }
+Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, Pos::GeomID geomid )
+    : ioobjinfo_(*new SeisIOObjInfo(ioobj))		{ init2D(geomid); }
 Seis::ObjectSummary::ObjectSummary( const Seis::ObjectSummary& oth )
     : ioobjinfo_(*new SeisIOObjInfo(oth.ioobjinfo_))	{ init(); }
 
@@ -54,6 +56,8 @@ Seis::ObjectSummary::~ObjectSummary()
 Seis::ObjectSummary& Seis::ObjectSummary::operator =(
 						const Seis::ObjectSummary& oth )
 {
+    if ( &oth == this ) return *this;
+
     const_cast<SeisIOObjInfo&>( ioobjinfo_ ) = oth.ioobjinfo_;
     init();
 
@@ -63,29 +67,55 @@ Seis::ObjectSummary& Seis::ObjectSummary::operator =(
 
 void Seis::ObjectSummary::init()
 {
-    bad_ = !ioobjinfo_.isOK();
+    bad_ = !ioobjinfo_.isOK() || ioobjinfo_.is2D();
     if ( bad_ ) return;
 
-    ioobjinfo_.getDataChar( datachar_ );
+    geomtype_ = ioobjinfo_.geomType();
     TrcKeyZSampling tkzs( false );
     ioobjinfo_.getRanges( tkzs );
     zsamp_ = tkzs.zsamp_;
-    geomtype_ = ioobjinfo_.geomType();
-    ioobjinfo_.getComponentNames( compnms_, tkzs.hsamp_.getGeomID() );
 
+    SeisTrcReader rdr( ioobjinfo_.ioObj() );
+    if ( !rdr.prepareWork(Seis::PreScan) || !rdr.seisTranslator() )
+	{ pErrMsg("Translator not SeisTrcTranslator!"); bad_ = true; return; }
+
+    refreshCache( *rdr.seisTranslator() );
+}
+
+
+void Seis::ObjectSummary::init2D( Pos::GeomID geomid )
+{
+    bad_ = !ioobjinfo_.isOK();
+    if ( bad_ ) return;
+
+    geomtype_ = ioobjinfo_.geomType();
+    StepInterval<int> trcrg;
+    ioobjinfo_.getRanges( geomid, trcrg, zsamp_ );
+
+    SeisTrcReader rdr( ioobjinfo_.ioObj() );
+    TrcKeySampling tks( geomid );
+    tks.setTrcRange( trcrg );
+    Seis::RangeSelData* sd = new Seis::RangeSelData( tks );
+    rdr.setSelData( sd );
+    if ( !rdr.prepareWork(Seis::PreScan) || !rdr.seis2Dtranslator() )
+	{ pErrMsg("Translator not SeisTrcTranslator!"); bad_ = true; return; }
+
+    refreshCache( *rdr.seis2Dtranslator() );
+}
+
+
+void Seis::ObjectSummary::refreshCache( const SeisTrcTranslator& trl )
+{
+    if ( !trl.inputComponentData().isEmpty() )
+	datachar_ = trl.componentInfo().first()->org.datachar;
+
+    trl.getComponentNames( compnms_ );
     nrcomp_ = compnms_.size();
-    nrsamppertrc_ = tkzs.nrZ();
+    nrsamppertrc_ = zsamp_.nrSteps()+1;
     nrbytespersamp_ = datachar_.nrBytes();
     nrdatabytespespercomptrc_ = nrbytespersamp_ * nrsamppertrc_;
     nrdatabytespertrc_ = nrdatabytespespercomptrc_ * nrcomp_;
-
-    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		    ioobjinfo_.ioObj()->createTranslator() );
-    if ( !sttr )
-	{ pErrMsg("Translator not SeisTrcTranslator!"); bad_ = true; return; }
-    Conn* conn = ioobjinfo_.ioObj()->getConn( Conn::Read );
-    sttr->initRead( conn, Seis::PreScan );
-    nrbytestrcheader_ = sttr->bytesOverheadPerTrace();
+    nrbytestrcheader_ = trl.bytesOverheadPerTrace();
     nrbytespertrc_ = nrbytestrcheader_ + nrdatabytespertrc_;
 }
 

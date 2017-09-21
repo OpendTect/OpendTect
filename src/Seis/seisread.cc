@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisread.h"
 
+#include "seis2dlineio.h"
 #include "seisbounds.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
@@ -404,6 +405,30 @@ static void reduceComps( SeisTrc& trc, int selcomp )
 }
 
 
+bool SeisTrcReader::getData( TraceData& data )
+{
+    needskip = false;
+    if ( !prepared && !prepareWork(readmode) )
+	return false;
+    else if ( outer == mUndefPtr(TrcKeySampling) && !startWork() )
+	return false;
+
+    if ( psioprov_ )
+	return false;
+    else if ( is2d_ )
+	return get2DData( data );
+
+    if ( !strl()->readData(&data) )
+    {
+	errmsg_ = strl()->errMsg();
+	strl()->skip();
+	return false;
+    }
+
+    return true;
+}
+
+
 bool SeisTrcReader::get( SeisTrc& trc )
 {
     needskip = false;
@@ -515,6 +540,15 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
 }
 
 
+const Scaler* SeisTrcReader::getTraceScaler() const
+{
+    if ( psioprov_ || is2d_ )
+	return 0;
+
+    return strl() ? strl()->curtrcscalebase_ : 0;
+}
+
+
 Pos::GeomID SeisTrcReader::geomID() const
 {
     if ( dataset_ )
@@ -550,7 +584,8 @@ GeomIDProvider* SeisTrcReader::geomIDProvider() const
 
 bool SeisTrcReader::mkNextFetcher()
 {
-    curlineidx++; tbuf_->deepErase();
+    curlineidx++;
+    if ( tbuf_ ) tbuf_->deepErase();
     Pos::GeomID geomid( seldata_ ? seldata_->geomID()
 				 : Survey::GM().cUndefGeomID() );
     const bool islinesel = geomid != Survey::GM().cUndefGeomID();
@@ -634,6 +669,19 @@ bool SeisTrcReader::readNext2D()
 #define mNeedNextFetcher() (tbuf_->size() == 0 && !fetcher)
 
 
+const SeisTrcTranslator* SeisTrcReader::seis2Dtranslator()
+{
+    if ( !fetcher && !mkNextFetcher() )
+	return 0;
+
+    mDynamicCastGet(const Seis2DLineGetter*,getter2d,fetcher)
+    if ( !getter2d )
+	return 0;
+
+    return getter2d->translator();
+}
+
+
 int SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
     if ( !fetcher && !mkNextFetcher() )
@@ -676,6 +724,25 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
 
     delete tbuf_->remove(0);
     reduceComps( trc, selcomp_ );
+    nrtrcs_++;
+    return true;
+}
+
+
+bool SeisTrcReader::get2DData( TraceData& data )
+{
+    SeisTrcInfo trcinfo;
+    if ( !inforead && get2D(trcinfo)<=0 )
+	return false;
+
+    inforead = false;
+    const SeisTrc* buftrc = tbuf_->get( 0 );
+    if ( !buftrc )
+	{ pErrMsg("Huh"); return false; }
+
+    data.copyFrom( buftrc->data() );
+
+    delete tbuf_->remove(0);
     nrtrcs_++;
     return true;
 }

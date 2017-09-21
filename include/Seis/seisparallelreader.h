@@ -101,6 +101,10 @@ protected:
 
     uiString			errmsg_;
     TypeSet<int>		seisrdroutcompmgr_;
+
+private:
+
+    void		submitUdfWriterTasks();
 };
 
 
@@ -180,7 +184,7 @@ public:
 			/*!< Will force the datapack to float */
 
     void		setDataChar(DataCharacteristics::UserType);
-    void		setScaler(Scaler*); //!< Scaler becomes mine
+    void		setScaler(Scaler*);
 
     bool		setDataPack(RegularSeisDataPack&,od_ostream* strm=0);
 			/*!< No need for init if setDataPack is called
@@ -246,7 +250,10 @@ mClass(Seis) RawTrcsSequence
 { mODTextTranslationClass(Seis::RawTrcsSequence);
 public:
 			RawTrcsSequence(const ObjectSummary&,int nrpos);
+			RawTrcsSequence(const RawTrcsSequence&);
 			~RawTrcsSequence();
+
+    RawTrcsSequence&	operator =(const RawTrcsSequence&);
 
     bool		isOK() const;
     bool		isPS() const;
@@ -277,6 +284,13 @@ private:
     const int			nrpos_;
 
     mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
+
+public:
+
+		// Special users only
+
+    TraceData&		getTraceData( int pos ) { return *(data_[pos]); }
+
 };
 
 

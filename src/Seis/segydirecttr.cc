@@ -311,6 +311,7 @@ void SEGYDirectSeisTrcTranslator::initVars( bool fr )
     ild_ = -1; iseg_ = itrc_ = 0;
     curfilenr_ = -1;
     headerread_ = false;
+    headerdonenew_ = false;
 }
 
 
@@ -323,8 +324,9 @@ void SEGYDirectSeisTrcTranslator::setCompDataFromInput()
     deepErase( tarcds_ );
     for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
     {
-	cds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
-	tarcds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
+	addComp( tr_->inputComponentData()[idx]->datachar,
+		 tr_->inputComponentData()[idx]->name() );
+	tarcds_[idx]->datachar = tr_->componentInfo()[idx]->datachar;
     }
 }
 
@@ -474,28 +476,29 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !tr_->readInfo(ti) || ti.binid != curBinID() )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
-    headerread_ = true;
-    return true;
+    if ( tr_->curtrcscalebase_ )
+	curtrcscalebase_ = tr_->curtrcscalebase_;
+
+    return (headerdonenew_ = true);
 }
 
 
-bool SEGYDirectSeisTrcTranslator::readData( TraceData* externalbuf )
+bool SEGYDirectSeisTrcTranslator::readData( TraceData* extbuf )
 {
-    return false;
+    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    if ( !tr_->readData(&tdata) )
+	return false;
+
+    toNextTrace();
+    headerdonenew_ = false;
+
+    return (datareaddone_ = true);
 }
 
 
 bool SEGYDirectSeisTrcTranslator::read( SeisTrc& trc )
 {
-    if ( !headerread_ && !readInfo(trc.info()) )
-	return false;
-
-    if ( !tr_->read(trc) )
-	return false;
-
-    headerread_ = false;
-    toNextTrace();
-    return true;
+    return SeisTrcTranslator::read( trc );
 }
 
 

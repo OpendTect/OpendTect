@@ -69,17 +69,24 @@ bool CBVSInfo::SurvGeom::includesInline( int inl ) const
 }
 
 
+#define nrsameposretries 100
 bool CBVSInfo::SurvGeom::moveToNextPos( BinID& bid ) const
 {
     PosInfo::CubeDataPos cdp( cubedata.cubeDataPos(bid) );
     if ( !cdp.isValid() )
 	cdp.toPreStart();
 
-    if ( !cubedata.toNext(cdp) )
-	return false;
+    const BinID initialbid( bid );
+    int nrretry = 0;
+    while ( bid == initialbid && nrretry < nrsameposretries )
+    {
+	nrretry++;
+	if ( !cubedata.toNext(cdp) )
+	    return false;
+	bid = cubedata.binID( cdp );
+    }
 
-    bid = cubedata.binID( cdp );
-    return true;
+    return bid != initialbid;
 }
 
 
@@ -191,7 +198,7 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 	    {
 #ifdef __debug__
 		std::cerr << "CBVSInfo - Empty segment: " << ii.linenr_
-		    	  << " segment " << iseg << std::endl;
+			  << " segment " << iseg << std::endl;
 #endif
 		continue;
 	    }

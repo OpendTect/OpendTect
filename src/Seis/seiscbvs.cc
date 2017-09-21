@@ -28,11 +28,11 @@ const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	: SeisTrcTranslator(nm,unm)
-	, headerdone_(false)
+	, headerdone_(false)	// Will be removed
 	, donext_(false)
 	, forread_(true)
-	, storinterps_(0)
-	, blockbufs_(0)
+	, storinterps_(0)	// Will be removed
+	, blockbufs_(0)		// Will be removed
 	, compsel_(0)
 	, preseldatatype_(0)
 	, rdmgr_(0)
@@ -77,29 +77,18 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 
 void CBVSSeisTrcTranslator::cleanUp()
 {
-    const int nrcomps = nrSelComps();
     SeisTrcTranslator::cleanUp();
-    headerdone_ = donext_ =false;
+
+    donext_ =false;
     nrdone_ = 0;
-    destroyVars( nrcomps );
+    destroyVars( 0);
 }
 
 
-void CBVSSeisTrcTranslator::destroyVars( int nrcomps )
+void CBVSSeisTrcTranslator::destroyVars( int )
 {
     deleteAndZeroPtr( rdmgr_ );
     deleteAndZeroPtr( wrmgr_ );
-    deleteAndZeroArrPtr( compsel_ );
-    if ( !blockbufs_ ) return;
-
-    for ( int idx=0; idx<nrcomps; idx++ )
-    {
-	delete [] blockbufs_[idx];
-	delete storinterps_[idx];
-    }
-
-    deleteAndZeroArrPtr( blockbufs_ );
-    deleteAndZeroArrPtr( storinterps_ );
     deleteAndZeroArrPtr( compsel_ );
 }
 
@@ -253,28 +242,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	    }
     }
 
-    const int nrcomps = nrSelComps();
-    storinterps_ = new TraceDataInterpreter* [nrcomps];
-    for ( int idx=0; idx<nrcomps; idx++ )
-	storinterps_[idx] = new TraceDataInterpreter(
-                  forread_ ? inpcds_[idx]->datachar : outcds_[idx]->datachar );
-
-    blockbufs_ = new unsigned char* [nrcomps];
-    int bufsz = innrsamples_ + 1;
-    for ( int iselc=0; iselc<nrcomps; iselc++ )
-    {
-	int nbts = inpcds_[iselc]->datachar.nrBytes();
-	if ( outcds_[iselc]->datachar.nrBytes() > nbts )
-	    nbts = outcds_[iselc]->datachar.nrBytes();
-
-	blockbufs_[iselc] = new unsigned char [ nbts * bufsz ];
-	if (!blockbufs_[iselc])
-	{
-	    errmsg_ = tr("Out of memory");
-	    return false;
-	}
-    }
-
+    delete [] compsel_;
     compsel_ = new bool [tarcds_.size()];
     for ( int idx=0; idx<tarcds_.size(); idx++ )
 	compsel_[idx] = tarcds_[idx]->destidx >= 0;
@@ -364,7 +332,7 @@ bool CBVSSeisTrcTranslator::toNext()
 bool CBVSSeisTrcTranslator::toStart()
 {
     if ( rdmgr_->toStart() )
-	{ headerdone_ = donext_ = false; return true; }
+	{ headerdonenew_ = donext_ = false; return true; }
     return false;
 }
 
@@ -372,15 +340,15 @@ bool CBVSSeisTrcTranslator::toStart()
 bool CBVSSeisTrcTranslator::goTo( const BinID& bid )
 {
     if ( rdmgr_ && rdmgr_->goTo(bid) )
-	{ headerdone_ = donext_ = false; return true; }
+	{ headerdonenew_ = donext_ = false; return true; }
     return false;
 }
 
 
 bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( !storinterps_ && !commitSelections() ) return false;
-    if ( headerdone_ ) return true;
+    if ( !commitSelections_() ) return false;
+    if ( headerdonenew_ ) return true;
 
     donext_ = donext_ || selRes( rdmgr_->binID() );
 
@@ -398,44 +366,30 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( ti.binid.inl() == 0 && ti.binid.crl() == 0 )
 	ti.binid = SI().transform( ti.coord );
 
-    return (headerdone_ = true);
+    return (headerdonenew_ = true);
 }
 
 
-bool CBVSSeisTrcTranslator::readData( TraceData* externalbuf )
-{ return false; }
+bool CBVSSeisTrcTranslator::readData( TraceData* extbuf )
+{
+    if ( !storbuf_ && !commitSelections() ) return false;
+
+    TraceData& tdata = extbuf ? *extbuf : *storbuf_;
+    if ( !rdmgr_->fetch(tdata,compsel_,&samprg_) )
+    {
+	errmsg_ = toUiString(rdmgr_->errMsg());
+	return false;
+    }
+
+    headerdonenew_ = false;
+
+    return (datareaddone_ = true );
+}
 
 
 bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 {
-    if ( !headerdone_ && !readInfo(trc.info()) )
-	return false;
-
-    prepareComponents( trc, outnrsamples_ );
-    if ( !rdmgr_->fetch( (void**)blockbufs_, compsel_, &samprg_ ) )
-    {
-	errmsg_ = mToUiStringTodo(rdmgr_->errMsg());
-	return false;
-    }
-
-    const bool matchingdc = *trc.data().getInterpreter(0) == *storinterps_[0];
-    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
-    {
-	if ( matchingdc && outnrsamples_ > 1 )
-	    OD::memCopy( trc.data().getComponent(iselc)->data(),
-		    blockbufs_[iselc],
-		    outnrsamples_ * storinterps_[iselc]->nrBytes() );
-	else
-	{
-	    for ( int isamp=0; isamp<outnrsamples_; isamp++ )
-		trc.set( isamp,
-			 storinterps_[iselc]->get( blockbufs_[iselc], isamp ),
-			 iselc );
-	}
-    }
-
-    headerdone_ = false;
-    return true;
+    return SeisTrcTranslator::read( trc );
 }
 
 
@@ -443,7 +397,7 @@ bool CBVSSeisTrcTranslator::skip( int nr )
 {
     for ( int idx=0; idx<nr; idx++ )
 	if ( !rdmgr_->toNext() ) return false;
-    donext_ = headerdone_ = false;
+    donext_ = headerdonenew_ = false;
     return true;
 }
 
@@ -496,15 +450,16 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	unsigned char* blockbuf = blockbufs_[iselc];
-	int icomp = selComp(iselc);
+	const int icomp = selComp(iselc);
 	for ( int isamp=samprg_.start; isamp<=samprg_.stop; isamp++ )
-	    storinterps_[iselc]->put( blockbuf, isamp-samprg_.start,
-				     trc.get(isamp,icomp) );
+	{
+	    //Parallel !!!
+	    storbuf_->setValue(isamp-samprg_.start,trc.get(isamp,icomp),iselc);
+	}
     }
 
     trc.info().putTo( auxinf_ );
-    if ( !wrmgr_->put( (void**)blockbufs_ ) )
+    if ( !wrmgr_->put(*storbuf_) )
 	{ errmsg_ = mToUiStringTodo(wrmgr_->errMsg()); return false; }
 
     return true;

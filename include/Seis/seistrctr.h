@@ -272,8 +272,8 @@ protected:
     bool				headerdonenew_;
     bool				datareaddone_;
     TraceData*				storbuf_;
-    LinScaler*		trcscalebase_;
-    const LinScaler*	curtrcscalebase_;
+    LinScaler*				trcscalebase_;
+    const LinScaler*			curtrcscalebase_;
 
     virtual bool	forRead() const;
     void		addComp(const DataCharacteristics&,
@@ -286,7 +286,7 @@ protected:
     virtual bool	initRead_()			{ return true; }
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
-    virtual bool	readData(TraceData* extbuf=0) { return false; }
+    virtual bool	readData(TraceData* extbuf=0)	{ return false; }
 
 			// These are called from the default write()
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
@@ -317,7 +317,9 @@ private:
     bool		initConn(Conn*);
     void		enforceBounds();
     bool		writeBlock();
-    bool	copyDataToTrace(SeisTrc&);
+    bool		copyDataToTrace(SeisTrc&);
+
+    friend class SeisTrcReader;
 
 public:
 

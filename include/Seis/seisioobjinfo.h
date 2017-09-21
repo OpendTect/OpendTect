@@ -25,6 +25,7 @@ class BinIDValueSet;
 class BufferStringSet;
 class IOObj;
 class SeisIOObjInfo;
+class SeisTrcTranslator;
 class TrcKeyZSampling;
 namespace ZDomain { class Def; }
 
@@ -38,6 +39,7 @@ mExpClass(Seis) ObjectSummary
 public:
 			ObjectSummary(const MultiID&);
 			ObjectSummary(const IOObj&);
+			ObjectSummary(const IOObj&,Pos::GeomID);
 			ObjectSummary(const ObjectSummary&);
 			~ObjectSummary();
 
@@ -78,6 +80,9 @@ protected:
 private:
 
     void		init();
+    void		init2D(Pos::GeomID);
+    void		refreshCache(const SeisTrcTranslator&);
+
     friend class RawTrcsSequence;
 
 };

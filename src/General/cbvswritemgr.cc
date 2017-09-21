@@ -304,9 +304,55 @@ bool CBVSWriteMgr::put( void** data )
 }
 
 
-bool CBVSWriteMgr::put( const TraceData& data )
+bool CBVSWriteMgr::put( const TraceData& tdata )
 {
-return false;
+    if ( writers_.isEmpty() ) return false;
+
+    int ret = 0;
+    if ( writers_.size() > 1 )
+    {
+	for ( int idx=0; idx<writers_.size(); idx++ )
+	{
+	    ret = writers_[idx]->put( tdata, idx ? endsamps_[idx-1]+1 : 0 );
+	    if ( ret < 0 )
+		break;
+	}
+	if ( ret > 0 ) ret = 0;
+    }
+    else
+    {
+	CBVSWriter* writer = writers_[0];
+	ret = writer->put( tdata );
+	if ( ret == 1 )
+	{
+	    if ( single_file )
+	    {
+		ret = -1;
+		writer->setErrMsg( "Cannot write more data to seismic file" );
+	    }
+	    else
+	    {
+		od_ostream* strm = mkStrm();
+		if ( !strm ) return false;
+
+		if ( info_.geom_.fullyrectandreg )
+		    info_.geom_.start.inl() = writer->survGeom().stop.inl()
+					 + info_.geom_.step.inl();
+
+		writer->forceLineStep( writer->survGeom().step );
+		CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );
+		newwriter->forceTrailer( forcetrailers_ );
+		writers_ += newwriter;
+		writers_ -= writer;
+		delete writer;
+		writer = newwriter;
+
+		ret = writer->put( tdata );
+	    }
+	}
+    }
+
+    return ret == -1 ? false : true;
 }
 
 

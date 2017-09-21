@@ -8,6 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "cbvswriter.h"
+#include "tracedata.h"
 #include "trckeyzsampling.h"
 #include "datainterp.h"
 #include "genc.h"
@@ -368,7 +369,78 @@ int CBVSWriter::put( void** cdat, int offs )
 
 int CBVSWriter::put( const TraceData& cdat, int offs )
 {
-return -1;
+#ifdef __debug__
+    // gdb says: "Couldn't find method ostream::tellp"
+    const od_stream::Pos curfo mUnusedVar = strm_.position();
+#endif
+
+    getBinID();
+    if ( prevbinid_.inl() != curbinid_.inl() )
+    {
+	// getBinID() has added a new segment, so remove it from list ...
+	PosInfo::LineData* newinldat = lds_[lds_.size()-1];
+	lds_.removeAndTake( lds_.size()-1 );
+	if ( file_lastinl_ )
+	{
+	    delete newinldat;
+	    close();
+	    return errmsg_ ? -1 : 1;
+	}
+
+	doClose( false );
+	lds_ += newinldat;
+
+	if ( errmsg_ ) return -1;
+    }
+
+    if ( !writeAuxInfo() )
+	{ errmsg_ = "Cannot write Trace header data"; return -1; }
+
+    for ( int icomp=0; icomp<nrcomps_; icomp++ )
+    {
+	const char* ptr = ((const char*)cdat.getComponent(icomp)->data())
+			+ offs * nrbytespersample_[icomp];
+
+	if ( !strm_.addBin(ptr,cnrbytes_[icomp]) )
+	    { errmsg_ = "Cannot write CBVS data"; return -1; }
+    }
+
+    if ( thrbytes_ && strm_.position() >= thrbytes_ )
+	file_lastinl_ = true;
+
+    if ( nrtrcsperposn_status_ && trcswritten_ )
+    {
+	if ( trcswritten_ == 1 )
+	    nrtrcsperposn_ = 1;
+
+	if ( nrtrcsperposn_status_ == 2 )
+	{
+	    if ( prevbinid_ == curbinid_ )
+		nrtrcsperposn_++;
+	    else
+	    {
+		nrtrcsperposn_status_ = 1;
+		checknrtrcsperposn_ = 1;
+	    }
+	}
+	else
+	{
+	    if ( prevbinid_ == curbinid_ )
+		checknrtrcsperposn_++;
+	    else
+	    {
+		nrtrcsperposn_status_ = 0;
+		if ( checknrtrcsperposn_ != nrtrcsperposn_ )
+		{
+		    input_rectnreg_ = true;
+		    nrtrcsperposn_ = -1;
+		}
+	    }
+	}
+    }
+    prevbinid_ = curbinid_;
+    trcswritten_++;
+    return 0;
 }
 
 bool CBVSWriter::writeAuxInfo()

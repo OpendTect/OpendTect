@@ -248,6 +248,23 @@ bool SeisTrcTranslator::commitSelections()
     samprg_.start = mNINT32( fsampnr );
     samprg_.stop = samprg_.start + outnrsamples_ - 1;
 
+    const bool forread = forRead();
+    const int nrcomps = nrSelComps();
+    const ComponentData** cds = forread ? (const ComponentData**)inpcds_
+					: (const ComponentData**)outcds_;
+    const int ns = forread ? innrsamples_ : outnrsamples_;
+    delete storbuf_;
+    storbuf_ = new TraceData;
+    for ( int iselc=0; iselc<nrcomps; iselc++ )
+	storbuf_->addComponent( ns+1, cds[iselc]->datachar , true );
+
+    if ( !storbuf_->allOk() )
+    {
+	errmsg_ = tr("Out of memory");
+	deleteAndZeroPtr( storbuf_ );
+	return false;
+    }
+
     return commitSelections_();
 }
 
@@ -515,13 +532,53 @@ void SeisTrcTranslator::getComponentNames( BufferStringSet& bss ) const
 
 bool SeisTrcTranslator::read( SeisTrc& trc )
 {
-    return false;
+    if ( !headerdonenew_ && !readInfo(trc.info()) )
+	return false;
+
+    if ( (!datareaddone_ && !readData()) || !copyDataToTrace(trc) )
+	return false;
+
+    headerdonenew_ = false;
+    datareaddone_ = false;
+
+    return true;
 }
 
 
 bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
 {
-    return false;
+    if ( !datareaddone_ )
+	return false;
+
+    prepareComponents( trc, outnrsamples_ );
+    if ( curtrcscalebase_ )
+	trc.convertToFPs();
+
+    const bool matchingdc = *trc.data().getInterpreter(0) ==
+			    *storbuf_->getInterpreter(0);
+    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
+    {
+	if ( matchingdc && outnrsamples_ > 1 && !curtrcscalebase_ )
+	{
+	    OD::memCopy( trc.data().getComponent(iselc)->data(),
+		    storbuf_->getComponent(iselc)->data(),
+		    outnrsamples_ * storbuf_->bytesPerSample( iselc ) );
+	}
+	else
+	{
+	    for ( int isamp=0; isamp<outnrsamples_; isamp++ )
+	    {
+		//Parallel !!
+		float inpval = storbuf_->getValue( isamp, iselc );
+		if ( curtrcscalebase_ )
+		    inpval = (float)curtrcscalebase_->scale(inpval);
+
+		trc.set( isamp, inpval, iselc );
+	    }
+	}
+    }
+
+    return true;
 }
 
 

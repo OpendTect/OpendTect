@@ -668,7 +668,7 @@ bool CBVSReader::fetch( TraceData& bufs, const bool* comps,
 	int bps = compinfo->datachar.nrBytes();
 	if ( samps->start )
 	    strm_.ignore( samps->start*bps );
-	if ( !strm_.getBin(((char*)bufs.getComponent(iselc)) + offs*bps,
+	if ( !strm_.getBin(((char*)bufs.getComponent(iselc)->data()) + offs*bps,
 				   (samps->stop-samps->start+1) * bps ) )
 	    break;
 

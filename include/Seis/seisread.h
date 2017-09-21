@@ -17,8 +17,10 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "linekey.h"
 #include "uistring.h"
+class Scaler;
 class SeisTrc;
 class Executor;
+class TraceData;
 class TrcKeySampling;
 class SeisTrcBuf;
 class SeisPS3DReader;
@@ -70,6 +72,8 @@ public:
 			      If 1 is returned, then you should also call
 			      get(SeisTrc&). */
 
+    bool		getData(TraceData&);
+
     bool		get(SeisTrc&);
 			/*!< It is possible to directly call this without
 			     checking the get(SeisTrcInfo&) result. Beware that
@@ -93,6 +97,10 @@ public:
     Pos::GeomID		geomID() const;
     GeomIDProvider*	geomIDProvider() const;
     int			getNrOffsets(int maxnrpostobechecked=10) const;
+
+    const SeisTrcTranslator*	seis2Dtranslator();
+
+    const Scaler*	getTraceScaler() const;
 
 protected:
 
@@ -132,6 +140,7 @@ protected:
 
     int			get2D(SeisTrcInfo&);
     bool		get2D(SeisTrc&);
+    bool		get2DData(TraceData&);
     bool		mkNextFetcher();
     bool		readNext2D();
 
