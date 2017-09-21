@@ -28,19 +28,21 @@ public:
 			ReadAccess( Data& d ) : wd_(d)	{}
     virtual		~ReadAccess()			{}
 
-    virtual bool	getInfo() const			= 0;
-    virtual bool	getTrack() const		= 0;
-    virtual bool	getLogs() const			= 0;
-    virtual bool	getMarkers() const		= 0;
-    virtual bool	getD2T() const			= 0;
-    virtual bool	getCSMdl() const		= 0; //!< Checkshot mdl
-    virtual bool	getDispProps() const		= 0;
-    virtual bool	getLog(const char* lognm) const	= 0;
-    virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
+    virtual bool	getInfo() const				= 0;
+    virtual bool	getTrack() const			= 0;
+    virtual bool	getLogs() const				= 0;
+    virtual bool	getMarkers() const			= 0;
+    virtual bool	getD2T() const				= 0;
+    virtual bool	getCSMdl() const			= 0;
+    virtual bool	getDispProps() const			= 0;
+    virtual bool	getLog(const char* lognm) const		= 0;
+    virtual void	getLogNames(BufferStringSet&) const	= 0;
+    virtual void	getLogInfo(ObjectSet<IOPar>&) const	= 0;
 
-    virtual const uiString& errMsg() const		= 0;
-    Data&		data()				{ return wd_; }
-    const Data&		data() const			{ return wd_; }
+    virtual const uiString& errMsg() const			= 0;
+
+    Data&		data()					{ return wd_; }
+    const Data&		data() const				{ return wd_; }
 
     bool		getAll(bool stoponerr) const;
 

@@ -320,7 +320,23 @@ void Well::Manager::getLogNames( const ObjID& id, BufferStringSet& nms ) const
 	mUnlockAllAccess();
 	RefMan<Data> wd = new Well::Data;
 	Reader rdr( id, *wd );
-	rdr.getLogInfo( nms );
+	rdr.getLogNames( nms );
+    }
+}
+
+
+void Well::Manager::getLogInfo( const ObjID& id, ObjectSet<IOPar>& iops ) const
+{
+    mLock4Read();
+    const int idx = gtIdx( id );
+    if ( idx >= 0 && loadstates_[idx].includes( Logs ) )
+	gtData(idx)->logs().getInfo( iops );
+    else
+    {
+	mUnlockAllAccess();
+	RefMan<Data> wd = new Well::Data;
+	Reader rdr( id, *wd );
+	rdr.getLogInfo( iops );
     }
 }
 

@@ -9,6 +9,7 @@
 #include "welllogset.h"
 #include "iopar.h"
 #include "idxable.h"
+#include "keystrs.h"
 #include "unitofmeasure.h"
 
 const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
@@ -369,6 +370,18 @@ void Well::LogSet::getNames( BufferStringSet& nms ) const
     mLock4Read();
     for ( IdxType idx=0; idx<logs_.size(); idx++ )
 	nms.add( logs_[idx]->name() );
+}
+
+
+void Well::LogSet::getInfo( ObjectSet<IOPar>& iops ) const
+{
+    mLock4Read();
+    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+    {
+	IOPar* iop = new IOPar( logs_[idx]->pars() );
+	iop->set( sKey::Unit(), logs_[idx]->unitMeasLabel() );
+	iops += iop;
+    }
 }
 
 

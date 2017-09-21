@@ -60,6 +60,7 @@ public:
 
     bool		isPresent(const char*) const;
     void		getNames(BufferStringSet&) const;
+    void		getInfo(ObjectSet<IOPar>&) const;
     mImplSimpleMonitoredGet(dahInterval,Interval<ZType>,dahintv_)
 						//!< not def if start == undef
 

@@ -96,6 +96,7 @@ public:
     bool		needsSave(const Data&) const;
 
     void		getLogNames(const ObjID&,BufferStringSet&) const;
+    void		getLogInfo(const ObjID&,ObjectSet<IOPar>&) const;
     void		getAllMarkerNames(BufferStringSet&) const;
     ConstRefMan<Log>	getLog(const ObjID&,const char* lognm) const;
     Coord		getMapLocation(const ObjID&) const;
