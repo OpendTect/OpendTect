@@ -24,8 +24,16 @@ namespace Attrib
 /*!
 \brief Holds the attribute data.
 
-  Basically, this is a set of ValueSeries<float> objects, the size of
-  each of these, and the start Z in the AE Z-Axis definition:
+  The Z is an indexing scheme which positions absolute Z==0 at index 0. So to get the index you
+  evaluate (int)(z/step). But, the actual postions can be (and will be!) not at exact indexes.
+  To get the real Z you have to add extrazfromsamppos_.
+
+  The attribute engine will go through all inputs and determine the step (the 'reference step').
+  So to be able to figure out the actual Z from an index, you need this global ref step.
+  See zAtIdx().
+
+  So what we have here is basically a set of ValueSeries<float> objects, the size of
+  each of these, and the start Z index in the AE Z-Axis definition:
   N = N times the Z step. z0_ is therefore the amount of steps away from 0.
 
   The AE will work with any type of ValueSeries<float>. Internally,
@@ -34,12 +42,16 @@ namespace Attrib
   The class variable extrazfromsamppos_ is to keep track of an eventual
   exact position which would not be exactly on a sample ( in the case of
   horizons, picksets... )
+
+  Beware! Each of the ValueSeries can be null.
+
 */
 
 mExpClass(AttributeEngine) DataHolder
 {
 public:
-			DataHolder( int z0, int nrsamples );
+
+			DataHolder(int z0,int nrsamples,float extraz=0);
 			~DataHolder();
 
     DataHolder*	        clone() const;
@@ -52,6 +64,8 @@ public:
     bool                dataPresent(int samplenr) const;
     TypeSet<int>	validSeriesIdx() const;
     float		getValue(int serieidx,float exactz,float refstep) const;
+    float		zAtIdx( int idx, float refstep ) const
+			{ return (z0_ + idx) * refstep + extrazfromsamppos_; }
 
     inline bool		isEmpty() const		{ return nrSeries() == 0; }
     static float	getExtraZFromSampPos(float,float);
@@ -67,7 +81,8 @@ public:
 protected:
 
     ObjectSet< ValueSeries<float> >	data_;
-    ValueSeries<float>*	gtSer(int idx) const;
+    ValueSeries<float>*			gtSer(int) const;
+
 };
 
 
@@ -83,10 +98,10 @@ public:
     TrcKeyZSampling		getTrcKeyZSampling() const;
     int				getDataHolderIndex(int) const;
     ObjectSet<DataHolder>	dataset_;
-    				/*!<\note that z0 on the dataholder refers
-				 	  to samples in trcinfoset_.sampling. */
+				/*!<\note that z0 on the dataholder refers
+					  to samples in trcinfoset_.sampling. */
     ObjectSet<SeisTrcInfo>	trcinfoset_;
-    				/*!<\note that the sampling is the same
+				/*!<\note that the sampling is the same
 					  for all traces. */
 
     inline bool			isEmpty() const	{ return size() == 0; }

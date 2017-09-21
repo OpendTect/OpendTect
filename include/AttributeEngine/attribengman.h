@@ -82,6 +82,7 @@ public:
 				      const RegularSeisDataPack* cached_data=0);
 			//!< Give the previous calculated data in cached data
 			//!< and some parts may not be recalculated.
+			//!< is used to create stuff for many regular visualization elements.
 
     RefMan<RegularSeisDataPack> getDataPackOutput(const Processor&);
     RefMan<RegularSeisDataPack> getDataPackOutput(

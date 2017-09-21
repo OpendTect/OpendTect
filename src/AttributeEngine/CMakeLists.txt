@@ -18,12 +18,10 @@ set(OD_MODULE_SOURCES
 		attriblinebuffer.cc
 		attribparam.cc
 		attribparambase.cc
-		attribposvecoutput.cc
 		attribprocessor.cc
 		attribprobelayer.cc
 		attribprovider.cc
 		attribsel.cc
-		attribslice.cc
 		attribsteering.cc
 		attribstorprovider.cc
 		attriboutput.cc

@@ -17,8 +17,8 @@ namespace Attrib
 {
 
 
-DataHolder::DataHolder( int z0, int nrsamples )
-    : z0_(z0), nrsamples_(nrsamples), extrazfromsamppos_(0)
+DataHolder::DataHolder( int z0, int nrsamples, float extraz )
+    : z0_(z0), nrsamples_(nrsamples), extrazfromsamppos_(extraz)
 { data_.allowNull(true); }
 
 

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "attribdescsettr.h"
 #include "attribengman.h"
 #include "attribfactory.h"
-#include "attribposvecoutput.h"
 #include "attribprocessor.h"
 #include "attribsel.h"
 #include "attribsetcreator.h"
