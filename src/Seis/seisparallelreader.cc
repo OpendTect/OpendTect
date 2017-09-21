@@ -1235,6 +1235,7 @@ Seis::RawTrcsSequence& Seis::RawTrcsSequence::operator =(
 	*tks += TrcKey( (*oth.tks_)[ipos] );
     }
 
+    delete tks_;
     tks_ = tks;
 
     intpol_ = 0;
@@ -1293,7 +1294,10 @@ int Seis::RawTrcsSequence::nrPositions() const
 
 
 void Seis::RawTrcsSequence::setPositions( const TypeSet<TrcKey>& tks )
-{ tks_ = &tks; }
+{
+    delete tks_;
+    tks_ = &tks;
+}
 
 
 const TrcKey& Seis::RawTrcsSequence::getPosition( int pos ) const
