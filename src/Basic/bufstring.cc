@@ -650,7 +650,7 @@ BufferStringSet::size_type BufferStringSet::nearestMatch( const char* s,
 	for ( size_type idx=0; idx<sz; idx++ )
 	    candidates += idx;
 
-    unsigned int mindist = -1; size_type minidx = -1;
+    unsigned int mindist = mUdf(unsigned int); size_type minidx = -1;
     for ( size_type idx=0; idx<candidates.size(); idx++ )
     {
 	const size_type myidx = candidates[idx];
