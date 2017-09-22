@@ -9,19 +9,17 @@
 #include "bufstringset.h"
 #include "fixedstring.h"
 #include "iopar.h"
-#include "arrayndimpl.h"
 #include "staticstring.h"
 #include "separstr.h"
 #include "string2.h"
 #include "globexpr.h"
 #include "uistring.h"
-#include "string.h"
+#include "odmemory.h"
 
 #ifndef OD_NO_QT
 # include <QString>
 # include <QStringList>
 #endif
-
 
 
 BufferString::BufferString( int sz, bool mknull )
@@ -594,49 +592,6 @@ BufferStringSet::size_type BufferStringSet::indexOf( const GlobExpr& ge ) const
 }
 
 
-// Levenshtein distance
-static BufferStringSet::size_type getMatchDist( const BufferString& bs,
-			    const char* s, bool casesens )
-{
-    typedef BufferStringSet::size_type size_type;
-    const size_type len1 = bs.size();
-    const size_type len2 = FixedString(s).size();
-    if ( len1 == 0 ) return len2;
-    if ( len2 == 0 ) return len1;
-    const char* s1 = bs.str();
-    const char* s2 = s;
-
-    Array2DImpl<size_type> d( len1+1, len2+1 );
-
-    for ( size_type idx1=0; idx1<=len1; idx1++ )
-	d.set( idx1, 0, idx1 );
-    for ( size_type idx2=0; idx2<=len2; idx2++ )
-	d.set( 0, idx2, idx2 );
-
-    for ( size_type idx2=1; idx2<=len2; idx2++ )
-    {
-	for ( size_type idx1=1; idx1<=len1; idx1++ )
-	{
-	    const bool iseq = casesens ? s1[idx1-1] == s2[idx2-1]
-			: toupper(s1[idx1-1]) == toupper(s2[idx2-1]);
-	    if ( iseq )
-		d.set( idx1, idx2, d.get(idx1-1,idx2-1) );
-	    else
-	    {
-		const size_type delval = d.get( idx1-1, idx2 );
-		const size_type insval = d.get( idx1, idx2-1 );
-		const size_type substval = d.get( idx1-1, idx2-1 );
-		d.set( idx1, idx2, 1 + (delval < insval
-			? (delval<substval ? delval : substval)
-		        : (insval<substval ? insval : substval)) );
-	    }
-	}
-    }
-
-    return d.get( len1, len2 );
-}
-
-
 BufferString BufferStringSet::getDispString( size_type maxnritems,
 					     bool quoted ) const
 {
@@ -695,11 +650,11 @@ BufferStringSet::size_type BufferStringSet::nearestMatch( const char* s,
 	for ( size_type idx=0; idx<sz; idx++ )
 	    candidates += idx;
 
-    size_type mindist = -1; size_type minidx = -1;
+    unsigned int mindist = -1; size_type minidx = -1;
     for ( size_type idx=0; idx<candidates.size(); idx++ )
     {
 	const size_type myidx = candidates[idx];
-	const size_type curdist = getMatchDist( get(myidx), s, !caseinsens );
+	const unsigned int curdist = get(myidx).getLevenshteinDist( s, !caseinsens );
 	if ( idx == 0 || curdist < mindist  )
 	    { mindist = curdist; minidx = myidx; }
     }

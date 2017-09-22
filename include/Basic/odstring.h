@@ -67,6 +67,7 @@ public:
     const char*		findLast(const char*) const;
 
     unsigned int	count(char) const;
+    unsigned int	getLevenshteinDist(const char*,bool casesens) const;
 
     bool		isNumber(bool int_only=false) const;
     bool		isYesNo() const;
