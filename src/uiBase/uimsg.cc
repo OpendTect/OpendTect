@@ -73,7 +73,7 @@ void uiUserShowWait::setMessage( const uiString& msg )
     if ( !mcc_ )
 	mcc_ = new MouseCursorChanger( MouseCursor::Wait );
     if ( sb_ )
-	sb_->message( msg, fldidx_ );
+	sb_->message( msg.isEmpty() ? msg : m3Dots(msg), fldidx_ );
 }
 
 
