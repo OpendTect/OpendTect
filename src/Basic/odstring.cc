@@ -8,9 +8,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstring.h"
 #include "globexpr.h"
-#include <string.h>
-
+#include "arrayndimpl.h"
 #include "perthreadrepos.h"
+#include <string.h>
 
 
 static FixedString emptyfixedstring( "" );
@@ -151,6 +151,46 @@ unsigned int OD::String::count( char tocount ) const
     }
 
     return ret;
+}
+
+
+unsigned int OD::String::getLevenshteinDist( const char* s, bool casesens ) const
+{
+    const unsigned int len1 = size();
+    const unsigned int len2 = FixedString(s).size();
+    if ( len1 == 0 ) return len2;
+    if ( len2 == 0 ) return len1;
+    const char* s1 = str();
+    const char* s2 = s;
+
+    Array2DImpl<unsigned int> d( len1+1, len2+1 );
+
+    for ( unsigned int idx1=0; idx1<=len1; idx1++ )
+	d.set( idx1, 0, idx1 );
+    for ( unsigned int idx2=0; idx2<=len2; idx2++ )
+	d.set( 0, idx2, idx2 );
+
+    for ( unsigned int idx2=1; idx2<=len2; idx2++ )
+    {
+	for ( unsigned int idx1=1; idx1<=len1; idx1++ )
+	{
+	    const bool iseq = casesens ? s1[idx1-1] == s2[idx2-1]
+			: toupper(s1[idx1-1]) == toupper(s2[idx2-1]);
+	    if ( iseq )
+		d.set( idx1, idx2, d.get(idx1-1,idx2-1) );
+	    else
+	    {
+		const unsigned int delval = d.get( idx1-1, idx2 );
+		const unsigned int insval = d.get( idx1, idx2-1 );
+		const unsigned int substval = d.get( idx1-1, idx2-1 );
+		d.set( idx1, idx2, 1 + (delval < insval
+			? (delval<substval ? delval : substval)
+		        : (insval<substval ? insval : substval)) );
+	    }
+	}
+    }
+
+    return d.get( len1, len2 );
 }
 
 

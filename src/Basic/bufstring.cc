@@ -10,16 +10,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "fixedstring.h"
 #include "iopar.h"
-#include "arrayndimpl.h"
 #include "string2.h"
 #include "globexpr.h"
 #include "uistring.h"
-#include "string.h"
+#include "odmemory.h"
 
 #ifndef OD_NO_QT
 # include <QString>
 #endif
-
 
 
 BufferString::BufferString( int sz, bool mknull )
@@ -87,6 +85,8 @@ BufferString& BufferString::setEmpty()
 {
     if ( len_ != minlen_ )
 	{ destroy(); init(); }
+    else if ( !buf_ )
+	{ pErrMsg("Probably working with deleted string"); }
     else
 	buf_[0] = '\0';
 
@@ -554,46 +554,6 @@ int BufferStringSet::indexOf( const GlobExpr& ge ) const
 }
 
 
-// Levenshtein distance
-static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
-{
-    const int len1 = bs.size();
-    const int len2 = FixedString(s).size();
-    if ( len1 == 0 ) return len2;
-    if ( len2 == 0 ) return len1;
-    const char* s1 = bs.str();
-    const char* s2 = s;
-
-    Array2DImpl<int> d( len1+1, len2+1 );
-
-    for ( int idx1=0; idx1<=len1; idx1++ )
-	d.set( idx1, 0, idx1 );
-    for ( int idx2=0; idx2<=len2; idx2++ )
-	d.set( 0, idx2, idx2 );
-
-    for ( int idx2=1; idx2<=len2; idx2++ )
-    {
-	for ( int idx1=1; idx1<=len1; idx1++ )
-	{
-	    const bool iseq = casesens ? s1[idx1-1] == s2[idx2-1]
-			: toupper(s1[idx1-1]) == toupper(s2[idx2-1]);
-	    if ( iseq )
-		d.set( idx1, idx2, d.get(idx1-1,idx2-1) );
-	    else
-	    {
-		const int delval = d.get( idx1-1, idx2 );
-		const int insval = d.get( idx1, idx2-1 );
-		const int substval = d.get( idx1-1, idx2-1 );
-		d.set( idx1, idx2, 1 + (delval < insval
-			? (delval<substval ? delval : substval)
-		        : (insval<substval ? insval : substval)) );
-	    }
-	}
-    }
-
-    return d.get( len1, len2 );
-}
-
 
 BufferString BufferStringSet::getDispString( int maxnritems, bool quoted ) const
 {
@@ -651,11 +611,11 @@ int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
 	for ( int idx=0; idx<sz; idx++ )
 	    candidates += idx;
 
-    int mindist = -1; int minidx = -1;
+    unsigned int mindist = -1; int minidx = -1;
     for ( int idx=0; idx<candidates.size(); idx++ )
     {
 	const int myidx = candidates[idx];
-	const int curdist = getMatchDist( get(myidx), s, !caseinsens );
+	const unsigned int curdist = get(myidx).getLevenshteinDist( s, !caseinsens );
 	if ( idx == 0 || curdist < mindist  )
 	    { mindist = curdist; minidx = myidx; }
     }
