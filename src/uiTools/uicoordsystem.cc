@@ -466,10 +466,10 @@ void uiCoordSystemSel::selCB( CallBacker* )
 }
 
 
-BufferString uiCoordSystemSel::getSummary() const
+uiString uiCoordSystemSel::getSummary() const
 {
     if ( !coordsystem_ )
-	return BufferString::empty();
+	return uiStrings::sEmptyString();
 
     return coordsystem_->summary();
 }

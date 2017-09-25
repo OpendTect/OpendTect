@@ -476,18 +476,18 @@ const DBKeySet& uiHorizonParSel::getSelected() const
 { return selids_; }
 
 
-BufferString uiHorizonParSel::getSummary() const
+uiString uiHorizonParSel::getSummary() const
 {
-    SeparString ss;
+    uiStringSet ss;
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = DBM().get( selids_[idx] );
 	if ( !ioobj ) continue;
 
-	ss.add( ioobj->name() );
+	ss.add( toUiString(ioobj->name()) );
     }
 
-    return ss.buf();
+    return ss.createOptionString();
 }
 
 
@@ -882,7 +882,7 @@ void uiFaultParSel::doDlg( CallBacker* )
 }
 
 
-BufferString uiFaultParSel::getSummary() const
+uiString uiFaultParSel::getSummary() const
 {
     const bool addopt = useoptions_ && !optnms_.isEmpty();
     BufferString summ;
@@ -899,7 +899,7 @@ BufferString uiFaultParSel::getSummary() const
 
 	summ += idx == selfaultnms_.size()-1 ? "." : ", ";
     }
-    return summ.isEmpty() ? BufferString(" - ") : summ;
+    return summ.isEmpty() ? toUiString(" - ") : toUiString( summ );
 }
 
 

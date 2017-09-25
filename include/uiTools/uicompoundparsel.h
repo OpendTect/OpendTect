@@ -44,7 +44,7 @@ public:
 
 protected:
 
-    virtual BufferString	getSummary() const= 0;
+    virtual uiString		getSummary() const= 0;
     void			doSel(CallBacker*);
     void			updSummary(CallBacker*);
 
@@ -77,17 +77,17 @@ public:
     bool		isChecked() const;
 
     Notifier<uiCheckedCompoundParSel> checked;
-    void		setSummary(const BufferString& smmry)
+    void		setSummary(const uiString& smmry)
 						{ summary_ = smmry; return; }
 
 protected:
 
     uiCheckBox*		cbox_;
     bool		mkinvis_;
-    BufferString	summary_;
+    uiString		summary_;
 
     void		checkCB(CallBacker*);
 
-    virtual BufferString getSummary() const { return summary_; }
+    virtual uiString	getSummary() const { return summary_; }
 
 };

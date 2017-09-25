@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 #define mSelTxt seltxt && *seltxt ? seltxt \
 				  : ( forread ? "Input Well" : "Output Well" )
@@ -125,7 +126,7 @@ void fillPar( IOPar& iop ) const
     Notifier<uiWellSingLineMultiSel>	selDone;
 
     void		doDlg(CallBacker*);
-    BufferString	getSummary() const;
+    uiString		getSummary() const;
 
     DBKeySet		selids_;
     IOPar		iopar_;
@@ -176,18 +177,18 @@ bool uiWellSingLineMultiSel::usePar( const IOPar& iop )
 }
 
 
-BufferString uiWellSingLineMultiSel::getSummary() const
+uiString uiWellSingLineMultiSel::getSummary() const
 {
-    BufferStringSet names;
+    uiStringSet names;
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = DBM().get( selids_[idx] );
 	if ( !ioobj ) continue;
 
-	names.add( ioobj->name() );
+	names.add( toUiString( ioobj->name() ) );
     }
 
-    return names.getDispString( -1, false );
+    return names.createOptionString();
 }
 
 

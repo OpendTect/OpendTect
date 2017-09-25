@@ -66,13 +66,13 @@ const char* uiEMAuxDataSel::getAuxDataSel() const
 { return auxdatanm_; }
 
 
-BufferString uiEMAuxDataSel::getSummary() const
+uiString uiEMAuxDataSel::getSummary() const
 {
     PtrMan<IOObj> ioobj = DBM().get( hormid_ );
     if ( !ioobj )
-	return "";
+	return uiStrings::sEmptyString();
 
     BufferString summary( ioobj->name() );
     summary.add( "[" ).add( auxdatanm_ ).add( "]" );
-    return summary;
+    return toUiString( summary );
 }

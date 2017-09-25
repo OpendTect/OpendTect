@@ -201,6 +201,6 @@ protected:
     BufferStringSet			alllevelnames_;
     BufferStringSet			sellevelnames_;
 
-    virtual BufferString		getSummary() const;
+    virtual uiString			getSummary() const;
     void				doSelLevelDlg(CallBacker*);
 };

@@ -387,12 +387,12 @@ void uiMadIOSel::doDlg( CallBacker* )
 }
 
 
-BufferString uiMadIOSel::getSummary() const
+uiString uiMadIOSel::getSummary() const
 {
     BufferString ret( "-" );
 
     if ( !iop_.find(sKey::Type()) )
-	return ret;
+	return toUiString(ret);
 
     ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop_ );
     if ( iot == ODMad::ProcFlow::None )
@@ -402,5 +402,5 @@ BufferString uiMadIOSel::getSummary() const
     else
 	ret = DBM().nameFor( iop_.find("ID") );
 
-    return ret;
+    return toUiString(ret);
 }

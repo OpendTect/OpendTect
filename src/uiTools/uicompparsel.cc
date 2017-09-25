@@ -72,7 +72,7 @@ void uiCompoundParSel::doSel( CallBacker* )
 
 void uiCompoundParSel::updSummary( CallBacker* )
 {
-    txtfld_->setText( getSummary() );
+    txtfld_->setText( mFromUiStringTodo(getSummary()) );
 }
 
 

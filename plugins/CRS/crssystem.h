@@ -32,7 +32,7 @@ public:
 
     virtual uiString		description() const
 				{ return tr("Geographical Coordinate System"); }
-    virtual BufferString	summary() const;
+    virtual uiString		summary() const;
     virtual bool		isWorthMentioning() const { return true; }
 
     virtual bool		isOK() const;

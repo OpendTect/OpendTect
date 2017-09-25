@@ -28,7 +28,7 @@ public:
 
 protected:
 
-    virtual BufferString	getSummary() const;
+    virtual uiString		getSummary() const;
     void			butPushCB(CallBacker*);
 
     DBKey			hormid_;

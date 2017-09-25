@@ -32,14 +32,14 @@ Coords::CoordSystem* Coords::ProjectionBasedSystem::clone() const
 }
 
 
-BufferString Coords::ProjectionBasedSystem::summary() const
+uiString Coords::ProjectionBasedSystem::summary() const
 {
     if ( !proj_ )
-	return "No Projection Selected";
+	return tr("No Projection Selected");
 
     BufferString ret( "Projection: [" );
     ret.add( proj_->authCode().toString() ).add( "] " ).add( proj_->userName());
-    return ret;
+    return ::toUiString(ret);
 }
 
 

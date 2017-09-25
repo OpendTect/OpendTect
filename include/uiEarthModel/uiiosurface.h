@@ -192,7 +192,7 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    BufferString		getSummary() const;
+    uiString			getSummary() const;
 
 protected:
 
@@ -200,7 +200,7 @@ protected:
     void			doDlg(CallBacker*);
 
     bool			is2d_;
-    DBKeySet		selids_;
+    DBKeySet			selids_;
 };
 
 
@@ -218,8 +218,8 @@ public:
 
     void			setSelectedFaults(const DBKeySet&,
 					const TypeSet<FaultTrace::Act>* =0);
-    BufferString		getSummary() const;
-    const DBKeySet&	selFaultIDs() const { return selfaultids_; }
+    uiString			getSummary() const;
+    const DBKeySet&		selFaultIDs() const { return selfaultids_; }
 
     void			setEmpty();
     void			setGeomIDs(const TypeSet<Pos::GeomID>&);

@@ -63,8 +63,7 @@ static void setAnnotationPars( FlatView::Annotation& annot )
 {
     annot.x1_.name_ = uiStrings::sOffset();
     annot.x1_.reversed_ = false;
-    annot.x2_.name_ = SI().zIsTime() ? od_static_tr("setAnnotationPars", "TWT") 
-					    : uiStrings::sDepth();
+    annot.x2_.name_ = SI().zIsTime() ? uiStrings::sTWT() : uiStrings::sDepth();
     annot.x2_.reversed_ = true;
     annot.x1_.showauxannot_ = false;
     annot.x2_.showauxannot_ = false;
@@ -1182,7 +1181,7 @@ void uiStoredViewer2DMainWin::displayAngle()
 			(float)angleparams_->anglerange_.start,
 			(float)angleparams_->anglerange_.stop ) );
 	    newmapsu->setSeqUseMode( ColTab::UnflippedCyclic );
-	    psapp.ddpars_.vd_.colseqname_ = 
+	    psapp.ddpars_.vd_.colseqname_ =
 				toUiString(ColTab::Sequence::sDefaultName());
 	}
 	else

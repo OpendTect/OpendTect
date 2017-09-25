@@ -579,11 +579,11 @@ uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const HelpKey& helpkey )
     butPush.notify( mCB(this,uiTableFmtDescFldsParSel,doDlg) );
 }
 
-BufferString getSummary() const
+uiString getSummary() const
 {
-    BufferString ret;
+    uiString ret;
     if ( !impsel_.desc().isGood() )
-	ret = "<Incomplete>";
+	ret = tr("<Incomplete>");
     else
     {
 	bool isstor = !impsel_.fmtname_.isEmpty();
@@ -594,9 +594,9 @@ BufferString getSummary() const
 	}
 
 	if ( !isstor )
-	    ret = "<Defined>";
+	    ret = tr("<Defined>");
 	else
-	    ret = impsel_.fmtname_;
+	    ret = toUiString( impsel_.fmtname_ );
     }
 
     return ret;

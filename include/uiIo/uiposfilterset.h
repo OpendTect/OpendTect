@@ -72,6 +72,6 @@ protected:
     IOPar		iop_;
 
     void		doDlg(CallBacker*);
-    BufferString	getSummary() const;
+    uiString		getSummary() const;
 
 };

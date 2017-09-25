@@ -36,7 +36,7 @@ protected:
     bool		isinp_;
     IOPar		iop_;
 
-    virtual BufferString getSummary() const;
+    virtual uiString	getSummary() const;
     void		doDlg(CallBacker*);
 
 };

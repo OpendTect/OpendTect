@@ -229,11 +229,11 @@ CoordSystem* AnchorBasedXY::clone() const
 bool AnchorBasedXY::geographicTransformOK() const
 { return !mIsUdf(lngdist_); }
 
-BufferString AnchorBasedXY::summary() const
+uiString AnchorBasedXY::summary() const
 {
     BufferString ret( "Anchor: " );
     ret.add( reflatlng_.toString() ).add( refcoord_.toPrettyString() );
-    return ret;
+    return ::toUiString(ret);
 }
 
 

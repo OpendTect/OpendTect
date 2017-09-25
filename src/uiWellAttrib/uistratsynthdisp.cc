@@ -753,7 +753,7 @@ void uiStratSynthDisp::parsChangedCB( CallBacker* )
     if ( currentvdsynthetic_ )
     {
 	SynthFVSpecificDispPars& disppars = currentvdsynthetic_->dispPars();
-	disppars.colseqname_ = 
+	disppars.colseqname_ =
 		mFromUiStringTodo(vwr_->appearance().ddpars_.vd_.colseqname_);
 	*disppars.vdmapsetup_ = vwr_->appearance().ddpars_.vd_.mapper_->setup();
     }
@@ -997,7 +997,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( sd->name() );
     if ( !wva )
-	vwr_->appearance().ddpars_.vd_.colseqname_ = 
+	vwr_->appearance().ddpars_.vd_.colseqname_ =
 			    toUiString(sd->dispPars().colseqname_);
     else
 	vwr_->appearance().ddpars_.wva_.overlap_ = sd->dispPars().overlap_;
@@ -1799,7 +1799,7 @@ void uiStratSynthDisp::setDefaultAppearance( FlatView::Appearance& app )
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
     app.annot_.x1_.annotinint_ = true;
-    app.annot_.x2_.name_ = "TWT";
+    app.annot_.x2_.name_ = toUiString("TWT");
     app.ddpars_.show( true, true );
     app.ddpars_.wva_.allowuserchangedata_ = false;
     app.ddpars_.vd_.allowuserchangedata_ = false;

@@ -238,7 +238,8 @@ void uiPosProvider::setSampling( const TrcKeyZSampling& tkzs )
 }
 
 
-void uiPosProvider::getSampling( TrcKeyZSampling& tkzs, const IOPar* pars ) const
+void uiPosProvider::getSampling( TrcKeyZSampling& tkzs, const IOPar* pars )
+									const
 {
     IOPar iop;
     if ( pars )
@@ -343,7 +344,7 @@ uiPosProvSel::~uiPosProvSel()
 }
 
 
-BufferString uiPosProvSel::getSummary() const
+uiString uiPosProvSel::getSummary() const
 {
     BufferString ret;
     if ( !prov_ )
@@ -353,7 +354,7 @@ BufferString uiPosProvSel::getSummary() const
 	ret = prov_->type(); ret[1] = '\0'; ret += ": ";
 	prov_->getSummary( ret );
     }
-    return ret;
+    return toUiString( ret );
 }
 
 

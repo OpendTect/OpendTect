@@ -99,9 +99,9 @@ void readParsReq( CallBacker* cb )
     dd->use( ioobj, false );
 }
 
-BufferString getSummary() const
+uiString getSummary() const
 {
-    return fnm_;
+    return toUiString( fnm_ );
 }
 
     uiWellImportSEGYVSP& imp_;

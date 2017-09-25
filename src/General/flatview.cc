@@ -731,7 +731,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 	useStoredDefaults( fdp->category() );
 
     FlatView::Annotation& annot = appearance().annot_;
-    if ( annot.x1_.name_.isEmpty() || 
+    if ( annot.x1_.name_.isEmpty() ||
 			    mFromUiStringTodo(annot.x1_.name_) == "X1" )
     {
 	annot.x1_.name_ = toUiString(fdp->dimName( true ));
@@ -740,11 +740,11 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 					 mFromUiStringTodo(annot.x1_.name_)) );
     }
 
-    if ( annot.x2_.name_.isEmpty() || 
+    if ( annot.x2_.name_.isEmpty() ||
 				  mFromUiStringTodo(annot.x2_.name_) == "X2" )
     {
 	annot.x2_.name_ = toUiString(fdp->dimName( false ));
-	annot.x2_.annotinint_ = fdp->dimValuesInInt( 
+	annot.x2_.annotinint_ = fdp->dimValuesInInt(
 				    mFromUiStringTodo(annot.x2_.name_) );
     }
 

@@ -371,22 +371,22 @@ void uiSeis2DLineSel::setInput( const DBKey& datasetid )
 }
 
 
-BufferString uiSeis2DLineSel::getSummary() const
+uiString uiSeis2DLineSel::getSummary() const
 {
-    BufferString ret( "No lines selected" );
+    uiString ret( tr("No lines selected") );
     if ( selidxs_.isEmpty() )
 	return ret;
 
-    ret = lnms_.get( selidxs_[0] );
+    ret = toUiString( lnms_.get(selidxs_[0]) );
     if ( !ismultisel_ || selidxs_.size()==1 )
 	return ret;
 
     if ( selidxs_.size() == lnms_.size() )
-	ret = "All";
+	ret = uiStrings::sAll();
     else
-	ret = selidxs_.size();
+	ret = toUiString( selidxs_.size() );
 
-    ret += " lines";
+    ret.append( toUiString(" %2").arg(uiStrings::sLine(mPlural).toLower()) );
     return ret;
 }
 

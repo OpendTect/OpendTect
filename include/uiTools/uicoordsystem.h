@@ -110,7 +110,7 @@ protected:
     bool		orthogonalonly_;
     bool		projectiononly_;
 
-    BufferString	getSummary() const;
+    uiString		getSummary() const;
     void		selCB(CallBacker*);
 
 };

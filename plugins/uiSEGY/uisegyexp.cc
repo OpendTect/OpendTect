@@ -166,12 +166,12 @@ void butPushed( CallBacker* )
     dlg.go();
 }
 
-BufferString getSummary() const
+uiString getSummary() const
 {
     if ( se_->autogentxthead_ )
-	return BufferString( "<generate>" );
+	return tr( "<generate>" );
     else
-	return BufferString( "<user-defined>" );
+	return tr( "<user-defined>" );
 }
 
     uiSEGYExp*	se_;

@@ -97,19 +97,19 @@ void uiMultCompSel::doDlg( CallBacker* )
 }
 
 
-BufferString uiMultCompSel::getSummary() const
+uiString uiMultCompSel::getSummary() const
 {
-    BufferString ret;
+    uiString ret;
     if ( !allowChoice() || !dlg_ || dlg_->useallfld_->getBoolValue()
 	|| dlg_->outlistfld_->nrChosen() == compnms_.size() )
-	ret = "-- All components --";
+	ret = tr( "-- All components --" );
     else
     {
-	BufferStringSet selnms;
+	uiStringSet selnms;
 	for ( int idx=0; idx<compnms_.size(); idx++ )
 	    if ( dlg_->outlistfld_->isChosen( idx) )
-		selnms.add( compnms_.get(idx) );
-	ret = selnms.getDispString();
+		selnms.add( toUiString(compnms_.get(idx)) );
+	ret = selnms.createOptionString();
     }
 
     return ret;

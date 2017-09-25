@@ -116,7 +116,7 @@ void Text::setText( const uiString& newtext )
 {
     ArrPtrMan<wchar_t> wcharbuf = newtext.createWCharString();
 
-    osgtext_->setText( newtext.getOriginalString() );
+    osgtext_->setText( mFromUiStringTodo(newtext).buf() );
     if ( !wcharbuf )
 	osgtext_->setText( emptystring );
     else

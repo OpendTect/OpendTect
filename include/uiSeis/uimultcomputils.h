@@ -49,7 +49,7 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
 
     protected:
 
-    BufferString	getSummary() const;
+    uiString		getSummary() const;
     void		doDlg(CallBacker*);
     void		prepareDlg();
 

@@ -163,9 +163,9 @@ void uiMultiStratLevelSel::doSelLevelDlg( CallBacker* )
 }
 
 
-BufferString uiMultiStratLevelSel::getSummary() const
+uiString uiMultiStratLevelSel::getSummary() const
 {
-    return sellevelnames_.getDispString();
+    return toUiString( sellevelnames_.getDispString() );
 }
 
 

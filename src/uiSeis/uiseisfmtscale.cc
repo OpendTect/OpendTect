@@ -143,18 +143,19 @@ void doDlg( CallBacker* )
     dlg.go();
 }
 
-BufferString getSummary() const
+uiString getSummary() const
 {
     const char* nms[] = { "Auto",
 	  "8bit [-,+]", "8bit [0,+]",
 	  "16bit [-,+]", "16bit [0,+]",
 	  "32bit [-,+]", "32bit [0,+]",
 	  "32bit [float]", "64bit [float]", "64bit [-,+]", 0 };
-    BufferString ret( nms[data_.stor_] );
-    ret += " / ";
-    ret += data_.sclr_ ? data_.sclr_->toString() : "None";
+    uiString ret( toUiString(nms[data_.stor_]) );
+    ret.append( toUiString(" / %2") );
+    ret.arg( data_.sclr_ ? toUiString( data_.sclr_->toString() ) :
+							 uiStrings::sNone() );
     if ( data_.optim_ )
-	ret += " (Hor optim)";
+	ret.append( tr(" (Horizon optimized)") );
     return ret;
 }
 

@@ -52,7 +52,7 @@ public:
     virtual CoordSystem*	clone() const				= 0;
 
     virtual uiString		description() const			= 0;
-    virtual BufferString	summary() const				= 0;
+    virtual uiString		summary() const				= 0;
     virtual bool		isWorthMentioning() const { return false; }
 
     virtual bool		isOK() const				= 0;
@@ -109,8 +109,8 @@ public:
     virtual CoordSystem*	clone() const;
     virtual uiString	description() const { return
 			   tr("Coordinate system in an undefined projection.");}
-    virtual BufferString summary() const
-				{ return sFactoryKeyword(); }
+    virtual uiString	summary() const
+				{ return factoryDisplayName(); }
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const	{ return false; }
@@ -143,7 +143,7 @@ public:
     virtual uiString	description() const { return
 				tr("Coordinate system has an anchor point "
 				    "for which Latitude/Longitude is known");}
-    virtual BufferString summary() const;
+    virtual uiString	summary() const;
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const;

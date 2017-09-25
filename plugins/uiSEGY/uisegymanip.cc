@@ -159,7 +159,7 @@ uiSEGYBinHdrEd( uiParent* p, SEGY::BinHeader& h )
     butPush.notify( mCB(this,uiSEGYBinHdrEd,doDlg) );
 }
 
-BufferString getSummary() const
+uiString getSummary() const
 {
     BufferString ret;
     if ( hdr_.isSwapped() )
@@ -171,7 +171,7 @@ BufferString getSummary() const
     ret.add( hdr_.nrSamples() ).add( " samples (" )
 	.add( hdr_.bytesPerSample() ).add( "-byte), interval=" )
 	.add( hdr_.sampleRate(true) );
-    return ret;
+    return toUiString( ret );
 }
 
 void doDlg( CallBacker* )

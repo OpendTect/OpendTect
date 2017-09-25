@@ -54,7 +54,7 @@ public:
 			uiMadagascarBldPlotCmd(uiParent*);
 			~uiMadagascarBldPlotCmd();
 
-    BufferString	getPlotCommand() const		{ return getSummary(); }
+    uiString		getPlotCommand() const	{ return getSummary(); }
     void		setPlotCmd(const char*);
 
 protected:
@@ -64,7 +64,7 @@ protected:
 
     BufferStringSet&	cmdlist_;
 
-    BufferString	getSummary() const;
+    uiString		getSummary() const;
     void		doDlg(CallBacker*);
 };
 
@@ -108,7 +108,7 @@ void uiMadagascarBldPlotCmd::setPlotCmd( const char* cmd )
 }
 
 
-BufferString uiMadagascarBldPlotCmd::getSummary() const
+uiString uiMadagascarBldPlotCmd::getSummary() const
 {
     BufferString retstr = createplotcmd_;
     if ( !viewplotcmd_.isEmpty() )
@@ -117,7 +117,7 @@ BufferString uiMadagascarBldPlotCmd::getSummary() const
 	retstr += viewplotcmd_;
     }
 
-    return retstr;
+    return toUiString( retstr );
 }
 
 
@@ -288,7 +288,7 @@ ODMad::Proc* uiMadagascarBldCmd::proc() const
     if ( !useauxfld_->isChecked() )
 	return new ODMad::Proc( text );
 
-    BufferString auxtxt = auxcmdfld_->getPlotCommand();
+    BufferString auxtxt = mFromUiStringTodo(auxcmdfld_->getPlotCommand());
     return new ODMad::Proc( text, auxtxt.buf() );
 }
 

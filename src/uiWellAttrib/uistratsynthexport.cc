@@ -83,30 +83,30 @@ void selItems( CallBacker* )
     }
 }
 
-virtual BufferString getSummary() const
+virtual uiString getSummary() const
 {
-    BufferString ret;
+    uiString ret;
     const int sz = nms_.size();
     const int selsz = selidxs_.size();
 
     if ( sz < 1 )
-	ret = "<None available>";
+	ret = tr("<None available>");
     else if ( selsz == 0 )
-	ret = "<None selected>";
+	ret = tr("<None selected>");
     else
     {
 	if ( selsz > 1 )
 	{
-	    ret.add( "<" ).add( selsz ).add( " selected" );
+	    ret.append( "<" ).append( toUiString(selsz) ).append( " selected" );
 	    if ( sz == selsz )
-		ret.add( " (all)" );
-	    ret.add( ">: " );
+		ret.append( " (all)" );
+	    ret.append( ">: " );
 	}
-	ret.add( nms_.get( selidxs_[0] ) );
+	ret.append( nms_.get( selidxs_[0] ) );
 	if ( selsz > 1 )
-	    ret.add( ", ..." );
+	    ret.append( ", ..." );
 	else if ( sz == selsz )
-	    ret.add( " (all)" );
+	    ret.append( " (all)" );
     }
 
     return ret;

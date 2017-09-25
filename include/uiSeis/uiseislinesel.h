@@ -111,7 +111,7 @@ protected:
     TypeSet<int>	selidxs_;
     bool		ismultisel_;
 
-    BufferString	getSummary() const;
+    uiString		getSummary() const;
 
     virtual void	selPush(CallBacker*);
     virtual void	clearAll();

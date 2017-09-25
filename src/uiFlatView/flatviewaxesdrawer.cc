@@ -142,7 +142,7 @@ void AxesDrawer::updateViewRect()
 
     OD::ArrowStyle arrowstyle;
     arrowstyle.headstyle_.type_ = OD::ArrowHeadStyle::Triangle;
-    if ( showx1annot && !ad1.name_.isEmpty() && 
+    if ( showx1annot && !ad1.name_.isEmpty() &&
 					mFromUiStringTodo(ad1.name_) != " " )
     {
 	const int right = rect.right();
@@ -179,7 +179,7 @@ void AxesDrawer::updateViewRect()
     uiString userfacstr = vwr_.zDomain().unitStr( true );
     const bool usewva = !vwr_.isVisible( false );
     ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
-    if ( showx2annot && !ad2.name_.isEmpty() && 
+    if ( showx2annot && !ad2.name_.isEmpty() &&
 					mFromUiStringTodo(ad2.name_) != " " )
     {
 	const int left = rect.left();

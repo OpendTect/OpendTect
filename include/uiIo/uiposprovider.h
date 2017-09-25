@@ -113,7 +113,7 @@ protected:
     TrcKeyZSampling&	tkzs_;
 
     void		doDlg(CallBacker*);
-    BufferString	getSummary() const;
+    uiString		getSummary() const;
     void		setCSToAll() const;
     void		setProvFromCS();
     void		mkNewProv(bool updsumm=true);

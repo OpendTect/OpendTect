@@ -338,7 +338,7 @@ void uiFlatViewer::setAnnotChoice( int sel )
     const int altdim0 = altdim0keys.validIdx(sel) ? sel : -1;
     x1axisdata.name_ = altdim0>=0 ? toUiString(altdim0keys.get(altdim0).buf())
 				  : toUiString(fdp->dimName(true));
-    x1axisdata.annotinint_ = fdp->dimValuesInInt( 
+    x1axisdata.annotinint_ = fdp->dimValuesInInt(
 				    mFromUiStringTodo(x1axisdata.name_) );
     axesdrawer_.altdim0_ = altdim0;
 }
