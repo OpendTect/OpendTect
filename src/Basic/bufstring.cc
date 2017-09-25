@@ -611,7 +611,7 @@ int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
 	for ( int idx=0; idx<sz; idx++ )
 	    candidates += idx;
 
-    unsigned int mindist = -1; int minidx = -1;
+    unsigned int mindist = mUdf(unsigned int); int minidx = -1;
     for ( int idx=0; idx<candidates.size(); idx++ )
     {
 	const int myidx = candidates[idx];
