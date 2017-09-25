@@ -309,9 +309,6 @@ uiString uiStrings::sBatchProgramFailedStart()
 uiString uiStrings::sColorTable(int num)
 { return tr("Color Table",0,num); }
 
-uiString uiStrings::sCreate()
-{ return tr("Create"); }
-
 uiString uiStrings::sCalculate()
 { return tr("Calculate"); }
 

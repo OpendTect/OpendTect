@@ -265,8 +265,6 @@ public:
     static uiString sCheck();
     static uiString sCheckPermissions();
     static uiString sCannotZip();
-    static uiString sCreateNew();
-    static uiString sCreateOutput();
     static uiString sClear()		{ return tr("Clear"); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sCode(int num=1)	{ return tr("Code",0,num); }
@@ -281,11 +279,13 @@ public:
     static uiString sContour(int num=1)	{ return tr("Contour",0,num); }
     static uiString sCoordinate(int num=1) { return tr("Coordinate",0,num); }
     static uiString sCopy();
-    static uiString sCreateGroup()	{ return tr("Create Group"); }
     static uiString sCoefficient()	{ return tr("Coefficient"); }
     static uiString sCorrelation(int num=1)  { return tr("Correlation",0,num); }
     static uiString sCorrelCoeff()	{ return tr("Correlation Coefficient");}
-    static uiString sCreate();
+    static uiString sCreate()		{ return tr("Create"); }
+    static uiString sCreateGroup()	{ return tr("Create Group"); }
+    static uiString sCreateNew();
+    static uiString sCreateOutput();
     static uiString sCreateProbDesFunc();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
     static uiString sCrossPlot();

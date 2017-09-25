@@ -99,6 +99,7 @@ const char* OD::IconFile::getIdentifier( OD::StdActionType typ )
     {
 	mCaseRet(Apply,apply)
 	mCaseRet(Cancel,cancel)
+	mCaseRet(Create,create)
 	mCaseRet(Define,define)
 	mCaseRet(Delete,remove)
 	mCaseRet(Edit,edit)

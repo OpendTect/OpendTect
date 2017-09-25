@@ -85,6 +85,7 @@ enum StdActionType
     NoIcon=0,
     Apply,
     Cancel,
+    Create,
     Define,
     Delete,
     Edit,

@@ -285,6 +285,7 @@ static uiButton* crStd( uiParent* p, OD::StdActionType typ,
     {
 	mGetDefs(Apply)
 	mGetDefs(Cancel)
+	mGetDefs(Create)
 	mGetDefs(Define)
 	mGetDefs(Delete)
 	mGetDefs(Edit)
