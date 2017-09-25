@@ -20,7 +20,7 @@ class uiCheckBox;
 class uiGenInput;
 class uiFunctionDisplay;
 class uiLabeledSpinBox;
-class uiPushButton;
+class uiButton;
 namespace Fourier { class CC; }
 template <class T> class Array1D;
 template <class T> class Array2D;
@@ -50,7 +50,7 @@ public:
 				~uiAmplSpectrum();
 
     void			setDataPackID(DataPack::ID,DataPackMgr::ID,
-	    				      int version);
+					      int version);
     void			setData(const float* array,int size);
     void			setData(const Array1D<float>&);
     void			setData(const Array2D<float>&);
@@ -66,7 +66,7 @@ protected:
     uiLabeledSpinBox*		stepfld_;
     uiGenInput*			valfld_;
     uiGroup*			dispparamgrp_;
-    uiPushButton*		exportfld_;
+    uiButton*			exportfld_;
     uiCheckBox*			normfld_;
     uiCheckBox*			powerdbfld_;
 

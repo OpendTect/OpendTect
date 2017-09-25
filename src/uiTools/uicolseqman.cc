@@ -500,9 +500,9 @@ uiColSeqMan::uiColSeqMan( uiParent* p, const char* initialseqnm )
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
 
-    uiPushButton* impbut = new uiPushButton( this, uiStrings::sImport(), false);
+    uiButton* impbut = uiButton::getStd( this, OD::Import,
+					 mCB(this,uiColSeqMan,impColSeqCB), false );
     impbut->attach( ensureBelow, splitter );
-    mAttachCB( impbut->activated, uiColSeqMan::impColSeqCB );
 
     removebut_ = uiButton::getStd( this, OD::Remove,
 				    mCB(this,uiColSeqMan,removeCB), false );

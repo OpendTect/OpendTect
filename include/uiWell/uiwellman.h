@@ -21,7 +21,6 @@ class uiListBox;
 class uiButton;
 class uiGroup;
 class uiToolButton;
-class uiPushButton;
 
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
@@ -59,8 +58,8 @@ protected:
     uiToolButton*		logedbut_;
     uiToolButton*		logupbut_;
     uiToolButton*		logdownbut_;
-    uiPushButton*		addlogsbut_;
-    uiPushButton*		calclogsbut_;
+    uiButton*			addlogsbut_;
+    uiButton*			calclogsbut_;
     uiToolButton*		welltrackbut_;
     uiToolButton*		d2tbut_;
     uiToolButton*		csbut_;

@@ -88,8 +88,8 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     normfld_->activated.notify( mCB(this,uiAmplSpectrum,putDispData) );
     powerdbfld_->activated.notify( mCB(this,uiAmplSpectrum,putDispData) );
 
-    exportfld_ = new uiPushButton( this, uiStrings::sExport(), false );
-    exportfld_->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
+    exportfld_ = uiButton::getStd( this, OD::Export,
+				   mCB(this,uiAmplSpectrum,exportCB), false );
     exportfld_->attach( rightAlignedBelow, disp_ );
     exportfld_->attach( ensureBelow, dispparamgrp_ );
 

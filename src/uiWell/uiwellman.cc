@@ -81,11 +81,10 @@ uiWellMan::uiWellMan( uiParent* p )
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
 						 OD::Horizontal );
-    addlogsbut_ = new uiPushButton( logsbgrp, uiStrings::sImport(), false );
-    addlogsbut_->activated.notify( mCB(this,uiWellMan,importLogs) );
-    calclogsbut_ = new uiPushButton( logsbgrp, uiStrings::sCreate(), false);
-    calclogsbut_->activated.notify( mCB(this,uiWellMan,calcLogs) );
-    calclogsbut_->attach( rightOf, addlogsbut_ );
+    addlogsbut_ = uiButton::getStd( logsbgrp, OD::Import,
+				    mCB(this,uiWellMan,importLogs), false );
+    calclogsbut_ = uiButton::getStd( logsbgrp, OD::Create,
+				     mCB(this,uiWellMan,calcLogs), false );
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsfld_ );

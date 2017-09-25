@@ -89,19 +89,21 @@ enum StdActionType
     Define,
     Delete,
     Edit,
+    Examine,
+    Export,
     Help,
+    Import,
     Ok,
     Options,
     Properties,
-    Examine,
-    Rename,
+    Reload,
     Remove,
+    Rename,
     Save,
     SaveAs,
     Select,
     Settings,
-    Unload,
-    Reload
+    Unload
 };
 
 } // namespace OD

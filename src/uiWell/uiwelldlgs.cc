@@ -141,9 +141,9 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   OD::Horizontal );
     uiButton* readbut = !writable_ ? 0
-		: new uiPushButton( iobutgrp, uiStrings::sImport(),
+		: uiButton::getStd( iobutgrp, OD::Import,
 				    mCB(this,uiWellTrackDlg,readNew), false );
-    uiButton* expbut = new uiPushButton( iobutgrp, uiStrings::sExport(),
+    uiButton* expbut = uiButton::getStd( iobutgrp, OD::Export,
 					 mCB(this,uiWellTrackDlg,exportCB),
 					 false );
     if ( readbut )
@@ -825,10 +825,9 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   OD::Horizontal );
     if ( writable_ )
-	new uiPushButton( iobutgrp, uiStrings::sImport(),
-	    mCB(this,uiD2TModelDlg,readNew), false );
-    new uiPushButton( iobutgrp, uiStrings::sExport(),
-	mCB(this,uiD2TModelDlg,expData), false );
+	uiButton::getStd( iobutgrp, OD::Import, mCB(this,uiD2TModelDlg,readNew),
+						false );
+    uiButton::getStd( iobutgrp, OD::Export, mCB(this,uiD2TModelDlg,expData), false );
     if ( replvelfld_ )
 	iobutgrp->attach( ensureBelow, replvelfld_ );
     else

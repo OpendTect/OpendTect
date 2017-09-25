@@ -103,8 +103,8 @@ uiSeisWvltMan::~uiSeisWvltMan()
 void uiSeisWvltMan::addButtons()
 {
     uiButtonGroup* grp = extraButtonGroup();
-    uiPushButton* impbut = new uiPushButton( grp, uiStrings::sImport(), false );
-    impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
+    uiButton* impbut = uiButton::getStd( grp, OD::Import,
+				         mCB(this,uiSeisWvltMan,impPush), false );
 
     uiPushButton* crbut = new uiPushButton( grp, tr("Generate"), false );
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );

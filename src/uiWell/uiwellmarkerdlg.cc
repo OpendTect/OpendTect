@@ -189,11 +189,11 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 				mCB(this,uiMarkerDlg,updateDisplayCB), true );
     updatebut->attach( leftAlignedBelow, table_ );
 
-    uiButton* rfbut = new uiPushButton( this, uiStrings::sImport(),
+    uiButton* rfbut = uiButton::getStd( this, OD::Import,
 					mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightOf, updatebut );
 
-    uiButton* expbut = new uiPushButton( this, uiStrings::sExport(),
+    uiButton* expbut = uiButton::getStd( this, OD::Export,
 					mCB(this,uiMarkerDlg,exportCB), false );
     expbut->attach( rightOf, rfbut );
 
