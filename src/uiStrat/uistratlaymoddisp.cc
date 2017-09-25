@@ -106,6 +106,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 
 uiStratLayerModelDisp::~uiStratLayerModelDisp()
 {
+    detachAllNotifiers();
 }
 
 
