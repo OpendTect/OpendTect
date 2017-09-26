@@ -407,9 +407,9 @@ void CEEMD::DecompInput::stackEemdComponents(
 	   PointBasedMathFunction::ExtraPolGradient);
     DecompInput imf(setup_, size_);
     int stackcount = setup_.maxnoiseloop_;
-    int maxcomp, nrmax, nrmin, nrzeros;
+    int maxcomp=0, nrmax, nrmin, nrzeros;
 
-    for ( int comp=0; comp < setup_.maxnrimf_; comp++)
+    for ( int comp=0; comp<setup_.maxnrimf_; comp++)
     {
 	maxcomp = comp;
 	int checkzeros = 0;
@@ -421,7 +421,7 @@ void CEEMD::DecompInput::stackEemdComponents(
 	if ( checkzeros == setup_.maxnoiseloop_ ) break;
     }
 
-    for ( int comp=0; comp < maxcomp; comp++)
+    for ( int comp=0; comp<maxcomp; comp++)
     {
 	stackedcomponents += new IMFComponent(size_);
 	stackedcomponents[comp]->name_ = "Component ";
