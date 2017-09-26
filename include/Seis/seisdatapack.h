@@ -29,6 +29,7 @@ public:
     mDeclAbstractMonitorableAssignment(SeisVolumeDataPack);
 
     void		fillTrace(const TrcKey&,SeisTrc&) const;
+    void		fillTraceInfo(const TrcKey&,SeisTrcInfo&) const;
     void		fillTraceData(const TrcKey&,TraceData&) const;
 
 protected:

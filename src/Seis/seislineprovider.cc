@@ -71,10 +71,15 @@ const LineProvider& prov() const
     bool		readNextTraces();
 
     void		get(const TrcKey&,SeisTrc&);
+    void		get(const TrcKey&,TraceData&,SeisTrcInfo*);
     void		getNext(SeisTrc&);
 
     RefMan<RegularSeisDataPack> dp_;
     Seis2DTraceGetter*	getter_;
+
+private:
+
+    void		doGet(const TrcKey&,SeisTrc*,TraceData&,SeisTrcInfo*);
 
 };
 
@@ -159,13 +164,36 @@ bool Seis::LineFetcher::getNextGetter()
 
 void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 {
+    doGet( tk, &trc, trc.data(), &trc.info() );
+}
+
+
+void Seis::LineFetcher::get( const TrcKey& tk, TraceData& data,
+			     SeisTrcInfo* trcinfo )
+{
+    doGet( tk, 0, data, trcinfo );
+}
+
+
+void Seis::LineFetcher::doGet( const TrcKey& tk, SeisTrc* trc, TraceData& data,
+			       SeisTrcInfo* trcinfo )
+{
     if ( !goTo(tk) )
 	return;
 
     if ( dp_ && dp_->sampling().hsamp_.includes(tk) )
-	{ dp_->fillTrace( tk, trc ); return; }
+    {
+	if ( trc ) dp_->fillTrace( tk, *trc );
+	else
+	{
+	    if ( trcinfo ) dp_->fillTraceInfo( tk, *trcinfo );
+	    dp_->fillTraceData( tk, data );
+	}
+	return;
+    }
 
-    uirv_ = getter_->get( tk.trcNr(), trc );
+    uirv_ = trc ? getter_->get( tk.trcNr(), *trc )
+		: getter_->get( tk.trcNr(), data, trcinfo );
 }
 
 
@@ -250,6 +278,17 @@ bool Seis::LineProvider::getRanges( int iln, StepInterval<int>& trcrg,
 }
 
 
+SeisTrcTranslator* Seis::LineProvider::getCurrentTranslator() const
+{
+    const Seis2DTraceGetter* getter2d = fetcher_.getter_;
+    if ( !getter2d )
+	return 0;
+
+    return getter2d->tr_ ? getter2d->tr_
+			 : ( getter2d->ensureTranslator() ? getter2d->tr_ : 0 );
+}
+
+
 void Seis::LineProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
 {
     Seis::Provider2D::doFillPar( iop, uirv );
@@ -298,5 +337,13 @@ void Seis::LineProvider::doGet( const TrcKey& trcky, SeisTrc& trc,
 				  uiRetVal& uirv ) const
 {
     fetcher_.get( trcky, trc );
+    uirv = fetcher_.uirv_;
+}
+
+
+void Seis::LineProvider::doGetData( const TrcKey& trcky, TraceData& data,
+				    SeisTrcInfo* trcinfo, uiRetVal& uirv ) const
+{
+    fetcher_.get( trcky, data, trcinfo );
     uirv = fetcher_.uirv_;
 }

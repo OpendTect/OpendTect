@@ -70,6 +70,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , inpcds_(0)
     , outcds_(0)
     , seldata_(0)
+    , outnrsamples_(0)
     , prevnr_(mUdf(int))
     , pinfo_(*new SeisPacketInfo)
     , trcblock_(*new SeisTrcBuf(false))
@@ -130,6 +131,7 @@ void SeisTrcTranslator::cleanUp()
 
     headerdone_ = false;
     datareaddone_ = false;
+    deleteAndZeroPtr( compnms_ );
     deleteAndZeroPtr( storbuf_ );
     deepErase( cds_ );
     deepErase( tarcds_ );
@@ -536,47 +538,41 @@ bool SeisTrcTranslator::read( SeisTrc& trc )
     if ( !headerdone_ && !readInfo(trc.info()) )
 	return false;
 
-    if ( (!datareaddone_ && !readData()) || !copyDataToTrace(trc) )
-	return false;
-
-    headerdone_ = false;
-    datareaddone_ = false;
-
-    return true;
-}
-
-
-bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
-{
-    if ( !datareaddone_ )
-	return false;
+    if ( outnrsamples_ == 0 )
+	commitSelections();
 
     prepareComponents( trc, outnrsamples_ );
     if ( curtrcscale_ )
 	trc.convertToFPs();
 
-    const bool matchingdc = *trc.data().getInterpreter(0) ==
-			    *storbuf_->getInterpreter(0);
-    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
+    bool samedatachar = true;
+    for ( int idx=0; idx<nrout_; idx++ )
     {
-	if ( matchingdc && outnrsamples_ > 1 && !curtrcscale_ )
-	{
-	    OD::memCopy( trc.data().getComponent(iselc)->data(),
-		    storbuf_->getComponent(iselc)->data(),
-		    outnrsamples_ * storbuf_->bytesPerSample( iselc ) );
-	}
-	else
-	{
-	    for ( int isamp=0; isamp<outnrsamples_; isamp++ )
-	    {
-		//Parallel !!
-		float inpval = storbuf_->getValue( isamp, iselc );
-		if ( curtrcscale_ )
-		    inpval = (float)curtrcscale_->scale(inpval);
-		trc.set( isamp, inpval, iselc );
-	    }
-	}
+	if ( tarcds_[inpfor_[idx]]->datachar_ == cds_[inpfor_[idx]]->datachar_ )
+	    continue;
+
+	samedatachar = false;
+	break;
     }
+
+    TraceData* tdata = samedatachar ? &trc.data() : 0;
+    if ( (!datareaddone_ && !readData(tdata)) )
+	return false;
+
+    headerdone_ = false;
+    datareaddone_ = false;
+
+    TraceData& tdataout = trc.data();
+    if ( !samedatachar )
+    {
+	const DataCharacteristics datachar =
+					tdataout.getInterpreter(0)->dataChar();
+	tdataout = *storbuf_;
+	tdataout.convertTo( datachar );
+    }
+
+    if ( curtrcscale_ )
+	tdataout.scale( *curtrcscale_ );
 
     return true;
 }

@@ -9,6 +9,7 @@
 #include "rangeposprovider.h"
 #include "seisioobjinfo.h"
 #include "seisprovider.h"
+#include "seistrc.h"
 #include "threadwork.h"
 
 

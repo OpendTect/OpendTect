@@ -66,8 +66,9 @@ protected:
 			Loader(const IOObj&,const TrcKeyZSampling*,
 			       const TypeSet<int>* components);
 
+    bool		setTrcsSamplingFromProv(const Provider&);
     void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
-    void		submitUdfWriterTasks(int queueid);
+    void		submitUdfWriterTasks();
 
     RefMan<RegularSeisDataPack> dp_;
     IOObj*		ioobj_;
@@ -79,7 +80,11 @@ protected:
     TypeSet<int>*	outcomponents_;
     Scaler*		scaler_;
     ObjectSummary*	seissummary_;
+    const PosInfo::Line2DData* line2ddata_;
     PosInfo::CubeData*	trcssampling_;
+    od_int64		totalnr_;
+
+    int			queueid_;
 
     uiString		msg_;
 };
@@ -96,13 +101,7 @@ public:
 			ParallelFSLoader3D(const IOObj&,const TrcKeyZSampling&);
 			/*!<Calculates nr of comps and allocates cubes to
 			    fit the cs. */
-
-			ParallelFSLoader3D(const IOObj&,BinIDValueSet&,
-					   const TypeSet<int>& components);
-			/*!<Will read the z from the first value. Will add
-			    values to accomodate nr of components. If data
-			    cannot be read, that binid/z will be set to
-			    mUdf */
+			~ParallelFSLoader3D();
 
     void		setDataPack(RegularSeisDataPack*);
 
@@ -110,14 +109,16 @@ public:
     virtual uiString	message() const;
 
 protected:
+
     od_int64		nrIterations() const		{ return totalnr_; }
 
 private:
     bool		doPrepare(int);
     bool		doWork(od_int64,od_int64,int);
+    bool		executeParallel(bool);
 
-    BinIDValueSet*	bidvals_;
-    const od_int64	totalnr_;
+    ObjectSet<TrcKeySampling>	tks_;
+
 };
 
 
@@ -134,6 +135,7 @@ public:
 					   const TypeSet<int>* comps=0);
 			/*!<Calculates nr of comps and allocates arrays to
 			    fit the cs. */
+			~ParallelFSLoader2D();
 
     RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
 
@@ -141,14 +143,16 @@ public:
     virtual uiString	message() const;
 
 protected:
+
     od_int64		nrIterations() const		{ return totalnr_; }
 
 private :
     bool		doPrepare(int);
     bool		doWork(od_int64,od_int64,int);
+    bool		executeParallel(bool);
 
+    TypeSet<int>	trcnrs_;
     bool		dpclaimed_;
-    const od_int64	totalnr_;
 };
 
 
@@ -198,17 +202,12 @@ private:
     bool		getTrcsPosForRead(TypeSet<TrcKey>&) const;
 
     Provider*		prov_;
-    SelData*		sd_;
     Interval<int>	samprg_;
-    PosInfo::Line2DData* line2ddata_;
     PosInfo::Line2DDataIterator* trcsiterator2d_;
     PosInfo::CubeDataIterator*	trcsiterator3d_;
-    od_int64		totalnr_;
     bool		samedatachar_;
     StepInterval<float> dpzsamp_;
     bool		needresampling_;
-
-    int			queueid_;
 
     od_int64		nrdone_;
     bool		initialized_;

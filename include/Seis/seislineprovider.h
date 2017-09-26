@@ -53,6 +53,12 @@ protected:
     virtual uiRetVal	doGetComponentInfo(BufferStringSet&,DataType&) const;
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
+    virtual void	doGetData(const TrcKey&,TraceData&,SeisTrcInfo*,
+				  uiRetVal&) const;
+
+private:
+
+    virtual SeisTrcTranslator* getCurrentTranslator() const;
 
 };
 

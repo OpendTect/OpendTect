@@ -17,7 +17,7 @@ ________________________________________________________________________
 class SeisTrc;
 class SeisTrcBuf;
 namespace PosInfo	{ class Line2DData; }
-namespace Seis		{ class SelData; }
+namespace Seis		{ class LineProvider; class SelData; }
 
 
 /*!\brief TranslatorGroup for 2D Seismic Data */
@@ -67,6 +67,7 @@ public:
     Pos::GeomID		geomID() const		{ return geomid_; }
 
     uiRetVal		get(TrcNrType,SeisTrc&) const;
+    uiRetVal		get(TrcNrType,TraceData&,SeisTrcInfo*) const;
     uiRetVal		getNext(SeisTrc&) const;
 
     bool		getComponentInfo(BufferStringSet&) const;
@@ -86,9 +87,15 @@ protected:
     mutable SeisTrcTranslator* tr_;
 
     bool		ensureTranslator() const;
-    void		ensureCorrectTrcKey(SeisTrc&) const;
+    void		ensureCorrectTrcKey(SeisTrcInfo&) const;
     LineNrType		lineNr() const		{ return geomid_; }
     void		setErrMsgForNoTrMade() const;
+
+private:
+
+    uiRetVal		doGet(TrcNrType,SeisTrc*,TraceData&,SeisTrcInfo*) const;
+
+    friend class	Seis::LineProvider;
 
 };
 

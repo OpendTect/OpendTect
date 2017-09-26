@@ -347,6 +347,7 @@ bool CBVSSeisTrcTranslator::goTo( const BinID& bid )
 
 bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
+    if ( !commitSelections_() ) return false;
     if ( headerdone_ ) return true;
 
     donext_ = donext_ || selRes( rdmgr_->binID() );
@@ -378,6 +379,8 @@ bool CBVSSeisTrcTranslator::readData( TraceData* extbuf )
 	errmsg_ = toUiString(rdmgr_->errMsg());
 	return false;
     }
+
+    headerdone_ = false;
 
     return (datareaddone_ = true);
 }

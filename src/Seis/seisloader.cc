@@ -78,7 +78,123 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
     return true;
 }
 
+
+
+class ArrayFiller : public Task
+{
+public:
+ArrayFiller( const RawTrcsSequence& rawseq, const StepInterval<float>& zsamp,
+	     bool samedatachar, bool needresampling,
+	     const TypeSet<int>& components,
+	     const ObjectSet<Scaler>& compscalers,
+	     const TypeSet<int>& outcomponents,
+	     RegularSeisDataPack& dp, bool is2d )
+    : rawseq_(rawseq)
+    , zsamp_(zsamp)
+    , samedatachar_(samedatachar)
+    , needresampling_(needresampling)
+    , components_(components)
+    , compscalers_(compscalers)
+    , outcomponents_(outcomponents)
+    , dp_(dp),is2d_(is2d)
+{
+}
+
+
+~ArrayFiller()
+{
+    delete &rawseq_;
+}
+
+
+bool execute()
+{
+    for ( int itrc=0; itrc<rawseq_.nrpos_; itrc++ )
+    {
+	if ( !doTrace(itrc) )
+	    return false;
+    }
+
+    return true;
+}
+
+bool doTrace( int itrc )
+{
+    const TrcKey& tk = (*rawseq_.tks_)[itrc];
+    const int idx0 = is2d_ ? 0 : dp_.sampling().hsamp_.lineIdx( tk.lineNr() );
+    const int idx1 = dp_.sampling().hsamp_.trcIdx( tk.trcNr() );
+
+    const int startidx0 = dp_.sampling().zsamp_.nearestIndex( zsamp_.start );
+    const int nrzsamples = zsamp_.nrSteps()+1;
+    const int trczidx0 = rawseq_.getZRange().nearestIndex( zsamp_.atIndex(0) );
+    const int bytespersamp = dp_.getDataDesc().nrBytes();
+    const bool hastrcscaler = rawseq_.trcscalers_[itrc];
+
+    for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
+    {
+	const int idcin = components_[cidx];
+	const Scaler* compscaler = compscalers_[cidx];
+	const int idcout = outcomponents_[cidx];
+	Array3D<float>& arr = dp_.data( idcout );
+	ValueSeries<float>* stor = arr.getStorage();
+	float* storptr = stor ? stor->arr() : 0;
+	mDynamicCastGet(ConvMemValueSeries<float>*,convmemstor,stor);
+	char* storarr = convmemstor ? convmemstor->storArr()
+				    : (char*)storptr;
+	const od_int64 offset =  storarr ? arr.info().getOffset( idx0, idx1, 0 )
+					 : 0;
+	char* dststartptr = storarr ? storarr + offset*bytespersamp : 0;
+	if ( storarr && samedatachar_ && !needresampling_ &&
+	     !compscaler && !hastrcscaler )
+	{
+	    const unsigned char* srcptr = rawseq_.getData( itrc, idcin,
+							   trczidx0 );
+	    OD::sysMemCopy( dststartptr, srcptr, nrzsamples*bytespersamp );
+	}
+	else
+	{
+	    int startidx = startidx0;
+	    od_int64 valueidx = stor ? offset+startidx : 0;
+	    int trczidx = trczidx0;
+	    float zval = zsamp_.start;
+	    float* destptr = storptr ? (float*)dststartptr : 0;
+	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
+	    {
+		const float rawval = needresampling_
+				   ? rawseq_.getValue( zval, itrc, idcin )
+				   : rawseq_.get( trczidx++, itrc, idcin );
+		if ( needresampling_ ) zval += zsamp_.step;
+		const float trcval = compscaler
+				   ? mCast(float,compscaler->scale(rawval) )
+				   : rawval;
+		if ( storptr )
+		    *destptr++ = trcval;
+		else if ( stor )
+		    stor->setValue( valueidx++, trcval );
+		else
+		    arr.set( idx0, idx1, startidx++, trcval );
+	    }
+	}
+    }
+
+    return true;
+}
+
+protected:
+
+    const RawTrcsSequence&	rawseq_;
+    const StepInterval<float>&	zsamp_;
+    const TypeSet<int>&		components_;
+    const ObjectSet<Scaler>&	compscalers_;
+    const TypeSet<int>&		outcomponents_;
+    RegularSeisDataPack&	dp_;
+    bool			is2d_;
+    bool			samedatachar_;
+    bool			needresampling_;
+};
+
 }; // namespace Seis
+
 
 
 Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
@@ -88,25 +204,58 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     , dc_(OD::AutoFPRep)
     , outcomponents_(0)
     , scaler_(0)
-    , seissummary_(0)
+    , line2ddata_(0)
     , trcssampling_(0)
+    , queueid_(Threads::WorkManager::cDefaultQueueID())
 {
     compscalers_.allowNull( true );
+    const SeisIOObjInfo info( ioobj );
+    const bool is2d = info.is2D();
     if ( tkzs )
 	tkzs_ = *tkzs;
+    else if ( is2d )
+    {
+	TypeSet<Pos::GeomID> geomids;
+	info.getGeomIDs( geomids );
+	if ( !geomids.isEmpty() )
+	    tkzs_.hsamp_ = TrcKeySampling( geomids[0] );
+    }
 
     if ( components )
 	setComponents( *components );
+
+    uiRetVal uirv;
+    Seis::Provider* prov = Seis::Provider::create( ioobj.key(), &uirv );
+    if ( prov ) prov->setSelData( new Seis::RangeSelData(tkzs_) );
+    if ( prov && uirv.isOK() )
+	setTrcsSamplingFromProv( *prov );
+
+    delete prov;
+    const Pos::GeomID geomid = is2d ? tkzs_.hsamp_.getGeomID() : mUdfGeomID;
+    seissummary_ = new ObjectSummary( ioobj, geomid );
+    msg_ = uiStrings::phrReading( tr("%1 \'%2\'")
+			    .arg( uiStrings::sVolDataName(is2d,!is2d,false) )
+			    .arg( ioobj_->uiName() ) );
+    if ( is2d )
+    {
+	const BufferString linenm(
+			    Survey::GM().getName(tkzs_.hsamp_.getGeomID()) );
+	if ( !linenm.isEmpty() )
+	    msg_.append( tr("|%1" ).arg( linenm.str() ) );
+    }
 }
 
 
 Seis::Loader::~Loader()
 {
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
+
     delete ioobj_;
     deepErase( compscalers_ );
     delete outcomponents_;
     delete scaler_;
     delete seissummary_;
+    delete line2ddata_;
     delete trcssampling_;
 }
 
@@ -163,6 +312,42 @@ uiString Seis::Loader::nrDoneText() const
 }
 
 
+bool Seis::Loader::setTrcsSamplingFromProv( const Provider& prov )
+{
+    const TrcKeySampling& tks = tkzs_.hsamp_;
+    const bool is2d = tks.is2D();
+    delete trcssampling_;
+    trcssampling_ = new PosInfo::CubeData();
+    if ( is2d )
+    {
+	mDynamicCastGet(const Provider2D*,prov2d,&prov)
+	if ( !prov2d ) return false;
+	PosInfo::Line2DData* line2ddata = new PosInfo::Line2DData();
+	const Pos::GeomID geomid = tks.getGeomID();
+	prov2d->getGeometryInfo( prov2d->lineNr(geomid), *line2ddata );
+	line2ddata->limitTo( tks.trcRange() );
+	delete line2ddata_;
+	line2ddata_ = line2ddata;
+	PosInfo::LineData* linedata = new PosInfo::LineData( geomid );
+	line2ddata_->getSegments( *linedata );
+	trcssampling_->add( linedata );
+    }
+    else
+    {
+	mDynamicCastGet(const Provider3D*,prov3d,&prov)
+	if ( !prov3d ) return false;
+	prov3d->getGeometryInfo( *trcssampling_ );
+    }
+
+    trcssampling_->limitTo( tks );
+    totalnr_ = is2d ? line2ddata_->size() : trcssampling_->totalSize();
+    if ( dp_ )
+	dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
+
+    return true;
+}
+
+
 void Seis::Loader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 {
     const DataCharacteristics floatdc( OD::F32 );
@@ -198,7 +383,7 @@ void Seis::Loader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 }
 
 
-void Seis::Loader::submitUdfWriterTasks( int queueid )
+void Seis::Loader::submitUdfWriterTasks()
 {
     if ( trcssampling_->totalSize() >= tkzs_.hsamp_.totalNr() )
 	return;
@@ -212,7 +397,7 @@ void Seis::Loader::submitUdfWriterTasks( int queueid )
     }
 
     Threads::WorkManager::twm().addWork(
-	    Threads::Work(*udfwriters,true),0,queueid,false,false,true);
+	    Threads::Work(*udfwriters,true),0,queueid_,false,false,true);
 }
 
 
@@ -220,25 +405,25 @@ void Seis::Loader::submitUdfWriterTasks( int queueid )
 Seis::ParallelFSLoader3D::ParallelFSLoader3D( const IOObj& ioobj,
 					      const TrcKeyZSampling& tkzs )
     : Seis::Loader(ioobj,&tkzs,0)
-    , bidvals_(0)
-    , totalnr_(tkzs.hsamp_.totalNr())
 {
-    seissummary_ = new ObjectSummary( ioobj );
-    msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() ) \
-						  .arg( ioobj_->uiName() ) );
+    queueid_ = Threads::WorkManager::twm().addQueue(
+				Threads::WorkManager::SingleThread,
+				"ParallelFSLoader3D" );
 }
 
 
-Seis::ParallelFSLoader3D::ParallelFSLoader3D( const IOObj& ioobj,
-					      BinIDValueSet& bidvals,
-					      const TypeSet<int>& components )
-    : Seis::Loader(ioobj,0,&components)
-    , bidvals_( &bidvals )
-    , totalnr_(bidvals.totalSize())
+Seis::ParallelFSLoader3D::~ParallelFSLoader3D()
 {
-    seissummary_ = new ObjectSummary( ioobj );
-    msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() ) \
-						  .arg( ioobj_->uiName() ) );
+    deepErase( tks_ );
+}
+
+
+bool Seis::ParallelFSLoader3D::executeParallel( bool yn )
+{
+    const bool success = ParallelTask::executeParallel( yn );
+    Threads::WorkManager::twm().emptyQueue( queueid_, success );
+
+    return success;
 }
 
 
@@ -261,8 +446,6 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 	{ deleteAndZeroPtr(seissummary_); return false; }
 
     const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
-    TrcKeyZSampling seistkzs( tkzs_ );
-    seisinfo.getRanges( seistkzs );
     const DataCharacteristics datasetdc( seissummary_->getDataChar() );
     if ( dc_.userType() == OD::AutoFPRep )
 	setDataChar( datasetdc.userType() );
@@ -278,167 +461,103 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
     }
 
     adjustDPDescToScalers( datasetdc );
-
-    if ( bidvals_ )
-    {
-	pErrMsg("The bidval-code is not tested. Run through step by step, make "
-		"sure everything is OK and remove this warning.");
-	const int nrvals = 1+components_.size();
-        if ( bidvals_->nrVals()!=nrvals )
-	{
-	    if ( !bidvals_->setNrVals( nrvals ) )
-	    {
-		msg_ = tr("Cannot allocate memory");
-		return false;
-	    }
-	}
-    }
-    else if ( !dp_ )
+    if ( !dp_ )
     {
 	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,false),
 				       &dc_ );
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
+	if ( trcssampling_ )
+	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
+
 	if ( scaler_ && !scaler_->isEmpty() )
 	    dp_->setScaler( *scaler_ );
 
 	if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
 	    return false;
+    }
 
-	delete trcssampling_;
-	trcssampling_ = new PosInfo::CubeData();
-	uiRetVal uirv;
-	PtrMan<IOObj> ioobj = ioobj_->clone();
-	PtrMan<Seis::Provider> prov =
-			       Seis::Provider::create(ioobj->key(),&uirv);
-	mDynamicCastGet(Provider3D*,prov3d,prov.ptr())
-	if ( !prov3d )
-	    { msg_ = uirv; return false; }
+    submitUdfWriterTasks();
 
-	prov3d->getGeometryInfo( *trcssampling_ );
-	trcssampling_->limitTo( tkzs_.hsamp_ );
-	const od_int64& totalnr = totalnr_;
-	const_cast<od_int64&>( totalnr ) = trcssampling_->totalSize();
-	dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
-
-	submitUdfWriterTasks( Threads::WorkManager::cDefaultQueueID() );
+    deepErase( tks_ );
+    for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	tks_.add( new TrcKeySampling(
+				  tkzs_.hsamp_.getLineChunk(nrthreads,idx) ) );
     }
 
     return true;
 }
 
 
-bool Seis::ParallelFSLoader3D::doWork(od_int64 start,od_int64 stop,int)
+bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
+				       int threadid )
 {
+    if ( !tks_.validIdx(threadid) || !trcssampling_ )
+	return false;
+
+    const TrcKeySampling& tks = *tks_.get( threadid );
+    PosInfo::CubeData cubedata( *trcssampling_ );
+    cubedata.limitTo( tks );
+    PosInfo::CubeDataIterator trcsiterator3d( cubedata );
+
     uiRetVal uirv;
-    PtrMan<IOObj> ioobj = ioobj_->clone();
-    PtrMan<Seis::Provider> prov = Seis::Provider::create(ioobj->key(),&uirv);
-    if ( !prov )
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( ioobj_->key(), &uirv);
+    if ( prov ) prov->setSelData( new Seis::RangeSelData(tks) );
+    if ( !prov || !uirv.isOK() )
 	{ msg_ = uirv; return false; }
 
-    //Set ranges, at least z-range
-    const TypeSet<int>& outcompnrs = outcomponents_
-				   ? *outcomponents_
-				   : components_;
-    TrcKeySamplingIterator iter;
-    BinIDValueSet::SPos bidvalpos;
-    BinID curbid;
-    if ( bidvals_ )
-    {
-        bidvalpos = bidvals_->getPos( start );
-        if ( !bidvalpos.isValid() )
-            return false;
-    }
-    else
-    {
-	iter.setSampling( tkzs_.hsamp_ );
-	iter.setCurrentPos( start );
-    }
+    const Seis::ObjectSummary seissummary( *ioobj_ );
+    RawTrcsSequence* rawseq = new RawTrcsSequence( seissummary, 1 );
+    if ( !rawseq ) return false;
+    TypeSet<TrcKey>* tkss = new TypeSet<TrcKey>;
+    const TrcKey tkstart = tks.trcKeyAt( 0 );
+    *tkss += tkstart; // Only for SurvID
+    rawseq->setPositions( *tkss );
+    if ( !seissummary.isOK() || !rawseq->isOK() )
+	{ delete rawseq; return false; }
 
-    SeisTrc trc;
-    uirv = prov->goTo( TrcKey(tkzs_.hsamp_.trcKeyAt(start)) );
-    if ( !uirv.isOK() )
-	{ msg_ = uirv; return false; }
+    const StepInterval<float>& zsamp = tkzs_.zsamp_;
+    const bool samedatachar = seissummary.hasSameFormatAs( dp_->getDataDesc() );
+    const bool needresampling = !zsamp.isCompatible( seissummary.zRange() );
+    ObjectSet<Scaler> compscalers;
+    compscalers.allowNull( true );
+    const TypeSet<int>& outcompnrs =
+				outcomponents_ && !outcomponents_->isEmpty()
+				   ? *outcomponents_ : components_;
+    for ( int idx=0; idx<components_.size(); idx++ )
+	compscalers += 0;
 
-#define mUpdateInterval 100
+    ArrayFiller fillertask( *rawseq, zsamp, samedatachar, needresampling,
+			    components_, compscalers, outcompnrs, *dp_, false );
+    int trcseqpos = 0;
+    TrcKey& tk = (*tkss)[trcseqpos];
+    int currentinl = tk.inl();
     int nrdone = 0;
-    for ( od_int64 idx=start; idx<=stop; idx++, nrdone++ )
+    BinID bid;
+    while( trcsiterator3d.next(bid) )
     {
-	if ( nrdone>mUpdateInterval )
+	tk.setPosition( bid );
+	if ( bid.lineNr() > currentinl )
 	{
-	    addToNrDone( nrdone );
-	    nrdone = 0;
-
-	    if ( !shouldContinue() )
-		return false;
+	    addToNrDone( nrdone ); nrdone = 0;
+	    currentinl = bid.lineNr();
 	}
 
-	if ( ( bidvals_ && !bidvals_->next(bidvalpos,false) ) ||
-	     ( !bidvals_ && !iter.next() ) )
+	uirv = prov->getSequence( *rawseq );
+	nrdone++;
+	if ( !uirv.isOK() )
+	{
+	    if ( isFinished(uirv) )
+		return true;
+
+	    msg_ = uirv;
 	    return false;
+	}
 
-	curbid = bidvals_ ? bidvals_->getBinID( bidvalpos )
-			  : iter.curBinID();
-
-	uirv = prov->getNext( trc );
-	if ( uirv.isOK() && trc.info().binID()==curbid )
-        {
-	    const StepInterval<float> trczrg = trc.zRange();
-
-            if ( bidvals_ )
-            {
-		float* vals = bidvals_->getVals(bidvalpos);
-		const float z = vals[0];
-
-		if ( !mIsUdf(z) && trczrg.includes( z, false ) )
-		{
-		    for ( int idcx=outcompnrs.size()-1; idcx>=0; idcx-- )
-		    {
-			const int idc = outcompnrs[idcx];
-			const float rawval = trc.getValue(z,components_[idcx]);
-			vals[idc+1] = compscalers_[idcx]
-			    ? mCast(float,compscalers_[idcx]->scale(rawval) )
-			    : rawval;
-		    }
-		}
-            }
-            else
-            {
-		const int inlidx = tkzs_.hsamp_.inlIdx( curbid.inl() );
-		const int crlidx = tkzs_.hsamp_.crlIdx( curbid.crl() );
-
-		for ( int idz=dp_->sampling().nrZ()-1; idz>=0; idz--)
-		{
-		    float val;
-		    const double z = tkzs_.zsamp_.atIndex( idz );
-		    if ( trczrg.includes( z, false ) )
-		    {
-			for ( int idcx=outcompnrs.size()-1; idcx>=0; idcx-- )
-			{
-			    val = trc.getValue( (float) z, components_[idcx] );
-			    if ( !mIsUdf(val) )
-			    {
-				const int idc = outcompnrs[idcx];
-				if ( idc < dp_->nrComponents() )
-				{
-				    if ( compscalers_[idcx] )
-				    {
-					val = mCast(float,compscalers_[idcx]->
-								scale(val) );
-				    }
-
-				    Array3D<float>& arr3d = dp_->data( idc );
-				    arr3d.set( inlidx, crlidx, idz, val);
-				}
-			    }
-			}
-		    }
-		}
-            }
-        }
+	if ( !fillertask.doTrace(trcseqpos) )
+	    return false;
     }
-
-    addToNrDone( nrdone );
 
     return true;
 }
@@ -451,11 +570,24 @@ Seis::ParallelFSLoader2D::ParallelFSLoader2D( const IOObj& ioobj,
 					      const TypeSet<int>* comps )
     : Seis::Loader(ioobj,&tkzs,comps)
     , dpclaimed_(false)
-    , totalnr_(tkzs.hsamp_.totalNr())
 {
-    seissummary_ = new ObjectSummary( ioobj );
-    msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() ) \
-						  .arg( ioobj_->uiName() ) );
+    queueid_ = Threads::WorkManager::twm().addQueue(
+				Threads::WorkManager::SingleThread,
+				"ParallelFSLoader2D" );
+}
+
+
+Seis::ParallelFSLoader2D::~ParallelFSLoader2D()
+{
+}
+
+
+bool Seis::ParallelFSLoader2D::executeParallel( bool yn )
+{
+    const bool success = ParallelTask::executeParallel( yn );
+    Threads::WorkManager::twm().emptyQueue( queueid_, success );
+
+    return success;
 }
 
 
@@ -472,8 +604,6 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 	{ deleteAndZeroPtr(seissummary_); return false; }
 
     const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
-    TrcKeyZSampling seistkzs( tkzs_ );
-    seisinfo.getRanges( seistkzs );
     const DataCharacteristics datasetdc( seissummary_->getDataChar() );
     if ( dc_.userType() == OD::AutoFPRep )
 	setDataChar( datasetdc.userType() );
@@ -489,37 +619,27 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 	setComponents( components );
     }
 
-    dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,true),
-				   &dc_ );
-    dp_->setName( ioobj_->name() );
-    dp_->setSampling( tkzs_ );
-    if ( scaler_ && !scaler_->isEmpty() )
-	dp_->setScaler( *scaler_ );
+    if ( !dp_ )
+    {
+	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,true),
+				       &dc_ );
+	dp_->setName( ioobj_->name() );
+	dp_->setSampling( tkzs_ );
+	if ( trcssampling_ )
+	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
 
-    if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
-	return false;
+	if ( scaler_ && !scaler_->isEmpty() )
+	    dp_->setScaler( *scaler_ );
 
-    delete trcssampling_;
-    trcssampling_ = new PosInfo::CubeData();
-    uiRetVal uirv;
-    PtrMan<IOObj> ioobj = ioobj_->clone();
-    PtrMan<Seis::Provider> prov = Seis::Provider::create(ioobj->key(),&uirv);
-    mDynamicCastGet(Provider2D*,prov2d,prov.ptr())
-    if ( !prov2d )
-	{ msg_ = uirv; return false; }
+	if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
+	    return false;
+    }
 
-    PosInfo::Line2DData line2ddata;
-    prov2d->getGeometryInfo( prov2d->lineNr(geomid), line2ddata );
-    PosInfo::LineData* linedata = new PosInfo::LineData( geomid );
-    line2ddata.limitTo( tkzs_.hsamp_.trcRange() );
-    line2ddata.getSegments( *linedata );
-    trcssampling_->add( linedata );
-    trcssampling_->limitTo( tkzs_.hsamp_ );
-    const od_int64& totalnr = totalnr_;
-    const_cast<od_int64&>( totalnr ) = trcssampling_->totalSize();
-    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
-
-    submitUdfWriterTasks( Threads::WorkManager::cDefaultQueueID() );
+    submitUdfWriterTasks();
+    trcnrs_.setEmpty();
+    PosInfo::Line2DDataIterator trcsiterator2d( *line2ddata_ );
+    while ( trcsiterator2d.next() )
+	trcnrs_.addIfNew( trcsiterator2d.trcNr() );
 
     return true;
 }
@@ -527,90 +647,68 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 
 bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
 {
-    if ( !dp_ || dp_->isEmpty() )
-	return false;
+    TypeSet<int> trcnrs( trcnrs_ );
+    if ( stop < totalnr_ )
+	trcnrs.removeRange( stop+1, totalnr_ );
+    if ( start > 0 )
+	trcnrs.removeRange( 0, start-1 );
 
-    PtrMan<IOObj> ioobj = ioobj_->clone();
-    const Seis2DDataSet dataset( *ioobj );
-    const Pos::GeomID geomid( tkzs_.hsamp_.getGeomID() );
-    if ( !dataset.isPresent(geomid) )
-	return false;
+    if ( trcnrs.isEmpty() )
+	return true;
 
-    const BufferString fnm(
-		    SeisCBVS2DLineIOProvider::getFileName( *ioobj, geomid ) );
-    PtrMan<CBVSSeisTrcTranslator> trl =
-			CBVSSeisTrcTranslator::make( fnm.str(), false, true );
-    if ( !trl ) return false;
+    Interval<int> trcrg( trcnrs[0], trcnrs[trcnrs.size()-1] );
+    trcrg.sort();
 
-    SeisTrc trc;
-    BinID curbid;
-    StepInterval<int> trcrg = tkzs_.hsamp_.trcRange();
-    trl->toStart();
-    curbid = trl->readMgr()->binID();
+    const TrcKeySampling& tks = tkzs_.hsamp_;
 
-    const TypeSet<int>& outcomponents = outcomponents_
-				      ? *outcomponents_ : components_;
+    uiRetVal uirv;
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( ioobj_->key(), &uirv);
+    if ( prov ) prov->setSelData( new Seis::RangeSelData(tks) );
+    if ( !prov || !uirv.isOK() )
+	{ msg_ = uirv; return false; }
 
-    const int nrzsamples = tkzs_.zsamp_.nrSteps()+1;
-    for ( int cidx=0; cidx<outcomponents.size(); cidx++ )
+    const Seis::ObjectSummary seissummary( *ioobj_, tks.getGeomID() );
+    RawTrcsSequence* rawseq = new RawTrcsSequence( seissummary, 1 );
+    if ( !rawseq ) return false;
+    TypeSet<TrcKey>* tkss = new TypeSet<TrcKey>;
+    const TrcKey tkstart = tks.trcKeyAt( start );
+    *tkss += tkstart; // Only for SurvID
+    rawseq->setPositions( *tkss );
+    if ( !seissummary.isOK() || !rawseq->isOK() )
+	{ delete rawseq; return false; }
+
+    const StepInterval<float>& zsamp = tkzs_.zsamp_;
+    const bool samedatachar = seissummary.hasSameFormatAs( dp_->getDataDesc() );
+    const bool needresampling = !zsamp.isCompatible( seissummary.zRange() );
+    ObjectSet<Scaler> compscalers;
+    compscalers.allowNull( true );
+    const TypeSet<int>& outcompnrs =
+				outcomponents_ && !outcomponents_->isEmpty()
+				   ? *outcomponents_ : components_;
+    for ( int idx=0; idx<components_.size(); idx++ )
+	compscalers += 0;
+
+    ArrayFiller fillertask( *rawseq, zsamp, samedatachar, needresampling,
+			    components_, compscalers, outcompnrs, *dp_, true );
+
+    int trcseqpos = 0;
+    TrcKey& tk = (*tkss)[trcseqpos];
+    for ( int idx=0; idx<trcnrs.size(); idx++ )
     {
-	const int idcin = components_[cidx];
-	const Scaler* scaler = compscalers_[cidx];
-	const int idcout = outcomponents[cidx];
-	Array3D<float>& arr = dp_->data( idcout );
-	ValueSeries<float>* stor = arr.getStorage();
-	mDynamicCastGet(ConvMemValueSeries<float>*,storptr,stor);
-	char* storarr = storptr ? storptr->storArr() : (char*)stor->arr();
-
-	for ( int idy=mCast(int,start); idy<=stop; idy++, addToNrDone(1) )
+	tk.setTrcNr( trcnrs[idx] );
+	uirv = prov->getSequence( *rawseq );
+	addToNrDone(1);
+	if ( !uirv.isOK() )
 	{
-	    curbid.crl() = trcrg.atIndex( idy );
-	    if ( trl->goTo(curbid) && trl->read(trc) )
-	    {
-		const BinDataDesc trcdatadesc =
-			trc.data().getInterpreter(idcin)->dataChar();
-		if ( storarr && dp_->getDataDesc()==trcdatadesc )
-		{
-		    const DataBuffer* rawseq = trc.data().getComponent(idcin);
-		    const int bytespersamp = rawseq->bytesPerElement();
-		    const od_int64 offset = arr.info().getOffset( 0, idy, 0 );
-		    char* dststartptr = storarr + offset*bytespersamp;
+	    if ( isFinished(uirv) )
+		return true;
 
-		    for ( int zidx=0; zidx<nrzsamples; zidx++ )
-		    {
-			const float zval = tkzs_.zsamp_.atIndex( zidx );
-			const int trczidx = trc.nearestSample( zval );
-			const unsigned char* srcptr =
-				rawseq->data() + trczidx*bytespersamp;
-			char* dstptr = dststartptr + zidx*bytespersamp;
-			// Checks if amplitude equals undef value of underlying
-			// data type as the array is initialized with undefs.
-			if ( !scaler && memcmp(dstptr,srcptr,bytespersamp) )
-			    OD::sysMemCopy(dstptr,srcptr,bytespersamp );
-			else
-			{
-			    const float rawval = trc.getValue( zval, idcin );
-			    const float trcval = scaler
-					? mCast(float,scaler->scale(rawval) )
-					: rawval;
-			    arr.set( 0, idy, zidx, trcval );
-			}
-		    }
-		}
-		else
-		{
-		    for ( int zidx=0; zidx<nrzsamples; zidx++ )
-		    {
-			const float zval = tkzs_.zsamp_.atIndex( zidx );
-			const float rawval = trc.getValue( zval, idcin );
-			const float trcval = scaler
-					   ? mCast(float,scaler->scale(rawval) )
-					   : rawval;
-			arr.set( 0, idy, zidx, trcval );
-		    }
-		}
-	    }
+	    msg_ = uirv;
+	    return false;
 	}
+
+	if ( !fillertask.doTrace(trcseqpos) )
+	    return false;
     }
 
     return true;
@@ -626,153 +724,19 @@ RegularSeisDataPack* Seis::ParallelFSLoader2D::getDataPack()
 
 
 
-// SequentialReader
-namespace Seis
-{
-
-class ArrayFiller : public Task
-{
-public:
-ArrayFiller( const RawTrcsSequence& rawseq, const StepInterval<float>& zsamp,
-	     bool samedatachar, bool needresampling,
-	     const TypeSet<int>& components,
-	     const ObjectSet<Scaler>& compscalers,
-	     const TypeSet<int>& outcomponents,
-	     RegularSeisDataPack& dp, bool is2d )
-    : rawseq_(rawseq)
-    , zsamp_(zsamp)
-    , samedatachar_(samedatachar)
-    , needresampling_(needresampling)
-    , components_(components)
-    , compscalers_(compscalers)
-    , outcomponents_(outcomponents)
-    , dp_(dp),is2d_(is2d)
-{
-}
-
-
-~ArrayFiller()
-{
-    delete &rawseq_;
-}
-
-
-bool execute()
-{
-    const int nrpos = rawseq_.nrPositions();
-    for ( int itrc=0; itrc<nrpos; itrc++ )
-    {
-	if ( !doTrace(itrc) )
-	    return false;
-    }
-
-    return true;
-}
-
-bool doTrace( int itrc )
-{
-    const TrcKey& tk = rawseq_.getPosition( itrc );
-    const int idx0 = is2d_ ? 0 : dp_.sampling().hsamp_.lineIdx( tk.lineNr() );
-    const int idx1 = dp_.sampling().hsamp_.trcIdx( tk.trcNr() );
-
-    const int startidx0 = dp_.sampling().zsamp_.nearestIndex( zsamp_.start );
-    const int nrzsamples = zsamp_.nrSteps()+1;
-    const int trczidx0 = rawseq_.getZRange().nearestIndex( zsamp_.atIndex(0) );
-    const int bytespersamp = dp_.getDataDesc().nrBytes();
-
-    for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
-    {
-	const int idcin = components_[cidx];
-	const Scaler* scaler = compscalers_[cidx];
-	const int idcout = outcomponents_[cidx];
-	Array3D<float>& arr = dp_.data( idcout );
-	ValueSeries<float>* stor = arr.getStorage();
-	float* storptr = stor ? stor->arr() : 0;
-	mDynamicCastGet(ConvMemValueSeries<float>*,convmemstor,stor);
-	char* storarr = convmemstor ? convmemstor->storArr()
-				    : (char*)storptr;
-	const od_int64 offset =  storarr ? arr.info().getOffset( idx0, idx1, 0 )
-					 : 0;
-	char* dststartptr = storarr ? storarr + offset*bytespersamp : 0;
-	if ( storarr && samedatachar_ && !needresampling_ && !scaler )
-	{
-	    const unsigned char* srcptr = rawseq_.getData( itrc, idcin,
-							   trczidx0 );
-	    OD::sysMemCopy( dststartptr, srcptr, nrzsamples*bytespersamp );
-	}
-	else
-	{
-	    int startidx = startidx0;
-	    od_int64 valueidx = stor ? offset+startidx : 0;
-	    int trczidx = trczidx0;
-	    float zval = zsamp_.start;
-	    float* destptr = storptr ? (float*)dststartptr : 0;
-	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
-	    {
-		const float rawval = needresampling_
-				   ? rawseq_.getValue( zval, itrc, idcin )
-				   : rawseq_.get( trczidx++, itrc, idcin );
-		if ( needresampling_ ) zval += zsamp_.step;
-		const float trcval = scaler
-				   ? mCast(float,scaler->scale(rawval) )
-				   : rawval;
-		if ( storptr )
-		    *destptr++ = trcval;
-		else if ( stor )
-		    stor->setValue( valueidx++, trcval );
-		else
-		    arr.set( idx0, idx1, startidx++, trcval );
-	    }
-	}
-    }
-
-    return true;
-}
-
-protected:
-
-    const RawTrcsSequence&	rawseq_;
-    const StepInterval<float>&	zsamp_;
-    const TypeSet<int>&		components_;
-    const ObjectSet<Scaler>&	compscalers_;
-    const TypeSet<int>&		outcomponents_;
-    RegularSeisDataPack&	dp_;
-    bool			is2d_;
-    bool			samedatachar_;
-    bool			needresampling_;
-};
-
-}; // namespace Seis
-
-
-
 Seis::SequentialFSLoader::SequentialFSLoader( const IOObj& ioobj,
 					      const TrcKeyZSampling* tkzs,
 					      const TypeSet<int>* comps )
     : Seis::Loader(ioobj,tkzs,comps)
     , Executor("Volume Reader")
-    , sd_(0)
     , prov_(0)
     , initialized_(false)
     , nrdone_(0)
-    , line2ddata_(0)
     , trcsiterator2d_(0)
     , trcsiterator3d_(0)
     , samedatachar_(false)
     , needresampling_(true)
 {
-    seissummary_ = new ObjectSummary( ioobj );
-    uiRetVal uirv;
-    prov_ = Seis::Provider::create( ioobj.key(), &uirv );
-    if ( prov_ )
-    {
-	msg_ = uiStrings::phrReading( tr(" %1 \'%2\'")
-			  .arg( uiStrings::sVolume() )
-			  .arg( ioobj.uiName() ) );
-    }
-    else
-	msg_ = uirv;
-
     queueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::MultiThread,
 				"SequentialFSLoader" );
@@ -786,7 +750,6 @@ Seis::SequentialFSLoader::~SequentialFSLoader()
     delete prov_;
     delete trcsiterator2d_;
     delete trcsiterator3d_;
-    delete line2ddata_;
 }
 
 
@@ -813,15 +776,17 @@ bool Seis::SequentialFSLoader::init()
 	return true;
 
     msg_ = tr("Initializing reader");
+    const bool is2d = tkzs_.hsamp_.is2D();
+    const Pos::GeomID geomid = is2d ? tkzs_.hsamp_.getGeomID() : mUdfGeomID;
     delete seissummary_;
-    seissummary_ = new ObjectSummary( *ioobj_ );
+    seissummary_ = new ObjectSummary( *ioobj_, geomid );
     if ( !seissummary_ || !seissummary_->isOK() )
 	{ deleteAndZeroPtr(seissummary_); return false; }
 
-    const bool is2d = seissummary_->is2D();
     const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
     TrcKeyZSampling seistkzs( tkzs_ );
     seisinfo.getRanges( seistkzs );
+    seistkzs.hsamp_.limitTo( tkzs_.hsamp_ );
     const DataCharacteristics datasetdc( seissummary_->getDataChar() );
     if ( dc_.userType() == OD::AutoFPRep )
 	setDataChar( datasetdc.userType() );
@@ -837,17 +802,10 @@ bool Seis::SequentialFSLoader::init()
     }
 
     adjustDPDescToScalers( datasetdc );
-    if ( is2d && !tkzs_.is2D() )
-    {
-	pErrMsg("TrcKeySampling for 2D data needed with GeomID as lineNr");
-	return false;
-    }
-
     if ( !dp_ )
     {
 	if ( is2d )
 	{
-	    const Pos::GeomID geomid( tkzs_.hsamp_.getGeomID() );
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
 	    if ( !seisinfo.getRanges(geomid,trcrg,zrg) )
@@ -867,7 +825,7 @@ bool Seis::SequentialFSLoader::init()
 		tkzs_ = storedtkzs;
 	}
 
-	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,false),
+	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,is2d),
 					&dc_);
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
@@ -878,41 +836,30 @@ bool Seis::SequentialFSLoader::init()
 	    return false;
     }
 
-    delete trcssampling_;
-    trcssampling_ = new PosInfo::CubeData();
+    uiRetVal uirv;
+    delete prov_;
+    prov_ = Seis::Provider::create( ioobj_->key(), &uirv );
+    if ( !prov_ || !uirv.isOK() )
+    {
+	deleteAndZeroPtr( prov_ );
+	msg_ = uirv;
+	return false;
+    }
+
+    prov_->setSelData( new Seis::RangeSelData(seistkzs) );
+    setTrcsSamplingFromProv( *prov_ );
     if ( is2d )
     {
-	mDynamicCastGet(Provider2D*,prov2d,prov_)
-	if ( !prov2d ) return false;
-	const Pos::GeomID geomid( tkzs_.hsamp_.getGeomID() );
-	delete line2ddata_;
-	line2ddata_ = new PosInfo::Line2DData();
-	prov2d->getGeometryInfo( prov2d->lineNr(geomid), *line2ddata_ );
-	PosInfo::LineData* linedata = new PosInfo::LineData( geomid );
-	line2ddata_->limitTo( tkzs_.hsamp_.trcRange() );
-	line2ddata_->getSegments( *linedata );
-	trcssampling_->add( linedata );
 	delete trcsiterator2d_;
 	trcsiterator2d_ = new PosInfo::Line2DDataIterator( *line2ddata_ );
     }
     else
     {
-	mDynamicCastGet(Provider3D*,prov3d,prov_)
-	if ( !prov3d ) return false;
-	prov3d->getGeometryInfo( *trcssampling_ );
 	delete trcsiterator3d_;
 	trcsiterator3d_ = new PosInfo::CubeDataIterator( *trcssampling_ );
     }
 
-    trcssampling_->limitTo( tkzs_.hsamp_ );
-    totalnr_ = line2ddata_ ? line2ddata_->size() : trcssampling_->totalSize();
-    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
-
     nrdone_ = 0;
-
-    seistkzs.hsamp_.limitTo( tkzs_.hsamp_ );
-    sd_ = new Seis::RangeSelData( seistkzs );
-    prov_->setSelData( sd_ );
 
     samedatachar_ = seissummary_->hasSameFormatAs( dp_->getDataDesc() );
     dpzsamp_ = dp_->sampling().zsamp_;
@@ -920,8 +867,15 @@ bool Seis::SequentialFSLoader::init()
     needresampling_ = !dpzsamp_.isCompatible( seissummary_->zRange() );
 
     initialized_ = true;
-    msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() ) \
-						  .arg( ioobj_->uiName() ) );
+    msg_ = uiStrings::phrReading( tr("%1 \'%2\'")
+			    .arg( uiStrings::sVolDataName(is2d,!is2d,false) )
+			    .arg( ioobj_->uiName() ) );
+    if ( is2d )
+    {
+	const BufferString linenm( Survey::GM().getName(geomid) );
+	if ( !linenm.isEmpty() )
+	    msg_.append( tr("|%1" ).arg( linenm.str() ) );
+    }
 
     return true;
 }
@@ -958,10 +912,10 @@ bool Seis::SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 int Seis::SequentialFSLoader::nextStep()
 {
     if ( !init() )
-	return ErrorOccurred();
+	{ dp_ = 0; return ErrorOccurred(); }
 
     if ( nrdone_ == 0 )
-	submitUdfWriterTasks( queueid_ );
+	submitUdfWriterTasks();
 
     if ( nrdone_ >= totalnr_ )
 	return Finished();
@@ -982,6 +936,7 @@ int Seis::SequentialFSLoader::nextStep()
 	if ( !rawseq ) delete tks;
 	delete rawseq;
 	msg_ = tr("Cannot allocate trace data");
+	dp_ = 0;
 	return ErrorOccurred();
     }
 
@@ -993,6 +948,7 @@ int Seis::SequentialFSLoader::nextStep()
 	    return Finished();
 
 	msg_ = uirv;
+	dp_ = 0;
 	return ErrorOccurred();
     }
 

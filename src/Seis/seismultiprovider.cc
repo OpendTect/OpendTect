@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "posinfo2d.h"
 #include "seisprovider.h"
 #include "seisbuf.h"
+#include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisselection.h"
 #include "survinfo.h"

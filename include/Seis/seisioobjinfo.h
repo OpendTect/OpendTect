@@ -23,16 +23,20 @@ class BinIDValueSet;
 class BufferStringSet;
 class IOObj;
 class SeisIOObjInfo;
+class SeisTrcTranslator;
 class TrcKeyZSampling;
 namespace ZDomain { class Def; }
 
 namespace Seis {
+class Provider;
 
 mExpClass(Seis) ObjectSummary
 {
 public:
-			ObjectSummary(const DBKey&);
-			ObjectSummary(const IOObj&);
+			ObjectSummary(const DBKey&,
+				      Pos::GeomID geomid=mUdfGeomID);
+			ObjectSummary(const IOObj&,
+				      Pos::GeomID geomid=mUdfGeomID);
 			ObjectSummary(const ObjectSummary&);
 			~ObjectSummary();
 
@@ -55,6 +59,7 @@ public:
 protected:
 
     const SeisIOObjInfo&	ioobjinfo_;
+    Pos::GeomID			geomid_;
 
     DataCharacteristics datachar_;
     ZSampling		zsamp_;
@@ -74,7 +79,9 @@ protected:
 
 private:
 
-    void		init();
+    void		init(Pos::GeomID);
+    void		refreshCache(const Seis::Provider&,
+				     const SeisTrcTranslator&);
     friend class RawTrcsSequence;
 
 };

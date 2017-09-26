@@ -98,43 +98,27 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 			 const Scaler* scaler ) const
 {
     mPrepIOObj();
+    const uiString caption = tr("Pre-loading %1").arg( ioobj->uiName() );
 
+    TrcKeyZSampling tkzstoload( tkzs );
     const SeisIOObjInfo info( dbkey_ );
-    if ( info.is2D() )
+    if ( !tkzs.hsamp_.isDefined() && info.is2D() )
+	tkzstoload.hsamp_ = TrcKeySampling( geomid_ );
+
+    SequentialFSLoader rdr( *ioobj, tkzstoload.isDefined() ? &tkzstoload : 0 );
+    rdr.setName( caption.getFullString() );
+    rdr.setScaler( scaler );
+    rdr.setDataChar( type );
+    if ( !trunnr.execute(rdr) )
     {
-	ParallelFSLoader2D rdr( *ioobj, tkzs );
-	rdr.setScaler( scaler );
-	rdr.setDataChar( type );
-	if ( !trunnr.execute(rdr) )
-	{
-	    errmsg_ = rdr.message();
-	    return false;
-	}
-
-	RegularSeisDataPack* dp = rdr.getDataPack();
-	if ( !dp ) return false;
-
-	PLDM().add( dbkey_, geomid_, dp );
+	errmsg_ = rdr.message();
+	return false;
     }
-    else
-    {
-	SequentialFSLoader rdr( *ioobj, tkzs.isDefined() ? &tkzs : 0 );
-	uiString caption = tr("Pre-loading %1");
-	caption.arg( ioobj->uiName() );
-	rdr.setName( caption.getFullString() );
-	rdr.setScaler( scaler );
-	rdr.setDataChar( type );
-	if ( !trunnr.execute(rdr) )
-	{
-	    errmsg_ = rdr.message();
-	    return false;
-	}
 
-	RegularSeisDataPack* dp = rdr.getDataPack();
-	if ( !dp ) return false;
+    RegularSeisDataPack* dp = rdr.getDataPack();
+    if ( !dp ) return false;
 
-	PLDM().add( dbkey_, geomid_, dp );
-    }
+    PLDM().add( dbkey_, geomid_, dp );
 
     return true;
 }
@@ -146,16 +130,20 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 			 const Scaler* scaler ) const
 {
     mPrepIOObj();
+    const uiString caption = tr("Pre-loading %1").arg( ioobj->uiName() );
 
     TaskGroup taskgrp;
-    ObjectSet<ParallelFSLoader2D> rdrs;
+    ObjectSet<SequentialFSLoader> rdrs;
     TypeSet<Pos::GeomID> loadedgeomids;
     for ( int idx=0; idx<tkzss.size(); idx++ )
     {
-	const TrcKeyZSampling& tkzs = tkzss[idx];
 	const Pos::GeomID& geomid = geomids[idx];
+	TrcKeyZSampling tkzs( tkzss[idx] );
+	if ( !tkzs.hsamp_.isDefined() )
+	    tkzs.hsamp_ = TrcKeySampling( geomid );
 
-	ParallelFSLoader2D* rdr = new ParallelFSLoader2D( *ioobj, tkzs );
+	SequentialFSLoader* rdr = new SequentialFSLoader( *ioobj, &tkzs );
+	rdr->setName( caption.getFullString() );
 	rdr->setScaler( scaler );
 	rdr->setDataChar( type );
 	taskgrp.addTask( rdr );
@@ -167,7 +155,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 
     for ( int idx=0; idx<rdrs.size(); idx++ )
     {
-	ParallelFSLoader2D& rdr = *rdrs[idx];
+	SequentialFSLoader& rdr = *rdrs[idx];
 	const Pos::GeomID& loadedgeomid = loadedgeomids[idx];
 	RegularSeisDataPack* dp = rdr.getDataPack();
 	if ( !dp ) continue;
@@ -274,7 +262,7 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tskr )
     switch ( gt )
     {
 	case Vol: {
-	    TrcKeyZSampling tkzs(true);
+	    TrcKeyZSampling tkzs( true );
 	    tkzs.usePar( iop );
 	    spl.load( tkzs, usertype, scaler );
 	} break;

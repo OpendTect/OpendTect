@@ -9,6 +9,7 @@
 #include "seisblockswriter.h"
 #include "seisblocksreader.h"
 #include "seisprovider.h"
+#include "seistrc.h"
 #include "moddepmgr.h"
 #include "oddirs.h"
 #include "genc.h"

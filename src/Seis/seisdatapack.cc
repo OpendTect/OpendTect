@@ -208,15 +208,20 @@ mImplMonitorableAssignmentWithNoMembers( SeisVolumeDataPack, VolumeDataPack )
 
 void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
 {
+    fillTraceInfo( trcky, trc.info() );
     fillTraceData( trcky, trc.data() );
+}
 
-    SeisTrcInfo& inf = trc.info();
+
+void SeisVolumeDataPack::fillTraceInfo( const TrcKey& tk,
+					SeisTrcInfo& info ) const
+{
     const StepInterval<float> zrg = getZRange();
-    inf.sampling_.start = zrg.start;
-    inf.sampling_.step = zrg.step;
-    inf.trckey_ = trcky;
-    inf.coord_ = trcky.getCoord();
-    inf.offset_ = 0.f;
+    info.sampling_.start = zrg.start;
+    info.sampling_.step = zrg.step;
+    info.trckey_ = tk;
+    info.coord_ = tk.getCoord();
+    info.offset_ = 0.f;
 }
 
 
@@ -253,6 +258,7 @@ void SeisVolumeDataPack::fillTraceData( const TrcKey& trcky,
 	}
     }
 }
+
 
 
 //=============================================================================

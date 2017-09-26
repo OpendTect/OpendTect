@@ -518,6 +518,8 @@ bool SEGYDirectSeisTrcTranslator::readData( TraceData* extbuf )
 	return false;
 
     toNextTrace();
+    headerdone_ = false;
+
     return (datareaddone_ = true);
 }
 

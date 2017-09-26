@@ -800,6 +800,9 @@ bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
 
     if ( !strm.isBad() )
 	datareaddone_ = true;
+
+    headerdone_ = false;
+
     return datareaddone_;
 }
 

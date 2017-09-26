@@ -27,7 +27,7 @@ class SeisTrcBuf;
 class SeisTrcInfo;
 class TrcKeyZSampling;
 namespace PosInfo	{ class CubeData; }
-namespace Seis		{ class SelData; }
+namespace Seis		{ class Provider; class SelData; }
 
 
 
@@ -321,7 +321,8 @@ private:
     bool		initConn(Conn*);
     void		enforceBounds();
     bool		writeBlock();
-    bool		copyDataToTrace(SeisTrc&);
+
+    friend class	Seis::Provider;
 
 public:
 

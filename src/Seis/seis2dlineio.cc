@@ -88,14 +88,28 @@ bool Seis2DTraceGetter::ensureTranslator() const
 }
 
 
-void Seis2DTraceGetter::ensureCorrectTrcKey( SeisTrc& trc ) const
+void Seis2DTraceGetter::ensureCorrectTrcKey( SeisTrcInfo& trcinfo ) const
 {
-    const TrcKey tk( geomid_, trc.info().trcNr() );
-    trc.info().trckey_ = tk;
+    const TrcKey tk( geomid_, trcinfo.trcNr() );
+    trcinfo.trckey_ = tk;
 }
 
 
 uiRetVal Seis2DTraceGetter::get( TrcNrType tnr, SeisTrc& trc ) const
+{
+    return doGet( tnr, &trc, trc.data(), &trc.info() );
+}
+
+
+uiRetVal Seis2DTraceGetter::get( TrcNrType tnr, TraceData& data,
+				 SeisTrcInfo* trcinfo ) const
+{
+    return doGet( tnr, 0, data, trcinfo );
+}
+
+
+uiRetVal Seis2DTraceGetter::doGet( TrcNrType tnr, SeisTrc* trc, TraceData& data,
+				   SeisTrcInfo* trcinfo ) const
 {
     if ( !ensureTranslator() )
 	return uiRetVal( initmsg_ );
@@ -104,10 +118,15 @@ uiRetVal Seis2DTraceGetter::get( TrcNrType tnr, SeisTrc& trc ) const
     if ( !tr_->goTo(bid) )
 	return uiRetVal( tr("Trace not present: %1").arg(tnr) );
 
-    if ( !tr_->read(trc) )
+    SeisTrcInfo info;
+    SeisTrcInfo& inforet = trcinfo ? *trcinfo : info;
+    if ( ( trc && !tr_->read(*trc) ) ||
+	 (!trc && ( !tr_->readInfo(inforet) || !tr_->readData(&data) ) ) )
 	return uiRetVal( tr_->errMsg() );
 
-    ensureCorrectTrcKey( trc );
+    if ( trcinfo )
+	ensureCorrectTrcKey( inforet );
+
     return uiRetVal::OK();
 }
 
@@ -129,7 +148,7 @@ uiRetVal Seis2DTraceGetter::getNext( SeisTrc& trc ) const
 	}else
 	if ( !seldata_ || seldata_->isOK(BinID(lineNr(),trc.info().trcNr())) )
 	{
-	    ensureCorrectTrcKey( trc );
+	    ensureCorrectTrcKey( trc.info() );
 	    break;
 	}
     }

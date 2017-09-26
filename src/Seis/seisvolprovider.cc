@@ -91,11 +91,16 @@ const VolProvider& prov() const
 
     void		get(const BinID&,SeisTrc&);
     void		getNext(SeisTrc&);
-    void		getData(const BinID&,TraceData&);
-    void		getNextData(TraceData&);
+    void		getData(const BinID&,TraceData&,SeisTrcInfo*);
+    void		getNextData(TraceData&,SeisTrcInfo*);
 
     RefMan<RegularSeisDataPack> dp_;
     SeisTrcTranslator*	trl_;
+
+private:
+
+    void		doGet(const BinID&,SeisTrc*,TraceData&,SeisTrcInfo*);
+    void		doGetNext(SeisTrc*,TraceData&,SeisTrcInfo*);
 
 };
 
@@ -248,23 +253,19 @@ bool Seis::VolFetcher::translatorSelected() const
 
 void Seis::VolFetcher::get( const BinID& bid, SeisTrc& trc )
 {
-    bool moveok = false;
-    nextbid_ = bid;
-    if ( dp_ && dp_->sampling().hsamp_.includes( nextbid_ ) )
-	moveok = true;
-    else if ( trl_ && trl_->goTo(nextbid_) )
-	moveok = true;
-
-    uirv_.setEmpty();
-    if ( moveok )
-	getNext( trc );
-    else
-	uirv_.set( tr("Position not present: %1/%2")
-		    .arg( nextbid_.inl() ).arg( nextbid_.crl() ) );
+    doGet( bid, &trc, trc.data(), &trc.info() );
 }
 
 
-void Seis::VolFetcher::getData( const BinID& bid, TraceData& data )
+void Seis::VolFetcher::getData( const BinID& bid, TraceData& data,
+				SeisTrcInfo* trcinfo )
+{
+    doGet( bid, 0, data, trcinfo );
+}
+
+
+void Seis::VolFetcher::doGet( const BinID& bid, SeisTrc* trc, TraceData& data,
+			      SeisTrcInfo* trcinfo )
 {
     bool moveok = false;
     nextbid_ = bid;
@@ -275,7 +276,12 @@ void Seis::VolFetcher::getData( const BinID& bid, TraceData& data )
 
     uirv_.setEmpty();
     if ( moveok )
-	getNextData( data );
+    {
+	if ( trc )
+	    getNext( *trc );
+	else
+	    getNextData( data, trcinfo );
+    }
     else
 	uirv_.set( tr("Position not present: %1/%2")
 		    .arg( nextbid_.inl() ).arg( nextbid_.crl() ) );
@@ -312,48 +318,18 @@ bool Seis::VolFetcher::advanceTrlToNextSelected( SeisTrcInfo& ti )
 
 void Seis::VolFetcher::getNext( SeisTrc& trc )
 {
-    bool havefilled = false;
-
-    if ( dp_ )
-    {
-	if ( dp_->sampling().hsamp_.includes(nextbid_) )
-	{
-	    dp_->fillTrace( TrcKey(nextbid_), trc );
-	    havefilled = true;
-	}
-	else if ( !trl_ )
-	{
-	    if ( !moveNextBinID() )
-		{ uirv_.set( uiStrings::sFinished() ); return; }
-	    dp_->fillTrace( TrcKey(nextbid_), trc );
-	    havefilled = true;
-	}
-    }
-
-    if ( trl_ && !havefilled )
-    {
-	if ( !advanceTrlToNextSelected(trc.info()) )
-	    return;
-
-	if ( !trl_->read(trc) )
-	{
-	    const uiString errmsg = trl_->errMsg();
-	    uirv_.set( errmsg.isEmpty() ? uiStrings::sFinished() : errmsg );
-	    return;
-	}
-
-	havefilled = true;
-    }
-
-    if ( havefilled )
-    {
-	trc.info().trckey_.setSurvID( TrcKey::std3DSurvID() );
-	moveNextBinID();
-    }
+    doGetNext( &trc, trc.data(), &trc.info() );
 }
 
 
-void Seis::VolFetcher::getNextData( TraceData& data )
+void Seis::VolFetcher::getNextData( TraceData& data, SeisTrcInfo* trcinfo )
+{
+    doGetNext( 0, data, trcinfo );
+}
+
+
+void Seis::VolFetcher::doGetNext( SeisTrc* trc,
+				  TraceData& data, SeisTrcInfo* trcinfo )
 {
     bool havefilled = false;
 
@@ -361,14 +337,18 @@ void Seis::VolFetcher::getNextData( TraceData& data )
     {
 	if ( dp_->sampling().hsamp_.includes(nextbid_) )
 	{
-	    dp_->fillTraceData( TrcKey(nextbid_), data );
+	    const TrcKey tk( nextbid_ );
+	    dp_->fillTraceData( tk, data );
+	    if ( trcinfo ) dp_->fillTraceInfo( tk, *trcinfo );
 	    havefilled = true;
 	}
 	else if ( !trl_ )
 	{
 	    if ( !moveNextBinID() )
 		{ uirv_.set( uiStrings::sFinished() ); return; }
-	    dp_->fillTraceData( TrcKey(nextbid_), data );
+	    const TrcKey tk( nextbid_ );
+	    dp_->fillTraceData( tk, data );
+	    if ( trcinfo ) dp_->fillTraceInfo( tk, *trcinfo );
 	    havefilled = true;
 	}
     }
@@ -376,10 +356,12 @@ void Seis::VolFetcher::getNextData( TraceData& data )
     if ( trl_ && !havefilled )
     {
 	SeisTrcInfo info;
-	if ( !advanceTrlToNextSelected(info) )
+	SeisTrcInfo& inforet = trcinfo ? *trcinfo : info;
+	if ( !advanceTrlToNextSelected(inforet) )
 	    return;
 
-	if ( !trl_->readData(&data) )
+	if ( (	trc && !trl_->read(*trc) ) ||
+	     ( !trc && !trl_->readData(&data) ) )
 	{
 	    const uiString errmsg = trl_->errMsg();
 	    uirv_.set( errmsg.isEmpty() ? uiStrings::sFinished() : errmsg );
@@ -388,6 +370,9 @@ void Seis::VolFetcher::getNextData( TraceData& data )
 
 	havefilled = true;
     }
+
+    if ( trcinfo )
+	trcinfo->trckey_.setSurvID( TrcKey::std3DSurvID() );
 
     if ( havefilled )
 	moveNextBinID();
@@ -468,6 +453,12 @@ void Seis::VolProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 }
 
 
+SeisTrcTranslator* Seis::VolProvider::getCurrentTranslator() const
+{
+    return fetcher_.trl_;
+}
+
+
 void Seis::VolProvider::doFillPar( IOPar& iop, uiRetVal& uirv ) const
 {
     Seis::Provider3D::doFillPar( iop, uirv );
@@ -516,13 +507,6 @@ void Seis::VolProvider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 }
 
 
-void Seis::VolProvider::doGetNextData( TraceData& data, uiRetVal& uirv ) const
-{
-    fetcher_.getNextData( data );
-    uirv = fetcher_.uirv_;
-}
-
-
 void Seis::VolProvider::doGet( const TrcKey& trcky, SeisTrc& trc,
 				  uiRetVal& uirv ) const
 {
@@ -532,8 +516,8 @@ void Seis::VolProvider::doGet( const TrcKey& trcky, SeisTrc& trc,
 
 
 void Seis::VolProvider::doGetData( const TrcKey& trcky, TraceData& data,
-				   uiRetVal& uirv ) const
+				   SeisTrcInfo* trcinfo, uiRetVal& uirv ) const
 {
-    fetcher_.getData( trcky.binID(), data );
+    fetcher_.getData( trcky.binID(), data, trcinfo );
     uirv = fetcher_.uirv_;
 }

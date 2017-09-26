@@ -12,13 +12,15 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "scaler.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seislineprovider.h"
 #include "seisps2dprovider.h"
 #include "seisps3dprovider.h"
-#include "seistrc.h"
 #include "seisselection.h"
+#include "seistrc.h"
+#include "seistrctr.h"
 #include "seisvolprovider.h"
 #include "uistrings.h"
 
@@ -381,6 +383,7 @@ uiRetVal Seis::Provider::get( const TrcKey& trcky, SeisTrc& trc ) const
     Threads::Locker locker( lock_ );
     if ( !handleSetupChanges(uirv) )
 	return uirv;
+
     doGet( trcky, trc, uirv );
     locker.unlockNow();
 
@@ -390,14 +393,15 @@ uiRetVal Seis::Provider::get( const TrcKey& trcky, SeisTrc& trc ) const
 }
 
 
-uiRetVal Seis::Provider::getData( const TrcKey& trcky, TraceData& data ) const
+uiRetVal Seis::Provider::getData( const TrcKey& trcky, TraceData& data,
+				  SeisTrcInfo* trcinfo ) const
 {
     uiRetVal uirv;
 
     Threads::Locker locker( lock_ );
     if ( !handleSetupChanges(uirv) )
 	return uirv;
-    doGetData( trcky, data, uirv );
+    doGetData( trcky, data, trcinfo, uirv );
     locker.unlockNow();
 
     if ( uirv.isOK() )
@@ -523,14 +527,6 @@ void Seis::Provider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 }
 
 
-void Seis::Provider::doGetNextData( TraceData& data, uiRetVal& uirv ) const
-{
-    SeisTrc trc;
-    doGetNext( trc , uirv );
-    data = trc.data();
-}
-
-
 void Seis::Provider::doGet( const TrcKey& tkey, SeisTrc& trc,
 			    uiRetVal& uirv ) const
 {
@@ -541,11 +537,13 @@ void Seis::Provider::doGet( const TrcKey& tkey, SeisTrc& trc,
 
 
 void Seis::Provider::doGetData( const TrcKey& tkey, TraceData& data,
-				uiRetVal& uirv ) const
+				SeisTrcInfo* trcinfo, uiRetVal& uirv ) const
 {
     SeisTrc trc;
     doGet( tkey, trc, uirv );
     data = trc.data();
+    if ( trcinfo )
+	*trcinfo = trc.info();
 }
 
 
@@ -573,13 +571,13 @@ void Seis::Provider::doGetGather( const TrcKey& tkey, SeisTrcBuf& tbuf,
 void Seis::Provider::doGetSequence( Seis::RawTrcsSequence& rawseq,
 				    uiRetVal& uirv ) const
 {
-    SeisTrc trc( 0 );
+    SeisTrc trc;
+    SeisTrcInfo& trcinfo = trc.info();
     SeisTrcBuf tbuf( true );
-    const int nrpos = rawseq.nrPositions();
     const bool isps = rawseq.isPS();
-    for ( int ipos=0; ipos<nrpos; ipos++ )
+    for ( int ipos=0; ipos<rawseq.nrpos_; ipos++ )
     {
-	const TrcKey& tk( rawseq.getPosition(ipos) );
+	const TrcKey& tk = (*rawseq.tks_)[ipos];
 	if ( isps )
 	{
 	    uirv = getGather( tk, tbuf );
@@ -587,12 +585,21 @@ void Seis::Provider::doGetSequence( Seis::RawTrcsSequence& rawseq,
 	}
 	else
 	{
-	    uirv = getData( tk, rawseq.getTraceData( ipos ) );
+	    uirv = getData( tk, *rawseq.data_.get(ipos), &trcinfo );
+	    SeisTrcTranslator* trl = getCurrentTranslator();
+	    if ( trl ) rawseq.setTrcScaler( ipos, trl->curtrcscale_ );
 	    if ( !uirv.isOK() )
 	    {
 		uirv = get( tk, trc );
 		rawseq.copyFrom( trc, &ipos );
 	    }
+#ifdef __debug__
+	    else if ( trcinfo.trckey_ != tk )
+	    {
+		pErrMsg("Wrong position returned from translator");
+		return;
+	    }
+#endif
 	}
     }
 }
@@ -641,6 +648,7 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
     , tks_(0)
     , intpol_(0)
 {
+    trcscalers_.allowNull( true );
     TraceData td;
     for ( int icomp=0; icomp<info.nrcomp_; icomp++ )
 	td.addComponent( info.nrsamppertrc_, info.getDataChar() );
@@ -648,7 +656,7 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
     if ( !td.allOk() )
 	return;
 
-    for ( int idx=0; idx<nrpos; idx++ )
+    for ( int pos=0; pos<nrpos; pos++ )
     {
 	TraceData* newtd = new TraceData( td );
 	if ( !newtd || !newtd->allOk() )
@@ -658,6 +666,7 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
 	}
 
 	data_ += newtd;
+	trcscalers_ += 0;
     }
 }
 
@@ -668,6 +677,10 @@ Seis::RawTrcsSequence::RawTrcsSequence( const Seis::RawTrcsSequence& oth )
     , tks_(0)
     , intpol_(0)
 {
+    trcscalers_.allowNull( true );
+    for ( int idx=0; idx<oth.nrpos_; idx++ )
+	trcscalers_ += 0;
+
     *this = oth;
 }
 
@@ -676,6 +689,7 @@ Seis::RawTrcsSequence::~RawTrcsSequence()
 {
     deepErase( data_ );
     delete tks_;
+    deepErase( trcscalers_ );
 }
 
 
@@ -687,16 +701,20 @@ Seis::RawTrcsSequence& Seis::RawTrcsSequence::operator =(
     Seis::RawTrcsSequence& thisseq = const_cast<Seis::RawTrcsSequence&>(*this);
 
     deepErase( data_ );
+    deepErase( trcscalers_ );
     deleteAndZeroPtr( thisseq.tks_ );
     const int& thisnrpos = nrpos_;
     const_cast<int&>( thisnrpos ) = oth.nrpos_;
     TypeSet<TrcKey>* tks =  new TypeSet<TrcKey>;
-    for ( int ipos=0; ipos<nrpos_; ipos++ )
+    for ( int pos=0; pos<nrpos_; pos++ )
     {
-	data_ += new TraceData( *oth.data_.get( ipos ) );
-	*tks += TrcKey( (*oth.tks_)[ipos] );
+	data_ += new TraceData( *oth.data_.get( pos ) );
+	trcscalers_ += 0;
+	setTrcScaler( pos, oth.trcscalers_[pos] );
+	*tks += TrcKey( (*oth.tks_)[pos] );
     }
 
+    delete tks_;
     tks_ = tks;
 
     intpol_ = 0;
@@ -755,15 +773,27 @@ int Seis::RawTrcsSequence::nrPositions() const
 
 
 void Seis::RawTrcsSequence::setPositions( const TypeSet<TrcKey>& tks )
-{ tks_ = &tks; }
+{
+    delete tks_;
+    tks_ = &tks;
+}
 
 
-const TrcKey& Seis::RawTrcsSequence::getPosition( int ipos ) const
-{ return (*tks_)[ipos]; }
+void Seis::RawTrcsSequence::setTrcScaler( int pos, const Scaler* trcscaler )
+{
+    if ( !trcscalers_.validIdx(pos) )
+	return;
+
+    delete trcscalers_.replace( pos, trcscaler ? trcscaler->clone() : 0 );
+}
 
 
 float Seis::RawTrcsSequence::get( int idx, int pos, int comp ) const
-{ return data_.get( pos )->getValue( idx, comp ); }
+{
+    const float val = data_.get( pos )->getValue( idx, comp );
+    const Scaler* trcscaler = trcscalers_[pos];
+    return trcscaler ? trcscaler->scale(val) : val;
+}
 
 
 float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
@@ -784,24 +814,28 @@ float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
 
 
 void Seis::RawTrcsSequence::set( int idx, float val, int pos, int comp )
-{ data_.get( pos )->setValue( idx, val, comp ); }
+{
+    const Scaler* trcscaler = trcscalers_[pos];
+    if ( trcscaler ) val = trcscaler->unScale( val );
+    data_.get( pos )->setValue( idx, val, comp );
+}
 
 
 
-const DataBuffer::buf_type* Seis::RawTrcsSequence::getData( int ipos, int icomp,
+const DataBuffer::buf_type* Seis::RawTrcsSequence::getData( int pos, int icomp,
 							    int is ) const
 {
     const int offset = is > 0 ? is * info_.nrbytespersamp_ : 0;
 
-    return data_[ipos]->getComponent(icomp)->data() + offset;
+    return data_.get( pos )->getComponent(icomp)->data() + offset;
 }
 
 
-DataBuffer::buf_type* Seis::RawTrcsSequence::getData( int ipos, int icomp,
+DataBuffer::buf_type* Seis::RawTrcsSequence::getData( int pos, int icomp,
 						      int is )
 {
     return const_cast<DataBuffer::buf_type*>(
-     const_cast<const Seis::RawTrcsSequence&>( *this ).getData(ipos,icomp,is) );
+     const_cast<const Seis::RawTrcsSequence&>( *this ).getData(pos,icomp,is) );
 }
 
 
@@ -814,7 +848,7 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 	{
 	    for ( int idx=0; idx<nrpos_; idx++ )
 	    {
-		if ( trc.info().trckey_.position() != (*tks_)[idx].position() )
+		if ( trc.info().trckey_ != (*tks_)[idx] )
 		{
 		    pErrMsg("wrong position");
 		    continue;
@@ -827,7 +861,7 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 #ifdef __debug__
 	else
 	{
-	    if ( trc.info().trckey_.position() != (*tks_)[*ipos].position() )
+	    if ( trc.info().trckey_ != (*tks_)[*ipos] )
 		pErrMsg("wrong position");
 	}
 #endif
@@ -836,7 +870,8 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
     for ( int icomp=0; icomp<info_.nrcomp_; icomp++ )
     {
 	if ( *trc.data().getInterpreter(icomp) ==
-	     *data_.get(pos)->getInterpreter(icomp) )
+	     *data_.get(pos)->getInterpreter(icomp) ||
+	     !trcscalers_[pos] )
 	{
 	    const od_int64 nrbytes = info_.nrdatabytespespercomptrc_;
 	    OD::sysMemCopy( getData( pos, icomp ),

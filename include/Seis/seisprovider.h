@@ -10,14 +10,21 @@ ________________________________________________________________________
 
 */
 
-#include "atomic.h"
+#include "databuf.h"
+#include "datachar.h"
 #include "dbkey.h"
-#include "seistrc.h"
+#include "seistype.h"
 #include "survgeom.h"
 #include "threadlock.h"
 #include "trckeyzsampling.h"
+#include "valseriesinterpol.h"
 
+class Scaler;
+class SeisTrc;
 class SeisTrcBuf;
+class SeisTrcInfo;
+class SeisTrcTranslator;
+class TraceData;
 namespace PosInfo { class CubeData; class Line2DData; }
 
 
@@ -91,7 +98,8 @@ public:
     uiRetVal		getNext(SeisTrc&) const;
     uiRetVal		getNextGather(SeisTrcBuf&) const;
     uiRetVal		get(const TrcKey&,SeisTrc&) const;
-    uiRetVal		getData(const TrcKey&,TraceData&) const;
+    uiRetVal		getData(const TrcKey&,TraceData&,
+				SeisTrcInfo* info=0) const;
     uiRetVal		getGather(const TrcKey&,SeisTrcBuf&) const;
     uiRetVal		getSequence(RawTrcsSequence&) const;
 
@@ -157,16 +165,21 @@ protected:
 
 			    // define at least either SeisTrc or SeisTrcBuf fns
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
-    virtual void	doGetNextData(TraceData&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
-    virtual void	doGetData(const TrcKey&,TraceData&,uiRetVal&) const;
+    virtual void	doGetData(const TrcKey&,TraceData&,SeisTrcInfo*,
+				  uiRetVal&) const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetSequence(RawTrcsSequence&,uiRetVal&) const;
 
+private:
+
+    virtual SeisTrcTranslator*	getCurrentTranslator() const		= 0;
+
     friend class	Fetcher;
     friend class	Fetcher2D;
     friend class	Fetcher3D;
+    friend class	ObjectSummary;
 
 };
 
@@ -194,6 +207,8 @@ protected:
     virtual Pos::GeomID doGetCurGeomID() const
 			{ return Survey::GM().default3DSurvID(); }
     virtual ZSampling	doGetZRange() const;
+
+    virtual SeisTrcTranslator*	getCurrentTranslator() const	{ return 0; }
 
 };
 
@@ -228,6 +243,8 @@ protected:
 			{ return geomID( curLineIdx() ); }
     virtual ZSampling	doGetZRange() const;
 
+    virtual SeisTrcTranslator*	getCurrentTranslator() const	{ return 0; }
+
 };
 
 
@@ -255,31 +272,29 @@ public:
     float		getValue(float,int pos,int comp) const;
 
     void		set(int idx,float val,int pos,int comp);
-    void		setPositions(const TypeSet<TrcKey>&);	//Becomes mine
+    void		setPositions(const TypeSet<TrcKey>&);	 //Becomes mine
+    void		setTrcScaler(int pos,const Scaler*);
     void		copyFrom(const SeisTrc&,int* ipos=0);
     void		copyFrom(const SeisTrcBuf&)		{}
+
+private:
 
     //No checks
     const DataBuffer::buf_type* getData(int ipos,int icomp,int is=0) const;
     DataBuffer::buf_type*	getData(int ipos,int icomp,int is=0);
-    const TrcKey&	getPosition(int ipos) const;
-
-protected:
-
-    TraceData&		getTraceData( int pos ) { return *data_.get(pos); }
-
-private:
 
     const ValueSeriesInterpolator<float>&	interpolator() const;
 
     ObjectSet<TraceData>	data_;
+    ObjectSet<Scaler>		trcscalers_;
     const ObjectSummary&	info_;
     const TypeSet<TrcKey>*	tks_;
     const int			nrpos_;
 
     mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
-
+    friend class ArrayFiller;
     friend class Provider;
+    friend class RawTrcsSequenceValueSeries;
 };
 
 
