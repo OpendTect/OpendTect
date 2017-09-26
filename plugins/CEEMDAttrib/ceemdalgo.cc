@@ -1071,6 +1071,8 @@ bool CEEMD::DecompInput::doDecompMethod(
 	readComponents( realizations );
     }
 
+    if ( enddecomp ) {} // to make the variable used
+
     if ( outputattrib < 3 ) // these outputs rely on instantaneous frequencies
     {
 	ManagedObjectSet<IMFComponent>* imagcomponents =
