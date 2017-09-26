@@ -649,9 +649,9 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
 {
     TypeSet<int> trcnrs( trcnrs_ );
     if ( stop < totalnr_ )
-	trcnrs.removeRange( stop+1, totalnr_ );
+	trcnrs.removeRange( (int)(stop+1), (int)totalnr_ );
     if ( start > 0 )
-	trcnrs.removeRange( 0, start-1 );
+	trcnrs.removeRange( 0, (int)start-1 );
 
     if ( trcnrs.isEmpty() )
 	return true;

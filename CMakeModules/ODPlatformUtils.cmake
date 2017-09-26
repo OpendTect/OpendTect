@@ -125,7 +125,7 @@ if( UNIX ) #Apple and Linux
 
 	#use below and you'll be flooded with warnings:
 	#set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wcast-align -Wconversion ${CMAKE_CXX_FLAGS}" )
-	set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wcast-align ${CMAKE_CXX_FLAGS}" )
+	set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wno-cast-align ${CMAKE_CXX_FLAGS}" )
 
 
 	set ( CMAKE_CXX_FLAGS_RELEASE "-Wno-inline -Wuninitialized -Winit-self ${CMAKE_CXX_FLAGS_RELEASE}" )

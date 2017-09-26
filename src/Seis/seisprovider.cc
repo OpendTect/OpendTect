@@ -792,7 +792,7 @@ float Seis::RawTrcsSequence::get( int idx, int pos, int comp ) const
 {
     const float val = data_.get( pos )->getValue( idx, comp );
     const Scaler* trcscaler = trcscalers_[pos];
-    return trcscaler ? trcscaler->scale(val) : val;
+    return trcscaler ? (float)trcscaler->scale(val) : val;
 }
 
 
@@ -816,7 +816,8 @@ float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
 void Seis::RawTrcsSequence::set( int idx, float val, int pos, int comp )
 {
     const Scaler* trcscaler = trcscalers_[pos];
-    if ( trcscaler ) val = trcscaler->unScale( val );
+    if ( trcscaler )
+	val = (float)trcscaler->unScale( val );
     data_.get( pos )->setValue( idx, val, comp );
 }
 
