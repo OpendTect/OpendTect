@@ -205,7 +205,7 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata_ || inputdata_->isEmpty() || output.isEmpty() )
     return false;
 
-    DecompInput input( Setup().method(method_)
+    ::CEEMD::DecompInput input( ::CEEMD::Setup().method(method_)
 				.attriboutput(attriboutput_)
 				.maxnrimf(maxnrimf_)
 				.maxsift(maxsift_)

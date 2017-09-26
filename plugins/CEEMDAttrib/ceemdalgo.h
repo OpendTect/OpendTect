@@ -1,5 +1,4 @@
-#ifndef ceemdalgo_h
-#define ceemdalgo_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Paul
@@ -23,6 +22,8 @@
 #define mDecompOutputPeakAmp	2
 #define mDecompOutputIMF	3
 
+namespace CEEMD
+{
 
 mExpClass(CEEMDAttrib) IMFComponent
 {
@@ -43,6 +44,7 @@ public:
 			}
 
 			~IMFComponent() { delete [] values_; }
+
     BufferString	name_;
     int			nrzeros_;
     int			size_;
@@ -152,44 +154,47 @@ public:
 			    , size_( nrsamples )
 		    {}
 		    ~OrgTraceMinusAverage() { delete [] values_; }
+
     BufferString    name_;
     float	    averageinput_;
     float	    stdev_;
     int		    size_;
     float*	    values_;
+
 };
 
 mExpClass(CEEMDAttrib) Setup
-    {
-	public:
-			Setup();
+{
+public:
+		Setup();
 
-			mDefSetupMemb(int, method); // 0=EMD, 1=EEMD, 2=CEEMD
-			// 0=Freq, 1=Peak Freq, 2= Peak Amp, 3=IMF
-			mDefSetupMemb(int, attriboutput);
-			// Number of realizations for EEMD and CEEMD
-			mDefSetupMemb(int, maxnoiseloop);
-			// Maximum number of intrinsic Mode Functions
-			mDefSetupMemb(int, maxnrimf);
-			// Maximum number of sifting iterations
-			mDefSetupMemb(int, maxsift);
-			// stop sifting if st.dev res.-imf < value
-			mDefSetupMemb(float, stopsift);
-			// stop decomp. when st.dev imf < value
-			mDefSetupMemb(float, stopimf);
-			// noise percentage for EEMD and CEEMD
-			mDefSetupMemb(float, noisepercentage);
-			// boundary extension symmetric or periodic
-			mDefSetupMemb(bool, symmetricboundary);
-			// use synthetic trace in ceemdtestprogram.h
-			mDefSetupMemb(bool, usetestdata);
-			// output frequency.
-			mDefSetupMemb(bool, outputfreq);
-			// step output frequency.
-			mDefSetupMemb(bool, stepoutfreq);
-			// output IMF component.
-			mDefSetupMemb(bool, outputcomp);
-    };
+		mDefSetupMemb(int, method); // 0=EMD, 1=EEMD, 2=CEEMD
+		// 0=Freq, 1=Peak Freq, 2= Peak Amp, 3=IMF
+		mDefSetupMemb(int, attriboutput);
+		// Number of realizations for EEMD and CEEMD
+		mDefSetupMemb(int, maxnoiseloop);
+		// Maximum number of intrinsic Mode Functions
+		mDefSetupMemb(int, maxnrimf);
+		// Maximum number of sifting iterations
+		mDefSetupMemb(int, maxsift);
+		// stop sifting if st.dev res.-imf < value
+		mDefSetupMemb(float, stopsift);
+		// stop decomp. when st.dev imf < value
+		mDefSetupMemb(float, stopimf);
+		// noise percentage for EEMD and CEEMD
+		mDefSetupMemb(float, noisepercentage);
+		// boundary extension symmetric or periodic
+		mDefSetupMemb(bool, symmetricboundary);
+		// use synthetic trace in ceemdtestprogram.h
+		mDefSetupMemb(bool, usetestdata);
+		// output frequency.
+		mDefSetupMemb(bool, outputfreq);
+		// step output frequency.
+		mDefSetupMemb(bool, stepoutfreq);
+		// output IMF component.
+		mDefSetupMemb(bool, outputcomp);
+};
+
 
 mExpClass(CEEMDAttrib) DecompInput
 {
@@ -214,6 +219,7 @@ public:
     static const char*	transMethodNamesStr(int);
 
 protected:
+
     void computeStats(float&, float&) const;
     void createNoise(float stdev) const;
     void addDecompInputs(const DecompInput* arraytoadd) const;
@@ -288,4 +294,4 @@ protected:
 
 };
 
-#endif
+} // namespace CEEMD

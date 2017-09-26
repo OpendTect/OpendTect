@@ -21,7 +21,7 @@ class uiSpecDecompPanel;
 class uiTrcPositionDlg;
 
 class uiCEEMDAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiCEEMDAttrib);
 public:
 
     uiCEEMDAttrib(uiParent*,bool);

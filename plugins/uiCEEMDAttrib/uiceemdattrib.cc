@@ -72,7 +72,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     stopsiftfld_->setElemSzPol(uiObject::Small);
     stopsiftfld_->attach( rightOf, maxsiftfld_ );
 
-    BufferString tfstr = "&Display Time/Frequency panel";
+    uiString tfstr = tr("Display Time/Frequency panel");
     CallBack cbtfpanel = mCB(this, uiCEEMDAttrib, panelTFPush);
     tfpanelbut_ = new uiPushButton( this, tfstr, cbtfpanel, true );
     tfpanelbut_->attach( alignedBelow, maxsiftfld_ );
@@ -111,9 +111,9 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
     BufferStringSet strs( methodStr );
     const char* method = methodfld_->text();
     mSetEnum( CEEMD::emdmethodStr(), strs.indexOf(method) );
-    const float stopimf = stopimffld_->getfValue();
+    const float stopimf = stopimffld_->getFValue();
     mSetFloat( CEEMD::stopimfStr(), stopimf );
-    const float stopsift = stopsiftfld_->getfValue();
+    const float stopsift = stopsiftfld_->getFValue();
     mSetFloat( CEEMD::stopsiftStr(), stopsift );
     mSetInt( CEEMD::maxnrimfStr(), maximffld_->getIntValue() );
     mSetInt( CEEMD::maxsiftStr(), maxsiftfld_->getIntValue() );
@@ -342,9 +342,9 @@ void uiCEEMDAttrib::fillInCEEMDDescParams( Desc* newdesc ) const
 {
     mSetParam(Enum,method,CEEMD::emdmethodStr(),
 	      methodfld_->getIntValue() )
-    mSetParam(Float,stopimf,CEEMD::stopimfStr(),stopimffld_->getfValue())
+    mSetParam(Float,stopimf,CEEMD::stopimfStr(),stopimffld_->getFValue())
     mSetParam(Int,maxsift,CEEMD::maxsiftStr(), maxsiftfld_->getIntValue())
-    mSetParam(Float,stopsift,CEEMD::stopsiftStr(),stopsiftfld_->getfValue())
+    mSetParam(Float,stopsift,CEEMD::stopsiftStr(),stopsiftfld_->getFValue())
     mSetParam(Int,maximf,CEEMD::maxnrimfStr(), maximffld_->getIntValue())
     mSetParam(Int,outputfreq,CEEMD::outputfreqStr(),
 	outputfreqfld_->getIntValue())
