@@ -43,7 +43,11 @@ macro ( create_package PACKAGE_NAME )
 	    set( OD_THIRD_PARTY_LIBS ${OD_THIRD_PARTY_LIBS} ${LIB} )
 	endif()
 
-	if( UNIX )
+	if( WIN64 )
+	    #Stripping not required on windows
+	elseif( APPLE )
+	    #Not using breakpad on MAC
+	else()
 	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${LIB} )
 	endif()
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -106,9 +110,14 @@ macro ( create_package PACKAGE_NAME )
 
     message( "Copying ${OD_PLFSUBDIR} executables" )
     foreach( EXE ${EXECLIST} )
-	if( UNIX )
+	if( WIN64 )
+	    #Stripping not required on windows
+	elseif( APPLE )
+	    #Not using breakpad on MAC , Stripping not required
+	else()
 	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${EXE} )
 	endif()
+
 	if( WIN32 )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMLIBDIR}/${EXE}.exe
