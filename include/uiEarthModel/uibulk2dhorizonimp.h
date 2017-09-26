@@ -1,4 +1,6 @@
-#pragma once
+#ifndef uibulk2dhorizonimp_h
+#define uibulk2dhorizonimp_h
+
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Prajjaval Singh
@@ -30,3 +32,5 @@ protected:
     Table::FormatDesc*	fd_;
 
 };
+
+#endif
