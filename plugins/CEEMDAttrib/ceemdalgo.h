@@ -78,7 +78,8 @@ public:
 		    else if ( sz < 2 )
 			return y_[0];
 
-		    const int i0 = baseIdx( x );
+		    bool ispresent;
+		    const int i0 = baseIdx( x, ispresent );
 		    const float v0 = y_[i0];
 		    if ( i0 == sz-1 )
 			return v0;
