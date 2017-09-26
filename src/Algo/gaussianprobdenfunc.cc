@@ -108,18 +108,6 @@ bool Gaussian1DProbDenFunc::usePar( const IOPar& par )
 }
 
 
-inline static float toDistribPos( float v, float exp, float sd )
-{
-    v -= exp; v /= sd; return v;
-}
-
-
-inline static float fromDistribPos( float v, float exp, float sd )
-{
-    v *= sd; v += exp; return v;
-}
-
-
 // 2D
 
 Gaussian2DProbDenFunc::~Gaussian2DProbDenFunc()

@@ -27,8 +27,6 @@ ________________________________________________________________________
 #include "statrand.h"
 #include "timer.h"
 
-static const int cMaxPtsForMarkers = 20000;
-
 
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidp,

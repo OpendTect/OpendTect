@@ -81,8 +81,6 @@ int uiAttribPartServer::objNLAModel2D()		{ return 100; }
 int uiAttribPartServer::objNLAModel3D()		{ return 101; }
 
 const char* uiAttribPartServer::attridstr()	{ return "Attrib ID"; }
-
-static const int cMaxNrClasses = 100;
 static const int cMaxMenuSize = 150;
 
 

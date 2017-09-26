@@ -14,9 +14,6 @@ ________________________________________________________________________
 #include "coordsystem.h"
 #include <math.h>
 
-const double cAvgEarthRadius = 6367450;
-
-
 
 bool LatLong::operator==( const LatLong& ll ) const
 {

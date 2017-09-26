@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id: array2dinterpol.cc 38250 2015-02-24 07
 
 static const double cLepsilon = 1.0;
 static const double cE2 = cLepsilon*cLepsilon;
-static const double cE4 = cE2*cE2;
 static const double cEpsP2 = cE2;
 static const double cEpsM2 = 1.0/cE2;
 static const double cOneplusE2 = 1.0 + cE2;
@@ -93,7 +92,6 @@ GridInitializer( ContinuousCurvatureArray2DInterpol* p, int gridsize,
     , irad_( 0 )
     , jrad_( 0 )
     , rfact_( 0 )
-    , radius_( 0 )
 {}
 
 protected:
@@ -181,6 +179,7 @@ protected:
     od_int64	nrIterations() const { return nriterations_; }
 
 private:
+
     ContinuousCurvatureArray2DInterpol* interpol_;
     od_int64 nriterations_;
     int blocknx_;
@@ -189,7 +188,7 @@ private:
     int irad_;
     int jrad_;
     double rfact_;
-    float radius_;
+
 };
 
 

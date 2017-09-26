@@ -20,7 +20,6 @@ class LinScaler;
 class uiLabel;
 class uiLineEdit;
 class uiSliderBody;
-class uiSpinBox;
 
 
 mExpClass(uiBase) uiSliderObj : public uiObject
@@ -126,7 +125,6 @@ private:
     uiSliderObj*	slider_;
     uiLabel*		lbl_;
     uiLineEdit*		editfld_;
-    uiSpinBox*		inteditfld_;
 
     mutable BufferString result_;
     LinScaler*		scaler_;

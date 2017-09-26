@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 static const int cPrefWidth = 75;
-static const float cMaxProbVal = 100.0f;
 
 uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
 : uiObjFileMan(p,uiDialog::Setup(

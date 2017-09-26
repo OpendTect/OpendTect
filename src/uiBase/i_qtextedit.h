@@ -63,8 +63,7 @@ class i_ScrollBarMessenger : public QObject
 public:
 
     i_ScrollBarMessenger( QAbstractSlider* sndr, uiTextEditBase* receiver )
-	: sender_(sndr)
-	, receiver_(receiver)
+	: receiver_(receiver)
     {
 	connect( sndr, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
 	connect( sndr, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()) );
@@ -73,7 +72,6 @@ public:
 private:
 
     uiTextEditBase*	receiver_;
-    QAbstractSlider*	sender_;
 
 private slots:
 

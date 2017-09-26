@@ -283,7 +283,6 @@ void uiWellDahDisplay::draw()
 }
 
 
-static const int cMaxNrDahSamples = 2000;
 #define mGetLoopSize(nrsamp,step)\
     {\
 	if ( nrsamp > cMaxNrDahSamples )\

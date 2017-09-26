@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 class SurveyInfo;
 class uiGenInput;
-class uiLabel;
 class uiLatLongInp;
 class uiCheckBox;
 
@@ -56,7 +55,7 @@ public:
 						const SurveyInfo*,
 						const Coords::CoordSystem*);
 				~uiCoordSystemSelGrp();
-    RefMan<CoordSystem>	outputSystem() { return outputsystem_; }
+    RefMan<CoordSystem>		outputSystem() { return outputsystem_; }
 				//!<After AcceptOK();
     bool			acceptOK();
 
@@ -65,12 +64,11 @@ private:
     void			systemChangedCB(CallBacker*);
 
     uiGenInput*			coordsystemsel_;
-    uiLabel*			coordsystemdesc_;
-    ObjectSet<uiCoordSystem> coordsystemsuis_;
+    ObjectSet<uiCoordSystem>	coordsystemsuis_;
     ManagedObjectSet<IOPar>	coordsystempars_;
     const SurveyInfo*		si_;
 
-    RefMan<CoordSystem>	outputsystem_;
+    RefMan<CoordSystem>		outputsystem_;
 };
 
 

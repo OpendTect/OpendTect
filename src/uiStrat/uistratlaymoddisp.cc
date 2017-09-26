@@ -47,8 +47,6 @@ ________________________________________________________________________
     if ( SI().depthsInFeet() ) \
 	target.scale( mToFeetFactorF )
 
-static const int cMaxNrLayers4RectDisp = 50000; // Simple displayer
-
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelProvider& lmp)
