@@ -955,7 +955,7 @@ bool CEEMD::DecompInput::doDecompMethod(
 
 //    setup_.method_ = 3;
 
-    bool enddecomp = false; //Set but never used??
+    bool mUnusedVar enddecomp = false; //Set but never used??
 
     if ( setup_.method_ == mDecompModeEMD )
     {
