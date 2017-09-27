@@ -27,22 +27,6 @@
 
 using namespace Attrib;
 
-static const char* methodStr[] =
-{
-    "Empirical Mode Decomposition (EMD)",
-    "Ensemble EMD",
-    "Complete Ensemble EMD",
-    0
-};
-
-static const char* attriboutputStr[] =
-{
-    "Frequency",
-    "Peak Frequency",
-    "Peak Amplitude",
-    "IMF Component",
-    0
-};
 mInitAttribUI(uiCEEMDAttrib,CEEMD,"CEEMD",sKeyBasicGrp())
 
 uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
@@ -52,49 +36,62 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
     setHAlignObj( inpfld_ );
-    methodfld_ = new uiGenInput( this, "Method",
-		StringListInpSpec(methodStr) );
+
+    uiStringSet methodstrs;
+    methodstrs.add( tr("Empirical Mode Decomposition (EMD)") );
+    methodstrs.add( tr("Ensemble EMD") );
+    methodstrs.add( tr("Complete Ensemble EMD") );
+    methodfld_ = new uiGenInput( this, tr("Method"),
+				 StringListInpSpec(methodstrs) );
     methodfld_->attach( alignedBelow, inpfld_ );
 
-    maximffld_ = new uiGenInput( this, "Maximum no. IMFs", IntInpSpec() );
+    maximffld_ = new uiGenInput( this, tr("Maximum number of IMFs"),
+				 IntInpSpec() );
     maximffld_->setElemSzPol(uiObject::Small);
     maximffld_->attach( alignedBelow, methodfld_ );
 
-    stopimffld_ = new uiGenInput( this, "IMF threshhold", FloatInpSpec() );
+    stopimffld_ = new uiGenInput( this, tr("IMF threshhold"), FloatInpSpec() );
     stopimffld_->setElemSzPol(uiObject::Small);
     stopimffld_->attach( rightOf, maximffld_ );
 
-    maxsiftfld_ = new uiGenInput( this, "Maximum no. Sifts", IntInpSpec() );
+    maxsiftfld_ = new uiGenInput( this, tr("Maximum number of Sifts"),
+				  IntInpSpec() );
     maxsiftfld_->setElemSzPol(uiObject::Small);
     maxsiftfld_->attach( alignedBelow, maximffld_ );
 
-    stopsiftfld_ = new uiGenInput( this, "Sift threshhold", FloatInpSpec() );
+    stopsiftfld_ = new uiGenInput( this, tr("Sift threshhold"),
+				    FloatInpSpec() );
     stopsiftfld_->setElemSzPol(uiObject::Small);
     stopsiftfld_->attach( rightOf, maxsiftfld_ );
 
-    uiString tfstr = tr("Display Time/Frequency panel");
     CallBack cbtfpanel = mCB(this, uiCEEMDAttrib, panelTFPush);
-    tfpanelbut_ = new uiPushButton( this, tfstr, cbtfpanel, true );
+    tfpanelbut_ = new uiPushButton( this, tr("Display Time/Frequency panel"),
+			mCB(this,uiCEEMDAttrib,panelTFPush), false );
     tfpanelbut_->attach( alignedBelow, maxsiftfld_ );
 
-    attriboutputfld_ = new uiGenInput( this, "Output",
-		StringListInpSpec(attriboutputStr) );
+    uiStringSet attriboutputstrs;
+    attriboutputstrs.add( tr("Frequency") );
+    attriboutputstrs.add( tr("Peak Frequency") );
+    attriboutputstrs.add( tr("Peak Amplitude") );
+    attriboutputstrs.add( tr("IMF Component") );
+    attriboutputfld_ = new uiGenInput( this, tr("Output"),
+				    StringListInpSpec(attriboutputstrs) );
     CallBack cboutsel = mCB(this, uiCEEMDAttrib, outSel);
     attriboutputfld_->valuechanged.notify(cboutsel);
     attriboutputfld_->attach( alignedBelow, tfpanelbut_ );
 
-    outputfreqfld_ = new uiGenInput( this, "Output Frequency / Step (Hz)",
-	IntInpSpec() );
-    outputfreqfld_->setElemSzPol(uiObject::Small);
+    outputfreqfld_ = new uiGenInput( this, tr("Output Frequency Step (Hz)"),
+				     IntInpSpec() );
+    outputfreqfld_->setElemSzPol( uiObject::Small );
     outputfreqfld_->attach( alignedBelow, attriboutputfld_ );
 
-    stepoutfreqfld_ = new uiGenInput( this, " ",
+    stepoutfreqfld_ = new uiGenInput( this, uiString::emptyString(),
 	IntInpSpec() );
     stepoutfreqfld_->setElemSzPol(uiObject::Small);
     stepoutfreqfld_->attach( rightOf, outputfreqfld_ );
     prevpar_.setEmpty();
 
-    outputcompfld_ = new uiGenInput( this, "Output IMF Component Nr.",
+    outputcompfld_ = new uiGenInput( this, tr("Output IMF Component Nr."),
 	IntInpSpec() );
     outputcompfld_->setElemSzPol(uiObject::Small);
     outputcompfld_->attach( alignedBelow, attriboutputfld_ );
@@ -108,9 +105,7 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
     if ( FixedString(desc.attribName())!=CEEMD::attribName() )
 	return false;
 
-    BufferStringSet strs( methodStr );
-    const char* method = methodfld_->text();
-    mSetEnum( CEEMD::emdmethodStr(), strs.indexOf(method) );
+    mSetEnum( CEEMD::emdmethodStr(), methodfld_->getIntValue() );
     const float stopimf = stopimffld_->getFValue();
     mSetFloat( CEEMD::stopimfStr(), stopimf );
     const float stopsift = stopsiftfld_->getFValue();
@@ -120,9 +115,7 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
     mSetInt( CEEMD::outputfreqStr(), outputfreqfld_->getIntValue() );
     mSetInt( CEEMD::stepoutfreqStr(), stepoutfreqfld_->getIntValue() );
     mSetInt( CEEMD::outputcompStr(), outputcompfld_->getIntValue() );
-    BufferStringSet strs1( attriboutputStr );
-    const char* attriboutput = attriboutputfld_->text();
-    mSetEnum( CEEMD::attriboutputStr(), strs1.indexOf(attriboutput) );
+    mSetEnum( CEEMD::attriboutputStr(), attriboutputfld_->getIntValue() );
     mSetBool( CEEMD::usetfpanelStr(), false );
 
     return true;
@@ -140,7 +133,7 @@ bool uiCEEMDAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetEnum( CEEMD::emdmethodStr(), method,
-		methodfld_->setText(methodStr[method]) )
+		methodfld_->setValue(method) )
     mIfGetFloat( CEEMD::stopimfStr(), stopimf,
 		stopimffld_->setValue(stopimf) );
     mIfGetFloat( CEEMD::stopsiftStr(), stopsift,
@@ -154,7 +147,7 @@ bool uiCEEMDAttrib::setParameters( const Desc& desc )
     mIfGetInt( CEEMD::stepoutfreqStr(), stepoutfreq,
 	       stepoutfreqfld_->setValue(stepoutfreq) );
     mIfGetEnum( CEEMD::attriboutputStr(), attriboutput,
-		attriboutputfld_->setText(attriboutputStr[attriboutput]) )
+		attriboutputfld_->setValue(attriboutput) )
     mIfGetInt( CEEMD::outputcompStr(), outputcomp,
 	       outputcompfld_->setValue(outputcomp) );
 
@@ -173,8 +166,9 @@ bool uiCEEMDAttrib::setInput( const Desc& desc )
 
 bool uiCEEMDAttrib::getOutput( Attrib::Desc& desc )
 {
-    const bool needoutfreqfld = attriboutputfld_->getIntValue()==0;
-    const bool needoutcompfld = attriboutputfld_->getIntValue()==3;
+    const int attrsel = attriboutputfld_->getIntValue();
+    const bool needoutfreqfld = attrsel == 0;
+    const bool needoutcompfld = attrsel == 3;
 
     const int outidx = needoutfreqfld
 	? mCast(int,outputfreqfld_->getIntValue()
@@ -188,8 +182,9 @@ bool uiCEEMDAttrib::getOutput( Attrib::Desc& desc )
 
 void uiCEEMDAttrib::outSel( CallBacker* cb )
 {
-    const bool needoutfreqfld = attriboutputfld_->getIntValue()==0;
-    const bool needoutcompfld = attriboutputfld_->getIntValue()==3;
+    const int attrsel = attriboutputfld_->getIntValue();
+    const bool needoutfreqfld = attrsel == 0;
+    const bool needoutcompfld = attrsel == 3;
 
     outputfreqfld_->display(needoutfreqfld);
     stepoutfreqfld_->display(needoutfreqfld);
@@ -200,10 +195,7 @@ void uiCEEMDAttrib::outSel( CallBacker* cb )
 void uiCEEMDAttrib::panelTFPush( CallBacker* cb )
 {
     if ( inpfld_->attribID() == DescID::undef() )
-    {
-	uiMSG().error( "Please, first, fill in the Input Data field" );
-	return;
-    }
+	{ uiMSG().error( tr("Please select Input Data") ); return; }
 
     DBKey dbkey;
     getInputDBKey( dbkey );
