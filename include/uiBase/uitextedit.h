@@ -76,7 +76,8 @@ public:
                         uiTextEdit(uiParent* parnt,const char* nm="Text editor",
 				   bool readonly=false);
 
-    void		setText(const char* txt) { setText( txt, false ); }
+    void		setEmpty()			{ setText(0); }
+    void		setText(const char* txt)	{ setText(txt,false); }
 			//!<Does not trigger notification
     void		setText(const OD::String& txt);
 			//!<Does not trigger notification
@@ -107,6 +108,7 @@ public:
 				      bool logmode=false);
 			~uiTextBrowser();
 
+    void		setEmpty()			{ setText(0); }
     void		setText(const char*);
     void		setHtmlText(const char*);
     void		getHtmlText(BufferString&) const;
