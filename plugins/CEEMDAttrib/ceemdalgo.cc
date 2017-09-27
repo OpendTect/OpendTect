@@ -409,7 +409,8 @@ void DecompInput::stackEemdComponents(
 	   PointBasedMathFunction::ExtraPolGradient);
     DecompInput imf(setup_, size_);
     int stackcount = setup_.maxnoiseloop_;
-    int maxcomp, nrmax, nrmin, nrzeros;
+    int maxcomp = 0;
+    int nrmax, nrmin, nrzeros;
 
     for ( int comp=0; comp < setup_.maxnrimf_; comp++)
     {
