@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 System::IssueReporter::IssueReporter( const char* host, const char* path )
     : host_( host )
     , path_( path )
+    , isbinary_(false)
 {}
 
 
@@ -179,12 +180,11 @@ bool System::IssueReporter::parseCommandLine()
 
     parser.getVal( hostkey, host_ );
     parser.getVal( pathkey, path_ );
-    const bool binary = parser.hasKey( "binary" );
+    isbinary_ = parser.hasKey( "binary" );
 
-    fillBasicReport( filename );
-
-    if ( binary )
+    if ( isbinary_ )
 	return setDumpFileName( filename );
 
+    fillBasicReport( filename );
     return readReport( filename );
 }

@@ -578,6 +578,9 @@ void CrashDumper::sendDump( const char* filename )
     if ( !sendappl_.isEmpty() )
 	cmd += BufferString( " \"",
 		FilePath(GetExecPlfDir(),sendappl_).fullPath(), "\"" );
+#ifdef __win__
+    cmd += BufferString( " ", "--binary" );
+#endif
 
     std::cout << cmd.str() << std::endl;
 
