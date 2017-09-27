@@ -95,7 +95,8 @@ protected:
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const
 								{ return 0; }
     virtual void	addCBsToObj(const SharedObject&);
-    virtual void	setAuxOnAdd()				{}
+    virtual void	handleObjAdd()				{}
+    virtual void	handleObjDel(IdxType)			{}
 
     ObjectSet<Saveable>	savers_;
     ObjectSet<ChangeRecorder> chgrecs_;

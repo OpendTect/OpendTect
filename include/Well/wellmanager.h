@@ -123,9 +123,11 @@ protected:
 				    uiRetVal&) const;
     Data*		gtData(IdxType) const;
 
-    TypeSet<LoadState>	loadstates_;
-    mutable PerThreadObjectRepository<LoadState> curloadstate_;
-    virtual void	setAuxOnAdd();
+    virtual void	handleObjAdd();
+    virtual void	handleObjDel(IdxType);
+
+    mutable TypeSet<LoadState>				loadstates_;
+    mutable PerThreadObjectRepository<LoadState>	curloadstate_;
 
 public:
 

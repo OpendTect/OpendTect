@@ -119,15 +119,16 @@ RefManType Well::Manager::doFetch( const ObjID& id, const LoadReqs& lr,
     const IdxType idxof = gtIdx( id );
     Data* wd = idxof < 0 ? 0 : const_cast<Data*>( gtData(idxof) );
     if ( wd  && loadstates_[idxof].includes(lr) )
-	return RefManType( wd );		// already loaded
+	return RefManType( wd );		// already loaded sufficiently
 
     LoadReqs lreq( lr );
-    if ( idxof >=0 )
+    if ( idxof >= 0 )
     {
 	mLock2Write();
 	lreq.include( loadstates_[idxof] );
 	if ( !readReqData(id,*wd,lreq,uirv) )
 	    return RefManType( 0 );
+	loadstates_[idxof] = lreq;
     }
     else
     {
@@ -165,9 +166,15 @@ bool Well::Manager::readReqData( ObjID id, Data& wd, const LoadReqs& lreq,
 }
 
 
-void Well::Manager::setAuxOnAdd()
+void Well::Manager::handleObjAdd()
 {
     loadstates_ += curloadstate_.getObject();
+}
+
+
+void Well::Manager::handleObjDel( IdxType idx )
+{
+    loadstates_.removeSingle( idx );
 }
 
 

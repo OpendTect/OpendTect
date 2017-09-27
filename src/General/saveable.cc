@@ -454,7 +454,7 @@ void SaveableManager::add( const SharedObject& newobj, const ObjID& id,
     mLock2Write();
     self.savers_ += saver;
     self.chgrecs_ += getChangeRecorder( newobj );
-    self.setAuxOnAdd();
+    self.handleObjAdd();
     self.addCBsToObj( newobj );
     mUnlockAllAccess();
 
@@ -705,6 +705,7 @@ void SaveableManager::objDelCB( CallBacker* cb )
 
     if ( idxof >= 0 )
     {
+	handleObjDel( idxof );
 	delete savers_.removeSingle( idxof );
 	delete chgrecs_.removeSingle( idxof );
     }
