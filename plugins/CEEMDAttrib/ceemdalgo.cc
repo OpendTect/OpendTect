@@ -929,7 +929,9 @@ bool DecompInput::doDecompMethod(
     int nrnoise=0, nrimf=0, nrmax=0, nrmin=0, nrzeros=0;
     float average, stdev, stopimf;
     float epsilon = setup_.noisepercentage_ / mCast(float,100.0);
-    bool enddecomp = false;	//defined and set but not used: review Paul
+
+    //defined and set but not used: TODO review Paul
+    bool mUnusedVar enddecomp = false;
     ManagedObjectSet<ManagedObjectSet<IMFComponent> > realizations;
     OrgTraceMinusAverage* orgminusaverage =
 	new OrgTraceMinusAverage( nrsamples );
