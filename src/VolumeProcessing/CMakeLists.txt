@@ -15,6 +15,7 @@ set( OD_MODULE_SOURCES
 	volprocbodyfiller.cc
 	volprocchain.cc
 	volprocchainexec.cc
+	volprochilbert.cc
 	volprocchainoutput.cc
 	volprochorinterfiller.cc
 	volproclateralsmoother.cc
