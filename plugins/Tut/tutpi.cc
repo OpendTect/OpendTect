@@ -8,6 +8,7 @@
 
 #include "tutseistools.h"
 #include "tutorialattrib.h"
+#include "tutvolproc.h"
 #include "odplugin.h"
 
 
@@ -28,6 +29,7 @@ mDefODPluginInfo(Tut)
 mDefODInitPlugin(Tut)
 {
     Attrib::Tutorial::initClass();
+    VolProc::TutOpCalculator::initClass();
 
     return 0;
 }
