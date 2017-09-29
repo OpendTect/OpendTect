@@ -569,7 +569,7 @@ void ElasticModel::mergeSameLayers()
 }
 
 
-#define mMaxthickness	SI().depthsInFeet() ? 165.0f : 50.0f
+#define mMaxthickness	50.0f
 #define mThreshold	0.01
 
 bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
@@ -581,7 +581,7 @@ bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
 
     setEmpty();
     const bool zit =  SI().zDomain().isTime();
-    const int zsize = zrange.nrSteps();
+    const int zsize = zrange.nrSteps()+1;
 
     const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
 
