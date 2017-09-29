@@ -569,31 +569,36 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
 }
 
 
-void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d )
+void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d,
+				     uiParent* prnt )
 {
     selectSurfaces( objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
-			      : EMHorizon3DTranslatorGroup::sGroupName() );
+			  : EMHorizon3DTranslatorGroup::sGroupName(), prnt );
 }
 
 
-void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d )
+void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d,
+				     uiParent* prnt )
 {
     if ( !is2d )
-	selectSurfaces( objs, EMFault3DTranslatorGroup::sGroupName() );
+	selectSurfaces( objs, EMFault3DTranslatorGroup::sGroupName(), prnt );
 }
 
 
-void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs )
-{  selectSurfaces( objs, EMFaultStickSetTranslatorGroup::sGroupName() ); }
+void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
+					   uiParent* prnt )
+{  selectSurfaces( objs, EMFaultStickSetTranslatorGroup::sGroupName(), prnt ); }
 
 
-void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
+void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs,
+				   uiParent* prnt )
 {
     CtxtIOObj ctio( EMBodyTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
 
+    uiParent* useparent = prnt ? prnt : parent();
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
-    uiIOObjSelDlg dlg( parent(), sdsu, ctio );
+    uiIOObjSelDlg dlg( useparent, sdsu, ctio );
     if ( !dlg.go() )
 	return;
 
@@ -624,7 +629,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 	loaders.add( object->loader() );
     }
 
-    uiTaskRunner execdlg( parent() );
+    uiTaskRunner execdlg( useparent );
     if ( !TaskRunner::execute( &execdlg, loaders ) )
     {
 	deepUnRef( objs );
@@ -634,9 +639,10 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 
 
 void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
-				     const char* typ )
+				     const char* typ, uiParent* prnt )
 {
-    uiMultiSurfaceReadDlg dlg( parent(), typ );
+    uiParent* useparent = prnt ? prnt : parent();
+    uiMultiSurfaceReadDlg dlg( useparent, typ );
     if ( !dlg.go() ) return;
 
     DBKeySet surfaceids;
@@ -678,7 +684,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 
     if ( exec )
     {
-	uiTaskRunner execdlg( parent() );
+	uiTaskRunner execdlg( useparent );
 	if ( !TaskRunner::execute( &execdlg, *exec ) )
 	    deepUnRef( objs );
     }
@@ -839,7 +845,7 @@ bool uiEMPartServer::showLoadFaultAuxDataDlg( const EM::ObjectID& id )
 }
 
 
-bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
+bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id, uiParent* prnt)
 {
     EM::EMObject* object = em_.getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
@@ -857,7 +863,8 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 	"4) Press the PageUp / PageDown key to scroll through"
 	    " the individual attributes") );
 
-    uiSelectFromList dlg( parent(), setup );
+    uiParent* useparent = prnt ? prnt : parent();
+    uiSelectFromList dlg( useparent, setup );
     if ( dlg.selFld() )
 	dlg.selFld()->setMultiChoice( true );
     if ( !dlg.go() || !dlg.selFld() ) return false;
@@ -872,7 +879,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
-    uiTaskRunner exdlg( parent() );
+    uiTaskRunner exdlg( useparent );
     return TaskRunner::execute( &exdlg, exgrp );
 }
 
