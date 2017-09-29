@@ -13,7 +13,11 @@ set( OpendTect_FULL_VERSION "@OpendTect_FULL_VERSION@" )
 
 #Setup OpendTect's binary location (if not done)
 if ( NOT DEFINED OD_BINARY_BASEDIR )
-    set ( OD_BINARY_BASEDIR ${OpendTect_DIR} )
+    if ( APPLE )
+	set ( OD_BINARY_BASEDIR ${OpendTect_DIR}/../.. )
+    else()
+	set ( OD_BINARY_BASEDIR ${OpendTect_DIR} )
+    endif()
 endif()
 
 #Include all OpendTect Utility macros
