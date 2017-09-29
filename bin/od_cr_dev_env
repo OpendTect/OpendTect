@@ -18,13 +18,6 @@ set outdir="$2"
 
 set cpcmd="cp -rp"
 
-if ( "$HDIR" == "mac" ) then
-    set soext=dylib
-endif
-
-if ( "$HDIR" == "lux" ) then
-    set cpcmd="cp -a"
-endif
 if ( ! -e "$inpdir/relinfo/ver.devel_lux64.txt" && ! -e "$inpdir/relinfo/ver.devel_lux32.txt" && ! -e "$inpdir/relinfo/ver.devel_mac.txt") then
      echo "$0: warning: $inpdir does not have the development package installed"
 endif
@@ -51,3 +44,7 @@ chmod +w -R *
 echo "OpendTect_DIR:PATH=${inpdir}" >> CMakeCache.txt
 echo "CMAKE_BUILD_TYPE:STRING=RelWithDebInfo" >> CMakeCache.txt
 echo "CMAKE_CXX_FLAGS_RELWITHDEBINFO=-Wno-inline " >> CMakeCache.txt
+set plf=`uname`
+if ( "${plf}" == "Darwin") then
+    echo "AVOID_CLANG_ERROR=ON" >> CMakeCache.txt
+endif
