@@ -441,7 +441,7 @@ Strat::LevelSet::ID Strat::LevelSet::doSet( const Strat::Level& lvl,
     {
 	if ( isnew ) *isnew = true;
 	curlevelid_++;
-	lvl.id().setI(curlevelid_);
+	lvl.id().setI( curlevelid_ );
 	chglvl = new Level( lvl );
 	lvls_ += chglvl;
     }
@@ -479,9 +479,9 @@ void Strat::LevelSet::remove( ID id )
 
 Strat::LevelSet::ID Strat::LevelSet::add( const char* nm, const Color& col )
 {
-    lvlid_.setI(curlevelid_);
-    Level lvl( nm, col, lvlid_ );
+    lvlid_.setI( curlevelid_ );
     curlevelid_++;
+    Level lvl( nm, col, lvlid_ );
     mLock4Write();
     return doSet( lvl );
 }

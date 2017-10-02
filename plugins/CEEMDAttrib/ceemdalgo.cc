@@ -32,7 +32,9 @@ CEEMD::Setup::Setup()
     , outputfreq_(5)
     , stepoutfreq_(5)
     , attriboutput_(4)
-     {}
+ {
+ }
+
 
 void CEEMD::DecompInput::testFunction(
 	    int& nrmax, int& nrmin, int& nrzeros ,
@@ -63,10 +65,10 @@ void CEEMD::DecompInput::testFunction(
     }
 }
 
+
 bool CEEMD::DecompInput::dumpComponents(
-	OrgTraceMinusAverage* orgminusaverage,
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >&
-							realizations ) const
+    OrgTraceMinusAverage* orgminusaverage,
+    const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizatns ) const
 {
     // write output to file
     od_ostream strm( "components.txt" );
@@ -80,12 +82,12 @@ bool CEEMD::DecompInput::dumpComponents(
 	//strm << val << '\t';
  //   }
 
-    for (int real=0; real<realizations.size(); real++)
+    for (int real=0; real<realizatns.size(); real++)
     {
 
-	for ( int comp=0; comp<realizations[real]->size(); comp++)
+	for ( int comp=0; comp<realizatns[real]->size(); comp++)
 	{
-	    const IMFComponent* currentcomp = (*realizations[real])[comp];
+	    const IMFComponent* currentcomp = (*realizatns[real])[comp];
 	    //strm << '\n' <<  currentcomp->name_<< '\t';
 	    //strm << currentcomp->nrzeros_ << '\t';
 
@@ -103,7 +105,7 @@ bool CEEMD::DecompInput::dumpComponents(
 
 
 void CEEMD::DecompInput::readComponents(
-	ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations ) const
+	ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizatns ) const
 {
     int nrsamples = 2001;
     int nrcomp = 11;
@@ -123,7 +125,7 @@ void CEEMD::DecompInput::readComponents(
 	*components += currentcomp;
     }
 
-    realizations += components;
+    realizatns += components;
 }
 
 void CEEMD::DecompInput::computeStats(
@@ -353,7 +355,7 @@ bool CEEMD::DecompInput::decompositionLoop(
 
 void CEEMD::DecompInput::stackCeemdComponents(
 	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >&
-							currentrealizations,
+							currentrealizatns,
 	ManagedObjectSet<IMFComponent>& currentstackedcomponents,
 	int nrimf ) const
 {
@@ -373,7 +375,7 @@ void CEEMD::DecompInput::stackCeemdComponents(
     for ( int idx=0; idx<size_; idx++)
     {
 	currentstackedcomponents[0]->values_[idx] =
-	    (*currentrealizations[0])[0]->values_[idx]
+	    (*currentrealizatns[0])[0]->values_[idx]
 	    / stackcount;
     }
 
@@ -382,7 +384,7 @@ void CEEMD::DecompInput::stackCeemdComponents(
 	for ( int idx=0; idx<size_; idx++)
 	{
 	    currentstackedcomponents[0]->values_[idx] +=
-		(*currentrealizations[nrnoise])[0]->values_[idx]
+		(*currentrealizatns[nrnoise])[0]->values_[idx]
 		/ stackcount;
 	}
     }
@@ -398,7 +400,7 @@ void CEEMD::DecompInput::stackCeemdComponents(
 }
 
 void CEEMD::DecompInput::stackEemdComponents(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
+	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizatns,
 	ManagedObjectSet<IMFComponent>& stackedcomponents ) const
 {
     MyPointBasedMathFunction maxima( PointBasedMathFunction::Poly,
@@ -415,7 +417,7 @@ void CEEMD::DecompInput::stackEemdComponents(
 	int checkzeros = 0;
 	for ( int nrnoise=0; nrnoise < stackcount; nrnoise++)
 	{
-	    if ((*realizations[nrnoise])[comp]->nrzeros_ == -1)
+	    if ((*realizatns[nrnoise])[comp]->nrzeros_ == -1)
 		checkzeros = checkzeros + 1;
 	}
 	if ( checkzeros == setup_.maxnoiseloop_ ) break;
@@ -436,10 +438,10 @@ void CEEMD::DecompInput::stackEemdComponents(
 	{
 	    for ( int idx=0; idx<size_; idx++)
 	    {
-	    if ((*realizations[nrnoise])[comp]->nrzeros_ == -1) continue;
+	    if ((*realizatns[nrnoise])[comp]->nrzeros_ == -1) continue;
 	    else
 		stackedcomponents[comp]->values_[idx] +=
-		    (*realizations[nrnoise])[comp]->values_[idx]
+		    (*realizatns[nrnoise])[comp]->values_[idx]
 		    / stackcount;
 	    }
 	}
@@ -545,12 +547,11 @@ void CEEMD::DecompInput::addToComponent(
     return;
 }
 
-void CEEMD::DecompInput::createNoise( float stdev) const
+
+void CEEMD::DecompInput::createNoise( float stdev ) const
 {
     double dnoise, sd;
-    int seed=0;
     sd = mCast(double, stdev);
-    Stats::randGen().init( seed );
     for ( int idx=0; idx<size_; idx++ )
     {
 	dnoise = Stats::NormalRandGen().get( 0, sd );
@@ -558,6 +559,7 @@ void CEEMD::DecompInput::createNoise( float stdev) const
     }
     return;
 }
+
 
 bool CEEMD::DecompInput::doHilbert(
 	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realcomponents,
@@ -620,6 +622,7 @@ bool CEEMD::DecompInput::doHilbert(
     return true;
 }
 
+
 #define mCheckRetUdf(val1,val2) \
     if ( mIsUdf(val1) || mIsUdf(val2) ) return mUdf(float);
 
@@ -660,12 +663,13 @@ bool CEEMD::DecompInput::calcFrequencies(
     return true;
 }
 
+
 bool CEEMD::DecompInput::useGridding(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
+	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizatns,
 	Array2DImpl<float>* output, int startfreq, int endfreq,
 	int stepoutfreq ) const
 {
-    int fsize = realizations[0]->size();
+    int fsize = realizatns[0]->size();
     double step = mCast(double, stepoutfreq);
     step = std::max( step, 1. );
     TriangulatedGridder2D grdr;
@@ -680,9 +684,9 @@ bool CEEMD::DecompInput::useGridding(
 	    {
 		double dff =
 		    mCast(double,
-		    (*realizations[2])[f]->values_[idt+t]);
+		    (*realizatns[2])[f]->values_[idt+t]);
 		double dtt = mCast(double, idt+t);
-		float z = (*realizations[3])[f]->values_[idt+t];
+		float z = (*realizatns[3])[f]->values_[idt+t];
 		maxf = std::max( maxf, dff );
 		minf = std::min( minf, dff );
 		pts.add(Coord(dff,dtt));
@@ -729,12 +733,13 @@ bool CEEMD::DecompInput::useGridding(
     return true;
 }
 
+
 bool CEEMD::DecompInput::usePolynomial(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
+	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizatns,
 	Array2DImpl<float>* output, int startfreq, int endfreq,
 	int stepoutfreq ) const
 {
-    int fsize = realizations[0]->size();
+    int fsize = realizatns[0]->size();
     float* unsortedamplitudes = new float[fsize+2];
     float* unsortedfrequencies = new float[fsize+2];
     MyPointBasedMathFunction sortedampspectrum(
@@ -747,8 +752,8 @@ bool CEEMD::DecompInput::usePolynomial(
 	float minf = 0;
 	for ( int f=0; f<fsize; f++ )
 	{
-	    unsortedfrequencies[f] = (*realizations[2])[f]->values_[idt];
-	    unsortedamplitudes[f] = (*realizations[3])[f]->values_[idt];
+	    unsortedfrequencies[f] = (*realizatns[2])[f]->values_[idt];
+	    unsortedamplitudes[f] = (*realizatns[3])[f]->values_[idt];
 	    maxf = std::max( maxf, unsortedfrequencies[f] );
 	    minf = std::min( minf, unsortedfrequencies[f] );
 	}
@@ -788,6 +793,7 @@ bool CEEMD::DecompInput::usePolynomial(
     return true;
 }
 
+
 bool CEEMD::DecompInput::sortSpectrum(
 	    float* unsortedfrequencies,  float* unsortedamplitudes,
 	    MyPointBasedMathFunction& sortedampspectrum, int size ) const
@@ -815,7 +821,7 @@ bool CEEMD::DecompInput::sortSpectrum(
 
 
 bool CEEMD::DecompInput::outputAttribute(
-	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizations,
+	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realizatns,
 	Array2DImpl<float>* output, int outputattrib,
 	int startfreq, int endfreq, int stepoutfreq,
 	int startcomp, int endcomp, float average ) const
@@ -825,54 +831,54 @@ bool CEEMD::DecompInput::outputAttribute(
     {
 	bool gridding = false; // 3-row gridding or 1-row polynomial
 	if (gridding)
-	    useGridding( realizations, output,
+	    useGridding( realizatns, output,
 		startfreq, endfreq, stepoutfreq );
 	else
-	    usePolynomial( realizations, output,
+	    usePolynomial( realizatns, output,
 		startfreq, endfreq, stepoutfreq );
     }
     else if ( outputattrib == 1) // output peak frequency
     {
-	int size = realizations[2]->size();
+	int size = realizatns[2]->size();
 	for ( int idx=0; idx<size_; idx++ )
 	{
 	    float peakfreq = 0;
 	    for ( int comp=0; comp<size; comp++ )
 	    {
 		peakfreq = std::max(
-		    peakfreq, (*realizations[2])[comp]->values_[idx] );
+		    peakfreq, (*realizatns[2])[comp]->values_[idx] );
 	    }
 	    output->set( idx, 0, peakfreq );
 	}
     }
     else if ( outputattrib == 2) // output peak amplitude
     {
-	int size = realizations[2]->size();
+	int size = realizatns[2]->size();
 	for ( int idx=0; idx<size_; idx++ )
 	{
 	    float peakfreq = 0;
 	    int index = 0;
 	    for ( int comp=0; comp<size; comp++ )
 	    {
-		if ( (*realizations[2])[comp]->values_[idx] > peakfreq )
+		if ( (*realizatns[2])[comp]->values_[idx] > peakfreq )
 		{
-		    peakfreq = (*realizations[2])[comp]->values_[idx];
+		    peakfreq = (*realizatns[2])[comp]->values_[idx];
 		    index = comp;
 		}
 	    }
-	    float val = (*realizations[3])[index]->values_[idx];
+	    float val = (*realizatns[3])[index]->values_[idx];
 	    output->set( idx, 0, val );
 	}
     }
     else  // output IMF Component (= real part)
     {
-	int size = realizations[0]->size();
+	int size = realizatns[0]->size();
 	for ( int comp=startcomp; comp<=endcomp && comp<size; comp++ )
 	{
 	    if ( comp>= output->info().getSize(1) ) break;
 	    for ( int idx=0; idx<size_; idx++ )
 	    {
-		float val =  (*realizations[0])[comp]->values_[idx];
+		float val =  (*realizatns[0])[comp]->values_[idx];
 		output->set( idx, comp, val );
 	    }
 	}
@@ -889,6 +895,7 @@ bool CEEMD::DecompInput::outputAttribute(
     }
     return true;
 }
+
 
 bool CEEMD::DecompInput::calcAmplitudes(
 	const ManagedObjectSet<ManagedObjectSet<IMFComponent> >& realcomponents,
@@ -928,7 +935,7 @@ bool CEEMD::DecompInput::doDecompMethod(
     int nrnoise=0, nrimf=0, nrmax=0, nrmin=0, nrzeros=0;
     float average, stdev, stopimf;
     float epsilon = setup_.noisepercentage_ / mCast(float,100.0);
-    ManagedObjectSet<ManagedObjectSet<IMFComponent> > realizations;
+    ManagedObjectSet<ManagedObjectSet<IMFComponent> > realizatns;
     OrgTraceMinusAverage* orgminusaverage =
 	new OrgTraceMinusAverage( nrsamples );
     MyPointBasedMathFunction maxima( PointBasedMathFunction::Poly,
@@ -963,11 +970,11 @@ bool CEEMD::DecompInput::doDecompMethod(
 	    new ManagedObjectSet<IMFComponent>();
 	enddecomp = imf->decompositionLoop(
 	    *components, setup_.maxnrimf_, orgminusaverage->stdev_);
-	realizations += components;
+	realizatns += components;
     }
     else if ( setup_.method_ == mDecompModeEEMD )
     {
-	ManagedObjectSet<ManagedObjectSet<IMFComponent> > EEMDrealizations;
+	ManagedObjectSet<ManagedObjectSet<IMFComponent> > EEMDrealizatns;
 	for ( nrnoise=0; nrnoise<setup_.maxnoiseloop_; nrnoise++ )
 	{
 	    ManagedObjectSet<IMFComponent>* components =
@@ -978,18 +985,18 @@ bool CEEMD::DecompInput::doDecompMethod(
 	    imf->addDecompInputs( noisearray );
 	    enddecomp = imf->decompositionLoop(
 		*components, setup_.maxnrimf_, orgminusaverage->stdev_);
-	    EEMDrealizations += components;
+	    EEMDrealizatns += components;
 	}
 	ManagedObjectSet<IMFComponent>* stackedcomponents =
 	    new ManagedObjectSet<IMFComponent>();
-	imf->stackEemdComponents( EEMDrealizations, *stackedcomponents );
-	realizations += stackedcomponents;
-	EEMDrealizations.erase();
+	imf->stackEemdComponents( EEMDrealizatns, *stackedcomponents );
+	realizatns += stackedcomponents;
+	EEMDrealizatns.erase();
     }
     else if ( setup_.method_ == mDecompModeCEEMD )
     {
 	ManagedObjectSet<ManagedObjectSet<IMFComponent> > noisedecompositions;
-	ManagedObjectSet<ManagedObjectSet<IMFComponent> > currentrealizations;
+	ManagedObjectSet<ManagedObjectSet<IMFComponent> > currentrealizatns;
 	ManagedObjectSet<IMFComponent> currentstackedcomponents;
 
 	for ( nrnoise=0; nrnoise<setup_.maxnoiseloop_; nrnoise++ )
@@ -1010,7 +1017,7 @@ bool CEEMD::DecompInput::doDecompMethod(
 	    imf->addDecompInputs( copynoisearray );	// x+e*w_i
 	    imf->decompositionLoop( *components, 1,
 		orgminusaverage->stdev_);
-	    currentrealizations += components;			// E_1[x+e*w_i]
+	    currentrealizatns += components;			// E_1[x+e*w_i]
 	}
 
 	residual->resetInput( orgminusaverage );	// r_0 = x
@@ -1019,7 +1026,7 @@ bool CEEMD::DecompInput::doDecompMethod(
 
 	while ( true )
 	{
-	    imf->stackCeemdComponents( currentrealizations,
+	    imf->stackCeemdComponents( currentrealizatns,
 		    currentstackedcomponents, nrimf );
 	    currentcomp->retrieveFromComponent(
 		    currentstackedcomponents, 0 );	// IMF_(k+1)
@@ -1045,7 +1052,7 @@ bool CEEMD::DecompInput::doDecompMethod(
 		    *stackedcomponents, nrimf, nrzeros );
 		break;
 	    }
-	    currentrealizations.erase();
+	    currentrealizatns.erase();
 	    currentstackedcomponents.erase();
 
 	    for ( nrnoise=0; nrnoise<setup_.maxnoiseloop_; nrnoise++ )
@@ -1060,15 +1067,15 @@ bool CEEMD::DecompInput::doDecompMethod(
 		imf->addDecompInputs( residual );  // r_k+e*E_k[w_i]
 		enddecomp = imf->decompositionLoop( *components, 1,
 			orgminusaverage->stdev_ );
-		currentrealizations += components;	// E_1[r_k+e*E_k[w_i]]
+		currentrealizatns += components;	// E_1[r_k+e*E_k[w_i]]
 	    }
 	}
-	realizations += stackedcomponents;
+	realizatns += stackedcomponents;
 	noisedecompositions.erase();
     }
     else // Start from pre-calculated components
     {
-	readComponents( realizations );
+	readComponents( realizatns );
     }
 
     if ( enddecomp ) {} // to make the variable used
@@ -1077,27 +1084,27 @@ bool CEEMD::DecompInput::doDecompMethod(
     {
 	ManagedObjectSet<IMFComponent>* imagcomponents =
 				new ManagedObjectSet<IMFComponent>();
-	doHilbert( realizations, *imagcomponents );
-	realizations += imagcomponents;
+	doHilbert( realizatns, *imagcomponents );
+	realizatns += imagcomponents;
 
 	ManagedObjectSet<IMFComponent>* frequencycomponents =
 		    new ManagedObjectSet<IMFComponent>();
-	calcFrequencies( realizations, *imagcomponents,
+	calcFrequencies( realizatns, *imagcomponents,
 		    *frequencycomponents, refstep );
-	realizations += frequencycomponents;
+	realizatns += frequencycomponents;
 
 	ManagedObjectSet<IMFComponent>* amplitudecomponents =
 		    new ManagedObjectSet<IMFComponent>();
-	calcAmplitudes( realizations, *imagcomponents,
+	calcAmplitudes( realizatns, *imagcomponents,
 		    *frequencycomponents, *amplitudecomponents );
-	realizations += amplitudecomponents;
+	realizatns += amplitudecomponents;
 
     }
 
 /* Signal is decomposed and frequencies are computed where needed
    now create output */
 
-    outputAttribute( realizations, output, outputattrib,
+    outputAttribute( realizatns, output, outputattrib,
 	startfreq, endfreq, stepoutfreq, startcomp, endcomp,
 	orgminusaverage->averageinput_ );
 
@@ -1108,8 +1115,8 @@ bool CEEMD::DecompInput::doDecompMethod(
     delete noisearray;
     delete copynoisearray;
     delete orgminusaverage;
-    realizations.erase();
+    realizatns.erase();
 
-//    dumpComponents( orgminusaverage, realizations );
+//    dumpComponents( orgminusaverage, realizatns );
     return true;
 }

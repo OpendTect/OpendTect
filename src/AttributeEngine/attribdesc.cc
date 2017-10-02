@@ -846,4 +846,12 @@ Desc* Desc::cloneDescAndPropagateInput( const DescID& newinputid,
 }
 
 
+void getIntFromDescStr( Desc& desc, int& var, const char* str )
+{
+    var = desc.getValParam(str)->getIntValue( 0 );
+    if ( mIsUdf(var) )
+        var = desc.getValParam(str)->getDefaultIntValue( 0 );
+}
+
+
 }; // namespace Attrib

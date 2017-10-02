@@ -45,6 +45,8 @@ public:
 			BufferString(int minlen,bool setnull);
 			BufferString(const BufferString&);
     template <class T>
+    inline explicit	BufferString(const T&);
+    template <class T>
     inline		BufferString(const char*,const T&,const char* s=0);
 			BufferString(const QString&);
     virtual		~BufferString();
@@ -185,9 +187,14 @@ inline BufferString::BufferString( const OD::String& s )
     : mBufferStringSimpConstrInitList	{ assignTo(s.str()); }
 
 template <class T> inline
+BufferString::BufferString( const T& t )
+    : mBufferStringSimpConstrInitList
+{ add( t ); }
+
+template <class T> inline
 BufferString::BufferString( const char* s1, const T& t, const char* s2 )
     : mBufferStringSimpConstrInitList
-{ *this += s1; *this += t; *this += s2; }
+{ add(s1); add(t); if ( s2 ) add(s2); }
 
 inline const char* BufferString::gtStr() const
 { return buf_ && *buf_ ? const_cast<char*>( buf_ ) : 0; }

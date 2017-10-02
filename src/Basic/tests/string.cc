@@ -17,7 +17,7 @@
 
 static bool testTruncate()
 {
-    BufferString longstring( "Hello world! Lets solve all powerty today!");
+    BufferString longstring( "Hello world! Lets solve all poverty today!");
     truncateString( longstring.getCStr(), 16 );
 
     mRunStandardTest( longstring=="Hello world! ...", "Truncate string" );
@@ -255,6 +255,23 @@ bool testEmptyStringComparison()
     return true;
 }
 
+static void printBufStr( const char* pfx, BufferString bs )
+{
+    od_cout() << pfx << ": '" << bs << "'" << od_endl;
+}
+
+#include "integerid.h"
+
+mDefIntegerIDType(int,AnIntID);
+
+void prId( const char* pfx, AnIntID id )
+{
+    TypeSet<AnIntID> ids;
+    ids += id;
+    od_cout() << pfx << ": '" << (int)id << "'" << od_endl;
+}
+
+
 int testMain( int argc, char** argv )
 {
     mInitTestProg();
@@ -280,6 +297,17 @@ int testMain( int argc, char** argv )
     {
 	FixedString str( 0 );
 	od_cout() << "Should be empty: '" << str << "'" << od_endl;
+	BufferString str4point9( 4.9f );
+	printBufStr( "4.9 string", str4point9 );
+	printBufStr( "0 (conv to (const char*)0)", 0 );
+	/* These do not compile because of the explicit constructor:
+	    printBufStr( "literal 4.9f", 4.9f );
+	    const int int0 = 0; printBufStr( "int variable", int0 );
+	*/
+	AnIntID id1;
+	AnIntID id2( 15 );
+	id1.setI( "123" );
+	prId( "123", id1 );
     }
 
     return 0;

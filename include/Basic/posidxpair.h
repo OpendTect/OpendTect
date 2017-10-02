@@ -28,9 +28,8 @@ mExpClass(Basic) IdxPair : public ::IdxPair
 {
 public:
 
-				IdxPair() : ::IdxPair(0,0)	{}
-				IdxPair( IdxType f, IdxType s )
-				    : ::IdxPair(f,s)		{}
+    inline			IdxPair() : ::IdxPair(0,0)	{}
+    inline			IdxPair(IdxType,IdxType);
     inline bool			operator ==(const IdxPair&) const;
     inline bool			operator !=( const IdxPair& oth ) const
 						{ return !(*this == oth); }
@@ -64,6 +63,11 @@ public:
     static const IdxPair&	udf();
 };
 
+
+inline IdxPair::IdxPair( IdxType f, IdxType s )
+    : ::IdxPair(f,s)
+{
+}
 
 
 inline bool IdxPair::operator ==( const IdxPair& oth ) const

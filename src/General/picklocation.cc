@@ -375,7 +375,7 @@ bool Pick::Location::fromString( const char* inp )
 	char* idstr = inpstr.getCStr();
 	mSkipNonBlanks( str );
 	*str++ = '\0';
-	grplblid_.setI( toInt(idstr) );
+	grplblid_.setI( idstr );
 	mSkipBlanks(str);
     }
 
@@ -515,7 +515,7 @@ bool Pick::GroupLabel::usePar( const IOPar& iop, int nr )
 	return false;
 
     FileMultiString fms( res );
-    id_.setI( toInt(fms[0]) );
+    id_.setI( fms[0].str() );
     txt_.set( fms[1] );
     return true;
 }

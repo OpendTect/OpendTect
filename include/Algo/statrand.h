@@ -69,7 +69,7 @@ private:
 };
 
 
-mGlobal(Algo) RandGen randGen();
+mGlobal(Algo) const RandGen& randGen();
 
 
 mExpClass(Algo) NormalRandGen : public RandomGenerator

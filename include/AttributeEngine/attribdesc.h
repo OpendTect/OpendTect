@@ -245,14 +245,12 @@ protected:
     uiString			errmsg_;
 };
 
+mGlobal(AttributeEngine) void getIntFromDescStr(Desc&,int&,const char*);
+
 } // namespace Attrib
 
 #define mGetIntFromDesc( __desc, var, varstring ) \
-{\
-    var = __desc.getValParam(varstring)->getIntValue(0); \
-    if ( mIsUdf(var) )\
-        var = __desc.getValParam(varstring)->getDefaultIntValue(0);\
-}
+    getIntFromDescStr( __desc, var, varstring )
 
 #define mGetFloatFromDesc( __desc, var, varstring ) \
 {\

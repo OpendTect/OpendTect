@@ -70,7 +70,7 @@ bool JobCommunic::sendErrMsg_( const char* msg )
 bool JobCommunic::sendPID_( int pid )
 {
     const bool ret = sendMsg( mPID_TAG, pid );
-    logMsg( ret, "Send PID", BufferString( "", pid ) );
+    logMsg( ret, "Send PID", toString( pid ) );
     return ret;
 }
 

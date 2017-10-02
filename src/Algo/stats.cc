@@ -121,7 +121,7 @@ Stats::RandGen::RandGen()
 }
 
 
-Stats::RandGen Stats::randGen()
+const Stats::RandGen& Stats::randGen()
 {
     mDefineStaticLocalObject( PtrMan<Stats::RandGen>, rgptr,
 			      = new Stats::RandGen() );

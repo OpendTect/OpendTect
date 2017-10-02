@@ -10,8 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "undefval.h"
-template <class T> class TypeSet;
+#include "convert.h"
 
 
 /*!\brief single integer ID with comparison but no automatic conversion.
@@ -51,11 +50,16 @@ public:
     typedef IntType	IDType;
 
     inline		IntegerID() : nr_(-1)	{}
+    inline explicit	IntegerID( IntType nr )
+			: nr_(nr)		{}
+    inline explicit	operator IntType() const{ return nr_; }
     static inline IntegerID get( IntType i )
 						{ return IntegerID(i); }
 
+    inline IntType&	getI()			{ return nr_; }
     inline IntType	getI() const		{ return nr_; }
     inline void		setI( IntType i )	{ nr_ = i; }
+    inline void		setI( const char* s )	{ nr_ = Conv::to<IntType>(s); }
 
     inline bool		operator ==( const IntegerID& oth ) const
 					{ return nr_ == oth.nr_;};
@@ -72,11 +76,6 @@ protected:
 
     IntType		nr_;
 
-    inline		IntegerID( IntType i )
-			    : nr_(i)	{ /* keep this constructor private! */ }
-
-    friend class	TypeSet<IntType>;
-
 };
 
 
@@ -86,7 +85,10 @@ class classname : public IntegerID<IntType> \
 { \
 public: \
  \
-    inline		classname()	{} \
+    inline		classname()			{} \
+    inline explicit	classname( IntType i ) \
+			    : IntegerID<IntType>(i)	{} \
+    inline explicit	operator IntType() const	{ return this->nr_; } \
  \
     static inline classname get( IntType i ) \
 					{ return classname(i); } \
@@ -97,12 +99,5 @@ public: \
 			{ return IntegerID<IntType>::operator !=(oth); } \
  \
     static inline classname getInvalid() { return classname(-1); } \
- \
-protected: \
- \
-    inline		classname( IntType i ) \
-			    : IntegerID<IntType>(i)	{} \
- \
-    friend class	TypeSet<classname>; \
  \
 }

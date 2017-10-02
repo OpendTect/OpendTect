@@ -210,9 +210,7 @@ PSAttrib::PSAttrib( Desc& ds )
     bool useangle = setup_.useangle_;
     mGetBool( useangle, useangleStr() );
     setup_.useangle_ = useangle;
-    DataPack::ID::IDType anglegsdpid = anglegsdpid_.getI();
-    mGetInt(anglegsdpid,angleDPIDStr());
-    anglegsdpid_.setI( anglegsdpid );
+    mGetInt( anglegsdpid_.getI(), angleDPIDStr() );
     if ( setup_.useangle_ && anglegsdpid_.isInvalid() )
     {
 	BufferString velocityidstr;
