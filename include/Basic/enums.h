@@ -51,6 +51,7 @@ public:
     bool			isValidKey(const char*) const;
     int				indexOf(const char* s) const;
     int				indexOf(int enumval) const;
+    int				getEnumValForIndex(int) const;
     const char*			getKeyForIndex(int i) const;
     uiString			getUiStringForIndex(int i) const;
     void			setUiStringForIndex(int,const uiString&);
@@ -115,7 +116,7 @@ public:
   Normally, you'll have a class with an enum member. In that case, you'll want
   to use the EnumDef classes. These are normally almost hidden by a few
   simple macros:
-  * mDeclareEnumUtils(enm) will make sure the enum will have a string conversion.
+  * mDeclareEnumUtils(enm) will make sure the enum will have a string conversion
   * mDefineEnumUtils(clss,enm,prettynm) defines the names.
   * For namespaces, you can use mDeclareNameSpaceEnumUtils only
 
@@ -288,7 +289,7 @@ const EnumDefImpl<prefix::enm>& prefix::enm##Def() \
     if ( !enm##Definition_ ) \
     { \
 	EnumDefImpl<prefix::enm>* newdef = \
-	    new EnumDefImpl<prefix::enm>( prettynm, prefix::enm##Keys_, deflen ); \
+	    new EnumDefImpl<prefix::enm>(prettynm,prefix::enm##Keys_,deflen); \
 	if ( !enm##Definition_.setIfNull( newdef ) ) \
 	    delete newdef; \
     } \
