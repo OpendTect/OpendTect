@@ -206,6 +206,7 @@ public:
 
     int			bivSetIdx( ColID idx ) const
 						{ return idx+nrfixedcols_; }
+    bool		getRange(TrcKeyZSampling&) const;
 
     void		dataChanged()			{ calcIdxs(); }
     			//!< When data modified, you want to call this.

@@ -671,6 +671,17 @@ float DataPointSet::nrKBytes() const
 }
 
 
+bool DataPointSet::getRange( TrcKeyZSampling& tkzs ) const
+{
+    if ( bivSet().isEmpty() || !bivSet().nrVals() )
+	return false;
+
+    tkzs.hsamp_.set( bivSet().firstRange(), bivSet().secondRange() );
+    tkzs.zsamp_.setFrom( bivSet().valRange(0) );
+    return true;
+}
+
+
 void DataPointSet::dumpInfo( IOPar& iop ) const
 {
     BufferString typstr( "PointSet (" );
