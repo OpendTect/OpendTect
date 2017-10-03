@@ -1150,7 +1150,7 @@ Well::MarkerRange::MarkerRange( const Well::MarkerSet& ms,
     , topid_(ms.markerIDFor(gtIterIdx(ms,topnm,true)))
     , botid_(ms.markerIDFor(gtIterIdx(ms,botnm,false)))
 {
-    ms.ref();
+    markerset_.ref();
 }
 
 
@@ -1296,7 +1296,7 @@ void Well::MarkerChgRange::setThickness( float newth )
 
     const float deltath = oldth - newth;
     const float lastdah = markerset_.getByIdx(rg.stop-1).dah();
-    const Interval<IdxType> rg2( rg.stop, markerset_.size() );
+    const Interval<IdxType> rg2( rg.stop, markerset_.size()-1 );
     MarkerSetIter4Edit msiter2( *newms, rg2 );
     while( msiter2.next() )
     {
@@ -1306,6 +1306,7 @@ void Well::MarkerChgRange::setThickness( float newth )
 	msiter2.setDah( newdah );
     }
 
+    ml.unlockNow();
     getMarkers() = *newms;
 }
 
