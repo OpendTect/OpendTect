@@ -210,7 +210,9 @@ public:
 
     mDefPropertyFns(RangeProperty,"Range");
 
-};
+protected:
 
+    float		gtAvgVal() const;
+};
 
 #endif
