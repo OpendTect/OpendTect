@@ -137,24 +137,29 @@ bool RangeProperty::isUdf() const
 }
 
 
+float RangeProperty::gtAvgVal() const
+{
+    Interval<float> sanerg( rg_ );
+    if ( mIsUdf(sanerg.start) )
+	sanerg.start = sanerg.stop;
+    else if ( mIsUdf(sanerg.stop) )
+	sanerg.stop = sanerg.start;
+    if ( ref().isThickness() )
+    {
+	if ( sanerg.start < 0 ) sanerg.start = 0;
+	if ( sanerg.stop < sanerg.start ) sanerg.stop = sanerg.start;
+    }
+
+    return 0.5f * (sanerg.start + sanerg.stop);
+}
+
+
 float RangeProperty::gtVal( Property::EvalOpts eo ) const
 {
     if ( isUdf() )
 	return mUdf(float);
     else if ( eo.isAvg() )
-    {
-	Interval<float> sanerg( rg_ );
-	if ( mIsUdf(sanerg.start) )
-	    sanerg.start = sanerg.stop;
-	else if ( mIsUdf(sanerg.stop) )
-	    sanerg.stop = sanerg.start;
-	if ( ref().isThickness() )
-	{
-	    if ( sanerg.start < 0 ) sanerg.start = 0;
-	    if ( sanerg.stop < sanerg.start ) sanerg.stop = sanerg.start;
-	}
-	return 0.5f * (sanerg.start + sanerg.stop);
-    }
+	return gtAvgVal();
 
     return rg_.start + eo.relpos_ * (rg_.stop - rg_.start);
 }
