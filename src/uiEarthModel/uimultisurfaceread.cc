@@ -102,9 +102,9 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	if ( !processInput() ) return;
 	for ( int idx=0; idx<nrsel; idx++ )
 	{
-	    const DBKey& mid = ioobjselgrp_->chosenID( idx );
+	    const DBKey& dbky = ioobjselgrp_->chosenID( idx );
 
-	    EM::IOObjInfo eminfo( mid );
+	    EM::IOObjInfo eminfo( dbky );
 	    if ( !eminfo.isOK() ) continue;
 	    TrcKeySampling emhs;
 	    emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
@@ -128,19 +128,25 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 }
 
 
-void uiMultiSurfaceRead::getSurfaceIds( DBKeySet& mids ) const
+void uiMultiSurfaceRead::setSurfaceIds( const DBKeySet& dbkys )
 {
-    mids.erase();
+    ioobjselgrp_->setChosen( dbkys );
+}
+
+
+void uiMultiSurfaceRead::getSurfaceIds( DBKeySet& dbkys ) const
+{
+    dbkys.erase();
     const int nrsel = ioobjselgrp_->nrChosen();
     uiStringSet errormsgstr;
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const DBKey mid = ioobjselgrp_->chosenID( idx );
-	const EM::IOObjInfo info( mid );
+	const DBKey dbky = ioobjselgrp_->chosenID( idx );
+	const EM::IOObjInfo info( dbky );
 	EM::SurfaceIOData sd;
 	uiString errmsg;
 	if ( info.getSurfaceData(sd,errmsg) )
-	    mids += mid;
+	    dbkys += dbky;
 	else
 	{
 	    if ( !info.ioObj() )
@@ -173,8 +179,8 @@ void uiMultiSurfaceRead::getSurfaceSelection(
     if ( ioobjselgrp_->nrChosen() != 1 )
 	return;
 
-    const DBKey mid = ioobjselgrp_->chosenID( 0 );
-    const EM::IOObjInfo info( mid );
+    const DBKey dbky = ioobjselgrp_->chosenID( 0 );
+    const EM::IOObjInfo info( dbky );
     EM::SurfaceIOData sd;
     uiString errmsg;
     if ( !info.getSurfaceData(sd,errmsg) || sd.sections.size() < 2

@@ -27,6 +27,7 @@ public:
 
     uiIOObjSelGrp*	objselGrp()		{ return ioobjselgrp_;}
 
+    void		setSurfaceIds(const DBKeySet&);
     void		getSurfaceIds(DBKeySet&) const;
     void		getSurfaceSelection(EM::SurfaceIODataSelection&) const;
 

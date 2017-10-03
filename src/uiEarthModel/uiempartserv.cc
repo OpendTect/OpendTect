@@ -643,9 +643,21 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 {
     uiParent* useparent = prnt ? prnt : parent();
     uiMultiSurfaceReadDlg dlg( useparent, typ );
-    if ( !dlg.go() ) return;
-
     DBKeySet surfaceids;
+    if ( !objs.isEmpty() )
+    {
+	for ( int idx=0; idx<objs.size(); idx++ )
+	{
+	    EM::EMObject* emobj = objs[idx];
+	    if ( emobj && emobj->dbKey().isValid() )
+		surfaceids.add( emobj->dbKey() );
+	}
+	dlg.iogrp()->setSurfaceIds( surfaceids );
+    }
+    if ( !dlg.go() )
+	return;
+
+    surfaceids.setEmpty();
     dlg.iogrp()->getSurfaceIds( surfaceids );
 
     EM::SurfaceIOData sd;
@@ -664,7 +676,8 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     for ( int idx=0; idx<surfaceids.size(); idx++ )
     {
 	EM::EMObject* obj = em_.getObject( em_.getObjectID(surfaceids[idx]) );
-	if ( !obj ) continue;
+	if ( !obj )
+	    continue;
 	obj->ref();
 	objs += obj;
     }
@@ -676,7 +689,8 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     for ( int idx=0; idx<idstobeloaded.size(); idx++ )
     {
 	EM::EMObject* obj = em_.getObject(em_.getObjectID(idstobeloaded[idx]));
-	if ( !obj ) continue;
+	if ( !obj )
+	    continue;
 	obj->setBurstAlert( true );
 	obj->ref();
 	objstobeloaded += obj;
