@@ -296,7 +296,7 @@ void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
 			     mCast(float,scenerect.height());
 
     const float dheight = scnrectsz.height() * 0.2;
-    const uiSize dsize( 0, dheight );
+    const uiSize dsize( 0, mNINT32(dheight) );
     if ( mev.angle() < 0 )
 	scenerect += dsize;
     else
