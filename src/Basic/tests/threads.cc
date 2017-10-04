@@ -2,7 +2,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : July 2012
- * FUNCTION : 
+ * FUNCTION :
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
@@ -47,14 +47,14 @@ template <class T>
 class AtomicIncrementer : public CallBacker
 {
 public:
-    			AtomicIncrementer( Threads::Atomic<T>& val,
+			AtomicIncrementer( Threads::Atomic<T>& val,
 					   const bool& stopflag )
 			    : val_( val )
 			    , stopflag_( stopflag )
 			{}
 
     void		doRun(CallBacker*)
-			{ 
+			{
 			    while ( !stopflag_ )
 				val_++;
 			}
@@ -96,10 +96,10 @@ bool testAtomic( const char* valtype, bool quiet )
     //Let's do some stress-test
     AtomicIncrementer<T> inc1( atomic, stopflag );
     AtomicIncrementer<T> inc2( atomic, stopflag );
-    
+
     Threads::Thread t1( mCB(&inc1,AtomicIncrementer<T>,doRun) );
     Threads::Thread t2( mCB(&inc2,AtomicIncrementer<T>,doRun) );
-    
+
     int count = 10000000;
     bool successfound = false, failurefound = false;
     expected = atomic.get();
@@ -109,14 +109,14 @@ bool testAtomic( const char* valtype, bool quiet )
 	    successfound = true;
 	else
 	    failurefound = true;
-	
+
 	if ( successfound && failurefound )
 	    break;
     }
-    
+
     if ( !successfound || !failurefound )
 	mPrintResult( "weakSetIfEqual stresstest");
-    
+
     count = 1000000000;
     successfound = false;
     failurefound = false;
@@ -128,13 +128,13 @@ bool testAtomic( const char* valtype, bool quiet )
 	    successfound = true;
 	else
 	    failurefound = true;
-	
+
 	if ( successfound && failurefound )
 	    break;
     }
-    
+
     BufferString message("strongSetIfEqual stresstest: nrattempts = ",
-	    		 toString(idx) );
+			 toString(idx) );
     message += ", successfound=";
     message += toString(successfound);
     message += ", failurefound=";
@@ -142,9 +142,9 @@ bool testAtomic( const char* valtype, bool quiet )
 
     if ( !successfound || !failurefound )
 	mPrintResult( message.buf() );
-    
+
     stopflag = true;
-    
+
     if ( !quiet )
 	std::cout << "\n";
 
@@ -217,7 +217,7 @@ struct LockerTester : public CallBacker
 	canunlock_ = true;
 	canunlocklock_.signal( true );
 	canunlocklock_.unLock();
-	
+
 	thread_.waitForFinish();
     }
 
@@ -245,7 +245,7 @@ struct LockerTester : public CallBacker
     Threads::ConditionVar	hastriedlock_;
     Threads::ConditionVar	canunlocklock_;
 
-    				//Must be at bottom
+				//Must be at bottom
     Threads::Thread		thread_;
 };
 
@@ -260,9 +260,7 @@ bool testLock( bool quiet, bool testcount, const char* type )
 
     {
 	T lock( false );
-	Threads::SpinLock* spinlock = testcount
-	    ? (Threads::SpinLock*) &lock
-	    : 0;
+	mDynamicCastGet( Threads::SpinLock*, spinlock, testcount ? &lock : 0 );
 
 	if ( spinlock )
 	    mRunTest( "Inital count", spinlock->count()==0 );
@@ -303,9 +301,9 @@ bool testLock( bool quiet, bool testcount, const char* type )
 
     {
 	T rlock( true );
-	Threads::SpinLock* spinlock = testcount
-	    ? (Threads::SpinLock*) &rlock
-	    : 0;
+
+	mDynamicCastGet( Threads::SpinLock*, spinlock,
+			 testcount ? &rlock : 0 );
 
 	if ( spinlock )
 	    mRunTest( "Inital count", spinlock->count()==0 );
