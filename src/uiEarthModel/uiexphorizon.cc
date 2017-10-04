@@ -236,12 +236,14 @@ int write3DHorASCII::nextStep()
     return Executor::MoreToDo();
 }
 
+
+// uiExportHorizon
 uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
-: uiDialog(p,uiDialog::Setup( uiStrings::phrExport( uiStrings::sHorizon() ),
-			      mNoDlgTitle,
-			      mODHelpKey(mExportHorizonHelpID) ))
-			      , isbulk_(isbulk)
-			      , bulkinfld_(0)
+    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport(uiStrings::sHorizon()),
+			mNoDlgTitle,mODHelpKey(mExportHorizonHelpID)))
+    , infld_(0)
+    , isbulk_(isbulk)
+    , bulkinfld_(0)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     setModal( false );
@@ -261,13 +263,12 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 				      uiStrings::sHorizon(mPlural), stup );
 
     typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
-                              StringListInpSpec(exptyps) );
-    if ( !isbulk )
-      typfld_->attach( alignedBelow, infld_ );
-    else
-      typfld_->attach( alignedBelow, bulkinfld_ );
-
+			      StringListInpSpec(exptyps) );
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
+    if ( !isbulk )
+	typfld_->attach( alignedBelow, infld_ );
+    else
+	typfld_->attach( alignedBelow, bulkinfld_ );
 
     settingsbutt_ = new uiPushButton( this, uiStrings::sSettings(),
 				      mCB(this,uiExportHorizon,settingsCB),
@@ -300,11 +301,10 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 	      uiStrings::sOutputASCIIFile(),
 	      uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, udffld_ );
+
+    typChg( 0 );
     if ( !isbulk )
-    {
-	typChg( 0 );
 	inpSel( 0 );
-    }
 }
 
 
@@ -584,13 +584,14 @@ bool uiExportHorizon::getInputMIDs( TypeSet<MultiID>& midset )
 {
     if ( !isbulk_ )
     {
-      const IOObj* ioobj = infld_->selIOObj();
-      if ( !ioobj ) return false;
-      MultiID mid = ioobj->key();
-      midset.add(mid);
+	const IOObj* ioobj = infld_->selIOObj();
+	if ( !ioobj ) return false;
+
+	MultiID mid = ioobj->key();
+	midset.add(mid);
     }
     else
-      bulkinfld_->getChosen( midset );
+	bulkinfld_->getChosen( midset );
 
     return true;
 }
@@ -610,7 +611,7 @@ void uiExportHorizon::typChg( CallBacker* cb )
 
 void uiExportHorizon::inpSel( CallBacker* )
 {
-    const IOObj* ioobj = infld_->selIOObj();
+    const IOObj* ioobj = infld_ ? infld_->selIOObj() : 0;
     if ( ioobj )
 	gfname_ = ioobj->name();
 }
@@ -656,7 +657,7 @@ FixedString uiExportHorizon::getZDomain() const
 void uiExportHorizon::attrSel( CallBacker* )
 {
     const bool isgf = typfld_->getIntValue() == 2;
-    udffld_->display( !isgf && infld_->haveAttrSel() );
+    udffld_->display( !isgf && infld_ && infld_->haveAttrSel() );
 }
 
 
@@ -666,7 +667,7 @@ void uiExportHorizon::settingsCB( CallBacker* )
 	return;
 
     uiDialog dlg( this, uiDialog::Setup(tr("IESX details"),
-                                        mNoDlgTitle,mNoHelpKey));
+					mNoDlgTitle,mNoHelpKey) );
     uiGenInput* namefld = new uiGenInput( &dlg, tr("Horizon name in file") );
     uiGenInput* commentfld = new uiGenInput( &dlg, tr("[Comment]") );
     commentfld->attach( alignedBelow, namefld );
