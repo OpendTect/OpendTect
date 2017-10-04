@@ -240,6 +240,7 @@ bool RegularSeisDataPack::copyFrom( const RegularSeisDataPack& oth )
 
 void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
 {
+    delete rgldpckposinfo_;
     rgldpckposinfo_ = newposdata;
 }
 
