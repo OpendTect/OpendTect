@@ -501,7 +501,7 @@ bool resize( const char* fnm, od_int64 newsz )
 #ifndef OD_NO_QT
     return QFile::resize( fnm, newsz );
 #else
-    pFreeFnErrMsg(not_implemented_str);
+    pFreeFnErrMsg(not_implemented_str,"resize");
     return false;
 #endif
 }
