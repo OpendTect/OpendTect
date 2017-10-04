@@ -1680,10 +1680,7 @@ void uiAttribPartServer::filter2DMenuItems(
 
 	    MultiID mid( desc->getStoredID(true) );
 	    PtrMan<IOObj> seisobj = IOM().get( mid );
-	    if ( !seisobj )
-		continue;
-
-	    if ( attribnms.isPresent(seisobj->name()) )
+	    if ( !seisobj || attribnms.isPresent(seisobj->name()) )
 	    {
 		MenuItem* item = new MenuItem( mToUiStringTodo(childnm) );
 		const bool docheck = childnm==as.userRef();
