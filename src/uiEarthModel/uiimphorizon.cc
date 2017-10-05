@@ -88,8 +88,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     ctio_.ctxt_.forread_ = !isgeom_;
 
     uiFileSel::Setup fssu;
-    fssu.withexamine( true )
-	.selectMultiFile().initialselectiondir( sImportFromPath );
+    fssu.withexamine( true ).initialselectiondir( sImportFromPath );
     fssu.formats_.addFormat( File::Format(tr("Text file"),"txt","dat") );
     fssu.formats_.addFormat( File::Format(tr("Position file"),"xy","ic","ix") );
     inpfld_ = new uiFileSel( this, uiStrings::phrInput(uiStrings::phrASCII(
