@@ -803,7 +803,7 @@ bool SEGYSeisTrcTranslator::readData( SeisTrc& trc )
 
 bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
 {
-    if ( !storbuf_ || !commitSelections() )
+    if ( !storbuf_ && !commitSelections() )
 	return false;
 
     TraceData& tdata = extbuf ? *extbuf : *storbuf_;
