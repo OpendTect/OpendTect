@@ -46,5 +46,5 @@ echo "CMAKE_BUILD_TYPE:STRING=RelWithDebInfo" >> CMakeCache.txt
 echo "CMAKE_CXX_FLAGS_RELWITHDEBINFO=-Wno-inline " >> CMakeCache.txt
 set plf=`uname`
 if ( "${plf}" == "Darwin") then
-    echo "AVOID_CLANG_ERROR=ON" >> CMakeCache.txt
+    echo "AVOID_CLANG_ERROR:BOOL=ON" >> CMakeCache.txt
 endif
