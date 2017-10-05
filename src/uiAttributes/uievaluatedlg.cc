@@ -100,11 +100,11 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 }
 
 
-uiString AttribParamGroup::sInit() 
+uiString AttribParamGroup::sInit()
 { return tr("Initial value"); }
 
 
-uiString AttribParamGroup::sIncr() 
+uiString AttribParamGroup::sIncr()
 { return tr("Increment"); }
 
 
@@ -377,7 +377,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
     if ( !desc )
 	return;
 
-    BufferString userchosenref = desc->userRef();
+    const BufferString userchosenref = desc->userRef();
     const int nrsteps = nrstepsfld->box()->getIntValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -389,8 +389,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	BufferString defstr; newad->getDefStr( defstr ); //Only for debugging
 
 	const char* lbl = pargrp->getLabel();
-	BufferString usrref = newad->attribName();
-	usrref += " - "; usrref += lbl;
+	const BufferString usrref( userchosenref.buf(), " - ", lbl );
 	newad->setUserRef( usrref );
 	if ( newad->selectedOutput()>=newad->nrOutputs() )
 	{
