@@ -733,8 +733,10 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
 bool SEGYSeisTrcTranslator::skip( int ntrcs )
 {
-    if ( ntrcs < 1 ) return true;
-    if ( !storbuf_ ) commitSelections();
+    if ( ntrcs < 1 )
+	return true;
+    if ( !storbuf_ )
+	commitSelections();
 
     od_istream& strm = sConn().iStream();
     if ( !headerdone_ )
@@ -778,7 +780,7 @@ bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 
 bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
 {
-    if ( !storbuf_ || !commitSelections() )
+    if ( !storbuf_ && !commitSelections() )
 	return false;
 
     TraceData& tdata = extbuf ? *extbuf : *storbuf_;
