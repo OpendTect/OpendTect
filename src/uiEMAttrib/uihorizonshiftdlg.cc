@@ -55,7 +55,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     const float curshift = initialshift*SI().zDomain().userFactor();
     shiftrg_ = StepInterval<float> (curshift-100,curshift+100,10);
 
-   uiString lbl = tr("Shift Range %1").arg(SI().getUiZUnitString());
+    uiString lbl = tr("Shift Range %1").arg(SI().getUiZUnitString());
     rangeinpfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(shiftrg_) );
     rangeinpfld_->valuechanged.notify(
 	    mCB(this,uiHorizonShiftDialog,rangeChangeCB) );
@@ -94,14 +94,15 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	calbut_->attach( rightTo, attrinpfld_ );
 	calbut_->activated.notify( mCB(this,uiHorizonShiftDialog,calcAttrib) );
 
-	storefld_ = new uiCheckBox( this, tr("Store Horizons on pressing OK") );
+	storefld_ = new uiCheckBox( this,
+		tr("Save attributes as Horizon Data on pressing OK") );
 	storefld_->attach( alignedBelow, attrinpfld_ );
 	storefld_->setChecked( false );
 	storefld_->activated.notify(
 		mCB(this,uiHorizonShiftDialog,setNameFldSensitive) );
 
 	namefld_ = new uiGenInput( this, tr("Attribute Basename"),
-				   StringInpSpec(sDefaultAttribName()) );
+				   StringInpSpec() );
 	namefld_->attach( alignedBelow, storefld_ );
 	attribChangeCB( 0 );
     }
@@ -135,7 +136,7 @@ bool uiHorizonShiftDialog::doStore() const
 
 void uiHorizonShiftDialog::setNameFldSensitive( CallBacker* )
 {
-    namefld_->display( storefld_->isChecked() &&
+    namefld_->setSensitive( storefld_->isChecked() &&
 		       (attrinpfld_ || attrinpfld_->attribID().isValid() ) );
 }
 
@@ -143,9 +144,10 @@ void uiHorizonShiftDialog::setNameFldSensitive( CallBacker* )
 void uiHorizonShiftDialog::attribChangeCB( CallBacker* )
 {
     const bool isok = attrinpfld_->attribID().isValid();
-    calbut_->display( isok );
-    storefld_->display( isok );
-    namefld_->display( isok && storefld_->isChecked() );
+    calbut_->setSensitive( isok );
+    storefld_->setSensitive( isok );
+    namefld_->setSensitive( isok && storefld_->isChecked() );
+    namefld_->setText( attrinpfld_->getAttrName() );
 
     if ( !isok )
 	return;
