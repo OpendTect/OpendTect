@@ -159,7 +159,7 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-    PtrMan<IOObj> ioobj = attrserv->getIOObj(*as);
+    PtrMan<IOObj> ioobj = as ? attrserv->getIOObj(*as) : 0;
     if ( as && ioobj )
     {
 	mAddMenuOrTBItem( istb, 0, menu, &colsettingsmnuitem_, true, false );
