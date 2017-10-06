@@ -539,7 +539,7 @@ bool TimeDepthConverter::calcDepths( const ValueSeries<float>& vels, int velsz,
 	return false;
 
     for ( int idx=0; idx<velsz; idx++ )
-	depths[idx] = zvals[idx];
+	depths[idx] = mCast(float,zvals[idx]);
 
     return true;
 }
@@ -1306,12 +1306,12 @@ void resampleContinuousData( const double* inarr, const double* t_in, int nr_in,
 	    if ( intv == nr_in )
 		intv--;
 
-	    const double v0 = !intv? 0 : inarr[intv-1];
+	    const double v0 = !intv? 0. : inarr[intv-1];
 	    const double v1 = inarr[intv];
-	    const double t0 = !intv? 0 : t_in[intv-1];
-	    const double t1 = t_in[intv];
+	    const float t0 = mCast(float,!intv? 0. : t_in[intv-1]);
+	    const float t1 = mCast(float,t_in[intv]);
 	    outarr[idx] = mIsEqual( v0, v1, 1e-6 ) ? v0 :
-				    Interpolate::linear1D( t0, v0, t1, v1, z );
+			Interpolate::linear1D( t0, v0, t1, v1, mCast(float,z) );
 	}
     }
 }
@@ -1776,13 +1776,13 @@ SamplingData<double> getDoubleSamplingData( const SamplingData<float>& sdf )
 
     ret.step = 1. / mCast(double,nrsamples);
 
-    nrsamplesf = ret.start / ret.step;
+    nrsamplesf = mCast(float,ret.start / ret.step);
     nrsamples = mNINT32( nrsamplesf );
     relpos = nrsamplesf - nrsamples;
     if ( Math::Abs(relpos) > nrsamplesf*1e-4f )
 	return ret;
 
-    ret.start = ret.step * mCast(double, nrsamples );
+    ret.start = ret.step * mCast(double, nrsamples);
 
     return ret;
 }
