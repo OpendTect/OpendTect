@@ -196,6 +196,11 @@ protected:
     bool	doBlocking(float threshold,bool pvelonly,
 			   TypeSet<Interval<int> >& blocks) const;
 
+		/* If a layer thickness is strictly identical to zstep,
+		   maybe split that layer over the last/previous layers */
+
+    void	removeSpuriousLayers(float zstep);
+
 
 };
 

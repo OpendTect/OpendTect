@@ -134,15 +134,17 @@ void SeisCubeCopier::doProc( CallBacker* )
 	    return;
 
 	const SeisTrc& intrc = stp_->getInputTrace();
-	TypeSet<float> timevals;
 	const int sizein = intrc.size();
-	const SamplingData<float>& sdin = intrc.info().sampling;
+	const SamplingData<float> sdin =
+				getDoubleSamplingData( intrc.info().sampling );
+	mAllocVarLenArr( double, timevals, sizein )
+	if ( !mIsVarLenArrOK(timevals) ) return;
 	for ( int idx=0; idx<sizein; idx++ )
-	    timevals += sdin.atIndex( idx );
+	    timevals[idx] = sdin.atIndex( idx );
 
 	const int nrcomps = trc.nrComponents();
-	const SamplingData<double> sdout = trc.info().sampling;
-	const float* tin = timevals.arr();
+	const SamplingData<double> sdout =
+				   getDoubleSamplingData( trc.info().sampling );
 	const Scaler* scaler = stp_->scaler();
 
 	for ( int icomp=0; icomp<nrcomps; icomp++ )
@@ -153,11 +155,11 @@ void SeisCubeCopier::doProc( CallBacker* )
 
 	    const float* vin = trcvals.arr();
 	    if ( veltype_ == mVelocityIntv )
-		sampleVint( vin, tin, sizein, sdout, vout, trcsz );
+		sampleVint( vin, timevals, sizein, sdout, vout, trcsz );
 	    else if ( veltype_ == mVelocityRMS )
-		sampleVrms( vin, 0, 0, tin, sizein, sdout, vout, trcsz );
+		sampleVrms( vin, 0., 0, timevals, sizein, sdout, vout, trcsz );
 	    else if ( veltype_ == mVelocityAvg )
-		sampleVavg( vin, tin, sizein, sdout, vout, trcsz );
+		sampleVavg( vin, timevals, sizein, sdout, vout, trcsz );
 
 	    for ( int idx=0; idx<trcsz; idx++ )
 	    {

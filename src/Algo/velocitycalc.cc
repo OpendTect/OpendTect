@@ -237,8 +237,8 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 				  int sz, const SamplingData<double>& sd,
 				  const VelocityDesc& vd, bool istime )
 {
-    delete [] times_; times_ = 0;
-    delete [] depths_; depths_ = 0;
+    deleteAndZeroArrPtr( times_ );
+    deleteAndZeroArrPtr( depths_ );
 
     PtrMan<ValueSeries<float> > ownvint = 0;
     const ValueSeries<float>* vint = &vel;
@@ -253,12 +253,9 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 		break;
 	    }
 
-	    mDeclareAndTryAlloc( float*, ptr, float[sz] );
-	    if ( !ptr )
-	    {
-		errmsg_ = tr("Out of memory");
-		break;
-	    }
+	    mAllocVarLenArr( float, ptr, sz );
+	    if ( !mIsVarLenArrOK(ptr) )
+		{ errmsg_ = tr("Out of memory"); break; }
 
 	    ownvint = new ArrayValueSeries<float,float>( ptr, true, sz );
 	    if ( !ownvint || !ownvint->isOK() )
@@ -299,15 +296,14 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	    if ( istime )
 	    {
 		mTryAlloc( depths_, float[sz] );
-		if ( !depths_ ||
-		     !calcDepths(*vint,sz,sd,depths_) )
-		{ delete [] depths_; depths_ = 0; break; }
+		if ( !depths_ || !calcDepths(*vint,sz,sd,depths_) )
+		    { deleteAndZeroArrPtr( depths_ ); break; }
 	    }
 	    else
 	    {
 		mTryAlloc( times_, float[sz] );
 		if ( !times_ || !calcTimes(*vint,sz,sd,times_) )
-		{ delete [] times_; times_ = 0; break; }
+		    { deleteAndZeroArrPtr( times_ ); break; }
 	    }
 
 	    for ( int idx=0; idx<sz; idx++ )
@@ -328,6 +324,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	case VelocityDesc::Avg :
 	{
 	    mAllocVarLenArr( float, vavg, sz );
+	    if ( !mIsVarLenArrOK(vavg) ) return false;
 	    int previdx = -1;
 	    float prevvel = 0;
 	    for ( int idx=0; idx<sz; idx++ )
@@ -393,7 +390,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 
 
 bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int outputsz,
-				    const SamplingData<double>& timesamp) const
+				    const SamplingData<double>& timesamp ) const
 {
     if ( !isOK() ) return false;
     calcZ( times_, sz_, res, outputsz, timesamp, false );
@@ -515,7 +512,7 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 
 
 /*!For every time in the velocity model, calculate the depth. The velocity is
-   is assumed to be constant at vel[0] above the first time.   The velocity is
+   is assumed to be constant at vel[0] above the first time. The velocity is
    specified as Interval velocity, and the sample span is above. That means
    the velocity at a certain sample is the velocity of the layer above the
    corresponding time:
@@ -531,18 +528,49 @@ bool TimeDepthConverter::calcDepths( const ValueSeries<float>& vels, int velsz,
 				     const SamplingData<double>& sd,
 				     float* depths )
 {
-    ArrayValueSeries<float,float> times( velsz );
-    float* timesptr = times.arr();
+    mAllocVarLenArr( double, zvals, velsz );
+    if ( !mIsVarLenArrOK(zvals) ) return false;
+    ArrayValueSeries<double,double> times( velsz );
+    double* timesptr = times.arr();
     for ( int idx=0; idx<velsz; idx++, timesptr++ )
-	*timesptr = (float) ( sd.atIndex( idx ) );
+	*timesptr = sd.atIndex( idx );
 
-    return calcDepths( vels, velsz, times, depths );
+    if ( !calcDepths(vels,velsz,times,zvals) )
+	return false;
+
+    for ( int idx=0; idx<velsz; idx++ )
+	depths[idx] = zvals[idx];
+
+    return true;
 }
 
 
 bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 				    const ValueSeries<float>& times,
 				    float* depths )
+{
+    mAllocVarLenArr( double, tvals, velsz );
+    mAllocVarLenArr( double, zvals, velsz );
+    if ( !mIsVarLenArrOK(tvals) || !mIsVarLenArrOK(zvals) ) return false;
+    for ( int idx=0; idx<velsz; idx++ )
+	tvals[idx] = times.value( idx );
+
+    const ArrayValueSeries<double,double> tinser(
+				    const_cast<double*>(tvals.ptr()), false );
+
+    if ( !calcDepths(vels,velsz,tinser,zvals) )
+	return false;
+
+    for ( int idx=0; idx<velsz; idx++ )
+	depths[idx] = mCast(float,zvals[idx]);
+
+    return true;
+}
+
+
+bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
+				    const ValueSeries<double>& times,
+				    double* depths )
 {
     if ( !depths )
     {
@@ -552,11 +580,11 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 
     if ( !velsz ) return true;
 
-    float prevvel = mUdf(float);
+    double prevvel = mUdf(double);
     int startidx = -1;
     for ( int idx=0; idx<velsz; idx++ )
     {
-	if ( !mIsValidVel(vels.value(idx) ) )
+	if ( !mIsValidVel(vels.value(idx)) )
 	    continue;
 
 	startidx = idx;
@@ -567,24 +595,22 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
     if ( startidx==-1 )
 	return false;
 
+    prevvel /= 2.; //time is TWT
+    for ( int idx=0; idx<=startidx; idx++ )
+	depths[idx] = times.value(idx) * prevvel;
 
-    for ( int idx=0; idx<startidx; idx++ )
-    {
-	const double depth = times.value(idx) * prevvel / 2;
-	depths[idx] = (float) depth;
-    }
-
-    double depth = depths[startidx] = times.value(startidx) * prevvel / 2;
-
+    double depth = depths[startidx];
     for ( int idx=startidx+1; idx<velsz; idx++ )
     {
-	float curvel = vels.value( idx );
-	if ( !mIsValidVel(curvel) )
+	double curvel = vels.value( idx );
+	if ( mIsValidVel(curvel) )
+	    curvel /= 2.;
+	else
 	    curvel = prevvel;
 
-	depth += (times.value(idx)-times.value(idx-1))*curvel/2; //time is TWT
+	depth += (times.value(idx)-times.value(idx-1)) * curvel;
 
-	depths[idx] = (float) depth;
+	depths[idx] = depth;
 	prevvel = curvel;
     }
 
@@ -869,6 +895,18 @@ bool computeDix( const float* Vrms, const SamplingData<double>& sd, int nrvels,
 bool computeDix( const float* Vrms, float t0, float v0, const float* t,
 		 int nrvels, float* Vint )
 {
+    mAllocVarLenArr( double, tvals, nrvels );
+    if ( !mIsVarLenArrOK(tvals) ) return false;
+    for ( int idx=0; idx<nrvels; idx++ )
+	tvals[idx] = t[idx];
+
+    return computeDix( Vrms, (double)t0, v0, tvals, nrvels, Vint );
+}
+
+
+bool computeDix( const float* Vrms, double t0, float v0, const double* t,
+		 int nrvels, float* Vint )
+{
     mComputeDixImpl( t0, v0, t[idx] );
 }
 
@@ -910,6 +948,18 @@ bool computeVrms( const float* Vint, const SamplingData<double>& sd, int nrvels,
 bool computeVrms( const float* Vint, float t0, const float* t, int nrvels,
 		  float* Vrms )
 {
+    mAllocVarLenArr( double, td_in, nrvels );
+    if ( !mIsVarLenArrOK(td_in) ) return false;
+    for ( int idx=0; idx<nrvels; idx++ )
+	td_in[idx] = t[idx];
+
+    return computeVrms( Vint, (double)t0, td_in, nrvels, Vrms );
+}
+
+
+bool computeVrms( const float* Vint, double t0, const double* t, int nrvels,
+		  float* Vrms )
+{
     double t_above = t0;
     int idx_prev = -1;
     double v2t_prev = 0;
@@ -939,8 +989,23 @@ bool computeVrms( const float* Vint, float t0, const float* t, int nrvels,
 }
 
 
-bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
-	int nr_in,const SamplingData<double>& sd_out,float* Vout, int nr_out)
+bool sampleVrms( const float* Vin, float t0_in, float v0_in, const float* t_in,
+		 int nr_in, const SamplingData<double>& sd_out, float* Vout,
+		 int nr_out )
+{
+    mAllocVarLenArr( double, td_in, nr_in );
+    if ( !mIsVarLenArrOK(td_in) ) return false;
+    for ( int idx=0; idx<nr_in; idx++ )
+	td_in[idx] = t_in[idx];
+
+    return sampleVrms( Vin, (double)t0_in, v0_in, td_in, nr_in, sd_out, Vout,
+		       nr_out );
+}
+
+
+bool sampleVrms( const float* Vin, double t0_in, float v0_in,const double* t_in,
+		 int nr_in, const SamplingData<double>& sd_out, float* Vout,
+		 int nr_out )
 {
     if ( nr_out<=0 )
 	return true;
@@ -956,16 +1021,17 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
 	return true;
     }
 
-
     ArrayValueSeries<float,float> Vint ( nr_in );
     if ( !computeDix( Vin, t0_in, v0_in, t_in, nr_in, Vint.arr() ) )
 	return false;
 
-    ArrayValueSeries<float,float> tinser ( const_cast<float*>(t_in), false );
-    mAllocLargeVarLenArr( float, deptharr, nr_in );
-    mAllocLargeVarLenArr( float, depthsampled, nr_out );
-    mAllocLargeVarLenArr( float, Vint_sampled, nr_out );
-    if ( !tinser.isOK() || !deptharr || !depthsampled || !Vint_sampled )
+    const ArrayValueSeries<double,double> tinser( const_cast<double*>(t_in),
+						  false );
+    mAllocVarLenArr( double, deptharr, nr_in );
+    mAllocVarLenArr( double, depthsampled, nr_out );
+    mAllocVarLenArr( float, Vint_sampled, nr_out );
+    if ( !tinser.isOK() || !mIsVarLenArrOK(deptharr) ||
+	 !mIsVarLenArrOK(depthsampled) || !mIsVarLenArrOK(Vint_sampled) )
 	return false;
 
     TimeDepthConverter::calcDepths( Vint, nr_in, tinser, deptharr );
@@ -976,9 +1042,12 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
 
     //compute Vint_sampled from depthsampled
     Vint_sampled[0] = 0;
+    const double halfinvstep = 2. / sd_out.step; //time is TWT
     for ( int idx=1; idx<nr_out; idx++ )
-	Vint_sampled[idx] = (float) ( (depthsampled[idx]-depthsampled[idx-1]) /
-			    (sd_out.step / 2) );		//time is TWT
+    {
+	Vint_sampled[idx] = mCast(float, halfinvstep *
+				(depthsampled[idx]-depthsampled[idx-1]) );
+    }
 
     return computeVrms( (const float*)Vint_sampled, sd_out, nr_out, Vout );
 }
@@ -987,11 +1056,37 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
 bool computeVavg( const float* Vint, float z0, const float* z, int nrvels,
 		  float* Vavg )
 {
-    double z_above = z0;
-    int idx_prev = -1;
-    double v2z_prev = 0;
-
+    mAllocVarLenArr( double, zvals, nrvels );
+    if ( !mIsVarLenArrOK(zvals) ) return false;
     for ( int idx=0; idx<nrvels; idx++ )
+	zvals[idx] = z[idx];
+
+    return computeVavg( Vint, zvals, nrvels, Vavg );
+}
+
+
+bool computeVavg( const float* Vint, const double* z, int nrvels, float* Vavg )
+{
+    const bool zistime = SI().zIsTime();
+
+    int idx_prev;
+    for ( idx_prev=0; idx_prev<nrvels; idx_prev++ )
+    {
+	if ( !mIsUdf(Vint[idx_prev]) )
+	    break;
+    }
+    if ( idx_prev == nrvels )
+    {
+	OD::sysMemSet( Vavg, mUdf(float), nrvels );
+	return false;
+    }
+
+    Vavg[idx_prev] = Vint[idx_prev];
+    double z_above = z[idx_prev];
+    double v2z_prev = zistime ? Vavg[idx_prev] * z_above
+			      : z_above / Vavg[idx_prev];
+
+    for ( int idx=1; idx<nrvels; idx++ )
     {
 	const double V_interval = Vint[idx];
 	if ( mIsUdf(V_interval) )
@@ -1001,7 +1096,7 @@ bool computeVavg( const float* Vint, float z0, const float* z, int nrvels,
 	float res = 0;
 	double dz = z_below - z_above;
 
-	if ( SI().zIsTime() )
+	if ( zistime )
 	{
 	    double numerator = v2z_prev+V_interval*dz;
 	    res = (float) ( numerator/z_below );
@@ -1033,14 +1128,39 @@ bool computeVavg( const float* Vint, float z0, const float* z, int nrvels,
 
 
 bool computeVint( const float* Vavg, float z0, const float* z, int nrvels,
-		 float* Vint )
+		  float* Vint )
 {
-    int idx_prev = -1;
-    double z_above = z0;
-    double v2z_prev = 0;
+    mAllocVarLenArr( double, zvals, nrvels );
+    if ( !mIsVarLenArrOK(zvals) ) return false;
+    for ( int idx=0; idx<nrvels; idx++ )
+	zvals[idx] = z[idx];
+
+    return computeVint( Vavg, zvals, nrvels, Vint );
+}
+
+
+bool computeVint( const float* Vavg, const double* z, int nrvels, float* Vint )
+{
+    const bool zistime = SI().zIsTime();
+
+    int idx_prev;
+    for ( idx_prev=0; idx_prev<nrvels; idx_prev++ )
+    {
+	if ( !mIsUdf(Vavg[idx_prev]) )
+	    break;
+    }
+    if ( idx_prev == nrvels )
+    {
+	OD::sysMemSet( Vint, mUdf(float), nrvels );
+	return false;
+    }
+
+    Vint[idx_prev] = Vavg[idx_prev];
+    double z_above = z[idx_prev];
+    double v2z_prev = zistime ? z_above*Vavg[idx_prev] : z_above/Vavg[idx_prev];
     bool hasvals = false;
 
-    for ( int idx=0; idx<nrvels; idx++ )
+    for ( int idx=1; idx<nrvels; idx++ )
     {
 	const double v = Vavg[idx];
 	if ( mIsUdf(v) )
@@ -1049,19 +1169,18 @@ bool computeVint( const float* Vavg, float z0, const float* z, int nrvels,
 	hasvals = true;
 
 	double z_below = z[idx];
-	const bool istime = SI().zIsTime();
 
-	const double v2z = istime ? z_below*v : z_below/v;
+	const double v2z = zistime ? z_below*v : z_below/v;
 	const double numerator = v2z-v2z_prev;
 	if ( numerator<0 )
 	    continue;
 
-	if ( ( istime && (z_below<z_above || mIsEqual(z_below,z_above,1e-5)) )
-	   || ( !istime && mIsZero(numerator,1e-3) ) )
+	if ( ( zistime && (z_below<z_above || mIsEqual(z_below,z_above,1e-5)) )
+	   || ( !zistime && mIsZero(numerator,1e-3) ) )
 	    continue;
 
-	const double vlayer = istime ? numerator/(z_below-z_above)
-				     : (z_below-z_above)/numerator;
+	const double vlayer = zistime ? numerator/(z_below-z_above)
+				      : (z_below-z_above)/numerator;
 
 	for ( int idy=idx_prev+1; idy<=idx; idy++ )
 	    Vint[idy] = (float) vlayer;
@@ -1085,8 +1204,27 @@ bool computeVint( const float* Vavg, float z0, const float* z, int nrvels,
 
 
 void resampleZ( const float* zarr, const float* tord_in, int nr_in,
-		    const SamplingData<double>& sd_out, int nr_out,
-		    float* zsampled )
+		const SamplingData<double>& sd_out, int nr_out,float* zsampled )
+{
+    mAllocVarLenArr( double, dzarr, nr_in );
+    mAllocVarLenArr( double, tordd_in, nr_in );
+    mAllocVarLenArr( double, dzsampled, nr_out );
+    if ( !mIsVarLenArrOK(dzarr) || !mIsVarLenArrOK(tordd_in) ||
+	 !mIsVarLenArrOK(dzsampled) ) return;
+    for ( int idx=0; idx<nr_in; idx++ )
+    {
+	dzarr[idx] = zarr[idx];
+	tordd_in[idx] = tord_in[idx];
+    }
+
+    resampleContinuousData( dzarr, tordd_in, nr_in, sd_out, nr_out, dzsampled );
+    for ( int idx=0; idx<nr_out; idx++ )
+	zsampled[idx] = mCast(float,zsampled[idx]);
+}
+
+
+void resampleZ( const double* zarr, const double* tord_in, int nr_in,
+		const SamplingData<double>& sd_out, int nr_out,double* zsampled)
 {
     resampleContinuousData( zarr, tord_in, nr_in, sd_out, nr_out, zsampled );
 }
@@ -1096,23 +1234,62 @@ void sampleEffectiveThomsenPars( const float* vinarr, const float* t_in,
 				 int nr_in, const SamplingData<double>& sd_out,
 				 int nr_out, float* voutarr )
 {
-    resampleContinuousData( vinarr, t_in, nr_in, sd_out, nr_out, voutarr );
+    mAllocVarLenArr( double, td_in, nr_in );
+    if ( !mIsVarLenArrOK(td_in) ) return;
+    for ( int idx=0; idx<nr_in; idx++ )
+	td_in[idx] = t_in[idx];
+
+    sampleEffectiveThomsenPars( vinarr, td_in, nr_in, sd_out, nr_out, voutarr );
+}
+
+
+void sampleEffectiveThomsenPars( const float* vinarr, const double* t_in,
+				 int nr_in, const SamplingData<double>& sd_out,
+				 int nr_out, float* voutarr )
+{
+    mAllocVarLenArr( double, dvinarr, nr_in );
+    mAllocVarLenArr( double, dvoutarr, nr_out );
+    if ( !mIsVarLenArrOK(dvinarr) || !mIsVarLenArrOK(dvoutarr) ) return;
+    resampleContinuousData( dvinarr, t_in, nr_in, sd_out, nr_out, dvoutarr );
+    for ( int idx=0; idx<nr_out; idx++ )
+	voutarr[idx] = mCast(float,dvoutarr[idx]);
 }
 
 
 void resampleContinuousData( const float* inarr, const float* t_in, int nr_in,
-			const SamplingData<double>& sd_out, int nr_out,
-			float* outarr )
+			     const SamplingData<double>& sd_out, int nr_out,
+			     float* outarr )
+{
+    mAllocVarLenArr( double, dinarr, nr_in );
+    mAllocVarLenArr( double, td_in, nr_in );
+    mAllocVarLenArr( double, doutarr, nr_out );
+    if ( !mIsVarLenArrOK(dinarr) || !mIsVarLenArrOK(td_in) ||
+	 !mIsVarLenArrOK(doutarr) ) return;
+    for ( int idx=0; idx<nr_in; idx++ )
+    {
+	dinarr[idx] = inarr[idx];
+	td_in[idx] = t_in[idx];
+    }
+
+    resampleContinuousData( dinarr, td_in, nr_in, sd_out, nr_out, doutarr );
+    for ( int idx=0; idx<nr_out; idx++ )
+	outarr[idx] = mCast(float,doutarr[idx]);
+}
+
+
+void resampleContinuousData( const double* inarr, const double* t_in, int nr_in,
+			     const SamplingData<double>& sd_out, int nr_out,
+			     double* outarr )
 {
     int intv = 0;
-    const float eps = (float) ( sd_out.step/1e3 );
+    const double eps = sd_out.step / 1e3;
     for ( int idx=0; idx<nr_out; idx++ )
     {
 	bool match = false;
-	const float z = (float) sd_out.atIndex( idx );
+	const double z = sd_out.atIndex( idx );
 	for ( ; intv<nr_in; intv++ )
 	{
-	    if ( mIsEqual( z, t_in[intv], eps ) )
+	    if ( mIsEqual(z,t_in[intv],eps) )
 		match = true;
 	    else if ( t_in[intv]<=z )
 		continue;
@@ -1128,28 +1305,43 @@ void resampleContinuousData( const float* inarr, const float* t_in, int nr_in,
 	    if ( intv == nr_in )
 		intv--;
 
-	    const float v0 = !intv? 0 : inarr[intv-1];
-	    const float v1 = inarr[intv];
-	    const float t0 = !intv? 0 : t_in[intv-1];
-	    const float t1 = t_in[intv];
+	    const double v0 = !intv? 0 : inarr[intv-1];
+	    const double v1 = inarr[intv];
+	    const double t0 = !intv? 0 : t_in[intv-1];
+	    const double t1 = t_in[intv];
 	    outarr[idx] = mIsEqual( v0, v1, 1e-6 ) ? v0 :
-				Interpolate::linear1D( t0, v0, t1, v1, z );
+				    Interpolate::linear1D( t0, v0, t1, v1, z );
 	}
     }
 }
 
 
-bool sampleVint( const float* Vin,const float* t_in, int nr_in,
-		 const SamplingData<double>& sd_out, float* Vout, int nr_out)
+bool sampleVint( const float* Vin, const float* t_in, int nr_in,
+		 const SamplingData<double>& sd_out, float* Vout, int nr_out )
+{
+    mAllocVarLenArr( double, td_in, nr_in );
+    if ( !mIsVarLenArrOK(td_in) ) return false;
+    for ( int idx=0; idx<nr_in; idx++ )
+	td_in[idx] = t_in[idx];
+
+    return sampleVint( Vin, td_in, nr_in, sd_out, Vout, nr_out );
+}
+
+
+bool sampleVint( const float* Vin, const double* t_in, int nr_in,
+		 const SamplingData<double>& sd_out, float* Vout, int nr_out )
 {
     if ( !nr_in )
 	return false;
 
-    ArrayValueSeries<float,float> tinser ( const_cast<float*>(t_in), false );
-    ArrayValueSeries<float,float> Vinser ( const_cast<float*>(Vin), false );
-    mAllocLargeVarLenArr( float, deptharr, nr_in );
-    mAllocLargeVarLenArr( float, depthsampled, nr_out );
-    if ( !tinser.isOK() || !Vinser.isOK() || !deptharr || !depthsampled )
+    const ArrayValueSeries<double,double> tinser( const_cast<double*>(t_in),
+						  false );
+    const ArrayValueSeries<float,float> Vinser( const_cast<float*>(Vin),
+						false );
+    mAllocVarLenArr( double, deptharr, nr_in );
+    mAllocVarLenArr( double, depthsampled, nr_out );
+    if ( !tinser.isOK() || !Vinser.isOK() ||
+	 !mIsVarLenArrOK(deptharr) || !mIsVarLenArrOK(depthsampled) )
 	return false;
 
     TimeDepthConverter::calcDepths( Vinser, nr_in, tinser, deptharr );
@@ -1160,10 +1352,13 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
 
     //compute Vout from depthsampled
     Vout[0] = Vin[0];
+    const double halfinvstep = 2. / sd_out.step; //time is TWT
     for ( int idx=1; idx<nr_out; idx++ )
-	Vout[idx] = (float) ( (depthsampled[idx] - depthsampled[idx-1]) /
-						   (sd_out.step/2) );
-								//time is TWT
+    {
+	Vout[idx] = mCast(float, halfinvstep *
+				 (depthsampled[idx] - depthsampled[idx-1]) );
+    }
+
     return true;
 }
 
@@ -1171,20 +1366,31 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
 bool sampleVavg( const float* Vin, const float* t_in, int nr_in,
 		 const SamplingData<double>& sd_out, float* Vout, int nr_out )
 {
-    mAllocLargeVarLenArr( float, vintarr, nr_in );
-    mAllocLargeVarLenArr( float, vintsampledarr, nr_out );
+    mAllocVarLenArr( double, td_in, nr_in );
+    if ( !mIsVarLenArrOK(td_in) ) return false;
+    for ( int idx=0; idx<nr_in; idx++ )
+	td_in[idx] = t_in[idx];
 
-    if ( !vintarr || !vintsampledarr ) return false;
+    return sampleVavg( Vin, td_in, nr_in, sd_out, Vout, nr_out );
+}
 
-    TypeSet<float> outtimesamps;
-    const float sampstep = (float) sd_out.step;
-    const float start = (float) sd_out.start;
+
+bool sampleVavg( const float* Vin, const double* t_in, int nr_in,
+		 const SamplingData<double>& sd_out, float* Vout, int nr_out )
+{
+    mAllocVarLenArr( float, vintarr, nr_in );
+    mAllocVarLenArr( float, vintsampledarr, nr_out );
+    mAllocVarLenArr( double, outtimesampsarr, nr_out );
+    if ( !mIsVarLenArrOK(vintarr) || !mIsVarLenArrOK(vintsampledarr) ||
+	 !mIsVarLenArrOK(outtimesampsarr) )
+	return false;
+
     for ( int idx=0; idx<nr_out; idx++ )
-	outtimesamps += start + idx * sampstep;
+	outtimesampsarr[idx] = sd_out.atIndex( idx );
 
-    return computeVint( Vin, 0, t_in, nr_in, vintarr ) &&
-	sampleVint( vintarr, t_in, nr_in, sd_out, vintsampledarr, nr_out ) &&
-	computeVavg( vintsampledarr, start, outtimesamps.arr(), nr_out, Vout);
+    return computeVint( Vin, t_in, nr_in, vintarr ) &&
+	sampleVint( vintarr,t_in,nr_in, sd_out, vintsampledarr, nr_out ) &&
+	computeVavg( vintsampledarr, outtimesampsarr, nr_out, Vout );
 }
 
 
@@ -1225,21 +1431,24 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
     if ( nr < 2 )
 	return false;
 
-    mAllocLargeVarLenArr( float, tmp, nr );
-    ArrayValueSeries<float,float> inputvels( (float*)vint, false, nr );
-    ArrayValueSeries<float,float> inputzs( (float*)zin, false, nr );
+    mAllocVarLenArr( float, tmparr, nr );
+    if ( !mIsVarLenArrOK(tmparr) ) return false;
+    const ArrayValueSeries<float,float> inputvels( (float*)vint, false, nr );
+    const ArrayValueSeries<float,float> inputzs( (float*)zin, false, nr );
 
+mStartAllowDeprecatedSection
     if ( zisdepth )
     {
-	TimeDepthConverter::calcTimes( inputvels, nr, inputzs, tmp );
+	TimeDepthConverter::calcTimes( inputvels, nr, inputzs, tmparr );
     }
     else
     {
-	TimeDepthConverter::calcDepths( inputvels, nr, inputzs, tmp );
+	TimeDepthConverter::calcDepths( inputvels, nr, inputzs, tmparr );
     }
+mStopAllowDeprecatedSection
 
-    const float* depths = zisdepth ? zin : tmp;
-    const float* times = zisdepth ? tmp : zin;
+    const float* depths = zisdepth ? zin : tmparr;
+    const float* times = zisdepth ? tmparr : zin;
 
     // Get boundary pairs
     float d[2], t[2], vt[2];
@@ -1403,10 +1612,23 @@ void sampleIntvThomsenPars( const float* inarr, const float* t_in, int nr_in,
 		    const SamplingData<double>& sd_out, int nr_out,
 		    float* outarr )
 {
+    mAllocVarLenArr( double, td_in, nr_in );
+    if ( !mIsVarLenArrOK(td_in) ) return;
+    for ( int idx=0; idx<nr_in; idx++ )
+	td_in[idx] = t_in[idx];
+
+    sampleIntvThomsenPars( inarr, td_in, nr_in, sd_out, nr_out, outarr );
+}
+
+
+void sampleIntvThomsenPars( const float* inarr, const double* t_in, int nr_in,
+			    const SamplingData<double>& sd_out, int nr_out,
+			    float* outarr )
+{
     int intv = 0;
     for ( int idx=0; idx<nr_out; idx++ )
     {
-	const float z = (float) sd_out.atIndex( idx );
+	const double z = sd_out.atIndex( idx );
 	for ( ; intv<nr_in; intv++ )
 	{
 	    if ( t_in[intv]<z )
@@ -1515,18 +1737,51 @@ bool convertToVintIfNeeded( const float* inpvel, const VelocityDesc& veldesc,
 			    const StepInterval<float>& zrange, float* outvel )
 {
     const int nrzvals = zrange.nrSteps() + 1;
+    const SamplingData<double> sd = getDoubleSamplingData(
+						SamplingData<float>( zrange ) );
     if ( veldesc.type_ == VelocityDesc::Avg )
     {
-	TypeSet<float> zvals( nrzvals, mUdf(float) );
+	mAllocVarLenArr( double, zvals, nrzvals );
+	if ( !mIsVarLenArrOK(zvals) ) return false;
 	for ( int idx=0; idx<nrzvals; idx++ )
-	    zvals[idx] = zrange.atIndex( idx );
+	    zvals[idx] = sd.atIndex( idx );
 
-	if ( !computeVint(inpvel,zrange.start,zvals.arr(),nrzvals,outvel) )
+	if ( !computeVint(inpvel,zvals,nrzvals,outvel) )
 	    return false;
     }
     else if ( veldesc.type_ == VelocityDesc::RMS &&
-	      !computeDix(inpvel,zrange,nrzvals,outvel) )
+	      !computeDix(inpvel,sd,nrzvals,outvel) )
 	      return false;
+    else if ( veldesc.type_ == VelocityDesc::Interval )
+    {
+	OD::sysMemCopy( outvel, inpvel, nrzvals*sizeof(float) );
+    }
 
     return true;
+}
+
+
+SamplingData<double> getDoubleSamplingData( const SamplingData<float>& sdf )
+{
+    SamplingData<double> ret( sdf.start, sdf.step );
+    if ( sdf.step > 0.7 )
+	return ret;
+
+    float nrsamplesf = 1.f / sdf.step;
+    int nrsamples = mNINT32( nrsamplesf );
+    float relpos = nrsamplesf - nrsamples;
+    if ( Math::Abs(relpos) > nrsamplesf*1e-4f )
+	return ret;
+
+    ret.step = 1. / mCast(double,nrsamples);
+
+    nrsamplesf = ret.start / ret.step;
+    nrsamples = mNINT32( nrsamplesf );
+    relpos = nrsamplesf - nrsamples;
+    if ( Math::Abs(relpos) > nrsamplesf*1e-4f )
+	return ret;
+
+    ret.start = ret.step * mCast(double, nrsamples );
+
+    return ret;
 }

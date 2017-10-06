@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivelocityvolumeconversion.h"
 
 #include "ctxtioobj.h"
+#include "ioman.h"
 #include "seisbounds.h"
 #include "seistrctr.h"
 #include "seisread.h"
@@ -144,6 +145,10 @@ bool Vel::uiBatchVolumeConversion::fillPar()
 	pErrMsg("Imparsable velocity type");
 	return false;
     }
+    else
+	outputdesc.fillPar( outputioobj->pars() );
+
+    IOM().commitChanges( *outputioobj );
 
     IOPar& par = batchfld_->jobSpec().pars_;
     outputdesc.fillPar( par );
