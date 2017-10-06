@@ -556,7 +556,7 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 	tvals[idx] = times.value( idx );
 
     const ArrayValueSeries<double,double> tinser(
-				    const_cast<double*>(tvals.ptr()), false );
+					    const_cast<double*>(tvals), false );
 
     if ( !calcDepths(vels,velsz,tinser,zvals) )
 	return false;
