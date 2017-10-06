@@ -555,8 +555,9 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
     for ( int idx=0; idx<velsz; idx++ )
 	tvals[idx] = times.value( idx );
 
+    double* tvalsptr = tvals;
     const ArrayValueSeries<double,double> tinser(
-					    const_cast<double*>(tvals), false );
+					const_cast<double*>(tvalsptr), false );
 
     if ( !calcDepths(vels,velsz,tinser,zvals) )
 	return false;
@@ -1077,7 +1078,7 @@ bool computeVavg( const float* Vint, const double* z, int nrvels, float* Vavg )
     }
     if ( idx_prev == nrvels )
     {
-	OD::sysMemSet( Vavg, mUdf(float), nrvels );
+	OD::sysMemValueSet( Vavg, mUdf(float), nrvels );
 	return false;
     }
 
@@ -1151,7 +1152,7 @@ bool computeVint( const float* Vavg, const double* z, int nrvels, float* Vint )
     }
     if ( idx_prev == nrvels )
     {
-	OD::sysMemSet( Vint, mUdf(float), nrvels );
+	OD::sysMemValueSet( Vint, mUdf(float), nrvels );
 	return false;
     }
 
