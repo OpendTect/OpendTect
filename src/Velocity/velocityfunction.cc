@@ -98,7 +98,7 @@ float Function::getVelocity( float z ) const
     if ( sampidx<0 || sampidx>=cache_->size() )
 	return mUdf(float);
 
-    const float pos = ( z - cachesd_.start ) / cachesd_.step;
+    const float pos = mCast(float,( z - cachesd_.start ) / cachesd_.step);
     if ( sampidx-pos > -cDefSampleSnapDist && sampidx-pos < cDefSampleSnapDist )
     {
 	return (*cache_)[sampidx];
