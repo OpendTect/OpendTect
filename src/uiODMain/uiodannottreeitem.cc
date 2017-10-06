@@ -210,6 +210,8 @@ Pick::Set* uiODAnnotTreeItem::readExistingSet() const
     IOObjContext ctxt = uiPickSetIOObjSel::getCtxt( uiPickSetIOObjSel::AllSets,
 						    true, getCategory() );
     uiIOObjSelDlg dlg( getUiParent(), ctxt );
+    dlg.setCaption( uiStrings::phrLoad(typestr_) ); 
+    dlg.setTitleText( uiStrings::phrSelect(typestr_) );
     if ( !dlg.go() || !dlg.ioObj() )
 	return 0;
 
