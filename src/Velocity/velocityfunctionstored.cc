@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "velocityfunctionstored.h"
 
 #include "binidvalset.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "survinfo.h"
 #include "picksettr.h"
@@ -249,37 +250,41 @@ bool StoredFunction::computeVelocity( float z0, float dz, int nr,
 	return false;
 
     mDynamicCastGet( StoredFunctionSource&, source, source_ );
+    const SamplingData<double> sd = getDoubleSamplingData(
+						SamplingData<float>(z0,dz) );
+    const int zsz = zval_.size();
+    mAllocVarLenArr( double, zvals, zsz );
+    if ( !mIsVarLenArrOK(zvals) )
+	return false;
+
+    for ( int idx=0; idx<zsz; idx++ )
+	zvals[idx] = zval_[idx];
+
     if ( getDesc().type_==VelocityDesc::Interval )
     {
-	return sampleVint( vel_.arr(), zval_.arr(), zval_.size(),
-		    SamplingData<double>( z0, dz ), res, nr );
+	return sampleVint( vel_.arr(), zvals, zsz, sd, res, nr );
     }
     else if ( getDesc().type_==VelocityDesc::RMS && source.zIsTime() )
     {
-	return sampleVrms( vel_.arr(), 0, 0, zval_.arr(), zval_.size(),
-		SamplingData<double>( z0, dz ), res, nr );
+	return sampleVrms( vel_.arr(), 0, 0, zvals, zsz, sd, res, nr );
     }
     else if ( getDesc().type_==VelocityDesc::Avg )
     {
-	return sampleVavg( vel_.arr(), zval_.arr(), zval_.size(),
-		    SamplingData<double>( z0, dz ), res, nr );
+	return sampleVavg( vel_.arr(), zvals, zsz, sd, res, nr );
     }
     else if ( getDesc().type_==VelocityDesc::Delta )
     {
-	sampleIntvThomsenPars( vel_.arr(), zval_.arr(), zval_.size(),
-		    SamplingData<double>( z0, dz ), nr, res );
+	sampleIntvThomsenPars( vel_.arr(), zvals, zsz, sd, nr, res );
 	return true;
     }
     else if ( getDesc().type_==VelocityDesc::Epsilon )
     {
-	sampleIntvThomsenPars( vel_.arr(), zval_.arr(), zval_.size(),
-		    SamplingData<double>( z0, dz ), nr, res );
+	sampleIntvThomsenPars( vel_.arr(), zvals, zsz, sd, nr, res );
 	return true;
     }
     else if ( getDesc().type_==VelocityDesc::Eta )
     {
-	sampleEffectiveThomsenPars( vel_.arr(), zval_.arr(),
-		    zval_.size(), SamplingData<double>( z0, dz ), nr, res );
+	sampleEffectiveThomsenPars( vel_.arr(), zvals, zsz, sd, nr, res );
 	return true;
     }
 

@@ -460,13 +460,12 @@ bool Well::D2TModel::getTimeDepthModel( const Well::Data& wd,
     if ( !d2t.ensureValid(wd,msg) )
 	return false;
 
-    ZSetType depths;
-    TWTSetType times;
+    TypeSet<double> depths, times;
     D2TModelIter iter( d2t );
     while ( iter.next() )
     {
 	const ZType curdah = iter.dah();
-	depths += (ZType)( wd.track().getPos( curdah ).z_ );
+	depths += wd.track().getPos( curdah ).z_;
 	times += iter.t();
     }
 

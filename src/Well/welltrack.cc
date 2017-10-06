@@ -523,12 +523,12 @@ void Well::Track::toTime( const Data& wd )
 
     TimeDepthModel replvelmodel;
     const double srddepth = -1. * SI().seismicReferenceDatum();
-    const ZType dummythickness = 1000.f;
-    ZSetType replveldepths, replveltimes;
-    replveldepths += (ZType)(srddepth - dummythickness);
-    replveltimes += -2.f * dummythickness / wd.info().replacementVelocity();
-    replveldepths += (ZType)srddepth;
-    replveltimes += 0.f;
+    const double dummythickness = 1000.;
+    TypeSet<double> replveldepths, replveltimes;
+    replveldepths += srddepth - dummythickness;
+    replveltimes += -2. * dummythickness / wd.info().replacementVelocity();
+    replveldepths += srddepth;
+    replveltimes += 0.;
     replvelmodel.setModel( replveldepths.arr(), replveltimes.arr(),
 			   replveldepths.size() );
 

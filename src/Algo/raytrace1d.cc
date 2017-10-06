@@ -130,7 +130,7 @@ void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 {
     offsets_ = offsets;
     sort( offsets_ );
-    if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
+    if ( SI().zInFeet() )
     {
 	for ( int idx=0; idx<offsets_.size(); idx++ )
 	    offsets_[idx] *= mToFeetFactorF;
@@ -151,7 +151,7 @@ void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
 {
     offsets = offsets_;
-    if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
+    if ( SI().zInFeet() )
     {
 	for ( int idx=0; idx<offsets.size(); idx++ )
 	    offsets[idx] *= mFromFeetFactorF;
@@ -193,13 +193,15 @@ od_int64 RayTracer1D::nrIterations() const
 bool RayTracer1D::doPrepare( int nrthreads )
 {
     const int layersize = mCast( int, nrIterations() );
-    depths_.erase();
-    velmax_.erase();
+    depths_.setSize( layersize, 0. );
+    velmax_.setSize( layersize, 0.f );
+    const bool zinfeet = SI().zInFeet();
     for ( int idx=0; idx<layersize; idx++ )
     {
-	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_
-		       : model_[idx].thickness_;
-	velmax_ += model_[idx].vel_;
+	double thickness = model_[idx].thickness_;
+	if ( zinfeet ) thickness *= mToFeetFactorD;
+	depths_[idx] = idx ? depths_[idx-1] + thickness : thickness;
+	velmax_[idx] = model_[idx].vel_;
     }
 
     const int offsetsz = offsets_.size();
@@ -314,7 +316,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	}
 
 	mAllocLargeVarLenArr( ZoeppritzCoeff, coefs, nrinterfaces );
-	for ( int iidx=0; iidx<nrinterfaces; iidx++ )
+        for ( int iidx=0; iidx<nrinterfaces; iidx++ )
 	    coefs[iidx].setInterface( rayparam, model_[iidx], model_[iidx+1] );
 
 	reflectivity = coefs[0].getCoeff( true, layer!=0, setup().pdown_,
@@ -347,7 +349,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	const float ai1 = ail1.vel_ * ail1.den_;
 	const float real =
 	   mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF) ? mUdf(float)
-							  : (ai1-ai0)/(ai1+ai0);
+						          : (ai1-ai0)/(ai1+ai0);
 	reflectivity = float_complex( real, 0 );
     }
 
@@ -392,7 +394,7 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
     for ( int iidx=0; iidx<nrinterfaces; iidx++ )
     {
 	spike.reflectivity_ = reflectivity_->get( iidx, offsetidx );
-	spike.depth_ = depths_[iidx];
+	spike.depth_ = mCast(float,depths_[iidx]);
 	spike.time_ = twt_->get( iidx, offsetidx );
 	spike.correctedtime_ = zerooffstwt_->get( iidx );
 	if ( !spike.isDefined()	)
@@ -433,13 +435,13 @@ bool RayTracer1D::getTDM( const Array1D<float>& twt,
 {
     const int layersize = mCast( int, nrIterations() );
 
-    TypeSet<float> times, depths;
-    depths += 0;
-    times += 0;
+    TypeSet<double> times, depths;
+    depths += 0.;
+    times += 0.;
     for ( int lidx=0; lidx<layersize; lidx++ )
     {
-	float time = twt.get( lidx );
-	if ( mIsUdf( time ) ) time = times[times.size()-1];
+	double time = twt.get( lidx );
+	if ( mIsUdf(time) ) time = times[times.size()-1];
 	if ( time < times[times.size()-1] )
 	    continue;
 
@@ -459,15 +461,15 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
     {
 	addToNrDone( 1 );
 	const ElasticLayer& ellayer = model_[layer];
-	const float depth = 2*depths_[layer];
+	const double depth = 2. * depths_[layer];
 	const float vel = setup_.pdown_ ? ellayer.vel_ : ellayer.svel_;
 	for ( int osidx=0; osidx<offsz; osidx++ )
 	{
-	    const float offset = offsets_[osidx];
-	    const float angle = depth ? atan( offset / depth ) : 0;
-	    const float rayparam = sin(angle) / vel;
+	    const double offset = offsets_[osidx];
+	    const double angle = depth ? atan( offset / depth ) : 0.;
+	    const float rayparam = mCast(float,sin(angle) / vel );
 
-	    if ( !compute( layer, osidx, rayparam ) )
+	    if ( !compute(layer,osidx,rayparam) )
 	    {
 		errmsg_ = tr( "Can not compute layer %1"
 			      "\n most probably the velocity is not correct" )

@@ -208,14 +208,11 @@ void SyntheticData::adjustD2TModels( ObjectSet<TimeDepthModel>& d2tmodels )
 	TimeDepthModel* d2tmodel = d2tmodels[idx];
 	if ( !d2tmodel ) continue;
 	const int d2tmsz = d2tmodel->size();
-	TypeSet<float> depths;
-	depths.setSize( d2tmsz );
-	TypeSet<float> times;
-	times.setSize( d2tmsz );
+	TypeSet<double> depths( d2tmsz, 0. ), times( d2tmsz, 0.f );
 	for ( int isamp=0; isamp<d2tmsz; isamp++ )
 	{
 	    depths[isamp] = d2tmodel->getDepth( isamp ) -
-				mCast(float,SI().seismicReferenceDatum());
+						SI().seismicReferenceDatum();
 	    times[isamp] = d2tmodel->getTime( isamp );
 	}
 

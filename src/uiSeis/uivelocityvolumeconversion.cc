@@ -8,6 +8,7 @@
 #include "uivelocityvolumeconversion.h"
 
 #include "ioobjctxt.h"
+#include "dbman.h"
 #include "seistrctr.h"
 #include "seisprovider.h"
 #include "survinfo.h"
@@ -141,6 +142,10 @@ bool Vel::uiBatchVolumeConversion::fillPar()
 	pErrMsg("Imparsable velocity type");
 	return false;
     }
+    else
+	outputdesc.fillPar( outputioobj->pars() );
+
+    DBM().commitChanges( *outputioobj );
 
     IOPar& par = batchfld_->jobSpec().pars_;
     outputdesc.fillPar( par );

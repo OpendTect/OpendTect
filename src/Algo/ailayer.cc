@@ -541,9 +541,9 @@ void ElasticModel::mergeSameLayers()
     for ( int lidx=1; lidx<initialsz; lidx++ )
     {
 	const ElasticLayer& curlayer = orgmodl[lidx];
-	if ( mIsEqual(curlayer.vel_,prevlayer.vel_,mDefEpsF) &&
-	     mIsEqual(curlayer.den_,prevlayer.den_,mDefEpsF) &&
-	     mIsEqual(curlayer.svel_,prevlayer.svel_,mDefEpsF) )
+	if ( mIsEqual(curlayer.vel_,prevlayer.vel_,1e-2f) &&
+	     mIsEqual(curlayer.den_,prevlayer.den_,1e-2f) &&
+	     mIsEqual(curlayer.svel_,prevlayer.svel_,1e-2f) )
 	{
 	    if ( havemerges == false ) totthickness = prevlayer.thickness_;
 	    havemerges = true;
@@ -568,9 +568,6 @@ void ElasticModel::mergeSameLayers()
 }
 
 
-#define mMaxthickness	SI().depthsInFeet() ? 165.0f : 50.0f
-#define mThreshold	0.01
-
 bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
 				  const float* pvel, const float* svel,
 				  const float* den )
@@ -580,15 +577,18 @@ bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
 
     setEmpty();
     const bool zit =  SI().zDomain().isTime();
-    const int zsize = zrange.nrSteps();
+    const bool zinfeet	= SI().depthsInFeet();
+    const int zsize = zrange.nrSteps()+1;
 
     const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
 
     int firstidx = 0; float firstlayerthickness;
+    const float firstvel = zinfeet ? pvel[firstidx] * mFromFeetFactorF
+				   : pvel[firstidx];
     if ( zit )
     {
 	firstlayerthickness = zrange.start<0.f ? 0.0f : zrange.start;
-	firstlayerthickness = firstlayerthickness*pvel[firstidx]/2.0f;
+	firstlayerthickness *= firstvel / 2.0f;
     }
     else
     {
@@ -597,34 +597,40 @@ bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
 	    firstidx = zrange.getIndex( srddepth );
 	    if ( firstidx < 0 )
 		firstidx = 0;
-
-	    firstlayerthickness = zrange.atIndex(firstidx+1)-srddepth;
 	}
-	else
-	    firstlayerthickness = zrange.start+zrange.step-srddepth;
+
+	firstlayerthickness = zrange.atIndex( firstidx ) - srddepth;
+	if ( zinfeet ) firstlayerthickness *= mFromFeetFactorF;
     }
-    
-    ElasticLayer firstlayer( firstlayerthickness, pvel[firstidx],
-			     svel ? svel[firstidx] : mUdf(float),
-			     den ? den[firstidx] : mUdf(float));
+
+    const float firstsvel = svel ? ( zinfeet ? svel[firstidx] * mFromFeetFactorF
+					     : svel[firstidx] )
+				 : mUdf(float);
+    const ElasticLayer firstlayer( firstlayerthickness, firstvel, firstsvel,
+				   den ? den[firstidx] : mUdf(float));
     *this += firstlayer;
 
     for ( int idx=firstidx+1; idx<zsize; idx++ )
     {
-	const float layerthickness = zit ? zrange.step*pvel[idx]/2.0f
-					 : zrange.step;
+	const float velp = zinfeet ? pvel[idx] * mFromFeetFactorF : pvel[idx];
+	const float layerthickness = zit ? zrange.step * velp / 2.0f
+				 : ( zinfeet ? zrange.step * mFromFeetFactorF
+					     : zrange.step );
 
-	ElasticLayer elayer( layerthickness, pvel[idx],
-			     svel ? svel[idx] : mUdf(float),
-			     den ? den[idx] : mUdf(float) );
+	const float vels = svel ? ( zinfeet ? svel[idx] * mFromFeetFactorF
+					    : svel[idx] )
+				: mUdf(float);
+	const ElasticLayer elayer( layerthickness, velp, vels,
+				   den ? den[idx] : mUdf(float) );
 	*this += elayer;
     }
 
     if ( isEmpty() )
 	return false;
 
-    block( mThreshold, true );
-    setMaxThickness( mMaxthickness );
+    mergeSameLayers();
+    removeSpuriousLayers( zrange.step );
+
     return true;
 }
 
@@ -633,9 +639,14 @@ bool ElasticModel::createFromAI( const StepInterval<float>& zrange,
 				 const float* ai, const float* si,
 				 const float* den )
 {
+    if ( !ai )
+	return false;
+
     setEmpty();
     const bool zit =  SI().zDomain().isTime();
-    const int zsize = zrange.nrSteps();
+    const bool zinfeet	= SI().depthsInFeet();
+    const int zsize = zrange.nrSteps()+1;
+
     const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
 
     int firstidx = 0; float firstlayerthickness;
@@ -648,32 +659,76 @@ bool ElasticModel::createFromAI( const StepInterval<float>& zrange,
 	    firstidx = zrange.getIndex( srddepth );
 	    if ( firstidx < 0 )
 		firstidx = 0;
-
-	    firstlayerthickness = zrange.atIndex(firstidx+1)-srddepth;
 	}
-	else
-	    firstlayerthickness = zrange.start+zrange.step-srddepth;
+
+	firstlayerthickness = zrange.atIndex( firstidx ) - srddepth;
+	if ( zinfeet ) firstlayerthickness *= mFromFeetFactorF;
     }
-    
-    ElasticLayer firstlayer( firstlayerthickness, ai[firstidx],
-			     si ? si[firstidx] : mUdf(float),
-			     den ? den[firstidx] : mUdf(float), zit );
+
+    const ElasticLayer firstlayer( firstlayerthickness, ai[firstidx],
+				   si ? si[firstidx] : mUdf(float),
+				   den ? den[firstidx] : mUdf(float), zit );
     *this += firstlayer;
 
     for ( int idx=firstidx+1; idx<zsize; idx++ )
     {
-	ElasticLayer elayer( zrange.step, ai[idx],
-			     si ? si[idx] : mUdf(float),
-			     den ? den[idx] : mUdf(float), zit );
+	const ElasticLayer elayer( zrange.step, ai[idx],
+				   si ? si[idx] : mUdf(float),
+				   den ? den[idx] : mUdf(float), zit );
+
 	*this += elayer;
     }
 
     if ( isEmpty() )
 	return false;
 
-    block( mThreshold, true );
-    setMaxThickness( mMaxthickness );
+    mergeSameLayers();
+    removeSpuriousLayers( zrange.step );
+
     return true;
+}
+
+
+void ElasticModel::removeSpuriousLayers( float zrgstep )
+{
+    if ( SI().zInFeet() ) zrgstep *= mFromFeetFactorF;
+
+    const bool zistime = SI().zIsTime();
+    for ( int idx=size()-2; idx>0; idx-- )
+    {
+	const float layervel = (*this)[idx].vel_;
+	const float layerthickness = (*this)[idx].thickness_;
+	const float layertwtthickness = 2.f * layerthickness / layervel;
+	if ( ( zistime && !mIsEqual(layertwtthickness,zrgstep,1e-2f) ) ||
+	     (!zistime && !mIsEqual(layerthickness,zrgstep,1e-2f) ) )
+	    continue;
+
+	const float velabove = (*this)[idx-1].vel_;
+	const float velbelow = (*this)[idx+1].vel_;
+	const float layerthicknessabove = (*this)[idx-1].thickness_;
+	const float layerthicknessbelow = (*this)[idx+1].thickness_;
+	const float twtthicknessabove = 2.f * layerthicknessabove / velabove;
+	const float twtthicknessbelow = 2.f * layerthicknessbelow / velbelow;
+	if ( zistime )
+	{
+	    if ( mIsEqual(twtthicknessabove,zrgstep,1e-2f) ||
+		 mIsEqual(twtthicknessbelow,zrgstep,1e-2f) )
+		continue;
+	}
+	else
+	{
+	    if ( mIsEqual(layerthicknessabove,zrgstep,1e-2f) ||
+		 mIsEqual(layerthicknessbelow,zrgstep,1e-2f) )
+		continue;
+	}
+
+	const float twtbelow = layertwtthickness * ( layervel-velabove )
+						 / ( velbelow-velabove );
+	const float twtabove = layertwtthickness - twtbelow;
+	(*this)[idx-1].thickness_ += twtabove * velabove / 2.f;
+	(*this)[idx+1].thickness_ += twtbelow * velbelow / 2.f;
+	removeSingle( idx );
+    }
 }
 
 

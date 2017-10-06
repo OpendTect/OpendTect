@@ -106,7 +106,7 @@ protected:
 			//Runtime variables
     TypeSet<int>	offsetpermutation_;
     TypeSet<float>	velmax_;
-    TypeSet<float>	depths_;
+    TypeSet<double>	depths_;
 
 				//Results
     Array2DImpl<float>*		sini_;
@@ -124,7 +124,7 @@ mExpClass(Algo) VrmsRayTracer1D : public RayTracer1D
 { mODTextTranslationClass(VrmsRayTracer1D);
 public:
 
-    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, 
+    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D,
 				  "VrmsRayTracer",
 				  tr("Simple RayTracer") );
 

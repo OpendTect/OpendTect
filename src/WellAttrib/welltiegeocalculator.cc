@@ -141,8 +141,8 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     int sz = log.size();
     if ( !sz )
        return;
-    float zfac = 1.f; 
-    if ( SI().zInFeet() != wd.info().isdepthinfeet_ ) 
+    float zfac = 1.f;
+    if ( SI().zInFeet() != wd.info().isdepthinfeet_ )
 	zfac = wd.info().isdepthinfeet_ ? mFromFeetFactorF : mToFeetFactorF;
 
     const UnitOfMeasure* loguom = log.unitOfMeasure();
@@ -183,15 +183,16 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     if ( !sz )
 	return;
 
-    TypeSet<float> sdahs, svals;
+    TypeSet<double> sdahs;
+    TypeSet<double> svals;
     mGetIdxArr( int, idxs, sz );
     if ( !idxs) return;
     sort_coupled( dahs.arr(), idxs, sz );
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int sidx = idxs[idx];
-	const float newdepth = dahs[idx];
-	const float newval = vals[sidx];
+	const double newdepth = dahs[idx];
+	const double newval = vals[sidx];
 	const int cursz = sdahs.size();
 	if ( cursz>1 && (mIsEqual(newdepth,sdahs[cursz-1],mLocalEps) ||
 			 mIsEqual(newval,svals[cursz-1],mLocalEps)) )
@@ -207,14 +208,18 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     TypeSet<float> outvals( sz, mUdf(float) );
     if ( logisvel )
     {
-	ArrayValueSeries<float,float> svalsvs(svals.arr(),false);
-	ArrayValueSeries<float,float> sdahsvs(sdahs.arr(),false);
-	if ( !TimeDepthConverter::calcTimes(svalsvs,sz,sdahsvs,outvals.arr()) )
+	const ArrayValueSeries<double,double> sdahsvs( sdahs.arr(), false );
+	ArrayValueSeries<float,float> inpvelsvs( sz );
+	mAllocVarLenArr( double, outtimes, sz );
+	if ( !inpvelsvs.isOK() || !mIsVarLenArrOK(outtimes) ) return;
+	for ( int idx=0; idx<sz; idx++ )
+	    inpvelsvs.setValue( idx, mCast(float,svals[idx]) );
+	if ( !TimeDepthConverter::calcTimes(inpvelsvs,sz,sdahsvs,outtimes) )
 	    return;
 
-	const float startime = outvals[0];
+	const float startime = mCast(float,outtimes[0]);
 	for ( int idx=0; idx<sz; idx++ )
-	    outvals[idx] += bulkshift - startime;
+	    outvals[idx] = mCast(float,outtimes[idx]) + bulkshift - startime;
     }
     else
     {

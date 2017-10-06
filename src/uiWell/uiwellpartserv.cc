@@ -468,7 +468,7 @@ bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
 static void makeTimeDepthModel( bool addwellhead, double z0, double srddepth,
 				const Well::Info& info, TimeDepthModel& model )
 {
-    TypeSet<float> dpths, times;
+    TypeSet<double> dpths, times;
     const bool wllheadbelowsrd = !addwellhead && z0 > 0.;
     const double vrepl = info.replacementVelocity();
     const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
@@ -480,10 +480,10 @@ static void makeTimeDepthModel( bool addwellhead, double z0, double srddepth,
     if ( wllheadbelowsrd )
 	originz += vrepl * z0 / 2.;
 
-    dpths.setSize( 3, (float)originz );
-    times.setSize( 3, wllheadbelowsrd ? mCast(float,z0) : 0.f );
-    dpths[0] -= (float)vtmp; times[0] -= mCast(float, 2. * vtmp / vrepl);
-    dpths[2] += (float)vtmp; times[2] += 2.f;
+    dpths.setSize( 3, originz );
+    times.setSize( 3, wllheadbelowsrd ? z0 : 0. );
+    dpths[0] -= vtmp; times[0] -= 2. * vtmp / vrepl;
+    dpths[2] += vtmp; times[2] += 2.;
     model.setModel( dpths.arr(), times.arr(), dpths.size() );
 }
 

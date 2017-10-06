@@ -16,103 +16,142 @@
 #include "prestackgather.h"
 #include "windowfunction.h"
 
+/*
+   The test program is based on the following synthetic model:
+   Layer 1: H=561.5498m, Vp = 1960m/s
+   Layer 2: H=54.81m,	 Vp = 2175m/s
+   Layer 3: H=379.228m,  Vp = 2260m/s
+   Layer 4: H=169.188m,  Vp = 2400m/s
+   The interfaces thus cross the interpretations FS8, FS7, FS4 at respectively:
+   TWT=573.01, 623.41 and 959.01ms for BinID 426/800
+   That model is digitized in the various test surveys exactly for that BinID.
 
-#define mCheckVal(ofsidx,zidx,val) \
-    if ( !mIsEqual(angles->data().get(ofsidx,zidx),val,1e-6f) ) return false
+*/
+
+// 1e-3f radians < 0.058 degree
+#define mCheckVal(ofsidx,zidx,val,act) \
+{ \
+    if ( !mIsEqual(angles.data().get(ofsidx,zidx),val,1e-3f) ) \
+    { \
+	od_cout() << "Failure for offset idx " << ofsidx; \
+	od_cout() << " and zidx: " << zidx << od_newline; \
+	act; \
+	return false; \
+    } \
+}
 
 
-bool isRawAngleOK(Gather* angles)
+bool isRawAngleOK( const Gather& angles )
 {
-    mCheckVal( 0, 0, 0.f );
-    mCheckVal( 5, 0, 1.5707964f );
-    mCheckVal( 1, 50, 0.90732318f );
-    mCheckVal( 4, 50, 1.377309f );
-    mCheckVal( 2, 100, 0.90647662f );
-    mCheckVal( 3, 100, 1.0894637f );
-    mCheckVal( 2, 200, 0.55024701f );
-    mCheckVal( 3, 200, 0.74381065f );
-    mCheckVal( 1, 250, 0.23507828f );
-    mCheckVal( 4, 250, 0.76394761f );
-    mCheckVal( 0, 275, 0.f );
-    mCheckVal( 5, 275, 0.8210543f );
+    mCheckVal( 0, 0,   0.f,; )
+    mCheckVal( 5, 0,   M_PI_2f,; )
+    mCheckVal( 1, 50,  0.905887909f,; )
+    mCheckVal( 4, 50,  1.377249863f,; )
+    mCheckVal( 2, 100, 0.905887909f,; )
+    mCheckVal( 3, 100, 1.08918025f,; )
+    mCheckVal( 2, 200, 0.549786276f,; )
+    mCheckVal( 3, 200, 0.743334588f,; )
+    mCheckVal( 1, 250, 0.234869558f,; )
+    mCheckVal( 4, 250, 0.763504006f,; )
+    mCheckVal( 0, 275, 0.f,; )
+    mCheckVal( 5, 275, 0.820676323f,; )
 
     return true;
 }
 
 
-bool isMovingAverageAngleOK(Gather* angles)
+bool isMovingAverageAngleOK( const Gather& angles )
 {
-    mCheckVal( 0, 0, 0.f );
-    mCheckVal( 5, 0, 1.5605127f );
-    mCheckVal( 1, 50, 0.90902019f );
-    mCheckVal( 4, 50, 1.3773699f );
-    mCheckVal( 2, 100, 0.90667629f );
-    mCheckVal( 3, 100, 1.0895568f );
-    mCheckVal( 2, 200, 0.55048656f );
-    mCheckVal( 3, 200, 0.74400896f );
-    mCheckVal( 1, 250, 0.23520035f );
-    mCheckVal( 4, 250, 0.76409501f );
-    mCheckVal( 0, 275, 0.f );
-    mCheckVal( 5, 275, 0.82791579f );
+    mCheckVal( 0, 0,   0.f,; );
+    mCheckVal( 5, 0,   1.55975366f,; );
+    mCheckVal( 1, 50,  0.90728283f,; );
+    mCheckVal( 4, 50,  1.37730265f,; );
+    mCheckVal( 2, 100, 0.90623587f,; );
+    mCheckVal( 3, 100, 1.08934581f,; );
+    mCheckVal( 2, 200, 0.54997629f,; );
+    mCheckVal( 3, 200, 0.7434904f,; );
+    mCheckVal( 1, 250, 0.2349564f,; );
+    mCheckVal( 4, 250, 0.7636112f,; );
+    mCheckVal( 0, 275, 0.f,; );
+    mCheckVal( 5, 275, 0.82726491f,; );
 
     return true;
 }
 
 
-bool isFFTAngleOK(Gather* angles)
+bool isFFTAngleOK( const Gather& angles )
 {
-    mCheckVal( 0, 0, 0.f );
-    mCheckVal( 5, 0, 1.5611646f );
-    mCheckVal( 1, 50, 0.91011989f );
-    mCheckVal( 4, 50, 1.3775427f );
-    mCheckVal( 2, 100, 0.90640467f );
-    mCheckVal( 3, 100, 1.0894272f );
-    mCheckVal( 2, 200, 0.55032426f );
-    mCheckVal( 3, 200, 0.74386501f );
-    mCheckVal( 1, 250, 0.23386876f );
-    mCheckVal( 4, 250, 0.76376468f );
-    mCheckVal( 0, 275, 0.f );
-    mCheckVal( 5, 275, 0.80836409f );
+    mCheckVal( 0, 0,   0.f,; )
+    mCheckVal( 5, 0,   1.5606885f,; )
+    mCheckVal( 1, 50,  0.9083171f,; )
+    mCheckVal( 4, 50,  1.37746108f,; )
+    mCheckVal( 2, 100, 0.90595824f,; )
+    mCheckVal( 3, 100, 1.08921146f,; )
+    mCheckVal( 2, 200, 0.54981774f,; )
+    mCheckVal( 3, 200, 0.74334842f,; )
+    mCheckVal( 1, 250, 0.23362018f,; )
+    mCheckVal( 4, 250, 0.76326013f,; )
+    mCheckVal( 0, 275, 0.f,; )
+    mCheckVal( 5, 275, 0.80776274f,; )
 
     return true;
 }
 
+// Analytically computed values, not an approximation
+static const float anglestimesurvlastidx[] = { 0.f, 0.211425903f, 0.405479412f,
+					0.572076f, 0.70942786f, 0.82067632f };
+static const float anglestimesurvmididx[] = { 0.f, 0.43568076f, 0.7496963f,
+					0.9493774f, 1.0779576f, 1.1650088847f };
+static const float anglestimesurvzidx[] = { 0.f, 0.25347754f, 0.47802176f,
+					0.66065097f, 0.80317355f, 0.91332992f };
+static const float anglesdepthmsurvlastidx[] = { 0.f, 0.20539539f, 0.39479112f,
+					0.5585993f, 0.69473828f, 0.8058035f };
+static const float anglesdepthmsurvmididx[] = { 0.f, 0.3947911f, 0.69473827f,
+					0.89605539f, 1.03037683f, 1.12327635f };
+static const float anglesdepthmsurvzidx[] = { 0.f, 0.25349427f, 0.478049905f,
+					0.66068436f, 0.803208f, 0.913363251f };
+static const float anglesdepthftsurvlastidx[] = { 0.f, 0.2057514f, 0.39542403f,
+					0.5594f, 0.6956147f, 0.806693513f };
+static const float anglesdepthftsurvmididx[] = { 0.f, 0.39542403f, 0.69561461f,
+					0.89692428f, 1.03116249f, 1.123971f };
+static const float anglesdepthftsurvzidx[] = { 0.f, 0.2535718f, 0.47818031f,
+					0.660839038f, 0.8033675f, 0.91351766f };
 
-#define mCompVal(ofsidx,zidx,val) \
-    if ( !mIsEqual(angles->data().get(ofsidx,zidx),val,1e-1f) ) return false
 
-bool compareAngles(Gather* angles,int zidx)
+bool compareAngles( const Gather& angles, int zidx, bool depth, bool feet )
 {
-    const int lastidx = angles->data().info().getSize( 1 ) - 1;
-    const int mididx = lastidx / 2;
+    const int nroffset = angles.data().info().getSize( 0 );
+    TypeSet<int> zidxs;
+    zidxs += 0;
+    zidxs += angles.data().info().getSize( 1 ) - 1;
+    zidxs += zidxs[1]/2;
+    zidxs += zidx;
+    const int nrztests = zidxs.size();
 
-    mCompVal( 0, 0, 0 );
-    mCompVal( 1, 0, 1.57f );
-    mCompVal( 2, 0, 1.57f );
-    mCompVal( 3, 0, 1.57f );
-    mCompVal( 4, 0, 1.57f );
-    mCompVal( 5, 0, 1.57f );
+    mDeclareAndTryAlloc(const float**,targetvals,const float*[nrztests])
+    if ( !targetvals )
+	return false;
 
-    mCompVal( 0, mididx, 0 );
-    mCompVal( 1, mididx, 0.40f );
-    mCompVal( 2, mididx, 0.70f );
-    mCompVal( 3, mididx, 0.90f );
-    mCompVal( 4, mididx, 1.05f );
-    mCompVal( 5, mididx, 1.15f );
-
-    mCompVal( 0, zidx, 0 );
-    mCompVal( 1, zidx, 0.20f );
-    mCompVal( 2, zidx, 0.40f );
-    mCompVal( 3, zidx, 0.55f );
-    mCompVal( 4, zidx, 0.70f );
-    mCompVal( 5, zidx, 0.80f );
-
-    mCompVal( 0, lastidx, 0 );
-    mCompVal( 1, lastidx, 0.20f );
-    mCompVal( 2, lastidx, 0.40f );
-    mCompVal( 3, lastidx, 0.55f );
-    mCompVal( 4, lastidx, 0.70f );
-    mCompVal( 5, lastidx, 0.80f );
+    TypeSet<float> zerovals( nroffset, M_PI_2f );
+    zerovals[0] = 0.f;
+    targetvals[0] = zerovals.arr();
+    targetvals[1] = depth
+		  ? (feet ? anglesdepthftsurvlastidx : anglesdepthmsurvlastidx)
+		  : anglestimesurvlastidx;
+    targetvals[2] = depth
+		  ? (feet ? anglesdepthftsurvmididx : anglesdepthmsurvmididx)
+		  : anglestimesurvmididx;
+    targetvals[3] = depth
+		  ? (feet ? anglesdepthftsurvzidx : anglesdepthmsurvzidx )
+		  : anglestimesurvzidx;
+    for ( int idx=0; idx<nrztests; idx++ )
+    {
+	for ( int ioff=0; ioff<nroffset; ioff++ )
+	{
+	    mCheckVal( ioff, zidxs[idx], targetvals[idx][ioff],
+		       delete [] targetvals );
+	}
+    }
 
     return true;
 }
@@ -138,7 +177,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     computer->setDBKey( velobj->key() );
-    StepInterval<double> zrange(0,1.1,0.004), offsetrange(0,2500,500);
+    const StepInterval<double> zrange(0,1.1,0.004), offsetrange(0,2500,500);
     FlatPosData fp;
     fp.setRange( true, offsetrange );
     fp.setRange( false, zrange );
@@ -157,7 +196,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    if ( !isRawAngleOK(angles) )
+    if ( !isRawAngleOK(*angles) )
     {
 	od_cout() << "Angle computer computed wrong raw values\n";
 	return false;
@@ -165,7 +204,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     computer->setMovingAverageSmoother( 0.1f, HanningWindow::sName() );
     angles = computer->computeAngles();
-    if ( !isMovingAverageAngleOK(angles) )
+    if ( !angles || !isMovingAverageAngleOK(*angles) )
     {
 	od_cout() << "Angle computer computed wrong values after AVG filter\n";
 	return false;
@@ -173,7 +212,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     computer->setFFTSmoother( 10.f, 15.f );
     angles = computer->computeAngles();
-    if ( !isFFTAngleOK(angles) )
+    if ( !angles || !isFFTAngleOK(*angles) )
     {
 	od_cout() << "Angle computer computed wrong values after FFT filter\n";
 	return false;
@@ -191,26 +230,28 @@ bool BatchProgram::go( od_ostream& strm )
 
 bool testAnglesForDifferentSurveys()
 {
-    const int nrsurveys = 6;
-    const char* survnames[] = { "F3_Test_Survey", "F3_Test_Survey_DepthFT",
-				"F3_Test_Survey_DepthFT__XYinft_",
-				"F3_Test_Survey_DepthM",
-				"F3_Test_Survey_DepthM_XYinft",
-				"F3_Test_Survey_XYinft" };
+    BufferStringSet survnames;
+    survnames.add( "F3_Test_Survey" )
+	     .add( "F3_Test_Survey_XYinft" )
+	     .add( "F3_Test_Survey_DepthM" )
+	     .add( "F3_Test_Survey_DepthM_XYinft" )
+	     .add( "F3_Test_Survey_DepthFT" )
+	     .add( "F3_Test_Survey_DepthFT__XYinft_" );
+    const int nrsurveys = survnames.size();
 
+    const double zstart = 0.;
     TypeSet<StepInterval<double> > zrgs;
-    zrgs.add( StepInterval<double> (0,1.1,0.004) );
-    zrgs.add( StepInterval<double> (0,3930,15) );
-    zrgs.add( StepInterval<double> (0,3930,15) );
-    zrgs.add( StepInterval<double> (0,1200,5) );
-    zrgs.add( StepInterval<double> (0,1200,5) );
-    zrgs.add( StepInterval<double> (0,1.1,0.004) );
+    zrgs.add( StepInterval<double> (zstart,1.1,0.004) );
+    zrgs.add( StepInterval<double> (zstart,1200.,5.) );
+    zrgs.add( StepInterval<double> (zstart,3930.,15.) );
 
-    const int zids [] = { 256, 257, 257, 235, 235, 256 };
+    //TWT=933ms, Z~=965m, Z~=3165ft
+    const int zids [] = { 233, 193, 211 };
 
     for ( int idx = 0; idx < nrsurveys; idx++ )
     {
-	IOPar surviop; surviop.set( sKey::Survey(), survnames[idx] );
+	const BufferString& survnm = survnames.get( idx );
+	IOPar surviop; surviop.set( sKey::Survey(), survnm );
 	DBM().setDataSource( surviop );
 	RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				new PreStack::VelocityBasedAngleComputer;
@@ -218,47 +259,35 @@ bool testAnglesForDifferentSurveys()
 	PtrMan<IOObj> velobj = DBM().get( DBKey::getFromString("100010.8") );
 	if ( !velobj )
 	{
-	    od_cout() << survnames[idx];
-	    od_cout() << " : Input data is not available.\n";
+	    od_cout() << survnm << " : Input data is not available.\n";
 	    return false;
 	}
 
 	computer->setDBKey( velobj->key() );
-	StepInterval<double> zrange(zrgs[idx]), offsetrange(0,2500,500);
+	const StepInterval<double>& zrg = zrgs[idx/2];
+	StepInterval<double> zrange(zrg), offsetrange(0,2500,500);
 	FlatPosData fp;
 	fp.setRange( true, offsetrange );
 	fp.setRange( false, zrange );
 	computer->setOutputSampling( fp );
-	computer->setTrcKey( TrcKey(BinID(426,950)) );
+	computer->setTrcKey( TrcKey(BinID(426,800)) );
 	if ( !computer->isOK() )
 	{
-	    od_cout() << survnames[idx];
-	    od_cout() << " : Angle computer is not OK.\n";
+	    od_cout() << survnm << " : Angle computer is not OK.\n";
 	    return false;
 	}
 
 	RefMan<Gather> angles = computer->computeAngles();
 	if ( !angles )
 	{
-	    od_cout() << survnames[idx];
+	    od_cout() << survnm ;
 	    od_cout() << " : Computer did not succeed in making angle data\n";
 	    return false;
 	}
-
-	for ( int ofsidx = 0; ofsidx <= offsetrange.nrSteps(); ofsidx++ )
+	else if ( !compareAngles(*angles,zids[idx/2],!SI().zIsTime(),
+				 SI().zInFeet()) )
 	{
-	    TypeSet<float> anglevals;
-	    for ( int zidx = 0; zidx <= zrgs[idx].nrSteps(); zidx++ )
-	    {
-		float angle = angles->data().get( ofsidx, zidx );
-		anglevals += angle;
-	    }
-	}
-
-	if ( !compareAngles(angles,zids[idx]) )
-	{
-	    od_cout() << survnames[idx];
-	    od_cout() << " : Angle computer computed wrong values\n";
+	    od_cout() << survnm << " : Angle computer computed wrong values\n";
 	    return false;
 	}
     }
