@@ -109,7 +109,7 @@ bool RayTracer1D::hasSameParams( const RayTracer1D& rt ) const
     BufferString rtkeyword = rt.factoryKeyword();
     return rtkeyword==factoryKeyword() && setup().pdown_==rt.setup().pdown_ &&
 	   setup().pup_==rt.setup().pup_ &&
-	   setup().doreflectivity_==rt.setup().doreflectivity_ && 
+	   setup().doreflectivity_==rt.setup().doreflectivity_ &&
 	   offsets_==rtoffsets;
 }
 
@@ -131,7 +131,7 @@ void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 {
     offsets_ = offsets;
     sort( offsets_ );
-    if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
+    if ( SI().zInFeet() )
     {
 	for ( int idx=0; idx<offsets_.size(); idx++ )
 	    offsets_[idx] *= mToFeetFactorF;
@@ -152,7 +152,7 @@ void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
 {
     offsets = offsets_;
-    if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
+    if ( SI().zInFeet() )
     {
 	for ( int idx=0; idx<offsets.size(); idx++ )
 	    offsets[idx] *= mFromFeetFactorF;
@@ -194,13 +194,15 @@ od_int64 RayTracer1D::nrIterations() const
 bool RayTracer1D::doPrepare( int nrthreads )
 {
     const int layersize = mCast( int, nrIterations() );
-    depths_.erase();
-    velmax_.erase();
+    depths_.setSize( layersize, 0.f );
+    velmax_.setSize( layersize, 0.f );
+    const bool zinfeet = SI().zInFeet();
     for ( int idx=0; idx<layersize; idx++ )
     {
-	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_
-	               : model_[idx].thickness_;
-	velmax_ += model_[idx].vel_;
+	float thickness = model_[idx].thickness_;
+	if ( zinfeet ) thickness *= mToFeetFactorF;
+	depths_[idx] = idx ? depths_[idx-1] + thickness : thickness;
+	velmax_[idx] = model_[idx].vel_;
     }
 
     const int offsetsz = offsets_.size();

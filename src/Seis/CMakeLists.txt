@@ -11,7 +11,10 @@ add_definitions( -DmNoAutoUiString )
 SET(OD_MODULE_DEPS Geometry MMProc )
 
 set ( OD_TEST_PROGS seisbuf.cc )
-set ( OD_BATCH_TEST_PROGS synthseis.cc )
+set ( OD_BATCH_TEST_PROGS
+	seisreader.cc
+	synthseis.cc
+)
 
 SET(OD_MODULE_SOURCES
 	initseis.cc

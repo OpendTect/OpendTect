@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocitycalc.h"
 #include "velocityfunction.h"
 
+
 namespace PreStack
 {
 
@@ -50,8 +51,8 @@ AngleComputer::AngleComputer()
     , needsraytracing_(true)
     , raytracer_(0)
     , trckey_(TrcKey::std3DSurvID(),BinID(0,0))
+    , maxthickness_(25.f)
 {
-    maxthickness_ = SI().depthsInFeet() ? 165.0f : 50.0f;
 }
 
 
@@ -157,8 +158,8 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	    continue;
 	}
 
-	PointBasedMathFunction anglevals( PointBasedMathFunction::Linear,
-					  PointBasedMathFunction::EndVal );
+	PointBasedMathFunction sinanglevals( PointBasedMathFunction::Poly,
+				     PointBasedMathFunction::ExtraPolGradient );
 
 	float layertwt = 0, prevlayertwt = mUdf(float);
 	for ( int zidx=0; zidx<zsize; zidx++ )
@@ -168,7 +169,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	    if ( mIsEqual(layertwt,prevlayertwt,1e-3) )
 		continue;
 
-	    anglevals.add( layertwt, angledata.get(ofsidx, zidx) );
+	    sinanglevals.add( layertwt, sin(angledata.get(ofsidx, zidx)) );
 	    prevlayertwt = layertwt;
 	}
 
@@ -182,11 +183,11 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 
 	Array1DImpl<float> angles( zsizeintime );
 	for ( int zidx=0; zidx<zsizeintime; zidx++ )
-	    angles.set( zidx, anglevals.getValue( zidx*deftimestep ) );
+	    angles.set( zidx, asin(sinanglevals.getValue( zidx*deftimestep )) );
 
 	filter.apply( angles );
-	PointBasedMathFunction anglevalsindepth(PointBasedMathFunction::Linear,
-					    PointBasedMathFunction::EndVal );
+	PointBasedMathFunction sinanglevalsindepth(PointBasedMathFunction::Poly,
+				    PointBasedMathFunction::ExtraPolGradient );
 
 	float layerdepth = 0, prevlayerdepth = mUdf(float);
 	for ( int zidx=0; zidx<zsizeintime; zidx++ )
@@ -196,14 +197,14 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	    if ( mIsEqual(layerdepth,prevlayerdepth,1e-3) )
 		continue;
 
-	    anglevalsindepth.add( layerdepth, angles.get( zidx ) );
+	    sinanglevalsindepth.add( layerdepth, sin(angles.get(zidx) ) );
 	    prevlayerdepth = layerdepth;
 	}
 
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
 	    const float depth = mCast( float, zrange.atIndex(zidx) );
-	    arr1doutput[zidx] = anglevalsindepth.getValue( depth );
+	    arr1doutput[zidx] = asin( sinanglevalsindepth.getValue( depth ) );
 	}
 
 	arr1doutput = arr1doutput + zsize;
@@ -308,43 +309,60 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
     const StepInterval<double> outputzrg = outputsampling_.range( false );
-    ManagedObjectSet<PointBasedMathFunction> anglevals;
 
     const ElasticModel& curem = curElasticModel();
+    const int modelsz = curem.size();
+    mAllocVarLenArr( float, depths, modelsz );
+    mAllocVarLenArr( float, times, modelsz );
+    if ( !mIsVarLenArrOK(depths) || !mIsVarLenArrOK(times) ) return false;
     TimeDepthModel td;
     rt->getTDModel( 0, td );
+    float depth = 0.f;
+    for ( int layeridx=0; layeridx<modelsz; layeridx++ )
+    {
+	depth += curem[layeridx].thickness_;
+	depths[layeridx] = depth;
+	times[layeridx] = td.getTime( depth );
+    }
+
+    const bool zistime = SI().zIsTime();
+    const bool zinfeet	= SI().zInFeet();
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
-	anglevals += new PointBasedMathFunction(
+	PointBasedMathFunction sinanglevals(
+				    PointBasedMathFunction::Poly,
+				    PointBasedMathFunction::ExtraPolGradient ),
+			       anglevals(
 				    PointBasedMathFunction::Linear,
-				    PointBasedMathFunction::None );
+				    PointBasedMathFunction::ExtraPolGradient );
 
-	if ( offsets[ofsidx] )
-	    anglevals[ofsidx]->add( 0.f, M_PI_2f );
-	else
-	    anglevals[ofsidx]->add( 0.f, 0.f );
+	sinanglevals.add( 0.f, offsets[ofsidx] ? 1.f : 0.f );
+	anglevals.add( 0.f, offsets[ofsidx] ? M_PI_2f: 0.f );
 
-	float depth = 0.0f;
-	for ( int layeridx=0; layeridx<curem.size(); layeridx++ )
+	for ( int layeridx=0; layeridx<modelsz; layeridx++ )
 	{
-	    depth += curem[layeridx].thickness_;
-	    float sinangle = rt->getSinAngle(layeridx,ofsidx);
+	    float sinangle = rt->getSinAngle( layeridx, ofsidx );
 	    if ( mIsUdf(sinangle) )
 		continue;
 
 	    if ( fabs(sinangle) > 1.0f )
 		sinangle = sinangle > 0.f ? 1.0f : -1.0f;
 
-	    const float angle = asin(sinangle);
-	    anglevals[ofsidx]->add( depth, angle );
+	    const float zval = zistime ? times[layeridx] : depths[layeridx];
+	    sinanglevals.add( zval, sinangle );
+	    anglevals.add( zval, Math::ASin(sinangle) );
 	}
 
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
-	    const float layerz = mCast( float, outputzrg.atIndex(zidx) );
-	    const float zval = SI().zDomain().isTime() ? td.getDepth( layerz )
-						       : layerz;
-	    const float angle = anglevals[ofsidx]->getValue( zval );
+	    const double layerz = outputzrg.atIndex( zidx );
+	    const float zval = mCast(float, zinfeet ? layerz * mFromFeetFactorD
+						    : layerz );
+	    const float sinangle = sinanglevals.getValue( zval );
+	    float angle = asin( sinangle );
+	    if ( mIsUdf(sinangle) || !Math::IsNormalNumber(angle) )
+		angle = anglevals.getValue( zval );
+
 	    angledata.set( ofsidx, zidx, angle );
 	}
     }
@@ -399,7 +417,8 @@ Gather* AngleComputer::computeAngleData()
 
 // VelocityBasedAngleComputer
 VelocityBasedAngleComputer::VelocityBasedAngleComputer()
-    : velsource_( 0 )
+    : AngleComputer()
+    , velsource_( 0 )
 {}
 
 
@@ -431,8 +450,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     if ( !source )
 	return 0;
 
-    ConstRefMan<Vel::Function> func =
-	source->getFunction( BinID(trckey_.lineNr(),trckey_.trcNr()) );
+    ConstRefMan<Vel::Function> func = source->getFunction( trckey_.position() );
     if ( !func )
 	return 0;
 
@@ -445,27 +463,19 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     zrange.limitTo( desiredzrange );
 
     const int zsize = zrange.nrSteps() + 1;
-    TypeSet<float> vel;
-    vel.setCapacity( zsize, false );
-
-    float convfactor = 1;
-    if ( SI().zDomain().isTime() && SI().depthsInFeet() )
-	convfactor = mFromFeetFactorF;
+    mAllocVarLenArr( float, velsrc, zsize );
+    mAllocVarLenArr( float, vel, zsize );
+    if ( !mIsVarLenArrOK(velsrc) || !mIsVarLenArrOK(vel) )
+	return 0;
 
     for( int idx=0; idx<zsize; idx++ )
-	vel += func->getVelocity( zrange.atIndex(idx) ) * convfactor;
+	velsrc[idx] = func->getVelocity( zrange.atIndex(idx) );
 
-    if ( veldesc.type_ != VelocityDesc::Interval )
-    {
-	mAllocVarLenArr( float, velocityvalues, zsize );
-	if (!convertToVintIfNeeded(vel.arr(),veldesc,zrange,velocityvalues))
-	    return 0;
-
-	if ( !elasticmodel_.createFromVel(zrange, velocityvalues))
-	    return 0;
-    }
-    else if ( !elasticmodel_.createFromVel(zrange, vel.arr()) )
+    if ( !convertToVintIfNeeded(velsrc,veldesc,zrange,vel) ||
+	 !elasticmodel_.createFromVel(zrange,vel) )
 	return 0;
+
+    elasticmodel_.setMaxThickness( maxthickness_ );
 
     return computeAngleData();
 }
