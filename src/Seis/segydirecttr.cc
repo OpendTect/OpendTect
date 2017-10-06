@@ -277,7 +277,7 @@ SEGYDirectSeisTrcTranslator::SEGYDirectSeisTrcTranslator( const char* s1,
 
 SEGYDirectSeisTrcTranslator::~SEGYDirectSeisTrcTranslator()
 {
-    initVars();
+    cleanUp();
 }
 
 
