@@ -94,9 +94,14 @@ float Function::getVelocity( float z ) const
     }
     cachelckr.unlockNow();
 
+    const int sz = cache_->size();
     const int sampidx = cachesd_.nearestIndex( z );
-    if ( sampidx<0 || sampidx>=cache_->size() )
+    if ( sampidx<0 || sampidx>=sz )
 	return mUdf(float);
+    else if ( sampidx<0 )
+	return (*cache_)[0];
+    else if ( sampidx>=sz-1 )
+	return (*cache_)[sz-1];
 
     const float pos = mCast(float,( z - cachesd_.start ) / cachesd_.step);
     if ( sampidx-pos > -cDefSampleSnapDist && sampidx-pos < cDefSampleSnapDist )
@@ -104,12 +109,9 @@ float Function::getVelocity( float z ) const
 	return (*cache_)[sampidx];
     }
 
-    return Interpolate::linearReg1DWithUdf(
-	    (*cache_)[sampidx],
-	    sampidx<(cache_->size()-1)
-		? (*cache_)[sampidx+1]
-		: mUdf(float),
-	    pos );
+    return Interpolate::linearReg1DWithUdf( (*cache_)[sampidx], sampidx<(sz-1)
+					  ? (*cache_)[sampidx+1]
+					  : mUdf(float), pos );
 }
 
 
