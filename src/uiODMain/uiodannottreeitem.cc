@@ -283,6 +283,8 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
     ctio->ctxt_.forread_ = true;
     ctio->ctxt_.toselect_.require_.set(sKey::Type(),managerName(),oldSelKey());
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
+    dlg.setCaption( uiStrings::phrLoad(typestr_) ); 
+    dlg.setTitleText( uiStrings::phrSelect(typestr_) );
     if ( !dlg.go() || !dlg.ioObj() )
 	mDelCtioRet;
 
