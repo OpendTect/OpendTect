@@ -130,11 +130,11 @@ macro(OD_SETUP_OSG)
 			    OD_INSTALL_LIBRARY( ${FILENM} ${BUILD_TYPE} )
 
 			    if ( OD_ENABLE_BREAKPAD AND ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
-				    execute_process( COMMAND ${CMAKE_COMMAND}
-								-DLIBRARY=${FILENM}
-								-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
-								-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake )
-				   get_filename_component( FILEPATH ${FILENM} PATH )
+				    #execute_process( COMMAND ${CMAKE_COMMAND}
+				    #				-DLIBRARY=${FILENM}
+				    #				-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
+				    #				-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake )
+				   #get_filename_component( FILEPATH ${FILENM} PATH )
 				   #//TODO
 				   #install( DIRECTORY ${FILEPATH}/symbols DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE} )
 			    endif()
