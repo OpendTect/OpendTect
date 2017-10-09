@@ -145,7 +145,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     else
 	outputdesc.fillPar( outputioobj->pars() );
 
-    DBM().commitChanges( *outputioobj );
+    DBM().setEntry( *outputioobj );
 
     IOPar& par = batchfld_->jobSpec().pars_;
     outputdesc.fillPar( par );

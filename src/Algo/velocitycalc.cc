@@ -119,7 +119,7 @@ float TimeDepthModel::getVelocity( const double* dpths, const double* times,
 	return mUdf(float);
 
     int idx1;
-    IdxAble::findFPPos( dpths, sz, depth, -1, idx1 );
+    IdxAble::findFPPos( dpths, sz, mCast(double,depth), -1, idx1 );
     if ( idx1 < 1 )
 	idx1 = 1;
     else if ( idx1 > sz-1 )
@@ -458,7 +458,8 @@ void TimeDepthConverter::calcZ( const double* zvals, int inpsz,
 		    zsample = zvals[sampidx];
 		}
 
-		zrev = IdxAble::interpolateReg( zrevvals, inpsz, zsample );
+		zrev = mCast( double, IdxAble::interpolateReg(zrevvals, inpsz,
+				    mCast(float,zsample)) );
 	    }
 
 	    if ( !time ) zrev -= seisrefdatum;

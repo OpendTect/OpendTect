@@ -230,7 +230,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 	outvals += replvel;
 	for ( int idx=1; idx<sz; idx++ )
 	    outvals += verticaldtmod.getVelocity( sdahs.arr(), svals.arr(),
-						  sz, sdahs[idx] );
+						 sz, mCast(float,sdahs[idx]) );
     }
 
     log.setEmpty();
