@@ -152,6 +152,7 @@ bool initPlugin()
     SI().readSavedCoordSystem();
 
     mRunTest( Coords::ProjectionRepos::getRepos(sKeyRepoNm) )
+    mRunTest( !Coords::ProjectionRepos::reposSet()[0]->isEmpty() )
 
     return true;
 }
