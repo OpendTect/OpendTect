@@ -157,10 +157,7 @@ int nextStep()
 	    linenms_.addIfNew(linenm);
 	BufferString bsr;
 	for ( int lidx=0; lidx<linenms_.size(); lidx++ )
-	{
 	    bsr = linenms_.get(lidx);
-	    int i = 0;
-	}
 
 	if ( !bidvs_ || (prevhornm_ != hornm) )
 	    bidvs_ = new BinIDValueSet( 1, false );
