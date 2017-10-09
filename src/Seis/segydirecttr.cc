@@ -457,6 +457,9 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
 	curfilenr_ = fdsidx.filenr_;
 	delete tr_;
 	tr_ = SEGYDirectSeisTrcTranslator::createTranslator( *def_, curfilenr_);
+	if ( seldata_ && tr_ )
+	    tr_->setSelData( seldata_ );
+
 	setCompDataFromInput();
     }
 
@@ -476,6 +479,8 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !tr_->readInfo(ti) || ti.binid != curBinID() )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
+    ti.sampling.start = outsd_.start;
+    ti.sampling.step = outsd_.step;
     if ( tr_->curtrcscalebase_ )
 	curtrcscalebase_ = tr_->curtrcscalebase_;
 
