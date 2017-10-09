@@ -135,7 +135,8 @@ macro(OD_SETUP_OSG)
 								-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
 								-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake )
 				   get_filename_component( FILEPATH ${FILENM} PATH )
-				   install( DIRECTORY ${FILEPATH}/symbols DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE} )
+				   #//TODO
+				   #install( DIRECTORY ${FILEPATH}/symbols DESTINATION ${OD_LIB_INSTALL_PATH_RELEASE} )
 			    endif()
 			endif()
 			list( REMOVE_ITEM ARGS ${ARGS} )
