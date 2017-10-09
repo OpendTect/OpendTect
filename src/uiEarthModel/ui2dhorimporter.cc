@@ -77,7 +77,6 @@ int Horizon2DBulkImporter::nextStep()
 
     bvalset_->get( pos_, bid, vals );
     if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
-    const int idx = geomids_.size() > bid.inl() ? bid.inl() : 0;
     const Pos::GeomID geomid = bid.inl();
 
     if ( bid.inl() != prevlineidx_ )

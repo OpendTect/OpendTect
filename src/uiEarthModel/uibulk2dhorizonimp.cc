@@ -300,7 +300,6 @@ bool uiBulk2DHorizonImport::acceptOK()
     ObjectSet<BinIDValueSet> data = reader->data_;
     ObjectSet<EM::Horizon2D> hor2ds;
     EM::EMManager& em = EM::EMM();
-    EM::Horizon2D* hor(0);
     PtrMan<IOObj> existioobj(0);
     BufferStringSet existinghornms;
     for ( int idx=0; idx<hornms.size(); idx++ )
