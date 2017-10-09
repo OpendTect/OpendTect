@@ -154,12 +154,13 @@ bool initPlugin()
     Coords::ProjectionBasedSystem::initClass();
     Coords::ProjectionRepos* repos = new Coords::ProjectionRepos( sKeyRepoNm,
 				    toUiString("Standard EPSG Projectons") );
-    BufferString epsgfnm = mGetSetupFileName( "epsg" );
+    BufferString epsgfnm = mGetSetupFileName( "CRS/epsg" );
     repos->readFromFile( epsgfnm );
     Coords::ProjectionRepos::addRepos( repos );
     SI().readSavedCoordSystem();
 
     mRunTest( Coords::ProjectionRepos::getRepos(sKeyRepoNm) )
+    mRunTest( !Coords::ProjectionRepos::reposSet()[0]->isEmpty() )
 
     return true;
 }

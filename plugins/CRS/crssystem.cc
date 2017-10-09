@@ -16,7 +16,8 @@ Coords::ProjectionBasedSystem::ProjectionBasedSystem()
 {}
 
 
-Coords::ProjectionBasedSystem::ProjectionBasedSystem( AuthorityCode code )
+Coords::ProjectionBasedSystem::ProjectionBasedSystem(
+					    Coords::AuthorityCode code )
     : proj_(0)
 {
     setProjection( code );
