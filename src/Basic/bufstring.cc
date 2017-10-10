@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "fixedstring.h"
 #include "iopar.h"
+#include "separstr.h"
 #include "string2.h"
 #include "globexpr.h"
 #include "uistring.h"
@@ -620,6 +621,38 @@ int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
 	    { mindist = curdist; minidx = myidx; }
     }
     return minidx;
+}
+
+
+BufferString BufferStringSet::commonStart() const
+{
+    BufferString ret;
+    const size_type sz = size();
+    if ( sz < 1 )
+    	return ret;
+
+    ret.set( get(0) );
+
+    for ( int idx=1; idx<sz; idx++ )
+    {
+    	int retsz = ret.size();
+	if ( retsz < 1 )
+	    return ret;
+
+	const BufferString& cur = get( idx );
+    	const int cursz = cur.size();
+	if ( cursz < 1 )
+	    { ret.setEmpty(); break; }
+	if ( cursz < retsz )
+	    { ret[cursz-1] = '\0'; retsz = cursz; }
+	for ( int ich=retsz-1; ich>-1; ich-- )
+	{
+	    if ( ret[ich] != cur[ich] )
+	    	ret[ich] = '\0';
+	}
+    }
+
+    return ret;
 }
 
 

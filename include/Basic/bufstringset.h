@@ -57,6 +57,7 @@ public:
 
     int			maxLength() const;
     void		sort(bool caseinsens=true,bool asc=true);
+    BufferString	commonStart() const;
 
     int*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
 			//!< returns new int [size()] for you to 'delete []'
