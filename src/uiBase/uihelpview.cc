@@ -187,7 +187,7 @@ void WebsiteHelp::provideHelp( const char* arg ) const
     const FixedString argstr = arg;
     BufferString url;
     if ( argstr == sKeyAttribMatrix() )
-	url = "https://opendtect.org/opendtect-attributes-matrix";
+	url = "https://www.dgbes.com/index.php/software/attributes-table";
     else if ( argstr == sKeySupport() )
 	url = "https://opendtect.org/index.php/support";
 
