@@ -7,7 +7,7 @@
 
 add_definitions( -DmNoAutoUiString )
 
-set( OD_MODULE_DEPS uiTools MMProc uiFlatView Geometry )
+set( OD_MODULE_DEPS uiTools uiFlatView Geometry )
 set( OD_MODULE_SOURCES
 	dpsdensitycalc.cc
 	ui2dgeomman.cc
