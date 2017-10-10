@@ -68,12 +68,15 @@ BodyFiller::BodyFiller()
     , flatpolygon_(false)
     , plgdir_(0)
     , epsilon_(1e-4)
-{}
+{
+    polygon_.setParam( this, 0 );
+}
 
 
 BodyFiller::~BodyFiller()
 {
     releaseData();
+    polygon_.removeParam( this );
 }
 
 
@@ -91,7 +94,6 @@ void BodyFiller::releaseData()
     plgbids_.erase();
 
     delete polygon_.getParam( this );
-    polygon_.removeParam( this );
     polygon_.setParam( this, 0 );
 }
 
@@ -388,7 +390,6 @@ Task* BodyFiller::createTask()
 	}
 
 	delete polygon_.getParam( this );
-	polygon_.removeParam( this );
 	polygon_.setParam( this, newplg );
     }
     else
