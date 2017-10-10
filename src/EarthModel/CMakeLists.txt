@@ -8,8 +8,10 @@
 add_definitions( -DmNoAutoUiString )
 
 
-set(OD_MODULE_DEPS Batch Geometry )
-list ( APPEND OD_BATCH_TEST_PROGS emstoredobjaccess.cc )
+SET(OD_MODULE_DEPS Geometry)
+SET(OD_BATCH_TEST_PROGS
+	emstoredobjaccess.cc
+)
 set(OD_MODULE_SOURCES
 		em2ddatafmtconverter.cc
 		embody.cc
