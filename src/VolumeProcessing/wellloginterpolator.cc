@@ -534,7 +534,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 
 	gridder->setTrend( trendorder_ );
 	float val = gridder->getValue( gridpoint );
-	if ( doinverse_ ) val = 1.f / val;
+	if ( doinverse_ && !mIsUdf(val) ) val = 1.f / val;
 	outputarray.set( outputinlidx, outputcrlidx, idz, val );
     }
 
