@@ -4,10 +4,18 @@
  * DATE     : Feb 2016
 -*/
 
+#include "batchprog.h"
+#include "testprog.h"
 
+#include "embody.h"
+#include "emfaultstickset.h"
+#include "emhorizon3d.h"
 #include "emstoredobjaccess.h"
-#include "od_ostream.h"
+#include "executor.h"
+#include "moddepmgr.h"
 #include "dbkey.h"
+
+
 
 #define mErrRet(s) { od_ostream::logStream() << s << od_endl; return false; }
 
@@ -28,28 +36,19 @@ static bool initLoader( EM::StoredObjAccess& soa )
 }
 
 
-#include "testprog.h"
-#include "emhorizon3d.h"
-#include "embody.h"
-#include "emfaultstickset.h"
-#include "executor.h"
-#include "moddepmgr.h"
-
-
-int testMain( int argc, char** argv )
+bool BatchProgram::go( od_ostream& strm )
 {
-    mInitTestProg();
+    mInitBatchTestProg();
     OD::ModDeps().ensureLoaded( "EarthModel" );
-
 
     EM::StoredObjAccess soa;
     if ( !initLoader(soa) )
-	return 1;
+	return false;
 
     Executor* exec = soa.reader();
     LoggedTaskRunner ltr( od_cout() );
     if ( !ltr.execute(*exec) )
-	return 1;
+	return false;
 
     delete exec;
 
@@ -88,5 +87,5 @@ int testMain( int argc, char** argv )
        -> 4 sticks, 7 knots.
        */
 
-    return 0;
+    return true;
 }
