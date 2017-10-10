@@ -159,10 +159,13 @@ if(WIN32)
 
     set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
 
+    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP" )
+		#/MP for parallel building
     if ( CTEST_MODEL STREQUAL "Experimental" )
 	set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
 	#/debug will enable the generation of pdb-files.
-	set ( CMAKE_CXX_FLAGS " /Z7 ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
+	set ( CMAKE_CXX_FLAGS " /Z7 ${CMAKE_CXX_FLAGS}" )
+		#/Zi for additional debug info to the .pdb file. 
     endif()
 
     #If Qt4, we use wchar_t-
