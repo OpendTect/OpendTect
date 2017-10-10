@@ -662,6 +662,38 @@ BufferStringSet::size_type BufferStringSet::nearestMatch( const char* s,
 }
 
 
+BufferString BufferStringSet::commonStart() const
+{
+    BufferString ret;
+    const size_type sz = size();
+    if ( sz < 1 )
+    	return ret;
+
+    ret.set( get(0) );
+
+    for ( int idx=1; idx<sz; idx++ )
+    {
+    	int retsz = ret.size();
+	if ( retsz < 1 )
+	    return ret;
+
+	const BufferString& cur = get( idx );
+    	const int cursz = cur.size();
+	if ( cursz < 1 )
+	    { ret.setEmpty(); break; }
+	if ( cursz < retsz )
+	    { ret[cursz-1] = '\0'; retsz = cursz; }
+	for ( int ich=retsz-1; ich>-1; ich-- )
+	{
+	    if ( ret[ich] != cur[ich] )
+	    	ret[ich] = '\0';
+	}
+    }
+
+    return ret;
+}
+
+
 bool BufferStringSet::isSubsetOf( const BufferStringSet& bss ) const
 {
     for ( size_type idx=0; idx<size(); idx++ )

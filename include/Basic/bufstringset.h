@@ -80,6 +80,7 @@ public:
 					 CaseSensitivity s=CaseSensitive,
 					 size_type startat=0) const;
     bool		hasUniqueNames(CaseSensitivity s=CaseSensitive) const;
+    BufferString	commonStart() const;
 
     void		sort(bool caseinsens=true,bool asc=true);
     size_type*		getSortIndexes(bool caseinsns=true,bool asc=true) const;
