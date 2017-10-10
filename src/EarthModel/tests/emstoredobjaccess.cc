@@ -6,9 +6,17 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "batchprog.h"
+#include "testprog.h"
+
+#include "embody.h"
+#include "emhorizon3d.h"
+#include "emfaultstickset.h"
 #include "emstoredobjaccess.h"
-#include "od_ostream.h"
+#include "executor.h"
+#include "moddepmgr.h"
 #include "multiid.h"
+#include "od_ostream.h"
 
 #define mErrRet(s) { od_ostream::logStream() << s << od_endl; return false; }
 
@@ -29,28 +37,19 @@ static bool initLoader( EM::StoredObjAccess& soa )
 }
 
 
-#include "testprog.h"
-#include "emhorizon3d.h"
-#include "embody.h"
-#include "emfaultstickset.h"
-#include "executor.h"
-#include "moddepmgr.h"
-
-
-int main( int argc, char** argv )
+bool BatchProgram::go( od_ostream& strm )
 {
-    mInitTestProg();
+    mInitBatchTestProg();
     OD::ModDeps().ensureLoaded( "EarthModel" );
-
 
     EM::StoredObjAccess& soa = *new EM::StoredObjAccess;
     if ( !initLoader(soa) )
-	ExitProgram(1);
+	return false;
 
     Executor* exec = soa.reader();
     TextTaskRunner ttr( od_cout() );
     if ( !ttr.execute(*exec) )
-	ExitProgram(1);
+	return false;
 
     delete exec;
 
@@ -90,5 +89,5 @@ int main( int argc, char** argv )
        */
 
     delete &soa;
-    return ExitProgram( 0 );
+    return true;
 }
