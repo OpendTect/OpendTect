@@ -91,7 +91,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 		  uiStrings::sFile())), uiFileInput::Setup(uiFileDialog::Gen)
 		  .withexamine(true).forread(true).filter(fltr)
 		  .defseldir(sImportFromPath) );
-    inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
+    inpfld_->setSelectMode( uiFileDialog::ExistingFile );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
 
     OD::ChoiceMode mode =
