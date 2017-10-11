@@ -24,6 +24,13 @@ macro ( create_package PACKAGE_NAME )
 	endif()
 
 	copy_thirdpartylibs()
+	if ( WIN32 )
+	elseif( APPLE )
+	else()
+	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			    /usr/lib64/libpython2.6.so.1.0
+			    ${COPYTOLIBDIR} )
+	endif()
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
     endif()
 
