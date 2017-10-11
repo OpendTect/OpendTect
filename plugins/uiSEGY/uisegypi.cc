@@ -284,7 +284,7 @@ void uiSEGYMgr::readStarterCB( CallBacker* cb )
 
 void uiSEGYMgr::bulkImport( CallBacker* )
 {
-    uiSEGYBulkImporter bulkimpdlg( ODMainWin() );
+    uiSEGYMultiVintageImporter bulkimpdlg( ODMainWin() );
     if ( !bulkimpdlg.nrSelFiles() )
 	return;
 

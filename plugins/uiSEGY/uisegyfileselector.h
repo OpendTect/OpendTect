@@ -10,12 +10,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uisegycommon.h"
+#include "uicombobox.h"
 #include "uidialog.h"
 #include "uilistbox.h"
 #include "uisegybulkimporter.h"
 
 class uiTextEdit;
+class uiComboBox;
 namespace SEGY{ class ImpType; }
 namespace File{ class Path; }
 
@@ -23,26 +24,33 @@ mExpClass(uiSEGY) uiSEGYFileSelector : public uiDialog
 { mODTextTranslationClass(uiSEGYFileSelector)
 public:
 		uiSEGYFileSelector(uiParent*, const char* fnm,
-				   const char* vntname,
 				   const SEGY::ImpType&,
-				   const ObjectSet<uiSEGYVintageInfo>&);
+				   const ObjectSet<uiSEGYVintageInfo>&,
+				   const bool editmode=false,
+				   const char* vntnm=0);
 		~uiSEGYFileSelector();
     bool	isEmpty() const
 		{ return filenmsfld_->isEmpty(); }
 
     void	getSelNames(BufferStringSet&);
+    void	setSelectableNames(const BufferStringSet&, bool chosen=false);
+    void	getSelectableFiles(const BufferString& dirpath,
+				   BufferStringSet&);
+    void	getVintagName(BufferString& vntnm)
+		{ vntnm = vintagefld_->text(); }
 
 protected:
     void	selChgCB(CallBacker*);
     void	quickScanCB(CallBacker*);
+    void	vntChgCB(CallBacker*);
     bool	acceptOK();
     bool	rejectOK();
-    void	getSelectableFiles(const BufferString& dirpath,
-				   BufferStringSet&);
 
     uiListBox*				filenmsfld_;
     uiTextEdit*				txtfld_;
+    uiComboBox*				vintagefld_;
     const File::Path&			fp_;
     const SEGY::ImpType&		imptype_;
+    const bool				editmode_;
     const ObjectSet<uiSEGYVintageInfo>&		vntinfos_;
 };

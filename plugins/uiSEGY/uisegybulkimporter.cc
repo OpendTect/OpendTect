@@ -10,22 +10,22 @@ ________________________________________________________________________
 
 #include "uisegybulkimporter.h"
 
-#include "uibutton.h"
-#include "uicombobox.h"
+#include "repos.h"
+#include "rowcol.h"
+
+#include "uisegyfileselector.h"
 #include "uisegyreadstarter.h"
+#include "uimsg.h"
 #include "uitable.h"
 #include "uitoolbutton.h"
 
-#include "repos.h"
-#include "rowcol.h"
-#include "survinfo.h"
-#include "uimsg.h"
-#include "uisegyfileselector.h"
 
 
-uiSEGYBulkImporter::uiSEGYBulkImporter( uiParent* p )
+uiSEGYMultiVintageImporter::uiSEGYMultiVintageImporter( uiParent* p )
     : uiDialog(p, uiDialog::Setup(tr("Import Bulk SEGY Data"),
 	       mNoDlgTitle,mNoHelpKey) )
+    , fsdlg_(0)
+    , rsdlg_(0)
 {
     imptypefld_ = new uiSEGYImpType( this, false, 0, true );
     table_ = new uiTable( this, uiTable::Setup(), "Bulk Import Table" );
@@ -39,72 +39,76 @@ uiSEGYBulkImporter::uiSEGYBulkImporter( uiParent* p )
     table_->setNrRows(0);
     uiGroup* toolgrp = new uiGroup( this, "Tool group" );
     uiToolButton* addbut = new uiToolButton(toolgrp, "plus",
-					    uiStrings::phrAdd(tr("Vintage")),
-					    mCB(this,uiSEGYBulkImporter,addCB));
+				    uiStrings::phrAdd(tr("Vintage")),
+				    mCB(this,uiSEGYMultiVintageImporter,addCB));
     uiToolButton* removebut = new uiToolButton(toolgrp, "minus",
-					 uiStrings::phrRemove(tr("Vintage")),
-					 mCB(this,uiSEGYBulkImporter,removeCB));
+				 uiStrings::phrRemove(tr("Vintage")),
+				 mCB(this,uiSEGYMultiVintageImporter,removeCB));
     removebut->attach( alignedBelow, addbut );
     uiToolButton* editbut = new uiToolButton(toolgrp, "edit",
-					uiStrings::phrEdit(tr("Vintage")),
-					mCB(this,uiSEGYBulkImporter,editVntCB));
+				uiStrings::phrEdit(tr("Vintage")),
+				mCB(this,uiSEGYMultiVintageImporter,editVntCB));
     editbut->attach( alignedBelow, removebut );
     toolgrp->attach( rightOf, table_ );
     addCB( 0 );
 }
 
 
-uiSEGYBulkImporter::~uiSEGYBulkImporter()
+uiSEGYMultiVintageImporter::~uiSEGYMultiVintageImporter()
 {
     deepErase( vntinfos_ );
+    if ( rsdlg_ ) delete rsdlg_;
+    if ( fsdlg_ ) delete fsdlg_;
 }
 
 
-bool uiSEGYBulkImporter::selectVintage()
+bool uiSEGYMultiVintageImporter::selectVintage()
 {
-    const SEGY::ImpType imptype = imptypefld_->impType();
-    uiSEGYReadStarter::Setup su( false, &imptype );
-    su.filenm(0).fixedfnm(false).vintagecheckmode(true);
-    vntinfos_.isEmpty() ? su.vntinfos( 0 ) : su.vntinfos( &vntinfos_ );
-    uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su);
-    if ( !readstrdlg->go() )
-	return false;
-
-    readstrdlg->getVintagName( vintagenm_ );
-    uiSEGYFileSelector* fsdlg =
-			new uiSEGYFileSelector( this,
-						readstrdlg->userFileName(),
-						vintagenm_.buf(), imptype,
-						vntinfos_ );
-    if ( fsdlg->isEmpty() )
+    while( true ) // do not let user escape before good selection or cancel
     {
-	uiMSG().message( tr("No files found."
-			    "\nAll the files at this location have already "
-			    "been added to a vintage in bulk import table.") );
-	delete fsdlg;
-	return false;
-    }
-    if ( !fsdlg->go() )
-	return false;
+	const SEGY::ImpType imptype = imptypefld_->impType();
+	uiSEGYReadStarter::Setup rsdlgsu( false, &imptype );
+	rsdlgsu.filenm( 0 ).fixedfnm( false ).vintagecheckmode( true );
+	vntinfos_.isEmpty() ? rsdlgsu.vntinfos( 0 )
+			    : rsdlgsu.vntinfos( &vntinfos_ );
+	rsdlg_ = new uiSEGYReadStarter( this, rsdlgsu );
+	if ( !rsdlg_->go() )
+	    return false;
 
-    fsdlg->getSelNames( selfilenms_ );
+	fsdlg_ = new uiSEGYFileSelector( this, rsdlg_->userFileName(),
+					 imptype, vntinfos_ );
+	if ( fsdlg_->isEmpty() )
+	{
+	    uiMSG().message( tr("No files found."
+			"\nAll the files at this location have already "
+			"been added to a vintage in bulk import table.") );
+	    delete fsdlg_;
+	    return false;
+	}
+
+	if ( fsdlg_->go() )
+	    break;
+    }
+
+    fsdlg_->getVintagName( vintagenm_ );
+    fsdlg_->getSelNames( selfilenms_ );
     uiSEGYVintageInfo* vntinfo = new uiSEGYVintageInfo();
     vntinfo->vintagenm_ = vintagenm_;
     vntinfo->filenms_ = selfilenms_;
-    vntinfo->fp_ = File::Path( readstrdlg->userFileName() );
+    vntinfo->fp_ = File::Path( rsdlg_->userFileName() );
     vntinfos_.add( vntinfo );
 
     return true;
 }
 
 
-void uiSEGYBulkImporter::addCB( CallBacker* )
+void uiSEGYMultiVintageImporter::addCB( CallBacker* )
 {
     if ( !selectVintage() )
 	return;
 
     table_->setNrRows( table_->nrRows() + 1 );
-    CallBack selcb = mCB(this,uiSEGYBulkImporter,selectFilesCB);
+    CallBack selcb = mCB(this,uiSEGYMultiVintageImporter,selectFilesCB);
     uiPushButton* selbut = new uiPushButton( 0, uiStrings::sSelect(),
 					     selcb, false );
     selbut->setIcon( "selectfromlist" );
@@ -117,30 +121,60 @@ void uiSEGYBulkImporter::addCB( CallBacker* )
 }
 
 
-void uiSEGYBulkImporter::fillRow( int rowid )
+void uiSEGYMultiVintageImporter::fillRow( int rowid )
 {
-    BufferString dispstr( selfilenms_.getDispString( selfilenms_.size(),
-						     true) );
+    uiSEGYVintageInfo* vntinfo = vntinfos_.get( rowid );
+    if ( !vntinfo )
+	pErrMsg("Something went wrong.segysetup file modified?; return;");
+
+    BufferStringSet selnms( vntinfo->filenms_ );
+    BufferString dispstr( selnms.getDispString( selnms.size(), true) );
     table_->setText( RowCol(rowid,0), vintagenm_.buf() );
     table_->setText( RowCol(rowid,1), dispstr );
 }
 
 
-void uiSEGYBulkImporter::selectFilesCB( CallBacker*)
+void uiSEGYMultiVintageImporter::selectFilesCB( CallBacker* cb )
 {
+     mDynamicCastGet(uiPushButton*,obj,cb);
+     if ( !obj )
+	 return;
+
+     const RowCol rc( table_->getCell(obj) );
+     uiSEGYVintageInfo* vntinfo = vntinfos_.get( rc.row() );
+     if ( !vntinfo )
+	 return;
+
+     const BufferStringSet selnms( vntinfo->filenms_ );
+     uiSEGYFileSelector segyfs( this, vntinfo->fp_.fullPath(),
+				imptypefld_->impType(), vntinfos_, true,
+				vntinfo->vintagenm_);
+     segyfs.setSelectableNames( selnms, true );
+     if ( !segyfs.go() )
+	 return;
+
+     BufferStringSet editednms;
+     segyfs.getSelNames( editednms );
+     vntinfo->filenms_ = editednms;
+     fillRow( rc.row() );
 
 }
 
 
-void uiSEGYBulkImporter::removeCB( CallBacker* )
+void uiSEGYMultiVintageImporter::removeCB( CallBacker* cb )
 {
+    if ( !uiMSG().askGoOn( tr("Do you want to delete the selected row?") ))
+	return;
+
+    const int rowid( table_->currentRow() );
+    table_->removeRow( rowid );
 }
 
 
-void uiSEGYBulkImporter::editVntCB( CallBacker* )
+void uiSEGYMultiVintageImporter::editVntCB( CallBacker* )
 {
     int currow = table_->currentRow();
-    BufferString vntnm( table_->text( RowCol(currow,0)) );
+    BufferString vntnm( table_->text( RowCol(currow,0) ) );
     Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
     int selidx = parset.find( vntnm );
     if ( selidx < 0 )
@@ -154,8 +188,8 @@ void uiSEGYBulkImporter::editVntCB( CallBacker* )
     iop->get( "File name", fnm );
 
     uiSEGYReadStarter::Setup su( false, &imptypefld_->impType() );
-    su.filenm(fnm).fixedfnm(true).vintagecheckmode(true).vintagenm( vntnm );
-    uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su);
+    su.filenm(fnm).fixedfnm(true).vintagecheckmode(true).vintagenm(vntnm);
+    uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su );
     readstrdlg->setCaption( tr("Edit vintage '%1'").arg(vntnm) );
     readstrdlg->usePar( *iop );
 
@@ -164,7 +198,7 @@ void uiSEGYBulkImporter::editVntCB( CallBacker* )
 }
 
 
-bool uiSEGYBulkImporter::acceptOK()
+bool uiSEGYMultiVintageImporter::acceptOK()
 {
     //TODO Importing selected SEGY files
     return true;

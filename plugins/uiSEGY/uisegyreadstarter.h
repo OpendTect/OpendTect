@@ -89,10 +89,8 @@ public:
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
-
-    void		getVintagName(BufferString& vntnm)
-			{ vntnm = lastparname_; }
     static void		showFileAlreadySelMsg();
+
 protected:
 
     SEGY::FileSpec	filespec_;
@@ -188,10 +186,8 @@ protected:
     void		initClassic(CallBacker*);
     void		classicSurvSetupEnd(CallBacker*);
     bool		acceptOK();
-    void		vntChgCB(CallBacker*);
     void		vntRefreshCB(CallBacker*);
     bool		getVintageParameters();
-    void		addVintageUI();
 
     bool		commit(bool permissive=false);
 

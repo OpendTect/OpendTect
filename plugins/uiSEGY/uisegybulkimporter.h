@@ -14,8 +14,10 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "filepath.h"
 
-class uiSEGYImpType;
 class uiTable;
+class uiSEGYFileSelector;
+class uiSEGYImpType;;
+class uiSEGYReadStarter;
 
 mExpClass(uiSEGY) uiSEGYVintageInfo
 { mODTextTranslationClass(uiSEGYVintageInfo)
@@ -27,11 +29,11 @@ public:
 };
 
 
-mExpClass(uiSEGY) uiSEGYBulkImporter : public uiDialog
-{ mODTextTranslationClass(uiSEGYBulkImporter)
+mExpClass(uiSEGY) uiSEGYMultiVintageImporter : public uiDialog
+{ mODTextTranslationClass(uiSEGYMultiVintageImporter)
 public:
-			uiSEGYBulkImporter(uiParent*);
-			~uiSEGYBulkImporter();
+			uiSEGYMultiVintageImporter(uiParent*);
+			~uiSEGYMultiVintageImporter();
 
     int			nrSelFiles() { return selfilenms_.size(); }
 
@@ -49,4 +51,6 @@ protected:
     uiSEGYImpType*	imptypefld_;
     BufferString	vintagenm_;
     ObjectSet<uiSEGYVintageInfo> vntinfos_;
+    uiSEGYReadStarter*	rsdlg_;
+    uiSEGYFileSelector* fsdlg_;
 };

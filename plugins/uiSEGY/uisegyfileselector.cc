@@ -11,30 +11,39 @@ ________________________________________________________________________
 #include "uisegyfileselector.h"
 
 #include "dirlist.h"
-#include "file.h"
-#include "filepath.h"
+#include "repos.h"
 
+#include "uimsg.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 #include "uisegyimptype.h"
 #include "uisegyreadstarter.h"
 
 uiSEGYFileSelector::uiSEGYFileSelector(uiParent* p, const char* fnm,
-				   const char* vntname,
 				   const SEGY::ImpType& imptype,
-				   const ObjectSet<uiSEGYVintageInfo>& vntinfos)
-    : uiDialog(p, uiDialog::Setup(tr("Select SEGY file(s)"),
+				   const ObjectSet<uiSEGYVintageInfo>& vntinfos,
+				   const bool editmode,
+				   const char* vntnm )
+    : uiDialog(p, uiDialog::Setup(editmode ? tr("Edit selection")
+					   : tr("Select SEGY file(s)"),
 	       mNoDlgTitle,mNoHelpKey) )
     , filenmsfld_(0)
     , imptype_( imptype )
     , fp_(*new File::Path(fnm))
     , vntinfos_(vntinfos)
+    , editmode_(editmode)
 {
     uiString titlestr;
-    setOkCancelText( tr("Next >>"), tr("<< Back") );
-    titlestr = tr("Please select the file(s) belonging to vintage '%1' " )
-	      .arg( vntname );
+    if ( editmode )
+	titlestr = tr("Edit selection related to the vintage '%1'" ).arg(vntnm);
+    else
+    {
+	titlestr = tr("Please select the file(s) related to new vintage" );
+	setOkCancelText( tr("Next >>"), tr("<< Back") );
+    }
     setTitleText( titlestr );
+
+
     BufferStringSet nms;
     getSelectableFiles( fp_.pathOnly(), nms );
     filenmsfld_ = new uiListBox( this, "Select files", OD::ChooseAtLeastOne );
@@ -53,6 +62,18 @@ uiSEGYFileSelector::uiSEGYFileSelector(uiParent* p, const char* fnm,
     txtfld_->attach( alignedBelow, filenmsfld_ );
     filenmsfld_->selectionChanged.notify(
 					mCB(this, uiSEGYFileSelector,selChgCB));
+    if ( !editmode )
+    {
+	uiLabeledComboBox* vintage =
+			new uiLabeledComboBox( this, tr("Vintage name") );
+	vintage->attach( alignedBelow, txtfld_ );
+	vintagefld_ = vintage->box();
+	vintagefld_->setReadOnly( false );
+	vintagefld_->selectionChanged.notify(
+					mCB(this,uiSEGYFileSelector,vntChgCB) );
+	vntChgCB( 0 );
+    }
+
     selChgCB( 0 );
 }
 
@@ -125,8 +146,38 @@ void uiSEGYFileSelector::getSelNames( BufferStringSet& nms )
 }
 
 
+void uiSEGYFileSelector::setSelectableNames( const BufferStringSet& nms,
+					     bool chosen )
+{
+    filenmsfld_->addItems( nms );
+    if ( chosen )
+	filenmsfld_->setChosen( nms );
+}
+
+
 bool uiSEGYFileSelector::acceptOK()
 {
+    if ( editmode_ )
+	return true;
+
+    BufferString vntnm( vintagefld_->text() );
+    if ( vntnm.isEmpty() )
+    {
+	uiMSG().message( "Please specify name for this new vintage" );
+	return false;
+    }
+
+    for ( int idx=0; idx<vntinfos_.size(); idx++ )
+    {
+	const uiSEGYVintageInfo* vntinfo = vntinfos_[idx];
+	if ( vntinfo->vintagenm_.isEqual(vntnm) )
+	{
+	    uiMSG().message( tr("The selected vinatge name is assigned to "
+				"one of the vintage in the table."
+			      "Please enter/choose different vintage name." ) );
+	    return false;
+	}
+    }
     if ( !filenmsfld_->nrChosen() )
 	return false;
 
@@ -136,9 +187,20 @@ bool uiSEGYFileSelector::acceptOK()
 
 bool uiSEGYFileSelector::rejectOK()
 {
-    uiSEGYReadStarter::Setup su( false, &imptype_ );
-    BufferString fnm( fp_.fullPath() );
-    su.filenm(fnm).fixedfnm(false).vintagecheckmode(true);
-    uiSEGYReadStarter* readstrdlg = new uiSEGYReadStarter( this, su);
-    return readstrdlg->go();
+    return true;
+}
+
+
+void uiSEGYFileSelector::vntChgCB( CallBacker* )
+{
+    BufferStringSet vintnms;
+    if ( editmode_ )
+	return;
+
+    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+    vintnms.add( uiStrings::sEmptyString().getOriginalString() );
+    for ( int pidx=0; pidx<parset.size(); pidx++ )
+	vintnms.add( parset[pidx]->name() );
+
+    vintagefld_->addItems( vintnms );
 }

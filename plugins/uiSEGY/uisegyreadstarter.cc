@@ -93,11 +93,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
     else
     {
-	if ( !setup_.vintagecheckmode_ )
-	{
-	    setCtrlStyle( RunAndClose );
-	    setOkText( tr("Next >>") );
-	}
+	setCtrlStyle( RunAndClose );
+	setOkText( tr("Next >>") );
 
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::ICOnly;
     }
@@ -124,12 +121,6 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 				 fssu );
 	inpfld_->newSelection.notify( mCB(this,uiSEGYReadStarter,inpChg) );
 	attachobj = inpfld_->attachObj();
-    }
-    if ( !setup_.fixedfnm_ && setup_.vintagecheckmode_ )
-    {
-	userfilename_ = su.filenm_;
-	filespec_.setUsrStr( userfilename_ );
-	filespec_.setFileName( userfilename_ );
     }
 
     if ( !setup_.vintagecheckmode_ )
@@ -200,7 +191,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 
     setToolStates();
     if ( setup_.vintagecheckmode_ && setup_.fixedfnm_ &&
-	 setup_.vintagenm_.isEmpty() )
+	 !setup_.vintagenm_.isEmpty() )
 	setCtrlStyle( CloseOnly );
 
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
@@ -214,22 +205,30 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const Setup& su )
 void uiSEGYReadStarter::createTools()
 {
     uiGroup* toolgrp = new uiGroup( midgrp_, "Tool group" );
-    if ( !setup_.vintagecheckmode_ )
-    {
-	toolgrp->attach( rightOf, infofld_ );
-	uiToolButton* openbut = new uiToolButton( toolgrp, "open",
-				    tr("Use Saved SEG-Y setup"),
-				    mCB(this,uiSEGYReadStarter,readParsCB) );
-	uiToolButton* savebut = new uiToolButton( toolgrp, "save",
-				    tr("Store this setup"),
-				    mCB(this,uiSEGYReadStarter,writeParsCB) );
-	savebut->attach( rightOf, openbut );
+    toolgrp->attach( rightOf, infofld_ );
+    uiToolButton* openbut = new uiToolButton( toolgrp, "open",
+			setup_.vintagecheckmode_ ? tr("Use another vintage")
+						 : tr("Use Saved SEG-Y setup"),
+				mCB(this,uiSEGYReadStarter,readParsCB) );
+    uiToolButton* savebut = new uiToolButton( toolgrp, "save",
+			setup_.vintagecheckmode_ ? tr("Seve this vintage")
+					  : tr("Store this setup"),
+				mCB(this,uiSEGYReadStarter,writeParsCB) );
+    savebut->attach( rightOf, openbut );
 
-	fullscanbut_ = new uiToolButton( toolgrp, "fullscan",
-				    tr("Scan the entire input"),
-				    mCB(this,uiSEGYReadStarter,fullScanReq) );
-	fullscanbut_->attach( alignedBelow, openbut );
+    if ( setup_.vintagecheckmode_ )
+    {
+	const CallBack vntrefresh(mCB(this,uiSEGYReadStarter,vntRefreshCB));
+	uiToolButton* resetbut = new uiToolButton( toolgrp, "undo",
+					tr("Revert to auto detective vintage"),
+					vntrefresh );
+	resetbut->attach( rightOf, savebut );
     }
+
+    fullscanbut_ = new uiToolButton( toolgrp, "fullscan",
+				tr("Scan the entire input"),
+				mCB(this,uiSEGYReadStarter,fullScanReq) );
+    fullscanbut_->attach( alignedBelow, openbut );
 
     hdrentrysettsbut_ = new uiToolButton( toolgrp, "settings",
 			    tr("Settings for byte location scanning"),
@@ -546,48 +545,6 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 	    execoldbut->setMenu( mnu );
 	}
     }
-    else
-	addVintageUI();
-}
-
-
-void uiSEGYReadStarter::addVintageUI()
-{
-    if ( setup_.vintagecheckmode_ && setup_.fixedfnm_ &&
-	 setup_.vintagenm_.isEmpty() )
-	return;
-
-    uiButton* okbut = button( OK );
-    uiGroup* vntgrp = new uiGroup( okbut->parent(), "Vintage group" );
-    uiLabeledComboBox* vintage =
-		    new uiLabeledComboBox( vntgrp, tr("Vintage name") );
-    vintagefld_ = vintage->box();
-    vintagefld_->setReadOnly( !setup_.vintagenm_.isEmpty() );
-    const CallBack vintcb(mCB(this,uiSEGYReadStarter,vntChgCB));
-    vintagefld_->selectionChanged.notify( vintcb );
-    BufferStringSet vintnms;
-    if ( !setup_.vintagenm_.isEmpty() )
-    {
-	vintnms.add( setup_.vintagenm_ );
-	lastparname_ = setup_.vintagenm_;
-    }
-    else
-    {
-	vintnms.add( uiStrings::sEmptyString().getOriginalString() );
-	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
-	    for ( int pidx=0; pidx<parset.size(); pidx++ )
-		vintnms.add( parset[pidx]->name() );
-
-	const CallBack vntrefresh(mCB(this,uiSEGYReadStarter,vntRefreshCB));
-	uiToolButton* resetbut = new uiToolButton( vntgrp, "undo",
-					    tr("Revert to initial vintage"),
-					    vntrefresh );
-	resetbut->attach( rightOf, vintage );
-    }
-
-    vintagefld_->addItems( vintnms );
-    vntgrp->attach( leftTo, okbut );
-    vntgrp->attach( leftBorder );
 }
 
 
@@ -620,15 +577,7 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
 	if ( !uifs.go() )
 	    done();
 	else
-	{
-	    if ( isExampleVntSelected(uifs.fileName()) )
-	    {
-		showFileAlreadySelMsg();
-		return;
-	    }
-	    else
-		inpfld_->setFileName( uifs.fileName() );
-	}
+	    inpfld_->setFileName( uifs.fileName() );
     }
 
     forceRescan( KeepNone );
@@ -661,18 +610,11 @@ void uiSEGYReadStarter::zDomChgCB( CallBacker* )
 
 void uiSEGYReadStarter::inpChg( CallBacker* )
 {
-    if ( inpfld_ && isExampleVntSelected(inpfld_->fileName()) )
-    {
-	showFileAlreadySelMsg();
-	inpfld_->setFileName( "" );
-	return;
-    }
-
     detectrev0flds_ = true;
     handleNewInputSpec( KeepNone );
     setToolStates();
     defaultpar_.setEmpty();
-    fillPar(defaultpar_);
+    fillPar( defaultpar_ );
 }
 
 
@@ -847,69 +789,9 @@ void uiSEGYReadStarter::fillPar( IOPar& iop ) const
 }
 
 
-void uiSEGYReadStarter::vntChgCB( CallBacker* )
-{
-    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
-    BufferString curselvint( vintagefld_->text() );
-    const int selidx = parset.find( curselvint );
-    if ( selidx < 0 )
-	return;
-
-    Repos::IOPar* iop = parset[selidx];
-    usePar( *iop );
-    lastparname_ = curselvint;
-}
-
-
 void uiSEGYReadStarter::vntRefreshCB( CallBacker* )
 {
     usePar( defaultpar_ );
-    vintagefld_->setCurrentItem( 0 );
-}
-
-
-bool uiSEGYReadStarter::getVintageParameters()
-{
-    if ( !vintagefld_ )
-	return false;
-
-    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
-    BufferString curvntnm( vintagefld_->text() );
-    int selidx = parset.find( curvntnm );
-    if ( selidx < 0 )
-    {
-	if ( curvntnm.isEmpty() )
-	    return writePars();
-	else
-	{
-	    Repos::IOPar* newpar = new Repos::IOPar( Repos::Data );
-	    fillPar(*newpar);
-	    newpar->setName( curvntnm );
-	    parset.add( newpar );
-	    parset.write(Repos::Data);
-	    lastparname_ = curvntnm;
-	}
-    }
-    else
-    {
-	IOPar dlgpar;
-	fillPar(dlgpar);
-	Repos::IOPar* iop = parset[selidx];
-	iop->removeSubSelection( "Created" );
-	if ( !dlgpar.isEqual(*iop) )
-	{
-	    if (!uiMSG().askGoOn( tr("You have edited Vintage '%1'. "
-				     "\nDo You want to save the changes?")
-				  .arg( curvntnm )) )
-		return false;
-
-	    *parset[selidx] = dlgpar;
-	    parset[selidx]->setName( curvntnm );
-	    parset.write(Repos::Data);
-	}
-    }
-
-    return true;
 }
 
 
@@ -1367,7 +1249,7 @@ bool uiSEGYReadStarter::commit( bool permissive )
 bool uiSEGYReadStarter::acceptOK()
 {
     if ( setup_.vintagecheckmode_ )
-	return getVintageParameters();
+	return true;
 
     if ( !commit(false) )
 	return false;
