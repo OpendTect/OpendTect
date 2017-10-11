@@ -254,7 +254,7 @@ void uiODMenuMgr::fillImportMenu()
 {
     impmnu_->clear();
 
-    uiMenu* impattr = new uiMenu( &appl_, uiStrings::sAttribute() );
+    uiMenu* impattr = new uiMenu( &appl_, uiStrings::sAttributeSet() );
     uiMenu* impseis = new uiMenu( &appl_, uiStrings::sSeismics() );
     uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
     uiMenu* impfault = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
