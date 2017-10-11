@@ -253,7 +253,7 @@ void uiODMenuMgr::fillImportMenu()
 {
     impmnu_->clear();
 
-    uiMenu* impattr = new uiMenu( &appl_, uiStrings::sAttribute() );
+    uiMenu* impattr = new uiMenu( &appl_, uiStrings::sAttributeSet() );
     uiMenu* impseis = new uiMenu( &appl_,
                     uiStrings::sVolDataName(true, true, true) );
     uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
