@@ -198,6 +198,7 @@ public:
     static uiString sAzimuth()		{ return tr("Azimuth"); }
     static uiString sAttribute(int num=1) { return tr("Attribute",0,num); }
     static uiString sAttributes()	{ return sAttribute(mPlural); }
+    static uiString sAttributeSet(int num=1){ return tr("AttributeSet",0,num); }
     static uiString sAverage()		{ return tr("Average"); }
     static uiString sBatch()		{ return tr("Batch"); }
     static uiString sBatchProgram();
