@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uisellinest.h"
 #include "uicolseqsel.h"
 
+#include "uistrings.h"
 #include "od_helpids.h"
 
 
@@ -843,7 +844,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 	addGroup( annottab_ );
     }
 
-    titlefld_ = new uiGenInput( this, tr("Title") );
+    titlefld_ = new uiGenInput( this, uiStrings::sTitle() );
     titlefld_->attach( centeredAbove, tabObject() );
 
     uiButton* applybut = uiButton::getStd( this, OD::Apply,

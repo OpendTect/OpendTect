@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "od_ostream.h"
 #include "oscommand.h"
 #include "timer.h"
+#include "uistrings.h"
 
 
 class uiPythonInstallGrp : public uiDlgGroup
@@ -271,7 +272,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     uiTable::Setup ts( 0, 1 );
     ts.rowdesc(tr("Slide","Presentation slide"));
     slidestbl_ = new uiTable( this, ts, "Slides table" );
-    slidestbl_->setColumnLabel( 0, tr("Title") );
+    slidestbl_->setColumnLabel( 0, uiStrings::sTitle() );
     slidestbl_->setPrefHeightInChar( 4 );
     slidestbl_->attach( ensureBelow, windowfld_ );
 

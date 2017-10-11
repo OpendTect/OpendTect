@@ -507,6 +507,7 @@ public:
     static uiString sTable(int num=1)	{ return tr("Table",0,num); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
+    static uiString sTitle()		{ return tr("Title"); }
     static uiString sTmpStor()		{ return tr("Temporary storage "
 							       "location :"); }
     static uiString sToolbar()		{ return tr("Toolbar"); }
