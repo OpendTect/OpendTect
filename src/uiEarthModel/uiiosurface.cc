@@ -236,7 +236,7 @@ void uiIOSurface::fillRangeFld( const TrcKeySampling& hrg )
 
 bool uiIOSurface::haveAttrSel() const
 {
-    return attribfld_->nrChosen() > 0;
+    return attribfld_ ? attribfld_->nrChosen() > 0 : false;
 }
 
 
