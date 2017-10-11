@@ -45,10 +45,8 @@ public:
 protected:
 
     void		createMultOutDlg(const BufferStringSet&);
-    void		allSel(CallBacker*);
 
     uiListBox*		outlistfld_;
-    uiCheckBox*		outallfld_;
 
 };
 

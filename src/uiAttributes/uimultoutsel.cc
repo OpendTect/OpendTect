@@ -43,7 +43,6 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 			   tr("Select the outputs to compute"),
                            mODHelpKey(mMultOutSelHelpID) ))
 	, outlistfld_(0)
-	, outallfld_(0)
 {
     BufferStringSet outnames;
     Desc* tmpdesc = new Desc( desc );
@@ -61,10 +60,6 @@ void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames )
 {
     outlistfld_ = new uiListBox( this, "Outputs", OD::ChooseAtLeastOne );
     outlistfld_->addItems( outnames.getUiStringSet() );
-
-    outallfld_ = new uiCheckBox( this, uiStrings::phrOutput(uiStrings::sAll()));
-    outallfld_->activated.notify( mCB(this,uiMultOutSel,allSel) );
-    outallfld_->attach( alignedBelow, outlistfld_ );
 }
 
 
@@ -85,12 +80,6 @@ void uiMultOutSel::getSelectedOutNames( BufferStringSet& seloutnms ) const
 bool uiMultOutSel::doDisp() const
 {
     return outlistfld_;
-}
-
-
-void uiMultOutSel::allSel( CallBacker* c )
-{
-    outlistfld_->chooseAll( outallfld_->isChecked() );
 }
 
 
