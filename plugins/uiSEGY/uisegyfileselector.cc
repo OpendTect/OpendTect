@@ -163,7 +163,7 @@ bool uiSEGYFileSelector::acceptOK()
     BufferString vntnm( vintagefld_->text() );
     if ( vntnm.isEmpty() )
     {
-	uiMSG().message( "Please specify name for this new vintage" );
+	uiMSG().message( tr("Please specify name for this new vintage") );
 	return false;
     }
 
