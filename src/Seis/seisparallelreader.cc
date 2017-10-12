@@ -448,7 +448,7 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64, int threadid )
     SeisTrc trc;
     SeisTrcInfo& trcinfo = trc.info();
     int res;
-    int currentinl = tks.start.inl();
+    int currentinl = tks.start_.inl();
     int nrdone = 0;
     do
     {
