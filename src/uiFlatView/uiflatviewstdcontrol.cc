@@ -54,6 +54,7 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     , x1pospercm_(x1pospercm)
     , x2pospercm_(x2pospercm)
     , x2fld_(0)
+    , zoomChanged(this)
 {
     x1fld_ = new uiGenInput( this, tr("Traces per cm"), FloatInpSpec() );
     x1fld_->setValue( x1pospercm_ );
@@ -65,7 +66,19 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     }
 
     saveglobalfld_ = new uiCheckBox( this, tr( "Save globally" ) );
-    saveglobalfld_->attach( alignedBelow, isvertical ? x2fld_ : x1fld_ );
+    saveglobalfld_->attach( leftAlignedBelow , isvertical ? x2fld_ : x1fld_ );
+
+    CallBack cb( mCB( this, uiFlatViewZoomLevelDlg, applyPushedCB ) );
+    applybut_ = uiButton::getStd( this, OD::Apply, cb, true );
+    applybut_->attach( rightOf, saveglobalfld_ );
+}
+
+
+void uiFlatViewZoomLevelDlg::applyPushedCB( CallBacker* )
+{
+    x1pospercm_ = x1fld_->getFValue();
+    x2pospercm_ = x2fld_ ? x2fld_->getFValue() : x1pospercm_;
+    zoomChanged.trigger();
 }
 
 
@@ -424,31 +437,55 @@ void uiFlatViewStdControl::fitToScreenCB( CallBacker* )
 
 void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
 {
-    float x1pospercm = getCurrentPosPerCM( true );
-    float x2pospercm = getCurrentPosPerCM( false );
+    float  tempx1pospercm =  getCurrentPosPerCM( true );
+    float  tempx2pospercm =  getCurrentPosPerCM( false );
 
     mDynamicCastGet(uiAction*,itm,cb)
     const int itmid = itm ? itm->getID() : sLocalHZIdx;
     if ( itmid == sLocalHZIdx )
     {
-	defx1pospercm_ = x1pospercm;
-	defx2pospercm_ = x2pospercm;
+	defx1pospercm_ = tempx1pospercm;
+	defx2pospercm_ = tempx2pospercm;
 	gotohomezoombut_->setSensitive( true );
     }
     else if ( itmid == sGlobalHZIdx )
-	setGlobalZoomLevel( x1pospercm, x2pospercm, setup_.isvertical_ );
+	setGlobalZoomLevel( tempx1pospercm, tempx2pospercm,
+							setup_.isvertical_ );
     else
     {
-	uiFlatViewZoomLevelDlg zoomlvldlg( this, x1pospercm, x2pospercm,
-					   setup_.isvertical_ );
+	float initx1pospercm = tempx1pospercm;
+	float initx2pospercm = tempx2pospercm;
+	uiFlatViewZoomLevelDlg zoomlvldlg( this, tempx1pospercm,
+					 tempx2pospercm, setup_.isvertical_ );
+	mAttachCB(zoomlvldlg.zoomChanged,uiFlatViewStdControl::zoomApplyCB);
 	if ( zoomlvldlg.go() )
 	{
-	    defx1pospercm_ = x1pospercm;
-	    defx2pospercm_ = x2pospercm;
+	    defx1pospercm_ = tempx1pospercm;
+	    defx2pospercm_ = tempx2pospercm;
 	    setViewToCustomZoomLevel( *vwrs_[0] );
 	    gotohomezoombut_->setSensitive( true );
 	}
+	else
+	{
+	    defx1pospercm_ = initx1pospercm;
+	    defx2pospercm_ = initx2pospercm;
+	    setViewToCustomZoomLevel( *vwrs_[0] );
+	}
     }
+}
+
+
+void uiFlatViewStdControl::zoomApplyCB( CallBacker* cb )
+{
+    float tempx1pospercm(mUdf(float));
+    float tempx2pospercm(mUdf(float));
+    mDynamicCastGet(uiFlatViewZoomLevelDlg*,zoomdlg,cb);
+    if ( !zoomdlg ) return;
+    zoomdlg->getPosPerCm( tempx1pospercm, tempx2pospercm );
+    defx1pospercm_ = tempx1pospercm;
+    defx2pospercm_ = tempx2pospercm;
+    setViewToCustomZoomLevel( *vwrs_[0] );
+    gotohomezoombut_->setSensitive( true );
 }
 
 

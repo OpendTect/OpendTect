@@ -28,6 +28,9 @@ mExpClass(uiFlatView) uiFlatViewZoomLevelDlg : public uiDialog
 public:
     			uiFlatViewZoomLevelDlg(uiParent*,float& x1pospercm,
 					float& x2pospercm,bool isvertical);
+    Notifier<uiFlatViewZoomLevelDlg> zoomChanged;
+    void		getPosPerCm(float& x1,float& x2)
+			{ x1 = x1pospercm_; x2 = x2pospercm_;}
 
 protected:
 
@@ -37,6 +40,10 @@ protected:
     uiGenInput*		x1fld_;
     uiGenInput*		x2fld_;
     uiCheckBox*		saveglobalfld_;
+
+    uiButton*		applybut_;
+
+    void		applyPushedCB(CallBacker*);
 
     bool		acceptOK();
 };
@@ -169,9 +176,10 @@ protected:
     virtual bool	handleUserClick(int vwridx);
 
     uiMenuHandler&      menu_;
-    MenuItem	propertiesmnuitem_;
+    MenuItem		propertiesmnuitem_;
     void                createMenuCB(CallBacker*);
     void                handleMenuCB(CallBacker*);
+    void		zoomApplyCB(CallBacker*);
 
     HelpKey		helpkey_;
 };
