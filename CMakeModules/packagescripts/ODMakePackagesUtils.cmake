@@ -382,34 +382,34 @@ endmacro( init_destinationdir )
 
 
 macro( create_develpackages )
-    file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc
-			 ${DESTINATION_DIR}/doc/Programmer)
+    file( MAKE_DIRECTORY ${COPYFROMDATADIR}/doc
+			 ${COPYTODATADIR}/doc/Programmer)
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-		     ${SOURCE_DIR}/CMakeLists.txt ${DESTINATION_DIR} )
+		     ${SOURCE_DIR}/CMakeLists.txt ${COPYTODATADIR} )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/batchprogexample
-		     ${DESTINATION_DIR}/doc/Programmer/batchprogexample )
+		     ${COPYFROMDATADIR}/doc/Programmer/batchprogexample
+		     ${COPYTODATADIR}/doc/Programmer/batchprogexample )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/pluginexample
-		     ${DESTINATION_DIR}/doc/Programmer/pluginexample )
+		     ${COPYFROMDATADIR}/doc/Programmer/pluginexample
+		     ${COPYTODATADIR}/doc/Programmer/pluginexample )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${CMAKE_INSTALL_PREFIX}/dtect
-		     ${DESTINATION_DIR}/dtect )
+		     ${COPYFROMDATADIR}/dtect
+		     ${COPYTODATADIR}/dtect )
     foreach( SPECFILE ${SPECFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${CMAKE_INSTALL_PREFIX}/doc/Programmer/${SPECFILE}
-			 ${DESTINATION_DIR}/doc/Programmer )
+			 ${COPYFROMDATADIR}/doc/Programmer/${SPECFILE}
+			 ${COPYTODATADIR}/doc/Programmer )
     endforeach()
 
     file( GLOB HTMLFILES ${BINARY_DIR}/doc/Programmer/*.html )
     foreach( HTMLFILE ${HTMLFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${HTMLFILE} ${DESTINATION_DIR}/doc/Programmer )
+			 ${HTMLFILE} ${COPYTODATADIR}/doc/Programmer )
     endforeach()
     file( GLOB PNGFILES ${SOURCE_DIR}/doc/Programmer/*.png )
     foreach( PNGFILE ${PNGFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${PNGFILE} ${DESTINATION_DIR}/doc/Programmer )
+			 ${PNGFILE} ${COPYTODATADIR}/doc/Programmer )
     endforeach()
 
     foreach( DIR CMakeModules include src plugins spec )
@@ -417,15 +417,21 @@ macro( create_develpackages )
 	if( "${DIR}" STREQUAL "plugins" )
 	    foreach( ODPLUGIN ${ODPLUGINS} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				 ${CMAKE_INSTALL_PREFIX}/plugins/${ODPLUGIN}
-				 ${DESTINATION_DIR}/plugins/${ODPLUGIN} )
+				 ${COPYFROMDATADIR}/plugins/${ODPLUGIN}
+				 ${COPYTODATADIR}/plugins/${ODPLUGIN} )
 	    endforeach()
 	else()
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/${DIR}
-			     ${DESTINATION_DIR}/${DIR} )
+			     ${COPYFROMDATADIR}/${DIR}
+			     ${COPYTODATADIR}/${DIR} )
 	endif()
     endforeach()
+
+    if ( APPLE )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${COPYFROMDATADIR}/bin/od_cr_dev_env
+			 ${COPYTODATADIR}/od_cr_dev_env )
+    endif()
 
     if( WIN32 )
 	file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin
