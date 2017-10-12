@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "string2.h"
 #include "undefval.h"
-#include "fixedstring.h"
+#include "bufstring.h"
 
 #ifdef __msvc__
 # include "msvcdefs.h"
@@ -163,6 +163,10 @@ inline void set( bool& _to, const FixedString& s )
     { _to = yesNoFromString(s.str()); }
 
 template <>
+inline void set( bool& _to, const BufferString& s )
+    { _to = yesNoFromString(s.str()); }
+
+template <>
 inline void set( bool& _to, const int& i )
     { _to = i!=0; }
 
@@ -180,7 +184,8 @@ inline void set( bool& _to, const double& d )
 
 #define mConvDeclFromStrToSimpleType(type) \
 template <> mGlobal(Basic) void set(type&,const char* const&); \
-template <> mGlobal(Basic) void set(type&,const FixedString&)
+template <> mGlobal(Basic) void set(type&,const FixedString&); \
+template <> mGlobal(Basic) void set(type&,const BufferString&)
 
 mConvDeclFromStrToSimpleType(short);
 mConvDeclFromStrToSimpleType(unsigned short);
@@ -204,21 +209,14 @@ namespace Conv \
 	if ( !s || !*s ) { return; } \
     \
 	char* endptr = 0; \
-	type tmpval = (type) function; \
+	type tmpval = (type)function; \
 	if ( s != endptr ) \
-	    _to = (type) tmpval; \
+	    _to = (type)tmpval; \
 	else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
     } \
     template <> void set( type& _to, const FixedString& s ) \
-    { \
-	if ( !s ) { return; } \
-    \
-	char* endptr = 0; \
-	type tmpval = (type) function; \
-	if ( s.str() != endptr ) \
-	    _to = (type) tmpval; \
-	else if ( Values::Undef<type>::hasUdf() ) \
-	    Values::setUdf( _to ); \
-    } \
+    { set( _to, s.str() ); } \
+    template <> void set( type& _to, const BufferString& s ) \
+    { set( _to, s.str() ); } \
 }

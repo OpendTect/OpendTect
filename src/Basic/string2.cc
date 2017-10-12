@@ -218,9 +218,16 @@ static void finalCleanupNumberString( char* str )
 	rmSingleCharFromString( ptr );
 	ptr = firstOcc( str, '+' );
     }
+    // We don't need any ','s either - remove them
+    ptr = firstOcc( str, ',' );
+    while ( ptr )
+    {
+	rmSingleCharFromString( ptr );
+	ptr = firstOcc( str, ',' );
+    }
 
     if ( !*str )
-	mSetStrTo0(str,return)
+	mSetStrTo0( str, return )
 
     char* ptrexp = firstOcc( str, 'e' );
     if ( !ptrexp )
@@ -230,7 +237,7 @@ static void finalCleanupNumberString( char* str )
 	    *ptrexp = 'e'; // so we'll never have 'E', always 'e'
     }
     if ( ptrexp == str )
-	mSetStrTo0(str,return)
+	mSetStrTo0( str, return )
     else if ( ptrexp )
     {
 	// Remove leading '0's in exponent
@@ -248,7 +255,7 @@ static void finalCleanupNumberString( char* str )
 
     cleanupMantissa( ptrdot, ptrexp );
     if ( !*str )
-	mSetStrTo0(str,return)
+	mSetStrTo0( str, return )
 
     // Remove trailing '0's in mantissa
     char* ptrend = firstOcc( str, 'e' );
@@ -262,7 +269,7 @@ static void finalCleanupNumberString( char* str )
     }
 
     if ( !*str )
-	mSetStrTo0(str,return)
+	mSetStrTo0( str, return )
 }
 
 
@@ -273,7 +280,7 @@ static const char* getPreciseStringFromFPNumber( T inpval )
     char* str = retstr.getCStr();
 
     if ( !inpval )
-	mSetStrTo0(str,return str)
+	mSetStrTo0( str, return str )
 
     const bool isneg = inpval < 0;
     const T val = isneg ? -inpval : inpval;
@@ -298,7 +305,7 @@ static const char* getStringFromFPNumber( T inpval, bool isdouble )
     char* str = retstr.getCStr();
 
     if ( !inpval )
-	mSetStrTo0(str,return str)
+	mSetStrTo0( str, return str )
 
     const bool isneg = inpval < 0;
     const T val = isneg ? -inpval : inpval;
@@ -337,7 +344,7 @@ static const char* getStringFromFPNumber( T inpval, int nrdec, bool isdouble )
     char* str = retstr.getCStr();
 
     if ( !inpval )
-	mSetStrTo0(str,return str)
+	mSetStrTo0( str, return str )
 
     const bool isneg = inpval < 0;
     const T val = isneg ? -inpval : inpval;
@@ -346,6 +353,8 @@ static const char* getStringFromFPNumber( T inpval, int nrdec, bool isdouble )
 
     const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
     retstr = QString::number( inpval, *fmtend, nrdec );
+    str = retstr.getCStr();
+    finalCleanupNumberString( str );
     return str;
 #endif
 }

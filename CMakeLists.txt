@@ -72,7 +72,6 @@ set( OD_MODULES
 set( OD_PLUGINS
 	CEEMDAttrib
     	CRS
-	OpenCL
 	ExpAttribs
 	GLCM
 	GMT
