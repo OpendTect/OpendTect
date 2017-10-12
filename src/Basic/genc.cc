@@ -177,10 +177,10 @@ static float getDoubleFromString( const char* str, char** endptr )
 	return 0.;
 
     bool isok = false;
-    QString qstr( str );
+    const QString qstr( str );
     const float ret = qstr.toDouble( &isok );
     if ( isok )
-	*endptr = (char*)(str + 1);
+	*endptr = (char*)(str + 1); // just fake it, as long as it's not str
 
     return ret;
 
@@ -199,10 +199,10 @@ static float getFloatFromString( const char* str, char** endptr )
 	return 0.f;
 
     bool isok = false;
-    QString qstr( str );
+    const QString qstr( str );
     const float ret = qstr.toFloat( &isok );
     if ( isok )
-	*endptr = (char*)(str + 1);
+	*endptr = (char*)(str + 1); // just fake it, as long as it's not str
 
     return ret;
 
