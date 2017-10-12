@@ -84,6 +84,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
 #include "od_helpids.h"
+#include "winutils.h"
 
 
 bool uiODApplService::eventOccurred( const uiApplPartServer* ps, int evid )
@@ -594,4 +595,11 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
 
 
 void uiODApplMgrDispatcher::setupBatchHosts()
-{ uiBatchHostsDlg dlg( par_ ); dlg.go(); }
+{ 
+#ifndef __win__
+    uiBatchHostsDlg dlg( par_ ); 
+    dlg.go(); 
+#else
+    executeWinProg( "od_BatchHosts.exe", "",GetExecPlfDir() );
+#endif
+}
