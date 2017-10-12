@@ -354,7 +354,6 @@ static const char* getStringFromFPNumber( T inpval, int nrdec, bool isdouble )
     const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
     retstr = QString::number( inpval, *fmtend, nrdec );
     str = retstr.getCStr();
-    finalCleanupNumberString( str );
     return str;
 #endif
 }
