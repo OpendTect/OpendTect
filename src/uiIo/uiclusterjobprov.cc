@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "od_ostream.h"
 #include "oscommand.h"
+#include "settings.h"
 #include "transl.h"
 #include "od_helpids.h"
 
@@ -102,6 +103,8 @@ static bool writeScriptFile( const char* scrfnm, const char* prognm,
 
     strm << "setenv DTECT_DATA " << GetBaseDataDir() << od_endl;
     mSetEnvVar("LD_LIBRARY_PATH")
+    mSetEnvVar("OD_APPL_PLUGIN_DIR")
+    mSetEnvVar("OD_USER_PLUGIN_DIR")
     strm << GetExecScript(false) << " " << prognm << " \\" << od_endl;
     FilePath fp( scrfnm );
     fp.setExtension( ".par" );
@@ -203,8 +206,11 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
 
+    BufferString qsubmit;
+    Settings::common().get( "Queue.Submit", qsubmit );
+    if ( qsubmit.isEmpty() ) qsubmit = "qsub";
     cmdfld_ = new uiGenInput( this, tr("Cluster Processing command"),
-			      StringInpSpec("srun") );
+			      StringInpSpec(qsubmit) );
     cmdfld_->attach( alignedBelow, scriptdirfld_ );
 
     postFinalise().notify( mCB(this,uiClusterJobProv,nrJobsCB) );
@@ -262,6 +268,9 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     const char* cmd = cmdfld_->text();
     if ( !cmd || !*cmd )
 	mErrRet(tr("Please enter a valid command for submitting jobs"))
+
+    Settings::common().set( "Queue.Submit", cmd );
+    Settings::common().write();
 
     iopar_.set( "Command", cmd );
     if ( !iopar_.write(parfnm.buf(),sKey::Pars()) )
