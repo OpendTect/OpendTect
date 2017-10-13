@@ -70,7 +70,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
 
     setCaption( is2d ? tr("Create 2D Data Attribute") :
-       ( multioutput ? tr("Create Multi-Attribute Volume")
+	(multioutput ? tr("Create Multi-Attribute Volume")
 		     : tr("Create Single-Attribute Volume")) );
 
     setHelpKey( is2d ? mODHelpKey(mAttrVolOut2DHelpID)
@@ -265,9 +265,16 @@ void uiAttrVolOut::outSelCB( CallBacker* )
 
 bool uiAttrVolOut::prepareProcessing()
 {
-    const IOObj* outioobj = objfld_->ioobj();
+    seloutnms_.erase();
+    seloutputs_.erase();
+
+    const IOObj* outioobj = objfld_->ioobj( true );
     if ( !outioobj )
+    {
+	uiString msg = tr("Please select %1").arg( objfld_->labelText() );
+	uiMSG().error( msg );
 	return false;
+    }
 
     if ( todofld_ )
     {
@@ -286,13 +293,14 @@ bool uiAttrVolOut::prepareProcessing()
 				  "It will be renamed to: '%1'"
 				  "\n\nDo you want to continue?")
 			     .arg(outputnm.buf());
+		if ( !uiMSG().askContinue(msg) )
 		    return false;
 	    }
 
 	    if ( outputnm.isEmpty() )
 	    {
 		uiMSG().error(
-		tr("No dataset name given. Please provide a valid name. ") );
+		    tr("No dataset name given. Please provide a valid name.") );
 		return false;
 	    }
 
@@ -337,7 +345,6 @@ bool uiAttrVolOut::prepareProcessing()
 	    {
 		if ( multoutdlg.go() )
 		{
-		    seloutputs_.erase();
 		    multoutdlg.getSelectedOutputs( seloutputs_ );
 		    multoutdlg.getSelectedOutNames( seloutnms_ );
 		}
