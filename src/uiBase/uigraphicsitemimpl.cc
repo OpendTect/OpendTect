@@ -533,7 +533,7 @@ QGraphicsItem* uiMultiColorPolyLineItem::mkQtObj()
 
 
 #define mImplSetPolyline( type ) \
-    void uiMultiColorPolyLineItem::setPolyLine( type ptlist ) \
+void uiMultiColorPolyLineItem::setPolyLine( type ptlist ) \
 { \
     QPolygonF qpolygonf; \
     for ( int idx=0; idx<ptlist.size(); idx++ ) \

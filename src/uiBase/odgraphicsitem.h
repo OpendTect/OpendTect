@@ -238,7 +238,7 @@ protected:
 };
 
 
-class ODGraphicsMultiColorPolyLineItem : public QGraphicsItem
+class ODGraphicsMultiColorPolyLineItem : public QAbstractGraphicsShapeItem
 				       , public ODGraphicsHighlightItem
 {
 public:
@@ -249,6 +249,7 @@ public:
     void			paint(QPainter*,
 				      const QStyleOptionGraphicsItem*,
 				      QWidget*);
+    QPainterPath		shape() const;
 
     void			setPolyLine(const QPolygonF&);
     void			setQPens(const QVector<QPen>&);
@@ -256,15 +257,20 @@ public:
     void			highlight()	{ highlight_ = true; }
     void			unHighlight()	{ highlight_ = false; }
 
-    virtual int			type() const	{ return ODGraphicsType+7; }
+    virtual int			type() const	{ return ODGraphicsType+8; }
 
 protected:
 
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    void			cleanupPolygon();
 
     bool			highlight_;
+    QPolygonF			inputqpolygon_;
+    QVector<QPen>		inputqpens_;
     QPolygonF			qpolygon_;
     QVector<QPen>		qpens_;
+    QRectF			brect_;
+    QPainterPath		path_;
 };
 
 
