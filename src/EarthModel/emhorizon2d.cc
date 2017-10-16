@@ -27,6 +27,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "color.h"
 
+#include "hiddenparam.h"
+
+static HiddenParam<EM::Horizon2D,StepInterval<int>*> trackingsampling(0);
+
+
 namespace EM
 {
 
@@ -388,18 +393,35 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 
 mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::sGroupName() )
 
-
 Horizon2D::Horizon2D( EMManager& emm )
     : Horizon(emm)
     , geometry_(*this)
     , nodesource_( 0 )
 {
     geometry_.addSection( "", false );
+    trackingsampling.setParam( this, new StepInterval<int>(0,0,0) );
 }
 
 
 Horizon2D::~Horizon2D()
 {
+    delete trackingsampling.getParam( this );
+    trackingsampling.removeParam( this );
+}
+
+
+void Horizon2D::initNodeSourceArray( const TrcKey& tk )
+{
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+		    Survey::GM().getGeometry(tk.geomID()));
+    if ( !geom2d || geom2d->data().isEmpty() )
+	return;
+
+    const StepInterval<int> trcrg = geom2d->data().trcNrRange();
+    const int size = trcrg.nrSteps()+1;
+    nodesource_ = new Array1DImpl<char>( size );
+    nodesource_->setAll('0');
+    *trackingsampling.getParam(this) = trcrg;
 }
 
 
@@ -429,68 +451,36 @@ bool Horizon2D::setZAndNodeSourceType( const TrcKey& tk, float z,
     return retval;
 }
 
-//
-//bool Horizon2D::setPosAndNodeSourceType( const EM::SectionID& sid,
-//    const EM::SubID& subid,
-//    const Coord3& newpos,
-//    bool addtohistory,
-//    NodeSourceType type )
-//{
-//    const bool retval = EMObject::setPos( sid, subid, newpos, addtohistory );
-//    const NodeSourceType tp = newpos.isDefined() ? type : None;
-//    const PosID pid (id(), sid, subid );
-//    const TrcKey tk = geometry_.getTrcKey( pid );
-//    setNodeSourceType( tk, tp );
-//    return retval;
-//}
-//
-//
-//bool Horizon2D::setPosAndNodeSourceType( const EM::PosID& pid,
-//    const Coord3& newpos,
-//    bool addtohistory,
-//    NodeSourceType type)
-//{
-//    const bool retval = EMObject::setPos( pid, newpos, addtohistory );
-//    const TrcKey tk = geometry_.getTrcKey(pid);
-//    setNodeSourceType( tk, type );
-//    return retval;
-//}
 
-
-void Horizon2D::initNodeSourceArray( const TrcKey& tk )
+void Horizon2D::setNodeSourceType( const TrcKey& tk, NodeSourceType type )
 {
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-	Survey::GM().getGeometry(tk.geomID()) );
-    if ( !geom2d || geom2d->data().isEmpty() )
+    const StepInterval<int>* sampling = trackingsampling.getParam( this );
+    if ( !nodesource_ || !sampling )
 	return;
-    StepInterval<int> trcrg = geom2d->data().trcNrRange();
-    const int size = trcrg.nrSteps()+1;
-    nodesource_ = new Array1DImpl<char>(size);
-    nodesource_->setAll('0');
-}
 
-
-void Horizon2D::setNodeSourceType( const TrcKey& tk,
-    NodeSourceType type )
-{
-    if ( !nodesource_ ) return;
-    nodesource_->getData()[tk.trcNr()] = (char)type;
+    const int idx = sampling->getIndex( tk.trcNr() );
+    if ( nodesource_->info().validPos(idx) )
+	nodesource_->getData()[idx] = (char)type;
 }
 
 
 bool Horizon2D::isNodeSourceType( const PosID& posid,
-    NodeSourceType type ) const
+				  NodeSourceType type ) const
 {
     const TrcKey tk = geometry_.getTrcKey(posid);
     return !tk.isUdf() ? isNodeSourceType( tk, type ) : false;
 }
 
 
-bool Horizon2D::isNodeSourceType( const TrcKey& tk,
-    NodeSourceType type ) const
+bool Horizon2D::isNodeSourceType( const TrcKey& tk, NodeSourceType type ) const
 {
-    return nodesource_ ? nodesource_->getData()[tk.trcNr()] ==
-	(char)type : false;
+    const StepInterval<int>* sampling = trackingsampling.getParam( this );
+    if ( !nodesource_ || !sampling )
+	return false;
+
+    const int idx = sampling->getIndex( tk.trcNr() );
+    return nodesource_->info().validPos(idx) ?
+	nodesource_->getData()[idx]==(char)type : false;
 }
 
 
