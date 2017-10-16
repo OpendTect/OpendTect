@@ -506,7 +506,11 @@ endforeach()
 
 
 if( OD_USEBATCH )
-    list(APPEND OD_MODULE_INCLUDEPATH ${OD_Batch_INCLUDEPATH} )
+    list(APPEND OD_MODULE_INCLUDEPATH
+		${OD_Batch_INCLUDEPATH}
+		${OD_Network_INCLUDEPATH}
+		${CMAKE_BINARY_DIR}/include/Batch
+		${CMAKE_BINARY_DIR}/include/Network)
 endif( OD_USEBATCH )
 
 #Set current include_path
