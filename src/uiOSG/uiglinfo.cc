@@ -87,7 +87,10 @@ uiString uiGLInfo::getMessage( bool* warning )
     glinfo_.update();
 
     if ( !glinfo_.isPlatformSupported() )
+    {
+	msg = tr("Current platform does not support graphics status messages");
 	return msg;
+    }
 
     BufferStringSet allinfo = glinfo_.allInfo();
 
@@ -115,7 +118,8 @@ uiString uiGLInfo::getMessage( bool* warning )
     {
 	msg.append( "\n", true );
 	msg.append( tr(
-	    "Consider switching if your computer has various graphics cards."));
+	    "Intel card found. If your computer has multiple graphics cards,\n"
+	    " consider switching from the integrated graphics.") );
     }
     else if ( *allinfo[2] == "?" )
     {
