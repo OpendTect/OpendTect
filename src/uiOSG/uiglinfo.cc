@@ -134,8 +134,9 @@ uiString uiGLInfo::getMessage( bool* warning )
     else if ( stringStartsWithCI("intel",allinfo[0]->buf()) )
     {
 	msg.append( "\n", true );
-	msg.append( tr("Intel card found. Consider switching if your computer "
-		       "has more than 1 graphics card."));
+	msg.append( tr(
+	    "Intel card found. If your computer has multiple graphics cards,\n"
+	    " consider switching from the integrated graphics.") );
     }
     else if ( *allinfo[2] == "?" )
     {
