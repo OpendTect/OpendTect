@@ -48,6 +48,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     inpgrp_ = new uiGroup( this, "Input group" );
     inpfld_ = new uiComboBox( inpgrp_, BufferString("input ",varidx_+1) );
     const uiString lblstr = tr("For input number %1 use").arg(varidx_+1);
+    inpfld_->setHSzPol(uiObject::WideMax);
     inplbl_ = new uiLabel( inpgrp_, lblstr, inpfld_ );
     inplbl_->setPrefWidthInChar( 35 );
     inplbl_->setAlignment( Alignment::Right );
@@ -61,10 +62,8 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 	subinpfld_->selectionChanged.notify(
 			    mCB(this,uiMathExpressionVariable,subInpChg) );
     }
-
     constfld_ = new uiGenInput( inpgrp_, tr("Value for 'c0'"), FloatInpSpec() );
     constfld_->attach( alignedWith, inpfld_ );
-
     if ( withunit )
     {
 	uiUnitSel::Setup uussu( PropertyRef::Other, tr("convert to:") );
