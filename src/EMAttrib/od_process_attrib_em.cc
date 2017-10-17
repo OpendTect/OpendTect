@@ -46,6 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom2d.h"
 #include "moddepmgr.h"
 #include "commandlineparser.h"
+#include <iostream>
 
 using namespace Attrib;
 using namespace EM;
@@ -544,8 +545,8 @@ bool BatchProgram::go( od_ostream& strm )
 	else
 	{
 	    BinIDValueSet bivs(2,false);
-	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *geompar,
-								  false );
+	    Pos::Provider* provider = Pos::Provider::make( *mmprocrange,
+								    false );
 	    HorizonUtils::getWantedPositions( strm, midset, bivs,
 				hsamp, extraz, nrinterpsamp, mainhoridx,
 				extrawidth, provider );
@@ -563,6 +564,5 @@ bool BatchProgram::go( od_ostream& strm )
 
     deepErase(midset);
     deepUnRef( objects );
-
     return true;
 }
