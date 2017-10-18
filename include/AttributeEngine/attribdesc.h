@@ -213,10 +213,10 @@ public:
 				/*!<Fills \akeys and \avals with pairs of
 				    parameters from the defstr. */
 
-
-    static const char* mDeprecated sKeyInlDipComp();
-    static const char* mDeprecated sKeyCrlDipComp();
-    static const char* mDeprecated sKeyLineDipComp();
+    // Will be removed after 6.2
+    static const char* sKeyInlDipComp();
+    static const char* sKeyCrlDipComp();
+    static const char* sKeyLineDipComp();
 
 protected:
 
