@@ -17,8 +17,8 @@ visualisation of dips in grids. The aspect parameter determines the position
 of the "light" in the resulting image.
 
 Input:
-0	Inline dip (as angle)
-1	Crossline dip (as angle)
+0	Inline Dip (as angle)
+1	Crossline Dip (as angle)
 
 Output:
 0	view
@@ -32,7 +32,7 @@ Output:
 #include <seistrc.h>
 #include <attribparamimpl.h>
 
-    
+
 mClass(AttribExp) DipViewAttrib : public AttribCalc
 {
 public:
@@ -54,14 +54,15 @@ public:
     const Interval<float>*	crlDipMargin(int,int) const { return 0;}
 
 
-    int                 	nrAttribs() const { return 1; }
-    const char* 		definitionStr() const { return desc; }
+    int nrAttribs() const { return 1; }
+    const char*		definitionStr() const { return desc; }
 
-    virtual Seis::DataType	dataType(int val,const TypeSet<Seis::DataType>&) const 
+    virtual Seis::DataType	dataType(int val,
+					 const TypeSet<Seis::DataType>&) const
 				{ return val?Seis::UnknowData:Seis::Dip; }
 
 protected:
-   
+
     BinID		aspect; //Inl = dip, crl=azimuth
     BufferString	desc;
 
@@ -74,8 +75,8 @@ protected:
 				Input( const DipViewAttrib& calculator_ )
 				: calculator ( calculator_ ) {}
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool		set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>&  );
 
@@ -94,14 +95,14 @@ protected:
 			    Task( const DipViewAttrib& calculator_ )
 				: outp( 0 )
 				, calculator( calculator_ ) {}
-	
+
 			    Task( const Task& );
 			    // Not impl. Only to give error if someone uses it
-	
-	void		    set( float t1_, int nrtimes_, float step_, 
+
+	void		    set( float t1_, int nrtimes_, float step_,
 					    const AttribCalc::Task::Input* inp,
                                             const TypeSet<float*>& outp_)
-				{ t1 = t1_; nrtimes = nrtimes_; 
+				{ t1 = t1_; nrtimes = nrtimes_;
 				  step = step_; input = inp; outp = outp_[0]; }
 
 	AttribCalc::Task*    clone() const;
@@ -115,7 +116,7 @@ protected:
 
     protected:
 	float*			outp;
-	const DipViewAttrib& 	calculator;
+	const DipViewAttrib&	calculator;
 
     };
 

@@ -28,14 +28,14 @@ class DataHolder;
 
 <pre>
   %Coherency type= gate= [maxdip=250] [ddip=10]
-  
+
   Input:
   0       Data
-  
+
   %Output: 3D                      2D
   0       Coherency               Coherency
-  1       Inline dip              Trace dip
-  2       Crossline dip
+  1	  Inline Dip		  Line dip
+  2	  Crossline Dip
 </pre>
 */
 
@@ -63,20 +63,20 @@ protected:
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&,int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
-	    			    int t0,int nrsamples,int threadid) const;
-    bool		computeData1(const DataHolder&, 
-	    			     int t0,int nrsamples) const;
-    bool		computeData2(const DataHolder&, 
-	    			     int t0,int nrsamples) const;
+				    int t0,int nrsamples,int threadid) const;
+    bool		computeData1(const DataHolder&,
+				     int t0,int nrsamples) const;
+    bool		computeData2(const DataHolder&,
+				     int t0,int nrsamples) const;
 
-    float 		calc1(float s1,float s2,const Interval<int>& sg,
+    float		calc1(float s1,float s2,const Interval<int>& sg,
 	                       const DataHolder&,const DataHolder&) const;
-    float 		calc2(float t,const Interval<int>& rsg,
+    float		calc2(float t,const Interval<int>& rsg,
 	                      float,float,const Array2DImpl<DataHolder*>& re,
 			      const Array2DImpl<DataHolder*>& im) const;
 
     bool		allowParallelComputation() const { return true; }
-	
+
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
@@ -88,7 +88,7 @@ protected:
     Interval<float>	gate_;
     Interval<float>	desgate_;
 
-    float 		distinl_;
+    float		distinl_;
     float		distcrl_;
 
     ObjectSet<const DataHolder>	inputdata_;

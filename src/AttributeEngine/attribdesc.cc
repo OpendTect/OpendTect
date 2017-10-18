@@ -55,9 +55,9 @@ bool InputSpec::operator==(const InputSpec& b) const
 }
 
 
-const char* Desc::sKeyInlDipComp() { return "Inline dip"; }
-const char* Desc::sKeyCrlDipComp() { return "Crossline dip"; }
-const char* Desc::sKeyLineDipComp() { return "Line dip"; }
+const char* Desc::sKeyInlDipComp() { return "Inline Dip"; }
+const char* Desc::sKeyCrlDipComp() { return "Crossline Dip"; }
+const char* Desc::sKeyLineDipComp() { return "Line Dip"; }
 
 
 Desc::Desc( const char* attribname, DescStatusUpdater updater,
@@ -413,9 +413,9 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 
 
 const char* Desc::errMsg() const
-{ 
+{
     return isStored() ? errmsg_.str() : "Error while saving the attribute.\n"
-					"Values are not correct."; 
+					"Values are not correct.";
 }
 
 

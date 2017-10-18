@@ -22,12 +22,12 @@ This option makes it neccecary to convert the time-domain to distance, and
 this is what the velocity is for. Velocity can either be stated on commandline
 or be given for each sample. The 'fast' option is use when planefilter is
 turned off and specifies wether the filter should snap each sample to the
-closest trace, or do an interpolation between the traces.  
+closest trace, or do an interpolation between the traces.
 
 Input:
 0	Data
-1	Inline dip
-2	Crossline dip
+1	Inline Dip
+2	Crossline Dip
 3	Velocity (only if not stated on command-line)
 
 Outputs:
@@ -135,12 +135,12 @@ public:
 
     Seis::DataType	dataType(int val, int) const;
 
-    const char* 	definitionStr() const { return desc; }
+    const char* definitionStr() const { return desc; }
     void		setCommonInfo( const AttribProcessCommonInfo& ni )
 			{ common = &ni; }
 
 protected:
-    
+
     BufferString		desc;
     Interval<int>		sg;
     BinID			stepout;
@@ -148,10 +148,10 @@ protected:
     float			inldist;
     float			crldist;
 
-    int 			radius;
+    int			radius;
     float			velocity;
     bool			constantvel;
-    bool 			fast;
+    bool			fast;
     const AttribProcessCommonInfo*	common;
 
     mClass(AttribExp) Task : public AttribCalc::Task
@@ -167,8 +167,8 @@ protected:
 				    , veltrc( 0 )
 				    , trcs( 0 ) {}
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool		set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>& );
 
@@ -201,7 +201,7 @@ protected:
 
 			    Task( const Task& );
 			    // Not impl. Only to give error if someone uses it
-	
+
 	void		    set( float , int , float ,
 				 const AttribCalc::Task::Input* ,
                                  const TypeSet<float*>& );

@@ -214,9 +214,9 @@ public:
 				    parameters from the defstr. */
 
 
-    static const char*		sKeyInlDipComp();
-    static const char*		sKeyCrlDipComp();
-    static const char*		sKeyLineDipComp();
+    static const char* mDeprecated sKeyInlDipComp();
+    static const char* mDeprecated sKeyCrlDipComp();
+    static const char* mDeprecated sKeyLineDipComp();
 
 protected:
 
