@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "keystrs.h"
 #include "od_iostream.h"
+#include "odmemory.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
 #include "refcount.h"
@@ -42,7 +43,7 @@ static char* getNewDebugStr( char* strvar, const OD::String& newstr )
     delete [] strvar;
     const od_int64 newsz = newstr.size();
     strvar = new char [ newsz + 1 ];
-    OD::memCopy( strvar, newstr.str(), newsz );
+    OD::sysMemCopy( strvar, newstr.str(), newsz );
     strvar[newsz] = '\0';
     return strvar;
 }

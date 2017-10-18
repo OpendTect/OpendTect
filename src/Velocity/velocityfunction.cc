@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "survinfo.h"
+#include "velocitycalc.h"
 
 namespace Vel
 {
@@ -70,39 +71,45 @@ void Function::setDesiredZRange( const StepInterval<float>& n )
 { desiredrg_ = n; }
 
 
+#define cDefSampleSnapDist 1e-3f
+
 float Function::getVelocity( float z ) const
 {
     Threads::Locker cachelckr( cachelock_ );
     if ( !cache_ )
     {
-	const StepInterval<float> sampling = getDesiredZ();
-	cachesd_ = sampling;
-	const int zstart = mNINT32(sampling.start/sampling.step);
-	const int zstop = mNINT32(sampling.stop/sampling.step);
+	const StepInterval<float> sampling( getDesiredZ() );
+	cachesd_ = getDoubleSamplingData( SamplingData<float>( sampling ) );
+	const int zstart = mNINT32( cachesd_.start / cachesd_.step );
+	const int zstop = mNINT32( mCast(double,sampling.stop)/cachesd_.step );
 	mTryAlloc( cache_, TypeSet<float>( zstop-zstart+1, mUdf(float) ) );
 	if ( !cache_ ) return mUdf(float);
 
 	if ( !computeVelocity( (float) cachesd_.start, (float) cachesd_.step,
-		    	       cache_->size(), cache_->arr() ) )
+			       cache_->size(), cache_->arr() ) )
 	{
-	    delete cache_;
-	    cache_ = 0;
+	    deleteAndZeroPtr( cache_ );
 	    return mUdf( float );
 	}
     }
     cachelckr.unlockNow();
 
-    const float fsample = cachesd_.getfIndex( z );
-    const int isample = (int) fsample;
-    if ( isample<0 || isample>=cache_->size() )
+    const int sampidx = cachesd_.nearestIndex( z );
+    if ( sampidx<0 || sampidx>=cache_->size() )
 	return mUdf(float);
 
+    const float pos = mCast(float,( z - cachesd_.start ) / cachesd_.step);
+    if ( sampidx-pos > -cDefSampleSnapDist && sampidx-pos < cDefSampleSnapDist )
+    {
+	return (*cache_)[sampidx];
+    }
+
     return Interpolate::linearReg1DWithUdf(
-	    (*cache_)[isample],
-	    isample<(cache_->size()-1)
-		? (*cache_)[isample+1]
+	    (*cache_)[sampidx],
+	    sampidx<(cache_->size()-1)
+		? (*cache_)[sampidx+1]
 		: mUdf(float),
-	    fsample-isample );
+	    pos );
 }
 
 
@@ -215,17 +222,17 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
     int idx = findFunction( bid );
     if ( idx==-1 )
     {
- 	tmpfunc = createFunction( bid );
+	tmpfunc = createFunction( bid );
 	if ( !tmpfunc )
 	    return 0;
 
- 	functions_ += tmpfunc;
- 	refcounts_ += 1;
+	functions_ += tmpfunc;
+	refcounts_ += 1;
     }
     else
     {
-       	tmpfunc = functions_[idx];
-       	refcounts_[idx]++;
+	tmpfunc = functions_[idx];
+	refcounts_[idx]++;
     }
     lckr.unlockNow();
 

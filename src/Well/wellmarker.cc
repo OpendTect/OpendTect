@@ -332,7 +332,10 @@ void Well::MarkerSet::mergeOtherWell( const ObjectSet<Well::Marker>& ms1 )
 	int loidx;
 	const float ms1dah = ms1[ms1idx]->dah();
 	if ( IdxAble::findFPPos(yvals,nrpts,ms1dah,ms1idxfirstmatch,loidx) )
-	    continue; // Two markers in ms1 at same pos. Ignore this one.
+	{
+	    addCopy( ms1, ms1idx, xvals[loidx] );
+	    continue;
+	}
 
 	const float relpos = (ms1dah - yvals[loidx])
 			   / (yvals[loidx+1]-yvals[loidx]);

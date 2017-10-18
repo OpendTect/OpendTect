@@ -45,7 +45,7 @@ IOObjContext& StoredFunctionSource::ioContext()
 
     if ( !ret )
     {
-	IOObjContext* newret = 
+	IOObjContext* newret =
 		    new IOObjContext(PickSetTranslatorGroup::ioContext());
 	newret->setName( "RMO picks" );
 	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityFunction() );
@@ -105,7 +105,7 @@ bool StoredFunctionSource::zIsTime() const
 
 
 void StoredFunctionSource::initClass()
-{ FunctionSource::factory().addCreator( create, sFactoryKeyword() ); }    
+{ FunctionSource::factory().addCreator( create, sFactoryKeyword() ); }
 
 
 void StoredFunctionSource::setData( const BinIDValueSet& bvs,
@@ -143,7 +143,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
 
 	ps += pickloc;
     }
-    
+
     ps.pars_.setYN( sKeyZIsTime(), zit_ );
     desc_.fillPar( ps.pars_ );
 
@@ -188,7 +188,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
     veldata_.setEmpty();
     veldata_.setNrVals( 2, false );
     float vals[2];
-    
+
     for ( int idx=pickset.size()-1; idx>=0; idx-- )
     {
 	const ::Pick::Location& pspick = pickset[idx];
@@ -251,7 +251,7 @@ bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
 	return false;
 
     BinIDValueSet::SPos pos = veldata_.find( binid );
-    do 
+    do
     {
 	if ( veldata_.getBinID(pos)!=binid )
 	    break;
@@ -266,43 +266,47 @@ bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
 
 
 bool StoredFunction::computeVelocity( float z0, float dz, int nr,
-       				      float* res ) const
+				      float* res ) const
 {
     if ( vel_.isEmpty() )
 	return false;
 
     mDynamicCastGet( StoredFunctionSource&, source, source_ );
+    const SamplingData<double> sd = getDoubleSamplingData(
+						SamplingData<float>(z0,dz) );
+    const int zsz = zval_.size();
+    mAllocVarLenArr( double, zvals, zsz );
+    if ( !mIsVarLenArrOK(zvals) )
+	return false;
+
+    for ( int idx=0; idx<zsz; idx++ )
+	zvals[idx] = zval_[idx];
+
     if ( getDesc().type_==VelocityDesc::Interval )
     {
-	return sampleVint( vel_.arr(), zval_.arr(), zval_.size(),
-		    SamplingData<double>( z0, dz ), res, nr );
+	return sampleVint( vel_.arr(), zvals, zsz, sd, res, nr );
     }
     else if ( getDesc().type_==VelocityDesc::RMS && source.zIsTime() )
     {
-	return sampleVrms( vel_.arr(), 0, 0, zval_.arr(), zval_.size(),
-		SamplingData<double>( z0, dz ), res, nr );
+	return sampleVrms( vel_.arr(), 0, 0, zvals, zsz, sd, res, nr );
     }
     else if ( getDesc().type_==VelocityDesc::Avg )
     {
-	return sampleVavg( vel_.arr(), zval_.arr(), zval_.size(),
-		    SamplingData<double>( z0, dz ), res, nr );
+	return sampleVavg( vel_.arr(), zvals, zsz, sd, res, nr );
     }
     else if ( getDesc().type_==VelocityDesc::Delta )
     {
-	sampleIntvThomsenPars( vel_.arr(), zval_.arr(), zval_.size(),
-		    SamplingData<double>( z0, dz ), nr, res );
+	sampleIntvThomsenPars( vel_.arr(), zvals, zsz, sd, nr, res );
 	return true;
     }
     else if ( getDesc().type_==VelocityDesc::Epsilon )
     {
-	sampleIntvThomsenPars( vel_.arr(), zval_.arr(), zval_.size(),
-		    SamplingData<double>( z0, dz ), nr, res );
+	sampleIntvThomsenPars( vel_.arr(), zvals, zsz, sd, nr, res );
 	return true;
     }
     else if ( getDesc().type_==VelocityDesc::Eta )
     {
-	sampleEffectiveThomsenPars( vel_.arr(), zval_.arr(),
-		    zval_.size(), SamplingData<double>( z0, dz ), nr, res );
+	sampleEffectiveThomsenPars( vel_.arr(), zvals, zsz, sd, nr, res );
 	return true;
     }
 
@@ -312,7 +316,7 @@ bool StoredFunction::computeVelocity( float z0, float dz, int nr,
 
 StepInterval<float> StoredFunction::getAvailableZ() const
 {
-    return desiredrg_; 
+    return desiredrg_;
 }
 
 }; //namespace

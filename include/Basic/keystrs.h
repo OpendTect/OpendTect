@@ -86,6 +86,7 @@ namespace sKey
     inline FixedString NrFaults()	{ return "Nr Faults";}
     inline FixedString NrItems()	{ return "Nr Items";}
     inline FixedString Offset()		{ return "Offset"; }
+    inline FixedString Order()		{ return "Order"; }
     inline FixedString Output()		{ return "Output"; }
     inline FixedString Pars()		{ return "Parameters"; }
     inline FixedString PickSet()	{ return "PickSet"; }
@@ -96,6 +97,7 @@ namespace sKey
     inline FixedString Quiet()		{ return "quiet"; }
     inline FixedString Random()		{ return "Random"; }
     inline FixedString Range()		{ return "Range"; }
+    inline FixedString Region()		{ return "Region"; }
     inline FixedString Sampling()	{ return "Sampling"; }
     inline FixedString Scale()		{ return "Scale"; }
     inline FixedString SeisID()		{ return "SeisID"; }

@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "survgeometrytransl.h"
+#include "ascstream.h"
 #include "ctxtioobj.h"
 #include "iodir.h"
 #include "ioman.h"
@@ -61,6 +62,18 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     od_istream strm( ioobj.fullUserExpr() );
     if ( !strm.isOK() )
 	return 0;
+
+    // OD 6.2 and later write a header followed by pars. v6.0 should skip this.
+    ascistream astrm( strm );
+    const bool hasheader = astrm.hasStandardHeader();
+    if ( !hasheader )
+	strm.setPosition( 0 );
+    else
+    {
+	astrm.next();
+	while ( !astrm.atEOS() ) // Skip the pars that follow.
+	    astrm.next();
+    }
 
     PosInfo::Line2DData* data = new PosInfo::Line2DData;
     if ( !data->read(strm,false) )

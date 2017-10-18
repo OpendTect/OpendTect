@@ -1192,7 +1192,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	    const bool domemcopy = stor->arr() && data.getData();
 	    if ( domemcopy )
-		OD::memCopy( outputdp_->getTrcData(idx,trcidx),
+		OD::sysMemCopy( outputdp_->getTrcData(idx,trcidx),
 			     stor->arr(), nrzsamp*sizeof(float) );
 	    else
 	    {
@@ -1617,10 +1617,7 @@ void uiAttribPartServer::filter2DMenuItems(
 
 	    MultiID mid( desc->getStoredID(true) );
 	    PtrMan<IOObj> seisobj = IOM().get( mid );
-	    if ( !seisobj )
-		continue;
-
-	    if ( attribnms.isPresent(seisobj->name()) )
+	    if ( !seisobj || attribnms.isPresent(seisobj->name()) )
 	    {
 		MenuItem* item = new MenuItem( mToUiStringTodo(childnm) );
 		const bool docheck = childnm==as.userRef();

@@ -512,11 +512,11 @@ bool TrcKeyZSampling::adjustTo( const TrcKeyZSampling& availabletkzs,
     TrcKeyZSampling adjustedtkzs( compatibletkzs );
     adjustedtkzs.shrinkTo( *this );
 
-    // Only keep adjustments for non-flat dimensions
+    // Only keep adjustments for non-flat dimensions. Preserve step if flat.
     if ( nrLines() == 1 )
-	adjustedtkzs.hsamp_.setLineRange( hsamp_.lineRange() );
+	adjustedtkzs.hsamp_.setLineRange( (Interval<int>)hsamp_.lineRange() );
     if ( nrTrcs() == 1 )
-	adjustedtkzs.hsamp_.setTrcRange( hsamp_.trcRange() );
+	adjustedtkzs.hsamp_.setTrcRange( (Interval<int>)hsamp_.trcRange() );
     if ( nrZ() == 1 )
 	adjustedtkzs.zsamp_ = zsamp_;
 
@@ -930,7 +930,7 @@ bool TrcKeySampling::trcOK( Pos::TraceID tid ) const
 bool TrcKeySampling::lineOK( Pos::LineID lid, bool ignoresteps ) const
 {
     const bool linenrok = lid >= start_.lineNr() && lid <= stop_.lineNr();
-    return ignoresteps ? linenrok : linenrok && ( step_.lineNr() ? 
+    return ignoresteps ? linenrok : linenrok && ( step_.lineNr() ?
 	!( ( lid-start_.lineNr() ) % step_.lineNr() ) : lid==start_.lineNr() );
 
 }
@@ -939,7 +939,7 @@ bool TrcKeySampling::lineOK( Pos::LineID lid, bool ignoresteps ) const
 bool TrcKeySampling::trcOK( Pos::TraceID tid, bool ignoresteps ) const
 {
     const bool trcnrok = tid >= start_.trcNr() && tid <= stop_.trcNr();
-    return ignoresteps ? trcnrok : trcnrok && ( step_.crl() ? 
+    return ignoresteps ? trcnrok : trcnrok && ( step_.crl() ?
 	!( ( tid-start_.trcNr() ) % step_.trcNr() ) : tid==start_.trcNr() );
 }
 

@@ -51,7 +51,7 @@ bool Convolver2D<float>::doPrepare( int )
 	        return false; \
 	} \
  \
-	OD::memZero( freqdomain, sizeof(float_complex)*totalsz ); \
+	OD::sysMemZero( freqdomain, totalsz*sizeof(float_complex) ); \
  \
 	const float* xptr = realdomain->getData(); \
  \
@@ -84,7 +84,7 @@ bool Convolver2D<float>::doWork( od_int64 start, od_int64 stop, int threadid )
     const float_complex* yfptr = yf_;
 
     mDoArrayPtrOperation( float_complex, zf_,
-			  = (*xfptr) * (*yfptr); xfptr++; yfptr++, totalsz, ++ );
+			  = (*xfptr) * (*yfptr); xfptr++; yfptr++, totalsz,++);
 
     fft_->setInput( zf_ );
     fft_->setOutput( zf_ );

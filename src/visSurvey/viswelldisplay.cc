@@ -278,10 +278,10 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 
     const bool needsconversiontotime = needsConversionToTime();
     if ( needsconversiontotime )
-    {	
+    {
 	if ( !timetrack_ )
 	    timetrack_ = new Well::Track( wd->track() );
-	else 
+	else
 	    *timetrack_ = wd->track();
 
 	timetrack_->toTime( *wd );
@@ -482,18 +482,22 @@ bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
 	logfill->setEmpty();
 
     const bool filldata = logdatain == logfillin;
+    Stats::UpscaleType logdatastats =
+	logdatain->isCode() ? Stats::UseMostFreq : Stats::UseAvg;
+    Stats::UpscaleType logfillstats =
+	logfillin->isCode() ? Stats::UseMostFreq : Stats::UseAvg;
     for ( int idah=0; idah<dahrange.nrSteps()+1; idah++ )
     {
 	const float dah = dahrange.atIndex( idah );
-	const float val = Well::LogDataExtracter::calcVal( *logdatain,
-				dah, dahrange.step, Stats::UseAvg );
+	float val = Well::LogDataExtracter::calcVal( *logdatain,
+				dah, dahrange.step, logdatastats );
 	logdata.addValue( dah, val );
 	if ( logfill )
 	{
-	    const float fillval = filldata ? val
-				: Well::LogDataExtracter::calcVal( *logfillin,
-					dah, dahrange.step, Stats::UseAvg );
-	    logfill->addValue( dah, fillval );
+	    if ( !filldata )
+		val = Well::LogDataExtracter::calcVal( *logfillin,
+					dah, dahrange.step, logfillstats );
+	    logfill->addValue( dah, val );
 	}
     }
 
@@ -709,7 +713,7 @@ void WellDisplay::setDisplayTransformation( const mVisTrans* nt )
 
     if ( transformation_ )
 	transformation_->ref();
-    
+
     well_->setDisplayTransformation( transformation_ );
     setDisplayTransformForPicks( transformation_ );
     fullRedraw(0);

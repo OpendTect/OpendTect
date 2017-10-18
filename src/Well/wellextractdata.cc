@@ -252,8 +252,8 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
     }
     else
     {
-	zrg.start = survrg.snap( zrg.start );
-	zrg.stop = survrg.snap( zrg.stop );
+	SI().snapZ( zrg.start, 1 );
+	SI().snapZ( zrg.stop, -1 );
     }
 }
 
@@ -843,9 +843,12 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
     }
 
     const int sz = vals.size();
-    if ( sz < 1 ) return mUdf(float);
-    if ( sz == 1 ) return logisvel ? 1.f / vals[0] : vals[0];
-    if ( sz == 2 ) return samppol == Stats::UseAvg
+    if ( sz < 1 )
+	return wl.isCode() ? wl.getValue( dah ) : mUdf(float);
+    if ( sz == 1 )
+	return logisvel ? 1.f / vals[0] : vals[0];
+    if ( sz == 2 )
+	return samppol == Stats::UseAvg && !wl.isCode()
 		? ( logisvel ? 2.f/(vals[0]+vals[1]) : (vals[0]+vals[1])*0.5f )
 		: logisvel ? 1.f / vals[0] : vals[0];
 
@@ -1070,12 +1073,12 @@ bool Well::LogSampler::doPrepare( int thread )
     Interval<float> dahrg;
     mGetDah( dahrg.start, zrg_.start, zrgisintime_ )
     mGetDah( dahrg.stop, zrg_.stop, zrgisintime_ )
-    dahrg.limitTo( track_.dahRange() );
     if ( dahrg.isUdf() )
     {
 	mErrRet( tr("Wrong extraction boundaries") )
     }
 
+    dahrg.limitTo( track_.dahRange() );
     if ( extrintime_ != zrgisintime_ )
     {
 	mGetZ( zrg_.start, dahrg.start, zrgisintime_ )

@@ -118,8 +118,7 @@ void Gridder2D::setTrend( PolyTrend::Order order )
 	if ( order == trend_->getOrder() )
 	    return;
 
-	delete trend_;
-	trend_ = 0;
+	deleteAndZeroPtr( trend_ );
     }
 
     if ( order != PolyTrend::None )
@@ -299,6 +298,7 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 	return false;
 
     const bool useradius = !mIsUdf(radius_);
+    const double sqradius = useradius ? radius_*radius_ : mUdf(double);
     double weightsum = 0.;
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -307,18 +307,34 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 	    continue;
 
 	const Coord& pos = (*points_)[index];
-	const double dist = gridpoint.distTo( pos );
-	if ( useradius && dist > radius_ )
+	const double sqdist = gridpoint.sqDistTo( pos );
+	if ( useradius && sqdist > sqradius )
 	    continue;
 
 	relevantpoints += index;
-	const double weight = 1./(dist*dist);
+	const double dist = useradius ? Math::Sqrt( sqdist ) : mUdf(double);
+	double weight = useradius ? ( radius_ - dist )/( radius_*dist )
+				  : 1. / sqdist;
+	if ( useradius )
+	    weight *= weight;
+
 	weightsum += weight;
 	weights += weight;
     }
 
-    for ( int idx=0; idx<weights.size(); idx++ )
-	weights[idx] /= weightsum;
+    const int finsz = weights.size();
+    double* mODRestrict weightvals = weights.arr();
+    if ( useradius && mIsZero(weightsum,1e-30) )
+    { //All sources are exactly at (1) radius distance from the grid point
+	const double equalweight = 1. / mCast(double,finsz);
+	for ( int idx=0; idx<finsz; idx++ )
+	    weightvals[idx] = equalweight;
+    }
+    else
+    {
+	for ( int idx=0; idx<finsz; idx++ )
+	    weightvals[idx] /= weightsum;
+    }
 
     return !relevantpoints.isEmpty();
 }
@@ -417,7 +433,7 @@ bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
 		continue;
 
 	    const Coord& pos = (*points_)[index];
-	    const double weight = 1. / gridpoint.distTo( pos );
+	    const double weight = 1. / gridpoint.sqDistTo( pos );
 	    weightsum += weight;
 	    weights += weight;
 	}

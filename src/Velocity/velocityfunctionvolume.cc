@@ -94,19 +94,23 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
 	return false;
 
     mDynamicCastGet( VolumeFunctionSource&, source, source_ );
+    const SamplingData<double> velsampling =
+					getDoubleSamplingData( velsampling_ );
+    const SamplingData<double> sd = getDoubleSamplingData(
+					SamplingData<float>(z0,dz) );
 
     if ( mIsEqual(z0,velsampling_.start,1e-5) &&
 	 mIsEqual(velsampling_.step,dz,1e-5) &&
 	 velsz==nr )
-	OD::memCopy( res, vel_.arr(), sizeof(float)*velsz );
+	OD::sysMemCopy( res, vel_.arr(), sizeof(float)*velsz );
     else if ( source.getDesc().type_!=VelocityDesc::RMS ||
 	      !extrapolate_ ||
-	      velsampling_.atIndex(velsz-1)>z0+dz*(nr-1) )
+	      velsampling.atIndex(velsz-1) > sd.atIndex(nr-1) )
     {
 	for ( int idx=0; idx<nr; idx++ )
 	{
-	    const float z = z0+dz*idx;
-	    const float sample = velsampling_.getfIndex( z );
+	    const float z = mCast(float,sd.atIndex( idx ));
+	    const float sample = velsampling.getfIndex( z );
 	    if ( sample<0 )
 	    {
 		res[idx] = extrapolate_ ? vel_[0] : mUdf(float);
@@ -138,15 +142,13 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
     }
     else //RMS vel && extrapolate_ && extrapolation needed at the end
     {
-	TypeSet<float> times;
+	mAllocVarLenArr( double, times, velsz );
+	if ( !mIsVarLenArrOK(times) ) return false;
 	for ( int idx=0; idx<velsz; idx++ )
-	{
-	    float t = velsampling_.atIndex( idx );
-	    times += t;
-	}
+	    times[idx] = velsampling.atIndex( idx );
 
-	return sampleVrms( vel_.arr(), statics_, staticsvel_, times.arr(),
-			   velsz, SamplingData<double>( z0, dz ), res, nr );
+	return sampleVrms( vel_.arr(), (double)statics_, staticsvel_, times,
+			   velsz, sd, res, nr );
     }
 
     return true;
@@ -237,7 +239,8 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
     {
 	const StepInterval<int>& inlrg = packetinfo.inlrg;
 	const StepInterval<int>& crlrg = packetinfo.crlrg;
-	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )                  {
+	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )
+	{
 	    for ( int crl=crlrg.start; crl<=crlrg.stop; crl +=crlrg.step )
 	    {
 		bids.add( BinID(inl,crl) );

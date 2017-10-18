@@ -170,6 +170,7 @@ public:
     void		setAll(bool);
     void		setZRanges(const TypeSet<StepInterval<float> >&);
     void		setTrcRanges(const TypeSet<StepInterval<int> >&);
+    void		setSingleLine(bool);
 
     bool		fillPar(IOPar&) const;
     void		usePar(const IOPar&);

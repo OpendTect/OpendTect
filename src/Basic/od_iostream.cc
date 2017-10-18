@@ -245,6 +245,8 @@ void od_stream::setPosition( od_stream::Pos pos, od_stream::Ref ref )
     {
 	if ( ref == Abs )
 	    StrmOper::seek( *sd_.istrm, pos );
+	else if ( ref == Rel && pos >= 0 )
+	    sd_.istrm->ignore( pos );
 	else
 	    StrmOper::seek( *sd_.istrm, pos, getSeekdir(ref) );
     }
@@ -596,11 +598,9 @@ od_ostream& od_ostream::addPtr( const void* ptr )
 od_ostream& od_ostream::add( od_istream& strm )
 {
     char c;
-    while ( isOK() && strm.isOK() )
-    {
-	strm.get( c );
-	add( c );
-    }
+    while ( strm.getBin(&c,1) && isOK())
+	addBin( &c, 1 );
+
     return *this;
 }
 

@@ -195,6 +195,7 @@ public:
     static uiString sAzimuth()		{ return tr("Azimuth"); }
     static uiString sAttribute(int num=1) { return tr("Attribute",0,num); }
     static uiString sAttributes()	{ return sAttribute(mPlural); }
+    static uiString sAttributeSet(int num=1){ return tr("AttributeSet",0,num); }
     static uiString sAverage()		{ return tr("Average"); }
     static uiString sBatch()		{ return tr("Batch"); }
     static uiString sBatchProgram();
@@ -405,6 +406,7 @@ public:
     static uiString sSaveAs();
     static uiString sSaveAsDefault()    { return tr("Save as Default"); }
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
+    static uiString sSavingChanges()	{ return tr("Saving changes"); }
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int num=1)	{ return tr("Scene",0,1); }
     static uiString sScenes()		{ return sScene(mPlural); }

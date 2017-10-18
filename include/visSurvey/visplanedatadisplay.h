@@ -87,6 +87,7 @@ public:
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						bool displayspace,
 						int attrib=-1) const;
+    TrcKeyZSampling		getDataPackSampling(int attrib=0) const;
     Interval<float>		getDataTraceRange() const;
     void			getRandomPos(DataPointSet&,TaskRunner* =0)const;
     void			setRandomPosData(int attrib,

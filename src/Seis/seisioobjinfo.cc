@@ -299,7 +299,7 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 	{ pErrMsg("No Translator!"); return false; }
 
     Conn* conn = ioobj_->getConn( Conn::Read );
-    if ( !sttr->initRead(conn) )
+    if ( !sttr->initRead(conn,Seis::PreScan) )
 	return false;
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& comps
@@ -307,7 +307,7 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
     if ( comps.isEmpty() )
 	return false;
 
-    dc = comps.first()->datachar;
+    dc = comps.first()->org.datachar;
     return true;
 }
 

@@ -164,6 +164,7 @@ bool VolumeConverter::doPrepare( int nrthreads )
 }
 
 
+
 bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 {
     char res = 1;
@@ -182,6 +183,14 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	inputptr = owndata.ptr();
     }
 
+    const SamplingData<double> sd =
+			       getDoubleSamplingData( trc.info().sampling );
+    const int trcsz = trc.size();
+    TypeSet<double> timevals( trcsz, 0.f );
+    for ( int idx=0; idx<trc.size(); idx++ )
+	timevals[idx] = sd.atIndex( idx );
+    const double* timesamps = timevals.arr();
+
     while ( res==1 )
     {
 	if ( !shouldContinue() )
@@ -195,64 +204,38 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 	SeisTrc* outputtrc = new SeisTrc( trc );
 	float* outptr = (float*) outputtrc->data().getComponent( 0 )->data();
-	const SamplingData<double>& sd = trc.info().sampling;
-	TypeSet<float> timesamps;
-	const float sampstep = trc.info().sampling.step;
-	for ( int idx=0; idx<trc.size(); idx++ )
-	    timesamps += trc.startPos() + idx * sampstep;
-
 	float* interptr = 0;
 	if ( velinpdesc_.type_ != VelocityDesc::Interval )
 	{
 	    if ( veloutpdesc_ != VelocityDesc::Interval )
 	    {
-		mTryAlloc(interptr,float[trc.size()]);
+		mTryAlloc(interptr,float[trcsz]);
 		if ( !interptr )
 		{
 		    errmsg_ = tr("Not enough memory");
-		    delete outputtrc;
-		    outputtrc = 0;
+		    deleteAndZeroPtr( outputtrc );
 		    return false;
 		}
 	    }
-	    if ( velinpdesc_.type_ == VelocityDesc::Avg )
+	    float* targetptr = interptr ? interptr : outptr;
+	    if ( (velinpdesc_.type_ == VelocityDesc::Avg &&
+		  !computeVint(inputptr,timesamps,trcsz,targetptr) ) ||
+		 (velinpdesc_.type_ == VelocityDesc::RMS &&
+		  !computeDix(inputptr,sd,trcsz,targetptr) ) )
 	    {
-		 if ( !computeVint( inputptr, timesamps[0], timesamps.arr(),
-			trc.size(), interptr ? interptr : outptr ) )
-		{
-		    delete outputtrc;
-		    outputtrc = 0;
-		}
-	    }
-	    else
-	    {
-		if ( !computeDix( inputptr, sd, trc.size(),
-					interptr ? interptr :outptr ) )
-		{
-		    delete outputtrc;
-		    outputtrc = 0;
-		}
+		deleteAndZeroPtr( outputtrc );
 	    }
 	}
 
-	if ( veloutpdesc_.type_ == VelocityDesc::Avg )
+	const float* srcptr = interptr ? interptr : inputptr;
+	if ( (veloutpdesc_.type_ == VelocityDesc::Avg &&
+	      !computeVavg(srcptr,timesamps,trcsz,outptr) ) ||
+	     (veloutpdesc_.type_ == VelocityDesc::RMS &&
+	      !computeVrms(srcptr,sd,trcsz,outptr) ) )
 	{
-	    if ( !computeVavg( interptr ? interptr : inputptr, timesamps[0],\
-				timesamps.arr(), trc.size(), outptr ) )
-	    {
-		delete outputtrc;
-		outputtrc = 0;
-	    }
+	    deleteAndZeroPtr( outputtrc );
 	}
-	else if ( veloutpdesc_.type_ == VelocityDesc::RMS )
-	{
-	    if ( !computeVrms( interptr ? interptr : inputptr, sd, trc.size(),
-				outptr ) )
-	    {
-		delete outputtrc;
-		outputtrc = 0;
-	    }
-	}
+
 	delete [] interptr;
 
 	//Process trace

@@ -15,12 +15,13 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "gendefs.h"
 #include "uistring.h"
+class MouseCursorChanger;
 class uiMainWin;
 class uiStatusBar;
 mFDQtclass(QWidget)
 class BufferStringSet;
 class FileMultiString;
-class uiString;
+class uiParent;
 
 
 mExpClass(uiBase) uiMsg
@@ -194,6 +195,36 @@ protected:
     uiMainWin*		oldparent_;
     bool		isset_;
 };
+
+
+
+/*!\brief tells user something is happening.
+
+  Sets mouse cursor and puts something in status bar (if available). Will
+  automatically clean up on destruction.
+
+  Used extensively from 7.X, added here to make porting easier.
+
+*/
+
+mExpClass(uiBase) uiUserShowWait
+{
+public:
+
+			uiUserShowWait(uiParent*,const uiString&,int sbfld=0);
+			~uiUserShowWait()		{ readyNow(); }
+
+    void		setMessage(const uiString&);
+    void		readyNow();
+
+protected:
+
+    uiStatusBar*	sb_;
+    MouseCursorChanger*	mcc_;
+    const int		fldidx_;
+
+};
+
 
 
 #endif

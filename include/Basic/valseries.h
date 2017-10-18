@@ -226,7 +226,7 @@ bool		doWork( od_int64 start, od_int64 stop, int )
 		    const T* fromarr = from_.arr();
 		    T* toarr = toptr_ ? toptr_ : to_->arr();
 		    if ( toarr && fromarr )
-			OD::memCopy( toarr+start, fromarr+start,
+			OD::sysMemCopy( toarr+start, fromarr+start,
 			        (size_t) (nrleft*from_.bytesPerItem()) );
 		    else if ( toarr )
 		    {

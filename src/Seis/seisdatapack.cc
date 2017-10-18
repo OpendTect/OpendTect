@@ -293,6 +293,20 @@ bool RegularSeisDataPack::addComponent( const char* nm )
 }
 
 
+bool RegularSeisDataPack::addComponentNoInit( const char* nm )
+{
+    if ( !sampling_.isDefined() || sampling_.hsamp_.totalNr()>INT_MAX )
+	return false;
+
+    if ( !addArrayNoInit(sampling_.nrLines(),sampling_.nrTrcs(),
+			 sampling_.nrZ()) )
+	return false;
+
+    componentnames_.add( nm );
+    return true;
+}
+
+
 void RegularSeisDataPack::dumpInfo( IOPar& par ) const
 {
     SeisDataPack::dumpInfo( par );
