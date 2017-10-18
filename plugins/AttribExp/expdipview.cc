@@ -18,11 +18,13 @@ static const char* rcsID mUsedVar = "$Id$";
 DipViewAttrib::DipViewAttrib( Parameters* params )
     : aspect( params->aspect )
     , AttribCalc( new DipViewAttrib::Task( *this ) )
-{ 
+{
+    BufferString compnm( uiStrings::sInlineDip().getFullString() );
     params->fillDefStr( desc );
     delete params;
     AttribInputSpec* spec = new AttribInputSpec;
-    spec->setDesc( "Inline dipangle");
+    compnm.add( " angle" );
+    spec->setDesc( compnm );
     spec->forbiddenDts += Seis::Ampl;
     spec->forbiddenDts += Seis::Dip;
     spec->forbiddenDts += Seis::Frequency;
@@ -31,7 +33,8 @@ DipViewAttrib::DipViewAttrib( Parameters* params )
     inputspec += spec;
 
     spec = new AttribInputSpec;
-    spec->setDesc( "Crossline dipangle");
+    compnm.set( uiStrings::sCrosslineDip().getFullString() ).add( " angle" );
+    spec->setDesc( compnm );
     spec->forbiddenDts += Seis::Ampl;
     spec->forbiddenDts += Seis::Dip;
     spec->forbiddenDts += Seis::Frequency;
@@ -72,7 +75,7 @@ int DipViewAttrib::Task::nextStep()
 {
     if ( !outp ) return 0;
 
-    const DipViewAttrib::Task::Input* inp = 
+    const DipViewAttrib::Task::Input* inp =
 			(const DipViewAttrib::Task::Input*) input;
 
     const SeisTrc* inldip = inp->inldip;
@@ -119,7 +122,7 @@ int DipViewAttrib::Task::nextStep()
 	}
 
 	float val = 1 - (a3*a4+b3*b4+c3*c4)/ Math::Sqrt( (a3*a3+b3*b3+c3*c3) *
-					  (a4*a4+b4*b4+c4*c4 ));	
+					  (a4*a4+b4*b4+c4*c4 ));
 	outp[idx] = val > 0 ? val : 0;
     }
 

@@ -14,8 +14,8 @@ Inverse gate=[-64,64] steering=Yes window=[Box] neighbourhood=1,1 pos1=0,1
 
 Input:
 0	Real data
-1	Inline dip
-2	Crossline dip
+1	Inline Dip
+2	Crossline Dip
 
 Output:
 0	(x0-x1)/(x0+x1)
@@ -89,9 +89,9 @@ public:
     const BinID*		reqStepout( int i, int ) const
 				{ return i ? 0 : &neighbourhood; }
 
-    int	nrAttribs() const { return 2; }
+    int nrAttribs() const { return 2; }
 
-    const char*	attribName(int val) const
+    const char* attribName(int val) const
 				{
 				    switch (val)
 				    {
@@ -104,10 +104,10 @@ public:
 
     Seis::DataType		dataType(int,
 					 const TypeSet<Seis::DataType>&) const
-				{ return Seis::UnknownData; }
+				{ return Seis::UnknowData; }
 
     const char*		definitionStr() const { return desc; }
-    void	setCommonInfo( const AttribProcessCommonInfo& ni )
+    void		setCommonInfo( const AttribProcessCommonInfo& ni )
 				{ common = &ni; }
 
 
@@ -143,7 +143,7 @@ protected:
 
 				~Input();
 
-	    bool                set( const BinID&,
+	    bool		set( const BinID&,
 				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>& );

@@ -202,10 +202,6 @@ public:
     Desc*			cloneDescAndPropagateInput(const DescID&,
 							   BufferString);
 
-    static const char*		sKeyInlDipComp();
-    static const char*		sKeyCrlDipComp();
-    static const char*		sKeyLineDipComp();
-
     static void			getKeysVals(const char* defstr,
 				    BufferStringSet& keys,
 				    BufferStringSet& vals,

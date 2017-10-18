@@ -289,6 +289,7 @@ public:
     static uiString sCreateOutput();
     static uiString sCreateProbDesFunc();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
+    static uiString sCrosslineDip()	{ return sLineDip(false); }
     static uiString sCrossPlot();
     static uiString sCube(int num=1)	{ return tr("Cube",0,num); }
     static uiString sDimension()	{ return tr("Dimension"); }
@@ -351,6 +352,7 @@ public:
     static uiString sInfo()		{ return tr("info"); }
     static uiString sInformation()	{ return tr("Information"); }
     static uiString sInline(int num=1)	{ return tr("In-line",0,num); }
+    static uiString sInlineDip()	{ return tr("Inline Dip"); }
     static uiString sInputParamsMissing();
     static uiString sInput();
     static uiString sInputFile();
@@ -365,6 +367,8 @@ public:
     static uiString sLatitude(bool abbrev=false);
     static uiString sLayer(int num=1)	{ return tr("Layer",0,num); }
     static uiString sLine(int num=1)	{ return tr("Line",0,num); }
+    static uiString sLineDip(bool for2d) { return for2d ? tr("Line Dip")
+							: tr("Crossline Dip"); }
     static uiString sLineName(int num=1) { return tr("Line Name",0,num); }
     static uiString sLineGeometry()	{ return tr("Line Geometry"); }
     static uiString sLeft()		{ return tr("Left"); }

@@ -640,7 +640,7 @@ int VolumeDataPack::getComponentIdx( const char* nm, int defcompidx ) const
     if ( compidx >= 0 )
 	return compidx;
 
-    // Trick for old steering cubes (see uiatribpartserv.cc)
+    // Trick for old steering cubes (see uiattribpartserv.cc)
     if ( stringEndsWith("Inline Dip",nm) && componentnames_.size()==2 )
 	return 0;
     if ( stringEndsWith("Crossline Dip",nm) && componentnames_.size()==2 )

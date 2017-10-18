@@ -14,8 +14,8 @@ NearSubtract usedip=Yes|No relampl=[Yes|No]
 
 Input:
 0	Data on wich the attrib should be calculated
-1	Inline dip (if required)
-2	Crline dip (if required)
+1	Inline Dip (if required)
+2	Crossline Dip (if required)
 
 Output:
 0	Output data
@@ -53,20 +53,21 @@ public:
 				NearSubtractAttrib( Parameters* );
 				~NearSubtractAttrib();
 
-    int	nrAttribs() const { return 1; }
-    const BinID*	reqStepout(int inp, int ) const
+    int				nrAttribs() const { return 1; }
+    const BinID*		reqStepout(int inp, int ) const
 				{
 				    if ( !inp ) return &stepout;
 				    return 0;
 				}
 
-    Seis::DataType		dataType(int,const TypeSet<Seis::DataType>&) const
-				{ return Seis::UnknownData; }
+    Seis::DataType		dataType(int,
+					 const TypeSet<Seis::DataType>&) const
+				{ return Seis::UnknowData; }
 
-    const char*		definitionStr() const { return desc; }
+    const char*			definitionStr() const { return desc; }
 
     bool			init();
-    void			setCommonInfo( const AttribProcessCommonInfo& ni )
+    void			setCommonInfo(const AttribProcessCommonInfo& ni)
 				{ common = &ni; }
 
 protected:
@@ -94,7 +95,7 @@ protected:
 				    , inldiptrc( 0 )
 				    , crldiptrc( 0 ) {}
 
-	    bool                set( const BinID&,
+	    bool		set( const BinID&,
 				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>&  );
@@ -135,7 +136,7 @@ protected:
 	int		    nextStep();
 
 	AttribCalc::Task::Input* getInput() const
-		    { return new NearSubtractAttrib::Task::Input( calculator ); }
+		    { return new NearSubtractAttrib::Task::Input( calculator );}
 
     protected:
 	float*				outp;

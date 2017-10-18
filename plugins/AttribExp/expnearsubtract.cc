@@ -31,8 +31,9 @@ NearSubtractAttrib::NearSubtractAttrib( Parameters* params )
 
     if ( usedip )
     {
+	BufferString compnm( uiStrings::sInlineDip().getFullString() );
 	spec = new AttribInputSpec;
-	spec->setDesc("Inline dip");
+	spec->setDesc( compnm );
 	spec->forbiddenDts += Seis::Ampl;
 	spec->forbiddenDts += Seis::Frequency;
 	spec->forbiddenDts += Seis::Phase;
@@ -40,8 +41,9 @@ NearSubtractAttrib::NearSubtractAttrib( Parameters* params )
 	spec->forbiddenDts += Seis::UnknownData;
 	inputspec += spec;
 
+	compnm.set( uiStrings::sCrosslineDip().getFullString() );
 	spec = new AttribInputSpec;
-	spec->setDesc("Crossline dip");
+	spec->setDesc( compnm );
 	spec->forbiddenDts += Seis::Ampl;
 	spec->forbiddenDts += Seis::Frequency;
 	spec->forbiddenDts += Seis::Phase;
@@ -93,8 +95,8 @@ bool NearSubtractAttrib::Task::Input::set( const BinID& pos,
 	if ( !inldiptrc || !crldiptrc )
 	    return false;
 
-	inldiptrcattrib = inputproviders[2]->attrib2component( inputattribs[2] );
-	crldiptrcattrib = inputproviders[3]->attrib2component( inputattribs[3] );
+	inldiptrcattrib = inputproviders[2]->attrib2component( inputattribs[2]);
+	crldiptrcattrib = inputproviders[3]->attrib2component( inputattribs[3]);
     }
 
     return true;

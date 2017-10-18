@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-    
+
 /*!
 \brief %Similarity Attribute
 
@@ -29,7 +29,8 @@ If steering is enabled, it is up to the user to make sure that the steering
 goes to the same position as pos0 and pos1 respectively.
 
 <pre>
-%Similarity gate= pos0= pos1= stepout=1,1 extension=[0|90|180|Cube|Cross|AllDir|Diagonal] steering=[Yes|No]
+%Similarity gate= pos0= pos1= stepout=1,1
+	    extension=[0|90|180|Cube|Cross|AllDir|Diagonal] steering=[Yes|No]
 
 Input:
 0	Data
@@ -37,7 +38,7 @@ Input:
 
 Extension:      0       90/180   Cube	Cross	   AllDir	Diagonal
 1               pos0    pos0		0,0	   0,0		0,0
-2               pos1    pos1		0,step	   -step,step	-step,step 
+2		pos1	pos1		0,step	   -step,step	-step,step
 3                       pos0rot		step,0	   0,step	step,step
 4                       pos1rot		0,-step	   step,step	step,-step
 5					-step,0	   step,0	-step,-step
@@ -54,8 +55,8 @@ Output:
 4       Max
 
 and if dip-browser chosen:
-5	Coherency-like Inline dip (Trace dip in 2D)
-6	Coherency-like Crossline dip
+5	Coherency-like Inline Dip (Line Dip in 2D)
+6	Coherency-like Crossline Dip
 => in this case the extension Cross is forced
 </pre>
 */
@@ -83,7 +84,7 @@ public:
     void			prepPriorToBoundsCalc();
 
 protected:
-    				~Similarity() {}
+				~Similarity() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
     static void                 updateDefaults(Desc&);
@@ -94,7 +95,7 @@ protected:
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
-	    				    const BinID& relpos,
+					    const BinID& relpos,
 					    int z0,int nrsamples,
 					    int threadid) const;
 
@@ -136,9 +137,9 @@ protected:
 					: func_( func )
 					, sz_(sz)
 					{}
-	
-	virtual float          	getValue( float x ) const
-				{ 
+
+	virtual float	getValue( float x ) const
+				{
 				    ValueSeriesInterpolator<float> interp(sz_);
     //We can afford using extrapolation with polyReg1DWithUdf because even if
     //extrapolation is needed,position will always be close to v0;
@@ -148,8 +149,8 @@ protected:
 					interp.extrapol_ = true;
 				    return interp.value(func_,x);
 				}
-	virtual float          	getValue( const float* p ) const
-	    			{ return getValue(*p); }
+	virtual float	getValue( const float* p ) const
+				{ return getValue(*p); }
 
     protected:
 	const ValueSeries<float>& func_;

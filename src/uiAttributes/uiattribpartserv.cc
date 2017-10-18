@@ -1770,8 +1770,8 @@ bool uiAttribPartServer::handleMultiComp( const DBKey& dbkey, bool is2d,
     if ( !is2d && issteering && complist.isPresent("Component 1") )
     {
 	complist.erase();
-	complist.add( "Inline Dip" );
-	complist.add( "Crossline Dip" );
+	complist.add( BufferString(uiStrings::sInlineDip().getFullString() ) );
+	complist.add( BufferString(uiStrings::sCrosslineDip().getFullString()));
     }
 
     uiMultCompDlg compdlg( parent(), complist );
@@ -1792,8 +1792,10 @@ bool uiAttribPartServer::handleMultiComp( const DBKey& dbkey, bool is2d,
 	    {
 		Desc* desc = ads->getDesc(attribid);
 		if ( !desc ) return false;
-		mFakeCompName( "Component 1", "Inline Dip" );
-		mFakeCompName( "Component 2", "Crossline Dip" );
+		mFakeCompName( "Component 1",
+		    BufferString( uiStrings::sInlineDip().getFullString() ) );
+		mFakeCompName( "Component 2",
+		    BufferString( uiStrings::sCrosslineDip().getFullString() ));
 	    }
 
 	    return true;
@@ -1826,8 +1828,10 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	//Trick for old steering cubes: fake good component names
 	if ( !is2d && issteering )
 	{
-	    mFakeCompName( "Component 1", "Inline Dip" );
-	    mFakeCompName( "Component 2", "Crossline Dip" );
+	    mFakeCompName( "Component 1",
+		    BufferString( uiStrings::sInlineDip().getFullString() ) );
+	    mFakeCompName( "Component 2",
+		    BufferString( uiStrings::sCrosslineDip().getFullString() ));
 	}
 
 	//Trick for PreStack offsets displayed on the fly

@@ -17,8 +17,8 @@ visualisation of dips in grids. The aspect parameter determines the position
 of the "light" in the resulting image.
 
 Input:
-0	Inline dip (as angle)
-1	Crossline dip (as angle)
+0	Inline Dip (as angle)
+1	Crossline Dip (as angle)
 
 Output:
 0	view
@@ -54,11 +54,12 @@ public:
     const Interval<float>*	crlDipMargin(int,int) const { return 0;}
 
 
-    int	nrAttribs() const { return 1; }
+    int nrAttribs() const { return 1; }
     const char*		definitionStr() const { return desc; }
 
-    virtual Seis::DataType	dataType(int val,const TypeSet<Seis::DataType>&) const
-				{ return val ? Seis::UnknownData : Seis::Dip; }
+    virtual Seis::DataType	dataType(int val,
+					 const TypeSet<Seis::DataType>&) const
+				{ return val?Seis::UnknowData:Seis::Dip; }
 
 protected:
 
@@ -74,7 +75,7 @@ protected:
 				Input( const DipViewAttrib& calculator_ )
 				: calculator ( calculator_ ) {}
 
-	    bool                set( const BinID&,
+	    bool		set( const BinID&,
 				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>&  );
