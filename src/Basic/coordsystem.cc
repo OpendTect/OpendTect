@@ -277,7 +277,7 @@ bool AnchorBasedXY::geographicTransformOK() const
 
 BufferString AnchorBasedXY::summary() const
 {
-    BufferString ret( "Anchor: LL:" );
+    BufferString ret( "Anchor: " );
     ret.add( reflatlng_.toString() ).add( refcoord_.toPrettyString() );
     return ret;
 }
