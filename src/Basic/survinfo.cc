@@ -400,16 +400,18 @@ bool SurveyInfo::usePar( const IOPar& par )
 	if ( par.get(sKeyLatLongAnchor,anchor) )
 	{
 	    char* ptr = anchor.find( '=' );
-	    if ( !ptr ) return false;
-	    *ptr++ = '\0';
-	    Coord c; LatLong l;
-	    if ( c.fromString(anchor) && l.fromString(ptr)
-	    && ( !(mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3)) ) )
+	    if ( ptr )
 	    {
-		RefMan<Coords::AnchorBasedXY> anchoredsystem =
-					new Coords::AnchorBasedXY( l, c );
-		anchoredsystem->setIsFeet( xyinfeet );
-		coordsystem_ = anchoredsystem;
+		*ptr++ = '\0';
+		Coord c; LatLong l;
+		if ( c.fromString(anchor) && l.fromString(ptr)
+		&& ( !(mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3)) ) )
+		{
+		    RefMan<Coords::AnchorBasedXY> anchoredsystem =
+					    new Coords::AnchorBasedXY( l, c );
+		    anchoredsystem->setIsFeet( xyinfeet );
+		    coordsystem_ = anchoredsystem;
+		}
 	    }
 	}
 

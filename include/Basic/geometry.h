@@ -571,7 +571,7 @@ bool Point2D<T>::fromString( const char* s )
 
     x_ = Conv::to<T>( (const char*)ptrx );
     y_ = Conv::to<T>( (const char*)ptry );
-    return mIsUdf( x_ ) || mIsUdf( y_ );
+    return !(mIsUdf( x_ ) || mIsUdf( y_ ));
 }
 
 
