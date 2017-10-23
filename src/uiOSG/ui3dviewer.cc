@@ -504,7 +504,7 @@ void ui3DViewerBody::setupView()
 }
 
 
-void ui3DViewerBody::glInfoCB(CallBacker *)
+void ui3DViewerBody::glInfoCB( CallBacker* )
 {
     osg::ref_ptr<const osgGeo::GLInfo> glinfo =
 					visBase::DataObject::getGLInfo();
@@ -528,13 +528,15 @@ void ui3DViewerBody::glInfoCB(CallBacker *)
 	bool dowarn = true;
 	const char* settingskey = "Warn old OpenGL";
 	Settings::common().getYN( settingskey, dowarn );
-	BufferString glversionstr = glinfo->glVersion();
-	if ( glversionstr.find( ' ' ) )
-	    *glversionstr.find( ' ' ) = 0;
-	if ( glversionstr.find( '.' ) )
-	    *glversionstr.find( '.' ) = 0;
-	const float glversion = Conv::to<float>( glversionstr.str() );
-	if ( dowarn && (mIsUdf(glversion) || glversion<2 ) )
+	BufferString version = glinfo->glVersion();
+	int majorglversion = 0;
+	if ( version.find( '.' ) )
+	{
+	    *version.find( '.' ) = 0;
+	    majorglversion = version.toInt();
+	}
+
+	if ( dowarn && majorglversion<2 )
 	{
 	    uiString msg = tr("OpenGL version is lower than 2.0, indicating "
 		     "an old graphics driver or incorrectly setup remote "
