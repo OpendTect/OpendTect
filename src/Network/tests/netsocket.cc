@@ -188,8 +188,10 @@ int testMain(int argc, char** argv)
     runner.prefix_ = "[ With event loop ]\t";
     runner.exitonfinish_ = true;
     runner.noeventloop_ = false;
-    CallBack::addToMainThread( mCB(&runner,TestRunner,testCallBack) );
+    const CallBack cb( mCB(&runner,TestRunner,testCallBack) );
+    CallBack::addToMainThread( cb );
     const int res = app.exec();
+    CallBack::removeFromThreadCalls( cb.cbObj() );
 
     return res;
 }
