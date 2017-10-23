@@ -11,10 +11,8 @@
 #include "separstr.h"
 #include "keystrs.h"
 
-static const BufferString coordsysfactorynm_(
-		IOPar::compKey(sKey::CoordSys(),"System name") );
-static const BufferString coordsysusrnm_(
-		IOPar::compKey(sKey::CoordSys(),"Description") );
+static const BufferString coordsysfactorynm_( "System name" );
+static const BufferString coordsysusrnm_( "Description" );
 const char* Coords::CoordSystem::sKeyFactoryName() { return coordsysfactorynm_;}
 const char* Coords::CoordSystem::sKeyUiName() { return coordsysusrnm_; }
 
@@ -151,23 +149,14 @@ bool CoordSystem::usePar( const IOPar& par )
     if ( !par.get(sKeyFactoryName(),nm) || nm != factoryKeyword() )
 	return false;
 
-    PtrMan<IOPar> subpar = par.subselect( sKey::CoordSys() );
-    if ( !subpar || subpar->isEmpty() )
-	{ pErrMsg("Huh"); return false; }
-
-    return doUsePar( *subpar );
+    return doUsePar( par );
 }
 
 
 void CoordSystem::fillPar( IOPar& par ) const
 {
-    par.removeSubSelection( sKey::CoordSys() );
-
     par.set( sKeyFactoryName(), factoryKeyword() );
-
-    IOPar subpar;
-    doFillPar( subpar );
-    par.mergeComp( subpar, sKey::CoordSys() );
+    doFillPar( par );
 }
 
 
@@ -278,7 +267,7 @@ bool AnchorBasedXY::geographicTransformOK() const
 
 BufferString AnchorBasedXY::summary() const
 {
-    BufferString ret( "Anchor: LL:" );
+    BufferString ret( "Anchor: " );
     ret.add( reflatlng_.toString() ).add( refcoord_.toPrettyString() );
     return ret;
 }

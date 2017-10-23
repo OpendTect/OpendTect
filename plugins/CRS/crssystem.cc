@@ -37,7 +37,7 @@ BufferString Coords::ProjectionBasedSystem::summary() const
     if ( !proj_ )
 	return "No Projection Selected";
 
-    BufferString ret( "P: [" );
+    BufferString ret( "Projection: [" );
     ret.add( proj_->authCode().toString() ).add( "] " ).add( proj_->userName());
     return ret;
 }

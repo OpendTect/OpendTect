@@ -447,7 +447,7 @@ uiSurvey::uiSurvey( uiParent* p )
     infolbl->setToolTip( tr("Survey Information") );
     infolbl->attach( alignedBelow, leftgrp );
     infofld_ = new uiTextEdit( topgrp, "Info", true );
-    infofld_->setPrefHeightInChar( 7 );
+    infofld_->setPrefHeightInChar( 8 );
     infofld_->setStretch( 2, 1 );
     infofld_->attach( rightTo, infolbl );
     infofld_->attach( ensureBelow, rightgrp );
@@ -1163,6 +1163,7 @@ void uiSurvey::putToScreen()
     BufferString crlinfo( "Cross-line range: " );
     BufferString zinfo( "Z range" );
     BufferString bininfo( "Inl/Crl bin size" );
+    BufferString crsinfo( "CRS: " );
     BufferString areainfo( "Area" );
     BufferString survtypeinfo( "Survey type: " );
     BufferString orientinfo( "In-line Orientation: " );
@@ -1181,6 +1182,9 @@ void uiSurvey::putToScreen()
 	     .add( si.zIsTime() ? ZDomain::Time().unitStr()
 				: getDistUnitString(si.zInFeet(), false) )
 	     .add( "): " );
+
+	if ( si.getCoordSystem() )
+	    crsinfo.add( si.getCoordSystem()->summary() );
 
 	bininfo.add( " (" ).add( si.getXYUnitString(false) ).add( "/line): " );
 	areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
@@ -1224,8 +1228,9 @@ void uiSurvey::putToScreen()
     BufferString infostr;
     infostr.add( inlinfo ).addNewLine().add( crlinfo ).addNewLine()
 	.add( zinfo ).addNewLine().add( bininfo ).addNewLine()
-	.add( areainfo ).add( "; ").add( survtypeinfo )
-	.addNewLine().add( orientinfo ).addNewLine().add( locinfo );
+	.add( crsinfo ).addNewLine()
+	.add( areainfo ).add( "; ").add( survtypeinfo ).addNewLine()
+	.add( orientinfo ).addNewLine().add( locinfo );
     infofld_->setText( infostr );
 
 }
