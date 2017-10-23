@@ -105,7 +105,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 #define mConstructorInitListStart(c) \
 	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.forread_), \
-		    mNoDlgTitle, mODHelpKey(mSessionManHelpID) ) \
+		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
     , selgrp_( 0 ) \
     , crctio_( 0 )
