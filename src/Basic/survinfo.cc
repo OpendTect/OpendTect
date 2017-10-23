@@ -403,11 +403,8 @@ bool SurveyInfo::usePar( const IOPar& par )
 	    if ( !ptr ) return false;
 	    *ptr++ = '\0';
 	    Coord c; LatLong l;
-	    if ( !c.fromString(anchor) || !l.fromString(ptr) )
-		return false;
-	    else if ( mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3) )
-		return false;
-	    else
+	    if ( c.fromString(anchor) && l.fromString(ptr)
+	    && ( !(mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3)) ) )
 	    {
 		RefMan<Coords::AnchorBasedXY> anchoredsystem =
 					new Coords::AnchorBasedXY( l, c );
