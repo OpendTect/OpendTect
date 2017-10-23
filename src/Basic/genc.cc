@@ -201,10 +201,8 @@ static float getFloatFromString( const char* str, char** endptr )
     bool isok = false;
     const QString qstr( str );
     const float ret = qstr.toFloat( &isok );
-    if ( !isok )
-	return strtof( (char*)str, endptr );
-
-    *endptr = (char*)(str + 1); // just fake it, as long as it's not str
+    if ( isok )
+	*endptr = (char*)(str + 1); // just fake it, as long as it's not str
 
     return ret;
 
