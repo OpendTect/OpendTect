@@ -357,18 +357,20 @@ bool EventReader::prepareWork()
     for ( int idx=0; idx<dirlist.size(); idx++ )
     {
 	if ( File::isEmpty( dirlist.fullPath(idx) ) )
-	   continue;
-
-       const SeparString sepstr( dirlist[idx]->buf(), '_' );
-       TrcKeySampling filehrg;
-       if ( !getFromString( filehrg.start_.inl(), sepstr[0], -1 ) ||
-	    !getFromString( filehrg.stop_.inl(), sepstr[1], -1 ) ||
-	    !getFromString( filehrg.start_.crl(), sepstr[2], -1 ) ||
-	    !getFromString( filehrg.stop_.crl(), sepstr[3], -1 ) )
 	    continue;
 
-      if ( inlsampling.snap( filehrg.start_.inl() )!=filehrg.start_.inl() ||
-	   crlsampling.snap( filehrg.start_.crl() )!=filehrg.start_.crl() )
+	const SeparString sepstr( dirlist[idx]->buf(), '_' );
+	TrcKeySampling filehrg;
+	filehrg.start_.inl() = Conv::to<int>( sepstr[0] );
+	filehrg.stop_.inl() = Conv::to<int>( sepstr[1] );
+	filehrg.start_.crl() = Conv::to<int>( sepstr[2] );
+	filehrg.stop_.crl() = Conv::to<int>( sepstr[3] );
+	if ( mIsUdf(filehrg.start_.inl()) || mIsUdf(filehrg.stop_.inl())
+	  || mIsUdf(filehrg.start_.crl()) || mIsUdf(filehrg.stop_.crl()) )
+	    continue;
+
+	if ( inlsampling.snap( filehrg.start_.inl() )!=filehrg.start_.inl()
+	  || crlsampling.snap( filehrg.start_.crl() )!=filehrg.start_.crl() )
 	    continue;
 
 	bool usefile = true;
@@ -378,7 +380,7 @@ bool EventReader::prepareWork()
 
 	    TrcKeySampling dummy;
 	    if ( horsel_ && horsel_->getInterSection(filehrg,dummy))
-		usefile = true;
+	    usefile = true;
 
 	    if ( !usefile && bidsel_ )
 	    {
@@ -386,10 +388,7 @@ bool EventReader::prepareWork()
 		while ( bidsel_->next(pos,true) )
 		{
 		    if ( filehrg.includes( bidsel_->getBinID(pos) ))
-		    {
-			usefile = true;
-			break;
-		    }
+			{ usefile = true; break; }
 		}
 	    }
 	}
@@ -423,13 +422,9 @@ bool EventReader::addReader( const char* fnm )
     reader->setSelection( horsel_ );
 
     if ( !reader->hasDataInRange() )
-    {
 	delete reader;
-    }
     else
-    {
 	patchreaders_ += reader;
-    }
 
     return true;
 }

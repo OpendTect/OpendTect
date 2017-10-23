@@ -77,13 +77,13 @@ void ElasticFormula::usePar( const IOPar& par )
 
 const char* ElasticFormula::parseVariable( int idx, float& val ) const
 {
-    if ( !variables_.validIdx( idx ) )
-	return 0;
-
     val = mUdf( float );
-    const char* var = variables_.get( idx );
-    getFromString( val, var, mUdf(float) );
-
+    const char* var = 0;
+    if ( variables_.validIdx( idx ) )
+    {
+	var = variables_.get( idx );
+	val = Conv::to<float>( var );
+    }
     return var;
 }
 

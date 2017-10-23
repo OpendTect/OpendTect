@@ -17,9 +17,7 @@ ________________________________________________________________________
 namespace Geom
 {
 
-/*!
-\brief 2D point or vector class.
-*/
+/*!\brief Point in 2D (i.e. having X and Y). */
 
 template <class T>
 mClass(Basic) Point2D
@@ -95,10 +93,8 @@ Point2D<T> operator*( float f, const Point2D<T>& b )
 { return Point2D<T>( b.x_*f, b.y_*f ); }
 
 
-/*!
- \brief 3D point or vector
- */
 
+/*!\brief Point in 3D (i.e. having X, Y and Z). */
 
 template <class T>
 mClass(Basic) Point3D
@@ -182,9 +178,7 @@ inline Point3D<T> operator*( float f, const Point3D<T>& b )
 { return Point3D<T>(b.x_*f, b.y_*f, b.z_*f ); }
 
 
-/*!
-\brief %Basic 2D sizes (width/height) class.
-*/
+/*!\brief 2D sizes (width/height). */
 
 template <class T>
 mClass(Basic) Size2D
@@ -214,8 +208,7 @@ protected:
 };
 
 
-/*!
-\brief %Basic 2D rectangle class.
+/*!\brief 2D rectangles.
 
   This class is a bit more complicated than would be expected at first sight.
   This is caused by the problem of coord system sign. For example, in
@@ -295,8 +288,7 @@ protected:
 };
 
 
-/*!
-\brief Integer rectangle class.
+/*!\brief Integer rectangles.
 
   The difference with the floating point type rectangle is in range handling.
   In the float world, everything must be epsiloned. Integer rectangles are
@@ -328,8 +320,7 @@ protected:
 };
 
 
-/*!
-\brief Floating-point rectangle class.
+/*!\brief Floating-point rectangles.
 
   The difference with the integer type rectangle is in range handling. In the
   float world, everything must be epsiloned.
@@ -578,9 +569,11 @@ bool Point2D<T>::fromString( const char* s )
     char* ptrend = firstOcc( ptry, ')' );
     if ( ptrend ) *ptrend = '\0';
 
-    return getFromString( x_, ptrx, mUdf(T) ) &&
-	   getFromString( y_, ptry, mUdf(T) );
+    x_ = Conv::to<T>( (const char*)ptrx );
+    y_ = Conv::to<T>( (const char*)ptry );
+    return mIsUdf( x_ ) || mIsUdf( y_ );
 }
+
 
 template <>
 inline Point2D<double> Point2D<double>::normalize() const

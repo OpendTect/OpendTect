@@ -28,50 +28,37 @@ ________________________________________________________________________
 namespace OD { class String; }
 class CompoundKey;
 
-mGlobal(Basic) const char* toString(od_int32);
-mGlobal(Basic) const char* toString(od_uint32);
-mGlobal(Basic) const char* toString(od_int64);
-mGlobal(Basic) const char* toString(od_uint64);
-mGlobal(Basic) const char* toString(float);
-mGlobal(Basic) const char* toString(float,int nrdec);
-mGlobal(Basic) const char* toString(float,char format,int precision);
-mGlobal(Basic) const char* toStringLim(float,int maxtxtwdth);
-mGlobal(Basic) const char* toStringPrecise(float);
-mGlobal(Basic) const char* toString(double);
-mGlobal(Basic) const char* toString(double,int nrdec);
-mGlobal(Basic) const char* toString(double,char format,int precision);
-mGlobal(Basic) const char* toStringLim(double,int maxtxtwdth);
-mGlobal(Basic) const char* toStringPrecise(double);
-mGlobal(Basic) const char* toString(short);
-mGlobal(Basic) const char* toString(unsigned short);
-mGlobal(Basic) const char* toString(const char*);
-mGlobal(Basic) const char* toString(unsigned char);
-mGlobal(Basic) const char* toString(signed char);
-mGlobal(Basic) const char* toString(bool);
-mGlobal(Basic) const char* toString(const OD::String&);
-mGlobal(Basic) const char* toString(const CompoundKey&);
+mGlobal(Basic) const char*	toString(od_int32);
+mGlobal(Basic) const char*	toString(od_uint32);
+mGlobal(Basic) const char*	toString(od_int64);
+mGlobal(Basic) const char*	toString(od_uint64);
+mGlobal(Basic) const char*	toString(float);
+mGlobal(Basic) const char*	toString(float,int nrdec);
+mGlobal(Basic) const char*	toString(float,char format,int precision);
+mGlobal(Basic) const char*	toStringLim(float,int maxtxtwdth);
+mGlobal(Basic) const char*	toStringPrecise(float);
+mGlobal(Basic) const char*	toString(double);
+mGlobal(Basic) const char*	toString(double,int nrdec);
+mGlobal(Basic) const char*	toString(double,char format,int precision);
+mGlobal(Basic) const char*	toStringLim(double,int maxtxtwdth);
+mGlobal(Basic) const char*	toStringPrecise(double);
+mGlobal(Basic) const char*	toString(short);
+mGlobal(Basic) const char*	toString(unsigned short);
+mGlobal(Basic) const char*	toString(const char*);
+mGlobal(Basic) const char*	toString(unsigned char);
+mGlobal(Basic) const char*	toString(signed char);
+mGlobal(Basic) const char*	toString(bool);
+mGlobal(Basic) const char*	toString(const OD::String&);
+mGlobal(Basic) const char*	toString(const CompoundKey&);
 
-mGlobal(Basic) bool getFromString(int&,const char*,int udfval);
-mGlobal(Basic) bool getFromString(od_int64&,const char*,od_int64 udfval);
-mGlobal(Basic) bool getFromString(float&,const char*,float udfval);
-mGlobal(Basic) bool getFromString(double&,const char*,double udfval);
-mGlobal(Basic) bool getFromString(bool&,const char*);
-mGlobal(Basic) bool yesNoFromString(const char*);
+mGlobal(Basic) bool		yesNoFromString(const char*);
 
-inline bool toBool( const char* s, bool defval=true )
-{ return s && *s ? yesNoFromString(s) : defval; }
-
-inline float toFloat( const char* s, float defval=0 )
-{ float ret = defval; getFromString( ret, s, ret ); return ret; }
-
-inline double toDouble( const char* s, double defval=0 )
-{ double ret = defval; getFromString( ret, s, ret ); return ret; }
-
-inline int toInt( const char* s, int defval=0 )
-{ int ret = defval; getFromString( ret, s, ret ); return ret; }
-
-inline od_int64 toInt64( const char* s, od_int64 defval=0 )
-{ od_int64 ret = defval; getFromString( ret, s, ret ); return ret; }
+mGlobal(Basic) int		toInt(const char*,int defval=0);
+mGlobal(Basic) od_int64		toInt64(const char* s,od_int64 defval=0);
+mGlobal(Basic) float		toFloat(const char*,float defval=0.f);
+mGlobal(Basic) double		toDouble(const char*,double defval=0.);
+inline bool			toBool( const char* s, bool defval=true )
+				{ return s && *s ? yesNoFromString(s) : defval;}
 
 
 /*!\brief Advances given pointer to first non-whitespace */

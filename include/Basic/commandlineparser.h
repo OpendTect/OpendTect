@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "genc.h"
+#include "convert.h"
 #include "bufstringset.h"
 #include "typeset.h"
 #include "debug.h" // easier for test programs, declares od_init_test_program
@@ -132,5 +132,6 @@ bool CommandLineParser::getVal( const char* key, T& val,
     if ( !argv_.validIdx( validx ) || isKey(validx) )
 	return false;
 
-    return getFromString( val, argv_[validx]->buf(), mUdf(T) );
+    val = Conv::to<T>( argv_[validx]->str() );
+    return true;
 }

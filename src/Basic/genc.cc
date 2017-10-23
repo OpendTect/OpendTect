@@ -7,7 +7,6 @@
 
 #include "genc.h"
 
-// #include "envvars.h"
 #include "debug.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -27,7 +26,6 @@
 #include <iostream>
 #include <string.h>
 
-// #include <math.h>
 #include <stdlib.h>
 #ifdef __win__
 # include <float.h>
@@ -39,10 +37,6 @@
 # include <unistd.h>
 # include <errno.h>
 # include <signal.h>
-#endif
-
-#ifndef OD_NO_QT
-# include <QString>
 #endif
 
 mGlobal(Basic) void SetBaseDataDir(const char*);
@@ -164,64 +158,6 @@ void* operator new[]( std::size_t sz ) throw(std::bad_alloc)
     return p;
 }
 #endif
-
-
-static float getDoubleFromString( const char* str, char** endptr )
-{
-#ifdef OD_NO_QT
-    return strtod( (char*)str, endptr );
-#else
-
-    *endptr = (char*)str;
-    if ( !str || !*str )
-	return 0.;
-
-    bool isok = false;
-    const QString qstr( str );
-    const float ret = qstr.toDouble( &isok );
-    if ( isok )
-	*endptr = (char*)(str + 1); // just fake it, as long as it's not str
-
-    return ret;
-
-#endif
-}
-
-
-static float getFloatFromString( const char* str, char** endptr )
-{
-#ifdef OD_NO_QT
-    return strtof( (char*)str, endptr );
-#else
-
-    *endptr = (char*)str;
-    if ( !str || !*str )
-	return 0.f;
-
-    bool isok = false;
-    const QString qstr( str );
-    const float ret = qstr.toFloat( &isok );
-    if ( isok )
-	*endptr = (char*)(str + 1); // just fake it, as long as it's not str
-
-    return ret;
-
-#endif
-}
-
-
-#define mConvDefFromStrToShortType(type,fn) \
-void set( type& _to, const char* const& s ) { _to = (type)fn(s); }
-
-mConvDefFromStrToShortType( short, atoi )
-mConvDefFromStrToShortType( unsigned short, atoi )
-mConvDefFromStrToSimpleType( int, (int)strtol(s,&endptr,0) )
-mConvDefFromStrToSimpleType( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
-mConvDefFromStrToSimpleType( od_int64, strtoll(s,&endptr,0) )
-mConvDefFromStrToSimpleType( od_uint64, strtoull(s,&endptr,0) )
-mConvDefFromStrToSimpleType( double, getDoubleFromString(s,&endptr) )
-mConvDefFromStrToSimpleType( float, getFloatFromString(s,&endptr) )
-
 
 
 static Threads::Lock& getEnvVarLock()

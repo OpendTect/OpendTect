@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "string2.h"
 #include "undefval.h"
 #include "bufstring.h"
 
@@ -27,16 +26,16 @@ template <class T, class F>
 inline void set( T& _to, const F& fr )
     { _to = (T)fr; }
 
+//! convenience to be able to code something like:
+//! val = Conv::to<the_type_of_val>( x );
+//! if conversion fails, val will be set to the appropriate undef.
 template <class T, class F>
 inline T to( const F& fr )
 {
-    T ret;
-    Values::setUdf(ret);
-    set<T,F>(ret,fr);
-
+    T ret; Values::setUdf( ret );
+    set<T,F>( ret, fr );
     return ret;
 }
-
 
 //! template based type converstion, with check for undef
 template <class T, class F>
@@ -197,26 +196,3 @@ mConvDeclFromStrToSimpleType(double);
 mConvDeclFromStrToSimpleType(float);
 
 } // namespace Conv
-
-
-//! macro useful for implementation of string -> your type
-
-#define mConvDefFromStrToSimpleType(type,function) \
-namespace Conv \
-{ \
-    template <> void set( type& _to, const char* const& s ) \
-    { \
-	if ( !s || !*s ) { return; } \
-    \
-	char* endptr = 0; \
-	type tmpval = (type)function; \
-	if ( s != endptr ) \
-	    _to = (type)tmpval; \
-	else if ( Values::Undef<type>::hasUdf() ) \
-	    Values::setUdf( _to ); \
-    } \
-    template <> void set( type& _to, const FixedString& s ) \
-    { set( _to, s.str() ); } \
-    template <> void set( type& _to, const BufferString& s ) \
-    { set( _to, s.str() ); } \
-}

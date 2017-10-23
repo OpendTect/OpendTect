@@ -1307,8 +1307,8 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
     else if ( findOuterAbs( str, len, ret ) )
 	return ret;
 
-    double dres = mUdf(double);
-    if ( getFromString(dres,str,mUdf(float)) )
+    double dres = Conv::to<double>( (const char*)str );
+    if ( !mIsUdf(dres) )
 	return new Math::ExpressionConstant( dres );
 
     if ( str[len-1] == ')' )

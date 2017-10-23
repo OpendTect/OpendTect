@@ -205,7 +205,7 @@ public:
 			    { return mIsUdf(value_); }
 
     virtual bool	setText( const char* s, int idx=0 )
-			    { return getFromString( value_, s, mUdf(T) ); }
+			    { value_ = Conv::to<T>(s); return mIsUdf(value_); }
 
     virtual int		getIntValue(int idx=0) const { return (int)value(); }
     virtual od_int64	getInt64Value(int idx=0) const
@@ -406,9 +406,11 @@ public:
 
     virtual bool	setText( const char* s, int idx=0 )
 			{
-			    if ( pt_value_(idx) )
-				return getFromString(*pt_value_(idx),s,mUdf(T));
-			    return false;
+			    T* ptval = pt_value_( idx );
+			    if ( !ptval )
+				return false;
+			    *ptval = Conv::to<T>( *ptval );
+			    return mIsUdf( *ptval );
 			}
 
     T			value( int idx=0 ) const

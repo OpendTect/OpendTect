@@ -18,6 +18,7 @@ ________________________________________________________________________
 -*/
 
 #include "commandlineparser.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "debug.h"
 #include "ptrman.h"

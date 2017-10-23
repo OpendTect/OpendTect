@@ -421,7 +421,8 @@ const char* getVelUnitString( bool isfeet, bool wb )
 
 bool yesNoFromString( const char* str )
 {
-    if ( !str ) return false;
+    if ( !str )
+	return false;
     mSkipBlanks( str );
     return *str == 'Y' || *str == 'y' || *str == 'T' || *str == 't';
 }
@@ -940,6 +941,129 @@ const char* toString( bool b )
 }
 
 
+static double gtDoubleFromString( const char* str, char** endp, double defval )
+{
+#ifdef OD_NO_QT
+    return strtod( (char*)str, endp );
+#else
+
+    *endp = (char*)str;
+    if ( !str || !*str )
+	return defval;
+
+    bool isok = false;
+    const QString qstr( str );
+    const double ret = qstr.toDouble( &isok );
+    if ( !isok )
+	return defval;
+
+    *endp = (char*)(str + 1); // just fake it, as long as it's not str
+    return ret;
+
+#endif
+}
+
+static double getDoubleFromString( const char* str, char** endp )
+{
+    return gtDoubleFromString( str, endp, 0. );
+}
+
+
+static float gtFloatFromString( const char* str, char** endp, float defval )
+{
+#ifdef OD_NO_QT
+    return strtof( (char*)str, endp );
+#else
+
+    *endp = (char*)str;
+    if ( !str || !*str )
+	return defval;
+
+    bool isok = false;
+    const QString qstr( str );
+    const float ret = qstr.toFloat( &isok );
+    if ( !isok )
+	return defval;
+
+    *endp = (char*)(str + 1); // just fake it, as long as it's not str
+    return ret;
+
+#endif
+}
+
+static double getFloatFromString( const char* str, char** endp )
+{
+    return gtFloatFromString( str, endp, 0.f );
+}
+
+
+#define mConvDefFromStrToShortType(type,fn) \
+void set( type& _to, const char* const& s ) { _to = (type)fn(s); }
+
+mConvDefFromStrToShortType( short, atoi )
+mConvDefFromStrToShortType( unsigned short, atoi )
+
+
+#define mConvDefFromStrToSimpleType(type,function) \
+\
+namespace Conv { \
+\
+    inline void set_charp( type& _to, const char* s ) \
+    { \
+	if ( !s || !*s ) return; \
+    \
+	char* endptr = 0; \
+	const type tmpval = (type)function; \
+	if ( s != endptr ) \
+	    _to = (type)tmpval; \
+	else if ( Values::Undef<type>::hasUdf() ) \
+	    Values::setUdf( _to ); \
+    } \
+    template <> mGlobal(Basic) void set<type,const char*>( type& _to, const char* const& s ) \
+	{ set_charp( _to, s ); } \
+    template <> mGlobal(Basic) void set( type& _to, const FixedString& s ) \
+	{ set_charp( _to, s.str() ); } \
+    template <> mGlobal(Basic) void set( type& _to, const BufferString& s ) \
+	{ set_charp( _to, s.str() ); } \
+\
+}
+
+
+mConvDefFromStrToSimpleType( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
+mConvDefFromStrToSimpleType( od_uint64, strtoull(s,&endptr,0) )
+
+mConvDefFromStrToSimpleType( int, (int)strtol(s,&endptr,0) )
+int toInt( const char* str, int defval )
+{
+    if ( !str || !*str )
+	return defval;
+
+    char* endp;
+    const int ret = (int)strtol( str, &endp, 0 );
+    return endp == str ? defval : ret;
+}
+
+mConvDefFromStrToSimpleType( od_int64, strtoll(s,&endptr,0) )
+od_int64 toInt64( const char* str, od_int64 defval )
+{
+    if ( !str || !*str )
+	return defval;
+
+    char* endp;
+    const od_int64 ret = (od_int64)strtoll( str, &endp, 0 );
+    return endp == str ? defval : ret;
+}
+
+mConvDefFromStrToSimpleType( float, getFloatFromString(s,&endptr) )
+float toFloat( const char* s, float defval )
+{ char* endp; return gtFloatFromString( s, &endp, defval ); }
+
+mConvDefFromStrToSimpleType( double, getDoubleFromString(s,&endptr) )
+double toDouble( const char* s, double defval )
+{ char* endp; return gtDoubleFromString( s, &endp, defval ); }
+
+
+
 static float_complex float_complexFromString( const char* str,
 					char** pendptr )
 {
@@ -988,6 +1112,7 @@ mConvDefFromStrToSimpleType( float_complex, float_complexFromString(s,&endptr) )
 
 namespace Conv
 {
+
 template <> void set( const char*& _to, const float_complex& c )
 {
     _to = toString(c);
@@ -997,49 +1122,8 @@ template <> void set( bool& _to, const float_complex& c )
 {
     _to = !(mIsZero(c.real(),mDefEpsD) && mIsZero(c.imag(),mDefEpsD));
 }
+
 } // namespace Conv
-
-
-bool getFromString( bool& b, const char* s )
-{
-    if ( s )
-    {
-	b = ( yesNoFromString( s ) ? true : false );
-	return true;
-    }
-
-    b = false;
-    return false;
-}
-
-
-#define mImplGetFromStrFunc( type, func ) \
-bool getFromString( type& i, const char* s, type undef ) \
-{ \
-    if ( s && *s ) \
-    { \
-	char* e; \
-	i = (type)func; \
-	if ( e==s ) \
-	{ \
-	    i = undef; \
-	    return false;\
-	}\
-	return true; \
-    } \
- \
-    i = undef; \
-    return false; \
-}
-
-
-mImplGetFromStrFunc( int, strtol(s,&e,0) )
-mImplGetFromStrFunc( od_int64, strtoll(s,&e,0) )
-mImplGetFromStrFunc( float, strtod(s,&e) )
-mImplGetFromStrFunc( double, strtod(s,&e) )
-
-#undef mImplGetFromStrFunc
-
 
 
 NrBytesToStringCreator::NrBytesToStringCreator()

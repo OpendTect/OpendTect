@@ -814,9 +814,8 @@ bool Picks::load( const IOObj* ioobj )
 
 	if ( ploc.hasText() )
 	{
-	    int horidx;
-	    if ( getFromString(horidx,ploc.text().buf(),-1) &&
-		 horidx!=-1 && horizons_[horidx] )
+	    const int horidx = Conv::to<int>( ploc.text() );
+	    if ( horizons_.validIdx(horidx) )
 		pick.emobjid_ = horizons_[horidx]->id();
 	}
 

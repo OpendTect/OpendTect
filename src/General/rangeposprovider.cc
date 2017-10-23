@@ -553,11 +553,11 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 	{
 	    l2dkey.fromString( str );
 	    if ( !l2dkey.haveLSID() )
-		getFromString( geomid, str.buf(), mUdfGeomID );
+		geomid = Conv::to<Pos::GeomID>( str );
 	    else
 	    {
 		S2DPOS().setCurLineSet( l2dkey.lsID() );
-		geomid =  Survey::GM().getGeomID(
+		geomid = Survey::GM().getGeomID(
 					S2DPOS().getLineSet(l2dkey.lsID()),
 					S2DPOS().getLineName(l2dkey.lineID()) );
 	    }

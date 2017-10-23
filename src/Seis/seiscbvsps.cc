@@ -90,8 +90,7 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
 	if ( !dotptr ) continue;
 
 	*dotptr = '\0';
-	Pos::GeomID geomid = mUdfGeomID;
-	getFromString( geomid, geomidstr, mUdfGeomID );
+	const Pos::GeomID geomid = Conv::to<Pos::GeomID>( geomidstr );
 	if ( !mIsUdfGeomID(geomid) && Survey::GM().getGeometry(geomid) )
 	    geomids += geomid;
     }

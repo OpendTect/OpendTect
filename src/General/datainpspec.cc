@@ -76,34 +76,25 @@ bool DataInpSpec::usePar( const IOPar& par )
 
 int DataInpSpec::getIntValue( int idx ) const
 {
-    int res;
-    const char* valstr = text(idx);
-    return valstr && getFromString(res, valstr,mUdf(int)) ? res : mUdf(int);
+    return Conv::to<int>( text(idx) );
 }
 
 
 od_int64 DataInpSpec::getInt64Value( int idx ) const
 {
-    od_int64 res;
-    const char* valstr = text(idx);
-    return valstr && getFromString(res, valstr,mUdf(od_int64))
-		? res : mUdf(od_int64);
+    return Conv::to<od_int64>( text(idx) );
 }
 
 
 double DataInpSpec::getDValue( int idx ) const
 {
-    double res;
-    const char* valstr = text(idx);
-    return valstr && getFromString(res,valstr,mUdf(double))? res : mUdf(double);
+    return Conv::to<double>( text(idx) );
 }
 
 
 float DataInpSpec::getFValue( int idx ) const
 {
-    float res;
-    const char* valstr = text(idx);
-    return valstr && getFromString(res,valstr,mUdf(float)) ? res : mUdf(float);
+    return Conv::to<float>( text(idx) );
 }
 
 
