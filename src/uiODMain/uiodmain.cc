@@ -351,8 +351,9 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
     ctio->ctxt_.forread_ = restore;
     ctio->setObj( cursessid_ );
     uiIOObjSelDlg dlg( this, *ctio );
+    dlg.setHelpKey( mODHelpKey(mSessionSaveRestoreHelpID) );
     if ( !dlg.go() )
-	{ delete ctio->ioobj_; delete ctio; ctio = 0; }
+	{ delete ctio->ioobj_; deleteAndZeroPtr( ctio ); }
     else
     {
 	delete ctio->ioobj_; ctio->ioobj_ = dlg.ioObj()->clone();
