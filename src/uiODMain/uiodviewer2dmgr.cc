@@ -701,7 +701,8 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( const MouseEventHandler& meh )
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	uiODViewer2D* viewer2d = getViewer2D( idx );
-	if ( viewer2d->viewControl()->getViewerIdx(&meh,true) != -1 )
+	if ( viewer2d->viewwin() && 
+	    viewer2d->viewControl()->getViewerIdx(&meh,true) != -1 )
 	    return viewer2d;
     }
 
