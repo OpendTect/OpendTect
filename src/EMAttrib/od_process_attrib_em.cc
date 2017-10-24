@@ -544,7 +544,7 @@ bool BatchProgram::go( od_ostream& strm )
 	else
 	{
 	    BinIDValueSet bivs(2,false);
-	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *geompar,
+	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *mmprocrange,
 								  false );
 	    HorizonUtils::getWantedPositions( strm, midset, bivs,
 				hsamp, extraz, nrinterpsamp, mainhoridx,
