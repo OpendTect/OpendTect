@@ -155,10 +155,10 @@ void uiFKSpectrum::mouseMoveCB( CallBacker* )
     lineitm_->poly_ += FlatView::Point( -wp.x_, wp.y_ );
 
     const int nrdec = SI().zIsTime() ? 1 : 3;
-    ffld_->setText( toString(wp.y_,nrdec) );
-    kfld_->setText( toString(wp.x_,4) );
+    ffld_->setText( toUiString(wp.y_,nrdec) );
+    kfld_->setText( toUiString(wp.x_,4) );
     const double vel = mIsZero(wp.x_,mDefEpsD)? 0 : Math::Abs(wp.y_/wp.x_);
-    velfld_->setText( toString(vel,nrdec) );
+    velfld_->setText( toUiString(vel,nrdec) );
 
     viewer().handleChange( FlatView::Viewer::Auxdata );
 }

@@ -189,13 +189,9 @@ void Annotation::firstTraversal(CallBacker*)
 		new osg::Shader( osg::Shader::VERTEX, code.str() );
 	program->addShader( vertexShader.get() );
 
-	const float factor = 1.1;
-	code = "void main(void)\n"
-	       "{\n"
-	       "    gl_FragDepth = gl_FragCoord.z";
-
-	code.add(" * ").add(toString(factor,1));
-	code.add(";\n");
+	code =   "void main(void)\n"
+	         "{\n"
+	         "    gl_FragDepth = gl_FragCoord.z * 1.1;\n";
 	code.add(""
 		 "    if ( gl_FragDepth>0.999999 ) gl_FragDepth = 0.999999; \n"
 		 "    gl_FragColor.a = gl_FrontMaterial.diffuse.a;\n"

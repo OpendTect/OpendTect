@@ -758,15 +758,16 @@ static uiString toUiStringWithPrecisionImpl( ODT v, int prec )
 {
 #ifndef OD_NO_QT
     const QLocale* locale = TrMgr().getQLocale();
-    if ( locale && locale->script()==QLocale::ArabicScript )
+    if ( !locale )
+	{ pFreeFnErrMsg("No locale available"); }
+    else
     {
         uiString res;
-        res.setFrom( locale->toString((QT) v, 'g', prec) );
+        res.setFrom( locale->toString( (QT)v, 'g', prec ) );
         return res;
     }
 #endif
-
-    return uiString().set( toString(v, prec ) );
+    return uiString().set( toString(v) );
 }
 
 
@@ -775,10 +776,12 @@ static uiString toUiStringImpl( ODT v )
 {
 #ifndef OD_NO_QT
     const QLocale* locale = TrMgr().getQLocale();
-    if ( locale && locale->script()==QLocale::ArabicScript )
+    if ( !locale )
+	{ pFreeFnErrMsg("No locale available"); }
+    else
     {
         uiString res;
-        res.setFrom( locale->toString((QT) v ) );
+        res.setFrom( locale->toString( (QT)v ) );
         return res;
     }
 #endif
@@ -823,14 +826,6 @@ uiString toUiString( float v, int prec )
 
 uiString toUiString( double v, int prec )
 { return toUiStringWithPrecisionImpl<double,double>( v, prec ); }
-
-
-uiString toUiString( float v, char format, int precision )
-{ return uiString().set( toString(v,format,precision) ); }
-
-
-uiString toUiString( double v, char format, int precision )
-{ return uiString().set( toString(v,format,precision) ); }
 
 
 uiString od_static_tr( const char* func, const char* text,

@@ -171,6 +171,8 @@ Returns true, if changes are accepted.
 #undef mDeclArgs
 
     void		setText(const char*,int nr=0);
+    void		setText(const OD::String&,int nr=0);
+    void		setText(const uiString&,int nr=0);
     void		setValue(int,int nr=0);
     void		setValue(od_int64,int nr=0);
     void		setValue(double,int nr=0);

@@ -110,6 +110,7 @@ bool Well::TrackAscIO::readTrackData( TypeSet<Coord3>& pos,
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 #define mScaledValue(s,uom) ( uom ? uom->userValue(s) : s )
+
 bool Well::TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 					     TypeSet<double>& mdvals,
 					     double& kbelevinfile ) const
@@ -151,10 +152,9 @@ bool Well::TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	    const double hdist = curpos.xyDistTo<double>( prevpos );
 	    if ( dist < hdist )
 	    {
-		const BufferString val = toString( mScaledValue( dah, uom), 2 );
-		mErrRet( tr("Impossible MD to TVD transformation for MD=%1%2" )
-			 .arg(val)
-			 .arg(uomlbl) )
+		const double usrval = mScaledValue( dah, uom );
+		mErrRet( tr("Impossible MD to TVD transformation for MD=%1 %2" )
+			 .arg(usrval).arg(uomlbl) )
 	    }
 
 	    curpos.z_ = prevpos.z_ + Math::Sqrt( dist*dist - hdist*hdist );
@@ -164,11 +164,9 @@ bool Well::TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	    const double dist = curpos.distTo<double>( prevpos );
 	    if ( dist < 0. )
 	    {
-		const BufferString val =
-				toString(mScaledValue(curpos.z_,uom),2);
+		const double usrval = mScaledValue( curpos.z_, uom );
 		mErrRet( tr( "Impossible TVD to MD transformation for Z=%1%2" )
-			  .arg(val)
-			  .arg(uomlbl) )
+			  .arg(usrval).arg(uomlbl) )
 	    }
 
 	    dah = prevdah + dist;

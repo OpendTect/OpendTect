@@ -361,7 +361,7 @@ bool uiContourTreeItemContourGenerator::generateContours( int contouridx,
 	contourdata.labelranges_.add( lblpositionrg );
 	int nrdec = 0;
 	labelval = getNiceNumber( labelval, nrdec );
-	contourdata.labels_.add( toString(labelval,nrdec) );
+	contourdata.labels_.add( toString(labelval) );
     }
 
     return true;
@@ -552,7 +552,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     mAddZUnitStr(lbltxt); lbltxt.append( ": " );
     BufferString lbltxtapnd;
     if ( iszval_ )
-	lbltxtapnd.add( rg_.start, 2 ).add( " - " ).add( rg_.stop, 2 );
+	lbltxtapnd.add( rg_.start ).add( " - " ).add( rg_.stop );
     else
 	lbltxtapnd.add( rg_.start ).add( " - " ).add( rg_.stop );
 
@@ -749,9 +749,9 @@ void finaliseCB( CallBacker* cb )
     setInitialDecNr();
     int nrdec=0;
     const float startval = getNiceNumber( contourintv_.start, nrdec );
-    intvfld_->setText( toString(startval, nrdec), 0 );
+    intvfld_->setText( toString(startval), 0 );
     const float stopval = getNiceNumber( contourintv_.stop, nrdec );
-    intvfld_->setText( toString(stopval, nrdec) , 1 );
+    intvfld_->setText( toString(stopval) , 1 );
 }
 
 void intvChanged( CallBacker* cb )

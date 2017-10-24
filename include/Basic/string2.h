@@ -26,20 +26,15 @@ ________________________________________________________________________
 #include <ctype.h>
 #include <wctype.h>
 namespace OD { class String; }
-class CompoundKey;
 
 mGlobal(Basic) const char*	toString(od_int32);
 mGlobal(Basic) const char*	toString(od_uint32);
 mGlobal(Basic) const char*	toString(od_int64);
 mGlobal(Basic) const char*	toString(od_uint64);
 mGlobal(Basic) const char*	toString(float);
-mGlobal(Basic) const char*	toString(float,int nrdec);
-mGlobal(Basic) const char*	toString(float,char format,int precision);
 mGlobal(Basic) const char*	toStringLim(float,int maxtxtwdth);
 mGlobal(Basic) const char*	toStringPrecise(float);
 mGlobal(Basic) const char*	toString(double);
-mGlobal(Basic) const char*	toString(double,int nrdec);
-mGlobal(Basic) const char*	toString(double,char format,int precision);
 mGlobal(Basic) const char*	toStringLim(double,int maxtxtwdth);
 mGlobal(Basic) const char*	toStringPrecise(double);
 mGlobal(Basic) const char*	toString(short);
@@ -49,7 +44,6 @@ mGlobal(Basic) const char*	toString(unsigned char);
 mGlobal(Basic) const char*	toString(signed char);
 mGlobal(Basic) const char*	toString(bool);
 mGlobal(Basic) const char*	toString(const OD::String&);
-mGlobal(Basic) const char*	toString(const CompoundKey&);
 
 mGlobal(Basic) bool		yesNoFromString(const char*);
 

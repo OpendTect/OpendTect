@@ -150,15 +150,15 @@ BufferString& BufferString::add( const mQtclass(QString)& qstr )
 }
 
 
-BufferString& BufferString::add( float f, int nrdec )
+BufferString& BufferString::addPrecise( float f )
 {
-    return add( toString( f, nrdec ) );
+    return add( toStringPrecise( f ) );
 }
 
 
-BufferString& BufferString::add( double d, int nrdec )
+BufferString& BufferString::addPrecise( double d )
 {
-    return add( toString( d, nrdec ) );
+    return add( toStringPrecise( d ) );
 }
 
 
@@ -667,18 +667,18 @@ BufferString BufferStringSet::commonStart() const
     BufferString ret;
     const size_type sz = size();
     if ( sz < 1 )
-    	return ret;
+	return ret;
 
     ret.set( get(0) );
 
     for ( int idx=1; idx<sz; idx++ )
     {
-    	int retsz = ret.size();
+	int retsz = ret.size();
 	if ( retsz < 1 )
 	    return ret;
 
 	const BufferString& cur = get( idx );
-    	const int cursz = cur.size();
+	const int cursz = cur.size();
 	if ( cursz < 1 )
 	    { ret.setEmpty(); break; }
 	if ( cursz < retsz )
@@ -686,7 +686,7 @@ BufferString BufferStringSet::commonStart() const
 	for ( int ich=retsz-1; ich>-1; ich-- )
 	{
 	    if ( ret[ich] != cur[ich] )
-	    	ret[ich] = '\0';
+		ret[ich] = '\0';
 	}
     }
 

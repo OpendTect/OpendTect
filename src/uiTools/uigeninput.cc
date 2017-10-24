@@ -1180,6 +1180,19 @@ mDefuiLineEditGetSet(getFValue,setValue,float)
 mDefuiLineEditGetSet(getBoolValue,setValue,bool)
 
 
+void uiGenInput::setText( const OD::String& txt, int nr )
+{
+    setText( txt.str(), nr );
+}
+
+
+void uiGenInput::setText( const uiString& txt, int nr )
+{
+    BufferString bufstr;
+    setText( txt.fillUTF8String(bufstr).str(), nr );
+}
+
+
 const uiString& uiGenInput::titleText()
 {
     return titletext_;

@@ -131,31 +131,27 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     if ( data2.hasData() ) { info += "  "; data2.getInfoForDah(dah_,info); }
     if ( !selmarker_.isUdf() ){info += "  Marker:"; info += selmarker_.name(); }
 
-    info += "  MD:";
     const uiWellDahDisplay::Data& zdata = seldisp_->zData();
     const bool zinft = zdata.dispzinft_ && zdata.zistime_;
-    const FixedString depthunitstr = getDistUnitString(zinft,false);
-    info += toString( zinft ? mToFeetFactorF*dah_ : dah_, 2 );
-    info += depthunitstr;
+    const FixedString depthunitstr = getDistUnitString( zinft, false );
+    info.add( "   MD: " ).add( zinft ? mToFeetFactorF*dah_ : dah_ )
+	.add( ' ' ).add( depthunitstr );
 
     const Well::Track* track = zdata.track();
     if ( track )
     {
-	info += "  TVD:";
 	const float tvdss = mCast(float,track->getPos(dah_).z_);
 	const float tvd = track->getKbElev() + tvdss;
-	info += toString( zinft ? mToFeetFactorF*tvd : tvd, 2 );
-	info += depthunitstr;
-	info += "  TVDSS:";
-	info += toString( zinft ? mToFeetFactorF*tvdss : tvdss, 2 );
-	info += depthunitstr;
+	info.add( "  TVD: " ).add( zinft ? mToFeetFactorF*tvd : tvd )
+	    .add( ' ' ).add( depthunitstr );
+	info.add( "TVDSS: ").add( zinft ? mToFeetFactorF*tvdss : tvdss )
+	    .add( ' ' ).add( depthunitstr );
     }
 
     if ( zdata.zistime_ )
     {
-	info += "  TWT:";
-	info += toString( time_, 2 );
-	info += SI().zDomain().unitStr().getFullString();
+	info.add( "  TWT: " ).add( time_ );
+	info.add( SI().zDomain().unitStr().getFullString() );
     }
 }
 

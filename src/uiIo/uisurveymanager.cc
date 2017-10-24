@@ -636,13 +636,13 @@ void uiSurveyManager::putToScreen()
 
 	const float inldist = si.inlDistance(), crldist = si.crlDistance();
 
-	bininfo.add( toString(inldist,2) ).add( "/" );
-	bininfo.add( toString(crldist,2) );
-	float area = (float) ( si.getArea(false) * 1e-6 ); //in km2
+	bininfo.add( toString(inldist) ).add( "/" );
+	bininfo.add( toString(crldist) );
+	float area = (float)( si.getArea(false) * 1e-6 ); //in km2
 	if ( si.xyInFeet() )
 	    area /= 2.590; // square miles
 
-	areainfo.add( toString(area,2) );
+	areainfo.add( toString(area) );
     }
 
     #define mAdd2ZString(nr) zinfo += istime ? mNINT32(1000*nr) : nr;
@@ -658,7 +658,7 @@ void uiSurveyManager::putToScreen()
     locinfo.add( fp.fullPath() );
 
     const float usrang = Math::degFromNorth( si.angleXInl() );
-    orientinfo.add( toString(usrang,2) ).add( " Degrees from N" );
+    orientinfo.add( toString(usrang) ).add( " Degrees from N" );
 
     BufferString infostr;
     infostr.add( inlinfo ).addNewLine().add( crlinfo ).addNewLine()

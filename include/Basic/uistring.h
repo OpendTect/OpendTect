@@ -109,9 +109,12 @@ public:
 
 	/*! uiStrings should only be manipulated using the arg() functions.
 	    These replace the next %N (e.g. %1) with the provided argument. */
+
     template <class T>
-    uiString&	arg(const T& var);
-    uiString&	arg(const uiString&);
+    inline uiString&	arg(const T&);
+    inline uiString&	arg(float,int nrdecimals);
+    inline uiString&	arg(double,int nrdecimals);
+    uiString&		arg(const uiString&);
 
 	/*! append() functions are used to concatenate entire sentences.
 	    Otherwise you'll be in trouble because you will not know in what
@@ -343,11 +346,9 @@ private:
 
 mGlobal(Basic) bool isFinished(const uiRetVal&);
 mGlobal(Basic) bool isCancelled(const uiRetVal&);
-mGlobal(Basic) uiString toUiString(float,char format,int precision);
-mGlobal(Basic) uiString toUiString(double,char format,int precision);
 
 
-//User when string should be revisited later
+// Use when string should be revisited later
 #define mToUiStringTodo(i) ::toUiString(i)
 #define mFromUiStringTodo(i) i.getFullString()
 
@@ -383,4 +384,14 @@ template <class T> inline
 uiString& uiString::arg( const T& var )
 {
     return arg( toUiString(var) );
+}
+
+inline uiString& uiString::arg( float val, int nrdec )
+{
+    return arg( toUiString(val,nrdec) );
+}
+
+inline uiString& uiString::arg( double val, int nrdec )
+{
+    return arg( toUiString(val,nrdec) );
 }

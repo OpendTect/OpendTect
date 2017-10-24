@@ -69,8 +69,8 @@ public:
 				      const Point2D<T>& to) const;
 				//!< saves the expensive acos() call
 
-    BufferString		toString(int nrdec=-1) const;
-    BufferString		toPrettyString() const { return toString(2); }
+    BufferString		toString() const;
+    BufferString		toPrettyString() const	{ return toString(); }
     bool			fromString(const char*);
 
     static Point2D<T>		udf() { return Point2D<T>(mUdf(T),mUdf(T)); }
@@ -481,74 +481,59 @@ void Point2D<T>::swapXY()
 }
 
 
-template <> inline
-BufferString Point2D<float>::toString(int nrdec) const
-{
-    BufferString res;
-    if (isUdf())
-	res.set("<undef>");
-    else
-    {
-	res.set("(");
-	if (nrdec<0)
-	{
-	    res.add(x_).add(",").add(y_);
-	}
-	else
-	{
-	    BufferString xstr = ::toString(x_, nrdec);
-	    BufferString ystr = ::toString(y_, nrdec);
-	    res.add(xstr).add(",").add(ystr);
-	}
-
-	res.add(")");
-    }
-
-    return res;
-}
-
-
-template <> inline
-BufferString Point2D<double>::toString(int nrdec) const
-{
-    BufferString res;
-    if (isUdf())
-	res.set("<undef>");
-    else
-    {
-	res.set("(");
-	if (nrdec<0)
-	{
-	    res.add(x_).add(",").add(y_);
-	}
-	else
-	{
-	    BufferString xstr = ::toString(x_, nrdec);
-	    BufferString ystr = ::toString(y_, nrdec);
-	    res.add(xstr).add(",").add(ystr);
-	}
-
-	res.add(")");
-    }
-
-    return res;
-}
-
-
 template <class T> inline
-BufferString Point2D<T>::toString( int ) const
+BufferString Point2D<T>::toString() const
 {
-    BufferString res;
     if ( isUdf() )
-	res.set( "<undef>" );
-    else
-    {
-	res.set( "(" );
-	res.add( x_ ).add( "," ).add( y_ );
-	res.add( ")" );
-    }
+	return BufferString( "<undef>" );
 
+    BufferString res( "(", x_, "," );
+    res.add( y_ ).add( ')' );
     return res;
+}
+
+
+template <> inline
+BufferString Point2D<float>::toString() const
+{
+    if ( isUdf() )
+	return BufferString( "<undef>" );
+
+    const BufferString xstr = toStringPrecise( x_ );
+    const BufferString ystr = toStringPrecise( y_ );
+    BufferString res( "(", xstr, "," );
+    res.add( ystr ).add( ')' );
+    return res;
+}
+
+
+template <> inline
+BufferString Point2D<float>::toPrettyString() const
+{
+    const Point2D<od_int64> pt( mRounded(od_int64,x_), mRounded(od_int64,y_) );
+    return pt.toString();
+}
+
+
+template <> inline
+BufferString Point2D<double>::toString() const
+{
+    if ( isUdf() )
+	return BufferString( "<undef>" );
+
+    const BufferString xstr = toStringPrecise( x_ );
+    const BufferString ystr = toStringPrecise( y_ );
+    BufferString res( "(", xstr, "," );
+    res.add( ystr ).add( ')' );
+    return res;
+}
+
+
+template <> inline
+BufferString Point2D<double>::toPrettyString() const
+{
+    const Point2D<od_int64> pt( mRounded(od_int64,x_), mRounded(od_int64,y_) );
+    return pt.toString();
 }
 
 
@@ -571,7 +556,7 @@ bool Point2D<T>::fromString( const char* s )
 
     x_ = Conv::to<T>( (const char*)ptrx );
     y_ = Conv::to<T>( (const char*)ptry );
-    return !(mIsUdf( x_ ) || mIsUdf( y_ ));
+    return isDefined();
 }
 
 

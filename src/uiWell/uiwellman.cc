@@ -738,7 +738,7 @@ void uiWellMan::mkFileInfo()
     const Well::Track& track = curwd->track();
 
     FixedString colonstr( ": " );
-    const BufferString posstr( info.surfaceCoord().toString(2), " ",
+    const BufferString posstr( info.surfaceCoord().toString(), " ",
 		SI().transform(info.surfaceCoord()).toString() );
     mAddWellInfo(Well::Info::sCoord(),posstr)
 
@@ -746,11 +746,14 @@ void uiWellMan::mkFileInfo()
     {
 	const float rdelev = track.getKbElev();
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+	BufferString zunaddstr;
+	if ( zun )
+	    zunaddstr.add( " " ).add( zun->symbol() );
+
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
 	    txt.add(Well::Info::sKeyKBElev()).add(colonstr);
-	    txt.add( zun ? zun->userValue(rdelev) : rdelev );
-	    if ( zun ) txt.add( zun->symbol() );
+	    txt.add( zun ? zun->userValue(rdelev) : rdelev ).add( zunaddstr );
 	    txt.addNewLine();
 	}
 
@@ -758,8 +761,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
 	{
 	    txt.add(Well::Info::sKeyTD()).add( colonstr );
-	    txt.add( zun ? zun->userValue(td) : td );
-	    if ( zun ) txt.add( zun->symbol() );
+	    txt.add( zun ? zun->userValue(td) : td ).add( zunaddstr );
 	    txt.addNewLine();
 	}
 
@@ -767,8 +769,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsZero(srd,1e-4) )
 	{
 	    txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
-	    txt.add( zun ? zun->userValue(srd) : srd );
-	    if ( zun ) txt.add( zun->symbol() );
+	    txt.add( zun ? zun->userValue(srd) : srd ).add( zunaddstr );
 	    txt.addNewLine();
 	}
 
@@ -776,7 +777,7 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsUdf(replvel) )
 	{
 	     txt.add(Well::Info::sKeyReplVel()).add(colonstr);
-	     txt.add( zun ? zun->userValue(replvel) : replvel );
+	     txt.add( zun ? zun->userValue(replvel) : replvel ).add( ' ' );
 	     txt.add( UnitOfMeasure::surveyDefVelUnitAnnot(true,false)
 		      .getFullString() );
 	     txt.addNewLine();
@@ -786,8 +787,8 @@ void uiWellMan::mkFileInfo()
 	if ( !mIsUdf(groundelev) )
 	{
 	    txt.add(Well::Info::sKeyGroundElev()).add(colonstr);
-	    txt.add( zun ? zun->userValue(groundelev) : groundelev );
-	    if ( zun ) txt.add( zun->symbol() );
+	    txt.add( zun ? zun->userValue(groundelev) : groundelev )
+		    .add( zunaddstr );
 	    txt.addNewLine();
 	}
 

@@ -85,16 +85,12 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
     if ( valstr && *valstr ) crd.z_ = toDouble( valstr );
 
     if ( !crd.getXY().isUdf() )
-    {
-	mesg.addTab().append( toUiString("(" )).append( toString(crd.x_,0) );
-	mesg.append( toUiString(", ") ).append( toString(crd.y_,0) );
-    }
+	mesg.addTab().append( toUiString(crd.getXY().toPrettyString()) );
 
     if ( !mIsUdf(crd.z_) )
-	mesg.append( toUiString(", ") ).append( toString(crd.z_,0) )
-						    .append( toUiString(")") );
+	mesg.append( toUiString(", ") ).append( toUiString(crd.z_) );
     else if ( !crd.getXY().isUdf() )
-	mesg.append( ")" );
+	mesg.append( toUiString(")") );
     //<-- MapDataPack has valid crd.coord() but invalid crd.z.
 
     mesg.addTab();
@@ -115,7 +111,7 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
 	else
 	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
 	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
-	mesg.append( toUiString("Val=") ); 
+	mesg.append( toUiString("Val=") );
 	mesg.append( mIsUdf(val) ? toUiString("undef") : toUiString(vdvalstr) );
 	mesg.append(toUiString("(%1)").arg(toUiString(vdstr)));
     }
@@ -123,7 +119,7 @@ void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
     {
 	mAddSep();
 	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
-	mesg.append( toUiString("Val=") ); 
+	mesg.append( toUiString("Val=") );
 	mesg.append( mIsUdf(val) ? toUiString("undef") : toUiString(wvavalstr));
 	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
 	mesg.append( toUiString("(%1)").arg(toUiString(wvastr)) );

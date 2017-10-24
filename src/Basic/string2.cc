@@ -802,7 +802,6 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 }
 
 
-// toString functions.
 const char* toString( od_int32 i )
 { return getStringFromInt( i, 0 ); }
 
@@ -818,20 +817,8 @@ const char* toString( od_uint64 i )
 const char* toString( float f )
 { return getStringFromFPNumber( f, false ); }
 
-const char* toString( float f, int nrdec )
-{ return getStringFromFPNumber( f, nrdec, false ); }
-
-const char* toString( float f, char format, int precision )
-{ return getStringFromNumber( f, format, precision ); }
-
 const char* toString( double d )
 { return getStringFromFPNumber( d, true ); }
-
-const char* toString( double d, int nrdec )
-{ return getStringFromFPNumber( d, nrdec, true ); }
-
-const char* toString( double d, char format, int precision )
-{ return getStringFromNumber( d, format, precision ); }
 
 const char* toString( short i )
 { return getStringFromInt((int)i, 0); }
@@ -845,8 +832,10 @@ const char* toString( unsigned char c )
 const char* toString( const OD::String& ods )
 { return ods.buf(); }
 
+/*
 const char* toString( const CompoundKey& key )
 { return key.buf(); }
+*/
 
 const char* toStringPrecise( float f )
 { return getPreciseStringFromFPNumber( f ); }

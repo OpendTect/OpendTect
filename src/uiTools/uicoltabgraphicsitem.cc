@@ -155,10 +155,9 @@ void uiColTabItem::mapperChgCB( CallBacker* )
 	return;
     }
 
-    BufferString precision;
     const Interval<float> rg = mapper_->getRange();
-    minvalitm_->setPlainText( toUiString(precision.set(rg.start,2)) );
-    maxvalitm_->setPlainText( toUiString(precision.set(rg.stop,2)) );
+    minvalitm_->setPlainText( toUiString(rg.start) );
+    maxvalitm_->setPlainText( toUiString(rg.stop) );
 
     adjustLabel();
 }

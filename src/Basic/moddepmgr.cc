@@ -151,7 +151,9 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
 	{
-	    ErrMsg( sla->errMsg() );
+	    const BufferString errmsg( sla->errMsg() );
+	    if ( !errmsg.isEmpty() )
+		ErrMsg( errmsg );
 	    delete sla;
 	    continue;
 	}
