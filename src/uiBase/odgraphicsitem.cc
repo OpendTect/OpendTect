@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "odgraphicsitem.h"
 
 #include "enums.h"
+#include "envvars.h"
 #include "geometry.h"
 #include "uifont.h"
 #include "uimain.h"
@@ -28,6 +29,13 @@ ________________________________________________________________________
 #include <QGraphicsScene>
 
 mUseQtnamespace
+
+static bool drawDebugItems()
+{
+    static bool val = GetEnvVarYN( "DTECT_DEBUG_GRAPHICSITEM_PAINT" );
+    return val;
+}
+
 
 static void snapToSceneRect( QGraphicsItem* itm )
 {
@@ -169,6 +177,9 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
 	painter->setBrush( Qt::NoBrush );
 	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
+
+    if ( drawDebugItems() )
+	painter->drawRect( boundingRect() );
 }
 
 
@@ -265,6 +276,9 @@ void ODGraphicsArrowItem::paint( QPainter* painter,
 	painter->setBrush( Qt::NoBrush );
 	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
+
+    if ( drawDebugItems() )
+	painter->drawRect( boundingRect() );
 }
 
 
@@ -503,8 +517,8 @@ void ODGraphicsTextItem::paint( QPainter* painter,
     painter->setPen( pen() );
     painter->setFont( font_ );
 
-    //Nice for debugging
-    //painter->drawPoint( paintpos.x(), paintpos.y() );
+    if ( drawDebugItems() )
+	painter->drawPoint( paintpos.x(), paintpos.y() );
 
     painter->translate( QPointF(paintpos.x()+movex,
 				paintpos.y()+movey+txtheight) );
@@ -513,8 +527,8 @@ void ODGraphicsTextItem::paint( QPainter* painter,
 
     painter->restore();
 
-    //Nice for debugging
-    //painter->drawRect( boundingRect() );
+    if ( drawDebugItems() )
+	painter->drawRect( boundingRect() );
 }
 
 
@@ -705,7 +719,7 @@ void ODGraphicsPolyLineItem::unHighlight()
 
 // ODGraphicsMultiColorPolyLineItem
 ODGraphicsMultiColorPolyLineItem::ODGraphicsMultiColorPolyLineItem()
-    : QGraphicsItem()
+    : QAbstractGraphicsShapeItem()
     , highlight_(false)
 {}
 
@@ -716,49 +730,74 @@ ODGraphicsMultiColorPolyLineItem::~ODGraphicsMultiColorPolyLineItem()
 
 QRectF ODGraphicsMultiColorPolyLineItem::boundingRect() const
 {
-    return qpolygon_.boundingRect();
+    return brect_;
 }
+
+
+QPainterPath ODGraphicsMultiColorPolyLineItem::shape() const
+{ return path_; }
 
 
 void ODGraphicsMultiColorPolyLineItem::setPolyLine( const QPolygonF& polygon )
 {
     prepareGeometryChange();
-    qpolygon_ = polygon;
+    inputqpolygon_ = polygon;
+    cleanupPolygon();
 }
 
 
 void ODGraphicsMultiColorPolyLineItem::setQPens( const QVector<QPen>& qpens )
 {
     prepareGeometryChange();
-    if ( qpens.size() != qpolygon_.size() )
+    inputqpens_ = qpens;
+    cleanupPolygon();
+}
+
+
+void ODGraphicsMultiColorPolyLineItem::cleanupPolygon()
+{
+    qpens_.clear(); qpolygon_.clear();
+    if ( inputqpens_.isEmpty() || inputqpolygon_.isEmpty() )
+	return;
+
+    if ( inputqpens_.size() != inputqpolygon_.size() )
     {
 	pErrMsg("Nr pens is different from no. of points.");
-	qpens_.clear();
 	return;
     }
-    qpens_ = qpens;
+
+    // remove undefs
+    for ( int idx=0; idx<inputqpolygon_.size(); idx++ )
+    {
+	const QPointF& pt = inputqpolygon_[idx];
+	if ( mIsUdf(pt.x()) || mIsUdf(pt.y()) )
+	    continue;
+
+	qpens_ += inputqpens_[idx];
+	qpolygon_ += pt;
+    }
+
+    brect_ = qpolygon_.boundingRect();
+
+    const QPolygonF poly = mapFromScene( 0, 0, 5, 5 );
+    QPainterPathStroker pps;
+    pps.setWidth( poly.boundingRect().width() );
+    QPainterPath ppath; ppath.addPolygon( qpolygon_ );
+    path_ = pps.createStroke( ppath );
 }
 
 
 void ODGraphicsMultiColorPolyLineItem::paint( QPainter* painter,
-					 const QStyleOptionGraphicsItem* option,
-					 QWidget* widget )
+				const QStyleOptionGraphicsItem* option,
+				QWidget* widget )
 {
-    const QPolygonF paintpolygon = painter->worldTransform().map( qpolygon_ );
+    const QPolygonF paintpolygon = painter->worldTransform().map(qpolygon_);
 
     painter->save();
     painter->resetTransform();
 
     for ( int idx=1; idx<qpens_.size(); idx++ )
     {
-	const QPointF pt = qpolygon_[idx]; //mIsUdf won't work with paintpolygon
-	if ( mIsUdf(pt.x()) || mIsUdf(pt.y()) )
-	    continue;
-
-	const QPointF prevpt = qpolygon_[idx-1];
-	if ( mIsUdf(prevpt.x()) || mIsUdf(prevpt.y()) )
-	    continue;
-
 	QPen qpen = qpens_[idx];
 	if ( highlight_ ) qpen.setWidth( qpen.width()+2 );
 
@@ -771,7 +810,7 @@ void ODGraphicsMultiColorPolyLineItem::paint( QPainter* painter,
 
 
 void ODGraphicsMultiColorPolyLineItem::mouseMoveEvent(
-					QGraphicsSceneMouseEvent* event )
+				QGraphicsSceneMouseEvent* event )
 {
     QGraphicsItem::mouseMoveEvent( event );
 
