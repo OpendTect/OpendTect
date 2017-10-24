@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 mFDQtclass(QTreeWidget)
 mFDQtclass(QTreeWidgetItem)
+mFDQtclass(QTreeWidgetItemIterator)
 mFDQtclass(QString)
 mFDQtclass(QStringList)
 
@@ -153,7 +154,9 @@ protected:
     uiTreeViewItem*	lastitemnotified_;
     uiParent*		parent_;
     int			column_;
-    OD::ButtonState     buttonstate_;
+    OD::ButtonState	buttonstate_;
+    bool		allowDoubleClick() const;
+			// Checks clicked mouseposition
 
     void		cursorSelectionChanged(CallBacker*);
     void		itemChangedCB(CallBacker*);
@@ -164,6 +167,7 @@ protected:
 
     void		updateHeaderLabels();
     void		translateText();
+    void		popupMenu();
 
 private:
 
@@ -171,6 +175,7 @@ private:
     friend class	i_treeVwMessenger;
     friend class	uiTreeViewBody;
     friend class	uiTreeViewItem;
+    friend class	uiTreeViewItemIterator;
 
     uiTreeViewBody*	body_;
 
@@ -344,3 +349,20 @@ protected:
     bool			isenabled_;
     bool			checked_;
 };
+
+
+mExpClass(uiBase) uiTreeViewItemIterator : public CallBacker
+{
+public:
+				uiTreeViewItemIterator(uiTreeView&);
+				~uiTreeViewItemIterator();
+
+    uiTreeViewItem*		next();
+
+protected:
+    uiTreeView&			view_;
+
+private:
+    mQtclass(QTreeWidgetItemIterator*)	iter_;
+};
+

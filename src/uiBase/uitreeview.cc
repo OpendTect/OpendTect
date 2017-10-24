@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiicon.h"
 #include "uimain.h"
+#include "uimenu.h"
 #include "uiobjbody.h"
 #include "uipixmap.h"
 #include "uishortcutsmgr.h"
@@ -29,6 +30,7 @@ ________________________________________________________________________
 #include <QSize>
 #include <QString>
 #include <QTreeWidgetItem>
+#include <QTreeWidgetItemIterator>
 
 #include "i_qtreeview.h"
 
@@ -42,6 +44,8 @@ static ODQtObjectSet<uiTreeViewItem,QTreeWidgetItem> odqtobjects_;
 
 class uiTreeViewBody : public uiObjBodyImpl<uiTreeView,QTreeWidget>
 {
+
+friend class uiTreeView;
 
 public:
 			uiTreeViewBody(uiTreeView& hndle,uiParent* parnt,
@@ -57,21 +61,23 @@ public:
 			    setStretch( hs, ( nrTxtLines()== 1) ? 0 : 2 );
 			}
 
-    virtual int	nrTxtLines() const
-			    { return prefnrlines_ ? prefnrlines_ : 7; }
+    virtual int		nrTxtLines() const
+			{ return prefnrlines_ ? prefnrlines_ : 7; }
 
     uiTreeView&		lvhandle()	{ return lvhandle_; }
     TypeSet<int>&	fixedColWidth()	{ return fixcolwidths_; }
 
 protected:
 
-    int		prefnrlines_;
+    QPoint		mousepos_;
+    int			prefnrlines_;
 
     void		resizeEvent(QResizeEvent *);
     void		keyPressEvent(QKeyEvent*);
     bool		moveItem(QKeyEvent*);
     void		mousePressEvent(QMouseEvent*);
     void		mouseReleaseEvent(QMouseEvent*);
+    void		contextMenuEvent(QContextMenuEvent*);
 
     TypeSet<int>	fixcolwidths_;
 
@@ -89,6 +95,7 @@ uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
     , messenger_( *new i_treeVwMessenger(*this,hndle) )
     , prefnrlines_( nrl )
     , lvhandle_(hndle)
+    , mousepos_(0,0)
 {
     setStretch( 1, (nrTxtLines()== 1) ? 0 : 1 );
     setHSzPol( uiObject::MedVar ) ;
@@ -208,6 +215,8 @@ void uiTreeViewBody::mousePressEvent( QMouseEvent* ev )
 {
     if ( !ev ) return;
 
+    mousepos_ = ev->pos();
+
     if ( ev->button() == Qt::RightButton )
 	lvhandle_.buttonstate_ = OD::RightButton;
     else if ( ev->button() == Qt::LeftButton )
@@ -217,6 +226,14 @@ void uiTreeViewBody::mousePressEvent( QMouseEvent* ev )
 
     QTreeWidget::mousePressEvent( ev );
     lvhandle_.buttonstate_ = OD::NoButton;
+}
+
+
+void uiTreeViewBody::contextMenuEvent( QContextMenuEvent* ev )
+{
+    if ( !ev || ev->isAccepted() ) return;
+
+    lvhandle_.popupMenu();
 }
 
 
@@ -738,6 +755,17 @@ void uiTreeView::collapseAll()
 }
 
 
+void uiTreeView::popupMenu()
+{
+    uiMenu mnu( 0 );
+    mnu.insertAction( new uiAction(tr("Collapse All")), 0 );
+    const int res = mnu.exec();
+
+    if ( res==0 )
+	collapseAll();
+}
+
+
 /*! \brief Triggers contents update.
     Triggers a size, geometry and content update during the next
     iteration of the event loop.  Ensures that there'll be
@@ -783,6 +811,21 @@ void uiTreeView::translateText()
 }
 
 
+static int sDClickOffset = 70; // Can't find a function to get this information
+
+bool uiTreeView::allowDoubleClick() const
+{
+// Needed to ignore double-clicks on checkboxes
+    const bool hascheckbox =
+	lastitemnotified_ && lastitemnotified_->isCheckable();
+    if ( !hascheckbox || !lvbody() )
+	return true;
+
+    return lvbody()->mousepos_.x()>sDClickOffset;
+}
+
+
+// uiTreeViewItem
 #define mTreeViewBlockCmdRec	CmdRecStopper cmdrecstopper(treeView());
 
 #define mInitVars \
@@ -1202,3 +1245,30 @@ uiTreeViewItem* uiTreeViewItem::itemFor( QTreeWidgetItem* itm )
 
 const uiTreeViewItem* uiTreeViewItem::itemFor( const QTreeWidgetItem* itm )
 { return odqtobjects_.getODObject( *itm ); }
+
+
+// uiTreeViewItemIterator
+uiTreeViewItemIterator::uiTreeViewItemIterator( uiTreeView& view )
+    : view_(view)
+{
+    iter_ = new QTreeWidgetItemIterator( view_.lvbody() );
+}
+
+
+uiTreeViewItemIterator::~uiTreeViewItemIterator()
+{
+    delete iter_;
+}
+
+
+uiTreeViewItem* uiTreeViewItemIterator::next()
+{
+    QTreeWidgetItem* qitm = *(*iter_);
+    if ( !qitm )
+	return 0;
+
+    uiTreeViewItem* itm = uiTreeViewItem::itemFor( qitm );
+    ++(*iter_);
+    return itm;
+}
+
