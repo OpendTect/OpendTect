@@ -497,7 +497,7 @@ int uiObject::iconSize()
     {
 	const BufferString key =
 	    IOPar::compKey( SettingsAccess::sKeyIcons(), "size" );
-	iconsz_ = 32;
+	iconsz_ = 24;
 	Settings::common().get( key, iconsz_ );
     }
 
