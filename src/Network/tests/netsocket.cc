@@ -34,6 +34,12 @@ ArrPtrMan<double> doublewritearr, doublereadarr;
 class TestRunner : public CallBacker
 {
 public:
+    ~TestRunner()
+    {
+	detachAllNotifiers();
+	CallBack::removeFromMainThread( this );
+    }
+
     bool	testNetSocket();
 
     void	testCallBack(CallBacker*)
@@ -54,11 +60,11 @@ public:
 bool TestRunner::testNetSocket()
 {
     Network::Socket connection( !noeventloop_ );
-    connection.setTimeout( 10000 );
+    connection.setTimeout( 600 );
 
-    if ( !connection.connectToHost( "localhost", port_, true ) )
+    if ( !connection.connectToHost("localhost",port_,true) )
     {
-	if ( !ExecODProgram( serverapp_, serverarg_ ) )
+	if ( !ExecODProgram(serverapp_,serverarg_) )
 	{
 	    od_ostream::logStream() << "Cannot start " << serverapp_;
 	    return false;
@@ -154,17 +160,17 @@ int main(int argc, char** argv)
     mInitTestProg();
     ApplicationData app;
 
-    TestRunner runner;
-    runner.serverapp_ = "test_echoserver";
-    runner.serverarg_ = "--timeout 72000 --port 1025 --quiet";
-    runner.port_ = 1025;
-    runner.prefix_ = "[ No event loop ]\t";
-    runner.exitonfinish_ = false;
-    runner.noeventloop_ = true;
+    PtrMan<TestRunner> runner = new TestRunner;
+    runner->serverapp_ = "test_echoserver";
+    runner->serverarg_ = "--timeout 600 --port 1025 --quiet";
+    runner->port_ = 1025;
+    runner->prefix_ = "[ No event loop ]\t";
+    runner->exitonfinish_ = false;
+    runner->noeventloop_ = true;
 
-    clparser.getVal( "serverapp", runner.serverapp_, true );
-    clparser.getVal( "serverarg", runner.serverarg_, true );
-    clparser.getVal( "port", runner.port_, true );
+    clparser.getVal( "serverapp", runner->serverapp_, true );
+    clparser.getVal( "serverarg", runner->serverarg_, true );
+    clparser.getVal( "port", runner->port_, true );
 
     od_int64 totalmem, freemem;
     OD::getSystemMemory( totalmem, freemem );
@@ -181,18 +187,18 @@ int main(int argc, char** argv)
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 
-    if ( !runner.testNetSocket() )
+    if ( !runner->testNetSocket() )
 	ExitProgram( 1 );
 
     //Now with a running event loop
 
-    runner.prefix_ = "[ With event loop ]\t";
-    runner.exitonfinish_ = true;
-    runner.noeventloop_ = false;
-    const CallBack cb( mCB(&runner,TestRunner,testCallBack) );
-    CallBack::addToMainThread( cb );
+    runner->prefix_ = "[ With event loop ]\t";
+    runner->exitonfinish_ = true;
+    runner->noeventloop_ = false;
+    CallBack::addToMainThread( mCB(runner,TestRunner,testCallBack) );
     const int res = app.exec();
-    CallBack::removeFromMainThread( cb.cbObj() );
+
+    runner = 0;
 
     ExitProgram( res );
 }

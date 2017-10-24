@@ -256,16 +256,16 @@ int main(int argc, char** argv)
     mInitTestProg();
     ApplicationData app;
 
-    Tester runner;
-    runner.port_ = 1025;
-    clparser.getVal( "port", runner.port_, true );
-    runner.hostname_ = "localhost";
-    runner.prefix_ = "[singlethreaded] ";
+    PtrMan<Tester> runner = new Tester;
+    runner->port_ = 1025;
+    clparser.getVal( "port", runner->port_, true );
+    runner->hostname_ = "localhost";
+    runner->prefix_ = "[singlethreaded] ";
 
     BufferString echoapp = "test_netreqechoserver";
     clparser.getVal( "serverapp", echoapp );
 
-    BufferString args( "--port ", runner.port_ );
+    BufferString args( "--port ", runner->port_ );
     args.add( " --quiet " );
 
     if ( !clparser.hasKey("noechoapp") && !ExecODProgram( echoapp, args.buf() ))
@@ -276,11 +276,13 @@ int main(int argc, char** argv)
 
     Threads::sleep( 1 );
 
-    if ( !runner.runTest(false,false) )
+    if ( !runner->runTest(false,false) )
 	ExitProgram( 1 );
 
-    CallBack::addToMainThread( mCB( &runner,Tester, runEventLoopTest) );
+    CallBack::addToMainThread( mCB(runner,Tester,runEventLoopTest) );
     const int retval = app.exec();
+
+    runner = 0;
 
     ExitProgram( retval );
 }
