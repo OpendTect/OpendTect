@@ -2212,6 +2212,9 @@ void HorizonDisplay::selectChildren()
 
 	const TrcKey tk = tks.atIndex( gidx );
 	const Coord3 pos = hor3d->getPos( sid, tk.pos().toInt64() );
+	if ( pos.isUdf() )
+	    continue;
+
 	const int pidx = selections_->addPoint( pos );
 	selections_->getMaterial()->setColor( hor3d->getSelectionColor(), pidx);
 	pidxs += pidx;
