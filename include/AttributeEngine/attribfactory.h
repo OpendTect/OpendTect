@@ -30,21 +30,21 @@ mExpClass(AttributeEngine) ProviderFactory
 public:
 			ProviderFactory();
 			~ProviderFactory();
-			
+
 			/*Interface from attribs' initClass() */
-    void		addDesc( Desc*, ProviderCreater );
+    void		addDesc(Desc*,ProviderCreater);
 
     int			size() const			{ return descs_.size();}
     const Desc&		getDesc( int idx ) const	{ return *descs_[idx]; }
     const Desc*		getDesc(const char*) const;
 
-    Provider*		create( Desc&, bool skipchecks=false ) const;
-    Desc*		createDescCopy( const char* nm ) const;
+    Provider*		create(Desc&,bool skipchecks=false) const;
+    Desc*		createDescCopy(const char* nm) const;
     void		updateAllDescsDefaults();
 
 protected:
 
-    int			indexOf( const char* ) const;
+    int			indexOf(const char*) const;
     ObjectSet<Desc>	descs_;
     TypeSet<ProviderCreater> creaters_;
 
@@ -52,4 +52,4 @@ protected:
 
 mGlobal(AttributeEngine) extern ProviderFactory& PF();
 
-}; //Namespace
+} // namespace Attrib

@@ -37,7 +37,7 @@ void ProviderFactory::addDesc( Desc* nps, ProviderCreater pc )
     nps->ref();
     descs_ += nps;
     creaters_ += pc;
-};
+}
 
 
 Provider* ProviderFactory::create( Desc& desc, bool skipchecks ) const
@@ -94,4 +94,4 @@ ProviderFactory& PF()
     return *factory;
 }
 
-}; //namespace
+} // namespace Attrib
