@@ -341,6 +341,7 @@ od_int64 TrcKeySampling::totalNr() const
 bool TrcKeySampling::isEmpty() const
 { return nrLines() < 1 || nrTrcs() < 1; }
 
+
 bool TrcKeySampling::doLimitTo( StepInterval<int>& inp,
 				const StepInterval<int>& oth,
 				const bool ignoresteps,
@@ -372,6 +373,7 @@ bool TrcKeySampling::doLimitTo( StepInterval<int>& inp,
 
     return true;
 }
+
 
 void TrcKeySampling::limitTo( const TrcKeySampling& h, bool ignoresteps )
 {
@@ -524,7 +526,7 @@ bool TrcKeySampling::usePar( const IOPar& pars )
     if ( inlok && crlok )
 	return true;
 
-    PtrMan<IOPar> subpars = pars.subselect( IOPar::compKey( sKey::Line(), 0 ) );
+    PtrMan<IOPar> subpars = pars.subselect( IOPar::compKey(sKey::Line(),0) );
     if ( !subpars ) return false;
 
     bool trcrgok = getRange( *subpars, sKey::TrcRange(),
@@ -533,15 +535,16 @@ bool TrcKeySampling::usePar( const IOPar& pars )
     {
 	trcrgok = subpars->get( sKey::FirstTrc(), start_.trcNr() );
 	trcrgok = subpars->get( sKey::LastTrc(), stop_.trcNr() ) || trcrgok;
+	subpars->get( sKey::StepCrl(), step_.trcNr() );
     }
 
     if ( trcrgok )
     {
-	subpars->get( sKey::GeomID(), start_.lineNr() );
-	stop_.lineNr() = start_.lineNr();
-	step_.lineNr() = step_.trcNr() = 1;
+	Pos::GeomID geomid;
+	subpars->get( sKey::GeomID(), geomid );
+	start_.lineNr() = stop_.lineNr() = geomid;
+	step_.lineNr() = 1;
 	survid_ = Survey::GM().get2DSurvID();
-
     }
 
     return trcrgok;

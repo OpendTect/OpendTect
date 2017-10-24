@@ -405,13 +405,17 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 
 	TrcKeySampling stepoutputhrg;
 	StepInterval<int> stepoutputzrg;
-
 	chainexec_.computeComputationScope( currentstep->getID(), stepoutputhrg,
 					    stepoutputzrg );
 
-	TrcKeyZSampling csamp;
+	ConstRefMan<Survey::Geometry> geom =
+		  Survey::GM().getGeometry( chainexec_.outputhrg_.getGeomID() );
+	if ( !geom )
+	    { errmsg_ = "Cannot read geometry from database"; return false; }
+
+	TrcKeyZSampling csamp( geom->sampling() );
 	csamp.hsamp_ = stepoutputhrg;
-	const StepInterval<float> fullzrg = csamp.zsamp_;
+	const StepInterval<float> fullzrg( csamp.zsamp_ );
 	csamp.zsamp_.start = stepoutputzrg.start * fullzrg.step; //index -> real
 	csamp.zsamp_.stop = stepoutputzrg.stop * fullzrg.step; //index -> real
 	csamp.zsamp_.step = stepoutputzrg.step * fullzrg.step; //index -> real
