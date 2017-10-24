@@ -401,10 +401,8 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
     linewidthfld_->attach( alignedBelow, colorfld_ );
 
-    BufferStringSet seedtypenames( OD::MarkerStyle3D::TypeNames() );
-    seedtypenames.removeSingle( 0 ); // Remove 'None'
     seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
-			StringListInpSpec(seedtypenames) );
+			StringListInpSpec(OD::MarkerStyle3D::TypeDef()) );
     seedtypefld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
     seedtypefld_->attach( alignedBelow, linewidthfld_ );
@@ -522,7 +520,8 @@ void uiHorizonSetupGroup::colorChangeCB( CallBacker* )
 void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 {
     const OD::MarkerStyle3D::Type newtype =
-	(OD::MarkerStyle3D::Type)(seedtypefld_->getIntValue());
+	(OD::MarkerStyle3D::Type)
+		(OD::MarkerStyle3D::None+seedtypefld_->getIntValue());
     if ( markerstyle_.type_ == newtype )
 	return;
 
@@ -607,7 +606,7 @@ void uiHorizonSetupGroup::initPropertyGroup()
 {
     seedsliderfld_->setValue( markerstyle_.size_ );
     seedcolselfld_->setColor( markerstyle_.color_ );
-    seedtypefld_->setValue( markerstyle_.type_ );
+    seedtypefld_->setValue( markerstyle_.type_-OD::MarkerStyle3D::None );
 
     if ( !sectiontracker_ )
 	return;
