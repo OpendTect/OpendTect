@@ -229,7 +229,7 @@ void uiParent::translateText()
     for ( int idx=0; idx<childList()->size(); idx++ )
     {
 	uiBaseObject* child = const_cast<uiBaseObject*>((*childList())[idx]);
-	
+
 	//Workaround for missing function on uiGroupObj
 	mDynamicCastGet( uiGroupObj*, groupobj, child );
 	if ( groupobj && groupobj->group() )
@@ -622,7 +622,7 @@ int uiObject::iconSize()
     {
 	const BufferString key =
 	    IOPar::compKey( SettingsAccess::sKeyIcons(), "size" );
-	iconsz_ = 32;
+	iconsz_ = 24;
 	Settings::common().get( key, iconsz_ );
     }
 
