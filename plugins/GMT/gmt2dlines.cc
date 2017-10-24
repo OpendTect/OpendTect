@@ -242,7 +242,7 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
     DBKey id;
     get( sKey::ID(), id );
     const IOObj* ioobj = DBM().get( id );
-    if ( !ioobj ) mErrStrmRet("Cannot find lineset")
+    if ( !ioobj ) mErrStrmRet("Cannot find line")
 
     BufferStringSet linenms;
     get( ODGMT::sKeyLineNames(), linenms );
