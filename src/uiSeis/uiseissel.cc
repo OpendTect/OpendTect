@@ -378,6 +378,8 @@ void uiSeisSel::usePar( const IOPar& iop )
 
     if ( seissetup_.selectcomp_ && !iop.get(sKey::Component(), compnr_) )
 	compnr_ = 0;
+
+    updateInput();
 }
 
 
