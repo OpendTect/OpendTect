@@ -16,10 +16,6 @@
 #include "survinfo.h"
 #include "undefval.h"
 
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-
 #ifndef OD_NO_QT
 # include <QString>
 #endif
@@ -563,16 +559,13 @@ char* truncateString( char* str, int maxlen )
 
 static void mkUIntStr( char* buf, od_uint64 val, int isneg )
 {
-    if ( !val )
-	{ buf[0] = '0'; buf[1] = '\0'; return; }
-
     /* Fill the string with least significant first, i.e. reversed: */
     char* pbuf = buf;
     while ( val )
     {
-	int restval = val % 10;
+	const int restval = val % 10;
 	val /= 10;
-	*pbuf++ = '0' + (char) restval;
+	*pbuf++ = '0' + (char)restval;
     }
     if ( isneg ) *pbuf++ = '-';
     *pbuf = '\0';
@@ -985,67 +978,116 @@ const char* toString( bool b )
 }
 
 
-static double gtDoubleFromString( const char* str, char** endp, double defval )
+static double gtDoubleFromString( const char* str, double defval )
 {
 #ifdef OD_NO_QT
     return strtod( (char*)str, endp );
 #else
 
-    *endp = (char*)str;
     if ( !str || !*str )
 	return defval;
 
     bool isok = false;
     const QString qstr( str );
     const double ret = qstr.toDouble( &isok );
-    if ( !isok )
-	return defval;
-
-    *endp = (char*)(str + 1); // just fake it, as long as it's not str
-    return ret;
+    return isok ? ret : defval;
 
 #endif
 }
 
-static double getDoubleFromString( const char* str, char** endp )
-{
-    return gtDoubleFromString( str, endp, 0. );
-}
 
-
-static float gtFloatFromString( const char* str, char** endp, float defval )
+static float gtFloatFromString( const char* str, float defval )
 {
 #ifdef OD_NO_QT
-    return strtof( (char*)str, endp );
+    char* endp;
+    return strtof( (char*)str, &endp );
 #else
 
-    *endp = (char*)str;
     if ( !str || !*str )
 	return defval;
 
     bool isok = false;
     const QString qstr( str );
     const float ret = qstr.toFloat( &isok );
-    if ( !isok )
-	return defval;
-
-    *endp = (char*)(str + 1); // just fake it, as long as it's not str
-    return ret;
+    return isok ? ret : defval;
 
 #endif
 }
 
-static double getFloatFromString( const char* str, char** endp )
+
+static int gtIntFromString( const char* str, int defval )
 {
-    return gtFloatFromString( str, endp, 0.f );
+#ifdef OD_NO_QT
+    char* endp;
+    return strtoll( (char*)str, &endp, 0 );
+#else
+
+    if ( !str || !*str )
+	return defval;
+
+    bool isok = false;
+    const QString qstr( str );
+    const float ret = qstr.toInt( &isok, 0 );
+    return isok ? ret : defval;
+
+#endif
+}
+
+static od_uint32 gtUIntFromString( const char* str, od_uint32 defval )
+{
+#ifdef OD_NO_QT
+    char* endp;
+    return strtoul( (char*)str, &endp, 0 );
+#else
+
+    if ( !str || !*str )
+	return defval;
+
+    bool isok = false;
+    const QString qstr( str );
+    const float ret = qstr.toUInt( &isok, 0 );
+    return isok ? ret : defval;
+
+#endif
 }
 
 
-#define mConvDefFromStrToShortType(type,fn) \
-void set( type& _to, const char* const& s ) { _to = (type)fn(s); }
+static od_int64 gtInt64FromString( const char* str, od_int64 defval )
+{
+#ifdef OD_NO_QT
+    char* endp;
+    return strtoll( (char*)str, &endp, 0 );
+#else
 
-mConvDefFromStrToShortType( short, atoi )
-mConvDefFromStrToShortType( unsigned short, atoi )
+    if ( !str || !*str )
+	return defval;
+
+    bool isok = false;
+    const QString qstr( str );
+    const float ret = qstr.toLongLong( &isok, 0 );
+    return isok ? ret : defval;
+
+#endif
+}
+
+
+static od_uint64 gtUInt64FromString( const char* str, od_uint64 defval )
+{
+#ifdef OD_NO_QT
+    char* endp;
+    return strtoull( (char*)str, &endp, 0 );
+#else
+
+    if ( !str || !*str )
+	return defval;
+
+    bool isok = false;
+    const QString qstr( str );
+    const float ret = qstr.toULongLong( &isok, 0 );
+    return isok ? ret : defval;
+
+#endif
+}
 
 
 #define mConvDefFromStrToSimpleType(type,function) \
@@ -1053,17 +1095,9 @@ mConvDefFromStrToShortType( unsigned short, atoi )
 namespace Conv { \
 \
     inline void set_charp( type& _to, const char* s ) \
-    { \
-	if ( !s || !*s ) return; \
-    \
-	char* endptr = 0; \
-	const type tmpval = (type)function; \
-	if ( s != endptr ) \
-	    _to = (type)tmpval; \
-	else if ( Values::Undef<type>::hasUdf() ) \
-	    Values::setUdf( _to ); \
-    } \
-    template <> mGlobal(Basic) void set<type,const char*>( type& _to, const char* const& s ) \
+    { _to = (type)function( s, mUdf(type) ); } \
+    template <> mGlobal(Basic) void set<type,const char*>( \
+		    type& _to, const char* const& s ) \
 	{ set_charp( _to, s ); } \
     template <> mGlobal(Basic) void set( type& _to, const FixedString& s ) \
 	{ set_charp( _to, s.str() ); } \
@@ -1072,72 +1106,38 @@ namespace Conv { \
 \
 }
 
+mConvDefFromStrToSimpleType( short, gtIntFromString )
+mConvDefFromStrToSimpleType( unsigned short, gtUIntFromString )
+mConvDefFromStrToSimpleType( int, gtIntFromString )
+mConvDefFromStrToSimpleType( unsigned int, gtUIntFromString )
+mConvDefFromStrToSimpleType( od_int64, gtInt64FromString )
+mConvDefFromStrToSimpleType( od_uint64, gtUInt64FromString )
+mConvDefFromStrToSimpleType( float, gtFloatFromString )
+mConvDefFromStrToSimpleType( double, gtDoubleFromString )
 
-mConvDefFromStrToSimpleType( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
-mConvDefFromStrToSimpleType( od_uint64, strtoull(s,&endptr,0) )
 
-mConvDefFromStrToSimpleType( int, (int)strtol(s,&endptr,0) )
 int toInt( const char* str, int defval )
-{
-    if ( !str || !*str )
-	return defval;
+{ return gtIntFromString( str, defval ); }
 
-    char* endp;
-    const int ret = (int)strtol( str, &endp, 0 );
-    return endp == str ? defval : ret;
-}
-
-mConvDefFromStrToSimpleType( od_int64, strtoll(s,&endptr,0) )
 od_int64 toInt64( const char* str, od_int64 defval )
-{
-    if ( !str || !*str )
-	return defval;
+{ return gtInt64FromString( str, defval ); }
 
-    char* endp;
-    const od_int64 ret = (od_int64)strtoll( str, &endp, 0 );
-    return endp == str ? defval : ret;
-}
+float toFloat( const char* str, float defval )
+{ return gtFloatFromString( str, defval ); }
 
-mConvDefFromStrToSimpleType( float, getFloatFromString(s,&endptr) )
-float toFloat( const char* s, float defval )
-{ char* endp; return gtFloatFromString( s, &endp, defval ); }
-
-mConvDefFromStrToSimpleType( double, getDoubleFromString(s,&endptr) )
-double toDouble( const char* s, double defval )
-{ char* endp; return gtDoubleFromString( s, &endp, defval ); }
+double toDouble( const char* str, double defval )
+{ return gtDoubleFromString( str, defval ); }
 
 
 
 static float_complex float_complexFromString( const char* str,
-					char** pendptr )
+					      float_complex defval )
 {
-    float_complex ret = float_complex(0.f,0.f);
-    char* workendptr; if ( !pendptr ) pendptr = &workendptr;
-    if ( !str || !*str )
-	{ if ( str ) pendptr = (char**)(&str); return ret; }
+    if ( !str || !*str || *str != '(' )
+	return defval;
 
-    mSkipBlanks( str );
-    pendptr = (char**)(&str);
-    BufferString fcstr;
-    char buf[1024+1]; int bufidx = 0;
-    while ( **pendptr && !iswspace(**pendptr) )
-    {
-	buf[bufidx] = **pendptr;
-	(*pendptr)++;
-	if ( ++bufidx == 1024 )
-	    { buf[bufidx] = '\0'; fcstr.add( buf ); bufidx = 0; }
-    }
-    if ( bufidx )
-	{ buf[bufidx] = '\0'; fcstr.add( buf ); }
-
-    const char* ptrfcstr = fcstr.buf();
-    if ( !*ptrfcstr )
-	return ret;
-
-    Coord c; c.fromString( ptrfcstr );
-    ret = float_complex( (float)c.x_, (float)c.y_ );
-
-    return ret;
+    Coord c; c.fromString( str );
+    return float_complex( (float)c.x_, (float)c.y_ );
 }
 
 
@@ -1151,8 +1151,8 @@ const char* toString( float_complex c )
     return ret.buf();
 }
 
+mConvDefFromStrToSimpleType( float_complex, float_complexFromString )
 
-mConvDefFromStrToSimpleType( float_complex, float_complexFromString(s,&endptr) )
 
 namespace Conv
 {
