@@ -84,13 +84,10 @@ static bool testStringPrecisionInAscII()
     mTestStringPrecisionF( 0.05f, "0.05" );
     mTestStringPrecisionF( 0.001f, "0.001" );
     mTestStringPrecisionF( 0.023f, "0.023" );
-    //TODO: we want it like this, but one release machine produces 1e-4
-    // mTestStringPrecisionF( 0.0001f, "0.0001" );
+    mTestStringPrecisionF( 0.0001f, "0.0001" );
     mTestStringPrecisionF( 0.00001f, "1e-5" );
     mTestStringPrecisionF( 0.00000001f, "1e-8" );
-    //TODO we want this to pass; for know we do not have a good solution to
-    //please nice strings lovers and those who need precision
-//    mTestStringPrecisionF( 12.345, "12.345" );
+    mTestStringPrecisionF( 12.345, "12.345" );
     mTestStringPrecisionF( -123456., "-123456" );
     mTestStringPrecisionF( -1.2345e11, "-1.2345e11" );
     mTestStringPrecisionF( 1.2345e11, "1.2345e11" );
@@ -104,8 +101,8 @@ static bool testStringPrecisionInAscII()
     mTestStringPrecisionD( 0.00000001, "1e-8" );
     mTestStringPrecisionD( 12.345, "12.345" );
     mTestStringPrecisionD( -123456., "-123456" );
-    mTestStringPrecisionD( -1.2345e11, "-1.2345e11" );
-    mTestStringPrecisionD( 1.2345e11, "1.2345e11" );
+    mTestStringPrecisionD( -1.2345e11, "-123450000000" );
+    mTestStringPrecisionD( 1.2345e16, "1.2345e16" );
     mTestStringPrecisionD( 1.5999999917e-5, "1.6e-5" );
     mTestStringPrecisionD( 1.5000000017e-5, "1.5e-5" );
     return true;

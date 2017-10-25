@@ -713,6 +713,7 @@ static int findUglyRoundOff( char* str, bool isdouble )
 }
 
 
+/* currently not used but will return
 static void enforceNrDecimals( char* str, int nrdec )
 {
     char* ptrdot = firstOcc( str, '.' );
@@ -734,6 +735,7 @@ static void enforceNrDecimals( char* str, int nrdec )
 	actualnrdec--;
     }
 }
+*/
 
 
 #define mSetStrTo0(str,ret) { *str = '0'; *(str+1) = '\0'; ret; }
@@ -850,7 +852,6 @@ static const char* getStringFromFPNumber( T val, bool isdouble )
     {
 	mDetermineValueProps();
 	retstr = getStringFromNumber( val, fmt, nrdec+1 );
-	enforceNrDecimals( str, nrdec );
     }
 
     finalCleanupNumberString( str );
