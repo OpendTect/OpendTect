@@ -266,7 +266,7 @@ static EMSurfaceTranslator* getTranslator( Horizon& horizon )
 
 Executor* SurfaceAuxData::auxDataLoader( int selidx )
 {
-    EMSurfaceTranslator* transl = getTranslator( horizon_ );
+    PtrMan<EMSurfaceTranslator> transl = getTranslator( horizon_ );
     if ( !transl )
 	return 0;
 
@@ -281,7 +281,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 
 Executor* SurfaceAuxData::auxDataLoader( const char* nm )
 {
-    EMSurfaceTranslator* transl = getTranslator( horizon_ );
+    PtrMan<EMSurfaceTranslator> transl = getTranslator( horizon_ );
     if ( !transl )
 	return 0;
 
