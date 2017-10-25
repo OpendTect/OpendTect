@@ -282,7 +282,9 @@ dgbEMSurfaceTranslator::~dgbEMSurfaceTranslator()
 
 bool dgbEMSurfaceTranslator::prepRead()
 {
-    if ( reader_ ) delete reader_;
+    if ( reader_ )
+	delete reader_;
+
     BufferString unm( group() ? group()->groupName().buf() : 0 );
     reader_ = new EM::dgbSurfaceReader( *ioobj_, unm.buf() );
     if ( !reader_->isOK() )
