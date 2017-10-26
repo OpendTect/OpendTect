@@ -424,16 +424,13 @@ BufferString File::Path::getTempName( const char* ext )
 {
     Path fp( getTempDir() );
 
-    BufferString fname( "od", GetPID() );
     mDefineStaticLocalObject( int, counter, = 0 );
-    time_t time_stamp = time( (time_t*)0 ) + counter++;
-    fname += (od_int64)time_stamp;
+    BufferString fname( "od_", GetPID() );
+    fname.add( '_' ).add( counter++ )
+	 .add( '_' ).add( Time::getISOUTCDateTimeString() );
 
     if ( ext && *ext )
-    {
-	fname += ".";
-	fname += ext;
-    }
+	{ fname.add( "." ).add( ext ); }
 
     fp.add( fname );
     return fp.fullPath();
