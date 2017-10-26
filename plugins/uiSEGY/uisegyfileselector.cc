@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "dirlist.h"
 #include "repos.h"
+#include "timefun.h"
 
 #include "uimsg.h"
 #include "uitextedit.h"
@@ -123,7 +124,7 @@ void uiSEGYFileSelector::selChgCB( CallBacker* )
     od_int64 szkb = File::getKbSize( fp.fullPath() );
     info.add( "Size: " ).add( szkb ).add( " KB" );
     info.addNewLine().add( "Last modified: ")
-	.add( File::timeLastModified(fp.fullPath()) );
+	.add( Time::getUsrFileDateTime(fp.fullPath()) );
     txtfld_->setText( info );
 }
 

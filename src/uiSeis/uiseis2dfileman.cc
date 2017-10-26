@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
+#include "timefun.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "seis2ddata.h"
@@ -190,8 +191,9 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	txt += "\nFile name: "; txt += fp.fileName();
 	txt += "\nFile size: ";
 	txt += File::getFileSizeString( fname );
-	const char* timestr = File::timeLastModified( fname );
-	if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
+	const BufferString timestr = Time::getUsrFileDateTime( fname );
+	if ( !timestr.isEmpty() )
+	    { txt += "\nLast modified: "; txt += timestr; }
     }
 
     infofld_->setText( txt );

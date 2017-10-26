@@ -826,7 +826,7 @@ BufferString File::getFileSizeString( const char* fnm )
 #define mRetUnknown { ret.set( "<unknown>" ); return ret.buf(); }
 
 
-const char* File::timeCreated( const char* fnm, const char* fmt )
+const char* File::timeCreated( const char* fnm )
 {
     mDeclStaticString( ret );
     if ( !isLocal(fnm) )
@@ -834,7 +834,7 @@ const char* File::timeCreated( const char* fnm, const char* fmt )
 
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    ret = qfi.created().toString( fmt );
+    ret = qfi.created().toString( Qt::ISODate );
     return ret.buf();
 #else
     pFreeFnErrMsg(not_implemented_str);
@@ -843,7 +843,7 @@ const char* File::timeCreated( const char* fnm, const char* fmt )
 }
 
 
-const char* File::timeLastModified( const char* fnm, const char* fmt )
+const char* File::timeLastModified( const char* fnm )
 {
     mDeclStaticString( ret );
     if ( !isLocal(fnm) )
@@ -851,7 +851,7 @@ const char* File::timeLastModified( const char* fnm, const char* fmt )
 
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    ret = qfi.lastModified().toString( fmt );
+    ret = qfi.lastModified().toString( Qt::ISODate );
     return ret.buf();
 #else
     pFreeFnErrMsg(not_implemented_str);

@@ -10,6 +10,7 @@
 #include "oddirs.h"
 #include "file.h"
 #include "filepath.h"
+#include "timefun.h"
 #include "genc.h"
 #include "survinfo.h"
 #include "survgeom.h"
@@ -676,7 +677,7 @@ void DBMan::setupCustomDataDir( const CustomDirData& cdd, uiRetVal& rv )
 	{
 	    strm << GetProjectVersionName();
 	    strm << "\nObject Management file\n";
-	    strm << Time::getDateTimeString();
+	    strm << Time::getUsrDateTimeString();
 	    strm << "\n!\nID: " << cdd.dirnr_ << "\n!\n"
 		      << cdd.desc_ << ": 1\n"
 		      << cdd.desc_ << " directory: Gen`Stream\n"

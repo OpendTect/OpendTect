@@ -47,6 +47,8 @@ mGlobal(Basic) const char*	toString(const OD::String&);
 
 mGlobal(Basic) bool		yesNoFromString(const char*);
 
+mGlobal(Basic) const char*	getFPStringWithDecimals(double,int nrdec);
+
 mGlobal(Basic) int		toInt(const char*,int defval=0);
 mGlobal(Basic) od_int64		toInt64(const char* s,od_int64 defval=0);
 mGlobal(Basic) float		toFloat(const char*,float defval=0.f);

@@ -40,7 +40,7 @@ namespace CmdDrive
     if ( drv_.logStream().isOK() ) drv_.logStream()
 
 #define mTimeStrm \
-    mLogStrm << "[" << Time::getTimeString() << "]\t"
+    mLogStrm << "[" << Time::getUsrTimeString() << "]\t"
 
 #define mParseMsgStrm(tag) \
     if ( !drv_.streamBlocked(true,tag) ) \
@@ -102,7 +102,7 @@ enum WinStateType { NoState=0, Existent, Inexistent, Accessible, Inaccessible };
 mExpClass(uiCmdDriver) CmdDriver : public CallBacker
 { mODTextTranslationClass(CmdDriver)
 public:
-    
+
     enum FlowStackTag { IfTag, ElseTag, DefTag, DoTag, DoWhileTag, ForTag };
 		    mDeclareEnumUtils(FlowStackTag);
 
@@ -335,10 +335,10 @@ protected:
 
     void		preProcSubstitutionErrMsg(const int,const int,
                                                      const BufferString&);
-    void	    	checkTailErrMsg(const int,const BufferString&);
+    void		checkTailErrMsg(const int,const BufferString&);
     void		checkFlowErrMsg(const int,const char*,const char*);
     void		checkFlowStackErrMsg(TypeSet<int>, enum FlowStackTag);
-    const uiString	sCheckFlowStackStr() 
+    const uiString	sCheckFlowStackStr()
 			{ return tr("ended in the middle of","something"); }
 };
 

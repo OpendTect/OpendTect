@@ -285,7 +285,7 @@ void putProgInfo( int argc, char** argv )
 	msg = fp.fileName();
     }
     msg += " started on "; msg += GetLocalHostName();
-    msg += " at "; msg += Time::getDateTimeString();
+    msg += " at "; msg += Time::getISOUTCDateTimeString();
     if ( !ison ) msg += "\n";
     message( msg );
     if ( !ison ) return;

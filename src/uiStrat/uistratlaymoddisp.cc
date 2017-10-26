@@ -36,7 +36,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "file.h"
 #include "od_helpids.h"
-#include <stdio.h>
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -469,9 +468,7 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 {
     IOPar statusbarmsg;
     const int selseq = getClickedModelNr();
-    BufferString modelnrstr;
-    sprintf( modelnrstr.getCStr(), "%5d", selseq );
-    statusbarmsg.set( "Model Number", modelnrstr );
+    statusbarmsg.set( "Model Number", toString(selseq) );
     const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
     float depth = vwr_.getWorld2Ui().toWorldY( mev.pos().y_ );
     if ( !Math::IsNormalNumber(depth) )
@@ -482,9 +479,8 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 	depth = 0;
     }
 
-    BufferString depthstr;
-    sprintf( depthstr.getCStr(), "%6.0f", depth );
-    depthstr += SI().depthsInFeet() ? "(ft)" : "(m)";
+    BufferString depthstr( mNINT32(depth) );
+    depthstr.add( SI().depthsInFeet() ? "(ft)" : "(m)" );
     statusbarmsg.set( "Depth", depthstr );
     if ( SI().depthsInFeet() )
 	depth *= mFromFeetFactorF;

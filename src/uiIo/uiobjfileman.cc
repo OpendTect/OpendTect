@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "timefun.h"
 #include "dbman.h"
 #include "iostrm.h"
 #include "od_iostream.h"
@@ -265,7 +266,7 @@ void uiObjFileMan::getTimeLastModified( const char* fname,
 					BufferString& timestamp )
 {
     const FixedString ftimestamp = File::timeLastModified( fname );
-    if ( timestamp.isEmpty() || Time::isEarlier( timestamp, ftimestamp ) )
+    if ( timestamp.isEmpty() || Time::isEarlierStamp(timestamp,ftimestamp) )
 	timestamp = ftimestamp;
 
     if ( !File::isDirectory(fname) ) return;
@@ -277,7 +278,7 @@ void uiObjFileMan::getTimeLastModified( const char* fname,
 	const BufferString subfnm( dl.fullPath(idx) );
 	getTimeLastModified( subfnm, subtimestamp );
 
-	if ( Time::isEarlier( timestamp, subtimestamp ) )
+	if ( Time::isEarlierStamp( timestamp, subtimestamp ) )
 	    timestamp = subtimestamp;
     }
 }
@@ -320,7 +321,8 @@ BufferString uiObjFileMan::getFileInfo()
 	}
 	BufferString timestr; getTimeStamp( fname, timestr );
 	if ( !timestr.isEmpty() )
-	    txt.add( "\nLast modified: " ).add( timestr );
+	    txt.add( "\nLast modified: " )
+		.add( Time::getUsrDateTimeStringFromISOUTC(timestr) );
     }
     txt.add( "\n" );
 

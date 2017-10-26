@@ -644,7 +644,7 @@ bool uiMMBatchJobDispatcher::isPaused() const
     bool dopause = jrpol == 1;
     if ( jrpol == 2 )
     {
-	const int t = getSecs( Time::getDateTimeString() );
+	const int t = getSecs( Time::getUsrDateTimeString() );
 	const int t0 = getSecs( jrpstartfld_->text() );
 	const int t1 = getSecs( jrpstopfld_->text() );
 

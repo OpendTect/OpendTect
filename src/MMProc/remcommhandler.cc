@@ -21,7 +21,11 @@ ________________________________________________________________________
 
 
 #define mErrRet( s ) \
-{ BufferString msg(Time::getDateTimeString(),": ",s); writeLog( msg ); return; }
+{ \
+    const BufferString msg( Time::getUsrDateTimeString(), ": ", s ); \
+    writeLog( msg ); \
+    return; \
+}
 
 RemCommHandler::RemCommHandler( int port )
     : port_(port)

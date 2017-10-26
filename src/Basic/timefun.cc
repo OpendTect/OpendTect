@@ -9,6 +9,7 @@
 #include "timefun.h"
 #include "bufstring.h"
 #include "staticstring.h"
+#include "file.h"
 
 #ifndef OD_NO_QT
 # include <QDateTime>
@@ -91,38 +92,88 @@ od_int64 getFileTimeInSeconds()
 }
 
 
-const char* defDateTimeFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss"; }
-const char* defDateFmt()	{ return "ddd dd MMM yyyy"; }
-const char* defTimeFmt()	{ return "hh:mm:ss"; }
-
-const char* getDateTimeString( const char* fmt, bool local )
+const char* getISOUTCDateTimeString()
 {
     mDeclStaticString( ret );
 
 #ifndef OD_NO_QT
-    QDateTime qdt = QDateTime::currentDateTime();
-    if ( !local ) qdt = qdt.toUTC();
-    ret = qdt.toString( fmt );
+    QDateTime qdt = QDateTime::currentDateTimeUtc();
+    ret = qdt.toString( Qt::ISODate );
 #endif
+
     return ret.buf();
 }
 
-const char* getDateString( const char* fmt, bool local )
-{ return getDateTimeString( fmt, local ); }
 
-const char* getTimeString( const char* fmt, bool local )
-{ return getDateTimeString( fmt, local ); }
-
-bool isEarlier(const char* first, const char* second, const char* fmt )
+int compareISOUTCDateTimeStrings( const char* first, const char* second )
 {
-#ifndef OD_NO_QT
-    QString fmtstr( fmt );
-    QDateTime qdt1 = QDateTime::fromString( first, fmtstr );
-    QDateTime qdt2 = QDateTime::fromString( second, fmtstr );
-    return qdt1 < qdt2;
+#ifdef OD_NO_QT
+    return FixedString(first) == second ? 0 : -1;
 #else
-    return false;
+    const QDateTime qdt1 = QDateTime::fromString( first, Qt::ISODate );
+    const QDateTime qdt2 = QDateTime::fromString( second, Qt::ISODate );
+    if ( qdt1 == qdt2 )
+	return 0;
+    return qdt1 < qdt2 ? -1 : 1;
 #endif
 }
+
+
+const char* defDateTimeFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss"; }
+const char* defDateFmt()	{ return "ddd dd MMM yyyy"; }
+const char* defTimeFmt()	{ return "hh:mm:ss"; }
+
+const char* getUsrDateTimeStringFromISOUTC( const char* isostr, const char* fmt,
+					 bool local )
+{
+    mDeclStaticString( ret );
+
+#ifndef OD_NO_QT
+    QDateTime qdt = QDateTime::fromString( QString(isostr), Qt::ISODate );
+    if ( local )
+	qdt = qdt.toLocalTime();
+    ret = qdt.toString( fmt );
+#endif
+
+    return ret.buf();
+}
+
+const char* getUsrDateStringFromISOUTC( const char* isostr, const char* fmt,
+					bool local )
+{ return getUsrDateTimeStringFromISOUTC( isostr, fmt, local ); }
+
+const char* getUsrTimeStringFromISOUTC( const char* isostr, const char* fmt,
+					bool local )
+{ return getUsrDateTimeStringFromISOUTC( isostr, fmt, local ); }
+
+
+const char* getUsrDateTimeString( const char* fmt, bool local )
+{
+    mDeclStaticString( ret );
+
+#ifndef OD_NO_QT
+    const QDateTime qdt = local ? QDateTime::currentDateTime()
+				: QDateTime::currentDateTimeUtc();
+    ret = qdt.toString( fmt );
+#endif
+
+    return ret.buf();
+}
+
+const char* getUsrDateString( const char* fmt, bool local )
+{ return getUsrDateTimeString( fmt, local ); }
+
+const char* getUsrTimeString( const char* fmt, bool local )
+{ return getUsrDateTimeString( fmt, local ); }
+
+
+const char* getUsrFileDateTime( const char* fnm, bool modif,
+				const char* fmt, bool local )
+{
+    const BufferString isostr( modif ? File::timeLastModified(fnm)
+				     : File::timeCreated(fnm) );
+    return getUsrDateTimeStringFromISOUTC( isostr, fmt, local );
+}
+
 
 } // namespace Time

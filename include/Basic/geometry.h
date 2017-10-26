@@ -494,38 +494,10 @@ BufferString Point2D<T>::toString() const
 
 
 template <> inline
-BufferString Point2D<float>::toString() const
-{
-    if ( isUdf() )
-	return BufferString( "<undef>" );
-
-    const BufferString xstr = toStringPrecise( x_ );
-    const BufferString ystr = toStringPrecise( y_ );
-    BufferString res( "(", xstr, "," );
-    res.add( ystr ).add( ')' );
-    return res;
-}
-
-
-template <> inline
 BufferString Point2D<float>::toPrettyString() const
 {
     const Point2D<od_int64> pt( mRounded(od_int64,x_), mRounded(od_int64,y_) );
     return pt.toString();
-}
-
-
-template <> inline
-BufferString Point2D<double>::toString() const
-{
-    if ( isUdf() )
-	return BufferString( "<undef>" );
-
-    const BufferString xstr = toStringPrecise( x_ );
-    const BufferString ystr = toStringPrecise( y_ );
-    BufferString res( "(", xstr, "," );
-    res.add( ystr ).add( ')' );
-    return res;
 }
 
 

@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "attribsel.h"
 #include "file.h"
 #include "filepath.h"
+#include "timefun.h"
 #include "oddirs.h"
 #include "od_ostream.h"
 #include "oscommand.h"
@@ -452,7 +453,7 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
     uiUserShowWait usw( this, uiStrings::sCollectingData() );
 
     File::Path imagefp( PresentationSpec::getPyScriptDir() );
-    imagefp.add( BufferString("image-",Time::getDateTimeString(datefmt)) );
+    imagefp.add( BufferString("image-",Time::getUsrDateTimeString(datefmt)) );
     imagefp.setExtension( "png" );
     const BufferString imagefnm = imagefp.fullPath();
 
@@ -597,7 +598,7 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
 
     File::Path scriptfp( PresentationSpec::getPyScriptDir() );
     BufferString fnm( "python-pptx-" );
-    fnm.add( Time::getDateTimeString(datefmt) );
+    fnm.add( Time::getUsrDateTimeString(datefmt) );
     scriptfp.add( fnm ); scriptfp.setExtension( "py" );
 
     File::Path logfp = scriptfp;

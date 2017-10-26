@@ -1112,7 +1112,7 @@ void IOPar::setToDateTime( const char* keyw )
 {
     if ( !keyw || !*keyw )
 	keyw = sKey::DateTime();
-    set( keyw, Time::getDateTimeString() );
+    set( keyw, Time::getISOUTCDateTimeString() );
 }
 
 

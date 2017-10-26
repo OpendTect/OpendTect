@@ -48,7 +48,6 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 #include "waveletio.h"
 
-#include <stdio.h>
 
 static const int cMarkerSize = 6;
 
@@ -207,17 +206,15 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
     if ( valstr.isEmpty() )
 	return;
     modelidx = toInt(valstr)-1;
-    BufferString modelnrstr;
-    sprintf( modelnrstr.getCStr(), "Model Number:%5d", modelidx );
+    BufferString modelnrstr( "Model Number: ", modelidx );
     msg.append( modelnrstr );
     valstr = pars.find( "Z" );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
     float zval = mUdf(float);
     if ( valstr )
     {
-	BufferString depthstr;
 	zval = toFloat( valstr );
-	sprintf( depthstr.getCStr(), "Depth : %6.0f", zval );
+	BufferString depthstr( "Depth: ", (int)zval, " " );
 	depthstr.add( SI().zUnitString().getFullString() );
 	msg.addSpace().append( depthstr );
     }

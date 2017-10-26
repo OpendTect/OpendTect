@@ -694,10 +694,10 @@ static int findUglyRoundOff( char* str, bool isdouble )
 	    return -1;
     }
 
-    char* hit = firstOcc( decstartptr, isdouble ? "00000" : "000" );
+    char* hit = firstOcc( decstartptr, isdouble ? "0000" : "000" );
     if ( !hit )
     {
-	hit = firstOcc( decstartptr, isdouble ? "99999" : "999" );
+	hit = firstOcc( decstartptr, isdouble ? "9999" : "999" );
 	if ( !hit )
 	    return -1;
     }
@@ -814,6 +814,16 @@ static const char* getStringFromNumber( T val, char format, int precision )
     return retstr.getCStr();
 #endif
 }
+
+
+const char* getFPStringWithDecimals( double val, int nrdec )
+{
+    char fmt = 'f';
+    if ( val < -1e8 || val > 1e8 || (val<1e-8 && val>-1e-8) )
+	fmt = 'g';
+    return getStringFromNumber( val, fmt, nrdec );
+}
+
 
 #define mDetermineValueProps() \
     const bool scientific = (val > (T)-0.001 && val < (T)0.001) \

@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "strmdata.h"
-#include "timefun.h"
 
 class BufferStringSet;
 class Executor;
@@ -93,10 +92,8 @@ mGlobal(Basic) od_int64		getKbSize(const char*);
 mGlobal(Basic) BufferString	getFileSizeString(od_int64 fileszinkb);
 mGlobal(Basic) BufferString	getFileSizeString(const char* fnm);
 
-mGlobal(Basic) const char*	timeCreated(const char* filenm,
-					const char* fmt=Time::defDateTimeFmt());
-mGlobal(Basic) const char*	timeLastModified(const char* filenm,
-					const char* fmt=Time::defDateTimeFmt());
+mGlobal(Basic) const char*	timeCreated(const char*);	//!< ISO/UTC
+mGlobal(Basic) const char*	timeLastModified(const char*);	//!< ISO/UTC
 mGlobal(Basic) od_int64		getTimeInSeconds(const char*,bool modif=true);
 
 mGlobal(Basic) const char*	getCurrentPath();

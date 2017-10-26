@@ -253,7 +253,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const EM::IOObjInfo eminfo( mid );
     const BufferString curtime = eminfo.timeLastModified();
-    const bool isnewer = Time::isEarlier( timelastmodified_, curtime );
+    const bool isnewer = Time::isEarlierStamp( timelastmodified_, curtime );
     const bool allowreload = !hastracker && isnewer;
     mAddMenuOrTBItem( istb, 0, menu, &reloadmnuitem_, allowreload, false );
 

@@ -498,7 +498,7 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
 
     strm_ << "Probability Density Function 1D \"" << pdf.name()
 	 << "\" output by OpendTect " << GetFullODVersion()
-	 << " on " << Time::getDateTimeString() << "\n\n";
+	 << " on " << Time::getISOUTCDateTimeString() << "\n\n";
 
     const int nrx = pdf.size( 0 );
 
@@ -536,7 +536,7 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf )
 
     strm_ << "Probability Density Function 2D \"" << pdf.name()
 	 << "\" output by OpendTect " << GetFullODVersion()
-	 << " on " << Time::getDateTimeString() << "\n\n";
+	 << " on " << Time::getISOUTCDateTimeString() << "\n\n";
 
     const int nrx = pdf.size( 0 );
     const int nry = pdf.size( 1 );

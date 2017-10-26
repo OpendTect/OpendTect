@@ -868,19 +868,18 @@ const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
 
 bool PosInfo::Survey2D::isIdxFileNew( const char* lsnm ) const
 {
-    BufferString timestamp( getIdxTimeStamp(lsnm) );
-    if ( timestamp.isEmpty() )
-	return false;
-    return Time::isEarlier( curlstimestr_.buf(), getIdxTimeStamp(lsnm) );
+    const BufferString timestamp( getIdxTimeStamp(lsnm) );
+    return timestamp.isEmpty() ? false
+	: Time::compareISOUTCDateTimeStrings( curlstimestr_,
+					      getIdxTimeStamp(lsnm) ) < 0;
 }
 
 
 BufferString PosInfo::Survey2D::getIdxTimeStamp( const char* lsnm ) const
 {
-    File::Path fp( basefp_, lsnm, sIdxFilename );
-    if ( fp.isEmpty() ) return 0;
-    BufferString timestamp( File::timeLastModified(fp.fullPath()) );
-    return timestamp;
+    const File::Path fp( basefp_, lsnm, sIdxFilename );
+    return BufferString( fp.isEmpty() ? ""
+				      : File::timeLastModified(fp.fullPath()) );
 }
 
 

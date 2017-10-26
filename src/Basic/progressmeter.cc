@@ -163,7 +163,7 @@ void TextStreamProgressMeter::setFinished()
     else
 	strm_ <<  "Process: '" << name_.buf() << "'\n";
 
-    strm_ << "Finished: "  << Time::getDateTimeString() << od_endl;
+    strm_ << "Finished: "  << Time::getUsrDateTimeString() << od_endl;
 
     lock.unlockNow();
     reset();
@@ -191,7 +191,7 @@ void TextStreamProgressMeter::setStarted()
 	if ( !name_.isEmpty() ) strm_ <<  "Process: '" << name_.buf() << "'\n";
 	if ( !message_.isEmpty() )
 	{
-	    strm_ << "Started: " << Time::getDateTimeString() << "\n\n";
+	    strm_ << "Started: " << Time::getUsrDateTimeString() << "\n\n";
 	    strm_ << '\t' << message_.getFullString() << od_endl;
 	}
 

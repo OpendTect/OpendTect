@@ -93,7 +93,7 @@ SEGY::TxtHeader::TxtHeader( int rev )
     const char* res = Settings::common().find( "Company" );
     if ( !res ) res = "OpendTect";
     str = "Created by: "; str += res;
-    str += "     ("; str += Time::getDateTimeString(); str += ")";
+    str += "     ("; str += Time::getISOUTCDateTimeString(); str += ")";
     putAt( 1, 6, 75, str );
     putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
     BinID bid = SI().sampling(false).hsamp_.start_;

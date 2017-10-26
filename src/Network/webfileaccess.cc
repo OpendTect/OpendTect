@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "odnetworkaccess.h"
 #include "odhttp.h"
 #include "genc.h"
+#include "timefun.h"
 
 #include <streambuf>
 

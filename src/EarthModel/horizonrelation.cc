@@ -254,8 +254,8 @@ static bool hasBeenModified( const IOObj& ioobj, const char* datestamp )
     if ( fnm.isEmpty() || !File::exists(fnm) )
 	return false;
 
-    const char* moddate = File::timeLastModified( fnm );
-    return Time::isEarlier( datestamp, moddate );
+    const BufferString moddate = File::timeLastModified( fnm );
+    return Time::isEarlierStamp( datestamp, moddate );
 }
 
 
@@ -303,7 +303,7 @@ bool RelationTree::read( bool removeoutdated )
 
 	    PtrMan<IOObj> ioobj = surfiodir->getEntry( node->id_.objID() );
 	    if ( removeoutdated &&
-		    (!ioobj || hasBeenModified(*ioobj,node->datestamp_.buf())) )
+		    (!ioobj || hasBeenModified(*ioobj,node->datestamp_)) )
 		outdatednodes += node->id_;
 	}
     }

@@ -148,7 +148,7 @@ void CmdRecorder::stop( bool fatal )
 
 	mRecOutStrm << od_endl << od_endl
 		    << "###  OpendTect terminated unexpectedly: "
-		    << Time::getDateTimeString() << od_endl << od_endl;
+		    << Time::getISOUTCDateTimeString() << od_endl << od_endl;
 
 	const int curcounter = outputcounter_;
 

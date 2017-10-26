@@ -10,6 +10,7 @@
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "timefun.h"
 #include "dbman.h"
 #include "iosubdir.h"
 #include "safefileio.h"

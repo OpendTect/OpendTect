@@ -258,7 +258,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 }
 
 
-void CmdDriver::checkFlowErrMsg(const int linenr, const char* cmdstr, 
+void CmdDriver::checkFlowErrMsg(const int linenr, const char* cmdstr,
 							const char* matchingstr)
 {
     errmsg_.append(tr("has syntax error at line %1: '%2' - Matching '%3' "
@@ -271,11 +271,11 @@ void CmdDriver::checkFlowErrMsg(const int linenr, const char* cmdstr,
 void CmdDriver::checkTailErrMsg( const int linenr, const BufferString& action)
 {
     errmsg_.append(tr("has unexpected content at end of line %1: '%2'")
-	   .arg(linenr).arg(action)); 
+	   .arg(linenr).arg(action));
 }
 
 
-void CmdDriver::preProcSubstitutionErrMsg( const int nrsubst, const int linenr, 
+void CmdDriver::preProcSubstitutionErrMsg( const int nrsubst, const int linenr,
 						const BufferString& action )
 {
     errmsg_.append(tr("has %1 substitution %2 at line %3: '%4'").arg(-nrsubst)
@@ -367,7 +367,7 @@ void CmdDriver::preProcSubstitutionErrMsg( const int nrsubst, const int linenr,
 
 bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 {
-    errmsg_ = tr("%1 file \"%2\"").arg(actionlist.isEmpty() ? 
+    errmsg_ = tr("%1 file \"%2\"").arg(actionlist.isEmpty() ?
 			    tr("Command") : tr("Included command")).arg(fnm);
 
     od_istream strm( fnm );
@@ -461,21 +461,21 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
     }
 
     mCheckFlowStack( flowstack );
-  
+
 /*{ \
     if ( !flowstack.isEmpty() ) \
     { \
-	errmsg_.append(sCheckFlowStackStr()).append(::toUiString(" ")); 
-	errmsg_.append( 
-		flowstack[0]==DefTag 
-				    ? ::toUiString("a procedure def-inition") : 
-		flowstack[0]==ForTag ? ::toUiString("a for-loop") : 
-		flowstack[0]==DoWhileTag ? 
-					    ::toUiString("a while-loop") :   
-		flowstack[0]==DoTag ? ::toUiString("an until-loop") : 
-				     ::toUiString("an if-structure") ); 
+	errmsg_.append(sCheckFlowStackStr()).append(::toUiString(" "));
+	errmsg_.append(
+		flowstack[0]==DefTag
+				    ? ::toUiString("a procedure def-inition") :
+		flowstack[0]==ForTag ? ::toUiString("a for-loop") :
+		flowstack[0]==DoWhileTag ?
+					    ::toUiString("a while-loop") :
+		flowstack[0]==DoTag ? ::toUiString("an until-loop") :
+				     ::toUiString("an if-structure") );
 	return false; \
-    } 
+    }
 } */
     errmsg_.setEmpty();
     return true;
@@ -488,7 +488,7 @@ void CmdDriver::logErrMsg()
 	return;
 
     updateLogStrm();
-    mLogStrm << od_newline << mFromUiStringTodo(errmsg_) << od_newline << 
+    mLogStrm << od_newline << mFromUiStringTodo(errmsg_) << od_newline <<
 									od_endl;
 }
 
@@ -515,7 +515,7 @@ bool CmdDriver::execute()
     updateLogStrm();
 
     mLogStrm << od_newline << "Command file: " << cmdfnm_ << od_newline
-	     << "Execution started at " << Time::getDateTimeString()
+	     << "Execution started at " << Time::getUsrDateTimeString()
 	     << od_newline << od_endl;
 
     if ( execthr_ ) { execthr_->waitForFinish(); delete execthr_; }
@@ -573,7 +573,7 @@ void CmdDriver::prepareForResume()
 		if ( winstatetype_ == NoState )
 		{
 		    InteractSpec ispec( false );
-		    ispec.dlgtitle_= 
+		    ispec.dlgtitle_=
 			tr("Waiting for OpendTect to become inactive");
 		    ispec.cancelbuttext_ = uiStrings::sHide();
 		    interact( &ispec );

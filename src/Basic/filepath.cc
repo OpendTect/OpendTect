@@ -13,7 +13,7 @@
 #include "winutils.h"
 #include "fixedstring.h"
 #include "oddirs.h"
-#include <time.h>
+#include "timefun.h"
 #include <string.h>
 
 
@@ -331,7 +331,7 @@ BufferString File::Path::baseName() const
 BufferString File::Path::getTimeStampFileName( const char* ext )
 {
     BufferString tsfnm;
-    BufferString datestr = Time::getDateTimeString();
+    BufferString datestr = Time::getISOUTCDateTimeString();
     datestr.replace( ", ", "-" );
     datestr.replace( ':', '.' );
     datestr.replace( ' ', '_' );
