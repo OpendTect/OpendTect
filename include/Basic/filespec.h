@@ -64,6 +64,8 @@ public:
     void		getReport(IOPar&) const;
     static const char*	sKeyFileNrs();
 
+    void		makePathsRelative(const char* todir=0);
+			//< default is survey directory
     static void		makePathsRelative(IOPar&,const char* todir=0);
 			//< default is survey directory
 

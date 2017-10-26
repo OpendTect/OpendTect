@@ -300,7 +300,14 @@ void FileSpec::getReport( IOPar& iop ) const
 void FileSpec::makePathsRelative( IOPar& iop, const char* dir )
 {
     FileSpec fs; fs.usePar( iop );
-    const int nrfnms = fs.fnames_.size();
+    fs.makePathsRelative( dir );
+    fs.fillPar( iop );
+}
+
+
+void FileSpec::makePathsRelative( const char* dir )
+{
+    const int nrfnms = fnames_.size();
     if ( nrfnms < 1 )
 	return;
 
@@ -310,7 +317,7 @@ void FileSpec::makePathsRelative( IOPar& iop, const char* dir )
     const FilePath relfp( dir );
     for ( int ifile=0; ifile<nrfnms; ifile++ )
     {
-	const BufferString fnm( fs.fileName(ifile) );
+	const BufferString fnm( fileName(ifile) );
 	if ( fnm.isEmpty() )
 	    continue;
 
@@ -324,11 +331,10 @@ void FileSpec::makePathsRelative( IOPar& iop, const char* dir )
 		FilePath newrelfp( relpath, fp.fileName() );
 		relpath = newrelfp.fullPath();
 		if ( relpath != fnm )
-		    fs.fnames_.get(ifile).set( relpath );
+		    fnames_.get(ifile).set( relpath );
 	    }
 	}
     }
-    fs.fillPar( iop );
 }
 
 
