@@ -172,6 +172,19 @@ void uiTreeItem::collapse()
 bool uiTreeItem::isCollapsed() const
 { return !isExpanded(); }
 
+bool uiTreeItem::hasChildren() const
+{ return !children_.isEmpty(); }
+
+
+bool uiTreeItem::hasGrandChildren() const
+{
+    for ( int idx=0; idx<children_.size(); idx++ )
+	if ( children_[idx]->hasChildren() )
+	    return true;
+
+    return false;
+}
+
 
 bool uiTreeItem::allChildrenExpanded() const
 {
