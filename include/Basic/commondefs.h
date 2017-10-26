@@ -141,6 +141,7 @@ inline T getLimited( T v, T min, T max )
 # ifndef __func__
 #  define __func__ __FUNCTION__
 # endif
+#define NOMINMAX
 #endif
 
 #ifndef __msvc__
