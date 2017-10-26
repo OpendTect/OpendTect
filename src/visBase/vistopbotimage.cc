@@ -16,11 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "vistransform.h"
 
-#include "file.h"
 #include "filespec.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "oddirs.h"
 #include "odimage.h"
 #include "settingsaccess.h"
 
@@ -29,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Image>
 #include <osgDB/ReadFile>
 
-mCreateFactoryEntry( visBase::TopBotImage );
+mCreateFactoryEntry( visBase::TopBotImage )
 
 namespace visBase
 {
@@ -164,7 +162,7 @@ void TopBotImage::fillPar( IOPar& iopar ) const
     iopar.set( sKeyTransparencyStr(), getTransparency() );
 
     FileSpec fs( filenm_.buf() );
-    fs.makePathsRelative( GetDataDir() );
+    fs.makePathsRelative();
     iopar.set( sKeyFileNameStr(), fs.fileName() );
 }
 
@@ -184,7 +182,10 @@ bool TopBotImage::usePar( const IOPar& iopar )
     BufferString relfnm;
     iopar.get( sKeyFileNameStr(), relfnm  );
     if ( !relfnm.isEmpty() )
-	filenm_ = File::getAbsolutePath( GetDataDir(), relfnm );
+    {
+	const FileSpec fs( relfnm );
+	filenm_ = fs.absFileName();
+    }
 
     setPos( ltpos, brpos );
     setRGBImageFromFile( filenm_ );
