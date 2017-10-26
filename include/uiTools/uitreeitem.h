@@ -62,6 +62,8 @@ public:
     void			collapse();
     bool			isCollapsed() const;
 
+    bool			hasChildren() const;
+    bool			hasGrandChildren() const;
     bool			allChildrenExpanded() const;
     bool			allChildrenCollapsed() const;
     bool			allChildrenChecked() const;
