@@ -247,6 +247,7 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
 
 	const od_int64 filesz = nextsize-cumsizes_[ifile];
 	filepars.set( sKey::Size(), filesz );
+	SEGY::FileSpec::makePathsRelative( filepars );
 
 	BufferString key("File ");
 	key += ifile;
