@@ -35,7 +35,7 @@ namespace visBase
 {
 
     const char* TopBotImage::sKeyTopLeftCoord()     { return "TopLeft"; }
-    const char*	TopBotImage::sKeyBottomRightCoord() { return "BotRight"; } 
+    const char*	TopBotImage::sKeyBottomRightCoord() { return "BotRight"; }
     const char*	TopBotImage::sKeyFileNameStr()      { return sKey::FileName(); }
     const char*	TopBotImage::sKeyTransparencyStr()  { return "Transparency"; }
 
@@ -146,7 +146,7 @@ void TopBotImage::setRGBImage( const OD::RGBImage& rgbimg )
     unsigned char* imgdata = new unsigned char[totsz];
     OD::memCopy( imgdata, rgbimg.getData(), totsz );
     osg::ref_ptr<osg::Image> image = new osg::Image;
-    image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1, 
+    image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1,
 		     GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, imgdata,
 		     osg::Image::NO_DELETE );
     image->flipVertical();
@@ -184,13 +184,9 @@ bool TopBotImage::usePar( const IOPar& iopar )
     BufferString relfnm;
     iopar.get( sKeyFileNameStr(), relfnm  );
     if ( !relfnm.isEmpty() )
-    {
-	FileSpec fs( relfnm );
-	fs.makeAbsoluteIfRelative( GetDataDir() );
-	filenm_ = fs.fileName();
-    }
+	filenm_ = File::getAbsolutePath( GetDataDir(), relfnm );
 
-    setPos( ltpos, brpos );  
+    setPos( ltpos, brpos );
     setRGBImageFromFile( filenm_ );
     setTransparency( transparency );
     return true;
