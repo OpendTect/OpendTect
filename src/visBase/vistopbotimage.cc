@@ -13,10 +13,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistopbotimage.h"
 #include "viscoord.h"
-#include "vistransform.h"
 #include "vismaterial.h"
+#include "vistransform.h"
+
+#include "file.h"
+#include "filespec.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "oddirs.h"
 #include "odimage.h"
 #include "settingsaccess.h"
 
@@ -157,8 +161,11 @@ void TopBotImage::fillPar( IOPar& iopar ) const
 
     iopar.set( sKeyTopLeftCoord(), pos0_ );
     iopar.set( sKeyBottomRightCoord(), pos1_ );
-    iopar.set( sKeyFileNameStr(), filenm_  );
     iopar.set( sKeyTransparencyStr(), getTransparency() );
+
+    FileSpec fs( filenm_.buf() );
+    fs.makePathsRelative( GetDataDir() );
+    iopar.set( sKeyFileNameStr(), fs.fileName() );
 }
 
 
@@ -171,9 +178,18 @@ bool TopBotImage::usePar( const IOPar& iopar )
     float transparency = 0;
     iopar.get( sKeyTopLeftCoord(), ltpos );
     iopar.get( sKeyBottomRightCoord(), brpos );
-    iopar.get( sKeyFileNameStr(), filenm_  );
     iopar.get( sKeyTransparencyStr(), transparency );
-   
+
+    filenm_.setEmpty();
+    BufferString relfnm;
+    iopar.get( sKeyFileNameStr(), relfnm  );
+    if ( !relfnm.isEmpty() )
+    {
+	FileSpec fs( relfnm );
+	fs.makeAbsoluteIfRelative( GetDataDir() );
+	filenm_ = fs.fileName();
+    }
+
     setPos( ltpos, brpos );  
     setRGBImageFromFile( filenm_ );
     setTransparency( transparency );
