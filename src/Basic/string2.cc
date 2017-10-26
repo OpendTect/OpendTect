@@ -18,6 +18,12 @@
 
 #ifndef OD_NO_QT
 # include <QString>
+#else
+# ifdef __win__
+#  define strtof strtod
+#  define strtoll _strtoi64
+#  define strtoull _strtoui64
+# endif
 #endif
 
 #ifdef __win__

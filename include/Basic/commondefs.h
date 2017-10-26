@@ -143,12 +143,23 @@ inline T getLimited( T v, T min, T max )
 # endif
 #endif
 
-#ifdef __msvc__
-# include "msvcdefs.h"
-#else
+#ifndef __msvc__
+
 # define dll_export
 # define dll_import
 # define mMaxFilePathLength	255
+
+#else
+
+# define mMaxFilePathLength	_MAX_PATH
+
+#ifndef __debug__
+ // Debug mode is a simple switch in VS, need to support that:
+# ifdef _DEBUG
+#  define __debug__
+# endif
+#endif
+
 #endif
 
 #define mExp( module )			Export_##module
@@ -164,10 +175,10 @@ inline T getLimited( T v, T min, T max )
 #define mExportInst( mod, tp )		Extern_##mod tp mExp(mod)
 #define mExportTemplClassInst(mod)	mExportInst(mod,template class)
 
-//!< An empty string that shows the world it's empty
 
 namespace OD
 {
+    //!< An empty string that shows the world it's empty
     mGlobal(Basic) inline const char* EmptyString() { return ""; }
 }
 
@@ -263,30 +274,25 @@ namespace Threads
 
 
 /*!\ingroup Basic \brief Applies an operation to all members in an array.
-			 Quicker than for-loops.
+			 Somewhat quicker than for-loops.
 
   Instead of:
-  \code
     for ( int idx=0; idx<arrsz; idx++ )
 	arr[idx] /= 5;
-  \endcode
 
   You can do:
-  \code
     mDoArrayPtrOperation( float, arr, /= 5, arrsz, ++ );
-  \endcode
-
-  Note that the last '++' is applied to the 'current' pointer called __curptr.
 
 */
 
+#define mArrayPtrOperationCurPtrVar __curptr
 #define mDoArrayPtrOperation( type, arr, operation, arrsz, ptrinc ) \
 { \
-    type* __curptr = arr; \
-    for ( const type* __stopptr = __curptr + arrsz; \
-	  __curptr!=__stopptr; \
-	  __curptr ptrinc ) \
+    type* mArrayPtrOperationCurPtrVar = arr; \
+    for ( const type* __stopptr = mArrayPtrOperationCurPtrVar + arrsz; \
+	  mArrayPtrOperationCurPtrVar != __stopptr; \
+	  mArrayPtrOperationCurPtrVar ptrinc ) \
     { \
-	*__curptr operation; \
+	*mArrayPtrOperationCurPtrVar operation; \
     } \
 }

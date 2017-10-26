@@ -7,11 +7,7 @@
 
 bool Math::IsNormalNumber( mTYPE x )
 {
-#ifdef __win__
-    return finite( x );
-#else
     return std::isfinite( x );
-#endif
 }
 
 

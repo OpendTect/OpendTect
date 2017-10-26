@@ -588,20 +588,17 @@ void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
 {
     bool needsshell = cmd.find('|') || cmd.find('<') || cmd.find( '>' );
 #ifdef __win__
-    //Check if command starts with echo
     if ( !needsshell )
-	needsshell = !strncasecmp( cmd.buf(), "echo", 4 );
+	needsshell = cmd.startsWith( "echo ", CaseInsensitive );
 #endif
 
     if ( needsshell )
     {
 	if ( cmd.find( "\"" ) )
-	{
-	    pFreeFnErrMsg("Commands with quote-signs not supported");
-	}
+	    { pFreeFnErrMsg("Commands with quote-signs not supported"); }
 
 	const BufferString comm = cmd;
-#ifdef __msvc__
+#ifdef __win__
 	cmd = "cmd /c \"";
 #else
 	cmd = "sh -c \"";

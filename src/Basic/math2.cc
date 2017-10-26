@@ -16,14 +16,6 @@
 #ifndef __win__
 # include <unistd.h>
 #endif
-#ifdef sun5
-# define mFloatLogFn log
-# define mFloatExpFn exp
-# include <ieeefp.h>
-#else
-# define mFloatLogFn logf
-# define mFloatExpFn expf
-#endif
 
 #define mTYPE float
 #include "math2_inc.h"
@@ -62,8 +54,8 @@ bool Math::AreBitsSet( unsigned int curflags, unsigned int mask, bool all )
 
 float Math::Exp( float s )
 {
-    mDefineStaticLocalObject( const float, maxval, = mFloatLogFn(MAXFLOAT) );
-    return s < maxval ? mFloatExpFn( s ) : mUdf(float);
+    mDefineStaticLocalObject( const float, maxval, = logf(MAXFLOAT) );
+    return s < maxval ? expf( s ) : mUdf(float);
 }
 
 

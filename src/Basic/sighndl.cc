@@ -122,12 +122,7 @@ SignalHandling::SignalHandling()
     mCatchSignal( SIGVTALRM );	/* Virtual time alarm */
     mCatchSignal( SIGPROF );	/* Profiling timer alarm */
     mCatchSignal( SIGWINCH );	/* Window changed size */
-
-# ifdef sun5
-    mCatchSignal( SIGPOLL );	/* I/O is possible on a channel */
-# else
-    mCatchSignal( SIGIO );
-# endif
+    mCatchSignal( SIGIO );	/* I/O is possible on a channel */
 
     // Have to handle
     mCatchSignal( SIGALRM );	/* Alarm clock */
@@ -172,10 +167,6 @@ void SignalHandling::initFatalSignalHandling()
 	mCatchSignal( SIGBUS );	/* Bus error */
 	mCatchSignal( SIGXCPU );/* Cpu time limit exceeded */
 	mCatchSignal( SIGXFSZ );/* File size limit exceeded */
-# ifdef sun5
-	mCatchSignal( SIGEMT );	/* Emulator trap */
-	mCatchSignal( SIGSYS );	/* Bad arg system call */
-# endif
 #endif
     }
 }
@@ -193,9 +184,7 @@ void SignalHandling::handle( int signalnr )
 #else
     case SIGQUIT: case SIGTRAP: case SIGBUS: case SIGXCPU: case SIGXFSZ:
 #endif
-#ifdef sun5
-    case SIGEMT: case SIGSYS:
-#endif
+
 					SH().doKill( signalnr );	break;
 
 #ifndef __win__

@@ -12,10 +12,6 @@ ________________________________________________________________________
 #include "undefval.h"
 #include "bufstring.h"
 
-#ifdef __msvc__
-# include "msvcdefs.h"
-#endif
-
 /*!\brief Template based type conversion. */
 
 namespace Conv

@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "uistrings.h"
 #include "survgeom3d.h"
-#include <stdio.h>
 
 
 static const char* sKeySI = "Survey Info";
@@ -1021,9 +1020,10 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 static void putTr( const Pos::IdxPair2Coord::DirTransform& trans,
 		   IOPar& par, const char* key )
 {
-    char buf[1024];
-    snprintf( buf, 1024, "%.10lg`%.10lg`%.10lg", trans.a, trans.b, trans.c );
-    par.set( key, buf );
+    const BufferString stra( toStringPrecise(trans.a) );
+    const BufferString strb( toStringPrecise(trans.b) );
+    const BufferString strc( toStringPrecise(trans.c) );
+    par.set( key, stra, strb, strc );
 }
 
 

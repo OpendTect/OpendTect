@@ -14,16 +14,12 @@
 #include "oscommand.h"
 #include "staticstring.h"
 #include "uistrings.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
 
 
 #ifdef __win__
 # include "winutils.h"
 # include <windows.h>
-# include <istream>
-# include <iostream>
 # ifdef __msvc__
 #  define popen _popen
 #  define pclose _pclose
