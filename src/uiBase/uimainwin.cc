@@ -299,6 +299,9 @@ Qt::WindowFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 
 void uiMainWinBody::doShow( bool minimized )
 {
+    if ( !finalised() )
+	finalise( true );
+
     handle_.updateCaption();
     eventrefnr_ = handle_.beginCmdRecEvent("WinPopUp");
     managePopupPos();
@@ -455,7 +458,6 @@ void uiMainWinBody::reDraw( bool deep )
 
 void uiMainWinBody::go( bool showminimized )
 {
-    finalise( true );
     doShow( showminimized );
     for ( int idx=0; idx<toolbars_.size(); idx++ )
 	toolbars_[idx]->handleFinalise( false );
