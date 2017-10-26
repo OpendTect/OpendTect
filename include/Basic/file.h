@@ -34,8 +34,10 @@ mGlobal(Basic) bool		isFile(const char*);
 mGlobal(Basic) bool		isDirectory(const char*);
 
 mGlobal(Basic) const char*	getCanonicalPath(const char*);
+mGlobal(Basic) const char*	getAbsolutePath(const char* dir,
+						const char* relfnm);
 mGlobal(Basic) const char*	getRelativePath(const char* reltodir,
-					const char* fnm);
+						const char* fnm);
 mGlobal(Basic) void		makeRecursiveFileList(const char* dir,
 					BufferStringSet& filelist,
 					bool followlinks=false);

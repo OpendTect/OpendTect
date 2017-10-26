@@ -258,18 +258,18 @@ od_int64 getFileSize( const char* fnm, bool followlink )
 {
     if ( !followlink && isLink(fnm) )
     {
-        od_int64 filesize = 0;
+	od_int64 filesize = 0;
 #ifdef __win__
-        HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
-                                   FILE_ATTRIBUTE_NORMAL, NULL );
-        filesize = GetFileSize( file, NULL );
-        CloseHandle( file );
+	HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
+				   FILE_ATTRIBUTE_NORMAL, NULL );
+	filesize = GetFileSize( file, NULL );
+	CloseHandle( file );
 #else
-        struct stat filestat;
-        filesize = lstat( fnm, &filestat )>=0 ? filestat.st_size : 0;
+	struct stat filestat;
+	filesize = lstat( fnm, &filestat )>=0 ? filestat.st_size : 0;
 #endif
 
-        return filesize;
+	return filesize;
     }
 
 #ifndef OD_NO_QT
@@ -371,6 +371,20 @@ const char* getCanonicalPath( const char* dir )
 #else
     pFreeFnErrMsg(not_implemented_str);
     ret = dir;
+#endif
+    return ret.buf();
+}
+
+
+const char* getAbsolutePath( const char* dir, const char* relfnm )
+{
+    mDeclStaticString( ret );
+#ifndef OD_NO_QT
+    const QDir qdir( dir );
+    ret = qdir.absoluteFilePath( relfnm );
+#else
+    pFreeFnErrMsg(not_implemented_str);
+    ret = relfnm;
 #endif
     return ret.buf();
 }
@@ -717,7 +731,7 @@ bool getContent( const char* fnm, BufferString& bs )
 
     od_istream stream( fnm );
     if ( stream.isBad() )
-        return false;
+	return false;
 
     return !stream.isOK() ? true : stream.getAll( bs );
 }
