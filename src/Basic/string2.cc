@@ -8,7 +8,6 @@
 
 #include "string2.h"
 
-#include "compoundkey.h"
 #include "keystrs.h"
 #include "nrbytes2string.h"
 #include "odcomplex.h"
@@ -19,6 +18,7 @@
 #ifndef OD_NO_QT
 # include <QString>
 #else
+# include <stdlib.h>
 # ifdef __win__
 #  define strtof strtod
 #  define strtoll _strtoi64
