@@ -116,7 +116,7 @@ macro ( OD_ADD_LINEEND_TEST )
     if ( NOT DEFINED WIN32 )
 	set( CMD "${OpendTect_DIR}/testscripts/FindDosEOL.sh" )
 	list( APPEND CMD "${OD_SOURCELIST_FILE}" )
-	add_test( LineEndTest ${CMD} )
+	add_test( LineEndTest ${CMD} WORKING_DIRECTORY ${OpendTect_DIR} )
 
 	set( CMD "${OpendTect_DIR}/testscripts/FindNoNewlineAtEndOfFile.csh" )
 	list( APPEND CMD "--listfile" "${OD_SOURCELIST_FILE}" )
