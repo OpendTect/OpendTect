@@ -27,6 +27,11 @@ else
     nrcpus=8
 fi
 
+echo $listfile
+
+set subdir=$listfile
+subdir="$(dirname $listfile)"
+cd $subdir/..
 
 files=`cat $listfile | grep \\.ico -v | xargs -P ${nrcpus} -n 200 grep -l $'\r'`
 if [ -z "$files" ];then
