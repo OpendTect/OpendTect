@@ -122,7 +122,7 @@ void resizeEvent( QResizeEvent* ev )
 {
     uiParent* hpar = uibut_.parent();
     mDynamicCastGet(uiToolBar*,tb,hpar)
-    if ( hpar && !tb )
+    if ( !tb )
 	uibut_.updateIconSize();
 
     QAbstractButton::resizeEvent( ev );
