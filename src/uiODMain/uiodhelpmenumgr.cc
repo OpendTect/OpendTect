@@ -57,7 +57,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 
     mInsertItem( helpmnu_, tr("How-To Instructions"), mWorkflowsMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Training Manual"), mTrainingManualMnuItm, 0 );
-    mInsertItem( helpmnu_, tr("Attributes"), mAttribMatrixMnuItm, 0 );
+    mInsertItem( helpmnu_, tr("Attributes Table"), mAttribMatrixMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Keyboard shortcuts"),
 		 mShortcutsMnuItm, "?" );
