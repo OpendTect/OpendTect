@@ -48,7 +48,7 @@ public:
 			\value OpenHand		an open hand
 			\value ClosedHand	a closed hand
 			\value Bitmap
-			\value NotSet 
+			\value NotSet
 
 			Arrow is the default for widgets in a normal state.
 		    */
@@ -58,7 +58,7 @@ public:
 			  WhatsThis, Busy, OpenHand, ClosedHand,
 			  Last = ClosedHand, Bitmap = 24, NotSet,
 			  //Custom cursors
-			  GreenArrow, Rotator
+			  GreenArrow, Rotator, Pencil
 			};
 
     			MouseCursor();
@@ -73,7 +73,7 @@ public:
 			//!<Only used if shape_==Bitmap
     OD::RGBImage*	image_;
 			//!<Only used if shape_==Bitmap && filename_ is empty
-    
+
     int			hotx_;
     int			hoty_;
 };
@@ -88,14 +88,14 @@ public:
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	calculateHugeMandelbrot();              // lunch time...
 	MouseCursorManager::restoreOverride();
-    \endcode    
+    \endcode
 
     Application cursors are stored on an internal stack.
     setOverride() pushes the cursor onto the stack, and
     restoreOverride() pops the active cursor off the stack.
     Every setOverride() must eventually be followed by a
     corresponding restoreOverride(), otherwise the stack will
-    never be emptied.  
+    never be emptied.
 
     If replace is true, the new cursor will replace the last
     overridecw cursor (the stack keeps its depth). If replace is
@@ -111,7 +111,7 @@ public:
     static void	setOverride(MouseCursor::Shape,bool replace=false);
     static void	setOverride(const MouseCursor&,bool replace=false);
     static void setOverride(const char* filenm,int hotx=-1, int hoty=-1,
-	    	            bool replace=false);	
+			    bool replace=false);
     static void	restoreOverride();
 
 
@@ -123,7 +123,7 @@ protected:
     virtual void setOverrideShape(MouseCursor::Shape,bool replace)	= 0;
     virtual void setOverrideCursor(const MouseCursor&,bool replace)	= 0;
     virtual void setOverrideFile(const char* filenm,
-	    			 int hotx,int hoty, bool replace)	= 0;	
+				 int hotx,int hoty, bool replace)	= 0;
     virtual void restoreInternal()					= 0;
 
 

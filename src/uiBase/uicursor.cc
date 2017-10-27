@@ -25,7 +25,7 @@ void uiCursorManager::initClass()
 
 
 uiCursorManager::uiCursorManager()
-{} 
+{}
 
 
 uiCursorManager::~uiCursorManager()
@@ -76,6 +76,11 @@ void uiCursorManager::fillQCursor( const MouseCursor& mc,
     else if ( mc.shape_==MouseCursor::GreenArrow )
     {
 	uiPixmap pixmap( "greenarrowcursor" );
+	qcursor = QCursor( *pixmap.qpixmap(), 0, 0 );
+    }
+    else if ( mc.shape_==MouseCursor::Pencil )
+    {
+	uiPixmap pixmap( "pencil" );
 	qcursor = QCursor( *pixmap.qpixmap(), 0, 0 );
     }
     else if ( mc.shape_==MouseCursor::Rotator )

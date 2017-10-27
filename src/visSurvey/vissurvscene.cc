@@ -114,10 +114,10 @@ void Scene::updateAnnotationText()
 	return;
 
     if ( SI().inlRange(true).width() )
-        annot_->setText( 0, uiStrings::sInline() );
+	annot_->setText( 0, uiStrings::sInline() );
 
     if ( SI().crlRange(true).width() )
-        annot_->setText( 1, uiStrings::sCrossline() );
+	annot_->setText( 1, uiStrings::sCrossline() );
 
     if ( SI().zRange(true).width() )
 	annot_->setText( 2, zDomainUserName() );
@@ -891,8 +891,13 @@ void Scene::mouseCursorCB( CallBacker* cb )
 	}
     }
 
-    mDefineStaticLocalObject( MouseCursor, pickcursor, = MouseCursor::Cross );
     bool needmousecursorcall = false;
+    mDefineStaticLocalObject( MouseCursor, drawcursor, = MouseCursor::Pencil );
+    if ( getPolySelection() &&
+	 getPolySelection()->getSelectionType()!=visBase::PolygonSelection::Off)
+	mousecursor_ = &drawcursor;
+
+    mDefineStaticLocalObject( MouseCursor, pickcursor, = MouseCursor::Cross );
 
     if ( !mousecursor_ || mousecursor_->shape_==MouseCursor::NotSet )
     {
