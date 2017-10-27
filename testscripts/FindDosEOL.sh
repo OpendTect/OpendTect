@@ -33,42 +33,42 @@ then
    srcdir=$3
 fi
 
-bindir=`dirname $listfile`
-bindir=`dirname $bindir`
-
 cd $srcdir
-
-srcfiles=`cat $listfile | grep \\.ico -v | grep \\mod.h -v`
-binfiles=`cat $listfile | grep \\mod.h`
-
+srcfiles=`cat $listfile | grep \\.ico -v | grep \\mod.h -v | grep \\Basic/buildinfo.h -v | grep \\odversion.h -v | grep od_helpids.h -v`
 for onefile in $srcfiles;
    do
       onefile="$srcdir/$onefile"
       if [ ! -e "$onefile" ];then
          echo "File not found: $onefile"
-         exit 1
       fi
 done
+files=`echo $srcfiles | xargs -P ${nrcpus} -n 200 grep -l $'\r'`
+allfiles=$files
 
+bindir=`dirname $listfile`
+bindir=`dirname $bindir`
+cd $bindir
+binfiles=`cat $listfile | grep \\mod.h`
 for onefile in $binfiles;
    do
       onefile="$bindir/$onefile"
       if [ ! -e "$onefile" ];then
          echo "File not found: $onefile"
          exit 1
-      else
-	 binfiles="$binfiles $onefile"
       fi
 done
+files=`echo $binfiles | xargs -P ${nrcpus} -n 200 grep -l $'\r'`
+if [ -z "$allfiles" ];then
+   allfiles="$files"
+else
+   allfiles="$allfiles $files"
+fi
 
-allfiles="$srcfiles $binfiles"
-
-files=`echo $allfiles | xargs -P ${nrcpus} -n 200 grep -l $'\r'`
-if [ -z "$files" ];then
+if [ -z "$allfiles" ];then
    echo "No DOS EOL found!"
 else
    echo "DOS EOL found in: "
-   echo $files
+   echo $allfiles
    exit 1
 fi
 
