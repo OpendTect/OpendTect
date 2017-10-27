@@ -19,21 +19,26 @@ then
    exit 1
 fi
 
-dtectdir=`dirname $0`
+scriptdir=`dirname $0`
 
-if [ -e "${dtectdir}/GetNrProc" ]; then
-    nrcpus=`${dtectdir}/GetNrProc`
+if [ -e "${scriptdir}/GetNrProc" ]; then
+    nrcpus=`${scriptdir}/GetNrProc`
 else
     nrcpus=8
 fi
 
-echo $listfile
+dtectdir=`dirname $scriptdir`
+cd $dtectdir
 
-set subdir=$listfile
-subdir="$(dirname $listfile)"
-cd $subdir/..
+allfiles=`cat $listfile`
+for onefile in $allfiles;
+   do if [ ! -e "$onefile" ];then
+      echo "File not found: $dtectdir/$onefile"
+      exit 1
+   fi
+done
 
-files=`cat $listfile | grep \\.ico -v | xargs -P ${nrcpus} -n 200 grep -l $'\r'`
+files=`echo $allfiles | grep \\.ico -v | xargs -P ${nrcpus} -n 200 grep -l $'\r'`
 if [ -z "$files" ];then
    echo "No DOS EOL found!"
 else
