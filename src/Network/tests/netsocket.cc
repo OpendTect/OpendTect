@@ -177,6 +177,7 @@ int main(int argc, char** argv)
 
     nrdoubles = freemem/sizeof(double);
     nrdoubles /= 4;
+    nrdoubles /= 2; //Leave mem for OS and others
     nrdoubles = mMIN(nrdoubles,200000000); //1.6GB
     nrdoubles = mMAX(nrdoubles,2000); //Gotta send something
 
