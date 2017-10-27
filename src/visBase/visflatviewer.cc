@@ -164,10 +164,9 @@ void FlatViewer::handleChange( unsigned int dt)
 
 		const ColTab::Sequence& sequence
 			= channel2rgba_->getSequence( 0 );
-		if ( mFromUiStringTodo(vd.colseqname_) != sequence.name() )
+		if ( vd.colseqname_ != sequence.name() )
 		    channel2rgba_->setSequence( 0,
-				    *ColTab::SeqMGR().getAny(
-					  mFromUiStringTodo(vd.colseqname_)) );
+				    *ColTab::SeqMGR().getAny(vd.colseqname_) );
 		dispParsChanged.trigger();
 	    }
     }

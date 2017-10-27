@@ -185,7 +185,7 @@ void FlatView::DataDispPars::VD::tabNmChg( CallBacker* cb )
 	return;
 
     mGetMonitoredChgDataWithAux( cb, cd, NamedMonitorable::NameChgData, ncd );
-    if ( ncd && mFromUiStringTodo(colseqname_) == ncd->oldnm_ )
+    if ( ncd && colseqname_ == ncd->oldnm_ )
 	colseqname_ = toUiString(ncd->newnm_);
 }
 

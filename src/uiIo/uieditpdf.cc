@@ -347,7 +347,7 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    FlatView::Appearance& app = vwr.appearance();
 	    app.ddpars_.show( false, true );
 	    app.ddpars_.vd_.colseqname_
-		    = toUiString(ColTab::SeqMGR().getDefault(false)->name());
+		    = ColTab::SeqMGR().getDefault(false)->name();
 	    app.ddpars_.vd_.mapper_->setup().setNoClipping();
 	    app.ddpars_.vd_.blocky_ = true;
 	    FlatView::Annotation& ann = app.annot_;

@@ -465,7 +465,7 @@ void uiFVVDPropTab::dispChgCB( CallBacker* )
 
 void uiFVVDPropTab::putToScreen()
 {
-    colseqsel_->setSeqName( mFromUiStringTodo(pars_.colseqname_) );
+    colseqsel_->setSeqName( pars_.colseqname_ );
     colsequsemodesel_->setMode( pars_.mapper_->setup().seqUseMode() );
     putCommonToScreen();
     const FlatView::DataDispPars::Common& pars = commonPars();

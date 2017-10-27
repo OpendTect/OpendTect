@@ -42,7 +42,7 @@ void uiFlatViewColTabEd::setSensitive( bool yn )
 void uiFlatViewColTabEd::setDisplayPars( const VDDispPars& vdpars )
 {
     vdpars_ = vdpars;
-    ctseltool_.setSeqName( mFromUiStringTodo(vdpars_.colseqname_ ) );
+    ctseltool_.setSeqName( vdpars_.colseqname_ );
     ctseltool_.setMapper( *vdpars_.mapper_ );
     setSensitive( true );
 }

@@ -213,7 +213,7 @@ public:
 
 			VD();
 
-	uiString	colseqname_;
+	BufferString	colseqname_;
 	bool		lininterp_; // Use bi-linear interpol, not poly
 
     protected:
