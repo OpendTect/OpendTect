@@ -127,8 +127,6 @@ public:
 						CallBacker* =0);
 				/*!< If not in main thread, queue it.
 				   return whether CB was queued. */
-    static mDeprecated void	removeFromMainThread(const CallBacker* cber)
-				{ removeFromThreadCalls(cber); }
 };
 
 #define mMainThreadCall( func ) \

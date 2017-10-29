@@ -142,7 +142,7 @@ void uiStratTreeToDisp::setTree()
     if ( !tree_ )
 	return;
 
-    tree_->deleteNotif.notify(mCB(this,uiStratTreeToDisp,treeDel));
+    tree_->toBeDeleted.notify(mCB(this,uiStratTreeToDisp,treeDel));
     mAskStratNotif(tree_,unitAdded)
     mAskStratNotif(tree_,unitChanged)
     mAskStratNotif(tree_,unitToBeDeleted)

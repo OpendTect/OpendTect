@@ -24,19 +24,15 @@ ________________________________________________________________________
 mExpClass(General) CtxtIOObj : public NamedObject
 {
 public:
-    mStartAllowDeprecatedSection
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
 			    : NamedObject(ct), ctxt_(ct), ioobj_(o)
-			      , iopar_(0), ctxt(ctxt_), ioobj(ioobj_)
-			      , iopar(iopar_)
+			      , iopar_(0)
 			{ if ( o ) setName(o->name()); }
 			CtxtIOObj( const CtxtIOObj& ct )
 			    : NamedObject(ct), ctxt_(ct.ctxt_)
 			    , ioobj_(ct.ioobj_?ct.ioobj_->clone():0)
 			    , iopar_(ct.iopar_?new IOPar(*ct.iopar_):0)
-			    , ctxt(ctxt_), ioobj(ioobj_), iopar(iopar_)
 			{}
-    mStopAllowDeprecatedSection
     void		destroyAll();
 
     virtual const OD::String& name() const	{ return ctxt_.name(); }
@@ -61,8 +57,4 @@ public:
     IOObj*			ioobj_;
     IOPar*			iopar_;
 
-    //Legacy
-    mDeprecated IOObjContext&	ctxt;
-    mDeprecated IOObj*&		ioobj;
-    mDeprecated IOPar*&		iopar;
 };

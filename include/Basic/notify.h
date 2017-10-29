@@ -29,30 +29,27 @@ public:
 			NotifierAccess();
     virtual		~NotifierAccess();
 
+    inline bool		isEmpty() const	      { return cbs_.isEmpty(); }
+    inline void		setEmpty()	      { cbs_.setEmpty(); }
+    inline bool		isEnabled() const     { return !cbs_.hasAnyDisabled(); }
+    inline void		enable( bool yn=true ){ return cbs_.disableAll(!yn); }
+    inline void		disable()	      { return cbs_.disableAll(true); }
+
+    bool		willCall(const CallBacker*) const;
+			/*!<\returns true if the callback list contains
+			     CallBacker. */
     void		notify(const CallBack&,bool first=false) const;
     bool		notifyIfNotNotified(const CallBack&) const;
 			//!\returns true if it was added
     void		remove(const CallBack&) const;
     bool		removeWith(const CallBacker*,bool wait=true) const;
 			//!<\returns false only if wait and no lock could be got
+
     void		transferCBSTo(const NotifierAccess&,
 				      const CallBacker* only_for) const;
 
-    inline bool	isEnabled() const	{ return !cbs_.hasAnyDisabled(); }
-    inline void	enable( bool yn=true )	{ return cbs_.disableAll(!yn); }
-    inline void	disable()		{ return cbs_.disableAll(true); }
-
-    inline bool	isEmpty() const	{ return cbs_.isEmpty(); }
-    bool		willCall(const CallBacker*) const;
-			/*!<\returns true if the callback list contains
-			     CallBacker. */
-
-
     CallBackSet&	cbs_;
     CallBacker*		cber_;
-
-    bool		isShutdownSubscribed(const CallBacker*) const;
-			//!<Only for debugging purposes, don't use
 
 protected:
 
@@ -65,6 +62,11 @@ protected:
 
     mutable ObjectSet<const CallBacker>	shutdownsubscribers_;
     mutable Threads::Lock	shutdownsubscriberlock_;
+
+public:
+
+    bool		isShutdownSubscribed(const CallBacker*) const;
+			//!<Only for debugging purposes, don't use
 
 };
 

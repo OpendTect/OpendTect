@@ -278,14 +278,6 @@ uiString::uiString()
     , debugstr_( 0 )
 {}
 
-uiString::uiString( const char* str )
-    : data_( 0	)
-    , datalock_( true )
-    , debugstr_( 0 )
-{
-    set(str);
-}
-
 
 uiString::uiString( const char* originaltext, const char* context,
 		    const char* application,
@@ -307,15 +299,6 @@ uiString::uiString( const uiString& str )
 {
     refPtr( data_ );
     mSetDBGStr;
-}
-
-
-uiString::uiString( const OD::String& str )
-    : data_( 0 )
-    , datalock_( true )
-    , debugstr_( 0 )
-{
-    set(str);
 }
 
 
@@ -535,18 +518,6 @@ void uiString::setFrom( const QString& qstr )
     Threads::Locker contentlocker( data_->contentlock_ );
     data_->setFrom( qstr );
     mSetDBGStr;
-}
-
-
-uiString& uiString::operator=( const OD::String& str )
-{
-    return set( str.str() );
-}
-
-
-uiString& uiString::operator=( const char* str )
-{
-    return set( str );
 }
 
 

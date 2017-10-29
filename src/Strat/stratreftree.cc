@@ -26,7 +26,6 @@ namespace Strat
 
 RefTree::RefTree()
     : NodeOnlyUnitRef(0,"","Contains all units")
-    , deleteNotif(this)
     , unitAdded(this)
     , unitChanged(this)
     , unitToBeDeleted(this)
@@ -47,9 +46,8 @@ void RefTree::initTree()
 
 RefTree::~RefTree()
 {
-    detachAllNotifiers();
-    deleteNotif.trigger();
-    delete &udfleaf_;
+    unitAdded.setEmpty(); unitChanged.setEmpty(); unitToBeDeleted.setEmpty();
+    udfleaf_.toBeDeleted.disable();
 }
 
 

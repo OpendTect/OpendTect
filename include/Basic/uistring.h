@@ -172,22 +172,14 @@ private:
 
 public:
 
-		//Only for expert users
-    mDeprecated			uiString(const char* inp);
-    mDeprecated			uiString(const OD::String&);
-    mDeprecated uiString&	operator=(const char*);
-    mDeprecated uiString&	operator=(const OD::String&);
-    mDeprecated bool		isSet() const	{ return !isEmpty(); }
-
-		/*!<Don't use. May be depreciated. Use toUiString("My text")
-		    function instead. */
     bool	isEqualTo(const uiString& oth) const;
-		//!<Do use, but only if unavoidable
+		//!< use only if unavoidable
 
     static const char*	sODLocalizationApplication() { return "od"; }
 
     void	makeIndependent();
-		//!<If data is shared, I'll get an own copy
+		//!< create a separate copy (with its own ref count
+
 		uiString(const char* original,
 			 const char* context,
 			 const char* application,
@@ -216,6 +208,7 @@ public:
     uiString&	addSpace(int nr=1);
     uiString&	addTab(int nrtabs=1);
     uiString&	addNewLine(int nrnl=1);
+
 };
 
 
@@ -230,7 +223,6 @@ mGlobal(Basic) uiString toUiString(float);
 mGlobal(Basic) uiString toUiString(double);
 mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
-
 
 
 /*\brief Set of uiStrings */
@@ -353,10 +345,6 @@ mGlobal(Basic) bool isCancelled(const uiRetVal&);
 #define mFromUiStringTodo(i) i.getFullString()
 
 
-//Legacy Will be removed
-mGlobal(Basic) mDeprecated inline uiString mkUiString(const char* var)
-{ return toUiString(var); }
-
 /*!Adds translation of strings outside of classes for the "od" application. It
    will return a uistring where the context is "static_func_function", where
    'function' is whatever is given as the function parameter. This matches what
@@ -378,7 +366,7 @@ mGlobal(Basic) mDeprecated inline uiString mkUiString(const char* var)
 
 mGlobal(Basic) uiString od_static_tr( const char* function, const char* text,
 	const char* disambiguation = 0, int pluralnr=-1 );
-mGlobal(Basic) uiString getUiYesNoString(bool res);
+mGlobal(Basic) uiString getUiYesNoString(bool);
 
 template <class T> inline
 uiString& uiString::arg( const T& var )

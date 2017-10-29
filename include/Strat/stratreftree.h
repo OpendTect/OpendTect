@@ -57,8 +57,6 @@ public:
     void		addLevelUnit(const Level&);
     void		removeLevelUnit(const Level&);
 
-    Notifier<RefTree>	deleteNotif;
-
 protected:
 
     void		initTree();

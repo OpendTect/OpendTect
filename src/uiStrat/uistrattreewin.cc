@@ -45,7 +45,7 @@ static uiStratTreeWin* stratwin = 0;
 const uiStratTreeWin& StratTWin()
 {
     if ( !stratwin )
-	stratwin = new uiStratTreeWin( 0 );
+	stratwin = new uiStratTreeWin( uiMain::theMain().topLevel() );
 
     return *stratwin;
 }
@@ -64,8 +64,6 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 {
     DBM().surveyChanged.notify( mCB(this,uiStratTreeWin,survChgCB ) );
     DBM().applicationClosing.notify( mCB(this,uiStratTreeWin,appCloseCB ) );
-    if ( RT().isEmpty() )
-	setNewRT();
 
     createMenu();
     createToolBar();
@@ -73,6 +71,9 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     setExpCB(0);
     editCB(0);
     moveUnitCB(0);
+
+    if ( RT().isEmpty() )
+	setNewRT();
 }
 
 

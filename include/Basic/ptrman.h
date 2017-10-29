@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "atomic.h"
 #include "refcount.h"
-#include <stdlib.h>
 
 #ifdef __debug__
 # include "debug.h"
@@ -139,7 +138,7 @@ public:
     inline		ConstPtrMan(const T* = 0);
     inline		ConstPtrMan(ConstPtrMan<T>&&);
     ConstPtrMan<T>&	operator=(const T* p);
-    
+
                         ConstPtrMan(const ConstPtrMan<T>&)	= delete;
     ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&)	= delete;
 
@@ -157,7 +156,7 @@ public:
     inline			ArrPtrMan(T* = 0);
     inline			ArrPtrMan(ArrPtrMan<T>&&);
     ArrPtrMan<T>&		operator=( T* p );
-    
+
 
 #ifdef __debug__
     T&				operator[](int);
@@ -167,10 +166,10 @@ public:
 
 #endif
     void			setSize(od_int64 size) { size_=size; }
-    
+
 				ArrPtrMan(const ArrPtrMan<T>&)	= delete;
     inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>&)	= delete;
-    
+
 private:
 
     static void		deleteFunc( T* p )    { delete [] p; }
@@ -186,8 +185,8 @@ mClass(Basic) ConstArrPtrMan : public ConstPtrManBase<T>
 public:
     inline		ConstArrPtrMan(const T* = 0);
     ConstArrPtrMan<T>&	operator=(const T* p);
-    
-    ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&) 	 = delete;
+
+    ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&)	 = delete;
                         ConstArrPtrMan(const ConstArrPtrMan<T>&) = delete;
 private:
 
