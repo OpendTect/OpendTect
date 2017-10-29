@@ -30,9 +30,6 @@ mExpClass(uiBase) uiMain
 {
 public:
 			uiMain(int& argc,char** argv);
-private:
-			uiMain(mQtclass(QApplication*));
-    void		init(mQtclass(QApplication*),int& argc,char **argv);
 
 public:
 
@@ -91,6 +88,11 @@ protected:
 
 			//! necessary for uicMain coin inialisation
     virtual void	init( mQtclass(QWidget*) mainwidget )	{}
+
+private:
+			uiMain(mQtclass(QApplication*));
+    void		init(mQtclass(QApplication*),int& argc,char **argv);
+
 };
 
 
