@@ -47,7 +47,7 @@ static uiStratTreeWin* stratwin = 0;
 const uiStratTreeWin& StratTWin()
 {
     if ( !stratwin )
-	stratwin = new uiStratTreeWin( 0 );
+	stratwin = new uiStratTreeWin( uiMain::theMain().topLevel() );
 
     return *stratwin;
 }
@@ -63,11 +63,10 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , istreedisp_(false)
     , treekey_(MultiID::udf())
     , repos_(*new Strat::RepositoryAccess())
+    , uitree_(0)
 {
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,survChgCB) );
     IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,appCloseCB) );
-    if ( RT().isEmpty() )
-	setNewRT();
 
     createGroups();
     initMenuItems();
@@ -75,6 +74,9 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     createToolBar();
     setIsLocked( false );
     updateButtonSensitivity();
+
+    if ( RT().isEmpty() )
+	setNewRT();
 }
 
 
@@ -355,7 +357,7 @@ void uiStratTreeWin::defaultTree()
 bool uiStratTreeWin::save( bool saveas )
 {
     MultiID key = treekey_;
-    if ( saveas || key.isUdf() )
+    if ( saveas )
     {
 	CtxtIOObj ctio( StratTreeTranslatorGroup::ioContext() );
 	ctio.ctxt_.forread_ = false;
@@ -366,15 +368,24 @@ bool uiStratTreeWin::save( bool saveas )
 	delete ctio.ioobj_;
     }
 
-    if ( key.isUdf() )
-	return false;
-
     const Strat::LevelSet& levelset = Strat::LVLS();
-    const bool saveok = LevelSet::write( levelset, key ) &&
-			repos_.write( *uitree_->tree(), key );
+    bool saveok;
+    if ( IOObj::isKey(key) )
+    {
+	saveok = LevelSet::write( levelset, key )
+	    && repos_.write( *uitree_->tree(), key );
+	if ( saveok )
+	    treekey_ = key;
+    }
+    else
+    {
+	const Repos::Source dest = Repos::Survey;
+	saveok = levelset.store( dest );
+	Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
+    }
 
     if ( saveok )
-	treekey_ = key;
+	needsave_ = false;
 
     updateCaption();
 // TODO: message when !saveok

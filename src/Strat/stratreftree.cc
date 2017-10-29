@@ -49,10 +49,10 @@ void RefTree::initTree()
 
 RefTree::~RefTree()
 {
+    udfleaf_.toBeDeleted.disable();
     Strat::eLVLS().levelToBeRemoved.remove(
 	    mCB(this,Strat::RefTree,levelToBeRemoved) );
     deleteNotif.trigger();
-    delete &udfleaf_;
 }
 
 
