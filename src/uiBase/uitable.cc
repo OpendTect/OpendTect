@@ -273,21 +273,30 @@ void uiTableBody::paste()
     const QStringList rows = str.split( '\n' );
     const int nrrows = rows.count()-1;
     const int nrcols = rows.first().count('\t') + 1;
+    const int startrow = currentRow();
+    const int totalnrrows = nrrows + startrow;
+    const int startcol = currentColumn();
 
-    if ( rowCount() < nrrows )
-	setRowCount( nrrows );
+    if ( rowCount() < totalnrrows )
+	setRowCount( totalnrrows );
 
-    for ( int i = 0; i<nrrows; i++ )
+    for ( int i=0; i<nrrows; i++ )
     {
+	setCurrentCell( startrow+i, startcol );
+	handle_.rowInserted.trigger();
+
 	QStringList columns = rows[i].split( '\t' );
 	for ( int j=0; j<nrcols; j++ )
 	{
-	    const RowCol rc( currentRow()+i, currentColumn()+j );
+	    const RowCol rc( startrow+i, startcol+j );
 	    QTableWidgetItem* itm = getItem( rc, true );
 	    if ( itm )
 		itm->setText( columns[j] );
 	}
     }
+
+    if ( handle_.setup_.defrowlbl_ )
+	handle_.setDefaultRowLabels();
 }
 
 
@@ -356,6 +365,7 @@ QTableWidgetItem* uiTableBody::getItem( const RowCol& rc, bool createnew )
     if ( !itm && createnew )
     {
 	itm = new QTableWidgetItem;
+	NotifyStopper ns( handle_.valueChanged );
 	setItem( rc.row(), rc.col(), itm );
     }
 
@@ -1135,7 +1145,7 @@ void uiTable::setColumnLabels( const BufferStringSet& labels )
     body_->setColumnCount( labels.size() );
 
     for ( int i=0; i<labels.size(); i++ )
-        setColumnLabel( i, mToUiStringTodo(labels[i]->buf()) );
+	setColumnLabel( i, mToUiStringTodo(labels[i]->buf()) );
 }
 
 
