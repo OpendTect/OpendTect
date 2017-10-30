@@ -1144,18 +1144,18 @@ void uiVisPartServer::setViewMode( bool yn, bool notify)
 bool uiVisPartServer::isViewMode() const { return viewmode_; }
 
 
-void uiVisPartServer::setWorkMode( uiVisPartServer::WorkMode wm,
-	bool notify )
+void uiVisPartServer::setWorkMode( uiVisPartServer::WorkMode wm, bool notify )
 {
-    if ( wm==workmode_ ) return;
+    if ( wm==workmode_ )
+	return;
+
     workmode_ = wm;
-    viewmode_ = ( workmode_ == uiVisPartServer::View )
-	? true : false;
+    viewmode_ = workmode_ == uiVisPartServer::View;
     updateDraggers();
     if ( notify )
     {
 	eventmutex_.lock();
-	sendEvent(evViewModeChange());
+	sendEvent( evViewModeChange() );
     }
 }
 
@@ -1716,8 +1716,6 @@ void uiVisPartServer::removeSelection()
 	    so->removeSelections( &taskrunner );
 	}
     }
-
-    turnSelectionModeOn( false );
 }
 
 
