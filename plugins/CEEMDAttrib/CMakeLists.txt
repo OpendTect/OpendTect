@@ -11,7 +11,6 @@ SET(OD_MODULE_SOURCES
 	ceemdattribpi.cc
 	ceemdattrib.cc
 	ceemdalgo.cc
-	ceemdattribmod.h
 	ceemdtestprogram.h)
 
 SET( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} ${OD_MAIN_EXEC} )
