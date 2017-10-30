@@ -34,12 +34,13 @@ then
 fi
 
 cd $srcdir
-srcfiles=`cat $listfile | grep \\.ico -v | grep \\mod.h -v | grep \\Basic/buildinfo.h -v | grep \\odversion.h -v | grep od_helpids.h -v`
+srcfiles=`cat $listfile | grep \\.ico -v | grep \\mod.h -v | grep \\Basic/buildinfo.h -v | grep \\odversion.h -v | grep _helpids.h -v`
 for onefile in $srcfiles;
    do
       onefile="$srcdir/$onefile"
       if [ ! -e "$onefile" ];then
          echo "File not found: $onefile"
+         exit 1
       fi
 done
 files=`echo $srcfiles | xargs -P ${nrcpus} -n 200 grep -l $'\r'`
