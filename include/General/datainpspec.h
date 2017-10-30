@@ -406,7 +406,7 @@ public:
 			    T* ptval = pt_value_( idx );
 			    if ( !ptval )
 				return false;
-			    *ptval = Conv::to<T>( *ptval );
+			    *ptval = Conv::to<T>( s );
 			    return mIsUdf( *ptval );
 			}
 
