@@ -899,8 +899,13 @@ void Scene::mouseCursorCB( CallBacker* cb )
 	}
     }
 
-    mDefineStaticLocalObject( MouseCursor, pickcursor, = MouseCursor::Cross );
     bool needmousecursorcall = false;
+    mDefineStaticLocalObject( MouseCursor, drawcursor, = MouseCursor::Pencil );
+    if ( getPolySelection() &&
+	 getPolySelection()->getSelectionType()!=visBase::PolygonSelection::Off)
+	mousecursor_ = &drawcursor;
+
+    mDefineStaticLocalObject( MouseCursor, pickcursor, = MouseCursor::Cross );
 
     if ( !mousecursor_ || mousecursor_->shape_==MouseCursor::NotSet )
     {
