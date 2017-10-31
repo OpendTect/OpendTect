@@ -900,10 +900,19 @@ void Scene::mouseCursorCB( CallBacker* cb )
     }
 
     bool needmousecursorcall = false;
-    mDefineStaticLocalObject( MouseCursor, drawcursor, = MouseCursor::Pencil );
-    if ( getPolySelection() &&
-	 getPolySelection()->getSelectionType()!=visBase::PolygonSelection::Off)
-	mousecursor_ = &drawcursor;
+    mDefineStaticLocalObject( MouseCursor, polycursor, = MouseCursor::Bitmap );
+    polycursor.filename_ = "cursor_polygonselect";
+    mDefineStaticLocalObject( MouseCursor, rectcursor, = MouseCursor::Bitmap );
+    rectcursor.filename_ = "cursor_rectangleselect";
+    const visBase::PolygonSelection* sel = getPolySelection();
+    if ( sel )
+    {
+	visBase::PolygonSelection::SelectionType type = sel->getSelectionType();
+	if ( type==visBase::PolygonSelection::Polygon )
+	    mousecursor_ = &polycursor;
+	else if ( type==visBase::PolygonSelection::Rectangle )
+	    mousecursor_ = &rectcursor;
+    }
 
     mDefineStaticLocalObject( MouseCursor, pickcursor, = MouseCursor::Cross );
 
