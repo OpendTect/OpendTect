@@ -212,6 +212,7 @@ protected:
     void		copyToClipBoardCB(CallBacker*);
     void		aftPopupCB(CallBacker*);
     void		languageChangeCB(CallBacker*);
+    void		setForceFinalise(bool);
 
     uiMainWinBody*	body_;
     uiParent*		parent_;
