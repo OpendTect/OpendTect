@@ -45,6 +45,8 @@ static ODQtObjectSet<uiTreeViewItem,QTreeWidgetItem> odqtobjects_;
 class uiTreeViewBody : public uiObjBodyImpl<uiTreeView,QTreeWidget>
 {
 
+friend class uiTreeView;
+
 public:
 			uiTreeViewBody(uiTreeView& hndle,uiParent* parnt,
 				       const char* nm,int nrl);
@@ -59,15 +61,16 @@ public:
 			    setStretch( hs, ( nrTxtLines()== 1) ? 0 : 2 );
 			}
 
-    virtual int	nrTxtLines() const
-			    { return prefnrlines_ ? prefnrlines_ : 7; }
+    virtual int		nrTxtLines() const
+			{ return prefnrlines_ ? prefnrlines_ : 7; }
 
     uiTreeView&		lvhandle()	{ return lvhandle_; }
     TypeSet<int>&	fixedColWidth()	{ return fixcolwidths_; }
 
 protected:
 
-    int		prefnrlines_;
+    QPoint		mousepos_;
+    int			prefnrlines_;
 
     void		resizeEvent(QResizeEvent *);
     void		keyPressEvent(QKeyEvent*);
@@ -91,6 +94,7 @@ uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
     , messenger_( *new i_treeVwMessenger(*this,hndle) )
     , prefnrlines_( nrl )
     , lvhandle_(hndle)
+    , mousepos_(0,0)
 {
     setStretch( 1, (nrTxtLines()== 1) ? 0 : 1 );
     setHSzPol( uiObject::MedVar ) ;
@@ -209,6 +213,8 @@ void uiTreeViewBody::mouseReleaseEvent( QMouseEvent* ev )
 void uiTreeViewBody::mousePressEvent( QMouseEvent* ev )
 {
     if ( !ev ) return;
+
+    mousepos_ = ev->pos();
 
     if ( ev->button() == Qt::RightButton )
 	lvhandle_.buttonstate_ = OD::RightButton;
@@ -788,6 +794,21 @@ void uiTreeView::translateText()
 }
 
 
+static int sDClickOffset = 70; // Can't find a function to get this information
+
+bool uiTreeView::allowDoubleClick() const
+{
+// Needed to ignore double-clicks on checkboxes
+    const bool hascheckbox =
+	lastitemnotified_ && lastitemnotified_->isCheckable();
+    if ( !hascheckbox || !lvbody() )
+	return true;
+
+    return lvbody()->mousepos_.x()>sDClickOffset;
+}
+
+
+// uiTreeViewItem
 #define mTreeViewBlockCmdRec	CmdRecStopper cmdrecstopper(treeView());
 
 #define mInitVars \

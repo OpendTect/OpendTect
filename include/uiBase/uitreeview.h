@@ -158,7 +158,9 @@ protected:
     uiTreeViewItem*	lastitemnotified_;
     uiParent*		parent_;
     int			column_;
-    OD::ButtonState     buttonstate_;
+    OD::ButtonState	buttonstate_;
+    bool		allowDoubleClick() const;
+			// Checks clicked mouseposition
 
     void		cursorSelectionChanged(CallBacker*);
     void		itemChangedCB(CallBacker*);

@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include <QTreeWidget>
 
 
-//!brief Helper class for uiTreeView to relay Qt's 'activated' messages to uiAction.
+//!brief Helper class for uiTreeView to relay Qt's messages.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
@@ -167,6 +167,9 @@ void itemCollapsed( QTreeWidgetItem* item )
 
 void itemDoubleClicked( QTreeWidgetItem* item, int col )
 {
+    if ( !receiver_.allowDoubleClick() )
+	return;
+
     setNotifiedItem( item );
     setNotifiedColumn( col );
     mTrigger( doubleClicked );
