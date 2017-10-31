@@ -81,11 +81,9 @@ SeisDataPackWriter::~SeisDataPackWriter()
 void SeisDataPackWriter::getPosInfo()
 {
     const PosInfo::CubeData* pi = dp_->trcsSampling();
-    if ( pi )
-    {
-	posinfo_ = pi;
+    posinfo_ = pi;
+    if ( pi && !pi->isFullyRectAndReg() )
 	totalnr_ = posinfo_->totalSizeInside( tks_ );
-    }
 }
 
 
