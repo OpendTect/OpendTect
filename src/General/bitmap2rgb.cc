@@ -56,7 +56,7 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
     const Geom::Size2D<int> arrsz(array_.getSize(true),array_.getSize(false));
     const FlatView::DataDispPars::VD& pars = app_.ddpars_.vd_;
     ConstRefMan<ColTab::Sequence> colseq = ColTab::SeqMGR()
-			    .getAny( mFromUiStringTodo(pars.colseqname_) );
+					    .getAny( pars.colseqname_ );
     const int minfill = (int)VDA2DBitMapGenPars::cMinFill();
     const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill();
     const ColTab::Table ctab( *colseq, maxfill-minfill+1, *pars.mapper_ );

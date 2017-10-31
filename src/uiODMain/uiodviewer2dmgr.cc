@@ -603,7 +603,7 @@ void uiODViewer2DMgr::fillProbeFromExisting( Probe& probe,
 			: vwr.appearance().ddpars_.vd_.mapper_);
 	if ( !iswva )
 	    attrlayer->setSequence( *ColTab::SeqMGR().getAny(
-	    mFromUiStringTodo(vwr.appearance().ddpars_.vd_.colseqname_)) );
+				vwr.appearance().ddpars_.vd_.colseqname_) );
 	attrlayer->mapper() = mapper;
 	probe.addLayer( attrlayer );
     }

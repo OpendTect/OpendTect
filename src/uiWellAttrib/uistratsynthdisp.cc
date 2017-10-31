@@ -753,8 +753,7 @@ void uiStratSynthDisp::parsChangedCB( CallBacker* )
     if ( currentvdsynthetic_ )
     {
 	SynthFVSpecificDispPars& disppars = currentvdsynthetic_->dispPars();
-	disppars.colseqname_ =
-		mFromUiStringTodo(vwr_->appearance().ddpars_.vd_.colseqname_);
+	disppars.colseqname_ = vwr_->appearance().ddpars_.vd_.colseqname_;
 	*disppars.vdmapsetup_ = vwr_->appearance().ddpars_.vd_.mapper_->setup();
     }
 
@@ -997,8 +996,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( sd->name() );
     if ( !wva )
-	vwr_->appearance().ddpars_.vd_.colseqname_ =
-			    toUiString(sd->dispPars().colseqname_);
+	vwr_->appearance().ddpars_.vd_.colseqname_ = 
+						    sd->dispPars().colseqname_;
     else
 	vwr_->appearance().ddpars_.wva_.overlap_ = sd->dispPars().overlap_;
     ColTab::MapperSetup& mapsu =
@@ -1018,8 +1017,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
 	mapsu.setNotFixed();
 	const float cliprate = wva ? 0.0f : 0.025f;
 	mapsu.setClipRate( ColTab::ClipRatePair(cliprate,cliprate) );
-	BufferString colseqnm = mFromUiStringTodo(vwr_->appearance()
-						    .ddpars_.vd_.colseqname_);
+	BufferString colseqnm = vwr_->appearance().ddpars_.vd_.colseqname_;
 	if ( sd->dispPars().colseqname_.isEmpty() )
 	    dispsd->dispPars().colseqname_
 		= colseqnm = ColTab::Sequence::sDefaultName( !prsd );

@@ -57,7 +57,7 @@ void uiFlatViewColTabEd::mapperChgCB( CallBacker* cb )
 
 void uiFlatViewColTabEd::seqChgCB( CallBacker* cb )
 {
-    vdpars_.colseqname_ = toUiString(ctseltool_.seqName());
+    vdpars_.colseqname_ = ctseltool_.seqName();
     colTabChgd.trigger();
 }
 

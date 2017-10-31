@@ -482,7 +482,7 @@ bool uiFVVDPropTab::acceptOK()
 
     pars_.mapper_->setup().setSeqUseMode( colsequsemodesel_->mode() );
     if ( pars_.show_ )
-	pars_.colseqname_ = toUiString(colseqsel_->seqName());
+	pars_.colseqname_ = colseqsel_->seqName();
 
     return true;
 }

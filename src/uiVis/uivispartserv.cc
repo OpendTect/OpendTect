@@ -994,8 +994,7 @@ void uiVisPartServer::fillDispPars( int id, int attrib,
 	common.wva_.show_ = true;
     else
     {
-	common.vd_.colseqname_ =
-			    toUiString(getColTabSequence(id,attrib).name());
+	common.vd_.colseqname_ = getColTabSequence(id,attrib).name();
 	common.vd_.show_ = true;
     }
 }

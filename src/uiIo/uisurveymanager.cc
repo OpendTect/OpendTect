@@ -628,7 +628,7 @@ void uiSurveyManager::putToScreen()
     areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
 
     if ( si.getCoordSystem() )
-	    crsinfo.add( si.getCoordSystem()->summary() );
+	    crsinfo.add( mFromUiStringTodo(si.getCoordSystem()->summary()) );
 
     if ( si.sampling(false).hsamp_.totalNr() > 0 )
     {

@@ -741,7 +741,7 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 		newmapsu->setFixedRange( Interval<float>(0.f,60.f) );
 		psapp.ddpars_.vd_.mapper_->setup() = *newmapsu;
 		psapp.ddpars_.vd_.colseqname_
-				= toUiString(ColTab::Sequence::sDefaultName());
+				= ColTab::Sequence::sDefaultName();
 
 		*newmapsu = psapp.ddpars_.wva_.mapper_->setup();
 		newmapsu->setNoClipping();
@@ -1465,7 +1465,7 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
 				    uiStrings::sColorTable() );
     colseqsel_->seqChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
     vwr_.dispParsChanged.notify( mCB(this,uiViewer2DControl,updateColTabCB) );
-    colseqsel_->setSeqName( mFromUiStringTodo(dispPars().vd_.colseqname_) );
+    colseqsel_->setSeqName( dispPars().vd_.colseqname_ );
     colseqsel_->addObjectsToToolBar( *tb_ );
     tb_->addSeparator();
 }
@@ -1484,7 +1484,7 @@ void uiViewer2DControl::propertiesDlgCB( CallBacker* )
 void uiViewer2DControl::updateColTabCB( CallBacker* )
 {
     app_ = vwr_.appearance();
-    colseqsel_->setSeqName( mFromUiStringTodo(dispPars().vd_.colseqname_) );
+    colseqsel_->setSeqName( dispPars().vd_.colseqname_ );
 }
 
 
@@ -1522,7 +1522,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 
     app_ = vwrs_[ actvwridx ]->appearance();
     propChanged.trigger();
-    colseqsel_->setSeqName( mFromUiStringTodo(app_.ddpars_.vd_.colseqname_) );
+    colseqsel_->setSeqName( app_.ddpars_.vd_.colseqname_ );
 
     ConstRefMan<FlatDataPack> vddatapack = vwrs_[actvwridx]->getPack( false );
     ConstRefMan<FlatDataPack> wvadatapack = vwrs_[actvwridx]->getPack( true );

@@ -145,7 +145,7 @@ void FlatViewer::handleChange( unsigned int dt)
 		    channels_->setUnMappedData( 0, 0, arr, cp, 0 );
 
 		    appearance().ddpars_.vd_.colseqname_ =
-			toUiString(channel2rgba_->getSequence(0).name());
+			channel2rgba_->getSequence(0).name();
 		    channels_->turnOn( appearance().ddpars_.vd_.show_ );
 
 		    dataChanged.trigger();
