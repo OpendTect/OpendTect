@@ -106,6 +106,8 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     statusBar()->addMsgFld( tr("Current activity"), OD::Alignment::Left, 2 );
     statusBar()->addMsgFld( tr("Counted items"), OD::Alignment::Right, 2 );
     statusBar()->addMsgFld( tr("Number done"), OD::Alignment::Left, 1 );
+
+    setForceFinalise( true );
 }
 
 

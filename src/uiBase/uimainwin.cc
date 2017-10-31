@@ -163,6 +163,8 @@ public:
 
     void		activateInGUIThread(const CallBack&,bool busywait);
 
+    bool		force_finalise_;
+
 protected:
 
     virtual void	finalise()	{ finalise(false); }
@@ -242,6 +244,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, moved_(false)
 	, createtbmenu_(false)
 	, hasguisettings_(false)
+	, force_finalise_(false)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -299,7 +302,7 @@ Qt::WindowFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 
 void uiMainWinBody::doShow( bool minimized )
 {
-    if ( !finalised() )
+    if ( !finalised() || force_finalise_ )
 	finalise( true );
 
     handle_.updateCaption();
@@ -910,6 +913,8 @@ void uiMainWin::show()
 }
 
 
+
+
 void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
@@ -924,6 +929,7 @@ bool uiMainWin::isMaximized() const		{ return body_->isMaximized(); }
 bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
+void uiMainWin::setForceFinalise( bool yn )	{ body_->force_finalise_ = yn; }
 
 
 void uiMainWin::setCaption( const uiString& txt )
