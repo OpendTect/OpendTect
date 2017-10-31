@@ -121,7 +121,7 @@ void uiSeis2DLineChoose::init( OD::ChoiceMode cm )
     filtfld_->setItems( lnms_ );
     if ( isMultiChoice(cm) )
     {
-	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, "2D Lines" );
+	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, "Geometry" );
 	lbchoiceio_->readDone.notify(
 				mCB(this,uiSeis2DLineChoose,readChoiceDone) );
 	lbchoiceio_->storeRequested.notify(
@@ -194,20 +194,29 @@ void uiSeis2DLineChoose::readChoiceDone( CallBacker* )
 {
     TypeSet<Pos::GeomID> gids;
     for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
-	gids += (Pos::GeomID)toInt( lbchoiceio_->chosenKeys().get(idx).buf() );
+    {
+	const MultiID mid = lbchoiceio_->chosenKeys().get(idx).buf();
+	gids += Pos::GeomID( mid.ID(1) );
+    }
+
     setChosen( gids );
 }
 
 
 void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
 {
+    MultiID mid = IOObjContext::getStdDirData(IOObjContext::Geom)->id_;
+    mid.add( 0 );
+
     lbchoiceio_->keys().setEmpty();
     for ( int idx=0; idx<listfld_->size(); idx++ )
     {
 	const int idxof = lnms_.indexOf( listfld_->textOfItem(idx) );
 	if ( idxof < 0 )
 	    { pErrMsg("Huh"); continue; }
-	lbchoiceio_->keys().add( toString(geomids_[idxof]) );
+
+	mid.setID( 1, geomids_[idxof] );
+	lbchoiceio_->keys().add( mid.buf() );
     }
 }
 
