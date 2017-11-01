@@ -144,7 +144,7 @@ void SeisCubeCopier::doProc( CallBacker* )
 
 	const int nrcomps = trc.nrComponents();
 	const SamplingData<double> sdout =
-				   getDoubleSamplingData( trc.info().sampling );
+				getDoubleSamplingData( trc.info().sampling );
 	const Scaler* scaler = stp_->scaler();
 
 	for ( int icomp=0; icomp<nrcomps; icomp++ )
@@ -177,9 +177,8 @@ void SeisCubeCopier::doProc( CallBacker* )
 	while ( trc.nrComponents() > 1 )
 	    trc.data().delComponent( 0 );
 
-	const int cidx = veltype_==mNoVelocity ? 0 : compnr_;
 	for ( int idx=0; idx<trcsz; idx++ )
-	    trc.set( idx, tmp.get(idx,cidx), 0 );
+	    trc.set( idx, tmp.get(idx,compnr_), 0 );
     }
 }
 
