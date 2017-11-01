@@ -415,7 +415,7 @@ void uiODPickSetTreeItem::prepareForShutdown()
 bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
     const int setidx = Pick::Mgr().indexOf( set_ );
-    if ( setidx < 0 || !Pick::Mgr().isChanged(setidx) )
+    if ( set_.isReadOnly() || setidx<0 || !Pick::Mgr().isChanged(setidx) )
 	return true;
 
     uiString warnstr = tr("This pickset has changed since the last save.\n\n"
