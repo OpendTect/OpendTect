@@ -623,7 +623,8 @@ Color LocationDisplay::getColor() const
 
 bool LocationDisplay::isPicking() const
 {
-    return isSelected() && !isLocked();
+    const bool isreadonly = set_ && set_->isReadOnly();
+    return isSelected() && !isLocked() && !isreadonly;
 }
 
 

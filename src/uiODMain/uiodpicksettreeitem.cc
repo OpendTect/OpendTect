@@ -299,12 +299,13 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( !menu || menu->menuID()!=displayID() )
 	return;
 
+    const int setidx = Pick::Mgr().indexOf( set_ );
+    const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
+    const bool isreadonly = set_.isReadOnly();
     if ( istb )
     {
 	mAddMenuItem( menu, &propertymnuitem_, true, false );
-	const int setidx = Pick::Mgr().indexOf( set_ );
-	const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
-	mAddMenuItemCond( menu, &storemnuitem_, changed, false, changed );
+	mAddMenuItemCond( menu, &storemnuitem_, changed, false, !isreadonly );
 	return;
     }
 
@@ -315,14 +316,12 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_,
-					   !set_.isReadOnly(),!psd->allShown());
+		  !isreadonly, !psd->allShown());
     mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &dirmnuitem_, true, false );
 
-    const int setidx = Pick::Mgr().indexOf( set_ );
-    const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
-    mAddMenuItem( menu, &storemnuitem_, changed, false );
-    mAddMenuItem( menu, &storeasmnuitem_, true, false );
+    mAddMenuItemCond( menu, &storemnuitem_, changed, false, !isreadonly );
+    mAddMenuItemCond( menu, &storeasmnuitem_, true, false, !isreadonly );
 }
 
 
