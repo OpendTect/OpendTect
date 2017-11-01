@@ -247,15 +247,17 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
     if ( !SEGY::DirectDef::readFooter(deffnm,filepars_,fileparsoffset_) )
 	mErrLabelRet(tr("Cannot read SEGY file info for %1").arg(obj.name()));
 
-    FilePath fp = filepars_.find( getFileNameKey(0) );
+    const FilePath fp = filepars_.find( getFileNameKey(0) );
     if ( fp.isEmpty() )
 	mErrLabelRet(tr("No SEGY Files linked to %1").arg(obj.name()));
 
+    const FileSpec fs( fp.pathOnly() );
+    const BufferString absfnm = fs.absFileName();
     uiString olddirtxt( tr("Old location of SEGY files:  %1")
-			.arg(fp.pathOnly()) );
+			.arg(absfnm.buf()) );
     lbl = new uiLabel( this, olddirtxt );
 
-    dirsel_ = new uiFileInput( this, tr("New location"), fp.pathOnly() );
+    dirsel_ = new uiFileInput( this, tr("New location"), absfnm.buf() );
     dirsel_->setSelectMode( uiFileDialog::Directory );
     dirsel_->setObjType( tr("Location") );
     dirsel_->valuechanged.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
