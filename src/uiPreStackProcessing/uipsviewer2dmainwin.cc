@@ -1181,15 +1181,13 @@ void uiStoredViewer2DMainWin::displayAngle()
 			(float)angleparams_->anglerange_.start,
 			(float)angleparams_->anglerange_.stop ) );
 	    newmapsu->setSeqUseMode( ColTab::UnflippedCyclic );
-	    psapp.ddpars_.vd_.colseqname_ =
-				toUiString(ColTab::Sequence::sDefaultName());
+	    psapp.ddpars_.vd_.colseqname_ = ColTab::Sequence::sDefaultName();
 	}
 	else
 	{
 	    psapp.ddpars_.vd_.show_ = true;
 	    psapp.ddpars_.wva_.show_ = false;
-	    psapp.ddpars_.vd_.colseqname_ = uiStrings::sVolDataName(
-							    true,true,false);
+	    psapp.ddpars_.vd_.colseqname_ = "Seismics";
 	    newmapsu->setNotFixed();
 	    newmapsu->setClipRate( ColTab::ClipRatePair(0.025f,0.025f) );
 	}
@@ -1490,7 +1488,7 @@ void uiViewer2DControl::updateColTabCB( CallBacker* )
 
 void uiViewer2DControl::coltabChg( CallBacker* )
 {
-    dispPars().vd_.colseqname_ = toUiString(colseqsel_->seqName());
+    dispPars().vd_.colseqname_ = colseqsel_->seqName();
     for( int ivwr=0; ivwr<vwrs_.size(); ivwr++ )
     {
 	if ( !vwrs_[ivwr] ) continue;

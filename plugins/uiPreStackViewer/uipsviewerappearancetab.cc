@@ -270,8 +270,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	if ( fvwr==vwr_ )
 	    continue;
 
-	fvwr->appearance().ddpars_.vd_.colseqname_ =
-					toUiString(coltabsel_->seqName());
+	fvwr->appearance().ddpars_.vd_.colseqname_ = coltabsel_->seqName();
 
 	fvwr->appearance().annot_.x2_.showgridlines_ = showzgridlines;
 	fvwr->appearance().annot_.x1_.showgridlines_ = showoffsgridlines;

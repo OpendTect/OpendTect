@@ -1133,8 +1133,7 @@ void uiStratSynthDisp::setPreStackMapper()
 	newmapsu->setNotFixed();
 	newmapsu->setNoClipping();
 	vwr.appearance().ddpars_.vd_.mapper_->setup() = *newmapsu;
-	vwr.appearance().ddpars_.vd_.colseqname_
-			= toUiString(ColTab::Sequence::sDefaultName());
+	vwr.appearance().ddpars_.vd_.colseqname_ = ColTab::Sequence::sDefaultName();
 	*newmapsu = vwr.appearance().ddpars_.wva_.mapper_->setup();
 	newmapsu->setNoClipping();
 	vwr.appearance().ddpars_.wva_.mapper_->setup() = *newmapsu;
