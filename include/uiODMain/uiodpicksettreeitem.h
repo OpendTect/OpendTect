@@ -47,7 +47,7 @@ mExpClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
 public:
 			uiODPickSetTreeItem(int dispid,Pick::Set&);
 			~uiODPickSetTreeItem();
-    virtual bool	actModeWhenSelected() const	{ return true; }
+    virtual bool	actModeWhenSelected() const;
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
     OD::ObjPresentationInfo*	getObjPRInfo() const;
@@ -110,7 +110,8 @@ mExpClass(uiODMain) uiODPolygonTreeItem : public uiODDisplayTreeItem
 public:
 			uiODPolygonTreeItem(int dispid,Pick::Set&);
 			~uiODPolygonTreeItem();
-    virtual bool	actModeWhenSelected() const	{ return true; }
+
+    virtual bool	actModeWhenSelected() const;
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
     OD::ObjPresentationInfo*	getObjPRInfo() const;

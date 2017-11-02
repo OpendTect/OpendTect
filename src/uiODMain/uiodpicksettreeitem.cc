@@ -37,7 +37,7 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
-    : uiODSceneParentTreeItem( uiStrings::sPickSet())
+    : uiODSceneParentTreeItem( uiStrings::sPointSet() )
 {
 }
 
@@ -244,6 +244,10 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
 }
 
 
+bool uiODPickSetTreeItem::actModeWhenSelected() const
+{ return set_.isEmpty(); }
+
+
 OD::ObjPresentationInfo* uiODPickSetTreeItem::getObjPRInfo() const
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo();
@@ -291,6 +295,12 @@ bool uiODPickSetTreeItem::init()
 	displayid_ = psd->id();
 	if ( set_.dispSize() > 100 )
 	    set_.setDispSize( 3 );
+	if ( set_.size() > 1000 )
+	{
+	    set_.setMarkerStyle( OD::MarkerStyle3D::Point );
+	    set_.setDispSize( 2 );
+	}
+
 	psd->setSet( &set_ );
 	visserv_->addObject( psd, sceneID(), true );
 	psd->fullRedraw();
@@ -616,6 +626,10 @@ uiODPolygonTreeItem::~uiODPolygonTreeItem()
     detachAllNotifiers();
     set_.unRef();
 }
+
+
+bool uiODPolygonTreeItem::actModeWhenSelected() const
+{ return set_.isEmpty(); }
 
 
 OD::ObjPresentationInfo* uiODPolygonTreeItem::getObjPRInfo() const
