@@ -996,7 +996,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( sd->name() );
     if ( !wva )
-	vwr_->appearance().ddpars_.vd_.colseqname_ = 
+	vwr_->appearance().ddpars_.vd_.colseqname_ =
 						    sd->dispPars().colseqname_;
     else
 	vwr_->appearance().ddpars_.wva_.overlap_ = sd->dispPars().overlap_;

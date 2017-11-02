@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "dgbuistring.h"
+#include "uistring.h"
 
 
 /*!\brief Dialog in flexible wizard series. */
