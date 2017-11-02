@@ -50,6 +50,7 @@ int PointSet::size() const
 void PointSet::setPointSize( int sz )
 {
     drawstyle_->setPointSize( (float)sz );
+    requestSingleRedraw();
 }
 
 

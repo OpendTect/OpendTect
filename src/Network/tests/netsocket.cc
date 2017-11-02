@@ -156,7 +156,7 @@ int main(int argc, char** argv)
 
     TestRunner runner;
     runner.serverapp_ = "test_echoserver";
-    runner.serverarg_ = "--timeout 72000 --port 1025 --quiet";
+    runner.serverarg_ = "--timeout 600 --port 1025 --quiet";
     runner.port_ = 1025;
     runner.prefix_ = "[ No event loop ]\t";
     runner.exitonfinish_ = false;
@@ -189,8 +189,10 @@ int main(int argc, char** argv)
     runner.prefix_ = "[ With event loop ]\t";
     runner.exitonfinish_ = true;
     runner.noeventloop_ = false;
-    CallBack::addToMainThread( mCB(&runner,TestRunner,testCallBack) );
+    const CallBack cb( mCB(&runner,TestRunner,testCallBack) );
+    CallBack::addToMainThread( cb );
     const int res = app.exec();
+    CallBack::removeFromMainThread( cb.cbObj() );
 
     ExitProgram( res );
 }
