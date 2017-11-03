@@ -59,8 +59,6 @@ protected:
     uiToolButton*		histeqbut_;
 
     void			initialise(OD::Orientation);
-    void			addSetupNotifs();
-    void			removeSetupNotifs();
     void			handleMapperSetupChange();
     void			handleDistribChange();
 

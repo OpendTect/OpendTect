@@ -55,6 +55,8 @@ public:
 
     static ChangeType	cMappingChange()	{ return 2; }
 
+    void		transferSubObjNotifsTo(const Mapper&) const;
+
 protected:
 
 			~Mapper();

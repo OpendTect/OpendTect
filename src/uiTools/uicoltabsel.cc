@@ -604,32 +604,15 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 	histeqbut_->attach( rightOf, manip_ );
     }
 
-    mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeSelChgCB );
-    addSetupNotifs();
-
-    disp_->setMapper( mapper_ );
-}
-
-
-void uiColTabSelTool::removeSetupNotifs()
-{
-    mDetachCB( mapper_->setup().objectChanged(),
-				uiColTabSelTool::mapSetupChgCB );
-    mDetachCB( mapper_->setup().rangeCalculated,
-				uiColTabSelTool::mapRangeChgCB );
-    mDetachCB( mapper_->distribution().objectChanged(),
-				uiColTabSelTool::distribChgCB );
-}
-
-
-void uiColTabSelTool::addSetupNotifs()
-{
     mAttachCB( mapper_->setup().objectChanged(),
 				uiColTabSelTool::mapSetupChgCB );
     mAttachCB( mapper_->setup().rangeCalculated,
 				uiColTabSelTool::mapRangeChgCB );
     mAttachCB( mapper_->distribution().objectChanged(),
 				uiColTabSelTool::distribChgCB );
+    mAttachCB( usemodesel_->modeChange, uiColTabSelTool::modeSelChgCB );
+
+    disp_->setMapper( mapper_ );
 }
 
 
@@ -651,19 +634,17 @@ void uiColTabSelTool::orientationChanged()
 
 void uiColTabSelTool::setMapper( Mapper& mpr )
 {
-    const bool isnew = mapper_.ptr() != &mpr;
-    if ( isnew )
-    {
-	removeSetupNotifs();
-	disp_->setMapper( &mpr );
-    }
+    Mapper* oldmpr = mapper_.ptr();
+    const bool isnew = oldmpr != &mpr;
+    if ( !isnew )
+	return;
 
-    const bool ischg = replaceMonitoredRef( mapper_, mpr, this );
+    const bool datadiffers = replaceMonitoredRef( mapper_, mpr, 0 );
+    if ( oldmpr )
+	oldmpr->transferSubObjNotifsTo( mpr );
+    disp_->setMapper( &mpr );
 
-    if ( isnew )
-	addSetupNotifs();
-
-    if ( ischg )
+    if ( datadiffers )
     {
 	handleMapperSetupChange();
 	handleDistribChange();

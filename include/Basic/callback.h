@@ -163,7 +163,8 @@ public:
 		//!<\note lock lock_ before calling
     void	removeWith(StaticCallBackFunction);
 		//!<\note lock lock_ before calling
-    void	transferTo(CallBackSet& to,const CallBacker* onlyfor=0);
+    void	transferTo(CallBackSet& to,const CallBacker* onlyfor=0,
+	    				   const CallBacker* notfor=0);
 		//!<\note lock lock_ before calling, also to's lock_
 
     mutable Threads::Lock   lock_;

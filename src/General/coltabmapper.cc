@@ -295,6 +295,7 @@ void ColTab::Mapper::copyClassData( const Mapper& oth )
 {
     setup_ = oth.setup_->clone();
     distrib_ = oth.distrib_->clone();
+    setNotifs();
 }
 
 
@@ -303,6 +304,17 @@ Monitorable::ChangeType ColTab::Mapper::compareClassData(
 {
     mDeliverYesNoMonitorableCompare(
 	    *setup_ == *oth.setup_ && *distrib_ == *oth.distrib_ );
+}
+
+
+void ColTab::Mapper::transferSubObjNotifsTo( const Mapper& oth ) const
+{
+    setup().objectChanged().transferCBSTo( oth.setup().objectChanged(), 0,
+	    				   this );
+    setup().rangeCalculated.transferCBSTo( oth.setup().rangeCalculated, 0,
+	    				   this );
+    distribution().objectChanged().transferCBSTo(
+	    		oth.distribution().objectChanged(), 0, this );
 }
 
 

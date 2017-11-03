@@ -575,18 +575,23 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
 }
 
 
-void CallBackSet::transferTo( CallBackSet& to, const CallBacker* onlyfor )
+void CallBackSet::transferTo( CallBackSet& to, const CallBacker* only_for,
+			      const CallBacker* not_for )
 {
     for ( int idx=0; idx<size(); idx++ )
     {
 	const CallBack& cb = (*this)[idx];
-	if ( !onlyfor || cb.cbObj() == onlyfor )
-	{
-	    if ( !to.isPresent(cb) )
-		to += cb;
-	    removeSingle( idx );
-	    idx--;
-	}
+	const CallBacker* cbobj = cb.cbObj();
+
+	if ( only_for && cbobj != only_for )
+	    continue;
+	else if ( not_for && cbobj == not_for )
+	    continue;
+
+	if ( !to.isPresent(cb) )
+	    to += cb;
+	removeSingle( idx );
+	idx--;
     }
 }
 
@@ -699,12 +704,13 @@ bool NotifierAccess::removeWith( const CallBacker* cber, bool wait ) const
 
 
 void NotifierAccess::transferCBSTo( const NotifierAccess& oth,
-				    const CallBacker* only_for ) const
+				    const CallBacker* only_for,
+       				    const CallBacker* not_for ) const
 {
     Threads::Locker mycbslocker( cbs_.lock_ );
     Threads::Locker tocbslocker( oth.cbs_.lock_ );
     const_cast<NotifierAccess*>(this)->cbs_.transferTo(
-	    const_cast<NotifierAccess&>(oth).cbs_, only_for );
+	    const_cast<NotifierAccess&>(oth).cbs_, only_for, not_for );
 }
 
 

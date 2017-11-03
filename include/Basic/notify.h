@@ -46,7 +46,8 @@ public:
 			//!<\returns false only if wait and no lock could be got
 
     void		transferCBSTo(const NotifierAccess&,
-				      const CallBacker* only_for) const;
+				      const CallBacker* only_for,
+				      const CallBacker* not_for=0) const;
 
     CallBackSet&	cbs_;
     CallBacker*		cber_;

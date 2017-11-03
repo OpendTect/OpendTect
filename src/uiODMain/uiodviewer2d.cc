@@ -257,10 +257,13 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 	{
 	    uiFlatViewer& vwr = viewwin()->viewer(ivwr);
 	    if ( !iswiggle )
+	    {
 		vwr.appearance().ddpars_.vd_.colseqname_
 			    = attriblayer->sequence().name();
-
-	    vwr.appearance().ddpars_.wva_.mapper_ = &attriblayer->mapper();
+		vwr.appearance().ddpars_.vd_.mapper_ = &attriblayer->mapper();
+	    }
+	    else
+		vwr.appearance().ddpars_.wva_.mapper_ = &attriblayer->mapper();
 	    vwr.handleChange( FlatView::Viewer::DisplayPars );
 	}
     }

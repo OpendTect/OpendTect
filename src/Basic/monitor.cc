@@ -158,8 +158,8 @@ Monitorable::ChangeType Monitorable::changeNotificationTypeOf( CallBacker* cb )
 void Monitorable::transferNotifsTo( const Monitorable& to,
 				    const CallBacker* onlyfor ) const
 {
-    objectChanged().transferCBSTo( to.objectChanged(), onlyfor );
-    objectToBeDeleted().transferCBSTo( to.objectToBeDeleted(), onlyfor );
+    objectChanged().transferCBSTo( to.objectChanged(), onlyfor, this );
+    objectToBeDeleted().transferCBSTo( to.objectToBeDeleted(), onlyfor, this );
 }
 
 

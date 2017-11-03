@@ -113,6 +113,8 @@ void uiODVW2DVariableDensityTreeItem::setAttribProbeLayer(
     Monitorable::ChangeType ct = replaceMonitoredRef(attrlayer_,attrlayer,this);
     mAttachCBIfNotAttached( attrlayer_->objectChanged(),
 	       uiODVW2DVariableDensityTreeItem::attrLayerChangedCB );
+    mAttachCBIfNotAttached( attrlayer_->mapper().objectChanged(),
+	       uiODVW2DVariableDensityTreeItem::attrLayerChangedCB );
     if ( ct )
 	attrLayerChangedCB( 0 );
 }
@@ -125,7 +127,7 @@ void uiODVW2DVariableDensityTreeItem::initColTab()
     mAttachCB( viewer2D()->viewControl()->colTabEd()->colTabChgd,
 	       uiODVW2DVariableDensityTreeItem::colTabChgCB );
     mAttachCB( viewer2D()->viewControl()->colTabEd()->selTool().refreshReq,
-	       uiODVW2DVariableDensityTreeItem::attrLayerChangedCB );
+	       uiODVW2DVariableDensityTreeItem::colTabChgCB );
 
     if ( uitreeviewitem_->treeView() &&
 	 uitreeviewitem_->treeView()->nrSelected() > 0 )
@@ -175,6 +177,7 @@ void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
     const FlatView::DataDispPars::VD& vdpars = coltabed->displayPars();
     NotifyStopper ns( viewer2D()->viewControl()->colTabEd()->colTabChgd, this );
     attrlayer_->setSequence( *ColTab::SeqMGR().getAny(vdpars.colseqname_) );
+    attrlayer_->mapper() = *vdpars.mapper_;
 }
 
 
@@ -199,12 +202,22 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 }
 
 
-void uiODVW2DVariableDensityTreeItem::attrLayerChangedCB( CallBacker* )
+void uiODVW2DVariableDensityTreeItem::attrLayerChangedCB( CallBacker* cb )
 {
     if ( !viewer2D()->viewwin()->nrViewers() || !viewer2D()->viewControl() )
 	return;
 
-    viewer2D()->setUpView( attrlayer_->getID() );
+    mGetMonitoredChgData( cb, chgdata );
+    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    if ( chgdata.changeType() == AttribProbeLayer::cDataChange() ||
+	 chgdata.changeType() == AttribProbeLayer::cEntireObjectChange() )
+	vwr.handleChange( FlatView::Viewer::BitmapData );
+    else if ( chgdata.changeType() == AttribProbeLayer::cColSeqChange() ||
+	      chgdata.changeType() == AttribProbeLayer::cMapperChange() )
+    {
+	vwr.appearance().ddpars_.vd_.colseqname_ =attrlayer_->sequence().name();
+	vwr.handleChange( FlatView::Viewer::DisplayPars );
+    }
 }
 
 
