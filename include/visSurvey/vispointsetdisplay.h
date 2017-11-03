@@ -48,6 +48,7 @@ public:
     const DataPointSet*		getDataPack() const	{ return data_; }
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
+    const visBase::PointSet*	getPointSet() const	{ return pointset_; }
 
     const char*			errMsg() const { return errmsg_.str(); }
 
