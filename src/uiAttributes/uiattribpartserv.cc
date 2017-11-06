@@ -950,7 +950,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 
 
 DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
-	const Interval<float>& zrg, int rdlid )
+	const Interval<float>& zrg, int rdlid, const TypeSet<BinID>* subpath )
 {
     RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
     if ( !rdmline )
@@ -973,8 +973,8 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	    for ( int idx=0; idx<targetspecs_.size(); idx++ )
 		componentnames.add( targetspecs_[idx].userRef() );
 
-	    return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg,
-							   &componentnames );
+	    return RandomSeisDataPack::createDataPackFrom(
+			*sdp, rdlid, zrg, &componentnames, subpath );
 	}
     }
 
@@ -983,6 +983,16 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     rdmline->getPathBids( knots, rdmline->getSurvID(), path );
     snapToValidRandomTraces( path, targetdesc );
     BinIDValueSet bidset( 2, false );
+    if ( subpath )
+    {
+	const int subpathstopidx = path.indexOf( subpath->last() );
+	if ( subpathstopidx>=0 )
+	    path.removeRange( subpathstopidx+1, path.size()-1 );
+	const int subpathstartidx = path.indexOf( subpath->first() );
+	if ( subpathstartidx>=0 )
+	    path.removeRange( 0, subpathstartidx-1 );
+    }
+
     for ( int idx = 0; idx<path.size(); idx++ )
 	bidset.add( path[idx],zrg.start,zrg.stop );
 
@@ -992,7 +1002,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
     RandomSeisDataPack* newpack = new RandomSeisDataPack(
 				VolumeDataPack::categoryStr(true,false) );
-    newpack->setRandomLineID( rdlid );
+    newpack->setRandomLineID( rdlid, subpath );
     newpack->setZRange( output.get(0)->zRange() );
     for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
     {

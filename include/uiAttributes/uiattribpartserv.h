@@ -120,7 +120,8 @@ public:
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
 				     TypeSet<BinID>*,TypeSet<BinID>*);
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
-					    int rdlidx);
+					    int rdlidx,
+					    const TypeSet<BinID>* subpath=0 );
     static DataPack::ID createDataPackFor2D(const Attrib::Data2DHolder& input,
 					    const ZDomain::Def& zdef,
 					    const BufferStringSet& compnames=0);

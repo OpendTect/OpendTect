@@ -520,11 +520,21 @@ int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 }
 
 
-void RandomSeisDataPack::setRandomLineID( int rdlid )
+void RandomSeisDataPack::setRandomLineID( int rdlid,
+					  const TypeSet<BinID>* rdlsubpath )
 {
     ConstRefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
     if ( !rdmline )
 	return;
+
+    if ( rdlsubpath )
+    {
+	path_.setSize( rdlsubpath->size(), TrcKey::udf() );
+	for ( int idx=0; idx<rdlsubpath->size(); idx++ )
+	    path_[idx] = TrcKey( (*rdlsubpath)[idx] );
+	rdlid_ = rdlid;
+	return;
+    }
 
     TypeSet<BinID> knots, rdlpath;
     rdmline->allNodePositions( knots );
@@ -540,7 +550,8 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
 					int rdmlineid,
 					const Interval<float>& zrange,
-					const BufferStringSet* compnames )
+					const BufferStringSet* compnames,
+					const TypeSet<BinID>* subpath )
 {
     ConstRefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get(rdmlineid);
     if ( !rdmline || regsdp.isEmpty() )
@@ -565,6 +576,15 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     while ( path.size()>1 && !unitsteptks.includes(path[0]) )
 	path.removeSingle( 0 );
 
+    if ( subpath )
+    {
+	const int subpathstopidx = path.indexOf( subpath->last() );
+	if ( subpathstopidx>=0 )
+	    path.removeRange( subpathstopidx, path.size()-1 );
+	const int subpathstartidx = path.indexOf( subpath->first() );
+	if ( subpathstartidx>=0 )
+	    path.removeRange( 0, subpathstartidx );
+    }
     // Auxiliary TrcKeyZSampling to limit z-range and if no overlap at all,
     // preserve one dummy voxel for displaying the proper undefined color.
     TrcKeyZSampling auxtkzs;

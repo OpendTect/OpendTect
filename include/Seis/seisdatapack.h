@@ -120,7 +120,8 @@ public:
 				{ path_ = path; }
     const TrcKeyPath&		getPath() const		{ return path_; }
     TrcKeyPath&			getPath()		{ return path_; }
-    void			setRandomLineID(int);
+    void			setRandomLineID(int,
+						const TypeSet<BinID>* subpth=0);
     int				getRandomLineID() const	{ return rdlid_; }
 
     bool			addComponent(const char* nm,bool initvals);
@@ -128,7 +129,8 @@ public:
     static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
 						int rdmlineid,
 						const Interval<float>& zrg,
-						const BufferStringSet* nms=0);
+						const BufferStringSet* nms=0,
+						const TypeSet<BinID>* subpth=0);
 
 protected:
 
