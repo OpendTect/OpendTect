@@ -15,20 +15,23 @@
 
 #define mPrintResult(func) \
 { \
-    if ( quiet ) \
+    if ( !quiet ) \
     { \
 	od_cout() << "\nData type in test: " << valtype; \
 	od_cout() << "\n====================\n"; \
+	od_cout() << "Atomic = " << atomic.load() << " in function: "; \
     } \
-    od_cout() << "Atomic = " << atomic.load() << " in function: "; \
     od_cout() << func << " failed!\n"; \
     stopflag = true; \
     return false; \
 } \
 else \
 { \
+    if ( !quiet ) \
+    { \
 	od_cout() << "Atomic = " << atomic.load() << " in function: "; \
 	od_cout() << func << " OK\n"; \
+    } \
 }
 
 #define mRunTest( func, finalval ) \
@@ -191,7 +194,7 @@ bool testAtomicPointer()
     curthread = Threads::currentThread();
 
     mRunStandardTest(curthread == Threads::currentThread(),
-	    	     "Atomic Pointer assignment");
+		     "Atomic Pointer assignment");
 
 
     return true;
