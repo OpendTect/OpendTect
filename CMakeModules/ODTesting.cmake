@@ -120,7 +120,7 @@ macro ( OD_ADD_LINEEND_TEST )
 	list( APPEND CMD "--wdir" ${CMAKE_SOURCE_DIR} )
 	add_test( LineEndTest ${CMD} )
 
-	set( CMD "${OpendTect_DIR}/testscripts/FindNoNewlineAtEndOfFile.csh" )
+	set( CMD "${OpendTect_DIR}/testscripts/FindNoNewlineAtEndOfFile.sh" )
 	list( APPEND CMD "--listfile" "${OD_SOURCELIST_FILE}" )
 	list( APPEND CMD "--wdir" ${CMAKE_SOURCE_DIR} )
 	add_test( FileEndTest ${CMD} )
