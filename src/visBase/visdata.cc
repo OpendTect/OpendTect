@@ -54,18 +54,41 @@ bool visBase::DataObject::isTraversalEnabled( unsigned int tt ) const
 }
 
 
-uiString visBase::DataObject::name() const
+const OD::String& visBase::DataObject::name() const
 {
-    return name_;
+    mDeclStaticString( ret );
+    ret = getName();
+    return ret;
 }
 
 
-void visBase::DataObject::setName( const uiString& nm )
+BufferString visBase::DataObject::getName() const
 {
-    if ( osgnode_ )
-	osgnode_->setName( nm.getFullString() );
+    return uiname_.isEmpty() ? NamedCallBacker::getName()
+			     : BufferString(uiname_.getFullString());
+}
 
-    name_ = nm;
+
+void visBase::DataObject::setName( const char* nm )
+{
+    NamedCallBacker::setName( nm );
+    if ( osgnode_ )
+	osgnode_->setName( nm );
+}
+
+
+uiString visBase::DataObject::uiName() const
+{
+    return uiname_.isEmpty() ? toUiString( NamedCallBacker::getName() )
+			     : uiname_;
+}
+
+
+void visBase::DataObject::setUiName( const uiString& uinm )
+{
+    uiname_ = uinm;
+    if ( osgnode_ )
+	osgnode_->setName( uiname_.getFullString() );
 }
 
 
@@ -283,7 +306,7 @@ void visBase::DataObject::updateOsgNodeData()
 {
     if ( osgnode_ )
     {
-	osgnode_->setName( name_.getFullString() );
+	osgnode_->setName( name() );
 	osgnode_->setUserValue( osg_idkey, id() );
     }
 

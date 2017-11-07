@@ -341,13 +341,15 @@ uiString uiODHorizonTreeItem::createDisplayName() const
     const uiVisPartServer* cvisserv =
 	const_cast<uiODHorizonTreeItem*>(this)->visserv_;
 
-    uiString res = cvisserv->getObjectName( displayid_ );
-
-    if (  uivisemobj_ && uivisemobj_->getShift() )
+    const BufferString objnm = cvisserv->getObjectName( displayid_ );
+    uiString res;
+    if ( uivisemobj_ && uivisemobj_->getShift() )
     {
-	res.append( toUiString(" (%1)").arg(
+	res.append( toUiString("%1 (%2)").arg( objnm ).arg(
 	  toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor())));
     }
+    else
+	res = toUiString( objnm );
 
     return res;
 }

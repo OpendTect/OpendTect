@@ -115,7 +115,7 @@ public:
 */
 
 mExpClass(EarthModel) EMObject	: public RefCount::Referenced
-				, public CallBacker
+				, public NamedCallBacker // -> Monitorable
 {
 public:
 
@@ -129,11 +129,12 @@ public:
 
     virtual bool		isOK() const		{ return true; }
 
-    void			setName( const char* nm )  { objname_ = nm; }
-				/*!<The IOObj name overrules this */
-    BufferString		name() const;
-    uiString			uiName() const { return toUiString(name()); }
-    virtual void		setNewName();
+    virtual BufferString	getName() const;
+    virtual const OD::String&	name() const;
+    virtual void		setName(const char*);
+				//!< sets an initial name that is valid when the
+				//!< object is not (yet) stored.
+    virtual void		setNameToJustCreated();
 
     virtual int			nrSections() const	= 0;
     virtual SectionID		sectionID(int) const	= 0;
@@ -301,7 +302,6 @@ protected:
     virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);
     void			useDisplayPars(const IOPar&);
-    BufferString		objname_;
     ObjectID			id_;
     DBKey			storageid_;
     class EMManager&		manager_;
@@ -349,7 +349,7 @@ public: \
     static clss*		create(const char* nm); \
     static FixedString		typeStr(); \
     const char*			getTypeStr() const; \
-    void			setNewName(); \
+    void			setNameToJustCreated(); \
 protected: \
 				~clss()
 
@@ -380,7 +380,7 @@ clss* clss::create( const char* nm ) \
 \
 FixedString clss::typeStr() { return typenm; } \
 const char* clss::getTypeStr() const { return typeStr(); } \
-void clss::setNewName() \
+void clss::setNameToJustCreated() \
 {\
     static int objnr = 1; \
     BufferString nm( "<New ", typenm, " " ); \

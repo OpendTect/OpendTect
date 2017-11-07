@@ -169,7 +169,7 @@ bool ScaleBarSubItem::init()
 	visserv_->addObject( ad, sceneID(), true );
 	visserv_->setViewMode( false );
 	displayid_ = ad->id();
-	ad->setName( name_ );
+	ad->setUiName( name_ );
     }
 
     mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,

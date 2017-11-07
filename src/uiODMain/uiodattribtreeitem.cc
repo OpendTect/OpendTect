@@ -370,7 +370,7 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
     if ( as && as->id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
         dispname = uiStrings::sRightClick();
     else if ( !as )
-	dispname = visserv->getObjectName( visid );
+	dispname = toUiString( visserv->getObjectName(visid) );
     else if ( as->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
         dispname = uiString::emptyString();
 

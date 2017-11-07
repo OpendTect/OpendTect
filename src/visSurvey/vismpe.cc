@@ -1001,8 +1001,8 @@ void MPEDisplay::setSliceDimension( int sliceidx, int dim )
     if ( slices_.validIdx(sliceidx) && dim>=0 && dim<3 )
     {
 	slices_[sliceidx]->setDim( dim );
-	slices_[sliceidx]->setName( dim==cTimeSlice() ? uiStrings::sTime() :
-				    dim==cCrossLine()
+	slices_[sliceidx]->setUiName( dim==cTimeSlice() ? uiStrings::sTime() :
+				      dim==cCrossLine()
 					? uiStrings::sCrossline()
 					: uiStrings::sInline() );
     }
@@ -1124,7 +1124,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,cb);
     if ( !slice ) return;
 
-    slicename_ = mFromUiStringTodo(slice->name());
+    slicename_ = slice->name();
     sliceposition_ = slicePosition( slice );
 
     if ( isSelected() ) return;

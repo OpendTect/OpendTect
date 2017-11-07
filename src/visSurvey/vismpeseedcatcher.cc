@@ -347,7 +347,7 @@ void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp,
 	   newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
 		? *as : newas );
     info().setGeomID( seis2ddisp->getGeomID() );
-    info().setObjLineName( seis2ddisp->name().getFullString() );
+    info().setObjLineName( seis2ddisp->name() );
 
     const TrcKey tk( seis2ddisp->getGeomID(),
 		     seis2ddisp->getNearestTraceNr(

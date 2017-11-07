@@ -66,7 +66,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 	    return false;
 
 	emo->setPreferredColor( getRandomColor(false) );
-	emo->setNewName();
+	emo->setNameToJustCreated();
 	emo->setFullyLoaded( true );
 	addNewTempFaultSS2D( emo->id() );
 	applMgr()->viewer2DMgr().addNewTempFaultSS( emo->id(), -1 );
@@ -216,7 +216,7 @@ void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
 
-    if ( findChild(applMgr()->EMServer()->getName(emid).getFullString()) )
+    if ( findChild(applMgr()->EMServer()->getName(emid)) )
 	return;
 
     addChld( new uiODVw2DFaultSS2DTreeItem(emid),false,false);
@@ -280,7 +280,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     emobj->ref();
     mAttachCB( emobj->change, uiODVw2DFaultSS2DTreeItem::emobjChangeCB );
 
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = toUiString( applMgr()->EMServer()->getName(emid_) );
     uitreeviewitem_->setChecked( true );
     mAttachCB( checkStatusChange(), uiODVw2DFaultSS2DTreeItem::checkCB );
 
@@ -392,7 +392,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
 
-	name_ = applMgr()->EMServer()->getName( emid_ );
+	name_ = toUiString( applMgr()->EMServer()->getName(emid_) );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 		isRemoveItem(mnuid,false);

@@ -165,7 +165,7 @@ void Seis2DDisplay::setProbe( Probe* probe )
     const TrcKeyZSampling probepos = probe_->position();
     setTraceNrRange( probepos.hsamp_.trcRange() );
     setZRange( probepos.zsamp_ );
-    setName( toUiString(probe_->getDisplayName()) );
+    setName( probe_->getDisplayName() );
     linename_->text()->setText( toUiString(probe_->getDisplayName()) );
 
     if ( scene_ )
@@ -191,7 +191,7 @@ const char* Seis2DDisplay::getLineName() const
 {
     mDynamicCastGet(const Line2DProbe*,l2dprobe,probe_.ptr());
     if ( !l2dprobe )
-	return mFromUiStringTodo(name()).buf();
+	return name().str();
 
     return l2dprobe->getDisplayName();
 }

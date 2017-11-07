@@ -136,7 +136,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
 	wd->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
-    wd->setName( toUiString(wellname));
+	wd->setName( wellname );
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }
@@ -394,7 +394,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const bool res = applMgr()->wellServer()->storeWell(
-		    wd->getWellCoords(), mFromUiStringTodo(wd->name()), mid_ );
+			    wd->getWellCoords(), wd->name(), mid_ );
 	if ( res )
 	{
 	    wd->setChanged( false );
@@ -432,7 +432,7 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 	else if ( retval == -1 ) return false;
 	else
 	    applMgr()->wellServer()->storeWell( wd->getWellCoords(),
-					mFromUiStringTodo(wd->name()), mid_ );
+						wd->name(), mid_ );
     }
 
     return true;

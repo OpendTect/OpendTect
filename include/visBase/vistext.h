@@ -43,16 +43,16 @@ public:
 
     void			setPosition(const osg::Vec3f&);
     void			setPosition(const Coord3&,
-					    bool scenespace = false);
+					    bool scenespace=false);
     Coord3			getPosition() const;
 
-    void			setFontData(const FontData&, float pixeldens);
+    void			setFontData(const FontData&,float pixeldens);
     const FontData&		getFontData() const	{ return fontdata_; }
 
     void			updateFontSize(float pixeldensity);
 
     void			setText(const uiString&);
-    const uiString&		getText() const	{ return text_; }
+    const uiString&		getText() const		{ return text_; }
 
     void			setColor(const Color&);
     Color			getColor() const;
@@ -76,32 +76,39 @@ public:
     Coord3			getRotateToScreenElevationPlane() const;
 
 protected:
+
     const mVisTrans*		displaytrans_;
     osgGeo::Text*		osgtext_;
     uiString			text_;
 
     FontData			fontdata_;
+
 };
 
 
 mExpClass(visBase) OsgFontCreator
 {
 public:
+
     virtual			~OsgFontCreator()			{}
     static osgText::Font*	create(const FontData&);
+
 protected:
+
     static void			setCreator(OsgFontCreator*);
     virtual osgText::Font*	createFont(const FontData&)		= 0;
+
 };
 
 
 mExpClass(visBase) Text2 : public VisualObjectImpl
 {
 public:
+
     static Text2*		create()
 				mCreateDataObj(Text2);
 
-    int				nrTexts() const		{return texts_.size();}
+    int				nrTexts() const		{ return texts_.size();}
     int				addText();
     void			removeText(const Text*);
     void			removeAll();
@@ -116,12 +123,14 @@ public:
     float			getPixelDensity() const { return pixeldensity_;}
 
 protected:
+
     void			translationChangeCB(CallBacker*);
 				~Text2();
     osg::Geode*			geode_;
     ManagedObjectSet<Text>	texts_;
     float			pixeldensity_;
     const mVisTrans*		displaytransform_;
+
 };
 
 

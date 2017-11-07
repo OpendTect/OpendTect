@@ -775,10 +775,7 @@ const Coord PreStackDisplay::getBaseDirection() const
 
 const char* PreStackDisplay::lineName() const
 {
-    if ( !seis2d_ )
-	return 0;
-
-    return mFromUiStringTodo(seis2d_->name());
+    return seis2d_ ? seis2d_->name().str() : 0;
 }
 
 

@@ -12,9 +12,8 @@ ________________________________________________________________________
 -*/
 
 #include "visdataman.h"
-#include "callback.h"
-#include "refcount.h"
 #include "sets.h"
+#include "namedobj.h"
 
 namespace visBase { class EventInfo; }
 
@@ -57,7 +56,7 @@ on the inherited classes should thus be protected.
 */
 
 mExpClass(visBase) DataObject	: public RefCount::Referenced
-				, public CallBacker
+				, public NamedCallBacker
 {
 public:
 
@@ -70,8 +69,11 @@ public:
     void			setID(int nid);
     static int			getID(const osg::Node*);
 
-    uiString			name() const;
-    virtual void		setName(const uiString&);
+    virtual BufferString	getName() const;
+    virtual const OD::String&	name() const;
+    virtual void		setName(const char*);
+    uiString			uiName() const;
+    void			setUiName(const uiString&);
 
     osg::Node*			osgNode(bool skipswitch=false);
     const osg::Node*		osgNode(bool skipswitch=false) const;
@@ -167,7 +169,9 @@ public:
 				//Triggers once, when glinfo is available
 
 protected:
+
 				~DataObject();
+
     virtual osg::StateSet*	getStateSet();
     void			doAddNodeState(NodeState* ns);
 
@@ -204,8 +208,8 @@ private:
     osg::Switch*			osgoffswitch_;
     int					id_;
     bool				ison_;
-    uiString				name_;
     unsigned int			enabledmask_;
+    uiString				uiname_;
     static Threads::ThreadID		visualizationthread_;
     static osgViewer::CompositeViewer*	commonviewer_;
     static Notifier<DataObject>		glinfoavailable_;

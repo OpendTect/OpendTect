@@ -341,7 +341,7 @@ const char* uiVisDataPointSetDisplayMgr::getViewerName( int parentidx ) const
 {
     RefMan<visBase::DataObject> scene =
 	visserv_.getObject( allsceneids_[parentidx] );
-    return scene ? mFromUiStringTodo(scene->name()).str() : 0;
+    return scene ? scene->name().str() : 0;
 }
 
 

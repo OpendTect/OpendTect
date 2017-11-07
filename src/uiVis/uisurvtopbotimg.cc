@@ -34,14 +34,15 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     , istop_(istop)
     , img_(p->scene_->getTopBotImage(istop))
     , zrng_(zrng)
+    , tlfld_(0)
 {
     uiFileSel::Setup fssu( OD::ImageContent );
     fssu.checkable( true );
     fnmfld_ = new uiFileSel( this,
 		    istop_ ? tr("Top image") : tr("Bottom image"), fssu );
     fnmfld_->newSelection.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
-    mAttachCB( fnmfld_->checked, uiSurvTopBotImageGrp::onOff );
     fnmfld_->setChecked( img_ && img_->isOn() );
+    mAttachCB( fnmfld_->checked, uiSurvTopBotImageGrp::onOff );
 
 #define mAddCoordchgCB( notif ) \
      mAttachCB( notif, uiSurvTopBotImageGrp::coordChg );
@@ -114,6 +115,9 @@ void newFile( CallBacker* )
 
 void onOff( CallBacker* cb  )
 {
+    if ( !tlfld_ )
+	return;
+
     const bool ison = fnmfld_->isChecked();
 
     if ( !img_ && ison )

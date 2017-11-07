@@ -144,7 +144,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	    return false;
 
 	emo->setPreferredColor( getRandomColor(false) );
-	emo->setNewName();
+	emo->setNameToJustCreated();
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
 	applMgr()->viewer2DMgr().addNewTempFault( emo->id() );
@@ -463,7 +463,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	    return false;
 
 	emo->setPreferredColor( getRandomColor(false) );
-	emo->setNewName();
+	emo->setNameToJustCreated();
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
 	applMgr()->viewer2DMgr().addNewTempFaultSS( emo->id() );
@@ -651,7 +651,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-    const uiString emname = applMgr()->EMServer()->getName(emid_);
+	const BufferString emname = applMgr()->EMServer()->getName(emid_);
 	if ( saveas && faultsticksetdisplay_ && !emname.isEmpty() )
 	{
 	    faultsticksetdisplay_->setName( emname );

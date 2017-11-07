@@ -95,7 +95,8 @@ bool uiODVw2DHor2DParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    const EM::EMObject* emobject = EM::EMM().getObject( emids[idx] );
-	    uiAction* trackexistingmnu = new uiAction( emobject->uiName() );
+	    uiAction* trackexistingmnu = new uiAction(
+					    toUiString(emobject->getName()) );
 	    trackexistingmnu->setEnabled( cantrack );
 	    trackmenu->insertItem( trackexistingmnu, mNewIdx + idx + 1 );
 	}
@@ -358,7 +359,7 @@ bool uiODVw2DHor2DTreeItem::init()
 
     displayMiniCtab();
 
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = toUiString( applMgr()->EMServer()->getName(emid_) );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor2DTreeItem,checkCB) );
@@ -420,7 +421,7 @@ void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::NameChange:
 	{
-	    name_ = toUiString(applMgr()->EMServer()->getName( emid_ ));
+	    name_ = toUiString( applMgr()->EMServer()->getName(emid_) );
 	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	    break;
 	}
@@ -507,7 +508,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
 	const int trackerid = mps->getTrackerID( emid_ );
 	if ( trackerid>= 0 )
 	    renameVisObj();
-	name_ = toUiString(applMgr()->EMServer()->getName( emid_ ));
+	name_ = toUiString( applMgr()->EMServer()->getName(emid_) );
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 		isRemoveItem(mnuid,false);
 	if ( isRemoveItem(mnuid,true) )

@@ -67,7 +67,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	    return false;
 
 	emo->setPreferredColor( getRandomColor(false) );
-	emo->setNewName();
+	emo->setNameToJustCreated();
 	emo->setFullyLoaded( true );
 	addNewTempFault( emo->id() );
 	applMgr()->viewer2DMgr().addNewTempFault( emo->id(), -1 );
@@ -258,7 +258,7 @@ bool uiODVw2DFaultTreeItem::init()
     mAttachCB( emobj->change, uiODVw2DFaultTreeItem::emobjChangeCB );
     displayMiniCtab();
 
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = toUiString(applMgr()->EMServer()->getName(emid_) );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultTreeItem,checkCB) );
@@ -306,7 +306,7 @@ void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::NameChange:
 	{
-	    name_ = toUiString(applMgr()->EMServer()->getName( emid_ ));
+	    name_ = toUiString( applMgr()->EMServer()->getName(emid_) );
 	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	    break;
 	}
@@ -373,7 +373,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
 
-	name_ = applMgr()->EMServer()->getName( emid_ );
+	name_ = toUiString( applMgr()->EMServer()->getName(emid_) );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 		isRemoveItem(mnuid,false);

@@ -61,7 +61,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	{
 	    mDynamicCastGet(visSurvey::Scene*,thescene,
 			    visBase::DM().getObject(sceneids_[idx]))
-	    scenenms.add( thescene->name() );
+	    scenenms.add( thescene->uiName() );
 	    if ( idx>0 )
 	    {
 		const float inival =

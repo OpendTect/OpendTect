@@ -410,14 +410,12 @@ int VolumeDisplay::addSlice( int dim )
     visBase::OrthogonalSlice* slice = visBase::OrthogonalSlice::create();
     slice->ref();
     slice->setMaterial(0);
-    slice->setDim(dim);
+    slice->setDim( dim );
     mAttachCB( slice->motion, VolumeDisplay::sliceMoving );
     slices_ += slice;
-
-    slice->setName( dim==cTimeSlice() ? uiStrings::sTime() :
-		   (dim==cCrossLine()
-		    ? uiStrings::sCrossline()
-		    : uiStrings::sInline()) );
+    slice->setUiName( dim==cTimeSlice() ? uiStrings::sTime() :
+		     (dim==cCrossLine() ? uiStrings::sCrossline()
+					: uiStrings::sInline()) );
 
     addChild( slice->osgNode() );
     const TrcKeyZSampling cs = getTrcKeyZSampling( 0 );
@@ -514,7 +512,7 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tskr, bool updateisosurface )
     mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
 			 MarchingCubesSurface() );
     isosurface->setSurface( *surface, tskr );
-    isosurface->setName( toUiString("Iso surface") );
+    isosurface->setUiName( tr("Iso Surface") );
 
     isosurfaces_ += isosurface;
     IsosurfaceSetting setting;
@@ -970,9 +968,10 @@ void VolumeDisplay::getTreeObjectInfo( uiString& info ) const
 void VolumeDisplay::sliceMoving( CallBacker* cb )
 {
     mDynamicCastGet( visBase::OrthogonalSlice*, slice, cb );
-    if ( !slice ) return;
+    if ( !slice )
+	return;
 
-    slicename_ = mFromUiStringTodo(slice->name());
+    slicename_ = slice->name();
     sliceposition_ = slicePosition( slice );
 }
 
@@ -1474,20 +1473,16 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	int sliceid;
 	par.get( str, sliceid );
 	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject(sliceid);
-	if ( !dataobj ) return 0;
+	if ( !dataobj )
+	    return 0;
 	mDynamicCastGet(visBase::OrthogonalSlice*,os,dataobj.ptr())
-	if ( !os ) return -1;
+	if ( !os )
+	    return -1;
+
 	os->ref();
 	mAttachCB( os->motion, VolumeDisplay::sliceMoving );
 	slices_ += os;
 	addChild( os->osgNode() );
-	// set correct dimensions ...
-	if ( mFromUiStringTodo(os->name())==sKeyInline() )
-	    os->setDim( cInLine() );
-	else if ( mFromUiStringTodo(os->name())==sKeyCrossLine() )
-	    os->setDim( cCrossLine() );
-	else if ( mFromUiStringTodo(os->name())==sKeyTime() )
-	    os->setDim( cTimeSlice() );
     }
 
     TrcKeyZSampling cs;
@@ -1566,7 +1561,7 @@ visBase::OrthogonalSlice* VolumeDisplay::getSelectedSlice() const
 
 
 TrcKeyZSampling
-	VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
+	VolumeDisplay::sliceSampling( visBase::OrthogonalSlice* slice ) const
 {
     TrcKeyZSampling cs(false);
     if ( !slice ) return cs;

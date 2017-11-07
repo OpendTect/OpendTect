@@ -102,7 +102,7 @@ void LocationDisplay::setSet( Pick::Set* ps )
 
     if ( replaceMonitoredRef(set_,ps,this) )
     {
-	setName( toUiString(ps->name()) );
+	setName( ps->name() );
 	fullRedraw();
 	if ( !showall_ && scene_ )
 	    scene_->objectMoved( 0 );
@@ -625,9 +625,8 @@ LocationDisplay::LocID LocationDisplay::addPick( const Coord3& pos,
 
 BufferString LocationDisplay::getManipulationString() const
 {
-    BufferString str = set_->isPolygon() ? "Polygon: " : "PointSet: ";
-    str += mFromUiStringTodo(name());
-    return str;
+    return BufferString( set_->isPolygon() ? "Polygon: " : "PointSet: ",
+			 getName() );
 }
 
 

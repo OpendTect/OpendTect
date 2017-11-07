@@ -96,15 +96,34 @@ void EMObject::prepareForDelete()
 }
 
 
-BufferString EMObject::name() const
+BufferString EMObject::getName() const
 {
+    // read-locked
+
     PtrMan<IOObj> ioobj = DBM().get( dbKey() );
-    return ioobj ? BufferString(ioobj->name()) : objname_;
+    return ioobj ? BufferString( ioobj->name() ) : name_;
 }
 
 
-void EMObject::setNewName()
-{ setName("<New EM Object>"); }
+const OD::String& EMObject::name() const
+{
+    mDeclStaticString( ret );
+    ret = getName();
+    return ret;
+}
+
+
+void EMObject::setName( const char* nm )
+{
+    // write-locked
+    NamedCallBacker::setName( nm );
+}
+
+
+void EMObject::setNameToJustCreated()
+{
+    setName( "<New EM Object>" );
+}
 
 void EMObject::setDBKey( const DBKey& mid )
 { storageid_ = mid; }

@@ -247,7 +247,7 @@ const char* MarchingCubesSurface::getTypeStr() const
 { return typeStr(); }
 
 
-void MarchingCubesSurface::setNewName()
+void MarchingCubesSurface::setNameToJustCreated()
 {
     mDefineStaticLocalObject( int, objnr, = 1 );
     BufferString nm( "<New Body " );

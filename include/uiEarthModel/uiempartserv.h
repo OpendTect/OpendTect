@@ -74,7 +74,7 @@ public:
     DBKey		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const DBKey&) const;
 
-    uiString		getName(const EM::ObjectID&) const;
+    BufferString	getName(const EM::ObjectID&) const;
     uiString		getType(const EM::ObjectID&) const;
 
     int			nrAttributes(const EM::ObjectID&) const;

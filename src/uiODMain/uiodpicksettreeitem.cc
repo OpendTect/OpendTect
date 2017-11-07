@@ -282,7 +282,7 @@ void uiODPickSetTreeItem::setChgCB( CallBacker* inpcb )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
     if ( psd )
-	psd->setName( toUiString(set_.name()) );
+	psd->setName( set_.name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
@@ -645,7 +645,7 @@ void uiODPolygonTreeItem::setChgCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
     if ( psd )
-	psd->setName(toUiString( set_.name() ) );
+	psd->setName( set_.name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 

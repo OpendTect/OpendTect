@@ -20,13 +20,12 @@ class DepthTabPlaneDragger;
 class TextureRectangle;
 class TextureChannels;
 
-/*!\brief
-Slice that cuts orthogonal through a VolumeData.
-*/
+/*!\brief Slice that cuts orthogonal through a VolumeData. */
 
 mExpClass(visBase) OrthogonalSlice : public visBase::VisualObjectImpl
 {
 public:
+
     static OrthogonalSlice*	create()
 				mCreateDataObj(OrthogonalSlice);
 
@@ -40,7 +39,7 @@ public:
     void			setDim(int);
 
     void			getSliceInfo(int&,Interval<float>&) const;
-    int			getSliceNr(int dim=-1) const;	// -1 : curdim_
+    int				getSliceNr(int dim=-1) const;	// -1 : curdim_
     void			setSliceNr(int nr,int dim=-1);	// -1 : curdim_
 
     float			getPosition() const;
@@ -61,6 +60,7 @@ public:
     TextureChannels*		getTextureChannels();
 
 protected:
+
 				~OrthogonalSlice();
 
     void			draggerMovementCB(CallBacker*);
@@ -74,6 +74,7 @@ protected:
 
     static const char*		dimstr();
     static const char*		slicestr();
+
 };
 
 

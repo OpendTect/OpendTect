@@ -46,7 +46,7 @@ class Scene;
 
 mExpClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
 				     public SurveyObject
-{
+{ mODTextTranslationClass(VolumeDisplay)
 public:
 				VolumeDisplay();
 				mDefaultFactoryInstantiation(

@@ -44,6 +44,8 @@ uiFileSel::Setup::Setup( ContentType ct, const char* filenm )
     , checkable_(false)
     , contenttype_(ct)
 {
+    if ( contenttype_ == OD::ImageContent )
+	formats_.addFormat( File::Format::imageFiles() );
 }
 
 

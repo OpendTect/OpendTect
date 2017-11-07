@@ -378,7 +378,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !horizon ) return;
 
 	const uiString scenenm =
-		tr("Flattened on '%1'").arg( horizon->uiName() );
+		tr("Flattened on '%1'").arg( horizon->getName() );
 	RefMan<EM::HorizonZTransform> transform = new EM::HorizonZTransform;
 	transform->setHorizon( *horizon );
 	ODMainWin()->sceneMgr().tile();

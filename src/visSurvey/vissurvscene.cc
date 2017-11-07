@@ -1347,7 +1347,7 @@ void Scene::createTopBotImage( bool istop )
     if ( istop && !topimg_ )
     {
 	topimg_ = visBase::TopBotImage::create();
-	topimg_->setName( toUiString("TopImage") );
+	topimg_->setUiName( tr("Top Image") );
 	addUTMObject( topimg_ );
 	topimg_->turnOn( false );
     }
@@ -1355,7 +1355,7 @@ void Scene::createTopBotImage( bool istop )
     if ( !istop && !botimg_ )
     {
 	botimg_ = visBase::TopBotImage::create();
-	botimg_->setName( toUiString("BottomImage") );
+	botimg_->setUiName( tr("Bottom Image") );
 	addUTMObject( botimg_ );
 	botimg_->turnOn( false );
     }

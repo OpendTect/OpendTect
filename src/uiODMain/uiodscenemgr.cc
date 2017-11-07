@@ -210,14 +210,14 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 					       toUiString(vwridx_) );
 
     scn.mdiwin_->setTitle( title );
-    visServ().setObjectName( sceneid, title );
+    visServ().setUiObjectName( sceneid, title );
     scn.vwr3d_->display( true );
     scn.vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
 					    : FontData() );
     scn.vwr3d_->viewmodechanged.notify( mWSMCB(viewModeChg) );
     scn.vwr3d_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
     scn.mdiwin_->display( true, false, maximized );
-    actMode(0);
+    actMode( 0 );
     treeToBeAdded.trigger( sceneid );
     initTree( scn, vwridx_ );
     treeAdded.trigger( sceneid );
@@ -326,7 +326,7 @@ void uiODSceneMgr::removeSceneCB( CallBacker* cb )
 
 void uiODSceneMgr::setSceneName( int sceneid, const uiString& nm )
 {
-    visServ().setObjectName( sceneid, nm );
+    visServ().setUiObjectName( sceneid, nm );
     uiODScene* scene = getScene( sceneid );
     if ( !scene ) return;
 
@@ -339,7 +339,9 @@ void uiODSceneMgr::setSceneName( int sceneid, const uiString& nm )
 
 
 uiString uiODSceneMgr::getSceneName( int sceneid ) const
-{ return const_cast<uiODSceneMgr*>(this)->visServ().getObjectName( sceneid ); }
+{
+    return toUiString( const_cast<uiODSceneMgr*>(this)->visServ()
+			.getObjectName(sceneid) ); }
 
 const ZDomain::Info* uiODSceneMgr::zDomainInfo( int sceneid ) const
 { return const_cast<uiODSceneMgr*>(this)->visServ().zDomainInfo( sceneid ); }
@@ -393,7 +395,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	const uiString title = uiStrings::phrJoinStrings(
 		uiStrings::sScene(), toUiString(vwridx_) );
 	scn.mdiwin_->setTitle( title );
-	visServ().setObjectName( sceneid, title );
+	visServ().setUiObjectName( sceneid, title );
 
 	scn.vwr3d_->display( true );
 	scn.vwr3d_->showRotAxis( true );

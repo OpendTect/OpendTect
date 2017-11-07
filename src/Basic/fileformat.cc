@@ -46,6 +46,15 @@ const File::Format& File::Format::textFiles()
     return *textfilesfmt_;
 }
 
+static File::Format* imagefilesfmt_ = 0;
+const File::Format& File::Format::imageFiles()
+{
+    if ( !imagefilesfmt_ )
+	imagefilesfmt_ = new File::Format( tr("Image files"),
+					    "png", "jpg", "jpeg" );
+    return *imagefilesfmt_;
+}
+
 static File::Format* shlibwinfilesfmt_ = 0;
 static File::Format* shlibmacfilesfmt_ = 0;
 static File::Format* shlibothfilesfmt_ = 0;

@@ -192,7 +192,7 @@ void RandomTrackDisplay::setProbe( Probe* probe )
     rl_->ref();
     rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
 
-    setName( toUiString(rl_->name()) );
+    setName( rl_->name() );
     TypeSet<BinID> bids;
     rl_->allNodePositions( bids );
     setNodePositions( bids, true );
@@ -204,7 +204,7 @@ const char* RandomTrackDisplay::getRandomLineName() const
 {
     mDynamicCastGet( const RandomLineProbe*,rdlprobe, probe_.ptr() );
     if ( !rdlprobe )
-	return mFromUiStringTodo(name()).buf();
+	return name().str();
 
     return rdlprobe->getDisplayName();
 }
@@ -1449,9 +1449,10 @@ bool RandomTrackDisplay::usePar( const IOPar& par )
     if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
 	return false;
 
-    uiString linename;
+    BufferString linename( getName() );
     par.get( sKey::Name(), linename );
-    if ( !linename.isEmpty() ) setName( linename );
+    if ( !linename.isEmpty() )
+	setName( linename );
 
     par.getYN( sKeyLockGeometry(), lockgeometry_ );
 
@@ -1488,7 +1489,7 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
 					  Coord3& pos, BufferString& val,
 					  BufferString& info ) const
 {
-    info = mFromUiStringTodo(name());
+    info = name();
     getValueString( pos, val );
 }
 

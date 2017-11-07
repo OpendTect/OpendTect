@@ -573,21 +573,21 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 		uiMSG().error( bs );
 	    else
 	    {
-		uiString rdlname = ioobj->uiName();
+		const BufferString rdlname = ioobj->name();
 		applMgr()->visServer()->setObjectName( displayID(), rdlname );
-		rtd->getRandomLine()->setName( rdlname.getFullString() );
+		rtd->getRandomLine()->setName( rdlname );
 
 		updateColumnText( uiODSceneMgr::cNameColumn() );
 	    }
 	}
 	else if ( mnuid == saveas2dmnuitem_.id )
 	{
-	    rln->setName( mFromUiStringTodo(rtd->name()) );
+	    rln->setName( rtd->name() );
 	    applMgr()->seisServer()->storeRlnAs2DLine( *rln );
 	}
 	else if ( mnuid == create2dgridmnuitem_.id )
 	{
-	    rln->setName( mFromUiStringTodo(rtd->name()) );
+	    rln->setName( rtd->name() );
 	    uiCreate2DGrid dlg( ODMainWin(), rln );
 	    dlg.go();
 	}

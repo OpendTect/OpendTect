@@ -235,18 +235,33 @@ void uiVisPartServer::mouseCursorCB( CallBacker* cb )
 }
 
 
-void uiVisPartServer::setObjectName( int id, const uiString& nm )
+void uiVisPartServer::setUiObjectName( int id, const uiString& nm )
 {
     visBase::DataObject* obj = visBase::DM().getObject( id );
-    if ( obj ) obj->setName( nm );
+    if ( obj )
+	obj->setUiName( nm );
 }
 
 
-uiString uiVisPartServer::getObjectName( int id ) const
+void uiVisPartServer::setObjectName( int id, const char* nm )
 {
     visBase::DataObject* obj = visBase::DM().getObject( id );
-    if ( !obj ) return uiString::emptyString();
-    return obj->name();
+    if ( obj )
+	obj->setName( nm );
+}
+
+
+uiString uiVisPartServer::getUiObjectName( int id ) const
+{
+    const visBase::DataObject* obj = visBase::DM().getObject( id );
+    return obj ? obj->uiName() : uiString::emptyString();
+}
+
+
+BufferString uiVisPartServer::getObjectName( int id ) const
+{
+    const visBase::DataObject* obj = visBase::DM().getObject( id );
+    return obj ? BufferString(obj->name()) : BufferString();
 }
 
 

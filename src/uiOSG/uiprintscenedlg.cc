@@ -245,7 +245,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     {
 	uiStringSet scenenms;
 	for ( int idx=0; idx<viewers_.size(); idx++ )
-	    scenenms.add( viewers_[idx]->getScene()->name() );
+	    scenenms.add( viewers_[idx]->getScene()->uiName() );
 
 	scenefld_ = new uiLabeledComboBox( this, scenenms,
 					   tr("Make snapshot of") );

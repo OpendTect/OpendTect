@@ -215,7 +215,7 @@ bool VisualObjectImpl::usePar( const IOPar& iopar )
     const FixedString nm = iopar.find( sKey::Name() );
 
     if ( !nm.isEmpty() )
-	setName( toUiString(nm) );
+	setName( nm );
 
     return true;
 }

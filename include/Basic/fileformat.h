@@ -19,8 +19,8 @@ namespace File
 
 /*!\brief A file format description for simple selection of files.
 
-  Extensions are treated case insensitive, but if you different versions with
-  different case the exact match will be preferred.
+  Extensions are treated case insensitive, but if you add different versions
+  with different case the exact match will be preferred.
 
 */
 
@@ -44,6 +44,7 @@ public:
     static const Format& parFiles();
     static const Format& zipFiles();
     static const Format& shlibFiles();
+    static const Format& imageFiles();
 
     BufferString	getFileFilter() const;
 

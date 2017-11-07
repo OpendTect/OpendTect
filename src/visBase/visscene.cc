@@ -74,9 +74,9 @@ Scene::Scene()
     events_.nothandled.notify( mCB(this,Scene,mousePickCB) );
 
     osggroup_->addChild( events_.osgNode() );
-    
+
     addNodeState( polygonoffset_ );
-    
+
     updatequeueid_ = Threads::WorkManager::twm().addQueue(
                                 Threads::WorkManager::Manual, "Scene update" );
 
@@ -85,7 +85,7 @@ Scene::Scene()
 	if ( fixedidx_ != sortedfixedidxs_[fixedidx_] )
 	    break;
     }
-    
+
     sortedfixedidxs_.insert( fixedidx_, fixedidx_ );
 }
 
@@ -126,7 +126,7 @@ Scene::~Scene()
 
     Threads::WorkManager::twm().removeQueue( updatequeueid_, false );
 
-    if ( camera_ ) 
+    if ( camera_ )
 	camera_->unRef();
 
     removeAll();
@@ -137,8 +137,8 @@ Scene::~Scene()
 
     sortedfixedidxs_.removeSingle( sortedfixedidxs_.indexOf(fixedidx_) );
 }
-    
-    
+
+
 void Scene::runUpdateQueueCB(CallBacker *)
 {
     if ( !visualizationthread_ )
@@ -188,7 +188,7 @@ void Scene::setCameraAmbientLight( float value )
 float Scene::getCameraAmbientLight() const
 {
     if ( !camera_ ) return 1.0f;
-    const osg::Light* headlight = 
+    const osg::Light* headlight =
 	camera_->osgCamera()->getView()->getLight();
     const osg::Vec4 ambient = headlight->getAmbient();
     return ambient[0];
@@ -201,7 +201,7 @@ Light* Scene::getDirectionalLight() const
 }
 
 
-void Scene::setName( const uiString& newname )
+void Scene::setName( const char* newname )
 {
     DataObjectGroup::setName( newname );
     nameChanged.trigger();

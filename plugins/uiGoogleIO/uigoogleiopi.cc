@@ -202,7 +202,7 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
     for ( int idx=0; idx<knots.size(); idx++ )
 	crds += SI().transform( knots[idx] );
 
-    uiGoogleExportRandomLine dlg( &appl_, crds, rtd->name() );
+    uiGoogleExportRandomLine dlg( &appl_, crds, toUiString(rtd->name()) );
     dlg.go();
 }
 

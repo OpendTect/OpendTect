@@ -90,7 +90,7 @@ void uiODVw2DEMTreeItem::renameVisObj()
     applMgr()->visServer()->findObject( midintree, visobjids );
     name_ = ::toUiString( applMgr()->EMServer()->getName( emid_ ) );
     for ( int idx = 0; idx<visobjids.size(); idx++ )
-	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+	applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
     uiTreeItem::updateColumnText(uiODViewer2DMgr::cNameColumn());
     applMgr()->visServer()->triggerTreeUpdate();
 }

@@ -270,7 +270,7 @@ void WellDisplay::fillLogParams(
     lp.issinglcol_	= mGetLogDispPar( singleColor);
     lp.islogarithmic_	= mGetLogDispPar( isLogarithmic );
     lp.logwidth_	= mGetLogDispPar( logWidth );
-    lp.name_		= toUiString( mGetLogDispPar(logName) );
+    lp.name_		= mGetLogDispPar( logName );
     lp.ovlap_		= mGetLogDispPar( repeatOverlap );
     lp.range_		= mGetLogDispPar( range );
     lp.repeat_		= mGetLogDispPar( repeat );
@@ -303,7 +303,7 @@ void WellDisplay::fullRedraw()
     visBase::Well::TrackParams tp;
     fillTrackParams( tp );
     tp.toppos_ = &trackpos[0]; tp.botpos_ = &trackpos[trackpos.size()-1];
-    tp.name_ = toUiString( wd_->name() );
+    tp.name_ = wd_->name();
     updateMarkers();
 
     well_->setTrack( trackpos );
@@ -349,7 +349,7 @@ void WellDisplay::getTrackPos( TypeSet<Coord3>& trackpos )
 {
     mCheckWD( return );
     trackpos.erase();
-    setName( toUiString(wd_->name()) );
+    setName( wd_->name() );
 
     if ( wd_->track().size() < 1 )
 	return;
@@ -405,7 +405,7 @@ void WellDisplay::updateMarkers()
 	    continue;
 
 	mp.pos_ = &pos;
-	mp.name_ = toUiString(wellmarker.name());
+	mp.name_ = wellmarker.name();
 
 	if ( !mGetMarkersDispPar(singleColor) )
 	    mp.col_ = wellmarker.color();
@@ -999,7 +999,7 @@ void WellDisplay::setupPicking( bool yn )
 void WellDisplay::showKnownPositions()
 {
     mCheckWD(return);
-    setName( toUiString(wd_->name()) );
+    setName( wd_->name() );
     if ( !pseudotrack_ )
 	return;
 

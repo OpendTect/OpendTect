@@ -328,7 +328,7 @@ int uiODSceneObjTreeItem::sceneID() const
 void uiODSceneObjTreeItem::updateColumnText( int col )
 {
     if ( col==uiODSceneMgr::cNameColumn() )
-	name_ = applMgr()->visServer()->getObjectName( displayid_ );
+	name_ = toUiString(applMgr()->visServer()->getObjectName(displayid_) );
 
     uiTreeItem::updateColumnText( col );
 }

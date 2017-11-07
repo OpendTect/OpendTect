@@ -519,7 +519,7 @@ bool uiOD2DLineTreeItem::init()
 	return false;
 
     s2d->setProbe( getProbe() );
-    s2d->setName( toUiString(geom2d->getName()) );
+    s2d->setName( geom2d->getName() );
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
     const Interval<float> oldzrg = s2d->getZRange( true );

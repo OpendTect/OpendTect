@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "fileformat.h"
 #include "oddirs.h"
 #include "separstr.h"
 
@@ -95,9 +96,9 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Type typ,
     switch ( typ )
     {
 	case OD::ImageContent:
-	    filter_ = "JPEG (*.jpg *.jpeg);; PNG (*.png)"; break;
+	    filter_ = File::Format::imageFiles().getFileFilter(); break;
 	case OD::TextContent:
-	    filter_ = "Text (*.txt *.dat)"; break;
+	    filter_ = File::Format::textFiles().getFileFilter(); break;
 	case OD::HtmlContent:
 	    filter_ = "Html (*.htm *.html)"; break;
 	default: break;
@@ -156,7 +157,7 @@ int uiFileDialog::go()
 	qparent = parnt_->pbody()->managewidg();
 
     BufferString flt( filter_ );
-    if ( filter_.size() )
+    if ( !flt.isEmpty() )
     {
 	if ( addallexts_ )
 	{

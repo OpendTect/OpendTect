@@ -221,7 +221,7 @@ void uiODPSEventsTreeItem::updateDisplay()
         uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	visserv->addObject( eventdisplay_, sceneID(), false );
 	displayid_ = eventdisplay_->id();
-	eventdisplay_->setName( toUiString(eventname_) );
+	eventdisplay_->setName( eventname_ );
 	eventdisplay_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,4) );
 	eventdisplay_->setEventManager( &psem_ );
 

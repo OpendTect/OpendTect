@@ -65,7 +65,7 @@ class MPEEditor;
 class EdgeLineSetDisplay;
 
 
-mExpClass(visSurvey) EMObjectDisplay : public  visBase::VisualObjectImpl
+mExpClass(visSurvey) EMObjectDisplay : public visBase::VisualObjectImpl
 				     , public visSurvey::SurveyObject
 { mODTextTranslationClass(EMObjectDisplay)
 public:

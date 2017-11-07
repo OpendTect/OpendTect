@@ -317,9 +317,10 @@ BufferStringSet EMObjectDisplay::displayedSections() const
 
 bool EMObjectDisplay::updateFromEM( TaskRunner* tskr )
 {
-    if ( !emobject_ ) return false;
+    if ( !emobject_ )
+	return false;
 
-    setName( emobject_->uiName() );
+    setName( emobject_->name() );
 
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
@@ -535,10 +536,11 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 void EMObjectDisplay::getObjectInfo( BufferString& info ) const
 {
     info.setEmpty();
-    if ( !emobject_ ) return;
+    if ( !emobject_ )
+	return;
 
-    info = emobject_->getTypeStr(); info += ": ";
-    info += mFromUiStringTodo(name());
+    info = emobject_->getTypeStr();
+    info.add( ": " ).add( getName() );
 }
 
 
@@ -547,20 +549,22 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       BufferString& val,
 				       BufferString& info ) const
 {
-    info = ""; val = "";
-    if ( !emobject_ ) return;
+    info.setEmpty(); val.setEmpty();
+    if ( !emobject_ )
+	return;
 
-    info = emobject_->getTypeStr(); info += ": ";
-    info += mFromUiStringTodo(name());
+    info = emobject_->getTypeStr();
+    info.add( ": " ).add( getName() );
 
-    const EM::SectionID sid = getSectionID(&eventinfo.pickedobjids);
+    const EM::SectionID sid = getSectionID( &eventinfo.pickedobjids );
 
     if ( sid==-1 || emobject_->nrSections()==1 )
 	return;
 
-    BufferString sectionname = emobject_->sectionName(sid);
-    if ( sectionname.isEmpty() ) sectionname = sid;
-    info += ", Section: "; info += sectionname;
+    BufferString sectionname = emobject_->sectionName( sid );
+    if ( sectionname.isEmpty() )
+	sectionname = sid;
+    info.add( ", Section: " ).add( sectionname );
 }
 
 

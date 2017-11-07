@@ -285,7 +285,7 @@ uiString uiODDisplayTreeItem::createDisplayName() const
 {
     const uiVisPartServer* cvisserv =
 		const_cast<uiODDisplayTreeItem*>(this)->applMgr()->visServer();
-    return cvisserv->getObjectName( displayid_ );
+    return toUiString( cvisserv->getObjectName(displayid_) );
 }
 
 
@@ -302,7 +302,7 @@ void uiODDisplayTreeItem::addToToolBarCB( CallBacker* cb )
     if ( !tb || tb->menuID() != displayID() || !isSelected() )
 	return;
 
-    const bool enab = !visserv_->isLocked(displayid_) && 
+    const bool enab = !visserv_->isLocked(displayid_) &&
 	visserv_->canRemoveDisplay( displayid_ );
 
     createMenu( tb, true );
@@ -381,7 +381,7 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	!visserv_->isSoloMode();
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
-    const bool enab = !visserv_->isLocked( displayid_ ) && 
+    const bool enab = !visserv_->isLocked( displayid_ ) &&
 	visserv_->canRemoveDisplay( displayid_ );
 
     mAddMenuItem( menu, &removemnuitem_, enab, false );

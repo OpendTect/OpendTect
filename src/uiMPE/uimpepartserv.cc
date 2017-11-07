@@ -162,7 +162,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     if ( !emobj )
 	return false;
 
-    emobj->setNewName();
+    emobj->setNameToJustCreated();
     emobj->setFullyLoaded( true );
 
     const int trackerid = MPE::engine().addTracker( emobj );

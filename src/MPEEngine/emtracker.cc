@@ -51,11 +51,15 @@ EMTracker::~EMTracker()
 
 
 BufferString EMTracker::objectName() const
-{ return emobject_ ? emobject_->name() : 0; }
+{
+    return emobject_ ? emobject_->name() : OD::String::empty();
+}
 
 
 EM::ObjectID EMTracker::objectID() const
-{ return emobject_ ? emobject_->id() : -1; }
+{
+    return emobject_ ? emobject_->id() : -1;
+}
 
 
 bool EMTracker::snapPositions( const TypeSet<TrcKey>& list )
@@ -119,8 +123,11 @@ void EMTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
     }
 }
 
+
 const char* EMTracker::errMsg() const
-{ return errmsg_.str(); }
+{
+    return errmsg_;
+}
 
 
 SectionTracker* EMTracker::cloneSectionTracker()

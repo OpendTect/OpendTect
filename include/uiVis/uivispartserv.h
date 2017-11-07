@@ -85,8 +85,10 @@ public:
     void		findObject(const DBKey&, TypeSet<int>& );
     void		removeObject(visBase::DataObject*,int sceneid);
     void		removeObject(int id,int sceneid);
-    void		setObjectName(int,const uiString&);
-    uiString		getObjectName(int) const;
+    void		setObjectName(int,const char*);
+    void		setUiObjectName(int,const uiString&);
+    BufferString	getObjectName(int) const;
+    uiString		getUiObjectName(int) const;
     Pos::GeomID		getGeomID(int) const;
 
     CNotifier<uiVisPartServer,int>	objectAdded;

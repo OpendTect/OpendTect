@@ -327,7 +327,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	const DataPack::ID dpid = visserv->getDataPackID(
 					displayID(), attribNr() );
 	const DataPackMgr::ID dmid =
-	    	visserv->getDataPackMgrID( displayID() );
+		visserv->getDataPackMgrID( displayID() );
 	const int version = visserv->selectedTexture(
 					displayID(), attribNr() );
 	uiStatsDisplay::Setup su; su.countinplot( false );
@@ -375,13 +375,10 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	    new visSurvey::MarchingCubesDisplay;
 
 	uiString newname = tr( "Iso %1").arg( vd->isoValue( mcs ) );
-	mcdisplay->setName( newname );
+	mcdisplay->setUiName( newname );
 
 	if ( !mcdisplay->setVisSurface(mcs) )
-	{
-	    vd->removeChild( surfobjid );
-	    return;
-	}
+	    { vd->removeChild( surfobjid ); return; }
 
 	visserv->addObject( mcdisplay, sceneID(), true );
 	addChild(new uiODBodyDisplayTreeItem(mcdisplay->id(),true), false);
@@ -570,14 +567,11 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<visSurvey::MarchingCubesDisplay> mcdisplay =
 	    new visSurvey::MarchingCubesDisplay;
 
-	uiString newname = tr( "Iso %1").arg( vd->isoValue( isosurface ) );
-	mcdisplay->setName( newname );
+	uiString newname = tr( "Iso %1" ).arg( vd->isoValue(isosurface) );
+	mcdisplay->setUiName( newname );
 
 	if ( !mcdisplay->setVisSurface( isosurface ) )
-	{
-	    isosurface->unRef();
-	    return; //TODO error msg.
-	}
+	    { isosurface->unRef(); return; } //TODO error msg.
 
 	visserv_->addObject( mcdisplay, sceneID(), true );
 	addChild( new uiODBodyDisplayTreeItem(mcdisplay->id(),true), false );

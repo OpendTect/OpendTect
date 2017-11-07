@@ -98,7 +98,8 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    const EM::EMObject* emobject = EM::EMM().getObject( emids[idx] );
-	    uiAction* trackexistingmnu = new uiAction( emobject->uiName() );
+	    uiAction* trackexistingmnu
+			= new uiAction( toUiString(emobject->getName()) );
 	    trackexistingmnu->setEnabled( cantrack );
 	    trackmenu->insertItem( trackexistingmnu, mNewIdx + idx + 1 );
 	}
@@ -452,7 +453,7 @@ void uiODVw2DHor3DTreeItem::renameVisObj()
     TypeSet<int> visobjids;
     applMgr()->visServer()->findObject( midintree, visobjids );
     for ( int idx=0; idx<visobjids.size(); idx++ )
-	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
+	applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
     applMgr()->visServer()->triggerTreeUpdate();
 }
 
@@ -534,7 +535,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	const int trackerid = mps->getTrackerID( emid_ );
 	if ( trackerid>= 0 )
 	    renameVisObj();
-	name_ = ems->getName( emid_ );
+	name_ = toUiString( ems->getName(emid_) );
 	if ( isRemoveItem(mnuid,true) )
 	    applMgr()->viewer2DMgr().removeHorizon3D( emid_ );
 
