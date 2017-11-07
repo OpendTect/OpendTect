@@ -48,7 +48,7 @@ public:
     			uiODPickSetTreeItem(int dispid,Pick::Set&);
     virtual		~uiODPickSetTreeItem();
 
-    virtual bool	actModeWhenSelected() const	{ return true; }
+    virtual bool	actModeWhenSelected() const;
     void		showAllPicks(bool yn);
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
@@ -107,7 +107,7 @@ public:
 			uiODPolygonTreeItem(int dispid,Pick::Set&);
     virtual		~uiODPolygonTreeItem();
 
-    virtual bool	actModeWhenSelected() const	{ return true; }
+    virtual bool	actModeWhenSelected() const;
     void		showAllPicks(bool yn);
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }

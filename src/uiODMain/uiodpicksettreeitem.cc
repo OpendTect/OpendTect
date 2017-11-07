@@ -233,6 +233,10 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
 }
 
 
+bool uiODPickSetTreeItem::actModeWhenSelected() const
+{ return set_.isEmpty(); }
+
+
 void uiODPickSetTreeItem::selChangedCB( CallBacker* )
 {
     if ( !isSelected() )
@@ -274,6 +278,12 @@ bool uiODPickSetTreeItem::init()
 	displayid_ = psd->id();
 	if ( set_.disp_.pixsize_>100 )
 	    set_.disp_.pixsize_ = 3;
+	if ( set_.size() > 1000 )
+	{
+	    set_.disp_.markertype_ = MarkerStyle3D::Point;
+	    set_.disp_.pixsize_ = 2;
+	}
+
 	psd->setSet( &set_ );
 	visserv_->addObject( psd, sceneID(), true );
 	psd->fullRedraw();
@@ -595,6 +605,10 @@ uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
     Pick::Mgr().removeCBs( this );
 }
+
+
+bool uiODPolygonTreeItem::actModeWhenSelected() const
+{ return set_.isEmpty(); }
 
 
 void uiODPolygonTreeItem::setChg( CallBacker* cb )
