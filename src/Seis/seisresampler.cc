@@ -113,7 +113,13 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
     worktrc.info() = intrc.info();
     worktrc.info().sampling.start = cs.zsamp_.start;
     worktrc.info().sampling.step = cs.zsamp_.step;
-    for ( int icomp=0; icomp<worktrc.data().nrComponents(); icomp++ )
+    if ( intrc.nrComponents() != worktrc.nrComponents() )
+    {
+	worktrc.setNrComponents( intrc.nrComponents() );
+	worktrc.zero();
+    }
+
+    for ( int icomp=0; icomp<worktrc.nrComponents(); icomp++ )
     {
 	for ( int isamp=0; isamp<nrsamps; isamp++ )
 	{

@@ -384,7 +384,9 @@ int SeisSingleTraceProc::getFillTrc()
 		}
 	    }
 	}
+
 	filltrc_ = new SeisTrc( *worktrc_ );
+	filltrc_->setNrComponents( intrc_.nrComponents() );
 	filltrc_->zero();
 	filltrc_->info().nr = 0;
 	filltrc_->info().offset = 0;
