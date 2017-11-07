@@ -75,6 +75,44 @@ public:
 };
 
 
+
+/*!
+\brief Thread safe set of EMObjectCallbackData
+*/
+
+mExpClass(EarthModel) CBDataSet
+{
+public:
+void addCallBackData( EM::EMObjectCallbackData* data )
+{
+    Threads::Locker locker( lock_ );
+    emcallbackdata_ += data;
+}
+
+EM::EMObjectCallbackData* getCallBackData( int idx )
+{
+    Threads::Locker locker( lock_ );
+    return emcallbackdata_.validIdx(idx) ? emcallbackdata_[idx] : 0;
+}
+
+void clearData()
+{
+    Threads::Locker locker( lock_ );
+    deepErase( emcallbackdata_ );
+}
+
+int size() const
+{
+    return emcallbackdata_.size();
+}
+
+protected:
+    ObjectSet<EMObjectCallbackData>	emcallbackdata_;
+    Threads::Lock			lock_;
+};
+
+
+
 /*!
 \brief Iterator that iterates a number of positions (normally all) on an
 EMObject. The object is created by EMObject::createIterator, and the next()
@@ -122,8 +160,8 @@ mExpClass(EarthModel) EMObject : public CallBacker
 mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
 { prepareForDelete(); delete this; } );
 public:
-    enum NodeSourceType	        { None = (int)'0', Manual=(int)'1', 
-	Auto=(int)'2', Gridding=(int)'3' };			
+    enum NodeSourceType		{ None = (int)'0', Manual=(int)'1',
+	Auto=(int)'2', Gridding=(int)'3' };
 
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
@@ -181,13 +219,13 @@ public:
 				     NodeSourceType)const {return false;}
 
     virtual void		setNodeLocked(const TrcKey&,bool locked){};
-    virtual bool		isNodeLocked(const TrcKey&) const 
+    virtual bool		isNodeLocked(const TrcKey&) const
 					    { return false; }
     virtual bool		isNodeLocked(const PosID&)const {return false;}
 
     virtual void		lockAll() {};
     virtual void		unlockAll(){};
-    virtual const Array2D<char>* 
+    virtual const Array2D<char>*
 				getLockedNodes() const { return 0; }
     virtual void		setLockColor(const Color&);
     virtual const Color&	getLockColor() const;
