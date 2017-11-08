@@ -12,8 +12,9 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "convert.h"
 #include "math2.h"
-#include "stattype.h"
+#include "simpnumer.h"
 #include "sorting.h"
+#include "stattype.h"
 #include "typeset.h"
 
 #define mUndefReplacement 0
@@ -512,7 +513,13 @@ T computeMedian( const T* data, int sz, int pol, int* idx_of_med )
     int mididx = sz / 2;
     T* valarr = const_cast<T*>( data );
     if ( !idx_of_med )
-	quickSort( valarr, sz );
+    {
+	if ( sz<=255 || !is8BitesData(valarr,sz,100) ||
+	     !duplicate_sort(valarr,sz,256) )
+	{
+	    quickSort( valarr, sz );
+	}
+    }
     else
     {
 	mGetIdxArr( int, idxs, sz );
