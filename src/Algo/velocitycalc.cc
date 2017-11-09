@@ -253,9 +253,12 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 		break;
 	    }
 
-	    mAllocVarLenArr( float, ptr, sz );
-	    if ( !mIsVarLenArrOK(ptr) )
-		{ errmsg_ = tr("Out of memory"); break; }
+	    mDeclareAndTryAlloc( float*, ptr, float[sz] );
+	    if ( !ptr )
+	    {
+		errmsg_ = tr("Out of memory");
+		break;
+	    }
 
 	    ownvint = new ArrayValueSeries<float,float>( ptr, true, sz );
 	    if ( !ownvint || !ownvint->isOK() )
