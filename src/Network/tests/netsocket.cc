@@ -9,14 +9,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netsocket.h"
 
 #include "applicationdata.h"
-#include "oscommand.h"
-#include "odmemory.h"
-#include "statrand.h"
-#include "varlenarray.h"
 #include "limits.h"
+#include "netserver.h"
 #include "odsysmem.h"
+#include "odmemory.h"
+#include "oscommand.h"
+#include "statrand.h"
 #include "testprog.h"
 #include "thread.h"
+#include "varlenarray.h"
 
 
 
@@ -40,11 +41,11 @@ public:
 	CallBack::removeFromMainThread( this );
     }
 
-    bool	testNetSocket();
+    bool	testNetSocket(bool closeserver=false);
 
     void	testCallBack(CallBacker*)
     {
-	const bool testresult = testNetSocket();
+	const bool testresult = testNetSocket( exitonfinish_ );
 	if ( exitonfinish_ ) ApplicationData::exit( testresult ? 0 : 1 );
     }
 
@@ -57,7 +58,7 @@ public:
 };
 
 
-bool TestRunner::testNetSocket()
+bool TestRunner::testNetSocket( bool closeserver )
 {
     Network::Socket connection( !noeventloop_ );
     connection.setTimeout( 600 );
@@ -146,6 +147,9 @@ bool TestRunner::testNetSocket()
     }
 
     mRunSockTest( !readerror, "Large array integrity" );
+
+    if ( closeserver )
+	connection.write( BufferString(Network::Server::sKeyKillword()) );
 
     return true;
 }

@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "netreqconnection.h"
 #include "netreqpacket.h"
+#include "netserver.h"
 
 
 #define mLargePayload 50000000
@@ -165,7 +166,7 @@ public:
 	if ( sendkill )
 	{
 	    Network::RequestPacket killpacket;
-	    killpacket.setStringPayload("Kill");
+	    killpacket.setStringPayload( Network::Server::sKeyKillword() );
 	    killpacket.setIsNewRequest();
 
 	    mRunStandardTestWithError( conn.sendPacket( killpacket ),

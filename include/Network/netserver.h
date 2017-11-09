@@ -61,6 +61,10 @@ public:
 			//!<Useful when no event loop available
 			//!<If msec is -1, this function will not time out
 
+    static const char*	sKeyPort()		{ return "port"; }
+    static const char*	sKeyTimeout()		{ return "timeout"; }
+    static const char*	sKeyKillword()		{ return "kill"; }
+
 protected:
 
     void		notifyNewConnection();

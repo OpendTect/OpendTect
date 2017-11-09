@@ -6,11 +6,11 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "netreqconnection.h"
 
 #include "applicationdata.h"
 #include "netreqpacket.h"
 #include "manobjectset.h"
+#include "netreqconnection.h"
 #include "netserver.h"
 #include "netsocket.h"
 #include "timer.h"
@@ -26,20 +26,19 @@ namespace Network
 class RequestEchoServer : public CallBacker
 {
 public:
-    RequestEchoServer( unsigned short port, int timeout, ApplicationData& app )
+    RequestEchoServer( unsigned short port, unsigned short timeout )
 	: server_( new RequestServer(port) )
-	, app_( app )
 	, timeout_( timeout )
     {
-	mAttachCB( server_->newConnection,
-		  RequestEchoServer::newConnectionCB );
+	mAttachCB( server_->newConnection, RequestEchoServer::newConnectionCB );
 
 	Threads::sleep( 1 );
 	if ( !server_->isOK() )
 	    closeServerCB( 0 );
 
-	lastactivity_ = time( 0 );
 	mAttachCB( timer_.tick, RequestEchoServer::timerTick );
+
+	lastactivity_ = time( 0 );
 	timer_.start( 1000, false );
     }
 
@@ -47,6 +46,8 @@ public:
     ~RequestEchoServer()
     {
 	detachAllNotifiers();
+	CallBack::removeFromMainThread( this );
+	delete server_;
     }
 
 
@@ -93,7 +94,7 @@ public:
 	BufferString packetstring;
 
 	packet->getStringPayload( packetstring );
-	if ( packetstring=="Kill" )
+	if ( packetstring==Network::Server::sKeyKillword() )
 	{
 	    if ( !quiet )
 		od_cout() << "Kill requested " << od_endl;
@@ -154,8 +155,8 @@ public:
 
     void timerTick( CallBacker* )
     {
-	const time_t now = time( 0 );
-	if ( now-lastactivity_>timeout_ )
+	const time_t curtime = time( 0 );
+	if ( curtime-lastactivity_>timeout_ )
 	{
 	    if ( !quiet )
 		od_cout() << "Timeout" << od_endl;
@@ -166,12 +167,11 @@ public:
     }
 
 
+    RequestServer*			server_;
     Timer				timer_;
     time_t				lastactivity_;
     time_t				timeout_;
-    ApplicationData&			app_;
     ManagedObjectSet<RequestConnection> conns_;
-    RequestServer*			server_;
 };
 
 } //Namespace
@@ -182,19 +182,25 @@ int main(int argc, char** argv)
     mInitTestProg();
 
     //Make standard test-runs just work fine.
-    if ( !clparser.hasKey("port") )
+    if ( !clparser.hasKey(Network::Server::sKeyPort()) )
 	ExitProgram( 0 );
 
     ApplicationData app;
 
     int startport = 1025;
-    clparser.getVal( "port", startport );
+    clparser.getVal( Network::Server::sKeyPort(), startport );
 
     int timeout = 120;
-    clparser.getVal( "timeout", timeout );
+    clparser.getVal( Network::Server::sKeyTimeout(), timeout );
 
     Network::RequestEchoServer server( mCast(unsigned short,startport),
-					     timeout, app );
+				       mCast(unsigned short,timeout) );
+
+    if ( !quiet )
+    {
+	od_cout() << "Listening to port " << server.server_->server()->port()
+		  << " with a " << server.timeout_ << " second timeout\n";
+    }
 
     ExitProgram( app.exec() );
 }
