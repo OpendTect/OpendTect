@@ -72,7 +72,8 @@ int main( int argc, char** argv )
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ od_cout() << tri->errMsg() << od_endl;  ExitProgram( 1 ); }
+	{ od_cout() << tri->errMsg().getFullString() << od_endl;
+	    ExitProgram( 1 ); }
 
     od_cout() << "\n";
     const CBVSReadMgr& mgr = *tri->readMgr();

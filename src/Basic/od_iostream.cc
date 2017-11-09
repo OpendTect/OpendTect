@@ -533,12 +533,20 @@ od_istream& od_istream::get( char* str )
 
 od_ostream& od_ostream::add( const OD::String& ods )
     { return ods.str() ? add( ods.str() ) : *this; }
-od_ostream& od_ostream::add( const uiString& uistr )
-    { return uistr.isEmpty() ? *this : add( uistr.getFullString() ); }
 od_istream& od_istream::get( FixedString& fs )
     { pErrMsg("od_istream::get(FixedString&) called"); return *this; }
 od_istream& od_istream::get( void* ptr )
     { pErrMsg("od_istream::get(void*) called"); return *this; }
+
+
+    /*
+od_ostream& od_ostream::add( const uiString& uistr )
+{
+    BufferString toput;
+    uistr.encodeStorageString( toput );
+    return add( toput );
+}
+*/
 
 
 od_istream& od_istream::getC( char* str, int maxnrch )

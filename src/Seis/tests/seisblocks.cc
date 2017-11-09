@@ -126,7 +126,7 @@ static bool testReading()
     Seis::Blocks::Reader rdr( fp.fullPath() );
     if ( rdr.state().isError() )
     {
-	tstStream(true) << rdr.state() << od_endl;
+	tstStream(true) << rdr.state().getText() << od_endl;
 	return true; // don't need e-mails from CDash
     }
 
@@ -137,7 +137,7 @@ static bool testReading()
 	uirv = rdr.getNext( trc );
 	if ( uirv.isError() )
 	{
-	    tstStream(true) << uirv << od_endl;
+	    tstStream(true) << uirv.getText() << od_endl;
 	    return false;
 	}
     }

@@ -37,13 +37,14 @@ static bool testSimpleFormula()
 	{ od_cout() << "Fail:\n" << expr
 	    << " should not parse in single mode" << od_endl; return false; }
     if ( !quiet )
-	od_cout() << "OK, single mode err msg='" << tryform.errMsg() << "'\n";
+	od_cout() << "OK, single mode err msg='"
+		  << tryform.errMsg().getFullString() << "'\n";
 
     Math::Formula form( true, expr );
 
     if ( !form.isOK() )
 	{ od_cout() << "Fail:\ndata series mode errmsg="
-			<< form.errMsg() << od_endl; return false; }
+		<< form.errMsg().getFullString() << od_endl; return false; }
 
     const int nrinp = form.nrInputs();
     mTestVal(nrinp,3);
@@ -104,7 +105,8 @@ static bool testRepeatingVar()
     Math::Formula form( true, svs, expr );
 
     if ( !form.isOK() )
-	{ od_cout() << "Fail:\n" << form.errMsg() << od_endl; return false; }
+	{ od_cout() << "Fail:\n" << form.errMsg().getFullString()
+	    << od_endl; return false; }
 
     const int nrinp = form.nrInputs();
     mTestVal(nrinp,3);

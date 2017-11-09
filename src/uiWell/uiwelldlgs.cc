@@ -715,8 +715,8 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     const bool zinfeet = zinftfld_ ? zinftfld_->isChecked() : false;
     const BufferString depthunit = getDistUnitString( zinfeet, true );
 
-    strm << trackcollbls[0] << SI().xyUnitString() << od_tab;
-    strm << trackcollbls[1] << SI().xyUnitString() << od_tab;
+    strm << trackcollbls[0] << SI().xyUnitString().getFullString() << od_tab;
+    strm << trackcollbls[1] << SI().xyUnitString().getFullString() << od_tab;
     strm << trackcollbls[2] << depthunit << od_tab;
     strm << "TVD" << depthunit << od_tab;
     strm << trackcollbls[3] << depthunit << od_newline;

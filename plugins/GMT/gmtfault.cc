@@ -75,7 +75,10 @@ bool GMTFault::fillLegendPar( IOPar& par ) const
     return true;
 }
 
-#define mErrRet(s) { deepUnRef( flts_ ); strm << s << od_endl; return false; }
+
+#define mErrRet(s) \
+{ deepUnRef( flts_ ); strm << mFromUiStringTodo(s) << od_endl; return false; }
+
 bool GMTFault::execute( od_ostream& strm, const char* fnm )
 {
     BufferString comm = "@psxy ";
@@ -154,7 +157,7 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 	    {
 		uiString msg = tr("Selected ZSlice and %1 are not intersected")
                              .arg(fault3d->name());
-		strm << '\t' << msg << '\n';
+		strm << '\t' << mFromUiStringTodo(msg) << '\n';
 		continue;
 	    }
 
@@ -182,7 +185,7 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 	    {
 		uiString msg = tr("Selected Horizon and %1 are"
                                   " not intersected").arg(fault3d->name());
-		strm << '\t' << msg << '\n';
+		strm << '\t' << mFromUiStringTodo(msg) << '\n';
 		continue;
 	    }
 

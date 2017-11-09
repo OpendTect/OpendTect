@@ -37,6 +37,9 @@ private: \
 #define mODTextTranslationClass(clss) \
 mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 
+//! Stored uiString's have a preamble, a size, a ':' and then data in Hex chars
+#define mStoreduiStringPreamble		"^&"
+
 
 /*!
    String that is able to hold wide character strings for the user interface.
@@ -105,7 +108,7 @@ public:
     bool	operator<(const uiString& b) const;
     int		size() const;
     static const uiString& emptyString()	{ return emptystring_; }
-
+    bool	isPlainAscii() const;
 
 	/*! uiStrings should only be manipulated using the arg() functions.
 	    These replace the next %N (e.g. %1) with the provided argument. */
@@ -143,12 +146,6 @@ public:
     const BufferString&		fillUTF8String(BufferString&) const;
 				/*!< Full string, with translation
 				    result. Returns input. */
-
-    void			getHexEncoded(BufferString&) const;
-				/*!<Encodes translated string into a const char*
-				    buffer that can has only 0-9 A-F */
-    bool			setFromHexEncoded(const char*);
-				//!Reads hex-data and sets the translated str.
 private:
 
     inline			operator bool() const	{ return !isEmpty(); }
@@ -174,6 +171,16 @@ public:
 
     bool	isEqualTo(const uiString& oth) const;
 		//!< use only if unavoidable
+
+    void	encodeStorageString(BufferString&) const;
+    int		useEncodedStorageString(const char*);
+		//!< returns -1 for fail, >= 0 the number of chars used
+
+    void	getHexEncoded(BufferString&) const;
+		    /*!<Encodes translated string into a const char*
+				    buffer that can has only 0-9 A-F */
+    bool	setFromHexEncoded(const char*);
+		    //!Reads hex-data and sets the translated str.
 
     static const char*	sODLocalizationApplication() { return "od"; }
 

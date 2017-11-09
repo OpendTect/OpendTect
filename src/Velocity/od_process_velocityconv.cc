@@ -65,7 +65,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !conv.execute() )
     {
 	if ( !conv.errMsg().isEmpty() )
-	    strm << conv.errMsg();
+	    strm << mFromUiStringTodo( conv.errMsg() ) << od_endl;
 
 	return false;
     }
@@ -76,7 +76,7 @@ bool BatchProgram::go( od_ostream& strm )
 	veldesc.removePars( outputioobj->pars() );
 
     if ( !DBM().setEntry(*outputioobj) )
-	mErrRet( uiStrings::phrCannotWrite(tr("velocity information") ) )
+	mErrRet( "Cannot write velocity information" )
 
     return true;
 }

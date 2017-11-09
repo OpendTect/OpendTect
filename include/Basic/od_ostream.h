@@ -17,7 +17,6 @@ class DBKey;
 class SeparString;
 class CompoundKey;
 class FixedString;
-class uiString;
 
 
 /*!\brief OD class for stream write */
@@ -67,7 +66,6 @@ public:
     od_ostream&		addPrecise(double);
 
     od_ostream&		add(const OD::String&);
-    od_ostream&		add(const uiString&);
     od_ostream&		add(const IOPar&);
     od_ostream&		add(const SeparString&);
     od_ostream&		add(const CompoundKey&);

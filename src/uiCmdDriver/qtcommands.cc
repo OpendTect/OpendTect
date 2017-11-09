@@ -140,8 +140,7 @@ bool ColorOkCmd::act( const char* parstr )
 	}
     }
 
-    mParChannel( uiStrings::sTransparency(), parnexxxt, partail,
-		 transparency, true );
+    mParChannel( "Transparency", parnexxxt, partail, transparency, true );
     col.setTransparency( transparency );
     mParTail( partail );
 

@@ -968,15 +968,14 @@ bool IOPar::get( const char* keyw, SeparString& ss ) const
 
 bool IOPar::get( const char* keyw, uiString& uis ) const
 {
-    BufferString hex;
-    uiString res;
-    if ( !get( keyw, hex ) || !res.setFromHexEncoded( hex.buf() ) )
+    BufferString valstr;
+    if ( !get( keyw, valstr ) )
 	return false;
 
-    if ( hex.size() && res.isEmpty() )
-	return false;
+    if ( valstr.startsWith(mStoreduiStringPreamble) )
+	return uis.useEncodedStorageString( valstr.buf() ) >= 0;
 
-    uis = res;
+    uis = toUiString( valstr );
     return true;
 }
 
@@ -1028,9 +1027,14 @@ void IOPar::set( const char* keyw, const SeparString& ss )
 
 void IOPar::set( const char* keyw, const uiString& uis )
 {
-    BufferString buf;
-    uis.getHexEncoded( buf );
-    set( keyw, buf );
+    if ( uis.isPlainAscii() )
+	set( keyw, uis.getFullString() );
+    else
+    {
+	BufferString buf;
+	uis.encodeStorageString( buf );
+	set( keyw, buf );
+    }
 }
 
 

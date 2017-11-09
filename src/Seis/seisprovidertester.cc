@@ -50,7 +50,7 @@ if ( !uirv.isOK() ) \
    if ( isFinished(uirv) ) \
        od_cout() << ">At End<"; \
    else \
-       od_cout() << uirv; \
+       od_cout() << uirv.getText(); \
    \
    return isFinished( uirv ); \
 }
@@ -84,7 +84,7 @@ uiRetVal Seis::ProviderTester::setInput( const char* dbky )
     uiRetVal uirv;
     prov_ = Seis::Provider::create( dbky_, &uirv );
     if ( !prov_ )
-	od_cout() << uirv << od_endl;
+	od_cout() << uirv.getText() << od_endl;
 
     return uirv;
 }

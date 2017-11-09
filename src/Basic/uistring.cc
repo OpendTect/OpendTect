@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistring.h"
+#include "usernamestring.h"
 
 #include "bufstring.h"
 #include "envvars.h"
@@ -27,6 +27,7 @@ ________________________________________________________________________
 # include <QStringList>
 # include <QTranslator>
 # include <QLocale>
+# include <QRegularExpression>
 #endif
 
 #define mForceUpdate (-1)
@@ -583,6 +584,60 @@ bool uiString::isEqualTo( const uiString& oth ) const
 }
 
 
+bool uiString::isPlainAscii() const
+{
+#ifdef OD_NO_QT
+    return true;
+#else
+    const QString qstr = getQString();
+    return !qstr.contains( QRegularExpression(
+		QStringLiteral( "[^\\x{0000}-\\x{007F}]") ) );
+#endif
+}
+
+
+void uiString::encodeStorageString( BufferString& ret ) const
+{
+    BufferString hexenc; getHexEncoded( hexenc );
+    const int sz = hexenc.size();
+    ret.set( mStoreduiStringPreamble ).add( sz ).add( ':' ).add( hexenc );
+}
+
+
+int uiString::useEncodedStorageString( const char* inpstr )
+{
+    BufferString bufstr( inpstr );
+    int len = bufstr.size();
+    char* str = bufstr.getCStr();
+    const char* preamb = mStoreduiStringPreamble;
+    if ( len < 4 || *str != *preamb || *(str+1) != *(preamb+1) )
+	return -1;
+
+    char* ptrhex = firstOcc( str+2, ':' );
+    if ( !ptrhex )
+	return -1;
+    else
+	*ptrhex++ = '\0';
+
+    len = toInt( str+2 );
+    if ( len < 1 )
+	{ setEmpty(); return ptrhex-str; }
+
+    BufferString hexstr( len+1, true );
+    char* hexstrptr = hexstr.getCStr();
+    for ( int idx=0; idx<len; idx++ )
+    {
+	if ( !*ptrhex )
+	    return -1;
+
+	*hexstrptr = *ptrhex;
+	hexstrptr++; ptrhex++;
+    }
+
+    return setFromHexEncoded( hexstr ) ? ptrhex-str : -1;
+}
+
+
 uiString& uiString::arg( const uiString& newarg )
 {
     Threads::Locker datalocker( datalock_ );
@@ -1081,6 +1136,19 @@ uiStringSet::IdxType* uiStringSet::getSortIndexes( bool caseinsens,
     return idxs;
 }
 
+
+static const UserNameString emptyusrnmstring( uiString::emptyString() );
+const UserNameString& UserNameString::empty() { return emptyusrnmstring; }
+
+UserNameString& UserNameString::join( const uiString& s, bool before )
+{
+    uiString res = toUiString( "%1 %2" );
+    if ( before )
+	res.arg( s ).arg( impl_ );
+    else
+	res.arg( impl_ ).arg( s );
+    return *this = res;
+}
 
 
 const uiRetVal uiRetVal::ok_;

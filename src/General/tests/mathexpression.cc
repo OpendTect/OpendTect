@@ -19,7 +19,7 @@ static void parsePassedExpr( const char* inp )
     Math::ExpressionParser mep( inp );
     Math::Expression* me = mep.parse();
     if ( !me )
-	od_cout() << "Fail:\n" << mep.errMsg() << od_endl;
+	od_cout() << "Fail:\n" << mep.errMsg().getFullString() << od_endl;
     else
     {
 	BufferString str; me->dump( str );

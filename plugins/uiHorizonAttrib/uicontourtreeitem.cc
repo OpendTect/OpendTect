@@ -1073,7 +1073,7 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
         const ZDomain::Info& zinfo = scene->zDomainInfo();
 
 	stream << zinfo.getLabel().getFullString()
-               << od_tab << areaString() << od_newline;
+               << od_tab << areaString().getFullString() << od_newline;
 
         TypeSet<float> zvals, areas;
         getZVSAreaValues( zvals, areas );
