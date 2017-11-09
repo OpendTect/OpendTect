@@ -14,6 +14,7 @@
 
 #include "netreqconnection.h"
 #include "netreqpacket.h"
+#include "netserver.h"
 
 
 #define mLargePayload 50000000
@@ -103,9 +104,9 @@ public:
 			 packetString( prefix_, "Received content", packet ) );
 
 	mRunStandardTestWithError(
-		  receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
-		  packetString( prefix_, "Receiving", packet2 ),
-		  conn.errMsg().getFullString() );
+		 receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
+		 packetString( prefix_, "Receiving", packet2 ),
+		 conn.errMsg().getFullString() );
 
 	BufferString receivedmessage2;
 	receivedpacket->getStringPayload( receivedmessage2 );
@@ -141,7 +142,8 @@ public:
 	      BufferString( prefix_, "Connection 2 is OK"),
 	      conn.errMsg().getFullString() );
 
-	    RefMan<Network::RequestPacket> disconnectpacket = new Network::RequestPacket;
+	    RefMan<Network::RequestPacket> disconnectpacket =
+						new Network::RequestPacket;
 	    disconnectpacket->setIsNewRequest();
 	    disconnectpacket->setStringPayload( "Disconnect" );
 
@@ -163,8 +165,9 @@ public:
 
 	if ( sendkill )
 	{
-	    RefMan<Network::RequestPacket> killpacket = new Network::RequestPacket;
-	    killpacket->setStringPayload("Kill");
+	    RefMan<Network::RequestPacket> killpacket =
+						new Network::RequestPacket;
+	    killpacket->setStringPayload( Network::Server::sKeyKillword() );
 	    killpacket->setIsNewRequest();
 
 	    mRunStandardTestWithError( conn.sendPacket( *killpacket ),
@@ -279,7 +282,7 @@ int testMain(int argc, char** argv)
     if ( !runner->runTest(false,false) )
 	return 1;
 
-    CallBack::addToMainThread( mCB( runner,Tester, runEventLoopTest) );
+    CallBack::addToMainThread( mCB(runner,Tester,runEventLoopTest) );
     const int retval = app.exec();
 
     runner = 0;

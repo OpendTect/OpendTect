@@ -8,14 +8,15 @@
 #include "netsocket.h"
 
 #include "applicationdata.h"
-#include "oscommand.h"
-#include "odmemory.h"
-#include "statrand.h"
-#include "varlenarray.h"
 #include "limits.h"
+#include "netserver.h"
 #include "odsysmem.h"
+#include "odmemory.h"
+#include "oscommand.h"
+#include "statrand.h"
 #include "testprog.h"
 #include "thread.h"
+#include "varlenarray.h"
 
 
 
@@ -33,11 +34,17 @@ ArrPtrMan<double> doublewritearr, doublereadarr;
 class TestRunner : public CallBacker
 {
 public:
-    bool	testNetSocket();
+    ~TestRunner()
+    {
+	detachAllNotifiers();
+	CallBack::removeFromThreadCalls( this );
+    }
+
+    bool	testNetSocket(bool closeserver=false);
 
     void	testCallBack(CallBacker*)
     {
-	const bool testresult = testNetSocket();
+	const bool testresult = testNetSocket( exitonfinish_ );
 	if ( exitonfinish_ ) ApplicationData::exit( testresult ? 0 : 1 );
     }
 
@@ -50,14 +57,14 @@ public:
 };
 
 
-bool TestRunner::testNetSocket()
+bool TestRunner::testNetSocket( bool closeserver )
 {
     Network::Socket connection( !noeventloop_ );
-    connection.setTimeout( 10000 );
+    connection.setTimeout( 600 );
 
-    if ( !connection.connectToHost( "localhost", port_, true ) )
+    if ( !connection.connectToHost("localhost",port_,true) )
     {
-	if ( !ExecODProgram( serverapp_, serverarg_ ) )
+	if ( !ExecODProgram(serverapp_,serverarg_) )
 	{
 	    od_ostream::logStream() << "Cannot start " << serverapp_;
 	    return false;
@@ -140,6 +147,9 @@ bool TestRunner::testNetSocket()
 
     mRunSockTest( !readerror, "Large array integrity" );
 
+    if ( closeserver )
+	connection.write( BufferString(Network::Server::sKeyKillword()) );
+
     return true;
 }
 
@@ -153,23 +163,24 @@ int testMain(int argc, char** argv)
     mInitTestProg();
     ApplicationData app;
 
-    TestRunner runner;
-    runner.serverapp_ = "test_echoserver";
-    runner.serverarg_ = "--timeout 72000 --port 1025 --quiet";
-    runner.port_ = 1025;
-    runner.prefix_ = "[ No event loop ]\t";
-    runner.exitonfinish_ = false;
-    runner.noeventloop_ = true;
+    PtrMan<TestRunner> runner = new TestRunner;
+    runner->serverapp_ = "test_echoserver";
+    runner->serverarg_ = "--timeout 600 --port 1025 --quiet";
+    runner->port_ = 1025;
+    runner->prefix_ = "[ No event loop ]\t";
+    runner->exitonfinish_ = false;
+    runner->noeventloop_ = true;
 
-    clparser.getVal( "serverapp", runner.serverapp_, true );
-    clparser.getVal( "serverarg", runner.serverarg_, true );
-    clparser.getVal( "port", runner.port_, true );
+    clparser.getVal( "serverapp", runner->serverapp_, true );
+    clparser.getVal( "serverarg", runner->serverarg_, true );
+    clparser.getVal( "port", runner->port_, true );
 
     od_int64 totalmem, freemem;
     OD::getSystemMemory( totalmem, freemem );
 
     nrdoubles = freemem/sizeof(double);
     nrdoubles /= 4;
+    nrdoubles /= 2; //Leave mem for OS and others
     nrdoubles = mMIN(nrdoubles,200000000); //1.6GB
     nrdoubles = mMAX(nrdoubles,2000); //Gotta send something
 
@@ -180,18 +191,18 @@ int testMain(int argc, char** argv)
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 
-    if ( !runner.testNetSocket() )
+    if ( !runner->testNetSocket() )
 	return 1;
 
     //Now with a running event loop
 
-    runner.prefix_ = "[ With event loop ]\t";
-    runner.exitonfinish_ = true;
-    runner.noeventloop_ = false;
-    const CallBack cb( mCB(&runner,TestRunner,testCallBack) );
-    CallBack::addToMainThread( cb );
+    runner->prefix_ = "[ With event loop ]\t";
+    runner->exitonfinish_ = true;
+    runner->noeventloop_ = false;
+    CallBack::addToMainThread( mCB(runner,TestRunner,testCallBack) );
     const int res = app.exec();
-    CallBack::removeFromThreadCalls( cb.cbObj() );
+
+    runner = 0;
 
     return res;
 }

@@ -5,14 +5,14 @@
 -*/
 
 
-#include "odnetworkaccess.h"
 #include "testprog.h"
 
+#include "applicationdata.h"
 #include "databuf.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "applicationdata.h"
+#include "odnetworkaccess.h"
 
 
 static File::Path tempfile;
@@ -20,15 +20,15 @@ static BufferString prefix_;
 
 bool testPing()
 {
-    const char* url = "http://opendtect.org";
+    BufferString url( "http://dgbes.com" );
     uiString err;
 
-    mRunStandardTestWithError( Network::ping(url,err),
+    mRunStandardTestWithError( Network::ping(url.str(),err),
 				BufferString( prefix_, "Ping existant URL"),
 				err.getFullString() );
 
-    const char* missingurl = "http://opendtect.org/thisfiledoesnotexist";
-    mRunStandardTestWithError( Network::ping(missingurl,err)==false,
+    url.add( "/thisfiledoesnotexist" );
+    mRunStandardTestWithError( Network::ping(url.str(),err)==false,
 	BufferString( prefix_, "Ping non-existant URL"), err.getFullString() );
 
     return true;
@@ -180,7 +180,10 @@ int testMain(int argc, char** argv)
     if ( !threadres )
 	return 1;
 
-    CallBack::addToMainThread( mSCB( loopCB ) );
+    const CallBack loopcb( mSCB(loopCB) );
+    CallBack::addToMainThread( loopcb );
     const int retval = app.exec();
+    CallBack::removeFromThreadCalls( loopcb.cbObj() );
+
     return retval;
 }

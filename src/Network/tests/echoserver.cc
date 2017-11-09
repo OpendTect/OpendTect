@@ -5,60 +5,48 @@
 -*/
 
 
-#include "commandlineparser.h"
+#include "applicationdata.h"
 #include "netserver.h"
 #include "netsocket.h"
-#include "applicationdata.h"
 #include "genc.h"
 #include "od_ostream.h"
-#include "time.h"
 #include "timer.h"
 #include "testprog.h"
+
+#include <time.h>
+
+namespace Network
+{
 
 class EchoServer : public CallBacker
 {
 public:
-    EchoServer( int startport )
+    EchoServer( unsigned short startport, unsigned short timeout )
 	: close_( false )
-	, timeout_( 60 )
+	, timeout_( timeout )
     {
-	mAttachCB( server_.readyRead, EchoServer::dataArrived );
+	mAttachCB( server_.readyRead, EchoServer::dataArrivedCB );
 
-	int port = startport;
-	const int maxport = 10000;
+	unsigned short port = startport;
+	const unsigned short maxport = 10000;
 	while ( !close_ && !server_.listen( 0, port++ ) && port<maxport )
 	{}
 
-	mAttachCB( timer_.tick, EchoServer::timerClick );
+	mAttachCB( timer_.tick, EchoServer::timerTick );
 
-	timer_.start( timeout_*1000, true );
-	lasttime_ = time( 0 );
+	lastactivity_ = time( 0 );
+	timer_.start( 1000, false );
     }
 
     ~EchoServer()
     {
 	detachAllNotifiers();
+	CallBack::removeFromThreadCalls( this );
     }
 
-    void timerClick(CallBacker*)
+    void dataArrivedCB( CallBacker* cb )
     {
-	const time_t curtime = time( 0 );
-	if ( curtime-lasttime_>timeout_ )
-	{
-	    if ( !quiet )
-		od_cout() << "Timeout" << od_endl;
-	    server_.close();
-	    ApplicationData::exit( 0 );
-	}
-	else
-	{
-	    timer_.start( timeout_*1000, true );
-	}
-    }
-
-    void dataArrived( CallBacker* cb )
-    {
-	lasttime_ = time( 0 );
+	lastactivity_ = time( 0 );
 
 	mCBCapsuleUnpack( int, socketid, cb );
 	Network::Socket* socket = server_.getSocket( socketid );
@@ -70,7 +58,7 @@ public:
 	    if ( !readsize )
 		break;
 
-	    if ( socket->readArray( data, readsize )!=Network::Socket::ReadOK )
+	    if ( socket->readArray(data,readsize) != Network::Socket::ReadOK )
 	    {
 		if ( !quiet )
 		    od_cout() << "Read error" << od_endl;
@@ -78,43 +66,72 @@ public:
 	    }
 
 	    if ( !quiet )
-		od_cout() << "Echoing " << readsize << " bytes" << od_endl;
+		od_cout() << "\nEchoing " << readsize << " bytes" << od_endl;
 
 	    const char* writeptr = data;
-	    const od_int64 nrtowrite = readsize;;
+	    const FixedString writestr( writeptr+sizeof(int) );
+	    if ( writestr.startsWith(Network::Server::sKeyKillword()) )
+	    {
+		CallBack::addToMainThread( mCB(this,EchoServer,closeServerCB) );
+		return;
+	    }
+
+	    const od_int64 nrtowrite = readsize;
 	    socket->writeArray( writeptr, nrtowrite );
 	}
     }
 
+    void closeServerCB( CallBacker* )
+    {
+	ApplicationData::exit( 0 );
+    }
+
+    void timerTick( CallBacker* )
+    {
+	const time_t curtime = time( 0 );
+	if ( curtime-lastactivity_>timeout_ )
+	{
+	    if ( !quiet )
+		od_cout() << "Timeout" << od_endl;
+
+	    CallBack::addToMainThread( mCB(this,EchoServer,closeServerCB) );
+	}
+    }
+
     Network::Server		server_;
-    bool			close_;
-    time_t			lasttime_;
-    int				timeout_;
     Timer			timer_;
+    time_t			lastactivity_;
+    time_t			timeout_;
+    bool			close_;
 };
+
+} //Namespace
 
 
 int testMain(int argc, char** argv)
 {
     mInitTestProg();
-    if ( !clparser.hasKey("port") )
-	return 0;
 
+    //Make standard test-runs just work fine.
+    if ( !clparser.hasKey(Network::Server::sKeyPort()) )
+	ExitProgram( 0 );
 
-    SetProgramArgs( argc, argv );
     ApplicationData app;
 
     int startport = 1025;
-    clparser.getVal( "port", startport );
+    clparser.getVal( Network::Server::sKeyPort(), startport );
 
-    EchoServer server( startport );
+    int timeout = 120;
+    clparser.getVal( Network::Server::sKeyTimeout(), timeout );
 
-    clparser.getVal( "timeout", server.timeout_ );
+    Network::EchoServer server( mCast(unsigned short,startport),
+				mCast(unsigned short,timeout) );
 
     if ( !quiet )
+    {
 	od_cout() << "Listening to port " << server.server_.port()
-	      << " with a " <<server.timeout_ << " second timeout\n";
-
+		  << " with a " << server.timeout_ << " second timeout\n";
+    }
 
     return app.exec();
 }
