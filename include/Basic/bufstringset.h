@@ -17,8 +17,8 @@ ________________________________________________________________________
 class GlobExpr;
 class uiString;
 class uiStringSet;
-mFDQtclass( QString );
-mFDQtclass( QStringList );
+mFDQtclass( QString )
+mFDQtclass( QStringList )
 
 /*!\brief Set of BufferString objects. */
 
@@ -60,6 +60,8 @@ public:
     void		removeSingle( size_type i ) { strs_.removeSingle(i); }
     void		removeRange( size_type i1, size_type i2 )
 						{ strs_.removeRange(i1,i2); }
+    void		swap( size_type i1, size_type i2 )
+						{ strs_.swap( i1, i2 ); }
 
     BufferStringSet&	add(const char*);
     BufferStringSet&	add(const OD::String&);
