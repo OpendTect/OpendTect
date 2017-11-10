@@ -92,6 +92,7 @@ bool uiSEGYMultiVintageImporter::selectVintage()
 
     fsdlg_->getVintagName( vintagenm_ );
     fsdlg_->getSelNames( selfilenms_ );
+    selfilenms_.sort();
     uiSEGYVintageInfo* vntinfo = new uiSEGYVintageInfo();
     vntinfo->vintagenm_ = vintagenm_;
     vntinfo->filenms_ = selfilenms_;
@@ -155,6 +156,7 @@ void uiSEGYMultiVintageImporter::selectFilesCB( CallBacker* cb )
 
      BufferStringSet editednms;
      segyfs.getSelNames( editednms );
+     editednms.sort();
      vntinfo->filenms_ = editednms;
      fillRow( rc.row() );
 
