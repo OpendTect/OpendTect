@@ -202,6 +202,8 @@ SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
     if ( !sd.isAll() && sd.type() == Seis::Range )
 	tr_->setSelData( seldata_ );
 
+    tr_->commitSelections();
+
     totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
 }
 
@@ -368,6 +370,8 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
 
     DataCharacteristics::parseEnumUserType(
 	    obj.pars().find(sKey::DataStorage()), preseldt_ );
+
+    tr_->commitSelections();
 }
 
 
