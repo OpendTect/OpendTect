@@ -114,7 +114,7 @@ public:
     inline const uiWorld2Ui&	getWorld2Ui() const	{ return w2ui_; }
 
     CNotifier<uiBaseMap,int>	objectAdded;
-    CNotifier<uiBaseMap,int>	objectRemoved;
+    CNotifier<uiBaseMap,int>	objectToBeRemoved;
 
 protected:
 

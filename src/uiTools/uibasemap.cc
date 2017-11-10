@@ -365,7 +365,7 @@ uiBaseMap::uiBaseMap( uiParent* p )
     , worlditem_(*new uiGraphicsItem())
     , changed_(false)
     , objectAdded(this)
-    , objectRemoved(this)
+    , objectToBeRemoved(this)
     , centerworlditem_(false)
 {
     bmgroup_ = new uiGroup( p, "Basemap" );
@@ -571,9 +571,9 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
     if ( index==-1 )
 	return;
 
+    objectToBeRemoved.trigger( obj->ID() );
     delete objects_.removeSingle( index );
     changed_ = true;
-    objectRemoved.trigger( obj->ID() );
 }
 
 
