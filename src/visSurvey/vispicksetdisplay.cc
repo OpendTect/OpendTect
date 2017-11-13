@@ -80,7 +80,14 @@ void PickSetDisplay::setSet( Pick::Set* newset )
 
     LocationDisplay::setSet( newset );
 
-    const OD::MarkerStyle3D markerstyle = newset->markerStyle();
+    OD::MarkerStyle3D markerstyle = newset->markerStyle();
+    if ( newset->isSizeLargerThanThreshold() )
+    {
+	markerstyle.type_ = OD::MarkerStyle3D::Point;
+	markerstyle.size_ = 2;
+	newset->setMarkerStyle( markerstyle );
+    }
+
     markerset_->setMaterial( 0 );
     markerset_->setMarkerStyle( markerstyle );
     markerset_->setMarkersSingleColor( markerstyle.color_ );

@@ -4,6 +4,7 @@
  * DATE     : Mar 2001 / Mar 2016
 -*/
 
+
 #include "picksetascio.h"
 #include "pickset.h"
 #include "polygon.h"
@@ -12,12 +13,20 @@
 #include "posimpexppars.h"
 #include "unitofmeasure.h"
 #include "od_iostream.h"
+#include "settings.h"
 #include <ctype.h>
 
 mDefineInstanceCreatedNotifierAccess(Pick::Set)
 const Pick::Set Pick::Set::emptyset_;
 Pick::Set Pick::Set::dummyset_;
 static const char* sKeyConnect = "Connect";
+
+int Pick::Set::getSizeThreshold()
+{
+    int defthresholdval = 10000;
+    Settings::common().get( sKeyThresholdSize(),defthresholdval );
+    return defthresholdval;
+}
 
 
 #define mPrepRead(sz) \
@@ -562,6 +571,14 @@ Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 	    { minsqdist = sqdist; ret = locids_[idx]; }
     }
     return ret;
+}
+
+
+bool Pick::Set::isSizeLargerThanThreshold() const
+{
+    bool usethreshold = true;
+    Settings::common().getYN( sKeyUseThreshold(), usethreshold );
+    return usethreshold && size() >= getSizeThreshold();
 }
 
 

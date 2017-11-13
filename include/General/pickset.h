@@ -114,6 +114,7 @@ public:
     LocID		nearestLocation(const Coord3&,bool ignorez=false) const;
     bool		removeWithPolygon(const ODPolygon<double>&,
 					  bool inside=true);
+    bool		isSizeLargerThanThreshold() const;
 
     mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,cParsChange())
     void		fillPar(IOPar&) const;
@@ -164,6 +165,11 @@ public:
     static Set&		dummySet()		{ return dummyset_; }
 
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
+    static const char*	sKeyThresholdSize()
+			{ return "PointSet Size Threshold";}
+    static const char*	sKeyUseThreshold()
+			{ return "Use PointSet Size Threshold";}
+    static int		getSizeThreshold();
 
 protected:
 

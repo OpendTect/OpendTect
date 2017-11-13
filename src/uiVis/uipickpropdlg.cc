@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "draw.h"
 #include "pickset.h"
+#include "settings.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uimarkerstyle.h"
@@ -44,6 +45,20 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 
     stylefld_->attach( alignedBelow, usedrawstylefld_ );
 
+    bool usethreshold = true;
+    Settings::common().getYN( Pick::Set::sKeyUseThreshold(), usethreshold );
+    usethresholdfld_ = new uiCheckBox( this,
+			   tr("Switch to Point mode for all large PointSets") );
+    usethresholdfld_->setChecked( usethreshold );
+    usethresholdfld_->activated.notify( mCB(this,uiPickPropDlg,useThresholdCB));
+    usethresholdfld_->attach( alignedBelow, stylefld_ );
+    
+    thresholdfld_ =  new uiGenInput( this, tr("Threshold size for Point mode"));
+    thresholdfld_->attach( rightAlignedBelow, usethresholdfld_ );
+    thresholdfld_->valuechanged.notify(
+				     mCB(this,uiPickPropDlg,thresholdChangeCB));
+    thresholdfld_->setSensitive( usethreshold );
+    thresholdfld_->setValue( Pick::Set::getSizeThreshold() );
     drawSel( 0 );
 }
 
@@ -95,6 +110,7 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 void uiPickPropDlg::doFinalise( CallBacker* )
 {
     stylefld_->setMarkerStyle( set_.markerStyle() );
+
 }
 
 
@@ -115,6 +131,25 @@ void uiPickPropDlg::typeSel( CallBacker* )
 void uiPickPropDlg::colSel( CallBacker* cb )
 {
     typeSel( cb );
+}
+
+
+void uiPickPropDlg::useThresholdCB( CallBacker* )
+{
+    const bool usesthreshold = usethresholdfld_->isChecked();
+    thresholdfld_->setSensitive( usesthreshold );
+    Settings::common().setYN( Pick::Set::sKeyUseThreshold(), usesthreshold );
+    Settings::common().write();
+}
+
+
+void uiPickPropDlg::thresholdChangeCB( CallBacker* )
+{
+    const int thresholdval = thresholdfld_->getIntValue();
+    if ( thresholdval == Pick::Set::getSizeThreshold() )
+	return;
+    Settings::common().set( Pick::Set::sKeyThresholdSize(), thresholdval );
+    Settings::common().write();
 }
 
 
