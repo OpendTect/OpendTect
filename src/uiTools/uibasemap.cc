@@ -45,8 +45,8 @@ uiBaseMapObject::~uiBaseMapObject()
     delete &labelitem_;
 }
 
-const char* uiBaseMapObject::getType() const
-{ return bmobject_ ? bmobject_->getType() : 0; }
+const char* uiBaseMapObject::type() const
+{ return bmobject_ ? bmobject_->type() : 0; }
 
 const char* uiBaseMapObject::name() const
 { return bmobject_ ? bmobject_->name().buf() : 0; }
@@ -102,8 +102,8 @@ void uiBaseMapObject::changedStyleCB( CallBacker* )
 void uiBaseMapObject::changedZValueCB( CallBacker* )
 {
     changed_ = true;
-    graphitem_.setZValue( bmobject_->getDepth() );
-    labelitem_.setZValue( bmobject_->getDepth()-1 );
+    graphitem_.setZValue( bmobject_->depth() );
+    labelitem_.setZValue( bmobject_->depth()-1 );
 }
 
 
@@ -150,8 +150,8 @@ void uiBaseMapObject::update()
 	for ( int cidx=0; cidx<crds.size(); cidx++ )
 	    worldpts[cidx] = crds[cidx];
 
-	if ( bmobject_->getLineStyle(idx) &&
-	     bmobject_->getLineStyle(idx)->type_!=OD::LineStyle::None )
+	const BaseMapObject::LineStyle* linestyle = bmobject_->lineStyle( idx );
+	if ( linestyle && linestyle->type_!=OD::LineStyle::None )
 	{
 	    if ( !bmobject_->close(idx) )
 	    {
@@ -174,7 +174,7 @@ void uiBaseMapObject::update()
 		mDynamicCastGet(uiPolyLineItem*,itm,graphitem_.getChild(itemnr))
 		if ( !itm ) return;
 
-		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
+		itm->setPenStyle( *linestyle );
 		itm->setPolyLine( worldpts );
 		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );
 		itemnr++;
@@ -200,16 +200,16 @@ void uiBaseMapObject::update()
 		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
 		if ( !itm ) return;
 
-		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
+		itm->setPenStyle( *linestyle );
 		itm->setPolygon( worldpts );
-		itm->setFillColor( bmobject_->getFillColor(idx), true );
+		itm->setFillColor( bmobject_->fillColor(idx), true );
 		itm->fill();
 		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );
 		itemnr++;
 	    }
 	}
 
-	const BufferString imgfnm = bmobject_->getImageFileName( idx );
+	const BufferString imgfnm = bmobject_->imageFileName( idx );
 	if ( !imgfnm.isEmpty() )
 	{
 	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
@@ -243,8 +243,9 @@ void uiBaseMapObject::update()
 	    }
 	}
 
-	const OD::MarkerStyle2D* ms2d = bmobject_->getMarkerStyle( idx );
-	if ( ms2d && ms2d->type_!=OD::MarkerStyle2D::None )
+	const BaseMapObject::MarkerStyle* markerstyle
+			    = bmobject_->markerStyle( idx );
+	if ( markerstyle && markerstyle->type_!=OD::MarkerStyle2D::None )
 	{
 	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
 	    {
@@ -265,16 +266,16 @@ void uiBaseMapObject::update()
 		}
 
 		mDynamicCastGet(uiMarkerItem*,itm,graphitem_.getChild(itemnr));
-		itm->setMarkerStyle( *ms2d );
-		itm->setPenColor( ms2d->color_ );
-		itm->setFillColor( ms2d->color_ );
+		itm->setMarkerStyle( *markerstyle );
+		itm->setPenColor( markerstyle->color_ );
+		itm->setFillColor( markerstyle->color_ );
 		itm->setPos( crds[ptidx] );
 		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );
 		itemnr++;
 	    }
 	}
 
-	const char* shapenm = bmobject_->getShapeName( idx );
+	const char* shapenm = bmobject_->shapeName( idx );
 	if ( shapenm && !crds.isEmpty() )
 	{
 	    if ( labelitem_.nrChildren()<=labelitemnr )
@@ -296,10 +297,8 @@ void uiBaseMapObject::update()
 		}
 	    }
 
-	    const OD::Alignment al = bmobject_->getAlignment( idx );
-	    itm->setAlignment( al );
-
-	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
+	    itm->setAlignment( bmobject_->alignment(idx) );
+	    const float angle = Math::toDegrees( bmobject_->textRotation() );
 	    itm->setRotation( angle );
 
 	    labelitemnr++;
@@ -323,15 +322,15 @@ void uiBaseMapObject::updateStyle()
     int itemnr = 0;
     for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )
     {
-	if ( bmobject_->getLineStyle(idx) &&
-	     bmobject_->getLineStyle(idx)->type_!=OD::LineStyle::None )
+	const BaseMapObject::LineStyle* linestyle = bmobject_->lineStyle( idx );
+	if ( linestyle && linestyle->type_!=OD::LineStyle::None )
 	{
 	    if ( !bmobject_->close(idx) )
 	    {
 		mDynamicCastGet(uiPolyLineItem*,li,graphitem_.getChild(itemnr))
 		if ( !li ) return;
 
-		li->setPenStyle( *bmobject_->getLineStyle(idx) );
+		li->setPenStyle( *linestyle );
 		itemnr++;
 	    }
 	    else
@@ -339,8 +338,8 @@ void uiBaseMapObject::updateStyle()
 		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
 		if ( !itm ) return;
 
-		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
-		itm->setFillColor( bmobject_->getFillColor(idx), true );
+		itm->setPenStyle( *linestyle );
+		itm->setFillColor( bmobject_->fillColor(idx), true );
 		itm->fill();
 		itemnr++;
 	    }
@@ -468,13 +467,13 @@ void uiBaseMap::addObject( BaseMapObject* obj )
 }
 
 
-BaseMapObject* uiBaseMap::getObject( int id )
+BaseMapObject* uiBaseMap::bmObject( int id )
 {
     if ( id<0 ) return 0;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	BaseMapObject* bmo = objects_[idx]->getObject();
+	BaseMapObject* bmo = objects_[idx]->bmObject();
 	if ( bmo && bmo->ID()==id )
 	    return bmo;
     }
@@ -489,7 +488,7 @@ uiBaseMapObject* uiBaseMap::getUiObject( int id )
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	BaseMapObject* bmo = objects_[idx]->getObject();
+	BaseMapObject* bmo = objects_[idx]->bmObject();
 	if ( bmo && bmo->ID()==id )
 	    return objects_[idx];
     }
@@ -526,8 +525,8 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
     worlditem_.addChild( &uiobj->labelItem() );
     objects_ += uiobj;
     changed_ = true;
-    if ( uiobj->getObject() )
-	objectAdded.trigger( uiobj->getObject()->ID() );
+    if ( uiobj->bmObject() )
+	objectAdded.trigger( uiobj->bmObject()->ID() );
 }
 
 

@@ -35,13 +35,16 @@ class Vw2DDataManager;
 namespace Attrib	{ class SelSpec; }
 namespace FlatView	{ class AuxData; }
 namespace ZDomain	{ class Def; }
+using			Presentation::ViewerTypeID;
+using			Presentation::RequestType;
 
-static OD::ViewerTypeID sViewer2DMgrTypeID( OD::ViewerTypeID::get(1) );
+#define mViewer2DMgrTypeID ViewerTypeID::get(1)
+
 /*!
 \brief A 2D Viewer.
 */
 
-mExpClass(uiODMain) uiODViewer2D : public OD::PresentationManagedViewer
+mExpClass(uiODMain) uiODViewer2D : public Presentation::ManagedViewer
 { mODTextTranslationClass(uiODViewer2D);
 public:
 
@@ -61,8 +64,6 @@ public:
 
     mDeclInstanceCreatedNotifierAccess(uiODViewer2D);
 
-    OD::ViewerTypeID		viewerTypeID() const
-				{ return sViewer2DMgrTypeID; }
     virtual void		setUpView(ProbeLayer::ID id=
 					  ProbeLayer::ID::getInvalid());
 				//Invalid means set all layers
@@ -184,8 +185,8 @@ public:
     void			addPickSets(const DBKeySet&);
     void			setupNewPickSet(const DBKey&);
 
-    void			emitPRRequest(OD::PresentationRequestType);
-    OD::ObjPresentationInfo*	getObjPRInfo() const;
+    void			emitPrRequest(RequestType);
+    Presentation::ObjInfo*	getObjPrInfo() const;
     Probe&			getProbe()		{ return probe_; }
     const Probe&		getProbe() const	{ return probe_; }
 
@@ -246,4 +247,7 @@ protected:
     void			removeSelected(CallBacker*);
     void			mouseCursorCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
+
+    virtual ViewerTypeID	vwrTypeID() const
+				{ return mViewer2DMgrTypeID; }
 };

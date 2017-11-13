@@ -144,7 +144,7 @@ Probe* uiODLine2DParentTreeItem::createNewProbe() const
 
 
 uiPresManagedTreeItem* uiODLine2DParentTreeItem::addChildItem(
-	const OD::ObjPresentationInfo& prinfo )
+	const Presentation::ObjInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
     if ( !probeprinfo )

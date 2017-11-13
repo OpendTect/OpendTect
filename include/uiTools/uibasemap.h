@@ -27,10 +27,10 @@ public:
 				uiBaseMapObject(BaseMapObject*);
     virtual			~uiBaseMapObject();
 
-    const BaseMapObject*	getObject() const	{ return bmobject_; }
-    BaseMapObject*		getObject()		{ return bmobject_; }
+    const BaseMapObject*	bmObject() const	{ return bmobject_; }
+    BaseMapObject*		bmObject()		{ return bmobject_; }
 
-    const char*			getType() const;
+    const char*			type() const;
 
     bool			hasChanged() const	{ return changed_; }
     void			resetChangeFlag() { changed_ = false; }
@@ -52,6 +52,7 @@ public:
     virtual void		getMousePosInfo(Coord3&,TrcKey&,float& val,
 						BufferString& info) const;
 protected:
+
     friend			class uiBaseMap;
 
     void			changedCB(CallBacker*);
@@ -70,7 +71,9 @@ protected:
     BaseMapObject*		bmobject_;
 
 private:
+
     void			addLabel(uiGraphicsItem&);
+
 };
 
 
@@ -83,10 +86,10 @@ public:
     void			setView(const uiWorldRect&);
 
     virtual void		addObject(BaseMapObject*);
-    BaseMapObject*		getObject(int id);
+    BaseMapObject*		bmObject(int id);
     uiBaseMapObject*		getUiObject(int id);
 
-    ObjectSet<uiBaseMapObject>& getObjects()		{ return objects_; }
+    ObjectSet<uiBaseMapObject>& bmObjects()		{ return objects_; }
 
     bool			hasChanged();
     inline void			setChangeFlag()		{ changed_ = true; }
@@ -134,5 +137,7 @@ protected:
     void			updateTransform();
 
 private:
+
     uiWorld2Ui&			w2ui_;
+
 };

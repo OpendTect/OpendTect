@@ -485,7 +485,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !prmanitem )
 	    return;
 
-	PtrMan<OD::ObjPresentationInfo> prinfo = prmanitem->getObjPRInfo();
+	PtrMan<Presentation::ObjInfo> prinfo = prmanitem->getObjPrInfo();
 	if ( !prinfo )
 	    return;
 

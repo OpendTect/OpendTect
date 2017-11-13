@@ -41,92 +41,116 @@ void BaseMapObject::setDepth( int val )
 
 
 int BaseMapObject::nrShapes() const
-{ return 0; }
+{
+    return 0;
+}
 
-const char* BaseMapObject::getShapeName( int ) const
-{ return 0; }
+const char* BaseMapObject::shapeName( int ) const
+{
+    return "";
+}
 
-void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
-{ }
 
 bool BaseMapObject::getBoundingBox( BoundingBox& bbox ) const
-{ return false; }
-
-OD::Alignment BaseMapObject::getAlignment( int shapeidx ) const
-{ return OD::Alignment(); }
-
-Color BaseMapObject::getColor() const
 {
-    if ( getFillColor(0) != Color::NoColor() )
-	return getFillColor( 0 );
-    else if ( getLineStyle(0) )
-	return getLineStyle(0)->color_;
-    else if ( getMarkerStyle(0) )
-	return getMarkerStyle(0)->color_;
+    return false;
+}
+
+
+BaseMapObject::Alignment BaseMapObject::alignment( int shapeidx ) const
+{
+    return Alignment();
+}
+
+
+Color BaseMapObject::color() const
+{
+    Color fillcolor = fillColor( 0 );
+    if ( fillcolor != Color::NoColor() )
+	return fillcolor;
+
+    const LineStyle* ls = lineStyle( 0 );
+    if ( ls && ls->color_ != Color::NoColor() )
+	return ls->color_;
+
+    const MarkerStyle* ms = markerStyle( 0 );
+    if ( ms && ms->color_ != Color::NoColor() )
+	return ms->color_;
+
     return Color::NoColor();
 }
 
 
 const OD::RGBImage* BaseMapObject::createImage( Coord& origin,Coord& p11 ) const
-{ return 0; }
+{
+    return 0;
+}
+
 
 const OD::RGBImage* BaseMapObject::createPreview( int approxdiagonal ) const
-{ return 0; }
+{
+    return 0;
+}
+
 
 bool BaseMapObject::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name() );
-    par.set( sKey::Type(), getType() );
-    par.set( sKey::Depth(), getDepth() );
+    par.set( sKey::Type(), type() );
+    par.set( sKey::Depth(), depth() );
     return true;
 }
 
 
 bool BaseMapObject::usePar( const IOPar& par, const TaskRunnerProvider& trprov )
 {
-    BufferString nm, type;
+    BufferString nm, typ;
     if ( par.get(sKey::Name(),nm) )
 	setName( nm );
-    if ( par.get(sKey::Type(),type) )
-	setType( type );
+    if ( par.get(sKey::Type(),typ) )
+	setType( typ );
 
-    int depth = 0;
-    if ( par.get(sKey::Depth(),depth) )
-	setDepth( depth );
+    int dpth = 0;
+    if ( par.get(sKey::Depth(),dpth) )
+	setDepth( dpth );
 
     return doUsePar( par, trprov );
+}
+
+
+BaseMap::BaseMap()
+{
+    mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
+    viewerobjid_ = Presentation::ViewerObjID::get( vwrid++ );
 }
 
 
 
 BaseMapMarkers::BaseMapMarkers()
     : BaseMapObject( 0 )
-{}
+{
+    typenm_ = "Markers";
+}
 
 
 BaseMapMarkers::~BaseMapMarkers()
-{ }
-
-
-void BaseMapMarkers::setMarkerStyle( int, const OD::MarkerStyle2D& ms )
 {
-    if ( markerstyle_==ms )
-	return;
+}
 
+
+void BaseMapMarkers::setMarkerStyle( int, const MarkerStyle& ms )
+{
     markerstyle_ = ms;
 }
 
 
 void BaseMapMarkers::getPoints( int shapeidx, TypeSet<Coord>& res ) const
-{ res = positions_; }
+{
+    res = positions_;
+}
+
 
 void BaseMapMarkers::updateGeometry()
-{ changed.trigger(); }
-
-
-BaseMap::BaseMap()
-    : OD::PresentationManagedViewer()
 {
-    mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
-    viewerobjid_ = OD::ViewerObjID::get( vwrid++ );
+    changed.trigger();
 }

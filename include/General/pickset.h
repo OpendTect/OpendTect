@@ -240,14 +240,14 @@ public:
 };
 
 
-mExpClass(General) SetPresentationInfo : public OD::ObjPresentationInfo
+mExpClass(General) SetPresentationInfo : public Presentation::ObjInfo
 {
 public:
 
 					SetPresentationInfo(const DBKey&);
 					SetPresentationInfo();
 
-    static OD::ObjPresentationInfo*	createFrom( const IOPar&);
+    static Presentation::ObjInfo*	createFrom(const IOPar&);
     static void				initClass();
     static const char*			sFactoryKey();
 

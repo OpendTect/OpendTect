@@ -61,7 +61,7 @@ const char* uiODPickSetParentTreeItem::childObjTypeKey() const
 
 
 uiPresManagedTreeItem* uiODPickSetParentTreeItem::addChildItem(
-	const OD::ObjPresentationInfo& prinfo )
+	const PresInfo& prinfo )
 {
     mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
     if ( !pickprinfo )
@@ -135,8 +135,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	for ( int chidx=0; chidx<mids.size(); chidx++ )
 	{
 	    Pick::SetPresentationInfo pickprinfo( mids[chidx] );
-	    addChildItem( pickprinfo );
-	    emitChildPRRequest( pickprinfo, OD::Add );
+	    uiPresManagedTreeItem* newitm = addChildItem( pickprinfo );
+	    newitm->emitPrRequest( Presentation::Add );
 	}
     }
     else if ( mnuid==mGen3DIdx )
@@ -147,8 +147,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 	const DBKey storedid = Pick::SetMGR().getID( *ps );
 	Pick::SetPresentationInfo pickprinfo( storedid );
-	addChildItem( pickprinfo );
-	emitChildPRRequest( pickprinfo, OD::Add );
+	uiPresManagedTreeItem* newitm = addChildItem( pickprinfo );
+	newitm->emitPrRequest( Presentation::Add );
     }
     else if ( mnuid==mRandom2DIdx )
     {
@@ -158,8 +158,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 	const DBKey storedid = Pick::SetMGR().getID( *ps );
 	Pick::SetPresentationInfo pickprinfo( storedid );
-	addChildItem( pickprinfo );
-	emitChildPRRequest( pickprinfo, OD::Add );
+	uiPresManagedTreeItem* newitm = addChildItem( pickprinfo );
+	newitm->emitPrRequest( Presentation::Add );
     }
     else if ( mnuid==mEmptyIdx )
     {
@@ -169,8 +169,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 	const DBKey storedid = Pick::SetMGR().getID( *ps );
 	Pick::SetPresentationInfo pickprinfo( storedid );
-	addChildItem( pickprinfo );
-	emitChildPRRequest( pickprinfo, OD::Add );
+	uiPresManagedTreeItem* newitm = addChildItem( pickprinfo );
+	newitm->emitPrRequest( Presentation::Add );
     }
     else if ( mnuid==mSaveIdx )
     {
@@ -248,7 +248,7 @@ bool uiODPickSetTreeItem::actModeWhenSelected() const
 { return set_.isEmpty(); }
 
 
-OD::ObjPresentationInfo* uiODPickSetTreeItem::getObjPRInfo() const
+Presentation::ObjInfo* uiODPickSetTreeItem::getObjPrInfo() const
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo();
     psprinfo->setStoredID( storedid_ );
@@ -487,7 +487,7 @@ const char* uiODPolygonParentTreeItem::childObjTypeKey() const
 
 
 uiPresManagedTreeItem* uiODPolygonParentTreeItem::addChildItem(
-	const OD::ObjPresentationInfo& prinfo )
+	const Presentation::ObjInfo& prinfo )
 {
     mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
     if ( !pickprinfo )
@@ -550,8 +550,8 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<setids.size(); idx++ )
 	{
 	    Pick::SetPresentationInfo pickprinfo( setids[idx] );
-	    addChildItem( pickprinfo );
-	    emitChildPRRequest( pickprinfo, OD::Add );
+	    uiPresManagedTreeItem* newitm = addChildItem( pickprinfo );
+	    newitm->emitPrRequest( Presentation::Add );
 	}
     }
     else if ( mnuid==mNewPolyIdx )
@@ -562,8 +562,8 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 
 	const DBKey& storedid = Pick::SetMGR().getID( *ps );
 	Pick::SetPresentationInfo pickprinfo( storedid );
-	addChildItem( pickprinfo );
-	emitChildPRRequest( pickprinfo, OD::Add );
+	uiPresManagedTreeItem* newitm = addChildItem( pickprinfo );
+	newitm->emitPrRequest( Presentation::Add );
     }
     else if ( mnuid==mSavePolyIdx )
     {
@@ -632,7 +632,7 @@ bool uiODPolygonTreeItem::actModeWhenSelected() const
 { return set_.isEmpty(); }
 
 
-OD::ObjPresentationInfo* uiODPolygonTreeItem::getObjPRInfo() const
+Presentation::ObjInfo* uiODPolygonTreeItem::getObjPrInfo() const
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo();
     psprinfo->setStoredID( storedid_ );

@@ -66,8 +66,7 @@ ________________________________________________________________________
 
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
-    : OD::VwrTypePresentationMgr()
-    , appl_(*a)
+    : appl_(*a)
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
     , l2dintersections_(0)
@@ -225,7 +224,7 @@ void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
 }
 
 
-OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer(
+Presentation::ViewerObjID uiODViewer2DMgr::displayIn2DViewer(
 	Probe& probe, ProbeLayer::ID curlayid, uiODViewer2D::DispSetup dispsu )
 {
     uiODViewer2D* vwr2d = new uiODViewer2D( appl_, probe, dispsu );
@@ -682,12 +681,12 @@ uiODViewer2D* uiODViewer2DMgr::getParent2DViewer( int vwr2dobjid )
 }
 
 
-uiODViewer2D* uiODViewer2DMgr::find2DViewer( OD::ViewerObjID id )
+uiODViewer2D* uiODViewer2DMgr::find2DViewer( ViewerObjID id )
 {
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	uiODViewer2D* viewer2d = getViewer2D( idx );
-	const OD::ViewerObjID vwrid = viewer2d->viewerObjID();
+	const ViewerObjID vwrid = viewer2d->viewerObjID();
 	if ( vwrid == id )
 	    return viewer2d;
     }
@@ -701,7 +700,7 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( const MouseEventHandler& meh )
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	uiODViewer2D* viewer2d = getViewer2D( idx );
-	if ( viewer2d->viewwin() && 
+	if ( viewer2d->viewwin() &&
 	    viewer2d->viewControl()->getViewerIdx(&meh,true) != -1 )
 	    return viewer2d;
     }
@@ -1002,7 +1001,7 @@ void uiODViewer2DMgr::viewWinClosedCB( CallBacker* cb )
 }
 
 
-void uiODViewer2DMgr::remove2DViewer( OD::ViewerObjID id )
+void uiODViewer2DMgr::remove2DViewer( ViewerObjID id )
 {
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
@@ -1074,7 +1073,7 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	{
 	    const int nrattribs = visServ().getNrAttribs( visid );
 	    const int attrnr = nrattribs-1;
-	      OD::ViewerObjID vwrid = displayIn2DViewer( visid, attrnr, wva );
+	    ViewerObjID vwrid = displayIn2DViewer( visid, attrnr, wva );
 	    uiODViewer2D* curvwr = find2DViewer( vwrid );
 	    if ( curvwr ) curvwr->usePar( *vwrpar );
 	}*/
@@ -1444,14 +1443,17 @@ void uiODViewer2DMgr::addPickSets( const DBKeySet& mids )
 }
 
 
-void uiODViewer2DMgr::request( OD::ViewerID originvwrid,
-			       OD::PresentationRequestType req,
-			       const IOPar& prinfopar )
+void uiODViewer2DMgr::handleRequest( ViewerID originvwrid,
+				     RequestType req,
+				     const IOPar& prinfopar )
 {
-    OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( prinfopar );
-    FixedString probeprinfpkey( ProbePresentationInfo::sFactoryKey() );
-    if ( probeprinfpkey==prinfo->objTypeKey() )
+    PtrMan<Presentation::ObjInfo> prinfo = OD::PrIFac().create( prinfopar );
+    if ( !prinfo )
 	return;
 
-    OD::VwrTypePresentationMgr::request( originvwrid, req, prinfopar );
+    FixedString probeprinfpkey( ProbePresentationInfo::sFactoryKey() );
+    if ( probeprinfpkey == prinfo->objTypeKey() )
+	return;
+
+    VwrTypeMgr::handleRequest( originvwrid, req, prinfopar );
 }

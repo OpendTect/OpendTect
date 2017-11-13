@@ -862,28 +862,23 @@ bool VolumeProbe::usePar( const IOPar& par )
 
 
 ProbePresentationInfo::ProbePresentationInfo( const DBKey& prbkey )
-    : OD::ObjPresentationInfo(prbkey)
+    : Presentation::ObjInfo(prbkey)
 {
     objtypekey_ = sFactoryKey();
 }
 
 
 ProbePresentationInfo::ProbePresentationInfo()
-    : OD::ObjPresentationInfo()
 {
     objtypekey_ = sFactoryKey();
 }
 
 
-OD::ObjPresentationInfo* ProbePresentationInfo::createFrom(
-	const IOPar& par )
+Presentation::ObjInfo* ProbePresentationInfo::createFrom( const IOPar& par )
 {
     ProbePresentationInfo* probeprinfo = new ProbePresentationInfo;
     if ( !probeprinfo->usePar(par) )
-    {
-	delete probeprinfo;
-	return 0;
-    }
+	{ delete probeprinfo; probeprinfo = 0; }
 
     return probeprinfo;
 }
@@ -897,5 +892,5 @@ const char* ProbePresentationInfo::sFactoryKey()
 
 void ProbePresentationInfo::initClass()
 {
-    OD::PRIFac().addCreateFunc( createFrom, sFactoryKey() );
+    OD::PrIFac().addCreateFunc( createFrom, sFactoryKey() );
 }

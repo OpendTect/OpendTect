@@ -30,17 +30,21 @@ class MouseEventHandler;
 class TrcKeyZSampling;
 class Vw2DDataObject;
 namespace Attrib	{ class SelSpec; }
+using Presentation::ViewerTypeID;
+using Presentation::ViewerObjID;
+using Presentation::ViewerID;
 
-static OD::ViewerTypeID theViewer2DTypeID( OD::ViewerTypeID::get(1) );
+#define mViewer2DViewerTypeID ViewerTypeID::get(1)
 
-mExpClass(uiODMain) uiODViewer2DMgr : public OD::VwrTypePresentationMgr
+
+mExpClass(uiODMain) uiODViewer2DMgr : public Presentation::VwrTypeMgr
 { mODTextTranslationClass(uiODViewer2DMgr);
 public:
 
-    OD::ViewerTypeID		viewerTypeID()	const
-    				{ return theViewerTypeID(); }
-    static OD::ViewerTypeID	theViewerTypeID()
-				{ return theViewer2DTypeID; }
+    static ViewerTypeID	theViewerTypeID()
+				{ return mViewer2DViewerTypeID; }
+    virtual ViewerTypeID	viewerTypeID()	const
+				{ return mViewer2DViewerTypeID; }
 
     static void			initClass();
     struct SelectedAuxAnnot
@@ -59,18 +63,18 @@ public:
     };
 
     uiODViewer2D*		getParent2DViewer(int vw2dobjid);
-    uiODViewer2D*		find2DViewer(OD::ViewerObjID id);
+    uiODViewer2D*		find2DViewer(ViewerObjID id);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
     uiODViewer2D*		find2DViewer(const Pos::GeomID&);
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
     int				nr2DViewers() const;
 
-    OD::ViewerObjID		displayIn2DViewer(
+    ViewerObjID			displayIn2DViewer(
 					Probe&,ProbeLayer::ID curid
 						=ProbeLayer::ID::getInvalid(),
 					uiODViewer2D::DispSetup su
 						=uiODViewer2D::DispSetup() );
-    void			remove2DViewer(OD::ViewerObjID id);
+    void			remove2DViewer(ViewerObjID);
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
@@ -83,7 +87,7 @@ public:
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon3D(EM::ObjectID mid);
     void			addNewTrackingHorizon3D(EM::ObjectID mid,
-	    						int sceneid);
+							int sceneid);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
     // 2D Horizons
@@ -95,7 +99,7 @@ public:
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon2D(EM::ObjectID mid);
     void			addNewTrackingHorizon2D(EM::ObjectID mid,
-	    						int sceneid);
+							int sceneid);
 
     //Faults
     void			removeFault(EM::ObjectID emid);
@@ -121,10 +125,10 @@ public:
     void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS2D(EM::ObjectID mid);
     void			addNewTempFaultSS2D(EM::ObjectID mid,
-	    					    int sceneid);
+						    int sceneid);
     void			getLoadedFaultSS2Ds(
-	   				 TypeSet<EM::ObjectID>&) const;
-    
+					 TypeSet<EM::ObjectID>&) const;
+
     //PickSets
     void			getPickSetVwr2DIDs(const DBKey& mid,
 						   TypeSet<int>& vw2ids) const;
@@ -132,9 +136,9 @@ public:
     void			getLoadedPickSets(DBKeySet&) const;
     void			addPickSets(const DBKeySet&);
 
-    virtual void		request( OD::ViewerID originvwrid,
-					OD::PresentationRequestType,
-					const IOPar& prinfopar);
+    virtual void		handleRequest(ViewerID originvwrid,
+					      RequestType,
+					      const IOPar& prinfopar);
 
 
     static int			cNameColumn()		{ return 0; }
@@ -184,7 +188,7 @@ protected:
 						   float pos) const;
     int				intersection2DIdx(Pos::GeomID) const;
     void			getVWR2DDataGeomIDs(const uiODViewer2D*,
-	    					TypeSet<Pos::GeomID>&) const;
+						TypeSet<Pos::GeomID>&) const;
     void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
     void			setAllIntersectionPositions();
     void			setVWR2DIntersectionPositions(uiODViewer2D*);
@@ -202,4 +206,5 @@ protected:
     void			usePar(const IOPar&);
 
     friend class                uiODMain;
+
 };

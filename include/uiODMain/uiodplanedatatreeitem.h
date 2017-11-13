@@ -97,9 +97,12 @@ mExpClass(uiODMain) uiODInlineParentTreeItem
     Probe*			createNewProbe() const;
     virtual bool		setPosToBeAddedFromWell(const Well::Data&);
     const char*		childObjTypeKey() const;
-    uiPresManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem*	addChildItem(const Presentation::ObjInfo&);
+
 protected:
+
     virtual bool		setDefaultPosToBeAdded();
+
 };
 
 
@@ -141,7 +144,7 @@ mExpClass(uiODMain) uiODCrosslineParentTreeItem
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
     const char*		childObjTypeKey() const;
-    uiPresManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem*	addChildItem(const Presentation::ObjInfo&);
     Probe*			createNewProbe() const;
     virtual bool		setPosToBeAddedFromWell(const Well::Data&);
 protected:
@@ -188,7 +191,7 @@ mExpClass(uiODMain) uiODZsliceParentTreeItem
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
     const char*			childObjTypeKey() const;
-    uiPresManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem*	addChildItem(const Presentation::ObjInfo&);
     Probe*			createNewProbe() const;
     virtual bool		setPosToBeAddedFromWell(const Well::Data&)
 				{ return false; }

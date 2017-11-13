@@ -34,12 +34,13 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem
 
     void		createMenu(MenuHandler*,bool istb);
     Probe*		createNewProbe() const;
-    uiPresManagedTreeItem* addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem* addChildItem(const Presentation::ObjInfo&);
     const char*		childObjTypeKey() const;
     static const char*  sKeyRightClick();
     static const char*  sKeyUnselected();
 
 protected:
+
     uiVisPartServer*	visserv_;
     Pos::GeomID		geomtobeadded_;
 
@@ -63,6 +64,7 @@ protected:
 					      TypeSet<Attrib::SelSpec>&) const;
     BufferStringSet	getDisplayedAttribNames() const;
     Type		getType(int) const;
+
 };
 
 
@@ -70,16 +72,19 @@ protected:
 mExpClass(uiODMain) Line2DTreeItemFactory : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(Line2DTreeItemFactory);
 public:
+
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODLine2DParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+
 };
 
 
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODSceneProbeTreeItem
 { mODTextTranslationClass(uiOD2DLineTreeItem);
 public:
+
 			uiOD2DLineTreeItem(Probe&,int displayid=-1);
 
     void		showLineName(bool);
@@ -104,15 +109,18 @@ private:
     MenuItem		panelitm_;
     MenuItem		polylineitm_;
     MenuItem		positionitm_;
+
 };
 
 
 mExpClass(uiODMain) uiOD2DLineAttribTreeItem : public uiODAttribTreeItem
 { mODTextTranslationClass(uiOD2DLineAttribTreeItem);
 public:
+
 			uiOD2DLineAttribTreeItem(const char* parenttype);
     virtual void	updateDisplay();
     void		clearAttrib();
     static void		initClass();
     static uiODDataTreeItem* create(ProbeLayer&);
+
 };

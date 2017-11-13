@@ -154,11 +154,10 @@ bool uiODSceneTreeItem::getMoreObjectsToDoHint() const
 }
 
 
-OD::ViewerID uiODSceneTreeItem::getViewerID() const
+Presentation::ViewerID uiODSceneTreeItem::viewerID() const
 {
-    OD::ViewerID vwrid( uiODSceneMgr::theViewerTypeID(),
-			OD::ViewerObjID::get(sceneID()) );
-    return vwrid;
+    return Presentation::ViewerID( uiODSceneMgr::theViewerTypeID(),
+		     Presentation::ViewerObjID::get(sceneID()) );
 }
 
 

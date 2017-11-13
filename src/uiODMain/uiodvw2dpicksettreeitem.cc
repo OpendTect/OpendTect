@@ -89,13 +89,13 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 	return true;
 
 
-    OD::ObjPresentationInfoSet prinfos;
+    Presentation::ObjInfoSet prinfos;
     for ( int idx=0; idx<setids.size(); idx++ )
 	prinfos.add( new Pick::SetPresentationInfo(setids[idx]) );
 
     addChildren( prinfos );
     for ( int idx=0; idx<prinfos.size(); idx++ )
-	emitChildPRRequest( *prinfos.get(idx), OD::Add );
+	emitChildPrRequest( *prinfos.get(idx), Presentation::Add );
 
     if ( viewer2D() && viewer2D()->viewControl() )
 	viewer2D()->viewControl()->setEditMode(
@@ -107,7 +107,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 
 
 uiPresManagedTreeItem* uiODVw2DPickSetParentTreeItem::addChildItem(
-	const OD::ObjPresentationInfo& prinfo )
+	const Presentation::ObjInfo& prinfo )
 {
     mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
     if ( !pickprinfo )
@@ -169,7 +169,7 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
 
 
 
-OD::ObjPresentationInfo* uiODVw2DPickSetTreeItem::getObjPRInfo() const
+Presentation::ObjInfo* uiODVw2DPickSetTreeItem::getObjPrInfo() const
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo;
     psprinfo->setStoredID( storedid_ );
@@ -285,7 +285,7 @@ void uiODVw2DPickSetTreeItem::handleItemCheck( bool triggervwreq )
 	vw2dpickset_->enablePainting( isChecked() );
 
     if ( triggervwreq )
-	emitPRRequest( isChecked() ? OD::Show : OD::Hide );
+	emitPrRequest( isChecked() ? Presentation::Show : Presentation::Hide );
 }
 
 

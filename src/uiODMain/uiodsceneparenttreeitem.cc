@@ -46,7 +46,7 @@ bool uiODSceneParentTreeItem::init()
     if ( !scene )
 	return false;
 
-    setPRManagedViewer( *scene );
+    setPrManagedViewer( *scene );
     return uiODTreeItem::init();
 }
 
@@ -64,12 +64,13 @@ bool uiODSceneParentTreeItem::anyButtonClick( uiTreeViewItem* item )
 
 
 void uiODSceneParentTreeItem::setMoreObjectsToDoHint( bool yn )
-{ applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn ); }
-
-
-OD::ViewerID uiODSceneParentTreeItem::getViewerID() const
 {
-    OD::ViewerID vwrid( uiODSceneMgr::theViewerTypeID(),
-			OD::ViewerObjID::get(sceneID()) );
-    return vwrid;
+    applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn );
+}
+
+
+Presentation::ViewerID uiODSceneParentTreeItem::viewerID() const
+{
+    return ViewerID( uiODSceneMgr::theViewerTypeID(),
+		     Presentation::ViewerObjID::get(sceneID()) );
 }

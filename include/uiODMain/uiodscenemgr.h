@@ -33,8 +33,10 @@ class uiWindowGrabber;
 class ZAxisTransform;
 namespace Pick { class Set; }
 namespace Geometry { class RandomLineSet; }
+using Presentation::ViewerTypeID;
 
-static OD::ViewerTypeID sSceneViewerTypeID( OD::ViewerTypeID::get(0) );
+#define mSceneViewerTypeID ViewerTypeID::get(0)
+
 
 /*!\brief Manages the scenes and the corresponding trees.
 
@@ -42,33 +44,36 @@ static OD::ViewerTypeID sSceneViewerTypeID( OD::ViewerTypeID::get(0) );
 
  */
 
-mExpClass(uiODMain) uiODScene : public OD::PresentationManagedViewer
+mExpClass(uiODMain) uiODScene : public Presentation::ManagedViewer
 {
 public:
 				uiODScene(uiMdiArea*);
 				~uiODScene();
-    OD::ViewerTypeID		viewerTypeID() const
-				{ return sSceneViewerTypeID; }
 
 private:
+
     uiDockWin*			dw_;
     uiTreeView*			lv_;
     uiMdiAreaWindow*		mdiwin_;
     ui3DViewer*			vwr3d_;
     uiODSceneTreeTop*		itemmanager_;
 
+    virtual ViewerTypeID	vwrTypeID() const
+				{ return mSceneViewerTypeID; }
+
     friend class		uiODSceneMgr;
+
 };
 
 
-mExpClass(uiODMain) uiODSceneMgr : public OD::VwrTypePresentationMgr
+mExpClass(uiODMain) uiODSceneMgr : public Presentation::VwrTypeMgr
 { mODTextTranslationClass(uiODSceneMgr)
 public:
 
-    OD::ViewerTypeID		viewerTypeID()	const
-    				{ return theViewerTypeID(); }
-    static OD::ViewerTypeID	theViewerTypeID()
-				{ return sSceneViewerTypeID; }
+    ViewerTypeID		viewerTypeID()	const
+				{ return mSceneViewerTypeID; }
+    static ViewerTypeID		theViewerTypeID()
+				{ return mSceneViewerTypeID; }
 
     void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return viewers_.size(); }

@@ -94,8 +94,7 @@ static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 
 
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
-    : OD::VwrTypePresentationMgr()
-    , appl_(*a)
+    : appl_(*a)
     , mdiarea_(new uiMdiArea(a,"OpendTect work space"))
     , vwridx_(0)
     , tifs_(new uiTreeFactorySet)
@@ -195,7 +194,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     uiODScene& scn = mkNewScene();
     scn.setZAxisTransform( zt );
     const int sceneid = visServ().addScene();
-    scn.setViewerObjID( OD::ViewerObjID::get(sceneid) );
+    scn.setViewerObjID( ViewerObjID::get(sceneid) );
     mDynamicCastGet(visSurvey::Scene*,visscene,visServ().getObject(sceneid));
     if ( visscene && scn.vwr3d_->getPolygonSelector() )
 	visscene->setPolygonSelector( scn.vwr3d_->getPolygonSelector() );
@@ -1474,8 +1473,7 @@ void uiODSceneMgr::font3DChanged( CallBacker* )
 
 // uiODScene
 uiODScene::uiODScene( uiMdiArea* mdiarea )
-	: OD::PresentationManagedViewer()
-	, lv_(0)
+	: lv_(0)
 	, dw_(0)
 	, mdiwin_(0)
         , vwr3d_(0)
@@ -1489,7 +1487,7 @@ uiODScene::uiODScene( uiMdiArea* mdiarea )
     vwr3d_->setPrefWidth( 400 );
     vwr3d_->setPrefHeight( 400 );
     mdiarea->addWindow( mdiwin_ );
-    viewerobjid_ = OD::ViewerObjID::get( vwr3d_->sceneID() );
+    viewerobjid_ = ViewerObjID::get( vwr3d_->sceneID() );
 }
 
 

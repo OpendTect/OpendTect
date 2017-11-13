@@ -12,9 +12,9 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "basemap.h"
-#include "draw.h"
 
-/*!Object that draws markers on a basemap */
+
+/*!\brief draws markers on a basemap */
 
 mExpClass(General) BaseMapMarkers : public BaseMapObject
 {
@@ -22,8 +22,8 @@ public:
 				BaseMapMarkers();
 				~BaseMapMarkers();
 
-    void			setMarkerStyle(int,const OD::MarkerStyle2D&);
-    const OD::MarkerStyle2D*	getMarkerStyle(int) const
+    void			setMarkerStyle(int,const MarkerStyle&);
+    const MarkerStyle*		markerStyle(int) const
 				{ return &markerstyle_;}
 
     TypeSet<Coord>&		positions() { return positions_; }
@@ -31,10 +31,8 @@ public:
 
     void			updateGeometry();
 
-    const char*			getType() const { return "Markers"; }
-
-    int				nrShapes() const { return 1; }
-    void			getPoints(int shapeidx,TypeSet<Coord>&) const;
+    virtual int			nrShapes() const	{ return 1; }
+    void			getPoints(int,TypeSet<Coord>&) const;
 
 protected:
 

@@ -21,14 +21,19 @@ mExpClass(uiODMain) uiODSceneParentTreeItem
 			    : public uiPresManagedParentTreeItem
 { mODTextTranslationClass(uiODSceneParentTreeItem)
 public:
+
 			uiODSceneParentTreeItem(const uiString&);
-    virtual		~uiODSceneParentTreeItem();
-    virtual bool	anyButtonClick(uiTreeViewItem*);
+			~uiODSceneParentTreeItem();
+
     bool		init();
-    OD::ViewerID	getViewerID() const;
     int			sceneID() const;
 
 protected:
+
     uiODApplMgr*	applMgr() const;
     void		setMoreObjectsToDoHint(bool yn);
+
+    virtual ViewerID	viewerID() const;
+    virtual bool	anyButtonClick(uiTreeViewItem*);
+
 };

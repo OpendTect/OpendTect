@@ -148,9 +148,9 @@ uiODVw2DTreeItem::~uiODVw2DTreeItem()
 }
 
 
-OD::ViewerID uiODVw2DTreeItem::getViewerID() const
+Presentation::ViewerID uiODVw2DTreeItem::viewerID() const
 {
-    OD::ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(),
+    Presentation::ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(),
 			viewer2D()->viewerObjID() );
     return vwrid;
 }
@@ -422,10 +422,10 @@ const uiODViewer2D* uiODVw2DParentTreeItem::viewer2D() const
 }
 
 
-OD::ViewerID uiODVw2DParentTreeItem::getViewerID() const
+Presentation::ViewerID uiODVw2DParentTreeItem::viewerID() const
 {
-    OD::ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(),
-			viewer2D()->viewerObjID() );
+    Presentation::ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(),
+				  viewer2D()->viewerObjID() );
     return vwrid;
 }
 
@@ -451,6 +451,6 @@ void uiODVw2DParentTreeItem::getVwr2DOjIDs(
 
 bool uiODVw2DParentTreeItem::init()
 {
-    setPRManagedViewer( *viewer2D() );
+    setPrManagedViewer( *viewer2D() );
     return uiODTreeItem::init();
 }

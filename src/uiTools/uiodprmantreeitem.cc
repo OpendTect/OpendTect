@@ -38,8 +38,8 @@ void uiPresManagedTreeItem::setDataObj( SharedObject* dataobj )
 
 void uiPresManagedTreeItem::prepareForShutdown()
 {
+    emitPrRequest( Presentation::Vanish );
     uiTreeItem::prepareForShutdown();
-    emitPRRequest( OD::Vanish );
 }
 
 
@@ -50,18 +50,15 @@ void uiPresManagedTreeItem::objChangedCB( CallBacker* cb )
 }
 
 
-void uiPresManagedTreeItem::emitPRRequest( OD::PresentationRequestType req )
+void uiPresManagedTreeItem::emitPrRequest( ReqType req )
 {
-    PtrMan<OD::ObjPresentationInfo> objprinfo = getObjPRInfo();
-    if ( !objprinfo )
-	return;
-
+    PtrMan<PresInfo> objprinfo = getObjPrInfo();
     IOPar objprinfopar;
-    objprinfo->fillPar( objprinfopar );
-    OD::ViewerID vwrid = getViewerID();
-    OD::PrMan().request( vwrid, req, objprinfopar );
-}
+    if ( objprinfo )
+	objprinfo->fillPar( objprinfopar );
 
+    OD::PrMan().handleRequest( viewerID(), req, objprinfopar );
+}
 
 
 uiPresManagedParentTreeItem::uiPresManagedParentTreeItem(
@@ -77,16 +74,16 @@ uiPresManagedParentTreeItem::~uiPresManagedParentTreeItem()
 }
 
 
-void uiPresManagedParentTreeItem::setPRManagedViewer(
-	OD::PresentationManagedViewer& prmanvwr )
+void uiPresManagedParentTreeItem::setPrManagedViewer(
+	Presentation::ManagedViewer& prmanvwr )
 {
     mAttachCB( prmanvwr.ObjAdded, uiPresManagedParentTreeItem::objAddedCB );
     mAttachCB( prmanvwr.VanishRequested,
-	       uiPresManagedParentTreeItem::objVanishedCB );
+	       uiPresManagedParentTreeItem::objVanishReqCB );
     mAttachCB( prmanvwr.ShowRequested,
-		uiPresManagedParentTreeItem::objShownCB );
+		uiPresManagedParentTreeItem::objShowReqCB );
     mAttachCB( prmanvwr.HideRequested,
-		uiPresManagedParentTreeItem::objHiddenCB );
+		uiPresManagedParentTreeItem::objHideReqCB );
     mAttachCB( prmanvwr.ObjOrphaned,
 		uiPresManagedParentTreeItem::objOrphanedCB );
 }
@@ -96,36 +93,35 @@ void uiPresManagedParentTreeItem::objAddedCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
-    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+    objprinfopar.get( IOPar::compKey(Presentation::sKeyObj(),sKey::Type()),
 		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiPresManagedParentTreeItem::objAddedCB, cbercaps )
-    OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
+    PresInfo* prinfo = OD::PrIFac().create( objprinfopar );
     if ( !prinfo )
 	return;
 
-    OD::ObjPresentationInfoSet prinfos;
+    PresInfoSet prinfos;
     prinfos.add( prinfo );
     addChildren( prinfos );
 }
 
 
-void uiPresManagedParentTreeItem::objVanishedCB( CallBacker* cber )
+void uiPresManagedParentTreeItem::objVanishReqCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
-    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+    objprinfopar.get( IOPar::compKey(Presentation::sKeyObj(),sKey::Type()),
 		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiPresManagedParentTreeItem::objVanishedCB, cbercaps )
-    PtrMan<OD::ObjPresentationInfo> prinfo =
-			OD::PRIFac().create( objprinfopar );
+	    uiPresManagedParentTreeItem::objVanishReqCB, cbercaps )
+    PtrMan<PresInfo> prinfo = OD::PrIFac().create( objprinfopar );
     if ( !prinfo )
 	return;
 
@@ -133,19 +129,18 @@ void uiPresManagedParentTreeItem::objVanishedCB( CallBacker* cber )
 }
 
 
-void uiPresManagedParentTreeItem::objShownCB( CallBacker* cber )
+void uiPresManagedParentTreeItem::objShowReqCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
-    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+    objprinfopar.get( IOPar::compKey(Presentation::sKeyObj(),sKey::Type()),
 		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiPresManagedParentTreeItem::objShownCB, cbercaps )
-    PtrMan<OD::ObjPresentationInfo> prinfo =
-			OD::PRIFac().create( objprinfopar );
+	    uiPresManagedParentTreeItem::objShowReqCB, cbercaps )
+    PtrMan<PresInfo> prinfo = OD::PrIFac().create( objprinfopar );
     if ( !prinfo )
 	return;
 
@@ -153,19 +148,18 @@ void uiPresManagedParentTreeItem::objShownCB( CallBacker* cber )
 }
 
 
-void uiPresManagedParentTreeItem::objHiddenCB( CallBacker* cber )
+void uiPresManagedParentTreeItem::objHideReqCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
-    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+    objprinfopar.get( IOPar::compKey(Presentation::sKeyObj(),sKey::Type()),
 		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiPresManagedParentTreeItem::objHiddenCB, cbercaps )
-    PtrMan<OD::ObjPresentationInfo> prinfo =
-			OD::PRIFac().create( objprinfopar );
+	    uiPresManagedParentTreeItem::objHideReqCB, cbercaps )
+    PtrMan<PresInfo> prinfo = OD::PrIFac().create( objprinfopar );
     if ( !prinfo )
 	return;
 
@@ -175,25 +169,25 @@ void uiPresManagedParentTreeItem::objHiddenCB( CallBacker* cber )
 
 void uiPresManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
 {
-    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    mCBCapsuleUnpack( IOPar, objprinfopar, cber );
     BufferString objtypekey;
-    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+    objprinfopar.get( IOPar::compKey(Presentation::sKeyObj(),sKey::Type()),
 		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiPresManagedParentTreeItem::objHiddenCB, cbercaps )
-    PtrMan<OD::ObjPresentationInfo> prinfo =
-			OD::PRIFac().create( objprinfopar );
+	    uiPresManagedParentTreeItem::objHideReqCB, cbercaps )
+    PtrMan<PresInfo> prinfo = OD::PrIFac().create( objprinfopar );
     if ( !prinfo )
 	return;
-    //TODO do something when we have clearer idea what to do when it happens
+
+    emitChildPrRequest( *prinfo, Presentation::Vanish );
 }
 
 
-void uiPresManagedParentTreeItem::emitChildPRRequest(
-	const OD::ObjPresentationInfo& prinfo, OD::PresentationRequestType req )
+void uiPresManagedParentTreeItem::emitChildPrRequest( const PresInfo& prinfo,
+						      ReqType req )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -202,17 +196,17 @@ void uiPresManagedParentTreeItem::emitChildPRRequest(
 	if ( !childitem )
 	    continue;
 
-	PtrMan<OD::ObjPresentationInfo> childprinfo = childitem->getObjPRInfo();
-	if ( !childprinfo->isSameObj(prinfo) )
+	PtrMan<PresInfo> childprinfo = childitem->getObjPrInfo();
+	if ( !childprinfo || !childprinfo->isSameObj(prinfo) )
 	    continue;
 
-	childitem->emitPRRequest( req );
+	childitem->emitPrRequest( req );
     }
 }
 
 
-void uiPresManagedParentTreeItem::showHideChildren(
-	const OD::ObjPresentationInfo& prinfo, bool show )
+void uiPresManagedParentTreeItem::showHideChildren( const PresInfo& prinfo,
+						    bool show )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -220,7 +214,7 @@ void uiPresManagedParentTreeItem::showHideChildren(
 	if ( !childitem )
 	    continue;
 
-	PtrMan<OD::ObjPresentationInfo> childprinfo = childitem->getObjPRInfo();
+	PtrMan<PresInfo> childprinfo = childitem->getObjPrInfo();
 	if ( !childprinfo || !childprinfo->isSameObj(prinfo) )
 	    continue;
 
@@ -230,8 +224,7 @@ void uiPresManagedParentTreeItem::showHideChildren(
 }
 
 
-void uiPresManagedParentTreeItem::removeChildren(
-	const OD::ObjPresentationInfo& prinfo )
+void uiPresManagedParentTreeItem::removeChildren( const PresInfo& prinfo )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -239,8 +232,8 @@ void uiPresManagedParentTreeItem::removeChildren(
 	if ( !childitem )
 	    continue;
 
-	PtrMan<OD::ObjPresentationInfo> childprinfo = childitem->getObjPRInfo();
-	if ( !childprinfo->isSameObj(prinfo) )
+	PtrMan<PresInfo> childprinfo = childitem->getObjPrInfo();
+	if ( !childprinfo || !childprinfo->isSameObj(prinfo) )
 	    continue;
 
 	removeChild( childitem );
@@ -249,7 +242,7 @@ void uiPresManagedParentTreeItem::removeChildren(
 
 
 void uiPresManagedParentTreeItem::getLoadedChildren(
-	OD::ObjPresentationInfoSet& prinfos ) const
+					    PresInfoSet& prinfos ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -257,15 +250,16 @@ void uiPresManagedParentTreeItem::getLoadedChildren(
 	if ( !childitem )
 	    continue;
 
-	prinfos.add( childitem->getObjPRInfo() );
+	PresInfo* prinf = childitem->getObjPrInfo();
+	if ( prinf )
+	    prinfos.add( prinf );
     }
 }
 
 
-bool uiPresManagedParentTreeItem::selectChild(
-	const OD::ObjPresentationInfo& prinfo )
+bool uiPresManagedParentTreeItem::selectChild( const PresInfo& prinfo )
 {
-    OD::ObjPresentationInfoSet objsloaded;
+    PresInfoSet objsloaded;
     getLoadedChildren( objsloaded );
     if ( !objsloaded.isPresent(prinfo) )
 	return false;
@@ -276,22 +270,18 @@ bool uiPresManagedParentTreeItem::selectChild(
 	if ( !childitem )
 	    continue;
 
-	PtrMan<OD::ObjPresentationInfo> childprinfo = childitem->getObjPRInfo();
-	if ( childprinfo->isSameObj(prinfo) )
-	{
-	    childitem->select();
-	    return true;
-	}
+	PtrMan<PresInfo> childprinfo = childitem->getObjPrInfo();
+	if ( childprinfo && childprinfo->isSameObj(prinfo) )
+	    { childitem->select(); return true; }
     }
 
     return false;
 }
 
 
-void uiPresManagedParentTreeItem::addChildren(
-    const OD::ObjPresentationInfoSet& prinfos )
+void uiPresManagedParentTreeItem::addChildren( const PresInfoSet& prinfos )
 {
-    OD::ObjPresentationInfoSet prinfostobeloaded, prinfosloaded;
+    PresInfoSet prinfostobeloaded, prinfosloaded;
     getLoadedChildren( prinfosloaded );
     for ( int idx=0; idx<prinfos.size(); idx++ )
     {

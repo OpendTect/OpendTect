@@ -115,7 +115,8 @@ bool uiODSceneProbeParentTreeItem::addChildProbe()
 
     ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
     uiPresManagedTreeItem* newitem = addChildItem( probeprinfo );
-    newitem->emitPRRequest( OD::Add );
+
+    newitem->emitPrRequest( Presentation::Add );
     return true;
 }
 
@@ -344,10 +345,11 @@ Probe* uiODSceneProbeTreeItem::getProbe()
 }
 
 
-OD::ObjPresentationInfo* uiODSceneProbeTreeItem::getObjPRInfo() const
+Presentation::ObjInfo* uiODSceneProbeTreeItem::getObjPrInfo() const
 {
     const Probe* probe = getProbe();
-    if ( !probe ) return 0;
+    if ( !probe )
+	return 0;
 
     ProbePresentationInfo* prinfo =
 	new ProbePresentationInfo( ProbeMGR().getID(*probe) );

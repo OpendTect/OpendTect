@@ -149,13 +149,14 @@ protected:
 };
 
 
-mExpClass(General) ProbePresentationInfo : public OD::ObjPresentationInfo
+mExpClass(General) ProbePresentationInfo : public Presentation::ObjInfo
 {
 public:
 					ProbePresentationInfo(const DBKey&);
 					ProbePresentationInfo();
 
-    static OD::ObjPresentationInfo*	createFrom( const IOPar&);
+    static Presentation::ObjInfo*	createFrom(const IOPar&);
     static void				initClass();
     static const char*			sFactoryKey();
+
 };

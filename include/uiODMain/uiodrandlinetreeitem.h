@@ -32,7 +32,7 @@ mExpClass(uiODMain) uiODRandomLineParentTreeItem
     virtual void		addMenuItems();
     const char*			childObjTypeKey() const;
     virtual Probe*		createNewProbe() const;
-    uiPresManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem*	addChildItem(const Presentation::ObjInfo&);
 
     void			removeChild(uiTreeItem*);
     uiRandomLinePolyLineDlg*	rdlpolylinedlg_;

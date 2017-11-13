@@ -75,8 +75,7 @@ mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 
 uiODViewer2D::uiODViewer2D( uiODMain& appl, Probe& probe,
 			    uiODViewer2D::DispSetup su )
-    : OD::PresentationManagedViewer()
-    , appl_(appl)
+    : appl_(appl)
     , vdselspec_(*new Attrib::SelSpec)
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
@@ -101,7 +100,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, Probe& probe,
     mAttachCB( probe_.objectChanged(), uiODViewer2D::probeChangedCB );
     mAttachCB( mousecursorexchange_.notifier,uiODViewer2D::mouseCursorCB );
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
-    viewerobjid_ = OD::ViewerObjID::get( vwrid++ );
+    viewerobjid_ = ViewerObjID::get( vwrid++ );
 
     setWinTitle();
 
@@ -274,13 +273,15 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 }
 
 
-void uiODViewer2D::emitPRRequest( OD::PresentationRequestType req )
+void uiODViewer2D::emitPrRequest( Presentation::RequestType req )
 {
-    OD::ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(), viewerObjID());
-    OD::ObjPresentationInfo* prinfo = getObjPRInfo();
+    Presentation::ObjInfo* prinfo = getObjPrInfo();
     IOPar objprinfopar;
-    prinfo->fillPar( objprinfopar );
-    OD::PrMan().request( vwrid, req, objprinfopar );
+    if ( prinfo )
+	prinfo->fillPar( objprinfopar );
+
+    const ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(), viewerObjID());
+    OD::PrMan().handleRequest( vwrid, req, objprinfopar );
 }
 
 
@@ -1502,7 +1503,7 @@ void uiODViewer2D::getLoadedPickSets( DBKeySet& dbkeys ) const
 {
     if ( !treetp_ ) return;
 
-    OD::ObjPresentationInfoSet loadedobjs;
+    Presentation::ObjInfoSet loadedobjs;
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
@@ -1534,7 +1535,7 @@ void uiODViewer2D::addPickSets( const DBKeySet& mids )
 			treetp_->getChild(idx))
 	if ( pickitem )
 	{
-	    OD::ObjPresentationInfoSet prinfos;
+	    Presentation::ObjInfoSet prinfos;
 	    for ( int pidx=0; pidx<mids.size(); pidx++ )
 		prinfos.add( new Pick::SetPresentationInfo(mids[pidx]) );
 	    pickitem->addChildren( prinfos );
@@ -1553,7 +1554,7 @@ void uiODViewer2D::setupNewPickSet( const DBKey& pickid )
 			treetp_->getChild(idx))
 	if ( pickpitem )
 	{
-	    OD::ObjPresentationInfoSet pickprinfos;
+	    Presentation::ObjInfoSet pickprinfos;
 	    Pick::SetPresentationInfo* newpickprinfo =
 		new Pick::SetPresentationInfo( pickid );
 	    pickprinfos.add( newpickprinfo );
@@ -1567,7 +1568,7 @@ void uiODViewer2D::setupNewPickSet( const DBKey& pickid )
 }
 
 
-OD::ObjPresentationInfo* uiODViewer2D::getObjPRInfo() const
+Presentation::ObjInfo* uiODViewer2D::getObjPrInfo() const
 {
     ProbePresentationInfo* prinfo =
 	new ProbePresentationInfo( ProbeMGR().getID(probe_) );

@@ -194,7 +194,7 @@ bool uiODRandomLineParentTreeItem::setProbeToBeAddedParams( int mnuid )
 
 
 uiPresManagedTreeItem* uiODRandomLineParentTreeItem::addChildItem(
-	const OD::ObjPresentationInfo& prinfo )
+	const Presentation::ObjInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
     if ( !probeprinfo )

@@ -321,11 +321,11 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	 !ProbeMGR().store(*newprobe).isOK() )
 	return;
 
-    OD::ViewerID invalidvwrid;
+    ViewerID invalidvwrid;
     ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
     IOPar probeinfopar;
     probeprinfo.fillPar( probeinfopar );
-    OD::PrMan().request( invalidvwrid, OD::Add, probeinfopar );
+    OD::PrMan().handleRequest( invalidvwrid, Presentation::Add, probeinfopar );
 }
 
 
@@ -497,7 +497,7 @@ bool uiODInlineParentTreeItem::setDefaultPosToBeAdded()
     const Interval<int> inlrg = SI().sampling( true ).hsamp_.lineRange();
     Interval<int> definlrg( inlrg.center(), inlrg.center() );
     probetobeaddedpos_.hsamp_.setLineRange( definlrg );
-    OD::PresentationManagedViewer* vwr = OD::PrMan().getViewer( getViewerID() );
+    Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
     if ( !vwr )
     {
 	pErrMsg( "Huh ?? No Scene found" );
@@ -528,7 +528,7 @@ Probe* uiODInlineParentTreeItem::createNewProbe() const
 
 
 uiPresManagedTreeItem* uiODInlineParentTreeItem::addChildItem(
-	const OD::ObjPresentationInfo& prinfo )
+	const Presentation::ObjInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
     if ( !probeprinfo )
@@ -613,12 +613,9 @@ bool uiODCrosslineParentTreeItem::setDefaultPosToBeAdded()
     const Interval<int> crlrg = SI().sampling( true ).hsamp_.trcRange();
     Interval<int> defcrlrg( crlrg.center(), crlrg.center() );
     probetobeaddedpos_.hsamp_.setTrcRange( defcrlrg );
-    OD::PresentationManagedViewer* vwr = OD::PrMan().getViewer( getViewerID() );
+    Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
     if ( !vwr )
-    {
-	pErrMsg( "Huh ?? No Scene found" );
-	return false;
-    }
+	{ pErrMsg( "Huh? No Scene found" ); return false; }
 
     if ( !vwr->hasZAxisTransform() )
 	return true;
@@ -645,7 +642,7 @@ Probe* uiODCrosslineParentTreeItem::createNewProbe() const
 
 
 uiPresManagedTreeItem* uiODCrosslineParentTreeItem::addChildItem(
-	const OD::ObjPresentationInfo& prinfo )
+	const Presentation::ObjInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
     if ( !probeprinfo )
@@ -727,12 +724,9 @@ bool uiODZsliceParentTreeItem::canShowSubMenu() const
 
 bool uiODZsliceParentTreeItem::setDefaultPosToBeAdded()
 {
-    OD::PresentationManagedViewer* vwr = OD::PrMan().getViewer( getViewerID() );
+    Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
     if ( !vwr )
-    {
-	pErrMsg( "Huh ?? No Scene found" );
-	return false;
-    }
+	{ pErrMsg( "Huh? No Scene found" ); return false; }
 
     const ZAxisTransform* transform = vwr->getZAxisTransform();
     StepInterval<float> zrg = transform ? transform->getZInterval(true)
@@ -753,7 +747,7 @@ Probe* uiODZsliceParentTreeItem::createNewProbe() const
 
 
 uiPresManagedTreeItem* uiODZsliceParentTreeItem::addChildItem(
-	const OD::ObjPresentationInfo& prinfo )
+	const Presentation::ObjInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
     if ( !probeprinfo )
@@ -780,17 +774,11 @@ uiString uiODZsliceTreeItem::createDisplayName() const
 {
     const Probe* probe = getProbe();
     if ( !probe )
-    {
-	pErrMsg( "Probe not found" );
-	return uiString::emptyString();
-    }
+	{ pErrMsg( "Probe not found" ); return uiString::emptyString(); }
 
-    OD::PresentationManagedViewer* vwr = OD::PrMan().getViewer( getViewerID() );
+    Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
     if ( !vwr )
-    {
-	pErrMsg( "Viewer not found" );
-	return uiString::emptyString();
-    }
+	{ pErrMsg( "Viewer not found" ); return uiString::emptyString(); }
 
     const TrcKeyZSampling probepos = probe->position();
     const ZDomain::Info& scnezdinfo = vwr->zDomain();

@@ -30,7 +30,7 @@ public:
 
     bool			showSubMenu();
     const char*			childObjTypeKey() const;
-    uiPresManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    uiPresManagedTreeItem*	addChildItem(const Presentation::ObjInfo&);
 
 protected:
 
@@ -69,7 +69,7 @@ public:
     virtual void	doSaveAs();
 
     void		handleItemCheck(bool triggervwreq);
-    OD::ObjPresentationInfo* getObjPRInfo() const;
+    PresInfo*		getObjPrInfo() const;
 
 protected:
 

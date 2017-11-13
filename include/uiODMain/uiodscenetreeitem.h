@@ -26,13 +26,13 @@ public:
     bool		anyButtonClick(uiTreeViewItem*);
 
     virtual int		sceneID() const;
+    virtual ViewerID	viewerID() const;
     void		prepareForShutdown();
 
 protected:
 
     uiODApplMgr*	applMgr();
     uiODApplMgr*	applMgr() const;
-    virtual OD::ViewerID getViewerID() const;
 
     void		setMoreObjectsToDoHint(bool yn);
     bool		getMoreObjectsToDoHint() const;

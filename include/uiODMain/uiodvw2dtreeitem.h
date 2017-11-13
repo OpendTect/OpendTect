@@ -44,6 +44,7 @@ public:
 
     void		addKeyBoardEvent();
     virtual const Vw2DDataObject* vw2DObject() const	{ return 0; }
+    virtual ViewerID	viewerID() const;
 
 protected:
 
@@ -55,7 +56,6 @@ protected:
     uiODApplMgr*	applMgr();
     uiODViewer2D*	viewer2D();
     const uiODViewer2D* viewer2D() const;
-    OD::ViewerID	getViewerID() const;
 
     void		addAction(uiMenu& mnu,uiString txt,int id,
 				  const char* icon=0,bool enab=true);
@@ -90,14 +90,16 @@ public:
 			~uiODVw2DParentTreeItem();
     bool		init();
 
+    virtual ViewerID	viewerID() const;
+
     void		getVwr2DOjIDs(const DBKey& mid,
 				       TypeSet<int>& vw2ids) const;
 protected:
+
     uiODViewer2D*	viewer2D();
     const uiODViewer2D* viewer2D() const;
     uiODApplMgr*	applMgr();
 
-    virtual OD::ViewerID getViewerID() const;
 };
 
 

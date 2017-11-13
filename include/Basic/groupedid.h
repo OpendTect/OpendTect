@@ -95,7 +95,7 @@ protected:
     ObjNrT		objnr_;
 
     inline		IDWithGroup( GroupNrT gnr, ObjNrT onr )
-			    : groupnr_(gnr), objnr_(onr) { /* keep private! */ }
+			    : groupnr_(gnr), objnr_(onr) { /*keep protected!*/ }
 
 };
 

@@ -100,7 +100,7 @@ Probe* uiODVolrenParentTreeItem::createNewProbe() const
 
 
 uiPresManagedTreeItem* uiODVolrenParentTreeItem::addChildItem(
-	const OD::ObjPresentationInfo& prinfo )
+	const Presentation::ObjInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
     if ( !probeprinfo )
