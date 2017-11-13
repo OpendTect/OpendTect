@@ -93,6 +93,13 @@ public:
     void		getStartStopIdx(int setidx,int& start,int&stop) const;
     const TypeSet<int>&	startIndexs() const { return startidxs_; }
 
+    bool		isSizeLargerThanThreshold() const;
+    static const char*	sKeyThresholdSize()
+			{ return "PointSet Size Threshold";}
+    static const char*	sKeyUseThreshold()
+			{ return "Use PointSet Size Threshold";}
+    static int		getSizeThreshold();
+
 private:
 
     enum EventType	{ Insert, PolygonClose, Remove, Move };

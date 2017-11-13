@@ -84,6 +84,8 @@ void PickSetDisplay::setSet( Pick::Set* newset )
 	return;
 
     LocationDisplay::setSet( newset );
+    if ( set_->isSizeLargerThanThreshold() )
+	set_->disp_.markertype_ = MarkerStyle3D::Point;
 
     MarkerStyle3D markerstyle;
     markerstyle.size_ = set_->disp_.pixsize_;

@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "polygon.h"
 #include "survinfo.h"
+#include "settings.h"
 #include "tabledef.h"
 #include "posimpexppars.h"
 #include "unitofmeasure.h"
@@ -19,6 +20,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sKeyConnect()	{ return "Connect"; }
 static const char* sKeyStartIdx()	{ return "Start index"; }
+
+int Pick::Set::getSizeThreshold()
+{
+    int thresholdval = 10000;
+    Settings::common().get( sKeyThresholdSize(), thresholdval );
+    return thresholdval;
+}
 
 namespace Pick
 {
@@ -688,6 +696,14 @@ void Set::moveWithUndo( int idx, const Pick::Location& undoloc,
     (*this)[idx] = undoloc;
     addUndoEvent( Move, idx, loc );
     (*this)[idx] = loc;
+}
+
+
+bool Set::isSizeLargerThanThreshold() const
+{
+    bool usethreshold = true;
+    Settings::common().getYN( sKeyUseThreshold(), usethreshold );
+    return usethreshold && size() >= getSizeThreshold();
 }
 
 

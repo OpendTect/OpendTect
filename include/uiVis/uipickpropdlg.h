@@ -37,9 +37,13 @@ protected:
     bool			acceptOK(CallBacker*);
     void			drawStyleCB(CallBacker*);
     void			drawSel(CallBacker*);
+    void			useThresholdCB(CallBacker*);
+    void			thresholdChangeCB(CallBacker*);
     
     uiGenInput*         	drawstylefld_;			
-    uiCheckBox*         	usedrawstylefld_;			
+    uiCheckBox*         	usedrawstylefld_;
+    uiCheckBox*			usethresholdfld_;
+    uiGenInput*			thresholdfld_;
 
     Pick::Set&			set_;
     visSurvey::PickSetDisplay*	psd_;
