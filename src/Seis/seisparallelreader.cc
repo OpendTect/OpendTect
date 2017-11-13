@@ -38,7 +38,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <string.h>
 
-
 namespace Seis
 {
 
@@ -140,7 +139,12 @@ bool doTrace( int itrc )
     const int idx1 = dp_.sampling().hsamp_.trcIdx( tk.trcNr() );
 
     const int startidx0 = dp_.sampling().zsamp_.nearestIndex( zsamp_.start );
+    const int stopidx0 = dp_.sampling().zsamp_.nearestIndex( zsamp_.stop );
     const int nrzsamples = zsamp_.nrSteps()+1;
+    const bool needsudfpaddingattop =
+			dp_.sampling().zsamp_.start < zsamp_.start;
+    const bool needsudfpaddingatbottom =
+			dp_.sampling().zsamp_.stop > zsamp_.stop;
     const int trczidx0 = databuf_.getZRange().nearestIndex( zsamp_.atIndex(0) );
     const int bytespersamp = dp_.getDataDesc().nrBytes();
     const od_int64 nrbytes = nrzsamples * bytespersamp;
@@ -160,7 +164,8 @@ bool doTrace( int itrc )
 				    : (char*)storptr;
 	const od_int64 offset =  storarr ? arr.info().getOffset( idx0, idx1, 0 )
 					 : 0;
-	char* dststartptr = storarr ? storarr + offset*bytespersamp : 0;
+	char* dststartptr = storarr ? storarr + (offset+startidx0)*bytespersamp
+				    : 0;
 	if ( storarr && samedatachar_ && !needresampling_ &&
 	     !compscaler && !trcscaler )
 	{
@@ -191,6 +196,36 @@ bool doTrace( int itrc )
 		    stor->setValue( valueidx++, trcval );
 		else
 		    arr.set( idx0, idx1, startidx++, trcval );
+	    }
+	}
+
+	if ( needsudfpaddingattop )
+	{
+	    if ( storptr )
+		OD::sysMemValueSet( storptr + offset, mUdf(float), startidx0 );
+	    else
+	    {
+		for ( int validx=0; validx<startidx0; validx++ )
+		{
+		    if ( stor ) stor->setValue( offset + validx, mUdf(float) );
+		    else arr.set( idx0, idx1, validx, mUdf(float) );
+		}
+	    }
+	}
+	if ( needsudfpaddingatbottom )
+	{
+	    if ( storptr )
+		OD::sysMemValueSet( storptr + offset + stopidx0 + 1,
+				    mUdf(float),
+				    dp_.sampling().zsamp_.nrSteps() - stopidx0);
+	    else
+	    {
+		const int lastidx = dp_.sampling().zsamp_.nrSteps();
+		for ( int validx=stopidx0+1; validx<=lastidx; validx++ )
+		{
+		    if ( stor ) stor->setValue( offset + validx, mUdf(float) );
+		    else arr.set( idx0, idx1, validx, mUdf(float) );
+		}
 	    }
 	}
     }
