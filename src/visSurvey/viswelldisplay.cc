@@ -551,10 +551,10 @@ bool WellDisplay::upscaleLogs( const Well::Track& track,
     if ( logfill )
 	logfill->setEmpty();
 
-    Stats::UpscaleType logdatastats =
+    const Stats::UpscaleType logdatastats =
 	logdatain->valsAreCodes() ? Stats::UseMostFreq : Stats::UseAvg;
-    Stats::UpscaleType logfillstats =
-	logfillin->valsAreCodes() ? Stats::UseMostFreq : Stats::UseAvg;
+    const Stats::UpscaleType logfillstats =
+	logfillin && logfillin->valsAreCodes() ? Stats::UseMostFreq : Stats::UseAvg;
     for ( int idah=0; idah<dahrange.nrSteps()+1; idah++ )
     {
 	const float dah = dahrange.atIndex( idah );
