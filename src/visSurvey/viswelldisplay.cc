@@ -482,10 +482,10 @@ bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
 	logfill->setEmpty();
 
     const bool filldata = logdatain == logfillin;
-    Stats::UpscaleType logdatastats =
+    const Stats::UpscaleType logdatastats =
 	logdatain->isCode() ? Stats::UseMostFreq : Stats::UseAvg;
-    Stats::UpscaleType logfillstats =
-	logfillin->isCode() ? Stats::UseMostFreq : Stats::UseAvg;
+    const Stats::UpscaleType logfillstats =
+	logfillin && logfillin->isCode() ? Stats::UseMostFreq : Stats::UseAvg;
     for ( int idah=0; idah<dahrange.nrSteps()+1; idah++ )
     {
 	const float dah = dahrange.atIndex( idah );
