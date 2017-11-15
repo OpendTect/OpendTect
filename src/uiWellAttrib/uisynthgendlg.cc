@@ -38,6 +38,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , synthChanged(this)
     , synthDisabled(this)
 {
+    setForceFinalise( true );
     setOkText( uiStrings::sApply() );
     setCancelText( uiStrings::sClose() );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
