@@ -100,24 +100,32 @@ static bool testIsCompatible()
     StepInterval<float> zrgextended( cs.zsamp_ );
     StepInterval<float> zrgshrinked( cs.zsamp_ );
     StepInterval<float> zrgshifted( cs.zsamp_ );
+    StepInterval<float> zrgstartneg( cs.zsamp_ );
     zrgextended.widen( zrgextended.step * 5 );
     zrgshrinked.widen( -zrgshrinked.step * 5 );
     zrgshifted.shift( zrgshifted.step * 0.01f );
+    zrgstartneg.start = -1.f * zrgstartneg.start;
 
     const StepInterval<double> zrgd( 1.0, 3.0, 0.004 );
     StepInterval<double> zrgdextended( zrgd );
     StepInterval<double> zrgdshrinked( zrgd );
     StepInterval<double> zrgdshifted( zrgd );
+    StepInterval<double> zrgdstartneg( zrgd );
     zrgdextended.widen( zrgdextended.step * 5 );
     zrgdshrinked.widen( -zrgdshrinked.step * 5 );
     zrgdshifted.shift( zrgdshifted.step * 0.01 );
+    zrgdstartneg.start = -1. * zrgdstartneg.start;
 
     if ( !zrgextended.isCompatible(cs.zsamp_) ||
 	 !zrgshrinked.isCompatible(cs.zsamp_) ||
 	 zrgshifted.isCompatible(cs.zsamp_) ||
+	 !zrgstartneg.isCompatible(cs.zsamp_) ||
+	 !zrgstartneg.isCompatible(zrgstartneg) ||
 	 !zrgdextended.isCompatible(zrgd) ||
 	 !zrgdshrinked.isCompatible(zrgd) ||
-	 zrgdshifted.isCompatible(zrgd) )
+	 zrgdshifted.isCompatible(zrgd) ||
+	!zrgdstartneg.isCompatible(zrgd) ||
+	!zrgdstartneg.isCompatible(zrgdstartneg) )
 	mRetResult( "testIsCompatible()" );
 }
 
