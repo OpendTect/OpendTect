@@ -1043,6 +1043,7 @@ void uiStratLayerModel::handleNewModel()
 		    modtools_->selLevelColor() );
     const bool canshowflattened = canShowFlattened();
     synthdisp_->setSnapLevelSensitive( canshowflattened );
+    modtools_->setFlatTBSensitive( canshowflattened );
 
     if ( needtoretrievefrpars_ )
     {
