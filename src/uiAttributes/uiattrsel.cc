@@ -125,28 +125,6 @@ uiAttrSelGroup::~uiAttrSelGroup()
 }
 
 
-
-class uiStoredDataGroup : public uiAttrSelGroup
-{ mODTextTranslationClass(uiStoredDataGroup)
-public:
-uiStoredDataGroup( uiParent* p, Attrib::SelInfo& selinfo )
-    : uiAttrSelGroup(p,tr(""))
-    , selinfo_(selinfo)
-{
-    listfld_->addItems( selinfo_.ioobjnms_ );
-}
-
-
-void fillSelSpec( Attrib::SelSpec& ) const
-{
-}
-
-protected:
-
-    Attrib::SelInfo&	selinfo_;
-};
-
-
 #define mImplInitVar \
 	: uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle, \
 					mODHelpKey(mAttrSelDlgNo_NNHelpID))) \
