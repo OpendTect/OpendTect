@@ -14,6 +14,7 @@ ___________________________________________________________________
 #include "uigridlinesdlg.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
 #include "uioddatatreeitem.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -202,7 +203,14 @@ bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
     }
 
     attriblayer->setSelSpec( attrlayselspec );
-    attriblayer->useDisplayPars();
+    if ( !attriblayer->useDisplayPars() )
+    {
+	uiMSG().message( tr("No saved color settings found for the selected"
+	      " cube. Default settings will be loaded. For changing "
+	"these settings, click on \"Save Color Settings\" option in tree."),
+	uiString::emptyString(), uiString::emptyString(), true );
+	attriblayer->saveDisplayPars();
+    }
     probe.addLayer( attriblayer );
     return true;
 }

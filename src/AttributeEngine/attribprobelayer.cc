@@ -18,7 +18,6 @@ ___________________________________________________________________
 #include "seisioobjinfo.h"
 #include "datadistributionextracter.h"
 
-
 AttribProbeLayer::AttribProbeLayer( DispType dt )
     : ProbeLayer()
     , colseq_(ColTab::SeqMGR().getDefault(false))
@@ -314,6 +313,7 @@ void AttribProbeLayer::saveDisplayPars()
 
     iop.set( sKey::Name(), colseq_->name() );
     mapper_->setup().fillPar( iop );
+    iop.set( sKey::Type(), "Fixed" );
 
     seisobj->saveDisplayPars( iop );
 }
