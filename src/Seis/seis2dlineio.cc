@@ -84,6 +84,8 @@ bool Seis2DTraceGetter::ensureTranslator() const
 	tr_->setSelData( seldata_ );
     }
 
+    tr_->commitSelections();
+
     return true;
 }
 

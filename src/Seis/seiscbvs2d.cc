@@ -293,6 +293,7 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
     DataCharacteristics::getUserTypeFromPar( obj.pars(), preseldt_ );
     if ( !File::exists(dirnm) && !File::createDir(dirnm) )
 	errmsg_ = tr("Cannot create directory '%1'").arg(fp.pathOnly() );
+    tr_->commitSelections();
 }
 
 
