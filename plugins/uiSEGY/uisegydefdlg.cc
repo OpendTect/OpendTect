@@ -253,11 +253,13 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
     if ( fp.isEmpty() )
 	mErrLabelRet(tr("No SEGY Files linked to %1").arg(obj.name()));
 
+    const File::MultiSpec fs( fp.pathOnly() );
+    const BufferString absfnm = fs.absFileName();
     uiString olddirtxt( tr("Old location of SEGY files:  %1")
-			.arg(fp.pathOnly()) );
+			.arg(absfnm.buf()) );
     lbl = new uiLabel( this, olddirtxt );
 
-    uiFileSel::Setup fssu( fp.pathOnly() );
+    uiFileSel::Setup fssu( absfnm.buf() );
     fssu.objtype( tr("Location") ).selectDirectory();
     dirsel_ = new uiFileSel( this, tr("New location"), fssu );
     dirsel_->newSelection.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
