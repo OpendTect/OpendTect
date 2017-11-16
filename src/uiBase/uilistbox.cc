@@ -12,11 +12,11 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uifont.h"
+#include "uiicon.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
 #include "uipixmap.h"
-#include "uiicon.h"
 
 #include "bufstringset.h"
 #include "color.h"
@@ -638,7 +638,7 @@ void uiListBox::updateFields2ChoiceMode()
 	    mSetChecked( idx, false );
     }
 
-    checkgrp_->display( hascheck );
+    checkgrp_->display( hascheck, true );
 }
 
 
