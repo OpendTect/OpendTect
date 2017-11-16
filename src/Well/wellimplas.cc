@@ -110,6 +110,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 			mErrRet( "Invalid LAS-like file" )
 
 		    lfi.lognms += new BufferString( wordbuf );
+		    lfi.logcurves.add( wordbuf );
+		    lfi.logunits.add( unstr );
 		}
 		convs_ += UnitOfMeasure::getGuessed( unstr );
 		unitmeasstrs_.add( unstr );
