@@ -941,9 +941,10 @@ bool TrcKeySampling::trcOK( Pos::TraceID tid, bool ignoresteps ) const
 }
 
 
-bool TrcKeySampling::includes( const TrcKey& tk ) const
+bool TrcKeySampling::includes( const TrcKey& tk, bool ignoresteps ) const
 {
-    return survid_==tk.survID() && lineOK(tk.lineNr())	&& trcOK(tk.trcNr());
+    return survid_==tk.survID() && lineOK(tk.lineNr(),ignoresteps)
+				&& trcOK(tk.trcNr(),ignoresteps);
 }
 
 

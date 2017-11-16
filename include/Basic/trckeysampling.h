@@ -32,7 +32,7 @@ public:
 			TrcKeySampling(const TrcKeySampling&);
 
     bool		is2D() const	{ return TrcKey::is2D(survid_); }
-    Pos::GeomID getGeomID() const;
+    Pos::GeomID		getGeomID() const;
 
     TrcKeySampling&	set(const Interval<int>& linerg,
 			    const Interval<int>& trcnrrg);
@@ -55,7 +55,7 @@ public:
 
     bool		includes(const TrcKeySampling&,
 				 bool ignoresteps=false) const;
-    bool		includes(const TrcKey&) const;
+    bool		includes(const TrcKey&,bool ignoresteps=false) const;
     bool		lineOK(Pos::LineID,bool ignoresteps=false) const;
     bool		trcOK(Pos::TraceID,bool ignoresteps=false) const;
 
