@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
+#include "uimsg.h"
 
 #include "attribdescset.h"
 #include "coltabmapper.h"
@@ -277,6 +278,15 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     	    seq = ColTab::Sequence( ctname );
     	    mapper.usePar( iop );
 	}
+	else
+	{
+	    uiMSG().message(tr("No saved color settings found for the selected"
+		" cube. Default settings will be loaded. For changing "
+	  "these settings, click on \"Save Color Settings\" option in tree."),
+	  uiString::emptyString(),uiString::emptyString(),true);
+
+	    saveDefColTab( visid, attrib );
+	}
     }
 
     am_.visserv_->setColTabMapperSetup( visid, attrib, mapper );
@@ -306,6 +316,8 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
 
     if ( mapper )
 	mapper->fillPar( iop );
+
+    iop.set( sKey::Type(), "Fixed" );
 
     iop.write( fp.fullPath(), sKey::Pars() );
 }
