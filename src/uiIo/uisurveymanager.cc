@@ -577,6 +577,7 @@ void uiSurveyManager::putToScreen()
 
 	inlgrid_->set( inlines, crlines, hs );
 	inlgridview_->setGrid( inlgrid_, cursi );
+	inlgridview_->show( cursi->has3D() );
     }
 
     survmap_->setSurveyInfo( cursi );
