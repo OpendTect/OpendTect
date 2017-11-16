@@ -6,12 +6,13 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "wellimpasc.h"
+
 #include "sorting.h"
 #include "strmprov.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "varlenarray.h"
-#include "wellimpasc.h"
 #include "welldata.h"
 #include "welltrack.h"
 #include "welllog.h"
@@ -100,7 +101,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		}
 		if ( lfi.depthcolnr < 0
 			&& FixedString(wordbuf).startsWith("dept",
-			    				   CaseInsensitive) )
+							   CaseInsensitive) )
 		    lfi.depthcolnr = colnr;
 		else
 		{
@@ -158,7 +159,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    }
 		}
 		if ( lognm.isEmpty() ||
-		     lognm.startsWith("Run",CaseInsensitive))
+		     lognm.startsWith("Run",CaseInsensitive) )
 		    lognm = keyw;
 
 		lfi.logcurves.add( curve );
@@ -280,7 +281,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 	const bool ispresent = indexOf( lfi.lognms, lognm ) >= 0;
 	if ( !ispresent )
 	    continue;
-	if ( wd_->logs().getLog( lognm ) )
+	if ( wd_->logs().getLog(lognm) )
 	{
 	    BufferString msg( lognm );
 	    msg += " already exists, will be ignored.";
