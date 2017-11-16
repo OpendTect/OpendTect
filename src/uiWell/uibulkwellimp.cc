@@ -279,7 +279,7 @@ void uiBulkLogImport::lasSel( CallBacker* )
 	const BufferString& fnm = filenms.get( idx );
 	Well::LASImporter lasimp;
 	Well::LASImporter::FileInfo info;
-	info.undefval = udffld_->getfValue();
+	info.undefval = udffld_->getFValue();
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 
 	wellstable_->setText( RowCol(idx,0), info.wellnm );
