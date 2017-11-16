@@ -192,17 +192,16 @@ uiCmdDriverDlg::~uiCmdDriverDlg()
 }
 
 
-#define mPopUp( dlg, unhide ) \
-    if ( dlg && (!dlg->isHidden() || unhide) ) \
-    { \
-	dlg->showNormal(); \
-	dlg->raise(); \
-    } \
-
 void uiCmdDriverDlg::popUp()
 {
-     mPopUp( this, true );
-     mPopUp( interactdlg_, interactdlg_->unHide() );
+    showNormal();
+    raise();
+
+    if ( interactdlg_ && (!interactdlg_->isHidden() || interactdlg_->unHide()) )
+    {
+	interactdlg_->showNormal();
+	interactdlg_->raise();
+    }
 }
 
 
