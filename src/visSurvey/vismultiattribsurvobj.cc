@@ -156,7 +156,7 @@ bool MultiTextureSurveyObject::addAttrib()
     Attrib::SelSpec as;
     if ( getAllowedDataType() == Only2D )
     {
-	as.set2DFlag( true );
+	as.set2D( true );
 	as.setObjectRef( getDBKey().toString() );
     }
     as_ += new TypeSet<Attrib::SelSpec>( 1, as );

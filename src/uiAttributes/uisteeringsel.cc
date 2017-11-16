@@ -348,5 +348,5 @@ void uiSteerAttrSel::fillSelSpec( SelSpec& as, bool inldip )
 {
     as.set( 0, inldip ? inlDipID() : crlDipID(), false, "" );
     as.setRefFromID( attrdata_.attrSet() );
-    as.set2DFlag( is2D() );
+    as.set2D( is2D() );
 }

@@ -142,7 +142,7 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 	    newdesc->getDefStr( bfs );
 	    as.setDefString( bfs.buf() );
 	    as.setRefFromID( *curdescset );
-	    as.set2DFlag( is2d );
+	    as.set2D( is2d );
 	    targetspecs += as;
 	}
     }

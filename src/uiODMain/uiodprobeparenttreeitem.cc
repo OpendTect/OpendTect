@@ -183,7 +183,7 @@ static bool getSelAttribSelSpec( Probe& probe, Attrib::SelSpec& selattr,
 bool uiODSceneProbeParentTreeItem::getSelAttrSelSpec(
 	Probe& probe, Attrib::SelSpec& selattr ) const
 {
-    selattr.set2DFlag( probe.is2D() );
+    selattr.set2D( probe.is2D() );
     return getSelAttribSelSpec( probe, selattr, *applMgr(), sceneID(),
 			      tr("Select attribute to display") );
 }
@@ -317,7 +317,7 @@ uiODDataTreeItem* uiODSceneProbeTreeItem::createAttribItem(
     uiODApplMgr* applmgr = const_cast<uiODSceneProbeTreeItem*>(this)->applMgr();
     AttribProbeLayer* attriblayer = new AttribProbeLayer;
     Attrib::SelSpec attrlayselspec = as ? *as : attriblayer->selSpec();
-    attrlayselspec.set2DFlag( parentprobe->is2D() );
+    attrlayselspec.set2D( parentprobe->is2D() );
     if ( !getSelAttribSelSpec(*parentprobe,attrlayselspec,*applmgr,sceneID(),
 			      tr("Select attribute to display")) )
     {

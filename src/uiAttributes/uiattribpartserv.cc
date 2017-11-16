@@ -1735,7 +1735,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     else
 	as.setRefFromID( *DSHolder().getDescSet(is2d, isstored) );
 
-    as.set2DFlag( is2d );
+    as.set2D( is2d );
 
     return true;
 }
@@ -1854,7 +1854,7 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	}
 
 	as.setRefFromID( *ads );
-	as.set2DFlag( is2d );
+	as.set2D( is2d );
 	targetspecs_ += as;
     }
     set2DEvent( is2d );

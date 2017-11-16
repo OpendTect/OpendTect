@@ -1804,7 +1804,7 @@ bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
     const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
     BufferString savedusrref = tmpset.size() ? tmpset[0].objectRef() : "";
     as.setObjectRef( savedusrref );
-    as.set2DFlag( attrserv_->is2DEvent() );
+    as.set2D( attrserv_->is2DEvent() );
     as.setUserRef( tmpset[0].userRef() );
     if ( tmpset.isEmpty() )
 	visserv_->setSelSpec( visid, attrib, as );

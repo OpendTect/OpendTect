@@ -35,7 +35,11 @@
 namespace Attrib
 {
 
-uiString DescSet::sFactoryEntryNotFound(const char* attrnm)
+const DescSet& DescSet::empty2D()
+{ mDefineStaticLocalObject( DescSet, ret, (true) ); return ret; }
+const DescSet& DescSet::empty3D()
+{ mDefineStaticLocalObject( DescSet, ret, (false) ); return ret; }
+uiString DescSet::sFactoryEntryNotFound( const char* attrnm )
 {
     return uiStrings::phrCannotCreate( tr("an instance of attribute %1")
 					.arg(attrnm) );

@@ -11,11 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
+#include "attribdescid.h"
 #include "refcount.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "seistype.h"
-#include "attribdescid.h"
 #include "typeset.h"
 
 

@@ -1132,7 +1132,7 @@ void Seis2DDisplay::clearTexture( int attribnr )
     channels_->turnOn( false );
 
     Attrib::SelSpec as;
-    as.set2DFlag(true);
+    as.set2D(true);
     setSelSpec( attribnr, as );
 }
 

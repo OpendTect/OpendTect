@@ -47,17 +47,6 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "od_helpids.h"
 
-const Attrib::DescSet& emptyads2d()
-{
-    mDefineStaticLocalObject( Attrib::DescSet, res, (true) );
-    return res;
-}
-
-const Attrib::DescSet& emptyads3d()
-{
-    mDefineStaticLocalObject( Attrib::DescSet, res, (false) );
-    return res;
-}
 
 using namespace Attrib;
 
@@ -73,7 +62,7 @@ using namespace Attrib;
 }
 
 uiAttrSelData::uiAttrSelData( bool is2d, bool fillwithdef )
-    : attrset_(is2d ? &emptyads2d() : &emptyads3d() )
+    : attrset_(is2d ? &DescSet::empty2D() : &DescSet::empty3D() )
     mImplConstr
 
 
@@ -106,7 +95,7 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
     }
 
     if ( is2D() )
-	as.set2DFlag();
+	as.set2D();
 }
 
 

@@ -163,6 +163,10 @@ public:
     bool		usePar(const IOPar&,uiStringSet* errmsgs=0);
     bool		useOldSteeringPar(IOPar&,ObjectSet<Desc>&,
 					  uiStringSet*);
+
+    static const DescSet& empty2D();
+    static const DescSet& empty3D();
+
 protected:
 
     DescID		getFreeID() const;

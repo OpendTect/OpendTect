@@ -78,11 +78,11 @@ public:
 			{ ref_ = r; id_ = i; isnla_ = isnla; objref_ = objr;
 		          defstring_ = ""; zdomainkey_ = ""; }
 
+    void		set2D( bool yn = true )		{ is2d_ = yn; }
     void		setIDFromRef(const NLAModel&);
     void		setIDFromRef(const DescSet&);
     void		setRefFromID(const NLAModel&);
     void		setRefFromID(const DescSet&);
-    void		set2DFlag( bool yn = true )	{ is2d_ = yn; }
 
     const StepInterval<int>&	discrSpec() const	{ return discrspec_; }
     void		setDiscrSpec( const StepInterval<int>& ds )

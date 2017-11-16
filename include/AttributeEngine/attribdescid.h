@@ -16,11 +16,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-/*!
-\brief AttribDesc ID: each Desc has a unique ID in a set; the boolean
-isstored allows us to know whether this Desc is to be found in the DescSet
-dedicated for stored Attributes.
-*/
+/*!\brief unique ID in a DescSet combined with whether it's stored.  */
 
 mExpClass(AttributeEngine) DescID
 {
@@ -31,7 +27,7 @@ public:
 			DescID( int id, bool isstored )
 			    : id_(id)
 			    , isstored_(isstored)		{}
-    			DescID( const DescID& id )
+			DescID( const DescID& id )
 			    : id_(id.id_)
 			    , isstored_(id.isstored_)		{}
     inline DescID&	operator =( const DescID& id )
@@ -39,19 +35,10 @@ public:
     inline bool		isValid() const		{ return id_ >= 0; }
     inline bool		isUnselInvalid() const	{ return id_ < -2; }
 
-    /*
-    inline bool		operator <(int id) const
-			{ return id_ < id; }
-    inline bool		operator >(int id) const
-			{ return id_ > id; }
-    inline bool		operator >=(int id) const
-			{ return id_ >= id; }
-			*/
-
     inline bool		operator ==( const DescID& id ) const
-			{ return id.id_ == id_ && isstored_ == id.isstored_; }
+			{ return id.id_ == id_; }
     inline bool		operator !=( const DescID& id ) const
-			{ return id.id_ != id_ || isstored_ != id.isstored_;; }
+			{ return id.id_ != id_; }
 
     static inline DescID undef()		{ return DescID(-1,false); }
 
@@ -64,6 +51,7 @@ protected:
 
     int			id_;
     bool		isstored_;
+
 };
 
 } // namespace Attrib
