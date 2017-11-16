@@ -6,8 +6,9 @@
 
 
 #include "wellimpasc.h"
-#include "staticstring.h"
+
 #include "sorting.h"
+#include "staticstring.h"
 #include "strmprov.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -110,6 +111,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 			mErrRet( "Invalid LAS-like file" )
 
 		    lfi.lognms += new BufferString( wordbuf );
+		    lfi.logcurves.add( wordbuf );
+		    lfi.logunits.add( unstr );
 		}
 		convs_ += UnitOfMeasure::getGuessed( unstr );
 		unitmeasstrs_.add( unstr );
@@ -130,6 +133,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		lfi.depthcolnr = colnr;
 	    else
 	    {
+		BufferString curve( keyw );
 		BufferString lognm( info );
 		if ( *lognm.buf() >= '0' && *lognm.buf() <= '9' )
 		{
@@ -154,9 +158,13 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 			newptr += 10; lognm += newptr; lognm += ")";
 		    }
 		}
-		if ( lognm.isEmpty() || lognm.startsWith("Run",CaseInsensitive))
+		if ( lognm.isEmpty() ||
+		     lognm.startsWith("Run",CaseInsensitive) )
 		    lognm = keyw;
-		lfi.lognms += new BufferString( lognm );
+
+		lfi.logcurves.add( curve );
+		lfi.lognms.add( lognm );
+		lfi.logunits.add( val1 );
 	    }
 
 	    colnr++;
@@ -239,16 +247,16 @@ void Well::LASImporter::parseHeader( char* startptr, char*& val1, char*& val2,
 
 
 const char* Well::LASImporter::getLogs( const char* fnm, const FileInfo& lfi,
-					bool istvd )
+					bool istvd, bool usecurvenms )
 {
     mOpenFile( fnm );
-    const char* res = getLogs( strm, lfi, istvd );
+    const char* res = getLogs( strm, lfi, istvd, usecurvenms );
     return res;
 }
 
 
-const char* Well::LASImporter::getLogs( od_istream& strm,
-					const FileInfo& lfi, bool istvd )
+const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
+					bool istvd, bool usecurvenms )
 {
     FileInfo inplfi;
     const char* res = getLogInfo( strm, inplfi );
@@ -262,15 +270,25 @@ const char* Well::LASImporter::getLogs( od_istream& strm,
     if ( lfi.depthcolnr < 0 )
 	const_cast<FileInfo&>(lfi).depthcolnr = inplfi.depthcolnr;
     const int addstartidx = wd_->logs().size();
-    BoolTypeSet issel( inplfi.lognms.size(), false );
+    BoolTypeSet issel( inplfi.size(), false );
 
-    for ( int idx=0; idx<inplfi.lognms.size(); idx++ )
+    const BufferStringSet& lognms =
+		usecurvenms ? inplfi.logcurves : inplfi.lognms;
+    for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	const int colnr = idx + (idx >= lfi.depthcolnr ? 1 : 0);
-	const BufferString& lognm = inplfi.lognms.get(idx);
+	const BufferString& lognm = lognms.get(idx);
 	const bool ispresent = lfi.lognms.isPresent( lognm );
 	if ( !ispresent )
 	    continue;
+
+	if ( wd_->logs().isPresent(lognm) )
+	{
+	    BufferString msg( lognm );
+	    msg += " already exists, will be ignored.";
+	    pErrMsg( msg );
+	    continue;
+	}
 
 	issel[idx] = true;
 	Well::Log* newlog = new Well::Log( lognm );
@@ -286,7 +304,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm,
     }
 
     return getLogData( strm, issel, lfi, istvd, addstartidx,
-			inplfi.lognms.size() + 1 );
+			inplfi.size()+1 );
 }
 
 

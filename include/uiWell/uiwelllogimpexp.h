@@ -1,5 +1,4 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
@@ -15,21 +14,20 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
-class uiGenInput;
-class uiFileSel;
-class uiListBox;
 class uiButtonGroup;
+class uiFileSel;
+class uiGenInput;
 class uiLabel;
+class uiTable;
 class uiWellSel;
 
 namespace Well { class Log; class Data; }
 
 
-
 /*!\brief Dialog for loading logs from las file */
 
 mExpClass(uiWell) uiImportLogsDlg : public uiDialog
-{ mODTextTranslationClass(uiImportLogsDlg);
+{ mODTextTranslationClass(uiImportLogsDlg)
 public:
 			uiImportLogsDlg(uiParent*,const IOObj*);
 
@@ -41,8 +39,9 @@ protected:
     uiGenInput*		istvdfld_;
     uiGenInput*		udffld_;
     uiLabel*		unitlbl_;
-    uiListBox*		logsfld_;
     uiWellSel*		wellfld_;
+    uiTable*		logstable_;
+    uiGenInput*		lognmfld_;
 
     bool		acceptOK();
     void		lasSel(CallBacker*);
@@ -52,7 +51,7 @@ protected:
 /*!\brief Dialog for writing logs to an ASCII file */
 
 mExpClass(uiWell) uiExportLogs : public uiDialog
-{ mODTextTranslationClass(uiExportLogs);
+{ mODTextTranslationClass(uiExportLogs)
 public:
 			uiExportLogs(uiParent*,
 				const ObjectSet<Well::Data>&,
@@ -77,5 +76,4 @@ protected:
     virtual bool	acceptOK();
     uiString		getDlgTitle( const ObjectSet<Well::Data>& wds,
 				     const BufferStringSet& lognms );
-
 };

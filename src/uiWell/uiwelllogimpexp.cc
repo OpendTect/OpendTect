@@ -10,31 +10,31 @@ ________________________________________________________________________
 
 #include "uiwelllogimpexp.h"
 
-#include "uigeninput.h"
-#include "uifilesel.h"
-#include "uifiledlg.h"
-#include "uiioobjsel.h"
-#include "uilabel.h"
-#include "uilistbox.h"
-#include "uimsg.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
-#include "uiwellsel.h"
+#include "uifiledlg.h"
+#include "uifilesel.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uitable.h"
 #include "uiunitsel.h"
+#include "uiwellsel.h"
 
+#include "dbman.h"
+#include "file.h"
+#include "ioobj.h"
 #include "od_iostream.h"
 #include "od_helpids.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellimpasc.h"
-#include "wellmanager.h"
-#include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "ioobj.h"
-#include "dbman.h"
-#include "file.h"
+#include "wellmanager.h"
+#include "welltrack.h"
 
 
 static const float defundefval = -999.25;
@@ -73,13 +73,22 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 		    FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Logs to import") );
-    logsfld_ = new uiListBox( this, su );
-    logsfld_->attach( alignedBelow, udffld_ );
+    BufferStringSet colnms;
+    colnms.add( "Curve" ).add( "Unit" ).add( "Description" );
+    logstable_ = new uiTable( this, uiTable::Setup(3,3), "Logs in file" );
+    logstable_->setColumnLabels( colnms.getUiStringSet() );
+    logstable_->setSelectionMode( uiTable::Multi );
+    logstable_->setSelectionBehavior( uiTable::SelectRows );
+    logstable_->attach( ensureBelow, udffld_ );
+
+    lognmfld_ = new uiGenInput( this, tr("Name log after"),
+	    BoolInpSpec(true,tr("Curve"),tr("Description")) );
+    lognmfld_->attach( alignedBelow, udffld_ );
+    lognmfld_->attach( ensureBelow, logstable_ );
 
     wellfld_ = new uiWellSel( this, true, tr("Add to Well"), false );
     if ( ioobj ) wellfld_->setInput( *ioobj );
-    wellfld_->attach( alignedBelow, logsfld_ );
+    wellfld_->attach( alignedBelow, lognmfld_ );
 }
 
 
@@ -94,9 +103,16 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     const char* res = wdai.getLogInfo( lasfnm, lfi );
     if ( res ) { uiMSG().error( toUiString(res) ); return; }
 
-    logsfld_->setEmpty();
-    logsfld_->addItems( lfi.lognms.getUiStringSet() );
-    logsfld_->chooseAll( true );
+    logstable_->setNrRows( lfi.size() );
+    for ( int idx=0; idx<lfi.size(); idx++ )
+    {
+	logstable_->setText( RowCol(idx,0), lfi.logcurves.get(idx) );
+	logstable_->setText( RowCol(idx,1), lfi.logunits.get(idx) );
+	logstable_->setText( RowCol(idx,2), lfi.lognms.get(idx) );
+    }
+
+    logstable_->setColumnResizeMode( uiTable::ResizeToContents );
+    logstable_->setColumnStretchable( 2, true );
 
     uiString lbl = toUiString("(%1)").arg(toUiString(lfi.zunitstr.buf()));
     unitlbl_->setText( lbl );
@@ -151,7 +167,18 @@ bool uiImportLogsDlg::acceptOK()
     if ( !lasfnm || !*lasfnm )
 	mErrRet( uiStrings::phrEnter(tr("a valid file name")) )
 
-    BufferStringSet lognms; logsfld_->getChosen( lognms );
+    const bool usecurvenms = lognmfld_ ? lognmfld_->getBoolValue() : false;
+    BufferStringSet lognms;
+    if ( logstable_ )
+    {
+	const int colidx = usecurvenms ? 0 : 2;
+	for ( int idx=0; idx<logstable_->nrRows(); idx++ )
+	{
+	    if ( logstable_->isRowSelected(idx) )
+		lognms.add( logstable_->text(RowCol(idx,colidx)) );
+	}
+    }
+
     if ( lognms.isEmpty() )
 	mErrRet( uiStrings::phrPlsSelectAtLeastOne(tr("log to import")) )
 
@@ -177,7 +204,8 @@ bool uiImportLogsDlg::acceptOK()
     }
 
     lfi.lognms = lognms;
-    const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue() );
+    const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue(),
+				    usecurvenms );
     if ( res )
 	mErrRet( toUiString(res) )
 
