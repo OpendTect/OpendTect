@@ -792,7 +792,9 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
     const int nrstepsi = mNINT32( nrsteps ); \
     if ( !nrstepsi ) \
 	return mIsEqual( start, b.start, \
-			 mIsZero(start,releps) ? releps : start * releps ); \
+		     mIsZero(start,releps) ? releps \
+					   : start < 0. ? -start * releps \
+							:  start * releps );\
 \
     typ reldiff = (nrsteps - nrstepsi) / nrsteps; \
     return ( (reldiff) < (releps) && (reldiff) > (-releps) ); \
