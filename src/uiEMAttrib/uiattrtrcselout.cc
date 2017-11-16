@@ -219,6 +219,17 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
     outsidevalfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)gatefld_
 						   : (uiGroup*)seissubselfld_ );
     outsidevalfld_->setValue(0);
+
+    uiPushButton* undefbut =
+	new uiPushButton( prnt, tr("Set to Undefined"), true );
+    undefbut->attach( rightTo, outsidevalfld_ );
+    undefbut->activated.notify( mCB(this,uiAttrTrcSelOut,undefCB) );
+}
+
+
+void uiAttrTrcSelOut::undefCB( CallBacker* )
+{
+    outsidevalfld_->setText( sKey::FloatUdf() );
 }
 
 

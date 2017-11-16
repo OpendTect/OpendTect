@@ -45,14 +45,15 @@ protected:
 
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
-    void                objSel(CallBacker*);
-    void                attribSel(CallBacker*);
+    void		objSel(CallBacker*);
+    void		attribSel(CallBacker*);
     void		interpSel(CallBacker*);
     void		extraWidthSel(CallBacker*);
-    void                cubeBoundsSel(CallBacker*);
-    void                extraParsCB(CallBacker*);
-    void                extraDlgDone(CallBacker*);
-    void                lineSel(CallBacker*);
+    void		cubeBoundsSel(CallBacker*);
+    void		extraParsCB(CallBacker*);
+    void		extraDlgDone(CallBacker*);
+    void		lineSel(CallBacker*);
+    void		undefCB(CallBacker*);
 
     void		createSingleHorUI();
     void		createTwoHorUI();
@@ -78,8 +79,8 @@ protected:
     uiIOObjSel*		objfld_;
     uiIOObjSel*		obj2fld_;
     uiGenInput*		gatefld_;
-    uiGenInput*         extraztopfld_;
-    uiGenInput*         extrazbotfld_;
+    uiGenInput*		extraztopfld_;
+    uiGenInput*		extrazbotfld_;
     uiSeisSubSel*	seissubselfld_;
     uiGenInput*		outsidevalfld_;
     uiGenInput*		interpfld_;
@@ -89,13 +90,13 @@ protected:
     uiGenInput*		addwidthfld_;
     uiGenInput*		setcubeboundsfld_;
     uiGenInput*		cubeboundsfld_;
-    uiSeisSel*          outpfld_;
+    uiSeisSel*		outpfld_;
     uiDialog*		xparsdlg_;
     bool		usesinglehor_;
 
 private:
 
-    CtxtIOObj&          mkCtxtIOObjHor(bool);
+    CtxtIOObj&		mkCtxtIOObjHor(bool);
 
 };
 
