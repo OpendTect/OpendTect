@@ -63,17 +63,17 @@ bool ZAxisTransformPointGenerator::doWork(
 			od_int64 start, od_int64 stop, int threadid )
 {
     if ( !dps_ ) return false;
-    BinIDValue curpos;
-    curpos.val() = tkzs_.zsamp_.start;
+
+    const float val = tkzs_.zsamp_.start;
     iter_.setCurrentPos( start );
     for ( od_int64 idx=start; idx<=stop; idx++, iter_.next() )
     {
-	curpos = iter_.curBinID();
-	const float depth = transform_.transformBack( curpos );
+	const BinID bid = iter_.curBinID();
+	const float depth = transform_.transformTrcBack( bid, val);
 	if ( mIsUdf(depth) )
 	    continue;
 
-	DataPointSet::Pos newpos( curpos, depth );
+	DataPointSet::Pos newpos( bid, depth );
 	DataPointSet::DataRow dtrow( newpos );
 	TypeSet<float> vals;
 	dtrow.getBVSValues( vals, dps_->is2D(), dps_->isMinimal() );
