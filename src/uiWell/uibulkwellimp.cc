@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "welltransl.h"
 
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uiconstvel.h"
 #include "uifiledlg.h"
 #include "uifilesel.h"
@@ -188,9 +189,11 @@ bool uiBulkTrackImport::acceptOK()
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( uiStrings::phrInput(mJoinUiStrs(sFile(),sName())) )
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet( uiStrings::sCantOpenInpFile() )
+
     if ( !dataselfld_->commit() )
 	return false;
 
@@ -224,8 +227,8 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     uiFileSel::Setup fssu;
     fssu.selectMultiFile()
 	.setFormat( tr("LAS files"), "las", "dat" );
-    inpfld_ = new uiFileSel( this, uiStrings::phrInput(tr("LAS files")),
-			      fssu );
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(tr("LAS files")), fssu );
+    inpfld_->newSelection.notify( mCB(this,uiBulkLogImport,lasSel) );
 
     istvdfld_ = new uiGenInput( this, tr("Depth values are"),
 		    BoolInpSpec(false,tr("TVDSS"),tr("MD")) );
@@ -235,11 +238,59 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
     udffld_ = new uiGenInput( this, tr("Undefined value in logs"),
 		    FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
+
+    lognmfld_ = new uiGenInput( this, tr("Name log after"),
+		BoolInpSpec(true,tr("Curve"),tr("Description")) );
+    lognmfld_->attach( alignedBelow, udffld_ );
+
+    uiStringSet colnms;
+    colnms.add( tr("Well name in LAS") ).add( tr("Well name in OpendTect") );
+    wellstable_ = new uiTable( this, uiTable::Setup(3,2), "Wells" );
+    wellstable_->setColumnLabels( colnms );
+    wellstable_->setColumnReadOnly( 0, true );
+    wellstable_->attach( ensureBelow, lognmfld_ );
 }
 
 
 uiBulkLogImport::~uiBulkLogImport()
 {}
+
+
+static void getWellNames( BufferStringSet& wellnms )
+{
+    const IOObjContext ctxt = mIOObjContext( Well );
+    DBDirEntryList list( ctxt );
+    for ( int idx=0; idx<list.size(); idx++ )
+	wellnms.add( list.name(idx) );
+}
+
+
+void uiBulkLogImport::lasSel( CallBacker* )
+{
+    BufferStringSet filenms;
+    inpfld_->getFileNames( filenms );
+    wellstable_->setNrRows( filenms.size() );
+
+    BufferStringSet wellnms;
+    wellnms.add( "-- (Do not import)" );
+    getWellNames( wellnms );
+    for ( int idx=0; idx<filenms.size(); idx++ )
+    {
+	const BufferString& fnm = filenms.get( idx );
+	Well::LASImporter lasimp;
+	Well::LASImporter::FileInfo info;
+	info.undefval = udffld_->getfValue();
+	BufferString errmsg = lasimp.getLogInfo( fnm, info );
+
+	wellstable_->setText( RowCol(idx,0), info.wellnm );
+
+	uiComboBox* wellsbox = new uiComboBox( 0, "Select Well" );
+	wellsbox->addItems( wellnms );
+	wellstable_->setCellObject( RowCol(idx,1), wellsbox );
+	const int selidx = wellnms.nearestMatch( info.wellnm );
+	wellsbox->setCurrentItem( selidx<0 ? 0 : selidx );
+    }
+}
 
 
 bool uiBulkLogImport::acceptOK()
@@ -253,6 +304,7 @@ bool uiBulkLogImport::acceptOK()
     }
 
     const bool zistvd = istvdfld_->getBoolValue();
+    const bool usecurvenms = lognmfld_->getBoolValue();
     uiRetVal uirv;
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
@@ -268,22 +320,28 @@ bool uiBulkLogImport::acceptOK()
 	    continue;
 	}
 
-	DBKey dbky = getDBKey( info.wellnm, info.uwi );
+	const uiObject* uiobj = wellstable_->getCellObject( RowCol(idx,1) );
+	mDynamicCastGet(const uiComboBox*,cb,uiobj)
+	if ( cb && cb->currentItem()==0 )
+	    continue;
+
+	const BufferString wellnm = cb ? cb->text() : info.wellnm.buf();
+	DBKey dbky = getDBKey( wellnm, info.uwi );
 	if ( dbky.isInvalid() )
 	{
 	    uirv.add( tr("%1: Cannot find %2").arg(fnm).arg(
-			info.wellnm.isEmpty() ? info.uwi : info.wellnm));
+			wellnm.isEmpty() ? info.uwi : info.wellnm));
 	    continue;
 	}
 
 	uiRetVal newuirv;
 	RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky,
-				    Well::LoadReqs(Well::Logs), uirv );
+				    Well::LoadReqs(Well::Logs), newuirv );
 	if ( !wd )
-	    { uirv.add( uirv ); continue; }
+	    { uirv.add( newuirv ); continue; }
 
 	lasimp.setData( *wd );
-	errmsg = lasimp.getLogs( fnm, info, zistvd );
+	errmsg = lasimp.getLogs( fnm, info, zistvd, usecurvenms );
 	if ( !errmsg.isEmpty() )
 	    uirv.add( toUiString("%1: %2").arg(toUiString(fnm))
 					    .arg(toUiString(errmsg)) );

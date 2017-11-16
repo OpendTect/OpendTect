@@ -12,6 +12,7 @@
 class uiConstantVel;
 class uiFileSel;
 class uiGenInput;
+class uiTable;
 class uiTableImpDataSel;
 class BufferStringSet;
 
@@ -23,7 +24,6 @@ class D2TModelData;
 mExpClass(uiWell) uiBulkTrackImport : public uiDialog
 { mODTextTranslationClass(uiBulkTrackImport);
 public:
-
 			uiBulkTrackImport(uiParent*);
 			~uiBulkTrackImport();
 
@@ -40,32 +40,31 @@ protected:
 
     ObjectSet<Well::Data> wells_;
     Table::FormatDesc*	fd_;
-
 };
 
 
 mExpClass(uiWell) uiBulkLogImport : public uiDialog
 { mODTextTranslationClass(uiBulkLogImport);
 public:
-
 			uiBulkLogImport(uiParent*);
 			~uiBulkLogImport();
 
 protected:
 
     bool		acceptOK();
+    void		lasSel(CallBacker*);
 
     uiFileSel*		inpfld_;
     uiGenInput*		istvdfld_;
     uiGenInput*		udffld_;
-
+    uiGenInput*		lognmfld_;
+    uiTable*		wellstable_;
 };
 
 
 mExpClass(uiWell) uiBulkMarkerImport : public uiDialog
 { mODTextTranslationClass(uiBulkMarkerImport);
 public:
-
 			uiBulkMarkerImport(uiParent*);
 			~uiBulkMarkerImport();
 
@@ -79,14 +78,12 @@ protected:
     uiTableImpDataSel*	dataselfld_;
 
     Table::FormatDesc*	fd_;
-
 };
 
 
 mExpClass(uiWell) uiBulkD2TModelImport : public uiDialog
 { mODTextTranslationClass(uiBulkD2TModelImport);
 public:
-
 			uiBulkD2TModelImport(uiParent*);
 			~uiBulkD2TModelImport();
 
@@ -100,5 +97,4 @@ protected:
     uiTableImpDataSel*	dataselfld_;
 
     Table::FormatDesc*	fd_;
-
 };
