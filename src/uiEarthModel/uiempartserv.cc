@@ -550,7 +550,7 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
     if ( dlg.go() && dlg.doDisplay() )
     {
 	RefMan<EM::Horizon3D> hor = dlg.getHor3D();
-	selemid_ = hor->id();
+	selemid_ = hor ? hor->id() : -1;
 	sendEvent( evDisplayHorizon() );
     }
 }
