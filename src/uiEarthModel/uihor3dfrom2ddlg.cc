@@ -46,10 +46,11 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread_ = false;
-
-    outfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrOutput(
-						       uiStrings::sHorizon(1)));
+    outfld_ = new uiIOObjSel( this, ctxt,
+			      uiStrings::phrOutput(uiStrings::sHorizon(1)));
     outfld_->attach( alignedBelow, interpolsel_ );
+    outfld_->setInputText( BufferString(h2d.name()," ","3D") );
+
     if ( emserv_ )
     {
 	displayfld_ = new uiCheckBox( this, tr("Display after generation") );
@@ -70,6 +71,12 @@ MultiID uiHor3DFrom2DDlg::getSelID() const
 }
 
 
+EM::Horizon3D* uiHor3DFrom2DDlg::getHor3D()
+{
+    return hor3d_;
+}
+
+
 bool uiHor3DFrom2DDlg::doDisplay() const
 {
     return displayfld_ && displayfld_->isChecked();
@@ -80,6 +87,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 {
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
+    selid_ = MultiID::udf();
     if ( !interpolsel_->acceptOK() )
 	return false;
 
@@ -128,6 +136,14 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 
     rv = TaskRunner::execute( &taskrunner, *exec );
     if ( rv )
+    {
 	selid_ = ioobj->key();
+	BufferString source = hor2d_.multiID().buf();
+	source.add( " (" ).add( hor2d_.name() ).add( ")" );
+	ioobj->pars().update( sKey::CrFrom(), source );
+	ioobj->updateCreationPars();
+	IOM().commitChanges( *ioobj );
+    }
+
     return rv;
 }
