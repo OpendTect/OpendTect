@@ -270,6 +270,9 @@ static void finalCleanupNumberString( char* str )
 template <class T>
 static const char* getPreciseStringFromFPNumber( T inpval )
 {
+    if ( !Math::IsNormalNumber(inpval) )
+	return "<bad number>";
+
     mDeclStaticString( retstr );
     char* str = retstr.getCStr();
 
