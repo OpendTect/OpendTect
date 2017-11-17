@@ -140,7 +140,7 @@ bool uiHor3DFrom2DDlg::acceptOK()
 	source.add( " (" ).add( hor2d_.name() ).add( ")" );
 	ioobj->pars().update( sKey::CrFrom(), source );
 	ioobj->updateCreationPars();
-	DBM().commitChanges( *ioobj );
+	DBM().setEntry( *ioobj );
     }
 
     return rv;
