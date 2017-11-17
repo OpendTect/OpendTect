@@ -45,10 +45,11 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread_ = false;
-
-    outfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrOutput(
-						       uiStrings::sHorizon(1)));
+    outfld_ = new uiIOObjSel( this, ctxt,
+			      uiStrings::phrOutput(uiStrings::sHorizon(1)));
     outfld_->attach( alignedBelow, interpolsel_ );
+    outfld_->setInputText( BufferString(h2d.name()," ","3D") );
+
     if ( emserv_ )
     {
 	displayfld_ = new uiCheckBox( this, tr("Display after generation") );
@@ -66,6 +67,12 @@ uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 DBKey uiHor3DFrom2DDlg::getSelID() const
 {
     return selid_;
+}
+
+
+EM::Horizon3D* uiHor3DFrom2DDlg::getHor3D()
+{
+    return hor3d_;
 }
 
 
@@ -127,6 +134,14 @@ bool uiHor3DFrom2DDlg::acceptOK()
 
     rv = trprov.execute( *exec );
     if ( rv )
+    {
 	selid_ = ioobj->key();
+	BufferString source = hor2d_.dbKey().toString();
+	source.add( " (" ).add( hor2d_.name() ).add( ")" );
+	ioobj->pars().update( sKey::CrFrom(), source );
+	ioobj->updateCreationPars();
+	DBM().commitChanges( *ioobj );
+    }
+
     return rv;
 }

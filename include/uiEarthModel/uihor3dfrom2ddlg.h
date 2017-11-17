@@ -26,7 +26,7 @@ namespace EM { class Horizon2D; class Horizon3D; };
 
 mExpClass(uiEarthModel) uiHor3DFrom2DDlg : public uiDialog
 { mODTextTranslationClass(uiHor3DFrom2DDlg);
-public:    
+public:
 				uiHor3DFrom2DDlg(uiParent*,
 						 const EM::Horizon2D&,
 						 uiEMPartServer* emsrv=0);
@@ -34,7 +34,7 @@ public:
 
     bool			doDisplay() const;
     DBKey			getSelID() const;
-    EM::Horizon3D* 		getHor3D() { return hor3d_; }
+    EM::Horizon3D* 		getHor3D();
 
 protected:
 
