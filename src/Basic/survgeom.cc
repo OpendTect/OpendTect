@@ -125,8 +125,7 @@ void GeometryManager::ensureSIPresent() const
 
     if ( !has3d )
     {
-	RefMan<Geometry3D> rm = SI().get3DGeometry( false );
-	Geometry3D* survicsys = rm.release();
+	RefMan<Geometry3D> survicsys = SI().get3DGeometry( false );
 	survicsys->setID( cSIGeomID );
 	const_cast<GeometryManager*>(this)->addGeometry( *survicsys );
     }
