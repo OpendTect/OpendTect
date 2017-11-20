@@ -418,7 +418,7 @@ public:
     bool			needStatusBarUpdate() const
 				{ return needstatusbarupd_; }
     void			setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
-    const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const; 
+    const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const;
     void			setZDomain(const ZDomain::Def&);
     const ZDomain::Info&	zDomain() const;
 

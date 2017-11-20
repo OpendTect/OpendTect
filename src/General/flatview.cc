@@ -178,6 +178,7 @@ FlatView::Annotation::AxisData::AxisData()
     , showannot_( false )
     , showgridlines_( false )
     , annotinint_( false )
+    , showauxannot_(true)
     , factor_( 1 )
     , auxlinestyle_( OD::LineStyle(OD::LineStyle(OD::LineStyle::Dot)) )
     , auxhllinestyle_( OD::LineStyle(OD::LineStyle(OD::LineStyle::Dot,2,
