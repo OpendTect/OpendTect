@@ -59,9 +59,11 @@ BufferStringSet GLInfo::allInfo() const
 {
     BufferStringSet allinfo;
 
+#ifndef  __mac__
     allinfo.add( *glVendor() ? glVendor() : "?" );
     allinfo.add( *glRenderer() ? glRenderer() : "?" );
     allinfo.add( *glVersion() ? glVersion() : "?" );
+#endif
 
     return allinfo;
 }
