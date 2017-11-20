@@ -8,6 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribsteering.h"
 
+#include "math2.h"
+
 
 namespace Attrib
 {
@@ -112,7 +114,7 @@ int getSteeringIndex( const BinID& bid )
 	fillSteeringMap();
     }
     
-    if ( abs(bid.inl()) > MAXRADIUS || abs(bid.crl()) > MAXRADIUS )
+    if ( Math::Abs(bid.inl()) > MAXRADIUS || Math::Abs(bid.crl()) > MAXRADIUS )
 	return 0;
     
     return mapAt(bid.inl(), bid.crl());
