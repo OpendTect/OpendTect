@@ -1168,7 +1168,7 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 	    newsgeom->setID( Survey::GM().default3DSurvID() );
 	newsgeom->setGeomData( b2c_, sampling(work), zScale() );
 	if ( sgeom.setIfEqual(0,newsgeom) )
-	    newsgeom->ref();
+	    newsgeom.release();
     }
 
     return RefMan<Survey::Geometry3D>( sgeom );
