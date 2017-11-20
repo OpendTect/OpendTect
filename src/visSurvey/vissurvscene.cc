@@ -1418,7 +1418,7 @@ void Scene::savePropertySettings()
 Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
 				bool outerside, bool ignoreocclusion ) const
 {
-    const Survey::Geometry3D* s3dgeom = SI().get3DGeometry( true );
+    ConstRefMan<Survey::Geometry3D> s3dgeom( SI().get3DGeometry( true ).ptr() );
     if ( !s3dgeom || !utm2disptransform_ || !tempzstretchtrans_ )
 	return Coord3::udf();
 
@@ -1483,7 +1483,7 @@ Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,
 			    bool outerside, bool ignoreocclusion,
 			    bool inlcrlspace, BufferString* topbotstr ) const
 {
-    const Survey::Geometry3D* s3dgeom = SI().get3DGeometry( true );
+    ConstRefMan<Survey::Geometry3D> s3dgeom( SI().get3DGeometry( true ).ptr() );
     const Coord3 pos =
 	    getTopBottomIntersection( eventinfo, outerside, ignoreocclusion );
 

@@ -1250,17 +1250,17 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 	{
 	    RefMan<Survey::Geometry3D> newsgeom
 			    = new Survey::Geometry3D( name(), zdef_ );
-	    newsgeom->ref();
 	    if ( work )
 		newsgeom->setID( Survey::GM().default3DSurvID() );
 	    newsgeom->setGeomData( b2c_, mSampling(work), mZScale() );
-	    newsgeom->ref();
 	    SurveyInfo& self = *const_cast<SurveyInfo*>( this );
 	    if ( work )
 		self.work_s3dgeom_ = newsgeom;
 	    else
 		self.s3dgeom_ = newsgeom;
+
 	    sgeom = newsgeom;
+	    newsgeom.release();
 	}
     }
 
