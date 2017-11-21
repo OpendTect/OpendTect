@@ -20,15 +20,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-#define mMaxNrSteps	10
+#define mMaxNrSteps	5
 
 namespace VolProc
 {
 
-
 uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
     : uiStepDialog( p, Smoother::sFactoryDisplayName(), hf, is2d )
-    , smoother_( hf )
+    , smoother_(hf)
+    , inllenfld_(0)
 {
     setHelpKey( mODHelpKey(mVolumeSmootherHelpID) );
 
@@ -44,25 +44,29 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
     stepoutgroup->setFrame( true );
     stepoutgroup->attach( alignedBelow, label );
 
-    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, uiStrings::sInline(), 0,
-					"Inline_spinbox" );
-
     const BinID step( SI().inlStep(), SI().crlStep() );
-    inllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.inl(), step.inl() );
-    inllenfld_->box()->setValue( step.inl()*(smoother_->inlSz()/2) );
+    if ( !is2d )
+    {
+	inllenfld_ = new uiLabeledSpinBox( stepoutgroup, uiStrings::sInline(),
+					   0, "Inline_spinbox" );
+	inllenfld_->box()->setInterval( 0, mMaxNrSteps*step.inl(), step.inl() );
+	inllenfld_->box()->setValue( step.inl()*(smoother_->inlSz()/2) );
+    }
 
-    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, uiStrings::sCrossline(), 0,
+    const uiString trcsolabel =
+		is2d ? uiStrings::sTraceNumber() : uiStrings::sCrossline();
+    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, trcsolabel, 0,
 				       "Crline_spinbox" );
-    crllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.crl(), step.crl() );
+    crllenfld_->box()->setInterval( 0, mMaxNrSteps*step.crl(), step.crl() );
     crllenfld_->box()->setValue( step.crl()*(smoother_->crlSz()/2) );
-    crllenfld_->attach( alignedBelow, inllenfld_ );
+    if ( inllenfld_ )
+	crllenfld_->attach( alignedBelow, inllenfld_ );
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();
-    uiString zlabel = tr("Vertical %1").arg( SI().getUiZUnitString(true) );
-
+    uiString zlabel = tr("Z %1").arg( SI().getUiZUnitString(true) );
     zlenfld_ = new uiLabeledSpinBox( stepoutgroup, zlabel, 0,
 				     "Z_spinbox" );
-    zlenfld_->box()->setInterval( (float) 0, (mMaxNrSteps/2)*zstep, zstep );
+    zlenfld_->box()->setInterval( 0.f, mMaxNrSteps*zstep, zstep );
     zlenfld_->box()->setValue( zstep*(smoother_->zSz()/2) );
     zlenfld_->attach( alignedBelow, crllenfld_ );
 
@@ -74,20 +78,18 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
 uiStepDialog* uiSmoother::createInstance( uiParent* parent, Step* ps,
 					  bool is2d )
 {
-    mDynamicCastGet( Smoother*, hf, ps );
-    if ( !hf ) return 0;
-
-    return new uiSmoother( parent, hf, is2d );
+    mDynamicCastGet(Smoother*,hf,ps);
+    return hf ? new uiSmoother( parent, hf, is2d ) : 0;
 }
 
 
 bool uiSmoother::acceptOK( CallBacker* cb )
 {
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK(cb) )
 	return false;
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();
-    const int inlsz =
+    const int inlsz = !inllenfld_ ? 1 :
 	mNINT32(inllenfld_->box()->getFValue()/SI().inlStep())*2+1;
     const int crlsz =
 	mNINT32(crllenfld_->box()->getFValue()/SI().crlStep())*2+1;
@@ -100,9 +102,9 @@ bool uiSmoother::acceptOK( CallBacker* cb )
 	return false;
     }
 
-    if ( !smoother_->setOperator( operatorselfld_->windowName(),
-				  operatorselfld_->windowParamValue(),
-				  inlsz, crlsz, zsz ) )
+    if ( !smoother_->setOperator(operatorselfld_->windowName(),
+				 operatorselfld_->windowParamValue(),
+				 inlsz,crlsz,zsz) )
     {
 	uiMSG().error( tr("Cannot set selected operator") );
 	return false;
