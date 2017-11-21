@@ -98,23 +98,6 @@ void StratSynth::clearSynthetics()
 }
 
 
-bool StratSynth::canRayModelsBeRemoved( const IOPar& sdraypar ) const
-{
-    for ( int idx=0; idx<synthetics_.size(); idx++ )
-    {
-	SynthGenParams sdsgp;
-	synthetics_[idx]->fillGenParams( sdsgp );
-	const bool ispsbased = sdsgp.synthtype_==SynthGenParams::AngleStack ||
-			       sdsgp.synthtype_==SynthGenParams::AVOGradient;
-	if ( !ispsbased &&
-	     synthetics_[idx]->haveSameRM(sdraypar,sdsgp.raypars_) )
-	    return false;
-    }
-
-    return true;
-}
-
-
 const GatherSetDataPack* StratSynth::getRelevantAngleData(
 					const IOPar& sdraypar ) const
 {
@@ -160,16 +143,7 @@ bool StratSynth::removeSynthetic( const char* nm )
     {
 	if ( synthetics_[idx]->name() == nm )
 	{
-	    RefMan<SyntheticData> sd = synthetics_.removeSingle( idx );
-	    SynthGenParams sgp;
-	    if ( sd )
-		sd->fillGenParams( sgp );
-	    if ( canRayModelsBeRemoved(sgp.raypars_) )
-	    {
-		RayModelSet* rms = sd->raymodels_;
-		deepErase( *rms );
-	    }
-
+	    synthetics_.removeSingle( idx );
 	    return true;
 	}
     }

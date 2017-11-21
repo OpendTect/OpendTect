@@ -139,7 +139,6 @@ protected:
     const TaskRunnerProvider*		trprov_;
 
     const Strat::LayerModel&	layMod() const;
-    bool		canRayModelsBeRemoved(const IOPar& raypar) const;
     bool		fillElasticModel(const Strat::LayerModel&,
 					 ElasticModel&,int seqidx);
     bool		adjustElasticModel(const Strat::LayerModel&,
