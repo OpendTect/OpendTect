@@ -186,6 +186,7 @@ bool HilbertTransform::transform( const float* input, int szin,
     if ( !maskerarr )
 	return false;
 
+    bool nulltrace = true;
     float sum = 0;
     int nrsampforavg = 0;
     for ( int idx=0; idx<szin; idx++ )
@@ -193,6 +194,9 @@ bool HilbertTransform::transform( const float* input, int szin,
 	const float val = masker[idx + startidx_];
 	if ( !mIsUdf(val) )
 	{
+	    if ( nulltrace && val!=0.f )
+		nulltrace = false;
+
 	    sum += val;
 	    nrsampforavg++;
 	}
@@ -207,10 +211,9 @@ bool HilbertTransform::transform( const float* input, int szin,
 	return true;
     }
 
-    if ( sum == 0.f )
+    if ( nulltrace )
     {
-	for ( int idx=0; idx<szout; idx++ )
-	    output[idx] = 0.f;
+	OD::sysMemZero( output, szout*sizeof(float) );
 	return true;
     }
 
