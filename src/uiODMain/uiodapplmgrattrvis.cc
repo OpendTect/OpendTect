@@ -278,13 +278,13 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     	    seq = ColTab::Sequence( ctname );
     	    mapper.usePar( iop );
 	}
-	else
+	else if ( !seisobj.is2D() )
 	{
-	    uiMSG().message(tr("No saved color settings found for the selected"
-		" cube. Default settings will be loaded. For changing "
-	  "these settings, click on \"Save Color Settings\" option in tree."),
-	  uiString::emptyString(),uiString::emptyString(),true);
-
+	    uiMSG().message( tr("No saved color settings found for the selected"
+			" cube. Default settings will be loaded. For changing "
+	  		"these settings, click on \"Save Color Settings\" "
+			"option in tree."), uiString::emptyString(),
+		    	uiString::emptyString(), true );
 	    saveDefColTab( visid, attrib );
 	}
     }
