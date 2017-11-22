@@ -29,47 +29,40 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
     if ( !subselpar )
 	return false;
 
-    int nrgeoms = 0;
-    if ( !subselpar->get(sKey::NrGeoms(),nrgeoms) )
+    if ( subselpar->hasKey(sKey::NrGeoms()) )
+	strm << "This job is not compatibe with this version of OpendTect.\n"
+	    << "Please run a new job" << od_endl;
+
+    PtrMan<IOPar> alllinepars = subselpar->subselect( sKey::Line() );
+    if ( !alllinepars ) // 3D
     {
-	//The IOPar is from OD6.0 or older
 	VolProc::ChainOutput vco;
 	vco.usePar( procpars_ );
+	vco.setJobCommunicator( comm );
 	return vco.go( strm );
     }
 
-    MultiID chainid, outid;
-    PtrMan<IOPar> chainpar = procpars_.subselect( sKey::Chain() );
-    if ( !chainpar &&
-	!procpars_.get(VolProcessingTranslatorGroup::sKeyChainID(),chainid) )
+    // 2D
+    int lineidx = 0;
+    while ( true )
     {
-	strm << "\nNo Volume Processing chain found\n";
-	return false;
-    }
+	PtrMan<IOPar> linepar = alllinepars->subselect( lineidx++ );
+	if ( !linepar )
+	    break;
 
-    if ( !procpars_.get("Output.0.Seismic.ID",outid) )
-    {
-	strm << "\nNo Output ID found\n";
-	return false;
-    }
+	Pos::GeomID geomid;
+	if ( !linepar->get(sKey::GeomID(),geomid) )
+	    break;
 
-    if ( nrgeoms > 1 )
-	strm << "\nNumber of Geometries to process: " << nrgeoms << od_endl;
+	TrcKeyZSampling tkzs; tkzs.set2DDef();
+	StepInterval<int> trcrg;
+	if ( !linepar->get(sKey::TrcRange(),trcrg)
+		|| !linepar->get(sKey::ZRange(),tkzs.zsamp_) )
+	    break;
 
-    for ( int idx=0; idx<nrgeoms; idx++ )
-    {
-	PtrMan<IOPar> geompar = subselpar->subselect( idx );
-	if ( !geompar && nrgeoms>1 )
-	    return false;
-
-	TrcKeyZSampling tkzs;
-	tkzs.usePar( geompar ? *geompar : *subselpar );
-	const BufferString geomname =
-		Survey::GM().getName( tkzs.hsamp_.getGeomID() );
-	if ( tkzs.is2D() )
-	    strm << "\nProcessing on Line " << geomname << od_endl;
-	else if ( nrgeoms > 1 )
-	    strm << "\nProcessing for 3D survey " << geomname << od_endl;
+	tkzs.hsamp_.set( StepInterval<int>(geomid,geomid,1), trcrg );
+	const BufferString linename = Survey::GM().getName( geomid );
+	strm << "\nProcessing on Line " << linename << od_endl;
 
 	VolProc::ChainOutput vco;
 	vco.usePar( procpars_ );
@@ -90,35 +83,41 @@ bool VolProc::Processor::run( TaskRunner* tskr )
     if ( !subselpar )
 	return false;
 
-    int nrgeoms = 0;
-    if ( !subselpar->get(sKey::NrGeoms(),nrgeoms) )
+    PtrMan<IOPar> alllinepars = subselpar->subselect( sKey::Line() );
+    if ( !alllinepars ) // 3D
     {
-	//The IOPar is from OD6.0 or older
 	VolProc::ChainOutput vco;
 	vco.usePar( procpars_ );
 	return TaskRunner::execute( tskr, vco );
     }
 
-    MultiID chainid, outid;
-    if ( !procpars_.get(VolProcessingTranslatorGroup::sKeyChainID(),chainid)
-	    || !procpars_.get("Output.0.Seismic.ID",outid) )
-	return false;
-
+    // 2D
     ExecutorGroup taskgrp( "Volume Processing" );
-    for ( int idx=0; idx<nrgeoms; idx++ )
+    int lineidx = 0;
+    while ( true )
     {
-	PtrMan<IOPar> geompar = subselpar->subselect( idx );
-	if ( !geompar )
-	    return false;
+	PtrMan<IOPar> linepar = alllinepars->subselect( lineidx++ );
+	if ( !linepar )
+	    break;
 
-	TrcKeyZSampling tkzs;
-	tkzs.usePar( *geompar );
+	Pos::GeomID geomid;
+	if ( !linepar->get(sKey::GeomID(),geomid) )
+	    break;
+
+	TrcKeyZSampling tkzs; tkzs.set2DDef();
+	StepInterval<int> trcrg;
+	if ( !linepar->get(sKey::TrcRange(),trcrg)
+		|| !linepar->get(sKey::ZRange(),tkzs.zsamp_) )
+	    break;
+
+	tkzs.hsamp_.set( StepInterval<int>(geomid,geomid,1), trcrg );
+	const BufferString linename = Survey::GM().getName( geomid );
+
 	VolProc::ChainOutput* vco = new VolProc::ChainOutput;
-	vco->setChainID( chainid );
-	vco->setOutputID( outid );
+	vco->usePar( procpars_ );
 	vco->setTrcKeyZSampling( tkzs );
 	taskgrp.add( vco );
     }
 
-    return nrgeoms ? TaskRunner::execute( tskr, taskgrp ) : false;
+    return TaskRunner::execute( tskr, taskgrp );
 }

@@ -146,31 +146,7 @@ bool uiBatchSetup::fillPar()
     par.set( sKey::Target(), outputioobj->name() );
 
     IOPar subselpar;
-    mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel_)
-    if ( subsel2d )
-    {
-	TypeSet<Pos::GeomID> geomids;
-	subsel2d->selectedGeomIDs( geomids );
-	subselpar.set( sKey::NrGeoms(), geomids.size() );
-	for ( int idx=0; idx<geomids.size(); idx++ )
-	{
-	    TrcKeyZSampling tkzs;
-	    subsel2d->getSampling( tkzs, geomids[idx] );
-	    IOPar tkzspar;
-	    tkzs.fillPar( tkzspar );
-	    subselpar.mergeComp( tkzspar, toString(idx) );
-	}
-    }
-    else
-    {
-	subselpar.set( sKey::NrGeoms(), 1 );
-	TrcKeyZSampling tkzs;
-	subsel_->getSampling( tkzs );
-	IOPar tkzspar;
-	tkzs.fillPar( tkzspar );
-	subselpar.mergeComp( tkzspar, toString(0) );
-    }
-
+    subsel_->fillPar( subselpar );
     par.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     return true;
 }
