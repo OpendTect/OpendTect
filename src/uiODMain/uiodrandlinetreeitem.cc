@@ -219,6 +219,9 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
 {
     RefMan<Geometry::RandomLine> rl = Geometry::RLM().get( ioobj.key() );
 
+    if ( !rl )
+	return false;
+
     uiODRandomLineTreeItem* itm =
 		new uiODRandomLineTreeItem( -1, getType(mnuid), rl->ID() );
     addChild( itm, false );
