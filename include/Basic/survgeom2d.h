@@ -40,6 +40,8 @@ public:
 				//!<If data is changed, call touch afterwards
     void			touch();
     const PosInfo::Line2DData&	data() const		{ return data_; }
+    TypeSet<int>&		spnrs()			{ return spnrs_; }
+    const TypeSet<int>&		spnrs() const		{ return spnrs_; }
 
     StepInterval<float>		zRange() const;
 
@@ -55,8 +57,8 @@ private:
 
 				~Geometry2D();
 
-
     PosInfo::Line2DData&	data_;
+    TypeSet<int>		spnrs_;
     mutable float		trcdist_;
     mutable Threads::Lock	lock_;
 };
