@@ -277,7 +277,13 @@ void VolProc::Step::setInput( InputSlotID slotid,
 	DPM( DataPackMgr::SeisID() ).release( inputs_[idx]->id() );
     inputs_.replace( idx, dc );
     if ( inputs_[idx] )
-	DPM( DataPackMgr::SeisID() ).obtain( inputs_[idx]->id() );
+    {
+	if ( !DPM( DataPackMgr::SeisID() ).obtain(inputs_[idx]->id()) )
+	{
+	    const_cast<RegularSeisDataPack*>( inputs_[idx] )->release();
+	    inputs_.replace( idx, 0 );
+	}
+    }
 }
 
 
@@ -294,7 +300,11 @@ void VolProc::Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc,
 {
     DPM( DataPackMgr::SeisID() ).release( output_ );
     output_ = dc;
-    DPM( DataPackMgr::SeisID() ).addAndObtain( output_ );
+    if ( !output_ || !DPM( DataPackMgr::SeisID() ).obtain(output_->id()) )
+    {
+	if ( output_ ) output_->release();
+	return;
+    }
 
     tks_ = hrg;
     zrg_ = zrg;

@@ -44,13 +44,14 @@ VolProc::ChainOutput::ChainOutput()
 
 VolProc::ChainOutput::~ChainOutput()
 {
+    delete wrr_;
+    deepErase( storers_ );
+
     if ( chain_ )
 	chain_->unRef();
 
     delete chainexec_;
     delete chainpar_;
-    delete wrr_;
-    deepErase( storers_ );
     delete &progresskeeper_;
 }
 
@@ -267,6 +268,11 @@ int VolProc::ChainOutput::getChain()
 		    "\nIt can thus not be first.").arg( step0.userName() ) );
     }
 
+    chainpar_ = new IOPar;
+    chain_->fillPar( *chainpar_ );
+    if ( chainpar_->isEmpty() )
+	deleteAndZeroPtr( chainpar_ );
+
     return MoreToDo();
 }
 
@@ -361,10 +367,11 @@ int VolProc::ChainOutput::setNextChunk()
 bool VolProc::ChainOutput::openOutput()
 {
     const RegularSeisDataPack* seisdp = chainexec_->getOutput();
-    if ( !seisdp )
+    if ( !seisdp || !DPM( DataPackMgr::SeisID() ).obtain(seisdp->id()) )
+    {
+	const_cast<RegularSeisDataPack*>( seisdp )->release();
 	mErrRet( tr("No output data available") )
-    DPM( DataPackMgr::SeisID() ).obtain( seisdp->id() );
-    ConstDataPackRef<RegularSeisDataPack> seisdpcref = seisdp;
+    }
 
     PtrMan<IOObj> ioobj = IOM().get( outid_ );
     if ( !ioobj )
@@ -388,8 +395,11 @@ bool VolProc::ChainOutput::openOutput()
     if ( docommit )
 	IOM().commitChanges( *ioobj );
 
+    delete wrr_;
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
     DPM( DataPackMgr::SeisID() ).release( seisdp->id() );
+    seisdp = 0;
+
     wrr_->setSelection( cs_.hsamp_, outputzrg_ );
     for ( int idx=0; idx<chain_->getOutputScalers().size(); idx++ )
     {
@@ -415,37 +425,56 @@ public:
 
 ChainOutputStorer( ChainOutput& co, const RegularSeisDataPack& dp )
     : co_(co)
-    , dp_(dp)
+    , dp_(&dp)
     , work_(0)
 {
-    DPM( DataPackMgr::SeisID() ).obtain( dp_.id() );
+    if ( !DPM( DataPackMgr::SeisID() ).obtain(dp.id()) )
+    {
+	const_cast<RegularSeisDataPack*>( dp_ )->release();
+	errmsg_ = tr("Error during background write");
+	dp_ = 0;
+    }
 }
 
 ~ChainOutputStorer()
 {
-    DPM( DataPackMgr::SeisID() ).release( dp_.id() );
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
     if ( work_ )
 	Threads::WorkManager::twm().removeWork( *work_ );
 }
 
+
+bool hasWork() const
+{ return work_; }
+
+
 void startWork()
 {
-    SeisDataPackWriter& wrr = *co_.wrr_;
-    if ( wrr.dataPack() != &dp_ )
-    {
-	wrr.setNextDataPack( dp_ );
-	DPM( DataPackMgr::SeisID() ).release( dp_.id() );
-    }
-    else
-	wrr.setSelection( dp_.sampling().hsamp_, wrr.zSampling() );
+    if ( !dp_ )
+	return;
 
-    if ( co_.nrexecs_ == co_.curexecnr_ )
+    SeisDataPackWriter& wrr = *co_.wrr_;
+    if ( wrr.dataPack() == dp_ )
+	wrr.setSelection( dp_->sampling().hsamp_, wrr.zSampling() );
+    else
+	wrr.setNextDataPack( *dp_ );
+
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
+    dp_ = 0;
+
+    //Disabling silent background writing:
+/*    if ( co_.nrexecs_ == co_.curexecnr_ )
 	wrr.setProgressMeter( co_.progresskeeper_.forwardTo() );
 
     work_ = new Threads::Work( wrr, false );
     CallBack finishedcb( mCB(this,VolProc::ChainOutputStorer,workFinished) );
-    Threads::WorkManager::twm().addWork( *work_, &finishedcb );
+    Threads::WorkManager::twm().addWork( *work_, &finishedcb );*/
+
+    wrr.setProgressMeter( co_.progresskeeper_.forwardTo() );
+    wrr.execute();
+    co_.reportFinished( *this );
 }
+
 
 void workFinished( CallBacker* cb )
 {
@@ -456,14 +485,17 @@ void workFinished( CallBacker* cb )
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = tr("Error during background write");
     }
-    delete work_; work_ = 0;
+    deleteAndZeroPtr( work_ );
     co_.reportFinished( *this );
 }
 
-    ChainOutput&	    co_;
-    const RegularSeisDataPack& dp_;
-    Threads::Work*	    work_;
     uiString		    errmsg_;
+
+private:
+
+    ChainOutput&	    co_;
+    const RegularSeisDataPack* dp_;
+    Threads::Work*	    work_;
 
 };
 
@@ -478,6 +510,12 @@ void VolProc::ChainOutput::startWriteChunk()
 
     Threads::Locker slock( storerlock_ );
     storers_ += new ChainOutputStorer( *this, *dp );
+    DPM( DataPackMgr::SeisID() ).release( dp );
+    chainexec_->outputdp_ = 0; //The chain executor no longer needs it
+
+    //Disabling silent background writing:
+    manageStorers(); //Starts writing
+    manageStorers(); //Deletes finished storer
 }
 
 
@@ -492,6 +530,7 @@ void VolProc::ChainOutput::reportFinished( ChainOutputStorer& storer )
 	progresskeeper_.setMessage( storer.errmsg_ );
 	storererr_ = true;
     }
+    wrr_->releaseDP();
 }
 
 
@@ -505,7 +544,7 @@ void VolProc::ChainOutput::manageStorers()
     if ( storererr_ )
 	{ deepErase( storers_ ); return; }
 
-    if ( storers_.isEmpty() || storers_[0]->work_ )
+    if ( storers_.isEmpty() || storers_[0]->hasWork() )
 	return;
 
     storers_[0]->startWork();

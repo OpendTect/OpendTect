@@ -22,6 +22,7 @@ class RegularSeisDataPack;
 class Scaler;
 class SeisTrcWriter;
 class SeisTrc;
+namespace VolProc { class ChainOutput; }
 
 
 mExpClass(Seis) SeisDataPackWriter : public Executor
@@ -75,6 +76,8 @@ private:
     void			getPosInfo();
     void			obtainDP();
     void			releaseDP();
+
+    friend class VolProc::ChainOutput;
 
 };
 

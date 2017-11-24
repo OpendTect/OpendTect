@@ -100,6 +100,8 @@ private:
     const RegularSeisDataPack*	outputdp_;
     JobCommunic*		jobcomm_;
 
+    friend class ChainOutput;
+
 };
 
 } // namespace VolProc

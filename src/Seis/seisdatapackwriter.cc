@@ -44,7 +44,6 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 {
     compscalers_.allowNull( true );
     obtainDP();
-    getPosInfo();
 
     if ( compidxs_.isEmpty() )
     {
@@ -173,7 +172,6 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 	obtainDP();
     }
 
-    getPosInfo();
     nrdone_ = 0;
     setSelection( dp_->sampling().hsamp_, zrg_ );
 }
@@ -181,13 +179,21 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 
 void SeisDataPackWriter::obtainDP()
 {
-    DPM( DataPackMgr::SeisID() ).obtain( dp_->id() );
+    if ( !dp_ || !DPM( DataPackMgr::SeisID() ).obtain(dp_->id()) )
+    {
+	releaseDP();
+	return;
+    }
+
+    getPosInfo();
 }
 
 
 void SeisDataPackWriter::releaseDP()
 {
     DPM( DataPackMgr::SeisID() ).release( dp_ );
+    dp_ = 0;
+    posinfo_ = 0;
 }
 
 
