@@ -130,11 +130,20 @@ bool ParallelReader::setOutputComponents( const TypeSet<int>& compnrs )
 }
 
 
+#define mAddNewDP(act) \
+{ \
+    if ( !dp_ || !DPM( DataPackMgr::SeisID() ).obtain(dp_->id()) ) \
+    { \
+	dp_ = 0; \
+	act; \
+    } \
+}
+
 void ParallelReader::setDataPack( RegularSeisDataPack* dp )
 {
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     dp_ = dp;
-    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+    mAddNewDP(;)
 }
 
 
@@ -175,13 +184,16 @@ bool ParallelReader::doPrepare( int nrthreads )
     }
     else if ( !dp_ )
     {
-	dp_ = new RegularSeisDataPack(0);
-	dp_->setSampling( tkzs_ );
+	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false) );
+	dp_->setName( "Pre-loaded datapack" );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+	dp_->setSampling( tkzs_ );
 
 	uiString errmsg;
 	if ( !addComponents(*dp_,*ioobj_,components_,errmsg) )
 	{
+	    DPM( DataPackMgr::SeisID() ).release( dp_ );
+	    dp_ = 0;
 	    errmsg_ = allocprob;
 	    errmsg_.append( errmsg, true );
 	    return false;
@@ -388,6 +400,7 @@ bool ParallelReader2D::init()
     totalnr_ = tkzs_.hsamp_.totalNr();
 
     dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
+    dp_->setName( "Pre-loaded datapack" );
     DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
     dp_->setSampling( tkzs_ );
     if ( scaler_ )
@@ -395,7 +408,7 @@ bool ParallelReader2D::init()
 
     if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
     {
-	DPM( DataPackMgr::SeisID() ).release( dp_ );
+	DPM( DataPackMgr::SeisID() ).release( dp_ ); dp_ = 0;
 	return false;
     }
 
@@ -834,6 +847,7 @@ bool SequentialReader::init()
 
 	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false),
 				       &dc_ );
+	dp_->setName( "Pre-loaded datapack" );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
 	dp_->setSampling( tkzs_ );
 	dp_->setName( ioobj_->name() );
@@ -841,7 +855,10 @@ bool SequentialReader::init()
 	    dp_->setScaler( *scaler_ );
 
 	if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
+	{
+	    DPM( DataPackMgr::SeisID() ).release( dp_ ); dp_ = 0;
 	    return false;
+	}
     }
 
     PosInfo::CubeData cubedata;
@@ -882,7 +899,7 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
     nrdone_ = 0;
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     dp_ = &dp;
-    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+    mAddNewDP(return false)
 
     setDataChar( DataCharacteristics( dp.getDataDesc() ).userType() );
     setScaler( dp.getScaler() && !dp.getScaler()->isEmpty()
@@ -898,6 +915,7 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
     if ( dp.nrComponents() < components_.size() &&
 	 !addComponents(*dp_,*ioobj_,components_,msg_) )
     {
+	DPM( DataPackMgr::SeisID() ).release( dp_ ); dp_ = 0;
 	if ( extstrm )
 	    *extstrm << msg_.getFullString() << od_endl;
 

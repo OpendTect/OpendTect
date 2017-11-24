@@ -39,7 +39,9 @@ VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
     , components_(components)
     , compscalers_(compscalers)
     , output_(&output)
-{}
+{
+    output.setName( "Input Data" );
+}
 
 
 ~VolumeReaderExecutor()

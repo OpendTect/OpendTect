@@ -209,6 +209,7 @@ public:
     static uiString sCalculateFrom();
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCantCreateHor();
+    static uiString sCannotAllocate()	{ return tr("Cannot allocate memory"); }
     static uiString sCannotExtract();
     static uiString sCantFindAttrName();
     static uiString sCantFindODB();

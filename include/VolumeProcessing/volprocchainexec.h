@@ -101,6 +101,8 @@ private:
 
     const RegularSeisDataPack*	outputdp_;
 
+    friend class ChainOutput;
+
 };
 
 } // namespace VolProc

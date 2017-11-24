@@ -482,9 +482,19 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	RegularSeisDataPack* outcube = outfrominp
 			     ? const_cast<RegularSeisDataPack*>( outfrominp )
 			     : new RegularSeisDataPack( 0 );
-	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
-	if ( !outfrominp )
+	if ( outfrominp )
 	{
+	    if ( !outcube ||
+		 !DPM( DataPackMgr::SeisID() ).obtain(outcube->id()) )
+	    {
+		if ( outcube ) outcube->release();
+		return false;
+	    }
+	}
+	else
+	{
+	    outcube->setName( "New VolProc DP" );
+	    DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
 	    outcube->setSampling( csamp );
 	    if ( trcssampling.totalSizeInside( csamp.hsamp_ ) > 0 )
 	    {
@@ -496,7 +506,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 		}
 	    }
 
-	    if ( !outcube->addComponentNoInit( 0 ) )
+	    if ( !outcube->addComponentNoInit(0) )
 	    { //TODO: allocate the step-required number of components
 		errmsg_ = "Cannot allocate enough memory.";
 		outcube->release();
@@ -596,8 +606,17 @@ int VolProc::ChainExecutor::nextStep()
     if ( finished )			//we just executed the last one
     {
 	outputdp_ = curepoch_->getOutput();
-	DPM( DataPackMgr::SeisID() ).addAndObtain(
-				const_cast<RegularSeisDataPack*>( outputdp_ ) );
+	if ( !outputdp_ ||
+	     !DPM( DataPackMgr::SeisID() ).obtain(outputdp_->id()) )
+	{
+	    if ( outputdp_ )
+	    {
+		const_cast<RegularSeisDataPack*>( outputdp_ )->release();
+		outputdp_ = 0;
+	    }
+
+	    return false;
+	}
     }
 
     //Give output volumes to all steps that need them
