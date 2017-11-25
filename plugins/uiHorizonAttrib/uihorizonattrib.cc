@@ -148,7 +148,6 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiHorizonAttrib::getInput( Desc& desc )
 {
-    inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
     return true;
 }

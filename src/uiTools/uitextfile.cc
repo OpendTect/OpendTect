@@ -324,9 +324,8 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 
 void uiTextFileDlg::finalizeCB(CallBacker *)
 {
-// ToDo: Support StdActionType's in uiDialog
     uiButton* cancelbut = button(CANCEL);
-    if ( !cancelbut || !uiButton::haveCommonPBIcons() )
+    if ( !cancelbut )
 	return;
 
     if ( FixedString(setup().canceltext_.getOriginalString()) ==

@@ -150,7 +150,6 @@ bool uiSemblanceAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiSemblanceAttrib::getInput( Attrib::Desc& desc )
 {
-    inpfld->processInput();
     fillInp( inpfld, desc, 0 );
     fillInp( steerfld, desc, 1 );
     return true;

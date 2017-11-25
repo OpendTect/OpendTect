@@ -108,12 +108,12 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     steerfld_->typeSelected.notify( mCB(this,uiSimilarityAttrib,steerTypeSel) );
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
-    uiString mdlbl = tr("Maximum dip %1").arg(zIsTime() ? tr("(us/m)") 
+    uiString mdlbl = tr("Maximum dip %1").arg(zIsTime() ? tr("(us/m)")
 						        : tr(" (mm/m)"));
     maxdipfld_ = new uiGenInput( this, mdlbl, FloatInpSpec() );
     maxdipfld_->attach( alignedBelow, steerfld_ );
 
-    uiString ddlbl = tr("Delta dip %1").arg(zIsTime() ? tr("(us/m)") 
+    uiString ddlbl = tr("Delta dip %1").arg(zIsTime() ? tr("(us/m)")
 						      : tr(" (mm/m)"));
     deltadipfld_ = new uiGenInput( this, ddlbl, FloatInpSpec() );
     deltadipfld_->attach( alignedBelow, maxdipfld_ );
@@ -275,7 +275,6 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiSimilarityAttrib::getInput( Attrib::Desc& desc )
 {
-    inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
     fillInp( steerfld_, desc, 1 );
     return true;

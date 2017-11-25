@@ -37,8 +37,6 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-bool uiButton::havecommonpbics_ = false;
-
 
 
 class uiButtonBody : public uiObjectBody
@@ -324,13 +322,13 @@ static uiButton* crStd( uiParent* p, OD::StdActionType typ,
 uiButton* uiButton::getStd( uiParent* p, OD::StdActionType typ,
 	const CallBack& cb, bool immediate )
 {
-    return crStd( p, typ, cb, immediate, 0, havecommonpbics_ );
+    return crStd( p, typ, cb, immediate, 0, true );
 }
 
 uiButton* uiButton::getStd( uiParent* p, OD::StdActionType typ,
 	const CallBack& cb, bool immediate, const uiString& buttxt )
 {
-    return crStd( p, typ, cb, immediate, &buttxt, havecommonpbics_ );
+    return crStd( p, typ, cb, immediate, &buttxt, true );
 }
 
 

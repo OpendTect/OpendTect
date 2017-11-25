@@ -274,6 +274,25 @@ bool uiComboBox::isPresent( const char* txt ) const
 }
 
 
+uiString uiComboBox::textOfItem( int idx ) const
+{
+    if ( idx < 0 || idx >= body_->count() )
+	return uiString::emptyString();
+
+    if ( isReadOnly() && enumdef_ && idx<enumdef_->size() )
+	return enumdef_->getUiStringForIndex( idx );
+
+    uiString ret;
+    if ( itemstrings_.validIdx(idx) && (isReadOnly() ||
+	 body_->itemText(idx)==itemstrings_[idx].getQString()) )
+	ret = itemstrings_[idx];
+    else
+	ret = toUiString( itemText(idx) );
+
+    return ret;
+}
+
+
 const char* uiComboBox::itemText( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() )
@@ -442,6 +461,13 @@ int uiComboBox::getItemID( int index ) const
 
 int uiComboBox::getItemIndex( int id ) const
 { return itemids_.indexOf( id ); }
+
+void uiComboBox::setCurrentItemByID( int id )
+{
+    const int idx = itemids_.indexOf( id );
+    if ( idx >= 0 )
+	setCurrentItem( idx );
+}
 
 
 void uiComboBox::getItems( BufferStringSet& nms ) const

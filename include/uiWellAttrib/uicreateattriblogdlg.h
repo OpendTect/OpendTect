@@ -28,9 +28,10 @@ mExpClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
 public:
 				uiCreateAttribLogDlg(uiParent*,
 						     const BufferStringSet&,
-					             const Attrib::DescSet*,
-						     const NLAModel*,bool);
-				~uiCreateAttribLogDlg(){};
+						     const Attrib::DescSet&,
+						     const NLAModel*,
+						     bool singlewell);
+				~uiCreateAttribLogDlg();
 
 protected:
 
@@ -39,12 +40,13 @@ protected:
     uiGenInput*			lognmfld_;
     uiWellExtractParams*	zrangeselfld_;
     const BufferStringSet&	wellnames_;
-    int			sellogidx_;
+    int				sellogidx_;
     bool			singlewell_;
-    AttribLogCreator::Setup	datasetup_;
+    AttribLogCreator::Setup*	datasetup_;
 
     bool                        inputsOK(const Well::Data&);
     bool			acceptOK();
     void			init(CallBacker*);
     void			selDone(CallBacker*);
+
 };

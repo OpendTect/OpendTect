@@ -141,11 +141,8 @@ bool uiTaskRunner::execute( Task& t )
 
 void uiTaskRunner::onFinalise( CallBacker* )
 {
-    if ( uiButton::haveCommonPBIcons() )
-    {
-	button(OK)->setIcon( "pause" );
-	button(CANCEL)->setIcon( "stop" );
-    }
+    button(OK)->setIcon( "pause" );
+    button(CANCEL)->setIcon( "stop" );
 
     tim_.start( 100, true );
     Threads::Locker lckr( uitaskrunnerthreadlock_ );

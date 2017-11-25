@@ -40,8 +40,8 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     , isoverwrite_(false)
 {
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
-    inpfld_ = new uiAttrSel( this, *ads, "Quantity to output" );
-    inpfld_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    inpfld_ = new uiAttrSel( this, *ads, uiAttrSel::sQuantityToOutput() );
+    inpfld_->selectionChanged.notify( mCB(this,uiStratAmpCalc,inpSel) );
 
     winoption_= new uiGenInput( this, tr("Window Option"),
 	                        BoolInpSpec(true, tr("Single Horizon"),
@@ -173,8 +173,8 @@ void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
 
 bool uiStratAmpCalc::checkInpFlds()
 {
-    if ( inpfld_->isEmpty() )
-mErrRet( tr("Missing Input\nPlease select the input attribute / seismics"));
+    if ( inpfld_->haveSelection() )
+	mErrRet( tr("Missing Input\nPlease select the input data"));
 
     if ( usesingle_ && !horfld1_->commitInput() )
 	mErrRet( tr("Missing Input\nPlease select the input Horizon") );

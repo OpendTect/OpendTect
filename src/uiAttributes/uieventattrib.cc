@@ -188,7 +188,6 @@ bool uiEventAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiEventAttrib::getInput( Attrib::Desc& desc )
 {
-    inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
     return true;
 }

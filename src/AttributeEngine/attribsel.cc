@@ -250,57 +250,69 @@ const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
 
 
 // Attrib::SelInfo
-SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
-		  bool is2d, const DescID& ignoreid, bool usesteering,
-		  bool onlysteering, bool onlymulticomp, bool usehidden )
+
+SelInfo::SelInfo( const DescSet& attrset, const DescID& ignoreid,
+		  const NLAModel* nlamod, const ZDomain::Info* zdominf )
+    : is2d_( attrset.is2D() )
+    , onlymulticomp_( false )
+{
+    fillStored( false, 0, zdominf );
+    fillStored( true, 0, zdominf );
+    fillNonStored( attrset, ignoreid, nlamod, false );
+}
+
+
+SelInfo::SelInfo( const DescSet* attrset, const DescID& ignoreid,
+		  const NLAModel* nlamod, bool is2d, bool onlymulticomp,
+		  bool usehidden )
     : is2d_( is2d )
-    , usesteering_( usesteering )
-    , onlysteering_( onlysteering )
     , onlymulticomp_( onlymulticomp )
 {
     fillStored( false );
     fillStored( true );
 
     if ( attrset )
-    {
-	for ( int idx=0; idx<attrset->size(); idx++ )
-	{
-	    const DescID descid = attrset->getID( idx );
-	    const Desc* desc = attrset->getDesc( descid );
-	    const BufferString usrref( desc ? desc->userRef()
-					    : OD::EmptyString() );
-	    if ( !desc || usrref.isEmpty()
-	      || desc->attribName()==StorageProvider::attribName()
-	      || attrset->getID(*desc) == ignoreid
-	      || ( !usehidden && desc->isHidden() ) )
-		continue;
+	fillNonStored( *attrset, ignoreid, nlamod, false );
+}
 
-	    attrids_ += descid;
-	    attrnms_.add( usrref );
-	}
+
+SelInfo::SelInfo( const ZDomain::Info& zdominf, bool is2d )
+    : is2d_( is2d )
+    , onlymulticomp_( false )
+{
+    fillStored( false, 0, &zdominf );
+}
+
+
+static void transferSorted( const BufferStringSet innms, const DBKeySet inids,
+			    BufferStringSet& outnms, DBKeySet& outids )
+{
+    outnms.erase(); outids.erase();
+
+    const int sz = inids.size();
+    if ( sz == 1 )
+    {
+	outids.add( inids.get(0) );
+	outnms.add( innms.get(0) );
     }
-
-    if ( nlamod )
+    else if ( sz > 1 )
     {
-	const int nroutputs = nlamod->design().outputs.size();
-	for ( int idx=0; idx<nroutputs; idx++ )
+	int* sortindexes = innms.getSortIndexes();
+	for ( int idx=0; idx<innms.size(); idx++ )
 	{
-	    BufferString nm( *nlamod->design().outputs[idx] );
-	    if ( IOObj::isKey(nm) )
-		nm = DBM().nameOf( DBKey::getFromString(nm) );
-	    nlaoutnms_.add( nm );
+	    outids.add( inids.get(sortindexes[idx]) );
+	    outnms.add( innms.get(sortindexes[idx]) );
 	}
+
+	delete [] sortindexes;
     }
 }
 
 
-void SelInfo::fillStored( bool steerdata, const char* filter )
+void SelInfo::fillStored( bool steerdata, const char* filter,
+			  const ZDomain::Info* zdominf )
 {
-    BufferStringSet& nms = steerdata ? steernms_ : ioobjnms_;
-    DBKeySet& ids = steerdata ? steerids_ : ioobjids_;
-    nms.erase(); ids.erase();
-    BufferStringSet ioobjnmscopy;
-    DBKeySet ioobjidscopy;
+    BufferStringSet ioobjnms; DBKeySet ioobjids;
 
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
     if ( dbdir )
@@ -321,7 +333,12 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	    if ( (is2d_ != is2d) || (!is2d && !isvalid3d) )
 		continue;
 
-	    if ( !ZDomain::isSI(ioobj.pars()) )
+	    if ( zdominf )
+	    {
+		if ( !zdominf->isCompatibleWith(ioobj.pars()) )
+		    continue;
+	    }
+	    else if ( !ZDomain::isSI(ioobj.pars()) )
 		continue;
 
 	    FixedString res = ioobj.pars().find( sKey::Type() );
@@ -340,7 +357,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 		if ( is2d )
 		{
 		    BufferStringSet attrnms;
-		    SelInfo::getAttrNames( ioobj.key().toString(), attrnms,
+		    getAttrNames( ioobj.key().toString(), attrnms,
 					    steerdata, true );
 		    if ( attrnms.isEmpty() )
 			continue;
@@ -352,61 +369,65 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 		}
 	    }
 
-	    ioobjnmscopy.add( ioobjnm );
-	    ioobjidscopy.add( ioobj.key() );
+	    ioobjnms.add( ioobjnm );
+	    ioobjids.add( ioobj.key() );
 	}
     }
 
-    if ( ioobjnmscopy.size() > 1 )
+    BufferStringSet& nms = steerdata ? steernms_ : ioobjnms_;
+    DBKeySet& ids = steerdata ? steerids_ : ioobjids_;
+    transferSorted( ioobjnms, ioobjids, nms, ids );
+}
+
+
+void SelInfo::fillSynthetic( bool steerdata,
+			     const TypeSet<DataPack::FullID>& dpids )
+{
+    BufferStringSet ioobjnms; DBKeySet ioobjids;
+    for ( int idx=0; idx<dpids.size(); idx++ )
     {
-	int* sortindexes = ioobjnmscopy.getSortIndexes();
-	for ( int idx=0; idx<ioobjnmscopy.size(); idx++ )
+	ioobjnms.add( DataPackMgr::nameOf( dpids[idx] ) );
+	DBKey dbky; dpids[idx].putInDBKey( dbky );
+	ioobjids.add( dbky );
+    }
+
+    BufferStringSet& nms = steerdata ? steernms_ : ioobjnms_;
+    DBKeySet& ids = steerdata ? steerids_ : ioobjids_;
+    transferSorted( ioobjnms, ioobjids, nms, ids );
+}
+
+
+void SelInfo::fillNonStored( const DescSet& attrset, const DescID& ignoreid,
+			     const NLAModel* nlamod, bool usehidden )
+{
+    attrids_.setEmpty(); attrnms_.setEmpty(); nlaoutnms_.setEmpty();
+
+    for ( int idx=0; idx<attrset.size(); idx++ )
+    {
+	DescID descid = attrset.getID( idx );
+	const Desc* desc = attrset.getDesc( descid );
+	if ( desc
+	  && !desc->isStored()
+	  && desc->id() != ignoreid
+	  && (usehidden || !desc->isHidden()) )
 	{
-	    nms.add( ioobjnmscopy.get(sortindexes[idx]) );
-	    ids.add( ioobjidscopy.get(sortindexes[idx]) );
+	    descid.setStored( false ); // just to be sure
+	    attrids_ += descid;
+	    attrnms_.add( desc->userRef() );
 	}
-
-	delete [] sortindexes;
     }
-    else if ( ioobjnmscopy.size() )
+
+    if ( nlamod )
     {
-	nms.add( ioobjnmscopy.get(0) );
-	ids.add( ioobjidscopy.get(0) );
+	const int nroutputs = nlamod->design().outputs.size();
+	for ( int idx=0; idx<nroutputs; idx++ )
+	{
+	    BufferString nm( *nlamod->design().outputs[idx] );
+	    if ( IOObj::isKey(nm) )
+		nm = DBM().nameOf( DBKey::getFromString(nm) );
+	    nlaoutnms_.add( nm );
+	}
     }
-}
-
-
-SelInfo::SelInfo( const SelInfo& asi )
-	: ioobjnms_(asi.ioobjnms_)
-	, ioobjids_(asi.ioobjids_)
-	, attrnms_(asi.attrnms_)
-	, attrids_(asi.attrids_)
-	, nlaoutnms_(asi.nlaoutnms_)
-	, is2d_(asi.is2d_)
-	, usesteering_(asi.usesteering_)
-	, onlysteering_(asi.onlysteering_)
-{
-}
-
-
-SelInfo& SelInfo::operator=( const SelInfo& asi )
-{
-    ioobjnms_ = asi.ioobjnms_;
-    ioobjids_ = asi.ioobjids_;
-    attrnms_ = asi.attrnms_;
-    attrids_ = asi.attrids_;
-    nlaoutnms_ = asi.nlaoutnms_;
-    is2d_ = asi.is2d_;
-    usesteering_ = asi.usesteering_;
-    onlysteering_ = asi.onlysteering_;
-    return *this;
-}
-
-
-bool SelInfo::is2D( const char* defstr )
-{
-    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(defstr) );
-    return SeisIOObjInfo(ioobj).is2D();
 }
 
 
@@ -433,25 +454,5 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
     }
 }
 
-
-void SelInfo::getZDomainItems( const ZDomain::Info& zinf, bool need2d,
-			       BufferStringSet& nms )
-{
-    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
-    if ( !dbdir )
-	return;
-
-    DBDirIter iter( *dbdir );
-    while ( iter.next() )
-    {
-	const IOObj& ioobj = iter.ioObj();
-	if ( need2d==SeisIOObjInfo(ioobj).is2D() &&
-		ioobj.isUserSelectable() &&
-		zinf.isCompatibleWith(ioobj.pars()) )
-	    nms.add( ioobj.name() );
-    }
-
-    nms.sort();
-}
 
 } // namespace Attrib

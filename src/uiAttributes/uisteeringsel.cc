@@ -144,13 +144,11 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
     {
 	type = 1;
 	inpfld_->setDesc( ad->getInput(0) );
-	inpfld_->updateHistory( inpselhist );
     }
     else if ( attribname == "FullSteering" )
     {
 	type = 2;
 	inpfld_->setDesc( ad->getInput(0) );
-	inpfld_->updateHistory( inpselhist );
     }
 
     if ( !notypechange_ )
@@ -210,7 +208,6 @@ DescID uiSteeringSel::descID()
 	return ads->addDesc( desc );
     }
 
-    inpfld_->processInput();
     const DescID inldipid = inpfld_->inlDipID();
     const DescID crldipid = inpfld_->crlDipID();
     if ( !inldipid.isValid() || !crldipid.isValid() )
@@ -280,7 +277,8 @@ uiSteerAttrSel::uiSteerAttrSel( uiParent* p, const DescSet* ads,
 	: uiSteerCubeSel(p,is2d,true,txt)
 	, attrdata_( is2d )
 {
-    attrdata_.setAttrSet( ads );
+    if ( ads )
+	attrdata_.setAttrSet( *ads );
 }
 
 
@@ -323,7 +321,8 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
 
 void uiSteerAttrSel::setDescSet( const DescSet* ads )
 {
-    attrdata_.setAttrSet( ads );
+    if ( ads )
+	attrdata_.setAttrSet( *ads );
 }
 
 

@@ -24,15 +24,15 @@ mInitAttribUI(uiMatchDeltaAttrib,MatchDelta,"Match delta","Trace match")
 uiMatchDeltaAttrib::uiMatchDeltaAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mMatchDeltaHelpID) )
 {
-    refcubefld_ = createInpFld( is2d, "Reference Cube");
-    
-    mtchcubefld_ = createInpFld( is2d, "Match Cube" );
+    refcubefld_ = createInpFld( is2d, tr("Reference Cube") );
+
+    mtchcubefld_ = createInpFld( is2d, tr("Match Cube") );
     mtchcubefld_->attach( alignedBelow, refcubefld_ );
 
     maxshiftfld_ = new uiGenInput( this, zDepLabel(tr("Maximum"),tr("shift")),
-	    			   FloatInpSpec(10) );
+				   FloatInpSpec(10) );
     maxshiftfld_->attach( alignedBelow, mtchcubefld_ );
-    
+
     setHAlignObj( maxshiftfld_ );
 }
 
@@ -42,7 +42,7 @@ bool uiMatchDeltaAttrib::setParameters( const Attrib::Desc& desc )
     if ( desc.attribName() != MatchDelta::attribName() )
 	return false;
 
-    mIfGetFloat( MatchDelta::maxshiftStr(), 
+    mIfGetFloat( MatchDelta::maxshiftStr(),
 		    maxshift, maxshiftfld_->setValue(maxshift) )
     return true;
 }
@@ -68,10 +68,7 @@ bool uiMatchDeltaAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiMatchDeltaAttrib::getInput( Attrib::Desc& desc )
 {
-    refcubefld_->processInput();
     fillInp( refcubefld_, desc, 0 );
-    
-    mtchcubefld_->processInput();
     fillInp( mtchcubefld_, desc, 1 );
     return true;
 }

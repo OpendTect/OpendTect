@@ -138,7 +138,6 @@ void cubeSel( CallBacker* cb )
 	return;
 
     IOPar iopar;
-    cursel->updateHistory( iopar );
     for ( int idx=0; idx<nrindir_; idx++ )
     {
 	uiIOObjSel& sel = *sels_[idx];

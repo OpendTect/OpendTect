@@ -10,8 +10,8 @@
 -*/
 
 #include "wellattribmod.h"
+#include "attribsel.h"
 #include "binidvalset.h"
-#include "bufstring.h"
 #include "uistring.h"
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
@@ -28,7 +28,7 @@ public:
 				    {}
 
     const TypeSet<BinIDValueSet::SPos>& positions() const { return positions_; }
-    const TypeSet<float>&	depths() const  	{ return depths_; }
+    const TypeSet<float>&	depths() const	{ return depths_; }
     const BinIDValueSet&	bidset() const		{ return bidset_; }
 
     bool                        extractData(Attrib::EngineMan&,TaskRunner* t=0);
@@ -52,37 +52,37 @@ public:
     mExpClass(WellAttrib) Setup
     {
     public:
-				Setup(const Attrib::DescSet* attr,
-					const Well::ExtractParams* wep)
-				    : nlamodel_(0)
-				    , attrib_(attr)
-				    , tr_(0)
+				Setup( const Attrib::DescSet& ads,
+					const Well::ExtractParams* wep )
+				    : attribdescset_(ads)
 				    , extractparams_(wep)
+				    , nlamodel_(0)
+				    , taskrunner_(0)
 				    {}
 
 	mDefSetupMemb(const NLAModel*,nlamodel)
-	mDefSetupMemb(const Attrib::DescSet*,attrib)
-	mDefSetupMemb(Attrib::SelSpec*,selspec)
+	mDefSetupMemb(Attrib::SelSpec,selspec)
 	mDefSetupMemb(BufferString,lognm)
-	mDefSetupMemb(const Well::ExtractParams*,extractparams)
-	mDefSetupMemb(TaskRunner*,tr) //optional
+	mDefSetupMemb(TaskRunner*,taskrunner)
+
+	const Attrib::DescSet&	    attribdescset_;
+	const Well::ExtractParams*  extractparams_;
     };
 
 
-				AttribLogCreator(const Setup& su, int& selidx)
+				AttribLogCreator( const Setup& su, int selidx )
 				    : setup_(su)
-				    , extractor_(0)
 				    , sellogidx_(selidx)
-				    {}
-				~AttribLogCreator() {}
+				    , extractor_(0)		{}
+				~AttribLogCreator()		{}
 
     bool			doWork(Well::Data&,uiString&);
 
 protected:
 
-    const Setup&		setup_;
+    const Setup			setup_;
+    int				sellogidx_;
     AttribLogExtractor*		extractor_;
-    int&			sellogidx_;
 
     bool                        extractData(BinIDValueSet&);
     bool                        createLog(Well::Data&,

@@ -29,9 +29,10 @@ class Desc; class DescSetup; class SelSpec;
 mExpClass(AttributeEngine) DescSet : public CallBacker
 { mODTextTranslationClass( Attrib::DescSet )
 public:
-			DescSet(bool is2d);
+
+    explicit		DescSet(bool is2d);
 			DescSet(const DescSet&);
-			~DescSet()		{ removeAll( false ); }
+			~DescSet();
 
     DescSet&		operator =(const DescSet&);
     bool		isEmpty() const	{ return descs_.isEmpty(); }
@@ -82,8 +83,10 @@ public:
     void		getIds(TypeSet<DescID>&) const;
     void		getStoredIds(TypeSet<DescID>&) const;
     DescID		getStoredID(const DBKey&,int selout=-1,
-				    bool create=true,bool blindcomp=false,
-				    const char* blindcompnm=0);
+				    bool add_if_absent=true,
+				    bool blindcomp=false,
+				    const char* blindcompnm=0) const;
+    DescID		defStoredID() const;
     Desc*		getFirstStored(bool usesteering=true) const;
     DBKey		getStoredKey(const DescID&) const;
     void		getStoredNames(BufferStringSet&) const;
@@ -157,7 +160,10 @@ public:
     static BufferString storedIDErrStr()
 				    { return "Parameter 'id' is not correct"; }
 
+    CNotifier<DescSet,DescID>	descAdded;
+    CNotifier<DescSet,DescID>	descUserRefChanged;
     CNotifier<DescSet,DescID>	descToBeRemoved;
+    CNotifier<DescSet,DescID>	descRemoved;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&,uiStringSet* errmsgs=0);
@@ -177,8 +183,8 @@ protected:
     bool		storedattronly_;
     bool		couldbeanydim_;
     uiString		errmsg_;
-    mutable BufferString defidstr_;
-    mutable DescID	defattribid_;
+
+    void		usrRefChgCB(CallBacker*);
 
 private:
 

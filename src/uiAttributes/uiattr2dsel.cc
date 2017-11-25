@@ -39,8 +39,6 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 
-using namespace Attrib;
-
 
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 				const TypeSet<Pos::GeomID>& geomids,
@@ -63,7 +61,7 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     , compnr_(-1)
     , outputnr_(-1)
 {
-    attrinf_ = new SelInfo( ds, nla_, true );
+    attrinf_ = new Attrib::SelInfo( ds, DescID::undef(), nla_, true );
 
     createSelectionButtons();
     createSelectionFields();

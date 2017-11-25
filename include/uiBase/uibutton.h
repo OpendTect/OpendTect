@@ -56,15 +56,10 @@ public:
 				bool immediate,const uiString& nonstd_text);
 				//!< will deliver toolbutton is txt is empty
 
-    static bool		haveCommonPBIcons()	{ return havecommonpbics_; }
-    static void		setHaveCommonPBIcons( bool yn=true )
-						{ havecommonpbics_ = yn; }
-
 protected:
 
     uiString		text_;
     float		iconscale_;
-    static bool		havecommonpbics_;
 
     virtual void	translateText();
     virtual void	setPM(const uiPixmap&);

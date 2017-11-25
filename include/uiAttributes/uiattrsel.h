@@ -11,11 +11,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
+#include "attribdescid.h"
 #include "uidlggroup.h"
 #include "uiiosel.h"
-#include "attribdescid.h"
 #include "datapack.h"
-#include "survgeom.h"
 
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; }
 namespace ZDomain { class Info; }
@@ -23,125 +22,113 @@ namespace ZDomain { class Info; }
 class IOObj;
 class NLAModel;
 class TrcKeyZSampling;
-class uiButtonGroup;
 class uiGenInput;
 class uiIOObjInserter;
 class uiListBox;
 class uiLabeledComboBox;
 class uiRadioButton;
+class uiAttrDescEd;
+class uiAttrSelWorkData;
 
-/*!
-\brief User interface for attribute selection data.
-*/
+
+/*!\brief holds a selection for an attribute selector. */
 
 mExpClass(uiAttributes) uiAttrSelData
 { mODTextTranslationClass(uiAttrSelData);
 public:
 
-				uiAttrSelData(bool is2d,bool fillwithdef=true);
-				uiAttrSelData(const Attrib::DescSet&,
-					      bool fillwithdef=true);
+    typedef Attrib::Desc	Desc;
+    typedef Attrib::DescID	DescID;
+    typedef Attrib::DescSet	DescSet;
+    typedef Attrib::SelSpec	SelSpec;
 
-    Attrib::DescID		attribid_;
+				uiAttrSelData(bool is2d);
+				uiAttrSelData(const DescSet&);
+    bool			isUndef() const;
+    void			setUndef();
+
+    DescID			attribid_;
     const NLAModel*		nlamodel_;
-    int				outputnr_;
-    int				compnr_;
     const ZDomain::Info*	zdomaininfo_;
 
     bool			is2D() const;
-    const Attrib::DescSet&	attrSet() const		{ return *attrset_; }
-    void			setAttrSet( const Attrib::DescSet* ds )
-						    { if ( ds ) attrset_ = ds; }
-    void			fillSelSpec(Attrib::SelSpec&) const;
+    bool			isNLA() const;
+    const DescSet&		attrSet() const		{ return *attrset_; }
+    void			setAttrSet( const DescSet& ds )
+							{ attrset_ = &ds; }
+    void			setOutputNr( int nr )	{ nr_ = nr; }
+    void			setCompNr( int nr )	{ nr_ = nr; }
+    int				outputNr() const	{ return nr_; };
+    int				compNr() const		{ return nr_; };
+
+    void			fillSelSpec(SelSpec&) const;
 
 protected:
 
-    const Attrib::DescSet*	attrset_;
+    const DescSet*		attrset_;
+    int				nr_;
+
+private:
+
+    void			init();
 
 };
 
 
+/*!\brief base class for selectors of stored data/attribute/NLA output node. */
 
-mExpClass(uiAttributes) uiAttrSelGroup : public uiDlgGroup
+mExpClass(uiAttributes) uiAttrSelectionObj
 {
 public:
-    virtual		~uiAttrSelGroup();
 
-    virtual void	fillSelSpec(Attrib::SelSpec&) const		= 0;
+    enum SelType	{ Stored, Steer, Attrib, NLA };
 
-protected:
-			uiAttrSelGroup(uiParent*,const uiString& caption);
+    typedef Attrib::Desc			Desc;
+    typedef Attrib::DescID			DescID;
+    typedef Attrib::DescSet			DescSet;
+    typedef Attrib::SelSpec			SelSpec;
+    typedef DataPack::FullID			DPID;
+    typedef TypeSet<DPID>			DPIDSet;
 
-    uiListBox*		listfld_;
-    uiGenInput*		filterfld_;
-};
+    bool		is2D() const		{ return seldata_.is2D(); }
+    inline bool		is3D() const		{ return !is2D(); }
+    const DescSet&	attrSet() const		{ return seldata_.attrSet(); }
 
-
-/*!
-\brief User Interface (UI) element for selection of Attributes from an
-attribute set.
-
-  This dialog gets an attribute ID from the set. It can be used to select an
-  attribute or NLA output. When it is used to select the input for another
-  attribute, you'll need to specify the attrib ID of that attribute as
-  'ignoreid'. Because stored cubes can also be considered attributes, the user
-  can also select any cube, which is then automatically added to the set.
-*/
-/* Work in progress
-mExpClass(uiAttributes) uiAttrSelDlg2 : public uiTabStackDlg
-{ mODTextTranslationClass(uiAttrSelDlg2)
-public:
-    mExpClass(uiAttributes) Setup
-    {
-    public:
-		Setup( const uiString& txt )
-		    : seltxt_(txt)
-		    , ignoreid_(Attrib::DescID::undef())
-		    , isinp4otherattrib_(false)
-		    , showsteeringdata_(false)
-		{}
-
-		mDefSetupMemb(uiString,seltxt)
-		mDefSetupMemb(Attrib::DescID,ignoreid)
-		mDefSetupMemb(bool,isinp4otherattrib)
-		mDefSetupMemb(bool,showsteeringdata)
-    };
-
-			uiAttrSelDlg2(uiParent*,const uiAttrSelData&,
-				     const Setup&);
-			~uiAttrSelDlg2();
-
-    Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
-			//!< -1 if not selected
-    int			outputNr() const	{ return attrdata_.outputnr_; }
-			//!< -1 if not selected
+    DescID		ignoreID() const	{ return ignoreid_; }
+    const DPIDSet&	dataPackIDs() const	{ return dpids_; }
     const char*		zDomainKey() const;
+    virtual SelType	selType() const		= 0;
 
-    bool		is2D() const		{ return attrdata_.is2D(); }
-    const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }
-    int			selType() const;
-    void		fillSelSpec(Attrib::SelSpec&) const;
+    DescID		attribID() const	{ return seldata_.attribid_; }
+    int			outputNr() const	{ return seldata_.outputNr(); }
+    int			compNr() const		{ return seldata_.compNr(); }
+
+    void		fillSelSpec(SelSpec&) const;
+
+    static BufferString selTypeIconID(SelType);
 
 protected:
 
-    uiAttrSelData	attrdata_;
+			uiAttrSelectionObj(const uiAttrSelData&,bool showsteer);
+    virtual		~uiAttrSelectionObj();
+
+    uiAttrSelData	seldata_;
     Attrib::SelInfo*	attrinf_;
-    bool		usedasinput_;	//input for another attribute
-    bool		in_action_;
+    DPIDSet		dpids_;
     bool		showsteerdata_;
-    BufferString	zdomainkey_;
+    DescID		ignoreid_;
 
-    void		initAndBuild(const uiString&,Attrib::DescID,bool);
-
-    bool		getAttrData(bool);
-    void		doFinalise( CallBacker* );
-    virtual bool	acceptOK();
+    uiString		selTypeDispStr(SelType) const;
+    bool		have(SelType) const;
+    void		fillAttrInf();
 
 };
-*/
 
+
+/*!\brief dialog for selection of stored data/attribute/NLA output node. */
 
 mExpClass(uiAttributes) uiAttrSelDlg : public uiDialog
+				     , public uiAttrSelectionObj
 { mODTextTranslationClass(uiAttrSelDlg)
 public:
 
@@ -150,17 +137,12 @@ public:
     public:
 		Setup( const uiString& txt )
 		    : seltxt_(txt)
-		    , ignoreid_(Attrib::DescID::undef())
-		    , isinp4otherattrib_(false)
-		    , showsteeringdata_(false)
-		    , geomid_(mUdfGeomID)
-		{}
+		    , ignoreid_(DescID::undef())
+		    , showsteeringdata_(false)		{}
 
 		mDefSetupMemb(uiString,seltxt)
-		mDefSetupMemb(Attrib::DescID,ignoreid)
-		mDefSetupMemb(bool,isinp4otherattrib)
+		mDefSetupMemb(DescID,ignoreid)
 		mDefSetupMemb(bool,showsteeringdata)
-		mDefSetupMemb(Pos::GeomID,geomid)
     };
 
 			uiAttrSelDlg(uiParent*,const uiAttrSelData&,
@@ -170,153 +152,122 @@ public:
 				     const Setup&);
 			~uiAttrSelDlg();
 
-			// if ( go() ) ...
-    Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
-			//!< -1 if not selected
-    int			outputNr() const	{ return attrdata_.outputnr_; }
-			//!< -1 if not selected
-    const char*		zDomainKey() const;
-
-    bool		is2D() const		{ return attrdata_.is2D(); }
-    const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }
-    int			selType() const;
-    void		fillSelSpec(Attrib::SelSpec&) const;
+    virtual SelType	selType() const;
 
 protected:
 
-    uiAttrSelData	attrdata_;
-    Attrib::SelInfo*	attrinf_;
-    bool		usedasinput_;	//input for another attribute
-    bool		in_action_;
-    bool		showsteerdata_;
-    BufferString	zdomainkey_;
-    Pos::GeomID		geomid_;
+    DBKey		insertedobjdbky_;
+    bool		fully_finalised_;
 
-    TypeSet<DataPack::FullID> dpfids_;
-    DBKey		insertedobjmid_;
+    uiRadioButton*	storedtypsel_;
+    uiRadioButton*	steertypsel_;
+    uiRadioButton*	attribtypsel_;
+    uiRadioButton*	nlatypsel_;
+    ObjectSet<uiRadioButton> typsels_;
 
-    uiButtonGroup*	selgrp_;
-    uiRadioButton*	storfld_;
-    uiRadioButton*	steerfld_;
-    uiRadioButton*	attrfld_;
-    uiRadioButton*	nlafld_;
-    uiRadioButton*	zdomainfld_;
+    uiListBox*		storedentriesfld_;
+    uiListBox*		steerentriesfld_;
+    uiListBox*		attribentriesfld_;
+    uiListBox*		nlaentriesfld_;
+    ObjectSet<uiListBox> entriesflds_;
+    uiListBox*		entryList4Type(SelType);
 
-    uiListBox*		storoutfld_;
-    uiListBox*		steeroutfld_;
-    uiListBox*		attroutfld_;
-    uiListBox*		nlaoutfld_;
-    uiListBox*		zdomoutfld_;
     uiGenInput*		filtfld_;
-    uiGenInput*		attr2dfld_;
     uiLabeledComboBox*	compfld_;
 
     ObjectSet<uiIOObjInserter> inserters_;
     ObjectSet<uiButton>	insbuts_;
 
-    void		initAndBuild(const uiString&,Attrib::DescID,bool);
-    void		createSelectionButtons();
-    void		createSelectionFields();
+    void		initAndBuild(const Setup&);
+    uiGroup*		createSelectionButtons();
+    uiGroup*		createSelectionFields();
 
     bool		getAttrData(bool);
-    void		replaceStoredByInMem();
-    void		doFinalise( CallBacker* );
-    void		selDone(CallBacker*);
-    void		filtChg(CallBacker*);
-    void		cubeSel(CallBacker*);
-    void		objInserted(CallBacker*);
+    void		finaliseWinCB( CallBacker* );
+    void		selDoneCB(CallBacker*);
+    void		filtChgCB(CallBacker*);
+    void		cubeSelCB(CallBacker*);
+    void		objInsertedCB(CallBacker*);
     virtual bool	acceptOK();
 };
 
 
-/*!
-\brief User interface element for storing attribute desc selection.
+/*!\brief single-line selector for stored data/attribute/NLA output node. */
 
-  It can be used to select an attribute or the input for an attribute. In the
-  latter case you must provide the attrib desc and the input number.
-*/
-
-mExpClass(uiAttributes) uiAttrSel : public uiIOSelect
+mExpClass(uiAttributes) uiAttrSel : public uiGroup
+				  , public uiAttrSelectionObj
 { mODTextTranslationClass(uiAttrSel);
 public:
-			uiAttrSel(uiParent*,const Attrib::DescSet&,
-				  const char* txt=0,
-				  Attrib::DescID curid=Attrib::DescID::undef(),
-				  bool isinp4otherattrib = true);
-			uiAttrSel(uiParent*,const char*,const uiAttrSelData&,
-				  bool isinp4otherattrib = true);
-			~uiAttrSel()		{}
 
-    Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
-    int			outputNr() const	{ return attrdata_.outputnr_; }
-    inline bool		is2D() const		{ return attrdata_.is2D(); }
-    inline bool		is3D() const		{ return !is2D(); }
+			uiAttrSel(uiParent*,const DescSet&,
+				  const uiString& txt=sDefLabel(),
+				  DescID curid=DescID::undef());
+			uiAttrSel(uiParent*,
+				  const uiAttrSelData&,
+				  const uiString& txt=sDefLabel());
+			~uiAttrSel();
 
-    void		setDescSet(const Attrib::DescSet*);
-			//!< This function has to be called before getHistory !
-    void		setDesc(const Attrib::Desc*);
-			//!< If called, it has to be called before getHistory !
-			//!< If you call it, you don't need to call setDescSet.
-    void		setSelSpec(const Attrib::SelSpec*);
+    const DescSet&	attrSet() const		{ return seldata_.attrSet(); }
+    void		setDesc(const Desc*);
+    void		setDescSet(const DescSet*);
+    void		setSelSpec(const SelSpec*);
     void		setNLAModel(const NLAModel*);
 
-    void		setIgnoreDesc(const Attrib::Desc*);
-    void		setIgnoreID( Attrib::DescID id ) { ignoreid_ = id; }
-    void		setPossibleDataPacks(const TypeSet<DataPack::FullID>&);
-    void		showSteeringData( bool yn )	{ showsteeringdata_=yn;}
-    void		setGeomID( Pos::GeomID id )	{ geomid_ = id; }
-    Pos::GeomID		getGeomID() const		{ return geomid_; }
+    void		setIgnoreDesc(const Desc*);
+    void		setDataPackInputs(const DPIDSet&);
+    void		showSteeringData(bool);
 
-    virtual void	getHistory(const IOPar&);
-    virtual void	processInput();
-
-    const char*		errMsg()		{ return errmsg_.str(); }
     bool		getRanges(TrcKeyZSampling&) const;
 			//!< Tries to determine ranges of currently selected.
+    bool		isValidOutput(const IOObj&) const;
 
-    void		fillSelSpec(Attrib::SelSpec&) const;
-    bool		checkOutput(const IOObj&) const;
+    virtual SelType	selType() const;
+    bool		haveSelection() const;
     const char*		getAttrName() const;
 
-    void		setObjectName(const char*);
-    const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }
+    static uiString	sDefLabel(); // uiStrings::sInputData()
+    static uiString	sQuantityToOutput();
+
+    Notifier<uiAttrSel> selectionChanged;
 
 protected:
 
-    uiAttrSelData	attrdata_;
-    bool		is2d_;
-    Attrib::DescID	ignoreid_;
-    bool		usedasinput_;	//input for another attribute
-    BufferString	errmsg_;
-    mutable BufferString usrnm_;
-    int			seltype_;
-    bool		showsteeringdata_;
-    Pos::GeomID		geomid_;
+    const uiString	lbltxt_;
+    uiComboBox*		typfld_;
+    uiComboBox*		selfld_;
 
-    TypeSet<DataPack::FullID> dpfids_;
+    void		createFields();
+    void		fillTypFld();
+    void		fillSelFld();
+    void		addTypeFldItem(SelType);
+    void		addCBsToDescSet();
+    void		removeCBsFromDescSet();
+    void		switchToDescSet(const DescSet&);
+    void		updateContent(bool getnewinf=false,bool updtypes=false);
+    void		getSelectionFromScreen();
+    void		putSelectionToScreen();
+    uiAttrDescEd*	getParentADE();
 
-    void		updateInput();
-    void		update2D();
-    void		doSel(CallBacker*);
-    virtual const char*	userNameFromKey(const char*) const;
+    void		initFlds(CallBacker*);
+    void		doSelCB(CallBacker*);
+    void		typSelCB(CallBacker*);
+    void		selChgCB(CallBacker*);
+    void		descSetChgCB(CallBacker*);
+    void		adeDescSetChgCB(CallBacker*);
 
-    static uiString	cDefLabel();
 };
 
 
-/*!
-\brief User interface element for getting attribute with both real and
-imaginary part.
-*/
+/*!\brief uiAttrsel for getting attribute with both real and imaginary part */
 
 mExpClass(uiAttributes) uiImagAttrSel : public uiAttrSel
 { mODTextTranslationClass(uiImagAttrSel);
 public:
-			uiImagAttrSel( uiParent* p, const char* txt,
+			uiImagAttrSel( uiParent* p, const uiString& txt,
 					const uiAttrSelData& asd )
-			: uiAttrSel(p,txt,asd)	{}
+			    : uiAttrSel(p,asd,txt)	{}
 
-    inline Attrib::DescID realID() const		{ return attribID(); }
-    Attrib::DescID	imagID() const;
+    inline DescID	realID() const			{ return attribID(); }
+    DescID		imagID() const;
 
 };

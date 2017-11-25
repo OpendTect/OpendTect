@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 #include "uicursor.h"
-#include "uibutton.h"
 #include "settings.h"
 
 #include "uihelpview.h"
@@ -22,9 +21,6 @@ void Init_uiLocalFileSelToolProvider_Class();
 mDefModInitFn(uiBase)
 {
     mIfNotFirstTime( return );
-
-    uiButton::setHaveCommonPBIcons(
-	    !Settings::common().isFalse("Ui.Icons.PushButtons") );
 
     uiCursorManager::initClass();
     FlareHelpProvider::initODHelp();

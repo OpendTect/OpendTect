@@ -66,6 +66,8 @@ public:
 			//!< Use during operation only!
     int			curDescNr() const;
 			//!< Use during operation only!
+    void		setCurDescNr(int);
+			//!< Use during operation only!
     void		updateCurDescEd();
     bool		is2D() const;
 
@@ -162,7 +164,6 @@ protected:
     void			replaceStoredAttr();
     void			replaceStoredAttr(IOPar&);
     void			removeNotUsedAttr();
-    //bool		hasInput(const Attrib::Desc&,const Attrib::DescID&);
 
     bool			acceptOK();
     bool			rejectOK();

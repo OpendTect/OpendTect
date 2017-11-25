@@ -16,10 +16,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "attribdescid.h"
 #include "typeset.h"
+#include "datapack.h"
 
 class NLAModel;
 class BinDataDesc;
-
 namespace ZDomain { class Info; }
 
 
@@ -29,8 +29,7 @@ namespace Attrib
 class Desc;
 class DescSet;
 
-/*!
-\brief Specifies an attribute selection (ID or output number of NN).
+/*!\brief specifies a full attribute selection (ID or output number of NN).
 
   When attrib sets and NLAs change, the IDs may be no longer valid. Thus, the
   user reference is stored, so you can try to get a valid ID in that situation.
@@ -124,51 +123,43 @@ protected:
 };
 
 
-/*
-\brief Specifies current attribute choices (ID or output nr of NLA model).
-*/
+/*!\brief All info needed to make attribute selections.
 
-mExpClass(AttributeEngine) CurrentSel
-{
-public:
-			CurrentSel()
-			: attrid_(DescID(-1,true)), outputnr_(-1)	{}
+  On construction, the data is filled. If you need to re-read, fill with
+  DataPack's (for synthetics, will discard 'stored'), or (re-)filter you can
+  use the fillXX() functions.
 
-    DescID		attrid_;
-    DBKey		ioobjkey_;
-    int			outputnr_; // For NLA or attribute nr in 2D
-
-};
-
-
-/*!
-\brief Supplies lists of available attribute input.
-*/
+ */
 
 mExpClass(AttributeEngine) SelInfo
 {
 public:
 
-			SelInfo(const DescSet*,const NLAModel* n=0,
-				bool is2d=false,
+			SelInfo(const DescSet&,
 				const DescID& ignoreid=DescID::undef(),
-				bool usesteering=false,bool onlysteering=false,
+				const NLAModel* n=0,
+				const ZDomain::Info* zi=0);
+			SelInfo(const DescSet*,const DescID& ignoreid,
+				const NLAModel* n=0,
+				bool is2d=false,
 				bool onlymulticomp=false, bool usehidden=false);
-			SelInfo(const SelInfo&);
-    SelInfo&		operator=(const SelInfo&);
+			SelInfo(const ZDomain::Info&,bool is2d);
+				// Only stored
 
     BufferStringSet	ioobjnms_;
-    BufferStringSet	steernms_;
-    BufferStringSet	attrnms_;
-    BufferStringSet	nlaoutnms_;
-    TypeSet<DescID>	attrids_;
     DBKeySet		ioobjids_;
+    BufferStringSet	steernms_;
     DBKeySet		steerids_;
+    BufferStringSet	attrnms_;
+    TypeSet<DescID>	attrids_;
+    BufferStringSet	nlaoutnms_;
 
-    void		fillStored(bool steerdata,const char* filter=0);
-    static bool		is2D(const char* defstr_or_ioobjid);
-    static void		getZDomainItems(const ZDomain::Info&,bool is2d,
-					BufferStringSet& objnms);
+    void		fillStored(bool steerdata,const char* filter=0,
+				    const ZDomain::Info* zi=0);
+    void		fillSynthetic(bool steerdata,
+				      const TypeSet<DataPack::FullID>&);
+    void		fillNonStored(const DescSet&,const DescID& ignoreid,
+				      const NLAModel*,bool usehidden=false);
 
 			//!< 2D only
     static void		getAttrNames(const char* defstr_or_ioobjid,
@@ -178,10 +169,10 @@ public:
 protected:
 
     bool		is2d_;
-    bool		usesteering_;
-    bool		onlysteering_;
     bool		onlymulticomp_;
 
 };
+
+
 
 } // namespace Attrib

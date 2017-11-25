@@ -50,6 +50,10 @@ uiString uiAttrDescEd::sInputTypeError( int inp )
             .arg( toString( inp ) );
 }
 
+uiString uiAttrDescEd::sDefLabel()
+{
+    return uiAttrSel::sDefLabel();
+}
 
 
 const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
@@ -68,8 +72,9 @@ uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d, const HelpKey& helpkey )
     , ads_(0)
     , is2d_(is2d)
     , helpkey_(helpkey)
-    , needinpupd_(false)
     , zdomaininfo_(0)
+    , descChanged(this)
+    , descSetChanged(this)
 {
 }
 
@@ -81,14 +86,23 @@ uiAttrDescEd::~uiAttrDescEd()
 
 void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 {
-    desc_ = desc;
-    adsman_ = adsm;
-    if ( desc_ )
+    if ( desc_ != desc )
     {
-	chtr_.setVar( adsman_->unSaved() );
-	setParameters( *desc );
-	setInput( *desc );
-	setOutput( *desc );
+	desc_ = desc;
+	if ( desc_ )
+	{
+	    setParameters( *desc );
+	    setInput( *desc );
+	    setOutput( *desc );
+	}
+	descChanged.trigger();
+    }
+
+    if ( adsman_ != adsm )
+    {
+	adsman_ = adsm;
+	if ( adsman_ )
+	    chtr_.setVar( adsman_->unSaved() );
     }
 }
 
@@ -109,78 +123,91 @@ void uiAttrDescEd::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
 }
 
 
-void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
+void uiAttrDescEd::setDescSet( Attrib::DescSet* ds )
 {
-    if ( inp >= desc.nrInputs() || !desc.descSet() )
+    if ( !ds || ads_ == ds )
 	return;
 
-    fld->processInput();
+    ads_ = ds;
+    descSetChanged.trigger();
+}
+
+
+void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inpnr )
+{
+    if ( !fld || inpnr >= desc.nrInputs() || !desc.descSet() )
+	return;
+
     const DescID attribid = fld->attribID();
 
-    const Attrib::Desc* inpdesc = desc.getInput( inp );
-    if ( inpdesc )
-	chtr_.set( inpdesc->id(), attribid );
+    const Attrib::Desc* oldinpdesc = desc.getInput( inpnr );
+    if ( oldinpdesc )
+	chtr_.set( oldinpdesc->id(), attribid );
     else
 	chtr_.setChanged( true );
 
-    if ( !desc.setInput(inp,desc.descSet()->getDesc(attribid)) )
+    const Attrib::Desc* newinpdesc = desc.descSet()->getDesc( attribid );
+    if ( !desc.setInput(inpnr,newinpdesc) )
     {
-	errmsg_ = tr("The suggested attribute for input %1 "
+	errmsg_ = tr("The suggested attribute for input %1 (%2)"
                       "is incompatible with the input (wrong datatype)")
-                      .arg( toString(inp) );
+		      .arg( toString(inpnr) )
+		      .arg( newinpdesc ? newinpdesc->userRef() : "<no input>" );
     }
 
     mDynamicCastGet(const uiImagAttrSel*,imagfld,fld)
     if ( imagfld )
-	desc.setInput( inp+1, desc.descSet()->getDesc(imagfld->imagID()) );
+    {
+	newinpdesc = desc.descSet()->getDesc( imagfld->imagID() );
+	desc.setInput( inpnr+1, newinpdesc );
+    }
 }
 
 
-void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
+void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inpnr )
 {
-    if ( inp >= desc.nrInputs() )
+    if ( !fld || inpnr >= desc.nrInputs() || !desc.descSet() )
 	return;
 
     const DescID descid = fld->descID();
-    const Attrib::Desc* inpdesc = desc.getInput( inp );
+    const Attrib::Desc* inpdesc = desc.getInput( inpnr );
     if ( inpdesc )
 	chtr_.set( inpdesc->id(), descid );
     else if ( fld->willSteer() )
 	chtr_.setChanged( true );
 
-    if ( !desc.setInput( inp, desc.descSet()->getDesc(descid) ) )
+    if ( !desc.setInput( inpnr, desc.descSet()->getDesc(descid) ) )
     {
-	errmsg_ = sInputTypeError( inp );
+	errmsg_ = sInputTypeError( inpnr );
     }
 }
 
 
-void uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc, int inp )
+void uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc, int inpnr )
 {
-    if ( inp >= desc.nrInputs() )
+    if ( !fld || inpnr >= desc.nrInputs() || !desc.descSet() )
 	return;
 
-    fld->processInput();
     const DescID inlid = fld->inlDipID();
-    const Attrib::Desc* inpdesc = desc.getInput( inp );
+    const Attrib::Desc* inpdesc = desc.getInput( inpnr );
     if ( inpdesc )
 	chtr_.set( inpdesc->id(), inlid );
     else
 	chtr_.setChanged( true );
 
-    if ( !desc.setInput( inp, desc.descSet()->getDesc(inlid) ) )
+    if ( !desc.setInput( inpnr, desc.descSet()->getDesc(inlid) ) )
     {
-        errmsg_ = sInputTypeError( inp );
+	errmsg_ = sInputTypeError( inpnr );
     }
 
     const DescID crlid = fld->crlDipID();
-    inpdesc = desc.getInput( inp+1 );
+    inpdesc = desc.getInput( inpnr+1 );
     if ( inpdesc )
 	chtr_.set( inpdesc->id(), crlid );
     else
 	chtr_.setChanged( true );
 
-    desc.setInput( inp+1, desc.descSet()->getDesc(crlid) );
+    desc.setInput( inpnr+1, desc.descSet()->getDesc(crlid) );
 }
 
 
@@ -191,52 +218,44 @@ void uiAttrDescEd::fillOutput( Attrib::Desc& desc, int selout )
 }
 
 
-uiAttrSel* uiAttrDescEd::createInpFld( bool is2d, const char* txt )
+uiAttrSel* uiAttrDescEd::createInpFld( bool is2d, const uiString& txt )
 {
-    uiAttrSelData asd( is2d );
+    const uiAttrSelData asd( is2d );
     return new uiAttrSel( this, asd.attrSet(), txt, asd.attribid_ );
 }
 
 
 uiAttrSel* uiAttrDescEd::createInpFld( const uiAttrSelData& asd,
-				       const char* txt )
+				       const uiString& txt )
 {
-    return new uiAttrSel( this, txt, asd );
+    return new uiAttrSel( this, asd, txt );
 }
 
 
 uiImagAttrSel* uiAttrDescEd::createImagInpFld( bool is2d )
 {
     uiAttrSelData asd( is2d );
-    return new uiImagAttrSel( this, 0, asd );
+    return new uiImagAttrSel( this, uiString::emptyString(), asd );
 }
 
 
 void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
 			   int inpnr )
 {
-    if ( dpfids_.size() )
-	inpfld->setPossibleDataPacks( dpfids_ );
+    if ( !dpfids_.isEmpty() )
+	inpfld->setDataPackInputs( dpfids_ );
 
     const Attrib::Desc* inpdesc = ad.getInput( inpnr );
-    if ( !inpdesc )
-    {
-	if ( needinpupd_ )
-	{
-	    Attrib::DescID defaultdid = ad.descSet()->ensureDefStoredPresent();
-	    Attrib::Desc* defaultdesc = ad.descSet()->getDesc( defaultdid );
-	    if ( !defaultdesc )
-		inpfld->setDescSet( ad.descSet() );
-
-	    inpfld->setDesc( defaultdesc );
-	}
-	else
-	    inpfld->setDescSet( ad.descSet() );
-    }
+    if ( inpdesc )
+	inpfld->setDesc( inpdesc );
     else
     {
-	inpfld->setDesc( inpdesc );
-	inpfld->updateHistory( adsman_->inputHistory() );
+	Attrib::DescID defaultdid = ad.descSet()->ensureDefStoredPresent();
+	Attrib::Desc* defaultdesc = ad.descSet()->getDesc( defaultdid );
+	if ( !defaultdesc )
+	    inpfld->setDescSet( ad.descSet() );
+	else
+	    inpfld->setDesc( defaultdesc );
     }
 }
 
@@ -245,13 +264,10 @@ void uiAttrDescEd::putInp( uiSteerAttrSel* inpfld, const Attrib::Desc& ad,
 			   int inpnr )
 {
     const Attrib::Desc* inpdesc = ad.getInput( inpnr );
-    if ( !inpdesc )
-        inpfld->setDescSet( ad.descSet() );
-    else
-    {
+    if ( inpdesc )
 	inpfld->setDesc( inpdesc );
-	inpfld->updateHistory( adsman_->inputHistory() );
-    }
+    else
+	inpfld->setDescSet( ad.descSet() );
 }
 
 
@@ -259,10 +275,10 @@ void uiAttrDescEd::putInp( uiSteeringSel* inpfld, const Attrib::Desc& ad,
 			   int inpnr )
 {
     const Attrib::Desc* inpdesc = ad.getInput( inpnr );
-    if ( !inpdesc )
-	inpfld->setDescSet( ad.descSet() );
-    else
+    if ( inpdesc )
 	inpfld->setDesc( inpdesc );
+    else
+	inpfld->setDescSet( ad.descSet() );
 }
 
 
@@ -288,7 +304,7 @@ uiString uiAttrDescEd::zDepLabel( const uiString& pre,
     }
 
     if ( !post.isEmpty() )
-	return uiStrings::phrJoinStrings( zstr, post, SI().zUnitString());
+	return uiStrings::phrJoinStrings( zstr, post, SI().zUnitString() );
 
 
     return uiStrings::phrJoinStrings( zstr, SI().zUnitString() );
@@ -334,8 +350,10 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 
 uiString uiAttrDescEd::commit( Attrib::Desc* editdesc )
 {
-    if ( !editdesc ) editdesc = desc_;
-    if ( !editdesc ) return uiStrings::sEmptyString();
+    if ( !editdesc )
+	editdesc = desc_;
+    if ( !editdesc )
+	return uiStrings::sEmptyString();
 
     getParameters( *editdesc );
     errmsg_ = Provider::prepare( *editdesc );
@@ -359,16 +377,13 @@ bool uiAttrDescEd::getOutput( Attrib::Desc& desc )
 bool uiAttrDescEd::getInputDPID( uiAttrSel* inpfld,
 				 DataPack::FullID& inpdpfid ) const
 {
-    StringPair inpstr( inpfld->getInput() );
+    StringPair inpstr( inpfld->getAttrName() );
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
 	DataPack::FullID dpfid = dpfids_[idx];
 	BufferString dpnm = DataPackMgr::nameOf( dpfid );
 	if ( inpstr.first() == dpnm )
-	{
-	    inpdpfid = dpfid;
-	    return true;
-	}
+	    { inpdpfid = dpfid; return true; }
     }
 
     return false;

@@ -99,7 +99,7 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
                 new uiArray2DInterpolSel( 0, true, true, false, interpol_));
     dlg.setCaption( uiStrings::sInterpolation() );
     dlg.setTitleText( uiStrings::sSettings() );
-    
+
     if ( !dlg.go() )
 	return;
 
@@ -115,7 +115,7 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
 
 void uiAttrSurfaceOut::attribSel( CallBacker* )
 {
-    attrnmfld_->setText( attrfld_->getInput() );
+    attrnmfld_->setText( attrfld_->getAttrName() );
     objSelCB(0);
 }
 
@@ -169,7 +169,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 
     BufferString attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() )
-	attrnm = attrfld_->getInput();
+	attrnm = attrfld_->getAttrName();
 
     BufferString attrfnm =
 	EM::SurfaceAuxData::getFileName( *ioobj, attrnm );

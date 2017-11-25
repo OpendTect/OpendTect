@@ -219,18 +219,14 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     mb->setText( txt.getQString() );
     addStayOnTopFlag( *mb );
 
-    const bool withics = uiButton::haveCommonPBIcons();
     QIcon qicon; // null icon to avoid icons on the pushbuttons
 
     if ( !yestxt.isEmpty() )
     {
 	QPushButton* yesbut = mb->addButton( QMessageBox::Yes );
 	yesbut->setText(yestxt.getQString() );
-	if ( withics )
-	{
-	    uiIcon icn( "ok" );
-	    qicon = icn.qicon();
-	}
+	uiIcon icn( "ok" );
+	qicon = icn.qicon();
 	yesbut->setIcon( qicon );
     }
 
@@ -238,11 +234,8 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     {
 	QPushButton* nobut = mb->addButton( QMessageBox::No );
 	nobut->setText( notxt.getQString() );
-	if ( withics )
-	{
-	    uiIcon icn( "stop" );
-	    qicon = icn.qicon();
-	}
+	uiIcon icn( "stop" );
+	qicon = icn.qicon();
 	nobut->setIcon( qicon );
     }
 
@@ -250,11 +243,8 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     {
 	QPushButton* rejbut = mb->addButton( QMessageBox::Abort );
 	rejbut->setText( cncltxt.getQString() );
-	if ( withics )
-	{
-	    uiIcon icn( "cancel" );
-	    qicon = icn.qicon();
-	}
+	uiIcon icn( "cancel" );
+	qicon = icn.qicon();
 	rejbut->setIcon( qicon );
     }
 

@@ -117,7 +117,6 @@ bool uiGrubbsFilterAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiGrubbsFilterAttrib::getInput( Attrib::Desc& desc )
 {
-    inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
     return true;
 }

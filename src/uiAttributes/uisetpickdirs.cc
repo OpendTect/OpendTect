@@ -64,14 +64,14 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
     ps_.ref();
     const bool is2d = ads_ ? ads_->is2D() : false;
 
-    SelInfo attrselinfo( ads_, nlamdl_, is2d );
+    const SelInfo attrselinfo( ads_, DescID::undef(), nlamdl_, is2d );
     if ( attrselinfo.ioobjids_.size() == 0 )
     {
 	new uiLabel( this, tr("Please import a seismic cube first") );
 	return;
     }
 
-    dirinpfld_ = new uiGenInput( this, tr("Direction from"), 
+    dirinpfld_ = new uiGenInput( this, tr("Direction from"),
 		    BoolInpSpec(true,tr("SteeringCube"),
 				uiStrings::sAttribute(mPlural)));
     dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
@@ -79,13 +79,14 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 				    is2d );
     steerfld_->attach( alignedBelow, dirinpfld_ );
 
-    uiAttrSelData asd( *ads_, false );
+    uiAttrSelData asd( *ads_ );
     asd.nlamodel_ = nlamdl_;
-    phifld_ = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])", asd );
+    phifld_ = new uiAttrSel( this, asd,
+			     tr("Azimuth Angle ~ North (phi=[0-360])") );
     if ( dirinpfld_ )
 	phifld_->attach( alignedBelow, dirinpfld_ );
-    thetafld_ = new uiAttrSel( this, "Dip Angle ~ Horizontal (theta=[-90-90])",
-			      asd );
+    thetafld_ = new uiAttrSel( this, asd,
+				tr("Dip Angle ~ Horizontal (theta=[-90-90])") );
     thetafld_->attach( alignedBelow, phifld_ );
 
     postFinalise().notify( mCB(this,uiSetPickDirs,dirinpSel) );
@@ -133,7 +134,8 @@ bool uiSetPickDirs::acceptOK()
 
     if ( usesteering_ && !*steerfld_->getInput() )
 	mErrRet( uiStrings::phrSelect(toUiString("SteeringCube")) )
-    if ( !usesteering_ && ( !*phifld_->getInput() || !*thetafld_->getInput() ) )
+    if ( !usesteering_
+	&& ( !phifld_->haveSelection() || !thetafld_->haveSelection() ) )
 	mErrRet(uiStrings::phrSelect(tr("input attributes for Phi and Theta")))
 
     TypeSet<DataPointSet::DataRow> pts;
@@ -273,36 +275,40 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
 
 bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
 {
-    if ( !nlamdl_ ) return true;
+    ids.setEmpty();
+    if ( !nlamdl_ )
+	return true;
 
     EngineMan aem;
     aem.setNLAModel( nlamdl_ );
 
-    SelInfo selinfo( 0, nlamdl_ );
+    SelInfo selinfo( 0, DescID::undef(), nlamdl_ );
     const int nrnlaouts = selinfo.nlaoutnms_.size();
     for ( int idx=0; idx<nrnlaouts; idx++ )
     {
-	if ( !idx )
+	DescID nlaid( -1, false );
+	if ( ids.isEmpty() )
 	{
 	    SelSpec tmpspec( selinfo.nlaoutnms_.get( idx ) );
-	    tmpspec.setIDFromRef(nlamdl_);
+	    tmpspec.setIDFromRef( *nlamdl_ );
 	    aem.setAttribSpec( tmpspec );
-	    DescID nlaid(-1, false);
 	    uiString errmsg;
 	    createdset_ = aem.createNLAADS( nlaid, errmsg, ads_ );
-	    if ( !errmsg.isEmpty() ) mErrRet( errmsg );
-	    ids += nlaid;
-	    continue;
+	    if ( !errmsg.isEmpty() )
+		mErrRet( errmsg );
 	}
-
-	Desc* desc0 = createdset_->getDesc( ids[0] );
-	if ( !desc0 ) continue;
-	Desc* ad = new Desc( *desc0 );
-	ad->setDescSet( createdset_ );
-	BufferString usrref( ad->userRef() ); usrref += "__"; usrref += idx;
-	ad->setUserRef( usrref );
-	ad->selectOutput( idx );
-	DescID nlaid  = createdset_->addDesc( ad );
+	else
+	{
+	    Desc* desc0 = createdset_->getDesc( ids[0] );
+	    if ( !desc0 )
+		continue;
+	    Desc* ad = new Desc( *desc0 );
+	    ad->setDescSet( createdset_ );
+	    BufferString usrref( ad->userRef() ); usrref += "__"; usrref += idx;
+	    ad->setUserRef( usrref );
+	    ad->selectOutput( idx );
+	    nlaid  = createdset_->addDesc( ad );
+	}
 	ids += nlaid;
     }
 

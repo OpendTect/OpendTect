@@ -84,9 +84,9 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 
     if ( cancalcattrib )
     {
-	attrinpfld_ = new uiAttrSel( this, descset, "Select Attribute" );
+	attrinpfld_ = new uiAttrSel( this, descset );
 	attrinpfld_->attach( alignedBelow, slider_ );
-	attrinpfld_->selectionDone.notify(
+	attrinpfld_->selectionChanged.notify(
 		mCB(this,uiHorizonShiftDialog,attribChangeCB) );
 
 	calbut_ = new uiPushButton( this, uiStrings::sCalculate(), false );
@@ -233,7 +233,9 @@ int uiHorizonShiftDialog::curShiftIdx() const
 
 
 const char* uiHorizonShiftDialog::getAttribName() const
-{ return attrinpfld_->getInput(); }
+{
+    return attrinpfld_->getAttrName();
+}
 
 
 const char* uiHorizonShiftDialog::getAttribBaseName() const
@@ -243,7 +245,7 @@ const char* uiHorizonShiftDialog::getAttribBaseName() const
        res = namefld_->text();
 
     if ( res.isEmpty() || res==sDefaultAttribName() )
-	res = attrinpfld_->getInput();
+	res = attrinpfld_->getAttrName();
 
     return res.str();
 }

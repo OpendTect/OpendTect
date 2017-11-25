@@ -39,7 +39,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mPositionAttribHelpID) )
 
 {
-    inpfld = createInpFld(  is2d, "Input attribute" );
+    inpfld = createInpFld( is2d, tr("Input attribute") );
 
     stepoutfld = new uiStepOutSel( this, is2d );
     stepoutfld->setFieldNames( "Inl Stepout", "Crl Stepout" );
@@ -59,7 +59,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
                               StringListInpSpec(opstrs) );
     operfld->attach( alignedBelow, steerfld );
 
-    outfld = createInpFld( is2d, "Output attribute" );
+    outfld = createInpFld( is2d, tr("Output attribute") );
     outfld->attach( alignedBelow, operfld );
 
     setHAlignObj( inpfld );

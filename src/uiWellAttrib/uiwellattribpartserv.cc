@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uiwellto2dlinedlg.h"
 
 #include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "datapointset.h"
 #include "ioobj.h"
 #include "dbman.h"
@@ -176,7 +177,9 @@ bool uiWellAttribPartServer::createAttribLog( const DBKey& wellid )
 
 bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 {
-    uiCreateAttribLogDlg dlg( appserv().parent(), wellnames, attrset_,
+    if ( !attrset_ )
+	attrset_ = Attrib::eDSHolder().getDescSet( !SI().has3D(), true );
+    uiCreateAttribLogDlg dlg( appserv().parent(), wellnames, *attrset_,
 			      nlamodel_, wellnames.size() == 1 );
     return dlg.go();
 }

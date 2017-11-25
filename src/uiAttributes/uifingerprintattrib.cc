@@ -199,38 +199,25 @@ uiFingerPrintAttrib::~uiFingerPrintAttrib()
 }
 
 
-static void setAttrSelName( ObjectSet<uiAttrSel>& flds )
-{
-    for ( int idx=0; idx<flds.size(); idx++ )
-	flds[idx]->setObjectName( BufferString("Attribute ",idx) );
-}
-
-
 void uiFingerPrintAttrib::initTable( int nrrows )
 {
     attribflds_.erase();
-    const uiAttrSelData asd( is2d_, false );
+    const uiAttrSelData asd( is2d_ );
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
-	attrbox->setLabelSelectable( false );	// reveals table right-click
-						// menu underneath the label
+	uiAttrSel* attrbox = new uiAttrSel( 0, asd, uiString::emptyString() );
 	attrbox->setBorder( 0 );
 	attribflds_ += attrbox;
 	table_->setCellGroup( RowCol(idx,0), attrbox );
     }
-
-    setAttrSelName( attribflds_ );
 }
 
 
 void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
     const int newrow = table_->newCell().row();
-    const uiAttrSelData asd( is2d_, false );
-    uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
-    attrbox->setLabelSelectable( false );	// reveals table right-click
-						// menu underneath the label
+    const uiAttrSelData asd( is2d_ );
+    uiAttrSel* attrbox = new uiAttrSel( 0, asd, uiString::emptyString() );
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellGroup( RowCol(newrow,0), attrbox );
@@ -239,7 +226,6 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
     weights.insert( newrow, 1);
 
     calcobj_->setWeights( weights );
-    setAttrSelName( attribflds_ );
 }
 
 
@@ -250,7 +236,6 @@ void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 	return;
 
     attribflds_.removeSingle( row2rm );
-    setAttrSelName( attribflds_ );
 
     TypeSet<int> weights = calcobj_->getWeights();
     weights.removeSingle( row2rm );
@@ -273,7 +258,6 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     if ( is2d_ )
     {
 	BufferString lsnm, lnm;
-//	mIfGetString( FingerPrint::reflinesetStr(), ls, lsnm = ls )
 	mIfGetString( FingerPrint::ref2dlineStr(), l, lnm = l )
 	linefld_->setSelLine( lnm );
     }
@@ -398,7 +382,6 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 	mSetBinID( FingerPrint::refposStr(), refposfld_->getBinID() );
 	if ( is2d_ )
 	{
-//	    mSetString( FingerPrint::reflinesetStr(), linefld_->lineSetID() )
 	    mSetString( FingerPrint::ref2dlineStr(), linefld_->lineName() )
 	}
     }
@@ -453,10 +436,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 bool uiFingerPrintAttrib::getInput( Desc& desc )
 {
     for ( int idx=0; idx<attribflds_.size(); idx++ )
-    {
-	attribflds_[idx]->processInput();
 	fillInp( attribflds_[idx], desc, idx );
-    }
     return true;
 }
 
@@ -507,8 +487,11 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
 {
     BufferStringSet userrefset;
     for ( int idx=0; idx<table_->nrRows(); idx++ )
-	if ( !FixedString(attribflds_[idx]->getInput()).isEmpty() )
-	    userrefset.add( attribflds_[idx]->getInput() );
+    {
+	const BufferString attrnm( attribflds_[idx]->getAttrName() );
+	if ( !attrnm.isEmpty() )
+	    userrefset.add( attrnm );
+    }
 
     advanceddlg_ = new uiFPAdvancedDlg( this, calcobj_, userrefset );
 
@@ -518,9 +501,9 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
     BufferStringSet* refset = new BufferStringSet();
     for ( int idx=0; idx<attribflds_.size(); idx++ )
     {
-	BufferString inp = attribflds_[idx]->getInput();
-	if ( inp.size() )
-	    refset->add( inp );
+	const BufferString attrnm = attribflds_[idx]->getAttrName();
+	if ( !attrnm.isEmpty() )
+	    refset->add( attrnm );
     }
     calcobj_->setUserRefList( refset );
     if ( picksetbut_->isChecked() )
@@ -550,9 +533,9 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     BufferStringSet* refset = new BufferStringSet();
     for ( int idx=0; idx<attribflds_.size(); idx++ )
     {
-	BufferString inp = attribflds_[idx]->getInput();
-	if ( inp.size() )
-	    refset->add( inp );
+	const BufferString attrnm = attribflds_[idx]->getAttrName();
+	if ( !attrnm.isEmpty() )
+	    refset->add( attrnm );
     }
     calcobj_->setUserRefList( refset );
     BinIDValueSet* rangesset = calcobj_->createRangesBinIDSet();

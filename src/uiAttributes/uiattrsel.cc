@@ -9,13 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiattrsel.h"
+#include "uiattrdesced.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
 #include "attribdescsetsholder.h"
-#include "attribfactory.h"
-#include "attribparam.h"
 #include "attribsel.h"
-#include "attribstorprovider.h"
+#include "attribfactory.h"
 #include "hilbertattrib.h"
 
 #include "dbman.h"
@@ -23,15 +22,12 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "ctxtioobj.h"
-#include "datainpspec.h"
 #include "ptrman.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
-#include "trckeyzsampling.h"
 #include "seispreload.h"
-#include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "zdomain.h"
-#include "datapack.h"
 
 #include "nlamodel.h"
 #include "nladesign.h"
@@ -41,134 +37,211 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjinserter.h"
-#include "uilabel.h"
 #include "uilistbox.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "od_helpids.h"
 
+uiString uiAttrSel::sDefLabel()		{ return uiStrings::sInputData(); }
+uiString uiAttrSel::sQuantityToOutput() { return tr("Quantity to output"); }
 
-using namespace Attrib;
 
-#define mImplConstr \
-    , attribid_(-1,true) \
-    , nlamodel_(0) \
-    , outputnr_(-1) \
-    , compnr_(-1) \
-    , zdomaininfo_(0) \
-{ \
-    if ( fillwithdef ) \
-	attribid_ = attrset_->ensureDefStoredPresent(); \
+uiAttrSelData::uiAttrSelData( bool is2d )
+    : attrset_(Attrib::DSHolder().getDescSet(is2d,false))
+{
+    if ( !attrset_ )
+	{ pErrMsg("Mem leak to avoid crash" ); attrset_ = new DescSet( is2d ); }
+    init();
 }
 
-uiAttrSelData::uiAttrSelData( bool is2d, bool fillwithdef )
-    : attrset_(is2d ? &DescSet::empty2D() : &DescSet::empty3D() )
-    mImplConstr
+uiAttrSelData::uiAttrSelData( const DescSet& ads )
+    : attrset_(&ads)
+{
+    init();
+}
 
 
-uiAttrSelData::uiAttrSelData( const Attrib::DescSet& aset, bool fillwithdef )
-    : attrset_(&aset)
-    mImplConstr
+void uiAttrSelData::init()
+{
+    nlamodel_ = 0;
+    zdomaininfo_ = 0;
+    setUndef();
+}
+
+
+bool uiAttrSelData::isUndef() const
+{
+    return !(isNLA() || attribid_.isValid());
+}
+
+
+void uiAttrSelData::setUndef()
+{
+    attribid_ = DescID::undef();
+    nr_ = -1;
+}
 
 
 bool uiAttrSelData::is2D() const
 {
-    return attrSet().is2D();
+    return attrset_->is2D();
+}
+
+bool uiAttrSelData::isNLA() const
+{
+    return nlamodel_ && !attribid_.isValid() && nr_ >= 0;
 }
 
 
-void uiAttrSelData::fillSelSpec( SelSpec& as ) const
+void uiAttrSelData::fillSelSpec( SelSpec& selspec ) const
 {
-    const bool isnla = !attribid_.isValid() && outputnr_ >= 0;
-    if ( isnla )
-	as.set( 0, DescID(outputnr_,true), true, "" );
-    else
-	as.set( 0, attribid_, false, "" );
-
-    if ( isnla && nlamodel_ )
-	as.setRefFromID( *nlamodel_ );
+    if ( isNLA() )
+    {
+	selspec.set( 0, DescID(nr_,true), true, "" );
+	selspec.setRefFromID( *nlamodel_ );
+    }
     else
     {
-	const DescSet& descset = as.id().isStored() ?
-		*eDSHolder().getDescSet( is2D(), true ) : attrSet();
-	as.setRefFromID( descset );
+	selspec.set( 0, attribid_, false, "" );
+	selspec.setRefFromID( *attrset_ );
     }
 
     if ( is2D() )
-	as.set2D();
+	selspec.set2D();
 }
 
 
-uiAttrSelGroup::uiAttrSelGroup( uiParent* p, const uiString& caption )
-    : uiDlgGroup(p,caption)
-{
-    filterfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
-
-    listfld_ = new uiListBox( this, "" );
-    listfld_->attach( centeredBelow, filterfld_ );
-}
-
-
-uiAttrSelGroup::~uiAttrSelGroup()
+uiAttrSelectionObj::uiAttrSelectionObj( const uiAttrSelData& attrsd,
+					bool showsteer )
+    : seldata_(attrsd)
+    , attrinf_(0)
+    , showsteerdata_(showsteer)
 {
 }
 
 
-#define mImplInitVar \
-	: uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle, \
+uiAttrSelectionObj::~uiAttrSelectionObj()
+{
+    delete attrinf_;
+}
+
+
+const char* uiAttrSelectionObj::zDomainKey() const
+{
+    return seldata_.zdomaininfo_ ? seldata_.zdomaininfo_->key() : "";
+}
+
+
+bool uiAttrSelectionObj::have( SelType seltyp ) const
+{
+    switch ( seltyp )
+    {
+	case Stored:	return !attrinf_->ioobjnms_.isEmpty();
+	case Steer:	return !attrinf_->steernms_.isEmpty();
+	case Attrib:	return !attrinf_->attrnms_.isEmpty();
+	case NLA:	return !attrinf_->nlaoutnms_.isEmpty();
+	default:	{ pErrMsg("New SelTyp"); return false; }
+    }
+}
+
+
+uiString uiAttrSelectionObj::selTypeDispStr( SelType seltype ) const
+{
+    switch ( seltype )
+    {
+	case Stored:	return uiStrings::sStored();
+	case Steer:	return uiStrings::sSteering();
+	case Attrib:	return uiStrings::sAttribute( mPlural );
+	case NLA:
+	{
+	    if ( !seldata_.nlamodel_ )
+		{ pErrMsg("Huh? NLA Model"); return uiString::emptyString(); }
+	    return toUiString( seldata_.nlamodel_->nlaType(false) );
+	}
+	default:
+	{
+	    pErrMsg("New SelType");
+	    return uiString::emptyString();
+	}
+    }
+}
+
+
+BufferString uiAttrSelectionObj::selTypeIconID( SelType seltype )
+{
+    BufferString ret( "attribtype_" );
+    switch ( seltype )
+    {
+	case Steer:	ret.add( "steer" );	break;
+	case Attrib:	ret.add( "attrib" );	break;
+	case NLA:	ret.add( "nla" );	break;
+	default:	{ pFreeFnErrMsg("New sel Type"); } // no break
+	case Stored:	ret.add( "stored" );	break;
+    }
+    return ret;
+}
+
+
+void uiAttrSelectionObj::fillAttrInf()
+{
+    delete attrinf_;
+    attrinf_ = new Attrib::SelInfo( seldata_.attrSet(), ignoreid_,
+			    seldata_.nlamodel_, seldata_.zdomaininfo_ );
+    if ( !dpids_.isEmpty() )
+	attrinf_->fillSynthetic( false, dpids_ );
+}
+
+
+void uiAttrSelectionObj::fillSelSpec( SelSpec& as ) const
+{
+    seldata_.fillSelSpec( as );
+}
+
+
+#define muiAttrSelDlgConstrInitList \
+	uiDialog(p,uiDialog::Setup(uiString::emptyString(),mNoDlgTitle, \
 					mODHelpKey(mAttrSelDlgNo_NNHelpID))) \
-	, attrdata_(atd) \
-	, selgrp_(0) \
-	, storoutfld_(0) \
-	, steerfld_(0) \
-	, steeroutfld_(0) \
-	, attroutfld_(0) \
-	, attr2dfld_(0) \
-	, nlafld_(0) \
-	, nlaoutfld_(0) \
-	, zdomainfld_(0) \
-	, zdomoutfld_(0) \
-	, in_action_(false) \
-	, showsteerdata_(stp.showsteeringdata_) \
-	, usedasinput_(stp.isinp4otherattrib_) \
-	, geomid_(stp.geomid_)
+	, uiAttrSelectionObj(atd,stp.showsteeringdata_) \
+	, steertypsel_(0) \
+	, steerentriesfld_(0) \
+	, attribtypsel_(0) \
+	, attribentriesfld_(0) \
+	, nlatypsel_(0) \
+	, nlaentriesfld_(0) \
+	, fully_finalised_(false)
 
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 			    const Setup& stp )
-    mImplInitVar
+    : muiAttrSelDlgConstrInitList
 {
-    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
+    initAndBuild( stp );
 }
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
-			    const TypeSet<DataPack::FullID>& dpfids,
-			    const Setup& stp )
-    mImplInitVar
+			    const DPIDSet& dpfids, const Setup& stp )
+    : muiAttrSelDlgConstrInitList
 {
-    dpfids_ = dpfids;
-    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
+    dpids_ = dpfids;
+    initAndBuild( stp );
 }
 
 
-void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
-				 Attrib::DescID ignoreid,
-				 bool isinp4otherattrib )
+void uiAttrSelDlg::initAndBuild( const Setup& stp )
 {
-    //TODO: steering will never be displayed: on purpose?
-    attrinf_ = new SelInfo( &attrdata_.attrSet(), attrdata_.nlamodel_,
-			    is2D(), ignoreid );
-    if ( dpfids_.size() )
-	replaceStoredByInMem();
+    showsteerdata_ = stp.showsteeringdata_;
+    ignoreid_ = stp.ignoreid_;
+    fillAttrInf();
 
-    setCaption( uiStrings::sSelect() );
-
-    uiString title = uiStrings::sSelect().append(" ").append( seltxt );
+    setCaption( uiStrings::sInputData() );
+    uiString title = uiStrings::phrSelect( stp.seltxt_ );
     setTitleText( title );
     setName( title.getFullString() );
 
-    createSelectionButtons();
-    createSelectionFields();
+    uiGroup* typselgrp = createSelectionButtons();
+    uiGroup* selfldgrp = createSelectionFields();
+    selfldgrp->attach( rightOf, typselgrp );
 
     CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc );
     if ( ctio )
@@ -180,302 +253,258 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 	for ( int idx=0; idx<inserters_.size(); idx++ )
 	{
 	    inserters_[idx]->objectInserted.notify(
-		    mCB(this,uiAttrSelDlg,objInserted) );
+		    mCB(this,uiAttrSelDlg,objInsertedCB) );
 	}
-	butgrp->attach( ensureBelow, selgrp_ );
+	butgrp->attach( rightAlignedBelow, typselgrp );
     }
 
-    int seltyp = 0;
+    SelType seltyp = Stored;
     int storcur = -1, attrcur = -1, nlacur = -1;
-    if ( attrdata_.nlamodel_ && attrdata_.outputnr_ >= 0 )
+    if ( seldata_.isNLA() )
     {
-	seltyp = 3;
-	nlacur = attrdata_.outputnr_;
+	seltyp = NLA;
+	nlacur = seldata_.outputNr();
     }
     else
     {
-	const Desc* desc = attrdata_.attribid_.isValid()
-			? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
+	const Desc* desc = seldata_.attribid_.isValid()
+			? seldata_.attrSet().getDesc( seldata_.attribid_ ) :0;
 	if ( desc )
 	{
-	    seltyp = desc->isStored() ? 0 : 2;
-	    if ( seltyp == 2 )
+	    seltyp = desc->isStored() ? Stored : Attrib;
+	    if ( seltyp == Attrib )
 		attrcur = attrinf_->attrnms_.indexOf( desc->userRef() );
-	    else if ( storoutfld_ )
+	    else if ( storedentriesfld_ )
 	    {
 		StringPair strpair( desc->userRef() );
 		storcur = attrinf_->ioobjnms_.indexOf( strpair.first() );
-		//2D attrib is set in cubeSel, called from doFinalize
+		// 2D attrib is set in cubeSelCB
+		//	called via finaliseWinCB -> selDoneCB
 	    }
 	}
 	else
 	{
 	    // Defaults are the last ones added to attrib set
-	    for ( int idx=attrdata_.attrSet().size()-1; idx!=-1; idx-- )
+	    for ( int idx=seldata_.attrSet().size()-1; idx!=-1; idx-- )
 	    {
-		const DescID attrid = attrdata_.attrSet().getID( idx );
-		const Desc& ad = *attrdata_.attrSet().getDesc( attrid );
+		const DescID attrid = seldata_.attrSet().getID( idx );
+		const Desc& ad = *seldata_.attrSet().getDesc( attrid );
 		if ( ad.isStored() && storcur == -1 )
 		    storcur = attrinf_->ioobjnms_.indexOf( ad.userRef() );
 		else if ( !ad.isStored() && attrcur == -1 )
 		{
 		    attrcur = attrinf_->attrnms_.indexOf( ad.userRef() );
-		    seltyp = 2;
+		    seltyp = Attrib;
 		}
-		if ( storcur != -1 && attrcur != -1 ) break;
+		if ( storcur != -1 && attrcur != -1 )
+		    break;
 	    }
 	}
     }
 
-    const bool havenlaouts = attrinf_->nlaoutnms_.size();
-    if ( storcur == -1 )		storcur = 0;
-    if ( attrcur == -1 )		attrcur = attrinf_->attrnms_.size()-1;
-    if ( nlacur == -1 && havenlaouts )	nlacur = 0;
+    if ( storcur < 0 )
+	storcur = 0;
+    if ( attrcur < 0 )
+	attrcur = attrinf_->attrnms_.size()-1;
+    if ( nlacur < 0 && have(NLA) )
+	nlacur = 0;
 
-    if ( storoutfld_  )			storoutfld_->setCurrentItem( storcur );
-    if ( attroutfld_ && attrcur != -1 )	attroutfld_->setCurrentItem( attrcur );
-    if ( nlaoutfld_ && nlacur != -1 )	nlaoutfld_->setCurrentItem( nlacur );
+    storedentriesfld_->setCurrentItem( storcur );
+    if ( attrcur >= 0 )
+	attribentriesfld_->setCurrentItem( attrcur );
+    if ( nlaentriesfld_ && nlacur >= 0 )
+	nlaentriesfld_->setCurrentItem( nlacur );
 
-    if ( seltyp == 0 )
-	storfld_->setChecked(true);
-    else if ( steerfld_ && seltyp == 1 )
-	steerfld_->setChecked( true );
-    else if ( seltyp == 2 )
-	attrfld_->setChecked(true);
-    else if ( nlafld_ )
-	nlafld_->setChecked(true);
+    if ( steertypsel_ && seltyp == Steer )
+	steertypsel_->setChecked( true );
+    else if ( attribtypsel_ && seltyp == Attrib )
+	attribtypsel_->setChecked( true );
+    else if ( nlatypsel_ && seltyp == NLA )
+	nlatypsel_->setChecked( true );
+    else
+	storedtypsel_->setChecked( true );
 
-    preFinalise().notify( mCB( this,uiAttrSelDlg,doFinalise) );
+    preFinalise().notify( mCB(this,uiAttrSelDlg,finaliseWinCB) );
 }
 
 
 uiAttrSelDlg::~uiAttrSelDlg()
 {
-    delete selgrp_;
-    delete attrinf_;
     deepErase( inserters_ );
 }
 
 
-void uiAttrSelDlg::doFinalise( CallBacker* )
+void uiAttrSelDlg::finaliseWinCB( CallBacker* )
 {
-    selDone(0);
-    in_action_ = true;
+    selDoneCB( 0 );
+    fully_finalised_ = true;
 }
 
 
-void uiAttrSelDlg::createSelectionButtons()
+uiGroup* uiAttrSelDlg::createSelectionButtons()
 {
-    const bool havenlaouts = attrinf_->nlaoutnms_.size();
-    const bool haveattribs = attrinf_->attrnms_.size();
-    const bool havestored = attrinf_->ioobjnms_.size();
-    const bool havesteered = attrinf_->steernms_.size();
-
-    selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
-    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored() );
-    storfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
-    storfld_->setSensitive( havestored );
-
-    if ( showsteerdata_ )
-    {
-	steerfld_ = new uiRadioButton( selgrp_, uiStrings::sSteering() );
-	steerfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
-	steerfld_->setSensitive( havesteered );
+#define mCrSelBut(typ,enm) \
+    { \
+	typ##typsel_ = new uiRadioButton( bgrp, selTypeDispStr( enm ) ); \
+	typ##typsel_->setIcon( selTypeIconID(enm) ); \
+	typ##typsel_->setSensitive( have(enm) ); \
+	typ##typsel_->activated.notify( seldonecb ); \
+	typsels_ += typ##typsel_; \
     }
 
-    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttribute(mPlural) );
-    attrfld_->setSensitive( haveattribs );
-    attrfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+    const CallBack seldonecb( mCB(this,uiAttrSelDlg,selDoneCB) );
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "Input selection",
+					     OD::Vertical );
 
-    if ( havenlaouts )
-    {
-	nlafld_ = new uiRadioButton( selgrp_,
-			      toUiString(attrdata_.nlamodel_->nlaType(false)) );
-	nlafld_->setSensitive( havenlaouts );
-	nlafld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
-    }
-
-    if ( attrdata_.zdomaininfo_ )
-    {
-	BufferStringSet nms;
-	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
-	zdomainfld_ = new uiRadioButton( selgrp_,
-			           toUiString(attrdata_.zdomaininfo_->key()) );
-	zdomainfld_->setSensitive( !nms.isEmpty() );
-	zdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
-    }
+    mCrSelBut( stored, Stored );
+    if ( showsteerdata_ && have(Steer) )
+	mCrSelBut( steer, Steer );
+    if ( have(Attrib) )
+	mCrSelBut( attrib, Attrib );
+    if ( have(NLA) )
+	mCrSelBut( nla, NLA );
+    return bgrp;
 }
 
 
-void uiAttrSelDlg::createSelectionFields()
+uiGroup* uiAttrSelDlg::createSelectionFields()
 {
-    const bool havenlaouts = attrinf_->nlaoutnms_.size();
-    const bool haveattribs = attrinf_->attrnms_.size();
+    filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
+    filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChgCB) );
 
-    storoutfld_ = new uiListBox( this, "Stored output" );
-    storoutfld_->addItems( attrinf_->ioobjnms_.getUiStringSet() );
-    storoutfld_->setHSzPol( uiObject::Wide );
-    storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
-    storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-    storoutfld_->attach( rightOf, selgrp_ );
+    uiGroup* fldgrp = new uiGroup( this, "Entry fields group" );
+    const CallBack cubeselcb( mCB(this,uiAttrSelDlg,cubeSelCB) );
+
+#define mCreateEntriesFld(fld,nm,memb) \
+    fld = new uiListBox( fldgrp, nm ); \
+    fld->addItems( attrinf_->memb.getUiStringSet() ); \
+    fld->setHSzPol( uiObject::Wide ); \
+    fld->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) ); \
+    entriesflds_ += fld
+
+    mCreateEntriesFld( storedentriesfld_, "Stored data", ioobjnms_ );
+    storedentriesfld_->selectionChanged.notify( cubeselcb );
+    fldgrp->setHAlignObj( storedentriesfld_ );
     for ( int idx=0; idx<attrinf_->ioobjids_.size(); idx++ )
     {
-	const DBKey mid( attrinf_->ioobjids_.get(idx) );
-	const char* iconnm =
-		Seis::PLDM().isPresent(mid) ? "preloaded" : "empty";
-	storoutfld_->setIcon( idx, iconnm );
+	const DBKey dbky( attrinf_->ioobjids_.get(idx) );
+	storedentriesfld_->setIcon( idx, Seis::PLDM().isPresent(dbky) ?
+					 "preloaded" : "empty" );
     }
 
-    steeroutfld_ = new uiListBox( this, "Steered output" );
-    steeroutfld_->addItems( attrinf_->steernms_.getUiStringSet() );
-    steeroutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
-    steeroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-    steeroutfld_->attach( rightOf, selgrp_ );
+    if ( have(Steer) )
+    {
+	mCreateEntriesFld( steerentriesfld_, "Steered data", steernms_ );
+	steerentriesfld_->selectionChanged.notify( cubeselcb );
+    }
 
-    filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
-    filtfld_->attach( centeredAbove, storoutfld_ );
-    filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
+    if ( have(Attrib) )
+    {
+	mCreateEntriesFld( attribentriesfld_, "Attributes", attrnms_ );
+	if ( have(NLA) )
+	{
+	    mCreateEntriesFld( nlaentriesfld_, "NLA outputs", nlaoutnms_ );
+	}
+    }
+    fldgrp->attach( centeredBelow, filtfld_ );
+
     compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld" );
-    compfld_->attach( rightAlignedBelow, storoutfld_ );
-    compfld_->attach( ensureBelow, steeroutfld_ );
+    compfld_->attach( rightAlignedBelow, fldgrp );
 
-    if ( haveattribs )
-    {
-	attroutfld_ = new uiListBox( this, "Output attributes" );
-	attroutfld_->addItems( attrinf_->attrnms_.getUiStringSet() );
-	attroutfld_->setHSzPol( uiObject::Wide );
-	attroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	attroutfld_->attach( rightOf, selgrp_ );
-    }
+    return fldgrp;
+}
 
-    if ( havenlaouts )
-    {
-	nlaoutfld_ = new uiListBox( this, "Output NLAs" );
-	nlaoutfld_->addItems( attrinf_->nlaoutnms_.getUiStringSet() );
-	nlaoutfld_->setHSzPol( uiObject::Wide );
-	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	nlaoutfld_->attach( rightOf, selgrp_ );
-    }
 
-    if ( attrdata_.zdomaininfo_ )
+uiAttrSelectionObj::SelType uiAttrSelDlg::selType() const
+{
+    if ( steertypsel_ && steertypsel_->isChecked() )
+	return Steer;
+    else if ( attribtypsel_ && attribtypsel_->isChecked() )
+	return Attrib;
+    else if ( nlatypsel_ && nlatypsel_->isChecked() )
+	return NLA;
+
+    return Stored;
+}
+
+
+uiListBox* uiAttrSelDlg::entryList4Type( SelType seltyp )
+{
+    switch ( seltyp )
     {
-	BufferStringSet nms;
-	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
-	zdomoutfld_ = new uiListBox( this, "ZDomain output" );
-	zdomoutfld_->addItems( nms.getUiStringSet() );
-	zdomoutfld_->setHSzPol( uiObject::Wide );
-	zdomoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
-	zdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	zdomoutfld_->attach( rightOf, selgrp_ );
-	zdomoutfld_->attach( heightSameAs, storoutfld_ );
+	case Stored:	return storedentriesfld_;
+	case Steer:	return steerentriesfld_;
+	case Attrib:	return attribentriesfld_;
+	case NLA:	return nlaentriesfld_;
+	default:	{ pErrMsg("New seltype"); return 0; }
     }
 }
 
 
-int uiAttrSelDlg::selType() const
+void uiAttrSelDlg::selDoneCB( CallBacker* c )
 {
-    if ( steerfld_ && steerfld_->isChecked() )
-	return 1;
-    if ( attrfld_->isChecked() )
-	return 2;
-    if ( nlafld_ && nlafld_->isChecked() )
-	return 3;
-    if ( zdomainfld_ && zdomainfld_->isChecked() )
-	return 4;
-    return 0;
-}
+    const SelType seltyp = selType();
+    uiListBox* fld = entryList4Type( seltyp );
+    if ( !fld )
+	fld = storedentriesfld_;
+    for ( int idx=0; idx<typsels_.size(); idx++ )
+	entriesflds_[idx]->display( fld == entriesflds_[idx] );
 
-
-void uiAttrSelDlg::selDone( CallBacker* c )
-{
-    if ( !selgrp_ ) return;
-
-    const int seltyp = selType();
-    if ( attroutfld_ ) attroutfld_->display( seltyp == 2 );
-    if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 3 );
-    if ( zdomoutfld_ ) zdomoutfld_->display( seltyp == 4 );
-    if ( storoutfld_ || steeroutfld_ )
-    {
-	if ( storoutfld_ )
-	    storoutfld_->display( seltyp==0 );
-	if ( steeroutfld_ )
-	    steeroutfld_->display( seltyp==1 );
-    }
-
-    const bool isstoreddata = seltyp==0 || seltyp==1;
-    const bool issteerdata = seltyp==1;
+    const bool isstoreddata = seltyp==Stored || seltyp==Steer;
+    const bool issteerdata = seltyp==Steer;
     filtfld_->display( isstoreddata );
     compfld_->display( issteerdata );
 
-    cubeSel(0);
+    cubeSelCB(0);
 }
 
 
-void uiAttrSelDlg::filtChg( CallBacker* c )
+void uiAttrSelDlg::filtChgCB( CallBacker* c )
 {
-    if ( !storoutfld_ || !filtfld_ ) return;
-
     const bool issteersel = selType() == 1;
-    uiListBox* outfld = issteersel ? steeroutfld_ : storoutfld_;
+    uiListBox* outfld = issteersel ? steerentriesfld_ : storedentriesfld_;
     BufferStringSet& nms = issteersel ? attrinf_->steernms_
 				      : attrinf_->ioobjnms_;
     outfld->setEmpty();
     attrinf_->fillStored( issteersel, filtfld_->text() );
-    if ( nms.isEmpty() ) return;
+    if ( nms.isEmpty() )
+	return;
 
     outfld->addItems( nms.getUiStringSet() );
     outfld->setCurrentItem( 0 );
-    cubeSel( c );
+    cubeSelCB( c );
 }
 
 
-void uiAttrSelDlg::cubeSel( CallBacker* c )
+void uiAttrSelDlg::cubeSelCB( CallBacker* c )
 {
-    if ( !storoutfld_ ) return;
-
-    const int seltyp = selType();
-    if ( seltyp==2 || seltyp==3 )
+    const SelType seltyp = selType();
+    if ( seltyp==Attrib || seltyp==NLA )
 	return;
 
     DBKey ioobjkey;
-    if ( seltyp==0 )
+    if ( seltyp==Stored )
     {
-	const int curitem = storoutfld_->currentItem();
+	const int curitem = storedentriesfld_->currentItem();
 	if ( attrinf_->ioobjids_.validIdx(curitem) )
 	    ioobjkey = attrinf_->ioobjids_.get( curitem );
     }
-    else if ( seltyp==1 )
+    else if ( seltyp==Steer )
     {
-	const int curitem = steeroutfld_->currentItem();
+	const int curitem = steerentriesfld_->currentItem();
 	if ( attrinf_->steerids_.validIdx(curitem) )
 	    ioobjkey = attrinf_->steerids_.get( curitem );
     }
-    else if ( seltyp==4 )
-    {
-	const int selidx = zdomoutfld_->currentItem();
-	BufferStringSet nms;
-	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
-	if ( nms.validIdx(selidx) )
-	{
-	    PtrMan<IOObj> ioobj = DBM().getByName( IOObjContext::Seis,
-						   nms.get(selidx) );
-	    if ( ioobj )
-		ioobjkey = ioobj->key();
-	}
-    }
 
-    const bool is2d = ioobjkey.isInvalid()
-	? false : SelInfo::is2D( ioobjkey.toString() );
-    const bool isstoreddata = seltyp==0 || seltyp==1;
+    const bool is2d = ioobjkey.isInvalid() ? false
+					   : SeisIOObjInfo(ioobjkey).is2D();
+    const bool isstoreddata = seltyp==Stored || seltyp==Steer;
     filtfld_->display( !is2d && isstoreddata );
 
-    compfld_->box()->setCurrentItem(0);
+    compfld_->box()->setCurrentItem( 0 );
     BufferStringSet compnms;
     if ( is2d )
-    {
-	SeisIOObjInfo info( ioobjkey );
-	info.getComponentNames( compnms, geomid_ );
-    }
+	SeisIOObjInfo( ioobjkey ).getComponentNames( compnms );
     else
 	SeisIOObjInfo::getCompNames( ioobjkey, compnms );
 
@@ -488,80 +517,58 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 
 bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 {
-    DescSet* descset = 0;
-    attrdata_.attribid_ = DescID::undef();
-    attrdata_.outputnr_ = -1;
+    const DescSet& descset = seldata_.attrSet();
+    seldata_.setUndef();
 
-    if ( insertedobjmid_.isValid() )
+    if ( insertedobjdbky_.isValid() )
     {
-	PtrMan<IOObj> ioobj = DBM().get( insertedobjmid_ );
+	PtrMan<IOObj> ioobj = DBM().get( insertedobjdbky_ );
 	if ( !ioobj )
 	    return false;
 
-	descset = usedasinput_
-		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSHolder().getDescSet( is2D(), true );
-	attrdata_.attribid_ = descset->getStoredID( ioobj->key(), 0, true );
-	if ( !usedasinput_ && descset )
-	    attrdata_.setAttrSet( descset );
-
+	seldata_.attribid_ = descset.getStoredID( ioobj->key(), 0, true );
 	return true;
     }
 
-    if ( !selgrp_ || !in_action_ ) return true;
+    if ( !fully_finalised_ )
+	return true;
 
-    int selidx = -1;
-    const int seltyp = selType();
-    if ( seltyp==1 )		selidx = steeroutfld_->currentItem();
-    else if ( seltyp==2 )	selidx = attroutfld_->currentItem();
-    else if ( seltyp==3 )	selidx = nlaoutfld_->currentItem();
-    else if ( seltyp==4 )	selidx = zdomoutfld_->currentItem();
-    else if ( storoutfld_ )	selidx = storoutfld_->currentItem();
+    const SelType seltyp = selType();
+    uiListBox* fld = entryList4Type( seltyp );
+    if ( !fld )
+	return false;
+    const int selidx = fld->currentItem();
     if ( selidx < 0 )
 	return false;
 
-    if ( seltyp == 2 )
-	attrdata_.attribid_ = attrinf_->attrids_[selidx];
-    else if ( seltyp == 3 )
-	attrdata_.outputnr_ = selidx;
-    else if ( seltyp == 4 )
+    if ( seltyp == Attrib )
+	seldata_.attribid_ = attrinf_->attrids_[selidx];
+    else if ( seltyp == NLA )
     {
-	if ( !attrdata_.zdomaininfo_ )
-	    { pErrMsg( "Huh" ); return false; }
-
-	BufferStringSet nms;
-	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
-	PtrMan<IOObj> ioobj = DBM().getByName( IOObjContext::Seis,
-						nms.get(selidx) );
-	if ( !ioobj )
-	    return false;
-
-	descset = usedasinput_
-		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSHolder().getDescSet( is2D(), true );
-	attrdata_.attribid_ = descset->getStoredID( ioobj->key(), 0, true );
+	seldata_.attribid_.setInvalid();
+	seldata_.setOutputNr( selidx );
     }
     else
     {
-	const bool canuseallcomps = BufferString(compfld_->box()->itemText(0))
-			== BufferString(uiStrings::sAll().getFullString())
-			&& compfld_->mainObject()->visible();
-	const int curselitmidx = compfld_->box()->currentItem();
-	attrdata_.compnr_ = canuseallcomps ? curselitmidx -1 : curselitmidx;
-	if ( attrdata_.compnr_< 0 && !canuseallcomps )
-	    attrdata_.compnr_ = 0;
-	const DBKey ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )
-					 : attrinf_->steerids_.get( selidx );
-	descset = usedasinput_
-		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSHolder().getDescSet( is2D(), true );
-	attrdata_.attribid_ = canuseallcomps && attrdata_.compnr_==-1
-	    ? descset->getStoredID(ioobjkey, attrdata_.compnr_, true,true,"ALL")
-	    : descset->getStoredID( ioobjkey, attrdata_.compnr_, true );
-	if ( needattrmatch && !attrdata_.attribid_.isValid() )
+	const bool havecompsel = compfld_->mainObject()->visible();
+	const bool haveallcomps = havecompsel
+				 && compfld_->box()->textOfItem( 0 )
+					.isEqualTo( uiStrings::sAll() );
+	const int compselidx = havecompsel ? compfld_->box()->currentItem()
+					   : 0;
+	seldata_.setCompNr( haveallcomps ? compselidx-1 : compselidx );
+	if ( seldata_.compNr() < 0 && !haveallcomps )
+	    seldata_.setCompNr( 0 );
+	const DBKey ioobjkey = seltyp==Stored
+			     ? attrinf_->ioobjids_.get( selidx )
+			     : attrinf_->steerids_.get( selidx );
+	seldata_.attribid_ = haveallcomps && seldata_.compNr()==-1
+	    ? descset.getStoredID(ioobjkey, seldata_.compNr(), true,true,"ALL")
+	    : descset.getStoredID( ioobjkey, seldata_.compNr(), true );
+	if ( needattrmatch && !seldata_.attribid_.isValid() )
 	{
 	    uiString msg = uiStrings::phrCannotFind(tr("the seismic data %1")
-			 .arg(attrdata_.attribid_ == DescID::undef()
+			 .arg(seldata_.attribid_ == DescID::undef()
 			 ? tr("in object manager")
 			 : tr("on disk")));
 	    uiMSG().error( msg );
@@ -569,15 +576,19 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	}
     }
 
-    if ( !usedasinput_ && descset )
-	attrdata_.setAttrSet( descset );
-
     return true;
 }
 
 
-const char* uiAttrSelDlg::zDomainKey() const
-{ return attrdata_.zdomaininfo_ ? attrdata_.zdomaininfo_->key() : ""; }
+void uiAttrSelDlg::objInsertedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( DBKey, ky, cb );
+    if ( ky.isValid() )
+    {
+	insertedobjdbky_ = ky;
+	accept( 0 );
+    }
+}
 
 
 bool uiAttrSelDlg::acceptOK()
@@ -586,273 +597,420 @@ bool uiAttrSelDlg::acceptOK()
 }
 
 
-void uiAttrSelDlg::replaceStoredByInMem()
-{
-    attrinf_->ioobjnms_.erase();
-    attrinf_->ioobjids_.erase();
 
-    BufferStringSet ioobjnms;
-    DBKeySet ioobjids;
-    for ( int idx=0; idx<dpfids_.size(); idx++ )
+uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const uiString& lbltxt,
+		      DescID curid )
+    : uiGroup(p,"Attrib selector")
+    , uiAttrSelectionObj(uiAttrSelData(ads),false)
+    , lbltxt_(lbltxt)
+    , selectionChanged(this)
+{
+    seldata_.attribid_ = curid;
+    fillAttrInf();
+    createFields();
+}
+
+
+uiAttrSel::uiAttrSel( uiParent* p, const uiAttrSelData& asd,
+			const uiString& lbltxt )
+    : uiGroup(p,"Attrib selector")
+    , uiAttrSelectionObj(asd,false)
+    , lbltxt_(lbltxt)
+    , selectionChanged(this)
+{
+    fillAttrInf();
+    createFields();
+}
+
+
+uiAttrSel::~uiAttrSel()
+{
+    detachAllNotifiers();
+}
+
+
+void uiAttrSel::createFields()
+{
+    selfld_ = new uiComboBox( this, "Attrib selector" );
+
+    typfld_ = new uiComboBox( this, "Attrib type" );
+    typfld_->setHSzPol( uiObject::SmallVar );
+    typfld_->attach( leftOf, selfld_ );
+    typfld_->addItem( selTypeDispStr(Attrib) );
+	// sizing the combobox; box items will be updated later
+
+    if ( !lbltxt_.isEmpty() )
     {
-	ioobjnms.add( DataPackMgr::nameOf( dpfids_[idx] ) );
-	DBKey dbky;
-	dpfids_[idx].putInDBKey( dbky );
-	ioobjids.add( dbky );
+	uiLabel* lbl = new uiLabel( this, lbltxt_, typfld_ );
+	lbl->setTextSelectable( false );
     }
 
-    int* sortindexes = ioobjnms.getSortIndexes();
-    for ( int idx=0; idx<ioobjnms.size(); idx++ )
+    uiButton* selbut = uiButton::getStd( this, OD::Select,
+					 mCB(this,uiAttrSel,doSelCB), false );
+    selbut->attach( rightOf, selfld_ );
+
+    setHAlignObj( selfld_ );
+    mAttachCB( postFinalise(), uiAttrSel::initFlds );
+}
+
+
+void uiAttrSel::initFlds( CallBacker* )
+{
+    putSelectionToScreen();
+
+    mAttachCB( typfld_->selectionChanged, uiAttrSel::typSelCB );
+    mAttachCB( selfld_->selectionChanged, uiAttrSel::selChgCB );
+
+    addCBsToDescSet();
+
+    uiAttrDescEd* ade = getParentADE();
+    if ( ade )
+	{ mAttachCB( ade->descSetChanged, uiAttrSel::adeDescSetChgCB ); }
+}
+
+
+uiAttrDescEd* uiAttrSel::getParentADE()
+{
+    uiParent* par = parent();
+    uiParent* prevpar = par;
+    while ( par && par != prevpar )
     {
-	attrinf_->ioobjnms_.add( ioobjnms.get(sortindexes[idx]) );
-	attrinf_->ioobjids_.add( ioobjids.get(sortindexes[idx]) );
+	mDynamicCastGet( uiAttrDescEd*, ade, par );
+	if ( ade )
+	    return ade;
+	uiObject* uiobj = par->mainObject();
+	prevpar = par;
+	par = uiobj ? uiobj->parent() : 0;
+    }
+    return 0;
+}
+
+
+void uiAttrSel::addCBsToDescSet()
+{
+    const DescSet& descset = seldata_.attrSet();
+    mAttachCB( descset.descAdded, uiAttrSel::descSetChgCB );
+    mAttachCB( descset.descUserRefChanged, uiAttrSel::descSetChgCB );
+    mAttachCB( descset.descRemoved, uiAttrSel::descSetChgCB );
+}
+
+
+void uiAttrSel::removeCBsFromDescSet()
+{
+    const DescSet& descset = seldata_.attrSet();
+    descset.descAdded.removeWith( this );
+    descset.descUserRefChanged.removeWith( this );
+    descset.descToBeRemoved.removeWith( this );
+}
+
+
+#define mGetTypNotifyStopper() NotifyStopper nstyp( typfld_->selectionChanged )
+#define mGetSelNotifyStopper() NotifyStopper nssel( selfld_->selectionChanged )
+
+void uiAttrSel::addTypeFldItem( SelType seltyp )
+{
+    typfld_->addItem( selTypeDispStr(seltyp), (int)seltyp );
+    typfld_->setIcon( typfld_->size()-1, selTypeIconID(seltyp) ); \
+}
+
+void uiAttrSel::fillTypFld()
+{
+    mGetTypNotifyStopper();
+
+    const int oldid = typfld_->isEmpty() ? 0 : typfld_->currentItemID();
+    typfld_->setEmpty();
+
+    addTypeFldItem( Stored );
+
+    if ( showsteerdata_ && have(Steer) )
+	addTypeFldItem( Steer );
+    if ( have(Attrib) )
+    {
+	addTypeFldItem( Attrib );
+	if ( have(NLA) )
+	    addTypeFldItem( NLA );
     }
 
-    delete [] sortindexes;
+    typfld_->setCurrentItemByID( oldid );
 }
 
 
-void uiAttrSelDlg::objInserted( CallBacker* cb )
+void uiAttrSel::fillSelFld()
 {
-    mCBCapsuleUnpack( DBKey, ky, cb );
-    if ( ky.isValid() )
+    mGetSelNotifyStopper();
+    const BufferString oldselnm( selfld_->text() );
+
+    const BufferStringSet* nms = 0;
+    const SelType seltyp = selType();
+    switch ( seltyp )
     {
-	insertedobjmid_ = ky;
-	accept( 0 );
+	case Steer:	nms = &attrinf_->steernms_;	break;
+	case Attrib:	nms = &attrinf_->attrnms_;	break;
+	case NLA:	nms = &attrinf_->nlaoutnms_;	break;
+	default:	{ pErrMsg("new sel type"); }	// no break
+	case Stored:	nms = &attrinf_->ioobjnms_;	break;
+    }
+
+    selfld_->setEmpty();
+    selfld_->addItems( *nms );
+    const int idxinnms = nms->indexOf( oldselnm );
+    if ( idxinnms >= 0 )
+	selfld_->setText( oldselnm );
+}
+
+
+void uiAttrSel::getSelectionFromScreen()
+{
+    const int selidx = selfld_->currentItem();
+    if ( selidx < 0 )
+	return;
+
+    switch ( selType() )
+    {
+	case Stored:
+	    seldata_.attribid_ = seldata_.attrSet().getStoredID(
+					    attrinf_->ioobjids_[selidx] );
+	    break;
+	case Steer:
+	    seldata_.attribid_ = seldata_.attrSet().getStoredID(
+					    attrinf_->steerids_[selidx] );
+	    break;
+	case Attrib:
+	    seldata_.attribid_ = attrinf_->attrids_[selidx];
+	    break;
+	case NLA:
+	    seldata_.attribid_.setInvalid();
+	    seldata_.setOutputNr( selidx );
+	    break;
+	default:
+	    pErrMsg( "New seltype defined" );
+	    break;
     }
 }
 
 
-void uiAttrSelDlg::fillSelSpec( SelSpec& as ) const
+void uiAttrSel::putSelectionToScreen()
 {
-    attrdata_.fillSelSpec( as );
+    fillTypFld();
+    mGetTypNotifyStopper();
+
+    SelType seltyp = NLA;
+    const Desc* desc = 0;
+    if ( !seldata_.isNLA() )
+    {
+	if ( !seldata_.attribid_.isValid() && !attrinf_->ioobjids_.isEmpty() )
+	{
+	    seldata_.attribid_ = seldata_.attrSet().ensureDefStoredPresent();
+	    if ( !seldata_.attribid_.isValid() )
+	    {
+		desc = seldata_.attrSet().getFirstStored( false );
+		if ( desc )
+		    seldata_.attribid_ = desc->id();
+	    }
+	}
+
+	if ( !desc )
+	    desc = seldata_.attrSet().getDesc( seldata_.attribid_ );
+
+	if ( !desc )
+	    seltyp = Stored;
+	else
+	{
+	    const bool isattr = !desc->isStored();
+	    const bool issteer = !isattr && desc->isSteering();
+	    seltyp = isattr ? Attrib : (issteer? Steer : Stored);
+	}
+    }
+
+    typfld_->setCurrentItemByID( (int)seltyp );
+    fillSelFld();
+    if ( !desc && seltyp == Stored )
+	return;
+
+    if ( desc )
+	selfld_->setCurrentItem( desc->userRef() );
+    else
+	selfld_->setCurrentItem( seldata_.outputNr() );
 }
 
 
-uiString uiAttrSel::cDefLabel() { return uiStrings::sInputData(); }
-
-uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
-		      DescID curid, bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?toUiString(txt):cDefLabel()),
-		 mCB(this,uiAttrSel,doSel))
-    , attrdata_(ads)
-    , ignoreid_(DescID::undef())
-    , usedasinput_(isinp4otherattrib)
-    , showsteeringdata_(false)
-    , seltype_(-1)
-    , geomid_(mUdfGeomID)
+void uiAttrSel::updateContent( bool getnewinf, bool updatetypes )
 {
-    attrdata_.attribid_ = curid;
-    updateInput();
-    inp_->setEditable( true );
-    inp_->setReadOnly( true );
+    if ( getnewinf )
+	fillAttrInf();
+    if ( updatetypes )
+	fillTypFld();
+    fillSelFld();
 }
 
 
-uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
-		      bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?toUiString(txt):cDefLabel()),
-		 mCB(this,uiAttrSel,doSel))
-    , attrdata_(ad)
-    , ignoreid_(DescID::undef())
-    , usedasinput_(isinp4otherattrib)
-    , showsteeringdata_(false)
-    , seltype_(-1)
-    , geomid_(mUdfGeomID)
+void uiAttrSel::switchToDescSet( const DescSet& descset )
 {
-    updateInput();
-    inp_->setEditable( true );
-    inp_->setReadOnly( true );
+    removeCBsFromDescSet();
+    seldata_.setAttrSet( descset );
+    addCBsToDescSet();
 }
 
 
 void uiAttrSel::setDescSet( const DescSet* ads )
 {
-    attrdata_.setAttrSet( ads );
-    updateInput();
-}
+    if ( !ads || &seldata_.attrSet() == ads )
+	return;
 
-
-void uiAttrSel::setNLAModel( const NLAModel* mdl )
-{
-    attrdata_.nlamodel_ = mdl;
+    seldata_.attribid_.setInvalid();
+    switchToDescSet( *ads );
+    updateContent( true );
+    putSelectionToScreen();
 }
 
 
 void uiAttrSel::setDesc( const Desc* ad )
 {
-    if ( !ad || !ad->descSet() ) return;
-    attrdata_.setAttrSet( ad->descSet() );
-
-    const bool isstor = ad->isStored();
-    const char* inp = ad->userRef();
-    if ( inp[0] == '_' || (isstor && ad->dataType() == Seis::Dip) )
+    const DescSet* descset = ad ? ad->descSet() : 0;
+    if ( !descset )
+	return;
+    const bool isnewset = descset != &seldata_.attrSet();
+    if ( !isnewset && ad->id() == seldata_.attribid_ )
 	return;
 
-    attrdata_.attribid_ = ad->id();
-    updateInput();
-    seltype_ = ad->isStored() ? 0 : 1;
+    seldata_.attribid_ = ad->id();
+    if ( isnewset )
+	switchToDescSet( *descset );
+
+    updateContent( isnewset );
+    putSelectionToScreen();
 }
 
 
-void uiAttrSel::setSelSpec( const Attrib::SelSpec* selspec )
+void uiAttrSel::setSelSpec( const SelSpec* selspec )
 {
-    if ( !selspec ) return;
+    if ( !selspec )
+	return;
 
-    attrdata_.attribid_ = selspec->id();
-    updateInput();
+    seldata_.attribid_ = selspec->id();
+    updateContent();
+}
+
+
+void uiAttrSel::setNLAModel( const NLAModel* newmdl )
+{
+    if ( newmdl == seldata_.nlamodel_ )
+	return;
+
+    seldata_.nlamodel_ = newmdl;
+    updateContent( true, true );
+}
+
+
+void uiAttrSel::showSteeringData( bool yn )
+{
+    if ( showsteerdata_ == yn )
+	return;
+
+    showsteerdata_ = yn;
+    fillTypFld();
 }
 
 
 void uiAttrSel::setIgnoreDesc( const Desc* ad )
 {
-    ignoreid_ = ad ? ad->id() : DescID::undef();
-}
-
-
-void uiAttrSel::updateInput()
-{
-    SeparString bs( 0, ':' );
-    bs += attrdata_.attribid_.asInt();
-    bs += getYesNoString( attrdata_.attribid_.isStored() );
-    bs += attrdata_.outputnr_;
-    if ( attrdata_.compnr_ > -1 )
-	bs += attrdata_.compnr_;
-
-    setInput( bs );
-}
-
-
-const char* uiAttrSel::userNameFromKey( const char* txt ) const
-{
-    if ( !txt || !*txt ) return "";
-
-    if ( *txt == '#' )
-	return DataPackMgr::nameOf( DataPack::FullID::getFromString(txt+1) );
-
-    SeparString bs( txt, ':' );
-    if ( bs.size() < 3 ) return "";
-
-    const int id = toInt( bs[0] );
-    const bool isstored = toBool( bs[1], true );
-    const DescID attrid( id, isstored );
-    const int outnr = toInt( bs[2] );
-
-    if ( !attrid.isValid() )
+    const DescID newid( ad ? ad->id() : DescID::undef() );
+    if ( newid != ignoreid_ )
     {
-	if ( !attrdata_.nlamodel_ || outnr < 0 )
-	    return "";
-	if ( outnr >= attrdata_.nlamodel_->design().outputs.size() )
-	    return "<error>";
-
-	const char* nm = attrdata_.nlamodel_->design().outputs[outnr]->buf();
-	mDeclStaticString(ret);
-	ret = DBM().nameFor( nm );
-	return ret.buf();
+	ignoreid_ = newid;
+	updateContent( true );
     }
-
-    const DescSet& descset = attrid.isStored() ?
-	*eDSHolder().getDescSet( is2D(), true ) : attrdata_.attrSet();
-    const Desc* ad = descset.getDesc( attrid );
-    usrnm_ = ad ? ad->userRef() : "";
-    return usrnm_.buf();
 }
 
 
-void uiAttrSel::getHistory( const IOPar& iopar )
+void uiAttrSel::setDataPackInputs( const DPIDSet& ids )
 {
-    uiIOSelect::getHistory( iopar );
-    updateInput();
+    dpids_ = ids;
+    updateContent( true );
+    putSelectionToScreen();
+}
+
+
+void uiAttrSel::typSelCB( CallBacker* )
+{
+    fillSelFld();
+}
+
+
+void uiAttrSel::selChgCB( CallBacker* )
+{
+    getSelectionFromScreen();
+    selectionChanged.trigger();
+}
+
+
+void uiAttrSel::descSetChgCB( CallBacker* )
+{
+    updateContent( true, true );
+}
+
+
+void uiAttrSel::adeDescSetChgCB( CallBacker* )
+{
+    uiAttrDescEd* ade = getParentADE();
+    if ( ade )
+	setDescSet( ade->descSet() );
 }
 
 
 bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
 {
-    if ( !attrdata_.attribid_.isValid() )
+    if ( !seldata_.attribid_.isValid() )
+	return false;
+    const Desc* desc = seldata_.attrSet().getDesc( seldata_.attribid_ );
+    if ( !desc )
 	return false;
 
-    const Desc* desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
-    if ( !desc ) return false;
-
-    const DBKey mid( desc->getStoredID(true) );
-    return SeisTrcTranslator::getRanges( mid, cs,
-					 desc->is2D() ? getInput() : 0 );
+    const SeisIOObjInfo ioobjinfo( desc->getStoredID(true) );
+    return ioobjinfo.getRanges( cs );
 }
 
 
-void uiAttrSel::doSel( CallBacker* )
+void uiAttrSel::doSelCB( CallBacker* )
 {
-    uiAttrSelDlg::Setup setup( lbl_ ? lbl_->text() : cDefLabel() );
-    setup.ignoreid(ignoreid_).isinp4otherattrib(usedasinput_)
-	 .showsteeringdata(showsteeringdata_);
-    uiAttrSelDlg dlg( this, attrdata_, dpfids_, setup );
+    uiAttrSelDlg::Setup setup( lbltxt_ );
+    setup.ignoreid(ignoreid_).showsteeringdata(showsteerdata_);
+    uiAttrSelDlg dlg( this, seldata_, dpids_, setup );
     if ( dlg.go() )
     {
-	attrdata_.attribid_ = dlg.attribID();
-	attrdata_.outputnr_ = dlg.outputNr();
-	if ( !usedasinput_ )
-	    attrdata_.setAttrSet( &dlg.getAttrSet() );
-	updateInput();
-	selok_ = true;
-	seltype_ = dlg.selType();
+	seldata_.attribid_ = dlg.attribID();
+	seldata_.setCompNr( dlg.compNr() );
+	updateContent();
     }
 }
 
 
-void uiAttrSel::processInput()
+uiAttrSelectionObj::SelType uiAttrSel::selType() const
 {
-    BufferString inp = getInput();
-    const DescSet& descset = usedasinput_ ? attrdata_.attrSet()
-				: *eDSHolder().getDescSet( is2D(), true );
-    bool useseltyp = seltype_ >= 0;
-    if ( !useseltyp )
-    {
-	const Desc* adesc = descset.getDesc( attrdata_.attribid_ );
-	if ( adesc )
-	{
-	    useseltyp = true;
-	    seltype_ = adesc->isStored() ? 0 : 1;
-	}
-    }
-
-    attrdata_.attribid_ = descset.getID( inp, true, !seltype_, useseltyp );
-    if ( !attrdata_.attribid_.isValid() && !usedasinput_ )
-	attrdata_.attribid_ = attrdata_.attrSet().getID( inp, true );
-    attrdata_.outputnr_ = -1;
-    if ( !attrdata_.attribid_.isValid() && attrdata_.nlamodel_ )
-    {
-	const BufferStringSet& outnms( attrdata_.nlamodel_->design().outputs );
-	const BufferString nodenm = DBM().nameFor( inp );
-	for ( int idx=0; idx<outnms.size(); idx++ )
-	{
-	    const BufferString desnm = DBM().nameFor( outnms.get(idx) );
-	    if ( desnm == nodenm )
-		{ attrdata_.outputnr_ = idx; break; }
-	}
-    }
-
-    updateInput();
+    int cbitemid = typfld_->currentItemID();
+    if ( cbitemid < 0 )
+	cbitemid = 0;
+    else if ( cbitemid > (int)NLA )
+	{ pErrMsg("Huh"); cbitemid = 0; }
+    return (SelType)cbitemid;
 }
 
 
-void uiAttrSel::fillSelSpec( SelSpec& as ) const
+bool uiAttrSel::haveSelection() const
 {
-    attrdata_.fillSelSpec( as );
+    return selfld_->currentItem() >= 0;
 }
 
 
 const char* uiAttrSel::getAttrName() const
 {
-    mDeclStaticString( ret );
-
-    ret = getInput();
-    return ret.buf();
+    return selfld_->text();
 }
 
 
-bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
+bool uiAttrSel::isValidOutput( const IOObj& ioobj ) const
 {
-    if ( !attrdata_.attribid_.isValid() && attrdata_.outputnr_ < 0 )
+    if ( !seldata_.isUndef() )
     {
 	uiMSG().error( uiStrings::phrSelect(tr("the input")) );
 	return false;
@@ -864,59 +1022,22 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 	return false;
     }
 
-    //TODO check cyclic dependencies and bad stored IDs
     return true;
-}
-
-
-void uiAttrSel::setObjectName( const char* nm )
-{
-    inp_->setName( nm );
-    if ( selbut_ )
-    {
-	const char* butnm = selbut_->name();
-	selbut_->setName( BufferString(butnm," ",nm) );
-    }
-}
-
-
-void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
-{
-    dpfids_ = ids;
-
-    //make sure the default stored data is not used
-    BufferString str( toString(attribID().asInt()) );
-    if ( *str == '#') return; //TODO what on earth is this???
-
-    const Attrib::Desc* inpdesc = getAttrSet().getDesc( attribID() );
-    if ( !inpdesc || inpdesc->isStored() )
-    {
-	Attrib::SelSpec* tmpss = new Attrib::SelSpec(0,Attrib::DescID::undef());
-        setSelSpec( tmpss );	//only to reset attrdata_.attribid_=-1
-	delete tmpss;
-    }
-
-    //use the first fid as default data
-    DBKey dbky;
-    ids[0].putInDBKey( dbky );
-    attrdata_.attribid_ = const_cast<Attrib::DescSet*>(&getAttrSet())
-					->getStoredID( dbky, 0, true );
-    updateInput();
 }
 
 
 // **** uiImagAttrSel ****
 
-DescID uiImagAttrSel::imagID() const
+Attrib::DescID uiImagAttrSel::imagID() const
 {
     const DescID selattrid = attribID();
     TypeSet<DescID> attribids;
-    attrdata_.attrSet().getIds( attribids );
+    seldata_.attrSet().getIds( attribids );
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	const Desc* desc = attrdata_.attrSet().getDesc( attribids[idx] );
+	const Desc* desc = seldata_.attrSet().getDesc( attribids[idx] );
 
-	if ( desc->attribName() != Hilbert::attribName() )
+	if ( desc->attribName() != Attrib::Hilbert::attribName() )
 	    continue;
 
 	const Desc* inputdesc = desc->getInput( 0 );
@@ -926,10 +1047,12 @@ DescID uiImagAttrSel::imagID() const
 	return attribids[idx];
     }
 
-    DescSet& descset = const_cast<DescSet&>(attrdata_.attrSet());
+    DescSet& descset = const_cast<DescSet&>(seldata_.attrSet());
     Desc* inpdesc = descset.getDesc( selattrid );
-    Desc* newdesc = PF().createDescCopy( Hilbert::attribName() );
-    if ( !newdesc || !inpdesc ) return DescID::undef();
+    Desc* newdesc = Attrib::PF().createDescCopy(
+				Attrib::Hilbert::attribName() );
+    if ( !newdesc || !inpdesc )
+	return DescID::undef();
 
     newdesc->selectOutput( 0 );
     newdesc->setInput( 0, inpdesc );

@@ -29,7 +29,7 @@ mInitAttribUI( uiSimilaritybyAW, SimilaritybyAW,
 uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
     :  uiAttrDescEd(p, is2d, mNoHelpKey)
 {
-    inputfld_ = createInpFld( is2d, "Input Data" );
+    inputfld_ = createInpFld( is2d );
 
     reftimegatefld_ =
 	new uiGenInput( this, tr("Ref time gate (ms)"), FloatInpIntervalSpec());

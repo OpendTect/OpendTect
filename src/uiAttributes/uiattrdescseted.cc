@@ -274,6 +274,7 @@ void uiAttribDescSetEd::createGroups()
 
     addbut_ = new uiPushButton( rightgrp, tr("Add as new"), true );
     addbut_->attach( rightTo, attrnmfld_ );
+    addbut_->setIcon( "plus" );
     addbut_->activated.notify( mCB(this,uiAttribDescSetEd,addPush) );
 
     dispbut_ = new uiToolButton( rightgrp, "showattrnow",
@@ -415,8 +416,8 @@ void uiAttribDescSetEd::attrTypSel( CallBacker* )
 
 void uiAttribDescSetEd::selChg( CallBacker* )
 {
-    if ( updating_fields_ ) return;
-	// Fix for continuous call during re-build of list
+    if ( updating_fields_ )
+	return;
 
     doCommit( true );
     updateFields();
@@ -442,7 +443,9 @@ void uiAttribDescSetEd::saveAsPush( CallBacker* )
 
 bool uiAttribDescSetEd::doSave( bool endsave )
 {
-    doCommit();
+    if ( !doCommit() )
+	return false;
+
     setctio_.ctxt_.forread_ = false;
     IOObj* oldioobj = setctio_.ioobj_;
     bool needpopup = !oldioobj || !endsave;
@@ -608,9 +611,7 @@ void uiAttribDescSetEd::setButStates()
 void uiAttribDescSetEd::sortPush( CallBacker* )
 {
     attrset_->sortDescSet();
-    int size = attrdescs_.size();
-    for ( int idx=0; idx<size; idx++ )
-	newList( idx );
+    newList( 0 );
 }
 
 
@@ -659,13 +660,16 @@ void uiAttribDescSetEd::newList( int newcur )
     attrlistfld_->setEmpty();
     attrlistfld_->addItems( userattrnames_.getUiStringSet() );
     updating_fields_ = false;
-    if ( newcur < 0 ) newcur = 0;
-    if ( newcur >= attrlistfld_->size() ) newcur = attrlistfld_->size()-1;
+    if ( newcur < 0 )
+	newcur = 0;
+    if ( newcur >= attrlistfld_->size() )
+	newcur = attrlistfld_->size()-1;
     if ( !userattrnames_.isEmpty() )
     {
 	attrlistfld_->setCurrentItem( newcur );
 	prevdesc_ = curDesc();
     }
+
     updateFields();
     handleSensitivity();
     setButStates();
@@ -704,32 +708,31 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	attribname = uiAF().attrNameOf( attrtypefld_->attr() );
     const bool isrightdesc = desc && attribname == desc->attribName();
 
-    Desc* dummydesc = PF().createDescCopy( attribname );
-    if ( !dummydesc )
-	dummydesc = new Desc( "Dummy" );
-
-    dummydesc->ref();
-    dummydesc->setDescSet( attrset_ );
     for ( int idx=0; idx<desceds_.size(); idx++ )
     {
 	uiAttrDescEd* de = desceds_[idx];
-	if ( !de ) continue;
+	if ( !de )
+	    continue;
 
-	if( !set_type )
-	    de->setNeedInputUpdate();
-
-	if ( curde == de )
+	const bool iscurde = de == curde;
+	if ( !iscurde )
+	    de->setDescSet( attrset_ );
+	else
 	{
-	    if ( !isrightdesc )
+	    if ( isrightdesc )
+		de->setDesc( desc, adsman_ );
+	    else
+	    {
+		Desc* dummydesc = new Desc( "Dummy" );
 		dummydesc->ref();
-	    de->setDesc( isrightdesc ? desc : dummydesc, adsman_ );
+		dummydesc->setDescSet( attrset_ );
+		de->setDesc( dummydesc, adsman_ );
+	    }
 	}
 
-	de->setDescSet( attrset_ );
-	const bool dodisp = de == curde;
-	de->display( dodisp );
+	de->display( iscurde );
     }
-    dummydesc->unRef();
+
     updating_fields_ = false;
 }
 
@@ -774,17 +777,17 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     {
        uiString msg = tr("This will change the type of "
 			 " existing attribute '%1'.\n"
-			 "This will remove previous"
+			 "It will remove the previous"
 			 " definition of the attribute.\n"
 			 "If you want to avoid this please use"
 			 " 'Cancel' and 'Add as new'."
-			 "\nAre you sure you want"
+			 "\n\nAre you sure you want"
 			 " to change the attribute type?")
 			.arg(usedesc->userRef());
 
-	bool res = uiMSG().askGoOn(msg, tr("Change"),
+	bool chg_type = uiMSG().askGoOn(msg, tr("Change Type"),
 				   uiStrings::sCancel());
-	if ( res )
+	if ( chg_type )
 	{
 	    checkusrref = false;
 	    DescID id = usedesc->id();
@@ -821,7 +824,6 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     uiAttrDescEd* curdesced = curDescEd();
     if ( !curdesced )
 	return false;
-
 
     uiString res = curdesced->commit();
     if ( !res.isEmpty() )
@@ -879,6 +881,12 @@ uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 void uiAttribDescSetEd::updateCurDescEd()
 {
     curDescEd()->setDesc( curDesc(), adsman_ );
+}
+
+
+void uiAttribDescSetEd::setCurDescNr( int idx )
+{
+    newList( idx );
 }
 
 

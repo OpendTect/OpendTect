@@ -33,7 +33,7 @@ _______________________________________________________________________
 
 uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const BufferStringSet& wellnames,
-					    const Attrib::DescSet* attrib ,
+					    const Attrib::DescSet& ads,
 					    const NLAModel* mdl,
 					    bool singlewell )
     : uiDialog(p,uiDialog::Setup(tr("Create Attribute Log"),mNoDlgTitle,
@@ -42,7 +42,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     , singlewell_(singlewell)
     , sellogidx_(-1)
     , attribfld_(0)
-    , datasetup_(AttribLogCreator::Setup( attrib, 0 ))
+    , datasetup_(0)
 {
     uiWellExtractParams::Setup wsu;
     wsu.withzstep_ = true; wsu.withzintime_ = false;
@@ -50,13 +50,12 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     wsu.withextractintime_ = false;
     zrangeselfld_ = new uiWellExtractParams( this, wsu );
 
-    datasetup_ = AttribLogCreator::Setup( attrib, &zrangeselfld_->params() );
-    datasetup_.nlamodel_ = mdl;
-    attribfld_ = datasetup_.attrib_ ?
-			      new uiAttrSel( this, *datasetup_.attrib_ )
-			    : new uiAttrSel( this, 0, uiAttrSelData(false) );
-    attribfld_->setNLAModel( datasetup_.nlamodel_ );
-    attribfld_->selectionDone.notify( mCB(this,uiCreateAttribLogDlg,selDone) );
+    datasetup_ = new AttribLogCreator::Setup( ads, &zrangeselfld_->params() );
+    datasetup_->nlamodel_ = mdl;
+    attribfld_ = new uiAttrSel( this, ads );
+    attribfld_->setNLAModel( datasetup_->nlamodel_ );
+    attribfld_->selectionChanged.notify(
+			mCB(this,uiCreateAttribLogDlg,selDone) );
 
     uiSeparator* sep1 = new uiSeparator( this, "Attrib/Well Sep" );
     sep1->attach( stretchedBelow, attribfld_ );
@@ -88,6 +87,12 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 }
 
 
+uiCreateAttribLogDlg::~uiCreateAttribLogDlg()
+{
+    delete datasetup_;
+}
+
+
 void uiCreateAttribLogDlg::init( CallBacker* )
 {
     Well::MarkerSet mrkrs;
@@ -108,12 +113,13 @@ void uiCreateAttribLogDlg::init( CallBacker* )
 
 void uiCreateAttribLogDlg::selDone( CallBacker* )
 {
-    const char* inputstr = attribfld_->getInput();
+    const char* inputstr = attribfld_->getAttrName();
     lognmfld_->setText( inputstr );
 }
 
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
+
 bool uiCreateAttribLogDlg::acceptOK()
 {
     if ( !attribfld_ ) return true;
@@ -129,13 +135,13 @@ bool uiCreateAttribLogDlg::acceptOK()
 	selwells.add( wellnames_.get(0) );
 
     uiString errmsg;
-    if ( !datasetup_.extractparams_->isOK( &errmsg ) )
-	mErrRet( errmsg );
+    if ( !datasetup_->extractparams_ )
+	mErrRet( tr("Extraction arameters not set") )
+    if ( !datasetup_->extractparams_->isOK( &errmsg ) )
+	mErrRet( errmsg )
 
-    datasetup_.lognm_ = lognmfld_->text();
-    Attrib::SelSpec selspec;
-    datasetup_.selspec_ = &selspec;
-    attribfld_->fillSelSpec( *datasetup_.selspec_ );
+    datasetup_->lognm_ = lognmfld_->text();
+    attribfld_->fillSelSpec( datasetup_->selspec_ );
 
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
@@ -149,8 +155,8 @@ bool uiCreateAttribLogDlg::acceptOK()
 	    return false;
 
 	PtrMan<uiTaskRunner> taskrunner = new uiTaskRunner( this );
-	datasetup_.tr_ = taskrunner;
-	AttribLogCreator attriblog( datasetup_, sellogidx_ );
+	datasetup_->taskrunner_ = taskrunner;
+	AttribLogCreator attriblog( *datasetup_, sellogidx_ );
 	if ( !attriblog.doWork( *wd, errmsg ) )
 	    mErrRet( errmsg )
 
@@ -170,18 +176,18 @@ bool uiCreateAttribLogDlg::inputsOK( const Well::Data& wd )
 
     const Attrib::DescID seldescid = attribfld_->attribID();
     const int outputnr = attribfld_->outputNr();
-    if ( seldescid.asInt() < 0 && (datasetup_.nlamodel_ && outputnr<0) )
+    if ( seldescid.asInt() < 0 && (datasetup_->nlamodel_ && outputnr<0) )
 	mErrRet( tr("No valid attribute selected") );
 
-    datasetup_.lognm_ = lognmfld_->text();
-    if ( datasetup_.lognm_.isEmpty() )
+    datasetup_->lognm_ = lognmfld_->text();
+    if ( datasetup_->lognm_.isEmpty() )
 	mErrRet( tr("Please provide logname") );
 
-    sellogidx_ = wd.logs().indexOf( datasetup_.lognm_ );
+    sellogidx_ = wd.logs().indexOf( datasetup_->lognm_ );
     if ( sellogidx_ >= 0 )
     {
 	uiString msg = tr("Log: '%1' is already present.\nDo you wish to "
-			  "overwrite this log?").arg(datasetup_.lognm_);
+			  "overwrite this log?").arg(datasetup_->lognm_);
 	if ( !uiMSG().askOverwrite(msg) ) return false;
     }
 

@@ -683,9 +683,9 @@ void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
 }
 
 
-void SeisIOObjInfo::getCompNames( const DBKey& mid, BufferStringSet& nms )
+void SeisIOObjInfo::getCompNames( const DBKey& dbky, BufferStringSet& nms )
 {
-    SeisIOObjInfo ioobjinf( mid );
+    SeisIOObjInfo ioobjinf( dbky );
     ioobjinf.getComponentNames( nms, mUdfGeomID );
 }
 

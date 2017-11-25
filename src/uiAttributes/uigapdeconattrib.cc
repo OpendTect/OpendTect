@@ -226,10 +226,7 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 
     //create first input
     if ( !isinp0ph )
-    {
-	inpfld_->processInput();
 	fillInp( inpfld_, desc, 0 );
-    }
     else
     {
 	DescID inputid = DescID::undef();
@@ -382,7 +379,6 @@ void uiGapDeconAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int stepout )
 {
-    inpfld_->processInput();
     const DescID inpid = inpfld_->attribID();
     DescSet* descset = const_cast<DescSet*>(desc.descSet());
     BinID userbid = descset->is2D() ? BinID(0,stepout)
@@ -482,10 +478,7 @@ Desc* uiGapDeconAttrib::createNewDesc( DescSet* descset, DescID inpid,
 void uiGapDeconAttrib::createHilbertDesc( Desc& desc, DescID& inputid )
 {
     if ( inputid == DescID::undef() )
-    {
-	inpfld_->processInput();
 	inputid = inpfld_->attribID();
-    }
 
     DescSet* descset = const_cast<DescSet*>(desc.descSet());
     TypeSet<DescID> attribids;
@@ -510,10 +503,7 @@ DescID uiGapDeconAttrib::createGapDeconDesc( DescID& inp0id, DescID inp1id,
 					     DescSet* dset, bool onlyacorr )
 {
     if ( inp0id == DescID::undef() )
-    {
-	inpfld_->processInput();
 	inp0id = inpfld_->attribID();
-    }
 
     Desc* newdesc = createNewDesc( dset, inp0id, GapDecon::attribName(),0,0,"");
     if ( !newdesc )

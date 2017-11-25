@@ -24,15 +24,15 @@ mInitAttribUI(uiDeltaResampleAttrib,DeltaResample,"Delta Resample",
 uiDeltaResampleAttrib::uiDeltaResampleAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mDeltaResampleHelpID) )
 {
-    refcubefld_ = createInpFld( is2d, "Input Cube");
-    
-    deltacubefld_ = createInpFld( is2d, "Delta Cube" );
+    refcubefld_ = createInpFld( is2d, tr("Input Cube") );
+
+    deltacubefld_ = createInpFld( is2d, tr("Delta Cube") );
     deltacubefld_->attach( alignedBelow, refcubefld_ );
 
     periodfld_ = new uiGenInput( this, tr("Input is periodic"), FloatInpSpec());
     periodfld_->setWithCheck(); periodfld_->setChecked( false );
     periodfld_->attach( alignedBelow, deltacubefld_ );
-    
+
     setHAlignObj( refcubefld_ );
 }
 
@@ -43,7 +43,7 @@ bool uiDeltaResampleAttrib::setParameters( const Attrib::Desc& desc )
 	return false;
 
     float period = 0;
-    mIfGetFloat( DeltaResample::periodStr(), 
+    mIfGetFloat( DeltaResample::periodStr(),
 		    per, period = per; periodfld_->setValue(period) )
     periodfld_->setChecked( !mIsUdf(period) && !mIsZero(period,1e-6) );
 
@@ -72,10 +72,7 @@ bool uiDeltaResampleAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiDeltaResampleAttrib::getInput( Attrib::Desc& desc )
 {
-    refcubefld_->processInput();
     fillInp( refcubefld_, desc, 0 );
-    
-    deltacubefld_->processInput();
     fillInp( deltacubefld_, desc, 1 );
     return true;
 }

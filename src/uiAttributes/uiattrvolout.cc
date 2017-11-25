@@ -57,7 +57,6 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    const NLAModel* model, const DBKey& id )
     : uiBatchProcDlg(p,uiString::emptyString(),false, Batch::JobSpec::Attrib)
     , subselpar_(*new IOPar)
-    , sel_(*new Attrib::CurrentSel)
     , ads_(new Attrib::DescSet(ad))
     , nlamodel_(0)
     , nlaid_(id)
@@ -78,14 +77,15 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     if ( model )
 	nlamodel_ = model->clone();
 
-    uiAttrSelData attrdata( *ads_, false );
+    uiAttrSelData attrdata( *ads_ );
     attrdata.nlamodel_ = nlamodel_;
 
     uiSeparator* sep1 = 0;
     if ( !multioutput )
     {
-	todofld_ = new uiAttrSel( pargrp_, "Quantity to output", attrdata );
-	todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
+	todofld_ = new uiAttrSel( pargrp_, attrdata,
+				  uiAttrSel::sQuantityToOutput() );
+	todofld_->selectionChanged.notify( mCB(this,uiAttrVolOut,attrSel) );
     }
     else
     {
@@ -150,7 +150,6 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
 uiAttrVolOut::~uiAttrVolOut()
 {
-    delete &sel_;
     delete &subselpar_;
     delete ads_;
     delete nlamodel_;
@@ -201,7 +200,6 @@ void uiAttrVolOut::psSelCB( CallBacker* cb )
 #define mSetObjFld(s) \
 { \
     objfld_->setInputText( s ); \
-    objfld_->processInput(); \
     outSelCB(0); \
 }
 
@@ -230,7 +228,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
     }
     else
     {
-	mSetObjFld( desc->isStored() ? "" : todofld_->getInput() )
+	mSetObjFld( desc->isStored() ? "" : todofld_->getAttrName() )
 	if ( is2d )
 	{
 	    uiString errmsg;
@@ -270,7 +268,7 @@ bool uiAttrVolOut::prepareProcessing()
 
     if ( todofld_ )
     {
-	if ( !todofld_->checkOutput(*outioobj) )
+	if ( !todofld_->isValidOutput(*outioobj) )
 	    return false;
 
 	if ( todofld_->is2D() )
@@ -292,7 +290,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    if ( outputnm.isEmpty() )
 	    {
 		uiMSG().error(
-		    tr("No dataset name given. Please provide a valid name. ") );
+		    tr("No dataset name given. Please provide a valid name.") );
 		return false;
 	    }
 
@@ -312,8 +310,8 @@ bool uiAttrVolOut::prepareProcessing()
 	    }
 	}
 
-	sel_.ioobjkey_ = outioobj->key();
 	sel_.attrid_ = todofld_->attribID();
+	sel_.dbky_ = outioobj->key();
 	sel_.outputnr_ = todofld_->outputNr();
 	if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
 	{
@@ -403,8 +401,9 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 	if ( multoiid != Attrib::DescID::undef() )
 	{
 	    uiAttrSelData attrdata( *ads_ );
-	    Attrib::SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_,
-				is2d, Attrib::DescID::undef(), false, false );
+	    Attrib::SelInfo attrinf( attrdata.attrSet(),
+				     Attrib::DescID::undef(),
+				     attrdata.nlamodel_ );
 	    TypeSet<Attrib::SelSpec> targetspecs;
 	    if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
 				is2d, attrinf, ads_, this, targetspecs ))
@@ -422,7 +421,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     nrseloutputs = seloutputs_.size() ? seloutputs_.size()
 				      : outdescidsz ? outdescidsz : 1;
     if ( !seloutputs_.isEmpty() )
-	//TODO make use of the multiple targetspecs (prestack for inst)
+	//TODO make use of the multiple targetspecs (prestack for instance)
 	ret->createAndAddMultOutDescs( targetid, seloutputs_,
 					     seloutnms_, outdescids );
     else if ( outdescids.isEmpty() )

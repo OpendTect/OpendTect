@@ -22,22 +22,23 @@ class uiListBox;
 class uiRadioButton;
 class NLAModel;
 
-/*!
-\brief Selection dialog for 2D attributes.
-*/
+/*!\brief selection dialog for 2D attributes.  */
 
 mExpClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
 { mODTextTranslationClass(uiAttr2DSelDlg)
 public:
 
-			uiAttr2DSelDlg(uiParent*,const Attrib::DescSet*,
+    typedef Attrib::DescID	DescID;
+    typedef Attrib::DescSet	DescSet;
+
+			uiAttr2DSelDlg(uiParent*,const DescSet*,
 				       const TypeSet<Pos::GeomID>&,
 				       const NLAModel*,const char* curnm=0);
 			~uiAttr2DSelDlg();
 
     int			getSelType() const		{ return seltype_; }
     const char*		getStoredAttrName() const	{ return storednm_; }
-    Attrib::DescID	getSelDescID() const		{ return descid_; }
+    DescID		getSelDescID() const		{ return descid_; }
     int			getComponent() const		{ return compnr_; }
     int			getOutputNr() const		{ return outputnr_; }
 
@@ -45,7 +46,7 @@ protected:
 
     Attrib::SelInfo*	attrinf_;
     TypeSet<Pos::GeomID> geomids_;
-    Attrib::DescID	descid_;
+    DescID		descid_;
     const NLAModel*	nla_;
     int			seltype_;
     BufferString	storednm_;
@@ -67,7 +68,7 @@ protected:
     void		createSelectionButtons();
     void		createSelectionFields();
 
-    void		doFinalise( CallBacker* );
+    void		doFinalise(CallBacker*);
     void		selDone(CallBacker*);
     virtual bool	acceptOK();
     int			selType() const;

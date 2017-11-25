@@ -75,7 +75,7 @@ public:
 				   int index=-1,int id=-1);
 
     const char*		itemText(int) const;
-    const uiString	textOfItem(int) const;
+    uiString		textOfItem(int) const;
     void		getItems(BufferStringSet&) const;
 
     void		setItemText(int,const uiString&);
@@ -86,6 +86,7 @@ public:
     int			currentItemID() const;
     int			getItemID(int index) const;
     int			getItemIndex(int id) const;
+    void		setCurrentItemByID(int);
 
     Notifier<uiComboBox> editTextChanged;
     Notifier<uiComboBox> selectionChanged;

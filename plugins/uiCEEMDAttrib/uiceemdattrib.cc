@@ -290,9 +290,7 @@ void uiCEEMDAttrib::getPrevSel()
 
 DescID uiCEEMDAttrib::createCEEMDDesc( DescSet* dset ) const
 {
-    inpfld_->processInput();
     DescID inpid = inpfld_->attribID();
-
     Desc* newdesc = createNewDesc( dset, inpid,
 				   CEEMD::attribName(), 0, "" );
     if ( !newdesc )

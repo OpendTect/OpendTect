@@ -103,7 +103,7 @@ void uiAttribCrossPlot::adsChg()
     attrsfld_->setEmpty();
 
     delete attrinfo_;
-    attrinfo_ = new Attrib::SelInfo( &ads_, 0, ads_.is2D() );
+    attrinfo_ = new Attrib::SelInfo( ads_ );
     for ( int idx=0; idx<attrinfo_->attrnms_.size(); idx++ )
     {
 	const Attrib::Desc* desc = ads_.getDesc( attrinfo_->attrids_[idx] );

@@ -26,7 +26,7 @@ mInitAttribUI(uiMadAGCAttrib,MadAGC,"Madagascar AGC","Madagascar AGC")
 uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,mNoHelpKey)
 {
-    inpfld_ = createInpFld( is2d, "Input Data");
+    inpfld_ = createInpFld( is2d );
 
     smoothzradiusfld_ = new uiGenInput( this, tr("Z smoothing radius"),
 					IntInpSpec(0) );
@@ -39,7 +39,7 @@ uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
     smoothradiusfld_ = new uiStepOutSel( this, setup );
     smoothradiusfld_->attach( alignedBelow, smoothzradiusfld_ );
 
-    nrrepeatfld_ = new uiGenInput( this, tr("Repeat AGC scaling"), 
+    nrrepeatfld_ = new uiGenInput( this, tr("Repeat AGC scaling"),
                                    IntInpSpec(0) );
     nrrepeatfld_->attach( alignedBelow, smoothradiusfld_ );
 
@@ -82,7 +82,6 @@ bool uiMadAGCAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiMadAGCAttrib::getInput( Attrib::Desc& desc )
 {
-    inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
     return true;
 }

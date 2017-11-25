@@ -22,7 +22,7 @@ mInitAttribUI(uiEventFreqAttrib,EventFreq,"Event Frequency","Experimental" )
 uiEventFreqAttrib::uiEventFreqAttrib( uiParent* p, bool is2d )
 : uiAttrDescEd( p, is2d, mODHelpKey( mEventFreqAttribHelpID ))
 {
-    inpfld_ = createInpFld( is2d, "Input" );
+    inpfld_ = createInpFld( is2d );
     typfld_ = new uiGenInput( this, uiStrings::sOutput(),
 			      BoolInpSpec(true,tr("Frequency"),
                                           tr("Phase")));
@@ -63,7 +63,6 @@ bool uiEventFreqAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiEventFreqAttrib::getInput( Attrib::Desc& desc )
 {
-    inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
     return true;
 }

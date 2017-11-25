@@ -36,7 +36,7 @@ class uiSteerAttrSel;
 mExpClass(uiAttributes) EvalParam
 {
 public:
-    			EvalParam( const char* lbl, const char* par1=0,
+			EvalParam( const char* lbl, const char* par1=0,
 				   const char* par2=0, int idx=mUdf(int) )
 			    : label_(lbl), par1_(par1), par2_(par2), pgidx_(idx)
 			    , evaloutput_(false)	{}
@@ -84,7 +84,8 @@ public:
     virtual		~uiAttrDescEd();
     HelpKey		helpKey()			{ return helpkey_; }
     void		setDesc(Attrib::Desc*,Attrib::DescSetMan*);
-    void		setDescSet( Attrib::DescSet* ds )	{ ads_ = ds; }
+    void		setDescSet(Attrib::DescSet*);
+    Attrib::DescSet*	descSet() const			{ return ads_; }
     Attrib::Desc*	curDesc()			{ return desc_; }
     const Attrib::Desc* curDesc() const			{ return desc_; }
 
@@ -94,8 +95,8 @@ public:
     uiString		errMsgStr(Attrib::Desc* desc);
     virtual uiString	commit(Attrib::Desc* desc=0);
 			//!< returns null on success, error message otherwise
-    			//!< If attribdesc is non-zero, that desc will be
-    			//!< filled. If not, the internal desc will be filled.
+			//!< If attribdesc is non-zero, that desc will be
+			//!< filled. If not, the internal desc will be filled.
 
     virtual int		getOutputIdx(float val) const	{ return (int)val; }
     virtual float	getOutputValue(int idx) const	{ return (float)idx; }
@@ -117,8 +118,6 @@ public:
 
     bool		is2D() const			{ return is2d_; }
 
-    void		setNeedInputUpdate()		{ needinpupd_ = true; }
-
     virtual void	setDataPackInp(const TypeSet<DataPack::FullID>&);
 
     static const char*	getInputAttribName(uiAttrSel*,const Attrib::Desc&);
@@ -127,6 +126,9 @@ public:
     static const char*	frequencystr();
     static const char*	stepoutstr();
     static const char*	filterszstr();
+
+    Notifier<uiAttrDescEd>  descChanged;
+    Notifier<uiAttrDescEd>  descSetChanged;
 
 protected:
 
@@ -150,8 +152,6 @@ protected:
     void		putInp(uiSteerAttrSel*,const Attrib::Desc&,int inpnr);
     void		putInp(uiSteeringSel*,const Attrib::Desc&,int inpnr);
 
-    bool		needInputUpdate() const		{ return needinpupd_; }
-
     uiString		zDepLabel(const uiString& pre,
 				  const uiString& post) const;
     uiString		gateLabel() const
@@ -162,13 +162,15 @@ protected:
 					    tr("shift"));}
     bool		zIsTime() const;
 
-    ChangeTracker	chtr_;
-    uiAttrSel*		createInpFld(bool is2d,const char* txt=0);
-    uiAttrSel*		createInpFld(const uiAttrSelData&,const char* txt=0);
+    uiAttrSel*		createInpFld(bool is2d,const uiString& =sDefLabel());
+    uiAttrSel*		createInpFld(const uiAttrSelData&,
+				     const uiString& =sDefLabel());
+
     uiImagAttrSel*	createImagInpFld(bool is2d);
     bool		getInputDPID(uiAttrSel*,DataPack::FullID&) const;
     Attrib::Desc*	getInputDescFromDP(uiAttrSel*) const;
 
+    ChangeTracker	chtr_;
     HelpKey		helpkey_;
     BufferString	attrnm_;
     DomainType		domtyp_;
@@ -176,7 +178,6 @@ protected:
     uiString		errmsg_;
     Attrib::DescSet*	ads_;
     bool		is2d_;
-    bool		needinpupd_;
     const ZDomain::Info* zdomaininfo_;
 
     TypeSet<DataPack::FullID> dpfids_;
@@ -191,14 +192,14 @@ protected:
     static const char*	sKeyDipGrp();
 
     static uiString	sInputTypeError(int input);
-
-
+    static uiString	sDefLabel(); // uiAttrSel::sDefLabel()
 
 private:
 
     BufferString	dispname_;
     Attrib::Desc*	desc_;
     Attrib::DescSetMan* adsman_;
+
 };
 
 

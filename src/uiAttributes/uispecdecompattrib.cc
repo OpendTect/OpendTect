@@ -54,7 +54,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     , positiondlg_( 0 )
 {
     inpfld_ = createImagInpFld( is2d );
-    inpfld_->selectionDone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
+    inpfld_->selectionChanged.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
 
     typefld_ = new uiGenInput( this, tr("Transform type"),
 			      BoolInpSpec(true,tr("FFT"),tr("CWT")) );
@@ -97,7 +97,8 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
 void uiSpecDecompAttrib::inputSel( CallBacker* )
 {
-    if ( !*inpfld_->getInput() ) return;
+    if ( !inpfld_->haveSelection() )
+	return;
 
     TrcKeyZSampling cs;
     if ( !inpfld_->getRanges(cs) )
@@ -400,7 +401,6 @@ DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
 	newdesc = createNewDescFromDP( dset, SpecDecomp::attribName(), 0 );
     else
     {
-	inpfld_->processInput();
 	inpid = inpfld_->attribID();
 	newdesc = createNewDesc( dset, inpid, SpecDecomp::attribName(),
 				 0, 0, "" );
@@ -472,10 +472,7 @@ void uiSpecDecompAttrib::createHilbertDesc( DescSet* descset,
     else
     {
 	if ( inputid == DescID::undef() )
-	{
-	    inpfld_->processInput();
 	    inputid = inpfld_->attribID();
-	}
 
 	TypeSet<DescID> attribids;
 	descset->getIds( attribids );

@@ -35,7 +35,8 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 
 {
     inpfld_ = createImagInpFld( is2d );
-    inpfld_->selectionDone.notify(mCB(this,uiFreqFilterAttrib,selectionDoneCB));
+    inpfld_->selectionChanged.notify(
+		mCB(this,uiFreqFilterAttrib,selectionDoneCB) );
 
     isfftfld_ = new uiGenInput( this, tr("Filtering method"),
 				BoolInpSpec(true,tr("FFT"),tr("ButterWorth")) );
@@ -67,7 +68,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    su.inpfldtxt_ = "Min/max frequency(Hz)";
 
 	    FreqTaperSetup freqsu;
-	    const Attrib::DescSet& attrset = inpfld_->getAttrSet();
+	    const Attrib::DescSet& attrset = inpfld_->attrSet();
 	    const Attrib::Desc* inpdesc = attrset.getDesc(inpfld_->attribID());
 	    if ( inpdesc )
 		freqsu.dbkey_ = inpdesc->getStoredID( true );
@@ -105,7 +106,7 @@ void uiFreqFilterAttrib::selectionDoneCB( CallBacker* cb )
     mDynamicCastGet(uiFreqTaperSel*,freqtapersel,winflds_[1]);
     if ( !freqtapersel ) return;
 
-    const Attrib::DescSet& attrset = inpfld_->getAttrSet();
+    const Attrib::DescSet& attrset = inpfld_->attrSet();
     const Attrib::Desc* inpdesc = attrset.getDesc( inpfld_->attribID() );
     const DBKey dbkey = inpdesc ? DBKey(inpdesc->getStoredID(true))
 				    : DBKey::getInvalid();
@@ -249,7 +250,6 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
 
 bool uiFreqFilterAttrib::getInput( Desc& desc )
 {
-    inpfld_->processInput();
     const bool needimag = isfftfld_->getBoolValue();
     fillInp( needimag ? inpfld_ : (uiAttrSel*)inpfld_, desc, 0 );
     return true;

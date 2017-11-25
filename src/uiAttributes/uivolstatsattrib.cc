@@ -198,7 +198,6 @@ bool uiVolumeStatisticsAttrib::setOutput( const Desc& desc )
 
 bool uiVolumeStatisticsAttrib::getInput( Desc& desc )
 {
-    inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
     fillInp( steerfld_, desc, 1 );
     return true;

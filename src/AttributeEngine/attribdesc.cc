@@ -69,6 +69,7 @@ Desc::Desc( const char* attribname, DescStatusUpdater updater,
     , needprovinit_( false )
     , locality_( PossiblyMultiTrace )
     , usestrcpos_( false )
+    , userRefChanged( this )
 {
     attribname_.replace( ' ', '_' );
     inputs_.allowNull(true);
@@ -88,6 +89,7 @@ Desc::Desc( const Desc& a )
     , isps_(a.isps_)
     , locality_(a.locality_)
     , usestrcpos_(a.usestrcpos_)
+    , userRefChanged( this )
 {
     inputs_.allowNull(true);
 
@@ -108,6 +110,7 @@ Desc::Desc( const Desc& a )
 
 Desc::~Desc()
 {
+    detachAllNotifiers();
     deepErase( params_ );
     deepUnRef( inputs_ );
 }
@@ -234,11 +237,19 @@ bool Desc::parseDefStr( const char* defstr )
 
 
 const char* Desc::userRef() const		{ return userref_; }
-void Desc::setUserRef( const char* str )	{ userref_ = str; }
 int Desc::nrOutputs() const			{ return outputtypes_.size(); }
 void Desc::selectOutput( int outp )		{ seloutput_ = outp; }
 int Desc::selectedOutput() const		{ return seloutput_; }
 int Desc::nrInputs() const			{ return inputs_.size(); }
+
+void Desc::setUserRef( const char* str )
+{
+    if ( userref_ != str )
+    {
+	userref_ = str;
+	userRefChanged.trigger();
+    }
+}
 
 
 void Desc::getInputs( TypeSet<DescID>& ids ) const

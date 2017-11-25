@@ -23,16 +23,19 @@ _______________________________________________________________________
 
 
 
-#define mErrRet(m) errmsg.append(m,true); return false;
+#define mErrRet(m) { errmsg.append(m,true); return false; }
 
 
 bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
 {
+    if ( !setup_.extractparams_ )
+	mErrRet(tr("Extraction parameters not set"))
+
     uiString msg = tr("%1 from well %2");
     Attrib::EngineMan aem;
-    aem.setAttribSet( setup_.attrib_ );
+    aem.setAttribSet( &setup_.attribdescset_ );
     aem.setNLAModel( setup_.nlamodel_ );
-    aem.setAttribSpec( *setup_.selspec_ );
+    aem.setAttribSpec( setup_.selspec_ );
 
     BufferStringSet dummy;
     StepInterval<float> dahrg = setup_.extractparams_->calcFrom( wd, dummy );
@@ -46,7 +49,7 @@ bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
 	mErrRet(msg)
     }
 
-    if ( !ale.extractData( aem, setup_.tr_ ) )
+    if ( !ale.extractData( aem, setup_.taskrunner_ ) )
     {
 	msg.arg(tr("No data extracted")).arg(wd.name());
 	mErrRet(msg)

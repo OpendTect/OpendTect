@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "seistype.h"
 #include "typeset.h"
+#include "notify.h"
 
 
 namespace Attrib
@@ -85,15 +86,16 @@ Each Desc has DescID that is unique within it's DescSet.
 */
 
 mExpClass(AttributeEngine) Desc : public RefCount::Referenced
+				, public CallBacker
 { mODTextTranslationClass(Desc)
 public:
 
     enum Locality		{ SingleTrace, PossiblyMultiTrace, MultiTrace };
 
-				Desc(const Desc&);
-				Desc(const char* attrname,
+    explicit			Desc(const char* attrname,
 				     DescStatusUpdater updater=0,
 				     DescDefaultsUpdater defupdater=0);
+				Desc(const Desc&);
 
     const OD::String&		attribName() const;
 
@@ -209,8 +211,10 @@ public:
 				/*!<Fills \akeys and \avals with pairs of
 				    parameters from the defstr. */
 
+    Notifier<Desc>		userRefChanged;
 
 protected:
+
 				~Desc();
 
     bool			setInput_(int,Desc*);
@@ -239,6 +243,7 @@ protected:
     DescStatusUpdater		statusupdater_;
     DescDefaultsUpdater		defaultsupdater_;
     uiString			errmsg_;
+
 };
 
 mGlobal(AttributeEngine) void getIntFromDescStr(Desc&,int&,const char*);

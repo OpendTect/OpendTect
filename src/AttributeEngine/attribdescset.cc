@@ -50,7 +50,10 @@ DescSet::DescSet( bool is2d )
     : is2d_(is2d)
     , storedattronly_(false)
     , couldbeanydim_(false)
+    , descAdded(this)
+    , descUserRefChanged(this)
     , descToBeRemoved(this)
+    , descRemoved(this)
 {
     ensureDefStoredPresent();
 }
@@ -60,9 +63,19 @@ DescSet::DescSet( const DescSet& ds )
     : is2d_(ds.is2d_)
     , storedattronly_(ds.storedattronly_)
     , couldbeanydim_(ds.couldbeanydim_)
+    , descAdded(this)
+    , descUserRefChanged(this)
     , descToBeRemoved(this)
+    , descRemoved(this)
 {
     *this = ds;
+}
+
+
+DescSet::~DescSet()
+{
+    detachAllNotifiers();
+    removeAll( false );
 }
 
 
@@ -100,12 +113,16 @@ bool DescSet::hasStoredInMem() const
 
 DescID DescSet::ensureDefStoredPresent() const
 {
-    BufferString idstr; DescID retid;
-
     if ( DBM().isBad() )
-	return defattribid_;
+	return DescID::undef();
+    return defStoredID();
+}
 
+
+DescID DescSet::defStoredID() const
+{
     PtrMan<IOPar> defpars = SI().getDefaultPars().subselect( sKey::Default() );
+    BufferString idstr;
     if ( defpars )
     {
 	if ( is2d_ )
@@ -114,28 +131,8 @@ DescID DescSet::ensureDefStoredPresent() const
 	    idstr = mGetPar( sKeyDefault3D );
     }
 
-    if ( defidstr_ == idstr && defattribid_ != DescID::undef() )
-	return defattribid_;
-
-    if ( !idstr.isEmpty() )
-    {
-	// Hack to get rid of 'old' IDs
-	bool allstored = true;
-	for ( int idx=0; idx<descs_.size(); idx++ )
-	{
-	    if ( !descs_[idx]->isStored() )
-		{ allstored = false; break; }
-	}
-	if ( allstored )
-	    const_cast<DescSet*>(this)->removeAll( false );
-
-	retid = const_cast<DescSet*>(this)->getStoredID(
-				DBKey::getFromString(idstr), 0, true, true );
-    }
-
-    defidstr_ = idstr;
-    defattribid_ = retid;
-    return retid;
+    return const_cast<DescSet*>(this)->getStoredID(
+			    DBKey::getFromString(idstr), 0, true, true );
 }
 
 
@@ -173,10 +170,15 @@ void DescSet::updateInputs()
 
 DescID DescSet::addDesc( Desc* nd, DescID id )
 {
-    nd->setDescSet( this ); nd->ref();
+    nd->setDescSet( this );
+    nd->ref();
+
     descs_ += nd;
     const DescID newid = id.isValid() ? id : getFreeID();
     ids_ += newid;
+
+    descAdded.trigger( newid );
+    mAttachCB( nd->userRefChanged, DescSet::usrRefChgCB );
     return newid;
 }
 
@@ -187,7 +189,23 @@ DescID DescSet::insertDesc( Desc* nd, int idx, DescID id )
     descs_.insertAt( nd, idx );
     const DescID newid = id.isValid() ? id : getFreeID();
     ids_.insert( idx, newid );
+
+    descAdded.trigger( newid );
+    mAttachCB( nd->userRefChanged, DescSet::usrRefChgCB );
     return newid;
+}
+
+
+void DescSet::usrRefChgCB( CallBacker* cb )
+{
+    mDynamicCastGet( Desc*, attrdesc, cb );
+    if ( !attrdesc )
+	{ pErrMsg("Huh"); return; }
+    const int didx = descs_.indexOf( attrdesc );
+    if ( didx < 0 )
+	{ pErrMsg("Probably bad"); return; }
+
+    descUserRefChanged.trigger( ids_[didx] );
 }
 
 
@@ -283,11 +301,14 @@ void DescSet::removeDesc( const DescID& id )
     if ( idx==-1 ) return;
 
     descToBeRemoved.trigger( id );
+
     if ( descs_[idx]->descSet()==this )
 	descs_[idx]->setDescSet(0);
 
     descs_.removeSingle(idx)->unRef();
     ids_.removeSingle(idx);
+
+    descRemoved.trigger( id );
 }
 
 
@@ -313,20 +334,18 @@ void DescSet::sortDescSet()
     for ( int idx=0; idx<nrdescs; idx++ )
 	userrefs.add( descs_[idx]->userRef() );
 
+    ObjectSet<Desc> descskeep( descs_ );
+    TypeSet<DescID> idskeep( ids_ );
+
     int* sortindexes = userrefs.getSortIndexes();
-    ObjectSet<Desc> descscopy( descs_ );
-    TypeSet<DescID> idscopy( ids_ );
-    descs_.erase();
-    ids_.erase();
+    descs_.erase(); ids_.erase();
     for ( int idx=0; idx<nrdescs; idx++ )
     {
-	Attrib::Desc* newdesc = descscopy[ sortindexes[idx] ];
-	descs_ += newdesc;
-	ids_ += idscopy[ sortindexes[idx] ];
+	descs_ += descskeep[ sortindexes[idx] ];
+	ids_ += idskeep[ sortindexes[idx] ];
     }
 
-    descscopy.erase();
-    delete sortindexes;
+    delete [] sortindexes;
 }
 
 
@@ -341,6 +360,7 @@ void DescSet::removeAll( bool kpdef )
 
 //As we do not store DescSets with storedattronly_=true it is useless to check
 //for this in usePar and fillPar
+
 void DescSet::fillPar( IOPar& par ) const
 {
     int maxid = 0;
@@ -350,7 +370,8 @@ void DescSet::fillPar( IOPar& par ) const
 	const Desc& dsc = *descs_[idx];
 	IOPar apar;
 	BufferString defstr;
-	if ( !dsc.getDefStr(defstr) ) continue;
+	if ( !dsc.getDefStr(defstr) )
+	    continue;
 
 	const DBKey dbky = dsc.getStoredID( true );
 	const bool isvaliddbkey = dbky.isValid();
@@ -973,8 +994,8 @@ DescID DescSet::getFreeID() const
 }
 
 
-DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool create,
-			     bool blindcomp, const char* blindcompnm )
+DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool add_if_absent,
+			     bool blindcomp, const char* blindcompnm ) const
 {
     TypeSet<int> outsreadyforthislk;
     TypeSet<DescID> outsreadyids;
@@ -995,11 +1016,13 @@ DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool create,
 	}
     }
 
-    if ( !create )
+    if ( !add_if_absent )
 	return DescID::undef();
 
+    DescSet& self = *const_cast<DescSet*>( this );
+
     if ( blindcomp )
-	return createStoredDesc( dbkey, selout, BufferString(
+	return self.createStoredDesc( dbkey, selout, BufferString(
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
@@ -1007,7 +1030,7 @@ DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool create,
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx]
-			     : createStoredDesc( dbkey, 0, BufferString("") );
+			 : self.createStoredDesc( dbkey, 0, BufferString("") );
 
     const int startidx = selout<0 ? 0 : selout;
     const int stopidx = selout<0 ? nrcomps : selout;
@@ -1015,10 +1038,10 @@ DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool create,
 				? bss.get(startidx) : BufferString::empty();
     const DescID retid = out0idx != -1
 			? outsreadyids[out0idx]
-			: createStoredDesc( dbkey, startidx, curstr );
+			: self.createStoredDesc( dbkey, startidx, curstr );
     for ( int idx=startidx+1; idx<stopidx; idx++ )
 	if ( !outsreadyforthislk.isPresent(idx) )
-	    createStoredDesc( dbkey, idx, *bss[idx] );
+	    self.createStoredDesc( dbkey, idx, *bss[idx] );
 
     return retid;
 }
@@ -1204,7 +1227,8 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	PtrMan<IOObj> ioobj = DBM().get( storedid );
 	const char* res = ioobj ? ioobj->pars().find( "Type" ) : 0;
 	const bool issteer = res && *res == 'S';
-	if ( !usesteering && issteer ) continue;
+	if ( !usesteering && issteer )
+	    continue;
 
 	if ( (dsc.is2D() == is2D()) ) //TODO backward compatibility with 2.4
 	    return const_cast<Desc*>( &dsc );
@@ -1260,7 +1284,7 @@ void DescSet::getAttribNames( BufferStringSet& nms, bool inclhidden ) const
 
 void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 {
-    Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), true );
+    Attrib::SelInfo attrinf( *this );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
     {
 	BufferString defstr;
@@ -1283,13 +1307,11 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 
 void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 {
-    Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false, false,
-			     false, true );
+    // list including hidden attributes. Bert has no idea why.
+    Attrib::SelInfo attrinf( this, DescID::undef(), 0, is2D(), false, true );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
     {
-	//This is horrible, trust I know it, but that's the only way to solve
-	//the problem so close to the release date 6.0 / 6.2
-	//TODO improve for 7.0
+	// Handle legacy stuff
 	BufferString usrnm = attrinf.attrnms_.get(idx);
 	if ( usrnm.startsWith("CentralSteering")
 	  || usrnm.startsWith("FullSteering")
@@ -1313,8 +1335,8 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 	stornm.unEmbed( '[', ']' );
 	//generate Info with the same parameters as in fillInUIInputList
 	//which is supposed to be the source of the input string.
-	Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false, false,
-				 false, true );
+	// Bert says: so, list including hidden attributes.
+	Attrib::SelInfo attrinf( this, DescID::undef(), 0, is2D(), false, true);
 	DBKey dbky;
 	int iidx = attrinf.ioobjnms_.indexOf( stornm.buf() );
 	if ( iidx >= 0 )
@@ -1388,9 +1410,6 @@ void DescSet::setContainStoredDescOnly( bool yn )
     storedattronly_ = yn;
     for ( int idx=0; idx<ids_.size(); idx++ )
 	ids_[idx].setStored( yn );
-
-    if ( defattribid_.isValid() )
-	defattribid_.setStored( yn );
 }
 
 

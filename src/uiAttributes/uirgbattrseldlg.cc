@@ -14,31 +14,22 @@ ________________________________________________________________________
 #include "attribsel.h"
 
 
-uiRGBAttrSelDlg::uiRGBAttrSelDlg( uiParent* p, const Attrib::DescSet& ds,
-				  Pos::GeomID geomid )
+uiRGBAttrSelDlg::uiRGBAttrSelDlg( uiParent* p, const Attrib::DescSet& ds )
     : uiDialog(p,Setup(tr("Select RGB Attributes"),mNoDlgTitle,mTODOHelpKey))
 {
-    rfld_ = new uiAttrSel( this, ds );
+    rfld_ = new uiAttrSel( this, ds, tr("Red") );
     rfld_->showSteeringData( true );
-    rfld_->setGeomID( geomid );
-    rfld_->setLabelText( tr("Red Attribute") );
 
-    gfld_ = new uiAttrSel( this, ds );
+    gfld_ = new uiAttrSel( this, ds, tr("Green") );
     gfld_->showSteeringData( true );
-    gfld_->setGeomID( geomid );
-    gfld_->setLabelText( tr("Green Attribute") );
     gfld_->attach( alignedBelow, rfld_ );
 
-    bfld_ = new uiAttrSel( this, ds );
+    bfld_ = new uiAttrSel( this, ds, tr("Blue") );
     bfld_->showSteeringData( true );
-    bfld_->setGeomID( geomid );
-    bfld_->setLabelText( tr("Blue Attribute") );
     bfld_->attach( alignedBelow, gfld_ );
 
-    tfld_ = new uiAttrSel( this, ds );
+    tfld_ = new uiAttrSel( this, ds, tr("Alpha/Opacity") );
     tfld_->showSteeringData( true );
-    tfld_->setGeomID( geomid );
-    tfld_->setLabelText( tr("Alpha Attribute") );
     tfld_->attach( alignedBelow, bfld_ );
 }
 

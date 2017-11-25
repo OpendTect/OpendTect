@@ -12,13 +12,12 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uibatchprocdlg.h"
+#include "attribdescid.h"
 #include "dbkey.h"
 #include "bufstringset.h"
 
 class IOObj;
 class NLAModel;
-namespace Attrib	{ class CurrentSel; class DescID; class DescSet; };
-namespace Batch		{ class JobSpec; }
 
 class uiAttrSel;
 class uiGenInput;
@@ -41,7 +40,6 @@ public:
     void		setInput(const Attrib::DescID&);
 
     const IOPar&	subSelPar() const		{ return subselpar_; }
-    const Attrib::CurrentSel& outputSelection() const	{ return sel_; }
 
     static const char*  sKeyMaxCrlRg();
     static const char*  sKeyMaxInlRg();
@@ -49,9 +47,22 @@ public:
 					 const NLAModel* nlamodel,
 					 const DBKey& nlaid);
 
+    mExpClass(uiAttributes) Selection
+    {
+    public:
+			Selection()
+			    : attrid_(Attrib::DescID(-1,true))
+			    , outputnr_(-1)	{}
+	Attrib::DescID	attrid_;
+	DBKey		dbky_;
+	int		outputnr_;
+    };
+
+    const Selection&	getSelection() const	{ return sel_; }
+
 protected:
 
-    Attrib::CurrentSel&	sel_;
+    Selection		sel_;
     IOPar&		subselpar_;
     Attrib::DescSet*	ads_;
     DBKey		nlaid_;
@@ -66,7 +77,6 @@ protected:
 
     TypeSet<int>	seloutputs_;
     BufferStringSet	seloutnms_;
-
 
     void		getJobName(BufferString& jobnm) const;
     bool		prepareProcessing();

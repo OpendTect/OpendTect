@@ -27,13 +27,11 @@ public:
 			DescID( int id, bool isstored )
 			    : id_(id)
 			    , isstored_(isstored)		{}
-			DescID( const DescID& id )
-			    : id_(id.id_)
-			    , isstored_(id.isstored_)		{}
-    inline DescID&	operator =( const DescID& id )
-			{ id_ = id.id_; isstored_ = id.isstored_; return *this;}
+
     inline bool		isValid() const		{ return id_ >= 0; }
     inline bool		isUnselInvalid() const	{ return id_ < -2; }
+    inline void		setInvalid( bool unsel=false )
+						{ id_ = unsel ? -3 : -1; }
 
     inline bool		operator ==( const DescID& id ) const
 			{ return id.id_ == id_; }
