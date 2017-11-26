@@ -122,12 +122,11 @@ bool  uiSimilaritybyAW::getParameters( Desc& desc )
 }
 
 
-bool uiSimilaritybyAW::getInput( Desc& desc )
+uiRetVal uiSimilaritybyAW::getInput( Desc& desc )
 {
-    fillInp( inputfld_, desc, 0 );
-    fillInp( steerfld_, desc, 1 );
-
-    return true;
+    uiRetVal uirv = fillInp( inputfld_, desc, 0 );
+    uirv.add( fillInp( steerfld_, desc, 1 ) );
+    return uirv;
 }
 
 

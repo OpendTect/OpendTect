@@ -196,11 +196,11 @@ bool uiVolumeStatisticsAttrib::setOutput( const Desc& desc )
 }
 
 
-bool uiVolumeStatisticsAttrib::getInput( Desc& desc )
+uiRetVal uiVolumeStatisticsAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    fillInp( steerfld_, desc, 1 );
-    return true;
+    uiRetVal uirv = fillInp( inpfld_, desc, 0 );
+    uirv.add( fillInp( steerfld_, desc, 1 ) );
+    return uirv;
 }
 
 

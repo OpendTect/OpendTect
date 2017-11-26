@@ -71,7 +71,7 @@ protected:
     bool		setInput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    uiRetVal		getInput(Attrib::Desc&);
 
     BinIDValueSet*	createValuesBinIDSet(uiString&) const;
     BinID		get2DRefPos() const;
@@ -84,7 +84,7 @@ protected:
     void                getAdvancedPush(CallBacker*);
     void		refSel(CallBacker*);
 
-    virtual bool	areUIParsOK();
+    virtual uiRetVal	areUIParsOK();
 
 			mDeclReqAttribUIFns
 };

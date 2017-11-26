@@ -218,24 +218,23 @@ bool uiGapDeconAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
+uiRetVal uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 {
     bool isinp0ph = isinpzerophasefld_->getBoolValue();
     int stepout = wantmixfld_->getBoolValue() ?
 		  stepoutfld_->box()->getIntValue() : 0;
+    uiRetVal uirv;
 
     //create first input
     if ( !isinp0ph )
-	fillInp( inpfld_, desc, 0 );
+	uirv = fillInp( inpfld_, desc, 0 );
     else
     {
 	DescID inputid = DescID::undef();
 	createHilbertDesc( desc, inputid );
 	if ( !desc.setInput( 0, desc.descSet()->getDesc(inputid)) )
-	{
-	    errmsg_ = tr("The suggested attribute for input 0\n"
-	                 "is incompatible with the input (wrong datatype)");
-	}
+	    uirv = tr("The suggested attribute for input 0\n"
+	               "is incompatible with the input (wrong datatype)");
     }
 
     if ( stepout > 0 )
@@ -248,11 +247,12 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 
 	if ( !desc.setInput( 1, desc.descSet()->getDesc(mixedinputid)) )
 	{
-	    errmsg_ = tr("The suggested attribute for input 1\n"
-	                 " is incompatible with the input (wrong datatype)");
+	    uirv.add( tr("The suggested attribute for input 1\n"
+	                 " is incompatible with the input (wrong datatype)") );
 	}
     }
-    return true;
+
+    return uirv;
 }
 
 

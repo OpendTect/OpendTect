@@ -90,18 +90,6 @@ bool uiWellLogAttrib::setParameters( const Desc& desc )
 }
 
 
-bool uiWellLogAttrib::setInput( const Desc& desc )
-{
-    return true;
-}
-
-
-bool uiWellLogAttrib::setOutput( const Attrib::Desc& desc )
-{
-    return true;
-}
-
-
 bool uiWellLogAttrib::getParameters( Desc& desc )
 {
     if ( desc.attribName() != WellLog::attribName() )
@@ -112,21 +100,4 @@ bool uiWellLogAttrib::getParameters( Desc& desc )
     mSetEnum( WellLog::upscaleType(), sampfld_->getIntValue() );
 
     return true;
-}
-
-
-bool uiWellLogAttrib::getInput( Desc& desc )
-{
-    return true;
-}
-
-
-bool uiWellLogAttrib::getOutput( Attrib::Desc& desc )
-{
-    return true;
-}
-
-
-void uiWellLogAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
-{
 }

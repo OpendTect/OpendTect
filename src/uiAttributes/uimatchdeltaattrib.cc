@@ -66,11 +66,11 @@ bool uiMatchDeltaAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiMatchDeltaAttrib::getInput( Attrib::Desc& desc )
+uiRetVal uiMatchDeltaAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( refcubefld_, desc, 0 );
-    fillInp( mtchcubefld_, desc, 1 );
-    return true;
+    uiRetVal uirv = fillInp( refcubefld_, desc, 0 );
+    uirv.add( fillInp( mtchcubefld_, desc, 1 ) );
+    return uirv;
 }
 
 

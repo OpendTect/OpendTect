@@ -133,10 +133,10 @@ void uiAttrDescEd::setDescSet( Attrib::DescSet* ds )
 }
 
 
-void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inpnr )
+uiRetVal uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inpnr )
 {
     if ( !fld || inpnr >= desc.nrInputs() || !desc.descSet() )
-	return;
+	return uiRetVal::OK();
 
     const DescID attribid = fld->attribID();
 
@@ -147,13 +147,16 @@ void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inpnr )
 	chtr_.setChanged( true );
 
     const Attrib::Desc* newinpdesc = desc.descSet()->getDesc( attribid );
-    if ( !desc.setInput(inpnr,newinpdesc) )
-    {
-	errmsg_ = tr("The suggested attribute for input %1 (%2)"
-                      "is incompatible with the input (wrong datatype)")
-		      .arg( toString(inpnr) )
-		      .arg( newinpdesc ? newinpdesc->userRef() : "<no input>" );
-    }
+    if ( newinpdesc == &desc )
+	return uiRetVal( tr("Cannot allow recursive input for %1 '%2'.\n"
+		  "Please select a different input")
+		  .arg( desc.attribName() )
+		  .arg( desc.userRef() ) );
+    else if ( !desc.setInput(inpnr,newinpdesc) )
+	return uiRetVal( tr("The suggested attribute for input %1 (%2)\n"
+		  "is incompatible with the input (wrong datatype)")
+		  .arg( toString(inpnr) )
+		  .arg( newinpdesc ? newinpdesc->userRef() : "<no input>" ) );
 
     mDynamicCastGet(const uiImagAttrSel*,imagfld,fld)
     if ( imagfld )
@@ -161,13 +164,16 @@ void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inpnr )
 	newinpdesc = desc.descSet()->getDesc( imagfld->imagID() );
 	desc.setInput( inpnr+1, newinpdesc );
     }
+
+    return uiRetVal::OK();
 }
 
 
-void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inpnr )
+uiRetVal uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc,
+				int inpnr )
 {
     if ( !fld || inpnr >= desc.nrInputs() || !desc.descSet() )
-	return;
+	return uiRetVal::OK();
 
     const DescID descid = fld->descID();
     const Attrib::Desc* inpdesc = desc.getInput( inpnr );
@@ -177,16 +183,17 @@ void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inpnr )
 	chtr_.setChanged( true );
 
     if ( !desc.setInput( inpnr, desc.descSet()->getDesc(descid) ) )
-    {
-	errmsg_ = sInputTypeError( inpnr );
-    }
+	return uiRetVal( sInputTypeError(inpnr) );
+
+    return uiRetVal::OK();
 }
 
 
-void uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc, int inpnr )
+uiRetVal uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc,
+				int inpnr )
 {
     if ( !fld || inpnr >= desc.nrInputs() || !desc.descSet() )
-	return;
+	return uiRetVal::OK();
 
     const DescID inlid = fld->inlDipID();
     const Attrib::Desc* inpdesc = desc.getInput( inpnr );
@@ -196,9 +203,7 @@ void uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc, int inpnr )
 	chtr_.setChanged( true );
 
     if ( !desc.setInput( inpnr, desc.descSet()->getDesc(inlid) ) )
-    {
-	errmsg_ = sInputTypeError( inpnr );
-    }
+	return uiRetVal( sInputTypeError(inpnr) );
 
     const DescID crlid = fld->crlDipID();
     inpdesc = desc.getInput( inpnr+1 );
@@ -208,6 +213,7 @@ void uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc, int inpnr )
 	chtr_.setChanged( true );
 
     desc.setInput( inpnr+1, desc.descSet()->getDesc(crlid) );
+    return uiRetVal::OK();
 }
 
 
@@ -317,53 +323,53 @@ bool uiAttrDescEd::zIsTime() const
 }
 
 
-uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
+uiRetVal uiAttrDescEd::errMsgs( Attrib::Desc* desc )
 {
+    uiRetVal uirv = uiRetVal::OK();
     if ( !desc )
-	return uiStrings::sEmptyString();
-
-    errmsg_.setEmpty();
+	return uirv;
 
     if ( desc->isSatisfied() == Desc::Error )
     {
-	const uiString derrmsg( toUiString(desc->errMsg()) );
+	const uiString errmsg( desc->errMsg() );
 	if ( !desc->isStored()
-		|| derrmsg.getFullString() != DescSet::storedIDErrStr() )
-	    errmsg_ = derrmsg;
+		|| errmsg.getFullString() != DescSet::storedIDErrStr() )
+	    uirv = errmsg;
 	else
 	{
-	    errmsg_ = tr("Cannot find stored data %1.\n"
-                         "Data might have been deleted or corrupted.\n"
-                         "Please select valid stored data as input.")
+	    uirv = tr("Cannot find stored data %1.\n"
+                      "Data might have been deleted or corrupted.\n"
+                      "Please select valid stored data as input.")
                          .arg( desc->userRef() );
 	}
     }
 
-    const bool isuiok = areUIParsOK();
-    if ( !isuiok && errmsg_.isEmpty() )
-	errmsg_= tr("Please review your parameters, "
-                    "some of them are not correct");
-
-    return errmsg_;
+    uirv.add( areUIParsOK() );
+    return uirv;
 }
 
 
-uiString uiAttrDescEd::commit( Attrib::Desc* editdesc )
+uiRetVal uiAttrDescEd::commit( Attrib::Desc* editdesc )
 {
     if ( !editdesc )
 	editdesc = desc_;
     if ( !editdesc )
-	return uiStrings::sEmptyString();
+	return uiRetVal::OK();
 
     getParameters( *editdesc );
-    errmsg_ = Provider::prepare( *editdesc );
+    uiRetVal uirv = Provider::prepare( *editdesc );
+    if ( !uirv.isOK() )
+	return uirv;
+
     editdesc->updateParams();	//needed before getInput to set correct input nr
-    if ( !getInput(*editdesc) || !getOutput(*editdesc) )
-	return uiStrings::sEmptyString();
+    uirv = getInput( *editdesc );
+    if ( !uirv.isOK() )
+	return uirv;
+    if ( !getOutput(*editdesc) )
+	return uiRetVal( tr("Cannot get attribute output") );
 
     editdesc->updateParams();	//needed after getInput to update inputs' params
-
-    return errMsgStr( editdesc );
+    return errMsgs( editdesc );
 }
 
 

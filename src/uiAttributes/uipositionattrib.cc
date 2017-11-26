@@ -104,13 +104,12 @@ bool uiPositionAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiPositionAttrib::getInput( Desc& desc )
+uiRetVal uiPositionAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
-    fillInp( outfld, desc, 1 );
-    fillInp( steerfld, desc, 2 );
-
-    return true;
+    uiRetVal uirv = fillInp( inpfld, desc, 0 );
+    uirv.add( fillInp( outfld, desc, 1 ) );
+    uirv.add( fillInp( steerfld, desc, 2 ) );
+    return uirv;
 }
 
 

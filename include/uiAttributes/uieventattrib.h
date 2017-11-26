@@ -41,7 +41,7 @@ protected:
     bool		setOutput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    uiRetVal		getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
 
     void		isSingleSel(CallBacker*);

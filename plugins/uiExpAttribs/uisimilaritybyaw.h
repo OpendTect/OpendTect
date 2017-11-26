@@ -25,7 +25,7 @@ mExpClass(uiExpAttribs) uiSimilaritybyAW : public uiAttrDescEd
 { mODTextTranslationClass(uiSimilaritybyAW);
 
 public:
-    			uiSimilaritybyAW(uiParent*,bool);
+			uiSimilaritybyAW(uiParent*,bool);
 
 protected:
 
@@ -33,11 +33,11 @@ protected:
 
     void		choiceSel(CallBacker*);
     void		steerTypeSel(CallBacker*);
- 
+
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    uiRetVal		getInput(Attrib::Desc&);
 
     uiAttrSel*		inputfld_;
     uiSteeringSel*	steerfld_;

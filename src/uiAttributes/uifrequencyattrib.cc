@@ -47,8 +47,8 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     inpfld_ = createImagInpFld( is2d );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
-	    		      FloatInpIntervalSpec().setName("Z start",0)
-			      			    .setName("Z stop",1) );
+			      FloatInpIntervalSpec().setName("Z start",0)
+						    .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
     normfld_ = new uiGenInput( this, tr("Normalize"), BoolInpSpec(false) );
@@ -125,10 +125,9 @@ bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiFrequencyAttrib::getInput( Attrib::Desc& desc )
+uiRetVal uiFrequencyAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    return true;
+    return fillInp( inpfld_, desc, 0 );
 }
 
 
@@ -145,18 +144,15 @@ void uiFrequencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 }
 
 
-bool uiFrequencyAttrib::areUIParsOK()
+uiRetVal uiFrequencyAttrib::areUIParsOK()
 {
     if ( FixedString(winfld_->windowName()) == "CosTaper" )
     {
 	float paramval = winfld_->windowParamValue();
 	if ( paramval<0 || paramval>1  )
-	{
-	    errmsg_ = tr("Variable 'Taper length' is not\n"
-                   "within the allowed range: 0 to 100 (%).");
-	    return false;
-	}
+	    return uiRetVal( tr("Variable 'Taper length' is not\n"
+			   "within the allowed range: 0 to 100 (%).") );
     }
 
-    return true;
+    return uiRetVal::OK();
 }

@@ -272,7 +272,7 @@ bool uiAttribPartServer::editSet( bool is2d )
 		mCB(this,uiAttribPartServer,showXPlot) );
     if ( attrsneedupdt_ )
     {
-	attrsetdlg_->updtAllEntries();
+	attrsetdlg_->updateAllDescsDefaults();
 	attrsneedupdt_ = false;
     }
 
@@ -1896,17 +1896,13 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
     if ( !curdesc )
         mErrRet( tr("Please add this attribute first") );
 
-    uiAttrDescEd* ade = attrsetdlg_->curDescEd();
-    if ( !ade ) return;
-
+    uiAttrDescEd& ade = attrsetdlg_->curDescEd();
     sendEvent( evEvalAttrInit() );
-    //if ( !alloweval_ ) mErrRet( "Evaluation of attributes only possible on\n"
-//			       "Inlines, Crosslines, Timeslices and Surfaces.");
 
     if ( !iscrossevaluate )
     {
 	uiEvaluateDlg* evaldlg =
-	    new uiEvaluateDlg( attrsetdlg_, *ade, allowevalstor_ );
+	    new uiEvaluateDlg( attrsetdlg_, ade, allowevalstor_ );
 
 	if ( !evaldlg->evaluationPossible() )
 	    mErrRet( tr("This attribute has no parameters to evaluate") );

@@ -33,13 +33,15 @@ public:
     explicit		DescSet(bool is2d);
 			DescSet(const DescSet&);
 			~DescSet();
-
     DescSet&		operator =(const DescSet&);
-    bool		isEmpty() const	{ return descs_.isEmpty(); }
-    inline int		size() const	{ return nrDescs(true,true); }
-    int			indexOf(const char* nm, bool usrref=true) const;
-    inline bool		isPresent( const char* nm, bool usr=true ) const
-			{ return indexOf(nm,usr) >= 0; }
+
+    inline bool		isEmpty() const	{ return descs_.isEmpty(); }
+    inline int		size() const	{ return descs_.size(); }
+    int			indexOf(const char* nm,bool usrref=true) const;
+    inline bool		isPresent( const char* nm, bool usrref=true ) const
+			{ return indexOf(nm,usrref) >= 0; }
+    Desc*		desc( int idx )		{ return descs_[idx]; }
+    const Desc*		desc( int idx ) const	{ return descs_[idx]; }
 
     DescSet*		optimizeClone(const DescID& targetid) const;
     DescSet*		optimizeClone(const TypeSet<DescID>&) const;
@@ -66,10 +68,8 @@ public:
 
     Desc&		operator[]( int idx )	{ return *desc(idx); }
     const Desc&		operator[]( int idx ) const { return *desc(idx); }
-    int			nrDescs(bool inclstored,bool inclhidden) const;
-			//!< use size() if you just want all
-    Desc*		desc( int idx )		{ return descs_[idx]; }
-    const Desc*		desc( int idx ) const	{ return descs_[idx]; }
+    int			nrDescs(bool inclstored=false,
+				bool inclhidden=false) const;
 
     Desc*		getDesc( const DescID& id )
 						{ return gtDesc(id); }

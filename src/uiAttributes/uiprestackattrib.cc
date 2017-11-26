@@ -296,10 +296,9 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     bool isoffset = gathertypefld_->getIntValue() == 0;
     if ( xrgfldint.start > xrgfldint.stop )
     {
-	errmsg_ = tr("Start value of the %1 range field is greater than stop "
-		     "value.")
-		     .arg( isoffset ? uiStrings::sOffset() : tr("Angle") );
-	uiMSG().error( errmsg_ );
+	uiMSG().error(
+	    tr("Start value of the %1 range field is greater than stop value.")
+		     .arg( isoffset ? uiStrings::sOffset() : tr("Angle") ) );
 	return false;
     }
     mSetString(Attrib::StorageProvider::keyStr(), dbky.toString())
@@ -308,8 +307,10 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     {
 	DBKey mid;
 	if ( !preprocsel_->getSel(mid))
-	    { errmsg_ = uiStrings::phrSelect(tr("preprocessing setup"));
-								return false; }
+	{
+	    uiMSG().error( uiStrings::phrSelect(tr("preprocessing setup") ) );
+	    return false;
+	}
 	mSetString(PSAttrib::preProcessStr(), mid.toString() );
     }
 

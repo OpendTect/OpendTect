@@ -310,11 +310,12 @@ bool uiMathAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiMathAttrib::getInput( Desc& desc )
+uiRetVal uiMathAttrib::getInput( Desc& desc )
 {
     int attrinpidx = -1;
+    uiString invnrinpsstr( tr("%1: invalid number of inputs") );
     if ( !formfld_->checkValidNrInputs() )
-	return false;
+	return uiRetVal( invnrinpsstr.arg(desc.userRef()) );
 
     for ( int idx=0; idx<form_.nrInputs(); idx++ )
     {
@@ -322,13 +323,14 @@ bool uiMathAttrib::getInput( Desc& desc )
 	{
 	    attrinpidx++;
 	    if ( attrinpidx >= desc.nrInputs() )
-		return false;
+		return uiRetVal( invnrinpsstr.arg(desc.userRef()) );
 	    Attrib::Desc* inpdesc = 0;
 	    if ( !dpfids_.isEmpty() )
 	    {
 		DataPack::FullID inpdpfid = getInputDPID( attrinpidx );
 		if ( inpdpfid.isInvalid() )
-		    return false;
+		    return uiRetVal( tr("%1: Invalid Data ID")
+				    .arg(desc.userRef()) );
 		BufferString dpidstr( "#" );
 		dpidstr.add( inpdpfid.toString() );
 		inpdesc = Attrib::PF().createDescCopy(
@@ -346,7 +348,7 @@ bool uiMathAttrib::getInput( Desc& desc )
 	}
     }
 
-    return true;
+    return uiRetVal::OK();
 }
 
 

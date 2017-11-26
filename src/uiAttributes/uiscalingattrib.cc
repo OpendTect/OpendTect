@@ -326,10 +326,9 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiScalingAttrib::getInput( Desc& desc )
+uiRetVal uiScalingAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
-    return true;
+    return fillInp( inpfld, desc, 0 );
 }
 
 
@@ -348,19 +347,17 @@ void uiScalingAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 }
 
 
-bool uiScalingAttrib::areUIParsOK()
+uiRetVal uiScalingAttrib::areUIParsOK()
 {
     const int typeval = typefld->getIntValue();
     if ( typeval == 3 )
     {
 	if ( sqrgfld->isUndef(0) && sqrgfld->isUndef(1) )
-	{
-	    errmsg_ = tr("Please fill in at least one value range limit");
-	    return false;
-	}
+	    return uiRetVal(
+		    tr("Please fill in at least one value range limit") );
     }
 
-    return true;
+    return uiRetVal::OK();
 }
 
 

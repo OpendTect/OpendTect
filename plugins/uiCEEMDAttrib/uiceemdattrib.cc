@@ -121,10 +121,9 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
     return true;
 }
 
-bool uiCEEMDAttrib::getInput( Attrib::Desc& desc )
+uiRetVal uiCEEMDAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    return true;
+    return fillInp( inpfld_, desc, 0 );
 }
 
 bool uiCEEMDAttrib::setParameters( const Desc& desc )

@@ -148,11 +148,11 @@ bool uiSemblanceAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiSemblanceAttrib::getInput( Attrib::Desc& desc )
+uiRetVal uiSemblanceAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
-    fillInp( steerfld, desc, 1 );
-    return true;
+    uiRetVal uirv = fillInp( inpfld, desc, 0 );
+    uirv.add( fillInp(steerfld,desc,1) );
+    return uirv;
 }
 
 

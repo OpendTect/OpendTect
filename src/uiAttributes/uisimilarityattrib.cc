@@ -273,11 +273,11 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiSimilarityAttrib::getInput( Attrib::Desc& desc )
+uiRetVal uiSimilarityAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    fillInp( steerfld_, desc, 1 );
-    return true;
+    uiRetVal uirv = fillInp( inpfld_, desc, 0 );
+    uirv.add( fillInp(steerfld_,desc,1) );
+    return uirv;
 }
 
 

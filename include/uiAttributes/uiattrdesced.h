@@ -92,8 +92,8 @@ public:
     void		setZDomainInfo(const ZDomain::Info*);
     const ZDomain::Info* getZDomainInfo() const;
 
-    uiString		errMsgStr(Attrib::Desc* desc);
-    virtual uiString	commit(Attrib::Desc* desc=0);
+    uiRetVal		errMsgs(Attrib::Desc* desc);
+    virtual uiRetVal	commit(Attrib::Desc* desc=0);
 			//!< returns null on success, error message otherwise
 			//!< If attribdesc is non-zero, that desc will be
 			//!< filled. If not, the internal desc will be filled.
@@ -137,16 +137,17 @@ protected:
     virtual bool	setParameters(const Attrib::Desc&)	{ return true; }
     virtual bool	getParameters(Attrib::Desc&)		{ return true; }
     virtual bool	setInput(const Attrib::Desc&)		{ return true; }
-    virtual bool	getInput(Attrib::Desc&)			{ return true; }
+    virtual uiRetVal	getInput(Attrib::Desc&)
+						{ return uiRetVal::OK(); }
     virtual bool	setOutput(const Attrib::Desc&)		{ return true; }
     virtual bool	getOutput(Attrib::Desc&);
 
-    virtual bool	areUIParsOK()			{ return true; }
+    virtual uiRetVal	areUIParsOK()		{ return uiRetVal::OK(); }
 
     void		fillOutput(Attrib::Desc&,int selout);
-    void		fillInp(uiAttrSel*,Attrib::Desc&,int);
-    void		fillInp(uiSteeringSel*,Attrib::Desc&,int);
-    void		fillInp(uiSteerAttrSel*,Attrib::Desc&,int);
+    uiRetVal		fillInp(uiAttrSel*,Attrib::Desc&,int);
+    uiRetVal		fillInp(uiSteeringSel*,Attrib::Desc&,int);
+    uiRetVal		fillInp(uiSteerAttrSel*,Attrib::Desc&,int);
 
     void		putInp(uiAttrSel*,const Attrib::Desc&,int inpnr);
     void		putInp(uiSteerAttrSel*,const Attrib::Desc&,int inpnr);
@@ -175,7 +176,6 @@ protected:
     BufferString	attrnm_;
     DomainType		domtyp_;
     DimensionType	dimtyp_;
-    uiString		errmsg_;
     Attrib::DescSet*	ads_;
     bool		is2d_;
     const ZDomain::Info* zdomaininfo_;

@@ -184,10 +184,9 @@ bool uiConvolveAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiConvolveAttrib::getInput( Desc& desc )
+uiRetVal uiConvolveAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    return true;
+    return fillInp( inpfld_, desc, 0 );
 }
 
 

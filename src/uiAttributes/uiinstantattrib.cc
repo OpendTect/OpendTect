@@ -29,7 +29,7 @@ const char* uiInstantaneousAttrib::outstrs[] =
 	"Amplitude",
 	"Phase",
 	"Frequency",
-    	"Hilbert",
+	"Hilbert",
 	"Amplitude 1st derivative",
 	"Amplitude 2nd derivative",
 	"Cosine phase",
@@ -54,7 +54,7 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
 {
     inpfld = createImagInpFld( is2d );
 
-    outpfld = new uiGenInput( this, uiStrings::sOutput(), 
+    outpfld = new uiGenInput( this, uiStrings::sOutput(),
         StringListInpSpec(outstrs) );
     outpfld->setElemSzPol( uiObject::MedVar );
     outpfld->attach( alignedBelow, inpfld );
@@ -73,8 +73,8 @@ bool uiInstantaneousAttrib::setParameters( const Desc& desc )
     if ( desc.attribName() != Instantaneous::attribName() )
 	return false;
 
-    mIfGetFloat( Instantaneous::rotateAngle(), rotangle_, 
-	    	 phaserotfld->box()->setValue( rotangle_ ) );
+    mIfGetFloat( Instantaneous::rotateAngle(), rotangle_,
+		 phaserotfld->box()->setValue( rotangle_ ) );
 
     return true;
 }
@@ -106,10 +106,9 @@ bool uiInstantaneousAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiInstantaneousAttrib::getInput( Desc& desc )
+uiRetVal uiInstantaneousAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
-    return true;
+    return fillInp( inpfld, desc, 0 );
 }
 
 
@@ -128,7 +127,7 @@ void uiInstantaneousAttrib::outputSelCB( CallBacker* )
 
 
 void uiInstantaneousAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
-{                                                                               
+{
     params += EvalParam( Instantaneous::rotateAngle(),
-	    		 Instantaneous::rotateAngle() );   
+			 Instantaneous::rotateAngle() );
 }

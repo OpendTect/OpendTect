@@ -186,10 +186,9 @@ bool uiEventAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiEventAttrib::getInput( Attrib::Desc& desc )
+uiRetVal uiEventAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    return true;
+    return fillInp( inpfld_, desc, 0 );
 }
 
 

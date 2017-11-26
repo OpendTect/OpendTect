@@ -48,28 +48,28 @@ protected:
     bool		setOutput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    uiRetVal		getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
 
     void		extSel(CallBacker*);
     void		outSel(CallBacker*);
     void		steerTypeSel(CallBacker*);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 
     mExpClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
-    { mODTextTranslationClass(uiSimiSteeringSel) 
+    { mODTextTranslationClass(uiSimiSteeringSel)
 	public:
 			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
 					  bool is2d);
-	   
-	    bool	willSteer() const;	
+
+	    bool	willSteer() const;
 	    bool	wantBrowseDip() const;
 	    int		browseDipIdxInList() const;
-				                                             
+
 	    Notifier<uiSimiSteeringSel>	typeSelected;
 
-	protected:                                                              
+	protected:
 	    void	typeSel(CallBacker*);
     };
 

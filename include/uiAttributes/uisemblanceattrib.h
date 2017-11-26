@@ -43,9 +43,9 @@ protected:
     bool		setInput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    uiRetVal		getInput(Attrib::Desc&);
 
     void		extSel(CallBacker*);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };

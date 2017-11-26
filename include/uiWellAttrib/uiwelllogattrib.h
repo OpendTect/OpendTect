@@ -28,19 +28,12 @@ public:
 
 			uiWellLogAttrib(uiParent*,bool);
 
-    void		getEvalParams(TypeSet<EvalParam>&) const;
-
 protected:
 
     void		selDone(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
-    bool                setOutput(const Attrib::Desc&);
-
     bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
-    bool                getOutput(Attrib::Desc&);
 
     uiWellSel*		wellfld_;
     uiListBox*		logsfld_;

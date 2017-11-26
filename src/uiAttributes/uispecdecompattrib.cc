@@ -211,10 +211,9 @@ bool uiSpecDecompAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiSpecDecompAttrib::getInput( Desc& desc )
+uiRetVal uiSpecDecompAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    return true;
+    return fillInp( inpfld_, desc, 0 );
 }
 
 

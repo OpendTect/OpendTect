@@ -70,9 +70,9 @@ bool uiDeltaResampleAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiDeltaResampleAttrib::getInput( Attrib::Desc& desc )
+uiRetVal uiDeltaResampleAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( refcubefld_, desc, 0 );
-    fillInp( deltacubefld_, desc, 1 );
-    return true;
+    uiRetVal uirv = fillInp( refcubefld_, desc, 0 );
+    uirv.add( fillInp( deltacubefld_, desc, 1 ) );
+    return uirv;
 }

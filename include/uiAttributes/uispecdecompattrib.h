@@ -50,7 +50,7 @@ protected:
     bool		setOutput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    uiRetVal		getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
 
     void		inputSel(CallBacker*);
@@ -62,14 +62,14 @@ protected:
     void		getInputMID(DBKey&) const;
     Attrib::DescID	createSpecDecompDesc(Attrib::DescSet*) const;
     void		createHilbertDesc(Attrib::DescSet*,
-	    				  Attrib::DescID&) const;
+					  Attrib::DescID&) const;
     Attrib::Desc*	createNewDesc(Attrib::DescSet*,Attrib::DescID,
-	    			      const char*,int,int,BufferString) const;
+				      const char*,int,int,BufferString) const;
     Attrib::Desc*	createNewDescFromDP(Attrib::DescSet*,const char* atrnm,
 					    const char* userefstr) const;
     void		fillInSDDescParams(Attrib::Desc*) const;
     bool		passStdCheck(const Attrib::Desc*,const char*,
-	    			     int seloutidx,int inpidx,
+				     int seloutidx,int inpidx,
 				     Attrib::DescID inpid) const;
     void		viewPanalCB(CallBacker*);
     void		setPrevSel();
@@ -87,14 +87,14 @@ protected:
     uiTrcPositionDlg*	positiondlg_;
     IOPar		prevpar_;
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 
 mClass(uiAttributes) uiSpecDecompPanel	: public uiAttribPanel
 { mODTextTranslationClass(uiSpecDecompPanel);
 public:
-    				uiSpecDecompPanel( uiParent* p )
+				uiSpecDecompPanel( uiParent* p )
 				    : uiAttribPanel( p )		{};
 
 protected:

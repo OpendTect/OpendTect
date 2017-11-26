@@ -126,10 +126,9 @@ bool uiCoherencyAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiCoherencyAttrib::getInput( Desc& desc )
+uiRetVal uiCoherencyAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
-    return true;
+    return fillInp( inpfld, desc, 0 );
 }
 
 

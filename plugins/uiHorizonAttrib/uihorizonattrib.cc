@@ -146,10 +146,9 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiHorizonAttrib::getInput( Desc& desc )
+uiRetVal uiHorizonAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    return true;
+    return fillInp( inpfld_, desc, 0 );
 }
 
 

@@ -37,8 +37,7 @@ bool uiSampleValueAttrib::setInput( const Desc& desc )
 }
 
 
-bool uiSampleValueAttrib::getInput( Desc& desc )
+uiRetVal uiSampleValueAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    return true;
+    return fillInp( inpfld_, desc, 0 );
 }

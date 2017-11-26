@@ -167,11 +167,11 @@ bool uiTextureAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiTextureAttrib::getInput( Desc& desc )
+uiRetVal uiTextureAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    fillInp( steerfld_, desc, 1 );
-    return true;
+    uiRetVal uirv = fillInp( inpfld_, desc, 0 );
+    uirv.add( fillInp( steerfld_, desc, 1 ) );
+    return uirv;
 }
 
 

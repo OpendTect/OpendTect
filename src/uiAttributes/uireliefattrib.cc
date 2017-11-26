@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uistrings.h"
 
 using namespace Attrib;
 
@@ -37,7 +38,7 @@ uiReliefAttrib::uiReliefAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
-	    		FloatInpIntervalSpec().setName("Z start",0)
+			FloatInpIntervalSpec().setName("Z start",0)
 					      .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
@@ -206,10 +207,11 @@ static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
 }
 
 
-bool uiReliefAttrib::getInput( Desc& desc )
+uiRetVal uiReliefAttrib::getInput( Desc& desc )
 {
     DescSet* ds = desc.descSet();
-    if ( !ds ) return false;
+    if ( !ds )
+	return uiRetVal( uiStrings::phrInternalError("No desc set") );
 
     const DescID inpid = inpfld_->attribID();
 
@@ -218,7 +220,10 @@ bool uiReliefAttrib::getInput( Desc& desc )
     const DescID hilbid = addHilbertAttrib( *ds, enid );
     const DescID instid = addInstantaneousAttrib( *ds, enid, hilbid );
 
-    return desc.setInput( 0, ds->getDesc(instid) );
+    if ( !desc.setInput(0,ds->getDesc(instid)) )
+	return uiRetVal( tr("%1: Cannot prepare input").arg( desc.userRef() ) );
+
+    return uiRetVal::OK();
 }
 
 

@@ -61,10 +61,9 @@ bool uiEventFreqAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiEventFreqAttrib::getInput( Attrib::Desc& desc )
+uiRetVal uiEventFreqAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    return true;
+    return fillInp( inpfld_, desc, 0 );
 }
 
 

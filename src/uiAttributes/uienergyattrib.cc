@@ -41,15 +41,15 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
-	    		FloatInpIntervalSpec().setName("Z start",0)
+			FloatInpIntervalSpec().setName("Z start",0)
 					      .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    gradientfld_ = new uiGenInput( this, tr("Compute gradient"), 
+    gradientfld_ = new uiGenInput( this, tr("Compute gradient"),
                                             BoolInpSpec(true));
     gradientfld_->attach( alignedBelow, gatefld_ );
 
-    outpfld_ = new uiGenInput( this, uiStrings::sOutput(), 
+    outpfld_ = new uiGenInput( this, uiStrings::sOutput(),
                               StringListInpSpec(outpstrs) );
     outpfld_->attach( alignedBelow, gradientfld_ );
     setHAlignObj( gatefld_ );
@@ -92,10 +92,9 @@ bool uiEnergyAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiEnergyAttrib::getInput( Desc& desc )
+uiRetVal uiEnergyAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    return true;
+    return fillInp( inpfld_, desc, 0 );
 }
 
 

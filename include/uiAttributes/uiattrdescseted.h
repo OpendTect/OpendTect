@@ -60,15 +60,14 @@ public:
     Attrib::DescSet*	getSet()		{ return attrset_; }
     const DBKey&	curSetID() const	{ return setid_; }
 
-    uiAttrDescEd*	curDescEd();
-			//!< Use during operation only!
     Attrib::Desc*	curDesc() const;
 			//!< Use during operation only!
     int			curDescNr() const;
 			//!< Use during operation only!
     void		setCurDescNr(int);
 			//!< Use during operation only!
-    void		updateCurDescEd();
+    uiAttrDescEd&	activeDescEd();
+			//!< Use during operation only!
     bool		is2D() const;
 
     void		setSelAttr(const char* attrnm,bool isnewset);
@@ -124,46 +123,40 @@ protected:
     uiToolButton*		sortbut_;
     uiToolButton*		rmbut_;
 
-    void			attrTypSel(CallBacker*);
-    void			selChg(CallBacker*);
-    void			revPush(CallBacker*);
-    void			addPush(CallBacker*);
-    void			rmPush(CallBacker*);
+    void			attrTypSelCB(CallBacker*);
+    void			selChgCB(CallBacker*);
+    void			savePushCB(CallBacker*);
+    void			saveAsPushCB(CallBacker*);
+    void			addPushCB(CallBacker*);
+    void			rmPushCB(CallBacker*);
     void			moveUpDownCB(CallBacker*);
-    void			sortPush(CallBacker*);
-    void			helpButPush(CallBacker*);
+    void			sortPushCB(CallBacker*);
+    void			helpButPushCB(CallBacker*);
 
-    void			autoSet(CallBacker*);
-    void			newSet(CallBacker*);
-    void			openSet(CallBacker*);
-    void			openAttribSet(const IOObj*);
-    void			savePush(CallBacker*);
-    void			saveAsPush(CallBacker*);
-    void			changeInput(CallBacker*);
-    void			defaultSet(CallBacker*);
-    void			getDefaultAttribsets(BufferStringSet&,
-						     BufferStringSet&,
-						     BufferStringSet&);
-    void			importSet(CallBacker*);
-    void			importFile(CallBacker*);
-    void			importFromSeis(CallBacker*);
-    void			job2Set(CallBacker*);
-    void			crossPlot(CallBacker*);
-    void			directShow(CallBacker*);
-    void			procAttribute(CallBacker*);
-    void			evalAttribute(CallBacker*);
-    void			crossEvalAttrs(CallBacker*);
-    void			importFromFile(const char*);
-    void			dotPathCB(CallBacker*);
-    void			exportToDotCB(CallBacker*);
-    void			showMatrix(CallBacker*);
+    void			autoAttrSetCB(CallBacker*);
+    void			newSetCB(CallBacker*);
+    void			openSetCB(CallBacker*);
+    void			chgAttrInputsCB(CallBacker*);
+    void			openDefSetCB(CallBacker*);
+    void			importSetCB(CallBacker*);
+    void			importFileCB(CallBacker*);
+    void			importFromSeisCB(CallBacker*);
+    void			job2SetCB(CallBacker*);
+    void			crossPlotCB(CallBacker*);
+    void			directShowCB(CallBacker*);
+    void			procAttributeCB(CallBacker*);
+    void			evalAttributeCB(CallBacker*);
+    void			crossEvalAttrsCB(CallBacker*);
+    void			showMatrixCB(CallBacker*);
+    void			graphVizDotPathCB(CallBacker*);
+    void			exportToGraphVizDotCB(CallBacker*);
 
     void			setButStates();
     bool			offerSetSave();
     bool			doSave(bool);
     void			replaceStoredAttr();
     void			replaceStoredAttr(IOPar&);
-    void			removeNotUsedAttr();
+    void			removeUnusedAttrDescs();
 
     bool			acceptOK();
     bool			rejectOK();
@@ -171,14 +164,19 @@ protected:
     void			newList(int);
     void			updateFields(bool settype=true);
     bool			doCommit(bool prevdesc=false);
+    void			openAttribSet(const IOObj*);
     bool			doAcceptInputs();
     void			handleSensitivity();
     void			updateUserRefs();
-    bool			validName(const char*) const;
-    bool			setUserRef(Attrib::Desc*);
-    void			updateAttrName();
+    void			ensureValidName(BufferString&) const;
+    bool			setUserRef(Attrib::Desc&);
     bool			doSetIO(bool);
     Attrib::Desc*		createAttribDesc(bool checkuref=true);
+    void			importFromFile(const char*);
+    BufferString		getAttribName(uiAttrDescEd&) const;
+    void			getDefaultAttribsets(BufferStringSet&,
+						     BufferStringSet&,
+						     BufferStringSet&);
 
     void			createMenuBar();
     void			createToolBar();
@@ -187,5 +185,8 @@ protected:
 
 public:
 
-    void			updtAllEntries();
+    void			updateAllDescsDefaults();
+    uiAttrDescEd&		curDescEd()	{ return activeDescEd(); }
+    void			updateCurDescEd();
+
 };

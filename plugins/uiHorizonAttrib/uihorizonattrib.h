@@ -44,10 +44,10 @@ protected:
     virtual bool	setParameters(const Attrib::Desc&);
     virtual bool	setInput(const Attrib::Desc&);
     virtual bool	getParameters(Attrib::Desc&);
-    virtual bool	getInput(Attrib::Desc&);
+    virtual uiRetVal	getInput(Attrib::Desc&);
 
     void		horSel(CallBacker*);
     void		typeSel(CallBacker*);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };

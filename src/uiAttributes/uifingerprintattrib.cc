@@ -433,11 +433,12 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiFingerPrintAttrib::getInput( Desc& desc )
+uiRetVal uiFingerPrintAttrib::getInput( Desc& desc )
 {
+    uiRetVal uirv;
     for ( int idx=0; idx<attribflds_.size(); idx++ )
-	fillInp( attribflds_[idx], desc, idx );
-    return true;
+	uirv.add( fillInp(attribflds_[idx],desc,idx) );
+    return uirv;
 }
 
 
@@ -616,17 +617,14 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 }
 
 
-bool uiFingerPrintAttrib::areUIParsOK()
+uiRetVal uiFingerPrintAttrib::areUIParsOK()
 {
     if ( calcobj_->getValues().isEmpty() || calcobj_->getRanges().isEmpty() )
-    {
-	uiMSG().error(tr("Please fill in all values and ranges fields.\n"
+	return uiRetVal( tr("Please fill in all values and ranges fields.\n"
 	          "Press on 'Calculate parameters' to let OpendTect compute\n"
-	          "them or go to 'Advanced...' to do it manually"));
-	return false;
-    }
+	          "them or go to 'Advanced...' to do it manually") );
 
-    return true;
+    return uiRetVal::OK();
 }
 
 

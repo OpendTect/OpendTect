@@ -27,7 +27,7 @@ protected:
     uiAttrSel*          inpfld_;
 
     bool		setInput(const Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
+    uiRetVal		getInput(Attrib::Desc&);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };

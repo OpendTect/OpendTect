@@ -233,12 +233,11 @@ bool uiGLCM_attrib::setInput( const Desc& desc )
     return true;
 }
 
-bool uiGLCM_attrib::getInput( Desc& desc )
+uiRetVal uiGLCM_attrib::getInput( Desc& desc )
 {
-    fillInp( inpfld_, desc, 0 );
-    fillInp( steerfld_, desc, 1 );
-
-    return true;
+    uiRetVal uirv = fillInp( inpfld_, desc, 0 );
+    uirv.add( fillInp( steerfld_, desc, 1 ) );
+    return uirv;
 }
 
 void uiGLCM_attrib::steerTypeSel( CallBacker* )
