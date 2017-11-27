@@ -537,7 +537,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 
 void LocationDisplay::locChg( CallBacker* cb )
 {
-    if ( set_->isReadOnly() )
+    if ( !set_ || set_->isReadOnly() )
 	return;
 
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb)
