@@ -673,7 +673,7 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, uiString& errmsg,
     BufferString defstr( nlamodel_->nlaType(true) );
     defstr += " specification=\""; defstr += s; defstr += "\"";
 
-    addNLADesc( defstr, nladescid, *descset, attrspecs_[0].id().asInt(),
+    addNLADesc( defstr, nladescid, *descset, attrspecs_[0].id().getI(),
 		nlamodel_, errmsg );
 
     DescSet* cleanset = descset->optimizeClone( nladescid );
@@ -765,7 +765,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
     desc->selectOutput( outputnr );
 
     nladescid = descset.addDesc( desc );
-    if ( nladescid == DescID::undef() )
+    if ( !nladescid.isValid() )
 	errmsg = descset.errMsg();
 }
 
@@ -774,11 +774,13 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 				     const TypeSet<DescID>& outids,
 				     uiString& errmsg )
 {
-    if ( outids.isEmpty() ) return DescID::undef();
+    if ( outids.isEmpty() )
+	return DescID();
     if ( outids.size() == 1 ) return outids[0];
 
     Desc* desc = PF().createDescCopy( "Evaluate" );
-    if ( !desc ) return DescID::undef();
+    if ( !desc )
+	return DescID();
 
     desc->setDescSet( &descset );
     desc->setNrOutputs( Seis::UnknownData, outids.size() );
@@ -799,7 +801,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     desc->selectOutput(0);
 
     DescID evaldescid = descset.addDesc( desc );
-    if ( evaldescid == DescID::undef() )
+    if ( !evaldescid.isValid() )
     {
 	errmsg = descset.errMsg();
 	desc->unRef();
@@ -973,7 +975,7 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	const DescID id = attrset->getID( inputs.get(idx), true );
-	if ( id == DescID::undef() )
+	if ( !id.isValid() )
 	    continue;
 	SelSpec ss( 0, id );
 	ss.setRefFromID( *attrset );
@@ -1147,7 +1149,7 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 	if ( fms.size() < 2 )
 	    continue;
 	const DescID did( fms.getIValue(1) );
-	if ( did == DescID::undef() )
+	if ( !did.isValid() )
 	    continue;
 	SelSpec ss( 0, did );
 	ss.setRefFromID( descset );
@@ -1367,7 +1369,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    }
 
 	    //TODO : handle multi components stored data
-	    DescID descid = DescID::undef();
+	    DescID descid;
 	    if ( refidx > -1 )
 	    {
 		FileMultiString fms( attrrefs.get(refidx) );
@@ -1375,7 +1377,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 		descid = const_cast<DescSet&>(descset).
 				    getStoredID( dbky, 0, true );
 	    }
-	    if ( descid == DescID::undef() )
+	    if ( !descid.isValid() )
 		mErrRet( tr("Cannot find specified '%1'",
 			    " in object management").arg(nmstr));
 
@@ -1384,7 +1386,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    const Attrib::Desc* desc = descset.getDesc( descid );
 	    if ( !desc ) mErrRet(toUiString("Huh?"));
 	    desc->getDefStr( tmpstr );
-	    FileMultiString fms( tmpstr ); fms += descid.asInt();
+	    FileMultiString fms( tmpstr ); fms += descid.getI();
 	    attrrefs.get(refidx) = fms;
 	    dcd.ref_ = fms;
 	}
@@ -1395,7 +1397,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    if ( refidx == -1 )
 	    {
 		DescID did = descset.getID( nmstr, true );
-		if ( did == DescID::undef() ) // Column is not an attribute
+		if ( !did.isValid() ) // Column is not an attribute
 		    continue;
 
 		for ( int idref=0; idref< attrrefs.size(); idref++ )

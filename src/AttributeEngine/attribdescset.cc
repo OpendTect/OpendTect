@@ -115,7 +115,7 @@ bool DescSet::hasStoredInMem() const
 DescID DescSet::ensureDefStoredPresent() const
 {
     if ( DBM().isBad() )
-	return DescID::undef();
+	return DescID();
     return defStoredID();
 }
 
@@ -240,14 +240,13 @@ int DescSet::nrDescs( bool incstored, bool inchidden ) const
 DescID DescSet::getID( const Desc& dsc ) const
 {
     const int idx = descs_.indexOf( &dsc );
-    return idx==-1 ? DescID::undef() : ids_[idx];
+    return idx==-1 ? DescID() : ids_[idx];
 }
 
 
 DescID DescSet::getID( int idx ) const
 {
-    if ( idx < 0 || idx >= ids_.size() ) return DescID::undef();
-    return ids_[idx];
+    return ids_.validIdx(idx) ? ids_[idx] : DescID();
 }
 
 
@@ -268,7 +267,8 @@ void DescSet::getStoredIds( TypeSet<DescID>& attribids ) const
 DescID DescSet::getID( const char* str, bool isusrref, bool isdescstored,
 		       bool usestorinfo	) const
 {
-    if ( !str || !*str ) return DescID::undef();
+    if ( !str || !*str )
+	return DescID();
 
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -291,7 +291,7 @@ DescID DescSet::getID( const char* str, bool isusrref, bool isdescstored,
 	}
     }
 
-    return DescID::undef();
+    return DescID();
 }
 
 
@@ -403,12 +403,13 @@ void DescSet::fillPar( IOPar& par ) const
 	    if ( !dsc.getInput(input) ) continue;
 
 	    const char* key = IOPar::compKey( inputPrefixStr(), input );
-	    apar.set( key, getID( *dsc.getInput(input) ).asInt() );
+	    apar.set( key, getID( *dsc.getInput(input) ).getI() );
 	}
 
-	par.updateComp( apar, BufferString("",ids_[idx].asInt()) );
+	par.updateComp( apar, BufferString("",ids_[idx].getI()) );
 
-	if ( ids_[idx].asInt() > maxid ) maxid = ids_[idx].asInt();
+	if ( ids_[idx].getI() > maxid )
+	    maxid = ids_[idx].getI();
     }
 
     par.set( highestIDStr(), maxid );
@@ -669,7 +670,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
     for ( int idx=0; idx<nrdescsnosteer; idx++ )
     {
 	PtrMan<IOPar> descpar =
-	    copypar.subselect( toString(ids_[idx].asInt()) );
+	    copypar.subselect( toString(ids_[idx].getI()) );
 	if ( !descpar )
 	    { pErrMsg("Huh?"); continue; }
 
@@ -707,7 +708,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 		while ( found )
 		{
 		    const CompoundKey compkey =
-			tmpcpypar.findKeyFor( toString(ids_[idx].asInt()) );
+			tmpcpypar.findKeyFor( toString(ids_[idx].getI()) );
 		    found = !compkey.isEmpty();
 		    if ( found )
 		    {
@@ -996,7 +997,7 @@ DescID DescSet::getFreeID() const
     int highestid = -1;
     for ( int idx=0; idx<ids_.size(); idx++ )
     {
-	const int index = ids_[idx].asInt();
+	const int index = ids_[idx].getI();
 	if ( index > highestid )
 	    highestid = index;
     }
@@ -1028,7 +1029,7 @@ DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool add_if_absent,
     }
 
     if ( !add_if_absent )
-	return DescID::undef();
+	return DescID();
 
     DescSet& self = *const_cast<DescSet*>( this );
 
@@ -1066,7 +1067,7 @@ DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
     {
 	DataPack::FullID fid = DataPack::FullID::getFromDBKey( dbkey );
 	if ( !DPM(fid).haveID( fid ) )
-	    return DescID::undef();
+	    return DescID();
 
 	objnm = DataPackMgr::nameOf( fid );
     }
@@ -1074,15 +1075,15 @@ DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
     {
 	PtrMan<IOObj> ioobj = DBM().get( dbkey );
 	if ( !ioobj )
-	    return DescID::undef();
+	    return DescID();
 
 	objnm = ioobj->name();
     }
 
     Desc* newdesc = PF().createDescCopy( StorageProvider::attribName() );
-    if ( !newdesc ) return DescID::undef(); // "Cannot create desc"
+    if ( !newdesc ) return DescID(); // "Cannot create desc"
     if ( compnm.isEmpty() && selout>0 )
-	return DescID::undef();	// "Missing component name"
+	return DescID();	// "Missing component name"
 
     const StringPair strpair( objnm, compnm );
     newdesc->setUserRef( strpair.getCompString() );
@@ -1124,8 +1125,8 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 	for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	{
 	    const Desc* inpdesc = dsc->getInput(idx);
-	    const DescID inputid = inpdesc ? inpdesc->id() : DescID::undef();
-	    if ( inputid!=DescID::undef() && !res->getDesc(inputid) )
+	    const DescID inputid = inpdesc ? inpdesc->id() : DescID();
+	    if ( inputid.isValid() && !res->getDesc(inputid) )
 		needednodes += inputid;
 	}
     }
@@ -1298,7 +1299,7 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 	const Attrib::Desc* mydesc = getDesc( attrinf.attrids_[idx] );
 	if ( mydesc )
 	    mydesc->getDefStr( defstr );
-	FileMultiString fms( defstr ); fms += attrinf.attrids_[idx].asInt();
+	FileMultiString fms( defstr ); fms += attrinf.attrids_[idx].getI();
 	attrdefs.add( fms );
     }
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
@@ -1315,7 +1316,7 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 {
     // list including hidden attributes. Bert has no idea why.
-    Attrib::SelInfo attrinf( this, DescID::undef(), 0, is2D(), false, true );
+    Attrib::SelInfo attrinf( this, DescID(), 0, is2D(), false, true );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
     {
 	// Handle legacy stuff
@@ -1343,7 +1344,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 	//generate Info with the same parameters as in fillInUIInputList
 	//which is supposed to be the source of the input string.
 	// Bert says: so, list including hidden attributes.
-	Attrib::SelInfo attrinf( this, DescID::undef(), 0, is2D(), false, true);
+	Attrib::SelInfo attrinf( this, DescID(), 0, is2D(), false, true);
 	DBKey dbky;
 	int iidx = attrinf.ioobjnms_.indexOf( stornm.buf() );
 	if ( iidx >= 0 )

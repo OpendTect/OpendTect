@@ -1045,7 +1045,7 @@ void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 	//TODO PrIMPL replace vwrpar.set( sKeyVisID(), vwr2d->visid_ );
 	bool wva = vwr2d->viewwin()->viewer().appearance().ddpars_.wva_.show_;
 	vwrpar.setYN( sKeyWVA(), wva );
-	vwrpar.set( sKeyAttrID(), vwr2d->selSpec(wva).id().asInt() );
+	vwrpar.set( sKeyAttrID(), vwr2d->selSpec(wva).id() );
 	vwr2d->fillPar( vwrpar );
 
 	iop.mergeComp( vwrpar, toString( idx ) );

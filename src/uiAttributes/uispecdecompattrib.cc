@@ -252,7 +252,7 @@ void uiSpecDecompAttrib::checkOutValSnapped() const
 
 void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 {
-    if ( inpfld_->attribID() == DescID::undef() )
+    if ( inpfld_->attribID().isInvalid() )
     {
 	uiMSG().error( tr("Please fill in the Input Data field") );
 	return;
@@ -407,12 +407,12 @@ DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
 
 
     if ( !newdesc )
-	return DescID::undef();
+	return DescID();
 
     DescID hilbid;
     createHilbertDesc( dset, hilbid );
     if ( !newdesc->setInput( 1, dset->getDesc(hilbid)) )
-	return DescID::undef();
+	return DescID();
 
     fillInSDDescParams( newdesc );
     newdesc->updateParams();
@@ -470,7 +470,7 @@ void uiSpecDecompAttrib::createHilbertDesc( DescSet* descset,
 					   "_imag" );
     else
     {
-	if ( inputid == DescID::undef() )
+	if ( inputid.isInvalid() )
 	    inputid = inpfld_->attribID();
 
 	TypeSet<DescID> attribids;
@@ -489,7 +489,7 @@ void uiSpecDecompAttrib::createHilbertDesc( DescSet* descset,
 				     0, 0, "_imag" );
     }
 
-    inputid = hilbertdesc ? descset->addDesc( hilbertdesc ) : DescID::undef();
+    inputid = hilbertdesc ? descset->addDesc( hilbertdesc ) : DescID();
 }
 
 

@@ -668,7 +668,7 @@ bool Engine::pickingOnSameData( const Attrib::SelSpec& oldss,
 bool Engine::isSelSpecSame( const Attrib::SelSpec& setupss,
 			    const Attrib::SelSpec& clickedss ) const
 {
-    return setupss.id().asInt()==clickedss.id().asInt() &&
+    return setupss.id()==clickedss.id() &&
 	   setupss.isNLA()==clickedss.isNLA() &&
 	   BufferString(setupss.defString())==
 	       BufferString(clickedss.defString()) &&

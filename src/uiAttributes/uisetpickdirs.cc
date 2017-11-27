@@ -64,7 +64,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
     ps_.ref();
     const bool is2d = ads_ ? ads_->is2D() : false;
 
-    const SelInfo attrselinfo( ads_, DescID::undef(), nlamdl_, is2d );
+    const SelInfo attrselinfo( ads_, DescID(), nlamdl_, is2d );
     if ( attrselinfo.ioobjids_.size() == 0 )
     {
 	new uiLabel( this, tr("Please import a seismic cube first") );
@@ -223,7 +223,7 @@ bool uiSetPickDirs::acceptOK()
 	BufferString tmpdefstr##nr; \
 	tmpdesc##nr->getDefStr( tmpdefstr##nr ); \
 	FileMultiString fms( tmpdefstr##nr ); \
-	fms += createdset_->getID(*tmpdesc##nr).asInt(); \
+	fms += createdset_->getID(*tmpdesc##nr).getI(); \
 	loc.colDef(nr).ref_ = fms;\
     }
 
@@ -282,7 +282,7 @@ bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
     EngineMan aem;
     aem.setNLAModel( nlamdl_ );
 
-    SelInfo selinfo( 0, DescID::undef(), nlamdl_ );
+    SelInfo selinfo( 0, DescID(), nlamdl_ );
     const int nrnlaouts = selinfo.nlaoutnms_.size();
     for ( int idx=0; idx<nrnlaouts; idx++ )
     {
@@ -321,7 +321,7 @@ DescID uiSetPickDirs::getAttribID( uiAttrSel* attrfld,
 {
     const DescID attribid = attrfld->attribID();
     const int outputnr = attrfld->outputNr();
-    DescID newid( DescID::undef() );
+    DescID newid;
     if ( attribid.isValid() )
 	newid = attribid;
     else if ( outputnr >= 0 && nlaids.size() > outputnr )

@@ -401,11 +401,10 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     {
 	const bool is2d = todofld_->is2D();
 	Attrib::DescID multoiid = seldesc->getMultiOutputInputID();
-	if ( multoiid != Attrib::DescID::undef() )
+	if ( multoiid.isValid() )
 	{
 	    uiAttrSelData attrdata( *ads_ );
-	    Attrib::SelInfo attrinf( attrdata.attrSet(),
-				     Attrib::DescID::undef(),
+	    Attrib::SelInfo attrinf( attrdata.attrSet(), Attrib::DescID(),
 				     attrdata.nlamodel_ );
 	    TypeSet<Attrib::SelSpec> targetspecs;
 	    if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
@@ -474,7 +473,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( nrseloutputs != outdescids.size() ) return false;
 
     for ( int idx=0; idx<nrseloutputs; idx++ )
-	iop.set( IOPar::compKey(attribkey,idx), outdescids[idx].asInt() );
+	iop.set( IOPar::compKey(attribkey,idx), outdescids[idx].getI() );
 
     const bool is2d = todofld_ ? todofld_->is2D() : attrselfld_->is2D();
     BufferString outseisid;

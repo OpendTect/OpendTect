@@ -230,7 +230,7 @@ uiRetVal uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 	uirv = fillInp( inpfld_, desc, 0 );
     else
     {
-	DescID inputid = DescID::undef();
+	DescID inputid;
 	createHilbertDesc( desc, inputid );
 	if ( !desc.setInput( 0, desc.descSet()->getDesc(inputid)) )
 	    uirv = tr("The suggested attribute for input 0\n"
@@ -240,7 +240,7 @@ uiRetVal uiGapDeconAttrib::getInput( Attrib::Desc& desc )
     if ( stepout > 0 )
     {
 	//create mixed input
-	DescID mixedinputid = DescID::undef();
+	DescID mixedinputid;
 	mixedinputid = createVolStatsDesc( desc, stepout );
 	if ( isinp0ph )
 	    createHilbertDesc( desc, mixedinputid );
@@ -258,11 +258,8 @@ uiRetVal uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 
 void uiGapDeconAttrib::examPush( CallBacker* cb )
 {
-    if ( inpfld_->attribID() == DescID::undef() )
-    {
-	uiMSG().error( tr("Please select Input Data") );
-	return;
-    }
+    if ( inpfld_->attribID().isInvalid() )
+	{ uiMSG().error( tr("Please select Input Data") ); return; }
 
     if ( mIsUdf(gatefld_->getFInterval().start) ||
 	 mIsUdf(gatefld_->getFInterval().stop) )
@@ -401,7 +398,7 @@ DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int stepout )
     Desc* newdesc = createNewDesc( descset, inpid, VolStats::attribName(), 0, 0,
 				   "_mixingavg" );
     if ( !newdesc )
-	return DescID::undef();
+	return DescID();
 
     mDynamicCastGet( Attrib::BinIDParam*,bidparam,
 		     newdesc->getValParam(VolStats::stepoutStr()) )
@@ -477,7 +474,7 @@ Desc* uiGapDeconAttrib::createNewDesc( DescSet* descset, DescID inpid,
 
 void uiGapDeconAttrib::createHilbertDesc( Desc& desc, DescID& inputid )
 {
-    if ( inputid == DescID::undef() )
+    if ( inputid.isInvalid() )
 	inputid = inpfld_->attribID();
 
     DescSet* descset = const_cast<DescSet*>(desc.descSet());
@@ -495,19 +492,19 @@ void uiGapDeconAttrib::createHilbertDesc( Desc& desc, DescID& inputid )
 
     Desc* newdesc = createNewDesc( descset, inputid, Hilbert::attribName(), 0,
 				   0, "_imag" );
-    inputid = newdesc ? descset->addDesc( newdesc ) : DescID::undef();
+    inputid = newdesc ? descset->addDesc( newdesc ) : DescID();
 }
 
 
 DescID uiGapDeconAttrib::createGapDeconDesc( DescID& inp0id, DescID inp1id,
 					     DescSet* dset, bool onlyacorr )
 {
-    if ( inp0id == DescID::undef() )
+    if ( inp0id.isInvalid() )
 	inp0id = inpfld_->attribID();
 
     Desc* newdesc = createNewDesc( dset, inp0id, GapDecon::attribName(),0,0,"");
     if ( !newdesc )
-	return DescID::undef();
+	return DescID();
 
     mDynamicCastGet( FloatGateParam*,gateparam,
 		     newdesc->getValParam(GapDecon::gateStr()) )
@@ -521,7 +518,7 @@ DescID uiGapDeconAttrib::createGapDeconDesc( DescID& inp0id, DescID inp1id,
     {
 	fillInGDDescParams( newdesc );
 
-	Desc* inp1desc = inp1id != DescID::undef() ? dset->getDesc( inp1id ) :0;
+	Desc* inp1desc = inp1id.isValid() ? dset->getDesc( inp1id ) :0;
 	if ( inp1desc )
 	    newdesc->setInput( 1, inp1desc );
     }
@@ -564,11 +561,11 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     if (mIsUdf(gatefld_->getFInterval().start) ||
 	mIsUdf(gatefld_->getFInterval().stop))
 	errmsg = tr("Please fill in the 'Correlation window' field");
-    else if (inpfld_->attribID() == DescID::undef())
+    else if ( inpfld_->attribID().isInvalid() )
 	errmsg = tr("Please fill in the input data");
-    else if (mIsUdf(lagfld_->getIntValue()))
+    else if ( mIsUdf(lagfld_->getIntValue()) )
 	errmsg = tr("Please fill in the 'Lag size' field");
-    else if (mIsUdf(gapfld_->getIntValue()))
+    else if ( mIsUdf(gapfld_->getIntValue()) )
 	errmsg = tr("Please fill in the 'Gap size' field");
 
     if ( !errmsg.isEmpty() )
@@ -597,8 +594,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 
     if ( positiondlg_->posdlg_ && positiondlg_->posdlg_->uiResult() == 1 )
     {
-	DescID inp0id = DescID::undef();
-	DescID inp1id = DescID::undef();
+	DescID inp0id, inp1id;
 	DescSet* dset = new DescSet( *ads_ );
 	prepareInputDescs( inp0id, inp1id, dset );
 	DescID gapdecid = createGapDeconDesc( inp0id, inp1id, dset, false );

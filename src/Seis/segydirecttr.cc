@@ -478,7 +478,7 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
     {
 	fdsidx = def_->find( Seis::PosKey(bid), false );
 	if ( !fdsidx.isValid() )
-	    { pErrMsg("Huh"); return false; }
+	    return false;
 	else if ( fdsidx.filenr_ == curfilenr_ )
 	    break;
 

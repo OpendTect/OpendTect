@@ -208,7 +208,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     if ( am_.appl_.isRestoringSession() ) return;
 
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
-    if ( !as || as->id().asInt() < 0 )
+    if ( !as || as->id().isInvalid() )
 	return;
 
     ConstRefMan<ColTab::Sequence> ctseq =

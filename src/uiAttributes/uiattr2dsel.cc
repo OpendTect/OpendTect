@@ -60,7 +60,7 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     , compnr_(-1)
     , outputnr_(-1)
 {
-    attrinf_ = new Attrib::SelInfo( ds, DescID::undef(), nla_, true );
+    attrinf_ = new Attrib::SelInfo( ds, DescID(), nla_, true );
 
     createSelectionButtons();
     createSelectionFields();
@@ -265,7 +265,7 @@ bool uiAttr2DSelDlg::acceptOK()
 	descid_ = attrinf_->attrids_[selidx];
     else if ( seltype_ == 3 )
     {
-	descid_ = DescID::undef();
+	descid_.setInvalid();
 	outputnr_ = selidx;
     }
 

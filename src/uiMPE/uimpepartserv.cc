@@ -747,7 +747,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 		continue;
 	    }
 
-	    Attrib::DescID newid = Attrib::DescID::undef();
+	    Attrib::DescID newid;
 	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
 	    if ( !usedad ) continue;
 

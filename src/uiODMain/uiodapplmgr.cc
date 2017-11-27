@@ -611,7 +611,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
     TypeSet<Attrib::SelSpec> myas( *as );
     for ( int idx=0; idx<myas.size(); idx++ )
     {
-	if ( myas[idx].id() != Attrib::DescID::undef() )
+	if ( myas[idx].id().isValid() )
 	    attrserv_->updateSelSpec( myas[idx] );
 
 	if ( myas[idx].id().isUnselInvalid() )

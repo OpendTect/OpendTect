@@ -11,37 +11,35 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "gendefs.h"
+#include "integerid.h"
 
 namespace Attrib
 {
 
 /*!\brief unique ID in a DescSet combined with whether it's stored.  */
 
-mExpClass(AttributeEngine) DescID
+mExpClass(AttributeEngine) DescID : public ::IntegerID<int>
 {
 public:
-    explicit		DescID( int id=-1 )
-			    : id_(id)		{}
 
-    inline bool		isValid() const		{ return id_ >= 0; }
-    inline bool		isUnselInvalid() const	{ return id_ < -2; }
-    inline void		setInvalid( bool unsel=false )
-						{ id_ = unsel ? -3 : -1; }
+    inline		DescID()		{}
+    explicit		DescID( int n )
+			    : IntegerID<int>(n)	{}
+    inline explicit	operator int() const	{ return this->nr_; }
 
-    inline bool		operator ==( const DescID& id ) const
-			{ return id.id_ == id_; }
-    inline bool		operator !=( const DescID& id ) const
-			{ return id.id_ != id_; }
+    inline bool		operator ==( const DescID& oth ) const
+			{ return oth.nr_ == nr_; }
+    inline bool		operator !=( const DescID& oth ) const
+			{ return oth.nr_ != nr_; }
 
-    static inline DescID undef()		{ return DescID(-1); }
+    inline bool		isUnselInvalid() const	{ return nr_ < -2; }
+    inline void		setUnselInvalid()	{ nr_ = -3; }
 
-    int			asInt() const		{ return id_; }
-    int&		asInt()			{ return id_; }
+    static inline DescID	getInvalid()	{ return DescID(); }
 
-protected:
-
-    int			id_;
+    mDeprecated static DescID	undef()		{ return getInvalid(); }
+    mDeprecated int&	asInt()			{ return getI(); }
+    mDeprecated int	asInt() const		{ return getI(); }
 
 };
 

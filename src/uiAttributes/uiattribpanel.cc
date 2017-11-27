@@ -31,8 +31,7 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiAttribPanel::uiAttribPanel( uiParent* p )
-    : attribid_( DescID::undef() )
-    , geomid_(mUdfGeomID)
+    : geomid_(mUdfGeomID)
     , dset_( 0 )
     , flatvwin_( 0 )
     , parent_( p )

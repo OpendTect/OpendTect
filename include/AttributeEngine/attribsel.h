@@ -136,7 +136,7 @@ mExpClass(AttributeEngine) SelInfo
 public:
 
 			SelInfo(const DescSet&,
-				const DescID& ignoreid=DescID::undef(),
+				const DescID& ignoreid=DescID(),
 				const NLAModel* n=0,
 				const ZDomain::Info* zi=0);
 			SelInfo(const DescSet*,const DescID& ignoreid,

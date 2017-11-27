@@ -72,7 +72,7 @@ void DescSetMan::cleanHist( IOPar& selhist, const DescSet& newads )
 	bool keep = false;
 	if ( desc )
 	{
-	    if ( newads.getID(desc->userRef(),true).asInt() >= 0 )
+	    if ( newads.getID(desc->userRef(),true).getI() >= 0 )
 		keep = true;
 	}
 
@@ -100,7 +100,7 @@ void DescSetMan::fillHist()
 	Desc* ad = ads_->getDesc( attribids[idx] );
 	if ( !ad || ad->isHidden() || ad->isStored() ) continue;
 
-	const BufferString key( "", attribids[idx].asInt() );
+	const BufferString key( "", attribids[idx].getI() );
 	if ( inpselhist_.findKeyFor(key) ) continue;
 
 	nr++;

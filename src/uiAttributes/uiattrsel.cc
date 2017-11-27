@@ -85,7 +85,7 @@ bool uiAttrSelData::isUndef() const
 
 void uiAttrSelData::setUndef()
 {
-    attribid_ = DescID::undef();
+    attribid_.setInvalid();
     nr_ = -1;
 }
 
@@ -580,9 +580,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	if ( needattrmatch && !seldata_.attribid_.isValid() )
 	{
 	    uiString msg = uiStrings::phrCannotFind(tr("the seismic data %1")
-			 .arg(seldata_.attribid_ == DescID::undef()
-			 ? tr("in object manager")
-			 : tr("on disk")));
+			 .arg(seldata_.attribid_.isInvalid()
+			 ? tr("in object manager") : tr("on disk")));
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -922,7 +921,7 @@ void uiAttrSel::showSteeringData( bool yn )
 
 void uiAttrSel::setIgnoreDesc( const Desc* ad )
 {
-    const DescID newid( ad ? ad->id() : DescID::undef() );
+    const DescID newid( ad ? ad->id() : DescID() );
     if ( newid != ignoreid_ )
     {
 	ignoreid_ = newid;
@@ -1060,7 +1059,7 @@ Attrib::DescID uiImagAttrSel::imagID() const
     Desc* newdesc = Attrib::PF().createDescCopy(
 				Attrib::Hilbert::attribName() );
     if ( !newdesc || !inpdesc )
-	return DescID::undef();
+	return DescID();
 
     newdesc->selectOutput( 0 );
     newdesc->setInput( 0, inpdesc );

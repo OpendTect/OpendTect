@@ -268,7 +268,7 @@ bool uiStratAmpCalc::fillPar()
     const BufferString attribkey =
 	    IOPar::compKey( keybase, Attrib::SeisTrcStorOutput::attribkey() );
     iop.set( IOPar::compKey(attribkey,Attrib::DescSet::highestIDStr()), 1 );
-    iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
+    iop.set( IOPar::compKey(attribkey,0), targetid );
     iop.set( IOPar::compKey(sKey::Output(), sKey::Type()), sKey::Cube() );
     return true;
 }

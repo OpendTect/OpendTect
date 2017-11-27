@@ -220,8 +220,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	IOPar newpar;
 	attrset_.fillPar( newpar );
 	for ( int idx=0; idx<srcspecids_.size(); idx++ )
-	    newpar.set( IOPar::compKey(sKey::Output(),idx),
-		        srcspecids_[idx].asInt() );
+	    newpar.set( IOPar::compKey(sKey::Output(),idx), srcspecids_[idx] );
 
 	newpar.write( File::Path::getTempName("par"), sKey::Attributes() );
     }

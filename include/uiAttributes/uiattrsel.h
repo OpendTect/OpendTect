@@ -140,7 +140,6 @@ public:
     public:
 		Setup( const uiString& txt )
 		    : seltxt_(txt)
-		    , ignoreid_(DescID::undef())
 		    , showsteeringdata_(false)		{}
 
 		mDefSetupMemb(uiString,seltxt)
@@ -204,7 +203,7 @@ public:
 
 			uiAttrSel(uiParent*,const DescSet&,
 				  const uiString& txt=sDefLabel(),
-				  DescID curid=DescID::undef());
+				  DescID curid=DescID());
 			uiAttrSel(uiParent*,
 				  const uiAttrSelData&,
 				  const uiString& txt=sDefLabel());

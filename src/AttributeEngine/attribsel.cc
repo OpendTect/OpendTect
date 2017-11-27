@@ -130,7 +130,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 {
     isnla_ = false;
     id_ = ds.getID( ref_, true );
-    if ( id_ == DescID::undef() )
+    if ( !id_.isValid() )
 	id_ = ds.getID( objref_, true );
     BufferString attribname;
     if ( Desc::getAttribName( defstring_.buf(), attribname ) )
@@ -148,7 +148,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 
 void SelSpec::setRefFromID( const NLAModel& nlamod )
 {
-    ref_ = id_.asInt() >= 0 ? nlamod.design().outputs[id_.asInt()]->buf() : "";
+    ref_ = id_.getI() >= 0 ? nlamod.design().outputs[id_.getI()]->buf() : "";
     setDiscr( nlamod );
 }
 
@@ -188,7 +188,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
 
 void SelSpec::fillPar( IOPar& par ) const
 {
-    par.set( sKeyID(), id_.asInt() );
+    par.set( sKeyID(), id_ );
     par.setYN( sKeyIs2D(), is2d_ );
     par.setYN( sKeyIsNLA(), isnla_ );
     par.set( sKeyRef(), ref_ );
@@ -200,7 +200,7 @@ void SelSpec::fillPar( IOPar& par ) const
 
 void SelSpec::usePar( const IOPar& par )
 {
-    par.get( sKeyID(), id_.asInt() );
+    par.get( sKeyID(), id_ );
     par.getYN( sKeyIs2D(), is2d_ );
     if ( !par.getYN( sKeyIsNLA(), isnla_ ) )
 	par.getYN( sKeyIsNN_old, isnla_ );

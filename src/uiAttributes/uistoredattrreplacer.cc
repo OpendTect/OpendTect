@@ -157,7 +157,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 		if ( storedids_[idy].mid_ == storagemid )
 		{
 		    int outprevlisted =
-			    getOutPut(storedids_[idy].firstid_.asInt());
+			    getOutPut(storedids_[idy].firstid_.getI());
 		    int outnowlisted = getOutPut(idx);
 		    if ( outnowlisted != outprevlisted )
 			storedids_[idy].secondid_ = DescID( idx );
@@ -244,41 +244,41 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 	return;
     }
 
-    const int output = getOutPut( storeentry.firstid_.asInt() );
+    const int output = getOutPut( storeentry.firstid_.getI() );
     if ( output==0 )
     {
-	IOPar* inlpar = iopar_->subselect( storeentry.firstid_.asInt() );
+	IOPar* inlpar = iopar_->subselect( storeentry.firstid_.getI() );
 	setStoredKey( inlpar, dbky );
 	BufferString steerref = userref;
 	steerref += "_inline_dip";
 	inlpar->set( "UserRef", steerref );
-	BufferString inlidstr; inlidstr+= storeentry.firstid_.asInt();
+	BufferString inlidstr; inlidstr+= storeentry.firstid_.getI();
 	iopar_->mergeComp( *inlpar, inlidstr );
 
-	IOPar* crlpar = iopar_->subselect( storeentry.secondid_.asInt());
+	IOPar* crlpar = iopar_->subselect( storeentry.secondid_.getI());
 	setStoredKey( crlpar, dbky );
 	steerref = userref;
 	steerref += "_crline_dip";
 	crlpar->set( "UserRef", steerref );
-	BufferString crlidstr; crlidstr+= storeentry.secondid_.asInt();
+	BufferString crlidstr; crlidstr+= storeentry.secondid_.getI();
 	iopar_->mergeComp( *crlpar, crlidstr );
     }
     else
     {
-	IOPar* inlpar = iopar_->subselect( storeentry.secondid_.asInt());
+	IOPar* inlpar = iopar_->subselect( storeentry.secondid_.getI());
 	setStoredKey( inlpar, dbky );
 	BufferString steerref = userref;
 	steerref += "_inline_dip";
 	inlpar->set( "UserRef", steerref );
-	BufferString inlidstr; inlidstr+= storeentry.secondid_.asInt();
+	BufferString inlidstr; inlidstr+= storeentry.secondid_.getI();
 	iopar_->mergeComp( *inlpar, inlidstr );
 
-	IOPar* crlpar = iopar_->subselect( storeentry.firstid_.asInt() );
+	IOPar* crlpar = iopar_->subselect( storeentry.firstid_.getI() );
 	setStoredKey( crlpar, dbky );
 	steerref = userref;
 	steerref += "_crline_dip";
 	crlpar->set( "UserRef", steerref );
-	BufferString crlidstr; crlidstr+= storeentry.firstid_.asInt();
+	BufferString crlidstr; crlidstr+= storeentry.firstid_.getI();
 	iopar_->mergeComp( *crlpar, crlidstr );
     }
 }
@@ -349,11 +349,11 @@ bool acceptOK()
 	}
 	else
 	{
-	    IOPar* descpar = attrdspar_->subselect( storedid.firstid_.asInt() );
+	    IOPar* descpar = attrdspar_->subselect( storedid.firstid_.getI() );
 	    setDefinitionKey( *descpar, dpdbky.toString() );
 	    descpar->set( "UserRef", dpnm );
 	    BufferString idstr;
-	    idstr+= storedid.firstid_.asInt();
+	    idstr+= storedid.firstid_.getI();
 	    attrdspar_->mergeComp( *descpar, idstr );
 	}
 
@@ -444,11 +444,11 @@ void uiStoredAttribReplacer::handleOneGoInputRepl()
 	{
 	    if ( !iopar_ ) return;
 	    IOPar* descpar = iopar_->subselect(
-				storedids_[seisinpidx[idx]].firstid_.asInt() );
+				storedids_[seisinpidx[idx]].firstid_.getI() );
 	    setStoredKey( descpar, dlg.getSeisKey(idx) );
 	    descpar->set( "UserRef", dlg.getSeisRef(idx) );
 	    BufferString idstr;
-	    idstr+= storedids_[seisinpidx[idx]].firstid_.asInt();
+	    idstr+= storedids_[seisinpidx[idx]].firstid_.getI();
 	    iopar_->mergeComp( *descpar, idstr );
 	}
     }
@@ -548,10 +548,10 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    else
 	    {
 		if ( !iopar_ ) return;
-		IOPar* descpar = iopar_->subselect( storedid.asInt() );
+		IOPar* descpar = iopar_->subselect( storedid.getI() );
 		setStoredKey( descpar, dlg.getSeisKey(0) );
 		descpar->set( "UserRef", dlg.getSeisRef(0) );
-		BufferString idstr; idstr+= storedid.asInt();
+		BufferString idstr; idstr+= storedid.getI();
 		iopar_->mergeComp( *descpar, idstr );
 	    }
 	}

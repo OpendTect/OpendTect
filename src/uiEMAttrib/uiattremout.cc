@@ -122,8 +122,7 @@ void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 
     tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
     key = IOPar::compKey( tmpkey.buf(), 0 );
-    iopar.set( key, nladescid_.isValid() ? nladescid_.asInt()
-					 : attrfld_->attribID().asInt() );
+    iopar.set( key, nladescid_.isValid() ? nladescid_ : attrfld_->attribID() );
 
     key = IOPar::compKey( keybase.buf(), idlbl );
     iopar.set( key, outid );

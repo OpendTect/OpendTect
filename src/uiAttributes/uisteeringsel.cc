@@ -173,10 +173,12 @@ void uiSteeringSel::setDescSet( const DescSet* ads )
 
 DescID uiSteeringSel::descID()
 {
-    if ( !typfld_ ) return DescID::undef();
+    if ( !typfld_ )
+	return DescID();
 
     const int type = typfld_->getIntValue();
-    if ( !willSteer() ) return DescID::undef();
+    if ( !willSteer() )
+	return DescID();
 
     if ( type==3 )
     {
@@ -197,7 +199,8 @@ DescID uiSteeringSel::descID()
 	}
 
 	Desc* desc = PF().createDescCopy( attribnm );
-	if ( !desc ) return DescID::undef();
+	if ( !desc )
+	    return DescID();
 	desc->getValParam("dip")->setValue( dipfld_->getFValue() );
 	desc->getValParam("azi")->setValue( dirfld_->getFValue() );
 
@@ -213,7 +216,7 @@ DescID uiSteeringSel::descID()
     if ( !inldipid.isValid() || !crldipid.isValid() )
     {
 	uiMSG().error(tr("Selected Steering input is not valid"));
-	return DescID::undef();
+	return DescID();
     }
 
     BufferString attribnm( type==1 ? "CentralSteering" : "FullSteering" );
@@ -229,7 +232,8 @@ DescID uiSteeringSel::descID()
     }
 
     Desc* desc = PF().createDescCopy( attribnm );
-    if ( !desc ) return DescID::undef();
+    if ( !desc )
+	return DescID();
 
     DescSet* ads = const_cast<DescSet*>(descset_);
     desc->setInput( 0, ads->getDesc(inldipid) );
@@ -286,7 +290,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
 {
     const DescSet& ads = attrdata_.attrSet();
     if ( !workctio_.ioobj_ )
-	return DescID::undef();
+	return DescID();
 
     const BufferString storkey( workctio_.ioobj_->key().toString() );
     for ( int idx=0; idx<ads.size(); idx++ )

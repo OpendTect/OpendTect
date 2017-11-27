@@ -34,7 +34,6 @@ public:
 					    const BufferString& mid,
 					    BufferString storedref )
 				    : firstid_(id1)
-				    , secondid_(Attrib::DescID::undef())
 				    , mid_(mid)
 				    , storedref_(storedref)	{}
 

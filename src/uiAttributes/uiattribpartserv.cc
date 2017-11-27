@@ -370,7 +370,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     uiAttrSelData attrdata( *adsman->descSet() );
     attrdata.attribid_ = selspec.isNLA() ? SelSpec::cNoAttribID()
 					 : selspec.id();
-    attrdata.setOutputNr( selspec.isNLA() ? selspec.id().asInt() : -1 );
+    attrdata.setOutputNr( selspec.isNLA() ? selspec.id().getI() : -1 );
     attrdata.nlamodel_ = getNLAModel(is2d);
     attrdata.zdomaininfo_ = zdominfo;
 
@@ -391,7 +391,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	}
 	else
 	{
-	    attrdata.attribid_.asInt() = dlg.getSelDescID().asInt();
+	    attrdata.attribid_ = dlg.getSelDescID();
 	    attrdata.setOutputNr( dlg.getOutputNr() );
 	}
 
@@ -404,7 +404,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	if ( !dlg.go() )
 	    return false;
 
-	attrdata.attribid_.asInt() = dlg.attribID().asInt();
+	attrdata.attribid_ = dlg.attribID();
 	attrdata.setOutputNr( dlg.outputNr() );
 	attrdata.setAttrSet( dlg.attrSet() );
     }
@@ -493,7 +493,7 @@ void uiAttribPartServer::updateSelSpec( SelSpec& ss ) const
 	const DescSet* ads = DSHolder().getDescSet( false, isstored );
 	ss.setIDFromRef( *ads );
 
-	const bool notfound = ss.id() == DescID::undef();
+	const bool notfound = ss.id().isInvalid();
 	if ( isother && notfound )	//Could be multi-components stored cube
 	{
 	    const DescSet* descset = DSHolder().getDescSet( false, true );
@@ -516,7 +516,7 @@ void uiAttribPartServer::getPossibleOutputs( bool is2d,
 					     BufferStringSet& nms ) const
 {
     nms.erase();
-    SelInfo attrinf( curDescSet(is2d), DescID::undef(), 0, is2d );
+    SelInfo attrinf( curDescSet(is2d), DescID(), 0, is2d );
     nms.append( attrinf.attrnms_ );
     attrinf.ioobjids_.addTo( nms );
 }
@@ -615,8 +615,7 @@ void uiAttribPartServer::setTargetSelSpec( const SelSpec& selspec )
 
 DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
 {
-    return targetspecs_.size() <= nr ? DescID::undef()
-				     : targetspecs_[nr].id();
+    return targetspecs_.size() <= nr ? DescID() : targetspecs_[nr].id();
 }
 
 
@@ -643,11 +642,11 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 	if ( seldesc )
 	{
 	    DescID multoiid = seldesc->getMultiOutputInputID();
-	    if ( multoiid != DescID::undef() )
+	    if ( multoiid.isValid() )
 	    {
 		const DescSetMan* adsman = DSHolder().getDescSetMan( is2d );
 		uiAttrSelData attrdata( *adsman->descSet() );
-		SelInfo attrinf( &attrdata.attrSet(), DescID::undef(),
+		SelInfo attrinf( &attrdata.attrSet(), DescID(),
 				 attrdata.nlamodel_, is2d, false, false );
 		if ( !uiMultOutSel::handleMultiCompChain( attribid, multoiid,
 			    is2d, attrinf, curdescset, parent(), targetspecs_ ))
@@ -1310,7 +1309,7 @@ DescID uiAttribPartServer::getStoredID( const DBKey& dbkey,
 						bool is2d, int selout ) const
 {
     DescSet* ds = eDSHolder().getDescSet( is2d, true );
-    return ds ? ds->getStoredID( dbkey, selout ) : DescID::undef();
+    return ds ? ds->getStoredID( dbkey, selout ) : DescID();
 }
 
 
@@ -1403,7 +1402,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 	desc = ds->getDesc( ass.id() );
     else if ( nonstoredds && nonstoredds->getDesc(ass.id()) )
 	desc = nonstoredds->getDesc( ass.id() );
-    SelInfo attrinf( ds, DescID::undef(), 0, is2d, issteer, multcomp );
+    SelInfo attrinf( ds, DescID(), 0, is2d, issteer, multcomp );
 
     const bool isstored = desc ? desc->isStored() : false;
     const DBKeySet& dbkys = issteer ? attrinf.steerids_ : attrinf.ioobjids_;
@@ -1452,8 +1451,7 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 					 .arg(toUiString(startnm))
 					 .arg(toUiString(stopnm)) );
 
-	SelInfo attrinf( DSHolder().getDescSet(false,true),
-			 DescID::undef(), 0, false );
+	SelInfo attrinf( DSHolder().getDescSet(false,true), DescID(), 0, false);
 	BufferStringSet idnms;
 	(issteer ? attrinf.steerids_ : attrinf.ioobjids_).addTo( idnms );
 	const BufferStringSet& nms = issteer ? attrinf.steernms_
@@ -1473,8 +1471,7 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& ass,
 						  bool is2d, bool useext )
 {
-    SelInfo attrinf( DSHolder().getDescSet(is2d,false), DescID::undef(),
-		     0, is2d );
+    SelInfo attrinf( DSHolder().getDescSet(is2d,false), DescID(), 0, is2d );
     const bool isattrib = attrinf.attrids_.isPresent( ass.id() );
 
     const int start = 0; const int stop = attrinf.attrnms_.size();
@@ -1508,7 +1505,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& ass, bool is2d,
 
 	nlamnuitem->text = ittxt;
 	const DescSet* dset = DSHolder().getDescSet(is2d,false);
-	SelInfo attrinf( dset, DescID::undef(), nlamodel, is2d );
+	SelInfo attrinf( dset, DescID(), nlamodel, is2d );
 	const bool isnla = ass.isNLA();
 	const int start = 0; const int stop = attrinf.nlaoutnms_.size();
 	insertItems( *nlamnuitem, attrinf.nlaoutnms_, 0, ass.userRef(),
@@ -1633,7 +1630,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& ass,
     const DescSetMan* adsman = DSHolder().getDescSetMan( is2d );
     uiAttrSelData attrdata( *adsman->descSet() );
     attrdata.nlamodel_ = getNLAModel(is2d);
-    SelInfo attrinf( &attrdata.attrSet(), DescID::undef(), attrdata.nlamodel_,
+    SelInfo attrinf( &attrdata.attrSet(), DescID(), attrdata.nlamodel_,
 		     is2d, issteering, issteering );
     const MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
     const MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;

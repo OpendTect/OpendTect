@@ -86,7 +86,7 @@ bool uiReliefAttrib::getParameters( Desc& desc )
 
 static DescID hasDesc( const char* attrnm, const char* usrref,
 		       const DescSet& ds, const DescID& inpid,
-		       const DescID& inpid2=DescID::undef() )
+		       const DescID& inpid2=DescID() )
 {
     for ( int idx=0; idx<ds.size(); idx++ )
     {
@@ -111,7 +111,7 @@ static DescID hasDesc( const char* attrnm, const char* usrref,
 	return desc->id();
     }
 
-    return DescID::undef();
+    return DescID();
 }
 
 
@@ -127,7 +127,8 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
 			       const Interval<float>& zgate, const char* ref )
 {
     const Desc* inpdesc = ds.getDesc( inpid );
-    if ( !inpdesc ) return DescID::undef();
+    if ( !inpdesc )
+	return DescID();
 
     const char* attribnm = Energy::attribName();
     const BufferString usrref = createUserRef( ref, attribnm );
@@ -139,7 +140,8 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
     else
     {
 	energydesc = PF().createDescCopy( attribnm );
-	if ( !energydesc ) return DescID::undef();
+	if ( !energydesc )
+	    return DescID();
 	newdesc = true;
     }
 
@@ -160,7 +162,8 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
 static DescID addHilbertAttrib( DescSet& ds, const DescID& inpid )
 {
     const Desc* inpdesc = ds.getDesc( inpid );
-    if ( !inpdesc ) return DescID::undef();
+    if ( !inpdesc )
+	return DescID();
 
     const char* attribnm = Hilbert::attribName();
     const BufferString usrref = createUserRef( inpdesc->userRef(), attribnm );
@@ -169,7 +172,8 @@ static DescID addHilbertAttrib( DescSet& ds, const DescID& inpid )
 	return descid;
 
     Desc* newdesc = PF().createDescCopy( attribnm );
-    if ( !newdesc ) return DescID::undef();
+    if ( !newdesc )
+	return DescID();
 
     newdesc->setInput( 0, inpdesc );
     newdesc->selectOutput( 0 );
@@ -184,7 +188,8 @@ static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
 {
     const Desc* realdesc = ds.getDesc( realid );
     const Desc* imagdesc = ds.getDesc( imagid );
-    if ( !realdesc || !imagdesc ) return DescID::undef();
+    if ( !realdesc || !imagdesc )
+	return DescID();
 
     const char* attribnm = Instantaneous::attribName();
     const BufferString usrref = createUserRef( realdesc->userRef(), attribnm );
@@ -193,7 +198,8 @@ static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
 	return descid;
 
     Desc* newdesc = PF().createDescCopy( attribnm );
-    if ( !newdesc ) return DescID::undef();
+    if ( !newdesc )
+	return DescID();
 
     newdesc->setInput( 0, realdesc );
     newdesc->setInput( 1, imagdesc );

@@ -138,7 +138,7 @@ void Desc::setDescSet( DescSet* nds )
 
 DescID Desc::id() const
 {
-    return descset_ ? descset_->getID(*this) : DescID::undef();
+    return descset_ ? descset_->getID(*this) : DescID();
 }
 
 
@@ -264,7 +264,7 @@ void Desc::setUserRef( const char* str )
 void Desc::getInputs( TypeSet<DescID>& ids ) const
 {
     for ( int idx=0; idx<nrInputs(); idx++ )
-	ids += inputs_[idx] ? inputs_[idx]->id() : DescID::undef();
+	ids += inputs_[idx] ? inputs_[idx]->id() : DescID();
 }
 
 
@@ -474,7 +474,7 @@ bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
 DescID Desc::inputId( int idx ) const
 {
     const bool valididx = idx >= 0 && idx < inputs_.size();
-    return valididx && inputs_[idx] ? inputs_[idx]->id() : DescID::undef();
+    return valididx && inputs_[idx] ? inputs_[idx]->id() : DescID();
 }
 
 
@@ -814,12 +814,12 @@ DescID Desc::getMultiOutputInputID() const
 	else
 	{
 	    DescID multoutinpdid = inputs_[idx]->getMultiOutputInputID();
-	    if ( multoutinpdid != DescID::undef() )
+	    if ( multoutinpdid.isValid() )
 		return multoutinpdid;
 	}
     }
 
-    return DescID::undef();
+    return DescID();
 }
 
 

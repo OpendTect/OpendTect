@@ -131,7 +131,7 @@ bool uiWellAttribSel::inputsOK()
     attribfld->processInput();
     const Attrib::DescID seldescid = attribfld->attribID();
     const int outputnr = attribfld->outputNr();
-    if ( seldescid.asInt() < 0 && (nlamodel_ && outputnr<0) )
+    if ( seldescid.isInvalid() && (nlamodel_ && outputnr<0) )
 	mErrRet( "No valid attribute selected" )
 
     BufferString lognm = lognmfld->text();

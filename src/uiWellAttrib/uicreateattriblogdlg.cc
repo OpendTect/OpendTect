@@ -176,7 +176,7 @@ bool uiCreateAttribLogDlg::inputsOK( const Well::Data& wd )
 
     const Attrib::DescID seldescid = attribfld_->attribID();
     const int outputnr = attribfld_->outputNr();
-    if ( seldescid.asInt() < 0 && (datasetup_->nlamodel_ && outputnr<0) )
+    if ( seldescid.isInvalid() && (datasetup_->nlamodel_ && outputnr<0) )
 	mErrRet( tr("No valid attribute selected") );
 
     datasetup_->lognm_ = lognmfld_->text();

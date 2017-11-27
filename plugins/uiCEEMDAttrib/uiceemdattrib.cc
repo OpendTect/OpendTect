@@ -193,7 +193,7 @@ void uiCEEMDAttrib::outSel( CallBacker* cb )
 
 void uiCEEMDAttrib::panelTFPush( CallBacker* cb )
 {
-    if ( inpfld_->attribID() == DescID::undef() )
+    if ( inpfld_->attribID().isInvalid() )
 	{ uiMSG().error( tr("Please select Input Data") ); return; }
 
     DBKey dbkey;
@@ -293,7 +293,7 @@ DescID uiCEEMDAttrib::createCEEMDDesc( DescSet* dset ) const
     Desc* newdesc = createNewDesc( dset, inpid,
 				   CEEMD::attribName(), 0, "" );
     if ( !newdesc )
-	return DescID::undef();
+	return DescID();
 
     fillInCEEMDDescParams( newdesc );
     newdesc->updateParams();
