@@ -44,11 +44,14 @@ uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     , propmenuitem_( m3Dots(uiStrings::sProperties()) )
     , treeToBeAdded( this )
 {
-    vismenu_->ref();
-    vismenu_->createnotifier.notify(
-	    mCB(this,uiVisDataPointSetDisplayMgr,createMenuCB) );
-    vismenu_->handlenotifier.notify(
-	    mCB(this,uiVisDataPointSetDisplayMgr,handleMenuCB) );
+    if ( vismenu_ )
+    {
+	vismenu_->ref();
+	vismenu_->createnotifier.notify(
+		mCB(this,uiVisDataPointSetDisplayMgr,createMenuCB) );
+	vismenu_->handlenotifier.notify(
+		mCB(this,uiVisDataPointSetDisplayMgr,handleMenuCB) );
+    }
 }
 
 
