@@ -59,8 +59,7 @@ bool Horizon2DSeedPicker::canAddSeed( const Attrib::SelSpec& as )
     tracker_.getNeededAttribs( neededattribs );
     for ( int idx=0; idx<neededattribs.size(); idx++ )
     {
-	if ( neededattribs[idx].id().asInt()==as.id().asInt() &&
-	     neededattribs[idx].isStored()==as.id().isStored() )
+	if ( neededattribs[idx].id()==as.id() )
 	    return true;
     }
     return false;
@@ -107,7 +106,7 @@ bool Horizon2DSeedPicker::startSeedPick()
 	    hor->setPosAttrib(pids[idx],EM::EMObject::sSeedNode(),false,false);
 	}
     }
-    
+
     return true;
 }
 
@@ -211,7 +210,7 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
     if ( trackmode_ == TrackFromSeeds && !doerase )
 	return addPatchSowingSeeds();
 
-    if ( trackmode_ != DrawBetweenSeeds && 
+    if ( trackmode_ != DrawBetweenSeeds &&
 	trackmode_ !=DrawAndSnap && !doerase )
 	return false;
 
@@ -243,7 +242,7 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
     interpolateSeeds( true );
     hor2d->setBurstAlert( false );
 
-    EM::EMM().undo(hor2d->id()).setUserInteractionEnd( 
+    EM::EMM().undo(hor2d->id()).setUserInteractionEnd(
 	EM::EMM().undo(hor2d->id()).currentEventID() );
     return true;
 }
@@ -455,7 +454,7 @@ void Horizon2DSeedPicker::extendSeedSetEraseInBetween(
 	}
 
 	// to erase points attached to start
-	if ( curdefined && 
+	if ( curdefined &&
 	    !hor2d->isNodeSourceType(curtk,EM::EMObject::Manual) )
 	    eraselist_ += curtk;
     }

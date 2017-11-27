@@ -39,7 +39,10 @@ public:
     inline int		size() const	{ return descs_.size(); }
     int			indexOf(const char* nm,bool usrref=true) const;
     inline bool		isPresent( const char* nm, bool usrref=true ) const
-			{ return indexOf(nm,usrref) >= 0; }
+						{ return indexOf(nm,usrref)>=0;}
+    int			indexOf( const DescID& id ) const
+						{ return ids_.indexOf( id ); }
+
     Desc*		desc( int idx )		{ return descs_[idx]; }
     const Desc*		desc( int idx ) const	{ return descs_[idx]; }
 
@@ -53,11 +56,7 @@ public:
 			     Necessary after cloning */
 
     DescID		addDesc(Desc*,DescID newid=DescID());
-			/*!< returns id of the attrib */
-
     DescID		insertDesc(Desc*,int,DescID newid=DescID());
-			/*!< returns id of the attrib */
-
     void		createAndAddMultOutDescs(const DescID&,
 						 const TypeSet<int>&,
 						 const BufferStringSet&,
@@ -80,6 +79,7 @@ public:
     DescID		getID(const char* ref,bool isusrref,
 			      bool mustbestored=false,
 			      bool usestorinfo=false) const;
+    DescID		getDefaultTargetID() const;
     void		getIds(TypeSet<DescID>&) const;
     void		getStoredIds(TypeSet<DescID>&) const;
     DescID		getStoredID(const DBKey&,int selout=-1,
@@ -138,9 +138,6 @@ public:
     void		fillInSelSpecs(Attrib::DescSetup,
 				       TypeSet<Attrib::SelSpec>&) const;
 
-    void		setContainStoredDescOnly(bool yn);
-    inline bool		containsStoredDescOnly() const
-			{ return storedattronly_; }
     void		setCouldBeUsedInAnyDimension( bool yn )
 			{ couldbeanydim_ = yn; }
     inline bool		couldBeUsedInAnyDimension() const
@@ -164,6 +161,7 @@ public:
     CNotifier<DescSet,DescID>	descUserRefChanged;
     CNotifier<DescSet,DescID>	descToBeRemoved;
     CNotifier<DescSet,DescID>	descRemoved;
+    Notifier<DescSet>		aboutToBeDeleted;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&,uiStringSet* errmsgs=0);
@@ -180,7 +178,6 @@ protected:
     ObjectSet<Desc>	descs_;
     TypeSet<DescID>	ids_;
     bool		is2d_;
-    bool		storedattronly_;
     bool		couldbeanydim_;
     uiString		errmsg_;
 

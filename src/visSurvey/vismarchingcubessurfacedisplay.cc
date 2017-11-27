@@ -276,7 +276,7 @@ const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
 
 #define mSetDataPointSet(nm) \
     const bool attribselchange = FixedString(as_[0].userRef())!=nm; \
-    as_[0].set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
+    as_[0].set( nm, Attrib::SelSpec::cNoAttribID(), false, "" ); \
     RefMan<DataPointSet> data = new DataPointSet(false,true); \
     DPM( DataPackMgr::PointID() ).add( data ); \
     getRandomPos( *data, 0 ); \

@@ -343,9 +343,8 @@ void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp,
     if ( as )
 	newas = *as;
 
-    info().setObjDataSelSpec(
-	   newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
-		? *as : newas );
+    info().setObjDataSelSpec( newas.id() == Attrib::SelSpec::cAttribNotSelID()
+			    ? *as : newas );
     info().setGeomID( seis2ddisp->getGeomID() );
     info().setObjLineName( seis2ddisp->name() );
 
@@ -654,7 +653,7 @@ const RegularSeisDataPack* MPEClickInfo::getObjData() const
 
 const Attrib::SelSpec* MPEClickInfo::getObjDataSelSpec() const
 {
-   if ( attrsel_.id().asInt() == Attrib::SelSpec::cAttribNotSel().asInt() )
+   if ( attrsel_.id() == Attrib::SelSpec::cAttribNotSelID() )
        return 0;
 
    return &attrsel_;

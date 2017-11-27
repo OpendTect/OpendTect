@@ -445,7 +445,7 @@ void FaultDisplay::useTexture( bool yn, bool trigger )
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
 	    if ( getSelSpec(idx) &&
-		 getSelSpec(idx)->id()==Attrib::SelSpec::cNoAttrib() )
+		 getSelSpec(idx)->id()==Attrib::SelSpec::cNoAttribID() )
 	    {
 		usestexture_ = yn;
 		setDepthAsAttrib(idx);
@@ -468,7 +468,7 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
     const bool attribwasdepth = getSelSpec(attrib) &&
 		    FixedString(getSelSpec(attrib)->userRef())==sKeyZValues();
 
-    const Attrib::SelSpec as( sKeyZValues(), Attrib::SelSpec::cNoAttrib(),
+    const Attrib::SelSpec as( sKeyZValues(), Attrib::SelSpec::cNoAttribID(),
 			      false, "" );
     setSelSpec( attrib, as );
 

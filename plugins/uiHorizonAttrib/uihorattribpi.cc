@@ -159,7 +159,7 @@ void uiHorAttribPIMgr::doIsochron( CallBacker* )
 	return;
 
     const int attrid = visserv->addAttrib( displayid );
-    Attrib::SelSpec selspec( dlg.attrName(), Attrib::SelSpec::cOtherAttrib(),
+    Attrib::SelSpec selspec( dlg.attrName(), Attrib::SelSpec::cOtherAttribID(),
 			     false, 0 );
     visserv->setSelSpec( displayid, attrid, selspec );
     visserv->setRandomPosData( displayid, attrid, &dlg.getDPS() );
@@ -243,7 +243,7 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     }
 
     const int attrib = visserv->addAttrib( displayid );
-    Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSel(),
+    Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSelID(),
 			  false, 0 );
     spec.setZDomainKey (dlg.getAttribName() );
     spec.setDefString( uiContourTreeItem::sKeyContourDefString() );

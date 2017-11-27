@@ -33,7 +33,7 @@ class uiAttrSelWorkData;
 
 /*!\brief holds a selection for an attribute selector. */
 
-mExpClass(uiAttributes) uiAttrSelData
+mExpClass(uiAttributes) uiAttrSelData : public CallBacker
 { mODTextTranslationClass(uiAttrSelData);
 public:
 
@@ -44,6 +44,8 @@ public:
 
 				uiAttrSelData(bool is2d);
 				uiAttrSelData(const DescSet&);
+				~uiAttrSelData();
+
     bool			isUndef() const;
     void			setUndef();
 
@@ -54,8 +56,7 @@ public:
     bool			is2D() const;
     bool			isNLA() const;
     const DescSet&		attrSet() const		{ return *attrset_; }
-    void			setAttrSet( const DescSet& ds )
-							{ attrset_ = &ds; }
+    void			setAttrSet(const DescSet&);
     void			setOutputNr( int nr )	{ nr_ = nr; }
     void			setCompNr( int nr )	{ nr_ = nr; }
     int				outputNr() const	{ return nr_; };
@@ -67,6 +68,8 @@ protected:
 
     const DescSet*		attrset_;
     int				nr_;
+
+    void			descSetDel(CallBacker*);
 
 private:
 

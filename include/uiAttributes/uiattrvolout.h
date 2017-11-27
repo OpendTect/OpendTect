@@ -51,8 +51,7 @@ public:
     {
     public:
 			Selection()
-			    : attrid_(Attrib::DescID(-1,true))
-			    , outputnr_(-1)	{}
+			    : outputnr_(-1)	{}
 	Attrib::DescID	attrid_;
 	DBKey		dbky_;
 	int		outputnr_;

@@ -30,14 +30,13 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
-			  const NLAModel* model, const DBKey& mid,
+			  const NLAModel* model, const DBKey& dbky,
 			  const char* dlgnm )
     : uiBatchProcDlg(p,uiStrings::sEmptyString(),false,
 		     Batch::JobSpec::AttribEM )
     , ads_(new Attrib::DescSet(ad))
     , nlamodel_(0)
-    , nlaid_(mid)
-    , nladescid_( -1, true )
+    , nlaid_(dbky)
 {
     if ( model )
 	nlamodel_ = model->clone();

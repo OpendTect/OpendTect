@@ -139,8 +139,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     {
 	for ( int idx=0; idx<emod->nrAttribs(); idx++ )
 	{
-	    if ( hordisp->getSelSpec(idx)->id().asInt()
-		 ==Attrib::SelSpec::cNoAttrib().asInt() )
+	    if ( hordisp->getSelSpec(idx)->id()
+		     == Attrib::SelSpec::cNoAttribID() )
 		setDepthAsAttrib( idx );
 	}
     }

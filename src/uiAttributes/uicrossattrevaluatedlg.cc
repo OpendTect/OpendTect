@@ -44,7 +44,6 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     , haspars_(false)
     , attrset_(*new DescSet(*uads.getSet()))
     , paramsfld_(0)
-    , srcid_(-1,true)
 {
     if ( !uads.curDesc() )
 	return;

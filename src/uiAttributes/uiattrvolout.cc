@@ -145,6 +145,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     }
 
     pargrp_->setHAlignObj( botgrp );
+
+    mAttachCB( postFinalise(), uiAttrVolOut::attrSel );
 }
 
 
@@ -167,13 +169,14 @@ void uiAttrVolOut::updateAttributes( const Attrib::DescSet& descset,
 				     const NLAModel* nlamodel,
 				     const DBKey& nlaid )
 {
-    delete ads_;
+    Attrib::DescSet* oldads = ads_;
     ads_ = new Attrib::DescSet( descset );
     if ( todofld_ )
     {
 	todofld_->setDescSet( ads_ );
 	todofld_->setNLAModel( nlamodel );
     }
+    delete oldads;
 
     if ( attrselfld_ )
 	attrselfld_->setDescSet( ads_ );
@@ -379,7 +382,7 @@ bool uiAttrVolOut::prepareProcessing()
 Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 		TypeSet<Attrib::DescID>& outdescids, int& nrseloutputs )
 {
-    Attrib::DescID nlamodel_id(-1, false);
+    Attrib::DescID nlamodel_id;
     if ( nlamodel_ && todofld_ && todofld_->outputNr() >= 0 )
     {
 	if ( nlaid_.isInvalid() )
@@ -390,8 +393,8 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 	addNLA( nlamodel_id );
     }
 
-    Attrib::DescID targetid = nlamodel_id.isValid() ? nlamodel_id
-					    : todofld_->attribID();
+    Attrib::DescID targetid = nlamodel_id.isValid()
+			    ? nlamodel_id : todofld_->attribID();
 
     Attrib::Desc* seldesc = ads_->getDesc( targetid );
     if ( seldesc )

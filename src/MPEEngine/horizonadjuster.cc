@@ -374,9 +374,9 @@ bool HorizonAdjuster::usePar( const IOPar& iopar )
     if ( !SectionAdjuster::usePar(iopar) )
 	return false;
 
-    if ( !attribsel_ ) attribsel_ = new Attrib::SelSpec;
-    if ( !attribsel_->usePar(iopar) )
-	return false;
+    if ( !attribsel_ )
+	attribsel_ = new Attrib::SelSpec;
+    attribsel_->usePar( iopar );
 
     PtrMan<IOPar> trackerpar = iopar.subselect( sKeyTracker() );
     return trackerpar && evtracker_.usePar( *trackerpar );

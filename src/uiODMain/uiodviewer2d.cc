@@ -69,7 +69,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 static void initSelSpec( Attrib::SelSpec& as )
-{ as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
+{ as.set( 0, Attrib::SelSpec::cNoAttribID(), false, 0 ); }
 
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 

@@ -73,7 +73,8 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
 						  tmpattribstr.buf() ) );
     if ( !res )
 	mErrRet( "No target attribute found" )
-    DescID outid( toInt( res ), false );
+
+    const DescID outid( toInt(res) );
     if ( initialset.getDesc(outid) < 0 )
 	mErrRet( "Target attribute not present in attribute set" )
 
@@ -417,7 +418,7 @@ bool BatchProgram::go( od_ostream& strm )
     {
 	int id;
 	if ( attribsiopar->get(toString(idx),id) )
-	    attribids += DescID(id,false);
+	    attribids += DescID( id );
     }
 
     if ( !attribids.size() )

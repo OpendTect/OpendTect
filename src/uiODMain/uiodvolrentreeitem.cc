@@ -298,7 +298,7 @@ void uiODVolrenAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     displaymnuitem_.enabled = as &&
-		    as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
+		    as->id() != Attrib::SelSpec::cAttribNotSelID();
 }
 
 

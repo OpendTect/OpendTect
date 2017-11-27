@@ -115,7 +115,7 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( id, attrib );
     if ( !as ) return false;
 
-    if ( as->id()==Attrib::SelSpec::cAttribNotSel() &&
+    if ( as->id()==Attrib::SelSpec::cAttribNotSelID() &&
 	 !am_.visserv_->isAttribEnabled( id, attrib ) )
 	return false;
 

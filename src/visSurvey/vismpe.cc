@@ -273,9 +273,9 @@ const TypeSet<Attrib::SelSpec>* MPEDisplay::getSelSpecs( int attrib ) const
 
 const char* MPEDisplay::getSelSpecUserRef() const
 {
-    if ( as_[0].id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+    if ( as_[0].id() == Attrib::SelSpec::cNoAttribID() )
 	return sKey::None();
-    else if ( as_[0].id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
+    else if ( as_[0].id() == Attrib::SelSpec::cAttribNotSelID() )
 	return 0;
 
     return as_[0].userRef();
@@ -702,8 +702,8 @@ bool MPEDisplay::usePar( const IOPar& par )
     bool dispboxdragger = false;
     par.getYN( sKeyBoxShown(), dispboxdragger );
 
-    if ( as_[0].usePar( par ) )
-        updateSlice();
+    as_[0].usePar( par );
+    updateSlice();
 
     turnOn( true );
     showBoxDragger( dispboxdragger );
@@ -1251,7 +1251,7 @@ SurveyObject::AttribFormat MPEDisplay::getAttributeFormat( int attrib ) const
 
 int MPEDisplay::nrAttribs() const
 {
-    return as_[0].id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() ? 0 : 1;
+    return as_[0].id().isValid() ? 1 : 0;
 }
 
 
@@ -1272,7 +1272,7 @@ bool MPEDisplay::addAttrib()
     BufferStringSet* attrnms = new BufferStringSet();
     attrnms->allowNull();
     userrefs_ += attrnms;
-    as_[0].set( "", Attrib::SelSpec::cAttribNotSel(), false, 0 );
+    as_[0].set( "", Attrib::SelSpec::cAttribNotSelID(), false, 0 );
     channels_->addChannel();
     return true;
 }
@@ -1281,7 +1281,7 @@ bool MPEDisplay::addAttrib()
 bool MPEDisplay::removeAttrib( int attrib )
 {
     channels_->removeChannel( attrib );
-    as_[0].set( "", Attrib::SelSpec::cNoAttrib(), false, 0 );
+    as_[0].set( "", Attrib::SelSpec::cNoAttribID(), false, 0 );
     delete userrefs_.removeSingle( attrib );
     return true;
 }

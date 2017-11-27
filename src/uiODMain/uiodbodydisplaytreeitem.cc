@@ -583,7 +583,7 @@ void uiODBodyDisplayDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     const bool islocked = visserv->isLocked( displayID() );
-    const bool yn = as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt();
+    const bool yn = as->id() == Attrib::SelSpec::cNoAttribID();
 
     mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked, yn );
     mAddMenuItem( &selattrmnuitem_, &isochronmnuitem_, !islocked, yn );
@@ -626,7 +626,7 @@ uiString uiODBodyDisplayDataTreeItem::createDisplayName() const
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
-    if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+    if ( as->id() ==Attrib::SelSpec::cNoAttribID() )
 	return toUiString(as->userRef());
 
     return uiODAttribTreeItem::createDisplayName();

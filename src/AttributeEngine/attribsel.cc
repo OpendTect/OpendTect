@@ -34,21 +34,13 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-#define mDescIDRet(val) static DescID res(val,true); return res
-
-const DescID& SelSpec::cOtherAttrib()	{ mDescIDRet(-1); }
-const DescID& SelSpec::cNoAttrib()	{ mDescIDRet(-2); }
-const DescID& SelSpec::cAttribNotSel()	{ mDescIDRet(-3); }
-
 const char* SelSpec::sKeyRef()		{ return "Attrib Reference"; }
 const char* SelSpec::sKeyID()		{ return "Attrib ID"; }
 const char* SelSpec::sKeyIsNLA()	{ return "Is attrib NLA Model"; }
 const char* SelSpec::sKeyObjRef()	{ return "Object Reference"; }
 const char* SelSpec::sKeyDefStr()	{ return "Definition"; }
 const char* SelSpec::sKeyIs2D()		{ return "Is 2D"; }
-const char* SelSpec::sKeyOnlyStoredData()
-				      { return "DescSet only for stored data"; }
-static const char* isnnstr = "Is attrib NN"; // for backward compatibility
+static const char* sKeyIsNN_old =	"Is attrib NN";
 
 bool SelSpec::operator==( const SelSpec& ss ) const
 {
@@ -97,7 +89,7 @@ void SelSpec::set( const Desc& desc )
 void SelSpec::set( const NLAModel& nlamod, int nr )
 {
     isnla_ = true;
-    id_ = DescID(nr,false);
+    id_ = DescID( nr );
     setRefFromID( nlamod );
 }
 
@@ -124,11 +116,11 @@ void SelSpec::setIDFromRef( const NLAModel& nlamod )
 {
     isnla_ = true;
     const int nrout = nlamod.design().outputs.size();
-    id_ = cNoAttrib();
+    id_ = cNoAttribID();
     for ( int idx=0; idx<nrout; idx++ )
     {
 	if ( ref_ == *nlamod.design().outputs[idx] )
-	    { id_ = DescID(idx,false); break; }
+	    { id_ = DescID(idx); break; }
     }
     setDiscr( nlamod );
 }
@@ -144,8 +136,8 @@ void SelSpec::setIDFromRef( const DescSet& ds )
     if ( Desc::getAttribName( defstring_.buf(), attribname ) )
     {
 	if ( ds.getDesc(id_) &&
-	     attribname!=ds.getDesc(id_)->attribName() )
-	    id_ = ds.getID( defstring_, ds.containsStoredDescOnly() );
+	     attribname != ds.getDesc(id_)->attribName() )
+	    id_ = ds.getID( defstring_, false );
     }
     const Desc* desc = ds.getDesc( id_ );
     if ( desc )
@@ -196,46 +188,64 @@ void SelSpec::setRefFromID( const DescSet& ds )
 
 void SelSpec::fillPar( IOPar& par ) const
 {
-    par.set( sKeyRef(), ref_ );
     par.set( sKeyID(), id_.asInt() );
-    par.setYN( sKeyOnlyStoredData(), id_.isStored() );
+    par.setYN( sKeyIs2D(), is2d_ );
     par.setYN( sKeyIsNLA(), isnla_ );
+    par.set( sKeyRef(), ref_ );
     par.set( sKeyObjRef(), objref_ );
     par.set( sKeyDefStr(), defstring_ );
     par.set( ZDomain::sKey(), zdomainkey_ );
-    par.setYN( sKeyIs2D(), is2d_ );
 }
 
 
-bool SelSpec::usePar( const IOPar& par )
+void SelSpec::usePar( const IOPar& par )
 {
-    ref_ = "";			par.get( sKeyRef(), ref_ );
-    id_ = cNoAttrib();		par.get( sKeyID(), id_.asInt() );
-    bool isstored = false;	par.getYN( sKeyOnlyStoredData(), isstored );
-    id_.setStored( isstored );
-    isnla_ = false;		par.getYN( sKeyIsNLA(), isnla_ );
-				par.getYN( isnnstr, isnla_ );
-    objref_ = "";		par.get( sKeyObjRef(), objref_ );
-    defstring_ = "";		par.get( sKeyDefStr(), defstring_ );
-    zdomainkey_ = "";		if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
-				    par.get( "Depth Domain", zdomainkey_);
-    is2d_ = false;		par.getYN( sKeyIs2D(), is2d_ );
-
-    return true;
+    par.get( sKeyID(), id_.asInt() );
+    par.getYN( sKeyIs2D(), is2d_ );
+    if ( !par.getYN( sKeyIsNLA(), isnla_ ) )
+	par.getYN( sKeyIsNN_old, isnla_ );
+    par.get( sKeyRef(), ref_ );
+    par.get( sKeyObjRef(), objref_ );
+    par.get( sKeyDefStr(), defstring_ );
+    if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
+	par.get( "Depth Domain", zdomainkey_);
 }
 
 
-bool SelSpec::isStored() const
+bool SelSpec::isStored( const DescSet* descset ) const
 {
-    return id_.isValid() && id_.isStored();
+    if ( !id_.isValid() )
+	return false;
+
+    const Desc* desc = 0;
+    if ( descset )
+	desc = descset->getDesc( id_ );
+    else
+    {
+	descset = DSHolder().getDescSet( is2d_, true );
+	if ( descset )
+	    desc = descset->getDesc( id_ );
+	if ( !desc )
+	{
+	    descset = DSHolder().getDescSet( is2d_, false );
+	    if ( descset )
+		desc = descset->getDesc( id_ );
+	}
+    }
+
+    return desc ? desc->isStored() : false;
 }
 
 
-const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
+const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid,
+						const DescSet* descset ) const
 {
-    const DescSet* descset = DSHolder().getDescSet( false, isStored() );
-    if ( !descset || descset->isEmpty() )
-	return 0;
+    if ( !descset )
+    {
+	descset = DSHolder().getDescSet( false, isStored(0) );
+	if ( !descset || descset->isEmpty() )
+	    return 0;
+    }
 
     const Desc* desc = descset->getDesc( id() );
     if ( !desc )
@@ -411,7 +421,6 @@ void SelInfo::fillNonStored( const DescSet& attrset, const DescID& ignoreid,
 	  && desc->id() != ignoreid
 	  && (usehidden || !desc->isHidden()) )
 	{
-	    descid.setStored( false ); // just to be sure
 	    attrids_ += descid;
 	    attrnms_.add( desc->userRef() );
 	}

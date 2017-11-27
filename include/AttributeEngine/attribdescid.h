@@ -21,12 +21,8 @@ namespace Attrib
 mExpClass(AttributeEngine) DescID
 {
 public:
-			DescID()
-			    : id_(-1)
-			    , isstored_(false)			{}
-			DescID( int id, bool isstored )
-			    : id_(id)
-			    , isstored_(isstored)		{}
+    explicit		DescID( int id=-1 )
+			    : id_(id)		{}
 
     inline bool		isValid() const		{ return id_ >= 0; }
     inline bool		isUnselInvalid() const	{ return id_ < -2; }
@@ -38,17 +34,14 @@ public:
     inline bool		operator !=( const DescID& id ) const
 			{ return id.id_ != id_; }
 
-    static inline DescID undef()		{ return DescID(-1,false); }
+    static inline DescID undef()		{ return DescID(-1); }
 
     int			asInt() const		{ return id_; }
     int&		asInt()			{ return id_; }
-    bool		isStored() const	{ return isstored_; }
-    void                setStored( bool yn )    { isstored_ = yn; }
 
 protected:
 
     int			id_;
-    bool		isstored_;
 
 };
 

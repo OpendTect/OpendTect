@@ -428,7 +428,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 
 	const int attrib = visserv_->addAttrib( menu->menuID() );
-	Attrib::SelSpec spec( "Velocity", Attrib::SelSpec::cOtherAttrib(),
+	Attrib::SelSpec spec( "Velocity", Attrib::SelSpec::cOtherAttribID(),
 				false, 0 );
 	visserv_->setSelSpec( menu->menuID(), attrib, spec );
 	visserv_->enableInterpolation( menu->menuID(), true );

@@ -102,7 +102,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	if ( !outputpar->get(attribidstr,attribid) )
 	    break;
 
-	ids += DescID(attribid,false);
+	ids += DescID( attribid );
 	attribidx++;
     }
 
@@ -1146,7 +1146,7 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 	FileMultiString fms( datapointset.colDef(idx).ref_ );
 	if ( fms.size() < 2 )
 	    continue;
-	const DescID did( fms.getIValue(1), descset.containsStoredDescOnly() );
+	const DescID did( fms.getIValue(1) );
 	if ( did == DescID::undef() )
 	    continue;
 	SelSpec ss( 0, did );
@@ -1265,7 +1265,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
     }
     else
     {
-	DescID nlaid( SelSpec::cNoAttrib() );
+	DescID nlaid( SelSpec::cNoAttribID() );
 	procattrset_ = createNLAADS( nlaid, errmsg );
 	if ( !procattrset_ )
 	    mErrRet(errmsg)
@@ -1401,7 +1401,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 		for ( int idref=0; idref< attrrefs.size(); idref++ )
 		{
 		    FileMultiString fms( attrrefs.get(idref) );
-		    const DescID candidatid( fms.getIValue(1), false );
+		    const DescID candidatid( fms.getIValue(1) );
 		    if ( did == candidatid )
 			{ refidx = idref; break; }
 		}

@@ -42,7 +42,7 @@ class DescSet;
 mExpClass(AttributeEngine) SelSpec
 {
 public:
-			SelSpec( const char* r=0, DescID i=cAttribNotSel(),
+			SelSpec( const char* r=0, DescID i=cAttribNotSelID(),
 				 bool n=false, const char* objr=0 )
 			: ref_(r), id_(i), isnla_(n)
 			, objref_(objr)
@@ -88,16 +88,17 @@ public:
 			{ discrspec_ = ds; }
 
     void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		usePar(const IOPar&);
 
-    bool		isStored() const;
+    bool		isStored(const DescSet*) const;
     bool		isZTransformed() const;
 
-    const BinDataDesc*	getPreloadDataDesc(Pos::GeomID geomid=-1) const;
+    const BinDataDesc*	getPreloadDataDesc(Pos::GeomID geomid=-1,
+					    const DescSet* descset=0) const;
 
-    static const DescID& cNoAttrib();
-    static const DescID& cAttribNotSel();
-    static const DescID& cOtherAttrib();
+    static DescID	cNoAttribID()		{ return DescID(-1); }
+    static DescID	cAttribNotSelID()	{ return DescID(-2); }
+    static DescID	cOtherAttribID()	{ return DescID(-3); }
 
 protected:
 
@@ -116,7 +117,6 @@ protected:
     static const char*	sKeyIsNLA();
     static const char*	sKeyDefStr();
     static const char*	sKeyIs2D();
-    static const char*	sKeyOnlyStoredData();
 
     void		setDiscr(const DescSet&);
     void		setDiscr(const NLAModel&);

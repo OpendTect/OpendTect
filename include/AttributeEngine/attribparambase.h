@@ -134,6 +134,7 @@ public:
     virtual void	        fillDefStr(BufferString&) const;
 
 protected:
+
     DataInpSpec*		spec_;
 
     virtual bool		isEqual(const Param&) const;

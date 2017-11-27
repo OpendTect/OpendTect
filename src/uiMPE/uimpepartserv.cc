@@ -732,7 +732,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 			st->adjuster()->getAttributeSel( asidx );
 	    if ( !as || !as->id().isValid() ) continue;
 
-	    if ( as->isStored() )
+	    if ( as->isStored(attrset) )
 	    {
 		BufferString idstr;
 		Attrib::Desc::getParamString( as->defString(), "id", idstr );

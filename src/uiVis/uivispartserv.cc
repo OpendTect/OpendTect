@@ -1805,11 +1805,10 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect,
 
     const Attrib::SelSpec* as = so->getSelSpec( attrib );
     if ( !as ) return false;
-    if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+    if ( as->id() ==Attrib::SelSpec::cNoAttribID() )
 	return true;
 
-    if ( newselect ||
-	 (as->id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()) )
+    if ( newselect || (as->id() == Attrib::SelSpec::cAttribNotSelID() ) )
     {
 	if ( !selectAttrib( id, attrib ) )
 	    return false;

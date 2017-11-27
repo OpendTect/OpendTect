@@ -62,11 +62,18 @@ uiAttrSelData::uiAttrSelData( const DescSet& ads )
 }
 
 
+uiAttrSelData::~uiAttrSelData()
+{
+    detachAllNotifiers();
+}
+
+
 void uiAttrSelData::init()
 {
     nlamodel_ = 0;
     zdomaininfo_ = 0;
     setUndef();
+    mAttachCB( attrset_->aboutToBeDeleted, uiAttrSelData::descSetDel );
 }
 
 
@@ -94,11 +101,32 @@ bool uiAttrSelData::isNLA() const
 }
 
 
+void uiAttrSelData::descSetDel( CallBacker* )
+{
+    const DescSet* newds = Attrib::DSHolder().getDescSet( is2D(), false );
+    if ( newds == attrset_ )
+	newds = Attrib::DSHolder().getDescSet( is2D(), true );
+    attrset_ = newds;
+    mAttachCB( attrset_->aboutToBeDeleted, uiAttrSelData::descSetDel );
+}
+
+
+void uiAttrSelData::setAttrSet( const DescSet& newds )
+{
+    if ( &newds == attrset_ )
+	return;
+
+    mDetachCB( attrset_->aboutToBeDeleted, uiAttrSelData::descSetDel );
+    attrset_ = &newds;
+    mAttachCB( attrset_->aboutToBeDeleted, uiAttrSelData::descSetDel );
+}
+
+
 void uiAttrSelData::fillSelSpec( SelSpec& selspec ) const
 {
     if ( isNLA() )
     {
-	selspec.set( 0, DescID(nr_,true), true, "" );
+	selspec.set( 0, DescID(nr_), true, "" );
 	selspec.setRefFromID( *nlamodel_ );
     }
     else
@@ -269,36 +297,20 @@ void uiAttrSelDlg::initAndBuild( const Setup& stp )
     {
 	const Desc* desc = seldata_.attribid_.isValid()
 			? seldata_.attrSet().getDesc( seldata_.attribid_ ) :0;
+	if ( !desc )
+	{
+	    const DescID descid( seldata_.attrSet().getDefaultTargetID() );
+	    if ( descid.isValid() )
+		desc = seldata_.attrSet().getDesc( descid );
+	}
 	if ( desc )
 	{
 	    seltyp = desc->isStored() ? Stored : Attrib;
+	    const BufferString usrref( desc->userRef() );
 	    if ( seltyp == Attrib )
-		attrcur = attrinf_->attrnms_.indexOf( desc->userRef() );
+		attrcur = attrinf_->attrnms_.indexOf( usrref );
 	    else if ( storedentriesfld_ )
-	    {
-		StringPair strpair( desc->userRef() );
-		storcur = attrinf_->ioobjnms_.indexOf( strpair.first() );
-		// 2D attrib is set in cubeSelCB
-		//	called via finaliseWinCB -> selDoneCB
-	    }
-	}
-	else
-	{
-	    // Defaults are the last ones added to attrib set
-	    for ( int idx=seldata_.attrSet().size()-1; idx!=-1; idx-- )
-	    {
-		const DescID attrid = seldata_.attrSet().getID( idx );
-		const Desc& ad = *seldata_.attrSet().getDesc( attrid );
-		if ( ad.isStored() && storcur == -1 )
-		    storcur = attrinf_->ioobjnms_.indexOf( ad.userRef() );
-		else if ( !ad.isStored() && attrcur == -1 )
-		{
-		    attrcur = attrinf_->attrnms_.indexOf( ad.userRef() );
-		    seltyp = Attrib;
-		}
-		if ( storcur != -1 && attrcur != -1 )
-		    break;
-	    }
+		storcur = attrinf_->ioobjnms_.indexOf( usrref );
 	}
     }
 
@@ -643,6 +655,9 @@ void uiAttrSel::createFields()
     {
 	uiLabel* lbl = new uiLabel( this, lbltxt_, typfld_ );
 	lbl->setTextSelectable( false );
+	if ( lbltxt_.isEqualTo(uiAttrSel::sQuantityToOutput())
+	  && !seldata_.attribid_.isValid() )
+	    seldata_.attribid_ = seldata_.attrSet().getDefaultTargetID();
     }
 
     uiButton* selbut = uiButton::getStd( this, OD::Select,
@@ -798,20 +813,10 @@ void uiAttrSel::putSelectionToScreen()
     const Desc* desc = 0;
     if ( !seldata_.isNLA() )
     {
-	if ( !seldata_.attribid_.isValid() && !attrinf_->ioobjids_.isEmpty() )
-	{
+	if ( !seldata_.attribid_.isValid() )
 	    seldata_.attribid_ = seldata_.attrSet().ensureDefStoredPresent();
-	    if ( !seldata_.attribid_.isValid() )
-	    {
-		desc = seldata_.attrSet().getFirstStored( false );
-		if ( desc )
-		    seldata_.attribid_ = desc->id();
-	    }
-	}
 
-	if ( !desc )
-	    desc = seldata_.attrSet().getDesc( seldata_.attribid_ );
-
+	desc = seldata_.attrSet().getDesc( seldata_.attribid_ );
 	if ( !desc )
 	    seltyp = Stored;
 	else
@@ -898,6 +903,9 @@ void uiAttrSel::setNLAModel( const NLAModel* newmdl )
 	return;
 
     seldata_.nlamodel_ = newmdl;
+    seldata_.setOutputNr( 0 );
+    seldata_.attribid_.setInvalid();
+
     updateContent( true, true );
 }
 
@@ -1010,7 +1018,7 @@ const char* uiAttrSel::getAttrName() const
 
 bool uiAttrSel::isValidOutput( const IOObj& ioobj ) const
 {
-    if ( !seldata_.isUndef() )
+    if ( seldata_.isUndef() )
     {
 	uiMSG().error( uiStrings::phrSelect(tr("the input")) );
 	return false;

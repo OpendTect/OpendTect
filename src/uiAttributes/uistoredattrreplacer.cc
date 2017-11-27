@@ -89,7 +89,7 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
 	    int descidx=-1;
 	    if ( !descpar->get(key,descidx) ) break;
 	    if ( descidx < 0 ) continue;
-	    DescID descid( descidx, false );
+	    const DescID descid( descidx );
 	    for ( int stridx=0; stridx<storedids_.size(); stridx++ )
 	    {
 		if ( (storedids_[stridx].firstid_ == descid) ||
@@ -148,8 +148,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	{
 	    const char* storedref = descpar->find(
 					    Attrib::DescSet::userRefStr() );
-	    storedids_ += StoredEntry( DescID(idx,false), storagemid,
-				       storedref );
+	    storedids_ += StoredEntry( DescID(idx), storagemid, storedref );
 	}
 	else
 	{
@@ -161,7 +160,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 			    getOutPut(storedids_[idy].firstid_.asInt());
 		    int outnowlisted = getOutPut(idx);
 		    if ( outnowlisted != outprevlisted )
-			storedids_[idy].secondid_ = DescID( idx, false );
+			storedids_[idy].secondid_ = DescID( idx );
 
 		    break;
 		}
@@ -456,26 +455,27 @@ void uiStoredAttribReplacer::handleOneGoInputRepl()
 
     for ( int idx=0; idx<steerinprefs.size(); idx++ )
     {
-	if ( attrset_ )
+	if ( !attrset_ )
+	    setSteerPar( storedids_[steerinpidx[idx]], dlg.getSteerKey(idx),
+			 dlg.getSteerRef(idx) );
+	else
 	{
 	    StoredEntry storeentry = storedids_[steerinpidx[idx]];
-	    const int ouputidx = attrset_->getDesc(
-		DescID( storeentry.firstid_.asInt(), false ))->selectedOutput();
-	    Desc* adsteerinl = 0;
-	    Desc* adsteercrl = 0;
+	    const Desc* desc = attrset_->getDesc( storeentry.firstid_ );
+	    if ( !desc )
+		{ pErrMsg("Huh"); continue; }
+
+	    const int ouputidx = desc->selectedOutput();
+	    Desc* adsteerinl = 0; Desc* adsteercrl = 0;
 	    if ( ouputidx == 0 )
 	    {
-		adsteerinl = attrset_->getDesc(
-			DescID(storeentry.firstid_.asInt(),false) );
-		adsteercrl = attrset_->getDesc(
-			DescID(storeentry.secondid_.asInt(),false) );
+		adsteerinl = attrset_->getDesc( storeentry.firstid_ );
+		adsteercrl = attrset_->getDesc( storeentry.secondid_ );
 	    }
 	    else
 	    {
-		adsteerinl = attrset_->getDesc(
-			DescID(storeentry.secondid_.asInt(),false));
-		adsteercrl = attrset_->getDesc(
-			DescID(storeentry.firstid_.asInt(),false));
+		adsteerinl = attrset_->getDesc( storeentry.secondid_ );
+		adsteercrl = attrset_->getDesc( storeentry.firstid_ );
 	    }
 
 	    if ( adsteerinl && adsteercrl )
@@ -491,9 +491,6 @@ void uiStoredAttribReplacer::handleOneGoInputRepl()
 		adsteercrl->setUserRef( bfstr.buf() );
 	    }
 	}
-	else
-	    setSteerPar( storedids_[steerinpidx[idx]], dlg.getSteerKey(idx),
-			 dlg.getSteerRef(idx) );
     }
 }
 
@@ -561,32 +558,29 @@ void uiStoredAttribReplacer::handleMultiInput()
 	else
 	{
 	    if ( attrset_ )
+		setSteerPar( storeentry, dlg.getSteerKey(0),
+			     dlg.getSteerRef(0) );
+	    else
 	    {
 		BufferString steerref = dlg.getSteerRef(0);
 		if ( steerref.isEmpty() )
-		{
-		    removeDescsWithBlankInp( storedid );
-		    continue;
-		}
+		    { removeDescsWithBlankInp( storedid ); continue; }
 
-		const int ouputidx = attrset_->getDesc(
-			DescID(storeentry.firstid_.asInt(),false))->
-			    selectedOutput();
-		Desc* adsteerinl = 0;
-		Desc* adsteercrl = 0;
+		const Desc* desc = attrset_->getDesc( storeentry.firstid_ );
+		if ( !desc )
+		    { pErrMsg("Huh"); continue; }
+
+		const int ouputidx = desc->selectedOutput();
+		Desc* adsteerinl = 0; Desc* adsteercrl = 0;
 		if ( ouputidx == 0 )
 		{
-		    adsteerinl = attrset_->getDesc(
-			    DescID(storeentry.firstid_.asInt(),false) );
-		    adsteercrl = attrset_->getDesc(
-			    DescID(storeentry.secondid_.asInt(),false) );
+		    adsteerinl = attrset_->getDesc( storeentry.firstid_ );
+		    adsteercrl = attrset_->getDesc( storeentry.secondid_ );
 		}
 		else
 		{
-		    adsteerinl = attrset_->getDesc(
-			    DescID(storeentry.secondid_.asInt(),false));
-		    adsteercrl = attrset_->getDesc(
-			    DescID(storeentry.firstid_.asInt(),false));
+		    adsteerinl = attrset_->getDesc( storeentry.secondid_ );
+		    adsteercrl = attrset_->getDesc( storeentry.firstid_ );
 		}
 
 		if ( adsteerinl && adsteercrl )
@@ -602,9 +596,6 @@ void uiStoredAttribReplacer::handleMultiInput()
 		    adsteercrl->setUserRef( bfstr.buf() );
 		}
 	    }
-	    else
-		setSteerPar( storeentry, dlg.getSteerKey(0),
-			     dlg.getSteerRef(0) );
 	}
     }
 
@@ -623,7 +614,8 @@ void uiStoredAttribReplacer::getUserRef( const DescID& storedid,
 	{
 	    const DescID descid = attrset_->getID( idx );
 	    Desc* ad = attrset_->getDesc( descid );
-	    if ( !ad || ad->isStored() || ad->isHidden() ) continue;
+	    if ( !ad || ad->isStored() || ad->isHidden() )
+		continue;
 
 	    if ( hasInput(*ad,storedid) )
 		usrref.addIfNew( ad->userRef() );
@@ -648,11 +640,14 @@ void uiStoredAttribReplacer::getStoredIds()
     {
 	const DescID descid = attrset_->getID( idx );
 	Desc* ad = attrset_->getDesc( descid );
-        if ( !ad || !ad->isStored() ) continue;
+        if ( !ad || !ad->isStored() )
+	    continue;
 
 	const ValParam* keypar = ad->getValParam( StorageProvider::keyStr() );
 	BufferString storageid( keypar->getStringValue() );
-	if ( !storageids.addIfNew(storageid) )
+	if ( storageids.addIfNew(storageid) )
+	    storedids_ += StoredEntry( descid, storageid, ad->userRef() );
+	else
 	{
 	    for ( int idy=0; idy<storedids_.size(); idy++ )
 	    {
@@ -668,8 +663,6 @@ void uiStoredAttribReplacer::getStoredIds()
 		}
 	    }
 	}
-	else
-	    storedids_ += StoredEntry( descid, storageid, ad->userRef() );
     }
 }
 

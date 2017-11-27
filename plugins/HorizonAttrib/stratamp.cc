@@ -89,7 +89,8 @@ int StratAmpCalc::init( const IOPar& pars )
     addtotop_ = false;
     pars.getYN( sKeyAddToTopYN(), addtotop_ );
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
-    if ( !addtohor ) return -1;
+    if ( !addtohor )
+	return -1;
 
     //determine whether stored data is used
     PtrMan<IOPar> attribs = pars.subselect("Attributes");
@@ -98,14 +99,16 @@ int StratAmpCalc::init( const IOPar& pars )
 
     BufferString outpstr = IOPar::compKey( sKey::Output(), 0 );
     PtrMan<IOPar> outputpar = pars.subselect( outpstr );
-    if ( !outputpar ) return -1;
+    if ( !outputpar )
+	return -1;
     BufferString attribidstr = IOPar::compKey( sKey::Attributes(), 0 );
     int attribid;
-    if ( !outputpar->get(attribidstr,attribid) ) return -1;
+    if ( !outputpar->get(attribidstr,attribid) )
+	return -1;
 
-    Attrib::Desc* targetdesc =
-			descset_->getDesc( Attrib::DescID(attribid,false) );
-    if ( !targetdesc ) return -1;
+    Attrib::Desc* targetdesc = descset_->getDesc( Attrib::DescID(attribid) );
+    if ( !targetdesc )
+	return -1;
 
     BufferString defstring;
     targetdesc->getDefStr( defstring );
@@ -133,15 +136,18 @@ int StratAmpCalc::init( const IOPar& pars )
 	uiString errmsg;
 	PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
 	proc_ = attrengman->usePar( pars, *descset_, 0, errmsg, 0 );
-	if ( !proc_ ) return -1;
+	if ( !proc_ )
+	    return -1;
     }
 
     BufferString attribnm;
     pars.get( sKeyAttribName(), attribnm );
-    if ( attribnm.isEmpty() ) return -1;
+    if ( attribnm.isEmpty() )
+	return -1;
 
     dataidx_ = addtohor->auxdata.auxDataIndex( attribnm );
-    if ( dataidx_ < 0 ) dataidx_ = addtohor->auxdata.addAuxData( attribnm );
+    if ( dataidx_ < 0 )
+	dataidx_ = addtohor->auxdata.addAuxData( attribnm );
 
     posid_.setObjectID( addtohor->id() );
     posid_.setSectionID( addtohor->sectionID(0) );
@@ -174,7 +180,7 @@ uiString StratAmpCalc::message() const
 int StratAmpCalc::nextStep()
 {
     if ( ( !proc_ && !prov_ ) || !tophorizon_ || dataidx_<0 )
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
 
     int res = -1;
     SeisTrc* trc;
@@ -185,20 +191,23 @@ int StratAmpCalc::nextStep()
 	if ( !uirv.isOK() )
 	{
 	    if ( isFinished(uirv) )
-		mRet( Executor::Finished() );
+		mRet( Finished() );
 
 	    errmsg_ = uirv;
-	    mRet( Executor::ErrorOccurred() );
+	    mRet( ErrorOccurred() );
 	}
     }
     else
     {
 	res = proc_->nextStep();
-	if ( res == 0 ) return Executor::Finished();
-	if ( res == -1 ) return Executor::ErrorOccurred();
+	if ( res == 0 )
+	    return Finished();
+	if ( res == -1 )
+	    return ErrorOccurred();
 
 	trc = proc_->outputs_[0]->getTrc();
-	if ( !trc ) return Executor::ErrorOccurred();
+	if ( !trc ) return
+	    ErrorOccurred();
     }
 
     const BinID bid = trc->info().binID();
@@ -207,7 +216,7 @@ int StratAmpCalc::nextStep()
     float z2 = !bothorizon_ ? z1
 	: (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z_;
     if ( mIsUdf(z1) || mIsUdf(z2) )
-	return Executor::MoreToDo();
+	return MoreToDo();
 
     z1 += tophorshift_;
     z2 += bothorshift_;
@@ -228,12 +237,12 @@ int StratAmpCalc::nextStep()
     float outval = mUdf( float );
     switch ( stattyp_ )
     {
-	case Stats::Min: outval = runcalc.min(); break;
-	case Stats::Max: outval = runcalc.max(); break;
+	case Stats::Min: outval = runcalc.min();	break;
+	case Stats::Max: outval = runcalc.max();	break;
 	case Stats::Average: outval = (float) runcalc.average(); break;
 	case Stats::RMS: outval = (float) runcalc.rms(); break;
-	case Stats::Sum: outval = runcalc.sum(); break;
-	default: break;
+	case Stats::Sum: outval = runcalc.sum();	break;
+	default:					break;
     }
 
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
@@ -253,7 +262,7 @@ int StratAmpCalc::nextStep()
     else
 	proc_->outputs_[0]->deleteTrc();
 
-    return res || prov_ ? Executor::MoreToDo() : Executor::Finished();
+    return res || prov_ ? MoreToDo() : Finished();
 }
 
 

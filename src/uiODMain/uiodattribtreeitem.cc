@@ -319,7 +319,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid )
 	if ( dousemulticomp )
 	{
 	    Attrib::SelSpec mtas( "Multi-Textures",
-				  Attrib::SelSpec::cOtherAttrib() );
+				  Attrib::SelSpec::cOtherAttribID() );
 	    if ( !ODMainWin()->applMgr().calcMultipleAttribs( mtas ) )
 		return false;
 	}
@@ -367,11 +367,11 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 	dispname = toUiString("%1 (%2)").arg( as->objectRef() ).arg( nodenm );
     }
 
-    if ( as && as->id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
+    if ( as && as->id() == Attrib::SelSpec::cAttribNotSelID() )
         dispname = uiStrings::sRightClick();
     else if ( !as )
 	dispname = toUiString( visserv->getObjectName(visid) );
-    else if ( as->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
+    else if ( as->id() == Attrib::SelSpec::cNoAttribID() )
         dispname = uiString::emptyString();
 
     return dispname;
@@ -396,9 +396,9 @@ uiString uiODAttribTreeItem::createDisplayName() const
 	dispname = toUiString("%1 (%2)").arg( as.objectRef() ).arg( nodenm );
     }
 
-    if ( as.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
+    if ( as.id() == Attrib::SelSpec::cAttribNotSelID() )
 	dispname = uiStrings::sRightClick();
-    else if ( as.id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
+    else if ( as.id() == Attrib::SelSpec::cNoAttribID() )
 	dispname = uiString::emptyString();
 
     return dispname;

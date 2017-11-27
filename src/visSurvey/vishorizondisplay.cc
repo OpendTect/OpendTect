@@ -574,7 +574,7 @@ void HorizonDisplay::useTexture( bool yn, bool trigger )
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
 	    const Attrib::SelSpec* selspec = getSelSpec( idx );
-	    if ( selspec->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt())
+	    if ( selspec->id() == Attrib::SelSpec::cNoAttribID() )
 	    {
 		usestexture_ = yn;
 		setDepthAsAttrib(idx);
@@ -854,7 +854,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 
     Attrib::SelSpec& as = (*as_[channel])[0];
     const bool attribwasdepth = FixedString(as.userRef())==sKeyZValues();
-    as.set( sKeyZValues(), Attrib::SelSpec::cNoAttrib(), false, "" );
+    as.set( sKeyZValues(), Attrib::SelSpec::cNoAttribID(), false, "" );
 
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> defs;
@@ -1060,13 +1060,13 @@ void HorizonDisplay::createDisplayDataPacks(
 bool HorizonDisplay::hasStoredAttrib( int channel ) const
 {
     const Attrib::SelSpec* selspec = getSelSpec( channel );
-    return selspec->id()==Attrib::SelSpec::cOtherAttrib() &&
+    return selspec->id()==Attrib::SelSpec::cOtherAttribID() &&
 	   !FixedString(selspec->userRef()).isEmpty();
 }
 
 
 bool HorizonDisplay::hasDepth( int channel ) const
-{ return getSelSpec(channel)->id()==Attrib::SelSpec::cNoAttrib(); }
+{ return getSelSpec(channel)->id()==Attrib::SelSpec::cNoAttribID(); }
 
 
 Coord3 HorizonDisplay::getTranslation() const

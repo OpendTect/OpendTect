@@ -541,7 +541,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
     if ( uivisemobj_ )
     {
 	mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
-		  as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
+		  as->id() ==Attrib::SelSpec::cNoAttribID() );
     }
     else
     {
@@ -549,8 +549,8 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
     }
 
     const bool enabsave = changed_ ||
-	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
-	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
+	(as && as->id()!=Attrib::SelSpec::cNoAttribID() &&
+	 as->id()!=Attrib::SelSpec::cAttribNotSelID() );
 
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
     const bool enabletool = !MPE::engine().trackingInProgress();
@@ -599,7 +599,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    if ( saved )
 	    {
 		const Attrib::SelSpec newas( auxdatanm,
-			Attrib::SelSpec::cOtherAttrib() );
+			Attrib::SelSpec::cOtherAttribID() );
 		visserv->setSelSpec( visid, attribnr, newas );
 		BufferStringSet* userrefs = new BufferStringSet;
 		userrefs->add( "Section ID" );
@@ -630,7 +630,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 
-	if ( !as || as->id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
+	if ( !as || as->id() != Attrib::SelSpec::cOtherAttribID() )
 	{
 	   uiMSG().error(tr("This algorithm can only be applied on "
 			    "'Horizon Data'.\nPlease save attribute first"));
@@ -658,7 +658,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(name_.getFullString(),
-				Attrib::SelSpec::cOtherAttrib()) );
+				Attrib::SelSpec::cOtherAttribID()) );
 	visserv->setRandomPosData( visid, attribnr, vals );
 	changed_ = true;
     }
@@ -703,7 +703,7 @@ void uiODEarthModelSurfaceDataTreeItem::setDataPointSet(
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
     visserv->setSelSpec( visid, attribnr,
-	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
+	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttribID()) );
     visserv->setRandomPosData( visid, attribnr, &vals );
     visserv->selectTexture( visid, attribnr, 0 );
     updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -715,7 +715,7 @@ uiString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
-    if ( as && as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+    if ( as && as->id() == Attrib::SelSpec::cNoAttribID() )
         return uiStrings::sZValue(mPlural);
 
      if ( as && as->userRef() && *as->userRef() != 0 )

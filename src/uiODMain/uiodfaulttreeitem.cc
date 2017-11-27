@@ -709,11 +709,11 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	    false && !islocked && nrsurfdata>0, false );
 
     mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
-	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
+	    as->id() == Attrib::SelSpec::cNoAttribID() );
 
     const bool enabsave = changed_ ||
-	    (as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
-	     as->id()!=Attrib::SelSpec::cAttribNotSel() );
+	    (as && as->id()!=Attrib::SelSpec::cNoAttribID() &&
+	     as->id()!=Attrib::SelSpec::cAttribNotSelID() );
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
     mAddMenuItem( menu, &algomnuitem_, false, false );
 }
@@ -745,7 +745,7 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    if ( saved )
 	    {
 		const Attrib::SelSpec newas( auxdatanm,
-			Attrib::SelSpec::cOtherAttrib() );
+			Attrib::SelSpec::cOtherAttribID() );
 		visserv->setSelSpec( visid, attribnr, newas );
 		BufferStringSet* userrefs = new BufferStringSet;
 		userrefs->add( "Section ID" );
@@ -799,7 +799,7 @@ void uiODFaultSurfaceDataTreeItem::setDataPointSet( const DataPointSet& vals )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
     visserv->setSelSpec( visid, attribnr,
-	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
+	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttribID()) );
     visserv->setRandomPosData( visid, attribnr, &vals );
     visserv->selectTexture( visid, attribnr, 0 );
     updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -811,7 +811,7 @@ uiString uiODFaultSurfaceDataTreeItem::createDisplayName() const
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
-    if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+    if ( as->id() == Attrib::SelSpec::cNoAttribID() )
         return uiStrings::sZValue(mPlural);
 
     return uiODAttribTreeItem::createDisplayName();

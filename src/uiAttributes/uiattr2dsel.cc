@@ -48,7 +48,6 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 			mNoDlgTitle,mNoHelpKey))
     , geomids_(geomids)
     , nla_(nla)
-    , descid_(-1,true)
     , curnm_(curnm)
     , seltype_(0)
     , selgrp_(0)

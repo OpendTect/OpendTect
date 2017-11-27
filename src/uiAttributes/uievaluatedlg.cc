@@ -285,7 +285,6 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     , initpar_(*new IOPar)
     , seldesc_(0)
     , enabstore_(store)
-    , srcid_(-1,true)
     , haspars_(false)
 {
     srcid_ = ade.curDesc()->id();

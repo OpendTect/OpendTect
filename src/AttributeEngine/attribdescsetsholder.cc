@@ -36,9 +36,6 @@ DescSetsHolder::DescSetsHolder()
     adsman3d_ = new DescSetMan( false );
     adsstored2d_ = new DescSet( true );
     adsstored3d_ = new DescSet( false );
-
-    adsstored2d_->setContainStoredDescOnly( true );
-    adsstored3d_->setContainStoredDescOnly( true );
 }
 
 

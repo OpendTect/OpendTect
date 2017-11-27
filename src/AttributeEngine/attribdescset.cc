@@ -48,12 +48,12 @@ uiString DescSet::sFactoryEntryNotFound( const char* attrnm )
 
 DescSet::DescSet( bool is2d )
     : is2d_(is2d)
-    , storedattronly_(false)
     , couldbeanydim_(false)
     , descAdded(this)
     , descUserRefChanged(this)
     , descToBeRemoved(this)
     , descRemoved(this)
+    , aboutToBeDeleted(this)
 {
     ensureDefStoredPresent();
 }
@@ -61,12 +61,12 @@ DescSet::DescSet( bool is2d )
 
 DescSet::DescSet( const DescSet& ds )
     : is2d_(ds.is2d_)
-    , storedattronly_(ds.storedattronly_)
     , couldbeanydim_(ds.couldbeanydim_)
     , descAdded(this)
     , descUserRefChanged(this)
     , descToBeRemoved(this)
     , descRemoved(this)
+    , aboutToBeDeleted(this)
 {
     *this = ds;
 }
@@ -74,6 +74,7 @@ DescSet::DescSet( const DescSet& ds )
 
 DescSet::~DescSet()
 {
+    aboutToBeDeleted.trigger();
     detachAllNotifiers();
     removeAll( false );
 }
@@ -142,7 +143,6 @@ DescSet& DescSet::operator =( const DescSet& ds )
     {
 	removeAll( false );
 	is2d_ = ds.is2d_;
-	storedattronly_ = ds.storedattronly_;
 	couldbeanydim_ = ds.couldbeanydim_;
 	for ( int idx=0; idx<ds.size(); idx++ )
 	    addDesc( new Desc( *ds.descs_[idx] ), ds.ids_[idx] );
@@ -211,7 +211,7 @@ void DescSet::usrRefChgCB( CallBacker* cb )
 
 Desc* DescSet::gtDesc( const DescID& id ) const
 {
-    const int idx = ids_.indexOf( id );
+    const int idx = indexOf( id );
     if ( !descs_.validIdx(idx) )
 	return 0;
 
@@ -295,10 +295,23 @@ DescID DescSet::getID( const char* str, bool isusrref, bool isdescstored,
 }
 
 
+DescID DescSet::getDefaultTargetID() const
+{
+    for ( int idx=size()-1; idx!=-1; idx-- )
+    {
+	const Desc& ad = *descs_[idx];
+	if ( !ad.isStored() )
+	    return ad.id();
+    }
+    return ensureDefStoredPresent();
+}
+
+
 void DescSet::removeDesc( const DescID& id )
 {
-    const int idx = ids_.indexOf(id);
-    if ( idx==-1 ) return;
+    const int idx = indexOf( id );
+    if ( idx < 0 )
+	return;
 
     descToBeRemoved.trigger( id );
 
@@ -315,7 +328,7 @@ void DescSet::removeDesc( const DescID& id )
 void DescSet::moveDescUpDown( const DescID& id, bool moveup )
 {
     const int sz = ids_.size();
-    const int selidx = ids_.indexOf( id );
+    const int selidx = indexOf( id );
     int gotoidx = moveup ? selidx-1 : selidx+1;
     while ( gotoidx>=0 && gotoidx<sz && descs_[gotoidx]
 	    && ( descs_[gotoidx]->isHidden() || descs_[gotoidx]->isStored() ) )
@@ -357,9 +370,6 @@ void DescSet::removeAll( bool kpdef )
 	ensureDefStoredPresent();
 }
 
-
-//As we do not store DescSets with storedattronly_=true it is useless to check
-//for this in usePar and fillPar
 
 void DescSet::fillPar( IOPar& par ) const
 {
@@ -666,13 +676,14 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	Desc& dsc = *descs_[idx];
 	for ( int input=0; input<dsc.nrInputs(); input++ )
 	{
-	    const char* key = IOPar::compKey( inputPrefixStr(), input );
+	    const BufferString key = IOPar::compKey( inputPrefixStr(), input );
 
 	    int inpid;
-	    if ( !descpar->get(key,inpid) ) continue;
-
-	    Desc* inpdesc = getDesc( DescID(inpid,false) );
-	    if ( !inpdesc ) continue;
+	    if ( !descpar->get(key,inpid) )
+		continue;
+	    Desc* inpdesc = getDesc( DescID(inpid) );
+	    if ( !inpdesc )
+		continue;
 
 	    dsc.setInput( input, inpdesc );
 	}
@@ -826,7 +837,7 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 	indexes += idx;
 
 	dsc->updateParams();
-	addDesc( dsc, DescID(id,storedattronly_) );
+	addDesc( dsc, DescID(id) );
 	copypar.updateComp( *descpar, toString(id) );
     }
 
@@ -835,7 +846,7 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
     useOldSteeringPar(copypar, newsteeringdescs, errmsgs);
 
     for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
-	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1, false ) );
+	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1 ) );
 
     int nrdescsnosteer = ids_.size()-newsteeringdescs.size();
     if ( !setAllInputDescs( nrdescsnosteer, copypar, errmsgs ) )
@@ -866,7 +877,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 				     steeringdescid) )
 		mHandleParseErr( tr("Cannot create steering definition"));
 
-	    Desc* dsc = getDesc( DescID(id,false) );
+	    Desc* dsc = getDesc( DescID(id) );
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
 		BufferString inputstr = IOPar::compKey( sKey::Input(), idx );
@@ -946,14 +957,14 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     const char* inldipstr = steeringpar.find("InlDipID");
     if ( inldipstr )
     {
-	DescID inldipid( toInt(inldipstr), false );
+	DescID inldipid( toInt(inldipstr) );
 	stdesc->setInput( 0, getDesc(inldipid) );
     }
 
     const char* crldipstr = steeringpar.find("CrlDipID");
     if ( crldipstr )
     {
-	DescID crldipid( toInt(crldipstr), false );
+	DescID crldipid( toInt(crldipstr) );
 	stdesc->setInput( 1, getDesc(crldipid) );
     }
 
@@ -990,7 +1001,7 @@ DescID DescSet::getFreeID() const
 	    highestid = index;
     }
 
-    return DescID( highestid+1, storedattronly_ );
+    return DescID( highestid+1 );
 }
 
 
@@ -1130,12 +1141,8 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 DescSet* DescSet::optimizeClone( const BufferStringSet& targetsstr ) const
 {
     TypeSet<DescID> needednodes;
-    DescID id(-1,true);
     for ( int idx=0; idx<targetsstr.size(); idx++ )
-    {
-	id = getID( targetsstr.get( idx ), true);
-	needednodes += id;
-    }
+	needednodes += getID( targetsstr.get( idx ), true );
 
     return optimizeClone( needednodes );
 }
@@ -1402,14 +1409,6 @@ void DescSet::createAndAddMultOutDescs( const DescID& targetid,
 	newdesc->setUserRef( seloutnms[idx]->buf() );
 	outdescids += addDesc( newdesc );
     }
-}
-
-
-void DescSet::setContainStoredDescOnly( bool yn )
-{
-    storedattronly_ = yn;
-    for ( int idx=0; idx<ids_.size(); idx++ )
-	ids_[idx].setStored( yn );
 }
 
 

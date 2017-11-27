@@ -68,7 +68,7 @@ void DescSetMan::cleanHist( IOPar& selhist, const DescSet& newads )
 	const int id = selhist.getValue(ikey).toInt();
 	if ( id < 0 ) continue;
 
-	const Desc* desc = ads_->getDesc( DescID(id,false) );
+	const Desc* desc = ads_->getDesc( DescID(id) );
 	bool keep = false;
 	if ( desc )
 	{

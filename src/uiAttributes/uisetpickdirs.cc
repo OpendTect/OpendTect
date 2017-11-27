@@ -286,10 +286,10 @@ bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
     const int nrnlaouts = selinfo.nlaoutnms_.size();
     for ( int idx=0; idx<nrnlaouts; idx++ )
     {
-	DescID nlaid( -1, false );
+	DescID nlaid;
 	if ( ids.isEmpty() )
 	{
-	    SelSpec tmpspec( selinfo.nlaoutnms_.get( idx ) );
+	    SelSpec tmpspec( selinfo.nlaoutnms_.get(idx) );
 	    tmpspec.setIDFromRef( *nlamdl_ );
 	    aem.setAttribSpec( tmpspec );
 	    uiString errmsg;

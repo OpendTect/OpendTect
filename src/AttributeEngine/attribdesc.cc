@@ -117,7 +117,15 @@ Desc::~Desc()
 
 
 const OD::String& Desc::attribName() const
-{ return attribname_; }
+{
+    return attribname_;
+}
+
+
+DescSet* Desc::descSet() const
+{
+    return descset_;
+}
 
 
 void Desc::setDescSet( DescSet* nds )
@@ -127,10 +135,11 @@ void Desc::setDescSet( DescSet* nds )
 	set2D( nds->is2D() );
 }
 
-DescSet* Desc::descSet() const			{ return descset_; }
 
 DescID Desc::id() const
-{ return descset_ ? descset_->getID(*this) : DescID(-1,true); }
+{
+    return descset_ ? descset_->getID(*this) : DescID::undef();
+}
 
 
 bool Desc::getDefStr( BufferString& res ) const
@@ -465,7 +474,7 @@ bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
 DescID Desc::inputId( int idx ) const
 {
     const bool valididx = idx >= 0 && idx < inputs_.size();
-    return valididx && inputs_[idx] ? inputs_[idx]->id() : DescID(-1,true);
+    return valididx && inputs_[idx] ? inputs_[idx]->id() : DescID::undef();
 }
 
 

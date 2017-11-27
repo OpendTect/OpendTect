@@ -329,7 +329,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	const Attrib::SelSpec* as =
 	    visserv_->getSelSpec( displayID(), attribNr() );
 	const bool hasattrib =
-	    as && as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
+	    as && as->id() != Attrib::SelSpec::cAttribNotSelID();
 
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dvditem_,
 			  hasattrib, false )

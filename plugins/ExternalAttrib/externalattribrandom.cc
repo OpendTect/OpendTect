@@ -173,7 +173,7 @@ void RandomManager::handleMenuCB( CallBacker* cb )
     menu->setIsHandled( true );
 
     const int attrib = visserv->addAttrib( menu->menuID() );
-    Attrib::SelSpec spec( 0, Attrib::SelSpec::cOtherAttrib(), false, 0 );
+    Attrib::SelSpec spec( 0, Attrib::SelSpec::cOtherAttribID(), false, 0 );
     spec.setDefString( Random::sAttribName() );
     visserv->setSelSpec( menu->menuID(), attrib, spec );
     visserv->calculateAttrib( menu->menuID(), attrib, false );
@@ -204,7 +204,7 @@ BufferString uiRandomTreeItem::createDisplayName() const
 uiODDataTreeItem* uiRandomTreeItem::create( const Attrib::SelSpec& as,
 					    const char* parenttype )
 {
-    if ( as.id()!=Attrib::SelSpec::cOtherAttrib() ||
+    if ( as.id()!=Attrib::SelSpec::cOtherAttribID() ||
 	 strcmp( as.defString(), sKeyDefinition() ) )
 	return 0;
 

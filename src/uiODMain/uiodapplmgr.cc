@@ -631,7 +631,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( !cs.isDefined() )
 		return false;
 
-	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
+	    if ( myas[0].id() == Attrib::SelSpec::cOtherAttribID() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
@@ -686,7 +686,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    attrserv_->setTargetSelSpecs( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			    visserv_->getObject(visid) );
-	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
+	    if ( myas[0].id() == Attrib::SelSpec::cOtherAttribID() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
@@ -821,12 +821,13 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	uiMSG().error( tr("Cannot calculate attribute on this object") );
 	return false;
     }
-    else if ( as->id() == as->cNoAttrib() || as->id() == as->cAttribNotSel() )
+    else if ( as->id() == as->cNoAttribID()
+	   || as->id() == as->cAttribNotSelID() )
 	return false;
 
     Attrib::SelSpec myas( *as );
     DataPackMgr& dpm = DPM(DataPackMgr::PointID());
-    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
+    if ( myas.id() == Attrib::SelSpec::cOtherAttribID() )
     {
 	const DBKey surfmid = visserv_->getDBKey(visid);
 	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
@@ -1705,7 +1706,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evEvalCalcAttr() )
     {
-	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
+	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttribID() );
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
 	    uiMSG().error( uiStrings::phrSelect(tr("an attribute"
