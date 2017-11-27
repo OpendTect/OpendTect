@@ -35,6 +35,7 @@ Survey::Geometry2D::Geometry2D( const char* lnm )
 Survey::Geometry2D::Geometry2D( PosInfo::Line2DData* l2d )
     : data_(l2d ? *l2d : *new PosInfo::Line2DData)
     , trcdist_(mUdf(float))
+    , linelength_(mUdf(float))
 {
     sampling_.hsamp_.survid_ = TrcKey::std2DSurvID();
     mSetSampling;
