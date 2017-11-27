@@ -45,11 +45,14 @@ uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     , propmenuitem_( m3Dots(uiStrings::sProperties()) )
     , treeToBeAdded( this )
 {
-    vismenu_->ref();
-    vismenu_->createnotifier.notify(
-	    mCB(this,uiVisDataPointSetDisplayMgr,createMenuCB) );
-    vismenu_->handlenotifier.notify(
-	    mCB(this,uiVisDataPointSetDisplayMgr,handleMenuCB) );
+    if ( vismenu_ )
+    {
+	vismenu_->ref();
+	vismenu_->createnotifier.notify(
+		mCB(this,uiVisDataPointSetDisplayMgr,createMenuCB) );
+	vismenu_->handlenotifier.notify(
+		mCB(this,uiVisDataPointSetDisplayMgr,handleMenuCB) );
+    }
 }
 
 
@@ -69,7 +72,7 @@ uiVisDataPointSetDisplayMgr::~uiVisDataPointSetDisplayMgr()
 
 
 class uiSetSizeDlg : public uiDialog
-{ mODTextTranslationClass(uiSetSizeDlg);
+{ mODTextTranslationClass(uiSetSizeDlg)
 public:
 uiSetSizeDlg( uiParent * p, visSurvey::PointSetDisplay* disp )
     : uiDialog( p, uiDialog::Setup(tr("Set size of points"),
@@ -79,8 +82,7 @@ uiSetSizeDlg( uiParent * p, visSurvey::PointSetDisplay* disp )
     setCtrlStyle( uiDialog::CloseOnly );
     const float fsz = (float)pointsetdisp_->getPointSize();
     slider_ = new uiSlider( this, uiSlider::Setup(uiStrings::sSize()), "Size" );
-    slider_->setInterval( StepInterval<float>(fsz-10.0f,
-							   fsz+10.0f, 1.0f) );
+    slider_->setInterval( StepInterval<float>(fsz-10.0f,fsz+10.0f,1.0f) );
     slider_->setMinValue( 1 );
     slider_->setMaxValue( 15 );
     slider_->setValue( fsz );
@@ -134,7 +136,7 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
 
 
 class uiCreateBodyDlg : public uiDialog
-{ mODTextTranslationClass(uiCreateBodyDlg);
+{ mODTextTranslationClass(uiCreateBodyDlg)
 public:
 uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
     : uiDialog(p,uiDialog::Setup(tr("Body Creation"),tr("Create new Body"),
