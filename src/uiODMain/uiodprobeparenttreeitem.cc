@@ -161,7 +161,6 @@ bool uiODSceneProbeParentTreeItem::addDefaultAttribLayer( uiODApplMgr& applmgr,
 
     AttribProbeLayer* attriblayer = new AttribProbeLayer;
     attriblayer->setSelSpec( as );
-    attriblayer->useDisplayPars();
     TrcKeyZSampling probepos = probe.position();
     probe.addLayer( attriblayer );
     return true;
@@ -203,14 +202,17 @@ bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
     }
 
     attriblayer->setSelSpec( attrlayselspec );
-    if ( !attriblayer->useDisplayPars() )
+    if ( attriblayer->selSpec().isStored(0)
+      && !attriblayer->haveSavedDispPars() )
     {
+	/* TODO add 'never show this message again' facility */
 	uiMSG().message( tr("No saved color settings found for the selected"
 	      " cube. Default settings will be loaded. For changing "
-	"these settings, click on \"Save Color Settings\" option in tree."),
-	uiString::emptyString(), uiString::emptyString(), true );
+	    "these settings, click on \"Save Color Settings\" option in tree."),
+	    uiString::emptyString(), uiString::emptyString(), true );
 	attriblayer->saveDisplayPars();
     }
+
     probe.addLayer( attriblayer );
     return true;
 }
@@ -326,7 +328,6 @@ uiODDataTreeItem* uiODSceneProbeTreeItem::createAttribItem(
     }
 
     attriblayer->setSelSpec( attrlayselspec );
-    attriblayer->useDisplayPars();
     parentprobe->addLayer( attriblayer );
 
     return createProbeLayerItem( *attriblayer );

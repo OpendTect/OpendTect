@@ -89,7 +89,13 @@ const AttribProbeLayer::Sequence& AttribProbeLayer::sequence() const
 
 void AttribProbeLayer::setSequence( const Sequence& seq )
 {
-    mLock4Write();
+    mLock4Read();
+    if ( &seq == colseq_ )
+	return;
+
+    if ( !mLock2Write() && &seq == colseq_ )
+	return;
+
     if ( replaceMonitoredRef(colseq_,seq,this) )
 	mSendChgNotif( cColSeqChange(), cUnspecChgID() );
 }
@@ -107,18 +113,6 @@ const char* AttribProbeLayer::layerType() const
 }
 
 
-const char* AttribProbeLayer::sAttribDataPackID()
-{
-    return IOPar::compKey( sKey::Attribute(), "DataPackID" );
-}
-
-
-const char* AttribProbeLayer::sAttribColTabName()
-{
-    return IOPar::compKey( sKey::Attribute(), "ColTabName" );
-}
-
-
 void AttribProbeLayer::initClass()
 {
     PrLayFac().addCreateFunc( createFrom, sFactoryKey() );
@@ -127,27 +121,38 @@ void AttribProbeLayer::initClass()
 
 void AttribProbeLayer::fillPar( IOPar& par ) const
 {
-    mLock4Read();
-
     ProbeLayer::fillPar( par );
+
+    mLock4Read();
     attrspec_.fillPar( par );
-    par.set( sAttribDataPackID(), attribdpid_ );
-    par.set( sAttribColTabName(), colseq_->name() );
-    mapper_->setup().fillPar( par );
+
+    IOPar ctabpar;
+    ctabpar.set( sKey::Name(), colseq_->name() );
+    mapper_->setup().fillPar( ctabpar );
+    par.mergeComp( ctabpar, sKey::ColTab() );
 }
 
 
-bool AttribProbeLayer::usePar( const IOPar& par )
+void AttribProbeLayer::usePar( const IOPar& par )
 {
+    ProbeLayer::usePar( par );
     mLock4Write();
-
     attrspec_.usePar( par );
-    par.get( sAttribDataPackID(), attribdpid_ );
-    BufferString seqnm( colseq_->name() );
-    par.get( sAttribColTabName(), seqnm );
-    colseq_ = ColTab::SeqMGR().getAny( seqnm );
-    mapper_->setup().usePar( par );
-    return true;
+    usePar4ColTab( par );
+}
+
+
+void AttribProbeLayer::usePar4ColTab( const IOPar& par )
+{
+    PtrMan<IOPar> ctabpar = par.subselect( sKey::ColTab() );
+    if ( ctabpar && !ctabpar->isEmpty() )
+    {
+	BufferString seqnm( colseq_->name() );
+	ctabpar->get( sKey::Name(), seqnm );
+	if ( !seqnm.isEmpty() )
+	    setSequence( *ColTab::SeqMGR().getAny(seqnm) );
+	mapper_->setup().usePar( *ctabpar );
+    }
 }
 
 
@@ -190,19 +195,40 @@ void AttribProbeLayer::setDataPackID( DataPack::ID dpid )
 }
 
 
+bool AttribProbeLayer::haveSavedDispPars() const
+{
+    PtrMan<SeisIOObjInfo> seisobjinfo = gtSeisInfo();
+    PtrMan<IOPar> ctabpar;
+    if ( seisobjinfo )
+    {
+	IOPar iop;
+	seisobjinfo->getDisplayPars( iop );
+	ctabpar = iop.subselect( sKey::ColTab() );
+    }
+
+    return ctabpar && !ctabpar->isEmpty();
+}
+
+
 void AttribProbeLayer::setSelSpec( const Attrib::SelSpec& as )
 {
     mLock4Read();
-
     if ( attrspec_ == as )
 	return;
-
     if ( !mLock2Write() && attrspec_ == as )
 	return;
 
     attrspec_ = as;
     attribdpid_ = DataPack::cNoID();
     name_ = attrspec_.userRef();
+
+    PtrMan<SeisIOObjInfo> seisobj = gtSeisInfo();
+    IOPar iop;
+    if ( !seisobj || !seisobj->getDisplayPars(iop) )
+	mapper_->setup().setNotFixed();
+    else
+	usePar4ColTab( iop );
+
     mSendChgNotif( cDataChange(), cUnspecChgID() );
 }
 
@@ -244,76 +270,53 @@ void AttribProbeLayer::invalidateData()
 
 SeisIOObjInfo* AttribProbeLayer::gtSeisInfo() const
 {
+    const Attrib::SelSpec selspec = selSpec();
+
     const Attrib::DescSet* attrset =
-	Attrib::DSHolder().getDescSet( attrspec_.is2D(), true );
+	Attrib::DSHolder().getDescSet( selspec.is2D(), true );
+    if ( !attrset )
+	attrset = Attrib::DSHolder().getDescSet( selspec.is2D(), false );
+
     const Attrib::Desc* desc =
-	attrset ? attrset->getDesc( attrspec_.id() ) : 0;
+	attrset ? attrset->getDesc( selspec.id() ) : 0;
     if ( !desc )
     {
-	attrset = Attrib::DSHolder().getDescSet( attrspec_.is2D(), false );
-	desc = attrset ? attrset->getDesc( attrspec_.id() ) : 0;
+	attrset = Attrib::DSHolder().getDescSet( selspec.is2D(), false );
+	desc = attrset ? attrset->getDesc( selspec.id() ) : 0;
 	if ( !desc )
 	    return 0;
     }
 
-    DBKey storedid = desc->getStoredID();
-    if ( !desc->isStored() || storedid.isInvalid() )
+    if ( !desc->isStored() )
 	return 0;
 
-    if ( !DBM().get(storedid) )
-	return 0;
+    const DBKey storedid = desc->getStoredID();
+    if ( storedid.isInvalid() )
+	{ pErrMsg("Huh"); return 0; }
 
-    SeisIOObjInfo* seisobj = new SeisIOObjInfo( storedid );
-    return seisobj;
-}
+    SeisIOObjInfo* seisobjinfo = new SeisIOObjInfo( storedid );
+    if ( !seisobjinfo->isOK() )
+	{ delete seisobjinfo; seisobjinfo = 0; }
 
-
-bool AttribProbeLayer::useDisplayPars()
-{
-    mLock4Read();
-
-    if ( attrspec_.isNLA() )
-	return false;
-
-    PtrMan<SeisIOObjInfo> seisobj = gtSeisInfo();
-    if ( !seisobj )
-	return false;
-
-    IOPar iop;
-    if ( !seisobj->getDisplayPars(iop) )
-	return false;
-
-    mLock2Write();
-
-    mapper_->setup().usePar( iop );
-
-    BufferString seqnm = iop.find( sKey::Name() );
-    if ( !seqnm.isEmpty() )
-	colseq_ = ColTab::SeqMGR().getAny( seqnm );
-
-    mSendChgNotif( cColSeqChange(), cUnspecChgID() );
-    return true;
+    return seisobjinfo;
 }
 
 
 void AttribProbeLayer::saveDisplayPars()
 {
-    mLock4Read();
-
-    if ( attrspec_.isNLA() )
-	return;
-        
-    PtrMan<SeisIOObjInfo> seisobj = gtSeisInfo();
-    if ( !seisobj )
+    PtrMan<SeisIOObjInfo> seisobjinfo = gtSeisInfo();
+    if ( !seisobjinfo )
 	return;
 
     IOPar iop;
-    if ( !seisobj->getDisplayPars(iop) )
-	return;
+    seisobjinfo->getDisplayPars( iop );
 
-    iop.set( sKey::Name(), colseq_->name() );
-    mapper_->setup().fillPar( iop );
-    iop.set( sKey::Type(), "Fixed" );
+    mLock4Read();
+    mapper_->setup().setFixedRange( mapper_->setup().range() );
+    IOPar coltabiop;
+    coltabiop.set( sKey::Name(), colseq_->name() );
+    mapper_->setup().fillPar( coltabiop );
 
-    seisobj->saveDisplayPars( iop );
+    iop.mergeComp( coltabiop, sKey::ColTab() );
+    seisobjinfo->saveDisplayPars( iop );
 }

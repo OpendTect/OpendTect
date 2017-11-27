@@ -34,12 +34,12 @@ public:
 			mDeclAbstractMonitorableAssignment(ProbeLayer);
 
     virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&)		=0;
-    virtual void	invalidateData()		=0;
-    virtual const char* layerType() const		=0;
+    virtual void	usePar(const IOPar&);
+    virtual void	invalidateData()		{}
+    virtual const char* layerType() const		= 0;
 
-    virtual bool	useDisplayPars() { return false; }
-    virtual void	saveDisplayPars() {}
+    virtual bool	haveSavedDispPars() const	{ return false; }
+    virtual void	saveDisplayPars()		{}
 
     ID			getID() const;
     const Probe*	getProbe() const;
@@ -96,7 +96,7 @@ public:
     mImplSimpleMonitoredGet(position,TrcKeyZSampling,probepos_);
 
     void		setPos(const TrcKeyZSampling&);
-    virtual const char* type() const				=0;
+    virtual const char* type() const			=0;
     virtual bool	is2D() const			{ return false; }
     virtual bool	isVertical() const		{ return true; }
     virtual bool	is3DSlice() const		{ return false; }

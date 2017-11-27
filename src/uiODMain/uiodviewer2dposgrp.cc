@@ -505,7 +505,6 @@ Probe* Viewer2DPosDataSel::createNewProbe()
 
     AttribProbeLayer* attrlayer = new AttribProbeLayer();
     attrlayer->setSelSpec( selspec_ );
-    attrlayer->useDisplayPars();
     probe->addLayer( attrlayer );
     return probe;
 }

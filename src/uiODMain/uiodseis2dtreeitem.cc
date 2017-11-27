@@ -349,7 +349,6 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	    }
 
 	    attriblay->setSelSpec( selattrselspec );
-	    attriblay->useDisplayPars();
 	    l2dprobe->addLayer( attriblay );
 	    uiODDataTreeItem* attrtreeitem =
 		itm->createProbeLayerItem( *attriblay );

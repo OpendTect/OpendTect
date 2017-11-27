@@ -23,8 +23,8 @@ mExpClass(AttributeEngine) AttribProbeLayer : public ProbeLayer
 {
 public:
 
-    typedef ColTab::Sequence		Sequence;
-    typedef ColTab::Mapper		Mapper;
+    typedef ColTab::Sequence	Sequence;
+    typedef ColTab::Mapper	Mapper;
 
     enum DispType		{ VD, Wiggle, RGB };
 
@@ -34,10 +34,10 @@ public:
 
     const char*			layerType() const;
     void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			usePar(const IOPar&);
 
     bool			hasData() const
-				{ return !attribdpid_.isInvalid(); }
+				{ return attribdpid_.isValid(); }
     virtual void		invalidateData();
     virtual DataPack::MgrID	getDataPackManagerID() const
 				{ return DataPackMgr::SeisID(); }
@@ -55,24 +55,23 @@ public:
     int				nrAvialableComponents() const;
     void			setSelectedComponent(int);
     void			setDataPackID(DataPack::ID);
-    virtual bool		useDisplayPars();
+
+    virtual bool		haveSavedDispPars() const;
     virtual void		saveDisplayPars();
 
     static ProbeLayer*		createFrom(const IOPar&);
     static void			initClass();
 
     static ChangeType		cDataChange()		{ return 2; }
-    static ChangeType		cColSeqChange()		{ return 3; }
-    static ChangeType		cMapperChange()		{ return 4; }
-    static ChangeType		cSelCompChange()	{ return 5; }
+    static ChangeType		cSelSpecChg()		{ return 3; }
+    static ChangeType		cColSeqChange()		{ return 4; }
+    static ChangeType		cMapperChange()		{ return 5; }
+    static ChangeType		cSelCompChange()	{ return 6; }
 
     static const char*		sFactoryKey();
-    static const char*		sAttribDataPackID();
-    static const char*		sAttribColTabName();
 
 protected:
 
-    SeisIOObjInfo*		gtSeisInfo() const;
     Attrib::SelSpec&		attrspec_;
     DispType			disptype_;
     DataPack::ID		attribdpid_;
@@ -81,6 +80,9 @@ protected:
     ConstRefMan<Sequence>	colseq_;
     RefMan<Mapper>		mapper_;
 
+    void			usePar4ColTab(const IOPar&);
     void			handleDataPackChange();
+    void			handleSelSpecChg();
+    SeisIOObjInfo*		gtSeisInfo() const;
 
 };

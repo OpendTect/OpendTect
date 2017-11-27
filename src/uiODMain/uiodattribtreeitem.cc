@@ -327,10 +327,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid )
 	{
 	    AttribProbeLayer* attrlayer = attribProbeLayer();
 	    if ( attrlayer )
-	    {
 		attrlayer->setSelSpec( myas );
-		attrlayer->useDisplayPars();
-	    }
 	}
 	return true;
     }

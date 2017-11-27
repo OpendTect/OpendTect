@@ -33,8 +33,8 @@ const char* Annotation::sKeyShwAux()	   { return "Show aux data"; }
 const char* DataDispPars::sKeyVD()	{ return "VD"; }
 const char* DataDispPars::sKeyWVA()	{ return "WVA"; }
 const char* DataDispPars::sKeyShow()	{ return "Show"; }
-const char* DataDispPars::sKeyDispRg()	{ return "Range"; }
-const char* DataDispPars::sKeyColTab()	{ return "Color Table"; }
+const char* DataDispPars::sKeyDispRg()	{ return sKey::Range(); }
+const char* DataDispPars::sKeyColTab()	{ return sKey::ColTab(); }
 const char* DataDispPars::sKeyFlipSequence() { return "Flip Sequence"; }
 const char* DataDispPars::sKeyCyclicSequence() { return "Cyclic Sequence"; }
 const char* DataDispPars::sKeyLinearInter()  { return "Linear Interpolation"; }

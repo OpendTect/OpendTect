@@ -94,6 +94,11 @@ void ProbeLayer::fillPar( IOPar& par ) const
 }
 
 
+void ProbeLayer::usePar( const IOPar& )
+{
+}
+
+
 ProbeLayerFactory& PrLayFac()
 {
     mDefineStaticLocalObject(ProbeLayerFactory,probelayfac_,);

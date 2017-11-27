@@ -42,6 +42,7 @@ namespace sKey
     inline FixedString Category()	{ return "Category"; }
     inline FixedString Chain()		{ return "Chain"; }
     inline FixedString Color()		{ return "Color"; }
+    inline FixedString ColTab()		{ return "Color Table"; }
     inline FixedString CoordSys()	{ return "Coordinate System"; }
     inline FixedString Component()	{ return "Component"; }
     inline FixedString Content()	{ return "Content"; }
