@@ -120,7 +120,7 @@ uiString uiGLInfo::getMessage( bool* warning )
     {
 	msg.append( "\n", true );
 	msg.append( tr(
-	    "Intel card found. If your computer has multiple graphics cards,\n"
+	    "Intel card found. If your computer has multiple graphics cards,"
 	    " consider switching from the integrated graphics.") );
     }
     else if ( *allinfo[2] == "?" )
