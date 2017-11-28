@@ -355,9 +355,9 @@ void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp,
     info().setGeomID( seis2ddisp->getGeomID() );
     info().setObjLineName( seis2ddisp->name().getFullString() );
 
-    const TrcKey tk ( seis2ddisp->getGeomID(),
+    const TrcKey tk( seis2ddisp->getGeomID(),
 	seis2ddisp->getNearestTraceNr(worldpickedpos) );
-    info().setNode(tk);
+    info().setNode( tk );
 }
 
 
@@ -422,7 +422,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	}
     }
 
-    const Scene* scene = seis2dclosest->getScene();
+    const Scene* scene = seis2dclosest ? seis2dclosest->getScene() : 0;
     const double zscale = scene ?
 	scene->getZScale()*scene->getFixedZStretch() : 0.0;
     const Coord3 onesteptranslation = SI().oneStepTranslation( Coord3(0,0,1) );
@@ -434,6 +434,12 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	info().setLegalClick( legalclickclosest );
 	click.trigger();
 	eventcatcher_->setHandled();
+    }
+    else
+    {
+	const bool validgeomid =
+		geomid != Survey::GeometryManager::cUndefGeomID();
+	info().setLegalClick( validgeomid );
     }
 }
 
@@ -597,7 +603,7 @@ void MPEClickCatcher::allowPickBasedReselection()
 }
 
 
-//MPEClickInfo
+// MPEClickInfo
 MPEClickInfo::MPEClickInfo()
     : pickednode_(TrcKey::udf())
 { clear(); }
