@@ -50,7 +50,7 @@ public:
     Notifier<uiColSeqSelTool>	seqMenuReq;
 				//!< CallBacker* is the uiMenu about to pop up
 
-    void			setCurrentAsDefault();
+    void			setCurrentAsDefault(bool);
     void			showManageDlg();
 
     OD::Orientation		orientation() const;
@@ -76,7 +76,8 @@ protected:
     void			menuCB(CallBacker*);
     void			upCB(CallBacker*)	{ nextColSeq(true); }
     void			downCB(CallBacker*)	{ nextColSeq(false); }
-    void			setAsDefaultCB(CallBacker*);
+    void			setAsSeisDefaultCB(CallBacker*);
+    void			setAsNonSeisDefaultCB(CallBacker*);
     void			manDlgSeqSelCB(CallBacker*);
     void			manageCB(CallBacker*)	{ showManageDlg(); }
     void			manDlgCloseCB(CallBacker*) { mandlg_ = 0; }

@@ -36,8 +36,11 @@ mDefineInstanceCreatedNotifierAccess(ColTab::Sequence);
 mDefineEnumUtils(ColTab::Sequence,Status,"Color Sequence Status")
 	{ "System", "Edited", "Added", 0 };
 
-static const char* sKeyDefName = "dTect.Disp.Default Color table";
+static const char* sKeyDefNameSeis = "dTect.Disp.Default Color Table.Seismics";
+static const char* sKeyDefNameAttrib
+			    = "dTect.Disp.Default Color Table.Attributes";
 static const char* sKeyDefNameOld = "dTect.Color table.Name";
+
 
 const char* ColTab::Sequence::sDefaultName( bool for_seismics )
 {
@@ -47,10 +50,14 @@ const char* ColTab::Sequence::sDefaultName( bool for_seismics )
 	return envval;
 
     BufferString defcoltabnm;
-    if ( !Settings::common().get(sKeyDefNameOld,defcoltabnm) )
-	  Settings::common().get( sKeyDefName, defcoltabnm);
+    Settings::common().get( for_seismics ? sKeyDefNameSeis
+					 : sKeyDefNameAttrib, defcoltabnm );
     if ( defcoltabnm.isEmpty() )
-	return for_seismics ? "Seismics" : "Viridis";
+    {
+	Settings::common().get( sKeyDefNameOld, defcoltabnm );
+	if ( defcoltabnm.isEmpty() )
+	    return for_seismics ? "Seismics" : "Viridis";
+    }
 
     mDeclStaticString( ret );
     ret = defcoltabnm;
@@ -58,9 +65,18 @@ const char* ColTab::Sequence::sDefaultName( bool for_seismics )
 }
 
 
-const char* ColTab::defSeqName()
+void ColTab::setDefSeqName( bool for_seismics, const char* nm )
 {
-    return ColTab::Sequence::sDefaultName( true );
+    Settings::common().removeWithKey( sKeyDefNameOld );
+    Settings::common().update(
+		for_seismics ? sKeyDefNameSeis : sKeyDefNameAttrib, nm );
+    Settings::common().write();
+}
+
+
+const char* ColTab::defSeqName( bool for_seismics )
+{
+    return ColTab::Sequence::sDefaultName( for_seismics );
 }
 
 

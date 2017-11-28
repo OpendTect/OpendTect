@@ -631,7 +631,7 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
     if ( is2d && tkzs && mIsUdfGeomID(geomid) )
 	geomid = tkzs->hsamp_.getGeomID();
 
-    DescSet* curdescset = eDSHolder().getDescSet(is2d,istargetstored);
+    DescSet* curdescset = eDSHolder().getDescSet(is2d,false);
     if ( !curdescset )
 	{ pErrMsg("No attr set"); return 0; }
 

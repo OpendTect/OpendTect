@@ -202,10 +202,12 @@ void uiColSeqSelTool::menuCB( CallBacker* )
 {
     PtrMan<uiMenu> mnu = new uiMenu( asParent(), uiStrings::sAction() );
 
-    mnu->insertItem( new uiAction(tr("Set as default"),
-	mCB(this,uiColSeqSelTool,setAsDefaultCB)), 0 );
+    mnu->insertItem( new uiAction(tr("Set as default for seismic data"),
+	mCB(this,uiColSeqSelTool,setAsSeisDefaultCB)), 0 );
+    mnu->insertItem( new uiAction(tr("Set as default for non-seismic data"),
+	mCB(this,uiColSeqSelTool,setAsNonSeisDefaultCB)), 1 );
     mnu->insertItem( new uiAction(m3Dots(tr("Manage")),
-	mCB(this,uiColSeqSelTool,manageCB)), 1 );
+	mCB(this,uiColSeqSelTool,manageCB)), 2 );
 
     seqMenuReq.trigger( mnu );
 
@@ -213,9 +215,15 @@ void uiColSeqSelTool::menuCB( CallBacker* )
 }
 
 
-void uiColSeqSelTool::setAsDefaultCB( CallBacker* )
+void uiColSeqSelTool::setAsSeisDefaultCB( CallBacker* )
 {
-    setCurrentAsDefault();
+    setCurrentAsDefault( true );
+}
+
+
+void uiColSeqSelTool::setAsNonSeisDefaultCB( CallBacker* )
+{
+    setCurrentAsDefault( false );
 }
 
 
@@ -226,10 +234,9 @@ void uiColSeqSelTool::manDlgSeqSelCB( CallBacker* )
 }
 
 
-void uiColSeqSelTool::setCurrentAsDefault()
+void uiColSeqSelTool::setCurrentAsDefault( bool for_seismics )
 {
-    mSettUse( set, "dTect.Color table.Name", "", seqName() );
-    Settings::common().write();
+    ColTab::setDefSeqName( for_seismics, seqName() );
 }
 
 

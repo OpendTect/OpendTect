@@ -56,8 +56,8 @@ public:
     void			setSelectedComponent(int);
     void			setDataPackID(DataPack::ID);
 
-    virtual bool		haveSavedDispPars() const;
-    virtual void		saveDisplayPars();
+    bool			haveSavedDispPars() const;
+    void			saveDisplayPars();
 
     static ProbeLayer*		createFrom(const IOPar&);
     static void			initClass();
@@ -77,8 +77,8 @@ protected:
     DataPack::ID		attribdpid_;
     ConstRefMan<DataPack>	attrdp_;
     int				selcomp_;
-    ConstRefMan<Sequence>	colseq_;
-    RefMan<Mapper>		mapper_;
+    ConstRefMan<Sequence>	colseq_;    //!< null by default
+    RefMan<Mapper>		mapper_;    //!< never null
 
     void			usePar4ColTab(const IOPar&);
     void			handleDataPackChange();

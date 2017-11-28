@@ -552,7 +552,7 @@ uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
 				     StringListInpSpec(sResolutionNames) );
     resolutionfld_->setValue( resolution_ );
 
-    colseqnm_ = ColTab::defSeqName();
+    colseqnm_ = ColTab::defSeqName( true );
     setts.get( sKeyHorizonColSeqName, colseqnm_ );
     colseqfld_ = new uiColSeqSel( this, OD::Horizontal,
 				  tr("Default Colortable") );

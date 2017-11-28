@@ -44,9 +44,10 @@ mGlobal(General) void			convFromPerc(ClipRatePair&);
 mGlobal(General) inline const char*	sKeySeqUseMode()
 					{ return "Color Table Use Mode"; }
 
-mGlobal(General) const char*		defSeqName();
+mGlobal(General) const char*		defSeqName(bool for_seismics);
 mGlobal(General) ClipRatePair		defClipRate();
 mGlobal(General) bool			defHistEq();
+mGlobal(General) void			setDefSeqName(bool forseis,const char*);
 mGlobal(General) void			setMapperDefaults(ClipRatePair,
 							  bool histeq);
 

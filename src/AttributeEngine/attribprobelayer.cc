@@ -18,9 +18,16 @@ ___________________________________________________________________
 #include "seisioobjinfo.h"
 #include "datadistributionextracter.h"
 
+
+static const char* colSeqNm( const ConstRefMan<ColTab::Sequence>& cseq )
+{
+    return cseq.ptr() ? cseq->name().str() : 0;
+}
+
+
 AttribProbeLayer::AttribProbeLayer( DispType dt )
     : ProbeLayer()
-    , colseq_(ColTab::SeqMGR().getDefault(false))
+    , colseq_(0)
     , mapper_(new ColTab::Mapper)
     , attrspec_(*new Attrib::SelSpec())
     , disptype_(dt)
@@ -83,7 +90,10 @@ ProbeLayer* AttribProbeLayer::createFrom( const IOPar& par )
 const AttribProbeLayer::Sequence& AttribProbeLayer::sequence() const
 {
     mLock4Read();
-    return *colseq_;
+    if ( colseq_ )
+	return *colseq_;
+
+    return *ColTab::SeqMGR().getDefault( attrspec_.isStored(0) );
 }
 
 
@@ -127,8 +137,9 @@ void AttribProbeLayer::fillPar( IOPar& par ) const
     attrspec_.fillPar( par );
 
     IOPar ctabpar;
-    ctabpar.set( sKey::Name(), colseq_->name() );
+    ctabpar.update( sKey::Name(), colSeqNm(colseq_) );
     mapper_->setup().fillPar( ctabpar );
+    par.removeWithKeyPattern( BufferString(sKey::ColTab(),".*") );
     par.mergeComp( ctabpar, sKey::ColTab() );
 }
 
@@ -147,10 +158,13 @@ void AttribProbeLayer::usePar4ColTab( const IOPar& par )
     PtrMan<IOPar> ctabpar = par.subselect( sKey::ColTab() );
     if ( ctabpar && !ctabpar->isEmpty() )
     {
-	BufferString seqnm( colseq_->name() );
-	ctabpar->get( sKey::Name(), seqnm );
-	if ( !seqnm.isEmpty() )
-	    setSequence( *ColTab::SeqMGR().getAny(seqnm) );
+	if ( !colseq_ )
+	{
+	    BufferString seqnm;
+	    ctabpar->get( sKey::Name(), seqnm );
+	    if ( !seqnm.isEmpty() && ColTab::SeqMGR().isPresent(seqnm) )
+		setSequence( *ColTab::SeqMGR().getAny(seqnm) );
+	}
 	mapper_->setup().usePar( *ctabpar );
     }
 }
@@ -314,7 +328,7 @@ void AttribProbeLayer::saveDisplayPars()
     mLock4Read();
     mapper_->setup().setFixedRange( mapper_->setup().range() );
     IOPar coltabiop;
-    coltabiop.set( sKey::Name(), colseq_->name() );
+    coltabiop.set( sKey::Name(), colSeqNm(colseq_) );
     mapper_->setup().fillPar( coltabiop );
 
     iop.mergeComp( coltabiop, sKey::ColTab() );
