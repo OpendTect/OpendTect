@@ -28,8 +28,7 @@ ________________________________________________________________________
 #include <math.h>
 
 
-static const char* sKeyLineStyle = "Measure OD::LineStyle";
-
+static const char* sKeyLineStyle = "Measure LineStyle";
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Measure Distance"),mNoDlgTitle,
