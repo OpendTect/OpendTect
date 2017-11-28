@@ -26,7 +26,8 @@ static const char* sKeyDefSymmZero = "dTect.Disp.Default symmetry zero";
 static const char* sKeyDefAutoSymm = "dTect.Disp.Default auto symmetry";
 static const char* sKeyDefHistEq = "dTect.Disp.Default histogram equalisation";
 static BufferString defcoltabnm_ = "Seismics";
-static const char* sKeyDefName = "dTect.Disp.Default Color table";
+static const char* sKeySeisDefName = "dTect.Disp.Default Color Table.Seismics";
+static const char* sKeyAttrDefName= "dTect.Disp.Default Color Table.Attributes";
 static const char* sKeyDefNameOld = "dTect.Color table.Name";
 }
 
@@ -34,7 +35,11 @@ static const char* sKeyDefNameOld = "dTect.Color table.Name";
 const char* ColTab::defSeqName()
 {
     if ( !Settings::common().get(sKeyDefNameOld,defcoltabnm_) )
-	Settings::common().get( sKeyDefName, defcoltabnm_ );
+    {
+	// Forward compatibility
+	if ( !Settings::common().get(sKeySeisDefName,defcoltabnm_) )
+	    Settings::common().get( sKeyAttrDefName, defcoltabnm_ );
+    }
 
     return defcoltabnm_.buf();
 }
