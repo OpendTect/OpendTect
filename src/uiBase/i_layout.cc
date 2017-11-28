@@ -81,17 +81,19 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
 */
 void i_LayoutMngr::addItem( QLayoutItem *qItem )
 {
-    if ( !qItem ) return;
-    addItem( new i_LayoutItem( *this, *qItem) );
+    if ( qItem )
+	addItem( new i_LayoutItem(*this,*qItem) );
 }
 
 
 void i_LayoutMngr::itemDel( CallBacker* cb )
 {
-    if ( !cb ) return;
+    if ( !cb )
+	return;
 
     i_LayoutItem* itm = static_cast<i_LayoutItem*>( cb );
-    if ( !itm) { pErrMsg("huh?"); return; }
+    if ( !itm )
+	{ pErrMsg("huh?"); return; }
 
     childrenlist -= itm;
 }
@@ -99,7 +101,8 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
 
 QSize i_LayoutMngr::minimumSize() const
 {
-    if ( !mFinalised() ) return QSize(0,0);
+    if ( !mFinalised() )
+	return QSize(0,0);
 
     if ( !minimumDone )
     {
@@ -108,7 +111,6 @@ QSize i_LayoutMngr::minimumSize() const
     }
 
     uiRect mPos;
-
     if ( ismain )
     {
 	if ( managedBody.shrinkAllowed() )
@@ -151,7 +153,8 @@ QSize i_LayoutMngr::minimumSize() const
 
 QSize i_LayoutMngr::sizeHint() const
 {
-    if ( !mFinalised() ) return QSize(0, 0);
+    if ( !mFinalised() )
+	return QSize(0, 0);
 
     if ( !preferredDone )
     {
