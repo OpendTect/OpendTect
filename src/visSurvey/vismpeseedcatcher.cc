@@ -429,7 +429,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	}
     }
 
-    const Scene* scene = seis2dclosest->getScene();
+    const Scene* scene = seis2dclosest ? seis2dclosest->getScene() : 0;
     const double zscale = scene ?
 	scene->getZScale()*scene->getFixedZStretch() : 0.0;
     const Coord3 onesteptranslation = SI().oneStepTranslation( Coord3(0,0,1) );
@@ -610,6 +610,7 @@ void MPEClickCatcher::allowPickBasedReselection()
 }
 
 
+// MPEClickInfo
 MPEClickInfo::MPEClickInfo()
     : pickednode_(TrcKey::udf())
 { clear(); }
