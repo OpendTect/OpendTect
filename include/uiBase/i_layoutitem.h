@@ -33,132 +33,72 @@ public:
 					     mQtclass(QLayoutItem&));
     virtual			~i_LayoutItem();
 
-    virtual int			horAlign(LayoutMode m ) const
-				    { return curpos(m).left(); }
-    virtual int			centre(LayoutMode m, bool hor=true) const
-				    {
-					if( hor ) return ( curpos(m).left()
-					     + curpos(m).right() ) / 2;
-					return ( curpos(m).top()
-                                             + curpos(m).bottom() ) / 2;
-				    }
+    inline const i_LayoutMngr&	mngr() const 		{ return mngr_; }
 
-    virtual uiSize		minimumsize() const
-				{
-				    mQtclass(QSize) s =qwidget()->minimumSize();
+    virtual int			horAlign(LayoutMode) const;
+    virtual int			centre(LayoutMode,bool hor=true) const;
 
-					return
-					    uiSize( s.width(), s.height());
-				 }
-
-    uiSize			prefSize() const
-				{
-				    if( prefSzDone )
-				       { pErrMsg("PrefSize already done.");}
-				    else
-				    {
-					i_LayoutItem* self =
-					    const_cast<i_LayoutItem*>(this);
-					self->prefSzDone = true;
-					mQtclass(QSize) ps( qlayoutItm().sizeHint() );
-					int width = ps.width();
-					if ( width==0 ) width = 1;
-					int height = ps.height();
-					if ( height==0 ) height = 1;
-					self->prefSz =
-					    uiSize(width,height);
-				    }
-
-				    return prefSz;
-				}
-
+    virtual uiSize		minimumSize() const;
+    uiSize			prefSize() const;
     virtual void		invalidate();
     virtual void		updatedAlignment(LayoutMode)	{}
     virtual void		initChildLayout(LayoutMode)	{}
-
-    uiSize			actualsize(bool include_border = true) const;
+    uiSize			actualSize(bool include_border=true) const;
 				//!< live objs: use uiObject::width() etc
 
-    inline const i_LayoutMngr&	mngr() const 		{ return mngr_; }
+    const uiRect&		curpos(LayoutMode) const;
+    uiRect&			curpos(LayoutMode);
 
-    inline const uiRect&	curpos(LayoutMode m) const
-				    { return layoutpos[m];}
-    inline uiRect&		curpos(LayoutMode m)	{ return layoutpos[m];}
-
-    bool			inited() const
-				{
-				    return minimum_pos_inited
-					|| preferred_pos_inited;
-				}
+    bool			inited() const;
 
 protected:
 
-    bool			preferred_pos_inited;
-    bool			minimum_pos_inited;
-
-    uiRect			layoutpos[ nLayoutMode ];
-
-    int			stretch( bool hor ) const;
-    virtual void		commitGeometrySet(bool);
-
-    void			initLayout( LayoutMode m, int mngrTop,
-							  int mngrLeft );
-    bool			layout( LayoutMode m, const int, bool );
-
-    void			attach( constraintType,
-					i_LayoutItem *other, int margin,
-					bool reciprocal=true);
-
-    virtual uiObject*		objLayouted()		{ return 0; }
-    inline const uiObject*	objLayouted() const
-				{
-				    return const_cast<i_LayoutItem*>
-							(this)->objLayouted();
-				}
-
-    virtual uiObjectBody*	bodyLayouted()		{ return 0; }
-    inline const uiObjectBody*	bodyLayouted() const
-				{
-				    return const_cast<i_LayoutItem*>
-							(this)->bodyLayouted();
-				}
-
-    inline mQtclass(QLayoutItem&)	qlayoutItm()    { return *qlayoutitm; }
-    inline const mQtclass(QLayoutItem&)	qlayoutItm() const
-					{ return *qlayoutitm; }
-
-				// Immediately delete me if you take my
-				// qlayoutitm !!
-    inline mQtclass(QLayoutItem*)  takeQlayoutItm()
-				   {
-				       mQtclass(QLayoutItem*) ret = qlayoutitm;
-				       qlayoutitm = 0;
-				       return ret;
-				   }
-
-    virtual const mQtclass(QWidget*)	qwidget_() const
-					{ return qlayoutitm->widget(); }
-    virtual const mQtclass(QWidget*)	managewidg_() const
-					{ return qlayoutitm->widget(); }
-
     inline i_LayoutMngr&	mngr()			{ return mngr_; }
 
+    int				stretch(bool hor) const;
+    virtual void		commitGeometrySet(bool);
+
+    void			initLayout(LayoutMode m,int mngrtop,
+							int mngrleft);
+    bool			layout(LayoutMode m,int,bool finalloop);
+    void			attach(constraintType,
+					i_LayoutItem* other,int margin,
+					bool reciprocal=true);
     bool			isAligned() const;
+
+    virtual uiObject*		objLayouted()		{ return 0; }
+    const uiObject*		objLayouted() const;
+    virtual uiObjectBody*	bodyLayouted()		{ return 0; }
+    const uiObjectBody*		bodyLayouted() const;
+
+    mQtclass(QLayoutItem&)	qlayoutItm();
+    const mQtclass(QLayoutItem&) qlayoutItm() const;
+
+				// Immediately delete me if you take my
+				// qlayoutitm_ !!
+    mQtclass(QLayoutItem*)	takeQlayoutItm();
+
+    virtual const mQtclass(QWidget*)	qwidget_() const;
+    virtual const mQtclass(QWidget*)	managewidg_() const;
 
 private:
 
-    mQtclass(QLayoutItem*)	qlayoutitm;
+    mQtclass(QLayoutItem*)	qlayoutitm_;
     i_LayoutMngr&		mngr_;
 
-    constraintList		constrList;
+    uiRect			layoutpos_[nLayoutMode];
+    constraintList		constrlist_;
 
 #ifdef __debug__
-    int			isPosOk( uiConstraint*, int, bool );
+    int				isPosOk(uiConstraint*,int,bool);
 #endif
-    bool			prefSzDone;
-    uiSize			prefSz;
-    bool			hsameas;
-    bool			vsameas;
+
+    bool			preferred_pos_inited_;
+    bool			minimum_pos_inited_;
+    bool			prefszdone_;
+    uiSize			prefsz_;
+    bool			hsameas_;
+    bool			vsameas_;
 };
 
 
@@ -166,29 +106,15 @@ private:
 mExpClass(uiBase) i_uiLayoutItem : public i_LayoutItem
 {
 public:
-			i_uiLayoutItem( i_LayoutMngr& mgr, uiObjectBody& obj )
-			    : i_LayoutItem(mgr,
-				    *new mQtclass(QWidgetItem)(obj.qwidget()) )
-			    , uiObjBody_(obj)		{}
+				i_uiLayoutItem(i_LayoutMngr&,uiObjectBody&);
+    virtual			~i_uiLayoutItem();
 
-    virtual		~i_uiLayoutItem();
+    virtual uiSize		minimumSize() const;
 
-    virtual uiSize	minimumsize() const
-			    {
-				uiSize s = uiObjBody_.minimumsize();
-				if ( !mIsUdf(s.hNrPics()) )
-				    return s;
-
-				return i_LayoutItem::minimumsize();
-			    }
-
-    virtual uiObject*	  objLayouted()	{ return &uiObjBody_.uiObjHandle(); }
-    virtual uiObjectBody* bodyLayouted(){ return &uiObjBody_; }
-
+    virtual uiObject*		objLayouted();
+    virtual uiObjectBody*	bodyLayouted();
 
 protected:
 
-    uiObjectBody&	uiObjBody_;
-
-
+    uiObjectBody&	uiobjbody_;
 };

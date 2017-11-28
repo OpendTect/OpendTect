@@ -30,9 +30,9 @@ mUseQtnamespace
 //------------------------------------------------------------------------------
 
 i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
-    : mngr_( m ), qlayoutitm( &itm )
-    , preferred_pos_inited( false ), minimum_pos_inited( false )
-    , prefSzDone( false ), hsameas( false ), vsameas( false )
+    : mngr_(m), qlayoutitm_(&itm)
+    , preferred_pos_inited_(false), minimum_pos_inited_(false)
+    , prefszdone_(false), hsameas_(false), vsameas_(false)
 {
 #ifdef __debug__
     mDefineStaticLocalObject( bool, lyoutdbg_loc,
@@ -44,32 +44,79 @@ i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
 i_LayoutItem::~i_LayoutItem()
 {
     sendDelNotif();
-    delete qlayoutitm;
+    delete qlayoutitm_;
 }
 
 
-i_uiLayoutItem::~i_uiLayoutItem()
+int i_LayoutItem::horAlign( LayoutMode m ) const
 {
-    uiObjBody_.loitemDeleted();
+    return curpos(m).left();
+}
+
+
+int i_LayoutItem::centre( LayoutMode m, bool hor ) const
+{
+    return hor ? ( curpos(m).left() + curpos(m).right() ) / 2
+	       : ( curpos(m).top() + curpos(m).bottom() ) / 2;
+}
+
+
+uiSize i_LayoutItem::minimumSize() const
+{
+    QSize s = qwidget()->minimumSize();
+    return uiSize( s.width(), s.height() );
+}
+
+
+uiSize i_LayoutItem::prefSize() const
+{
+    if ( prefszdone_ )
+       { pErrMsg("PrefSize already done.");}
+    else
+    {
+	i_LayoutItem* self = const_cast<i_LayoutItem*>(this);
+	self->prefszdone_ = true;
+	QSize ps( qlayoutItm().sizeHint() );
+	int width = ps.width();
+	if ( width==0 ) width = 1;
+	int height = ps.height();
+	if ( height==0 ) height = 1;
+	self->prefsz_ = uiSize(width,height);
+    }
+
+    return prefsz_;
 }
 
 
 void i_LayoutItem::invalidate()
 {
-    qlayoutitm->invalidate();
-    preferred_pos_inited = false;
+    qlayoutitm_->invalidate();
+    preferred_pos_inited_ = false;
 }
 
 
-uiSize i_LayoutItem::actualsize( bool include_border ) const
+uiSize i_LayoutItem::actualSize( bool include_border ) const
 {
     return curpos(setGeom).getPixelSize();
 }
 
 
+const uiRect& i_LayoutItem::curpos( LayoutMode m ) const
+{ return layoutpos_[m]; }
+
+uiRect& i_LayoutItem::curpos( LayoutMode m )
+{ return layoutpos_[m]; }
+
+
+bool i_LayoutItem::inited() const
+{
+    return minimum_pos_inited_ || preferred_pos_inited_;
+}
+
+
 int i_LayoutItem::stretch( bool hor ) const
 {
-    if ( (hor && hsameas) || (!hor && vsameas) ) return 0;
+    if ( (hor && hsameas_) || (!hor && vsameas_) ) return 0;
 
     const uiObjectBody* blo = bodyLayouted();
     return blo ? blo->stretch( hor ) : 0;
@@ -98,8 +145,8 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
     }
 #endif
 
-    qlayoutitm->setGeometry ( QRect ( mPos.left(), mPos.top(),
-                                      mPos.hNrPics(), mPos.vNrPics() ));
+    qlayoutitm_->setGeometry(
+	QRect(mPos.left(),mPos.top(),mPos.hNrPics(),mPos.vNrPics()) );
 }
 
 
@@ -143,27 +190,27 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
     switch ( lom )
     {
 	case minimum:
-            if ( !minimum_pos_inited)
+	    if ( !minimum_pos_inited_)
 	    {
 		mPos.zero();
-		uiSize ms = minimumsize();
+		uiSize ms = minimumSize();
 		mPos.setHNrPics( ms.hNrPics() );
 		mPos.setVNrPics( ms.vNrPics() );
-		minimum_pos_inited = true;
+		minimum_pos_inited_ = true;
 	    }
 	    break;
 
 	case setGeom:
 	    {
 		uiRect& pPos = curpos(preferred);
-		if ( !preferred_pos_inited )
+		if ( !preferred_pos_inited_ )
 		{
 		    pPos.setLeft( 0 );
 		    pPos.setTop( 0 );
 
 		    pPos.setHNrPics( pref_h_nr_pics  );
 		    pPos.setVNrPics( pref_v_nr_pics );
-		    preferred_pos_inited = true;
+		    preferred_pos_inited_ = true;
 		}
 		uiRect& mPos2 = curpos( lom );
 		mPos2 = curpos( preferred );
@@ -182,7 +229,7 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 
 		mPos.setHNrPics( pref_h_nr_pics  );
 		mPos.setVNrPics( pref_v_nr_pics );
-		preferred_pos_inited = true;
+		preferred_pos_inited_ = true;
 	    }
 	    break;
 	case all:
@@ -277,14 +324,14 @@ int i_LayoutItem::isPosOk( uiConstraint* constraint, int iter, bool chknriters )
 #define mInsideBorder  (constr->margin_ > mngr_.borderSpace() \
 			 ? constr->margin_ - mngr_.borderSpace() : 0)
 
-bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
+bool i_LayoutItem::layout( LayoutMode lom, int iternr, bool finalloop )
 {
     bool updated = false;
     uiRect& mPos = curpos(lom);
 
-    for ( int idx=0; idx<constrList.size(); idx++ )
+    for ( int idx=0; idx<constrlist_.size(); idx++ )
     {
-	uiConstraint* constr = &constrList[idx];
+	uiConstraint* constr = &constrlist_[idx];
 	const uiRect& otherPos
 		= constr->other_ ? constr->other_->curpos(lom) : curpos(lom);
 
@@ -673,101 +720,101 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem* other,
 			    int margn, bool reciprocal )
 {
     if ( type != ensureLeftOf)
-	constrList += uiConstraint( type, other, margn );
+	constrlist_ += uiConstraint( type, other, margn );
 
     if( reciprocal && other )
     {
 	switch ( type )
 	{
 	case leftOf:
-	    other->constrList += uiConstraint( rightOf, this, margn );
+	    other->constrlist_ += uiConstraint( rightOf, this, margn );
 	break;
 
 	case rightOf:
-	    other->constrList += uiConstraint( leftOf, this, margn );
+	    other->constrlist_ += uiConstraint( leftOf, this, margn );
 	break;
 
 	case leftTo:
-	    other->constrList += uiConstraint( rightTo, this, margn);
+	    other->constrlist_ += uiConstraint( rightTo, this, margn );
 	break;
 
 	case rightTo:
-	    other->constrList += uiConstraint( leftTo, this, margn );
+	    other->constrlist_ += uiConstraint( leftTo, this, margn );
 	break;
 
 	case leftAlignedBelow:
-	    other->constrList += uiConstraint( leftAlignedAbove, this, margn );
+	    other->constrlist_ += uiConstraint( leftAlignedAbove, this, margn );
 	break;
 
 	case leftAlignedAbove:
-	    other->constrList += uiConstraint( leftAlignedBelow, this, margn );
+	    other->constrlist_ += uiConstraint( leftAlignedBelow, this, margn );
 	break;
 
 	case rightAlignedBelow:
-	    other->constrList += uiConstraint( rightAlignedAbove, this, margn );
+	    other->constrlist_ += uiConstraint( rightAlignedAbove, this, margn);
 	break;
 
 	case rightAlignedAbove:
-	    other->constrList += uiConstraint( rightAlignedBelow, this, margn );
+	    other->constrlist_ += uiConstraint( rightAlignedBelow, this, margn);
 	break;
 
 	case alignedWith:
-	    other->constrList += uiConstraint( alignedWith, this, margn );
+	    other->constrlist_ += uiConstraint( alignedWith, this, margn );
 	break;
 
 	case alignedBelow:
-	    other->constrList += uiConstraint( alignedAbove, this, margn );
+	    other->constrlist_ += uiConstraint( alignedAbove, this, margn );
 	break;
 
 	case alignedAbove:
-	    other->constrList += uiConstraint( alignedBelow, this, margn );
+	    other->constrlist_ += uiConstraint( alignedBelow, this, margn );
 	break;
 
 	case centeredBelow:
-	    other->constrList += uiConstraint( centeredAbove, this, margn );
+	    other->constrlist_ += uiConstraint( centeredAbove, this, margn );
 	break;
 
 	case centeredAbove:
-	    other->constrList += uiConstraint( centeredBelow, this, margn );
+	    other->constrlist_ += uiConstraint( centeredBelow, this, margn );
 	break;
 
 	case centeredLeftOf:
-	    other->constrList += uiConstraint( centeredRightOf, this, margn );
+	    other->constrlist_ += uiConstraint( centeredRightOf, this, margn );
 	break;
 
 	case centeredRightOf:
-	    other->constrList += uiConstraint( centeredLeftOf, this, margn );
+	    other->constrlist_ += uiConstraint( centeredLeftOf, this, margn );
 	break;
 
 	case heightSameAs:
-	    vsameas=true;
+	    vsameas_=true;
 	break;
 
 	case widthSameAs:
-	    hsameas=true;
+	    hsameas_=true;
 	break;
 
 	case ensureLeftOf:
-	    other->constrList += uiConstraint( ensureRightOf, this, margn );
+	    other->constrlist_ += uiConstraint( ensureRightOf, this, margn );
 	break;
 
 	case stretchedBelow:
 	break;
 
 	case stretchedAbove:
-	    other->constrList += uiConstraint( ensureBelow, this, margn );
+	    other->constrlist_ += uiConstraint( ensureBelow, this, margn );
 	break;
 
 	case stretchedLeftTo:
-	    other->constrList += uiConstraint( stretchedRightTo, this, margn );
+	    other->constrlist_ += uiConstraint( stretchedRightTo, this, margn );
 	break;
 
 	case stretchedRightTo:
-	    other->constrList += uiConstraint( stretchedLeftTo, this, margn );
+	    other->constrlist_ += uiConstraint( stretchedLeftTo, this, margn );
 	break;
 
 	case atSamePosition:
-	    other->constrList += uiConstraint( atSamePosition, this, margn );
+	    other->constrlist_ += uiConstraint( atSamePosition, this, margn );
 	break;
 
 	case leftBorder:
@@ -787,14 +834,79 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem* other,
 }
 
 
+const uiObject* i_LayoutItem::objLayouted() const
+{
+    return const_cast<i_LayoutItem*>(this)->objLayouted();
+}
+
+
+const uiObjectBody* i_LayoutItem::bodyLayouted() const
+{
+    return const_cast<i_LayoutItem*> (this)->bodyLayouted();
+}
+
+
+QLayoutItem& i_LayoutItem::qlayoutItm()
+{ return *qlayoutitm_; }
+
+const QLayoutItem& i_LayoutItem::qlayoutItm() const
+{ return *qlayoutitm_; }
+
+
+QLayoutItem* i_LayoutItem::takeQlayoutItm()
+{
+    QLayoutItem* ret = qlayoutitm_;
+    qlayoutitm_ = 0;
+    return ret;
+}
+
+
+const QWidget* i_LayoutItem::qwidget_() const
+{ return qlayoutitm_->widget(); }
+
+const QWidget* i_LayoutItem::managewidg_() const
+{ return qlayoutitm_->widget(); }
+
+
 bool i_LayoutItem::isAligned() const
 {
-    for ( int idx=0; idx<constrList.size(); idx++ )
+    for ( int idx=0; idx<constrlist_.size(); idx++ )
     {
-	constraintType tp = constrList[idx].type_;
+	constraintType tp = constrlist_[idx].type_;
 	if ( tp >= alignedWith && tp <= centeredAbove )
 	    return true;
     }
 
     return false;
 }
+
+
+// i_uiLayoutItem
+i_uiLayoutItem::i_uiLayoutItem( i_LayoutMngr& mgr, uiObjectBody& obj )
+    : i_LayoutItem(mgr,*new QWidgetItem(obj.qwidget()) )
+, uiobjbody_(obj)
+{}
+
+
+i_uiLayoutItem::~i_uiLayoutItem()
+{
+    uiobjbody_.loitemDeleted();
+}
+
+
+uiSize i_uiLayoutItem::minimumSize() const
+{
+    uiSize sz = uiobjbody_.minimumSize();
+    if ( !mIsUdf(sz.hNrPics()) )
+	return sz;
+
+    return i_LayoutItem::minimumSize();
+}
+
+
+uiObject* i_uiLayoutItem::objLayouted()
+{ return &uiobjbody_.uiObjHandle(); }
+
+
+uiObjectBody* i_uiLayoutItem::bodyLayouted()
+{ return &uiobjbody_; }

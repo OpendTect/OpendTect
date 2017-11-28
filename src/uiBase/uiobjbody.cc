@@ -312,7 +312,7 @@ int uiObjectBody::prefHNrPics() const
 
 		int pw = var ? mMAX(pref_width_hint, fw*pwc ) : fw*pwc ;
 		const_cast<uiObjectBody*>(this)->pref_width_ = pw;
-            }
+	    }
 	}
     }
     return pref_width_;
@@ -489,9 +489,9 @@ int uiObjectBody::stretch( bool hor, bool retUndef ) const
 }
 
 
-uiSize uiObjectBody::actualsize( bool include_border ) const
+uiSize uiObjectBody::actualSize( bool include_border ) const
 {
-    return layoutItem_->actualsize( include_border );
+    return layoutItem_->actualSize( include_border );
 }
 
 
@@ -512,8 +512,8 @@ i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
 /*!
     attaches to parent if other=0
 */
-void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin,
-			    bool reciprocal )
+void uiObjectBody::attach( constraintType tp, uiObject* other, int margin,
+			   bool reciprocal )
 {
 //    parent_->attachChild( tp, this, other, margin );
     parent_->attachChild( tp, &uiObjHandle(), other, margin, reciprocal );

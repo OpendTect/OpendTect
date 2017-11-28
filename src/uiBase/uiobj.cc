@@ -87,9 +87,9 @@ const ObjectSet<uiBaseObject>* uiParent::childList() const
 }
 
 
-Color uiObject::roBackgroundColor() const
+uiSize uiParent::actualSize( bool include_border ) const
 {
-    return backgroundColor().lighter( 2.5f );
+    return mainObject() ? mainObject()->actualSize(include_border) : uiSize();
 }
 
 
@@ -314,6 +314,12 @@ void uiObject::setStyleSheet( const char* qss )
 }
 
 
+Color uiObject::roBackgroundColor() const
+{
+    return backgroundColor().lighter( 2.5f );
+}
+
+
 Color uiObject::backgroundColor() const
     { return mConstBody()->uibackgroundColor(); }
 
@@ -435,8 +441,8 @@ const uiFont* uiObject::font() const
     { return mConstBody()->uifont(); }
 
 
-uiSize uiObject::actualsize( bool include_border ) const
-    { return mConstBody()->actualsize( include_border ); }
+uiSize uiObject::actualSize( bool include_border ) const
+    { return mConstBody()->actualSize( include_border ); }
 
 
 void uiObject::setCaption( const uiString& c )

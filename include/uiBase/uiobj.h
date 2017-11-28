@@ -132,7 +132,7 @@ public:
     void		deepRedraw(CallBacker* =0)	{ reDraw( true ); }
     void		reDraw(bool deep);
 
-    uiSize		actualsize(bool include_border=true) const;
+    uiSize		actualSize(bool include_border=true) const;
 
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const

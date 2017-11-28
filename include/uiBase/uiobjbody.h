@@ -85,11 +85,11 @@ public:
     void		uisetFont(const uiFont&);
     const uiFont*	uifont() const;
 
-    virtual uiSize	actualsize(bool include_border=true) const;
+    virtual uiSize	actualSize(bool include_border=true) const;
 			//!< Beware! this is during layout only
 			//!< use uiObject::width() and height() for 'live' objs
 
-    virtual uiSize	minimumsize() const
+    virtual uiSize	minimumSize() const
 			{ return uiSize(mUdf(int),mUdf(int)); }
 
     void		uisetCaption(const uiString&);

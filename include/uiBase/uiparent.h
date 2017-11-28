@@ -76,12 +76,7 @@ public:
     void		setCaption(const uiString& c) { mIfMO()->setCaption(c);}
     void		setCursor(const MouseCursor& c) {mIfMO()->setCursor(c);}
 
-    uiSize		actualsize( bool include_border) const
-			{
-			    if ( mainObject() )
-				return mainObject()->actualsize(include_border);
-			    return uiSize();
-			}
+    uiSize		actualSize(bool include_border) const;
 
     int			prefHNrPics() const	  { mRetMO(prefHNrPics, -1 ); }
     int			prefVNrPics() const	  { mRetMO(prefVNrPics,-1); }
