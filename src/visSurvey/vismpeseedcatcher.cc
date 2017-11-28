@@ -416,7 +416,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	}
     }
 
-    const Scene* scn = seis2dclosest->getScene();
+    const Scene* scn = seis2dclosest ? seis2dclosest->getScene() : 0;
     const double zscale = scn ?
 	scn->getZScale()*scn->getFixedZStretch() : 0.0;
     const Coord3 onesteptranslation = SI().oneStepTranslation( Coord3(0,0,1) );
@@ -425,9 +425,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     if ( seis2dclosest && mindisttoseis2d<=0.5*onestepdist )
     {
 	handleObjectOnSeis2DDisplay( seis2dclosest, eventinfo.worldpickedpos );
-
 	info().setLegalClick( legalclickclosest );
-
 	click.trigger();
 	eventcatcher_->setHandled();
     }
