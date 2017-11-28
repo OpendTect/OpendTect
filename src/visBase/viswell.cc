@@ -196,10 +196,18 @@ void Well::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 void Well::transformZIfNeeded( Coord3& crd ) const
 {
-   if ( !zaxistransform_ ) return;
-   const FixedString ztransformkey( zaxistransform_->toZDomainKey() );
-   if ( ztransformkey == ZDomain::sKeyDepth() ) return;
-   crd.z_ = zaxistransform_->transform( crd );
+    if ( !zaxistransform_ ) return;
+
+    const FixedString ztransformkey( zaxistransform_->toZDomainKey() );
+    if ( ztransformkey == ZDomain::sKeyDepth() )
+    {
+	if ( SI().depthsInFeet() )
+	    crd.z_ *= mToFeetFactorD;
+
+	return;
+    }
+
+    crd.z_ = zaxistransform_->transform( crd );
 }
 
 
