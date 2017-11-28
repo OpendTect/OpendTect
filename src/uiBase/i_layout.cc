@@ -17,8 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 
 #include "envvars.h"
-#include "timer.h"
 #include "od_ostream.h"
+#include "settings.h"
+#include "timer.h"
 
 #ifdef __debug__
 #define MAX_ITER	8000	//TODO: Increased from 2000 because of PEs
@@ -33,12 +34,13 @@ mUseQtnamespace
 #define mFinalised() ( managedBody.uiObjHandle().mainwin()  ? \
 		     managedBody.uiObjHandle().mainwin()->finalised() : true )
 
-i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy )
+i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm,
+			    uiObjectBody& mngbdy )
     : QLayout(parnt)
     , NamedObject(nm)
     , minimumDone(false), preferredDone(false), ismain(false)
     , prefposStored(false)
-    , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
+    , managedBody(mngbdy), hspacing(-1), borderspc(0)
     , poptimer(*new Timer), popped_up(false), timer_running(false)
 {
 #ifdef __debug__
@@ -46,6 +48,11 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm, uiObjectBody& mngbdy
 			      = GetEnvVarYN("DTECT_DEBUG_LAYOUT") );
     lyoutdbg = lyoutdbg_loc;
 #endif
+
+    vspacing = 2;
+    mSettUse(get,"dTect","GUI VSpacing",vspacing);
+    if ( vspacing<1 || vspacing>10 )
+	vspacing = 2;
 
     poptimer.tick.notify( mCB(this,i_LayoutMngr,popTimTick) );
 }
