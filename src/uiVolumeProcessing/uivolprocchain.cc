@@ -417,7 +417,6 @@ bool uiChain::doSaveAs()
     }
 
     updObj( *ioobj );
-
     return true;
 }
 
@@ -498,21 +497,23 @@ void uiChain::readPush( CallBacker* )
     dlg.selGrp()->setConfirmOverwrite( false );
     if ( !dlg.go() || !dlg.nrChosen() )
     {
-	if ( !objfld_->ioobj(true)->implExists(false) )
+	const IOObj* ioobj = objfld_->ioobj(true);
+	if ( ioobj && !ioobj->implExists(false) )
 	    updWriteStatus(0);
 
 	return;
     }
 
     uiString errmsg;
-    if ( !VolProcessingTranslator::retrieve(chain_,dlg.ioObj(),errmsg) )
+    const IOObj* ioobj = dlg.ioObj();
+    if ( !VolProcessingTranslator::retrieve(chain_,ioobj,errmsg) )
     {
 	updateList();
 	uiMSG().error( errmsg );
 	return;
     }
 
-    updObj( *dlg.ioObj() );
+    updObj( *ioobj );
     updateList();
 }
 
