@@ -510,7 +510,8 @@ void uiChain::readPush( CallBacker* )
     dlg.selGrp()->setConfirmOverwrite( false );
     if ( !dlg.go() || !dlg.nrChosen() )
     {
-	if ( !objfld_->ioobj(true)->implExists(false) )
+	const IOObj* ioobj = objfld_->ioobj(true);
+	if ( ioobj && !ioobj->implExists(false) )
 	    updWriteStatus(0);
 
 	return;
