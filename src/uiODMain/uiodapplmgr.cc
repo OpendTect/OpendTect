@@ -481,9 +481,9 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 
     uiZAxisTransformSel* uitrans = SI().zIsTime()
 	? new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyTime(),
-				   ZDomain::sKeyDepth(), true, is2d )
+				   ZDomain::sKeyDepth(), true, false, is2d )
 	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
-				   ZDomain::sKeyTime(), true, is2d );
+				   ZDomain::sKeyTime(), true, false, is2d );
 
     if ( !uitrans->isOK() )
     {
