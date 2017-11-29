@@ -726,9 +726,10 @@ void uiODMenuMgr::fillSceneMenu()
     mInsertItem( scenemnu_, tr("New Map View"), mAddMapSceneMnuItm );
 
     uiString itmtxt = tr( "New [%1]" )
-	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
-    add2D3DMenuItem( *scenemnu_, "empty", m3Dots(itmtxt),
-		     mAddTimeDepth2DMnuItm, mAddTimeDepth3DMnuItm );
+	      .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
+    addtimedepthsceneitm_ = new uiAction( itmtxt,
+	    				  mCB(this,uiODMenuMgr,handleClick) );
+    scenemnu_->insertItem( addtimedepthsceneitm_, mAddTimeDepth3DMnuItm );
 
     add2D3DMenuItem( *scenemnu_, "empty", tr("New [Horizon Flattened]"),
 		     mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm );
