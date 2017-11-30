@@ -243,6 +243,7 @@ public:
     static uiString sClear()		{ return tr("Clear"); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sCode(int num=1)	{ return tr("Code",0,num); }
+    static uiString sCollapse()		{ return tr("Collapse"); }
     static uiString sColorTable(int num=1);
     static uiString sColor(int num=1)	{ return tr("Color",0, num); }
     static uiString sComponent()	{ return tr("Component"); }
@@ -287,6 +288,7 @@ public:
     static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExitOD()		{ return tr("Exit OpendTect"); }
     static uiString sExit()		{ return tr("Exit"); }
+    static uiString sExpand()		{ return tr("Expand"); }
     static uiString sExport();
     static uiString sExtract();
     static uiString sFaultStickSet(int num=1);
