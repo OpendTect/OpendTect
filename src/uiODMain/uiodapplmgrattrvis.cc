@@ -57,7 +57,7 @@ void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
     {
 	am_.nlaserv_->set2DEvent( is2d );
 	nlaid = am_.nlaserv_->modelId();
-	nlamdl = &am_.nlaserv_->getModel();
+	nlamdl = am_.nlaserv_->getModel();
     }
     am_.emattrserv_->setNLA( nlamdl, nlaid );
 

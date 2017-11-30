@@ -69,6 +69,8 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
+#include "nlamodel.h"
+#include "nladesign.h"
 #include "oddirs.h"
 #include "odsession.h"
 #include "pickset.h"
@@ -592,7 +594,7 @@ bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
     const float velocity =
 	scene ? scene->getFixedZStretch() * scene->getZScale() : 0;
-    return attrserv_->setPickSetDirs( ps, nlaserv_ ? &nlaserv_->getModel() : 0,
+    return attrserv_->setPickSetDirs( ps, nlaserv_ ? nlaserv_->getModel() : 0,
 				      velocity );
 }
 
@@ -978,9 +980,10 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 	bool isnlamod3d = id == uiAttribPartServer::objNLAModel3D();
 	if ( isnlamod2d || isnlamod3d  )
 	{
-	    if ( nlaserv_ )
-		nlaserv_->set2DEvent( isnlamod2d );
-	    return nlaserv_ ? (void*)(&nlaserv_->getModel()) : 0;
+	    if ( !nlaserv_ )
+		return 0;
+	    nlaserv_->set2DEvent( isnlamod2d );
+	    return const_cast<NLAModel*>( nlaserv_->getModel() );
 	}
     }
     else
@@ -1544,13 +1547,18 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// made available as it almost certainly needs to be stored there.
 	const Attrib::DescSet* ads =
 	    attrserv_->curDescSet(nlaserv_->is2DEvent());
-	if ( !ads ) return false;
-	IOPar& iopar = nlaserv_->modelPars();
-	iopar.setEmpty();
-	BufferStringSet inputs = nlaserv_->modelInputs();
-	const Attrib::DescSet* cleanads = ads->optimizeClone( inputs );
-	(cleanads ? cleanads : ads)->fillPar( iopar );
-	delete cleanads;
+	if ( !ads )
+	    return false;
+	NLAModel* mdl = const_cast<NLAModel*>( nlaserv_->getModel() );
+	if ( mdl )
+	{
+	    IOPar& iopar = mdl->pars();
+	    iopar.setEmpty();
+	    const BufferStringSet inputs = mdl->design().inputs;
+	    const Attrib::DescSet* cleanads = ads->optimizeClone( inputs );
+	    (cleanads ? cleanads : ads)->fillPar( iopar );
+	    delete cleanads;
+	}
     }
     else if ( evid == uiNLAPartServer::evPrepareRead() )
     {
@@ -1564,8 +1572,11 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// New NLA Model available: replace the attribute set!
 	// Create new attrib set from NLA model's IOPar
 
-	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
-	wellattrserv_->setNLAModel( &nlaserv_->getModel() );
+	const NLAModel* mdl = nlaserv_->getModel();
+	IOPar dummy;
+	attrserv_->replaceSet( mdl ? mdl->pars() : dummy,
+			       nlaserv_->is2DEvent() );
+	wellattrserv_->setNLAModel( mdl );
     }
     else if ( evid == uiNLAPartServer::evGetInputNames() )
     {
@@ -1573,10 +1584,14 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Should be:
 	// * All attributes (stored ones filtered out)
 	// * All cubes - between []
-	attrserv_->getPossibleOutputs( nlaserv_->is2DEvent(),
-				      nlaserv_->inputNames() );
-	if ( nlaserv_->inputNames().size() == 0 )
+	const NLAModel* mdl = nlaserv_->getModel();
+	BufferStringSet inpnms;
+	if ( mdl )
+	    inpnms = mdl->design().inputs;
+	attrserv_->getPossibleOutputs( nlaserv_->is2DEvent(), inpnms );
+	if ( inpnms.isEmpty() )
 	    { uiMSG().error( tr("No usable input") ); return false; }
+	nlaserv_->inputNames() = inpnms;
     }
     else if ( evid == uiNLAPartServer::evGetStoredInput() )
     {
@@ -1615,10 +1630,15 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    }
 	    if ( !attrserv_->extractData(dpss) )
 		{ deepUnRef(dpss); return true; }
-	    IOPar& iop = nlaserv_->storePars();
-	    attrserv_->curDescSet(nlaserv_->is2DEvent())->fillPar( iop );
-	    if ( iop.name().isEmpty() )
-		iop.setName( "Attributes" );
+	    IOPar dummy;
+	    const NLAModel* mdl = nlaserv_->getModel();
+	    if ( mdl )
+	    {
+		IOPar& iop = nlaserv_->storePars();
+		attrserv_->curDescSet(nlaserv_->is2DEvent())->fillPar( iop );
+		if ( iop.name().isEmpty() )
+		    iop.setName( "Attributes" );
+	    }
 	}
 
 	const uiString res = nlaserv_->prepareInputData( dpss );
@@ -1646,11 +1666,15 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     }
     else if ( evid == uiNLAPartServer::evCreateAttrSet() )
     {
-	Attrib::DescSet attrset(nlaserv_->is2DEvent());
-	if ( !attrserv_->createAttributeSet(nlaserv_->modelInputs(),&attrset) )
+	const NLAModel* mdl = nlaserv_->getModel();
+	if ( isEmpty(mdl) )
 	    return false;
-	attrset.fillPar( nlaserv_->modelPars() );
-	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
+	Attrib::DescSet attrset( nlaserv_->is2DEvent() );
+	if ( !attrserv_->createAttributeSet(mdl->design().inputs,&attrset) )
+	    return false;
+	IOPar& iop( const_cast<IOPar&>( mdl->pars() ) );
+	attrset.fillPar( iop );
+	attrserv_->replaceSet( iop, nlaserv_->is2DEvent() );
     }
     else if ( evid == uiNLAPartServer::evCr2DRandomSet() )
     {

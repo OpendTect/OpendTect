@@ -368,7 +368,6 @@ bool ChannelInfo::mapData( int version, TaskRunner* tskr )
     if ( !ctidxtbl_ )
 	ctidxtbl_ = new ColTab::IndexTable( mNrColors, *mapper_ );
 
-    //TODO parallelize
     const ValSeriesType* vs = unmappeddata_[version];
     const float* ptrvals = vs->arr();
     MappedValueType* ptrmappedvals = mappeddata_[version];
@@ -438,10 +437,13 @@ bool ChannelInfo::setMappedData( int version, MappedValueType* data,
 int ChannelInfo::getCurrentVersion() const { return currentversion_; }
 
 
+
+static const char* sChannelIdxBad = "Invalid channel index passed";
+
 void ChannelInfo::setCurrentVersion( int nidx )
 {
     if ( mappeddata_.size() && (nidx<0 || nidx>=mappeddata_.size() ) )
-	{ pErrMsg("Invalid index"); return; }
+	{ pErrMsg("Bad version pased"); return; }
 
     currentversion_ = nidx;
     texturechannels_.update( this );
@@ -553,7 +555,7 @@ TextureChannels::~TextureChannels()
 void TextureChannels::setSize( int channel, int s0, int s1, int s2 )
 {
     if ( !channelinfo_.validIdx(channel) )
-	return;
+	{ pErrMsg(sChannelIdxBad); return; }
 
     channelinfo_[channel]->setSize( s0, s1, s2 );
 }
@@ -562,7 +564,7 @@ void TextureChannels::setSize( int channel, int s0, int s1, int s2 )
 int TextureChannels::getSize( int channel, unsigned char dim ) const
 {
     if ( !channelinfo_.validIdx(channel) )
-	return -1;
+	{ pErrMsg(sChannelIdxBad); return -1; }
 
     return channelinfo_[channel]->getSize( dim );
 }
@@ -570,14 +572,15 @@ int TextureChannels::getSize( int channel, unsigned char dim ) const
 
 void TextureChannels::setOrigin( int channel, const Coord& origin )
 {
-    if ( channelinfo_.validIdx(channel) )
-	channelinfo_[channel]->setOrigin( origin );
+    if ( !channelinfo_.validIdx(channel) )
+	{ pErrMsg(sChannelIdxBad); return; }
+    channelinfo_[channel]->setOrigin( origin );
 }
 
 Coord TextureChannels::getOrigin( int channel ) const
 {
     if ( !channelinfo_.validIdx(channel) )
-	return Coord::udf();
+	{ pErrMsg(sChannelIdxBad); return Coord::udf(); }
 
     return channelinfo_[channel]->getOrigin();
 }
@@ -585,15 +588,16 @@ Coord TextureChannels::getOrigin( int channel ) const
 
 void TextureChannels::setScale( int channel, const Coord& scale )
 {
-    if ( channelinfo_.validIdx(channel) )
-	channelinfo_[channel]->setScale( scale );
+    if ( !channelinfo_.validIdx(channel) )
+	{ pErrMsg(sChannelIdxBad); return; }
+    channelinfo_[channel]->setScale( scale );
 }
 
 
 Coord TextureChannels::getScale( int channel ) const
 {
     if ( !channelinfo_.validIdx(channel) )
-	return Coord::udf();
+	{ pErrMsg(sChannelIdxBad); return Coord::udf(); }
 
     return channelinfo_[channel]->getScale();
 }
@@ -617,10 +621,9 @@ StepInterval<float> TextureChannels::getEnvelopeRange( unsigned char dim ) const
 
 bool TextureChannels::turnOn( bool yn )
 {
-    bool res = isOn();
+    const bool wason = isOn();
     osgtexture_->turnOn( yn );
-
-    return res;
+    return wason;
 }
 
 
@@ -631,7 +634,9 @@ bool TextureChannels::isOn() const
 
 
 int TextureChannels::nrChannels() const
-{ return channelinfo_.size(); }
+{
+    return channelinfo_.size();
+}
 
 
 int TextureChannels::addChannel()
@@ -647,8 +652,8 @@ int TextureChannels::addChannel()
 
     ChannelInfo* newchannel = new ChannelInfo( *this );
 
-    const int res = channelinfo_.size();
-    if ( res )
+    const int newchannelidx = channelinfo_.size();
+    if ( newchannelidx > 0 )
     {
 	newchannel->setSize( channelinfo_[0]->getSize(0),
 			     channelinfo_[0]->getSize(1),
@@ -656,27 +661,23 @@ int TextureChannels::addChannel()
 	newchannel->setOrigin( channelinfo_[0]->getOrigin() );
 	newchannel->setScale( channelinfo_[0]->getScale() );
     }
-
     channelinfo_ += newchannel;
+
     newchannel->setOsgIDs( osgids );
-
-    update( res );
-
+    update( newchannelidx );
     if ( tc2rgba_ )
-	tc2rgba_->notifyChannelInsert( res );
+	tc2rgba_->notifyChannelInsert( newchannelidx );
 
-    return res;
+    return newchannelidx;
 }
 
 
 void TextureChannels::swapChannels( int t0, int t1 )
 {
     if ( t0<0 || t1<0 || t0>=channelinfo_.size() || t1>=channelinfo_.size() )
-	return;
+	{ pErrMsg(sChannelIdxBad); return; }
 
     channelinfo_.swap( t0, t1 );
-
-
     update( t0 );
     update( t1 );
 
@@ -685,78 +686,87 @@ void TextureChannels::swapChannels( int t0, int t1 )
 }
 
 
-int TextureChannels::insertChannel( int channel )
+int TextureChannels::insertChannel( int channelidx )
 {
-    if ( channel>=channelinfo_.size() )
+    if ( channelidx>=channelinfo_.size() )
 	return addChannel();
 
-    if ( channel<0 )
-	{ pErrMsg("Negative index"); channel=0; }
+    if ( channelidx<0 )
+	{ pErrMsg(sChannelIdxBad); channelidx=0; }
 
     ChannelInfo* newchannel = new ChannelInfo( *this );
-    channelinfo_.insertAt( newchannel, channel );
-    for ( int idy=channel; idy<nrChannels(); idy++ )
+    channelinfo_.insertAt( newchannel, channelidx );
+    for ( int idy=channelidx; idy<nrChannels(); idy++ )
 	update( idy );
 
     if ( tc2rgba_ )
-	tc2rgba_->notifyChannelInsert( channel );
+	tc2rgba_->notifyChannelInsert( channelidx );
 
-    return channel;
+    return channelidx;
 }
 
 
-void TextureChannels::removeChannel( int channel )
+void TextureChannels::removeChannel( int channelidx )
 {
-    if ( !channelinfo_.validIdx(channel) )
-	return;
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return; }
 
-    PtrMan<ChannelInfo> info = channelinfo_[channel];
+    PtrMan<ChannelInfo> info = channelinfo_[channelidx];
 
     for ( int idx=info->getOsgIDs().size()-1; idx>=0; idx-- )
 	osgtexture_->removeDataLayer( info->getOsgIDs()[idx] );
 
-    channelinfo_.removeSingle(channel);
+    channelinfo_.removeSingle( channelidx );
 
     if ( tc2rgba_ )
-	tc2rgba_->notifyChannelRemove( channel );
+	tc2rgba_->notifyChannelRemove( channelidx );
 }
 
 
-void TextureChannels::setColTabMapper( int channel, const ColTab::Mapper& mpr )
+void TextureChannels::setColTabMapper( int channelidx,
+				       const ColTab::Mapper& mpr )
 {
-    if ( channel<0 || channel>=channelinfo_.size() )
-	{ pErrMsg("Index out of bounds"); return; }
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return; }
 
-    channelinfo_[channel]->setColTabMapper( mpr );
+    channelinfo_[channelidx]->setColTabMapper( mpr );
 }
 
 
-void TextureChannels::reMapData( int channel, TaskRunner* tskr )
+void TextureChannels::reMapData( int channelidx, TaskRunner* tskr )
 {
-    if ( channel<0 || channel>=channelinfo_.size() )
-	{ pErrMsg("Index out of bounds"); return; }
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return; }
 
-    channelinfo_[channel]->reMapData( tskr );
+    channelinfo_[channelidx]->reMapData( tskr );
 }
 
 
-const ColTab::Mapper& TextureChannels::getColTabMapper( int channel ) const
-{ return channelinfo_[channel]->getColTabMapper(); }
-
-
-int TextureChannels::getNrComponents( int channel ) const
-{ return channelinfo_[channel]->nrComponents(); }
-
-
-void TextureChannels::setNrComponents( int channel, int newsz )
+const ColTab::Mapper& TextureChannels::getColTabMapper( int channelidx ) const
 {
-    if ( !channelinfo_.validIdx(channel) )
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); channelidx = 0; /* pray */ }
+    return channelinfo_[channelidx]->getColTabMapper();
+}
+
+
+int TextureChannels::getNrComponents( int channelidx ) const
+{
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return 0; }
+    return channelinfo_[channelidx]->nrComponents();
+}
+
+
+void TextureChannels::setNrComponents( int channelidx, int newsz )
+{
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return; }
+
+    if ( newsz==channelinfo_[channelidx]->nrComponents() )
 	return;
 
-    if ( newsz==channelinfo_[channel]->nrComponents() )
-	return;
-
-    TypeSet<int> osgids = channelinfo_[channel]->getOsgIDs();
+    TypeSet<int> osgids = channelinfo_[channelidx]->getOsgIDs();
     while ( osgids.size()<newsz )
     {
 	const int osgid = osgtexture_->addDataLayer();
@@ -770,47 +780,53 @@ void TextureChannels::setNrComponents( int channel, int newsz )
 	osgids.removeSingle( newsz );
     }
 
-    channelinfo_[channel]->setOsgIDs( osgids );
+    channelinfo_[channelidx]->setOsgIDs( osgids );
 }
 
 
-int TextureChannels::nrVersions( int channel ) const
-{ return channelinfo_[channel]->nrVersions(); }
-
-
-void TextureChannels::setNrVersions( int channel, int newsz )
+int TextureChannels::nrVersions( int channelidx ) const
 {
-    if ( !channelinfo_.validIdx(channel) )
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return 0; }
+    return channelinfo_[channelidx]->nrVersions();
+}
+
+
+void TextureChannels::setNrVersions( int channelidx, int newsz )
+{
+    if ( !channelinfo_.validIdx(channelidx) )
 	return;
 
-    channelinfo_[channel]->setNrVersions( newsz );
+    channelinfo_[channelidx]->setNrVersions( newsz );
 }
 
 
-int TextureChannels::currentVersion( int channel ) const
+int TextureChannels::currentVersion( int channelidx ) const
 {
-    if ( !channelinfo_.validIdx(channel) )
-	channel = 0;
+    if ( !channelinfo_.validIdx(channelidx) )
+	channelidx = 0;
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return 0; }
 
-    return channelinfo_[channel]->getCurrentVersion();
+    return channelinfo_[channelidx]->getCurrentVersion();
 }
 
 
-void TextureChannels::setCurrentVersion( int channel, int version )
+void TextureChannels::setCurrentVersion( int channelidx, int version )
 {
-    if ( !channelinfo_.validIdx(channel) )
-	channel = 0;
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return; }
 
-    channelinfo_[channel]->setCurrentVersion( version );
+    channelinfo_[channelidx]->setCurrentVersion( version );
 }
 
 
-bool TextureChannels::isCurrentDataPremapped( int channel ) const
+bool TextureChannels::isCurrentDataPremapped( int channelidx ) const
 {
-    if ( !channelinfo_.validIdx(channel) )
-	return false;
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return false; }
 
-    return channelinfo_[channel]->isCurrentDataPremapped();
+    return channelinfo_[channelidx]->isCurrentDataPremapped();
 }
 
 
@@ -820,33 +836,36 @@ bool TextureChannels::isCurrentDataPremapped( int channel ) const
     return false; \
 }
 
-bool TextureChannels::setUnMappedVSData( int channel, int version,
+bool TextureChannels::setUnMappedVSData( int channelidx, int version,
 			    const ValueSeries<float>* data, OD::PtrPolicy cp,
 			    TaskRunner* tskr )
 {
-    if ( channel<0 || channel>=channelinfo_.size() )
+    if ( !channelinfo_.validIdx(channelidx) )
     {
+	pErrMsg(sChannelIdxBad);
 	if ( cp==OD::TakeOverPtr ) delete data;
 	return false;
     }
 
-    return channelinfo_[channel]->setUnMappedData( version, data, cp, tskr );
+    return channelinfo_[channelidx]->setUnMappedData( version, data, cp, tskr );
 }
 
 
-bool TextureChannels::setUnMappedData( int channel, int version,
+bool TextureChannels::setUnMappedData( int channelidx, int version,
 	const float* data, OD::PtrPolicy cp, TaskRunner* tskr )
 {
-    if ( !channelinfo_.validIdx(channel) )
+    if ( !channelinfo_.validIdx(channelidx) )
     {
+	pErrMsg(sChannelIdxBad);
 	if ( cp==OD::TakeOverPtr ) delete [] data;
 	return false;
     }
 
     const float* useddata = data;
+    ChannelInfo& chinf = *channelinfo_[channelidx];
     if ( useddata && cp==OD::CopyPtr )
     {
-	const od_int64 nrelements = channelinfo_[channel]->nrElements( false );
+	const od_int64 nrelements = chinf.nrElements( false );
 	mDeclareAndTryAlloc( float*, newdata, float[nrelements] );
 	if ( !useddata )
 	    return false;
@@ -861,24 +880,24 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 	    const_cast<float*>(useddata), cp==OD::TakeOverPtr )
 	: 0;
 
-    return channelinfo_[channel]->setUnMappedData( version, vs, OD::TakeOverPtr,
-						   tskr );
+    return chinf.setUnMappedData( version, vs, OD::TakeOverPtr, tskr );
 }
 
 
-bool TextureChannels::setMappedData( int channel, int version,
+bool TextureChannels::setMappedData( int channelidx, int version,
 				     unsigned char* data,
 				     OD::PtrPolicy cp )
 {
-    setUnMappedData( channel, version, 0, OD::UsePtr, 0 );
+    setUnMappedData( channelidx, version, 0, OD::UsePtr, 0 );
 
-    if ( channel<0 || channel>=channelinfo_.size() )
+    if ( !channelinfo_.validIdx(channelidx) )
     {
+	pErrMsg(sChannelIdxBad);
 	if ( cp==OD::TakeOverPtr ) delete [] data;
 	return false;
     }
 
-    return channelinfo_[channel]->setMappedData( version, data, cp );
+    return channelinfo_[channelidx]->setMappedData( version, data, cp );
 }
 
 
@@ -899,12 +918,12 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
 	tc2rgba_->setChannels( this );
 	tc2rgba_->ref();
 
-	for ( int channel=0; channel<nrChannels(); channel++ )
+	for ( int channelidx=0; channelidx<nrChannels(); channelidx++ )
 	{
 	    if ( oldnrtexturebands != nrTextureBands() )
-		reMapData( channel, 0 );
+		reMapData( channelidx, 0 );
 
-	    update( channel );
+	    update( channelidx );
 	}
     }
 
@@ -928,11 +947,11 @@ const SbImagei32* TextureChannels::getChannels() const
 
 void TextureChannels::update( ChannelInfo* ti )
 {
-    const int channel= channelinfo_.indexOf( ti );
-    if ( channel==-1 )
+    const int channelidx= channelinfo_.indexOf( ti );
+    if ( channelidx==-1 )
 	return;
 
-    update( channel );
+    update( channelidx );
 }
 
 
@@ -949,40 +968,42 @@ unsigned char TextureChannels::nrDataBands() const
 }
 
 
-void TextureChannels::update( int channel, bool freezeifnodata )
+void TextureChannels::update( int channelidx, bool freezeifnodata )
 {
-    channelinfo_[channel]->updateOsgImages();
-    for ( int component=channelinfo_[channel]->nrComponents()-1;
-	  component>=0; component-- )
-    {
-	const int osgid = channelinfo_[channel]->osgids_[component];
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return; }
 
-	if ( isCurrentDataPremapped(channel) )
+    ChannelInfo& chinf = *channelinfo_[channelidx];
+    chinf.updateOsgImages();
+    for ( int component=chinf.nrComponents()-1; component>=0; component-- )
+    {
+	const int osgid = chinf.osgids_[component];
+
+	if ( isCurrentDataPremapped(channelidx) )
 	{
-	    osgtexture_->setDataLayerImage( osgid,
-		channelinfo_[channel]->osgimages_[component], freezeifnodata );
+	    osgtexture_->setDataLayerImage( osgid, chinf.osgimages_[component],
+					    freezeifnodata );
 	    osgtexture_->setDataLayerUndefLayerID( osgid, -1 );
 	}
 	else
 	{
-	    osgtexture_->setDataLayerImage( osgid,
-		    channelinfo_[channel]->osgimages_[component],
-		    freezeifnodata, nrDataBands()-1 );
+	    osgtexture_->setDataLayerImage( osgid, chinf.osgimages_[component],
+					    freezeifnodata, nrDataBands()-1 );
 
 	    const int udflayerid = nrUdfBands() ? osgid : -1;
 	    osgtexture_->setDataLayerUndefLayerID( osgid, udflayerid );
-	    const int udfchannel = nrTextureBands()==3 ? 2 : 3;
-	    osgtexture_->setDataLayerUndefChannel( osgid, udfchannel );
+	    const int udfchannelidx = nrTextureBands()==3 ? 2 : 3;
+	    osgtexture_->setDataLayerUndefChannel( osgid, udfchannelidx );
 
 	    osg::Vec4f bordercolor( 1.0, 1.0, 1.0, 1.0 );
-	    bordercolor[udfchannel] = 0.0;
+	    bordercolor[udfchannelidx] = 0.0;
 	    osgtexture_->setDataLayerBorderColor( osgid, bordercolor );
 	}
 
 	osgtexture_->setDataLayerOrigin( osgid,
-		Conv::to<osg::Vec2f>(channelinfo_[channel]->getOrigin()) );
+			Conv::to<osg::Vec2f>(chinf.getOrigin()) );
 	osgtexture_->setDataLayerScale( osgid,
-		Conv::to<osg::Vec2f>(channelinfo_[channel]->getScale()) );
+			Conv::to<osg::Vec2f>(chinf.getScale()) );
     }
 
     if ( getChannels2RGBA() )
@@ -990,18 +1011,13 @@ void TextureChannels::update( int channel, bool freezeifnodata )
 }
 
 
-void TextureChannels::touchMappedData()
+
+const TypeSet<int>* TextureChannels::getOsgIDs( int channelidx ) const
 {
-    pErrMsg("Is this function needed?");
-}
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); return 0; }
 
-
-const TypeSet<int>* TextureChannels::getOsgIDs( int channel ) const
-{
-    if ( channel<0 || channel>=channelinfo_.size() )
-	return 0;
-
-    return &channelinfo_[channel]->getOsgIDs();
+    return &channelinfo_[channelidx]->getOsgIDs();
 }
 
 
@@ -1036,10 +1052,12 @@ int TextureChannels::getNonShaderResolution() const
 }
 
 
-void TextureChannels::unfreezeOldData( int channel )
+void TextureChannels::unfreezeOldData( int channelidx )
 {
-    if ( channelinfo_.validIdx(channel) )
-	update( channel, false );
+    if ( !channelinfo_.validIdx(channelidx) )
+	{ pErrMsg(sChannelIdxBad); }
+    else
+	update( channelidx, false );
 }
 
 

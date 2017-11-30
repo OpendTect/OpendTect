@@ -81,9 +81,10 @@ bool uiNLAPartServer::willDoExtraction() const
 }
 
 
-const BufferStringSet& uiNLAPartServer::modelInputs() const
+const char* uiNLAPartServer::modelName() const
 {
-    return getModel().design().inputs;
+    const NLAModel* mdl = getModel();
+    return mdl ? mdl->name() : 0;
 }
 
 

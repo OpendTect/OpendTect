@@ -98,7 +98,6 @@ public:
     const TextureChannel2RGBA*	getChannels2RGBA() const;
 
     const SbImagei32*		getChannels() const;
-    void			touchMappedData();
 
     osgGeo::LayeredTexture*	getOsgTexture() { return osgtexture_; }
     const osgGeo::LayeredTexture* getOsgTexture() const { return osgtexture_; }

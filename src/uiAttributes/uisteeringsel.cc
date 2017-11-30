@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
+#include "attribdescsetsholder.h"
 #include "ioobjctxt.h"
 #include "dbman.h"
 #include "ioobj.h"
@@ -180,6 +181,13 @@ DescID uiSteeringSel::descID()
     if ( !willSteer() )
 	return DescID();
 
+    if ( !descset_ )
+    {
+	descset_ = Attrib::DSHolder().getDescSet( is2d_, false );
+	if ( !descset_ )
+	    return DescID();
+    }
+
     if ( type==3 )
     {
 	const FixedString attribnm = "ConstantSteering";
@@ -289,10 +297,11 @@ uiSteerAttrSel::uiSteerAttrSel( uiParent* p, const DescSet* ads,
 DescID uiSteerAttrSel::getDipID( int dipnr ) const
 {
     const DescSet& ads = attrdata_.attrSet();
-    if ( !workctio_.ioobj_ )
+    const IOObj* inpioobj = ioobj( true );
+    if ( !inpioobj )
 	return DescID();
 
-    const BufferString storkey( workctio_.ioobj_->key().toString() );
+    const BufferString storkey( inpioobj->key().toString() );
     for ( int idx=0; idx<ads.size(); idx++ )
     {
 	const DescID descid = ads.getID( idx );
@@ -314,7 +323,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( storkey );
 
-    BufferString userref = workctio_.ioobj_->name();
+    BufferString userref = inpioobj->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";
     desc->setUserRef( userref );
     desc->updateParams();
@@ -332,16 +341,16 @@ void uiSteerAttrSel::setDescSet( const DescSet* ads )
 
 void uiSteerAttrSel::setDesc( const Desc* desc )
 {
-    if ( !desc || desc->selectedOutput() ) return;
-
-    if ( !desc->isStored() || desc->dataType() != Seis::Dip ) return;
+    if ( !desc || desc->selectedOutput()
+      || !desc->isStored() || desc->dataType() != Seis::Dip )
+	return;
 
     setDescSet( desc->descSet() );
 
     const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     const StringPair storkey( keypar->getStringValue() );
-    const DBKey mid( DBKey::getFromString( storkey.first() ) );
-    PtrMan<IOObj> ioob = DBM().get( mid );
+    const DBKey dbky( DBKey::getFromString( storkey.first() ) );
+    PtrMan<IOObj> ioob = DBM().get( dbky );
     workctio_.setObj( ioob ? ioob->clone() : 0 );
     updateInput();
 }

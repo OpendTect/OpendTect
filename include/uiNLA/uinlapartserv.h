@@ -43,41 +43,37 @@ public:
     virtual void	reset()				= 0;
     virtual bool	isClassification() const	= 0;
     virtual void	getNeededStoredInputs(
-	    			BufferStringSet& linekeys) const = 0;
+				BufferStringSet& linekeys) const = 0;
     virtual bool	go()				= 0;
-    			//!< returns whether manageNN should be called again
-    virtual const NLAModel& getModel() const		= 0;
+			//!< returns whether manageNN should be called again
+    virtual const NLAModel* getModel() const		= 0;
     virtual const NLACreationDesc& creationDesc() const	= 0;
 
-    virtual const char*	modelName() const
-			{ return getModel().name(); }
-    virtual IOPar&	modelPars() const
-			{ return const_cast<NLAModel&>(getModel()).pars(); }
+    virtual const char*	modelName() const;
     bool		willDoExtraction() const;
-    const BufferStringSet& modelInputs() const;
 
     static int		evPrepareWrite();
-    			//!< need to fill modelPars()
+			//!< need to fill modelPars()
     static int		evPrepareRead();
-    			//!< is FYI
+			//!< is FYI
     static int		evReadFinished();
-    			//!< is FYI
+			//!< is FYI
     static int		evGetInputNames();
-    			//!< need to fill inputNames()
+			//!< need to fill inputNames()
     static int		evGetStoredInput();
 			//!< need to put stored data into attrset
     static int		evGetData();
-    			//!< need to fill vdsTrain() and vdsTest()
+			//!< need to fill vdsTrain() and vdsTest()
     static int		evSaveMisclass();
-    			//!< use misclass analysis VDS; user wants it.
+			//!< use misclass analysis VDS; user wants it.
     static int		evCreateAttrSet();
-    			//!< create attributeset from GDI NN
+			//!< create attributeset from GDI NN
     static int		evCr2DRandomSet();
-    			//!< create 2D random pick set
+			//!< create 2D random pick set
     static uiString	sKeyUsrCancel();
-    			//!< Returned when operation must stop without error
+			//!< Returned when operation must stop without error
 
-    			// Following should be filled on events
+			// Following should be filled on events
     BufferStringSet&	inputNames()			{ return inpnms_; }
     const BufferStringSet& inputNames() const		{ return inpnms_; }
     RefMan<DataPointSet>	dps()			{ return gtDps(); }

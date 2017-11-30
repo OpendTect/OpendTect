@@ -25,6 +25,7 @@ public:
 
     virtual				~NLAModel()			{}
 
+    virtual bool			isEmpty() const			= 0;
     virtual const char*			name() const			= 0;
     virtual const NLADesign&		design() const			= 0;
     virtual NLAModel*			clone()	const			= 0;
@@ -34,13 +35,19 @@ public:
     const IOPar&			pars() const
 					{ return const_cast<NLAModel*>
 						 (this)->pars(); }
-    					//!< Attrib set in/out
+					//!< Attrib set in/out
 
     virtual void			dump(BufferString&) const	= 0;
-    					//!< 'serialize' - without the pars()
+					//!< 'serialize' - without the pars()
 
     virtual const char*			nlaType( bool compact=true ) const
-    					{ return compact ? "NN"
-					    		 : "Neural Network"; }
+					{ return compact ? "NN"
+							 : "Neural Network"; }
 
 };
+
+
+mGlobal(NLA) inline bool isEmpty( const NLAModel* mdl )
+{
+    return !mdl || mdl->isEmpty();
+}
