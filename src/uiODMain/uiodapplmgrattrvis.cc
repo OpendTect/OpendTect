@@ -278,7 +278,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     	    seq = ColTab::Sequence( ctname );
     	    mapper.usePar( iop );
 	}
-	else if ( !seisobj.is2D() )
+	else if ( !seisobj.is2D() && seisobj.nrComponents() == 1 )
 	{
 	    uiMSG().message( tr("No saved color settings found for the selected"
 			" cube. Default settings will be loaded. For changing "
