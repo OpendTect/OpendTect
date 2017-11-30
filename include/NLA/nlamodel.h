@@ -13,13 +13,9 @@ ________________________________________________________________________
 -*/
 
 #include "nlamod.h"
-#include "gendefs.h"
+#include "nladesign.h"
 
-class NLADesign;
-
-/*!
-\brief Minimum Interface for NLA models
-*/
+/*!\brief Minimum Interface for NLA models */
 
 mClass(NLA) NLAModel
 {
@@ -36,15 +32,21 @@ public:
     const IOPar&			pars() const
 					{ return const_cast<NLAModel*>
 						 (this)->pars(); }
-    					//!< Attrib set in/out
+					//!< Attrib set in/out
 
     virtual void			dump(BufferString&) const	= 0;
-    					//!< 'serialize' - without the pars()
+					//!< 'serialize' - without the pars()
 
     virtual const char*			nlaType( bool compact=true ) const
-    					{ return compact ? "NN"
-					    		 : "Neural Network"; }
+					{ return compact ? "NN"
+							 : "Neural Network"; }
 
 };
+
+
+mGlobal(NLA) inline bool isEmpty( const NLAModel* mdl )
+{
+    return !mdl || mdl->design().inputs.isEmpty();
+}
 
 #endif
