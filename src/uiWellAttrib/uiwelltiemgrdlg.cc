@@ -173,7 +173,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
 
-    postFinalise().notify( mCB(this,uiTieWinMGRDlg,onFinalise) );
+    afterPopup.notify( mCB(this,uiTieWinMGRDlg,onFinalise) );
 }
 
 
@@ -281,7 +281,7 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
 	const MultiID& seisid = seisfld->key();
 	if ( seisid.isEmpty() )
 	    mErrRet(uiStrings::phrSelect(uiStrings::phrJoinStrings(
-		    uiStrings::sInput().toLower(), 
+		    uiStrings::sInput().toLower(),
 		    uiStrings::sSeismic().toLower(),
 		    uiStrings::sData().toLower())))
 
