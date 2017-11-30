@@ -222,7 +222,8 @@ public:
     virtual bool		isAttribEnabled(int attrib) const {return true;}
     bool			isAnyAttribEnabled() const;
     virtual bool		hasSingleColorFallback() const { return false; }
-    virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
+    virtual OD::Pol2D3D		getAllowedDataType() const
+				{ return OD::Only3D; }
 
     virtual bool		canRemoveSelection() const	{ return false;}
     virtual bool		removeSelections(TaskRunner*)	{ return false;}

@@ -92,7 +92,7 @@ void Similarity::initClass()
 
     desc->setNrOutputs( Seis::UnknownData, 5 );
 
-    desc->setLocality( Desc::MultiTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

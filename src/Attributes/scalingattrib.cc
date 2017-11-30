@@ -114,7 +114,7 @@ void Scaling::initClass()
     desc->addOutputDataType( Seis::UnknownData );
     desc->addInput( InputSpec("Input data",true) );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

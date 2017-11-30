@@ -138,15 +138,15 @@ public:
     void		fillInSelSpecs(Attrib::DescSetup,
 				       TypeSet<Attrib::SelSpec>&) const;
 
+    inline bool		is2D() const		{ return is2d_; }
+    bool		hasStoredInMem() const;
+    bool		couldBeUsedInAnyDimension() const
+			{ return couldbeanydim_; }
     void		setCouldBeUsedInAnyDimension( bool yn )
 			{ couldbeanydim_ = yn; }
-    inline bool		couldBeUsedInAnyDimension() const
-			{ return couldbeanydim_; }
-    bool		hasStoredInMem() const;
 
     bool		exportToDot(const char* nm,const char* fnm) const;
 
-    inline bool		is2D() const		{ return is2d_; }
     uiString		errMsg() const;
     static const char*	highestIDStr()		{ return "MaxNrKeys"; }
     static const char*	definitionStr()		{ return "Definition"; }
@@ -175,9 +175,9 @@ protected:
 
     DescID		getFreeID() const;
 
+    const bool		is2d_;
     ObjectSet<Desc>	descs_;
     TypeSet<DescID>	ids_;
-    bool		is2d_;
     bool		couldbeanydim_;
     uiString		errmsg_;
 
@@ -189,6 +189,7 @@ private:
 
 public:
 
+    DescID		ensureStoredPresent(const DBKey&,int compnr=-1) const;
     DescID		ensureDefStoredPresent() const;
     static uiString	sFactoryEntryNotFound(const char* attrnm);
 

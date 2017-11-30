@@ -138,8 +138,8 @@ public:
     RefMan<Coords::CoordSystem>	getCoordSystem();
     ConstRefMan<Coords::CoordSystem> getCoordSystem() const;
 
-    enum Pol2D		{ No2D=0, Both2DAnd3D=1, Only2D=2 };
-			mDeclareEnumUtils(Pol2D);
+    typedef OD::Pol2D3D	Pol2D3D;
+			mDeclareEnumUtils(Pol2D3D);
 
     float		getArea(Interval<int> inl,Interval<int> crl) const;
 				//!<returns square meters
@@ -155,7 +155,7 @@ public:
 			// minor changes will be sent only if not a 'major' one
 			// is emitted.
     static ChangeType	cParsChange()		{ return 6; }
-    static ChangeType	cPol2DChange()		{ return 7; }
+    static ChangeType	cPol2D3DChange()	{ return 7; }
     static ChangeType	cAuxDataChange()	{ return 8; }
     static ChangeType	cCommentChange()	{ return 9; }
 
@@ -187,8 +187,8 @@ protected:
     BinID		set3binids_[3];
     Coord		set3coords_[3];
 
-    Pol2D		pol2d_;
-    bool		pol2dknown_;
+    Pol2D3D		pol2d3d_;
+    bool		pol2d3dknown_;
 
     BufferString	comments_;
     uiString		sipnm_;
@@ -246,8 +246,8 @@ public:
     BufferString	getFullDirPath() const;
     static BufferString	dirNameForName(const char*);
 
-    Pol2D		survDataType() const;
-    void		setSurvDataType(Pol2D) const;
+    Pol2D3D		survDataType() const;
+    void		setSurvDataType(Pol2D3D) const;
     mImplSimpleMonitoredGet(sipName,uiString,sipnm_);
     void		setSipName(const uiString&);
 

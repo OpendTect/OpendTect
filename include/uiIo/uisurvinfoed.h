@@ -71,7 +71,7 @@ protected:
     uiGenInput*		crlfld_;
     uiGenInput*		zfld_;
     uiComboBox*		zunitfld_;
-    uiComboBox*		pol2dfld_;
+    uiComboBox*		pol2d3dfld_;
 
     uiGenInput*		x0fld_;
     uiGenInput*		xinlfld_;

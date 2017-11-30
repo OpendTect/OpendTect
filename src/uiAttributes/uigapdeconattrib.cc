@@ -465,7 +465,7 @@ Desc* uiGapDeconAttrib::createNewDesc( DescSet* descset, DescID inpid,
 
     newdesc->selectOutput( seloutidx );
     newdesc->setInput( inpidx, inpdesc );
-    newdesc->setHidden( true );
+    newdesc->setIsHidden( true );
     BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref;
     newdesc->setUserRef( usrref );
     return newdesc;

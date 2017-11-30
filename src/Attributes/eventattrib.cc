@@ -49,7 +49,7 @@ void Event::initClass()
     InputSpec inputspec( "Input Data", true );
     desc->addInput( inputspec );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

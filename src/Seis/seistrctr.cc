@@ -52,10 +52,10 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 const char*
 SeisTrcTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
 {
-    if ( ioobj && SeisTrcTranslator::is2D( *ioobj ) )
+    if ( ioobj && SeisTrcTranslator::is2D(*ioobj) )
 	return IOPar::compKey( sKey::Default(), sKeyDefault2D() );
 
-    if ( SI().survDataType()==SurveyInfo::Only2D )
+    if ( SI().survDataType() == OD::Only2D )
 	return IOPar::compKey( sKey::Default(), sKeyDefault2D() );
 
     return IOPar::compKey( sKey::Default(), sKeyDefault3D() );

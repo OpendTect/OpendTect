@@ -138,7 +138,7 @@ void GapDecon::initClass()
     desc->addInput( InputSpec("Mixed Input data",false) );
     desc->setNrOutputs( Seis::UnknownData, 5 );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

@@ -142,7 +142,7 @@ DescSet& DescSet::operator =( const DescSet& ds )
     if ( &ds != this )
     {
 	removeAll( false );
-	is2d_ = ds.is2d_;
+	const_cast<bool&>(is2d_) = ds.is2d_;
 	couldbeanydim_ = ds.couldbeanydim_;
 	for ( int idx=0; idx<ds.size(); idx++ )
 	    addDesc( new Desc( *ds.descs_[idx] ), ds.ids_[idx] );
@@ -413,8 +413,7 @@ void DescSet::fillPar( IOPar& par ) const
     }
 
     par.set( highestIDStr(), maxid );
-    if ( descs_.size() > 0 )
-	par.set( sKey::Type(), couldbeanydim_ ? "AnyD" : is2D() ? "2D" : "3D" );
+    par.set( sKey::Type(), couldbeanydim_ ? "AnyD" : is2d_ ? "2D" : "3D");
 }
 
 
@@ -615,7 +614,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 
     bool ishidden = false;
     descpar.getYN( hiddenStr(), ishidden );
-    dsc->setHidden( ishidden );
+    dsc->setIsHidden( ishidden );
 
     int selout = dsc->selectedOutput();
     bool selectout = descpar.get("Selected Attrib",selout);
@@ -625,7 +624,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 	if ( type=="Dip" )
 	{
 	    dsc->setNrOutputs( Seis::Dip, 2 );
-	    dsc->setSteering( true );
+	    dsc->setIsSteering( true );
 	}
 	else
 	    dsc->changeOutputDataType( selout, Seis::dataTypeOf(type) );
@@ -786,8 +785,9 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
     const char* typestr = par.find( sKey::Type() );
     if ( typestr )
     {
-	is2d_ = *typestr == '2';
 	couldbeanydim_ = *typestr == 'A';
+	if ( !couldbeanydim_ )
+	    const_cast<bool&>(is2d_) = *typestr == '2';
     }
 
     removeAll( false );
@@ -801,7 +801,8 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
     for ( int id=0; id<=maxid; id++ )
     {
 	PtrMan<IOPar> descpar = par.subselect( toString(id) );
-	if ( !descpar ) continue;
+	if ( !descpar )
+	    continue;
 
 	handleStorageOldFormat( *descpar );
 
@@ -952,8 +953,8 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     BufferString usrrefstr = "steering input ";
     usrrefstr += newsteeringdescs.size();
     stdesc->setUserRef( usrrefstr );
-    stdesc->setSteering(true);
-    stdesc->setHidden(true);
+    stdesc->setIsSteering(true);
+    stdesc->setIsHidden(true);
 
     const char* inldipstr = steeringpar.find("InlDipID");
     if ( inldipstr )
@@ -1104,7 +1105,7 @@ DescSet* DescSet::optimizeClone( const DescID& targetnode ) const
 
 DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 {
-    DescSet* res = new DescSet(is2d_);
+    DescSet* res = new DescSet( is2d_ );
     res->removeAll( false );
     TypeSet<DescID> needednodes = targets;
     while ( needednodes.size() )
@@ -1238,7 +1239,7 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	if ( !usesteering && issteer )
 	    continue;
 
-	if ( (dsc.is2D() == is2D()) ) //TODO backward compatibility with 2.4
+	if ( (dsc.is2D() == is2D()) )
 	    return const_cast<Desc*>( &dsc );
     }
 

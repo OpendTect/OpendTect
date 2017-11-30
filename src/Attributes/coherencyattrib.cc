@@ -56,7 +56,7 @@ void Coherency::initClass()
     desc->addInput( InputSpec("Imag data for Coherency",true) );
     desc->setNrOutputs( Seis::UnknownData, 3 );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

@@ -39,7 +39,7 @@ void Energy::initClass()
     desc->addInput( InputSpec("Input Data",true) );
     desc->setNrOutputs( Seis::UnknownData, 3 );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

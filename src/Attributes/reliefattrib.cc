@@ -26,7 +26,7 @@ void Relief::initClass()
 
     desc->addInput( InputSpec("Input Data",true) );
     desc->setNrOutputs( Seis::UnknownData, 1 );
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
 
     mAttrEndInitClass
 }

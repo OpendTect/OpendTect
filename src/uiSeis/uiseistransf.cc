@@ -89,7 +89,7 @@ void uiSeisTransfer::setInput( const IOObj& ioobj )
     selfld->setInput( ioobj );
 
     const char* res = ioobj.pars().find( sKey::Type() );
-    setSteering( res && *res == 'S' );
+    setIsSteering( res && *res == 'S' );
 }
 
 
@@ -130,7 +130,7 @@ bool uiSeisTransfer::extendTrcsToSI() const
 }
 
 
-void uiSeisTransfer::setSteering( bool yn )
+void uiSeisTransfer::setIsSteering( bool yn )
 {
     issteer_ = yn;
     updSteer( 0 );

@@ -33,7 +33,7 @@ public:
     void		updateIOObj(IOObj*,bool commit=true) const;
 
     bool		isSteering() const	{ return issteer_; }
-    void		setSteering(bool);
+    void		setIsSteering(bool);
 
     void		fillFmtPars(IOPar&) const; // for IOObj
     void		fillOtherPars(IOPar&) const;

@@ -166,7 +166,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	mErrRet( errmsg_ )
 
     const bool is2d = mscprov_->is2D();
-    desc_.set2D( is2d );
+    desc_.setIs2D( is2d );
     if ( !is2d )
     {
 	SeisTrcTranslator::getRanges( mid, storedvolume_, 0 );

@@ -34,7 +34,7 @@ void DeltaResample::initClass()
 
     desc->setNrOutputs( Seis::UnknownData, 1 );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

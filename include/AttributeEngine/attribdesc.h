@@ -28,26 +28,27 @@ class Param;
 class DescSet;
 class ValParam;
 
-typedef void(*DescStatusUpdater)(Desc&);
-typedef void(*DescDefaultsUpdater)(Desc&);
+typedef void		(*DescUpdater)(Desc&);
+typedef Seis::DataType	DataType;
 
-/*!
-\brief Setup class for Attrib::Desc.
-*/
+
+/*!\brief A setup class for desc */
 
 mExpClass(AttributeEngine) DescSetup
 {
     public:
-				    DescSetup();
-	mDefSetupClssMemb(DescSetup,bool,is2d)
-	mDefSetupClssMemb(DescSetup,bool,ps)
-	mDefSetupClssMemb(DescSetup,bool,singletraceonly)
-	mDefSetupClssMemb(DescSetup,bool,usingtrcpos)
-	mDefSetupClssMemb(DescSetup,bool,depthonly)
-	mDefSetupClssMemb(DescSetup,bool,timeonly)
-	mDefSetupClssMemb(DescSetup,bool,hidden)
-	mDefSetupClssMemb(DescSetup,bool,steering)
-	mDefSetupClssMemb(DescSetup,bool,stored)
+					DescSetup();
+
+    mDefSetupClssMemb(DescSetup, bool,	is2d)
+    mDefSetupClssMemb(DescSetup, bool,	ps)
+    mDefSetupClssMemb(DescSetup, bool,	singletraceonly)
+    mDefSetupClssMemb(DescSetup, bool,	usingtrcpos)
+    mDefSetupClssMemb(DescSetup, bool,	depthonly)
+    mDefSetupClssMemb(DescSetup, bool,	timeonly)
+    mDefSetupClssMemb(DescSetup, bool,	hidden)
+    mDefSetupClssMemb(DescSetup, bool,	steering)
+    mDefSetupClssMemb(DescSetup, bool,	stored)
+
 };
 
 
@@ -58,18 +59,18 @@ mExpClass(AttributeEngine) DescSetup
 mExpClass(AttributeEngine) InputSpec
 {
 public:
-				InputSpec( const char* d, bool enabled )
+			InputSpec( const char* d, bool enabled )
 				    : desc_(d), enabled_(enabled)
 				    , issteering_(false)		{}
 
     const char*		getDesc() const { return desc_; }
 
-    BufferString		desc_;
-    TypeSet<Seis::DataType>	forbiddenDts_;
-    bool			enabled_;
-    bool			issteering_;
+    BufferString	desc_;
+    TypeSet<DataType>	forbiddenDts_;
+    bool		enabled_;
+    bool		issteering_;
 
-    bool			operator==(const InputSpec&) const;
+    bool		operator==(const InputSpec&) const;
 };
 
 
@@ -77,7 +78,7 @@ public:
 \brief Description of an attribute in an Attrib::DescSet. Each attribute has
 a name (e.g. "Similarity"), a user reference (e.g. "My similarity"), and at
 least one output. In addition, it may have parameters and inputs. If it has
-multiple outputs, only one of the outputs are selected.
+multiple outputs, only one of the outputs is selected.
 
 The attrib name, the parameters and the selected output number together form
 a definition string that defines what the attribute calculates.
@@ -90,165 +91,160 @@ mExpClass(AttributeEngine) Desc : public RefCount::Referenced
 { mODTextTranslationClass(Desc)
 public:
 
-    enum Locality		{ SingleTrace, PossiblyMultiTrace, MultiTrace };
+    explicit		Desc(const char* attrname,DescUpdater updater=0,
+				     DescUpdater defupdater=0);
+			Desc(const Desc&);
 
-    explicit			Desc(const char* attrname,
-				     DescStatusUpdater updater=0,
-				     DescDefaultsUpdater defupdater=0);
-				Desc(const Desc&);
+    const OD::String&	attribName() const	{ return attribname_; }
 
-    const OD::String&		attribName() const;
-
-    void			setDescSet(DescSet*);
-    DescSet*			descSet() const;
-    DescID			id() const;
-    bool			getParentID(DescID cid,DescID& pid,int&) const;
-    void			getAncestorIDs(DescID cid,
+    void		setDescSet(DescSet*);
+    DescSet*		descSet() const		{ return descset_; }
+    DescID		id() const;
+    bool		getParentID(DescID cid,DescID& pid,int&) const;
+    void		getAncestorIDs(DescID cid,
 					TypeSet<DescID>&,TypeSet<int>&) const;
-				/*ordered from parent to oldest original*/
+				    /*ordered from parent to oldest original*/
 
-    bool			getDefStr(BufferString&) const;
-    bool			parseDefStr(const char*);
+    bool		getDefStr(BufferString&) const;
+    bool		parseDefStr(const char*);
 
-    const char*			userRef() const;
-    void			setUserRef(const char*);
+    const char*		userRef() const		{ return userref_; }
+    void		setUserRef(const char*);
 
-    int				nrOutputs() const;
-    void			selectOutput(int);
-    int				selectedOutput() const;
+    int			nrOutputs() const	{ return outputtypes_.size(); }
+    void		selectOutput( int nr )	{ seloutput_ = nr; }
+    int			selectedOutput() const	{ return seloutput_; }
 
-    Seis::DataType		dataType(int output=-1) const;
-				/*!<\param output specifies which output is
-				     required, or -1 for the selected output.*/
-    Locality			locality() const	  { return locality_; }
-    void			setLocality( Locality l ) { locality_ = l; }
-    bool			usesTracePosition() const { return usestrcpos_;}
-    void			setUsesTrcPos( bool yn )  { usestrcpos_ = yn; }
-    bool			isSteering() const        { return issteering_;}
-    void			setSteering( bool yn )    { issteering_ = yn; }
-    bool			isHidden() const	{ return hidden_; }
-				/*!<If hidden, it won't show up in UI. */
-    void			setHidden( bool yn )	{ hidden_ = yn; }
-				/*!<If hidden, it won't show up in UI. */
+    DataType		dataType(int output=-1) const;
+			    /*!<\param -1 for the selected output.*/
 
-    bool			isStored() const;
-    bool			isStoredInMem() const;
-    DBKey			getStoredID(bool recursive=false) const;
+    bool		needProvInit() const	{ return needprovinit_; }
 
-    void			setNeedProvInit( bool yn=true )
-				{ needprovinit_ = yn; }
-    bool			needProvInit() const
-				{ return needprovinit_;}
+    bool		is2D() const		{ return is2d_; }
+    bool		isPS() const		{ return isps_; }
+    bool		isSingleTrace() const	{ return issingtrc_; }
+    bool		isSteering() const	{ return issteering_;}
+    bool		isHidden() const	{ return ishidden_; }
+    bool		usesTracePosition() const { return usestrcpos_;}
 
-    int				nrInputs() const;
-    InputSpec&			inputSpec(int);
-    const InputSpec&		inputSpec(int) const;
-    bool			setInput(int,const Desc*);
-    Desc*			getInput(int);
-    const Desc*			getInput(int) const;
-    void			getInputs(TypeSet<Attrib::DescID>&) const;
-    void			getDependencies(TypeSet<Attrib::DescID>&) const;
-				/*!<Generates list of attributes this attribute
-				    is dependant on. */
+    bool		isStored() const;
+    bool		isStoredInMem() const;
+    DBKey		getStoredID(bool recursive=false) const;
 
-    bool			is2D() const		{ return is2d_; }
-    void			set2D( bool yn )	{ is2d_ = yn; }
-    bool			isPS() const		{ return isps_; }
-    void			setPS( bool yn )	{ isps_ = yn; }
+    int			nrInputs() const	{ return inputs_.size(); }
+    InputSpec&		inputSpec( int nr )	{ return inputspecs_[nr]; }
+    const InputSpec&	inputSpec( int nr ) const { return inputspecs_[nr]; }
+    bool		setInput(int,const Desc*);
+    Desc*		getInput(int);
+    const Desc*		getInput(int) const;
+    void		getInputs(TypeSet<Attrib::DescID>&) const;
+    void		getDependencies(TypeSet<Attrib::DescID>&) const;
+					//!< the attributes this one is dep on
 
-    enum SatisfyLevel		{ AllOk, Warning, Error };
-    SatisfyLevel		isSatisfied() const;
-				/*!< Checks whether all inputs are satisfied. */
+    enum SatisfyLevel	{ AllOk, Warning, Error };
+    SatisfyLevel	isSatisfied() const; //!< Mainly checks inputs
+    const uiString	errMsg() const;
+    void		setErrMsg( const uiString msg )	{ errmsg_ = msg; }
 
-    const uiString		errMsg() const;
-    void			setErrMsg( const uiString str )	{ errmsg_=str; }
+    bool		isIdenticalTo(const Desc&,bool cmpoutput=true) const;
+    bool		isIdentifiedBy(const char*) const;
+    DescID		inputId(int idx) const;
 
-    bool			isIdenticalTo(const Desc&,
-					      bool cmpoutput=true) const;
-    bool			isIdentifiedBy(const char*) const;
-    DescID			inputId(int idx) const;
+    void		addParam( Param* p )		{ params_ += p; }
+    const Param*	getParam( const char* ky) const { return findParam(ky);}
+    Param*		getParam( const char* ky)	{ return findParam(ky);}
+    const ValParam*	getValParam(const char* ky) const;
+    ValParam*		getValParam(const char* ky);
+    void		setParamEnabled(const char* ky,bool yn=true);
+    bool		isParamEnabled(const char* ky) const;
+    void		setParamRequired(const char* ky,bool yn=true);
+    bool		isParamRequired(const char* ky) const;
 
-				/* Interface to factory */
-    void			addParam(Param*);
-				/*!< Pointer becomes mine */
-    const Param*		getParam(const char* key) const;
-    Param*			getParam(const char* key);
-    const ValParam*		getValParam(const char* key) const;
-    ValParam*			getValParam(const char* key);
-    void			setParamEnabled(const char* key,bool yn=true);
-    bool			isParamEnabled(const char* key) const;
-    void			setParamRequired(const char* key,bool yn=true);
-    bool			isParamRequired(const char* key) const;
+    void		updateParams();
+    void		updateDefaultParams();
+    void		changeStoredID(const DBKey&);
 
-    void			updateParams();
-    void			updateDefaultParams();
-    void			changeStoredID(const DBKey&);
+    void		addInput(const InputSpec&);
+    bool		removeInput(int idx);
+    void		removeOutputs();
+    void		addOutputDataType(DataType);
+    void		setNrOutputs(DataType,int);
+    void		addOutputDataTypeSameAs(int);
+    void		changeOutputDataType(int,DataType);
 
-    void			addInput(const InputSpec&);
-    bool			removeInput(int idx);
-    void			removeOutputs();
-    void			addOutputDataType(Seis::DataType);
-    void			setNrOutputs(Seis::DataType,int);
-    void			addOutputDataTypeSameAs(int);
-    void			changeOutputDataType(int,Seis::DataType);
+    static bool		getAttribName(const char* defstr,BufferString&);
+    static bool		getParamString(const char* defstr,const char* key,
+				       BufferString&);
 
-    static bool			getAttribName(const char* defstr,BufferString&);
-    static bool			getParamString(const char* defstr,
-					       const char* key,BufferString&);
-
-    Desc*			getStoredInput() const;
-    DescID			getMultiOutputInputID() const;
+    Desc*		getStoredInput() const;
+    DescID		getMultiOutputInputID() const;
 
     //Used to clone an attribute chain and apply it on multiple components
     //of the same input cube (different offsets for instance)
-    Desc*			cloneDescAndPropagateInput(const DescID&,
-							   BufferString);
+    Desc*		cloneDescAndPropagateInput(const DescID&,BufferString);
 
-    static void			getKeysVals(const char* defstr,
+    static void		getKeysVals(const char* defstr,
 				    BufferStringSet& keys,
 				    BufferStringSet& vals,
 				    const char* onlyneedkey=0);
-				/*!<Fills \akeys and \avals with pairs of
-				    parameters from the defstr. */
 
-    Notifier<Desc>		userRefChanged;
+    Notifier<Desc>	userRefChanged;
 
 protected:
 
-				~Desc();
+			~Desc();
 
-    bool			setInput_(int,Desc*);
-    Param*			findParam(const char* key);
+    bool		setInput_(int,Desc*);
+    Param*		findParam(const char*) const;
 
-    TypeSet<Seis::DataType>	outputtypes_;
-    TypeSet<int>		outputtypelinks_;
-    bool			issteering_;
-    bool			hidden_;
-    bool			needprovinit_;
-    bool			is2d_;
-    bool			isps_;
-    Locality			locality_;
-    bool			usestrcpos_;
+    bool		is2d_;
+    bool		isps_;
+    bool		issingtrc_;
+    bool		issteering_;
+    bool		ishidden_;
+    bool		usestrcpos_;
 
-    TypeSet<InputSpec>		inputspecs_;
-    ObjectSet<Desc>		inputs_;
+    bool		needprovinit_;
 
-    BufferString		attribname_;
-    ObjectSet<Param>		params_;
+    TypeSet<DataType>	outputtypes_;
+    TypeSet<int>	outputtypeinpidxs_;
 
-    BufferString		userref_;
-    int				seloutput_;
-    DescSet*			descset_;
+    BufferString	attribname_;
+    BufferString	userref_;
+    DescSet*		descset_;
+    ObjectSet<Param>	params_;
+    TypeSet<InputSpec>	inputspecs_;
+    ObjectSet<Desc>	inputs_;
+    int			seloutput_;
 
-    DescStatusUpdater		statusupdater_;
-    DescDefaultsUpdater		defaultsupdater_;
-    uiString			errmsg_;
+    DescUpdater		statusupdater_;
+    DescUpdater		defaultsupdater_;
+    mutable uiString	errmsg_;
+
+public:
+
+			// maintained by statusupdater_
+    void		setIs2D( bool yn )		{ is2d_ = yn; }
+    void		setIsPS( bool yn )		{ isps_ = yn; }
+    void		setIsSingleTrace( bool yn )	{ issingtrc_ = yn; }
+    void		setIsSteering( bool yn )	{ issteering_ = yn; }
+    void		setUsesTrcPos( bool yn )	{ usestrcpos_ = yn; }
+    void		setIsHidden( bool yn )		{ ishidden_ = yn; }
+    void		setNeedProvInit( bool yn=true )	{ needprovinit_ = yn; }
+
+    enum Locality	{ SingleTrace, PossiblyMultiTrace, MultiTrace };
+    mDeprecated void	setLocality( Locality locality )
+			{ issingtrc_ = locality == SingleTrace; }
+    mDeprecated Locality locality() const
+			{ return issingtrc_ ? SingleTrace : MultiTrace; }
+    mDeprecated void	setHidden( bool yn )		{ setIsHidden(yn); }
 
 };
 
 mGlobal(AttributeEngine) void getIntFromDescStr(Desc&,int&,const char*);
 
 } // namespace Attrib
+
 
 #define mGetIntFromDesc( __desc, var, varstring ) \
     getIntFromDescStr( __desc, var, varstring )

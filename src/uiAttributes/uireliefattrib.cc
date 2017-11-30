@@ -147,7 +147,7 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
 
     energydesc->setInput( 0, inpdesc );
     energydesc->selectOutput( 0 );
-    energydesc->setHidden( true );
+    energydesc->setIsHidden( true );
 
     mDynamicCastGet(ZGateParam*,param,energydesc->getParam(Energy::gateStr()))
     if ( param ) param->setValue( zgate );
@@ -177,7 +177,7 @@ static DescID addHilbertAttrib( DescSet& ds, const DescID& inpid )
 
     newdesc->setInput( 0, inpdesc );
     newdesc->selectOutput( 0 );
-    newdesc->setHidden( true );
+    newdesc->setIsHidden( true );
     newdesc->setUserRef( usrref );
     return ds.addDesc( newdesc );
 }
@@ -204,7 +204,7 @@ static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
     newdesc->setInput( 0, realdesc );
     newdesc->setInput( 1, imagdesc );
     newdesc->selectOutput( 13 ); // Phase rotation
-    newdesc->setHidden( true );
+    newdesc->setIsHidden( true );
     mDynamicCastGet(FloatParam*,param,
 		    newdesc->getParam(Instantaneous::rotateAngle()))
     if ( param ) param->setValue( 90.f );

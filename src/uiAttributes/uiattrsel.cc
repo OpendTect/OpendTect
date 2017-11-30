@@ -1063,7 +1063,7 @@ Attrib::DescID uiImagAttrSel::imagID() const
 
     newdesc->selectOutput( 0 );
     newdesc->setInput( 0, inpdesc );
-    newdesc->setHidden( true );
+    newdesc->setIsHidden( true );
 
     BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += "_imag";
     newdesc->setUserRef( usrref );

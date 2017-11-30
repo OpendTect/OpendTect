@@ -63,12 +63,13 @@ uiUserCreateSurvey::uiUserCreateSurvey( uiParent* p, const char* dr )
     survnmfld_ = new uiGenInput( this, tr("Survey name") );
     survnmfld_->setElemSzPol( uiObject::Wide );
 
-    pol2dfld_ = new uiCheckList( this, uiCheckList::OneMinimum, OD::Horizontal);
-    pol2dfld_->setLabel( tr("Available data") );
-    pol2dfld_->addItem( uiStrings::s3D() ).addItem( uiStrings::s2D() );
-    pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
-    pol2dfld_->changed.notify( mCB(this,uiUserCreateSurvey,pol2dChg) );
-    pol2dfld_->attach( alignedBelow, survnmfld_ );
+    pol2d3dfld_ = new uiCheckList( this, uiCheckList::OneMinimum,
+				   OD::Horizontal);
+    pol2d3dfld_->setLabel( tr("Available data") );
+    pol2d3dfld_->addItem( uiStrings::s3D() ).addItem( uiStrings::s2D() );
+    pol2d3dfld_->setChecked( 0, true ).setChecked( 1, true );
+    pol2d3dfld_->changed.notify( mCB(this,uiUserCreateSurvey,pol2d3dChg) );
+    pol2d3dfld_->attach( alignedBelow, survnmfld_ );
 
     for ( int idx=0; idx<sips_.size(); idx++ )
     {
@@ -78,7 +79,7 @@ uiUserCreateSurvey::uiUserCreateSurvey( uiParent* p, const char* dr )
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Initial setup") );
     sipfld_ = new uiListBox( this, su );
-    sipfld_->attach( alignedBelow, pol2dfld_ );
+    sipfld_->attach( alignedBelow, pol2d3dfld_ );
     sipfld_->setPrefHeightInChar( sips_.size() + 1 );
 
     zistimefld_ = new uiGenInput( this, tr("Z Domain"),
@@ -107,24 +108,24 @@ BufferString uiUserCreateSurvey::survName() const
 BufferString uiUserCreateSurvey::survDirName() const
 { return SurveyInfo::dirNameForName( survnmfld_->text() ); }
 bool uiUserCreateSurvey::has3D() const
-{ return pol2dfld_->isChecked(0); }
+{ return pol2d3dfld_->isChecked(0); }
 bool uiUserCreateSurvey::has2D() const
-{ return pol2dfld_->isChecked(1); }
+{ return pol2d3dfld_->isChecked(1); }
 bool uiUserCreateSurvey::isTime() const
 { return zistimefld_->getBoolValue();}
 bool uiUserCreateSurvey::isInFeet() const
 { return !zinfeetfld_->getBoolValue();}
-void uiUserCreateSurvey::pol2dChg( CallBacker* cb )
+void uiUserCreateSurvey::pol2d3dChg( CallBacker* cb )
 { fillSipsFld( has2D(), has3D() ); }
 void uiUserCreateSurvey::zdomainChg( CallBacker* cb )
 { zinfeetfld_->display( !isTime() ); }
 
 
-SurveyInfo::Pol2D uiUserCreateSurvey::pol2D() const
+OD::Pol2D3D uiUserCreateSurvey::pol2D3D() const
 {
-    return has3D() ? ( has2D() ? SurveyInfo::Both2DAnd3D
-			       : SurveyInfo::No2D )
-			       : SurveyInfo::Only2D;
+    return has3D() ? ( has2D() ? OD::Both2DAnd3D
+			       : OD::Only3D )
+			       : OD::Only2D;
 }
 
 
@@ -223,7 +224,7 @@ bool uiUserCreateSurvey::acceptOK()
     survinfo_->setName( survnm );
     survinfo_->setDirName( SurveyInfo::dirNameForName(survnm) );
     survinfo_->setBasePath( dataroot_ );
-    survinfo_->setSurvDataType( pol2D() );
+    survinfo_->setSurvDataType( pol2D3D() );
     survinfo_->setZUnit( isTime(), isInFeet() );
     survinfo_->setSipName( sipName() );
 

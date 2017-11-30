@@ -695,7 +695,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		    .arg( specstr );
 	return;
     }
-    desc->setHidden( true );
+    desc->setIsHidden( true );
 
     // Need to make a Provider because the inputs and outputs may
     // not be known otherwise
@@ -785,7 +785,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     desc->setDescSet( &descset );
     desc->setNrOutputs( Seis::UnknownData, outids.size() );
 
-    desc->setHidden( true );
+    desc->setIsHidden( true );
 
     const int nrinputs = outids.size();
     for ( int idx=0; idx<nrinputs; idx++ )

@@ -193,8 +193,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
 #endif
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( gengrp_,
-			SurveyInfo::Pol2DDef(), tr("Survey type") );
-    lcb->attach( alignedBelow, pathfld_ ); pol2dfld_ = lcb->box();
+			SurveyInfo::Pol2D3DDef(), tr("Survey type") );
+    lcb->attach( alignedBelow, pathfld_ ); pol2d3dfld_ = lcb->box();
 
     mkSIPFld( lcb->attachObj(), isnewborn );
     if ( sipfld_ )
@@ -617,7 +617,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
     pathfld_->setReadOnly( true );
     updStatusBar( basepath_ );
 
-    pol2dfld_->setCurrentItem( (int)si_.survDataType() );
+    pol2d3dfld_->setCurrentItem( (int)si_.survDataType() );
 
     if ( si_.sampling(false).hsamp_.totalNr() )
 	setValues();
@@ -698,7 +698,7 @@ bool uiSurveyInfoEditor::acceptOK()
 
     si_.dirname_ = newdirnm;
     si_.basepath_ = basepath_;
-    si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld_->currentItem() );
+    si_.setSurvDataType( (SurveyInfo::Pol2D3D)pol2d3dfld_->currentItem() );
     if ( overrulefld_->isChecked() )
 	si_.get3Pts( si_.set3coords_, si_.set3binids_,
 			si_.set3binids_[2].crl() );

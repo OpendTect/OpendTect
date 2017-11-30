@@ -76,7 +76,7 @@ void SpecDecomp::initClass()
     desc->addInput( InputSpec("Imag data",true) );
     desc->addOutputDataType( Seis::UnknownData );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

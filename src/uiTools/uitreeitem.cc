@@ -700,11 +700,11 @@ uiTreeFactorySet::~uiTreeFactorySet()
 
 
 void uiTreeFactorySet::addFactory( uiTreeItemFactory* ptr, int placement,
-				   int pol2d )
+				   OD::Pol2D3D pol2d3d )
 {
     factories_ += ptr;
     placementidxs_ += placement;
-    pol2ds_ += pol2d;
+    pol2d3ds_ += pol2d3d;
     addnotifier.trigger( factories_.size()-1 );
 }
 
@@ -725,7 +725,7 @@ void uiTreeFactorySet::remove( const char* nm )
     delete factories_[index];
     factories_.removeSingle( index );
     placementidxs_.removeSingle( index );
-    pol2ds_.removeSingle( index );
+    pol2d3ds_.removeSingle( index );
 }
 
 
@@ -738,8 +738,8 @@ const uiTreeItemFactory* uiTreeFactorySet::getFactory( int idx ) const
 int uiTreeFactorySet::getPlacementIdx( int idx ) const
 { return placementidxs_[idx]; }
 
-int uiTreeFactorySet::getPol2D( int idx ) const
-{ return pol2ds_[idx]; }
+OD::Pol2D3D uiTreeFactorySet::getPol2D3D( int idx ) const
+{ return pol2d3ds_[idx]; }
 
 
 uiTreeItemRemover::uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child)

@@ -165,7 +165,8 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
 	Desc* inputdesc = desc.getInput(idx);
-	if ( !inputdesc ) continue;
+	if ( !inputdesc )
+	    continue;
 
 	Provider* inputprovider =
 			internalCreate( *inputdesc, existing, issame, errstr );
@@ -267,7 +268,9 @@ Provider::~Provider()
 
 
 bool Provider::is2D() const
-{ return getDesc().descSet() ? getDesc().descSet()->is2D() : getDesc().is2D(); }
+{
+    return getDesc().descSet() ? getDesc().descSet()->is2D()
+			       : getDesc().is2D(); }
 
 
 bool Provider::isOK() const
@@ -278,7 +281,7 @@ bool Provider::isOK() const
 
 bool Provider::isSingleTrace() const
 {
-    return desc_.locality() == Desc::SingleTrace;
+    return desc_.isSingleTrace();
 }
 
 
@@ -1183,7 +1186,8 @@ bool Provider::getInputOutput( int input, TypeSet<int>& res ) const
     res.erase();
 
     Desc* inputdesc = desc_.getInput(input);
-    if ( !inputdesc ) return false;
+    if ( !inputdesc )
+	return false;
 
     res += inputdesc->selectedOutput();
     return true;

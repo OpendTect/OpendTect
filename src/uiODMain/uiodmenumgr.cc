@@ -540,7 +540,7 @@ void uiODMenuMgr::fillManMenu()
 			"man_fltss" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Geometry 2D")),
 		       mManGeomItm, "man2dgeom" );
-    if ( !DBM().isBad() && SI().survDataType() == SurveyInfo::No2D )
+    if ( !DBM().isBad() && SI().survDataType() == OD::Only3D )
 	mInsertPixmapItem( manmnu_,
 			   m3Dots(uiStrings::sHorizon(mPlural)),
 			   mManHor3DMnuItm, "man_hor" )
@@ -691,12 +691,12 @@ void uiODMenuMgr::fillProcMenu()
 void uiODMenuMgr::fillAnalMenu()
 {
     analmnu_->clear();
-    SurveyInfo::Pol2D survtype( SurveyInfo::Both2DAnd3D );
+    OD::Pol2D3D survtype( OD::Both2DAnd3D );
     if ( !DBM().isBad() )
 	survtype = SI().survDataType();
 
     const char* attrpm = "attributes";
-    if ( survtype == SurveyInfo::Both2DAnd3D )
+    if ( survtype == OD::Both2DAnd3D )
     {
 	uiMenu* aitm = new uiMenu( &appl_, uiStrings::sAttribute(mPlural),
 				   attrpm );
@@ -724,9 +724,8 @@ void uiODMenuMgr::fillAnalMenu()
 	analmnu_->insertSeparator();
 
 	analmnu_->insertItem( new uiAction( m3Dots(tr("Volume Builder")),
-	    survtype != SurveyInfo::Only2D
-				    ? mCB(&applMgr(),uiODApplMgr,doVolProc3DCB)
-				    : mCB(&applMgr(),uiODApplMgr,doVolProc2DCB),
+	    survtype != OD::Only2D ? mCB(&applMgr(),uiODApplMgr,doVolProc3DCB)
+				   : mCB(&applMgr(),uiODApplMgr,doVolProc2DCB),
 				VolProc::uiChain::pixmapFileName() ) );
     }
 

@@ -207,7 +207,7 @@ DescID uiSteeringSel::descID()
 	DescSet* ads = const_cast<DescSet*>(descset_);
 	BufferString userref = attribnm;
 	desc->setUserRef( userref );
-	desc->setHidden(true);
+	desc->setIsHidden(true);
 	return ads->addDesc( desc );
     }
 
@@ -238,8 +238,8 @@ DescID uiSteeringSel::descID()
     DescSet* ads = const_cast<DescSet*>(descset_);
     desc->setInput( 0, ads->getDesc(inldipid) );
     desc->setInput( 1, ads->getDesc(crldipid) );
-    desc->setHidden( true );
-    desc->setSteering( true );
+    desc->setIsHidden( true );
+    desc->setIsSteering( true );
 
     const ValParam* param =
 	ads->getDesc(inldipid)->getValParam( StorageProvider::keyStr() );
@@ -307,8 +307,8 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     }
 
     Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
-    desc->setHidden( true );
-    desc->setSteering( true );
+    desc->setIsHidden( true );
+    desc->setIsSteering( true );
     desc->setNrOutputs( Seis::Dip, 2 );
     desc->selectOutput( dipnr );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );

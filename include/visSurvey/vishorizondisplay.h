@@ -85,8 +85,8 @@ public:
     virtual int			selectedTexture(int attrib) const;
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
-    Pol2D3D			getAllowedDataType() const
-				{ return Both2DAnd3D; }
+    OD::Pol2D3D			getAllowedDataType() const
+				{ return OD::Both2DAnd3D; }
 
     int				nrAttribs() const;
     bool			addAttrib();

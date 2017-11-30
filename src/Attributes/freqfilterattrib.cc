@@ -99,7 +99,7 @@ void FreqFilter::initClass()
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

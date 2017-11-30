@@ -239,7 +239,7 @@ protected:
 mExpClass(uiTools) uiTreeTopItem : public uiTreeItem
 { mODTextTranslationClass(uiTreeTopItem)
 public:
-			uiTreeTopItem(uiTreeView*, bool=false );
+			uiTreeTopItem(uiTreeView*,bool disabled=false);
 			~uiTreeTopItem();
 
     virtual bool	addChild(uiTreeItem*,bool below);
@@ -289,23 +289,15 @@ mExpClass(uiTools) uiTreeFactorySet : public CallBacker
 public:
 					uiTreeFactorySet();
 					~uiTreeFactorySet();
-    void				addFactory(uiTreeItemFactory* ptr,
+    void				addFactory(uiTreeItemFactory*,
 						   int placementindex=-1,
-						   int pol2d=1);
-					/*!<\param ptr	pointer to new factory.
-							Object is managed by me.
-					    \param placementindex
-							Indicates how the
-							created treeitems should
-							be placed when making
-							a new tree.
-					*/
+						   OD::Pol2D3D=OD::Both2DAnd3D);
     void				remove( const char* );
 
     int					nrFactories() const;
     const uiTreeItemFactory*		getFactory(int) const;
     int					getPlacementIdx(int) const;
-    int					getPol2D(int) const;
+    OD::Pol2D3D				getPol2D3D(int) const;
 
     CNotifier<uiTreeFactorySet,int>	addnotifier;
     CNotifier<uiTreeFactorySet,int>	removenotifier;
@@ -314,7 +306,7 @@ protected:
 
     ObjectSet<uiTreeItemFactory>	factories_;
     TypeSet<int>			placementidxs_;
-    TypeSet<int>			pol2ds_;
+    TypeSet<OD::Pol2D3D>		pol2d3ds_;
 
 };
 

@@ -133,7 +133,7 @@ void uiSeisImportODCube::modeSel( CallBacker* )
 
 void uiSeisImportODCube::typeChg( CallBacker* )
 {
-    transffld_->setSteering( typefld_->getIntValue() == 2 );
+    transffld_->setIsSteering( typefld_->getIntValue() == 2 );
 }
 
 

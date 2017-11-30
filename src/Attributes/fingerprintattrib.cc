@@ -103,7 +103,7 @@ void FingerPrint::initClass()
     desc->addInput( InputSpec("Input data",true) );
     desc->addOutputDataType( Seis::UnknownData );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     desc->setUsesTrcPos( true );
     mAttrEndInitClass
 }

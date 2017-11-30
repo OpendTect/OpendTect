@@ -383,7 +383,7 @@ Desc* uiSpecDecompAttrib::createNewDescFromDP( Attrib::DescSet* dset,
     dset->addDesc( inpdesc );
     newdesc->setInput( 0, inpdesc );
     newdesc->selectOutput( 0 );
-    newdesc->setHidden( true );
+    newdesc->setIsHidden( true );
     BufferString usrref = "_"; usrref += inpdesc->userRef();
     if ( userefstr )
 	usrref += userefstr;
@@ -432,7 +432,7 @@ Desc* uiSpecDecompAttrib::createNewDesc( DescSet* descset, DescID inpid,
 
     newdesc->selectOutput( seloutidx );
     newdesc->setInput( inpidx, inpdesc );
-    newdesc->setHidden( true );
+    newdesc->setIsHidden( true );
     BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref;
     newdesc->setUserRef( usrref );
     return newdesc;

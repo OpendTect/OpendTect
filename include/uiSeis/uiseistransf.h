@@ -63,7 +63,7 @@ public:
     uiSeis2DSubSel*	selFld2D(); //!< null when not 2D
     uiSeis3DSubSel*	selFld3D(); //!< null when not 3D
 
-    void		setSteering(bool);
+    void		setIsSteering(bool);
     void		setInput(const IOObj&);
     Seis::SelData*	getSelData() const;
     SeisResampler*	getResampler() const; //!< may return null

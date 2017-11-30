@@ -398,7 +398,7 @@ void uiSetPickDirs::wrapTheta( float& theta )
 void uiSetPickDirs::createSteeringDesc( int dipnr, const DescID& did )
 {
     Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
-    desc->setHidden( true );
+    desc->setIsHidden( true );
     desc->selectOutput( dipnr );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( steerfld_->ioobj(true)->key().toString() );

@@ -28,7 +28,7 @@ void Reference::initClass()
 
     desc->addInput( InputSpec("Input Data",true) );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     desc->setUsesTrcPos( true );
     mAttrEndInitClass
 }

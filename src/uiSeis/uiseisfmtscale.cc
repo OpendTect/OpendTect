@@ -184,7 +184,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp,
 }
 
 
-void uiSeisFmtScale::setSteering( bool yn )
+void uiSeisFmtScale::setIsSteering( bool yn )
 {
     issteer_ = yn;
     updSteer( 0 );
@@ -233,7 +233,7 @@ bool uiSeisFmtScale::extendTrcToSI() const
 void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
 {
     const char* res = ioobj.pars().find( "Type" );
-    setSteering( res && *res == 'S' );
+    setIsSteering( res && *res == 'S' );
     if ( !compfld_ ) return;
 
     DataCharacteristics::getUserTypeFromPar( ioobj.pars(),

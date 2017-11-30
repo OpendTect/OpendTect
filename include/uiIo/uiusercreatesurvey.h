@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 #include "uiiocommon.h"
 #include "uidialog.h"
-#include "survinfo.h"
 class uiGenInput;
 class uiCheckList;
 class uiListBox;
+class SurveyInfo;
 class uiSurvInfoProvider;
 
 
@@ -29,7 +29,7 @@ public:
     BufferString	dirName() const;
     BufferString	survName() const;
     BufferString	survDirName() const;
-    SurveyInfo::Pol2D	pol2D() const;
+    OD::Pol2D3D		pol2D3D() const;
     const uiSurvInfoProvider* getSIP() const;
 
 protected:
@@ -41,7 +41,7 @@ protected:
     uiGenInput*		survnmfld_;
     uiGenInput*		zistimefld_;
     uiGenInput*		zinfeetfld_;
-    uiCheckList*	pol2dfld_;
+    uiCheckList*	pol2d3dfld_;
     uiListBox*		sipfld_;
 
     bool		acceptOK();
@@ -54,7 +54,7 @@ protected:
 
     bool		usrInputOK();
     void		fillSipsFld(bool have2d,bool have3d);
-    void		pol2dChg(CallBacker*);
+    void		pol2d3dChg(CallBacker*);
     void		zdomainChg(CallBacker*);
     bool		doUsrDef();
 

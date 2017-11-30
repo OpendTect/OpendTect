@@ -50,7 +50,7 @@ const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
-mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
+mDefineEnumUtils(SurveyInfo,Pol2D3D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
 #define mXYInFeet() (coordsystem_ && coordsystem_->isFeet())
@@ -89,8 +89,8 @@ SurveyInfo::SurveyInfo()
     , zdef_(*new ZDomain::Def(ZDomain::Time()) )
     , depthsinfeet_(false)
     , defpars_(sKeySurvDefs)
-    , pol2d_(Both2DAnd3D)
-    , pol2dknown_(false)
+    , pol2d3d_(OD::Both2DAnd3D)
+    , pol2d3dknown_(false)
     , seisrefdatum_(0.f)
     , s3dgeom_(0)
     , work_s3dgeom_(0)
@@ -151,8 +151,8 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
     coordsystem_ = oth.coordsystem_;
     depthsinfeet_ = oth.depthsinfeet_;
     b2c_ = oth.b2c_;
-    pol2d_ = oth.pol2d_;
-    pol2dknown_ = oth.pol2dknown_;
+    pol2d3d_ = oth.pol2d3d_;
+    pol2d3dknown_ = oth.pol2d3dknown_;
     for ( int idx=0; idx<3; idx++ )
     {
 	set3binids_[idx] = oth.set3binids_[idx];
@@ -183,7 +183,7 @@ Monitorable::ChangeType SurveyInfo::compareClassData(
     mCmpRet( dirname_, cEntireObjectChange ); //TODO name change only?
     mCmpRet( zdef_, cSetupChange );
     mCmpRet( b2c_, cSetupChange );
-    mCmpRet( pol2d_, cSetupChange );
+    mCmpRet( pol2d3d_, cSetupChange );
     mCmpRet( seisrefdatum_, cSetupChange );
     mCmpRet( fullcs_, cRangeChange );
     mCmpRet( workcs_, cWorkRangeChange );
@@ -380,11 +380,9 @@ bool SurveyInfo::usePar( const IOPar& par )
     BufferString survdatatype;
     if ( par.get( sKeySurvDataType(), survdatatype) )
     {
-	Pol2D var;
-	if ( !Pol2DDef().parse( survdatatype, var ) )
-	    var = Both2DAnd3D;
-
-	setSurvDataType( var );
+	Pol2D3D p2d3d = OD::Both2DAnd3D;
+	Pol2D3DDef().parse( survdatatype, p2d3d );
+	setSurvDataType( p2d3d );
     }
 
     coordsystem_ = Coords::CoordSystem::createSystem( par );
@@ -1216,14 +1214,14 @@ void SurveyInfo::saveComments( const char* basedir ) const
 bool SurveyInfo::has2D() const
 {
     mLock4Read();
-    return pol2d_ == Only2D || pol2d_ == Both2DAnd3D;
+    return pol2d3d_ == OD::Only2D || pol2d3d_ == OD::Both2DAnd3D;
 }
 
 
 bool SurveyInfo::has3D() const
 {
     mLock4Read();
-    return pol2d_ == No2D || pol2d_ == Both2DAnd3D;
+    return pol2d3d_ == OD::Only3D || pol2d3d_ == OD::Both2DAnd3D;
 }
 
 
@@ -1275,22 +1273,22 @@ Pos::IdxPair2Coord SurveyInfo::binID2Coord() const
 }
 
 
-SurveyInfo::Pol2D SurveyInfo::survDataType() const
+SurveyInfo::Pol2D3D SurveyInfo::survDataType() const
 {
     mLock4Read();
-    return pol2d_;
+    return pol2d3d_;
 }
 
 
-void SurveyInfo::setSurvDataType( Pol2D p2d ) const
+void SurveyInfo::setSurvDataType( Pol2D3D p2d3d ) const
 {
     mLock4Read();
-    if ( pol2d_ == p2d )
+    if ( pol2d3d_ == p2d3d )
 	return;
-    if ( !mLock2Write() && pol2d_ == p2d )
+    if ( !mLock2Write() && pol2d3d_ == p2d3d )
 	return;
-    const_cast<SurveyInfo*>(this)->pol2d_ = p2d;
-    mSendChgNotif( cPol2DChange(), 0 );
+    const_cast<SurveyInfo*>(this)->pol2d3d_ = p2d3d;
+    mSendChgNotif( cPol2D3DChange(), 0 );
 }
 
 

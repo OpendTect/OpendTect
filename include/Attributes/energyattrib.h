@@ -30,7 +30,7 @@ Energy gate= dograd=
 Input:
 0		Data
 
-Outputs:	
+Outputs:
 0		The energy
 1		Square root of the energy
 2		Ln of the energy
@@ -39,7 +39,7 @@ if Gradient is selected outputs will be : grad(Energy), grad(SQRT(Energy)), ...
 </pre>
 */
 
-mExpClass(Attributes) Energy: public Provider
+mExpClass(Attributes) Energy : public Provider
 {
 public:
     static void		initClass();
@@ -50,7 +50,7 @@ public:
     static const char*  dogradStr()		{ return "dograd"; }
 
 protected:
-    			~Energy() {}
+			~Energy() {}
     static Provider*    createInstance(Desc&);
     static void         updateDefaults(Desc&);
 
@@ -61,10 +61,10 @@ protected:
 				    int t0,int nrsamples,int threadid) const;
 
     const Interval<float>* reqZMargin(int input,int output) const
-    			   { return &gate_; }
+			   { return &gate_; }
     const Interval<int>* desZSampMargin(int input,int output) const
-    			   { return &dessampgate_; }
-    
+			   { return &dessampgate_; }
+
     Interval<float>	gate_;
     Interval<int>	dessampgate_;
     bool		dograd_;

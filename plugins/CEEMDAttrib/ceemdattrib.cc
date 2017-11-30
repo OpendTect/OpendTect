@@ -41,7 +41,7 @@ void CEEMD::initClass()
     desc->addInput( InputSpec("Input Data",true) );
     desc->addOutputDataType( Seis::UnknownData );
     desc->setNrOutputs( Seis::UnknownData, 1 );
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
 
     EnumParam* otype = new EnumParam( attriboutputStr() );
     otype->addEnum( transOutputNamesStr(mDecompOutputFreq) );

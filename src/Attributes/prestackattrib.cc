@@ -105,9 +105,9 @@ void PSAttrib::initClass()
 
     desc->addOutputDataType( Seis::UnknownData );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     desc->setUsesTrcPos( true );
-    desc->setPS( true );
+    desc->setIsPS( true );
     mAttrEndInitClass
 }
 

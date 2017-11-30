@@ -48,14 +48,14 @@ namespace Blocks
     typedef StepInterval<float>	ZGeom;
     typedef DataInterpreter<float> DataInterp;
 
-#define mDefSeisBlockPairClass(clss,typ) \
+#define mDefSeisBlocksPairClass(clss,typ) \
 mExpClass(Seis) clss : public Twins<typ> \
 { \
 public: \
 \
-    inline	clss() : std::pair<typ,typ>(0,0)		{} \
+    inline	clss()	: Twins<typ>(0,0)		{} \
     inline	clss( typ iidx, typ xidx ) \
-		    : std::pair<typ,typ>(iidx,xidx)		{} \
+			: Twins<typ>(iidx,xidx)		{} \
     inline bool	operator ==( const clss& oth ) const \
 		{ return first == oth.first && second == oth.second; } \
 \
@@ -65,11 +65,11 @@ public: \
     inline typ&	crl()		{ return second; } \
 }
 
-mDefSeisBlockPairClass(HGlobIdx,IdxType);
-mDefSeisBlockPairClass(HLocIdx,IdxType);
-mDefSeisBlockPairClass(HDimensions,SzType);
+mDefSeisBlocksPairClass(HGlobIdx,IdxType);
+mDefSeisBlocksPairClass(HLocIdx,IdxType);
+mDefSeisBlocksPairClass(HDimensions,SzType);
 
-#define mDefSeisBlockTripletClass(clss,typ) \
+#define mDefSeisBlocksTripletClass(clss,typ) \
 mExpClass(Seis) clss : public H##clss \
 { \
 public: \
@@ -88,9 +88,9 @@ public: \
  \
 }
 
-mDefSeisBlockTripletClass(GlobIdx,IdxType);
-mDefSeisBlockTripletClass(LocIdx,IdxType);
-mDefSeisBlockTripletClass(Dimensions,SzType);
+mDefSeisBlocksTripletClass(GlobIdx,IdxType);
+mDefSeisBlocksTripletClass(LocIdx,IdxType);
+mDefSeisBlocksTripletClass(Dimensions,SzType);
 
 
 /*!\brief Base class for single block. */

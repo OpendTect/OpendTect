@@ -120,8 +120,7 @@ void uiAttribDescSetBuild::fillAvailable()
 	const Attrib::Desc* desc = Attrib::PF().getDesc( attrnm );
 	if ( !desc )
 	    { pErrMsg("attrib in uiAF() but not in PF()"); continue; }
-	if ( attrsetup_.singletraceonly_
-			&& desc->locality()==Attrib::Desc::MultiTrace )
+	if ( attrsetup_.singletraceonly_ && !desc->isSingleTrace() )
 	    continue;
 	if ( !attrsetup_.showps_ && desc->isPS() )
 	    continue;

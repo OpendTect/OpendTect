@@ -56,7 +56,7 @@ void Instantaneous::initClass()
 
     desc->addInput( InputSpec("Real Data",true) );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

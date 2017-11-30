@@ -461,10 +461,10 @@ void uiODViewer2D::createTree( uiMainWin* mw )
 
     for ( int idx=0; idx < tifs_->nrFactories(); idx++ )
     {
-	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
-	if ( SI().survDataType() == SurveyInfo::Both2DAnd3D
-	     || pol2d == SurveyInfo::Both2DAnd3D
-	     || pol2d == SI().survDataType() )
+	const OD::Pol2D3D pol2d3d = (OD::Pol2D3D)tifs_->getPol2D3D( idx );
+	if ( SI().survDataType() == OD::Both2DAnd3D
+	     || pol2d3d == OD::Both2DAnd3D
+	     || pol2d3d == SI().survDataType() )
 	{
 	    idxs += idx;
 	    placeidxs += tifs_->getPlacementIdx(idx);

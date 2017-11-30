@@ -34,7 +34,7 @@ void MatchDelta::initClass()
 
     desc->setNrOutputs( Seis::UnknownData, 2 );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     mAttrEndInitClass
 }
 

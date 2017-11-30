@@ -54,7 +54,7 @@ void Horizon::initClass()
     desc->addInput( InputSpec("Input data for Horizon",true) );//positioning
     desc->addOutputDataType( Seis::UnknownData );
 
-    desc->setLocality( Desc::SingleTrace );
+    desc->setIsSingleTrace( true );
     desc->setUsesTrcPos( true );
     mAttrEndInitClass
 }

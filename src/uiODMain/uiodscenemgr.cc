@@ -106,35 +106,24 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , viewModeChanged(this)
     , tiletimer_(new Timer)
 {
-    tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
-		       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODCrosslineTreeItemFactory, 1100,
-		       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODZsliceTreeItemFactory, 1200,
-		       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODVolrenTreeItemFactory, 1500, SurveyInfo::No2D );
-    tifs_->addFactory( new uiODRandomLineTreeItemFactory, 2000,
-		       SurveyInfo::No2D );
-    tifs_->addFactory( new Line2DTreeItemFactory, 3000, SurveyInfo::Only2D );
-    tifs_->addFactory( new uiODHorizonTreeItemFactory, 4000,
-		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 4500,
-		       SurveyInfo::Only2D );
-    tifs_->addFactory( new uiODFaultTreeItemFactory, 5000 );
-    tifs_->addFactory( new uiODFaultStickSetTreeItemFactory, 5500,
-		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODBodyDisplayTreeItemFactory, 6000,
-		       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODWellTreeItemFactory, 7000,
-		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODPickSetTreeItemFactory, 8000,
-		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODPolygonTreeItemFactory, 8500,
-		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODPSEventsTreeItemFactory, 9000,
-		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODAnnotTreeItemFactory, 10000,
-		       SurveyInfo::Both2DAnd3D );
+#   define mAddFact( typ, nr, pol ) \
+    tifs_->addFactory( new typ, nr, OD::pol )
+    mAddFact( uiODInlineTreeItemFactory,	1000,	Only3D );
+    mAddFact( uiODCrosslineTreeItemFactory,	1100,	Only3D );
+    mAddFact( uiODZsliceTreeItemFactory,	1200,	Only3D );
+    mAddFact( uiODVolrenTreeItemFactory,	1500,	Only3D );
+    mAddFact( uiODRandomLineTreeItemFactory,	2000,	Only3D );
+    mAddFact( Line2DTreeItemFactory,		3000,	Only2D );
+    mAddFact( uiODHorizonTreeItemFactory,	4000,	Both2DAnd3D );
+    mAddFact( uiODHorizon2DTreeItemFactory,	4500,	Only2D );
+    mAddFact( uiODFaultTreeItemFactory,		5000,	Both2DAnd3D );
+    mAddFact( uiODFaultStickSetTreeItemFactory,	5500,	Both2DAnd3D );
+    mAddFact( uiODBodyDisplayTreeItemFactory,	6000,	Only3D );
+    mAddFact( uiODWellTreeItemFactory,		7000,	Both2DAnd3D );
+    mAddFact( uiODPickSetTreeItemFactory,	8000,	Both2DAnd3D );
+    mAddFact( uiODPolygonTreeItemFactory,	8500,	Both2DAnd3D );
+    mAddFact( uiODPSEventsTreeItemFactory,	9000,	Both2DAnd3D );
+    mAddFact( uiODAnnotTreeItemFactory,		10000,	Both2DAnd3D );
 
     mdiarea_->setPrefWidth( cWSWidth );
     mdiarea_->setPrefHeight( cWSHeight );
@@ -919,10 +908,10 @@ void uiODSceneMgr::initTree( uiODScene& scn, int vwridx )
 
     for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
     {
-	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
-	if ( SI().survDataType() == SurveyInfo::Both2DAnd3D ||
-	     pol2d == SurveyInfo::Both2DAnd3D ||
-	     pol2d == SI().survDataType() )
+	const OD::Pol2D3D pol2d3d = (OD::Pol2D3D)tifs_->getPol2D3D( idx );
+	if ( SI().survDataType() == OD::Both2DAnd3D ||
+	     pol2d3d == OD::Both2DAnd3D ||
+	     pol2d3d == SI().survDataType() )
 	{
 	    idxs += idx;
 	    placeidxs += tifs_->getPlacementIdx( idx );
