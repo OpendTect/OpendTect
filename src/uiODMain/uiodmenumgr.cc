@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodapplmgr.h"
 #include "uiodfaulttoolman.h"
 #include "uiodhelpmenumgr.h"
+#include "uiodlangmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
 #include "uiproxydlg.h"
@@ -38,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "measuretoolman.h"
@@ -51,6 +53,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "texttranslator.h"
 #include "thread.h"
 
+
+static HiddenParam<uiODMenuMgr,uiODLangMenuMgr*> langmnumgr_(0);
 
 static const char* sKeyIconSetNm = "Icon set name";
 static const char* ascic = "ascii";
@@ -75,8 +79,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
     dtecttb_ = new uiToolBar( &appl_, tr("OpendTect Tools"), uiToolBar::Top );
     viewtb_ = new uiToolBar( &appl_, tr("Graphical Tools"), uiToolBar::Left );
-    mantb_ = new uiToolBar( &appl_, uiStrings::phrManage( uiStrings::sData()),
-                            uiToolBar::Right );
+    mantb_ = new uiToolBar( &appl_, uiStrings::phrManage(uiStrings::sData()),
+			    uiToolBar::Right );
 
     faulttoolman_ = new uiODFaultToolMan( appl_ );
 
@@ -87,6 +91,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
     visserv->selectionmodeChange.notify(
 				mCB(this,uiODMenuMgr,selectionMode) );
+
+    langmnumgr_.setParam( this, 0 );
 }
 
 
@@ -104,6 +110,9 @@ uiODMenuMgr::~uiODMenuMgr()
     delete helpmgr_;
     delete faulttoolman_;
     delete measuretoolman_;
+
+    delete langmnumgr_.getParam( this );
+    langmnumgr_.removeParam( this );
 }
 
 
@@ -119,6 +128,7 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillUtilMenu();
     menubar->insertSeparator();
     helpmgr_ = new uiODHelpMenuMgr( this );
+    langmnumgr_.setParam( this, new uiODLangMenuMgr(this) );
 
     fillDtectTB( appman );
     fillCoinTB( sceneman );

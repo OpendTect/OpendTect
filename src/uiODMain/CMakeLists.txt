@@ -61,6 +61,7 @@ set(OD_MODULE_SOURCES
 	uiodvolrentreeitem.cc
 	uiodvolproctreeitem.cc
 	uiodwelltreeitem.cc
+	uiodlangmenumgr.cc
 )
 
 set( OD_MODULE_GUI_PROGS od_main.cc  )
