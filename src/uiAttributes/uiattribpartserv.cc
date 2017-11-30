@@ -364,7 +364,9 @@ void uiAttribPartServer::attrsetDlgCloseTimTick( CallBacker* )
 
 const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 {
-    return (NLAModel*)getObject( is2d ? objNLAModel2D() : objNLAModel3D() );
+    const NLAModel* nlamod
+	= (NLAModel*)getObject( is2d ? objNLAModel2D() : objNLAModel3D() );
+    return isEmpty( nlamod ) ? 0 : nlamod;
 }
 
 
