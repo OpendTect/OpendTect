@@ -233,8 +233,8 @@ public:
     void		setNeedProvInit( bool yn=true )	{ needprovinit_ = yn; }
 
     enum Locality	{ SingleTrace, PossiblyMultiTrace, MultiTrace };
-    mDeprecated void	setLocality( Locality locality )
-			{ issingtrc_ = locality == SingleTrace; }
+    mDeprecated void	setLocality( Locality loc )
+			{ issingtrc_ = loc == SingleTrace; }
     mDeprecated Locality locality() const
 			{ return issingtrc_ ? SingleTrace : MultiTrace; }
     mDeprecated void	setHidden( bool yn )		{ setIsHidden(yn); }
