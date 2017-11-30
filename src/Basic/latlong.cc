@@ -32,7 +32,7 @@ Coord LatLong::transform( const LatLong& ll, bool towgs84,
     if ( !coordsys )
 	coordsys = SI().getCoordSystem();
 
-    return coordsys->fromGeographic( ll, towgs84 );
+    return coordsys ? coordsys->fromGeographic( ll, towgs84 ) : Coord::udf();
 }
 
 
@@ -42,7 +42,7 @@ LatLong LatLong::transform( const Coord& c, bool towgs84,
     if ( !coordsys )
 	coordsys = SI().getCoordSystem();
 
-    return coordsys->toGeographic( c, towgs84 );
+    return coordsys ? coordsys->toGeographic( c, towgs84 ) : LatLong::udf();
 }
 
 

@@ -22,8 +22,6 @@ ________________________________________________________________________
 namespace Coords
 {
 
-
-
 /*! Base class for Coord systems, these are all two-dimensional and
     coordinates can be stored in Coord. They may use any projection, but they
     must be able to return Geographic coordinates using
@@ -177,6 +175,6 @@ private:
 
 };
 
-}; //namespace
+} // namespace Coords
 
 #endif
