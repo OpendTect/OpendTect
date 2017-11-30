@@ -8,13 +8,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "moddepmgr.h"
+#include "coordsystem.h"
 #include "debug.h"
-#include "sighndl.h"
-#include "posinfo2dsurv.h"
 #include "filepath.h"
 #include "legal.h"
-#include "coordsystem.h"
+#include "moddepmgr.h"
+#include "posinfo2dsurv.h"
+#include "sighndl.h"
+#include "texttranslator.h"
 
 #ifdef __win__
 # include <stdio.h> // for _set_output_format
@@ -70,4 +71,6 @@ mDefModInitFn(Basic)
 #ifndef OD_NO_QT
     legalInformation().addCreator( qtLegalText, "Qt" );
 #endif
+
+    OD::loadLocalization();
 }

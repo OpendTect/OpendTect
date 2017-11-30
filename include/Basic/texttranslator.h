@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "bufstringset.h"
 
-mFDQtclass(QTranslator);
-mFDQtclass(QLocale);
-mFDQtclass(QString);
+mFDQtclass(QTranslator)
+mFDQtclass(QLocale)
+mFDQtclass(QString)
 
 class TextTranslatorLanguage;
 namespace File { class Path; }
@@ -98,3 +98,9 @@ protected:
 };
 
 mGlobal(Basic) TextTranslateMgr& TrMgr();
+
+namespace OD
+{
+mGlobal(Basic) void	loadLocalization();
+}
+
