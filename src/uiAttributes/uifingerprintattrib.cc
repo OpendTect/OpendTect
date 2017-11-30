@@ -54,7 +54,9 @@ using namespace Attrib;
 
 static const int cInitNrRows = 4;
 
-mInitAttribUI(uiFingerPrintAttrib,FingerPrint,"FingerPrint",sKeyPatternGrp())
+mInitAttribUIPars(uiFingerPrintAttrib,FingerPrint,"FingerPrint",
+		  sKeyPatternGrp(),uiAttrDescEd::Both,uiAttrDescEd::AnyDim,
+		  false)
 
 
 class uiFPAdvancedDlg: public uiDialog
