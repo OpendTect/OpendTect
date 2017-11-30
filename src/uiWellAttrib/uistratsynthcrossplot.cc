@@ -78,6 +78,8 @@ static const char* unwantedattribnms[] =
     "EWUtilities",
     "Fingerprint",
     "Fracture Attributes",
+    "Texture",
+    "Texture - Directional",
     0
 };
 
