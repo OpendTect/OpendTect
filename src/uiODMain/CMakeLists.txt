@@ -31,6 +31,7 @@ set(OD_MODULE_SOURCES
 	uiodfaulttreeitem.cc
 	uiodeditattribcolordlg.cc
 	uiodhelpmenumgr.cc
+	uiodlangmenumgr.cc
 	uiodmain.cc
 	uiodmenumgr.cc
 	uiodscenemgr.cc

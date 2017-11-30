@@ -16,6 +16,7 @@ class DirList;
 class MeasureToolMan;
 class uiODFaultToolMan;
 class uiODHelpMenuMgr;
+class uiODLangMenuMgr;
 class uiMenu;
 class uiToolBar;
 class uiAction;
@@ -101,7 +102,8 @@ protected:
     void		initSceneMgrDepObjs(uiODApplMgr*,uiODSceneMgr*);
 
     uiODMain&		appl_;
-    uiODHelpMenuMgr*	helpmgr_;
+    uiODHelpMenuMgr*	helpmnumgr_;
+    uiODLangMenuMgr*	langmnumgr_;
 
     uiMenu*		surveymnu_;
     uiMenu*		analmnu_;
@@ -118,7 +120,6 @@ protected:
     uiMenu*		preloadmnu_;
     uiMenu*		helpmnu_;
     uiMenu*		settmnu_;
-    uiMenu*		langmnu_;
     uiMenu*		toolsmnu_;
     uiMenu*		installmnu_;
     uiMenu*		csoitm_;

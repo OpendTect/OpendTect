@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodfaulttoolman.h"
 #include "uiodhelpmenumgr.h"
+#include "uiodlangmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
 #include "uiproxydlg.h"
@@ -59,10 +60,10 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     : appl_(*a)
     , dTectTBChanged(this)
     , dTectMnuChanged(this)
-    , helpmgr_(0)
+    , helpmnumgr_(0)
+    , langmnumgr_(0)
     , measuretoolman_(0)
     , inviewmode_(false)
-    , langmnu_(0)
     , plugintb_(0)
 {
     surveymnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sSurvey()) );
@@ -101,7 +102,8 @@ uiODMenuMgr::~uiODMenuMgr()
     for ( int idx=0; idx<customtbs_.size(); idx++ )
 	delete appl_.removeToolBar( customtbs_[idx] );
 
-    delete helpmgr_;
+    delete helpmnumgr_;
+    delete langmnumgr_;
     delete faulttoolman_;
     delete measuretoolman_;
 }
@@ -118,7 +120,8 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillViewMenu();
     fillUtilMenu();
     menubar->insertSeparator();
-    helpmgr_ = new uiODHelpMenuMgr( this );
+    helpmnumgr_ = new uiODHelpMenuMgr( this );
+    langmnumgr_ = new uiODLangMenuMgr( this );
 
     fillDtectTB( appman );
     fillCoinTB( sceneman );
@@ -129,7 +132,7 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
 
 
 uiMenu* uiODMenuMgr::docMnu()
-{ return helpmgr_->getDocMenu(); }
+{ return helpmnumgr_->getDocMenu(); }
 
 
 uiMenu* uiODMenuMgr::getBaseMnu( uiODApplMgr::ActType at )
@@ -1545,7 +1548,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	    Settings::common().write();
 	}
 	if ( id > mHelpMnu )
-	    helpmgr_->handle( id );
+	    helpmnumgr_->handle( id );
 
     } break;
 
