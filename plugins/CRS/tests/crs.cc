@@ -62,7 +62,7 @@ static const Coord wgs72xy[] =	{ Coord(468160.7972588778,5698137.987990135),
 				  Coord(468161.8054061992,6179906.107376129) };
 
 #define mRunTest( func ) \
-    if ( (func)==false ) \
+    if ( !(func) ) \
     { \
 	od_cout() << #func "\tfailed!\n"; \
 	return false; \
