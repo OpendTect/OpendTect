@@ -91,6 +91,8 @@ void ODGraphicsScene::keyPressEvent( QKeyEvent* qkeyevent )
 
 void ODGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent* ev )
 {
+    if ( !ev ) return;
+
     MouseEvent me( OD::ButtonState(ev->modifiers() | ev->buttons()),
 		   (int)ev->pos().x(), (int)ev->pos().y(), ev->delta() );
     uiscene_.getMouseEventHandler().triggerWheel( me );
@@ -100,6 +102,8 @@ void ODGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent* ev )
 
 void ODGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent* qev )
 {
+    if ( !qev ) return;
+
     MouseEvent mev( mousepressedbs_, (int)qev->scenePos().x(),
 		    (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
@@ -110,7 +114,13 @@ void ODGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent* qev )
 
 void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 {
+    if ( !qev ) return;
+
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
+    const Qt::MouseButtons qtmbs = qev->buttons();
+    if ( qtmbs&Qt::LeftButton && qtmbs&Qt::RightButton )
+	bs = OD::ButtonState( qev->modifiers() | Qt::MidButton );
+
     mousepressedbs_ = bs;
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
@@ -121,7 +131,12 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 
 void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 {
+    if ( !qev ) return;
+
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
+    if ( mousepressedbs_ & OD::MidButton )
+	bs = OD::ButtonState( qev->modifiers() | Qt::MidButton );
+
     mousepressedbs_ = OD::NoButton;
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
@@ -133,6 +148,8 @@ void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 
 void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 {
+    if ( !qev ) return;
+
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )

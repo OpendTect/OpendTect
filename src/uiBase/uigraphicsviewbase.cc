@@ -170,7 +170,25 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
     if ( ev->modifiers() == Qt::ControlModifier )
 	handle_.setCtrlPressed( true );
 
-    if ( ev->button() == Qt::RightButton )
+    const Qt::MouseButtons qtmbs = ev->buttons();
+    const bool leftrightbut = qtmbs&Qt::RightButton && qtmbs&Qt::LeftButton;
+    if ( leftrightbut || ev->button() == Qt::MiddleButton )
+    {
+	uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
+	startpos_ = uiPoint( viewpt.x, viewpt.y );
+	buttonstate_ = OD::MidButton;
+	MouseEvent me( buttonstate_, ev->x(), ev->y() );
+	mousehandler_.triggerButtonPressed( me );
+
+	if ( midmousebutfordrag_ )
+	{
+	    setDragMode( ScrollHandDrag );
+	    QMouseEvent fake( ev->type(), ev->pos(), Qt::LeftButton,
+			      Qt::LeftButton, ev->modifiers() );
+	    QGraphicsView::mousePressEvent( &fake );
+	}
+    }
+    else if ( ev->button() == Qt::RightButton )
     {
 	QGraphicsView::DragMode dragmode = dragMode();
 	setDragMode( QGraphicsView::NoDrag );
@@ -191,22 +209,6 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
 	buttonstate_ = OD::LeftButton;
 	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	mousehandler_.triggerButtonPressed( me );
-    }
-    else if ( ev->button() == Qt::MiddleButton )
-    {
-	uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
-	startpos_ = uiPoint( viewpt.x, viewpt.y );
-	buttonstate_ = OD::MidButton;
-	MouseEvent me( buttonstate_, ev->x(), ev->y() );
-	mousehandler_.triggerButtonPressed( me );
-
-	if ( midmousebutfordrag_ )
-	{
-	    setDragMode( ScrollHandDrag );
-	    QMouseEvent fake( ev->type(), ev->pos(), Qt::LeftButton,
-			      Qt::LeftButton, ev->modifiers() );
-	    QGraphicsView::mousePressEvent( &fake );
-	}
     }
     else
 	buttonstate_ = OD::NoButton;
