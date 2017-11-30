@@ -28,7 +28,6 @@ public:
     static Geometry::RandomLine* createNewDefaultRDL();
     static const char*		sFactoryKey();
     virtual const char*		type() const		{ return sFactoryKey();}
-    static const char*		sRandomLineID();
     static Probe*		createFrom(const IOPar&);
 
     static void			initClass();

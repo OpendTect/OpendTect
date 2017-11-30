@@ -94,6 +94,7 @@ namespace sKey
     inline FixedString NrGeoms()	{ return "Nr Geometries";}
     inline FixedString NrItems()	{ return "Nr Items";}
     inline FixedString NrValues()	{ return "Nr Values"; }
+    inline FixedString Object()		{ return "Object"; }
     inline FixedString Offset()		{ return "Offset"; }
     inline FixedString Order()		{ return "Order"; }
     inline FixedString Output()		{ return "Output"; }
@@ -106,6 +107,7 @@ namespace sKey
     inline FixedString Probe()		{ return "Probe"; }
     inline FixedString Quiet()		{ return "quiet"; }
     inline FixedString Random()		{ return "Random"; }
+    inline FixedString RandomLine()	{ return "RandomLine"; }
     inline FixedString Range()		{ return "Range"; }
     inline FixedString Region()		{ return "Region"; }
     inline FixedString Sampling()	{ return "Sampling"; }

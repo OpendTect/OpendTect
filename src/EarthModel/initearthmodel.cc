@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 #include "embodytr.h"
+#include "emprobe.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
@@ -66,6 +67,8 @@ mDefModInitFn(EarthModel)
     TriangulationHor3DGridder::initClass();
     ExtensionHor3DGridder::initClass();
     ContinuousCurvatureHor3DGridder::initClass();
+
+    Horizon3DProbe::initClass();
 
     ZDomain::Def::add( new ZDomain::Def("Time-Flattened",uiStrings::sTime(),
 					"ms",1000) );

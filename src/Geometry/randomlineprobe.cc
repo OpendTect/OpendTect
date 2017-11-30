@@ -14,7 +14,8 @@ ___________________________________________________________________
 #include "survinfo.h"
 #include "uistrings.h"
 
-static int newrdlid =0;
+static Threads::Atomic<int> newrdlid(0);
+const char* sKeyRandomLineID = "RandomLineID";
 
 mDefineInstanceCreatedNotifierAccess( RandomLineProbe );
 
@@ -84,11 +85,9 @@ Monitorable::ChangeType RandomLineProbe::compareClassData(
 
 
 const char* RandomLineProbe::sFactoryKey()
-{ return IOPar::compKey(sKey::Random(),sKey::Line()); }
-
-
-const char* RandomLineProbe::sRandomLineID()
-{ return "RandomLineID"; }
+{
+    return sKey::RandomLine();
+}
 
 
 BufferString RandomLineProbe::getDisplayName() const
@@ -134,7 +133,7 @@ void RandomLineProbe::setRandomLineID( int rdlid )
 void RandomLineProbe::fillPar( IOPar& par ) const
 {
     Probe::fillPar( par );
-    par.set( sRandomLineID(), rdlid_ );
+    par.set( sKeyRandomLineID, rdlid_ );
 }
 
 bool RandomLineProbe::usePar( const IOPar& par )
@@ -142,7 +141,7 @@ bool RandomLineProbe::usePar( const IOPar& par )
     if ( !Probe::usePar(par) )
 	return false;
 
-    return par.get( sRandomLineID(), rdlid_ );
+    return par.get( sKeyRandomLineID, rdlid_ );
 }
 
 
@@ -150,10 +149,7 @@ Probe* RandomLineProbe::createFrom( const IOPar& par )
 {
     RandomLineProbe* probe = new RandomLineProbe();
     if ( !probe->usePar(par) )
-    {
-	delete probe;
-	return 0;
-    }
+	{ delete probe; return 0; }
 
     return probe;
 }

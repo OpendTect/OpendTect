@@ -24,7 +24,6 @@ set(OD_MODULE_SOURCES
 		emfaultsticksetflatvieweditor.cc
 		emfaultstickpainter.cc
 		emfsstofault3d.cc
-		emundo.cc
 		emhorizon2d.cc
 		emhorizon3d.cc
 		emhorizonpainter2d.cc
@@ -39,6 +38,7 @@ set(OD_MODULE_SOURCES
 		emmarchingcubessurface.cc
 		emobject.cc
 		emobjectposselector.cc
+		emprobe.cc
 		emrandomposbody.cc
 		empolygonbody.cc
 		emposid.cc
@@ -62,6 +62,7 @@ set(OD_MODULE_SOURCES
 		horizonsorter.cc
 		lmkemfaulttransl.cc
 		poly2horvol.cc
+		emundo.cc
 		initearthmodel.cc
 )
 OD_INIT_MODULE()
