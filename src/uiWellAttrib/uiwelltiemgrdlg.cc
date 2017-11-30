@@ -168,7 +168,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
 
-    postFinalise().notify( mCB(this,uiTieWinMGRDlg,onFinalise) );
+    afterPopup.notify( mCB(this,uiTieWinMGRDlg,onFinalise) );
 }
 
 
