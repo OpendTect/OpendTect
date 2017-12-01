@@ -86,9 +86,6 @@ protected:
     static KeyboardEventFilter*		keyfilter_;
     mQtclass(QDesktopWidget*)		qdesktop_;
 
-			//! necessary for uicMain coin inialisation
-    virtual void	init( mQtclass(QWidget*) mainwidget )	{}
-
 private:
 			uiMain(mQtclass(QApplication*));
     void		init(mQtclass(QApplication*),int& argc,char **argv);

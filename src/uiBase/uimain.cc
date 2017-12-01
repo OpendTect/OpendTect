@@ -39,7 +39,6 @@ ________________________________________________________________________
 #include <QKeyEvent>
 #include <QScreen>
 #include <QStyleFactory>
-#include <QToolTip>
 #include <QTreeWidget>
 
 static BufferString icon_filename;
@@ -408,13 +407,18 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     BufferString qssfnm = Settings::common().find( "dTect.StyleSheet" );
     if ( qssfnm.isEmpty() )
+    {
 	qssfnm = GetEnvVar( "OD_STYLESHEET" );
+	if ( qssfnm.isEmpty() )
+	    qssfnm = mGetSetupFileName( "od.css" );
+    }
 
     if ( File::exists(qssfnm) )
     {
 	QFile file( qssfnm.buf() );
 	file.open( QFile::ReadOnly );
 	QString sheet = QLatin1String( file.readAll() );
+	const BufferString dgbfilecont( sheet );
 	app_->setStyleSheet( sheet );
     }
 
@@ -468,7 +472,6 @@ void uiMain::setTopLevel( uiMainWin* obj )
     obj->setExitAppOnClose( true );
 
     mainobj_ = obj;
-    init( mainobj_->body()->qwidget() ); // inits SoQt if uicMain
 }
 
 
@@ -608,26 +611,10 @@ void uiMain::processEvents( int msec )
 
 void uiMain::useNameToolTip( bool yn )
 {
+    return;
+
     if ( usenametooltip_ == yn )
 	return;
-
-    Color bg( normaltooltipbackgroundcolor_ );
-    Color fg( normaltooltipforegroundcolor_ );
-    if ( yn )
-    {
-	bg = Color( 220, 255, 255 ); // Pale cyan (to differ from pale yellow)
-	fg = Color::Black();
-
-	normaltooltipbackgroundcolor_ =
-	    Color( QToolTip::palette().color(QPalette::ToolTipBase).rgb() );
-	normaltooltipforegroundcolor_ =
-	    Color( QToolTip::palette().color(QPalette::ToolTipText).rgb() );
-    }
-
-    QPalette palette;
-    palette.setColor( QPalette::ToolTipBase, QColor(bg.r(),bg.g(),bg.b()) );
-    palette.setColor( QPalette::ToolTipText, QColor(fg.r(),fg.g(),fg.b()) );
-    QToolTip::setPalette( palette );
 
     usenametooltip_ = yn;
     uiObject::updateToolTips();

@@ -149,8 +149,6 @@ uiMenu::~uiMenu()
 
 void uiMenu::useStyleSheet()
 {
-    if ( qmenu_ )
-	qmenu_->setStyleSheet( "QMenu { menu-scrollable: 1; }" );
 }
 
 

@@ -1,0 +1,51 @@
+*
+{
+    background: rgb(245,245,245);
+    foreground: black;
+}
+
+QGraphicsView, QTextDocument, QTextEdit, QTableView::item
+{
+    background-color: white;
+}
+
+QLineEdit, QDoubleSpinBox, QComboBox, QListView
+{
+    background-color: rgb(252,252,252);
+}
+
+QListView, QMenu
+{
+    selection-background-color: lightskyblue;
+    selection-color: black;
+}
+
+QMenu
+{
+    menu-scrollable: 1;
+}
+
+QTableView
+{
+    border: 2px solid black;
+    selection-background-color: yellow;
+    selection-color: black;
+}
+
+
+QToolBar
+{
+    spacing: 2px;
+}
+
+QToolTip
+{
+    background-color: yellow;
+    color: black;
+    border: 2px solid black;
+}
+
+QTreeView
+{
+    background-color: rgb(250,255,250);
+}

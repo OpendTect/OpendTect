@@ -177,8 +177,6 @@ uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
     setMouseTracking( true );
 
     setItemDelegate( new BackgroundDelegate(this) );
-    setStyleSheet( "selection-background-color: rgba(128, 128, 128, 40);"
-		   "selection-color: black;" );
 }
 
 
