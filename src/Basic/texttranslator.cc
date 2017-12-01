@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "ptrman.h"
 #include "plugins.h"
+#include "settings.h"
 
 #ifndef OD_NO_QT
 # include <QTranslator>
@@ -304,4 +305,71 @@ bool TextTranslateMgr::loadTranslations()
     SharedLibAccess::getLibName( "dGBCommon", libname.getCStr() );
     return PIM().load( FilePath( GetLibPlfDir(), libname ).fullPath() );
 }
-     
+
+
+namespace OD
+{
+
+static const char* sLocalizationKey() { return "Language"; }
+
+static void languageChange( CallBacker* )
+{
+    Settings& setts = Settings::common();
+    const BufferString locale =
+		TrMgr().getLocaleName( TrMgr().currentLanguage() );
+    BufferString curlocale;
+    if ( setts.get(sLocalizationKey(),curlocale) && curlocale==locale )
+	return;
+
+    setts.set( sLocalizationKey(), locale );
+    setts.write();
+}
+
+
+void loadLocalization()
+{
+    FilePath basedir;
+    TextTranslateMgr::GetLocalizationDir( basedir );
+    DirList dl( basedir.fullPath(), DirList::FilesOnly, "*.qm");
+
+    const char* accepted_languages[] = { "en-us", "cn-cn", 0 };
+    //This should really be done on build-level, buy as od6 is released,
+    //the installer will not remove those qm-files.
+
+    for( int idx=0; idx<dl.size(); idx++ )
+    {
+	const FilePath path = dl.fullPath( idx );
+	const BufferString filename = path.baseName();
+	const char* applicationend =
+		filename.find( TextTranslateMgr::cApplicationEnd() );
+	if ( !applicationend )
+	    continue;
+
+	const BufferString locale = applicationend+1;
+	if ( getIndexInStringArrCI(locale.buf(),accepted_languages,0,0,-1)==-1 )
+	    continue;
+
+	RefMan<TextTranslatorLanguage> trans =
+		new TextTranslatorLanguage( locale );
+	TrMgr().addLanguage( trans );
+    }
+
+    Settings& setts = Settings::common();
+    BufferString locale;
+    if ( setts.get(sLocalizationKey(),locale) )
+    {
+	for ( int idx=0; idx<TrMgr().nrSupportedLanguages(); idx++ )
+	{
+	    if ( TrMgr().getLocaleName(idx)==locale )
+	    {
+		uiString err;
+		TrMgr().setLanguage( idx, err );
+		break;
+	    }
+	}
+    }
+
+    TrMgr().languageChange.notify( mSCB(languageChange) );
+}
+
+} // namespace OD

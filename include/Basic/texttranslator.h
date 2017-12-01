@@ -21,9 +21,9 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "bufstringset.h"
 
-mFDQtclass(QTranslator);
-mFDQtclass(QLocale);
-mFDQtclass(QString);
+mFDQtclass(QTranslator)
+mFDQtclass(QLocale)
+mFDQtclass(QString)
 
 class TextTranslatorLanguage;
 class FilePath;
@@ -62,13 +62,14 @@ public:
 				    languages. */
 
 protected:
-    friend class				TextTranslatorLanguage;
+    friend class			TextTranslatorLanguage;
 
     void				loadUSEnglish();
 
     int					dirtycount_;
     ObjectSet<TextTranslatorLanguage>	languages_;
     int					currentlanguageidx_;
+
 public: //Speicalized stuff
     static void				GetLocalizationDir(FilePath&);
     static char				cApplicationEnd() { return '_'; }
@@ -109,5 +110,10 @@ protected:
 };
 
 mGlobal(Basic) TextTranslateMgr& TrMgr();
+
+namespace OD
+{
+mGlobal(Basic) void	loadLocalization();
+}
 
 #endif
