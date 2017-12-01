@@ -317,9 +317,9 @@ static void languageChange( CallBacker* )
 
 void loadLocalization()
 {
-    FilePath basedir;
+    File::Path basedir;
     TextTranslateMgr::GetLocalizationDir( basedir );
-    DirList dl( basedir.fullPath(), DirList::FilesOnly, "*.qm");
+    const DirList dl( basedir.fullPath(), File::FilesInDir, "*.qm" );
 
     const char* accepted_languages[] = { "en-us", "cn-cn", 0 };
     //This should really be done on build-level, buy as od6 is released,
@@ -327,7 +327,7 @@ void loadLocalization()
 
     for( int idx=0; idx<dl.size(); idx++ )
     {
-	const FilePath path = dl.fullPath( idx );
+	const File::Path path = dl.fullPath( idx );
 	const BufferString filename = path.baseName();
 	const char* applicationend =
 		filename.find( TextTranslateMgr::cApplicationEnd() );
