@@ -54,8 +54,6 @@ static bool testWriting()
 	return true; // don't need e-mails from CDash
     }
 
-    /*
-
     Seis::Blocks::Writer wrr;
     if ( !usemonster )
 	wrr.setFileNameBase( usesteer ? "steering" : "org_seis" );
@@ -84,7 +82,7 @@ static bool testWriting()
 	{
 	    if ( isFinished(uirv) )
 		break;
-	    tstStream(true) << uirv << od_endl;
+	    tstStream(true) << uirv.getText() << od_endl;
 	    return false;
 	}
 
@@ -97,7 +95,7 @@ static bool testWriting()
 	uirv = wrr.add( trc );
 	if ( uirv.isError() )
 	{
-	    tstStream(true) << uirv << od_endl;
+	    tstStream(true) << uirv.getText() << od_endl;
 	    return false;
 	}
     }
@@ -105,11 +103,9 @@ static bool testWriting()
     PtrMan<Task> finisher = wrr.finisher();
     if ( finisher )
     {
-	TextTaskRunner ttr( tstStream(false) );
+	LoggedTaskRunner ttr( tstStream(false) );
 	ttr.execute( *finisher );
     }
-
-    */
 
     return true;
 }
@@ -127,7 +123,7 @@ static bool testReading()
     if ( rdr.state().isError() )
     {
 	tstStream(true) << rdr.state().getText() << od_endl;
-	return true; // don't need e-mails from CDash
+	return false;
     }
 
     SeisTrc trc;
