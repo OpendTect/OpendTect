@@ -14,7 +14,7 @@ set(OD_TEST_PROGS
 )
 
 set( OD_NIGHTLY_TEST_PROGS seisprovider.cc )
-set( OD_MODULE_TESTS_IGNORE_CONTINUOUS seisblocks.cc )
+set( OD_MODULE_TESTS_IGNORE_CONTINUOUS test_seisblocks )
 
 set(OD_MODULE_SOURCES
 	initseis.cc
