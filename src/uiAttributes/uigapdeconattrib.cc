@@ -178,14 +178,15 @@ bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
 bool uiGapDeconAttrib::setInput( const Attrib::Desc& desc )
 {
     bool isinp0ph = isinpzerophasefld_->getBoolValue();
-    int stepout = wantmixfld_->getBoolValue()
+    const int stepout = wantmixfld_->getBoolValue()
 		? stepoutfld_->box()->getIntValue() : 0;
 
-    if ( stepout == 0 && !isinp0ph )
+    if ( !dpfids_.isEmpty() || (stepout==0 && !isinp0ph) )
     {
 	putInp( inpfld_, desc, 0 );
 	return true;
     }
+
     const Desc* neededdesc = desc.getInput(0);
     if ( isinp0ph && neededdesc )
 	neededdesc = neededdesc->getInput(0);
@@ -282,7 +283,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     const float zfac = mCast(float,SI().zDomain().userFactor());
     gate.scale(1.f/zfac);
 
-    if ( !ads_->is2D() && !tkzs.zsamp_.includes(gate) )
+    if ( !is2D() && !tkzs.zsamp_.includes(gate) )
     {
 	Interval<float> zrg = tkzs.zsamp_;
 	gate = zrg; zrg.scale( zfac );
@@ -293,10 +294,10 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     MultiID mid;
     getInputMID( mid );
     if ( positiondlg_ ) delete positiondlg_;
-    positiondlg_ = new uiGDPositionDlg( this, tkzs, ads_->is2D(), mid );
+    positiondlg_ = new uiGDPositionDlg( this, tkzs, is2D(), mid );
     if ( par_.size() )
     {
-	if ( ads_->is2D() )
+	if ( is2D() )
 	{
 	    BufferString lnm;
 	    if ( par_.get( sKeyLineName(), lnm ) )
@@ -316,7 +317,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 )
     {
-	if ( !ads_->is2D() )
+	if ( !is2D() )
 	{
 	    const bool isoninline = positiondlg_->inlcrlfld_->getBoolValue();
 	    bool prevsel = false;
@@ -356,7 +357,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 
     if ( positiondlg_->posdlg_ && positiondlg_->posdlg_->uiResult() == 1 )
     {
-	DescSet* dset = new DescSet( *ads_ );
+	DescSet* dset = ads_ ? new DescSet( *ads_ ) : new DescSet( is2D() );
 	DescID inpid = inpfld_->attribID();
 	DescID gapdecid = createGapDeconDesc( inpid, inpid, dset, true );
 	acorrview_->setAttribID( gapdecid );
@@ -604,7 +605,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     MultiID mid;
     getInputMID(mid);
     if ( positiondlg_ ) delete positiondlg_;
-    positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
+    positiondlg_ = new uiGDPositionDlg( this, cs, is2D(), mid );
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 )
 	positiondlg_->popUpPosDlg();
@@ -613,7 +614,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     {
 	DescID inp0id = DescID::undef();
 	DescID inp1id = DescID::undef();
-	DescSet* dset = new DescSet( *ads_ );
+	DescSet* dset = ads_ ? new DescSet( *ads_ ) : new DescSet( is2D() );
 	prepareInputDescs( inp0id, inp1id, dset );
 	DescID gapdecid = createGapDeconDesc( inp0id, inp1id, dset, false );
 	DescID autocorrid = createGapDeconDesc( gapdecid, inp1id, dset, true );
@@ -648,10 +649,13 @@ void uiGapDeconAttrib::prepareInputDescs( DescID& inp0id, DescID& inp1id,
 
 void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
 {
-    if ( !ads_->is2D() ) return;
+    if ( !is2D() )
+	return;
 
-    Desc* tmpdesc = ads_->getDesc( inpfld_->attribID() );
-    if ( !tmpdesc ) return;
+    Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
+    if ( !tmpdesc )
+	return;
+
     mid = MultiID( tmpdesc->getStoredID().buf() );
 }
 
