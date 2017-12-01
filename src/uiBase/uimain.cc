@@ -418,7 +418,6 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 	QFile file( qssfnm.buf() );
 	file.open( QFile::ReadOnly );
 	QString sheet = QLatin1String( file.readAll() );
-	const BufferString dgbfilecont( sheet );
 	app_->setStyleSheet( sheet );
     }
 
