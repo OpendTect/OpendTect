@@ -134,7 +134,7 @@ Horizon3DProbe::~Horizon3DProbe()
 }
 
 
-mImplMonitorableAssignment( Horizon3DProbe, Probe )
+mImplMonitorableAssignment( Horizon3DProbe, EMProbe )
 
 void Horizon3DProbe::copyClassData( const Horizon3DProbe& oth )
 {
