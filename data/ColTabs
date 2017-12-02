@@ -580,4 +580,18 @@ Standard color tables
 40.Value-Color.15: 1`247`236`229`0
 40.Transparency.0: 0`0
 40.Transparency.1: 1`0
+
+41.Name: Petrel
+41.Marker color: 0`240`0`0
+41.Undef color: 150`200`150`255
+41.Nr segments: 0
+41.Value-Color.0: 0`161`255`255`0
+41.Value-Color.1: 0.33`0`0`191`0
+41.Value-Color.2: 0.4`77`77`77`0
+41.Value-Color.3: 0.5`204`204`204`0
+41.Value-Color.4: 0.6`97`69`0`0
+41.Value-Color.5: 0.67`191`0`0`0
+41.Value-Color.6: 1`255`255`0`0
+41.Transparency.0: 0`0
+41.Transparency.1: 1`0
 !
