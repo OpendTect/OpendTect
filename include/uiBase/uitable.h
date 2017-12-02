@@ -364,7 +364,6 @@ private:
 
     uiTableBody*	body_;
     uiTableBody&	mkbody(uiParent*,const char*,int,int);
-    uiLabel*		cornerlabel_;
 
     mutable uiSize	lastsz;
     friend class	uiTableCellColSelector;

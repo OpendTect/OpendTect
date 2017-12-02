@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include <QDesktopWidget>
 #include <QHeaderView>
 #include <QMouseEvent>
+#include <QLabel>
 
 mUseQtnamespace
 
@@ -134,8 +135,10 @@ uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
     : uiObjBodyImpl<uiTable,QTableWidget>(hndl,parnt,nm)
     , messenger_ (*new i_tableMessenger(this,&hndl))
 {
-    if ( nrows >= 0 ) setNrLines( nrows );
-    if ( ncols >= 0 ) setColumnCount( ncols );
+    if ( nrows >= 0 )
+	setNrLines( nrows );
+    if ( ncols >= 0 )
+	setColumnCount( ncols );
 
 // TODO: Causes tremendous performance delay in Qt 4.4.1;
 //       For now use uiTable::resizeRowsToContents() in stead.
@@ -143,10 +146,9 @@ uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
 //    vhdr->setResizeMode( QHeaderView::ResizeToContents );
 
     setResizeMode( horizontalHeader(), QHeaderView::Stretch );
-
     setHorizontalScrollMode( QAbstractItemView::ScrollPerPixel );
-
     setMouseTracking( true );
+    setCornerButtonEnabled( false );
 }
 
 
@@ -491,10 +493,6 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
 
     QHeaderView* hhdr = body_->horizontalHeader();
     hhdr->setMinimumSectionSize( (int)(s.mincolwdt_*body_->fontWidth()) );
-
-    // Horrible ... using setPrefWidthInChar will prevent events to be emitted
-    cornerlabel_ = new uiLabel( parent(), tr("                    ") );
-    cornerlabel_->attach( atSamePosition, this );
 }
 
 
@@ -1142,17 +1140,9 @@ void uiTable::setRowLabel( int row, const uiString& label )
 
 void uiTable::setTopLeftCornerLabel( const uiString& txt )
 {
-    /*
-	Searched google, the item there is a button that is a local
-	QAbstractButton (class QTableCornerButton). I could get it using
-	qFindChildren but it's not visible. Tried many things, nothing worked.
-
-	Therefore this hack, but it works.
-    */
-
-
-    uiString todisp( tr("  %1") ); todisp.arg( txt );
-    cornerlabel_->setText( todisp );
+    QLabel* lbl = new QLabel( txt.getQString(), body_ );
+    body_->setCornerWidget( lbl );
+    lbl->show();
 }
 
 
