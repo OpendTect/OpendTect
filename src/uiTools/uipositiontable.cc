@@ -211,7 +211,9 @@ void uiPositionTable::getBinIDs( TypeSet<BinID>& binids ) const
 
 
 void uiPositionTable::setZRange( const Interval<float>& zrg )
-{ zfld_->setValue( zrg ); }
+{
+    zfld_->setValue( zrg );
+}
 
 
 void uiPositionTable::getZRange( Interval<float>& zrg ) const
@@ -222,7 +224,5 @@ void uiPositionTable::getZRange( Interval<float>& zrg ) const
 
 void uiPositionTable::setRowColor( int rid, bool includes )
 {
-    Color col = !includes ? Color(200,0,0) : Color::White();
-    for ( int colid=0; colid<table_->nrCols(); colid++ )
-	table_->setColor( RowCol(rid,colid), col );
+    table_->setRowBackground( rid, includes ? Color::White() : Color::Red() );
 }

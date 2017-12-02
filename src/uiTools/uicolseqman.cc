@@ -75,7 +75,7 @@ uiColSeqColCtrlPtsDlg( uiParent* p, Sequence& cseq )
     table_->setColumnReadOnly( cColorCol, true );
     fillTable();
 
-    mAttachCB( table_->leftClicked, uiColSeqColCtrlPtsDlg::mouseClick );
+    mAttachCB( table_->colorSelectionChanged, uiColSeqColCtrlPtsDlg::colChgCB );
     mAttachCB( table_->rowInserted, uiColSeqColCtrlPtsDlg::pointInserted );
     mAttachCB( table_->rowDeleted, uiColSeqColCtrlPtsDlg::pointDeleted );
     mAttachCB( table_->valueChanged, uiColSeqColCtrlPtsDlg::pointPosChgd );
@@ -96,8 +96,8 @@ void fillTable()
 		table_->setValue( rc, 100.f * position );
 	    if ( rc.col() == 1 )
 	    {
-		Color color( colseq_.color(position) );
-		table_->setColor( rc, color );
+		table_->setColorSelectionCell( rc, false );
+		table_->setCellColor( rc, colseq_.color(position) );
 	    }
 	}
     }
@@ -118,19 +118,11 @@ void seqChgCB( CallBacker* cb )
     }
 }
 
-void mouseClick( CallBacker* )
+void colChgCB( CallBacker* cb )
 {
-    NotifyStopper notifstop( table_->valueChanged );
-    RowCol rc = table_->notifiedCell();
-    if ( rc.col() != cColorCol )
-	return;
-
-    Color newcol = table_->getColor( rc );
-    if ( selectColor(newcol,this,tr("Control Point color")) )
-    {
-	NotifyStopper ns( table_->valueChanged, this );
-	colseq_.changeColor( rc.row(), newcol.r(), newcol.g(), newcol.b() );
-    }
+    mCBCapsuleUnpack( RowCol, rc, cb );
+    const Color newcol( table_->getCellColor(rc) );
+    colseq_.changeColor( rc.row(), newcol.r(), newcol.g(), newcol.b() );
 }
 
 void pointInserted( CallBacker* )
@@ -144,6 +136,7 @@ void pointInserted( CallBacker* )
 	uiMSG().error( tr("Cannot insert control points at the ends") );
 	return;
     }
+    table_->setColorSelectionCell( rcvalue, false );
 
     RowCol rccolor( rcvalue.row(), 1 );
     const float newpos = colseq_.position(rcvalue.row()-1) +

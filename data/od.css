@@ -1,17 +1,16 @@
 *
 {
-    background: rgb(245,245,245);
-    foreground: black;
+    background: rgb( 245, 245, 245 );
 }
 
-QGraphicsView, QTextDocument, QTextEdit, QTableView::item
+QGraphicsView, QTextDocument, QTextEdit
 {
     background-color: white;
 }
 
 QLineEdit, QDoubleSpinBox, QComboBox, QListView
 {
-    background-color: rgb(252,252,252);
+    background-color: rgb( 252, 252, 252 );
 }
 
 QListView, QMenu
@@ -47,5 +46,5 @@ QToolTip
 
 QTreeView
 {
-    background-color: rgb(250,255,250);
+    background-color: rgb( 250, 255, 250 );
 }

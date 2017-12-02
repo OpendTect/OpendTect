@@ -351,39 +351,34 @@ uiSelColorDlg( uiParent* p, const BufferStringSet& names,
     , isy2shown_( isy2shwn )
 {
     tbl_ = new uiTable( this, uiTable::Setup(names.size(),isy2shwn ? 2 : 1),"");
-    tbl_->leftClicked.notify( mCB(this,uiSelColorDlg,changeColCB) );
     tbl_->setRowLabels( names.getUiStringSet() );
     uiStringSet collabel;
     collabel.add( toUiString("Y1") );
-    if ( isy2shwn ) collabel.add( toUiString("Y2") );
+    if ( isy2shwn )
+	collabel.add( toUiString("Y2") );
 
     tbl_->setColumnLabels( collabel );
     for ( int idx=0; idx<names.size(); idx++ )
     {
-	tbl_->setColor( RowCol(idx,0), y1cols[idx] );
-	if ( isy2shwn ) tbl_->setColor( RowCol(idx,1), y2cols[idx] );
+	setColorCell( RowCol(idx,0), y1cols[idx] );
+	if ( isy2shwn )
+	    setColorCell( RowCol(idx,1), y2cols[idx] );
     }
 }
 
-void changeColCB( CallBacker* )
+void setColorCell( const RowCol& rc, const Color& col )
 {
-    RowCol rc = tbl_->notifiedCell();
-
-    Color newcol = tbl_->getColor( rc );
-    if ( selectColor(newcol,this,tr("%1 %2").arg(uiStrings::sMarker())
-						  .arg(uiStrings::sColor())) )
-    {
-	rc.col() == 0 ? y1cols_[rc.row()] = newcol : y2cols_[rc.row()] = newcol;
-	tbl_->setColor( rc, newcol );
-    }
+    tbl_->setColorSelectionCell( rc, true );
+    tbl_->setCellColor( rc, col );
 }
 
 bool acceptOk( CallBacker* )
 {
     for ( int idx=0; idx<names_.size(); idx++ )
     {
-	y1cols_[idx] = tbl_->getColor( RowCol(idx,0) );
-	if ( isy2shown_ ) y2cols_[idx] = tbl_->getColor( RowCol(idx,1) );
+	y1cols_[idx] = tbl_->getCellColor( RowCol(idx,0) );
+	if ( isy2shown_ )
+	    y2cols_[idx] = tbl_->getCellColor( RowCol(idx,1) );
     }
 
     return true;

@@ -816,7 +816,7 @@ bool CurTableItemCmd::act( const char* parstr )
 
     const RowCol rc = framed ? uitable->currentCell() : selrc;
     mGetTableItemNr( uitable, rc, itemnr );
-    mGetColorString( uitable->getColor(rc), rc.col()>=0, colorstr );
+    mGetColorString( uitable->getCellColor(rc), rc.col()>=0, colorstr );
     mParForm( answer, form, uitable->text(rc), itemnr );
     mParExtraForm( answer, form, Colour, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
@@ -918,7 +918,7 @@ bool GetTableItemCmd::act( const char* parstr )
 				  : itemrcs1[0];
 
     mGetTableItemNr( uitable, rc, itemnr );
-    mGetColorString( uitable->getColor(rc), true, colorstr );
+    mGetColorString( uitable->getCellColor(rc), true, colorstr );
     mParForm( answer, form, uitable->text(rc), itemnr );
     mParExtraForm( answer, form, Colour, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );

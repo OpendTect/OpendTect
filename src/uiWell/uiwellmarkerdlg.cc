@@ -180,7 +180,6 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
     table_->setColumnReadOnly( cColorCol, true );
-    table_->doubleClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
     table_->valueChanged.notify( mCB(this,uiMarkerDlg,markerChangedCB) );
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
     table_->setPrefWidth( 650 );
@@ -259,7 +258,7 @@ void uiMarkerDlg::markerAddedCB( CallBacker* )
     const int currentrow = table_->currentRow();
     const Color defgreycol( 128, 128, 128 );
     table_->setCellGroup( RowCol(currentrow,cLevelCol), levelsel );
-    table_->setColor( RowCol(currentrow,cColorCol), defgreycol );
+    setColorCell( currentrow, defgreycol );
     levelsel->setSensitive( true );
 }
 
@@ -333,25 +332,18 @@ void uiMarkerDlg::unitChangedCB( CallBacker* )
 }
 
 
-void uiMarkerDlg::mouseClick( CallBacker* )
+
+void uiMarkerDlg::setColorCell( int rowidx, const Color& col )
 {
-    const RowCol rc = table_->notifiedCell();
-    if ( rc.col() != cColorCol ) return;
-
-    uiGroup* grp = table_->getCellGroup( RowCol(rc.row(),cLevelCol) );
-    mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
-    const bool havelvl = levelsel && levelsel->getID().isValid();
-    if ( havelvl )
-    {
-	uiMSG().error( tr("Cannot change color of regional marker") );
-	return;
-    }
-
-    Color newcol = table_->getColor( rc );
-    if ( selectColor(newcol, this, tr("Marker color")) )
-	table_->setColor( rc, newcol );
-
-    table_->setSelected( rc, false );
+    const RowCol colrc = RowCol( rowidx, cColorCol );
+    const RowCol lvlrc = RowCol( rowidx, cLevelCol );
+    uiGroup* grp = table_->getCellGroup( lvlrc );
+    mDynamicCastGet( uiStratLevelSel*, levelsel, grp )
+    const bool havelvlsel = levelsel && levelsel->getID().isValid();
+    table_->setCellReadOnly( colrc, havelvlsel );
+    if ( !havelvlsel )
+	table_->setColorSelectionCell( colrc, false );
+    table_->setCellColor( colrc, col );
 }
 
 
@@ -398,7 +390,17 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 
 	const Well::Marker marker = markers.validIdx(idx)? markers.getByIdx(idx)
 							  : Well::Marker::udf();
-	if ( !marker.isUdf() )
+	if ( marker.isUdf() )
+	{
+	    Well::Marker mrk("");
+	    levelsel->setSensitive( true );
+	    table_->setText( RowCol(irow,cDepthCol), "" );
+	    table_->setText( RowCol(irow,cTVDCol), "" );
+	    table_->setText( RowCol(irow,cTVDSSCol), "" );
+	    table_->setText( RowCol(irow,cNameCol), "" );
+	    setColorCell( irow, mrk.color() );
+	}
+	else
 	{
 	    if ( !Strat::LVLS().isPresent(marker.levelID()) )
 	    {
@@ -414,20 +416,12 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	    const float tvdss = mCast(float,track_.getPos(dah).z_);
 	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev) * zfac );
 	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss * zfac );
-	    table_->setColor( RowCol(irow,cColorCol), marker.color() );
+	    setColorCell( irow, marker.color() );
 	    if ( marker.levelID().isValid() )
 		updateFromLevel( irow, levelsel );
 
 	    continue;
 	}
-
-	Well::Marker mrk("");
-	levelsel->setSensitive( true );
-	table_->setText( RowCol(irow,cDepthCol), "" );
-	table_->setText( RowCol(irow,cTVDCol), "" );
-	table_->setText( RowCol(irow,cTVDSSCol), "" );
-	table_->setText( RowCol(irow,cNameCol), "" );
-	table_->setColor( RowCol(irow,cColorCol), mrk.color() );
     }
 
     table_->resizeHeaderToContents( false );
@@ -460,7 +454,7 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
     const bool havelvl = levelsel->getID().isValid();
     if ( havelvl )
     {
-	table_->setColor( RowCol(irow,cColorCol), levelsel->getColor() );
+	setColorCell( irow, levelsel->getColor() );
 	table_->setText( RowCol(irow,cNameCol), levelsel->getLevelName() );
     }
 
@@ -564,7 +558,7 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 
 	dah /= zfac;
 	Well::Marker marker( markernm, dah );
-	marker.setColor( table_->getColor(RowCol(rowidx,cColorCol)) );
+	marker.setColor( table_->getCellColor(RowCol(rowidx,cColorCol)) );
 	uiGroup* grp = table_->getCellGroup( RowCol(rowidx,cLevelCol) );
 	mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
 	marker.setLevelID( levelsel ? levelsel->getID()
@@ -873,7 +867,8 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
 	const Well::Marker& mrkr = miter.get();
 	const int irow = miter.curIdx();
 	table_->setText( RowCol(irow,cNameCol), mrkr.name() );
-	table_->setColor( RowCol(irow,cColorCol), mrkr.color() );
+	table_->setColorSelectionCell( RowCol(irow,cColorCol), false );
+	table_->setCellColor( RowCol(irow,cColorCol), mrkr.color() );
 
 	const float dah = mrkr.dah();
 	table_->setValue( RowCol(irow,cDepthCol), dah * zfac );

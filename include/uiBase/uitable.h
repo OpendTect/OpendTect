@@ -24,6 +24,7 @@ class uiPixmap;
 class uiGroup;
 class uiLabel;
 class uiTableBody;
+class uiTableCellColSelector;
 
 
 mExpClass(uiBase) uiTable : public uiObject
@@ -120,7 +121,7 @@ public:
     };
 
 			uiTable(uiParent*,const Setup&,const char* nm);
-    virtual 		~uiTable();
+    virtual		~uiTable();
 
     const char*		text(const RowCol&) const;
     void		setText(const RowCol&,const char*);
@@ -169,7 +170,7 @@ public:
     void		setColumnResizeMode(ResizeMode);
 			//!<Default is Stretch
     void		setRowResizeMode(ResizeMode);
-    			//!<Default is ResizeToContents
+			//!<Default is ResizeToContents
     void		setColumnStretchable(int,bool);
     void		setRowStretchable(int,bool);
     bool		isColumnStretchable(int) const;
@@ -224,10 +225,10 @@ public:
 			{ return RowCol( currentRow(), currentCol() ); }
     void		setSelected(const RowCol&,bool yn=true);
     void		selectRow(int row);
-    void 		selectColumn(int col);
-    void 		selectItems(const TypeSet<RowCol>&,bool);
+    void		selectColumn(int col);
+    void		selectItems(const TypeSet<RowCol>&,bool);
     void		removeAllSelections();
-    void 		ensureCellVisible(const RowCol&);
+    void		ensureCellVisible(const RowCol&);
 
     const char*		rowLabel(int) const;
     const char*		rowLabel( const RowCol& rc ) const
@@ -258,7 +259,7 @@ public:
     void		setLabelBGColor(int,Color,bool isrow);
 
 
-    Setup&		setup() 		{ return setup_; }
+    Setup&		setup()		{ return setup_; }
     const Setup&	setup() const		{ return setup_; }
 
     const RowCol&	notifiedCell() const	{ return notifcell_; }
@@ -282,10 +283,15 @@ public:
     Notifier<uiTable>	colDeleted;
     CNotifier<uiTable,int> rowClicked;
     CNotifier<uiTable,int> columnClicked;
+    CNotifier<uiTable,RowCol> colorSelectionChanged;
 
+    void		setColorSelectionCell(const RowCol&,bool withtransp);
+				//!< prepares the cell for color selection
+    void		setCellColor(const RowCol&,const Color&);
+    Color		getCellColor(const RowCol&) const;
     void		setPixmap(const RowCol&,const uiPixmap&);
-    void		setColor(const RowCol&,const Color&);
-    Color		getColor(const RowCol&) const;
+    void		setRowBackground(int,const Color&);
+    void		setColumnBackground(int,const Color&);
     void		setHeaderBackground(int,const Color&,bool isrow);
     Color		getHeaderBackground(int,bool isrow) const;
 
@@ -361,10 +367,20 @@ private:
     uiLabel*		cornerlabel_;
 
     mutable uiSize	lastsz;
+    friend class	uiTableCellColSelector;
 
 public:
+
     mDeprecated double	getdValue( const RowCol& rc ) const
 			{ return getDValue( rc ); }
     mDeprecated float	getfValue( const RowCol& rc ) const
 			{ return getFValue( rc ); }
+
+    mDeprecated void	setColor( // consider using setColorSelectionCell()
+				const RowCol& rc, const Color& col )
+			{ setCellColor( rc, col ); }
+    mDeprecated Color	getColor( // consider using setColorSelectionCell()
+				const RowCol& rc ) const
+			{ return getCellColor( rc ); }
+
 };

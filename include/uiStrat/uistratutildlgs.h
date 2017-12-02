@@ -32,8 +32,8 @@ namespace Strat { class Lithology; }
 mExpClass(uiStrat) uiStratLithoBox : public uiListBox
 { mODTextTranslationClass(uiStratLithoBox);
 public:
-    			uiStratLithoBox(uiParent*);
-    			~uiStratLithoBox();
+			uiStratLithoBox(uiParent*);
+			~uiStratLithoBox();
 
 protected:
 
@@ -46,7 +46,7 @@ mExpClass(uiStrat) uiStratUnitEditDlg : public uiDialog
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
 
-    const TypeSet<int>& getLithologies() const 	{ return lithids_; }
+    const TypeSet<int>& getLithologies() const	{ return lithids_; }
     static bool		checkWrongChar(char*);
 
 protected:
@@ -57,7 +57,7 @@ protected:
     uiSpinBox*		agestartfld_;
     uiSpinBox*		agestopfld_;
     uiStratLithoBox*	unitlithfld_;
-    
+
     Strat::NodeUnitRef& unit_;
 
     BufferString	entrancename_;
@@ -108,19 +108,19 @@ public:
 				uiStratUnitDivideDlg(uiParent*,
 						const Strat::LeavedUnitRef&);
 
-    void			gatherUnits(ObjectSet<Strat::LeavedUnitRef>&); 
+    void			gatherUnits(ObjectSet<Strat::LeavedUnitRef>&);
 
 protected :
 
     mExpClass(uiStrat) uiDivideTable : public uiTable
     { mODTextTranslationClass(uiDivideTable);
-	public: 	
+	public:
 				uiDivideTable(uiParent* p,
 						const uiTable::Setup& s)
 				    : uiTable(p,s,"Subdivide unit table")
 				{}
 	protected:
-	virtual void 		popupMenu(CallBacker*);
+	virtual void		popupMenu(CallBacker*);
     };
 
 
@@ -131,7 +131,6 @@ protected :
 					   uiString&) const;
 
     void			addUnitToTable(int,const Strat::LeavedUnitRef&);
-    void			mouseClick(CallBacker*);
     bool			acceptOK();
     void			resetUnits(CallBacker*);
 };
@@ -159,13 +158,13 @@ protected:
 mExpClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
 { mODTextTranslationClass(uiStratLinkLvlUnitDlg);
 public:
-    
+
     typedef Strat::Level::ID	LevelID;
 
-    			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
+			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
 
 
-    LevelID 		lvlid_;
+    LevelID		lvlid_;
 
 protected:
 

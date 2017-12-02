@@ -26,7 +26,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 				const BufferStringSet& colnames )
     : uiDialog( p.parent(), uiDialog::Setup(uiStrings::phrJoinStrings(
 				     uiStrings::sSelection(),tr("Settings")),
-				     uiStrings::sEmptyString(), 
+				     uiStrings::sEmptyString(),
                                      mODHelpKey(mSelectionSettDlgHelpID) )
 				    .savebutton(!p.isADensityPlot())
 				    .savetext(uiStrings::phrSelect(tr("on OK")))
@@ -41,7 +41,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     tbl_ = new uiTable( this, su, "Selection Groups" );
     tbl_->setPrefHeight( 200 );
     tbl_->setColumnReadOnly( 1, true );
-    tbl_->doubleClicked.notify( mCB(this,uiDPSSelGrpDlg,changeColCB) );
+    tbl_->colorSelectionChanged.notify( mCB(this,uiDPSSelGrpDlg,changeColCB) );
     tbl_->rowInserted.notify( mCB(this,uiDPSSelGrpDlg,addSelGrp) );
     tbl_->valueChanged.notify( mCB(this,uiDPSSelGrpDlg,changeSelGrbNm) );
     tbl_->selectionChanged.notify( mCB(this,uiDPSSelGrpDlg,setCurSelGrp) );
@@ -51,31 +51,31 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     for ( int idx=0; idx<selgrps_.size(); idx++ )
     {
 	tbl_->setText( RowCol(idx,0), selgrps_[idx]->name() );
-	tbl_->setColor( RowCol(idx,1), selgrps_[idx]->col_ );
+	setColorCell( idx, selgrps_[idx]->col_ );
     }
 
     curselgrp_ = tbl_->currentRow() < 0 ? 0 : tbl_->currentRow();
-    uiPushButton* addgrpbut = new uiPushButton( this, tr("Add group"), 
+    uiPushButton* addgrpbut = new uiPushButton( this, tr("Add group"),
 	    mCB(this,uiDPSSelGrpDlg,addSelGrp), true );
     addgrpbut->attach( alignedBelow, tbl_ );
-    
-    uiPushButton* remgrpbut = new uiPushButton( this, tr("Remove group"), 
+
+    uiPushButton* remgrpbut = new uiPushButton( this, tr("Remove group"),
 	    mCB(this,uiDPSSelGrpDlg,remSelGrp), true );
     remgrpbut->attach( rightTo, addgrpbut );
-    
-    uiPushButton* expgrpbut = new uiPushButton( this, tr("Save groups"), 
+
+    uiPushButton* expgrpbut = new uiPushButton( this, tr("Save groups"),
 	    mCB(this,uiDPSSelGrpDlg,exportSelectionGrps), true );
     expgrpbut->attach( rightTo, remgrpbut );
-    
-    uiPushButton* impgrpbut = new uiPushButton( this, tr("Open groups"), 
+
+    uiPushButton* impgrpbut = new uiPushButton( this, tr("Open groups"),
 	    mCB(this,uiDPSSelGrpDlg,importSelectionGrps), true );
     impgrpbut->attach( rightTo, expgrpbut );
-    
+
     uiPushButton* scalesgbut =
 	new uiPushButton( this, m3Dots(tr("Selectedness")),
 			  mCB(this,uiDPSSelGrpDlg,calcSelectedness), true );
     scalesgbut->attach( rightTo, impgrpbut );
-    
+
     tbl_->setSelected( RowCol(0,0), true );
     tbl_->setCurrentCell( RowCol(0,0), true );
 }
@@ -91,7 +91,7 @@ void uiDPSSelGrpDlg::changeSelGrbNm( CallBacker* )
     {
 	SelectionGrp* selgrp = selgrps_[ idx ];
 	selgrp->setName( tbl_->text(RowCol(idx,0)) );
-	selgrp->col_ = tbl_->getColor( RowCol(idx,1) );
+	selgrp->col_ = tbl_->getCellColor( RowCol(idx,1) );
     }
 
     setCurSelGrp(0);
@@ -105,19 +105,26 @@ void uiDPSSelGrpDlg::setCurSelGrp( CallBacker* )
 }
 
 
+void uiDPSSelGrpDlg::setColorCell( int rowidx, const Color& col )
+{
+    tbl_->setColorSelectionCell( RowCol(rowidx,1), false );
+    tbl_->setCellColor( RowCol(rowidx,1), col );
+}
+
+
 void uiDPSSelGrpDlg::addSelGrp( CallBacker* cb )
 {
     tbl_->insertRows( tbl_->nrRows(), 1 );
     tbl_->setColumnReadOnly( 1, true );
     RowCol newcell = RowCol( tbl_->nrRows()-1, 1 );
-    tbl_->setColor( RowCol(newcell.row(),1), getRandomColor() );
+    setColorCell( newcell.row(), getRandomColor() );
     BufferString selgrpnm( "No " );
     mDefineStaticLocalObject( int, selgrpnr, = 2 );
     selgrpnm += selgrpnr;
     selgrpnr++;
     tbl_->setText( RowCol(newcell.row(),0), selgrpnm );
-    selgrps_ +=
-	new SelectionGrp( selgrpnm, tbl_->getColor(RowCol(newcell.row(),1)) );
+    selgrps_ += new SelectionGrp( selgrpnm,
+		    tbl_->getCellColor(RowCol(newcell.row(),1)) );
 
     setCurSelGrp(0);
 }
@@ -136,7 +143,7 @@ void uiDPSSelGrpDlg::importSelectionGrps( CallBacker* )
 	{
 	    BufferString temp(selgrps_[idx]->name());
 	    tbl_->setText( RowCol(idx,0), temp.buf() );
-	    tbl_->setColor( RowCol(idx,1), selgrps_[idx]->col_ );
+	    setColorCell( idx, selgrps_[idx]->col_ );
 	}
     }
 
@@ -168,7 +175,7 @@ void uiDPSSelGrpDlg::remSelGrp( CallBacker* )
 
     selgrps_.removeSingle( tbl_->currentRow() );
     tbl_->removeRow( tbl_->currentRow() );
-    
+
     setCurSelGrp(0);
     plotter_.reDrawSelections();
 }
@@ -176,18 +183,6 @@ void uiDPSSelGrpDlg::remSelGrp( CallBacker* )
 
 void uiDPSSelGrpDlg::changeColCB( CallBacker* )
 {
-    if ( tbl_->currentRow() < 0 ) return;
-
-    RowCol rc = tbl_->notifiedCell();
-    if ( !rc.col() ) return;
-
-    Color newcol = tbl_->getColor( rc );
-    if ( selectColor(newcol,this,tr("Marker color")) )
-    {
-	selgrps_[rc.row()]->col_ = newcol;
-	tbl_->setColor( rc, newcol );
-    }
-
     plotter_.reDrawSelections();
 }
 

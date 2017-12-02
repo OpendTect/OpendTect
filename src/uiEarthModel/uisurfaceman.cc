@@ -691,7 +691,6 @@ uiSurfaceStratDlg( uiParent* p,  const DBKeySet& ids )
     tbl_->setColumnResizeMode( uiTable::ResizeToContents );
     tbl_->setColumnStretchable( 2, true );
     tbl_->setPrefWidth( 400 );
-    tbl_->doubleClicked.notify( mCB(this,uiSurfaceStratDlg,doCol) );
 
     uiToolButton* sb = new uiToolButton( this, "man_strat",
 				      tr("Edit Stratigraphy to define Markers"),
@@ -708,7 +707,7 @@ uiSurfaceStratDlg( uiParent* p,  const DBKeySet& ids )
 
 	Color col( Color::White() );
 	par.get( sKey::Color(), col );
-	tbl_->setColor( RowCol(idx,1), col );
+	setColorCell( idx, col );
 
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true,
 						    uiStrings::sEmptyString() );
@@ -726,39 +725,31 @@ protected:
 void doStrat( CallBacker* )
 { StratTWin().popUp(); }
 
-void doCol( CallBacker* )
+void setColorCell( int rowidx, const Color& col )
 {
-    const RowCol& cell = tbl_->notifiedCell();
-    if ( cell.col() != 1 )
-	return;
-
-    mDynamicCastGet(uiStratLevelSel*,levelsel,
-	tbl_->getCellGroup(RowCol(cell.row(),2)))
-    const bool havelvl = levelsel && levelsel->getID().isValid();
-    if ( havelvl )
-    {
-	uiMSG().error( tr("Cannot change color of regional marker") );
-	return;
-    }
-
-    Color newcol = tbl_->getColor( cell );
-    if ( selectColor(newcol,this,uiStrings::phrJoinStrings(
-	 uiStrings::sHorizon(),uiStrings::sColor())) )
-	tbl_->setColor( cell, newcol );
-
-    tbl_->setSelected( cell, false );
+    const RowCol colrc = RowCol( rowidx, 1 );
+    const RowCol lvlrc = RowCol( rowidx, 2 );
+    uiGroup* grp = tbl_->getCellGroup( lvlrc );
+    mDynamicCastGet( uiStratLevelSel*, levelsel, grp )
+    const bool havelvlsel = levelsel && levelsel->getID().isValid();
+    tbl_->setCellReadOnly( colrc, havelvlsel );
+    if ( !havelvlsel )
+	tbl_->setColorSelectionCell( colrc, false );
+    tbl_->setCellColor( colrc, col );
 }
 
 void lvlChg( CallBacker* cb )
 {
     mDynamicCastGet(uiStratLevelSel*,levelsel,cb)
-    if ( !levelsel ) return;
+    if ( !levelsel )
+	return;
 
     const Color col = levelsel->getColor();
-    if ( col == Color::NoColor() ) return;
+    if ( col == Color::NoColor() )
+	return;
 
     const RowCol rc = tbl_->getCell( levelsel );
-    tbl_->setColor( RowCol(rc.row(),1), col );
+    setColorCell( rc.row(), col );
 }
 
 bool acceptOK()
@@ -766,7 +757,7 @@ bool acceptOK()
     for ( int idx=0; idx<objids_.size(); idx++ )
     {
 	IOPar par;
-	Color col = tbl_->getColor( RowCol(idx,1) );
+	Color col = tbl_->getCellColor( RowCol(idx,1) );
 	par.set( sKey::Color(), col );
 
 	mDynamicCastGet(uiStratLevelSel*,levelsel,

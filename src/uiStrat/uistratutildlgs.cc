@@ -615,7 +615,6 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
     table_->setColumnReadOnly( cColorCol, true );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setNrRows( cNrEmptyRows );
-    table_->leftClicked.notify( mCB(this,uiStratUnitDivideDlg,mouseClick) );
     table_->rowInserted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
     table_->rowDeleted.notify( mCB(this,uiStratUnitDivideDlg,resetUnits) );
     table_->selectionDeleted.notify(mCB(this,uiStratUnitDivideDlg,resetUnits));
@@ -625,17 +624,6 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
 	addUnitToTable( 0, rootunit_ );
 
     resetUnits( 0 );
-}
-
-
-void uiStratUnitDivideDlg::mouseClick( CallBacker* )
-{
-    RowCol rc = table_->notifiedCell();
-    if ( rc.col() != cColorCol || table_->isCellReadOnly(rc) ) return;
-
-    Color newcol = table_->getColor( rc );
-    if ( selectColor(newcol,this,tr("Unit color")) )
-    table_->setColor( rc, newcol );
 }
 
 
@@ -675,7 +663,8 @@ void uiStratUnitDivideDlg::addUnitToTable( int irow,
     table_->setText( RowCol(irow,cNameCol), unit.code() );
     table_->setValue( RowCol(irow,cStartCol), unit.timeRange().start );
     table_->setValue( RowCol(irow,cStopCol), unit.timeRange().stop );
-    table_->setColor( RowCol(irow,cColorCol), unit.color() );
+    table_->setColorSelectionCell( RowCol(irow,cColorCol), false );
+    table_->setCellColor( RowCol(irow,cColorCol), unit.color() );
 }
 
 
@@ -689,7 +678,7 @@ void uiStratUnitDivideDlg::gatherUnits( ObjectSet<Strat::LeavedUnitRef>& units)
 			const_cast<Strat::NodeUnitRef*>( rootunit_.upNode() );
 	Strat::LeavedUnitRef* un =
 			new Strat::LeavedUnitRef( par, code );
-	un->setColor( table_->getColor( RowCol(idx,cColorCol) ) );
+	un->setColor( table_->getCellColor( RowCol(idx,cColorCol) ) );
 	Interval<float> rg( table_->getFValue( RowCol(idx,cStartCol) ),
 			    table_->getFValue( RowCol(idx,cStopCol) )  );
 	un->setTimeRange( rg );

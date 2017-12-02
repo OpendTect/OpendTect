@@ -38,7 +38,7 @@ public:
     bool			getMarkerSet(Well::MarkerSet&) const;
     static void			exportMarkerSet(uiParent* p,
 						const Well::MarkerSet& mset,
-						const Well::Track& trck, 
+						const Well::Track& trck,
 						uiCheckBox* cb=0 );
 protected:
 
@@ -52,7 +52,6 @@ protected:
     void			getColLabels(BufferStringSet&) const;
     int				getNrRows() const;
     int				rowNrFor(uiStratLevelSel*) const;
-    void			mouseClick(CallBacker*);
     void			doStrat(CallBacker*);
     void			rdFile(CallBacker*);
     bool			acceptOK();
@@ -72,6 +71,7 @@ protected:
     float			getOldMarkerVal(const Well::Marker&) const;
 
     Well::Marker		getMarker(int rowidx,bool fromname) const;
+    void			setColorCell(int,const Color&);
 
 };
 

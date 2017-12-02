@@ -89,9 +89,9 @@ bool uiColorInput::selectColor( Color& col, uiParent* parnt,
         qdlg.setOption( QColorDialog::DontUseNativeDialog );
 	QList<QLabel*> lbllst = qdlg.findChildren<QLabel*>("");
 	bool found = false;
-	foreach(QLabel* qlbl,lbllst)
+	foreach( QLabel* qlbl, lbllst )
 	{
-	    if ( qlbl->text() == "Alpha channel:" )
+	    if ( qlbl->text().contains( "pha channel:" ) )
 		{ qlbl->setText( "Transparency:" ); found = true; break; }
 	}
 	if ( !found )

@@ -337,14 +337,14 @@ void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
 	if ( File::exists(fp.fullPath()) )
 	{
 	    filetable_->setCellToolTip( rc, uiStrings::sEmptyString() );
-	    filetable_->setColor( rc, Color::White() );
+	    filetable_->setCellColor( rc, Color::White() );
 	}
 	else
 	{
 	    uiString tttext( uiStrings::phrCannotFind(uiStrings::phrJoinStrings
 			     (uiStrings::sFile(),toUiString(fp.fullPath()))) );
 	    filetable_->setCellToolTip( rc, tttext );
-	    filetable_->setColor( rc, Color::Red() );
+	    filetable_->setCellColor( rc, Color::Red() );
 	}
     }
 }

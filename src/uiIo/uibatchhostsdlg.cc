@@ -185,7 +185,7 @@ static void setIPAddress( uiTable& tbl, int row, const HostData& hd )
 {
     const RowCol rc( row, sIPCol );
     tbl.setText( rc, hd.getIPAddress() );
-    tbl.setColor( rc, Color::White() );
+    tbl.setCellColor( rc, Color::White() );
 }
 
 
@@ -193,7 +193,7 @@ static void setHostName( uiTable& tbl, int row, const HostData& hd )
 {
     const RowCol rc( row, sHostNameCol );
     tbl.setText( rc, hd.getHostName() );
-    tbl.setColor( rc, Color::White() );
+    tbl.setCellColor( rc, Color::White() );
 }
 
 
@@ -394,7 +394,7 @@ void uiBatchHostsDlg::checkIPAddress( int row )
     const RowCol curcell = RowCol(row,sIPCol);
     const char* ipaddress = hd.getIPAddress();
     const bool isok = System::lookupHost( ipaddress );
-    table_->setColor( curcell, getCellColor(isok) );
+    table_->setCellColor( curcell, getCellColor(isok) );
 }
 
 
@@ -424,7 +424,7 @@ void uiBatchHostsDlg::hostNameChanged( int row )
     hd.setHostName( hostname );
 
     const FixedString ipaddress = System::hostAddress( hostname );
-    table_->setColor( curcell, getCellColor(!ipaddress.isEmpty()) );
+    table_->setCellColor( curcell, getCellColor(!ipaddress.isEmpty()) );
 
     if ( autobox_->isChecked() )
     {

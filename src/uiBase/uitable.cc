@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uitable.h"
 
 #include "uiclipboard.h"
+#include "uicolor.h"
 #include "uicombobox.h"
 #include "uifont.h"
 #include "uilabel.h"
@@ -20,7 +21,6 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uistrings.h"
 #include "uivirtualkeyboard.h"
-#include "uilabel.h"
 
 #include "bufstringset.h"
 #include "convert.h"
@@ -33,36 +33,8 @@ ________________________________________________________________________
 #include <QDesktopWidget>
 #include <QHeaderView>
 #include <QMouseEvent>
-#include <QPainter>
-#include <QStyledItemDelegate>
 
 mUseQtnamespace
-
-
-/* Idea from:
-http://www.qtforum.org/article/34125/disable-qtablewidget-selection-color.html
-*/
-
-class BackgroundDelegate : public QStyledItemDelegate
-{
-public:
-BackgroundDelegate( QObject* qobj )
-    : QStyledItemDelegate(qobj)
-{
-}
-
-void paint( QPainter* painter, const QStyleOptionViewItem& option,
-	    const QModelIndex& index) const
-{
-    // Give cells their original background color
-    QVariant background = index.data( Qt::BackgroundRole );
-    if ( background.canConvert<QBrush>() )
-	painter->fillRect( option.rect, background.value<QBrush>() );
-
-    QStyledItemDelegate::paint( painter, option, index );
-}
-
-};
 
 
 class CellObject
@@ -175,8 +147,6 @@ uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
     setHorizontalScrollMode( QAbstractItemView::ScrollPerPixel );
 
     setMouseTracking( true );
-
-    setItemDelegate( new BackgroundDelegate(this) );
 }
 
 
@@ -505,6 +475,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , selectionDeleted(this)
     , rowClicked(this)
     , columnClicked(this)
+    , colorSelectionChanged(this)
     , istablereadonly_(false)
     , seliscols_(false)
 {
@@ -879,57 +850,59 @@ void uiTable::setRowReadOnly( int row, bool yn )
 }
 
 
-bool uiTable::isColumnReadOnly( int col ) const
+bool uiTable::isColumnReadOnly( int colidx ) const
 {
-    int nritems = 0;
-    int nrro = 0;
-    for ( int row=0; row<nrRows(); row++ )
+    const int nrrows = nrRows();
+    if ( nrrows < 1 )
+	return false;
+
+    for ( int irow=0; irow<nrrows; irow++ )
     {
-	QTableWidgetItem* itm = body_->item( row, col );
-	if ( itm )
-	{
-	    nritems ++;
-	    if ( !itm->flags().testFlag(Qt::ItemIsEditable) )
-		nrro++;
-	}
+	QTableWidgetItem* itm = body_->item( irow, colidx );
+	if ( itm && itm->flags().testFlag(Qt::ItemIsEditable) )
+	    return false;
     }
 
-    return nritems && nritems==nrro;
+    return true;
 }
 
 
-bool uiTable::isRowReadOnly( int row ) const
+bool uiTable::isRowReadOnly( int rowidx ) const
 {
-    int nritems = 0;
-    int nrro = 0;
-    for ( int col=0; col<nrCols(); col++ )
+    const int nrcols = nrCols();
+    if ( nrcols < 1 )
+	return false;
+
+    for ( int icol=0; icol<nrcols; icol++ )
     {
-	QTableWidgetItem* itm = body_->item( row, col );
-	if ( itm )
-	{
-	    nritems++;
-	    if ( !itm->flags().testFlag(Qt::ItemIsEditable) )
-		nrro++;
-	}
+	QTableWidgetItem* itm = body_->item( rowidx, icol );
+	if ( itm && !itm->flags().testFlag(Qt::ItemIsEditable) )
+	    return false;
     }
 
-    return nritems && nritems==nrro;
+    return true;
 }
 
 
-void uiTable::hideColumn( int col, bool yn )
+void uiTable::hideColumn( int colidx, bool yn )
 {
     mBlockCmdRec;
-    if ( yn ) body_->hideColumn( col );
-    else body_->showColumn( col );
+    if ( yn )
+	body_->hideColumn( colidx );
+    else
+	body_->showColumn( colidx );
 }
 
-void uiTable::hideRow( int col, bool yn )
+
+void uiTable::hideRow( int colidx, bool yn )
 {
     mBlockCmdRec;
-    if ( yn ) body_->hideRow( col );
-    else body_->showRow( col );
+    if ( yn )
+	body_->hideRow( colidx );
+    else
+	body_->showRow( colidx );
 }
+
 
 bool uiTable::isColumnHidden( int col ) const
 { return body_->isColumnHidden(col); }
@@ -949,7 +922,6 @@ void uiTable::setTopHeaderHidden( bool yn )
 
 void uiTable::setLeftHeaderHidden( bool yn )
 { body_->verticalHeader()->setVisible( !yn ); }
-
 
 
 void uiTable::resizeHeaderToContents( bool hor )
@@ -1020,46 +992,131 @@ void uiTable::setPixmap( const RowCol& rc, const uiPixmap& pm )
 }
 
 
-void uiTable::setColor( const RowCol& rc, const Color& col )
+static inline QColor getQCol( const Color& col )
 {
-    mBlockCmdRec;
-    QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
-    QTableWidgetItem* itm = body_->getItem( rc );
-    if ( itm ) itm->setBackground( qcol );
-    body_->setFocus();
+    return QColor( col.r(), col.g(), col.b(), 255-col.t() );
 }
 
 
-Color uiTable::getColor( const RowCol& rc ) const
+static inline Color getODCol( const QColor& qcol )
 {
-    QTableWidgetItem* itm = body_->getItem( rc, false );
-    if ( !itm ) return Color(255,255,255);
-
-    const QColor qcol = itm->background().color();
     return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
+}
+
+
+class uiTableCellColSelector : public uiColorInput
+{
+public:
+
+uiTableCellColSelector( const Setup& su, const RowCol& rc, uiTable* tbl )
+    : uiColorInput(0,su,BufferString("CTSel ",rc.toString()))
+    , rowcol_(rc)
+    , tbl_(tbl)
+{
+    mAttachCB( colorChanged, uiTableCellColSelector::colChgCB );
+}
+
+~uiTableCellColSelector()
+{
+    detachAllNotifiers();
+}
+
+void colChgCB( CallBacker* )
+{
+    tbl_->colorSelectionChanged.trigger( rowcol_ );
+}
+
+    const RowCol	rowcol_;
+    uiTable*		tbl_;
+
+};
+
+
+void uiTable::setColorSelectionCell( const RowCol& rc, bool withtr )
+{
+    uiGroup* cellgrp = getCellGroup( rc );
+    mDynamicCastGet( uiTableCellColSelector*, colsel, cellgrp );
+    if ( colsel )
+	return;
+
+    uiColorInput::Setup cisu( Color::White(),
+		withtr ? uiColorInput::Setup::InSelector
+		       : uiColorInput::Setup::None );
+    cisu.withdesc( false );
+    colsel = new uiTableCellColSelector( cisu, rc, this );
+    setCellGroup( rc, colsel );
+}
+
+
+void uiTable::setCellColor( const RowCol& rc, const Color& col )
+{
+    uiGroup* cellgrp = getCellGroup( rc );
+    mDynamicCastGet( uiTableCellColSelector*, colsel, cellgrp );
+    if ( colsel )
+	colsel->setColor( col );
+    else
+    {
+	QTableWidgetItem* itm = body_->getItem( rc );
+	if ( itm )
+	    itm->setBackgroundColor( getQCol(col) );
+    }
+}
+
+
+Color uiTable::getCellColor( const RowCol& rc ) const
+{
+    uiGroup* cellgrp = getCellGroup( rc );
+    mDynamicCastGet( uiTableCellColSelector*, colsel, cellgrp );
+    if ( colsel )
+	return colsel->color();
+    else
+    {
+	const QTableWidgetItem* itm = body_->getItem( rc, false );
+	return itm ? getODCol( itm->background().color() ) : Color::White();
+    }
+}
+
+
+void uiTable::setRowBackground( int rowidx, const Color& col )
+{
+    const int nrcols = nrCols();
+    const QColor qcol = getQCol( col );
+    for ( int icol=0; icol<nrcols; icol++ )
+    {
+	QTableWidgetItem* itm = body_->item( rowidx, icol );
+	if ( itm )
+	    itm->setBackground( qcol );
+    }
+}
+
+
+void uiTable::setColumnBackground( int colidx, const Color& col )
+{
+    const int nrrows = nrRows();
+    const QColor qcol = getQCol( col );
+    for ( int irow=0; irow<nrrows; irow++ )
+    {
+	QTableWidgetItem* itm = body_->item( irow, colidx );
+	if ( itm )
+	    itm->setBackground( qcol );
+    }
 }
 
 
 void uiTable::setHeaderBackground( int idx, const Color& col, bool isrow )
 {
     QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
-					    : body_->horizontalHeaderItem( idx);
-    if ( !itm )
-	return;
-
-    QColor qcol( col.r(), col.g(), col.b() );
-    itm->setBackground( qcol );
+				  : body_->horizontalHeaderItem( idx);
+    if ( itm )
+	itm->setBackground( getQCol(col) );
 }
 
 
 Color uiTable::getHeaderBackground( int idx, bool isrow ) const
 {
-    QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
-					    : body_->horizontalHeaderItem( idx);
-    if ( !itm ) return Color(255,255,255);
-
-    const QColor qcol = itm->background().color();
-    return Color( qcol.red(), qcol.green(), qcol.blue() );
+    const QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
+					: body_->horizontalHeaderItem( idx );
+    return itm ? getODCol( itm->background().color() ) : Color::White();
 }
 
 
@@ -1108,7 +1165,7 @@ void uiTable::setRowToolTip( int row, const uiString& tt )
 void uiTable::setLabelBGColor( int rc, Color c, bool isrow )
 {
     QTableWidgetItem& qw = body_->getRCItem( rc, isrow );
-    qw.setBackground( QBrush(QColor(c.r(),c.g(), c.b(),255)) );
+    qw.setBackground( QBrush(getQCol(c)) );
 }
 
 

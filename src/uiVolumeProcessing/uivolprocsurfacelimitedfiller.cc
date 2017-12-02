@@ -249,7 +249,7 @@ void uiSurfaceLimitedFiller::addSurfaceTableEntry( const IOObj& ioobj,
 	pars.get( sKey::Color(), col );
     }
 
-    table_->setColor( RowCol(row,cColorCol), col );
+    table_->setCellColor( RowCol(row,cColorCol), col );
     table_->setCellReadOnly( RowCol(row,cColorCol), true );
 }
 

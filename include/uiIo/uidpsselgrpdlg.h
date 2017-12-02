@@ -37,4 +37,7 @@ protected:
     void				remSelGrp(CallBacker*);
     void				changeColCB(CallBacker*);
     void				calcSelectedness(CallBacker*);
+
+    void				setColorCell(int,const Color&);
+
 };
