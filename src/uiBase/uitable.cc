@@ -38,6 +38,18 @@ ________________________________________________________________________
 mUseQtnamespace
 
 
+static inline QColor getQCol( const Color& col )
+{
+    return QColor( col.r(), col.g(), col.b(), 255-col.t() );
+}
+
+
+static inline Color getODCol( const QColor& qcol )
+{
+    return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
+}
+
+
 class CellObject
 {
     public:
@@ -91,6 +103,7 @@ public:
     QTableWidgetItem&	getRCItem(int,bool isrow);
 
 protected:
+
     virtual void	contextMenuEvent(QContextMenuEvent*);
     virtual void	mousePressEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
@@ -362,6 +375,7 @@ QTableWidgetItem* uiTableBody::getItem( const RowCol& rc, bool createnew )
     if ( !itm && createnew )
     {
 	itm = new QTableWidgetItem;
+	itm->setBackgroundColor( getQCol(Color::White()) );
 	setItem( rc.row(), rc.col(), itm );
     }
 
@@ -987,18 +1001,6 @@ void uiTable::setPixmap( const RowCol& rc, const uiPixmap& pm )
     mBlockCmdRec;
     QTableWidgetItem* itm = body_->getItem( rc );
     if ( itm ) itm->setIcon( *pm.qpixmap() );
-}
-
-
-static inline QColor getQCol( const Color& col )
-{
-    return QColor( col.r(), col.g(), col.b(), 255-col.t() );
-}
-
-
-static inline Color getODCol( const QColor& qcol )
-{
-    return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
 }
 
 

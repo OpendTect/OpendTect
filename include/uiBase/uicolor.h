@@ -97,8 +97,10 @@ private:
     bool			selwithtransp_;
     TypeSet<Color>		desccolors_;
 
+    void			initFlds(CallBacker*);
     void			selCol(CallBacker*);
     void			dodrawSel(CallBacker*);
     void			descSel(CallBacker*);
     void			transpChg(CallBacker*);
+
 };

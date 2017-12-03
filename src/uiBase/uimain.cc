@@ -410,7 +410,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     {
 	qssfnm = GetEnvVar( "OD_STYLESHEET" );
 	if ( qssfnm.isEmpty() )
-	    qssfnm = mGetSetupFileName( "od.css" );
+	    qssfnm = mGetSetupFileName( "od.qss" );
     }
 
     if ( File::exists(qssfnm) )

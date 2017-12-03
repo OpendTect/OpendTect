@@ -186,7 +186,6 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	descfld_->setHSzPol( uiObject::MedMax );
     }
 
-    setColor( color_ );
     if ( lbl_ || dodrawbox_ )
 	setHAlignObj( colbut_ );
     else if ( transpfld_ )
@@ -195,6 +194,14 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	setHAlignObj( descfld_ );
     else
 	setHAlignObj( colbut_ );
+
+    postFinalise().notify( mCB(this,uiColorInput,initFlds) );
+}
+
+
+void uiColorInput::initFlds( CallBacker* )
+{
+    setColor( color_ );
 }
 
 
@@ -274,7 +281,7 @@ void uiColorInput::setColor( const Color& col )
 {
     color_ = col;
 
-    uiPixmap pm( colbut_->prefHNrPics()-10, colbut_->prefVNrPics()-10 );
+    uiPixmap pm( colbut_->width(), colbut_->height() );
     pm.fill( color_ );
     colbut_->setPixmap( pm );
     if ( transpfld_ )
