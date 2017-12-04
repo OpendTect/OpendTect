@@ -18,12 +18,12 @@ namespace Attrib
 
 /*!\brief unique ID in a DescSet combined with whether it's stored.  */
 
-mExpClass(AttributeEngine) DescID : public ::IntegerID<int>
+class DescID : public ::IntegerID<int>
 {
 public:
 
     inline		DescID()		{}
-    explicit		DescID( int n )
+    inline explicit	DescID( int n )
 			    : IntegerID<int>(n)	{}
     inline explicit	operator int() const	{ return this->nr_; }
 
@@ -35,7 +35,7 @@ public:
     inline bool		isUnselInvalid() const	{ return nr_ < -2; }
     inline void		setUnselInvalid()	{ nr_ = -3; }
 
-    static inline DescID	getInvalid()	{ return DescID(); }
+    static inline DescID getInvalid()		{ return DescID(); }
 
     mDeprecated static DescID	undef()		{ return getInvalid(); }
     mDeprecated int&	asInt()			{ return getI(); }
