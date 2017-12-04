@@ -280,11 +280,12 @@ FlatView::AuxData::AuxData( const char* nm )
     , editpermissions_( 0 )
     , turnon_(true)
     , needsupdatelines_(true)
+    , fitnameinview_(true)
 {
 }
 
 
-FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
+FlatView::AuxData::AuxData( const FlatView::AuxData& aux )
     : name_( aux.name_ )
     , namepos_( aux.namepos_ )
     , namealignment_( aux.namealignment_ )
@@ -300,7 +301,8 @@ FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
 	    ? new EditPermissions(*aux.editpermissions_) : 0 )
     , poly_( aux.poly_ )
     , turnon_(true)
-    , needsupdatelines_(true)
+    , needsupdatelines_(aux.needsupdatelines_)
+    , fitnameinview_(aux.fitnameinview_)
 {
 }
 
