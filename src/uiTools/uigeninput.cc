@@ -662,15 +662,15 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     switch( desc.type().rep() )
     {
 
-    case DataType::boolTp:
+    case InpDataType::boolTp:
     {
 	fld = new uiBoolInpFld( this, desc );
     }
     break;
 
-    case DataType::stringTp:
+    case InpDataType::stringTp:
     {
-	if ( desc.type().form() == DataType::list )
+	if ( desc.type().form() == InpDataType::list )
 	{
 	    mDynamicCastGet(const StringListInpSpec*, strlist, &desc );
 	    if ( strlist )
@@ -679,7 +679,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	    }
 	}
 
-	else if ( desc.type().form() == DataType::filename )
+	else if ( desc.type().form() == InpDataType::filename )
 	    fld = new uiFileInputFld( this, desc );
 
 	else
@@ -687,35 +687,35 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     }
     break;
 
-    case DataType::floatTp:
-    case DataType::doubleTp:
-    case DataType::intTp:
-    case DataType::int64Tp:
+    case InpDataType::floatTp:
+    case InpDataType::doubleTp:
+    case InpDataType::intTp:
+    case InpDataType::int64Tp:
     {
-	if ( desc.type().form() == DataType::interval )
+	if ( desc.type().form() == InpDataType::interval )
 	{
 	    switch( desc.type().rep() )
 	    {
-	    case DataType::int64Tp:
+	    case InpDataType::int64Tp:
 		{ pErrMsg("int 64 intervals need support"); }
-	    case DataType::intTp:
+	    case InpDataType::intTp:
 		fld = new uiIntIntervalInpFld( this, desc, name() );
 	    break;
-	    case DataType::floatTp:
+	    case InpDataType::floatTp:
 		fld = new uiIntervalInpFld<float>( this, desc, name() );
 	    break;
-	    case DataType::doubleTp:
+	    case InpDataType::doubleTp:
 		fld = new uiIntervalInpFld<double>( this, desc, name() );
 	    break;
 	    default:
 	    break;
 	    }
 	}
-	else if ( desc.type().form() == DataType::position )
+	else if ( desc.type().form() == InpDataType::position )
 	    fld = new uiPositionInpFld( this, desc, name() );
-	else if ( desc.type() == DataType::intTp )
+	else if ( desc.type() == InpDataType::intTp )
 	    fld = new uiIntInputFld( this, desc, name() );
-	else if ( desc.type() == DataType::int64Tp )
+	else if ( desc.type() == InpDataType::int64Tp )
 	    fld = new uiInt64InputFld( this, desc, name() );
 	else
 	    fld = new uiTextInputFld( this, desc );
@@ -726,7 +726,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     if ( ! fld )
 	{ pErrMsg("huh"); fld = new uiTextInputFld( this, desc ); }
 
-    const bool ispos = desc.type().form() == DataType::position;
+    const bool ispos = desc.type().form() == InpDataType::position;
     uiObject* other= flds_.size() ? flds_[ flds_.size()-1 ]->mainObj() : 0;
     if ( other )
 	fld->mainObj()->attach( ispos ? alignedBelow : rightTo, other );
@@ -1095,7 +1095,7 @@ bool uiGenInput::isUndef( int nr ) const
 Coord uiGenInput::getCoord( int nr, double udfval ) const
 {
     const DataInpSpec* dis = dataInpSpec( nr );
-    if ( !dis || dis->type().form() != DataType::position )
+    if ( !dis || dis->type().form() != InpDataType::position )
 	return Coord( getDValue(nr*2,udfval), getDValue(nr*2+1,udfval));
 
     mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])
@@ -1107,7 +1107,7 @@ Coord uiGenInput::getCoord( int nr, double udfval ) const
 BinID uiGenInput::getBinID( int nr, int udfval ) const
 {
     const DataInpSpec* dis = dataInpSpec( nr );
-    if ( !dis || dis->type().form() != DataType::position )
+    if ( !dis || dis->type().form() != InpDataType::position )
 	return BinID( getIntValue(nr*2,udfval), getIntValue(nr*2+1,udfval));
 
     mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])
@@ -1119,7 +1119,7 @@ BinID uiGenInput::getBinID( int nr, int udfval ) const
 float uiGenInput::getOffset( int nr, float udfval ) const
 {
     const DataInpSpec* dis = dataInpSpec( nr );
-    if ( !dis || dis->type().form() != DataType::position )
+    if ( !dis || dis->type().form() != InpDataType::position )
 	return getFValue(nr,udfval);
 
     mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])
@@ -1131,7 +1131,7 @@ float uiGenInput::getOffset( int nr, float udfval ) const
 int uiGenInput::getTrcNr( int nr, int udfval ) const
 {
     const DataInpSpec* dis = dataInpSpec( nr );
-    if ( !dis || dis->type().form() != DataType::position )
+    if ( !dis || dis->type().form() != InpDataType::position )
 	return getIntValue(nr,udfval);
 
     mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])

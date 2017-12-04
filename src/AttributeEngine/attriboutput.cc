@@ -515,7 +515,7 @@ bool SeisTrcStorOutput::writeTrc()
 	}
 
 	if ( transl && !outptypes_.isEmpty() )
-	    transl->setDataType( (Seis::DataType)outptypes_[0] );
+	    transl->setDataType( outptypes_[0] );
 
 	storinited_ = true;
     }

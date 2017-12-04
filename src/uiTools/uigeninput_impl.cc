@@ -222,11 +222,11 @@ void uiGenInputInputFld::init()
 
 	switch( spec_.type().rep() )
 	{
-	case DataType::stringTp:
-	case DataType::boolTp:
+	case InpDataType::stringTp:
+	case InpDataType::boolTp:
 	    hpol = nel > 1 ? uiObject::SmallVar : uiObject::MedVar;
 	break;
-	case DataType::intTp:
+	case InpDataType::intTp:
 	    hpol = uiObject::Small;
 	break;
 	default:

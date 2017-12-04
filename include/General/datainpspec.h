@@ -22,26 +22,24 @@ ________________________________________________________________________
 
 class EnumDef;
 
-/*!
-\brief Data type.
-*/
+/*!\brief Data type. */
 
-mExpClass(General) DataType
-{ mODTextTranslationClass(DataType)
+mExpClass(General) InpDataType
+{ mODTextTranslationClass(InpDataType)
 public:
 
     enum	Rep  { intTp, int64Tp, floatTp, doubleTp, boolTp, stringTp };
     enum	Form { normal, interval, filename, position, list };
 
-		DataType( Rep tp, Form frm=normal )
+		InpDataType( Rep tp, Form frm=normal )
 		    : rep_( tp ), form_(frm) {}
 
     inline Rep	rep() const		{ return rep_; }
     inline Form	form() const		{ return form_; }
 
-    bool	operator==( const DataType& oth ) const
+    bool	operator==( const InpDataType& oth ) const
 		    { return (rep_==oth.rep_) && (form_==oth.form_); }
-    bool	operator!=( const DataType& oth ) const
+    bool	operator!=( const InpDataType& oth ) const
 		    { return ! (oth == *this); }
 
 
@@ -53,18 +51,16 @@ protected:
 };
 
 
-/*!
-\brief DataType implementation.
-*/
+/*!\brief InpDataType implementation.  */
 
 template<class T>
-mClass(General) DataTypeImpl : public ::DataType
-{ mODTextTranslationClass(DataTypeImpl)
+mClass(General) InpDataTypeImpl : public InpDataType
+{ mODTextTranslationClass(InpDataTypeImpl)
 public:
 
 
-			DataTypeImpl( Form frm=normal )
-			    : ::DataType( rep__( (T)0 ), frm ) {}
+			InpDataTypeImpl( Form frm=normal )
+			    : InpDataType( rep__( (T)0 ), frm ) {}
 protected:
 
     inline Rep		rep__( int i )    const	{ return intTp; }
@@ -90,11 +86,11 @@ mExpClass(General) DataInpSpec
 public:
 
 
-			DataInpSpec(::DataType);
+			DataInpSpec(InpDataType);
 			DataInpSpec(const DataInpSpec&);
     virtual		~DataInpSpec()			{}
 
-    ::DataType		type() const;
+    InpDataType		type() const;
 
     virtual DataInpSpec* clone() const			=0;
     virtual int	nElems() const			{ return 1; }
@@ -141,8 +137,8 @@ public:
 
 protected:
 
-    void		setType( ::DataType t );
-    ::DataType		tp_;
+    void		setType( InpDataType t );
+    InpDataType		tp_;
     bool		prefempty_;
 
     TypeSet<int>	nameidxs_;
@@ -174,21 +170,21 @@ mClass(General) NumInpSpec : public DataInpSpec
 { mODTextTranslationClass(NumInpSpec)
 public:
 			NumInpSpec()
-			    : DataInpSpec( DataTypeImpl<T>() )
+			    : DataInpSpec( InpDataTypeImpl<T>() )
 			    , limits_(0)
 			    { mSetUdf( value_ ); mSetUdf( defaultvalue_ ); }
 			NumInpSpec( T val )
-			    : DataInpSpec( DataTypeImpl<T>() )
+			    : DataInpSpec( InpDataTypeImpl<T>() )
 			    , limits_(0)
 			    , value_(val)
 			    { mSetUdf( defaultvalue_ ); }
 			NumInpSpec( T val, T start, T stop=mUdf(T), T step=1)
-			    : DataInpSpec(DataTypeImpl<T>())
+			    : DataInpSpec(InpDataTypeImpl<T>())
 			    , limits_(new StepInterval<T>(start,stop,step))
 			    , value_(val)
 			    { mSetUdf( defaultvalue_ ); }
 			NumInpSpec( T val, const StepInterval<T>& intv )
-			    : DataInpSpec(DataTypeImpl<T>())
+			    : DataInpSpec(InpDataTypeImpl<T>())
 			    , limits_(new StepInterval<T>(intv))
 			    , value_(val)
 			    { mSetUdf( defaultvalue_ ); }
@@ -309,7 +305,8 @@ mClass(General) NumInpIntervalSpec : public DataInpSpec
 { mODTextTranslationClass(NumInpIntervalSpec)
 public:
 			NumInpIntervalSpec( bool withstep=false )
-			    : DataInpSpec(DataTypeImpl<T>(::DataType::interval))
+			    : DataInpSpec(InpDataTypeImpl<T>(
+						    InpDataType::interval))
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
 			    , symm_(false)
 			    , wsymm_(false)
@@ -330,7 +327,8 @@ public:
 			{}
 
 			NumInpIntervalSpec( const Interval<T>& interval )
-			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
+			    : DataInpSpec( InpDataTypeImpl<T>(
+						InpDataType::interval) )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
 			    , symm_(false)
 			    , wsymm_(false)

@@ -15,7 +15,7 @@
 const char* DataInpSpec::valuestr = "Val";
 
 
-DataInpSpec::DataInpSpec( DataType t )
+DataInpSpec::DataInpSpec( InpDataType t )
     : tp_(t), prefempty_(true)
 {}
 
@@ -26,7 +26,7 @@ DataInpSpec::DataInpSpec( const DataInpSpec& o )
 {}
 
 
-DataType DataInpSpec::type() const
+InpDataType DataInpSpec::type() const
 { return tp_; }
 
 
@@ -142,7 +142,7 @@ const char* DataInpSpec::getDefaultStringValue( int idx ) const
 { return ""; }
 
 
-void DataInpSpec::setType( DataType t )
+void DataInpSpec::setType( InpDataType t )
 { tp_ = t; }
 
 
@@ -170,7 +170,7 @@ DataInpSpec& DataInpSpec::setName( const char* nm, int idx )
 
 
 StringInpSpec::StringInpSpec( const char* s )
-    : DataInpSpec( DataTypeImpl<const char*>() )
+    : DataInpSpec( InpDataTypeImpl<const char*>() )
     , isUndef_(s?false:true), str_( s )
 {}
 
@@ -217,7 +217,7 @@ const char* StringInpSpec::getDefaultStringValue( int idx ) const
 FileNameInpSpec::FileNameInpSpec( const char* fname )
     : StringInpSpec( fname )
 {
-    setType( DataTypeImpl<const char*>( DataType::filename ) );
+    setType( InpDataTypeImpl<const char*>( InpDataType::filename ) );
 }
 
 
@@ -228,7 +228,7 @@ DataInpSpec* FileNameInpSpec::clone() const
 
 BoolInpSpec::BoolInpSpec( bool yesno, const uiString& truetxt,
 			  const uiString& falsetxt, bool setyn )
-    : DataInpSpec( DataTypeImpl<bool>() )
+    : DataInpSpec( InpDataTypeImpl<bool>() )
     , truetext_(!truetxt.isEmpty() ? truetxt : uiStrings::sYes() )
     , yn_(yesno)
     , defaultyn_(true)
@@ -316,7 +316,7 @@ void BoolInpSpec::setDefaultValue( bool b, int idx )
 
 
 StringListInpSpec::StringListInpSpec( const BufferStringSet& bss )
-    : DataInpSpec( DataTypeImpl<const char*> (DataType::list) )
+    : DataInpSpec( InpDataTypeImpl<const char*> (InpDataType::list) )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
@@ -328,7 +328,7 @@ StringListInpSpec::StringListInpSpec( const BufferStringSet& bss )
 
 
 StringListInpSpec::StringListInpSpec( const char** sl )
-    : DataInpSpec( DataTypeImpl<const char*>(DataType::list) )
+    : DataInpSpec( InpDataTypeImpl<const char*>(InpDataType::list) )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
@@ -340,7 +340,7 @@ StringListInpSpec::StringListInpSpec( const char** sl )
 }
 
 StringListInpSpec::StringListInpSpec( const uiString* strs )
-    : DataInpSpec( DataTypeImpl<const char*>(DataType::list) )
+    : DataInpSpec( InpDataTypeImpl<const char*>(InpDataType::list) )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
@@ -352,7 +352,7 @@ StringListInpSpec::StringListInpSpec( const uiString* strs )
 
 
 StringListInpSpec::StringListInpSpec( const EnumDef& enums )
-    : DataInpSpec( DataTypeImpl<const char*>(DataType::list) )
+    : DataInpSpec( InpDataTypeImpl<const char*>(InpDataType::list) )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
@@ -375,7 +375,7 @@ StringListInpSpec::StringListInpSpec( const StringListInpSpec& oth )
 
 
 StringListInpSpec::StringListInpSpec( const uiStringSet& sl )
-    : DataInpSpec( DataTypeImpl<const char*> (DataType::list) )
+    : DataInpSpec( InpDataTypeImpl<const char*> (InpDataType::list) )
     , cur_(0)
     , defaultval_(0)
     , isset_(0)
@@ -531,7 +531,7 @@ void StringListInpSpec::setDefaultValue( int i, int idx )
 
 
 PositionInpSpec::PositionInpSpec( const PositionInpSpec::Setup& s )
-    : DataInpSpec( DataTypeImpl<float>(DataType::position) )
+    : DataInpSpec( InpDataTypeImpl<float>(InpDataType::position) )
     , setup_(s)
 {
     defsetup_.clear();
@@ -539,7 +539,7 @@ PositionInpSpec::PositionInpSpec( const PositionInpSpec::Setup& s )
 
 
 PositionInpSpec::PositionInpSpec( const BinID& bid, bool isps )
-    : DataInpSpec( DataTypeImpl<float>(DataType::position) )
+    : DataInpSpec( InpDataTypeImpl<float>(InpDataType::position) )
 {
     setup_ = Setup( false, false, isps );
     setup_.binid_ = bid;
@@ -547,7 +547,7 @@ PositionInpSpec::PositionInpSpec( const BinID& bid, bool isps )
 
 
 PositionInpSpec::PositionInpSpec( const Coord& c, bool isps, bool is2d )
-    : DataInpSpec( DataTypeImpl<float>(DataType::position) )
+    : DataInpSpec( InpDataTypeImpl<float>(InpDataType::position) )
 {
     setup_ = Setup( true, is2d, isps );
     setup_.coord_ = c;
@@ -555,7 +555,7 @@ PositionInpSpec::PositionInpSpec( const Coord& c, bool isps, bool is2d )
 
 
 PositionInpSpec::PositionInpSpec( int trcnr, bool isps )
-    : DataInpSpec( DataTypeImpl<float>(DataType::position) )
+    : DataInpSpec( InpDataTypeImpl<float>(InpDataType::position) )
 {
     setup_ = Setup( false, true, isps );
     setup_.binid_.crl() = trcnr;

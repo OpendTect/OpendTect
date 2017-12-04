@@ -77,10 +77,10 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
     , UserInputObjImpl<const char*>()
 {
     setText( spec.text() );
-    if ( spec.type().rep() == DataType::floatTp ||
-	 spec.type().rep() == DataType::doubleTp )
+    if ( spec.type().rep() == InpDataType::floatTp ||
+	 spec.type().rep() == InpDataType::doubleTp )
 	body_->setValidator( new QDoubleValidator );
-    else if ( spec.type().rep() == DataType::intTp )
+    else if ( spec.type().rep() == InpDataType::intTp )
 	body_->setValidator( new QIntValidator );
 }
 
