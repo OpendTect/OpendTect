@@ -16,7 +16,7 @@ ___________________________________________________________________
 #include "emposid.h"
 
 
-mExpClass(Geometry) EMProbe : public Probe
+mExpClass(EarthModel) EMProbe : public Probe
 {
 public:
 
@@ -44,7 +44,7 @@ protected:
 };
 
 
-mExpClass(Geometry) Horizon3DProbe : public EMProbe
+mExpClass(EarthModel) Horizon3DProbe : public EMProbe
 {
 public:
 
