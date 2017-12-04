@@ -40,13 +40,13 @@ public:
 
     int                 nrAttribs() const { return 1; }
 
-    Seis::DataType	dataType(int,const TypeSet<Seis::DataType>&) const
+    DataType		dataType( int, const TypeSet<DataType>& ) const
 			{ return Seis::UnknownData; }
 
     const Interval<float>* inlDipMargin(int,int) const { return 0; }
     const Interval<float>* crlDipMargin(int,int) const { return 0; }
 
-    const char*	definitionStr() const { return desc; }
+    const char*		definitionStr() const { return desc; }
 protected:
 
     BufferString	desc;

@@ -6,6 +6,7 @@
 
 
 #include "nlacrdesc.h"
+#include "nlamodel.h"
 
 #include "datacoldef.h"
 #include "dbman.h"
@@ -19,6 +20,13 @@
 
 static const char* nladatatyps[] = { "Training data", "Test data",
 		"Misclassified training data", "Misclassified test data", 0 };
+
+
+bool isEmpty( const NLAModel* mdl )
+{
+    return !mdl || mdl->isEmpty();
+}
+
 
 const char** NLACreationDesc::DataTypeNames()
 {

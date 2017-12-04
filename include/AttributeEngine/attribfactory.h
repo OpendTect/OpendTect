@@ -10,20 +10,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attributeenginecommon.h"
 #include "sets.h"
 
 namespace Attrib
 {
 
-class Desc;
 class Provider;
-
 typedef Provider* (*ProviderCreater)(Desc&);
 
-/*!
-\brief Factory for attribute providers.
-*/
+
+/*!\brief Factory for attribute providers. */
 
 mExpClass(AttributeEngine) ProviderFactory
 {

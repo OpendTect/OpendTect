@@ -10,10 +10,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attribsel.h"
 #include "probe.h"
 #include "datapack.h"
-#include "attribsel.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 

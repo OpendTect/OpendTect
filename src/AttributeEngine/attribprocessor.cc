@@ -316,7 +316,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 	mDynamicCastGet( SeisTrcStorOutput*, storoutp, outputs_[0] );
 	if ( storoutp )
 	{
-	    TypeSet<Seis::DataType> outptypes;
+	    TypeSet<DataType> outptypes;
 	    for ( int ido=0; ido<outpinterest_.size(); ido++ )
 		outptypes += provider_->getDesc().dataType(outpinterest_[ido]);
 

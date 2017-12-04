@@ -54,12 +54,11 @@ public:
     const Interval<float>*	crlDipMargin(int,int) const { return 0;}
 
 
-    int nrAttribs() const { return 1; }
+    int			nrAttribs() const { return 1; }
     const char*		definitionStr() const { return desc; }
 
-    virtual Seis::DataType	dataType(int val,
-					 const TypeSet<Seis::DataType>&) const
-				{ return val?Seis::UnknowData:Seis::Dip; }
+    virtual DataType	dataType( int val, const TypeSet<DataType>& ) const
+			{ return val ? Seis::UnknowData : Seis::Dip; }
 
 protected:
 

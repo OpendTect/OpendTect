@@ -102,8 +102,7 @@ public:
 				    return 0;
 				}
 
-    Seis::DataType		dataType(int,
-					 const TypeSet<Seis::DataType>&) const
+    DataType		dataType( int, const TypeSet<DataType>& ) const
 				{ return Seis::UnknowData; }
 
     const char*		definitionStr() const { return desc; }

@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "attribdescid.h"
 #include "refcount.h"
 #include "bufstring.h"
@@ -23,13 +22,10 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-class Desc;
 class Param;
-class DescSet;
 class ValParam;
 
 typedef void		(*DescUpdater)(Desc&);
-typedef Seis::DataType	DataType;
 
 
 /*!\brief A setup class for desc */

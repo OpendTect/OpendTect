@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attributeenginecommon.h"
 #include "bufstring.h"
 #include "fixedstring.h"
 

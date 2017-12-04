@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "attribprovider.h"
 #include "bindatadesc.h"
 #include "datapack.h"
@@ -27,9 +26,7 @@ namespace Attrib
 
 class DataHolder;
 
-/*!
-\brief Attribute storage provider.
-*/
+/*!\brief Attribute storage provider. */
 
 mExpClass(AttributeEngine) StorageProvider : public Provider
 { mODTextTranslationClass(StorageProvider)

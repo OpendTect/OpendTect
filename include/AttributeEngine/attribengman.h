@@ -9,12 +9,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attribdescid.h"
+#include "attribsel.h"
 #include "sets.h"
 #include "ranges.h"
 #include "bufstring.h"
-#include "attribdescid.h"
-#include "attribsel.h"
 #include "uistring.h"
 
 class BinIDValueSet;
@@ -31,14 +30,10 @@ class SeisTrcInfo;
 namespace Attrib
 {
 class SeisTrcStorOutput;
-class Desc;
-class DescSet;
 class Processor;
 class Data2DHolder;
 
-/*!
-\brief The attribute engine manager.
-*/
+/*!\brief The attribute engine manager. */
 
 mExpClass(AttributeEngine) EngineMan
 { mODTextTranslationClass(Attrib::EngineMan);

@@ -145,7 +145,7 @@ uiRetVal Seis::Provider::getComponentInfo( BufferStringSet& nms,
 					   DataType* pdt ) const
 {
     nms.setEmpty();
-    Seis::DataType dtype;
+    DataType dtype;
     uiRetVal uirv = doGetComponentInfo( nms, dtype );
     if ( uirv.isOK() && pdt )
 	*pdt = dtype;

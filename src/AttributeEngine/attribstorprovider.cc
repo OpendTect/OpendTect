@@ -79,7 +79,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     if ( !prov )
 	{ desc.setErrMsg( uirv ); return; }
 
-    BufferStringSet provcompnms; Seis::DataType dtyp;
+    BufferStringSet provcompnms; DataType dtyp;
     uirv = prov->getComponentInfo( provcompnms, &dtyp );
     if ( uirv.isError() )
 	{ desc.setErrMsg( uirv ); return; }

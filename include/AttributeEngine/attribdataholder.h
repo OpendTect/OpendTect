@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attributeenginecommon.h"
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"
 #include "refcount.h"

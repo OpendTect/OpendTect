@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attributeenginecommon.h"
 #include "ranges.h"
 #include "posinfo2dsurv.h"
 #include "uistring.h"
@@ -30,7 +30,6 @@ namespace Attrib
 
 class DataHolder;
 class DataHolderLineBuffer;
-class Desc;
 class ProviderTask;
 
 /*!

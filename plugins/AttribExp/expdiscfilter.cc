@@ -81,8 +81,8 @@ DiscFilterAttrib::DiscFilterAttrib( Parameters* param )
 DiscFilterAttrib::~DiscFilterAttrib( ) {}
 
 
-Seis::DataType DiscFilterAttrib::dataType(int val,
-				const TypeSet<Seis::DataType>& dts) const
+DataType DiscFilterAttrib::dataType( int val,
+				     const TypeSet<DataType>& dts ) const
 {
     if ( val == mDiscFilterStdDev || val == mDiscFilterVar )
         return Seis::UnknownData;

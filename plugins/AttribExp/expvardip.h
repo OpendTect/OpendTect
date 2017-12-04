@@ -96,7 +96,7 @@ public:
     const Interval<float>* crlDipMargin(int,int) const { return 0; }
 
 
-    Seis::DataType	dataType(int val,const TypeSet<Seis::DataType>&) const
+    DataType		dataType( int val, const TypeSet<DataType>& ) const
 			{ return val < 2 ? Seis::Dip : Seis::UnknownData; }
 
     const char*	definitionStr() const { return desc; }

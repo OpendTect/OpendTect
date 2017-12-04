@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attributeenginecommon.h"
 #include "factory.h"
 #include "datapack.h"
 #include "sets.h"

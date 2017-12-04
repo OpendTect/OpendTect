@@ -73,6 +73,7 @@ mExpClass(Seis) SeisTrcTranslatorGroup : public TranslatorGroup
 {   isTranslatorGroup(SeisTrc);
     mODTextTranslationClass(SeisTrcTranslatorGroup);
 public:
+
 			mDefEmptyTranslatorGroupConstructor(SeisTrc)
 
     static const char*	sKeyDefault3D() { return "Cube"; }
@@ -85,6 +86,10 @@ public:
 mExpClass(Seis) SeisTrcTranslator : public Translator
 { mODTextTranslationClass(SeisTrcTranslator);
 public:
+
+    typedef Seis::DataType	DataType;
+    typedef Seis::ReadMode	ReadMode;
+    typedef Seis::SelData	SelData;
 
     /*!\brief Information for one component
 
@@ -141,7 +146,7 @@ public:
 
 			/*! Init functions must be called, because
 			     a Conn object must always be available */
-    bool		initRead(Conn*,Seis::ReadMode rt=Seis::Prod);
+    bool		initRead(Conn*,ReadMode rt=Seis::Prod);
 			/*!< Conn* ptr will become mine, and it may be deleted
 			  immediately!After call, component and packet info
 			  will be available. Some STT's *require* a valid IOObj
@@ -155,7 +160,7 @@ public:
     virtual Conn*	curConn()			{ return conn_; }
 
     SeisPacketInfo&		packetInfo()		{ return pinfo_; }
-    const Seis::SelData*	selData() const		{ return seldata_; }
+    const SelData*		selData() const		{ return seldata_; }
     ObjectSet<TargetComponentData>& componentInfo()	{ return tarcds_; }
     const ObjectSet<TargetComponentData>&
 				componentInfo() const	{ return tarcds_; }
@@ -166,7 +171,7 @@ public:
     const SamplingData<float>&	outSD() const		{ return outsd_; }
     int				outNrSamples() const	{ return outnrsamples_;}
 
-    void		setSelData(const Seis::SelData*);
+    void		setSelData(const SelData*);
     bool		commitSelections();
 			/*!< If not called, will be called by Translator.
 			     For write, this will put tape header (if any) */
@@ -186,8 +191,8 @@ public:
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const
 							{ return false; }
 
-    Seis::DataType	dataType() const		 { return datatype_; }
-    void		setDataType( Seis::DataType dt ) { datatype_ = dt; }
+    DataType		dataType() const		 { return datatype_; }
+    void		setDataType( DataType dt )	{ datatype_ = dt; }
 			//!< The returned CubeData is assumed to be sorted!
     virtual bool	isUserSelectable(bool) const	{ return false; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
@@ -255,7 +260,7 @@ protected:
     uiString		errmsg_;
     BufferStringSet*	compnms_;
 
-    Seis::ReadMode	read_mode;
+    ReadMode		read_mode;
     bool		is_2d;
     bool		is_prestack;
     bool		enforce_regular_write;
@@ -265,12 +270,12 @@ protected:
     int					innrsamples_;
     ObjectSet<ComponentData>		cds_;
     ObjectSet<TargetComponentData>	tarcds_;
-    const Seis::SelData*		seldata_;
+    const SelData*			seldata_;
     SamplingData<float>			outsd_;
     int					outnrsamples_;
     Interval<int>			samprg_;
     Pos::GeomID				geomid_;
-    Seis::DataType			datatype_;
+    DataType				datatype_;
     bool				headerdone_;
     bool				datareaddone_;
     TraceData*				storbuf_;

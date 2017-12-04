@@ -70,7 +70,7 @@ public:
     int                 nrAttribs() const { return 3; }
 
 
-    Seis::DataType	dataType(int,const TypeSet<Seis::DataType>&) const
+    DataType		dataType( int, const TypeSet<DataType>& ) const
 			{ return Seis::UnknownData; }
     const char*	definitionStr() const { return desc; }
 

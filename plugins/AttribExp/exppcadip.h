@@ -61,7 +61,7 @@ public:
 	    )
 	, mAttribParamFormHasNoUpdate
     );
-	
+
 			PCADipAttrib( Parameters* );
 			~PCADipAttrib();
 
@@ -84,15 +84,15 @@ public:
     const Interval<float>* inlDipMargin(int,int) const { return 0; }
     const Interval<float>* crlDipMargin(int,int) const { return 0; }
 
-    Seis::DataType	dataType(int val,const TypeSet<Seis::DataType>&) const
+    DataType		dataType( int val, const TypeSet<DataType>& ) const
 			{ return Seis::Dip; }
 
-    const char* 	definitionStr() const { return desc; }
+    const char*	definitionStr() const { return desc; }
     void		setCommonInfo( const AttribProcessCommonInfo& ni )
 			{ common = &ni; }
 
 protected:
-    
+
     BufferString		desc;
     Interval<int>		sg;
     BinID			stepout;
@@ -100,7 +100,7 @@ protected:
     float			inldist;
     float			crldist;
 
-    int 			fraction;
+    int			fraction;
     const AttribProcessCommonInfo*	common;
 
     mClass(AttribExp) Task : public AttribCalc::Task
@@ -113,8 +113,8 @@ protected:
 				    : calculator ( calculator_ )
 				    , trcs( 0 ) {}
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool                set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>& );
 
@@ -134,7 +134,7 @@ protected:
 
 			    Task( const Task& );
 			    // Not impl. Only to give error if someone uses it
-	
+
 	void		    set( float , int , float ,
 				 const AttribCalc::Task::Input* ,
                                  const TypeSet<float*>& );
@@ -149,7 +149,7 @@ protected:
 				     Array2D<int>&,float&);
 
 	static float	    getMinEigenVector(  const int*, const int*,
-					    	const int*, const int*, int,
+						const int*, const int*, int,
 						int, double&, double&, double&);
 
 	AttribCalc::Task::Input* getInput() const

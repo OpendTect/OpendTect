@@ -69,6 +69,7 @@ void SeisPacketInfo::initClass()
 class SeisEnum
 {
 public:
+
     typedef Seis::SelType SelType;
 	    mDeclareEnumUtils(SelType)
     typedef Seis::GeomType GeomType;
@@ -77,6 +78,7 @@ public:
 	    mDeclareEnumUtils(WaveType)
     typedef Seis::DataType DataType;
 	    mDeclareEnumUtils(DataType)
+
 };
 
 mDefineEnumUtils(SeisEnum,SelType,"Selection type")
@@ -118,16 +120,16 @@ mDefineEnumUtils(SeisEnum,DataType,"Data type")
 	0
 };
 
-const char* Seis::nameOf( Seis::SelType st )
+const char* Seis::nameOf( SelType st )
 { return SeisEnum::toString(st); }
 
-const char* Seis::nameOf( Seis::GeomType gt )
+const char* Seis::nameOf( GeomType gt )
 { return SeisEnum::toString(gt); }
 
-const char* Seis::nameOf( Seis::DataType dt )
+const char* Seis::nameOf( DataType dt )
 { return SeisEnum::toString(dt); }
 
-const char* Seis::nameOf( Seis::WaveType wt )
+const char* Seis::nameOf( WaveType wt )
 { return SeisEnum::toString(wt); }
 
 Seis::SelType Seis::selTypeOf( const char* s )
@@ -139,7 +141,7 @@ Seis::GeomType Seis::geomTypeOf( const char* s )
 Seis::DataType Seis::dataTypeOf( const char* s )
 {
     if ( sKey::Steering() == s )
-	return Seis::Dip;
+	return Dip;
 
     return SeisEnum::DataTypeDef().parse(s);
 }
@@ -150,15 +152,15 @@ Seis::WaveType Seis::waveTypeOf( const char* s )
 const BufferStringSet& Seis::dataTypeNames()
 { return SeisEnum::DataTypeDef().keys(); }
 
-bool Seis::isAngle( Seis::DataType dt )
-{ return dt==Seis::Phase || dt==Seis::Azimuth; }
+bool Seis::isAngle( DataType dt )
+{ return dt == Phase || dt == Azimuth; }
 
-void Seis::putInPar( Seis::GeomType gt, IOPar& iop )
+void Seis::putInPar( GeomType gt, IOPar& iop )
 {
-    iop.set( sKey::Geometry(), Seis::nameOf(gt) );
+    iop.set( sKey::Geometry(), nameOf(gt) );
 }
 
-bool Seis::getFromPar( const IOPar& iop, Seis::GeomType& gt )
+bool Seis::getFromPar( const IOPar& iop, GeomType& gt )
 {
     const char* res = iop.find( sKey::Geometry() );
     if ( !res || !*res ) return false;

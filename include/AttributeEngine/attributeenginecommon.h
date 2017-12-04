@@ -10,14 +10,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginecommon.h"
-#include "binid.h"
+#include "attributeenginemod.h"
+#include "seistype.h"
+
 
 namespace Attrib
 {
 
-mGlobal(AttributeEngine) BinID getSteeringPosition( int );
-mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
+    class Desc;
+    class DescSet;
 
+    typedef Seis::DataType  DataType;
 
-}; //Namespace
+} // namespace Attrib

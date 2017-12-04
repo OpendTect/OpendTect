@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attributeenginecommon.h"
 #include "sets.h"
 
 
@@ -27,7 +27,7 @@ class DataHolder;
 mExpClass(AttributeEngine) DataHolderLineBuffer
 {
 public:
-    			DataHolderLineBuffer();
+			DataHolderLineBuffer();
 			~DataHolderLineBuffer();
 
     DataHolder*		createDataHolder( const BinID&, int t0, int nrsamples );
@@ -43,7 +43,7 @@ public:
 protected:
     void		removeInline( int lineidx );
 
-    TypeSet<int>			inlines_;	
+    TypeSet<int>			inlines_;
     ObjectSet<ObjectSet<DataHolder> >	inlinedata_;
     ObjectSet<TypeSet<int> >		crossliness_;
     DataHolder*		gtDataHolder(const BinID&) const;

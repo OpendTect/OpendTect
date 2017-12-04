@@ -10,8 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
-
 #include "attribdescid.h"
 #include "notify.h"
 #include "dbkey.h"
@@ -22,7 +20,8 @@ class DataPointSet;
 
 namespace Attrib
 {
-class Desc; class DescSetup; class SelSpec;
+
+class DescSetup; class SelSpec;
 
 /*!\brief Set of attribute descriptions.  */
 

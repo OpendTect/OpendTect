@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attributeenginecommon.h"
 #include "bufstringset.h"
 #include "trckeyzsampling.h"
 #include "ranges.h"
@@ -78,7 +78,7 @@ public:
     static const char*		scalekey();
     static const char*		varzlinekey();
 
-    virtual const uiString	errMsg() const	
+    virtual const uiString	errMsg() const
 				{ return uiStrings::sEmptyString(); }
 
 protected:
@@ -166,7 +166,7 @@ public:
     virtual bool		writeTrc();
     SeisTrc*			getTrc()		{ return trc_; }
     void			setTrcGrow( bool yn )	{ growtrctosi_ = yn; }
-    void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
+    void			setOutpTypes( const TypeSet<DataType>& typ )
 				{ outptypes_ = typ; }
     void			setOutpNames( const BufferStringSet& nms )
 				{ outpnames_ = nms; }
@@ -195,7 +195,7 @@ protected:
     bool			storinited_;
     BufferString		attribname_;
     Scaler*                     scaler_;
-    TypeSet<Seis::DataType>	outptypes_;
+    TypeSet<DataType>		outptypes_;
     bool			growtrctosi_;
     BufferString		datatype_;
     BufferStringSet		outpnames_;

@@ -10,11 +10,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attribdescid.h"
 #include "ranges.h"
 #include "dbkey.h"
 #include "bufstringset.h"
-#include "attribdescid.h"
 #include "typeset.h"
 #include "datapack.h"
 
@@ -25,9 +24,6 @@ namespace ZDomain { class Info; }
 
 namespace Attrib
 {
-
-class Desc;
-class DescSet;
 
 /*!\brief specifies a full attribute selection (ID or output number of NN).
 

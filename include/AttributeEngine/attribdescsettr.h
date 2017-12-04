@@ -1,6 +1,6 @@
 #pragma once
 
-/*@+
+/*
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -8,33 +8,28 @@ ________________________________________________________________________
  Date:		May 2001
 ________________________________________________________________________
 
-@$*/
- 
-#include "attributeenginemod.h"
+-*/
+
+#include "attributeenginecommon.h"
 #include "transl.h"
 #include "ioobjctxt.h"
 #include "uistring.h"
 
 class Conn;
-namespace Attrib { class DescSet; }
 
-/*!
-\brief Translator group for I/O of DescSet.
-*/
+/*!\brief Translator group for I/O of DescSet. */
 
 mExpClass(AttributeEngine) AttribDescSetTranslatorGroup : public TranslatorGroup
 {   isTranslatorGroup(AttribDescSet);
     mODTextTranslationClass(AttribDescSetTranslatorGroup);
 public:
-    			mDefEmptyTranslatorGroupConstructor(AttribDescSet)
+			mDefEmptyTranslatorGroupConstructor(AttribDescSet)
 
     virtual const char*	defExtension() const		{ return "attr"; }
 };
 
 
-/*!
-\brief Base Translator class for I/O of DescSet.
-*/
+/*!\brief Base Translator class for I/O of DescSet. */
 
 mExpClass(AttributeEngine) AttribDescSetTranslator : public Translator
 { mODTextTranslationClass(AttribDescSetTranslator);
@@ -55,16 +50,14 @@ public:
     static bool		retrieve(Attrib::DescSet&,const IOObj*,uiString&);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
-    static bool 	store(const Attrib::DescSet&,const IOObj*,
+    static bool	store(const Attrib::DescSet&,const IOObj*,
 			      uiString&);
 			//!< BufferString has errmsg, if any
     static uiString	readFromStream(ascistream&,Attrib::DescSet&,uiString&);
 };
 
 
-/*!
-\brief Actual Translator class for I/O of DescSet.
-*/
+/*!\brief Actual Translator class for I/O of DescSet. */
 
 mExpClass(AttributeEngine)
 dgbAttribDescSetTranslator : public AttribDescSetTranslator
@@ -73,8 +66,8 @@ dgbAttribDescSetTranslator : public AttribDescSetTranslator
 public:
 			mDefEmptyTranslatorConstructor(dgb,AttribDescSet)
     const char*		read(Attrib::DescSet&,Conn&);
-    const char* 	warningMsg() const {return warningmsg_.getFullString();}
-    const uiString	warningUiMsg() const { return warningmsg_; } 
+    const char*	warningMsg() const {return warningmsg_.getFullString();}
+    const uiString	warningUiMsg() const { return warningmsg_; }
     const char*		write(const Attrib::DescSet&,Conn&);
 
     uiString		warningmsg_;

@@ -393,7 +393,7 @@ Seis::VolProvider::~VolProvider()
 
 
 uiRetVal Seis::VolProvider::doGetComponentInfo( BufferStringSet& nms,
-						Seis::DataType& dt ) const
+						DataType& dt ) const
 {
     if ( fetcher_.dp_ )
     {

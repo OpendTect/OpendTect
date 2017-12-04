@@ -123,7 +123,7 @@ public:
 			    return 0;
 			}
 
-    Seis::DataType	dataType(int,const TypeSet<Seis::DataType>&) const;
+    DataType		dataType(int,const TypeSet<DataType>&) const;
 
     const BinID*	reqStepout(int inp, int) const
 			{ return inp ? 0 : &stepout; }
@@ -133,7 +133,7 @@ public:
     const Interval<float>* inlDipMargin(int,int) const { return 0; }
     const Interval<float>* crlDipMargin(int,int) const { return 0; }
 
-    Seis::DataType	dataType(int val, int) const;
+    DataType		dataType(int val, int) const;
 
     const char* definitionStr() const { return desc; }
     void		setCommonInfo( const AttribProcessCommonInfo& ni )

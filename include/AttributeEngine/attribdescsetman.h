@@ -10,18 +10,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attributeenginecommon.h"
 #include "dbkey.h"
 
 
 namespace Attrib
 {
 
-class DescSet;
-
-/*!
-\brief Manages attribute description set. 
-*/
+/*!\brief Manages attribute description set. */
 
 mExpClass(AttributeEngine) DescSetMan
 {
@@ -35,10 +31,10 @@ public:
     void		setDescSet(DescSet*);
 
     bool		is2D() const			{ return is2d_; }
-    bool		isSaved() const          	{ return !unsaved_; }
+    bool		isSaved() const	{ return !unsaved_; }
     void		setSaved( bool yn=true ) const
                         { const_cast<DescSetMan*>(this)->unsaved_ = !yn; }
-    bool&               unSaved()               	{ return unsaved_; }
+    bool&               unSaved()	{ return unsaved_; }
                         //!< Added for convenience in UI building
 
     void		fillHist();

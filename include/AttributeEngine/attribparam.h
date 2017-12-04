@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
 #include "attribparambase.h"
 #include "datainpspec.h"
 
@@ -89,7 +88,7 @@ public:
     BufferString		getDefaultValue() const;
 
     void			addEnum(const char*);
-    void 			addEnums(const char**);
+    void			addEnums(const char**);
     void			setEnums(const EnumDef&);
 				//!<Enumdef is assumed to remain in memory
 

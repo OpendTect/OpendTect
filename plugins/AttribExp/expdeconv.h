@@ -40,6 +40,7 @@ Output:
 mClass(AttribExp) DeConvolveAttrib : public AttribCalc
 {
 public:
+
     mAttrib5Param(DeConvolveAttrib,"DeConvolve",
 	TimeGateAttribParameter, gate,
 	   TimeGateAttribParameter(	"samplegate",
@@ -69,53 +70,52 @@ public:
 					true),);
 
 
-				DeConvolveAttrib( Parameters* );
-				~DeConvolveAttrib();
+			DeConvolveAttrib(Parameters*);
+			~DeConvolveAttrib();
 
-    bool			init();
+    bool		init();
 
-    const Interval<float>*	reqInterval( int, int ) const {return &gate;}
-    const BinID*		reqStepout( int i, int ) const
-				{ return i ? 0 : &neighbourhood; }
+    const Interval<float>* reqInterval( int, int ) const {return &gate;}
+    const BinID*	reqStepout( int i, int ) const
+			{ return i ? 0 : &neighbourhood; }
 
-    int	nrAttribs() const { return 2; }
+    int			nrAttribs() const { return 2; }
 
-    const char*	attribName(int val) const
-				{
-				    switch (val)
-				    {
-					case 0:     return "1";
-					case 1:     return "2";
-				    }
+    const char*		attribName(int val) const
+			{
+			    switch ( val )
+			    {
+				case 0:     return "1";
+				case 1:     return "2";
+			    }
+			    return 0;
+			}
 
-				    return 0;
-				}
-
-    Seis::DataType		dataType(int,
-					 const TypeSet<Seis::DataType>&) const
-				{ return Seis::UnknownData; }
+    DataType		dataType( int, const TypeSet<DataType>& ) const
+			{ return Seis::UnknownData; }
 
     const char*		definitionStr() const { return desc; }
-    void	setCommonInfo( const AttribProcessCommonInfo& ni )
-				{ common = &ni; }
+    void		setCommonInfo( const AttribProcessCommonInfo& ni )
+			{ common = &ni; }
 
 
 protected:
-    Interval<float>		gate;
-    bool			steering;
-    BinID			neighbourhood;
-    BinID			pos1;
 
-    FFT				fft;
-    FFT				ifft;
+    Interval<float>	gate;
+    bool		steering;
+    BinID		neighbourhood;
+    BinID		pos1;
+
+    FFT			fft;
+    FFT			ifft;
     int			fftsz;
-    ArrayNDWindow::WindowType	windowtype;
-    ArrayNDWindow*		window;
-    float			inpstep;
-    float			df;
+    ArrayNDWindow::WindowType windowtype;
+    ArrayNDWindow*	window;
+    float		inpstep;
+    float		df;
 
-    BufferString		desc;
-    const AttribProcessCommonInfo*	common;
+    BufferString	desc;
+    const AttribProcessCommonInfo* common;
 
     mClass(AttribExp) Task : public AttribCalc::Task
     {
@@ -123,77 +123,71 @@ protected:
 	mClass(AttribExp) Input : public AttribCalc::Task::Input
 	{
 	public:
-				Input( const DeConvolveAttrib& calculator_ )
-				    : calculator ( calculator_ )
-				    , trcs( 0 )
-				    , inldiptrc( 0 )
-				    , crldiptrc( 0 )
-				{}
+			Input( const DeConvolveAttrib& calculator_ )
+			    : calculator (calculator_)
+			    , trcs(0)
+			    , inldiptrc(0)
+			    , crldiptrc(0)	    {}
+			~Input();
 
-				~Input();
+	    bool	set(const BinID&,
+			    const ObjectSet<AttribProvider>&,
+			    const TypeSet<int>&,
+			    const TypeSet<float*>&);
 
-	    bool                set( const BinID&,
-				    const ObjectSet<AttribProvider>&,
-				    const TypeSet<int>&,
-				    const TypeSet<float*>& );
-
-	    AttribCalc::Task::Input* clone() const
+	    Task::Input* clone() const
 			{ return new DeConvolveAttrib::Task::Input(*this); }
 
-	    Array2DImpl<SeisTrc*>*	trcs;
-	    SeisTrc*			inldiptrc;
-	    SeisTrc*			crldiptrc;
+	    Array2DImpl<SeisTrc*>* trcs;
+	    SeisTrc*	inldiptrc;
+	    SeisTrc*	crldiptrc;
 
-	    int				dataattrib;
-	    int				inldipattrib;
-	    int				crldipattrib;
+	    int		dataattrib;
+	    int		inldipattrib;
+	    int		crldipattrib;
 
-	    const DeConvolveAttrib&	calculator;
+	    const DeConvolveAttrib& calculator;
 	};
 
-			    Task( const DeConvolveAttrib& calculator_ );
-			    Task( const Task& );
-			    // Not impl. Only to give error if someone uses it
+			Task(const DeConvolveAttrib&);
+			Task(const Task&)	    = delete;
+			~Task();
 
-			    ~Task();
+	void		set( float t1_, int nrtimes_, float step_,
+				const Input* inp, const TypeSet<float*>& outp_)
+			{
+			    t1 = t1_;
+			    nrtimes = nrtimes_;
+			    step = step_;
+			    input = inp;
+			    out0 = outp_[0];
+			    out1 = outp_[1];
+			}
 
-	void		    set( float t1_, int nrtimes_, float step_,
-					    const AttribCalc::Task::Input* inp,
-                                            const TypeSet<float*>& outp_)
-				{
-				    t1 = t1_;
-				    nrtimes = nrtimes_;
-				    step = step_;
-				    input = inp;
-				    out0 = outp_[0];
-				    out1 = outp_[1];
-				}
-
-	AttribCalc::Task*    clone() const;
-
-	int		    getFastestSz() const { return 25; }
-
-	int		    nextStep();
-
-	AttribCalc::Task::Input* getInput() const
-		    { return new DeConvolveAttrib::Task::Input( calculator ); }
+	Task*		clone() const;
+	int		getFastestSz() const { return 25; }
+	int		nextStep();
+	Input*		getInput() const
+			{ return new Input( calculator ); }
 
     protected:
-	float*				out0;
-	float*				out1;
 
-	const DeConvolveAttrib&		calculator;
-	Array2D<Array1D<float_complex>*>*	tracesegments;
-	Array1D<float_complex>*		spectrum0;
-	Array1D<float_complex>*		spectrum1;
-	Array1D<float_complex>*		spectrumaverage;
-	Array1D<float_complex>*		spectrumoutput;
-	Array1D<float_complex>*		traceoutput;
+	float*		out0;
+	float*		out1;
+
+	typedef Array1D<float_complex> CplxArr;
+
+	const DeConvolveAttrib&	calculator;
+	Array2D<CplxArr*>* tracesegments;
+	CplxArr*	spectrum0;
+	CplxArr*	spectrum1;
+	CplxArr*	spectrumaverage;
+	CplxArr*	spectrumoutput;
+	CplxArr*	traceoutput;
     };
 
-    friend class			DeConvolveAttrib::Task;
-    friend class			DeConvolveAttrib::Task::Input;
+    friend class	Task;
+    friend class	Task::Input;
 };
 
 #endif
-

@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "attributeenginemod.h"
+#include "attributeenginecommon.h"
 #include "executor.h"
 #include "binid.h"
 
@@ -21,13 +21,10 @@ namespace Seis { class SelData; }
 namespace Attrib
 {
 class DataHolder;
-class Desc;
 class Output;
 class Provider;
 
-/*!
-\brief Attribute Processor
-*/
+/*!\brief Attribute Processor */
 
 mExpClass(AttributeEngine) Processor : public Executor
 { mODTextTranslationClass(Processor)
@@ -70,6 +67,7 @@ public:
     void			showDataAvailabilityErrors(bool yn);
 
 protected:
+
     void		useFullProcess(int&);
     void		useSCProcess(int&);
     void		fullProcess(const SeisTrcInfo*);
@@ -94,6 +92,7 @@ protected:
     Seis::SelData*	sd_;
 
     bool		showdataavailabilityerrors_;
+
 };
 
 

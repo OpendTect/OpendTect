@@ -63,15 +63,15 @@ public:
     const Interval<float>* crlDipMargin(int,int) const { return 0; }
 
 
-    Seis::DataType	dataType(int,const TypeSet<Seis::DataType>&) const
+    DataType		dataType(int,const TypeSet<DataType>&) const
 			{ return Seis::Dip; }
 
-    const char* 	definitionStr() const { return desc; }
+    const char*	definitionStr() const { return desc; }
     void		setCommonInfo( const AttribProcessCommonInfo& ni )
 			{ common = &ni; }
 
 protected:
-    
+
     BufferString		desc;
     const Interval<int>		sg;
     const BinID			stepout;
@@ -92,8 +92,8 @@ protected:
 				: calculator ( calculator_ )
 				, trcs( 0 ) {}
 
-	    bool                set( const BinID&, 
-				    const ObjectSet<AttribProvider>&, 
+	    bool                set( const BinID&,
+				    const ObjectSet<AttribProvider>&,
 				    const TypeSet<int>&,
 				    const TypeSet<float*>& );
 
@@ -110,7 +110,7 @@ protected:
 				: inldips( 0 )
 				, crldips( 0 )
 				, calculator( calculator_ ) {}
-	
+
 	void		    set( float , int , float ,
 				 const AttribCalc::Task::Input* ,
                                  const TypeSet<float*>& );
