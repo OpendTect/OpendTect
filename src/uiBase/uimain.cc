@@ -610,8 +610,6 @@ void uiMain::processEvents( int msec )
 
 void uiMain::useNameToolTip( bool yn )
 {
-    return;
-
     if ( usenametooltip_ == yn )
 	return;
 
