@@ -36,6 +36,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     inp_->setHSzPol( uiObject::Wide );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
     setHAlignObj( inp_ );
+    inp_->setSensitive( su.optionsselectable_ );
 
     if ( su.optional_ )
     {
@@ -46,6 +47,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     {
 	lbl_ = new uiLabel( this, su.seltxt_ );
 	lbl_->setAlignment( OD::Alignment::Right );
+	lbl_->setSensitive( su.optionsselectable_ );
     }
 
     const CallBack selcb( mCB(this,uiIOSelect,doSel) );
@@ -55,6 +57,8 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	    selbut_ = uiButton::getStd( this, OD::Select, selcb, false );
 	else if ( !su.buttontxt_.isEmpty() )
 	    selbut_ = new uiPushButton( this, su.buttontxt_, selcb, false );
+
+	selbut_->setSensitive( su.optionsselectable_ );
     }
     if ( selbut_ )
     {

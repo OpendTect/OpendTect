@@ -38,7 +38,8 @@ public:
 			    , buttontxt_(uiStrings::sSelect())
 			    , compact_(false)
 			    , optional_(false)
-			    , keepmytxt_(false)		{}
+			    , keepmytxt_(false)
+			    , optionsselectable_(true)		{}
 
 	mDefSetupMemb(uiString,seltxt)
 	mDefSetupMemb(uiString,buttontxt)
@@ -46,6 +47,7 @@ public:
 	mDefSetupMemb(bool,compact)
 	mDefSetupMemb(bool,optional)
 	mDefSetupMemb(bool,keepmytxt)
+	mDefSetupMemb(bool,optionsselectable)
     };
 
 			uiIOSelect(uiParent*,const Setup&,const CallBack&);

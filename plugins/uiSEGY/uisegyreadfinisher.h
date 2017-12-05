@@ -25,6 +25,7 @@ class uiSeisTransfer;
 class SeisImporter;
 class SeisTrcWriter;
 class SeisStdImporterReader;
+class uiSEGYVintageInfo;
 namespace SEGY { class FileIndexer; }
 
 
@@ -35,7 +36,10 @@ mExpClass(uiSEGY) uiSEGYReadFinisher : public uiDialog
 public:
 
 			uiSEGYReadFinisher(uiParent*,const FullSpec&,
-					   const char* usrspec,bool istime);
+					   const char* usrspec,bool istime,
+					   bool singlevintage=true,
+				const ObjectSet<uiSEGYVintageInfo>* vintinfo=0);
+			//TODO Implement Setup
 			~uiSEGYReadFinisher();
 
     FullSpec&		fullSpec()		{ return fs_; }
@@ -64,6 +68,9 @@ protected:
     uiFileSel*		coordfilefld_;
     uiBatchJobDispatcherSel* batchfld_;
 
+    bool		singlevintage_;
+    const ObjectSet<uiSEGYVintageInfo>* vntinfos_;
+
     void		crVSPFields(bool);
     void		crSeisFields(bool);
     void		cr2DCoordSrcFields(uiGroup*&,bool);
@@ -72,6 +79,7 @@ protected:
     bool		do3D(const IOObj&,const IOObj&,bool);
     bool		do2D(const IOObj&,const IOObj&,bool,const char*);
     bool		doBatch(bool);
+    bool		doMultiVintage();
 
     void		updateInIOObjPars(IOObj&,const IOObj& outioobj);
     SeisStdImporterReader* getImpReader(const IOObj&,SeisTrcWriter&,
@@ -91,7 +99,7 @@ protected:
     void		doScanChg(CallBacker*);
     bool		acceptOK();
 
-    static uiString	getWinTile(const FullSpec&);
+    static uiString	getWinTile(const FullSpec&,bool issingle);
     static uiString	getDlgTitle(const char*);
 
     uiSeisSel*		outFld( bool imp )

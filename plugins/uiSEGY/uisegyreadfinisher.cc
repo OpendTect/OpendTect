@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "segydirecttr.h"
 #include "segydirectdef.h"
 #include "segyscanner.h"
+#include "uisegybulkimporter.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "seisimporter.h"
@@ -47,12 +48,17 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "filepath.h"
 
 
-uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )
+uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs, bool issingle )
 {
+    uiString ret;
+    if ( !issingle )
+    {
+	ret = tr("Select options for importing bulk segy data");
+	return ret;
+    }
     const Seis::GeomType gt = fs.geomType();
     const bool isvsp = fs.isVSP();
 
-    uiString ret;
     if ( fs.spec_.nrFiles() > 1 && !isvsp && Seis::is2D(gt) )
 	ret = tr("Import %1s");
     else
@@ -75,9 +81,12 @@ uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 
 
 uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
-					const char* usrspec, bool istime )
-    : uiDialog(p,uiDialog::Setup(getWinTile(fs),getDlgTitle(usrspec),
-    mODHelpKey(mSEGYReadFinisherHelpID)))
+					const char* usrspec, bool istime,
+					bool singlevintage,
+				   const ObjectSet<uiSEGYVintageInfo>* vntinfo )
+    : uiDialog(p,uiDialog::Setup(getWinTile(fs,singlevintage),
+	       singlevintage ? getDlgTitle(usrspec) : mNoDlgTitle,
+	       mODHelpKey(mSEGYReadFinisherHelpID)))
     , fs_(fs)
     , outwllfld_(0)
     , lognmfld_(0)
@@ -91,7 +100,13 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     , coordsfromfld_(0)
     , coordfilefld_(0)
     , coordfileextfld_(0)
+    , singlevintage_(singlevintage)
+    , vntinfos_(vntinfo)
 {
+
+    if ( !singlevintage )
+	setCancelText( tr("<<Back") );
+
     objname_ = File::Path( usrspec ).baseName();
     const bool is2d = Seis::is2D( fs_.geomType() );
     if ( !is2d )
@@ -144,6 +159,7 @@ void uiSEGYReadFinisher::crSeisFields( bool istime )
 	cr2DCoordSrcFields( attgrp, ismulti );
 
     uiSeisSel::Setup copysu( gt );
+    copysu.optionsselectable( singlevintage_ );
     copysu.enabotherdomain( true )
 	  .isotherdomain( istime != SI().zIsTime() );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
@@ -398,6 +414,60 @@ SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 	wrr.setSelData( sd->clone() );
     }
     return rdr;
+}
+
+
+
+bool uiSEGYReadFinisher::doMultiVintage()
+{
+    if ( singlevintage_ )
+	return false;
+
+    if ( !vntinfos_ && !vntinfos_->size() )
+	return false;
+
+    for ( int vidx=0; vidx<vntinfos_->size(); vidx++ )
+    {
+	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+	const int selidx = parset.find( vntinfos_->get(vidx)->vintagenm_ );
+	if ( selidx < 0 )
+	    pErrMsg("Something went wrong with segysetup file; return false");
+
+	Repos::IOPar* iop = parset[selidx];
+	if ( !iop )
+	    return false;
+
+	const int size = vntinfos_->get(vidx)->filenms_.size();
+	for ( int nmidx=0; nmidx<size; nmidx++ )
+	{
+	    IOObjContext ctxt = mIOObjContext(SeisTrc);
+	    CtxtIOObj ctio( ctxt );
+	    const BufferString fnm( vntinfos_->get(vidx)->filenms_.get(nmidx) );
+	    File::Path fp( vntinfos_->get(vidx)->fp_.pathOnly(), fnm );
+	    ctio.setName( fp.baseName() );
+	    DBM().getEntry( ctio );
+	    if ( !ctio.ioobj_ )
+		return false;
+
+	    iop->set( sKey::FileName(), fp.fullPath() );
+	    fs_.usePar( *iop );
+	    IOObj* inioobj = fs_.spec_.getIOObj( true );
+	    if ( !inioobj )
+		return false;
+
+	    DBM().setEntry(*inioobj);
+
+	    if ( !do3D( *inioobj, *ctio.ioobj_, true ) )
+	    {
+		uiString msg(tr("Failed to import '%1'").arg(fnm) );
+		msg.append( tr("Do you wish to continue?"), true );
+		if ( !uiMSG().askContinue( msg ) )
+		    return false;
+	    }
+	}
+    }
+
+    return true;
 }
 
 
@@ -700,6 +770,9 @@ void uiSEGYReadFinisher::setAsDefaultObj()
 
 bool uiSEGYReadFinisher::acceptOK()
 {
+    if ( !singlevintage_ )
+	return doMultiVintage();
+
     outputid_.setInvalid();
     if ( fs_.isVSP() )
 	return doVSP();

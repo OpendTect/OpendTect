@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "rowcol.h"
 
 #include "uisegyfileselector.h"
+#include "uisegyreadfinisher.h"
 #include "uisegyreadstarter.h"
 #include "uimsg.h"
 #include "uitable.h"
@@ -27,7 +28,10 @@ uiSEGYMultiVintageImporter::uiSEGYMultiVintageImporter( uiParent* p )
     , fsdlg_(0)
     , rsdlg_(0)
 {
+    setOkText( tr("Next >>") );
+
     imptypefld_ = new uiSEGYImpType( this, false, 0, true );
+    imptypefld_->asUiObject().setSensitive( false );
     table_ = new uiTable( this, uiTable::Setup(), "Bulk Import Table" );
     table_->setPrefWidth( 650 );
     table_->setSelectionMode( uiTable::SingleRow );
@@ -199,9 +203,23 @@ void uiSEGYMultiVintageImporter::editVntCB( CallBacker* )
 	return;
 }
 
-
 bool uiSEGYMultiVintageImporter::acceptOK()
 {
-    //TODO Importing selected SEGY files
-    return true;
+    const Seis::GeomType gt = imptypefld_->impType().geomType();
+    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+    int selidx = parset.find( vntinfos_[0]->vintagenm_ );
+    if ( selidx < 0 )
+	return false;
+
+    Repos::IOPar* iop = parset[selidx];
+    if ( !iop )
+	return false;
+
+    FullSpec fullspec( gt, false);
+    fullspec.usePar( *iop );
+
+    uiSEGYReadFinisher dlg( this, fullspec,
+			    uiStrings::sEmptyString().getOriginalString(),
+			    true, false, &vntinfos_ );
+    return dlg.go();
 }
