@@ -81,11 +81,11 @@ public:
 
 protected:
 
-    CtxtIOObj&		ctio_;
+    CtxtIOObj&		    ctio_;
 
-    uiIOObjSel*		polyfld_;
-    uiSelSteps*		stepfld_;
-    uiSelZRange*	zrgfld_;
+    uiIOObjSel*		    polyfld_;
+    uiSelSteps*		    stepfld_;
+    uiSelZRange*	    zrgfld_;
 
 };
 

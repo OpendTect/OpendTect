@@ -178,13 +178,26 @@ int SeisMSCProvider::comparePos( const SeisMSCProvider& mscp ) const
     if ( &mscp == this )
 	return 0;
 
+    int startval = tbufs_[bufidx_]->get(0)->info().nr;
+    int stopval = tbufs_[bufidx_]->get(tbufs_[bufidx_]->size()-1)->info().nr;
+
+    int bufidx = mscp.bufidx_;
+
+    int startmscpval = mscp.tbufs_[bufidx]->get(0)->info().nr;
+    int stopmscpval = mscp.tbufs_[bufidx]->
+				get(mscp.tbufs_[bufidx]->size()-1)->info().nr;
+
+    bool arebothreversed = (startval > stopval) &&
+					(startmscpval > stopmscpval);
+
     if ( is2D() && mscp.is2D() )
     {
 	const int mynr = getTrcNr();
 	const int mscpsnr = mscp.getTrcNr();
+
 	if ( mynr == mscpsnr )
 	    return 0;
-	return mynr > mscpsnr ? 1 : -1;
+	return ( (mynr > mscpsnr) && !arebothreversed ) ? 1 : -1;
     }
 
     const BinID mybid = getPos();
@@ -195,7 +208,7 @@ int SeisMSCProvider::comparePos( const SeisMSCProvider& mscp ) const
     if ( mybid.inl() != mscpsbid.inl() )
 	return mybid.inl() > mscpsbid.inl() ? 1 : -1;
 
-    return mybid.crl() > mscpsbid.crl() ? 1 : -1;
+    return ( mybid.crl() > mscpsbid.crl() ) ? 1 : -1;
 }
 
 
