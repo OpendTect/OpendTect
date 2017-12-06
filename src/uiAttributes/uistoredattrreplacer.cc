@@ -379,6 +379,16 @@ IOPar*							attrdspar_;
 };
 
 
+static void resetAttrSet( Attrib::DescSet* ads )
+{
+    if ( ads )
+    {
+	ads->setEmpty();
+	ads->ensureDefStoredPresent();
+    }
+}
+
+
 void uiStoredAttribReplacer::handleOneGoInputRepl()
 {
     if ( storedids_.isEmpty() ) return;
@@ -409,8 +419,8 @@ void uiStoredAttribReplacer::handleOneGoInputRepl()
 	else
 	    dlg.setAttribDescSetPar( iopar_ );
 
-	if ( !dlg.go() && attrset_ )
-	    attrset_->removeAll( true );
+	if ( !dlg.go() )
+	    resetAttrSet( attrset_ );
 
 	return;
     }
@@ -418,10 +428,7 @@ void uiStoredAttribReplacer::handleOneGoInputRepl()
 
     uiAttrInpDlg dlg( parent_, seisinprefs, steerinprefs, is2d_ );
     if ( !dlg.go() )
-    {
-	if ( attrset_ ) attrset_->removeAll( true );
-	return;
-    }
+	{ resetAttrSet( attrset_ ); return; }
     else if ( attrset_ )
     {
 	Desc* ad = attrset_->getDesc( storedids_[0].firstid_ );
@@ -526,10 +533,7 @@ void uiStoredAttribReplacer::handleMultiInput()
 
 	uiAttrInpDlg dlg( parent_, usrrefs, issteer, is2d_, prevref.buf() );
 	if ( !dlg.go() )
-	{
-	    if ( attrset_ ) attrset_->removeAll( true );
-	    return;
-	}
+	    { resetAttrSet( attrset_ ); return; }
 
 	if ( !issteer )
 	{

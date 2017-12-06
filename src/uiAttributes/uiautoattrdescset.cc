@@ -97,7 +97,7 @@ bool uiAutoAttrSelDlg::loadAuto()
 
 void uiAutoAttrSelDlg::useChg( CallBacker* )
 {
-    const bool douse = usefld_->getBoolValue();
+    const bool douse = useAuto();
     selgrp_->display( douse );
     lbl_->display( douse );
     loadbutton_->display( douse );
@@ -107,7 +107,7 @@ void uiAutoAttrSelDlg::useChg( CallBacker* )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiAutoAttrSelDlg::acceptOK()
 {
-    if ( !usefld_->getBoolValue() )
+    if ( !useAuto() )
 	return true;
 
     if ( selgrp_->nrChosen() < 1 )

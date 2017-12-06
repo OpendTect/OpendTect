@@ -37,7 +37,7 @@ uiString AttribDescSetTranslator::readFromStream( ascistream& astream,
 
     IOPar iopar( astream );
     IOPar bupar; ads.fillPar( bupar );
-    ads.removeAll( false );
+    ads.setEmpty();
     uiStringSet parseerrmsgs;
     ads.usePar( iopar, &parseerrmsgs );
     if ( ads.isEmpty() )

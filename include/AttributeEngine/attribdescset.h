@@ -20,8 +20,8 @@ class DataPointSet;
 
 namespace Attrib
 {
-
 class DescSetup; class SelSpec;
+class DescSet_Standard_Manager;
 
 /*!\brief Set of attribute descriptions.  */
 
@@ -29,10 +29,19 @@ mExpClass(AttributeEngine) DescSet : public CallBacker
 { mODTextTranslationClass( Attrib::DescSet )
 public:
 
-    explicit		DescSet(bool is2d);
-			DescSet(const DescSet&);
-			~DescSet();
-    DescSet&		operator =(const DescSet&);
+    static const DescSet&	g2D();
+    static const DescSet&	g3D();
+    static DescSet&		g2D4Edit();
+    static DescSet&		g3D4Edit();
+    static const DescSet&	empty2D();
+    static const DescSet&	empty3D();
+    static DescSet&		dummy2D();
+    static DescSet&		dummy3D();
+
+    explicit			DescSet(bool is2d);
+				DescSet(const DescSet&);
+				~DescSet();
+    DescSet&			operator =(const DescSet&);
 
     inline bool		isEmpty() const	{ return descs_.isEmpty(); }
     inline int		size() const	{ return descs_.size(); }
@@ -54,6 +63,7 @@ public:
 			/*!< Updates inputs for all descs in descset.
 			     Necessary after cloning */
 
+    void		setEmpty();
     DescID		addDesc(Desc*,DescID newid=DescID());
     DescID		insertDesc(Desc*,int,DescID newid=DescID());
     void		createAndAddMultOutDescs(const DescID&,
@@ -94,7 +104,6 @@ public:
     void		removeDesc(const DescID&);
     void		moveDescUpDown(const DescID&,bool);
     void		sortDescSet();
-    void		removeAll(bool kpdefault);
     int			removeUnused(bool removestored=false,
 				     bool kpdefault=true);
 			//!< Removes unused hidden attributes, stored attribs
@@ -167,14 +176,12 @@ public:
     bool		useOldSteeringPar(IOPar&,ObjectSet<Desc>&,
 					  uiStringSet*);
 
-    static const DescSet& empty2D();
-    static const DescSet& empty3D();
-
 protected:
 
     DescID		getFreeID() const;
 
     const bool		is2d_;
+    mutable bool	ischanged_;
     ObjectSet<Desc>	descs_;
     TypeSet<DescID>	ids_;
     bool		couldbeanydim_;
@@ -185,12 +192,18 @@ protected:
 private:
 
     Desc*		gtDesc(const DescID&) const;
+    friend class	DescSet_Standard_Manager;
 
 public:
+
+			// No detailed change management. Maintained by UI.
+    bool		isChanged() const		{ return ischanged_; }
+    void		setIsChanged( bool yn ) const	{ ischanged_ = yn; }
 
     DescID		ensureStoredPresent(const DBKey&,int compnr=-1) const;
     DescID		ensureDefStoredPresent() const;
     static uiString	sFactoryEntryNotFound(const char* attrnm);
+    static uiRetVal	reLoadAuto();
 
 };
 

@@ -96,7 +96,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
 	if ( subpar ) iop = *subpar;
     }
 
-    attrset_.removeAll( false ); attrset_.usePar( iop );
+    attrset_.setEmpty(); attrset_.usePar( iop );
     const int nrgood = attrset_.nrDescs( false, false );
 
     BufferString txt( nrgood == 1 ? "Attribute: "

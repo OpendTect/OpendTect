@@ -32,13 +32,56 @@
 #include "survinfo.h"
 #include "uistrings.h"
 
+using namespace Attrib;
+
 namespace Attrib
 {
 
-const DescSet& DescSet::empty2D()
-{ mDefineStaticLocalObject( DescSet, ret, (true) ); return ret; }
-const DescSet& DescSet::empty3D()
-{ mDefineStaticLocalObject( DescSet, ret, (false) ); return ret; }
+static DescSet*	global2d_		= new DescSet( true );
+static DescSet*	global3d_		= new DescSet( false );
+static DescSet*	empty2d_		= new DescSet( true );
+static DescSet*	empty3d_		= new DescSet( false );
+static DescSet*	dummy2d_		= new DescSet( true );
+static DescSet*	dummy3d_		= new DescSet( false );
+
+const DescSet&	DescSet::g2D()		{ return *global2d_; }
+const DescSet&	DescSet::g3D()		{ return *global3d_; }
+DescSet&	DescSet::g2D4Edit()	{ return *global2d_; }
+DescSet&	DescSet::g3D4Edit()	{ return *global3d_; }
+const DescSet&	DescSet::empty2D()	{ return *empty2d_; }
+const DescSet&	DescSet::empty3D()	{ return *empty3d_; }
+DescSet&	DescSet::dummy2D()	{ return *dummy2d_; }
+DescSet&	DescSet::dummy3D()	{ return *dummy3d_; }
+
+struct DescSet_Standard_Manager : public CallBacker
+{
+
+DescSet_Standard_Manager()
+{
+    DBM().afterSurveyChange.notify(
+	    mCB(this,DescSet_Standard_Manager,survChgCB) );
+}
+
+void survChgCB( CallBacker* )
+{
+    dummy2d_->setEmpty(); dummy3d_->setEmpty();
+    //TODO
+    // DescSet::reLoadAuto();
+}
+
+};
+
+PtrMan<DescSet_Standard_Manager> standard_manager;
+
+void Make_DescSet_Standard_Manager()
+{
+    standard_manager = new DescSet_Standard_Manager;
+}
+
+} // namespace Attrib
+
+
+
 uiString DescSet::sFactoryEntryNotFound( const char* attrnm )
 {
     return uiStrings::phrCannotCreate( tr("an instance of attribute %1")
@@ -49,6 +92,7 @@ uiString DescSet::sFactoryEntryNotFound( const char* attrnm )
 DescSet::DescSet( bool is2d )
     : is2d_(is2d)
     , couldbeanydim_(false)
+    , ischanged_(false)
     , descAdded(this)
     , descUserRefChanged(this)
     , descToBeRemoved(this)
@@ -62,6 +106,7 @@ DescSet::DescSet( bool is2d )
 DescSet::DescSet( const DescSet& ds )
     : is2d_(ds.is2d_)
     , couldbeanydim_(ds.couldbeanydim_)
+    , ischanged_(false)
     , descAdded(this)
     , descUserRefChanged(this)
     , descToBeRemoved(this)
@@ -76,7 +121,7 @@ DescSet::~DescSet()
 {
     aboutToBeDeleted.trigger();
     detachAllNotifiers();
-    removeAll( false );
+    setEmpty();
 }
 
 
@@ -141,7 +186,7 @@ DescSet& DescSet::operator =( const DescSet& ds )
 {
     if ( &ds != this )
     {
-	removeAll( false );
+	setEmpty();
 	const_cast<bool&>(is2d_) = ds.is2d_;
 	couldbeanydim_ = ds.couldbeanydim_;
 	for ( int idx=0; idx<ds.size(); idx++ )
@@ -362,12 +407,10 @@ void DescSet::sortDescSet()
 }
 
 
-void DescSet::removeAll( bool kpdef )
+void DescSet::setEmpty()
 {
     while ( ids_.size() )
 	removeDesc( ids_[0] );
-    if ( kpdef )
-	ensureDefStoredPresent();
 }
 
 
@@ -790,7 +833,7 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 	    const_cast<bool&>(is2d_) = *typestr == '2';
     }
 
-    removeAll( false );
+    setEmpty();
 
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
@@ -1106,7 +1149,7 @@ DescSet* DescSet::optimizeClone( const DescID& targetnode ) const
 DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 {
     DescSet* res = new DescSet( is2d_ );
-    res->removeAll( false );
+    res->setEmpty();
     TypeSet<DescID> needednodes = targets;
     while ( needednodes.size() )
     {
@@ -1505,5 +1548,3 @@ bool DescSet::exportToDot( const char* nm, const char* fnm ) const
 
     return true;
 }
-
-} // namespace Attrib

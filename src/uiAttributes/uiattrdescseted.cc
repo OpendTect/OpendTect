@@ -968,7 +968,8 @@ void uiAttribDescSetEd::newSetCB( CallBacker* )
     adsman_->inputHistory().setEmpty();
     updateFields();
 
-    attrset_->removeAll( true );
+    attrset_->setEmpty();
+    attrset_->ensureDefStoredPresent();
     setctio_.ioobj_ = 0;
     setid_.setInvalid();
     updateUserRefs();

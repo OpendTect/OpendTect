@@ -217,7 +217,7 @@ AttributeSetCreator::AttributeSetCreator( uiParent* p_,
 	const BufferString& uref = *inps_[idx];
 	Desc* ad = getDesc( uref );
 	if ( !ad )
-	    { attrset->removeAll( false ); attrset = 0; return; }
+	    { attrset->setEmpty(); attrset = 0; return; }
 
 	if ( ad->isStored() )
 	    directs += new BufferString( uref );
