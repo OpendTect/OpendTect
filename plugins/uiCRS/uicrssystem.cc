@@ -261,17 +261,14 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
 {
     dirfld_ = new uiGenInput( this, tr("Direction"),
 	          BoolInpSpec(true,tr("X/Y to Lat/Lng"),tr("Lat/Lng to X/Y")) );
-    dirfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,applyCB) );
     dirfld_->valuechanged.notify( mCB(this,uiConvertGeographicPos,selChg) );
 
     towgs84fld_ = new uiCheckBox( this, tr("Output to WGS84 CRS") );
     towgs84fld_->setChecked( false );
-    towgs84fld_->activated.notify( mCB(this,uiConvertGeographicPos,applyCB) );
     towgs84fld_->attach( alignedBelow, dirfld_ );
 
     fromwgs84fld_ = new uiCheckBox( this, tr("Input is WGS84 CRS") );
     fromwgs84fld_->setChecked( false );
-    fromwgs84fld_->activated.notify( mCB(this,uiConvertGeographicPos,applyCB) );
     fromwgs84fld_->attach( alignedBelow, dirfld_ );
 
     ismanfld_ = new uiGenInput( this, tr("Conversion"),
@@ -303,6 +300,9 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
     fssetup.withexamine(true).examstyle(File::Table);
     inpfilefld_ = new uiFileSel( filegrp_, uiStrings::phrInput(
 					   uiStrings::sFile()), fssetup );
+    uiLabel* lbl = new uiLabel( filegrp_, tr("Please ensure the format of the "
+	"file is X-Y or Long-Lat") );
+    lbl->attach( alignedAbove, inpfilefld_ );
 
     fssetup.setFileName( lastoutfile );
     fssetup.withexamine(false).setForWrite(false);
@@ -407,12 +407,16 @@ void uiConvertGeographicPos::convFile()
 			    : fromwgs84fld_->isChecked();
     double d1, d2;
     Coord coord; LatLong ll;
+    int nrvals = 0;
     while ( istream.isOK() )
     {
 	mSetUdf(d1); mSetUdf(d2);
 	istream >> d1 >> d2;
 	if ( mIsUdf(d1) || mIsUdf(d2) )
 	    continue;
+
+	BufferString trailingbufs;
+	istream.getLine( trailingbufs );
 
 	if ( toll )
 	{
@@ -421,20 +425,32 @@ void uiConvertGeographicPos::convFile()
 	    if ( !SI().isReasonable(coord) )
 		continue;
 	    ll = LatLong::transform( coord, wgs84, coordsystem_ );
-	    ostream << ll.lat_ << od_tab << ll.lng_;
+	    ostream << ll.lng_ << od_tab << ll.lat_;
+
+	    if ( !trailingbufs.isEmpty() )
+		ostream << od_tab << trailingbufs;
 	}
 	else
 	{
-	    ll.lat_ = d1; ll.lng_ = d2;
+	    ll.lng_ = d1; ll.lat_ = d2;
 	    coord = LatLong::transform( ll, wgs84, coordsystem_ );
 	    if ( !SI().isReasonable(coord) )
 		continue;
 	    ostream << coord.x_ << od_tab << coord.y_;
+
+	    if ( !trailingbufs.isEmpty() )
+		ostream << od_tab << trailingbufs;
 	}
+
+	nrvals++;
+
 	if ( !ostream.isOK() )
 	    break;
 	ostream << od_endl;
     }
+    if ( nrvals > 0 )
+	uiMSG().message( tr("Total number of points converted: %1")
+							    .arg(nrvals) );
 }
 
 
