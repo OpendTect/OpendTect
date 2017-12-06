@@ -284,15 +284,18 @@ public:
 protected:
 
     void		init();
+    inline projPJ	getLLProj() const
+			{ return llproj_ ? llproj_ : proj_; }
 
     projPJ		proj_;
+    projPJ		llproj_;
 };
 } // Namespace
 
 Coords::Proj4Projection::Proj4Projection( Coords::AuthorityCode code,
 					  const char* usrnm, const char* defstr)
     : Projection(code,usrnm,defstr)
-    , proj_(0)
+    , proj_(0),llproj_(0)
 {
     init();
 }
@@ -301,6 +304,7 @@ Coords::Proj4Projection::Proj4Projection( Coords::AuthorityCode code,
 Coords::Proj4Projection::~Proj4Projection()
 {
     pj_free( proj_ );
+    pj_free( llproj_ );
 }
 
 
@@ -313,6 +317,8 @@ bool Coords::Proj4Projection::isOK() const
 void Coords::Proj4Projection::init()
 {
     proj_ = pj_init_plus( defstr_.buf() );
+    if ( proj_ && !isLatLong() )
+	llproj_ = pj_latlong_from_proj( proj_ );
 }
 
 
@@ -338,7 +344,7 @@ Coord Coords::Proj4Projection::transformTo( const Coords::Projection& target,
     if ( !isOK() || !target.isOK() )
 	return Coord::udf();
 
-    projPJ srcproj4 = isLatLong() ? proj_ : pj_latlong_from_proj( proj_ );
+    projPJ srcproj4 = getLLProj();
     mDynamicCastGet(const Proj4Projection*,targetproj4,&target)
     if ( !srcproj4 || !targetproj4 || targetproj4->isLatLong() )
 	return Coord::udf();
@@ -358,9 +364,7 @@ LatLong Coords::Proj4Projection::transformTo( const Coords::Projection& target,
 	return LatLong::udf();
 
     mDynamicCastGet(const Proj4Projection*,targetproj4,&target)
-    projPJ targetproj4ll = targetproj4 && !targetproj4->isLatLong()
-			 ? pj_latlong_from_proj( targetproj4->proj_ )
-			 : targetproj4->isLatLong() ? targetproj4->proj_ : 0;
+    projPJ targetproj4ll = targetproj4 ? targetproj4->getLLProj() : 0;
     if ( !targetproj4ll )
 	return LatLong::udf();
 
