@@ -129,6 +129,8 @@ void uiWellSinglePropSel::updateLogInfo()
     }
     if ( !selunstr.isEmpty() )
 	unfld_->setUnit( selunstr );
+
+    updateSelCB( 0 );
 }
 
 
