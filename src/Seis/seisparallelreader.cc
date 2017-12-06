@@ -599,14 +599,12 @@ bool execute()
 
 	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
 	    {
-		// Check if amplitude equals undef value of underlying data
-		// type knowing that array has been initialized with undefs
 		const float zval = dpzsamp.atIndex( zidx );
 		const int trczidx = trc_.nearestSample( zval );
 		const unsigned char* srcptr =
 			databuf->data() + trczidx*bytespersamp;
 		char* dstptr = dststartptr + (zidx+startidx)*bytespersamp;
-		if ( !scaler && memcmp(dstptr,srcptr,bytespersamp) )
+		if ( !scaler )
 		{
 		    OD::sysMemCopy(dstptr,srcptr,bytespersamp );
 		    continue;
