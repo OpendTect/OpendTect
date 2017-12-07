@@ -275,8 +275,9 @@ final class TextLinter extends ArcanistLinter {
   protected function lintForbiddenStrings($path) {
 
     $badstrings = array( 'sqrt(', 'atan2(' );
-    $badregexps = array( '/[\n[:blank:]]+small+[^a-zA-Z0-9\s]+/',
-			 '/[;]+[\n[:blank:]]+detachAllNotifiers/' );
+    $badregexps = array( '/[\n[:blank:]]+small+[^a-zA-Z0-9\s]+/' );
+// We have cases that require detachAllNotifers() not being the first line.
+//			 '/[;]+[\n[:blank:]]+detachAllNotifiers/' );
     $regexpmsgs = array( 'Variables are not allowed to be called '.
 			 'small as it interferes with types on some compliers',
 			 'detachAllNotifiers() must be the first call in the '.
