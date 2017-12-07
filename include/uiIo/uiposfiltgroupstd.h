@@ -26,7 +26,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
 
     static uiPosFiltGroup* create( uiParent* p, const Setup& s )
     			{ return new uiRandPosFiltGroup(p,s); }
@@ -49,7 +49,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
 
     static uiPosFiltGroup* create( uiParent* p, const Setup& s )
     			{ return new uiSubsampPosFiltGroup(p,s); }

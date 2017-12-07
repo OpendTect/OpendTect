@@ -198,12 +198,12 @@ uiPosFilterSetSel::uiPosFilterSetSel( uiParent* p,
 
 uiString uiPosFilterSetSel::getSummary() const
 {
-    BufferString txt;
+    uiString txt;
     if ( setup_.is2d_ )
 	{ Pos::FilterSet2D pfs; pfs.usePar( iop_ ); pfs.getSummary( txt ); }
     else
 	{ Pos::FilterSet3D pfs; pfs.usePar( iop_ ); pfs.getSummary( txt ); }
-    return toUiString(txt);
+    return txt;
 }
 
 

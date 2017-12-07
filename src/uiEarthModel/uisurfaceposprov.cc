@@ -164,10 +164,11 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 }
 
 
-void uiSurfacePosProvGroup::getSummary( BufferString& txt ) const
+void uiSurfacePosProvGroup::getSummary( uiString& txt ) const
 {
     if ( !surf1fld_ ) return;
-    txt += issingfld_->getBoolValue() ? "On Horizon" : "Between Horizons";
+    txt.addSpace().append(issingfld_->getBoolValue() ? tr("On Horizon") :
+						    tr("Between Horizons"));
 }
 
 

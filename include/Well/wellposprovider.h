@@ -46,7 +46,7 @@ public:
     virtual float	curZ() const		{ return curz_; }
     virtual bool	includes(const BinID&,float z) const;
     virtual bool	includes(const Coord&,float z) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
 
     virtual void	getExtent(BinID&,BinID&) const;
     virtual void	getZRange(Interval<float>&) const;

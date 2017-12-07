@@ -170,16 +170,16 @@ void Pos::TableProvider3D::fillPar( IOPar& iop ) const
 }
 
 
-void Pos::TableProvider3D::getSummary( BufferString& txt ) const
+void Pos::TableProvider3D::getSummary( uiString& txt ) const
 {
     const int sz = mCast( int, bvs_.totalSize() );
     if ( sz < 1 ) return;
-    txt += sz; txt += " point"; if ( sz > 1 ) txt += "s";
+    txt.append(tr(" %1 %2").arg(sz).arg(tr("point")));
     BinID start, stop;
     getExtent( start, stop );
-    txt.add( " at " ).add( start.toString() );
+    txt.append( tr(" at ") ).append( start.toString() );
     if ( start != stop )
-	txt.add( "-" ).add( stop.toString() );
+	txt.append( "-" ).append( stop.toString() );
 }
 
 

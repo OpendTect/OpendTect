@@ -144,15 +144,16 @@ void Pos::SeisProvider3D::fillPar( IOPar& iop ) const
 }
 
 
-void Pos::SeisProvider3D::getSummary( BufferString& txt ) const
+void Pos::SeisProvider3D::getSummary( uiString& txt ) const
 {
     if ( id_.isInvalid() )
-	txt.set( "<No selection>" );
+	txt = tr( "<No selection>" );
     else
-	txt.set( "=> " ).add( DBM().nameOf(id_) );
+	txt = toUiString( "=> " ).append( DBM().nameOf(id_) );
     const int nrsamps = nrSamples();
     if ( nrsamps > 1 )
-	txt.add( " (" ).add( nrsamps ).add( " samples)" );
+	txt.append( " (%1 %2)" ).arg( nrsamps )
+			    .arg(uiStrings::sSample(mPlural).toLower());
 }
 
 

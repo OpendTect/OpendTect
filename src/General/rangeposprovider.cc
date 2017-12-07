@@ -142,13 +142,13 @@ void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
 }
 
 
-void Pos::RangeProvider3D::getSummary( BufferString& txt ) const
+void Pos::RangeProvider3D::getSummary( uiString& txt ) const
 {
-    txt.set( tkzs_.hsamp_.start_.toString() ).add( "-" );
-    txt.add( tkzs_.hsamp_.stop_.toString() ); // needs to be a separate line
+    txt.addSpace().append(toUiString(tkzs_.hsamp_.start_.toString()))
+	.append(" - ").append(toUiString(tkzs_.hsamp_.stop_.toString()));
     const int nrsamps = zsampsz_;
     if ( nrsamps > 1 )
-	txt.add( " (" ).add( nrsamps ).add( " samples)" );
+	txt.append( toUiString(" (%1 %2)").arg(nrsamps).arg(tr("Samples")) );
 }
 
 
@@ -633,29 +633,28 @@ int Pos::RangeProvider2D::estNrZPerPos() const
 { return zrgs_[0].nrSteps()+1; }
 
 
-void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
+void Pos::RangeProvider2D::getSummary( uiString& txt ) const
 {
     if ( geomids_.size() < 2 && !trcrgs_.isEmpty() )
     {
-	txt = "Trc Range: "; txt += trcrgs_[0].start;
-	txt += "-"; txt += trcrgs_[0].stop;
-	txt += "-"; txt += trcrgs_[0].step;
+	txt = tr("Trace Range: %1-%2-%3").arg(trcrgs_[0].start)
+		    .arg(trcrgs_[0].stop).arg(trcrgs_[0].step);
 	if ( !zrgs_.isEmpty() )
 	{
-	    txt += " ("; txt += zrgs_[0].nrSteps() + 1;
-	    txt += " samples)";
+	    txt.append(" (%1 %2)").arg(zrgs_[0].nrSteps() + 1)
+						.arg(tr("samples"));
 	}
 
 	return;
     }
 
-    txt = "2D Lines";
-    txt += ": ";
+    txt = uiStrings::s2DLine();
+    txt.append(": ");
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	txt += Survey::GM().getName( geomids_[idx] );
+	txt.append( Survey::GM().getName( geomids_[idx]) );
 	if ( idx < geomids_.size()-1 )
-	    txt += ", ";
+	    txt.append(", ");
     }
 }
 

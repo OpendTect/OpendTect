@@ -107,9 +107,10 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 }
 
 
-void uiBodyPosProvGroup::getSummary( BufferString& txt ) const
+void uiBodyPosProvGroup::getSummary( uiString& txt ) const
 {
-    txt += inoutbut_->getBoolValue() ? "Inside geo-body" : "Outside geo-body";
+    txt.addSpace().append( inoutbut_->getBoolValue() ?
+			    tr("Inside geo-body") : tr("Outside geo-body") );
 }
 
 

@@ -219,10 +219,11 @@ void WellProvider3D::fillPar( IOPar& iop ) const
 }
 
 
-void WellProvider3D::getSummary( BufferString& txt ) const
+void WellProvider3D::getSummary( uiString& txt ) const
 {
-    if ( wellids_.isEmpty() ) { txt += "No wells."; return; }
-    txt.add( wellids_.size() ).add( " wells" );
+    if ( wellids_.isEmpty() ) { txt.addSpace().append("No wells."); return; }
+    txt.addSpace().append( toUiString("%1 %2").arg(wellids_.size())
+				.arg(uiStrings::sWell(mPlural).toLower()) );
 }
 
 

@@ -63,7 +63,7 @@ public:
     virtual void	usePar(const IOPar&)			= 0;
     virtual void	fillPar(IOPar&) const			= 0;
 
-    virtual void	getSummary(BufferString&) const		= 0;
+    virtual void	getSummary(uiString&) const		= 0;
     virtual float	estRatio(const Provider&) const		= 0;
 
     static Filter*	make(const IOPar&,bool is2d);

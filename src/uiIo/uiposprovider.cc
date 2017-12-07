@@ -352,7 +352,9 @@ uiString uiPosProvSel::getSummary() const
     else
     {
 	ret = prov_->type(); ret[1] = '\0'; ret += ": ";
-	prov_->getSummary( ret );
+	uiString val;
+	prov_->getSummary( val );
+	ret += mFromUiStringTodo(val);
     }
     return toUiString( ret );
 }

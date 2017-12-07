@@ -23,7 +23,7 @@ namespace Pos
 */
 
 mExpClass(Algo) RandomFilter : public virtual Filter
-{
+{ mODTextTranslationClass(RandomFilter)
 public:
 
 			RandomFilter()
@@ -35,7 +35,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
     virtual float	estRatio(const Provider&) const	{ return passratio_; }
 
     float		passratio_;
@@ -104,7 +104,7 @@ public:
 */
 
 mExpClass(Algo) SubsampFilter : public virtual Filter
-{
+{ mODTextTranslationClass(SubsampFilter)
 public:
 
 			SubsampFilter()
@@ -116,7 +116,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
     virtual float	estRatio(const Provider&) const	{ return 1.f/each_; }
 
     int			each_;

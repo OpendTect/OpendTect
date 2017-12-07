@@ -25,7 +25,7 @@ class uiFileSel;
 /*! \brief UI for RangePosProvider */
 
 mExpClass(uiIo) uiRangePosProvGroup : public uiPosProvGroup
-{
+{ mODTextTranslationClass(uiRangePosProvGroup)
 public:
 
 			uiRangePosProvGroup(uiParent*,
@@ -33,7 +33,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
-    void		getSummary(BufferString&) const;
+    void		getSummary(uiString&) const;
 
     void		setExtractionDefaults();
 
@@ -57,14 +57,14 @@ protected:
 /*! \brief UI for PolyPosProvider */
 
 mExpClass(uiIo) uiPolyPosProvGroup : public uiPosProvGroup
-{
+{ mODTextTranslationClass(uiPolyPosProvGroup)
 public:
 			uiPolyPosProvGroup(uiParent*,
 					   const uiPosProvGroup::Setup&);
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
-    void		getSummary(BufferString&) const;
+    void		getSummary(uiString&) const;
 
     void		setExtractionDefaults();
 
@@ -94,7 +94,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
-    void		getSummary(BufferString&) const;
+    void		getSummary(uiString&) const;
 
     bool		getID(DBKey&) const;
 

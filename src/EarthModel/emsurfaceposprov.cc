@@ -282,18 +282,19 @@ void Pos::EMSurfaceProvider::fillPar( IOPar& iop ) const
 }
 
 
-void Pos::EMSurfaceProvider::getSummary( BufferString& txt ) const
+void EMSurfaceProvider::getSummary( uiString& txt ) const
 {
     switch ( nrSurfaces() )
     {
 	case 0:
 	return;
 	case 1:
-	    txt += "On '"; txt += DBM().nameOf(id1_); txt += "'";
+	    txt.addSpace().append(tr("On '%1'","xyz lies On abc")
+					.arg(toUiString(DBM().nameOf(id1_))) );
 	break;
 	default:
-	    txt += "Between '"; txt += DBM().nameOf(id1_);
-	    txt += "' and '"; txt += DBM().nameOf(id2_);
+	    txt.addSpace().append(tr("Between '%1' and '%2'")
+		.arg(toUiString(DBM().nameOf(id1_))).arg(DBM().nameOf(id2_)) );
 	break;
     }
 }
@@ -840,25 +841,23 @@ bool Pos::EMImplicitBodyProvider::isOK() const
 }
 
 
-void Pos::EMImplicitBodyProvider::getSummary( BufferString& txt ) const
+void EMImplicitBodyProvider::getSummary( uiString& txt ) const
 {
     if ( !embody_ )
     {
-	txt += "Empty body";
+	txt.addSpace().append( tr("Empty body") );
 	return;
     }
 
-    txt += useinside_ ? "Inside of " : "Outside of ";
-    txt += embody_->storageName();
+    txt.addSpace().append( useinside_ ? tr("Inside of") : tr("Outside of") );
+    txt.addSpace().append(embody_->storageName());
     if ( !useinside_ )
     {
-	txt += "  Within cube range: Inline( ";
-	txt += bbox_.hsamp_.start_.inl(); txt += ", ";
-	txt += bbox_.hsamp_.stop_.inl(); txt += " ), Crossline( ";
-	txt += bbox_.hsamp_.start_.crl(); txt += ", ";
-	txt += bbox_.hsamp_.stop_.crl(); txt += " ), Z( ";
-	txt += bbox_.zsamp_.start; txt += ", ";
-	txt += bbox_.zsamp_.stop; txt += " ).";
+	txt.addSpace().append(tr("Within cube range: Inline( %1, %2 ), "
+	    "Crossline( %3, %4 ), Z( %5, %6 ).").arg(bbox_.hsamp_.start_.inl())
+	    .arg(bbox_.hsamp_.stop_.inl()).arg(bbox_.hsamp_.start_.crl())
+	    .arg(bbox_.hsamp_.stop_.crl()).arg(bbox_.zsamp_.start)
+	    .arg(bbox_.zsamp_.stop));
     }
 }
 
@@ -1019,7 +1018,7 @@ void Pos::EMRegion3DProvider::fillPar( IOPar& iop ) const
 }
 
 
-void Pos::EMRegion3DProvider::getSummary( BufferString& txt ) const
+void EMRegion3DProvider::getSummary( uiString& txt ) const
 {
 }
 

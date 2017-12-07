@@ -204,19 +204,19 @@ void Pos::FilterSet::usePar( const IOPar& iop )
 }
 
 
-void Pos::FilterSet::getSummary( BufferString& txt ) const
+void Pos::FilterSet::getSummary( uiString& txt ) const
 {
     if ( isEmpty() )
-	{ txt += "-"; return; }
+	{ txt = toUiString("%1-").arg(txt); return; }
 
-    if ( size() > 1 ) txt += "{";
+    if ( size() > 1 ) txt = toUiString("%1 {").arg(txt);
     filts_[0]->getSummary( txt );
     for ( int idx=1; idx<size(); idx++ )
     {
-	txt += ",";
+	txt = toUiString("%1 %2").arg(txt).arg(",");
 	filts_[idx]->getSummary( txt );
     }
-    if ( size() > 1 ) txt += "}";
+    if ( size() > 1 ) txt = toUiString("%1 %2").arg(txt).arg("}");
 }
 
 
@@ -277,9 +277,9 @@ void Pos::RandomFilter::fillPar( IOPar& iop ) const
 }
 
 
-void Pos::RandomFilter::getSummary( BufferString& txt ) const
+void Pos::RandomFilter::getSummary( uiString& txt ) const
 {
-    txt += "Remove " ; txt += (1-passratio_)*100; txt += "%";
+    txt = tr("Remove %1%").arg((1-passratio_)*100);
 }
 
 
@@ -314,9 +314,10 @@ void Pos::SubsampFilter::fillPar( IOPar& iop ) const
 }
 
 
-void Pos::SubsampFilter::getSummary( BufferString& txt ) const
+void Pos::SubsampFilter::getSummary( uiString& txt ) const
 {
-    txt += "Pass each " ; txt += each_; txt += getRankPostFix(each_);
+    txt = tr("Pass each %1%2").arg(each_)
+				.arg(toUiString(getRankPostFix(each_)));
 }
 
 

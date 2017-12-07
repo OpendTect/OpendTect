@@ -23,7 +23,7 @@ namespace Pos
 /*!\brief Volume/Area provider based on Polygon */
 
 mExpClass(Geometry) PolyProvider3D : public Provider3D
-{
+{ mODTextTranslationClass(PolyProvider3D)
 public:
 
 			PolyProvider3D();
@@ -45,7 +45,7 @@ public:
     virtual bool	includes(const BinID&,float) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
 
     virtual void	getExtent(BinID&,BinID&) const;
     virtual void	getZRange(Interval<float>&) const;

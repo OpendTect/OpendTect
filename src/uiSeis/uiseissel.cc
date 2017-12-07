@@ -531,12 +531,12 @@ bool uiSeisPosProvGroup::fillPar( IOPar& iop ) const
 }
 
 
-void uiSeisPosProvGroup::getSummary( BufferString& txt ) const
+void uiSeisPosProvGroup::getSummary( uiString& txt ) const
 {
-    txt.set( "From 3D Seismics" );
+    txt = tr( "From 3D Seismics" );
     const IOObj* ioobj = seissel_->ioobj( true );
     if ( ioobj )
-	txt.add( " '" ).add( ioobj->name() ).add( "." );
+	txt.append( " '" ).append( ioobj->name() ).append( "." );
 }
 
 

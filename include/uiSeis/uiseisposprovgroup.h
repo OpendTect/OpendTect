@@ -28,7 +28,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
-    void		getSummary(BufferString&) const;
+    void		getSummary(uiString&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
 			{ return new uiSeisPosProvGroup(p,s); }

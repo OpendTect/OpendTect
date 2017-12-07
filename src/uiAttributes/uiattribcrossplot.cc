@@ -332,13 +332,13 @@ bool uiAttribCrossPlot::acceptOK()
     if ( dps->isEmpty() )
 	mErrRet(tr("No positions selected"))
 
-    BufferString dpsnm; prov->getSummary( dpsnm );
+    uiString dpsnm; prov->getSummary( dpsnm );
     if ( filt )
     {
-	BufferString filtsumm; filt->getSummary( filtsumm );
-	dpsnm += " / "; dpsnm += filtsumm;
+	uiString filtsumm; filt->getSummary( filtsumm );
+	dpsnm.append(" / ").append(filtsumm);
     }
-    dps->setName( dpsnm );
+    dps->setName( mFromUiStringTodo(dpsnm) );
     IOPar descsetpars;
     ads_.fillPar( descsetpars );
     const_cast<PosVecDataSet*>( &(dps->dataSet()) )->pars() = descsetpars;

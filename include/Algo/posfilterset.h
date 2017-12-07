@@ -42,7 +42,7 @@ public:
     virtual bool	hasZAdjustment() const;
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
     virtual float	estRatio(const Provider&) const;
 
     bool		isEmpty() const	{ return filts_.isEmpty(); }

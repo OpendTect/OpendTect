@@ -34,7 +34,7 @@ public:
 
     virtual void	usePar(const IOPar&)		= 0;
     virtual bool	fillPar(IOPar&) const		= 0;
-    virtual void	getSummary(BufferString&) const	= 0;
+    virtual void	getSummary(uiString&) const	= 0;
 
     mDefineFactory2ParamInClass(uiPosFiltGroup,uiParent*,const Setup&,factory);
 

@@ -50,7 +50,7 @@ public:
     virtual bool	includes(const BinID&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
 
     virtual void	getExtent(BinID& start,BinID& stop) const;
     virtual void	getZRange(Interval<float>&) const;

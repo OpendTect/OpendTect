@@ -25,7 +25,7 @@ namespace Pos
 /*!\brief 3D provider based on TrcKeyZSampling */
 
 mExpClass(General) RangeProvider3D : public Provider3D
-{
+{ mODTextTranslationClass(RangeProvider3D)
 public:
 
 			RangeProvider3D();
@@ -46,7 +46,7 @@ public:
     virtual bool	includes(const BinID&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
 
     virtual void	getExtent(BinID& start,BinID& stop) const;
     virtual void	getZRange(Interval<float>&) const;
@@ -84,7 +84,7 @@ Can only be used if Line2DData is filled.
  */
 
 mExpClass(General) RangeProvider2D : public Provider2D
-{
+{ mODTextTranslationClass(RangeProvider2D)
 public:
 			RangeProvider2D();
 			RangeProvider2D(const RangeProvider2D&);
@@ -107,7 +107,7 @@ public:
     virtual bool	includes(const Coord&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
 
     virtual void	getExtent( Interval<int>& rg, int lidx=-1 ) const;
     virtual void	getZRange( Interval<float>& rg, int lidx ) const;

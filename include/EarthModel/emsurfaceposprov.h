@@ -50,7 +50,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
 
     virtual void	getZRange(Interval<float>&) const;
     virtual od_int64	estNrPos() const { return estnrpos_; }
@@ -266,7 +266,7 @@ public:
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
-    virtual void		getSummary(BufferString&) const;
+    virtual void		getSummary(uiString&) const;
 
     virtual void		getTrcKeyZSampling(TrcKeyZSampling& cs) const;
     const TrcKeyZSampling&	getImpBodyRange() const { return tkzs_; }
@@ -333,7 +333,7 @@ public:
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
-    virtual void		getSummary(BufferString&) const;
+    virtual void		getSummary(uiString&) const;
 
     virtual void		getTrcKeyZSampling(TrcKeyZSampling& cs) const;
 

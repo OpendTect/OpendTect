@@ -45,7 +45,7 @@ public:
     virtual bool	includes(const BinID&,float) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
+    virtual void	getSummary(uiString&) const;
 
     void		getExtent(BinID&,BinID&) const;
     void		getZRange(Interval<float>&) const;
