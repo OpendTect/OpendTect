@@ -200,8 +200,15 @@ void uiSEGYFileSelector::vntChgCB( CallBacker* )
 
     Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
     vintnms.add( uiStrings::sEmptyString().getOriginalString() );
+    if ( !vintagefld_->isPresent(uiStrings::sEmptyString().getOriginalString()) )
+	    vintagefld_->addItem( uiStrings::sEmptyString() );
     for ( int pidx=0; pidx<parset.size(); pidx++ )
-	vintnms.add( parset[pidx]->name() );
-
-    vintagefld_->addItems( vintnms );
+    {
+	if ( !vintagefld_->isPresent(parset[pidx]->name()) )
+	{
+	    uiString nm;
+	    nm.set( parset[pidx]->name().buf() );
+	    vintagefld_->addItem( nm );
+	}
+    }
 }
