@@ -70,8 +70,8 @@ int uiODAnnotParentTreeItem::sceneID() const
 
 bool uiODAnnotParentTreeItem::init()
 {
-    bool ret = uiTreeItem::init();
-    if ( !ret ) return false;
+    if ( !uiTreeItem::init() )
+	return false;
 
     addChild( new ArrowParentItem(), true );
     addChild( new ImageParentItem(), true );
@@ -118,7 +118,7 @@ const char* uiODAnnotTreeItem::parentType() const
 
 bool uiODAnnotTreeItem::init()
 {
-    return true;
+    return uiODSceneTreeItem::init();
 }
 
 
@@ -210,7 +210,7 @@ Pick::Set* uiODAnnotTreeItem::readExistingSet() const
     IOObjContext ctxt = uiPickSetIOObjSel::getCtxt( uiPickSetIOObjSel::AllSets,
 						    true, getCategory() );
     uiIOObjSelDlg dlg( getUiParent(), ctxt );
-    dlg.setCaption( uiStrings::phrLoad(typestr_) ); 
+    dlg.setCaption( uiStrings::phrLoad(typestr_) );
     dlg.setTitleText( uiStrings::phrSelect(typestr_) );
     if ( !dlg.go() || !dlg.ioObj() )
 	return 0;

@@ -1220,10 +1220,6 @@ void uiGenInput::setChecked( bool yn )
 }
 
 
-/*mDeprecated*/ bool uiGenInput::isChecked()
-{ return checked_; }
-
-
 void uiGenInput::checkBoxSel( CallBacker* cb )
 {
     if ( !cbox_ ) return;

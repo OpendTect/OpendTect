@@ -163,6 +163,9 @@ ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, int displayid )
 
 bool ScaleBarSubItem::init()
 {
+    if ( !uiODAnnotSubItem::init() )
+	return false;
+
     if (  displayid_==-1 )
     {
 	visSurvey::ScaleBarDisplay* ad = visSurvey::ScaleBarDisplay::create();
@@ -178,7 +181,7 @@ bool ScaleBarSubItem::init()
 	return false;
 
     ad->fromPar( Pick::SetMGR().getIOObjPars(getSetID()) );
-    return uiODAnnotSubItem::init();
+    return true;
 }
 
 

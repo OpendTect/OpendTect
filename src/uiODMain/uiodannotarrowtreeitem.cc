@@ -36,7 +36,10 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
 
 bool ArrowSubItem::init()
 {
-    if (  displayid_==-1 )
+    if ( !uiODAnnotSubItem::init() )
+	return false;
+
+    if ( displayid_==-1 )
     {
 	visSurvey::ArrowDisplay* ad = visSurvey::ArrowDisplay::create();
 	visserv_->addObject( ad, sceneID(), true );
@@ -96,7 +99,7 @@ bool ArrowSubItem::init()
     if ( anychg ) // kept track to avoid unnecessary updates everywhere
 	set_ = *workps;
 
-    return uiODAnnotSubItem::init();
+    return true;
 }
 
 

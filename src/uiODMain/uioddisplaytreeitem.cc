@@ -145,7 +145,8 @@ uiODDataTreeItem* uiODDisplayTreeItem::addAttribItem()
 
 bool uiODDisplayTreeItem::init()
 {
-    if ( !uiTreeItem::init() ) return false;
+    if ( !uiODSceneTreeItem::init() )
+	return false;
 
     if ( getMoreObjectsToDoHint() )
 	ODMainWin()->sceneMgr().getTree(sceneID())->triggerUpdate();

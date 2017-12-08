@@ -45,10 +45,14 @@ bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
 
 bool uiODTreeItem::init()
 {
-    const char* iconnm = iconName();
-    if ( iconnm ) uitreeviewitem_->setIcon( 0, iconnm );
+    if ( !uiTreeItem::init() )
+	return false;
 
-    return uiTreeItem::init();
+    const char* iconnm = iconName();
+    if ( iconnm )
+	uitreeviewitem_->setIcon( 0, iconnm );
+
+    return true;
 }
 
 

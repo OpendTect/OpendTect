@@ -287,6 +287,5 @@ public:
 			    { return getFValue( nr, udfval ); }
     mDeprecated float getfValue( float undefval ) const
 			    { return getFValue(0,undefval); }
-    /*mDeprecated*/ bool isChecked();
-    /*mDeprecated*/ bool isCheckable()		{ return withchk_ || cbox_; }
+
 };

@@ -30,7 +30,7 @@ public:
 
 protected:
 
-    bool		init();
+    virtual bool	init();
     const char*		parentType() const;
     virtual bool	rightClick(uiTreeViewItem*);
 
@@ -87,7 +87,7 @@ protected:
 			uiODAnnotSubItem(Pick::Set&,int displayid=-1);
     virtual		~uiODAnnotSubItem();
 
-    bool		init();
+    virtual bool	init();
     virtual const char*	parentType() const		= 0;
     virtual void	fillStoragePar(IOPar&) const	{}
 
@@ -123,7 +123,6 @@ mExpClass(uiODMain) ScaleBarSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ScaleBarSubItem);
 public:
 			ScaleBarSubItem(Pick::Set&,int displayid=-1);
-    bool		init();
     static const char*	sKeyCategory()		{ return "ScaleBarAnnotations";}
 
 protected:
@@ -132,6 +131,7 @@ protected:
 
     const char*		parentType() const;
     void		fillStoragePar(IOPar&) const;
+    virtual bool	init();
 
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
@@ -149,13 +149,14 @@ mExpClass(uiODMain) ArrowSubItem : public uiODAnnotSubItem
 public:
 
 			ArrowSubItem(Pick::Set& pck,int displayid=-1);
-    bool		init();
 
     static const char*	sKeyCategory()	{ return "ArrowAnnotations"; }
 
 protected:
+
 			~ArrowSubItem()	{}
     virtual const char*	parentType() const;
+    virtual bool	init();
 
     void		fillStoragePar(IOPar&) const;
     void		createMenu(MenuHandler*,bool istb);
@@ -168,8 +169,8 @@ protected:
     virtual bool	hasScale() const	{ return false; }
     virtual const char*	getCategory() const	{ return sKeyCategory();}
 
-    static const char*		sKeyArrowType()	{ return "Arrow Type"; }
-    static const char*		sKeyLineWidth()	{ return "Line width"; }
+    static const char*	sKeyArrowType()	{ return "Arrow Type"; }
+    static const char*	sKeyLineWidth()	{ return "Line width"; }
 
 };
 
@@ -178,7 +179,6 @@ mExpClass(uiODMain) ImageSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ImageSubItem)
 public:
 			ImageSubItem(Pick::Set&,int displayid=-1);
-    bool		init();
 
     static const char*	sKeyCategory()	{ return "ImageAnnotations"; }
 
@@ -186,6 +186,7 @@ protected:
 
 			~ImageSubItem()	{}
     const char*		parentType() const;
+    virtual bool	init();
     void		fillStoragePar(IOPar&) const;
 
     void		createMenu(MenuHandler*,bool istb);
@@ -204,13 +205,14 @@ protected:
 };
 
 
-#define mDefineParentItem(type,typestr,defsz) \
+#define mDefineParentItem(type,typestr,defsz,icnm) \
 class type##ParentItem : public uiODAnnotTreeItem \
 { \
 public: \
 		type##ParentItem() \
-		    : uiODAnnotTreeItem(typestr) {} \
+		    : uiODAnnotTreeItem(uiODAnnotParentTreeItem::typestr()) {} \
 protected: \
+    virtual const char*	iconName() const	{ return icnm; } \
     uiTreeItem*	createSubItem(int di,Pick::Set& pck) \
 		{ return new type##SubItem(pck,di); } \
     const char*	getCategory() const { return type##SubItem::sKeyCategory(); } \
@@ -218,6 +220,6 @@ protected: \
 }
 
 
-mDefineParentItem(Arrow,uiODAnnotParentTreeItem::sArrows(),1000);
-mDefineParentItem(Image,uiODAnnotParentTreeItem::sImage(),1000);
-mDefineParentItem(ScaleBar,uiODAnnotParentTreeItem::sScalebar(),1000);
+mDefineParentItem( Arrow,sArrows,1000,"tree-arrows");
+mDefineParentItem( Image,sImage,1000,"tree-image");
+mDefineParentItem( ScaleBar,sScalebar,1000,"tree-scalebar");

@@ -34,6 +34,9 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
 
 bool ImageSubItem::init()
 {
+    if ( !uiODAnnotSubItem::init() )
+	return false;
+
     visSurvey::ImageDisplay* id = 0;
     if ( displayid_==-1 )
     {
@@ -48,7 +51,8 @@ bool ImageSubItem::init()
 			visserv_->getObject(displayid_))
     }
 
-    if ( !id ) return false;
+    if ( !id )
+	{ pErrMsg("Is this normal?"); return false; }
 
     id->needFileName.notifyIfNotNotified(
 			mCB(this,ImageSubItem,retrieveFileName) );
@@ -61,7 +65,7 @@ bool ImageSubItem::init()
     if ( !filename.isEmpty() )
 	id->setFileName( filename.buf() );
 
-    return uiODAnnotSubItem::init();
+    return true;
 }
 
 
