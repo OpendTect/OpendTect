@@ -34,13 +34,14 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 
     selfld_ = new uiListBox( this );
     selfld_->setName("Select from List");
+
+    filtfld_ = new uiListBoxFilter( *selfld_ );
+    filtfld_->setItems( setup_.items_ );
+
     if ( setup_.current_ < 1 )
 	selfld_->setCurrentItem( 0 );
     else
 	selfld_->setCurrentItem( setup_.current_ );
-
-    filtfld_ = new uiListBoxFilter( *selfld_ );
-    filtfld_->setItems( setup_.items_ );
 
     selfld_->setHSzPol( uiObject::Wide );
     selfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
