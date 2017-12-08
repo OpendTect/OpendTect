@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uipixmap.h"
 #include "uitreeview.h"
+#include "uiseparator.h"
 
 #include "ascstream.h"
 #include "file.h"
@@ -242,22 +243,37 @@ void uiPluginSel::makeProductList(
 }
 
 
+class uiPluginSelBannerDrawer : public uiGraphicsViewBase
+{
+public:
+
+uiPluginSelBannerDrawer( uiGroup* p )
+    : uiGraphicsViewBase( p, "OD Version banner" )
+    , pm_("banner.png")
+{
+    uiPixmapItem* pmitem = new uiPixmapItem( pm_ );
+    scene().addItem( pmitem );
+    setPrefWidth( pm_.width() );
+    setPrefHeight( pm_.height() );
+    setStretch( 2, 0 );
+}
+
+    const uiPixmap pm_;
+};
+
+
 void uiPluginSel::createUI()
 {
     uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
     grp->setFrame( true );
 
-    uiGraphicsViewBase* banner = new uiGraphicsViewBase( grp, "OpendTect" );
-    uiPixmap pm( "banner.png" );
-    uiPixmapItem* pmitem = new uiPixmapItem( uiPixmap(pm) );
-    banner->scene().addItem( pmitem );
-    banner->setPrefHeight( pm.height() );
-    banner->setStretch( 2, 0 );
+    uiPluginSelBannerDrawer* banner = new uiPluginSelBannerDrawer( grp );
+    uiSeparator* sep = new uiSeparator( grp );
+    sep->attach( stretchedBelow, banner );
 
     treefld_ = new uiTreeView( grp, "Plugin tree" );
-    treefld_->setStretch( 2, 2 );
     treefld_->showHeader( false );
-    treefld_->attach( alignedBelow, banner );
+    treefld_->attach( ensureBelow, sep );
     float height = 0.0f;
     for ( int idv=0; idv<vendors_.size(); idv++ )
     {
@@ -282,9 +298,12 @@ void uiPluginSel::createUI()
     }
 
     treefld_->expandAll();
-    treefld_->setPrefHeightInChar( height ? height+1 : height );
-}
+    treefld_->setPrefWidth( banner->pm_.width() );
+    treefld_->setPrefHeightInChar( height+2 );
+    treefld_->setStretch( 0, 2 );
 
+    setPrefWidth( banner->pm_.width() );
+}
 
 bool uiPluginSel::acceptOK()
 {
