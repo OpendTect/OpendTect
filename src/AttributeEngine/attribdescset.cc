@@ -53,9 +53,9 @@ const DescSet&	DescSet::empty3D()	{ return *empty3d_; }
 DescSet&	DescSet::dummy2D()	{ return *dummy2d_; }
 DescSet&	DescSet::dummy3D()	{ return *dummy3d_; }
 
-struct DescSet_Standard_Manager : public CallBacker
+mClass(Attrib) DescSet_Standard_Manager : public CallBacker
 {
-
+public:
 DescSet_Standard_Manager()
 {
     DBM().afterSurveyChange.notify(
