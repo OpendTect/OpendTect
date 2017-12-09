@@ -74,7 +74,7 @@ bool PointSetDisplay::setDataPack( int dpsid )
     mDynamicCastGet(DataPointSet*,data,pack)
     data_ = data;
 
-    setName( data_ ? data_->name() : uiString::emptyString() );
+    setName( data_ ? toUiString(data_->name()) : uiString::emptyString() );
 
     return true;
 }
