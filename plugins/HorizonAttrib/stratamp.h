@@ -49,6 +49,7 @@ public:
     static const char*	sKeyBottomShift();
     static const char*	sKeyOutputFoldYN();
     static const char*	sKeyAttribName();
+    static const char*	sKeyIsClassification();
     static const char*	sKeyIsOverwriteYN();
 
 protected:

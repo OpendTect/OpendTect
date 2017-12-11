@@ -12,12 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attriboutput.h"
-#include "trckeyzsampling.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "hiddenparam.h"
 #include "stratamp.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 
 #include "uiattrsel.h"
 #include "uibatchjobdispatchersel.h"
@@ -30,7 +31,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static const char* statstrs[] = { "Min", "Max", "Average", "RMS", "Sum", 0 };
+static HiddenParam<uiStratAmpCalc,uiGenInput*> classfld_(0);
+
+static const char* statstrs[] =
+	{ "Min", "Max", "Average", "Median", "RMS", "Sum", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     : uiDialog( p, Setup(tr("StratalAmplitude"),mNoDlgTitle,
@@ -39,15 +43,21 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
     , isoverwrite_(false)
 {
+    setCtrlStyle( RunAndClose );
+
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
     inpfld_ = new uiAttrSel( this, *ads, "Quantity to output" );
     inpfld_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
 
+    uiGenInput* classfld = new uiGenInput( this,
+		tr("Values are classifications"), BoolInpSpec(false) );
+    classfld->attach( alignedBelow, inpfld_ );
+    classfld_.setParam( this, classfld );
+
     winoption_= new uiGenInput( this, tr("Window Option"),
-	                        BoolInpSpec(true, tr("Single Horizon"),
-				tr("Double Horizon")) );
+		BoolInpSpec(true,tr("Single Horizon"),tr("Double Horizon")) );
     winoption_->valuechanged.notify( mCB(this,uiStratAmpCalc,choiceSel) );
-    winoption_->attach( alignedBelow, inpfld_ );
+    winoption_->attach( alignedBelow, classfld );
 
     horfld1_ = new uiIOObjSel( this, horctio1_, uiStrings::sHorizon() );
     horfld1_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
@@ -63,8 +73,8 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 	    			      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
     tophorshiftfld_->setElemSzPol( uiObject::Small );
-    bothorshiftfld_ = new uiGenInput( this, uiStrings::sBottom(), 
-                                      FloatInpSpec(0) );
+    bothorshiftfld_ = new uiGenInput( this, uiStrings::sBottom(),
+				      FloatInpSpec(0) );
     bothorshiftfld_->attach( rightTo, tophorshiftfld_ );
     bothorshiftfld_->setElemSzPol( uiObject::Small );
 
@@ -75,18 +85,17 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 	    				   tr("Amplitude Option") );
     ampoptionfld_->attach( alignedBelow, rangefld_ );
 
-    selfld_= new uiGenInput( this, tr("Add result as an attribute to"),
-			     BoolInpSpec(true,
-                             uiStrings::sTopHor(),uiStrings::sBottomHor()) );
+    selfld_= new uiGenInput( this, tr("Add result as HorizonData to"),
+	BoolInpSpec(true,uiStrings::sTopHor(),uiStrings::sBottomHor()) );
     selfld_->valuechanged.notify( mCB(this,uiStratAmpCalc,setParFileNameCB) );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
     foldfld_ = new uiGenInput( this, tr("Output fold as an extra attribute"),
-	    		       BoolInpSpec(false) ) ;
+			       BoolInpSpec(false) ) ;
     foldfld_->attach( alignedBelow, selfld_ );
 
     attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
-			             StringInpSpec("Stratal Amplitude") );
+				     StringInpSpec("Stratal Amplitude") );
     attribnamefld_->valuechanged.notify(
 	    			mCB(this,uiStratAmpCalc,setParFileNameCB) );
     attribnamefld_->attach( alignedBelow, foldfld_ );
@@ -105,6 +114,14 @@ uiStratAmpCalc::~uiStratAmpCalc()
 {
     delete horctio1_.ioobj_; delete &horctio1_;
     delete horctio2_.ioobj_; delete &horctio2_;
+    classfld_.removeParam( this );
+}
+
+
+void uiStratAmpCalc::init()
+{
+    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
+    inpfld_->setDescSet( ads );
 }
 
 
@@ -176,7 +193,7 @@ bool uiStratAmpCalc::checkInpFlds()
 {
     if ( inpfld_->isEmpty() )
 mErrRet( tr("Missing Input\nPlease select the input attribute / seismics"));
-    
+
     if ( usesingle_ && !horfld1_->commitInput() )
 	mErrRet( tr("Missing Input\nPlease select the input Horizon") );
 
@@ -235,6 +252,9 @@ bool uiStratAmpCalc::fillPar()
     iop.set( StratAmpCalc::sKeyBottomShift(),
 	     bothorshiftfld_->getFValue() / SI().zDomain().userFactor() );
     iop.set( StratAmpCalc::sKeyAttribName(), attribnamefld_->text() );
+
+    const bool isclass = classfld_.getParam(this)->getBoolValue();
+    iop.setYN( StratAmpCalc::sKeyIsClassification(), isclass );
     iop.setYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite_ );
 
     TrcKeySampling hs;
@@ -277,5 +297,6 @@ bool uiStratAmpCalc::fillPar()
 
 bool uiStratAmpCalc::acceptOK( CallBacker* )
 {
-    return prepareProcessing() && fillPar() && batchfld_->start();
+    prepareProcessing() && fillPar() && batchfld_->start();
+    return false;
 }

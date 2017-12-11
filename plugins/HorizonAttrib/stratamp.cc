@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "odver.h"
@@ -31,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "od_ostream.h"
 
+static HiddenParam<StratAmpCalc,char> isclassification_( 0 );
 
 const char* StratAmpCalc::sKeySingleHorizonYN()	{ return "Is single horizon"; }
 const char* StratAmpCalc::sKeyTopHorizonID()	{ return "Top horizon"; }
@@ -42,6 +44,7 @@ const char* StratAmpCalc::sKeyTopShift()	{ return "Top shift"; }
 const char* StratAmpCalc::sKeyBottomShift()	{ return "Bottom shift"; }
 const char* StratAmpCalc::sKeyAttribName()	{ return "Attribute name"; }
 const char* StratAmpCalc::sKeyIsOverwriteYN()	{ return "Overwrite"; }
+const char* StratAmpCalc::sKeyIsClassification(){ return "Is Classification"; }
 
 StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
@@ -69,6 +72,7 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     if ( bothor ) bothor->ref();
 
     descset_ = new Attrib::DescSet( false );
+    isclassification_.setParam( this, 0 );
 }
 
 
@@ -77,8 +81,10 @@ StratAmpCalc::~StratAmpCalc()
     if ( tophorizon_ ) tophorizon_->unRef();
     if ( bothorizon_ ) bothorizon_->unRef();
     delete descset_;
-    if ( proc_ ) delete proc_;
-    if ( rdr_ ) delete rdr_;
+    delete proc_;
+    delete rdr_;
+
+    isclassification_.removeParam( this );
 }
 
 
@@ -89,10 +95,15 @@ int StratAmpCalc::init( const IOPar& pars )
     if ( mIsUdf(tophorshift_) || mIsUdf(bothorshift_) )
 	return -1;
 
+    bool isclassification = false;
+    pars.getYN( sKeyIsClassification(), isclassification );
+    isclassification_.setParam( this, isclassification );
+
     addtotop_ = false;
     pars.getYN( sKeyAddToTopYN(), addtotop_ );
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
-    if ( !addtohor ) return -1;
+    if ( !addtohor )
+	return -1;
 
     //determine whether stored data is used
     PtrMan<IOPar> attribs = pars.subselect("Attributes");
@@ -101,14 +112,18 @@ int StratAmpCalc::init( const IOPar& pars )
 
     BufferString outpstr = IOPar::compKey( sKey::Output(), 0 );
     PtrMan<IOPar> outputpar = pars.subselect( outpstr );
-    if ( !outputpar ) return -1;
+    if ( !outputpar )
+	return -1;
+
     BufferString attribidstr = IOPar::compKey( sKey::Attributes(), 0 );
     int attribid;
-    if ( !outputpar->get(attribidstr,attribid) ) return -1;
+    if ( !outputpar->get(attribidstr,attribid) )
+	return -1;
 
     Attrib::Desc* targetdesc =
 			descset_->getDesc( Attrib::DescID(attribid,false) );
-    if ( !targetdesc ) return -1;
+    if ( !targetdesc )
+	return -1;
 
     BufferString defstring;
     targetdesc->getDefStr( defstring );
@@ -133,15 +148,18 @@ int StratAmpCalc::init( const IOPar& pars )
 	BufferString linename; //TODO: function used in 2d?
 	PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
 	proc_ = attrengman->usePar( pars, *descset_, linename, errmsg );
-	if ( !proc_ ) return -1;
+	if ( !proc_ )
+	    return -1;
     }
 
     BufferString attribnm;
     pars.get( sKeyAttribName(), attribnm );
-    if ( attribnm.isEmpty() ) return -1;
+    if ( attribnm.isEmpty() )
+	return -1;
 
     dataidx_ = addtohor->auxdata.auxDataIndex( attribnm );
-    if ( dataidx_ < 0 ) dataidx_ = addtohor->auxdata.addAuxData( attribnm );
+    if ( dataidx_ < 0 )
+	dataidx_ = addtohor->auxdata.addAuxData( attribnm );
 
     posid_.setObjectID( addtohor->id() );
     posid_.setSectionID( addtohor->sectionID(0) );
@@ -197,17 +215,23 @@ int StratAmpCalc::nextStep()
     if ( mIsUdf(z1) || mIsUdf(z2) )
 	return Executor::MoreToDo();
 
+    const bool isclassification = isclassification_.getParam( this );
+    const StepInterval<float> zrg = trc->zRange();
     z1 += tophorshift_;
+    const float snappedz1 = isclassification ? zrg.snap( z1, 1 ) : z1;
+
     z2 += bothorshift_;
-    StepInterval<float> sampintv( z1, z2, trc->info().sampling.step );
+    const float snappedz2 = isclassification ? zrg.snap( z2, -1 ) : z2;
+    StepInterval<float> sampintv( snappedz1, snappedz2, zrg.step );
     sampintv.sort();
-    sampintv.limitTo( trc->zRange() );
+    sampintv.limitTo( zrg );
 
     Stats::CalcSetup rcsetup;
     rcsetup.require( stattyp_ );
     Stats::RunCalc<float> runcalc( rcsetup );
-    for ( float zval=sampintv.start; zval<=sampintv.stop; zval+=sampintv.step )
+    for ( int idx=0; idx<sampintv.nrSteps()+1; idx++ )
     {
+	const float zval = sampintv.atIndex( idx );
 	const float val = trc->getValue( zval, 0 );
 	if ( !mIsUdf(val) )
 	    runcalc.addValue( val );
@@ -218,15 +242,16 @@ int StratAmpCalc::nextStep()
     {
 	case Stats::Min: outval = runcalc.min(); break;
 	case Stats::Max: outval = runcalc.max(); break;
-	case Stats::Average: outval = (float) runcalc.average(); break;
-	case Stats::RMS: outval = (float) runcalc.rms(); break;
+	case Stats::Average: outval = (float)runcalc.average(); break;
+	case Stats::Median: outval = (float)runcalc.median(); break;
+	case Stats::RMS: outval = (float)runcalc.rms(); break;
 	case Stats::Sum: outval = runcalc.sum(); break;
 	default: break;
     }
 
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
     posid_.setSubID( subid );
-    addtohor->auxdata.setAuxDataVal( dataidx_, posid_, (float) outval );
+    addtohor->auxdata.setAuxDataVal( dataidx_, posid_, (float)outval );
     if ( outfold_ )
     {
 	posidfold_.setSubID( subid );

@@ -25,7 +25,9 @@ mClass(uiHorizonAttrib) uiStratAmpCalc : public uiDialog
 public:
 			uiStratAmpCalc(uiParent*);
 			~uiStratAmpCalc();
-		      
+
+    void		init();
+
 protected:
     void		inpSel(CallBacker*);
     void		horSel(CallBacker*);

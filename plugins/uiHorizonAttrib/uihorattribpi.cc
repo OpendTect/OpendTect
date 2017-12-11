@@ -83,6 +83,7 @@ public:
 
     uiODMain*			appl_;
     uiEMDataPointSetPickDlg*	dpspickdlg_;
+    uiStratAmpCalc*		stratampdlg_;
 };
 
 
@@ -93,6 +94,7 @@ public:
 uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	: appl_(a)
 	, dpspickdlg_(0)
+	, stratampdlg_(0)
 	, flattenmnuitemhndlr_(
 		mMkPars("Write Flattened cube ...",doFlattened),"Workflows")
 	, isochronmnuitemhndlr_(
@@ -109,6 +111,7 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mAttachCB( mnumgr.dTectMnuChanged, uiHorAttribPIMgr::updateMenu );
+    mAttachCB( IOM().applicationClosing, uiHorAttribPIMgr::updateMenu );
     updateMenu(0);
 
     polyvolmnuitemhndlr_.addWhenPickSet( false );
@@ -118,6 +121,8 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 uiHorAttribPIMgr::~uiHorAttribPIMgr()
 {
     detachAllNotifiers();
+    delete stratampdlg_;
+    delete dpspickdlg_;
 }
 
 
@@ -134,13 +139,23 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
 
     itm->getMenu()->insertItem( new uiAction("Isochron ...",
 			    mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
+
+    deleteAndZeroPtr( stratampdlg_ );
+    deleteAndZeroPtr( dpspickdlg_ );
 }
 
 
 void uiHorAttribPIMgr::makeStratAmp( CallBacker* )
 {
-    uiStratAmpCalc dlg( appl_ );
-    dlg.go();
+    if ( !stratampdlg_ )
+    {
+	stratampdlg_ = new uiStratAmpCalc( appl_ );
+	stratampdlg_->setModal( false );
+    }
+    else
+	stratampdlg_->init();
+
+    stratampdlg_->show();
 }
 
 
@@ -257,7 +272,7 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
 	uiMSG().error(tr("Cannot add extra attribute layers"));
 	return;
     }
-    
+
     const int attrib = visserv->addAttrib( displayid );
     Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSel(),
 			  false, 0 );
@@ -328,7 +343,8 @@ void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
 
     uiODDataTreeItem* itm = horitm->addAttribItem();
     mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
-    if ( emitm ) emitm->setDataPointSet( dpspickdlg_->getData() );
+    if ( emitm && dpspickdlg_ )
+	emitm->setDataPointSet( dpspickdlg_->getData() );
 }
 
 
