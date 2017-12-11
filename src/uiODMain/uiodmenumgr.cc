@@ -211,6 +211,7 @@ void uiODMenuMgr::fillSurveyMenu()
 		       "survey" )
 
     uiMenu* sessionitm = new uiMenu( &appl_, tr("Session") ) ;
+    sessionitm->setIcon( "session" );
     mInsertItem( sessionitm, m3Dots(uiStrings::sSave()), mSessSaveMnuItm );
     mInsertItem( sessionitm, m3Dots(tr("Restore")), mSessRestMnuItm );
     mInsertItem( sessionitm, m3Dots(tr("Auto-load")), mSessAutoMnuItm );
@@ -218,18 +219,22 @@ void uiODMenuMgr::fillSurveyMenu()
     surveymnu_->insertSeparator();
 
     impmnu_ = new uiMenu( &appl_, uiStrings::sImport() );
+    impmnu_->setIcon( "import" );
     fillImportMenu();
     surveymnu_->insertItem( impmnu_ );
 
     expmnu_ = new uiMenu( &appl_, uiStrings::sExport() );
+    expmnu_->setIcon( "export" );
     fillExportMenu();
     surveymnu_->insertItem( expmnu_ );
 
     manmnu_ = new uiMenu( &appl_, tr("Manage") );
+    manmnu_->setIcon( "manage" );
     fillManMenu();
     surveymnu_->insertItem( manmnu_ );
 
     preloadmnu_ = new uiMenu( &appl_, tr("Pre-load") );
+    preloadmnu_->setIcon( "preloaded" );
     mInsertPixmapItem( preloadmnu_,
                       m3Dots(uiStrings::sVolDataName(true,true,false)),
 		 mPreLoadSeisMnuItm, "preload_seis" );
@@ -238,7 +243,7 @@ void uiODMenuMgr::fillSurveyMenu()
     surveymnu_->insertItem( preloadmnu_ );
 
     surveymnu_->insertSeparator();
-    mInsertItem( surveymnu_, uiStrings::sExit(), mExitMnuItm );
+    mInsertPixmapItem( surveymnu_, uiStrings::sExit(), mExitMnuItm, "exit" );
 }
 
 
@@ -533,7 +538,7 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, m3Dots(tr("Bodies")),
 		      mManBodyMnuItm, "man_body" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Color Tables")),
-		       mManColTabMnuItm, "empty" );
+		       mManColTabMnuItm, "man_colorbars" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Cross-plot Data")),
 			mManCrossPlotItm, "manxplot" );
     mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sFault(mPlural)),
@@ -565,14 +570,14 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, m3Dots(tr("Probability Density Functions")),
 		 mManPDFMnuItm, "man_prdfs" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Random Lines")), mManRanLMnuItm,
-			"empty" );
+			"man_randomlines" );
     add2D3DMenuItem( *manmnu_, "man_seis",
                     uiStrings::sVolDataName(true, true, false),
 			mManSeis2DMnuItm, mManSeis3DMnuItm );
     add2D3DMenuItem( *manmnu_, "man_ps", tr("Seismics Prestack"),
 			mManSeisPS2DMnuItm, mManSeisPS3DMnuItm );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Sessions")),
-			mManSessMnuItm, "empty" )
+			mManSessMnuItm, "man_sessions" )
     mInsertPixmapItem( manmnu_,
 			m3Dots(uiStrings::sStratigraphy()),
 			mManStratMnuItm, "man_strat" )
