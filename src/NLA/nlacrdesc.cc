@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
+#include "nlamodel.h"
 #include "posvecdataset.h"
 #include "datapointset.h"
 #include "ptrman.h"
@@ -205,4 +206,10 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 
     dps.dataChanged();
     return uiString::emptyString();
+}
+
+
+bool isEmpty( const NLAModel* mdl )
+{
+    return !mdl || mdl->design().inputs.isEmpty();
 }

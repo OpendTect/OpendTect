@@ -44,9 +44,6 @@ public:
 };
 
 
-mGlobal(NLA) inline bool isEmpty( const NLAModel* mdl )
-{
-    return !mdl || mdl->design().inputs.isEmpty();
-}
+mGlobal(NLA) bool isEmpty(const NLAModel* mdl);
 
 #endif
