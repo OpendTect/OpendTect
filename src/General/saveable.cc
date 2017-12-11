@@ -167,7 +167,7 @@ void Saveable::setJustSaved() const
 }
 
 
-bool Saveable::isSave( const IOObj& ioobj ) const
+bool Saveable::storeIsSave( const IOObj& ioobj ) const
 {
     return storekey_ == ioobj.key();
 }

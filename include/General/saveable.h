@@ -59,7 +59,7 @@ protected:
 
 			// This function can be called from any thread
     virtual uiRetVal	doStore(const IOObj&) const	= 0;
-    bool		isSave(const IOObj&) const;
+    bool		storeIsSave(const IOObj&) const;
 
 private:
 

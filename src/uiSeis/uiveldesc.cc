@@ -240,25 +240,27 @@ bool uiVelocityDescDlg::acceptOK()
 }
 
 
-uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt,
-		    const uiSeisSel::Setup& setup, bool iseditbutton )
-    : uiSeisSel( p, ctxt, setup )
+uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt, const Setup& setup )
+    : uiSeisSel( p, ctxt, static_cast<Setup&>(
+		    const_cast<Setup&>(setup).withinserters(false)) )
     , velrgchanged( this )
-    , editcubebutt_(0)
+    , editbut_(0)
 {
     seissetup_.allowsetsurvdefault_ = true;
     seissetup_.survdefsubsel_ = "Velocity";
-    if ( iseditbutton )
-    {
-	editcubebutt_ = new uiPushButton( this, uiString::emptyString(),
-		mCB(this,uiVelSel,editCB), false );
-	editcubebutt_->attach( rightOf, endObj(false) );
-	selectionDoneCB( 0 );
-	selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
-    }
 
+    editbut_ = uiButton::getStd( this, OD::Edit, mCB(this,uiVelSel,butPushCB),
+				 true, uiString::emptyString() );
+    editbut_->setToolTip( tr("Edit the velocity parameters") );
+    editbut_->attach( rightOf, endObj(false) );
+
+    uiButton* createbut = uiButton::getStd( this, OD::Create,
+		mCB(this,uiVelSel,butPushCB), true, uiString::emptyString() );
+    createbut->setToolTip( tr("Create new velocity model") );
+    createbut->attach( rightOf, editbut_ );
+
+    selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
     postFinalise().notify( mCB(this,uiVelSel,selectionDoneCB) );
-    //sets the ranges
 }
 
 
@@ -280,9 +282,12 @@ const IOObjContext& uiVelSel::ioContext()
 }
 
 
-void uiVelSel::editCB(CallBacker*)
+void uiVelSel::butPushCB( CallBacker* cb )
 {
-    uiVelocityDescDlg dlg( this, workctio_.ioobj_ );
+    const IOObj* useioobj = 0;
+    if ( cb == editbut_ )
+	useioobj = ioobj( true );
+    uiVelocityDescDlg dlg( this, useioobj );
     if ( dlg.go() )
     {
 	PtrMan<IOObj> sel = dlg.getSelection();
@@ -295,14 +300,14 @@ void uiVelSel::editCB(CallBacker*)
     velrgchanged.trigger();
     selectionDone.trigger();
 
-    updateEditButton();
+    setEditButState();
 }
 
 
 void uiVelSel::setInput( const DBKey& mid )
 {
     uiIOObjSel::setInput( mid );
-    updateEditButton();
+    setEditButState();
 }
 
 
@@ -332,16 +337,14 @@ void uiVelSel::selectionDoneCB( CallBacker* cb )
     }
 
     velrgchanged.trigger();
-    updateEditButton();
+    setEditButState();
 }
 
 
-void uiVelSel::updateEditButton()
+void uiVelSel::setEditButState()
 {
-    if ( editcubebutt_ )
-	editcubebutt_->setText( ioobj(true)
-		   ? m3Dots(uiStrings::sEdit())
-		   : m3Dots(uiStrings::sCreate()) );
+    const bool havesomethingtoedit = ioobj( true );
+    editbut_->setSensitive( havesomethingtoedit );
 }
 
 

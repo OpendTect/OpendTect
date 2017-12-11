@@ -131,7 +131,7 @@ uiRetVal Pick::SetSaver::doStore( const IOObj& ioobj ) const
     if ( !PickSetTranslator::store(*copiedset,&ioobj,errmsg) )
 	return uiRetVal( errmsg );
 
-    if ( isSave(ioobj) )
+    if ( storeIsSave(ioobj) )
 	ps.getNonConstPtr()->setName( ioobj.name() );
 
     return uiRetVal::OK();

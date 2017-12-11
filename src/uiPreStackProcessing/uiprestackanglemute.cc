@@ -37,7 +37,7 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     , advpardlg_(0)
 {
     velfuncsel_ = new uiVelSel( this, uiVelSel::ioContext(),
-				uiSeisSel::Setup(Seis::Vol), false );
+				uiSeisSel::Setup(Seis::Vol) );
     velfuncsel_->setLabelText( tr("Input Velocity") );
     if ( !params_.velvolmid_.isInvalid() )
        velfuncsel_->setInput( params_.velvolmid_ );

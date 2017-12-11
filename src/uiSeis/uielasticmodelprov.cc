@@ -59,14 +59,14 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
     pwctxt.forread_ = true;
     uiSeisSel::Setup pwsu( false, false );
     pwsu.seltxt( tr("P-wave Velocity cube") );
-    pwavefld_ = new uiVelSel( this, pwctxt, pwsu, true );
+    pwavefld_ = new uiVelSel( this, pwctxt, pwsu );
     pwavefld_->attach( alignedBelow, inpsourceacfld_ );
 
     IOObjContext swctxt = uiVelSel::ioContext();
     swctxt.forread_ = true;
     uiSeisSel::Setup swsu( false, false );
     swsu.seltxt( tr("S-wave Velocity cube") );
-    swavefld_ = new uiVelSel( this, swctxt, swsu, true );
+    swavefld_ = new uiVelSel( this, swctxt, swsu );
     swavefld_->attach( alignedBelow, pwavefld_ );
 
     IOObjContext aictxt =

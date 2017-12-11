@@ -479,7 +479,7 @@ uiRetVal Well::Saver::doStore( const IOObj& ioobj ) const
     mCondWrite( mReqsIncl(DispProps2D) || mReqsIncl(DispProps3D),
 		putDispProps() )
 
-    if ( isSave(ioobj) )
+    if ( storeIsSave(ioobj) )
 	updateLastSavedSubObjDirtyCounts( *wd );
     return uirv;
 }

@@ -19,7 +19,7 @@ ________________________________________________________________________
 class uiSeisSel;
 class uiStaticsDesc;
 class uiZRangeInput;
-class uiPushButton;
+class uiButton;
 class VelocityStretcher;
 
 /*!Group that allows the user to edit VelocityDesc information. */
@@ -89,11 +89,10 @@ protected:
 
 
 mExpClass(uiSeis) uiVelSel : public uiSeisSel
-{
+{ mODTextTranslationClass(uiVelSel)
 public:
 				uiVelSel(uiParent*,const IOObjContext&,
-					 const uiSeisSel::Setup&,
-					 bool iseditbutton=true);
+					 const uiSeisSel::Setup&);
 
     void			setInput(const DBKey&);
     static const IOObjContext&	ioContext();
@@ -104,14 +103,16 @@ public:
 
 protected:
 
+    uiButton*			editbut_;
+    Interval<float>		trg_;
+    Interval<float>		brg_;
+
     void			fillDefault();
 
     void			selectionDoneCB(CallBacker*);
-    void			updateEditButton();
-    void			editCB(CallBacker*);
-    uiPushButton*		editcubebutt_;
-    Interval<float>		trg_;
-    Interval<float>		brg_;
+    void			setEditButState();
+    void			butPushCB(CallBacker*);
+
 };
 
 
