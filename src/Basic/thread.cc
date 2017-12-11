@@ -248,10 +248,22 @@ Threads::Mutex::Mutex( const Mutex& m )
 }
 
 
+#define mErrMsg(msg) \
+{ \
+    pErrMsg(msg); \
+    DBG::forceCrash( false ); \
+}
+
+
 Threads::Mutex::~Mutex()
 {
 #ifndef OD_NO_QT
     delete qmutex_;
+#endif
+
+#ifdef __debug__
+    if ( lockingthread_ )
+	mErrMsg("Debug variable not empty")
 #endif
 }
 
@@ -275,13 +287,12 @@ void Threads::Mutex::unLock()
 # ifdef __debug__
     count_--;
     if ( lockingthread_ !=currentThread() )
-    {
-	pErrMsg("Unlocked from the wrong thead");
-	DBG::forceCrash( false );
-    }
+	mErrMsg("Unlocked from the wrong thead")
 
     if ( !count_ )
 	lockingthread_ = 0;
+    else if ( count_ < 0 )
+	mErrMsg("Negative lock count")
 # endif
     qmutex_->unlock();
 #endif
@@ -294,6 +305,7 @@ bool Threads::Mutex::tryLock()
     if ( qmutex_->tryLock() )
     {
 # ifdef __debug__
+	count_++;
 	lockingthread_ = currentThread();
 # endif
 	return true;
@@ -301,6 +313,7 @@ bool Threads::Mutex::tryLock()
     return false;
 #else
 # ifdef __debug__
+    count_++;
     lockingthread_ = currentThread();
 # endif
     return true;
@@ -594,8 +607,7 @@ bool Threads::Barrier::waitForAll( bool unlock )
 {
     if ( nrthreads_==-1 )
     {
-	pErrMsg("Nr threads not set");
-	DBG::forceCrash(true);
+	mErrMsg("Nr threads not set")
 	return false;
     }
 
@@ -690,10 +702,8 @@ bool Threads::ConditionVar::wait( unsigned long timeout )
 #ifndef OD_NO_QT
 # ifdef __debug__
     if ( lockingthread_ !=currentThread() )
-    {
-	pErrMsg("Waiting from the wrong thead");
-	DBG::forceCrash( false );
-    }
+	mErrMsg("Waiting from the wrong thead")
+
     count_ --;
     lockingthread_ = 0;
 # endif
