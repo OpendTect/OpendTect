@@ -467,9 +467,14 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	chainexec_.computeComputationScope( currentstep->getID(), stepoutputhrg,
 					    stepoutputzrg );
 
-	TrcKeyZSampling csamp;
+	ConstRefMan<Survey::Geometry> geom =
+		  Survey::GM().getGeometry( chainexec_.outputhrg_.getGeomID() );
+	if ( !geom )
+	    { errmsg_ = "Cannot read geometry from database"; return false; }
+
+	TrcKeyZSampling csamp( geom->sampling() );
 	csamp.hsamp_ = stepoutputhrg;
-	const StepInterval<float> fullzrg = csamp.zsamp_;
+	const StepInterval<float> fullzrg( csamp.zsamp_ );
 	csamp.zsamp_.start = stepoutputzrg.start * fullzrg.step; //index -> real
 	csamp.zsamp_.stop = stepoutputzrg.stop * fullzrg.step; //index -> real
 	csamp.zsamp_.step = stepoutputzrg.step * fullzrg.step; //index -> real
@@ -556,7 +561,7 @@ const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
 }
 
 
-#define mCleanUpAndRet( ret ) \
+#define mCleanUpAndRet( prepare ) \
 { \
     uiStringSet errors; \
     const ObjectSet<Step>& cursteps = curepoch_->getSteps(); \
@@ -567,11 +572,13 @@ const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
 \
 	errors.add( cursteps[istep]->errMsg() ); \
     } \
+    if ( !prepare && curepoch_->getTask().uiMessage().isSet() ) \
+	errors.add( curepoch_->getTask().uiMessage() ); \
+    \
     if ( !errors.isEmpty() ) \
 	errmsg_ = errors.cat(); \
-    delete curepoch_; \
-    curepoch_ = 0; \
-    return ret; \
+    deleteAndZeroPtr( curepoch_ ); \
+    return ErrorOccurred(); \
 }
 
 int VolProc::ChainExecutor::nextStep()
@@ -584,16 +591,16 @@ int VolProc::ChainExecutor::nextStep()
     curepoch_ = epochs_.pop();
 
     if ( !curepoch_->doPrepare(progressmeter_) )
-	mCleanUpAndRet( ErrorOccurred() )
+	mCleanUpAndRet( true )
 
     Task& curtask = curepoch_->getTask();
     curtask.setProgressMeter( progressmeter_ );
     curtask.enableWorkControl( true );
     if ( !curtask.execute() )
-	mCleanUpAndRet( ErrorOccurred() )
+	mCleanUpAndRet( false )
 
     const bool finished = epochs_.isEmpty();
-    if ( finished )			//we just executed the last one
+    if ( finished )		//we just executed the last one
     {
 	outputdp_ = curepoch_->getOutput();
 	DPM( DataPackMgr::SeisID() ).addAndObtain(
