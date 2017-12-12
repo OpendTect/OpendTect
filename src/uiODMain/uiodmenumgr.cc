@@ -212,9 +212,12 @@ void uiODMenuMgr::fillSurveyMenu()
 
     uiMenu* sessionitm = new uiMenu( &appl_, tr("Session") ) ;
     sessionitm->setIcon( "session" );
-    mInsertItem( sessionitm, m3Dots(uiStrings::sSave()), mSessSaveMnuItm );
-    mInsertItem( sessionitm, m3Dots(tr("Restore")), mSessRestMnuItm );
-    mInsertItem( sessionitm, m3Dots(tr("Auto-load")), mSessAutoMnuItm );
+    mInsertPixmapItem( sessionitm, m3Dots(uiStrings::sSave()), mSessSaveMnuItm,
+			"save" );
+    mInsertPixmapItem( sessionitm, m3Dots(tr("Restore")), mSessRestMnuItm,
+			"spiral_in" );
+    mInsertPixmapItem( sessionitm, m3Dots(tr("Auto-load")), mSessAutoMnuItm,
+			"autoload" );
     surveymnu_->insertItem( sessionitm );
     surveymnu_->insertSeparator();
 
@@ -884,7 +887,7 @@ void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiMenu* iconsmnu,
 	    continue;
 
 	BufferString mnunm( "&" ); mnunm += nm;
-    mInsertItem( iconsmnu, toUiString(mnunm), mViewIconsMnuItm+nms.size() );
+	mInsertItem( iconsmnu, toUiString(mnunm), mViewIconsMnuItm+nms.size() );
 	nms.add( nm );
     }
 }
