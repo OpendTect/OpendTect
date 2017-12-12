@@ -103,7 +103,6 @@ void uiFileSel::init( const uiString& lbltxt )
     }
 
     fnmfld_ = new uiLineEdit( this, FileNameInpSpec(), "File Name" );
-    setFileNames( setup_.initialselection_ );
     setHAlignObj( fnmfld_ );
     fnmfld_->setHSzPol( uiObject::WideVar );
 
@@ -132,6 +131,9 @@ void uiFileSel::init( const uiString& lbltxt )
 			    ? uiStrings::sEdit() : uiStrings::sExamine() );
 	examinebut_->attach( rightOf, selbut_ );
     }
+
+    // needs to be done before finalising
+    setFileNames( setup_.initialselection_ );
 
     fnmfld_->editingFinished.notify( mCB(this,uiFileSel,inputChgCB) );
     fnmfld_->returnPressed.notify( mCB(this,uiFileSel,fnmEnteredCB) );
