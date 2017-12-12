@@ -206,7 +206,7 @@ int VolProc::ChainOutput::nextStep()
     {
 	int res = chainexec_->doStep();
 	if ( res < 0 )
-	    return ErrorOccurred();
+	    return retError( chainexec_->errMsg() );
 
 	if ( res == 0 )
 	{
