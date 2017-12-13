@@ -68,6 +68,7 @@ void uiOfferInfo::setInfo( const char* txt, const uiString& captn )
 	display( isactive );
 
     updateWin();
+    setToolTip( toUiString(txt) );
 }
 
 
