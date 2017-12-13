@@ -44,6 +44,6 @@ public:
 };
 
 
-mGlobal(NLA) inline bool isEmpty(const NLAModel*);
+mGlobal(NLA) bool isEmpty(const NLAModel*);
 
 #endif
