@@ -427,9 +427,12 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 
 	RefMan<RegularSeisDataPack> outcube = outfrominp
 	    ? const_cast<RegularSeisDataPack*>( outfrominp )
-	    : DPM( DataPackMgr::SeisID() ).add( new RegularSeisDataPack( 0 ) );
+	    : DPM( DataPackMgr::SeisID() ).add(
+		    new RegularSeisDataPack(
+			VolumeDataPack::categoryStr(true,geom->is2D()) ) );
 	if ( !outfrominp )
 	{
+	    outcube->setName( "New VolProc DP" );
 	    outcube->setSampling( csamp );
 	    if ( posdata.totalSizeInside( csamp.hsamp_ ) > 0 )
 	    {
@@ -496,12 +499,12 @@ RegularSeisDataPack* VolProc::ChainExecutor::Epoch::getOutput() const
 }
 
 
-const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
+const VolProc::Step::CVolRef VolProc::ChainExecutor::getOutput() const
 {
     return outputdp_;
 }
 
-RegularSeisDataPack* VolProc::ChainExecutor::getOutput()
+VolProc::Step::VolRef VolProc::ChainExecutor::getOutput()
 {
     return outputdp_;
 }

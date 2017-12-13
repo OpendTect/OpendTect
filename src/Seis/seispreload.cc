@@ -115,10 +115,10 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 	return false;
     }
 
-    RegularSeisDataPack* dp = rdr.getDataPack();
+    ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
     if ( !dp ) return false;
 
-    PLDM().add( dbkey_, geomid_, dp );
+    PLDM().add( dbkey_, geomid_, dp.getNonConstPtr() );
 
     return true;
 }
@@ -157,9 +157,9 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
     {
 	SequentialFSLoader& rdr = *rdrs[idx];
 	const Pos::GeomID& loadedgeomid = loadedgeomids[idx];
-	RegularSeisDataPack* dp = rdr.getDataPack();
+	ConstRefMan<RegularSeisDataPack> dp = rdr.getDataPack();
 	if ( !dp ) continue;
-	PLDM().add( dbkey_, loadedgeomid, dp );
+	PLDM().add( dbkey_, loadedgeomid, dp.getNonConstPtr() );
     }
 
     return true;

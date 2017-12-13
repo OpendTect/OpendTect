@@ -49,9 +49,10 @@ public:
 
 private:
 
+    virtual bool	goImpl(od_ostream*,bool,bool,int);
     void		setCubeIdxRange();
     bool		setTrc();
-    void			adjustSteeringScaler(int compidx);
+    void		adjustSteeringScaler(int compidx);
 
     TypeSet<int>		compidxs_;
     ObjectSet<Scaler>		compscalers_; //Same size as compidxs_

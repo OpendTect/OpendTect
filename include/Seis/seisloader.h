@@ -34,7 +34,7 @@ class ObjectSummary;
 class Provider;
 class SelData;
 
-mExpClass(Seis) Loader
+mExpClass(Seis) Loader : public CallBacker
 { mODTextTranslationClass(Loader)
 public:
 
@@ -55,7 +55,7 @@ public:
 
     void		setScaler(const Scaler*);
 
-    virtual RegularSeisDataPack*	getDataPack()	{ return dp_; }
+    ConstRefMan<RegularSeisDataPack>	getDataPack();
 
     virtual uiString	nrDoneText() const;
     virtual uiString	message() const			{ return msg_; }
@@ -69,8 +69,11 @@ protected:
     bool		setTrcsSamplingFromProv(const Provider&);
     void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
     void		submitUdfWriterTasks();
+    void		releaseDP();
 
     RefMan<RegularSeisDataPack> dp_;
+    bool		dpismine_;
+    bool		udftraceswritefinished_;
     IOObj*		ioobj_;
     TrcKeyZSampling	tkzs_;
 
@@ -87,6 +90,10 @@ protected:
     int			queueid_;
 
     uiString		msg_;
+
+private:
+
+    void		udfTracesWrittenCB(CallBacker*);
 };
 
 
@@ -113,6 +120,7 @@ protected:
     od_int64		nrIterations() const		{ return totalnr_; }
 
 private:
+
     bool		doPrepare(int);
     bool		doWork(od_int64,od_int64,int);
     bool		executeParallel(bool);
@@ -137,8 +145,6 @@ public:
 			    fit the cs. */
 			~ParallelFSLoader2D();
 
-    RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
-
     virtual uiString	nrDoneText() const;
     virtual uiString	message() const;
 
@@ -146,13 +152,13 @@ protected:
 
     od_int64		nrIterations() const		{ return totalnr_; }
 
-private :
+private:
+
     bool		doPrepare(int);
     bool		doWork(od_int64,od_int64,int);
     bool		executeParallel(bool);
 
     TypeSet<int>	trcnrs_;
-    bool		dpclaimed_;
 };
 
 

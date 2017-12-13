@@ -33,6 +33,7 @@ VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
     , compscalers_(compscalers)
     , output_(output)
 {
+    output.setName( "Input Data" );
     adjustSteeringScaler();
 }
 

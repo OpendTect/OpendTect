@@ -34,8 +34,8 @@ public:
     bool			areSamplesIndependent() const;
     bool			needsFullVolume() const;
 
-    const RegularSeisDataPack*	getOutput() const;
-    RegularSeisDataPack*	getOutput();
+    const Step::CVolRef		getOutput() const;
+    Step::VolRef		getOutput();
     uiString			errMsg() const;
 
     virtual int			nextStep();

@@ -96,7 +96,7 @@ ArrayFiller( const RawTrcsSequence& rawseq, const StepInterval<float>& zsamp,
     , components_(components)
     , compscalers_(compscalers)
     , outcomponents_(outcomponents)
-    , dp_(dp),is2d_(is2d)
+    , dp_(&dp),is2d_(is2d)
 {
 }
 
@@ -109,30 +109,36 @@ ArrayFiller( const RawTrcsSequence& rawseq, const StepInterval<float>& zsamp,
 
 bool execute()
 {
+    if ( !dp_ )
+	return false;
+
     for ( int itrc=0; itrc<rawseq_.nrpos_; itrc++ )
     {
 	if ( !doTrace(itrc) )
 	    return false;
     }
 
+    dp_ = 0;
+
     return true;
 }
 
 bool doTrace( int itrc )
 {
+    RegularSeisDataPack& dp = *dp_;
     const TrcKey& tk = (*rawseq_.tks_)[itrc];
-    const int idx0 = is2d_ ? 0 : dp_.sampling().hsamp_.lineIdx( tk.lineNr() );
-    const int idx1 = dp_.sampling().hsamp_.trcIdx( tk.trcNr() );
+    const int idx0 = is2d_ ? 0 : dp.sampling().hsamp_.lineIdx( tk.lineNr() );
+    const int idx1 = dp.sampling().hsamp_.trcIdx( tk.trcNr() );
 
-    const int startidx0 = dp_.sampling().zsamp_.nearestIndex( zsamp_.start );
-    const int stopidx0 = dp_.sampling().zsamp_.nearestIndex( zsamp_.stop );
+    const int startidx0 = dp.sampling().zsamp_.nearestIndex( zsamp_.start );
+    const int stopidx0 = dp.sampling().zsamp_.nearestIndex( zsamp_.stop );
     const int nrzsamples = zsamp_.nrSteps()+1;
     const bool needsudfpaddingattop =
-			dp_.sampling().zsamp_.start < zsamp_.start;
+			dp.sampling().zsamp_.start < zsamp_.start;
     const bool needsudfpaddingatbottom =
-			dp_.sampling().zsamp_.stop > zsamp_.stop;
+			dp.sampling().zsamp_.stop > zsamp_.stop;
     const int trczidx0 = rawseq_.getZRange().nearestIndex( zsamp_.atIndex(0) );
-    const int bytespersamp = dp_.getDataDesc().nrBytes();
+    const int bytespersamp = dp.getDataDesc().nrBytes();
     const bool hastrcscaler = rawseq_.trcscalers_[itrc];
 
     for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
@@ -140,7 +146,7 @@ bool doTrace( int itrc )
 	const int idcin = components_[cidx];
 	const Scaler* compscaler = compscalers_[cidx];
 	const int idcout = outcomponents_[cidx];
-	Array3D<float>& arr = dp_.data( idcout );
+	Array3D<float>& arr = dp.data( idcout );
 	ValueSeries<float>* stor = arr.getStorage();
 	float* storptr = stor ? stor->arr() : 0;
 	mDynamicCastGet(ConvMemValueSeries<float>*,convmemstor,stor);
@@ -200,10 +206,10 @@ bool doTrace( int itrc )
 	    if ( storptr )
 		OD::sysMemValueSet( storptr + offset + stopidx0 + 1,
 				    mUdf(float),
-				    dp_.sampling().zsamp_.nrSteps() - stopidx0);
+				    dp.sampling().zsamp_.nrSteps() - stopidx0);
 	    else
 	    {
-		const int lastidx = dp_.sampling().zsamp_.nrSteps();
+		const int lastidx = dp.sampling().zsamp_.nrSteps();
 		for ( int validx=stopidx0+1; validx<=lastidx; validx++ )
 		{
 		    if ( stor ) stor->setValue( offset + validx, mUdf(float) );
@@ -223,7 +229,7 @@ protected:
     const TypeSet<int>&		components_;
     const ObjectSet<Scaler>&	compscalers_;
     const TypeSet<int>&		outcomponents_;
-    RegularSeisDataPack&	dp_;
+    RefMan<RegularSeisDataPack>	dp_;
     bool			is2d_;
     bool			samedatachar_;
     bool			needresampling_;
@@ -235,7 +241,8 @@ protected:
 
 Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
 		      const TypeSet<int>* components )
-    : ioobj_(ioobj.clone())
+    : dpismine_(false)
+    , ioobj_(ioobj.clone())
     , tkzs_(false)
     , dc_(OD::AutoFPRep)
     , outcomponents_(0)
@@ -243,6 +250,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     , line2ddata_(0)
     , trcssampling_(0)
     , queueid_(Threads::WorkManager::cDefaultQueueID())
+    , udftraceswritefinished_(true)
 {
     compscalers_.allowNull( true );
     const SeisIOObjInfo info( ioobj );
@@ -419,6 +427,12 @@ void Seis::Loader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
 }
 
 
+void Seis::Loader::udfTracesWrittenCB( CallBacker* )
+{
+    udftraceswritefinished_ = true;
+}
+
+
 void Seis::Loader::submitUdfWriterTasks()
 {
     if ( trcssampling_->totalSize() >= tkzs_.hsamp_.totalNr() )
@@ -432,8 +446,36 @@ void Seis::Loader::submitUdfWriterTasks()
 					  dp_->data(idx) ) );
     }
 
+    CallBack cb = mCB( this, Seis::Loader, udfTracesWrittenCB );
+    udftraceswritefinished_ = false;
     Threads::WorkManager::twm().addWork(
-	    Threads::Work(*udfwriters,true),0,queueid_,false,false,true);
+	    Threads::Work(*udfwriters,true),&cb,queueid_,false,false,true);
+}
+
+
+void Seis::Loader::releaseDP()
+{
+    while ( !udftraceswritefinished_ )
+    {
+	Threads::sleep( 0.1 );
+    }
+
+    //Release external DP: This task no longer needs it
+    if ( !dpismine_ )
+	dp_ = 0;
+}
+
+
+ConstRefMan<RegularSeisDataPack> Seis::Loader::getDataPack()
+{
+    if ( !dp_ )
+	return 0;
+
+    ConstRefMan<RegularSeisDataPack> dpman( dp_ );
+    dp_ = 0;
+    dpismine_ = false;
+
+    return dpman;
 }
 
 
@@ -458,6 +500,7 @@ bool Seis::ParallelFSLoader3D::executeParallel( bool yn )
 {
     const bool success = ParallelTask::executeParallel( yn );
     Threads::WorkManager::twm().emptyQueue( queueid_, success );
+    releaseDP();
 
     return success;
 }
@@ -466,6 +509,7 @@ bool Seis::ParallelFSLoader3D::executeParallel( bool yn )
 void Seis::ParallelFSLoader3D::setDataPack( RegularSeisDataPack* dp )
 {
     dp_ = dp;
+    dpismine_ = false;
 }
 
 
@@ -509,8 +553,10 @@ bool Seis::ParallelFSLoader3D::doPrepare( int nrthreads )
 	if ( scaler_ && !scaler_->isEmpty() )
 	    dp_->setScaler( *scaler_ );
 
-	if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
-	    return false;
+	if ( addComponents(*dp_,*ioobj_,components_,msg_) )
+	    dpismine_ = true;
+	else
+	    { releaseDP(); return false; }
     }
 
     submitUdfWriterTasks();
@@ -605,7 +651,6 @@ Seis::ParallelFSLoader2D::ParallelFSLoader2D( const IOObj& ioobj,
 					      const TrcKeyZSampling& tkzs,
 					      const TypeSet<int>* comps )
     : Seis::Loader(ioobj,&tkzs,comps)
-    , dpclaimed_(false)
 {
     queueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::SingleThread,
@@ -622,6 +667,7 @@ bool Seis::ParallelFSLoader2D::executeParallel( bool yn )
 {
     const bool success = ParallelTask::executeParallel( yn );
     Threads::WorkManager::twm().emptyQueue( queueid_, success );
+    releaseDP();
 
     return success;
 }
@@ -667,8 +713,10 @@ bool Seis::ParallelFSLoader2D::doPrepare( int nrthreads )
 	if ( scaler_ && !scaler_->isEmpty() )
 	    dp_->setScaler( *scaler_ );
 
-	if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
-	    return false;
+	if ( addComponents(*dp_,*ioobj_,components_,msg_) )
+	    dpismine_ = true;
+	else
+	    { releaseDP(); return false; }
     }
 
     submitUdfWriterTasks();
@@ -726,7 +774,6 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
 
     ArrayFiller fillertask( *rawseq, zsamp, samedatachar, needresampling,
 			    components_, compscalers, outcompnrs, *dp_, true );
-
     int trcseqpos = 0;
     TrcKey& tk = (*tkss)[trcseqpos];
     for ( int idx=0; idx<trcnrs.size(); idx++ )
@@ -748,14 +795,6 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
     }
 
     return true;
-}
-
-
-
-RegularSeisDataPack* Seis::ParallelFSLoader2D::getDataPack()
-{
-    dpclaimed_ = true;
-    return Seis::Loader::getDataPack();
 }
 
 
@@ -801,6 +840,7 @@ bool Seis::SequentialFSLoader::goImpl( od_ostream* strm, bool first, bool last,
 {
     const bool success = Executor::goImpl( strm, first, last, delay );
     Threads::WorkManager::twm().emptyQueue( queueid_, success );
+    releaseDP();
 
     return success;
 }
@@ -868,8 +908,10 @@ bool Seis::SequentialFSLoader::init()
 	if ( scaler_ && !scaler_->isEmpty() )
 	    dp_->setScaler( *scaler_ );
 
-	if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
-	    return false;
+	if ( addComponents(*dp_,*ioobj_,components_,msg_) )
+	    dpismine_ = true;
+	else
+	    { releaseDP(); return false; }
     }
 
     uiRetVal uirv;
@@ -922,6 +964,7 @@ bool Seis::SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 {
     initialized_ = false;
     dp_ = &dp;
+    dpismine_ = false;
     setDataChar( DataCharacteristics( dp.getDataDesc() ).userType() );
     setScaler( dp.getScaler() && !dp.getScaler()->isEmpty()
 	       ? dp.getScaler() : 0 );
@@ -948,7 +991,7 @@ bool Seis::SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 int Seis::SequentialFSLoader::nextStep()
 {
     if ( !init() )
-	{ dp_ = 0; return ErrorOccurred(); }
+	{ releaseDP(); return ErrorOccurred(); }
 
     if ( nrdone_ == 0 )
 	submitUdfWriterTasks();
@@ -972,7 +1015,7 @@ int Seis::SequentialFSLoader::nextStep()
 	if ( !rawseq ) delete tks;
 	delete rawseq;
 	msg_ = tr("Cannot allocate trace data");
-	dp_ = 0;
+	releaseDP();
 	return ErrorOccurred();
     }
 
@@ -984,7 +1027,7 @@ int Seis::SequentialFSLoader::nextStep()
 	    return Finished();
 
 	msg_ = uirv;
-	dp_ = 0;
+	releaseDP();
 	return ErrorOccurred();
     }
 

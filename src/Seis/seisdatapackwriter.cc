@@ -167,9 +167,9 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
     if ( dp_ != &dp )
     {
         dp_ = &dp;
+	getPosInfo();
     }
 
-    getPosInfo();
     nrdone_ = 0;
     setSelection( dp_->sampling().hsamp_, zrg_ );
 }
@@ -202,6 +202,16 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
 od_int64 SeisDataPackWriter::totalNr() const
 {
     return totalnr_;
+}
+
+
+bool SeisDataPackWriter::goImpl( od_ostream* strm, bool first, bool last,
+				 int delay )
+{
+    const bool success = Executor::goImpl( strm, first, last, delay );
+    dp_ = 0; posinfo_ = 0;
+
+    return success;
 }
 
 
