@@ -253,6 +253,7 @@ public:
 
     void			setPolyLine(const QPolygonF&);
     void			setQPens(const QVector<QPen>&);
+    void			setPenWidth(int);
 
     void			highlight()	{ highlight_ = true; }
     void			unHighlight()	{ highlight_ = false; }

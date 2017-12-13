@@ -725,6 +725,16 @@ void ODGraphicsMultiColorPolyLineItem::setQPens( const QVector<QPen>& qpens )
 }
 
 
+void ODGraphicsMultiColorPolyLineItem::setPenWidth( int width )
+{
+    for ( int idx=0; idx<inputqpens_.size(); idx++ )
+	inputqpens_[idx].setWidth( width );
+
+    for ( int idx=0; idx<qpens_.size(); idx++ )
+	qpens_[idx].setWidth( width );
+}
+
+
 void ODGraphicsMultiColorPolyLineItem::cleanupPolygon()
 {
     qpens_.clear(); qpolygon_.clear();

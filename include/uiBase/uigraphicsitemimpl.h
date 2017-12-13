@@ -241,10 +241,14 @@ public:
     void		setPolyLine(const TypeSet<uiWorldPoint>&);
     void		setColors(const TypeSet<Color>&,bool usetransp=false);
 
+    void		setPenWidth(int);
+    int			getPenWidth() const;
+
 protected:
 
     QGraphicsItem*			mkQtObj();
     ODGraphicsMultiColorPolyLineItem*	odmulticoloritem_;
+    int					penwidth_;
 };
 
 
