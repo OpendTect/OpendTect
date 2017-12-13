@@ -54,6 +54,7 @@ public:
     virtual void	getZRange(Interval<float>&) const;
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const;
+    void		getTrcKeyZSampling(TrcKeyZSampling&) const;
 
     const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
     void		setSampling( const TrcKeyZSampling& tkzs );

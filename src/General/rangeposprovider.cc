@@ -174,6 +174,12 @@ int Pos::RangeProvider3D::estNrZPerPos() const
 }
 
 
+void Pos::RangeProvider3D::getTrcKeyZSampling( TrcKeyZSampling& tkzs ) const
+{
+    tkzs = tkzs_;
+}
+
+
 void Pos::RangeProvider3D::initClass()
 {
     Pos::Provider3D::factory().addCreator( create, sKey::Range() );
