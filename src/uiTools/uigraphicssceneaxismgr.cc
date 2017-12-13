@@ -158,7 +158,7 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
     const int ticklinestart = baseline + bias;
     const int ticklinestop = baseline;
 
-    uiString txt = mToUiStringTodo( toStringLim(worldpos * txtfactor_, 
+    uiString txt = mToUiStringTodo( toStringLim(worldpos * txtfactor_,
 							   getNrAnnotChars()) );
     const double worldrelpos = fabs(rg_.getfIndex( worldpos, rg_.width() ));
     float axispos = (float) ( axisrg.start + worldrelpos*axisrg.width() );
@@ -371,7 +371,7 @@ int uiGraphicsSceneAxisMgr::getZValue() const
 
 int uiGraphicsSceneAxisMgr::getNeededWidth() const
 {
-    const int nrchars = xaxis_->getNrAnnotCharsForDisp() + 5;
+    const int nrchars = yaxis_->getNrAnnotCharsForDisp() + 5;
     return nrchars*uifont_.avgWidth();
 }
 

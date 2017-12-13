@@ -85,7 +85,7 @@ uiBorder AxesDrawer::getAnnotBorder( bool withextraborders ) const
     const int axiswidth = getNeededWidth();
     if ( annot.haveTitle() ) t += axisheight;
     if ( annot.haveAxisAnnot(false) )
-    { l += axiswidth; r += 5; }
+    { l += axiswidth; r += 10; }
     if ( annot.haveAxisAnnot(true) )
     { b += axisheight;	t += axisheight; }
     if ( annot.showscalebar_ && scalebaritem_ )
@@ -159,7 +159,7 @@ void AxesDrawer::updateViewRect()
 			    rect.width(), rect.height() );
 
     rectitem_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,3,annot.color_));
-    
+
     ArrowStyle arrowstyle;
     arrowstyle.headstyle_.type_ = ArrowHeadStyle::Triangle;
     uiString userfacstr = vwr_.zDomain().uiUnitStr(true);
@@ -170,7 +170,7 @@ void AxesDrawer::updateViewRect()
     	uiPoint from( right-10, bottom+9 );
     	uiPoint to( right, bottom+9 );
 
-	if ( ad1.reversed_ ) Swap( from, to );    	
+	if ( ad1.reversed_ ) Swap( from, to );
     	if ( !arrowitem1_ )
 	    arrowitem1_ = view_.scene().addItem(
 		    new uiArrowItem(from,to,arrowstyle) );
@@ -178,7 +178,7 @@ void AxesDrawer::updateViewRect()
 	arrowitem1_->setPenStyle(
 		OD::LineStyle(OD::LineStyle::Solid,1,annot.color_) );
     	arrowitem1_->setTailHeadPos( from, to );
-    	
+
     	if ( !axis1nm_ )
 	    axis1nm_ = view_.scene().addItem(
 		    new uiTextItem(mToUiStringTodo(ad1.name_),
@@ -210,7 +210,7 @@ void AxesDrawer::updateViewRect()
 	arrowitem2_->setVisible( true );
 	arrowitem2_->setPenColor( annot.color_ );
 	arrowitem2_->setTailHeadPos( from, to );
-	
+
 	uiString x2axisstr( mToUiStringTodo(ad2.name_) );
 	if ( isVertical(vwr_) )
 	    x2axisstr.append( userfacstr );
@@ -242,7 +242,7 @@ void AxesDrawer::updateViewRect()
 	}
 	else
 	    titletxt_->setText( mToUiStringTodo(annot.title_) );
-	
+
 	titletxt_->setVisible( true );
 	const uiRect scenerect = view_.getViewArea();
 	titletxt_->setPos( uiPoint(rect.centre().x,scenerect.top()) );
