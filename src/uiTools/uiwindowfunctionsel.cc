@@ -22,8 +22,8 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     , onlytaper_(su.onlytaper_)
     , winfuncseldlg_(0)
 {
-    windowfuncs_.allowNull();
-    varinpflds_.allowNull();
+    windowfuncs_.setNullAllowed();
+    varinpflds_.setNullAllowed();
 
     BufferStringSet funcnames;
     funcnames.add( sNone() );
@@ -32,7 +32,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     else
 	funcnames.append( WINFUNCS().getNames() );
     const StringListInpSpec funclist( funcnames );
-    windowtypefld_ =  new uiGenInput( this, toUiString(su.label_), 
+    windowtypefld_ =  new uiGenInput( this, toUiString(su.label_),
 				      funclist );
     if ( su.winname_ ) windowtypefld_->setText( su.winname_ );
 

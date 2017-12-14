@@ -27,7 +27,7 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
                                    mODHelpKey(mShortcutsDlgHelpID) ) )
     , scl_(*new uiShortcutsList(SCMgr().getList(selkey)))
 {
-    lblspinboxes_.allowNull();
+    lblspinboxes_.setNullAllowed();
     uiLabeledComboBox* prevlcbox = 0;
     for ( int idx=0; idx<scl_.names().size(); idx++ )
     {
@@ -35,7 +35,7 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
 	const uiString& nm = toUiString(scl_.names().get( idx ));
 
 	uiLabeledComboBox* lcbox
-	    	= new uiLabeledComboBox( this, sSupportedStates, nm );
+		= new uiLabeledComboBox( this, sSupportedStates, nm );
 	lcbox->box()->setCurrentItem( kd->stateStr() );
 	stateboxes_ += lcbox->box();
 	if ( prevlcbox )
@@ -80,7 +80,7 @@ bool uiShortcutsDlg::acceptOK()
 	if ( lblspinboxes_[idx] )
 	{
 	    uiExtraIntKeyDesc* uieikd = new uiExtraIntKeyDesc( statecb->text(),
-	    			keycb->text(),
+				keycb->text(),
 				lblspinboxes_[idx]->box()->getIntValue() );
 	    uieikd->setIntLabel( lblspinboxes_[idx]->label()->text() );
 	    scl_.keyDescs() += uieikd;

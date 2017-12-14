@@ -424,7 +424,7 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
 	, bodyinpgrp_(0)
 	, nrhdrlines_(ds->nrHdrLines())
 {
-    hdrelems_.allowNull( true ); bodyelems_.allowNull( true );
+    hdrelems_.setNullAllowed( true ); bodyelems_.setNullAllowed( true );
 
     elemgrp_ = new uiGroup( this, "Elem group" );
     uiTableTargetInfoEd::choicegrp_ = 0;

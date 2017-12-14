@@ -89,128 +89,132 @@ public:
     bool			selectSurvey(uiParent*);
     bool			manageSurvey()		{ return manSurv(0); }
 
-    enum ObjType		{ Seis, Hor, Flt, Fltss, Wll, Attr, NLA, Pick,
-				  Poly, Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS,
-				  Geom, Body, Props, ColTab, RanL, NrObjTypes };
-    enum ActType		{ Imp, Exp, Man };
-    void			doOperation(ObjType,ActType,int opt=0);
-				//!< Not all combinations are available ...!
-    void			manPreLoad(ObjType);
+    // The order of this enum needs to be exactly as in UI, beacuse
+    // uiODMenuMgr::getMnu() depends on it!
+    enum ObjType	{ Attr, Body, ColTab, XPlot, Flt, Fltss, Geom2D, Hor,
+			  Props, MDef, NLA, Pick, Poly, PDF, RanL,
+			  Seis, Sess, Strat, Vel, Wvlt, Wll };
+    int			nrObjectTypes() const	{ return Wll+1; }
+
+    enum ActType	{ Imp, Exp, Man, PL };
+    int			nrActTypes() const	{ return PL+1; }
+
+    void		doOperation(ObjType,ActType,int opt=0);
+			//!< Not all combinations are available ...!
+    void		manPreLoad(ObjType);
 
     // Processing menu operations
-    void			editAttribSet();
-    void			editAttribSet(bool is2d);
-    bool			editNLA(bool is2d);
-    void			createVol(bool is2d,bool multiattrib);
-    void			createVolProcOutput(bool);
-    void			doWellXPlot(CallBacker* =0);
-				//!< This plots between well and attrib
-    void			doAttribXPlot(CallBacker* =0);
-				//!< This plots between attribs.
-    void			openCrossPlot(CallBacker* =0);
-				//!< Create crossplot from file
-    void			createHorOutput(int,bool);
-    void			startBatchJob();
-    void			processTime2Depth(CallBacker* =0);
-    void			processPreStack(bool is2d);
-    void			createMultiCubeDS(CallBacker* =0);
-    void			createMultiAttribVol(CallBacker*);
-    void			processVelConv(CallBacker* =0);
-    void			genAngleMuteFunction(CallBacker* =0);
-    void			bayesClass2D(CallBacker* =0);
-    void			bayesClass3D(CallBacker* =0);
-    void			createCubeFromWells(CallBacker* =0);
-    void			create2DGrid()		{ process2D3D(0); }
-    void			create2DFrom3D()	{ process2D3D(1); }
-    void			create3DFrom2D()	{ process2D3D(2); }
+    void		editAttribSet();
+    void		editAttribSet(bool is2d);
+    bool		editNLA(bool is2d);
+    void		createVol(bool is2d,bool multiattrib);
+    void		createVolProcOutput(bool);
+    void		doWellXPlot(CallBacker* =0);
+			//!< This plots between well and attrib
+    void		doAttribXPlot(CallBacker* =0);
+			//!< This plots between attribs.
+    void		openCrossPlot(CallBacker* =0);
+			//!< Create crossplot from file
+    void		createHorOutput(int,bool);
+    void		startBatchJob();
+    void		processTime2Depth(CallBacker* =0);
+    void		processPreStack(bool is2d);
+    void		createMultiCubeDS(CallBacker* =0);
+    void		createMultiAttribVol(CallBacker*);
+    void		processVelConv(CallBacker* =0);
+    void		genAngleMuteFunction(CallBacker* =0);
+    void		bayesClass2D(CallBacker* =0);
+    void		bayesClass3D(CallBacker* =0);
+    void		createCubeFromWells(CallBacker* =0);
+    void		create2DGrid()		{ process2D3D(0); }
+    void		create2DFrom3D()	{ process2D3D(1); }
+    void		create3DFrom2D()	{ process2D3D(2); }
 
     // View menu operations
-    void			setWorkingArea();
-    void			setZStretch();
-    void			setStereoOffset();
-    void			show2DViewer();
+    void		setWorkingArea();
+    void		setZStretch();
+    void		setStereoOffset();
+    void		show2DViewer();
 
     // Scene menu operations
-    void			addTimeDepthScene();
-    void			addHorFlatScene(bool is2d);
+    void		addTimeDepthScene();
+    void		addHorFlatScene(bool is2d);
 
     // Utility menu operations
-    void			batchProgs();
-    void			setupBatchHosts();
-    void			pluginMan();
-    void			posConversion();
-    void			crDevEnv();
-    void			manageShortcuts();
-    void			startInstMgr();
-    void			setAutoUpdatePol();
+    void		batchProgs();
+    void		setupBatchHosts();
+    void		pluginMan();
+    void		posConversion();
+    void		crDevEnv();
+    void		manageShortcuts();
+    void		startInstMgr();
+    void		setAutoUpdatePol();
 
     // Tree menu services
     // Selections
-    void			selectWells(DBKeySet&);
-    void			selectHorizon(DBKey&);
-    void			selectFault(DBKey&);
-    void			selectPolygonSurface(DBKey&);
-    void			selectStickSet(DBKey&);
-    bool			selectAttrib(int id,int attrib);
+    void		selectWells(DBKeySet&);
+    void		selectHorizon(DBKey&);
+    void		selectFault(DBKey&);
+    void		selectPolygonSurface(DBKey&);
+    void		selectStickSet(DBKey&);
+    bool		selectAttrib(int id,int attrib);
 
     // PickSets
-    bool			storePickSets(int polyopt,const char* cat=0);
-    bool			storePickSet(const Pick::Set&);
-    bool			storePickSetAs(const Pick::Set&);
-    bool			setPickSetDirs(Pick::Set&);
+    bool		storePickSets(int polyopt,const char* cat=0);
+    bool		storePickSet(const Pick::Set&);
+    bool		storePickSetAs(const Pick::Set&);
+    bool		setPickSetDirs(Pick::Set&);
 
-    // Tool to exhange mouse-cursor information between windows
-    MouseCursorExchange&	mouseCursorExchange();
+    // Tool to exchange mouse-cursor information between windows
+    MouseCursorExchange& mouseCursorExchange();
 
     // Work. Don't use unless expert.
     uiVisDataPointSetDisplayMgr* visDPSDispMgr()
-				{ return visdpsdispmgr_; }
-    inline uiODViewer2DMgr&	viewer2DMgr()	{ return appl_.viewer2DMgr(); }
-    bool			getNewData(int visid,int attrib);
-    bool			evaluateAttribute(int visid,int attrib);
-    bool			evaluate2DAttribute(int visid, int attrib);
-    void			pageUpDownPressed(bool up);
-    void			handleSurveySelect();
-    bool			isFreshSurvey() const;
-    void			handleSIPImport();
-    void			resetServers();
-    void			updateColorTable(int visid,int attrib);
-    void			saveDefColTab(int visid,int attrib);
-    bool			getDefaultDescID(Attrib::DescID&,
-						 bool is2d=false) const;
-    void			calcShiftAttribute(int attrib,
-						   const Attrib::SelSpec&);
-    bool			calcRandomPosAttrib(int visid,int attrib);
-    bool			calcMultipleAttribs(Attrib::SelSpec&);
-    void			addVisDPSChild(CallBacker*);
-    void			manSurvCB(CallBacker*);
-    void			seisOut2DCB(CallBacker*);
-    void			seisOut3DCB(CallBacker*);
-    void			editAttr2DCB(CallBacker*)
-				    { editAttribSet(true); }
-    void			editAttr3DCB(CallBacker*)
-				    { editAttribSet(false);}
-    Notifier<uiODApplMgr>	attribSetChg;
+			{ return visdpsdispmgr_; }
+    inline uiODViewer2DMgr& viewer2DMgr()
+			{ return appl_.viewer2DMgr(); }
+    bool		getNewData(int visid,int attrib);
+    bool		evaluateAttribute(int visid,int attrib);
+    bool		evaluate2DAttribute(int visid, int attrib);
+    void		pageUpDownPressed(bool up);
+    void		handleSurveySelect();
+    bool		isFreshSurvey() const;
+    void		handleSIPImport();
+    void		resetServers();
+    void		updateColorTable(int visid,int attrib);
+    void		saveDefColTab(int visid,int attrib);
+    bool		getDefaultDescID(Attrib::DescID&,bool is2d=false) const;
+    void		calcShiftAttribute(int attrib,const Attrib::SelSpec&);
+    bool		calcRandomPosAttrib(int visid,int attrib);
+    bool		calcMultipleAttribs(Attrib::SelSpec&);
+    void		addVisDPSChild(CallBacker*);
+    void		manSurvCB(CallBacker*);
+    void		seisOut2DCB(CallBacker*);
+    void		seisOut3DCB(CallBacker*);
+    void		editAttr2DCB(CallBacker*)   { editAttribSet(true); }
+    void		editAttr3DCB(CallBacker*)   { editAttribSet(false);}
 
-    void			doVolProc2DCB(CallBacker*);
-    void			doVolProc3DCB(CallBacker*);
-    void			doVolProc(const DBKey&);
-    void			tieWellToSeismic(CallBacker*);
-    void			doWellLogTools(CallBacker*);
-    void			launchRockPhysics(CallBacker*);
-    void			launch2DViewer(CallBacker*);
-    void			doLayerModeling(CallBacker*);
-    void			setupRdmLinePreview(const TypeSet<Coord>&);
-    void			cleanPreview();
-    void			addMPEParentPath(int visid,const TrcKey&);
+    Notifier<uiODApplMgr> attribSetChg;
 
-    void			enableMenusAndToolBars(bool);
-    void			enableTree(bool);
-    void			enableSceneManipulation(bool);
+    void		doVolProc2DCB(CallBacker*);
+    void		doVolProc3DCB(CallBacker*);
+    void		doVolProc(const DBKey&);
+    void		tieWellToSeismic(CallBacker*);
+    void		doWellLogTools(CallBacker*);
+    void		launchRockPhysics(CallBacker*);
+    void		launch2DViewer(CallBacker*);
+    void		doLayerModeling(CallBacker*);
+    void		setupRdmLinePreview(const TypeSet<Coord>&);
+    void		cleanPreview();
+    void		addMPEParentPath(int visid,const TrcKey&);
+
+    void		enableMenusAndToolBars(bool);
+    void		enableTree(bool);
+    void		enableSceneManipulation(bool);
 				/*!<Turns on/off viewMode and enables/disables
 				    the possibility to go to actMode. */
 
-    Notifier<uiODApplMgr>	getOtherFormatData;
+    Notifier<uiODApplMgr> getOtherFormatData;
 				/*!<Is triggered when the vispartserver wants
 				    data, but the format (as reported by
 				    uiVisPartServer::getAttributeFormat() ) is
@@ -220,12 +224,10 @@ public:
 				    needs data. The visid and attribidx is
 				    retrieved by otherFormatVisID and
 				    otherFormatAttrib. */
-    int				otherFormatVisID() const
-				    { return otherformatvisid_; }
-    int				otherFormatAttrib() const
-				    { return otherformatattrib_; }
-    void			useDefColTab(int visid,int attrib);
-    bool			isRestoringSession() const;
+    int			otherFormatVisID() const { return otherformatvisid_; }
+    int			otherFormatAttrib() const { return otherformatattrib_; }
+    void		useDefColTab(int visid,int attrib);
+    bool		isRestoringSession() const;
 
 protected:
 
@@ -309,4 +311,5 @@ protected:
     friend class		uiODMain;
     friend class		uiODApplMgrDispatcher;
     friend class		uiODApplMgrAttrVisHandler;
+
 };

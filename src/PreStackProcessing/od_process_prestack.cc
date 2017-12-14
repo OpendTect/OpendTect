@@ -222,7 +222,7 @@ bool BatchProgram::go( od_ostream& strm )
     mSetCommState(Working);
 
     ObjectSet<Gather> gathers;
-    gathers.allowNull( true );
+    gathers.setNullAllowed( true );
     TypeSet<BinID> bids;
 
     while ( true )

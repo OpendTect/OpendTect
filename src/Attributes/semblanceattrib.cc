@@ -113,7 +113,7 @@ Semblance::Semblance( Desc& desc )
 {
     if ( !isOK() ) return;
 
-    inputdata_.allowNull(true);
+    inputdata_.setNullAllowed(true);
 
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1.f/zFactor() );

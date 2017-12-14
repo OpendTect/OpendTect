@@ -1,0 +1,31 @@
+CLAS Computer Log Analysis Software`clas
+CRS support`crs
+Dip Steering`dgbds
+Direct Petrel Link`dgbpetrel
+ethos(TM) Processing System`ethos
+Faults and Fractures`dgbflt
+Fluid Contact Finder`dgbccb
+GeoDataSync Accelerate`arkclsgdsa
+HorizonCube`dgbhc
+MATLAB link`matlab
+MPSI UltraFast Stochastic Inversion`arkclsmpsi
+MPSI`arkclsmpsi
+Multi-Point Stochastic Inversion`arkclsmpsi
+Neural Networks`dgbnn
+Open Data Connector`arkclsodc
+OpendTect Pro`dgbpro
+PDF-3D`dgbpdf3d
+Petrel Connector`arkclsodc
+Powerpoint Presentation Maker`ppt
+Seismic Broadband`seisbb
+Seismic Coloured Inversion`arkclssciplugin
+Seismic Feature Enhancement`arkclssfe
+Seismic Net Pay`arkclssnp
+Seismic Spectral Blueing`arkclsssbplugin
+Sequence Stratigraphic Interpretation System`dgbssis
+Spotlight`arkclsmvse
+SynthRock`dgbstrat
+Velocity Model Building`dgbvmb
+Well Correlation Panel`dgbwcp
+Workstation Access`arkclswsa
+XField`arkclsxf2

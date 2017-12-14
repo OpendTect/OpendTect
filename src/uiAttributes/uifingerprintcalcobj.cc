@@ -64,7 +64,7 @@ static void create3DRandPicks( BinIDValueSet* rangesset )
 calcFingParsObject::calcFingParsObject( uiParent* p )
     : parent_( p )
 {
-    posset_.allowNull(true);
+    posset_.setNullAllowed( true );
     while ( posset_.size() < 2 )
 	posset_ += 0;
 }

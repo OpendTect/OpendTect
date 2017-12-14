@@ -194,7 +194,7 @@ SaveableManager::SaveableManager( const IOObjContext& ctxt, bool withautosave,
     , HideRequested(this)
     , VanishRequested(this)
 {
-    chgrecs_.allowNull( true );
+    chgrecs_.setNullAllowed( true );
     mAttachCB( DBM().surveyToBeChanged, SaveableManager::survChgCB );
     mAttachCB( DBM().applicationClosing, SaveableManager::appExitCB );
     mAttachCB( DBM().entryToBeRemoved, SaveableManager::dbmEntryRemovedCB );

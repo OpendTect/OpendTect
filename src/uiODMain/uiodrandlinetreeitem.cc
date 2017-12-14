@@ -232,18 +232,17 @@ void uiODRandomLineParentTreeItem::addMenuItems()
     storedmenu->setText( tr("Add Stored") );
 
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
-    newmnu->insertItem(
+    newmnu->insertAction(
 	    new uiAction(m3Dots(tr("Interactive "))), sInteractiveMenuID() );
-//    newmnu->insertItem( new uiAction(m3Dots(tr("Along Contours"))), 5 );
-    newmnu->insertItem(
+    newmnu->insertAction(
 	    new uiAction(m3Dots(tr("From Existing"))), sFromExistingMenuID() );
-    newmnu->insertItem(
+    newmnu->insertAction(
 	    new uiAction(m3Dots(tr("From Polygon"))), sFromPolygonMenuID() );
-    newmnu->insertItem(
+    newmnu->insertAction(
 	    new uiAction(m3Dots(tr("From Table"))), sFromTableMenuID() );
-    newmnu->insertItem(
+    newmnu->insertAction(
 	    new uiAction(m3Dots(tr("From Wells"))), sFromWellMenuID() );
-    menu_->insertItem( newmnu );
+    menu_->addMenu( newmnu );
 }
 
 

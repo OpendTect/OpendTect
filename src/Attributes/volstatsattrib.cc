@@ -114,7 +114,7 @@ VolStatsBase::VolStatsBase( Desc& ds )
 {
     if ( !isOK() ) return;
 
-    inputdata_.allowNull(true);
+    inputdata_.setNullAllowed(true);
 
     mGetBinID( stepout_, stepoutStr() );
     mGetInt( minnrtrcs_, nrtrcsStr() );

@@ -131,13 +131,13 @@ void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
     nrrows_ = 0;
     parsoffset_ = -1;
 
-    sectionnames_.allowNull();
-    linenames_.allowNull();
+    sectionnames_.setNullAllowed();
+    linenames_.setNullAllowed();
 
     BufferString exnm( "Reading surface '", objname, "'" );
     setName( exnm.buf() );
     setNrDoneText( stdNrDoneText() );
-    auxdataexecs_.allowNull(true);
+    auxdataexecs_.setNullAllowed();
 
     if ( conn_ )
 	createAuxDataReader();

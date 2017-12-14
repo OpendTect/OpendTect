@@ -43,7 +43,7 @@ Network::FileCache::FileCache( FileSizeType knownfilesz )
     : knownfilesize_(knownfilesz)
     , lastblocksz_(Block::cFullSize)
 {
-    blocks_.allowNull( true );
+    blocks_.setNullAllowed( true );
     if ( knownfilesz < 1 )
 	return;
 

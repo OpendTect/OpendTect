@@ -109,7 +109,7 @@ Texture::Texture( Desc& desc )
 	    posandsteeridx_.steeridx_ += getSteeringIndex( bid );
 	}
     }
-    inpdata_.allowNull( true );
+    inpdata_.setNullAllowed( true );
 }
 
 

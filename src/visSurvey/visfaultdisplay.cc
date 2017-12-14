@@ -117,7 +117,7 @@ FaultDisplay::FaultDisplay()
     drawstyle_->ref();
     addNodeState( drawstyle_ );
     drawstyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
-    texuredatas_.allowNull( true );
+    texuredatas_.setNullAllowed( true );
 
     if ( getMaterial() )
 	mAttachCB( getMaterial()->change, FaultDisplay::matChangeCB );

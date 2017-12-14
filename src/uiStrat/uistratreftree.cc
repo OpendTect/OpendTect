@@ -194,18 +194,18 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
 	    caninsertsubitem = false;
     }
     if ( caninsertsubitem )
-	mnu.insertItem( new uiAction(m3Dots(tr("Create sub-unit"))), 0 );
+	mnu.insertAction( new uiAction(m3Dots(tr("Create sub-unit"))), 0 );
     if ( isLeaved( lvit ) )
-	mnu.insertItem( new uiAction(m3Dots(tr("Subdivide unit"))), 1 );
-    mnu.insertItem( new uiAction(uiStrings::sProperties()), 2 );
+	mnu.insertAction( new uiAction(m3Dots(tr("Subdivide unit"))), 1 );
+    mnu.insertAction( new uiAction(uiStrings::sProperties()), 2 );
     if ( lv_->currentItem() != lv_->firstItem() )
-	mnu.insertItem( new uiAction(uiStrings::sRemove()), 3 );
+	mnu.insertAction( new uiAction(uiStrings::sRemove()), 3 );
     if ( lv_->currentItem() == lv_->firstItem() )
-	 mnu.insertItem( new uiAction(tr("Add Unit below")), 4 );
+	 mnu.insertAction( new uiAction(tr("Add Unit below")), 4 );
     if ( isLeaved( lvit ) )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("Assign marker boundary")), 5 );
+	mnu.insertAction( new uiAction(tr("Assign marker boundary")), 5 );
     }
 
     const int mnuid = mnu.exec();

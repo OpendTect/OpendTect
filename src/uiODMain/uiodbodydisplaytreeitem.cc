@@ -85,16 +85,16 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
-    mnu.insertItem( new uiAction(tr("New Polygon Body")), 1 );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
+    mnu.insertAction( new uiAction(tr("New Polygon Body")), 1 );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
 	uiMenu* displaymnu =
 		new uiMenu( getUiParent(), tr("Display All") );
-	displaymnu->insertItem( new uiAction(tr("Only at Sections")), 2 );
-	displaymnu->insertItem( new uiAction(tr("In Full")), 3 );
-	mnu.insertItem( displaymnu );
+	displaymnu->insertAction( new uiAction(tr("Only at Sections")), 2 );
+	displaymnu->insertAction( new uiAction(tr("In Full")), 3 );
+	mnu.addMenu( displaymnu );
     }
 
     addStandardItems( mnu );

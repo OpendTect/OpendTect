@@ -82,13 +82,13 @@ bool uiODSceneProbeParentTreeItem::showSubMenu()
 
 void uiODSceneProbeParentTreeItem::addMenuItems()
 {
-    menu_->insertItem(
+    menu_->insertAction(
 	new uiAction( uiODSceneProbeParentTreeItem::sAddDefaultData()),
 		      sAddDefaultDataMenuID() );
-    menu_->insertItem(
+    menu_->insertAction(
 	new uiAction( uiODSceneProbeParentTreeItem::sAddAndSelectData()),
 		      sAddAndSelectDataMenuID() );
-    menu_->insertItem(
+    menu_->insertAction(
 	new uiAction( uiODSceneProbeParentTreeItem::sAddColorBlended()),
 		      sAddColorBlendedMenuID() );
 }

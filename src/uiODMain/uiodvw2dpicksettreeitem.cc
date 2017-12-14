@@ -60,8 +60,8 @@ bool uiODVw2DPickSetParentTreeItem::init()
 bool uiODVw2DPickSetParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sNew())), 1 );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sNew())), 1 );
     addStandardItems( mnu );
     return handleSubMenu( mnu.exec() );
 }

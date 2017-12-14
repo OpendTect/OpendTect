@@ -267,7 +267,7 @@ GLCM_attrib::GLCM_attrib( Desc& desc )
     }
 
     desgate_ = Interval<float>( gate_.start, gate_.stop );
-    inpdata_.allowNull( true );
+    inpdata_.setNullAllowed( true );
 
 }
 

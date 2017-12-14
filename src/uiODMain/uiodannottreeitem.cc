@@ -134,8 +134,8 @@ bool uiODAnnotTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     const uiString addtxt = m3Dots(tr("New %1 group").arg(typestr_));
-    mnu.insertItem( new uiAction(addtxt), 0 );
-    mnu.insertItem(new uiAction(m3Dots(uiStrings::sAdd())),1);
+    mnu.insertAction( new uiAction(addtxt), 0 );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), 1 );
     addStandardItems( mnu );
 
     const int mnusel = mnu.exec();

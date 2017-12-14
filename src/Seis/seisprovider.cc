@@ -648,7 +648,7 @@ Seis::RawTrcsSequence::RawTrcsSequence( const ObjectSummary& info, int nrpos )
     , tks_(0)
     , intpol_(0)
 {
-    trcscalers_.allowNull( true );
+    trcscalers_.setNullAllowed( true );
     TraceData td;
     for ( int icomp=0; icomp<info.nrcomp_; icomp++ )
 	td.addComponent( info.nrsamppertrc_, info.getDataChar() );
@@ -677,7 +677,7 @@ Seis::RawTrcsSequence::RawTrcsSequence( const Seis::RawTrcsSequence& oth )
     , tks_(0)
     , intpol_(0)
 {
-    trcscalers_.allowNull( true );
+    trcscalers_.setNullAllowed( true );
     for ( int idx=0; idx<oth.nrpos_; idx++ )
 	trcscalers_ += 0;
 

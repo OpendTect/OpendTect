@@ -107,7 +107,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
                                  pars,Start)
     , nrdisp_(1)
 {
-    rmbuts_.allowNull(); addbuts_.allowNull();
+    rmbuts_.setNullAllowed(); addbuts_.setNullAllowed();
     IOObjContext ctxt( mIOObjContext(ProbDenFunc) );
     ctxt.forread_ = true;
 

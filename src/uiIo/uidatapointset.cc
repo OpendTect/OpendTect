@@ -188,7 +188,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     mAttachCB(DBM().applicationClosing,uiDataPointSet::applClosingCB);
 
     setCtrlStyle( CloseOnly );
-    runcalcs_.allowNull( true );
+    runcalcs_.setNullAllowed( true );
 
     const int nrcols = initVars();
     mkToolBars();

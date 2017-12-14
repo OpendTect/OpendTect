@@ -204,9 +204,9 @@ protected:
 	typedef unsigned char	BufType;
 
 				ObjData() : buf_(0), bufsz_(0)
-						    { objs_.allowNull(true); }
+						{ objs_.setNullAllowed(true); }
 				ObjData(const ObjData&);
-				~ObjData()	    { delete [] buf_; }
+				~ObjData()	{ delete [] buf_; }
 
 	const void*		getObj(bool,ArrIdxType,ObjSzType) const;
 	void			putObj(bool,ArrIdxType,ObjSzType,const void*);

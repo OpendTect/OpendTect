@@ -43,7 +43,7 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     , lbl_(0)
     , suggestedNameAvailble(this)
 {
-    optflds_.allowNull( true );
+    optflds_.setNullAllowed( true );
     const TranslatorGroup& trgrp = *ctio.ctxt_.trgroup_;
     const ObjectSet<const Translator>& alltrs = trgrp.templates();
     for ( int idx=0; idx<alltrs.size(); idx++ )

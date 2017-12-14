@@ -114,9 +114,9 @@ ChannelInfo::ChannelInfo( TextureChannels& nc )
     size_[1] = 0;
     size_[2] = 0;
 
-    osgimages_.allowNull(true);
-    mappeddata_.allowNull(true);
-    unmappeddata_.allowNull(true);
+    osgimages_.setNullAllowed(true);
+    mappeddata_.setNullAllowed(true);
+    unmappeddata_.setNullAllowed(true);
     setNrVersions( 1 );
     mAttachCB( mapper_->objectChanged(), ChannelInfo::mapperChgCB );
 }

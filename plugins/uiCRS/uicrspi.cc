@@ -14,11 +14,12 @@ mDefODPluginInfo(uiCRS)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Coordinate Reference System",
-	"OpendTect",
-	"dGB (Raman)",
-	"6.2",
+	"CRS support",
+	"opendtect.org",
+	"1.0",
 	"User interface for providing a library of Coordinate Reference Systems"
 	    " that can be set at Survey level" ));
+    retpi.useronoffselectable_ = true;
     return &retpi;
 }
 

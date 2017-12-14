@@ -39,7 +39,7 @@ public:
     virtual bool		isManaged() const	{ return false; }
 
     inline bool			nullAllowed() const	{ return allow0_; }
-    inline void			allowNull(bool yn=true);
+    inline void			setNullAllowed(bool yn=true);
     inline size_type		size() const		{ return vec_.size(); }
     inline virtual od_int64	nrItems() const		{ return size(); }
 
@@ -90,6 +90,9 @@ public:
 
     inline void			plainErase()	{ vec_.erase(); }
 				/*!< Not virtual. Don't use casually. */
+    mDeprecated inline void	allowNull( bool yn=true )
+				{ setNullAllowed( yn ); }
+
 };
 
 				// useful for iterating over any OD::Set
@@ -147,7 +150,7 @@ inline void deepCopy( ObjectSet<T>& to, const ObjectSet<S>& from )
 {
     if ( &to == &from ) return;
     deepErase( to );
-    to.allowNull( from.nullAllowed() );
+    to.setNullAllowed( from.nullAllowed() );
     deepAppend( to, from );
 }
 
@@ -158,7 +161,7 @@ inline void deepCopyClone( ObjectSet<T>& to, const ObjectSet<S>& from )
 {
     if ( &to == &from ) return;
     deepErase( to );
-    to.allowNull( from.nullAllowed() );
+    to.setNullAllowed( from.nullAllowed() );
     deepAppendClone( to, from );
 }
 
@@ -289,12 +292,30 @@ ObjectSet<T>::ObjectSet( const ObjectSet<T>& t )
 
 template <class T> inline
 ObjectSet<T>& ObjectSet<T>::operator =( const ObjectSet<T>& os )
-{ allow0_ = os.allow0_; copy(os); return *this; }
+{
+    allow0_ = os.allow0_;
+    copy( os );
+    return *this;
+}
 
 
 template <class T> inline
-void ObjectSet<T>::allowNull( bool yn )
-{ allow0_ = yn; }
+void ObjectSet<T>::setNullAllowed( bool yn )
+{
+    if ( allow0_ != yn )
+    {
+	allow0_ = yn;
+	if ( !allow0_ )
+	{
+	    for ( size_type idx=size()-1; idx!=-1; idx-- )
+	    {
+		T* obj = (*this)[idx];
+		if ( !obj )
+		    removeSingle( idx );
+	    }
+	}
+    }
+}
 
 
 template <class T> inline

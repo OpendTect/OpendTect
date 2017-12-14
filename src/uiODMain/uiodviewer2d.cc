@@ -495,12 +495,12 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 
     uiAction* polyitm = new uiAction( uiStrings::sPolygon(),
 				      mCB(this,uiODViewer2D,handleToolClick) );
-    polymnu->insertItem( polyitm, 0 );
+    polymnu->insertAction( polyitm, 0 );
     polyitm->setIcon( "polygonselect" );
 
     uiAction* rectitm = new uiAction( uiStrings::sRectangle(),
 				      mCB(this,uiODViewer2D,handleToolClick) );
-    polymnu->insertItem( rectitm, 1 );
+    polymnu->insertAction( rectitm, 1 );
     rectitm->setIcon( "rectangleselect" );
 
     tb->setButtonMenu( polyseltbid_, polymnu );

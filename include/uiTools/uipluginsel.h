@@ -12,15 +12,12 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "uitreeview.h"
-#include "plugins.h"
-#include "bufstringset.h"
+#include "objectset.h"
 
 class uiButton;
 class uiCheckBox;
-class uiTreeView;
-struct PluginProduct;
-struct PluginVendor;
+struct PluginPackage;
+struct PluginProvider;
 class IOPar;
 
 
@@ -30,25 +27,23 @@ public:
 				uiPluginSel(uiParent*);
 				~uiPluginSel();
 
-    int				nrPlugins() const { return products_.size(); }
-
+    int				nrPackages() const { return packages_.size(); }
 
     static const char*		sKeyDoAtStartup();
 
 protected:
 
     void			readPackageList();
-    void			makeProductList(
-					const ObjectSet<PluginManager::Data>&);
+    void			makePackageList();
     void			createUI();
-    int				getProductIndex(const char* prodnm) const;
-    bool			isVendorSelected(int) const;
-    int				getVendorIndex(const char*) const;
-    void			readVendorList();
+    int				getPackageIndex(const char*) const;
+    bool			isProviderSelected(int) const;
+    int				getProviderIndex(const char*) const;
+    void			readProviderList();
 
     bool			acceptOK();
 
-    ObjectSet<PluginProduct>	products_;
-    ObjectSet<PluginVendor>	vendors_;
-    uiTreeView*			treefld_;
+    ObjectSet<PluginPackage>	packages_;
+    ObjectSet<PluginProvider>	providers_;
+
 };

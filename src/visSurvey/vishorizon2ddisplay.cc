@@ -45,7 +45,7 @@ Horizon2DDisplay::Horizon2DDisplay()
     , ln2dset_( 0 )
     , selections_( 0 )
 {
-    points_.allowNull(true);
+    points_.setNullAllowed(true);
     EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5 ) );
     intersectmkset_->ref();
     addChild( intersectmkset_->osgNode() );

@@ -35,13 +35,13 @@ void uiODLangMenuMgr::initLanguageMenu()
     if ( TrMgr().nrSupportedLanguages() > 1 && !langmnu_ )
     {
 	langmnu_ = new uiMenu( tr("Language") );
-	mnumgr_->settMnu()->insertItem( langmnu_ );
+	mnumgr_->settMnu()->addMenu( langmnu_ );
 	for ( int idx=0; idx<TrMgr().nrSupportedLanguages(); idx++ )
 	{
 	    uiAction* itm = new uiAction( TrMgr().getLanguageUserName(idx),
 				 mCB(this,uiODLangMenuMgr,languageSelectedCB));
 	    itm->setCheckable( true );
-	    langmnu_->insertItem( itm, idx );
+	    langmnu_->insertAction( itm, idx );
 	}
     }
 }

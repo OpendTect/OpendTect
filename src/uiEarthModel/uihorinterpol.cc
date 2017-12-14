@@ -311,7 +311,7 @@ mImplFactory1Param(uiHor3DInterpol,uiParent*,uiHor3DInterpol::factory)
 uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     : uiGroup(p,"Horizon3D Interpolation")
 {
-    methodgrps_.allowNull( true );
+    methodgrps_.setNullAllowed( true );
 
     uiStringSet scopes;
     scopes += tr("Full survey");

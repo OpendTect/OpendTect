@@ -1391,30 +1391,30 @@ void uiTable::popupMenu( CallBacker* )
 	    if ( nrcols==0 )
 	    {
 		itmtxt = uiStrings::phrInsert( toUiString(setup_.coldesc_) );
-		inscolaft = mnu->insertItem( new uiAction(itmtxt), 2 );
+		inscolaft = mnu->insertAction( new uiAction(itmtxt), 2 );
 	    }
 	    else
 	    {
 		itmtxt = uiStrings::phrInsert( uiStrings::phrJoinStrings(
 				toUiString(setup_.coldesc_),tr("before")) );
-		inscolbef = mnu->insertItem( new uiAction(itmtxt), 0 );
+		inscolbef = mnu->insertAction( new uiAction(itmtxt), 0 );
 		itmtxt = uiStrings::phrInsert( uiStrings::phrJoinStrings(
 				toUiString(setup_.coldesc_),tr("after")) );
-		inscolaft = mnu->insertItem( new uiAction(itmtxt), 2 );
+		inscolaft = mnu->insertAction( new uiAction(itmtxt), 2 );
 	    }
 	}
 
 	if ( nrcols>0 && setup_.removecolallowed_ && notifcols_.size() < 2 )
 	{
 	    itmtxt = uiStrings::phrRemove(toUiString(setup_.coldesc_));
-	    delcol = mnu->insertItem( new uiAction(itmtxt), 4 );
+	    delcol = mnu->insertAction( new uiAction(itmtxt), 4 );
 	}
 
 	if ( notifcols_.size() > 1 )
 	{
 	    itmtxt = uiStrings::phrRemoveSelected(toUiString("%2s")
 		     .arg(setup_.coldesc_));
-	    delcols = mnu->insertItem( new uiAction(itmtxt), 6 );
+	    delcols = mnu->insertAction( new uiAction(itmtxt), 6 );
 	}
     }
 
@@ -1429,16 +1429,16 @@ void uiTable::popupMenu( CallBacker* )
 	    if ( nrrows==0 )
 	    {
 		itmtxt = uiStrings::phrInsert( toUiString(setup_.rowdesc_) );
-		insrowaft = mnu->insertItem( new uiAction(itmtxt), 3 );
+		insrowaft = mnu->insertAction( new uiAction(itmtxt), 3 );
 	    }
 	    else
 	    {
 		itmtxt =  uiStrings::phrInsert( uiStrings::phrJoinStrings(
 				toUiString(setup_.rowdesc_),tr("before")) );
-		insrowbef = mnu->insertItem( new uiAction(itmtxt), 1 );
+		insrowbef = mnu->insertAction( new uiAction(itmtxt), 1 );
 		itmtxt =  uiStrings::phrInsert( uiStrings::phrJoinStrings(
 				toUiString(setup_.rowdesc_),tr("after")) );
-		insrowaft = mnu->insertItem( new uiAction(itmtxt), 3 );
+		insrowaft = mnu->insertAction( new uiAction(itmtxt), 3 );
 	    }
 	}
 
@@ -1446,14 +1446,14 @@ void uiTable::popupMenu( CallBacker* )
 	{
 	    itmtxt = toUiString("%1 %2").arg(tr("Remove")).
 					    arg(setup_.rowdesc_);
-	    delrow = mnu->insertItem( new uiAction(itmtxt), 5 );
+	    delrow = mnu->insertAction( new uiAction(itmtxt), 5 );
 	}
 
 	if ( notifrows_.size() > 1 )
 	{
 	    itmtxt = uiStrings::phrRemoveSelected(toUiString("%2s")
 		     .arg(setup_.rowdesc_));
-	    delrows = mnu->insertItem( new uiAction(itmtxt), 7 );
+	    delrows = mnu->insertAction( new uiAction(itmtxt), 7 );
 	}
     }
 
@@ -1461,7 +1461,7 @@ void uiTable::popupMenu( CallBacker* )
     if ( isTableReadOnly() && setup_.enablecopytext_ )
     {
 	itmtxt = uiStrings::phrJoinStrings(uiStrings::sCopy(),tr("text"));
-	cptxt = mnu->insertItem( new uiAction(itmtxt), 8 );
+	cptxt = mnu->insertAction( new uiAction(itmtxt), 8 );
     }
 
     int virkeyboardid = mUdf(int);
@@ -1469,7 +1469,7 @@ void uiTable::popupMenu( CallBacker* )
     {
 	mnu->insertSeparator();
 	itmtxt = tr("Virtual Keyboard");
-	virkeyboardid = mnu->insertItem( new uiAction(itmtxt), 100 );
+	virkeyboardid = mnu->insertAction( new uiAction(itmtxt), 100 );
     }
 
     int ret = mnu->exec();

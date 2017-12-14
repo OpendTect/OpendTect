@@ -59,7 +59,10 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
 					       OD::Vertical );
     butgrp->attach( rightOf, listfld_->box() );
 
-    if ( SI().has2D() )
+    uiString hor3dbuttxt = uiStrings::phrLoad( uiStrings::s3D() );
+    if ( !SI().has2D() )
+	hor3dbuttxt = tr( "Load" );
+    else
     {
 	uiPushButton* add2dbut =
 	    new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s2D()),
@@ -68,7 +71,7 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     }
 
     uiPushButton* add3dbut =
-	new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s3D()),
+	new uiPushButton( butgrp, hor3dbuttxt,
 			  mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
     add3dbut->setIcon( "tree-horizon3d" );
 

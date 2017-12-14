@@ -33,7 +33,7 @@ VW2DFault::VW2DFault( const EM::ObjectID& oid, uiFlatViewWin* win,
     , f3deditor_(0)
     , knotenabled_(false)
 {
-    faulteds_.allowNull();
+    faulteds_.setNullAllowed();
     if ( oid >= 0 )
 	setEditors();
 }

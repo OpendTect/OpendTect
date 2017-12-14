@@ -57,11 +57,15 @@ public:
     uiMenu*		toolsMnu()		{ return toolsmnu_; }
     uiMenu*		installMnu()		{ return installmnu_; }
     uiMenu*		preLoadMenu()		{ return preloadmnu_; }
-    uiMenu*		createSeisOutputMenu()	{ return csoitm_; }
+    uiMenu*		createSeisOutputMenu()	{ return csomnu_; }
+    uiMenu*		impWellTrackMenu()	{ return imptrackmnu_; }
+    uiMenu*		impWellLogsMenu()	{ return implogsmnu_; }
+    uiMenu*		impWellMarkersMenu()	{ return impmarkersmnu_; }
 
-    uiMenu*		getBaseMnu(uiODApplMgr::ActType);
-			//! < Within Survey menu
-    uiMenu*		getMnu(bool imp,uiODApplMgr::ObjType);
+    typedef uiODApplMgr::ActType    ActType;
+    typedef uiODApplMgr::ObjType    ObjType;
+    uiMenu*		getBaseMnu(ActType); //! < Within Survey menu
+    uiMenu*		getMnu(bool imp,ObjType);
 			//! < Within Survey - Import or Export
 
     uiToolBar*		dtectTB()		{ return dtecttb_; }
@@ -122,7 +126,10 @@ protected:
     uiMenu*		settmnu_;
     uiMenu*		toolsmnu_;
     uiMenu*		installmnu_;
-    uiMenu*		csoitm_;
+    uiMenu*		csomnu_;
+    uiMenu*		imptrackmnu_;
+    uiMenu*		implogsmnu_;
+    uiMenu*		impmarkersmnu_;
     ObjectSet<uiMenu>	impmnus_;
     ObjectSet<uiMenu>	expmnus_;
 
@@ -135,59 +142,83 @@ protected:
     uiODFaultToolMan*	faulttoolman_;
     MeasureToolMan*	measuretoolman_;
 
-    void		fillSurveyMenu();
-    void		fillImportMenu();
-    void		fillExportMenu();
-    void		fillManMenu();
-    void		fillAnalMenu();
-    void		fillProcMenu();
-    void		fillSceneMenu();
-    void		fillViewMenu();
-    void		fillUtilMenu();
-    void		fillDtectTB(uiODApplMgr*);
-    void		fillCoinTB(uiODSceneMgr*);
-    void		fillManTB();
+    uiMenu*	addSubMenu(uiMenu*,const uiString&,const char* icnm);
+    void	addAction(uiMenu*,const uiString&,const char* icnm,int);
+    void	addDirectAction(uiMenu*,const uiString&,const char*,int);
+    void	add2D3DActions(uiMenu*,const uiString&,const char*,int,int,
+			       bool always3d=false);
+    uiMenu*	addAsciiSubMenu(uiMenu*,const uiString&,const char*);
+    uiMenu*	addAsciiActionSubMenu(uiMenu*,const uiString&,
+				      const char* icnm,int,
+				      const uiString* altascnm=0);
+    uiMenu*	add2D3DAsciiSubMenu(uiMenu*,const uiString&,
+				      const char* icnm,int,int,
+				      const uiString* altascnm=0,
+				      bool always3d=false);
+    uiMenu*	addSingMultAsciiSubMenu(uiMenu*,const uiString&,
+				      const char* icnm,int,int,
+				      const uiString* altascnm=0);
+    uiMenu*	add2D3DSingMultAsciiSubMenu(uiMenu*,
+			    const uiString&,const char*,
+		            int,int,int,int,bool always3d=false);
 
-    void		selectionMode(CallBacker*);
-    void		handleToolClick(CallBacker*);
-    void		handleViewClick(CallBacker*);
-    void		handleClick(CallBacker*);
-    void		removeSelection(CallBacker*);
-    void		dispColorBar(CallBacker*);
-    void		manSeis(CallBacker*);
-    void		manHor(CallBacker*);
-    void		manBody(CallBacker*);
-    void		manProps(CallBacker*);
-    void		manFlt(CallBacker*);
-    void		manWll(CallBacker*);
-    void		manPick(CallBacker*);
-    void		manWvlt(CallBacker*);
-    void		manStrat(CallBacker*);
-    void		manPDF(CallBacker*);
-    void		updateDTectToolBar(CallBacker*);
-    void		updateDTectMnus(CallBacker*);
-    void		toggViewMode(CallBacker*);
-    void		add2D3DMenuItem(uiMenu&,const char* iconnnm,
+    void	fillSurveyMenu();
+    void	setSurveySubMenus();
+    void	fillAnalMenu();
+    void	fillProcMenu();
+    void	fillSceneMenu();
+    void	fillViewMenu();
+    void	fillUtilMenu();
+    void	fillDtectTB(uiODApplMgr*);
+    void	fillVisTB(uiODSceneMgr*);
+    void	fillManTB();
+    void	fillWellImpSubMenu(uiMenu*);
+    void	createSeisSubMenus();
+
+    void	polySelectionModeCB(CallBacker*);
+    void	removeSelectionCB(CallBacker*);
+    void	handleToolClick(CallBacker*);
+    void	handleViewClick(CallBacker*);
+    void	handleClick(CallBacker*);
+    void	dispColorBar(CallBacker*);
+    void	manSeis(CallBacker*);
+    void	manHor(CallBacker*);
+    void	manBody(CallBacker*);
+    void	manProps(CallBacker*);
+    void	manFlt(CallBacker*);
+    void	manWll(CallBacker*);
+    void	manPick(CallBacker*);
+    void	manWvlt(CallBacker*);
+    void	manStrat(CallBacker*);
+    void	manPDF(CallBacker*);
+    void	updateDTectToolBar(CallBacker*);
+    void	updateDTectMnus(CallBacker*);
+    void	toggViewMode(CallBacker*);
+    void	add2D3DMenuItem(uiMenu&,const char* iconnnm,
 					const uiString& menuitmtxt,
 					int itmid2d=-1,int itmid3d=-1);
 
-    uiAction*		stereooffitm_;
-    uiAction*		stereoredcyanitm_;
-    uiAction*		stereoquadbufitm_;
-    uiAction*		stereooffsetitm_;
-    uiAction*		addtimedepthsceneitm_;
-    uiAction*		lastsceneitm_;
-    int			axisid_, actviewid_, cameraid_, soloid_;
-    int			coltabid_, polyselectid_,viewselectid_,curviewmode_ ;
-    int			viewinlid_, viewcrlid_, viewzid_, viewnid_, viewnzid_;
-    int			removeselectionid_;
-    bool		inviewmode_;
+    uiAction*	stereooffitm_;
+    uiAction*	stereoredcyanitm_;
+    uiAction*	stereoquadbufitm_;
+    uiAction*	stereooffsetitm_;
+    uiAction*	addtimedepthsceneitm_;
+    uiAction*	lastsceneitm_;
+    int		axisid_, actviewid_, cameraid_, soloid_;
+    int		coltabid_, polyselectid_,viewselectid_,curviewmode_ ;
+    int		viewinlid_, viewcrlid_, viewzid_, viewnid_, viewnzid_;
+    int		removeselectionid_;
+    bool	inviewmode_;
 
     inline uiODApplMgr&	applMgr()	{ return appl_.applMgr(); }
     inline uiODSceneMgr& sceneMgr()	{ return appl_.sceneMgr(); }
 
-    void		showLogFile();
-    void		mkViewIconsMnu();
-    void		addIconMnuItems(const DirList&,uiMenu*,
+    void	showLogFile();
+    void	mkViewIconsMnu();
+    void	addIconMnuItems(const DirList&,uiMenu*,
 					BufferStringSet&);
+
+    uiMenu*	addDualAsciiSubMenu(uiMenu*,const uiString&,
+				      const char* icnm,int,int,bool,
+				      const uiString*,bool);
 };

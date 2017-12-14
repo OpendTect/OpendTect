@@ -676,7 +676,7 @@ void uiMainWinBody::renewToolbarsMenu()
 	uiAction* itm =
 	    new uiAction( toUiString(tb.name()),
 	    mCB(this,uiMainWinBody,toggleToolbar) );
-	toolbarsmnu_->insertItem( itm );
+	toolbarsmnu_->insertAction( itm );
 	tb.setToolBarMenuAction( itm );
 	itm->setCheckable( true );
     }

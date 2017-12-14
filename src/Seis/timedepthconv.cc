@@ -42,7 +42,7 @@ Time2DepthStretcher::Time2DepthStretcher()
     , topvavg_ ( getDefaultVAvg().start, getDefaultVAvg().start )
     , botvavg_ ( getDefaultVAvg().stop, getDefaultVAvg().stop )
 {
-    voidata_.allowNull( true );
+    voidata_.setNullAllowed( true );
 }
 
 

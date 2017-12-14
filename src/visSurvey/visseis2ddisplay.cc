@@ -59,8 +59,8 @@ Seis2DDisplay::Seis2DDisplay()
     , prevtrcidx_(0)
     , pixeldensity_( getDefaultPixelDensity() )
 {
-    datapacks_.allowNull();
-    transformedpacks_.allowNull();
+    datapacks_.setNullAllowed();
+    transformedpacks_.setNullAllowed();
 
     geometry_.setZRange( StepInterval<float>(mUdf(float),mUdf(float),1) );
 

@@ -171,10 +171,10 @@ int ODMain( int argc, char** argv )
     bool dodlg = true;
     Settings::common().getYN( uiPluginSel::sKeyDoAtStartup(), dodlg );
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
-    if ( dodlg && pimdata.size() )
+    if ( dodlg && !pimdata.isEmpty() )
     {
 	uiPluginSel dlg( odmain );
-	if ( dlg.nrPlugins() && !dlg.go() )
+	if ( !dlg.go() )
 	    return 1;
     }
 

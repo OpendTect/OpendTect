@@ -187,11 +187,11 @@ void uiODVw2DTreeItem::insertStdSubMenu( uiMenu& menu )
     if ( children_.size() > 1 )
     {
 	menu.insertSeparator();
-	menu.insertItem(
+	menu.insertAction(
 		new uiAction(tr("Show all items")), mShowAllItemsMenuID );
-	menu.insertItem(
+	menu.insertAction(
 		new uiAction(tr("Hide all items")), mHideAllItemsMenuID );
-	menu.insertItem(
+	menu.insertAction(
 		new uiAction(tr("Remove all items")), mRemoveAllItemsMenuID );
     }
 }

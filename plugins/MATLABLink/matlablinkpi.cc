@@ -15,10 +15,11 @@ mDefODPluginInfo(MATLABLink)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"MATLAB (base)",
-	"OpendTect",
-	"dGB Earth Sciences",
-	"=od",
+	"MatLab Link",
+	"opendtect.org",
+	"1.0",
 	"MATLAB - base" ) );
+    retpi.useronoffselectable_ = true;
     return &retpi;
 }
 

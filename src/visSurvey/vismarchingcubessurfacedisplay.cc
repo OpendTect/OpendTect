@@ -49,7 +49,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , usestexture_( true )
     , isattribenabled_( true )
 {
-    cache_.allowNull( true );
+    cache_.setNullAllowed( true );
     setColor( getRandomColor( false ) );
     getMaterial()->setAmbience( 0.4 );
     getMaterial()->change.notify(

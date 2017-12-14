@@ -283,7 +283,7 @@ bool ObjectFinder::selectNodes( ObjectSet<const CallBacker>& nodesfound,
     for ( int keyidx=0; keyidx<mSepStrSize(keys); keyidx++ )
     {
 	ObjectSet<const CallBacker> commonancestorobj;
-	commonancestorobj.allowNull( true );
+	commonancestorobj.setNullAllowed( true );
 	TypeSet<NodeTag> commonancestortag;
 	for ( int idx=0; idx<nodesfound.size(); idx++ )
 	{

@@ -79,7 +79,7 @@ Coherency::Coherency( Desc& desc )
 {
     if ( !isOK() ) return;
 
-    inputdata_.allowNull(true);
+    inputdata_.setNullAllowed(true);
 
     mGetInt( type_, sKeyType() );
 

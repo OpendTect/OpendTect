@@ -320,7 +320,7 @@ HorizonDisplay::HorizonDisplay()
     shift += 0.0;
     curshiftidx_ += 0;
     BufferStringSet* attrnms = new BufferStringSet();
-    attrnms->allowNull();
+    attrnms->setNullAllowed();
     userrefs_ += attrnms;
     shifts_ += new TypeSet<float>;
     enabled_ += true;
@@ -695,7 +695,7 @@ bool HorizonDisplay::addAttrib()
     shift += 0.0;
     curshiftidx_ += 0;
     BufferStringSet* attrnms = new BufferStringSet();
-    attrnms->allowNull();
+    attrnms->setNullAllowed();
     userrefs_ += attrnms;
     enabled_ += true;
     shifts_ += new TypeSet<float>;

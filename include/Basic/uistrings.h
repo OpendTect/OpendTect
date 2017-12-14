@@ -397,6 +397,7 @@ public:
     static uiString sMoveDown()		{ return tr("Move Down"); }
     static uiString sMoveUp()		{ return tr("Move Up"); }
     static uiString sMsec()		{ return tr("msec"); }
+    static uiString sMultiple()		{ return tr("Multiple"); }
     static uiString sMute(int num=1)	{ return tr("Mute",0,num); }
     static uiString sName(int num=1)	{ return tr("Name",0,num); }
     static uiString sNew();
@@ -488,6 +489,7 @@ public:
     static uiString sSettings()		{ return sSetting(mPlural); }
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift();
+    static uiString sSingle()		{ return tr("Single"); }
     static uiString sSPNumber()		{ return tr("Shot-Point number"); }
     static uiString sShow()             { return tr("Show"); }
     static uiString sShowIn();

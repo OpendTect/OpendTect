@@ -92,7 +92,7 @@ Picks::Picks()
     getDefaultColor( color_ );
     picks_.allowDuplicates( true );
     VPM().velpicks_ += this;
-    horizons_.allowNull( true );
+    horizons_.setNullAllowed( true );
 }
 
 
@@ -114,7 +114,7 @@ Picks::Picks( bool zit )
 
     picks_.allowDuplicates( true );
     VPM().velpicks_ += this;
-    horizons_.allowNull( true );
+    horizons_.setNullAllowed( true );
 }
 
 

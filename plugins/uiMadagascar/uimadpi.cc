@@ -41,7 +41,7 @@ static bool checkEnvVars( uiString& msg )
     BufferString rsfdir = GetEnvVar( "RSFROOT" );
     if ( rsfdir.isEmpty() || !File::isDirectory(rsfdir.buf()) )
     {
-	msg = od_static_tr("checkEnvVars",
+	msg = od_static_tr("Madagascarlink_checkEnvVars",
 					"RSFROOT is either not set or invalid");
 	return false;
     }
@@ -101,7 +101,7 @@ void uiMadagascarLink::updateMenu( CallBacker* )
     uiAction* newitem = new uiAction( m3Dots(tr("Madagascar")),
 					  mCB(this,uiMadagascarLink,doMain),
 					  "madagascar" );
-    mnumgr.procMnu()->insertItem( newitem );
+    mnumgr.procMnu()->insertAction( newitem );
 }
 
 

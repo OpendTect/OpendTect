@@ -58,8 +58,8 @@ SurfaceLimitedFiller::SurfaceLimitedFiller()
     , gradauxidx_( -1 )
     , startauxidx_( -1 )
 {
-    hors_.allowNull( true );
-    faults_.allowNull( true );
+    hors_.setNullAllowed( true );
+    faults_.setNullAllowed( true );
 }
 
 

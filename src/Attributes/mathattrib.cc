@@ -105,7 +105,7 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
 {
     if ( !isOK() ) return;
 
-    inputdata_.allowNull(true);
+    inputdata_.setNullAllowed(true);
 
     //Called expression for backward compatibility, it is now a Math::Formula
     ValParam* form = dsc.getValParam( expressionStr() );

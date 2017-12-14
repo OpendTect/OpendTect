@@ -151,7 +151,7 @@ bool MultiTextureSurveyObject::canRemoveAttrib() const
 bool MultiTextureSurveyObject::addAttrib()
 {
     BufferStringSet* aatrnms = new BufferStringSet();
-    aatrnms->allowNull();
+    aatrnms->setNullAllowed();
     userrefs_ += aatrnms;
     Attrib::SelSpec as;
     if ( getAllowedDataType() == OD::Only2D )

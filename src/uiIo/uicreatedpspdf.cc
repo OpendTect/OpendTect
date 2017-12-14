@@ -92,7 +92,7 @@ void uiCreateDPSPDF::createDefaultUI()
 	colids += dcid;
     }
 
-    rmbuts_.allowNull(); addbuts_.allowNull();
+    rmbuts_.setNullAllowed(); addbuts_.setNullAllowed();
     uiPrDenFunVarSel::DataColInfo colinfo( colnames, colids );
     const CallBack pushcb = mCB(this,uiCreateDPSPDF,butPush);
 
@@ -112,7 +112,7 @@ void uiCreateDPSPDF::createDefaultUI()
 	else
 	{
 	    fld->attach( alignedBelow, probflds_[idx-1] );
-	    uiButton* rmbut = new uiPushButton( this, tr("<- Less"), 
+	    uiButton* rmbut = new uiPushButton( this, tr("<- Less"),
                                                 pushcb, true );
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
@@ -122,7 +122,7 @@ void uiCreateDPSPDF::createDefaultUI()
 	    addbuts_ += 0;
 	else
 	{
-	    uiButton* addbut = new uiPushButton( this, tr("More ->"), 
+	    uiButton* addbut = new uiPushButton( this, tr("More ->"),
                                                  pushcb, true);
 	    addbut->attach( leftAlignedBelow, fld );
 	    addbuts_ += addbut;

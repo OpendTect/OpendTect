@@ -333,16 +333,16 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
     if ( !isempty && !dbl )
     {
 	uiMenu mnu( parent(), uiStrings::sAction() );
-	mnu.insertItem( new uiAction(
+	mnu.insertAction( new uiAction(
 			m3Dots(uiStrings::sEdit())), 0 );
-	mnu.insertItem( new uiAction(m3Dots(uiStrings::phrAdd(
+	mnu.insertAction( new uiAction(m3Dots(uiStrings::phrAdd(
 						    uiStrings::sAbove()))), 1 );
-	mnu.insertItem( new uiAction(m3Dots(uiStrings::phrAdd(
+	mnu.insertAction( new uiAction(m3Dots(uiStrings::phrAdd(
 						    uiStrings::sBelow()))), 2 );
 	if ( editdesc_.size() > 1 )
 	{
 	    mnu.insertSeparator();
-	    mnu.insertItem( new uiAction(uiStrings::sRemove()), 3 );
+	    mnu.insertAction( new uiAction(uiStrings::sRemove()), 3 );
 	}
 	mnuid = mnu.exec();
     }
@@ -724,7 +724,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 
     uiGroup* propgrp = new uiGroup( this, "Property edit" );
     const PropertySet& props = edun_->properties();
-    propflds_.allowNull( true );
+    propflds_.setNullAllowed( true );
     uiSimpPropertyEd* prevfld = 0;
     for ( int iprop=0; iprop<proprefs.size(); iprop++ )
     {

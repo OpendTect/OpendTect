@@ -116,7 +116,7 @@ Tutorial::Tutorial( Desc& desc )
 	}
     }
 
-    inpdata_.allowNull( true );
+    inpdata_.setNullAllowed( true );
 }
 
 

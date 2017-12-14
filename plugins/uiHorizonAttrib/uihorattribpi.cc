@@ -124,11 +124,12 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
     if ( !itm || !itm->getMenu() ) return;
 
     if ( DBM().isBad() || SI().has3D() )
-	itm->getMenu()->insertItem(new uiAction(m3Dots(tr("Stratal Amplitude")),
-				     mCB(this,uiHorAttribPIMgr,makeStratAmp)));
+	itm->getMenu()->insertAction(
+			new uiAction(m3Dots(tr("Stratal Amplitude")),
+			mCB(this,uiHorAttribPIMgr,makeStratAmp)));
 
-    itm->getMenu()->insertItem( new uiAction(m3Dots(tr("Isochron")),
-			    mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
+    itm->getMenu()->insertAction( new uiAction(m3Dots(tr("Isochron")),
+			mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
 }
 
 

@@ -108,7 +108,7 @@ SimilaritybyAW::SimilaritybyAW( Desc& desc )
 	}
     }
 
-    inputdata_.allowNull( true );
+    inputdata_.setNullAllowed( true );
 }
 
 

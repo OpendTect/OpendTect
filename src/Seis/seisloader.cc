@@ -252,7 +252,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
     , queueid_(Threads::WorkManager::cDefaultQueueID())
     , udftraceswritefinished_(true)
 {
-    compscalers_.allowNull( true );
+    compscalers_.setNullAllowed( true );
     const SeisIOObjInfo info( ioobj );
     const bool is2d = info.is2D();
     if ( tkzs )
@@ -603,7 +603,7 @@ bool Seis::ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop,
     const bool samedatachar = seissummary.hasSameFormatAs( dp_->getDataDesc() );
     const bool needresampling = !zsamp.isCompatible( seissummary.zRange() );
     ObjectSet<Scaler> compscalers;
-    compscalers.allowNull( true );
+    compscalers.setNullAllowed( true );
     const TypeSet<int>& outcompnrs =
 				outcomponents_ && !outcomponents_->isEmpty()
 				   ? *outcomponents_ : components_;
@@ -765,7 +765,7 @@ bool Seis::ParallelFSLoader2D::doWork(od_int64 start,od_int64 stop,int threadid)
     const bool samedatachar = seissummary.hasSameFormatAs( dp_->getDataDesc() );
     const bool needresampling = !zsamp.isCompatible( seissummary.zRange() );
     ObjectSet<Scaler> compscalers;
-    compscalers.allowNull( true );
+    compscalers.setNullAllowed( true );
     const TypeSet<int>& outcompnrs =
 				outcomponents_ && !outcomponents_->isEmpty()
 				   ? *outcomponents_ : components_;

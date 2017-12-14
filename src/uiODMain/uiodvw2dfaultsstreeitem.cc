@@ -48,8 +48,8 @@ uiODVw2DFaultSSParentTreeItem::~uiODVw2DFaultSSParentTreeItem()
 bool uiODVw2DFaultSSParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( createAddMenu() );
-    mnu.insertItem( new uiAction(uiStrings::sNew()), getNewItemID() );
+    mnu.addMenu( createAddMenu() );
+    mnu.insertAction( new uiAction(uiStrings::sNew()), getNewItemID() );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }

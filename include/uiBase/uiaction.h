@@ -159,7 +159,7 @@ public:
     uiAction*			findAction(const uiActionSeparString&);
     uiAction*			findAction(const char* itmtxt);
     uiAction*			findAction(const uiString& itmtxt);
-    				//!<The full string of the text will be used
+				//!<The full string of the text will be used
     uiAction*			findAction(int id);
     uiAction*			findAction(const uiMenu*);
     uiAction*			findAction( const FixedString& fs )
@@ -203,14 +203,14 @@ protected:
 
 public:
 
-    int			insertItem(uiAction* a,int id=-1,
+    mDeprecated int	insertItem(uiAction* a,int id=-1,
 				   const uiAction* before = 0)
 			{ return insertAction( a, id, before ); }
 			//!<Legacy
-    int			insertItem(uiMenu* mnu);
+    mDeprecated int	insertItem(uiMenu* mnu);
 			/*!<Legacy. */
-    void		removeItem(uiAction* a) { removeAction(a); }
+    mDeprecated void	removeItem(uiAction* a) { removeAction(a); }
 			//!<Legacy
-    void		removeItem(int id) { removeAction(id); }
+    mDeprecated void	removeItem(int id) { removeAction(id); }
 			//!<Legacy
 };

@@ -42,7 +42,7 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& mid,
     , compidxs_( compidxs )
     , trc_( 0 )
 {
-    compscalers_.allowNull( true );
+    compscalers_.setNullAllowed( true );
     getPosInfo();
 
     if ( compidxs_.isEmpty() )

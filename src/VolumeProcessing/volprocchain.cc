@@ -73,7 +73,7 @@ VolProc::Chain::Chain()
     , outputstepid_( Step::cUndefID() )
     , outputslotid_( Step::cUndefSlotID() )
 {
-    outcompscalers_.allowNull( true );
+    outcompscalers_.setNullAllowed( true );
 }
 
 

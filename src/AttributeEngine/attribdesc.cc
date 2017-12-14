@@ -73,7 +73,7 @@ Desc::Desc( const char* attribname, DescUpdater updater,
     , needprovinit_(false)
     , userRefChanged(this)
 {
-    inputs_.allowNull(true);
+    inputs_.setNullAllowed(true);
     attribname_.replace( ' ', '_' );
 }
 
@@ -93,7 +93,7 @@ Desc::Desc( const Desc& oth )
     , needprovinit_(oth.needprovinit_)
     , userRefChanged(this)
 {
-    inputs_.allowNull(true);
+    inputs_.setNullAllowed(true);
 
     for ( int idx=0; idx<oth.params_.size(); idx++ )
 	addParam( oth.params_[idx]->clone() );

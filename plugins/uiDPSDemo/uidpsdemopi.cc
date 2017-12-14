@@ -36,7 +36,7 @@ mDefODPluginInfo(uiDPSDemo)
 	*newcomment += mODMinorVersion;
 	*newcomment += " ("; *commenttxt += GetFullODVersion();
 	*newcomment += ").";
-        
+
         commenttxt.setIfNull( newcomment.release(), true );
     }
 
@@ -97,9 +97,8 @@ const uiString uiDPSDemoMgr::sDPSDemo()
 void uiDPSDemoMgr::insertMenuItem( CallBacker* )
 {
     if ( SI().has3D() )
-	appl_.menuMgr().analMnu()->insertItem(
-	      new uiAction(
-	      uiStrings::phrThreeDots(sDPSDemo()),
+	appl_.menuMgr().analMnu()->insertAction(
+	      new uiAction(uiStrings::phrThreeDots(sDPSDemo()),
 	      mCB(this,uiDPSDemoMgr,doIt),pixmapfilename) );
 }
 

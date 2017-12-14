@@ -606,7 +606,7 @@ uiMenu* uiActionContainer::addMenu( uiMenu* mnu, const uiMenu* before )
 	}
     }
 
-    insertItem( submenuitem, -1, beforeaction );
+    insertAction( submenuitem, -1, beforeaction );
     return mnu;
 }
 
@@ -646,7 +646,7 @@ void uiActionContainer::removeAction( int id )
 {
     const int idx=ids_.indexOf(id);
     if ( actions_.validIdx(idx) )
-	removeItem( actions_[idx] );
+	removeAction( actions_[idx] );
 }
 
 

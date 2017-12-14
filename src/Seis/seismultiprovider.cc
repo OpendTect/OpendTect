@@ -289,7 +289,7 @@ void Seis::MultiProvider::doGetNext(
 	SeisTrc& trc, bool dostack, uiRetVal& uirv ) const
 {
     const int nrtrcs = policy_==RequireOnlyOne ? 1 : provs_.size();
-    ManagedObjectSet<SeisTrc> trcs; trcs.allowNull();
+    ManagedObjectSet<SeisTrc> trcs; trcs.setNullAllowed();
     for ( int idx=0; idx<nrtrcs; idx++ )
 	trcs += 0;
 
@@ -327,7 +327,7 @@ uiRetVal Seis::MultiProvider::getNext( ObjectSet<SeisTrc>& trcs )
 	return uirv;
 
     deepErase( trcs );
-    trcs.allowNull();
+    trcs.setNullAllowed();
     const int nrtrcs = policy_==RequireOnlyOne ? 1 : provs_.size();
     for ( int idx=0; idx<nrtrcs; idx++ )
 	trcs += 0;

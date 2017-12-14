@@ -42,7 +42,7 @@ mDefODPluginInfo(uiHello)
 }
 
 
-// OK: we need an object to receive the CallBacks. In serious software,
+// OK: we need an object to receive the CallBacks. In real situations,
 // that may be a 'normal' object inheriting from CallBacker.
 
 class uiHelloMgr :  public CallBacker
@@ -61,7 +61,7 @@ uiHelloMgr::uiHelloMgr( uiODMain& a )
 {
     uiAction* newitem = new uiAction( m3Dots(tr("Display Hello Message")),
 					  mCB(this,uiHelloMgr,dispMsg) );
-    appl.menuMgr().utilMnu()->insertItem( newitem );
+    appl.menuMgr().utilMnu()->insertAction( newitem );
 }
 
 

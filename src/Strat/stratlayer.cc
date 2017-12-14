@@ -97,10 +97,10 @@ void Strat::FormulaLayerValue::useForm( const PropertyRefSelection& prs )
 	    inpidx = prs.indexOf( pnm );
 	    if ( inpidx < 0 )
 	    {
-		errmsg_ = tr( "%1 - Formula cannot be resolved:\n'%2'" 
+		errmsg_ = tr( "%1 - Formula cannot be resolved:\n'%2'"
                               "\nCannot find '%3'")
                         .arg(lay_.name()).arg( form_.text() ).arg( pnm );
-                
+
 		return;
 	    }
 	}
@@ -173,14 +173,14 @@ Strat::Layer::Layer( const LeafUnitRef& r )
     : ref_(&r)
     , content_(0)
 {
-    vals_.allowNull( true );
+    vals_.setNullAllowed( true );
     setThickness( 0.0f );
 }
 
 
 Strat::Layer::Layer( const Strat::Layer& oth )
 {
-    vals_.allowNull( true );
+    vals_.setNullAllowed( true );
     *this = oth;
 }
 
@@ -825,7 +825,7 @@ bool Strat::LayerModel::write( od_ostream& strm, int modnr,
 	const LayerSequence& seq = *seqs_[iseq];
 	const int nrlays = seq.size();
 	strm << "#S" << iseq << od_tab << nrlays
-	    	     << od_tab << seq.startDepth() <<od_endl;
+		     << od_tab << seq.startDepth() <<od_endl;
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{

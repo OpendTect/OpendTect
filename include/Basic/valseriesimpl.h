@@ -317,7 +317,7 @@ MultiArrayValueSeries<RT,AT>::MultiArrayValueSeries( od_int64 sz )
     : cursize_( -1 )
     , chunksize_( mChunkSize/sizeof(AT) )
 {
-    ptrs_.allowNull( true );
+    ptrs_.setNullAllowed( true );
     setSize( sz );
 }
 
@@ -329,7 +329,7 @@ MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries(
     , cursize_( -1 )
     , chunksize_( mavs.chunksize_ )
 {
-    ptrs_.allowNull( true );
+    ptrs_.setNullAllowed( true );
     if ( setSize( mavs.cursize_ ) && ptrs_.size() == mavs.ptrs_.size() )
     {
 	for ( int idx=0; idx<ptrs_.size(); idx++ )

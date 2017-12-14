@@ -63,14 +63,14 @@ void uiODTreeItem::addStandardItems( uiMenu& mnu )
     mnu.insertSeparator();
     uiAction* action = new uiAction( tr("Show All Items") );
     action->setEnabled( !allChildrenChecked() );
-    mnu.insertItem( action, cShowAllItems );
+    mnu.insertAction( action, cShowAllItems );
 
     action = new uiAction( tr("Hide All Items") );
     action->setEnabled( !allChildrenUnchecked() );
-    mnu.insertItem( action, cHideAllItems );
+    mnu.insertAction( action, cHideAllItems );
 
-    mnu.insertItem( new uiAction(tr("Remove All Items from Tree")),
-		    cRemoveAllItems );
+    mnu.insertAction( new uiAction(tr("Remove All Items from Tree")),
+		      cRemoveAllItems );
 
     if ( !children_.first() || children_.first()->nrChildren()==0 )
 	return;
@@ -78,11 +78,11 @@ void uiODTreeItem::addStandardItems( uiMenu& mnu )
     mnu.insertSeparator();
     action = new uiAction( tr("Expand All Items") );
     action->setEnabled( !allChildrenExpanded() );
-    mnu.insertItem( action, cExpandAllItems );
+    mnu.insertAction( action, cExpandAllItems );
 
     action = new uiAction( tr("Collapse All Items") );
     action->setEnabled( !allChildrenCollapsed() );
-    mnu.insertItem( action, cCollapseAllItems );
+    mnu.insertAction( action, cCollapseAllItems );
 }
 
 

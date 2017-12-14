@@ -291,11 +291,11 @@ void mousePress( CallBacker* cb )
     if ( curcptidx_>=0 )
     {
 	if ( curcptidx_ != 0 && curcptidx_ != colseq().size()-1 )
-	    mnu.insertItem( new uiAction(tr("Remove color")), 0 );
-	mnu.insertItem( new uiAction(m3Dots(tr("Change color"))), 1 );
+	    mnu.insertAction( new uiAction(tr("Remove color")), 0 );
+	mnu.insertAction( new uiAction(m3Dots(tr("Change color"))), 1 );
     }
 
-    mnu.insertItem( new uiAction(m3Dots(tr("Edit in Table"))), 2 );
+    mnu.insertAction( new uiAction(m3Dots(tr("Edit in Table"))), 2 );
 
     const int res = mnu.exec();
     if ( res==0 )

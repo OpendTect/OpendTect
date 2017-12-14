@@ -608,7 +608,7 @@ int Math::Expression::getConstIdx( int ivar ) const
 Math::Expression::Expression( int sz )
     : isrecursive_(false)
 {
-    inputs_.allowNull();
+    inputs_.setNullAllowed();
     for ( int idx=0; idx<sz; idx++ )
 	inputs_ += 0;
 }

@@ -154,7 +154,7 @@ FingerPrint::FingerPrint( Desc& dsc )
 {
     if ( !isOK() ) return;
 
-    inputdata_.allowNull(true);
+    inputdata_.setNullAllowed(true);
 
     mDescGetParamGroup(FloatParam,valueset,desc_,valStr())
     for ( int idx=0; idx<valueset->size(); idx++ )

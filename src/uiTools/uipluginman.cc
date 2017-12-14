@@ -94,16 +94,16 @@ void uiPluginMan::fillList()
 }
 
 
-static bool needDispProdName( const BufferString& prodnm, BufferString usrnm )
+static bool needDispPkgName( const BufferString& pkgnm, BufferString usrnm )
 {
-    if ( prodnm.isEmpty() || prodnm == usrnm || prodnm == "OpendTect" )
+    if ( pkgnm.isEmpty() || pkgnm == usrnm || pkgnm == "OpendTect" )
 	return false;
 
     char* vendornm = firstOcc( usrnm.getCStr(), '[' );
     if ( !vendornm )
 	return true;
     *(vendornm-1) = '\0';
-    return prodnm != usrnm;
+    return pkgnm != usrnm;
 }
 
 
@@ -126,8 +126,8 @@ void uiPluginMan::selChg( CallBacker* )
     {
 	const PluginInfo& piinf = *data->info_;
 	txt.add( "Created by: " ).add( piinf.creator_ );
-	if ( needDispProdName(piinf.productname_,piinf.dispname_) )
-	    txt.add( "\nProduct: " ).add( piinf.productname_ );
+	if ( needDispPkgName(piinf.packagename_,piinf.dispname_) )
+	    txt.add( "\nPackage: " ).add( piinf.packagename_ );
 
 	txt.add( "\n\nFilename: " ).add( PIM().getFileName(*data) );
 	if ( piinf.version_ && *piinf.version_ )

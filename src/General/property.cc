@@ -197,7 +197,7 @@ MathProperty::MathProperty( const PropertyRef& pr, const char* df )
     : Property(pr)
     , form_(*new Math::Formula(false,getSpecVars()))
 {
-    inps_.allowNull( true );
+    inps_.setNullAllowed( true );
     if ( df && *df )
 	setDef( df );
 }

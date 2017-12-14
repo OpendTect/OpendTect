@@ -35,7 +35,7 @@ ________________________________________________________________________
 #define mInsertItem(mnu,txt,id,sc) \
 { \
     uiAction* itm = new uiAction(txt,mCB(mnumgr_,uiODMenuMgr,handleClick));\
-    mnu->insertItem( itm, id ); \
+    mnu->insertAction( itm, id ); \
     itm->setShortcut( sc ); \
 }
 

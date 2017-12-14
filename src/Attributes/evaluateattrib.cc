@@ -15,7 +15,7 @@
 namespace Attrib
 {
 mAttrDefCreateInstance(Evaluate)
-    
+
 void Evaluate::initClass()
 {
     mAttrStartInitClass
@@ -28,7 +28,7 @@ Evaluate::Evaluate( Desc& ds )
 {
     if ( !isOK() ) return;
 
-    inputdata_.allowNull( true );
+    inputdata_.setNullAllowed( true );
 }
 
 
@@ -54,7 +54,7 @@ bool Evaluate::getInputData( const BinID& relpos, int zintv )
 	inputdata_.replace( idx, data );
 	dataidx_ [idx] = getDataIndex( idx );
     }
-    
+
     return true;
 }
 
@@ -62,8 +62,8 @@ bool Evaluate::getInputData( const BinID& relpos, int zintv )
 bool Evaluate::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
-    if ( inputdata_.isEmpty() || output.isEmpty() || 
-	 inputdata_.size()<output.nrSeries() ) 
+    if ( inputdata_.isEmpty() || output.isEmpty() ||
+	 inputdata_.size()<output.nrSeries() )
 	 return false;
 
     for ( int idx=0; idx<nrsamples; idx++ )
@@ -73,7 +73,7 @@ bool Evaluate::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    if ( !isOutputEnabled(sidx) || !inputdata_[sidx] ) continue;
 
-	    const ValueSeries<float>* valseries = 
+	    const ValueSeries<float>* valseries =
 			inputdata_[sidx]->series( dataidx_[sidx] );
 
 	    if ( !valseries )
@@ -86,5 +86,5 @@ bool Evaluate::computeData( const DataHolder& output, const BinID& relpos,
 
     return true;
 }
-			
+
 } // namespace Attrib

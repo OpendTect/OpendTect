@@ -131,9 +131,9 @@ void uiGMTMgr::updateToolBar( CallBacker* )
 void uiGMTMgr::updateMenu( CallBacker* )
 {
     delete dlg_; dlg_ = 0;
-    uiAction* newitem = new uiAction( m3Dots(tr("GMT Mapping Tool")),
-				mCB(this,uiGMTMgr,createMap), "gmt_logo" );
-    appl_->menuMgr().procMnu()->insertItem( newitem );
+    uiAction* act = new uiAction( m3Dots(tr("GMT Mapping Tool")),
+				  mCB(this,uiGMTMgr,createMap), "gmt_logo" );
+    appl_->menuMgr().procMnu()->insertAction( act );
 }
 
 

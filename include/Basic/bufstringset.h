@@ -109,7 +109,8 @@ public:
     const BufferString*	operator[]( size_type idx ) const { return strs_[idx]; }
     const SetType&	getStringSet() const	    { return strs_; }
     SetType&		getStringSet()		    { return strs_; }
-    void		allowNull( bool yn=true )   { strs_.allowNull( yn ); }
+    void		setNullAllowed( bool yn=true )
+				{ strs_.setNullAllowed( yn ); }
     BufferStringSet&	operator +=( BufferString* bs )	{ return add(bs); }
     BufferStringSet&	set( size_type idx, BufferString* bs )
 				{ strs_.replace(idx,bs); return *this; }

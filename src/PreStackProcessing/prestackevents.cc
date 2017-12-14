@@ -220,7 +220,7 @@ EventManager::EventManager()
     , storageid_( DBKey::getInvalid() )
 {
     events_.allowDuplicates( true );
-    emhorizons_.allowNull( true );
+    emhorizons_.setNullAllowed( true );
 }
 
 

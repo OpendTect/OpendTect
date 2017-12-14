@@ -35,7 +35,7 @@ TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
     , localename_( localename )
 #endif
 {
-    translators_.allowNull( true );
+    translators_.setNullAllowed( true );
     const BufferString filename = BufferString()
 	.add(uiString::sODLocalizationApplication())
 	.add(TextTranslateMgr::cApplicationEnd())

@@ -381,9 +381,9 @@ void handleDistribChange()
 void doMenu()
 {
     uiMenu* mnu = new uiMenu( parent(), uiStrings::sAction() );
-    mnu->insertItem( new uiAction(tr("Re-scale now"),
+    mnu->insertAction( new uiAction(tr("Re-scale now"),
 		        mCB(this,uiManipMapper,reScaleReqCB)), 0 );
-    mnu->insertItem( new uiAction(m3Dots(tr("Full Edit")),
+    mnu->insertAction( new uiAction(m3Dots(tr("Full Edit")),
 		        mCB(this,uiManipMapper,setupDlgReqCB)), 1 );
     seltool_.mapperMenuReq.trigger( mnu );
     mnu->exec();

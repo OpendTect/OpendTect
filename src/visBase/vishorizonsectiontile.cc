@@ -57,7 +57,7 @@ HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
     osgvertices_->ref();
     refOsgPtr( stateset_ );
     refOsgPtr( osgswitchnode_ );
-    tileresolutiondata_.allowNull();
+    tileresolutiondata_.setNullAllowed();
     buildOsgGeometries();
     bbox_.init();
 }
@@ -419,7 +419,7 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 		bbox_.expandBy( (*osgvertices)[crdidx] );
 		computeNormal( crdidx,(*mGetOsgVec3Arr(normals_))[crdidx] );
 	    }
- 	    crdidx++;
+	    crdidx++;
        }
     }
 

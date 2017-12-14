@@ -96,28 +96,28 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(tr("Add"))), mLoadIdx );
+    mnu.insertAction( new uiAction(m3Dots(tr("Add"))), mLoadIdx );
     uiMenu* newmnu = new uiMenu( getUiParent(), tr("New") );
-    newmnu->insertItem( new uiAction(m3Dots(tr("Empty"))), mEmptyIdx );
-    newmnu->insertItem( new uiAction(m3Dots(tr("Generate 3D"))), mGen3DIdx );
+    newmnu->insertAction( new uiAction(m3Dots(tr("Empty"))), mEmptyIdx );
+    newmnu->insertAction( new uiAction(m3Dots(tr("Generate 3D"))), mGen3DIdx );
     if ( SI().has2D() )
-	newmnu->insertItem( new uiAction(m3Dots(tr("Generate 2D"))),
+	newmnu->insertAction( new uiAction(m3Dots(tr("Generate 2D"))),
                             mRandom2DIdx);
-    mnu.insertItem( newmnu );
+    mnu.addMenu( newmnu );
 
     if ( children_.size() > 0 )
     {
 	mnu.insertSeparator();
 	uiAction* filteritem =
 	    new uiAction( tr("Display Only at Sections") );
-	mnu.insertItem( filteritem, mDisplayIdx );
+	mnu.insertAction( filteritem, mDisplayIdx );
 	filteritem->setEnabled( !hastransform );
 	uiAction* shwallitem = new uiAction( tr("Display in Full") );
-	mnu.insertItem( shwallitem, mShowAllIdx );
+	mnu.insertAction( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(m3Dots(tr("Merge Sets"))), mMergeIdx );
-	mnu.insertItem( new uiAction(tr("Save Changes")), mSaveIdx );
+	mnu.insertAction( new uiAction(m3Dots(tr("Merge Sets"))), mMergeIdx );
+	mnu.insertAction( new uiAction(tr("Save Changes")), mSaveIdx );
     }
 
     addStandardItems( mnu );
@@ -519,21 +519,21 @@ bool uiODPolygonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(tr("Add"))), mLoadPolyIdx );
-    mnu.insertItem( new uiAction(m3Dots(tr("New"))), mNewPolyIdx );
+    mnu.insertAction( new uiAction(m3Dots(tr("Add"))), mLoadPolyIdx );
+    mnu.insertAction( new uiAction(m3Dots(tr("New"))), mNewPolyIdx );
 
     if ( children_.size() > 0 )
     {
 	mnu.insertSeparator();
 	uiAction* filteritem =
 	    new uiAction( tr("Display Only at Sections") );
-	mnu.insertItem( filteritem, mOnlyAtPolyIdx );
+	mnu.insertAction( filteritem, mOnlyAtPolyIdx );
 	filteritem->setEnabled( !hastransform );
 	uiAction* shwallitem = new uiAction( tr("Display in Full") );
-	mnu.insertItem( shwallitem, mAlwaysPolyIdx );
+	mnu.insertAction( shwallitem, mAlwaysPolyIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("Save Changes")), mSavePolyIdx );
+	mnu.insertAction( new uiAction(tr("Save Changes")), mSavePolyIdx );
     }
 
     addStandardItems( mnu );

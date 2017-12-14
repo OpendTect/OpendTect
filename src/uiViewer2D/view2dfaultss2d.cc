@@ -32,7 +32,7 @@ VW2DFaultSS2D::VW2DFaultSS2D( const EM::ObjectID& oid, uiFlatViewWin* win,
     , fsseditor_(0)
     , knotenabled_(false)
 {
-    fsseds_.allowNull();
+    fsseds_.setNullAllowed();
     if ( oid >= 0 )
 	setEditors();
 }

@@ -933,7 +933,7 @@ bool FaultTrace::isOK() const
 FaultTrcHolder::FaultTrcHolder()
     : hs_(false)
 {
-    traces_.allowNull( true );
+    traces_.setNullAllowed( true );
 }
 
 
@@ -1258,12 +1258,12 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
 //FaultTrcDataProvider
 FaultTrcDataProvider::FaultTrcDataProvider()
     : is2d_(false)
-{ holders_.allowNull(); }
+{ holders_.setNullAllowed(); }
 
 FaultTrcDataProvider::FaultTrcDataProvider( const Pos::GeomID geomid )
     : geomid_(geomid)
     , is2d_(true)
-{ holders_.allowNull(); }
+{ holders_.setNullAllowed(); }
 
 FaultTrcDataProvider::~FaultTrcDataProvider()
 { clear(); }

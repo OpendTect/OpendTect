@@ -33,7 +33,7 @@ Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* win,
     , vdselspec_( 0 )
     , wvaselspec_( 0 )
 {
-    horeds_.allowNull();
+    horeds_.setNullAllowed();
     if ( oid >= 0 )
 	setEditors();
 }

@@ -174,7 +174,7 @@ void uiColSeqSelTool::selectCB( CallBacker* )
 	uiAction* act = new uiAction( toUiString(seq->name()) );
 	uiPixmap* uipm = ColTab::getuiPixmap( *seq, 32, 16 );
 	act->setPixmap( *uipm );
-	mnu->insertItem( act, inm );
+	mnu->insertAction( act, inm );
 	delete uipm;
     }
 
@@ -202,11 +202,11 @@ void uiColSeqSelTool::menuCB( CallBacker* )
 {
     PtrMan<uiMenu> mnu = new uiMenu( asParent(), uiStrings::sAction() );
 
-    mnu->insertItem( new uiAction(tr("Set as default for seismic data"),
+    mnu->insertAction( new uiAction(tr("Set as default for seismic data"),
 	mCB(this,uiColSeqSelTool,setAsSeisDefaultCB)), 0 );
-    mnu->insertItem( new uiAction(tr("Set as default for non-seismic data"),
+    mnu->insertAction( new uiAction(tr("Set as default for non-seismic data"),
 	mCB(this,uiColSeqSelTool,setAsNonSeisDefaultCB)), 1 );
-    mnu->insertItem( new uiAction(m3Dots(tr("Manage")),
+    mnu->insertAction( new uiAction(m3Dots(tr("Manage")),
 	mCB(this,uiColSeqSelTool,manageCB)), 2 );
 
     seqMenuReq.trigger( mnu );

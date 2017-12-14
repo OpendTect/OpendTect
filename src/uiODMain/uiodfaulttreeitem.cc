@@ -66,7 +66,7 @@ const char* uiODFaultParentTreeItem::iconName() const
 #define mInsertItm( menu, name, id, enable ) \
 { \
     uiAction* itm = new uiAction( name ); \
-    menu->insertItem( itm, id ); \
+    menu->insertAction( itm, id ); \
     itm->setEnabled( enable ); \
 }
 
@@ -82,9 +82,9 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
     uiAction* newmenu = new uiAction( uiStrings::sNew() );
-    mnu.insertItem( newmenu, mNewMnuID );
+    mnu.insertAction( newmenu, mNewMnuID );
     newmenu->setEnabled( !hastransform && SI().has3D() );
 
     if ( children_.size() )
@@ -117,7 +117,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	mInsertItm( dispmnu, tr("Fault Planes"), mDispPlanes, true );
 	mInsertItm( dispmnu, tr("Fault Sticks"), mDispSticks, true );
 	mInsertItm( dispmnu, tr("Fault Planes && Sticks"), mDispPSBoth, true );
-	mnu.insertItem( dispmnu );
+	mnu.addMenu( dispmnu );
     }
 
     addStandardItems( mnu );
@@ -426,17 +426,17 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
-    mnu.insertItem( new uiAction(uiStrings::sNew()), mNewMnuID );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
+    mnu.insertAction( new uiAction(uiStrings::sNew()), mNewMnuID );
 
     if ( children_.size() )
     {
 	mnu.insertSeparator();
 	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display All") );
-	dispmnu->insertItem( new uiAction(tr("In full")), mDispInFull );
-	dispmnu->insertItem( new uiAction(tr("Only at Sections")),
+	dispmnu->insertAction( new uiAction(tr("In full")), mDispInFull );
+	dispmnu->insertAction( new uiAction(tr("Only at Sections")),
 			     mDispAtSect );
-	mnu.insertItem( dispmnu );
+	mnu.addMenu( dispmnu );
     }
 
     addStandardItems( mnu );

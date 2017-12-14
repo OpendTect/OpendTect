@@ -131,13 +131,13 @@ const ZDomain::Info* uiAttribDescSetEd::getZDomainInfo() const
 #define mInsertMnuItem( mnu, txt, func, fnm ) \
 { \
     uiAction* itm = new uiAction(txt,mCB(this,uiAttribDescSetEd,func),fnm);\
-    mnu->insertItem( itm ); \
+    mnu->insertAction( itm ); \
 }
 
 #define mInsertMnuItemNoIcon( mnu, txt, func ) \
 { \
     uiAction* itm = new uiAction(txt,mCB(this,uiAttribDescSetEd,func));\
-    mnu->insertItem( itm ); \
+    mnu->insertAction( itm ); \
 }
 
 #define mInsertItem( txt, func, fnm ) mInsertMnuItem(filemnu,txt,func,fnm)
@@ -167,8 +167,8 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")),
 			importFromSeisCB );
 
-    filemnu->insertItem( impmnu );
-    menubar->insertItem( filemnu );
+    filemnu->addMenu( impmnu );
+    menubar->addMenu( filemnu );
 }
 
 

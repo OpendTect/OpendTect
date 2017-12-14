@@ -33,7 +33,7 @@ Vw2DHorizon3D::Vw2DHorizon3D( const EM::ObjectID& oid, uiFlatViewWin* win,
     , vdselspec_(0)
     , wvaselspec_(0)
 {
-    horeds_.allowNull();
+    horeds_.setNullAllowed();
     if ( oid >= 0 )
 	setEditors();
 }
@@ -159,7 +159,7 @@ void Vw2DHorizon3D::selected( bool enabled )
     if ( activetracker )
     {
 	MPE::EMSeedPicker* seedpicker = activetracker->getSeedPicker(true);
-	if ( seedpicker && 
+	if ( seedpicker &&
 	     (seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawBetweenSeeds ||
 	      seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawAndSnap) )
 	    setenableseed = false;

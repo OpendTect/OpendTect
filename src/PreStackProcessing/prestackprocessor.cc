@@ -24,8 +24,8 @@ Processor::Processor( const char* nm )
     : ParallelTask( nm )
     , outputstepout_( 0, 0 )
 {
-    inputs_.allowNull( true );
-    outputs_.allowNull( true );
+    inputs_.setNullAllowed( true );
+    outputs_.setNullAllowed( true );
     reset();
 }
 

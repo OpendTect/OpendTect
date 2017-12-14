@@ -110,13 +110,13 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), mAddIdx );
-    mnu.insertItem( new uiAction(m3Dots(tr("Add at Sections Only"))),
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddIdx );
+    mnu.insertAction( new uiAction(m3Dots(tr("Add at Sections Only"))),
 		    mAddAtSectIdx);
-    mnu.insertItem( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx );
+    mnu.insertAction( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx);
 
     uiMenu* newmenu = new uiMenu( newmenu_ );
-    mnu.insertItem( newmenu );
+    mnu.addMenu( newmenu );
     newmenu->setEnabled( !hastransform && SI().has3D() );
 
     if ( children_.size() )
@@ -124,12 +124,12 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	mnu.insertSeparator();
 	uiMenu* displaymnu =
 		new uiMenu( getUiParent(), tr("Display All") );
-	displaymnu->insertItem( new uiAction(tr("Only at Sections")),
+	displaymnu->insertAction( new uiAction(tr("Only at Sections")),
 				mSectIdx );
-	displaymnu->insertItem( new uiAction(tr("In Full")), mFullIdx );
-	displaymnu->insertItem( new uiAction(tr("At Sections and in Full")),
+	displaymnu->insertAction( new uiAction(tr("In Full")), mFullIdx );
+	displaymnu->insertAction( new uiAction(tr("At Sections and in Full")),
 				mSectFullIdx );
-	mnu.insertItem( displaymnu );
+	mnu.addMenu( displaymnu );
     }
 
     addStandardItems( mnu );
@@ -747,16 +747,16 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction( m3Dots(uiStrings::sAdd()) ), 0 );
+    mnu.insertAction( new uiAction( m3Dots(uiStrings::sAdd()) ), 0 );
     uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
-    mnu.insertItem( newmenu, 1 );
-    mnu.insertItem( new uiAction(m3Dots(tr("Create from 3D"))), 2 );
+    mnu.insertAction( newmenu, 1 );
+    mnu.insertAction( new uiAction(m3Dots(tr("Create from 3D"))), 2 );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("Display All Only at Sections")), 3 );
-	mnu.insertItem( new uiAction(tr("Show All in Full")), 4 );
+	mnu.insertAction( new uiAction(tr("Display All Only at Sections")), 3 );
+	mnu.insertAction( new uiAction(tr("Show All in Full")), 4 );
     }
     addStandardItems( mnu );
 

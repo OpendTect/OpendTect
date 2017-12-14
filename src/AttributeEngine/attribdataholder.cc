@@ -19,7 +19,9 @@ namespace Attrib
 
 DataHolder::DataHolder( int z0, int nrsamples, float extraz )
     : z0_(z0), nrsamples_(nrsamples), extrazfromsamppos_(extraz)
-{ data_.allowNull(true); }
+{
+    data_.setNullAllowed(true);
+}
 
 
 DataHolder::~DataHolder()
@@ -38,7 +40,7 @@ ValueSeries<float>* DataHolder::gtSer( int idx ) const
 DataHolder* DataHolder::clone() const
 {
     DataHolder* dh = new DataHolder( z0_, nrsamples_ );
-    dh->data_.allowNull(true);
+    dh->data_.setNullAllowed(true);
 
     for ( int idx=0; idx<nrSeries(); idx++ )
     {

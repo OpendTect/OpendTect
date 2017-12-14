@@ -274,7 +274,7 @@ Convolve::Convolve( Desc& ds )
 {
     if ( !isOK() ) return;
 
-    inputdata_.allowNull( true );
+    inputdata_.setNullAllowed( true );
 
     mGetEnum( kerneltype_, kernelStr() );
     if ( kerneltype_ == mKernelFunctionLowPass ||

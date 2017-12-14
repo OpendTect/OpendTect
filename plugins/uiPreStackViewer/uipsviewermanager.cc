@@ -62,8 +62,8 @@ uiViewer3DMgr::uiViewer3DMgr()
     viewermenuitem_.iconfnm = "vd";
     removemenuitem_.iconfnm = "remove";
 
-    posdialogs_.allowNull();
-    settingdlgs_.allowNull();
+    posdialogs_.setNullAllowed();
+    settingdlgs_.setNullAllowed();
     mAttachCB( visserv_->removeAllNotifier(), uiViewer3DMgr::removeAllCB );
     mAttachCB( visserv_->objectRemoved, uiViewer3DMgr::sceneChangeCB );
 
@@ -254,7 +254,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID(),0);
         const uiString pos = psv->is3DSeis()
             ? toUiString( "%1/%2").arg(psv->getPosition().inl())
-	    			  .arg( psv->getPosition().crl() )
+				  .arg( psv->getPosition().crl() )
             : toUiString( psv->getPosition().crl() );
 
 	const uiString capt = tr( "Amplitude spectrum for %1 at %2" )

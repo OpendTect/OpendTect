@@ -44,7 +44,7 @@ uiMadTutMgr::uiMadTutMgr( uiODMain& a )
 {
     uiAction* newitem = new uiAction( m3Dots(tr("Display Madagascar data")),
 					  mCB(this,uiMadTutMgr,dispDlg) );
-    mainappl.menuMgr().utilMnu()->insertItem( newitem );
+    mainappl.menuMgr().utilMnu()->insertAction( newitem );
 }
 
 

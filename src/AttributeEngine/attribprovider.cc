@@ -239,7 +239,7 @@ Provider::Provider( Desc& nd )
     , dataunavailableflag_( false )
 {
     desc_.ref();
-    inputs_.allowNull( true );
+    inputs_.setNullAllowed( true );
     for ( int idx=0; idx<desc_.nrInputs(); idx++ )
 	inputs_ += 0;
 

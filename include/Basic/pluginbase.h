@@ -16,57 +16,48 @@ ________________________________________________________________________
 
 -*/
 
-
-/* If you do not use OpendTect stuff here, you need a way to figure out whether
-   you are in the C++ world and add something like:
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-*/
-
 #define PI_AUTO_INIT_NONE	0
 #define PI_AUTO_INIT_EARLY	1
 #define PI_AUTO_INIT_LATE	2
 
-/*!\brief Information about plugin for outside world 
-    
-    dispname_	 -  The name shown in the PluginInfo window.
-    productname_ -  Same as the name of the commercial product as marketed to be
-		    shown in the plugin selection window.
-    LicenseType	 -  By default it is GPL, and will not be shown in the
-		    plugin selection window.
-		    Only commercial(COMMERCIAL)
-		    products should be shown in the plugin selection window
+/*!\brief Information about plugin for outside world
 
-    Note: Two different plugins(different display names) can have same product
-    name if they belong to the same product
-    
+    dispname_	 -  The name shown in the PluginInfo window.
+    packagename_ -  Multiple plugins can belong to one plugin package.
+		    shown in the plugin selection window.
+    LicenseType	 -  By default GPL.
+    useronoffselectable_ - If this is set to true, the plugin selector will
+		    expect entries in data/pkglist.txt and possibly an
+		    entry in data/PluginProviders .
+
+    Note: Two different plugins(different display names) can have same package
+    name if they belong to the same package
+
     e.g. Multi-Variate Analysis and Neural Networks both belong to the
-    Neural Networks product.
+    Neural Networks package.
 */
 
 
 struct PluginInfo
 {
-    enum LicenseType{ GPL, COMMERCIAL };
+    enum LicenseType	{ GPL, COMMERCIAL };
 
-    PluginInfo(const char* dispname, const char* prodnm, const char* creator,
-               const char* version, const char* text, LicenseType lt=GPL )
+    PluginInfo( const char* dispname, const char* pkgnm, const char* creator,
+                const char* version, const char* text, LicenseType lt=GPL )
         : dispname_(dispname)
-	, productname_(prodnm)
+	, packagename_(pkgnm)
         , creator_(creator)
         , version_(version)
         , text_(text)
-	, lictype_(lt)
-    {}
-   
+        , useronoffselectable_(lt == COMMERCIAL)
+	, lictype_(lt)	{}
+
     const char*	dispname_;
-    const char*	productname_;
+    const char*	packagename_;
     const char*	creator_;
     const char*	version_;
     const char*	text_;
+    bool	useronoffselectable_;
     LicenseType lictype_;
-};
 
-/* } -- for the extern "C" */
+};

@@ -48,7 +48,7 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 	, doprenorm_(!iop.isFalse( sKeyPreNorm() ))
 	, dopostnorm_(!iop.isFalse( sKeyPostNorm() ))
 {
-    approvs_.allowNull( true );
+    approvs_.setNullAllowed( true );
 
     const char* res = pars_.find( sKey::Type() );
     is2d_ = res && *res == '2';
@@ -230,7 +230,7 @@ bool SeisBayesClass::getWriters()
 {
     if ( nrpdfs_ < 1 ) return false;
 
-    wrrs_.allowNull( true ); bool haveoutput = false;
+    wrrs_.setNullAllowed( true ); bool haveoutput = false;
     for ( int ipdf=0; ipdf<nrpdfs_+3; ipdf++ )
     {
 	outtrcs_.add( new SeisTrc );

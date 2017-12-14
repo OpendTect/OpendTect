@@ -137,7 +137,7 @@ Line2DInterSectionFinder::Line2DInterSectionFinder(
     , lsintersections_(lsis)
 {
     deepErase( lsintersections_ );
-    lsintersections_.allowNull( true );
+    lsintersections_.setNullAllowed( true );
     for ( int idx=0; idx<bps.size(); idx++ )
     {
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,

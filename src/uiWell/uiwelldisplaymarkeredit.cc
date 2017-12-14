@@ -326,12 +326,12 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
 void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
 {
     uiMenu mnu( this, uiStrings::sAction() );
-    mnu.insertItem( new uiAction(m3Dots(tr("Add New"))), 0 );
+    mnu.insertAction( new uiAction(m3Dots(tr("Add New"))), 0 );
     if ( !mrklist_->isEmpty() )
     {
-	mnu.insertItem(
+	mnu.insertAction(
 	    new uiAction(m3Dots(uiStrings::sEdit())), 1 );
-	mnu.insertItem(
+	mnu.insertAction(
 	    new uiAction(m3Dots(uiStrings::sRemove())), 2 );
     }
     const int mnuid = mnu.exec();

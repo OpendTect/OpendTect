@@ -108,7 +108,7 @@ VolProc::Step::Step()
     , output_( 0 )
     , id_( cUndefID() )
 {
-    inputs_.allowNull();
+    inputs_.setNullAllowed();
 }
 
 

@@ -26,7 +26,7 @@ public:
     QCallBackEventReceiver( Threads::ThreadID threadid)
 	: receiverlock_( true )
 	, threadid_( threadid )
-    { cbers_.allowNull( true ); }
+    { cbers_.setNullAllowed( true ); }
 
     Threads::ThreadID threadID() const
     { return threadid_; }
@@ -705,7 +705,7 @@ bool NotifierAccess::removeWith( const CallBacker* cber, bool wait ) const
 
 void NotifierAccess::transferCBSTo( const NotifierAccess& oth,
 				    const CallBacker* only_for,
-       				    const CallBacker* not_for ) const
+				    const CallBacker* not_for ) const
 {
     Threads::Locker mycbslocker( cbs_.lock_ );
     Threads::Locker tocbslocker( oth.cbs_.lock_ );

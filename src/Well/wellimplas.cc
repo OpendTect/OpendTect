@@ -63,7 +63,7 @@ const char* Well::LASImporter::getLogInfo( const char* fnm,
 const char* Well::LASImporter::getLogInfo( od_istream& strm,
 					   FileInfo& lfi ) const
 {
-    convs_.allowNull();
+    convs_.setNullAllowed();
     convs_.erase();
 
     BufferString linebuf; char wordbuf[64];

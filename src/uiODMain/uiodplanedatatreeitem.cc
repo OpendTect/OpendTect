@@ -417,7 +417,7 @@ void uiODPlaneDataParentTreeItem::addMenuItems()
 {
     uiODSceneProbeParentTreeItem::addMenuItems();
     if ( canAddFromWell() )
-	menu_->insertItem(
+	menu_->insertAction(
 	    new uiAction( uiODPlaneDataParentTreeItem::sAddAtWellLocation()),
 			  sAddAtWellLOcationMenuID() );
 }

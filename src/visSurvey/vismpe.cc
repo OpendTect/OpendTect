@@ -1270,7 +1270,7 @@ bool MPEDisplay::canRemoveAttrib() const
 bool MPEDisplay::addAttrib()
 {
     BufferStringSet* attrnms = new BufferStringSet();
-    attrnms->allowNull();
+    attrnms->setNullAllowed();
     userrefs_ += attrnms;
     as_[0].set( "", Attrib::SelSpec::cAttribNotSelID(), false, 0 );
     channels_->addChannel();

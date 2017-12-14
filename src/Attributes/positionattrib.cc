@@ -88,7 +88,7 @@ Position::Position( Desc& desc )
 {
     if ( !isOK() ) return;
 
-    inputdata_.allowNull(true);
+    inputdata_.setNullAllowed(true);
 
     mGetBinID( stepout_, stepoutStr() );
     mGetFloatInterval( gate_, gateStr() );

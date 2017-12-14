@@ -34,7 +34,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     , methodsel_( 0 )
     , isclassificationfld_( 0 )
 {
-    params_.allowNull( true );
+    params_.setNullAllowed( true );
     uiObject* prevfld = 0;
     uiObject* halignobj = 0;
     if ( filltype )

@@ -389,8 +389,8 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , texturesampling_( BinID( SI().inlStep(), SI().crlStep() ), SI().zStep() )
     , trialg_( ExplFaultStickSurface::None )
 {
-    paneltriangles_.allowNull( true );
-    panellines_.allowNull( true );
+    paneltriangles_.setNullAllowed( true );
+    panellines_.setNullAllowed( true );
     setSurface( surf );
 }
 

@@ -310,7 +310,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
     CoordSystem::getSystemNames( onlyorthogonal, projectiononly,
 				    names, coordsystempars_ );
 
-    coordsystemsuis_.allowNull();
+    coordsystemsuis_.setNullAllowed();
 
     for ( int idx=0; idx<coordsystempars_.size(); idx++ )
     {

@@ -24,7 +24,7 @@ ReflectivitySampler::ReflectivitySampler(const ReflectivityModel& model,
     , freqreflectivities_(freqreflectivities)
     , usenmotime_(usenmotime)
 {
-    buffers_.allowNull( true );
+    buffers_.setNullAllowed( true );
 }
 
 

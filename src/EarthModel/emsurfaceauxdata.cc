@@ -36,9 +36,9 @@ SurfaceAuxData::SurfaceAuxData( Horizon3D& horizon )
     : horizon_( horizon )
     , changed_( 0 )
 {
-    auxdatanames_.allowNull(true);
-    auxdatainfo_.allowNull(true);
-    auxdata_.allowNull(true);
+    auxdatanames_.setNullAllowed( true );
+    auxdatainfo_.setNullAllowed( true );
+    auxdata_.setNullAllowed( true );
 }
 
 

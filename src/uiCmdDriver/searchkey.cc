@@ -132,7 +132,7 @@ void SearchKey::getMatchingWindows( const uiMainWin* applwin,
 				    ObjectSet<uiMainWin>& windowlist,
 				    WildcardManager* wcm ) const
 {
-    windowlist.allowNull();
+    windowlist.setNullAllowed();
     if ( !wcm )
     {
 	uiMainWin::getTopLevelWindows( windowlist );

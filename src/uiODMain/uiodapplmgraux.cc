@@ -157,21 +157,24 @@ void uiODApplMgrDispatcher::deleteDlgs()
 
 
 #define mCase(val) case uiODApplMgr::val
+#define mHandleUnknownCase() default: pErrMsg("Add case"); break;
 
 void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 {
-    const uiODApplMgr::ObjType ot = (uiODApplMgr::ObjType)iot;
     const uiODApplMgr::ActType at = (uiODApplMgr::ActType)iat;
+    if ( at == uiODApplMgr::PL )
+	{ manPreLoad( iot ); return; }
 
+    const uiODApplMgr::ObjType ot = (uiODApplMgr::ObjType)iot;
     switch ( ot )
     {
-    mCase(NrObjTypes): break;
     mCase(Seis):
 	switch ( at )
 	{
+	mCase(Imp):	am_.seisserv_->importSeis( opt );	break;
 	mCase(Exp):	am_.seisserv_->exportSeis( opt );	break;
 	mCase(Man):	am_.seisserv_->manageSeismics( opt );	break;
-	mCase(Imp):	am_.seisserv_->importSeis( opt );	break;
+	mHandleUnknownCase()
 	}
     break;
     mCase(Hor):
@@ -188,7 +191,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->import3DHorGeom( true );
 	    else if ( opt == 4 )
 		am_.emserv_->importBulk2DHorizon();
-	    break;
+	break;
 	mCase(Exp):
 	    if ( opt == 0 )
 		am_.emserv_->export3DHorizon();
@@ -199,52 +202,54 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    else if ( opt == 3 )
 		am_.emserv_->export2DHorizon(true);
 
-	    break;
+	break;
 	mCase(Man):
 	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
 	    if ( opt == 1 )
 		am_.emserv_->manage2DHorizons();
 	    else if ( opt == 2 )
 		am_.emserv_->manage3DHorizons();
-	    break;
+	break;
+	mHandleUnknownCase()
 	}
     break;
     mCase(Flt):
 	switch( at )
 	{
-	    mCase(Imp):
-		am_.emserv_->importFault( opt!=0 );
-	    break;
-	    mCase(Exp):
-		am_.emserv_->exportFault( opt==0 );
-	    break;
-	    mCase(Man):
-		if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
-		if ( opt == 1 )
-		    am_.emserv_->manageFaultStickSets();
-		else if ( opt == 2 )
-		    am_.emserv_->manage3DFaults();
-	    break;
+	mCase(Imp):
+	    am_.emserv_->importFault( opt!=0 );
+	break;
+	mCase(Exp):
+	    am_.emserv_->exportFault( opt==0 );
+	break;
+	mCase(Man):
+	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
+	    if ( opt == 1 )
+		am_.emserv_->manageFaultStickSets();
+	    else if ( opt == 2 )
+		am_.emserv_->manage3DFaults();
+	break;
+	mHandleUnknownCase()
 	}
     break;
     mCase(Fltss):
 	switch ( at )
 	{
-	    mCase(Imp):
-	    if ( opt == 0 )
-		am_.emserv_->importFaultStickSet();
-	    else if ( opt == 1 )
-		am_.emserv_->import2DFaultStickset();
-	    else if ( opt == 2 )
-	      am_.emserv_->importBulkFaultStickSet();
-	  else if ( opt == 3 )
-	      am_.emserv_->importBulk2DFaultStickset();
-	    break;
-	    mCase(Exp):
-		am_.emserv_->exportFaultStickSet( opt==0 );
-	    break;
-	    default:
-		break;
+	mCase(Imp):
+	if ( opt == 0 )
+	    am_.emserv_->importFaultStickSet();
+	else if ( opt == 1 )
+	    am_.emserv_->import2DFaultStickset();
+	else if ( opt == 2 )
+	    am_.emserv_->importBulkFaultStickSet();
+	else if ( opt == 3 )
+	    am_.emserv_->importBulk2DFaultStickset();
+	break;
+	mCase(Exp):
+	    am_.emserv_->exportFaultStickSet( opt==0 );
+	break;
+	mCase(Man): break;
+	mHandleUnknownCase()
 	}
     break;
     mCase(Wll):
@@ -269,37 +274,37 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.wellserv_->bulkImportD2TModel();
 
 	break;
-	mCase(Man):	am_.wellserv_->manageWells();	break;
-	default:					break;
+	mCase(Exp): break;
+	mCase(Man):
+	    am_.wellserv_->manageWells();
+	break;
+	mHandleUnknownCase()
 	}
     break;
     mCase(Attr):
 	switch( at )
 	{
-	mCase(Man): am_.attrserv_->manageAttribSets(opt==1);  break;
 	mCase(Imp):
 	    if ( opt == 0 )
 		am_.attrserv_->importAttrSetFromFile();
 	    else if ( opt == 1 )
 		am_.attrserv_->importAttrSetFromOtherSurvey();
 	break;
-	default:					    break;
+	mCase(Exp): break;
+	mCase(Man):
+	    am_.attrserv_->manageAttribSets(opt==1);
+	break;
+	mHandleUnknownCase()
 	}
     break;
-    mCase(Pick):
-	switch ( at )
-	{
-	mCase(Imp):	am_.pickserv_->importSet();		break;
-	mCase(Exp):	am_.pickserv_->exportSet();		break;
-	mCase(Man):	am_.pickserv_->managePickSets();	break;
-	}
-    break;
+    mCase(Pick): // [[fallthrough]]
     mCase(Poly):
 	switch ( at )
 	{
 	mCase(Imp):	am_.pickserv_->importSet();		break;
 	mCase(Exp):	am_.pickserv_->exportSet();		break;
 	mCase(Man):	am_.pickserv_->managePickSets();	break;
+	mHandleUnknownCase()
 	}
     break;
     mCase(Wvlt):
@@ -307,126 +312,197 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	mCase(Imp):	am_.seisserv_->importWavelets();	break;
 	mCase(Exp):	am_.seisserv_->exportWavelets();	break;
-	default:	am_.seisserv_->manageWavelets();	break;
+	mCase(Man):	am_.seisserv_->manageWavelets();	break;
+	mHandleUnknownCase()
 	}
     break;
     mCase(MDef):
-        if ( at == uiODApplMgr::Imp )
+	switch ( at )
+	{
+	mCase(Imp):
 	{
 	    if ( !impmutedlg_ )
 		impmutedlg_ = new PreStack::uiImportMute( par_ );
 
 	    impmutedlg_->show();
 	}
-	else if ( at == uiODApplMgr::Exp )
+	break;
+	mCase(Exp):
 	{
 	    PreStack::uiExportMute dlgexp( par_ );
 	    dlgexp.go();
 	}
+	break;
+	mCase(Man): break;
+	mHandleUnknownCase()
+	}
     break;
     mCase(Vel):
-        if ( at == uiODApplMgr::Imp)
+	switch ( at )
+	{
+	mCase(Imp):
 	{
 	    if ( !impvelfunc_ )
 		impvelfunc_ = new Vel::uiImportVelFunc( par_ );
 
 	    impvelfunc_->show();
 	}
+	break;
+	mCase(Exp): break;
+	mCase(Man): break;
+	mHandleUnknownCase()
+	}
     break;
     mCase(Strat):
 	StratTWin().popUp();
     break;
     mCase(PDF):
-        if ( at == uiODApplMgr::Imp )
+	switch ( at )
+	{
+	mCase(Imp):
 	{
 	    if ( !imppdfdlg_ )
 		imppdfdlg_ = new uiImpRokDocPDF( par_ );
 
 	    imppdfdlg_->show();
 	}
-	else if ( at == uiODApplMgr::Exp )
+	break;
+	mCase(Exp):
 	{
 	    if ( !exppdfdlg_ )
 		exppdfdlg_ = new uiExpRokDocPDF( par_ );
 
 	    exppdfdlg_->show();
 	}
-	else if ( at == uiODApplMgr::Man )
+	break;
+	mCase(Man):
 	{
 	    delete manpdfdlg_;
 	    manpdfdlg_ = new uiProbDenFuncMan( par_ );
 	    manpdfdlg_->go();
 	}
-    break;
-    mCase(Geom):
-	if ( at == uiODApplMgr::Man )
-	{
-	    delete man2dgeomdlg_;
-	    man2dgeomdlg_ = new ui2DGeomManageDlg( par_ );
-	    man2dgeomdlg_->go();
+	break;
+	mHandleUnknownCase()
 	}
-	else if ( at == uiODApplMgr::Exp )
+    break;
+    mCase(Geom2D):
+	switch ( at )
+	{
+	mCase(Imp): break;
+	mCase(Exp):
 	{
 	    if ( !exp2dgeomdlg_ )
 		exp2dgeomdlg_ = new uiExp2DGeom( par_ );
 
 	    exp2dgeomdlg_->show();
 	}
+	break;
+	mCase(Man):
+	{
+	    delete man2dgeomdlg_;
+	    man2dgeomdlg_ = new ui2DGeomManageDlg( par_ );
+	    man2dgeomdlg_->go();
+	}
+	break;
+	mHandleUnknownCase()
+	}
     break;
-    mCase(PVDS):
-        if ( at == uiODApplMgr::Imp )
+    mCase(XPlot):
+	switch ( at )
+	{
+	mCase(Imp):
 	{
 	    if ( !impcrossplotdlg_ )
 		impcrossplotdlg_ = new uiImpPVDS( par_ );
 
 	    impcrossplotdlg_->show();
 	}
-	else if ( at == uiODApplMgr::Man )
+	break;
+	mCase(Exp): break;
+	mCase(Man):
 	{
 	    delete mandpsdlg_;
 	    mandpsdlg_ = new uiDataPointSetMan( par_ );
 	    mandpsdlg_->go();
 	}
+	break;
+	mHandleUnknownCase()
+	}
     break;
     mCase(Body):
-	if ( at == uiODApplMgr::Man )
+	switch ( at )
+	{
+	mCase(Imp): break;
+	mCase(Exp): break;
+	mCase(Man):
 	    am_.emserv_->manageBodies();
+	break;
+	mHandleUnknownCase()
+	}
     break;
     mCase(Props):
-	if ( at == uiODApplMgr::Man )
+	switch ( at )
+	{
+	mCase(Imp): break;
+	mCase(Exp): break;
+	mCase(Man):
 	{
 	    uiManPROPS mandlg( par_ );
 	    mandlg.go();
 	}
+	break;
+	mHandleUnknownCase()
+	}
     break;
     mCase(Sess):
-	if ( at == uiODApplMgr::Man )
+	switch ( at )
+	{
+	mCase(Imp): break;
+	mCase(Exp): break;
+	mCase(Man):
 	{
 	    delete mansessiondlg_;
 	    mansessiondlg_ = new uiSessionMan( par_ );
 	    mansessiondlg_->show();
 	}
+	break;
+	mHandleUnknownCase()
+	}
     mCase(NLA):
 	    pErrMsg("NLA event occurred");
     break;
     mCase(ColTab):
-	if ( at == uiODApplMgr::Man )
+	switch ( at )
 	{
-	    uiColSeqMan* dlg = new uiColSeqMan( par_ );
-	    dlg->go();
-	}
-	else if ( at == uiODApplMgr::Imp )
+	mCase(Imp):
 	{
 	    uiColSeqImport dlg( par_ );
 	    dlg.go();
 	}
+	break;
+	mCase(Exp): break;
+	mCase(Man):
+	{
+	    uiColSeqMan* dlg = new uiColSeqMan( par_ );
+	    dlg->go();
+	}
+	break;
+	mHandleUnknownCase()
+	}
     break;
     mCase(RanL):
-	if ( at == uiODApplMgr::Man )
+	switch ( at )
+	{
+	mCase(Imp): break;
+	mCase(Exp): break;
+	mCase(Man):
 	{
 	    delete manrldlg_;
 	    manrldlg_ = new uiRandomLineMan( par_ );
 	    manrldlg_->show();
+	}
+	break;
+	mHandleUnknownCase()
 	}
     break;
     }
@@ -443,7 +519,9 @@ void uiODApplMgrDispatcher::manPreLoad( int iot )
 	break;
 	case uiODApplMgr::Hor:
 	    am_.emserv_->managePreLoad();
+	break;
 	default:
+	    pErrMsg("Preload unknown type requested");
 	break;
     }
 }

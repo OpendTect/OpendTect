@@ -95,7 +95,7 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     addChild( dragger_->osgNode() );
 
-    rposcache_.allowNull( true );
+    rposcache_.setNullAllowed( true );
 
     dragger_->ref();
     mAttachCB( dragger_->started, PlaneDataDisplay::draggerStart );

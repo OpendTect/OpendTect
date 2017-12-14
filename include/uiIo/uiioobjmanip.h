@@ -26,7 +26,7 @@ mExpClass(uiIo) uiManipButGrp : public uiButtonGroup
 public:
 			uiManipButGrp(uiParent* p)
 			    : uiButtonGroup(p,"ManipButtons",OD::Vertical)
-			{ altbutdata.allowNull(); }
+			{ altbutdata.setNullAllowed(); }
 			~uiManipButGrp()
 			{ deepErase(butdata); deepErase(altbutdata); }
 

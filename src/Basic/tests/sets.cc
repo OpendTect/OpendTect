@@ -180,7 +180,7 @@ static int testObjSetFind()
 static int testObjSetEqual()
 {
     ObjectSet<DataElem> s1;
-    ObjectSet<DataElem> s2; s2.allowNull();
+    ObjectSet<DataElem> s2; s2.setNullAllowed();
     ObjectSet<DataElem>& des = s1;
     mPrElems("testObjSetEqual")
 
@@ -282,12 +282,12 @@ bool testManagedObjectSet()
 
 	    ManagedObjectSet<TestClass> set3 = set1;
 	    mRunStandardTest( set1[0] != set3[0],
-		    	      "Assignment at construct clones" );
+			      "Assignment at construct clones" );
 
 	    ManagedObjectSet<TestClass> set4;
 	    set4 = set1;
 	    mRunStandardTest( set1[0] != set4[0],
-		    	      "Assignment operator clones" );
+			      "Assignment operator clones" );
 
 	}
 
@@ -295,7 +295,7 @@ bool testManagedObjectSet()
 			  "Deleting after copy constructor - Part 1" );
     }
     mRunStandardTest( delcount==4,
-	    	      "Deleting after copy constructor - Part 2" );
+		      "Deleting after copy constructor - Part 2" );
 
     delcount = 0;
     {
@@ -308,7 +308,7 @@ bool testManagedObjectSet()
 	    set2ref = set1;
 
 	    mRunStandardTest( set1[0] != set2[0],
-		    	      "ObjectSet cast clones" );
+			      "ObjectSet cast clones" );
 	}
 
 	mRunStandardTest( delcount==1,
@@ -326,7 +326,7 @@ bool testManagedObjectSet()
 	    set2 = set1ref;
 
 	    mRunStandardTest( set1[0] != set2[0],
-		    	      "Set operation clones" );
+			      "Set operation clones" );
 	}
     }
 

@@ -150,7 +150,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
 void uiIOObjSelGrp::init( const uiString& seltxt )
 {
-    iconnms_.allowNull( true );
+    iconnms_.setNullAllowed( true );
     ctio_.ctxt_.fillTrGroup();
     nmfld_ = 0; wrtrselfld_ = 0;
     manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;

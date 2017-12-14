@@ -47,7 +47,8 @@ public:
 				    , exphndlr_(0)
 				    , cnvrtr_(0)
 				    , needfullline_(false)
-				    , hdrread_(false) { units_.allowNull(true);}
+				    , hdrread_(false)
+					        { units_.setNullAllowed(true);}
     virtual			~AscIO();
 
     const FormatDesc&		desc() const	{ return fd_; }

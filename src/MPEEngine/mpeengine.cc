@@ -64,9 +64,9 @@ Engine::Engine()
     , activevolume_(!DBM().isBad())
     , validator_(0)
 {
-    trackers_.allowNull();
-    trackermgrs_.allowNull();
-    flatcubescontainer_.allowNull();
+    trackers_.setNullAllowed();
+    trackermgrs_.setNullAllowed();
+    flatcubescontainer_.setNullAllowed();
 
     init();
     mAttachCB( DBM().applicationClosing, Engine::applClosingCB );

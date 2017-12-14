@@ -31,7 +31,7 @@ HorizonTextureHandler::HorizonTextureHandler( const HorizonSection* horsection )
     , channel2rgba_( ColTabTextureChannel2RGBA::create() )
     , horsection_( horsection )
 {
-    cache_.allowNull( true );
+    cache_.setNullAllowed( true );
     channel2rgba_->ref();
     channels_->ref();
     channels_->setChannels2RGBA( channel2rgba_ );
@@ -272,7 +272,7 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
     channels_->setSize( channel, 1, nrrows, nrcols );
 
     ObjectSet<float> versiondata;
-    versiondata.allowNull( true );
+    versiondata.setNullAllowed( true );
     const int nrcells = nrrows*nrcols;
 
     for ( int idx=0; idx<nrversions; idx++ )

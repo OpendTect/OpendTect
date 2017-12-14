@@ -51,7 +51,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     if ( isfield_ && withsampling )
 	{ pErrMsg( "Field style cannot be used with sampling" ); return; }
 
-    transflds_.allowNull( true );
+    transflds_.setNullAllowed( true );
     uiStringSet names;
 
     const BufferStringSet& factorynames =

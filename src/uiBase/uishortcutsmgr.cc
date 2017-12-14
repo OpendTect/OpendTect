@@ -207,7 +207,7 @@ uiShortcutsList& uiShortcutsList::operator =( const uiShortcutsList& scl )
     //personalized deepCopy
     if ( &keydescs_ == &scl.keydescs_ ) return *this;
     deepErase( keydescs_ );
-    keydescs_.allowNull( scl.keydescs_.nullAllowed() );
+    keydescs_.setNullAllowed( scl.keydescs_.nullAllowed() );
     const int sz = scl.keydescs_.size();
     for ( int idx=0; idx<sz; idx++ )
     {

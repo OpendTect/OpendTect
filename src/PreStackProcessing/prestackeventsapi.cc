@@ -123,9 +123,9 @@ extern "C" void dGBPreStackEventsGetEventWeight( int handle, int index,
 
 PreStack::EventsAPIMgr::EventsAPIMgr()
 {
-    velpicks_.allowNull( true );
-    events_.allowNull( true );
-    locations_.allowNull( true );
+    velpicks_.setNullAllowed( true );
+    events_.setNullAllowed( true );
+    locations_.setNullAllowed( true );
 }
 
 

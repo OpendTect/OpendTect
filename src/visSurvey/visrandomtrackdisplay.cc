@@ -78,8 +78,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     , pickstartnodeidx_(-1)
     , mousecursor_( *new MouseCursor )
 {
-    datapacks_.allowNull();
-    transfdatapacks_.allowNull();
+    datapacks_.setNullAllowed();
+    transfdatapacks_.setNullAllowed();
 
     material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );

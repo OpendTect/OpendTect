@@ -33,52 +33,49 @@ ________________________________________________________________________
 
 const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 
-struct PluginProduct
+struct PluginPackage
 {
-			PluginProduct()
-				: isselected_(true)	{}
-
-    BufferString	productname_;
+    BufferString	name_;
     BufferString	creator_;
     BufferStringSet	libs_;
-    BufferString	pckgnm_;
-    bool		isselected_;
+    BufferString	pkgkey_;
+    bool		isselected_	= true;
 };
 
 
-struct PluginVendor
+struct PluginProvider
 {
-			PluginVendor()
-				: nrprods_(0)		{}
-
-    BufferString	vendorkey_;
-    BufferString	vendorname_;
+    BufferString	providerkey_;
+    BufferString	providername_;
     BufferStringSet	aliases_;
-    int			nrprods_;
+    int			nrplugins_	= 0;
 };
 
 
-class uiVendorTreeItem : public uiTreeViewItem
+class uiProviderTreeItem : public uiTreeViewItem
 {
 public:
-			uiVendorTreeItem(uiTreeView*,const char*,bool);
-			~uiVendorTreeItem() { detachAllNotifiers(); }
+
+			uiProviderTreeItem(uiTreeView*,const char*,bool);
+			~uiProviderTreeItem() { detachAllNotifiers(); }
+
  void			checkCB(CallBacker*);
+
 };
 
 
 
-uiVendorTreeItem::uiVendorTreeItem( uiTreeView* p,
-				    const char* vendorname, bool issel )
-    : uiTreeViewItem(p,Setup(toUiString(vendorname)).
+uiProviderTreeItem::uiProviderTreeItem( uiTreeView* p,
+				    const char* providername, bool issel )
+    : uiTreeViewItem(p,Setup(toUiString(providername)).
 				    type(uiTreeViewItem::CheckBox))
 {
     setChecked( issel, true );
-    mAttachCB( stateChanged, uiVendorTreeItem::checkCB );
+    mAttachCB( stateChanged, uiProviderTreeItem::checkCB );
 }
 
 
-void uiVendorTreeItem::checkCB( CallBacker* )
+void uiProviderTreeItem::checkCB( CallBacker* )
 {
     const bool ischecked = isChecked();
     for ( int idx=0; idx<nrChildren(); idx++ )
@@ -89,33 +86,34 @@ void uiVendorTreeItem::checkCB( CallBacker* )
 }
 
 
-class uiProductTreeItem : public uiTreeViewItem
+class uiPackageTreeItem : public uiTreeViewItem
 {
 public:
-			    uiProductTreeItem(uiTreeViewItem*,PluginProduct&);
-			    ~uiProductTreeItem() { detachAllNotifiers(); }
+			    uiPackageTreeItem(uiTreeViewItem*,PluginPackage&);
+			    ~uiPackageTreeItem() { detachAllNotifiers(); }
 
 protected:
 
     void		    checkCB(CallBacker*);
-    PluginProduct&	    product_;
+    PluginPackage&	    package_;
+
 };
 
 
-uiProductTreeItem::uiProductTreeItem( uiTreeViewItem* p,
-					PluginProduct& prod )
-    : uiTreeViewItem(p, Setup(toUiString(prod.productname_))
-		    .iconname(prod.pckgnm_).type(uiTreeViewItem::CheckBox))
-    , product_(prod)
+uiPackageTreeItem::uiPackageTreeItem( uiTreeViewItem* p,
+					PluginPackage& pkg )
+    : uiTreeViewItem(p, Setup(toUiString(pkg.name_))
+		    .iconname(pkg.pkgkey_).type(uiTreeViewItem::CheckBox))
+    , package_(pkg)
 {
-    setChecked( prod.isselected_, true );
-    mAttachCB( stateChanged, uiProductTreeItem::checkCB );
+    setChecked( pkg.isselected_, true );
+    mAttachCB( stateChanged, uiPackageTreeItem::checkCB );
 }
 
 
-void uiProductTreeItem::checkCB( CallBacker* )
+void uiPackageTreeItem::checkCB( CallBacker* )
 {
-    product_.isselected_ = isChecked();
+    package_.isselected_ = isChecked();
     parent()->setChecked( parent()->isChecked() );
 }
 
@@ -126,53 +124,47 @@ uiPluginSel::uiPluginSel( uiParent* p )
 			.savebutton(true)
 			.savetext(tr("Show this dialog at startup")))
 {
-    BufferString titl( "OpendTect V" );
-    titl += GetFullODVersion(); titl +=
-			  tr(": Candidate auto-loaded plugins").getFullString();
-    setCaption( tr(titl) );
-
-    readVendorList();
-
+    setCaption( tr("OpendTect V%1: Optional plugins").arg(GetFullODVersion()) );
     setOkText( tr("Start OpendTect") );
+    readProviderList();
     setSaveButtonChecked( true );
     readPackageList();
-    const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
-    makeProductList( pimdata );
+    makePackageList();
     createUI();
 }
 
 
 uiPluginSel::~uiPluginSel()
 {
-    deepErase( products_ );
-    deepErase( vendors_ );
+    deepErase( packages_ );
+    deepErase( providers_ );
 }
 
-void uiPluginSel::readVendorList()
+void uiPluginSel::readProviderList()
 {
-    const File::Path vendfp( mGetSWDirDataDir(), "Vendors" );
-    IOPar vendorpars;
-    if ( !vendorpars.read(vendfp.fullPath(),".par") )
+    const File::Path vendfp( mGetSWDirDataDir(), "PluginProviders" );
+    IOPar providerpars;
+    if ( !providerpars.read(vendfp.fullPath(),".par") )
 	return;
 
-    for ( int idx=0; idx<vendorpars.size(); idx++ )
+    for ( int ipar=0; ipar<providerpars.size(); ipar++ )
     {
-	PluginVendor* pv = new PluginVendor;
-	pv->vendorkey_ = vendorpars.getKey(idx);
-	vendorpars.get( pv->vendorkey_, pv->aliases_ );
-	pv->vendorname_ = pv->aliases_.get(0);
-	pv->nrprods_ = 0;
-	vendors_ += pv;
+	PluginProvider* pv = new PluginProvider;
+	pv->providerkey_ = providerpars.getKey( ipar );
+	providerpars.get( pv->providerkey_, pv->aliases_ );
+	pv->providername_ = pv->aliases_.get(0);
+	pv->nrplugins_ = 0;
+	providers_ += pv;
     }
 }
 
 
-int uiPluginSel::getVendorIndex( const char* vendornm ) const
+int uiPluginSel::getProviderIndex( const char* providernm ) const
 {
-    for ( int idx=0; idx<vendors_.size(); idx++ )
+    for ( int iprov=0; iprov<providers_.size(); iprov++ )
     {
-	if ( vendors_[idx]->aliases_.isPresent(vendornm) )
-	    return idx;
+	if ( providers_[iprov]->aliases_.isPresent(providernm) )
+	    return iprov;
     }
 
     return -1;
@@ -181,63 +173,65 @@ int uiPluginSel::getVendorIndex( const char* vendornm ) const
 
 void uiPluginSel::readPackageList()
 {
-    const File::Path prodlistfp( mGetSWDirDataDir(), "prodlist.txt" );
-    od_istream prodstrm( prodlistfp.fullPath() ) ;
-    while ( prodstrm.isOK() )
+    const File::Path pkglistfp( mGetSWDirDataDir(), "pkglist.txt" );
+    od_istream pkgstrm( pkglistfp.fullPath() ) ;
+    while ( pkgstrm.isOK() )
     {
 	BufferString line;
-	prodstrm.getLine( line );
+	pkgstrm.getLine( line );
 	const FileMultiString sepline( line );
-	PluginProduct* product = new PluginProduct;
-	product->productname_ = sepline[0];
-	product->pckgnm_ = sepline[1];
-	products_ += product;
+	PluginPackage* package = new PluginPackage;
+	package->name_ = sepline[0];
+	package->pkgkey_ = sepline[1];
+	packages_ += package;
     }
 }
 
 
-void uiPluginSel::makeProductList(
-				const ObjectSet<PluginManager::Data>& pimdata )
+void uiPluginSel::makePackageList()
 {
+    const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     BufferStringSet dontloadlist;
     PIM().getNotLoadedByUser( dontloadlist );
-    for ( int idx=0; idx<pimdata.size(); idx++ )
+    for ( int ipim=0; ipim<pimdata.size(); ipim++ )
     {
-	const PluginManager::Data& data = *pimdata[idx];
-	if ( data.sla_ && data.sla_->isOK() )
+	const PluginManager::Data& data = *pimdata[ipim];
+	const bool havesla = data.sla_ && data.sla_->isOK();
+	const bool issel = data.info_->useronoffselectable_;
+	const bool isod = FixedString(data.info_->packagename_) == "OpendTect";
+	if ( havesla && issel && !isod )
 	{
-	    const FixedString prodnm = data.info_->productname_;
-	    const bool isodprod = prodnm.isEmpty() || prodnm == "OpendTect";
-	    if ( data.info_->lictype_ != PluginInfo::COMMERCIAL || isodprod )
-		continue;
+	    int pkgidx = getPackageIndex( data.info_->packagename_ );
+	    const char* modulenm = PIM().moduleName( data.name_ );
+	    int providx = getProviderIndex( data.info_->creator_ );
+	    if ( providx < 0 )
+	    {
+		PluginProvider* pv = new PluginProvider;
+		pv->providername_ = data.info_->creator_;
+		if ( pv->providername_.isEmpty() )
+		    pv->providername_.set( "Unknown Provider" );
+		if ( pv->providername_ == "opendtect.org" )
+		    pv->providerkey_ = "od";
+		else
+		    pv->providerkey_ = "unknownpersons";
+		pv->aliases_.add( pv->providername_ );
+		providers_ += pv;
+		providx = providers_.size() - 1;
+	    }
+	    providers_[providx]->nrplugins_++;
 
-	    const int prodidx = getProductIndex( data.info_->productname_ );
-	    const char* modulenm = PIM().moduleName(data.name_);
-	    const int vidx = getVendorIndex( data.info_->creator_ );
-	    if ( vidx < 0 )
+	    if ( pkgidx < 0 )
 	    {
-		//TODO:ADD to Vendors_;
+		PluginPackage* package = new PluginPackage();
+		package->name_ = data.info_->packagename_;
+		packages_ += package;
+		pkgidx = packages_.size() - 1;
 	    }
-	    else
-		vendors_[vidx]->nrprods_++;
 
-	    if ( prodidx<0 )
-	    {
-		PluginProduct* product = new PluginProduct();
-		product->productname_ = data.info_->productname_;
-		product->creator_ = data.info_->creator_;
-		product->libs_.add( modulenm );
-		product->isselected_ = !dontloadlist.isPresent( modulenm );
-		products_ += product;
-	    }
-	    else
-	    {
-		products_[prodidx]->libs_.addIfNew( modulenm );
-		products_[prodidx]->creator_ = data.info_->creator_;
-		products_[prodidx]->libs_.add( modulenm );
-		products_[prodidx]->isselected_ =
-					!dontloadlist.isPresent( modulenm );
-	    }
+	    PluginPackage& pkg = *packages_[pkgidx];
+	    pkg.libs_.addIfNew( modulenm );
+	    pkg.creator_ = data.info_->creator_;
+	    pkg.isselected_ = !dontloadlist.isPresent( modulenm );
 	}
     }
 }
@@ -264,6 +258,12 @@ uiPluginSelBannerDrawer( uiGroup* p )
 
 void uiPluginSel::createUI()
 {
+    if ( providers_.isEmpty() )
+    {
+	new uiLabel( this, tr("[No optional plugins installed]") );
+	return;
+    }
+
     uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
     grp->setFrame( true );
 
@@ -271,51 +271,54 @@ void uiPluginSel::createUI()
     uiSeparator* sep = new uiSeparator( grp );
     sep->attach( stretchedBelow, banner );
 
-    treefld_ = new uiTreeView( grp, "Plugin tree" );
-    treefld_->showHeader( false );
-    treefld_->attach( ensureBelow, sep );
+    uiTreeView* treefld = new uiTreeView( grp, "Plugin tree" );
+    treefld->showHeader( false );
+    treefld->attach( ensureBelow, sep );
     float height = 0.0f;
-    for ( int idv=0; idv<vendors_.size(); idv++ )
+    for ( int iprov=0; iprov<providers_.size(); iprov++ )
     {
-	if ( !vendors_[idv]->nrprods_ )
+	if ( providers_[iprov]->nrplugins_ < 1 )
 	    continue;
 
-	const BufferString& vendorname = vendors_[idv]->vendorname_;
-	uiVendorTreeItem* venditem =
-	    new uiVendorTreeItem( treefld_, vendorname, isVendorSelected(idv) );
-	const BufferString iconfnm( vendors_[idv]->vendorkey_, ".png" );
-	venditem->setIcon( 0, iconfnm );
+	const BufferString& providername = providers_[iprov]->providername_;
+	uiProviderTreeItem* provitem = new uiProviderTreeItem( treefld,
+			    providername, isProviderSelected(iprov) );
+	const BufferString iconfnm( providers_[iprov]->providerkey_, ".png" );
+	provitem->setIcon( 0, iconfnm );
 	height++;
-	for ( int idx=0; idx< products_.size(); idx++ )
+	for ( int ipkg=0; ipkg< packages_.size(); ipkg++ )
 	{
-	    PluginProduct& pprod = *products_[idx];
-	    if ( getVendorIndex(pprod.creator_) != idv )
+	    PluginPackage& ppkg = *packages_[ipkg];
+	    if ( getProviderIndex(ppkg.creator_) != iprov )
 		continue;
-	    uiProductTreeItem* item = new uiProductTreeItem( venditem, pprod );
-	    item->setPixmap( 0, uiPixmap(pprod.pckgnm_) );
+	    uiPackageTreeItem* item = new uiPackageTreeItem( provitem, ppkg );
+	    item->setPixmap( 0, uiPixmap(ppkg.pkgkey_) );
 	    height++;
 	}
     }
 
-    treefld_->expandAll();
-    treefld_->setPrefWidth( banner->pm_.width() );
-    treefld_->setPrefHeightInChar( height+2 );
-    treefld_->setStretch( 0, 2 );
+    treefld->expandAll();
+    treefld->setPrefWidth( banner->pm_.width() );
+    treefld->setPrefHeightInChar( height+2 );
+    treefld->setStretch( 0, 2 );
 
     setPrefWidth( banner->pm_.width() );
 }
 
 bool uiPluginSel::acceptOK()
 {
+    if ( packages_.isEmpty() )
+	return true;
+
     FileMultiString dontloadlist;
-    for ( int idx=0; idx<products_.size(); idx++ )
+    for ( int ipkg=0; ipkg<packages_.size(); ipkg++ )
     {
-	const PluginProduct& pprod = *products_[idx];
-	if ( !pprod.isselected_ )
+	const PluginPackage& ppkg = *packages_[ipkg];
+	if ( !ppkg.isselected_ )
 	{
-	    for( int idp=0; idp<pprod.libs_.size(); idp++ )
+	    for( int idp=0; idp<ppkg.libs_.size(); idp++ )
 	    {
-		const BufferString& nm = pprod.libs_.get( idp );
+		const BufferString& nm = ppkg.libs_.get( idp );
 		if ( dontloadlist.indexOf(nm.buf()) < 0 )
 		    dontloadlist.add( nm );
 	    }
@@ -330,24 +333,24 @@ bool uiPluginSel::acceptOK()
 }
 
 
-int uiPluginSel::getProductIndex( const char* prodnm ) const
+int uiPluginSel::getPackageIndex( const char* pkgnm ) const
 {
-    for ( int idx=0; idx<products_.size(); idx++ )
+    for ( int ipkg=0; ipkg<packages_.size(); ipkg++ )
     {
-	if ( products_[idx]->productname_ == prodnm )
-	    return idx;
+	if ( packages_[ipkg]->name_ == pkgnm )
+	    return ipkg;
     }
 
     return -1;
 }
 
 
-bool uiPluginSel::isVendorSelected( int vendoridx ) const
+bool uiPluginSel::isProviderSelected( int provideridx ) const
 {
-    for ( int idx=0; idx<products_.size(); idx++ )
+    for ( int ipkg=0; ipkg<packages_.size(); ipkg++ )
     {
-	if ( getVendorIndex(products_[idx]->creator_) == vendoridx
-		&& products_[idx]->isselected_ )
+	if ( getProviderIndex(packages_[ipkg]->creator_) == provideridx
+		&& packages_[ipkg]->isselected_ )
 	    return true;
     }
 
