@@ -38,7 +38,7 @@ mExpClass(EarthModel) EMSurfaceProvider : public virtual Filter
 { mODTextTranslationClass(EMSurfaceProvider);
 public:
 			EMSurfaceProvider();
-			~EMSurfaceProvider();
+    virtual		~EMSurfaceProvider();
     const char*		type() const;	//!< sKey::Surface()
 
     virtual bool	initialize(const TaskRunnerProvider&);
@@ -79,7 +79,7 @@ public:
 protected:
 
 			EMSurfaceProvider(const EMSurfaceProvider&);
-    void		copyFrom(const Pos::EMSurfaceProvider&);
+    EMSurfaceProvider&	operator=(const EMSurfaceProvider&);
 
     DBKey		id1_;
     DBKey		id2_;
@@ -119,16 +119,14 @@ protected:
 */
 
 mExpClass(EarthModel) EMSurfaceProvider3D : public Provider3D
-			  , public EMSurfaceProvider
+					  , public EMSurfaceProvider
 { mODTextTranslationClass(EMSurfaceProvider3D);
 public:
 
-			EMSurfaceProvider3D()			{}
-			EMSurfaceProvider3D( const EMSurfaceProvider3D& p )
-			    : EMSurfaceProvider()		{ *this = p; }
+			EMSurfaceProvider3D();
+			EMSurfaceProvider3D(const EMSurfaceProvider3D&);
     const char*		factoryKeyword() const { return type(); }
-    EMSurfaceProvider3D& operator =( const EMSurfaceProvider3D& p )
-			{ copyFrom(p); return *this; }
+    EMSurfaceProvider3D& operator =(const EMSurfaceProvider3D&);
     Provider*		clone() const
 			{ return new EMSurfaceProvider3D(*this); }
 
@@ -156,15 +154,13 @@ public:
 */
 
 mExpClass(EarthModel) EMSurfaceProvider2D : public Provider2D
-			  , public EMSurfaceProvider
+					  , public EMSurfaceProvider
 { mODTextTranslationClass(EMSurfaceProvider2D);
 public:
 
-			EMSurfaceProvider2D()			{}
-			EMSurfaceProvider2D( const EMSurfaceProvider2D& p )
-			    : EMSurfaceProvider()		{ *this = p; }
-    EMSurfaceProvider2D& operator =( const EMSurfaceProvider2D& p )
-			{ copyFrom(p); return *this; }
+			EMSurfaceProvider2D();
+			EMSurfaceProvider2D(const EMSurfaceProvider2D&);
+    EMSurfaceProvider2D& operator =(const EMSurfaceProvider2D&);
     const char*		factoryKeyword() const { return type(); }
     Provider*		clone() const
 			{ return new EMSurfaceProvider2D(*this); }
@@ -195,7 +191,7 @@ public:
 */
 
 mExpClass(EarthModel) EMSurface2DProvider3D : public Provider3D
-			    , public EMSurfaceProvider
+					    , public EMSurfaceProvider
 { mODTextTranslationClass(EMSurface2DProvider3D);
 public:
 				EMSurface2DProvider3D();
@@ -203,8 +199,7 @@ public:
 					const EMSurface2DProvider3D&);
 				~EMSurface2DProvider3D();
     const char*			factoryKeyword() const { return type(); }
-    EMSurface2DProvider3D&	operator =( const EMSurface2DProvider3D& p );
-				//{ copyFrom(p); return *this; }
+    EMSurface2DProvider3D&	operator =(const EMSurface2DProvider3D&);
     virtual bool		initialize(const TaskRunnerProvider&);
     virtual void		reset();
     Provider*			clone() const

@@ -39,7 +39,8 @@ const char* EMSurfaceProvider::extraZKey()	{ return "Extra Z"; }
 
 
 EMSurfaceProvider::EMSurfaceProvider()
-    : surf1_(0)
+    : Filter()
+    , surf1_(0)
     , surf2_(0)
     , hs_(SI().sampling(false).hsamp_)
     , zstep_(SI().zRange(true).step)
@@ -53,11 +54,12 @@ EMSurfaceProvider::EMSurfaceProvider()
 {}
 
 
-EMSurfaceProvider::EMSurfaceProvider( const EMSurfaceProvider& pp )
-    : surf1_(0)
+EMSurfaceProvider::EMSurfaceProvider( const EMSurfaceProvider& oth )
+    : Filter(oth)
+    , surf1_(0)
     , surf2_(0)
 {
-    *this = pp;
+    *this = oth;
 }
 
 
@@ -68,21 +70,26 @@ EMSurfaceProvider::~EMSurfaceProvider()
 }
 
 
-void EMSurfaceProvider::copyFrom( const EMSurfaceProvider& pp )
+EMSurfaceProvider& EMSurfaceProvider::operator=( const EMSurfaceProvider& oth )
 {
-    if ( &pp == this ) return;
+    if ( &oth == this )
+	return *this;
+
+    Filter::operator = ( oth );
 
     if ( surf1_ ) surf1_->unRef();
     if ( surf2_ ) surf2_->unRef();
-    surf1_ = pp.surf1_; if ( surf1_ ) surf1_->ref();
-    surf2_ = pp.surf2_; if ( surf2_ ) surf2_->ref();
-    zstep_ = pp.zstep_;
-    extraz_ = pp.extraz_;
-    id1_ = pp.id1_;
-    id2_ = pp.id2_;
-    hs_ = pp.hs_;
-    zrg1_ = pp.zrg1_; zrg2_ = pp.zrg2_;
+    surf1_ = oth.surf1_; if ( surf1_ ) surf1_->ref();
+    surf2_ = oth.surf2_; if ( surf2_ ) surf2_->ref();
+    zstep_ = oth.zstep_;
+    extraz_ = oth.extraz_;
+    id1_ = oth.id1_;
+    id2_ = oth.id2_;
+    hs_ = oth.hs_;
+    zrg1_ = oth.zrg1_; zrg2_ = oth.zrg2_;
     estnrpos_ = -1;
+
+    return *this;
 }
 
 
@@ -320,6 +327,34 @@ int EMSurfaceProvider::nrSurfaces() const
 }
 
 
+
+EMSurfaceProvider3D::EMSurfaceProvider3D()
+    : Provider3D()
+    , EMSurfaceProvider()
+{}
+
+
+EMSurfaceProvider3D::EMSurfaceProvider3D( const EMSurfaceProvider3D& oth )
+    : Provider3D( oth )
+    , EMSurfaceProvider( oth )
+{
+    *this = oth;
+}
+
+
+EMSurfaceProvider3D& EMSurfaceProvider3D::operator=(
+						const EMSurfaceProvider3D& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    Pos::Provider3D::operator = ( oth );
+    EMSurfaceProvider::operator = ( oth );
+
+    return *this;
+}
+
+
 BinID EMSurfaceProvider3D::curBinID() const
 { return BinID::fromInt64( curpos_.subID() ); }
 
@@ -367,6 +402,33 @@ void EMSurfaceProvider3D::initClass()
 
 
 // ***** EMSurfaceProvider2D ****
+EMSurfaceProvider2D::EMSurfaceProvider2D()
+    : Provider2D()
+    , EMSurfaceProvider()
+{}
+
+
+EMSurfaceProvider2D::EMSurfaceProvider2D( const EMSurfaceProvider2D& oth )
+    : Provider2D( oth )
+    , EMSurfaceProvider( oth )
+{
+    *this = oth;
+}
+
+
+EMSurfaceProvider2D& EMSurfaceProvider2D::operator=(
+						const EMSurfaceProvider2D& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    Provider2D::operator = ( oth );
+    EMSurfaceProvider::operator = ( oth );
+
+    return *this;
+}
+
+
 const char* EMSurfaceProvider2D::curLine() const
 {
     BinID bid = BinID::fromInt64( curpos_.subID() );
@@ -480,9 +542,21 @@ void EMSurfaceProvider2D::initClass()
 
 // ***** EMSurface2DProvider3D ****
 EMSurface2DProvider3D::EMSurface2DProvider3D()
-    :dpssurf1_(*new DataPointSet(true,true))
-    ,dpssurf2_(*new DataPointSet(true,true))
+    : Pos::Provider3D()
+    , EMSurfaceProvider()
+    , dpssurf1_(*new DataPointSet(true,true))
+    , dpssurf2_(*new DataPointSet(true,true))
 {}
+
+
+EMSurface2DProvider3D::EMSurface2DProvider3D( const EMSurface2DProvider3D& p )
+    : Pos::Provider3D()
+    , EMSurfaceProvider()
+    , dpssurf1_(*new DataPointSet(true,false))
+    , dpssurf2_(*new DataPointSet(true,false))
+{
+    *this = p;
+}
 
 
 EMSurface2DProvider3D::~EMSurface2DProvider3D()
@@ -492,21 +566,19 @@ EMSurface2DProvider3D::~EMSurface2DProvider3D()
 }
 
 
-EMSurface2DProvider3D::EMSurface2DProvider3D(
-	const EMSurface2DProvider3D& p )
-    : dpssurf1_(*new DataPointSet(true,false))
-    , dpssurf2_(*new DataPointSet(true,false))
-{
-    *this = p;
-}
-
 
 EMSurface2DProvider3D& EMSurface2DProvider3D::operator =(
-	const EMSurface2DProvider3D& p )
+					const EMSurface2DProvider3D& oth )
 {
-    copyFrom(p);
-    dpssurf1_ = p.dpssurf1_;
-    dpssurf2_ = p.dpssurf2_;
+    if ( &oth == this )
+	return *this;
+
+    Pos::Provider3D::operator = ( oth );
+    EMSurfaceProvider::operator = ( oth );
+
+    dpssurf1_ = oth.dpssurf1_;
+    dpssurf2_ = oth.dpssurf2_;
+
     return *this;
 }
 
@@ -594,7 +666,8 @@ void EMSurface2DProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 
 EMImplicitBodyProvider::EMImplicitBodyProvider()
-    : tkzs_(true)
+    : Pos::Provider3D()
+    , tkzs_(true)
     , imparr_(0)
     , threshold_(0)
     , embody_(0)
@@ -607,17 +680,11 @@ EMImplicitBodyProvider::EMImplicitBodyProvider()
 
 
 EMImplicitBodyProvider::EMImplicitBodyProvider(
-	const EMImplicitBodyProvider& ep )
-    : tkzs_(ep.tkzs_)
-    , imparr_(ep.imparr_)
-    , threshold_(ep.threshold_)
-    , embody_(ep.embody_)
-    , useinside_(ep.useinside_)
-    , bbox_(ep.bbox_)
-    , initializedbody_(ep.initializedbody_)
-    , curbid_(ep.curbid_)
-    , curz_(ep.curz_)
-{}
+					const EMImplicitBodyProvider& oth )
+    : Pos::Provider3D()
+{
+    *this = oth;
+}
 
 
 EMImplicitBodyProvider::~EMImplicitBodyProvider()
@@ -642,18 +709,22 @@ EMImplicitBodyProvider::~EMImplicitBodyProvider()
 
 
 EMImplicitBodyProvider& EMImplicitBodyProvider::operator = (
-	const EMImplicitBodyProvider& ep )
+				    const EMImplicitBodyProvider& oth )
 {
-    if ( &ep !=this )
-    {
-	useinside_ = ep.useinside_;
-	embody_ = ep.embody_;
-	tkzs_ = ep.tkzs_;
-	bbox_ = ep.bbox_;
-	threshold_ = ep.threshold_;
-	mCopyImpArr( ep.imparr_ );
-	initializedbody_ = ep.initializedbody_;
-    }
+    if ( &oth == this )
+	return *this;
+
+    Provider3D::operator = ( oth );
+
+    tkzs_ = oth.tkzs_;
+    mCopyImpArr( oth.imparr_ );
+    threshold_ = oth.threshold_;
+    useinside_ = oth.useinside_;
+    bbox_ = oth.bbox_;
+    embody_ = oth.embody_;
+    curbid_ = oth.curbid_;
+    curz_ = oth.curz_;
+    initializedbody_ = oth.initializedbody_;
 
     return *this;
 }
@@ -873,17 +944,19 @@ bool EMImplicitBodyProvider::toNextZ()
 
 // EMRegion3DProvider
 EMRegion3DProvider::EMRegion3DProvider()
-    : useinside_(true)
+    : Provider3D()
+    , useinside_(true)
     , bbox_(false)
     , region_(*new EM::Region3D)
 {}
 
 
-EMRegion3DProvider::EMRegion3DProvider(  const EMRegion3DProvider& ep )
-    : useinside_(ep.useinside_)
-    , bbox_(ep.bbox_)
+EMRegion3DProvider::EMRegion3DProvider(  const EMRegion3DProvider& oth )
+    : Provider3D(oth)
     , region_(*new EM::Region3D)
-{}
+{
+    *this = oth;
+}
 
 
 EMRegion3DProvider::~EMRegion3DProvider()
@@ -905,11 +978,16 @@ bool EMRegion3DProvider::initialize( const TaskRunnerProvider& )
 
 EMRegion3DProvider& EMRegion3DProvider::operator=( const EMRegion3DProvider& ep)
 {
-    if ( &ep !=this )
-    {
-	useinside_ = ep.useinside_;
-	bbox_ = ep.bbox_;
-    }
+    if ( &ep == this )
+	return *this;
+
+    Pos::Provider3D::operator = ( ep );
+
+    bbox_ = ep.bbox_;
+    region_ = ep.region_;
+    curbid_ = ep.curbid_;
+    curz_ = ep.curz_;
+    useinside_ = ep.useinside_;
 
     return *this;
 }

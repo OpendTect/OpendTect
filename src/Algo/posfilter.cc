@@ -375,8 +375,30 @@ void Pos::Provider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 
 
 Pos::Provider3D::Provider3D()
-    : survid_( Survey::GM().default3DSurvID() )
+    : Pos::Filter3D()
+    , Pos::Provider()
+    , survid_( Survey::GM().default3DSurvID() )
 {}
+
+
+Pos::Provider3D::Provider3D( const Pos::Provider3D& oth )
+    : Pos::Filter3D(oth)
+    , Pos::Provider(oth)
+    , survid_(oth.survid_)
+{}
+
+
+Pos::Provider3D& Pos::Provider3D::operator=( const Pos::Provider3D& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    Pos::Filter3D::operator = ( oth );
+    Pos::Provider::operator = ( oth );
+    survid_ = oth.survid_;
+
+    return *this;
+}
 
 
 bool Pos::Provider3D::includes( const Coord& c, float z ) const

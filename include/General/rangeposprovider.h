@@ -52,7 +52,7 @@ public:
     virtual void	getZRange(Interval<float>&) const;
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const;
-    void		getTrcKeyZSampling(TrcKeyZSampling&) const;
+    virtual void	getTrcKeyZSampling(TrcKeyZSampling&) const;
 
     const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
     void		setSampling( const TrcKeyZSampling& tkzs );
@@ -116,11 +116,11 @@ public:
 
     void			setTrcRange(const StepInterval<int>&,int idx=0);
     const StepInterval<int>&	trcRange(int lidx) const
-    				{return trcrgs_[lidx];}
+				{return trcrgs_[lidx];}
 
     void			setZRange(const StepInterval<float>&,int idx=0);
     const StepInterval<float>&	zRange(int lidx=0) const
-    				{return zrgs_[lidx];}
+				{return zrgs_[lidx];}
 
 protected:
 

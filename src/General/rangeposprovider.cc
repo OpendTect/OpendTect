@@ -20,7 +20,8 @@
 
 
 Pos::RangeProvider3D::RangeProvider3D()
-    : tkzs_(*new TrcKeyZSampling(true))
+    : Pos::Provider3D()
+    , tkzs_(*new TrcKeyZSampling(true))
     , zsampsz_(0)
 {
     reset();
@@ -28,7 +29,8 @@ Pos::RangeProvider3D::RangeProvider3D()
 
 
 Pos::RangeProvider3D::RangeProvider3D( const Pos::RangeProvider3D& p )
-    : tkzs_(*new TrcKeyZSampling(false))
+    : Pos::Provider3D(p)
+    , tkzs_(*new TrcKeyZSampling(false))
 {
     *this = p;
 }
@@ -41,15 +43,18 @@ Pos::RangeProvider3D::~RangeProvider3D()
 
 
 Pos::RangeProvider3D& Pos::RangeProvider3D::operator =(
-					const Pos::RangeProvider3D& p )
+					const Pos::RangeProvider3D& oth )
 {
-    if ( &p != this )
-    {
-	tkzs_ = p.tkzs_;
-	curbid_ = p.curbid_;
-	curzidx_ = p.curzidx_;
-	zsampsz_ = p.zsampsz_;
-    }
+    if ( &oth == this )
+	return *this;
+
+    Pos::Provider3D::operator = ( oth );
+
+    tkzs_ = oth.tkzs_;
+    curbid_ = oth.curbid_;
+    curzidx_ = oth.curzidx_;
+    zsampsz_ = oth.zsampsz_;
+
     return *this;
 }
 

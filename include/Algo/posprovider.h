@@ -22,8 +22,8 @@ namespace Pos
 
 /*!
 \brief Provides a series of positions; can also be used for subselection.
-  
-  toNextPos() will ignore any Z settings and go to the first Z on the next 
+
+  toNextPos() will ignore any Z settings and go to the first Z on the next
   position. toNextZ() is the normal 'iterator increment'. After initialization,
   you need to do toNextZ() or toNextPos() for a valid position.
 */
@@ -79,8 +79,12 @@ public:
 
 protected:
 			Provider3D();
+			Provider3D(const Provider3D&);
+
+    Provider3D&		operator=(const Provider3D&);
 
 private:
+
     Pos::SurvID		survid_;
 
 };
