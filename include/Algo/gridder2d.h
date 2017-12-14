@@ -102,8 +102,10 @@ protected:
 
     TypeSet<int>		usedpoints_;
 
-    virtual bool		pointsChangedCB(CallBacker*)	{ return true; }
-    virtual void		valuesChangedCB(CallBacker*)	{}
+    virtual bool		handlePointsChanged(const TaskRunnerProvider&)
+				{ return true; }
+    virtual void		handleValuesChanged()			{}
+
     float			getDetrendedValue(int idx) const;
 				/*<!Input values corrected from the trend*/
     bool			isAtInputPos(const Coord&,int&idx) const;
@@ -180,7 +182,7 @@ protected:
 
     Coord			center_;
 
-    bool			pointsChangedCB(CallBacker*);
+    bool			handlePointsChanged(const TaskRunnerProvider&);
 };
 
 
@@ -231,8 +233,8 @@ protected:
     double		getRadius(const Coord& pos1,const Coord& pos2) const;
     static double	evaluateRBF(double radius,double scale=1.);
 
-    bool		pointsChangedCB(CallBacker*);
-    void		valuesChangedCB(CallBacker*);
+    bool		handlePointsChanged(const TaskRunnerProvider&);
+    void		handleValuesChanged();
     bool		setWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>* usedpoints=0) const;
 };

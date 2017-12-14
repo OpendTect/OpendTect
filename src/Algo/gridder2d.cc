@@ -64,7 +64,7 @@ bool Gridder2D::isPointUsable(const Coord& cpt,const Coord& dpt) const
 
 
 bool Gridder2D::setPoints( const TypeSet<Coord>& cl,
-			    const TaskRunnerProvider& trprov )
+			   const TaskRunnerProvider& trprov )
 {
     points_ = &cl;
 
@@ -78,8 +78,7 @@ bool Gridder2D::setPoints( const TypeSet<Coord>& cl,
 	    usedpoints_ += idx;
     }
 
-    CBCapsule<const TaskRunnerProvider*> trprovcapsule( &trprov, 0 );
-    if ( !pointsChangedCB(&trprovcapsule) )
+    if ( !handlePointsChanged(trprov) )
 	{ points_ = 0; return false; }
 
     return true;
@@ -93,7 +92,7 @@ bool Gridder2D::setValues( const TypeSet<float>& vl )
     if ( trend_ && points_ && points_->size() == values_->size() )
 	trend_->set( *points_, values_->arr() );
 
-    valuesChangedCB(0);
+    handleValuesChanged();
 
     return true;
 }
@@ -123,7 +122,7 @@ void Gridder2D::setTrend( PolyTrend::Order order )
 	if ( trend_ )
 	    trend_->set( *points_, *values_ );
 
-	valuesChangedCB(0);
+	handleValuesChanged();
     }
 }
 
@@ -451,17 +450,14 @@ bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
 }
 
 
-bool TriangulatedGridder2D::pointsChangedCB( CallBacker* )
+bool TriangulatedGridder2D::handlePointsChanged(
+					const TaskRunnerProvider& trprov )
 {
     delete triangles_;
     triangles_ = new DAGTriangleTree;
     Interval<double> xrg, yrg;
-    if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
-    {
-	delete triangles_;
-	triangles_ = 0;
-	return false;
-    }
+    if ( !DAGTriangleTree::computeCoordRanges(*points_,xrg,yrg) )
+	{ deleteAndZeroPtr( triangles_ ); return false; }
 
     if ( !mIsUdf(xrg_.start) ) xrg.include( xrg_.start );
     if ( !mIsUdf(xrg_.stop) ) xrg.include( xrg_.stop );
@@ -570,14 +566,14 @@ bool RadialBasisFunctionGridder2D::allPointsAreRelevant() const
 }
 
 
-bool RadialBasisFunctionGridder2D::pointsChangedCB( CallBacker* cb )
+bool RadialBasisFunctionGridder2D::handlePointsChanged(
+					const TaskRunnerProvider& trprov )
 {
-    mCBCapsuleUnpack(TaskRunnerProvider*,trprov,cb);
-    return trprov ? updateSolver( *trprov ) : false;
+    return updateSolver( trprov );
 }
 
 
-void RadialBasisFunctionGridder2D::valuesChangedCB( CallBacker* )
+void RadialBasisFunctionGridder2D::handleValuesChanged()
 {
     updateSolution();
 }
