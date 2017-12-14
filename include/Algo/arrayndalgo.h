@@ -235,6 +235,19 @@ private:
 };
 
 
+#define mSetResAndContinue(res) \
+{ \
+    if ( outvals ) \
+	outvals[idx] = res; \
+    else if ( outstor ) \
+	outstor->setValue( idx, res );\
+    else \
+	outarr_.setND( outiter->getPos(), res ); \
+    \
+    if ( xiter ) xiter->next(); \
+    if ( yiter ) yiter->next(); \
+    if ( outiter ) outiter->next(); \
+}
 
 /*!\brief Parallel task for computing the element wise operations of
 	  one array and optionally a second input array.
@@ -317,12 +330,7 @@ private:
 				   : xstor ? xstor->value(idx)
 					   : xarr_.getND( xiter->getPos() );
 	    if ( !noudf_ && mIsUdf(xvalue) )
-	    {
-		if ( xiter ) xiter->next();
-		if ( yiter ) yiter->next();
-		if ( outiter ) outiter->next();
-		continue;
-	    }
+		{ mSetResAndContinue( mUdf(ArrType) ) continue;	}
 
 	    if ( doscalexvals ) xvalue *= xfact_;
 	    if ( hasyvals )
@@ -331,12 +339,7 @@ private:
 				       : ystor ? ystor->value(idx)
 					       : yarr_->getND( yiter->getPos());
 		if ( !noudf_ && mIsUdf(yvalue) )
-		{
-		    if ( xiter ) xiter->next();
-		    if ( yiter ) yiter->next();
-		    if ( outiter ) outiter->next();
-		    continue;
-		}
+		    { mSetResAndContinue( mUdf(ArrType) ) continue; }
 
 		if ( doscaleyvals ) yvalue *= yfact_;
 		if ( setup_.doadd_ )
@@ -348,17 +351,7 @@ private:
 	    if ( doshiftoutvals )
 		xvalue += shift_;
 
-	    const ArrType res = mCast(ArrType,xvalue);
-	    if ( outvals )
-		outvals[idx] = res;
-	    else if ( outstor )
-		outstor->setValue( idx, res );
-	    else
-		outarr_.setND( outiter->getPos(), res );
-
-	    if ( xiter ) xiter->next();
-	    if ( yiter ) yiter->next();
-	    if ( outiter ) outiter->next();
+	    mSetResAndContinue( mCast(ArrType,xvalue) )
 	}
 
 	delete xiter; delete yiter; delete outiter;
