@@ -44,15 +44,15 @@ uiQtAppMgr::uiQtAppMgr( uiODMain* a )
     , qtclss_(0)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
-    mnumgr.utilMnu()->insertItem(
-	    new uiAction( "&Qt Thing", mCB(this,uiQtAppMgr,doStuff) ) );
+    mnumgr.utilMnu()->insertAction(
+	new uiAction( toUiString("Qt Thing"), mCB(this,uiQtAppMgr,doStuff) ) );
 }
 
 
 void uiQtAppMgr::doStuff( CallBacker* )
 {
     if ( qtclss_ ) delete qtclss_;
-    qtclss_ = new QtClss( appl_->qWidget() );
+    qtclss_ = new QtClss( appl_->getWidget(0) );
     qtclss_->go();
 }
 
@@ -64,7 +64,7 @@ mDefODInitPlugin(uiQtApp)
 
     theinst_ = new uiQtAppMgr( ODMainWin() );
     if ( !theinst_ )
-	"Cannot instantiate QtApp plugin";
+	return "Cannot instantiate QtApp plugin";
 
     return 0;
 }
