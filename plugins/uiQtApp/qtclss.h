@@ -7,6 +7,9 @@
  * ID       : $Id$
 -*/
 
+#include "uiqtappmod.h"
+#include "commondefs.h"
+
 class QMainWindow;
 class QPushButton;
 class QWidget;

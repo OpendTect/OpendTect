@@ -64,6 +64,7 @@ mDefODInitPlugin(uiQtApp)
 
     theinst_ = new uiQtAppMgr( ODMainWin() );
     if ( !theinst_ )
-	"Cannot instantiate QtApp plugin";
+	return "Cannot instantiate QtApp plugin";
 
     return 0;
+}
