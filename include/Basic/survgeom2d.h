@@ -48,6 +48,9 @@ public:
     static BufferString		makeUniqueLineName(const char* lsnm,
 						   const char* lnm);
     float			averageTrcDist() const;
+    void			setAverageTrcDist(float);
+    float			lineLength() const;
+    void			setLineLength(float);
     virtual RelationType	compare(const Geometry&,bool usezrg) const;
 
     Geometry2D*			as2D()			{ return this; }
@@ -60,6 +63,7 @@ private:
     PosInfo::Line2DData&	data_;
     TypeSet<int>		spnrs_;
     mutable float		trcdist_;
+    mutable float		linelength_;
     mutable Threads::Lock	lock_;
 };
 

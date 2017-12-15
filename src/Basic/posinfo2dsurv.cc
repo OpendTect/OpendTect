@@ -918,8 +918,9 @@ sampling_.hsamp_.stop_.trcNr() = trcrg.stop; \
 sampling_.hsamp_.step_.trcNr() = trcrg.step
 
 Survey::Geometry2D::Geometry2D( PosInfo::Line2DData* l2d )
-    : data_( *l2d )
-    , trcdist_( mUdf(float) )
+    : data_(*l2d)
+    , trcdist_(mUdf(float))
+    , linelength_(mUdf(float))
 {
     sampling_.hsamp_.survid_ = TrcKey::std2DSurvID();
     mSetSampling;
@@ -958,19 +959,48 @@ void Survey::Geometry2D::touch()
     Threads::Locker locker( lock_ );
     mSetSampling;
     trcdist_ = mUdf(float);
+    linelength_ = mUdf(float);
 }
 
 
 float Survey::Geometry2D::averageTrcDist() const
 {
     Threads::Locker locker( lock_ );
-    if ( mIsUdf( trcdist_ ) )
-    {
-	float max;
-	data_.compDistBetwTrcsStats( max, trcdist_ );
-    }
+    if ( !mIsUdf(trcdist_) )
+	return trcdist_;
 
+    float max;
+    data_.compDistBetwTrcsStats( max, trcdist_ );
     return trcdist_;
+}
+
+
+void Survey::Geometry2D::setAverageTrcDist( float trcdist )
+{
+    Threads::Locker locker( lock_ );
+    trcdist_ = trcdist;
+}
+
+
+float Survey::Geometry2D::lineLength() const
+{
+    Threads::Locker locker( lock_ );
+    if ( !mIsUdf(linelength_) )
+	return linelength_;
+
+    linelength_ = 0;
+    for ( int idx=1; idx<data_.positions().size(); idx++ )
+	linelength_ += data_.positions()[idx].coord_.distTo<float>(
+					data_.positions()[idx-1].coord_);
+
+    return linelength_;
+}
+
+
+void Survey::Geometry2D::setLineLength( float ll )
+{
+    Threads::Locker locker( lock_ );
+    linelength_ = ll;
 }
 
 
