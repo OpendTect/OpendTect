@@ -19,19 +19,20 @@
 
 
 Pos::PolyProvider3D::PolyProvider3D()
-    : poly_(*new ODPolygon<float>)
+    : Pos::Provider3D()
+    , poly_(*new ODPolygon<float>)
     , hs_(*new TrcKeySampling(true))
     , zrg_(SI().zRange(false))
 {
 }
 
 
-Pos::PolyProvider3D::PolyProvider3D( const Pos::PolyProvider3D& pp )
-    : poly_(*new ODPolygon<float>(pp.poly_))
-    , hs_(pp.hs_)
-    , zrg_(pp.zrg_)
-    , mid_ (pp.mid_)
+Pos::PolyProvider3D::PolyProvider3D( const Pos::PolyProvider3D& oth )
+    : Pos::Provider3D(oth)
+    , poly_(*new ODPolygon<float>(oth.poly_))
+    , hs_(*new TrcKeySampling(oth.hs_))
 {
+    *this = oth;
 }
 
 
@@ -44,13 +45,16 @@ Pos::PolyProvider3D::~PolyProvider3D()
 
 Pos::PolyProvider3D& Pos::PolyProvider3D::operator =( const PolyProvider3D& pp )
 {
-    if ( &pp != this )
-    {
-	poly_ = pp.poly_;
-	hs_ = pp.hs_;
-	zrg_ = pp.zrg_;
-	mid_ = pp.mid_;
-    }
+    if ( &pp == this )
+	return *this;
+
+    Pos::Provider3D::operator = ( pp );
+
+    poly_ = pp.poly_;
+    hs_ = pp.hs_;
+    zrg_ = pp.zrg_;
+    mid_ = pp.mid_;
+
     return *this;
 }
 

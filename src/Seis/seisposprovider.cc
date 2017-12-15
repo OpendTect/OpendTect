@@ -15,7 +15,8 @@
 
 
 Pos::SeisProvider3D::SeisProvider3D()
-    : zsamp_(0.f,0.f,1.f)
+    : Pos::Provider3D()
+    , zsamp_(0.f,0.f,1.f)
     , curzidx_(-1)
 {
     reset();
@@ -23,6 +24,7 @@ Pos::SeisProvider3D::SeisProvider3D()
 
 
 Pos::SeisProvider3D::SeisProvider3D( const SeisProvider3D& oth )
+    : Pos::Provider3D(oth)
 {
     *this = oth;
 }
@@ -37,12 +39,15 @@ Pos::SeisProvider3D& Pos::SeisProvider3D::operator =(
 					const SeisProvider3D& oth )
 {
     if ( &oth != this )
-    {
-	cubedata_ = oth.cubedata_;
-	zsamp_ = oth.zsamp_;
-	curpos_ = oth.curpos_;
-	curzidx_ = oth.curzidx_;
-    }
+	return *this;
+
+    Pos::Provider3D::operator = ( oth );
+
+    cubedata_ = oth.cubedata_;
+    zsamp_ = oth.zsamp_;
+    curpos_ = oth.curpos_;
+    curzidx_ = oth.curzidx_;
+
     return *this;
 }
 

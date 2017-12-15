@@ -32,7 +32,8 @@ const char* WellProvider3D::sKeySurfaceCoords() { return "Only surface coords";}
 
 
 WellProvider3D::WellProvider3D()
-    : hs_(*new TrcKeySampling(true))
+    : Pos::Provider3D()
+    , hs_(*new TrcKeySampling(true))
     , zrg_(SI().zRange(false))
     , onlysurfacecoords_(true)
     , curwellidx_(0)
@@ -40,13 +41,11 @@ WellProvider3D::WellProvider3D()
 }
 
 
-WellProvider3D::WellProvider3D( const WellProvider3D& pp )
-    : welldata_(pp.welldata_)
-    , hs_(pp.hs_)
-    , zrg_(pp.zrg_)
-    , onlysurfacecoords_(pp.onlysurfacecoords_)
-    , curwellidx_(0)
+WellProvider3D::WellProvider3D( const WellProvider3D& oth )
+    : Pos::Provider3D(oth)
+    , hs_(*new TrcKeySampling(oth.hs_))
 {
+    *this = oth;
 }
 
 
@@ -56,14 +55,27 @@ WellProvider3D::~WellProvider3D()
 }
 
 
-WellProvider3D& WellProvider3D::operator =( const WellProvider3D& pp )
+WellProvider3D& WellProvider3D::operator =( const WellProvider3D& oth )
 {
-    if ( &pp != this )
-    {
-	welldata_ = pp.welldata_;
-	hs_ = pp.hs_;
-	zrg_ = pp.zrg_;
-    }
+    if ( &oth == this )
+	return *this;
+
+    Pos::Provider3D::operator = ( oth );
+
+    wellids_ = oth.wellids_;
+    welldata_ = oth.welldata_;
+    onlysurfacecoords_ = oth.onlysurfacecoords_;
+    inlext_ = oth.inlext_;
+    crlext_ = oth.crlext_;
+    zext_ = oth.zext_;
+    hs_ = oth.hs_;
+    hsitr_.setSampling( hs_ );
+    hsitr_.setCurrentPos( oth.hsitr_.curIdx() );
+    zrg_ = oth.zrg_;
+    curbid_ = oth.curbid_;
+    curz_ = oth.curz_;
+    curwellidx_ = oth.curwellidx_;
+
     return *this;
 }
 

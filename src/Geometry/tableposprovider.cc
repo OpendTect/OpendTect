@@ -19,8 +19,15 @@
 #define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
 
 
+Pos::TableProvider3D::TableProvider3D()
+    : Pos::Provider3D()
+    , bvs_(1,true)
+{}
+
+
 Pos::TableProvider3D::TableProvider3D( const IOObj& ioobj )
-    : bvs_(1,true)
+    : Pos::Provider3D()
+    , bvs_(1,true)
 {
     IOPar iop; iop.set( mGetTableKey("ID"), ioobj.key() );
     usePar( iop );
@@ -28,21 +35,33 @@ Pos::TableProvider3D::TableProvider3D( const IOObj& ioobj )
 
 
 Pos::TableProvider3D::TableProvider3D( const char* fnm )
-    : bvs_(1,true)
+    : Pos::Provider3D()
+    , bvs_(1,true)
 {
     IOPar iop; iop.set( mGetTableKey(sKey::FileName()), fnm );
     usePar( iop );
 }
 
 
-Pos::TableProvider3D& Pos::TableProvider3D::operator =(
-					const TableProvider3D& tp )
+Pos::TableProvider3D::TableProvider3D( const Pos::TableProvider3D& oth )
+    : Pos::Provider3D(oth)
+    , bvs_(1,true)
 {
-    if ( &tp != this )
-    {
-	bvs_ = tp.bvs_;
-	pos_ = tp.pos_;
-    }
+    *this = oth;
+}
+
+
+Pos::TableProvider3D& Pos::TableProvider3D::operator =(
+					const TableProvider3D& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    Pos::Provider3D::operator = ( oth );
+
+    bvs_ = oth.bvs_;
+    pos_ = oth.pos_;
+
     return *this;
 }
 
