@@ -12,11 +12,8 @@ mDefODPluginEarlyLoad(VoxelConnectivityFilter);
 mDefODPluginInfo(VoxelConnectivityFilter)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"VoxelConnectivityFilter plugin (base)",
-	"OpendTect",
-	"dGB (Kristofer)",
-	"1.0",
-   	"(c) dGB Beheer BV. Devlopment funded by Tetrale Technologies."));
+	"VoxelConnectivityFilter (Base)", mODPluginODPackage,
+	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
     return &retpi;
 }
 

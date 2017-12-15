@@ -14,6 +14,9 @@ ________________________________________________________________________
 #include "attribprovider.h"
 template <class T> class ValueSeries;
 
+// If you change this def, there is a copy (almost same name) in maddef.h
+#define mMadagascarAttribLinkPackage "Madagascar Link"
+
 /*!\brief uses automatic gain control to scale traces.
 */
 
@@ -43,7 +46,7 @@ protected:
 
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,const BinID&,
-	    				    int,int,int) const;
+					    int,int,int) const;
     const Interval<int>*	desZSampMargin(int,int) const;
     const BinID*                reqStepout(int input,int output) const;
 

@@ -13,12 +13,11 @@ mDefODPluginEarlyLoad(GLCM)
 mDefODPluginInfo(GLCM)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GLCM (Joanneum Research)",
-	"OpendTect",
-	"Christoph Eichkitz",
-	"1.0",
-	"Plugin for the calculation of Grey level co-occurrence"
-	" matrix-based attributes" ) );
+	"GLCM: Gray Level Co-occurrence Matrix (Base)",
+	mODGLCMPluginPackage,
+	"Joanneum Research (Christoph Eichkitz)",
+	"1.0.6",
+	mODPluginSeeMainModDesc ) );
     return &retpi;
 }
 

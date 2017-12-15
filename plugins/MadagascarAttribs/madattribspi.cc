@@ -8,15 +8,14 @@
 #include "madagcattrib.h"
 #include "odplugin.h"
 
+
 mDefODPluginEarlyLoad(MadagascarAttribs)
 mDefODPluginInfo(MadagascarAttribs)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Madagascar Attributes (Base)",
-	"OpendTect",
-	"dGB - Helene Huck",
-	"=od",
-	"Transforming Madagascar routines into OpendTect attributes." ));
+	mMadagascarAttribLinkPackage,
+	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
     return &retpi;
 }
 

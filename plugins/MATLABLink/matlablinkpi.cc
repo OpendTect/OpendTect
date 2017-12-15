@@ -6,20 +6,17 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "odplugin.h"
 #include "matlablinkmod.h"
+#include "odplugin.h"
 #include "matlabstep.h"
 
 mDefODPluginEarlyLoad(MATLABLink)
 mDefODPluginInfo(MATLABLink)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"MATLAB (base)",
-	"MatLab Link",
-	"opendtect.org",
-	"1.0",
-	"MATLAB - base" ) );
-    retpi.useronoffselectable_ = true;
+	"MATLAB Link (Base)",
+	mMATLABLinkPackage,
+	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
     return &retpi;
 }
 

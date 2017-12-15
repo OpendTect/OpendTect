@@ -14,16 +14,13 @@ ________________________________________________________________________
 #include "openclplatform.h"
 
 
-
 mDefODPluginEarlyLoad(OpenCL)
 mDefODPluginInfo(OpenCL)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,
-	( "Experimental Attributes (Base)",
-	"OpendTect",
-	"dGB Earth Sciences (Nanne)",
-	"=od",
-	"" ) );
+	( "OpenCL Attributes (Base)", "OpenCL Processing",
+	mODPluginCreator, mODPluginVersion,
+	"Adds OpenCL-based attributes" ) );
     return &retpi;
 }
 
@@ -31,7 +28,6 @@ mDefODPluginInfo(OpenCL)
 mDefODInitPlugin(OpenCL)
 {
     OpenCL::Platform::initClass();
-
 
     return 0;
 }

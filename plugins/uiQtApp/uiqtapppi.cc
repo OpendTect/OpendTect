@@ -19,10 +19,9 @@ mDefODPluginInfo(uiQtApp)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"QT Application plugin",
-	"OpendTect",
-	"dGB (Bert)",
-	"0.001",
-	"Example of how to call a Qt something from a plugin.") );
+	mODPluginTutorialsPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Example of how to use something from Qt from a plugin.") );
     return &retpi;
 }
 

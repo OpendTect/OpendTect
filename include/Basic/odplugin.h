@@ -42,3 +42,13 @@ extern "C" {
 #define mDefODPluginEarlyLoad(pinm) \
     mExternC(pinm) int Get##pinm##PluginType(); \
     mExternC(pinm) int Get##pinm##PluginType() { return PI_AUTO_INIT_EARLY; }
+
+
+#define mODPluginCreator		"opendtect.org"
+#define mODPluginVersion		"=od"
+#define mODPluginSeeMainModDesc		"See main module's description"
+
+#define mODPluginODPackage		"OpendTect"
+#define mODPluginExtraAttribsPackage	"Additional Attributes"
+#define mODPluginGamesPackage		"Games"
+#define mODPluginTutorialsPackage	"Tutorials"

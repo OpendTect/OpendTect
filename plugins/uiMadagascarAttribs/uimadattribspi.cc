@@ -6,6 +6,7 @@
 
 
 #include "uimadagcattrib.h"
+#include "madagcattrib.h"
 #include "odplugin.h"
 
 
@@ -13,10 +14,9 @@ mDefODPluginInfo(uiMadagascarAttribs)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Madagascar Attributes",
-	"OpendTect",
-	"dGB - Helene Huck",
-	"=od",
-	"Transforming Madagascar routines into OpendTect attributes." ) );
+	mMadagascarAttribLinkPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Allows using Madagascar routines as OpendTect attributes." ) );
     return &retpi;
 }
 

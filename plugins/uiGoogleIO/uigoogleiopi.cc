@@ -44,10 +44,9 @@ mDefODPluginInfo(uiGoogleIO)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Google KML generation",
-	"OpendTect",
-	"dGB",
-	"=od",
-	"Export to Google programs (Maps,Earth)."
+	mODPluginODPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Export to Google services (Maps,Earth)."
 	    "\nThis plugin adds functionality to generate KML files "
 	    "from Opendtect."));
     return &retpi;

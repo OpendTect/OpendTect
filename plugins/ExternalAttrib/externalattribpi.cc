@@ -12,11 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefODPluginInfo(ExternalAttrib)
 {
-    static PluginInfo retpii = {
+    mDefineStaticLocalObject( PluginInfo, retpi,(
 	"External attribute example plugin",
-	"dGB - Kristofer Tingdahl",
-	"=od",
-	"Defining an external plugin with random numbers between 0 and 1." };
+	mODPluginTutorialsPackage,
+	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
     return &retpii;
 }
 
@@ -34,4 +33,3 @@ mDefODInitPlugin(ExternalAttrib)
 
     return 0; // All OK - no error messages
 }
-

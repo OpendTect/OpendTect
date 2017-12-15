@@ -20,12 +20,10 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(ExpAttribs)
 mDefODPluginInfo(ExpAttribs)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,
-	( "Experimental Attributes (Base)",
-	"OpendTect",
-	"dGB Earth Sciences (Nanne)",
-	"=od",
-	"" ) );
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"Experimental Attributes (Base)",
+	mODPluginExtraAttribsPackage,
+	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
     return &retpi;
 }
 

@@ -48,10 +48,9 @@ mDefODPluginInfo(uiSEGY)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"SEG-Y support",
-	"OpendTect",
-	"dGB (Bert)",
-	"1.0",
-	"Supports the SEG-Y format") );
+	mODPluginODPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Adds SEG-Y support to OpendTect") );
     return &retpi;
 }
 

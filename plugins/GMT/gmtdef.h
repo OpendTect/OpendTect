@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "settings.h"
 #include "enums.h"
 
+#define mODGMTPluginPackage "GMT Link"
+
 namespace ODGMT
 {
     enum Shape		{ Star, Circle, Diamond, Square, Triangle, Cross,
@@ -132,6 +134,7 @@ namespace ODGMT
 						{ return "Use Well Symbols"; }
     mGlobal(GMT) inline const char*  sKeyWellSymbolName()
 						{ return "Symbol Name"; }
+
 };
 
 

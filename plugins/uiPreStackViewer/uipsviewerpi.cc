@@ -14,11 +14,10 @@
 mDefODPluginInfo(uiPreStackViewer)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-    "Prestack Viewer",
-    "OpendTect",
-    "dGB - Kristofer/Yuancheng",
-    "1.1.1",
-    "This is the PreStack Viewer in the 3D scene."
+	"Prestack Viewer",
+	mODPluginODPackage,
+	mODPluginCreator, mODPluginVersion,
+	"This is the PreStack Viewer in the 3D scene."
 	"\nIt can be activated by right-clicking on a plane in the scene."));
     return &retpi;
 }

@@ -26,7 +26,7 @@ static PtrMan<BufferString> commenttxt = 0;
 
 mDefODPluginInfo(uiDPSDemo)
 {
-    // Just to show a way to make plugin info text variable
+    // Just to show a way to make the plugin info text on-th-fly
     if ( !commenttxt )
     {
         PtrMan<BufferString> newcomment =
@@ -42,9 +42,8 @@ mDefODPluginInfo(uiDPSDemo)
 
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"DataPointSet demo",
-	"OpendTect",
-	"Bert",
-	"7.8.9",
+	mODPluginTutorialsPackage,
+	mODPluginCreator, mODPluginVersion,
 	commenttxt->buf() ) );
     return &retpi;
 }

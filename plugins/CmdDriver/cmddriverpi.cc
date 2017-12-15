@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uicmddrivermgr.h"
 #include "odplugin.h"
 #include "cmddrivermod.h"
-//#include "coincommands.h"
 
 
 namespace CmdDrive
@@ -23,10 +22,8 @@ namespace CmdDrive
 mDefODPluginInfo(CmdDriver)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Command driver",
-	"OpendTect",
-	"dGB (Bert/Jaap)",
-	"=od",
+	"Command Driver", "Command Driver",
+	mODPluginCreator, mODPluginVersion,
 	"Used for testing and general 'scripting'." ));
     return &retpi;
 }
@@ -34,8 +31,6 @@ mDefODPluginInfo(CmdDriver)
 
 static void initExtraCommands()
 {
- //   WheelCmd::initClass();
-    //GetWheelCmd::initClass();
 }
 
 static void initExtraFunctions()

@@ -38,13 +38,12 @@
 mDefODPluginInfo(uiGMT)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GMT link",
-	"OpendTect",
-	"dGB (Raman)",
-	"3.2",
-	"A link to the GMT mapping tool."
-	    "\nThis is the User interface of the link."
-	    "\nSee http://opendtect.org/links/gmt.html for info on GMT" ));
+	"GMT Access: Generic Mapping Tools",
+	mODGMTPluginPackage,
+	mODPluginCreator, mODPluginVersion,
+	"GMT is a mapping tool originating at soeat.hawaii.edu.\n"
+        "This plugin can use the services of an existing GMT installation." ) );
+    retpi.useronoffselectable_ = true;
     return &retpi;
 }
 

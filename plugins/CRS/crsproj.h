@@ -15,8 +15,10 @@ ________________________________________________________________________
 #include "latlong.h"
 #include "manobjectset.h"
 #include "uistring.h"
-
 class BufferStringSet;
+
+#define mODCRSPluginPackage "CRS support"
+
 
 namespace Coords
 {

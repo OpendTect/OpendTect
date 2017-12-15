@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "matlablinkmod.h"
 #include "volprocchain.h"
 
+#define mMATLABLinkPackage "MatLab Access"
+
+
 namespace VolProc
 {
 

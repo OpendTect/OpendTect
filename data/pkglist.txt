@@ -6,8 +6,10 @@ ethos(TM) Processing System`ethos
 Faults and Fractures`dgbflt
 Fluid Contact Finder`dgbccb
 GeoDataSync Accelerate`arkclsgdsa
+GMT Access`gmt_logo
 HorizonCube`dgbhc
-MATLAB link`matlab
+Madagascar Link`madagascar
+MatLab Access`matlab
 MPSI UltraFast Stochastic Inversion`arkclsmpsi
 MPSI`arkclsmpsi
 Multi-Point Stochastic Inversion`arkclsmpsi

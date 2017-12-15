@@ -33,9 +33,8 @@ mDefODPluginInfo(uiHello)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"uiHello plugin - plan B",
-	"OpendTect",
-	"Bert",
-	"1.1.1",
+	mODPluginTutorialsPackage,
+	mODPluginCreator, mODPluginVersion,
 	"This is the more extensive variant of the uiHello example.\n"
 	"See the plugin manual for details.") );
     return &retpi;

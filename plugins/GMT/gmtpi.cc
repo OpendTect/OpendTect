@@ -5,19 +5,19 @@
 -*/
 
 
+#include "gmtmod.h"
+#include "gmtdef.h"
 #include "initgmtplugin.h"
 #include "odplugin.h"
-#include "gmtmod.h"
+
 
 mDefODPluginEarlyLoad(GMT)
 mDefODPluginInfo(GMT)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GMT (base)",
-	"OpendTect",
-	"dGB (Raman)",
-	"=od",
-    	"GMT mapping tool - base" ));
+	"GMT Access: Generic Mapping Tools (Base)",
+	mODGMTPluginPackage,
+	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
     return &retpi;
 }
 

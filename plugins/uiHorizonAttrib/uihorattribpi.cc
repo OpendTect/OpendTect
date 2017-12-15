@@ -43,13 +43,12 @@ mDefODPluginInfo(uiHorizonAttrib)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Horizon-Attribute",
-	"OpendTect",
-	"dGB - Nanne Hemstra",
-	"=od",
+	mODPluginODPackage,
+	mODPluginCreator, mODPluginVersion,
 	"The 'Horizon' Attribute allows getting values from horizons.\n"
 	"Not to be confused with calculating attributes on horizons.\n"
 	"It can even be useful to apply the 'Horizon' attribute on horizons.\n"
-	"Also, the Stratal Amplitude and Isochron is provided by this plugin,\n"
+	"The plugin also provides Stratal Amplitude and Isochron,\n"
 	"as well as the writing of flattened cubes" ) );
     return &retpi;
 }

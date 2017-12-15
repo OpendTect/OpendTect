@@ -9,6 +9,9 @@
 #include "bufstringset.h"
 #include "uistring.h"
 
+// If you change this def, there is a copy (almost same name) in madagcattrib.h
+#define mMadagascarLinkPackage "Madagascar Link"
+
 class Executor;
 
 namespace ODMad

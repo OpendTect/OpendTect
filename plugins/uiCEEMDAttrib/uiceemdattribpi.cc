@@ -17,12 +17,11 @@ ________________________________________________________________________
 mDefODPluginInfo(uiCEEMDAttrib)
 {
     mDefineStaticLocalObject (PluginInfo, retpi, (
-	"uiCEEMD - Complete Ensemble Empirical Mode Decomposition"
-	" Attribute Plugin",
-	"OpendTect",
-	"Paul de Groot",
-	"=od",
-	"User Interface for CEEMD Plugin" ));
+	"CEEMD: Complete Ensemble Empirical Mode Decomposition",
+	mODPluginExtraAttribsPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Provides the Complete Ensemble Empirical Mode Decomposition "
+		"Attribute" ) );
     return &retpi;
 }
 

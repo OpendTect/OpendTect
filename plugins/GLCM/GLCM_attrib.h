@@ -11,6 +11,8 @@
 #include "arraynd.h"
 #include "glcmmod.h"
 
+#define mODGLCMPluginPackage "GLCM Attributes"
+
 #include <utility>
 
 namespace Attrib

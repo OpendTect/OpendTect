@@ -13,10 +13,10 @@ mDefODPluginInfo(uiVoxelConnectivityFilter)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"VoxelConnectivityFilter",
-	"OpendTect",
-	"Kristofer",
-	"1.0",
-   	"(c) dGB Beheer BV. Development funded by Tetrale Technologies."));
+	mODPluginODPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Development funded by Tetrale Technologies (http://www.tetrale.com)."
+	));
     return &retpi;
 }
 
@@ -24,5 +24,5 @@ mDefODPluginInfo(uiVoxelConnectivityFilter)
 mDefODInitPlugin(uiVoxelConnectivityFilter)
 {
     VolProc::uiVoxelConnectivityFilter::initClass();
-    return 0; // All OK - no error messages
+    return 0;
 }

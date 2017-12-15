@@ -24,9 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginInfo(Annotations)
 {
     mDefineStaticLocalObject( PluginInfo, retpii , (
-	"Annotations",
-	"dGB Earth Sciences (Nanne)",
-	"=od",
+	"Annotations", "Annotations",
+	mODPluginCreator, mODPluginVersion,
 	"Annotation display utilities."
 	    "\nThis delivers the 'Annotations' item in the tree." ) );
     return &retpii;

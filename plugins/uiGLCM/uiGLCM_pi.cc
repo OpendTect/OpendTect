@@ -1,13 +1,19 @@
 
 /*+
  * (C) JOANNEUM RESEARCH; http://www.joanneum.at
- * AUTHOR   : Christoph Eichkitz; http://www.joanneum.at/resources/gph/mitarbeiterinnen/mitarbeiter-detailansicht/person/0/3144/eichkitz.html
+ * AUTHOR   : Christoph Eichkitz;
  * DATE     : November 2013
+ *
+
+ More info on Christoph:
+http://www.joanneum.at/resources/gph/mitarbeiterinnen/mitarbeiter-detailansicht/person/0/3144/eichkitz.html
+
 -*/
 
 
-#include "uiGLCM_attrib.h"
 #include "uiglcmmod.h"
+#include "uiGLCM_attrib.h"
+#include "GLCM_attrib.h"
 
 #include "odplugin.h"
 #include "uiodmain.h"
@@ -18,12 +24,11 @@
 mDefODPluginInfo(uiGLCM)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GLCM (Joanneum Research)",
-	"OpendTect",
-	"Christoph Eichkitz",
+	"GLCM: Gray Level Co-occurrence Matrix",
+	mODGLCMPluginPackage,
+	"Joanneum Research (Christoph Eichkitz)",
 	"1.06",
-	"Plugin for the calculation of Grey level co-occurrence"
-	" matrix-based attributes" ));
+	"Adds GLCM (Gray Level Co-occurrence Matrix) attributes" ) );
     return &retpi;
 }
 

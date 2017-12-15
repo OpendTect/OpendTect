@@ -37,11 +37,11 @@ mDefODPluginInfo(uiTut)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Tutorial plugin",
-	"OpendTect",
-	"dGB (Raman/Bert)",
-	"3.2",
+	mODPluginTutorialsPackage,
+	mODPluginCreator, mODPluginVersion,
 	"Shows some simple plugin development basics."
 	    "\nCan be loaded into od_main only.") );
+    retpi.useronoffselectable_ = true;
     return &retpi;
 }
 

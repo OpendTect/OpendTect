@@ -55,11 +55,9 @@ mDefODPluginEarlyLoad(CRS)
 mDefODPluginInfo(CRS)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Coordinate Reference System (base)",
-	"OpendTect",
-	"dGB (Raman)",
-	"=od",
-	"Coordinate Reference System - base" ));
+	"CRS: Coordinate Reference Systems - powered by PROJ.4 (Base)",
+	mODCRSPluginPackage,
+	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
     return &retpi;
 }
 

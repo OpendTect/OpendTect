@@ -310,13 +310,14 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
     CoordSystem::getSystemNames( onlyorthogonal, projectiononly,
 				    names, coordsystempars_ );
 
-    coordsystemsuis_.setNullAllowed();
-
     for ( int idx=0; idx<coordsystempars_.size(); idx++ )
     {
 	BufferString key;
-	if ( !coordsystempars_[idx]->get( CoordSystem::sKeyFactoryName(),
-					  key ) )
+	uiCoordSystem* systemui = 0;
+	if ( coordsystempars_[idx]->get( CoordSystem::sKeyFactoryName(), key ) )
+	    systemui = uiCoordSystem::factory().create( key, this );
+
+	if ( !systemui )
 	{
 	    coordsystempars_.removeSingle( idx );
 	    names.removeSingle( idx );
@@ -324,23 +325,17 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 	    continue;
 	}
 
-	uiCoordSystem* systemui =
-		uiCoordSystem::factory().create( key, this );
 
 	coordsystemsuis_ += systemui;
-
-	if ( !systemui )
-	    continue;
-
 	systemui->setSurveyInfo( si_ );
-
 	if ( fillfrom && key==systemui->factoryKeyword() )
 	    systemui->initFields( fillfrom );
-
 	systemui->display( false );
     }
 
-    if ( names.size() > 1 )
+    if ( names.isEmpty() )
+	coordsystemsel_ = 0;
+    else
     {
 	coordsystemsel_ = new uiGenInput( this, uiStrings::sCoordSys(),
 				      StringListInpSpec(names) );
@@ -348,23 +343,16 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 	mAttachCB( coordsystemsel_->valuechanged,
 	       uiCoordSystemSelGrp::systemChangedCB);
     }
-    else
-    {
-	coordsystemsel_ = 0;
-    }
 
     if ( coordsystemsel_ )
     {
 	const BufferString selname = fillfrom ? fillfrom->factoryKeyword() : "";
 	for ( int idx=0; idx<coordsystemsuis_.size(); idx++ )
 	{
-	    if ( coordsystemsuis_[idx] )
-		coordsystemsuis_[idx]->attach( alignedBelow, coordsystemsel_ );
-
-	    if ( selname==coordsystemsuis_[idx]->factoryKeyword() )
-	    {
-		coordsystemsel_->setValue(idx);
-	    }
+	    uiCoordSystem& uics  = *coordsystemsuis_[idx];
+	    uics.attach( alignedBelow, coordsystemsel_ );
+	    if ( selname == uics.factoryKeyword() )
+		coordsystemsel_->setValue( idx );
 	}
     }
 
@@ -382,10 +370,7 @@ void uiCoordSystemSelGrp::systemChangedCB(CallBacker *)
     const int selidx = coordsystemsel_ ? coordsystemsel_->getIntValue() : 0;
 
     for ( int idx=0; idx<coordsystemsuis_.size(); idx++ )
-    {
-	if ( coordsystemsuis_[idx] )
-	    coordsystemsuis_[idx]->display(idx==selidx);
-    }
+	coordsystemsuis_[idx]->display( idx==selidx );
 }
 
 
@@ -395,24 +380,10 @@ bool uiCoordSystemSelGrp::acceptOK()
 
     const int selidx = coordsystemsel_ ? coordsystemsel_->getIntValue() : 0;
 
-    if ( coordsystemsuis_[selidx] )
-    {
-	if ( !coordsystemsuis_[selidx]->acceptOK() )
-	    return false;
+    if ( !coordsystemsuis_[selidx]->acceptOK() )
+	return false;
 
-	outputsystem_ = coordsystemsuis_[selidx]->outputSystem();
-    }
-    else
-    {
-	BufferString key;
-	coordsystempars_[selidx]->get( sKey::Name(), key );
-	outputsystem_ = CoordSystem::factory().create( key );
-	if ( !outputsystem_->usePar(*coordsystempars_[selidx]) )
-	{
-	    outputsystem_ = 0;
-	}
-    }
-
+    outputsystem_ = coordsystemsuis_[selidx]->outputSystem();
     return outputsystem_;
 }
 

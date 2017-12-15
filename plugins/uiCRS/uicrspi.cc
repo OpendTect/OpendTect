@@ -13,12 +13,11 @@
 mDefODPluginInfo(uiCRS)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Coordinate Reference System",
-	"CRS support",
-	"opendtect.org",
-	"1.0",
-	"User interface for providing a library of Coordinate Reference Systems"
-	    " that can be set at Survey level" ));
+	"CRS: Coordinate Reference Systems - powered by PROJ.4",
+	mODCRSPluginPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Provides support for Coordinate Reference Systems "
+		    "using the PROJ.4 services" ) );
     retpi.useronoffselectable_ = true;
     return &retpi;
 }

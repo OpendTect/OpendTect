@@ -25,13 +25,11 @@
 mDefODPluginInfo(uiMadagascar)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Madagascar link",
-	"OpendTect",
-	"dGB (Bert, Raman)",
-	"3.2",
-	"A link to the Madagascar system."
-	    "\nSee http://opendtect.org/links/madagascar.html"
-	    " for info on Madagascar."));
+	"Madagascar Link",
+	mMadagascarLinkPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Link to the Madagascar batch-level seismic processing tools." ));
+    retpi.useronoffselectable_ = true;
     return &retpi;
 }
 

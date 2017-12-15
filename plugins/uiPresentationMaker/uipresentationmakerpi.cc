@@ -21,8 +21,7 @@ mDefODPluginInfo(uiPresentationMaker)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Presentation Maker",
 	"Powerpoint Presentation Maker",
-	"opendtect.org",
-	"1.0",
+	mODPluginCreator, mODPluginVersion,
 	"Create Powerpoint presentations from OpendTect") );
     retpi.useronoffselectable_ = true;
     return &retpi;

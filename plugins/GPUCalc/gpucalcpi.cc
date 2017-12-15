@@ -13,9 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginEarlyLoad(GPUCalc)
 mDefODPluginInfo(GPUCalc)
 {
-    static PluginInfo retpii = {
-	"Graphics card based calculations", "dGB (Kristofer Tingdahl)", "=dgb",
-	"" };
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"Graphics card based calculations", mODPluginODPackage,
+	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
     return &retpii;
 }
 

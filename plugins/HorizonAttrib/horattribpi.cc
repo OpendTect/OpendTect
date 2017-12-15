@@ -20,9 +20,7 @@ mDefODPluginInfo(HorizonAttrib)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Horizon-Attribute (Base)",
 	"OpendTect",
-	"dGB (Nanne)",
-	"=od",
-	"The 'Horizon' attribute plugin." ));
+	mODPluginCreator, mODPluginVersion, mODPluginSeeMainModDesc ) );
     return &retpi;
 }
 

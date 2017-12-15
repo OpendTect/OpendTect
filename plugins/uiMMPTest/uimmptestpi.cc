@@ -19,9 +19,8 @@ mDefODPluginInfo(uiMMPTest)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Multi-machine Processing Diagnostics",
-	"OpendTect",
-	"dGB",
-	"1.0",
+	mODPluginODPackage,
+	mODPluginCreator, mODPluginVersion,
 	"Diagnose issues related to Multi-machine Processing") );
     return &retpi;
 }

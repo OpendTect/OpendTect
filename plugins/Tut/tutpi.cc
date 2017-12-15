@@ -16,12 +16,11 @@ mDefODPluginEarlyLoad(Tut)
 mDefODPluginInfo(Tut)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Tutorial plugin Base",
-	"OpendTect",
-	"dGB (Raman/Bert)",
-	"3.2",
-    	"Back-end for the plugin that shows simple plugin development basics."
-    	"\nThis non-UI part can also be loaded into od_process_attrib." ) );
+	"Tutorial plugin (Base)",
+	mODPluginTutorialsPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Back-end for the plugin that shows simple plugin development basics."
+	"\nThis non-UI part can also be loaded into batch programs." ) );
     return &retpi;
 }
 

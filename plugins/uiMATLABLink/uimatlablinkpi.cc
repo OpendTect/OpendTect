@@ -15,12 +15,10 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginInfo(uiMATLABLink)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"MATLAB link",
-	"OpendTect",
-	"dGB Earth Sciences",
-	"=od",
-	"A link to MATLAB."
-	    "\nThis is the User interface of the link." ));
+	"MATLAB Link", mMATLABLinkPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Link to MATLAB services" ));
+    retpi.useronoffselectable_ = true;
     return &retpi;
 }
 
@@ -28,7 +26,5 @@ mDefODPluginInfo(uiMATLABLink)
 mDefODInitPlugin(uiMATLABLink)
 {
     VolProc::uiMatlabStep::initClass();
-
-    // Add custom dir
     return 0;
 }
