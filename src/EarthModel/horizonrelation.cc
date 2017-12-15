@@ -364,4 +364,14 @@ bool RelationTree::sortHorizons( bool is2d, const TypeSet<MultiID>& unsortedids,
     return reltree.getSorted( unsortedids, sortedids );
 }
 
+
+bool RelationTree::update( bool is2d, const TypeSet<MultiID>& ids )
+{
+    RelationTree reltree( is2d );
+    for ( int idx=1; idx<ids.size(); idx++ )
+	reltree.addRelation( ids[idx-1], ids[idx], false );
+
+    return reltree.write();
+}
+
 } // namespace EM

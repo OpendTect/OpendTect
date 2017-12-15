@@ -170,9 +170,5 @@ void uiHorizonSortDlg::updateRelationTree( const TypeSet<MultiID>& ids )
     if ( ids.size() < 2 )
 	return;
 
-    EM::RelationTree reltree( is2d_ );
-    for ( int idx=1; idx<ids.size(); idx++ )
-	reltree.addRelation( ids[idx-1], ids[idx], false );
-
-    reltree.write();
+    EM::RelationTree::update( is2d_, ids );
 }
