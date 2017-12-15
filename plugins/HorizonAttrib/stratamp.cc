@@ -41,6 +41,7 @@ const char* StratAmpCalc::sKeyTopShift()	{ return "Top shift"; }
 const char* StratAmpCalc::sKeyBottomShift()	{ return "Bottom shift"; }
 const char* StratAmpCalc::sKeyAttribName()	{ return "Attribute name"; }
 const char* StratAmpCalc::sKeyIsOverwriteYN()	{ return "Overwrite"; }
+const char* StratAmpCalc::sKeyIsClassification(){ return "Is Classification"; }
 
 StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
@@ -57,6 +58,7 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     , proc_(0)
     , hs_(hs)
     , outfold_(outputfold)
+    , isclassification_(false)
     , tophorshift_(mUdf(float))
     , bothorshift_(mUdf(float))
 {
@@ -86,6 +88,8 @@ int StratAmpCalc::init( const IOPar& pars )
     if ( mIsUdf(tophorshift_) || mIsUdf(bothorshift_) )
 	return -1;
 
+    pars.getYN( sKeyIsClassification(), isclassification_ );
+
     addtotop_ = false;
     pars.getYN( sKeyAddToTopYN(), addtotop_ );
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
@@ -101,6 +105,7 @@ int StratAmpCalc::init( const IOPar& pars )
     PtrMan<IOPar> outputpar = pars.subselect( outpstr );
     if ( !outputpar )
 	return -1;
+
     BufferString attribidstr = IOPar::compKey( sKey::Attributes(), 0 );
     int attribid;
     if ( !outputpar->get(attribidstr,attribid) )
@@ -218,17 +223,22 @@ int StratAmpCalc::nextStep()
     if ( mIsUdf(z1) || mIsUdf(z2) )
 	return MoreToDo();
 
+    const StepInterval<float> zrg = trc->zRange();
     z1 += tophorshift_;
+    const float snappedz1 = isclassification_ ? zrg.snap( z1, 1 ) : z1;
+
     z2 += bothorshift_;
-    StepInterval<float> sampintv( z1, z2, trc->info().sampling_.step );
+    const float snappedz2 = isclassification_ ? zrg.snap( z2, -1 ) : z2;
+    StepInterval<float> sampintv( snappedz1, snappedz2, zrg.step );
     sampintv.sort();
-    sampintv.limitTo( trc->zRange() );
+    sampintv.limitTo( zrg );
 
     Stats::CalcSetup rcsetup;
     rcsetup.require( stattyp_ );
     Stats::RunCalc<float> runcalc( rcsetup );
-    for ( float zval=sampintv.start; zval<=sampintv.stop; zval+=sampintv.step )
+    for ( int idx=0; idx<sampintv.nrSteps()+1; idx++ )
     {
+	const float zval = sampintv.atIndex( idx );
 	const float val = trc->getValue( zval, 0 );
 	if ( !mIsUdf(val) )
 	    runcalc.addValue( val );
@@ -239,15 +249,16 @@ int StratAmpCalc::nextStep()
     {
 	case Stats::Min: outval = runcalc.min();	break;
 	case Stats::Max: outval = runcalc.max();	break;
-	case Stats::Average: outval = (float) runcalc.average(); break;
-	case Stats::RMS: outval = (float) runcalc.rms(); break;
+	case Stats::Average: outval = (float)runcalc.average(); break;
+	case Stats::Median: outval = (float)runcalc.median(); break;
+	case Stats::RMS: outval = (float)runcalc.rms(); break;
 	case Stats::Sum: outval = runcalc.sum();	break;
 	default:					break;
     }
 
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
     posid_.setSubID( subid );
-    addtohor->auxdata.setAuxDataVal( dataidx_, posid_, (float) outval );
+    addtohor->auxdata.setAuxDataVal( dataidx_, posid_, (float)outval );
     if ( outfold_ )
     {
 	posidfold_.setSubID( subid );

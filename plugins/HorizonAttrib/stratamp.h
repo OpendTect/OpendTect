@@ -31,7 +31,7 @@ public:
 				     Stats::Type,const TrcKeySampling&,bool);
 			~StratAmpCalc();
 
-    int                 nextStep();
+    int			nextStep();
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
     uiString		message() const;
@@ -51,6 +51,7 @@ public:
     static const char*	sKeyBottomShift();
     static const char*	sKeyOutputFoldYN();
     static const char*	sKeyAttribName();
+    static const char*	sKeyIsClassification();
     static const char*	sKeyIsOverwriteYN();
 
 protected:
@@ -70,6 +71,7 @@ protected:
     int				dataidxfold_;
     bool			addtotop_;
     bool			outfold_;
+    bool			isclassification_;
     uiString			errmsg_;
     TrcKeySampling		hs_;
     Attrib::DescSet*		descset_;

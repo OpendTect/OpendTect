@@ -24,36 +24,40 @@
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiioobjsel.h"
-#include "uilabel.h"
 #include "uipossubsel.h"
 #include "uistrings.h"
 #include "od_helpids.h"
 
 
-static const char* statstrs[] = { "Min", "Max", "Average", "RMS", "Sum", 0 };
+static const char* statstrs[] =
+	{ "Min", "Max", "Average", "Median", "RMS", "Sum", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     : uiDialog( p, Setup(tr("StratalAmplitude"),mNoDlgTitle,
 			 mODHelpKey(mStratAmpCalcHelpID)))
-    , horctio1_(*mMkCtxtIOObj(EMHorizon3D))
-    , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
     , isoverwrite_(false)
 {
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
     inpfld_ = new uiAttrSel( this, *ads, uiAttrSel::sQuantityToOutput() );
     inpfld_->selectionChanged.notify( mCB(this,uiStratAmpCalc,inpSel) );
 
+    classfld_ = new uiGenInput( this, tr("Values are classifications"),
+				  BoolInpSpec(false) );
+    classfld_->attach( alignedBelow, inpfld_ );
+
     winoption_= new uiGenInput( this, tr("Window Option"),
-	                        BoolInpSpec(true, tr("Single Horizon"),
+				BoolInpSpec(true, tr("Single Horizon"),
 				tr("Double Horizon")) );
     winoption_->valuechanged.notify( mCB(this,uiStratAmpCalc,choiceSel) );
-    winoption_->attach( alignedBelow, inpfld_ );
+    winoption_->attach( alignedBelow, classfld_ );
 
-    horfld1_ = new uiIOObjSel( this, horctio1_, uiStrings::sHorizon() );
+    const IOObjContext ctxt1 = mIOObjContext( EMHorizon3D );
+    horfld1_ = new uiIOObjSel( this, ctxt1, uiStrings::sHorizon() );
     horfld1_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld1_->attach( alignedBelow, winoption_ );
 
-    horfld2_ = new uiIOObjSel( this, horctio2_, uiStrings::sBottomHor() );
+    const IOObjContext ctxt2 = mIOObjContext( EMHorizon3D );
+    horfld2_ = new uiIOObjSel( this, ctxt2, uiStrings::sBottomHor() );
     horfld2_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld2_->attach( alignedBelow, horfld1_ );
 
@@ -63,7 +67,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
     tophorshiftfld_->setElemSzPol( uiObject::Small );
     bothorshiftfld_ = new uiGenInput( this, uiStrings::sBottom(),
-                                      FloatInpSpec(0) );
+				      FloatInpSpec(0) );
     bothorshiftfld_->attach( rightTo, tophorshiftfld_ );
     bothorshiftfld_->setElemSzPol( uiObject::Small );
 
@@ -76,7 +80,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     selfld_= new uiGenInput( this, tr("Add result as an attribute to"),
 			     BoolInpSpec(true,
-                             uiStrings::sTopHor(),uiStrings::sBottomHor()) );
+			     uiStrings::sTopHor(),uiStrings::sBottomHor()) );
     selfld_->valuechanged.notify( mCB(this,uiStratAmpCalc,setParFileNameCB) );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
@@ -102,8 +106,6 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
 uiStratAmpCalc::~uiStratAmpCalc()
 {
-    delete horctio1_.ioobj_; delete &horctio1_;
-    delete horctio2_.ioobj_; delete &horctio2_;
 }
 
 
@@ -151,17 +153,19 @@ void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
     if ( inpfld_->getRanges(cs) )
 	hs.limitTo( cs.hsamp_ );
 
-    if ( horfld1_->commitInput() )
+    const IOObj* hor1ioobj = horfld1_->ioobj( true );
+    if ( hor1ioobj )
     {
-	EM::IOObjInfo eminfo( horctio1_.ioobj_->key() );
+	EM::IOObjInfo eminfo( hor1ioobj->key() );
 	TrcKeySampling emhs;
 	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
 	hs.limitTo( emhs );
     }
 
-    if ( !usesingle_ && horfld2_->commitInput() )
+    const IOObj* hor2ioobj = horfld2_->ioobj( true );
+    if ( !usesingle_ && hor2ioobj )
     {
-	EM::IOObjInfo eminfo( horctio2_.ioobj_->key() );
+	EM::IOObjInfo eminfo( hor2ioobj->key() );
 	TrcKeySampling emhs;
 	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
 	hs.limitTo( emhs );
@@ -176,17 +180,19 @@ bool uiStratAmpCalc::checkInpFlds()
     if ( inpfld_->haveSelection() )
 	mErrRet( tr("Missing Input\nPlease select the input data"));
 
-    if ( usesingle_ && !horfld1_->commitInput() )
-	mErrRet( tr("Missing Input\nPlease select the input Horizon") );
+    if ( usesingle_ && !horfld1_->ioobj() )
+	return false;
 
     if ( !usesingle_ )
     {
-	if ( !horfld1_->commitInput() || !horfld2_->commitInput() )
-	    mErrRet( tr("Missing Input\nPlease Check Top / Bottom Horizon") );
-    }
+	const IOObj* hor1ioobj = horfld1_->ioobj();
+	const IOObj* hor2ioobj = horfld2_->ioobj();
+	if ( !hor1ioobj || !hor2ioobj )
+	    return false;
 
-    if ( !usesingle_ && horctio1_.ioobj_->key() == horctio2_.ioobj_->key() )
-	      mErrRet( tr("Select Two Different Horizons") );
+	if ( hor1ioobj->key() == hor2ioobj->key() )
+	    mErrRet( tr("Select Two Different Horizons") );
+    }
 
     return true;
 }
@@ -197,8 +203,7 @@ bool uiStratAmpCalc::prepareProcessing()
     if ( !checkInpFlds() ) return false;
 
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
-    EM::IOObjInfo eminfo( addtotop ? horctio1_.ioobj_->key()
-				   : horctio2_.ioobj_->key() );
+    const EM::IOObjInfo eminfo( addtotop ? horfld1_->key() : horfld2_->key() );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
     const char* attribnm = attribnamefld_->text();
@@ -221,9 +226,9 @@ bool uiStratAmpCalc::fillPar()
 {
     IOPar& iop = batchfld_->jobSpec().pars_;
     iop.setYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle_ );
-    iop.set( StratAmpCalc::sKeyTopHorizonID() , horctio1_.ioobj_->key() );
+    iop.set( StratAmpCalc::sKeyTopHorizonID(), horfld1_->key() );
     if ( !usesingle_ )
-	iop.set( StratAmpCalc::sKeyBottomHorizonID(), horctio2_.ioobj_->key() );
+	iop.set( StratAmpCalc::sKeyBottomHorizonID(), horfld2_->key() );
 
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
     iop.setYN( StratAmpCalc::sKeyAddToTopYN(), addtotop );
@@ -234,6 +239,7 @@ bool uiStratAmpCalc::fillPar()
     iop.set( StratAmpCalc::sKeyBottomShift(),
 	     bothorshiftfld_->getFValue() / SI().zDomain().userFactor() );
     iop.set( StratAmpCalc::sKeyAttribName(), attribnamefld_->text() );
+    iop.setYN( StratAmpCalc::sKeyIsClassification(), classfld_->getBoolValue());
     iop.setYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite_ );
 
     TrcKeySampling hs;
@@ -276,5 +282,6 @@ bool uiStratAmpCalc::fillPar()
 
 bool uiStratAmpCalc::acceptOK()
 {
-    return prepareProcessing() && fillPar() && batchfld_->start();
+    prepareProcessing() && fillPar() && batchfld_->start();
+    return false;
 }

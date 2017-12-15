@@ -8,7 +8,6 @@
 
 #include "uidialog.h"
 
-class CtxtIOObj;
 class TrcKeySampling;
 class uiAttrSel;
 class uiBatchJobDispatcherSel;
@@ -24,7 +23,7 @@ mClass(uiHorizonAttrib) uiStratAmpCalc : public uiDialog
 public:
 			uiStratAmpCalc(uiParent*);
 			~uiStratAmpCalc();
-		      
+
 protected:
     void		inpSel(CallBacker*);
     void		horSel(CallBacker*);
@@ -37,9 +36,7 @@ protected:
     void		setParFileName();
     bool		acceptOK();
 
-    CtxtIOObj&		horctio1_;
-    CtxtIOObj&		horctio2_;
-
+    uiGenInput*		classfld_;
     uiGenInput*		winoption_;
     uiGenInput*		zoffset_;
     uiGenInput*		tophorshiftfld_;
