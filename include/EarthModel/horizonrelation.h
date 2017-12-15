@@ -74,12 +74,13 @@ public:
 				/*!< Much faster if you only need RelationTree
 				     for sorting and unsortedids is a small
 				     subset of all horizons in the survey. */
+    static bool			update(bool id2d,const DBKeySet& sortedids);
 
     bool			read()			{ return read(true); }
     bool			write() const;
 
 protected:
-	
+
     ObjectSet<RelationTree::Node>	nodes_;
     bool			is2d_;
 

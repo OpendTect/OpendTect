@@ -361,4 +361,13 @@ bool RelationTree::sortHorizons( bool is2d, const DBKeySet& unsortedids,
 }
 
 
+bool RelationTree::update( bool is2d, const DBKeySet& ids )
+{
+    RelationTree reltree( is2d );
+    for ( int idx=1; idx<ids.size(); idx++ )
+	reltree.addRelation( ids[idx-1], ids[idx], false );
+
+    return reltree.write();
+}
+
 } // namespace EM
