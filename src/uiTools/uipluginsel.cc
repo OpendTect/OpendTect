@@ -197,7 +197,7 @@ void uiPluginSel::makePackageList()
     {
 	const PluginManager::Data& data = *pimdata[ipim];
 	const bool havesla = data.sla_ && data.sla_->isOK();
-	const bool issel = data.info_->useronoffselectable_;
+	const bool issel = data.info_ && data.info_->useronoffselectable_;
 	const bool isod = FixedString(data.info_->packagename_) == "OpendTect";
 	if ( havesla && issel && !isod )
 	{
