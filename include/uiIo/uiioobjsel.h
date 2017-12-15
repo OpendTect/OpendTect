@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uiiosel.h"
 #include "helpview.h"
+#include "transl.h"
+#include "uiioobjselwritetransl.h"
 
 class IOObj;
 class CtxtIOObj;
@@ -93,6 +95,8 @@ public:
     static IOObjContext	getWriteIOObjCtxt(IOObjContext);
 
     void		fullUpdate()	{ initRead(); }
+    const Translator*	getTranslator() const
+			{ return wrtrselfld_->selectedTranslator(); }
 
 protected:
 

@@ -441,6 +441,11 @@ bool uiSEGYReadFinisher::doMultiVintage()
 	for ( int nmidx=0; nmidx<size; nmidx++ )
 	{
 	    IOObjContext ctxt = mIOObjContext(SeisTrc);
+	    if ( !outimpfld_->getTranslator() )
+		return false;
+
+	    const Translator* transl = outimpfld_->getTranslator();
+	    ctxt.fixTranslator( transl->userName().buf() );
 	    CtxtIOObj ctio( ctxt );
 	    const BufferString fnm( vntinfos_->get(vidx)->filenms_.get(nmidx) );
 	    File::Path fp( vntinfos_->get(vidx)->fp_.pathOnly(), fnm );
