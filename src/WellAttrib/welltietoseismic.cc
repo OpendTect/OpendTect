@@ -100,9 +100,8 @@ bool DataPlayer::extractSeismics()
 {
     errmsg_.setEmpty();
 
-    const IOObj& ioobj = *IOM().get( seisid_ );
-    IOObj* seisobj = ioobj.clone();
-    SeisIOObjInfo oinf( seisid_ );
+    const PtrMan<IOObj> seisobj = IOM().get( seisid_ );
+    const SeisIOObjInfo oinf( seisid_ );
     if ( !seisobj || !oinf.isOK() )
 	mErrRet( tr( "Cannot read seismic data" ) )
 
