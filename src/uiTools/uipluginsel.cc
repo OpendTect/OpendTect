@@ -31,7 +31,10 @@ ________________________________________________________________________
 #include "od_istream.h"
 
 
-const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
+// This key was deliberately changed from 6.X to 7.X to at least once
+// show the new window to users ...
+static const char* sOldKeyDoAtStartup = "dTect.Select Plugins";
+const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.UI.Select Plugins"; }
 
 struct PluginPackage
 {
@@ -343,6 +346,7 @@ bool uiPluginSel::acceptOK()
 	}
     }
 
+    Settings::common().removeWithKey( sOldKeyDoAtStartup );
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
     Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist.rep() );
     Settings::common().write();
