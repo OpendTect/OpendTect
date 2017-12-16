@@ -36,6 +36,7 @@ const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 struct PluginPackage
 {
     BufferString	name_;
+    BufferStringSet	plugins_;
     BufferString	creator_;
     BufferStringSet	libs_;
     BufferString	pkgkey_;
@@ -108,6 +109,7 @@ uiPackageTreeItem::uiPackageTreeItem( uiTreeViewItem* p,
 {
     setChecked( pkg.isselected_, true );
     mAttachCB( stateChanged, uiPackageTreeItem::checkCB );
+    setToolTip( 0, toUiString(pkg.plugins_.getDispString(8,false)) );
 }
 
 
@@ -171,6 +173,17 @@ int uiPluginSel::getProviderIndex( const char* providernm ) const
 }
 
 
+static BufferString getCleanPluginName( const char* nm )
+{
+    BufferString ret( nm );
+    char* ptr = ret.findLast( '[' );
+    if ( ptr )
+	*ptr = '\0';
+    ret.trimBlanks();
+    return ret;
+}
+
+
 void uiPluginSel::readPackageList()
 {
     const File::Path pkglistfp( mGetSWDirDataDir(), "pkglist.txt" );
@@ -230,6 +243,7 @@ void uiPluginSel::makePackageList()
 
 	    PluginPackage& pkg = *packages_[pkgidx];
 	    pkg.libs_.addIfNew( modulenm );
+	    pkg.plugins_.addIfNew( getCleanPluginName(data.info_->dispname_) );
 	    pkg.creator_ = data.info_->creator_;
 	    pkg.isselected_ = !dontloadlist.isPresent( modulenm );
 	}
@@ -274,7 +288,7 @@ void uiPluginSel::createUI()
     uiTreeView* treefld = new uiTreeView( grp, "Plugin tree" );
     treefld->showHeader( false );
     treefld->attach( ensureBelow, sep );
-    float height = 0.0f;
+    int height = 0;
     for ( int iprov=0; iprov<providers_.size(); iprov++ )
     {
 	if ( providers_[iprov]->nrplugins_ < 1 )
@@ -297,9 +311,13 @@ void uiPluginSel::createUI()
 	}
     }
 
+    int prefheight = height + 3;
+    if ( prefheight > 30 )
+	prefheight = 30;
+
     treefld->expandAll();
     treefld->setPrefWidth( banner->pm_.width() );
-    treefld->setPrefHeightInChar( height+2 );
+    treefld->setPrefHeightInChar( prefheight );
     treefld->setStretch( 0, 2 );
 
     setPrefWidth( banner->pm_.width() );

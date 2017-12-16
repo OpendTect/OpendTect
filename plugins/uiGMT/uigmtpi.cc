@@ -41,7 +41,8 @@ mDefODPluginInfo(uiGMT)
 	"GMT Access: Generic Mapping Tools",
 	mODGMTPluginPackage,
 	mODPluginCreator, mODPluginVersion,
-	"GMT is a mapping tool originating at soeat.hawaii.edu.\n"
+	"GMT is a mapping tool originating at the School of Ocean and Earth "
+	"Science and Technology, University of Hawai‘i at Manoa.\n"
         "This plugin can use the services of an existing GMT installation." ) );
     retpi.useronoffselectable_ = true;
     return &retpi;

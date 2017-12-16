@@ -12,7 +12,9 @@ ________________________________________________________________________
 #include "uipluginsel.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
+#include "uisplitter.h"
 #include "uibutton.h"
+#include "uifileselector.h"
 #include "uifileselector.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -35,12 +37,13 @@ uiPluginMan::uiPluginMan( uiParent* p )
     setCtrlStyle( uiDialog::CloseOnly );
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     listfld = new uiListBox( leftgrp, "Plugin list" );
-    listfld->setPrefWidthInChar( 25 );
+    listfld->setPrefWidthInChar( 40 );
     fillList();
     listfld->selectionChanged.notify( mCB(this,uiPluginMan,selChg) );
 
     uiPushButton* loadbut = new uiPushButton( leftgrp, tr(" Load a plugin "),
 				mCB(this,uiPluginMan,loadPush), false );
+    loadbut->setIcon( "import" );
     loadbut->attach( alignedBelow, listfld );
     selatstartfld = new uiCheckBox( leftgrp,
                                     tr("Select auto-loaded at startup") );
@@ -48,10 +51,14 @@ uiPluginMan::uiPluginMan( uiParent* p )
     selatstartfld->setChecked(
 	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup()) );
 
-    infofld = new uiTextEdit( this, "Info" );
-    infofld->attach( rightOf, leftgrp );
+    uiGroup* rightgrp = new uiGroup( this, "Right group" );
+    infofld = new uiTextEdit( rightgrp, "Info" );
     infofld->setPrefWidthInChar( 70 );
-    infofld->setPrefHeightInChar( 20 );
+    infofld->setPrefHeightInChar( 30 );
+
+    uiSplitter* splitter = new uiSplitter( this );
+    splitter->addGroup( leftgrp );
+    splitter->addGroup( rightgrp );
 
     postFinalise().notify( mCB(this,uiPluginMan,selChg) );
 }
@@ -107,6 +114,17 @@ static bool needDispPkgName( const BufferString& pkgnm, BufferString usrnm )
 }
 
 
+static BufferString getCleanDispName( const char* nm )
+{
+    BufferString ret( nm );
+    char* ptr = ret.findLast( '[' );
+    if ( ptr )
+	*ptr = '\0';
+    ret.trimBlanks();
+    return ret;
+}
+
+
 void uiPluginMan::selChg( CallBacker* )
 {
     const char* nm = listfld->getText();
@@ -116,34 +134,35 @@ void uiPluginMan::selChg( CallBacker* )
     BufferString txt;
     const PluginManager::Data* data = 0;
     if ( *nm != '-' || *(nm+1) != '-' )
-    {
 	data = PIM().findDataWithDispName( nm );
-	if ( !data )
-	    txt = "This plugin was not loaded";
-    }
 
-    if ( data )
+    if ( !data )
+	txt.set( "This plugin was not loaded" );
+    else
     {
 	const PluginInfo& piinf = *data->info_;
-	txt.add( "Created by: " ).add( piinf.creator_ );
+	txt.set( "** " ).add( getCleanDispName(piinf.dispname_) ).add( " **" );
+	txt.add( "\n\nCreated by: " ).add( piinf.creator_ );
 	if ( needDispPkgName(piinf.packagename_,piinf.dispname_) )
 	    txt.add( "\nPackage: " ).add( piinf.packagename_ );
 
 	txt.add( "\n\nFilename: " ).add( PIM().getFileName(*data) );
 	if ( piinf.version_ && *piinf.version_ )
 	{
-	    txt += "\nVersion: ";
+	    txt.add( "\nVersion: " );
 
-	    if ( *piinf.version_ != '=' )
-		txt += piinf.version_;
-	    else
+	    if ( *piinf.version_ && *piinf.version_ != '=' )
+		txt.add( piinf.version_ );
+	    else if ( *piinf.version_ )
 	    {
 		BufferString ver; GetSpecificODVersion( 0, ver );
-		txt += ver;
+		txt.add( ver );
 	    }
+	    else
+		txt.add( "-" );
 	}
-	txt.add( "\n-----------------------------------------\n\n" )
-	    .add( piinf.text_ );
+	txt.add( "\n\n-----------------------------------------\n\n" )
+	   .add( piinf.text_ );
     }
 
     infofld->setText( txt );
