@@ -1,16 +1,27 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	Earth Model
-# 	MNov 1999	Kris Tingdahl
+#	Makefile : 	EMAttrib
+# 	Nov 1999	Kris
 #_______________________________________________________________________________
 
+set(OD_MODULE_DEPS EarthModel AttributeEngine MPEEngine )
 
-set(OD_MODULE_DEPS EarthModel AttributeEngine )
 set(OD_MODULE_SOURCES
-		emhor2dseisiter.cc
-		hor2dfrom3dcreator.cc
-		seis2deventsnapper.cc
-		gridcreator.cc
+	emhor2dseisiter.cc
+	gridcreator.cc
+	hor2dfrom3dcreator.cc
+	horizonattrib.cc
+	initemattrib.cc
+	isopachmaker.cc
+	seis2deventsnapper.cc
+	stratamp.cc
 )
-set( OD_MODULE_BATCHPROGS od_process_2dgrid.cc od_process_attrib_em.cc )
+
+set( OD_MODULE_BATCHPROGS
+	od_isopach.cc
+	od_process_2dgrid.cc
+	od_process_attrib_em.cc
+	od_stratamp.cc
+)
+
 OD_INIT_MODULE()

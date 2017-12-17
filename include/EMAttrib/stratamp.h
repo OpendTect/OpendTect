@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "horizonattribmod.h"
+#include "emattribmod.h"
 #include "executor.h"
 
 #include "emposid.h"
@@ -23,7 +23,7 @@ namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; class Processor; }
 namespace Seis { class Provider; }
 
-mExpClass(HorizonAttrib) StratAmpCalc  : public Executor
+mExpClass(EMAttrib) StratAmpCalc  : public Executor
 {
 public:
 
@@ -76,4 +76,5 @@ protected:
     TrcKeySampling		hs_;
     Attrib::DescSet*		descset_;
     Attrib::Processor*		proc_;
+
 };

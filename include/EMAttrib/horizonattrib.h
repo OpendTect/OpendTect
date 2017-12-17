@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "horizonattribmod.h"
+#include "emattribmod.h"
 #include "attribprovider.h"
 #include "bufstring.h"
 #include "dbkey.h"
@@ -22,7 +22,7 @@ namespace Attrib
 
 class DataHolder;
 
-mClass(HorizonAttrib) Horizon : public Provider
+mExpClass(EMAttrib) Horizon : public Provider
 { mODTextTranslationClass(Horizon);
 public:
     static void		initClass();
@@ -41,12 +41,13 @@ public:
     bool                isOK() const;
 
 protected:
+
     static Provider*	createInstance( Desc& );
     static void         updateDesc( Desc& );
 
     virtual bool	getInputData(const BinID&,int intv);
     virtual bool	computeData(const DataHolder&,const BinID& relpos,
-	    			    int z0,int nrsamples,int threadid) const;
+				    int z0,int nrsamples,int threadid) const;
 
     virtual bool	allowParallelComputation() const { return true; }
 

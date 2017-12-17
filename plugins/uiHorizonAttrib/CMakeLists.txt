@@ -4,7 +4,7 @@
 # 	March 2012	Nageswara
 #_______________________________________________________________________________
 
-set(OD_MODULE_DEPS uiODMain HorizonAttrib)
+set(OD_MODULE_DEPS uiODMain)
 set(OD_IS_PLUGIN yes)
 set(OD_MODULE_SOURCES
 	uicontourtreeitem.cc
