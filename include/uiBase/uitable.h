@@ -25,6 +25,7 @@ class uiGroup;
 class uiLabel;
 class uiTableBody;
 class uiTableCellColSelector;
+mFDQtclass(QLabel)
 
 
 mExpClass(uiBase) uiTable : public uiObject
@@ -363,6 +364,7 @@ protected:
 private:
 
     uiTableBody*	body_;
+    mQtclass(QLabel*)	cornerlabel_;
     uiTableBody&	mkbody(uiParent*,const char*,int,int);
 
     mutable uiSize	lastsz;

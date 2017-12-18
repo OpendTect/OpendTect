@@ -479,6 +479,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     : uiObject(p,nm,mkbody(p,nm,s.size_.row(),s.size_.col()))
     , setup_(s)
     , buttonstate_(OD::NoButton)
+    , cornerlabel_(0)
     , valueChanged(this)
     , rightClicked(this)
     , leftClicked(this)
@@ -1142,9 +1143,14 @@ void uiTable::setRowLabel( int row, const uiString& label )
 
 void uiTable::setTopLeftCornerLabel( const uiString& txt )
 {
-    QLabel* lbl = new QLabel( txt.getQString(), body_ );
-    body_->setCornerWidget( lbl );
-    lbl->show();
+    if ( !cornerlabel_ )
+    {
+	cornerlabel_ = new QLabel( body_ );
+	cornerlabel_->move( 2, 2 );
+    }
+    cornerlabel_->setText( txt.getQString() );
+    cornerlabel_->adjustSize();
+    cornerlabel_->show();
 }
 
 
