@@ -76,7 +76,6 @@ set( OD_PLUGINS
 	GLCM
 	GMT
 	Hello
-	HorizonAttrib
 	Madagascar
 	MadagascarAttribs
 	MATLABLink
