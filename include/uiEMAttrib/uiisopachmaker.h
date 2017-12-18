@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiemattribmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "emposid.h"
@@ -24,7 +25,7 @@ namespace EM { class EMObject; }
 
 /*! \brief Create isochron as attribute of horizon */
 
-mClass(uiHorizonAttrib) uiIsochronMakerGrp : public uiGroup
+mExpClass(uiEMAttrib) uiIsochronMakerGrp : public uiGroup
 { mODTextTranslationClass(uiIsochronMakerGrp);
 public:
 			uiIsochronMakerGrp(uiParent*,EM::ObjectID);
@@ -44,12 +45,12 @@ protected:
     CtxtIOObj&		ctio_;
     EM::ObjectID	horid_;
     EM::EMObject*	baseemobj_;
-    
+
     void		toHorSel(CallBacker*);
 };
 
 
-mClass(uiHorizonAttrib) uiIsochronMakerBatch : public uiDialog
+mExpClass(uiEMAttrib) uiIsochronMakerBatch : public uiDialog
 { mODTextTranslationClass(uiIsochronMakerBatch);
 public:
 
@@ -65,7 +66,7 @@ protected:
 };
 
 
-mClass(uiHorizonAttrib) uiIsochronMakerDlg : public uiDialog
+mExpClass(uiEMAttrib) uiIsochronMakerDlg : public uiDialog
 { mODTextTranslationClass(uiIsochronMakerDlg);
 public:
 			uiIsochronMakerDlg(uiParent*,EM::ObjectID);
@@ -74,7 +75,7 @@ public:
     const char*		attrName() const	{ return grp_->attrName(); }
     const DataPointSet&	getDPS()		{ return *dps_; }
 
-protected:    
+protected:
     bool		acceptOK();
     bool		doWork();
 

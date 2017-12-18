@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uihorizonattribmod.h"
+#include "uiemattribmod.h"
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
@@ -23,7 +23,7 @@ class uiCheckBox;
 
 /*! \brief Horizon attribute description editor */
 
-mClass(uiHorizonAttrib) uiHorizonAttrib : public uiAttrDescEd
+mExpClass(uiEMAttrib) uiHorizonAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiHorizonAttrib);
 public:
 

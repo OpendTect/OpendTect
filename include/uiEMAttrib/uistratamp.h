@@ -6,6 +6,7 @@
  * DATE     : Mar 2008
 -*/
 
+#include "uiemattribmod.h"
 #include "uidialog.h"
 
 class TrcKeySampling;
@@ -18,7 +19,7 @@ class uiPosSubSel;
 class uiLabel;
 
 
-mClass(uiHorizonAttrib) uiStratAmpCalc : public uiDialog
+mExpClass(uiEMAttrib) uiStratAmpCalc : public uiDialog
 { mODTextTranslationClass(uiStratAmpCalc);
 public:
 			uiStratAmpCalc(uiParent*);
