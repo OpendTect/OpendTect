@@ -676,11 +676,14 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
     ti.binid.inl() = entryVal( EntryInline() );
     ti.binid.crl() = entryVal( EntryCrossline() );
     ti.refnr = mCast( float, entryVal( EntrySP() ) );
-    short scalnr = (short)entryVal( EntrySPscale() );
-    if ( scalnr )
+    if ( !isrev0_ )
     {
-	ti.refnr *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
-	ti.nr = mNINT32(ti.refnr);
+	const short scalnr = (short)entryVal( EntrySPscale() );
+	if ( scalnr )
+	{
+	    ti.refnr *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
+	    ti.nr = mNINT32(ti.refnr);
+	}
     }
     mPIEPAdj(Coord,ti.coord,true);
     mPIEPAdj(BinID,ti.binid,true);
