@@ -686,9 +686,12 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti, bool is2d ) const
     }
 
     ti.refnr_ = mCast( float, entryVal( EntrySP() ) );
-    short scalnr = (short)entryVal( EntrySPscale() );
-    if ( scalnr )
-	ti.refnr_ *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
+    if ( !isrev0_ )
+    {
+	const short scalnr = (short)entryVal( EntrySPscale() );
+	if ( scalnr )
+	    ti.refnr_ *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
+    }
 
     mPIEPAdj(Coord,ti.coord_,true);
 }
