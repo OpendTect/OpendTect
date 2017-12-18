@@ -119,15 +119,13 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     uiActionSeparString gridprocstr( "Create Horizon Output" );
-    uiAction* itm = mnumgr.procMnu()->findAction( gridprocstr );
-    if ( !itm || !itm->getMenu() ) return;
+    uiMenu* mnu = mnumgr.createHorOutputMenu();
 
     if ( DBM().isBad() || SI().has3D() )
-	itm->getMenu()->insertAction(
-			new uiAction(m3Dots(tr("Stratal Amplitude")),
+	mnu->insertAction( new uiAction(m3Dots(tr("Stratal Amplitude")),
 			mCB(this,uiHorAttribPIMgr,makeStratAmp)));
 
-    itm->getMenu()->insertAction( new uiAction(m3Dots(tr("Isochron")),
+    mnu->insertAction( new uiAction(m3Dots(tr("Isochron")),
 			mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
 }
 

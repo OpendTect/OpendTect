@@ -160,7 +160,8 @@ uiAttrVolOut::~uiAttrVolOut()
 void uiAttrVolOut::setInput( const Attrib::DescID& descid )
 {
     Attrib::Desc* desc = ads_->getDesc( descid );
-    todofld_->setDesc( desc );
+    if ( todofld_ )
+	todofld_->setDesc( desc );
     attrSel( 0 );
 }
 
@@ -208,6 +209,9 @@ void uiAttrVolOut::psSelCB( CallBacker* cb )
 
 void uiAttrVolOut::attrSel( CallBacker* )
 {
+    if ( !todofld_ )
+	return;
+
     TrcKeyZSampling cs;
     const bool is2d = todofld_->is2D();
     if ( todofld_->getRanges(cs) )
@@ -394,12 +398,14 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     }
 
     Attrib::DescID targetid = nlamodel_id.isValid()
-			    ? nlamodel_id : todofld_->attribID();
+			    ? nlamodel_id
+		: (todofld_ ? todofld_->attribID()
+			    : Attrib::DescID());
 
     Attrib::Desc* seldesc = ads_->getDesc( targetid );
     if ( seldesc )
     {
-	const bool is2d = todofld_->is2D();
+	const bool is2d = todofld_ ? todofld_->is2D() : attrselfld_->is2D();
 	Attrib::DescID multoiid = seldesc->getMultiOutputInputID();
 	if ( multoiid.isValid() )
 	{
@@ -494,7 +500,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     }
 
     iop.set( sKey::Target(), outioobj->name() );
-    if ( is2d )
+    if ( is2d && todofld_ )
     {
 	Attrib::DescSet descset(true);
 	if ( nlamodel_ )
@@ -521,8 +527,9 @@ void uiAttrVolOut::addNLA( Attrib::DescID& id )
     defstr += nlaid_;
 
     uiString errmsg;
-    Attrib::EngineMan::addNLADesc( defstr, id, *ads_, todofld_->outputNr(),
-			   nlamodel_, errmsg );
+    Attrib::EngineMan::addNLADesc( defstr, id, *ads_,
+				   todofld_ ? todofld_->outputNr() : 0,
+				   nlamodel_, errmsg );
 
     if ( !errmsg.isEmpty() )
         uiMSG().error( errmsg );

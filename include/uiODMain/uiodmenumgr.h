@@ -58,6 +58,7 @@ public:
     uiMenu*		installMnu()		{ return installmnu_; }
     uiMenu*		preLoadMenu()		{ return preloadmnu_; }
     uiMenu*		createSeisOutputMenu()	{ return csomnu_; }
+    uiMenu*		createHorOutputMenu()	{ return chomnu_; }
     uiMenu*		impWellTrackMenu()	{ return imptrackmnu_; }
     uiMenu*		impWellLogsMenu()	{ return implogsmnu_; }
     uiMenu*		impWellMarkersMenu()	{ return impmarkersmnu_; }
@@ -127,6 +128,7 @@ protected:
     uiMenu*		toolsmnu_;
     uiMenu*		installmnu_;
     uiMenu*		csomnu_;
+    uiMenu*		chomnu_;
     uiMenu*		imptrackmnu_;
     uiMenu*		implogsmnu_;
     uiMenu*		impmarkersmnu_;
@@ -144,6 +146,8 @@ protected:
 
     uiMenu*	addSubMenu(uiMenu*,const uiString&,const char* icnm);
     void	addAction(uiMenu*,const uiString&,const char* icnm,int);
+    void	addAction(uiMenu*,const uiString&,const char* icnm,
+			  const CallBack&);
     void	addDirectAction(uiMenu*,const uiString&,const char*,int);
     void	add2D3DActions(uiMenu*,const uiString&,const char*,int,int,
 			       bool always3d=false);

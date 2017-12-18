@@ -333,7 +333,7 @@ void uiWellPartServer::manageWells()
 {
     delete manwelldlg_;
     manwelldlg_ = new uiWellMan( parent() );
-    new uiToolButton( manwelldlg_->extraButtonGroup(), "multisimplewell",
+    new uiToolButton( manwelldlg_->extraButtonGroup(), "multiwell",
 		      tr("Create multiple simple wells"),
 		      mCB(this,uiWellPartServer,simpImp) );
     manwelldlg_->go();

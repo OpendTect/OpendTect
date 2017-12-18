@@ -52,7 +52,7 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 	mergebut_ = manipgrp->addButton( "mergeseis", uiStrings::phrMerge(
 					uiStrings::phrData(tr("Stores"))),
 					mCB(this,uiSeisPreStackMan,mergePush) );
-	manipgrp->addButton( "mkmulticubeps",
+	manipgrp->addButton( "multicubeps",
 			     tr("Create/Edit Multi-Cube data store"),
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
 	editbut_ = manipgrp->addButton( "browseseis",

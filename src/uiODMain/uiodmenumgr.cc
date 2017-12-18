@@ -54,7 +54,7 @@ ________________________________________________________________________
 
 
 static const char* sKeyIconSetNm = "Icon set name";
-static const char* sTODOIcon = "icontodo";
+// static const char* sTODOIcon = "icontodo";
 static const char* ascic = "ascii";
 static const char* singic = "single";
 static const char* multic = "multiple";
@@ -243,6 +243,14 @@ void uiODMenuMgr::addAction( uiMenu* mnu, const uiString& nm,
 				const char* icnm, int id )
 {
     addDirectAction( mnu, m3Dots(nm), icnm, id );
+}
+
+
+void uiODMenuMgr::addAction( uiMenu* mnu, const uiString& nm,
+				const char* icnm, const CallBack& cb )
+{
+    uiAction* uiact = new uiAction( m3Dots(nm), cb, icnm );
+    mnu->insertAction( uiact );
 }
 
 
@@ -514,10 +522,11 @@ void uiODMenuMgr::setSurveySubMenus()
 
 void uiODMenuMgr::fillWellImpSubMenu( uiMenu* mnu )
 {
-    imptrackmnu_ = addSubMenu( mnu, tr( "Track/Time-Depth" ), sTODOIcon );
-    implogsmnu_ = addSubMenu( mnu, uiStrings::sLogs(), sTODOIcon );
-    impmarkersmnu_ = addSubMenu( mnu, uiStrings::sMarker(mPlural), sTODOIcon );
-    addAction( mnu, tr("Simple Multi-Well"), sTODOIcon,
+    imptrackmnu_ = addSubMenu( mnu, tr( "Track/Time-Depth" ), "welltrack" );
+    implogsmnu_ = addSubMenu( mnu, uiStrings::sLogs(), "welllog" );
+    impmarkersmnu_ = addSubMenu( mnu, uiStrings::sMarker(mPlural),
+				 "wellmarkers" );
+    addAction( mnu, tr("Simple Multi-Well"), "multiwell",
 		mImpWellSimpleMultiMnuItm );
 
     uiMenu* ascmnu = addSubMenu( imptrackmnu_, uiStrings::sASCII(), ascic );
@@ -615,30 +624,27 @@ void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
 
-    csomnu_ = addSubMenu( procmnu_, tr("Create Seismic Output"), sTODOIcon );
+    csomnu_ = addSubMenu( procmnu_, tr("Create Seismic Output"), "out_seis" );
 
 // Attributes
-    uiMenu* attritm = new uiMenu( uiStrings::sAttribute(mPlural) );
-    csomnu_->addMenu( attritm );
+    uiMenu* attrmnu = addSubMenu( csomnu_, uiStrings::sAttribute(mPlural),
+				  "attributes" );
+    add2D3DActions( attrmnu, tr("Single Attribute"), "single",
+		    mSeisOut2DMnuItm, mSeisOut3DMnuItm);
 
-    add2D3DMenuItem( *attritm, "seisout", tr("Single Attribute"),
-		     mSeisOut2DMnuItm, mSeisOut3DMnuItm );
     mGet2D3D();
-
     if ( have3d )
     {
-	attritm->insertAction(
-	    new uiAction( m3Dots(tr("Multi Attribute")),
-			mCB(&applMgr(),uiODApplMgr,createMultiAttribVol)) );
-	attritm->insertAction(
-	    new uiAction( m3Dots(tr("MultiCube DataStore")),
-			mCB(&applMgr(),uiODApplMgr,createMultiCubeDS)) );
+	addAction( attrmnu, tr("Multi Attribute"), "multiple",
+		    mCB(&applMgr(),uiODApplMgr,createMultiAttribVol) );
+	addAction( attrmnu, tr("MultiCube DataStore"), "multicubeps",
+		    mCB(&applMgr(),uiODApplMgr,createMultiCubeDS) );
     }
 
-    add2D3DMenuItem( *attritm, "alonghor", tr("Along Horizon"),
-		     mCompAlongHor2DMnuItm, mCompAlongHor3DMnuItm );
-    add2D3DMenuItem( *attritm, "betweenhors", tr("Between Horizons"),
-		     mCompBetweenHor2DMnuItm, mCompBetweenHor3DMnuItm );
+    add2D3DActions( attrmnu, tr("Along Horizon"), "alonghor",
+		    mCompAlongHor2DMnuItm, mCompAlongHor3DMnuItm );
+    add2D3DActions( attrmnu, tr("Between Horizons"), "betweenhors",
+		    mCompBetweenHor2DMnuItm, mCompBetweenHor3DMnuItm );
 
 
 // 2D <-> 3D
@@ -699,18 +705,18 @@ void uiODMenuMgr::fillProcMenu()
     add2D3DMenuItem( *csomnu_, "empty", tr("Volume Builder"),
 		     mVolProc2DMnuItm, mVolProc3DMnuItm );
 
-    uiMenu* grditm = new uiMenu( &appl_, tr("Create Horizon Output") );
-    add2D3DMenuItem( *grditm, "", uiStrings::sAttribute(mPlural),
-		     mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
-    procmnu_->addMenu( grditm );
+    chomnu_ = addSubMenu( procmnu_, tr("Create Horizon Output"),
+				"out_hor" );
+    add2D3DActions( chomnu_, uiStrings::sAttribute(mPlural), "attributes",
+		    mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
 
     procwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
     procwellmnu_->insertAction( new uiAction(m3Dots(uiStrings::sRockPhy()),
 		mCB(&applMgr(),uiODApplMgr,launchRockPhysics),"rockphys") );
     procmnu_->addMenu( procwellmnu_ );
 
-    mInsertItem( procmnu_, m3Dots(tr("(Re-)Start Batch Job")),
-		 mStartBatchJobMnuItm );
+    mInsertPixmapItem( procmnu_, m3Dots(tr("(Re-)Start Batch Job")),
+		 mStartBatchJobMnuItm, "work" );
 }
 
 
