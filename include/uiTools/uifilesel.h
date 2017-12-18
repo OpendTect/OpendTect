@@ -79,6 +79,7 @@ public:
     Notifier<uiFileSel>	checked;
 
     void		selectFile( CallBacker* cb )	{ doSelCB(cb); }
+    uiButton*		selectButton()			{ return selbut_; }
 
 protected:
 

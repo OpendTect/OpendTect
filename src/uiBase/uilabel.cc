@@ -117,7 +117,9 @@ void uiLabel::updateWidth()
     if ( isrequired_ )
 	lblwidth++;
 
-    if ( !body_ || !body_->itemInited() )
+    if ( body_ && body_->itemInited() )
+	body_->adjustSize();
+    else
     {
 	const int prefwidth = prefHNrPics();
 	setPrefWidth( mMAX(lblwidth,prefwidth) );

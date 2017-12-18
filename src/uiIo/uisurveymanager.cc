@@ -472,13 +472,14 @@ void uiSurveyManager::compressButPushed( CallBacker* )
     fssu.setForWrite().setFormat( File::Format::zipFiles() );
     uiFileSel* fnmfld = new uiFileSel( &dlg,
 			uiStrings::phrOutput(tr("Destination")), fssu );
-    uiLabel* sharfld = new uiLabel( &dlg,
-			  tr("You can share surveys to Open Seismic Repository."
-			   "To know more ") );
-    sharfld->attach( leftAlignedBelow,  fnmfld );
+
     uiPushButton* osrbutton =
-	new uiPushButton( &dlg, tr("Click here"), mSCB(osrbuttonCB), false );
-    osrbutton->attach( rightOf, sharfld );
+	new uiPushButton( fnmfld, tr("Click here"), mSCB(osrbuttonCB), false );
+    osrbutton->setIcon( "click" );
+    osrbutton->attach( alignedBelow, fnmfld->selectButton() );
+    new uiLabel( fnmfld,
+	         tr("You can share surveys to the "
+		    "Open Seismic Repository. Interested?"), osrbutton );
     if ( !dlg.go() )
 	return;
 
