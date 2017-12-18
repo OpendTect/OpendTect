@@ -928,8 +928,8 @@ private:
 		    StepInterval<float> zrg( tkzsout_.zsamp_ );
 		    zrg.limitTo( tkzsin_.zsamp_ );
 		    const int nrztocopy = zrg.nrSteps() + 1;
-		    const int z0in = tkzsin_.zsamp_.getIndex( zrg.start );
-		    const int z0out = tkzsout_.zsamp_.getIndex( zrg.start );
+		    const int z0in = tkzsin_.zsamp_.nearestIndex( zrg.start );
+		    const int z0out = tkzsout_.zsamp_.nearestIndex( zrg.start );
 		    const od_int64 nrbytes =
 				   mCast(od_int64,nrztocopy) * sizeof(T);
 		    const T* inptr = in_.getData();
