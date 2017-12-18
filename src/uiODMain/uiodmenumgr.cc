@@ -875,7 +875,7 @@ void uiODMenuMgr::fillViewMenu()
     mInsertStereoItem( stereooffitm_, tr("Off"), true, mStereoOffMnuItm)
     mInsertStereoItem( stereoredcyanitm_, tr("Red/Cyan"), false,
 			mStereoRCMnuItm )
-    mInsertStereoItem( stereoquadbufitm_, tr("Quad Buffer"), false,
+    mInsertStereoItem( stereoquadbufitm_, tr("Quad Buffered"), false,
 			mStereoQuadMnuItm )
 
     stereooffsetitm_ = new uiAction( m3Dots(tr("Stereo Offset")),
@@ -1535,9 +1535,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	dlg.go();
     } break;
 
-    case mSettShortcutsMnuItm:	applMgr().manageShortcuts(); break;
+    case mSettShortcutsMnuItm:
+	applMgr().manageShortcuts();
+    break;
 
-    case mStereoOffsetMnuItm:	applMgr().setStereoOffset(); break;
+    case mStereoOffsetMnuItm:
+	applMgr().setStereoOffset();
+    break;
     case mStereoOffMnuItm:
     case mStereoRCMnuItm :
     case mStereoQuadMnuItm :

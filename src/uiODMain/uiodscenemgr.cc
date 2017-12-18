@@ -85,7 +85,7 @@ ________________________________________________________________________
 
 static const int cWSWidth = 600;
 static const int cWSHeight = 500;
-static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
+static const char* sKeyWarnQuadStereo = "Warning.Quad Stereo Viewing";
 
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)
 #define mDoAllScenes(memb,fn,arg) \
@@ -569,25 +569,25 @@ void uiODSceneMgr::setStereoType( int type )
 {
     if ( viewers_.isEmpty() ) return;
 
-    if ( type )
+    if ( type == 2 )
     {
-	if ( !Settings::common().isFalse(sKeyWarnStereo) )
+	bool dontwarn = Settings::common().isFalse( sKeyWarnQuadStereo );
+	if ( !dontwarn )
 	{
-	    bool dontaskagain = false;
-	    if ( !uiMSG().askGoOn(
-		tr("Stereo viewing is not officially supported."
-		" and it may not work well for your particular graphics setup."
-		"\nDo you wish to continue?"),
-		true, &dontaskagain ) )
+	    const bool wantgoon = uiMSG().askGoOn(
+		tr("Please note that Quad buffered stereo viewing requires "
+		    "suitable, well set up hardware."
+		    "\nWe do not have such hardware, so we can only hope the "
+		    "OpenSceneGraph people got it right. If so ... please "
+		    "share your experiences ..."
+		    "\n\nDo you wish to continue?"), true, &dontwarn );
+	    if ( dontwarn )
 	    {
-		return;
-	    }
-
-	    if ( !dontaskagain )
-	    {
-		Settings::common().setYN( sKeyWarnStereo, false );
+		Settings::common().setYN( sKeyWarnQuadStereo, false );
 		Settings::common().write();
 	    }
+	    if ( !wantgoon )
+		return;
 	}
     }
 
