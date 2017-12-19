@@ -1037,8 +1037,16 @@ bool Seis::SequentialReader::init()
 
     samedatachar_ = seissummary_->hasSameFormatAs( dp_->getDataDesc() );
     dpzsamp_ = dp_->sampling().zsamp_;
-    dpzsamp_.limitTo( seissummary_->zRange() );
     needresampling_ = !dpzsamp_.isCompatible( seissummary_->zRange() );
+    if ( needresampling_ )
+    {
+	dpzsamp_.start = dpzsamp_.snap( seissummary_->zRange().start, 1 );
+	dpzsamp_.stop = dpzsamp_.snap( seissummary_->zRange().stop, -1 );
+    }
+    else
+    {
+	dpzsamp_.limitTo( seissummary_->zRange() );
+    }
 
     initialized_ = true;
     msg_ = uiStrings::phrReading( tr("%1 \'%2\'")

@@ -14,6 +14,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "simpnumer.h" // for getCommonStepInterval
 #include "threadwork.h"
 
+#include "hiddenparam.h"
+
+
+HiddenParam<VolProc::ChainExecutor,StepInterval<float>* >
+						volprocchainexeczsampmgr_( 0 );
+
 uiString VolProc::ChainExecutor::sGetStepErrMsg()
 {
     return uiStrings::phrCannotFind( tr("output step with id: %1") );
@@ -30,6 +36,7 @@ VolProc::ChainExecutor::ChainExecutor( Chain& vr )
     , curepoch_( 0 )
     , jobcomm_( 0 )
 {
+    volprocchainexeczsampmgr_.setParam( this, new StepInterval<float> );
     setName( vr.name().getFullString() );
     web_ = chain_.getWeb();
     //TODO Optimize connections, check for indentical steps using same inputs
@@ -38,6 +45,9 @@ VolProc::ChainExecutor::ChainExecutor( Chain& vr )
 
 VolProc::ChainExecutor::~ChainExecutor()
 {
+    delete volprocchainexeczsampmgr_.getParam( this );
+    volprocchainexeczsampmgr_.removeParam( this );
+
     deepErase( epochs_ );
     if ( curepoch_ )
 	delete curepoch_;
@@ -288,6 +298,19 @@ bool VolProc::ChainExecutor::setCalculationScope( const TrcKeySampling& hrg,
 }
 
 
+void VolProc::ChainExecutor::setOutputZSampling( const StepInterval<float>& zrg)
+{
+    *volprocchainexeczsampmgr_.getParam( this ) = zrg;
+}
+
+
+float VolProc::ChainExecutor::getSampleShift( float zstart ) const
+{
+    return volprocchainexeczsampmgr_.getParam( this )->start -
+	    mNINT32( zstart / chain_.getZStep() );
+}
+
+
 bool VolProc::ChainExecutor::areSamplesIndependent() const
 {
     for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
@@ -418,6 +441,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	csamp.zsamp_.start = stepoutputzrg.start * fullzrg.step; //index -> real
 	csamp.zsamp_.stop = stepoutputzrg.stop * fullzrg.step; //index -> real
 	csamp.zsamp_.step = stepoutputzrg.step * fullzrg.step; //index -> real
+	csamp.zsamp_.shift( chainexec_.getSampleShift( csamp.zsamp_.start ) );
 
 	const RegularSeisDataPack* outfrominp =
 			currentstep->canInputAndOutputBeSame() &&

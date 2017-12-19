@@ -284,8 +284,9 @@ int VolProc::ChainOutput::setupChunking()
 	return ErrorOccurred();
 
     const float zstep = chain_->getZStep();
-    outputzrg_ = StepInterval<int>( mNINT32(cs_.zsamp_.start/zstep),
-				 mNINT32(Math::Ceil(cs_.zsamp_.stop/zstep)),
+    const StepInterval<float> zsamp( cs_.zsamp_.start, cs_.zsamp_.stop, zstep );
+    outputzrg_ = StepInterval<int>( zsamp.nearestIndex( zsamp.start ),
+				    zsamp.nearestIndex( zsamp.stop ),
 			   mMAX(mNINT32(Math::Ceil(cs_.zsamp_.step/zstep)),1) );
 			   //real -> index, outputzrg_ is the index of z-samples
 
@@ -349,6 +350,8 @@ int VolProc::ChainOutput::setNextChunk()
 	return retError( tr("Could not set calculation scope."
 		    "\nProbably there is not enough memory available.") );
     }
+
+    chainexec_->setOutputZSampling( cs_.zsamp_ );
 
     if ( nrexecs_ < 2 )
 	return MoreToDo();

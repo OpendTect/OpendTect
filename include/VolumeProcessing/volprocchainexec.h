@@ -38,6 +38,7 @@ public:
 
     bool			setCalculationScope(const TrcKeySampling&,
 						    const StepInterval<int>&);
+    void			setOutputZSampling(const StepInterval<float>&);
 
     const RegularSeisDataPack*	getOutput() const;
     virtual int			nextStep();
@@ -85,6 +86,7 @@ private:
     void			computeComputationScope(Step::ID stepid,
 				    TrcKeySampling& stepoutputhrg,
 				    StepInterval<int>& stepoutputzrg ) const;
+    float			getSampleShift(float zstart) const;
 
     Epoch*			curepoch_;
     bool			isok_;
