@@ -297,7 +297,7 @@ protected:
 					   : mUdf(T);
 			}
 
-    virtual void        setvalue_( T t, int idx)
+    virtual void	setvalue_( T t, int idx)
 			{
 			    if ( le(idx) )
 				le(idx)->setText( Conv::to<const char*>(t));
@@ -316,7 +316,7 @@ protected:
 			    return idx ? &stop : &start;
 			}
 
-    virtual bool        update_( const DataInpSpec& nw );
+    virtual bool	update_( const DataInpSpec& nw );
 };
 
 template<class T>
@@ -324,8 +324,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 				       const char* nm )
     : uiGenInputInputFld( p, dis )
     , intvalGrp( *new uiGroup(p,nm) )
-    , start( *new uiLineEdit(&intvalGrp,mName(dis,0,nm)) )
-    , stop( *new uiLineEdit(&intvalGrp,mName(dis,1,nm)) )
+    , start( *new uiLineEdit(&intvalGrp,dis,mName(dis,0,nm)) )
+    , stop( *new uiLineEdit(&intvalGrp,dis,mName(dis,1,nm)) )
     , step( 0 )
 {
     mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&dis)
@@ -372,7 +372,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
     if ( step )
     {
 	lbl->attach( rightTo, &stop );
-        step->attach( rightTo, lbl );
+	step->attach( rightTo, lbl );
     }
 
     init();
