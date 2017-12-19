@@ -737,10 +737,13 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     }
     mGetFloatVal(pick,0.001f);
     mPIEPAdj(Z,ti.pick,true);
-    float nrfac = 1;
-    short scalnr = (short)entryVal( EntrySPscale() );
-    if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
-	nrfac = 1.f / ((float)(-scalnr));
+    float nrfac = 1.f;
+    if ( !isrev0_ )
+    {
+	short scalnr = (short)entryVal( EntrySPscale() );
+	if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
+	    nrfac = 1.f / ((float)(-scalnr));
+    }
     mGetFloatVal(refnr,nrfac);
 
     ti.coord.x = ti.coord.y = 0;
