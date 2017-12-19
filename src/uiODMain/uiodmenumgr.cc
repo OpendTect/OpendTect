@@ -58,7 +58,6 @@ static const char* sKeyIconSetNm = "Icon set name";
 static const char* ascic = "ascii";
 static const char* singic = "single";
 static const char* multic = "multiple";
-static const uiString sAsciiDots = m3Dots( uiStrings::sASCII() );
 static const uiString singstr = uiStrings::sSingle();
 static const uiString multstr = uiStrings::sMultiple();
 #define mGet2D3D() \
@@ -268,7 +267,7 @@ uiMenu* uiODMenuMgr::addAsciiActionSubMenu( uiMenu* mnu, const uiString& nm,
 				    const uiString* altascnm )
 {
     uiMenu* ascmnu = addSubMenu( mnu, nm, icnm );
-    addAction( ascmnu, altascnm ? *altascnm : sAsciiDots, ascic, id );
+    addAction( ascmnu, altascnm ? *altascnm : uiStrings::sASCII(), ascic, id );
     return ascmnu;
 }
 

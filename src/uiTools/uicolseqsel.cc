@@ -52,8 +52,8 @@ void uiColSeqSelTool::initialise( OD::Orientation orient )
 
 void uiColSeqSelTool::setToolTip()
 {
-    disp_->setToolTip( tr("'%1' - Click to change, Right-click for Menu")
-			.arg( seqName() ) );
+    disp_->setToolTip( tr("Click to change, Right-click for Menu."
+			"\nAfter selection you can use up and down keys.") );
 }
 
 
