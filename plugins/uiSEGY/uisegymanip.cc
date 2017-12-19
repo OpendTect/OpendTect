@@ -79,6 +79,7 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     }
     tbl_->setColumnResizeMode( uiTable::Interactive );
     tbl_->resizeColumnToContents( 2 );
+    tbl_->setStretch( 2, 2 );
 
 #define mSetUsedRow(nm) \
     tbl_->setLabelBGColor( SEGY::BinHeader::Entry##nm(), Color::Peach(), true )
@@ -299,7 +300,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 	thtbl_->setValue( RowCol(irow,0), he.bytepos_ + 1 );
     }
     thtbl_->attach( ensureRightOf, edbut_ );
-    thtbl_->setStretch( 0, 1 );
+    thtbl_->setStretch( 1, 1 );
     thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,rowClck) );
 
     plotbut_ = new uiToolButton( rightgrp, "distmap",
