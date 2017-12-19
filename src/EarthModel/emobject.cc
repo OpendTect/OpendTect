@@ -30,19 +30,20 @@ int EMObject::sTerminationNode()	{ return PosAttrib::TerminationNode; }
 int EMObject::sSeedNode()		{ return PosAttrib::SeedNode; }
 int EMObject::sIntersectionNode()	{ return PosAttrib::IntersectionNode; }
 
-const char* EMObject::posattrprefixstr()    { return "Pos Attrib "; }
-const char* EMObject::posattrsectionstr()   { return " Section"; }
-const char* EMObject::posattrposidstr()	    { return " SubID"; }
-const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
+const char* EMObject::posattrprefixstr()	{ return "Pos Attrib "; }
+const char* EMObject::posattrsectionstr()	{ return " Section"; }
+const char* EMObject::posattrposidstr()		{ return " SubID"; }
+const char* EMObject::nrposattrstr()		{ return "Nr Pos Attribs"; }
 
-Color EMObject::sDefaultSelectionColor() { return Color::Orange(); }
+Color EMObject::sDefaultSelectionColor()	{ return Color::Orange(); }
+Color EMObject::sDefaultLockColor()		{ return Color::Blue(); }
 
 
 EMObject::EMObject( EMManager& emm )
     : manager_( emm )
     , change( this )
     , id_( -1 )
-    , preferredcolor_( *new Color(Color::Green()) )
+    , preferredcolor_(Color::Green())
     , changed_( false )
     , fullyloaded_( false )
     , locked_( false )
@@ -51,7 +52,8 @@ EMObject::EMObject( EMManager& emm )
     , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
     , preferredmarkerstyle_(
 	*new OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,2,Color::White()))
-    , selectioncolor_( sDefaultSelectionColor() )
+    , selectioncolor_(sDefaultSelectionColor())
+    , lockcolor_(sDefaultLockColor())
     , haslockednodes_( false )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
@@ -66,7 +68,6 @@ EMObject::EMObject( EMManager& emm )
 EMObject::~EMObject()
 {
     deepErase( posattribs_ );
-    delete &preferredcolor_;
     delete &preferredlinestyle_;
     delete &preferredmarkerstyle_;
 
@@ -85,9 +86,20 @@ void EMObject::setSelectionColor(const Color& col)
 
 
 const Color& EMObject::getSelectionColor() const
+{ return selectioncolor_; }
+
+
+void EMObject::setLockColor( const Color& col )
 {
-    return selectioncolor_;
+    lockcolor_ = col;
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::LockColorChange;
+    change.trigger( cbdata );
 }
+
+
+const Color EMObject::getLockColor() const
+{ return lockcolor_; }
 
 
 void EMObject::prepareForDelete()

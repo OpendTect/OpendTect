@@ -146,6 +146,8 @@ public:
     virtual bool		removeSection(SectionID,bool hist )
 							{ return false; }
 
+    void			setSelectionColor(const Color&);
+    const Color&		getSelectionColor() const;
     void			removeSelected(const TypeSet<EM::SubID>&);
 
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
@@ -198,8 +200,8 @@ public:
     virtual void		unlockAll(){}
     virtual const Array2D<char>*
 				getLockedNodes() const { return 0; }
-    virtual void		setLockColor(const Color&) {}
-    virtual const Color		getLockColor() const { return Color::Blue(); }
+    virtual void		setLockColor(const Color&);
+    virtual const Color		getLockColor() const;
     virtual bool		hasLockedNodes() const {return haslockednodes_;}
 
 
@@ -276,9 +278,6 @@ public:
     uiString			errMsg() const;
     void			setErrMsg(const uiString& m) { errmsg_ = m; }
 
-    void			setSelectionColor(const Color&);
-    const Color&		getSelectionColor() const;
-
     virtual bool		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
     void			saveDisplayPars() const;
@@ -307,12 +306,13 @@ protected:
     class EMManager&		manager_;
     uiString			errmsg_;
 
-    Color&			preferredcolor_;
+    Color			preferredcolor_;
     OD::LineStyle&		preferredlinestyle_;
     OD::MarkerStyle3D&		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
     Color			selectioncolor_;
+    Color			lockcolor_;
 
     TrcKeyZSampling		removebypolyposbox_;
 
@@ -336,6 +336,7 @@ public:
     mDeprecated const DBKey&	multiID() const		{ return storageid_; }
     mDeprecated void		setMultiID( const DBKey& k ) { setDBKey(k); }
     static Color		sDefaultSelectionColor();
+    static Color		sDefaultLockColor();
 
 };
 

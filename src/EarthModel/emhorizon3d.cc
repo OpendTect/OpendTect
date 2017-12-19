@@ -45,7 +45,6 @@ ________________________________________________________________________
 
 namespace EM {
 
-    Color Horizon3D::sDefaultLockColor() { return Color::Blue(); }
 
 class AuxDataImporter : public Executor
 { mODTextTranslationClass(AuxDataImporter)
@@ -298,7 +297,6 @@ Horizon3D::Horizon3D( EMManager& man )
     , parents_(0)
     , children_(0)
     , parentcolor_(Color::Yellow())
-    , lockcolor_(Color::Blue())
     , survgeomid_( Survey::GM().default3DSurvID() )
     , nodesource_( 0 )
     , arrayinited_( false )
@@ -1237,18 +1235,6 @@ void Horizon3D::setParentColor( const Color& col )
 
 const Color& Horizon3D::getParentColor() const
 { return parentcolor_; }
-
-
-void Horizon3D::setLockColor( const Color& col )
-{
-    lockcolor_ = col;
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::LockColorChange;
-    change.trigger( cbdata );
-}
-
-const Color Horizon3D::getLockColor() const
-{ return lockcolor_; }
 
 
 bool Horizon3D::setPosition( const SectionID& sid, const SubID& subid,

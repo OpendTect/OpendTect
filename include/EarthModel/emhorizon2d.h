@@ -167,8 +167,6 @@ public:
     TrcKey::SurvID		getSurveyID() const;
     uiString			getUserTypeStr() const { return userTypeStr(); }
     static uiString		userTypeStr() { return tr("2D Horizon"); }
-    void			setSelectionColor(const Color&);
-    const Color&		getSelectionColor() const;
 
 protected:
 
@@ -176,13 +174,11 @@ protected:
     void			initNodeSourceArray(const TrcKey&);
 
     Horizon2DGeometry		geometry_;
-    Color			selectioncolor_;
     Array1D<char>*		nodesource_;
 				/*!< '0'- non interpreted,
 				'1'- manual interpreted,
 				'2' - auto interpreted. see
 				 enum NodeSourceType*/
 };
-
 
 } // namespace EM

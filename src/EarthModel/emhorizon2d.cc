@@ -391,7 +391,6 @@ mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::sGroupName() )
 Horizon2D::Horizon2D( EMManager& emm )
     : Horizon(emm)
     , geometry_(*this)
-    , selectioncolor_( Color::Pink() )
     , nodesource_( 0 )
 {
     geometry_.addSection( "", false );
@@ -749,18 +748,6 @@ Table::FormatDesc* Horizon2DAscIO::getDesc()
     BufferStringSet hornms;
     createDescBody( fd, hornms );
     return fd;
-}
-
-
-void  Horizon2D::setSelectionColor(const Color& clr)
-{
-    selectioncolor_ = clr;
-}
-
-
-const Color& Horizon2D::getSelectionColor() const
-{
-    return selectioncolor_;
 }
 
 

@@ -119,8 +119,6 @@ public:
     virtual void		lockAll();
     virtual void		unlockAll();
     virtual const Array2D<char>*    getLockedNodes() const;
-    virtual void		setLockColor(const Color&);
-    virtual const Color		getLockColor() const;
     virtual bool		hasLockedNodes() const
 				{ return haslockednodes_; }
 
@@ -189,7 +187,6 @@ public:
     void			updateTrackingSampling();
     bool			saveParentArray();
     bool			readParentArray();
-
     bool			saveNodeArrays();
     bool			readNodeArrays();
 
@@ -211,7 +208,10 @@ protected:
     enum			ArrayType{Parents,Children,LockNode,NodeSource};
 
     void			fillPar(IOPar&) const;
-    bool			usePar( const IOPar& );
+    bool			usePar(const IOPar&);
+    void			fillDisplayPar(IOPar&) const;
+    bool			useDisplayPar(const IOPar&);
+
     const IOObjContext&		getIOObjContext() const;
 
     void			initNodeArraysSize(const StepInterval<int>&,
@@ -241,7 +241,6 @@ protected:
     Array2D<od_int64>*		parents_;
 
     Color			parentcolor_;
-    Color			lockcolor_;
 
     Pos::GeomID			survgeomid_;
     Array2D<char>*		nodesource_;
@@ -256,7 +255,6 @@ public:
     /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
     TrcKey::SurvID		getSurveyID() const {return getSurveyGeomID();}
-    static Color		sDefaultLockColor();
 };
 
 
