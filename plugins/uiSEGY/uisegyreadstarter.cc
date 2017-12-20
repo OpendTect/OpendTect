@@ -207,11 +207,11 @@ void uiSEGYReadStarter::createTools()
     uiGroup* toolgrp = new uiGroup( midgrp_, "Tool group" );
     toolgrp->attach( rightOf, infofld_ );
     uiToolButton* openbut = new uiToolButton( toolgrp, "open",
-			setup_.vintagecheckmode_ ? tr("Use another vintage")
+			setup_.vintagecheckmode_ ? tr("Select another vintage")
 						 : tr("Use Saved SEG-Y setup"),
 				mCB(this,uiSEGYReadStarter,readParsCB) );
     uiToolButton* savebut = new uiToolButton( toolgrp, "save",
-			setup_.vintagecheckmode_ ? tr("Seve this vintage")
+			setup_.vintagecheckmode_ ? tr("Save this vintage")
 					  : tr("Store this setup"),
 				mCB(this,uiSEGYReadStarter,writeParsCB) );
     savebut->attach( rightOf, openbut );

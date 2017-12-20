@@ -74,6 +74,10 @@ public:
 
     FullSpec		fullSpec() const;
     const char*		userFileName() const	{ return userfilename_; }
+    void		getDefaultPar( IOPar& par ) const
+			{ par = defaultpar_; }
+    const char*		getCurrentParName() const
+			{ return lastparname_; }
 
     const SurveyInfo*	survInfo() const
 			{ return survinfook_ ? survinfo_ : 0; }

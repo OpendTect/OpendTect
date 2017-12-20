@@ -45,6 +45,7 @@ protected:
     void		editVntCB(CallBacker*);
     void		fillRow( int rowid);
     bool		acceptOK();
+    void		saveIfNewVintage(const BufferString&);
 
     BufferStringSet	selfilenms_;
     uiTable*		table_;

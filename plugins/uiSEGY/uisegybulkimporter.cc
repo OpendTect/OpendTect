@@ -90,11 +90,14 @@ bool uiSEGYMultiVintageImporter::selectVintage()
 	    return false;
 	}
 
+	fsdlg_->setVintagName( rsdlg_->getCurrentParName() );
+
 	if ( fsdlg_->go() )
 	    break;
     }
 
     fsdlg_->getVintagName( vintagenm_ );
+    saveIfNewVintage( vintagenm_ );
     fsdlg_->getSelNames( selfilenms_ );
     selfilenms_.sort();
     uiSEGYVintageInfo* vntinfo = new uiSEGYVintageInfo();
@@ -104,6 +107,24 @@ bool uiSEGYMultiVintageImporter::selectVintage()
     vntinfos_.add( vntinfo );
 
     return true;
+}
+
+
+void uiSEGYMultiVintageImporter::saveIfNewVintage( const BufferString& vntnm )
+{
+    Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
+    int selidx = parset.find( vntnm );
+    bool newvnt = selidx < 0;
+    if ( !newvnt )
+	return;
+
+    IOPar par;
+    rsdlg_->getDefaultPar( par );
+    Repos::IOPar* iop = new Repos::IOPar( par );
+    iop->setName( vntnm );
+    parset.add( iop );
+    parset.write( Repos::Data );
+    return;
 }
 
 

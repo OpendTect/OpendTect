@@ -38,6 +38,8 @@ public:
 				   BufferStringSet&);
     void	getVintagName(BufferString& vntnm)
 		{ vntnm = vintagefld_->text(); }
+    void	setVintagName( const char* vntnm )
+		{ vintagefld_->setText(vntnm); }
 
 protected:
     void	selChgCB(CallBacker*);
