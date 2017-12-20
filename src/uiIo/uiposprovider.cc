@@ -273,13 +273,13 @@ void uiPosProvSel::mkNewProv( bool updsumm )
     if ( prov_ )
     {
 	prov_->getTrcKeyZSampling( tkzs_ );
-	tkzs_.fillPar(iop_);
 	if ( !setup_.is2d_ ) //set step for 3D cs
 	{
 	    TrcKeyZSampling tmpcs;
 	    tmpcs.usePar( iop_ );
 	    tkzs_.hsamp_.step_ = tmpcs.hsamp_.step_;
 	}
+	tkzs_.fillPar(iop_);
     }
     else
     {
