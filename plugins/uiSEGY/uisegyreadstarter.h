@@ -144,7 +144,7 @@ protected:
     void		runClassicImp(CallBacker*)	{ runClassic( true ); }
     void		runClassicLink(CallBacker*)	{ runClassic( false ); }
     void		defChg( CallBacker* )	{ forceRescan(); }
-    void		revChg( CallBacker* )	{ forceRescan(KeepBasic); }
+    void		revChg(CallBacker*);
     void		examineCB(CallBacker*);
     void		readParsCB(CallBacker*);
     void		writeParsCB(CallBacker*);
