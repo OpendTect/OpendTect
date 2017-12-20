@@ -60,7 +60,7 @@ set( OD_MODULES
 	Geometry EarthModel Well MMProc Seis
 	NLA AttributeEngine Velocity
 	VolumeProcessing PreStackProcessing Attributes
-	EMAttrib MPEEngine WellAttrib
+	MPEEngine EMAttrib WellAttrib
 	uiBase uiTools uiCmdDriver uiFlatView uiIo uiSysAdm
 	uiNLA uiSeis uiStrat uiEarthModel uiWell
 	uiVelocity uiPreStackProcessing uiAttributes
