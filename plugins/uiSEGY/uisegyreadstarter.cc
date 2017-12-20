@@ -508,6 +508,13 @@ void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
 }
 
 
+void uiSEGYReadStarter::revChg( CallBacker* )
+{
+    detectrev0flds_ = true;
+    forceRescan( KeepBasic );
+}
+
+
 void uiSEGYReadStarter::runClassic( bool imp )
 {
     const Seis::GeomType gt = impType().geomType();
