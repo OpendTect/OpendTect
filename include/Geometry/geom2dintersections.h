@@ -60,7 +60,10 @@ public:
     struct Point
     {
 			Point(Pos::GeomID id,int mynr,int linenr)
-			    : line(id),mytrcnr(mynr),linetrcnr(linenr) {}
+			    : line(id),mytrcnr(mynr),linetrcnr(linenr)
+			{ setMyGeomID(-1); }
+			Point(Pos::GeomID myid,Pos::GeomID lineid,
+			      int mynr,int linenr);
 
 	bool		operator==(const Point& oth) const
 			{ return mytrcnr == oth.mytrcnr; }
@@ -69,13 +72,16 @@ public:
 	bool		operator<(const Point& oth) const
 			{ return mytrcnr < oth.mytrcnr; }
 
+	void		setMyGeomID(Pos::GeomID);
+	Pos::GeomID	getMyGeomID() const;
+	bool		isOpposite(const Point&) const;
+
 	Pos::GeomID	line;	// Intersecting line.
 	int		mytrcnr;
 	int		linetrcnr;
     };
 
-			Line2DInterSection(Pos::GeomID geomid)
-			    : geomid_(geomid)	{}
+			Line2DInterSection(Pos::GeomID);
 
     Pos::GeomID		geomID() const		{ return geomid_; }
     bool		isEmpty() const		{ return points_.isEmpty(); }
@@ -102,6 +108,8 @@ mExpClass(Geometry) Line2DInterSectionSet : public ObjectSet<Line2DInterSection>
 {
 public:
     const Line2DInterSection*	get(Pos::GeomID) const;
+
+    void		getAll(TypeSet<Line2DInterSection::Point>&) const;
 };
 
 
