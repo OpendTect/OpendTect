@@ -324,8 +324,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 				       const char* nm )
     : uiGenInputInputFld( p, dis )
     , intvalGrp( *new uiGroup(p,nm) )
-    , start( *new uiLineEdit(&intvalGrp,mName(dis,0,nm)) )
-    , stop( *new uiLineEdit(&intvalGrp,mName(dis,1,nm)) )
+    , start( *new uiLineEdit(&intvalGrp,dis,mName(dis,0,nm)) )
+    , stop( *new uiLineEdit(&intvalGrp,dis,mName(dis,1,nm)) )
     , step( 0 )
 {
     mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&dis)
@@ -367,7 +367,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
     if ( step )
     {
 	lbl->attach( rightTo, &stop );
-        step->attach( rightTo, lbl );
+	step->attach( rightTo, lbl );
     }
 
     init();
