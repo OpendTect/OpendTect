@@ -618,6 +618,13 @@ void uiSEGYReadStarter::inpChg( CallBacker* )
 }
 
 
+void uiSEGYReadStarter::revChg( CallBacker* )
+{
+    detectrev0flds_ = true;
+    forceRescan( KeepBasic );
+}
+
+
 void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
 {
     forceRescan( KeepAll, true );
