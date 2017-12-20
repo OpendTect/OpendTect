@@ -424,8 +424,13 @@ void ErrMsg( const char* msg, bool progr )
 {
     if ( !MsgClass::theCB().willCall() )
     {
+	mDefineStaticLocalObject( bool, wantsilence,
+			= GetEnvVarYN("OD_PROGRAMMER_ERRS_SILENCE",false) );
 	if ( progr )
-	    std::cerr << "(PE) " << msg << std::endl;
+	{
+	    if ( !wantsilence )
+		std::cerr << "(PE) " << msg << std::endl;
+	}
 	else if ( msg && *msg )
 	{
 	    const char* start = *msg == '[' ? "" : "Err: ";
