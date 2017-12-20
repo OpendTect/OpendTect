@@ -4,7 +4,7 @@
 # 	Nov 1999	Kris
 #_______________________________________________________________________________
 
-set(OD_MODULE_DEPS EarthModel AttributeEngine MPEEngine )
+set(OD_MODULE_DEPS MPEEngine)
 
 set(OD_MODULE_SOURCES
 	emhor2dseisiter.cc

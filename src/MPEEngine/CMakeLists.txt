@@ -5,7 +5,7 @@
 #_______________________________________________________________________________
 
 
-set(OD_MODULE_DEPS EarthModel AttributeEngine )
+set(OD_MODULE_DEPS EarthModel AttributeEngine)
 set(OD_MODULE_SOURCES
 	autotracker.cc
 	emeditor.cc
