@@ -27,3 +27,4 @@ XField`arkclsxf2
 CLAS Computer Log Analysis Software`clas
 ethos(TM) Processing System`ethos
 M-GS Destriping`estimages
+FracTex`fractex
