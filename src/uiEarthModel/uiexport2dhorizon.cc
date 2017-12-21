@@ -241,13 +241,10 @@ bool uiExport2DHorizon::doExport()
 			    sprintf( line.getCStr(), controlstr.buf(),
 				   horname.buf(), linename.buf(), crd.x, crd.y,
 				   spnr, trcnr, undefstr.buf() );
-			  else
-			      sprintf( line.getCStr(), controlstr.buf(),
+			else
+			    sprintf( line.getCStr(), controlstr.buf(),
 				   linename.buf(), crd.x, crd.y, spnr, trcnr,
 				   undefstr.buf() );
-			sprintf( line.getCStr(), controlstr.buf(),
-				    linename.buf(), crd.x, crd.y, spnr, trcnr,
-				    undefstr.buf());
 		    }
 		}
 		else
