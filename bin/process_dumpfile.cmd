@@ -99,7 +99,7 @@ type %tmpfile% | more /p > %textfile%
 
 REM Send the text-file
 if exist "%sender%" (
-    %sender% %dumpfile% 
+    %sender% %textfile% 
 )
 
 REM Make an archive copy of the report without timestamps so it can be picked up
@@ -109,8 +109,8 @@ if exist %archivefile% echo Error report saved as %archivefile%
 
 
 REM Cleanup
-REM del %dumpfile%
-REM del %tmpfile%
-REM del %textfile%
+del %dumpfile%
+del %tmpfile%
+del %textfile%
 
 exit /b 0
