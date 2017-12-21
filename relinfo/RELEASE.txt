@@ -4,6 +4,35 @@ In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
 
+v6.0.8: December 22, 2017
+* Added a prompt that full scan is recommended during survey setup from
+  SEGY file
+* Fix for losing access to a linked SEGY file
+* Fix for crash when importing GPR data(SEG-Y format)
+* Fix for SEGY import in batch mode ignoring Z Range start / interval values
+  overruled by user (Actually use column)
+* Fix for displaying isolated points in 2D viewers for 3D Horizons
+  (intersected interpretation on inlines isn't displayed on crosslines)
+* Fix for import of a surface (a grid created in Petrel / Kingdom etc. & not
+  matching a seismic grid defined in OpendTect survey setup) as 3D Horizon.
+* Fix for 2D viewer's Zoom level resetting to home zoom when quickly scrolling
+  through 3D data
+* Fix for restoration of data extraction parameters in well log interpolator
+* Fix for setting up MMP(Adding New Hosts) from Utilities Menu in
+  Mathematics attribute the width of display fields for the inputs made bigger
+* Fix for display of well logs which have only '0' and '1' values
+* Fix for ignoring the polygon constraint Attribute processing between horizons
+  within a polygon
+* Fix for Horizon data gets corrupted after renaming
+* Fix for not remembering the threshold for allowed difference while tracking
+  multiple horizons
+* Fix for crash in volume processing for some irregular surveys
+* Fix for PWave units not refreshing after checking Sonic box in
+  Tie Well To Seismics window
+* Fix for slow histogram computation on 8-bit data
+* Fix for Hilbert transform of 8-bit data occasionally outputting null traces
+* Fix for reading of 2D seismic data which has decreasing CDP numbers
+
 v6.0.7: July 17, 2017
 * Fix for removed part being different from (lasso tool)
   selection if camera position is changed.
