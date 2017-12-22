@@ -27,10 +27,15 @@ public:
 				ChainExecutor(Chain&);
 				~ChainExecutor();
 
+				/*!< Return 0 if not enough memory for the
+				     execution */
+    int				nrChunks(const TrcKeySampling&,
+					 const StepInterval<int>&,
+					 int extranroutcomps=0);
+
     bool			setCalculationScope(const TrcKeySampling&,
 						    const StepInterval<int>&);
-    od_int64			computeMaximumMemoryUsage(const TrcKeySampling&,
-						const StepInterval<int>&);
+
     bool			areSamplesIndependent() const;
     bool			needsFullVolume() const;
 
@@ -76,11 +81,17 @@ private:
     };
 
     bool			scheduleWork();
+    od_int64		computeMaximumMemoryUsage(const TrcKeySampling&,
+						const StepInterval<int>&);
     void			releaseMemory();
     int				computeLatestEpoch(Step::ID) const;
     void			computeComputationScope(Step::ID stepid,
 				    TrcKeySampling& stepoutputhrg,
 				    StepInterval<int>& stepoutputzrg ) const;
+    int				getStepEpochIndex(Step::ID) const;
+    od_int64			getStepOutputMemory(Step::ID,int nr,
+				    const TypeSet<TrcKeySampling>& epochstks,
+				    const TypeSet<StepInterval<int> >&) const;
     Step::ID			getChainOutputStepID() const;
     Step::OutputSlotID		getChainOutputSlotID() const;
 

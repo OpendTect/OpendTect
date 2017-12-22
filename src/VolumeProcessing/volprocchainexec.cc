@@ -7,6 +7,7 @@
 
 #include "volprocchainexec.h"
 
+#include "odsysmem.h"
 #include "seisdatapack.h"
 #include "threadwork.h"
 #include "simpnumer.h" // for getCommonStepInterval
@@ -207,7 +208,150 @@ struct VolumeMemory
 			}
 };
 
+static void findDependentInputStepIDs( const Chain& chain,
+				       const ObjectSet<Step>& steps,
+				       TypeSet<Step::ID>& stepidstobeadded,
+				       TypeSet<int>& nroutputperstep )
+{
+    for ( int istep=0; istep<steps.size(); istep++ )
+    {
+	const VolProc::Step& epochstep = *steps[istep];
+	if ( !epochstep.needsInput() )
+	    continue;
+
+	TypeSet<Chain::Connection> conntoprevious;
+	chain.getWeb().getConnections( epochstep.getID(),true,conntoprevious );
+	if ( conntoprevious.isEmpty() )
+	    continue;
+
+	TypeSet<Step::ID> inpsteps;
+	for ( int iconn=0; iconn<conntoprevious.size(); iconn++ )
+	    inpsteps += conntoprevious[iconn].outputstepid_;
+
+	for ( int stepid=0; stepid<inpsteps.size(); stepid++ )
+	{
+	    const VolProc::Step* step = chain.getStepFromID( inpsteps[stepid]);
+	    if ( !step )
+		continue;
+
+	    TypeSet<Chain::Connection> conntonext;
+	    chain.getWeb().getConnections( step->getID(), false, conntonext );
+	    for ( int iconn=0; iconn<conntonext.size(); iconn++ )
+	    {
+		if ( conntonext[iconn].inputstepid_ == epochstep.getID() )
+		    continue;
+
+		const int prevsz = stepidstobeadded.size();
+		stepidstobeadded.addIfNew( conntonext[iconn].outputstepid_ );
+		const int newsz = stepidstobeadded.size();
+		if ( prevsz < newsz )
+		{
+		    if ( nroutputperstep.size() < newsz )
+			nroutputperstep += 1;
+		    else
+			nroutputperstep[prevsz]++;
+		}
+	    }
+	}
+    }
+}
+
 } // namespace VolProc
+
+
+int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
+				      const StepInterval<int>& zrg,
+				      int extranroutcomps )
+{
+    const od_uint64 nrbytes = mCast( od_uint64, 1.01f *
+				    (computeMaximumMemoryUsage( tks, zrg )+
+				    Step::getBaseMemoryUsage( tks, zrg ) *
+				    extranroutcomps ) );
+    const bool cansplit = areSamplesIndependent() && !needsFullVolume();
+    od_int64 totmem, freemem; OD::getSystemMemory( totmem, freemem );
+    const bool needsplit = freemem >= 0 && nrbytes > freemem;
+    if ( needsplit && !cansplit )
+	return 0;
+    else if ( !needsplit )
+	return 1;
+
+    int nrexecs = mNINT32( Math::Ceil( mCast(double,nrbytes) /
+				       mCast(double,freemem) ) );
+    int halfnrlinesperchunk = mNINT32( Math::Ceil( mCast(double,tks.nrLines()) /
+						mCast(double,2 * nrexecs) ) );
+    while ( halfnrlinesperchunk > 0 )
+    {
+	TrcKeySampling starthsamp( tks ), centerhsamp( tks ), stophsamp( tks );
+	starthsamp.stop_.inl() = starthsamp.start_.inl() +2*halfnrlinesperchunk;
+	centerhsamp.start_.inl() = tks.center().inl();
+	centerhsamp.stop_.inl() = centerhsamp.start_.inl();
+	centerhsamp.expand( halfnrlinesperchunk, 0 );
+	stophsamp.start_.inl() = stophsamp.stop_.inl() - 2*halfnrlinesperchunk;
+	starthsamp.limitTo( tks );
+	centerhsamp.limitTo( tks );
+	stophsamp.limitTo( tks );
+	const od_uint64 memstart = computeMaximumMemoryUsage( starthsamp, zrg );
+	const od_uint64 memcenter = computeMaximumMemoryUsage(centerhsamp,zrg );
+	const od_uint64 memstop = computeMaximumMemoryUsage( stophsamp, zrg );
+	TrcKeySampling* tksoflargestchunk = &centerhsamp;
+	od_uint64 memmax = memcenter;
+	if ( memstart > memmax )
+	{
+	    tksoflargestchunk = &starthsamp;
+	    memmax = memstart;
+	}
+	if ( memstop > memmax )
+	{
+	    tksoflargestchunk = &stophsamp;
+	    memmax = memstop;
+	}
+
+	memmax += Step::getBaseMemoryUsage( *tksoflargestchunk, zrg ) *
+					    extranroutcomps;
+	memmax *= 1.01f;
+	if ( memmax < freemem )
+	    break;
+
+	halfnrlinesperchunk--;
+    }
+
+    if ( halfnrlinesperchunk < 1 )
+	return 0;
+
+    return mNINT32( Math::Ceil( mCast(double,tks.nrLines() /
+				mCast(double,2*halfnrlinesperchunk) ) ) );
+}
+
+
+int VolProc::ChainExecutor::getStepEpochIndex( const Step::ID stepid ) const
+{
+    for ( int epoch=0; epoch<epochs_.size(); epoch++ )
+    {
+	const ObjectSet<Step>& steps = epochs_[epoch]->getSteps();
+	for ( int istep=0; istep<steps.size(); istep++ )
+	{
+	    if ( steps[istep]->getID() == stepid )
+		return epoch;
+	}
+    }
+
+    return -1;
+}
+
+
+od_int64 VolProc::ChainExecutor::getStepOutputMemory( VolProc::Step::ID stepid,
+			int nr, const TypeSet<TrcKeySampling>& epochstks,
+			const TypeSet<StepInterval<int> >& epochszrg ) const
+{
+    const int epochidx = getStepEpochIndex( stepid );
+    if ( epochidx == -1 )
+	return 0;
+
+    const od_int64 extramem = Step::getBaseMemoryUsage(
+			      epochstks[epochidx], epochszrg[epochidx] );
+    return extramem * nr;
+
+}
 
 
 od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
@@ -218,26 +362,39 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 	return -1;
 
     TypeSet<VolumeMemory> activevolumes;
-    const od_int64 basesize = Step::getBaseMemoryUsage( hrg, zrg );
+    TypeSet<TrcKeySampling> epochstks;
+    TypeSet<StepInterval<int> > epochszrg;
 
+    TrcKeySampling curhrg( hrg );
+    StepInterval<int> curzrg( zrg );
     for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
     {
 	const ObjectSet<Step>& steps = epochs_[epochidx]->getSteps();
 	for ( int stepidx=0; stepidx<steps.size(); stepidx++ )
 	{
 	    const Step* step = steps[stepidx];
+	    const od_int64 basesize = Step::getBaseMemoryUsage( curhrg,curzrg );
 	    for ( int outputidx=0; outputidx<step->getNrOutputs(); outputidx++ )
 	    {
 		if ( !step->validOutputSlotID(step->getOutputSlotID(outputidx)))
 		    continue;
 
-		const od_int64 extrasize = step->extraMemoryUsage( outputidx,
-								   hrg, zrg );
-
-		od_int64 outputsize = basesize + extrasize;
+		od_int64 outputsize = basesize
+				    + step->extraMemoryUsage( outputidx,
+							      curhrg, curzrg );
 		if ( step->getNrInputs() > 0 &&
 		     !step->canInputAndOutputBeSame() )
+		{
+		    if ( outputidx == 0 )
+		    {
+		    const TrcKeySampling stepinptks = step->getInputHRg(curhrg);
+		    const StepInterval<int> stepzrg = step->getInputZRg(
+						  curzrg,curhrg.getGeomID() );
 		    outputsize += basesize;
+		    curhrg.include( stepinptks );
+		    curzrg.include( stepzrg );
+		    }
+		}
 
 		VolumeMemory volmem( step->getID(), outputidx, outputsize,
 				     epochidx );
@@ -245,9 +402,12 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 		activevolumes += volmem;
 	    }
 	}
+	epochstks += curhrg;
+	epochszrg += curzrg;
     }
 
     od_int64 res = 0;
+    int largememepoch = -1;
     for ( int epochidx=0; epochidx<epochs_.size(); epochidx++ )
     {
 	od_int64 memneeded = 0;
@@ -260,7 +420,24 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 	    memneeded += activevolumes[idx].nrbytes_;
 	}
 	if ( memneeded > res )
+	{
 	    res = memneeded;
+	    largememepoch = epochidx;
+	}
+    }
+
+    /*See if one of the input of the largest epoch is required after that epoch
+      is fully processed (thus it is not released after completion of the epoch)
+    */
+    TypeSet<VolProc::Step::ID> stepidstobeadded;
+    TypeSet<int> nroutputperstep;
+    const ObjectSet<Step>& steps = epochs_[largememepoch]->getSteps();
+    findDependentInputStepIDs( chain_, steps, stepidstobeadded,
+			       nroutputperstep );
+    for ( int idx=0; idx<stepidstobeadded.size(); idx++ )
+    {
+	res += getStepOutputMemory( stepidstobeadded[idx], nroutputperstep[idx],
+				    epochstks, epochszrg );
     }
 
     return res;
