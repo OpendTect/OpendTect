@@ -205,6 +205,12 @@ Always defined:
 
 
 #undef mUnusedVar
+#if defined(__mac__)
+#  define mStartAllowDeprecatedSection
+#  define mStopAllowDeprecatedSection
+#  define mDeprecated
+#  define mUnusedVar
+#else
 #if defined( __gnuc__ )
 # define mUnusedVar __attribute__ ((unused))
 
@@ -234,6 +240,7 @@ Always defined:
 # endif
 # define mStartAllowDeprecatedSection
 # define mStopAllowDeprecatedSection
+#endif
 #endif
 
 #ifdef __win__
