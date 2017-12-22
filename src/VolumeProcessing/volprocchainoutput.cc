@@ -290,40 +290,14 @@ int VolProc::ChainOutput::setupChunking()
 			   mMAX(mNINT32(Math::Ceil(cs_.zsamp_.step/zstep)),1) );
 			   //real -> index, outputzrg_ is the index of z-samples
 
-    od_uint64 nrbytes = mCast( od_uint64, 1.01f *
-	      chainexec_->computeMaximumMemoryUsage( cs_.hsamp_, outputzrg_ ) );
-
-    od_int64 totmem, freemem; OD::getSystemMemory( totmem, freemem );
-
-    /* handy for test:
-	if ( freemem > nrbytes ) freemem = nrbytes - 100; // min 2 chunks
-	if ( freemem > nrbytes/2 ) freemem = nrbytes/2 - 100; // min 3 chunks
-    */
-
-    bool needsplit = freemem >= 0 && nrbytes > freemem;
-    const bool cansplit = chainexec_->areSamplesIndependent()
-			&& !chainexec_->needsFullVolume();
-    nrexecs_ = 1;
-    if ( needsplit && !cansplit )
+    // We will be writing while a new chunk will be calculated
+    // Thus, we need to keep the output datapack alive while the next chunk
+    // is calculated. Therefore, lets add some more mem need:
+    nrexecs_ = chainexec_->nrChunks( cs_.hsamp_, outputzrg_ );
+    if ( nrexecs_ == 0 )
     {
-	// duh. but ... it may still fit, fingers crossed:
-	needsplit = nrbytes > freemem;
-	if ( needsplit )
-	    return retError(
-		    tr("Processing aborted; not enough available memory.") );
-    }
-    if ( needsplit )
-    {
-	// We will be writing while a new chunk will be calculated
-	// Thus, we need to keep the output datapack alive while the next chunk
-	// is calculated. Therefore, lets add some more mem need:
-	nrbytes += (( cs_.hsamp_.totalNr() *
-		    ( outputzrg_.nrSteps() + 1 ) ) * sizeof(float) ) * 3;
-	const float fnrexecs = Math::Ceil( mCast(float,nrbytes)
-					 / mCast(float,freemem) );
-	nrexecs_ = mNINT32( fnrexecs );
-	if ( nrexecs_ > cs_.hsamp_.nrLines() )
-	    nrexecs_ = cs_.hsamp_.nrLines(); // and pray!
+	return retError(
+		tr("Processing aborted; not enough available memory.") );
     }
 
     neednextchunk_ = true;

@@ -30,8 +30,15 @@ public:
 				ChainExecutor(Chain&);
 				~ChainExecutor();
 
+				/*!< Return 0 if not enough memory for the
+				     execution */
+    int				nrChunks(const TrcKeySampling&,
+					 const StepInterval<int>&,
+					 int extranroutcomps=0);
+
     od_int64			computeMaximumMemoryUsage(const TrcKeySampling&,
 						const StepInterval<int>&);
+				//Will become private after 6.2
 
     uiString			errMsg() const;
     uiString			uiNrDoneText() const;
@@ -87,6 +94,10 @@ private:
 				    TrcKeySampling& stepoutputhrg,
 				    StepInterval<int>& stepoutputzrg ) const;
     float			getSampleShift(float zstart) const;
+    int				getStepEpochIndex(Step::ID) const;
+    od_int64			getStepOutputMemory(Step::ID,int nr,
+				    const TypeSet<TrcKeySampling>& epochstks,
+				    const TypeSet<StepInterval<int> >&) const;
 
     Epoch*			curepoch_;
     bool			isok_;
