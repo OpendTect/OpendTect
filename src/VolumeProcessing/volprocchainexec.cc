@@ -308,7 +308,7 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 
 	memmax += Step::getBaseMemoryUsage( *tksoflargestchunk, zrg ) *
 					    extranroutcomps;
-	memmax *= 1.01f;
+	memmax = mCast(od_uint64,1.01f*memmax);
 	if ( memmax < freemem )
 	    break;
 
