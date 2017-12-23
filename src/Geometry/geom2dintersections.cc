@@ -92,6 +92,15 @@ Line2DInterSection::Point::Point( Pos::GeomID myid, Pos::GeomID lineid,
 }
 
 
+Line2DInterSection::Point::Point( const Point& pt )
+    : line(pt.line)
+    , mytrcnr(pt.mytrcnr)
+    , linetrcnr(pt.linetrcnr)
+{
+    setMyGeomID( pt.getMyGeomID() );
+}
+
+
 void Line2DInterSection::Point::setMyGeomID( Pos::GeomID geomid )
 { mygeomids.setParam( this, geomid ); }
 

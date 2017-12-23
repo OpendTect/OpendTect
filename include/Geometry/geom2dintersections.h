@@ -64,6 +64,7 @@ public:
 			{ setMyGeomID(-1); }
 			Point(Pos::GeomID myid,Pos::GeomID lineid,
 			      int mynr,int linenr);
+			Point(const Point&);
 
 	bool		operator==(const Point& oth) const
 			{ return mytrcnr == oth.mytrcnr; }
