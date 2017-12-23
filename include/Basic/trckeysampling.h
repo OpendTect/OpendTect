@@ -57,6 +57,7 @@ public:
     bool		includes(const TrcKeySampling&,
 				 bool ignoresteps=false) const;
     bool		includes(const TrcKey&) const;
+    bool		includes(const TrcKey&,bool ignoresteps) const;
     bool		lineOK(Pos::LineID) const;
     bool		trcOK(Pos::TraceID) const;
 

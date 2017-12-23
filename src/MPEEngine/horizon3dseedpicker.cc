@@ -62,6 +62,9 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 
     const RowCol curstep = hor3d->geometry().step();
     const TrcKeySampling hrg = engine().activeVolume().hsamp_;
+    if ( hrg.includes(seed.tk_,true) && !hrg.includes(seed.tk_,false) )
+	addedseed_.tk_ = hrg.getNearest( seed.tk_ );
+
     if ( curstep != hrg.step_ )
     {
 	const EM::SectionID sid = hor3d->sectionID( 0 );
@@ -71,17 +74,17 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
     }
 
     const StepInterval<float> zrg = engine().activeVolume().zsamp_;
-    if ( !zrg.includes(seed.val_,false) || !hrg.includes(seed.tk_) )
+    if ( !zrg.includes(addedseed_.val_,false) || !hrg.includes(addedseed_.tk_) )
 	return false;
 
     if ( fltdataprov_ && hrg.includes(lastsowseed_.tk_) )
     {
 	if ( sowermode_ &&
-	     fltdataprov_->isCrossingFault(seed.tk_.pos(),seed.val_,
+	     fltdataprov_->isCrossingFault(addedseed_.tk_.pos(),addedseed_.val_,
 					   lastsowseed_.tk_.pos(),
 					   lastsowseed_.val_) )
 	{
-	    lastseed_ = seed;
+	    lastseed_ = addedseed_;
 	    return false;
 	}
     }
@@ -89,18 +92,18 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
     bool res = true;
     if ( sowermode_ )
     {
-	lastsowseed_ = seed;
+	lastsowseed_ = addedseed_;
 	// Duplicate promotes hidden seed to visual seed in sower mode
-	const bool isvisualseed = lastseed_==seed;
+	const bool isvisualseed = lastseed_==addedseed_;
 
-	if ( isvisualseed || lastseed_!=seed )
+	if ( isvisualseed || lastseed_!=addedseed_ )
 	{
-	    hor3d->setZAndNodeSourceType( 
-		seed.tk_, seed.val_, true, EM::EMObject::Auto );
-	    hor3d->setAttrib( seed.tk_, EM::EMObject::sSeedNode(),
+	    hor3d->setZAndNodeSourceType(
+		addedseed_.tk_, addedseed_.val_, true, EM::EMObject::Auto );
+	    hor3d->setAttrib( addedseed_.tk_, EM::EMObject::sSeedNode(),
 			      isvisualseed, true );
 	    seedlist_.erase();
-	    seedlist_ += seed.tk_;
+	    seedlist_ += addedseed_.tk_;
 	    if ( trackmode_ != DrawBetweenSeeds )
 		tracker_.snapPositions( seedlist_ );
 
@@ -112,20 +115,21 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
     {
 	lastsowseed_ = TrcKeyValue::udf();
 	propagatelist_.erase();
-	propagatelist_ += seed.tk_;
+	propagatelist_ += addedseed_.tk_;
 
-	const bool pickedposwasdef = hor3d->hasZ( seed.tk_ );
+	const bool pickedposwasdef = hor3d->hasZ( addedseed_.tk_ );
 	if ( !drop || !pickedposwasdef )
 	{
-	    hor3d->setZAndNodeSourceType( 
-		seed.tk_, seed.val_, true, EM::EMObject::Auto );
+	    hor3d->setZAndNodeSourceType(
+		addedseed_.tk_, addedseed_.val_, true, EM::EMObject::Auto );
 	    if ( trackmode_ != DrawBetweenSeeds )
 		tracker_.snapPositions( propagatelist_ );
 
-	    addedseed_.val_ = hor3d->getZ( seed.tk_ );
+	    addedseed_.val_ = hor3d->getZ( addedseed_.tk_ );
 	}
 
-	hor3d->setAttrib( seed.tk_, EM::EMObject::sSeedNode(), true, true );
+	hor3d->setAttrib( addedseed_.tk_, EM::EMObject::sSeedNode(),
+			  true, true );
 	if ( !drop || !pickedposwasdef )
 	    seedAdded.trigger();
 
@@ -141,7 +145,7 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 	}
     }
 
-    lastseed_ = seed;
+    lastseed_ = addedseed_;
     return res;
 }
 
@@ -163,7 +167,7 @@ bool Horizon3DSeedPicker::removeSeed( const TrcKey& seed, bool environment,
 
     if ( environment ||
 	 nrLineNeighbors(seed.pos())+nrLateralNeighbors(seed.pos())==0 )
-	hor3d->setZAndNodeSourceType( 
+	hor3d->setZAndNodeSourceType(
 	seed, mUdf(float), true, EM::EMObject::Auto );
 
     int res = true;
@@ -312,7 +316,7 @@ void Horizon3DSeedPicker::processJunctions()
 	tracker_.snapPositions( curtklisted );
 	const float snappedoldz = hor3d->getZ( curtk );
 
-	hor3d->setZAndNodeSourceType( 
+	hor3d->setZAndNodeSourceType(
 	    curtk, hor3d->getZ(prevtk), true, EM::EMObject::Auto );
 	tracker_.snapPositions( curtklisted );
 	const float snappednewz = hor3d->getZ( curtk );
@@ -321,7 +325,7 @@ void Horizon3DSeedPicker::processJunctions()
 		!propagatelist_.isPresent(curtk) )
 	    propagatelist_ += curtk;
 
-	hor3d->setZAndNodeSourceType( 
+	hor3d->setZAndNodeSourceType(
 	    curtk, oldz, true, EM::EMObject::Auto );
     }
 }
@@ -349,7 +353,7 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
     if ( trackmode_ == TrackFromSeeds && !doerase )
 	return addPatchSowingSeeds();
 
-    if ( trackmode_ != DrawBetweenSeeds && 
+    if ( trackmode_ != DrawBetweenSeeds &&
 	trackmode_ != DrawAndSnap && !doerase )
 	return false;
 
@@ -365,7 +369,7 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
     for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
     {
 	const float val = !doerase ? path[idx].val_ : mUdf(float);
-	hor3d->setZAndNodeSourceType( path[idx].tk_, val, true, 
+	hor3d->setZAndNodeSourceType( path[idx].tk_, val, true,
 	    EM::EMObject::Manual );
 	if ( trackmode_ == DrawAndSnap )
 	{
@@ -376,8 +380,8 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
 	    tracker_.snapPositions( seed );
 	}
 
-	if ( path[idx].tk_.isUdf() || 
-	    !zrg.includes(path[idx].val_,false) || 
+	if ( path[idx].tk_.isUdf() ||
+	    !zrg.includes(path[idx].val_,false) ||
 	    !hrg.includes(path[idx].tk_) )
 	continue;
 	seedlist_ += path[idx].tk_;
@@ -386,7 +390,7 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
     interpolateSeeds( true );
     hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks( false, true );
     hor3d->setBurstAlert( false );
-    EM::EMM().undo(hor3d->id()).setUserInteractionEnd( 
+    EM::EMM().undo(hor3d->id()).setUserInteractionEnd(
 	EM::EMM().undo(hor3d->id()).currentEventID() );
     return true;
 }
@@ -412,7 +416,7 @@ bool Horizon3DSeedPicker::addPatchSowingSeeds()
     hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks(false,true);
     hor3d->setBurstAlert( false );
 
-    EM::EMM().undo(hor3d->id()).setUserInteractionEnd( 
+    EM::EMM().undo(hor3d->id()).setUserInteractionEnd(
 	EM::EMM().undo(hor3d->id()).currentEventID() );
     return true;
 }
@@ -477,13 +481,13 @@ void Horizon3DSeedPicker::extendSeedListEraseInBetween(
 
 	// to erase points attached to start
 	const EM::PosID pid(hor3d->id(),hor3d->sectionID(0),curbid.toInt64());
-	if ( curdefined && 
+	if ( curdefined &&
 	    !hor3d->isNodeSourceType(pid,EM::EMObject::Manual) )
 	    eraselist_ += curbid;
     }
 
     for ( int idx=0; idx<eraselist_.size(); idx++ )
-	hor3d->setZAndNodeSourceType( 
+	hor3d->setZAndNodeSourceType(
 	eraselist_[idx], mUdf(float), true, EM::EMObject::Auto );
 }
 
@@ -677,8 +681,8 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	    if ( tk.isUdf() )
 		continue;
 	    const EM::EMObject::NodeSourceType type = setmanualnode ?
-		EM::EMObject::Manual : 
-		EM::EMObject::Auto;  
+		EM::EMObject::Manual :
+		EM::EMObject::Auto;
 	    hor3d->setZAndNodeSourceType( tk, (float)interpos.z, true, type );
 	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
