@@ -111,6 +111,8 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     const bool is2d = Seis::is2D( fs_.geomType() );
     if ( !is2d )
 	objname_.replace( '*', 'x' );
+    if ( !singlevintage )
+	objname_ = "From SEGY file names";
 
     if ( fs_.isVSP() )
 	crVSPFields( istime );
