@@ -543,29 +543,12 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 		   .add( " --pid " ).add( processID() );
 
 	redirectoutput_ = false;
-	if ( !startProgressViewer(progvwrcmd_,monitfnmnoquotes) )
+	if ( !ExecODProgram(progvwrcmd_) )
 	    ErrMsg("Cannot launch progress viewer");
 			// sad ... but the process has been launched
     }
 
     return ret;
-}
-
-
-bool OS::CommandLauncher::startProgressViewer( const char* prgcmd,
-						const char* monitfnm )
-{
-    const unsigned int maxnroftries = 1000;
-    unsigned int nrtries = 0;
-    while( !File::exists(monitfnm) )
-    {
-	Threads::sleep( 0.01 );
-	nrtries++;
-	if ( nrtries >= maxnroftries )
-	    return false;
-    }
-
-    return ExecODProgram( prgcmd );
 }
 
 

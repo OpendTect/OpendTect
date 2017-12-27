@@ -69,9 +69,10 @@ protected:
 
     int			pid_;
     const BufferString	procnm_;
+    const BufferString	filenm_;
     ProcStatus		procstatus_;
     int			delay_ = cDefDelay; //Lower may cause high CPU usage
-    od_istream		strm_;
+    PtrMan<od_istream>	strm_;
     Timer		timer_;
 
     bool		haveProcess();
@@ -97,7 +98,8 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
 				    int pid, int delay )
     : uiMainWin(p,tr("Progress Viewer"),1)
     , timer_("Progress")
-    , strm_(fnm.str())
+    , filenm_(fnm)
+    , strm_(0)
     , pid_(pid)
     , procstatus_(None)
     , tb_(0)
@@ -120,7 +122,6 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
     mAddButton( "contexthelp", uiStrings::sHelp(), helpFn );
 
     txtfld_ = new uiTextBrowser( this, "Progress", mUdf(int), true, true );
-    txtfld_->setSource( fnm.str() );
     uiFont& fnt = FontList().add( "Non-prop",
 	    FontData(FontData::defaultPointSize(),"Courier") );
     txtfld_->setFont( fnt );
@@ -171,20 +172,49 @@ bool uiProgressViewer::haveProcess()
 void uiProgressViewer::handleProcessStatus()
 {
     if ( haveProcess() )
+    {
+	if ( !strm_ )
+	{
+	    if ( !File::exists(filenm_) )
+	    {
+		statusBar()->message( tr("The batch process is initializing") );
+		return;
+	    }
+
+	    strm_ = new od_istream( filenm_.str() );
+	    txtfld_->setSource( filenm_.str() );
+	}
+
 	return;
+    }
 
     if ( procstatus_ == None )
     {
 	sleepSeconds( 1 );
-	strm_.reOpen();
-	BufferString lines;
-	strm_.getAll( lines );
-	if ( lines.find(BatchProgram::sKeyFinishMsg()) )
-	    procstatus_ = Finished;
-	else
-	    procstatus_ = AbnormalEnd;
+	if ( haveProcess() )
+	    return;
 
-	strm_.close();
+	if ( !File::exists(filenm_) )
+	    procstatus_ = AbnormalEnd;
+	else
+	{
+	    if ( !strm_ )
+	    {
+		strm_ = new od_istream( filenm_.str() );
+		txtfld_->setSource( filenm_.str() );
+	    }
+	    else
+		strm_->reOpen();
+
+	    BufferString lines;
+	    strm_->getAll( lines );
+	    if ( lines.find(BatchProgram::sKeyFinishMsg()) )
+		procstatus_ = Finished;
+	    else
+		procstatus_ = AbnormalEnd;
+
+	    strm_->close();
+	}
     }
 
     uiString stbmsg = tr("Processing finished %1")
@@ -216,14 +246,14 @@ void uiProgressViewer::doWork( CallBacker* )
 
 void uiProgressViewer::getNewPID( CallBacker* )
 {
-    if ( !mIsUdf(pid_) )
+    if ( !mIsUdf(pid_) || !strm_ )
 	return;
 
     sleepSeconds( 1. );
-    strm_.reOpen();
+    strm_->reOpen();
     BufferString line;
     bool found = false;
-    while ( strm_.getLine(line) )
+    while ( strm_->getLine(line) )
     {
 	if ( line.find("Process ID:") )
 	{
@@ -232,7 +262,7 @@ void uiProgressViewer::getNewPID( CallBacker* )
 	}
     }
 
-    strm_.close();
+    strm_->close();
     if ( !found )
 	return;
 
@@ -375,16 +405,7 @@ int main( int argc, char** argv )
 	}
     }
 
-    sleepSeconds( mCast(double,delay) / 1000. );
-    od_ostream& strm = od_ostream::logStream();
-    if ( !File::exists(inpfile) )
-	mErrRet( strm << "Selected file does not exist." << od_endl; )
-
-    if ( !File::isFile(inpfile) )
-	mErrRet( strm << "Selected parameter file is no file." << od_endl; )
-
     uiMain app( argc, argv );
-
     uiProgressViewer* pv = new uiProgressViewer( 0, inpfile, pid, delay );
     app.setTopLevel( pv );
     pv->show();
