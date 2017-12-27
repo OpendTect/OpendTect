@@ -22,7 +22,6 @@ ___________________________________________________________________
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
-#include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
 #include "attribdescset.h"
 #include "coltabseqmgr.h"
@@ -30,39 +29,49 @@ ___________________________________________________________________
 #include "zdomain.h"
 
 
-uiODSceneProbeParentTreeItem::Type
-		uiODSceneProbeParentTreeItem::getType( int mnuid ) const
+uiODSceneProbeParentTreeItem::AddType
+		uiODSceneProbeParentTreeItem::getAddType( int mnuid ) const
 {
-    switch ( mnuid )
-    {
-	case 0: return uiODSceneProbeParentTreeItem::Default; break;
-	case 1: return uiODSceneProbeParentTreeItem::Select; break;
-	case 2: return uiODSceneProbeParentTreeItem::RGBA; break;
-	default: return uiODSceneProbeParentTreeItem::Empty;
-    }
+    return mnuid < Empty ? (AddType)mnuid : Empty;
 }
 
 
 uiString uiODSceneProbeParentTreeItem::sAddEmptyPlane()
-{ return tr("Add Empty Plane"); }
+{
+    return tr("Add Empty Plane");
+}
 
 uiString uiODSceneProbeParentTreeItem::sAddAndSelectData()
-{ return m3Dots(tr("Add and Select Data")); }
+{
+    return m3Dots(tr("Add and Select Data"));
+}
 
 uiString uiODSceneProbeParentTreeItem::sAddDefaultData()
-{ return tr("Add Default Data"); }
+{
+    return tr("Add Default Data");
+}
+
+uiString uiODSceneProbeParentTreeItem::sAddDefaultAttrib()
+{
+    return tr("Add Default Attribute");
+}
 
 uiString uiODSceneProbeParentTreeItem::sAddColorBlended()
-{ return m3Dots(uiStrings::sAddColBlend()); }
+{
+    return m3Dots(uiStrings::sAddColBlend());
+}
 
 uiODSceneProbeParentTreeItem::uiODSceneProbeParentTreeItem( const uiString& nm )
     : uiODSceneParentTreeItem( nm )
     , menu_( 0 )
-{}
+{
+}
 
 
 const char* uiODSceneProbeParentTreeItem::childObjTypeKey() const
-{ return ProbePresentationInfo::sFactoryKey(); }
+{
+    return ProbePresentationInfo::sFactoryKey();
+}
 
 
 bool uiODSceneProbeParentTreeItem::showSubMenu()
@@ -82,15 +91,18 @@ bool uiODSceneProbeParentTreeItem::showSubMenu()
 
 void uiODSceneProbeParentTreeItem::addMenuItems()
 {
+    menu_->insertAction( new uiAction(sAddDefaultData(),"attribtype_stored"),
+			 cAddDefaultDataMenuID() );
+    if ( !Attrib::DescSet::global(is2D()).isEmpty() )
+	menu_->insertAction(
+		new uiAction(sAddDefaultAttrib(),"attribtype_attrib"),
+		cAddDefaultAttribMenuID() );
     menu_->insertAction(
-	new uiAction( uiODSceneProbeParentTreeItem::sAddDefaultData()),
-		      sAddDefaultDataMenuID() );
+		new uiAction(sAddAndSelectData(),"selectfromlist"),
+		cAddAndSelectDataMenuID() );
     menu_->insertAction(
-	new uiAction( uiODSceneProbeParentTreeItem::sAddAndSelectData()),
-		      sAddAndSelectDataMenuID() );
-    menu_->insertAction(
-	new uiAction( uiODSceneProbeParentTreeItem::sAddColorBlended()),
-		      sAddColorBlendedMenuID() );
+		new uiAction(sAddColorBlended(),"colorblending"),
+		cAddColorBlendedMenuID() );
 }
 
 
@@ -124,8 +136,10 @@ bool uiODSceneProbeParentTreeItem::addChildProbe()
 
 bool uiODSceneProbeParentTreeItem::fillProbe( Probe& newprobe )
 {
-    if ( typetobeadded_ == Default )
-	return setDefaultAttribLayer( newprobe );
+    if ( typetobeadded_ == DefaultData )
+	return setDefaultAttribLayer( newprobe, true );
+    if ( typetobeadded_ == DefaultAttrib )
+	return setDefaultAttribLayer( newprobe, false );
     else if ( typetobeadded_ == Select )
 	return setSelAttribProbeLayer( newprobe );
     else if ( typetobeadded_ == RGBA )
@@ -135,24 +149,24 @@ bool uiODSceneProbeParentTreeItem::fillProbe( Probe& newprobe )
 }
 
 
-bool uiODSceneProbeParentTreeItem::setDefaultAttribLayer( Probe& probe ) const
+bool uiODSceneProbeParentTreeItem::setDefaultAttribLayer( Probe& probe,
+							  bool stored ) const
 {
     if ( !applMgr() )
 	return false;
 
-    return addDefaultAttribLayer( *applMgr(), probe );
+    return addDefaultAttribLayer( *applMgr(), probe, stored );
 }
 
 bool uiODSceneProbeParentTreeItem::addDefaultAttribLayer( uiODApplMgr& applmgr,
-							  Probe& probe )
+			      Probe& probe, bool stored )
 {
     Attrib::DescID descid;
-    if ( !applmgr.getDefaultDescID(descid,probe.is2D()) )
+    if ( !applmgr.getDefaultDescID(descid,probe.is2D(),stored) )
 	return false;
 
-    const Attrib::DescSet* ads =
-	Attrib::DSHolder().getDescSet( probe.is2D(), true );
-    const Attrib::Desc* desc = ads->getDesc( descid );
+    const Attrib::DescSet& ads = Attrib::DescSet::global( probe.is2D() );
+    const Attrib::Desc* desc = ads.getDesc( descid );
     if ( !desc )
 	return false;
 

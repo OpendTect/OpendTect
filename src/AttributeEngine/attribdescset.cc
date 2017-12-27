@@ -8,6 +8,7 @@
 #include "attribdescset.h"
 
 #include "attribdesc.h"
+#include "attribdescsettr.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsel.h"
@@ -27,31 +28,40 @@
 #include "od_ostream.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
+#include "settings.h"
 #include "separstr.h"
 #include "stattype.h"
 #include "survinfo.h"
 #include "uistrings.h"
+#include "ctxtioobj.h"
 
 using namespace Attrib;
 
 namespace Attrib
 {
 
-static DescSet*	global2d_		= new DescSet( true );
-static DescSet*	global3d_		= new DescSet( false );
-static DescSet*	empty2d_		= new DescSet( true );
-static DescSet*	empty3d_		= new DescSet( false );
-static DescSet*	dummy2d_		= new DescSet( true );
-static DescSet*	dummy3d_		= new DescSet( false );
+const char* DescSet::sKeyUseAutoAttrSet	= "dTect.Auto Attribute set";
+const char* DescSet::sKeyAuto2DAttrSetID = "2DAttrset.Auto ID";
+const char* DescSet::sKeyAuto3DAttrSetID = "3DAttrset.Auto ID";
 
-const DescSet&	DescSet::g2D()		{ return *global2d_; }
-const DescSet&	DescSet::g3D()		{ return *global3d_; }
-DescSet&	DescSet::g2D4Edit()	{ return *global2d_; }
-DescSet&	DescSet::g3D4Edit()	{ return *global3d_; }
+static ObjectSet<DescSet>	global2d_;
+static ObjectSet<DescSet>	global3d_;
+static DescSet*	empty2d_	= new DescSet( true );
+static DescSet*	empty3d_	= new DescSet( false );
+static DescSet*	dummy2d_	= new DescSet( true );
+static DescSet*	dummy3d_	= new DescSet( false );
+static uiRetVal autoloadresult_;
+
+const DescSet&	DescSet::global2D()	{ return *global2d_.last(); }
+const DescSet&	DescSet::global3D()	{ return *global3d_.last(); }
+DescSet&	DescSet::global2D4Edit() { return *global2d_.last(); }
+DescSet&	DescSet::global3D4Edit() { return *global3d_.last(); }
 const DescSet&	DescSet::empty2D()	{ return *empty2d_; }
 const DescSet&	DescSet::empty3D()	{ return *empty3d_; }
 DescSet&	DescSet::dummy2D()	{ return *dummy2d_; }
 DescSet&	DescSet::dummy3D()	{ return *dummy3d_; }
+const uiRetVal&	DescSet::autoLoadResult() { return autoloadresult_; }
+
 
 mClass(Attrib) DescSet_Standard_Manager : public CallBacker
 {
@@ -65,8 +75,7 @@ DescSet_Standard_Manager()
 void survChgCB( CallBacker* )
 {
     dummy2d_->setEmpty(); dummy3d_->setEmpty();
-    //TODO
-    // DescSet::reLoadAuto();
+    DescSet::initGlobalSets();
 }
 
 };
@@ -91,7 +100,6 @@ uiString DescSet::sFactoryEntryNotFound( const char* attrnm )
 
 DescSet::DescSet( bool is2d )
     : is2d_(is2d)
-    , couldbeanydim_(false)
     , ischanged_(false)
     , descAdded(this)
     , descUserRefChanged(this)
@@ -105,7 +113,6 @@ DescSet::DescSet( bool is2d )
 
 DescSet::DescSet( const DescSet& ds )
     : is2d_(ds.is2d_)
-    , couldbeanydim_(ds.couldbeanydim_)
     , ischanged_(false)
     , descAdded(this)
     , descUserRefChanged(this)
@@ -122,6 +129,22 @@ DescSet::~DescSet()
     aboutToBeDeleted.trigger();
     detachAllNotifiers();
     setEmpty();
+}
+
+
+DescSet& DescSet::operator =( const DescSet& oth )
+{
+    if ( &oth != this )
+    {
+	setEmpty();
+	const_cast<bool&>(is2d_) = oth.is2d_;
+	dbky_ = oth.dbky_;
+	ischanged_ = oth.ischanged_;
+	for ( int idx=0; idx<oth.size(); idx++ )
+	    addDesc( new Desc( *oth.descs_[idx] ), oth.ids_[idx] );
+	updateInputs();
+    }
+    return *this;
 }
 
 
@@ -142,6 +165,22 @@ int DescSet::indexOf( const char* nm, bool isusrref ) const
 	}
     }
     return -1;
+}
+
+
+void DescSet::updateInputs()
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	Desc& dsc = *descs_[idx];
+	for ( int inpidx=0; inpidx<dsc.nrInputs(); inpidx++ )
+	{
+	    const Desc* oldinpdesc = dsc.getInput( inpidx );
+	    if ( !oldinpdesc ) continue;
+	    Desc* newinpdesc = getDesc( oldinpdesc->id() );
+	    dsc.setInput( inpidx, newinpdesc );
+	}
+    }
 }
 
 
@@ -182,35 +221,12 @@ DescID DescSet::defStoredID() const
 }
 
 
-DescSet& DescSet::operator =( const DescSet& ds )
+DescID DescSet::ensureStoredPresent( const DBKey& dbky, int compnr ) const
 {
-    if ( &ds != this )
-    {
-	setEmpty();
-	const_cast<bool&>(is2d_) = ds.is2d_;
-	couldbeanydim_ = ds.couldbeanydim_;
-	for ( int idx=0; idx<ds.size(); idx++ )
-	    addDesc( new Desc( *ds.descs_[idx] ), ds.ids_[idx] );
-	updateInputs();
-    }
-    return *this;
+    return const_cast<DescSet*>(this)->getStoredID(
+			    dbky, compnr, true, compnr < 0 );
 }
 
-
-void DescSet::updateInputs()
-{
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	Desc& dsc = *descs_[idx];
-	for ( int inpidx=0; inpidx<dsc.nrInputs(); inpidx++ )
-	{
-	    const Desc* oldinpdesc = dsc.getInput( inpidx );
-	    if ( !oldinpdesc ) continue;
-	    Desc* newinpdesc = getDesc( oldinpdesc->id() );
-	    dsc.setInput( inpidx, newinpdesc );
-	}
-    }
-}
 
 
 DescID DescSet::addDesc( Desc* nd, DescID id )
@@ -296,7 +312,9 @@ DescID DescSet::getID( int idx ) const
 
 
 void DescSet::getIds( TypeSet<DescID>& attribids ) const
-{ attribids = ids_; }
+{
+    attribids = ids_;
+}
 
 
 void DescSet::getStoredIds( TypeSet<DescID>& attribids ) const
@@ -306,6 +324,12 @@ void DescSet::getStoredIds( TypeSet<DescID>& attribids ) const
 	if ( descs_[idx]->isStored() )
 	    attribids += ids_[idx];
     }
+}
+
+
+const Desc* DescSet::getGlobalDesc( const SelSpec& spec )
+{
+    return getGlobalDesc( spec.is2D(), spec.id() );
 }
 
 
@@ -456,7 +480,7 @@ void DescSet::fillPar( IOPar& par ) const
     }
 
     par.set( highestIDStr(), maxid );
-    par.set( sKey::Type(), couldbeanydim_ ? "AnyD" : is2d_ ? "2D" : "3D");
+    par.set( sKey::Type(), is2d_ ? "2D" : "3D");
 }
 
 
@@ -477,10 +501,12 @@ void DescSet::handleStorageOldFormat( IOPar& descpar )
 }
 
 
-void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
+uiRetVal DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 	                           BufferString& defstring,
 				   int odversion ) const
 {
+    uiRetVal uirv;
+
     if ( attribname == "RefTime" )
     {
 	attribname = "Reference";
@@ -498,7 +524,7 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 	defstring = bstr;
     }
     if ( attribname == "Math" && odversion<500 )
-	handleOldMathExpression( descpar, defstring, odversion );
+	uirv.add( handleOldMathExpression(descpar,defstring,odversion) );
 
     if ( attribname == "FingerPrint" )
     {
@@ -506,7 +532,8 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 	BufferStringSet vals;
 	Attrib::Desc::getKeysVals( defstring.buf(), keys, vals );
 	const int statkeyidx = keys.indexOf( "statstype" );
-	if ( statkeyidx<0 ) return;
+	if ( statkeyidx<0 )
+	    return uiRetVal( tr("Cannot load old FingerPrint attribute") );
 	if ( isNumberString( vals[statkeyidx]->buf(), true ) )
 	{
 	    const int var = toInt( vals[statkeyidx]->buf() );
@@ -529,20 +556,26 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 	if ( !keys.isPresent( "smoothspect" ) )
 	    defstring.add( " smoothspect=No" );
     }
+
+    return uirv;
 }
 
 
-void DescSet::handleOldMathExpression( IOPar& descpar,
+uiRetVal DescSet::handleOldMathExpression( IOPar& descpar,
 				       BufferString& defstring,
 				       int odversion ) const
 {
+    const uiRetVal erruirv = tr( "Cannot use old Math expression" );
     RefMan<Desc> tmpdesc = PF().createDescCopy("Math");
-    if ( !tmpdesc || !tmpdesc->parseDefStr(defstring.buf()) ) return;
+    if ( !tmpdesc || !tmpdesc->parseDefStr(defstring.buf()) )
+	return erruirv;
     ValParam* expr = tmpdesc->getValParam( "expression" );
-    if ( !expr ) return;
+    if ( !expr )
+	return erruirv;
     Math::ExpressionParser mep( expr->getStringValue() );
     PtrMan<Math::Expression> formula = mep.parse();
-    if ( !formula ) return;
+    if ( !formula )
+	return erruirv;
 
     if ( odversion<340 )
     {
@@ -553,7 +586,8 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 	{
 	    int inpid;
 	    const char* key = IOPar::compKey( inputPrefixStr(), inputidx );
-	    if ( !descpar.get(key,inpid) ) break;
+	    if ( !descpar.get(key,inpid) )
+		break;
 	    oldinputs += inpid;
 	    inputidx++;
 	}
@@ -561,7 +595,8 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 	for ( int idx=0; idx<formula->nrUniqueVarNames(); idx++ )
 	{
 	    if ( Math::ExpressionParser::varTypeOf( formula->uniqueVarName(idx))
-		    != Math::Expression::Variable ) continue;
+		    != Math::Expression::Variable )
+		continue;
 
 	    const BufferString varnm( formula->uniqueVarName(idx) );
 	    const char* ptr = varnm.buf();
@@ -570,11 +605,7 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 
 	    int varxidx = toInt( ptr );
 	    if ( varxidx >= oldinputs.size() )
-	    {
-		const_cast<DescSet*>(this)->errmsg_ =
-					tr("Cannot use old Math expression");
-		return;
-	    }
+		return erruirv;
 	    correctinputs += oldinputs[varxidx];
 	}
 
@@ -598,34 +629,16 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 	}
     }
 
-
+    return uiRetVal::OK();
 }
 
 
-#define mHandleParseErr( str ) \
-{ \
-    errmsg_ = str; \
-    if ( !errmsgs ) \
-	return false; \
-\
-    (*errmsgs) += errmsg_; \
-    continue; \
-}
-
-
-#define mHandleDescErr( str ) \
-{ \
-    if ( !errmsgs ) \
-	return 0; \
-\
-    (*errmsgs) += str; \
-    return 0;\
-}
+#define mHandleParseErr( str ) { uirv.add( str ); continue; }
+#define mHandleDescErr( str ) { uirv.add( str ); return 0; }
 
 
 Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
-			   const BufferString& defstring,
-			   uiStringSet* errmsgs )
+			   const BufferString& defstring, uiRetVal& uirv )
 {
     Desc* dsc = PF().createDescCopy( attrname );
     if ( !dsc )
@@ -680,34 +693,23 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 }
 
 
-Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
-			   const BufferString& defstring )
-{
-    errmsg_.setEmpty();
-    PtrMan<uiStringSet > errmsgs = new uiStringSet;
-    Desc* newdesc = createDesc( attrname , descpar, defstring, errmsgs );
-    if ( errmsgs && !errmsgs->isEmpty() )
-	errmsg_ = (*errmsgs)[0];
-
-    return newdesc;
-}
-
-
 void DescSet::handleReferenceInput( Desc* dsc )
 {
-    if ( dsc->isSatisfied() == Desc::Error )
+    if ( Desc::isError(dsc->satisfyLevel()) )
     {
 	Desc* inpdesc = getFirstStored( false );
-	if ( !inpdesc ) return;
+	if ( !inpdesc )
+	    return;
 
 	dsc->setInput( 0, inpdesc );
     }
 }
 
 
-bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
-				uiStringSet* errmsgs )
+uiRetVal DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar )
 {
+    uiRetVal uirv;
+
     TypeSet<int> toberemoved;
     for ( int idx=0; idx<nrdescsnosteer; idx++ )
     {
@@ -734,11 +736,11 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	if ( dsc.attribName()=="Reference" )
 	    handleReferenceInput( &dsc );
 
-	if ( dsc.isSatisfied() == Desc::Error )
+	Desc::SatisfyLevel lvl = dsc.satisfyLevel();
+	if ( Desc::isError(lvl) )
 	{
 	    uiString err;
-	    const BufferString dscerr = mFromUiStringTodo(dsc.errMsg());
-	    const bool storagenotfound = dscerr==DescSet::storedIDErrStr();
+	    const bool storagenotfound = lvl == Desc::StorNotFound;
 	    if ( storagenotfound && dsc.isStoredInMem() )
 		continue;
 
@@ -819,18 +821,21 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
     for ( int idx=toberemoved.size()-1; idx>=0; idx-- )
         removeDesc( descs_[toberemoved[idx]]->id() );
 
-    return true;
+    return uirv;
 }
 
 
-bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
+uiRetVal DescSet::usePar( const IOPar& par )
 {
+    uiRetVal uirv;
+
     const char* typestr = par.find( sKey::Type() );
     if ( typestr )
     {
-	couldbeanydim_ = *typestr == 'A';
-	if ( !couldbeanydim_ )
-	    const_cast<bool&>(is2d_) = *typestr == '2';
+	const bool is2d = *typestr == '2';
+	const bool is3d = *typestr == '3';
+	if ( (is2d_ && is3d) || (!is2d_ && is2d) )
+	    const_cast<bool&>(is2d_) = !is2d_;
     }
 
     setEmpty();
@@ -838,7 +843,6 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
     IOPar copypar(par);
-    bool res = true;
 
     TypeSet<int> indexes;
     for ( int id=0; id<=maxid; id++ )
@@ -857,25 +861,16 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 	if ( !Desc::getAttribName( defstring.buf(), attribname ) )
 	    mHandleParseErr( uiStrings::sCantFindAttrName() );
 
-	handleOldAttributes( attribname, *descpar, defstring, par.odVersion() );
-	if ( errmsgs && !errmsg_.isEmpty() )
-	    errmsgs->add( errmsg_ );
-
+	uirv.add( handleOldAttributes(attribname,*descpar,defstring,
+					par.odVersion()) );
 	RefMan<Desc> dsc;
-	dsc = errmsgs ? createDesc( attribname, *descpar, defstring, errmsgs )
-		      : createDesc( attribname, *descpar, defstring );
+	dsc = createDesc( attribname, *descpar, defstring, uirv );
 	if ( !dsc )
-	    { res = false; continue; }
+	    continue;
 
 	uiString emsg = Provider::prepare( *dsc );
 	if ( !emsg.isEmpty() )
-	 {
-	     if ( errmsgs )
-		 errmsgs->add( emsg );
-
-	     res = false;
-	     continue;
-	 }
+	    { uirv.add( emsg ); continue; }
 
 	int idx=-1;
 	descpar->get( indexStr(), idx );
@@ -888,28 +883,28 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 
     // sort_coupled();
     ObjectSet<Desc> newsteeringdescs;
-    useOldSteeringPar(copypar, newsteeringdescs, errmsgs);
+    uirv.add( useOldSteeringPar(copypar,newsteeringdescs) );
 
     for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
 	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1 ) );
 
-    int nrdescsnosteer = ids_.size()-newsteeringdescs.size();
-    if ( !setAllInputDescs( nrdescsnosteer, copypar, errmsgs ) )
-	res = false;
-
-    return res;
+    int nrdescsnosteer = ids_.size() - newsteeringdescs.size();
+    return uirv.add( setAllInputDescs(nrdescsnosteer,copypar) );
 }
 
 
-bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
-				 uiStringSet* errmsgs )
+uiRetVal DescSet::useOldSteeringPar( IOPar& par,
+				     ObjectSet<Desc>& newsteeringdescs )
 {
+    uiRetVal uirv;
+
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
     for ( int id=0; id<=maxid; id++ )
     {
 	PtrMan<IOPar> descpar = par.subselect( BufferString("",id) );
-	if ( !descpar ) continue;
+	if ( !descpar )
+	    continue;
 
 	int steeringdescid = -1;
 	const IOPar* steeringpar = descpar->subselect( "Steering" );
@@ -918,9 +913,10 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	    const char* defstring = descpar->find( definitionStr() );
 	    if ( !defstring )
 		mHandleParseErr(tr("No attribute definition string specified"));
-	    if ( !createSteeringDesc(*steeringpar,defstring,newsteeringdescs,
-				     steeringdescid) )
-		mHandleParseErr( tr("Cannot create steering definition"));
+	    uiRetVal uisteerrv = createSteeringDesc( *steeringpar, defstring,
+				    newsteeringdescs, steeringdescid );
+	    if ( !uisteerrv.isOK() )
+		{ uirv.add( uisteerrv ); continue; }
 
 	    Desc* dsc = getDesc( DescID(id) );
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
@@ -935,25 +931,144 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	    }
 	}
     }
-    return true;
+
+    return uirv;
 }
 
 
-#define mHandleSteeringParseErr( str ) \
-{ \
-    errmsg_ = str; \
-    if ( !errmsgs ) \
-	return false; \
-\
-    (*errmsgs) += errmsg_; \
-}
-
-
-bool DescSet::createSteeringDesc( const IOPar& steeringpar,
-				  BufferString defstring,
-				  ObjectSet<Desc>& newsteeringdescs, int& id,
-				  uiStringSet* errmsgs )
+void DescSet::pushGlobal( bool is2d, DescSet* ds )
 {
+    (is2d ? global2d_ : global3d_) += ds;
+}
+
+
+DescSet* DescSet::popGlobal( bool is2d )
+{
+    ObjectSet<DescSet>& globs = is2d ? global2d_ : global3d_;
+    const int sz = globs.size();
+    if ( sz < 2 )
+	{ pFreeFnErrMsg("never pop the base set"); return 0; }
+    return globs.removeSingle( sz-1 );
+}
+
+
+void DescSet::initGlobalSets()
+{
+    autoloadresult_.setEmpty();
+    deepErase( global2d_ ); deepErase( global3d_ );
+    DescSet* g2d = new DescSet( true ); DescSet* g3d = new DescSet( false );
+    global2d_ += g2d; global3d_ += g3d;
+
+    bool loadauto = false;
+    Settings::common().getYN( sKeyUseAutoAttrSet, loadauto );
+    if ( !loadauto )
+	return;
+
+    if ( SI().has2D() )
+    {
+	DBKey dbky;
+	if ( SI().getDefaultPars().get(sKeyAuto2DAttrSetID,dbky) )
+	    autoloadresult_.add( g2d->load(dbky) );
+    }
+    if ( SI().has3D() )
+    {
+	DBKey dbky;
+	if ( SI().getDefaultPars().get(sKeyAuto3DAttrSetID,dbky) )
+	    autoloadresult_.add( g3d->load(dbky) );
+    }
+}
+
+
+IOObjContext* DescSet::getIOObjContext( bool forread )
+{
+    IOObjContext* ctxt = new IOObjContext( mIOObjContext(AttribDescSet) );
+    ctxt->forread_ = forread;
+    return ctxt;
+}
+
+
+IOObjContext* DescSet::getIOObjContext( bool forread, bool is2d )
+{
+    IOObjContext* ctxt = getIOObjContext( forread );
+    ctxt->toselect_.dontallow_.set( sKey::Type(), is2d ? "3D" : "2D" );
+    return ctxt;
+}
+
+
+CtxtIOObj* DescSet::getCtxtIOObj( bool forread ) const
+{
+    IOObjContext* ctxt = getIOObjContext( forread, is2D() );
+    CtxtIOObj* ctio = new CtxtIOObj( *ctxt );
+    delete ctxt;
+    ctio->setObj( storeID() );
+    return ctio;
+}
+
+
+BufferString DescSet::name() const
+{
+    return DBM().nameOf( dbky_ );
+}
+
+
+uiRetVal DescSet::store( const DBKey& dbky ) const
+{
+    PtrMan<IOObj> ioobj = DBM().get( dbky );
+    uiRetVal uirv;
+    if ( !ioobj )
+	uirv.add( uiStrings::phrCannotFindDBEntry(dbky_.toUiString()) );
+    else
+    {
+	DescSet stords( *this );
+	stords.removeUnused( true );
+	uirv = AttribDescSetTranslator::store( stords, ioobj );
+	if ( uirv.isOK() )
+	    const_cast<DescSet*>(this)->dbky_ = dbky;
+    }
+    return uirv;
+}
+
+
+uiRetVal DescSet::load( const DBKey& dbky, uiRetVal* warns )
+{
+    PtrMan<IOObj> ioobj = DBM().get( dbky );
+    if ( !ioobj )
+	return uiRetVal( uiStrings::phrCannotFindDBEntry(dbky.toUiString()) );
+
+    DescSet loadset( is2D() );
+    uiRetVal uirv = AttribDescSetTranslator::retrieve( loadset, ioobj, warns );
+    if ( uirv.isOK() )
+    {
+	loadset.removeUnused( true );
+	*this = loadset;
+	setIsChanged( false );
+	dbky_ = dbky;
+    }
+
+    return uirv;
+}
+
+
+uiRetVal DescSet::load( const char* fnm, uiRetVal* warns )
+{
+    DescSet loadset( false );
+    uiRetVal uirv = AttribDescSetTranslator::retrieve( loadset, fnm, warns );
+    if ( uirv.isOK() )
+    {
+	*this = loadset;
+	setIsChanged( false );
+	dbky_.setInvalid();
+    }
+    return uirv;
+}
+
+
+uiRetVal DescSet::createSteeringDesc( const IOPar& steeringpar,
+				      BufferString defstring,
+				  ObjectSet<Desc>& newsteeringdescs, int& id )
+{
+    uiRetVal uirv;
+
     FixedString steeringtype = steeringpar.find( sKey::Type() );
     BufferString steeringdef = steeringtype.str();
     if ( steeringtype == "ConstantSteering" )
@@ -981,17 +1096,14 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 
     BufferString attribname;
     if ( !Desc::getAttribName(steeringdef,attribname) )
-	mHandleSteeringParseErr(uiStrings::sCantFindAttrName());
+	uirv.add( uiStrings::sCantFindAttrName() );
 
     RefMan<Desc> stdesc = PF().createDescCopy(attribname);
     if ( !stdesc )
-	mHandleSteeringParseErr( sFactoryEntryNotFound(attribname) );
+	uirv.add( sFactoryEntryNotFound(attribname) );
 
     if ( !stdesc->parseDefStr(steeringdef) )
-    {
-	uiString err = tr("Cannot parse: %1").arg(steeringdef);
-	mHandleSteeringParseErr(err);
-    }
+	uirv.add( tr("Cannot parse: %1").arg(steeringdef) );
 
     BufferString usrrefstr = "steering input ";
     usrrefstr += newsteeringdescs.size();
@@ -1019,20 +1131,14 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 	if ( stdesc->isIdenticalTo(*newsteeringdescs[idx]) )
 	{
 	    id = idx;
-	    return true;
+	    return uirv;
 	}
     }
     stdesc->ref();
     newsteeringdescs += stdesc;
     id = newsteeringdescs.size()-1;
 
-    return true;
-}
-
-
-uiString DescSet::errMsg() const
-{
-    return errmsg_;
+    return uirv;
 }
 
 
@@ -1228,7 +1334,8 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	int count = 0;
 	for ( int descidx=0; descidx<size(); descidx++ )
 	{
-	    if ( kpdefault && !descidx ) continue; //default desc always first
+	    if ( kpdefault && !descidx )
+		continue; //default desc always first
 
 	    DescID descid = getID( descidx );
 	    if ( torem.isPresent(descid) ) continue;
@@ -1255,7 +1362,8 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    }
 	}
 
-	if ( count == 0 ) break;
+	if ( count == 0 )
+	    break;
     }
 
     const int sz = torem.size();

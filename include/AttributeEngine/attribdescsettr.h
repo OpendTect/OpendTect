@@ -36,24 +36,23 @@ mExpClass(AttributeEngine) AttribDescSetTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(AttribDescSet)
 
-    virtual const char*	read(Attrib::DescSet&,Conn&)		= 0;
-			//!< returns err msg or null on success
-    virtual const char*	warningMsg() const			= 0;
-    virtual const uiString  warningUiMsg() const		= 0;
-    virtual const char*	write(const Attrib::DescSet&,Conn&)	= 0;
-			//!< returns err msg or null on success
+    virtual uiRetVal	read(Attrib::DescSet&,Conn&)		= 0;
+    virtual uiRetVal	warnings() const			= 0;
+    virtual uiRetVal	write(const Attrib::DescSet&,Conn&)	= 0;
 
-    static bool		retrieve(Attrib::DescSet&,const char* fnm,
-				 uiString&);
+    static uiRetVal	retrieve(Attrib::DescSet&,const char* fnm,
+				 uiRetVal* warnings=0);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
-    static bool		retrieve(Attrib::DescSet&,const IOObj*,uiString&);
+    static uiRetVal	retrieve(Attrib::DescSet&,const IOObj*,
+				 uiRetVal* warnings=0);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
-    static bool	store(const Attrib::DescSet&,const IOObj*,
-			      uiString&);
+    static uiRetVal	store(const Attrib::DescSet&,const IOObj*,
+			      uiRetVal* warnings=0);
 			//!< BufferString has errmsg, if any
-    static uiString	readFromStream(ascistream&,Attrib::DescSet&,uiString&);
+    static uiRetVal	readFromStream(ascistream&,Attrib::DescSet&,
+					uiRetVal& warns);
 };
 
 
@@ -65,10 +64,14 @@ dgbAttribDescSetTranslator : public AttribDescSetTranslator
   mODTextTranslationClass(dgbAttribDescSetTranslator);
 public:
 			mDefEmptyTranslatorConstructor(dgb,AttribDescSet)
-    const char*		read(Attrib::DescSet&,Conn&);
-    const char*	warningMsg() const {return warningmsg_.getFullString();}
-    const uiString	warningUiMsg() const { return warningmsg_; }
-    const char*		write(const Attrib::DescSet&,Conn&);
 
-    uiString		warningmsg_;
+    uiRetVal		read(Attrib::DescSet&,Conn&);
+    uiRetVal		warnings() const	    { return warns_;}
+    uiRetVal		write(const Attrib::DescSet&,Conn&);
+
+    uiRetVal		warns_;
+
+protected:
+
+    uiRetVal		badConnRV();
 };

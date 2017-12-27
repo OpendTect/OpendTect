@@ -11,7 +11,6 @@ ___________________________________________________________________
 
 #include "uiodrandlinetreeitem.h"
 
-#include "attribdescsetsholder.h"
 #include "attribsel.h"
 #include "attribprobelayer.h"
 #include "ctxtioobj.h"
@@ -138,11 +137,14 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
     , rdlpolylinedlg_(0)
     , rdltobeaddedid_(-1)
     , visrdltobeaddedid_(-1)
-{}
+{
+}
 
 
 const char* uiODRandomLineParentTreeItem::iconName() const
-{ return "tree-randomline"; }
+{
+    return "tree-randomline";
+}
 
 
 const char* uiODRandomLineParentTreeItem::childObjTypeKey() const
@@ -156,25 +158,14 @@ bool uiODRandomLineParentTreeItem::setProbeToBeAddedParams( int mnuid )
     rdlprobetobeadded_ = 0;
     visrdltobeaddedid_ = -1;
     rdltobeaddedid_ = -1;
-    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+    typetobeadded_ = uiODSceneProbeParentTreeItem::DefaultData;
 
-    if ( mnuid==uiODSceneProbeParentTreeItem::sAddDefaultDataMenuID()  )
-    {
-	typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
-	return true;
-    }
-    else if ( mnuid==uiODSceneProbeParentTreeItem::sAddColorBlendedMenuID() )
-    {
-	typetobeadded_ = uiODSceneProbeParentTreeItem::RGBA;
-	return true;
-    }
-    else if ( mnuid==uiODSceneProbeParentTreeItem::sAddAndSelectDataMenuID() )
+    if ( mnuid<=cAddColorBlendedMenuID()  )
+	{ typetobeadded_ = (AddType)mnuid; return true; }
+    else if ( mnuid==uiODSceneProbeParentTreeItem::cAddAndSelectDataMenuID() )
 	return setSelRDLID();
     else if ( mnuid == sInteractiveMenuID() )
-    {
-	setRDLFromPicks();
-	return false;
-    }
+	{ setRDLFromPicks(); return false; }
     else if ( mnuid==5 )
 	return setRDLIDFromContours();
     else if ( mnuid==sFromExistingMenuID() )
@@ -184,10 +175,7 @@ bool uiODRandomLineParentTreeItem::setProbeToBeAddedParams( int mnuid )
     else if ( mnuid == sFromTableMenuID() )
 	return setRDLFromTable();
     else if ( mnuid == sFromWellMenuID() )
-    {
-	setRDLFromWell();
-	return false;
-    }
+	{ setRDLFromWell(); return false; }
 
     return false;
 }
@@ -225,15 +213,16 @@ void uiODRandomLineParentTreeItem::addMenuItems()
     uiODSceneProbeParentTreeItem::addMenuItems();
 
     uiAction* storedmenu = menu_->findAction(
-	    uiODSceneProbeParentTreeItem::sAddAndSelectDataMenuID() );
+	    uiODSceneProbeParentTreeItem::cAddAndSelectDataMenuID() );
     if ( !storedmenu )
 	return;
 
     storedmenu->setText( tr("Add Stored") );
 
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
+    newmnu->setIcon( "new" );
     newmnu->insertAction(
-	    new uiAction(m3Dots(tr("Interactive "))), sInteractiveMenuID() );
+	    new uiAction(m3Dots(tr("Interactive"))), sInteractiveMenuID() );
     newmnu->insertAction(
 	    new uiAction(m3Dots(tr("From Existing"))), sFromExistingMenuID() );
     newmnu->insertAction(
@@ -255,7 +244,7 @@ bool uiODRandomLineParentTreeItem::setSelRDLID()
 
     const IOObj* ioobj = dlg.ioObj();
     rdltobeaddedid_ = Geometry::RLM().get( ioobj->key() )->ID();
-    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+    typetobeadded_ = uiODSceneProbeParentTreeItem::DefaultData;
     visrdltobeaddedid_ = -1;
     return true;
 }
@@ -271,7 +260,7 @@ bool uiODRandomLineParentTreeItem::setRDLID( int opt )
     if ( !newrdl )
 	return false;
 
-    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+    typetobeadded_ = uiODSceneProbeParentTreeItem::DefaultData;
     visrdltobeaddedid_ = -1;
     rdltobeaddedid_ = newrdl->ID();
     return true;
@@ -319,7 +308,7 @@ bool uiODRandomLineParentTreeItem::setRDLFromTable()
     zrg.scale( 1.f/SI().zDomain().userFactor() );
     newrdl->setZRange( zrg );
 
-    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+    typetobeadded_ = uiODSceneProbeParentTreeItem::DefaultData;
     visrdltobeaddedid_ = -1;
     rdltobeaddedid_ = newrdl->ID();
     return true;
@@ -352,7 +341,7 @@ void uiODRandomLineParentTreeItem::setRDLFromPicks()
     rtd->setProbe( rdlprobetobeadded_ );
     ODMainWin()->applMgr().visServer()->addObject( rtd, sceneID(), true );
     rtd->select();
-    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+    typetobeadded_ = uiODSceneProbeParentTreeItem::DefaultData;
     visrdltobeaddedid_ = rtd->id();
     rdltobeaddedid_ = -1;
     rdlpolylinedlg_ = new uiRandomLinePolyLineDlg( getUiParent(), rtd );
@@ -384,7 +373,7 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWellCB( CallBacker* )
 	    return;
 
 	rdltobeaddedid_ = newrdl->ID();
-	typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+	typetobeadded_ = uiODSceneProbeParentTreeItem::DefaultData;
 	visrdltobeaddedid_ = -1;
 	addChildProbe();
     }

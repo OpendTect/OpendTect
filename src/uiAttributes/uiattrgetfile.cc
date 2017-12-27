@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsettr.h"
 #include "file.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -177,16 +176,16 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
     fileinpfld_ = new uiFileSel( this, uiStrings::phrSelect(
 		      mJoinUiStrs(sInput(),sFile())), fssu );
 
-    IOObjContext ctxt = mIOObjContext(AttribDescSet);
-    ctxt.forread_ = false;
-    attrsetfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrOutput(
-							 tr("Attribute Set")) );
+    PtrMan<IOObjContext> ctxt = Attrib::DescSet::getIOObjContext( false );
+    attrsetfld_ = new uiIOObjSel( this, *ctxt,
+				  uiStrings::phrOutput( tr("Attribute Set")) );
     attrsetfld_->attach( alignedBelow, fileinpfld_ );
 }
 
 
 uiImpAttrSet::~uiImpAttrSet()
-{}
+{
+}
 
 
 bool uiImpAttrSet::acceptOK()
@@ -194,33 +193,26 @@ bool uiImpAttrSet::acceptOK()
     const char* fnm = fileinpfld_->fileName();
     if ( !File::exists(fnm) )
     {
-	uiMSG().error( uiStrings::phrSelect(tr("existing file.")) );
+	uiMSG().error( uiStrings::phrSelect(tr("an existing file.")) );
 	return false;
     }
 
     const IOObj* ioobj = attrsetfld_->ioobj();
-    if ( !ioobj ) return false;
-
-    uiString errmsg;
-    Attrib::DescSet ds( false );
-    bool res = AttribDescSetTranslator::retrieve( ds, fnm, errmsg );
-    if ( !res )
-    {
-	uiMSG().error( errmsg );
+    if ( !ioobj )
 	return false;
-    }
+
+    Attrib::DescSet ds( false );
+    uiRetVal uirv = ds.load( fnm );
+    if ( !uirv.isOK() )
+	{ uiMSG().error( uirv ); return false; }
 
     uiStoredAttribReplacer sar( this, &ds );
     sar.go();
 
-    res = AttribDescSetTranslator::store( ds, ioobj, errmsg );
-    if ( !res )
-    {
-	uiMSG().error( errmsg );
-	return false;
-    }
+    uirv = ds.store( ioobj->key() );
+    if ( !uirv.isOK() )
+	{ uiMSG().error( uirv ); return false; }
 
-    res = uiMSG().askGoOn( tr("Attribute Set successfully imported."
+    return !uiMSG().askGoOn( tr("Attribute Set successfully imported."
 			   "\n\nDo you want to import more Attribute Sets?") );
-    return !res;
 }

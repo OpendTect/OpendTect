@@ -22,13 +22,12 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsettr.h"
 #include "attribstorprovider.h"
 #include "attribparambase.h"
 #include "attribfactory.h"
 #include "keystrs.h"
 #include "survinfo.h"
-#include "ioobj.h"
+#include "ctxtioobj.h"
 
 
 uiAttribDescSetBuild::Setup::Setup( bool for2d )
@@ -52,20 +51,16 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 	    .withtitles(true), "DescSet build group")
     , descset_(*new Attrib::DescSet(su.is2d_))
     , attrsetup_(su)
-    , ctio_(*mMkCtxtIOObj(AttribDescSet))
     , uipsattrdesced_(0)
     , anychg_(false)
 {
-    descset_.setCouldBeUsedInAnyDimension( true );
     fillAvailable();
 }
 
 
 uiAttribDescSetBuild::~uiAttribDescSetBuild()
 {
-    delete ctio_.ioobj_;
     delete &descset_;
-    delete &ctio_;
 }
 
 
@@ -75,7 +70,8 @@ void uiAttribDescSetBuild::defSelChg()
 
     const char* attrnm = curDefSel();
     const bool havesel = attrnm && *attrnm;
-    if ( !havesel ) return;
+    if ( !havesel )
+	return;
 
     const Attrib::DescID descid = descset_.getID( attrnm, true );
     rmbut_->setSensitive( descid.isValid() && !descset_.isAttribUsed(descid) );
@@ -84,16 +80,19 @@ void uiAttribDescSetBuild::defSelChg()
 
 bool uiAttribDescSetBuild::handleUnsaved()
 {
-    if ( !anychg_ && !usrchg_ ) return true;
+    if ( !anychg_ && !usrchg_ )
+	return true;
 
     const int res = uiMSG().question(tr("Seismic Attribute Set not saved."
 					"\n\nDo you want to save it now?"),
 				     tr("Yes (store)"), tr("No (discard)"),
-	uiStrings::sCancel());
-    if ( res == 0 ) return true;
-    if ( res == -1 ) return false;
+				     uiStrings::sCancel());
+    if ( res == 0 )
+	return true;
+    if ( res == -1 )
+	return false;
 
-    return ioReq(true);
+    return ioReq( true );
 }
 
 
@@ -142,7 +141,8 @@ void uiAttribDescSetBuild::fillAvailable()
 void uiAttribDescSetBuild::editReq( bool isadd )
 {
     const char* attrnm = isadd ? curAvSel() : curDefSel();
-    if ( !attrnm || !*attrnm ) return;
+    if ( !attrnm || !*attrnm )
+	return;
 
     Attrib::DescID did;
     if ( !isadd )
@@ -151,7 +151,8 @@ void uiAttribDescSetBuild::editReq( bool isadd )
     {
 	attrnm = uiAF().attrNameOf( attrnm );
 	Attrib::Desc* desc = Attrib::PF().createDescCopy( attrnm );
-	if ( !desc ) { pErrMsg("Huh"); return; }
+	if ( !desc )
+	    { pErrMsg("Huh"); return; }
 	desc->setUserRef( "" );
 	desc->setDescSet( &descset_ );
 	descset_.addDesc( desc );
@@ -261,53 +262,16 @@ bool uiAttribDescSetBuild::ioReq( bool forsave )
 
 bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 {
-    ctio_.ctxt_.forread_ = forread;
-    uiIOObjSelDlg dlg( this, ctio_ );
+    PtrMan<CtxtIOObj> ctio = descset_.getCtxtIOObj( forread );
+    uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 
     const bool is2d = attrsetup_.is2d_;
-
-    uiString emsg;
     Attrib::DescSet descset( is2d );
-    bool res = forread
-	? AttribDescSetTranslator::retrieve(descset,dlg.ioObj(),emsg)
-	: AttribDescSetTranslator::store(descset_,dlg.ioObj(),emsg);
-
-    const bool isdesc2d = descset.is2D();
-    const bool isdescanyd = descset.couldBeUsedInAnyDimension();
-
-    //TODO make a 2D/3D AttribSet converter
-
-    if ( forread )
-    {
-	const bool badmatch = (!isdesc2d && is2d) || (isdesc2d && !is2d);
-	if ( res && badmatch && !isdescanyd )
-	{
-	    emsg = tr("Can not load Attribute Set:\n"
-		      "Attribute Set is %1. Current definition is %2")
-		 .arg(isdesc2d ? uiStrings::s2D() : uiStrings::s3D())
-		 .arg(is2d ? uiStrings::s2D() : uiStrings::s3D());
-	    res = false;
-	}
-	else if ( res )
-	{
-	    if ( isdescanyd )
-	    {
-		IOPar par; descset.fillPar( par );
-		par.set( sKey::Type(), is2d ? "2D" : "3D" );
-		descset.usePar( par );
-	    }
-	    descset_ = descset;
-	}
-    }
-
-
-    if ( !res )
-    {
-	uiMSG().error( emsg );
-	return false;
-    }
+    uiRetVal uirv = forread
+	? descset_.load( dlg.ioObj()->key() )
+	: descset_.store( dlg.ioObj()->key() );
 
     usrchg_ = false;
     if ( forread && ( !dpfids_.isEmpty() || !psdpfids_.isEmpty() ) )
@@ -317,5 +281,5 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	replacerdlg.go();
     }
 
-    return res;
+    return true;
 }

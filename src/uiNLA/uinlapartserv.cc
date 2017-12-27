@@ -50,8 +50,7 @@ int uiNLAPartServer::evGetInputNames()		{ return 3; }
 int uiNLAPartServer::evGetStoredInput()		{ return 4; }
 int uiNLAPartServer::evGetData()		{ return 5; }
 int uiNLAPartServer::evSaveMisclass()		{ return 6; }
-int uiNLAPartServer::evCreateAttrSet()		{ return 7; }
-int uiNLAPartServer::evCr2DRandomSet()		{ return 8; }
+int uiNLAPartServer::evCr2DRandomSet()		{ return 7; }
 uiString uiNLAPartServer::sKeyUsrCancel()	{ return tr("User cancel");  }
 
 #define mDPM DPM(DataPackMgr::PointID())

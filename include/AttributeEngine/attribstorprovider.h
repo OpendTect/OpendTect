@@ -97,6 +97,9 @@ protected:
     void		registerNewPosInfo(SeisTrc*,const BinID&,bool,bool&);
     bool                useInterTrcDist() const;
 
+    enum Status		{ None, StorageOpened, Ready };
+
+    Status		status_;
     TypeSet<BinDataDesc> datachar_;
     Seis::MSCProvider*	mscprov_;
     BinID		stepoutstep_;
@@ -105,7 +108,7 @@ protected:
     bool		useintertrcdist_;
     PosInfo::LineSet2DData*  ls2ddata_;
 
-    enum Status        { None, StorageOpened, Ready } status_;
+    friend class	Provider;
 };
 
 }; // namespace Attrib

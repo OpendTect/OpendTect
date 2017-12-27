@@ -414,7 +414,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 				     attrdata.nlamodel_ );
 	    TypeSet<Attrib::SelSpec> targetspecs;
 	    if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
-				is2d, attrinf, ads_, this, targetspecs ))
+				is2d, attrinf, *ads_, this, targetspecs ))
 		return 0;
 	    for ( int idx=0; idx<targetspecs.size(); idx++ )
 		outdescids += targetspecs[idx].id();

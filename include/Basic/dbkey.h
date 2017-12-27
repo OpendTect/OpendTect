@@ -77,7 +77,7 @@ public:
     void		setAuxKey(const char*);
 
     mDeprecated		DBKey(const char*);
-    mDeprecated static DBKey udf()		{ return getInvalid(); }
+    mDeprecated static	DBKey udf()		{ return getInvalid(); }
     mDeprecated bool	isEmpty() const		{ return isInvalid(); }
     mDeprecated bool	isUdf() const		{ return isInvalid(); }
     mDeprecated void	setEmpty()		{ setInvalid(); }

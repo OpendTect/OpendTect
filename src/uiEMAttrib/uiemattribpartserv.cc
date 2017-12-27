@@ -36,7 +36,6 @@ const DataColDef& uiEMAttribPartServer::sidDef() const
 uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , nlamodel_(0)
-    , descset_(0)
     , horshiftdlg_(0)
     , shiftidx_(10)
     , attribidx_(0)
@@ -64,16 +63,18 @@ uiEMAttribPartServer::~uiEMAttribPartServer()
 }
 
 
+#define mGlobAttrSet(is2d) Attrib::DescSet::global(is2d)
+
 #define mEMAttrDlg(dlgobj,caption) \
     { \
 	if ( !dlgobj ) \
 	{ \
-	    dlgobj = new uiAttrTrcSelOut( parent(), *descset_, nlamodel_, \
-					  nlaid_, type==AroundHor ); \
+	    dlgobj = new uiAttrTrcSelOut( parent(), mGlobAttrSet(is2d), \
+			 nlamodel_, nlaid_, type==AroundHor ); \
 	    dlgobj->setCaption( caption ); \
 	} \
 	else \
-	    dlgobj->updateAttributes( *descset_,nlamodel_,nlaid_ ); \
+	    dlgobj->updateAttributes( mGlobAttrSet(is2d), nlamodel_, nlaid_ ); \
 	dlgobj->show(); \
     }
 
@@ -81,30 +82,28 @@ uiEMAttribPartServer::~uiEMAttribPartServer()
     { \
 	if ( !surfdlg ) \
 	{ \
-	    surfdlg = new uiAttrSurfaceOut( parent(), *descset_, \
+	    surfdlg = new uiAttrSurfaceOut( parent(), mGlobAttrSet(is2d), \
 						       nlamodel_, nlaid_ ); \
 	    surfdlg->setCaption( surfdlgcap ); \
 	} \
 	else \
-	    surfdlg->updateAttributes( *descset_,nlamodel_,nlaid_ ); \
+	    surfdlg->updateAttributes( mGlobAttrSet(is2d), nlamodel_,nlaid_ ); \
 	surfdlg->go(); \
     }
 
 
-void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
+void uiEMAttribPartServer::createHorizonOutput( HorOutType type, bool is2d )
 {
-    if ( !descset_ ) return;
-
     if ( type==OnHor )
     {
-	if ( descset_->is2D() )
+	if ( is2d )
 	    mSurfAttrDlg(surfattr2ddlg_,tr("Calculate Horizon Data from 2D"))
 	else
 	    mSurfAttrDlg(surfattr3ddlg_,tr("Calculate Horizon Data from 3D"))
     }
     else
     {
-	if ( descset_->is2D() )
+	if ( is2d )
 	{
 	    if ( type==AroundHor )
 		mEMAttrDlg(aroundhor2ddlg_,
@@ -129,7 +128,8 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, bool is2d )
 {
     PtrMan<IOObj> ioobj = DBM().get( EM::EMM().getDBKey(emid) );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     if ( uiseisevsnapdlg_ ) delete uiseisevsnapdlg_;
     uiseisevsnapdlg_ = new uiSeisEventSnapper( parent(), ioobj, is2d );
@@ -204,8 +204,7 @@ void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
 	horshiftdlg_->close();
 
     horshiftdlg_ = new uiHorizonShiftDialog( appserv().parent(), id, visid,
-					     *descset_, initialshift,
-					     canaddattrib );
+	    Attrib::DescSet::global(false), initialshift, canaddattrib );
     horshiftdlg_->calcAttribPushed.notify(
 	    mCB(this,uiEMAttribPartServer,calcDPS) );
     horshiftdlg_->horShifted.notify(

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
@@ -53,13 +52,8 @@ bool uiTrackSettingsValidator::checkActiveTracker() const
 bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
 						DBKey& key ) const
 {
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
-    const Attrib::Desc* desc = ads ? ads->getDesc( as.id() ) : 0;
-    if ( !desc )
-    {
-	ads = Attrib::DSHolder().getDescSet( false, false );
-	desc = ads ? ads->getDesc( as.id() ) : 0;
-    }
+    const Attrib::DescSet& ads = Attrib::DescSet::global( false );
+    const Attrib::Desc* desc = ads.getDesc( as.id() );
 
     key = desc ? DBKey(desc->getStoredID(false)) : DBKey::getInvalid();
     if ( key.isInvalid() )

@@ -122,8 +122,6 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	    return false;
 
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	mps->setCurrentAttribDescSet(
-		applMgr()->attrServer()->curDescSet(true) );
 	int emid = -1;
 	if ( emids.validIdx(emidx) )
 	    emid = emids[emidx];
@@ -462,9 +460,6 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
     uiMenu* removemenu = createRemoveMenu();
     mnu.addMenu( removemenu );
 
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
-
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )
     {
@@ -570,15 +565,16 @@ void uiODVw2DHor2DTreeItem::updateSelSpec( const Attrib::SelSpec* selspec,
 void uiODVw2DHor2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
-    if ( emid != emid_ ) return;
-
+    if ( emid != emid_ )
+	return;
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    if ( !emobj ) return;
-
+    if ( !emobj )
+	return;
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj);
-    if ( !hor2d ) return;
-
-    if ( emid != emid_ ) return;
+    if ( !hor2d )
+	return;
+    if ( emid != emid_ )
+	return;
 
     parent_->removeChild( this );
 }

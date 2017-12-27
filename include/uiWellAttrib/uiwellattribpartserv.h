@@ -22,7 +22,6 @@ class uiCreateLogCubeDlg;
 class uiWellAttribCrossPlot;
 class uiWellTo2DLineDlg;
 
-namespace Attrib { class DescSet; }
 namespace WellTie { class uiTieWinMGRDlg; }
 
 /*!
@@ -36,21 +35,20 @@ public:
 				uiWellAttribPartServer(uiApplService&);
 				~uiWellAttribPartServer();
 
-    void			setAttribSet(const Attrib::DescSet&);
     void			setNLAModel(const NLAModel*);
     const NLAModel*		getNLAModel()		{ return nlamodel_;}
 
     const char*			name() const		{ return "Wells"; }
 
-    				// Services
+				// Services
     bool			createAttribLog(const DBKey&);
     bool			createAttribLog(const BufferStringSet&);
     bool			createLogCube(const DBKey&);
     bool			create2DFromWells(DBKey& newseisid,
 						  Pos::GeomID& newlinegid);
-    void			doXPlot();
+    void			doXPlot(bool is2d);
 
-    void 			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )
+    void			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )
 				{ dpsdispmgr_ = dispmgr; }
     bool			createD2TModel(const DBKey&);
 
@@ -66,7 +64,6 @@ public:
 
 protected:
 
-    Attrib::DescSet*		attrset_;
     const NLAModel*		nlamodel_;
 
     WellTie::uiTieWinMGRDlg*	welltiedlg_;

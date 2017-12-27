@@ -81,12 +81,16 @@ StratAmpCalc::~StratAmpCalc()
 }
 
 
+
+#define mErrRet(s) { errmsg_ = s; return -1; }
+
 int StratAmpCalc::init( const IOPar& pars )
 {
+    const uiString badinp = tr( "Bad input" );
     pars.get( sKeyTopShift(), tophorshift_ );
     pars.get( sKeyBottomShift(), bothorshift_ );
     if ( mIsUdf(tophorshift_) || mIsUdf(bothorshift_) )
-	return -1;
+	mErrRet( badinp )
 
     pars.getYN( sKeyIsClassification(), isclassification_ );
 
@@ -94,26 +98,29 @@ int StratAmpCalc::init( const IOPar& pars )
     pars.getYN( sKeyAddToTopYN(), addtotop_ );
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
     if ( !addtohor )
-	return -1;
+	mErrRet( badinp )
 
     //determine whether stored data is used
     PtrMan<IOPar> attribs = pars.subselect("Attributes");
-    if ( !attribs || !descset_->usePar(*attribs) )
-	return -1;
+    if ( !attribs || attribs->isEmpty() )
+	mErrRet( badinp )
+    uiRetVal uirv = descset_->usePar( *attribs );
+    if ( !uirv.isOK() )
+	mErrRet( uirv )
 
     BufferString outpstr = IOPar::compKey( sKey::Output(), 0 );
     PtrMan<IOPar> outputpar = pars.subselect( outpstr );
-    if ( !outputpar )
-	return -1;
+    if ( !outputpar || outputpar->isEmpty() )
+	mErrRet( badinp )
 
     BufferString attribidstr = IOPar::compKey( sKey::Attributes(), 0 );
     int attribid;
     if ( !outputpar->get(attribidstr,attribid) )
-	return -1;
+	mErrRet( badinp )
 
     Attrib::Desc* targetdesc = descset_->getDesc( Attrib::DescID(attribid) );
     if ( !targetdesc )
-	return -1;
+	mErrRet( badinp )
 
     BufferString defstring;
     targetdesc->getDefStr( defstring );
@@ -125,7 +132,6 @@ int StratAmpCalc::init( const IOPar& pars )
 		Attrib::StorageProvider::keyStr())->getStringValue(0) );
 	const DBKey key = DBKey::getFromString( strpair.first() );
 
-	uiRetVal uirv;
 	prov_ = Seis::Provider::create( key, &uirv );
 	if ( !prov_ )
 	    errmsg_ = uirv;
@@ -142,13 +148,13 @@ int StratAmpCalc::init( const IOPar& pars )
 	PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
 	proc_ = attrengman->usePar( pars, *descset_, 0, errmsg, 0 );
 	if ( !proc_ )
-	    return -1;
+	    mErrRet( badinp )
     }
 
     BufferString attribnm;
     pars.get( sKeyAttribName(), attribnm );
     if ( attribnm.isEmpty() )
-	return -1;
+	mErrRet( badinp )
 
     dataidx_ = addtohor->auxdata.auxDataIndex( attribnm );
     if ( dataidx_ < 0 )
@@ -208,11 +214,17 @@ int StratAmpCalc::nextStep()
 	if ( res == 0 )
 	    return Finished();
 	if ( res == -1 )
+	{
+	    errmsg_ = proc_->message();
 	    return ErrorOccurred();
+	}
 
 	trc = proc_->outputs_[0]->getTrc();
-	if ( !trc ) return
-	    ErrorOccurred();
+	if ( !trc )
+	{
+	    errmsg_ = tr( "No trace processed" );
+	    return ErrorOccurred();
+	}
     }
 
     const BinID bid = trc->info().binID();
@@ -280,17 +292,18 @@ int StratAmpCalc::nextStep()
 bool StratAmpCalc::saveAttribute( const EM::Horizon3D* hor, int attribidx,
 				  bool overwrite, od_ostream* strm )
 {
-    PtrMan<Executor> datasaver =
+    const uiString nosaver = tr( "Cannot create output saver object" );
+    PtrMan<Executor> saver =
 			hor->auxdata.auxDataSaver( attribidx, overwrite );
-    if ( !(datasaver && datasaver->go(strm,false,false)) )
-	return false;
+    if ( !(saver && saver->go(strm,false,false)) )
+	{ errmsg_ = saver ? saver->message() : nosaver; return false; }
 
     if ( outfold_ )
     {
-	datasaver.erase();
-	datasaver = hor->auxdata.auxDataSaver( dataidxfold_, overwrite );
-	if ( !(datasaver && datasaver->go(strm,false,false)) )
-	    return false;
+	saver.erase();
+	saver = hor->auxdata.auxDataSaver( dataidxfold_, overwrite );
+	if ( !(saver && saver->go(strm,false,false)) )
+	    { errmsg_ = saver ? saver->message() : nosaver; return false; }
     }
 
     return true;

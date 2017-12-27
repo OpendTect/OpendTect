@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uiwellto2dlinedlg.h"
 
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "datapointset.h"
 #include "ioobj.h"
 #include "dbman.h"
@@ -42,7 +41,6 @@ int uiWellAttribPartServer::evCleanPreview()		{ return 2; }
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , attrset_(new Attrib::DescSet(false)) //Default, set afterwards
     , nlamodel_(0)
     , xplotwin2d_(0)
     , xplotwin3d_(0)
@@ -71,7 +69,6 @@ void uiWellAttribPartServer::surveyChangedCB( CallBacker* )
 
 void uiWellAttribPartServer::cleanUp()
 {
-    delete attrset_; attrset_ = 0;
     delete xplotwin2d_; xplotwin2d_ = 0;
     delete xplotwin3d_; xplotwin3d_ = 0;
     delete welltiedlg_; welltiedlg_ = 0;
@@ -83,13 +80,6 @@ void uiWellAttribPartServer::cleanUp()
 		mCB(this,uiWellAttribPartServer,previewWellto2DLine) );
 	delete wellto2ddlg_; wellto2ddlg_ = 0;
     }
-}
-
-
-void uiWellAttribPartServer::setAttribSet( const Attrib::DescSet& ads )
-{
-    delete attrset_;
-    attrset_ = new Attrib::DescSet( ads );
 }
 
 
@@ -152,15 +142,14 @@ bool uiWellAttribPartServer::getPrev2DFromWellCoords( TypeSet<Coord>& coords )
 }
 
 
-void uiWellAttribPartServer::doXPlot()
+void uiWellAttribPartServer::doXPlot( bool is2d )
 {
-    const bool is2d = attrset_->is2D();
-
     uiWellAttribCrossPlot*& xplotwin = is2d ? xplotwin2d_ : xplotwin3d_;
+    const Attrib::DescSet& attrset = Attrib::DescSet::global( is2d );
     if ( !xplotwin )
-	xplotwin = new uiWellAttribCrossPlot( parent(), attrset_ );
+	xplotwin = new uiWellAttribCrossPlot( parent(), attrset );
     else
-	xplotwin->setDescSet( attrset_ );
+	xplotwin->setDescSet( attrset );
 
     xplotwin->setDisplayMgr( dpsdispmgr_ );
     xplotwin->show();
@@ -177,9 +166,8 @@ bool uiWellAttribPartServer::createAttribLog( const DBKey& wellid )
 
 bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 {
-    if ( !attrset_ )
-	attrset_ = Attrib::eDSHolder().getDescSet( !SI().has3D(), true );
-    uiCreateAttribLogDlg dlg( appserv().parent(), wellnames, *attrset_,
+    const Attrib::DescSet& attrset = Attrib::DescSet::global( !SI().has3D() );
+    uiCreateAttribLogDlg dlg( appserv().parent(), wellnames, attrset,
 			      nlamodel_, wellnames.size() == 1 );
     return dlg.go();
 }

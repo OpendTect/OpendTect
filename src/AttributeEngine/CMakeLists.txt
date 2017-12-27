@@ -10,8 +10,6 @@ set(OD_MODULE_SOURCES
 		attribdataholderarray.cc
 		attribdesc.cc
 		attribdescset.cc
-		attribdescsetman.cc
-		attribdescsetsholder.cc
 		attribdescsettr.cc
 		attribengman.cc
 		attribfactory.cc

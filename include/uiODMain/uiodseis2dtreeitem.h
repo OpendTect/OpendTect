@@ -27,6 +27,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem
     mMenuOnAnyButton;
 			~uiODLine2DParentTreeItem();
 
+    virtual bool	is2D() const			{ return true; }
     bool		init();
     int			selectionKey() const;
     void		createMenuCB(CallBacker*);
@@ -63,7 +64,6 @@ protected:
     bool		getSelRGBAttrSelSpecs(Probe&,
 					      TypeSet<Attrib::SelSpec>&) const;
     BufferStringSet	getDisplayedAttribNames() const;
-    Type		getType(int) const;
 
 };
 

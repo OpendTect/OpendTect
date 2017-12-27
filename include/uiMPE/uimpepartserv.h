@@ -33,8 +33,6 @@ mExpClass(uiMPE) uiMPEPartServer : public uiApplPartServer
 public:
 				uiMPEPartServer(uiApplService&);
 				~uiMPEPartServer();
-    void			setCurrentAttribDescSet(const Attrib::DescSet*);
-    const Attrib::DescSet* 	getCurAttrDescSet(bool is2d) const;
 
     const char*			name() const		{ return "MPE";}
 
@@ -82,7 +80,7 @@ public:
 					      DataPack::ID);
 
     static int			evCreate2DSelSpec();
-    Pos::GeomID 		getGeomID() const;
+    Pos::GeomID		getGeomID() const;
     const char*			get2DLineName() const;
     const char*			get2DAttribName() const;
     void			set2DSelSpec(const Attrib::SelSpec&);
@@ -102,10 +100,10 @@ public:
     static int			evInitFromSession();
     static int			evHorizonTracking();
 
-    bool 			prepareSaveSetupAs(const DBKey&);
-    bool 			saveSetupAs(const DBKey&);
-    bool 			saveSetup(const DBKey&);
-    bool 			readSetup(const DBKey&);
+    bool			prepareSaveSetupAs(const DBKey&);
+    bool			saveSetupAs(const DBKey&);
+    bool			saveSetup(const DBKey&);
+    bool			readSetup(const DBKey&);
 
     bool			sendMPEEvent(int);
 
@@ -122,9 +120,6 @@ protected:
 					     const EM::SectionID& sid,
 					     bool freshdlg=false);
 
-    const Attrib::DescSet*	attrset3d_;
-    const Attrib::DescSet*	attrset2d_;
-
 				//Interaction variables
     const Attrib::SelSpec*	eventattrselspec_;
     int				activetrackerid_;
@@ -132,7 +127,7 @@ protected:
     int				cursceneid_;
 
 				//2D interaction
-    Pos::GeomID 		geomid_;
+    Pos::GeomID		geomid_;
     Attrib::SelSpec		lineselspec_;
 
     void			trackerAddRemoveCB(CallBacker*);

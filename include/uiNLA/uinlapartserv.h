@@ -66,8 +66,6 @@ public:
 			//!< need to fill vdsTrain() and vdsTest()
     static int		evSaveMisclass();
 			//!< use misclass analysis VDS; user wants it.
-    static int		evCreateAttrSet();
-			//!< create attributeset from GDI NN
     static int		evCr2DRandomSet();
 			//!< create 2D random pick set
     static uiString	sKeyUsrCancel();

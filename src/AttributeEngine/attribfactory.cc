@@ -42,13 +42,12 @@ void ProviderFactory::addDesc( Desc* nps, ProviderCreater pc )
 
 Provider* ProviderFactory::create( Desc& desc, bool skipchecks ) const
 {
-    //skipchecks is not to be true for normal usage,
-    //make sure you know what you are doing
-    if ( !skipchecks && desc.isSatisfied()>=2 )
+    if ( !skipchecks && Desc::isError(desc.satisfyLevel()) )
 	return 0;
 
     const int idx = indexOf(desc.attribName());
-    if ( idx==-1 ) return 0;
+    if ( idx < 0 )
+	return 0;
 
     return creaters_[idx]( desc );
 }

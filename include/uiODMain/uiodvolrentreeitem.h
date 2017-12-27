@@ -38,7 +38,6 @@ public:
     const char*		name() const   { return getName(); }
     static const char*	getName();
     uiTreeItem*		create() const { return new uiODVolrenParentTreeItem; }
-    uiTreeItem*		createForVis(int,uiTreeItem*) const;
 };
 
 

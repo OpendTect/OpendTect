@@ -28,7 +28,7 @@ public:
     IOPar&		empars()		{ return empars_; }
     IOPar&		seispars()		{ return seispars_; }
     IOPar&		vispars()		{ return vispars_; }
-    IOPar&		attrpars(bool,bool);
+    IOPar&		attrpars(bool for2d);
     IOPar&		nlapars()		{ return nlapars_; }
     IOPar&		mpepars()		{ return mpepars_; }
     IOPar&		scenepars()		{ return scenepars_; }
@@ -51,11 +51,8 @@ protected:
     IOPar		seispars_;
     IOPar		vispars_;
     IOPar		scenepars_;
-    IOPar		attrpars_;
     IOPar		attrpars2d_;
     IOPar		attrpars3d_;
-    IOPar		attrpars2dstored_;
-    IOPar		attrpars3dstored_;
     IOPar		nlapars_;
     IOPar		mpepars_;
     IOPar		pluginpars_;
@@ -68,8 +65,6 @@ protected:
     static const char*	attrprefix();
     static const char*	attr2dprefix();
     static const char*	attr3dprefix();
-    static const char*	attr2dstoredprefix();
-    static const char*	attr3dstoredprefix();
     static const char*	nlaprefix();
     static const char*	trackprefix();
     static const char*	vwr2dprefix();

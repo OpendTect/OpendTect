@@ -23,10 +23,12 @@ mExpClass(uiAttributes) uiSteerAttrSel : public uiSteerCubeSel
 { mODTextTranslationClass(uiSteerAttrSel);
 public:
 
+				uiSteerAttrSel(uiParent*,bool is2d,
+					  const uiString& txt=defaultLabel());
 				uiSteerAttrSel(uiParent*,
-					      const Attrib::DescSet*,bool is2d,
-					      const uiString& txt=
-					      mJoinUiStrs(sSteering(),sData()));
+					  const Attrib::DescSet&,
+					  const uiString& txt=defaultLabel());
+    static uiString		defaultLabel()	{ return tr("Steering Data"); }
 
     inline Attrib::DescID	inlDipID() const	{ return getDipID(0); }
 				// Returns -2 when selected is not a dip

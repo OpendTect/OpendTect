@@ -89,6 +89,7 @@ public:
     bool		isStored(const DescSet*) const;
     bool		isZTransformed() const;
 
+    const Desc*		getDesc(const DescSet* descset=0) const;
     const BinDataDesc*	getPreloadDataDesc(Pos::GeomID geomid=-1,
 					    const DescSet* descset=0) const;
 

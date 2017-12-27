@@ -164,9 +164,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     else if ( mnuid == trackitem_.id )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	mps->setCurrentAttribDescSet(
-				applMgr()->attrServer()->curDescSet(false) );
-
 	mps->addTracker( EM::Horizon3D::typeStr(), sceneID() );
 	return true;
     }
@@ -575,24 +572,25 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
     uiEMPartServer* emserv = applMgr()->EMServer();
     uiEMAttribPartServer* emattrserv = applMgr()->EMAttribServer();
-    uiAttribPartServer* attrserv = applMgr()->attrServer();
     bool handled = true;
     if ( mnuid==fillholesmnuitem_.id )
     {
 	const bool isoverwrite = emserv->fillHoles( emid_, false );
-	if ( isoverwrite ) { mUpdateTexture(); }
+	if ( isoverwrite )
+	    mUpdateTexture()
     }
     else if ( mnuid==filterhormnuitem_.id )
     {
 	const bool isoverwrite = emserv->filterSurface( emid_ );
-	if ( isoverwrite ) { mUpdateTexture(); }
+	if ( isoverwrite )
+	    mUpdateTexture()
     }
     else if ( mnuid==snapeventmnuitem_.id )
 	emattrserv->snapHorizon( emid_, false );
     else if ( mnuid==geom2attrmnuitem_.id )
     {
 	if ( applMgr()->EMServer()->geom2Attr(emid_) )
-	    mUpdateTexture();
+	    mUpdateTexture()
     }
     else if ( mnuid==positionmnuitem_.id )
     {
@@ -666,9 +664,9 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    isenabled += visserv_->isAttribEnabled( visid, idx );
 
 	float curshift = (float) visserv_->getTranslation( visid ).z_;
-	if ( mIsUdf( curshift ) ) curshift = 0;
+	if ( mIsUdf( curshift ) )
+	    curshift = 0;
 
-	emattrserv->setDescSet( attrserv->curDescSet(false) );
 	emattrserv->showHorShiftDlg( emid_, visid, isenabled, curshift,
 				     visserv_->canAddAttrib(visid,1) );
     }
@@ -782,9 +780,6 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     else if ( mnuid == 1 )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	mps->setCurrentAttribDescSet(
-			applMgr()->attrServer()->curDescSet(true) );
-
 	mps->addTracker( EM::Horizon2D::typeStr(), sceneID() );
 	return true;
     }
@@ -960,9 +955,7 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
 			visserv_->getObject(visid));
 	if ( hd && isoverwrite )
-	{
-	    mUpdateTexture();
-	}
+	    mUpdateTexture()
     }
     else if ( mnuid==derive3dhormnuitem_.id )
 	applMgr()->EMServer()->deriveHor3DFrom2D( emid_ );

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attribprovider.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
@@ -86,17 +85,17 @@ bool uiMultOutSel::doDisp() const
 bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 					const Attrib::DescID& multicompinpid,
 					bool is2d, const SelInfo& attrinf,
-					Attrib::DescSet* curdescset,
+					const Attrib::DescSet& curdescset,
 					uiParent* parent,
 					TypeSet<Attrib::SelSpec>& targetspecs)
 {
-    if ( !curdescset ) return false;
-    Desc* seldesc = curdescset->getDesc( attribid );
+    const Desc* seldesc = curdescset.getDesc( attribid );
     if ( !seldesc )
 	return false;
 
-    Desc* inpdesc = curdescset->getDesc( multicompinpid );
-    if ( !inpdesc ) return false;
+    const Desc* inpdesc = curdescset.getDesc( multicompinpid );
+    if ( !inpdesc )
+	return false;
 
     BufferStringSet complist;
     uiMultOutSel::fillInAvailOutNames( *inpdesc, complist );
@@ -130,18 +129,18 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 	for ( int idx=0; idx<selcompssz; idx++ )
 	{
 	    const int compidx = selectedcomps[idx];
-	    const DescID newinpid = curdescset->getStoredID( mid, compidx,
+	    const DescID newinpid = curdescset.getStoredID( mid, compidx,
 					    true, true, complist.get(compidx) );
 	    Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
 							complist.get(compidx) );
 	    if ( !newdesc ) continue;
 
-	    DescID newdid = curdescset->getID( *newdesc );
+	    DescID newdid = curdescset.getID( *newdesc );
 	    SelSpec as( 0, newdid );
 	    BufferString bfs;
 	    newdesc->getDefStr( bfs );
 	    as.setDefString( bfs.buf() );
-	    as.setRefFromID( *curdescset );
+	    as.setRefFromID( curdescset );
 	    as.set2D( is2d );
 	    targetspecs += as;
 	}

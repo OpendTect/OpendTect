@@ -20,14 +20,14 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
-					      const Attrib::DescSet* d )
+					      const Attrib::DescSet& d )
 	: uiDialog(p,uiDialog::Setup(tr("Attribute/Well Cross-plotting"),
 		     mNoDlgTitle,
 		     mODHelpKey(mWellAttribCrossPlotHelpID) ).modal(false))
 	, dpsdispmgr_(0)
 {
     wellextractgrp_ =
-	new uiWellLogExtractGrp( this, uiWellLogExtractGrp::Setup(), d );
+	new uiWellLogExtractGrp( this, uiWellLogExtractGrp::Setup(), &d );
 }
 
 #define mDPM DPM(DataPackMgr::PointID())
@@ -37,9 +37,9 @@ uiWellAttribCrossPlot::~uiWellAttribCrossPlot()
 }
 
 
-void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet* newads )
+void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet& newads )
 {
-    wellextractgrp_->setDescSet( newads );
+    wellextractgrp_->setDescSet( &newads );
 }
 
 

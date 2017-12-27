@@ -29,141 +29,135 @@ uiString AttribDescSetTranslatorGroup::sTypeName(int num)
 { return uiStrings::sAttribute(num); }
 
 
-uiString AttribDescSetTranslator::readFromStream( ascistream& astream,
-				  Attrib::DescSet& ads, uiString& warningmsg )
+uiRetVal AttribDescSetTranslator::readFromStream( ascistream& astream,
+				  Attrib::DescSet& ads, uiRetVal& warns )
 {
     if ( mTranslGroupName(AttribDescSet) != astream.fileType() )
 	return tr("File has wrong file type");
 
     IOPar iopar( astream );
-    IOPar bupar; ads.fillPar( bupar );
-    ads.setEmpty();
-    uiStringSet parseerrmsgs;
-    ads.usePar( iopar, &parseerrmsgs );
-    if ( ads.isEmpty() )
+    Attrib::DescSet readset( ads.is2D() );
+    uiRetVal uirv = readset.usePar( iopar );
+    if ( readset.isEmpty() )
     {
-	ads.usePar( bupar );
-	return
-	    uiStrings::phrCannotFind(tr("any attribute definitions in file"));
+	if ( uirv.isOK() )
+	    uirv.add( tr("Empty attribute set") );
+	return uirv;
     }
 
-    if ( parseerrmsgs.size() )
-    {
-	warningmsg = parseerrmsgs[0];
-	const int nrdispl = parseerrmsgs.size() > 3 ? 4 : parseerrmsgs.size();
-	for ( int idx = 1; idx<nrdispl; idx++ )
-	{
-	    warningmsg.append( parseerrmsgs[idx], true );
-	}
-
-	if ( parseerrmsgs.size() > 4 )
-	{
-	    warningmsg.append( "[More warnings omitted]", true );
-	}
-    }
-
-    return uiString::emptyString();
+    ads = readset;
+    warns = uirv;
+    return uiRetVal::OK();
 }
 
 
-bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
-					const char* fnm, uiString& bs )
+uiRetVal AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
+					const char* fnm, uiRetVal* warnings )
 {
     if ( !File::exists(fnm) )
-    {
-	tr("File %1 does not exist.").arg(fnm);
-	return false;
-    }
+	return uiStrings::phrDoesntExist( toUiString(fnm) );
 
     od_istream odstrm( fnm );
     ascistream astream( odstrm );
-    uiString uistr;
-    const uiString res = readFromStream( astream, ads, uistr );
-    bs = uistr;
-    if (bs.isEmpty())
-	bs = res;
-
-    return res.isEmpty();
+    uiRetVal dummy; if ( !warnings ) warnings = &dummy;
+    return readFromStream( astream, ads, *warnings );
 }
 
 
-bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
-					const IOObj* ioobj, uiString& bs)
+uiRetVal AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
+					const IOObj* ioobj, uiRetVal* warns )
 {
-    if (!ioobj) { bs = uiStrings::sCantFindODB(); return false; }
+    uiRetVal uirv;
+    if ( !ioobj )
+	{ uirv.add( uiStrings::sCantFindODB() ); return uirv; }
+
     PtrMan<AttribDescSetTranslator> trans
-	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
-    if (!trans)
+	= dynamic_cast<AttribDescSetTranslator*>( ioobj->createTranslator() );
+    if ( !trans )
     {
-	bs = tr("Selected object is not an Attribute Set");
-	return false;
+	uirv.add( tr( "Selected object is not an Attribute Set" ) );
+	return uirv;
     }
+
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
-	bs = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
-	return false;
+	uirv.add( uiStrings::phrCannotOpen(
+			toUiString(ioobj->fullUserExpr(true)) ) );
+	return uirv;
     }
 
-    bs = toUiString(trans->read( ads, *conn ));
-    bool rv = bs.isEmpty();
-    if ( rv ) bs = trans->warningUiMsg();
-    return rv;
+    uirv = toUiString( trans->read( ads, *conn ) );
+    if ( warns )
+	*warns = trans->warnings();
+    return uirv;
 }
 
 
-bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
-				     const IOObj* ioobj, uiString& bs )
+uiRetVal AttribDescSetTranslator::store( const Attrib::DescSet& ads,
+				     const IOObj* ioobj, uiRetVal* warns )
 {
-    if (!ioobj)
-    {
-	bs = sNoIoobjMsg(); return false;
-    }
+    uiRetVal uirv;
+    if ( !ioobj )
+	{ uirv.add( sNoIoobjMsg() ); return uirv; }
+
     PtrMan<AttribDescSetTranslator> trans
 	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
-    if (!trans)
+    if ( !trans )
     {
-	bs = tr("Selected object is not an Attribute Set"); return false;
+	uirv.add( tr("Selected object is not an Attribute Set") );
+	return uirv;
     }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     {
-	bs = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
-	return false;
+	uirv.add( uiStrings::phrCannotOpen(
+			toUiString(ioobj->fullUserExpr(false)) ) );
+	return uirv;
     }
+
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
     DBM().setEntry( *ioobj );
-    bs = toUiString( trans->write(ads,*conn) );
-    if ( !bs.isEmpty() )
-	{ conn->rollback(); return false; }
-    return true;
+    uirv = toUiString( trans->write(ads,*conn) );
+    if ( !uirv.isOK() )
+	conn->rollback();
+    if ( warns )
+	*warns = trans->warnings();
+    return uirv;
 }
 
 
-const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
+
+uiRetVal dgbAttribDescSetTranslator::badConnRV()
 {
-    warningmsg_.setEmpty();
+    return uiRetVal( tr("Internal error: bad connection") );
+}
+
+
+uiRetVal dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
+{
+    warns_.setOK();
 
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return badConnRV();
 
     ascistream astream( ((StreamConn&)conn).iStream() );
-    return mFromUiStringTodo(readFromStream( astream, ads, warningmsg_ ));
+    return readFromStream( astream, ads, warns_ );
 }
 
 
-const char* dgbAttribDescSetTranslator::write( const Attrib::DescSet& ads,
+uiRetVal dgbAttribDescSetTranslator::write( const Attrib::DescSet& ads,
 						Conn& conn )
 {
-    warningmsg_.setEmpty();
+    warns_.setEmpty();
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return badConnRV();
 
     IOPar iopar( "Attribute Descriptions" );
     ads.fillPar( iopar );
     if ( !iopar.write( ((StreamConn&)conn).oStream(),
 		mTranslGroupName(AttribDescSet) ) )
-	return "Cannot write attributes to file";
+	return uiRetVal( tr("Cannot write attributes to file") );
 
-    return 0;
+    return uiRetVal::OK();
 }

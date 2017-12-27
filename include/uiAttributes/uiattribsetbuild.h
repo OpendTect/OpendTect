@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uibuildlistfromlist.h"
 #include "datapack.h"
 
-class CtxtIOObj;
 namespace Attrib { class DescSet; }
 class uiPreStackAttrib;
 
@@ -44,16 +43,15 @@ public:
     const Attrib::DescSet& descSet() const	{ return descset_; }
 
     void		setDataPackInp(const TypeSet<DataPack::FullID>&,
-	    				bool isprestack=false);
+					bool isprestack=false);
     bool		handleUnsaved();
-    			//!< returns false only if user want to cancel
+			//!< returns false only if user want to cancel
     bool		haveChange() const	{ return anychg_; }
 
 protected:
 
     Attrib::DescSet&	descset_;
     const Setup		attrsetup_;
-    CtxtIOObj&		ctio_;
     TypeSet<DataPack::FullID> dpfids_;
     TypeSet<DataPack::FullID> psdpfids_;
     bool		anychg_;

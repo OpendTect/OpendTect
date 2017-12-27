@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uiattrdesced.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetman.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -24,12 +23,11 @@ uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
 		    tr("Define attribute parameters"),
                     mODHelpKey(mSingleAttribEdHelpID) ))
     , desc_(ad)
-    , setman_(new Attrib::DescSetMan(ad.is2D(),ad.descSet(),false))
     , nmchgd_(false)
     , anychg_(false)
 {
     desced_ = uiAF().create( this, desc_.attribName(), desc_.is2D(), false );
-    desced_->setDesc( &desc_, setman_ );
+    desced_->setDesc( &desc_ );
 
     namefld_ = new uiGenInput( this, uiStrings::sName(), desc_.userRef() );
     namefld_->attach( alignedBelow, desced_ );
@@ -38,7 +36,6 @@ uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
 
 uiSingleAttribEd::~uiSingleAttribEd()
 {
-    delete setman_;
 }
 
 
@@ -65,7 +62,7 @@ bool uiSingleAttribEd::acceptOK()
 	    const Attrib::Desc& desc = *descset.desc( idx );
 	    if ( &desc != &desc_ && newnm == desc.userRef() )
 	    {
-	uiMSG().error(tr("The name is already used for another attribute"));
+		uiMSG().error( tr("Specified name is already used") );
 		return false;
 	    }
 	}

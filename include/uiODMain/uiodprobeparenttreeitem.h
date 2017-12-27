@@ -23,42 +23,46 @@ mExpClass(uiODMain) uiODSceneProbeParentTreeItem
 {   mODTextTranslationClass(uiODSceneProbeParentTreeItem);
 public:
 
-    enum Type		{ Empty, Select, Default, RGBA };
+    enum AddType	{ DefaultData, DefaultAttrib, RGBA, Select, Empty };
 
 			uiODSceneProbeParentTreeItem(const uiString&);
     const char*		childObjTypeKey() const;
 
+    virtual bool	is2D() const			{ return false; }
     virtual bool	showSubMenu();
     virtual void	addMenuItems();
     virtual bool	handleSubMenu(int mnuid);
-    virtual bool	canShowSubMenu() const			{ return true; }
-    virtual Probe*	createNewProbe() const			=0;
+    virtual bool	canShowSubMenu() const		{ return true; }
+    virtual Probe*	createNewProbe() const		= 0;
     virtual bool	addChildProbe();
 
-    virtual Type	getType(int mnuid) const;
+    virtual AddType	getAddType(int mnuid) const;
     static uiString	sAddEmptyPlane();
     static uiString	sAddAndSelectData();
     static uiString	sAddDefaultData();
+    static uiString	sAddDefaultAttrib();
     static uiString	sAddColorBlended();
-    static int		sAddDefaultDataMenuID()			{ return 0; }
-    static int		sAddAndSelectDataMenuID()		{ return 1; }
-    static int		sAddColorBlendedMenuID()		{ return 2; }
+    static int		cAddDefaultDataMenuID()		{ return DefaultData; }
+    static int		cAddDefaultAttribMenuID()	{ return DefaultAttrib;}
+    static int		cAddColorBlendedMenuID()	{ return RGBA; }
+    static int		cAddAndSelectDataMenuID()	{ return Select; }
 
-    static bool		addDefaultAttribLayer(uiODApplMgr&,Probe&);
+    static bool		addDefaultAttribLayer(uiODApplMgr&,Probe&,bool stored);
 
-    protected:
+protected:
 
     bool		fillProbe(Probe&);
     virtual bool	setProbeToBeAddedParams(int mnuid)	{ return true;}
-    virtual bool	setDefaultAttribLayer(Probe&) const;
+    virtual bool	setDefaultAttribLayer(Probe&,bool stored) const;
     virtual bool	setSelAttribProbeLayer(Probe&) const;
     virtual bool	setRGBProbeLayers(Probe&) const;
     virtual bool	getSelAttrSelSpec(Probe&,Attrib::SelSpec&) const;
     virtual bool	getSelRGBAttrSelSpecs(Probe&,
 					      TypeSet<Attrib::SelSpec>&) const;
 
-    Type		typetobeadded_;
+    AddType		typetobeadded_;
     uiMenu*		menu_;
+
 };
 
 
@@ -73,8 +77,11 @@ public:
     void		handleAddAttrib();
     virtual uiString	createDisplayName() const;
     uiODDataTreeItem*	createProbeLayerItem(ProbeLayer&) const;
+
 protected:
+
 			uiODSceneProbeTreeItem(Probe&);
     virtual bool	init();
     virtual uiODDataTreeItem* createAttribItem(const Attrib::SelSpec*) const;
+
 };

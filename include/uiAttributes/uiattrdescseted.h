@@ -20,7 +20,6 @@ namespace Attrib
     class Desc;
     class DescID;
     class DescSet;
-    class DescSetMan;
 };
 
 namespace Pick { class Set; }
@@ -30,7 +29,6 @@ class AttribParamGroup;
 class BufferStringSet;
 class CtxtIOObj;
 class EvalParam;
-class IOObj;
 class uiAttrDescEd;
 class uiAttrTypeSel;
 class uiGenInput;
@@ -48,7 +46,7 @@ mExpClass(uiAttributes) uiAttribDescSetEd : public uiDialog
 { mODTextTranslationClass(uiAttribDescSetEd);
 public:
 
-			uiAttribDescSetEd(uiParent*,Attrib::DescSetMan* adsm,
+			uiAttribDescSetEd(uiParent*,Attrib::DescSet&,
 					  const char* prefgrp =0,
 					  bool attrsneedupdt =false);
 			~uiAttribDescSetEd();
@@ -56,9 +54,8 @@ public:
     void		setZDomainInfo(const ZDomain::Info&);
     const ZDomain::Info* getZDomainInfo() const;
 
-    void		setDescSetMan(Attrib::DescSetMan*);
-    Attrib::DescSet*	getSet()		{ return attrset_; }
-    const DBKey&	curSetID() const	{ return setid_; }
+    Attrib::DescSet&	getSet()		{ return attrset_; }
+    DBKey		curSetID() const;
 
     Attrib::Desc*	curDesc() const;
 			//!< Use during operation only!
@@ -87,22 +84,14 @@ public:
     Notifier<uiAttribDescSetEd>		xplotcb;
     Notifier<uiAttribDescSetEd>		applycb;
 
-    static const char*	sKeyUseAutoAttrSet;
-    static const char*	sKeyAuto2DAttrSetID;
-    static const char*	sKeyAuto3DAttrSetID;
-
 protected:
 
-    Attrib::DescSetMan*		inoutadsman_;
-    Attrib::DescSetMan*		adsman_;
-    Attrib::DescSet*		attrset_;
+    Attrib::DescSet&		attrset_;
+    Attrib::DescSet*		orgattrset_;
     Attrib::Desc*		prevdesc_;
-    DBKey			setid_;
     ObjectSet<uiAttrDescEd>	desceds_;
     ObjectSet<Attrib::Desc>	attrdescs_;
     BufferStringSet&		userattrnames_;
-    CtxtIOObj&			setctio_;
-    DBKey			cancelsetid_;
     bool			updating_fields_;
     bool			attrsneedupdt_;
     static BufferString		nmprefgrp_;
@@ -116,7 +105,7 @@ protected:
     uiToolButton*		dispbut_;
     uiToolButton*		procbut_;
     uiGenInput*			attrnmfld_;
-    uiGenInput*			attrsetfld_;
+    uiGenInput*			stornmfld_;
     uiToolButton*		helpbut_;
     uiToolButton*		moveupbut_;
     uiToolButton*		movedownbut_;
@@ -152,11 +141,10 @@ protected:
     void			exportToGraphVizDotCB(CallBacker*);
 
     void			setButStates();
+    void			setStorNameFld();
     bool			offerSetSave();
     bool			doSave(bool);
     void			replaceStoredAttr();
-    void			replaceStoredAttr(IOPar&);
-    void			removeUnusedAttrDescs();
 
     bool			acceptOK();
     bool			rejectOK();
@@ -164,19 +152,18 @@ protected:
     void			newList(int);
     void			updateFields(bool settype=true);
     bool			doCommit(bool prevdesc=false);
-    void			openAttribSet(const IOObj*);
+    void			openAttribSet(const DBKey&);
+    void			handleFreshSet();
     bool			doAcceptInputs();
     void			handleSensitivity();
     void			updateUserRefs();
     void			ensureValidName(BufferString&) const;
     bool			setUserRef(Attrib::Desc&);
-    bool			doSetIO(bool);
     Attrib::Desc*		createAttribDesc(bool checkuref=true);
     void			importFromFile(const char*);
     BufferString		getAttribName(uiAttrDescEd&) const;
-    void			getDefaultAttribsets(BufferStringSet&,
-						     BufferStringSet&,
-						     BufferStringSet&);
+    void			getDefaultAttribsets(BufferStringSet& filenms,
+						     BufferStringSet& setnms);
 
     void			createMenuBar();
     void			createToolBar();

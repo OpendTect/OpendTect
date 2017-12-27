@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uimpeman.h"
 
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -188,7 +187,7 @@ void uiMPEMan::keyEventCB( CallBacker* )
     int action = -1;
     const KeyboardEvent& kev = visserv_->getKeyboardEvent();
 
-    const bool undoonloadedhor = 
+    const bool undoonloadedhor =
 	KeyboardEvent::isUnDo(kev) || KeyboardEvent::isReDo(kev);
 
     if ( KeyboardEvent::isUnDo(kev) )

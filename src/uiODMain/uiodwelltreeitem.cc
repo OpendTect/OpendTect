@@ -335,9 +335,6 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid == attrmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	//TODO false set to make it compile: change!
-	applMgr()->wellAttribServer()->setAttribSet(
-				*applMgr()->attrServer()->curDescSet(false) );
 	applMgr()->wellAttribServer()->createAttribLog( wellid );
     }
     if ( mnuid == logcubemnuitem_.id )

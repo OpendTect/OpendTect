@@ -43,7 +43,7 @@ namespace Attrib
 {
 
 EngineMan::EngineMan()
-    : inpattrset_(0)
+    : attrset_(0)
     , procattrset_(0)
     , nlamodel_(0)
     , tkzs_(*new TrcKeyZSampling)
@@ -59,7 +59,7 @@ EngineMan::EngineMan()
 EngineMan::~EngineMan()
 {
     delete procattrset_;
-    delete inpattrset_;
+    delete attrset_;
     delete nlamodel_;
     delete &tkzs_;
     unRefAndZeroPtr( cache_ );
@@ -192,7 +192,7 @@ void EngineMan::setExecutorName( Executor* ex )
     if ( !ex ) return;
 
     BufferString usernm( getCurUserRef() );
-    if ( usernm.isEmpty() || !inpattrset_ )
+    if ( usernm.isEmpty() || !attrset_ )
 	return;
 
     if ( curattridx_ < 0 || curattridx_ >= attrspecs_.size() )
@@ -210,7 +210,7 @@ void EngineMan::setExecutorName( Executor* ex )
     }
     else
     {
-	const Desc* desc = inpattrset_->getDesc( ss.id() );
+	const Desc* desc = attrset_->getDesc( ss.id() );
 	if ( desc && desc->isStored() )
 	    nm = "Reading from";
     }
@@ -256,8 +256,8 @@ void EngineMan::setNLAModel( const NLAModel* m )
 
 void EngineMan::setAttribSet( const DescSet* ads )
 {
-    delete inpattrset_;
-    inpattrset_ = ads ? new DescSet( *ads ) : 0;
+    delete attrset_;
+    attrset_ = ads ? new DescSet( *ads ) : 0;
 }
 
 
@@ -274,8 +274,8 @@ const char* EngineMan::getCurUserRef() const
     }
     else
     {
-	if ( !inpattrset_ ) return "";
-	ss.setRefFromID( *inpattrset_ );
+	if ( !attrset_ ) return "";
+	ss.setRefFromID( *attrset_ );
     }
     return attrspecs_[idx].userRef();
 }
@@ -655,17 +655,17 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, uiString& errmsg,
 				  const DescSet* addtoset )
 {
     if ( !nlamodel_ )
-    { errmsg = toUiString("Internal: No NLA Model"); return 0; }
+	{ errmsg = toUiString("Internal: No NLA Model"); return 0; }
 
     if ( attrspecs_.isEmpty() ) return 0;
     DescSet* descset = addtoset ? new DescSet( *addtoset )
 				: new DescSet( attrspecs_[0].is2D() );
 
-    if ( !addtoset && !descset->usePar(nlamodel_->pars()) )
+    if ( !addtoset )
     {
-	errmsg = descset->errMsg();
-	delete descset;
-	return 0;
+	uiRetVal uirv = descset->usePar( nlamodel_->pars() );
+	if ( !uirv.isOK() )
+	    { errmsg = uirv; delete descset; return 0; }
     }
 
     BufferString s;
@@ -766,7 +766,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 
     nladescid = descset.addDesc( desc );
     if ( !nladescid.isValid() )
-	errmsg = descset.errMsg();
+	errmsg = tr( "Error setting learning attribute" );
 }
 
 
@@ -803,7 +803,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     DescID evaldescid = descset.addDesc( desc );
     if ( !evaldescid.isValid() )
     {
-	errmsg = descset.errMsg();
+	errmsg = tr( "Cannot set evaluation attribute" );
 	desc->unRef();
     }
 
@@ -869,7 +869,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
     proc->addOutput( attrout ); \
 }
 
-    Processor* proc = getProcessor(errmsg);
+    Processor* proc = getProcessor( errmsg );
     if ( !proc )
 	return 0;
 
@@ -971,7 +971,7 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
     : Executor("Extracting attributes")
 {
     const DescSet* attrset =
-	aem.procattrset_ ? aem.procattrset_ : aem.inpattrset_;
+	aem.procattrset_ ? aem.procattrset_ : aem.attrset_;
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	const DescID id = attrset->getID( inputs.get(idx), true );
@@ -1110,7 +1110,7 @@ Processor* EngineMan::createLocationOutput( uiString& errmsg,
 {
     if ( bidzvset.size() == 0 ) return 0;
 
-    Processor* proc = getProcessor(errmsg);
+    Processor* proc = getProcessor( errmsg );
     if ( !proc )
 	return 0;
 
@@ -1220,7 +1220,7 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 {
     if ( !datapointset.size() ) return 0;
 
-    Processor* proc = getProcessor(errmsg);
+    Processor* proc = getProcessor( errmsg );
     if ( !proc )
 	return 0;
 
@@ -1243,7 +1243,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
     if ( procattrset_ )
 	{ delete procattrset_; procattrset_ = 0; }
 
-    if ( !inpattrset_ || !attrspecs_.size() )
+    if ( !attrset_ || !attrspecs_.size() )
 	mErrRet( tr("No attribute set or input specs") )
 
     TypeSet<DescID> outattribs;
@@ -1256,7 +1256,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
     bool doeval = false;
     if ( !attrspecs_[0].isNLA() )
     {
-	procattrset_ = inpattrset_->optimizeClone( outattribs );
+	procattrset_ = attrset_->optimizeClone( outattribs );
 	if ( !procattrset_ ) mErrRet(tr("Attribute set not valid"));
 
 	if ( outattribs.size() > 1 )

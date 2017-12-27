@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30
 #include "uiwellattribpartserv.h"
 
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attribdesc.h"
 #include "attribprobelayer.h"
 #include "ioobjctxt.h"
@@ -95,9 +94,9 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 
     if ( SI().has2D() )
     {
-	Attrib::DescSet* ads = Attrib::eDSHolder().getDescSet(true,false);
-	inp2dfld_ = new uiAttrSel( this, *ads, uiAttrSel::sDefLabel(),
-				   ads->getID(0) );
+	const Attrib::DescSet& ads = Attrib::DescSet::global( true );
+	inp2dfld_ = new uiAttrSel( this, ads, uiAttrSel::sDefLabel(),
+				   ads.getID(0) );
 	inp2dfld_->selectionChanged.notify( inpcb );
 	inp2dfld_->selectionChanged.notify(
 		mCB(this,uiODViewer2DPosGrp,attr2DSelected));
@@ -118,10 +117,10 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 
     if ( SI().has3D() )
     {
-	const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
+	const Attrib::DescSet& ads = Attrib::DescSet::global( false );
 
-	inp3dfld_ = new uiAttrSel( this, *ads, uiAttrSel::sDefLabel(),
-				   ads->getID(0) );
+	inp3dfld_ = new uiAttrSel( this, ads, uiAttrSel::sDefLabel(),
+				   ads.getID(0) );
 	inp3dfld_->selectionChanged.notify( inpcb );
 	if ( postypefld_ )
 	    inp3dfld_->attach( alignedBelow, postypefld_ );

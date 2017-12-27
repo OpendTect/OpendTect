@@ -9,7 +9,6 @@
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attriboutput.h"
 #include "trckeyzsampling.h"
 #include "emioobjinfo.h"
@@ -37,8 +36,8 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 			 mODHelpKey(mStratAmpCalcHelpID)))
     , isoverwrite_(false)
 {
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
-    inpfld_ = new uiAttrSel( this, *ads, uiAttrSel::sQuantityToOutput() );
+    inpfld_ = new uiAttrSel( this, Attrib::DescSet::global3D(),
+			     uiAttrSel::sQuantityToOutput() );
     inpfld_->selectionChanged.notify( mCB(this,uiStratAmpCalc,inpSel) );
 
     classfld_ = new uiGenInput( this, tr("Values are classifications"),
@@ -252,12 +251,13 @@ bool uiStratAmpCalc::fillPar()
     iop.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
 
     const Attrib::DescID targetid = inpfld_->attribID();
-    Attrib::DescSet* clonedset = Attrib::DSHolder().getDescSet(
-			    inpfld_->is2D(),false)->optimizeClone( targetid );
+    Attrib::DescSet* procattrset = Attrib::DescSet::global(inpfld_->is2D())
+					.optimizeClone( targetid );
     IOPar attrpar( "Attribute Descriptions" );
-    if ( !clonedset ) return false;
+    if ( !procattrset )
+	return false;
 
-    clonedset->fillPar( attrpar );
+    procattrset->fillPar( attrpar );
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
 	const char* nm = attrpar.getKey( idx );
@@ -265,7 +265,7 @@ bool uiStratAmpCalc::fillPar()
 		   attrpar .getValue(idx) );
     }
 
-    Attrib::Desc* desc = clonedset->getDesc( targetid );
+    Attrib::Desc* desc = procattrset->getDesc( targetid );
     DBKey storedid = desc ? desc->getStoredID() : DBKey::getInvalid();
     if ( storedid.isValid() )
 	iop.set( "Input Line Set", storedid );

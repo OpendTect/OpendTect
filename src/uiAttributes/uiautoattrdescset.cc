@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetman.h"
 #include "attribdescsettr.h"
 #include "ctxtioobj.h"
 #include "datainpspec.h"
@@ -47,10 +46,10 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
 	, is2d_(is2d)
 {
     bool douse = false;
-    Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
+    Settings::common().getYN( Attrib::DescSet::sKeyUseAutoAttrSet, douse );
     BufferString idstr = is2d_
-	? SI().getDefaultPars().find(uiAttribDescSetEd::sKeyAuto2DAttrSetID)
-	: SI().getDefaultPars().find(uiAttribDescSetEd::sKeyAuto3DAttrSetID);
+	? SI().getDefaultPars().find(Attrib::DescSet::sKeyAuto2DAttrSetID)
+	: SI().getDefaultPars().find(Attrib::DescSet::sKeyAuto3DAttrSetID);
 
     usefld_ = new uiGenInput( this, tr("Enable auto-load Attribute Set"),
                                   BoolInpSpec(true) );
@@ -59,6 +58,7 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
 
     ctio_.setObj( DBKey::getFromString(idstr) );
     ctio_.ctxt_.forread_ = true;
+    ctio_.ctxt_.toselect_.dontallow_.set( sKey::Type(), is2d ? "3D" : "2D" );
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, usefld_ );
     lbl_ = new uiLabel( this, tr("Attribute Set to use") );
@@ -105,30 +105,20 @@ void uiAutoAttrSelDlg::useChg( CallBacker* )
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
+
 bool uiAutoAttrSelDlg::acceptOK()
 {
     if ( !useAuto() )
 	return true;
 
     if ( selgrp_->nrChosen() < 1 )
-        mErrRet(tr("No Attribute Sets available"))
+        mErrRet( tr("No Attribute Sets available") )
 
     ctio_.setObj( selgrp_->chosenID() );
     Attrib::DescSet attrset( is2d_ );
-    uiString bs;
-    if ( !AttribDescSetTranslator::retrieve(attrset,ctio_.ioobj_,bs) )
-	mErrRet(tr("Cannot read selected attribute set"))
-
-    if ( attrset.is2D() != is2d_ )
-    {
-	bs = tr("Attribute Set %1 is of type %2 "
-		"Please select another attribute set")
-	   .arg(ctio_.ioobj_->uiName())
-	   .arg(attrset.is2D() ? uiStrings::s2D()
-			       : uiStrings::s3D());
-	uiMSG().error( bs );
-	return false;
-    }
+    uiRetVal uirv = attrset.load( selgrp_->chosenID() );
+    if ( !uirv.isOK() )
+	mErrRet( uirv )
 
     return true;
 }
@@ -200,7 +190,8 @@ void uiAutoAttrSetOpen::setChg( CallBacker* )
     selgrp_->display( usrdef_ );
     lbl_->display( usrdef_ );
     defattrlist_->display( !usrdef_ );
-    if ( !usrdef_ ) autoloadfld_->setValue( false );
+    if ( !usrdef_ )
+	autoloadfld_->setValue( false );
     autoloadfld_->setSensitive( usrdef_ );
 }
 

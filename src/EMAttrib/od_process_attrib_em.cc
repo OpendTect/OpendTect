@@ -64,8 +64,9 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
 {
     DescSet initialset( false );
     PtrMan<IOPar> attribs = iopar.subselect("Attributes");
-    if ( !initialset.usePar(*attribs) )
-	mErrRet( initialset.errMsg().getFullString() )
+    uiRetVal uirv = initialset.usePar( *attribs );
+    if ( !uirv.isOK() )
+	mErrRet( uirv.getText() )
 
     const BufferString tmpoutstr( IOPar::compKey( sKey::Output(), 0 ) );
     const BufferString tmpattribstr( IOPar::compKey( sKey::Attributes(), 0 ) );
@@ -400,16 +401,20 @@ bool BatchProgram::go( od_ostream& strm )
 
     DescSet attribset( false );
     PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes() );
-    if ( !attribs ) mErrRetNoProc( "No Attributes specified" );
+    if ( !attribs )
+	mErrRetNoProc( "No Attributes specified" );
 
-    if ( !attribset.usePar(*attribs) )
-	mErrRetNoProc( attribset.errMsg().getFullString() )
+    uiRetVal uirv = attribset.usePar( *attribs );
+    if ( !uirv.isOK() )
+	mErrRetNoProc( uirv.getText() )
 
     PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output(),0) );
-    if ( !output ) mErrRetNoProc( "No output specified" );
+    if ( !output )
+	mErrRetNoProc( "No output specified" );
 
     PtrMan<IOPar> attribsiopar = output->subselect( sKey::Attributes() );
-    if ( !attribsiopar ) mErrRetNoProc( "No output specified" );
+    if ( !attribsiopar )
+	mErrRetNoProc( "No output specified" );
 
     TypeSet<DescID> attribids;
     int nrattribs = 1;

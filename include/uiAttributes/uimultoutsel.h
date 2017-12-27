@@ -35,11 +35,11 @@ public:
     bool		doDisp() const;
 
     static void		fillInAvailOutNames(const Attrib::Desc&,
-	    				    BufferStringSet&);
+					    BufferStringSet&);
     static bool		handleMultiCompChain(Attrib::DescID& selid,
 					 const Attrib::DescID& multicompinpid,
 					 bool,const Attrib::SelInfo&,
-					 Attrib::DescSet*,uiParent*,
+					 const Attrib::DescSet&,uiParent*,
 					 TypeSet<Attrib::SelSpec>&);
 
 protected:

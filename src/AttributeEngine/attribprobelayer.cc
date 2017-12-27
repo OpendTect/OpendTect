@@ -11,7 +11,6 @@ ___________________________________________________________________
 #include "attribprobelayer.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "coltabseqmgr.h"
 #include "dbman.h"
 #include "keystrs.h"
@@ -286,22 +285,8 @@ SeisIOObjInfo* AttribProbeLayer::gtSeisInfo() const
 {
     const Attrib::SelSpec selspec = selSpec();
 
-    const Attrib::DescSet* attrset =
-	Attrib::DSHolder().getDescSet( selspec.is2D(), true );
-    if ( !attrset )
-	attrset = Attrib::DSHolder().getDescSet( selspec.is2D(), false );
-
-    const Attrib::Desc* desc =
-	attrset ? attrset->getDesc( selspec.id() ) : 0;
-    if ( !desc )
-    {
-	attrset = Attrib::DSHolder().getDescSet( selspec.is2D(), false );
-	desc = attrset ? attrset->getDesc( selspec.id() ) : 0;
-	if ( !desc )
-	    return 0;
-    }
-
-    if ( !desc->isStored() )
+    const Attrib::Desc* desc = Attrib::DescSet::getGlobalDesc( selspec );
+    if ( !desc || !desc->isStored() )
 	return 0;
 
     const DBKey storedid = desc->getStoredID();

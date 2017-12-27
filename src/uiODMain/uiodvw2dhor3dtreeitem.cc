@@ -125,8 +125,6 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	    return false;
 
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	mps->setCurrentAttribDescSet(
-		applMgr()->attrServer()->curDescSet(false) );
 	int emid = -1;
 	if ( emids.validIdx(emidx) )
 	    emid = emids[emidx];
@@ -489,9 +487,6 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 
     uiMenu* removemenu = createRemoveMenu();
     mnu.addMenu( removemenu );
-
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
 
     const int mnuid = mnu.exec();
     if ( mnuid == mPropID )

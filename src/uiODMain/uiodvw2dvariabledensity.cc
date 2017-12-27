@@ -24,7 +24,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
 #include "coltabseqmgr.h"
 #include "ioobj.h"

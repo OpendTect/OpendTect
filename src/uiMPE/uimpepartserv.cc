@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
-#include "attribdescsetsholder.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
@@ -57,8 +56,6 @@ int uiMPEPartServer::evHorizonTracking()	{ return 14; }
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , attrset3d_( 0 )
-    , attrset2d_( 0 )
     , activetrackerid_(-1)
     , eventattrselspec_( 0 )
     , temptrackerid_(-1)
@@ -95,19 +92,6 @@ uiMPEPartServer::~uiMPEPartServer()
 	delete mw;
     }
 }
-
-
-void uiMPEPartServer::setCurrentAttribDescSet( const Attrib::DescSet* ads )
-{
-    if ( !ads )
-	return;
-
-    ads->is2D() ? attrset2d_ = ads : attrset3d_ = ads;
-}
-
-
-const Attrib::DescSet* uiMPEPartServer::getCurAttrDescSet( bool is2d ) const
-{ return is2d ? attrset2d_ : attrset3d_; }
 
 
 int uiMPEPartServer::getTrackerID( const EM::ObjectID& emid ) const
@@ -605,10 +589,7 @@ bool uiMPEPartServer::saveSetup( const DBKey& mid )
     iopar.set( "Seed Connection mode", seedpicker->getTrackMode() );
     tracker->fillPar( iopar );
 
-    const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
-    if ( !attrset )
-	return false;
-
+    const Attrib::DescSet& attrset = Attrib::DescSet::global( tracker->is2D() );
     TypeSet<Attrib::SelSpec> usedattribs;
     MPE::engine().getNeededAttribs( usedattribs );
 
@@ -616,11 +597,11 @@ bool uiMPEPartServer::saveSetup( const DBKey& mid )
     for ( int idx=0; idx<usedattribs.size(); idx++ )
     {
 	const Attrib::DescID descid = usedattribs[idx].id();
-	if ( attrset->getDesc(descid) )
+	if ( attrset.getDesc(descid) )
 	    usedattribids += descid;
     }
 
-    PtrMan<Attrib::DescSet> ads = attrset->optimizeClone( usedattribids );
+    PtrMan<Attrib::DescSet> ads = attrset.optimizeClone( usedattribids );
     IOPar attrpar;
     if ( ads.ptr() )
 	ads->fillPar( attrpar );
@@ -718,44 +699,45 @@ bool uiMPEPartServer::readSetup( const DBKey& mid )
 void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 				       MPE::EMTracker& tracker )
 {
-    const Attrib::DescSet* attrset = getCurAttrDescSet( tracker.is2D() );
+    const Attrib::DescSet& attrset = Attrib::DescSet::global( tracker.is2D() );
     const EM::EMObject* emobj = EM::EMM().getObject( tracker.objectID() );
     for ( int sidx=0; sidx<emobj->nrSections(); sidx++ )
     {
 	const EM::SectionID sid = emobj->sectionID( sidx );
 	MPE::SectionTracker* st = tracker.getSectionTracker( sid, false );
-	if ( !st || !st->adjuster() ) continue;
+	if ( !st || !st->adjuster() )
+	    continue;
 
 	for ( int asidx=0; asidx<st->adjuster()->getNrAttributes(); asidx++ )
 	{
 	    const Attrib::SelSpec* as =
 			st->adjuster()->getAttributeSel( asidx );
-	    if ( !as || !as->id().isValid() ) continue;
+	    if ( !as || !as->id().isValid() )
+		continue;
 
-	    if ( as->isStored(attrset) )
+	    if ( as->isStored(&attrset) )
 	    {
 		BufferString idstr;
 		Attrib::Desc::getParamString( as->defString(), "id", idstr );
-		Attrib::DescSet* storedads =
-		    Attrib::eDSHolder().getDescSet( tracker.is2D() , true );
-		storedads->getStoredID( DBKey::getFromString(idstr) );
-			// will try to add if fail
+		attrset.getStoredID( DBKey::getFromString(idstr) );
 
 		Attrib::SelSpec newas( *as );
-		newas.setIDFromRef( *storedads );
+		newas.setIDFromRef( attrset );
 		st->adjuster()->setAttributeSel( asidx, newas );
 		continue;
 	    }
 
 	    Attrib::DescID newid;
 	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
-	    if ( !usedad ) continue;
+	    if ( !usedad )
+		continue;
 
-	    for ( int ida=0; ida<attrset->size(); ida++ )
+	    for ( int ida=0; ida<attrset.size(); ida++ )
 	    {
-		const Attrib::DescID descid = attrset->getID( ida );
-		const Attrib::Desc* ad = attrset->getDesc( descid );
-		if ( !ad ) continue;
+		const Attrib::DescID descid = attrset.getID( ida );
+		const Attrib::Desc* ad = attrset.getDesc( descid );
+		if ( !ad )
+		    continue;
 
 		if ( usedad->isIdenticalTo( *ad ) )
 		{
@@ -767,14 +749,14 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	    if ( !newid.isValid() )
 	    {
 		Attrib::DescSet* set =
-		    const_cast<Attrib::DescSet*>( attrset );
+		    const_cast<Attrib::DescSet*>( &attrset );
 		Attrib::Desc* newdesc = new Attrib::Desc( *usedad );
 		newdesc->setDescSet( set );
 		newid = set->addDesc( newdesc );
 	    }
 
 	    Attrib::SelSpec newas( *as );
-	    newas.setIDFromRef( *attrset );
+	    newas.setIDFromRef( attrset );
 	    st->adjuster()->setAttributeSel( asidx, newas );
 	}
     }

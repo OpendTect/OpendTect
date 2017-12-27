@@ -51,7 +51,6 @@ bool uiODApplMgrAttrVisHandler::editNLA( bool is2d )
 
 void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 {
-    am_.emattrserv_->setDescSet( am_.attrserv_->curDescSet(is2d) );
     DBKey nlaid; const NLAModel* nlamdl = 0;
     if ( am_.nlaserv_ )
     {
@@ -65,7 +64,7 @@ void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 	  tp==0 ? uiEMAttribPartServer::OnHor :
 	( tp==1 ? uiEMAttribPartServer::AroundHor :
 		  uiEMAttribPartServer::BetweenHors );
-    am_.emattrserv_->createHorizonOutput( type );
+    am_.emattrserv_->createHorizonOutput( type, is2d );
 }
 
 
@@ -84,10 +83,8 @@ void uiODApplMgrAttrVisHandler::createVol( bool is2d, bool multiattrib )
 void uiODApplMgrAttrVisHandler::doXPlot()
 {
     const Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet();
-    if ( !ads ) return;
-
-    am_.wellattrserv_->setAttribSet( *ads );
-    am_.wellattrserv_->doXPlot();
+    if ( ads )
+	am_.wellattrserv_->doXPlot( ads->is2D() );
 }
 
 

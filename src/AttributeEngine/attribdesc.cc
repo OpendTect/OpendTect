@@ -361,21 +361,30 @@ Desc* Desc::getInput( int inpidx )
 }
 
 
-#define mErrRet(msg) { errmsg_ = msg; return Error; }
+#define mErrRet(msg) { errmsg_ = msg; return GenError; }
 
 
-Desc::SatisfyLevel Desc::isSatisfied() const
+Desc::SatisfyLevel Desc::satisfyLevel() const
 {
     if ( seloutput_==-1 && !stringEndsWith( "|ALL", userref_.buf() ) )
-	    // || seloutput_>nrOutputs()  )
-	    //TODO NN descs return only one output. Needs solution!
 	mErrRet( tr("Selected output is not correct") )
 
     for ( int idx=0; idx<params_.size(); idx++ )
     {
 	if ( !params_[idx]->isOK() )
-	    mErrRet( tr("Parameter '%1' for '%2' is not correct")
-		     .arg( params_[idx]->getKey() ).arg( userref_ ) )
+	{
+	    const BufferString ky = params_[idx]->getKey();
+	    if ( ky == "id" )
+	    {
+		errmsg_ = tr( "A stored input is incorrect" );
+		return StorNotFound;
+	    }
+	    else
+	    {
+		mErrRet( tr("Parameter '%1' for '%2' is not correct")
+			 .arg( ky ).arg( userref_ ) )
+	    }
+	}
     }
 
     for ( int idx=0; idx<inputs_.size(); idx++ )
@@ -384,7 +393,7 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 	    continue;
 
 	if ( !inputs_[idx] )
-	    mErrRet( tr("Input for '%1' (%2) is not correct")
+	    mErrRet( tr("Input for '%1' (%2) is not provided")
 		     .arg( userref_ ).arg( inputspecs_[idx].getDesc() ) )
 	else
 	{
@@ -782,12 +791,12 @@ bool Desc::isStoredInMem() const
 
 
 Desc* Desc::cloneDescAndPropagateInput( const DescID& newinputid,
-					BufferString sufix )
+					BufferString sufix ) const
 {
     if ( seloutput_ == -1 )
 	return descset_->getDesc( newinputid );
 
-    Desc* myclone = new Desc(*this);
+    Desc* myclone = new Desc( *this );
 
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {

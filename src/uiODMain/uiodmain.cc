@@ -525,14 +525,8 @@ bool uiODMain::updateSession()
     applMgr().EMServer()->fillPar( cursession_->empars() );
     applMgr().seisServer()->fillPar( cursession_->seispars() );
     applMgr().visServer()->fillPar( cursession_->vispars() );
-    applMgr().attrServer()->fillPar( cursession_->attrpars(true,false),
-				     true, false );
-    applMgr().attrServer()->fillPar( cursession_->attrpars(true, true),
-				     true, true );
-    applMgr().attrServer()->fillPar( cursession_->attrpars(false, false),
-				     false, false );
-    applMgr().attrServer()->fillPar( cursession_->attrpars(false, true),
-				     false, true );
+    applMgr().attrServer()->fillPar( cursession_->attrpars(true), true );
+    applMgr().attrServer()->fillPar( cursession_->attrpars(false), false );
     sceneMgr().getScenePars( cursession_->scenepars() );
     if ( applMgr().nlaServer()
       && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) )
@@ -558,19 +552,9 @@ void uiODMain::doRestoreSession()
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession_->nlapars() );
     if ( SI().has2D() )
-    {
-	applMgr().attrServer()->usePar( cursession_->attrpars(true,false),
-					true, false );
-	applMgr().attrServer()->usePar( cursession_->attrpars(true,true),
-					true, true );
-    }
+	applMgr().attrServer()->usePar( cursession_->attrpars(true), true );
     if ( SI().has3D() )
-    {
-	applMgr().attrServer()->usePar( cursession_->attrpars(false,false),
-					false, false );
-	applMgr().attrServer()->usePar( cursession_->attrpars(false,true),
-					false, true );
-    }
+	applMgr().attrServer()->usePar( cursession_->attrpars(false), false );
     applMgr().mpeServer()->usePar( cursession_->mpepars() );
     const bool visok = applMgr().visServer()->usePar( cursession_->vispars() );
     if ( visok )

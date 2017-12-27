@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
 #include "coltabseqmgr.h"
 #include "emmanager.h"
@@ -746,17 +745,11 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs(
     if ( mIsUdfGeomID(vwr2d->geomID()) )
 	return;
 
-    Attrib::DescSet* ads2d = Attrib::eDSHolder().getDescSet( true, false );
-    Attrib::DescSet* ads2dns = Attrib::eDSHolder().getDescSet( true, true );
+    const Attrib::DescSet& ads2d = Attrib::DescSet::global( true );
     const Attrib::Desc* wvadesc =
-	ads2d->getDesc( vwr2d->selSpec(true).id() );
-    if ( !wvadesc )
-	wvadesc = ads2dns->getDesc( vwr2d->selSpec(true).id() );
+	ads2d.getDesc( vwr2d->selSpec(true).id() );
     const Attrib::Desc* vddesc =
-	ads2d->getDesc( vwr2d->selSpec(false).id() );
-    if ( !vddesc )
-	vddesc = ads2dns->getDesc( vwr2d->selSpec(false).id() );
-
+	ads2d.getDesc( vwr2d->selSpec(false).id() );
     if ( !wvadesc && !vddesc )
 	return;
 

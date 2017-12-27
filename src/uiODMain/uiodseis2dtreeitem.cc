@@ -30,7 +30,6 @@ ___________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescid.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
 #include "attribsel.h"
 #include "emmanager.h"
@@ -63,18 +62,6 @@ static TypeSet<int> selcomps;
 #define cDisplayAll	988
 #define cHideAll	987
 
-uiODSceneProbeParentTreeItem::Type
-	uiODLine2DParentTreeItem::getType( int action ) const
-{
-    switch( action )
-    {
-	case 0: return uiODSceneProbeParentTreeItem::Empty; break;
-	case 1: return uiODSceneProbeParentTreeItem::Default; break;
-	case 2: return uiODSceneProbeParentTreeItem::Select; break;
-	case 3: return uiODSceneProbeParentTreeItem::RGBA; break;
-	default: return uiODSceneProbeParentTreeItem::Empty;
-    }
-}
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
     : uiODSceneProbeParentTreeItem( tr("2D Line") )
@@ -319,7 +306,7 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	if ( geomids.isEmpty() )
 	    return;
 
-	typetobeadded_ = getType( action );
+	typetobeadded_ = getAddType( action );
 	uiUserShowWait usw( getUiParent(), uiStrings::sUpdatingDisplay() );
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	{

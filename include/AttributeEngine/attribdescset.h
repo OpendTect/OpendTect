@@ -17,34 +17,55 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class DataPointSet;
+class CtxtIOObj;
+class IOObjContext;
 
 namespace Attrib
 {
-class DescSetup; class SelSpec;
+
+class DescSetup;
+class SelSpec;
 class DescSet_Standard_Manager;
 
-/*!\brief Set of attribute descriptions.  */
+/*!\brief Set of attribute descriptions.
+
+  Every Attrib::Desc has a DescID, and ID that has no meaning outside the
+  DescSet.
+
+  For both 2D and 3D there is one global DescSet that is shared.
+
+ */
 
 mExpClass(AttributeEngine) DescSet : public CallBacker
 { mODTextTranslationClass( Attrib::DescSet )
 public:
 
-    static const DescSet&	g2D();
-    static const DescSet&	g3D();
-    static DescSet&		g2D4Edit();
-    static DescSet&		g3D4Edit();
+    static const DescSet&	global2D();
+    static const DescSet&	global3D();
     static const DescSet&	empty2D();
     static const DescSet&	empty3D();
     static DescSet&		dummy2D();
     static DescSet&		dummy3D();
 
-    explicit			DescSet(bool is2d);
-				DescSet(const DescSet&);
-				~DescSet();
-    DescSet&			operator =(const DescSet&);
+    inline static const DescSet& global( bool is2d )
+			{ return is2d ? global2D() : global3D(); }
+    inline static const DescSet& empty( bool is2d )
+			{ return is2d ? empty2D() : empty3D(); }
+    inline static const DescSet& dummy( bool is2d )
+			{ return is2d ? dummy2D() : dummy3D(); }
 
-    inline bool		isEmpty() const	{ return descs_.isEmpty(); }
-    inline int		size() const	{ return descs_.size(); }
+    explicit		DescSet(bool is2d);
+			DescSet(const DescSet&);
+			~DescSet();
+    DescSet&		operator =(const DescSet&);
+    uiRetVal		load(const DBKey&,uiRetVal* warns=0);
+    uiRetVal		store(const DBKey&) const;
+    uiRetVal		save() const		{ return store( dbky_ ); }
+    DBKey		storeID() const		{ return dbky_; }
+    BufferString	name() const;
+
+    inline bool		isEmpty() const		{ return descs_.isEmpty(); }
+    inline int		size() const		{ return descs_.size(); }
     int			indexOf(const char* nm,bool usrref=true) const;
     inline bool		isPresent( const char* nm, bool usrref=true ) const
 						{ return indexOf(nm,usrref)>=0;}
@@ -80,9 +101,12 @@ public:
 				bool inclhidden=false) const;
 
     Desc*		getDesc( const DescID& id )
-						{ return gtDesc(id); }
+					{ return gtDesc(id); }
     const Desc*		getDesc( const DescID& id ) const
-						{ return gtDesc(id); }
+					{ return gtDesc(id); }
+    static const Desc*	getGlobalDesc( bool is2d, const DescID& id )
+					{ return global(is2d).getDesc( id ); }
+    static const Desc*	getGlobalDesc(const SelSpec&);
     DescID		getID(const Desc&) const;
     DescID		getID(int) const;
     DescID		getID(const char* ref,bool isusrref,
@@ -113,20 +137,17 @@ public:
     bool		isAttribUsed(const DescID&) const;
     void		cleanUpDescsMissingInputs();
 
-    bool		createSteeringDesc(const IOPar&,BufferString,
-					   ObjectSet<Desc>&, int& id,
-					   uiStringSet* errmsgs=0);
-    static Desc*	createDesc(const BufferString&, const IOPar&,
-				   const BufferString&,uiStringSet*);
-    Desc*		createDesc(const BufferString&, const IOPar&,
-				   const BufferString& );
+    uiRetVal		createSteeringDesc(const IOPar&,BufferString,
+					   ObjectSet<Desc>&, int& id);
+    static Desc*	createDesc(const BufferString&,const IOPar&,
+				   const BufferString&,uiRetVal&);
     DescID		createStoredDesc(const DBKey&,int selout,
 					 const BufferString& compnm);
-    bool		setAllInputDescs(int, const IOPar&,uiStringSet*);
+    uiRetVal		setAllInputDescs(int, const IOPar&);
     void		handleStorageOldFormat(IOPar&);
-    void		handleOldAttributes(BufferString&,IOPar&,BufferString&,
+    uiRetVal		handleOldAttributes(BufferString&,IOPar&,BufferString&,
 					    int) const;
-    void		handleOldMathExpression(IOPar&,BufferString&,int) const;
+    uiRetVal		handleOldMathExpression(IOPar&,BufferString&,int) const;
     void		handleReferenceInput(Desc*);
 
 			//!<will prepare strings for each desc, format :
@@ -146,24 +167,19 @@ public:
     void		fillInSelSpecs(Attrib::DescSetup,
 				       TypeSet<Attrib::SelSpec>&) const;
 
-    inline bool		is2D() const		{ return is2d_; }
+    inline bool		is2D() const			{ return is2d_; }
     bool		hasStoredInMem() const;
-    bool		couldBeUsedInAnyDimension() const
-			{ return couldbeanydim_; }
-    void		setCouldBeUsedInAnyDimension( bool yn )
-			{ couldbeanydim_ = yn; }
+    bool		needsSave() const		{ return ischanged_; }
+    void		setSaved( bool yn=true ) const	{ ischanged_ = yn; }
 
     bool		exportToDot(const char* nm,const char* fnm) const;
 
-    uiString		errMsg() const;
     static const char*	highestIDStr()		{ return "MaxNrKeys"; }
     static const char*	definitionStr()		{ return "Definition"; }
     static const char*	userRefStr()		{ return "UserRef"; }
     static const char*	inputPrefixStr()	{ return "Input"; }
     static const char*	hiddenStr()		{ return "Hidden"; }
     static const char*	indexStr()		{ return "Index"; }
-    static BufferString storedIDErrStr()
-				    { return "Parameter 'id' is not correct"; }
 
     CNotifier<DescSet,DescID>	descAdded;
     CNotifier<DescSet,DescID>	descUserRefChanged;
@@ -172,9 +188,12 @@ public:
     Notifier<DescSet>		aboutToBeDeleted;
 
     void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&,uiStringSet* errmsgs=0);
-    bool		useOldSteeringPar(IOPar&,ObjectSet<Desc>&,
-					  uiStringSet*);
+    uiRetVal		usePar(const IOPar&);
+    uiRetVal		useOldSteeringPar(IOPar&,ObjectSet<Desc>&);
+
+    static const char*	sKeyUseAutoAttrSet;
+    static const char*	sKeyAuto2DAttrSetID;
+    static const char*	sKeyAuto3DAttrSetID;
 
 protected:
 
@@ -184,8 +203,7 @@ protected:
     mutable bool	ischanged_;
     ObjectSet<Desc>	descs_;
     TypeSet<DescID>	ids_;
-    bool		couldbeanydim_;
-    uiString		errmsg_;
+    DBKey		dbky_;
 
     void		usrRefChgCB(CallBacker*);
 
@@ -196,14 +214,28 @@ private:
 
 public:
 
-			// No detailed change management. Maintained by UI.
+			// No detailed change management. Normally maintained
+			// by UI only. If you change the global DescSet be
+			// sure to call setIsChanged( true ).
     bool		isChanged() const		{ return ischanged_; }
     void		setIsChanged( bool yn ) const	{ ischanged_ = yn; }
+    void		setStoreID( const DBKey& dbky )	{ dbky_ = dbky; }
+    static DescSet&	global2D4Edit();
+    static DescSet&	global3D4Edit();
+    inline static DescSet& global4Edit( bool is2d )
+			{ return is2d ? global2D4Edit() : global3D4Edit(); }
+    static void		pushGlobal(bool,DescSet*);
+    static DescSet*	popGlobal(bool);
+    static void		initGlobalSets();
+    static const uiRetVal& autoLoadResult();
 
     DescID		ensureStoredPresent(const DBKey&,int compnr=-1) const;
     DescID		ensureDefStoredPresent() const;
     static uiString	sFactoryEntryNotFound(const char* attrnm);
-    static uiRetVal	reLoadAuto();
+    uiRetVal		load(const char* filenm,uiRetVal* warns=0);
+    CtxtIOObj*		getCtxtIOObj(bool forread) const;
+    static IOObjContext* getIOObjContext(bool forread);
+    static IOObjContext* getIOObjContext(bool forread,bool is2d);
 
 };
 

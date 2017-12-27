@@ -24,11 +24,8 @@ const char* ODSession::emprefix()	{ return "EM"; }
 const char* ODSession::seisprefix()	{ return "Seis"; }
 const char* ODSession::visprefix()	{ return "Vis"; }
 const char* ODSession::sceneprefix()	{ return "Scene"; }
-const char* ODSession::attrprefix()	{ return "Attribs"; }//backward comp 2.4
 const char* ODSession::attr2dprefix()	{ return "2D.Attribs"; }
 const char* ODSession::attr3dprefix()	{ return "3D.Attribs"; }
-const char* ODSession::attr2dstoredprefix()  { return "2D.Stored.Attribs"; }
-const char* ODSession::attr3dstoredprefix()  { return "3D.Stored.Attribs"; }
 const char* ODSession::nlaprefix()	{ return "NLA"; }
 const char* ODSession::trackprefix()	{ return "Tracking"; }
 const char* ODSession::pluginprefix()	{ return "Plugins"; }
@@ -48,11 +45,8 @@ void ODSession::clear()
     seispars_.setEmpty();
     vispars_.setEmpty();
     scenepars_.setEmpty();
-    attrpars_.setEmpty();				//backward comp 2.4
     attrpars2d_.setEmpty();
     attrpars3d_.setEmpty();
-    attrpars2dstored_.setEmpty();
-    attrpars3dstored_.setEmpty();
     nlapars_.setEmpty();
     mpepars_.setEmpty();
     pluginpars_.setEmpty();
@@ -68,11 +62,8 @@ ODSession& ODSession::operator=( const ODSession& sess )
 	seispars_ = sess.seispars_;
 	vispars_ = sess.vispars_;
 	scenepars_ = sess.scenepars_;
-	attrpars_ = sess.attrpars_;		//backward comp 2.4
 	attrpars2d_ = sess.attrpars2d_;
 	attrpars3d_ = sess.attrpars3d_;
-	attrpars2dstored_ = sess.attrpars2dstored_;
-	attrpars3dstored_ = sess.attrpars3dstored_;
 	nlapars_ = sess.nlapars_;
 	mpepars_ = sess.mpepars_;
 	pluginpars_ = sess.pluginpars_;
@@ -87,11 +78,8 @@ bool ODSession::operator==( const ODSession& sess ) const
     return vispars_ == sess.vispars_
 	&& empars_ == sess.empars_
 	&& seispars_ == sess.seispars_
-	&& attrpars_ == sess.attrpars_		//backward comp 2.4
 	&& attrpars2d_ == sess.attrpars2d_
 	&& attrpars3d_ == sess.attrpars3d_
-	&& attrpars2dstored_ == sess.attrpars2dstored_
-	&& attrpars3dstored_ == sess.attrpars3dstored_
 	&& nlapars_ == sess.nlapars_
 	&& mpepars_ == sess.mpepars_
 	&& pluginpars_ == sess.pluginpars_
@@ -117,10 +105,6 @@ bool ODSession::usePar( const IOPar& par )
     if ( scenesubpars )
         scenepars_ = *scenesubpars;
 
-    PtrMan<IOPar> attrsubpars = par.subselect( attrprefix() );
-    if ( attrsubpars )
-	attrpars_ = *attrsubpars;		//backward comp 2.4
-
     PtrMan<IOPar> attr2dsubpars = par.subselect( attr2dprefix() );
     if ( attr2dsubpars )
 	attrpars2d_ = *attr2dsubpars;
@@ -128,14 +112,6 @@ bool ODSession::usePar( const IOPar& par )
     PtrMan<IOPar> attr3dsubpars = par.subselect( attr3dprefix() );
     if ( attr3dsubpars )
 	attrpars3d_ = *attr3dsubpars;
-
-    PtrMan<IOPar> attr2dstoredsubpars = par.subselect( attr2dstoredprefix() );
-    if ( attr2dstoredsubpars )
-	attrpars2dstored_ = *attr2dstoredsubpars;
-
-    PtrMan<IOPar> attr3dstoredsubpars = par.subselect( attr3dstoredprefix() );
-    if ( attr3dstoredsubpars )
-	attrpars3dstored_ = *attr3dstoredsubpars;
 
     PtrMan<IOPar> nlasubpars = par.subselect( nlaprefix() );
     if ( nlasubpars )
@@ -163,11 +139,8 @@ void ODSession::fillPar( IOPar& par ) const
     par.mergeComp( seispars_, seisprefix() );
     par.mergeComp( vispars_, visprefix() );
     par.mergeComp( scenepars_, sceneprefix() );
-    par.mergeComp( attrpars_, attrprefix() );	//backward comp 2.4
     par.mergeComp( attrpars2d_, attr2dprefix() );
     par.mergeComp( attrpars3d_, attr3dprefix() );
-    par.mergeComp( attrpars2dstored_, attr2dstoredprefix() );
-    par.mergeComp( attrpars3dstored_, attr3dstoredprefix() );
     par.mergeComp( nlapars_, nlaprefix() );
     par.mergeComp( mpepars_, trackprefix() );
     par.mergeComp( pluginpars_, pluginprefix() );
@@ -175,14 +148,9 @@ void ODSession::fillPar( IOPar& par ) const
 }
 
 
-IOPar& ODSession::attrpars( bool is2d, bool isstored )
+IOPar& ODSession::attrpars( bool is2d )
 {
-    if ( !attrpars2d_.size() && !attrpars3d_.size() && attrpars_.size() )
-	return attrpars_;			//backward comp 2.4
-    else if ( is2d )
-	return isstored ? attrpars2dstored_ : attrpars2d_;
-    else
-	return isstored ? attrpars3dstored_ : attrpars3d_;
+    return is2d ? attrpars2d_ : attrpars3d_;
 }
 
 

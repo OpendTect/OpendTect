@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attribengman.h"
 #include "attribfactory.h"
 #include "attribparam.h"
@@ -75,8 +74,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 		    BoolInpSpec(true,tr("SteeringCube"),
 				uiStrings::sAttribute(mPlural)));
     dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
-    steerfld_ = new uiSteerAttrSel( this, DSHolder().getDescSet(is2d,true),
-				    is2d );
+    steerfld_ = new uiSteerAttrSel( this, is2d );
     steerfld_->attach( alignedBelow, dirinpfld_ );
 
     uiAttrSelData asd( *ads_ );
@@ -264,7 +262,7 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
 				: new DescSet( *ads_ );
 
     if ( !createdset_->getDesc( ids[0] ) && usesteering_ )
-	*createdset_ = *( Attrib::DSHolder().getDescSet( ads_->is2D(), true ) );
+	*createdset_ = Attrib::DescSet::global( ads_->is2D() );
 
     mSetColDef(0)
     mSetColDef(1)

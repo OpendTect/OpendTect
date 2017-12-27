@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
-#include "attribdescsetsholder.h"
 #include "ioobjctxt.h"
 #include "dbman.h"
 #include "ioobj.h"
@@ -78,7 +77,7 @@ void uiSteeringSel::createFields()
                               StringListInpSpec(steertyps) );
     typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
-    inpfld_ = new uiSteerAttrSel( this, descset_, is2d_ );
+    inpfld_ = new uiSteerAttrSel( this, *descset_ );
     inpfld_->getHistory( inpselhist );
     inpfld_->attach( alignedBelow, typfld_ );
 
@@ -124,11 +123,8 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
     if ( !typfld_ || !inpfld_ )
 	return;
 
-    if ( !ad )
-    {
-	typfld_->setValue( 0 );
-	return;
-    }
+    if ( !ad || !ad->descSet() )
+	{ typfld_->setValue( 0 ); return; }
 
     setDescSet( ad->descSet() );
 
@@ -158,9 +154,10 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 }
 
 
-void uiSteeringSel::setDescSet( const DescSet* ads )
+void uiSteeringSel::setDescSet( const Attrib::DescSet* ads )
 {
-    if ( !inpfld_ ) return;
+    if ( !inpfld_ )
+	return;
 
     descset_ = ads;
     inpfld_->setDescSet( ads );
@@ -182,11 +179,7 @@ DescID uiSteeringSel::descID()
 	return DescID();
 
     if ( !descset_ )
-    {
-	descset_ = Attrib::DSHolder().getDescSet( is2d_, false );
-	if ( !descset_ )
-	    return DescID();
-    }
+	descset_ = &Attrib::DescSet::global( is2d_ );
 
     if ( type==3 )
     {
@@ -284,13 +277,21 @@ const char* uiSteeringSel::text() const
 }
 
 
-uiSteerAttrSel::uiSteerAttrSel( uiParent* p, const DescSet* ads,
-				bool is2d, const uiString& txt )
-	: uiSteerCubeSel(p,is2d,true,txt)
-	, attrdata_( is2d )
+uiSteerAttrSel::uiSteerAttrSel( uiParent* p, const DescSet& ads,
+				const uiString& txt )
+    : uiSteerCubeSel(p,ads.is2D(),true,txt)
+    , attrdata_( ads.is2D() )
 {
-    if ( ads )
-	attrdata_.setAttrSet( *ads );
+    attrdata_.setAttrSet( ads );
+}
+
+
+uiSteerAttrSel::uiSteerAttrSel( uiParent* p, bool is2d,
+				const uiString& txt )
+    : uiSteerCubeSel(p,is2d,true,txt)
+    , attrdata_( is2d )
+{
+    attrdata_.setAttrSet( Attrib::DescSet::global(is2d) );
 }
 
 
@@ -334,14 +335,14 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
 
 void uiSteerAttrSel::setDescSet( const DescSet* ads )
 {
-    if ( ads )
-	attrdata_.setAttrSet( *ads );
+    const bool is2d = attrdata_.is2D();
+    attrdata_.setAttrSet( ads ? *ads : DescSet::global(is2d) );
 }
 
 
 void uiSteerAttrSel::setDesc( const Desc* desc )
 {
-    if ( !desc || desc->selectedOutput()
+    if ( !desc || desc->selectedOutput() || !desc->descSet()
       || !desc->isStored() || desc->dataType() != Seis::Dip )
 	return;
 

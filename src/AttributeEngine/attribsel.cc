@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attribstorprovider.h"
 #include "bindatadesc.h"
 #include "bufstringset.h"
@@ -212,27 +211,15 @@ void SelSpec::usePar( const IOPar& par )
 }
 
 
+const Desc* SelSpec::getDesc( const DescSet* descset ) const
+{
+    return descset ? descset->getDesc( id_ ) : DescSet::getGlobalDesc( *this );
+}
+
+
 bool SelSpec::isStored( const DescSet* descset ) const
 {
-    if ( !id_.isValid() )
-	return false;
-
-    const Desc* desc = 0;
-    if ( descset )
-	desc = descset->getDesc( id_ );
-    else
-    {
-	descset = DSHolder().getDescSet( is2d_, true );
-	if ( descset )
-	    desc = descset->getDesc( id_ );
-	if ( !desc )
-	{
-	    descset = DSHolder().getDescSet( is2d_, false );
-	    if ( descset )
-		desc = descset->getDesc( id_ );
-	}
-    }
-
+    const Desc* desc = getDesc( descset );
     return desc ? desc->isStored() : false;
 }
 
@@ -240,14 +227,7 @@ bool SelSpec::isStored( const DescSet* descset ) const
 const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid,
 						const DescSet* descset ) const
 {
-    if ( !descset )
-    {
-	descset = DSHolder().getDescSet( false, isStored(0) );
-	if ( !descset || descset->isEmpty() )
-	    return 0;
-    }
-
-    const Desc* desc = descset->getDesc( id() );
+    const Desc* desc = getDesc( descset );
     if ( !desc )
 	return 0;
 

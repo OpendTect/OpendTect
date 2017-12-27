@@ -24,8 +24,8 @@ namespace Attrib
     class Data2DHolder;
     class Desc;
     class DescSet;
-    class EngineMan;
     class SelSpec;
+    class EngineMan;
 }
 
 class BinIDValueSet;
@@ -53,6 +53,12 @@ namespace ZDomain { class Info; class Def; }
 mExpClass(uiAttributes) uiAttribPartServer : public uiApplPartServer
 { mODTextTranslationClass(uiAttribPartServer);
 public:
+
+    typedef Attrib::Desc	Desc;
+    typedef Attrib::DescSet	DescSet;
+    typedef Attrib::DescID	DescID;
+    typedef Attrib::SelSpec	SelSpec;
+
 			uiAttribPartServer(uiApplService&);
 			~uiAttribPartServer();
 
@@ -82,20 +88,21 @@ public:
     static uiString	getMenuText(bool is2d,bool issteering, bool endmenu);
 
     void		manageAttribSets(bool is2d);
-    const Attrib::DescSet* curDescSet(bool is2d) const;
-    void		getDirectShowAttrSpec(Attrib::SelSpec&) const;
+    const DescSet&	curDescSet(bool is2d) const;
+    DescSet&		curDescSet4Edit(bool is2d) const;
+    void		getDirectShowAttrSpec(SelSpec&) const;
     bool		setSaved(bool is2d) const;
     void		saveSet(bool is2d);
     bool		editSet(bool is2d);
-			//!< returns whether new AttribDescSet has been created
+			    //!< returns whether new DescSet has been created
     bool		attrSetEditorActive() const	{ return attrsetdlg_; }
-    void		updateSelSpec(Attrib::SelSpec&) const;
+    void		updateSelSpec(SelSpec&) const;
     void		setAttrsNeedUpdt()		{ attrsneedupdt_ =true;}
 
-    bool		selectAttrib(Attrib::SelSpec&,const ZDomain::Info*,
+    bool		selectAttrib(SelSpec&,const ZDomain::Info*,
 				     Pos::GeomID geomid,
 				     const uiString& seltxt=tr("View Data")) ;
-    bool		selectRGBAttribs(TypeSet<Attrib::SelSpec>&,
+    bool		selectRGBAttribs(TypeSet<SelSpec>&,
 					 const ZDomain::Info*,Pos::GeomID);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
     void		outputVol(const DBKey&,bool is2d,bool multioutput);
@@ -104,12 +111,12 @@ public:
     int			getSliceIdx() const		{ return sliceidx_; }
     void		getPossibleOutputs(bool is2d,BufferStringSet&) const;
 
-    void		setTargetSelSpec(const Attrib::SelSpec&);
-    void		setTargetSelSpecs(const TypeSet<Attrib::SelSpec>& specs)
+    void		setTargetSelSpec(const SelSpec&);
+    void		setTargetSelSpecs(const TypeSet<SelSpec>& specs)
 			{ targetspecs_ = specs; }
-
-    const TypeSet<Attrib::SelSpec>&	getTargetSelSpecs() const
-					{ return targetspecs_; }
+    const TypeSet<SelSpec>& getTargetSelSpecs() const
+			{ return targetspecs_; }
+    const Desc*		getTargetDesc() const;
 
     DataPack::ID	createOutput(const TrcKeyZSampling&,DataPack::ID);
     RefMan<RegularSeisDataPack> createOutput(const TrcKeyZSampling&,
@@ -126,13 +133,13 @@ public:
 					    const ZDomain::Def& zdef,
 					    const BufferStringSet& compnames=0);
 
-    Attrib::DescID	getStoredID(const DBKey&,bool is2d,
+    DescID		getDefaultAttribID(bool is2d) const;
+    DescID		getStoredID(const DBKey&,bool is2d,
 				    int selout=-1) const;
-    IOObj*		getIOObj(const Attrib::SelSpec&) const;
+    IOObj*		getIOObj(const SelSpec&) const;
 
     bool		extractData(ObjectSet<DataPointSet>&);
-    bool		createAttributeSet(const BufferStringSet&,
-					   Attrib::DescSet*);
+    bool		createAttributeSet(const BufferStringSet&,DescSet*);
     void		importAttrSetFromFile();
     void		importAttrSetFromOtherSurvey();
 
@@ -140,26 +147,22 @@ public:
     void		setNLAName( const char* nm )	{ nlaname_ = nm; }
 
     void		resetMenuItems();
-    MenuItem*		storedAttribMenuItem(const Attrib::SelSpec&,bool is2d,
-					     bool);
-    MenuItem*		calcAttribMenuItem(const Attrib::SelSpec&,bool is2d,
-					   bool);
-    MenuItem*		nlaAttribMenuItem(const Attrib::SelSpec&,bool is2d,
-					  bool);
-    MenuItem*		zDomainAttribMenuItem(const Attrib::SelSpec&,
+    MenuItem*		storedAttribMenuItem(const SelSpec&,bool is2d,bool);
+    MenuItem*		calcAttribMenuItem(const SelSpec&,bool is2d,bool);
+    MenuItem*		nlaAttribMenuItem(const SelSpec&,bool is2d,bool);
+    MenuItem*		zDomainAttribMenuItem(const SelSpec&,
 					      const ZDomain::Info&,
 					      bool is2d,bool);
     void		fillInStoredAttribMenuItem(MenuItem*,bool,bool,
-						   const Attrib::SelSpec&,bool,
+						   const SelSpec&,bool,
 						   bool needext=false);
-    void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
+    void		filter2DMenuItems(MenuItem&,const SelSpec&,
 					  int geomid, bool isstored,
 					  int steerpol );
 
-    bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&,bool&);
+    bool		handleAttribSubMenu(int mnuid,SelSpec&,bool&);
     bool		handleMultiComp(const DBKey&,bool,bool,
-					BufferStringSet&,Attrib::DescID&,
-					TypeSet<int>&);
+					BufferStringSet&,DescID&,TypeSet<int>&);
     void		info2DAttribSubMenu(int mnuid,BufferString& attbnm,
 					    bool& steering,bool& stored);
     bool		prepMultCompSpecs(TypeSet<int>,const DBKey&,
@@ -168,19 +171,17 @@ public:
     void		setEvaluateInfo(bool ae,bool as)
 			{ alloweval_=ae; allowevalstor_=as; }
 
-    void		fillPar(IOPar&,bool,bool) const;
-    void		usePar(const IOPar&,bool,bool);
+    void		fillPar(IOPar&,bool) const;
+    void		usePar(const IOPar&,bool);
 
     void		setDPSDispMgr( DataPointSetDisplayMgr* dispmgr )
 			{ dpsdispmgr_ = dispmgr; }
 
     void		set2DEvent( bool is2d )		{ is2devsent_ = is2d; }
     bool		is2DEvent()			{ return is2devsent_; }
-    int			use3DMode() const;
-			//!< If you have services that can work on 2D or 3D
-			//!< 0 = 2D, 1 = 3D, -1 = user cancel
-    const Attrib::DescSet*	getUserPrefDescSet() const;
-			//!< For services that can work on 2D or 3D
+    const DescSet*	getUserPrefDescSet() const;
+				//!< For services that can work on 2D or 3D
+				//!< Null return means user wants to cancel
     void		showXPlot(CallBacker*);
 
     void		setEvalBackupColTabMapper(const ColTab::Mapper*);
@@ -205,7 +206,7 @@ protected:
     MenuItem		multcomp3d_;
 
     ObjectSet<uiAttribCrossPlot> attrxplotset_;
-    const Attrib::Desc*	dirshwattrdesc_;
+    const Desc*		dirshwattrdesc_;
     uiAttribDescSetEd*	attrsetdlg_;
     Timer		attrsetclosetim_;
     bool                is2devsent_;
@@ -235,26 +236,21 @@ protected:
     void		attrsetDlgCloseTimTick(CallBacker*);
     void		survChangedCB(CallBacker*);
 
-    Attrib::DescID	targetID(bool is2d,int nr=0) const;
-
-    void		handleAutoSet();
-    void		useAutoSet(bool);
+    DescID		targetID(bool is2d,int nr=0) const;
 
     void		insertNumerousItems(const BufferStringSet&,
-					    const Attrib::SelSpec&,
-					    bool,bool,bool);
+					    const SelSpec&,bool,bool,bool);
 
     void		snapToValidRandomTraces(TypeSet<BinID>& path,
-						const Attrib::Desc*);
+						const Desc*);
 
     static const char*	attridstr();
     BufferString	nlaname_;
 
-    bool			alloweval_;
-    bool			allowevalstor_;
-    int				sliceidx_;
-    Attrib::DescSet*		evalset;
-    TypeSet<Attrib::SelSpec>	targetspecs_;
+    bool		alloweval_;
+    bool		allowevalstor_;
+    int			sliceidx_;
+    TypeSet<SelSpec>	targetspecs_;
 
     DataPointSetDisplayMgr*	dpsdispmgr_;
 

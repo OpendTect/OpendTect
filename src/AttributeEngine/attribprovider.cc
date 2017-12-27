@@ -114,19 +114,24 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	}
     }
 
-    if ( desc.nrInputs() && !desc.descSet() )
+    Provider* newprov = 0;
+    if ( !desc.descSet() )
+	{ errstr = tr("No attribute set specified"); return 0; }
+    else if ( desc.nrInputs() < 1 )
     {
-	errstr = tr("No attribute set specified");
-	return 0;
+	if ( !desc.isStored() )
+	    { errstr = tr("Only stored attributes have no inputs"); return 0; }
+	newprov = new StorageProvider( desc );
     }
-
-    Provider* newprov = PF().create( desc );
-    if ( !newprov )
+    else
     {
-	const BufferString errmsg = mFromUiStringTodo(desc.errMsg());
-	if ( errmsg )
+	newprov = PF().create( desc );
+	if ( !newprov )
 	{
-	    if ( errmsg==DescSet::storedIDErrStr() && desc.isStored() )
+	    const Desc::SatisfyLevel lvl = desc.satisfyLevel();
+	    const uiString& errmsg = desc.errMsg();
+
+	    if ( lvl == Desc::StorNotFound )
 	    {
 		errstr = tr( "Impossible to find stored data '%1'\n"
 				 "used as input for other attribute(s). \n"
@@ -135,9 +140,11 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 				 "Please select valid stored data.")
 				.arg( desc.userRef() );
 	    }
+	    else if ( errmsg.isEmpty() )
+		errstr = tr( "Error in definition of %1 attribute." )
+			 .arg( desc.attribName() );
 	    else
 	    {
-
 		BufferString usrref = desc.userRef();
 		if ( usrref.startsWith("CentralSteering")
 		    || usrref.startsWith("FullSteering") )
@@ -146,13 +153,9 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 		errstr = tr( "%1 for '%2' attribute.")
 			 .arg( errmsg ).arg( desc.userRef() );
 	    }
+
+	    return 0;
 	}
-	else
-	{
-	    errstr = tr( "Error in definition of %1 attribute." )
-		     .arg( desc.attribName() );
-	}
-	return 0;
     }
 
     newprov->ref();
@@ -174,6 +177,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	{
 	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
 	    newprov->unRef();
+	    errstr.setEmpty(); // avoid cascading errors
 	    return 0;
 	}
 
@@ -181,8 +185,8 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	{
 	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
 	    newprov->unRef();
-	    errstr =
-		tr("Input is not correct. One of the inputs depends on itself");
+	    errstr = tr("%1: One of the inputs depends on itself")
+		    .arg( desc.userRef() );
 	    return 0;
 	}
 
@@ -303,28 +307,38 @@ const Desc& Provider::getDesc() const
 }
 
 
-void Provider::enableOutput( int out, bool yn )
+void Provider::enableOutput( int outnr, bool yn )
 {
-    if ( out<0 || out >= outputinterest_.size() )
+    const int nrouts = outputinterest_.size();
+    if ( outnr >= nrouts )
 	{ pErrMsg( "Huh?" ); return; }
 
-    if ( yn )
-	outputinterest_[out]++;
-    else
+    const int startiout = outnr >= 0 ? outnr : 0;
+    const int stopiout = outnr >= 0 ? outnr+1 : nrouts;
+    for ( int iout=startiout; iout<stopiout; iout++ )
     {
-	if ( !outputinterest_[out] )
-	    { pErrMsg( "Huh2?"); return; }
-	outputinterest_[out]--;
+	if ( yn )
+	    outputinterest_[iout]++;
+	else
+	{
+	    if ( outputinterest_[iout] < 1 )
+		{ pErrMsg( "Huh2?"); return; }
+	    outputinterest_[iout]--;
+	}
     }
 }
 
 
-bool Provider::isOutputEnabled( int out ) const
+bool Provider::isOutputEnabled( int outnr ) const
 {
-    if ( out<0 || out >= outputinterest_.size() )
-	return false;
+    if ( outputinterest_.isEmpty() || outnr >= outputinterest_.size() )
+	{ pErrMsg( "Huh?" ); return false; }
     else
-	return outputinterest_[out];
+    {
+	if ( outnr < 0 )
+	    outnr = 0;
+	return outputinterest_[outnr];
+    }
 }
 
 

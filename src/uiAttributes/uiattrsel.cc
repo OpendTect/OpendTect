@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uiattrdesced.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
-#include "attribdescsetsholder.h"
 #include "attribsel.h"
 #include "attribfactory.h"
 #include "hilbertattrib.h"
@@ -48,10 +47,8 @@ uiString uiAttrSel::sQuantityToOutput() { return tr("Quantity to output"); }
 
 
 uiAttrSelData::uiAttrSelData( bool is2d )
-    : attrset_(Attrib::DSHolder().getDescSet(is2d,false))
+    : attrset_(&Attrib::DescSet::global(is2d))
 {
-    if ( !attrset_ )
-	{ pErrMsg("Mem leak to avoid crash" ); attrset_ = new DescSet( is2d ); }
     init();
 }
 
@@ -103,11 +100,7 @@ bool uiAttrSelData::isNLA() const
 
 void uiAttrSelData::descSetDel( CallBacker* )
 {
-    const DescSet* newds = Attrib::DSHolder().getDescSet( is2D(), false );
-    if ( newds == attrset_ )
-	newds = Attrib::DSHolder().getDescSet( is2D(), true );
-    attrset_ = newds;
-    mAttachCB( attrset_->aboutToBeDeleted, uiAttrSelData::descSetDel );
+    setAttrSet( Attrib::DescSet::global( is2D() ) );
 }
 
 

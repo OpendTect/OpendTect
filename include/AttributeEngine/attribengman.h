@@ -54,7 +54,7 @@ public:
     SeisTrcStorOutput*	createOutput(const IOPar&,Pos::GeomID,uiString&,
 				     int outidx);
 
-    const DescSet*	attribSet() const	{ return inpattrset_; }
+    const DescSet*	attribSet() const	{ return attrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
     const TrcKeyZSampling&	cubeSampling() const	{ return tkzs_; }
     Pos::GeomID		getGeomID() const	{ return geomid_; }
@@ -120,7 +120,7 @@ public:
 
 protected:
 
-    const DescSet*	inpattrset_;
+    const DescSet*	attrset_;
     const NLAModel*	nlamodel_;
     TrcKeyZSampling&	tkzs_;
     float		udfval_;

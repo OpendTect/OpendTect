@@ -24,7 +24,7 @@ namespace Attrib { class DescSet; class Processor; }
 namespace Seis { class Provider; }
 
 mExpClass(EMAttrib) StratAmpCalc  : public Executor
-{
+{ mODTextTranslationClass(StratAmpCalc)
 public:
 
 			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,

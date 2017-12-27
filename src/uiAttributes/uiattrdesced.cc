@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetman.h"
 #include "attribparam.h"
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -84,7 +83,7 @@ uiAttrDescEd::~uiAttrDescEd()
 }
 
 
-void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
+void uiAttrDescEd::setDesc( Attrib::Desc* desc )
 {
     if ( desc_ != desc )
     {
@@ -96,13 +95,6 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 	    setOutput( *desc );
 	}
 	descChanged.trigger();
-    }
-
-    if ( adsman_ != adsm )
-    {
-	adsman_ = adsm;
-	if ( adsman_ )
-	    chtr_.setVar( adsman_->unSaved() );
     }
 }
 
@@ -329,20 +321,8 @@ uiRetVal uiAttrDescEd::errMsgs( Attrib::Desc* desc )
     if ( !desc )
 	return uirv;
 
-    if ( desc->isSatisfied() == Desc::Error )
-    {
-	const uiString errmsg( desc->errMsg() );
-	if ( !desc->isStored()
-		|| errmsg.getFullString() != DescSet::storedIDErrStr() )
-	    uirv = errmsg;
-	else
-	{
-	    uirv = tr("Cannot find stored data %1.\n"
-                      "Data might have been deleted or corrupted.\n"
-                      "Please select valid stored data as input.")
-                         .arg( desc->userRef() );
-	}
-    }
+    if ( Desc::isError( desc->satisfyLevel() ) )
+	uirv = desc->errMsg();
 
     uirv.add( areUIParsOK() );
     return uirv;

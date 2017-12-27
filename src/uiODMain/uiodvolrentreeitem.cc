@@ -119,32 +119,23 @@ uiPresManagedTreeItem* uiODVolrenParentTreeItem::addChildItem(
 
 bool uiODVolrenParentTreeItem::setProbeToBeAddedParams( int mnuid )
 {
-    if ( mnuid==uiODSceneProbeParentTreeItem::sAddDefaultDataMenuID() ||
-	 mnuid==uiODSceneProbeParentTreeItem::sAddAndSelectDataMenuID() ||
-	 mnuid==uiODSceneProbeParentTreeItem::sAddColorBlendedMenuID() )
-    {
-	typetobeadded_ = uiODSceneProbeParentTreeItem::getType( mnuid );
-	return true;
-    }
+    if ( mnuid < cAddAndSelectDataMenuID() )
+	{ typetobeadded_ = getAddType( mnuid ); return true; }
 
     return false;
 }
 
 
 const char* uiODVolrenParentTreeItem::iconName() const
-{ return "tree-vol"; }
-
-
-uiTreeItem*
-    uiODVolrenTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    pErrMsg( "Deprecated, to be removed" );
-    return 0;
+    return "tree-vol";
 }
 
 
 const char* uiODVolrenTreeItemFactory::getName()
-{ return typeid(uiODVolrenTreeItemFactory).name(); }
+{
+    return typeid(uiODVolrenTreeItemFactory).name();
+}
 
 
 

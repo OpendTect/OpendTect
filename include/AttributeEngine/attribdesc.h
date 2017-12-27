@@ -137,8 +137,9 @@ public:
     void		getDependencies(TypeSet<Attrib::DescID>&) const;
 					//!< the attributes this one is dep on
 
-    enum SatisfyLevel	{ AllOk, Warning, Error };
-    SatisfyLevel	isSatisfied() const; //!< Mainly checks inputs
+    enum SatisfyLevel	{ AllOk, Warning, StorNotFound, GenError };
+    SatisfyLevel	satisfyLevel() const; //!< Mainly checks inputs
+    static bool		isError( SatisfyLevel lvl )	{ return lvl>Warning; }
     const uiString	errMsg() const;
     void		setErrMsg( const uiString msg )	{ errmsg_ = msg; }
 
@@ -177,7 +178,8 @@ public:
 
     //Used to clone an attribute chain and apply it on multiple components
     //of the same input cube (different offsets for instance)
-    Desc*		cloneDescAndPropagateInput(const DescID&,BufferString);
+    Desc*		cloneDescAndPropagateInput(const DescID&,
+						   BufferString) const;
 
     static void		getKeysVals(const char* defstr,
 				    BufferStringSet& keys,

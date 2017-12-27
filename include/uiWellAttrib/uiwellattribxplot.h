@@ -25,18 +25,18 @@ mExpClass(uiWellAttrib) uiWellAttribCrossPlot : public uiDialog
 { mODTextTranslationClass(uiWellAttribCrossPlot);
 public:
 					uiWellAttribCrossPlot(uiParent*,
-						const Attrib::DescSet*);
+						const Attrib::DescSet&);
 					~uiWellAttribCrossPlot();
 
-    void				setDescSet(const Attrib::DescSet*);
+    void				setDescSet(const Attrib::DescSet&);
     void				setDisplayMgr(
-	    					DataPointSetDisplayMgr* mgr)
+						DataPointSetDisplayMgr* mgr)
 					{ dpsdispmgr_ = mgr; }
 
 protected:
 
     uiWellLogExtractGrp*		wellextractgrp_;
-    DataPointSetDisplayMgr* 		dpsdispmgr_;
+    DataPointSetDisplayMgr*		dpsdispmgr_;
 
     bool				acceptOK();
 };

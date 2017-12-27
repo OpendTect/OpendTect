@@ -72,17 +72,19 @@ public:
 				uiODPlaneDataParentTreeItem(const uiString&);
     virtual void		addMenuItems();
     virtual bool		handleSubMenu(int mnuid);
-    virtual bool		setPosToBeAddedFromWell(const Well::Data&) =0;
+    virtual bool		setPosToBeAddedFromWell(const Well::Data&)
+								{ return false;}
     static uiString		sAddAtWellLocation();
-    static int			sAddAtWellLOcationMenuID()	{ return 3; }
+    static int			cAddAtWellLocationMenuID()	{ return 55; }
 
 protected:
 
     TrcKeyZSampling		probetobeaddedpos_;
 
-    virtual bool		canAddFromWell() const			=0;
+    virtual bool		canAddFromWell() const	{ return false; }
     virtual bool		setProbeToBeAddedParams(int mnuid);
-    virtual bool		setDefaultPosToBeAdded()		=0;
+    virtual bool		setDefaultPosToBeAdded()	= 0;
+
 };
 
 
@@ -141,14 +143,18 @@ mExpClass(uiODMain) uiODCrosslineParentTreeItem
 {   mODTextTranslationClass(uiODCrossineParentTreeItem);
     mDefineItemMembers( CrosslineParent, SceneProbeParentTreeItem,SceneTreeTop);
     mMenuOnAnyButton;
+
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
-    const char*		childObjTypeKey() const;
+    const char*			childObjTypeKey() const;
     uiPresManagedTreeItem*	addChildItem(const Presentation::ObjInfo&);
     Probe*			createNewProbe() const;
     virtual bool		setPosToBeAddedFromWell(const Well::Data&);
+
 protected:
+
     virtual bool		setDefaultPosToBeAdded();
+
 };
 
 
@@ -156,10 +162,12 @@ mExpClass(uiODMain) uiODCrosslineTreeItemFactory
 	: public uiODSceneTreeItemFactory
 {
 public:
+
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
 			{ return new uiODCrosslineParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
+
 };
 
 
@@ -169,17 +177,21 @@ public:
 			uiODCrosslineTreeItem(Probe&,int diplayid=-1);
 
 protected:
+
     const char*		parentType() const
 			{ return typeid(uiODCrosslineParentTreeItem).name(); }
+
 };
 
 
 mExpClass(uiODMain) uiODCrosslineAttribTreeItem : public uiODAttribTreeItem
 {
 public:
+
 				uiODCrosslineAttribTreeItem(const char*);
     static void			initClass();
     static uiODDataTreeItem*	create(ProbeLayer&);
+
 };
 
 
@@ -188,15 +200,16 @@ mExpClass(uiODMain) uiODZsliceParentTreeItem
 {   mODTextTranslationClass(uiODZsliceParentTreeItem);
     mDefineItemMembers( ZsliceParent, SceneProbeParentTreeItem, SceneTreeTop );
     mMenuOnAnyButton;
+
     bool			canShowSubMenu() const;
-    bool			canAddFromWell() const	{ return true; }
     const char*			childObjTypeKey() const;
     uiPresManagedTreeItem*	addChildItem(const Presentation::ObjInfo&);
     Probe*			createNewProbe() const;
-    virtual bool		setPosToBeAddedFromWell(const Well::Data&)
-				{ return false; }
+
 protected:
+
     virtual bool		setDefaultPosToBeAdded();
+
 };
 
 

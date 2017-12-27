@@ -305,8 +305,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
     uiMPEPartServer* mps = applMgr()->mpeServer();
     uiEMPartServer* ems = applMgr()->EMServer();
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
 
     if ( mnuid==savemnuitem_.id )
     {
@@ -441,8 +439,6 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 {
     uiMPEPartServer* mps = applMgr()->mpeServer();
     uiEMPartServer* ems = applMgr()->EMServer();
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
     const bool hastracker = MPE::engine().hasTracker(emid_);
 
     if ( !hastracker && ems->isGeometryChanged(emid_)

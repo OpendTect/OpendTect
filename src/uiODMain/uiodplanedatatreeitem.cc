@@ -28,7 +28,6 @@ ___________________________________________________________________
 #include "visplanedatadisplay.h"
 #include "visrgbatexturechannel2rgba.h"
 
-#include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
 #include "coltabsequence.h"
 #include "probemanager.h"
@@ -316,16 +315,18 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	newprobe = new ZSliceProbe( newtkzs );
     }
 
-    if ( !uiODSceneProbeParentTreeItem::addDefaultAttribLayer(*applMgr(),
-							      *newprobe) ||
-	 !ProbeMGR().store(*newprobe).isOK() )
-	return;
+    if ( uiODSceneProbeParentTreeItem::addDefaultAttribLayer(
+					*applMgr(),*newprobe,true) )
+    {
+	ProbeMGR().store( *newprobe );
 
-    ViewerID invalidvwrid;
-    ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
-    IOPar probeinfopar;
-    probeprinfo.fillPar( probeinfopar );
-    OD::PrMan().handleRequest( invalidvwrid, Presentation::Add, probeinfopar );
+	ViewerID invalidvwrid;
+	ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
+	IOPar probeinfopar;
+	probeprinfo.fillPar( probeinfopar );
+	OD::PrMan().handleRequest( invalidvwrid, Presentation::Add,
+				   probeinfopar );
+    }
 }
 
 
@@ -418,15 +419,15 @@ void uiODPlaneDataParentTreeItem::addMenuItems()
     uiODSceneProbeParentTreeItem::addMenuItems();
     if ( canAddFromWell() )
 	menu_->insertAction(
-	    new uiAction( uiODPlaneDataParentTreeItem::sAddAtWellLocation()),
-			  sAddAtWellLOcationMenuID() );
+		new uiAction(uiODPlaneDataParentTreeItem::sAddAtWellLocation(),
+		    "well"), cAddAtWellLocationMenuID() );
 }
 
 
 
 bool uiODPlaneDataParentTreeItem::handleSubMenu( int mnuid )
 {
-    if ( mnuid==sAddAtWellLOcationMenuID() )
+    if ( mnuid == cAddAtWellLocationMenuID() )
     {
 	DBKeySet wellids;
 	if ( !applMgr()->wellServer()->selectWells(wellids) )
@@ -435,12 +436,10 @@ bool uiODPlaneDataParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0;idx<wellids.size(); idx++ )
 	{
 	    ConstRefMan<Well::Data> wd = Well::MGR().fetch( wellids[idx] );
-	    if ( !wd ) continue;
-
-	    if ( !setPosToBeAddedFromWell(*wd) )
+	    if ( !wd || !setPosToBeAddedFromWell(*wd) )
 		continue;
 
-	    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+	    typetobeadded_ = uiODSceneProbeParentTreeItem::DefaultData;
 	    if ( !addChildProbe() )
 		return false;
 	}
@@ -454,11 +453,12 @@ bool uiODPlaneDataParentTreeItem::handleSubMenu( int mnuid )
 
 bool uiODPlaneDataParentTreeItem::setProbeToBeAddedParams( int mnuid )
 {
-    if ( mnuid==uiODSceneProbeParentTreeItem::sAddDefaultDataMenuID() ||
-	 mnuid==uiODSceneProbeParentTreeItem::sAddAndSelectDataMenuID() ||
-	 mnuid==uiODSceneProbeParentTreeItem::sAddColorBlendedMenuID() )
+    if ( mnuid==uiODSceneProbeParentTreeItem::cAddDefaultDataMenuID() ||
+	 mnuid==uiODSceneProbeParentTreeItem::cAddDefaultAttribMenuID() ||
+	 mnuid==uiODSceneProbeParentTreeItem::cAddAndSelectDataMenuID() ||
+	 mnuid==uiODSceneProbeParentTreeItem::cAddColorBlendedMenuID() )
     {
-	typetobeadded_ = uiODSceneProbeParentTreeItem::getType( mnuid );
+	typetobeadded_ = uiODSceneProbeParentTreeItem::getAddType( mnuid );
 	return setDefaultPosToBeAdded();
     }
 

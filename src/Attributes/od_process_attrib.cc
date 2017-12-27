@@ -8,7 +8,6 @@
 #include "batchprog.h"
 
 #include "attribdescset.h"
-#include "attribdescsettr.h"
 #include "attribengman.h"
 #include "attriboutput.h"
 #include "attribprocessor.h"
@@ -29,21 +28,15 @@
 #include "jobcommunic.h"
 #include "moddepmgr.h"
 
-
-
-defineTranslatorGroup(AttribDescSet,"Attribute definitions");
-mDefSimpleTranslatorSelector(AttribDescSet);
-
 #define mDestroyWorkers \
 { deleteAndZeroPtr( proc ); }
 
-
 #define mRetFileProb(fdesc,fnm,s) \
-	{ \
-	    BufferString msg(fdesc); \
-	    msg += " ("; msg += fnm; msg += ") "; msg += s; \
-	    mRetHostErr( msg ); \
-	}
+{ \
+    BufferString msg(fdesc); \
+    msg += " ("; msg += fnm; msg += ") "; msg += s; \
+    mRetHostErr( msg ); \
+}
 
 
 bool BatchProgram::go( od_ostream& strm )
@@ -117,24 +110,19 @@ bool BatchProgram::go( od_ostream& strm )
 
 	Attrib::DescSet attribset( false );
 	const char* setid = pars().find( "Attribute Set" );
+	uiRetVal uirv;
 	if ( setid && *setid )
-	{
-	    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(setid) );
-	    if ( !ioobj )
-		mRetHostErr( "Cannot find provided attrib set ID" )
-	    uiString msg;
-	    if ( !AttribDescSetTranslator::retrieve(attribset,ioobj,msg) )
-		mRetJobErr( msg );
-	}
+	    uirv = attribset.load( DBKey::getFromString(setid) );
 	else
 	{
 	    PtrMan<IOPar> attribs = pars().subselect("Attributes");
 	    if ( !attribs )
 		mRetJobErr("No Attribute Definition found")
 
-	    if ( !attribset.usePar(*attribs) )
-		mRetJobErr( attribset.errMsg() )
+	    uirv = attribset.usePar( *attribs );
 	}
+	if ( !uirv.isOK() )
+	    mRetJobErr( uirv.getText() );
 
 	int indexoutp = 0; BufferStringSet alllinenames;
 	while ( true )

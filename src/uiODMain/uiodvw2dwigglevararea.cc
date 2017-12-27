@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
 #include "ioobj.h"
 #include "seisdatapack.h"

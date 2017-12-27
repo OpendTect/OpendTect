@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
+#include "uimsg.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -74,20 +75,19 @@ static void fillAttribList( uiListBox* attribfld,
 void uiAttrSetMan::mkFileInfo()
 {
     attribfld_->setEmpty();
-    if ( !curioobj_ ) { setInfo( "" ); return; }
+    if ( !curioobj_ )
+	{ setInfo( "" ); return; }
 
     BufferString txt;
-    uiString errmsg;
-    Attrib::DescSet attrset(!SI().has3D());
-    if (!AttribDescSetTranslator::retrieve(attrset, curioobj_, errmsg))
-    {
-	BufferString msg("Read error: '"); msg += errmsg.getFullString();
-	msg += "'"; txt = msg;
-    }
+    Attrib::DescSet attrset( SI().has2D() );
+    uiRetVal warns;
+    uiRetVal errs = attrset.load( curioobj_->key(), &warns );
+    if ( !errs.isOK() )
+	uiMSG().error( errs );
     else
     {
-	if (!errmsg.isEmpty())
-	    ErrMsg(errmsg.getFullString());
+	if ( !warns.isOK() )
+	    uiMSG().warning( warns );
 
 	txt = "Type: "; txt += attrset.is2D() ? "2D" : "3D";
 	txt += "\nInput: ";

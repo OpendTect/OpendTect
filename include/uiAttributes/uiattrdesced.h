@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "helpview.h"
 
-namespace Attrib { class Desc; class DescSet; class DescSetMan; }
+namespace Attrib { class Desc; class DescSet; }
 namespace ZDomain { class Info; }
 
 class uiAttrDescEd;
@@ -83,7 +83,7 @@ public:
 
     virtual		~uiAttrDescEd();
     HelpKey		helpKey()			{ return helpkey_; }
-    void		setDesc(Attrib::Desc*,Attrib::DescSetMan*);
+    void		setDesc(Attrib::Desc*);
     void		setDescSet(Attrib::DescSet*);
     Attrib::DescSet*	descSet() const			{ return ads_; }
     Attrib::Desc*	curDesc()			{ return desc_; }
@@ -198,7 +198,6 @@ private:
 
     BufferString	dispname_;
     Attrib::Desc*	desc_;
-    Attrib::DescSetMan* adsman_;
 
 };
 
