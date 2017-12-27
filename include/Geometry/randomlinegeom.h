@@ -52,8 +52,8 @@ public:
     int			nodeIndex(const BinID&) const;
     int			nrNodes() const;
     const BinID&	nodePosition(int) const;
-    void		allNodePositions(TypeSet<BinID>&) const;
-    void		allNodePositions(TrcKeyPath&) const;
+    void		getNodePositions(TypeSet<BinID>&) const;
+    void		getNodePositions(TrcKeyPath&) const;
     static Coord	getNormal(const TrcKeyPath& knots,const TrcKey& pos);
     static int		getNearestPathPosIdx(const TrcKeyPath&,
 					     const TrcKeyPath&,const TrcKey&);

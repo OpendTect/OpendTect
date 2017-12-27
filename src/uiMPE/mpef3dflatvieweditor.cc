@@ -343,7 +343,7 @@ Coord3 Fault3DFlatViewEditor::getNormal( const Coord3* mousepos ) const
 	    return Coord3::udf();
 
 	TrcKeyPath nodes;
-	rlgeom->allNodePositions( nodes );
+	rlgeom->getNodePositions( nodes );
 	return Coord3( Geometry::RandomLine::getNormal(nodes,mousetk), 0.0f );
     }
     else if ( !tkzs_.isEmpty() )
@@ -565,12 +565,12 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	if ( emf3d->geometry().nrKnots(mousepid_.sectionID(),rmnr) == 1 )
 	{
 	    res = emf3d->geometry().removeStick( mousepid_.sectionID(), rmnr,
-		    				 true );
+						 true );
 	    f3deditor->setLastClicked( EM::PosID::udf() );
 	}
 	else
 	    res = emf3d->geometry().removeKnot( mousepid_.sectionID(),
-		    				mousepid_.subID(), true );
+						mousepid_.subID(), true );
 	if ( res )
 	    mSetUserInteractionEnd();
 
@@ -687,7 +687,7 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
 
     const EM::SectionID sid = emf3d->sectionID( 0 );
     mDynamicCastGet(const Geometry::FaultStickSet*,fss,
-	    	    emf3d->sectionGeometry(sid));
+		    emf3d->sectionGeometry(sid));
     if ( !fss ) return;
 
     emf3d->setBurstAlert( true );

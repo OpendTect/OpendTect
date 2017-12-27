@@ -157,9 +157,9 @@ public:
     virtual void		fillDataPackWithTrc(RegularSeisDataPack*) const
 				{}
 
-    virtual void		setRdmPaths(TypeSet<BinID>* truepath,
-					    TypeSet<BinID>* snappedpath);
-				//!<For directional attributes
+    virtual void		setRdmPaths(const TypeSet<BinID>& truepath,
+					    const TypeSet<BinID>& snappedpath);
+				//!<Optional, needed by directional attributes
 
 				//!<Special case for attributes (like PreStack)
 				//!<which inputs are not treated as normal

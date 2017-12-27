@@ -591,7 +591,7 @@ void uiODRandomLineTreeItem::editNodes()
 	return;
 
     TypeSet<BinID> bids;
-    rtd->getRandomLine()->allNodePositions( bids );
+    rtd->getRandomLine()->getNodePositions( bids );
     uiDialog dlg( getUiParent(),
 	  uiDialog::Setup(uiStrings::sRandomLine(mPlural),
 	      tr("Specify node positions"),

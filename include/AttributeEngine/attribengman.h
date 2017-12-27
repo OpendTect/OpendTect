@@ -94,9 +94,9 @@ public:
     Processor*		createTrcSelOutput(uiString& errmsg,
 					   const BinIDValueSet& bidvalset,
 					   SeisTrcBuf&, float outval=0,
-					   Interval<float>* cubezbounds=0,
-					   TypeSet<BinID>* trueknotspos=0,
-					   TypeSet<BinID>* path=0);
+					   const Interval<float>* cubezbounds=0,
+					   const TypeSet<BinID>* trueknotspos=0,
+					   const TypeSet<BinID>* path=0);
     Processor*		create2DVarZOutput(uiString& errmsg,
 					   const IOPar& pars,
 					   DataPointSet* bidvalset,

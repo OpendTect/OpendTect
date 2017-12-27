@@ -492,12 +492,11 @@ const char* Processor::getAttribUserRef() const
 }
 
 
-void Processor::setRdmPaths( TypeSet<BinID>* truepath,
-			     TypeSet<BinID>* snappedpath )
+void Processor::setRdmPaths( const TypeSet<BinID>& truepath,
+			     const TypeSet<BinID>& snappedpath )
 {
-    if ( !provider_ ) return;
-
-    provider_->setRdmPaths( truepath, snappedpath );
+    if ( provider_ )
+	provider_->setRdmPaths( truepath, snappedpath );
 }
 
 

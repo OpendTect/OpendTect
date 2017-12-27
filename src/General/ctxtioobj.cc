@@ -434,7 +434,7 @@ void CtxtIOObj::fillDefault( bool oone2 )
 
     BufferString keystr( ctxt_.trgroup_->getSurveyDefaultKey(0) );
 
-    const FixedString typestr = ctxt_.toselect_.require_.find( sKey::Type() );
+    const BufferString typestr = ctxt_.toselect_.require_.find( sKey::Type() );
     if ( !typestr.isEmpty() )
 	    keystr = IOPar::compKey( keystr, typestr );
 
@@ -444,10 +444,10 @@ void CtxtIOObj::fillDefault( bool oone2 )
 
 void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 {
-    const char* kystr = SI().getDefaultPars().find( parky );
-    if ( kystr && *kystr )
+    const BufferString valstr = SI().getDefaultPars().find( parky );
+    if ( !valstr.isEmpty() )
     {
-	DBKey dbky = DBKey::getFromString( kystr );
+	DBKey dbky = DBKey::getFromString( valstr );
 	setObj( DBM().get(dbky) );
     }
 

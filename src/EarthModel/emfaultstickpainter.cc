@@ -151,7 +151,7 @@ bool FaultStickPainter::addPolyLine()
 		if ( path_ && rlgeom )
 		{
 		    TrcKeyPath knots;
-		    rlgeom->allNodePositions( knots );
+		    rlgeom->getNodePositions( knots );
 		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
 			  rc.col()+=colrg.step )
 		    {

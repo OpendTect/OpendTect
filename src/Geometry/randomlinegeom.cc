@@ -131,10 +131,10 @@ int RandomLine::nrNodes() const
 const BinID& RandomLine::nodePosition( int idx ) const
 { return nodes_[idx]; }
 
-void RandomLine::allNodePositions( TypeSet<BinID>& bids ) const
+void RandomLine::getNodePositions( TypeSet<BinID>& bids ) const
 { bids = nodes_; }
 
-void RandomLine::allNodePositions( TrcKeyPath& tks ) const
+void RandomLine::getNodePositions( TrcKeyPath& tks ) const
 {
     tks.setSize( nodes_.size(), TrcKey::udf() );
     for ( int idx=0; idx<nodes_.size(); idx++ )
@@ -530,7 +530,7 @@ void RandomLineSet::getGeometry( const DBKey& rdlsid, TypeSet<BinID>& knots,
     for ( int lidx=0; lidx<rls.size(); lidx++ )
     {
 	TypeSet<BinID> rdmlknots;
-	rls.lines()[lidx]->allNodePositions( rdmlknots );
+	rls.lines()[lidx]->getNodePositions( rdmlknots );
 	knots.append( rdmlknots );
 	if ( zrg )
 	    zrg->include( rls.lines()[lidx]->zRange(), false );

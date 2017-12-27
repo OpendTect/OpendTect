@@ -239,8 +239,6 @@ void VolStats::initClass()
 
 VolStats::VolStats( Desc& ds )
     : VolStatsBase( ds )
-    , linepath_(0)
-    , linetruepos_(0)
     , allowedgeeffects_( true )
 {
     mGetBool( allowedgeeffects_, allowEdgeEffStr() );
@@ -270,8 +268,6 @@ VolStats::VolStats( Desc& ds )
 
 VolStats::~VolStats()
 {
-    if ( linetruepos_ ) delete linetruepos_;
-    if ( linepath_ ) delete linepath_;
 }
 
 
@@ -351,7 +347,8 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
 
 void VolStats::prepPriorToBoundsCalc()
 {
-    if ( shape_ == mShapeOpticalStack && (!linepath_ || !linetruepos_) )
+    if ( shape_ == mShapeOpticalStack
+     && (linepath_.isEmpty() || linetruepos_.isEmpty()) )
     {
 	errmsg_ = tr("Optical Stack only works on elements\n"
 		     "which define an horizontal direction:\n"
@@ -475,25 +472,22 @@ void VolStats::reInitPosAndSteerIdxes()
 
 void VolStats::getStackPositions( TypeSet<BinID>& pos ) const
 {
-    int curbididx = linepath_->indexOf( currentbid_ );
+    int curbididx = linepath_.indexOf( currentbid_ );
     if ( curbididx < 0 ) return;
 
     int trueposidx = -1;
-    for ( int idx=1; idx<linetruepos_->size(); idx++ )
+    for ( int idx=1; idx<linetruepos_.size(); idx++ )
     {
-	const int prevtrueposidx = linepath_->indexOf( (*linetruepos_)[idx-1] );
-	const int nexttrueposidx = linepath_->indexOf( (*linetruepos_)[idx] );
+	const int prevtrueposidx = linepath_.indexOf( linetruepos_[idx-1] );
+	const int nexttrueposidx = linepath_.indexOf( linetruepos_[idx] );
 	if ( curbididx>=prevtrueposidx && curbididx<=nexttrueposidx )
-	{
-	    trueposidx = idx;
-	    break;
-	}
+	    { trueposidx = idx; break; }
     }
 
     if ( trueposidx < 0 ) return;
 
-    const BinID prevpos = (*linetruepos_)[trueposidx-1];
-    const BinID nextpos = (*linetruepos_)[trueposidx];
+    const BinID prevpos = linetruepos_[trueposidx-1];
+    const BinID nextpos = linetruepos_[trueposidx];
     TypeSet< Geom::Point2D<float> > idealpos;
     getIdealStackPos( currentbid_, prevpos, nextpos, idealpos );
 

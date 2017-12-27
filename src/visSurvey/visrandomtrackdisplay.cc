@@ -194,7 +194,7 @@ void RandomTrackDisplay::setProbe( Probe* probe )
 
     setName( rl_->name() );
     TypeSet<BinID> bids;
-    rl_->allNodePositions( bids );
+    rl_->getNodePositions( bids );
     setNodePositions( bids, true );
     setDepthInterval( rl_->zRange() );
 }

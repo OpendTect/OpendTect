@@ -60,8 +60,8 @@ public:
     Provider*			getProvider()		{ return provider_; }
     ObjectSet<Output>	outputs_;
 
-    void			setRdmPaths(TypeSet<BinID>* truepath,
-					    TypeSet<BinID>* snappedpath);
+    void			setRdmPaths(const TypeSet<BinID>& truepath,
+					    const TypeSet<BinID>& snappedpath);
 				//for directional attributes
 
     void			showDataAvailabilityErrors(bool yn);

@@ -125,7 +125,8 @@ public:
     bool		createOutput(ObjectSet<DataPointSet>&,
 				     int firstcol =0);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
-				     TypeSet<BinID>*,TypeSet<BinID>*);
+				     const TypeSet<BinID>&,
+				     const TypeSet<BinID>&);
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    int rdlidx,
 					    const TypeSet<BinID>* subpath=0 );

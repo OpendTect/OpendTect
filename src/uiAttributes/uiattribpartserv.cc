@@ -619,9 +619,9 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     {
 	if ( targetdesc->isStored() )
 	{
-	    const DBKey mid( targetdesc->getStoredID() );
+	    const DBKey dbky( targetdesc->getStoredID() );
 	    preloadeddatapack =
-			Seis::PLDM().getAndCast<RegularSeisDataPack>( mid );
+			Seis::PLDM().getAndCast<RegularSeisDataPack>( dbky );
 	}
 
 	BufferString defstr;
@@ -770,9 +770,9 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
     const Desc* targetdesc = getTargetDesc();
     if ( targetdesc && targetdesc->isStored() )
     {
-	const DBKey mid( targetdesc->getStoredID() );
+	const DBKey dbky( targetdesc->getStoredID() );
 	RefMan<RegularSeisDataPack> sdp =
-		Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
+		Seis::PLDM().getAndCast<RegularSeisDataPack>(dbky);
 	if ( sdp )
 	{
 	    const TrcKeyZSampling& seistkzs = sdp->sampling();
@@ -870,9 +870,9 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
     if ( targetdesc )
     {
-	const DBKey mid( targetdesc->getStoredID() );
+	const DBKey dbky( targetdesc->getStoredID() );
 	RefMan<RegularSeisDataPack> sdp =
-	    Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
+	    Seis::PLDM().getAndCast<RegularSeisDataPack>(dbky);
 
 	if ( sdp )
 	{
@@ -886,7 +886,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     }
 
     TypeSet<BinID> knots, path;
-    rdmline->allNodePositions( knots );
+    rdmline->getNodePositions( knots );
     rdmline->getPathBids( knots, rdmline->getSurvID(), path );
     snapToValidRandomTraces( path, targetdesc );
     BinIDValueSet bidset( 2, false );
@@ -901,10 +901,10 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     }
 
     for ( int idx = 0; idx<path.size(); idx++ )
-	bidset.add( path[idx],zrg.start,zrg.stop );
+	bidset.add( path[idx], zrg.start, zrg.stop );
 
     SeisTrcBuf output( true );
-    if ( !createOutput(bidset,output,&knots,&path) || output.isEmpty() )
+    if ( !createOutput(bidset,output,knots,path) || output.isEmpty() )
 	return DataPack::cNoID();
 
     RandomSeisDataPack* newpack = new RandomSeisDataPack(
@@ -916,13 +916,19 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	if ( !newpack->addComponent(targetspecs_[idx].userRef(),true) )
 	    continue;
 
-	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
+	const TrcKeyPath& tkpath = newpack->getPath();
+	const int pathsz = tkpath.size();
+	const int nrz = newpack->data(idx).info().getSize(2);
+
+	for ( int idy=0; idy<pathsz; idy++ )
 	{
-	    const int trcidx = output.find( path[idy] );
+	    const int trcidx = output.find( tkpath[idy].binID() );
 	    const SeisTrc* trc = trcidx<0 ? 0 : output.get( trcidx );
-	    if ( !trc ) continue;
-	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
-		newpack->data(idx).set( 0, idy, idz, trc->get(idz,idx) );
+	    for ( int idz=0; idz<nrz; idz++ )
+	    {
+		const float val = trc ? trc->get(idz,idx) : mUdf(float);
+		newpack->data(idx).set( 0, idy, idz, val );
+	    }
 	}
     }
 
@@ -971,16 +977,17 @@ void uiAttribPartServer::snapToValidRandomTraces( TypeSet<BinID>& path,
 
 bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 				       SeisTrcBuf& output,
-				       TypeSet<BinID>* trueknotspos,
-				       TypeSet<BinID>* snappedpos )
+				       const TypeSet<BinID>& trueknotspos,
+				       const TypeSet<BinID>& snappedpos )
 {
     PtrMan<Attrib::EngineMan> aem = createEngMan();
-    if ( !aem ) return 0;
+    if ( !aem )
+	return 0;
 
     uiString errmsg;
     PtrMan<Attrib::Processor> processor =
 	aem->createTrcSelOutput( errmsg, bidset, output, mUdf(float), 0,
-				 trueknotspos, snappedpos );
+				 &trueknotspos, &snappedpos );
     if ( !processor )
 	{ uiMSG().error(errmsg); return false; }
 
@@ -992,8 +999,8 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 		       && targetspecs_.first().isStored(0);
     if ( !isstored || showprogress )
     {
-	uiTaskRunner taskrunner( parent() );
-	return TaskRunner::execute( &taskrunner, *processor );
+	uiTaskRunner uitr( parent() );
+	return uitr.execute( *processor );
     }
 
     uiUserShowWait usw( parent(), processor->message() );
@@ -1119,9 +1126,9 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     const Desc* targetdesc = curds.getDesc( targetID(true) );
     if ( targetdesc )
     {
-	const DBKey mid( targetdesc->getStoredID() );
+	const DBKey dbky( targetdesc->getStoredID() );
 	RefMan<RegularSeisDataPack> sdp =
-	    Seis::PLDM().getAndCast<RegularSeisDataPack>(mid,geomid);
+	    Seis::PLDM().getAndCast<RegularSeisDataPack>(dbky,geomid);
 
 	if ( sdp )
 	    return sdp->id();

@@ -287,7 +287,7 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 	const TrcKey trckey = Survey::GM().traceKey(
 		Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
 	TrcKeyPath knots;
-	rlgeom->allNodePositions( knots );
+	rlgeom->getNodePositions( knots );
 	Coord3 editnormal( Geometry::RandomLine::getNormal(knots,trckey), 0 );
 	const Coord3 nzednor = editnormal.normalize();
 

@@ -390,7 +390,7 @@ Coord3 FaultStickSetFlatViewEditor::getNormal( const Coord3* mousepos ) const
 	    return Coord3::udf();
 
 	TrcKeyPath nodes;
-	rlgeom->allNodePositions( nodes );
+	rlgeom->getNodePositions( nodes );
 	return Coord3( Geometry::RandomLine::getNormal(nodes,mousetk), 0.0f );
     }
     else if ( !tkzs_.isEmpty() )
@@ -620,7 +620,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	const EM::SectionID sid = emfss->sectionID(0);
 	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
 	const int insertsticknr = !fss || fss->isEmpty()
-	    			  ? 0 : fss->rowRange().stop+1;
+				  ? 0 : fss->rowRange().stop+1;
 
 	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal, true );
@@ -689,7 +689,7 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
 
     const EM::SectionID sid = emfss->sectionID( 0 );
     mDynamicCastGet(const Geometry::FaultStickSet*,
-	    	    fss, emfss->sectionGeometry(sid ) );
+		    fss, emfss->sectionGeometry(sid ) );
     if ( !fss ) return;
 
     emfss->setBurstAlert( true );

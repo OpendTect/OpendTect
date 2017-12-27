@@ -53,7 +53,7 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
     addedseed_ = seed;
     if ( !sowermode_ )
 	seedToBeAddedRemoved.trigger();
-    
+
     if ( blockpicking_ )
 	return true;
 
@@ -337,7 +337,7 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
     if ( trackmode_ == TrackFromSeeds && !doerase )
 	return addPatchSowingSeeds();
 
-    if ( trackmode_ != DrawBetweenSeeds && 
+    if ( trackmode_ != DrawBetweenSeeds &&
 	trackmode_ != DrawAndSnap && !doerase )
 	return false;
 
@@ -398,7 +398,7 @@ bool Horizon3DSeedPicker::addPatchSowingSeeds()
     hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks(false,true);
     hor3d->setBurstAlert( false );
 
-    EM::EMM().undo(hor3d->id()).setUserInteractionEnd( 
+    EM::EMM().undo(hor3d->id()).setUserInteractionEnd(
 	EM::EMM().undo(hor3d->id()).currentEventID() );
     return true;
 }
@@ -463,7 +463,7 @@ void Horizon3DSeedPicker::extendSeedSetEraseInBetween(
 
 	// to erase points attached to start
 	const EM::PosID pid(hor3d->id(),hor3d->sectionID(0),curbid.toInt64());
-	if ( curdefined && 
+	if ( curdefined &&
 	    !hor3d->isNodeSourceType(pid,EM::EMObject::Manual) )
 	    eraselist_ += curbid;
     }
@@ -592,7 +592,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	{
 	    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
 	    TrcKeyPath nodes;
-	    rlgeom->allNodePositions( nodes );
+	    rlgeom->getNodePositions( nodes );
 	    const int sortvalidx = Geometry::RandomLine::getNearestPathPosIdx(
 						    nodes, *rdlpath, seed );
 	    if ( sortvalidx<0 )
@@ -637,7 +637,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 		RefMan<Geometry::RandomLine> rlgeom =
 		    Geometry::RLM().get( rdlid );
 		TrcKeyPath nodes;
-		rlgeom->allNodePositions( nodes );
+		rlgeom->getNodePositions( nodes );
 		const int startidx =
 		    Geometry::RandomLine::getNearestPathPosIdx(
 				    nodes, *rdlpath, seedlist_[sortidx[vtx]] );
@@ -656,7 +656,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	    if ( tk.isUdf() )
 		continue;
 	    const EM::EMObject::NodeSourceType type = setmanualnode ?
-		EM::EMObject::Manual : EM::EMObject::Auto;  
+		EM::EMObject::Manual : EM::EMObject::Auto;
 	    hor3d->setZ( tk, (float)interpos.z_, true, type );
 	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 

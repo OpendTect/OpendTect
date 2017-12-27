@@ -156,7 +156,7 @@ int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
 		return -1;
 
 	    TrcKeyPath nodes;
-	    rlgeom->allNodePositions( nodes );
+	    rlgeom->getNodePositions( nodes );
 	    const int rdlposidx = Geometry::RandomLine::getNearestPathPosIdx(
 		    nodes, *rdmlinepath,tckv.tk_);
 	    if ( rdlposidx<0 )
@@ -188,7 +188,7 @@ int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
 		return -1;
 
 	    TrcKeyPath nodes;
-	    rlgeom->allNodePositions( nodes );
+	    rlgeom->getNodePositions( nodes );
 	    const int rdlposidx = Geometry::RandomLine::getNearestPathPosIdx(
 		    nodes, *rdmlinepath,tckv.tk_);
 	    if ( rdlposidx<0 )
@@ -251,7 +251,7 @@ int Patch::findClosestSeedRdmIdx( const EM::PosID& pid )
     const BinID curbid( currc );
     const TrcKey curtk( curbid );
     TrcKeyPath nodes;
-    rlgeom->allNodePositions( nodes );
+    rlgeom->getNodePositions( nodes );
     const int curidx = Geometry::RandomLine::getNearestPathPosIdx(
 	    nodes, *rdmlinepath, curtk );
     if ( curidx<0 )

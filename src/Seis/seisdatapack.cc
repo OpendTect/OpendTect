@@ -537,7 +537,7 @@ void RandomSeisDataPack::setRandomLineID( int rdlid,
     }
 
     TypeSet<BinID> knots, rdlpath;
-    rdmline->allNodePositions( knots );
+    rdmline->getNodePositions( knots );
     Geometry::RandomLine::getPathBids( knots, rdmline->getSurvID(), rdlpath );
     path_.setSize( rdlpath.size(), TrcKey::udf() );
     for ( int idx=0; idx<rdlpath.size(); idx++ )
