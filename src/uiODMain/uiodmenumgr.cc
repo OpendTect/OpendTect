@@ -78,6 +78,10 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , langmnumgr_(0)
     , measuretoolman_(0)
     , inviewmode_(false)
+    , impmnu_(0)
+    , expmnu_(0)
+    , preloadmnu_(0)
+    , manmnu_(0)
     , plugintb_(0)
 {
     impmnus_.setNullAllowed( true ); expmnus_.setNullAllowed( true );

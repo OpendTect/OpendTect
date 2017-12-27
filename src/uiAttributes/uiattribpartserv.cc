@@ -893,10 +893,10 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     if ( subpath )
     {
 	const int subpathstopidx = path.indexOf( subpath->last() );
-	if ( subpathstopidx>=0 )
+	if ( subpathstopidx < path.size()-1 )
 	    path.removeRange( subpathstopidx+1, path.size()-1 );
 	const int subpathstartidx = path.indexOf( subpath->first() );
-	if ( subpathstartidx>=0 )
+	if ( subpathstartidx > 0 )
 	    path.removeRange( 0, subpathstartidx-1 );
     }
 
