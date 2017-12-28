@@ -177,7 +177,7 @@ void uiProgressViewer::handleProcessStatus()
 	{
 	    if ( !File::exists(filenm_) )
 	    {
-		statusBar()->message( tr("The batch process is initializing") );
+		txtfld_->setText( "Starting program" );
 		return;
 	    }
 
