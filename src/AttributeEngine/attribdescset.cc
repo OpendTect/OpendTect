@@ -280,6 +280,17 @@ Desc* DescSet::gtDesc( const DescID& id ) const
 }
 
 
+bool DescSet::hasTrueAttribute() const
+{
+    for ( int idx=0; idx<descs_.size(); idx++ )
+    {
+	if ( !descs_[idx]->isStored() )
+	    return true;
+    }
+    return false;
+}
+
+
 int DescSet::nrDescs( bool incstored, bool inchidden ) const
 {
     int ret = descs_.size();

@@ -121,6 +121,7 @@ public:
 				    const char* blindcompnm=0) const;
     DescID		defStoredID() const;
     Desc*		getFirstStored(bool usesteering=true) const;
+    bool		hasTrueAttribute() const;
     DBKey		getStoredKey(const DescID&) const;
     void		getStoredNames(BufferStringSet&) const;
     void		getAttribNames(BufferStringSet&,bool inclhidden) const;

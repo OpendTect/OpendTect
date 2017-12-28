@@ -93,7 +93,7 @@ void uiODSceneProbeParentTreeItem::addMenuItems()
 {
     menu_->insertAction( new uiAction(sAddDefaultData(),"attribtype_stored"),
 			 cAddDefaultDataMenuID() );
-    if ( !Attrib::DescSet::global(is2D()).isEmpty() )
+    if ( Attrib::DescSet::global(is2D()).hasTrueAttribute() )
 	menu_->insertAction(
 		new uiAction(sAddDefaultAttrib(),"attribtype_attrib"),
 		cAddDefaultAttribMenuID() );
