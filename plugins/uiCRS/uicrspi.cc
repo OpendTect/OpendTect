@@ -19,6 +19,7 @@ mDefODPluginInfo(uiCRS)
 	"Provides support for Coordinate Reference Systems "
 		    "using the PROJ.4 services" ) );
     retpi.useronoffselectable_ = true;
+    retpi.url_ = "proj4.org";
     return &retpi;
 }
 

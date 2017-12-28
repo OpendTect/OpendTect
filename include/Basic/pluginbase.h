@@ -22,19 +22,21 @@ ________________________________________________________________________
 
 /*!\brief Information about plugin for outside world
 
+Mandatory:
     dispname_	 -  The name shown in the PluginInfo window.
     packagename_ -  Multiple plugins can belong to one plugin package.
-		    shown in the plugin selection window.
+		    Can be shown in the plugin selection window.
+    creator_	 - You
+    version_	 - Use mODPluginVersion if the plugin runs with OD release.
+    text_	 - Your description of the plugin and more.
+
+Settable:
     LicenseType	 -  By default GPL.
     useronoffselectable_ - If this is set to true, the plugin selector will
 		    expect entries in data/pkglist.txt and possibly an
 		    entry in data/PluginProviders .
+    url_	 - A URL specifically for this plugin.
 
-    Note: Two different plugins(different display names) can have same package
-    name if they belong to the same package
-
-    e.g. Multi-Variate Analysis and Neural Networks both belong to the
-    Neural Networks package.
 */
 
 
@@ -50,14 +52,17 @@ struct PluginInfo
         , version_(version)
         , text_(text)
         , useronoffselectable_(lt == COMMERCIAL)
-	, lictype_(lt)	{}
+	, lictype_(lt)
+        , url_(0)			{}
 
     const char*	dispname_;
     const char*	packagename_;
     const char*	creator_;
     const char*	version_;
     const char*	text_;
-    bool	useronoffselectable_;
-    LicenseType lictype_;
+
+    const char*		url_;
+    bool		useronoffselectable_;
+    LicenseType		lictype_;
 
 };

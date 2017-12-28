@@ -347,6 +347,12 @@ void uiMenu::doInsertSeparator(QAction* before)
 }
 
 
+bool uiMenu::isEmpty() const
+{
+    return qmenu_->isEmpty();
+}
+
+
 void uiMenu::doClear()
 {
     qmenu_->clear();

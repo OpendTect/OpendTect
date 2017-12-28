@@ -147,20 +147,7 @@ void uiPluginMan::selChg( CallBacker* )
 	    txt.add( "\nPackage: " ).add( piinf.packagename_ );
 
 	txt.add( "\n\nFilename: " ).add( PIM().getFileName(*data) );
-	if ( piinf.version_ && *piinf.version_ )
-	{
-	    txt.add( "\nVersion: " );
-
-	    if ( *piinf.version_ && *piinf.version_ != '=' )
-		txt.add( piinf.version_ );
-	    else if ( *piinf.version_ )
-	    {
-		BufferString ver; GetSpecificODVersion( 0, ver );
-		txt.add( ver );
-	    }
-	    else
-		txt.add( "-" );
-	}
+	txt.add( "\nVersion: " ).add( data->version() );
 	txt.add( "\n\n-----------------------------------------\n\n" )
 	   .add( piinf.text_ );
     }

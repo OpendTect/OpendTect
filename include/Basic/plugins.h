@@ -120,6 +120,8 @@ public:
 	SharedLibAccess*	sla_;
 	bool			isloaded_;
 	bool			isexternal_;
+
+	BufferString		version() const;
     };
 
     ObjectSet<Data>&	getData()		{ return data_; }

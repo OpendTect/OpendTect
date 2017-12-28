@@ -30,6 +30,7 @@ mDefODPluginInfo(uiMadagascar)
 	mODPluginCreator, mODPluginVersion,
 	"Link to the Madagascar batch-level seismic processing tools." ));
     retpi.useronoffselectable_ = true;
+    retpi.url_ = "reproducibility.org";
     return &retpi;
 }
 

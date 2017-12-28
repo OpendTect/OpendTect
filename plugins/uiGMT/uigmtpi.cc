@@ -45,6 +45,7 @@ mDefODPluginInfo(uiGMT)
 	"Science and Technology, University of Hawai‘i at Manoa.\n"
         "This plugin can use the services of an existing GMT installation." ) );
     retpi.useronoffselectable_ = true;
+    retpi.url_ = "gmt.soest.hawaii.edu";
     return &retpi;
 }
 

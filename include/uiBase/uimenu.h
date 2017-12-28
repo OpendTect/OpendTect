@@ -96,6 +96,7 @@ public:
 
     void		setText(const uiString&);
     const uiString&	text() const;
+    bool		isEmpty() const;
     void		clear() { removeAllActions(); }
 
     void		setIcon(const uiIcon&);

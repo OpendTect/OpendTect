@@ -24,6 +24,8 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "msgh.h"
 #include "od_istream.h"
+#include "odver.h"
+#include "odplugin.h"
 #include <string.h>
 
 #ifndef __win__
@@ -157,6 +159,19 @@ void SharedLibAccess::getLibName( const char* modnm, char* out )
 {
     BufferString libnm( mkLibName(modnm) );
     strncpy( out, libnm.buf(), 256 );
+}
+
+
+BufferString PluginManager::Data::version() const
+{
+    BufferString ver( info_ ? info_->version_ : "" );
+    if ( ver.isEmpty() || ver == mODPluginVersion )
+	GetSpecificODVersion( 0, ver );
+    if ( ver.isEmpty() || ver.startsWith( "[error" ) )
+	ver.set( toString(mODMajorVersion) )
+	   .add('.').add( mODMinorVersion )
+	   .add('.').add( mODPatchVersion );
+    return ver;
 }
 
 

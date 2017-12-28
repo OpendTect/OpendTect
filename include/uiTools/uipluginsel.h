@@ -14,11 +14,10 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "objectset.h"
 
-class uiButton;
-class uiCheckBox;
-struct PluginPackage;
-struct PluginProvider;
-class IOPar;
+class uiMenu;
+class uiTreeView;
+class PluginPackage;
+class PluginProvider;
 
 
 mExpClass(uiTools) uiPluginSel : public uiDialog
@@ -33,6 +32,9 @@ public:
 
 protected:
 
+    uiTreeView*			treefld_;
+    uiMenu&			rightclickmenu_;
+
     void			readPackageList();
     void			makePackageList();
     void			createUI();
@@ -40,8 +42,13 @@ protected:
     bool			isProviderSelected(int) const;
     int				getProviderIndex(const char*) const;
     void			readProviderList();
+    bool			fillRightClickMenu(const BufferString&,bool);
+    void			launchURL(const char*);
+    void			doPkgMnu(const PluginPackage&);
+    void			doProvMnu(const PluginProvider&);
 
     bool			acceptOK();
+    void			rightClickCB(CallBacker*);
 
     ObjectSet<PluginPackage>	packages_;
     ObjectSet<PluginProvider>	providers_;
