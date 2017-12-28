@@ -121,7 +121,17 @@ void uiAttrDescEd::setDescSet( Attrib::DescSet* ds )
 	return;
 
     ads_ = ds;
+    setInitialDefaults( *ads_ );
     descSetChanged.trigger();
+}
+
+
+void uiAttrDescEd::setInitialDefaults( const Attrib::DescSet& ds )
+{
+    Desc* desc = Attrib::PF().createDescCopy( attribName() );
+    if ( desc )
+	setParameters( *desc );
+    desc->unRef();
 }
 
 

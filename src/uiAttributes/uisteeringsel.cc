@@ -32,14 +32,13 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-using namespace Attrib;
 
 IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
 
-uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
+uiSteeringSel::uiSteeringSel( uiParent* p, const DescSet* ads,
 			      bool is2d, bool withconstdir, bool doinit )
     : uiGroup(p,"Steering selection")
-    , descset_(ads)
+    , descset_(ads ? ads : &DescSet::global(is2d))
     , typfld_(0)
     , inpfld_(0)
     , dirfld_(0)
@@ -118,7 +117,7 @@ bool uiSteeringSel::willSteer() const
 }
 
 
-void uiSteeringSel::setDesc( const Attrib::Desc* ad )
+void uiSteeringSel::setDesc( const Desc* ad )
 {
     if ( !typfld_ || !inpfld_ )
 	return;
@@ -133,7 +132,7 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
     if ( attribname == "ConstantSteering" )
     {
 	type = 3;
-	const Attrib::Desc& desc = *ad;
+	const Desc& desc = *ad;
 	mIfGetFloat( "dip", dip, dipfld_->setValue( dip ) );
 	mIfGetFloat( "azi", azi, dirfld_->setValue( azi ) );
     }
@@ -154,13 +153,13 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 }
 
 
-void uiSteeringSel::setDescSet( const Attrib::DescSet* ads )
+void uiSteeringSel::setDescSet( const DescSet* ads )
 {
-    if ( !inpfld_ )
+    if ( !inpfld_ || ads == descset_ )
 	return;
 
-    descset_ = ads;
-    inpfld_->setDescSet( ads );
+    descset_ = ads ? ads : &DescSet::global( descset_->is2D() );
+    inpfld_->setDescSet( descset_ );
     if ( !notypechange_ )
     {
 	typfld_->setValue( 0 );
@@ -169,17 +168,15 @@ void uiSteeringSel::setDescSet( const Attrib::DescSet* ads )
 }
 
 
-DescID uiSteeringSel::descID()
+Attrib::DescID uiSteeringSel::descID()
 {
     if ( !typfld_ )
 	return DescID();
-
     const int type = typfld_->getIntValue();
     if ( !willSteer() )
 	return DescID();
 
-    if ( !descset_ )
-	descset_ = &Attrib::DescSet::global( is2d_ );
+    DescSet& descset4ed = *const_cast<DescSet*>(descset_);
 
     if ( type==3 )
     {
@@ -199,17 +196,16 @@ DescID uiSteeringSel::descID()
 		return descid;
 	}
 
-	Desc* desc = PF().createDescCopy( attribnm );
+	Desc* desc = Attrib::PF().createDescCopy( attribnm );
 	if ( !desc )
 	    return DescID();
 	desc->getValParam("dip")->setValue( dipfld_->getFValue() );
 	desc->getValParam("azi")->setValue( dirfld_->getFValue() );
 
-	DescSet* ads = const_cast<DescSet*>(descset_);
 	BufferString userref = attribnm;
 	desc->setUserRef( userref );
 	desc->setIsHidden(true);
-	return ads->addDesc( desc );
+	return descset4ed.addDesc( desc );
     }
 
     const DescID inldipid = inpfld_->inlDipID();
@@ -232,18 +228,17 @@ DescID uiSteeringSel::descID()
 	    return descid;
     }
 
-    Desc* desc = PF().createDescCopy( attribnm );
+    Desc* desc = Attrib::PF().createDescCopy( attribnm );
     if ( !desc )
 	return DescID();
 
-    DescSet* ads = const_cast<DescSet*>(descset_);
-    desc->setInput( 0, ads->getDesc(inldipid) );
-    desc->setInput( 1, ads->getDesc(crldipid) );
+    desc->setInput( 0, descset4ed.getDesc(inldipid) );
+    desc->setInput( 1, descset4ed.getDesc(crldipid) );
     desc->setIsHidden( true );
     desc->setIsSteering( true );
 
-    const ValParam* param =
-	ads->getDesc(inldipid)->getValParam( StorageProvider::keyStr() );
+    const Attrib::ValParam* param = descset_->getDesc(inldipid)->getValParam(
+					Attrib::StorageProvider::keyStr() );
     BufferString userref = attribnm; userref += " ";
     userref += param->getStringValue();
     desc->setUserRef( userref );
@@ -251,7 +246,7 @@ DescID uiSteeringSel::descID()
     desc->getDefStr(defstr);
     desc->parseDefStr(defstr);
 
-    return ads->addDesc( desc );
+    return descset4ed.addDesc( desc );
 }
 
 
@@ -277,7 +272,7 @@ const char* uiSteeringSel::text() const
 }
 
 
-uiSteerAttrSel::uiSteerAttrSel( uiParent* p, const DescSet& ads,
+uiSteerAttrSel::uiSteerAttrSel( uiParent* p, const Attrib::DescSet& ads,
 				const uiString& txt )
     : uiSteerCubeSel(p,ads.is2D(),true,txt)
     , attrdata_( ads.is2D() )
@@ -295,33 +290,36 @@ uiSteerAttrSel::uiSteerAttrSel( uiParent* p, bool is2d,
 }
 
 
-DescID uiSteerAttrSel::getDipID( int dipnr ) const
+Attrib::DescID uiSteerAttrSel::getDipID( int dipnr ) const
 {
-    const DescSet& ads = attrdata_.attrSet();
+    const Attrib::DescSet& ads = attrdata_.attrSet();
     const IOObj* inpioobj = ioobj( true );
     if ( !inpioobj )
-	return DescID();
+	return Attrib::DescID();
 
     const BufferString storkey( inpioobj->key().toString() );
     for ( int idx=0; idx<ads.size(); idx++ )
     {
-	const DescID descid = ads.getID( idx );
-	const Desc* desc = ads.getDesc( descid );
+	const Attrib::DescID descid = ads.getID( idx );
+	const Attrib::Desc* desc = ads.getDesc( descid );
 	if ( !desc->isStored() || desc->selectedOutput()!=dipnr )
 	    continue;
 
-	const Param* keypar = desc->getParam( StorageProvider::keyStr() );
+	const Attrib::Param* keypar = desc->getParam(
+					Attrib::StorageProvider::keyStr() );
 	BufferString res; keypar->getCompositeValue( res );
 	if ( res == storkey )
 	    return descid;
     }
 
-    Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
+    Attrib::Desc* desc = Attrib::PF().createDescCopy(
+				Attrib::StorageProvider::attribName() );
     desc->setIsHidden( true );
     desc->setIsSteering( true );
     desc->setNrOutputs( Seis::Dip, 2 );
     desc->selectOutput( dipnr );
-    ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
+    Attrib::ValParam* keypar = desc->getValParam(
+					Attrib::StorageProvider::keyStr() );
     keypar->setValue( storkey );
 
     BufferString userref = inpioobj->name();
@@ -329,18 +327,18 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     desc->setUserRef( userref );
     desc->updateParams();
 
-    return const_cast<DescSet&>(ads).addDesc( desc );
+    return const_cast<Attrib::DescSet&>(ads).addDesc( desc );
 }
 
 
-void uiSteerAttrSel::setDescSet( const DescSet* ads )
+void uiSteerAttrSel::setDescSet( const Attrib::DescSet* ads )
 {
     const bool is2d = attrdata_.is2D();
-    attrdata_.setAttrSet( ads ? *ads : DescSet::global(is2d) );
+    attrdata_.setAttrSet( ads ? *ads : Attrib::DescSet::global(is2d) );
 }
 
 
-void uiSteerAttrSel::setDesc( const Desc* desc )
+void uiSteerAttrSel::setDesc( const Attrib::Desc* desc )
 {
     if ( !desc || desc->selectedOutput() || !desc->descSet()
       || !desc->isStored() || desc->dataType() != Seis::Dip )
@@ -348,7 +346,8 @@ void uiSteerAttrSel::setDesc( const Desc* desc )
 
     setDescSet( desc->descSet() );
 
-    const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
+    const Attrib::ValParam* keypar
+		= desc->getValParam( Attrib::StorageProvider::keyStr() );
     const StringPair storkey( keypar->getStringValue() );
     const DBKey dbky( DBKey::getFromString( storkey.first() ) );
     PtrMan<IOObj> ioob = DBM().get( dbky );
@@ -357,7 +356,7 @@ void uiSteerAttrSel::setDesc( const Desc* desc )
 }
 
 
-void uiSteerAttrSel::fillSelSpec( SelSpec& as, bool inldip )
+void uiSteerAttrSel::fillSelSpec( Attrib::SelSpec& as, bool inldip )
 {
     as.set( 0, inldip ? inlDipID() : crlDipID(), false, "" );
     as.setRefFromID( attrdata_.attrSet() );

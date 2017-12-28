@@ -69,8 +69,6 @@ BufferString uiAttribDescSetEd::nmprefgrp_( "" );
 static bool savebuttoncheckedonstart_ = true;
 
 
-using namespace Attrib;
-
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSet& ds,
 				      const char* prefgrp, bool attrsneedupdt )
     : uiDialog(p,uiDialog::Setup( ds.is2D() ? tr("Attribute Set 2D")
@@ -258,6 +256,7 @@ void uiAttribDescSetEd::createGroups()
 	if ( zdomaininfo_ )
 	    de->setZDomainInfo( zdomaininfo_ );
 
+	de->setInitialDefaults( attrset_ );
 	desceds_ += de;
 	de->attach( alignedBelow, attrtypefld_ );
     }
@@ -401,11 +400,11 @@ void uiAttribDescSetEd::autoAttrSetCB( CallBacker* )
 	const bool douse = dlg.useAuto();
 	IOObj* ioobj = dlg.getObj();
 	const DBKey id = ioobj ? ioobj->key() : DBKey::getInvalid();
-	Settings::common().setYN( Attrib::DescSet::sKeyUseAutoAttrSet, douse );
+	Settings::common().setYN( DescSet::sKeyUseAutoAttrSet, douse );
 	Settings::common().write();
 	IOPar par = SI().getDefaultPars();
-	par.set( is2d ? Attrib::DescSet::sKeyAuto2DAttrSetID
-		      : Attrib::DescSet::sKeyAuto3DAttrSetID, id );
+	par.set( is2d ? DescSet::sKeyAuto2DAttrSetID
+		      : DescSet::sKeyAuto3DAttrSetID, id );
 	SI().setDefaultPars( par, true );
 	if ( douse && offerSetSave() )
 	    openAttribSet( ioobj->key() );
@@ -430,7 +429,7 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuserref )
 {
     uiAttrDescEd& curde = activeDescEd();
     BufferString attribname = getAttribName( curde );
-    Desc* newdesc = PF().createDescCopy( attribname );
+    Desc* newdesc = Attrib::PF().createDescCopy( attribname );
     if ( !newdesc )
 	mErrRetNull( tr("Internal: cannot create attribute of type '%1'")
 		     .arg(attribname) )
@@ -638,7 +637,7 @@ bool uiAttribDescSetEd::doAcceptInputs()
     uiAttrDescEd& curdesced = activeDescEd();
     for ( int idx=0; idx<attrset_.size(); idx++ )
     {
-	const DescID descid = attrset_.getID( idx );
+	const Attrib::DescID descid = attrset_.getID( idx );
 	Desc* desc = attrset_.getDesc( descid );
 	uiRetVal uirv = curdesced.errMsgs( desc );
 	if ( !uirv.isOK() )
@@ -680,8 +679,8 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 				   uiStrings::sCancel());
 	if ( chg_type )
 	{
-	    DescID id = usedesc->id();
-	    TypeSet<DescID> attribids;
+	    Attrib::DescID id = usedesc->id();
+	    TypeSet<Attrib::DescID> attribids;
 	    attrset_.getIds( attribids );
 	    int oldattridx = attribids.indexOf( id );
 	    Desc* newdesc = createAttribDesc( false );
@@ -721,7 +720,7 @@ void uiAttribDescSetEd::updateUserRefs()
 
     for ( int iattr=0; iattr<attrset_.size(); iattr++ )
     {
-	const DescID descid = attrset_.getID( iattr );
+	const Attrib::DescID descid = attrset_.getID( iattr );
 	Desc* desc = attrset_.getDesc( descid );
 	if ( !desc || desc->isHidden() || desc->isStored() ) continue;
 
@@ -731,7 +730,7 @@ void uiAttribDescSetEd::updateUserRefs()
 }
 
 
-Desc* uiAttribDescSetEd::curDesc() const
+Attrib::Desc* uiAttribDescSetEd::curDesc() const
 {
     const int selidx = attrlistfld_->currentItem();
     return selidx<0 ? 0 : const_cast<Desc*>( attrdescs_[selidx] );
@@ -850,7 +849,7 @@ void uiAttribDescSetEd::openAttribSet( const DBKey& ky )
     if ( !ky.isValid() )
 	return;
 
-    Attrib::DescSet newset( !SI().has3D() );
+    DescSet newset( !SI().has3D() );
     uiRetVal uirv = newset.load( ky );
     if ( !uirv.isOK() )
 	{ uiMSG().error( uirv ); return; }
@@ -865,7 +864,7 @@ void uiAttribDescSetEd::handleFreshSet()
     newList( -1 );
     setStorNameFld();
     attrset_.setIsChanged( false );
-    TypeSet<DescID> ids;
+    TypeSet<Attrib::DescID> ids;
     attrset_.getIds( ids );
     for ( int idx=0; idx<attrset_.size(); idx++ )
     {
@@ -929,13 +928,13 @@ void uiAttribDescSetEd::loadDefaultAttrSet( const char* attribsetnm )
 }
 
 
-static void gtDefaultAttribsets( const char* dirnm, bool is2d,
-				 BufferStringSet& attribfiles,
-				 BufferStringSet& attribsetnames )
+void uiAttribDescSetEd::gtDefAttrSetsInDir( const char* dirnm,
+	BufferStringSet& attribfiles, BufferStringSet& attribsetnames ) const
 {
     if ( !dirnm || !File::exists(dirnm) )
 	return;
 
+    const bool is2d = attrset_.is2D();
     DirList attrdl( dirnm, File::DirsInDir, "*Attribs" );
     for ( int idx=0; idx<attrdl.size(); idx++ )
     {
@@ -966,11 +965,11 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 	    bool canuse = true;
 	    for ( int idd=0; idd<tmpds.nrDescs(true,true); idd++ )
 	    {
-		Attrib::Desc* desc = tmpds.desc( idd );
+		Desc* desc = tmpds.desc( idd );
 		if ( !desc )
 		    { canuse = false; break; }
 
-		Attrib::Provider* prov = PF().create( *desc, true );
+		Attrib::Provider* prov = Attrib::PF().create( *desc, true );
 		canuse = canuse && prov && prov->isActive().isOK();
 		prov->unRef();
 		if ( !canuse )
@@ -988,13 +987,10 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 
 
 void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
-					      BufferStringSet& attribsetnames )
+				      BufferStringSet& attribsetnames ) const
 {
-    const bool is2d = attrset_.is2D();
-    gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
-			 attribsetnames );
-    gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles,
-			 attribsetnames );
+    gtDefAttrSetsInDir( mGetApplSetupDataDir(), attribfiles, attribsetnames );
+    gtDefAttrSetsInDir( mGetSWDirDataDir(), attribfiles, attribsetnames );
 }
 
 
@@ -1062,14 +1058,14 @@ void uiAttribDescSetEd::importSetCB( CallBacker* )
     if ( !offerSetSave() )
 	return;
 
-    PtrMan<IOObjContext> ctxt = Attrib::DescSet::getIOObjContext(true,is2D());
+    PtrMan<IOObjContext> ctxt = DescSet::getIOObjContext(true,is2D());
     uiSelObjFromOtherSurvey objsel( this, *ctxt );
     objsel.setHelpKey( mODHelpKey(mAttribDescSetEdimportSetHelpID) );
     if ( !objsel.go() )
 	return;
 
     const BufferString filenm( objsel.ioObj()->fullUserExpr() );
-    Attrib::DescSet impset( !SI().has3D() );
+    DescSet impset( !SI().has3D() );
     uiRetVal warns;
     uiRetVal uirv = impset.load( filenm, &warns );
     if ( !uirv.isOK() )
@@ -1295,7 +1291,7 @@ void uiAttribDescSetEd::updateCurDescEd()
 
 void uiAttribDescSetEd::updateAllDescsDefaults()
 {
-    PF().updateAllDescsDefaults();
+    Attrib::PF().updateAllDescsDefaults();
 }
 
 
@@ -1315,7 +1311,10 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
 
     for ( int idx=0; idx<adids.size(); idx++ )
     {
-	const Attrib::Desc* ad = attrset_.getDesc( adids[idx] );
+	const Desc* ad = attrset_.getDesc( adids[idx] );
+	if ( !ad )
+	    { pErrMsg("Huh"); continue; }
+
 	const BufferString& attrnm = ad->attribName();
 	const char* usernm = ad->userRef();
 	for ( int idy=0; idy<desceds_.size(); idy++ )

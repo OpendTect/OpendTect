@@ -38,26 +38,27 @@ class uiToolBar;
 class uiToolButton;
 
 
-/*!
-\brief Editor for Attribute sets.
-*/
+/*!\brief Editor for Attribute sets.  */
 
 mExpClass(uiAttributes) uiAttribDescSetEd : public uiDialog
 { mODTextTranslationClass(uiAttribDescSetEd);
 public:
 
-			uiAttribDescSetEd(uiParent*,Attrib::DescSet&,
-					  const char* prefgrp =0,
-					  bool attrsneedupdt =false);
+    typedef Attrib::Desc	Desc;
+    typedef Attrib::DescSet	DescSet;
+
+			uiAttribDescSetEd(uiParent*,DescSet&,
+					  const char* prefgrp=0,
+					  bool attrsneedupdt=false);
 			~uiAttribDescSetEd();
 
     void		setZDomainInfo(const ZDomain::Info&);
     const ZDomain::Info* getZDomainInfo() const;
 
-    Attrib::DescSet&	getSet()		{ return attrset_; }
+    DescSet&		getSet()		{ return attrset_; }
     DBKey		curSetID() const;
 
-    Attrib::Desc*	curDesc() const;
+    Desc*		curDesc() const;
 			//!< Use during operation only!
     int			curDescNr() const;
 			//!< Use during operation only!
@@ -86,11 +87,11 @@ public:
 
 protected:
 
-    Attrib::DescSet&		attrset_;
-    Attrib::DescSet*		orgattrset_;
-    Attrib::Desc*		prevdesc_;
+    DescSet&			attrset_;
+    DescSet*			orgattrset_;
+    Desc*			prevdesc_;
     ObjectSet<uiAttrDescEd>	desceds_;
-    ObjectSet<Attrib::Desc>	attrdescs_;
+    ObjectSet<Desc>		attrdescs_;
     BufferStringSet&		userattrnames_;
     bool			updating_fields_;
     bool			attrsneedupdt_;
@@ -158,12 +159,15 @@ protected:
     void			handleSensitivity();
     void			updateUserRefs();
     void			ensureValidName(BufferString&) const;
-    bool			setUserRef(Attrib::Desc&);
-    Attrib::Desc*		createAttribDesc(bool checkuref=true);
+    bool			setUserRef(Desc&);
+    Desc*			createAttribDesc(bool checkuref=true);
     void			importFromFile(const char*);
     BufferString		getAttribName(uiAttrDescEd&) const;
     void			getDefaultAttribsets(BufferStringSet& filenms,
-						     BufferStringSet& setnms);
+						 BufferStringSet& setnms) const;
+    void			gtDefAttrSetsInDir(const char* dirnm,
+						    BufferStringSet&,
+						    BufferStringSet&) const;
 
     void			createMenuBar();
     void			createToolBar();

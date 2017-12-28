@@ -56,13 +56,18 @@ protected:
 mExpClass(uiAttributes) uiSteeringSel : public uiGroup
 { mODTextTranslationClass(uiSteeringSel);
 public:
+
+    typedef Attrib::Desc	Desc;
+    typedef Attrib::DescID	DescID;
+    typedef Attrib::DescSet	DescSet;
+
 				uiSteeringSel(uiParent*,
 					      const Attrib::DescSet*,bool is2d,
 					      bool withconstdir=true,
 					      bool doinit=true);
 				~uiSteeringSel();
 
-    Attrib::DescID		descID();
+    DescID			descID();
 
     virtual bool		willSteer() const;
     void			setDesc(const Attrib::Desc*);
@@ -93,4 +98,5 @@ protected:
     void			createFields();
     void			doFinalise(CallBacker*);
     virtual void		typeSel(CallBacker*);
+
 };

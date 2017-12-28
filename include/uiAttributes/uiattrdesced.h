@@ -29,9 +29,7 @@ class uiSteeringSel;
 class uiSteerAttrSel;
 
 
-/*!
-\brief Description of attribute parameters to evaluate.
-*/
+/*!\brief Description of attribute parameters to evaluate.  */
 
 mExpClass(uiAttributes) EvalParam
 {
@@ -56,9 +54,7 @@ public:
 };
 
 
-/*!
-\brief Attribute description editor creator.
-*/
+/*!\brief Attribute description editor creator.  */
 
 mExpClass(uiAttributes) uiAttrDescEdCreater
 {
@@ -69,8 +65,7 @@ public:
 };
 
 
-/*!
-\brief Attribute description editor.
+/*!\brief Attribute description editor.
 
   Required functions are declared in the macro mDeclReqAttribUIFns. Two of
   those, attribName() and createInstance() are implemented by the mInitAttribUI
@@ -81,19 +76,22 @@ mExpClass(uiAttributes) uiAttrDescEd : public uiGroup
 { mODTextTranslationClass(uiAttrDescEd);
 public:
 
+    typedef Attrib::Desc	Desc;
+    typedef Attrib::DescSet	DescSet;
+
     virtual		~uiAttrDescEd();
     HelpKey		helpKey()			{ return helpkey_; }
-    void		setDesc(Attrib::Desc*);
-    void		setDescSet(Attrib::DescSet*);
-    Attrib::DescSet*	descSet() const			{ return ads_; }
-    Attrib::Desc*	curDesc()			{ return desc_; }
-    const Attrib::Desc* curDesc() const			{ return desc_; }
+    void		setDesc(Desc*);
+    void		setDescSet(DescSet*);
+    DescSet*		descSet() const			{ return ads_; }
+    Desc*		curDesc()			{ return desc_; }
+    const Desc*		curDesc() const			{ return desc_; }
 
     void		setZDomainInfo(const ZDomain::Info*);
     const ZDomain::Info* getZDomainInfo() const;
 
-    uiRetVal		errMsgs(Attrib::Desc* desc);
-    virtual uiRetVal	commit(Attrib::Desc* desc=0);
+    uiRetVal		errMsgs(Desc* desc);
+    virtual uiRetVal	commit(Desc* desc=0);
 			//!< returns null on success, error message otherwise
 			//!< If attribdesc is non-zero, that desc will be
 			//!< filled. If not, the internal desc will be filled.
@@ -120,7 +118,7 @@ public:
 
     virtual void	setDataPackInp(const TypeSet<DataPack::FullID>&);
 
-    static const char*	getInputAttribName(uiAttrSel*,const Attrib::Desc&);
+    static const char*	getInputAttribName(uiAttrSel*,const Desc&);
 
     static const char*	timegatestr();
     static const char*	frequencystr();
@@ -130,28 +128,30 @@ public:
     Notifier<uiAttrDescEd>  descChanged;
     Notifier<uiAttrDescEd>  descSetChanged;
 
+    void		setInitialDefaults(const DescSet&);
+
 protected:
 
 			uiAttrDescEd(uiParent*,bool is2d,const HelpKey&);
 
-    virtual bool	setParameters(const Attrib::Desc&)	{ return true; }
-    virtual bool	getParameters(Attrib::Desc&)		{ return true; }
-    virtual bool	setInput(const Attrib::Desc&)		{ return true; }
-    virtual uiRetVal	getInput(Attrib::Desc&)
+    virtual bool	setParameters(const Desc&)	{ return true; }
+    virtual bool	getParameters(Desc&)		{ return true; }
+    virtual bool	setInput(const Desc&)		{ return true; }
+    virtual uiRetVal	getInput(Desc&)
 						{ return uiRetVal::OK(); }
-    virtual bool	setOutput(const Attrib::Desc&)		{ return true; }
-    virtual bool	getOutput(Attrib::Desc&);
+    virtual bool	setOutput(const Desc&)		{ return true; }
+    virtual bool	getOutput(Desc&);
 
     virtual uiRetVal	areUIParsOK()		{ return uiRetVal::OK(); }
 
-    void		fillOutput(Attrib::Desc&,int selout);
-    uiRetVal		fillInp(uiAttrSel*,Attrib::Desc&,int);
-    uiRetVal		fillInp(uiSteeringSel*,Attrib::Desc&,int);
-    uiRetVal		fillInp(uiSteerAttrSel*,Attrib::Desc&,int);
+    void		fillOutput(Desc&,int selout);
+    uiRetVal		fillInp(uiAttrSel*,Desc&,int);
+    uiRetVal		fillInp(uiSteeringSel*,Desc&,int);
+    uiRetVal		fillInp(uiSteerAttrSel*,Desc&,int);
 
-    void		putInp(uiAttrSel*,const Attrib::Desc&,int inpnr);
-    void		putInp(uiSteerAttrSel*,const Attrib::Desc&,int inpnr);
-    void		putInp(uiSteeringSel*,const Attrib::Desc&,int inpnr);
+    void		putInp(uiAttrSel*,const Desc&,int inpnr);
+    void		putInp(uiSteerAttrSel*,const Desc&,int inpnr);
+    void		putInp(uiSteeringSel*,const Desc&,int inpnr);
 
     uiString		zDepLabel(const uiString& pre,
 				  const uiString& post) const;
@@ -169,14 +169,14 @@ protected:
 
     uiImagAttrSel*	createImagInpFld(bool is2d);
     bool		getInputDPID(uiAttrSel*,DataPack::FullID&) const;
-    Attrib::Desc*	getInputDescFromDP(uiAttrSel*) const;
+    Desc*		getInputDescFromDP(uiAttrSel*) const;
 
     ChangeTracker	chtr_;
     HelpKey		helpkey_;
     BufferString	attrnm_;
     DomainType		domtyp_;
     DimensionType	dimtyp_;
-    Attrib::DescSet*	ads_;
+    DescSet*	ads_;
     bool		is2d_;
     const ZDomain::Info* zdomaininfo_;
 
@@ -197,7 +197,7 @@ protected:
 private:
 
     BufferString	dispname_;
-    Attrib::Desc*	desc_;
+    Desc*		desc_;
 
 };
 
