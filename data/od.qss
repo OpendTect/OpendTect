@@ -1,6 +1,6 @@
 *
 {
-    background: rgb( 245, 245, 245 );
+    background: rgb( 240, 240, 245 );
 }
 
 QGraphicsView, QTextDocument, QTextEdit, QTableView
@@ -8,9 +8,9 @@ QGraphicsView, QTextDocument, QTextEdit, QTableView
     background-color: white;
 }
 
-QLineEdit, QDoubleSpinBox, QComboBox, QListView
+QLineEdit, QDoubleSpinBox, QSpinBox, QComboBox, QListView
 {
-    background-color: rgb( 252, 252, 252 );
+    background-color: rgb( 245, 245, 245 );
 }
 
 QListView, QMenu
@@ -65,7 +65,7 @@ QToolBar
 
 QToolTip
 {
-    background-color: yellow;
+    background-color: rgb( 255, 255, 220 );
     color: black;
     border: 2px solid black;
 }
