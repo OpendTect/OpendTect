@@ -117,9 +117,10 @@ int Execute_batch( int* pargc, char** argv )
 #else
 	setBatchPriority( *pargc, argv, pid );
 #endif
-	logstrm << "Starting program: " << argv[0] << " " << bp.name() << "\n";
-	logstrm << "Processing on: " << HostData::localHostName() << "\n";
-	logstrm << "Process ID: " << pid << "\n";
+	logstrm << "Starting program: " << argv[0] << " " << bp.name()
+	    	<< od_endl;
+	logstrm << "Processing on: " << HostData::localHostName() << od_endl;
+	logstrm << "Process ID: " << pid << od_endl;
 	allok = bp.go( logstrm );
     }
 
