@@ -162,9 +162,8 @@ void uiColSeqImport::usrSel( CallBacker* )
 	    res = cseqiop->read( fnm, 0 );
 	    if ( !res )
 	    {
-		showMessage(uiStrings::phrCannotRead(uiStrings::phrJoinStrings
-			   (uiStrings::sColorTable(), tr("from Selected"),
-			    uiStrings::sFile())));
+		showMessage(uiStrings::phrCannotRead(
+				    tr("ColorTanble from Selected File")));
 		return;
 	    }
 	}
@@ -196,9 +195,8 @@ void uiColSeqImport::usrSel( CallBacker* )
     }
 
     if ( listfld_->isEmpty() )
-	showMessage(uiStrings::phrCannotRead(uiStrings::phrJoinStrings
-		   (uiStrings::sColorTable(), tr("from Selected"),
-		    uiStrings::sFile())));
+	showMessage(uiStrings::phrCannotRead(
+				    tr("ColorTanble from Selected File")));
     else
 	showList();
 }

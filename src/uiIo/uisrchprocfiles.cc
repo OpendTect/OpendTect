@@ -76,7 +76,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     uiMsgMainWinSetter msgwinsetter( this );
 	// Otherwise the error box pulls up OD main win. No idea why.
 
-    toStatusBar( mJoinUiStrs(sScanning(),sDirectory()));
+    toStatusBar( tr("Scanning Directory") );
     const BufferString msk( maskfld->text() );
     const BufferString dirnm( dirfld->text() );
     DirList dl( dirnm, File::FilesInDir, msk.isEmpty() ? 0 : msk.buf() );

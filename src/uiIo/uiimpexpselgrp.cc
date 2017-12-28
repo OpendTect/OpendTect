@@ -239,12 +239,11 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
 				 mCB(this,uiSGSelGrp,showInfo) );
     infobut_->attach( rightTo, listfld_ );
 
-    delbut_ = new uiToolButton( this, "delete", uiStrings::phrJoinStrings(
-				uiStrings::sDelete(), trselgrp),
+    delbut_ = new uiToolButton( this, "delete", uiStrings::phrDelete(trselgrp),
 			        mCB(this,uiSGSelGrp,delSelGrps) );
     delbut_->attach( alignedBelow, infobut_ );
 
-    renamebut_ = new uiToolButton( this, "renameobj", uiStrings::phrRename(
+    renamebut_ = new uiToolButton( this, "renameobj",uiStrings::phrRename(
 			        trselgrp), mCB(this,uiSGSelGrp,renameSelGrps) );
     renamebut_->attach( alignedBelow, delbut_ );
 
@@ -498,10 +497,9 @@ class uiSGSelDlg : public uiDialog
 public:
 
 uiSGSelDlg( uiParent* p, bool forread )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(uiStrings::phrCrossPlot(
-	uiStrings::phrJoinStrings(uiStrings::sSelection(),
-				  uiStrings::sGroup(mPlural)))),
-        mNoDlgTitle, mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
+				    tr("CrossPlot Selection Groups")),
+				    uiStrings::sEmptyString(), mNoHelpKey))
     , forread_(forread)
 {
     selgrp_ = new uiSGSelGrp( this, forread );
@@ -613,8 +611,7 @@ const char* uiSGSel::selGrpFileNm()
 
 
 uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
-    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sOpen(), phrCrossPlot(
-				 uiStrings::sSelection())),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Open Cross Plot Selection"), mNoDlgTitle,
 				 mODHelpKey(mReadSelGrpHelpID) ))
     , plotter_(plotter)
     , selgrpset_(plotter.selectionGrps())
@@ -986,9 +983,9 @@ bool uiReadSelGrp::acceptOK()
 uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 					const ObjectSet<SelectionGrp>& selgrps,
 					uiExpSelectionArea::Setup su )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrSave(uiStrings::phrJoinStrings(
-				 uiStrings::sSelection(), uiStrings::sArea())),
-				 mJoinUiStrs(sSpecify(), sParameter(mPlural)),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrSave(tr("Selection Area")),
+				 uiStrings::phrSpecify(
+				 uiStrings::sParameter(mPlural)),
                                  mODHelpKey(mExpSelectionAreaHelpID) ))
     , selgrps_(selgrps)
     , setup_(su)

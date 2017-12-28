@@ -314,8 +314,7 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
     if ( withtitle )
     {
 	title_ = view_->scene().addItem(
-		new uiTextItem(uiPoint(10,10),mJoinUiStrs(sSurvey(),sName()),
-								    txtalign) );
+		new uiTextItem(uiPoint(10,10),tr("Survey Name"), txtalign) );
 	title_->setPenColor( Color::Black() );
 	title_->setFont( FontList().get(FontData::Graphics2DLarge) );
     }

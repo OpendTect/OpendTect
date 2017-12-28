@@ -185,9 +185,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const DBKey& mid,
 	horfld_->setText( obj->name() );
     }
 
-    auxfld_ = new uiGenInput( this,
-	uiStrings::phrJoinStrings(uiStrings::sHorizon(),uiStrings::sData()),
-	str );
+    auxfld_ = new uiGenInput( this, uiStrings::sHorizonData(), str );
     auxfld_->attach( rightOf, selbut_ );
     auxfld_->setPrefWidthInChar( 60 );
     auxfld_->valuechanged.notify(

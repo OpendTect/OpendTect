@@ -156,7 +156,7 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     {
 	uiGenInput* nmfld = new uiGenInput( this, nrdims_ == 1 ?
 		tr("Variable name") : tr("Dimension %1: Name").arg(idx+1) );
-	uiGenInput* rgfld = new uiGenInput(this, mJoinUiStrs(sValue(),sRange()),
+	uiGenInput* rgfld = new uiGenInput(this, uiStrings::sValRange(),
 				FloatInpSpec(), FloatInpSpec() );
 	rgfld->valuechanged.notify( mCB(this,uiProbDenFuncGenSampled,rgChg) );
 	nmflds_ += nmfld; rgflds_ += rgfld;

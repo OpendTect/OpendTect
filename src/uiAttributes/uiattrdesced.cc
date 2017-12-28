@@ -311,14 +311,16 @@ uiString uiAttrDescEd::zDepLabel( const uiString& pre,
     if ( !pre.isEmpty() )
     {
 	zstr.toLower( true );
-	return uiStrings::phrJoinStrings( pre, zstr, SI().zUnitString() );
+	return toUiString("%1 %2 %3").arg(pre).arg(zstr)
+						.arg(SI().zUnitString());
     }
 
     if ( !post.isEmpty() )
-	return uiStrings::phrJoinStrings( zstr, post, SI().zUnitString() );
+	return toUiString("%1 %2 %3").arg(zstr).arg(post)
+						.arg(SI().zUnitString());
 
 
-    return uiStrings::phrJoinStrings( zstr, SI().zUnitString() );
+    return toUiString("%1 %2").arg(zstr).arg(SI().zUnitString());
 }
 
 

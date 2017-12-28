@@ -169,7 +169,7 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
     new uiToolButton( bgrp, nrdims_ == 1 ? "distmap" : "viewprdf",
 	    tr("View function"), mCB(this,uiEditSampledProbDenFunc,viewPDF) );
     if ( editable_ )
-	new uiToolButton( bgrp, "smoothcurve", tr("Smooth values"),
+	new uiToolButton( bgrp, "smoothcurve", tr("Smooth Values"),
 				mCB(this,uiEditSampledProbDenFunc,smoothReq) );
     if ( nrdims_ > 2 )
     {
@@ -644,9 +644,8 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
     if ( editable_ )
     {
 	rmbut_ = new uiToolButton( ccgrp, "remove",
-			    uiStrings::phrRemove(uiStrings::phrJoinStrings(
-			    uiStrings::sSelected(),uiStrings::sCorrelation())),
-			    mCB(this,uiEditGaussianProbDenFunc,rmPush) );
+			    uiStrings::phrRemove(tr("Selected Correlation")),
+				mCB(this,uiEditGaussianProbDenFunc,rmPush) );
 	rmbut_->attach( rightOf, defcorrsfld_ );
     }
 }

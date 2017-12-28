@@ -162,7 +162,7 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
 	inpdir = File::linkEnd(inpdir);
     if ( !File::isDirectory(inpdir) )
     {
-	uiMSG().error(od_static_tr("uiSurvey_zipDirectory","%1\ndoes not exist")
+	uiMSG().error(od_static_tr("zipDirectory","%1\ndoes not exist")
 		      .arg(toUiString(inpdir)) );
 	return false;
     }
@@ -173,7 +173,7 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
 	const File::Path fp( zipfnm );
 	if ( !File::isWritable(fp.pathOnly()) )
 	{
-	    uiMSG().error(od_static_tr("uiSurvey_zipDirectory",
+	    uiMSG().error(od_static_tr("zipDirectory",
 			  "%1 is not writable").arg(toUiString(fp.pathOnly())));
 	    return false;
 	}
@@ -185,9 +185,7 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
 	fssu.setForWrite().setFormat( File::Format::zipFiles() );
 	uiFileSelector uifs( par, fssu );
 	uifs.caption() = uiStrings::phrSelect(
-			 uiStrings::phrOutput(uiStrings::phrJoinStrings(
-			 uiStrings::sSurvey(), uiStrings::sZip(),
-			 uiStrings::sFile())));
+		    od_static_tr("zipDirectory","Output Survey Zip File"));
 	if ( !uifs.go() )
 	    return false;
 	zipfnm = uifs.fileName();

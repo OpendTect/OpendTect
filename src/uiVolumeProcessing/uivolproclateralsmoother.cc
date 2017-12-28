@@ -36,8 +36,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
 
     if ( !is2d )
     {
-	uiString linesolabel = uiStrings::phrJoinStrings( uiStrings::sInline(),
-							uiStrings::sStepout());
+	uiString linesolabel = tr("Inline Stepout");
 	inllenfld_ = new uiLabeledSpinBox( stepoutgroup, linesolabel,
 					    0, "Inline_spinbox" );
 	inllenfld_->box()->setInterval( 0, 200*step.inl(), step.inl() );
@@ -45,9 +44,8 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf,
 	    inllenfld_->box()->setValue( step.inl()*pars->stepout_.row() );
     }
 
-    uiString trcsolabel = uiStrings::phrJoinStrings(
-		is2d ? uiStrings::sTraceNumber() : uiStrings::sCrossline(),
-		uiStrings::sStepout() );
+    uiString trcsolabel = tr("%1 Stepout").arg(is2d ? uiStrings::sTraceNumber()
+				    : uiStrings::sCrossline());
     crllenfld_ = new uiLabeledSpinBox( stepoutgroup, trcsolabel, 0,
 				       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, 200*step.crl(), step.crl() );

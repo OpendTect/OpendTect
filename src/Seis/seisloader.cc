@@ -352,7 +352,7 @@ void Seis::Loader::setScaler( const Scaler* newsc )
 
 uiString Seis::Loader::nrDoneText() const
 {
-    return tr("Traces read");
+    return tr("%1 read", "Traces read(past tense)").arg(uiStrings::sTrace(mPlural));
 }
 
 
@@ -1139,7 +1139,7 @@ od_int64 Seis::SequentialPSLoader::totalNr() const
 
 uiString Seis::SequentialPSLoader::nrDoneText() const
 {
-    return tr("Traces read");
+    return tr("%1 read", "Traces read(past tense)").arg(uiStrings::sTrace(mPlural));
 }
 
 

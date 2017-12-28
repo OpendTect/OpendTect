@@ -161,8 +161,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     if ( datavals.isEmpty() )
     {
 	setCtrlStyle( uiDialog::CloseOnly );
-	new uiLabel( this, uiStrings::phrCannotFind(uiStrings::phrJoinStrings(
-		  uiStrings::sLog(),uiStrings::sData(),uiStrings::sValue(2))) );
+	new uiLabel( this, uiStrings::phrCannotFind(tr("Log Data Values")) );
 	return;
     }
     sort_array( datavals.arr(), datavals.size() );
@@ -328,8 +327,8 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
     for ( int icode=0; icode<codes.size(); icode++ )
     {
 	const int curcode = codes[icode];
-	uiString txt = uiStrings::phrJoinStrings(uiStrings::sCode(),
-							   toUiString(curcode));
+	uiString txt = toUiString("%1 %2").arg(uiStrings::sCode())
+					    .arg(curcode);
 	uiLabeledComboBox* optlcb = new uiLabeledComboBox( this, opts, txt );
 	uiComboBox* optbox = optlcb->box();
 	BufferString nm( lognm ); nm += " ["; nm += curcode; nm += "]";

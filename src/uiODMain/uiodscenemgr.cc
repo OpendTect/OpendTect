@@ -194,8 +194,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
 
     scn.vwr3d_->setSceneID( sceneid );
-    uiString title = uiStrings::phrJoinStrings( uiStrings::sScene(),
-					       toUiString(vwridx_) );
+    uiString title = tr("Scene %1").arg(vwridx_);
 
     scn.mdiwin_->setTitle( title );
     visServ().setUiObjectName( sceneid, title );
@@ -380,8 +379,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
 	visServ().turnSelectionModeOn( false );
 
-	const uiString title = uiStrings::phrJoinStrings(
-		uiStrings::sScene(), toUiString(vwridx_) );
+	const uiString title = tr("Scene %1").arg(vwridx_);
 	scn.mdiwin_->setTitle( title );
 	visServ().setUiObjectName( sceneid, title );
 

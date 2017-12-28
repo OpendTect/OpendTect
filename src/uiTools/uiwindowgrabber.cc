@@ -57,7 +57,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
     uiFileSel::Setup fssu( OD::GeneralContent );
     fssu.setForWrite().initialselectiondir( dirname_ )
 		      .allowallextensions( false );
-    inpfilefld_ = new uiFileSel( this, mJoinUiStrs(sFile(), sName()), fssu );
+    inpfilefld_ = new uiFileSel( this, uiStrings::sFileName(), fssu );
     if ( windowfld_ )
 	inpfilefld_->attach( alignedBelow, windowfld_ );
     updateFilter();

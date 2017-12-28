@@ -189,7 +189,7 @@ bool uiBulkTrackImport::acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( uiStrings::phrInput(mJoinUiStrs(sFile(),sName())) )
+	mErrRet( uiStrings::phrInput(uiStrings::sFileName()) )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
@@ -373,8 +373,8 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
 {
     uiFileSel::Setup fssu;
     fssu.withexamine(true).examstyle(File::Table);
-    inpfld_ = new uiFileSel( this, uiStrings::phrInput(
-			     mJoinUiStrs(sMarker(),sFile())), fssu );
+    inpfld_ = new uiFileSel( this, uiStrings::phrInput(tr("Marker File")),
+									fssu );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
                                        mODHelpKey(mTableImpDataSelwellsHelpID));
@@ -514,7 +514,7 @@ bool uiBulkD2TModelImport::acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( uiStrings::phrEnter(mJoinUiStrs(sInputFile(),sName())))
+	mErrRet( uiStrings::phrEnter(tr("Input File Name")) )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )

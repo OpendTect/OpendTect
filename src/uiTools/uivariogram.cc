@@ -65,7 +65,8 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     maxrgfld_->setInterval( minrgval, maxrgval, defstep );
     maxrgfld_->setValue( defrgval );
 
-    uiString lbl2( uiStrings::phrJoinStrings(uiStrings::sStep(),unitstr) );
+    uiString lbl2( tr("Step %1").arg(isvert ? SI().zUnitString() :
+						    SI().xyUnitString()) );
     uiLabeledSpinBox* lblstepfld = new uiLabeledSpinBox( this, lbl2, 0 );
     stepfld_ = lblstepfld->box();
     stepfld_->setInterval( minstepval, maxstepval, defstep );

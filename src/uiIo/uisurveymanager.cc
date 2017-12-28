@@ -228,8 +228,8 @@ void uiSurveyManager::mkSurvManTools()
 				      OD::Vertical );
     survmanbuts_->attach( rightTo, survdirfld_ );
     new uiToolButton( survmanbuts_, "create",
-			uiStrings::phrCreate(mJoinUiStrs(sNew(),
-			sSurvey())), mCB(this,uiSurveyManager,newButPushed) );
+			uiStrings::phrCreate(tr("New Survey")),
+			mCB(this,uiSurveyManager,newButPushed) );
     editbut_ = new uiToolButton( survmanbuts_, "edit",
 				 tr("Edit Survey Parameters"),
 				 mCB(this,uiSurveyManager,editButPushed) );

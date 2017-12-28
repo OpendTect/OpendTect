@@ -28,7 +28,7 @@ namespace MPE
 */
 
 mExpClass(MPEEngine) Horizon2DExtender : public SectionExtender
-{
+{ mODTextTranslationClass(Horizon2DExtender)
 public:
 				Horizon2DExtender(EM::Horizon2D&);
     static SectionExtender*	create(EM::Object*);

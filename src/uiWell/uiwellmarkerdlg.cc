@@ -845,8 +845,8 @@ float uiMarkerDlg::getOldMarkerVal( const Well::Marker& marker ) const
 
 
 uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
-    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sWell(),sMarker(mPlural)),
-    mNoDlgTitle, mODHelpKey(mMarkerViewDlgHelpID)))
+    : uiDialog(p,uiDialog::Setup(uiStrings::sWellMarker(mPlural),
+				mNoDlgTitle, mODHelpKey(mMarkerViewDlgHelpID)))
     , table_(0)
     , wd_(&wd)
 {

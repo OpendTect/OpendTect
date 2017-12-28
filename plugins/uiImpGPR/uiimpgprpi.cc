@@ -112,8 +112,7 @@ uiDZTImporter( uiParent* p )
     zfacfld_ = new uiGenInput( this, tr("Z Factor"), FloatInpSpec(1) );
     zfacfld_->attach( alignedBelow, stepposfld_ );
 
-    lnmfld_ = new uiGenInput( this, uiStrings::phrOutput(mJoinUiStrs(sLine(),
-							sName().toLower())) );
+    lnmfld_ = new uiGenInput( this, uiStrings::sLineName() );
     lnmfld_->attach( alignedBelow, zfacfld_ );
 
     outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),

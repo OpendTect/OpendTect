@@ -83,9 +83,8 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
     if ( ltxt.isEmpty() )
 	ltxt = zddef_.getRange();
 
-    uiLabel* lbl = new uiLabel( this,
-		uiStrings::phrJoinStrings( ltxt, zddef_.unitStr(true) ),
-		startfld_ );
+    uiLabel* lbl = new uiLabel( this, toUiString("%1 %2 %3").arg(ltxt)
+					.arg(zddef_.unitStr(true)),startfld_ );
 
     stopfld_ = new uiSpinBox( this, nrdecimals, "Z stop" );
     stopfld_->attach( rightOf, startfld_ );
@@ -448,7 +447,7 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 	, inlfld_(0)
 {
     BinID stp( 0, 1 );
-    uiString lbl = mJoinUiStrs( sTraceNumber(), sStep() );
+    uiString lbl = tr("Trace Number Step");
     uiSpinBox* firstbox = 0;
     if ( !is2d )
     {

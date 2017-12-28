@@ -147,8 +147,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     if ( type_ == Hor3D )
     {
 	mergehorbut_ = manipgrp->addButton( "mergehorizons",
-		       uiStrings::phrMerge(uiStrings::phrJoinStrings(
-		       uiStrings::s3D(), uiStrings::sHorizon(2))),
+		       uiStrings::phrMerge(uiStrings::s3DHorizon()),
 		       mCB(this,uiSurfaceMan,merge3dCB) );
     }
     if ( type_ == Hor3D || type_ == AnyHor )
@@ -281,13 +280,11 @@ void uiSurfaceMan::setToolButtonProperties()
 	if ( selhornms.size() > 1 )
 	{
 	    mSetButToolTip(mergehorbut_,"Merge ",selhornms.getDispString(2),
-			   "", uiStrings::phrMerge(uiStrings::phrJoinStrings(
-			   uiStrings::s3D(),uiStrings::sHorizon(2))))
+		    "", uiStrings::phrMerge(uiStrings::s3DHorizon(mPlural)))
 	}
 	else
-	    mergehorbut_->setToolTip(  uiStrings::phrMerge(
-				    uiStrings::phrJoinStrings(uiStrings::s3D(),
-				    uiStrings::sHorizon(2))) );
+	    mergehorbut_->setToolTip( uiStrings::phrMerge(
+					    uiStrings::s3DHorizon(mPlural)) );
     }
 
      if ( type_ == Body )

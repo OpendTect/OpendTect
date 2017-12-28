@@ -61,7 +61,7 @@ class uiDPSDispPropDlg : public uiDialog
 public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(this,uiDialog::Setup(mJoinUiStrs(sDisplay(),sProperties()),
+    : uiDialog(this,uiDialog::Setup(tr("Display properties"),
 				    uiString::empty(),mNoHelpKey).modal(false))
     , plotter_(plotter)
 {
@@ -76,8 +76,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 	colnms.add( dps.colName(colidx) );
 
     selfld_ = new uiLabeledComboBox(this, colnms.getUiStringSet(),
-			  uiStrings::phrJoinStrings( uiStrings::sAttribute(),
-						    tr("to display")));
+						tr("Attribute to display"));
     selfld_->attach( alignedBelow, typefld_ );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
@@ -322,7 +321,7 @@ void uiDataPointSet::mkToolBars()
 #undef mAddButton
 
     if ( !disptb_ )
-	disptb_ = new uiToolBar( this, tr("Display ToolBar") );
+	disptb_ = new uiToolBar( this, tr("Display Toolbar") );
 
     uiLabel* showlbl = new uiLabel( disptb_,uiStrings::sShow() );
     disptb_->addObject( showlbl, 3 );
@@ -711,7 +710,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
                                    uiString::empty(), mNoHelpKey) )
     , grpfld_(0)
 {
-    seltypefld_ = new uiGenInput( this, mJoinUiStrs(sPosition(), sType()),
+    seltypefld_ = new uiGenInput( this, tr("Position Type"),
 			BoolInpSpec(true,tr("X/Y"),toUiString("%1/%2").arg(
 			uiStrings::sInline()).arg(uiStrings::sCrossline())) );
     seltypefld_->valuechanged.notify( mCB(this,uiSelectPosDlg,selTypeChanged) );
@@ -1337,7 +1336,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     ctio.ctxt_.setName( "Cross-plot Data" );
     uiIOObjSelDlg seldlg( this, ctio );
     seldlg.selGrp()->getManipGroup()->addButton( "manxplot",
-		uiStrings::phrManage(mJoinUiStrs(sCrossPlot(),sData())),
+		uiStrings::phrManage(uiStrings::sCrossPlotData()),
 		mCB(this,uiDataPointSet,manage) );
     curseldlg_ = &seldlg;
     const bool selok = seldlg.go() && seldlg.ioObj();

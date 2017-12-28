@@ -203,8 +203,8 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 {
     CtxtIOObj ctio( PreLoadSurfacesTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
-    uiIOObjSelDlg hordlg( this, ctio, uiStrings::phrJoinStrings(
-				uiStrings::sOpen(),tr("pre-loaded settings")) );
+    uiIOObjSelDlg hordlg( this, ctio, uiStrings::phrOpen(
+						tr("pre-loaded settings")) );
     if ( !hordlg.go() || !hordlg.ioObj() )
 	return;
 
@@ -258,8 +258,8 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
 {
     CtxtIOObj ctio( PreLoadSurfacesTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = false;
-    uiIOObjSelDlg hordlg( this, ctio, uiStrings::phrJoinStrings(
-			  uiStrings::sSave(), tr("pre-loaded settings")) );
+    uiIOObjSelDlg hordlg( this, ctio, uiStrings::phrSave(
+						  tr("pre-loaded settings")) );
     if ( !hordlg.go() || !hordlg.ioObj() )
 	return;
 

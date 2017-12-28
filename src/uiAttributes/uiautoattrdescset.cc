@@ -135,7 +135,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 {
     defselfld_ = new uiGenInput( this, uiStrings::phrSelect(tr("from")),
 		     BoolInpSpec(true,tr("Survey-defined sets"),
-		     mJoinUiStrs(sDefault(),sSet(mPlural).toLower())) );
+		     tr("Default Sets")) );
     defselfld_->valuechanged.notify( mCB(this,uiAutoAttrSetOpen, setChg) );
 
     autoloadfld_ = new uiGenInput( this, uiString::empty(),
@@ -147,8 +147,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, autoloadfld_ );
 
-    uiListBox::Setup su( OD::ChooseOnlyOne, mJoinUiStrs(sDefault(),
-							       sSet(mPlural)) );
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Default Sets") );
     defattrlist_ = new uiListBox( this, su );
     defattrlist_->addItems( attribnames_.getUiStringSet() );
     defattrlist_->attach( alignedBelow, autoloadfld_ );

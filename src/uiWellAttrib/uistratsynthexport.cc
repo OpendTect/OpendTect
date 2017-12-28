@@ -135,7 +135,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     crnewfld_->valuechanged.notify( mCB(this,uiStratSynthExport,crNewChg) );
 
 
-    newlinenmfld_ = new uiGenInput( this, mJoinUiStrs(sNew(),sLineName()),
+    newlinenmfld_ = new uiGenInput( this, tr("New Line Name"),
 				    StringInpSpec() );
     newlinenmfld_->attach( alignedBelow, crnewfld_ );
     existlinenmsel_ = new uiSeis2DLineNameSel( this, true );
@@ -161,12 +161,11 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     poststcksel_ = new uiStratSynthOutSel( selgrp, tr("Post-stack line data")
 									,nms );
     nms.erase(); addNames( sslvls_, nms );
-    horsel_ = new uiStratSynthOutSel( selgrp, mJoinUiStrs(s2D(),
-					    sHorizon(mPlural).toLower()), nms );
+    horsel_ = new uiStratSynthOutSel( selgrp, uiStrings::s2DHorizon(mPlural)
+							    .toLower(), nms );
     horsel_->attach( alignedBelow, poststcksel_ );
     nms.erase(); addNames( presds_, nms );
-    prestcksel_ = new uiStratSynthOutSel( selgrp, mJoinUiStrs(sPreStack(),
-						      sData().toLower()), nms );
+    prestcksel_ = new uiStratSynthOutSel( selgrp, tr("PreStack Data"), nms );
     prestcksel_->attach( alignedBelow, horsel_ );
     selgrp->setHAlignObj( poststcksel_ );
     selgrp->attach( alignedBelow, geomgrp_ );

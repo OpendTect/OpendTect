@@ -242,8 +242,7 @@ uiGenRandPicks2DDlg::uiGenRandPicks2DDlg( uiParent* p,
 
     if ( hornms_.size() )
     {
-	horselfld_ = new uiLabeledComboBox( this, mJoinUiStrs(sHorizon(),
-							    sSelection()) );
+	horselfld_ = new uiLabeledComboBox( this, tr("Horizon Selection") );
 	horselfld_->box()->addItem( uiStrings::sSelect() );
 	horselfld_->box()->addItems( hornms_.getUiStringSet() );
 	horselfld_->box()->selectionChanged.notify(mCB(this,
@@ -270,8 +269,8 @@ uiGenRandPicks2DDlg::uiGenRandPicks2DDlg( uiParent* p,
 	horsel2fld_->attach( rightOf, horselfld_ );
     }
 
-    uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(),
-					       SI().zUnitString());
+    uiString zlbl = toUiString("%1 %2").arg(uiStrings::sZRange())
+				       .arg(SI().zUnitString());
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
     inpzrg.scale( mCast(float,SI().zDomain().userFactor()) );

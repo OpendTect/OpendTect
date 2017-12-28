@@ -120,8 +120,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
     robut = addButton( ReadOnly, tr("Toggle Read only : locked"), cb );
     setAlternative( robut, "unlock", tr("Toggle Read only : editable") );
     if ( withremove )
-	rembut = addButton( Remove, uiStrings::phrJoinStrings(
-			    uiStrings::sDelete(), uiStrings::sSelected()), cb );
+	rembut = addButton( Remove, uiStrings::phrDelete(tr("Selected")), cb );
     attach( rightOf, subj_.obj_ );
 }
 
@@ -274,8 +273,8 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
 {
     uiString titl = toUiString("%1 '%2'").arg(uiStrings::sRename())
 					       .arg(ioobj.uiName());
-    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(), sName()),
-			new StringInpSpec(ioobj.name()) );
+    uiGenInputDlg dlg( this, titl, tr("New Name"), 
+					    new StringInpSpec(ioobj.name()) );
     if ( !dlg.go() ) return false;
 
     BufferString newnm = dlg.text();

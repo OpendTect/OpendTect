@@ -143,11 +143,11 @@ void ZDomain::Def::set( IOPar& iop ) const
 
 
 uiString ZDomain::Def::getLabel() const
-{ return uiStrings::phrJoinStrings( userName(), unitStr(true) ); }
+{ return toUiString("%1 %2").arg( userName() ).arg( unitStr(true) ); }
 
 
 uiString ZDomain::Def::getRange() const
-{ return uiStrings::phrJoinStrings( userName(), uiStrings::sRange() ); }
+{ return tr("%1 Range").arg( userName() ); }
 
 
 const char* ZDomain::Def::fileUnitStr( bool withparens ) const

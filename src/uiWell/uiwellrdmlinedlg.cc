@@ -76,7 +76,7 @@ void uiWellSelGrp::createFields()
 				"Wells Table" );
     selwellstbl_->setNrCols( withpos_ ? 2 : 1 );
     selwellstbl_->setNrRows( 5 );
-    selwellstbl_->setColumnLabel( 0, mJoinUiStrs(sWell(),sName()) );
+    selwellstbl_->setColumnLabel( 0, uiStrings::sWellName() );
     selwellstbl_->setColumnWidth(0,90);
     if ( withpos_ )
     {

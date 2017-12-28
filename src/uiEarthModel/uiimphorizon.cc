@@ -82,7 +82,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , importReady(this)
 {
     setCaption(isgeom ? uiStrings::phrImport(uiStrings::sHorizon()) :
-			uiStrings::phrImport(mJoinUiStrs(sHorizon(),sData())));
+			uiStrings::phrImport(tr("Horizon Data")));
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     setDeleteOnClose( false );
     ctio_.ctxt_.forread_ = !isgeom_;
@@ -557,8 +557,7 @@ bool uiImportHorizon::checkInpFlds()
 
     const char* outpnm = outputfld_->getInput();
     if ( !outpnm || !*outpnm )
-	mErrRet( uiStrings::phrSelect(mJoinUiStrs(sOutput().toLower(),
-						  sHorizon().toLower())) );
+	mErrRet( uiStrings::phrSelect(tr("output horizon")) );
     if ( !outputfld_->commitInput() )
 	return false;
 

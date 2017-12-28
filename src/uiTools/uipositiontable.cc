@@ -71,8 +71,8 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
 	uiSeparator* hsep = new uiSeparator( this, "Separator" );
 	hsep->attach( stretchedBelow, table_ );
 
-	uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(),
-			SI().zUnitString());
+	uiString zlbl = toUiString("%1 %2").arg(uiStrings::sZRange()).arg(
+							SI().zUnitString());
 	zfld_ = new uiGenInput( this, zlbl,
 	    FloatInpIntervalSpec().setName("Z start",0).setName("Z stop",1) );
 	zfld_->setStretch( 0, 0 );

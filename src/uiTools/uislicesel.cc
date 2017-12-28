@@ -113,11 +113,9 @@ void uiSliceSel::createInlFld()
 
 void uiSliceSel::createCrlFld()
 {
-    uiString label = is2d_
-		? uiStrings::phrJoinStrings(uiStrings::sTrace(),
-					    uiStrings::sRange())
-		: (iscrl_ ? uiStrings::phrCrossline(uiStrings::sNumber())
-			  : uiStrings::phrCrossline(uiStrings::sRange()) );
+    uiString label = is2d_ ? uiStrings::sTraceRange() :
+		     (iscrl_ ? uiStrings::phrCrossline(tr("nr")) :
+			       uiStrings::phrCrossline(uiStrings::sRange()) );
     crl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
     crl1fld_ = new uiSpinBox( this, 0, "Crl Stop" );
@@ -129,8 +127,8 @@ void uiSliceSel::createCrlFld()
 
 void uiSliceSel::createZFld()
 {
-    uiString label = tr("%1 %2").arg(istsl_ ? tr("Z ") : uiStrings::sZRange()).
-		     arg(zdominfo_.unitStr(true));
+    uiString label = toUiString("%1 %2").arg(istsl_ ? tr("Z ") : 
+			uiStrings::sZRange()).arg(zdominfo_.unitStr(true));
     z0fld_ = new uiLabeledSpinBox( this, label, 0, istsl_ ? "Z" : "Z Start" );
     z1fld_ = new uiSpinBox( this, 0, "Z Stop" );
     z1fld_->attach( rightTo, z0fld_ );

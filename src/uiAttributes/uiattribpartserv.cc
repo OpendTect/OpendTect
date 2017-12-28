@@ -141,8 +141,8 @@ uiString uiAttribPartServer::getMenuText( bool is2d,
 		   .arg(uiStrings::sStored()).arg(uiStrings::s2D())
 		   .arg(uiStrings::sData());
     else
-	menutext = issteering ? mJoinUiStrs(sSteering(),sCube(mPlural)) :
-				mJoinUiStrs(sStored(),sCube(mPlural));
+	menutext = issteering ? uiStrings::sSteeringCube(mPlural) :
+				tr("Stored Cube");
 
     return endmenu ? m3Dots(menutext) : menutext;
 }
@@ -1425,8 +1425,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& ass,
 				    : &zdomain3dmnuitem_;
     uiString itmtxt = toUiString("%1 %2").arg(toUiString(zdinf.key()))
 			    .arg(useext ? (!is2d ? uiStrings::sCube(mPlural)
-			    : mJoinUiStrs(s2D(),sLine(mPlural)))
-			    : uiStrings::sData());
+			    : uiStrings::s2DLine()) : uiStrings::sData());
     zdomainmnuitem->text = itmtxt;
     zdomainmnuitem->removeItems();
     zdomainmnuitem->checkable = true;

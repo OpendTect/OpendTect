@@ -52,23 +52,17 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	ls_.fromString( str.buf() );
 
     uiGroup* topgrp = new uiGroup( this, "Info fields" );
-    uiString hdistlbl = uiStrings::phrJoinStrings(uiStrings::sHorizontal(),
-			uiStrings::phrJoinStrings(uiStrings::sDistance(),
-			SI().xyUnitString()) );
+    uiString hdistlbl = tr("Horizontal Distance %1").arg(SI().xyUnitString());
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
-    uiString zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
-			uiStrings::phrJoinStrings(uiStrings::sDistance(),
-			SI().zUnitString()) );
+    uiString zdistlbl = tr("Vertical Distance %1").arg(SI().zUnitString());
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
-    const uiString zintimelbl =
-			  uiStrings::phrJoinStrings(uiStrings::sVertical(),
-			  uiStrings::phrJoinStrings(uiStrings::sDistance(),
-			  SI().xyUnitString()) );
+    const uiString zintimelbl = tr("sVertical Distance %1")
+						    .arg(SI().xyUnitString());
     if ( SI().zIsTime() )
     {
 	zdist2fld_ = new uiGenInput( topgrp, zintimelbl, FloatInpSpec(0) );
@@ -80,17 +74,15 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	appvelfld_->attach( alignedBelow, zdist2fld_ );
     }
 
-    uiString distlbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
-		       SI().xyUnitString());
+    uiString distlbl = toUiString("%1 %2").arg(uiStrings::sDistance())
+						.arg(SI().xyUnitString());
     distfld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
 
     if ( !SI().zIsTime() && SI().xyInFeet() != SI().zInFeet() )
     {
-	uiString lbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
-		       SI().xyUnitString());
-	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
+	dist2fld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
 	dist2fld_->setReadOnly( true );
 	dist2fld_->attach( alignedBelow, distfld_ );
     }

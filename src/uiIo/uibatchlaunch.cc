@@ -99,9 +99,7 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     vwfilebut_->attach( rightOf, jobsfld_ );
     rmfilebut_ = uiToolButton::getStd( topgrp, OD::Delete,
 		 mCB(this,uiStartBatchJobDialog,rmFile),
-		 uiStrings::phrDelete(
-		 uiStrings::phrJoinStrings(uiStrings::sJob(),
-					   uiStrings::sFile())) );
+		 uiStrings::phrDelete(tr("Job File")) );
     rmfilebut_->attach( centeredRightOf, jobsfld_ );
 
     topgrp->setFrame( true );
@@ -116,8 +114,7 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
 				mCB(this,uiStartBatchJobDialog,launcherSel) );
 
     resumefld_ = new uiGenInput( botgrp, tr("Use already processed data"),
-	BoolInpSpec(false,uiStrings::sYes(),uiStrings::phrJoinStrings(
-			  uiStrings::sNo(),tr("(start from scratch)"))) );
+	BoolInpSpec(false,uiStrings::sYes(),tr("No, start from scratch")) );
     resumefld_->attach( alignedBelow, batchfld_ );
     resumefld_->attach( alignedBelow, invalidsellbl_ );
 

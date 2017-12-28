@@ -81,8 +81,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
     if ( onlyonechoice )
     {
 	if ( !optional )
-	    optionsbuttxt = uiStrings::phrJoinStrings(tr("Execution"),
-					uiStrings::sOptions());
+	    optionsbuttxt = tr("Execution Options");
 	else
 	{
 	    dobatchbox_ = new uiCheckBox( this, tr("Execute in Batch") );

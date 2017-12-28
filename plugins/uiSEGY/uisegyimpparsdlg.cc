@@ -79,7 +79,7 @@ void uiSEGYImpParsDlg::renCB( CallBacker* )
 
     const BufferString oldnm( listfld_->getText() );
     uiString titl( uiStrings::phrRename(toUiString("'%1'")).arg( oldnm ) );
-    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName()),
+    uiGenInputDlg dlg( this, titl, tr("New Name"),
 			new StringInpSpec(oldnm) );
     if ( !dlg.go() )
 	return;

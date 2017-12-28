@@ -308,7 +308,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     else
 	fssu.setForWrite();
     outfld_ = new uiFileSel( this,
-		multiwells ? mJoinUiStrs(sFile(),sDirectory())
+		multiwells ? tr("File Directory")
 			   : uiStrings::phrOutput(uiStrings::sFile()), fssu );
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )

@@ -41,7 +41,7 @@ mGlobal(Basic) void		setTime(IOPar&);
 */
 
 mExpClass(Basic) Def
-{
+{ mODTextTranslationClass(Def)
 public:
 
     typedef unsigned short  GenID;

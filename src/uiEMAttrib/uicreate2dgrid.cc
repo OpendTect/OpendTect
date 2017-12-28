@@ -482,7 +482,7 @@ uiGroup* uiCreate2DGrid::createHorizonGroup()
     horselfld_->attach( alignedBelow, horcheckfld_ );
 
     hornmfld_ = new uiGenInput( grp, tr("%1 name prefix")
-				     .arg(mJoinUiStrs(sHorizon(),s2D())) );
+					.arg(uiStrings::s2DHorizon()) );
     hornmfld_->attach( alignedBelow, horselfld_ );
 
     grp->setHAlignObj( hornmfld_ );

@@ -45,12 +45,11 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 			       .nrstatusflds(1).modal(false),mkCtxt())
 {
     createDefaultUI( false, false );
-    selgrp_->getManipGroup()->addButton( "delete", tr("Delete this Line"),
+    selgrp_->getManipGroup()->addButton( "delete", tr("Delete this line"),
 		     mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
     selgrp_->getManipGroup()->addButton( "browse2dgeom",
-	     mJoinUiStrs(sManage(), phrJoinStrings(uiStrings::sLine(),
-	     uiStrings::sGeometry())),
-	     mCB(this,ui2DGeomManageDlg,manLineGeom) );
+						    tr("Manage Line Geometry"),
+				mCB(this,ui2DGeomManageDlg,manLineGeom) );
 }
 
 ui2DGeomManageDlg::~ui2DGeomManageDlg()
@@ -100,18 +99,18 @@ class uiManageLineGeomDlg : public uiDialog
 public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
-    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sManage(),sLineGeometry()),
-			mNoDlgTitle,mODHelpKey(mManageLineGeomDlgHelpID)))
+    : uiDialog(p,uiDialog::Setup( tr("Manage Line Geometry"),mNoDlgTitle,
+				  mODHelpKey(mManageLineGeomDlgHelpID)))
     , linenm_(linenm),readonly_(readonly)
 {
     if ( readonly )
     {
 	setCtrlStyle( CloseOnly );
-	setCaption( uiStrings::phrJoinStrings(uiStrings::sBrowse(),
-		    uiStrings::sLineGeometry()) );
-    }
+	setCaption( tr("Browse Line Geometry") );
+    }  
 
-    uiString lbl( tr("%1: %2").arg(uiStrings::sLineName()).arg(linenm) );
+    uiString lbl( uiStrings::sLineName().addSpace().append(": ").append(
+							toUiString(linenm)) );
 
     uiLabel* titllbl = new uiLabel( this, lbl );
     titllbl->attach( hCentered );
@@ -144,15 +143,46 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
 
     if ( !readonly )
     {
-	readnewbut_ = new uiPushButton( this, mJoinUiStrs(sImport(),
-			phrJoinStrings(uiStrings::sNew(),
-			uiStrings::sGeometry())),
+	readnewbut_ = new uiPushButton( this, uiStrings::phrImport(
+			tr(" New Geometry")),
 			mCB(this,uiManageLineGeomDlg,impLineGeom), true );
 	readnewbut_->attach( centeredBelow, rgfld_ );
     }
 
     fillTable( geom2d->data() );
 }
+
+
+//---------- Import New Geomtery ----------------
+
+class uiGeom2DImpDlg : public uiDialog
+{ mODTextTranslationClass(uiGeom2DImpDlg);
+public:
+
+uiGeom2DImpDlg( uiParent* p, const char* linenm )
+    : uiDialog(p,uiDialog::Setup( tr("Import New Line Geometry"),
+				 toUiString(linenm),
+				 mODHelpKey(mGeom2DImpDlgHelpID)))
+{
+    setOkText( uiStrings::sImport() );
+    Table::FormatDesc* geomfd = Geom2dAscIO::getDesc();
+    geom2dinfld_ = new uiFileSel( this, tr("2D Geometry File"),
+				   uiFileSel::Setup().withexamine(true) );
+    dataselfld_ = new uiTableImpDataSel( this, *geomfd, mNoHelpKey );
+    dataselfld_->attach( alignedBelow, geom2dinfld_ );
+}
+
+bool acceptOK()
+{
+    if ( File::isEmpty(geom2dinfld_->fileName()) )
+    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
+    return true;
+}
+
+    uiFileSel*	geom2dinfld_;
+    uiTableImpDataSel*	dataselfld_;
+};
+
 
 void impLineGeom( CallBacker* )
 {

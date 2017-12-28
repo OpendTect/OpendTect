@@ -88,8 +88,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsfld_ );
-    logvwbut_ = butgrp->addButton( "view_log", mJoinUiStrs(sView(),
-					      sSelectedLog().toLower()),
+    logvwbut_ = butgrp->addButton( "view_log", tr("View selected log"),
 					      mCB(this,uiWellMan,viewLogPush) );
     logrenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
 		      uiStrings::phrRename(uiStrings::sSelectedLog().toLower()),
@@ -115,7 +114,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logsgrp_->attach( rightOf, selgrp_ );
 
     welltrackbut_ = new uiToolButton( extrabutgrp_, "edwelltrack",
-			uiStrings::phrEdit(mJoinUiStrs(sWell(),sTrack())),
+			uiStrings::phrEdit(uiStrings::sWellTrack()),
 			mCB(this,uiWellMan, edWellTrack) );
 
     if ( SI().zIsTime() )
@@ -240,7 +239,7 @@ void uiWellMan::setWellToolButtonProperties()
     const uiString edvwstr = curiswritable_ ? uiStrings::sEdit() :
 							     uiStrings::sView();
 
-    mSetWellButToolTip( welltrackbut_, mJoinUiStrs(sWell(),sTrack()) );
+    mSetWellButToolTip( welltrackbut_, uiStrings::sWellTrack() );
     if ( d2tbut_ )
 	mSetWellButToolTip( d2tbut_, tr("Depth/Time model") );
 
@@ -301,7 +300,7 @@ void uiWellMan::setLogToolButtonProperties()
     logvwbut_->setSensitive( canview );
 
     if ( !canview )
-	logvwbut_->setToolTip( mJoinUiStrs(sView(),sLog(mPlural).toLower()) );
+	logvwbut_->setToolTip( tr("View logs") );
     else
     {
 	BufferStringSet wellnms;
@@ -633,7 +632,7 @@ void uiWellMan::renameLogPush( CallBacker* )
     mEnsureLogSelected(uiStrings::sNoLogSel());
     BufferString lognm = logsfld_->getText();
     const uiString titl = uiStrings::phrRename(toUiString("'%1'").arg(lognm));
-    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName().toLower()),
+    uiGenInputDlg dlg( this, titl, uiStrings::sNewName().toLower(),
 				new StringInpSpec(lognm));
     if ( !dlg.go() )
 	return;

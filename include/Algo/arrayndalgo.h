@@ -1351,11 +1351,7 @@ public:
 		}
 
     uiString	nrDoneText() const
-		{
-		    return uiStrings::phrJoinStrings(
-						uiStrings::sInline(mPlural),
-						uiStrings::sDone().toLower() );
-		}
+		    { return tr("%1 done").arg(uiStrings::sInline(mPlural)); }
     uiString	message() const	{ return tr("Transferring grid data");}
 
 protected:

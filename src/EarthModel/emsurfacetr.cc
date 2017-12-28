@@ -29,8 +29,9 @@ ________________________________________________________________________
 
 
 uiString EMHorizon3DTranslatorGroup::sTypeName(int num)
-{ return SI().has2D() ? mJoinUiStrs(s3D(), sHorizon(num))
-		      : uiStrings::sHorizon(num); }
+{ 
+    return SI().has2D() ? uiStrings::s3DHorizon(num) : uiStrings::sHorizon(num); 
+}
 
 mDefSimpleTranslatorSelector(EMHorizon3D)
 
@@ -51,7 +52,9 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 
 
 uiString EMHorizon2DTranslatorGroup::sTypeName(int num)
-{ return mJoinUiStrs(s2D(), sHorizon(num)); }
+{
+    return uiStrings::s2DHorizon(num);
+}
 
 mDefSimpleTranslatorSelector(EMHorizon2D)
 

@@ -80,8 +80,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
     if ( ads_ && !ads_->is2D() )
     {
 	uiPosFilterSet::Setup fsu( false );
-	fsu.seltxt( mJoinUiStrs(sFilter(),sPosition(mPlural).toLower()) )
-							     .incprovs( true );
+	fsu.seltxt( tr("Filter positions") ).incprovs( true );
 	posfiltfld_ = new uiPosFilterSetSel( this, fsu );
 	posfiltfld_->attach( alignedBelow, radiusfld_ );
     }

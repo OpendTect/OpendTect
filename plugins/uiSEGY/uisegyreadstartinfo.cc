@@ -458,9 +458,6 @@ void uiSEGYReadStartInfo::manPSDefFlds()
 }
 
 
-#define mJoinUiStrRange( txt )\
-    uiStrings::phrJoinStrings( uiStrings::txt, rangestr )
-
 void uiSEGYReadStartInfo::updateCellTexts()
 {
     mGetGeomType( gt );
@@ -480,14 +477,14 @@ void uiSEGYReadStartInfo::updateCellTexts()
     else
     {
 	const uiString rangestr = uiStrings::sRange().toLower();
-	xittxt = mJoinUiStrRange( sXcoordinate() );
-	yittxt = mJoinUiStrRange( sYcoordinate() );
-	ky1ittxt = is2d ? mJoinUiStrRange( sTraceNumber() )
-			: mJoinUiStrRange( sInline() );
-	ky2ittxt = is2d ? mJoinUiStrRange( sSPNumber() )
-			: mJoinUiStrRange( sCrossline() );
+	xittxt = uiStrings::sXcoordinate().addSpace().append(rangestr);
+	yittxt = uiStrings::sYcoordinate().addSpace().append(rangestr);
+	ky1ittxt = is2d ? uiStrings::sTraceNumber().addSpace().append(rangestr)
+			: uiStrings::sInline().addSpace().append(rangestr);
+	ky2ittxt = is2d ? uiStrings::sSPNumber().addSpace().append(rangestr)
+			: uiStrings::sCrossline().addSpace().append(rangestr);
 	if ( isps )
-	    offsittxt = mJoinUiStrRange( sOffset() );
+	    offsittxt = uiStrings::sOffset().addSpace().append(rangestr);
 
 	if ( loaddef_.isRev0() )
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;

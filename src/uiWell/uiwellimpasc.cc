@@ -47,9 +47,9 @@ ________________________________________________________________________
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(mJoinUiStrs(sWell(),
-			   sTrack())),mNoDlgTitle,
-			   mODHelpKey(mWellImportAscHelpID)).modal(false))
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(uiStrings::sWellTrack()),
+				mNoDlgTitle, mODHelpKey(mWellImportAscHelpID))
+				.modal(false))
     , fd_(*Well::TrackAscIO::getDesc())
     , wd_(*new Well::Data)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
@@ -62,8 +62,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     havetrckbox_->setChecked( true );
     havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 
-    trckinpfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(
-		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
+    trckinpfld_ = new uiFileSel( this, tr("Well Track File"),
 		   uiFileSel::Setup().withexamine(true) );
     trckinpfld_->newSelection.notify( mCB(this,uiWellImportAsc,inputChgd) );
     trckinpfld_->attach( rightOf, havetrckbox_ );
@@ -77,8 +76,8 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     dataselfld_->attach( alignedBelow, trckinpfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiWellImportAsc,trckFmtChg) );
 
-    uiString coordunitslbl = uiStrings::phrJoinStrings(uiStrings::sCoordinate(),
-						      SI().xyUnitString());
+    uiString coordunitslbl = toUiString("%1 %2").arg(uiStrings::sCoordinate())
+						.arg(SI().xyUnitString());
     coordfld_ = new uiGenInput( this, coordunitslbl,
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );

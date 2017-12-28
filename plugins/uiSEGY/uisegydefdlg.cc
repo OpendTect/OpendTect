@@ -341,8 +341,8 @@ void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
 	}
 	else
 	{
-	    uiString tttext( uiStrings::phrCannotFind(uiStrings::phrJoinStrings
-			     (uiStrings::sFile(),toUiString(fp.fullPath()))) );
+	    uiString tttext( uiStrings::phrCannotFind(toUiString("%1 %2")
+		    .arg(uiStrings::sFile()).arg(toUiString(fp.fullPath()))) );
 	    filetable_->setCellToolTip( rc, tttext );
 	    filetable_->setCellColor( rc, Color::Red() );
 	}

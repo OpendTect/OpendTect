@@ -59,7 +59,7 @@ uiPreStackSel::uiPreStackSel( uiParent* p, bool is2d )
     const IOObjContext ctxt( uiSeisSel::ioContext(sssu.geom_, true ) );
     seisinpfld_ = new uiSeisSel( this, ctxt, sssu );
 
-    uiString seltxt = uiStrings::phrSelect(mJoinUiStrs(sPreStack(),sData()));
+    uiString seltxt = uiStrings::phrSelect(uiStrings::sPreStackData());
     datapackinpfld_ = new uiIOSelect( this, uiIOSelect::Setup(seltxt),
 				mCB(this,uiPreStackSel,doSelDataPack));
 

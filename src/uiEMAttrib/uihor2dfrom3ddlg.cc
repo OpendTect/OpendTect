@@ -34,8 +34,7 @@ ________________________________________________________________________
 
 uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrCreate(tr("%1 from %2")
-			  .arg(uiStrings::phrJoinStrings(uiStrings::s2D(),
-			  uiStrings::sHorizon().toLower()))
+			  .arg(tr("2D Horizon"))
 			  .arg(uiStrings::s3D())), mNoDlgTitle,
 			  mODHelpKey(mHor2DFrom3DDlgHelpID)))
 {

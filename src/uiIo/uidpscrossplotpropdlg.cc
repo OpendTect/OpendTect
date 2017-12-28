@@ -71,8 +71,7 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 	flds->doclipfld_->attach( alignedBelow, axlcb );
 	flds->percclipfld_->attach( alignedBelow, flds->doclipfld_ );
 
-	flds->rgfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
-				uiStrings::sAxis(),tr("range/step")),
+	flds->rgfld_ = new uiGenInput( this, tr("Axis Range/Step"),
 				FloatInpIntervalSpec(axhndlr->range()) );
 	flds->rgfld_->attach( alignedBelow, flds->doclipfld_ );
     }
@@ -311,7 +310,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 	shwy2userdefpolyline_->attach( alignedBelow, inpfld1_ );
     }
 
-    drawlinefld_ = new uiCheckBox( this, mJoinUiStrs(sDraw(),sLine()) );
+    drawlinefld_ = new uiCheckBox( this, tr("Draw Line") );
     drawlinefld_->attach( alignedBelow, hasy2_ ? shwy2userdefpolyline_
 	    : shwy1userdefpolyline_ );
     drawlinefld_->activated.notify( mCB(this,uiDPSUserDefTab,checkedCB) );
@@ -320,9 +319,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     {
 	selaxisfld_ =
 	    new uiGenInput( this, uiString::empty(),
-                            BoolInpSpec( true,uiStrings::phrJoinStrings(
-			    uiStrings::sDraw(),tr("Y1")),
-			    mJoinUiStrs(sDraw(), sY2())) );
+                            BoolInpSpec(true, tr("Draw Y1"),tr("Draw Y2")) );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
 	selaxisfld_->valuechanged.notify(
 		mCB(this,uiDPSUserDefTab,drawAxisChanged) );
@@ -730,7 +727,7 @@ class uiDPSCPDisplayPropTab : public uiDlgGroup
 public:
 
 uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),mJoinUiStrs(sDisplay(), sProperties()))
+    : uiDlgGroup(p->tabParent(),tr("Display Properties"))
     , plotter_(p->plotter())
     , hasy2_(p->plotter().axisHandler(2))
     , shapeenums_( OD::MarkerStyle2D::TypeDef() )
@@ -749,16 +746,14 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
 
     Color yaxiscol = plotter_.axisHandler(1)->setup().style_.color_;
     ycolinpfld_ = new uiColorInput( this, uiColorInput::Setup(yaxiscol)
-		      .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY(),
-		      mJoinUiStrs(sAxis(), sColor()))));
+		      .lbltxt(tr("Y Axis Color")) );
     ycolinpfld_->attach( alignedBelow, llb );
 
     if ( hasy2_ )
     {
 	Color y2axiscol = plotter_.axisHandler(2)->setup().style_.color_;
 	y2colinpfld_ = new uiColorInput( this, uiColorInput::Setup(y2axiscol)
-		       .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY2(),
-		       mJoinUiStrs(sAxis(), sColor()))));
+		       .lbltxt(tr("Y2 Axis Color")) );
 	y2colinpfld_->attach( alignedBelow, ycolinpfld_ );
     }
 }
@@ -832,14 +827,15 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
 	width = plotter_.axisHandler(0)->pixRange().width();
     if ( plotter_.axisHandler(1) )
 	height = plotter_.axisHandler(1)->pixRange().width();
-    uiString  whcelltxt = tr("Nr of Cells across");
-    wcellszfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(whcelltxt,
-		      uiStrings::sWidth()), IntInpSpec(width/cellsize) );
+    uiString  whcelltxt = tr("Nr of Cells across %1",
+					"%1 could be width or height");
+    wcellszfld_ = new uiGenInput( this, whcelltxt.arg(uiStrings::sWidth()),
+				    IntInpSpec(width/cellsize) );
     wcellszfld_->attach( alignedBelow, cellsizefld_ );
     wcellszfld_->valuechanged.notify(
 	    mCB(this,uiDPSDensPlotSetTab,wCellNrChanged) );
-    hcellszfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(whcelltxt,
-		      uiStrings::sHeight()), IntInpSpec(height/cellsize) );
+    hcellszfld_ = new uiGenInput( this, whcelltxt.arg(uiStrings::sHeight()),
+					 IntInpSpec(height/cellsize) );
     hcellszfld_->attach( alignedBelow, wcellszfld_ );
     hcellszfld_->valuechanged.notify(
 	    mCB(this,uiDPSDensPlotSetTab,hCellNrChanged) );

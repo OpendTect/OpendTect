@@ -141,8 +141,7 @@ uiTreeItemTBHandler::uiTreeItemTBHandler( uiParent* uiparent )
     : MenuHandler(-1)
     , uiparent_(uiparent)
 {
-    tb_ = new uiToolBar( uiparent_, uiStrings::phrJoinStrings(
-	    uiStrings::sItem(), uiStrings::sTools()), uiToolBar::Top, true );
+    tb_ = new uiToolBar( uiparent_, tr("Item Tools"), uiToolBar::Top, true );
     tb_->buttonClicked.notify( mCB(this,uiTreeItemTBHandler,butClickCB) );
     handleEmpty();
 }

@@ -60,9 +60,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     manipgrp->nextButtonOnNewRowCol();
     manipgrp->addButton( "impfromothsurv", tr("Get from other survey"),
 			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
-    disppropbut_ = manipgrp->addButton( "info", mJoinUiStrs(sDisplay(),
-				sProperties()), mCB(this,uiSeisWvltMan,
-				dispProperties) );
+    disppropbut_ = manipgrp->addButton( "info", uiStrings::sDisplayProp(mPlural),
+				mCB(this,uiSeisWvltMan, dispProperties) );
 
     revpolbut_ = manipgrp->addButton( "revpol", tr("Reverse polarity"),
 				mCB(this,uiSeisWvltMan,reversePolarity) );
@@ -241,7 +240,7 @@ void uiSeisWvltMan::ownSelChg()
     mSetButToolTip(disppropbut_,toUiString("%1 %2 %3")
 		   .arg(uiStrings::sDisplay()).arg(wvltname)
 		   .arg(uiStrings::sProperties().toLower()),
-		   mJoinUiStrs(sDisplay(),sProperties().toLower()));
+		   uiStrings::sDisplayProp(mPlural).toLower());
 }
 
 
@@ -399,6 +398,7 @@ void uiSeisWvltMan::taper( CallBacker* )
 	{ mStoreWvltChg(); }
 }
 
+#define mErr() mErrRet( uiStrings::phrCannotCreate(uiStrings::sWavelet()) );
 
 void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 {

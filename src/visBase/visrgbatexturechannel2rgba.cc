@@ -61,7 +61,7 @@ void RGBATextureChannel2RGBA::getChannelName( int channel,
     }
 
     if ( !layername.isEmpty() )
-	res = uiStrings::phrJoinStrings( layername, uiStrings::sLayer() );
+	res = toUiString("%1 %2").arg(layername).arg(uiStrings::sLayer());
 }
 
 

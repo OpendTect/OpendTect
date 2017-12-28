@@ -325,9 +325,7 @@ uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 {
     setOkText( uiStrings::sImport() );
     uiFileSel::Setup fssu; fssu.withexamine( true );
-    wtinfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(
-		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
-		   fssu );
+    wtinfld_ = new uiFileSel( this, tr("Well Track File"), fssu );
     wtinfld_->newSelection.notify( mCB(this,uiWellTrackReadDlg,inputChgd) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,

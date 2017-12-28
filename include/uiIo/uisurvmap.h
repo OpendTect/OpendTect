@@ -101,7 +101,7 @@ protected:
 
 
 mExpClass(uiIo) uiSurveyMap : public uiBaseMap
-{
+{ mODTextTranslationClass(uiSurveyMap)
 public:
 			uiSurveyMap(uiParent*,bool withtitle=true);
 

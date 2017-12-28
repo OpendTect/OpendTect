@@ -10,6 +10,10 @@
 class uiFileSel;
 
 uiString kmlFileuiString();
+uiString sOutFileName()
+{
+    return od_static_tr("sOutFileName","output file name");
+}
 
 #define mDecluiGoogleExpStd \
     uiFileSel*		fnmfld_; \
@@ -27,8 +31,7 @@ uiString kmlFileuiString();
 #define mCreateWriter(typ,survnm) \
     const BufferString fnm( fnmfld_->fileName() ); \
     if ( fnm.isEmpty() ) \
-	{ uiMSG().error(uiStrings::phrEnter(mJoinUiStrs( \
-		    sOutputFile().toLower(), sName().toLower()))); \
+	{ uiMSG().error(uiStrings::phrEnter(sOutFileName())); \
 	  return false; } \
  \
     ODGoogle::XMLWriter wrr( typ, fnm, survnm ); \

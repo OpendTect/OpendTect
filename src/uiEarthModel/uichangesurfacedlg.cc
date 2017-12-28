@@ -162,8 +162,7 @@ bool uiChangeHorizonDlg::acceptOK()
 {
     if ( inputfld_ && !inputfld_->commitInput() )
     {
-	uiMSG().error( uiStrings::phrSelect(mJoinUiStrs(
-				    sInput().toLower(),sHorizon().toLower())) );
+	uiMSG().error( uiStrings::phrSelect(tr("input horizon")) );
 	return false;
     }
 
@@ -195,7 +194,7 @@ bool uiChangeHorizonDlg::acceptOK()
 //---- uiFilterHorizonDlg
 
 uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
-    : uiChangeHorizonDlg(p,hor,false,tr("Horizon filtering"))
+    : uiChangeHorizonDlg(p,hor,false, tr("Horizon filtering"))
 {
     Array2DFilterPars filterpars( Stats::Median );
     parsgrp_ = new uiArr2DFilterPars( this, &filterpars );

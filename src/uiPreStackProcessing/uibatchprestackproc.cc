@@ -35,8 +35,7 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
 			       .arg(is2d_ ? uiStrings::s2D() : uiStrings::s3D())
 			       .arg(uiStrings::sProcessing());
     setCaption( dlgnm );
-    uiString lbl = uiStrings::phrJoinStrings( uiStrings::sProcessing(),
-					      uiStrings::sSetup() );
+    uiString lbl = tr("Processing Setup");
     chainsel_ = new uiProcSel( pargrp_, lbl, 0 );
     chainsel_->selectionDone.notify( mCB(this,uiBatchProcSetup,setupSelCB) );
 

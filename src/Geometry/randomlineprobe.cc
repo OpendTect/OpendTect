@@ -23,9 +23,8 @@ mDefineInstanceCreatedNotifierAccess( RandomLineProbe );
 Geometry::RandomLine* RandomLineProbe::createNewDefaultRDL()
 {
     newrdlid++;
-    uiString newrdlname =
-	uiStrings::phrJoinStrings( uiStrings::sRandomLine(),
-				   toUiString(newrdlid) );
+    uiString newrdlname = toUiString( "%1 %2" ).arg(uiStrings::sRandomLine())
+						.arg(newrdlid);
     Geometry::RandomLine* rl =
 		new Geometry::RandomLine( toString(newrdlname) );
     const StepInterval<int> inlrange = SI().inlRange( true );

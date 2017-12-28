@@ -1140,7 +1140,8 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 		curviewmode_ = ui3DViewer::Z; break;
     case 3: pm = "view_N"; dir = uiStrings::sNorth(false);
 		curviewmode_ = ui3DViewer::Y; break;
-    case 4: pm = "view_NZ"; dir = mJoinUiStrs(sNorth(false),sZ());
+    case 4: pm = "view_NZ"; dir = uiStrings::sNorth(false).addSpace()
+						    .append(uiStrings::sZ());
 		curviewmode_ = ui3DViewer::YZ; break;
     }
 

@@ -182,13 +182,11 @@ bool testLargeNumberStrings()
 
 bool testToLower()
 {
-    uiString string = uiStrings::phrJoinStrings( uiStrings::sInput(),
-					    uiStrings::sHorizon().toLower() );
+    uiString string = uiStrings::phrInput( uiStrings::sHorizon().toLower() );
     BufferString bstr = toString( string );
     mRunStandardTest( bstr=="Input horizon", "To lower" );
 
-    uiString string2 = uiStrings::phrJoinStrings( uiStrings::sInput(),
-						 uiStrings::sHorizon() );
+    uiString string2 = uiStrings::phrInput( uiStrings::sHorizon() );
     bstr = toString( string2 );
     mRunStandardTest( bstr=="Input Horizon", "To lower does not affect orig" );
 

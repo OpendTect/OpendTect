@@ -44,9 +44,7 @@ public:
 	    Setup( const uiString& sztxt=uiString::empty(),
 		   const uiString& coltxt=uiString::empty() )
 		: mysztxt_(!sztxt.isEmpty() ? sztxt : tr("Line thickness"))
-		, mycoltxt_(!coltxt.isEmpty() ? coltxt :
-			     uiStrings::phrJoinStrings(uiStrings::sLine(),
-			     uiStrings::sColor().toLower()) )
+		, mycoltxt_(!coltxt.isEmpty() ? coltxt : tr("Line Color"))
 		, onlyfor2ddisplay_(false) {}
 	    mDefSetupMemb(uiString,mysztxt)
 	    mDefSetupMemb(uiString,mycoltxt)

@@ -180,10 +180,10 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 
 #define mGetWinNm(ioobj) \
     mGet( ioobj,\
-	uiStrings::phrCopy(uiStrings::phrJoinStrings(uiStrings::s2D(),  \
-	uiStrings::sHorizon(1))), \
-	uiStrings::phrCopy(uiStrings::phrJoinStrings(uiStrings::s3D(),  \
-	uiStrings::sHorizon(1))), \
+	uiStrings::phrCopy(toUiString("%1 %2").arg(uiStrings::s2D())  \
+					    .arg(uiStrings::sHorizon(1))), \
+	uiStrings::phrCopy(toUiString("%1 %2").arg(uiStrings::s3D())  \
+					    .arg(uiStrings::sHorizon(1))), \
 	uiStrings::phrCopy(uiStrings::sFaultStickSet()), \
 	uiStrings::phrCopy(uiStrings::sFault())) \
 

@@ -384,8 +384,8 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
 {
     if ( !wtsetup_.vellognm_.isEmpty() )
     {
-	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
-			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
+	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(uiStrings::sWellData()
+								.toLower()))
 	ConstRefMan<Well::Log> vp
 		    = wd_->logs().getLogByName( wtsetup_.vellognm_ );
 	if ( !vp )
@@ -411,8 +411,8 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
 {
     if ( !wtsetup_.denlognm_.isEmpty() )
     {
-	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
-			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
+	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind( uiStrings::sWellData()
+								.toLower()))
 	ConstRefMan<Well::Log> den
 	    = wd_->logs().getLogByName( wtsetup_.denlognm_ );
 	if ( !den )
@@ -481,7 +481,7 @@ bool uiTieWinMGRDlg::initSetup()
 	const DBKey seisid = seisfld->key();
 	if ( seisid.isInvalid() )
 	    mErrRet(uiStrings::phrSelect(uiStrings::phrInput(
-					  mJoinUiStrs(sWell(),sData()))))
+						uiStrings::sWellData())))
 	    // msg required because the seismic is optional
 
 	wtsetup_.seisid_ = seisid;

@@ -126,8 +126,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	ctxt.forread_ = false;
 	ctxt.fixTranslator( "MultiCube" );
 	datastorefld_ = new uiIOObjSel( pargrp_, ctxt,
-			    uiStrings::phrOutput(uiStrings::phrJoinStrings(
-			    uiStrings::sPreStack(),tr("DataStore"))) );
+			    uiStrings::phrOutput(tr("%1 DataStore").arg(
+			    uiStrings::sPreStack())) );
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 0, 100 );

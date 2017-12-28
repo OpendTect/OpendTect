@@ -122,9 +122,9 @@ bool SafeFileIO::openRead( bool ignorelock )
 	}
 	else
 	{
-	    errmsg_ = uiStrings::phrJoinStrings( uiStrings::sCantOpenInpFile(),
-				 toUiString(BufferString(": ",toopen)) );
-	    errmsg_.appendPhrase( uiStrings::sCheckPermissions() );
+	    errmsg_ = uiStrings::phrCannotOpen(
+				    toUiString(BufferString(": ",toopen)));
+		errmsg_.appendPhrase( uiStrings::sCheckPermissions() );
 	}
 
 	rmLock();
@@ -165,7 +165,8 @@ bool SafeFileIO::openWrite( bool ignorelock )
 	}
 	else
 	{
-	    errmsg_ =  tr("Cannot open output file : %1").arg(newfnm_);
+	    errmsg_ = uiStrings::phrCannotOpen(
+				    toUiString(BufferString(": ",newfnm_)));
 	    errmsg_.appendPhrase( uiStrings::sCheckPermissions() );
 	}
 

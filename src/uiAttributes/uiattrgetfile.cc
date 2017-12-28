@@ -174,7 +174,7 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
     fssu.initialselectiondir( sImportDir )
 	.setFormat( tr("Attribute Sets"), "attr" );
     fileinpfld_ = new uiFileSel( this, uiStrings::phrSelect(
-		      mJoinUiStrs(sInput(),sFile())), fssu );
+					    uiStrings::sInputFile()), fssu );
 
     PtrMan<IOObjContext> ctxt = Attrib::DescSet::getIOObjContext( false );
     attrsetfld_ = new uiIOObjSel( this, *ctxt,

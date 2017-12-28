@@ -558,7 +558,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 
     uiLabel* lbl = new uiLabel(this, lbltxt.appendPlainText(lbltxtapnd, true));
 
-    lbltxt = tr("Contour range");
+    lbltxt = tr("Contour Range").addSpace();
     mAddZUnitStr(lbltxt);
     intvfld_ = new uiGenInput(this,lbltxt,FloatInpIntervalSpec(contourintv_));
     intvfld_->valuechanged.notify( mCB(this,uiContourParsDlg,intvChanged) );

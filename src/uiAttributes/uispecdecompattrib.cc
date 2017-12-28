@@ -75,9 +75,10 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     tfpanelbut_ = new uiPushButton( this, tfstr, cbtfpanel, true );
     tfpanelbut_->attach( alignedBelow, gatefld_ );
 
-    uiString lbl = uiStrings::phrOutput(uiStrings::phrJoinStrings(
-	uiStrings::sFrequency().toLower(), toUiString("(%1)")
-	.arg(zIsTime() ? "Hz" : (SI().zInMeter() ? "/km" : "/kft"))));
+    uiString lbl = uiStrings::phrOutput(toUiString("%1 (%2)")
+		.arg(uiStrings::sFrequency().toLower())
+		.arg(zIsTime() ? tr("Hz") : (SI().zInMeter() ? tr("cycles/km")
+		: tr("cycles/kft"))));
     outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
     outpfld_->attach( alignedBelow, tfpanelbut_ );
     outpfld_->box()->doSnap( true );

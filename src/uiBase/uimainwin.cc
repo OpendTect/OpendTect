@@ -1879,9 +1879,9 @@ uiObject* uiDialogBody::createChildren()
 	helpbut_ = uiButton::getStd( centralwidget_, OD::Help,
 				mCB(this,uiDialogBody,provideHelp), true );
 	if ( shwhid )
-	    helpbut_->setToolTip( uiStrings::phrJoinStrings(
-	    toUiString(dlg.helpKey().providername_),
-	    toUiString(dlg.helpKey().argument_)) );
+	    helpbut_->setToolTip( toUiString("%1 %2")
+			    .arg(toUiString(dlg.helpKey().providername_))
+			    .arg(toUiString(dlg.helpKey().argument_)) );
 	else
 	    helpbut_->setToolTip( tr("Help on this window") );
     }

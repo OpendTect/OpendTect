@@ -198,8 +198,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 
     uiFileSel::Setup dirfssu( tempstordir_ );
     dirfssu.selectDirectory();
-    tmpstordirfld_ = new uiFileSel( this, uiStrings::phrJoinStrings(
-				    tr("Temporary"), uiStrings::sStorageDir()),
+    tmpstordirfld_ = new uiFileSel( this, tr("Temporary Storage Directory"),
 				    dirfssu );
     tmpstordirfld_->attach( alignedBelow, parfilefld_ );
 

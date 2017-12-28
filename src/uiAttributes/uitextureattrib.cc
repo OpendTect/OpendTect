@@ -90,7 +90,7 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
     glcmsizefld_->attach( alignedBelow, actionfld_ );
 
     globalminfld_ = new uiGenInput( this, uiStrings::phrInput(
-			       mJoinUiStrs(sData(),sRange())), FloatInpSpec() );
+				    uiStrings::sDataRange()), FloatInpSpec() );
     globalminfld_->setElemSzPol(uiObject::Small);
     globalminfld_->attach( alignedBelow, glcmsizefld_ );
     globalmaxfld_ = new uiGenInput( this, uiString::empty(),

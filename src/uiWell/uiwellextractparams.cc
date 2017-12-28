@@ -273,11 +273,11 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 				    : s.defmeterstep_;
 	const float timestep = SI().zStep()*ztimefac_;
 	params().zstep_ = dptstep;
-	uiString dptstpbuf = uiStrings::phrJoinStrings(uiStrings::sStep(),
-					SI().xyUnitString(true,true));
+	uiString dptstpbuf = toUiString("%1 %2").arg(uiStrings::sStep()).arg(
+					SI().xyUnitString());
 	uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true, true );
-	uiString timestpbuf = uiStrings::phrJoinStrings(uiStrings::sStep(),
-								   timelbl);
+	uiString timestpbuf = toUiString("%1 %2").arg(uiStrings::sStep())
+						 .arg(timelbl);
 	depthstepfld_ = new uiGenInput(this, dptstpbuf, FloatInpSpec(dptstep));
 	timestepfld_ = new uiGenInput(this, timestpbuf, FloatInpSpec(timestep));
 	depthstepfld_->setElemSzPol( uiObject::Small );

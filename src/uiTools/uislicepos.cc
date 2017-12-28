@@ -27,8 +27,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
     , curcs_(!DBM().isBad())
     , zfactor_(mUdf(int))
 {
-    toolbar_ = new uiToolBar( p, uiStrings::phrJoinStrings(uiStrings::sSlice(),
-			      uiStrings::sPosition()) );
+    toolbar_ = new uiToolBar( p, tr("Slice Position") );
 
     boxlabels_.add( uiStrings::sInline() );
     boxlabels_.add( uiStrings::sCrossline() );

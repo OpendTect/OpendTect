@@ -101,10 +101,11 @@ class uiSeisBayesPDFInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(uiStrings::phrJoinStrings(sKeyBayesClss()
-				,tr("- PDFs")), tr("[1] Specify PDF input"),
-				 mODHelpKey(mSeisBayesPDFInpHelpID) ),
-                                 pars,Start)
+    : uiVarWizardDlg(p,uiDialog::Setup(toUiString("%1 - PDFs")
+				    .arg(sKeyBayesClss()),
+				    tr("[1] Specify PDF input"),
+				    mODHelpKey(mSeisBayesPDFInpHelpID) ),
+				    pars,Start)
     , nrdisp_(1)
 {
     rmbuts_.setNullAllowed(); addbuts_.setNullAllowed();
@@ -244,8 +245,8 @@ class uiSeisBayesNorm : public uiVarWizardDlg
 public:
 
 uiSeisBayesNorm( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(uiStrings::phrJoinStrings(sKeyBayesClss()
-			 ,tr("- Scaling")), tr("[2] Normalization/Scaling"),
+    : uiVarWizardDlg(p,uiDialog::Setup(tr("%1 - Sacaling").arg(sKeyBayesClss()),
+			 tr("[2] Normalization/Scaling"),
 			 mODHelpKey(mSeisBayesNormHelpID) ), pars, Middle )
     , is2d_(*pars[sKey::Type()] == '2')
     , prenormfld_(0)

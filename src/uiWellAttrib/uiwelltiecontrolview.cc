@@ -213,10 +213,9 @@ public :
 	sep->attach( stretchedBelow, topgrp );
 
 	mrkdispfld_ = new uiWellMarkersDispProperties( this,
-		uiWellDispProperties::Setup(
-		mJoinUiStrs(sMarker(),sSize().toLower()),
-		mJoinUiStrs(sMarker(),sColor().toLower()))
-		.onlyfor2ddisplay(true), pms_.mrkdisp_, pms_.allmarkernms_ );
+		uiWellDispProperties::Setup(tr("Marker size"), 
+		tr("Marker Color")).onlyfor2ddisplay(true), pms_.mrkdisp_, 
+		pms_.allmarkernms_ );
 	mrkdispfld_->attach( ensureBelow, sep );
 	mrkdispfld_->attach( alignedBelow, topgrp );
 	mrkdispfld_->putToScreen();

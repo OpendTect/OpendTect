@@ -143,8 +143,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     aliasfld_->attach( alignedBelow, namefld_ );
 
     colfld_ = new uiColorInput( this, uiColorInput::Setup(pr_.disp_.color_)
-			.lbltxt(uiStrings::phrJoinStrings(uiStrings::sDefault(),
-			mJoinUiStrs(sDisplay(),sColor()))));
+			.lbltxt(tr("Default Display Color")));
     colfld_->attach( alignedBelow, aliasfld_ );
     rgfld_ = new uiGenInput( this, tr("Typical value range"),
 			     FloatInpIntervalSpec() );
@@ -165,7 +164,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     }
     rgfld_->setValue( vintv );
 
-    defaultfld_ = new uiGenInput( this, mJoinUiStrs(sDefault(), sValue()) );;
+    defaultfld_ = new uiGenInput( this, tr("Default Value") );
     defaultfld_->attach( alignedBelow, rgfld_ );
     if ( !pr_.disp_.defval_ || pr_.disp_.defval_->isValue() )
     {

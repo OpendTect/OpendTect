@@ -71,7 +71,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 						  .manualresize(true)
 						  .selmode(uiTable::Multi),
 		        "Data Table" );
-    tbl_->setColumnLabel( 0, mJoinUiStrs(sWell(),sName().toLower()) );
+    tbl_->setColumnLabel( 0, tr("Well Name") );
     const uiString xunstr = SI().xyUnitString();
     tbl_->setColumnLabel( 1, toUiString("[%1%2]").arg(uiStrings::sX())
 								.arg(xunstr) );
@@ -203,7 +203,7 @@ bool acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( uiStrings::phrEnter(mJoinUiStrs(sInputFile(),sName())) )
+	mErrRet( uiStrings::phrEnter(uiStrings::sInpFileName()) )
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile()))

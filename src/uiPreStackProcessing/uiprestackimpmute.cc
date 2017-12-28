@@ -99,11 +99,11 @@ bool uiImportMute::acceptOK()
     MuteDef mutedef;
 
     if ( !*inpfld_->fileName() )
-	mErrRet( uiStrings::phrSelect(mJoinUiStrs(sInput(),sFile())) )
+	mErrRet( uiStrings::phrSelect(uiStrings::sInputFile()) )
 
     od_istream strm( inpfld_->fileName() );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::phrCannotOpen(mJoinUiStrs(sInput(),sFile())) )
+	mErrRet( uiStrings::phrCannotOpen(uiStrings::sInputFile()) )
 
     MuteAscIO muteascio( fd_, strm );
 

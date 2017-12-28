@@ -607,9 +607,8 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     , changed_(false)
     , valueChanged(this)
 {
-    uiString dlgcaption = uiStrings::phrEdit(uiStrings::phrJoinStrings(
-				     toUiString("'%1'").arg(toUiString(
-				     log.name())),uiStrings::sLog().toLower()));
+    uiString dlgcaption = uiStrings::phrEdit(toUiString("'%1' Logs")
+						.arg(toUiString(log.name())));
     setCaption( dlgcaption );
     uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true);
     table_ = new uiTable( this, ts, "Well log table" );

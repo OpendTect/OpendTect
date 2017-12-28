@@ -52,7 +52,7 @@ void uiCompoundParSel::finishCreation( const uiString& seltxt,
 {
     selbut_->attach( rightOf, txtfld_ );
 
-    const uiString stnm = uiStrings::phrJoinStrings(btxt,seltxt);
+    const uiString stnm = toUiString("%1 %2").arg(btxt).arg(seltxt);
     selbut_->setName( mFromUiStringTodo(stnm) );
 
     setHAlignObj( txtfld_ );
