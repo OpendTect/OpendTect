@@ -57,7 +57,7 @@ mExpClass(Geometry) Line2DInterSection
 {
 public:
 
-    struct Point
+    mExpStruct(Geometry) Point
     {
 			Point(Pos::GeomID id,int mynr,int linenr)
 			    : line(id),mytrcnr(mynr),linetrcnr(linenr)
@@ -133,6 +133,7 @@ protected:
     bool		doWork(od_int64 start,od_int64 stop,int threadid);
     bool		doFinish(bool success);
     Threads::Lock	lock_;
+    int			counter_;
 };
 
 #endif
