@@ -650,47 +650,29 @@ void uiODMenuMgr::fillProcMenu()
 		    mCompBetweenHor2DMnuItm, mCompBetweenHor3DMnuItm );
 
 
-// 2D <-> 3D
-    uiMenu* itm2d3d = 0;
-    const uiString menutext = tr("2D <=> 3D");
-    if ( have3d )
+    if ( have2d && have3d )
     {
-	itm2d3d = new uiMenu( menutext );
-	csomnu_->addMenu( itm2d3d );
-	mInsertItem( itm2d3d, m3Dots(tr("Create 2D from 3D")),
-		     mCreate2DFrom3DMnuItm );
-	mInsertItem( itm2d3d, m3Dots(tr("Extract 2D from 3D")),
-		     m2DFrom3DMnuItm );
-    }
-
-    if ( have2d )
-    {
-#ifdef __debug__
-	if ( !itm2d3d )
-	{
-	itm2d3d = new uiMenu( menutext );
-	    csomnu_->addMenu( itm2d3d );
-	}
-	mInsertItem( itm2d3d, m3Dots(tr("Create 3D from 2D")), m3DFrom2DMnuItm);
-#endif
+	uiMenu* mnu2d3d = addSubMenu( csomnu_, tr("2D <=> 3D"), "2d3d" );
+	addAction( mnu2d3d, tr("Create 2D Line Grid from 3D Cube"),
+			"cr2dfrom3d", mCreate2DFrom3DMnuItm );
+	addAction( mnu2d3d, tr("Extract 3D Cube to Line Data"),
+			"extr3dinto2d", mExtract2DFrom3DMnuItm );
+	addAction( mnu2d3d, tr("Create 3D Cube from 2D Lines"),
+			"cr3dfrom2d", mCreate3DFrom2DMnuItm );
     }
 
     if ( have3d )
     {
-// Other 3D items
-	csomnu_->insertAction(
-	    new uiAction(m3Dots(tr("Angle Mute Function")),
-			mCB(&applMgr(),uiODApplMgr,genAngleMuteFunction) ));
-	csomnu_->insertAction(
-	    new uiAction(m3Dots(tr("Bayesian Classification")),
-			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes"));
-	csomnu_->insertAction(
-	    new uiAction(m3Dots(tr("From Well Logs")),
-			mCB(&applMgr(),uiODApplMgr,createCubeFromWells) ));
+	addAction( csomnu_, tr("Angle Mute Function"), "anglemute",
+		mCB(&applMgr(),uiODApplMgr,genAngleMuteFunction) );
+	addAction( csomnu_, tr("Bayesian Classification"), "bayes",
+		mCB(&applMgr(),uiODApplMgr,bayesClass3D) );
+	addAction( csomnu_, tr("From Well Logs"), "log2cube",
+		mCB(&applMgr(),uiODApplMgr,createCubeFromWells) );
     }
 
-    add2D3DMenuItem( *csomnu_, "empty", tr("Prestack Processing"),
-		     mPSProc2DMnuItm, mPSProc3DMnuItm );
+    add2D3DActions( csomnu_, tr("Prestack Processing"), "prestackdataset",
+		    mPSProc2DMnuItm, mPSProc3DMnuItm );
 
     if ( have3d )
     {
@@ -1461,8 +1443,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
     case mCreate2DFrom3DMnuItm:	applMgr().create2DGrid(); break;
-    case m2DFrom3DMnuItm:	applMgr().create2DFrom3D(); break;
-    case m3DFrom2DMnuItm:	applMgr().create3DFrom2D(); break;
+    case mExtract2DFrom3DMnuItm: applMgr().create2DFrom3D(); break;
+    case mCreate3DFrom2DMnuItm:	applMgr().create3DFrom2D(); break;
     case mStartBatchJobMnuItm:	applMgr().startBatchJob(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
