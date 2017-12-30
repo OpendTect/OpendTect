@@ -8,6 +8,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uihorizonattribmod.h"
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
 #include "uidatapointsetpickdlg.h"

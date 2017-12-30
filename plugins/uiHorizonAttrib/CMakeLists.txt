@@ -7,7 +7,6 @@
 set(OD_MODULE_DEPS uiODMain)
 set(OD_IS_PLUGIN yes)
 set(OD_MODULE_SOURCES
-	uicontourtreeitem.cc
 	uihorattribpi.cc
 )
 set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
