@@ -149,7 +149,7 @@ protected:
     void	addAction(uiMenu*,const uiString&,const char* icnm,
 			  const CallBack&);
     void	addDirectAction(uiMenu*,const uiString&,const char*,int);
-    void	add2D3DActions(uiMenu*,const uiString&,const char*,int,int,
+    uiMenu*	add2D3DActions(uiMenu*,const uiString&,const char*,int,int,
 			       bool always3d=false);
     uiMenu*	addAsciiSubMenu(uiMenu*,const uiString&,const char*);
     uiMenu*	addAsciiActionSubMenu(uiMenu*,const uiString&,

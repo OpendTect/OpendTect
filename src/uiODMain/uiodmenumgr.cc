@@ -295,20 +295,23 @@ uiMenu* uiODMenuMgr::addSingMultAsciiSubMenu( uiMenu* mnu, const uiString& nm,
 }
 
 
-void uiODMenuMgr::add2D3DActions( uiMenu* mnu, const uiString& nm,
-				  const char* icnm, int id1, int id2,
-				  bool always3d )
+uiMenu* uiODMenuMgr::add2D3DActions( uiMenu* mnu, const uiString& nm,
+				     const char* icnm, int id1, int id2,
+				     bool always3d )
 {
     mGet2D3DWithOneChoice();
 
+    uiMenu* ret = mnu;
     if ( haveonechoice )
-	addAction( mnu, nm, icnm, have2d ? id1 : id2 );
+	addAction( ret, nm, icnm, have2d ? id1 : id2 );
     else
     {
-	uiMenu* submnu = addSubMenu( mnu, nm, icnm );
-	addAction( submnu, uiStrings::s2D(), "2d", id1 );
-	addAction( submnu, uiStrings::s3D(), "3d", id2 );
+	ret = addSubMenu( mnu, nm, icnm );
+	addAction( ret, uiStrings::s2D(), "2d", id1 );
+	addAction( ret, uiStrings::s3D(), "3d", id2 );
     }
+
+    return ret;
 }
 
 
@@ -627,9 +630,10 @@ void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
 
+// SEISMIC OUTPUT
+
     csomnu_ = addSubMenu( procmnu_, tr("Create Seismic Output"), "out_seis" );
 
-// Attributes
     uiMenu* attrmnu = addSubMenu( csomnu_, uiStrings::sAttribute(mPlural),
 				  "attributes" );
     add2D3DActions( attrmnu, tr("Single Attribute"), "single",
@@ -640,8 +644,6 @@ void uiODMenuMgr::fillProcMenu()
     {
 	addAction( attrmnu, tr("Multi Attribute"), "multiple",
 		    mCB(&applMgr(),uiODApplMgr,createMultiAttribVol) );
-	addAction( attrmnu, tr("MultiCube DataStore"), "multicubeps",
-		    mCB(&applMgr(),uiODApplMgr,createMultiCubeDS) );
     }
 
     add2D3DActions( attrmnu, tr("Along Horizon"), "alonghor",
@@ -671,37 +673,35 @@ void uiODMenuMgr::fillProcMenu()
 		mCB(&applMgr(),uiODApplMgr,createCubeFromWells) );
     }
 
-    add2D3DActions( csomnu_, tr("Prestack Processing"), "prestackdataset",
-		    mPSProc2DMnuItm, mPSProc3DMnuItm );
+    uiMenu* psmnu = add2D3DActions( csomnu_, tr("Prestack Processing"),
+			"prestackdataset", mPSProc2DMnuItm, mPSProc3DMnuItm );
+    addAction( psmnu, tr("Create MultiCube DataStore"), "multicubeps",
+			mCB(&applMgr(),uiODApplMgr,createMultiCubeDS) );
 
     if ( have3d )
     {
-// Velocity
-	uiMenu* velitm = new uiMenu( tr("Velocity") );
-	csomnu_->addMenu( velitm );
-	velitm->insertAction(
-	    new uiAction(m3Dots(tr("Time - Depth Conversion")),
-			 mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
-	velitm->insertAction(
-	    new uiAction(m3Dots(tr("Velocity Conversion")),
-			 mCB(&applMgr(),uiODApplMgr,processVelConv)) );
+	uiMenu* velmnu = addSubMenu( csomnu_, tr("Velocity"), "velocity_cube" );
+	addAction( velmnu, tr("Time - Depth Conversion"), "time2depth",
+			 mCB(&applMgr(),uiODApplMgr,processTime2Depth) );
+	addAction( velmnu, tr("Velocity Conversion"), "velconv",
+			 mCB(&applMgr(),uiODApplMgr,processVelConv) );
     }
 
-    add2D3DMenuItem( *csomnu_, "empty", tr("Volume Builder"),
+    add2D3DActions( csomnu_, tr("Volume Builder"), "volproc",
 		     mVolProc2DMnuItm, mVolProc3DMnuItm );
 
-    chomnu_ = addSubMenu( procmnu_, tr("Create Horizon Output"),
-				"out_hor" );
+// OTHER
+
+    chomnu_ = addSubMenu( procmnu_, tr("Create Horizon Output"), "out_hor" );
     add2D3DActions( chomnu_, uiStrings::sAttribute(mPlural), "attributes",
 		    mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
 
-    procwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
-    procwellmnu_->insertAction( new uiAction(m3Dots(uiStrings::sRockPhy()),
-		mCB(&applMgr(),uiODApplMgr,launchRockPhysics),"rockphys") );
-    procmnu_->addMenu( procwellmnu_ );
+    procwellmnu_ = addSubMenu( procmnu_, uiStrings::sWells(), "well" );
+    addAction( procwellmnu_, uiStrings::sRockPhy(), "rockphys",
+		     mCB(&applMgr(),uiODApplMgr,launchRockPhysics) );
 
-    mInsertPixmapItem( procmnu_, m3Dots(tr("(Re-)Start Batch Job")),
-		 mStartBatchJobMnuItm, "work" );
+    addAction( procmnu_, tr("(Re-)Start Batch Job"), "work",
+	       mStartBatchJobMnuItm );
 }
 
 
