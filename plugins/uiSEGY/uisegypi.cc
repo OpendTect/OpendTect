@@ -208,13 +208,12 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     int segyimp = mnumgr_.dtectTB()->addButton( segyiconid_,
 						tr("SEG-Y import") );
 
-    uiMenu* mnu = new uiMenu();
+    uiMenu* mnu = mnumgr_.dtectTB()->addButtonMenu( segyimp,
+						uiToolButton::InstantPopup);
     mnu->insertAction(new uiAction(m3Dots(tr("Single-Vintage")),
 		    mCB(this,uiSEGYMgr,readStarterCB),"singlefile") );
     mnu->insertAction(new uiAction(m3Dots(tr("Multiple-Vintage")),
 		    mCB(this,uiSEGYMgr,bulkImport),"copyobj") );
-    mnumgr_.dtectTB()->setButtonMenu( segyimp, mnu, uiToolButton::InstantPopup);
-
 }
 
 

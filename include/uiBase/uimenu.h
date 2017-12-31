@@ -17,6 +17,8 @@ ________________________________________________________________________
 
 class uiParent;
 class uiPixmap;
+class uiButton;
+class uiToolBar;
 
 mFDQtclass(QAction)
 mFDQtclass(QMenu)
@@ -65,11 +67,13 @@ mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 { mODTextTranslationClass(uiMenu);
 
 public:
-			uiMenu(const uiString& txt=uiString::emptyString(),
-			       const char* iconnm=0);
-			uiMenu(const MenuItem&);
+
+			uiMenu(uiParent*,
+			       const uiString& txt=uiString::emptyString(),
+			       const char* icnm=0);
 			~uiMenu();
 
+    uiMenu*		addSubMenu(uiParent*,const uiString&,const char* icnm);
     void		addItems(const ObjectSet<MenuItem>&);
     bool		isStandAlone() const { return !submenuaction_; }
 			/*!\returns true if this menu is not
@@ -108,8 +112,8 @@ public:
     mQtclass(QWidget*)	getWidget(int);
 
 private:
-    friend class	uiAction;
 
+			uiMenu();
     void		setAction(uiAction*);
 
     uiString		text_;
@@ -129,13 +133,16 @@ private:
     void		doClear();
     void		useStyleSheet();
 
+    friend class	uiAction;
+    friend class	uiButton;
+    friend class	uiToolBar;
+
 public:
 			//! Not for casual use
     static void		addInterceptor(const CallBack&);
     static void		removeInterceptor(const CallBack&);
     void		doIntercept(bool yn,uiAction* activateitm = 0);
 
-			uiMenu(uiParent*,
-				const uiString& txt=uiString::emptyString(),
-				const char* iconfilenm=0);
+			uiMenu(const MenuItem&);
+
 };

@@ -338,6 +338,22 @@ QAbstractButton* uiButton::qButton()
 }
 
 
+uiMenu* uiButton::addMenu()
+{
+    uiMenu* mnu = new uiMenu;
+    QAbstractButton* qbut = qButton();
+    mDynamicCastGet( QPushButton*, qpushbut, qbut );
+    mDynamicCastGet( QToolButton*, qtoolbut, qbut );
+    if ( qpushbut )
+	qpushbut->setMenu( mnu->getQMenu() );
+    else if ( qtoolbut )
+	qtoolbut->setMenu( mnu->getQMenu() );
+    else
+	{ pErrMsg("Can only set menu on push or tool button"); }
+    return mnu;
+}
+
+
 #define mQBut(typ) dynamic_cast<Q##typ&>( *body() )
 
 // uiPushButton
@@ -382,17 +398,6 @@ uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const uiString& txt )
 {
     pbbody_ = new uiPushButtonBody( *this, parnt, txt );
     return *pbbody_;
-}
-
-
-void uiPushButton::setMenu( uiMenu* menu )
-{
-    QAbstractButton* qbut = qButton();
-    mDynamicCastGet(QPushButton*,qpushbut,qbut)
-    if ( !qpushbut ) return;
-
-    // not tested null, but found a link on Internet that says null hides
-    qpushbut->setMenu( menu ? menu->getQMenu() : 0 );
 }
 
 

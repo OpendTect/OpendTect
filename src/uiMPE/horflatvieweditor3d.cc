@@ -296,7 +296,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
 	if ( hor3d && hor3d->hasZ(tk) )
 	{
-	    uiMenu menu;
+	    uiMenu menu( const_cast<uiFlatViewer*>(vwr) );
 	    menu.insertAction( new uiAction(tr("Select Children")), 0 );
 	    if ( menu.exec() ==0 )
 	    {

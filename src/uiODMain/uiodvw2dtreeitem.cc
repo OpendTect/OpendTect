@@ -238,8 +238,8 @@ bool uiODVw2DTreeItem::isAddItem( int id, bool addall ) const
 
 uiMenu* uiODVw2DTreeItem::createRemoveMenu()
 {
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(), "remove" );
-    addAction( *removemenu, m3Dots(tr("Only from this 2D Viewer")), mRemoveIdx );
+    uiMenu* removemenu = new uiMenu( 0, uiStrings::sRemove(), "remove" );
+    addAction( *removemenu, m3Dots(tr("Only from this 2D Viewer")), mRemoveIdx);
     const int nrvwrs = applMgr()->viewer2DMgr().nr2DViewers();
     addAction( *removemenu, m3Dots(tr("From all 2D Viewers")), mRemoveInAllIdx,
 	       0, nrvwrs>1 );

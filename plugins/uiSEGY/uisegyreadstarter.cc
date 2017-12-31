@@ -539,10 +539,9 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 
 	if ( !mForSurvSetup )
 	{
-	    uiMenu* mnu = new uiMenu;
+	    uiMenu* mnu = execoldbut->addMenu();
 	    mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
 	    mnu->insertAction( new uiAction(tr("Link"),linkcb) );
-	    execoldbut->setMenu( mnu );
 	}
     }
 }

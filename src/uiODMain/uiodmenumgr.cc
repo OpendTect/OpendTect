@@ -206,8 +206,8 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillViewMenu();
     fillUtilMenu();
     menubar->insertSeparator();
-    helpmnumgr_ = new uiODHelpMenuMgr( this );
-    langmnumgr_ = new uiODLangMenuMgr( this );
+    helpmnumgr_ = new uiODHelpMenuMgr( *this );
+    langmnumgr_ = new uiODLangMenuMgr( *this );
 
     fillDtectTB( appman );
     fillVisTB( sceneman );
@@ -220,40 +220,38 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
 uiMenu* uiODMenuMgr::addSubMenu( uiMenu* parmnu, const uiString& nm,
 				 const char* icnm )
 {
-    uiMenu* mnu = new uiMenu( &appl_, nm );
-    mnu->setIcon( icnm );
-
+    uiMenu* mnu = parmnu->addSubMenu( &appl_, nm, icnm );
     if ( parmnu == impmnu_ )
 	impmnus_ += mnu;
     else if ( parmnu == expmnu_ )
 	expmnus_ += mnu;
-
-    parmnu->addMenu( mnu );
     return mnu;
 }
 
 
-void uiODMenuMgr::addDirectAction( uiMenu* mnu, const uiString& nm,
+uiAction* uiODMenuMgr::addDirectAction( uiMenu* mnu, const uiString& nm,
 				   const char* icnm, int id )
 {
     uiAction* uiact = new uiAction( nm, mCB(this,uiODMenuMgr,handleClick),
 				    icnm );
     mnu->insertAction( uiact, id );
+    return uiact;
 }
 
 
-void uiODMenuMgr::addAction( uiMenu* mnu, const uiString& nm,
+uiAction* uiODMenuMgr::addAction( uiMenu* mnu, const uiString& nm,
 				const char* icnm, int id )
 {
-    addDirectAction( mnu, m3Dots(nm), icnm, id );
+    return addDirectAction( mnu, m3Dots(nm), icnm, id );
 }
 
 
-void uiODMenuMgr::addAction( uiMenu* mnu, const uiString& nm,
+uiAction* uiODMenuMgr::addAction( uiMenu* mnu, const uiString& nm,
 				const char* icnm, const CallBack& cb )
 {
     uiAction* uiact = new uiAction( m3Dots(nm), cb, icnm );
     mnu->insertAction( uiact );
+    return uiact;
 }
 
 
@@ -963,12 +961,11 @@ int uiODMenuMgr::add2D3DToolButton( uiToolBar& tb, const char* iconnm,
 	return tb.addButton( iconnm, tt, cb2d, false, itmid2d );
 
     const int butid = tb.addButton( iconnm, tt );
-    uiMenu* popmnu = new uiMenu( tb.parent(), uiStrings::sAction() );
+    uiMenu* popmnu = tb.addButtonMenu( butid, uiToolButton::InstantPopup );
     popmnu->insertAction( new uiAction(m3Dots(uiStrings::s2D()),cb2d),
 			itmid2d );
     popmnu->insertAction( new uiAction(m3Dots(uiStrings::s3D()),cb3d),
 			itmid3d );
-    tb.setButtonMenu( butid, popmnu, uiToolButton::InstantPopup );
     return butid;
 }
 
@@ -982,7 +979,7 @@ void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
 
     if ( have2d && have3d )
     {
-	uiMenu* mnu = new uiMenu( itmtxt, iconnm );
+	uiMenu* mnu = new uiMenu( &appl_, itmtxt, iconnm );
 	mnu->insertAction( new uiAction(m3Dots(uiStrings::s2D()),cb2d),itmid2d);
 	mnu->insertAction( new uiAction(m3Dots(uiStrings::s3D()),cb3d),itmid3d);
 	menu.addMenu( mnu );
@@ -1028,14 +1025,13 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		mCB(appman,uiODApplMgr,doVolProc3DCB) );
 
     const int xplotid = dtecttb_->addButton( "xplot", tr("Cross-plot") );
-    uiMenu* mnu = new uiMenu();
+    uiMenu* mnu = dtecttb_->addButtonMenu( xplotid, uiToolButton::InstantPopup);
     mnu->insertAction(
 	new uiAction(m3Dots(tr("Cross-plot Attribute vs Attribute Data")),
 		     mCB(appman,uiODApplMgr,doAttribXPlot),"xplot_attribs") );
     mnu->insertAction(
 	new uiAction(m3Dots(tr("Cross-plot Attribute vs Well Data")),
 		     mCB(appman,uiODApplMgr,doWellXPlot),"xplot_wells") );
-    dtecttb_->setButtonMenu( xplotid, mnu, uiToolButton::InstantPopup );
 
     mAddTB(dtecttb_,"rockphys",tr("Create New Well Logs Using Rock Physics"),
 			false,launchRockPhysics);
@@ -1050,13 +1046,15 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( fnm, txt, mCB(this,uiODMenuMgr,fn), togg )
 
-#define mAddPopUp( nm, txt1, txt2, itm1, itm2, mnuid ) { \
-    uiMenu* popmnu = new uiMenu( &appl_, nm ); \
+#define mAddPopUp( txt1, txt2, itm1, itm2, mnuid ) \
+{ \
+    uiMenu* popmnu = mantb_ ->addButtonMenu( mnuid, \
+					uiToolButton::InstantPopup ); \
     popmnu->insertAction( new uiAction(txt1, \
 		       mCB(this,uiODMenuMgr,handleClick)), itm1 ); \
     popmnu->insertAction( new uiAction(txt2, \
 		       mCB(this,uiODMenuMgr,handleClick)), itm2 ); \
-    mantb_ ->setButtonMenu( mnuid, popmnu, uiToolButton::InstantPopup ); }
+}
 
 #define mAddPopupMnu( mnu, txt, itm ) \
     mnu->insertAction( new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), itm );
@@ -1087,7 +1085,8 @@ void uiODMenuMgr::fillManTB()
 
     mGet2D3D();
 
-    uiMenu* seispopmnu = new uiMenu( &appl_, tr("Seismics Menu") );
+    uiMenu* seispopmnu = mantb_->addButtonMenu( seisid,
+						uiToolButton::InstantPopup );
     if ( have2d )
     {
 	mAddPopupMnu( seispopmnu, tr("2D Seismics"), mManSeis2DMnuItm )
@@ -1100,15 +1099,12 @@ void uiODMenuMgr::fillManTB()
 	mAddPopupMnu( seispopmnu, tr("3D Prestack Seismics"),
 		      mManSeisPS3DMnuItm )
     }
-    mantb_->setButtonMenu( seisid, seispopmnu, uiToolButton::InstantPopup );
 
     if ( have2d )
-	mAddPopUp( tr("Horizon Menu"), tr("2D Horizons"),
-		   tr("3D Horizons"),
+	mAddPopUp( tr("2D Horizons"), tr("3D Horizons"),
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
 
-    mAddPopUp( tr("Fault Menu"),uiStrings::sFault(mPlural),
-               uiStrings::sFaultStickSet(mPlural),
+    mAddPopUp( uiStrings::sFault(mPlural), uiStrings::sFaultStickSet(mPlural),
 	       mManFltMnuItm, mManFltSSMnuItm, fltid );
 }
 
@@ -1141,8 +1137,7 @@ void uiODMenuMgr::fillVisTB( uiODSceneMgr* scenemgr )
     {
 	viewselectid_ = viewtb_->addButton( "cube_inl",tr("View In-line"),
 				mCB(this,uiODMenuMgr,handleViewClick), false );
-
-	uiMenu* vwmnu = new uiMenu( &appl_, tr("View Menu") );
+	uiMenu* vwmnu = viewtb_->addButtonMenu( viewselectid_ );
 	mAddMnuItm( vwmnu, tr("View In-line"),
 		    handleViewClick, "cube_inl", 0 );
 	mAddMnuItm( vwmnu, tr("View Cross-line"), handleViewClick,
@@ -1150,7 +1145,6 @@ void uiODMenuMgr::fillVisTB( uiODSceneMgr* scenemgr )
 	mAddMnuItm( vwmnu, tr("View Z"), handleViewClick, "cube_z", 2 );
 	mAddMnuItm( vwmnu, tr("View North"), handleViewClick, "view_N", 3 );
 	mAddMnuItm( vwmnu, tr("View North Z"), handleViewClick, "view_NZ", 4);
-	viewtb_->setButtonMenu( viewselectid_, vwmnu );
 	viewinlid_ = viewcrlid_ = viewzid_ = viewnid_ = viewnzid_ = -1;
     }
     else
@@ -1172,21 +1166,19 @@ void uiODMenuMgr::fillVisTB( uiODSceneMgr* scenemgr )
 		     true,showRotAxis);
     coltabid_ = viewtb_->addButton( "colorbar", tr("Display Color Bar"),
 			    mCB(this,uiODMenuMgr,dispColorBar), true );
-    uiMenu* colbarmnu = new uiMenu( &appl_, tr("ColorBar Menu") );
+    uiMenu* colbarmnu = viewtb_->addButtonMenu( coltabid_ );
     mAddMnuItm( colbarmnu, m3Dots(uiStrings::sSettings()), dispColorBar,
 		"disppars", 0 );
-    viewtb_->setButtonMenu( coltabid_, colbarmnu );
 
     mAddTB(viewtb_,"snapshot",uiStrings::sTakeSnapshot(),false,mkSnapshot);
     polyselectid_ = viewtb_->addButton( "polygonselect",
 		tr("Polygon Selection mode"),
 		mCB(this,uiODMenuMgr,polySelectionModeCB), true );
-    uiMenu* mnu = new uiMenu( &appl_, tr("Menu") );
+    uiMenu* mnu = viewtb_->addButtonMenu( polyselectid_ );
     mAddMnuItm( mnu, uiStrings::sPolygon(),
 		handleToolClick, "polygonselect", 0 );
     mAddMnuItm( mnu, uiStrings::sRectangle(),
 		handleToolClick, "rectangleselect", 1 );
-    viewtb_->setButtonMenu( polyselectid_, mnu );
 
     removeselectionid_ = viewtb_->addButton( "trashcan", tr("Remove selection"),
 		    mCB(this,uiODMenuMgr,removeSelectionCB), false );

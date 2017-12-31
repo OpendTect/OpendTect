@@ -190,10 +190,9 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "xplot", crossPlotCB, tr("Cross-Plot attributes") );
     const int dotidx = mAddButton( "dot", exportToGraphVizDotCB,
 			    tr("View as graph") );
-    uiMenu* mnu = new uiMenu(0);
+    uiMenu* mnu = toolbar_->addButtonMenu( dotidx );
     mnu->insertAction( new uiAction(tr("Graphviz Installation"),
 	mCB(this,uiAttribDescSetEd,graphVizDotPathCB)) );
-    toolbar_->setButtonMenu( dotidx, mnu );
 }
 
 

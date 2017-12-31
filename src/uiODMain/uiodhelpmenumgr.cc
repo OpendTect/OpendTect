@@ -32,38 +32,38 @@ ________________________________________________________________________
 #include "osgver.h"
 
 
-#define mInsertItem(mnu,txt,id,sc) \
-{ \
-    uiAction* itm = new uiAction(txt,mCB(mnumgr_,uiODMenuMgr,handleClick));\
-    mnu->insertAction( itm, id ); \
-    itm->setShortcut( sc ); \
-}
+#define mAddHelpAction(txt,id,icon) \
+    mnumgr_.addAction( helpmnu_, txt, icon, id )
 
 
-uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
-    : helpmnu_( mm->helpMnu() )
+uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr& mm )
+    : helpmnu_( mm.helpMnu() )
     , mnumgr_( mm )
 {
-    docmnu_ = new uiMenu( tr("Documentation") );
-    helpmnu_->addMenu( docmnu_ );
-    mInsertItem( docmnu_, tr("OpendTect"), mUserDocMnuItm, "F1" );
+    docmnu_ = mnumgr_.addSubMenu( helpmnu_, tr("Documentation"),
+				    "documentation" );
+    uiAction* act = mnumgr_.addAction( docmnu_, uiStrings::sOpendTect(),
+					"od", mUserDocMnuItm );
+    act->setShortcut( "F1" );
 
     if ( HelpProvider::hasHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0)))
-	mInsertItem( docmnu_, tr("Programmer"), mProgrammerMnuItm, 0 );
+	mnumgr_.addAction( docmnu_, tr("Programmer"), "programmer",
+			   mProgrammerDocMnuItm );
 
     if ( HelpProvider::hasHelp(HelpKey("appman",0)) )
-	mInsertItem( docmnu_, tr("Admin"), mAdminMnuItm, 0 );
+	mnumgr_.addAction( docmnu_, tr("System Administration"),
+			    "sysadm", mAdminDocMnuItm );
 
-    mInsertItem( helpmnu_, tr("How-To Instructions"), mWorkflowsMnuItm, 0 );
-    mInsertItem( helpmnu_, tr("Training Manual"), mTrainingManualMnuItm, 0 );
-    mInsertItem( helpmnu_, tr("Attributes Table"), mAttribMatrixMnuItm, 0 );
-    mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
-    mInsertItem( helpmnu_, tr("Keyboard shortcuts"),
-		 mShortcutsMnuItm, "?" );
-    mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0);
+    mAddHelpAction( tr("How-To Instructions"), mWorkflowsMnuItm, 0 );
+    mAddHelpAction( tr("Training Manual"), mTrainingManualMnuItm, 0 );
+    mAddHelpAction( tr("Attributes Table"), mAttribMatrixMnuItm, 0 );
+    mAddHelpAction( tr("Online Support"), mSupportMnuItm, 0 );
+    act = mAddHelpAction( tr("Keyboard shortcuts"), mShortcutsMnuItm, 0 );
+    act->setShortcut( "?" );
+    mAddHelpAction( tr("About"), mAboutMnuItm, 0 );
 
     if ( legalInformation().size() )
-	mInsertItem( helpmnu_, tr("Legal"), mLegalMnuItm, 0);
+	mAddHelpAction( tr("Legal"), mLegalMnuItm, 0);
 }
 
 
@@ -73,7 +73,9 @@ uiODHelpMenuMgr::~uiODHelpMenuMgr()
 
 
 uiMenu* uiODHelpMenuMgr::getDocMenu()
-{ return docmnu_; }
+{
+    return docmnu_;
+}
 
 
 void uiODHelpMenuMgr::handle( int id )
@@ -88,11 +90,11 @@ void uiODHelpMenuMgr::handle( int id )
 	{
 	    uiMSG().aboutOpendTect( getAboutString() );
 	} break;
-	case mAdminMnuItm:
+	case mAdminDocMnuItm:
 	{
 	    HelpProvider::provideHelp( HelpKey("appman",0) );
 	} break;
-	case mProgrammerMnuItm:
+	case mProgrammerDocMnuItm:
 	{
 	    HelpProvider::provideHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0));
 	} break;

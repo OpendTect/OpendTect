@@ -76,9 +76,8 @@ public:
     bool		isSensitive() const;
     OD::Orientation	getOrientation() const;
 
-    void		setButtonMenu(int,uiMenu*,
+    uiMenu*		addButtonMenu(int,
 			 uiToolButton::PopupMode=uiToolButton::MenuButtonPopup);
-			//!<Menu will be owned by uiToolButton
 
     virtual void	display(bool yn=true,bool s=false,bool m=false);
 			/*!< you must call this after all buttons are added

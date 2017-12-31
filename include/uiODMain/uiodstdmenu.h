@@ -220,8 +220,8 @@ ________________________________________________________________________
 
 #define mHelpMnuBase			(mHelpMnu + 100)
 #define mUserDocMnuItm			(mHelpMnuBase + 1)
-#define mAdminMnuItm			(mHelpMnuBase + 2)
-#define mProgrammerMnuItm		(mHelpMnuBase + 3)
+#define mAdminDocMnuItm			(mHelpMnuBase + 2)
+#define mProgrammerDocMnuItm		(mHelpMnuBase + 3)
 #define mAboutMnuItm			(mHelpMnuBase + 4)
 #define mSupportMnuItm			(mHelpMnuBase + 5)
 #define mWorkflowsMnuItm		(mHelpMnuBase + 6)

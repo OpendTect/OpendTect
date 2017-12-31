@@ -491,7 +491,7 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 
     polyseltbid_ = tb->addButton( "polygonselect", tr("Polygon Selection mode"),
 				  mCB(this,uiODViewer2D,selectionMode), true );
-    uiMenu* polymnu = new uiMenu( tb, toUiString("PolyMenu") );
+    uiMenu* polymnu = tb->addButtonMenu( polyseltbid_ );
 
     uiAction* polyitm = new uiAction( uiStrings::sPolygon(),
 				      mCB(this,uiODViewer2D,handleToolClick) );
@@ -502,8 +502,6 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 				      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertAction( rectitm, 1 );
     rectitm->setIcon( "rectangleselect" );
-
-    tb->setButtonMenu( polyseltbid_, polymnu );
 
     tb->addButton( "clearselection", tr("Remove Selection"),
 			mCB(this,uiODViewer2D,removeSelected), false );

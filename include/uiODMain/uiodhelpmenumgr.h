@@ -22,7 +22,7 @@ class uiMenu;
 mExpClass(uiODMain) uiODHelpMenuMgr
 { mODTextTranslationClass(uiODHelpMenuMgr)
 public:
-			uiODHelpMenuMgr(uiODMenuMgr*);
+			uiODHelpMenuMgr(uiODMenuMgr&);
 			~uiODHelpMenuMgr();
 
     void		handle(int);
@@ -34,7 +34,8 @@ protected:
     void		showLegalInfo();
     void		showShortKeys();
 
-    uiODMenuMgr*	mnumgr_;
+    uiODMenuMgr&	mnumgr_;
     uiMenu*		helpmnu_;
     uiMenu*		docmnu_;
+
 };

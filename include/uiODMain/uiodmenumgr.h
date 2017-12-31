@@ -20,6 +20,7 @@ class uiODLangMenuMgr;
 class uiMenu;
 class uiToolBar;
 class uiAction;
+class uiODHelpMenuMgr;
 
 
 /*!\brief The OpendTect menu manager
@@ -97,6 +98,13 @@ public:
 				     const CallBack& cb2d,const CallBack& cb3d,
 				     int itmid2d=-1,int itmid3d=-1);
 
+    uiMenu*	addSubMenu(uiMenu*,const uiString&,const char* icnm);
+    uiAction*	addAction(uiMenu*,const uiString&,const char* icnm,
+			  const CallBack&);
+    uiAction*	addDirectAction(uiMenu*,const uiString&,const char*,int);
+    uiMenu*	add2D3DActions(uiMenu*,const uiString&,const char*,int,int,
+			       bool always3d=false);
+
     Notifier<uiODMenuMgr> dTectTBChanged;
     Notifier<uiODMenuMgr> dTectMnuChanged;
 
@@ -144,13 +152,7 @@ protected:
     uiODFaultToolMan*	faulttoolman_;
     MeasureToolMan*	measuretoolman_;
 
-    uiMenu*	addSubMenu(uiMenu*,const uiString&,const char* icnm);
-    void	addAction(uiMenu*,const uiString&,const char* icnm,int);
-    void	addAction(uiMenu*,const uiString&,const char* icnm,
-			  const CallBack&);
-    void	addDirectAction(uiMenu*,const uiString&,const char*,int);
-    uiMenu*	add2D3DActions(uiMenu*,const uiString&,const char*,int,int,
-			       bool always3d=false);
+    uiAction*	addAction(uiMenu*,const uiString&,const char* icnm,int);
     uiMenu*	addAsciiSubMenu(uiMenu*,const uiString&,const char*);
     uiMenu*	addAsciiActionSubMenu(uiMenu*,const uiString&,
 				      const char* icnm,int,
@@ -225,4 +227,6 @@ protected:
     uiMenu*	addDualAsciiSubMenu(uiMenu*,const uiString&,
 				      const char* icnm,int,int,bool,
 				      const uiString*,bool);
+
+    friend class    uiODHelpMenuMgr;
 };

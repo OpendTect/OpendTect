@@ -22,7 +22,7 @@ class uiODMenuMgr;
 mExpClass(uiODMain) uiODLangMenuMgr : public CallBacker
 { mODTextTranslationClass(uiODLangMenuMgr)
 public:
-			uiODLangMenuMgr(uiODMenuMgr*);
+			uiODLangMenuMgr(uiODMenuMgr&);
 			~uiODLangMenuMgr();
 
 protected:
@@ -33,6 +33,7 @@ protected:
     void		languageChangeCB(CallBacker*);
     void		languageSelectedCB(CallBacker*);
 
-    uiODMenuMgr*	mnumgr_;
+    uiODMenuMgr&	mnumgr_;
     uiMenu*		langmnu_;
+
 };

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uiobjbody.h"
 #include "uiparentbody.h"
+#include "uimainwin.h"
 #include "uistring.h"
 
 #include "keystrs.h"
@@ -105,22 +106,26 @@ QWidget* uiMenuBar::getWidget( int )
 
 static CallBackSet& interceptors_ = *new CallBackSet;
 
-uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
-    : uiBaseObject( txt.getFullString() )
-    , submenuaction_( 0 )
-    , qmenu_( new mQtclass(QMenu)(txt.getQString(),
-	      p && p->getNrWidgets() ? p->getWidget(0) : 0))
-    , text_(txt)
+static uiParent* gtParent( uiParent* p )
 {
-    setIcon( pmnm );
-    useStyleSheet();
+    if ( !p || p->getNrWidgets()<1 )
+	p = uiMain::theMain().topLevel();
+    return p;
 }
 
 
-uiMenu::uiMenu( const uiString& txt, const char* pmnm )
+uiMenu::uiMenu()
+    : uiBaseObject("")
+    , submenuaction_( 0 )
+    , qmenu_(new mQtclass(QMenu)())
+{
+}
+
+
+uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
-    , qmenu_(new mQtclass(QMenu)(txt.getQString()))
+    , qmenu_( new mQtclass(QMenu)(txt.getQString(), gtParent(p)->getWidget(0) ))
     , text_(txt)
 {
     setIcon( pmnm );
@@ -149,6 +154,15 @@ uiMenu::~uiMenu()
 
 void uiMenu::useStyleSheet()
 {
+}
+
+
+uiMenu* uiMenu::addSubMenu( uiParent* par, const uiString& nm,
+			    const char* icnm )
+{
+    uiMenu* submnu = new uiMenu( par, nm, icnm );
+    addMenu( submnu );
+    return submnu;
 }
 
 

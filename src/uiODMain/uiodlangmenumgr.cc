@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiodmenumgr.h"
 #include "texttranslator.h"
 
-uiODLangMenuMgr::uiODLangMenuMgr( uiODMenuMgr* mm )
+uiODLangMenuMgr::uiODLangMenuMgr( uiODMenuMgr& mm )
     : mnumgr_(mm)
     , langmnu_(0)
 {
@@ -34,8 +34,8 @@ void uiODLangMenuMgr::initLanguageMenu()
 {
     if ( TrMgr().nrSupportedLanguages() > 1 && !langmnu_ )
     {
-	langmnu_ = new uiMenu( tr("Language") );
-	mnumgr_->settMnu()->addMenu( langmnu_ );
+	langmnu_ = mnumgr_.addSubMenu( mnumgr_.settMnu(), tr("Language"),
+				       "language" );
 	for ( int idx=0; idx<TrMgr().nrSupportedLanguages(); idx++ )
 	{
 	    uiAction* itm = new uiAction( TrMgr().getLanguageUserName(idx),

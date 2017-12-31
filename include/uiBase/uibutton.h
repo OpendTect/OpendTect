@@ -42,6 +42,7 @@ public:
     void		setPixmap( const uiPixmap& pm ) { setPM(pm); }
     void		setIconScale(float val); /*!< val between [0-1] */
     virtual void	updateIconSize()	{}
+    uiMenu*		addMenu();
 
     virtual void	click()		= 0;
 
@@ -87,7 +88,6 @@ public:
 
     void		setDefault(bool yn=true);
     void		click();
-    void		setMenu(uiMenu*);
     void		setFlat(bool);
 
 private:
