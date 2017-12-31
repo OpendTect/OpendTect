@@ -194,7 +194,7 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 			"vsp0" ) );
     mnumgr_.createSeisOutputMenu()->insertAction(
 	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")),
-			muiSEGYMgrCB(reSortCB)) );
+			    muiSEGYMgrCB(reSortCB), "shuffle_data") );
 
     uiString classicmnutitle = segyclassictoplevel_ ? tr("SEG-Y [Classic]")
 						   : tr("Classic tool");
