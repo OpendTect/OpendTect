@@ -20,7 +20,6 @@ class uiODLangMenuMgr;
 class uiMenu;
 class uiToolBar;
 class uiAction;
-class uiODHelpMenuMgr;
 
 
 /*!\brief The OpendTect menu manager
@@ -36,9 +35,6 @@ class uiODHelpMenuMgr;
 
 mExpClass(uiODMain) uiODMenuMgr : public CallBacker
 { mODTextTranslationClass(uiODMenuMgr);
-
-    friend class	uiODMain;
-    friend class	uiODHelpMenuMgr;
 
 public:
 
@@ -228,5 +224,7 @@ protected:
 				      const char* icnm,int,int,bool,
 				      const uiString*,bool);
 
-    friend class    uiODHelpMenuMgr;
+    friend class	uiODMain;
+    friend class	uiODHelpMenuMgr;
+
 };
