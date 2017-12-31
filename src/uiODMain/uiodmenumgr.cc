@@ -708,68 +708,33 @@ void uiODMenuMgr::fillProcMenu()
 void uiODMenuMgr::fillAnalMenu()
 {
     analmnu_->clear();
-    OD::Pol2D3D survtype( OD::Both2DAnd3D );
-    if ( !DBM().isBad() )
-	survtype = SI().survDataType();
 
-    const char* attrpm = "attributes";
-    if ( survtype == OD::Both2DAnd3D )
-    {
-	uiMenu* aitm = new uiMenu( &appl_, uiStrings::sAttribute(mPlural),
-				   attrpm );
-	mInsertPixmapItem( aitm, m3Dots(uiStrings::s2D()), mEdit2DAttrMnuItm,
-			   "attributes_2d" );
-	mInsertPixmapItem( aitm, m3Dots(uiStrings::s3D()), mEdit3DAttrMnuItm,
-			   "attributes_3d" );
+    add2D3DActions( analmnu_, uiStrings::sAttribute(mPlural), "attributes",
+		    mEdit2DAttrMnuItm, mEdit3DAttrMnuItm );
+    add2D3DActions( analmnu_, tr("Volume Builder"),
+		    VolProc::uiChain::pixmapFileName(),
+		    mVolProc2DMnuItm, mVolProc3DMnuItm );
 
-	analmnu_->addMenu( aitm );
-	analmnu_->insertSeparator();
+    uiMenu* xplotmnu = addSubMenu( analmnu_, tr("Cross-plot Data"), "xplot" );
+    addAction( xplotmnu, tr("Well logs vs Attributes"), "xplot_wells",
+			mXplotMnuItm );
+    addAction( xplotmnu, tr("Attributes vs Attributes"), "xplot_attribs",
+			mAXplotMnuItm );
+    addAction( xplotmnu, tr("Open Cross-plot from File"), "singlefile",
+			mOpenXplotMnuItm );
 
-	uiMenu* vpitm = new uiMenu( &appl_, tr("Volume Builder"),
-				   VolProc::uiChain::pixmapFileName() );
-	mInsertPixmapItem( vpitm, m3Dots(uiStrings::s2D()), mVolProc2DMnuItm,
-			   VolProc::uiChain::pixmapFileName() );
-	mInsertPixmapItem( vpitm, m3Dots(uiStrings::s3D()), mVolProc3DMnuItm,
-			   VolProc::uiChain::pixmapFileName() );
+    analwellmnu_ = addSubMenu( analmnu_, uiStrings::sWells(), "well" );
+    addAction( analwellmnu_, tr("Edit Logs"), "well_props",
+		mCB(&applMgr(),uiODApplMgr,doWellLogTools) );
+    if ( SI().zIsTime() )
+	addAction( analwellmnu_, tr("Tie Well to Seismic"), "well_tie",
+		    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic) );
 
-	analmnu_->addMenu( vpitm );
-    }
-    else
-    {
-	mInsertPixmapItem( analmnu_, m3Dots(uiStrings::sAttribute(mPlural)),
-			   mEditAttrMnuItm, attrpm)
-	analmnu_->insertSeparator();
-
-	analmnu_->insertAction( new uiAction( m3Dots(tr("Volume Builder")),
-	    survtype != OD::Only2D ? mCB(&applMgr(),uiODApplMgr,doVolProc3DCB)
-				   : mCB(&applMgr(),uiODApplMgr,doVolProc2DCB),
-				VolProc::uiChain::pixmapFileName() ) );
-    }
-
-
-    uiMenu* xplotmnu = new uiMenu( &appl_, tr("Cross-plot Data"),
-				   "xplot");
-    mInsertPixmapItem( xplotmnu, m3Dots(tr("Well logs vs Attributes")),
-		       mXplotMnuItm, "xplot_wells" );
-    mInsertPixmapItem( xplotmnu, m3Dots(tr("Attributes vs Attributes")),
-		       mAXplotMnuItm, "xplot_attribs" );
-    mInsertItem( xplotmnu, m3Dots(tr("Open Cross-plot")), mOpenXplotMnuItm );
-    analmnu_->addMenu( xplotmnu );
-
-    analwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
-    analwellmnu_->insertAction( new uiAction( m3Dots(tr("Edit Logs")),
-	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
-    if (  !DBM().isBad() && SI().zIsTime() )
-	analwellmnu_->insertAction(
-	    new uiAction( m3Dots(tr("Tie Well to Seismic")),
-		    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ));
-    analmnu_->addMenu( analwellmnu_ );
-
-    layermodelmnu_ = new uiMenu( &appl_, tr("Layer Modeling"),
+    layermodelmnu_ = addSubMenu( analmnu_, tr("Layer Modeling"),
 				 "stratlayermodeling" );
-    layermodelmnu_->insertAction( new uiAction( m3Dots(tr("Basic")),
-	mCB(&applMgr(),uiODApplMgr,doLayerModeling), "empty") );
-    analmnu_->addMenu( layermodelmnu_ );
+    addAction( layermodelmnu_, tr("Basic"), "basiclayermodeling",
+		mCB(&applMgr(),uiODApplMgr,doLayerModeling) );
+
     analmnu_->insertSeparator();
 }
 

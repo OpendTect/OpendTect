@@ -124,10 +124,10 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
 
     if ( DBM().isBad() || SI().has3D() )
 	mnu->insertAction( new uiAction(m3Dots(tr("Stratal Amplitude")),
-			mCB(this,uiHorAttribPIMgr,makeStratAmp)));
+		    mCB(this,uiHorAttribPIMgr,makeStratAmp), "stratalampl" ));
 
     mnu->insertAction( new uiAction(m3Dots(tr("Isochron")),
-			mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
+		mCB(this,uiHorAttribPIMgr,doIsochronThruMenu), "isochron") );
 }
 
 
