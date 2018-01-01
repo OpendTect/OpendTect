@@ -156,15 +156,14 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     {
 	mDefBut(sethomezoombut_,"set_homezoom",homeZoomOptSelCB,
 		tr("Set home zoom"));
+	uiMenu* mnu = sethomezoombut_->addMenu();
 	const CallBack optcb = mCB(this,uiFlatViewStdControl,homeZoomOptSelCB);
-	uiMenu* mnu = new uiMenu( tb_, tr("Zoom level options") );
 	mnu->insertAction( new uiAction(tr("Set local home zoom"),
 					   optcb,"set_homezoom"), sLocalHZIdx );
 	mnu->insertAction( new uiAction(tr("Set global home zoom"),
 					optcb,"set_ghomezoom"), sGlobalHZIdx );
 	mnu->insertAction( new uiAction(tr("Manually set home zoom"),
 					optcb,"man_homezoom"), sManHZIdx );
-	sethomezoombut_->setMenu( mnu );
 	mDefBut(gotohomezoombut_,"homezoom",gotoHomeZoomCB,
 		tr("Go to home zoom"));
 	gotohomezoombut_->setSensitive( !mIsUdf(defx1pospercm_) &&

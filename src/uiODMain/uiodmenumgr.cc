@@ -778,7 +778,6 @@ void uiODMenuMgr::fillSceneMenu()
     addAction( scenemnu_, tr("Cascade"), "cascade", mCascadeMnuItm );
 
     uiMenu* tilemnu = addSubMenu( scenemnu_, uiStrings::sTile(), "tile" );
-    scenemnu_->addMenu( tilemnu );
     addAction( tilemnu, tr("Auto"), "auto", mTileAutoMnuItm );
     addAction( tilemnu, uiStrings::sHorizontal(), "hortile", mTileHorMnuItm );
     addAction( tilemnu, uiStrings::sVertical(), "vertile", mTileVerMnuItm );

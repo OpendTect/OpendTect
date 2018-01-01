@@ -47,7 +47,8 @@ public:
     void			setArrowType(ArrowType);
 
     void			setShortcut(const char*);
-    void			setMenu(uiMenu*,PopupMode=MenuButtonPopup);
+    void			setNoMenu();
+    void			setMenu(uiMenu*,PopupMode);
 				//!<Menu becomes mine
 
     const uiMenu*		menu() const		{ return uimenu_; }

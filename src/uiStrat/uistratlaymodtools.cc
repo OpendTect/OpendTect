@@ -147,7 +147,7 @@ void uiMultiStratLevelSel::doSelLevelDlg( CallBacker* )
     uiDialog dlg( parent(), su );
 
     const uiListBox::Setup setup( OD::ChooseZeroOrMore, tr("Available Markers"),
-	    			  uiListBox::AboveLeft );
+				  uiListBox::AboveLeft );
     uiListBox* lb = new uiListBox( &dlg, setup );
     lb->setMultiChoice( true );
     lb->addItems( alllevelnames_.getUiStringSet() );
@@ -225,10 +225,9 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 			mCB(this,uiStratLayModEditTools,showFlatCB) );
     flattenedtb_->setToggleButton( true );
     flattenedtb_->setOn( false );
-    uiMenu* flattenlvlmenu = new uiMenu(this,tr("Select Flatenning Level"));
+    uiMenu* flattenlvlmenu = flattenedtb_->addMenu();
     flattenlvlmenu->insertAction(new uiAction(tr("Set Default Level"),
 					   optcb,"marker.small"), 0);
-    flattenedtb_->setMenu(flattenlvlmenu);
     flattenedtb_->attach( leftOf, mksynthtb_ );
 
     lithtb_ = new uiToolButton( rightgrp, "lithologies",

@@ -347,7 +347,7 @@ uiMenu* uiButton::addMenu()
     if ( qpushbut )
 	qpushbut->setMenu( mnu->getQMenu() );
     else if ( qtoolbut )
-	qtoolbut->setMenu( mnu->getQMenu() );
+	((uiToolButton*)this)->setMenu( mnu, uiToolButton::MenuButtonPopup );
     else
 	{ pErrMsg("Can only set menu on push or tool button"); }
     return mnu;
@@ -715,9 +715,15 @@ void uiToolButton::setShortcut( const char* sc )
 }
 
 
+void uiToolButton::setNoMenu()
+{
+    setMenu( 0, DelayedPopup );
+}
+
+
 void uiToolButton::setMenu( uiMenu* mnu, PopupMode mode )
 {
-    const bool hasmenu = mnu && mnu->nrActions() > 0;
+    const bool hasmenu = mnu;
     tbbody_->setMenu( hasmenu ? mnu->getQMenu() : 0 );
 
     mDynamicCastGet(uiToolBar*,tb,parent())
@@ -726,22 +732,24 @@ void uiToolButton::setMenu( uiMenu* mnu, PopupMode mode )
 	if ( finalised() )
 	{
 	    QSize size = tbbody_->size();
-	    const int wdth =
-		hasmenu ? mCast(int,1.5*size.height()) : size.height();
+	    const int wdth = size.height();
+		// hasmenu ? mCast(int,1.5*size.height()) : size.height();
 	    size.setWidth( wdth );
 	    tbbody_->resize( size );
 	}
 	else
 	{
-	    const int wdth =
-		hasmenu ? mCast(int,1.5*prefVNrPics()) : prefVNrPics();
+	    const int wdth = prefVNrPics();
+		// hasmenu ? mCast(int,1.5*prefVNrPics()) : prefVNrPics();
 	    tbbody_->setPrefWidth( wdth );
 	}
     }
 
-    if ( !hasmenu ) mode = DelayedPopup;
+    if ( !hasmenu )
+	mode = DelayedPopup;
     tbbody_->setPopupMode( (QToolButton::ToolButtonPopupMode)mode );
 
-    OBJDISP()->go( uimenu_ );
+    if ( uimenu_ )
+	OBJDISP()->go( uimenu_ );
     uimenu_ = mnu;
 }
