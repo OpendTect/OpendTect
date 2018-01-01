@@ -61,8 +61,8 @@ static const char* multic = "multiple";
 static const uiString singstr = uiStrings::sSingle();
 static const uiString multstr = uiStrings::sMultiple();
 #define mGet2D3D() \
-    const bool mUnusedVar have2d = DBM().isBad() || SI().has2D(); \
-    const bool mUnusedVar have3d = DBM().isBad() || SI().has3D()
+    const bool mUnusedVar have2d = SI().has2D(); \
+    const bool mUnusedVar have3d = SI().has3D()
 #define mGet2D3DWithOneChoice() \
     mGet2D3D(); \
     bool haveonechoice = !have2d || !have3d; \
@@ -247,10 +247,11 @@ uiAction* uiODMenuMgr::addAction( uiMenu* mnu, const uiString& nm,
 
 
 uiAction* uiODMenuMgr::addAction( uiMenu* mnu, const uiString& nm,
-				const char* icnm, const CallBack& cb )
+				const char* icnm, const CallBack& cb,
+				int id )
 {
     uiAction* uiact = new uiAction( m3Dots(nm), cb, icnm );
-    mnu->insertAction( uiact );
+    mnu->insertAction( uiact, id );
     return uiact;
 }
 
@@ -307,6 +308,29 @@ uiMenu* uiODMenuMgr::add2D3DActions( uiMenu* mnu, const uiString& nm,
 	ret = addSubMenu( mnu, nm, icnm );
 	addAction( ret, uiStrings::s2D(), "2d", id1 );
 	addAction( ret, uiStrings::s3D(), "3d", id2 );
+    }
+
+    return ret;
+}
+
+
+uiMenu* uiODMenuMgr::add2D3DActions( uiMenu* mnu, const uiString& nm,
+				     const char* icnm,
+				     const CallBack& cb1, const CallBack& cb2,
+				     bool always3d,
+				     int itmid2d, int itmid3d )
+{
+    mGet2D3DWithOneChoice();
+
+    uiMenu* ret = mnu;
+    if ( haveonechoice )
+	addAction( ret, nm, icnm, have2d ? cb1 : cb2,
+				  have2d ? itmid2d : itmid3d );
+    else
+    {
+	ret = addSubMenu( mnu, nm, icnm );
+	addAction( ret, uiStrings::s2D(), "2d", cb1, itmid2d );
+	addAction( ret, uiStrings::s3D(), "3d", cb2, itmid3d );
     }
 
     return ret;
@@ -740,28 +764,27 @@ void uiODMenuMgr::fillAnalMenu()
 void uiODMenuMgr::fillSceneMenu()
 {
     scenemnu_->clear();
-    mInsertItem( scenemnu_, uiStrings::sNew(), mAddSceneMnuItm );
-    mInsertItem( scenemnu_, tr("New Map View"), mAddMapSceneMnuItm );
+    addAction( scenemnu_, uiStrings::sNew(), "new", mAddSceneMnuItm );
+    addAction( scenemnu_, tr("New Map View"), "survey", mAddMapSceneMnuItm );
+    uiString tdmnutxt = tr( "New [%1]" )
+	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
+    addtimedepthsceneitm_ = addAction( scenemnu_, tdmnutxt,
+	       SI().zIsTime() ? "depth" : "time", mAddTmeDepthMnuItm );
 
-    addtimedepthsceneitm_ = new uiAction( ::toUiString("Dummy"),
-					  mCB(this,uiODMenuMgr,handleClick) );
-    scenemnu_->insertAction( addtimedepthsceneitm_, mAddTmeDepthMnuItm );
-
-    add2D3DMenuItem( *scenemnu_, "empty", tr("New [Horizon Flattened]"),
-		     mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm );
+    add2D3DActions( scenemnu_, tr("New [Horizon Flattened]"), "horizons",
+		    mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm );
     lastsceneitm_ = scenemnu_->insertSeparator();
 
-    mInsertItem( scenemnu_, tr("Cascade"), mCascadeMnuItm );
-    uiMenu* tileitm = new uiMenu( &appl_, uiStrings::sTile() );
-    scenemnu_->addMenu( tileitm );
+    addAction( scenemnu_, tr("Cascade"), "cascade", mCascadeMnuItm );
 
-    mInsertItem( tileitm, tr("Auto"), mTileAutoMnuItm );
-    mInsertItem( tileitm, uiStrings::sHorizontal(), mTileHorMnuItm );
-    mInsertItem( tileitm, uiStrings::sVertical(), mTileVerMnuItm );
+    uiMenu* tilemnu = addSubMenu( scenemnu_, uiStrings::sTile(), "tile" );
+    scenemnu_->addMenu( tilemnu );
+    addAction( tilemnu, tr("Auto"), "auto", mTileAutoMnuItm );
+    addAction( tilemnu, uiStrings::sHorizontal(), "hortile", mTileHorMnuItm );
+    addAction( tilemnu, uiStrings::sVertical(), "vertile", mTileVerMnuItm );
 
-    mInsertItem( scenemnu_, m3Dots(uiStrings::sProperties()),
-		 mScenePropMnuItm );
-    scenemnu_->insertSeparator();
+    addAction( scenemnu_, uiStrings::sProperties(), "settings",
+		    mScenePropMnuItm );
 
     updateSceneMenu();
 }
@@ -803,11 +826,6 @@ void uiODMenuMgr::updateSceneMenu()
 	itm->setText( scenenms[idx] );
 	itm->setChecked( idx==activescene );
     }
-
-    uiString itmtxt = tr( "New [%1]" )
-	 .arg( !DBM().isBad() && SI().zIsTime() ? uiStrings::sDepth()
-						: uiStrings::sTime() );
-    addtimedepthsceneitm_->setText( m3Dots(itmtxt) );
 }
 
 
@@ -956,54 +974,17 @@ int uiODMenuMgr::add2D3DToolButton( uiToolBar& tb, const char* iconnm,
 
     if ( !have2d )
 	return tb.addButton( iconnm, tt, cb3d, false, itmid3d );
-
     if ( !have3d )
 	return tb.addButton( iconnm, tt, cb2d, false, itmid2d );
 
     const int butid = tb.addButton( iconnm, tt );
     uiMenu* popmnu = tb.addButtonMenu( butid, uiToolButton::InstantPopup );
-    popmnu->insertAction( new uiAction(m3Dots(uiStrings::s2D()),cb2d),
+    popmnu->insertAction( new uiAction(m3Dots(uiStrings::s2D()),cb2d,"2d"),
 			itmid2d );
-    popmnu->insertAction( new uiAction(m3Dots(uiStrings::s3D()),cb3d),
+    popmnu->insertAction( new uiAction(m3Dots(uiStrings::s3D()),cb3d,"3d"),
 			itmid3d );
     return butid;
 }
-
-
-void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
-				   const uiString& itmtxt,
-				   const CallBack& cb2d, const CallBack& cb3d,
-				   int itmid2d, int itmid3d )
-{
-    mGet2D3D();
-
-    if ( have2d && have3d )
-    {
-	uiMenu* mnu = new uiMenu( &appl_, itmtxt, iconnm );
-	mnu->insertAction( new uiAction(m3Dots(uiStrings::s2D()),cb2d),itmid2d);
-	mnu->insertAction( new uiAction(m3Dots(uiStrings::s3D()),cb3d),itmid3d);
-	menu.addMenu( mnu );
-    }
-    else
-    {
-	uiString titledots( itmtxt );
-	titledots.append( " ..." );
-	if ( have2d )
-	    menu.insertAction( new uiAction(titledots,cb2d,iconnm), itmid2d );
-	else if ( have3d )
-	    menu.insertAction( new uiAction(titledots,cb3d,iconnm), itmid3d );
-    }
-}
-
-
-void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
-				   const uiString& itmtxt,
-				   int itmid2d, int itmid3d )
-{
-    const CallBack cb = mCB(this,uiODMenuMgr,handleClick);
-    add2D3DMenuItem( menu, iconnm, itmtxt, cb, cb, itmid2d, itmid3d );
-}
-
 
 
 #define mAddTB(tb,fnm,txt,togg,fn) \
@@ -1037,8 +1018,6 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 			false,launchRockPhysics);
     mAddTB(dtecttb_,"2dlaunch",tr("Launch 2D Viewer"),
 			false,launch2DViewer);
-
-//    dTectTBChanged.trigger();
 }
 
 

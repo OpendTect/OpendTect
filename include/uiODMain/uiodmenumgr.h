@@ -38,68 +38,65 @@ mExpClass(uiODMain) uiODMenuMgr : public CallBacker
 
 public:
 
-    uiMenu*		fileMnu()		{ return surveymnu_; }
-    uiMenu*		surveyMnu()		{ return surveymnu_; }
-    uiMenu*		analMnu()		{ return analmnu_; }
-    uiMenu*		analWellMnu()		{ return analwellmnu_; }
-    uiMenu*		layerModelMnu()		{ return layermodelmnu_; }
-    uiMenu*		procMnu()		{ return procmnu_; }
-    uiMenu*		procWellMnu()		{ return procwellmnu_; }
-    uiMenu*		sceneMnu()		{ return scenemnu_; }
-    uiMenu*		viewMnu()		{ return viewmnu_; }
-    uiMenu*		utilMnu()		{ return utilmnu_; }
-    uiMenu*		helpMnu()		{ return helpmnu_; }
-    uiMenu*		docMnu();
-    uiMenu*		settMnu()		{ return settmnu_; }
-    uiMenu*		toolsMnu()		{ return toolsmnu_; }
-    uiMenu*		installMnu()		{ return installmnu_; }
-    uiMenu*		preLoadMenu()		{ return preloadmnu_; }
-    uiMenu*		createSeisOutputMenu()	{ return csomnu_; }
-    uiMenu*		createHorOutputMenu()	{ return chomnu_; }
-    uiMenu*		impWellTrackMenu()	{ return imptrackmnu_; }
-    uiMenu*		impWellLogsMenu()	{ return implogsmnu_; }
-    uiMenu*		impWellMarkersMenu()	{ return impmarkersmnu_; }
+    uiMenu*	fileMnu()		{ return surveymnu_; }
+    uiMenu*	surveyMnu()		{ return surveymnu_; }
+    uiMenu*	analMnu()		{ return analmnu_; }
+    uiMenu*	analWellMnu()		{ return analwellmnu_; }
+    uiMenu*	layerModelMnu()		{ return layermodelmnu_; }
+    uiMenu*	procMnu()		{ return procmnu_; }
+    uiMenu*	procWellMnu()		{ return procwellmnu_; }
+    uiMenu*	sceneMnu()		{ return scenemnu_; }
+    uiMenu*	viewMnu()		{ return viewmnu_; }
+    uiMenu*	utilMnu()		{ return utilmnu_; }
+    uiMenu*	helpMnu()		{ return helpmnu_; }
+    uiMenu*	docMnu();
+    uiMenu*	settMnu()		{ return settmnu_; }
+    uiMenu*	toolsMnu()		{ return toolsmnu_; }
+    uiMenu*	installMnu()		{ return installmnu_; }
+    uiMenu*	preLoadMenu()		{ return preloadmnu_; }
+    uiMenu*	createSeisOutputMenu()	{ return csomnu_; }
+    uiMenu*	createHorOutputMenu()	{ return chomnu_; }
+    uiMenu*	impWellTrackMenu()	{ return imptrackmnu_; }
+    uiMenu*	impWellLogsMenu()	{ return implogsmnu_; }
+    uiMenu*	impWellMarkersMenu()	{ return impmarkersmnu_; }
 
     typedef uiODApplMgr::ActType    ActType;
     typedef uiODApplMgr::ObjType    ObjType;
-    uiMenu*		getBaseMnu(ActType); //! < Within Survey menu
-    uiMenu*		getMnu(bool imp,ObjType);
+    uiMenu*	getBaseMnu(ActType); //! < Within Survey menu
+    uiMenu*	getMnu(bool imp,ObjType);
 			//! < Within Survey - Import or Export
 
-    uiToolBar*		dtectTB()		{ return dtecttb_; }
-    uiToolBar*		viewTB()		{ return viewtb_; }
-    uiToolBar*		manTB()			{ return mantb_; }
-    uiToolBar*		pluginTB();
-    uiToolBar*		customTB(const char*);
+    uiToolBar*	dtectTB()		{ return dtecttb_; }
+    uiToolBar*	viewTB()		{ return viewtb_; }
+    uiToolBar*	manTB()			{ return mantb_; }
+    uiToolBar*	pluginTB();
+    uiToolBar*	customTB(const char*);
 
 			// Probably not needed by plugins
-    void		updateStereoMenu();
-    void		updateViewMode(bool);
-    void		updateAxisMode(bool);
-    bool		isSoloModeOn() const;
-    void		enableMenuBar(bool);
-    void		enableActButton(bool);
-    void		setCameraPixmap(bool isperspective);
-    void		insertNewSceneItem(uiAction*,int id);
-    void		updateSceneMenu();
+    void	updateStereoMenu();
+    void	updateViewMode(bool);
+    void	updateAxisMode(bool);
+    bool	isSoloModeOn() const;
+    void	enableMenuBar(bool);
+    void	enableActButton(bool);
+    void	setCameraPixmap(bool isperspective);
+    void	insertNewSceneItem(uiAction*,int id);
+    void	updateSceneMenu();
 
-    static int		ask2D3D(const uiString& txt,int res2d=2,int res3d=3,
-				int rescncl=0);
-    int			add2D3DToolButton(uiToolBar&,const char* iconnnm,
-				     const uiString& tooltip,
-				     const CallBack& cb2d,const CallBack& cb3d,
-				     int itmid2d=-1,int itmid3d=-1);
-    void		add2D3DMenuItem(uiMenu&,const char* iconnnm,
-				     const uiString& menuitmtxt,
-				     const CallBack& cb2d,const CallBack& cb3d,
-				     int itmid2d=-1,int itmid3d=-1);
+    static int	ask2D3D(const uiString& txt,int res2d=2,int res3d=3,
+			int rescncl=0);
+    int		add2D3DToolButton(uiToolBar&,const char* iconnnm,
+			const uiString& tooltip,
+			const CallBack& cb2d,const CallBack& cb3d,
+			int itmid2d=-1,int itmid3d=-1);
 
     uiMenu*	addSubMenu(uiMenu*,const uiString&,const char* icnm);
     uiAction*	addAction(uiMenu*,const uiString&,const char* icnm,
-			  const CallBack&);
+			const CallBack&,int mnuitmid=-1);
     uiAction*	addDirectAction(uiMenu*,const uiString&,const char*,int);
-    uiMenu*	add2D3DActions(uiMenu*,const uiString&,const char*,int,int,
-			       bool always3d=false);
+    uiMenu*	add2D3DActions(uiMenu*,const uiString&,const char*,
+			const CallBack&,const CallBack&,bool always3d=false,
+			int mnuitmid2d=-1,int mnuitmid3d=-1);
 
     Notifier<uiODMenuMgr> dTectTBChanged;
     Notifier<uiODMenuMgr> dTectMnuChanged;
@@ -153,6 +150,8 @@ protected:
     uiMenu*	addAsciiActionSubMenu(uiMenu*,const uiString&,
 				      const char* icnm,int,
 				      const uiString* altascnm=0);
+    uiMenu*	add2D3DActions(uiMenu*,const uiString&,const char*,int,int,
+			       bool always3d=false);
     uiMenu*	add2D3DAsciiSubMenu(uiMenu*,const uiString&,
 				      const char* icnm,int,int,
 				      const uiString* altascnm=0,
@@ -196,9 +195,6 @@ protected:
     void	updateDTectToolBar(CallBacker*);
     void	updateDTectMnus(CallBacker*);
     void	toggViewMode(CallBacker*);
-    void	add2D3DMenuItem(uiMenu&,const char* iconnnm,
-					const uiString& menuitmtxt,
-					int itmid2d=-1,int itmid3d=-1);
 
     uiAction*	stereooffitm_;
     uiAction*	stereoredcyanitm_;
