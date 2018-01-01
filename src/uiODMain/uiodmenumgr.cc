@@ -697,8 +697,9 @@ void uiODMenuMgr::fillProcMenu()
 
     uiMenu* psmnu = add2D3DActions( csomnu_, tr("Prestack Processing"),
 			"prestackdataset", mPSProc2DMnuItm, mPSProc3DMnuItm );
-    addAction( psmnu, tr("Create MultiCube DataStore"), "multicubeps",
-			mCB(&applMgr(),uiODApplMgr,createMultiCubeDS) );
+    if ( have3d )
+	addAction( psmnu, tr("Create MultiCube DataStore"), "multicubeps",
+			    mCB(&applMgr(),uiODApplMgr,createMultiCubeDS) );
 
     if ( have3d )
     {
