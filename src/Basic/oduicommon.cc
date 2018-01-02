@@ -29,16 +29,17 @@ BufferString OD::getActiveStyleName()
 }
 
 
-static BufferString getFileName( const FilePath& basedir, const char* filebase,
+static BufferString getFileName( const File::Path& basedir,
+				 const char* filebase,
 				 const char* ext )
 {
-    FilePath fp( basedir, filebase );
+    File::Path fp( basedir, filebase );
     fp.setExtension( ext );
     return fp.fullPath();
 }
 
 
-static bool isFilePresent( const FilePath& basedir, const char* filebase,
+static bool isFilePresent( const File::Path& basedir, const char* filebase,
 			   const char* ext, BufferString& filenm )
 {
     filenm = getFileName( basedir, filebase, ext );
@@ -48,9 +49,9 @@ static bool isFilePresent( const FilePath& basedir, const char* filebase,
 
 BufferString OD::getStyleFile( const char* stylenm, const char* ext )
 {
-    const FilePath userstyledir( GetSettingsFileName(sStyleDir) );
-    const FilePath appstyledir( mGetApplSetupDataDir(), sStyleDir );
-    const FilePath inststyledir( mGetSWDirDataDir(), sStyleDir );
+    const File::Path userstyledir( GetSettingsFileName(sStyleDir) );
+    const File::Path appstyledir( mGetApplSetupDataDir(), sStyleDir );
+    const File::Path inststyledir( mGetSWDirDataDir(), sStyleDir );
 
 #define mRetIfExists(pathfp,filebase) \
     if ( isFilePresent(pathfp,filebase,ext,stylefnm) ) \
