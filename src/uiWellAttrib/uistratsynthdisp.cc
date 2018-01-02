@@ -91,10 +91,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , relzoomwr_(0,0,1,1)
     , savedzoomwr_(mUdf(double),0,0,0)
     , flattenlvl_(Strat::Level::undef())
-    , trprov_(this)
+    , trprov_(p)
 {
-    stratsynth_->setRunner( trprov_ );
-    edstratsynth_->setRunner( trprov_ );
+    stratsynth_->setRunnerProvider( trprov_ );
+    edstratsynth_->setRunnerProvider( trprov_ );
 
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setFrame( true );

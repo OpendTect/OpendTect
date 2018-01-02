@@ -66,7 +66,7 @@ const Strat::LayerModel& StratSynth::layMod() const
 }
 
 
-void StratSynth::setRunner( const TaskRunnerProvider& trprov )
+void StratSynth::setRunnerProvider( const TaskRunnerProvider& trprov )
 {
     trprov_ = &trprov;
 }

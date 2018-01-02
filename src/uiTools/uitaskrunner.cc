@@ -49,7 +49,7 @@ static const int noprogbardispnrsymbs = 29;
 /*!If there is a main window up, we should always use that window as parent.
    Only if main window does not exist, use the provided parent. */
 
-static uiParent* getParent( uiParent* p )
+static uiParent* getTRParent( uiParent* p )
 {
     uiParent* res = uiMainWin::activeWindow();
     if ( res )
@@ -59,8 +59,9 @@ static uiParent* getParent( uiParent* p )
 }
 
 
+
 uiTaskRunnerProvider::uiTaskRunnerProvider( uiParent* p )
-    : parent_(getParent(p))
+    : parent_(p)
 {
 }
 
@@ -68,14 +69,13 @@ uiTaskRunnerProvider::uiTaskRunnerProvider( uiParent* p )
 TaskRunner& uiTaskRunnerProvider::runner() const
 {
     if ( !runner_ )
-	runner_ = new uiTaskRunner( parent_ );
+	runner_ = new uiTaskRunner( getTRParent(parent_) );
     return *runner_;
 }
 
 
-
 uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
-    : uiDialog( getParent(prnt),
+    : uiDialog( getTRParent(prnt),
                 uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
 	.nrstatusflds( -1 )
 	.oktext(uiStrings::sPause().addSpace(2))

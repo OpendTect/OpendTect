@@ -114,7 +114,7 @@ public:
 				   float zskip) const;
     void		decimateTraces(SeisTrcBuf&,int fac) const;
 
-    void		setRunner(const TaskRunnerProvider&);
+    void		setRunnerProvider(const TaskRunnerProvider&);
     uiString		errMsg() const;
     uiString		infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
