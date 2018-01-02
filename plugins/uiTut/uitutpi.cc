@@ -56,7 +56,7 @@ public:
     uiMenu*		mnuseis_;
     uiVisMenuItemHandler wellmnuitmhandler_;
 
-    void		doSeis(CallBacker*);
+    void		updateMenu(CallBacker*);
     void		do2DSeis(CallBacker*);
     void		do3DSeis(CallBacker*);
     void		launchDialog(Seis::GeomType);
@@ -71,34 +71,35 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 			 *a->applMgr().visServer(),m3Dots(tr("Tut Well Tools")),
 			 mCB(this,uiTutMgr,doWells),0,cTutIdx)
 {
-    uiMenu* mnu = new uiMenu( appl_, tr("Tut Tools") );
-    if ( SI().has2D() && SI().has3D() )
-    {
-	mnu->insertAction( new uiAction(m3Dots(tr("Seismic 2D (Direct)")),
-					mCB(this,uiTutMgr,do2DSeis)) );
-	mnu->insertAction( new uiAction(m3Dots(tr("Seismic 3D (Direct)")),
-					mCB(this,uiTutMgr,do3DSeis)) );
-    }
-    else
-	mnu->insertAction( new uiAction(m3Dots(tr("Seismic (Direct)")),
-					mCB(this,uiTutMgr,doSeis)) );
+    mAttachCB( DBM().surveyChanged, uiTutMgr::updateMenu );
+    updateMenu( 0 );
+}
 
-    mnu->insertAction( new uiAction( m3Dots(uiStrings::sHorizon(1)),
-				    mCB(this,uiTutMgr,doHor)) );
 
-    appl_->menuMgr().toolsMnu()->addMenu( mnu );
+void uiTutMgr::updateMenu( CallBacker* )
+{
+    uiODMenuMgr& mnumgr = appl_->menuMgr();
+    uiMenu* mnu = mnumgr.addSubMenu( mnumgr.procMnu(), tr("Tutorial Tools"),
+					"tutorial" );
+    mnumgr.add2D3DActions( mnu, tr("Seismic (Direct)"), "seis",
+				mCB(this,uiTutMgr,do2DSeis),
+				mCB(this,uiTutMgr,do3DSeis) );
+    mnumgr.addAction( mnu, uiStrings::sHorizon(), "tree-horizon3d",
+		      mCB(this,uiTutMgr,doHor) );
+
 }
 
 
 void uiTutMgr::do3DSeis( CallBacker* )
-{ launchDialog( Seis::Vol ); }
+{
+    launchDialog( Seis::Vol );
+}
 
 
 void uiTutMgr::do2DSeis( CallBacker* )
-{ launchDialog( Seis::Line ); }
-
-void uiTutMgr::doSeis( CallBacker* )
-{ launchDialog( SI().has2D() ? Seis::Line : Seis::Vol ); }
+{
+    launchDialog( Seis::Line );
+}
 
 
 void uiTutMgr::launchDialog( Seis::GeomType tp )
@@ -142,7 +143,8 @@ class TutHelpProvider : public SimpleHelpProvider
 public:
 TutHelpProvider( const char* baseurl, const char* linkfnm )
     : SimpleHelpProvider(baseurl,linkfnm)
-{}
+{
+}
 
 static void initClass()
 {

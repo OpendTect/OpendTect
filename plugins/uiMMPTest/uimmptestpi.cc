@@ -42,15 +42,8 @@ public:
 uiMMPTestMgr::uiMMPTestMgr( uiODMain* a )
     : appl_(a)
 {
-    mAttachCB( appl_->menuMgr().dTectMnuChanged, uiMMPTestMgr::updateMenu );
-    updateMenu( 0 );
-}
-
-
-void uiMMPTestMgr::updateMenu( CallBacker* )
-{
     uiAction* action = new uiAction( m3Dots(tr("Multi-machine Diagnostics")),
-			mCB(this,uiMMPTestMgr,mnuCB) );
+			mCB(this,uiMMPTestMgr,mnuCB), "mmproc" );
     appl_->menuMgr().utilMnu()->insertAction( action );
 }
 
