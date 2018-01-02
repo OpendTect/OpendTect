@@ -97,9 +97,12 @@ public:
     bool			load(const char* libnm);
 					//!< Explicit load of a plugin
 
-    struct Data
+    mExpClass(Basic) Data
     {
+    public:
+
 	enum AutoSource		{ None, UserDir, AppDir, Both };
+
 	static bool		isUserDir( AutoSource src )
 				{ return src != AppDir && src != None; }
 
@@ -122,6 +125,7 @@ public:
 	bool			isexternal_;
 
 	BufferString		version() const;
+
     };
 
     ObjectSet<Data>&	getData()		{ return data_; }
