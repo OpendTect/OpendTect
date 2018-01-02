@@ -39,11 +39,9 @@ public:
 
     static const char*	sKeyNoCode()			{ return "<no_code>"; }
 
-    Notifier<RefTree>	unitAdded;
-    Notifier<RefTree>	unitChanged;
-    Notifier<RefTree>	unitToBeDeleted;
-    const UnitRef*	notifUnit() const		{ return notifun_; }
-			//!< if null, assume everything has changed
+    Notifier<UnitRef>	unitAdded;
+    Notifier<UnitRef>	unitChanged;
+    Notifier<UnitRef>	unitToBeDeleted;
 
     const LeafUnitRef&	undefLeaf() const		{ return udfleaf_; }
     virtual int		level() const			{ return 0; }
@@ -57,6 +55,9 @@ public:
     void		addLevelUnit(const Level&);
     void		removeLevelUnit(const Level&);
 
+    friend class	UnitRef;
+    friend class	NodeUnitRef;
+
 protected:
 
     void		initTree();
@@ -64,10 +65,12 @@ protected:
 
     LithologySet	liths_;
     ContentSet		contents_;
-    const UnitRef*	notifun_;
     LeafUnitRef&	udfleaf_;
+    bool		beingdeleted_;
 
     void		levelSetChgCB(CallBacker*);
+    void		reportChange(UnitRef&,bool isrem=false);
+    void		reportAdd(UnitRef&);
 
 public:
 
@@ -81,8 +84,6 @@ public:
 
     friend class	RefTreeMgr;
 
-    void		reportChange(const UnitRef*,bool isrem=false);
-    void		reportAdd(const UnitRef*);
     bool		addLeavedUnit(const char*,const char*);
     Strat::LeavedUnitRef* getByLevel(Level::ID) const;
 

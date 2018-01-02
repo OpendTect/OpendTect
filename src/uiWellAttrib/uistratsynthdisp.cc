@@ -93,7 +93,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , flattenlvl_(Strat::Level::undef())
     , trprov_(this)
 {
-    levelaux_ += new FlatView::AuxData("");
     stratsynth_->setRunner( trprov_ );
     edstratsynth_->setRunner( trprov_ );
 

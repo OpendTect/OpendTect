@@ -29,9 +29,9 @@ RefTree::RefTree()
     , unitAdded(this)
     , unitChanged(this)
     , unitToBeDeleted(this)
-    , notifun_(0)
     , udfleaf_(*new LeafUnitRef(this,-1,"Undef unit"))
 {
+    udfleaf_.toBeDeleted.disable();
     udfleaf_.setColor( Color::LightGrey() );
     initTree();
 }
@@ -46,30 +46,26 @@ void RefTree::initTree()
 
 RefTree::~RefTree()
 {
-    unitAdded.setEmpty(); unitChanged.setEmpty(); unitToBeDeleted.setEmpty();
-    udfleaf_.toBeDeleted.disable();
+    beingdeleted_ = true;
+    changed.setEmpty();
+    unitToBeDeleted.setEmpty();
+    for ( int idx=0; idx<refs_.size(); idx++ )
+	refs_[idx]->prepareFWDelete();
+    // only keep my own toBeDeleted
 }
 
 
-void RefTree::reportChange( const UnitRef* un, bool isrem )
+void RefTree::reportChange( UnitRef& un, bool isrem )
 {
-    notifun_ = un;
-    if ( un )
-    {
-	(isrem ? unitToBeDeleted : unitChanged).trigger();
-	notifun_ = 0;
-    }
+    if ( !beingdeleted_ )
+	(isrem ? unitToBeDeleted : unitChanged).trigger( &un );
 }
 
 
-void RefTree::reportAdd( const UnitRef* un )
+void RefTree::reportAdd( UnitRef& un )
 {
-    notifun_ = un;
-    if ( un )
-    {
-	unitAdded.trigger();
-	notifun_ = 0;
-    }
+    if ( !beingdeleted_ )
+	unitAdded.trigger( &un );
 }
 
 

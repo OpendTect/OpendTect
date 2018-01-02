@@ -33,8 +33,15 @@ Strat::UnitRef::UnitRef( NodeUnitRef* up, const char* d )
 
 Strat::UnitRef::~UnitRef()
 {
-    if ( toBeDeleted.isEnabled() )
-	notifChange( true );
+    notifChange( true );
+    detachAllNotifiers();
+}
+
+
+void Strat::UnitRef::prepareFWDelete()
+{
+    changed.setEmpty();
+    toBeDeleted.setEmpty();
 }
 
 
@@ -56,7 +63,7 @@ void Strat::UnitRef::doFill( BufferString& str, int id ) const
 
 void Strat::UnitRef::doFill( BufferString& str, IntegerID<int> id ) const
 {
-    doFill( str, id.getI() ); 
+    doFill( str, id.getI() );
 }
 
 
@@ -192,7 +199,7 @@ void Strat::UnitRef::notifChange( bool isrem )
     (isrem ? toBeDeleted : changed).trigger();
     RefTree& rt = refTree();
     if ( &rt != this )
-	rt.reportChange( this, isrem );
+	rt.reportChange( *this, isrem );
 }
 
 
@@ -214,6 +221,14 @@ Strat::NodeUnitRef::~NodeUnitRef()
 	ref( idx ).toBeDeleted.disable();
 
     setEmpty();
+}
+
+
+void Strat::NodeUnitRef::prepareFWDelete()
+{
+    UnitRef::prepareFWDelete();
+    for ( int idx=0; idx<refs_.size(); idx++ )
+	refs_[idx]->prepareFWDelete();
 }
 
 
@@ -281,7 +296,7 @@ void Strat::NodeUnitRef::changeTimeRange( float dtime )
 	    newtimerg.start += dtime;
 	    newtimerg.stop += dtime;
 	    nur->setTimeRange( newtimerg );
-	} 
+	}
     }
 }
 
@@ -345,7 +360,7 @@ bool Strat::NodeUnitRef::add( UnitRef* un, bool rev )
     else
 	refs_ += un;
 
-    refTree().reportAdd( un );
+    refTree().reportAdd( *un );
     return true;
 }
 
@@ -358,7 +373,7 @@ bool Strat::NodeUnitRef::insert( UnitRef* un, int posidx )
     if ( refs_.validIdx( posidx ) )
 	refs_.insertAt( un, posidx );
 
-    refTree().reportAdd( un );
+    refTree().reportAdd( *un );
     return true;
 }
 
@@ -369,7 +384,7 @@ Strat::UnitRef* Strat::NodeUnitRef::replace( int unidx, Strat::UnitRef* un )
 	return 0;
 
     UnitRef* oldun = refs_.replace( unidx, un );
-    refTree().reportAdd( un );
+    refTree().reportAdd( *un );
     return oldun;
 }
 

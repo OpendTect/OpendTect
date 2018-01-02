@@ -94,10 +94,13 @@ public:
     bool			isEmpty() const;
     void			empty();
 
-    // should be protected, don't use.
-				AuxData( const char* nm );
-				AuxData( const AuxData& );
+protected:
+				AuxData(const char* nm);
+				AuxData(const AuxData&);
 				friend class Viewer;
+
+    AuxData&			operator =(const AuxData&)	= delete;
+
 };
 
 

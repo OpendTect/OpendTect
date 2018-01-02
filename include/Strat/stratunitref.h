@@ -93,8 +93,10 @@ protected:
     void		doUse(const char*,IntegerID<int>&);
 
     void		notifChange(bool isrem=false);
+    virtual void	prepareFWDelete();
 
     friend class	NodeUnitRef;
+    friend class	RefTree;
 
 public:
 
@@ -158,6 +160,7 @@ protected:
     UnitRef*		fnd(const char*) const;
     void		takeChildrenFrom(NodeUnitRef*);
     void		changeTimeRange( float dtime);
+    virtual void	prepareFWDelete();
     friend class	RefTree;
 
 public:
