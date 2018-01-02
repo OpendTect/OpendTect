@@ -405,15 +405,9 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     QApplication::setStyle( QStyleFactory::create(stylestr.buf()) );
 #endif
 
-    BufferString qssfnm = Settings::common().find( "dTect.StyleSheet" );
-    if ( qssfnm.isEmpty() )
-    {
-	qssfnm = GetEnvVar( "OD_STYLESHEET" );
-	if ( qssfnm.isEmpty() )
-	    qssfnm = mGetSetupFileName( "od.qss" );
-    }
-
-    if ( File::exists(qssfnm) )
+    const BufferString stylenm = OD::getActiveStyleName();
+    const BufferString qssfnm = OD::getStyleFile( stylenm, "qss" );
+    if ( !qssfnm.isEmpty() )
     {
 	QFile file( qssfnm.buf() );
 	file.open( QFile::ReadOnly );

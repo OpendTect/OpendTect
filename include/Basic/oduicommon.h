@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "bufstring.h"
 
 
 namespace OD
@@ -106,6 +107,12 @@ enum StdActionType
     Unload
 };
 
+
+mGlobal(Basic) BufferString getActiveStyleName();
+mGlobal(Basic) BufferString getStyleFile(const char* stylenm,const char* ext);
+
+
+
 } // namespace OD
 
 
@@ -125,3 +132,4 @@ inline bool isSingle( OD::FileSelectionMode mode )
 				{ return mode != OD::SelectMultiFile; }
 inline bool isForRead( OD::FileSelectionMode mode )
 				{ return mode != OD::SelectFileForWrite; }
+
