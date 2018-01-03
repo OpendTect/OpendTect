@@ -832,9 +832,10 @@ void uiODMenuMgr::updateSceneMenu()
 void uiODMenuMgr::fillViewMenu()
 {
     viewmnu_->clear();
-    mInsertItem( viewmnu_, m3Dots(tr("Work Area")), mWorkAreaMnuItm );
-    mInsertItem( viewmnu_, m3Dots(tr("Z-Scale")), mZScaleMnuItm );
-    mInsertItem( viewmnu_, m3Dots(tr("Viewer 2D")), m2DViewMnuItm );
+    addAction( viewmnu_, tr("Work Area"), "workarea", mWorkAreaMnuItm );
+    addAction( viewmnu_, tr("Z-Scale"), "zscale", mZScaleMnuItm );
+
+    mInsertItem( viewmnu_, m3Dots(tr("Seismics [2D Viewer]")), m2DViewMnuItm );
     uiMenu* stereoitm = new uiMenu( &appl_, tr("Stereo Viewing") );
     viewmnu_->addMenu( stereoitm );
 
