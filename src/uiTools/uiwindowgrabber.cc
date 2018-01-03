@@ -61,11 +61,12 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 
 	windowfld_ = new uiLabeledComboBox( this, tr("Grab window") );
 	windowfld_->box()->addItems( windownms );
+	windowfld_->box()->setHSzPol( uiObject::Wide );
     }
 
     if ( dirname_.isEmpty() )
 	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
-    fileinputfld_ = new uiFileInput( this, mJoinUiStrs(sFile(), sName()),
+    fileinputfld_ = new uiFileInput( this, mJoinUiStrs(sFile(),sName()),
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
 				    .defseldir(dirname_)
