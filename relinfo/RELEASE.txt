@@ -8,9 +8,9 @@ v6.2.0: December 22, 2017
 * Support of Coordinate Reference Systems
 * RGB color blending on 2D lines
 * Volume Builder for 2D
-* Import/Export 3D Bulk Horizons
-* Import/Export 2D Bulk Horizons
-* Export Bulk Faults
+* Bulk import/export of 3D Horizons
+* Bulk import/export of 2D Horizons
+* Bulk export of Faults
 * Store/Retrieve work area selections
 * ShotPoint number included in 2D Geometry
 * Import/Export 2D horizons using ShotPoint number
