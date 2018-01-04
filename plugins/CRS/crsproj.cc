@@ -64,7 +64,7 @@ bool Coords::Projection::isOK() const
 LatLong Coords::Projection::toGeographic( const Coord& crd, bool wgs84 ) const
 {
     const Coords::Projection* proj = wgs84 ? getWGS84Proj() : this;
-    if ( !proj || !proj->isOK() )
+    if ( !proj || !proj->getReady() )
 	return LatLong::udf();
 
     return transformTo( *proj, crd );
@@ -74,7 +74,7 @@ LatLong Coords::Projection::toGeographic( const Coord& crd, bool wgs84 ) const
 Coord Coords::Projection::fromGeographic( const LatLong& ll, bool wgs84 ) const
 {
     const Coords::Projection* proj = wgs84 ? getWGS84Proj() : this;
-    if ( !proj || !proj->isOK() )
+    if ( !proj || !proj->getReady() )
 	return Coord::udf();
 
     return proj->transformTo( *this, ll );
@@ -274,17 +274,19 @@ public:
 					const char* defstr);
 			~Proj4Projection();
 
-    bool		isOK() const;
-    bool		isOrthogonal() const;
-    bool		isLatLong() const;
-    bool		isMeter() const;
+    virtual bool	isOK() const;
+    virtual bool	isOrthogonal() const;
+    virtual bool	isLatLong() const;
+    virtual bool	isMeter() const;
 
-    Coord		transformTo(const Projection& target,LatLong) const;
-    LatLong		transformTo(const Projection& target,Coord) const;
+    virtual Coord	transformTo(const Projection& target,LatLong) const;
+    virtual LatLong	transformTo(const Projection& target,Coord) const;
 
 protected:
 
-    void		init();
+    virtual bool	getReady() const;
+
+    bool		init();
     inline projPJ	getLLProj() const
 			{ return llproj_ ? llproj_ : proj_; }
 
@@ -298,7 +300,6 @@ Coords::Proj4Projection::Proj4Projection( Coords::AuthorityCode code,
     : Projection(code,usrnm,defstr)
     , proj_(0),llproj_(0)
 {
-    init();
 }
 
 
@@ -315,17 +316,25 @@ bool Coords::Proj4Projection::isOK() const
 }
 
 
-void Coords::Proj4Projection::init()
+bool Coords::Proj4Projection::getReady() const
+{
+    return isOK() || const_cast<Proj4Projection*>(this)->init();
+}
+
+
+bool Coords::Proj4Projection::init()
 {
     proj_ = pj_init_plus( defstr_.buf() );
     if ( proj_ && !isLatLong() )
 	llproj_ = pj_latlong_from_proj( proj_ );
+
+    return proj_;
 }
 
 
 bool Coords::Proj4Projection::isLatLong() const
 {
-    return pj_is_latlong( proj_ );
+    return defstr_.contains( "longlat" );
 }
 
 bool Coords::Proj4Projection::isMeter() const
@@ -342,7 +351,7 @@ bool Coords::Proj4Projection::isMeter() const
 Coord Coords::Proj4Projection::transformTo( const Coords::Projection& target,
 					    LatLong ll ) const
 {
-    if ( !isOK() || !target.isOK() )
+    if ( !getReady() || !target.getReady() )
 	return Coord::udf();
 
     projPJ srcproj4 = getLLProj();
@@ -361,7 +370,7 @@ Coord Coords::Proj4Projection::transformTo( const Coords::Projection& target,
 LatLong Coords::Proj4Projection::transformTo( const Coords::Projection& target,
 					      Coord pos ) const
 {
-    if ( !isOK() || !target.isOK() )
+    if ( !getReady() || !target.getReady() )
 	return LatLong::udf();
 
     mDynamicCastGet(const Proj4Projection*,targetproj4,&target)
@@ -377,7 +386,7 @@ LatLong Coords::Proj4Projection::transformTo( const Coords::Projection& target,
 
 
 bool Coords::Proj4Projection::isOrthogonal() const
-{ return isOK() && !pj_is_latlong( proj_ ) && !pj_is_geocent( proj_ ); }
+{ return !isLatLong() && !defstr_.contains("geocent"); }
 
 
 
