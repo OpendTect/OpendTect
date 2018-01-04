@@ -100,7 +100,8 @@ void Output::ensureSelType( Seis::SelType st )
 
 void Output::doSetGeometry( const TrcKeyZSampling& cs )
 {
-    if ( cs.isEmpty() ) return;
+    if ( cs.isEmpty() )
+	return;
 
     ensureSelType( Seis::Range );
     ((Seis::RangeSelData*)seldata_)->cubeSampling() = cs;
@@ -108,7 +109,9 @@ void Output::doSetGeometry( const TrcKeyZSampling& cs )
 
 
 Pos::GeomID Output::curGeomID() const
-{ return seldata_->geomID(); }
+{
+    return seldata_->geomID();
+}
 
 
 DataPackOutput::DataPackOutput( const TrcKeyZSampling& cs )
@@ -265,7 +268,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
     , writer_(0)
     , trc_(0)
     , prevpos_(-1,-1)
-    , storinited_(0)
+    , storinited_(false)
     , errmsg_(uiString::emptyString())
     , scaler_(0)
     , growtrctosi_(false)

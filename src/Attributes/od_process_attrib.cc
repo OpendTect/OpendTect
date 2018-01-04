@@ -74,29 +74,31 @@ bool BatchProgram::go( od_ostream& strm )
 	strm << "Preparing processing";
 
 	PtrMan<IOPar> outpar = outputs->subselect( outidx );
-	if ( !outpar ) break;
+	if ( !outpar || outpar->isEmpty() )
+	    break;
 
 	const char* seisid = outpar->find( "Seismic.ID" );
-	if ( !seisid ) break;
-	DBKey seisdbky = DBKey::getFromString( seisid );
+	if ( !seisid )
+	    break;
 
+	const DBKey seisdbky = DBKey::getFromString( seisid );
 	PtrMan<IOObj> seisioobj = DBM().get( seisdbky );
 	if ( !seisioobj )
 	{
-	    BufferString msg( "Cannot find output Seismic Object with ID '" );
-	    msg += seisid; msg += "' ..."; mRetHostErr( msg );
+	    const BufferString msg( "Cannot find output Seismic Object (ID=",
+			    seisdbky.isValid() ? seisid : "<invalid>", ")" );
+	    mRetHostErr( msg );
 	}
 
 	File::Path seisfp( seisioobj->mainFileName() );
 	if ( !seisfp.isAbsolute() )
 	{
 	    seisfp.set( DBM().survDir() );
-	    seisfp.add( seisioobj->dirName() );
-	    seisfp.add( seisioobj->mainFileName() );
+	    seisfp.add( seisioobj->dirName() )
+		  .add( seisioobj->mainFileName() );
 	}
 
 	BufferString dirnm = seisfp.pathOnly();
-	seisioobj->setDirName( dirnm.buf() );
 	const bool isdir = File::isDirectory( dirnm );
 	if ( !isdir || !File::isWritable(dirnm) )
 	{
@@ -106,6 +108,7 @@ bool BatchProgram::go( od_ostream& strm )
 			 isdir ? "is not writeable" : "does not exist")
 	}
 
+	seisioobj->setDirName( dirnm );
 	strm << " of '" << seisioobj->name() << "'.\n" << od_endl;
 
 	Attrib::DescSet attribset( false );
@@ -334,9 +337,9 @@ bool BatchProgram::go( od_ostream& strm )
 	outidx++;
     }
 
-    if ( !comm_ ) return true;
+    if ( !comm_ )
+	return true;
 
-    // It is VERY important workers are destroyed BEFORE the last sendState!!!
     mMessage( "\nWriting finish status: " );
     comm_->setState( JobCommunic::Finished );
     bool ret = comm_->sendState();

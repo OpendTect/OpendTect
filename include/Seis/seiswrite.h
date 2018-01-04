@@ -76,8 +76,6 @@ protected:
     bool		prepared_;
     int			nrtrcs_;
     int			nrwritten_;
-    int			firstns_;
-    SamplingData<float>	firstsampling_;
     SeisStatsCollector&	seisstatscollector_;
     IOPar&		auxpars_;
 

@@ -66,8 +66,6 @@ void SeisTrcWriter::init()
     putter_ = 0; pswriter_ = 0;
     nrtrcs_ = nrwritten_ = 0;
     prepared_ = false;
-    firstns_ = mUdf(int);
-    firstsampling_.start = mUdf(float);
 }
 
 

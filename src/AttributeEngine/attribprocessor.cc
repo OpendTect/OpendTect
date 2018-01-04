@@ -37,7 +37,9 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
     , sd_(0)
     , showdataavailabilityerrors_(true)
 {
-    if ( !provider_ ) return;
+    if ( !provider_ )
+	{ pErrMsg("No Provider for Desc"); return; }
+
     provider_->ref();
     desc_.ref();
 
@@ -49,19 +51,24 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
 
 Processor::~Processor()
 {
-    if ( provider_ )  { provider_->unRef(); desc_.unRef(); }
+    if ( provider_ )
+	{ provider_->unRef(); desc_.unRef(); }
     deepUnRef( outputs_ );
-
-    if (sd_) delete sd_;
+    if (sd_)
+	delete sd_;
 }
 
 
-bool Processor::isOK() const { return provider_ && provider_->isOK(); }
+bool Processor::isOK() const
+{
+    return provider_ && provider_->isOK();
+}
 
 
 void Processor::addOutput( Output* output )
 {
-    if ( !output ) return;
+    if ( !output )
+	return;
     output->ref();
     outputs_ += output;
 }
@@ -79,7 +86,8 @@ void Processor::setLineName( const char* lnm )
 
 int Processor::nextStep()
 {
-    if ( !provider_ || outputs_.isEmpty() ) return ErrorOccurred();
+    if ( !provider_ || outputs_.isEmpty() )
+	return ErrorOccurred();
 
     if ( !isinited_ )
 	init();

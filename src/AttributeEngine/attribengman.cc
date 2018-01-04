@@ -172,15 +172,13 @@ Processor* EngineMan::createProcessor( const DescSet& attribset,
 				       uiString& errmsg )
 {
     Desc* targetdesc = const_cast<Desc*>(attribset.getDesc(outid));
-    if ( !targetdesc ) return 0;
+    if ( !targetdesc )
+	return 0;
 
     targetdesc->updateParams();
     Processor* processor = new Processor( *targetdesc, linename, errmsg );
     if ( !processor->isOK() )
-    {
-	delete processor;
-	return 0;
-    }
+	{ delete processor; return 0; }
 
     processor->addOutputInterest( targetdesc->selectedOutput() );
     return processor;
