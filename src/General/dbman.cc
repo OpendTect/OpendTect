@@ -260,10 +260,10 @@ BufferString DBMan::nameOf( DBKey dbky ) const
 {
     BufferString ret;
     IOObj* ioobj = get( dbky );
-    if ( !ioobj )
-	{ ret = "ID=<"; ret += dbky; ret += ">"; }
-    else
+    if ( ioobj )
 	{ ret = ioobj->name(); delete ioobj; }
+    else if ( dbky.isValid() )
+	{ ret = "ID=<"; ret += dbky; ret += ">"; }
 
     return ret;
 }

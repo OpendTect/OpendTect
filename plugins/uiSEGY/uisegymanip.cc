@@ -187,8 +187,8 @@ void doDlg( CallBacker* )
 
 
 uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
-    : uiDialog(p,uiDialog::Setup(tr("Manipulate SEG-Y File"),
-				  tr("Manipulate '%1'").arg(fnm),
+    : uiDialog(p,uiDialog::Setup(tr("Edit SEG-Y File"),
+				  tr("Edit '%1'").arg(fnm),
 				  mODHelpKey(mSEGYFileManipHelpID) ) )
     , fname_(fnm)
     , txthdr_(*new SEGY::TxtHeader)
@@ -299,7 +299,6 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 	thtbl_->setRowToolTip( irow, mToUiStringTodo(he.description()) );
 	thtbl_->setValue( RowCol(irow,0), he.bytepos_ + 1 );
     }
-    thtbl_->attach( ensureRightOf, edbut_ );
     thtbl_->setStretch( 1, 1 );
     thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,rowClck) );
 
