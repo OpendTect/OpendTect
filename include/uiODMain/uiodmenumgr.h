@@ -135,6 +135,7 @@ protected:
     uiMenu*		impmarkersmnu_;
     ObjectSet<uiMenu>	impmnus_;
     ObjectSet<uiMenu>	expmnus_;
+    BufferStringSet	iconsetnames_;
 
     uiToolBar*		dtecttb_;
     uiToolBar*		viewtb_;
@@ -146,6 +147,7 @@ protected:
     MeasureToolMan*	measuretoolman_;
 
     uiAction*	addAction(uiMenu*,const uiString&,const char* icnm,int);
+    uiAction*	addCheckableAction(uiMenu*,const uiString&,const char*,int);
     uiMenu*	addAsciiSubMenu(uiMenu*,const uiString&,const char*);
     uiMenu*	addAsciiActionSubMenu(uiMenu*,const uiString&,
 				      const char* icnm,int,
@@ -213,8 +215,7 @@ protected:
 
     void	showLogFile();
     void	mkViewIconsMnu();
-    void	addIconMnuItems(const DirList&,uiMenu*,
-					BufferStringSet&);
+    void	addIconMnuItems(const DirList&,uiMenu*);
 
     uiMenu*	addDualAsciiSubMenu(uiMenu*,const uiString&,
 				      const char* icnm,int,int,bool,

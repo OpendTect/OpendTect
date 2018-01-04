@@ -239,6 +239,17 @@ uiAction* uiODMenuMgr::addDirectAction( uiMenu* mnu, const uiString& nm,
 }
 
 
+uiAction* uiODMenuMgr::addCheckableAction( uiMenu* mnu, const uiString& nm,
+					   const char* icnm, int id )
+{
+    uiAction* uiact = new uiAction( nm, mCB(this,uiODMenuMgr,handleClick),
+				    icnm );
+    uiact->setCheckable( true );
+    mnu->insertAction( uiact, id );
+    return uiact;
+}
+
+
 uiAction* uiODMenuMgr::addAction( uiMenu* mnu, const uiString& nm,
 				const char* icnm, int id )
 {
@@ -834,49 +845,44 @@ void uiODMenuMgr::fillViewMenu()
     viewmnu_->clear();
     addAction( viewmnu_, tr("Work Area"), "workarea", mWorkAreaMnuItm );
     addAction( viewmnu_, tr("Z-Scale"), "zscale", mZScaleMnuItm );
+    addAction( viewmnu_, tr("Seismics [2D Viewer]"), "2dlaunch", m2DViewMnuItm);
 
-    mInsertItem( viewmnu_, m3Dots(tr("Seismics [2D Viewer]")), m2DViewMnuItm );
-    uiMenu* stereoitm = new uiMenu( &appl_, tr("Stereo Viewing") );
-    viewmnu_->addMenu( stereoitm );
+#define mAddStereoAction(itm,txt,icnm,id,docheck) \
+    itm = addCheckableAction( stereomnu, txt, icnm, id ); \
+    itm->setChecked( docheck )
+    uiMenu* stereomnu = addSubMenu( viewmnu_, tr("Stereo Viewing"), "stereo" );
+    mAddStereoAction( stereooffitm_, tr("Off"), "off", mStereoOffMnuItm, true );
+    mAddStereoAction( stereoredcyanitm_, tr("Red/Cyan"), "redcyan",
+			mStereoRCMnuItm, false );
+    mAddStereoAction( stereoquadbufitm_, tr("Quad Buffered"), "quadbuff",
+			mStereoQuadMnuItm, false );
 
-#define mInsertStereoItem(itm,txt,docheck,id) \
-    itm = new uiAction( txt, mCB(this,uiODMenuMgr,handleClick) ); \
-    stereoitm->insertAction( itm, id ); \
-    itm->setCheckable( true ); \
-    itm->setChecked( docheck );
-
-    mInsertStereoItem( stereooffitm_, tr("Off"), true, mStereoOffMnuItm)
-    mInsertStereoItem( stereoredcyanitm_, tr("Red/Cyan"), false,
-			mStereoRCMnuItm )
-    mInsertStereoItem( stereoquadbufitm_, tr("Quad Buffered"), false,
-			mStereoQuadMnuItm )
-
-    stereooffsetitm_ = new uiAction( m3Dots(tr("Stereo Offset")),
-				mCB(this,uiODMenuMgr,handleClick) );
-    stereoitm->insertAction( stereooffsetitm_, mStereoOffsetMnuItm );
+    stereooffsetitm_ = addAction( stereomnu, tr("Stereo Offset"),
+				  "stereooffset", mStereoOffsetMnuItm );
     stereooffsetitm_->setEnabled( false );
 
     mkViewIconsMnu();
     viewmnu_->insertSeparator();
 
     uiMenu& toolbarsmnu = appl_.getToolbarsMenu();
-    toolbarsmnu.setName("Toolbars");
+    toolbarsmnu.setName( "Toolbars" );
+    toolbarsmnu.setIcon( "toolbar" );
     viewmnu_->addMenu( &toolbarsmnu );
 }
 
 
-void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiMenu* iconsmnu,
-				   BufferStringSet& nms )
+void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiMenu* iconsmnu )
 {
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	const BufferString nm( dl.get( idx ).buf() + 6 );
-	if ( nm.isEmpty() || nms.isPresent(nm) )
+	BufferString nm( dl.get( idx ).buf() + 6 );
+	if ( nm.isEmpty() || iconsetnames_.isPresent(nm) )
 	    continue;
 
-	BufferString mnunm( "&" ); mnunm += nm;
-	mInsertItem( iconsmnu, toUiString(mnunm), mViewIconsMnuItm+nms.size() );
-	nms.add( nm );
+	BufferString icnm( nm ); icnm.toLower();
+	addAction( iconsmnu, toUiString(nm), icnm,
+		    mViewIconsMnuItm+iconsetnames_.size() );
+	iconsetnames_.add( nm );
     }
 }
 
@@ -889,13 +895,13 @@ void uiODMenuMgr::mkViewIconsMnu()
     if ( dlsett.size() + dlsite.size() + dlrel.size() < 2 )
 	return;
 
-    uiMenu* iconsmnu = new uiMenu( &appl_, tr("Icons") );
-    viewmnu_->addMenu( iconsmnu );
-    mInsertItem( iconsmnu, tr("Default"), mViewIconsMnuItm+0 );
-    BufferStringSet nms; nms.add( "Default" );
-    addIconMnuItems( dlsett, iconsmnu, nms );
-    addIconMnuItems( dlsite, iconsmnu, nms );
-    addIconMnuItems( dlrel, iconsmnu, nms );
+    uiMenu* iconsmnu = addSubMenu( viewmnu_, tr("Icons"), "icons" );
+    addAction( iconsmnu, tr("Default"), "od", mViewIconsMnuItm+0 );
+    iconsetnames_.setEmpty();
+    iconsetnames_.add( "Default" );
+    addIconMnuItems( dlsett, iconsmnu );
+    addIconMnuItems( dlsite, iconsmnu);
+    addIconMnuItems( dlrel, iconsmnu );
 }
 
 
@@ -1491,7 +1497,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )
 	{
 	    Settings::common().set( sKeyIconSetNm,
-				    itm->text().getFullString() + 1 );
+				    iconsetnames_.get( id-mViewIconsMnuItm ) );
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
 		uiToolBar::toolBars()[idx]->reloadIcons();
 	    Settings::common().write();
