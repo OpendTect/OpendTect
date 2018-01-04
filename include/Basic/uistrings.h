@@ -175,8 +175,9 @@ public:
     // do not use or turn into phrase
 
     static uiWord s2D()			{ return tr("2D"); }
-    static uiWord s2DHorizon(int n=1)	{ return tr("2D Horizon",0,n); }
-    static uiWord s2DLine()		{ return tr("2D line"); }
+    static uiWord s2DHorizon(int num=1) { return tr("2D Horizon",0,num); }
+    static uiWord s3DHorizon(int num=1) { return tr("3D Horizon",0,num); }
+    static uiWord s2DLine(int num=1)	{ return tr("2D line",0,num); }
     static uiWord s2DPlane(int n=1)	{ return tr("2D Plane",0,n); }
     static uiWord s3D()			{ return tr("3D"); }
     static uiWord s3DHorizon(int n=1)	{ return tr("3D Horizon",0,n); }
@@ -292,11 +293,13 @@ public:
     static uiWord sCrossline(int n=1)	{ return tr("Cross-line", 0, n ); }
     static uiWord sCrosslineDip()	{ return sLineDip(false); }
     static uiWord sCrosslineRange()	{ return tr("Crossline Range"); }
+	static uiWord sCrossPlotData()     { return tr("Cross Plot Data"); }
     static uiWord sCube(int n=1)	{ return tr("Cube",0,n); }
     static uiWord sCurve()		{ return tr("Curve"); }
     static uiWord sData()		{ return tr("Data"); }
     static uiWord sDataStore(int n=1)	{ return tr("Data Store",0,n); }
     static uiWord sDataSet()		{ return tr("Data Set"); }
+	static uiWord sDataRange()	{ return tr("Data Range"); }
     static uiWord sDecimal()		{ return tr("Decimal"); }
     static uiWord sDefault()		{ return tr("Default"); }
     static uiWord sDefine()		{ return tr("Define"); }
@@ -397,10 +400,15 @@ public:
     static uiWord sInputData()		{ return tr("Input Data"); }
     static uiWord sInputFile()		{ return tr("Input File"); }
     static uiWord sInputParamsMissing();
-    static uiWord sInputSelection()	{ return tr("Input Selection"); }
-    static uiWord sInsert()		{ return tr("Insert"); }
-    static uiWord sInside()		{ return tr("Inside"); }
+    static uiWord sInput();
+    static uiWord sInputFile();
+    static uiWord sInputSelection();
     static uiWord sInterpolate()	{ return tr("Interpolate"); }
+    static uiWord sInpFileName();
+    static uiWord sInputData()		{ return tr("Input Data"); }
+    static uiWord sInsert();
+    static uiWord sInvalid();
+    static uiWord sInvInpFile()		{ return tr("Invalid input file"); }
     static uiWord sInterpolating()	{ return tr("Interpolating"); }
     static uiWord sInterpolation()	{ return tr("Interpolation"); }
     static uiWord sInterpretation(int n=1) { return tr("Interpretation",0,n); }
@@ -467,6 +475,7 @@ public:
     static uiWord sName(int n=1)	{ return tr("Name",0,n); }
     static uiWord sNegative()		{ return tr("Negative"); }
     static uiWord sNew()		{ return tr("New"); }
+    static uiWord sNewName()		{ return tr("New Name"); }
     static uiWord sNext()		{ return tr("Next"); }
     static uiWord sNo()			{ return tr("No"); }
     static uiWord sNoInfoAvailable()	{ return tr("No info available"); }
@@ -482,6 +491,7 @@ public:
     static uiWord sObject()		{ return tr("Object"); }
     static uiWord sOff()		{ return tr("Off","not in action"); }
     static uiWord sOffset()		{ return tr("Offset"); }
+    static uiWord sOffsetRange()	{ return tr("Offset Range"); }
     static uiWord sOk()			{ return tr("OK"); }
     static uiWord sOn()			{ return tr("On","in action"); }
     static uiWord sOnlyAtSections()	{ return tr("Only at Sections"); }
@@ -526,6 +536,7 @@ public:
     static uiWord sPointsDone()		{ return tr("Points done"); }
     static uiWord sPointSet(int n=1)	{ return tr("PointSet",0,n); }
     static uiWord sPolygon(int n=1)	{ return tr("Polygon",0,n); }
+    static uiWord sPolyBody(int num=1) { return tr("Polygon Body",0,num); }
     static uiWord sPosition(int n=1)	{ return tr("Position",0,n); }
     static uiWord sPositionsDone()	{ return tr("Positions done"); }
     static uiWord sPositive()		{ return tr("Positive"); }
@@ -534,6 +545,7 @@ public:
     static uiWord sPrefix()		{ return tr("Prefix"); }
     static uiWord sPreProcessing()	{ return tr("PreProcessing"); }
     static uiWord sPreStack()		{ return tr("Prestack"); }
+    static uiWord sPreStackData()	{ return tr("PreStack Data"); }
     static uiWord sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiWord sPreview()		{ return tr("Preview"); }
     static uiWord sPrevious()		{ return tr("Previous"); }
@@ -706,6 +718,8 @@ public:
     static uiWord sVD(bool abbr=false)
     { return abbr ? tr("VD","abbr Var Density") : tr("Variable Density"); }
     static uiWord sVelocity(int n=1)	{ return tr("Velocity",0,n); }
+    static uiWord sValRange()	       { return tr("Value Range"); }
+    static uiWord sVelRange()	       { return tr("Velocity Range"); }
     static uiWord sVertical()		{ return tr("Vertical"); }
     static uiWord sView()		{ return tr("View"); }
     static uiWord sVintage()		{ return tr("Vintage"); }

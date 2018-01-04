@@ -29,8 +29,8 @@ ________________________________________________________________________
 
 
 uiString EMHorizon3DTranslatorGroup::sTypeName(int num)
-{ 
-    return SI().has2D() ? uiStrings::s3DHorizon(num) : uiStrings::sHorizon(num); 
+{
+    return SI().has2D() ? uiStrings::s3DHorizon(num) : uiStrings::sHorizon(num);
 }
 
 mDefSimpleTranslatorSelector(EMHorizon3D)

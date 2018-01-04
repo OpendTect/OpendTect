@@ -319,7 +319,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     {
 	selaxisfld_ =
 	    new uiGenInput( this, uiString::empty(),
-                            BoolInpSpec(true, tr("Draw Y1"),tr("Draw Y2")) );
+			    BoolInpSpec(true, tr("Draw Y1"),tr("Draw Y2")) );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
 	selaxisfld_->valuechanged.notify(
 		mCB(this,uiDPSUserDefTab,drawAxisChanged) );

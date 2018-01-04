@@ -68,7 +68,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiAmplSpectrum,dispRangeChgd) );
 
-    uiString lbl =  tr("Value %1, power").arg(SI().zIsTime() ? 
+    uiString lbl =  tr("Value %1, power").arg(SI().zIsTime() ?
 		   uiStrings::sFrequency(true) : uiStrings::sWaveNumber(true));
     valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
     valfld_->attach( alignedBelow, rangefld_ );

@@ -14,19 +14,19 @@ ________________________________________________________________________
 static const char* joinstring = "%1 %2";
 
 uiPhrase uiStrings::phrAdd( const uiWord& string )
-{ return toUiString(joinstring).arg( sAdd() ).arg( string ); }
+{ return tr("Add%1").arg( string ); }
 
 uiPhrase uiStrings::phrASCII( const uiWord& string )
-{ return toUiString(joinstring).arg( sASCII() ).arg( string ); }
+{ return tr("ASCII %1").arg( string ); }
 
 uiPhrase uiStrings::phrInterpretDataAlreadyLoadedAskForRename()
 { return tr("Interpretation data is already loaded. Enter a different name"); }
 
 uiPhrase uiStrings::phrCalculate( const uiWord& string )
-{ return toUiString(joinstring).arg(sCalculate()).arg(string); }
+{ return tr("Calculate %1").arg(string); }
 
 uiPhrase uiStrings::phrCalculateFrom( const uiWord& string )
-{ return toUiString(joinstring).arg(sCalculateFrom()).arg(string); }
+{ return tr("Calculate From %1").arg(string); }
 
 uiPhrase uiStrings::phrCrossline( const uiWord& string )
 { return tr("Cross-line %1").arg( string ); }

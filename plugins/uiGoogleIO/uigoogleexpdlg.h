@@ -10,10 +10,7 @@
 class uiFileSel;
 
 uiString kmlFileuiString();
-uiString sOutFileName()
-{
-    return od_static_tr("sOutFileName","output file name");
-}
+uiString sOutFileName();
 
 #define mDecluiGoogleExpStd \
     uiFileSel*		fnmfld_; \

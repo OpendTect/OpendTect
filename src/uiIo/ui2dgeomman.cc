@@ -107,7 +107,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
     {
 	setCtrlStyle( CloseOnly );
 	setCaption( tr("Browse Line Geometry") );
-    }  
+    }
 
     uiString lbl( uiStrings::sLineName().addSpace().append(": ").append(
 							toUiString(linenm)) );

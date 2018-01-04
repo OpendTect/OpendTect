@@ -273,7 +273,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
 {
     uiString titl = toUiString("%1 '%2'").arg(uiStrings::sRename())
 					       .arg(ioobj.uiName());
-    uiGenInputDlg dlg( this, titl, tr("New Name"), 
+    uiGenInputDlg dlg( this, titl, tr("New Name"),
 					    new StringInpSpec(ioobj.name()) );
     if ( !dlg.go() ) return false;
 

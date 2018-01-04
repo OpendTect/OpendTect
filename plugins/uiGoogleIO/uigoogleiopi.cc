@@ -40,6 +40,11 @@ uiString kmlFileuiString()
     return od_static_tr( "uiGoogleExport", "KML files" );
 }
 
+uiString sOutFileName()
+{
+    return od_static_tr("sOutFileName","output file name");
+}
+
 mDefODPluginInfo(uiGoogleIO)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
