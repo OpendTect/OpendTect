@@ -37,7 +37,8 @@ ________________________________________________________________________
 #define mFilePreLoadMnu			(mFileMnu + 800)
 
 #define mManSurveyMnuItm		(mFileMnu + 10)
-#define mExitMnuItm			(mFileMnu + 20)
+#define mRestartMnuItm			(mFileMnu + 20)
+#define mExitMnuItm			(mFileMnu + 21)
 #define mSessSaveMnuItm			(mFileSessMnu + 10)
 #define mSessRestMnuItm			(mFileSessMnu + 20)
 #define mSessAutoMnuItm			(mFileSessMnu + 30)

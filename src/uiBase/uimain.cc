@@ -25,9 +25,11 @@ ________________________________________________________________________
 #include "debug.h"
 #include "envvars.h"
 #include "file.h"
+#include "genc.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "oddirs.h"
+#include "oscommand.h"
 #include "staticstring.h"
 #include "settings.h"
 #include "thread.h"
@@ -474,6 +476,17 @@ void uiMain::setFont( const uiFont& fnt, bool PassToChildren )
     if ( !app_ )
 	{ pErrMsg("Huh?"); return; }
     app_->setFont( font_->qFont() );
+}
+
+
+bool uiMain::restart()
+{
+    const BufferString fullcmdline( GetFullCommandLine() );
+    if ( !OS::ExecCommand(fullcmdline,OS::RunInBG) )
+	return false;
+
+    exit( 0 );
+    return true;  // should not reach
 }
 
 

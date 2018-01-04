@@ -398,19 +398,9 @@ const char* getProcessNameForPID( int pid )
     return ret.isEmpty() ? 0 : ret.buf();
 }
 
-int ExitProgram( int ret )
+
+static int doExitProgram( int ret )
 {
-    is_exiting_ = true;
-    if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
-    {
-	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;
-#ifndef __win__
-	int dateres mUnusedVar = system( "date" );
-#endif
-    }
-
-    NotifyExitProgram( (PtrAllVoidFn)(-1) );
-
 // On Mac OpendTect crashes when calling the usual exit and shows error message
 // dyld: odmain bad address of lazy symbol pointer passed to
 // stub_binding_helper
@@ -425,6 +415,44 @@ int ExitProgram( int ret )
     exit(ret);
     return ret; // to satisfy (some) compilers
 #endif
+}
+
+
+int ExitProgram( int ret )
+{
+    is_exiting_ = true;
+    if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
+    {
+	std::cerr << "\nExitProgram (PID: " << GetPID() << std::endl;
+#ifndef __win__
+	int dateres mUnusedVar = system( "date" );
+#endif
+    }
+
+    NotifyExitProgram( (PtrAllVoidFn)(-1) );
+
+    return doExitProgram( ret );
+}
+
+
+int RestartProgram()
+{
+    is_exiting_ = true;
+    if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
+    {
+	std::cerr << "\nRestart Program (PID: " << GetPID() << std::endl;
+#ifndef __win__
+	int dateres mUnusedVar = system( "date" );
+#endif
+    }
+
+    NotifyExitProgram( (PtrAllVoidFn)(-1) );
+
+    const BufferString fullcmdline( GetFullCommandLine() );
+    if ( !OS::ExecCommand(fullcmdline,OS::RunInBG) )
+	return 1;
+
+    return doExitProgram( 0 );
 }
 
 
@@ -713,6 +741,23 @@ static const char* getShortPathName( const char* path )
 
     return shortpath;
 #endif
+}
+
+
+mExternC(Basic) const char* GetFullCommandLine( void )
+{
+    mDefineStaticLocalObject( BufferString, res, );
+    mDefineStaticLocalObject( Threads::Lock, lock, );
+
+    Threads::Locker locker( lock );
+
+    if ( res.isEmpty() )
+    {
+	for ( int idx=0; idx<argc_; idx++ )
+	    res.add( argv_[idx] ).add( " " );
+    }
+
+    return res;
 }
 
 

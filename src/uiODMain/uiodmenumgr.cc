@@ -426,6 +426,7 @@ void uiODMenuMgr::fillSurveyMenu()
 
     surveymnu_->insertSeparator();
 
+    addDirectAction( surveymnu_, tr("Restart"), "restart", mRestartMnuItm );
     addDirectAction( surveymnu_, uiStrings::sExit(), "exit", mExitMnuItm );
 }
 
@@ -1368,6 +1369,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
     case mPreLoadHorMnuItm:	applMgr().manPreLoad(uiODApplMgr::Hor); break;
+    case mRestartMnuItm:	appl_.restart(); break;
     case mExitMnuItm:		appl_.exit(); break;
     case mEditAttrMnuItm:	applMgr().editAttribSet(); break;
     case mEdit2DAttrMnuItm:	applMgr().editAttribSet(true); break;

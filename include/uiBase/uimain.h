@@ -37,6 +37,7 @@ public:
 
     virtual int		exec();
     void		exit(int retcode=0);
+    bool		restart();
     void*		thread();
 
     void		getCmdLineArgs(BufferStringSet&) const;

@@ -780,8 +780,7 @@ bool uiODMain::closeOK()
 
     bool askedanything = false;
     if ( !askStore(askedanything,
-	  uiStrings::phrJoinStrings(uiStrings::sClose(),
-				    toUiString(programname_) ) ) )
+		   uiStrings::phrClose(toUiString(programname_) ) ) )
     {
 	uiMSG().message(tr("Closing cancelled"));
 	return false;
@@ -824,6 +823,24 @@ uiString uiODMain::getProgramString() const
 uiString uiODMain::getProgramName()
 {
     return toUiString(programname_);
+}
+
+
+void uiODMain::restart( bool doconfirm )
+{
+    if ( doconfirm )
+    {
+	if ( !closeOK() )
+	    return;
+    }
+    else
+	closeApplication();
+
+    if ( !uiapp_.restart() )
+	uiMSG().error(
+	    tr("Failed to restart, please launch the application manually") );
+
+    uiapp_.exit(0);
 }
 
 

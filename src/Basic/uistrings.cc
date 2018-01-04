@@ -136,6 +136,9 @@ uiString uiStrings::phrCannotZip( const uiString& string )
 uiString uiStrings::phrCheck( const uiString& string )
 { return toUiString(joinstring).arg(sCheck()).arg(string); }
 
+uiString uiStrings::phrClose( const uiString& string )
+{ return toUiString(joinstring).arg(sClose()).arg(string); }
+
 uiString uiStrings::phrCopy( const uiString& string )
 { return toUiString(joinstring).arg(sCopy()).arg(string); }
 

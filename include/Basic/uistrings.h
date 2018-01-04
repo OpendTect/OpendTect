@@ -79,6 +79,8 @@ public:
     //!<": <string>"
     static uiString phrCheck(const uiString&);
     //!<"Check <string>"
+    static uiString phrClose(const uiString&);
+    //!<"Close <string>"
     static uiString phrCreateNew(const uiString&);
     //!<"Create New <string>"
     static uiString phrCrossline(const uiString&);

@@ -28,6 +28,8 @@ mGlobal(Basic) int GetPID(void);
 mGlobal(Basic) const char* GetLocalHostName(void);
 		/*!< returns (as expected) local host name */
 
+mGlobal(Basic) const char* GetFullCommandLine(void);
+		/*!< returns the original complete command line. */
 mGlobal(Basic) const char* GetFullExecutablePath(void);
 		/*!< returns full path to executable. setProgramArgs
 		     must be called for it to work. */
@@ -55,6 +57,9 @@ mGlobal(Basic) int ExitProgram( int ret );
 		     Return value is convenience only, so you can use like:
 		     return exitProgram( retval );
                 */
+mGlobal(Basic) int RestartProgram();
+		/*!< Starts another instance with original arguments before 
+		     nicely exiting itself. */
 
 mGlobal(Basic) bool IsExiting();
 		/*!<Returns if ExitProgram is called */

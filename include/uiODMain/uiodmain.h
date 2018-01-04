@@ -44,6 +44,7 @@ public:
 
     bool		go();
     void		exit(bool doconfirm=true);
+    void		restart(bool doconfirm=true);
 
     uiODApplMgr&	applMgr()	{ return *applmgr_; }
     uiODMenuMgr&	menuMgr()	{ return *menumgr_; } //!< + toolbar
