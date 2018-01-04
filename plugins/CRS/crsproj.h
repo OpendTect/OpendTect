@@ -58,6 +58,7 @@ public:
     BufferString		defStr() const		{ return defstr_; }
 
     virtual bool		isOK() const;
+    virtual bool		getReady() const	{ return true; }
 
     virtual bool		isOrthogonal() const;
     virtual bool		isLatLong() const	{ return false; }
@@ -74,7 +75,6 @@ public:
 
 protected:
 
-    void			init();
     virtual LatLong		toGeographic(const Coord&,
 					     bool wgs84=false) const;
     virtual Coord		fromGeographic(const LatLong&,

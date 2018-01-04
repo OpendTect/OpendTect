@@ -44,7 +44,7 @@ BufferString Coords::ProjectionBasedSystem::summary() const
 
 
 bool Coords::ProjectionBasedSystem::isOK() const
-{ return proj_ && proj_->isOK(); }
+{ return proj_; }
 
 bool Coords::ProjectionBasedSystem::geographicTransformOK() const
 { return isOK(); }
