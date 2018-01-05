@@ -196,13 +196,26 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
     {
+	const SamplingData<float>& trcsd = curtrcinfo->sampling_;
+	const float nrsteps = trcsd.start / trcsd.step;
+	const float inrsteps = (float)mNINT32( nrsteps );
+	float outz0shifthack = 0.f;
+	if ( std::abs(nrsteps-inrsteps) > Seis::cDefSampleSnapDist() )
+	    outz0shifthack = (nrsteps-inrsteps) * trcsd.step;
+
 	const DataHolder* data = isset ?
 				provider_->getData( BinID(0,0), idi ) : 0;
 	if ( data )
 	{
 	    for ( int idx=0; idx<outputs_.size(); idx++ )
+	    {
+		Output* outp = outputs_[idx];
+		mDynamicCastGet( SeisTrcStorOutput*, trcstoroutp, outp );
+		if ( trcstoroutp )
+		    trcstoroutp->writez0shift_ = outz0shifthack;
 		outputs_[idx]->collectData( *data, provider_->getRefStep(),
 					    *curtrcinfo );
+	    }
 	}
 
 	if ( isset )
@@ -370,7 +383,7 @@ void Processor::prepareForTableOutput()
 	    Interval<float> extraz( -2*provider_->getRefStep(),
 				    2*provider_->getRefStep() );
 	    provider_->setExtraZ( extraz );
-	    provider_->setNeedInterpol(true);
+	    provider_->setNeedInterpol( true );
 	}
     }
 
