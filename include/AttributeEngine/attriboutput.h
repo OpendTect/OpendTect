@@ -35,6 +35,7 @@ namespace Attrib
 {
 class DataHolder;
 class Data2DHolder;
+class Processor;
 
 /*!
 \brief Base class for attribute Output.
@@ -199,6 +200,9 @@ protected:
     bool			growtrctosi_;
     BufferString		datatype_;
     BufferStringSet		outpnames_;
+
+    float			writez0shift_;
+    friend class		Processor;
 
 public:
     void			deleteTrc(); //only if you do not use writeTrc

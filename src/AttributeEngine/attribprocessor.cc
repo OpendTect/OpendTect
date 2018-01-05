@@ -221,20 +221,31 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
     {
+	const SamplingData<float>& trcsd = curtrcinfo->sampling;
+	const float nrsteps = trcsd.start / trcsd.step;
+	const float inrsteps = (float)mNINT32( nrsteps );
+	float outz0shifthack = 0.f;
+	if ( std::abs(nrsteps-inrsteps) > 0.0001f )
+	    outz0shifthack = (nrsteps-inrsteps) * trcsd.step;
+
 	const DataHolder* data = isset ?
 				provider_->getData( BinID(0,0), idi ) : 0;
 	if ( data )
 	{
 	    for ( int idx=0; idx<outputs_.size(); idx++ )
 	    {
+		Output* outp = outputs_[idx];
+		mDynamicCastGet( SeisTrcStorOutput*, trcstoroutp, outp );
+		if ( trcstoroutp )
+		    trcstoroutp->writez0shift_ = outz0shifthack;
 		mDynamicCastGet( TableOutput*, taboutpn, outputs_[idx] );
-		if ( !tracekey.isUdf() && taboutpn )
+		if ( !taboutpn || tracekey.isUdf() )
+		    outputs_[idx]->collectData( *data, provider_->getRefStep(),
+						*curtrcinfo );
+		else
 		    taboutpn->collectDataSpecial60(
 						*data, provider_->getRefStep(),
 						*curtrcinfo, tracekey );
-		else
-		    outputs_[idx]->collectData( *data, provider_->getRefStep(),
-						*curtrcinfo );
 	    }
 	}
 

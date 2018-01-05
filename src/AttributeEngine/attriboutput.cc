@@ -177,12 +177,19 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
     if ( output_->nrComponents() < desoutputs_.size() )
 	return;
 
+    // We have a problem.
+    // If the integer Z indexes do not seem to be corresponding with requested
+    // Z sampling positions, then we may have:
+    // (1) A genuine shifted output request
+    // (2) Input data where 0 is not on a sample
+    // But ...
+    // I think (1) is never the case because datapack output is requested in a
+    // 'nice' way (i.e. not with 'random' shifts). Thus ... will assume that.
+    // This tests pretty nicely
+
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
     const float z0 = tkzs.zsamp_.start / tkzs.zsamp_.step;
-    const float zepsilon = 1e-3;
-    const int outz0samp = (int)Math::Floor( z0+zepsilon );
-    const float extrazsamp = z0 - mCast(float,outz0samp);
-    const bool needinterp = fabs(extrazsamp) >= zepsilon;
+    const int outz0samp = mNINT32( z0 );
     const Interval<int> outrg( outz0samp, outz0samp+tkzs.zsamp_.nrSteps() );
     if ( !inputrg.overlaps(outrg,false) )
 	return;
@@ -194,42 +201,20 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
-	if ( !data.series(desoutputs_[desout]) )
+	const ValueSeries<float>* vals = data.series( desoutputs_[desout] );
+	if ( !vals )
 	    continue;
 
-	mDynamicCastGet( ConvMemValueSeries<float>*, cmvs,
-			 data.series(desoutputs_[desout]) );
+	Array3D<float>& outarr3d = output_->data( desout );
+	const int zarrsz = outarr3d.info().getSize( 2 );
 
-	if ( !cmvs )
+	for ( int idx=transrg.start; idx<=transrg.stop; idx++)
 	{
-	    for ( int idx=transrg.start; idx<=transrg.stop; idx++)
-	    {
-		const float val = needinterp
-		    ? data.getValue( desoutputs_[desout],
-				     (idx+extrazsamp)*refstep, refstep )
-		    : data.series(desoutputs_[desout])->value(idx-data.z0_);
+	    const float val = vals->value( idx-data.z0_ );
 
-		int zoutidx = (int)Math::Floor( idx-z0 );
-		if ( zoutidx<0 ) //to prevent crash in case of rounding pb
-		    zoutidx = 0;
-
-		output_->data(desout).set( lineidx, trcidx, zoutidx, val );
-	    }
-	}
-	else
-	{
-	    mDynamicCastGet( ConvMemValueSeries<float>*, deststor,
-			     output_->data(desout).getStorage() );
-	    const char elemsz = mCast(char,cmvs->dataDesc().nrBytes());
-
-	    const int idxz0 = (int)Math::Floor( z0 );
-	    const od_int64 destoffset = transrg.start - idxz0 +
-		output_->data(desout).info().getOffset(lineidx,trcidx,0);
-
-	    char* dest = deststor->storArr() + destoffset * elemsz;
-	    char* src = cmvs->storArr() +
-			(transrg.start-data.z0_) * elemsz;
-	    OD::memCopy( dest, src, elemsz*(transrg.width()+1) );
+	    int zoutidx = idx - outrg.start;
+	    if ( zoutidx >= 0 && zoutidx < zarrsz )
+		outarr3d.set( lineidx, trcidx, zoutidx, val );
 	}
     }
 }
