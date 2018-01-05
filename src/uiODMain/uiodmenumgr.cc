@@ -649,17 +649,6 @@ void uiODMenuMgr::createSeisSubMenus()
 }
 
 
-
-#define mInsertItem(menu,txt,id) \
-    menu->insertAction( \
-	new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), id )
-
-#define mInsertPixmapItem(menu,txt,id,pmfnm) { \
-    menu->insertAction( \
-	new uiAction(txt,mCB(this,uiODMenuMgr,handleClick), \
-			pmfnm), id ); }
-
-
 void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
@@ -908,31 +897,27 @@ void uiODMenuMgr::mkViewIconsMnu()
 
 void uiODMenuMgr::fillUtilMenu()
 {
-    settmnu_ = new uiMenu( &appl_, uiStrings::sSettings() );
-    utilmnu_->addMenu( settmnu_ );
+    settmnu_ = addSubMenu( utilmnu_, uiStrings::sSettings(), "settings" );
+    addAction( settmnu_, tr("Auto-Save"), "save", mSettAutoSaveMnuItm );
+    addAction( settmnu_, tr("Look and Feel"), "looknfeel", mSettLkNFlMnuItm );
+    addAction( settmnu_, tr("Keyboard Shortcuts"), "keyboardshortcuts",
+			 mSettShortcutsMnuItm );
 
-    mInsertItem( settmnu_, m3Dots(tr("Auto-Save")), mSettAutoSaveMnuItm );
-    mInsertItem( settmnu_, m3Dots(tr("Look and Feel")), mSettLkNFlMnuItm );
-    mInsertItem( settmnu_, m3Dots(tr("Keyboard Shortcuts")),
-		 mSettShortcutsMnuItm);
-    uiMenu* advmnu = new uiMenu( &appl_, uiStrings::sAdvanced() );
-    mInsertItem( advmnu, m3Dots(tr("Personal Settings")), mSettGeneral );
-    mInsertItem( advmnu, m3Dots(tr("Survey Defaults")), mSettSurvey );
-    settmnu_->addMenu( advmnu );
+    uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
+    addAction( advmnu, tr("Personal Settings"), "unknownperson", mSettGeneral );
+    addAction( advmnu, tr("Survey Defaults"), "survey", mSettSurvey );
 
-    toolsmnu_ = new uiMenu( &appl_, uiStrings::sTools() );
-    utilmnu_->addMenu( toolsmnu_ );
+    toolsmnu_ = addSubMenu( utilmnu_, uiStrings::sTools(), "tools" );
+    addAction( toolsmnu_, tr("Batch Programs"), "batchprogs", mBatchProgMnuItm);
+    addAction( toolsmnu_, tr("Position Conversion"), "xy2ic", mPosconvMnuItm );
 
-    mInsertItem( toolsmnu_, m3Dots(tr("Batch Programs")), mBatchProgMnuItm );
-    mInsertItem( toolsmnu_, m3Dots(tr("Position Conversion")), mPosconvMnuItm );
     BufferString develverstr;
     GetSpecificODVersion( "devel", develverstr );
     if ( !develverstr.isEmpty() )
-	mInsertItem( toolsmnu_, m3Dots(tr("Create Plugin Devel. Env.")),
-		     mCrDevEnvMnuItm );
+	addAction( toolsmnu_, tr("Create Plugin Devel. Env."), "plugin",
+				mCrDevEnvMnuItm );
 
-    installmnu_ = new uiMenu( &appl_, tr("Installation") );
-    utilmnu_->addMenu( installmnu_ );
+    installmnu_ = addSubMenu( utilmnu_, tr("Installation"), "od" );
     File::Path installerdir( ODInst::GetInstallerDir() );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
     if ( hasinstaller && !__ismac__ )
@@ -940,24 +925,26 @@ void uiODMenuMgr::fillUtilMenu()
 	const ODInst::AutoInstType ait = ODInst::getAutoInstType();
 	const bool aitfixed = ODInst::autoInstTypeIsFixed();
 	if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
-	    mInsertItem( installmnu_, m3Dots(tr("Update")),
-			 mInstMgrMnuItem );
+	    addAction( installmnu_, tr("Update"), "update", mInstMgrMnuItem );
 	if ( !aitfixed )
-	    mInsertItem( installmnu_, m3Dots(tr("Auto-update Policy")),
-			 mInstAutoUpdPolMnuItm );
+	    addAction( installmnu_, tr("Auto-update Policy"), "auto",
+				    mInstAutoUpdPolMnuItm );
 	installmnu_->insertSeparator();
     }
 
-    mInsertItem( installmnu_, m3Dots(tr("Connection Settings")),
-		 mInstConnSettsMnuItm );
-    mInsertItem( installmnu_, m3Dots(tr("Plugins")), mPluginsMnuItm );
-    mInsertItem( installmnu_, m3Dots(tr("Setup Multi-Machine Processing")),
-		 mSetupBatchItm);
-    mInsertItem( installmnu_, tr("Graphics Information"), mGraphicsInfoItm );
+    addAction( installmnu_, tr("Internet Connection Settings"),
+			    "internet_connection", mInstConnSettsMnuItm );
+    addAction( installmnu_, tr("Plugins"), "plugin", mPluginsMnuItm );
+    addAction( installmnu_, tr("Graphics Information"), "info",
+			    mGraphicsInfoItm );
+
+    mmmnu_ = addSubMenu( utilmnu_, tr("Multi-Machine Processing"), "mmproc" );
+    addAction( mmmnu_, tr("Setup"), "settings", mSetupBatchItm );
 
     const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )
-	mInsertItem( utilmnu_, m3Dots(tr("Show Log File")), mShwLogFileMnuItm );
+	addAction( toolsmnu_, tr("Show Log File"), "logfile",
+			      mShwLogFileMnuItm );
 #ifdef __debug__
     const bool enabdpdump = true;
 #else
@@ -965,10 +952,10 @@ void uiODMenuMgr::fillUtilMenu()
 #endif
     if ( enabdpdump )
     {
-	mInsertItem( toolsmnu_, m3Dots(tr("DataPack Dump")),
-		     mDumpDataPacksMnuItm);
-	mInsertItem( toolsmnu_, m3Dots(tr("Display Memory Info")),
-		     mDisplayMemoryMnuItm);
+	addAction( toolsmnu_, tr("DataPack Dump"), "dump",
+			      mDumpDataPacksMnuItm );
+	addAction( toolsmnu_, tr("Memory Info"), "memory",
+			      mDisplayMemoryMnuItm );
     }
 }
 

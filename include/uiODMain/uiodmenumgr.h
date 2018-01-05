@@ -59,6 +59,7 @@ public:
     uiMenu*	impWellTrackMenu()	{ return imptrackmnu_; }
     uiMenu*	impWellLogsMenu()	{ return implogsmnu_; }
     uiMenu*	impWellMarkersMenu()	{ return impmarkersmnu_; }
+    uiMenu*	mmProcMenu()		{ return mmmnu_; }
 
     typedef uiODApplMgr::ActType    ActType;
     typedef uiODApplMgr::ObjType    ObjType;
@@ -128,6 +129,7 @@ protected:
     uiMenu*		settmnu_;
     uiMenu*		toolsmnu_;
     uiMenu*		installmnu_;
+    uiMenu*		mmmnu_;
     uiMenu*		csomnu_;
     uiMenu*		chomnu_;
     uiMenu*		imptrackmnu_;

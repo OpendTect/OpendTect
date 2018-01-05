@@ -42,9 +42,8 @@ public:
 uiMMPTestMgr::uiMMPTestMgr( uiODMain* a )
     : appl_(a)
 {
-    uiAction* action = new uiAction( m3Dots(tr("Multi-machine Diagnostics")),
-			mCB(this,uiMMPTestMgr,mnuCB), "mmproc" );
-    appl_->menuMgr().utilMnu()->insertAction( action );
+    appl_->menuMgr().addAction( appl_->menuMgr().mmProcMenu(),
+	    tr("Diagnostics"), "diagnostics", mCB(this,uiMMPTestMgr,mnuCB) );
 }
 
 
@@ -75,9 +74,10 @@ void uiMMPTestMgr::mnuCB( CallBacker* )
 mDefODInitPlugin(uiMMPTest)
 {
     mDefineStaticLocalObject( uiMMPTestMgr*, mgr, = 0 );
-    if ( mgr ) return 0;
-    mgr = new uiMMPTestMgr( ODMainWin() );
+    if ( mgr )
+	return 0;
 
+    mgr = new uiMMPTestMgr( ODMainWin() );
     Batch::MMJobDispatcher::addDef( new Batch::TestMMProgDef );
     return 0;
 }
