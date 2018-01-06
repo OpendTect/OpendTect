@@ -19,6 +19,7 @@ class ODSession;
 class Timer;
 class uiMain;
 class uiODApplMgr;
+class uiODHorAttribMgr;
 class uiODMain;
 class uiODMenuMgr;
 class uiODSceneMgr;
@@ -31,9 +32,7 @@ mGlobal(uiODMain) uiODMain* ODMainWin();
 //!< Top-level access for plugins
 
 
-/*!
-\brief OpendTect application top level object
-*/
+/*!\brief OpendTect application top level object */
 
 mExpClass(uiODMain) uiODMain : public uiMainWin
 {mODTextTranslationClass(uiODMain);
@@ -83,6 +82,7 @@ protected:
     uiODMenuMgr*	menumgr_;
     uiODSceneMgr*	scenemgr_;
     uiODViewer2DMgr*	viewer2dmgr_;
+    uiODHorAttribMgr*	horattrmgr_;
     uiVisColTabEd*	ctabed_;
     uiToolBar*		ctabtb_;
     uiMain&		uiapp_;

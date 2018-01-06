@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "trckeyzsampling.h"
 #include "color.h"
-//#include "externalattrib.h"
 #include "polygon.h"
 #include "visdata.h"
 #include "indexedshape.h"
@@ -38,17 +37,17 @@ namespace EM { class Horizon3D; }
 
 class IsoContourTracer;
 class ZAxisTransform;
-class uiContourTreeItemContourData;
+class uiODContourTreeItemContourData;
 
 /*!\brief Tree item for Contour display on 3D horizons */
 
-mExpClass(uiODMain) uiContourTreeItem : public uiODDataTreeItem
-{ mODTextTranslationClass(uiContourTreeItem);
+mExpClass(uiODMain) uiODContourTreeItem : public uiODDataTreeItem
+{ mODTextTranslationClass(uiODContourTreeItem);
 public:
 
     static void			initClass();
-				uiContourTreeItem(const char* parenttype);
-				~uiContourTreeItem();
+				uiODContourTreeItem(const char* parenttype);
+				~uiODContourTreeItem();
 
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
     void			setAttribName( const char* attrnm )
@@ -112,6 +111,6 @@ private:
     MenuItem			optionsmenuitem_;
     MenuItem			areamenuitm_;
 
-    friend class	uiContourTreeItemContourGenerator;
+    friend class		uiODContourTreeItemContourGenerator;
 
 };

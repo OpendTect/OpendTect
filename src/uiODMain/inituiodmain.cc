@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "odsession.h"
 
+#include "uiodcontourtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiodplanedatatreeitem.h"
 #include "uiodvolproctreeitem.h"
@@ -34,5 +35,6 @@ mDefModInitFn(uiODMain)
     uiOD2DLineAttribTreeItem::initClass();
     uiODRandomLineAttribTreeItem::initClass();
     uiODVolrenAttribTreeItem::initClass();
+    uiODContourTreeItem::initClass();
     uiStratLayerModelManager::initClass();
 }

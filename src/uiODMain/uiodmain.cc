@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "ui2dsip.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
+#include "uiodhorattribmgr.h"
 
 #include "autosaver.h"
 #include "saveable.h"
@@ -180,6 +181,7 @@ int ODMain( int argc, char** argv )
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllUI() );
+    odmain->horattrmgr_ = new uiODHorAttribMgr( odmain );
     PIM().loadAuto( true );
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
@@ -250,6 +252,8 @@ uiODMain::~uiODMain()
     memtimer_.stop();
     if ( ODMainWin()==this )
 	manODMainWin( 0 );
+
+    delete horattrmgr_;
 
     delete &lastsession_;
     delete &sesstimer_;

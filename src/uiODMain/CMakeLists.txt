@@ -17,7 +17,6 @@ set(OD_MODULE_SOURCES
 	measuretoolman.cc
 	odsession.cc
 	uiautosaverestore.cc
-	uicontourtreeitem.cc
 	uiodannottreeitem.cc
 	uiodannotarrowtreeitem.cc
 	uiodannotimagetreeitem.cc
@@ -26,12 +25,14 @@ set(OD_MODULE_SOURCES
 	uiodapplmgraux.cc
 	uiodapplmgrattrvis.cc
 	uiodattribtreeitem.cc
+	uiodcontourtreeitem.cc
 	uioddatatreeitem.cc
 	uioddisplaytreeitem.cc
 	uiodfaulttoolman.cc
 	uiodfaulttreeitem.cc
 	uiodeditattribcolordlg.cc
 	uiodhelpmenumgr.cc
+	uiodhorattribmgr.cc
 	uiodlangmenumgr.cc
 	uiodmain.cc
 	uiodmenumgr.cc

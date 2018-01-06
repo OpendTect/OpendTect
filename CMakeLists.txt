@@ -91,7 +91,6 @@ set( OD_PLUGINS
 	uiGMT
 	uiGoogleIO
 	uiHello
-	uiHorizonAttrib
 	uiImpGPR
 	uiMadagascar
 	uiMadagascarAttribs

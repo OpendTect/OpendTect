@@ -7,6 +7,7 @@
 set(OD_MODULE_DEPS uiAttributes uiEarthModel EMAttrib )
 set(OD_MODULE_SOURCES
 	horizon2dscanner.cc
+	inituiemattrib.cc
 	uiattremout.cc
 	uiattrsurfout.cc
 	uiattrtrcselout.cc

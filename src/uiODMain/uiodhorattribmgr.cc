@@ -8,9 +8,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uihorizonattribmod.h"
-#include "uihorizonattrib.h"
-#include "uicontourtreeitem.h"
+#include "uiodhorattribmgr.h"
+#include "uiodcontourtreeitem.h"
 #include "uidatapointsetpickdlg.h"
 #include "uiempartserv.h"
 #include "uistratamp.h"
@@ -24,7 +23,6 @@ ________________________________________________________________________
 #include "uiodhortreeitem.h"
 #include "vishorizondisplay.h"
 #include "vispicksetdisplay.h"
-#include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
 #include "uipickpartserv.h"
 #include "attribsel.h"
@@ -40,53 +38,11 @@ ________________________________________________________________________
 static const char* sKeyContours = "Contours";
 
 
-mDefODPluginInfo(uiHorizonAttrib)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Horizon-Attribute",
-	mODPluginODPackage,
-	mODPluginCreator, mODPluginVersion,
-	"The 'Horizon' Attribute allows getting values from horizons.\n"
-	"Not to be confused with calculating attributes on horizons.\n"
-	"It can even be useful to apply the 'Horizon' attribute on horizons.\n"
-	"The plugin also provides Stratal Amplitude and Isochron,\n"
-	"as well as the writing of flattened cubes" ) );
-    return &retpi;
-}
-
-
-class uiHorAttribPIMgr :  public CallBacker
-{ mODTextTranslationClass(uiHorAttribPIMgr)
-public:
-			uiHorAttribPIMgr(uiODMain*);
-			~uiHorAttribPIMgr();
-
-    void		updateMenu(CallBacker*);
-    void		makeStratAmp(CallBacker*);
-    void		doIsochron(CallBacker*);
-    void		doIsochronThruMenu(CallBacker*);
-    void		doContours(CallBacker*);
-    void		calcPolyVol(CallBacker*);
-    void		calcHorVol(CallBacker*);
-    void		pickData(CallBacker*);
-    void		dataReadyCB(CallBacker*);
-
-    uiVisMenuItemHandler isochronmnuitemhndlr_;
-    uiVisMenuItemHandler contourmnuitemhndlr_;
-    uiVisMenuItemHandler horvolmnuitemhndlr_;
-    uiVisMenuItemHandler pickdatamnuitemhndlr_;
-    uiPickSetPolygonMenuItemHandler polyvolmnuitemhndlr_;
-
-    uiODMain*			appl_;
-    uiEMDataPointSetPickDlg*	dpspickdlg_;
-};
-
-
 #define mMkPars(txt,fun) \
     visSurvey::HorizonDisplay::sFactoryKeyword(), \
-    *a->applMgr().visServer(),txt,mCB(this,uiHorAttribPIMgr,fun)
+    *a->applMgr().visServer(),txt,mCB(this,uiODHorAttribMgr,fun)
 
-uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
+uiODHorAttribMgr::uiODHorAttribMgr( uiODMain* a )
 	: appl_(a)
 	, dpspickdlg_(0)
 	, isochronmnuitemhndlr_(
@@ -100,58 +56,57 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 		mMkPars(m3Dots(tr("Pick Horizon Data")),pickData),"Workflows")
 	, polyvolmnuitemhndlr_(
 		*a->applMgr().visServer(),m3Dots(tr("Calculate Volume")),
-		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
+		mCB(this,uiODHorAttribMgr,calcPolyVol),0,996)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
-    mAttachCB( mnumgr.dTectMnuChanged, uiHorAttribPIMgr::updateMenu );
+    mAttachCB( mnumgr.dTectMnuChanged, uiODHorAttribMgr::updateMenu );
     updateMenu(0);
 
     polyvolmnuitemhndlr_.addWhenPickSet( false );
 }
 
 
-uiHorAttribPIMgr::~uiHorAttribPIMgr()
+uiODHorAttribMgr::~uiODHorAttribMgr()
 {
     detachAllNotifiers();
 }
 
 
-void uiHorAttribPIMgr::updateMenu( CallBacker* )
+void uiODHorAttribMgr::updateMenu( CallBacker* )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     uiActionSeparString gridprocstr( "Create Horizon Output" );
     uiMenu* mnu = mnumgr.createHorOutputMenu();
 
-    if ( DBM().isBad() || SI().has3D() )
+    if ( SI().has3D() )
 	mnu->insertAction( new uiAction(m3Dots(tr("Stratal Amplitude")),
-		    mCB(this,uiHorAttribPIMgr,makeStratAmp), "stratalampl" ));
+		    mCB(this,uiODHorAttribMgr,makeStratAmp), "stratalampl" ));
 
     mnu->insertAction( new uiAction(m3Dots(tr("Isochron")),
-		mCB(this,uiHorAttribPIMgr,doIsochronThruMenu), "isochron") );
+		mCB(this,uiODHorAttribMgr,doIsochronThruMenu), "isochron") );
 }
 
 
-void uiHorAttribPIMgr::makeStratAmp( CallBacker* )
+void uiODHorAttribMgr::makeStratAmp( CallBacker* )
 {
     uiStratAmpCalc dlg( appl_ );
     dlg.go();
 }
 
 
-void uiHorAttribPIMgr::doIsochron( CallBacker* )
+void uiODHorAttribMgr::doIsochron( CallBacker* )
 {
     const int displayid = isochronmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
     if ( !visserv->canAddAttrib(displayid) )
-    {
-	uiMSG().error(tr("Cannot add extra attribute layers"));
-	return;
-    }
+	{ uiMSG().error(tr("Cannot add extra attribute layers")); return; }
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
-    if ( !hd ) return;
+    if ( !hd )
+	return;
     uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
-    if ( !parent ) return;
+    if ( !parent )
+	return;
 
     uiIsochronMakerDlg dlg( appl_, hd->getObjectID() );
     if ( !dlg.go() )
@@ -170,7 +125,7 @@ void uiHorAttribPIMgr::doIsochron( CallBacker* )
 }
 
 
-void uiHorAttribPIMgr::doIsochronThruMenu( CallBacker* )
+void uiODHorAttribMgr::doIsochronThruMenu( CallBacker* )
 {
     uiIsochronMakerBatch dlg( appl_ );
     if ( !dlg.go() )
@@ -190,7 +145,7 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     PtrMan<IOObj> emioobj = DBM().get( mid );
     EM::IOObjInfo eminfo( mid );
     BufferStringSet attrnms;
-    attrnms.add( uiContourTreeItem::sKeyZValue() );
+    attrnms.add( uiODContourTreeItem::sKeyZValue() );
     eminfo.getAttribNames( attrnms );
 
     const uiString lbl = emioobj ? emioobj->uiName() : uiString::emptyString();
@@ -199,25 +154,32 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     attrlb_->addItems( attrnms.getUiStringSet() );
 }
 
-int nrAttribs() const { return attrlb_->size(); }
+int nrAttribs() const
+{
+    return attrlb_->size();
+}
 
-const char* getAttribName() const
-{ return attrlb_->getText(); }
+const char* attribName() const
+{
+    return attrlb_->getText();
+}
 
-uiListBox*	attrlb_;
+    uiListBox*	attrlb_;
 };
 
 
-void uiHorAttribPIMgr::doContours( CallBacker* cb )
+void uiODHorAttribMgr::doContours( CallBacker* cb )
 {
     const int displayid = contourmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
-    if ( !hd ) return;
+    if ( !hd )
+	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    if ( !hor ) { uiMSG().error(tr("Internal: cannot find horizon")); return; }
+    if ( !hor )
+	{ uiMSG().error(tr("Internal: cannot find horizon")); return; }
 
     uiSelContourAttribDlg dlg( appl_, emobj->id() );
     if ( dlg.nrAttribs()>1 && !dlg.go() )
@@ -230,33 +192,30 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     const uiTreeItem* item = parent->findChild( sKeyContours );
     if ( item )
     {
-	mDynamicCastGet(const uiContourTreeItem*,conitm,item);
+	mDynamicCastGet( const uiODContourTreeItem*, conitm, item );
 	if ( conitm )
 	    return;
     }
 
     if ( !visserv->canAddAttrib(displayid) )
-    {
-	uiMSG().error(tr("Cannot add extra attribute layers"));
-	return;
-    }
+	{ uiMSG().error(tr("Cannot add extra attribute layers")); return; }
 
     const int attrib = visserv->addAttrib( displayid );
     Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSelID(),
 			  false, 0 );
-    spec.setZDomainKey (dlg.getAttribName() );
-    spec.setDefString( uiContourTreeItem::sKeyContourDefString() );
+    spec.setZDomainKey( dlg.attribName() );
+    spec.setDefString( uiODContourTreeItem::sKeyContourDefString() );
     visserv->setSelSpec( displayid, attrib, spec );
 
-    uiContourTreeItem* newitem =
-	new uiContourTreeItem( typeid(*parent).name() );
-    newitem->setAttribName( dlg.getAttribName() );
+    uiODContourTreeItem* newitem =
+	new uiODContourTreeItem( typeid(*parent).name() );
+    newitem->setAttribName( dlg.attribName() );
     parent->addChild( newitem, false );
     parent->updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
 
-void uiHorAttribPIMgr::calcPolyVol( CallBacker* )
+void uiODHorAttribMgr::calcPolyVol( CallBacker* )
 {
     const int displayid = polyvolmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
@@ -270,7 +229,7 @@ void uiHorAttribPIMgr::calcPolyVol( CallBacker* )
 }
 
 
-void uiHorAttribPIMgr::calcHorVol( CallBacker* )
+void uiODHorAttribMgr::calcHorVol( CallBacker* )
 {
     const int displayid = horvolmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
@@ -285,7 +244,7 @@ void uiHorAttribPIMgr::calcHorVol( CallBacker* )
 }
 
 
-void uiHorAttribPIMgr::pickData( CallBacker* )
+void uiODHorAttribMgr::pickData( CallBacker* )
 {
     const int displayid = pickdatamnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
@@ -296,12 +255,12 @@ void uiHorAttribPIMgr::pickData( CallBacker* )
     dpspickdlg_ = new uiEMDataPointSetPickDlg( appl_, hd->getScene()->id(),
 					       hd->getObjectID() );
     dpspickdlg_->readyForDisplay.notify(
-				mCB(this,uiHorAttribPIMgr,dataReadyCB) );
+				mCB(this,uiODHorAttribMgr,dataReadyCB) );
     dpspickdlg_->show();
 }
 
 
-void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
+void uiODHorAttribMgr::dataReadyCB( CallBacker* )
 {
     const int displayid = pickdatamnuitemhndlr_.getDisplayID();
     uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
@@ -312,21 +271,4 @@ void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
     uiODDataTreeItem* itm = horitm->addAttribItem();
     mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
     if ( emitm ) emitm->setDataPointSet( dpspickdlg_->getData() );
-}
-
-
-
-mDefODInitPlugin(uiHorizonAttrib)
-{
-    mDefineStaticLocalObject( PtrMan<uiHorAttribPIMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiHorAttribPIMgr( ODMainWin() );
-    if ( !theinst_ )
-	return "Cannot instantiate HorizonAttrib plugin";
-
-    uiHorizonAttrib::initClass();
-    uiContourTreeItem::initClass();
-
-    return 0;
 }
