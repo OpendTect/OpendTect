@@ -898,14 +898,17 @@ void uiODMenuMgr::mkViewIconsMnu()
 void uiODMenuMgr::fillUtilMenu()
 {
     settmnu_ = addSubMenu( utilmnu_, uiStrings::sSettings(), "settings" );
+    addAction( settmnu_, uiStrings::sGeneral(), "settings", mSettGenMnuItm );
     addAction( settmnu_, tr("Auto-Save"), "save", mSettAutoSaveMnuItm );
-    addAction( settmnu_, tr("Look and Feel"), "looknfeel", mSettLkNFlMnuItm );
+    addAction( settmnu_, uiStrings::sLooknFeel(), "looknfeel",
+				mSettLkNFlMnuItm );
     addAction( settmnu_, tr("Keyboard Shortcuts"), "keyboardshortcuts",
-			 mSettShortcutsMnuItm );
+				mSettShortcutsMnuItm );
 
     uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
-    addAction( advmnu, tr("Personal Settings"), "unknownperson", mSettGeneral );
-    addAction( advmnu, tr("Survey Defaults"), "survey", mSettSurvey );
+    addAction( advmnu, tr("Personal Settings"), "unknownperson",
+						mSettAdvPersonal );
+    addAction( advmnu, tr("Survey Defaults"), "survey", mSettAdvSurvey );
 
     toolsmnu_ = addSubMenu( utilmnu_, uiStrings::sTools(), "tools" );
     addAction( toolsmnu_, tr("Batch Programs"), "batchprogs", mBatchProgMnuItm);
@@ -1418,8 +1421,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	dlg.go();
     } break;
 
+    case mSettGenMnuItm:
     case mSettLkNFlMnuItm: {
-	uiSettingsDlg dlg( &appl_ );
+	uiSettingsDlg dlg( &appl_, id == mSettLkNFlMnuItm );
 	dlg.go();
     } break;
 
@@ -1444,17 +1448,14 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	     uiDialog::Setup(tr("Memory Information"),mNoDlgTitle,mNoHelpKey) );
 	uiTextBrowser* browser = new uiTextBrowser( &dlg );
 	browser->setText( text.buf() );
-    dlg.setCancelText( uiString::emptyString() );
+	dlg.setCancelText( uiString::emptyString() );
 	dlg.go();
     } break;
 
-    case mSettGeneral: {
-	uiSettings dlg( &appl_, "Set Personal Settings" );
-	dlg.go();
-    } break;
-    case mSettSurvey: {
-	uiSettings dlg( &appl_, "Set Survey Default Settings",
-				uiSettings::sKeySurveyDefs() );
+    case mSettAdvPersonal:
+    case mSettAdvSurvey: {
+	uiAdvSettings dlg( &appl_, tr("Browse/Edit Settings"),
+		id == mSettAdvPersonal ? 0 : uiAdvSettings::sKeySurveyDefs() );
 	dlg.go();
     } break;
 

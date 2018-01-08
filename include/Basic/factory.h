@@ -87,8 +87,7 @@ variable is needed in the creation.
   public:
   static A*		createFunc() { return new B; }
   static void		initClass()
-  { thefactory.addCreator(createFunc,"MyKeyword",
-  "My Name"); }
+  { thefactory.addCreator(createFunc,"MyKeyword", tr("My Name")); }
 
   int			myFunc();
   };
@@ -117,7 +116,7 @@ mClass(Basic) Factory : public FactoryBase
 { mODTextTranslationClass(Factory);
 public:
     typedef			T* (*Creator)();
-    inline void			addCreator(Creator,const char* nm,
+    inline int			addCreator(Creator,const char* nm,
 					const uiString& username =
 					   uiString::emptyString());
 				/*!<Name may be not be null
@@ -187,19 +186,19 @@ template <class T, class P>
 mClass(Basic) Factory1Param : public FactoryBase
 { mODTextTranslationClass(Factory1Param);
 public:
-    typedef			T* (*Creator)(P);
-    inline void			addCreator(Creator,const char* nm=0,
-					   const uiString& usernm =
-						uiString::emptyString());
-				/*!<Name may be be null
+
+    typedef		T* (*Creator)(P);
+    inline int		addCreator(Creator,const char* nm=0,
+			       const uiString& usernm =uiString::emptyString());
+			    /*!<Name may be be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
 				   cSeparator(), allowing multiple names,
 				   where the first name will be the main
 				   name that is returned in getNames. */
-    inline T*			create(const char* nm, P, bool chknm=true)const;
-				//!<Name may be be null, if null name is given
-				//!<chknm will be forced to false
+    inline T*		create(const char* nm, P, bool chknm=true)const;
+			    //!<Name may be be null, if null name is given
+			    //!<chknm will be forced to false
 protected:
 
     TypeSet<Creator>		creators_;
@@ -215,8 +214,8 @@ mClass(Basic) Factory2Param : public FactoryBase
 {
 public:
     typedef		T* (*Creator)(P0,P1);
-    inline void		addCreator(Creator,const char* nm=0,
-	const uiString& usernm=uiString::emptyString());
+    inline int		addCreator(Creator,const char* nm=0,
+				const uiString& usernm=uiString::emptyString());
                         /*!<Name may be be null
                            If nm is found, old creator is replaced.
                            nm can be a SeparString, separated by
@@ -242,7 +241,7 @@ mClass(Basic) Factory3Param : public FactoryBase
 {
 public:
     typedef		T* (*Creator)(P0,P1,P2);
-    inline void		addCreator(Creator,const char* nm=0,
+    inline int		addCreator(Creator,const char* nm=0,
                             const uiString& usernm =uiString::emptyString());
                         /*!<Name may be be null
                            If nm is found, old creator is replaced.
@@ -256,7 +255,7 @@ public:
                         //!<chknm will be forced to false
 protected:
 
-    TypeSet<Creator>		creators_;
+    TypeSet<Creator>	creators_;
 };
 
 
@@ -336,24 +335,25 @@ static baseclss*	createInstance( parclss1 p1, parclss2 p2 ) \
 
 
 #define mAddCreator \
-    const int idx = indexOf( name );\
+    int idx = indexOf( name );\
 \
     if ( idx==-1 )\
     { \
 	addNames( name, username ); \
 	creators_ += cr; \
+	idx = creators_.size() - 1; \
     } \
     else\
     {\
 	setNames( idx, name, username ); \
 	creators_[idx] = cr;\
-    }
+    }\
+    return idx
 
 template <class T> inline
-void Factory<T>::addCreator( Creator cr, const char* name,
+int Factory<T>::addCreator( Creator cr, const char* name,
 			     const uiString& username )
 {
-    if ( !name ) return;\
     mAddCreator;
 }
 
@@ -366,7 +366,7 @@ T* Factory<T>::create( const char* name ) const
 
 
 template <class T, class P> inline
-void Factory1Param<T,P>::addCreator( Creator cr, const char* name,
+int Factory1Param<T,P>::addCreator( Creator cr, const char* name,
 				     const uiString& username )
 {
     mAddCreator;
@@ -381,7 +381,7 @@ T* Factory1Param<T,P>::create( const char* name, P data, bool chk ) const
 
 
 template <class T, class P0, class P1> inline
-void Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name,
+int Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name,
 					 const uiString& username )
 {
     mAddCreator;
@@ -397,7 +397,7 @@ T* Factory2Param<T,P0,P1>::create( const char* name, P0 p0, P1 p1,
 
 
 template <class T, class P0, class P1, class P2> inline
-void Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* name,
+int Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* name,
 					 const uiString& username )
 {
     mAddCreator;

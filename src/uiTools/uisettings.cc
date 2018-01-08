@@ -62,50 +62,47 @@ static void getGrps( BufferStringSet& grps )
 }
 
 
-uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
-	: uiDialog(p,uiDialog::Setup(toUiString(nm),
-				     tr("Set User Settings value"),
-                                     mODHelpKey(mSettingsHelpID)) )
+uiAdvSettings::uiAdvSettings( uiParent* p, const uiString& titl,
+			    const char* settskey )
+	: uiDialog(p,uiDialog::Setup(titl,
+			tr("Browse/Edit User-settable properties and values"),
+			mODHelpKey(mSettingsHelpID)) )
         , issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
 	, sipars_(SI().getDefaultPars())
 {
     setCurSetts();
     if ( issurvdefs_ )
-    {
-	setTitleText( tr("Set Survey default value") );
 	setHelpKey( mODHelpKey(mSurveySettingsHelpID) );
-    }
     else
     {
 	BufferStringSet grps; getGrps( grps );
-	grpfld_ = new uiGenInput( this, tr("Settings group"),
+	grpfld_ = new uiGenInput( this, tr("Settings Group"),
 				  StringListInpSpec(grps) );
-	grpfld_->valuechanged.notify( mCB(this,uiSettings,grpChg) );
+	grpfld_->valuechanged.notify( mCB(this,uiAdvSettings,grpChg) );
     }
 
     tbl_ = new uiTable( this, uiTable::Setup(10,2).manualresize(true),
 				"Settings editor" );
     tbl_->setColumnLabel( 0, tr("Keyword") );
     tbl_->setColumnLabel( 1, uiStrings::sValue() );
-    // tbl_->setColumnResizeMode( uiTable::Interactive );
     tbl_->setStretch( 2, 2 );
     tbl_->setPrefWidth( 400 );
     tbl_->setPrefHeight( 300 );
     if ( grpfld_ )
 	tbl_->attach( ensureBelow, grpfld_ );
 
-    postFinalise().notify( mCB(this,uiSettings,dispNewGrp) );
+    postFinalise().notify( mCB(this,uiAdvSettings,dispNewGrp) );
 }
 
 
-uiSettings::~uiSettings()
+uiAdvSettings::~uiAdvSettings()
 {
     deepErase( chgdsetts_ );
 }
 
 
-int uiSettings::getChgdSettIdx( const char* nm ) const
+int uiAdvSettings::getChgdSettIdx( const char* nm ) const
 {
     for ( int idx=0; idx<chgdsetts_.size(); idx++ )
     {
@@ -116,7 +113,7 @@ int uiSettings::getChgdSettIdx( const char* nm ) const
 }
 
 
-const IOPar& uiSettings::orgPar() const
+const IOPar& uiAdvSettings::orgPar() const
 {
     const IOPar* iop = &sipars_;
     if ( !issurvdefs_ )
@@ -128,7 +125,7 @@ const IOPar& uiSettings::orgPar() const
 }
 
 
-void uiSettings::setCurSetts()
+void uiAdvSettings::setCurSetts()
 {
     const IOPar* iop = &orgPar();
     if ( !issurvdefs_ )
@@ -141,7 +138,7 @@ void uiSettings::setCurSetts()
 }
 
 
-void uiSettings::getChanges()
+void uiAdvSettings::getChanges()
 {
     IOPar* workpar = 0;
     const int chgdidx = getChgdSettIdx( cursetts_->name() );
@@ -181,7 +178,7 @@ void uiSettings::getChanges()
 }
 
 
-bool uiSettings::commitSetts( const IOPar& iop )
+bool uiAdvSettings::commitSetts( const IOPar& iop )
 {
     Settings& setts = Settings::fetch( iop.name() );
     setts.IOPar::operator =( iop );
@@ -194,7 +191,7 @@ bool uiSettings::commitSetts( const IOPar& iop )
 }
 
 
-void uiSettings::grpChg( CallBacker* )
+void uiAdvSettings::grpChg( CallBacker* )
 {
     getChanges();
     setCurSetts();
@@ -202,7 +199,7 @@ void uiSettings::grpChg( CallBacker* )
 }
 
 
-void uiSettings::dispNewGrp( CallBacker* )
+void uiAdvSettings::dispNewGrp( CallBacker* )
 {
     IOPar disiop( *cursetts_ );
     disiop.sortOnKeys();
@@ -221,7 +218,7 @@ void uiSettings::dispNewGrp( CallBacker* )
 }
 
 
-bool uiSettings::acceptOK()
+bool uiAdvSettings::acceptOK()
 {
     getChanges();
     if ( chgdsetts_.isEmpty() )
@@ -249,10 +246,34 @@ bool uiSettings::acceptOK()
 
 
 static int theiconsz = -1;
+static BoolTypeSet settgrpislnf_;
 
 
 mImplFactory2Param( uiSettingsGroup, uiParent*, Settings&,
 		    uiSettingsGroup::factory )
+
+void uiSettingsGroup::setIsLooknFeelGroup( const char* nm, bool yn )
+{
+    for ( int idx=0; idx<factory().size(); idx++ )
+    {
+	if ( factory().getNames().get(idx) == nm )
+	{
+	    for ( int iflag=settgrpislnf_.size(); iflag<=idx; iflag++ )
+		settgrpislnf_ += true;
+
+	    settgrpislnf_[idx] = yn;
+	    return;;
+	}
+    }
+}
+
+
+bool uiSettingsGroup::isLooknFeelGroup( const char* nm )
+{
+    const int idx = factory().getNames().indexOf( nm );
+    return settgrpislnf_.validIdx(idx) ? (bool)settgrpislnf_[idx] : true;
+}
+
 
 uiSettingsGroup::uiSettingsGroup( uiParent* p, const uiString& caption,
 				  Settings& setts )
@@ -290,25 +311,38 @@ mDefUpdateSettings( float, set )
 mDefUpdateSettings( const OD::String&, set )
 
 
-
 // uiGeneralSettingsGroup
 uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,tr("General"),setts)
-    , iconsz_(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
-    , showinlprogress_(true)
-    , showcrlprogress_(true)
-    , showrdlprogress_(true)
-    , enabvirtualkeyboard_(false)
+    : uiSettingsGroup(p,uiStrings::sGeneral(),setts)
     , enabsharedstor_(false)
 {
     setts_.getYN( SettingsAccess::sKeyEnabSharedStor(), enabsharedstor_ );
     enablesharedstorfld_ = new uiGenInput( this,
 				tr("Enable shared survey data storage"),
 				BoolInpSpec(enabsharedstor_) );
+}
 
+
+bool uiGeneralSettingsGroup::acceptOK()
+{
+    updateSettings( enabsharedstor_, enablesharedstorfld_->getBoolValue(0),
+		    SettingsAccess::sKeyEnabSharedStor() );
+    return true;
+}
+
+
+// uiGeneralLnFSettingsGroup
+uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p,
+							Settings& setts )
+    : uiSettingsGroup(p,uiStrings::sGeneral(),setts)
+    , iconsz_(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
+    , showinlprogress_(true)
+    , showcrlprogress_(true)
+    , showrdlprogress_(true)
+    , enabvirtualkeyboard_(false)
+{
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
 				 IntInpSpec(iconsz_,12,128) );
-    iconszfld_->attach( alignedBelow, enablesharedstorfld_ );
 
     setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
 		  enabvirtualkeyboard_ );
@@ -333,7 +367,7 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 }
 
 
-bool uiGeneralSettingsGroup::acceptOK()
+bool uiGeneralLnFSettingsGroup::acceptOK()
 {
     const int newiconsz = iconszfld_->getIntValue();
     if ( newiconsz < 10 || newiconsz > 64 )
@@ -354,8 +388,6 @@ bool uiGeneralSettingsGroup::acceptOK()
 	theiconsz = newiconsz;
     }
 
-    updateSettings( enabsharedstor_, enablesharedstorfld_->getBoolValue(0),
-		    SettingsAccess::sKeyEnabSharedStor() );
     updateSettings( showinlprogress_, showprogressfld_->isChecked(0),
 		    SettingsAccess::sKeyShowInlProgress() );
     updateSettings( showcrlprogress_, showprogressfld_->isChecked(1),
@@ -471,7 +503,7 @@ bool uiVisSettingsGroup::acceptOK()
 
 
 // uiSettingsDlg
-uiSettingsDlg::uiSettingsDlg( uiParent* p )
+uiSettingsDlg::uiSettingsDlg( uiParent* p, bool islooknfeel )
     : uiTabStackDlg(p,uiDialog::Setup(tr("OpendTect Settings"),mNoDlgTitle,
 				      mODHelpKey(mLooknFeelSettingsHelpID)))
     , setts_(Settings::common())
@@ -482,10 +514,12 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
     const BufferStringSet& nms = uiSettingsGroup::factory().getNames();
     for ( int idx=0; idx<nms.size(); idx++ )
     {
-	uiSettingsGroup* grp =
-		uiSettingsGroup::factory().create( nms.get(idx),
-						   tabstack_->tabGroup(),
-						   setts_ );
+	const char* nm = nms.get( idx ).buf();
+	if ( uiSettingsGroup::isLooknFeelGroup(nm) != islooknfeel )
+	    continue;
+
+	uiSettingsGroup* grp = uiSettingsGroup::factory().create(
+				    nm, tabstack_->tabGroup(), setts_ );
 	grp->attach( hCentered );
 	addGroup( grp );
 	grps_ += grp;

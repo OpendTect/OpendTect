@@ -178,6 +178,8 @@ mDefModInitFn(uiIo)
 	uiClusterJobDispatcherLauncher::initClass();
 
     uiProcSettings::initClass();
+    uiSettingsGroup::setIsLooknFeelGroup(
+				uiProcSettings::sFactoryKeyword(), false );
 
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
     uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );

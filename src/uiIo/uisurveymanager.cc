@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uifont.h"
 #include "uigroup.h"
 #include "uilabel.h"
+#include "uimenu.h"
 #include "uipixmap.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -175,9 +176,15 @@ uiSurveyManager::uiSurveyManager( uiParent* p, bool standalone )
     if ( !standalone )
 	survinfo_ = new SurveyInfo( SI() );
 
+    const CallBack lnfsettpush( mCB(this,uiSurveyManager,lnfSettsCB) );
+    const CallBack gensettpush( mCB(this,uiSurveyManager,genSettsCB) );
     uiToolButton* settbut = new uiToolButton( this, "settings",
-			tr("General Settings"),
-			mCB(this,uiSurveyManager,odSettsButPushed) );
+			tr("General Settings"), lnfsettpush );
+    uiMenu* butmnu = settbut->addMenu();
+    butmnu->insertAction( new uiAction( uiStrings::sGeneral(), gensettpush,
+					"settings") );
+    butmnu->insertAction( new uiAction( uiStrings::sLooknFeel(), lnfsettpush,
+					"looknfeel") );
     settbut->attach( rightTo, datarootfld_ );
     settbut->attach( rightBorder );
 
@@ -491,9 +498,16 @@ void uiSurveyManager::compressButPushed( CallBacker* )
 }
 
 
-void uiSurveyManager::odSettsButPushed( CallBacker* )
+void uiSurveyManager::genSettsCB( CallBacker* )
 {
-    uiSettingsDlg dlg( this );
+    uiSettingsDlg dlg( this, false );
+    dlg.go();
+}
+
+
+void uiSurveyManager::lnfSettsCB( CallBacker* )
+{
+    uiSettingsDlg dlg( this, true );
     dlg.go();
 }
 

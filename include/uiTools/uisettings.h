@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uidlggroup.h"
 #include "factory.h"
-#include "uistring.h"
+#include "uistrings.h"
 
 class Settings;
 class uiCheckList;
@@ -25,12 +25,12 @@ class uiLabeledComboBox;
 class uiTable;
 
 
-mExpClass(uiTools) uiSettings : public uiDialog
-{ mODTextTranslationClass(uiSettings);
+mExpClass(uiTools) uiAdvSettings : public uiDialog
+{ mODTextTranslationClass(uiAdvSettings);
 public:
-			uiSettings(uiParent*,const char* titl,
+			uiAdvSettings(uiParent*,const uiString& titl,
 				   const char* settskey=0);
-    virtual		~uiSettings();
+    virtual		~uiAdvSettings();
 
 			// Specify this to edit the survey defaults
     static const char*	sKeySurveyDefs()	{ return "SurvDefs"; }
@@ -64,12 +64,18 @@ public:
 			mDefineFactory2ParamInClass(uiSettingsGroup,
 						    uiParent*,Settings&,
 						    factory)
+    static void		setIsLooknFeelGroup(const char*,bool);
+			// the default is look&feel, so only need to use when
+			// you added a group that is not look&feel
+
     virtual		~uiSettingsGroup();
 
     bool		isChanged() const	{ return changed_; }
     bool		needsRestart() const	{ return needsrestart_; }
     bool		needsRenewal() const	{ return needsrenewal_; }
     uiString		errMsg() const;
+
+    static bool		isLooknFeelGroup(const char*);
 
 protected:
 
@@ -96,7 +102,8 @@ protected:
 mExpClass(uiTools) uiSettingsDlg : public uiTabStackDlg
 { mODTextTranslationClass(uiSettingsDlg);
 public:
-			uiSettingsDlg(uiParent*);
+
+			uiSettingsDlg(uiParent*,bool looknfeel);
 			~uiSettingsDlg();
 
     bool		isChanged() const	{ return changed_; }
@@ -117,6 +124,7 @@ protected:
 };
 
 
+
 mExpClass(uiTools) uiGeneralSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiGeneralSettingsGroup);
 public:
@@ -125,16 +133,38 @@ public:
 				uiGeneralSettingsGroup,
 				uiParent*,Settings&,
 				"General",
-				toUiString(sFactoryKeyword()))
+				uiStrings::sGeneral())
 
 			uiGeneralSettingsGroup(uiParent*,Settings&);
     bool		acceptOK();
 
 protected:
 
+    uiGenInput*		enablesharedstorfld_;
+
+    bool		enabsharedstor_;
+
+};
+
+
+
+mExpClass(uiTools) uiGeneralLnFSettingsGroup : public uiSettingsGroup
+{ mODTextTranslationClass(uiGeneralLnFSettingsGroup);
+public:
+			mDefaultFactoryInstantiation2Param(
+				uiSettingsGroup,
+				uiGeneralLnFSettingsGroup,
+				uiParent*,Settings&,
+				"GenLnF",
+				uiStrings::sGeneral())
+
+			uiGeneralLnFSettingsGroup(uiParent*,Settings&);
+    bool		acceptOK();
+
+protected:
+
     uiGenInput*		iconszfld_;
     uiGenInput*		virtualkeyboardfld_;
-    uiGenInput*		enablesharedstorfld_;
     uiCheckList*	showprogressfld_;
 
     int			iconsz_;
@@ -142,7 +172,6 @@ protected:
     bool		showcrlprogress_;
     bool		showrdlprogress_;
     bool		enabvirtualkeyboard_;
-    bool		enabsharedstor_;
 
 };
 

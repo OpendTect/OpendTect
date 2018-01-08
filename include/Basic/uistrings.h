@@ -338,6 +338,7 @@ public:
     static uiString sFlip()		{ return tr("Flip"); }
     static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
     static uiString sFrequency(int num=1);
+    static uiString sGeneral()		{ return tr("General"); }
     static uiString sGenerating()	{ return tr("Generating"); }
     static uiString sGeometry(int num=1) { return tr("Geometry",0,num); }
     static uiString sGo()	        { return tr("Go"); }
@@ -369,12 +370,12 @@ public:
     static uiString sInterpolation()	{ return tr("Interpolation"); }
     static uiString sLatitude(bool abbrev=false);
     static uiString sLayer(int num=1)	{ return tr("Layer",0,num); }
+    static uiString sLeft()		{ return tr("Left"); }
     static uiString sLine(int num=1)	{ return tr("Line",0,num); }
     static uiString sLineDip(bool for2d) { return for2d ? tr("Line Dip")
 							: tr("Crossline Dip"); }
     static uiString sLineName(int num=1) { return tr("Line Name",0,num); }
     static uiString sLineGeometry()	{ return tr("Line Geometry"); }
-    static uiString sLeft()		{ return tr("Left"); }
     static uiString sLineStyle(int num=1) { return tr("Line Style",0,num); }
     static uiString sLithology(int num=1){ return tr("Lithology",0,num); }
     static uiString sLoad();
@@ -382,10 +383,11 @@ public:
     static uiString sLog(int num=1)	{ return tr("Log",0,num); }
     static uiString sLogs();
     static uiString sLogFile()		{ return tr("Log File"); }
+    static uiString sLooknFeel()	{ return tr("Look and Feel"); }
     static uiString sLongitude(bool abbrev=false);
     static uiString sManage();
     static uiString sManual()		{ return tr("Manual"); }
-    static uiString sManWav(){ return uiStrings::phrManage( sWavelet(mPlural));}
+    static uiString sManWav()		{ return tr("Manage Wavelets");}
     static uiString sMarker(int num=1);
     static uiString sMedian()		{ return tr("Median"); }
     static uiString sMenu()		{ return tr("Menu"); }
