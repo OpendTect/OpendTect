@@ -435,24 +435,43 @@ int ExitProgram( int ret )
 }
 
 
-int RestartProgram()
+bool StartProgramCopy()
 {
-    is_exiting_ = true;
     if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
     {
-	std::cerr << "\nRestart Program (PID: " << GetPID() << std::endl;
+	std::cerr << "\nCreating Program copy (PID: " << GetPID() << std::endl;
 #ifndef __win__
 	int dateres mUnusedVar = system( "date" );
 #endif
     }
 
-    NotifyExitProgram( (PtrAllVoidFn)(-1) );
-
     const BufferString fullcmdline( GetFullCommandLine() );
-    if ( !OS::ExecCommand(fullcmdline,OS::RunInBG) )
-	return 1;
+    return OS::ExecCommand( fullcmdline, OS::RunInBG );
+}
 
-    return doExitProgram( 0 );
+
+static void basicProgramRestarter()
+{
+    if ( StartProgramCopy() )
+	ExitProgram( 0 );
+}
+
+
+ProgramRestartFn GetBasicProgramRestarter()
+{
+    return basicProgramRestarter;
+}
+
+ProgramRestartFn program_restarter_ = basicProgramRestarter;
+
+void SetProgramRestarter( ProgramRestartFn fn )
+{
+    program_restarter_ = fn;
+}
+
+void RestartProgram()
+{
+    program_restarter_();
 }
 
 

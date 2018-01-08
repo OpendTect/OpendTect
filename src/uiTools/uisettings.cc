@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "dirlist.h"
 #include "envvars.h"
+#include "genc.h"
 #include "oddirs.h"
 #include "od_helpids.h"
 #include "posimpexppars.h"
@@ -497,6 +498,15 @@ uiSettingsDlg::~uiSettingsDlg()
 }
 
 
+void uiSettingsDlg::handleRestart()
+{
+    if ( uiMSG().askGoOn(tr("Your new settings will become active"
+		       "\nthe next time OpendTect is started."
+		       "\n\nDo you want to restart now?")) )
+	RestartProgram();
+}
+
+
 bool uiSettingsDlg::acceptOK()
 {
     if ( !uiTabStackDlg::acceptOK() )
@@ -520,8 +530,7 @@ bool uiSettingsDlg::acceptOK()
     }
 
     if ( needsrestart_ )
-	uiMSG().message(tr("Your new settings will become active\n"
-			   "the next time OpendTect is started."));
+	handleRestart();
     else if ( needsrenewal_ )
 	uiMSG().message(tr("Your new settings will become active\n"
 			   "only for newly launched objects."));

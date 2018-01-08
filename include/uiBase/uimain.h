@@ -37,7 +37,7 @@ public:
 
     virtual int		exec();
     void		exit(int retcode=0);
-    bool		restart();
+    void		restart(); // if it returns, it failed.
     void*		thread();
 
     void		getCmdLineArgs(BufferStringSet&) const;

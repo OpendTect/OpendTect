@@ -57,9 +57,6 @@ mGlobal(Basic) int ExitProgram( int ret );
 		     Return value is convenience only, so you can use like:
 		     return exitProgram( retval );
                 */
-mGlobal(Basic) int RestartProgram();
-		/*!< Starts another instance with original arguments before 
-		     nicely exiting itself. */
 
 mGlobal(Basic) bool IsExiting();
 		/*!<Returns if ExitProgram is called */
@@ -67,6 +64,25 @@ mGlobal(Basic) bool IsExiting();
 typedef void (*PtrAllVoidFn)(void);
 mGlobal(Basic) void NotifyExitProgram(PtrAllVoidFn);
 		/*!< Function will be called on 'ExitProgram' */
+
+mGlobal(Basic) bool StartProgramCopy();
+		/*!< Starts another instance with original arguments. If it
+		     returns false, there is no new program; deal with it. */
+
+typedef void (*ProgramRestartFn)();
+/*!< The default function restart starts a copy, notifies and exits.
+   od_main sets a new one to do user interaction if needed.
+   Code after this call should handle the case that the restart failed. */
+
+mGlobal(Basic) void SetProgramRestarter(ProgramRestartFn);
+/*!< Sets another active ProgramRestartFn called by RestartProgram is called */
+
+mGlobal(Basic) ProgramRestartFn GetBasicProgramRestarter();
+/*!< if StartProgramCopy succeeds, calls ExitProgram. */
+
+mGlobal(Basic) void RestartProgram();
+/*!< Uses the active ProgramRestartFn to make a copy and exit. If copy fails,
+  the function will return. */
 
 mGlobal(Basic) void PutIsLittleEndian(unsigned char*);
 		/*!< Puts into 1 byte: 0=SunSparc/SGI (big), 1=PC (little) */

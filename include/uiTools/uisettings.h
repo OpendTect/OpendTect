@@ -106,6 +106,7 @@ public:
 protected:
 
     bool		acceptOK();
+    void		handleRestart();
 
     ObjectSet<uiSettingsGroup>	grps_;
     Settings&		setts_;

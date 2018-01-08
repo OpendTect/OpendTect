@@ -40,7 +40,7 @@ ________________________________________________________________________
 #include "uiodhorattribmgr.h"
 
 #include "autosaver.h"
-#include "saveable.h"
+#include "genc.h"
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
@@ -57,6 +57,7 @@ ________________________________________________________________________
 #include "odver.h"
 #include "plugins.h"
 #include "ptrman.h"
+#include "saveable.h"
 #include "settingsaccess.h"
 #include "survgeom.h"
 #include "survinfo.h"
@@ -157,6 +158,15 @@ static void checkScreenRes()
 }
 
 
+void ODMainProgramRestarter()
+{
+    if ( ODMainWin() )
+	ODMainWin()->restart( true );
+    else
+	{ pFreeFnErrMsg("No ODMainWin(). Cannot restart"); }
+}
+
+
 int ODMain( int argc, char** argv )
 {
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
@@ -166,7 +176,6 @@ int ODMain( int argc, char** argv )
     PtrMan<uiMain> main = new uiMain( argc, argv );
     PtrMan<uiODMain> odmain = new uiODMain( *main );
     manODMainWin( odmain );
-
     checkScreenRes();
 
     bool dodlg = true;
@@ -174,10 +183,12 @@ int ODMain( int argc, char** argv )
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     if ( dodlg && !pimdata.isEmpty() )
     {
-	uiPluginSel dlg( odmain );
+	uiPluginSel dlg( ODMainWin() );
 	if ( !dlg.go() )
 	    return 1;
     }
+
+    SetProgramRestarter( ODMainProgramRestarter );
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllUI() );
@@ -211,6 +222,7 @@ uiODMain::uiODMain( uiMain& a )
     , lastsession_(*new ODSession)
     , cursession_(0)
     , restoringsess_(false)
+    , restarting_(false)
     , sessionSave(this)
     , sessionRestoreEarly(this)
     , sessionRestore(this)
@@ -780,6 +792,9 @@ void uiODMain::updateCaption( CallBacker* )
 
 bool uiODMain::closeOK()
 {
+    if ( !applmgr_ )
+	return true; // already been here, not a error
+
     saveSettings();
 
     bool askedanything = false;
@@ -790,9 +805,10 @@ bool uiODMain::closeOK()
 	return false;
     }
 
-    if ( failed_ ) return true;
+    if ( failed_ )
+	return true;
 
-    if ( !askedanything )
+    if ( !restarting_ && !askedanything )
     {
 	bool doask = true;
 	Settings::common().getYN( "dTect.Ask close", doask );
@@ -830,21 +846,37 @@ uiString uiODMain::getProgramName()
 }
 
 
-void uiODMain::restart( bool doconfirm )
+bool uiODMain::prepareRestart()
 {
-    if ( doconfirm )
-    {
-	if ( !closeOK() )
-	    return;
-    }
-    else
+    if ( !closeOK() )
+	return false;
+
+    //TODO:
+    // 1) offer to save the session
+    // 2) offer to remember which data is preloaded
+    // Save session ID and preload spec in a file restart.pars in ~/.od (user)
+    // Make sure that if a restart.pars file is found at startup, stuff will
+    // be restored. Remove restart.pars when done
+
+    return true;
+}
+
+
+void uiODMain::restart( bool withinteraction )
+{
+    restarting_ = true;
+    if ( !withinteraction )
 	closeApplication();
+    else if ( !prepareRestart() )
+	{ restarting_ = false; return; }
 
-    if ( !uiapp_.restart() )
-	uiMSG().error(
-	    tr("Failed to restart, please launch the application manually") );
+    SetProgramRestarter( GetBasicProgramRestarter() );
+    uiapp_.restart();
 
-    uiapp_.exit(0);
+    // Re-start failed ...
+    restarting_ = false;
+    uiMSG().error(
+	tr("Failed to restart, please close and launch again manually") );
 }
 
 

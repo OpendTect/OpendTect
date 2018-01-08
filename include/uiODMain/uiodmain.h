@@ -89,12 +89,14 @@ protected:
     ODSession*		cursession_;
     ODSession&		lastsession_;
     bool		restoringsess_;
+    bool		restarting_;
     BufferString	programname_;
 
     DBKey		cursessid_;
     bool		failed_;
 
     virtual bool	closeOK();
+    bool		prepareRestart();
     void		closeApplication();
     void		afterStartupCB(CallBacker*);
     void		afterSurveyChgCB(CallBacker*);

@@ -479,23 +479,23 @@ void uiMain::setFont( const uiFont& fnt, bool PassToChildren )
 }
 
 
-bool uiMain::restart()
+void uiMain::restart()
 {
-    const BufferString fullcmdline( GetFullCommandLine() );
-    if ( !OS::ExecCommand(fullcmdline,OS::RunInBG) )
-	return false;
-
-    exit( 0 );
-    return true;  // should not reach
+    RestartProgram();
 }
 
 
 void uiMain::exit( int retcode )
 {
-    if ( !app_ )
-	{ pErrMsg("Huh?") ; return; }
-    app_->exit( retcode );
+    if ( app_ )
+	app_->exit( retcode );
+    else
+	{ pErrMsg("Huh? No app_?"); }
+
+    ExitProgram( retcode ); // This should only be reached if !app_
 }
+
+
 /*!<\brief Tells the application to exit with a return code.
 
     After this function has been called, the application leaves the main
