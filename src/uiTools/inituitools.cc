@@ -32,9 +32,9 @@ mDefModInitFn(uiTools)
     uiSingleBatchJobDispatcherLauncher::initClass();
     uiZSliceInterpolationModel::initClass();
 
-    uiGeneralSettingsGroup::initClass();
+    uiStorageSettingsGroup::initClass();
     uiSettingsGroup::setIsLooknFeelGroup(
-		    uiGeneralSettingsGroup::sFactoryKeyword(), false );
+		    uiStorageSettingsGroup::sFactoryKeyword(), false );
     uiGeneralLnFSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();

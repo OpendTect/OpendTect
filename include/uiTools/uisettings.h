@@ -125,17 +125,17 @@ protected:
 
 
 
-mExpClass(uiTools) uiGeneralSettingsGroup : public uiSettingsGroup
-{ mODTextTranslationClass(uiGeneralSettingsGroup);
+mExpClass(uiTools) uiStorageSettingsGroup : public uiSettingsGroup
+{ mODTextTranslationClass(uiStorageSettingsGroup);
 public:
 			mDefaultFactoryInstantiation2Param(
 				uiSettingsGroup,
-				uiGeneralSettingsGroup,
+				uiStorageSettingsGroup,
 				uiParent*,Settings&,
 				"General",
-				uiStrings::sGeneral())
+				uiStrings::sStorage())
 
-			uiGeneralSettingsGroup(uiParent*,Settings&);
+			uiStorageSettingsGroup(uiParent*,Settings&);
     bool		acceptOK();
 
 protected:

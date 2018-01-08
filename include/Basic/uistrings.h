@@ -508,6 +508,7 @@ public:
     static uiString sSteps()		{ return sStep(mPlural); }
     static uiString sStepout()		{ return tr("Stepout"); }
     static uiString sStop()		{ return tr("Stop"); }
+    static uiString sStorage()		{ return tr("Storage"); }
     static uiString sStorageDir();
     static uiString sStored();
     static uiString sStratigraphy();

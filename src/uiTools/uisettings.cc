@@ -311,9 +311,9 @@ mDefUpdateSettings( float, set )
 mDefUpdateSettings( const OD::String&, set )
 
 
-// uiGeneralSettingsGroup
-uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,uiStrings::sGeneral(),setts)
+// uiStorageSettingsGroup
+uiStorageSettingsGroup::uiStorageSettingsGroup( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,uiStrings::sStorage(),setts)
     , enabsharedstor_(false)
 {
     setts_.getYN( SettingsAccess::sKeyEnabSharedStor(), enabsharedstor_ );
@@ -323,7 +323,7 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 }
 
 
-bool uiGeneralSettingsGroup::acceptOK()
+bool uiStorageSettingsGroup::acceptOK()
 {
     updateSettings( enabsharedstor_, enablesharedstorfld_->getBoolValue(0),
 		    SettingsAccess::sKeyEnabSharedStor() );
