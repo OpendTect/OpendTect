@@ -994,7 +994,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     add2D3DToolButton( *dtecttb_, "attributes", tr("Edit Attributes"),
 		       mCB(appman,uiODApplMgr,editAttr2DCB),
 		       mCB(appman,uiODApplMgr,editAttr3DCB) );
-    add2D3DToolButton( *dtecttb_, "seisout", tr("Create Seismic Output"),
+    add2D3DToolButton( *dtecttb_, "out_seis", tr("Create Seismic Output"),
 		       mCB(appman,uiODApplMgr,seisOut2DCB),
 		       mCB(appman,uiODApplMgr,seisOut3DCB) );
 

@@ -131,14 +131,7 @@ const ZDomain::Info* uiAttribDescSetEd::getZDomainInfo() const
     mnu->insertAction( itm ); \
 }
 
-#define mInsertMnuItemNoIcon( mnu, txt, func ) \
-{ \
-    uiAction* itm = new uiAction(txt,mCB(this,uiAttribDescSetEd,func));\
-    mnu->insertAction( itm ); \
-}
-
 #define mInsertItem( txt, func, fnm ) mInsertMnuItem(filemnu,txt,func,fnm)
-#define mInsertItemNoIcon( txt, func ) mInsertMnuItemNoIcon(filemnu,txt,func)
 
 void uiAttribDescSetEd::createMenuBar()
 {
@@ -151,20 +144,25 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItem( m3Dots(tr("Open set")), openSetCB, "open" );
     mInsertItem( m3Dots(tr("Save set")), savePushCB, "save" );
     mInsertItem( m3Dots(tr("Save set as")), saveAsPushCB, "saveas" );
-    mInsertItemNoIcon( m3Dots(tr("Auto Load Attribute Set")), autoAttrSetCB );
-    mInsertItemNoIcon( m3Dots(tr("Change attribute input(s)")),
-				    chgAttrInputsCB );
+    mInsertItem( m3Dots(tr("Auto Load Attribute Set")), autoAttrSetCB, "auto" );
+    mInsertItem( m3Dots(tr("Change attribute input(s)")),
+				    chgAttrInputsCB, "inputs" );
     filemnu->insertSeparator();
     mInsertItem( m3Dots(tr("Open Default set")), openDefSetCB, "defset" );
     uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
+    impmnu->setIcon( "impset" );
     mInsertMnuItem( impmnu, m3Dots(tr("From other Survey")),
-		    importSetCB, "impset" );
-    mInsertMnuItemNoIcon( impmnu, m3Dots(tr("From File")), importFileCB );
-    mInsertItem( m3Dots(tr("Reconstruct from job file")), job2SetCB, "job2set");
-    mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")),
-			importFromSeisCB );
+		    importSetCB, "survey" );
+    mInsertMnuItem( impmnu, m3Dots(tr("From File")), importFileCB,
+			"singlefile" );
+    uiMenu* recmnu = new uiMenu( this, tr("Reconstruct") );
+    recmnu->setIcon( "reconstruct" );
+    mInsertMnuItem( recmnu, m3Dots(tr("From Seismics")), importFromSeisCB,
+		    "seis" );
+    mInsertMnuItem( recmnu, m3Dots(tr("From job file")), job2SetCB, "job2set");
 
     filemnu->addMenu( impmnu );
+    filemnu->addMenu( recmnu );
     menubar->addMenu( filemnu );
 }
 
@@ -286,9 +284,9 @@ void uiAttribDescSetEd::createGroups()
 	mCB(this,uiAttribDescSetEd,directShowCB) );
     dispbut_->attach( rightTo, addbut_ );
 
-    procbut_ = new uiToolButton( rightgrp, "seisout",
-	tr("Process this attribute"),
-	mCB(this,uiAttribDescSetEd,procAttributeCB) );
+    procbut_ = new uiToolButton( rightgrp, "out_seis",
+				tr("Process this attribute"),
+				mCB(this,uiAttribDescSetEd,procAttributeCB) );
     procbut_->attach( rightTo, dispbut_ );
 
     uiSplitter* splitter = new uiSplitter( this );
