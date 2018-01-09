@@ -864,7 +864,7 @@ uiString od_static_tr( const char* func, const char* text,
 }
 
 
-uiString getUiYesNoString( bool res )
+uiWord getUiYesNoWord( bool res )
 {
     return res ? uiStrings::sYes() : uiStrings::sNo();
 }
@@ -1153,35 +1153,49 @@ UserNameString& UserNameString::join( const uiString& s, bool before )
 
 const uiRetVal uiRetVal::ok_;
 
-uiRetVal::uiRetVal( const uiString& str )
-{ msgs_.add( str ); }
-
-uiRetVal::uiRetVal( const uiStringSet& strs )
-    : msgs_(strs)
-{}
-
-uiRetVal::uiRetVal( const uiRetVal& oth )
-    : msgs_(oth.msgs_)
-{}
-
-uiRetVal& uiRetVal::operator =( const uiRetVal& oth )
-{ return set( oth ); }
-
-uiRetVal& uiRetVal::operator =( const uiString& str )
-{ return set( str ); }
-
-uiRetVal& uiRetVal::operator =( const uiStringSet& strs )
-{ return set( strs ); }
-
-
-uiRetVal::operator uiString() const
+uiRetVal::uiRetVal( const uiPhrase& str )
 {
-    Threads::Locker locker( lock_ );
-    return msgs_.isEmpty() ? uiString::emptyString() : msgs_.cat();
+    msgs_.add( str );
 }
 
 
-uiRetVal::operator uiStringSet() const
+uiRetVal::uiRetVal( const uiPhraseSet& strs )
+    : msgs_(strs)
+{
+}
+
+
+uiRetVal::uiRetVal( const uiRetVal& oth )
+    : msgs_(oth.msgs_)
+{
+}
+
+uiRetVal& uiRetVal::operator =( const uiRetVal& oth )
+{
+    return set( oth );
+}
+
+
+uiRetVal& uiRetVal::operator =( const uiPhrase& str )
+{
+    return set( str );
+}
+
+
+uiRetVal& uiRetVal::operator =( const uiPhraseSet& strs )
+{
+    return set( strs );
+}
+
+
+uiRetVal::operator uiPhrase() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_.isEmpty() ? uiPhrase::emptyString() : msgs_.cat();
+}
+
+
+uiRetVal::operator uiPhraseSet() const
 {
     Threads::Locker locker( lock_ );
     return msgs_;
@@ -1202,14 +1216,14 @@ bool uiRetVal::isMultiMessage() const
 }
 
 
-uiStringSet uiRetVal::messages() const
+uiPhraseSet uiRetVal::messages() const
 {
     Threads::Locker locker( lock_ );
     return msgs_;
 }
 
 
-bool uiRetVal::isSingleWord( const uiString& str ) const
+bool uiRetVal::isSingleWord( const uiWord& str ) const
 {
     Threads::Locker locker( lock_ );
     return msgs_.size() == 1 && msgs_[0].isEqualTo( str );
@@ -1227,7 +1241,7 @@ uiRetVal& uiRetVal::set( const uiRetVal& oth )
 }
 
 
-uiRetVal& uiRetVal::set( const uiString& str )
+uiRetVal& uiRetVal::set( const uiPhrase& str )
 {
     Threads::Locker locker( lock_ );
     msgs_.setEmpty();
@@ -1236,7 +1250,7 @@ uiRetVal& uiRetVal::set( const uiString& str )
 }
 
 
-uiRetVal& uiRetVal::set( const uiStringSet& strs )
+uiRetVal& uiRetVal::set( const uiPhraseSet& strs )
 {
     Threads::Locker locker( lock_ );
     msgs_ = strs;
@@ -1252,7 +1266,7 @@ uiRetVal& uiRetVal::setEmpty()
 }
 
 
-uiRetVal& uiRetVal::insert( const uiString& str )
+uiRetVal& uiRetVal::insert( const uiPhrase& str )
 {
     Threads::Locker locker( lock_ );
     msgs_.insert( 0, str );
@@ -1271,7 +1285,7 @@ uiRetVal& uiRetVal::add( const uiRetVal& oth )
 }
 
 
-uiRetVal& uiRetVal::add( const uiString& str )
+uiRetVal& uiRetVal::add( const uiPhrase& str )
 {
     if ( !str.isEmpty() )
     {
@@ -1282,7 +1296,18 @@ uiRetVal& uiRetVal::add( const uiString& str )
 }
 
 
-uiRetVal& uiRetVal::add( const uiStringSet& strs )
+uiRetVal& uiRetVal::setAsStatus( const uiWord& word )
+{
+    if ( !word.isEmpty() )
+    {
+	Threads::Locker locker( lock_ );
+	msgs_.add( word );
+    }
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::add( const uiPhraseSet& strs )
 {
     for ( int idx=0; idx<strs.size(); idx++ )
 	add( strs[idx] );

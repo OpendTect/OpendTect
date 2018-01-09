@@ -96,6 +96,7 @@ public:
 		~uiString();
 
     uiString&	set(const char*);
+    uiString&	importFrom(const char*);
     bool	isEmpty() const;
     void	setEmpty();
     uiString&	toLower(bool yn=true);
@@ -219,6 +220,41 @@ public:
 };
 
 
+#ifndef UISTRING_FULL_SEPARATION
+
+	typedef uiString uiWord;
+	typedef uiString uiPhrase;
+
+#else
+
+//TODO make this better
+
+mExpClass(Basic) uiWord : public uiString
+{ mODTextTranslationClass(uiWord);
+public:
+		uiWord();
+		uiWord(const uiWord&);
+    explicit	uiWord(const uiString&);
+		~uiWord();
+
+};
+
+
+mExpClass(Basic) uiPhrase : public uiString
+{ mODTextTranslationClass(uiPhrase);
+public:
+		uiPhrase();
+		uiPhrase(const uiPhrase&);
+    explicit	uiPhrase(const uiString&);
+		~uiWord();
+
+    uiString&	set(const UserNameString&)	= delete;
+
+};
+
+#endif
+
+
 mGlobal(Basic) uiString toUiString(const uiString&);
 mGlobal(Basic) uiString toUiString(const char*);
 mGlobal(Basic) uiString toUiString(const OD::String&);
@@ -291,6 +327,18 @@ protected:
 };
 
 
+#ifndef UISTRING_FULL_SEPARATION
+
+	typedef uiStringSet uiPhraseSet;
+	typedef uiStringSet uiWordSet;
+
+#else
+
+	//TODO
+
+#endif
+
+
 /*\brief allows returning status and accompanying user info.
 
   This class helps us make sure there is always user info on errors. Therefore,
@@ -303,39 +351,40 @@ mExpClass(Basic) uiRetVal
 public:
 
 			uiRetVal()		{}
-			uiRetVal(const uiString&);
-			uiRetVal(const uiStringSet&);
+			uiRetVal(const uiPhrase&);
+			uiRetVal(const uiPhraseSet&);
 			uiRetVal(const uiRetVal&);
     static uiRetVal	OK()			{ return ok_; }
     static uiRetVal	Empty()			{ return ok_; }
     uiRetVal&		operator =(const uiRetVal&);
-    uiRetVal&		operator =(const uiString&);
-    uiRetVal&		operator =(const uiStringSet&);
-			operator uiString() const;
-			operator uiStringSet() const;
+    uiRetVal&		operator =(const uiPhrase&);
+    uiRetVal&		operator =(const uiPhraseSet&);
+			operator uiPhrase() const;
+			operator uiPhraseSet() const;
 
     bool		isOK() const;
     inline bool		isEmpty() const		{ return isOK(); }
     inline bool		isError() const		{ return !isOK(); }
     bool		isMultiMessage() const;
-    uiStringSet		messages() const;
-    bool		isSingleWord(const uiString&) const;
+    uiPhraseSet		messages() const;
+    bool		isSingleWord(const uiWord&) const;
 
     uiRetVal&		setEmpty();
     inline uiRetVal&	setOK()			{ return setEmpty(); }
-    uiRetVal&		insert(const uiString&);
+    uiRetVal&		insert(const uiPhrase&);
     uiRetVal&		set(const uiRetVal&);
-    uiRetVal&		set(const uiString&);
-    uiRetVal&		set(const uiStringSet&);
+    uiRetVal&		set(const uiPhrase&);
+    uiRetVal&		set(const uiPhraseSet&);
     uiRetVal&		add(const uiRetVal&);
-    uiRetVal&		add(const uiString&);
-    uiRetVal&		add(const uiStringSet&);
+    uiRetVal&		add(const uiPhrase&);
+    uiRetVal&		add(const uiPhraseSet&);
+    uiRetVal&		setAsStatus(const uiWord&);
 
     BufferString	getText() const;
 
 private:
 
-    uiStringSet		msgs_;
+    uiPhraseSet		msgs_;
     mutable Threads::Lock lock_;
 
     static const uiRetVal ok_;
@@ -370,10 +419,10 @@ mGlobal(Basic) bool isCancelled(const uiRetVal&);
 
    \endcode
 */
+mGlobal(Basic) uiString od_static_tr(const char* context,const char* text,
+				const char* disambiguation=0,int pluralnr=-1);
 
-mGlobal(Basic) uiString od_static_tr( const char* function, const char* text,
-	const char* disambiguation = 0, int pluralnr=-1 );
-mGlobal(Basic) uiString getUiYesNoString(bool);
+mGlobal(Basic) uiWord getUiYesNoWord(bool);
 
 template <class T> inline
 uiString& uiString::arg( const T& var )
