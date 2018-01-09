@@ -1096,16 +1096,25 @@ static bool sIsPolySelect = true;
     uiAction* itm = new uiAction( txt, mCB(this,uiODMenuMgr,fn), fnm ); \
     mnu->insertAction( itm, idx ); }
 
+#define mAddSMMnuItm(mnu,txt,fn,fnm,idx) { \
+    uiAction* itm = new uiAction( txt, mCB(scenemgr,uiODSceneMgr,fn), fnm ); \
+    mnu->insertAction( itm, idx ); }
+
 void uiODMenuMgr::fillVisTB( uiODSceneMgr* scenemgr )
 {
     actviewid_ = viewtb_->addButton( "altpick", tr("Switch to View Mode"),
 			mCB(this,uiODMenuMgr,toggViewMode), false );
-    mAddTB(viewtb_,"home",tr("To home position"),false,toHomePos);
-    mAddTB(viewtb_,"set_home",tr("Save Home Position"),false,saveHomePos);
-    mAddTB(viewtb_,"view_all",tr("View All"),false,viewAll);
-    cameraid_ = mAddTB(viewtb_,"perspective",
-		       tr("Switch to Orthographic Camera"),
-		       false,switchCameraType);
+
+    int homeid = mAddTB(viewtb_,"home",tr("To home position"),false,toHomePos);
+    uiMenu* homemnu = viewtb_->addButtonMenu( homeid );
+    mAddSMMnuItm( homemnu, tr("To home position"), toHomePos, "home", 0 );
+    mAddSMMnuItm( homemnu, tr("Save position as Home position"),
+		  saveHomePos, "set_home", 1 );
+
+    mAddTB( viewtb_, "view_all", tr("View All"), false, viewAll );
+    cameraid_ = mAddTB( viewtb_, "perspective",
+		        tr("Switch to Orthographic Camera"),
+		        false, switchCameraType );
 
     curviewmode_ = ui3DViewer::Inl;
     bool separateviewbuttons = false;
