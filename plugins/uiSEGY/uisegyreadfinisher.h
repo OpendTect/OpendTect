@@ -20,6 +20,7 @@ class uiComboBox;
 class uiCheckBox;
 class uiGenInput;
 class uiFileSel;
+class uiTable;
 class uiBatchJobDispatcherSel;
 class uiSeisTransfer;
 class SeisImporter;
@@ -67,6 +68,7 @@ protected:
     uiGenInput*		coordsstepfld_;
     uiFileSel*		coordfilefld_;
     uiBatchJobDispatcherSel* batchfld_;
+    uiString		errmsg_;
 
     bool		singlevintage_;
     const ObjectSet<uiSEGYVintageInfo>* vntinfos_;
@@ -104,5 +106,13 @@ protected:
 
     uiSeisSel*		outFld( bool imp )
 			{ return imp ? outimpfld_ : outscanfld_; }
+};
+
+
+mExpClass(uiSEGY) uiSEGYImportReport : public uiDialog
+{mODTextTranslationClass(uiSEGYImportReport)
+public:
+			uiSEGYImportReport(uiParent*);
+    uiTable*		table_;
 
 };
