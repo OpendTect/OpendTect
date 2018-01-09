@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Lammertink
- Date:		25/08/1999
+ Author:	Prajjaval
+ Date:		2015
 ________________________________________________________________________
 
 -*/
@@ -291,29 +291,7 @@ uiString uiStrings::phrYcoordinate( const uiString& string )
 uiString uiStrings::phrZRange( const uiString& string )
 { return toUiString(joinstring).arg(sZRange()).arg(string); }
 
-uiString uiStrings::s2D()
-{ return tr("2D"); }
 
-uiString uiStrings::s3D()
-{ return tr("3D"); }
-
-uiString uiStrings::sAdd()
-{ return tr("Add"); }
-
-uiString uiStrings::sASCII()
-{ return tr("ASCII"); }
-
-uiString uiStrings::sBatchProgram()
-{ return mJoinUiStrs(sBatch(),sProgram()); }
-
-uiString uiStrings::sBatchProgramFailedStart()
-{ return tr("Batch program failed to start"); }
-
-uiString uiStrings::sColorTable(int num)
-{ return tr("Color Table",0,num); }
-
-uiString uiStrings::sCalculate()
-{ return tr("Calculate"); }
 
 uiString uiStrings::sCannotAdd()
 { return tr("Cannot add"); }
@@ -332,9 +310,6 @@ uiString uiStrings::sCannotExtract()
 
 uiString uiStrings::sCannotFind()
 { return tr("Cannot find"); }
-
-uiString uiStrings::sCalculateFrom()
-{ return tr("Calculate From"); }
 
 uiString uiStrings::sCannotImport()
 { return tr("Cannot Import"); }

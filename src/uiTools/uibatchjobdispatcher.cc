@@ -219,7 +219,11 @@ const uiString uiBatchJobDispatcherSel::selectedInfo() const
 bool uiBatchJobDispatcherSel::start()
 {
     const int selidx = selIdx();
-    if ( selidx < 0 ) return false;
+    if ( selidx < 0 )
+    {
+	uiMSG().error( tr("Please select a batch execution method") );
+	return false;
+    }
 
     uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
     dl->dispatcher().setJobName( jobname_.buf() );
@@ -268,9 +272,9 @@ bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 {
     if ( !dispatcher().go(jobspec_) )
     {
-	uiString errmsg = dispatcher().errMsg();
-	uiMSG().error( errmsg.isEmpty() ? tr("Cannot start required program")
-					: errmsg );
+	uiRetVal uirv( tr("Cannot start program %1").arg(jobspec_.prognm_) );
+	uirv.add( dispatcher().errMsg() );
+	uiMSG().error( uirv );
 	return false;
     }
 

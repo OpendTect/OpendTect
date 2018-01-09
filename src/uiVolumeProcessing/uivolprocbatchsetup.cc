@@ -188,19 +188,14 @@ bool uiBatchSetup::acceptOK()
     if ( batchfld_->wantBatch() )
     {
 	batchfld_->setJobName( outputioobj->name() );
-	if ( !batchfld_->start() )
-	    uiMSG().error( uiStrings::sBatchProgramFailedStart() );
-
+	batchfld_->start();
 	return false;
     }
 
     VolProc::ChainOutput vco;
     vco.usePar( batchfld_->jobSpec().pars_ );
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(vco) )
-	uiMSG().error( vco.errorWithDetails() );
-
-    return false;
+    return taskrunner.execute( vco );
 }
 
 } // namespace VolProc

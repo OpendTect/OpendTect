@@ -116,7 +116,9 @@ bool uiSeisCopyCube::acceptOK()
 	outpars.set( sKey::Type(), sKey::Attribute() );
     DBM().setEntry( *outioobj );
 
-    if ( batchfld_->wantBatch() )
+    bool execok = false;
+    const bool inbatch = batchfld_->wantBatch();
+    if ( inbatch )
     {
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	IOPar inppar; inpfld_->fillPar( inppar );
@@ -126,10 +128,7 @@ bool uiSeisCopyCube::acceptOK()
 	IOPar outpar; outfld_->fillPar( outpar );
 	js.pars_.mergeComp( outpar, sKey::Output() );
 	batchfld_->setJobName( outioobj->name() );
-	if ( !batchfld_->start() )
-	    uiMSG().error( uiStrings::sBatchProgramFailedStart() );
-
-	return false;
+	return batchfld_->start();
     }
 
     Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "",
@@ -137,15 +136,7 @@ bool uiSeisCopyCube::acceptOK()
     mDynamicCastGet(SeisSingleTraceProc*,stp,exec)
     SeisCubeCopier copier( stp, compnr );
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(copier) )
-	{ uiMSG().error( copier.message() ); return false; }
-
-    const uiString msg = tr( "%1 successfully copied.\n\n"
-			     "Do you want to copy more %2?" )
-			     .arg(outioobj->name()).arg(outioobj->group());
-    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
-    return !ret;
+    return taskrunner.execute( copier );
 }
 
 
@@ -241,21 +232,10 @@ bool uiSeisCopy2DDataSet::acceptOK()
 	js.pars_.mergeComp( outpar, sKey::Output() );
 
 	batchfld_->setJobName( outioobj->name() );
-	if ( !batchfld_->start() )
-	    uiMSG().error( uiStrings::sBatchProgramFailedStart() );
-
-	return false;
+	return batchfld_->start();
     }
 
     Seis2DCopier copier( *inioobj, *outioobj, procpars );
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(copier) )
-	{ uiMSG().error( copier.message() ); return false; }
-
-    const uiString msg = tr( "%1 successfully copied.\n\n"
-			     "Do you want to copy more %2?" )
-			     .arg(outioobj->name()).arg(outioobj->group());
-    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
-    return !ret;
+    return taskrunner.execute( copier );
 }
