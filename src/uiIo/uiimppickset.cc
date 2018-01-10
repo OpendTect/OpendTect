@@ -86,7 +86,9 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	? uiStrings::phrOutput( sPicksetPolygon() )
 	: uiStrings::phrInput( sPicksetPolygon() );
 
-    objfld_ = new uiIOObjSel( this, ctxt, label );
+    uiIOObjSel::Setup ioobjsetup( label );
+    ioobjsetup.withinserters(false).withwriteopts(false);
+    objfld_ = new uiIOObjSel( this, ctxt, ioobjsetup );
 
     if ( import_ )
     {
@@ -114,7 +116,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	uiSeparator* sep = new uiSeparator( this, "H sep" );
 	sep->attach( stretchedBelow, constzfld_ );
 
-	dataselfld_ = new uiTableImpDataSel( this, fd_, 
+	dataselfld_ = new uiTableImpDataSel( this, fd_,
                       mODHelpKey(mTableImpDataSelpicksHelpID) );
 	dataselfld_->attach( alignedBelow, constzfld_ );
 	dataselfld_->attach( ensureBelow, sep );
