@@ -283,7 +283,7 @@ MultiID SeisJobExecProv::tempStorID() const
 	    inls.stop = SI().sampling(false).hsamp_.stop_.inl();
 	    inls.step = SI().sampling(false).hsamp_.step_.inl();
 	}
-	
+
 	iostrm->fileSpec().setFileName( fp.fullPath() );
 	iostrm->fileSpec().nrs_ = inls;
 
@@ -317,7 +317,7 @@ bool SeisJobExecProv::removeTempSeis()
     FilePath fp( ioobj->fullUserExpr(true) );
     IOM().permRemove( tmpstorid_ );
 
-    if ( fp.fileName() == "i.*" )
+    if ( fp.fileName().startsWith("i.") )
 	fp.setFileName(0);
     return File::remove( fp.fullPath().buf() );
 }
