@@ -290,14 +290,34 @@ uiPluginSelBannerDrawer( uiGroup* p )
     : uiGraphicsViewBase( p, "OD Version banner" )
     , pm_("banner.png")
 {
-    uiPixmapItem* pmitem = new uiPixmapItem( pm_ );
-    scene().addItem( pmitem );
+    pmitem_ = scene().addItem( new uiPixmapItem(pm_) );
     setPrefWidth( pm_.width() );
     setPrefHeight( pm_.height() );
     setStretch( 2, 0 );
+    setBackgroundColor( Color(192,192,192) );
+
+    mAttachCB( reDrawn, uiPluginSelBannerDrawer::reDrawnCB );
 }
 
-    const uiPixmap pm_;
+~uiPluginSelBannerDrawer()
+{
+    detachAllNotifiers();
+}
+
+void reDrawnCB( CallBacker* )
+{
+    const int parwdth = scene().maxX();
+    const int itmwdth = pmitem_->pixmapSize().width();
+    if ( parwdth < 1 || itmwdth < 1 )
+	{ pErrMsg("Huh"); return; }
+
+    float diff = parwdth - itmwdth;
+    pmitem_->setPos( diff * .25, 0.f );
+}
+
+    const uiPixmap	pm_;
+    uiPixmapItem*	pmitem_;
+
 };
 
 
@@ -347,7 +367,7 @@ void uiPluginSel::createUI()
     treefld_->expandAll();
     treefld_->setPrefWidth( banner->pm_.width() );
     treefld_->setPrefHeightInChar( prefheight );
-    treefld_->setStretch( 0, 2 );
+    treefld_->setStretch( 2, 2 );
     mAttachCB( treefld_->rightButtonPressed, uiPluginSel::rightClickCB );
 
     setPrefWidth( banner->pm_.width() );

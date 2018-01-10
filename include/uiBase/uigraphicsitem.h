@@ -101,9 +101,8 @@ public:
     int			id() const			{ return id_; }
     int			getZValue() const;
 
-			//Old, will be remove once all dep code is changed
-    void		rotate(float angle) { setRotation(angle); }
-    void		scale(float sx,float sy) { setScale( sx, sy ); }
+    mDeprecated void	rotate(float angle) { setRotation(angle); }
+    mDeprecated void	scale(float sx,float sy) { setScale( sx, sy ); }
 
     virtual void	translateText();
 
