@@ -241,12 +241,12 @@ void uiSurveyManager::mkSurvManTools()
 				 mCB(this,uiSurveyManager,editButPushed) );
     new uiToolButton( survmanbuts_, "copyobj",
 	tr("Copy Survey"), mCB(this,uiSurveyManager,copyButPushed) );
-    new uiToolButton( survmanbuts_, "compress",
-	tr("Compress survey as zip archive"),
-	mCB(this,uiSurveyManager,compressButPushed) );
-    new uiToolButton( survmanbuts_, "extract",
+    new uiToolButton( survmanbuts_, "import",
 	tr("Extract survey from zip archive"),
 	mCB(this,uiSurveyManager,extractButPushed) );
+    new uiToolButton( survmanbuts_, "export",
+	tr("Compress survey as zip archive"),
+	mCB(this,uiSurveyManager,compressButPushed) );
     new uiToolButton( survmanbuts_, "share",
 	tr("Share surveys through the OpendTect Seismic Repository"),
 	mSCB(osrbuttonCB) );
