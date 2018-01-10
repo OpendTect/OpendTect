@@ -12,26 +12,32 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uizaxistransform.h"
 
 #include "datainpspec.h"
+#include "hiddenparam.h"
 #include "refcount.h"
-#include "uibutton.h"
-#include "uigeninput.h"
-#include "uidialog.h"
 #include "zaxistransform.h"
+
+#include "uibutton.h"
+#include "uidialog.h"
+#include "uigeninput.h"
 #include "uimsg.h"
+
+static HiddenParam<uiZAxisTransform,char> is2d_(0);
 
 mImplFactory3Param( uiZAxisTransform, uiParent*, const char*,
 		    const char*, uiZAxisTransform::factory );
 
 bool uiZAxisTransform::isField( const uiParent* p )
 {
-    mDynamicCastGet( const uiZAxisTransformSel*, sel, p );
+    mDynamicCastGet(const uiZAxisTransformSel*,sel,p);
     return sel && sel->isField();
 }
 
 
 uiZAxisTransform::uiZAxisTransform( uiParent* p )
     : uiDlgGroup( p, uiStrings::sEmptyString() )
-{}
+{
+    is2d_.setParam( this, false );
+}
 
 
 void uiZAxisTransform::enableTargetSampling()
@@ -42,6 +48,19 @@ bool uiZAxisTransform::getTargetSampling( StepInterval<float>& ) const
 { return false; }
 
 
+void uiZAxisTransform::setIs2D( bool yn )
+{
+    is2d_.setParam( this, yn );
+}
+
+
+bool uiZAxisTransform::is2D() const
+{
+    return is2d_.getParam( this );
+}
+
+
+// uiZAxisTransformSel
 uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	const char* fromdomain, const char* todomain, bool withsampling,
 	bool isfield, bool is2d )
@@ -80,6 +99,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	if ( withsampling )
 	    uizat->enableTargetSampling();
 
+	uizat->setIs2D( is2d );
 	transflds_ += uizat;
 	names += usernames[idx];
     }

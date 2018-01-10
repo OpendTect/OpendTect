@@ -43,6 +43,9 @@ public:
 				   construction.
 				 */
 
+    void			setIs2D(bool);
+    bool			is2D() const;
+
 protected:
     static bool 		isField(const uiParent*);
     				uiZAxisTransform(uiParent*);

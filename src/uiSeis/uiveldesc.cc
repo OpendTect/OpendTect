@@ -140,7 +140,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 {
     const Seis::GeomType gt = vsu && vsu->is2d_ ? Seis::Line : Seis::Vol;
     uiSeisSel::Setup ssu( gt ); ssu.seltxt( tr("Velocity cube") );
-    volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
+    volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,true),
 				ssu );
     if ( sel )
 	volselfld_->setInput( *sel );
@@ -284,9 +284,10 @@ const IOObjContext& uiVelSel::ioContext()
 }
 
 
-void uiVelSel::editCB(CallBacker*)
+void uiVelSel::editCB( CallBacker* )
 {
-    uiVelocityDescDlg dlg( this, workctio_.ioobj_ );
+    uiVelocityDesc::Setup vsu; vsu.is2d_ = is2D();
+    uiVelocityDescDlg dlg( this, workctio_.ioobj_, &vsu );
     if ( dlg.go() )
     {
 	PtrMan<IOObj> sel = dlg.getSelection();
@@ -349,6 +350,19 @@ void uiVelSel::updateEditButton()
 }
 
 
+void uiVelSel::setIs2D( bool yn )
+{
+    seissetup_.geom_ = yn ? Seis::Line : Seis::Vol;
+    IOObjContext ctxt = uiSeisSel::ioContext( seissetup_.geom_, true );
+    ctxt.toselect_.require_.setYN( VelocityDesc::sKeyIsVelocity(), true );
+    workctio_.ctxt = inctio_.ctxt = ctxt;
+    updateInput();
+    fillEntries();
+}
+
+
+
+// uiVelModelZAxisTransform
 uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase( p, t2d )
     , transform_ ( 0 )
@@ -365,6 +379,7 @@ uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
 	    mCB(this,uiVelModelZAxisTransform,setZRangeCB) );
 
     setHAlignObj( velsel_ );
+    preFinalise().notify( mCB(this,uiVelModelZAxisTransform,finalizeCB) );
     postFinalise().notify( mCB(this,uiVelModelZAxisTransform,setZRangeCB) );
 }
 
@@ -385,6 +400,12 @@ void uiVelModelZAxisTransform::enableTargetSampling()
 {
     uiTime2DepthZTransformBase::enableTargetSampling();
     setZRangeCB( 0 );
+}
+
+
+void uiVelModelZAxisTransform::finalizeCB( CallBacker* )
+{
+    velsel_->setIs2D( is2D() );
 }
 
 
@@ -432,6 +453,12 @@ const char* uiVelModelZAxisTransform::selName() const
 bool uiVelModelZAxisTransform::acceptOK()
 {
     unRefAndZeroPtr( transform_ );
+
+#ifndef __debug__
+    if ( is2D() )
+	mErrRet( tr("2D velocity models are not yet supported.\n"
+		    "Please choose another Z transform.") );
+#endif
 
     const IOObj* ioobj = velsel_->ioobj( false );
     if ( !ioobj )
