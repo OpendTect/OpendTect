@@ -643,13 +643,13 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
     {
 	const Line2DInterSection::Point& intpoint = intsect->getPoint(idx);
 
-	if ( lngid != seisgid && intpoint.line != lngid )
+	if ( lngid != seisgid && intpoint.otherid_ != lngid )
 	    continue;
 
 	for ( int idy=0; idy<sids_.size(); idy++ )
 	{
 	    const int trcnr =
-		lngid != seisgid ? intpoint.linetrcnr : intpoint.mytrcnr;
+		lngid != seisgid ? intpoint.othertrcnr_ : intpoint.mytrcnr_;
 	    const Coord3 crd = hor2d->getPos( sids_[idy], lngid, trcnr );
 	    if ( crd.isDefined() )
 		intsectpnts += crd;

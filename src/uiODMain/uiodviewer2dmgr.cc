@@ -368,12 +368,13 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 	if ( auxannot[selannotidx].isNormal() )
 	    return;
 
-	Line2DInterSection::Point intpoint2d( mUdfGeomID, mUdf(int), mUdf(int));
+	Line2DInterSection::Point intpoint2d( mUdfGeomID, mUdfGeomID,
+					      mUdf(int), mUdf(int));
 	const float auxpos = auxannot[selannotidx].pos_;
 	intpoint2d = intersectingLineID( vwr2d, auxpos );
-	if ( mIsUdfGeomID(intpoint2d.line) )
+	if ( mIsUdfGeomID(intpoint2d.otherid_) )
 	   return;
-	clickedvwr2d = find2DViewer( intpoint2d.line );
+	clickedvwr2d = find2DViewer( intpoint2d.otherid_ );
     }
     else
     {
@@ -461,7 +462,8 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     }
 
     uiMenu menu( uiStrings::sMenu() );
-    Line2DInterSection::Point intpoint2d( mUdfGeomID, mUdf(int), mUdf(int) );
+    Line2DInterSection::Point intpoint2d( mUdfGeomID, mUdfGeomID,
+					  mUdf(int), mUdf(int) );
     const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
     if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
@@ -469,10 +471,10 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
 	{
 	    intpoint2d = intersectingLineID( curvwr2d, mCast(float,wp.x_) );
-	    if ( mIsUdfGeomID(intpoint2d.line) )
+	    if ( mIsUdfGeomID(intpoint2d.otherid_) )
 	       return;
 	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
-					Survey::GM().getName(intpoint2d.line) );
+				Survey::GM().getName(intpoint2d.otherid_) );
 	    menu.insertAction( new uiAction(show2dtxt), 0 );
 	}
     }
@@ -515,16 +517,16 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	if ( menuid==0 )
 	{
 	    const PosInfo::Line2DData& l2ddata =
-		Survey::GM().getGeometry( intpoint2d.line )->as2D()->data();
+		Survey::GM().getGeometry( intpoint2d.otherid_ )->as2D()->data();
 	    const StepInterval<int> trcnrrg = l2ddata.trcNrRange();
 	    const float trcdist =
-		l2ddata.distBetween( trcnrrg.start, intpoint2d.linetrcnr );
+		l2ddata.distBetween( trcnrrg.start, intpoint2d.othertrcnr_ );
 	    if ( mIsUdf(trcdist) )
 		return;
 	    initialcentre = uiWorldPoint( mCast(double,trcdist), samplecrdz );
-	    newtkzs.hsamp_.init( intpoint2d.line );
+	    newtkzs.hsamp_.init( intpoint2d.otherid_ );
 	    newtkzs.hsamp_.setLineRange(
-		    Interval<int>(intpoint2d.line,intpoint2d.line) );
+		    Interval<int>(intpoint2d.otherid_,intpoint2d.otherid_) );
 	}
 	else if ( menuid == 1 )
 	{
@@ -801,18 +803,18 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	{
 	    const Line2DInterSection::Point& intpos =
 		intsect->getPoint( intposidx );
-	    if ( !datagids.isPresent(intpos.line) )
+	    if ( !datagids.isPresent(intpos.otherid_) )
 		continue;
 
 	    OD::PlotAnnotation newannot;
-	    const uiODViewer2D* curvwr2d = find2DViewer( intpos.line );
+	    const uiODViewer2D* curvwr2d = find2DViewer( intpos.otherid_ );
 	    if ( curvwr2d &&
 		    curvwr2d->getZAxisTransform()==vwr2d->getZAxisTransform() )
 		newannot.linetype_ = OD::PlotAnnotation::Bold;
 
-	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
+	    const int posidx = trcrg.getIndex( intpos.mytrcnr_ );
 	    newannot.pos_ = mCast(float,x1rg.atIndex(posidx));
-	    newannot.txt_ = toUiString( Survey::GM().getName(intpos.line));
+	    newannot.txt_ = toUiString( Survey::GM().getName(intpos.otherid_) );
 	    x1auxannot += newannot;
 	}
     }
@@ -941,8 +943,8 @@ int uiODViewer2DMgr::intersection2DIdx( Pos::GeomID newgeomid ) const
 Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 	const uiODViewer2D* vwr2d, float pos ) const
 {
-    Line2DInterSection::Point udfintpoint( mUdfGeomID, mUdf(int), mUdf(int) );
-
+    Line2DInterSection::Point udfintpoint( mUdfGeomID, mUdfGeomID,
+					   mUdf(int), mUdf(int) );
     const int intsecidx = intersection2DIdx( vwr2d->geomID() );
     if ( intsecidx<0 )
 	return udfintpoint;
@@ -965,10 +967,10 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
     for ( int idx=0; idx<int2d->size(); idx++ )
     {
 	const Line2DInterSection::Point& intpoint = int2d->getPoint( idx );
-	if ( !datagids.isPresent(intpoint.line) )
+	if ( !datagids.isPresent(intpoint.otherid_) )
 	    continue;
 
-	const int inttrcidx = vwrtrcrg.getIndex( intpoint.mytrcnr );
+	const int inttrcidx = vwrtrcrg.getIndex( intpoint.mytrcnr_ );
 	const double inttrcpos = vwrxrg.atIndex( inttrcidx );
 	if ( mIsEqual(pos,inttrcpos,eps) )
 	    return intpoint;
