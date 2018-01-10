@@ -8,12 +8,13 @@ ________________________________________________________________________
 
 -*/
 
+#include "cmddrivermod.h"
 #include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uicmddrivermgr.h"
+#include "uistrings.h"
 #include "odplugin.h"
-#include "cmddrivermod.h"
 
 
 namespace CmdDrive
@@ -47,12 +48,16 @@ mDefODInitPlugin(CmdDriver)
     if ( mgr ) return 0;
     mgr = new uiCmdDriverMgr( true );
 
-    mDefineStaticLocalObject( uiAction*, cmdmnuitm, = 0 );
-    if ( cmdmnuitm ) return 0;
-    cmdmnuitm = new uiAction( toUiString("Command &Driver ...") );
+    mDefineStaticLocalObject( uiAction*, cmdaction, = 0 );
+    if ( cmdaction )
+	return 0;
 
-    ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdmnuitm );
-    cmdmnuitm->triggered.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
+    const uiString cdrvrstr( od_static_tr("Command Driver","Command Driver") );
+    cmdaction = new uiAction( m3Dots(cdrvrstr), "commanddriver" );
+    cmdaction->setShortcut( "Ctrl+R" );
+
+    ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdaction );
+    cmdaction->triggered.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
 
     initExtraCommands();
     initExtraFunctions();

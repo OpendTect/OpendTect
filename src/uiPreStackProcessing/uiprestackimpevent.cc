@@ -31,9 +31,10 @@ namespace PreStack
 {
 
 uiEventImport::uiEventImport( uiParent* p )
-    : uiDialog( p, uiDialog::Setup(tr("Import Prestack Events"),mNoDlgTitle,
-				   mODHelpKey(mPreStackEventImportHelpID) )
-				   .modal(false) )
+    : uiDialog( p, uiDialog::Setup(
+		uiStrings::phrImport(uiStrings::sPreStackEvents()),
+		mNoDlgTitle,mODHelpKey(mPreStackEventImportHelpID) )
+		       .modal(false) )
     , fd_(*EventAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -47,7 +48,7 @@ uiEventImport::uiEventImport( uiParent* p )
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
     ctxt.forread_ = false;
-    outputfld_ = new uiIOObjSel( this, ctxt, tr("Prestack Events") );
+    outputfld_ = new uiIOObjSel( this, ctxt, uiStrings::sPreStackEvents() );
     outputfld_->attach( alignedBelow, dataselfld_ );
 }
 
