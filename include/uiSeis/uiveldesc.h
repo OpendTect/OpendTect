@@ -106,6 +106,8 @@ public:
     Interval<float>		getVelocityBottomRange() const	{ return brg_; }
     Notifier<uiVelSel>		velrgchanged;
 
+    void			setIs2D(bool);
+
 protected:
 
     void			fillDefault();
@@ -134,8 +136,9 @@ public:
 protected:
 				uiVelModelZAxisTransform(uiParent*,bool);
 				~uiVelModelZAxisTransform();
-    FixedString			getZDomain() const;
 
+    FixedString			getZDomain() const;
+    void			finalizeCB(CallBacker*);
     void			setZRangeCB(CallBacker*);
 
     VelocityStretcher*		transform_;
