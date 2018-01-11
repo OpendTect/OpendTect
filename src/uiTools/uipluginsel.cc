@@ -311,7 +311,7 @@ void reDrawnCB( CallBacker* )
     if ( parwdth < 1 || itmwdth < 1 )
 	{ pErrMsg("Huh"); return; }
 
-    const int diff = parwdth - itmwdth;
+    const float diff = (float)(parwdth - itmwdth);
     pmitem_->setPos( diff * .25f, 0.f );
 }
 
