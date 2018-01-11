@@ -1837,6 +1837,20 @@ void uiTable::cellObjChangedCB( CallBacker* cb )
 }
 
 
+void uiTable::setCellChecked( const RowCol& rc, bool yn )
+{
+    QTableWidgetItem* itm = body_->getItem( rc );
+    itm->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
+}
+
+
+bool uiTable::isCellChecked( const RowCol& rc ) const
+{
+    QTableWidgetItem* itm = body_->getItem( rc, false );
+    return itm && itm->checkState()==Qt::Checked;
+}
+
+
 const ObjectSet<uiTable::SelectionRange>& uiTable::selectedRanges() const
 {
     deepErase( selranges_ );
