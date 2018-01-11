@@ -246,6 +246,7 @@ int StratAmpCalc::nextStep()
 	case Stats::Median: outval = (float)runcalc.median(); break;
 	case Stats::RMS: outval = (float)runcalc.rms(); break;
 	case Stats::Sum: outval = runcalc.sum(); break;
+	case Stats::MostFreq: outval = runcalc.mostFreq(); break;
 	default: break;
     }
 
