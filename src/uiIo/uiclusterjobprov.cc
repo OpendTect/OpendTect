@@ -349,8 +349,18 @@ bool Batch::SimpleClusterProgDef::isSuitedFor( const char* pnm ) const
 {
     FixedString prognm = pnm;
     return prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::Attrib )
-	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::AttribEM )
-	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::Vol );
+	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::AttribEM );
+}
+
+
+bool Batch::SimpleClusterProgDef::canHandle( const JobSpec& js ) const
+{
+    if ( !isSuitedFor(js.prognm_) )
+	return false;
+
+    FixedString outtyp = js.pars_.find(
+		IOPar::compKey(sKey::Output(),sKey::Type()) );
+    return outtyp != sKey::Surface();
 }
 
 

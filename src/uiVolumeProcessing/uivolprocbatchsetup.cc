@@ -215,3 +215,22 @@ bool Batch::VolMMProgDef::canHandle( const Batch::JobSpec& js ) const
     par.getYN( Batch::VolMMProgDef::sKeyNeedsFullVolYN(), needsfullvol );
     return !needsfullvol;
 }
+
+
+bool Batch::VolClusterProgDef::isSuitedFor( const char* prognm ) const
+{
+    BufferString pnm( prognm );
+    return pnm == Batch::JobSpec::progNameFor( Batch::JobSpec::Vol );
+}
+
+
+bool Batch::VolClusterProgDef::canHandle( const Batch::JobSpec& js ) const
+{
+    if ( !isSuitedFor(js.prognm_) )
+	return false;
+
+    const IOPar& par = js.pars_;
+    bool needsfullvol = false;
+    par.getYN( Batch::VolMMProgDef::sKeyNeedsFullVolYN(), needsfullvol );
+    return !needsfullvol;
+}

@@ -65,6 +65,7 @@ public:
 			SimpleClusterProgDef() {}
 
     bool		isSuitedFor(const char*) const;
+    bool		canHandle(const JobSpec&) const;
 };
 }
 
