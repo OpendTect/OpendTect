@@ -29,7 +29,7 @@
 
 
 static const char* statstrs[] =
-	{ "Min", "Max", "Average", "Median", "RMS", "Sum", 0 };
+	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     : uiDialog( p, Setup(tr("StratalAmplitude"),mNoDlgTitle,
