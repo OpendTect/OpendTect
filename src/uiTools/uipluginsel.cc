@@ -311,8 +311,8 @@ void reDrawnCB( CallBacker* )
     if ( parwdth < 1 || itmwdth < 1 )
 	{ pErrMsg("Huh"); return; }
 
-    float diff = parwdth - itmwdth;
-    pmitem_->setPos( diff * .25, 0.f );
+    const float diff = parwdth - itmwdth;
+    pmitem_->setPos( diff * .25f, 0.f );
 }
 
     const uiPixmap	pm_;
