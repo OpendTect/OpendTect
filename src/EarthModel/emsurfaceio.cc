@@ -873,12 +873,9 @@ int dgbSurfaceReader::nextStep()
 	    const Pos::GeomID geomid = geomids_[rowindex_];
 	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 			     Survey::GM().getGeometry(geomid) );
-	    if ( !geom2d  )
-	    {
-		msg_ = tr("Cannot find 2D line associated "
-                          "with the 2D horizon.");
-		return ErrorOccurred();
-	    }
+	    if ( !geom2d )
+		return skipRow(strm) == ErrorOccurred() ? ErrorOccurred()
+							: MoreToDo();
 
 	    const int startcol = firstcol + noofcoltoskip;
 	    const int stopcol = firstcol + noofcoltoskip + colstep*(nrcols - 1);
