@@ -306,8 +306,9 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     if ( !curioobj_ ) return;
 
     const bool docont = uiMSG().askContinue(
-       tr("All selected 2D geometries will be deleted.\n"
-	  "This will invalidate all other data associated with this geometry"));
+       tr("All selected 2D line geometries will be deleted.\n"
+	  "This will invalidate all data and interpretations associated with "
+	  "these lines"));
     if ( !docont ) return;
 
     MouseCursorChanger chgr( MouseCursor::Wait );
