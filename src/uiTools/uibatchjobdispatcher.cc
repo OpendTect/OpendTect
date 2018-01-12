@@ -11,10 +11,11 @@ ________________________________________________________________________
 #include "uibatchjobdispatchersel.h"
 #include "uibatchjobdispatcherlauncher.h"
 
-#include "singlebatchjobdispatch.h"
 #include "hostdata.h"
+#include "ioobj.h"
 #include "oddirs.h"
 #include "settings.h"
+#include "singlebatchjobdispatch.h"
 
 #include "uigeninput.h"
 #include "uidialog.h"
@@ -228,6 +229,14 @@ bool uiBatchJobDispatcherSel::start()
     uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
     dl->dispatcher().setJobName( jobname_.buf() );
     return dl->go( this );
+}
+
+
+bool uiBatchJobDispatcherSel::savePars( const IOObj& ioobj ) const
+{
+    FilePath fp( ioobj.mainFileName() );
+    fp.setExtension( "proc" );
+    return jobspec_.pars_.write( fp.fullPath(), sKey::Pars() );
 }
 
 
