@@ -93,7 +93,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
 	logstable_->attach( ensureBelow, udffld_ );
 
 	lognmfld_ = new uiGenInput( this, tr("Name log after"),
-		BoolInpSpec(true,tr("Curve"),tr("Description")) );
+		BoolInpSpec(false,tr("Curve"),tr("Description")) );
 	lognmfld_->attach( alignedBelow, udffld_ );
 	lognmfld_->attach( ensureBelow, logstable_ );
 	attachobj = lognmfld_->attachObj();
@@ -128,6 +128,7 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 	logstable_->setNrRows( lfi.size() );
 	for ( int idx=0; idx<lfi.size(); idx++ )
 	{
+	    logstable_->setCellChecked( RowCol(idx,0), true );
 	    logstable_->setText( RowCol(idx,0), lfi.logcurves.get(idx) );
 	    logstable_->setText( RowCol(idx,1), lfi.logunits.get(idx) );
 	    logstable_->setText( RowCol(idx,2), lfi.lognms.get(idx) );
@@ -211,7 +212,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 	const int colidx = usecurvenms ? 0 : 2;
 	for ( int idx=0; idx<logstable_->nrRows(); idx++ )
 	{
-	    if ( logstable_->isRowSelected(idx) )
+	    if ( logstable_->isCellChecked(RowCol(idx,0)))
 		lognms.add( logstable_->text(RowCol(idx,colidx)) );
 	}
     }
