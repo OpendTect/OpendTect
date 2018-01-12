@@ -13,7 +13,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emmanager.h"
 #include "emrandomposbody.h"
+#include "ioobj.h"
+#include "ioman.h"
 #include "pickset.h"
+#include "picksettr.h"
 #include "randcolor.h"
 #include "selector.h"
 #include "survinfo.h"
@@ -34,6 +37,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visrandomposbodydisplay.h"
 #include "visselman.h"
 #include "vissurvscene.h"
+
+
+static bool isPickSetPolygon( const MultiID& mid )
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return false;
+
+    return ioobj->translator() == "dGB";
+}
+
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem( uiStrings::sPointSet())
@@ -198,7 +211,8 @@ uiTreeItem*
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
-    if ( !psd ) return 0;
+    if ( !psd || !isPickSetPolygon(psd->getMultiID()) )
+	return 0;
 
     Pick::Set* pickset = psd->getSet();
     return pickset->isPolygon() ? 0 : new uiODPickSetTreeItem(visid,*pickset);
@@ -278,11 +292,6 @@ bool uiODPickSetTreeItem::init()
 	displayid_ = psd->id();
 	if ( set_.disp_.pixsize_>100 )
 	    set_.disp_.pixsize_ = 3;
-	if ( set_.size() > 1000 )
-	{
-	    set_.disp_.markertype_ = MarkerStyle3D::Point;
-	    set_.disp_.pixsize_ = 2;
-	}
 
 	psd->setSet( &set_ );
 	visserv_->addObject( psd, sceneID(), true );
@@ -576,7 +585,8 @@ uiTreeItem*
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
-    if ( !psd ) return 0;
+    if ( !psd || !isPickSetPolygon(psd->getMultiID()) )
+	return 0;
 
     Pick::Set* pickset = psd->getSet();
     return !pickset->isPolygon() ? 0 : new uiODPolygonTreeItem(visid,*pickset);
