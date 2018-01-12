@@ -21,7 +21,6 @@ static const char* sKeyVSP = "VSP";
 
 
 SEGY::ImpType::ImpType( bool isvsp )
-    : tidx_(0)
 {
     init();
     if ( isvsp )
@@ -30,7 +29,6 @@ SEGY::ImpType::ImpType( bool isvsp )
 
 
 SEGY::ImpType::ImpType( Seis::GeomType gt )
-    : tidx_(0)
 {
     init();
     setGeomType( gt );
@@ -39,17 +37,19 @@ SEGY::ImpType::ImpType( Seis::GeomType gt )
 
 void SEGY::ImpType::init()
 {
-    if ( SI().has3D() )
-    {
-	types_ += (int)Seis::Vol;
-	types_ += (int)Seis::VolPS;
-    }
     if ( SI().has2D() )
     {
+	tidx_ = 0; // default is Line, unless there is 3D data
 	types_ += (int)Seis::Line;
 	types_ += (int)Seis::LinePS;
     }
-    types_ += (int)Seis::LinePS + 1;
+    if ( SI().has3D() )
+    {
+	tidx_ = types_.size(); // When 3D data available, default is Vol
+	types_ += (int)Seis::Vol;
+	types_ += (int)Seis::VolPS;
+    }
+    types_ += types_.size();
 }
 
 
@@ -104,7 +104,6 @@ uiSEGYImpType::uiSEGYImpType( uiParent* p, bool withvsp,
 
     fld_ = lcb->box();
     fld_->setHSzPol( uiObject::MedVar );
-    fld_->selectionChanged.notify( mCB(this,uiSEGYImpType,typChg) );
 
 #   define mAddItem(txt,ic) { \
     fld_->addItem( tr(txt) ); \
@@ -137,6 +136,9 @@ uiSEGYImpType::uiSEGYImpType( uiParent* p, bool withvsp,
 	    }
 	}
     }
+
+    setTypIdx( typ_.tidx_ );
+    fld_->selectionChanged.notify( mCB(this,uiSEGYImpType,typChg) );
 
     setHAlignObj( fld_ );
 }
