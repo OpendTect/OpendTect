@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 static const char* sKeyImpTyp = "Import.Type";
 static const char* sKeyVSP = "VSP";
+static const int cVSPType = 4; // one after the last Seis::GeomType
 
 
 
@@ -49,7 +50,7 @@ void SEGY::ImpType::init()
 	types_ += (int)Seis::Vol;
 	types_ += (int)Seis::VolPS;
     }
-    types_ += types_.size();
+    types_ += cVSPType;
 }
 
 
@@ -79,7 +80,7 @@ uiString SEGY::ImpType::dispText() const
     case Seis::LinePS:
 	return tr("2D PreStack data");
     default: case Seis::Vol:
-	return tr("3D seismic data");
+	return tr("3D Seismic data");
     }
 }
 
@@ -158,6 +159,16 @@ void uiSEGYImpType::setTypIdx( int tidx )
 }
 
 
+void uiSEGYImpType::setGeomType( Seis::GeomType gt )
+{
+    for ( int idx=0; idx<typ_.types_.size(); idx++ )
+    {
+	if ( typ_.types_[idx] == (int)gt )
+	    { fld_->setCurrentItem( idx ); break; }
+    }
+}
+
+
 void uiSEGYImpType::usePar( const IOPar& iop )
 {
     BufferString res = iop.find( sKeyImpTyp );
@@ -170,5 +181,5 @@ void uiSEGYImpType::usePar( const IOPar& iop )
     if ( res == sKeyVSP )
 	setTypIdx( fld_->size()-1 );
     else
-	fld_->setText( res );
+	setGeomType( Seis::geomTypeOf(res) );
 }

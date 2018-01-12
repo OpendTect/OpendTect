@@ -65,7 +65,7 @@ public:
 
     const SEGY::ImpType& impType() const;
     void		setTypIdx(int);
-
+    void		setGeomType(Seis::GeomType);
     void		usePar(const IOPar&);
 
     Notifier<uiSEGYImpType> typeChanged;
