@@ -10,8 +10,10 @@ ___________________________________________________________________
 
 #include "uiodpicksettreeitem.h"
 
+#include "dbman.h"
 #include "emmanager.h"
 #include "emrandomposbody.h"
+#include "ioobj.h"
 #include "picksetmanager.h"
 #include "randcolor.h"
 #include "selector.h"
@@ -35,6 +37,16 @@ ___________________________________________________________________
 #include "visrandomposbodydisplay.h"
 #include "visselman.h"
 #include "vissurvscene.h"
+
+
+static bool isPickSetPolygon( const DBKey& key )
+{
+    PtrMan<IOObj> ioobj = DBM().get( key );
+    if ( !ioobj ) return false;
+
+    return ioobj->translator() == "dGB";
+}
+
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODSceneParentTreeItem( uiStrings::sPointSet() )
@@ -202,7 +214,8 @@ uiTreeItem*
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
-    if ( !psd ) return 0;
+    if ( !psd || !isPickSetPolygon(psd->getDBKey()) )
+	return 0;
 
     Pick::Set* pickset = psd->getSet();
     return pickset->isPolygon() ? 0 : new uiODPickSetTreeItem(visid,*pickset);
@@ -593,7 +606,8 @@ uiTreeItem*
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
-    if ( !psd ) return 0;
+    if ( !psd || !isPickSetPolygon(psd->getDBKey()) )
+	return 0;
 
     Pick::Set* pickset = psd->getSet();
     return !pickset->isPolygon() ? 0 : new uiODPolygonTreeItem(visid,*pickset);
