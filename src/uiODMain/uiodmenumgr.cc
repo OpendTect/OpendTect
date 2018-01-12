@@ -585,11 +585,19 @@ void uiODMenuMgr::fillWellImpSubMenu( uiMenu* mnu )
 }
 
 
-uiMenu* uiODMenuMgr::addFullSeisSubMenu( uiMenu* parmnu, const uiWord& mnunm,
+uiMenu* uiODMenuMgr::addFullSeisSubMenu( uiMenu* parmnu, const uiString& mnunm,
 			const char* icnm, const CallBack& cb, int menustartid )
 {
-    mGet2D3D();
     uiMenu* mnu = addSubMenu( parmnu, mnunm, icnm );
+    fillFullSeisSubMenu( mnu, cb, menustartid );
+    return mnu;
+}
+
+
+void uiODMenuMgr::fillFullSeisSubMenu( uiMenu* mnu, const CallBack& cb,
+					int menustartid )
+{
+    mGet2D3D();
     if ( have2d )
     {
 	uiString linestr = have3d ? uiStrings::s2D() : tr("Line(s)");
@@ -604,7 +612,6 @@ uiMenu* uiODMenuMgr::addFullSeisSubMenu( uiMenu* parmnu, const uiWord& mnunm,
 	addAction( mnu, volstr, "seismiccube", cb, menustartid+2 );
 	addAction( mnu, volpsstr, "prestackdataset", cb, menustartid+3 );
     }
-    return mnu;
 }
 
 
@@ -1049,18 +1056,7 @@ void uiODMenuMgr::fillManTB()
 
     uiMenu* seispopmnu = mantb_->addButtonMenu( seisid,
 						uiToolButton::InstantPopup );
-    if ( have2d )
-    {
-	mAddPopupMnu( seispopmnu, tr("2D Seismics"), mManSeis2DMnuItm )
-	mAddPopupMnu( seispopmnu, tr("2D Prestack Seismics"),
-		      mManSeisPS2DMnuItm )
-    }
-    if ( have3d )
-    {
-	mAddPopupMnu( seispopmnu, tr("3D Seismics"), mManSeis3DMnuItm )
-	mAddPopupMnu( seispopmnu, tr("3D Prestack Seismics"),
-		      mManSeisPS3DMnuItm )
-    }
+    fillFullSeisSubMenu( seispopmnu, mClickCB, mManSeisMnu );
 
     if ( have2d )
 	mAddPopUp( tr("2D Horizons"), tr("3D Horizons"),
