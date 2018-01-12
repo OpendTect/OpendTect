@@ -143,6 +143,8 @@ public:
 			     as uiParent* at construction. */
     uiGroup*		getCellGroup(const RowCol&) const;
     RowCol		getCell(uiGroup*);
+    void		setCellChecked(const RowCol&,bool yn);
+    bool		isCellChecked(const RowCol&) const;
 
     int			nrRows() const;
     int			nrCols() const;
