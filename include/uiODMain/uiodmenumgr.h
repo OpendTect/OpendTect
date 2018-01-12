@@ -98,6 +98,9 @@ public:
     uiMenu*	add2D3DActions(uiMenu*,const uiString&,const char*,
 			const CallBack&,const CallBack&,bool always3d=false,
 			int mnuitmid2d=-1,int mnuitmid3d=-1);
+    uiMenu*	addFullSeisSubMenu(uiMenu*,const uiWord& submnunm,
+			const char* icnm,const CallBack&,int menustartid);
+		//!< menustartid+0 == 2D, +1 == PS2D, +2 == 3D, +3 == PS3D
 
     Notifier<uiODMenuMgr> dTectTBChanged;
     Notifier<uiODMenuMgr> dTectMnuChanged;

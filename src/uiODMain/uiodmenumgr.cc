@@ -68,6 +68,7 @@ static const uiString multstr = uiStrings::sMultiple();
     bool haveonechoice = !have2d || !have3d; \
     if ( always3d && !have3d ) \
 	haveonechoice = false
+#define mClickCB mCB(this,uiODMenuMgr,handleClick)
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
@@ -232,8 +233,7 @@ uiMenu* uiODMenuMgr::addSubMenu( uiMenu* parmnu, const uiString& nm,
 uiAction* uiODMenuMgr::addDirectAction( uiMenu* mnu, const uiString& nm,
 				   const char* icnm, int id )
 {
-    uiAction* uiact = new uiAction( nm, mCB(this,uiODMenuMgr,handleClick),
-				    icnm );
+    uiAction* uiact = new uiAction( nm, mClickCB, icnm );
     mnu->insertAction( uiact, id );
     return uiact;
 }
@@ -242,8 +242,7 @@ uiAction* uiODMenuMgr::addDirectAction( uiMenu* mnu, const uiString& nm,
 uiAction* uiODMenuMgr::addCheckableAction( uiMenu* mnu, const uiString& nm,
 					   const char* icnm, int id )
 {
-    uiAction* uiact = new uiAction( nm, mCB(this,uiODMenuMgr,handleClick),
-				    icnm );
+    uiAction* uiact = new uiAction( nm, mClickCB, icnm );
     uiact->setCheckable( true );
     mnu->insertAction( uiact, id );
     return uiact;
@@ -586,57 +585,43 @@ void uiODMenuMgr::fillWellImpSubMenu( uiMenu* mnu )
 }
 
 
+uiMenu* uiODMenuMgr::addFullSeisSubMenu( uiMenu* parmnu, const uiWord& mnunm,
+			const char* icnm, const CallBack& cb, int menustartid )
+{
+    mGet2D3D();
+    uiMenu* mnu = addSubMenu( parmnu, mnunm, icnm );
+    if ( have2d )
+    {
+	uiString linestr = have3d ? uiStrings::s2D() : tr("Line(s)");
+	uiString linepsstr = have3d ? tr("Pre-Stack 2D") : tr("Pre-Stack Data");
+	addAction( mnu, linestr, "seismicline2d", cb, menustartid );
+	addAction( mnu, linepsstr, "prestackdataset2d", cb, menustartid+1 );
+    }
+    if ( have3d )
+    {
+	uiString volstr = have2d ? uiStrings::s3D() : uiStrings::sVolume();
+	uiString volpsstr = have2d ? tr("PreStack 3D") : tr("Pre-Stack Volume");
+	addAction( mnu, volstr, "seismiccube", cb, menustartid+2 );
+	addAction( mnu, volpsstr, "prestackdataset", cb, menustartid+3 );
+    }
+    return mnu;
+}
+
+
 void uiODMenuMgr::createSeisSubMenus()
 {
     uiString mnunm = tr("Seismic Data");
     const char* iconnm = "seis";
+    addAction( preloadmnu_, mnunm, iconnm, mPreLoadSeisMnuItm );
+    addFullSeisSubMenu( manmnu_, mnunm, iconnm, mClickCB, mManSeisMnu );
+
     uiMenu* impseis = addSubMenu( impmnu_, mnunm, iconnm );
     uiMenu* expseis = addSubMenu( expmnu_, mnunm, iconnm );
-    add2D3DActions( manmnu_, mnunm, iconnm, mManSeis2DMnuItm, mManSeis3DMnuItm);
-    addAction( preloadmnu_, mnunm, iconnm, mPreLoadSeisMnuItm );
+    mnunm = tr("Simple File");
+    addFullSeisSubMenu( impseis, mnunm, ascic, mClickCB, mImpSeisSimpleMnu );
+    addFullSeisSubMenu( expseis, mnunm, ascic, mClickCB, mExpSeisSimpleMnu );
 
-    const uiString simpfilestr = tr("Simple File");
-    uiMenu* simpimpmnu = addSubMenu( impseis, simpfilestr, ascic );
-    uiMenu* simpexpmnu = addSubMenu( expseis, simpfilestr, ascic );
-    const uiString linestr = tr("Line");
-    const uiString cubestr = tr("Cube");
-    const uiString psdatastr = tr("Pre-Stack Data");
     mGet2D3D();
-    if ( !have2d || !have3d )
-    {
-	mnunm = have2d ? linestr : cubestr;
-	iconnm = have2d ? "seismicline2d" : "seismiccube";
-	addAction( simpimpmnu, mnunm, iconnm,
-		have2d ? mImpSeisSimple2DMnuItm : mImpSeisSimple3DMnuItm );
-	addAction( simpexpmnu, mnunm, iconnm,
-		have2d ? mExpSeisSimple2DMnuItm : mExpSeisSimple3DMnuItm );
-	mnunm = psdatastr;
-	iconnm = have2d ? "prestackdataset2d" : "prestackdataset";
-	addAction( simpimpmnu, mnunm, iconnm,
-		have2d ? mImpSeisSimplePS2DMnuItm : mImpSeisSimplePS3DMnuItm );
-	addAction( simpexpmnu, mnunm, iconnm,
-		have2d ? mExpSeisSimplePS2DMnuItm : mExpSeisSimplePS3DMnuItm );
-    }
-    else
-    {
-	uiMenu* mnu2dimp = addSubMenu( simpimpmnu, uiStrings::s2D(), "2d" );
-	uiMenu* mnu3dimp = addSubMenu( simpimpmnu, uiStrings::s3D(), "3d" );
-	uiMenu* mnu2dexp = addSubMenu( simpexpmnu, uiStrings::s2D(), "2d" );
-	uiMenu* mnu3dexp = addSubMenu( simpexpmnu, uiStrings::s3D(), "3d" );
-	mnunm = linestr; iconnm = "seismicline2d";
-	addAction( mnu2dimp, mnunm, iconnm, mImpSeisSimple2DMnuItm );
-	addAction( mnu2dexp, mnunm, iconnm, mExpSeisSimple2DMnuItm );
-	mnunm = cubestr; iconnm = "seismiccube";
-	addAction( mnu3dimp, mnunm, iconnm, mImpSeisSimple3DMnuItm );
-	addAction( mnu3dexp, mnunm, iconnm, mExpSeisSimple3DMnuItm );
-	mnunm = psdatastr; iconnm = "prestackdataset2d";
-	addAction( mnu2dimp, mnunm, iconnm, mImpSeisSimplePS2DMnuItm );
-	addAction( mnu2dexp, mnunm, iconnm, mExpSeisSimplePS2DMnuItm );
-	mnunm = psdatastr; iconnm = "prestackdataset";
-	addAction( mnu3dimp, mnunm, iconnm, mImpSeisSimplePS3DMnuItm );
-	addAction( mnu3dexp, mnunm, iconnm, mExpSeisSimplePS3DMnuItm );
-    }
-
     if ( have3d )
     {
 	mnunm = uiStrings::sOpendTect(); iconnm = "od";
@@ -741,11 +726,11 @@ void uiODMenuMgr::fillAnalMenu()
 
     uiMenu* xplotmnu = addSubMenu( analmnu_, tr("Cross-plot Data"), "xplot" );
     addAction( xplotmnu, tr("Well logs vs Attributes"), "xplot_wells",
-			mXplotMnuItm );
+			mXPlotMnuItm );
     addAction( xplotmnu, tr("Attributes vs Attributes"), "xplot_attribs",
-			mAXplotMnuItm );
+			mAttrXPlotMnuItm );
     addAction( xplotmnu, tr("Open Cross-plot from File"), "singlefile",
-			mOpenXplotMnuItm );
+			mOpenXPlotMnuItm );
 
     analwellmnu_ = addSubMenu( analmnu_, uiStrings::sWells(), "well" );
     addAction( analwellmnu_, tr("Edit Logs"), "well_props",
@@ -1282,7 +1267,8 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
 void uiODMenuMgr::handleClick( CallBacker* cb )
 {
     mDynamicCastGet(uiAction*,itm,cb)
-    if ( !itm ) return; // Huh?
+    if ( !itm )
+	{ pErrMsg("Huh?"); return; }
 
     const int id = itm->getID();
     switch( id )
@@ -1390,9 +1376,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExtract2DFrom3DMnuItm: applMgr().create2DFrom3D(); break;
     case mCreate3DFrom2DMnuItm:	applMgr().create3DFrom2D(); break;
     case mStartBatchJobMnuItm:	applMgr().startBatchJob(); break;
-    case mXplotMnuItm:		applMgr().doWellXPlot(); break;
-    case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
-    case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;
+    case mXPlotMnuItm:		applMgr().doWellXPlot(); break;
+    case mAttrXPlotMnuItm:	applMgr().doAttribXPlot(); break;
+    case mOpenXPlotMnuItm:	applMgr().openCrossPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
     case mAddTmeDepthMnuItm:	applMgr().addTimeDepthScene(); break;

@@ -68,15 +68,8 @@ public:
     void		updateMenu(CallBacker*);
     void		survChg(CallBacker*);
     void		edFiles(CallBacker*);
-    void		imp2DCB(CallBacker*);
-    void		imp2DPSCB(CallBacker*);
-    void		imp3DCB(CallBacker*);
-    void		imp3DPSCB(CallBacker*);
+    void		handleImpExpMnu(CallBacker*);
     void		impVSPCB(CallBacker*);
-    void		exp2DCB(CallBacker*);
-    void		exp2DPSCB(CallBacker*);
-    void		exp3DCB(CallBacker*);
-    void		exp3DPSCB(CallBacker*);
     void		reSortCB(CallBacker*);
     void		readStarterCB(CallBacker*);
     void		bulkImport(CallBacker*);
@@ -138,56 +131,19 @@ uiSEGYMgr::~uiSEGYMgr()
 
 
 #define muiSEGYMgrCB(fn) mCB(this,uiSEGYMgr,fn)
+#define mHandleCB muiSEGYMgrCB(handleImpExpMnu)
+#define mImpStartID 100
+#define mExpStartID 200
+
 
 void uiSEGYMgr::updateMenu( CallBacker* )
 {
-    const bool have2d = DBM().isBad() || SI().has2D();
-    const bool only2d = !DBM().isBad() && !SI().has3D();
     uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
-    uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segyiconid_ );
-    impseismnu->addMenu( impsgymnu );
+    uiMenu* impsgymnu = mnumgr_.addFullSeisSubMenu( impseismnu,
+		sSEGYString(true), segyiconid_, mHandleCB, mImpStartID );
     uiMenu* expseismnu = mnumgr_.getMnu( false, uiODApplMgr::Seis );
-    uiMenu* expsgymnu = new uiMenu( appl_, sSEGYString(true), segyiconid_ );
-    expseismnu->addMenu( expsgymnu );
-
-    if ( have2d )
-    {
-	const char* lineicid = "seismicline2d";
-	const char* linepsicid = "prestackdataset2d";
-	uiString linestr = only2d ? m3Dots(tr("Line(s)"))
-				  : m3Dots(uiStrings::s2D());
-	uiString linepsstr = only2d ? m3Dots(tr("Pre-Stack Data"))
-				: m3Dots(tr("Pre-Stack 2D"));
-
-	impsgymnu->insertAction( new uiAction( linestr,
-				 muiSEGYMgrCB(imp2DCB), lineicid ) );
-	impsgymnu->insertAction( new uiAction( linepsstr,
-				muiSEGYMgrCB(imp2DPSCB), linepsicid ) );
-	expsgymnu->insertAction( new uiAction( linestr,
-				 muiSEGYMgrCB(exp2DCB), lineicid ) );
-	expsgymnu->insertAction( new uiAction( linepsstr,
-				 muiSEGYMgrCB(exp2DPSCB), linepsicid ) );
-    }
-
-    if ( !only2d )
-    {
-	const char* volicid = "seismiccube";
-	uiString volstr = have2d ? m3Dots(uiStrings::s3D())
-				 : m3Dots(uiStrings::sVolume());
-	const char* volpsicid = "prestackdataset";
-	uiString volpsstr = have2d ? m3Dots(tr("PreStack 3D"))
-				: m3Dots(tr("Pre-Stack Volume"));
-
-	impsgymnu->insertAction( new uiAction(volstr,muiSEGYMgrCB(imp3DCB),
-					volicid) );
-        impsgymnu->insertAction( new uiAction(volpsstr,muiSEGYMgrCB(imp3DPSCB),
-					volpsicid) );
-
-        expsgymnu->insertAction( new uiAction(volstr,muiSEGYMgrCB(exp3DCB),
-					volicid) );
-        expsgymnu->insertAction( new uiAction(volpsstr,muiSEGYMgrCB(exp3DPSCB),
-					volpsicid) );
-    }
+    mnumgr_.addFullSeisSubMenu( expseismnu,
+		sSEGYString(true), segyiconid_, mHandleCB, mExpStartID );
 
     mnumgr_.impWellLogsMenu()->insertAction(
 	new uiAction( m3Dots(tr("VSP (SEG-Y)")), muiSEGYMgrCB(impVSPCB),
@@ -217,33 +173,42 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 }
 
 
-#define mImplImpCB(typ,arg) \
-void uiSEGYMgr::imp##typ##CB( CallBacker* ) \
-{ \
-    const SEGY::ImpType imptyp( arg ); \
-    uiSEGYReadStarter::Setup su( false, &imptyp); \
-    uiSEGYReadStarter dlg( appl_, su ); \
-    dlg.go(); \
+void uiSEGYMgr::handleImpExpMnu( CallBacker* cb )
+{
+    mDynamicCastGet(uiAction*,itm,cb)
+    if ( !itm )
+	{ pErrMsg("Huh?"); return; }
+
+    int id = itm->getID();
+    const bool isimp = id < mExpStartID;
+    if ( isimp )
+	id -= mImpStartID;
+    else
+	id -= mExpStartID;
+
+    const Seis::GeomType gt = (Seis::GeomType)id;
+    if ( isimp )
+    {
+	SEGY::ImpType imptyp( gt );
+	uiSEGYReadStarter::Setup su( false, &imptyp );
+	uiSEGYReadStarter dlg( appl_, su );
+	dlg.go();
+    }
+    else
+    {
+	uiSEGYExp dlg( appl_, gt );
+	dlg.go();
+    }
 }
 
-mImplImpCB( 2D, Seis::Line )
-mImplImpCB( 3D, Seis::Vol )
-mImplImpCB( 2DPS, Seis::LinePS )
-mImplImpCB( 3DPS, Seis::VolPS )
-mImplImpCB( VSP, true )
 
-
-#define mImplExpCB(typ,arg) \
-void uiSEGYMgr::exp##typ##CB( CallBacker* ) \
-{ \
-    uiSEGYExp dlg( appl_, arg ); \
-    dlg.go(); \
+void uiSEGYMgr::impVSPCB( CallBacker* )
+{
+    const SEGY::ImpType imptyp( true );
+    uiSEGYReadStarter::Setup su( false, &imptyp );
+    uiSEGYReadStarter dlg( appl_, su );
+    dlg.go();
 }
-
-mImplExpCB( 2D, Seis::Line )
-mImplExpCB( 2DPS, Seis::LinePS )
-mImplExpCB( 3D, Seis::Vol )
-mImplExpCB( 3DPS, Seis::VolPS )
 
 
 void uiSEGYMgr::impClassic( bool islink )
