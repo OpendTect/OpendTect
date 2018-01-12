@@ -33,11 +33,12 @@ public:
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
-    virtual BufferString	getDisplayName() const;
 
 protected:
 
 				EMProbe(const ObjectID&);
+
+    uiWord			gtDisplayName() const;
 
     ObjectID			objid_;
 
@@ -53,16 +54,11 @@ public:
     mDeclInstanceCreatedNotifierAccess(Horizon3DProbe);
     mDeclMonitorableAssignment(Horizon3DProbe);
 
-    static const char*		sFactoryKey();
-    virtual const char*		type() const		{ return sFactoryKey();}
-    virtual bool		isVertical() const	{ return false; }
-    static Probe*		createFrom(const IOPar&);
+    mDeclRequiredProbeFns();
 
-    static void			initClass();
+    virtual bool		isVertical() const	{ return false; }
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
 };
-
-

@@ -311,7 +311,7 @@ uiString uiODSceneProbeTreeItem::createDisplayName() const
     if ( !probe )
 	return uiString::emptyString();
 
-    return toUiString( probe->getDisplayName() );
+    return probe->displayName();
 }
 
 

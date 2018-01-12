@@ -13,6 +13,7 @@ ___________________________________________________________________
 #include "generalmod.h"
 #include "probe.h"
 #include "survgeom.h"
+#include "uistrings.h"
 
 namespace ZDomain { class Info; }
 
@@ -25,15 +26,11 @@ public:
 			mDeclInstanceCreatedNotifierAccess(InlineProbe);
 			mDeclMonitorableAssignment( InlineProbe );
 
-    static const char*	sFactoryKey();
-    virtual const char*	type() const		{ return sFactoryKey();}
-    static Probe*	createFrom(const IOPar&);
-    bool		is3DSlice() const	{ return true; }
+			mDeclRequiredProbeFns();
 
-    static void		initClass();
+    virtual bool	is3DSlice() const	{ return true; }
+
     virtual bool	usePar(const IOPar&);
-
-    BufferString	getDisplayName() const;
 
 };
 
@@ -47,15 +44,11 @@ public:
 			mDeclInstanceCreatedNotifierAccess(CrosslineProbe);
 			mDeclMonitorableAssignment(CrosslineProbe);
 
-    static const char*	sFactoryKey();
-    virtual const char*	type() const		{ return sFactoryKey();}
-    static Probe*	createFrom(const IOPar&);
+			mDeclRequiredProbeFns();
 
-    static void		initClass();
+    virtual bool	is3DSlice() const   { return true; }
+
     virtual bool	usePar(const IOPar&);
-    bool		is3DSlice() const	{ return true; }
-
-    BufferString	getDisplayName() const;
 
 };
 
@@ -70,16 +63,12 @@ public:
 			mDeclInstanceCreatedNotifierAccess(ZSliceProbe);
 			mDeclMonitorableAssignment(ZSliceProbe);
 
-    static const char*	sFactoryKey();
-    virtual const char*	type() const		{ return sFactoryKey();}
-    static Probe*	createFrom(const IOPar&);
+			mDeclRequiredProbeFns();
 
-    static void		initClass();
-    virtual bool	usePar(const IOPar&);
+    virtual bool	is3DSlice() const	{ return true; }
     virtual bool	isVertical() const	{ return false; }
-    bool		is3DSlice() const	{ return true; }
 
-    BufferString	getDisplayName() const;
+    virtual bool	usePar(const IOPar&);
 
 };
 
@@ -93,17 +82,14 @@ public:
 			mDeclInstanceCreatedNotifierAccess(Line2DProbe);
 			mDeclMonitorableAssignment(Line2DProbe);
 
-    static const char*	sFactoryKey();
-    virtual const char*	type() const		{ return sFactoryKey();}
-    virtual bool	is2D() const		{ return true; }
-    static Probe*	createFrom(const IOPar&);
+			mDeclRequiredProbeFns();
 
-    static void		initClass();
+    virtual bool	is2D() const		{ return true; }
+
 			mImplSimpleMonitoredGet(geomID,Pos::GeomID,geomid_);
     void		setGeomID(Pos::GeomID);
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    BufferString	getDisplayName() const;
 
 protected:
 
@@ -121,14 +107,10 @@ public:
 			mDeclInstanceCreatedNotifierAccess(VolumeProbe);
 			mDeclMonitorableAssignment(VolumeProbe);
 
-    static const char*	sFactoryKey();
-    virtual const char*	type() const		{ return sFactoryKey();}
-    static Probe*	createFrom(const IOPar&);
+			mDeclRequiredProbeFns();
 
-    static void		initClass();
     virtual bool	usePar(const IOPar&);
     void		setZDomain(const ZDomain::Info&);
-    BufferString	getDisplayName() const;
 
 protected:
 

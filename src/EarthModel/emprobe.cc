@@ -10,6 +10,7 @@ ___________________________________________________________________
 
 #include "emprobe.h"
 #include "keystrs.h"
+#include "uistrings.h"
 #include "emmanager.h"
 
 mDefineInstanceCreatedNotifierAccess( EMProbe );
@@ -53,9 +54,11 @@ Monitorable::ChangeType EMProbe::compareClassData(
 }
 
 
-BufferString EMProbe::getDisplayName() const
+uiWord EMProbe::gtDisplayName() const
 {
-    return EM::EMM().objectName( EM::EMM().getDBKey(objid_) );
+    const BufferString objnm =
+		EM::EMM().objectName( EM::EMM().getDBKey(objid_) );
+    return toUiString( objnm );
 }
 
 
@@ -150,7 +153,19 @@ Monitorable::ChangeType Horizon3DProbe::compareClassData(
 
 const char* Horizon3DProbe::sFactoryKey()
 {
-    return "Horizon3D"; //TODO impl proper
+    return "Horizon3D";
+}
+
+
+uiWord Horizon3DProbe::usrType() const
+{
+    return uiStrings::sHorizon();
+}
+
+
+uiWord Horizon3DProbe::displayName() const
+{
+    return gtDisplayName();
 }
 
 

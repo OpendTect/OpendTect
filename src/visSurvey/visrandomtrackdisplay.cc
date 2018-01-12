@@ -206,16 +206,22 @@ const char* RandomTrackDisplay::getRandomLineName() const
     if ( !rdlprobe )
 	return name().str();
 
-    return rdlprobe->getDisplayName();
+    mDeclStaticString( ret );
+    ret.set( rdlprobe->displayName().getFullString() );
+    return ret.str();
 }
 
 
 int RandomTrackDisplay::getRandomLineID() const
-{ return rl_ ? rl_->ID() : -1; }
+{
+    return rl_ ? rl_->ID() : -1;
+}
 
 
 Geometry::RandomLine* RandomTrackDisplay::getRandomLine()
-{ return rl_; }
+{
+    return rl_;
+}
 
 
 void RandomTrackDisplay::setDisplayTransformation( const mVisTrans* t )
