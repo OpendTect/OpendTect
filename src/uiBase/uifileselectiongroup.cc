@@ -44,9 +44,14 @@ uiFileSelectionGroup::uiFileSelectionGroup( uiParent* p, const Setup& su )
 
 void uiFileSelectionGroup::createFSAStuff( uiGroup* grp )
 {
-    uiStringSet dispnms;
     File::SystemAccess::getProtocolNames( fsakeys_, !setup_.isForWrite() );
-    if ( fsakeys_.size() < 2 )
+    const int nrfsakeys =
+#ifdef ENABLE_REMOTE_FILESEL_UI
+	fsakeys_.size();
+#else
+	1;
+#endif
+    if ( nrfsakeys < 2 )
 	return;
 
     fsaselfld_ = new uiComboBox( grp, "Protocols" );
