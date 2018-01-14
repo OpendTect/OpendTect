@@ -523,6 +523,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p, bool islooknfeel )
 	grp->attach( hCentered );
 	addGroup( grp );
 	grps_ += grp;
+	tabstack_->setTabIcon( grp, grp->iconID() );
     }
 }
 

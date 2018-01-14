@@ -254,6 +254,8 @@ public:
 				       "Mouse interaction",
 				       tr("Mouse Interaction") );
 
+    virtual const char*	iconID() const		{ return "mouse"; }
+
     uiKeyBindingSettingsGroup(uiParent*,Settings&);
 
 private:

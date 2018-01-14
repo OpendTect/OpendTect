@@ -25,11 +25,13 @@ mExpClass(uiIo) uiProcSettings : public uiSettingsGroup
 { mODTextTranslationClass(uiProcSettings);
 public:
 			mDefaultFactoryInstantiation2Param(
-		uiSettingsGroup,
-		uiProcSettings,
-		uiParent*,Settings&,
-		"Processing",
-		uiStrings::sProcessing())
+				    uiSettingsGroup,
+				    uiProcSettings,
+				    uiParent*,Settings&,
+				    "Processing",
+				    uiStrings::sProcessing())
+
+    virtual const char*	iconID() const		{ return "batchprogs"; }
 
 			uiProcSettings(uiParent*,Settings&);
     bool		acceptOK();

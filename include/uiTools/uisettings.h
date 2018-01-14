@@ -69,6 +69,7 @@ public:
 			// you added a group that is not look&feel
 
     virtual		~uiSettingsGroup();
+    virtual const char*	iconID() const		= 0;
 
     bool		isChanged() const	{ return changed_; }
     bool		needsRestart() const	{ return needsrestart_; }
@@ -135,6 +136,8 @@ public:
 				"General",
 				uiStrings::sStorage())
 
+    virtual const char*	iconID() const		{ return "database"; }
+
 			uiStorageSettingsGroup(uiParent*,Settings&);
     bool		acceptOK();
 
@@ -157,6 +160,8 @@ public:
 				uiParent*,Settings&,
 				"GenLnF",
 				uiStrings::sGeneral())
+
+    virtual const char*	iconID() const		{ return "settings"; }
 
 			uiGeneralLnFSettingsGroup(uiParent*,Settings&);
     bool		acceptOK();
@@ -185,6 +190,8 @@ public:
 				uiParent*,Settings&,
 				"Visualization",
 				toUiString(sFactoryKeyword()))
+
+    virtual const char*	iconID() const		{ return "vis"; }
 
 			uiVisSettingsGroup(uiParent*,Settings&);
     bool		acceptOK();

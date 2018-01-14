@@ -98,6 +98,8 @@ public:
 				"Horizons",
 				toUiString(sFactoryKeyword()))
 
+    virtual const char*	iconID() const		{ return "tree-horizon3d"; }
+
 			uiHorizonSettings(uiParent*,Settings&);
     bool		acceptOK();
     HelpKey		helpKey() const;

@@ -35,6 +35,8 @@ public:
 
 			uiFontSettingsGroup(uiParent*,Settings&);
 
+    virtual const char*	iconID() const		{ return "font"; }
+
     bool		acceptOK();
     HelpKey		helpKey() const;
 
