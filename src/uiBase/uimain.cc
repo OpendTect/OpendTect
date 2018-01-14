@@ -410,15 +410,24 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     const BufferString stylenm = OD::getActiveStyleName();
     const BufferString qssfnm = OD::getStyleFile( stylenm, "qss" );
     if ( !qssfnm.isEmpty() )
-    {
-	QFile file( qssfnm.buf() );
-	file.open( QFile::ReadOnly );
-	QString sheet = QLatin1String( file.readAll() );
-	app_->setStyleSheet( sheet );
-    }
+	setStyleSheet( qssfnm );
 
     font_ = 0;
     setFont( *font() , true );
+}
+
+
+bool uiMain::setStyleSheet( const char* fnm )
+{
+    QFile file( fnm );
+    if ( !file.open( QFile::ReadOnly| QFile::Text ) )
+	return false;
+    QString filecontents = QLatin1String( file.readAll() );
+    if ( filecontents.isEmpty() )
+	return false;
+
+    app_->setStyleSheet( filecontents );
+    return true;
 }
 
 

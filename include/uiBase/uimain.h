@@ -48,6 +48,7 @@ public:
     Color		windowColor() const;
     static void		setIconFileName(const char* full_path);
     static const char*	iconFileName();
+    bool		setStyleSheet(const char*);
 
     int			nrScreens() const;
     const char*		getScreenName(int screennr) const;
