@@ -16,17 +16,6 @@
 #include "odplugin.h"
 
 
-mDefODPluginInfo(uiPresentationMaker)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Presentation Maker",
-	"Powerpoint Presentation Maker",
-	mODPluginCreator, mODPluginVersion,
-	"Create Powerpoint presentations from OpendTect") );
-    retpi.useronoffselectable_ = true;
-    return &retpi;
-}
-
 
 class uiPresMakerPIMgr	: public CallBacker
 { mODTextTranslationClass(uiPresMakerPIMgr)
@@ -39,6 +28,9 @@ public:
 
     void			updateMenu(CallBacker*);
     void			mnuCB(CallBacker*);
+
+    static uiString		pkgDispNm()
+				{ return tr("Powerpoint Presentation Maker"); }
 };
 
 
@@ -68,6 +60,19 @@ void uiPresMakerPIMgr::mnuCB( CallBacker* )
 	dlg_ = new uiPresentationMakerDlg( appl_ );
 
     dlg_->show();
+}
+
+
+mDefODPluginInfo(uiPresentationMaker)
+{
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"Presentation Maker",
+	"Powerpoint Presentation Maker",
+	mODPluginCreator, mODPluginVersion,
+	"Create Powerpoint presentations from OpendTect") );
+    retpi.useronoffselectable_ = true;
+    mSetPackageDisplayName( retpi, uiPresMakerPIMgr::pkgDispNm() );
+    return &retpi;
 }
 
 

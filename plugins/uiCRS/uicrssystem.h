@@ -39,6 +39,9 @@ public:
 
     virtual bool	initFields(const CoordSystem*);
 
+    static uiString	pkgDispNm()
+			{ return tr("CRS support"); }
+
 protected:
 
     uiListBox*		projselfld_;

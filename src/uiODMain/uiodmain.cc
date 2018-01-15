@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipixmap.h"
-#include "uipluginsel.h"
+#include "uiodprestart.h"
 #include "uiseispartserv.h"
 #include "uifixinvaliddataroot.h"
 #include "uistrattreewin.h"
@@ -179,11 +179,11 @@ int ODMain( int argc, char** argv )
     checkScreenRes();
 
     bool dodlg = true;
-    Settings::common().getYN( uiPluginSel::sKeyDoAtStartup(), dodlg );
+    Settings::common().getYN( uiODPreStart::sKeyDoAtStartup(), dodlg );
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     if ( dodlg && !pimdata.isEmpty() )
     {
-	uiPluginSel dlg( ODMainWin() );
+	uiODPreStart dlg( ODMainWin() );
 	if ( !dlg.go() )
 	    return 1;
     }

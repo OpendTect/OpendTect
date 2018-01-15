@@ -65,10 +65,10 @@ set( OD_MODULE_SOURCES
 	uiobjectitemview.cc
 	uiobjectitemviewwin.cc
 	uiodtreeitem.cc
+	uiodprestart.cc
 	uiodprmantreeitem.cc
 	uiofferinfo.cc
 	uipluginman.cc
-	uipluginsel.cc
 	uipositiontable.cc
 	uipropvalfld.cc
 	uiproxydlg.cc

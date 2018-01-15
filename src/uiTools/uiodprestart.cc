@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uipluginsel.h"
+#include "uiodprestart.h"
 #include "uidesktopservices.h"
 #include "uigraphicsviewbase.h"
 #include "uigraphicsitemimpl.h"
@@ -36,10 +36,8 @@ ________________________________________________________________________
 #include "od_istream.h"
 
 
-// This key was deliberately changed from 6.X to 7.X to at least once
-// show the new window to users ...
 static const char* sOldKeyDoAtStartup = "dTect.Select Plugins";
-const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.UI.Select Plugins"; }
+const char* uiODPreStart::sKeyDoAtStartup() { return "dTect.Show PreStart"; }
 
 
 class PluginProvider
@@ -61,6 +59,7 @@ public:
 
     const PluginProvider* prov_;
     BufferString	name_;
+    uiString		dispname_;
     BufferString	creator_;
     BufferString	version_;
     BufferString	url_;
@@ -111,7 +110,7 @@ class uiPackageTreeItem : public uiTreeViewItem
 public:
 
 uiPackageTreeItem( uiTreeViewItem* p, PluginPackage& pkg )
-    : uiTreeViewItem(p, Setup(toUiString(pkg.name_))
+    : uiTreeViewItem(p, Setup(pkg.dispname_)
 		    .iconname(pkg.pkgkey_).type(uiTreeViewItem::CheckBox))
     , pkg_(pkg)
 {
@@ -136,7 +135,7 @@ void checkCB( CallBacker* )
 };
 
 
-uiPluginSel::uiPluginSel( uiParent* p )
+uiODPreStart::uiODPreStart( uiParent* p )
     : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 			mODHelpKey(mPluginSelHelpID) )
 		    .savebutton(true)
@@ -153,14 +152,14 @@ uiPluginSel::uiPluginSel( uiParent* p )
 }
 
 
-uiPluginSel::~uiPluginSel()
+uiODPreStart::~uiODPreStart()
 {
     deepErase( packages_ );
     deepErase( providers_ );
     delete &rightclickmenu_;
 }
 
-void uiPluginSel::readProviderList()
+void uiODPreStart::readProviderList()
 {
     const File::Path vendfp( mGetSWDirDataDir(), "PluginProviders" );
     IOPar providerpars;
@@ -179,7 +178,7 @@ void uiPluginSel::readProviderList()
 }
 
 
-int uiPluginSel::getProviderIndex( const char* providernm ) const
+int uiODPreStart::getProviderIndex( const char* providernm ) const
 {
     for ( int iprov=0; iprov<providers_.size(); iprov++ )
     {
@@ -202,7 +201,7 @@ static BufferString getCleanPluginName( const char* nm )
 }
 
 
-void uiPluginSel::readPackageList()
+void uiODPreStart::readPackageList()
 {
     const File::Path pkglistfp( mGetSWDirDataDir(), "pkglist.txt" );
     od_istream pkgstrm( pkglistfp.fullPath() ) ;
@@ -213,13 +212,14 @@ void uiPluginSel::readPackageList()
 	const FileMultiString sepline( line );
 	PluginPackage* package = new PluginPackage;
 	package->name_ = sepline[0];
+	package->dispname_ = toUiString( package->name_ );
 	package->pkgkey_ = sepline[1];
 	packages_ += package;
     }
 }
 
 
-void uiPluginSel::makePackageList()
+void uiODPreStart::makePackageList()
 {
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     BufferStringSet dontloadlist;
@@ -271,6 +271,7 @@ void uiPluginSel::makePackageList()
 	    pkg.prov_ = pprov;
 	    pkg.version_ = data.version();
 	    pkg.url_ = data.info_->url_;
+	    mGetPackageDisplayName( *data.info_, pkg.dispname_ );
 	    pkg.plugins_.addIfNew( getCleanPluginName(data.info_->dispname_) );
 	    pkg.creator_ = data.info_->creator_;
 	    const BufferString modulenm = PIM().moduleName( data.name_ );
@@ -284,11 +285,11 @@ void uiPluginSel::makePackageList()
 }
 
 
-class uiPluginSelBannerDrawer : public uiGraphicsViewBase
+class uiODPreStartBannerDrawer : public uiGraphicsViewBase
 {
 public:
 
-uiPluginSelBannerDrawer( uiGroup* p )
+uiODPreStartBannerDrawer( uiGroup* p )
     : uiGraphicsViewBase( p, "OD Version banner" )
     , pm_("banner.png")
 {
@@ -298,10 +299,10 @@ uiPluginSelBannerDrawer( uiGroup* p )
     setStretch( 2, 0 );
     setBackgroundColor( Color(192,192,192) );
 
-    mAttachCB( reDrawn, uiPluginSelBannerDrawer::reDrawnCB );
+    mAttachCB( reDrawn, uiODPreStartBannerDrawer::reDrawnCB );
 }
 
-~uiPluginSelBannerDrawer()
+~uiODPreStartBannerDrawer()
 {
     detachAllNotifiers();
 }
@@ -323,24 +324,24 @@ void reDrawnCB( CallBacker* )
 };
 
 
-void uiPluginSel::createUI()
+void uiODPreStart::createUI()
 {
-    if ( providers_.isEmpty() )
-    {
-	new uiLabel( this, tr("[No optional plugins installed]") );
-	return;
-    }
-
-    uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
+    uiGroup* grp = new uiGroup( this, "OD PreStart Main Group" );
     grp->setFrame( true );
 
-    uiPluginSelBannerDrawer* banner = new uiPluginSelBannerDrawer( grp );
+    uiODPreStartBannerDrawer* banner = new uiODPreStartBannerDrawer( grp );
     uiSeparator* sep = new uiSeparator( grp );
     sep->attach( stretchedBelow, banner );
 
+    uiGroup* presgrp = new uiGroup( grp, "Presentation group" );
+    presgrp->attach( ensureBelow, sep );
+    languagesel_ = new uiLanguageSel( presgrp, false );
+    themesel_ = new uiThemeSel( presgrp, false );
+    themesel_->attach( rightOf, languagesel_ );
+
     treefld_ = new uiTreeView( grp, "Plugin tree" );
     treefld_->showHeader( false );
-    treefld_->attach( ensureBelow, sep );
+    treefld_->attach( centeredBelow, presgrp );
     int height = 0;
     for ( int iprov=0; iprov<providers_.size(); iprov++ )
     {
@@ -370,19 +371,14 @@ void uiPluginSel::createUI()
     treefld_->setPrefWidth( banner->pm_.width() );
     treefld_->setPrefHeightInChar( prefheight );
     treefld_->setStretch( 2, 2 );
-    mAttachCB( treefld_->rightButtonPressed, uiPluginSel::rightClickCB );
+    mAttachCB( treefld_->rightButtonPressed, uiODPreStart::rightClickCB );
 
-    uiGroup* presgrp = new uiGroup( this, "Presentation group" );
-    themesel_ = new uiThemeSel( presgrp, false );
-    languagesel_ = new uiLanguageSel( presgrp, false );
-    languagesel_->attach( rightOf, themesel_ );
-    presgrp->attach( centeredBelow, grp );
-
+    treefld_->attach( centeredBelow, presgrp );
     setPrefWidth( banner->pm_.width() );
 }
 
 
-int uiPluginSel::getPackageIndex( const char* pkgnm ) const
+int uiODPreStart::getPackageIndex( const char* pkgnm ) const
 {
     for ( int ipkg=0; ipkg<packages_.size(); ipkg++ )
     {
@@ -394,7 +390,7 @@ int uiPluginSel::getPackageIndex( const char* pkgnm ) const
 }
 
 
-bool uiPluginSel::isProviderSelected( int provideridx ) const
+bool uiODPreStart::isProviderSelected( int provideridx ) const
 {
     for ( int ipkg=0; ipkg<packages_.size(); ipkg++ )
     {
@@ -407,7 +403,7 @@ bool uiPluginSel::isProviderSelected( int provideridx ) const
 }
 
 
-void uiPluginSel::rightClickCB( CallBacker* )
+void uiODPreStart::rightClickCB( CallBacker* )
 {
     uiTreeViewItem* itm = treefld_->itemNotified();
     mDynamicCastGet( uiPackageTreeItem*, pkgitm, itm );
@@ -419,7 +415,7 @@ void uiPluginSel::rightClickCB( CallBacker* )
 }
 
 
-bool uiPluginSel::fillRightClickMenu( const BufferString& url, bool withinfo )
+bool uiODPreStart::fillRightClickMenu( const BufferString& url, bool withinfo )
 {
     rightclickmenu_.clear();
     if ( withinfo )
@@ -431,13 +427,13 @@ bool uiPluginSel::fillRightClickMenu( const BufferString& url, bool withinfo )
 }
 
 
-void uiPluginSel::launchURL( const char* url )
+void uiODPreStart::launchURL( const char* url )
 {
     uiDesktopServices::openUrl( url );
 }
 
 
-void uiPluginSel::doPkgMnu( const PluginPackage& pkg )
+void uiODPreStart::doPkgMnu( const PluginPackage& pkg )
 {
     if ( !fillRightClickMenu(pkg.url_,true) )
 	return;
@@ -448,7 +444,7 @@ void uiPluginSel::doPkgMnu( const PluginPackage& pkg )
     else if ( res == 0 )
     {
 	uiString msg( tr("Name: %1\nCreated by: %2\nVersion: %3")
-		.arg( pkg.name_ ).arg( pkg.creator_ ).arg( pkg.version_ ) );
+		.arg( pkg.dispname_ ).arg( pkg.creator_ ).arg( pkg.version_ ) );
 	if ( pkg.prov_ )
 	    msg.append( tr("\n\nProvided by: %1").arg( pkg.prov_->name_ ) );
 	uiMSG().about( msg );
@@ -456,7 +452,7 @@ void uiPluginSel::doPkgMnu( const PluginPackage& pkg )
 }
 
 
-void uiPluginSel::doProvMnu( const PluginProvider& prov )
+void uiODPreStart::doProvMnu( const PluginProvider& prov )
 {
     if ( !fillRightClickMenu(prov.url_,false) )
 	return;
@@ -467,7 +463,7 @@ void uiPluginSel::doProvMnu( const PluginProvider& prov )
 }
 
 
-bool uiPluginSel::acceptOK()
+bool uiODPreStart::acceptOK()
 {
     if ( packages_.isEmpty() )
 	return true;

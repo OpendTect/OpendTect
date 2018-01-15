@@ -22,11 +22,11 @@ class PluginPackage;
 class PluginProvider;
 
 
-mExpClass(uiTools) uiPluginSel : public uiDialog
-{mODTextTranslationClass(uiPluginSel);
+mExpClass(uiTools) uiODPreStart : public uiDialog
+{mODTextTranslationClass(uiODPreStart);
 public:
-				uiPluginSel(uiParent*);
-				~uiPluginSel();
+				uiODPreStart(uiParent*);
+				~uiODPreStart();
 
     int				nrPackages() const { return packages_.size(); }
 
@@ -34,9 +34,9 @@ public:
 
 protected:
 
-    uiTreeView*			treefld_;
     uiThemeSel*			themesel_;
     uiLanguageSel*		languagesel_;
+    uiTreeView*			treefld_;
     uiMenu&			rightclickmenu_;
 
     void			readPackageList();

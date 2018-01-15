@@ -1,7 +1,7 @@
 QToolTip
 {
      border: solid black;
-     background-color: #d1dbcb;
+     background-color: #a1ab9b;
      opacity: 100;
 }
 

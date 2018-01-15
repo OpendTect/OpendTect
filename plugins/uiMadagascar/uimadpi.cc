@@ -22,18 +22,6 @@
 #include "separstr.h"
 
 
-mDefODPluginInfo(uiMadagascar)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Madagascar Link",
-	mMadagascarLinkPackage,
-	mODPluginCreator, mODPluginVersion,
-	"Link to the Madagascar batch-level seismic processing tools." ));
-    retpi.useronoffselectable_ = true;
-    retpi.url_ = "reproducibility.org";
-    return &retpi;
-}
-
 
 static bool checkEnvVars( uiString& msg )
 {
@@ -49,11 +37,12 @@ static bool checkEnvVars( uiString& msg )
 }
 
 
-class uiMadagascarLink	: public CallBacker
-{ mODTextTranslationClass(uiMadagascarLink);
+class uiMadagascarLinkMgr	: public CallBacker
+{ mODTextTranslationClass(uiMadagascarLinkMgr);
 public:
-			uiMadagascarLink(uiODMain&);
-			~uiMadagascarLink();
+
+			uiMadagascarLinkMgr(uiODMain&);
+			~uiMadagascarLinkMgr();
 
     uiODMain&		appl_;
     uiODMenuMgr&	mnumgr;
@@ -66,45 +55,47 @@ public:
     void		survChg(CallBacker*);
     void		winHide(CallBacker*);
 
+    static uiString	pkgDispNm()    { return tr("Madagascar Link"); }
+
 };
 
 
-uiMadagascarLink::uiMadagascarLink( uiODMain& a )
+uiMadagascarLinkMgr::uiMadagascarLinkMgr( uiODMain& a )
     : mnumgr(a.menuMgr())
     , madwin_(0)
     , ishidden_(false)
     , appl_(a)
 {
-    mAttachCB( mnumgr.dTectTBChanged, uiMadagascarLink::updateToolBar );
-    mAttachCB( mnumgr.dTectMnuChanged, uiMadagascarLink::updateMenu );
-    mAttachCB( DBM().surveyToBeChanged, uiMadagascarLink::survChg );
+    mAttachCB( mnumgr.dTectTBChanged, uiMadagascarLinkMgr::updateToolBar );
+    mAttachCB( mnumgr.dTectMnuChanged, uiMadagascarLinkMgr::updateMenu );
+    mAttachCB( DBM().surveyToBeChanged, uiMadagascarLinkMgr::survChg );
     updateToolBar(0);
     updateMenu(0);
 }
 
 
-uiMadagascarLink::~uiMadagascarLink()
+uiMadagascarLinkMgr::~uiMadagascarLinkMgr()
 {
     detachAllNotifiers();
 }
 
 
-void uiMadagascarLink::updateToolBar( CallBacker* )
+void uiMadagascarLinkMgr::updateToolBar( CallBacker* )
 {
 }
 
 
-void uiMadagascarLink::updateMenu( CallBacker* )
+void uiMadagascarLinkMgr::updateMenu( CallBacker* )
 {
     delete madwin_; madwin_ = 0; ishidden_ = false;
     uiAction* newitem = new uiAction( m3Dots(tr("Madagascar")),
-					  mCB(this,uiMadagascarLink,doMain),
+					  mCB(this,uiMadagascarLinkMgr,doMain),
 					  "madagascar" );
     mnumgr.procMnu()->insertAction( newitem );
 }
 
 
-void uiMadagascarLink::survChg( CallBacker* )
+void uiMadagascarLinkMgr::survChg( CallBacker* )
 {
     if ( !madwin_ ) return;
 
@@ -112,13 +103,13 @@ void uiMadagascarLink::survChg( CallBacker* )
 }
 
 
-void uiMadagascarLink::winHide( CallBacker* )
+void uiMadagascarLinkMgr::winHide( CallBacker* )
 {
     ishidden_ = true;
 }
 
 
-void uiMadagascarLink::doMain( CallBacker* )
+void uiMadagascarLinkMgr::doMain( CallBacker* )
 {
     uiString errmsg;
     if ( !checkEnvVars(errmsg) )
@@ -130,7 +121,7 @@ void uiMadagascarLink::doMain( CallBacker* )
     if ( !madwin_ )
     {
 	madwin_ = new uiMadagascarMain( &appl_ );
-	madwin_->windowHide.notify( mCB(this,uiMadagascarLink,winHide) );
+	madwin_->windowHide.notify( mCB(this,uiMadagascarLinkMgr,winHide) );
     }
 
     ishidden_ = false;
@@ -139,12 +130,26 @@ void uiMadagascarLink::doMain( CallBacker* )
 }
 
 
+mDefODPluginInfo(uiMadagascar)
+{
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"Madagascar Link",
+	mMadagascarLinkPackage,
+	mODPluginCreator, mODPluginVersion,
+	"Link to the Madagascar batch-level seismic processing tools." ));
+    retpi.useronoffselectable_ = true;
+    retpi.url_ = "reproducibility.org";
+    mSetPackageDisplayName( retpi, uiMadagascarLinkMgr::pkgDispNm() );
+    return &retpi;
+}
+
+
 mDefODInitPlugin(uiMadagascar)
 {
-    mDefineStaticLocalObject( PtrMan<uiMadagascarLink>, theinst_, = 0 );
+    mDefineStaticLocalObject( PtrMan<uiMadagascarLinkMgr>, theinst_, = 0 );
     if ( theinst_ ) return 0;
 
-    theinst_ = new uiMadagascarLink( *ODMainWin() );
+    theinst_ = new uiMadagascarLinkMgr( *ODMainWin() );
     if ( !theinst_ )
 	return ODMad::PI().errMsg().getFullString().str();
 

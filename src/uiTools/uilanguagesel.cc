@@ -54,6 +54,7 @@ uiLanguageSel::uiLanguageSel( uiParent* p, bool withtext )
     selfld_->setCurrentItem( curlang<0 ? 0 : curlang );
 
     mAttachCB( selfld_->selectionChanged, uiLanguageSel::langSel );
+    selfld_->setToolTip( tr("Select a supported language") );
 }
 
 

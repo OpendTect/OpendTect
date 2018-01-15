@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uipluginman.h"
-#include "uipluginsel.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
 #include "uisplitter.h"
+#include "uiodprestart.h"
 #include "uibutton.h"
 #include "uifileselector.h"
 #include "uifileselector.h"
@@ -49,7 +49,7 @@ uiPluginMan::uiPluginMan( uiParent* p )
                                     tr("Select auto-loaded at startup") );
     selatstartfld->attach( alignedBelow, loadbut );
     selatstartfld->setChecked(
-	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup()) );
+	    Settings::common().isTrue(uiODPreStart::sKeyDoAtStartup()) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     infofld = new uiTextEdit( rightgrp, "Info" );
@@ -187,11 +187,11 @@ void uiPluginMan::loadPush( CallBacker* )
 bool uiPluginMan::rejectOK()
 {
     const bool oldyn =
-	Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup());
+	Settings::common().isTrue(uiODPreStart::sKeyDoAtStartup());
     const bool newyn = selatstartfld->isChecked();
     if ( oldyn != newyn )
     {
-	Settings::common().setYN( uiPluginSel::sKeyDoAtStartup(), newyn );
+	Settings::common().setYN( uiODPreStart::sKeyDoAtStartup(), newyn );
 	Settings::common().write();
     }
     return true;

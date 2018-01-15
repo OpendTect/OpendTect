@@ -63,6 +63,7 @@ uiThemeSel::uiThemeSel( uiParent* p, bool withlabel )
     selfld_->setCurrentItem( curstyle<0 ? 0 : curstyle );
 
     mAttachCB( selfld_->selectionChanged, uiThemeSel::themeSel );
+    selfld_->setToolTip( tr("Select a theme") );
 }
 
 
