@@ -395,7 +395,7 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 		set.removeSingle( idx );
 	}
 
-	if ( dataitm0 )	
+	if ( dataitm0 )
 	{
 	    uiString attribposname;
 	    applMgr()->visServer()->getAttribPosName( dataitm0->displayID(),
@@ -690,6 +690,31 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	updateColumnText(0);
     }
+}
+
+
+bool uiOD2DLineTreeItem::displayDefaultData()
+{
+    if ( children_.isEmpty() )
+	return false;
+
+    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,children_.first())
+    if ( !item )
+	return false;
+
+    Attrib::DescID descid;
+    if ( !applMgr()->getDefaultDescID(descid,true) )
+	return false;
+
+    const Attrib::DescSet* ads =
+	Attrib::DSHolder().getDescSet( true, true );
+    const Attrib::Desc* desc = ads->getDesc( descid );
+    if ( !desc )
+	return false;
+
+    const char* attrnm = desc->userRef();
+    uiTaskRunner uitr( ODMainWin() );
+    return item->displayStoredData( attrnm, 0, uitr );
 }
 
 

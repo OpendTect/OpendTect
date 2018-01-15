@@ -1268,13 +1268,22 @@ int uiODSceneMgr::addRandomLineItem( int rlid, int sceneid )
 }
 
 
-int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid )
+int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid, bool withdata)
 {
     mGetOrAskForScene
 
     uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( geomid );
     scene->itemmanager_->addChild( itm, false );
+    if ( withdata )
+	itm->displayDefaultData();
+
     return itm->displayID();
+}
+
+
+int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid )
+{
+    return add2DLineItem( geomid, sceneid, false );
 }
 
 

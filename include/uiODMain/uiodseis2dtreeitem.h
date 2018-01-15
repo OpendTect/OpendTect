@@ -60,6 +60,7 @@ public:
 			uiOD2DLineTreeItem(Pos::GeomID,int displayid=-1,
 					   bool rgba=false);
 
+    bool		displayDefaultData();
     bool		addStoredData(const char*,int component,uiTaskRunner&);
     void		addAttrib(const Attrib::SelSpec&,uiTaskRunner&);
     void		showLineName(bool);

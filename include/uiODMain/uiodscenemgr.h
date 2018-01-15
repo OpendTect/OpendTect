@@ -144,6 +144,8 @@ public:
     int				addWellItem(const MultiID&,int sceneid=-1);
     int				add2DLineItem(Pos::GeomID,int sceneid=-1);
     int				add2DLineItem(const MultiID&,int sceneid=-1);
+    int				add2DLineItem(Pos::GeomID,int sceneid,
+					      bool withdata);
     int				addInlCrlItem(OD::SliceType,int nr,
 					      int sceneid=-1);
     int				addZSliceItem(const TrcKeyZSampling&,
