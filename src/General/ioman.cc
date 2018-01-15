@@ -70,7 +70,7 @@ void IOMan::init()
 	return;
     }
 
-    if ( !to( emptykey, true ) )
+    if ( !to(emptykey,true) )
     {
         FilePath surveyfp( GetDataDir(), ".omf" );
         if ( File::exists(surveyfp.fullPath().buf()) )
@@ -84,7 +84,7 @@ void IOMan::init()
         FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
 			  ".omf" );
         File::copy( basicfp.fullPath(),surveyfp.fullPath() );
-        if ( !to( emptykey, true ) )
+	if ( !to(emptykey,true) )
         {
             msg_ = "Warning: Invalid or no '.omf' found in:\n";
 	    msg_ += rootdir_;
@@ -100,7 +100,6 @@ void IOMan::init()
 
     int nrstddirdds = IOObjContext::totalNrStdDirs();
     const IOObjContext::StdDirData* prevdd = 0;
-    const bool needsurvtype = !SI().survdatatypeknown_;
     bool needwrite = false;
     FilePath rootfp( rootdir_, "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
@@ -111,34 +110,8 @@ void IOMan::init()
 	const IOObj* dirioobj = dirptr_->get( MultiID(dd->id_) );
 	if ( dirioobj )
 	{
-	    if ( needsurvtype && stdseltyp == IOObjContext::Seis )
-	    {
-		IODir seisiodir( dirioobj->key() );
-		bool has2d = false, has3d = false;
-		const BufferString seisstr( "Seismic Data" );
-		const BufferString tr2dstr( "2D" );
-		const BufferString trsegystr( "SEG-Y" );
-		for ( int iobj=0; iobj<seisiodir.size(); iobj++ )
-		{
-		    const IOObj& subioobj = *seisiodir.get( iobj );
-		    if ( seisstr != subioobj.group() ||
-			 trsegystr == subioobj.translator() ) continue;
-
-		    const bool is2d = tr2dstr == subioobj.translator();
-		    if ( is2d ) has2d = true;
-		    else	has3d = true;
-		    if ( has2d && has3d ) break;
-		}
-		SurveyInfo& si( const_cast<SurveyInfo&>(SI()) );
-		si.survdatatypeknown_ = true;
-		si.survdatatype_ = !has2d ? SurveyInfo::No2D
-						// thus also if nothing found
-				 : (has3d ? SurveyInfo::Both2DAnd3D
-					  : SurveyInfo::Only2D);
-		si.write();
-	    }
-
-	    prevdd = dd; continue;
+	    prevdd = dd;
+	    continue;
 	}
 
 	// Oops, a data directory required is missing
