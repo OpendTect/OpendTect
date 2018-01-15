@@ -234,14 +234,16 @@ bool uiBatchJobDispatcherSel::start()
 
 bool uiBatchJobDispatcherSel::savePars( const IOObj& ioobj ) const
 {
-    FilePath fp( ioobj.mainFileName() );
+    File::Path fp( ioobj.mainFileName() );
     fp.setExtension( "proc" );
     return jobspec_.pars_.write( fp.fullPath(), sKey::Pars() );
 }
 
 
 void uiBatchJobDispatcherSel::setJobName( const char* nm )
-{ jobname_ = nm; }
+{
+    jobname_ = nm;
+}
 
 
 void uiBatchJobDispatcherSel::selChg( CallBacker* )
