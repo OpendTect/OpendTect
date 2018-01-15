@@ -163,12 +163,16 @@ protected:
 };
 
 
+static const char* sKeyClusterProcCommand()
+{ return "dTect.Cluster Proc Command"; }
+
+
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 				    const char* prognm, const char* parfnm )
     : uiDialog(p,uiDialog::Setup(tr("Cluster job generator"),
 				 uiString::emptyString(),
-                                  mODHelpKey(mClusterJobProvHelpID) )
-			   .oktext(uiStrings::sContinue()))
+				 mODHelpKey(mClusterJobProvHelpID))
+			.oktext(uiStrings::sContinue()))
     , prognm_(prognm)
     , tempstordir_(getDefTempStorDir())
     , iopar_(*new IOPar(iop))
@@ -206,11 +210,12 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
 
-    BufferString qsubmit;
-    Settings::common().get( "Queue.Submit", qsubmit );
-    if ( qsubmit.isEmpty() ) qsubmit = "qsub";
+    BufferString cmd = "qsub";
+    if ( !Settings::common().get(sKeyClusterProcCommand(),cmd) )
+	Settings::common().get( "Queue.Submit", cmd );
+
     cmdfld_ = new uiGenInput( this, tr("Cluster Processing command"),
-			      StringInpSpec(qsubmit) );
+			      StringInpSpec(cmd) );
     cmdfld_->attach( alignedBelow, scriptdirfld_ );
 
     postFinalise().notify( mCB(this,uiClusterJobProv,nrJobsCB) );
@@ -235,7 +240,6 @@ void uiClusterJobProv::nrJobsCB( CallBacker* )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiClusterJobProv::acceptOK( CallBacker* )
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     const int nrinlperjob = nrinlfld_->getIntValue();
     if ( mIsUdf(nrinlperjob) || nrinlperjob < 1 )
 	mErrRet( tr("Please specify number of inlines per job"))
@@ -269,8 +273,9 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     if ( !cmd || !*cmd )
 	mErrRet(tr("Please enter a valid command for submitting jobs"))
 
-    Settings::common().set( "Queue.Submit", cmd );
-    Settings::common().write();
+    Settings& setts = Settings::common();
+    setts.set( sKeyClusterProcCommand(), cmd );
+    setts.write();
 
     iopar_.set( "Command", cmd );
     if ( !iopar_.write(parfnm.buf(),sKey::Pars()) )
@@ -279,11 +284,10 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     if ( !createJobScripts(scriptdir.buf()) )
 	mErrRet(tr("Failed to split jobs"))
 
-	uiString msg = tr("Job scripts"
-			  " have been created successfully. Execute now?");
-    if (uiMSG().askGoOn(msg))
+    uiString msg = tr("Job scripts "
+		      "have been created successfully. Execute now?");
+    if ( uiMSG().askGoOn(msg) )
     {
-
 	BufferString comm( "@" );
 	comm += GetExecScript( false );
 	comm += " "; comm += "od_ClusterProc";
