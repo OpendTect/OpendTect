@@ -23,6 +23,7 @@ class uiComboBox;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiTable;
+class uiThemeSel;
 
 
 mExpClass(uiTools) uiAdvSettings : public uiDialog
@@ -168,6 +169,7 @@ public:
 
 protected:
 
+    uiThemeSel*		themesel_;
     uiGenInput*		iconszfld_;
     uiGenInput*		virtualkeyboardfld_;
     uiCheckList*	showprogressfld_;

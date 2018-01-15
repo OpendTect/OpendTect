@@ -88,6 +88,7 @@ set( OD_MODULE_SOURCES
 	uitblimpexpdatasel.cc
 	uitaskrunner.cc
 	uitextfile.cc
+	uithemesel.cc
 	uitime2depthzaxistrans.cc
 	uitreeitem.cc
 	uiunitsel.cc

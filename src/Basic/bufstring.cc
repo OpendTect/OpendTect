@@ -422,12 +422,14 @@ BufferString& BufferString::toLower()
 }
 
 
-BufferString& BufferString::toUpper()
+BufferString& BufferString::toUpper( bool onlyfirstchar )
 {
     char* ptr = getCStr();
     while ( *ptr )
     {
 	*ptr = toupper(*ptr);
+	if ( onlyfirstchar )
+	    break;
         ptr++;
     }
     return *this;

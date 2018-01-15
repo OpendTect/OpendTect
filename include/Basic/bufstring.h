@@ -126,7 +126,7 @@ public:
     BufferString&	replaceAt(int idx, const char*,bool cutoff=true);
 				//< If idx >= size(), pads spaces
     BufferString&	toLower();
-    BufferString&	toUpper();
+    BufferString&	toUpper(bool onlyfirstchar=false);
     BufferString&	embed(char open,char close);
     BufferString&	unEmbed(char open,char close);
     inline BufferString& quote( char q='\'' )		{ return embed(q,q); }

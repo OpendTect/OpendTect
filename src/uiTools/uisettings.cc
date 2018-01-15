@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitable.h"
 #include "uivirtualkeyboard.h"
+#include "uithemesel.h"
 
 
 static const char* sKeyCommon = "<general>";
@@ -341,8 +342,11 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p,
     , showrdlprogress_(true)
     , enabvirtualkeyboard_(false)
 {
+    themesel_ = new uiThemeSel( this );
+
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
-				 IntInpSpec(iconsz_,12,128) );
+				 IntInpSpec(iconsz_,10,64) );
+    iconszfld_->attach( alignedBelow, themesel_ );
 
     setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
 		  enabvirtualkeyboard_ );
@@ -375,6 +379,9 @@ bool uiGeneralLnFSettingsGroup::acceptOK()
 	errmsg_ = uiStrings::phrSpecify(tr("an icon size in the range 10-64"));
 	return false;
     }
+
+    if ( themesel_->putInSettings(false) )
+	changed_ = true;
 
     if ( newiconsz != iconsz_ )
     {
