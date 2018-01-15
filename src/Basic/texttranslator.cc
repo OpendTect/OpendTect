@@ -22,37 +22,79 @@ ________________________________________________________________________
 # include <QLocale>
 #endif
 
+static const char* sLocalizationKey() { return "Language"; }
+
+
 void TextTranslateMgr::GetLocalizationDir( File::Path& res )
 {
     res = File::Path( mGetSWDirDataDir(), "localizations" );
 }
 
 
-TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
+namespace OD
+{
+
+mGlobal(Basic) void loadLocalization();
+void loadLocalization()
+{
+    File::Path basedir;
+    TextTranslateMgr::GetLocalizationDir( basedir );
+    const DirList dl( basedir.fullPath(), File::FilesInDir, "*.qm" );
+
+    const char* accepted_languages[] = { "en-us", "cn-cn", 0 };
+    //This should really be done on build-level, buy as od6 is released,
+    //the installer will not remove those qm-files.
+
+    for( int idx=0; idx<dl.size(); idx++ )
+    {
+	const File::Path path = dl.fullPath( idx );
+	const BufferString filename = path.baseName();
+	const char* applicationend =
+		filename.find( TextTranslateMgr::cApplicationEnd() );
+	if ( !applicationend )
+	    continue;
+
+	const BufferString locale = applicationend+1;
+	if ( getIndexInStringArrCI(locale.buf(),accepted_languages,0,0,-1)==-1 )
+	    continue;
+
+	RefMan<TextTranslatorLanguage> trans =
+		new TextTranslatorLanguage( locale );
+	TrMgr().addLanguage( trans );
+    }
+
+    Settings& setts = Settings::common();
+    BufferString locale;
+    if ( setts.get(sLocalizationKey(),locale) )
+	TrMgr().setLanguageByLocaleKey( locale );
+}
+
+} // namespace OD
+
+
+TextTranslatorLanguage::TextTranslatorLanguage( const char* localekey )
     : loaded_( false )
 #ifndef OD_NO_QT
-    , locale_( new QLocale( localename ) )
+    , locale_( new QLocale(localekey) )
     , languagename_( new QString )
-    , localename_( localename )
+    , localekey_( localekey )
 #endif
 {
     translators_.setNullAllowed( true );
     const BufferString filename = BufferString()
-	.add(uiString::sODLocalizationApplication())
-	.add(TextTranslateMgr::cApplicationEnd())
-	.add(localename)
-	.add(".qm");
+	.add( uiString::sODLocalizationApplication() )
+	.add( TextTranslateMgr::cApplicationEnd() )
+	.add( localekey )
+	.add( ".qm" );
 
     File::Path locdir;
-    TextTranslateMgr::GetLocalizationDir(locdir);
+    TextTranslateMgr::GetLocalizationDir( locdir );
     const File::Path odfile( locdir, filename );
 
 #ifndef OD_NO_QT
     QTranslator maintrans;
     if ( !maintrans.load(odfile.fullPath().buf()) )
-    {
-	*languagename_ = localename;
-    }
+	*languagename_ = localekey;
     else
     {
 	uiString name = tr("Language Name",0,1);
@@ -84,24 +126,23 @@ TextTranslatorLanguage::getTranslator( const char* appl ) const
     return translators_.validIdx(idx) ? translators_[idx] : 0;
 }
 
-BufferString TextTranslatorLanguage::getLocaleName() const
+
+BufferString TextTranslatorLanguage::getLocaleKey() const
 {
-    return BufferString(
-#ifndef OD_NO_QT
-	locale_->name()
-#else
-	OD::EmptyString()
-#endif
-    );
+    return localekey_;
 }
 
 
 const mQtclass(QString)& TextTranslatorLanguage::getLanguageName() const
-{ return *languagename_; }
+{
+    return *languagename_;
+}
 
 
 const mQtclass(QLocale)& TextTranslatorLanguage::getLanguageLocale() const
-{ return *locale_; }
+{
+    return *locale_;
+}
 
 
 bool TextTranslatorLanguage::load()
@@ -116,7 +157,7 @@ bool TextTranslatorLanguage::load()
 #else
     const BufferString filenamesearch = BufferString("*")
 	.add( TextTranslateMgr::cApplicationEnd() )
-	.add( localename_ )
+	.add( localekey_ )
 	.add( ".qm" );
 
     File::Path basedir;
@@ -192,16 +233,11 @@ bool TextTranslateMgr::addLanguage( TextTranslatorLanguage* language )
 	return false;
 
     language->ref();
-
-    const BufferString newlocale = language->getLocaleName();
-
+    const BufferString newkey = language->getLocaleKey();
     for ( int idx=0; idx<languages_.size(); idx++ )
     {
-	if ( languages_[idx]->getLocaleName()==newlocale )
-	{
-	    language->unRef();
-	    return false;
-	}
+	if ( languages_[idx]->getLocaleKey() == newkey )
+	    { language->unRef(); return false; }
     }
 
     languages_ += language;
@@ -210,13 +246,13 @@ bool TextTranslateMgr::addLanguage( TextTranslatorLanguage* language )
 }
 
 
-uiString TextTranslateMgr::getLanguageUserName(int idx) const
+uiString TextTranslateMgr::getLanguageUserName( int idx ) const
 {
     if ( languages_.validIdx(idx) )
     {
 	uiString ret;
 #ifdef OD_NO_QT
-	ret = languages_[idx]->getLocaleName();
+	ret = toUiString(languages_[idx]->getLocaleKey());
 #else
 	ret.setFrom( languages_[idx]->getLanguageName() );
 #endif
@@ -227,12 +263,25 @@ uiString TextTranslateMgr::getLanguageUserName(int idx) const
 }
 
 
-BufferString TextTranslateMgr::getLocaleName(int idx) const
+BufferString TextTranslateMgr::getLocaleKey( int idx ) const
 {
     if ( languages_.validIdx(idx) )
-	return languages_[idx]->getLocaleName();
+	return languages_[idx]->getLocaleKey();
 
-    return "en_US";
+    return "en_us";
+}
+
+
+void TextTranslateMgr::storeToUserSettings()
+{
+    Settings& setts = Settings::common();
+    const BufferString lky = getLocaleKey( currentLanguage() );
+    BufferString curlky;
+    if ( setts.get(sLocalizationKey(),curlky) && curlky==lky )
+	return;
+
+    setts.set( sLocalizationKey(), lky );
+    setts.write();
 }
 
 
@@ -247,13 +296,23 @@ uiRetVal TextTranslateMgr::setLanguage( int idx )
 	return uiRetVal( uiStrings::phrInternalError("Bad language index") );
 
     if ( !languages_[idx]->load() )
-	return uiRetVal( tr("Cannot load %1")
-			 .arg( getLanguageUserName(idx) ) );
+	return uiRetVal( tr("Cannot load %1").arg( getLanguageUserName(idx) ) );
 
     currentlanguageidx_ = idx;
     dirtycount_++;
     languageChange.trigger();
     return uiRetVal::OK();
+}
+
+
+uiRetVal TextTranslateMgr::setLanguageByLocaleKey( const char* lky )
+{
+    for ( int idx=0; idx<TrMgr().nrSupportedLanguages(); idx++ )
+    {
+	if ( getLocaleKey(idx) == lky )
+	    { setLanguage( idx ); return uiRetVal::OK(); }
+    }
+    return uiRetVal( tr("Cannot find locale '%1'").arg( lky ) );
 }
 
 
@@ -290,67 +349,3 @@ void TextTranslateMgr::loadUSEnglish()
 				new TextTranslatorLanguage("en-us");
     addLanguage( english );
 }
-
-
-namespace OD
-{
-
-static const char* sLocalizationKey() { return "Language"; }
-
-static void languageChange( CallBacker* )
-{
-    Settings& setts = Settings::common();
-    const BufferString locale =
-		TrMgr().getLocaleName( TrMgr().currentLanguage() );
-    BufferString curlocale;
-    if ( setts.get(sLocalizationKey(),curlocale) && curlocale==locale )
-	return;
-
-    setts.set( sLocalizationKey(), locale );
-    setts.write();
-}
-
-
-void loadLocalization()
-{
-    File::Path basedir;
-    TextTranslateMgr::GetLocalizationDir( basedir );
-    const DirList dl( basedir.fullPath(), File::FilesInDir, "*.qm" );
-
-    const char* accepted_languages[] = { "en-us", "cn-cn", 0 };
-    //This should really be done on build-level, buy as od6 is released,
-    //the installer will not remove those qm-files.
-
-    for( int idx=0; idx<dl.size(); idx++ )
-    {
-	const File::Path path = dl.fullPath( idx );
-	const BufferString filename = path.baseName();
-	const char* applicationend =
-		filename.find( TextTranslateMgr::cApplicationEnd() );
-	if ( !applicationend )
-	    continue;
-
-	const BufferString locale = applicationend+1;
-	if ( getIndexInStringArrCI(locale.buf(),accepted_languages,0,0,-1)==-1 )
-	    continue;
-
-	RefMan<TextTranslatorLanguage> trans =
-		new TextTranslatorLanguage( locale );
-	TrMgr().addLanguage( trans );
-    }
-
-    Settings& setts = Settings::common();
-    BufferString locale;
-    if ( setts.get(sLocalizationKey(),locale) )
-    {
-	for ( int idx=0; idx<TrMgr().nrSupportedLanguages(); idx++ )
-	{
-	    if ( TrMgr().getLocaleName(idx) == locale )
-		{ TrMgr().setLanguage( idx ); break; }
-	}
-    }
-
-    TrMgr().languageChange.notify( mSCB(languageChange) );
-}
-
-} // namespace OD

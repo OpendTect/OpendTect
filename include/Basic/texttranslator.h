@@ -23,8 +23,8 @@ mFDQtclass(QString)
 class TextTranslatorLanguage;
 namespace File { class Path; }
 
-/*!Manager that keeps track of translations. By default, it only handles
-   English plural, but it can be extended with more languages. */
+/*! Manager keeping track of translations.
+ */
 
 mExpClass(Basic) TextTranslateMgr : public CallBacker
 { mODTextTranslationClass(TextTranslateMgr);
@@ -33,10 +33,14 @@ public:
 				~TextTranslateMgr();
 
     int				nrSupportedLanguages() const;
-    uiString			getLanguageUserName(int) const;
-    BufferString		getLocaleName(int) const;
-    uiRetVal			setLanguage(int);
     int				currentLanguage() const;
+    uiRetVal			setLanguage(int);
+
+    uiString			getLanguageUserName(int) const;
+    BufferString		getLocaleKey(int) const;
+					//!< "en-us", "cn-cn", ....
+    uiRetVal			setLanguageByLocaleKey(const char*);
+    void			storeToUserSettings();
 
     Notifier<TextTranslateMgr>	languageChange;
 				/*!<Triggers both on new languages and changed
@@ -48,10 +52,8 @@ public:
     const mQtclass(QTranslator)* getQTranslator(const char* appl) const;
     const mQtclass(QLocale)*	getQLocale() const;
 
-    bool			addLanguage(TextTranslatorLanguage*);
-				//!<Returns false if it was not added.
-
 protected:
+
     friend class			TextTranslatorLanguage;
 
     void				loadUSEnglish();
@@ -59,9 +61,14 @@ protected:
     int					dirtycount_;
     ObjectSet<TextTranslatorLanguage>	languages_;
     int					currentlanguageidx_;
-public: //Speicalized stuff
-    static void				GetLocalizationDir(File::Path&);
-    static char				cApplicationEnd() { return '_'; }
+
+public:
+
+    static void			GetLocalizationDir(File::Path&);
+    static char			cApplicationEnd() { return '_'; }
+
+    bool			addLanguage(TextTranslatorLanguage*);
+				//!<Returns false if it was not added.
 };
 
 
@@ -75,7 +82,7 @@ public:
 
     const mQtclass(QString)&		getLanguageName() const;
     const mQtclass(QLocale)&		getLanguageLocale() const;
-    BufferString			getLocaleName() const;
+    BufferString			getLocaleKey() const;
 
     bool				addFile(const char* filename);
 
@@ -87,7 +94,8 @@ protected:
                                         ~TextTranslatorLanguage();
 
     bool				loaded_;
-    BufferString			localename_;
+    BufferString			localekey_;	// part of filename
+    BufferString			localename_;	// Qt key
     mQtclass(QString)*			languagename_;
     mQtclass(QLocale)*			locale_;
 
@@ -98,9 +106,4 @@ protected:
 };
 
 mGlobal(Basic) TextTranslateMgr& TrMgr();
-
-namespace OD
-{
-mGlobal(Basic) void	loadLocalization();
-}
-
+namespace OD { mGlobal(Basic) void loadLocalization(); }

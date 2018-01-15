@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiMenu;
 class uiThemeSel;
 class uiTreeView;
+class uiLanguageSel;
 class PluginPackage;
 class PluginProvider;
 
@@ -35,6 +36,7 @@ protected:
 
     uiTreeView*			treefld_;
     uiThemeSel*			themesel_;
+    uiLanguageSel*		languagesel_;
     uiMenu&			rightclickmenu_;
 
     void			readPackageList();

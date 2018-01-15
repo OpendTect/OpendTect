@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigroup.h"
 #include "uilabel.h"
+#include "uilanguagesel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uipixmap.h"
@@ -371,8 +372,11 @@ void uiPluginSel::createUI()
     treefld_->setStretch( 2, 2 );
     mAttachCB( treefld_->rightButtonPressed, uiPluginSel::rightClickCB );
 
-    themesel_ = new uiThemeSel( this );
-    themesel_->attach( centeredBelow, grp );
+    uiGroup* presgrp = new uiGroup( this, "Presentation group" );
+    themesel_ = new uiThemeSel( presgrp, false );
+    languagesel_ = new uiLanguageSel( presgrp, false );
+    languagesel_->attach( rightOf, themesel_ );
+    presgrp->attach( centeredBelow, grp );
 
     setPrefWidth( banner->pm_.width() );
 }
@@ -484,6 +488,7 @@ bool uiPluginSel::acceptOK()
     }
 
     themesel_->putInSettings( false );
+    languagesel_->commit( false );
 
     Settings::common().removeWithKey( sOldKeyDoAtStartup );
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );

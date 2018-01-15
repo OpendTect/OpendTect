@@ -18,13 +18,24 @@ ________________________________________________________________________
 namespace OD { mGlobal(Basic) bool setActiveStyleName(const char*); }
 
 
-uiThemeSel::uiThemeSel( uiParent* p )
-	: uiGroup(p,"Theme selector")
+uiThemeSel::uiThemeSel( uiParent* p, bool withlabel )
+    : uiGroup(p,"Theme selector")
 {
+    if ( withlabel )
+    {
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Theme") );
+	selfld_ = lcb->box();
+	setHAlignObj( lcb );
+    }
+    else
+    {
+	selfld_ = new uiComboBox( this, "Theme" );
+	setHAlignObj( selfld_ );
+    }
+
     OD::getStyleNames( themenames_ );
     const BufferString curstylenm = OD::getActiveStyleName();
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Theme"), "Theme");
-    selfld_ = lcb->box();
+
     for ( int idx=0; idx<themenames_.size(); idx++ )
     {
 	const BufferString& nm = themenames_.get( idx );
@@ -52,7 +63,6 @@ uiThemeSel::uiThemeSel( uiParent* p )
     selfld_->setCurrentItem( curstyle<0 ? 0 : curstyle );
 
     mAttachCB( selfld_->selectionChanged, uiThemeSel::themeSel );
-    setHAlignObj( selfld_ );
 }
 
 

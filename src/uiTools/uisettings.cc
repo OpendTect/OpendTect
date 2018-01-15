@@ -342,7 +342,7 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p,
     , showrdlprogress_(true)
     , enabvirtualkeyboard_(false)
 {
-    themesel_ = new uiThemeSel( this );
+    themesel_ = new uiThemeSel( this, true );
 
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
 				 IntInpSpec(iconsz_,10,64) );

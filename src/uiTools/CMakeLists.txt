@@ -52,6 +52,7 @@ set( OD_MODULE_SOURCES
 	uiinterpollayermodel.cc
 	uiiosel.cc
 	uiissuereporter.cc
+	uilanguagesel.cc
 	uilistboxfilter.cc
 	uimapperrangeeditor.cc
 	uimenuhandler.cc

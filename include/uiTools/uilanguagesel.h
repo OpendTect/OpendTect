@@ -17,28 +17,24 @@ ________________________________________________________________________
 class uiComboBox;
 
 
-mExpClass(uiTools) uiThemeSel : public uiGroup
-{ mODTextTranslationClass(uiThemeSel);
+mExpClass(uiTools) uiLanguageSel : public uiGroup
+{ mODTextTranslationClass(uiLanguageSel);
 public:
 
-			uiThemeSel(uiParent*,bool withlabel);
+			uiLanguageSel(uiParent*,bool withlbl);
 
-    bool		putInSettings(bool writesettings);
-			//!< returns whether a new style was selected
+    bool		commit(bool writesettings);
 
 protected:
 
-    BufferStringSet	themenames_;
-
     uiComboBox*		selfld_;
 
-    void		themeSel(CallBacker*);
+    void		langSel(CallBacker*);
     static void		activateTheme(const char*);
 
 public:
 
-    static bool		setODTheme(const char* themeid,bool writesetts);
+    static bool		setODLocale(const char* localename,bool writesetts);
 			//!< Just so you can (but you probably don't want to)
-			//!< returns whether themeid is a style change
 
 };

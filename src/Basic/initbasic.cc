@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "posinfo2dsurv.h"
 #include "sighndl.h"
-#include "texttranslator.h"
 
 #ifdef __win__
 # include <stdio.h> // for _set_output_format
@@ -37,6 +36,8 @@ static uiString* qtLegalText()
 	    "Qt is available under the LGPL\n\n%1" ).arg( lgplV3Text() ) );
 }
 #endif
+
+namespace OD { mGlobal(Basic) void loadLocalization(); }
 
 
 mDefModInitFn(Basic)

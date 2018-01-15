@@ -278,6 +278,7 @@ public:
     static uiWord sInvInpFile()		{ return tr("Invalid input file"); }
     static uiWord sInterpolating()	{ return tr("Interpolating"); }
     static uiWord sInterpolation()	{ return tr("Interpolation"); }
+    static uiWord sLanguage()		{ return tr("Language"); }
     static uiWord sLatitude(bool abbrev=false);
     static uiWord sLayer(int n=1)	{ return tr("Layer",0,n); }
     static uiWord sLeft()		{ return tr("Left"); }
@@ -428,6 +429,7 @@ public:
     static uiWord sTakeSnapshot()	{ return tr("Take Snapshot"); }
     static uiWord sStart()		{ return tr("Start"); }
     static uiWord sTable(int n=1)	{ return tr("Table",0,n); }
+    static uiWord sTheme()		{ return tr("Theme"); }
     static uiWord sTile()		{ return tr("Tile"); }
     static uiWord sTime()		{ return tr("Time"); }
     static uiWord sTitle()		{ return tr("Title"); }

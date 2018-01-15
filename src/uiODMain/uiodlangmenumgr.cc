@@ -14,14 +14,15 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiodmenumgr.h"
 #include "uiodstdmenu.h"
+#include "uistrings.h"
 #include "texttranslator.h"
 
 uiODLangMenuMgr::uiODLangMenuMgr( uiODMenuMgr& mm )
     : mnumgr_(mm)
     , langmnu_(0)
 {
+    setLanguageMenu();
     mAttachCB( TrMgr().languageChange, uiODLangMenuMgr::languageChangeCB );
-    languageChangeCB( 0 );
 }
 
 
@@ -31,38 +32,34 @@ uiODLangMenuMgr::~uiODLangMenuMgr()
 }
 
 
-void uiODLangMenuMgr::initLanguageMenu()
+void uiODLangMenuMgr::setLanguageMenu()
 {
-    if ( TrMgr().nrSupportedLanguages() > 1 && !langmnu_ )
-    {
-	langmnu_ = mnumgr_.addSubMenu( mnumgr_.settMnu(), tr("Language"),
-				       "language" );
-	for ( int idx=0; idx<TrMgr().nrSupportedLanguages(); idx++ )
-	{
-	    uiAction* itm = new uiAction( TrMgr().getLanguageUserName(idx),
-				 mCB(this,uiODLangMenuMgr,languageSelectedCB));
-	    itm->setCheckable( true );
-	    langmnu_->insertAction( itm, mSettLanguageMnu+idx );
-	}
-    }
-}
+    if ( langmnu_ )
+	langmnu_->removeAllActions();
 
+    const int nrlang = TrMgr().nrSupportedLanguages();
+    if ( nrlang < 2 )
+	{ delete langmnu_; langmnu_ = 0; return; }
 
-void uiODLangMenuMgr::updateLanguageMenu()
-{
-    for ( int idx=0; langmnu_ && idx<langmnu_->actions().size(); idx++ )
+    if ( !langmnu_ )
+	langmnu_ = mnumgr_.addSubMenu( mnumgr_.settMnu(),
+			uiStrings::sLanguage(), "language" );
+
+    const int trmgridx = TrMgr().currentLanguage();
+    for ( int idx=0; idx<nrlang; idx++ )
     {
-	uiAction* itm = const_cast<uiAction*>(langmnu_->actions()[idx]);
-	const int trmgridx = idx - mSettLanguageMnu;
-	itm->setChecked( trmgridx == TrMgr().currentLanguage() );
+	uiAction* itm = new uiAction( TrMgr().getLanguageUserName(idx),
+			     mCB(this,uiODLangMenuMgr,languageSelectedCB) );
+	itm->setCheckable( true );
+	itm->setChecked( idx == trmgridx );
+	langmnu_->insertAction( itm, mSettLanguageMnu+idx );
     }
 }
 
 
 void uiODLangMenuMgr::languageChangeCB(CallBacker*)
 {
-    initLanguageMenu();
-    updateLanguageMenu();
+    setLanguageMenu();
 }
 
 
@@ -73,7 +70,12 @@ void uiODLangMenuMgr::languageSelectedCB( CallBacker* cb )
 	{ pErrMsg("Huh"); return; }
 
     const int trmgridx = itm->getID() - mSettLanguageMnu;
+    if ( trmgridx == TrMgr().currentLanguage() )
+	return;
+
     uiRetVal uirv = TrMgr().setLanguage( trmgridx );
     if ( !uirv.isOK() )
 	uiMSG().error( uirv );
+
+    TrMgr().storeToUserSettings();
 }
