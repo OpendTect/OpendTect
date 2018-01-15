@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "objectset.h"
 
 class uiMenu;
+class uiThemeSel;
 class uiTreeView;
 class PluginPackage;
 class PluginProvider;
@@ -33,6 +34,7 @@ public:
 protected:
 
     uiTreeView*			treefld_;
+    uiThemeSel*			themesel_;
     uiMenu&			rightclickmenu_;
 
     void			readPackageList();

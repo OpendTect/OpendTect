@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uipixmap.h"
 #include "uiseparator.h"
+#include "uithemesel.h"
 #include "uitreeview.h"
 
 #include "ascstream.h"
@@ -370,6 +371,9 @@ void uiPluginSel::createUI()
     treefld_->setStretch( 2, 2 );
     mAttachCB( treefld_->rightButtonPressed, uiPluginSel::rightClickCB );
 
+    themesel_ = new uiThemeSel( this );
+    themesel_->attach( centeredBelow, grp );
+
     setPrefWidth( banner->pm_.width() );
 }
 
@@ -478,6 +482,8 @@ bool uiPluginSel::acceptOK()
 	    }
 	}
     }
+
+    themesel_->putInSettings( false );
 
     Settings::common().removeWithKey( sOldKeyDoAtStartup );
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
