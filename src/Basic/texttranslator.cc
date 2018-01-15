@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "ptrman.h"
 #include "settings.h"
+#include "uistrings.h"
 
 #ifndef OD_NO_QT
 # include <QTranslator>
@@ -169,8 +170,7 @@ TextTranslateMgr::TextTranslateMgr()
     , languageChange(this)
 {
     loadUSEnglish();
-    uiString err;
-    setLanguage( 0, err );
+    setLanguage( 0 );
 }
 
 
@@ -236,35 +236,31 @@ BufferString TextTranslateMgr::getLocaleName(int idx) const
 }
 
 
-bool TextTranslateMgr::setLanguage( int idx, uiString& errmsg )
+uiRetVal TextTranslateMgr::setLanguage( int idx )
 {
+    if ( idx < 0 )
+	idx = 0;
     if ( idx==currentlanguageidx_ )
-	return true;
+	return uiRetVal::OK();
 
-    if ( languages_.validIdx(idx) )
-    {
-	if ( !languages_[idx]->load() )
-	{
-	    errmsg = tr("Cannot load %1").arg(getLanguageUserName(idx) );
-	    return false;
-	}
-    }
-    else if ( idx>=0 )
-    {
-	errmsg = tr("Cannot find selected language");
-	return false;
-    }
+    if ( !languages_.validIdx(idx) )
+	return uiRetVal( uiStrings::phrInternalError("Bad language index") );
+
+    if ( !languages_[idx]->load() )
+	return uiRetVal( tr("Cannot load %1")
+			 .arg( getLanguageUserName(idx) ) );
 
     currentlanguageidx_ = idx;
     dirtycount_++;
     languageChange.trigger();
-
-    return true;
+    return uiRetVal::OK();
 }
 
 
 int TextTranslateMgr::currentLanguage() const
-{ return currentlanguageidx_; }
+{
+    return currentlanguageidx_;
+}
 
 
 const QTranslator*
@@ -349,12 +345,8 @@ void loadLocalization()
     {
 	for ( int idx=0; idx<TrMgr().nrSupportedLanguages(); idx++ )
 	{
-	    if ( TrMgr().getLocaleName(idx)==locale )
-	    {
-		uiString err;
-		TrMgr().setLanguage( idx, err );
-		break;
-	    }
+	    if ( TrMgr().getLocaleName(idx) == locale )
+		{ TrMgr().setLanguage( idx ); break; }
 	}
     }
 

@@ -35,7 +35,7 @@ public:
     int				nrSupportedLanguages() const;
     uiString			getLanguageUserName(int) const;
     BufferString		getLocaleName(int) const;
-    bool			setLanguage(int,uiString& errmsg);
+    uiRetVal			setLanguage(int);
     int				currentLanguage() const;
 
     Notifier<TextTranslateMgr>	languageChange;

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
+#include "uiodstdmenu.h"
 #include "texttranslator.h"
 
 uiODLangMenuMgr::uiODLangMenuMgr( uiODMenuMgr& mm )
@@ -41,7 +42,7 @@ void uiODLangMenuMgr::initLanguageMenu()
 	    uiAction* itm = new uiAction( TrMgr().getLanguageUserName(idx),
 				 mCB(this,uiODLangMenuMgr,languageSelectedCB));
 	    itm->setCheckable( true );
-	    langmnu_->insertAction( itm, idx );
+	    langmnu_->insertAction( itm, mSettLanguageMnu+idx );
 	}
     }
 }
@@ -52,7 +53,8 @@ void uiODLangMenuMgr::updateLanguageMenu()
     for ( int idx=0; langmnu_ && idx<langmnu_->actions().size(); idx++ )
     {
 	uiAction* itm = const_cast<uiAction*>(langmnu_->actions()[idx]);
-	itm->setChecked( idx==TrMgr().currentLanguage() );
+	const int trmgridx = idx - mSettLanguageMnu;
+	itm->setChecked( trmgridx == TrMgr().currentLanguage() );
     }
 }
 
@@ -67,12 +69,11 @@ void uiODLangMenuMgr::languageChangeCB(CallBacker*)
 void uiODLangMenuMgr::languageSelectedCB( CallBacker* cb )
 {
     mDynamicCastGet(uiAction*,itm,cb)
-    if ( !itm ) return; // Huh?
+    if ( !itm )
+	{ pErrMsg("Huh"); return; }
 
-    const int idx = itm->getID();
-    uiString err;
-    if ( !TrMgr().setLanguage(idx,err) )
-    {
-	uiMSG().error( err );
-    }
+    const int trmgridx = itm->getID() - mSettLanguageMnu;
+    uiRetVal uirv = TrMgr().setLanguage( trmgridx );
+    if ( !uirv.isOK() )
+	uiMSG().error( uirv );
 }

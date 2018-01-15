@@ -54,7 +54,6 @@ ________________________________________________________________________
 
 
 static const char* sKeyIconSetNm = "Icon set name";
-// static const char* sTODOIcon = "icontodo";
 static const char* ascic = "ascii";
 static const char* singic = "single";
 static const char* multic = "multiple";
@@ -208,7 +207,6 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillUtilMenu();
     menubar->insertSeparator();
     helpmnumgr_ = new uiODHelpMenuMgr( *this );
-    langmnumgr_ = new uiODLangMenuMgr( *this );
 
     fillDtectTB( appman );
     fillVisTB( sceneman );
@@ -890,12 +888,13 @@ void uiODMenuMgr::mkViewIconsMnu()
 void uiODMenuMgr::fillUtilMenu()
 {
     settmnu_ = addSubMenu( utilmnu_, uiStrings::sSettings(), "settings" );
+    langmnumgr_ = new uiODLangMenuMgr( *this );
     addAction( settmnu_, uiStrings::sGeneral(), "settings", mSettGenMnuItm );
-    addAction( settmnu_, tr("Auto-Save"), "save", mSettAutoSaveMnuItm );
     addAction( settmnu_, uiStrings::sLooknFeel(), "looknfeel",
 				mSettLkNFlMnuItm );
     addAction( settmnu_, tr("Keyboard Shortcuts"), "keyboardshortcuts",
 				mSettShortcutsMnuItm );
+    addAction( settmnu_, tr("Auto-Save"), "save", mSettAutoSaveMnuItm );
 
     uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
     addAction( advmnu, tr("Personal Settings"), "unknownperson",
@@ -1528,6 +1527,7 @@ void uiODMenuMgr::manSeis( CallBacker* )
 
     appl_.applMgr().seisServer()->manageSeismics( !have2d ? 0 : 2 );
 }
+
 
 #define mDefManCBFn(typ) \
     void uiODMenuMgr::man##typ( CallBacker* ) { mDoOp(Man,typ,0); }
