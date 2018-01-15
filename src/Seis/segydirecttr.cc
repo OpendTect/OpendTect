@@ -375,6 +375,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
     delete tr_;
     tr_ = SEGYSeisTrcTranslator::getInstance();
+    tr_->usePar( segypars_ );
 
     FilePath outfp( segydeffilename_ );
     outfp.setExtension( tr_->defExtension() );
