@@ -28,6 +28,9 @@ uiPhrase uiStrings::phrCalculateFrom( const uiWord& string )
 uiPhrase uiStrings::phrCrossline( const uiWord& string )
 { return phrJoinStrings( sCrossline(), string ); }
 
+uiPhrase uiStrings::phrExitOD()
+{ return tr("Exit OpendTect"); }
+
 uiPhrase uiStrings::phrTODONotImpl( const char* clssnm )
 { return toUiString( "[%1] TODO: Not Implemented" ).arg( clssnm ); }
 
@@ -272,6 +275,9 @@ uiPhrase uiStrings::phrShowIn( const uiWord& string )
 
 uiPhrase uiStrings::phrSpecify( const uiWord& string )
 { return toUiString(joinstring).arg(sSpecify()).arg(string); }
+
+uiPhrase uiStrings::phrStart( const uiWord& word )
+{ return tr( "Start %1" ).arg( word ); }
 
 uiPhrase uiStrings::phrStorageDir( const uiWord& string )
 { return toUiString(joinstring).arg(sStorageDir()).arg(string); }

@@ -75,7 +75,7 @@ ________________________________________________________________________
 #include "uiodrandlinetreeitem.h"
 #include "uiodseis2dtreeitem.h"
 #include "uiodsceneobjtreeitem.h"
-#include "uiodvolrentreeitem.h"
+#include "uiodvolumetreeitem.h"
 #include "uiodwelltreeitem.h"
 
 #define mPosField	0
@@ -111,7 +111,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     mAddFact( uiODInlineTreeItemFactory,	1000,	Only3D );
     mAddFact( uiODCrosslineTreeItemFactory,	1100,	Only3D );
     mAddFact( uiODZsliceTreeItemFactory,	1200,	Only3D );
-    mAddFact( uiODVolrenTreeItemFactory,	1500,	Only3D );
+    mAddFact( uiODVolumeTreeItemFactory,	1500,	Only3D );
     mAddFact( uiODRandomLineTreeItemFactory,	2000,	Only3D );
     mAddFact( Line2DTreeItemFactory,		3000,	Only2D );
     mAddFact( uiODHorizonTreeItemFactory,	4000,	Both2DAnd3D );

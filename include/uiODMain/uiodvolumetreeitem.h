@@ -15,41 +15,49 @@ ________________________________________________________________________
 #include "uiodprobeparenttreeitem.h"
 #include "uiodattribtreeitem.h"
 
-mExpClass(uiODMain) uiODVolrenParentTreeItem
+mExpClass(uiODMain) uiODVolumeParentTreeItem
 	: public uiODSceneProbeParentTreeItem
-{   mODTextTranslationClass(uiODVolrenParentTreeItem);
-    mDefineItemMembers(VolrenParent,SceneProbeParentTreeItem,SceneTreeTop);
+{   mODTextTranslationClass(uiODVolumeParentTreeItem);
+    mDefineItemMembers(VolumeParent,SceneProbeParentTreeItem,SceneTreeTop);
     mMenuOnAnyButton;
+
 public:
-			~uiODVolrenParentTreeItem();
+
+			~uiODVolumeParentTreeItem();
+
     virtual Probe*	createNewProbe() const;
     uiPresManagedTreeItem* addChildItem(const Presentation::ObjInfo&);
     bool		setProbeToBeAddedParams(int mnuid);
+    virtual bool	addWithImmediateData() const	{ return false; }
 
 protected:
 
     bool		canAddVolumeToScene();
+
 };
 
 
-mExpClass(uiODMain) uiODVolrenTreeItemFactory : public uiODSceneTreeItemFactory
-{ mODTextTranslationClass(uiODVolrenTreeItemFactory);
+mExpClass(uiODMain) uiODVolumeTreeItemFactory : public uiODSceneTreeItemFactory
+{ mODTextTranslationClass(uiODVolumeTreeItemFactory);
 public:
     const char*		name() const   { return getName(); }
     static const char*	getName();
-    uiTreeItem*		create() const { return new uiODVolrenParentTreeItem; }
+    uiTreeItem*		create() const { return new uiODVolumeParentTreeItem; }
 };
 
 
-mExpClass(uiODMain) uiODVolrenTreeItem : public uiODSceneProbeTreeItem
-{ mODTextTranslationClass(uiODVolrenTreeItem);
+mExpClass(uiODMain) uiODVolumeTreeItem : public uiODSceneProbeTreeItem
+{ mODTextTranslationClass(uiODVolumeTreeItem);
 public:
-			uiODVolrenTreeItem(Probe&,int displayid_=-1);
+			uiODVolumeTreeItem(Probe&,int displayid_=-1);
     bool		showSubMenu();
 
 protected:
-			~uiODVolrenTreeItem();
+
+			~uiODVolumeTreeItem();
+
     bool		init();
+    virtual bool	initWithDataFill() const	{ return false; }
     uiString		createDisplayName() const;
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
@@ -61,10 +69,11 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVolrenAttribTreeItem : public uiODAttribTreeItem
-{ mODTextTranslationClass(uiODVolrenAttribTreeItem);
+mExpClass(uiODMain) uiODVolumeAttribTreeItem : public uiODAttribTreeItem
+{ mODTextTranslationClass(uiODVolumeAttribTreeItem);
 public:
-			uiODVolrenAttribTreeItem(const char* parenttype);
+
+			uiODVolumeAttribTreeItem(const char* parenttype);
     static void		initClass();
     static uiODDataTreeItem* create(ProbeLayer&);
 
@@ -81,16 +90,17 @@ protected:
 
 
 
-mExpClass(uiODMain) uiODVolrenSubTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODVolrenSubTreeItem);
+mExpClass(uiODMain) uiODVolumeSubTreeItem : public uiODDisplayTreeItem
+{ mODTextTranslationClass(uiODVolumeSubTreeItem);
 public:
-			uiODVolrenSubTreeItem(int displayid);
+
+			uiODVolumeSubTreeItem(int displayid);
 
     bool		isIsoSurface() const;
     void		updateColumnText(int col);
 
 protected:
-			~uiODVolrenSubTreeItem();
+			~uiODVolumeSubTreeItem();
 
     int			getParentDisplayID() const;
     int			getParentAttribNr() const;
@@ -105,4 +115,5 @@ protected:
 
     MenuItem		resetisosurfacemnuitem_;
     MenuItem		convertisotobodymnuitem_;
+
 };

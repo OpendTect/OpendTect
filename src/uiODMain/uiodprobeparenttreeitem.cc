@@ -86,28 +86,42 @@ bool uiODSceneProbeParentTreeItem::showSubMenu()
     addMenuItems();
     addStandardItems( *menu_ );
     const int mnuid = menu_->exec();
-    return handleSubMenu( mnuid );
+    return mnuid < 0 ? false : handleSubMenu( mnuid );
 }
 
 void uiODSceneProbeParentTreeItem::addMenuItems()
 {
-    menu_->insertAction( new uiAction(sAddDefaultData(),"attribtype_stored"),
-			 cAddDefaultDataMenuID() );
-    if ( Attrib::DescSet::global(is2D()).hasTrueAttribute() )
+    if ( !addWithImmediateData() )
+    {
+	menu_->insertAction( new uiAction(uiStrings::sAdd(),"addnew"),
+				cAddDefaultDataMenuID() );
 	menu_->insertAction(
-		new uiAction(sAddDefaultAttrib(),"attribtype_attrib"),
-		cAddDefaultAttribMenuID() );
-    menu_->insertAction(
-		new uiAction(sAddAndSelectData(),"selectfromlist"),
-		cAddAndSelectDataMenuID() );
-    menu_->insertAction(
-		new uiAction(sAddColorBlended(),"colorblending"),
-		cAddColorBlendedMenuID() );
+		    new uiAction(sAddColorBlended(),"colorblending"),
+		    cAddColorBlendedMenuID() );
+    }
+    else
+    {
+	menu_->insertAction( new uiAction(sAddDefaultData(),
+			    "attribtype_stored"), cAddDefaultDataMenuID() );
+	if ( Attrib::DescSet::global(is2D()).hasTrueAttribute() )
+	    menu_->insertAction(
+		    new uiAction(sAddDefaultAttrib(),"attribtype_attrib"),
+		    cAddDefaultAttribMenuID() );
+	menu_->insertAction(
+		    new uiAction(sAddAndSelectData(),"selectfromlist"),
+		    cAddAndSelectDataMenuID() );
+	menu_->insertAction(
+		    new uiAction(sAddColorBlended(),"colorblending"),
+		    cAddColorBlendedMenuID() );
+    }
 }
 
 
 bool uiODSceneProbeParentTreeItem::handleSubMenu( int mnuid )
 {
+    if ( mnuid < 0 )
+	return true;
+
     if ( setProbeToBeAddedParams(mnuid) )
 	return addChildProbe();
 
@@ -296,7 +310,7 @@ bool uiODSceneProbeTreeItem::init()
 	if ( item )
 	{
 	    addChild( item, false );
-	    item->updateDisplay();
+	    item->updateDisplay( initWithDataFill() );
 	    item->setChecked( visserv_->isAttribEnabled(displayid_,idx));
 	}
     }

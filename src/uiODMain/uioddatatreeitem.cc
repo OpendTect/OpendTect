@@ -531,7 +531,7 @@ void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 }
 
 
-void uiODDataTreeItem::setProbeLayer( ProbeLayer* newlayer )
+void uiODDataTreeItem::setProbeLayer( ProbeLayer* newlayer, bool fill )
 {
     if ( probelayer_ == newlayer )
 	return;
@@ -554,7 +554,7 @@ void uiODDataTreeItem::setProbeLayer( ProbeLayer* newlayer )
 	    pErrMsg( "No parent for probe layer" );
     }
 
-    updateDisplay();
+    updateDisplay( fill );
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 

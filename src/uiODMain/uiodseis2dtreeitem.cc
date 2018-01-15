@@ -720,7 +720,7 @@ void uiOD2DLineAttribTreeItem::initClass()
 }
 
 
-void uiOD2DLineAttribTreeItem::updateDisplay()
+void uiOD2DLineAttribTreeItem::updateDisplay( bool upd )
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject( displayID() ));
@@ -728,7 +728,7 @@ void uiOD2DLineAttribTreeItem::updateDisplay()
 	return;
 
     s2d->showPanel( true );
-    uiODAttribTreeItem::updateDisplay();
+    uiODAttribTreeItem::updateDisplay( upd );
 }
 
 

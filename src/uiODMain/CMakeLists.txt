@@ -62,8 +62,8 @@ set(OD_MODULE_SOURCES
 	uiodvw2dpicksettreeitem.cc
 	uiodvw2dwigglevararea.cc
 	uiodvw2dvariabledensity.cc
-	uiodvolrentreeitem.cc
 	uiodvolproctreeitem.cc
+	uiodvolumetreeitem.cc
 	uiodwelltreeitem.cc
 )
 

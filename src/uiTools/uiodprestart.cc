@@ -142,8 +142,9 @@ uiODPreStart::uiODPreStart( uiParent* p )
 		    .savetext(tr("Show this dialog at startup")))
     , rightclickmenu_(*new uiMenu(this))
 {
-    setCaption( tr("OpendTect V%1: Optional plugins").arg(GetFullODVersion()) );
-    setOkText( tr("Start OpendTect") );
+    setCaption( tr("%1 V%2").arg(uiStrings::sOpendTect())
+			    .arg(GetFullODVersion()) );
+    setOkText( uiStrings::phrStart(uiStrings::sOpendTect()) );
     readProviderList();
     setSaveButtonChecked( true );
     readPackageList();

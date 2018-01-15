@@ -35,6 +35,7 @@ public:
     virtual bool	canShowSubMenu() const		{ return true; }
     virtual Probe*	createNewProbe() const		= 0;
     virtual bool	addChildProbe();
+    virtual bool	addWithImmediateData() const	{ return true; }
 
     virtual AddType	getAddType(int mnuid) const;
     static uiString	sAddEmptyPlane();
@@ -82,6 +83,7 @@ protected:
 
 			uiODSceneProbeTreeItem(Probe&);
     virtual bool	init();
+    virtual bool	initWithDataFill() const	{ return true; }
     virtual uiODDataTreeItem* createAttribItem(const Attrib::SelSpec*) const;
 
 };

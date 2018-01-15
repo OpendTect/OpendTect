@@ -154,7 +154,7 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* cb )
 }
 
 
-void uiODPlaneDataTreeItem::updateDisplay()
+void uiODPlaneDataTreeItem::updateDisplay( bool )
 {
     const Probe* probe = getProbe();
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,

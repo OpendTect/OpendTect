@@ -211,7 +211,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 		"its database before using it in newer versions of OpendTect." )
 		.arg(DBM().surveyName()) );
 	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
-			     uiStrings::sExitOD() ) )
+			     uiStrings::phrExitOD() ) )
 	    return false;
 
 	ExitProgram( 0 );
@@ -229,7 +229,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 
 	const int res = uiMSG().question( msg, tr("Convert now"),
 					  tr("Select another survey"),
-					  uiStrings::sExitOD() );
+					  uiStrings::phrExitOD() );
 	if ( res < 0 )
 	    ExitProgram( 0 );
 
@@ -279,7 +279,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 
     const int res = uiMSG().question( msg, tr("Convert now"),
 					   tr("Do it later"),
-					   uiStrings::sExitOD() );
+					   uiStrings::phrExitOD() );
     if ( res < 0 )
 	ExitProgram( 0 );
 

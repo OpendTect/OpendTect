@@ -212,7 +212,7 @@ void uiODPSEventsTreeItem::updateColorMode( int mode )
 }
 
 
-void uiODPSEventsTreeItem::updateDisplay()
+void uiODPSEventsTreeItem::updateDisplay( bool )
 {
     if ( !eventdisplay_ )
     {

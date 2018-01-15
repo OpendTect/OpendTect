@@ -63,6 +63,7 @@ public:
     static uiPhrase phrEdit(const uiWord&);
     static uiPhrase phrEnter(const uiWord&);
     static uiPhrase phrExistsContinue(const uiWord&,bool overwrite);
+    static uiPhrase phrExitOD();
     static uiPhrase phrExport(const uiWord& string);
     static uiPhrase phrExtract(const uiWord&);
     static uiPhrase phrGenerating(const uiWord&);
@@ -101,7 +102,8 @@ public:
     static uiPhrase phrSetAs(const uiWord&);
     static uiPhrase phrShowIn(const uiWord&);
     static uiPhrase phrSpecify(const uiWord&);
-    static uiPhrase phrStorageDir(const uiWord& string);
+    static uiPhrase phrStart(const uiWord&);
+    static uiPhrase phrStorageDir(const uiWord&);
     static uiPhrase phrSuccessfullyExported(const uiWord&);
     static uiPhrase phrTODONotImpl(const char* clssname);
     static uiPhrase phrNotImplInThisVersion(const char* fromver);
@@ -230,7 +232,6 @@ public:
     static uiWord sErrors(int n=1)	{ return tr("Error", 0, n); }
     static uiWord sEvent(int n=1)	{ return tr("Event", 0, n); }
     static uiWord sExamine()		{ return tr("Examine"); }
-    static uiWord sExitOD()		{ return tr("Exit OpendTect"); }
     static uiWord sExit()		{ return tr("Exit"); }
     static uiWord sExport();
     static uiWord sExtract();

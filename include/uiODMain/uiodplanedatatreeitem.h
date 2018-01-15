@@ -38,7 +38,7 @@ protected:
 			uiODPlaneDataTreeItem(int displayid,OD::SliceType,
 					      Probe&);
 
-    void		updateDisplay();
+    virtual void	updateDisplay(bool =true);
     void		handleObjChanged(const ChangeData&);
 
     virtual void	createMenu(MenuHandler*,bool istb);

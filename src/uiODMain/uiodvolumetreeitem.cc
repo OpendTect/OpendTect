@@ -6,7 +6,7 @@
 
 
 
-#include "uiodvolrentreeitem.h"
+#include "uiodvolumetreeitem.h"
 
 #include "uiattribpartserv.h"
 #include "uifiledlg.h"
@@ -51,22 +51,22 @@
 #define mAddCBIdx	1
 
 
-/* OSG-TODO: Port VolrenDisplay and OrthogonalSlice occurences to OSG
+/* OSG-TODO: Port VolumeDisplay and OrthogonalSlice occurences to OSG
    if these classes are prolongated. */
 
 
-uiODVolrenParentTreeItem::uiODVolrenParentTreeItem()
+uiODVolumeParentTreeItem::uiODVolumeParentTreeItem()
     : uiODSceneProbeParentTreeItem( uiStrings::sVolume() )
 {
     //Check if there are any volumes already in the scene
 }
 
 
-uiODVolrenParentTreeItem::~uiODVolrenParentTreeItem()
+uiODVolumeParentTreeItem::~uiODVolumeParentTreeItem()
 {}
 
 
-bool uiODVolrenParentTreeItem::canAddVolumeToScene()
+bool uiODVolumeParentTreeItem::canAddVolumeToScene()
 {
     if ( SettingsAccess().doesUserWantShading(true) &&
 	 visSurvey::VolumeDisplay::canUseVolRenShading() )
@@ -94,13 +94,13 @@ bool uiODVolrenParentTreeItem::canAddVolumeToScene()
 }
 
 
-Probe* uiODVolrenParentTreeItem::createNewProbe() const
+Probe* uiODVolumeParentTreeItem::createNewProbe() const
 {
     return new VolumeProbe();
 }
 
 
-uiPresManagedTreeItem* uiODVolrenParentTreeItem::addChildItem(
+uiPresManagedTreeItem* uiODVolumeParentTreeItem::addChildItem(
 	const Presentation::ObjInfo& prinfo )
 {
     mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
@@ -112,35 +112,37 @@ uiPresManagedTreeItem* uiODVolrenParentTreeItem::addChildItem(
     if ( !volprobe )
 	return 0;
 
-    uiODVolrenTreeItem* newitem = new uiODVolrenTreeItem( *probe );
+    uiODVolumeTreeItem* newitem = new uiODVolumeTreeItem( *probe );
     addChild( newitem, false );
     return newitem;
 }
 
 
-bool uiODVolrenParentTreeItem::setProbeToBeAddedParams( int mnuid )
+bool uiODVolumeParentTreeItem::setProbeToBeAddedParams( int mnuid )
 {
-    if ( mnuid < cAddAndSelectDataMenuID() )
-	{ typetobeadded_ = getAddType( mnuid ); return true; }
+    typetobeadded_ = getAddType( mnuid );
+    if ( typetobeadded_ == uiODSceneProbeParentTreeItem::DefaultData )
+	typetobeadded_ = uiODSceneProbeParentTreeItem::Empty;
 
-    return false;
+    return typetobeadded_ == uiODSceneProbeParentTreeItem::Empty
+	|| typetobeadded_ == uiODSceneProbeParentTreeItem::RGBA;
 }
 
 
-const char* uiODVolrenParentTreeItem::iconName() const
+const char* uiODVolumeParentTreeItem::iconName() const
 {
     return "tree-vol";
 }
 
 
-const char* uiODVolrenTreeItemFactory::getName()
+const char* uiODVolumeTreeItemFactory::getName()
 {
-    return typeid(uiODVolrenTreeItemFactory).name();
+    return typeid(uiODVolumeTreeItemFactory).name();
 }
 
 
 
-uiODVolrenTreeItem::uiODVolrenTreeItem( Probe& probe, int displayid )
+uiODVolumeTreeItem::uiODVolumeTreeItem( Probe& probe, int displayid )
     : uiODSceneProbeTreeItem( probe )
     , positionmnuitem_(m3Dots(tr("Position")))
 {
@@ -149,10 +151,10 @@ uiODVolrenTreeItem::uiODVolrenTreeItem( Probe& probe, int displayid )
 }
 
 
-uiODVolrenTreeItem::~uiODVolrenTreeItem()
+uiODVolumeTreeItem::~uiODVolumeTreeItem()
 {
     uitreeviewitem_->stateChanged.remove(
-				mCB(this,uiODVolrenTreeItem,checkCB) );
+				mCB(this,uiODVolumeTreeItem,checkCB) );
     while ( children_.size() )
 	removeChild(children_[0]);
 
@@ -160,17 +162,17 @@ uiODVolrenTreeItem::~uiODVolrenTreeItem()
 }
 
 
-bool uiODVolrenTreeItem::showSubMenu()
+bool uiODVolumeTreeItem::showSubMenu()
 {
     return visserv_->showMenu( displayid_, uiMenuHandler::fromTree() );
 }
 
 
-const char* uiODVolrenTreeItem::parentType() const
-{ return typeid(uiODVolrenParentTreeItem).name(); }
+const char* uiODVolumeTreeItem::parentType() const
+{ return typeid(uiODVolumeParentTreeItem).name(); }
 
 
-bool uiODVolrenTreeItem::init()
+bool uiODVolumeTreeItem::init()
 {
     visSurvey::VolumeDisplay* voldisp;
     if ( displayid_==-1 )
@@ -190,7 +192,7 @@ bool uiODVolrenTreeItem::init()
 }
 
 
-uiString uiODVolrenTreeItem::createDisplayName() const
+uiString uiODVolumeTreeItem::createDisplayName() const
 {
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
 		     visserv_->getObject( displayid_ ) )
@@ -202,10 +204,11 @@ uiString uiODVolrenTreeItem::createDisplayName() const
 }
 
 
-void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODVolumeTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() ) return;
+    if ( !menu || menu->menuID()!=displayID() )
+	return;
 
     const bool islocked = visserv_->isLocked( displayID() );
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionmnuitem_,
@@ -213,7 +216,7 @@ void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
 }
 
 
-void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
+void uiODVolumeTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
@@ -260,7 +263,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-uiODVolrenAttribTreeItem::uiODVolrenAttribTreeItem( const char* ptype )
+uiODVolumeAttribTreeItem::uiODVolumeAttribTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , statisticsmnuitem_(m3Dots(uiStrings::sHistogram()))
     , amplspectrummnuitem_(m3Dots(tr("Amplitude Spectrum")))
@@ -271,18 +274,18 @@ uiODVolrenAttribTreeItem::uiODVolrenAttribTreeItem( const char* ptype )
 }
 
 
-uiODDataTreeItem* uiODVolrenAttribTreeItem::create( ProbeLayer& prblay )
+uiODDataTreeItem* uiODVolumeAttribTreeItem::create( ProbeLayer& prblay )
 {
-    const char* parenttype = typeid(uiODVolrenTreeItem).name();
-    uiODVolrenAttribTreeItem* attribtreeitem =
-	new uiODVolrenAttribTreeItem( parenttype );
-    attribtreeitem->setProbeLayer( &prblay );
+    const char* parenttype = typeid(uiODVolumeTreeItem).name();
+    uiODVolumeAttribTreeItem* attribtreeitem =
+	new uiODVolumeAttribTreeItem( parenttype );
+    attribtreeitem->setProbeLayer( &prblay, false );
     return attribtreeitem;
 
 }
 
 
-void uiODVolrenAttribTreeItem::initClass()
+void uiODVolumeAttribTreeItem::initClass()
 {
     uiODDataTreeItem::fac().addCreateFunc(
 	    create, AttribProbeLayer::sFactoryKey(),VolumeProbe::sFactoryKey());
@@ -290,7 +293,7 @@ void uiODVolrenAttribTreeItem::initClass()
 }
 
 
-void uiODVolrenAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODVolumeAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODAttribTreeItem::createMenu( menu, istb );
 
@@ -308,7 +311,7 @@ void uiODVolrenAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 }
 
 
-void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
+void uiODVolumeAttribTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODAttribTreeItem::handleMenuCB(cb);
 
@@ -393,7 +396,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiODVolrenAttribTreeItem::hasTransparencyMenu() const
+bool uiODVolumeAttribTreeItem::hasTransparencyMenu() const
 {
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
 		ODMainWin()->applMgr().visServer()->getObject(displayID()) );
@@ -402,13 +405,13 @@ bool uiODVolrenAttribTreeItem::hasTransparencyMenu() const
 }
 
 
-uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
+uiODVolumeSubTreeItem::uiODVolumeSubTreeItem( int displayid )
     : resetisosurfacemnuitem_(uiStrings::sSettings())
     , convertisotobodymnuitem_(tr("Convert to Body"))
 { displayid_ = displayid; }
 
 
-uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
+uiODVolumeSubTreeItem::~uiODVolumeSubTreeItem()
 {
     detachAllNotifiers();
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
@@ -416,8 +419,8 @@ uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 
     if ( !vd ) return;
 
-    if ( displayid_==vd->volRenID() )
-	vd->showVolRen(false);
+    if ( displayid_ == vd->volRenID() )
+	vd->showVolRen( false );
     else
 	vd->removeChild( displayid_ );
 
@@ -425,21 +428,21 @@ uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 }
 
 
-int uiODVolrenSubTreeItem::getParentDisplayID() const
+int uiODVolumeSubTreeItem::getParentDisplayID() const
 {
     mDynamicCastGet( uiODDataTreeItem*, datatreeitem, parent_ );
     return datatreeitem ? datatreeitem->displayID() : -1;
 }
 
 
-int uiODVolrenSubTreeItem::getParentAttribNr() const
+int uiODVolumeSubTreeItem::getParentAttribNr() const
 {
     mDynamicCastGet( uiODDataTreeItem*, datatreeitem, parent_ );
     return datatreeitem ? datatreeitem->attribNr() : -1;
 }
 
 
-bool uiODVolrenSubTreeItem::isIsoSurface() const
+bool uiODVolumeSubTreeItem::isIsoSurface() const
 {
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
 		    visserv_->getObject(displayid_));
@@ -447,39 +450,37 @@ bool uiODVolrenSubTreeItem::isIsoSurface() const
 }
 
 
-const char* uiODVolrenSubTreeItem::parentType() const
-{ return typeid(uiODVolrenAttribTreeItem).name(); }
+const char* uiODVolumeSubTreeItem::parentType() const
+{ return typeid(uiODVolumeAttribTreeItem).name(); }
 
 
-bool uiODVolrenSubTreeItem::init()
+bool uiODVolumeSubTreeItem::init()
 {
     if ( displayid_==-1 ) return false;
 
-//    mDynamicCastGet(visBase::VolrenDisplay*,volren,
-//		    visserv_->getObject(displayid_));
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,
 		    visserv_->getObject(displayid_));
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
 		    visserv_->getObject(displayid_));
-    if ( /*!volren && */ !slice && !isosurface )
+    if ( !slice && !isosurface )
 	return false;
 
     if ( slice )
     {
 	slice->setSelectable( true );
-	slice->deSelection()->notify( mCB(this,uiODVolrenSubTreeItem,selChgCB));
+	slice->deSelection()->notify( mCB(this,uiODVolumeSubTreeItem,selChgCB));
 
-	mAttachCB( *slice->selection(), uiODVolrenSubTreeItem::selChgCB );
-	mAttachCB( *slice->deSelection(), uiODVolrenSubTreeItem::selChgCB);
+	mAttachCB( *slice->selection(), uiODVolumeSubTreeItem::selChgCB );
+	mAttachCB( *slice->deSelection(), uiODVolumeSubTreeItem::selChgCB);
 	mAttachCB( visserv_->getUiSlicePos()->positionChg,
-		  uiODVolrenSubTreeItem::posChangeCB);
+		  uiODVolumeSubTreeItem::posChangeCB);
     }
 
     return uiODDisplayTreeItem::init();
 }
 
 
-void uiODVolrenSubTreeItem::updateColumnText(int col)
+void uiODVolumeSubTreeItem::updateColumnText(int col)
 {
     if ( col!=1 )
     {
@@ -519,7 +520,7 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
 }
 
 
-void uiODVolrenSubTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODVolumeSubTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
     if ( !menu || menu->menuID()!=displayID() || istb ) return;
@@ -536,7 +537,7 @@ void uiODVolrenSubTreeItem::createMenu( MenuHandler* menu, bool istb )
 }
 
 
-void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
+void uiODVolumeSubTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
@@ -590,7 +591,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODVolrenSubTreeItem::posChangeCB( CallBacker* cb )
+void uiODVolumeSubTreeItem::posChangeCB( CallBacker* cb )
 {
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
 		    visserv_->getObject(getParentDisplayID()));
@@ -607,7 +608,7 @@ void uiODVolrenSubTreeItem::posChangeCB( CallBacker* cb )
 }
 
 
-void uiODVolrenSubTreeItem::selChgCB( CallBacker* cb )
+void uiODVolumeSubTreeItem::selChgCB( CallBacker* cb )
 {
     visserv_->getUiSlicePos()->setDisplay( getParentDisplayID() );
 }

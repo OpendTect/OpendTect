@@ -22,19 +22,19 @@ class AttribProbeLayer;
 mExpClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
 { mODTextTranslationClass(mODTextTranslationClass);
 public:
-    			uiODAttribTreeItem( const char* parenttype );
+			uiODAttribTreeItem( const char* parenttype );
 			~uiODAttribTreeItem();
 
     const AttribProbeLayer* attribProbeLayer() const;
     AttribProbeLayer*	attribProbeLayer();
 
     void		prepareForShutdown();
-    void		setProbeLayer(ProbeLayer*);
+    void		setProbeLayer(ProbeLayer*,bool fill=true);
     static uiString	createDisplayName( int visid, int attrib );
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
     static uiString	sKeyUseColSettingsMenuTxt();
-    virtual void	updateDisplay();
+    virtual void	updateDisplay(bool);
 
 protected:
 
