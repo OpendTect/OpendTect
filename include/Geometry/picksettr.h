@@ -62,6 +62,10 @@ public:
 			//!< Returns null on failure
 
     static void		fillConstraints(IOObjContext&,bool ispoly);
+
+    bool		implRemove(const IOObj*) const;
+    bool		implRename(const IOObj*,const char*,
+				   const CallBack*) const;
 };
 
 

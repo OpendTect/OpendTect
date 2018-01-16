@@ -72,6 +72,9 @@ public:
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		fillDisplayPars(IOPar&) const;
+    bool		useDisplayPars(const IOPar&);
+    bool		writeDisplayPars() const;
 
     void		removeSingleWithUndo(size_type idx);
     void		insertWithUndo(size_type,const Pick::Location&);

@@ -11,19 +11,22 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "picksetfact.h"
 #include "pickset.h"
+
+#include "ascstream.h"
 #include "ctxtioobj.h"
 #include "binidvalset.h"
 #include "datapointset.h"
-#include "ascstream.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "keystrs.h"
+#include "polygon.h"
 #include "ptrman.h"
 #include "separstr.h"
-#include "survinfo.h"
 #include "streamconn.h"
-#include "polygon.h"
-#include "keystrs.h"
+#include "strmprov.h"
+#include "survinfo.h"
 #include "unitofmeasure.h"
 
 mDefSimpleTranslatorioContext( PickSet, Loc )
@@ -40,6 +43,11 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
     bs = tr->read( ps, *conn, checkdir );
+
+    IOPar disppars;
+    if ( Pick::Mgr().readDisplayPars(ioobj->key(),disppars) )
+	ps.useDisplayPars( disppars );
+
     return bs.isEmpty();
 }
 
@@ -58,6 +66,10 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
     else
 	bs = tr->write( ps, *conn );
+
+    IOPar disppars;
+    ps.fillDisplayPars( disppars );
+    Pick::Mgr().writeDisplayPars( ioobj->key(), disppars );
 
     FileMultiString pstype;
     ioobj->pars().get( sKey::Type(), pstype );
@@ -266,6 +278,7 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 
 void PickSetTranslator::fillConstraints( IOObjContext& ctxt, bool ispoly )
 {
+    ctxt.fixTranslator( dgbPickSetTranslator::translKey() );
     if ( ispoly )
 	ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     else
@@ -303,4 +316,42 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     }
 
     return ret;
+}
+
+
+bool PickSetTranslator::implRemove( const IOObj* ioobj ) const
+{
+    if ( !ioobj )
+	return false;
+
+    const bool res = Translator::implRemove( ioobj );
+    if ( !res )
+	return false;
+
+    StreamProvider sp( Pick::SetMgr::getDispFileName(ioobj->key()) );
+    if ( sp.exists(true) )
+	sp.remove();
+
+    return res;
+}
+
+
+bool PickSetTranslator::implRename( const IOObj* ioobj, const char* newnm,
+				    const CallBack* cb ) const
+{
+    if ( !ioobj )
+	return false;
+
+    const bool res = Translator::implRename( ioobj, newnm, cb );
+    if ( !res )
+	return false;
+
+    const FilePath fp( Pick::SetMgr::getDispFileName(ioobj->key()) );
+    StreamProvider oldsp( fp.fullPath().buf() );
+    FilePath newfp( newnm );
+    newfp.setExtension( fp.extension() );
+    if ( oldsp.exists(true) )
+	oldsp.rename( newfp.fullPath().buf(), cb );
+
+    return res;
 }

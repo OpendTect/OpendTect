@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistristripset.h"
 
 
-uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set, 
+uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 			      visSurvey::PickSetDisplay* psd )
     : uiMarkerStyleDlg( p, tr("Pick properties") )
     , set_( set )
@@ -36,13 +36,13 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     usedrawstylefld_->setChecked( hassty );
     usedrawstylefld_->activated.notify( mCB(this,uiPickPropDlg,drawSel) );
 
-    drawstylefld_ = new uiGenInput( this, tr("with"), 
-	    			    BoolInpSpec( true, tr("Line"), 
+    drawstylefld_ = new uiGenInput( this, tr("with"),
+				    BoolInpSpec( true, tr("Line"),
                                     tr("Surface") ) );
     drawstylefld_->setValue( !hasbody );
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
     drawstylefld_->attach( rightOf, usedrawstylefld_ );
-    
+
     stylefld_->attach( alignedBelow, usedrawstylefld_ );
 
     bool usethreshold = true;
@@ -52,7 +52,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     usethresholdfld_->setChecked( usethreshold );
     usethresholdfld_->activated.notify( mCB(this,uiPickPropDlg,useThresholdCB));
     usethresholdfld_->attach( alignedBelow, stylefld_ );
-    
+
     thresholdfld_ =  new uiGenInput( this, tr("Threshold size for Point mode"));
     thresholdfld_->attach( rightAlignedBelow, usethresholdfld_ );
     thresholdfld_->valuechanged.notify(
@@ -80,7 +80,7 @@ void uiPickPropDlg::drawSel( CallBacker* )
 	if ( psd_ )
 	    psd_->displayBody( false );
     }
-    else 
+    else
 	drawStyleCB( 0 );
 }
 
@@ -101,7 +101,7 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
      	if ( !psd_ ) return;
     	set_.disp_.connect_ = Pick::Set::Disp::None;
     	Pick::Mgr().reportDispChange( this, set_ );
-	
+
     	if ( !psd_->getDisplayBody() )
 	    psd_->setBodyDisplay();
     }
@@ -120,6 +120,9 @@ void uiPickPropDlg::sliderMove( CallBacker* )
 {
     MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
+
+    if ( set_.disp_.pixsize_ == style.size_ )
+	return;
 
     set_.disp_.pixsize_ = style.size_;
     Pick::Mgr().reportDispChange( this, set_ );
@@ -164,5 +167,6 @@ void uiPickPropDlg::thresholdChangeCB( CallBacker* )
 
 bool uiPickPropDlg::acceptOK( CallBacker* )
 {
+    set_.writeDisplayPars();
     return true;
 }

@@ -91,6 +91,10 @@ public:
     Undo&		undo();
     const Undo&		undo() const;
 
+    static BufferString getDispFileName(const MultiID&);
+    bool		readDisplayPars(const MultiID&,IOPar&) const;
+    bool		writeDisplayPars(const MultiID&,const IOPar&) const;
+
     static SetMgr&	getMgr(const char*);
 
 			SetMgr( const char* nm );

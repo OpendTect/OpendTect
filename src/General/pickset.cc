@@ -7,7 +7,10 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "picksetmgr.h"
+
+#include "filepath.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "polygon.h"
 #include "survinfo.h"
@@ -23,7 +26,7 @@ static const char* sKeyStartIdx()	{ return "Start index"; }
 
 int Pick::Set::getSizeThreshold()
 {
-    int thresholdval = 10000;
+    int thresholdval = 1000;
     Settings::common().get( sKeyThresholdSize(), thresholdval );
     return thresholdval;
 }
@@ -203,10 +206,7 @@ void SetMgr::reportDispChange( CallBacker* sender, const Set& s )
 {
     const int setidx = pss_.indexOf( &s );
     if ( setidx >= 0 )
-    {
-	changed_[setidx] = true;
 	setDispChanged.trigger( const_cast<Set*>(&s), sender );
-    }
 }
 
 
@@ -249,6 +249,38 @@ void SetMgr::objRm( CallBacker* cb )
     mCBCapsuleUnpack(MultiID,ky,cb);
     if ( indexOf(ky) >= 0 )
 	set( ky, 0 );
+}
+
+
+BufferString SetMgr::getDispFileName( const MultiID& mid )
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj)
+	return "";
+
+    FilePath fp( ioobj->fullUserExpr(true) );
+    fp.setExtension( "disp" );
+    return fp.fullPath();
+}
+
+
+static const char* sKeyDispPars()	{ return "Display Parameters"; }
+
+
+bool SetMgr::readDisplayPars( const MultiID& mid, IOPar& par ) const
+{
+    const BufferString fnm = getDispFileName( mid );
+    return par.read( fnm, sKeyDispPars() );
+}
+
+
+bool SetMgr::writeDisplayPars( const MultiID& mid, const IOPar& par ) const
+{
+    IOPar curpar;
+    readDisplayPars( mid, curpar );
+    curpar.merge( par );
+    const BufferString fnm = getDispFileName( mid );
+    return curpar.write( fnm, sKeyDispPars() );
 }
 
 
@@ -593,16 +625,6 @@ Pick::Set::size_type Pick::Set::nearestLocation( const Coord3& pos,
 
 void Set::fillPar( IOPar& par ) const
 {
-    BufferString colstr;
-    if ( disp_.color_ != Color::NoColor() )
-    {
-	disp_.color_.fill( colstr );
-	par.set( sKey::Color(), colstr );
-    }
-
-    par.set( sKey::Size(), disp_.pixsize_ );
-    par.set( sKeyMarkerType(), disp_.markertype_ );
-    par.set( sKeyConnect(), Disp::getConnectionString(disp_.connect_) );
     par.set( sKeyStartIdx(), startidxs_ );
     par.merge( pars_ );
 }
@@ -610,23 +632,7 @@ void Set::fillPar( IOPar& par ) const
 
 bool Set::usePar( const IOPar& par )
 {
-    BufferString colstr;
-    if ( par.get(sKey::Color(),colstr) )
-	disp_.color_.use( colstr.buf() );
-    else
-	disp_.color_ = Color::Red(); // change default color from none to red
-    disp_.pixsize_ = 3;
-    par.get( sKey::Size(), disp_.pixsize_ );
-    par.get( sKeyMarkerType(), disp_.markertype_ );
-    bool doconnect;
-    par.getYN( sKeyConnect(), doconnect );	// For Backward Compatibility
-    if ( doconnect ) disp_.connect_ = Disp::Close;
-    else
-    {
-	if ( !Disp::parseEnumConnection(par.find(sKeyConnect()),disp_.connect_))
-	    disp_.connect_ = Disp::None;
-    }
-
+    useDisplayPars( par );
     TypeSet<int> startidx;
     par.get( sKeyStartIdx(), startidx );
     if ( startidx.isEmpty() )
@@ -642,6 +648,55 @@ bool Set::usePar( const IOPar& par )
     pars_.removeWithKey( sKeyStartIdx() );
 
     return true;
+}
+
+
+void Set::fillDisplayPars( IOPar& par ) const
+{
+    BufferString colstr;
+    if ( disp_.color_ != Color::NoColor() )
+    {
+	disp_.color_.fill( colstr );
+	par.set( sKey::Color(), colstr );
+    }
+
+    par.set( sKey::Size(), disp_.pixsize_ );
+    par.set( sKeyMarkerType(), disp_.markertype_ );
+    par.set( sKeyConnect(), Disp::getConnectionString(disp_.connect_) );
+}
+
+
+bool Set::useDisplayPars( const IOPar& par )
+{
+    BufferString colstr;
+    if ( par.get(sKey::Color(),colstr) )
+	disp_.color_.use( colstr.buf() );
+    else
+	disp_.color_ = Color::Red(); // change default color from none to red
+
+    disp_.pixsize_ = 3;
+    par.get( sKey::Size(), disp_.pixsize_ );
+    par.get( sKeyMarkerType(), disp_.markertype_ );
+
+    bool doconnect;
+    par.getYN( sKeyConnect(), doconnect );	// For Backward Compatibility
+    if ( doconnect ) disp_.connect_ = Disp::Close;
+    else
+    {
+	if ( !Disp::parseEnumConnection(par.find(sKeyConnect()),disp_.connect_))
+	    disp_.connect_ = Disp::None;
+    }
+
+    return true;
+}
+
+
+bool Set::writeDisplayPars() const
+{
+    IOPar par;
+    fillDisplayPars( par );
+    const MultiID& mid = Pick::Mgr().get( *this );
+    return !mid.isUdf() ? Pick::Mgr().writeDisplayPars( mid, par ) : false;
 }
 
 
