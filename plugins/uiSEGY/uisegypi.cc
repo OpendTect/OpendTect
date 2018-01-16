@@ -149,8 +149,8 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 	const char* linepsicid = "prestackdataset2d";
 	uiString linestr = only2d ? m3Dots(tr("Line(s)"))
 				  : m3Dots(uiStrings::s2D());
-	uiString linepsstr = only2d ? m3Dots(tr("Pre-Stack Data"))
-				: m3Dots(tr("Pre-Stack 2D"));
+	uiString linepsstr = only2d ? m3Dots(tr("Prestack Data"))
+				: m3Dots(tr("Prestack 2D"));
 
 	impsgymnu->insertItem( new uiAction( linestr, muiSEGYMgrCB(imp2DCB),
 				lineicid ) );
@@ -168,8 +168,8 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 	uiString volstr = have2d ? m3Dots(uiStrings::s3D())
 				 : m3Dots(uiStrings::sVolume());
 	const char* volpsicid = "prestackdataset";
-	uiString volpsstr = have2d ? m3Dots(tr("PreStack 3D"))
-				: m3Dots(tr("Pre-Stack Volume"));
+	uiString volpsstr = have2d ? m3Dots(tr("Prestack 3D"))
+				: m3Dots(tr("Prestack Volume"));
 
 	impsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(imp3DCB),
 					volicid) );

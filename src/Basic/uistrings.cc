@@ -585,7 +585,7 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 			     bool both_pre_post_in_context )
 {
     if ( is2d && is3d )
-	return tr( "Seismic data" );
+	return tr( "Seismic Data" );
 
     if ( is2d )
     {
@@ -593,17 +593,17 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 	{
 	    if ( both_2d_3d_in_context )
 	    {
-		return tr( "Pre-Stack 2D Data" );
+		return tr( "Prestack 2D Data" );
 	    }
 
-	    return tr( "Pre-Stack Data" );
+	    return tr( "Prestack Data" );
 	}
 
 	if ( both_2d_3d_in_context )
 	{
 	    if ( both_pre_post_in_context )
 	    {
-		return tr( "Post-Stack 2D Data" );
+		return tr( "Poststack 2D Data" );
 	    }
 
 	    return tr("2D Data (attribute)");
@@ -611,7 +611,7 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 
 	if ( both_pre_post_in_context )
 	{
-	    return tr("Post-Stack Data");
+	    return tr("Poststack Data");
 	}
 
 	return tr("2D Data (attribute)");
@@ -623,10 +623,10 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 	{
 	    if ( both_2d_3d_in_context )
 	    {
-		return tr( "Pre-Stack 3D Data");
+		return tr( "Prestack 3D Data");
 	    }
 
-	    return tr( "Pre-Stack Data" );
+	    return tr( "Prestack Data" );
 	}
 
 	return tr("Cube");

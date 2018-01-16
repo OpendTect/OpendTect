@@ -301,7 +301,7 @@ void uiODMenuMgr::fillImportMenu()
 		only2d ? m3Dots(tr("Line")) : m3Dots(uiStrings::s2D()),
 		mImpSeisSimple2DMnuItm, "seismicline2d" );
 	mInsertPixmapItem( impseissimple, only2d
-		? m3Dots(tr("Pre-Stack Data")) : m3Dots(tr("Pre-Stack 2D")),
+		? m3Dots(tr("Prestack Data")) : m3Dots(tr("Prestack 2D")),
 		mImpSeisSimplePS2DMnuItm, "prestackdataset2d" );
     }
     if ( !only2d )
@@ -311,8 +311,8 @@ void uiODMenuMgr::fillImportMenu()
 				  : m3Dots(uiStrings::sVolume()),
 			   mImpSeisSimple3DMnuItm, "seismiccube" );
 	mInsertPixmapItem( impseissimple,
-			   have2d ? m3Dots(tr("PreStack 3D"))
-				  : m3Dots(tr("Pre-Stack Volume")),
+			   have2d ? m3Dots(tr("Prestack 3D"))
+				  : m3Dots(tr("Prestack Volume")),
 			   mImpSeisSimplePS3DMnuItm, "prestackdataset" );
     }
     impseis->insertItem( impseissimple );
@@ -440,8 +440,8 @@ void uiODMenuMgr::fillExportMenu()
 	mInsertPixmapItem( expseissimple, only2d ? m3Dots(tr("Line"))
 			: m3Dots(uiStrings::s2D()), mExpSeisSimple2DMnuItm,
 			"seismicline2d"	);
-	mInsertPixmapItem( expseissimple, only2d ? m3Dots(tr("Pre-Stack Data"))
-			: m3Dots(tr("Pre-Stack 2D")), mExpSeisSimplePS2DMnuItm,
+	mInsertPixmapItem( expseissimple, only2d ? m3Dots(tr("Prestack Data"))
+			: m3Dots(tr("Prestack 2D")), mExpSeisSimplePS2DMnuItm,
 			"prestackdataset2d" );
     }
     if ( !only2d )
@@ -449,8 +449,8 @@ void uiODMenuMgr::fillExportMenu()
 	mInsertPixmapItem( expseissimple, have2d ? m3Dots(uiStrings::s3D())
 		   : m3Dots(uiStrings::sVolume()), mExpSeisSimple3DMnuItm,
 		   "seismiccube" );
-	mInsertPixmapItem( expseissimple, have2d ? m3Dots(tr("PreStack 3D"))
-		   : m3Dots(tr("Pre-Stack Volume")), mExpSeisSimplePS3DMnuItm
+	mInsertPixmapItem( expseissimple, have2d ? m3Dots(tr("Prestack 3D"))
+		   : m3Dots(tr("Prestack Volume")), mExpSeisSimplePS3DMnuItm
 		   , "prestackdataset" );
     }
     expseis->insertItem( expseissimple );
@@ -737,9 +737,14 @@ void uiODMenuMgr::fillSceneMenu()
 
     uiString itmtxt = tr( "New [%1]" )
 	      .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
+#ifdef __debug__
+    add2D3DMenuItem( *scenemnu_, "empty", itmtxt, mAddTimeDepth2DMnuItm,
+						  mAddTimeDepth3DMnuItm );
+#else
     addtimedepthsceneitm_ = new uiAction( itmtxt,
 	    				  mCB(this,uiODMenuMgr,handleClick) );
     scenemnu_->insertItem( addtimedepthsceneitm_, mAddTimeDepth3DMnuItm );
+#endif
 
     add2D3DMenuItem( *scenemnu_, "empty", tr("New [Horizon Flattened]"),
 		     mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm );
@@ -1090,7 +1095,7 @@ void uiODMenuMgr::fillManTB()
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
 
     mAddPopUp( tr("Fault Menu"),uiStrings::sFault(mPlural),
-               uiStrings::sFaultStickSet(mPlural),
+	       uiStrings::sFaultStickSet(mPlural),
 	       mManFaultMnuItm, mManFaultStickMnuItm, fltid );
 }
 

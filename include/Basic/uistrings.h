@@ -532,7 +532,7 @@ public:
 				     bool both_2d_3d_in_context=false,
 				     bool both_pre_post_in_context=false);
     /*!<Returns names for data volumes such as "2D Data", "Cube",
-	"Pre-stack Data", and similar */
+	"Prestack Data", and similar */
 };
 
 
