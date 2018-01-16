@@ -533,43 +533,44 @@ bool uiExportHorizon::writeAscii()
 	    }
 	}
 
-    const int nrattribs = hor->auxdata.nrAuxData();
+	const int nrattribs = hor->auxdata.nrAuxData();
 
-    for ( int sidx=0; sidx<sections.size(); sidx++ )
-    {
-	BufferString dispstr("Writing Horizon ");
-	dispstr.add(hor->name());
-
-	ExecutorGroup exphorgrp( dispstr );
-
-	const int sectionidx = sections[sidx];
-
-	if ( stream.isBad() )
+	for ( int sidx=0; sidx<sections.size(); sidx++ )
 	{
-	    mErrRet( uiStrings::sCantOpenOutpFile() );
-	}
+	    BufferString dispstr("Writing Horizon ");
+	    dispstr.add(hor->name());
 
-	if ( dogf )
-	    initGF( stream, gfname_.buf(), gfcomment_.buf() );
-	else
-	{
-	    stream.stdStream() << std::fixed;
-	    writeHeader( stream );
-	}
+	    ExecutorGroup exphorgrp( dispstr );
+
+	    const int sectionidx = sections[sidx];
+
+	    if ( stream.isBad() )
+	    {
+		mErrRet( uiStrings::sCantOpenOutpFile() );
+	    }
+
+	    if ( dogf )
+		initGF( stream, gfname_.buf(), gfcomment_.buf() );
+	    else
+	    {
+		stream.stdStream() << std::fixed;
+		writeHeader( stream );
+	    }
 
 
-	write3DHorASCII* executor = new write3DHorASCII(stream, hor,
-	    zatf.ptr(), unit, doxy, addzpos, dogf, !isbulk_, nrattribs,
-	    sectionidx, sidx, udfstr, dispstr);
-	exphorgrp.add(executor);
-	if ( !trprov.execute(exphorgrp) ) return false;
+	    write3DHorASCII* executor = new write3DHorASCII(stream, hor,
+		zatf.ptr(), unit, doxy, addzpos, dogf, !isbulk_, nrattribs,
+		sectionidx, sidx, udfstr, dispstr);
+	    exphorgrp.add(executor);
+	    if ( !trprov.execute(exphorgrp) ) return false;
 
-	if ( zatf && zatvoi>=0 )
-	    zatf->removeVolumeOfInterest( zatvoi );
+	    if ( zatf && zatvoi>=0 )
+		zatf->removeVolumeOfInterest( zatvoi );
 	}
     }
+
     return true;
- }
+}
 
 
 bool uiExportHorizon::acceptOK()
