@@ -310,7 +310,7 @@ uiODPreStartBannerDrawer( uiGroup* p )
 
 void reDrawnCB( CallBacker* )
 {
-    const int parwdth = scene().maxX();
+    const int parwdth = mNINT32( scene().maxX() );
     const int itmwdth = pmitem_->pixmapSize().width();
     if ( parwdth < 1 || itmwdth < 1 )
 	{ pErrMsg("Huh"); return; }
