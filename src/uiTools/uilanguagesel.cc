@@ -60,6 +60,9 @@ uiLanguageSel::uiLanguageSel( uiParent* p, bool withtext )
 
 void uiLanguageSel::langSel( CallBacker* )
 {
+    if ( !selfld_ )
+	return;
+
     const int selidx = selfld_->currentItem();
     if ( selidx >= 0 )
     {
@@ -72,6 +75,8 @@ void uiLanguageSel::langSel( CallBacker* )
 
 bool uiLanguageSel::commit( bool writesettings )
 {
+    if ( !selfld_ )
+	return false;
     const int selidx = selfld_->currentItem();
     if ( selidx < 0 )
 	return false;
