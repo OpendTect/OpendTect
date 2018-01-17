@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uicombobox.h"
 #include "uilabel.h"
+#include "uistrings.h"
 
 
 
@@ -55,10 +56,10 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	for ( int idx=0; idx<grps.size(); idx++ )
 	    grpfld_->addItem( toUiString(grps[idx]->name_) );
 	if ( setup_.specvars_ )
-	    grpfld_->addItem( tr("Other") );
+	    grpfld_->addItem( uiStrings::sOther() );
 	grpfld_->setCurrentItem( 2 );
 	grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
-	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ? 
+	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ?
 				    toUiString("   \\") : toUiString("   /") );
 	lbl->attach( leftOf, grpfld_ );
 	insgrp->setHAlignObj( lbl );

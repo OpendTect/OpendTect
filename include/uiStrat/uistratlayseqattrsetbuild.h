@@ -25,17 +25,17 @@ public:
 
     enum SetTypeSel	{ AllTypes, OnlyLocal, OnlyIntegrated };
 
-    			uiStratLaySeqAttribSetBuild(uiParent*,
+			uiStratLaySeqAttribSetBuild(uiParent*,
 						const Strat::LayerModel&,
 						SetTypeSel sts=AllTypes,
 						Strat::LaySeqAttribSet* a=0);
-    			~uiStratLaySeqAttribSetBuild();
+			~uiStratLaySeqAttribSetBuild();
 
     const Strat::LaySeqAttribSet& attribSet() const	{ return attrset_; }
     const PropertyRefSelection&	  propertyRefs() const	{ return props_; }
 
     bool			handleUnsaved();
-    				//!< Only returns false on user cancel
+				//!< Only returns false on user cancel
     bool			haveChange() const	{ return anychg_; }
 
 protected:
@@ -51,6 +51,6 @@ protected:
     virtual void	editReq(bool);
     virtual void	removeReq();
     virtual bool	ioReq(bool);
-    virtual const char*	avFromDef(const char*) const;
+    virtual uiString	avFromDef(const char*) const;
 
 };

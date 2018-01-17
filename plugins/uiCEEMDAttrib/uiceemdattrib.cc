@@ -27,7 +27,7 @@
 
 using namespace Attrib;
 
-mInitAttribUI(uiCEEMDAttrib,CEEMD,"CEEMD",sKeyBasicGrp())
+mInitAttribUI(uiCEEMDAttrib,CEEMD,toUiString("CEEMD"),sBasicGrp())
 
 uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mTODOHelpKey)

@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiVolProcAttrib,VolProcAttrib,"VolumeProcessing",sKeyBasicGrp())
+mInitAttribUI(uiVolProcAttrib,VolProcAttrib,tr("Volume Processing"),sBasicGrp())
 
 uiVolProcAttrib::uiVolProcAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p, is2d, mODHelpKey(mVolProcAttribHelpID))

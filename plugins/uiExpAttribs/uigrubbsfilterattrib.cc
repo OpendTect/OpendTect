@@ -34,7 +34,8 @@ static const char* replacetypestr[] =
 };
 
 
-mInitAttribUI(uiGrubbsFilterAttrib,GrubbsFilter,"Grubbs Filter","Experimental" )
+mInitAttribUI(uiGrubbsFilterAttrib,GrubbsFilter,tr("Grubbs Filter"),
+		    sExperimentalGrp())
 
 
 uiGrubbsFilterAttrib::uiGrubbsFilterAttrib( uiParent* p, bool is2d )

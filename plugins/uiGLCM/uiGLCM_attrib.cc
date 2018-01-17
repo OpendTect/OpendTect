@@ -94,8 +94,8 @@ static const char* directionstr[]=
 };
 
 
-mInitAttribUIPars( uiGLCM_attrib, GLCM_attrib, "Texture - Directional",
-	       sKeyBasicGrp(),uiAttrDescEd::Both,uiAttrDescEd::AnyDim,false )
+mInitAttribUINoSynth( uiGLCM_attrib, GLCM_attrib,
+		      tr("Texture - Directional"), sBasicGrp() )
 
 uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
     : uiAttrDescEd( p, is2d, mNoHelpKey )

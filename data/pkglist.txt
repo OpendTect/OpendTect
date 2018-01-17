@@ -1,4 +1,5 @@
 CLAS Computer Log Analysis Software`clas
+Command Driver`commanddriver
 CRS support`crs
 Dip Steering`dgbds
 Direct Petrel Link`dgbpetrel

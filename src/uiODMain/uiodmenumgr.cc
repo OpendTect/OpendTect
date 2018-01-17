@@ -746,7 +746,7 @@ void uiODMenuMgr::fillAnalMenu()
 
     layermodelmnu_ = addSubMenu( analmnu_, tr("Layer Modeling"),
 				 "stratlayermodeling" );
-    addAction( layermodelmnu_, tr("Basic"), "basiclayermodeling",
+    addAction( layermodelmnu_, uiStrings::sBasic(), "basiclayermodeling",
 		mCB(&applMgr(),uiODApplMgr,doLayerModeling) );
 
     analmnu_->insertSeparator();

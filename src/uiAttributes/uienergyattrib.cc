@@ -31,7 +31,7 @@ static const char* outpstrs[] =
 };
 
 
-mInitAttribUI(uiEnergyAttrib,Energy,"Energy",sKeyBasicGrp())
+mInitAttribUI(uiEnergyAttrib,Energy,tr("Energy"),sBasicGrp())
 
 
 uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )

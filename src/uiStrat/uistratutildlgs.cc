@@ -473,7 +473,7 @@ class uiStratContentsEd : public uiEditObjectList
 public:
 
 uiStratContentsEd( uiParent* p, bool& chg )
-    : uiEditObjectList(p,"content",true)
+    : uiEditObjectList(p,tr("content"),true)
     , anychg_(chg)
 {
     fillList( 0 );

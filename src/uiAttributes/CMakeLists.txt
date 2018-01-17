@@ -26,7 +26,7 @@ set(OD_MODULE_SOURCES
 	uiautoattrdescset.cc
 	uiconvolveattrib.cc
 	uicrossattrevaluatedlg.cc
-	uideltaresampleattrib.cc
+	uitracematchattribs.cc
 	uienergyattrib.cc
 	uievaluatedlg.cc
 	uieventattrib.cc
@@ -38,7 +38,6 @@ set(OD_MODULE_SOURCES
 	uigapdeconattrib.cc
 	uigdexamacorr.cc
 	uiinstantattrib.cc
-	uimatchdeltaattrib.cc
 	uimathattrib.cc
 	uimultoutsel.cc
 	uipositionattrib.cc

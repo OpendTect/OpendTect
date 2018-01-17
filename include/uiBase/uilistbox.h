@@ -165,6 +165,7 @@ public:
     void		sortNmItems(bool asc=true);
 
     int			indexOf(const char*) const;	//!< First match
+    int			indexOf(const uiString&) const;	//!< First match
     const char*		itemText(int) const;
     const uiString	textOfItem(int) const;
     void		setItemText(int,const uiString&);

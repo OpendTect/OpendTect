@@ -26,7 +26,7 @@ uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
     , nmchgd_(false)
     , anychg_(false)
 {
-    desced_ = uiAF().create( this, desc_.attribName(), desc_.is2D(), false );
+    desced_ = uiAF().create( this, desc_.attribName(), desc_.is2D() );
     desced_->setDesc( &desc_ );
 
     namefld_ = new uiGenInput( this, uiStrings::sName(), desc_.userRef() );

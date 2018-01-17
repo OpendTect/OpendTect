@@ -32,7 +32,8 @@ static const char* opstrs[] =
 	0
 };
 
-mInitAttribUI(uiPositionAttrib,Position,"Position",sKeyPositionGrp())
+mInitGrpDefAttribUI(uiPositionAttrib,Position,uiStrings::sPosition(),
+		    sPositionGrp())
 
 
 uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )

@@ -1082,7 +1082,7 @@ uiString uiStringSet::cat( const char* sepstr ) const
 }
 
 
-void uiStringSet::sort( const bool caseinsens,bool asc )
+void uiStringSet::sort( const bool caseinsens, bool asc )
 {
     size_type* idxs = getSortIndexes( caseinsens, asc );
     useIndexes( idxs );

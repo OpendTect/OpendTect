@@ -1088,20 +1088,23 @@ int uiListBox::currentItem() const
 
 void uiListBox::setCurrentItem( const uiString& str )
 {
-    setCurrentItem( str.getFullString() );
+    const QString txt( str.getQString() );
+    const QList<QListWidgetItem*> itmlst = lb_->body().findItems( txt,
+							    Qt::MatchExactly );
+    if ( itmlst.isEmpty() )
+	return;
+
+    setCurrentItem( lb_->body().row( itmlst.first() ) );
 }
 
 
-void uiListBox::setCurrentItem( const char* txt )
+void uiListBox::setCurrentItem( const char* inpstr )
 {
-    if ( !txt ) return;
-
+    const BufferString txt( inpstr );
     const int sz = lb_->body().count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const char* ptr = itemText( idx );
-	mSkipBlanks(ptr);
-	if ( FixedString(ptr) == txt )
+	if ( txt == itemText(idx) )
 	    { setCurrentItem( idx ); return; }
     }
 }
@@ -1139,6 +1142,15 @@ int uiListBox::indexOf( const char* txt ) const
     const FixedString str( txt );
     for ( int idx=0; idx<size(); idx++ )
 	if ( str == itemText(idx) )
+	    return idx;
+    return -1;
+}
+
+
+int uiListBox::indexOf( const uiString& txt ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	if ( txt.isEqualTo(textOfItem(idx)) )
 	    return idx;
     return -1;
 }

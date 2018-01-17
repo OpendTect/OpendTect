@@ -48,8 +48,8 @@ public:
     typedef Attrib::DescSet	DescSet;
 
 			uiAttribDescSetEd(uiParent*,DescSet&,
-					  const char* prefgrp=0,
-					  bool attrsneedupdt=false);
+				      uiString prefgrp=uiString::emptyString(),
+				      bool attrsneedupdt=false);
 			~uiAttribDescSetEd();
 
     void		setZDomainInfo(const ZDomain::Info&);
@@ -95,7 +95,6 @@ protected:
     BufferStringSet&		userattrnames_;
     bool			updating_fields_;
     bool			attrsneedupdt_;
-    static BufferString		nmprefgrp_;
     ZDomain::Info*		zdomaininfo_;
 
     uiToolBar*			toolbar_;

@@ -26,6 +26,9 @@ mDefODPluginInfo(CmdDriver)
 	"Command Driver", "Command Driver",
 	mODPluginCreator, mODPluginVersion,
 	"Used for testing and general 'scripting'." ));
+    retpi.useronoffselectable_ = true;
+    mSetPackageDisplayName( retpi, uiCmdDriverMgr::usrDispNm() );
+    retpi.uidispname_ = retpi.uipackagename_;
     return &retpi;
 }
 
@@ -35,7 +38,8 @@ static void initExtraCommands()
 }
 
 static void initExtraFunctions()
-{}
+{
+}
 
 static void initExtraComposers()
 {
@@ -52,8 +56,8 @@ mDefODInitPlugin(CmdDriver)
     if ( cmdaction )
 	return 0;
 
-    const uiString cdrvrstr( od_static_tr("Command Driver","Command Driver") );
-    cmdaction = new uiAction( m3Dots(cdrvrstr), "commanddriver" );
+    cmdaction = new uiAction( m3Dots(uiCmdDriverMgr::usrDispNm()),
+				"commanddriver" );
     cmdaction->setShortcut( "Ctrl+R" );
 
     ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdaction );

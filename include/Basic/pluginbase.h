@@ -63,6 +63,7 @@ struct PluginInfo
     const char*	version_;
     const char*	text_;
 
+    const uiString*	uidispname_;
     const uiString*	uipackagename_;
     const char*		url_;
     bool		useronoffselectable_;
@@ -77,6 +78,9 @@ struct PluginInfo
 
 #define mSetPackageDisplayName(piinfo,nm) \
     (piinfo).uipackagename_ = new uiString( nm )
+
+#define mSetDisplayName(piinfo,nm) \
+    (piinfo).uidispname_ = new uiString( nm )
 
 #define mGetPackageDisplayName(piinfo,uistr) \
     uistr = ((piinfo).uipackagename_ ? *(piinfo).uipackagename_ \

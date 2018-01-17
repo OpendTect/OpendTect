@@ -246,29 +246,42 @@ const char* uiComboBox::text() const
 }
 
 
+uiString uiComboBox::uiText() const
+{
+    const int idx = currentItem();
+    return idx < 0 ? uiString::emptyString() : itemstrings_.get( idx );
+}
+
+
 void uiComboBox::setText( const char* txt )
 {
     mBlockCmdRec;
     NotifyStopper stopper(selectionChanged);
     if ( isPresent(txt) )
 	setCurrentItem(txt);
-    else
-    {
-	bool iseditable = body_->isEditable();
-	if ( !iseditable ) body_->setEditable( true );
+    else if ( body_->isEditable() )
 	body_->setEditText( txt ? txt : "" );
-	if ( !iseditable ) body_->setEditable( false );
-    }
 }
 
 
-void uiComboBox::setText( uiString& txt )
+void uiComboBox::setText( const uiString& txt )
 {
     mBlockCmdRec;
+    const int idx = indexOf( txt );
+    if ( idx >= 0 )
+	setCurrentItem( idx );
+    else if ( body_->isEditable() )
+	body_->setEditText( txt.getQString() );
 }
 
 
 bool uiComboBox::isPresent( const char* txt ) const
+{
+    return indexOf( txt ) >= 0;
+}
+
+
+bool uiComboBox::isPresent( const uiString& txt ) const
 {
     return indexOf( txt ) >= 0;
 }
@@ -303,32 +316,50 @@ const char* uiComboBox::itemText( int idx ) const
 
     if ( itemstrings_.validIdx(idx) && (isReadOnly() ||
 	 body_->itemText(idx)==itemstrings_[idx].getQString()) )
-    {
 	rettxt_ = itemstrings_[idx].getFullString();
-    }
     else
-    {
 	rettxt_ = body_->itemText(idx);
-    }
 
     return rettxt_.buf();
 }
 
 
 int uiComboBox::size() const
-{ return body_->count(); }
+{
+    return body_->count();
+}
+
+
+void uiComboBox::setCurrentItem( const uiString& txt )
+{
+    mBlockCmdRec;
+
+    const int sz = body_->count();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( itemstrings_.get(idx).isEqualTo(txt) )
+	{
+	    NotifyStopper stopper(selectionChanged);
+	    body_->setCurrentIndex( idx );
+	    return;
+	}
+    }
+}
 
 
 void uiComboBox::setCurrentItem( const char* txt )
 {
     mBlockCmdRec;
-    NotifyStopper stopper(selectionChanged);
 
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( FixedString(itemText(idx)) == txt )
-	    { body_->setCurrentIndex( idx ); return; }
+	{
+	    NotifyStopper stopper(selectionChanged);
+	    body_->setCurrentIndex( idx );
+	    return;
+	}
     }
 }
 
@@ -394,7 +425,9 @@ bool uiComboBox::isEditable() const
 
 
 void uiComboBox::addItem( const uiString& str )
-{ addItem( str, -1 ); }
+{
+    addItem( str, -1 );
+}
 
 
 void uiComboBox::addItem( const uiString& txt, int id )
@@ -451,22 +484,42 @@ void uiComboBox::insertItem( const uiPixmap& pm, const uiString& txt,
 
 
 void uiComboBox::setItemID( int index, int id )
-{ if ( itemids_.validIdx(index) ) itemids_[index] = id; }
+{
+    if ( itemids_.validIdx(index) )
+	itemids_[index] = id;
+}
+
 
 int uiComboBox::currentItemID() const
-{ return getItemID(currentItem()); }
+{
+    return getItemID(currentItem());
+}
+
 
 int uiComboBox::getItemID( int index ) const
-{ return itemids_.validIdx(index) ? itemids_[index] : -1; }
+{
+    return itemids_.validIdx(index) ? itemids_[index] : -1;
+}
+
 
 int uiComboBox::getItemIndex( int id ) const
-{ return itemids_.indexOf( id ); }
+{
+    return itemids_.indexOf( id );
+}
+
 
 void uiComboBox::setCurrentItemByID( int id )
 {
     const int idx = itemids_.indexOf( id );
     if ( idx >= 0 )
 	setCurrentItem( idx );
+}
+
+
+void uiComboBox::getItems( uiStringSet& nms ) const
+{
+    for ( int idx=0; idx<itemstrings_.size(); idx++ )
+	nms.add( itemstrings_.get(idx) );
 }
 
 

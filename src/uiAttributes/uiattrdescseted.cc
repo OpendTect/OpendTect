@@ -64,13 +64,12 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
-
-BufferString uiAttribDescSetEd::nmprefgrp_( "" );
-static bool savebuttoncheckedonstart_ = true;
+static uiString	lastusedgroup_;
+static bool	lastsavebuttonchecked_ = true;
 
 
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSet& ds,
-				      const char* prefgrp, bool attrsneedupdt )
+				      uiString prefgrp, bool attrsneedupdt )
     : uiDialog(p,uiDialog::Setup( ds.is2D() ? tr("Attribute Set 2D")
 					: tr("Attribute Set 3D"),mNoDlgTitle,
 					mODHelpKey(mAttribDescSetEdHelpID) )
@@ -94,7 +93,10 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSet& ds,
     createMenuBar();
     createToolBar();
     createGroups();
-    attrtypefld_->setGrp( prefgrp ? prefgrp : nmprefgrp_.buf() );
+
+    if ( !prefgrp.isEmpty() )
+	lastusedgroup_ = prefgrp;
+    attrtypefld_->setGroupName( lastusedgroup_ );
 
     init();
 }
@@ -244,12 +246,12 @@ void uiAttribDescSetEd::createGroups()
 		|| (dimtyp == uiAttrDescEd::Only2D && !is2d) )
 	    continue;
 
-	const char* attrnm = uiAF().getDisplayName(idx);
-	attrtypefld_->add( uiAF().getGroupName(idx), attrnm );
-	uiAttrDescEd* de = uiAF().create( degrp, attrnm, is2d, true );
+	const uiString attrnm = uiAF().getDisplayName(idx);
+	uiAttrDescEd* de = uiAF().create( degrp, attrnm, is2d );
 	if ( !de )
 	    continue;
 
+	attrtypefld_->add( uiAF().getGroupName(idx), attrnm );
 	if ( zdomaininfo_ )
 	    de->setZDomainInfo( zdomaininfo_ );
 
@@ -299,7 +301,7 @@ void uiAttribDescSetEd::init()
 {
     newList(0);
 
-    setSaveButtonChecked( savebuttoncheckedonstart_ );
+    setSaveButtonChecked( lastsavebuttonchecked_ );
     setButStates();
 }
 
@@ -521,11 +523,11 @@ bool uiAttribDescSetEd::acceptOK()
     if ( !doCommit() || !doAcceptInputs() )
 	return false;
 
-    if ( saveButtonChecked() && !doSave(false) )
+    lastsavebuttonchecked_ = saveButtonChecked();
+    if ( lastsavebuttonchecked_ && !doSave(false) )
 	return false;
 
-    savebuttoncheckedonstart_ = saveButtonChecked();
-    nmprefgrp_ = attrtypefld_->group();
+    lastusedgroup_ = attrtypefld_->groupName();
     applycb.trigger();
     return true;
 }
@@ -575,7 +577,7 @@ void uiAttribDescSetEd::setSelAttr( const char* attrnm, bool isnewset )
     if ( isnewset )
 	newSetCB(0);
 
-    attrtypefld_->setAttr( attrnm );
+    attrtypefld_->setAttributeName( attrnm );
     updateFields( false );
 }
 
@@ -586,7 +588,7 @@ BufferString uiAttribDescSetEd::getAttribName( uiAttrDescEd& desced ) const
     if ( attribname.isEmpty() )
     {
 	pErrMsg("Missing uiAttrDescEd attribName()");
-	attribname = uiAF().attrNameOf( attrtypefld_->attr() );
+	attribname = attrtypefld_->attributeName();
     }
     return attribname;
 }
@@ -601,9 +603,10 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 
     if ( set_type )
     {
-	const BufferString typenm( curdesc ? curdesc->attribName().str()
-					   : "RefTime" );
-	attrtypefld_->setAttr( uiAF().dispNameOf(typenm) );
+	BufferString attrnm( "RefTime" );
+	if ( curdesc )
+	    attrnm.set( curdesc->attribName() );
+	attrtypefld_->setAttributeName( attrnm );
     }
 
     uiAttrDescEd& neededdesced = activeDescEd();
@@ -658,7 +661,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     if ( !usedesc )
 	return false;
 
-    BufferString newattr = uiAF().attrNameOf( attrtypefld_->attr() );
+    BufferString newattr = attrtypefld_->attributeName();
     BufferString oldattr = usedesc->attribName();
     if ( oldattr != newattr )
     {
@@ -736,10 +739,9 @@ Attrib::Desc* uiAttribDescSetEd::curDesc() const
 
 uiAttrDescEd& uiAttribDescSetEd::activeDescEd()
 {
-    const BufferString attrstr = attrtypefld_->attr();
-    BufferString attrnm = uiAF().attrNameOf( attrstr );
-    if ( !attrnm )
-	{ pErrMsg("Huh"); attrnm = attrstr; }
+    BufferString attrnm = attrtypefld_->attributeName();
+    if ( attrnm.isEmpty() )
+	{ pErrMsg("Huh"); return *desceds_[0]; }
 
     for ( int idx=0; idx<desceds_.size(); idx++ )
     {
@@ -1312,7 +1314,7 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
 	if ( !ad )
 	    { pErrMsg("Huh"); continue; }
 
-	const BufferString& attrnm = ad->attribName();
+	const BufferString attrnm = ad->attribName();
 	const char* usernm = ad->userRef();
 	for ( int idy=0; idy<desceds_.size(); idy++ )
 	{

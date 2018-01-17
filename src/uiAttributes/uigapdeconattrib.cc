@@ -37,7 +37,7 @@ using namespace Attrib;
 const char* uiGapDeconAttrib::sKeyOnInlineYN()	{ return "OnInlineYN"; }
 const char* uiGapDeconAttrib::sKeyLineName()	{ return "Line Name"; }
 
-mInitAttribUI(uiGapDeconAttrib,GapDecon,"GapDecon",sKeyFilterGrp())
+mInitAttribUI(uiGapDeconAttrib,GapDecon,tr("GapDecon"),sFilterGrp())
 
 
 class uiGDPositionDlg: public uiDialog
@@ -48,13 +48,9 @@ class uiGDPositionDlg: public uiDialog
 			~uiGDPositionDlg();
 
     void                popUpPosDlg();
-    const TrcKeyZSampling&	getTrcKeyZSampling();
+    const TrcKeyZSampling& getTrcKeyZSampling();
     Pos::GeomID		getGeomID() const;
-    void		setPrefCS(TrcKeyZSampling* prefcs)
-			{
-			    prefcs_ = prefcs;
-			}
-
+    void		setPrefCS(TrcKeyZSampling* prefcs) { prefcs_ = prefcs; }
     uiGenInput*		inlcrlfld_;
     uiLabeledComboBox*	linesfld_;
     TrcKeyZSampling	tkzs_;

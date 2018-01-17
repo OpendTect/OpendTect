@@ -52,8 +52,8 @@ static const char* shapestrs[] =
 
 
 
-mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
-	      sKeyStatsGrp())
+mInitGrpDefAttribUI(uiVolumeStatisticsAttrib,VolStats, tr("Volume Statistics"),
+		    sStatsGrp())
 
 uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d, mODHelpKey(mVolumeStatisticsAttribHelpID) )

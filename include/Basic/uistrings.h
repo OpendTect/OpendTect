@@ -141,6 +141,7 @@ public:
     static uiWord sAttribute(int n=1)	{ return tr("Attribute",0,n); }
     static uiWord sAttributeSet(int n=1){ return tr("Attribute Set",0,n);}
     static uiWord sAverage()		{ return tr("Average"); }
+    static uiWord sBasic()		{ return tr("Basic"); }
     static uiWord sBatch()		{ return tr("Batch"); }
     static uiWord sBatchProgram()	{ return tr("Batch Program"); }
     static uiWord sBelow()		{ return tr("Below"); }
@@ -325,14 +326,16 @@ public:
     static uiWord sNone()		{ return tr("None"); }
     static uiWord sNormal()		{ return tr("Normal"); }
     static uiWord sNoValidData()	{ return tr("No valid data found"); }
-    static uiWord sOpendTect()		{ return tr("OpendTect"); }
+    static uiWord sObject()		{ return tr("Object"); }
     static uiWord sOffset()		{ return tr("Offset"); }
     static uiWord sOk()			{ return tr("OK"); }
     static uiWord sOnlyAtSections()	{ return tr("Only at Sections"); }
     static uiWord sOpen();
+    static uiWord sOpendTect()		{ return tr("OpendTect"); }
     static uiWord sOperator()		{ return tr("Operator"); }
     static uiWord sOptions();
     static uiWord sOr()			{ return tr("or"); }
+    static uiWord sOther()		{ return tr("Other"); }
     static uiWord sOutpDataStore()	{ return tr("Output data store"); }
     static uiWord sOutputFile()		{ return tr("Output file"); }
     static uiWord sOutputStatistic()	{ return phrOutput( tr("statistic") ); }
@@ -358,7 +361,8 @@ public:
     static uiWord sProbDensFunc(bool abbrevation=false, int n=1);
     static uiWord sProgram()		{ return tr("Program"); }
     static uiWord sProblem(int n=1)	{ return tr("Problem",0,n); }
-    static uiWord sProperties();
+    static uiWord sProperty(int n=1)	{ return tr("Property",0,n); }
+    static uiWord sProperties()		{ return sProperty(mPlural); }
     static uiWord sRange(int n=1)	{ return tr("Range",0,n); }
     static uiWord sRandomLine(int n=1)	{ return tr("Random Line",0,n); }
     static uiWord sReadingData()	{ return tr("Reading data"); }
@@ -391,7 +395,6 @@ public:
     static uiWord sSec()		{ return tr("sec"); }
     static uiWord sSize()		{ return tr("Size"); }
     static uiWord sSEGY()		{ return tr("SEG-Y"); }
-    //For Seismic, use sVolDataName
     static uiWord sSelAttrib()		{ return tr("Select Attribute"); }
     static uiWord sSelection(int n=1);
     static uiWord sSelect();
@@ -405,6 +408,8 @@ public:
     static uiWord sSettings()		{ return sSetting(mPlural); }
     static uiWord sSetup()		{ return tr("Setup"); }
     static uiWord sShift();
+    static uiWord sSemblance()		{ return tr("Semblance"); }
+    static uiWord sSimilarity()		{ return tr("Similarity"); }
     static uiWord sSingle()		{ return tr("Single"); }
     static uiWord sSPNumber()		{ return tr("Shot-Point number"); }
     static uiWord sShow()		{ return tr("Show"); }
@@ -428,6 +433,7 @@ public:
     static uiWord sSurvey(int n=1)	{ return tr("Survey",0,n); }
     static uiWord sSurveys()		{ return sSurvey(mPlural); }
     static uiWord sTakeSnapshot()	{ return tr("Take Snapshot"); }
+    static uiWord sTexture()		{ return tr("Texture"); }
     static uiWord sStart()		{ return tr("Start"); }
     static uiWord sTable(int n=1)	{ return tr("Table",0,n); }
     static uiWord sTheme()		{ return tr("Theme"); }

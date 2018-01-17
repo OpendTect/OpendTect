@@ -17,7 +17,7 @@ ________________________________________________________________________
 /*! \brief SampleValue Attribute description editor */
 
 mExpClass(uiAttributes) uiSampleValueAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiSampleValueAttrib)
 public:
 
 			uiSampleValueAttrib(uiParent*,bool);

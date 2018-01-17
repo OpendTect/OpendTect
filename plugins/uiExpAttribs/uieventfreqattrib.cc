@@ -17,7 +17,8 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiEventFreqAttrib,EventFreq,"Event Frequency","Experimental" )
+mInitGrpDefAttribUI(uiEventFreqAttrib,EventFreq,tr("Event Frequency"),
+		    sExperimentalGrp() )
 
 uiEventFreqAttrib::uiEventFreqAttrib( uiParent* p, bool is2d )
 : uiAttrDescEd( p, is2d, mODHelpKey( mEventFreqAttribHelpID ))

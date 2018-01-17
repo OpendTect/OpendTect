@@ -99,9 +99,8 @@ public:
     uiString&	importFrom(const char*);
     bool	isEmpty() const;
     void	setEmpty();
-    uiString&	toLower(bool yn=true);
-		/*!<Set output to lowercase, if allowed by language
-		    This is applied before eventual arguments. */
+    uiString&	toLower( bool yn=true ); //!< Applied before argument subst.
+    uiString&	toUpper( bool yn=true )		{ return toLower(!yn); }
     bool	operator!() const		{ return isEmpty(); }
 
     uiString&	operator=(const uiString&);	//!< no copy, ref counted
@@ -313,8 +312,7 @@ public:
 				//!< example: "option1, option2, and option3"
 
     void		fill(mQtclass(QStringList)&) const;
-    void		sort(const bool caseinsens,bool asc);
-    void		sort(bool);
+    void		sort(const bool caseinsens=true,bool asc=true);
     void		useIndexes( const IdxType* idxs );
     IdxType*		getSortIndexes(bool caseinsens,bool asc) const;
 

@@ -29,6 +29,7 @@ mDefODPluginInfo(uiCRS)
     retpi.url_ = "proj4.org";
     mSetPackageDisplayName( retpi,
 			    Coords::uiProjectionBasedSystem::pkgDispNm() );
+    retpi.uidispname_ = retpi.uipackagename_;
     return &retpi;
 }
 

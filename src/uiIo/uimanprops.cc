@@ -1,4 +1,4 @@
-/*+
+    /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -39,10 +39,10 @@ public:
     PropertyRefSet&	props_;
     bool		allowmath_;
 
-    virtual const char*	avFromDef(const char*) const;
+    virtual uiString	avFromDef(const char*) const;
     virtual void	editReq(bool);
     virtual void	removeReq();
-    virtual void	itemSwitch(const char*,const char*);
+    virtual void	itemSwitch(int,int);
     void		initGrp(CallBacker*);
     bool		isPropRemovable(int propidx);
 
@@ -51,7 +51,8 @@ public:
 
 uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs, bool allowmath )
     : uiBuildListFromList(p,
-	    uiBuildListFromList::Setup(false,"property type","usable property")
+	    uiBuildListFromList::Setup(false,tr("property type"),
+			    tr("usable property"))
 	    .withio(false).withtitles(true), "PropertyRef selection group")
     , props_(prs)
     , allowmath_(allowmath)
@@ -76,11 +77,12 @@ void uiBuildPROPS::initGrp( CallBacker* )
 	setCurDefSel( props_[0]->name() );
 }
 
-const char* uiBuildPROPS::avFromDef( const char* nm ) const
+uiString uiBuildPROPS::avFromDef( const char* nm ) const
 {
     const PropertyRef* pr = props_.find( nm );
-    if ( !pr ) return 0;
-    return PropertyRef::toString( pr->stdType() );
+    if ( !pr )
+	return uiString::emptyString();
+    return toUiString(PropertyRef::toString(pr->stdType()) );
 }
 
 
@@ -302,8 +304,18 @@ bool uiEditPropRef::acceptOK()
 
 void uiBuildPROPS::editReq( bool isadd )
 {
-    const char* nm = isadd ? curAvSel() : curDefSel();
-    if ( !nm || !*nm ) return;
+    BufferString nm = curDefSel();
+    if ( isadd )
+    {
+	const uiString* curav = curAvSel();
+	if ( curav )
+	    nm = curav->getFullString();
+	else
+	    nm.setEmpty();
+    }
+
+    if ( nm.isEmpty() )
+	return;
 
     PropertyRef* pr = 0;
     if ( !isadd )
@@ -314,7 +326,8 @@ void uiBuildPROPS::editReq( bool isadd )
 	PropertyRef::StdTypeDef().parse( nm, typ );
 	pr = new PropertyRef( nm, typ );
     }
-    if ( !pr ) return;
+    if ( !pr )
+	return;
 
     uiEditPropRef dlg( this, *pr, isadd, allowmath_ );
     if ( !dlg.go() )
@@ -372,12 +385,12 @@ void uiBuildPROPS::removeReq()
 }
 
 
-void uiBuildPROPS::itemSwitch( const char* nm1, const char* nm2 )
+void uiBuildPROPS::itemSwitch( int idx1, int idx2 )
 {
-    const int idx1 = props_.indexOf( nm1 );
-    const int idx2 = props_.indexOf( nm2 );
-    if ( idx1 < 0 || idx2 < 0 ) { pErrMsg("Huh"); return; }
-    props_.swap( idx1, idx2 );
+    if ( idx1 < 0 || idx2 < 0 )
+	{ pErrMsg("Huh"); }
+    else
+	props_.swap( idx1, idx2 );
 }
 
 

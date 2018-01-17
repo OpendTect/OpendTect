@@ -46,9 +46,9 @@ uiAttribDescSetBuild::Setup::Setup( bool for2d )
 
 uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
 			const uiAttribDescSetBuild::Setup& su )
-    : uiBuildListFromList(p,
-	    uiBuildListFromList::Setup(false,"type","attribute")
-	    .withtitles(true), "DescSet build group")
+    : uiBuildListFromList(p, uiBuildListFromList::Setup(false,
+		uiStrings::sType().toLower(), uiStrings::sAttribute().toLower())
+			.withtitles(true), "DescSet build group")
     , descset_(*new Attrib::DescSet(su.is2d_))
     , attrsetup_(su)
     , uipsattrdesced_(0)
@@ -98,7 +98,7 @@ bool uiAttribDescSetBuild::handleUnsaved()
 
 void uiAttribDescSetBuild::fillAvailable()
 {
-    BufferStringSet dispnms;
+    uiStringSet dispnms;
     for ( int idx=0; idx<uiAF().size(); idx++ )
     {
 	const uiAttrDescEd::DomainType domtyp
@@ -140,16 +140,27 @@ void uiAttribDescSetBuild::fillAvailable()
 
 void uiAttribDescSetBuild::editReq( bool isadd )
 {
-    const char* attrnm = isadd ? curAvSel() : curDefSel();
-    if ( !attrnm || !*attrnm )
-	return;
+    uiString attrdispnm; const char* attrnm = 0;
+    if ( isadd )
+    {
+	const uiString* curavsel = curAvSel();
+	if ( !curavsel || curavsel->isEmpty() )
+	    return;
+	attrdispnm = *curavsel;
+    }
+    else
+    {
+	attrnm = curDefSel();
+	if ( !attrnm || !*attrnm )
+	    return;
+    }
 
     Attrib::DescID did;
-    if ( !isadd )
+    if ( attrnm )
 	did = descset_.getID( attrnm, true );
     else
     {
-	attrnm = uiAF().attrNameOf( attrnm );
+	attrnm = uiAF().attrNameOf( attrdispnm );
 	Attrib::Desc* desc = Attrib::PF().createDescCopy( attrnm );
 	if ( !desc )
 	    { pErrMsg("Huh"); return; }
@@ -199,7 +210,6 @@ void uiAttribDescSetBuild::editReq( bool isadd )
     }
     else if ( isadd )
 	descset_.removeDesc( did );
-
 }
 
 
@@ -215,11 +225,11 @@ void uiAttribDescSetBuild::removeReq()
 }
 
 
-const char* uiAttribDescSetBuild::avFromDef( const char* attrnm ) const
+uiString uiAttribDescSetBuild::avFromDef( const char* attrnm ) const
 {
     Attrib::DescID did( descset_.getID(attrnm,true) );
     if ( !did.isValid() )
-	return 0;
+	return uiString::emptyString();
     const char* clssnm = descset_.getDesc(did)->attribName();
     return uiAF().dispNameOf( clssnm );
 }

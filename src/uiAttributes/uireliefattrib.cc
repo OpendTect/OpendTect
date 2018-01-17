@@ -28,8 +28,7 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiReliefAttrib,Relief,"Pseudo Relief",
-	      sKeyBasicGrp())
+mInitAttribUI(uiReliefAttrib,Relief,tr("Pseudo Relief"),sBasicGrp())
 
 uiReliefAttrib::uiReliefAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,mODHelpKey(mReliefAttribHelpID))

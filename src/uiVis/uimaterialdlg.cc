@@ -157,7 +157,7 @@ bool uiLineStyleGrp::rejectOK()
 // uiTextureInterpolateGrp
 uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 						  visSurvey::SurveyObject* so )
-    : uiDlgGroup(p,tr("Texture"))
+    : uiDlgGroup(p,uiStrings::sTexture())
     , survobj_(so)
 {
     if ( !so || !so->canEnableTextureInterpolation() )

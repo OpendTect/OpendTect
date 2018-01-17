@@ -158,6 +158,7 @@ mDefODPluginInfo(uiGMT)
     retpi.useronoffselectable_ = true;
     retpi.url_ = "gmt.soest.hawaii.edu";
     mSetPackageDisplayName( retpi, uiGMTMgr::pkgDispNm() );
+    retpi.uidispname_ = retpi.uipackagename_;
     return &retpi;
 }
 

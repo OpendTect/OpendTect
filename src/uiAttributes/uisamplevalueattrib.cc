@@ -20,7 +20,7 @@ ________________________________________________________________________
 using namespace Attrib;
 
 
-mInitAttribUI(uiSampleValueAttrib,SampleValue,"Sample value",sKeyBasicGrp())
+mInitAttribUI(uiSampleValueAttrib,SampleValue,tr("Sample value"),sBasicGrp())
 
 uiSampleValueAttrib::uiSampleValueAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mSampleValueAttribHelpID) )

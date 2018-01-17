@@ -31,8 +31,8 @@ ________________________________________________________________________
 using namespace Attrib;
 
 
-mInitAttribUIPars(uiWellLogAttrib,WellLog,"Log",sKeyBasicGrp(),
-		  uiAttrDescEd::Both,uiAttrDescEd::AnyDim,false)
+mInitAttribUINoSynth( uiWellLogAttrib, WellLog,
+		      uiStrings::sWellLog(), sBasicGrp() );
 
 
 uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )

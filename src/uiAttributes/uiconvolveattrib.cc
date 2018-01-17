@@ -60,7 +60,7 @@ static const char* outpstrs2d[] =
 };
 
 
-mInitAttribUI(uiConvolveAttrib,Convolve,"Convolve",sKeyFilterGrp())
+mInitAttribUI(uiConvolveAttrib,Convolve,tr("Convolve"),sFilterGrp())
 
 
 uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )

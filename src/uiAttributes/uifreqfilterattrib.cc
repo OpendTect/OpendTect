@@ -27,7 +27,8 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiFreqFilterAttrib,FreqFilter,"Frequency Filter",sKeyFilterGrp())
+mInitGrpDefAttribUI(uiFreqFilterAttrib,FreqFilter,tr("Frequency Filter"),
+		    sFilterGrp())
 
 
 uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )

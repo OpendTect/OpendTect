@@ -37,7 +37,7 @@ static const char* outpstrs[] =
 };
 
 
-mInitAttribUI(uiFrequencyAttrib,Frequency,"Frequency",sKeyFreqGrp())
+mInitAttribUI(uiFrequencyAttrib,Frequency,uiStrings::sFrequency(),sFreqGrp())
 
 
 uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )

@@ -512,9 +512,6 @@ uiWord uiStrings::sProbDensFunc( bool abbrevation, int num )
         : tr("Probability Density Function", 0, num );
 }
 
-uiWord uiStrings::sProperties()
-{ return tr("Properties"); }
-
 uiWord uiStrings::sRemove()
 { return tr("Remove"); }
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uicmddrivermod.h"
 #include "callback.h"
 #include "bufstringset.h"
+#include "uistring.h"
 
 class uiMainWin;
 class Timer;
@@ -26,7 +27,7 @@ class uiCmdDriverDlg;
 
 
 mExpClass(uiCmdDriver) uiCmdDriverMgr : public CallBacker
-{
+{ mODTextTranslationClass(uiCmdDriverMgr)
 public:
 				uiCmdDriverMgr(bool fullodmode=false);
 				~uiCmdDriverMgr();
@@ -41,6 +42,8 @@ public:
 
     void			showDlgCB(CallBacker*);
 
+    static uiString		usrDispNm() { return tr("Command Driver"); }
+
 protected:
     void			commandLineParsing();
     void			initCmdLog(const char* cmdlognm);
@@ -54,11 +57,11 @@ protected:
     void			stopRecordingCB(CallBacker*);
     void			runScriptCB(CallBacker*);
 
-    void                	closeDlg(CallBacker*);
+    void	closeDlg(CallBacker*);
     void			keyPressedCB(CallBacker*);
     uiCmdDriverDlg*		getCmdDlg();
 
-    uiMainWin&           	applwin_;
+    uiMainWin&	applwin_;
     CmdDriver*			drv_;
     CmdRecorder*		rec_;
     CmdRecorder*		historec_;

@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 
 
@@ -50,8 +51,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const DescSet* ads,
 {
     if ( !doinit ) return;
 
-    const char* res = uiAF().attrNameOf( "Curvature" );
-    if ( !res )
+    if ( !uiAF().haveSteering() )
     {
 	nosteerlbl_ = new uiLabel( this, tr("<Steering unavailable>") );
 	setHAlignObj( nosteerlbl_ );
@@ -69,9 +69,10 @@ uiSteeringSel::~uiSteeringSel()
 
 void uiSteeringSel::createFields()
 {
-    BufferStringSet steertyps;
-    steertyps.add( "None" ).add( "Central" ).add( "Full" );
-    if ( withconstdir_ ) steertyps.add ( "Constant direction" );
+    uiStringSet steertyps;
+    steertyps.add( uiStrings::sNone() ).add( tr("Central") ).add( tr("Full") );
+    if ( withconstdir_ )
+	steertyps.add( tr("Constant direction") );
     typfld_ = new uiGenInput( this, uiStrings::sSteering(),
                               StringListInpSpec(steertyps) );
     typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
@@ -100,7 +101,8 @@ void uiSteeringSel::doFinalise(CallBacker*)
 
 void uiSteeringSel::typeSel( CallBacker* )
 {
-    if ( !inpfld_ ) return;
+    if ( !inpfld_ )
+	return;
 
     int typ = typfld_->getIntValue();
     inpfld_->display( typ > 0 && typ < 3 );
