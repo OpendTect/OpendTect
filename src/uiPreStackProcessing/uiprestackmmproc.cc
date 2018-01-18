@@ -45,8 +45,8 @@ uiPreStackMMProc::uiPreStackMMProc( uiParent* p, const IOPar& iop )
     : uiMMBatchJobDispatcher(p,iop,mODHelpKey(mPreStackMMProcHelpID))
     , is2d_(Seis::is2DGeom(iop))
 {
-    setTitleText( isMultiHost()  ? tr("Multi-Machine PreStack Processing")
-				 : tr("Line-split PreStack processing") );
+    setTitleText( isMultiHost()  ? tr("Multi-Machine Prestack Processing")
+				 : tr("Line-split Prestack processing") );
 }
 
 
@@ -61,8 +61,8 @@ bool uiPreStackMMProc::initWork( bool retry )
 {
     if ( is2d_ )
     {
-	//TODO remove when 2D pre-stack processing implemented
-	mErrRet(tr("No 2D Pre-Stack Processing available") )
+	//TODO remove when 2D prestack processing implemented
+	mErrRet(tr("No 2D Prestack Processing available") )
     }
 
     const char* inpidstr = jobpars_.find(
