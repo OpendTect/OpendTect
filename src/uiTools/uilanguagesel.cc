@@ -21,6 +21,7 @@ ________________________________________________________________________
 uiLanguageSel::uiLanguageSel( uiParent* p, bool withtext )
     : uiGroup(p,"Language selector")
     , selfld_(0)
+    , autocommit_(0)
 {
     const int nrlang = TrMgr().nrSupportedLanguages();
     if ( nrlang < 2 )
@@ -58,6 +59,12 @@ uiLanguageSel::uiLanguageSel( uiParent* p, bool withtext )
 }
 
 
+bool uiLanguageSel::haveMultipleLanguages()
+{
+    return TrMgr().nrSupportedLanguages() > 1;
+}
+
+
 void uiLanguageSel::langSel( CallBacker* )
 {
     if ( !selfld_ )
@@ -69,6 +76,8 @@ void uiLanguageSel::langSel( CallBacker* )
 	const uiRetVal uirv = TrMgr().setLanguage( selidx );
 	if ( uirv.isError() )
 	    uiMSG().error( uirv );
+	if ( autocommit_ )
+	    commit( true );
     }
 }
 

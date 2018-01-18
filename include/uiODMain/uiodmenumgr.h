@@ -229,5 +229,6 @@ protected:
 
     friend class	uiODMain;
     friend class	uiODHelpMenuMgr;
+    friend class	uiODLangMenuMgr;
 
 };

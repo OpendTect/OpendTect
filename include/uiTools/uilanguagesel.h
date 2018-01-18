@@ -23,11 +23,18 @@ public:
 
 			uiLanguageSel(uiParent*,bool withlbl);
 
+    uiComboBox*		selFld()	{ return selfld_; }
+    void		setAutoCommit( bool yn=true )
+					{ autocommit_ = yn; }
+
     bool		commit(bool writesettings);
+
+    static bool		haveMultipleLanguages();
 
 protected:
 
     uiComboBox*		selfld_;
+    bool		autocommit_;
 
     void		langSel(CallBacker*);
     static void		activateTheme(const char*);

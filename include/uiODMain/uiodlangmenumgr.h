@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class uiMenu;
 class uiODMenuMgr;
+class uiLanguageSel;
 
 /*!\brief The OpendTect language menu manager */
 
@@ -34,5 +35,6 @@ protected:
 
     uiODMenuMgr&	mnumgr_;
     uiMenu*		langmnu_;
+    uiLanguageSel*	selfld_;
 
 };

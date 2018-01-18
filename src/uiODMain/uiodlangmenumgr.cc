@@ -10,18 +10,30 @@ ________________________________________________________________________
 
 #include "uiodlangmenumgr.h"
 
+#include "uicombobox.h"
+#include "uilanguagesel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
 #include "uiodstdmenu.h"
+#include "uistatusbar.h"
 #include "uistrings.h"
 #include "texttranslator.h"
 
 uiODLangMenuMgr::uiODLangMenuMgr( uiODMenuMgr& mm )
     : mnumgr_(mm)
     , langmnu_(0)
+    , selfld_(0)
 {
     setLanguageMenu();
+
+    if ( uiLanguageSel::haveMultipleLanguages() )
+    {
+	selfld_ = new uiLanguageSel( &mnumgr_.appl_, false );
+	selfld_->setAutoCommit( true );
+	mnumgr_.appl_.statusBar()->addObject( selfld_->selFld() );
+    }
+
     mAttachCB( TrMgr().languageChange, uiODLangMenuMgr::languageChangeCB );
 }
 
