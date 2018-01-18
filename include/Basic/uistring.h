@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiStringData;
 class uiStringSet;
 class uiRetVal;
+namespace Pos { class IdxPair; }
 
 mFDQtclass( QString );
 mFDQtclass( QStringList );
@@ -119,13 +120,32 @@ public:
     inline uiString&	arg(double,int nrdecimals);
     uiString&		arg(const uiString&);
 
-	/*! append() functions are used to concatenate entire sentences.
-	    Otherwise you'll be in trouble because you will not know in what
-	    order args end up after translation.
-	    'withnewline' will only add one if the first string is not empty. */
-    uiString&	append(const char*, bool withnewline=false);
-    uiString&	append(const OD::String&, bool withnewline=false);
-    uiString&	append(const uiString&, bool withnewline=false);
+	/*! appendXX() functions should be used to concatenate entire sentences.
+		  You cannot just mix&match words and verbs etc.  */
+    enum AppendType	{ BluntGlue, WithSpace, NewLine,
+			  CloseLine, CloseAndNewLine };
+    uiString&	appendPhrase(const uiString&,AppendType=CloseAndNewLine);
+    uiString&	appendPhrases(const uiStringSet&,AppendType=CloseAndNewLine);
+    uiString&	appendPlainText(const char*,AppendType=CloseAndNewLine);
+    uiString&	appendPlainText(const OD::String&,AppendType=CloseAndNewLine);
+    uiString&	constructWord( const uiString& str )
+		{ return appendPhrase(str,WithSpace); }
+
+    // TODO this is where it's used illegally, get rid of it
+    inline uiString&	appendWord(const uiString&);
+    inline uiString&	appendWord(const char*);
+    inline uiString&	appendWord(const OD::String&);
+
+    // TEMP-- comment out to fix a directory at a time
+    inline uiString&	append( const uiString& s, bool nl=false)
+			{ return appendWord(s); }
+    inline uiString&	append( const char* s, bool nl=false)
+			{ return appendWord(s); }
+    inline uiString&	append( const OD::String& s, bool nl=false )
+			{ return appendWord(s); }
+    inline uiString&	addSpace(int =1)	{ return append(" "); }
+    inline uiString&	addTab(int =1)		{ return append("\t"); }
+    inline uiString&	addNewLine(int =1)	{ return append("\n"); }
 
 
     /*! Results: */
@@ -212,10 +232,6 @@ public:
     static uiString getOrderString(int);
 		//Returns 1st, 2nd, 3rd
 
-    uiString&	addSpace(int nr=1);
-    uiString&	addTab(int nrtabs=1);
-    uiString&	addNewLine(int nrnl=1);
-
 };
 
 
@@ -265,6 +281,14 @@ mGlobal(Basic) uiString toUiString(float);
 mGlobal(Basic) uiString toUiString(double);
 mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
+mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
+mGlobal(Basic) const char* toString(const uiString&);
+
+template <class T1,class T2>
+uiString toUiString( const std::pair<T1,T2>& pair )
+{
+    return toUiString( "%1/%2" ).arg( pair.first ).arg( pair.second );
+}
 
 
 /*\brief Set of uiStrings */
@@ -306,17 +330,17 @@ public:
     void		removeSingle(IdxType,bool keep_order=true);
     void		removeRange(IdxType,IdxType);
 
-    uiString		cat(const char* sepstr="\n") const;
+    uiString		cat(uiString::AppendType apptyp
+					=uiString::CloseAndNewLine) const;
+    uiStringSet		getNonEmpty() const;
     uiString		createOptionString(bool use_and=true,int maxnritems=-1,
-				   bool separate_using_newlines=false) const;
-				//!< example: "option1, option2, and option3"
+				   bool separate_lines=false) const;
+				//!< example: "option1, option2 and option3"
 
     void		fill(mQtclass(QStringList)&) const;
     void		sort(const bool caseinsens=true,bool asc=true);
     void		useIndexes( const IdxType* idxs );
     IdxType*		getSortIndexes(bool caseinsens,bool asc) const;
-
-
 
 protected:
 
@@ -437,3 +461,12 @@ inline uiString& uiString::arg( double val, int nrdec )
 {
     return arg( toUiString(val,nrdec) );
 }
+
+
+//TODO as said, should go away
+inline uiString& uiString::appendWord( const uiString& str )
+{ return appendPhrase(str,WithSpace); }
+inline uiString& uiString::appendWord( const char* str )
+{ return appendPhrase(toUiString(str),WithSpace); }
+inline uiString& uiString::appendWord( const OD::String& str )
+{ return appendPhrase(toUiString(str),WithSpace); }

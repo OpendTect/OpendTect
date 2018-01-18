@@ -32,7 +32,7 @@ class ShareData;
 */
 
 mExpClass(Network) HostData
-{
+{ mODTextTranslationClass(HostData)
 public:
 			HostData(const char* nm);
 			HostData(const char* nm,const HostData& localhost,
@@ -80,7 +80,7 @@ public:
     const HostData&	localHost() const
 			{ return localhd_ ? *localhd_ : *this; }
 
-    bool		isOK(uiString& errmsg) const;
+    uiRetVal		check() const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -136,7 +136,8 @@ public:
     const char*		getBatchHostsFilename() const;
     bool		writeHostFile(const char* fnm);
     void		fillFromNetwork(); // Unix only
-    bool		isOK(uiStringSet&) const;
+
+    uiRetVal		check() const;
 
 protected:
 

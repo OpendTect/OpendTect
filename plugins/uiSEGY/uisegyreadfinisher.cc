@@ -777,15 +777,13 @@ bool uiSEGYReadFinisher::putCoordChoiceInSpec()
 bool uiSEGYReadFinisher::handleWarnings( bool withstop,
 				SEGY::FileIndexer* indexer, SeisImporter* imp )
 {
-    BufferStringSet warns;
+    uiStringSet warns; int nrskip = 0;
     if ( indexer )
-	warns.add( indexer->scanner()->warnings(), false );
+	warns.add( indexer->scanner()->warnings() );
     else
-	if ( imp->nrSkipped() > 0 )
-	    warns += new BufferString("During import, ", imp->nrSkipped(),
-				      " traces were rejected" );
+	nrskip = imp->nrSkipped();
 
-    return uiSEGY::displayWarnings( warns, withstop );
+    return uiSEGY::displayWarnings( warns, withstop, nrskip );
 }
 
 

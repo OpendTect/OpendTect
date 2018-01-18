@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "envvars.h"
+#include "geometry.h"
 #include "keystrs.h"
 #include "od_iostream.h"
 #include "odmemory.h"
@@ -651,7 +652,7 @@ uiString& uiString::arg( const uiString& newarg )
 }
 
 
-uiString& uiString::append( const uiString& txt, bool withnewline )
+uiString& uiString::appendPhrase( const uiString& txt, AppendType apptyp )
 {
     Threads::Locker datalocker( datalock_ );
     uiString self( *this );
@@ -662,25 +663,40 @@ uiString& uiString::append( const uiString& txt, bool withnewline )
     RefMan<uiStringData> tmpptr = data_;
     Threads::Locker contentlocker( tmpptr->contentlock_ );
 
+    if ( isEmpty() || txt.isEmpty() )
+	apptyp = BluntGlue;
 
-    if ( isEmpty() )
-	withnewline = false;
-
-    *this = toUiString( withnewline ? "%1\n%2" : "%1%2" )
-		.arg( self ).arg( txt );
+    const char* tplstr = 0;
+    switch ( apptyp )
+    {
+	case BluntGlue:		tplstr = "%1%2";	break;
+	case WithSpace:		tplstr = "%1 %2";	break;
+	case NewLine:		tplstr = "%1\n%2";	break;
+	case CloseLine:		tplstr = "%1. %2";	break;
+	case CloseAndNewLine:	tplstr = "%1.\n%2";	break;
+    }
+    *this = toUiString( tplstr ).arg( self ).arg( txt );
 
     mSetDBGStr;
     return *this;
 }
 
 
-uiString& uiString::append( const OD::String& a, bool withnewline )
-{ return append( a.str(), withnewline ); }
-
-
-uiString& uiString::append( const char* newarg, bool withnewline )
+uiString& uiString::appendPhrases( const uiStringSet& strs, AppendType apptyp )
 {
-    return append( toUiString(newarg), withnewline );
+    return appendPhrase( strs.cat(apptyp), apptyp );
+}
+
+
+uiString& uiString::appendPlainText( const OD::String& a, AppendType apptyp )
+{
+    return appendPlainText( a.str(), apptyp );
+}
+
+
+uiString& uiString::appendPlainText( const char* newarg, AppendType apptyp )
+{
+    return appendPhrase( toUiString(newarg), apptyp );
 }
 
 
@@ -853,6 +869,19 @@ uiString toUiString( float v, int prec )
 uiString toUiString( double v, int prec )
 { return toUiStringWithPrecisionImpl<double,double>( v, prec ); }
 
+uiString toUiString( const Coord& c )
+{
+    return toUiString( "(%1,%2)" ).arg( mRounded(od_int64,c.x_) )
+				  .arg( mRounded(od_int64,c.y_) );
+}
+
+const char* toString( const uiString& uistr )
+{
+    mDeclStaticString( ret );
+    ret.set( uistr.getFullString() );
+    return ret.str();
+}
+
 
 uiString od_static_tr( const char* func, const char* text,
 		       const char* disambiguation, int pluralnr )
@@ -873,35 +902,6 @@ uiWord getUiYesNoWord( bool res )
 int uiString::size() const
 {
     return getQString().size();
-}
-
-
-uiString& uiString::addSpace( int nr )
-{
-    uiString spaces;
-    for( int i=0; i<nr; i++ )
-	spaces.append( toUiString(" ") );
-
-    return (*this).append( spaces );
-}
-
-
-uiString& uiString::addTab( int nr )
-{
-    uiString tabs;
-    for( int i=0; i<nr; i++ )
-	tabs.append( toUiString("\t") );
-
-    return append( tabs );
-}
-
-uiString& uiString::addNewLine( int nr )
-{
-    uiString newline;
-    for( int i=0; i<nr; i++)
-	newline.append( toUiString("\n") );
-
-    return append( newline );
 }
 
 
@@ -1014,18 +1014,24 @@ void uiStringSet::fill( QStringList& qlist ) const
 }
 
 
-
-uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
-					  bool usenl ) const
+uiStringSet uiStringSet::getNonEmpty() const
 {
-    uiStringSet usestrs;
+    uiStringSet ret;
     for ( IdxType idx=0; idx<size(); idx++ )
     {
 	const uiString& str = *strs_[idx];
 	if ( !str.isEmpty() )
-	    usestrs.add( str );
+	    ret.add( str );
     }
+    return ret;
+}
 
+
+
+uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
+					  bool separate_lines ) const
+{
+    const uiStringSet usestrs( getNonEmpty() );
     const size_type sz = usestrs.size();
     if ( sz < 1 )
 	return uiString::emptyString();
@@ -1034,50 +1040,37 @@ uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
     if ( sz < 2 || maxnr == 1 )
 	return result;
 
-    const char* sepstr = usenl ? "\n" : " ";
     const uiString and_or_or = use_and ? uiStrings::sAnd() : uiStrings::sOr();
+    const uiString::AppendType apptyp = separate_lines	? uiString::NewLine
+							: uiString::WithSpace;
 
-    if ( sz == 2 )
-    {
-	result.append( sepstr ).append( and_or_or ).append( " " )
-	      .append( usestrs[1] );
-	return result;
-    }
+    if ( maxnr < 1 || maxnr > sz )
+	maxnr = sz;
 
-    for ( IdxType idx=1; idx<sz; idx++ )
+    const uiString possiblecomma = separate_lines ? uiString::emptyString()
+						  : toUiString( "," );
+    for ( IdxType idx=1; idx<maxnr; idx++ )
     {
-	const uiString& str = usestrs[idx];
-	if ( idx == maxnr )
-	{
-	    result.append( "," ).append( sepstr ).append( "..." );
-	    return result;
-	}
+	if ( idx < sz-1 )
+	    result.appendPhrase( possiblecomma, uiString::BluntGlue );
 	else
-	{
-	    if ( idx == sz-1 )
-	    {
-		result.append( "," ).append( sepstr ).append( and_or_or )
-			.append( " " ).append( str );
-		return result;
-	    }
-	    result.append( "," ).append( sepstr ).append( str );
-	}
+	    result.appendPhrase( and_or_or, uiString::WithSpace );
+	result.appendPhrase( usestrs.get(idx), apptyp );
     }
 
-    pErrMsg( "Should not reach" );
+    if ( sz > maxnr )
+	result.appendPhrase( and_or_or, apptyp )
+	      .appendPhrase( toUiString( "..." ), uiString::WithSpace );
+
     return result;
 }
 
 
-uiString uiStringSet::cat( const char* sepstr ) const
+uiString uiStringSet::cat( uiString::AppendType apptyp ) const
 {
     uiString result;
     for ( IdxType idx=0; idx<size(); idx++ )
-    {
-	if (idx)
-	    result.append( sepstr );
-	result.append( *strs_[idx] );
-    }
+	result.appendPhrase( *strs_[idx], apptyp );
     return result;
 }
 

@@ -54,7 +54,7 @@ typedef SEGY::FullSpec		FullSpec;
 namespace uiSEGY
 {
 
-bool displayWarnings(const BufferStringSet&,bool withstop=false);
+bool displayWarnings(const uiStringSet&,bool withstop=false,int nrskipped=0);
 void displayReport(uiParent*,const IOPar&,const char* fnm=0);
 
 } // namespace uiSEGY

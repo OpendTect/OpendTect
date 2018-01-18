@@ -205,14 +205,14 @@ void CBVSReadMgr::createInfo()
 }
 
 
-#define mErrMsgMk(s) \
-    errmsg_.append(s).append(toUiString("%1\n%2").arg(CBVSReadMgr::sFoundIn()) \
-	   .arg(*fnames_[ireader])); \
+#define mErrMsgMk(s) { \
+    errmsg_ = s; \
+    errmsg_.appendPhrase( CBVSReadMgr::sFoundIn(), uiString::NewLine ) \
+	    .appendPlainText( *fnames_[ireader] ); }
 
 #undef mErrRet
-#define mErrRet(s) { \
-    mErrMsgMk(s) \
-    errmsg_.append(toUiString("\n%1").arg(CBVSReadMgr::sDiffFromFirstFile())); \
+#define mErrRet(s) { mErrMsgMk(s) \
+    errmsg_.appendPhrase(CBVSReadMgr::sDiffFromFirstFile(),uiString::NewLine); \
     return false; \
 }
 
@@ -248,8 +248,9 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 	if ( diff > info_.sd_.step / 10  )
 	{
 	    mErrMsgMk(tr("Time range"))
-	    errmsg_.append(tr("\nis unexpected.\nExpected: %1seconds."
-		    "\nFound: %2.").arg(intv.stop).arg(rdrinfo.sd_.start));
+	    errmsg_.appendPhrase(tr("\nis unexpected.\nExpected: %1seconds."
+		    "\nFound: %2.").arg(intv.stop).arg(rdrinfo.sd_.start),
+		    uiString::NewLine );
 	    return false;
 	}
 	vertical_ = true;

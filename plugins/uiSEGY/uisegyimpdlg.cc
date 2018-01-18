@@ -385,13 +385,10 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     uiTaskRunner dlg( this );
     rv = TaskRunner::execute( &dlg, *imp );
-    BufferStringSet warns;
-    if ( imp && imp->nrSkipped() > 0 )
-	warns += new BufferString("During import, ", imp->nrSkipped(),
-				  " traces were rejected" );
     imp.erase(); wrr.erase(); // closes output cube
 
-    uiSEGY::displayWarnings( warns );
+    uiStringSet warns;
+    uiSEGY::displayWarnings( warns, false, imp ? imp->nrSkipped() : 0 );
     if ( rv && !is2d && ioobjinfo )
 	rv = ioobjinfo->provideUserInfo();
 

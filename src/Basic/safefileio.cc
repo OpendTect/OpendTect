@@ -124,7 +124,7 @@ bool SafeFileIO::openRead( bool ignorelock )
 	{
 	    errmsg_ = uiStrings::phrJoinStrings( uiStrings::sCantOpenInpFile(),
 				 toUiString(BufferString(": ",toopen)) );
-	    errmsg_.append( uiStrings::sCheckPermissions(), true );
+	    errmsg_.appendPhrase( uiStrings::sCheckPermissions() );
 	}
 
 	rmLock();
@@ -168,7 +168,7 @@ bool SafeFileIO::openWrite( bool ignorelock )
 	    errmsg_ = uiStrings::phrJoinStrings(
 			       uiStrings::sCantOpenOutpFile(1),
 			       uiStrings::phrColonString(toUiString(newfnm_)) );
-	    errmsg_.append( uiStrings::sCheckPermissions(), true );
+	    errmsg_.appendPhrase( uiStrings::sCheckPermissions() );
 	}
 
 	rmLock();

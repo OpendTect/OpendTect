@@ -149,10 +149,10 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     {
 	const int nrstzs = binhead_.skipRev1Stanzas( strm );
 	if ( nrstzs > 0 )
-	    addWarn( cSEGYFoundStanzas, toString(nrstzs) );
+	    addWarn( cSEGYFoundStanzas, toUiString(nrstzs) );
 	const int fixedtrcflag = binhead_.entryVal( revcodeentry + 1 );
 	if ( fixedtrcflag == 0 )
-	    addWarn( cSEGYWarnNonFixedLength, "" );
+	    addWarn( cSEGYWarnNonFixedLength );
     }
 
     if ( filepars_.fmt_ == 0 )
@@ -164,7 +164,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	else if ( filepars_.fmt_<1 || filepars_.fmt_>8
 		|| filepars_.fmt_==6 || filepars_.fmt_==7 )
 	{
-	    addWarn( cSEGYWarnBadFmt, toString(filepars_.fmt_) );
+	    addWarn( cSEGYWarnBadFmt, toUiString(filepars_.fmt_) );
 	    filepars_.fmt_ = 1;
 	}
     }
@@ -187,59 +187,56 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 }
 
 
-void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
+void SEGYSeisTrcTranslator::addWarn( int nr, const uiString& detail )
 {
     mDefineStaticLocalObject( const bool, nowarn,
 			= Settings::common().isTrue("SEG-Y.No warnings") );
     if ( nowarn || warnnrs_.isPresent(nr) )
 	return;
 
-    uiString msg = toUiString( "[%1] " ).arg( nr );
+    uiString firstoccat = tr("First occurrence at %1");
+    uiString msg = toUiString( "[%1] %2" ).arg( nr );
     if ( nr == cSEGYWarnBadFmt )
     {
-	msg.append( tr("SEG-Y format '%1' "
-                "found.\n\tReplaced with '1' (4-byte floating point)")
-            .arg(detail) );
-	if ( toInt(detail) > 254 )
-	    msg.append("\n-> The file may not be SEG-Y, or byte-swapped");
+	msg.arg( tr("SEG-Y format '%1' found") );
+	msg.appendPhrase( tr("Replaced with '1' (4-byte floating point)")
+				.arg(detail) );
+	if ( toInt(detail.getFullString()) > 254 )
+	    msg.appendPhrase(tr("The file may not be SEG-Y, or byte-swapped"));
     }
     else if ( nr == cSEGYWarnPos )
     {
-	if (nr<=1)
-	    msg.append( tr("Bad position found. Such traces are "
-                "ignored.\nFirst occurrence %1").arg(detail) );
-	else
-	    msg.append( tr("Bad positions found. Such traces are "
-                "ignored.\nFirst occurrence %1").arg(detail) );
+	msg.arg( tr("Bad position(s) found. Such traces are ignored") );
+	msg.appendPhrase( firstoccat.arg(detail) );
     }
     else if ( nr == cSEGYWarnZeroSampIntv )
     {
-	msg.append( tr("Zero sample interval found in trace header.\n"
-	         "First occurrence %1").arg(detail) );
+	msg.arg( tr("Zero sample interval found in trace header") );
+	msg.appendPhrase( firstoccat.arg(detail) );
     }
     else if ( nr == cSEGYWarnDataReadIncomplete )
     {
-	msg.append( toUiString( detail ) );
+	msg.arg( detail );
     }
     else if ( nr == cSEGYWarnNonrectCoord )
     {
-	msg.append( tr("Trace header indicates geographic coords (byte 89).\n\n"
+	msg.arg( tr("Trace header indicates geographic coords (byte 89).\n\n"
 	        "These are not supported as such.\n\n"
 	        "Will bluntly load them as rectangular coordinates "
 	        "(which they are most often)."
-	        "\nBeware that the positions may therefore not be correct.\n"
-	        "\nFirst occurrence %1").arg(detail) );
+	        "\nBeware that the positions may therefore not be correct.\n"));
+	msg.appendPhrase( firstoccat.arg(detail) );
     }
     else if ( nr == cSEGYWarnSuspiciousCoord )
     {
-	msg.append( tr("Suspiciously large coordinate found."
+	msg.arg( tr("Suspiciously large coordinate found."
 		"\nThis may be incorrect - please check the coordinate scaling."
-		"\nOverrule if necessary.\nCoordinate found: %1 at %2")
+		"\nOverrule if necessary.\nCoordinate found: %1 %2")
 	    .arg( detail ).arg( getTrcPosStr() ) );
     }
     else if ( nr == cSEGYFoundStanzas )
     {
-	msg.append( tr("SEG-Y REV.1 header indicates the presence of "
+	msg.arg( tr("SEG-Y REV.1 header indicates the presence of "
 	        "%1 Extended Textual File Header(s)."
 		"\nThis is rarely correct. Please set the variable:"
 		"\nOD_SEIS_SEGY_REV1_STANZAS"
@@ -248,11 +245,11 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     }
     else if ( nr == cSEGYWarnNonFixedLength )
     {
-	msg.append( tr("SEG-Y REV.1 header indicates variable length traces."
+	msg.arg( tr("SEG-Y REV.1 header indicates variable length traces."
 	         "\nOpendTect will assume fixed trace length anyway.") );
     }
 
-    SeisTrcTranslator::addWarn( nr, msg.getFullString().buf() );
+    SeisTrcTranslator::addWarn( nr, msg );
 }
 
 
@@ -363,7 +360,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     }
 
     if ( ti.coord_.x_ > 1e9 || ti.coord_.y_ > 1e9 )
-	addWarn( cSEGYWarnSuspiciousCoord, ti.coord_.toPrettyString() );
+	addWarn( cSEGYWarnSuspiciousCoord, toUiString(ti.coord_) );
 }
 
 
@@ -566,9 +563,9 @@ bool SEGYSeisTrcTranslator::goToTrace( int nr )
 
 
 
-const char* SEGYSeisTrcTranslator::getTrcPosStr() const
+uiString SEGYSeisTrcTranslator::getTrcPosStr() const
 {
-    mDeclStaticString( ret );
+    uiString ret;
     int usecur = 1; const bool is2d = Seis::is2D(fileopts_.geomType());
     if ( is2d )
     {
@@ -581,22 +578,29 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 	    usecur = mIsUdf(prevbid_.inl()) ? -1 : 0;
     }
 
-    ret = usecur ? "at " : "after ";
+
     if ( usecur < 0 )
-	{ ret += "start of data"; return ret.buf(); }
+	return tr("at start of data");
+
+    ret = usecur ? tr( "at %1 %2%3" ) : tr( "after %1 %2%3" );
 
     if ( is2d )
-	{ ret += "trace number "; ret += usecur ? curtrcnr_ : prevtrcnr_; }
+	ret.arg( uiStrings::sTraceNumber().toLower() )
+	    .arg( usecur ? curtrcnr_ : prevtrcnr_ );
     else
     {
 	const BinID bid( usecur ? curbid_ : prevbid_ );
-	ret.add( "position " ).add( bid.toString() );
+	ret.arg( uiStrings::sPosition() ).arg( toUiString(bid) );
     }
 
-    if ( Seis::isPS(fileopts_.geomType()) )
-	{ ret += " (offset "; ret += usecur ? curoffs_ : prevoffs_; ret += ")";}
+    if ( !Seis::isPS(fileopts_.geomType()) )
+	ret.arg( "" );
+    else
+	ret.arg( toUiString(" (%1 %2)")
+		.arg( uiStrings::sOffset().toLower() )
+		.arg( usecur ? curoffs_ : prevoffs_ ) );
 
-    return ret.buf();
+    return ret;
 }
 
 
@@ -793,7 +797,7 @@ bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
     {
 	if ( strm.lastNrBytesRead() != rdsz )
 	    addWarn( cSEGYWarnDataReadIncomplete, strm.lastNrBytesRead()
-		    ? "Last trace is incomplete" : "No data in last trace" );
+	    ? tr("Last trace is incomplete") : tr("No data in last trace") );
 	return noErrMsg();
     }
 

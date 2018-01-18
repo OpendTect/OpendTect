@@ -233,14 +233,14 @@ File::Path HostData::convPath( PathType pt, const File::Path& fp,
 }
 
 
-bool HostData::isOK( uiString& errmsg ) const
+uiRetVal HostData::check() const
 {
+    uiRetVal uirv;
     if ( hostname_.isEmpty() )
-	errmsg.append( "Hostname is empty; " );
-    if ( ipaddress_.isEmpty() )
-	errmsg.append( "IP address is empty; " );
-
-    return errmsg.isEmpty();
+	uirv.add( tr("Empty hostname") );
+    else if ( ipaddress_.isEmpty() )
+	uirv.add( tr("%1: IP address is empty").arg( hostname_ ) );
+    return uirv;
 }
 
 
@@ -715,20 +715,10 @@ const char* HostDataList::getBatchHostsFilename() const
 { return batchhostsfnm_.buf(); }
 
 
-bool HostDataList::isOK( uiStringSet& errors ) const
+uiRetVal HostDataList::check() const
 {
+    uiRetVal uirv;
     for ( int idx=0; idx<size(); idx++ )
-    {
-	uiString msg;
-	if ( !(*this)[idx]->isOK(msg) )
-	{
-	    uiString fullmsg = tr("Host %1: %2").arg( idx+1 ).arg( msg );
-	    errors.add( fullmsg );
-	}
-    }
-
-    if ( errors.isEmpty() ) return true;
-
-    errors.insert( 0, tr("Errors in Host information") );
-    return false;
+	uirv.add( (*this)[idx]->check() );
+    return uirv;
 }

@@ -101,8 +101,8 @@ protected:
 
     DataCharacteristics	getDataChar(int) const;
     int			nrFormatFor(const DataCharacteristics&) const;
-    void		addWarn(int,const char*);
-    const char*		getTrcPosStr() const;
+    virtual void	addWarn(int,const uiString& s=uiString::emptyString());
+    uiString		getTrcPosStr() const;
     bool		tryInterpretBuf(SeisTrcInfo&);
     bool		skipThisTrace(SeisTrcInfo&,int&);
 

@@ -164,7 +164,7 @@ bool RayTracer1D::setModel( const ElasticModel& lys )
     if ( offsets_.isEmpty() )
     {
 	errmsg_ = tr("Internal: Offsets must be set before the model");
-	errmsg_.append( tr("Cannot do raytracing." ), true );
+	errmsg_.appendPhrase( tr("Cannot do raytracing" ) );
 	return false;
     }
 

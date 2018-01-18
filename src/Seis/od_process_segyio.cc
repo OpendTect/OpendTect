@@ -78,7 +78,7 @@ bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
     int compnr;
     if ( !inppar->get( sKey::Component(), compnr ) )
 	compnr = 0;
-    
+
     if ( !ZDomain::isSI(inioobj->pars()) )
 	ZDomain::Def::get(inioobj->pars()).set( outioobj->pars() );
 
@@ -117,7 +117,7 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     SEGY::FileIndexer indexer( dbky, !isps, filespec, is2d, iop );
     if ( !indexer.go(strm) )
     {
-	strm << indexer.message().getFullString();
+	strm << toString(indexer.message()) << od_endl;
 	DBM().removeEntry( dbky );
 	return false;
     }
@@ -126,14 +126,14 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     indexer.scanner()->getReport( report );
 
     if ( indexer.scanner()->warnings().size() == 1 )
-	report.add( "Warning", indexer.scanner()->warnings().get(0) );
+	report.add( "Warning", toString(indexer.scanner()->warnings().get(0)) );
     else
     {
 	for ( int idx=0; idx<indexer.scanner()->warnings().size(); idx++ )
 	{
 	    if ( !idx ) report.add( IOPar::sKeyHdr(), "Warnings" );
 	    report.add( toString(idx+1 ),
-			indexer.scanner()->warnings().get(idx) );
+		    toString( indexer.scanner()->warnings().get(idx) ) );
 	}
     }
 

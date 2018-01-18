@@ -88,7 +88,6 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , compnms_(0)
     , trcscale_(0)
     , curtrcscale_(0)
-    , warnings_(*new BufferStringSet)
 {
     if ( !DBM().isBad() )
 	lastinlwritten_ = SI().sampling(false).hsamp_.start_.inl();
@@ -101,7 +100,6 @@ SeisTrcTranslator::~SeisTrcTranslator()
     delete seldata_;
     delete &trcblock_;
     delete &pinfo_;
-    delete &warnings_;
 }
 
 
@@ -679,9 +677,11 @@ bool SeisTrcTranslator::haveWarnings() const
 }
 
 
-void SeisTrcTranslator::addWarn( int nr, const char* msg )
+void SeisTrcTranslator::addWarn( int nr, const uiString& msg )
 {
-    if ( !msg || !*msg || warnnrs_.isPresent(nr) ) return;
+    if ( msg.isEmpty() || warnnrs_.isPresent(nr) )
+	return;
+
     warnnrs_ += nr;
     warnings_.add( msg );
 }

@@ -114,42 +114,26 @@ bool testArg()
 
     mRunStandardTest( string.getQString()==cloned.getQString(), "copyFrom" );
 
-    uiString part1 = toUiString( "Part 1" );
-    part1.append( ", Part 2", false );
-    mRunStandardTest(
-	    FixedString(part1.getFullString())=="Part 1, Part 2", "append" );
-    part1.append( ", Part 2", true );
-    mRunStandardTest(
-	    FixedString(part1.getFullString())=="Part 1, Part 2\n, Part 2",
-			"append with newline" );
+    const uiString part1 = toUiString( "Part 1" );
+    const uiString part2 = toUiString( "Part 2" );
+    uiString res = part1; res.appendPhrase( part2, uiString::BluntGlue );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1Part 2")),
+				"appendPhrase(BluntGlue)" )
+    res = part1; res.appendPhrase( part2, uiString::WithSpace );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1 Part 2")),
+				"appendPhrase(WithSpace)" )
+    res = part1; res.appendPhrase( part2, uiString::NewLine );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1\nPart 2")),
+				"appendPhrase(NewLine)" )
+    res = part1; res.appendPhrase( part2, uiString::CloseLine );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1. Part 2")),
+				"appendPhrase(CloseLine)" )
+    res = part1; res.appendPhrase( part2, uiString::CloseAndNewLine );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1.\nPart 2")),
+				"appendPhrase(CloseAndNewLine)" )
 
     return true;
 }
-
-
-bool testUTF8()
-{
-    /* Commented out after consulting Kris, failed.
-
-    //Convert some chinese from base 64 to qstring. Then get the utf8 out.
-    //Expected values comes from an online conversion tool.
-    const QString input = QByteArray::fromBase64(
-					    QByteArray("5omL5py66Zi/6YeM") );
-    uiString uistring;
-    uistring.setFrom( input );
-    BufferString utf8;
-    uistring.fillUTF8String( utf8 );
-    const unsigned char expected[] =  { 0xE6, 0x89, 0x8B, 0xE6, 0x9C, 0xBA,
-			      0xE9, 0x98, 0xBF, 0xE9, 0x87, 0x8C, 0 };
-
-#ifndef __win__
-    mRunStandardTest( !strcmp( (const char*)expected, utf8.buf() ),
-							    "UTF conversion" );
-#endif
-    */
-    return true;
-}
-
 
 
 bool testSharedData()
@@ -270,14 +254,26 @@ bool testOptionStrings()
 
     mRunStandardTest(
 	    options.createOptionString( true, -1, false ).getFullString()==
-	              "One, Two, Three, and Four", "createOptionString and" );
+	      "One, Two, Three and Four", "createOptionString and" );
     mRunStandardTest(
 	    options.createOptionString( false, -1, false ).getFullString()==
-	              "One, Two, Three, or Four", "createOptionString or" );
+	      "One, Two, Three or Four", "createOptionString or" );
 
     mRunStandardTest(
 	    options.createOptionString( false, 3, false ).getFullString()==
-	              "One, Two, Three, ...", "createOptionString limited" );
+	      "One, Two, Three or ...", "createOptionString limited" );
+
+    mRunStandardTest(
+	    options.createOptionString( true, -1, true ).getFullString()==
+	      "One\nTwo\nThree and\nFour", "createOptionString nl and" );
+    mRunStandardTest(
+	    options.createOptionString( false, -1, true ).getFullString()==
+	      "One\nTwo\nThree or\nFour", "createOptionString nl or" );
+
+    mRunStandardTest(
+	    options.createOptionString( false, 3, true ).getFullString()==
+	      "One\nTwo\nThree\nor ...", "createOptionString nl limited" );
+
 
     return true;
 }
@@ -313,8 +309,8 @@ bool fromBufferStringSetToUiStringSet()
     strset.add("C");
     uiStringSet uistrset = strset.getUiStringSet();
 
-    BufferString str = strset.cat(" ");
-    uiString uistr = uistrset.cat(" ");
+    BufferString str = strset.cat( " " );
+    uiString uistr = uistrset.cat( uiString::WithSpace );
 
     mRunStandardTest( str == uistr.getFullString(), "Comparing BuffStrSet "
 				    "UiStrSet" );
@@ -330,7 +326,7 @@ int testMain( int argc, char** argv )
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
 	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings() ||
-	 !testToLower() || !TestTranslator::testTranslation() || !testUTF8() ||
+	 !testToLower() || !TestTranslator::testTranslation() ||
 	 !fromBufferStringSetToUiStringSet() )
 	return 1;
 

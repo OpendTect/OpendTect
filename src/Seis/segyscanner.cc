@@ -79,8 +79,9 @@ SEGY::Scanner::~Scanner()
 
 void SEGY::Scanner::closeTr()
 {
-    if ( !tr_ ) return;
-    trwarns_.add( tr_->warnings(), true );
+    if ( !tr_ )
+	return;
+    trwarns_.add( tr_->warnings() );
     delete tr_; tr_ = 0;
 }
 
