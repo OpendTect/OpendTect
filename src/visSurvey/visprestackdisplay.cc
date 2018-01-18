@@ -598,8 +598,8 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
     if ( section_->id() > id() )
     {
 	pErrMsg("The display restore order is wrong. The section id has to be \
-		  lower than PreStack id so that it can be restored earlier \
-		  than PreStack display in the sessions." );
+		  lower than Prestack id so that it can be restored earlier \
+		  than Prestack display in the sessions." );
 	return;
     }
 
@@ -732,8 +732,8 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
     if ( seis2d_->id() > id() )
     {
 	pErrMsg("The display restore order is wrong. The Seis2d display id \
-		has to be lower than PreStack id so that it can be restored \
-		earlier than PreStack display in the sessions." );
+		has to be lower than Prestack id so that it can be restored \
+		earlier than Prestack display in the sessions." );
 	return false;
     }
 

@@ -77,12 +77,12 @@ bool uiEventImport::acceptOK()
     EventWriter writer( outputfld_->getIOObj(), *mgr );
     if( !TaskRunner::execute( &taskrunner, writer ) )
     {
-	uiMSG().error( uiStrings::phrCannotWrite(tr("PreStack Events")) );
+	uiMSG().error( uiStrings::phrCannotWrite(tr("Prestack Events")) );
 	return false;
     }
 
-    uiString msg = tr( "PreStack Event successfully imported."
-		      "\n\nDo you want to import more PreStack Events?" );
+    uiString msg = tr( "Prestack Event successfully imported."
+		      "\n\nDo you want to import more Prestack Events?" );
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

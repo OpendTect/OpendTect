@@ -599,14 +599,14 @@ void uiODMenuMgr::fillFullSeisSubMenu( uiMenu* mnu, const CallBack& cb,
     if ( have2d )
     {
 	uiString linestr = have3d ? uiStrings::s2D() : tr("Line(s)");
-	uiString linepsstr = have3d ? tr("Pre-Stack 2D") : tr("Pre-Stack Data");
+	uiString linepsstr = have3d ? tr("Prestack 2D") : tr("Prestack Data");
 	addAction( mnu, linestr, "seismicline2d", cb, menustartid );
 	addAction( mnu, linepsstr, "prestackdataset2d", cb, menustartid+1 );
     }
     if ( have3d )
     {
 	uiString volstr = have2d ? uiStrings::s3D() : uiStrings::sVolume();
-	uiString volpsstr = have2d ? tr("PreStack 3D") : tr("Pre-Stack Volume");
+	uiString volpsstr = have2d ? tr("Prestack 3D") : tr("Prestack Volume");
 	addAction( mnu, volstr, "seismiccube", cb, menustartid+2 );
 	addAction( mnu, volpsstr, "prestackdataset", cb, menustartid+3 );
     }

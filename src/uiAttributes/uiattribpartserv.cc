@@ -1745,7 +1745,7 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 		    BufferString( uiStrings::sCrosslineDip().getFullString() ));
 	}
 
-	//Trick for PreStack offsets displayed on the fly
+	//Trick for Prestack offsets displayed on the fly
 	if ( desc->isStored() && desc->userRef()[0] == '{' )
 	{
 	    StringPair strpair( desc->userRef() );
