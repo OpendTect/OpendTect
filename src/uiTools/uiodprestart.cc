@@ -141,6 +141,7 @@ uiODPreStart::uiODPreStart( uiParent* p )
 		    .savebutton(true)
 		    .savetext(tr("Show this dialog at startup")))
     , rightclickmenu_(*new uiMenu(this))
+    , languagesel_(0)
 {
     setName( "OpendTect Pre-Start Window" );
     setCaption( tr("%1 V%2").arg(uiStrings::sOpendTect())
@@ -337,9 +338,11 @@ void uiODPreStart::createUI()
 
     uiGroup* presgrp = new uiGroup( grp, "Presentation group" );
     presgrp->attach( ensureBelow, sep );
-    languagesel_ = new uiLanguageSel( presgrp, false );
+    if ( uiLanguageSel::haveMultipleLanguages() )
+	languagesel_ = new uiLanguageSel( presgrp, false );
     themesel_ = new uiThemeSel( presgrp, false );
-    themesel_->attach( rightOf, languagesel_ );
+    if ( languagesel_ )
+	themesel_->attach( rightOf, languagesel_ );
 
     treefld_ = new uiTreeView( grp, "Plugin tree" );
     treefld_->showHeader( false );
@@ -486,7 +489,8 @@ bool uiODPreStart::acceptOK()
     }
 
     themesel_->putInSettings( false );
-    languagesel_->commit( false );
+    if ( languagesel_ )
+	languagesel_->commit( false );
 
     Settings::common().removeWithKey( sOldKeyDoAtStartup );
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
