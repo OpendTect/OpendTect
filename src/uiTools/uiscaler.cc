@@ -143,6 +143,23 @@ void uiScaler::setInput( const Scaler& sc )
 }
 
 
+void uiScaler::typeSel( CallBacker* )
+{
+    int typ = typefld ? typefld->getIntValue() : 0;
+    if ( !ynfld->isChecked() ) typ = -1;
+
+    if ( typefld )
+    {
+	typefld->setSensitive( ynfld->isChecked() );
+	linearfld->display( typ == 0 );
+    }
+    else
+	linearfld->setSensitive( typ == 0 );
+
+    if ( basefld ) basefld->display( typ > 0 );
+}
+
+
 void uiScaler::fillPar( IOPar& iop ) const
 {
     Scaler* scl = getScaler();
@@ -169,17 +186,4 @@ void uiScaler::usePar( const IOPar& iop )
 
     setInput( *scl );
     delete scl;
-}
-
-
-void uiScaler::typeSel( CallBacker* )
-{
-    int typ = typefld ? typefld->getIntValue() : 0;
-    if ( !ynfld->isChecked() ) typ = -1;
-
-    if ( typefld )
-	linearfld->display( typ == 0 );
-    else
-	linearfld->setSensitive( typ == 0 );
-    if ( basefld ) basefld->display( typ > 0 );
 }
