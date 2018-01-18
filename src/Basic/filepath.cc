@@ -188,6 +188,12 @@ void FilePath::setExtension( const char* ext, bool replace )
 }
 
 
+bool FilePath::exists() const
+{
+    return File::exists( fullPath() );
+}
+
+
 bool FilePath::isAbsolute() const
 { return isabs_; }
 

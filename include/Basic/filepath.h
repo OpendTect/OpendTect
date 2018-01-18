@@ -59,6 +59,7 @@ public:
     void		setPath(const char*);	//!< including prefix
     void		setExtension(const char*,bool replace=true);
 						//!< !replace => add
+    bool		exists() const;
 
     bool		isAbsolute() const;
     bool		isSubDirOf(const FilePath&,FilePath* reldir = 0) const;
