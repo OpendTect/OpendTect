@@ -34,7 +34,6 @@ uiThemeSel::uiThemeSel( uiParent* p, bool withlabel )
     }
 
     OD::getStyleNames( themenames_ );
-    const BufferString curstylenm = OD::getActiveStyleName();
 
     for ( int idx=0; idx<themenames_.size(); idx++ )
     {
@@ -57,9 +56,13 @@ uiThemeSel::uiThemeSel( uiParent* p, bool withlabel )
 	selfld_->setIcon( idx, icnm );
     }
 
-    int curstyle = themenames_.indexOf( OD::getActiveStyleName() );
+    themenameatentry_ = OD::getActiveStyleName();
+    int curstyle = themenames_.indexOf( themenameatentry_ );
     if ( curstyle < 0 )
-	curstyle = themenames_.indexOf( "default" );
+    {
+	themenameatentry_.set( "default" );
+	curstyle = themenames_.indexOf( themenameatentry_ );
+    }
     selfld_->setCurrentItem( curstyle<0 ? 0 : curstyle );
 
     mAttachCB( selfld_->selectionChanged, uiThemeSel::themeSel );
@@ -82,6 +85,12 @@ bool uiThemeSel::putInSettings( bool write )
 	return false;
 
     return setODTheme( themenames_.get(selidx), write );
+}
+
+
+void uiThemeSel::revert()
+{
+    activateTheme( themenameatentry_ );
 }
 
 

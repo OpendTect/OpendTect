@@ -26,7 +26,7 @@ class KeyboardEventHandler;
 class KeyboardEventFilter;
 
 
-mExpClass(uiBase) uiMain
+mExpClass(uiBase) uiMain : public CallBacker
 {
 public:
 			uiMain(int& argc,char** argv);
@@ -87,6 +87,9 @@ protected:
     static KeyboardEventHandler*	keyhandler_;
     static KeyboardEventFilter*		keyfilter_;
     mQtclass(QDesktopWidget*)		qdesktop_;
+
+    void		languageChangeCB(CallBacker*);
+    static void		updateAllToolTips();
 
 private:
 			uiMain(mQtclass(QApplication*));

@@ -17,6 +17,9 @@ ________________________________________________________________________
 class uiComboBox;
 
 
+/*!<\brief Theme selector for OpendTect. Shows result immediately. */
+
+
 mExpClass(uiTools) uiThemeSel : public uiGroup
 { mODTextTranslationClass(uiThemeSel);
 public:
@@ -25,9 +28,12 @@ public:
 
     bool		putInSettings(bool writesettings);
 			//!< returns whether a new style was selected
+    void		revert();
+			//!< Makes sure style is restored
 
 protected:
 
+    BufferString	themenameatentry_;
     BufferStringSet	themenames_;
 
     uiComboBox*		selfld_;

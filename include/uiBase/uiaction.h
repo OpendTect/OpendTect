@@ -56,7 +56,6 @@ public:
     const uiString&	toolTip() const;
 			/*!<\note Use before next call.*/
 
-    static void		updateToolTips();
     void		setMenu(uiMenu*);
 			//!<Becomes mine
 
@@ -99,7 +98,6 @@ protected:
     virtual void	trigger(bool checked);
     void		translateCB(CallBacker*);
 
-    void		updateToolTip(CallBacker* = 0);
     uiString		tooltip_;
     uiString		text_;
     uiString		icontext_;
@@ -129,11 +127,18 @@ private:
     void			init(const uiString&);
 
 public:
-    //! Not for casual use
+
+			//! For Cmd Driver
     static void         addCmdRecorder(const CallBack&);
     static void         removeCmdRecorder(const CallBack&);
     int  /* refnr */    beginCmdRecEvent(const char* msg=0);
     void                endCmdRecEvent(int refnr,const char* msg=0);
+
+    void		updateText();
+    void		updateToolTip(CallBacker* =0);
+    static void		updateAllTexts();
+    static void		updateAllToolTips();
+
 };
 
 /*!Represents a series of menu selections, from the top of a

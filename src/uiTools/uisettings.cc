@@ -371,6 +371,13 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p,
 }
 
 
+bool uiGeneralLnFSettingsGroup::rejectOK()
+{
+    themesel_->revert();
+    return true;
+}
+
+
 bool uiGeneralLnFSettingsGroup::acceptOK()
 {
     const int newiconsz = iconszfld_->getIntValue();

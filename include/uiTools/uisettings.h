@@ -165,6 +165,7 @@ public:
     virtual const char*	iconID() const		{ return "settings"; }
 
 			uiGeneralLnFSettingsGroup(uiParent*,Settings&);
+    bool		rejectOK();
     bool		acceptOK();
 
 protected:

@@ -1208,13 +1208,15 @@ bool uiTreeViewItem::updateToolTip( int column )
 }
 
 
-void uiTreeViewItem::updateToolTips()
+void uiTreeViewItem::updateAllToolTips()
 {
     for ( int idx=odqtobjects_.size()-1; idx>=0; idx-- )
     {
-	int column = 0;
-	while ( odqtobjects_.getODObject(idx)->updateToolTip(column++) )
-	{}
+	for ( int col=0; ; col++ )
+	{
+	    if ( !odqtobjects_.getODObject(idx)->updateToolTip(col) )
+		break;
+	}
     }
 }
 

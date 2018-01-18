@@ -26,7 +26,7 @@ ________________________________________________________________________
 mUseQtnamespace
 
 
-static ObjectSet<uiAction> uiactionlist_;
+static ObjectSet<uiAction> alluiactions_;
 
 #define mInit toggled(this), \
     triggered(this), \
@@ -105,7 +105,7 @@ uiAction::~uiAction()
 {
     detachAllNotifiers();
 
-    uiactionlist_ -= this;
+    alluiactions_ -= this;
 
     if ( menu_ )
     {
@@ -125,11 +125,10 @@ uiAction::~uiAction()
 
 void uiAction::init( const uiString& txt )
 {
-    mAttachCB( TrMgr().languageChange, uiAction::translateCB );
     text_ = txt;
     qaction_ = new QAction( text_.getQString(), 0 );
     msgr_ = new i_ActionMessenger( qaction_, this );
-    uiactionlist_ += this;
+    alluiactions_ += this;
 
     updateToolTip();
 }
@@ -186,32 +185,48 @@ void uiAction::updateToolTip( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiAction::updateToolTip );
 
-    if ( uiMain::isNameToolTipUsed() )
+    if ( !uiMain::isNameToolTipUsed() )
+	qaction_->setToolTip( tooltip_.getQString() );
+    else
     {
 	BufferString namestr =
 		(text_.isEmpty() ? tooltip_ : text_ ).getFullString();
 	uiMain::formatNameToolTipString( namestr );
 	qaction_->setToolTip( namestr.buf() );
     }
-    else
-    {
-	qaction_->setToolTip( tooltip_.getQString() );
-    }
+}
+
+
+void uiAction::updateText()
+{
+    qaction_->setText( text_.getQString() );
+    qaction_->setIconText( icontext_.getQString() );
+}
+
+
+void uiAction::updateAllToolTips()
+{
+    for ( int idx=alluiactions_.size()-1; idx>=0; idx-- )
+	alluiactions_[idx]->updateToolTip();
+}
+
+
+void uiAction::updateAllTexts()
+{
+    for ( int idx=alluiactions_.size()-1; idx>=0; idx-- )
+	alluiactions_[idx]->updateText();
 }
 
 
 void uiAction::setSeparator( bool yn )
-{ qaction_->setSeparator( yn ); }
+{
+    qaction_->setSeparator( yn );
+}
 
 
 bool uiAction::isSeparator() const
-{ return qaction_->isSeparator(); }
-
-
-void uiAction::updateToolTips()
 {
-    for ( int idx=uiactionlist_.size()-1; idx>=0; idx-- )
-	uiactionlist_[idx]->updateToolTip();
+    return qaction_->isSeparator();
 }
 
 
@@ -266,14 +281,6 @@ void uiAction::reloadIcon()
 	return;
 
     qaction_->setIcon( icon.qicon() );
-}
-
-
-void uiAction::translateCB( CallBacker* cb )
-{
-    qaction_->setText( text_.getQString() );
-    qaction_->setIconText( icontext_.getQString() );
-    updateToolTip();
 }
 
 

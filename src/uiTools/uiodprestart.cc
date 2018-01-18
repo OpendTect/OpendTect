@@ -142,6 +142,7 @@ uiODPreStart::uiODPreStart( uiParent* p )
 		    .savetext(tr("Show this dialog at startup")))
     , rightclickmenu_(*new uiMenu(this))
 {
+    setName( "OpendTect Pre-Start Window" );
     setCaption( tr("%1 V%2").arg(uiStrings::sOpendTect())
 			    .arg(GetFullODVersion()) );
     setOkText( uiStrings::phrStart(uiStrings::sOpendTect()) );

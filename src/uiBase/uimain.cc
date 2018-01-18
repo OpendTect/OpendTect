@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "staticstring.h"
 #include "settings.h"
 #include "thread.h"
+#include "texttranslator.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -414,6 +415,8 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     font_ = 0;
     setFont( *font() , true );
+
+    mAttachCB( TrMgr().languageChange, uiMain::languageChangeCB );
 }
 
 
@@ -624,15 +627,28 @@ void uiMain::processEvents( int msec )
 }
 
 
+void uiMain::languageChangeCB( CallBacker* )
+{
+    updateAllToolTips();
+    uiAction::updateAllTexts();
+}
+
+
+void uiMain::updateAllToolTips()
+{
+    uiObject::updateAllToolTips();
+    uiTreeViewItem::updateAllToolTips();
+    uiAction::updateAllToolTips();
+}
+
+
 void uiMain::useNameToolTip( bool yn )
 {
     if ( usenametooltip_ == yn )
 	return;
 
     usenametooltip_ = yn;
-    uiObject::updateToolTips();
-    uiAction::updateToolTips();
-    uiTreeViewItem::updateToolTips();
+    updateAllToolTips();
 }
 
 
