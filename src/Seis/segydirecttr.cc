@@ -90,8 +90,6 @@ SEGYSeisTrcTranslator* SEGYDirectSeisTrcTranslator::createTranslator(
     ret->usePar( *def.segyPars() );
     if ( !ret->initRead(ioobj->getConn(Conn::Read)) )
 	{ delete ret; return 0; }
-    if ( !ret->commitSelections() )
-	{ delete ret; return 0; }
 
     return ret;
 }
