@@ -163,7 +163,7 @@ void uiSEGYReadFinisher::crSeisFields( bool istime )
 
     uiSeisSel::Setup copysu( gt );
     copysu.optionsselectable( singlevintage_ );
-    copysu.enabotherdomain( true )
+    copysu.enabotherdomain( singlevintage_ )
 	  .isotherdomain( istime != SI().zIsTime() );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
     outimpfld_ = new uiSeisSel( this, ctxt, copysu );
