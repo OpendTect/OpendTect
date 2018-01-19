@@ -55,7 +55,7 @@ mExpClass(Geometry) Line2DInterSection
 {
 public:
 
-    struct Point
+    mExpStruct(Geometry) Point
     {
 			Point(Pos::GeomID myid,Pos::GeomID id,
 			      int mynr,int linenr);
