@@ -29,12 +29,12 @@ public:
     AttribProbeLayer*	attribProbeLayer();
 
     void		prepareForShutdown();
-    void		setProbeLayer(ProbeLayer*,bool fill=true);
+    void		setProbeLayer(ProbeLayer*);
     static uiString	createDisplayName( int visid, int attrib );
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
     static uiString	sKeyUseColSettingsMenuTxt();
-    virtual void	updateDisplay(bool);
+    virtual void	updateDisplay();
 
 protected:
 

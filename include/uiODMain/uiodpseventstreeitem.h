@@ -64,7 +64,7 @@ protected:
 
     void		coltabChangeCB(CallBacker*);
     bool		init();
-    virtual void	updateDisplay(bool =true);
+    virtual void	updateDisplay();
     void		displayMiniColTab();
 
     PreStack::EventManager&	psem_;

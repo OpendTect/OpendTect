@@ -72,8 +72,8 @@ public:
 				    function. */
 
     virtual void		prepareForShutdown();
-    virtual void		setProbeLayer(ProbeLayer*,bool fill=true);
-    virtual void		updateDisplay(bool fetchdataifempty=true) {}
+    virtual void		setProbeLayer(ProbeLayer*);
+    virtual void		updateDisplay()		{}
 
 protected:
 				uiODDataTreeItem(const char* parenttype);

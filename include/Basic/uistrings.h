@@ -125,7 +125,6 @@ public:
     static uiWord sAbove()		{ return tr("Above"); }
     static uiWord sAction()		{ return tr("Action"); }
     static uiWord sAdd()		{ return tr("Add"); }
-    static uiWord sAddColBlend()	{ return tr("Add Color Blended"); }
     static uiWord sAdvanced()		{ return tr("Advanced"); }
     static uiWord sAlignment()		{ return tr("Alignment"); }
     static uiWord sAll()		{ return tr("All"); }

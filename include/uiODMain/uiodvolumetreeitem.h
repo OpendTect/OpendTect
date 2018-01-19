@@ -28,11 +28,11 @@ public:
     virtual Probe*	createNewProbe() const;
     uiPresManagedTreeItem* addChildItem(const Presentation::ObjInfo&);
     bool		setProbeToBeAddedParams(int mnuid);
-    virtual bool	addWithImmediateData() const	{ return false; }
 
 protected:
 
     bool		canAddVolumeToScene();
+    TrcKeyZSampling	cs_;
 
 };
 
@@ -57,7 +57,6 @@ protected:
 			~uiODVolumeTreeItem();
 
     bool		init();
-    virtual bool	initWithDataFill() const	{ return false; }
     uiString		createDisplayName() const;
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);

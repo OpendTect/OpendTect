@@ -160,10 +160,13 @@ bool uiODRandomLineParentTreeItem::setProbeToBeAddedParams( int mnuid )
     rdltobeaddedid_ = -1;
     typetobeadded_ = uiODSceneProbeParentTreeItem::DefaultData;
 
-    if ( mnuid<=cAddColorBlendedMenuID()  )
-	{ typetobeadded_ = (AddType)mnuid; return true; }
-    else if ( mnuid==uiODSceneProbeParentTreeItem::cAddAndSelectDataMenuID() )
-	return setSelRDLID();
+    if ( isSceneAddMnuId(mnuid) )
+    {
+	if ( mnuid==getMenuID(uiODSceneProbeParentTreeItem::Select) )
+	    return setSelRDLID();
+	typetobeadded_ = getAddType(mnuid);
+	return true;
+    }
     else if ( mnuid == sInteractiveMenuID() )
 	{ setRDLFromPicks(); return false; }
     else if ( mnuid==5 )
@@ -213,7 +216,7 @@ void uiODRandomLineParentTreeItem::addMenuItems()
     uiODSceneProbeParentTreeItem::addMenuItems();
 
     uiAction* storedmenu = menu_->findAction(
-	    uiODSceneProbeParentTreeItem::cAddAndSelectDataMenuID() );
+		getMenuID(uiODSceneProbeParentTreeItem::Select) );
     if ( !storedmenu )
 	return;
 
@@ -240,7 +243,8 @@ bool uiODRandomLineParentTreeItem::setSelRDLID()
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
     ctio->ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
-    if ( !dlg.go() || !dlg.ioObj() ) return false;
+    if ( !dlg.go() || !dlg.ioObj() )
+	return false;
 
     const IOObj* ioobj = dlg.ioObj();
     rdltobeaddedid_ = Geometry::RLM().get( ioobj->key() )->ID();

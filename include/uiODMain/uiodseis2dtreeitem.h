@@ -118,7 +118,7 @@ mExpClass(uiODMain) uiOD2DLineAttribTreeItem : public uiODAttribTreeItem
 public:
 
 			uiOD2DLineAttribTreeItem(const char* parenttype);
-    virtual void	updateDisplay(bool);
+    virtual void	updateDisplay();
     void		clearAttrib();
     static void		initClass();
     static uiODDataTreeItem* create(ProbeLayer&);

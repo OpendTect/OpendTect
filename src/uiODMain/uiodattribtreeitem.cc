@@ -420,9 +420,9 @@ void uiODAttribTreeItem::updateColumnText( int col )
 }
 
 
-void uiODAttribTreeItem::setProbeLayer( ProbeLayer* probelayer, bool fill )
+void uiODAttribTreeItem::setProbeLayer( ProbeLayer* probelayer )
 {
-    uiODDataTreeItem::setProbeLayer( probelayer, fill );
+    uiODDataTreeItem::setProbeLayer( probelayer );
     AttribProbeLayer* attrlay = attribProbeLayer();
     if ( !attrlay )
 	return;
@@ -529,13 +529,13 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
 }
 
 
-void uiODAttribTreeItem::updateDisplay( bool fetchdataifempty )
+void uiODAttribTreeItem::updateDisplay()
 {
     AttribProbeLayer* attrprlayer = attribProbeLayer();
     if ( !attrprlayer )
 	return;
 
-    if ( fetchdataifempty && attrprlayer->dataPackID().isInvalid() )
+    if ( attrprlayer->dataPackID().isInvalid() )
     {
 	ConstRefMan<DataPack> attrdp = calculateAttribute();
 	if ( !attrdp )

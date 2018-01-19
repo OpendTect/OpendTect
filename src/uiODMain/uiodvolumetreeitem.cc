@@ -58,12 +58,12 @@
 uiODVolumeParentTreeItem::uiODVolumeParentTreeItem()
     : uiODSceneProbeParentTreeItem( uiStrings::sVolume() )
 {
-    //Check if there are any volumes already in the scene
 }
 
 
 uiODVolumeParentTreeItem::~uiODVolumeParentTreeItem()
-{}
+{
+}
 
 
 bool uiODVolumeParentTreeItem::canAddVolumeToScene()
@@ -120,12 +120,51 @@ uiPresManagedTreeItem* uiODVolumeParentTreeItem::addChildItem(
 
 bool uiODVolumeParentTreeItem::setProbeToBeAddedParams( int mnuid )
 {
-    typetobeadded_ = getAddType( mnuid );
-    if ( typetobeadded_ == uiODSceneProbeParentTreeItem::DefaultData )
-	typetobeadded_ = uiODSceneProbeParentTreeItem::Empty;
+    if ( !isSceneAddMnuId(mnuid) )
+	return false;
 
-    return typetobeadded_ == uiODSceneProbeParentTreeItem::Empty
-	|| typetobeadded_ == uiODSceneProbeParentTreeItem::RGBA;
+    typetobeadded_ = getAddType( mnuid );
+    cs_ = SI().sampling( true );
+    TrcKeyZSampling fullcs = SI().sampling( true );
+    const bool haveworkarea = !(cs_.hsamp_ == fullcs.hsamp_);
+    if ( !haveworkarea )
+    {
+	const Interval<int> inlrg = cs_.hsamp_.lineRange();
+	const Interval<int> crlrg = cs_.hsamp_.trcRange();
+	const BinID center( inlrg.center(), crlrg.center() );
+	const BinID width( inlrg.width(), crlrg.width() );
+
+#	define mSetICBound(ic,strtstp,plusmin) \
+	if ( width.ic() > 100 ) \
+	{ \
+	    if ( width.ic() < 200 ) \
+		cs_.hsamp_.strtstp.ic() = center.ic() plusmin width.ic() / 4; \
+	    else \
+		cs_.hsamp_.strtstp.ic() = center.ic() plusmin width.ic() / 20; \
+	}
+
+	mSetICBound( inl, start_, - )
+	mSetICBound( crl, start_, - )
+	mSetICBound( inl, stop_, + )
+	mSetICBound( crl, stop_, + )
+    }
+
+    const int nrsteps = cs_.zsamp_.nrSteps();
+    const int fullnrsteps = fullcs.zsamp_.nrSteps();
+    const bool haveworkzrg = nrsteps != fullnrsteps; //!< probably works
+    getDefZRange( cs_.zsamp_ );
+    if ( !haveworkzrg && nrsteps > 100 )
+    {
+	const float zcenter = cs_.zsamp_.center();
+	const float zwidth = cs_.zsamp_.width() * .1f;
+	const float scl = nrsteps < 200 ? 0.25f : 0.1f;
+	cs_.zsamp_.start = zcenter - zwidth * scl;
+	cs_.zsamp_.stop = zcenter + zwidth * scl;
+	fullcs.zsamp_.snap( cs_.zsamp_.start );
+	fullcs.zsamp_.snap( cs_.zsamp_.stop );
+    }
+
+    return true;
 }
 
 
@@ -144,7 +183,7 @@ const char* uiODVolumeTreeItemFactory::getName()
 
 uiODVolumeTreeItem::uiODVolumeTreeItem( Probe& probe, int displayid )
     : uiODSceneProbeTreeItem( probe )
-    , positionmnuitem_(m3Dots(tr("Position")))
+    , positionmnuitem_(m3Dots(uiStrings::sPosition()))
 {
     positionmnuitem_.iconfnm = "orientation64";
     displayid_ = displayid;
@@ -169,7 +208,9 @@ bool uiODVolumeTreeItem::showSubMenu()
 
 
 const char* uiODVolumeTreeItem::parentType() const
-{ return typeid(uiODVolumeParentTreeItem).name(); }
+{
+    return typeid(uiODVolumeParentTreeItem).name();
+}
 
 
 bool uiODVolumeTreeItem::init()
@@ -279,7 +320,7 @@ uiODDataTreeItem* uiODVolumeAttribTreeItem::create( ProbeLayer& prblay )
     const char* parenttype = typeid(uiODVolumeTreeItem).name();
     uiODVolumeAttribTreeItem* attribtreeitem =
 	new uiODVolumeAttribTreeItem( parenttype );
-    attribtreeitem->setProbeLayer( &prblay, false );
+    attribtreeitem->setProbeLayer( &prblay );
     return attribtreeitem;
 
 }

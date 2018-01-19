@@ -58,7 +58,8 @@ bool uiODTreeItem::init()
 
 void uiODTreeItem::addStandardItems( uiMenu& mnu )
 {
-    if ( children_.size() < 2 ) return;
+    if ( children_.size() < 2 )
+	return;
 
     mnu.insertSeparator();
     uiAction* action = new uiAction( tr("Show All Items") );
@@ -88,7 +89,8 @@ void uiODTreeItem::addStandardItems( uiMenu& mnu )
 
 void uiODTreeItem::addStandardItems( MenuHandler* menu )
 {
-    if ( children_.size() < 2 ) return;
+    if ( children_.size() < 2 )
+	return;
 
     mAddMenuItem( menu, &showallitems_, !allChildrenChecked(), false );
     mAddMenuItem( menu, &hideallitems_, !allChildrenUnchecked(), false );
@@ -104,20 +106,22 @@ void uiODTreeItem::addStandardItems( MenuHandler* menu )
 
 void uiODTreeItem::handleStandardItems( int menuid )
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	if ( menuid == cShowAllItems )
-	    children_[idx]->setChecked( true, true );
-	else if ( menuid == cHideAllItems )
-	    children_[idx]->setChecked( false, true );
-	else if ( menuid == cExpandAllItems )
-	    children_[idx]->expand();
-	else if ( menuid == cCollapseAllItems )
-	    children_[idx]->collapse();
-    }
-
     if ( menuid == cRemoveAllItems )
 	removeAllItems();
+    else
+    {
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    if ( menuid == cShowAllItems )
+		children_[idx]->setChecked( true, true );
+	    else if ( menuid == cHideAllItems )
+		children_[idx]->setChecked( false, true );
+	    else if ( menuid == cExpandAllItems )
+		children_[idx]->expand();
+	    else if ( menuid == cCollapseAllItems )
+		children_[idx]->collapse();
+	}
+    }
 }
 
 
@@ -151,12 +155,14 @@ void uiODTreeItem::removeAllItems( bool showmsg )
     {
 	const uiString msg = tr("All %1 items will be removed from tree.\n"
 				"Do you want to continue?").arg(name());
-	if ( !uiMSG().askRemove(msg) ) return;
+	if ( !uiMSG().askRemove(msg) )
+	    return;
     }
 
     while ( children_.size() )
     {
-	if ( !children_[0] ) continue;
+	if ( !children_[0] )
+	    continue;
 	children_[0]->prepareForShutdown();
 	mDynamicCastGet(uiODTreeItem*,odtreeitem,children_[0]);
 	if ( odtreeitem && odtreeitem->nrChildren() )
