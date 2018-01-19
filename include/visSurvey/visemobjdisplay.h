@@ -10,14 +10,12 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "vissurveycommon.h"
 #include "bufstringset.h"
 #include "draw.h"
-#include "emposid.h"
+#include "emobject.h"
 #include "visobject.h"
 #include "vissurvobj.h"
-#include "emobject.h"
 
 class ZAxisTransform;
 
@@ -33,33 +31,6 @@ namespace visBase
 
 namespace visSurvey
 {
-struct EMChangeData
-{
-    ObjectSet<const EM::EMObjectCallbackData>	emcallbackdata_;
-    Threads::Lock				lock_;
-
-    void    addCallBackData( const EM::EMObjectCallbackData* data )
-    {
-	Threads::Locker locker( lock_ );
-	emcallbackdata_ += data;
-    }
-
-    const EM::EMObjectCallbackData*   getCallBackData( int idx ) const
-    {
-	if ( idx<emcallbackdata_.size() )
-	    return emcallbackdata_[idx];
-	return 0;
-    }
-
-    void    clearData()
-    {
-	Threads::Locker locker( lock_ );
-	deepErase( emcallbackdata_ );
-    }
-
-    int	    size() const { return emcallbackdata_.size(); }
-};
-
 
 class MPEEditor;
 class EdgeLineSetDisplay;
@@ -204,9 +175,7 @@ protected:
     ObjectSet< Selector<Coord3> >	selectors_;
 					/*!<not used anymore,only for ABI.*/
     TypeSet<EM::SubID>			selectionids_;
-    EMChangeData			emchangedata_;
-
-
+    EM::CBDataSet			emchangedata_;
 
     static const char*			sKeyEarthModelID();
     static const char*			sKeyResolution();
