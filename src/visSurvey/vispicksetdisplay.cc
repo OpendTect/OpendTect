@@ -85,7 +85,10 @@ void PickSetDisplay::setSet( Pick::Set* newset )
 
     LocationDisplay::setSet( newset );
     if ( set_->isSizeLargerThanThreshold() )
+    {
 	set_->disp_.markertype_ = MarkerStyle3D::Point;
+	set_->disp_.pixsize_ = 2;
+    }
 
     MarkerStyle3D markerstyle;
     markerstyle.size_ = set_->disp_.pixsize_;
@@ -306,7 +309,7 @@ void PickSetDisplay::redrawMultiSets()
     {
 	polylines_->removeAllPrimitiveSets();
 	polylines_->getCoordinates()->setEmpty();
-    } 
+    }
 
     if ( set_->nrSets()==0 && set_->disp_.connect_!=Pick::Set::Disp::None )
     {
@@ -333,7 +336,7 @@ void PickSetDisplay::redrawMultiSets()
 	    markerset_->addPos( pos );
 	    if ( !polylines_ )
 		continue;
-	    
+
 	    ps += polylines_->getCoordinates()->addPos( pos );
 	    if ( first )
 	    {
