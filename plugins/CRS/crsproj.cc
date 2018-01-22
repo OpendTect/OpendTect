@@ -16,6 +16,7 @@
 
 static FixedString sKeyUnitsArg()	{ return FixedString("+units="); }
 static FixedString sKeyEPSG()		{ return FixedString("EPSG"); }
+static FixedString sKeyToMeter()	{ return FixedString("+to_meter="); }
 
 static Coords::AuthorityCode cWGS84AuthCode()
 { return Coords::AuthorityCode(sKeyEPSG(),4326); }
@@ -335,14 +336,25 @@ bool Coords::Proj4Projection::isLatLong() const
     return defstr_.contains( "longlat" );
 }
 
+
 bool Coords::Proj4Projection::isMeter() const
 {
     const char* unitstr = defstr_.find( sKeyUnitsArg().buf() );
-    if ( !unitstr )
-	return true;
+    if ( unitstr )
+    {
+	const BufferString unitval( unitstr + sKeyUnitsArg().size() );
+	return unitval.firstChar() == 'm';
+    }
 
-    BufferString unitval( unitstr + sKeyUnitsArg().size() );
-    return unitval.firstChar() == 'm';
+    const char* tometerstr = defstr_.find( sKeyToMeter().buf() );
+    if ( tometerstr )
+    {
+	const BufferString convval( tometerstr + sKeyToMeter().size() );
+	const bool isft = convval.startsWith( "0.304" );
+	return !isft;
+    }
+
+    return true;
 }
 
 
