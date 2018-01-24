@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 #include "keystrs.h"
 #include "menuhandler.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 
 #include <climits>
 

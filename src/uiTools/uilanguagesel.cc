@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uilanguagesel.h"
 #include "settings.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 #include "uistrings.h"
 
 #include "uicombobox.h"
@@ -30,7 +30,7 @@ uiLanguageSel::uiLanguageSel( uiParent* p, bool withtext )
 	if ( nrlang < 1 )
 	    txt = tr("[Internationalisation unavailable]");
 	else
-	    txt = toUiString("[%1]").arg( TrMgr().getLanguageUserName(0) );
+	    txt = toUiString("[%1]").arg( TrMgr().languageUserName(0) );
 	new uiLabel( this, txt );
 	return;
     }
@@ -49,13 +49,15 @@ uiLanguageSel::uiLanguageSel( uiParent* p, bool withtext )
     }
 
     for ( int idx=0; idx<nrlang; idx++ )
-	selfld_->addItem( TrMgr().getLanguageUserName(idx) );
+	selfld_->addItem( TrMgr().languageUserName(idx) );
 
-    const int curlang = TrMgr().currentLanguage();
-    selfld_->setCurrentItem( curlang<0 ? 0 : curlang );
+    const int curidx = TrMgr().currentLanguageIdx();
+    selfld_->setCurrentItem( curidx<0 ? 0 : curidx );
 
-    mAttachCB( selfld_->selectionChanged, uiLanguageSel::langSel );
     selfld_->setToolTip( tr("Select a supported language") );
+
+    mAttachCB( selfld_->selectionChanged, uiLanguageSel::langSelCB );
+    mAttachCB( TrMgr().languageChange, uiLanguageSel::extLangChgCB );
 }
 
 
@@ -65,7 +67,16 @@ bool uiLanguageSel::haveMultipleLanguages()
 }
 
 
-void uiLanguageSel::langSel( CallBacker* )
+void uiLanguageSel::extLangChgCB( CallBacker* )
+{
+    NotifyStopper ns( selfld_->selectionChanged );
+    const int curidx = TrMgr().currentLanguageIdx();
+    if ( curidx >= 0 )
+	selfld_->setCurrentItem( curidx );
+}
+
+
+void uiLanguageSel::langSelCB( CallBacker* )
 {
     if ( !selfld_ )
 	return;
@@ -90,7 +101,7 @@ bool uiLanguageSel::commit( bool writesettings )
     if ( selidx < 0 )
 	return false;
 
-    return setODLocale( TrMgr().getLocaleKey(selidx), writesettings );
+    return setODLocale( TrMgr().localeKey(selidx), writesettings );
 }
 
 

@@ -40,7 +40,7 @@ ________________________________________________________________________
 #include "staticstring.h"
 #include "settings.h"
 #include "strmprov.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 #include "thread.h"
 #include "timer.h"
 

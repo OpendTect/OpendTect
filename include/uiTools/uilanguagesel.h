@@ -36,7 +36,8 @@ protected:
     uiComboBox*		selfld_;
     bool		autocommit_;
 
-    void		langSel(CallBacker*);
+    void		langSelCB(CallBacker*);
+    void		extLangChgCB(CallBacker*);
     static void		activateTheme(const char*);
 
 public:

@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "settings.h"
-#include "texttranslator.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \

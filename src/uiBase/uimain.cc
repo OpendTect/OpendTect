@@ -29,11 +29,12 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "oddirs.h"
+#include "odiconfile.h"
 #include "oscommand.h"
 #include "staticstring.h"
 #include "settings.h"
 #include "thread.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -51,7 +52,6 @@ static Color normaltooltipbackgroundcolor_;
 static Color normaltooltipforegroundcolor_;
 
 void uiMain::setXpmIconData( const char** buf )	{ xpm_icon_data = buf; }
-void uiMain::setIconFileName( const char* fnm )	{ icon_filename = fnm; }
 const char* uiMain::iconFileName()		{ return icon_filename; }
 
 
@@ -431,6 +431,31 @@ bool uiMain::setStyleSheet( const char* fnm )
 
     app_->setStyleSheet( filecontents );
     return true;
+}
+
+
+void uiMain::setIcon( const char* icid )
+{
+    File::Path fp( icid );
+    QIcon qic;
+    if ( fp.isAbsolute() )
+    {
+	qic.addFile( icid );
+	icon_filename = icid;
+    }
+    else
+    {
+	OD::IconFile icfil( icid );
+	const BufferStringSet& fnms = icfil.fileNames();
+	if ( fnms.isEmpty() )
+	    return;
+	for ( int idx=0; idx<fnms.size(); idx++ )
+	    qic.addFile( fnms.get(idx).buf() );
+	icon_filename = fnms.get(0);
+    }
+
+    if ( app_ )
+	app_->setWindowIcon( qic );
 }
 
 

@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 #include "menuhandler.h"
 #include "staticstring.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 
 
 #include <limits.h>

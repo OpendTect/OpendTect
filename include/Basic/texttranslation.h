@@ -1,0 +1,171 @@
+#pragma once
+
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Nanne Hemstra
+ Date:		January 2010
+________________________________________________________________________
+
+-*/
+
+
+#include "basicmod.h"
+#include "notify.h"
+#include "uistring.h"
+#include "bufstringset.h"
+#include "filepath.h"
+
+namespace TextTranslation { class TranslateMgr; class LanguageEntry; }
+mFDQtclass(QTranslator)
+mFDQtclass(QLocale)
+mFDQtclass(QString)
+
+
+/*! Global access to the manager keeping track of translations. */
+mGlobal(Basic) TextTranslation::TranslateMgr& TrMgr();
+
+
+namespace TextTranslation
+{
+
+/*! keeps track of translations, either from the release or ones you provide
+    yourself.
+
+  Keys are:
+  * Locale key ("en-us", "cn-cn", ...). The actual 'language'
+  * Package key ("od", "dgb", ...) start of the .qm filename, like od_en-us.qm
+
+  Every uiString carries the package key with it. For OD, you can simply
+  make this happen by using the mODTextTranslationClass(classname) macro. For
+  your own package, create a similar macro. If you have your own translations
+  for your own plugins, think of a short key for your 'package' (say 'mypkg').
+  Then:
+  * create a similar macro to mODTextTranslationClass and use it
+  * use tr() in your code, and 'lupdate' to harvest the original strings
+  * when the .qm files are created, install those in one of:
+    - <home_dir>/.od/localisations/
+    - <installation_super_dir>/data/localisations
+    - <release_dir>/data/localisations
+  The filenames *have* to be like: mypkg_cn-cn.qm .
+ */
+
+mExpClass(Basic) TranslateMgr : public CallBacker
+{ mODTextTranslationClass(TranslateMgr);
+public:
+				TranslateMgr();
+				~TranslateMgr();
+
+    int				nrSupportedLanguages() const;
+    int				currentLanguageIdx() const;
+    uiRetVal			setLanguage(int);
+    static int			cUSEnglishIdx()		{ return 0; }
+
+    uiString			languageUserName(int) const;
+    BufferString		localeKey(int) const;
+    uiRetVal			setLanguageByLocaleKey(const char*);
+    void			storeToUserSettings();
+
+    Notifier<TranslateMgr>	languageChange;
+    int				changeCount() const	{ return dirtycount_; }
+    void			touch()			{ handleChange(); }
+
+    const mQtclass(QTranslator)* getQTranslator(const char* packagekey) const;
+    const mQtclass(QLocale)*	getQLocale() const;
+
+protected:
+
+    const File::Path		userlocdir_;
+    const File::Path		applocdir_;
+    const File::Path		instlocdir_;
+
+    friend class		LanguageEntry;
+
+    BufferStringSet		pkgnms_;
+    ObjectSet<LanguageEntry>	langentries_;
+    int				curentryidx_;
+    int				dirtycount_;
+
+    void			findLocales(const File::Path&,BufferStringSet&);
+    void			addEntry(LanguageEntry*);
+    void			handleChange();
+    LanguageEntry*		getEntry4Locale(const char*) const;
+
+public:
+
+    static const char*	sLocalizationSubDirName()   { return "localizations"; }
+    static const char*	sPackageLanguageSeparator() { return "_"; }
+
+    void			addLanguage(LanguageEntry*);
+				//!< Only needed if you go outside the
+				//!< 'normal' loading procedures
+    void			reInit();
+				//!< Should never be necessary
+    void			addLanguages(const char* dirnm,
+					     const char* pkgky);
+
+    BufferString		locDir( bool usr ) const
+				{ return (usr?userlocdir_:instlocdir_)
+					 .fullPath(); }
+
+};
+
+
+mExpClass(Basic) TranslatorData
+{
+public:
+				~TranslatorData();
+
+    BufferString		pkgnm_;
+    BufferString		filename_;
+    mQtclass(QTranslator)*	qtranslator_	= 0;
+};
+
+
+/*!Holds the translations for one language. The key is the locale code,
+  (such as en-us and cn-cn). Usually, you do not deal with this class - unless
+  you load your own languages (i.e. if you do not install .qm files in
+  data/localisations but manage everything yourself). */
+
+mExpClass(Basic) LanguageEntry
+{ mODTextTranslationClass(LanguageEntry);
+public:
+
+				LanguageEntry(const char* localekey,
+					      const BufferStringSet& pkgnms);
+				LanguageEntry(const char* filenm,
+					      const char* localekey);
+				~LanguageEntry();
+
+    const mQtclass(QString)&	qName() const		{ return *qlangname_;}
+    const mQtclass(QLocale)&	qLocale() const		{ return *qlocale_; }
+    BufferString		localeKey() const	{ return localekey_; }
+
+    bool			isLoaded() const;
+    bool			load();
+
+    const mQtclass(QTranslator)* getQTranslator(const char* pkgnm) const;
+
+protected:
+
+    BufferString		localekey_;
+
+    void			addData4Dir(const File::Path&,
+					    const BufferStringSet&);
+    TranslatorData*		getData4Pkg(const char*) const;
+    void			setLangName(const char* qmfnm);
+
+public:
+    // public section to allow external language loading
+
+    mQtclass(QString)*		qlangname_; // always allocated
+    mQtclass(QLocale)*		qlocale_;   // always allocated
+
+    ObjectSet<TranslatorData>	trdata_;
+
+    void			addData(const char* qmfnm,const char* pkgnm);
+
+};
+
+} // namespace TextTranslation

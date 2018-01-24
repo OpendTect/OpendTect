@@ -46,7 +46,8 @@ public:
     void		setFont(const uiFont&,bool passtochildren);
     const uiFont*	font();
     Color		windowColor() const;
-    static void		setIconFileName(const char* full_path);
+    static void		setIconFileName(const char* full_path); // before start
+    static void		setIcon(const char* icid); // when running
     static const char*	iconFileName();
     bool		setStyleSheet(const char*);
 

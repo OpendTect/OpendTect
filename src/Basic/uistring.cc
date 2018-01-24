@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "staticstring.h"
 #include "ptrman.h"
 #include "refcount.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 #include "typeset.h"
 #include "uistrings.h"
 
@@ -63,14 +63,15 @@ class uiStringData : public RefCount::Referenced
 {
   friend class uiString;
 public:
+
     uiStringData( const char* originalstring, const char* context,
-		  const char* application,
+		  const char* packagekey,
 		  const char* disambiguation, int pluralnr )
 	: originalstring_( originalstring )
 	, translationcontext_( context )
 	, translationpluralnumber_( pluralnr )
 	, translationdisambiguation_( disambiguation )
-	, application_( application )
+	, packagekey_( packagekey )
 	, contentlock_( true )
 	, changecount_( mForceUpdate )
 	, tolower_( false )
@@ -85,15 +86,15 @@ public:
 	translationpluralnumber_ = d.translationpluralnumber_;
 	translationdisambiguation_ = d.translationdisambiguation_;
 	arguments_ = d.arguments_;
-	application_ = d.application_;
+	packagekey_ = d.packagekey_;
 	changecount_ = mForceUpdate;
 	tolower_ = d.tolower_;
     }
 
-    void addLegacyVersion( const uiString& legacy )
+    void addAlternateVersion( const uiString& altstr )
     {
 	Threads::Locker contentlocker( contentlock_ );
-        legacyversions_.add( legacy );
+        alternateversions_.add( altstr );
 	changecount_ = mForceUpdate;
     }
 
@@ -121,9 +122,9 @@ public:
 #endif
 
     BufferString		originalstring_;
-    uiStringSet			legacyversions_;
+    uiStringSet			alternateversions_;
     BufferString		translationcontext_;
-    const char*			application_;
+    const char*			packagekey_;
     const char*			translationdisambiguation_;
     int				translationpluralnumber_;
     bool			tolower_;
@@ -137,9 +138,9 @@ void uiStringData::set( const char* orig )
     Threads::Locker contentlocker( contentlock_ );
     originalstring_ = orig;
     arguments_.setEmpty();
-    legacyversions_.setEmpty();
+    alternateversions_.setEmpty();
     translationcontext_.setEmpty();
-    application_ = 0;
+    packagekey_ = 0;
     translationdisambiguation_ = 0;
     translationpluralnumber_ = -1;
     changecount_ = mForceUpdate;
@@ -197,7 +198,7 @@ bool uiStringData::fillQString( QString& res,
     const QTranslator* usedtrans = translator;
 
     if ( !notranslation && !usedtrans )
-	usedtrans = TrMgr().getQTranslator( application_ );
+	usedtrans = TrMgr().getQTranslator( packagekey_ );
 
     if ( !notranslation && usedtrans && !translationcontext_.isEmpty() )
     {
@@ -208,17 +209,13 @@ bool uiStringData::fillQString( QString& res,
 	if ( res.size() && QString(originalstring_.buf())!=res )
             translationres = true;
 
-        if ( legacyversions_.size() && !translationres )
+        if ( !alternateversions_.isEmpty() && !translationres )
         {
-            for ( int idx=0; idx<legacyversions_.size(); idx++ )
+            for ( int idx=0; idx<alternateversions_.size(); idx++ )
             {
-                QString legacytrans;
-		if ( legacyversions_[idx].translate( *usedtrans, legacytrans) )
-                {
-                    res = legacytrans;
-                    translationres = true;
-                    break;
-                }
+                QString alttrans;
+		if ( alternateversions_[idx].translate(*usedtrans,alttrans) )
+		    { res = alttrans; translationres = true; break; }
             }
         }
 	mDefineStaticLocalObject(bool,dbgtransl,
@@ -282,9 +279,9 @@ uiString::uiString()
 
 
 uiString::uiString( const char* originaltext, const char* context,
-		    const char* application,
+		    const char* packagekey,
 		    const char* disambiguation, int pluralnr )
-    : data_( new uiStringData(originaltext, context, application,
+    : data_( new uiStringData(originaltext, context, packagekey,
 			      disambiguation, pluralnr ))
     , datalock_( true )
     , debugstr_( 0 )
@@ -312,12 +309,12 @@ uiString::~uiString()
 }
 
 
-void uiString::addLegacyVersion( const uiString& legacy )
+void uiString::addAlternateVersion( const uiString& altstr )
 {
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
     mEnsureData;
-    data_->addLegacyVersion( legacy );
+    data_->addAlternateVersion( altstr );
 }
 
 

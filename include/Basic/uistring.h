@@ -25,15 +25,11 @@ mFDQtclass( QStringList );
 mFDQtclass( QTranslator );
 
 
-#define mTextTranslationClass(clss,application) \
+#define mTextTranslationClass(clss,pkgkey) \
 private: \
  static inline uiString tr( const char* text, const char* disambiguation = 0,  \
  int pluralnr=-1 ) \
- { return uiString( text, #clss, application, disambiguation, pluralnr ); } \
- static inline uiString legacyTr( const char* text, \
-				  const char* disambiguation = 0,  \
-				  int pluralnr=-1 ) \
- { return uiString( text, #clss, application, disambiguation, pluralnr ); }
+ { return uiString( text, #clss, pkgkey, disambiguation, pluralnr ); } \
 
 #define mODTextTranslationClass(clss) \
 mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
@@ -69,10 +65,10 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
  The translation in OpendTect is done using Qt's subsystem for localization.
  A class that wishes to enable localization should:
 
-  -# Declare the mTextTranslationClass(classname,application) in its class
-     definition. The application is a string that identifies your application.
-     OpendTect's internal classes use the "od" applicaiton string, and can for
-     short use the mODTextTranslationClass macro.
+  -# Declare the mTextTranslationClass(classname,packagekey) in its class
+     definition. The packagekey is a string that identifies your software
+     package. OpendTect's internal classes use the "od" package string, and
+     can for short use the mODTextTranslationClass macro.
   -# Use the tr() function for all translatable string. The tr() function
      returns a uiString() that can be passed to the ui.
   -# For functions not belonging to a class, use the od_static_tr function.
@@ -83,9 +79,9 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
   -# The updated .ts file should be converted to a binary .qm file using Qt's
      lrelease application.
   -# The .qm file should be placed in
-     data/localizations/<application>_<lang>_<country>.ts in the release. For
-     example, a localization of OpendTect to traditional Chinese/Taiwan would be
-     saved as od_zh_TW.qm.
+     data/localizations/<packagekey>_<lang>_<country>.ts in the release. For
+     example, a localization of OpendTect to modern Chinese would be
+     saved as od_cn-cn.qm.
  */
 
 
@@ -209,21 +205,13 @@ public:
 
 		uiString(const char* original,
 			 const char* context,
-			 const char* application,
+			 const char* package,
 			 const char* disambiguation,
 			 int pluralnr);
     void	setFrom(const mQtclass(QString)&);
 		/*!<Set the translated text. No further
 		    translation will be done. */
-    void	addLegacyVersion(const uiString&);
-		/*!<If this string was previously known by another origial
-		    string, it can be added here. This is normally done with the
-		    legacyTr function.
-		    \code
-			uiString str = tr("New version");
-			str.addLegacyVersion( legacyTr("Old ver") );
-		    \endcode
-                */
+    void	addAlternateVersion(const uiString&);
 
     bool	translate(const mQtclass(QTranslator)&,
 			  mQtclass(QString)&) const;
@@ -423,7 +411,7 @@ mGlobal(Basic) bool isCancelled(const uiRetVal&);
 #define mFromUiStringTodo(i) i.getFullString()
 
 
-/*!Adds translation of strings outside of classes for the "od" application. It
+/*!Adds translation of strings outside of classes for the "od" package. It
    will return a uistring where the context is "static_func_function", where
    'function' is whatever is given as the function parameter. This matches what
    is done in the filtering of the source files before lupdate is run (in

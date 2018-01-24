@@ -122,7 +122,7 @@ set( OD_MODULE_SOURCES
 	task.cc
 	thread.cc
 	threadwork.cc
-	texttranslator.cc
+	texttranslation.cc
 	timefun.cc
 	timer.cc
 	trckeyzsampling.cc

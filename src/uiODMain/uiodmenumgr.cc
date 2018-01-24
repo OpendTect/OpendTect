@@ -49,7 +49,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "od_ostream.h"
 #include "survinfo.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 #include "thread.h"
 
 

@@ -9,7 +9,6 @@
 #include "uistring.h"
 #include "testprog.h"
 #include "uistrings.h"
-#include "texttranslator.h"
 #include "filepath.h"
 #include "oddirs.h"
 
@@ -30,52 +29,6 @@ bool testSetEmpty()
 
     return true;
 }
-
-class TestTranslator
-{ mTextTranslationClass( TestTranslator, "test_uistring" );
-public:
-    static bool testTranslation();
-
-};
-
-
-bool TestTranslator::testTranslation()
-{
-    uiString a = tr("I am an A");
-    uiString b = tr("I am a B" );
-    uiString join = uiStrings::phrJoinStrings( a, b );
-
-    QTranslator trans;
-    File::Path path;
-    TextTranslateMgr::GetLocalizationDir( path );
-    path.add( "uistring.qm" );
-    mRunStandardTest( trans.load( QString(path.fullPath().buf())),
-		    "Load test translation");
-
-    QString qres;
-    mRunStandardTest( join.translate( trans, qres ),
-		      "Run translation" );
-
-    BufferString res( qres );
-    mRunStandardTest( res=="A B", "Translation content");
-
-    uiString hor3d =
-	uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon() );
-
-    qres = hor3d.getQString();
-    res = qres;
-    mRunStandardTest( res=="3D Horizon", "Translation content (Horizon)");
-
-    hor3d =
-     uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon(mPlural) );
-
-    qres = hor3d.getQString();
-    res = qres;
-    mRunStandardTest( res=="3D Horizons", "Translation content (Horizons)");
-
-    return true;
-}
-
 
 
 bool testArg()
@@ -326,8 +279,7 @@ int testMain( int argc, char** argv )
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
 	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings() ||
-	 !testToLower() || !TestTranslator::testTranslation() ||
-	 !fromBufferStringSetToUiStringSet() )
+	 !testToLower() || !fromBufferStringSetToUiStringSet() )
 	return 1;
 
     return 0;

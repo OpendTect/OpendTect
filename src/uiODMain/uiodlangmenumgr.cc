@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uiodstdmenu.h"
 #include "uistatusbar.h"
 #include "uistrings.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 
 uiODLangMenuMgr::uiODLangMenuMgr( uiODMenuMgr& mm )
     : mnumgr_(mm)
@@ -57,10 +57,10 @@ void uiODLangMenuMgr::setLanguageMenu()
 	langmnu_ = mnumgr_.addSubMenu( mnumgr_.settMnu(),
 			uiStrings::sLanguage(), "language" );
 
-    const int trmgridx = TrMgr().currentLanguage();
+    const int trmgridx = TrMgr().currentLanguageIdx();
     for ( int idx=0; idx<nrlang; idx++ )
     {
-	uiAction* itm = new uiAction( TrMgr().getLanguageUserName(idx),
+	uiAction* itm = new uiAction( TrMgr().languageUserName(idx),
 			     mCB(this,uiODLangMenuMgr,languageSelectedCB) );
 	itm->setCheckable( true );
 	itm->setChecked( idx == trmgridx );
@@ -82,7 +82,7 @@ void uiODLangMenuMgr::languageSelectedCB( CallBacker* cb )
 	{ pErrMsg("Huh"); return; }
 
     const int trmgridx = itm->getID() - mSettLanguageMnu;
-    if ( trmgridx == TrMgr().currentLanguage() )
+    if ( trmgridx == TrMgr().currentLanguageIdx() )
 	return;
 
     uiRetVal uirv = TrMgr().setLanguage( trmgridx );

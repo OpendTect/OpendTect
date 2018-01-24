@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "odqtobjset.h"
 #include "staticstring.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 
 #include <QHeaderView>
 #include <QKeyEvent>

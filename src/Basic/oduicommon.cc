@@ -16,16 +16,26 @@
 
 static const char* sStyleDir = "Styles";
 
+
+static BufferString getUserSetStyleName()
+{
+    BufferString res = Settings::common().find( "dTect.StyleName" );
+    if ( res.isEmpty() )
+	res = GetEnvVar( "OD_STYLENAME" );
+    return res;
+}
+
+bool OD::haveUserSetStyleName()
+{
+    return !getUserSetStyleName().isEmpty();
+}
+
+
 BufferString OD::getActiveStyleName()
 {
-    BufferString stylenm = Settings::common().find( "dTect.StyleName" );
+    BufferString stylenm = getUserSetStyleName();
     if ( stylenm.isEmpty() )
-    {
-	stylenm = GetEnvVar( "OD_STYLENAME" );
-	if ( stylenm.isEmpty() )
-	    stylenm.set( "default" );
-    }
-
+	stylenm.set( "default" );
     return stylenm;
 }
 

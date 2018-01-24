@@ -44,6 +44,11 @@ uiThemeSel::uiThemeSel( uiParent* p, bool withlabel )
 	    txt = tr( "Default Theme" );
 	    icnm = "od";
 	}
+	else if ( nm == "pro" )
+	{
+	    txt = tr( "OpendTect Pro Theme" );
+	    icnm = "dgbpro";
+	}
 	else
 	{
 	    BufferString capsfirststr( nm );
