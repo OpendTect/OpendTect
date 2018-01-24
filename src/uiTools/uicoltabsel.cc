@@ -592,7 +592,7 @@ void uiColTabSelTool::initialise( OD::Orientation orient )
 					  uiString::emptyString() );
 
     manip_ = new uiManipMapper( *this );
-    histeqbut_ = new uiToolButton( getParent(), "histeq",
+    histeqbut_ = new uiToolButton( getParent(), "nohisteq",
 			    tr("Toggle using histogram equalisation"),
 			    mCB(this,uiColTabSelTool,histeqButChgCB) );
     histeqbut_->setToggleButton( true );
@@ -666,7 +666,9 @@ void uiColTabSelTool::modeSelChgCB( CallBacker* )
 
 void uiColTabSelTool::histeqButChgCB( CallBacker* )
 {
-    mapper_->setup().setDoHistEq( histeqbut_->isOn() );
+    const bool dohisteq = histeqbut_->isOn();
+    mapper_->setup().setDoHistEq( dohisteq );
+    histeqbut_->setIcon( dohisteq ? "histeq" : "nohisteq" );
 }
 
 
