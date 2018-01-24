@@ -45,9 +45,9 @@ namespace TextTranslation
   * create a similar macro to mODTextTranslationClass and use it
   * use tr() in your code, and 'lupdate' to harvest the original strings
   * when the .qm files are created, install those in one of:
-    - <home_dir>/.od/localisations/
-    - <installation_super_dir>/data/localisations
-    - <release_dir>/data/localisations
+    - <home_dir>/.od/localizations/
+    - <installation_super_dir>/data/localizations
+    - <release_dir>/data/localizations
   The filenames *have* to be like: mypkg_cn-cn.qm .
  */
 
