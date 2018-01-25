@@ -64,10 +64,13 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
 }
 
 
+static const char* sCompilerVersionUnknown = "<unknown>";
+
+
 const char* GetGCCVersion()
 {
 #ifndef __GNUC__
-    return <unknown>;
+    return sCompilerVersionUnknown;
 #else
     mDeclStaticString( ret );
     if ( !ret.isEmpty() )
@@ -96,7 +99,7 @@ const char* GetMSVCVersion()
 
 const char* GetMSVCVersionStr()
 {
-    const char* ret = "<unknown>";
+    const char* ret = sCompilerVersionUnknown;
 #ifdef __msvc__
 # if ( _MSC_VER < 1700 )
     ret = "Visual Studio Pre-2012";
