@@ -97,9 +97,7 @@ const char* GetMSVCVersion()
 const char* GetMSVCVersionStr()
 {
     const char* ret = "<unknown>";
-#ifndef __msvc__
-    return ret;
-#else
+#ifdef __msvc__
 # if ( _MSC_VER < 1700 )
     ret = "Visual Studio Pre-2012";
 # elif ( _MSC_VER < 1800 )
