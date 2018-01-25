@@ -423,7 +423,7 @@ void uiODMenuMgr::fillSurveyMenu()
 
     surveymnu_->insertSeparator();
 
-    addAction( surveymnu_, tr("Restart"), "restart", mRestartMnuItm );
+    addDirectAction( surveymnu_, tr("Restart"), "restart", mRestartMnuItm );
     addDirectAction( surveymnu_, uiStrings::sExit(), "exit", mExitMnuItm );
 }
 
