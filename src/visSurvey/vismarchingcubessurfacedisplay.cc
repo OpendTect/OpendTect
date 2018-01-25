@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "executor.h"
+#include "hiddenparam.h"
 #include "indexedshape.h"
 #include "impbodyplaneintersect.h"
 #include "keystrs.h"
@@ -31,6 +32,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispolygonoffset.h"
 #include "positionlist.h"
 
+
+static HiddenParam<visSurvey::MarchingCubesDisplay,TypeSet<Attrib::SelSpec>*>
+						   selspecs_( 0 );
 
 namespace visSurvey
 {
@@ -52,6 +56,8 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     getMaterial()->setAmbience( 0.4 );
     getMaterial()->change.notify(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
+    selspecs_.setParam( this,
+			new TypeSet<Attrib::SelSpec>(1,Attrib::SelSpec()) );
 }
 
 
@@ -78,6 +84,9 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
     if ( intersectiontransform_ )
 	intersectiontransform_->unRef();
+
+    delete selspecs_.getParam( this );
+    selspecs_.removeParam( this );
 }
 
 
@@ -254,7 +263,11 @@ void MarchingCubesDisplay::setSelSpec( int attrib, const Attrib::SelSpec& spec )
     SurveyObject::setSelSpec( attrib, spec );
 
     if ( !attrib )
-	selspec_ = spec;
+    {
+	TypeSet<Attrib::SelSpec>* attrspecs = selspecs_.getParam( this );
+	if ( attrspecs )
+	    attrspecs->first() = spec;
+    }
 }
 
 
@@ -264,20 +277,34 @@ void MarchingCubesDisplay::setSelSpecs(
     SurveyObject::setSelSpecs( attrib, spec );
 
     if ( !attrib )
-	selspec_ = spec[0];
+    {
+	TypeSet<Attrib::SelSpec>* attrspecs = selspecs_.getParam( this );
+	if ( attrspecs )
+	    attrspecs->first() = spec[0];
+    }
 }
 
 
 const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec(
 					int attrib, int version ) const
 {
-    return attrib ? 0 : &selspec_;
+    TypeSet<Attrib::SelSpec>* attrspecs = selspecs_.getParam( this );
+    return attrib || !attrspecs ? 0 : &(attrspecs->first());
+}
+
+
+const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
+							int attrib ) const
+{
+    return attrib ? 0 : selspecs_.getParam( this );
 }
 
 
 #define mSetDataPointSet(nm) \
-    const bool attribselchange = FixedString(selspec_.userRef())!=nm; \
-    selspec_.set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
+    TypeSet<Attrib::SelSpec>* attrspecs = selspecs_.getParam( this ); \
+    const bool attribselchange = \
+		attrspecs && FixedString(attrspecs->first().userRef())!=nm; \
+    attrspecs->first().set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
     DataPointSet* data = new DataPointSet(false,true); \
     DPM( DataPackMgr::PointID() ).addAndObtain( data ); \
     getRandomPos( *data, 0 ); \
@@ -597,7 +624,10 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
     par.setYN( sKeyUseTexture(), usestexture_ );
 
     IOPar attribpar;
-    selspec_.fillPar( attribpar ); //Right now only one attribute for the body
+    TypeSet<Attrib::SelSpec>* attrspecs = selspecs_.getParam( this );
+    if ( attrspecs )
+	attrspecs->first().fillPar( attribpar );
+	//Right now only one attribute for the body
 
     if ( canSetColTabSequence() && getColTabSequence( 0 ) )
     {
@@ -650,7 +680,9 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
     const IOPar* attribpar = par.subselect( sKeyAttribSelSpec() );
     if ( attribpar ) //Right now only one attribute for the body
     {
-	selspec_.usePar( *attribpar );
+	TypeSet<Attrib::SelSpec>* attrspecs = selspecs_.getParam( this );
+	if ( attrspecs )
+	    attrspecs->first().usePar( *attribpar );
 
 	PtrMan<IOPar> seqpar = attribpar->subselect( sKeyColTabSequence() );
 	if ( seqpar )

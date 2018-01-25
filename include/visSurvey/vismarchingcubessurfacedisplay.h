@@ -80,6 +80,7 @@ public:
     void			setSelSpecs(int attrib,
 					const TypeSet<Attrib::SelSpec>&);
     const Attrib::SelSpec*	getSelSpec(int attrib,int version=0) const;
+    const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const;
     void			setDepthAsAttrib(int);
     void			setIsoPatch(int);
     void			enableAttrib(int attrib,bool yn);
@@ -127,7 +128,7 @@ protected:
 
     visBase::MarchingCubesSurface*		displaysurface_;
     EM::MarchingCubesSurface*			emsurface_;
-    Attrib::SelSpec				selspec_;
+    Attrib::SelSpec				selspec_; // Not used
     ObjectSet<DataPointSet>			cache_;
 
     bool					usestexture_;
