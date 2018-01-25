@@ -439,7 +439,7 @@ void drawSelected()
 
 void drawCurrent( SeqUseMode usemode )
 {
-    drawHighlight( curitms_, usemode, 2, Color(255,255,0), 11 );
+    drawHighlight( curitms_, usemode, 2, Color(0,240,0), 11 );
 }
 
 SeqUseMode mode() const

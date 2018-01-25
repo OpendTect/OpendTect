@@ -232,6 +232,7 @@ uiManipMapper( uiColTabSelTool& seltool )
     , distribitem_(0)
     , rgstartitm_(0)
     , rgstopitm_(0)
+    , borderitm_(0)
     , zeroitem_(0)
     , movingside_(0)
 {
@@ -524,12 +525,23 @@ void drawRange()
 }
 
 
+void drawBorder()
+{
+    borderitm_ = scene().addItem(
+		    new uiRectItem(0,0,scene().nrPixX()-1,scene().nrPixY()-1) );
+    borderitm_->setPenColor( Color::Black() );
+    borderitm_->setFillColor( Color::NoColor() );
+    borderitm_->setZValue( 99999 );
+}
+
+
 void eraseAll()
 {
     delete distribitem_; distribitem_ = 0;
     delete zeroitem_; zeroitem_ = 0;
     delete rgstartitm_; rgstartitm_ = 0;
     delete rgstopitm_; rgstopitm_ = 0;
+    delete borderitm_; borderitm_ = 0;
 }
 
 void reDraw()
@@ -539,6 +551,7 @@ void reDraw()
     {
 	drawDistrib();
 	drawRange();
+	drawBorder();
     }
 }
 
@@ -553,6 +566,7 @@ void reDraw()
     uiLineItem*		zeroitem_;
     uiManipHandleItem*	rgstartitm_;
     uiManipHandleItem*	rgstopitm_;
+    uiRectItem*		borderitm_;
 
     int			movingside_;
     float		lastmovepos_;

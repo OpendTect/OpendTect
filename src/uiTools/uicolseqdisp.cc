@@ -53,6 +53,12 @@ void ColTab::fillRGBArray( uiRGBArray& rgbarr, const Sequence& seq,
 		rgbarr.set( ix, iy, color );
 	}
     }
+
+    // draw single-pixel black border
+    for ( int ix=0; ix<szx; ix++ )
+	for ( int iy=0; iy<szy; iy++ )
+	    if ( ix==0 || iy==0 || ix==szx-1 || iy == szy-1 )
+		rgbarr.set( ix, iy, Color::Black() );
 }
 
 
