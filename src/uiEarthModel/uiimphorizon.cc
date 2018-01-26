@@ -153,7 +153,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	filludffld_->setValue(false);
 	filludffld_->setSensitive( false );
 	filludffld_->attach( alignedBelow, subselfld_ );
-	interpolparbut_ = new uiPushButton( this, uiStrings::sSettings(),
+	interpolparbut_ = uiPushButton::getStd( this, OD::Settings,
 	       mCB(this,uiImportHorizon,interpolSettingsCB), false );
 	interpolparbut_->attach( rightOf, filludffld_ );
 

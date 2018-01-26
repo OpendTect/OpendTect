@@ -176,15 +176,9 @@ uiSurveyManager::uiSurveyManager( uiParent* p, bool standalone )
     if ( !standalone )
 	survinfo_ = new SurveyInfo( SI() );
 
-    const CallBack lnfsettpush( mCB(this,uiSurveyManager,lnfSettsCB) );
-    const CallBack gensettpush( mCB(this,uiSurveyManager,genSettsCB) );
-    uiToolButton* settbut = new uiToolButton( this, "settings",
-			tr("General Settings"), lnfsettpush );
-    uiMenu* butmnu = settbut->addMenu();
-    butmnu->insertAction( new uiAction( uiStrings::sGeneral(), gensettpush,
-					"settings") );
-    butmnu->insertAction( new uiAction( uiStrings::sLooknFeel(), lnfsettpush,
-					"looknfeel") );
+    uiToolButton* settbut = uiToolButton::getStd( this, OD::Settings,
+				mCB(this,uiSurveyManager,settsCB),
+				uiStrings::sUserSettings() );
     settbut->attach( rightTo, datarootfld_ );
     settbut->attach( rightBorder );
 
@@ -498,16 +492,9 @@ void uiSurveyManager::compressButPushed( CallBacker* )
 }
 
 
-void uiSurveyManager::genSettsCB( CallBacker* )
+void uiSurveyManager::settsCB( CallBacker* )
 {
-    uiSettingsDlg dlg( this, false );
-    dlg.go();
-}
-
-
-void uiSurveyManager::lnfSettsCB( CallBacker* )
-{
-    uiSettingsDlg dlg( this, true );
+    uiSettingsDlg dlg( this );
     dlg.go();
 }
 

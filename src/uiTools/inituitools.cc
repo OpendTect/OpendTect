@@ -33,8 +33,6 @@ mDefModInitFn(uiTools)
     uiZSliceInterpolationModel::initClass();
 
     uiStorageSettingsGroup::initClass();
-    uiSettingsGroup::setIsLooknFeelGroup(
-		    uiStorageSettingsGroup::sFactoryKeyword(), false );
     uiGeneralLnFSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();

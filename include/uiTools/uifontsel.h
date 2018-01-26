@@ -26,19 +26,13 @@ class uiLabeledComboBox;
 mExpClass(uiTools) uiFontSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiFontSettingsGroup);
 public:
-	    mDefaultFactoryInstantiation2Param(
-		uiSettingsGroup,
-		uiFontSettingsGroup,
-		uiParent*,Settings&,
-		"Fonts",
-		tr("Fonts"))
+
+    mDecluiSettingsGroupPublicFns( uiFontSettingsGroup,
+				   LooknFeel, "Fonts", "font",
+				   tr("Fonts"),
+				   mODHelpKey(mSetFontsHelpID) )
 
 			uiFontSettingsGroup(uiParent*,Settings&);
-
-    virtual const char*	iconID() const		{ return "font"; }
-
-    bool		acceptOK();
-    HelpKey		helpKey() const;
 
 protected:
 
@@ -51,6 +45,10 @@ protected:
     void		addResetButton();
     void		butPushed(CallBacker*);
     void		resetCB(CallBacker*);
+
+    virtual void	doCommit(uiRetVal&)		{}
+    virtual void	doRollBack();
+
 };
 
 

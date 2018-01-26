@@ -403,8 +403,8 @@ public:
     static uiWord sSession(int n=1)	{ return tr("Session",0,n); }
     static uiWord sSet(int n=1)		{ return tr("Set",0,n); }
     static uiWord sSetAs();
-    static uiWord sSetting(int n=1);
-    static uiWord sSettings()		{ return sSetting(mPlural); }
+    static uiWord sSettings();
+    static uiWord sUserSettings();
     static uiWord sSetup()		{ return tr("Setup"); }
     static uiWord sShift();
     static uiWord sSemblance()		{ return tr("Semblance"); }

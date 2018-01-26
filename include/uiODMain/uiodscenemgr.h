@@ -248,19 +248,15 @@ protected:
 mExpClass(uiODMain) uiKeyBindingSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiKeyBindingSettingsGroup);
 public:
-    mDefaultFactoryInstantiation2Param( uiSettingsGroup,
-				       uiKeyBindingSettingsGroup,
-				       uiParent*,Settings&,
-				       "Mouse interaction",
-				       tr("Mouse Interaction") );
 
-    virtual const char*	iconID() const		{ return "mouse"; }
+    mDecluiSettingsGroupPublicFns( uiKeyBindingSettingsGroup,
+				   Interaction, "Mouse interaction", "mouse",
+				   tr("Mouse Interaction"),
+				   mODHelpKey(mODSceneMgrsetKeyBindingsHelpID) )
 
-    uiKeyBindingSettingsGroup(uiParent*,Settings&);
+			uiKeyBindingSettingsGroup(uiParent*,Settings&);
 
 private:
-    bool		acceptOK();
-    virtual HelpKey	helpKey() const;
 
     uiGenInput*		keybindingfld_;
     uiGenInput*		wheeldirectionfld_;
@@ -269,4 +265,7 @@ private:
     BufferString	initialkeybinding_;
     float		initialzoomfactor_;
     bool		initialmousewheelreversal_;
+
+    virtual void	doCommit(uiRetVal&);
+
 };

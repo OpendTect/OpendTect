@@ -539,8 +539,11 @@ uiWord uiStrings::sSelOutpFile()
 uiWord uiStrings::sSelection( int num )
 { return tr("Selection", 0, num ); }
 
-uiWord uiStrings::sSetting( int num )
-{ return tr("Setting", 0, num ); }
+uiWord uiStrings::sSettings()
+{ return tr("Settings"); }
+
+uiWord uiStrings::sUserSettings()
+{ return tr("User Settings"); }
 
 uiWord uiStrings::sSetAs()
 { return tr("Set As"); }

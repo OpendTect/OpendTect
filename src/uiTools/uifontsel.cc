@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 
 uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,tr("Fonts"),setts)
+    : uiSettingsGroup(p,setts)
 {
     FontList().initialise();
     butgrp_ = new uiButtonGroup( this, "", OD::Vertical );
@@ -38,8 +38,8 @@ uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
 
 void uiFontSettingsGroup::addButton( FontData::StdSz tp, uiString infotxt )
 {
-    uiButton* but = new uiPushButton( butgrp_, 
-				    toUiString(FontData::key(tp)), false );
+    uiButton* but = new uiPushButton( butgrp_,
+				    mToUiStringTodo(FontData::key(tp)), false );
     but->setPrefWidthInChar( 25 );
     but->activated.notify( mCB(this,uiFontSettingsGroup,butPushed) );
     buttons_ += but;
@@ -114,12 +114,10 @@ void uiFontSettingsGroup::resetCB( CallBacker* )
 }
 
 
-bool uiFontSettingsGroup::acceptOK()
-{ return true; }
-
-
-HelpKey uiFontSettingsGroup::helpKey() const
-{ return mODHelpKey(mSetFontsHelpID); }
+void uiFontSettingsGroup::doRollBack()
+{
+    //TODO implement
+}
 
 
 // uiSelFonts

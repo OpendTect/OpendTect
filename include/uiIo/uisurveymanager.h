@@ -96,8 +96,7 @@ protected:
     void		copyButPushed(CallBacker*);
     void		extractButPushed(CallBacker*);
     void		compressButPushed(CallBacker*);
-    void		lnfSettsCB(CallBacker*);
-    void		genSettsCB(CallBacker*);
+    void		settsCB(CallBacker*);
     void		utilButPushed(CallBacker*);
     void		dataRootChgCB(CallBacker*);
     void		survDirChgCB(CallBacker*);

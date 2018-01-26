@@ -58,7 +58,7 @@ mDefModInitFn(uiVis)
 {
     mIfNotFirstTime( return );
 
-    uiHorizonSettings::initClass();
+    uiHorizonSettingsGroup::initClass();
 
     visBase::UserShowWaitImpl::setPosterFactory(
 				new uiVisUserShowWaitPosterFactory );

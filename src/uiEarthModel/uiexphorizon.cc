@@ -272,9 +272,9 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk)
 
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
 
-    settingsbutt_ = new uiPushButton( this, uiStrings::sSettings(),
+    settingsbutt_ = uiButton::getStd( this, OD::Settings,
 				      mCB(this,uiExportHorizon,settingsCB),
-				      false);
+				      false );
     settingsbutt_->attach( rightOf, typfld_ );
 
     zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),

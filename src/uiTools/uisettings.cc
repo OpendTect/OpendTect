@@ -26,9 +26,11 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "uisplitter.h"
 #include "uitable.h"
-#include "uivirtualkeyboard.h"
 #include "uithemesel.h"
+#include "uitreeview.h"
+#include "uivirtualkeyboard.h"
 
 
 static const char* sKeyCommon = "<general>";
@@ -246,41 +248,14 @@ bool uiAdvSettings::acceptOK()
 }
 
 
-static int theiconsz = -1;
-static BoolTypeSet settgrpislnf_;
-
-
+static int theiconsz_ = -1;
 mImplFactory2Param( uiSettingsGroup, uiParent*, Settings&,
 		    uiSettingsGroup::factory )
 
-void uiSettingsGroup::setIsLooknFeelGroup( const char* nm, bool yn )
-{
-    for ( int idx=0; idx<factory().size(); idx++ )
-    {
-	if ( factory().getNames().get(idx) == nm )
-	{
-	    for ( int iflag=settgrpislnf_.size(); iflag<=idx; iflag++ )
-		settgrpislnf_ += true;
 
-	    settgrpislnf_[idx] = yn;
-	    return;;
-	}
-    }
-}
-
-
-bool uiSettingsGroup::isLooknFeelGroup( const char* nm )
-{
-    const int idx = factory().getNames().indexOf( nm );
-    return settgrpislnf_.validIdx(idx) ? (bool)settgrpislnf_[idx] : true;
-}
-
-
-uiSettingsGroup::uiSettingsGroup( uiParent* p, const uiString& caption,
-				  Settings& setts )
-    : uiDlgGroup(p,caption)
+uiSettingsGroup::uiSettingsGroup( uiParent* p, Settings& setts )
+    : uiGroup(p,"Settings group")
     , setts_(setts)
-    , changed_(false)
     , needsrestart_(false)
     , needsrenewal_(false)
 {
@@ -288,14 +263,32 @@ uiSettingsGroup::uiSettingsGroup( uiParent* p, const uiString& caption,
 
 
 uiSettingsGroup::~uiSettingsGroup()
-{}
+{
+}
 
 
-uiString uiSettingsGroup::errMsg() const
-{ return errmsg_; }
+uiString uiSettingsGroup::dispStr( Type typ )
+{
+    switch( typ )
+    {
+	case General:		return uiStrings::sGeneral();
+	case LooknFeel:		return uiStrings::sLooknFeel();
+	case Interaction:	return tr("Interaction");
+    }
+
+    pFreeFnErrMsg( "Missing case" );
+    return uiStrings::sOther();
+}
 
 
-#define mDefUpdateSettings( type, setfunc ) \
+bool uiSettingsGroup::commit( uiRetVal& uirv )
+{
+    doCommit( uirv );
+    return uirv.isOK();
+}
+
+
+#define mDefUpdateSettingsFn( type, setfunc ) \
 void uiSettingsGroup::updateSettings( type oldval, type newval, \
 				      const char* key ) \
 { \
@@ -306,91 +299,85 @@ void uiSettingsGroup::updateSettings( type oldval, type newval, \
     } \
 }
 
-mDefUpdateSettings( bool, setYN )
-mDefUpdateSettings( int, set )
-mDefUpdateSettings( float, set )
-mDefUpdateSettings( const OD::String&, set )
+mDefUpdateSettingsFn( bool, setYN )
+mDefUpdateSettingsFn( int, set )
+mDefUpdateSettingsFn( float, set )
+mDefUpdateSettingsFn( const OD::String&, set )
 
 
 // uiStorageSettingsGroup
 uiStorageSettingsGroup::uiStorageSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,uiStrings::sStorage(),setts)
-    , enabsharedstor_(false)
+    : uiSettingsGroup(p,setts)
+    , initialshstorenab_(false)
 {
-    setts_.getYN( SettingsAccess::sKeyEnabSharedStor(), enabsharedstor_ );
+    setts_.getYN( SettingsAccess::sKeyEnabSharedStor(), initialshstorenab_ );
     enablesharedstorfld_ = new uiGenInput( this,
 				tr("Enable shared survey data storage"),
-				BoolInpSpec(enabsharedstor_) );
+				BoolInpSpec(initialshstorenab_) );
 }
 
 
-bool uiStorageSettingsGroup::acceptOK()
+void uiStorageSettingsGroup::doCommit( uiRetVal& )
 {
-    updateSettings( enabsharedstor_, enablesharedstorfld_->getBoolValue(0),
+    updateSettings( initialshstorenab_, enablesharedstorfld_->getBoolValue(0),
 		    SettingsAccess::sKeyEnabSharedStor() );
-    return true;
 }
 
 
 // uiGeneralLnFSettingsGroup
-uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p,
-							Settings& setts )
-    : uiSettingsGroup(p,uiStrings::sGeneral(),setts)
-    , iconsz_(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
-    , showinlprogress_(true)
-    , showcrlprogress_(true)
-    , showrdlprogress_(true)
-    , enabvirtualkeyboard_(false)
+uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
+    : uiSettingsGroup(p,s)
+    , initialiconsz_(theiconsz_ < 0 ? uiObject::iconSize() : theiconsz_)
+    , initialshowinlprogress_(true)
+    , initialshowcrlprogress_(true)
+    , initialshowrdlprogress_(true)
+    , initialenabvirtualkeyboard_(false)
 {
     themesel_ = new uiThemeSel( this, true );
 
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
-				 IntInpSpec(iconsz_,10,64) );
+				 IntInpSpec(initialiconsz_,10,64) );
     iconszfld_->attach( alignedBelow, themesel_ );
 
     setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
-		  enabvirtualkeyboard_ );
+		  initialenabvirtualkeyboard_ );
     virtualkeyboardfld_ = new uiGenInput( this,
 		tr("Enable Virtual Keyboard"),
-		BoolInpSpec(enabvirtualkeyboard_) );
+		BoolInpSpec(initialenabvirtualkeyboard_) );
     virtualkeyboardfld_->attach( alignedBelow, iconszfld_ );
 
-    setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
-    setts_.getYN( SettingsAccess::sKeyShowCrlProgress(), showcrlprogress_ );
-    setts_.getYN( SettingsAccess::sKeyShowRdlProgress(), showrdlprogress_ );
+    setts_.getYN( SettingsAccess::sKeyShowInlProgress(),
+		  initialshowinlprogress_ );
+    setts_.getYN( SettingsAccess::sKeyShowCrlProgress(),
+		  initialshowcrlprogress_ );
+    setts_.getYN( SettingsAccess::sKeyShowRdlProgress(),
+		  initialshowrdlprogress_ );
     showprogressfld_ = new uiCheckList( this );
     showprogressfld_->setLabel( tr("Show progress when loading for") );
     showprogressfld_->addItem( uiStrings::sInline(mPlural), "cube_inl" );
     showprogressfld_->addItem( uiStrings::sCrossline(mPlural), "cube_crl" );
     showprogressfld_->addItem( uiStrings::sRandomLine(mPlural),
 			       "cube_randomline" );
-    showprogressfld_->setChecked( 0, showinlprogress_ );
-    showprogressfld_->setChecked( 1, showcrlprogress_ );
-    showprogressfld_->setChecked( 2, showrdlprogress_ );
+    showprogressfld_->setChecked( 0, initialshowinlprogress_ );
+    showprogressfld_->setChecked( 1, initialshowcrlprogress_ );
+    showprogressfld_->setChecked( 2, initialshowrdlprogress_ );
     showprogressfld_->attach( alignedBelow, virtualkeyboardfld_ );
 }
 
 
-bool uiGeneralLnFSettingsGroup::rejectOK()
+void uiGeneralLnFSettingsGroup::doRollBack()
 {
     themesel_->revert();
-    return true;
 }
 
 
-bool uiGeneralLnFSettingsGroup::acceptOK()
+void uiGeneralLnFSettingsGroup::doCommit( uiRetVal& )
 {
-    const int newiconsz = iconszfld_->getIntValue();
-    if ( newiconsz < 10 || newiconsz > 64 )
-    {
-	errmsg_ = uiStrings::phrSpecify(tr("an icon size in the range 10-64"));
-	return false;
-    }
-
     if ( themesel_->putInSettings(false) )
 	changed_ = true;
 
-    if ( newiconsz != iconsz_ )
+    const int newiconsz = iconszfld_->getIntValue();
+    if ( newiconsz != initialiconsz_ )
     {
 	IOPar* iopar = setts_.subselect( SettingsAccess::sKeyIcons() );
 	if ( !iopar ) iopar = new IOPar;
@@ -399,41 +386,41 @@ bool uiGeneralLnFSettingsGroup::acceptOK()
 	changed_ = true;
 	needsrestart_ = true;
 	delete iopar;
-	theiconsz = newiconsz;
+	theiconsz_ = newiconsz;
     }
 
-    updateSettings( showinlprogress_, showprogressfld_->isChecked(0),
+    updateSettings( initialshowinlprogress_, showprogressfld_->isChecked(0),
 		    SettingsAccess::sKeyShowInlProgress() );
-    updateSettings( showcrlprogress_, showprogressfld_->isChecked(1),
+    updateSettings( initialshowcrlprogress_, showprogressfld_->isChecked(1),
 		    SettingsAccess::sKeyShowCrlProgress() );
-    updateSettings( showrdlprogress_, showprogressfld_->isChecked(2),
+    updateSettings( initialshowrdlprogress_, showprogressfld_->isChecked(2),
 		    SettingsAccess::sKeyShowRdlProgress() );
-    updateSettings( enabvirtualkeyboard_, virtualkeyboardfld_->getBoolValue(),
+    updateSettings( initialenabvirtualkeyboard_,
+		    virtualkeyboardfld_->getBoolValue(),
 		    uiVirtualKeyboard::sKeyEnabVirtualKeyboard() );
-
-    return true;
 }
 
 
 // uiVisSettingsGroup
 uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,tr("Visualization"),setts)
-    , textureresindex_(0)
-    , usesurfshaders_(true)
-    , usevolshaders_(true)
-    , enablemipmapping_(true)
-    , anisotropicpower_(4)
+    : uiSettingsGroup(p,setts)
+    , initialtextureresindex_(0)
+    , initialusesurfshaders_(true)
+    , initialusevolshaders_(true)
+    , initialenablemipmapping_(true)
+    , initialanisotropicpower_(4)
 {
     uiLabel* shadinglbl = new uiLabel( this,
 				tr("Use OpenGL shading when available:") );
-    setts_.getYN( SettingsAccess::sKeyUseSurfShaders(), usesurfshaders_ );
+    setts_.getYN( SettingsAccess::sKeyUseSurfShaders(),
+		  initialusesurfshaders_ );
     usesurfshadersfld_ = new uiGenInput( this, tr("for surface rendering"),
-					 BoolInpSpec(usesurfshaders_) );
+					 BoolInpSpec(initialusesurfshaders_) );
     usesurfshadersfld_->attach( leftAlignedBelow, shadinglbl );
 
-    setts_.getYN( SettingsAccess::sKeyUseVolShaders(), usevolshaders_ );
+    setts_.getYN( SettingsAccess::sKeyUseVolShaders(), initialusevolshaders_ );
     usevolshadersfld_ = new uiGenInput( this, tr("for volume rendering"),
-					BoolInpSpec(usevolshaders_) );
+					BoolInpSpec(initialusevolshaders_) );
     usevolshadersfld_->attach( leftAlignedBelow, usesurfshadersfld_, 0 );
 
     uiLabeledComboBox* lcb =
@@ -447,12 +434,14 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     if ( SettingsAccess::systemHasDefaultTexResFactor() )
 	textureresfactorfld_->addItem( tr("System default") );
 
-    textureresindex_ = SettingsAccess(setts_).getDefaultTexResAsIndex( 3 );
-    textureresfactorfld_->setCurrentItem( textureresindex_ );
+    initialtextureresindex_ = SettingsAccess(setts_)
+					.getDefaultTexResAsIndex( 3 );
+    textureresfactorfld_->setCurrentItem( initialtextureresindex_ );
 
-    setts_.getYN( SettingsAccess::sKeyEnableMipmapping(), enablemipmapping_ );
+    setts_.getYN( SettingsAccess::sKeyEnableMipmapping(),
+					initialenablemipmapping_ );
     enablemipmappingfld_ = new uiGenInput( this, tr("Mipmap anti-aliasing"),
-					   BoolInpSpec(enablemipmapping_) );
+					BoolInpSpec(initialenablemipmapping_) );
     enablemipmappingfld_->attach( alignedBelow, lcb );
     enablemipmappingfld_->valuechanged.notify(
 			    mCB(this,uiVisSettingsGroup,mipmappingToggled) );
@@ -468,13 +457,14 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     anisotropicpowerfld_->box()->addItem( toUiString("16 x") );
     anisotropicpowerfld_->box()->addItem( toUiString("32 x") );
 
-    setts_.get( SettingsAccess::sKeyAnisotropicPower(), anisotropicpower_ );
-    if ( anisotropicpower_ < -1 )
-	anisotropicpower_ = -1;
-    if ( anisotropicpower_ > 5 )
-	anisotropicpower_ = 5;
+    setts_.get( SettingsAccess::sKeyAnisotropicPower(),
+		initialanisotropicpower_ );
+    if ( initialanisotropicpower_ < -1 )
+	initialanisotropicpower_ = -1;
+    if ( initialanisotropicpower_ > 5 )
+	initialanisotropicpower_ = 5;
 
-    anisotropicpowerfld_->box()->setCurrentItem( anisotropicpower_+1 );
+    anisotropicpowerfld_->box()->setCurrentItem( initialanisotropicpower_+1 );
 
     mipmappingToggled( 0 );
 }
@@ -486,64 +476,170 @@ void uiVisSettingsGroup::mipmappingToggled( CallBacker* )
 }
 
 
-bool uiVisSettingsGroup::acceptOK()
+void uiVisSettingsGroup::doCommit( uiRetVal& )
 {
     const bool usesurfshaders = usesurfshadersfld_->getBoolValue();
-    updateSettings( usesurfshaders_, usesurfshaders,
+    updateSettings( initialusesurfshaders_, usesurfshaders,
 		    SettingsAccess::sKeyUseSurfShaders() );
     const bool usevolshaders = usevolshadersfld_->getBoolValue();
-    updateSettings( usevolshaders_, usevolshaders,
+    updateSettings( initialusevolshaders_, usevolshaders,
 		    SettingsAccess::sKeyUseVolShaders() );
 
     const int idx = textureresfactorfld_->currentItem();
-    if ( textureresindex_ != idx )
+    if ( initialtextureresindex_ != idx )
     {
 	changed_ = true;
 	SettingsAccess(setts_).setDefaultTexResAsIndex( idx, 3 );
     }
 
-    updateSettings( enablemipmapping_, enablemipmappingfld_->getBoolValue(),
+    updateSettings( initialenablemipmapping_,
+		    enablemipmappingfld_->getBoolValue(),
 		    SettingsAccess::sKeyEnableMipmapping() );
 
     const int anisotropicpower = anisotropicpowerfld_->box()->currentItem()-1;
-    updateSettings( anisotropicpower_, anisotropicpower,
+    updateSettings( initialanisotropicpower_, anisotropicpower,
 		    SettingsAccess::sKeyAnisotropicPower() );
 
     if ( changed_ )
 	needsrenewal_ = true;
-
-    return true;
 }
 
 
-// uiSettingsDlg
-uiSettingsDlg::uiSettingsDlg( uiParent* p, bool islooknfeel )
-    : uiTabStackDlg(p,uiDialog::Setup(tr("OpendTect Settings"),mNoDlgTitle,
-				      mODHelpKey(mLooknFeelSettingsHelpID)))
-    , setts_(Settings::common())
-    , changed_(false)
-    , needsrestart_(false)
-    , needsrenewal_(false)
+class uiSettingsTypeTreeItm : public uiTreeViewItem
 {
+public:
+
+uiSettingsTypeTreeItm( uiTreeView* p, uiSettingsGroup::Type typ )
+    : uiTreeViewItem(p,Setup(uiSettingsGroup::dispStr(typ)))
+    , type_(typ)
+{
+    const char* icid = 0;
+    switch ( type_ )
+    {
+	case uiSettingsGroup::General:		icid = "settings";	break;
+	case uiSettingsGroup::LooknFeel:	icid = "looknfeel";	break;
+	case uiSettingsGroup::Interaction:	icid = "interaction";	break;
+    }
+    setIcon( 0, icid );
+    setSelectable( false );
+    setToolTip( 0, uiString::emptyString() );
+}
+
+~uiSettingsTypeTreeItm()
+{
+    detachAllNotifiers();
+}
+
+    const uiSettingsGroup::Type	type_;
+
+};
+
+
+class uiSettingsSubjectTreeItm : public uiTreeViewItem
+{
+public:
+
+uiSettingsSubjectTreeItm( uiSettingsTypeTreeItm* typitm, uiSettingsGroup& grp )
+    : uiTreeViewItem(typitm,Setup(grp.subject()))
+    , typitm_(*typitm)
+    , grp_(grp)
+{
+    setIcon( 0, grp.iconID() );
+    setToolTip( 0, uiString::emptyString() );
+}
+
+~uiSettingsSubjectTreeItm()
+{
+    detachAllNotifiers();
+}
+
+    uiSettingsGroup&		grp_;
+    uiSettingsTypeTreeItm&	typitm_;
+
+};
+
+
+
+uiSettingsDlg::uiSettingsDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup(tr("OpendTect Settings"),mNoDlgTitle,
+				      mTODOHelpKey))
+    , setts_(Settings::common())
+    , havechanges_(false)
+    , restartneeded_(false)
+    , renewalneeded_(false)
+    , curtreeitm_(0)
+{
+    uiGroup* leftgrp = new uiGroup( this, "uiSettingsGroup tree" );
+    treefld_ = new uiTreeView( leftgrp, "uiSettingsGroup tree" );
+    treefld_->showHeader( false );
+    ObjectSet<uiSettingsTypeTreeItm> typitms;
+#   define mAddTypeTreeItm(typ) \
+    typitms += new uiSettingsTypeTreeItm( treefld_, uiSettingsGroup::typ )
+    mAddTypeTreeItm( General );
+    mAddTypeTreeItm( LooknFeel );
+    mAddTypeTreeItm( Interaction );
+
+    uiGroup* rightgrp = new uiGroup( this, "uiSettingsGroup area" );
     const BufferStringSet& nms = uiSettingsGroup::factory().getNames();
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	const char* nm = nms.get( idx ).buf();
-	if ( uiSettingsGroup::isLooknFeelGroup(nm) != islooknfeel )
-	    continue;
-
 	uiSettingsGroup* grp = uiSettingsGroup::factory().create(
-				    nm, tabstack_->tabGroup(), setts_ );
-	grp->attach( hCentered );
-	addGroup( grp );
-	grps_ += grp;
-	tabstack_->setTabIcon( grp, grp->iconID() );
+				    nm, rightgrp, setts_ );
+	treeitms_ += new uiSettingsSubjectTreeItm( typitms[grp->type()], *grp );
     }
+
+    uiSplitter* spl = new uiSplitter( this );
+    spl->addGroup( leftgrp );
+    spl->addGroup( rightgrp );
+
+    mAttachCB( postFinalise(), uiSettingsDlg::initWin );
 }
 
 
 uiSettingsDlg::~uiSettingsDlg()
 {
+    detachAllNotifiers();
+}
+
+
+void uiSettingsDlg::initWin( CallBacker* )
+{
+    if ( treeitms_.isEmpty() )
+	return;
+
+    int defitmidx = 0;
+    for ( int idx=0; idx<treeitms_.size(); idx++ )
+	if ( FixedString(treeitms_[idx]->grp_.factoryKeyword())
+		== uiGeneralLnFSettingsGroup::sFactoryKeyword() )
+	    { defitmidx = idx; break; }
+    uiSettingsSubjectTreeItm* itm = treeitms_[defitmidx];
+
+    treefld_->expandAll();
+    mAttachCB( treefld_->selectionChanged, uiSettingsDlg::selChgCB );
+    treefld_->setCurrentItem( itm );
+    selChgCB( itm );
+}
+
+
+void uiSettingsDlg::selChgCB( CallBacker* )
+{
+    mDynamicCastGet(uiSettingsSubjectTreeItm*,curitm,treefld_->selectedItem())
+    if ( !curitm || treeitms_.isEmpty() || curtreeitm_ == curitm )
+	return;
+
+    for ( int idx=0; idx<treeitms_.size(); idx++ )
+    {
+	uiSettingsSubjectTreeItm* itm = treeitms_[idx];
+	uiSettingsGroup& grp = itm->grp_;
+	grp.display( itm == curitm );
+	if ( itm == curtreeitm_ )
+	    grp.setActive( false );
+	else if ( itm == curitm )
+	    grp.setActive( true );
+    }
+
+    curtreeitm_ = curitm;
 }
 
 
@@ -556,31 +652,39 @@ void uiSettingsDlg::handleRestart()
 }
 
 
+bool uiSettingsDlg::rejectOK()
+{
+    for ( int idx=0; idx<treeitms_.size(); idx++ )
+	treeitms_[idx]->grp_.rollBack();
+    return true;
+}
+
+
 bool uiSettingsDlg::acceptOK()
 {
-    if ( !uiTabStackDlg::acceptOK() )
-	return false;
+    uiRetVal uirv;
+    for ( int idx=0; idx<treeitms_.size(); idx++ )
+	treeitms_[idx]->grp_.commit( uirv );
+    if ( !uirv.isOK() )
+	{ uiMSG().error( uirv ); return false; }
 
-    changed_ = false;
-    for ( int idx=0; idx<grps_.size(); idx++ )
-	changed_ = changed_ || grps_[idx]->isChanged();
+    havechanges_ = false;
+    for ( int idx=0; idx<treeitms_.size(); idx++ )
+	havechanges_ = havechanges_ || treeitms_[idx]->grp_.isChanged();
 
-    if ( changed_ && !setts_.write() )
+    if ( havechanges_ && !setts_.write() )
+	{ uiMSG().error( uiStrings::sCantWriteSettings() ); return false; }
+
+    restartneeded_ = false; renewalneeded_ = false;
+    for ( int idx=0; idx<treeitms_.size(); idx++ )
     {
-	uiMSG().error( uiStrings::sCantWriteSettings() );
-	return false;
+	restartneeded_ = restartneeded_ || treeitms_[idx]->grp_.needsRestart();
+	renewalneeded_ = renewalneeded_ || treeitms_[idx]->grp_.needsRenewal();
     }
 
-    needsrestart_ = false; needsrenewal_ = false;
-    for ( int idx=0; idx<grps_.size(); idx++ )
-    {
-	needsrestart_ = needsrestart_ || grps_[idx]->needsRestart();
-	needsrenewal_ = needsrenewal_ || grps_[idx]->needsRenewal();
-    }
-
-    if ( needsrestart_ )
+    if ( restartneeded_ )
 	handleRestart();
-    else if ( needsrenewal_ )
+    else if ( renewalneeded_ )
 	uiMSG().message(tr("Your new settings will become active\n"
 			   "only for newly launched objects."));
 

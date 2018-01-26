@@ -889,9 +889,8 @@ void uiODMenuMgr::fillUtilMenu()
 {
     settmnu_ = addSubMenu( utilmnu_, uiStrings::sSettings(), "settings" );
     langmnumgr_ = new uiODLangMenuMgr( *this );
-    addAction( settmnu_, uiStrings::sGeneral(), "settings", mSettGenMnuItm );
-    addAction( settmnu_, uiStrings::sLooknFeel(), "looknfeel",
-				mSettLkNFlMnuItm );
+    addAction( settmnu_, uiStrings::sUserSettings(), "settings",
+				mSettingsMnuItm );
     addAction( settmnu_, tr("Keyboard Shortcuts"), "keyboardshortcuts",
 				mSettShortcutsMnuItm );
     addAction( settmnu_, tr("Auto-Save"), "save", mSettAutoSaveMnuItm );
@@ -1411,9 +1410,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	dlg.go();
     } break;
 
-    case mSettGenMnuItm:
-    case mSettLkNFlMnuItm: {
-	uiSettingsDlg dlg( &appl_, id == mSettLkNFlMnuItm );
+    case mSettingsMnuItm: {
+	uiSettingsDlg dlg( &appl_ );
 	dlg.go();
     } break;
 

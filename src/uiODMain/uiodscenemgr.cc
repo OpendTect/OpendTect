@@ -1489,7 +1489,7 @@ uiODScene::~uiODScene()
 
 
 uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
-    : uiSettingsGroup( p, tr("Mouse interaction"), s )
+    : uiSettingsGroup( p, s )
     , keybindingfld_( 0 )
     , wheeldirectionfld_( 0 )
     , initialmousewheelreversal_( false )
@@ -1541,16 +1541,10 @@ uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
 }
 
 
-HelpKey uiKeyBindingSettingsGroup::helpKey() const
-{
-    return mODHelpKey(mODSceneMgrsetKeyBindingsHelpID);
-}
-
-
-bool uiKeyBindingSettingsGroup::acceptOK()
+void uiKeyBindingSettingsGroup::doCommit( uiRetVal& uirv )
 {
     if ( !keybindingfld_ )
-	return true;
+	return;
 
     TypeSet<int> sceneids;
     if ( ODMainWin()->applMgr().visServer() )
@@ -1602,13 +1596,9 @@ bool uiKeyBindingSettingsGroup::acceptOK()
 			SettingsAccess::sKeyMouseWheelZoomFactor() );
     }
 
-
-
     updateSettings( initialkeybinding_, keybinding,
 		   ui3DViewer::sKeyBindingSettingsKey() );
 
     updateSettings( initialmousewheelreversal_, reversedwheel,
 		   SettingsAccess::sKeyMouseWheelReversal() );
-
-    return true;
 }

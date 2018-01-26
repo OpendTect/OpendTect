@@ -88,28 +88,25 @@ protected:
 
 
 
-mExpClass(uiVis) uiHorizonSettings : public uiSettingsGroup
-{ mODTextTranslationClass(uiHorizonSettings)
+mExpClass(uiVis) uiHorizonSettingsGroup : public uiSettingsGroup
+{ mODTextTranslationClass(uiHorizonSettingsGroup)
 public:
-			mDefaultFactoryInstantiation2Param(
-				uiSettingsGroup,
-				uiHorizonSettings,
-				uiParent*,Settings&,
-				"Horizons",
-				toUiString(sFactoryKeyword()))
 
-    virtual const char*	iconID() const		{ return "tree-horizon3d"; }
+    mDecluiSettingsGroupPublicFns( uiHorizonSettingsGroup,
+				   LooknFeel, "Horizons", "tree-horizon3d",
+				   uiStrings::sHorizon(mPlural),
+				   mODHelpKey(mHorizonSettingsHelpID) )
 
-			uiHorizonSettings(uiParent*,Settings&);
-    bool		acceptOK();
-    HelpKey		helpKey() const;
+			uiHorizonSettingsGroup(uiParent*,Settings&);
 
 protected:
 
     uiGenInput*		resolutionfld_;
     uiColSeqSel*	colseqfld_;
 
-    int			resolution_;
-    BufferString	colseqnm_;
+    int			initialresolution_;
+    BufferString	initialcolseqnm_;
+
+    virtual void	doCommit(uiRetVal&);
 
 };

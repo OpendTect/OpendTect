@@ -211,12 +211,11 @@ ________________________________________________________________________
 #define mInstConnSettsMnuItm		(mUtilMnu + 52)
 #define mDisplayMemoryMnuItm		(mUtilMnu + 98)
 #define mDumpDataPacksMnuItm		(mUtilMnu + 99)
-#define mSettGenMnuItm			(mUtilSettingMnu + 10)
-#define mSettLkNFlMnuItm		(mUtilSettingMnu + 20)
-#define mSettAutoSaveMnuItm		(mUtilSettingMnu + 30)
-#define mSettAdvPersonal		(mUtilSettingMnu + 40)
-#define mSettAdvSurvey			(mUtilSettingMnu + 41)
-#define mSettShortcutsMnuItm		(mUtilSettingMnu + 50)
+#define mSettingsMnuItm			(mUtilSettingMnu + 10)
+#define mSettAutoSaveMnuItm		(mUtilSettingMnu + 20)
+#define mSettAdvPersonal		(mUtilSettingMnu + 30)
+#define mSettAdvSurvey			(mUtilSettingMnu + 31)
+#define mSettShortcutsMnuItm		(mUtilSettingMnu + 40)
 #define mSettLanguageMnu		(mUtilSettingMnu + 100)
 
 

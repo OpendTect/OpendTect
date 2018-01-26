@@ -177,9 +177,7 @@ mDefModInitFn(uiIo)
     if ( enabClusterProc() )
 	uiClusterJobDispatcherLauncher::initClass();
 
-    uiProcSettings::initClass();
-    uiSettingsGroup::setIsLooknFeelGroup(
-				uiProcSettings::sFactoryKeyword(), false );
+    uiProcSettingsGroup::initClass();
 
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
     uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );

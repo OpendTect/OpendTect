@@ -394,6 +394,21 @@ uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 }
 
 
+uiPushButton* uiPushButton::getStd( uiParent* p, OD::StdActionType typ,
+				    const CallBack& cb, bool immediate )
+{
+    uiButton* but = uiButton::getStd( p, typ, cb, immediate );
+    if ( !but )
+	return 0;
+
+    mDynamicCastGet(uiPushButton*,pb,but)
+    if ( !pb )
+	{ pFreeFnErrMsg("uiButton::getStd delivered TB"); return 0; }
+
+    return pb;
+}
+
+
 uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const uiString& txt )
 {
     pbbody_ = new uiPushButtonBody( *this, parnt, txt );

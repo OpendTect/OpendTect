@@ -539,39 +539,33 @@ static void fillResolutionNames( BufferStringSet& nms )
 }
 
 
-// uiHorizonSettings
-uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,uiStrings::sHorizon(mPlural),setts)
+uiHorizonSettingsGroup::uiHorizonSettingsGroup( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,setts)
 {
     if ( sResolutionNames.isEmpty() )
 	fillResolutionNames( sResolutionNames );
 
-    resolution_ = 0;
-    setts.get( sKeyHorizonRes, resolution_ );
+    initialresolution_ = 0;
+    setts.get( sKeyHorizonRes, initialresolution_ );
     resolutionfld_ = new uiGenInput( this, tr("Default Resolution"),
 				     StringListInpSpec(sResolutionNames) );
-    resolutionfld_->setValue( resolution_ );
+    resolutionfld_->setValue( initialresolution_ );
 
-    colseqnm_ = ColTab::defSeqName( true );
-    setts.get( sKeyHorizonColSeqName, colseqnm_ );
+    initialcolseqnm_ = ColTab::defSeqName( true );
+    setts.get( sKeyHorizonColSeqName, initialcolseqnm_ );
     colseqfld_ = new uiColSeqSel( this, OD::Horizontal,
 				  tr("Default Colortable") );
-    colseqfld_->setSeqName( colseqnm_ );
+    colseqfld_->setSeqName( initialcolseqnm_ );
     colseqfld_->attach( alignedBelow, resolutionfld_ );
 }
 
 
-HelpKey uiHorizonSettings::helpKey() const
-{ return mODHelpKey(mHorizonSettingsHelpID); }
-
-
-bool uiHorizonSettings::acceptOK()
+void uiHorizonSettingsGroup::doCommit( uiRetVal& )
 {
-    updateSettings( resolution_, resolutionfld_->getIntValue(),
+    updateSettings( initialresolution_, resolutionfld_->getIntValue(),
 		    sKeyHorizonRes );
-    updateSettings( colseqnm_, colseqfld_->seqName(),
+    updateSettings( initialcolseqnm_, colseqfld_->seqName(),
 		    sKeyHorizonColSeqName );
-    return true;
 }
 
 
