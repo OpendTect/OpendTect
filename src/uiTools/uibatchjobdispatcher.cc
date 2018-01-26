@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uibatchjobdispatchersel.h"
 #include "uibatchjobdispatcherlauncher.h"
 
+#include "file.h"
 #include "hostdata.h"
 #include "ioobj.h"
 #include "oddirs.h"
@@ -232,9 +233,18 @@ bool uiBatchJobDispatcherSel::start()
 }
 
 
-bool uiBatchJobDispatcherSel::savePars( const IOObj& ioobj ) const
+bool uiBatchJobDispatcherSel::saveProcPars( const IOObj& ioobj ) const
 {
-    File::Path fp( ioobj.mainFileName() );
+    File::Path fp( ioobj.fullUserExpr() );
+    if ( fp.pathOnly().isEmpty() )
+    {
+	File::Path survfp( GetDataDir(), ioobj.dirName() );
+	if ( !File::exists(survfp.fullPath()) )
+	    return false;
+
+	fp.setPath( survfp.fullPath() );
+    }
+
     fp.setExtension( "proc" );
     return jobspec_.pars_.write( fp.fullPath(), sKey::Pars() );
 }
