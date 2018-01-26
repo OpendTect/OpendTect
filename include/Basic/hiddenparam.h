@@ -65,6 +65,7 @@ public:
     const V&	getParam(const O* obj) const;
     bool	hasParam(const O* obj) const;
     void	removeParam(O* obj);
+    void	removeAndDeleteParam(O* obj);
 
 protected:
 
@@ -151,7 +152,6 @@ bool HiddenParam<O,V>::hasParam( const O* obj ) const
 }
 
 
-
 template <class O, class V>
 void HiddenParam<O,V>::removeParam( O* obj )
 {
@@ -160,6 +160,23 @@ void HiddenParam<O,V>::removeParam( O* obj )
     if ( idx==-1 )
 	return;
 
+    params_.removeSingle( idx );
+    objects_.removeSingle( idx );
+}
+
+
+template <class O, class V>
+void HiddenParam<O,V>::removeAndDeleteParam( O* obj )
+{
+    Threads::Locker locker( lock_ );
+    const int idx = objects_.indexOf( obj );
+    if ( idx==-1 )
+    {
+	pErrMsg("Object not found");
+	return;
+    }
+
+    delete params_[idx];
     params_.removeSingle( idx );
     objects_.removeSingle( idx );
 }
