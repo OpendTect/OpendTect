@@ -66,7 +66,7 @@ const char* uiODSceneProbeParentTreeItem::iconID4AddMnu( AddType addtyp )
 	case RGBA:		return "colorblending";
     }
     pFreeFnErrMsg("non-enum value passed");
-    return "addnew";
+    return "create";
 }
 
 

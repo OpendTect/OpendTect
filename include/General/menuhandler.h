@@ -80,7 +80,9 @@ public:
 				MenuItem(const uiString& text,
 					 CallBack cb,int placement=-1);
 				MenuItem(const uiString& text,
-					 const char* iconnm,
+					 const char* iconid,int placement=-1);
+				MenuItem(const uiString& text,
+					 const char* iconid,
 					 const uiString& tooltip,
 					 CallBack cb=CallBack(),
 					 int placement=-1);

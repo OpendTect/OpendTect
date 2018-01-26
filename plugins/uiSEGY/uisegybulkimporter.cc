@@ -42,10 +42,10 @@ uiSEGYMultiVintageImporter::uiSEGYMultiVintageImporter( uiParent* p )
     table_->setColumnLabel( 2, tr("") );
     table_->setNrRows(0);
     uiGroup* toolgrp = new uiGroup( this, "Tool group" );
-    uiToolButton* addbut = new uiToolButton(toolgrp, "plus",
+    uiToolButton* addbut = new uiToolButton(toolgrp, "create",
 				    uiStrings::phrAdd(tr("Vintage")),
 				    mCB(this,uiSEGYMultiVintageImporter,addCB));
-    uiToolButton* removebut = new uiToolButton(toolgrp, "minus",
+    uiToolButton* removebut = new uiToolButton(toolgrp, "remove",
 				 uiStrings::phrRemove(tr("Vintage")),
 				 mCB(this,uiSEGYMultiVintageImporter,removeCB));
     removebut->attach( alignedBelow, addbut );

@@ -342,7 +342,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 
     toolbar_->addSeparator();
 
-    removalbutidx_ = toolbar_->addButton( "trashcan",
+    removalbutidx_ = toolbar_->addButton( "remove",
 				tr("Remove Selected Sticks"),
 				mCB(this,uiODFaultToolMan,stickRemovalCB),
 				false );

@@ -118,12 +118,12 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     uiSeparator* modesep = new uiSeparator( toolgrp_, "Mode Sep" );
     modesep->attach( stretchedBelow, pickbut_ );
 
-    addbut_ = new uiToolButton( toolgrp_, "plus", tr("Add Marker"), butcb );
+    addbut_ = new uiToolButton( toolgrp_, "create", tr("Add Marker"), butcb );
     addbut_->attach( ensureBelow, modesep );
     addbut_->attach( alignedBelow, pickbut_ );
     editbut_ = new uiToolButton( toolgrp_, "edit", tr("Edit Marker"), butcb );
     editbut_->attach( alignedBelow, addbut_ );
-    rembut_ = new uiToolButton(toolgrp_, "trashcan", tr("Remove Marker"),butcb);
+    rembut_ = new uiToolButton(toolgrp_, "remove", tr("Remove Marker"),butcb);
     rembut_->attach( alignedBelow, editbut_ );
 }
 

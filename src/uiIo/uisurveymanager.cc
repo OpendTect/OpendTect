@@ -227,7 +227,7 @@ void uiSurveyManager::mkSurvManTools()
     survmanbuts_ = new uiButtonGroup( survselgrp_, "Surv Man Buttons",
 				      OD::Vertical );
     survmanbuts_->attach( rightTo, survdirfld_ );
-    new uiToolButton( survmanbuts_, "addnew",
+    new uiToolButton( survmanbuts_, "create",
 			uiStrings::phrCreate(mJoinUiStrs(sNew(),
 			sSurvey())), mCB(this,uiSurveyManager,newButPushed) );
     editbut_ = new uiToolButton( survmanbuts_, "edit",

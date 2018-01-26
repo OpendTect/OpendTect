@@ -278,7 +278,7 @@ void uiAttribDescSetEd::createGroups()
 
     addbut_ = new uiPushButton( rightgrp, tr("Add as new"), true );
     addbut_->attach( rightTo, attrnmfld_ );
-    addbut_->setIcon( "plus" );
+    addbut_->setIcon( "addnew" );
     addbut_->activated.notify( mCB(this,uiAttribDescSetEd,addPushCB) );
 
     dispbut_ = new uiToolButton( rightgrp, "showattrnow",

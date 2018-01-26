@@ -271,7 +271,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 
     edbut_ = new uiToolButton( leftgrp, "edit", tr("Edit calculation"), edcb );
     edbut_->attach( rightOf, trchdrfld_ );
-    rmbut_ = new uiToolButton( leftgrp, "trashcan", tr("Remove calculation"),
+    rmbut_ = new uiToolButton( leftgrp, "remove", tr("Remove calculation"),
 		    mCB(this,uiSEGYFileManip,rmReq) );
     rmbut_->attach( alignedBelow, edbut_ );
     uiToolButton* openbut = new uiToolButton( leftgrp, "open",

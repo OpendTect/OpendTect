@@ -893,7 +893,7 @@ void uiODMenuMgr::fillUtilMenu()
 				mSettingsMnuItm );
     addAction( settmnu_, tr("Keyboard Shortcuts"), "keyboardshortcuts",
 				mSettShortcutsMnuItm );
-    addAction( settmnu_, tr("Auto-Save"), "save", mSettAutoSaveMnuItm );
+    addAction( settmnu_, tr("Auto-Save"), "autosave", mSettAutoSaveMnuItm );
 
     uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
     addAction( advmnu, tr("Personal Settings"), "unknownperson",
@@ -1145,7 +1145,7 @@ void uiODMenuMgr::fillVisTB( uiODSceneMgr* scenemgr )
     mAddMnuItm( mnu, uiStrings::sRectangle(),
 		handleToolClick, "rectangleselect", 1 );
 
-    removeselectionid_ = viewtb_->addButton( "trashcan", tr("Remove selection"),
+    removeselectionid_ = viewtb_->addButton( "remove", tr("Remove selection"),
 		    mCB(this,uiODMenuMgr,removeSelectionCB), false );
 
     soloid_ = mAddTB(viewtb_,"solo",tr("Display current element only"),
