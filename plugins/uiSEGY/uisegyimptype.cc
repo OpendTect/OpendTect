@@ -72,13 +72,13 @@ uiString SEGY::ImpType::dispText() const
     switch ( geomType() )
     {
     case Seis::VolPS:
-	return tr("3D PreStack data");
+	return tr("3D Prestack Data");
     case Seis::Line:
-	return tr("2D Seismic data");
+	return tr("2D Seismic Data");
     case Seis::LinePS:
-	return tr("2D PreStack data");
+	return tr("2D Prestack Data");
     default: case Seis::Vol:
-	return tr("3D seismic data");
+	return tr("3D Seismic Data");
     }
 }
 
