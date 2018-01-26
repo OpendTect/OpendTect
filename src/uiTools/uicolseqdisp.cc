@@ -181,7 +181,8 @@ void uiColSeqDisp::initCB( CallBacker* )
     MouseEventHandler& meh = getMouseEventHandler();
     mAttachCB( meh.buttonPressed, uiColSeqDisp::mousePressCB );
     mAttachCB( meh.buttonReleased, uiColSeqDisp::mouseReleaseCB );
-    mAttachCB( meh.wheelMove, uiColSeqDisp::mouseWheelCB );
+    mAttachCB( getNavigationMouseEventHandler().wheelMove,
+	       uiColSeqDisp::mouseWheelCB );
 
     KeyboardEventHandler& keh = getKeyboardEventHandler();
     mAttachCB( keh.keyReleased, uiColSeqDisp::keybCB );
@@ -265,18 +266,17 @@ void uiColSeqDisp::handleMouseBut( bool ispressed )
 
 void uiColSeqDisp::mouseWheelCB( CallBacker* )
 {
-    MouseEventHandler& meh = getMouseEventHandler();
+    MouseEventHandler& meh = getNavigationMouseEventHandler();
     if ( meh.isHandled() )
 	return;
     const MouseEvent& event = meh.event();
     if ( event.isWithKey() )
 	return;
 
-    //TODO how does the wheel stuff work?
-    // if ( wheel-up )
-	// mMouseTrigger( upReq )
-    // else if ( wheel-down )
-	// mMouseTrigger( downReq )
+    if ( event.angle() > 0 )
+	mMouseTrigger( upReq )
+    else if ( event.angle() < 0 )
+	mMouseTrigger( downReq )
 }
 
 
