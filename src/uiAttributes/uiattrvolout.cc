@@ -527,6 +527,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     }
 
     delete clonedset;
+    batchjobfld_->saveProcPars( *outioobj );
     return true;
 }
 

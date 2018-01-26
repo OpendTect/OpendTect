@@ -483,6 +483,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	iopar.set( key, cubezbounds );
     }
 
+    batchjobfld_->saveProcPars( *outioobj );
     return true;
 }
 

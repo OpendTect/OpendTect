@@ -84,8 +84,7 @@ bool uiSeis2DTo3D::prepareProcessing()
 void uiSeis2DTo3D::mkParamsGrp()
 {
     interpoltypefld_ = new uiGenInput( this, tr("Type of interpolation"),
-			               BoolInpSpec(true,tr("Nearest trace"),
-                                       tr("FFT based")) );
+			BoolInpSpec(true,tr("Nearest trace"),tr("FFT based")) );
     interpoltypefld_->attach( alignedBelow, inpfld_ );
     interpoltypefld_->valuechanged.notify(mCB(this,uiSeis2DTo3D,typeChg));
 
@@ -148,7 +147,7 @@ bool uiSeis2DTo3D::fillPar()
     IOPar par;
     fillParamsPar( par );
     jobSpec().pars_.mergeComp( par, sKey::Pars() );
-
+    batchfld_->saveProcPars( *outfld_->ioobj() );
     return true;
 }
 

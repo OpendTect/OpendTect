@@ -20,6 +20,7 @@ class uiBatchJobDispatcherLauncher;
 class uiButton;
 class uiCheckBox;
 class uiGenInput;
+class IOObj;
 
 
 /*!\brief Lets user select a batch job dispatcher suited for the job */
@@ -46,6 +47,7 @@ public:
 
     bool		wantBatch() const;	//! can be false if isoptional
     bool		start();
+    bool		saveProcPars(const IOObj&) const;
 
     Notifier<uiBatchJobDispatcherSel> selectionChange;
     Notifier<uiBatchJobDispatcherSel> checked;	//! only when isoptional

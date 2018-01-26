@@ -148,6 +148,8 @@ bool uiBatchSetup::fillPar()
     IOPar subselpar;
     subsel_->fillPar( subselpar );
     par.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+
+    batchfld_->saveProcPars( *outputioobj );
     return true;
 }
 

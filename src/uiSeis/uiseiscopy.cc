@@ -128,6 +128,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 	IOPar outpar; outfld_->fillPar( outpar );
 	js.pars_.mergeComp( outpar, sKey::Output() );
 	batchfld_->setJobName( outioobj->name() );
+	batchfld_->saveProcPars( *outioobj );
 	if ( !batchfld_->start() )
 	    uiMSG().error( uiStrings::sBatchProgramFailedStart() );
 

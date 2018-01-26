@@ -13,6 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibatchjobdispatcherlauncher.h"
 
 #include "hostdata.h"
+#include "ioobj.h"
+#include "oddirs.h"
 #include "settings.h"
 #include "singlebatchjobdispatch.h"
 
@@ -225,6 +227,23 @@ bool uiBatchJobDispatcherSel::start()
 }
 
 
+bool uiBatchJobDispatcherSel::saveProcPars( const IOObj& ioobj ) const
+{
+    FilePath fp( ioobj.fullUserExpr() );
+    if ( fp.pathOnly().isEmpty() )
+    {
+	FilePath survfp( GetDataDir(), ioobj.dirName() );
+	if ( !survfp.exists() )
+	    return false;
+
+	fp.setPath( survfp.fullPath() );
+    }
+
+    fp.setExtension( "proc" );
+    return jobspec_.pars_.write( fp.fullPath(), sKey::Pars() );
+}
+
+
 void uiBatchJobDispatcherSel::setJobName( const char* nm )
 { jobname_ = nm; }
 
@@ -271,6 +290,7 @@ bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 		errmsg.isSet() ? errmsg : tr("Cannot start required program") );
 	return false;
     }
+
     return true;
 }
 

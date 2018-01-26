@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Velocity conversion"),
 			tr("Velocity conversion"),
-                        mODHelpKey(mVelBatchVolumeConversionHelpID) ) )
+			mODHelpKey(mVelBatchVolumeConversionHelpID) ) )
 {
     IOObjContext velctxt = uiVelSel::ioContext();
     velctxt.forread_ = true;
@@ -158,6 +158,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     possubsel_->fillPar( par );
     par.set( Vel::VolumeConverter::sKeyOutput(), outputioobj->key() );
 
+    batchfld_->saveProcPars( *outputioobj );
     return true;
 }
 
