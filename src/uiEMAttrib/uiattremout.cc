@@ -64,8 +64,11 @@ uiAttrEMOut::~uiAttrEMOut()
     delete ads_;
     delete nlamodel_;
 
-    outdescids_.removeAndDeleteParam( this );
-    outdescnms_.removeAndDeleteParam( this );
+//    outdescids_.removeAndDeleteParam( this );
+//    outdescnms_.removeAndDeleteParam( this );
+// replace by code above when new function reviewed
+    delete outdescids_.getParam(this); outdescids_.removeParam(this);
+    delete outdescnms_.getParam(this); outdescnms_.removeParam(this);
 }
 
 
