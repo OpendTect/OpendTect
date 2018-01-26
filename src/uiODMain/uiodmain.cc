@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "uistrattreewin.h"
 #include "uisurvinfoed.h"
 #include "uitoolbar.h"
-#include "ui2dsip.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "uiodhorattribmgr.h"

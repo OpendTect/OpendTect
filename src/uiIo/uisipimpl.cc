@@ -8,21 +8,27 @@ ________________________________________________________________________
 
 -*/
 
-#include "ui2dsip.h"
+#include "uisipimpl.h"
+
 #include "uidialog.h"
+#include "uifileinput.h"
+#include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uigeninput.h"
 #include "uiseparator.h"
-#include "trckeyzsampling.h"
-#include "survinfo.h"
-#include "unitofmeasure.h"
+#include "uisurveyselect.h"
+
+#include "coordsystem.h"
 #include "od_helpids.h"
+#include "oddirs.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
+#include "unitofmeasure.h"
 
 
 class ui2DDefSurvInfoDlg : public uiDialog
-{ mODTextTranslationClass(ui2DDefSurvInfoDlg);
+{ mODTextTranslationClass(ui2DDefSurvInfoDlg)
 public:
 
     typedef uiSurvInfoProvider::TDInfo	TDInfo;
@@ -180,4 +186,150 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     xyft_ = !dlg->ismfld_->getBoolValue();
 
     return true;
+}
+
+
+
+// uiCopySurveySIP
+class uiSurveyToCopyDlg : public uiDialog
+{ mODTextTranslationClass(uiSurveyToCopyDlg)
+public:
+
+uiSurveyToCopyDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Select Survey to duplicate Setup from"),
+		mNoDlgTitle,mODHelpKey(mCopySurveySIPHelpID)))
+{
+    survsel_ = new uiSurveySelect( this );
+}
+
+    uiSurveySelect* survsel_;
+
+};
+
+
+uiDialog* uiCopySurveySIP::dialog( uiParent* p, TDInfo )
+{
+    return new uiSurveyToCopyDlg( p );
+}
+
+
+bool uiCopySurveySIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
+{
+    tdinf_ = Time; xyinft_ = false; tdinfknown_ = false;
+    mDynamicCastGet(uiSurveyToCopyDlg*,seldlg,dlg)
+    if ( !seldlg )
+	return false;
+
+    const BufferString survdir = seldlg->survsel_->getFullDirPath();
+    uiRetVal uirv;
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( survdir, uirv );
+    if ( !survinfo )
+	return false;
+
+    cs = survinfo->sampling( false );
+    crd[0] = survinfo->transform( cs.hsamp_.start_ );
+    crd[1] = survinfo->transform( cs.hsamp_.stop_ );
+    crd[2] = survinfo->transform(
+	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
+
+    tdinf_ = survinfo->zIsTime() ? Time
+				 : (survinfo->zInFeet() ? DepthFeet : Depth);
+    xyinft_ = survinfo->xyInFeet();
+    tdinfknown_ = true;
+    coordsystem_ = survinfo->getCoordSystem();
+
+    return true;
+}
+
+
+IOPar* uiCopySurveySIP::getCoordSystemPars() const
+{
+    if ( !coordsystem_ )
+	return 0;
+
+    IOPar* crspar = new IOPar;
+    coordsystem_->fillPar( *crspar );
+    return crspar;
+}
+
+
+
+//uiSurveyFileSIP
+uiSurveyFileSIP::uiSurveyFileSIP()
+    : tdinfknown_(false)
+    , xyinft_(false)
+{}
+
+
+uiString uiSurveyFileSIP::usrText() const
+{
+    return tr("Read from Survey Setup file");
+}
+
+
+class uiSurveyFileDlg : public uiDialog
+{ mODTextTranslationClass(uiSurveyFileDlg)
+public:
+uiSurveyFileDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Select Survey Setup file"),
+			mNoDlgTitle,mTODOHelpKey))
+{
+    inpfld_ = new uiFileInput( this, uiStrings::sSelect(),
+		uiFileInput::Setup().defseldir(GetBaseDataDir())
+				    .withexamine(true)
+				    .allowallextensions(true) );
+    inpfld_->setElemSzPol( uiObject::Wide );
+}
+
+uiFileInput* inpfld_;
+
+};
+
+
+uiDialog* uiSurveyFileSIP::dialog( uiParent* p, TDInfo )
+{
+    return new uiSurveyFileDlg( p );
+}
+
+
+bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
+{
+    tdinf_ = Time;
+    tdinfknown_ = false;
+    xyinft_ = false;
+    mDynamicCastGet(uiSurveyFileDlg*,filedlg,dlg)
+    if ( !filedlg ) return false;
+
+    const BufferString fname = filedlg->inpfld_->fileName();
+    IOPar pars;
+    if ( !pars.read(fname,"Survey Info",true) )
+	return false;
+
+    PtrMan<SurveyInfo> survinfo = new SurveyInfo();
+    survinfo->usePar( pars );
+
+    cs = survinfo->sampling( false );
+    crd[0] = survinfo->transform( cs.hsamp_.start_ );
+    crd[1] = survinfo->transform( cs.hsamp_.stop_ );
+    crd[2] = survinfo->transform(
+	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
+
+    tdinf_ = survinfo->zIsTime() ? Time
+				 : (survinfo->zInFeet() ? DepthFeet : Depth);
+    tdinfknown_ = true;
+    xyinft_ = survinfo->xyInFeet();
+    coordsystem_ = survinfo->getCoordSystem();
+
+    return true;
+}
+
+
+IOPar* uiSurveyFileSIP::getCoordSystemPars() const
+{
+    if ( !coordsystem_ )
+	return 0;
+
+    IOPar* crspar = new IOPar;
+    coordsystem_->fillPar( *crspar );
+    return crspar;
 }

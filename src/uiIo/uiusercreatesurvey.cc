@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "ui2dsip.h"
+#include "uisipimpl.h"
 
 #include "survinfo.h"
 #include "dbman.h"
