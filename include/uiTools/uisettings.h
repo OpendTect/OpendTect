@@ -165,7 +165,7 @@ mExpClass(uiTools) uiStorageSettingsGroup : public uiSettingsGroup
 public:
 
     mDecluiSettingsGroupPublicFns( uiStorageSettingsGroup,
-				   LooknFeel, "Storage", "database",
+				   General, "Storage", "database",
 				   uiStrings::sStorage(),
 				   mTODOHelpKey )
 
@@ -190,7 +190,7 @@ public:
     mDecluiSettingsGroupPublicFns( uiGeneralLnFSettingsGroup,
 				   LooknFeel, "GenLnF", "settings",
 				   uiStrings::sGeneral(),
-				   mTODOHelpKey )
+				   mODHelpKey(mLooknFeelSettingsHelpID) )
 
 			uiGeneralLnFSettingsGroup(uiParent*,Settings&);
 
