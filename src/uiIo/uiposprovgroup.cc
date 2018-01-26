@@ -280,65 +280,27 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
 {
-    const CallBack selcb( mCB(this,uiTablePosProvGroup,selChg) );
-
-    selfld_ = new uiGenInput(this, tr("Data from"),
-		    BoolInpSpec(true,uiStrings::sPickSet(),
-		    uiStrings::phrJoinStrings(uiStrings::sTable(),
-					      uiStrings::sFile())));
-    selfld_->valuechanged.notify( selcb );
     psfld_ = new uiPickSetIOObjSel( this, true );
-    psfld_->attach( alignedBelow, selfld_ );
-    uiFileSel::Setup fisu( OD::GeneralContent );
-    tffld_ = new uiFileSel( this, uiStrings::sFileName(), fisu );
-    tffld_->attach( alignedBelow, selfld_ );
-
-    setHAlignObj( selfld_ );
-    postFinalise().notify( selcb );
+    setHAlignObj( psfld_ );
 }
 
-
-void uiTablePosProvGroup::selChg( CallBacker* )
-{
-    const bool isps = selfld_->getBoolValue();
-    psfld_->display( isps );
-    tffld_->display( !isps );
-}
 
 #define mGetTableKey(k) IOPar::compKey(sKey::Table(),k)
 
 void uiTablePosProvGroup::usePar( const IOPar& iop )
 {
     const char* idres = iop.find( mGetTableKey("ID") );
-    const char* fnmres = iop.find( mGetTableKey(sKey::FileName()) );
-    const bool isfnm = fnmres && *fnmres;
-    selfld_->setValue( !isfnm );
-    if ( idres )
-	psfld_->setInput( DBKey::getFromString(idres) );
-    if ( fnmres )
-	tffld_->setFileName( fnmres );
+    psfld_->setInput( DBKey::getFromString(idres) );
 }
 
 
 bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Table() );
-    if ( selfld_->getBoolValue() )
-    {
-	if ( !psfld_->fillPar(iop,sKey::Table()) )
-	    mErrRet(uiStrings::phrSelect(uiStrings::sPickSet()))
-	iop.removeWithKey( mGetTableKey(sKey::FileName()) );
-    }
-    else
-    {
-	const BufferString fnm = tffld_->fileName();
-	if ( fnm.isEmpty() )
-	    mErrRet(tr("Provide the table file name"))
-	else if ( File::isEmpty(fnm.buf()) )
-	    mErrRet(tr("Select an existing/readable file"))
-	iop.set( mGetTableKey(sKey::FileName()), fnm );
-	iop.removeWithKey( mGetTableKey("ID") );
-    }
+    if ( !psfld_->fillPar(iop,sKey::Table()) )
+	mErrRet(uiStrings::phrSelect(uiStrings::sPointSet()))
+
+    iop.removeWithKey( mGetTableKey(sKey::FileName()) );
     return true;
 }
 
@@ -351,26 +313,14 @@ void uiTablePosProvGroup::getSummary( BufferString& txt ) const
 
 bool uiTablePosProvGroup::getID( DBKey& ky ) const
 {
-    if ( !selfld_->getBoolValue() )
-	return false;
     const IOObj* ioobj = psfld_->ioobj();
-    if ( !ioobj )
-	return false;
-    ky = ioobj->key();
-    return true;
-}
-
-
-bool uiTablePosProvGroup::getFileName( BufferString& fnm ) const
-{
-    if ( selfld_->getBoolValue() )
-	return false;
-    fnm = tffld_->fileName();
-    return true;
+    ky = ioobj ? ioobj->key() : DBKey::udf();
+    return ioobj;
 }
 
 
 void uiTablePosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Table() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Table(),
+					  uiStrings::sPointSet() );
 }
