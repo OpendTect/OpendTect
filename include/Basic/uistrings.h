@@ -291,9 +291,10 @@ public:
     static uiString sExpand()		{ return tr("Expand"); }
     static uiString sExport();
     static uiString sExtract();
-    static uiString sFaultStickSet(int num=1);
     static uiString sFactor(int num=1)	{ return tr("Factor",0,num); }
     static uiString sFault(int num=1);
+    static uiString sFaultData()	{ return tr("Fault Data"); }
+    static uiString sFaultStickSet(int num=1);
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
@@ -393,7 +394,7 @@ public:
     static uiString sPointSet(int num=1){ return tr("PointSet",0,num); }
     static uiString sPolygon(int num=1)	{ return tr("Polygon",0,num); }
     static uiString sPosition(int num=1){ return tr("Position",0,num); }
-    static uiString sPreStack()		{ return tr("PreStack"); }
+    static uiString sPreStack()		{ return tr("Prestack"); }
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sPrevious()		{ return tr("Previous"); }
     static uiString sProcessing()	{ return tr("Processing"); }
