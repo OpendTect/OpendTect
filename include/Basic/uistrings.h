@@ -235,9 +235,10 @@ public:
     static uiWord sExit()		{ return tr("Exit"); }
     static uiWord sExport();
     static uiWord sExtract();
-    static uiWord sFaultStickSet(int n=1);
     static uiWord sFactor(int n=1)	{ return tr("Factor",0,n); }
     static uiWord sFault(int n=1);
+    static uiWord sFaultData()		{ return tr("Fault Data"); }
+    static uiWord sFaultStickSet(int n=1);
     static uiWord sFeet()		{ return tr("Feet"); }
     static uiWord sFile()	        { return tr("File"); }
     static uiWord sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
@@ -351,7 +352,7 @@ public:
     static uiWord sPointSet(int n=1)	{ return tr("PointSet",0,n); }
     static uiWord sPolygon(int n=1)	{ return tr("Polygon",0,n); }
     static uiWord sPosition(int n=1)	{ return tr("Position",0,n); }
-    static uiWord sPreStack()		{ return tr("PreStack"); }
+    static uiWord sPreStack()		{ return tr("Prestack"); }
     static uiWord sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiWord sPrevious()		{ return tr("Previous"); }
     static uiWord sProbe(int n=1)	{ return tr("Probe",0,n); }
@@ -504,7 +505,7 @@ public:
 				     bool both_2d_3d_in_context=false,
 				     bool both_pre_post_in_context=false);
     /*!<Returns names for data volumes such as "2D Data", "Cube",
-	"Pre-stack Data", and similar */
+	"Prestack Data", and similar */
 };
 
 
