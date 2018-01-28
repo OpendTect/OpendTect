@@ -314,7 +314,7 @@ void uiTablePosProvGroup::getSummary( BufferString& txt ) const
 bool uiTablePosProvGroup::getID( DBKey& ky ) const
 {
     const IOObj* ioobj = psfld_->ioobj();
-    ky = ioobj ? ioobj->key() : DBKey::udf();
+    ky = ioobj ? ioobj->key() : DBKey();
     return ioobj;
 }
 
