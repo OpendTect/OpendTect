@@ -632,7 +632,7 @@ void uiODMain::autoSaveFail( CallBacker* cb )
 	// uiMSG().error( msg );
     }
     //else
-	ErrMsg( msg.getFullString() );
+	ErrMsg( msg );
 }
 
 

@@ -99,7 +99,7 @@ bool uiProxyDlg::usePar( const IOPar& pars )
     {
 	uiString str;
 	str.setFromHexEncoded( password );
-	password = str.getFullString();
+	password = toString( str );
     }
 
     pwdfld_->setText( password );

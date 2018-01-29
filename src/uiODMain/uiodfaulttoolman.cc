@@ -247,8 +247,7 @@ uiString uiODFaultToolMan::sKeyMergeWithExisting()
 uiString uiODFaultToolMan::sKeyReplaceExisting()
 { return tr( "Replace Existing" ); }
 
-#define mCurItem( combo, key ) \
-    ( BufferString(key().getFullString()) == combo->text() )
+#define mIsCurItem( combo, key ) key().isEqualTo( combo->uiText() )
 
 
 uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
@@ -696,7 +695,7 @@ void uiODFaultToolMan::updateToolbarCB( CallBacker* )
 
 uiIOObjSel* uiODFaultToolMan::getObjSel()
 {
-    if ( mCurItem(outputtypecombo_, sKeyToFaultStickSet) )
+    if ( mIsCurItem(outputtypecombo_, sKeyToFaultStickSet) )
 	return auxfsswrite_->getObjSel();
 
     return auxfaultwrite_->getObjSel();
@@ -734,7 +733,7 @@ void uiODFaultToolMan::editReadyTimerCB( CallBacker* )
 
 BufferStringSet& uiODFaultToolMan::getOutputItems()
 {
-    const bool tofault = mCurItem(outputtypecombo_, sKeyToFault);
+    const bool tofault = mIsCurItem(outputtypecombo_, sKeyToFault);
 
     if ( !isInCreateMode() )
 	return tofault ? allfaultitems_ : allfssitems_;
@@ -780,7 +779,7 @@ static void addOutputItem( const char* newitem, BufferStringSet& items )
 
 void uiODFaultToolMan::updateOutputItems( bool clearcuritem )
 {
-    const bool tofault = mCurItem(outputtypecombo_, sKeyToFault);
+    const bool tofault = mIsCurItem(outputtypecombo_, sKeyToFault);
 
     BufferString fullnm = outputnamecombo_->text();
     if ( fullnm.isEmpty() )
@@ -1010,7 +1009,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     RefMan<EM::EMObject> tmpemobj = EM::FaultStickSet::create(EM::EMM());
     mDynamicCastGet( EM::FaultStickSet*, tmpfss, tmpemobj.ptr() );
 
-    const bool merge = mCurItem( outputactcombo_, sKeyMergeWithExisting );
+    const bool merge = mIsCurItem( outputactcombo_, sKeyMergeWithExisting );
 
     if ( !destfault->isEmpty() && (!merge || destf3d) )
     {
@@ -1030,7 +1029,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     if ( !destfss )
 	destfss = tmpfss;
 
-    const bool copy = mCurItem( transfercombo_, sKeyCopySelection );
+    const bool copy = mIsCurItem( transfercombo_, sKeyCopySelection );
 
     usw.setMessage( uiStrings::sUpdatingDisplay() );
     if ( copy )
@@ -1103,7 +1102,7 @@ void uiODFaultToolMan::afterTransferUpdate()
 {
     randomcolor_ = getRandStdDrawColor();
     usercolorlink_.setEmpty();
-    const bool clearname = mCurItem( outputactcombo_, sKeyCreateSingleNew );
+    const bool clearname = mIsCurItem( outputactcombo_, sKeyCreateSingleNew );
     updateOutputItems( clearname );
     updateToolbarCB( 0 );
 }
@@ -1173,11 +1172,11 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
 
 
 bool uiODFaultToolMan::isInSerialMode() const
-{ return mCurItem( outputactcombo_, sKeyCreateNewInSeries ); }
+{ return mIsCurItem( outputactcombo_, sKeyCreateNewInSeries ); }
 
 
 bool uiODFaultToolMan::isInCreateMode() const
-{ return isInSerialMode() || mCurItem(outputactcombo_, sKeyCreateSingleNew); }
+{ return isInSerialMode() || mIsCurItem(outputactcombo_, sKeyCreateSingleNew); }
 
 
 bool uiODFaultToolMan::displayAfterwards() const
@@ -1247,7 +1246,7 @@ void uiODFaultToolMan::processOutputName()
 	if ( !isOutputNameUsed() )
 	{
 	    uiString tooltiptext = tr("Output name [of no existing %1!]");
-	    if ( mCurItem(outputtypecombo_, sKeyToFault) )
+	    if ( mIsCurItem(outputtypecombo_, sKeyToFault) )
 		tooltiptext.arg( sKeyToFault() );
 	    else
 		tooltiptext.arg( sKeyToFaultStickSet() );

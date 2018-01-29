@@ -30,8 +30,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	, selbut_(0)
 	, lbl_(0)
 {
-    inp_ = new uiComboBox( this,
-			BufferString("Select ",su.seltxt_.getFullString()) );
+    inp_ = new uiComboBox( this, toString(su.seltxt_) );
     inp_->setReadOnly( false );
     inp_->setHSzPol( uiObject::Wide );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
@@ -62,8 +61,8 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     }
     if ( selbut_ )
     {
-	BufferString butnm( su.buttontxt_.getFullString(), " " );
-	butnm += su.seltxt_.getFullString();
+	BufferString butnm( toString(su.buttontxt_), " " );
+	butnm += toString( su.seltxt_ );
 	selbut_->setName( butnm.buf() );
 	selbut_->attach( rightTo, inp_ );
     }

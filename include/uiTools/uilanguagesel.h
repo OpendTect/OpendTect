@@ -22,6 +22,7 @@ mExpClass(uiTools) uiLanguageSel : public uiGroup
 public:
 
 			uiLanguageSel(uiParent*,bool withlbl);
+			~uiLanguageSel();
 
     uiComboBox*		selFld()	{ return selfld_; }
     void		setAutoCommit( bool yn=true )

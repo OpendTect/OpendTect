@@ -30,7 +30,7 @@ namespace visBase
 {
 
     const char* TopBotImage::sKeyTopLeftCoord()     { return "TopLeft"; }
-    const char*	TopBotImage::sKeyBottomRightCoord() { return "BotRight"; } 
+    const char*	TopBotImage::sKeyBottomRightCoord() { return "BotRight"; }
     const char*	TopBotImage::sKeyFileNameStr()      { return sKey::FileName(); }
     const char*	TopBotImage::sKeyTransparencyStr()  { return "Transparency"; }
 
@@ -126,10 +126,7 @@ void TopBotImage::setRGBImageFromFile( const char* fnm )
     PtrMan<OD::RGBImage> rgbimg =
 			    OD::RGBImageLoader::loadRGBImage(filenm_,errmsg);
     if ( !rgbimg )
-    {
-	pErrMsg( errmsg.getFullString() );
-	return;
-    }
+	{ ErrMsg( errmsg ); return; }
 
     setRGBImage( *rgbimg );
 }
@@ -141,7 +138,7 @@ void TopBotImage::setRGBImage( const OD::RGBImage& rgbimg )
     unsigned char* imgdata = new unsigned char[totsz];
     OD::memCopy( imgdata, rgbimg.getData(), totsz );
     osg::ref_ptr<osg::Image> image = new osg::Image;
-    image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1, 
+    image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1,
 		     GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, imgdata,
 		     osg::Image::NO_DELETE );
     image->flipVertical();
@@ -172,8 +169,8 @@ bool TopBotImage::usePar( const IOPar& iopar )
     iopar.get( sKeyBottomRightCoord(), brpos );
     iopar.get( sKeyFileNameStr(), filenm_  );
     iopar.get( sKeyTransparencyStr(), transparency );
-   
-    setPos( ltpos, brpos );  
+
+    setPos( ltpos, brpos );
     setRGBImageFromFile( filenm_ );
     setTransparency( transparency );
     return true;

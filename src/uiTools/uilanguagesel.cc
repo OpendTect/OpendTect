@@ -61,6 +61,12 @@ uiLanguageSel::uiLanguageSel( uiParent* p, bool withtext )
 }
 
 
+uiLanguageSel::~uiLanguageSel()
+{
+    detachAllNotifiers();
+}
+
+
 bool uiLanguageSel::haveMultipleLanguages()
 {
     return TrMgr().nrSupportedLanguages() > 1;

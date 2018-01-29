@@ -214,7 +214,7 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
     {
 	zval = toFloat( valstr );
 	BufferString depthstr( "Depth: ", (int)zval, " " );
-	depthstr.add( SI().zUnitString().getFullString() );
+	depthstr.add( toString(SI().zUnitString()) );
 	msg.addSpace().append( depthstr );
     }
 

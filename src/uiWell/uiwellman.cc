@@ -715,7 +715,7 @@ void uiWellMan::exportLogs( CallBacker* )
 
 #define mAddWellInfo(key,str) \
     if ( !str.isEmpty() ) \
-    { txt.add( key.getFullString() ).add( colonstr ).add( str ).addNewLine(); }
+	{ txt.add( toString(key) ).add( colonstr ).add( str ).addNewLine(); }
 
 
 void uiWellMan::mkFileInfo()
@@ -778,8 +778,8 @@ void uiWellMan::mkFileInfo()
 	{
 	     txt.add(Well::Info::sKeyReplVel()).add(colonstr);
 	     txt.add( zun ? zun->userValue(replvel) : replvel ).add( ' ' );
-	     txt.add( UnitOfMeasure::surveyDefVelUnitAnnot(true,false)
-		      .getFullString() );
+	     txt.add(
+		toString(UnitOfMeasure::surveyDefVelUnitAnnot(true,false)) );
 	     txt.addNewLine();
 	}
 

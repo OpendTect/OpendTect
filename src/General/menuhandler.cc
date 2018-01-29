@@ -105,8 +105,35 @@ MenuItem* MenuItemHolder::findItem( int searchid )
 }
 
 
+const MenuItem* MenuItemHolder::findItem( const uiString& tofindtxt ) const
+{
+    return const_cast<MenuItemHolder*>(this)->findItem( tofindtxt );
+}
+
+
+MenuItem* MenuItemHolder::findItem( const uiString& tofindtxt )
+{
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	if ( items_[idx]->text.isEqualTo( tofindtxt ) )
+	    return items_[idx];
+    }
+
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	MenuItem* item = items_[idx]->findItem( tofindtxt );
+	if ( item )
+	    return item;
+    }
+
+    return 0;
+}
+
+
 const MenuItem* MenuItemHolder::findItem( const char* txt ) const
-{ return const_cast<MenuItemHolder*>(this)->findItem(txt); }
+{
+    return const_cast<MenuItemHolder*>(this)->findItem(txt);
+}
 
 
 MenuItem* MenuItemHolder::findItem( const char* txt )

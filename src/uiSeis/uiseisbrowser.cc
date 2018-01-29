@@ -401,7 +401,7 @@ void uiSeisBrowser::fillTable()
 
     const CBVSInfo& info = tr_->readMgr()->info();
     const int zfac = zdomdef_->userFactor();
-    const BufferString zunstr = zdomdef_->unitStr(false).getFullString();
+    const uiString zunstr = zdomdef_->unitStr( false );
     for ( int idx=0; idx<info.nrsamples_; idx++ )
     {
 	const BufferString zvalstr( getZValStr(info.sd_.atIndex(idx),zfac) );

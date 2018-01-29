@@ -416,7 +416,7 @@ void uiSeisSampleEditor::fillTable()
     NotifyStopper notifstop( tbl_->valueChanged );
 
     const int zfac = zdomdef_.userFactor();
-    const BufferString zunstr = zdomdef_.unitStr(false).getFullString();
+    const uiString zunstr = zdomdef_.unitStr( false );
     for ( int idx=0; idx<nrsamples_; idx++ )
     {
 	const BufferString zvalstr( getZValStr(sampling_.atIndex(idx),zfac) );

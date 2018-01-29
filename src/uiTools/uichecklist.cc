@@ -63,7 +63,7 @@ void uiCheckList::setLabel( const uiString& txt )
 	lbl_ = new uiLabel( this, txt );
 	lbl_->attach( centeredLeftOf, grp_ );
     }
-    setName( txt.getFullString() );
+    setName( toString(txt) );
 
 }
 

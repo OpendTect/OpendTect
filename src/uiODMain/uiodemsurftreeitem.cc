@@ -582,7 +582,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    const float shift = (float) visserv->getTranslation( visid ).z_;
 	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
 	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, *vals,
-		    name_.getFullString(), validx, shift );
+		    toString(name_), validx, shift );
 	    if ( auxnr<0 )
 	    {
 		pErrMsg( "Cannot find Horizon Data." );
@@ -638,23 +638,23 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->getRandomPosCache( visid, attribnr, *vals );
 	if ( mnuid==filtermnuitem_.id )
 	    res = applMgr()->EMServer()->filterAuxData( emid_,
-				    name_.getFullString(), *vals);
+				    toString(name_), *vals);
 	else if ( mnuid==fillholesmnuitem_.id )
 	    res = applMgr()->EMServer()->
-			interpolateAuxData( emid_,name_.getFullString(), *vals);
+			interpolateAuxData( emid_, toString(name_), *vals );
 	else if ( mnuid==horvariogrammnuitem_.id )
 	    res = applMgr()->EMServer()->
-		computeVariogramAuxData( emid_, name_.getFullString(), *vals );
+		computeVariogramAuxData( emid_, toString(name_), *vals );
 	else if ( mnuid==attr2geommnuitm_.id )
 	    res = applMgr()->EMServer()->
-		attr2Geom( emid_, name_.getFullString(), *vals );
+		attr2Geom( emid_, toString(name_), *vals );
 
 	if ( !res || mnuid==horvariogrammnuitem_.id )
 	    return;
 
 	visserv->setSelSpec( visid, attribnr,
-		Attrib::SelSpec(name_.getFullString(),
-				Attrib::SelSpec::cOtherAttribID()) );
+		Attrib::SelSpec( toString(name_),
+				 Attrib::SelSpec::cOtherAttribID()) );
 	visserv->setRandomPosData( visid, attribnr, vals );
 	changed_ = true;
     }

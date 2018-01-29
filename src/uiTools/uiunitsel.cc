@@ -55,7 +55,7 @@ uiUnitSel::uiUnitSel( uiParent* p, const uiString& lbltxt )
 void uiUnitSel::init()
 {
     units_.setNullAllowed( true );
-    tblkey_ = setup_.lbltxt_.getFullString();
+    tblkey_ = toString( setup_.lbltxt_ );
     if ( tblkey_.isEmpty() )
 	tblkey_ = PropertyRef::StdTypeDef().getKey(setup_.ptype_);
 

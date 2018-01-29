@@ -824,23 +824,20 @@ void uiODSceneMgr::translateText()
 void uiODSceneMgr::getSceneNames( uiStringSet& nms, int& active ) const
 {
     mdiarea_->getWindowNames( nms );
+    const BufferString activenm = mdiarea_->getActiveWin();
     active = -1;
-
-    const char* activenm = mdiarea_->getActiveWin();
-
     for ( int idx=0; idx<nms.size(); idx++ )
     {
-	if ( nms[idx].getFullString()==activenm )
-	{
-	    active = idx;
-	    break;
-	}
+	if ( activenm == toString(nms[idx]) )
+	    { active = idx; break; }
     }
 }
 
 
 void uiODSceneMgr::getActiveSceneName( BufferString& nm ) const
-{ nm = mdiarea_->getActiveWin(); }
+{
+    nm = mdiarea_->getActiveWin();
+}
 
 
 int uiODSceneMgr::getActiveSceneID() const
@@ -853,7 +850,7 @@ int uiODSceneMgr::getActiveSceneID() const
 	    continue;
 
 	if ( scenenm ==
-	   getSceneName(idxscene->itemmanager_->sceneID()).getFullString() )
+	       toString(getSceneName(idxscene->itemmanager_->sceneID())) )
 	    return idxscene->itemmanager_->sceneID();
     }
 
@@ -877,7 +874,7 @@ void uiODSceneMgr::setActiveScene( int idx )
     int act;
     getSceneNames( nms, act );
 
-    mdiarea_->setActiveWin( nms[idx].getFullString() );
+    mdiarea_->setActiveWin( toString(nms[idx]) );
     activeSceneChanged.trigger();
 }
 
@@ -888,7 +885,7 @@ void uiODSceneMgr::initTree( uiODScene& scn, int vwridx )
     const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
     scn.dw_ = new uiDockWin( &appl_, capt );
     scn.dw_->setMinimumWidth( 200 );
-    scn.lv_ = new uiTreeView( scn.dw_, capt.getFullString() );
+    scn.lv_ = new uiTreeView( scn.dw_, toString(capt) );
     scn.dw_->setObject( scn.lv_ );
     uiStringSet labels;
     labels.add( sElements() );

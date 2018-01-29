@@ -147,7 +147,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     {
 	BufferStringSet wellnms;
 	for ( int idx = 0; idx<children_.size(); idx++ )
-	    wellnms.addIfNew( children_[idx]->name().getFullString() );
+	    wellnms.addIfNew( toString(children_[idx]->name()) );
 
 	uiWellAttribPartServer* srv = ODMainWin()->applMgr().wellAttribServer();
 	if ( srv->createAttribLog(wellnms) )
@@ -355,7 +355,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	ODMainWin()->applMgr().wellAttribServer()->showAmplSpectrum( wellid,
-		amplspectrummnuitem_.findItem(mnuid)->text.getFullString() );
+		toString(amplspectrummnuitem_.findItem(mnuid)->text) );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == logviewermnuitem_.id )

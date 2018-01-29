@@ -201,7 +201,7 @@ int uiBatchJobDispatcherSel::selIdx() const
 
     for ( int idx=0; idx<uidispatchers_.size(); idx++ )
     {
-	if ( cursel == uidispatchers_[idx]->name().getFullString() )
+	if ( cursel == toString(uidispatchers_[idx]->name()) )
 	    return idx;
     }
 

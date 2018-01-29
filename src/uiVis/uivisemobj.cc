@@ -381,8 +381,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     seedsmenuitem_.removeItems();
 
     mResetMenuItem( &lockseedsmnuitem_ );
-    MenuItem* trackmnu =
-	menu->findItem( uiStrings::sTracking().getFullString() );
+    MenuItem* trackmnu = menu->findItem( uiStrings::sTracking() );
     if ( trackmnu )
     {
 	const TypeSet<EM::PosID>* seeds =

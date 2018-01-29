@@ -31,7 +31,7 @@ uiButtonStateEdit::uiButtonStateEdit( uiParent* p, const uiString& label,
 	set.add( createName(states_[idx]) );
 
     combobox_ = new uiGenInput( this, label, StringListInpSpec( set ) );
-    combobox_->setText( createName(initialstate).getFullString() );
+    combobox_->setText( toString(createName(initialstate)) );
     setHAlignObj( combobox_ );
 }
 

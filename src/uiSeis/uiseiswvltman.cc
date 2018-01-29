@@ -252,7 +252,7 @@ void uiSeisWvltMan::mkFileInfo()
 	BufferString msg;
 	msg.add( "Number of samples: " ).add( wvlt->size() ).addNewLine();
 	msg.add( "Sample interval " )
-	   .add( SI().zUnitString(true).getFullString() )
+	   .add( toString(SI().zUnitString(true)) )
 	   .add( ": " ).add( wvlt->sampleRate() * zfac ).addNewLine();
 	Interval<float> extremevals;
 	wvlt->getExtrValues( extremevals );

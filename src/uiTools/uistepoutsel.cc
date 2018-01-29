@@ -24,7 +24,7 @@ inline static uiString mkPrefx( const uiString& lbl )
 
 
 uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
-    : uiGroup(p,setup.seltxt_.getFullString())
+    : uiGroup(p,toString(setup.seltxt_))
     , valueChanged(this)
     , valueChanging(this)
     , fld2_(0)
@@ -34,7 +34,7 @@ uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
 
 
 uiStepOutSel::uiStepOutSel( uiParent* p, bool single, const uiString& seltxt )
-    : uiGroup(p,seltxt.getFullString() )
+    : uiGroup(p,toString(seltxt))
     , valueChanged(this)
     , valueChanging(this)
     , fld2_(0)
@@ -60,7 +60,7 @@ void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
 
     uiLabel* lbl = new uiLabel( this, setup.seltxt_ );
 
-    fld1_ = new uiSpinBox( this, 0, setup.lbl1_.getFullString() );
+    fld1_ = new uiSpinBox( this, 0, toString(setup.lbl1_) );
     fld1_->setPrefix( mkPrefx(setup.lbl1_) );
     fld1_->attach( rightOf, lbl );
     fld1_->setInterval( intv );
@@ -69,7 +69,7 @@ void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
 
     if ( !setup.single_ )
     {
-	fld2_ = new uiSpinBox( this, 0, setup.lbl2_.getFullString() );
+	fld2_ = new uiSpinBox( this, 0, toString(setup.lbl2_) );
 	fld2_->setPrefix( mkPrefx(setup.lbl2_) );
 	fld2_->attach( rightOf, fld1_ );
 	fld2_->setInterval( intv );

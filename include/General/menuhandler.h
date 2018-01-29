@@ -49,6 +49,8 @@ public:
     int				itemIndex(int id) const;
     MenuItem*			findItem(int id);
     const MenuItem*		findItem(int id) const;
+    MenuItem*			findItem(const uiString&);
+    const MenuItem*		findItem(const uiString&) const;
     MenuItem*			findItem(const char*);
 				//!<Seaches for untranslated text
     const MenuItem*		findItem(const char*) const;
@@ -65,8 +67,10 @@ protected:
     MenuItemHolder*		parent_;
 
 private:
+
     ObjectSet<MenuItem>		items_;
     BoolTypeSet			manageitems_;
+
 };
 
 /*!A generic representation of an item in a menu. */

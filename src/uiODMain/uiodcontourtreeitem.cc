@@ -1072,8 +1072,8 @@ void uiODContourTreeItem::saveAreasAsCB(CallBacker*)
 
         const ZDomain::Info& zinfo = scene->zDomainInfo();
 
-	stream << zinfo.getLabel().getFullString()
-               << od_tab << areaString().getFullString() << od_newline;
+	stream << toString(zinfo.getLabel())
+               << od_tab << toString(areaString()) << od_newline;
 
         TypeSet<float> zvals, areas;
         getZVSAreaValues( zvals, areas );
@@ -1086,14 +1086,9 @@ void uiODContourTreeItem::saveAreasAsCB(CallBacker*)
 	    uiMSG().message( tr("Area table saved as:\n%1.").arg(fnm) );
         else
         {
-	    uiString errmsg = uiStrings::phrCannotSave(tr("file %1"));
-
-	    if ( stream.errMsg().getFullString() )
-                stream.addErrMsgTo( errmsg );
-            else
-		errmsg.arg(".");
-
-	    uiMSG().error(errmsg);
+	    uiString errmsg = uiStrings::phrCannotSave(tr("file %1").arg(fnm));
+	    stream.addErrMsgTo( errmsg );
+	    uiMSG().error( errmsg );
         }
     }
 }
@@ -1397,7 +1392,7 @@ void uiODContourTreeItem::updateZShift()
 	    Coord3 pos = labels_->text(idx)->getPosition();
 	    pos.z_ += deltaz;
 	    labels_->text(idx)->setPosition( pos );
-	    BufferString txt = labels_->text(idx)->getText().getFullString();
+	    BufferString txt = toString( labels_->text(idx)->getText() );
 	    float labelval = txt.toFloat();
 	    labelval += deltaz * SI().zDomain().userFactor();
 	    labels_->text(idx)->setText( toUiString( (int)labelval ) );

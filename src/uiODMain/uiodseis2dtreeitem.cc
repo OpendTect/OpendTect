@@ -191,7 +191,7 @@ BufferStringSet uiODLine2DParentTreeItem::getDisplayedAttribNames() const
 	    if ( !attrtreeitem )
 		continue;
 
-	    BufferString attribname( attrtreeitem->name().getFullString() );
+	    const BufferString attribname( toString(attrtreeitem->name()) );
 	    displayedattribs.addIfNew( attribname );
 	}
     }
@@ -681,13 +681,11 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
     {
 	mDynamicCastGet(uiODDataTreeItem*,dataitem,children_[idx]);
 	mDynamicCastGet(uiOD2DLineAttribTreeItem*,attribitem,children_[idx]);
-	if ( !dataitem || itemnm!=dataitem->name().getFullString() ) continue;
+	if ( !dataitem || itemnm!=toString(dataitem->name()) )
+	    continue;
 
 	if ( attribitem && nrattribitms<=1 )
-	{
-	    attribitem->clearAttrib();
-	    return;
-	}
+	    { attribitem->clearAttrib(); return; }
 
 	dataitem->prepareForShutdown();
 	removeChild( dataitem );

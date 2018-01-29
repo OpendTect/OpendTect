@@ -112,7 +112,7 @@ void uiStratLaySeqAttribSetBuild::editReq( bool isadd )
 	attr = attrset_.attr( attrnm );
     else
     {
-	const PropertyRef* prop = props_.getByName( propnm.getFullString() );
+	const PropertyRef* prop = props_.getByName( toString(propnm) );
 	if ( !prop )
 	    { pErrMsg("Huh"); return; }
 	attr = new Strat::LaySeqAttrib( attrset_, *prop );
