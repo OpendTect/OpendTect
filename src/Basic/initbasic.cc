@@ -37,8 +37,6 @@ static uiString* qtLegalText()
 }
 #endif
 
-namespace OD { mGlobal(Basic) void loadLocalization(); }
-
 
 mDefModInitFn(Basic)
 {
@@ -64,6 +62,4 @@ mDefModInitFn(Basic)
 #ifndef OD_NO_QT
     legalInformation().addCreator( qtLegalText, "Qt" );
 #endif
-
-    OD::loadLocalization();
 }

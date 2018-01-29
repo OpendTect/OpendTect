@@ -90,29 +90,22 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	    unitfld_->propSelChange.notify( unitsetcb );
     }
 
-    uiButtonGroup* bgrp = 0;
-    if ( wantio || form_.inputsAreSeries() )
-	bgrp = new uiButtonGroup( this, "tool buts", OD::Horizontal );
-
-    if ( form_.inputsAreSeries() )
-	recbut_ = new uiToolButton( bgrp, "recursion",
-				    tr("Set start values for recursion"),
-				    mCB(this,uiMathFormula,recButPush) );
     if ( wantio )
     {
-	new uiToolButton( bgrp, "open", tr("Open stored formula"),
+	const uiToolButtonSetup opentbsu( "open", tr("Open stored formula"),
 				    mCB(this,uiMathFormula,readReq) );
-	new uiToolButton( bgrp, "save", tr("Save this formula"),
+	addButton( opentbsu );
+	const uiToolButtonSetup savetbsu( "save", tr("Save this formula"),
 				    mCB(this,uiMathFormula,writeReq) );
+	addButton( savetbsu );
     }
 
-    if ( bgrp )
+    if ( form_.inputsAreSeries() )
     {
-	if ( unitfld_ )
-	    bgrp->attach( rightTo, unitfld_ );
-	else
-	    bgrp->attach( rightTo, exprfld_ );
-	bgrp->attach( rightBorder );
+	const uiToolButtonSetup tbsu( "recursion",
+				tr("Set start values for recursion"),
+				mCB(this,uiMathFormula,recButPush) );
+	recbut_ = addButton( tbsu );
     }
 
     postFinalise().notify( mCB(this,uiMathFormula,initFlds) );

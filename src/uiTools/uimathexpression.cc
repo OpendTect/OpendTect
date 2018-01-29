@@ -43,6 +43,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	setbut_ = new uiPushButton( this, tr("Set"),
 			mCB(this,uiMathExpression,setButCB),
 			!setup_.setcb_.willCall() );
+	setbut_->setIcon( "apply" );
 	setbut_->attach( rightOf, txtfld_ );
     }
 
@@ -72,6 +73,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 
 	uiPushButton* but = new uiPushButton( insgrp, tr("Insert"),
 		    mCB(this,uiMathExpression,doIns), true );
+	but->setIcon( "insertbelow" );
 	but->attach( rightOf, fnfld_ );
 	but->setStretch( 0, 0 );
 

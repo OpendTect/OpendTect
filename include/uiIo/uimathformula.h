@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "propertyref.h"
 class uiButton;
 class uiUnitSel;
-class uiToolButton;
 class uiToolButtonSetup;
 class uiMathExpression;
 class uiMathExpressionVariable;
@@ -96,9 +95,7 @@ protected:
     uiMathExpression*	exprfld_;
     ObjectSet<uiMathExpressionVariable> inpflds_;
     uiUnitSel*		unitfld_;
-    uiToolButton*	recbut_;
-    uiToolButton*	openbut_;
-    uiToolButton*	savebut_;
+    uiButton*		recbut_;
     int			notifinpnr_;
 
     Setup		setup_;

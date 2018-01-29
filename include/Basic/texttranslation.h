@@ -34,8 +34,8 @@ namespace TextTranslation
     yourself.
 
   Keys are:
-  * Locale key ("en-us", "cn-cn", ...). The actual 'language'
-  * Package key ("od", "dgb", ...) start of the .qm filename, like od_en-us.qm
+  * ISO locale key ("en", "zh_CN", ...). The actual 'language'
+  * Package key ("od", "dgb", ...) start of the .qm filename, like od_zh_CN.qm
 
   Every uiString carries the package key with it. For OD, you can simply
   make this happen by using the mODTextTranslationClass(classname) macro. For
@@ -48,7 +48,7 @@ namespace TextTranslation
     - <home_dir>/.od/localizations/
     - <installation_super_dir>/data/localizations
     - <release_dir>/data/localizations
-  The filenames *have* to be like: mypkg_cn-cn.qm .
+  The filenames *have* to be like: mypkg_zh_CN.qm .
  */
 
 mExpClass(Basic) TranslateMgr : public CallBacker
@@ -60,7 +60,7 @@ public:
     int				nrSupportedLanguages() const;
     int				currentLanguageIdx() const;
     uiRetVal			setLanguage(int);
-    static int			cUSEnglishIdx()		{ return 0; }
+    static int			cDefaultLocaleIdx()	{ return 0; }
 
     uiString			languageUserName(int) const;
     BufferString		localeKey(int) const;
@@ -112,6 +112,8 @@ public:
 };
 
 
+/*! Data around one .qm file, hence one QTranslator instance. */
+
 mExpClass(Basic) TranslatorData
 {
 public:
@@ -123,7 +125,7 @@ public:
 };
 
 
-/*!Holds the translations for one language. The key is the locale code,
+/*! holds the translations for one language. The key is the locale code,
   (such as en-us and cn-cn). Usually, you do not deal with this class - unless
   you load your own languages (i.e. if you do not install .qm files in
   data/localisations but manage everything yourself). */
@@ -163,6 +165,7 @@ public:
     mQtclass(QLocale)*		qlocale_;   // always allocated
 
     ObjectSet<TranslatorData>	trdata_;
+    mQtclass(QTranslator)*	qt_transl_;
 
     void			addData(const char* qmfnm,const char* pkgnm);
 

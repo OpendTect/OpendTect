@@ -370,18 +370,22 @@ mQtclass(QFont)* uiFont::createQFont( const FontData& fd )
     return res;
 }
 
-
 // selectFont functions
+#include "texttranslation.h"
+
 static bool getFont( mQtclass(QFont)& qfontout,
 		     const mQtclass(QFont)& qfontin,
 		     uiParent* par, const uiString& nm )
 {
-    bool ok = false;
-    qfontout = mQtclass(QFontDialog)::getFont( &ok, qfontin,
-			par && par->getNrWidgets()
-			    ? par->getWidget( 0 ) : 0,
-			nm.getQString() );
-    return ok;
+    QFontDialog dlg( qfontin,
+		     par && par->getNrWidgets() ? par->getWidget( 0 ) : 0 );
+    dlg.setWindowTitle( nm.getQString() );
+
+    if ( dlg.exec() != QDialog::Accepted )
+	return false;
+
+    qfontout = dlg.selectedFont();
+    return true;
 }
 
 

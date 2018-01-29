@@ -44,25 +44,23 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     , subInpSel(this)
 {
     inpgrp_ = new uiGroup( this, "Input group" );
-    inpfld_ = new uiComboBox( inpgrp_, BufferString("input ",varidx_+1) );
-    const uiString lblstr = tr("For input number %1 use").arg(varidx_+1);
+    const uiString lblstr = tr("Input for variable %1").arg( varidx_+1 );
+    fullinpfld_ = new uiLabeledComboBox( inpgrp_, lblstr );
+    inpfld_ = fullinpfld_->box(); inplbl_ = fullinpfld_->label();
     inpfld_->setHSzPol(uiObject::WideMax);
-    inplbl_ = new uiLabel( inpgrp_, lblstr, inpfld_ );
-    inplbl_->setPrefWidthInChar( 35 );
-    inplbl_->setAlignment( OD::Alignment::Right );
     inpfld_->selectionChanged.notify(
 			mCB(this,uiMathExpressionVariable,inpChg) );
 
     if ( withsub )
     {
 	subinpfld_ = new uiComboBox( inpgrp_, "Sub Input" );
-	subinpfld_->attach( rightOf, inpfld_ );
+	subinpfld_->attach( rightOf, fullinpfld_ );
 	subinpfld_->selectionChanged.notify(
 			    mCB(this,uiMathExpressionVariable,subInpChg) );
     }
 
     constfld_ = new uiGenInput( inpgrp_, tr("Value for 'c0'"), FloatInpSpec() );
-    constfld_->attach( alignedWith, inpfld_ );
+    constfld_->attach( alignedWith, fullinpfld_ );
 
     if ( withunit )
     {
@@ -72,7 +70,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 	unfld_->attach( rightOf, inpgrp_ );
     }
 
-    setHAlignObj( inpfld_ );
+    setHAlignObj( fullinpfld_ );
     preFinalise().notify( mCB(this,uiMathExpressionVariable,initFlds) );
 }
 
@@ -154,8 +152,7 @@ void uiMathExpressionVariable::updateDisp()
 {
     constfld_->display( isactive_ && isconst_ );
     bool dodisp = isactive_ && !isconst_;
-    inpfld_->display( dodisp );
-    inplbl_->display( dodisp );
+    fullinpfld_->display( dodisp );
     if ( subinpfld_ )
 	subinpfld_->display( dodisp && !nonspecsubinputs_.isEmpty() );
     if ( unfld_ )

@@ -20,6 +20,7 @@ ________________________________________________________________________
 #ifndef OD_NO_QT
 # include <QTranslator>
 # include <QLocale>
+# include <QCoreApplication>
 #endif
 
 static const char* sLocalizationKey() { return "Language"; }
@@ -89,6 +90,7 @@ TextTranslation::LanguageEntry::LanguageEntry( const char* localekey,
 #ifndef OD_NO_QT
     , qlocale_(new QLocale(localekey))
     , qlangname_(new QString(localekey))
+    , qt_transl_(0)
 #endif
 {
 #ifndef OD_NO_QT
@@ -191,9 +193,7 @@ bool TextTranslation::LanguageEntry::isLoaded() const
 
 bool TextTranslation::LanguageEntry::load()
 {
-#ifdef OD_NO_QT
-    return true;
-#else
+#ifndef OD_NO_QT
 
     int nrloaded = 0;
     for ( int idx=0; idx<trdata_.size(); idx++ )
@@ -212,8 +212,21 @@ bool TextTranslation::LanguageEntry::load()
 	}
     }
 
-    return nrloaded > 0;
+    if ( nrloaded < 1 )
+	return false;
+
+    if ( !qt_transl_ )
+    {
+	qt_transl_ = new QTranslator;
+	const BufferString qtfnm( "qt_", localekey_, ".qm" );
+	const BufferString instdir( TrMgr().instlocdir_.fullPath() );
+	if ( qt_transl_->load( qtfnm.str(), instdir.str() ) )
+	    QCoreApplication::installTranslator( qt_transl_ );
+    }
+
 #endif
+
+    return true;
 }
 
 
@@ -248,7 +261,7 @@ void TextTranslation::TranslateMgr::reInit()
     pkgnms_.setEmpty();
 
     BufferStringSet localekeys;
-    localekeys.add( "en-us" ); // whether or not in a file
+    localekeys.add( "en" ); // whether or not in a file
     findLocales( userlocdir_, localekeys );
     findLocales( applocdir_, localekeys );
     findLocales( instlocdir_, localekeys );
@@ -257,7 +270,7 @@ void TextTranslation::TranslateMgr::reInit()
 	addEntry( new LanguageEntry(localekeys.get(iloc),pkgnms_) );
 
     if ( curlocalekey.isEmpty() )
-	setLanguage( cUSEnglishIdx() );
+	setLanguage( cDefaultLocaleIdx() );
     else
 	setLanguageByLocaleKey( curlocalekey );
 }
@@ -410,8 +423,13 @@ uiRetVal TextTranslation::TranslateMgr::setLanguage( int idx )
     if ( !langentries_.validIdx(idx) )
 	return uiRetVal( uiStrings::phrInternalError("Bad language index") );
 
-    if ( !langentries_[idx]->load() )
+    LanguageEntry& lentry = *langentries_[idx];
+    if ( !lentry.load() )
 	return uiRetVal( tr("Cannot load %1").arg( languageUserName(idx) ) );
+
+#ifndef OD_NO_QT
+    QLocale::setDefault( lentry.qLocale() );
+#endif
 
     curentryidx_ = idx;
     handleChange();

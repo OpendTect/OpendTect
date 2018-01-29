@@ -53,6 +53,7 @@ static Color normaltooltipforegroundcolor_;
 
 void uiMain::setXpmIconData( const char** buf )	{ xpm_icon_data = buf; }
 const char* uiMain::iconFileName()		{ return icon_filename; }
+namespace OD { mGlobal(Basic) void loadLocalization(); }
 
 
 class KeyboardEventFilter : public QObject
@@ -416,6 +417,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     font_ = 0;
     setFont( *font() , true );
 
+    OD::loadLocalization();
     mAttachCB( TrMgr().languageChange, uiMain::languageChangeCB );
 }
 

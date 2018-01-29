@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uisipimpl.h"
 
 #include "uidialog.h"
-#include "uifileinput.h"
+#include "uifilesel.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
@@ -270,18 +270,19 @@ uiString uiSurveyFileSIP::usrText() const
 class uiSurveyFileDlg : public uiDialog
 { mODTextTranslationClass(uiSurveyFileDlg)
 public:
+
 uiSurveyFileDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Select Survey Setup file"),
-			mNoDlgTitle,mTODOHelpKey))
+			mNoDlgTitle, mTODOHelpKey))
 {
-    inpfld_ = new uiFileInput( this, uiStrings::sSelect(),
-		uiFileInput::Setup().defseldir(GetBaseDataDir())
-				    .withexamine(true)
-				    .allowallextensions(true) );
-    inpfld_->setElemSzPol( uiObject::Wide );
+    uiFileSel::Setup fssu;
+    fssu.withexamine( true )
+	.initialselectiondir( GetBaseDataDir() )
+	.allowallextensions( true );
+    inpfld_ = new uiFileSel( this, uiStrings::sSelect(), fssu );
 }
 
-uiFileInput* inpfld_;
+    uiFileSel*	inpfld_;
 
 };
 
