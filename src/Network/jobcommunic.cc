@@ -48,7 +48,7 @@ JobCommunic::JobCommunic( const char* host, int port, int jid,
     const bool ret = socket_->connectToHost( masterhost_, masterport_ );
     BufferString logmsg( "Connection to", masterhost_, " port " );
     logmsg.add( masterport_ ).add( " : " );
-    logMsg( ret, logmsg, !ret ? "" :socket_->errMsg().getFullString() );
+    logMsg( ret, logmsg, !ret ? "" : toString(socket_->errMsg()) );
 }
 
 
@@ -164,7 +164,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     const bool writestat = socket_->write( buf );
     const BufferString logmsg( "Writing to socket ", buf );
     logMsg( writestat, logmsg,
-	    !writestat ? socket_->errMsg().getFullString().str() : "" );
+	    !writestat ? toString(socket_->errMsg()) : BufferString() );
 
     char masterinfo;
     BufferString inp;
@@ -176,7 +176,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     if ( !ret )
     {
 	BufferString emsg( "Error reading from Master: ",
-			    socket_->errMsg().getFullString() );
+			    toString(socket_->errMsg()) );
 	setErrMsg( emsg );
     }
 
@@ -194,7 +194,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     else
     {
 	BufferString emsg( "Master sent an unkown response code: ",
-			    socket_->errMsg().getFullString() );
+			    toString(socket_->errMsg()) );
 	setErrMsg( emsg );
 	ret = false;
     }
@@ -241,7 +241,7 @@ void JobCommunic::disConnect()
 void JobCommunic::setErrMsg( const char* m )
 {
     errmsg_ = tr("[%1]: %2").arg(GetPID()).arg(m);
-    logMsg( false, errmsg_.getFullString(), "" );
+    logMsg( false, toString(errmsg_), "" );
 }
 
 

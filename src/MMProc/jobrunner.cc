@@ -154,7 +154,7 @@ bool JobRunner::addHost( const HostData& hd )
 	iomgr_ = 0;
 	errmsg_ = tr("Failed to listen to Port %1 on %2")
 	        .arg(firstport_).arg(HostData::localHostName());
-	mLogMsg( errmsg_.getFullString() )
+	mLogMsg( toString(errmsg_) )
 	return false;
     }
 

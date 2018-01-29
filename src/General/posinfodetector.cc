@@ -769,11 +769,10 @@ void PosInfo::Detector::report( IOPar& iop ) const
 {
     if ( setup_.reqsorting_ )
     {
-	BufferString sortdesc( errmsg_.getFullString() );
+	BufferString sortdesc( toString(errmsg_) );
 
 	if ( sortdesc.isEmpty() )
 	     sortdesc = sorting_.description();
-
 
 	 iop.add( "Sorting", sortdesc );
     }

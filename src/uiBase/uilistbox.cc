@@ -1051,18 +1051,18 @@ const char* uiListBox::itemText( int idx ) const
     if ( !validIdx(idx) )
 	return "";
 
-    rettxt_ = lb_->body().getItemText(idx);
-    return mFromUiStringTodo(rettxt_).buf();
+    rettxt_ = toString(lb_->body().getItemText(idx));
+    return rettxt_.buf();
 }
 
 
-const uiString uiListBox::textOfItem( int idx ) const
+uiString uiListBox::textOfItem( int idx ) const
 {
     if ( !validIdx(idx) )
 	return uiString::emptyString();
 
-    rettxt_ = lb_->body().getItemText(idx);
-    return rettxt_;
+    uirettxt_ = lb_->body().getItemText(idx);
+    return uirettxt_;
 }
 
 

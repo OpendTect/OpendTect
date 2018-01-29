@@ -115,7 +115,7 @@ MenuItem* MenuItemHolder::findItem( const char* txt )
     tofindtxt.remove( '&' );
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	BufferString itmtxt = items_[idx]->text.getFullString();
+	BufferString itmtxt = toString(items_[idx]->text);
 	itmtxt.remove( '&' );
 	if ( itmtxt == tofindtxt )
 	    return items_[idx];
@@ -124,7 +124,8 @@ MenuItem* MenuItemHolder::findItem( const char* txt )
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	MenuItem* item = items_[idx]->findItem( txt );
-	if ( item ) return item;
+	if ( item )
+	    return item;
     }
 
     return 0;

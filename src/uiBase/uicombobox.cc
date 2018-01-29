@@ -183,7 +183,7 @@ int uiComboBox::currentItem() const
 
 int uiComboBox::indexOf( const char* str ) const
 {
-    const FixedString inputstr( str );
+    const BufferString inputstr( str );
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( inputstr == itemText(idx) )

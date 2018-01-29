@@ -27,7 +27,7 @@ Geometry::RandomLine* RandomLineProbe::createNewDefaultRDL()
 	uiStrings::phrJoinStrings( uiStrings::sRandomLine(),
 				   toUiString(newrdlid) );
     Geometry::RandomLine* rl =
-	new Geometry::RandomLine( newrdlname.getFullString() );
+		new Geometry::RandomLine( toString(newrdlname) );
     const StepInterval<int> inlrange = SI().inlRange( true );
     const StepInterval<int> crlrange = SI().crlRange( true );
     const BinID start( inlrange.snappedCenter(), crlrange.start );
