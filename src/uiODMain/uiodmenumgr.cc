@@ -430,6 +430,7 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( exppick );
     expmnu_->insertItem( exppdf );
     expmnu_->insertItem( expseis );
+    mInsertItem( expmnu_, m3Dots(tr("Survey Setup")), mExpSurveySetupItm );
     expmnu_->insertItem( expwvlt );
     expmnu_->insertSeparator();
 
@@ -1351,6 +1352,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
     case mExpGeom2DMnuItm:		mDoOp(Exp,Geom,0); break;
+    case mExpSurveySetupItm:		applMgr().exportSurveySetup(); break;
     case mManColTabMnuItm:		mDoOp(Man,ColTab,0); break;
     case mManSeis3DMnuItm:		mDoOp(Man,Seis,0); break;
     case mManSeis2DMnuItm:		mDoOp(Man,Seis,1); break;

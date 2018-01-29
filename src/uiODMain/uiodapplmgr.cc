@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiconvpos.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
+#include "uifiledlg.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uinlapartserv.h"
@@ -64,6 +65,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "emtracker.h"
 #include "externalattrib.h"
+#include "file.h"
+#include "filepath.h"
 #include "genc.h"
 #include "ioman.h"
 #include "mouseevent.h"
@@ -337,6 +340,26 @@ int uiODApplMgr::manSurv( uiParent* p )
 	else
 	    return dlg.freshSurveySelected() ? 3 : 2;
     }
+}
+
+
+void uiODApplMgr::exportSurveySetup()
+{
+    const FilePath outfnm( GetPersonalDir(), "surveysetup.txt" );
+    uiFileDialog dlg( &appl_, false, outfnm.fullPath() );
+    if ( !dlg.go() ) return;
+
+    const char* fnm = dlg.fileName();
+    const FilePath fp( GetDataDir(), SurveyInfo::sKeySetupFileName() );
+    if ( !fp.exists() )
+    {
+	uiString msg( tr("Can not find Survey Setup file at:\n%1") );
+	msg.arg( fp.fullPath() );
+	uiMSG().error( msg );
+	return;
+    }
+
+    File::copy( fp.fullPath(), fnm );
 }
 
 

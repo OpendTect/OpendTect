@@ -89,6 +89,7 @@ public:
     // Survey menu operations
     int				selectSurvey(uiParent*);
     static int			manageSurvey()		{ return manSurv(0); }
+    void			exportSurveySetup();
 
     enum ObjType		{ Seis, Hor, Flt, Fltss, Wll, Attr, NLA, Pick,
 				  Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
