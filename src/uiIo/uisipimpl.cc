@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uisurveyselect.h"
+#include "uisurvinfoed.h"
 
 #include "coordsystem.h"
 #include "od_helpids.h"
@@ -25,6 +26,24 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "unitofmeasure.h"
+
+
+uiSurvInfoProvider* uiSurvInfoProvider::getByName( const char* nm )
+{
+    const ObjectSet<uiSurvInfoProvider>& sips
+		= uiSurveyInfoEditor::survInfoProvs();
+    const FixedString sipnm( nm );
+    for ( int idx=0; idx<sips.size(); idx++ )
+	if ( sipnm == toString(sips[idx]->usrText()) )
+	    return const_cast<uiSurvInfoProvider*>( sips[idx] );
+    return 0;
+}
+
+
+uiSurvInfoProvider* uiSurvInfoProvider::getByName( const uiString& nm )
+{
+    return getByName( toString(nm) );
+}
 
 
 class ui2DDefSurvInfoDlg : public uiDialog

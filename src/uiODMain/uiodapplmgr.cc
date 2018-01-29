@@ -309,12 +309,12 @@ void uiODApplMgr::handleSIPImport()
 {
     IOPar iop;
     SI().getFreshSetupData( iop );
-    uiString sipnm;
+    BufferString sipnm;
     iop.get( uiSurvInfoProvider::sKeySIPName(), sipnm );
     if ( sipnm.isEmpty() )
 	return;
 
-    uiSurvInfoProvider* sip = uiSurveyInfoEditor::getInfoProviderByName(sipnm);
+    uiSurvInfoProvider* sip = uiSurvInfoProvider::getByName( sipnm );
     if ( !sip )
 	{ pErrMsg("Cannot find SIP"); return; }
 

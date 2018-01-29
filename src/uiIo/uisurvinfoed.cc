@@ -546,17 +546,6 @@ int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
 }
 
 
-uiSurvInfoProvider* uiSurveyInfoEditor::getInfoProviderByName(
-							const uiString& nm )
-{
-    const ObjectSet<uiSurvInfoProvider>& sips = survInfoProvs();
-    for ( int idx=0; idx<sips.size(); idx++ )
-	if ( nm.isEqualTo(sips[idx]->usrText()) )
-	    return const_cast<uiSurvInfoProvider*>( sips[idx] );
-    return 0;
-}
-
-
 bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 				     const char* outdirnm )
 {
@@ -711,7 +700,8 @@ bool uiSurveyInfoEditor::acceptOK()
 	IOPar iop;
 	si_.getFreshSetupData( iop );
 	if ( lastsip_ )
-	    iop.set( uiSurvInfoProvider::sKeySIPName(), lastsip_->usrText() );
+	    iop.set( uiSurvInfoProvider::sKeySIPName(),
+		     toString(lastsip_->usrText()) );
 	if ( impiop_ )
 	    iop.merge( *impiop_ );
 	si_.setFreshSetupData( iop );

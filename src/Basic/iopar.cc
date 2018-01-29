@@ -966,7 +966,7 @@ bool IOPar::get( const char* keyw, SeparString& ss ) const
 }
 
 
-bool IOPar::get( const char* keyw, uiString& uis ) const
+bool IOPar::getUiString( const char* keyw, uiString& uis ) const
 {
     BufferString valstr;
     if ( !get( keyw, valstr ) )
@@ -1025,7 +1025,7 @@ void IOPar::set( const char* keyw, const SeparString& ss )
 }
 
 
-void IOPar::set( const char* keyw, const uiString& uis )
+void IOPar::setUiString( const char* keyw, const uiString& uis )
 {
     if ( uis.isPlainAscii() )
 	set( keyw, uis.getFullString() );

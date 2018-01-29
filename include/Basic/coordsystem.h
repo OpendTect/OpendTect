@@ -36,10 +36,6 @@ public:
 
     bool			operator==(const CoordSystem&) const;
 
-    static void			initRepository(NotifierAccess* = 0);
-				/*!<To be called from initGeneral with a
-				    pointer to survey change notifier. */
-
 				mDefineFactoryInClass(CoordSystem,factory);
 				//!<Creates the subclasses without settings
 

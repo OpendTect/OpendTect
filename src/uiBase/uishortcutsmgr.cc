@@ -269,9 +269,16 @@ bool uiShortcutsList::getSCProperties( const IOPar& par, int scutidx,
 				       uiString& proplbl,
 				       int& propval) const
 {
-    BufferString propnm = IOPar::compKey( toString(scutidx), sKey::Property() );
-    BufferString propv = IOPar::compKey( toString(scutidx), sKey::Value() );
-    return par.get( propnm.buf(), proplbl ) && par.get( propv.buf(), propval );
+    const BufferString idxstr( scutidx );
+    const BufferString propnmky = IOPar::compKey( idxstr, sKey::Property() );
+    const BufferString propvky = IOPar::compKey( idxstr, sKey::Value() );
+    BufferString propnm;
+    if ( par.get(propnmky,propnm) && par.get(propvky,propval) )
+    {
+	proplbl = toUiString( propnm );
+	return true;
+    }
+    return false;
 }
 
 

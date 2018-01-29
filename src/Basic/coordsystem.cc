@@ -26,34 +26,12 @@ mImplFactory( Coords::CoordSystem, Coords::CoordSystem::factory );
 
 using namespace Coords;
 
-static Threads::Lock systemreposlock;
-static ManagedObjectSet<IOPar> systemrepos;
-
-
-static void reloadRepository(CallBacker*)
-{
-    Threads::Locker lock( systemreposlock );
-    systemrepos.erase();
-
-    //Todo
-}
-
 
 bool CoordSystem::operator==( const CoordSystem& oth ) const
 {
     IOPar myiop; fillPar( myiop );
     IOPar othiop; oth.fillPar( othiop );
     return myiop == othiop;
-}
-
-
-void CoordSystem::initRepository( NotifierAccess* na )
-{
-    reloadRepository( 0 );
-
-    if ( na ) na->notify( mSCB( reloadRepository ) );
-    //Don't do remove, as we assume we will be destroyed
-    //after NotifierAccess's last call
 }
 
 
@@ -74,7 +52,6 @@ void CoordSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
 	    continue;
 
 	systempar->set( sKeyFactoryName(), factorynames.get(idx) );
-	systempar->set( sKeyUiName(), factoryuinames[idx] );
 
 	if ( orthogonalonly || projectiononly )
 	{
@@ -86,29 +63,6 @@ void CoordSystem::getSystemNames( bool orthogonalonly, bool projectiononly,
 
 	pars += systempar.release();
 	strings += factoryuinames[idx];
-    }
-
-    //Add all repository entries
-    Threads::Locker lock( systemreposlock );
-
-    for ( int idx=0; idx<systemrepos.size(); idx++ )
-    {
-	PtrMan<IOPar> systempar = new IOPar( *systemrepos[idx] );
-	RefMan<CoordSystem> system = createSystem( *systempar );
-	if ( !system )
-	    continue;
-
-	if ( orthogonalonly && !system->isOrthogonal() )
-	    continue;
-
-	uiString uiname;
-	BufferString factoryname;
-	if ( !systempar->get( sKeyUiName(), uiname ) ||
-	     !systempar->get( sKeyFactoryName(), factoryname ) )
-	    continue;
-
-	pars += systempar.release();
-	strings += uiname;
     }
 }
 

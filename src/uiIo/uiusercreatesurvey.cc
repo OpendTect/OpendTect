@@ -264,7 +264,8 @@ bool uiUserCreateSurvey::acceptOK()
 bool uiUserCreateSurvey::doUsrDef()
 {
     IOPar iop; iop.setStdCreationEntries();
-    iop.set( uiSurvInfoProvider::sKeySIPName(), survinfo_->sipName() );
+    iop.set( uiSurvInfoProvider::sKeySIPName(),
+	     toString(survinfo_->sipName()) );
     const uiSurvInfoProvider* cursip = getSIP();
     if ( cursip )
 	cursip->fillPar( iop );
