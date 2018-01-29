@@ -79,7 +79,7 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
   -# The updated .ts file should be converted to a binary .qm file using Qt's
      lrelease application.
   -# The .qm file should be placed in
-     data/localizations/<packagekey>_<lang>_<country>.ts in the release. For
+     data/translations/<packagekey>_<lang>_<country>.ts in the release. For
      example, a localization of OpendTect to modern Chinese would be
      saved as od_cn-cn.qm.
  */

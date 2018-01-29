@@ -45,10 +45,10 @@ namespace TextTranslation
   * create a similar macro to mODTextTranslationClass and use it
   * use tr() in your code, and 'lupdate' to harvest the original strings
   * when the .qm files are created, install those in one of:
-    - <home_dir>/.od/localizations/
-    - <installation_super_dir>/data/localizations
-    - <release_dir>/data/localizations
-  The filenames *have* to be like: mypkg_zh_CN.qm .
+    - <home_dir>/.od/translations/
+    - <installation_super_dir>/data/translations/
+    - <release_dir>/data/translations/
+  The filenames *have* to be like: mypkg_zh_CN.qm (i.e. using Qt-style naming).
  */
 
 mExpClass(Basic) TranslateMgr : public CallBacker
@@ -94,7 +94,7 @@ protected:
 
 public:
 
-    static const char*	sLocalizationSubDirName()   { return "localizations"; }
+    static const char*	sLocalizationSubDirName()   { return "translations"; }
     static const char*	sPackageLanguageSeparator() { return "_"; }
 
     void			addLanguage(LanguageEntry*);
@@ -128,7 +128,7 @@ public:
 /*! holds the translations for one language. The key is the locale code,
   (such as en-us and cn-cn). Usually, you do not deal with this class - unless
   you load your own languages (i.e. if you do not install .qm files in
-  data/localisations but manage everything yourself). */
+  data/translations but manage everything yourself). */
 
 mExpClass(Basic) LanguageEntry
 { mODTextTranslationClass(LanguageEntry);
