@@ -178,7 +178,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
     if ( is2d_ )
     {
 	Seis2DDataSet ds( *ioobj );
-	const OD::String& fnm =
+	const BufferString fnm =
 		SeisCBVS2DLineIOProvider::getFileName( *ioobj, su.geomid_ );
 	tr_ = CBVSSeisTrcTranslator::make( fnm, false,
 					   Seis::is2D(su.geom_), &emsg );

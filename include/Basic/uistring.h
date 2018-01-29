@@ -145,12 +145,8 @@ public:
 
 
     /*! Results: */
-    const OD::String&		getFullString(BufferString* = 0) const;
-				/*!< Full string, *without* translation
-				    result is in a thread-safe static buffer,
-				    so copy the result before calling again.
-				    If BufferString is given, it will be
-				    filled, and static buffer won't be used. */
+    BufferString		getFullString() const;
+				/*!< Full string, *without* translation */
     wchar_t*			createWCharString() const;
 				/*!< The translation. Result becomes owner's and
 				    should be deleted using the [] operator. */
@@ -270,7 +266,12 @@ mGlobal(Basic) uiString toUiString(double);
 mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
 mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
-mGlobal(Basic) const char* toString(const uiString&);
+
+
+mGlobal(Basic) inline BufferString toString( const uiString& uis )
+{
+    return uis.getFullString();
+}
 
 template <class T1,class T2>
 uiString toUiString( const std::pair<T1,T2>& pair )

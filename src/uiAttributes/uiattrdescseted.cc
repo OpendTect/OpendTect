@@ -142,17 +142,17 @@ void uiAttribDescSetEd::createMenuBar()
 	{ pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
-    mInsertItem( m3Dots(tr("New set")), newSetCB, "new" );
     mInsertItem( m3Dots(tr("Open set")), openSetCB, "open" );
     mInsertItem( m3Dots(tr("Save set")), savePushCB, "save" );
     mInsertItem( m3Dots(tr("Save set as")), saveAsPushCB, "saveas" );
+    mInsertItem( m3Dots(tr("Clear set")), newSetCB, "clear" );
     mInsertItem( m3Dots(tr("Auto Load Attribute Set")), autoAttrSetCB, "auto" );
     mInsertItem( m3Dots(tr("Change attribute input(s)")),
 				    chgAttrInputsCB, "inputs" );
     filemnu->insertSeparator();
     mInsertItem( m3Dots(tr("Open Default set")), openDefSetCB, "defset" );
     uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
-    impmnu->setIcon( "impset" );
+    impmnu->setIcon( "import" );
     mInsertMnuItem( impmnu, m3Dots(tr("From other Survey")),
 		    importSetCB, "survey" );
     mInsertMnuItem( impmnu, m3Dots(tr("From File")), importFileCB,
@@ -175,14 +175,14 @@ void uiAttribDescSetEd::createMenuBar()
 void uiAttribDescSetEd::createToolBar()
 {
     toolbar_ = new uiToolBar( this, tr("AttributeSet tools") );
-    mAddButton( "new", newSetCB, tr("New attribute set") );
     mAddButton( "open", openSetCB, tr("Open attribute set") );
     mAddButton( "defset", openDefSetCB, tr("Open default attribute set") );
-    mAddButton( "impset", importSetCB,
+    mAddButton( "import", importSetCB,
 		tr("Import attribute set from other survey") );
     mAddButton( "job2set", job2SetCB, tr("Reconstruct set from job file") );
     mAddButton( "save", savePushCB, tr("Save attribute set") );
     mAddButton( "saveas", saveAsPushCB, tr("Save attribute set as") );
+    mAddButton( "clear", newSetCB, tr("Clear attributes") );
     toolbar_->addSeparator();
     mAddButton( "evalattr", evalAttributeCB, tr("Evaluate attribute") );
     mAddButton( "evalcrossattr",crossEvalAttrsCB,

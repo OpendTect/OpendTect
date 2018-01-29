@@ -49,7 +49,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	writeallowed = File::isWritable( bhfnm );
     else
     {
-	const BufferString& datadir = bhfp.pathOnly();
+	const BufferString datadir = bhfp.pathOnly();
 	writeallowed = File::isWritable( datadir );
     }
 

@@ -44,7 +44,7 @@ bool BatchProgram::go( od_ostream& strm )
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
     {
-	errorMsg(toUiString("\nCannot execute pre-3.2 par files"));
+	errorMsg( toUiString("\nCannot execute pre-3.2 par files") );
 	return false;
     }
 
@@ -215,7 +215,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    proc = attrengman.usePar( procpar, attribsetlocal,
 				      alllinenames.get(idx), errmsg, outidx );
 	    if ( !proc )
-		mRetJobErr( BufferString(errmsg.getFullString()) );
+		mRetJobErr( toString(errmsg) );
 
 	    progressmeter.setName( proc->name() );
 	    progressmeter.setMessage( proc->message() );
@@ -276,7 +276,7 @@ bool BatchProgram::go( od_ostream& strm )
 		    if ( res > 0 )
 		    {
 			if ( comm_ && !comm_->updateProgress( nriter + 1 ) )
-			    mRetHostErr( comm_->errMsg().getFullString() )
+			    mRetHostErr( toString( comm_->errMsg() ) )
 
 			if ( proc->nrDone()>nrdone )
 			{
@@ -288,9 +288,8 @@ bool BatchProgram::go( od_ostream& strm )
 		    {
 			if ( res == -1 )
 			    mRetJobErr(
-				BufferString("Cannot reach next position",
-					     ":\n",
-					     proc->message().getFullString()))
+				BufferString("Cannot reach next position:\n",
+						 toString(proc->message())) );
 			break;
 		    }
 
@@ -299,9 +298,8 @@ bool BatchProgram::go( od_ostream& strm )
 			nriter++;
 			if ( !proc->outputs_[0]->writeTrc() )
 			    mRetJobErr(
-				BufferString("Cannot write output trace",
-					     ":\n",
-			    mFromUiStringTodo(proc->outputs_[0]->errMsg())) )
+				BufferString("Cannot write output trace:\n",
+					toString(proc->outputs_[0]->errMsg())) )
 		    }
 		}
 	    }

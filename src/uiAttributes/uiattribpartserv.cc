@@ -1556,7 +1556,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& ass,
 	if ( !item )
 	    return false;
 
-	const BufferString& itmnm = item->text.getFullString();
+	const BufferString itmnm = toString( item->text );
 	const int idx = issteering ? attrinf.steernms_.indexOf( itmnm )
 				   : attrinf.ioobjnms_.indexOf( itmnm );
 	dbkey = issteering ? attrinf.steerids_.get(idx)

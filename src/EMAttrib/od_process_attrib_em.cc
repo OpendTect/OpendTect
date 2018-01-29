@@ -195,8 +195,8 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
 		{
 		    BufferString err = !writer->errMsg().isEmpty()
-			?  writer->errMsg().getFullString().buf()
-			: "ERROR: no trace computed";
+			? toString( writer->errMsg() )
+			: BufferString("ERROR: no trace computed");
 		    mErrRet( err );
 		}
 	    }
@@ -226,7 +226,7 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 	if ( !useoutwfunc && tbuf && tbuf->get(0) )
 	{
 	    if ( !writer->put(*(tbuf->get(0))) )
-	    { mErrRet( writer->errMsg().getFullString() ); }
+		{ mErrRet( toString(writer->errMsg()) ); }
 
 	    SeisTrc* trc = tbuf->remove(0);
 	    delete trc;
@@ -361,7 +361,7 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( !EM::EMM().getSurfaceData(dbky,sd,uierr) )
 	{
 	    BufferString errstr( "Cannot load horizon ", dbky.toString(), ": ");
-	    errstr += uierr.getFullString();
+	    errstr += toString( uierr );
 	    mErrRetNoProc( errstr.buf() );
 	}
 
@@ -451,7 +451,8 @@ bool BatchProgram::go( od_ostream& strm )
 	uiString uierrmsg;
 	mSetEngineMan()
 	Processor* proc = aem.createLocationOutput( uierrmsg, bivs );
-	if ( !proc ) mErrRet( uierrmsg.getFullString() );
+	if ( !proc )
+	    mErrRet( toString(uierrmsg) );
 
 	if ( !process( strm, proc, false ) ) return false;
 	HorizonUtils::addSurfaceData( midset[0], attribrefs, bivs );
@@ -536,7 +537,8 @@ bool BatchProgram::go( od_ostream& strm )
 		aem.setGeomID( geomid );
 		Processor* proc = aem.create2DVarZOutput( uierrmsg, pars(),
 				dps, outval, zboundsset ? &zbounds : 0 );
-		if ( !proc ) mErrRet( uierrmsg.getFullString() );
+		if ( !proc )
+		    mErrRet( toString(uierrmsg) );
 		if ( !process(strm,proc,is2d,&outpid,&seisoutp) )
 		    return false;
 	    }
@@ -554,7 +556,8 @@ bool BatchProgram::go( od_ostream& strm )
 	    mSetEngineMan()
 	    Processor* proc = aem.createTrcSelOutput( uierrmsg, bivs, seisoutp,
 					outval, zboundsset ? &zbounds : 0 );
-	    if ( !proc ) mErrRet( uierrmsg.getFullString() );
+	    if ( !proc )
+		mErrRet( toString(uierrmsg) );
 	    if ( !process( strm, proc, is2d, &outpid, &seisoutp ) )
 		return false;
 	}

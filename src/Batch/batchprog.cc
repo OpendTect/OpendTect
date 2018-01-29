@@ -254,12 +254,13 @@ bool BatchProgram::pauseRequested() const
 bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 {
     if ( sdout_.oStrm() )
-	*sdout_.oStrm() << '\n' << msg.getFullString() << '\n' << std::endl;
+	*sdout_.oStrm() << '\n' << toString(msg) << '\n' << std::endl;
 
     if ( !sdout_.oStrm() || cc_stderr )
-	std::cerr << '\n' << msg.getFullString() << '\n' << std::endl;
+	std::cerr << '\n' << toString(msg) << '\n' << std::endl;
 
-    if ( comm_ && comm_->ok() ) return comm_->sendErrMsg(msg.getFullString());
+    if ( comm_ && comm_->ok() )
+	return comm_->sendErrMsg( toString(msg) );
 
     return true;
 }
@@ -338,7 +339,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     {
 	if ( errmsg.isEmpty() )
 	    errmsg = tr("Error getting DB info");
-	*sdout_.oStrm() << errmsg.getFullString().buf() << std::endl;
+	*sdout_.oStrm() << toString(errmsg) << std::endl;
     }
 
     return ioobj;

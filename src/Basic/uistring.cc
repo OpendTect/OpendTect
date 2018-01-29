@@ -39,7 +39,7 @@ ________________________________________________________________________
 
 #else
 
-static char* getNewDebugStr( char* strvar, const OD::String& newstr )
+static char* getNewDebugStr( char* strvar, const BufferString& newstr )
 {
     delete [] strvar;
     const od_int64 newsz = newstr.size();
@@ -107,7 +107,7 @@ public:
 #endif
     }
 
-    void getFullString( BufferString& ) const;
+    void getFullString(BufferString&) const;
 
     void set(const char* orig);
     bool fillQString(QString&,const QTranslator* translator,
@@ -248,7 +248,10 @@ bool uiStringData::fillQString( QString& res,
     {
 	QString thearg;
 	if ( notranslation )
-	    thearg = arguments_[idx].getFullString().buf();
+	{
+	    const BufferString str( arguments_[idx].getFullString() );
+	    thearg = str.buf();
+	}
 	else if ( translator )
 	    arguments_[idx].translate( *translator, thearg );
 	else
@@ -371,20 +374,16 @@ const char* uiString::getOriginalString() const
 }
 
 
-const OD::String& uiString::getFullString( BufferString* res ) const
+BufferString uiString::getFullString() const
 {
-    if ( !res )
-    {
-	mDeclStaticString( staticres );
-	res = &staticres;
-    }
 
     Threads::Locker datalocker( datalock_ );
     if ( !data_ )
-	res->setEmpty();
-    else
-	data_->getFullString( *res );
-    return *res;
+	return BufferString();
+
+    BufferString res;
+    data_->getFullString( res );
+    return res;
 }
 
 
@@ -577,8 +576,7 @@ bool uiString::isEqualTo( const uiString& oth ) const
     if ( data_ == oth.data_ )
 	return true;
 
-    const BufferString myfullstring = getFullString();
-    return myfullstring == oth.getFullString();
+    return getFullString() == oth.getFullString();
 }
 
 
@@ -870,13 +868,6 @@ uiString toUiString( const Coord& c )
 {
     return toUiString( "(%1,%2)" ).arg( mRounded(od_int64,c.x_) )
 				  .arg( mRounded(od_int64,c.y_) );
-}
-
-const char* toString( const uiString& uistr )
-{
-    mDeclStaticString( ret );
-    ret.set( uistr.getFullString() );
-    return ret.str();
 }
 
 
@@ -1316,7 +1307,7 @@ BufferString uiRetVal::getText() const
 	uistr = msgs_.cat();
     }
 
-    return BufferString( uistr.getFullString() );
+    return uistr.getFullString();
 }
 
 

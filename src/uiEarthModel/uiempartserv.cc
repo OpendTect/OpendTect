@@ -637,7 +637,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs,
 	if ( !ioobj )
 	    continue;
 
-	const BufferString& translator = ioobj->translator();
+	const BufferString translator = ioobj->translator();
 	if ( translator!=EMBodyTranslatorGroup::sKeyUserWord() )
 	    continue;
 

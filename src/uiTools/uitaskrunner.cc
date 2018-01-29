@@ -172,7 +172,7 @@ void uiTaskRunner::updateFields()
     const int nrdone = mCast( int, task_->nrDone() );
     const uiString nrdonetext = task_->nrDoneText();
 #ifdef __debug__
-    if ( FixedString(nrdonetext.getFullString())=="Nr Done" )
+    if ( toString(nrdonetext) == "Nr Done" )
     {
         pErrMsg("Nr Done is not an acceptable name in a UI. "
                 "Make class implement nrDoneText");

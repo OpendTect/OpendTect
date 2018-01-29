@@ -171,7 +171,7 @@ uiString VolProc::ChainOutput::nrDoneText() const
 {
 #ifdef __debug__
     uiString ret = progresskeeper_.nrDoneText();
-    if ( FixedString(ret.getFullString())=="Nr Done" )
+    if ( toString(ret) == "Nr Done" )
 	ret = toUiString("# done");
     return ret;
 #else

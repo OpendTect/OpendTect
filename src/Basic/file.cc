@@ -157,7 +157,7 @@ int File::RecursiveCopier::nextStep()
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(dest_)) )
     }
 
-    const BufferString& srcfile = *filelist_[fileidx_];
+    const BufferString& srcfile = filelist_.get( fileidx_ );
     QDir srcdir( src_.buf() );
     BufferString relpath( srcdir.relativeFilePath(srcfile.buf()) );
     const BufferString destfile = Path(dest_,relpath).fullPath();

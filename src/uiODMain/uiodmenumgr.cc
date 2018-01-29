@@ -756,7 +756,7 @@ void uiODMenuMgr::fillAnalMenu()
 void uiODMenuMgr::fillSceneMenu()
 {
     scenemnu_->clear();
-    addAction( scenemnu_, uiStrings::sNew(), "new", mAddSceneMnuItm );
+    addAction( scenemnu_, uiStrings::sNew(), "addnew", mAddSceneMnuItm );
     addAction( scenemnu_, tr("New Map View"), "survey", mAddMapSceneMnuItm );
     uiString tdmnutxt = tr( "New [%1]" )
 	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );

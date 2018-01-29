@@ -421,18 +421,19 @@ const char* StringListInpSpec::text( int ) const
 {
     if ( isUndef() )
 	return OD::EmptyString();
-
     if ( enumdef_ )
-    {
 	return enumdef_->getKeyForIndex(cur_);
-    }
 
-    return strings_[cur_].getFullString().buf();
+    mDeclStaticString( ret );
+    ret = toString( strings_[cur_] );
+    return ret.buf();
 }
 
 
 void StringListInpSpec::setItemText( int idx, const uiString& s )
-{ strings_[cur_] = s; }
+{
+    strings_[cur_] = s;
+}
 
 
 bool StringListInpSpec::setText( const char* s, int nr )
@@ -448,11 +449,10 @@ bool StringListInpSpec::setText( const char* s, int nr )
     }
     else
     {
-	BufferString compstr;
 	for ( int idx=0; idx<strings_.size(); idx++ )
 	{
-	    if ( strings_[idx].getFullString(&compstr) == s )
-	    { cur_ = idx; isset_ = true; return true; }
+	    if ( toString(strings_[idx]) == s )
+		{ cur_ = idx; isset_ = true; return true; }
 	}
     }
 

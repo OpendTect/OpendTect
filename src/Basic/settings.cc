@@ -141,7 +141,7 @@ bool Settings::doRead( bool ext )
 	if ( !okaftercopy )
 	{
 	    if ( iscommon )
-		ErrMsg( sfio.errMsg().getFullString() );
+		ErrMsg( sfio.errMsg() );
 	    return false;
 	}
     }
@@ -190,7 +190,7 @@ bool Settings::write( bool do_merge ) const
     {
 	BufferString msg( "Cannot open user settings file for write" );
 	if ( !sfio.errMsg().isEmpty() )
-	    { msg += "\n\t"; msg += sfio.errMsg().getFullString(); }
+	    { msg += "\n\t"; msg += toString( sfio.errMsg() ); }
 	ErrMsg( msg );
 	return false;
     }
@@ -200,8 +200,8 @@ bool Settings::write( bool do_merge ) const
     wriop.putTo( stream, true );
     if ( !sfio.closeSuccess() )
     {
-	BufferString msg( "Error closing user settings file:\n" );
-	msg += sfio.errMsg().getFullString();
+	const BufferString msg( "Error closing user settings file:\n",
+				toString( sfio.errMsg() ) );
 	ErrMsg( msg );
 	return false;
     }

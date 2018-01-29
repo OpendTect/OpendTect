@@ -859,12 +859,19 @@ void RegularFlatDataPack::setTrcInfoFlds()
 
 const char* RegularFlatDataPack::dimName( bool dim0 ) const
 {
-    if ( dim0 && hassingletrace_ ) return sKey::Series();
-    if ( is2D() ) return dim0 ? "Distance"
-			      : zDomain().userName().getFullString();
-    return dim0 ? (dir()==TrcKeyZSampling::Inl ? mKeyCrl : mKeyInl)
-		: (dir()==TrcKeyZSampling::Z
-			? mKeyCrl : zDomain().userName().getFullString());
+    if ( dim0 && hassingletrace_ )
+	return sKey::Series();
+
+    const bool is2d = is2D();
+    if ( dim0 )
+	return is2d ? "Distance"
+		    : dir()==TrcKeyZSampling::Inl ? mKeyCrl : mKeyInl;
+    else if ( dir()==TrcKeyZSampling::Z )
+	return mKeyCrl;
+
+    mDeclStaticString( ret );
+    ret.set( zDomain().userName().getFullString() );
+    return ret.buf();
 }
 
 

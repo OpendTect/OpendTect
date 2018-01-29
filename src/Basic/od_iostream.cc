@@ -182,7 +182,7 @@ void od_stream::addErrMsgTo( BufferString& msg ) const
 {
     uiString res = toUiString(msg);
     addErrMsgTo( res );
-    msg = res.getFullString();
+    msg = toString( res );
 }
 
 

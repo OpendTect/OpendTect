@@ -373,7 +373,7 @@ bool doExp( const File::Path& fp )
     bool nofails = true;
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
-	const BufferString& lnm = *lnms[idx];
+	const BufferString& lnm = lnms.get( idx );
 	BufferString filenm( fp.fullPath() );
 	filenm.replace( uiSEGYFileSpec::sKeyLineNmToken(), lnm );
 	IOObj* newioobj = getSubstIOObj( filenm );

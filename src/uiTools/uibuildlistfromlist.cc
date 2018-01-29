@@ -53,7 +53,7 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const uiString& itmtyp,
     }
     else
     {
-	int butsz = FixedString(itmtyp.getFullString()).size() + 8;
+	int butsz = toString(itmtyp).size() + 8;
 	if ( butsz < 20 )
 	    butsz = 20;
 

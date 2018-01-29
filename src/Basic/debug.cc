@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "od_ostream.h"
 #include "msgh.h"
+#include "uistring.h"
 #include "fixedstring.h"
 
 #include <iostream>
@@ -417,6 +418,12 @@ void UsrMsg( const char* msg, MsgClass::Type t )
 	MsgClass obj( msg, t );
 	MsgClass::theCB().doCall( &obj );
     }
+}
+
+
+void ErrMsg( const uiString& msg )
+{
+    ErrMsg( toString(msg), false );
 }
 
 

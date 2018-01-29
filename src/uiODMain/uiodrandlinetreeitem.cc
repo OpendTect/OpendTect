@@ -223,7 +223,7 @@ void uiODRandomLineParentTreeItem::addMenuItems()
     storedmenu->setText( tr("Add Stored") );
 
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
-    newmnu->setIcon( "new" );
+    newmnu->setIcon( "addnew" );
     menu_->addMenu( newmnu );
 
 #   define mAddItm( str, id, ic ) \

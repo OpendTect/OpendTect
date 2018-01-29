@@ -603,8 +603,12 @@ bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 
 const char* SeisTrcBufDataPack::dimName( bool dim0 ) const
 {
-    return dim0 ? SeisTrcInfo::toString(posfld_)
-		: SI().zDomain().userName().getFullString();
+    mDeclStaticString( ret );
+    if ( dim0 )
+	ret.set( SeisTrcInfo::toString(posfld_) );
+    else
+	ret.set( toString( SI().zDomain().userName() ) );
+    return ret.buf();
 }
 
 

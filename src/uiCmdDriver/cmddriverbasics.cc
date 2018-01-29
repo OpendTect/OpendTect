@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiaction.h"
 #include "uitoolbutton.h"
 #include "filepath.h"
+#include "staticstring.h"
 
 
 namespace CmdDrive
@@ -781,8 +782,14 @@ bool UIEntity::sensitive() const
 
 const char* UIEntity::name() const
 {
-    if ( !isValid() ) return "";
-    return uiobj_ ? uiobj_->name() : uiact_->text().getFullString();
+    if ( !isValid() )
+	return "";
+    else if ( uiobj_ )
+	return uiobj_->name().buf();
+
+    mDeclStaticString( ret );
+    ret = toString( uiact_->text() );
+    return ret.buf();
 }
 
 

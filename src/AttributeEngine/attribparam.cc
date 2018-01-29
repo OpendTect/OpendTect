@@ -19,6 +19,8 @@ namespace Attrib
 
 #define mParamClone( type ) \
 type* type::clone() const { return new type(*this); }
+#define mGetSpec(typ) \
+    (static_cast<typ*>( spec_ ))
 
 BinIDParam::BinIDParam( const char* nm )
     : ValParam( nm, new PositionInpSpec(BinID(mUdf(int),mUdf(int))) )
@@ -40,7 +42,7 @@ void BinIDParam::setLimits( const Interval<int>& inlrg,
 {
     /*
     TODO: implement setLimits in BinIDInpSpec
-    reinterpret_cast<BinIDInpSpec*>(spec_)->setLimits( inlrg, crlrg );
+    mGetSpec(BinIDInpSpec)->setLimits( inlrg, crlrg );
     */
 }
 
@@ -49,7 +51,7 @@ void BinIDParam::setLimits( int mininl, int maxinl, int mincrl,int maxcrl )
 {
     /*
     TODO: implement setLimits in BinIDInpSpec
-    reinterpret_cast<BinIDInpSpec*>(spec_)->setLimits( inlrg, crlrg );
+    mGetSpec(BinIDInpSpec)->setLimits( inlrg, crlrg );
     */
 }
 
@@ -71,7 +73,8 @@ bool BinIDParam::setCompositeValue( const char* posstr )
 
 void BinIDParam::setDefaultValue( const BinID& bid )
 {
-    reinterpret_cast<PositionInpSpec*>(spec_)->setup(true).binid_ = bid;
+    mGetSpec(PositionInpSpec)->setup(true).binid_ = bid;
+    mGetSpec(PositionInpSpec)->setup(true).binid_ = bid;
 }
 
 
@@ -91,15 +94,13 @@ void BinIDParam::toString( BufferString& res, const BinID& bid ) const
 
 BinID BinIDParam::getValue() const
 {
-    const PositionInpSpec& spec = *reinterpret_cast<PositionInpSpec*>(spec_);
-    return spec.setup(false).binid_;
+    return mGetSpec(PositionInpSpec)->setup(false).binid_;
 }
 
 
 BinID BinIDParam::getDefaultBinIDValue() const
 {
-    const PositionInpSpec& spec = *reinterpret_cast<PositionInpSpec*>(spec_);
-    return spec.setup(true).binid_;
+    return mGetSpec(PositionInpSpec)->setup(true).binid_;
 }
 
 
@@ -150,23 +151,27 @@ bool BoolParam::setCompositeValue( const char* str )
 BufferString BoolParam::getDefaultValue() const
 {
     const bool yn = getDefaultBoolValue();
-    BufferString str =
-	reinterpret_cast<BoolInpSpec*>(spec_)->trueFalseTxt(yn).getFullString();
-    return str;
+    return toString( mGetSpec(BoolInpSpec)->trueFalseTxt(yn) );
 }
 
 
 bool BoolParam::isSet() const
-{ return reinterpret_cast<BoolInpSpec*>(spec_)->isSet(); }
+{
+    return mGetSpec(BoolInpSpec)->isSet();
+}
 
 
 void BoolParam::setSet( bool yn )
-{ reinterpret_cast<BoolInpSpec*>(spec_)->setSet(yn); }
+{
+    mGetSpec(BoolInpSpec)->setSet( yn );
+}
 
 
 EnumParam::EnumParam( const char* nm )
     : ValParam( nm, new StringListInpSpec )
-{}
+{
+}
+
 
 EnumParam::EnumParam( const char* nm, int defval, bool isreq )
     : ValParam( nm, new StringListInpSpec )
@@ -178,14 +183,15 @@ EnumParam::EnumParam( const char* nm, int defval, bool isreq )
 mParamClone( EnumParam );
 
 void EnumParam::addEnum( const char* ne )
-{ reinterpret_cast<StringListInpSpec*>(spec_)->addString(toUiString(ne)); }
+{
+    mGetSpec(StringListInpSpec)->addString(toUiString(ne));
+}
 
 
 BufferString EnumParam::getDefaultValue() const
 {
     int strindex = getDefaultIntValue();
-    const uiStringSet& strings =
-	reinterpret_cast<StringListInpSpec*>(spec_)->strings();
+    const uiStringSet& strings = mGetSpec(StringListInpSpec)->strings();
     if ( strindex < 0 || strindex >= strings.size() )
 	strindex = 0;
 
@@ -195,7 +201,7 @@ BufferString EnumParam::getDefaultValue() const
 
 void EnumParam::setEnums( const EnumDef& defs )
 {
-    static_cast<StringListInpSpec*>(spec_)->setEnumDef( defs );
+    mGetSpec(StringListInpSpec)->setEnumDef( defs );
 }
 
 mStartAllowDeprecatedSection
@@ -235,11 +241,15 @@ void EnumParam::fillDefStr( BufferString& res ) const
 
 
 bool EnumParam::isSet() const
-{ return reinterpret_cast<StringListInpSpec*>(spec_)->isSet(); }
+{
+    return mGetSpec(StringListInpSpec)->isSet();
+}
 
 
 void EnumParam::setSet( bool yn )
-{ reinterpret_cast<StringListInpSpec*>(spec_)->setSet(yn); }
+{
+    mGetSpec(StringListInpSpec)->setSet( yn );
+}
 
 
 StringParam::StringParam( const char* key )

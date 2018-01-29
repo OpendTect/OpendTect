@@ -1043,9 +1043,8 @@ bool SurveyInfo::write( const char* basedir ) const
     SafeFileIO sfio( dotsurvfnm, false );
     if ( !sfio.open(false) )
     {
-	uiString msg( tr("Cannot open survey info file for write:\n%1\n\n%2")
+	ErrMsg( tr("Cannot open survey info file for write:\n%1\n\n%2")
 		      .arg( dotsurvfnm ).arg( sfio.errMsg() ) );
-	ErrMsg( msg.getFullString() );
 	return false;
     }
 
@@ -1083,15 +1082,15 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( !strm.isOK() )
     {
 	sfio.closeFail();
-	BufferString msg( "Error during write of survey info file" );
-	msg += strm.errMsg().getFullString();
+	BufferString msg( "Error during write of survey info file.\n" );
+	msg += ::toString( strm.errMsg() );
 	ErrMsg( msg );
 	return false;
     }
     else if ( !sfio.closeSuccess() )
     {
 	BufferString msg( "Error closing survey info file:\n" );
-	msg += sfio.errMsg().getFullString();
+	msg += ::toString( sfio.errMsg() );
 	ErrMsg( msg );
 	return false;
     }

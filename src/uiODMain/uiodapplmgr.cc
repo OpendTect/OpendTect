@@ -553,9 +553,8 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
     const DBKey hormid = DBKey::getFromString(
 			    transform->fromZDomainInfo().getID() );
     PtrMan<IOObj> ioobj = DBM().get( hormid );
-    const BufferString hornm = ioobj
-		? ioobj->name().buf()
-		: transform->factoryDisplayName().getFullString();
+    const BufferString hornm = ioobj ? BufferString(ioobj->name())
+		: toString( transform->factoryDisplayName() );
     uiString scenenm = tr( "Flattened on '%1'").arg( hornm );
     sceneMgr().tile();
     sceneMgr().addScene( true, transform, scenenm );

@@ -616,10 +616,12 @@ void uiSurveyManager::putToScreen()
     const SurveyInfo& si = *curSI();
     notesfld_->setText( si.comments() );
 
-    zinfo.add( "(" )
-	 .add( si.zIsTime() ? ZDomain::Time().unitStr().getFullString()
-			    : getDistUnitString(si.zInFeet(), false) )
-	 .add( "): " );
+    zinfo.add( "(" );
+    if ( si.zIsTime() )
+	zinfo.add( toString(ZDomain::Time().unitStr()) );
+    else
+	zinfo.add( getDistUnitString(si.zInFeet(), false) );
+     zinfo.add( "): " );
 
     bininfo.add( " (" ).add( si.xyUnitString(false).getFullString() )
 	    .add( "/line): " );
