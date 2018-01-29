@@ -270,7 +270,8 @@ public:
 			//!< Write to .survey file
     void		savePars(const char* basedir=0) const;
 			//!< Write to .defs file
-    static SurveyInfo*	read(const char*);
+    static SurveyInfo*	read(const char* survdir);
+    static SurveyInfo*	read(const char* path,bool pathisfile);
     void		setRange(const TrcKeyZSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();

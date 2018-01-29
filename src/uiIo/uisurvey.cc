@@ -412,6 +412,8 @@ uiSurvey::uiSurvey( uiParent* p )
 	    uiSurveyInfoEditor::addInfoProvider(new ui2DSurvInfoProvider) );
     mDefineStaticLocalObject( int, sipidxcp, mUnusedVar =
 	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
+    mDefineStaticLocalObject( int, sipidxfile, mUnusedVar =
+	    uiSurveyInfoEditor::addInfoProvider(new uiSurveyFileSIP) );
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
     uiPushButton* datarootbut =

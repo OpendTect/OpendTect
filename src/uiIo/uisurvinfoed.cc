@@ -17,9 +17,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "file.h"
 #include "filepath.h"
-#include "mousecursor.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "mousecursor.h"
 #include "oddirs.h"
 #include "ptrman.h"
 #include "statrand.h"
@@ -32,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uifiledlg.h"
+#include "uifileinput.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
@@ -61,8 +63,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					bool isnew )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
 				     mNoDlgTitle,
-                                     mODHelpKey(mSurveyInfoEditorHelpID) )
-                                     .nrstatusflds(1))
+				     mODHelpKey(mSurveyInfoEditorHelpID))
+					.nrstatusflds(1))
 	, rootdir_(GetBaseDataDir())
 	, orgdirname_(si_.dirname_.buf())
 	, si_(si)
@@ -769,7 +771,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     PtrMan<IOPar> crspar = sip->getCoordSystemPars();
     RefMan<Coords::CoordSystem> coordsys =
 		crspar ? Coords::CoordSystem::createSystem( *crspar ) : 0;
-    
+
     if ( !coordsys )
     {
 	Coord llcrd; LatLong llll;
@@ -961,6 +963,15 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 
 
 
+// uiCopySurveySIP
+
+static HiddenParam<uiCopySurveySIP,IOPar*> crspars_(0);
+
+uiCopySurveySIP::uiCopySurveySIP()
+{
+    crspars_.setParam( this, 0 );
+}
+
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
@@ -991,5 +1002,90 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     tdinf_ = survinfo->zIsTime() ? Time
 				 : (survinfo->zInFeet() ? DepthFeet : Depth);
     inft_ = survinfo->xyInFeet();
+
+    RefMan<Coords::CoordSystem> crs = survinfo->getCoordSystem();
+    IOPar* crspar = new IOPar;
+    crs->fillPar( *crspar );
+    crspars_.setParam( this, crspar );
     return true;
+}
+
+
+IOPar* uiCopySurveySIP::getCoordSystemPars() const
+{
+    return crspars_.getParam( this );
+}
+
+
+// uiSurveyFileSIP
+uiSurveyFileSIP::uiSurveyFileSIP()
+{}
+
+
+const char* uiSurveyFileSIP::usrText() const
+{
+    return "Read from Survey Setup file";
+}
+
+
+class uiSurveyFileDlg : public uiDialog
+{ mODTextTranslationClass(uiSurveyFileDlg)
+public:
+uiSurveyFileDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Select Survey Setup file"),
+			mNoDlgTitle,mTODOHelpKey))
+{
+    inpfld_ = new uiFileInput( this, uiStrings::sSelect(),
+		uiFileInput::Setup().defseldir(GetBaseDataDir())
+				    .withexamine(true)
+				    .allowallextensions(true) );
+    inpfld_->setElemSzPol( uiObject::Wide );
+}
+
+uiFileInput* inpfld_;
+
+};
+
+
+uiDialog* uiSurveyFileSIP::dialog( uiParent* p )
+{
+    return new uiSurveyFileDlg( p );
+}
+
+
+bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
+{
+    tdinf_ = Uknown;
+    inft_ = false;
+    mDynamicCastGet(uiSurveyFileDlg*,filedlg,dlg)
+    if ( !filedlg ) return false;
+
+    const BufferString fname = filedlg->inpfld_->fileName();
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, true );
+    if ( !survinfo ) return false;
+
+    cs = survinfo->sampling( false );
+    crd[0] = survinfo->transform( cs.hsamp_.start_ );
+    crd[1] = survinfo->transform( cs.hsamp_.stop_ );
+    crd[2] = survinfo->transform(
+	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
+
+    tdinf_ = survinfo->zIsTime() ? Time
+				 : (survinfo->zInFeet() ? DepthFeet : Depth);
+    inft_ = survinfo->xyInFeet();
+    coordsystem_ = survinfo->getCoordSystem();
+    surveynm_ = survinfo->name();
+
+    return true;
+}
+
+
+IOPar* uiSurveyFileSIP::getCoordSystemPars() const
+{
+    if ( !coordsystem_ )
+	return 0;
+
+    IOPar* crspar = new IOPar;
+    coordsystem_->fillPar( *crspar );
+    return crspar;
 }

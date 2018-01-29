@@ -436,8 +436,16 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 
 SurveyInfo* SurveyInfo::read( const char* survdir )
 {
-    FilePath fpsurvdir( survdir );
-    FilePath fp( fpsurvdir, sKeySetupFileName() );
+    return SurveyInfo::read( survdir, false );
+}
+
+
+SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
+{
+    FilePath fp( survdir );
+    if ( !isfile )
+	fp.add( sKeySetupFileName() );
+
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
 	return 0;
@@ -456,22 +464,28 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     }
 
     astream.next();
-    BufferString keyw = astream.keyWord();
     SurveyInfo* si = new SurveyInfo;
-    si->setName( FilePath(survdir).fileName() ); // good default
 
-    //Read params here, so we can look at the pars below
-    fp = fpsurvdir; fp.add( sKeyDefsFile );
-    si->getPars().read( fp.fullPath(), sKeySurvDefs, true );
-    si->getPars().setName( sKeySurvDefs );
+    if ( !isfile )
+    {
+	FilePath fpsurvdir( survdir );
+	si->dirname_ = fpsurvdir.fileName();
+	si->datadir_ = fpsurvdir.pathOnly();
+	if ( !survdir || si->dirname_.isEmpty() )
+	    return si;
 
-    //Scrub away old settings (confusing to users)
-    si->getPars().removeWithKey( "Depth in feet" );
+	si->setName( si->dirname_ ); // good default
 
-    si->dirname_ = fpsurvdir.fileName();
-    si->datadir_ = fpsurvdir.pathOnly();
-    if ( !survdir || si->dirname_.isEmpty() ) return si;
+	//Read params here, so we can look at the pars below
+	const FilePath fpdef( survdir, sKeyDefsFile );
+	si->getPars().read( fpdef.fullPath(), sKeySurvDefs, true );
+	si->getPars().setName( sKeySurvDefs );
 
+	//Scrub away old settings (confusing to users)
+	si->getPars().removeWithKey( "Depth in feet" );
+    }
+
+    BufferString keyw = astream.keyWord();
     IOPar coordsystempar;
     while ( !atEndOfSection(astream) )
     {

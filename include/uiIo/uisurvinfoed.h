@@ -106,7 +106,7 @@ protected:
     void		mkCoordGrp();
     void		mkTransfGrp();
     void		setValues();
-    void                updStatusBar(const char*);
+    void		updStatusBar(const char*);
     bool		setRanges();
     bool		setSurvName();
     bool		setCoords();
@@ -137,16 +137,17 @@ protected:
 mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
 {
 public:
-			uiCopySurveySIP() {}
+			uiCopySurveySIP();
 
     virtual const char*	usrText() const	{ return "Copy from other survey"; }
     virtual uiDialog*	dialog(uiParent*);
     virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
     virtual const char*	iconName() const	{ return "copyobj"; }
 
-    virtual TDInfo	tdInfo() const { return tdinf_; }
-    virtual bool	xyInFeet() const { return inft_; }
+    virtual TDInfo	tdInfo() const		{ return tdinf_; }
+    virtual bool	xyInFeet() const	{ return inft_; }
 
+    IOPar*		getCoordSystemPars() const;
 
 protected:
 
@@ -155,5 +156,31 @@ protected:
     BufferStringSet	survlist_;
 
 };
+
+
+mExpClass(uiIo) uiSurveyFileSIP : public uiSurvInfoProvider
+{ mODTextTranslationClass(uiSurveyFileSIP)
+public:
+			uiSurveyFileSIP();
+
+    virtual const char* usrText() const;
+    virtual uiDialog*	dialog(uiParent*);
+    virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
+    virtual const char* iconName() const	{ return "ascii"; }
+
+    virtual TDInfo	tdInfo() const		{ return tdinf_; }
+    virtual bool	xyInFeet() const	{ return inft_; }
+
+    virtual IOPar*	getCoordSystemPars() const;
+
+protected:
+
+    TDInfo		tdinf_;
+    bool		inft_;
+    BufferString	surveynm_;
+    RefMan<Coords::CoordSystem> coordsystem_;
+
+};
+
 
 #endif
