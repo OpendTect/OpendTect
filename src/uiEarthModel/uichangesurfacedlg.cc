@@ -133,7 +133,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	{
 	    uiString msg = tr("Not enough horizon data for section %1")
 			 .arg(sid);
-	    ErrMsg( msg.getFullString() ); continue;
+	    ErrMsg( msg ); continue;
 	}
 
 	PtrMan<Executor> worker = getWorker( *arr,
@@ -152,7 +152,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 				    undoText(),false) )
 	{
 	    uiString msg = tr("Cannot set new data to section %1").arg(usedsid);
-	    ErrMsg( msg.getFullString() ); continue;
+	    ErrMsg( msg ); continue;
 	}
 	else if ( usedhor3d==hor3d )
 	{

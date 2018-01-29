@@ -560,10 +560,11 @@ void uiDataPointSetCrossPlotter::mouseClickedCB( CallBacker* )
 
     curselarea_ = selgrp->size() - 1;
     SelectionArea& selarea = getCurSelArea();
-    if ( !axisHandler(0) || !axisHandler(1) ) return;
-    selarea.xaxisnm_ = axisHandler(0)->getCaption().getFullString();
-    selarea.yaxisnm_ =
-	axisHandler( isy1selectable_ ? 1 : 2 )->getCaption().getFullString();
+    if ( !axisHandler(0) || !axisHandler(1) )
+	return;
+    selarea.xaxisnm_ = toString( axisHandler(0)->getCaption() );
+    selarea.yaxisnm_ = toString(
+	axisHandler( isy1selectable_ ? 1 : 2 )->getCaption() );
 }
 
 
@@ -667,7 +668,8 @@ void uiDataPointSetCrossPlotter::setShowY4( bool yn )
 
 void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
 {
-    if ( !axisHandler(0) || !axisHandler(isy1? 1:2) ) return;
+    if ( !axisHandler(0) || !axisHandler(isy1? 1:2) )
+	return;
 
     if ( (isy1 && !showy3_) || (!isy1 && !showy4_) )
     {
@@ -1636,8 +1638,8 @@ int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data, bool chgdps,
 		     uiWorldRect((double)arrarea_.left(),(double)arrarea_.top(),
 				 (double)arrarea_.right(),
 				 (double)arrarea_.bottom()) );
-    DensityCalc densitycalc(uidps_, data, x_, yad, selgrpset_,
-			    trmsg_.getFullString());
+    DensityCalc densitycalc( uidps_, data, x_, yad, selgrpset_,
+			     toString(trmsg_) );
     densitycalc.setWorld2Ui( w2ui );
     densitycalc.setMathObj( mathobj_ );
     densitycalc.setModifiedColIds( modcolidxs_ );

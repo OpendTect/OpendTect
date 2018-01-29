@@ -153,17 +153,15 @@ void uiDPSSelGrpDlg::importSelectionGrps( CallBacker* )
 
 void uiDPSSelGrpDlg::exportSelectionGrps( CallBacker* )
 {
-    const BufferString axisname0 =
-	plotter_.axisHandler(0)->getCaption().getFullString();
-    const BufferString axisname1 =
-	plotter_.axisHandler(1)->getCaption().getFullString();
-    const BufferString axisname2 = plotter_.axisHandler(2)
-	? plotter_.axisHandler(2)->getCaption().getFullString().buf()
-	: (const char*) 0;
+    const BufferString axisname0 = toString(
+		    plotter_.axisHandler(0)->getCaption() );
+    const BufferString axisname1 = toString(
+		    plotter_.axisHandler(1)->getCaption() );
+    auto axh2 = plotter_.axisHandler(2);
+    const BufferString axisname2 = toString(
+	    axh2 ? axh2->getCaption() : uiString::emptyString() );
 
-    uiExpSelectionArea::Setup su( axisname0,
-				  axisname1,
-				  axisname2 );
+    uiExpSelectionArea::Setup su( axisname0, axisname1, axisname2 );
     uiExpSelectionArea dlg( this, plotter_.selectionGrps(), su );
     dlg.go();
 }

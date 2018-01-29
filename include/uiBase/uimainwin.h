@@ -152,8 +152,8 @@ public:
     enum   ActModalTyp	{ None=0, Main, Message, File, Colour, Font, Unknown };
     static ActModalTyp	activeModalType();
     static uiMainWin*	activeModalWindow();
-    static const char*	activeModalQDlgTitle();
-    static const char*	activeModalQDlgButTxt(int butnr);
+    static BufferString	activeModalQDlgTitle();
+    static BufferString	activeModalQDlgButTxt(int butnr);
     static int		activeModalQDlgRetVal(int butnr);
     static void		closeActiveModalQDlg(int retval);
 

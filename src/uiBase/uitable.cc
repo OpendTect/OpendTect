@@ -797,7 +797,7 @@ void uiTable::setText( const RowCol& rc, const uiString& txt )
 	if ( !cb )
 	    pErrMsg("TODO: unknown table cell obj: add it!");
 	else
-	    cb->setText( txt.getFullString() );
+	    cb->setText( toString(txt) );
     }
 }
 

@@ -157,7 +157,7 @@ void uiUserCreateSurvey::fillSipsFld( bool have2d, bool have3d )
 
 	if ( preferredsel < 0 )
 	{
-	    const BufferString workstr = sipnm.getFullString();
+	    const BufferString workstr = toString( sipnm );
 	    if ( workstr.contains("etrel") )
 		preferredsel = idx;
 	    else

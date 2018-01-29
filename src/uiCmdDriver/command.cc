@@ -49,7 +49,7 @@ BufferString Command::createFactoryKey( const char* keyword )
 	pFreeFnErrMsg( errmsg );
     }
 
-    return fackey; 
+    return fackey;
 }
 
 
@@ -58,7 +58,7 @@ void Command::initStandardCommands()
 {
     mDefineStaticLocalObject( bool, done, (false) );
 
-    if ( done ) return; 
+    if ( done ) return;
     done = true;
 
     AssignCmd::initClass();
@@ -207,7 +207,7 @@ uiMainWin* Command::applWin()
 const char* Command::outputDir() const
 { return drv_.outputDir(); }
 
-bool Command::switchCurWin( uiMainWin* uimw )	
+bool Command::switchCurWin( uiMainWin* uimw )
 { return drv_.switchCurWin( uimw ); }
 
 const uiMainWin* Command::curWin() const
@@ -346,7 +346,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	int nrgrey = 0;
 	for ( int itmidx=items.size()-1; itmidx>=0; itmidx-- )
 	{
-	    mGetAmpFilteredStr( itmtxt, items[itmidx]->text().getFullString() );
+	    mGetAmpFilteredStr( itmtxt, toString(items[itmidx]->text()) );
 	    if ( mSearchKey(itemstr).isMatching(itmtxt) )
 	    {
 		if ( !items[itmidx]->isEnabled() )
@@ -363,7 +363,7 @@ bool MenuTracer::findItem( const FileMultiString& menupath,
 	mParStrPreRet( "menu item", items, nrgrey, tmpstr.unescapedStr(),
 		       itmselnr, "path", true, false );
 	curitem = items[0];
-	mGetAmpFilteredStr( curitmtxt, curitem->text().getFullString() );
+	mGetAmpFilteredStr( curitmtxt, toString(curitem->text()) );
 	drv_.wildcardMan().check( mSearchKey(itemstr), curitmtxt );
 	mDressNameString( curitmtxt, sMenuPath );
 	pathstr += curitmtxt;
@@ -423,9 +423,9 @@ int MenuTracer::nrItems( const FileMultiString& menupath ) const
 bool MenuTracer::getMenuInfo( const FileMultiString& menupath, bool allowroot,
 			      MenuInfo& menuinfo ) const
 {
-    menuinfo.siblingnr_ = 0; 
-    menuinfo.ison_ = -1; 
-    menuinfo.text_.setEmpty(); 
+    menuinfo.siblingnr_ = 0;
+    menuinfo.ison_ = -1;
+    menuinfo.text_.setEmpty();
     menuinfo.nrchildren_ = nrItems( menupath );
 
     if ( menuinfo.nrchildren_ < 0 )
@@ -440,7 +440,7 @@ bool MenuTracer::getMenuInfo( const FileMultiString& menupath, bool allowroot,
 
     menuinfo.ison_ = !mnuitm->isCheckable() ? -1 : mnuitm->isChecked() ? 1 : 0;
     menuinfo.siblingnr_++;
-    menuinfo.text_ = mnuitm->text().getFullString();
+    menuinfo.text_ = toString( mnuitm->text() );
     StringProcessor(menuinfo.text_).filterAmpersands();
     return true;
 }

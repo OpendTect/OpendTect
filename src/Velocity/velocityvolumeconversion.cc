@@ -76,7 +76,7 @@ bool VolumeConverter::doFinish( bool res )
 
 bool VolumeConverter::doPrepare( int nrthreads )
 {
-    if ( !errmsg_.getFullString().isEmpty() )
+    if ( !errmsg_.isEmpty() )
 	return false;
 
     if ( !input_ || !output_ )

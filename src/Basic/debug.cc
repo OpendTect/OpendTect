@@ -409,6 +409,13 @@ Export_Basic void programmerErrMsg( const char* inpmsg, const char* cname,
 }
 
 
+void UsrMsg( const uiString& msg, MsgClass::Type t )
+{
+    const BufferString str( toString(msg) );
+    UsrMsg( str, t );
+}
+
+
 void UsrMsg( const char* msg, MsgClass::Type t )
 {
     if ( !MsgClass::theCB().willCall() )

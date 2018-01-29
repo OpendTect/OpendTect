@@ -248,7 +248,7 @@ void uiShortcutsList::fillPar( IOPar& iop ) const
 	if ( eikd )
 	{
 	    iop.set( IOPar::compKey(basekey,sKey::Property()),
-		     eikd->getLabel().getFullString() );
+		     toString(eikd->getLabel()) );
 	    iop.set( IOPar::compKey(basekey,sKey::Value()),
 		     eikd->getIntValue() );
 	}

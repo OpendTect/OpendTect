@@ -641,10 +641,7 @@ void Seis::Blocks::Writer::writeInfoFiles( uiRetVal& uirv )
 
     od_ostream ovvwstrm( ovvwfnm );
     if ( ovvwstrm.isBad() )
-    {
-	ErrMsg( uiStrings::phrCannotOpen(toUiString(ovvwfnm)).getFullString() );
-	return;
-    }
+	{ ErrMsg( uiStrings::phrCannotOpen(toUiString(ovvwfnm)) ); return; }
     if ( !writeOverviewFileData(ovvwstrm) )
 	File::remove( ovvwfnm );
 }

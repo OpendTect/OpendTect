@@ -78,7 +78,7 @@ bool uiColorInput::selectColor( Color& col, uiParent* parnt,
 
     BufferString addendum;
     const uiString wintitle = uiMainWin::uniqueWinTitle( txt, 0, &addendum );
-    BufferString utfwintitle( txt.getFullString(), addendum );
+    BufferString utfwintitle( toString(txt), addendum );
     const int refnr = ::beginCmdRecEvent( utfwintitle );
 
     QColorDialog qdlg( QColor(col.r(),col.g(), col.b(),col.t()), qparent );
@@ -124,37 +124,41 @@ void setExternalColor( const Color& col )
 }
 
 
-uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
+uiColorInput::uiColorInput( uiParent* p, const Setup& setup, const char* nm )
 	: uiGroup(p,"Color input")
-	, color_(s.color_)
-	, dlgtxt_(s.dlgtitle_)
+	, color_(setup.color_)
+	, dlgtxt_(setup.dlgtitle_)
 	, dodrawbox_(0)
 	, lbl_(0)
 	, transpfld_(0)
 	, descfld_(0)
-	, selwithtransp_(s.transp_ == Setup::InSelector)
+	, selwithtransp_(setup.transp_ == Setup::InSelector)
 	, colorChanged(this)
 	, doDrawChanged(this)
 {
-    if ( s.withcheck_ )
+    if ( setup.withcheck_ )
     {
-	dodrawbox_ = new uiCheckBox( this, s.lbltxt_);
+	dodrawbox_ = new uiCheckBox( this, setup.lbltxt_);
 	dodrawbox_->setChecked( true );
 	dodrawbox_->activated.notify( mCB(this,uiColorInput,dodrawSel) );
     }
+
     colbut_ = new uiPushButton( this,uiString::emptyString(), false );
-    colbut_->setName( (nm && *nm)
-	? nm
-	: (!s.lbltxt_.isEmpty() ? s.lbltxt_.getFullString().buf() : "Color" ) );
+    BufferString colbutnm( nm );
+    if ( colbutnm.isEmpty() )
+	colbutnm = toString( setup.lbltxt_ );
+    if ( colbutnm.isEmpty() )
+	colbutnm = "Color";
+    colbut_->setName( colbutnm );
     colbut_->activated.notify( mCB(this,uiColorInput,selCol) );
     if ( dodrawbox_ )
 	colbut_->attach( rightOf, dodrawbox_ );
 
-    if ( !dodrawbox_ && !s.lbltxt_.isEmpty() )
-	lbl_ = new uiLabel( this, s.lbltxt_, colbut_ );
+    if ( !dodrawbox_ && !setup.lbltxt_.isEmpty() )
+	lbl_ = new uiLabel( this, setup.lbltxt_, colbut_ );
 
     uiLabeledSpinBox* lsb = 0;
-    if ( s.transp_ == Setup::Separate )
+    if ( setup.transp_ == Setup::Separate )
     {
 	lsb = new uiLabeledSpinBox( this, tr("Transp"), 0 );
 	lsb->attach( rightOf, colbut_ );
@@ -164,7 +168,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	transpfld_->setHSzPol( uiObject::Small );
 	transpfld_->valueChanged.notify( mCB(this,uiColorInput,transpChg) );
     }
-    if ( s.withdesc_ )
+    if ( setup.withdesc_ )
     {
 	BufferStringSet coldescs; Color::getDescriptions( coldescs );
 	descfld_ = new uiComboBox( this, coldescs.getUiStringSet(),

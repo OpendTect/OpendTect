@@ -623,7 +623,7 @@ void uiSurveyManager::putToScreen()
 	zinfo.add( getDistUnitString(si.zInFeet(), false) );
      zinfo.add( "): " );
 
-    bininfo.add( " (" ).add( si.xyUnitString(false).getFullString() )
+    bininfo.add( " (" ).add( toString(si.xyUnitString(false)) )
 	    .add( "/line): " );
     areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
 

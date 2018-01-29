@@ -349,7 +349,7 @@ bool uiGenRandPicks2DDlg::fillData( Pick::Set& ps )
     const int choice = geomfld_ ? geomfld_->getIntValue() : 0;
     if ( choice )
     {
-	const BufferString selstr = uiStrings::sSelect().getFullString();
+	const BufferString selstr = toString(uiStrings::sSelect());
 	if ( selstr == horselfld_->box()->text() )
 	    mErrRet(uiStrings::phrSelect(tr("a valid horizon")));
 	if (choice == 2 && selstr == horsel2fld_->text() )

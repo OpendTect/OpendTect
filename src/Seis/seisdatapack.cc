@@ -870,7 +870,7 @@ const char* RegularFlatDataPack::dimName( bool dim0 ) const
 	return mKeyCrl;
 
     mDeclStaticString( ret );
-    ret.set( zDomain().userName().getFullString() );
+    ret.set( toString(zDomain().userName()) );
     return ret.buf();
 }
 

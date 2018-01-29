@@ -112,12 +112,12 @@ void ObjectFinder::getAliases( const CallBacker& entity,
 
     mDynamicCastGet( const uiLabel*, uilabel, uientity.object() );
     if ( uilabel )
-	alttext = uilabel->text().getFullString();
+	alttext = toString( uilabel->text() );
 
     mDynamicCastGet( const uiButton*, uibut, uientity.object() );
     if ( uibut )
     {
-	alttext = const_cast<uiButton*>(uibut)->text().getFullString();
+	alttext = toString( uibut->text() );
 
 	StringProcessor(objtext).filterAmpersands();
 	StringProcessor(alttext).filterAmpersands();

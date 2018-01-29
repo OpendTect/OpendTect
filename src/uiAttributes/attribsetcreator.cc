@@ -167,7 +167,7 @@ bool acceptOK()
 	}
 
 	const DescID descid =
-		attrset_->getID( sel.labelText().getFullString(), true );
+		attrset_->getID( toString(sel.labelText()), true );
 	if ( !descid.isValid() )
 	{
 	    const uiString msg =

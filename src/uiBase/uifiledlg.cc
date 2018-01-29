@@ -172,7 +172,7 @@ int uiFileDialog::go()
     BufferString addendum;
     const uiString wintitle =
 	uiMainWin::uniqueWinTitle( caption_, 0, &addendum );
-    const BufferString utfwintitle( caption_.getFullString(), addendum );
+    const BufferString utfwintitle( toString(caption_), addendum );
     int refnr = beginCmdRecEvent( utfwintitle.buf() );
     PtrMan<ODFileDialog> fd = new ODFileDialog( QString(dirname), QString(flt),
 					 qparent, "File dialog" );

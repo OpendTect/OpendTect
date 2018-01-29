@@ -979,7 +979,7 @@ bool Seis::SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 	 !addComponents(*dp_,*ioobj_,components_,msg_) )
     {
 	if ( extstrm )
-	    *extstrm << msg_.getFullString() << od_endl;
+	    *extstrm << toString(msg_) << od_endl;
 
 	return false;
     }

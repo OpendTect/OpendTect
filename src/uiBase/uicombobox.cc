@@ -316,9 +316,9 @@ const char* uiComboBox::itemText( int idx ) const
 
     if ( itemstrings_.validIdx(idx) && (isReadOnly() ||
 	 body_->itemText(idx)==itemstrings_[idx].getQString()) )
-	rettxt_ = itemstrings_[idx].getFullString();
+	rettxt_ = toString( itemstrings_[idx] );
     else
-	rettxt_ = body_->itemText(idx);
+	rettxt_ = body_->itemText( idx );
 
     return rettxt_.buf();
 }
@@ -593,12 +593,17 @@ void uiComboBox::translateText()
 
 //------------------------------------------------------------------------------
 
+#define mGetBoxNm() \
+    BufferString boxnm( nm ); \
+    if ( boxnm.isEmpty() ) \
+	boxnm = toString( txt )
 
 uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const uiString& txt,
 				      const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb_ = new uiComboBox( this, nm && *nm ? nm : txt.getFullString().buf() );
+    mGetBoxNm();
+    cb_ = new uiComboBox( this, boxnm );
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }
@@ -608,10 +613,9 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const BufferStringSet& strs,
 				      const uiString& txt, const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
+    mGetBoxNm();
     BufferStringSet strset = strs;
-    cb_ = new uiComboBox( this, strset.getUiStringSet(), nm && *nm
-	    ? nm
-	    : txt.getFullString().buf() );
+    cb_ = new uiComboBox( this, strset.getUiStringSet(), boxnm );
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }
@@ -633,9 +637,8 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const uiStringSet& strs,
 				     const uiString& txt, const char* nm )
     : uiGroup(p,"Labeled combobox")
 {
-    cb_ = new uiComboBox( this, strs, nm && *nm
-			 ? nm
-			 : txt.getFullString().buf() );
+    mGetBoxNm();
+    cb_ = new uiComboBox( this, strs, boxnm );
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }
@@ -645,9 +648,8 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const EnumDef& strs,
 				     const uiString& txt, const char* nm )
     : uiGroup(p,"Labeled combobox")
 {
-    cb_ = new uiComboBox( this, strs, nm && *nm
-			 ? nm
-			 : txt.getFullString().buf() );
+    mGetBoxNm();
+    cb_ = new uiComboBox( this, strs, boxnm );
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }

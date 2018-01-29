@@ -190,7 +190,7 @@ void uiAction::updateToolTip( CallBacker* )
     else
     {
 	BufferString namestr =
-		(text_.isEmpty() ? tooltip_ : text_ ).getFullString();
+		toString( text_.isEmpty() ? tooltip_ : text_ );
 	uiMain::formatNameToolTipString( namestr );
 	qaction_->setToolTip( namestr.buf() );
     }
@@ -455,7 +455,7 @@ uiAction* uiActionContainer::findAction( const char* itmtxt )
     {
 	uiAction* itm = actions_[idx];
 
-	if ( !strcmp(itm->text().getFullString(),itmtxt) )
+	if ( toString(itm->text()) == itmtxt )
 	    return itm;
     }
 
@@ -465,8 +465,7 @@ uiAction* uiActionContainer::findAction( const char* itmtxt )
 
 uiAction* uiActionContainer::findAction( const uiString& itmtxt )
 {
-    const BufferString txt = itmtxt.getFullString().buf();
-    return findAction( txt.buf() );
+    return findAction( toString( itmtxt ) );
 }
 
 

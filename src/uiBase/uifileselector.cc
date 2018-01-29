@@ -347,7 +347,7 @@ bool uiLocalFileSelTool::doSelection()
     BufferString addendum;
     const uiString wintitle =
 	uiMainWin::uniqueWinTitle( caption_, 0, &addendum );
-    const BufferString utfwintitle( caption_.getFullString(), addendum );
+    const BufferString utfwintitle( toString(caption_), addendum );
     PtrMan<ODQFileDialog> fd = new ODQFileDialog( QString(dirname),
 		    QString(fmts.getFileFilters()), qparent, "File dialog" );
     if ( !firstfnm.isEmpty() )

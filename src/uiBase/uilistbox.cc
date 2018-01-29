@@ -502,19 +502,23 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
     setHAlignObj( lb_ );
 
     BufferStringSet txts;
-    BufferString s( txt.getFullString() );
-    char* ptr = s.getCStr();
-    if( !ptr || !*ptr ) return;
-    while ( 1 )
+    BufferString bufstr( toString(txt) );
+    char* ptr = bufstr.getCStr();
+    if ( !ptr || !*ptr )
+	return;
+
+    while ( true )
     {
 	char* nlptr = firstOcc( ptr, '\n' );
 	if ( nlptr ) *nlptr = '\0';
 	txts += new BufferString( ptr );
-	if ( !nlptr ) break;
+	if ( !nlptr )
+	    break;
 
 	ptr = nlptr + 1;
     }
-    if ( txts.size() < 1 ) return;
+    if ( txts.size() < 1 )
+	return;
 
     bool last1st = pos > RightTop && pos < BelowLeft;
     ptr = last1st ? txts[txts.size()-1]->getCStr() : txts[0]->getCStr();
@@ -769,7 +773,7 @@ void uiListBox::initNewItem( int newidx )
 
 void uiListBox::addItem( const uiString& text, bool mark, int id )
 {
-    if ( !allowduplicates_ && isPresent( text.getFullString() ) )
+    if ( !allowduplicates_ && isPresent(text) )
 	return;
 
     mListBoxBlockCmdRec;
@@ -850,7 +854,7 @@ void uiListBox::insertItem( const uiString& text, int index, bool mark, int id )
 	addItem( text, mark );
     else
     {
-	if ( !allowduplicates_ && isPresent( text.getFullString() ) )
+	if ( !allowduplicates_ && isPresent(text) )
 	    return;
 
 	lb_->body().insertItem( index, text, mark, id );
@@ -1040,6 +1044,18 @@ bool uiListBox::isPresent( const char* txt ) const
 	BufferString itmtxt( lb_->body().item(idx)->text() );
 	itmtxt.trimBlanks();
 	if ( itmtxt == txt )
+	    return true;
+    }
+    return false;
+}
+
+
+bool uiListBox::isPresent( const uiString& txt ) const
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( lb_->body().getItemText(idx).isEqualTo(txt) )
 	    return true;
     }
     return false;

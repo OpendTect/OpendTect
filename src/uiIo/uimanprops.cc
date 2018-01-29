@@ -309,7 +309,7 @@ void uiBuildPROPS::editReq( bool isadd )
     {
 	const uiString* curav = curAvSel();
 	if ( curav )
-	    nm = curav->getFullString();
+	    nm = toString( *curav );
 	else
 	    nm.setEmpty();
     }

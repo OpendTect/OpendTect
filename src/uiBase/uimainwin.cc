@@ -607,7 +607,7 @@ void uiMainWinBody::toggleToolbar( CallBacker* cb )
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
 	uiToolBar& tb = *toolbars_[idx];
-	if ( tb.name()==action->text().getFullString() )
+	if ( tb.name() == toString(action->text()) )
 	    tb.display( tb.isHidden() );
     }
 }
@@ -806,7 +806,7 @@ void uiMainWinBody::managePopupPos()
 
 
 uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
-    : uiParent(setup.caption_.getFullString(),0)
+    : uiParent(toString(setup.caption_),0)
     , body_(0)
     , parent_(p)
     , popuparea_(Auto)
@@ -819,8 +819,8 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , afterpopuptimer_(0)
     , languagechangecount_( TrMgr().changeCount() )
 {
-    body_ = new uiMainWinBody( *this, p, setup.caption_.getFullString(),
-			       setup.modal_ );
+    const BufferString bodynm( toString(setup.caption_) );
+    body_ = new uiMainWinBody( *this, p, bodynm, setup.modal_ );
     setBody( body_ );
     body_->construct( setup.nrstatusflds_, setup.withmenubar_ );
     body_->setWindowIconText( setup.caption_.isEmpty()
@@ -833,7 +833,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
 
 uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
 		      int nrstatusflds, bool withmenubar, bool modal )
-    : uiParent(cpt.getFullString(),0)
+    : uiParent(toString(cpt),0)
     , body_(0)
     , parent_(parnt)
     , popuparea_(Auto)
@@ -846,7 +846,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     , afterpopuptimer_(0)
     , languagechangecount_( TrMgr().changeCount() )
 {
-    body_ = new uiMainWinBody( *this, parnt, caption_.getFullString(), modal );
+    body_ = new uiMainWinBody( *this, parnt, toString(caption_), modal );
     setBody( body_ );
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( caption_.isEmpty()
@@ -859,7 +859,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
 
 
 uiMainWin::uiMainWin( uiString nm, uiParent* parnt )
-    : uiParent(nm.getFullString(),0)
+    : uiParent(toString(nm),0)
     , body_(0)
     , parent_(parnt)
     , popuparea_(Auto)
@@ -1013,7 +1013,7 @@ void uiMainWin::toStatusBar( const uiString& txt, int fldidx, int msecs )
     if ( sb )
 	sb->message( txt, fldidx, msecs );
     else if ( !txt.isEmpty() )
-	UsrMsg( txt.getFullString() );
+	UsrMsg( txt );
 }
 
 
@@ -1132,15 +1132,10 @@ uiMainWin* uiMainWin::activeModalWindow()
 }
 
 
-const char* uiMainWin::activeModalQDlgTitle()
+BufferString uiMainWin::activeModalQDlgTitle()
 {
     QWidget* amw = qApp->activeModalWidget();
-    if ( !amw )
-	return 0;
-
-    mDeclStaticString( title );
-    title = amw->windowTitle();
-    return title;
+    return amw ? BufferString( amw->windowTitle() ) : BufferString();
 }
 
 
@@ -1165,35 +1160,31 @@ static QMessageBox::StandardButton getStandardButton( const QMessageBox* qmb,
 }
 
 
-const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
+BufferString uiMainWin::activeModalQDlgButTxt( int buttonnr )
 {
     const ActModalTyp typ = activeModalType();
     QWidget* amw = qApp->activeModalWidget();
 
+    BufferString ret;
     if ( typ == Message )
     {
 	const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw );
-	mDeclStaticString( buttext );
 
 	const QMessageBox::StandardButton stdbut =
 					getStandardButton( qmb, buttonnr );
 	if ( stdbut )
+	    ret = qmb->button(stdbut)->text();
 	    // TODO: get original text if button text is translation
-	    buttext = qmb->button(stdbut)->text();
-	else
-	    buttext = "";
-
-	return buttext;
     }
-
-    if ( typ==Colour || typ==Font || typ==File )
+    else if ( typ==Colour || typ==Font || typ==File )
     {
-	if ( buttonnr == 0 ) return "Cancel";
-	if ( buttonnr == 1 ) return typ==File ? "Ok" : "OK";
-	return "";
+	if ( buttonnr == 0 )
+	    ret = "Cancel";
+	else if ( buttonnr == 1 )
+	    ret = typ==File ? "Ok" : "OK";
     }
 
-    return 0;
+    return ret;
 }
 
 
@@ -1628,7 +1619,7 @@ private:
 
 uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 			    const uiDialog::Setup& s )
-    : uiMainWinBody(hndle,parnt,s.wintitle_.getFullString(),s.modal_)
+    : uiMainWinBody(hndle,parnt,toString(s.wintitle_),s.modal_)
     , dlggrp_(0)
     , setup_(s)
     , okbut_(0), cnclbut_(0), applybut_(0)

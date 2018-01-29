@@ -124,6 +124,7 @@ public:
     inline bool		isEmpty() const		{ return size() == 0; }
     bool		validIdx(int) const;
     bool		isPresent(const char*) const;
+    bool		isPresent(const uiString&) const;
     int			maxNrOfChoices() const;
 
     OD::Alignment::HPos alignment() const	{ return alignment_; }

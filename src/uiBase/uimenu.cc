@@ -123,7 +123,7 @@ uiMenu::uiMenu()
 
 
 uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
-    : uiBaseObject( txt.getFullString() )
+    : uiBaseObject( toString(txt) )
     , submenuaction_( 0 )
     , qmenu_( new mQtclass(QMenu)(txt.getQString(), gtParent(p)->getWidget(0) ))
     , text_(txt)
@@ -134,7 +134,7 @@ uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
 
 
 uiMenu::uiMenu( const MenuItem& itm )
-    : uiBaseObject(itm.text.getFullString())
+    : uiBaseObject( toString(itm.text) )
     , submenuaction_( 0 )
     , qmenu_(new mQtclass(QMenu)(itm.text.getQString()))
     , text_(itm.text)
@@ -257,7 +257,7 @@ void uiMenu::setEnabled( bool yn )
 
 void uiMenu::setText( const uiString& txt )
 {
-    uiBaseObject::setName( txt.getFullString() );
+    uiBaseObject::setName( toString(txt) );
     text_ = txt;
     if ( submenuaction_ )
 	submenuaction_->setText( txt );

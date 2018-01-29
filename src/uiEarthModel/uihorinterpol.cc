@@ -242,7 +242,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	{
 	    uiString msg = tr("Cannot interpolate section %1")
 	                 .arg(sid);
-	    ErrMsg( msg.getFullString() ); continue;
+	    ErrMsg( msg ); continue;
 	}
 
 	for ( int idx=0; idx<arr1d.size(); idx++ )

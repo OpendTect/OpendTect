@@ -43,7 +43,7 @@ protected:
 
 uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt,
 			      const uiString& nm )
-    : uiParentBody( nm.getFullString() )
+    : uiParentBody( toString(nm) )
     , QDockWidget( nm.getQString() )
     , handle_( uidw )
     , initing_( true )
@@ -86,7 +86,7 @@ void uiDockWinBody::finalise()
 
 // ----- uiDockWin -----
 uiDockWin::uiDockWin( uiParent* parnt, const uiString& nm )
-    : uiParent(nm.getFullString(),0)
+    : uiParent(toString(nm),0)
     , body_(0)
     , parent_(parnt)
 {

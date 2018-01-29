@@ -44,7 +44,8 @@ uiCmdInteractDlg::uiCmdInteractDlg( uiParent* p, const InteractSpec& ispec )
     setOkText( ispec.okbuttext_ );
     setCancelText( ispec.cancelbuttext_ );
 
-    const char* ptr = ispec.infotext_.getFullString();
+    const BufferString bufstr = toString( ispec.infotext_ );
+    const char* ptr = bufstr.str();
     int rows = 0;
     int cols = 0;
     while ( ptr && *ptr )
@@ -288,7 +289,7 @@ static bool passSurveyCheck( uiFileSel& fld, bool& surveycheck )
 	uiString msg =
 	    od_static_tr( "passSurveyCheck" ,
 			  "%1 - path is referring to previous survey!" )
-			.arg( fld.labelText().getFullString() );
+			.arg( fld.labelText() );
 	res = uiMSG().question(msg, uiStrings::sContinue(), uiStrings::sReset(),
 				  uiStrings::sCancel(), uiStrings::sWarning() );
 	surveycheck = res<0;
@@ -348,8 +349,8 @@ void uiCmdDriverDlg::selectGoCB( CallBacker* )
 
 void uiCmdDriverDlg::selectPauseCB( CallBacker* )
 {
-    BufferString buttext = pausebut_->text().getFullString();
-    if ( buttext == uiStrings::sResume().getFullString()  )
+    BufferString buttext = toString( pausebut_->text() );
+    if ( buttext == toString(uiStrings::sResume())  )
     {
 	pausebut_->setText( uiStrings::sPause() );
 	drv_.pause( false );
@@ -373,8 +374,8 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
 	return;
     }
 
-    BufferString buttext = pausebut_->text().getFullString();
-    if ( buttext==sInterrupting().getFullString() && ispec->dlgtitle_.isEmpty())
+    BufferString buttext = toString( pausebut_->text() );
+    if ( buttext==toString(sInterrupting()) && ispec->dlgtitle_.isEmpty())
     {
 	pausebut_->setText( uiStrings::sResume() );
 	return;

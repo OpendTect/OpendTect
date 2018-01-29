@@ -86,7 +86,7 @@ namespace CmdDrive
     const char* unscopedstr = *identstr=='@' ? identstr+1 : identstr;
 
 
-mExpClass(uiCmdDriver) StringProcessor	// Parsing toolkit 
+mExpClass(uiCmdDriver) StringProcessor	// Parsing toolkit
 {
 public:
 			StringProcessor(BufferString& bs)
@@ -103,23 +103,23 @@ public:
 
     const char*		parseDQuoted(BufferString& unquotedstr) const;
     int			consecutiveDQuoted(const char** remnant=0) const;
-    int 		nrDQuotes() const;
+    int		nrDQuotes() const;
 
-    const char*		parseBracketed(BufferString& unbracketedstr, 
+    const char*		parseBracketed(BufferString& unbracketedstr,
 				       char begin='[',char end=']')  const;
 
     int			removeNumAppendix();
-    bool 		removeTokenAppendix(char token);
+    bool		removeTokenAppendix(char token);
 
     const char*		nextAction(BufferString&) const;
-    const char*		findAssignment(const char* tokens="=") const; 
+    const char*		findAssignment(const char* tokens="=") const;
 
     const char*		parseIdentifier(BufferString&) const;
     bool		convertToInt(int* =0) const;
     bool		convertToDouble(double* =0) const;
 
     char /* missing */	preParseProcedure(FileMultiString& key,
-	    				  FileMultiString& parameters) const;
+					  FileMultiString& parameters) const;
 
     void		makeDirSepIndep(int startpos=-1);
 
@@ -128,7 +128,7 @@ public:
     void		removeCmdFileEscapes();
     void		addFileMultiStrEscapes();
 
-    const char*		getCharElement(int idx) const; 
+    const char*		getCharElement(int idx) const;
     int			nrCharElements() const;
     void		appendCharElements(const char* tail);
 
@@ -166,9 +166,9 @@ protected:
 };
 
 
-mGlobal(uiCmdDriver) const char* windowTitle(const uiMainWin* applwin,
-					     const uiMainWin* uimw,
-					     int aliasnr=0);
+mGlobal(uiCmdDriver) BufferString windowTitle(const uiMainWin* applwin,
+					      const uiMainWin* uimw,
+					      int aliasnr=0);
 mGlobal(uiCmdDriver) bool isCmdDriverWindow(const uiMainWin*);
 mGlobal(uiCmdDriver) const char* controllerTitle();
 mGlobal(uiCmdDriver) const uiString controllerUiTitle();
@@ -221,7 +221,7 @@ public:
 mExpClass(uiCmdDriver)  UIEntity
 {
 public:
-    			UIEntity(const CallBacker*);
+			UIEntity(const CallBacker*);
 
     bool		isValid() const		{ return uiobj_ || uiact_; }
 
@@ -234,7 +234,7 @@ public:
     const char*		name() const;
     const char*		toolTip() const;
 
-    const uiParent*	parent() const; 
+    const uiParent*	parent() const;
     const uiMenu*	menu() const;
 
     const ObjectSet<uiBaseObject>* childList() const;
