@@ -58,7 +58,8 @@ bool uiODWellParentTreeItem::showSubMenu()
 	mnu.insertAction(
 	    new uiAction(m3Dots(tr("Tie Well to Seismic")),"well_tie"),cTieIdx);
     }
-    mnu.insertAction( new uiAction(m3Dots(tr("New WellTrack"))), cNewWellIdx );
+    mnu.insertAction( new uiAction(m3Dots(tr("Pick New Trajectory"))),
+		      cNewWellIdx );
     if ( children_.size() > 1 )
 	mnu.insertAction( new uiAction(m3Dots(tr("Create Attribute Log"))),
 			cAttribIdx);
@@ -135,6 +136,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	Color color;
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
+
 	wd->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
 	wd->setName( wellname );
 	visserv->addObject( wd, sceneID(), true );
