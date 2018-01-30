@@ -180,6 +180,10 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
     while ( markeritems_.size() > poly_.size() )
 	display_->remove( markeritems_.pop(), true );
 
+    if ( poly_.size()==1 && nrmarkerstyles==0 )
+	markerstyles_ += MarkerStyle2D(MarkerStyle2D::Circle,
+				       linestyle_.width_+2,linestyle_.color_);
+
     for ( int idx=0; idx<poly_.size(); idx++ )
     {
 	const int styleidx = mMIN(idx,nrmarkerstyles-1);

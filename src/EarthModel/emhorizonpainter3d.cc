@@ -101,7 +101,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
     if ( emobj && markerseeds_ && nrseeds_==1 )
     {
 	for ( int idx=0;idx<markerseeds_->marker_->markerstyles_.size(); idx++ )
-	    markerseeds_->marker_->markerstyles_[idx].color_= 
+	    markerseeds_->marker_->markerstyles_[idx].color_=
 	    emobj->preferredColor();
     }
 
@@ -111,7 +111,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
 }
 
 
-HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker( 
+HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
     const EM::SectionID& sid )
 {
     FlatView::AuxData* seedauxdata = viewer_.createAuxData(0);
@@ -172,7 +172,7 @@ bool HorizonPainter3D::addPolyLine()
 		if ( newmarker )
 		    generateNewMarker( *hor3d, sid, *secmarkerln, marker );
 
-		addDataToMarker( bid, crd, posid, *hor3d, *marker, 
+		addDataToMarker( bid, crd, posid, *hor3d, *marker,
 		    newmarker, idx );
 		newmarker = false;
 
@@ -202,9 +202,9 @@ bool HorizonPainter3D::addPolyLine()
 	    if ( newmarker )
 		generateNewMarker( *hor3d, sid, *secmarkerln, marker );
 
-	    if ( addDataToMarker( bid,crd,posid,*hor3d,*marker,newmarker ) )
+	    if ( addDataToMarker(bid,crd,posid,*hor3d,*marker,newmarker) )
 		nrseeds_++;
-	    
+
 	    newmarker = false;
 	}
     }
@@ -214,8 +214,8 @@ bool HorizonPainter3D::addPolyLine()
 }
 
 
-bool HorizonPainter3D::addDataToMarker( const BinID& bid,const Coord3& crd, 
-    const PosID& posid, const Horizon3D& hor3d, Marker3D& marker, 
+bool HorizonPainter3D::addDataToMarker( const BinID& bid,const Coord3& crd,
+    const PosID& posid, const Horizon3D& hor3d, Marker3D& marker,
     bool newmarker, int idx )
 {
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
@@ -251,7 +251,7 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid,const Coord3& crd,
 
     marker.marker_->poly_ += FlatView::Point( x, z );
     const bool isseed = hor3d.isPosAttrib( posid, EM::EMObject::sSeedNode() );
-    if ( newmarker || isseed || isintersec )
+    if ( isseed || isintersec )
     {
 	const int postype = isseed ? EM::EMObject::sSeedNode()
 				   : EM::EMObject::sIntersectionNode();
@@ -259,12 +259,9 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid,const Coord3& crd,
 	MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
 	markerstyle_.color_ = ms3d.color_;
 
-	if ( newmarker )
-	    ms3d.type_ = MarkerStyle3D::Sphere;
-
-	if ( isintersec || newmarker )
+	if ( isintersec )
 	    markerstyle_.color_ = emobj->preferredColor();
-	markerstyle_.size_ = ms3d.size_*2;
+	markerstyle_.size_ = ms3d.size_;
 	markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
 	markerseeds_->marker_->markerstyles_ += markerstyle_;
 	markerseeds_->marker_->poly_ += FlatView::Point( x, z );
@@ -274,6 +271,8 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid,const Coord3& crd,
     return false;
 
 }
+
+
 void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
 					  const EM::SectionID& sid,
 					  SectionMarker3DLine& secmarkerln,
@@ -335,7 +334,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		const BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
 		const TrcKey tk = Survey::GM().traceKey(
 			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
-		if ( tkzs_.hsamp_.includes(bid) || 
+		if ( tkzs_.hsamp_.includes(bid) ||
 		    (path_&&path_->isPresent(tk)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
@@ -517,18 +516,18 @@ void HorizonPainter3D::enableSeed( bool yn )
 }
 
 
-void HorizonPainter3D::setUpdateTrcKeySampling( 
+void HorizonPainter3D::setUpdateTrcKeySampling(
     const TrcKeySampling& samplings )
 {
     updatesamplings_= TrcKeySampling( samplings );
 }
 
 
-void HorizonPainter3D::displaySelections( 
+void HorizonPainter3D::displaySelections(
     const TypeSet<EM::PosID>& pointselections )
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
-    if ( !emobj ) 
+    if ( !emobj )
 	return;
 
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
@@ -537,7 +536,7 @@ void HorizonPainter3D::displaySelections(
     removeSelections();
 
     selectionpoints_ = create3DMarker( 0 );
-    
+
     for ( int idx=0; idx<pointselections.size(); idx++ )
     {
 	const Coord3 pos = emobj->getPos( pointselections[idx] );
@@ -547,7 +546,7 @@ void HorizonPainter3D::displaySelections(
 	    x = tk.crl();
 	else if ( tkzs_.nrTrcs()==1 )
 	    x = tk.inl();
-	const bool isseed = 
+	const bool isseed =
 	    hor3d->isPosAttrib(pointselections[idx],EM::EMObject::sSeedNode());
 	const int postype = isseed ? EM::EMObject::sSeedNode()
 	    : EM::EMObject::sIntersectionNode();
