@@ -522,8 +522,8 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 	tracer.setSamplings( xsampling_, ysampling_ );
 	tracer.execute();
     }
-    delete crossings;
-    delete execs;
+    delete [] crossings;
+    delete [] execs;
 
     if ( nrlargestonly_>0 && contours.size()>nrlargestonly_ )
     {
