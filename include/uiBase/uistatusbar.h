@@ -31,7 +31,11 @@ public:
 
     int		addMsgFld(const uiString& lbltxt=uiString::emptyString(),
 			  const uiString& tooltip =uiString::emptyString(),
+#ifdef __win__
+			  OD::Alignment al=mAlignment(Left,VCenter),
+#else
 			  OD::Alignment al=mAlignment(Left,Bottom),
+#endif
 			  int stretch=1);
 
     int		addMsgFld(const uiString& tooltip,
