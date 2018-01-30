@@ -320,7 +320,7 @@ void uiTreeItem::findChildren( const uiString& nm, ObjectSet<uiTreeItem>& set )
 
 void uiTreeItem::findChildren( const char* nm, ObjectSet<uiTreeItem>& set )
 {
-    if ( name_.getFullString() == nm )
+    if ( toString(name_) == nm )
 	set += this;
 
     for ( int idx=0; idx<children_.size(); idx++ )

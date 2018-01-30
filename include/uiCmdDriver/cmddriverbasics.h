@@ -232,7 +232,7 @@ public:
     bool		sensitive() const;
 
     const char*		name() const;
-    const char*		toolTip() const;
+    BufferString	toolTip() const;
 
     const uiParent*	parent() const;
     const uiMenu*	menu() const;

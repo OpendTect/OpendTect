@@ -54,7 +54,7 @@ public:
 					 multithreaded );
 	mRunStandardTestWithError( conn.isOK(),
 	      BufferString( prefix_, "Connection is OK"),
-	      conn.errMsg().getFullString() );
+	      toString(conn.errMsg()) );
 	conn_ = &conn;
 	mAttachCB( conn.packetArrived, Tester::packetArrivedCB );
 
@@ -65,7 +65,7 @@ public:
 
 	mRunStandardTestWithError( conn.sendPacket( *packet ),
 	      packetString( prefix_, "Sending", packet ),
-	      conn.errMsg().getFullString() );
+	      toString(conn.errMsg()) );
 
 	RefMan<Network::RequestPacket> largepacket = new Network::RequestPacket;
 	largepacket->setIsNewRequest();
@@ -77,7 +77,7 @@ public:
 
 	mRunStandardTestWithError( conn.sendPacket( *largepacket ),
 	      packetString( prefix_, "Sending large packet", largepacket ),
-	      conn.errMsg().getFullString() );
+	      toString(conn.errMsg()) );
 
 	RefMan<Network::RequestPacket> packet2 = new Network::RequestPacket;
 	packet2->setRequestID( packet->requestID() );
@@ -87,14 +87,14 @@ public:
 
 	mRunStandardTestWithError( conn.sendPacket( *packet2 ),
 	  packetString( prefix_, "Sending", packet2 ),
-	  conn.errMsg().getFullString() );
+	  toString(conn.errMsg()) );
 
 	RefMan<Network::RequestPacket> receivedpacket = 0;
 
 	mRunStandardTestWithError(
 	    receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
 	    packetString( prefix_, "Receiving", packet ),
-	    conn.errMsg().getFullString() );
+	    toString(conn.errMsg()) );
 
 	BufferString receivedmessage1;
 	receivedpacket->getStringPayload( receivedmessage1 );
@@ -106,7 +106,7 @@ public:
 	mRunStandardTestWithError(
 		 receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
 		 packetString( prefix_, "Receiving", packet2 ),
-		 conn.errMsg().getFullString() );
+		 toString(conn.errMsg()) );
 
 	BufferString receivedmessage2;
 	receivedpacket->getStringPayload( receivedmessage2 );
@@ -118,7 +118,7 @@ public:
 	mRunStandardTestWithError(
 	    receivedpacket=conn.pickupPacket( largepacket->requestID(), 20000 ),
 	    packetString( prefix_, "Receiving large", largepacket ),
-	    conn.errMsg().getFullString() );
+	    toString(conn.errMsg()) );
 
 	BufferString receivedlongmessage;
 	receivedpacket->getStringPayload( receivedlongmessage );
@@ -140,7 +140,7 @@ public:
 					 multithreaded );
 	    mRunStandardTestWithError( conn2.isOK(),
 	      BufferString( prefix_, "Connection 2 is OK"),
-	      conn.errMsg().getFullString() );
+	      toString(conn.errMsg()) );
 
 	    RefMan<Network::RequestPacket> disconnectpacket =
 						new Network::RequestPacket;
@@ -149,7 +149,7 @@ public:
 
 	    mRunStandardTestWithError( conn2.sendPacket( *disconnectpacket ),
 	      packetString( prefix_, "Sending disconnect", disconnectpacket ),
-	      conn2.errMsg().getFullString() );
+	      toString(conn2.errMsg()) );
 
 	    int errorcode = 0;
 	    mRunStandardTest(
@@ -172,7 +172,7 @@ public:
 
 	    mRunStandardTestWithError( conn.sendPacket( *killpacket ),
 			  BufferString( prefix_, "Sending kill packet"),
-			   conn.errMsg().getFullString() );
+			   toString(conn.errMsg()) );
 	}
 
 	return true;
@@ -217,14 +217,14 @@ public:
 	mRunStandardTestWithError(
 	      conn_->sendPacket( *packet )==conn_->isMultiThreaded(),
 	      packetString( prefix_, "Sending from other thread", packet ),
-	      conn_->errMsg().getFullString() );
+	      toString(conn_->errMsg()) );
 
 	RefMan<Network::RequestPacket> receivedpacket =
 	    conn_->pickupPacket( packet->requestID(), 20000 );
 	mRunStandardTestWithError(
 	    ((bool) receivedpacket)==conn_->isMultiThreaded(),
 	    packetString( prefix_, "Receiving from other thread", packet ),
-	    conn_->errMsg().getFullString() );
+	    toString(conn_->errMsg()) );
 
 	if ( receivedpacket )
 	{

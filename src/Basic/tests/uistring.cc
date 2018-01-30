@@ -38,7 +38,7 @@ bool testArg()
 		.arg( 5 )
 		.arg( 9 );
 
-    mRunStandardTest( composite.getFullString()=="4 plus 5 is 9",
+    mRunStandardTest( toString(composite) == "4 plus 5 is 9",
 		      "Composite test" );
 
     const char* desoutput = "Hello Dear 1";
@@ -57,7 +57,7 @@ bool testArg()
 		     "In-place");
 
 
-    BufferString expargs = string.getFullString();
+    BufferString expargs = toString( string );
 
     mRunStandardTest( expargs==desoutput, "Argument expansion" );
 
@@ -95,18 +95,15 @@ bool testSharedData()
     uiString b = a;
 
     b.arg( "s" );
-    mRunStandardTest( b.getFullString()=="Hello Worlds" &&
-		      BufferString(a.getFullString())!=
-		      BufferString(b.getFullString()), "arg on copy" );
+    mRunStandardTest( toString(b) == "Hello Worlds" &&
+		      toString(a) != toString(b), "arg on copy" );
 
     uiString c = b;
     c = toUiString("Another message");
-    mRunStandardTest( BufferString(c.getFullString())!=
-		      BufferString(b.getFullString()),
-		      "assignment of copy" );
+    mRunStandardTest( toString(c) != toString(b), "assignment of copy" );
 
     uiString d = b;
-    mRunStandardTest( d.getOriginalString()==b.getOriginalString(),
+    mRunStandardTest( d.getOriginalString() == b.getOriginalString(),
 		      "Use of same buffer on normal operations" );
 
     return true;
@@ -139,7 +136,7 @@ bool testQStringAssignment()
     uiString string;
     string.setFrom( QString( message ) );
 
-    BufferString res = string.getFullString();
+    BufferString res = toString( string );
     mRunStandardTest( res==message, "QString assignment" );
 
     return true;
@@ -185,12 +182,12 @@ bool testToLower()
 {
     uiString string = uiStrings::phrJoinStrings( uiStrings::sInput(),
 					    uiStrings::sHorizon().toLower() );
-    BufferString bstr = string.getFullString();
+    BufferString bstr = toString( string );
     mRunStandardTest( bstr=="Input horizon", "To lower" );
 
     uiString string2 = uiStrings::phrJoinStrings( uiStrings::sInput(),
 						 uiStrings::sHorizon() );
-    bstr = string2.getFullString();
+    bstr = toString( string2 );
     mRunStandardTest( bstr=="Input Horizon", "To lower does not affect orig" );
 
 
@@ -206,25 +203,25 @@ bool testOptionStrings()
     uiStringSet options( strings );
 
     mRunStandardTest(
-	    options.createOptionString( true, -1, false ).getFullString()==
+	    toString(options.createOptionString(true,-1,false)) ==
 	      "One, Two, Three and Four", "createOptionString and" );
     mRunStandardTest(
-	    options.createOptionString( false, -1, false ).getFullString()==
+	    toString(options.createOptionString(false,-1,false)) ==
 	      "One, Two, Three or Four", "createOptionString or" );
 
     mRunStandardTest(
-	    options.createOptionString( false, 3, false ).getFullString()==
+	    toString(options.createOptionString(false,3,false)) ==
 	      "One, Two, Three or ...", "createOptionString limited" );
 
     mRunStandardTest(
-	    options.createOptionString( true, -1, true ).getFullString()==
+	    toString(options.createOptionString(true,-1,true)) ==
 	      "One\nTwo\nThree and\nFour", "createOptionString nl and" );
     mRunStandardTest(
-	    options.createOptionString( false, -1, true ).getFullString()==
+	    toString(options.createOptionString(false,-1,true)) ==
 	      "One\nTwo\nThree or\nFour", "createOptionString nl or" );
 
     mRunStandardTest(
-	    options.createOptionString( false, 3, true ).getFullString()==
+	    toString(options.createOptionString(false,3,true)) ==
 	      "One\nTwo\nThree\nor ...", "createOptionString nl limited" );
 
 
@@ -236,7 +233,7 @@ bool testHexEncoding()
 {
     uiString str;
     mRunStandardTest( str.setFromHexEncoded("517420697320677265617421") &&
-	              str.getFullString()=="Qt is great!",
+	              toString(str) == "Qt is great!",
 		      "Reading hard-coded string" );
 
 
@@ -265,7 +262,7 @@ bool fromBufferStringSetToUiStringSet()
     BufferString str = strset.cat( " " );
     uiString uistr = uistrset.cat( uiString::WithSpace );
 
-    mRunStandardTest( str == uistr.getFullString(), "Comparing BuffStrSet "
+    mRunStandardTest( str == toString(uistr), "Comparing BuffStrSet "
 				    "UiStrSet" );
     return true;
 

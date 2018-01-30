@@ -1307,7 +1307,7 @@ BufferString uiRetVal::getText() const
 	uistr = msgs_.cat();
     }
 
-    return uistr.getFullString();
+    return toString( uistr );
 }
 
 

@@ -625,9 +625,8 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char** strs,
 				      const uiString& txt, const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb_ = new uiComboBox( this, strs, nm && *nm
-	    ? nm
-	    : txt.getFullString().buf() );
+    mGetBoxNm();
+    cb_ = new uiComboBox( this, strs, boxnm );
     labl_ = new uiLabel( this, txt, cb_ );
     setHAlignObj( cb_ );
 }

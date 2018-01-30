@@ -195,7 +195,7 @@ BufferString EnumParam::getDefaultValue() const
     if ( strindex < 0 || strindex >= strings.size() )
 	strindex = 0;
 
-    return strings[strindex].getFullString();
+    return toString( strings[strindex] );
 }
 
 

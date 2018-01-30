@@ -145,8 +145,8 @@ public:
 
 
     /*! Results: */
-    BufferString		getFullString() const;
-				/*!< Full string, *without* translation */
+    BufferString		toString() const { return getFullString(); }
+				//!< returns full string, *without* translation
     wchar_t*			createWCharString() const;
 				/*!< The translation. Result becomes owner's and
 				    should be deleted using the [] operator. */
@@ -167,7 +167,7 @@ private:
     friend class		uiStringData;
 
     char*			debugstr_;
-				/*<!< Contains getFullString() for easy debuggin
+				/*<!< Contains full string() for easy debugging
 				      Only filled in in debug builds. */
 
     mutable uiStringData*	data_;
@@ -178,6 +178,9 @@ private:
 				{ return isEqualTo( oth ); }
     bool			operator!=( const uiString& oth ) const
 				{ return !isEqualTo( oth ); }
+
+    BufferString		getFullString() const; // use toString() instead
+				// Note the changed return type!
 
 public:
 
@@ -270,7 +273,7 @@ mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
 
 mGlobal(Basic) inline BufferString toString( const uiString& uis )
 {
-    return uis.getFullString();
+    return uis.toString();
 }
 
 template <class T1,class T2>
@@ -409,7 +412,7 @@ mGlobal(Basic) bool isCancelled(const uiRetVal&);
 
 // Use when string should be revisited later
 #define mToUiStringTodo(i) ::toUiString(i)
-#define mFromUiStringTodo(i) i.getFullString()
+#define mFromUiStringTodo(i) ::toString(i)
 
 
 /*!Adds translation of strings outside of classes for the "od" package. It

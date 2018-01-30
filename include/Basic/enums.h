@@ -46,6 +46,7 @@ mExpClass(Basic) EnumDef : public NamedObject
 public:
 				EnumDef();
 				EnumDef(const char* nm,const char* s[]);
+
     bool			isValidKey(const char*) const;
     int				indexOf(const char* s) const;
     int				indexOf(int enumval) const;
@@ -64,38 +65,37 @@ public:
     //Expert use only!
     void			remove(const char* key);
     void			add(const char* key, const uiString&,
-                        	    int enumval, const char* iconfile);
+	    int enumval, const char* iconfile);
 
 protected:
+
     void		fillUiStrings();
     uiStringSet		uistrings_;
     BufferStringSet	keys_;
     TypeSet<int>	enums_;
     BufferStringSet	iconfiles_;
-public:
-    //Legacy
-    mDeprecated bool		isValidName(const char* key) const;
-    mDeprecated const char*	convert(int idx) const;
-    mDeprecated int		convert(const char* txt) const;
+
 };
+
 
 template <class ENUM>
 mClass(Basic) EnumDefImpl : public EnumDef
 { mODTextTranslationClass(EnumDefImpl);
 public:
+
 			EnumDefImpl(const char* nm,const char* s[]);
+
     bool		parse(const char* txt,ENUM& res) const;
     bool		parse(const IOPar& par,const char* key,ENUM& res) const;
     ENUM		parse(const char* txt) const;
     ENUM		getEnumForIndex(int idx) const;
     const char*		getKey(ENUM theenum) const;
     uiString		toUiString(ENUM theenum) const;
+
 private:
+
     void		init();
-public:
-    //Legacy
-    mDeprecated const char*
-			toString(ENUM theenum) const { return getKey(theenum); }
+
 };
 
 
@@ -123,7 +123,7 @@ public:
       enum State  { Good, Bad, Ugly };
 		  mDeclareEnumUtils(State)
       enum Type   { Yes, No, Maybe };
-       	          mDeclareEnumUtils(Type)
+	          mDeclareEnumUtils(Type)
 
 		  // rest of class
   };
@@ -133,7 +133,7 @@ public:
 
   \code
   #include <myclass.h>
-  
+
   mDefineEnumUtils(MyClass,State,"My class state")
 	  { "Good", "Bad", "Not very handsome", 0 };
   mDefineEnumUtils(MyClass,Type,"My class type")
@@ -143,12 +143,12 @@ public:
   This will expand to (added newlines, removed some superfluous stuff:
 
   \code
-  
+
   class MyClass
   {
-  public: 
+  public:
 
-      enum 			  	State { Good, Bad, Ugly };
+      enum			  	State { Good, Bad, Ugly };
       static const EnumDefImpl<State>& StateDef();
 
   private:
