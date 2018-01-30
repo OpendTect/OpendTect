@@ -573,9 +573,9 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	if ( mIsUdf(refpos.inl()) || mIsUdf(refpos.crl()) || mIsUdf(refposz) )
 	{
 	    if ( is2d_ )
-		uiMSG().error(tr("2D lineset is not OK"));
+		errmsg = tr("2D lineset is not OK");
 	    else
-		uiMSG().error(tr("Please fill in the position fields first"));
+		errmsg = tr("Please fill in the position fields first");
 	    return 0;
 	}
 
@@ -590,8 +590,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	const IOObj* ioobj = picksetfld_->ioobj(true);
 	if ( !ioobj )
 	{
-	    uiMSG().error(tr("Please choose the pickset from which\n"
-	    "the values will be extracted"));
+	    errmsg = tr("Please choose the pickset from which\n"
+	    "the values will be extracted");
 	    return 0;
 	}
 
@@ -600,8 +600,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
 	if ( values.isEmpty() )
 	{
-	    uiMSG().error(tr("Cannot extract values at PickSet locations."
-		     " PickSet might be empty."));
+	    errmsg = tr("Cannot extract values at PickSet locations."
+		     " PickSet might be empty.");
 	    return 0;
 	}
 
