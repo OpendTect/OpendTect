@@ -257,6 +257,7 @@ mImplFactory2Param( uiSettingsGroup, uiParent*, Settings&,
 uiSettingsGroup::uiSettingsGroup( uiParent* p, Settings& setts )
     : uiGroup(p,"Settings group")
     , setts_(setts)
+    , changed_(false)
     , needsrestart_(false)
     , needsrenewal_(false)
 {
@@ -284,6 +285,7 @@ uiString uiSettingsGroup::dispStr( Type typ )
 
 bool uiSettingsGroup::commit( uiRetVal& uirv )
 {
+    changed_ = needsrestart_ = needsrenewal_ = false;
     doCommit( uirv );
     return uirv.isOK();
 }
@@ -690,14 +692,13 @@ bool uiSettingsDlg::acceptOK()
     if ( !uirv.isOK() )
 	{ uiMSG().error( uirv ); return false; }
 
-    havechanges_ = false;
+    havechanges_ = restartneeded_ = renewalneeded_ = false;
+
     for ( int idx=0; idx<treeitms_.size(); idx++ )
 	havechanges_ = havechanges_ || treeitms_[idx]->grp_.isChanged();
-
     if ( havechanges_ && !setts_.write() )
 	{ uiMSG().error( uiStrings::sCantWriteSettings() ); return false; }
 
-    restartneeded_ = false; renewalneeded_ = false;
     for ( int idx=0; idx<treeitms_.size(); idx++ )
     {
 	restartneeded_ = restartneeded_ || treeitms_[idx]->grp_.needsRestart();
