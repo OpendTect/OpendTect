@@ -304,15 +304,15 @@ int Horizon2DLine::rowIndex( Pos::GeomID geomid ) const
 
 
 bool Horizon2DLine::isDefined( GeomPosID pid ) const
-{ return isKnotDefined( RowCol::fromInt64(pid) ); }
+{ return isKnotDefined( pid.getRowCol() ); }
 
 
 Coord3 Horizon2DLine::getPosition( GeomPosID pid ) const
-{ return getKnot( RowCol::fromInt64(pid) ); }
+{ return getKnot( pid.getRowCol() ); }
 
 
 bool Horizon2DLine::setPosition( GeomPosID pid, const Coord3& pos )
-{ return setKnot( RowCol::fromInt64(pid), pos ); }
+{ return setKnot( pid.getRowCol(), pos ); }
 
 
 bool Horizon2DLine::setKnot( const RowCol& rc, const Coord3& pos )

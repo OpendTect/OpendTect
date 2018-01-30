@@ -348,7 +348,7 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
 
     seedlist_.erase();
     hor3d->setBurstAlert( true );
-    hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks( true, false );
+    hor3d->geometryElement()->blockCallBacks( true, false );
 
     for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
     {
@@ -371,10 +371,10 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
     }
 
     interpolateSeeds( true );
-    hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks( false, true );
+    hor3d->geometryElement()->blockCallBacks( false, true );
     hor3d->setBurstAlert( false );
-    EM::EMM().undo(hor3d->id()).setUserInteractionEnd(
-	EM::EMM().undo(hor3d->id()).currentEventID() );
+    EM::Hor3DMan().undo().setUserInteractionEnd(
+	    EM::Hor3DMan().undo().currentEventID());
     return true;
 }
 
@@ -383,7 +383,7 @@ bool Horizon3DSeedPicker::addPatchSowingSeeds()
 {
     mGetHorizon( hor3d, false )
     hor3d->setBurstAlert( true );
-    hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks(true,false);
+    hor3d->geometryElement()->blockCallBacks(true,false);
 
     TypeSet<TrcKeyValue> path = patch_->getPath();
     int firstthreebendpoints_ = 0;
@@ -395,11 +395,11 @@ bool Horizon3DSeedPicker::addPatchSowingSeeds()
 	addSeed( seed, false, seed );
 	firstthreebendpoints_++;
     }
-    hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks(false,true);
+    hor3d->geometryElement()->blockCallBacks(false,true);
     hor3d->setBurstAlert( false );
 
-    EM::EMM().undo(hor3d->id()).setUserInteractionEnd(
-	EM::EMM().undo(hor3d->id()).currentEventID() );
+    EM::Hor3DMan().undo().setUserInteractionEnd(
+	    EM::Hor3DMan().undo().currentEventID() );
     return true;
 }
 
@@ -462,7 +462,7 @@ void Horizon3DSeedPicker::extendSeedSetEraseInBetween(
 	}
 
 	// to erase points attached to start
-	const EM::PosID pid(hor3d->id(),hor3d->sectionID(0),curbid.toInt64());
+	const EM::PosID pid = EM::PosID::getFromRowCol( curbid );
 	if ( curdefined &&
 	    !hor3d->isNodeSourceType(pid,EM::EMObject::Manual) )
 	    eraselist_ += curbid;
@@ -483,7 +483,7 @@ bool Horizon3DSeedPicker::retrackFromSeedSet()
 
     mGetHorizon( hor3d, false );
 
-    SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
+    SectionTracker* sectracker = tracker_.getSectionTracker( true );
     SectionExtender* extender = sectracker->extender();
     mDynamicCastGet(HorizonAdjuster*,adjuster,sectracker->adjuster());
     adjuster->setAttributeSel( 0, selspec_ );
@@ -547,7 +547,7 @@ int Horizon3DSeedPicker::nrLineNeighbors( const BinID& bid,
     mGetHorizon(hor3d,-1);
 
     TypeSet<EM::PosID> neighpid;
-    EM::PosID pid( hor3d->id(), hor3d->sectionID(0), bid.toInt64() );
+    EM::PosID pid = EM::PosID::getFromRowCol( bid );
     hor3d->geometry().getConnectedPos( pid, &neighpid );
 
     BinID dir;

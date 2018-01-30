@@ -20,7 +20,7 @@ mClass(uiGrav) uiGravHorCalc : public uiDialog
 { mODTextTranslationClass(uiGravHorCalc);
 public:
 
-			uiGravHorCalc(uiParent*,EM::ObjectID);
+			uiGravHorCalc(uiParent*,const DBKey&);
 			~uiGravHorCalc();
 
 protected:

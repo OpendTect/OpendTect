@@ -26,15 +26,12 @@ namespace MPE
 class SectionExtender;
 
 /*!
-\brief SequentialTask to adjust the section of an EM object with ID
-EM::SectionID.
+\brief SequentialTask to adjust the section of an EM object .
 */
 
 mExpClass(MPEEngine) SectionAdjuster : public SequentialTask
 {
 public:
-    EM::SectionID		sectionID() const;
-
     virtual void		reset() {}
 
     void			setPositions(const TypeSet<TrcKey>& targets,
@@ -45,7 +42,7 @@ public:
     const char*			errMsg() const;
 
     virtual TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
-    				/*!<\returns the cube in which I need the
+				/*!<\returns the cube in which I need the
 				     given attrib to track in activevolum. */
     virtual void		getNeededAttribs(
 					TypeSet<Attrib::SelSpec>&) const;
@@ -55,12 +52,12 @@ public:
     virtual int			getNrAttributes() const		{ return 0; }
     virtual const Attrib::SelSpec* getAttributeSel( int idx ) const { return 0;}
     virtual void		setAttributeSel( int idx,
-	    					 const Attrib::SelSpec& ) {}
+						 const Attrib::SelSpec& ) {}
 
     void			setThresholdValue(float val);
     float			getThresholdValue() const;
     bool			removeOnFailure(bool yn);
-    				/*!<If true, tracked nodes that does not
+				/*!<If true, tracked nodes that does not
 				    meet certain constraits, e.g. thresholds,
 				    are removed. If not, the initial value
 				    is kept.
@@ -74,12 +71,11 @@ public:
     void			setSeedId(int);
 
 protected:
-				SectionAdjuster(EM::SectionID sid=-1);
+				SectionAdjuster();
 
     TypeSet<TrcKey>		tks_;
     TypeSet<TrcKey>		tksrc_;
     BufferString		errmsg_;
-    EM::SectionID		sectionid_;
     float			thresholdval_;
     bool			removeonfailure_;
 

@@ -31,13 +31,7 @@ of one or more segments or patches, so they can overlap.
 mExpClass(EarthModel) Surface : public EMObject
 {
 public:
-    int				nrSections() const;
-    EM::SectionID		sectionID(int) const;
-    BufferString		sectionName(const SectionID&) const;
-    bool			canSetSectionName() const;
-    bool			setSectionName(const SectionID&,const char*,
-					       bool addtohistory);
-    bool			removeSection(SectionID,bool hist);
+				mDeclAbstractMonitorableAssignment(Surface);
 
     virtual void		removeAll();
 
@@ -50,17 +44,22 @@ public:
     const char*			dbInfo() const		 { return dbinfo.buf();}
     void			setDBInfo(const char* s) { dbinfo = s; }
 
+    float			getShift() const;
+    void			setShift(float);
+
     virtual bool		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
 
-    virtual EMObjectIterator*	createIterator(const SectionID&,
-					       const TrcKeyZSampling* =0) const;
+    virtual EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
     bool			enableGeometryChecks(bool);
     bool			isGeometryChecksEnabled() const;
 
     virtual SurfaceGeometry&		geometry()			= 0;
     virtual const SurfaceGeometry&	geometry() const;
+
+    const Geometry::Element*	geometryElement() const;
+    Geometry::Element*		geometryElement();
 
     static BufferString		getParFileName(const IOObj&);
     static BufferString		getSetupFileName(const IOObj&);
@@ -73,11 +72,11 @@ protected:
     friend class		SurfaceGeometry;
     friend class		EMObject;
 
-				Surface(EMManager&);
+				Surface(const char*);
 				~Surface();
-    virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
 
     BufferString		dbinfo;
+    float			shift_;
 };
 
 

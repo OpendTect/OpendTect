@@ -497,7 +497,8 @@ void uiMPEMan::seedClick( CallBacker* )
     const int clickedobject = clickcatcher_->info().getObjID();
     if ( clickedobject == -1 )
 	mSeedClickReturn();
-    const EM::ObjectID emobjid =  clickcatcher_->info().getEMObjID();
+
+    const DBKey emobjid  = clickcatcher_->info().getEMObjID();
     mDynamicCastGet(EM::Horizon*,clickedhor,EM::EMM().getObject(emobjid))
 	const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
@@ -517,7 +518,6 @@ void uiMPEMan::seedClick( CallBacker* )
 	    mSeedClickReturn();
     }
 
-    seedpicker->setSectionID( emobj->sectionID(0) );
     const bool dbclick = clickcatcher_->info().isDoubleClicked() &&
 	(seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap);
@@ -548,7 +548,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     const MPE::SectionTracker* sectiontracker =
-	tracker->getSectionTracker(emobj->sectionID(0), true);
+	tracker->getSectionTracker(true);
     const Attrib::SelSpec* trackedatsel = sectiontracker
 	? sectiontracker->adjuster()->getAttributeSel(0)
 	: 0;
@@ -681,8 +681,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
     const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
     const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
-    const bool blockcallback =
-	emobj->sectionGeometry(emobj->sectionID(0))->blocksCallBacks();
+    const bool blockcallback = emobj->geometryElement()->blocksCallBacks();
 
     if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
     {
@@ -715,8 +714,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    {
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
 		if ( blockcallback )
-		    emobj->sectionGeometry(
-		    emobj->sectionID(0))->blockCallBacks( true, true );
+		    emobj->geometryElement()->blockCallBacks( true, true );
 	    }
 	    else if ( sowingmode_ && !ctrlbut )
 	    {
@@ -743,8 +741,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    {
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
 		if ( blockcallback )
-		    emobj->sectionGeometry(
-		    emobj->sectionID(0))->blockCallBacks( true, true );
+		    emobj->geometryElement()->blockCallBacks( true, true );
 	    }
 	}
 	else if ( sowingmode_ )
@@ -1001,8 +998,7 @@ void uiMPEMan::validateSeedConMode()
     if ( !emobj )
 	return;
 
-    const SectionTracker* sectiontracker =
-			tracker->getSectionTracker( emobj->sectionID(0), true );
+    const SectionTracker* sectiontracker = tracker->getSectionTracker( true );
     const bool setupavailable = sectiontracker &&
 				sectiontracker->hasInitializedSetup();
     if ( setupavailable )
@@ -1129,7 +1125,7 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
     mDynamicCastGet( visSurvey::EMObjectDisplay*,
 				surface, visserv_->getObject(selectedids[0]) );
     if ( !surface ) return 0;
-    const EM::ObjectID oid = surface->getObjectID();
+    const DBKey oid = surface->getObjectID();
     const int trackerid = MPE::engine().getTrackerByObject( oid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     if ( tracker && tracker->isEnabled() )

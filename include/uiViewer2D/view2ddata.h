@@ -59,14 +59,14 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
-    const EM::ObjectID& emID() const                    { return emid_; }
+    const DBKey& emID() const                    { return emid_; }
 
 protected:
-			Vw2DEMDataObject(const EM::ObjectID&,uiFlatViewWin*,
+			Vw2DEMDataObject(const DBKey&,uiFlatViewWin*,
 				     const ObjectSet<uiFlatViewAuxDataEditor>&);
 
     uiFlatViewWin*	viewerwin_;
-    EM::ObjectID	emid_;
+    DBKey		emid_;
     virtual void	setEditors()	= 0;
 
     const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeditors_;
@@ -79,7 +79,7 @@ protected:
 }                                                               \
 								\
 private:                                                        \
-    static Vw2DDataObject* createInternal(const EM::ObjectID&,	\
+    static Vw2DDataObject* createInternal(const DBKey&,	\
 	    uiFlatViewWin*,const ObjectSet<uiFlatViewAuxDataEditor>&); \
     clss(const clss&);                                          \
     clss& operator =(const clss&);                              \
@@ -91,7 +91,7 @@ public:                                                         \
 protected:
 
 #define _mDeclVw2DConstr(clss,oid,win,ed)                       \
-    clss(const EM::ObjectID& oid,uiFlatViewWin* win,		\
+    clss(const DBKey& oid,uiFlatViewWin* win,		\
 	    const ObjectSet<uiFlatViewAuxDataEditor>& ed);      \
 public:
 
@@ -111,7 +111,7 @@ void clss::initClass()						\
 const char* clss::getStaticClassName() { return #clss; }        \
 const char* clss::getClassName() const                          \
 { return clss::getStaticClassName(); }                          \
-Vw2DDataObject* clss::createInternal(const EM::ObjectID& oid,	\
+Vw2DDataObject* clss::createInternal(const DBKey& oid,	\
 	uiFlatViewWin* win,const ObjectSet<uiFlatViewAuxDataEditor>& eds) \
 {                                                               \
     return new clss(oid,win,eds);	\

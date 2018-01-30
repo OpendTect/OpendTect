@@ -34,7 +34,7 @@ mExpClass(uiMPE) HorizonFlatViewEditor2D : public CallBacker
 { mODTextTranslationClass(HorizonFlatViewEditor2D)
 public:
 			HorizonFlatViewEditor2D(FlatView::AuxDataEditor*,
-						const EM::ObjectID&);
+						const DBKey&);
 			~HorizonFlatViewEditor2D();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
@@ -56,9 +56,9 @@ public:
     void		setSeedPicking(bool);
     void		setTrackerSetupActive( bool yn )
 			{ trackersetupactive_ = yn; }
-    static bool		selectSeedData(const FlatView::AuxDataEditor* editor, 
+    static bool		selectSeedData(const FlatView::AuxDataEditor* editor,
 							      bool& pickinvd);
-  
+
     Notifier<HorizonFlatViewEditor2D> updseedpkingstatus_;
 
 protected:
@@ -98,15 +98,13 @@ protected:
 	{
 	    FlatView::AuxData*	marker_;
 	    int			markerid_;
-	    EM::SectionID	sectionid_;
 	};
 
     void			cleanAuxInfoContainer();
     void			fillAuxInfoContainer();
     FlatView::AuxData*		getAuxData(int markerid);
-    EM::SectionID		getSectionID(int markerid);
 
-    EM::ObjectID		emid_;
+    DBKey			emid_;
     EM::HorizonPainter2D*	horpainter_;
 
     FlatView::AuxDataEditor*	editor_;

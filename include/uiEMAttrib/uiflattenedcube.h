@@ -28,7 +28,7 @@ mClass(uiEMAttrib) uiWriteFlattenedCube : public uiDialog
 { mODTextTranslationClass(uiWriteFlattenedCube);
 public:
 
-			uiWriteFlattenedCube(uiParent*,EM::ObjectID);
+			uiWriteFlattenedCube(uiParent*,const DBKey&);
 			~uiWriteFlattenedCube();
 
 protected:
@@ -44,7 +44,7 @@ protected:
     uiString		errmsg_;
 
     bool		acceptOK();
-    BufferString	getHorNm(EM::ObjectID);
+    BufferString	getHorNm(const DBKey&);
 
     bool		doWork(const IOObj&,const IOObj&,float);
 

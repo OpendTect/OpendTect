@@ -31,7 +31,7 @@ const char* uiHorizonShiftDialog::sDefaultAttribName()
 
 
 uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
-					    const EM::ObjectID& emid,
+					    const DBKey& emid,
 					    int visid,
 					    const Attrib::DescSet& descset,
 					    float initialshift,
@@ -70,7 +70,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     slider_->setValue( curshift );
     slider_->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
     mDynamicCastGet(EM::Horizon3D*,emhor3d,emobj)
     emhor3d_ = emhor3d;
 

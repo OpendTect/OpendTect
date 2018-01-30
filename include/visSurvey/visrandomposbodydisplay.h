@@ -49,8 +49,8 @@ public:
 
     bool			setVisBody(visBase::RandomPos2Body*);
 				//!<Creates an EMObject for it.
-    bool			setEMID(const EM::ObjectID&);
-    EM::ObjectID		getEMID() const;
+    bool			setEMID(const DBKey&);
+    DBKey			getEMID() const;
     EM::RandomPosBody*		getEMBody() const	{ return embody_; }
 
     const uiString&		errMsg() const { return errmsg_; }

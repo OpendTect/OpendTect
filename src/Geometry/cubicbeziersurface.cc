@@ -77,7 +77,7 @@ Coord3 CubicBezierSurfacePatch::computePos( float u, float v ) const
 	return cubicDeCasteljau(pos,idx00,1,v);
     else if ( mIsEqual(u,1,1e-3) )
 	return cubicDeCasteljau(pos, idx30, 1 ,v);
-   
+
     Coord3 temppos [] = { cubicDeCasteljau(pos,idx00,1,v),
 			  cubicDeCasteljau(pos,idx10,1,v),
 			  cubicDeCasteljau(pos,idx20,1,v),
@@ -136,7 +136,7 @@ bool CubicBezierSurfacePatch::intersectWithLine( const Line3& line,
 	const float vdist = (float)(vpos - linepoint).cross(linedir)
 		      .sqAbs() - sqdist;
 
- 	if ( fabs(udist)>fabs(vdist) )	
+	if ( fabs(udist)>fabs(vdist) )
 	    u = u-(sqdist/udist*1e-3f);
 	else
 	    v = v-(sqdist/vdist*1e-3f);
@@ -343,7 +343,7 @@ Coord3 CubicBezierSurface::getBezierVertex( const RowCol& knot,
 
 	if ( relpos.col()>0 )
 	    pos += coldir;
-	else 
+	else
 	    pos -= coldir;
     }
 
@@ -362,16 +362,17 @@ bool CubicBezierSurface::insertRow(int row, int nrtoinsert )
 	{
 	    const int currow = origin_.row()+idx*step_.row();
 	    for ( int idy=0; idy<curnrcols; idy++ )
-		movedpos +=
-		    RowCol(currow,origin_.col()+idy*step_.col()).toInt64();
+		movedpos += GeomPosID::getFromRowCol( currow,
+						origin_.col()+idy*step_.col() );
 	}
     }
 
     TypeSet<GeomPosID> addedpos;
-    const int newrow = addedinfront 
+    const int newrow = addedinfront
 		       ? origin_.row() : origin_.row()+curnrrows*step_.row();
     for ( int idy=0; idy<curnrcols; idy++ )
-	addedpos += RowCol(newrow,origin_.col()+idy*step_.col()).toInt64();
+	addedpos += GeomPosID::getFromRowCol( newrow,
+					      origin_.col()+idy*step_.col() );
 
     mCloneRowVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneRowVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
@@ -393,16 +394,17 @@ bool CubicBezierSurface::insertCol(int col, int nrtoinsert )
 	{
 	    const int curcol = origin_.col()+idx*step_.col();
 	    for ( int idy=0; idy<curnrrows; idy++ )
-		movedpos +=
-		    RowCol(origin_.row()+idy*step_.row(),curcol).toInt64();
+		movedpos += GeomPosID::getFromRowCol(
+					origin_.row()+idy*step_.row(), curcol );
 	}
     }
 
     TypeSet<GeomPosID> addedpos;
-    const int newcol = addedinfront 
+    const int newcol = addedinfront
 		       ? origin_.col() : origin_.col()+curnrcols*step_.col();
     for ( int idy=0; idy<curnrrows; idy++ )
-	addedpos += RowCol(origin_.row()+idy*step_.row(),newcol).toInt64();
+	addedpos += GeomPosID::getFromRowCol(
+				origin_.row()+idy*step_.row(), newcol );
 
     mCloneColVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneColVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
@@ -421,9 +423,9 @@ bool CubicBezierSurface::removeRow( int row, int )
 
     const int rowidx = rowIndex( row );
     if ( rowidx<0 || rowidx>=curnrrows )
-    { 
+    {
 	errmsg() = tr("Row to remove does not exist");
-	return false; 
+	return false;
     }
 
     TypeSet<GeomPosID> removedpos;
@@ -432,18 +434,18 @@ bool CubicBezierSurface::removeRow( int row, int )
     for ( int idy=0; idy<curnrcols; idy++ )
     {
 	int curcol = origin_.col() + idy*step_.col();
-	removedpos += RowCol( row, curcol ).toInt64();
+	removedpos += GeomPosID::getFromRowCol( row, curcol );
 
 	for ( int idx=rowidx+1; idx<curnrrows; idx++ )
 	{
-	    movedpos += 
-		RowCol( origin_.row() + idx*step_.row(), curcol ).toInt64();
+	    movedpos += GeomPosID::getFromRowCol(
+				origin_.row() + idx*step_.row(), curcol );
 	}
     }
 
-    Array2D<Coord3>* newpositions = 
+    Array2D<Coord3>* newpositions =
 	positions ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols ) : 0;
-    
+
     for ( int idx=0; newpositions && idx<curnrrows-1; idx++ )
     {
 	for ( int idy=0; idy<curnrcols; idy++ )
@@ -452,12 +454,12 @@ bool CubicBezierSurface::removeRow( int row, int )
 	    newpositions->set( idx, idy, positions->get( srcrow, idy ) );
 	}
     }
-    if ( newpositions ) 
+    if ( newpositions )
 	{ delete positions; positions = newpositions; }
-    
-    Array2D<Coord3>* newrowdirections = 
+
+    Array2D<Coord3>* newrowdirections =
 	rowdirections ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols ) : 0;
-    
+
     for ( int idx=0; newrowdirections && idx<curnrrows-1; idx++ )
     {
 	for ( int idy=0; idy<curnrcols; idy++ )
@@ -466,10 +468,10 @@ bool CubicBezierSurface::removeRow( int row, int )
 	    newrowdirections->set( idx, idy, rowdirections->get(srcrow,idy) );
 	}
     }
-    if ( newrowdirections ) 
+    if ( newrowdirections )
 	{ delete rowdirections; rowdirections = newrowdirections; }
-    
-    Array2D<Coord3>* newcoldirections = 
+
+    Array2D<Coord3>* newcoldirections =
 	coldirections ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols ) : 0;
 
     for ( int idx=0; newcoldirections && idx<curnrrows-1; idx++ )
@@ -497,9 +499,9 @@ bool CubicBezierSurface::removeCol( int col, int )
 
     const int colidx = colIndex( col );
     if ( colidx<0 || colidx>=curnrcols )
-    { 
+    {
 	errmsg() = tr("Column to remove does not exist");
-	return false; 
+	return false;
     }
 
     TypeSet<GeomPosID> removedpos;
@@ -508,16 +510,14 @@ bool CubicBezierSurface::removeCol( int col, int )
     for ( int idx=0; idx<curnrrows; idx++ )
     {
 	int currow = origin_.row() + idx*step_.row();
-	removedpos += RowCol( currow, col ).toInt64();
+	removedpos += GeomPosID::getFromRowCol( currow, col );
 
 	for ( int idy=colidx+1; idy<curnrcols; idy++ )
-	{
-	    movedpos += 
-		RowCol( currow, origin_.col() + idy*step_.col() ).toInt64();
-	}
+	    movedpos += GeomPosID::getFromRowCol( currow,
+					origin_.col() + idy*step_.col());
     }
 
-    Array2D<Coord3>* newpositions = 
+    Array2D<Coord3>* newpositions =
 	positions ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 ) : 0;
 
     for ( int idx=0; newpositions && idx<curnrrows; idx++ )
@@ -528,10 +528,10 @@ bool CubicBezierSurface::removeCol( int col, int )
 	    newpositions->set( idx, idy, positions->get( idx, srccol ) );
 	}
     }
-    if ( newpositions ) 
+    if ( newpositions )
 	{ delete positions; positions = newpositions; }
 
-    Array2D<Coord3>* newrowdirections = 
+    Array2D<Coord3>* newrowdirections =
 	rowdirections ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 ) : 0;
 
     for ( int idx=0; newrowdirections && idx<curnrrows; idx++ )
@@ -542,12 +542,12 @@ bool CubicBezierSurface::removeCol( int col, int )
 	    newrowdirections->set( idx, idy, rowdirections->get(idx,srccol) );
 	}
     }
-    if ( newrowdirections ) 
+    if ( newrowdirections )
 	{ delete rowdirections; rowdirections = newrowdirections; }
-    
-    Array2D<Coord3>* newcoldirections = 
+
+    Array2D<Coord3>* newcoldirections =
 	coldirections ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 ) : 0;
-   
+
     for ( int idx=0; newcoldirections && idx<curnrrows; idx++ )
     {
 	for ( int idy=0; idy<curnrcols-1; idy++ )
@@ -679,24 +679,24 @@ CubicBezierSurface::getPatch(const RowCol& rc) const
     const RowCol rc11( rc.row()+step_.row(), rc.col()+step_.col() );
 
     return new CubicBezierSurfacePatch( getKnot(rc,true),
-	    				getBezierVertex(rc,RowCol(0,1)),
-	    				getBezierVertex(rc01,RowCol(0,-1)),
+					getBezierVertex(rc,RowCol(0,1)),
+					getBezierVertex(rc01,RowCol(0,-1)),
 					getKnot(rc01,true ),
 
-    					getBezierVertex(rc,  RowCol(1,0)),
-	    				getBezierVertex(rc,  RowCol(1,1)),
-	    				getBezierVertex(rc01,RowCol(1,-1)),
-	    				getBezierVertex(rc01,RowCol(1,0)),
+					getBezierVertex(rc,  RowCol(1,0)),
+					getBezierVertex(rc,  RowCol(1,1)),
+					getBezierVertex(rc01,RowCol(1,-1)),
+					getBezierVertex(rc01,RowCol(1,0)),
 
-    					getBezierVertex(rc10,  RowCol(-1,0)),
-	    				getBezierVertex(rc10,  RowCol(-1,1)),
-	    				getBezierVertex(rc11,  RowCol(-1,-1)),
-	    				getBezierVertex(rc11,  RowCol(-1,0)),
+					getBezierVertex(rc10,  RowCol(-1,0)),
+					getBezierVertex(rc10,  RowCol(-1,1)),
+					getBezierVertex(rc11,  RowCol(-1,-1)),
+					getBezierVertex(rc11,  RowCol(-1,0)),
 
-    					getKnot(rc10, true ),
-	    				getBezierVertex(rc10,  RowCol(0,1)),
-	    				getBezierVertex(rc11,  RowCol(0,-1)),
-	    				getKnot(rc11, true ));
+					getKnot(rc10, true ),
+					getBezierVertex(rc10,  RowCol(0,1)),
+					getBezierVertex(rc11,  RowCol(0,-1)),
+					getKnot(rc11, true ));
 }
 
 
@@ -730,7 +730,7 @@ ParametricCurve* CubicBezierSurface::createRowCurve( float row,
 	  idx+=outputrange.step )
     {
 	param.y_ = idx;
-	if ( !res->setPosition(idx, computePosition(param)) )
+	if ( !res->setPosition(GeomPosID::get(idx), computePosition(param)) )
 	{ delete res; return 0; }
     }
 
@@ -768,7 +768,7 @@ ParametricCurve* CubicBezierSurface::createColCurve( float col,
 	  idx+=outputrange.step )
     {
 	param.x_ = idx;
-	if ( !res->setPosition(idx,computePosition(param)) )
+	if ( !res->setPosition(GeomPosID::get(idx),computePosition(param)) )
 	{ delete res; return 0; }
     }
 
@@ -951,9 +951,9 @@ IntervalND<float> CubicBezierSurface::boundingBox( const RowCol& rc,
 Coord3 CubicBezierSurface::computeRowDirection( const RowCol& rc ) const
 {
     const int lastrow = origin_.row() + (nrRows()-1)*step_.row();
-    const RowCol prev( rc.row()==origin_.row() && circularRows() 
+    const RowCol prev( rc.row()==origin_.row() && circularRows()
 	    ? lastrow : rc.row()-step_.row(), rc.col() );
-    const RowCol next( rc.row()==lastrow && circularRows() 
+    const RowCol next( rc.row()==lastrow && circularRows()
 	    ? origin_.row() : rc.row()+step_.row(), rc.col() );
 
     mComputeDirImpl(row());
@@ -963,9 +963,9 @@ Coord3 CubicBezierSurface::computeRowDirection( const RowCol& rc ) const
 Coord3 CubicBezierSurface::computeColDirection( const RowCol& rc ) const
 {
     const int lastcol = origin_.col() + (nrCols()-1)*step_.col();
-    const RowCol prev( rc.row(), rc.col()==origin_.col() && circularCols() 
+    const RowCol prev( rc.row(), rc.col()==origin_.col() && circularCols()
 	    ? lastcol : rc.col()-step_.col() );
-    const RowCol next( rc.row(), rc.col()==lastcol && circularCols() 
+    const RowCol next( rc.row(), rc.col()==lastcol && circularCols()
 	    ? origin_.col() : rc.col()+step_.col());
 
     mComputeDirImpl(col());

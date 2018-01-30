@@ -77,8 +77,8 @@ public:
     const ZAxisTransform*	getZAxisTransform() const
 				{ return zaxistransform_; }
 
-    virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
-    EM::ObjectID		getObjectID() const;
+    virtual bool		setEMObject(const DBKey&,TaskRunner*);
+    DBKey			getObjectID() const;
     virtual bool		updateFromEM(TaskRunner*);
     virtual void		updateFromMPE();
 

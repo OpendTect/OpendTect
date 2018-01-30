@@ -32,7 +32,7 @@ MPEEditor::MPEEditor()
     , eventcatcher_( 0 )
     , transformation_( 0 )
     , markersize_( 3 )
-    , activedragger_( EM::PosID::udf() )
+    , activedragger_( EM::PosID::getInvalid() )
     , activenodematerial_( 0 )
     , nodematerial_( 0 )
     , isdragging_( false )
@@ -121,7 +121,7 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
     if ( emeditor_ )
     {
 	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
-	emobj.change.remove( movementcb );
+	emobj.objectChanged().remove( movementcb );
 	emobj.unRef();
 	emeditor_->editpositionchange.remove( numnodescb );
 	emeditor_->unRef();
@@ -134,7 +134,7 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 	emeditor_->ref();
 	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
 	emobj.ref();
-	emobj.change.notify( movementcb );
+	emobj.objectChanged().notify( movementcb );
 	emeditor_->editpositionchange.notify( numnodescb );
 	changeNumNodes(0);
     }
@@ -226,7 +226,7 @@ bool MPEEditor::allMarkersDisplayed() const
 
 
 EM::PosID MPEEditor::getNodePosID(int idx) const
-{ return idx>=0&&idx<posids_.size() ? posids_[idx] : EM::PosID::udf(); }
+{ return idx>=0&&idx<posids_.size() ? posids_[idx] : EM::PosID::getInvalid(); }
 
 
 bool MPEEditor::mouseClick( const EM::PosID& pid,
@@ -260,7 +260,7 @@ void MPEEditor::changeNumNodes( CallBacker* )
     nodestoremove.createDifference( editnodes, false );
 
     if ( nodestoremove.indexOf(activedragger_)!=-1 )
-	setActiveDragger( EM::PosID::udf() );
+	setActiveDragger( EM::PosID::getInvalid() );
 
     for ( int idx=0; idx<nodestoremove.size(); idx++ )
 	removeDragger( posids_.indexOf(nodestoremove[idx]) );
@@ -373,16 +373,18 @@ void MPEEditor::nodeMovement(CallBacker* cb)
 {
     if ( emeditor_ )
     {
-	mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+	mCBCapsuleUnpack(EM::EMObjectCallbackData,cbdata,cb);
+	RefMan<EM::EMChangeAuxData> cbaux =
+			cbdata.auxDataAs<EM::EMChangeAuxData>();
+	if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
 	{
-	    const int idx = posids_.indexOf( cbdata.pid0 );
+	    const int idx = posids_.indexOf( cbaux->pid0 );
 	    if ( idx==-1 ) return;
 
-	    const Coord3 pos = emeditor_->getPosition( cbdata.pid0 );
+	    const Coord3 pos = emeditor_->getPosition( cbaux->pid0 );
 	    updateNodePos( idx, pos );
 	}
-	else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
+	else if ( cbdata.changeType()==EM::EMObject::cBurstAlert() )
 	{
 	    for ( int idx=0; idx<posids_.size(); idx++ )
 	    {
@@ -479,7 +481,7 @@ void MPEEditor::cleanPatch()
 EM::PosID MPEEditor::mouseClickDragger( const TypeSet<int>& path ) const
 {
     if ( path.isEmpty() )
-	return EM::PosID::udf();
+	return EM::PosID::getInvalid();
 
     for ( int idx=draggers_.size()-1; idx>=0; idx-- )
     {
@@ -487,7 +489,7 @@ EM::PosID MPEEditor::mouseClickDragger( const TypeSet<int>& path ) const
 	    return posids_[idx];
     }
 
-    return EM::PosID::udf();
+    return EM::PosID::getInvalid();
 }
 
 
@@ -530,7 +532,7 @@ void MPEEditor::dragStop( CallBacker* cb )
 
 EM::PosID MPEEditor::getActiveDragger() const
 {
-    return isdragging_ ? activedragger_ : EM::PosID::udf();
+    return isdragging_ ? activedragger_ : EM::PosID::getInvalid();
 }
 
 

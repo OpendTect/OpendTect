@@ -42,7 +42,7 @@ public:
 
     BufferString		objectName() const;
     EM::EMObject*		emObject()		{ return emobject_; }
-    EM::ObjectID		objectID() const;
+    DBKey			objectID() const;
 
     virtual bool		is2D() const		{ return false; }
 
@@ -59,13 +59,11 @@ public:
     void			getNeededAttribs(
 					TypeSet<Attrib::SelSpec>&) const;
 
-    virtual SectionTracker*	createSectionTracker(EM::SectionID) = 0;
+    virtual SectionTracker*	createSectionTracker() = 0;
     SectionTracker*		cloneSectionTracker();
-    SectionTracker*		getSectionTracker(EM::SectionID,
-						  bool create=false);
+    SectionTracker*		getSectionTracker(bool create=false);
     virtual EMSeedPicker*	getSeedPicker(bool create=true)
 				{ return 0; }
-    void 			applySetupAsDefault(const EM::SectionID);
 
     const char*			errMsg() const;
 
@@ -76,7 +74,7 @@ protected:
 				~EMTracker();
 
     bool			isenabled_;
-    ObjectSet<SectionTracker>	sectiontrackers_;
+    SectionTracker*		sectiontracker_;
     BufferString		errmsg_;
     const char*			type_;
 

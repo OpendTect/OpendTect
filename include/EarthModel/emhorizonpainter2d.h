@@ -26,7 +26,7 @@ namespace EM
 mExpClass(EarthModel) HorizonPainter2D : public CallBacker
 {
 public:
-			HorizonPainter2D(FlatView::Viewer&,const EM::ObjectID&);
+			HorizonPainter2D(FlatView::Viewer&,const DBKey&);
 			~HorizonPainter2D();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,
@@ -45,7 +45,7 @@ public:
 
 	mStruct(EarthModel)	Marker2D
 	{
-	    			Marker2D()
+				Marker2D()
 				    : marker_(0)
 				    , sectionid_(-1)
 				{}
@@ -72,23 +72,23 @@ protected:
 
     void		horChangeCB(CallBacker*);
     void		changePolyLineColor();
-    void		updateIntersectionMarkers(int sid);
-    Marker2D*		create2DMarker(const EM::SectionID&,float,float);
+    void		updateIntersectionMarkers();
+    Marker2D*		create2DMarker(float,float);
     bool		calcLine2DIntersections();
 
 
-    EM::ObjectID	id_;
+    DBKey		id_;
     TrcKeyZSampling	tkzs_;
 
     OD::LineStyle		markerlinestyle_;
     OD::MarkerStyle2D	markerstyle_;
     FlatView::Viewer&	viewer_;
 
-    Pos::GeomID 	geomid_;
+    Pos::GeomID	geomid_;
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;
 
-    typedef ObjectSet<Marker2D> 	SectionMarker2DLine;
+    typedef ObjectSet<Marker2D>	SectionMarker2DLine;
     ObjectSet<SectionMarker2DLine>	markerline_;
     Marker2D*				markerseeds_;
     ObjectSet<Marker2D>			intsectmarks_;
@@ -101,7 +101,7 @@ protected:
 
 
 private:
-    Marker2D*		create2DMarker(const EM::SectionID&);
+    Marker2D*		create2DMarker();
 
 };
 

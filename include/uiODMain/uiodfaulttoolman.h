@@ -34,7 +34,7 @@ class uiColorInput;
 
 namespace EM			{ class FaultStickSet; }
 namespace visSurvey		{ class FaultDisplay;
-    				  class FaultStickSetDisplay; }
+				  class FaultStickSetDisplay; }
 
 
 mExpClass(uiODMain) uiFaultStickTransferDlg : public uiDialog
@@ -88,7 +88,7 @@ protected:
 mExpClass(uiODMain) uiODFaultToolMan : public CallBacker
 { mODTextTranslationClass(uiODFaultToolMan);
 public:
-    				uiODFaultToolMan(uiODMain&);
+				uiODFaultToolMan(uiODMain&);
 				~uiODFaultToolMan();
 
     uiToolBar*			getToolBar();
@@ -157,7 +157,7 @@ protected:
     void			publishOutputItems();
 
     void			flashOutputName(bool error,
-	    					const char* newname=0);
+						const char* newname=0);
     void			flashOutputTimerCB(CallBacker*);
     void			flashReset();
 
@@ -197,7 +197,7 @@ protected:
 
     visSurvey::FaultDisplay*	curfltd_;
     visSurvey::FaultStickSetDisplay* curfssd_;
-    int				curemid_;
+    DBKey			curemid_;
 
     Timer			deseltimer_;
     Timer			editreadytimer_;

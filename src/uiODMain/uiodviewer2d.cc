@@ -712,7 +712,7 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
     }
 
     uiMPEPartServer* mpserv = appl_.applMgr().mpeServer();
-    const EM::ObjectID emobjid = hor2dtreeitm ? hor2dtreeitm->emObjectID()
+    const DBKey emobjid = hor2dtreeitm ? hor2dtreeitm->emObjectID()
 					      : hor3dtreeitm->emObjectID();
     const int trackerid = mpserv->getTrackerID( emobjid );
     if ( viewstdcontrol_->editToolBar() )
@@ -744,13 +744,13 @@ void uiODViewer2D::trackSetupCB( CallBacker* )
     if ( !hortreeitm && !hor2dtreeitm )
 	return;
 
-    const EM::ObjectID emid = hortreeitm ? hortreeitm->emObjectID()
+    const DBKey emid = hortreeitm ? hortreeitm->emObjectID()
 					 : hor2dtreeitm->emObjectID();
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     if ( !emobj )
 	return;
 
-    appl_.applMgr().mpeServer()->showSetupDlg(emobj->id(),emobj->sectionID(0));
+    appl_.applMgr().mpeServer()->showSetupDlg( emobj->id() );
 }
 
 
@@ -1008,7 +1008,7 @@ void uiODViewer2D::getVwr2DObjIDs( TypeSet<int>& vw2dobjids ) const
 }
 
 
-void uiODViewer2D::getHor3DVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2D::getHor3DVwr2DIDs( const DBKey& emid,
 				     TypeSet<int>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
@@ -1023,7 +1023,7 @@ void uiODViewer2D::getHor3DVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2D::removeHorizon3D( EM::ObjectID emid )
+void uiODViewer2D::removeHorizon3D( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1037,7 +1037,7 @@ void uiODViewer2D::removeHorizon3D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2D::getLoadedHorizon3Ds( DBKeySet& emids ) const
 {
     if ( !treetp_ ) return;
 
@@ -1051,7 +1051,7 @@ void uiODViewer2D::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2D::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2D::addHorizon3Ds( const DBKeySet& emids )
 {
     if ( !treetp_ ) return;
 
@@ -1065,7 +1065,7 @@ void uiODViewer2D::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2D::setupTrackingHorizon3D( EM::ObjectID emid )
+void uiODViewer2D::setupTrackingHorizon3D( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1084,7 +1084,7 @@ void uiODViewer2D::setupTrackingHorizon3D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
+void uiODViewer2D::addNewTrackingHorizon3D( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1103,7 +1103,7 @@ void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::getHor2DVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2D::getHor2DVwr2DIDs( const DBKey& emid,
 				     TypeSet<int>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
@@ -1118,7 +1118,7 @@ void uiODViewer2D::getHor2DVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2D::removeHorizon2D( EM::ObjectID emid )
+void uiODViewer2D::removeHorizon2D( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1132,7 +1132,7 @@ void uiODViewer2D::removeHorizon2D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2D::getLoadedHorizon2Ds( DBKeySet& emids ) const
 {
     if ( !treetp_ ) return;
 
@@ -1146,7 +1146,7 @@ void uiODViewer2D::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2D::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2D::addHorizon2Ds( const DBKeySet& emids )
 {
     if ( !treetp_ ) return;
 
@@ -1160,7 +1160,7 @@ void uiODViewer2D::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2D::setupTrackingHorizon2D( EM::ObjectID emid )
+void uiODViewer2D::setupTrackingHorizon2D( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1179,7 +1179,7 @@ void uiODViewer2D::setupTrackingHorizon2D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::addNewTrackingHorizon2D( EM::ObjectID emid )
+void uiODViewer2D::addNewTrackingHorizon2D( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1193,7 +1193,7 @@ void uiODViewer2D::addNewTrackingHorizon2D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::getFaultVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2D::getFaultVwr2DIDs( const DBKey& emid,
 				     TypeSet<int>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
@@ -1208,7 +1208,7 @@ void uiODViewer2D::getFaultVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2D::removeFault( EM::ObjectID emid )
+void uiODViewer2D::removeFault( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1222,7 +1222,7 @@ void uiODViewer2D::removeFault( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2D::getLoadedFaults( DBKeySet& emids ) const
 {
     if ( !treetp_ ) return;
 
@@ -1236,7 +1236,7 @@ void uiODViewer2D::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2D::addFaults( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2D::addFaults( const DBKeySet& emids )
 {
     if ( !treetp_ ) return;
 
@@ -1250,7 +1250,7 @@ void uiODViewer2D::addFaults( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2D::setupNewTempFault( EM::ObjectID emid )
+void uiODViewer2D::setupNewTempFault( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1269,7 +1269,7 @@ void uiODViewer2D::setupNewTempFault( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::addNewTempFault( EM::ObjectID emid )
+void uiODViewer2D::addNewTempFault( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1283,7 +1283,7 @@ void uiODViewer2D::addNewTempFault( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::getFaultSSVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2D::getFaultSSVwr2DIDs( const DBKey& emid,
 				     TypeSet<int>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
@@ -1298,7 +1298,7 @@ void uiODViewer2D::getFaultSSVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2D::removeFaultSS( EM::ObjectID emid )
+void uiODViewer2D::removeFaultSS( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1312,7 +1312,7 @@ void uiODViewer2D::removeFaultSS( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2D::getLoadedFaultSSs( DBKeySet& emids ) const
 {
     if ( !treetp_ ) return;
 
@@ -1326,7 +1326,7 @@ void uiODViewer2D::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2D::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2D::addFaultSSs( const DBKeySet& emids )
 {
     if ( !treetp_ ) return;
 
@@ -1340,7 +1340,7 @@ void uiODViewer2D::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2D::setupNewTempFaultSS( EM::ObjectID emid )
+void uiODViewer2D::setupNewTempFaultSS( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1360,7 +1360,7 @@ void uiODViewer2D::setupNewTempFaultSS( EM::ObjectID emid )
 
 
 
-void uiODViewer2D::addNewTempFaultSS( EM::ObjectID emid )
+void uiODViewer2D::addNewTempFaultSS( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1374,7 +1374,7 @@ void uiODViewer2D::addNewTempFaultSS( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2D::getFaultSS2DVwr2DIDs( const DBKey& emid,
 				     TypeSet<int>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
@@ -1389,7 +1389,7 @@ void uiODViewer2D::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2D::removeFaultSS2D( EM::ObjectID emid )
+void uiODViewer2D::removeFaultSS2D( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1403,7 +1403,7 @@ void uiODViewer2D::removeFaultSS2D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::getLoadedFaultSS2Ds( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2D::getLoadedFaultSS2Ds( DBKeySet& emids ) const
 {
     if ( !treetp_ ) return;
 
@@ -1417,7 +1417,7 @@ void uiODViewer2D::getLoadedFaultSS2Ds( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2D::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2D::addFaultSS2Ds( const DBKeySet& emids )
 {
     if ( !treetp_ ) return;
 
@@ -1431,7 +1431,7 @@ void uiODViewer2D::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2D::setupNewTempFaultSS2D( EM::ObjectID emid )
+void uiODViewer2D::setupNewTempFaultSS2D( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 
@@ -1450,7 +1450,7 @@ void uiODViewer2D::setupNewTempFaultSS2D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2D::addNewTempFaultSS2D( EM::ObjectID emid )
+void uiODViewer2D::addNewTempFaultSS2D( const DBKey& emid )
 {
     if ( !treetp_ ) return;
 

@@ -406,9 +406,9 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 {
     if ( surface_ )
     {
-	surface_->nrpositionnotifier.remove(
+	surface_->nrpositionNotifier().remove(
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
-	surface_->movementnotifier.remove(
+	surface_->movementNotifier().remove(
 			mCB(this,ExplFaultStickSurface,surfaceMovement) );
     }
 
@@ -417,9 +417,9 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 
     if ( surface_ )
     {
-	surface_->nrpositionnotifier.notify(
+	surface_->nrpositionNotifier().notify(
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
-	surface_->movementnotifier.notify(
+	surface_->movementNotifier().notify(
 			mCB(this,ExplFaultStickSurface,surfaceMovement) );
 
 	if ( coordlist_ )
@@ -1577,7 +1577,7 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
     mCBCapsuleUnpack( const TypeSet<GeomPosID>*, pidlist, cb );
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
-	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
+	RowCol rc = (*pidlist)[idx].getRowCol();
 	const int stickidx = rc.row();
 
 	if ( rc.col()==FaultStickSurface::StickChange )
@@ -1622,7 +1622,7 @@ void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
     mCBCapsuleUnpack( const TypeSet<GeomPosID>*, pidlist, cb );
     for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
     {
-	RowCol rc = RowCol::fromInt64( (*pidlist)[idx] );
+	RowCol rc = (*pidlist)[idx].getRowCol();
 	const int stickidx = rc.row();
 
 	emptyPanel( stickidx-1 );

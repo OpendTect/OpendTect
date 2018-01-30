@@ -289,7 +289,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	const int dataid =
 	    horizon->auxdata.auxDataIndex( attribrefs.get(idx).buf() );
 	PtrMan< Array2D<float> > attrarr =
-	    horizon->auxdata.createArray2D( dataid, horizon->sectionID(0) );
+	    horizon->auxdata.createArray2D( dataid );
 	strm << "Gridding " << attribrefs.get(idx).buf() << "\n";
 
 	TextStreamProgressMeter runner( strm );
@@ -297,8 +297,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	arr2dint->setArray( *attrarr, LoggedTaskRunnerProvider(strm) );
 	arr2dint->execute();
 	runner.setFinished();
-	horizon->auxdata.setArray2D( dataid, horizon->sectionID(0),
-				     *attrarr );
+	horizon->auxdata.setArray2D( dataid, *attrarr );
     }
 }
 
@@ -358,7 +357,8 @@ bool BatchProgram::go( od_ostream& strm )
 
 	SurfaceIOData sd;
 	uiString uierr;
-	if ( !EM::EMM().getSurfaceData(dbky,sd,uierr) )
+	EM::EMManager& emmgr = EM::getMgr( dbky );
+	if ( !emmgr.getSurfaceData(dbky,sd,uierr) )
 	{
 	    BufferString errstr( "Cannot load horizon ", dbky.toString(), ": ");
 	    errstr += uierr.getFullString();
@@ -367,11 +367,9 @@ bool BatchProgram::go( od_ostream& strm )
 
 	SurfaceIODataSelection sels( sd );
 	sels.selvalues.erase();
-	for ( int ids=0; ids<sd.sections.size(); ids++ )
-	    sels.selsections += ids;
 	sels.rg = hsamp;
 	PtrMan<Executor> loader =
-			EMM().objectLoader( dbky, iscubeoutp ? &sels : 0 );
+			emmgr.objectLoader( dbky, iscubeoutp ? &sels : 0 );
 	if ( !loader || !loader->go(strm) )
 	{
 	    BufferString errstr = "Cannot load horizon:";
@@ -394,7 +392,7 @@ bool BatchProgram::go( od_ostream& strm )
 		zbounds4mmproc = sd.zrg;
 	}
 
-	EMObject* emobj = EMM().getObject( EMM().getObjectID(dbky) );
+	EMObject* emobj = emmgr.getObject( dbky );
 	if ( emobj ) emobj->ref();
 	objects += emobj;
     }
@@ -455,7 +453,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( !process( strm, proc, false ) ) return false;
 	HorizonUtils::addSurfaceData( midset[0], attribrefs, bivs );
-	EMObject* obj = EMM().getObject( EMM().getObjectID(midset[0]) );
+	EMObject* obj = Hor3DMan().getObject( midset[0] );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );
 

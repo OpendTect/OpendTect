@@ -38,8 +38,7 @@ mDefineEnumUtils( Picks, PickType, "Pick types" )
 { "RMO", "RMS", "Delta", "Epsilon", "Eta", 0 };
 
 
-Pick::Pick( float depth, float vel, float offset,
-			    EM::ObjectID oid )
+Pick::Pick( float depth, float vel, float offset, DBKey oid )
     : depth_( depth )
     , vel_( vel )
     , offset_( offset )
@@ -133,7 +132,8 @@ void Picks::removeHorizons()
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
 	if ( horizons_[idx] )
-	    horizons_[idx]->change.remove( mCB(this,Picks,horizonChangeCB) );
+	    horizons_[idx]->objectChanged().remove(
+				mCB(this,Picks,horizonChangeCB) );
     }
 
     deepUnRef( horizons_ );
@@ -256,7 +256,7 @@ RowCol Picks::find( const BinID& pickbid,const Pick& pick) const
 	do
 	{
 	    const Pick& storedpick = picks_.getRef( arrpos, 0 );
-	    if ( pick.emobjid_==-1 )
+	    if ( pick.emobjid_.isInvalid() )
 	    {
 		const int sample = snapper_.nearestIndex(storedpick.depth_);
 		if ( sample==depthsample )
@@ -301,10 +301,7 @@ RowCol Picks::set( const BinID& pickbid, const Pick& velpick,
 	Pick pick = velpick;
 	RefMan<EM::Horizon3D> hor = getHorizon( velpick.emobjid_ );
 	if ( hor )
-	{
-	    pick.depth_ = (float) hor->getPos( hor->sectionID(0),
-				       pickbid.toInt64() ).z_;
-	}
+	    pick.depth_ = hor->getZ( pickbid );
 	else if ( mIsUdf( pick.depth_ ) )
 	    return RowCol(-1,-1);
 	else
@@ -390,7 +387,7 @@ bool Picks::store( const IOObj* passedioobj )
 	changelate.trigger(BinID(-1,-1));
     }
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
 	if ( horizons_[idx] )
@@ -531,26 +528,27 @@ void Picks::horizonChangeCB( CallBacker* cb )
 {
     if ( !cb ) return;
 
-    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&, cbdata,
-				caller, cb );
-    if ( cbdata.event==EM::EMObjectCallbackData::PosIDChange ||
-	 cbdata.event==EM::EMObjectCallbackData::AttribChange ||
-	 cbdata.event==EM::EMObjectCallbackData::PrefColorChange ||
-	 cbdata.event==EM::EMObjectCallbackData::SectionChange )
+    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData, cbdata, caller, cb );
+    if ( cbdata.changeType()==EM::EMObject::cPosIDChange() ||
+	 cbdata.changeType()==EM::EMObject::cAttribChange() ||
+	 cbdata.changeType()==EM::EMObject::cPrefColorChange() ||
+	 cbdata.changeType()==EM::EMObject::cSectionChange() )
 	return;
 
     mDynamicCastGet( const EM::Horizon3D*, hor, caller );
     if ( !hor || !horizons_.isPresent(hor) )
 	return;
 
+    RefMan<EM::EMChangeAuxData> cbauxdata =
+			cbdata.auxDataAs<EM::EMChangeAuxData>();
     TypeSet<RowCol> rcs;
-    if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
+    if ( cbdata.changeType()==EM::EMObject::cBurstAlert() )
     {
 	get( hor->id(), rcs );
     }
-    else
+    else if ( cbauxdata )
     {
-	BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
+	BinID bid = cbauxdata->pid0.getBinID();
 	RowCol arrpos;
 	BinID curbid;
 	if ( picks_.findFirst( bid, arrpos ) )
@@ -572,8 +570,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
     {
 	BinID bid;
 	picks_.getPos( rcs[idx], bid );
-	const float depth =
-	    (float) hor->getPos( hor->sectionID(0), bid.toInt64() ).z_;
+	const float depth = hor->getZ( bid );
 
 	if ( mIsUdf(depth) )
 	    continue;
@@ -589,7 +586,8 @@ void Picks::horizonChangeCB( CallBacker* cb )
 void Picks::addHorizon( const DBKey& dbky, bool addzeroonfail )
 {
     SilentTaskRunnerProvider tprov;
-    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( dbky, tprov );
+    RefMan<EM::EMObject> emobj =
+		EM::Hor3DMan().loadIfNotFullyLoaded( dbky, tprov );
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobj.ptr() );
     if ( !hor3d )
     {
@@ -611,7 +609,7 @@ void Picks::addHorizon( EM::Horizon3D* hor )
     if ( hor )
     {
 	hor->ref();
-	hor->change.notify( mCB(this,Picks,horizonChangeCB) );
+	hor->objectChanged().notify( mCB(this,Picks,horizonChangeCB) );
     }
 }
 
@@ -619,20 +617,20 @@ void Picks::addHorizon( EM::Horizon3D* hor )
 int Picks::nrHorizons() const { return horizons_.size(); }
 
 
-EM::ObjectID Picks::getHorizonID( int idx ) const
+DBKey Picks::getHorizonID( int idx ) const
 {
-    return horizons_[idx] ? horizons_[idx]->id() : -1;
+    return horizons_[idx] ? horizons_[idx]->id() : DBKey::getInvalid();
 }
 
 
-void Picks::removeHorizon( EM::ObjectID id )
+void Picks::removeHorizon( const DBKey& id )
 {
     for ( int idx=horizons_.size()-1; idx>=0; idx-- )
     {
 	if ( horizons_[idx] && horizons_[idx]->id()==id )
 	{
 	    //TODO: Remove all picks on this horizon.
-	    horizons_[idx]->change.remove(
+	    horizons_[idx]->objectChanged().remove(
 		    mCB(this,Picks,horizonChangeCB) );
 	    horizons_.removeSingle( idx )->unRef();
 	    return;
@@ -641,7 +639,7 @@ void Picks::removeHorizon( EM::ObjectID id )
 }
 
 
-EM::Horizon3D* Picks::getHorizon( EM::ObjectID id )
+EM::Horizon3D* Picks::getHorizon( const DBKey& id )
 {
     for ( int idx=horizons_.size()-1; idx>=0; idx-- )
     {
@@ -653,7 +651,7 @@ EM::Horizon3D* Picks::getHorizon( EM::ObjectID id )
 }
 
 
-const EM::Horizon3D* Picks::getHorizon( EM::ObjectID id ) const
+const EM::Horizon3D* Picks::getHorizon( const DBKey& id ) const
 { return const_cast<Picks*>( this )->getHorizon( id ); }
 
 
@@ -670,8 +668,7 @@ char Picks::getHorizonStatus( const BinID& bid ) const
 	ConstRefMan<EM::Horizon3D> hor = getHorizon( getHorizonID(idx) );
 	if ( !hor ) continue;
 
-	const EM::SectionID sid = hor->sectionID( 0 );
-	if ( hor->isDefined( sid, bid.toInt64() ) )
+	if ( hor->isDefined(EM::PosID::getFromRowCol(bid)) )
 	    defined = true;
 	else
 	    undefined = true;
@@ -687,7 +684,7 @@ char Picks::getHorizonStatus( const BinID& bid ) const
 }
 
 
-bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
+bool Picks::interpolateVelocity(const DBKey& emid, float searchradius,
 					BinIDValueSet& res ) const
 {
     ConstRefMan<EM::Horizon3D> horizon = getHorizon( emid );
@@ -740,8 +737,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 	const Coord coord = SI().transform(bid);
 
 	float* vals = res.getVals( pos );
-	vals[0] =
-	    (float)horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z_;
+	vals[0] = horizon->getZ( bid );
 
 	float weightsum = 0;
 	float weightvalsum = 0;
@@ -809,7 +805,7 @@ bool Picks::load( const IOObj* ioobj )
 	const BinID bid = SI().transform( ploc.pos().getXY() );
 	const float z = mCast(float,ploc.pos().z_);
 	const Sphere& dir = ploc.dir();
-	Pick pick = version==1	? Pick( z, dir.radius_, refoffset_, -1 )
+	Pick pick = version==1	? Pick( z, dir.radius_, refoffset_ )
 				: Pick( z, dir.radius_, dir.theta_-1 );
 
 	if ( ploc.hasText() )
@@ -854,7 +850,7 @@ void Picks::setSmoother(Smoother1D<float>* ns )
 
 int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
 			 TypeSet<float>* velocities, TypeSet<RowCol>* positions,
-			 TypeSet<EM::ObjectID>* emobjres,
+			 DBKeySet* emobjres,
 			 bool interpolhors ) const
 {
     if ( depths ) depths->erase();
@@ -862,8 +858,8 @@ int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
     if ( positions ) positions->erase();
     if ( emobjres ) emobjres->erase();
 
-    TypeSet<EM::ObjectID> internalemobjects;
-    TypeSet<EM::ObjectID>& emids = emobjres ? *emobjres : internalemobjects;
+    DBKeySet internalemobjects;
+    DBKeySet& emids = emobjres ? *emobjres : internalemobjects;
 
     RowCol arrpos;
     BinID curbid;
@@ -919,7 +915,7 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 {
     picks.erase();
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
 
     RowCol arrpos;
     BinID curbid;
@@ -1000,7 +996,7 @@ bool Picks::get( const RowCol& arrpos, BinID& bid, Pick& pick)
 }
 
 
-void Picks::get(const EM::ObjectID& emid, TypeSet<RowCol>& res ) const
+void Picks::get(const DBKey& emid, TypeSet<RowCol>& res ) const
 {
     RowCol arrpos( -1, -1 );
     while ( picks_.next(arrpos,false) )

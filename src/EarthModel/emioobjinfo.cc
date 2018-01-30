@@ -124,16 +124,6 @@ bool IOObjInfo::getSectionIDs( TypeSet<SectionID>& secids ) const
 }
 
 
-bool IOObjInfo::getSectionNames( BufferStringSet& secnames ) const
-{
-    mGetReaderRet
-
-    for ( int idx=0; idx<reader_->nrSections(); idx++ )
-	secnames.add( reader_->sectionName(idx) );
-    return true;
-}
-
-
 bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
 {
     if ( !ioobj_ )
@@ -410,7 +400,8 @@ bool IOObjInfo::getBodyRange( TrcKeyZSampling& cs ) const
 	return false;
 
     SilentTaskRunnerProvider trprov;
-    RefMan<EMObject> emobj = EMM().loadIfNotFullyLoaded( ioobj_->key(), trprov );
+    RefMan<EMObject> emobj =
+		BodyMan().loadIfNotFullyLoaded( ioobj_->key(), trptov );
     if ( !emobj )
 	return false;
 

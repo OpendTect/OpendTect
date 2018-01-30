@@ -116,8 +116,6 @@ bool uiExport2DHorizon::doExport()
     if ( !getInputDBKeys(dbkeyset) )
 	mErrRet(tr("Cannot find object in database"))
 
-
-
     od_ostream strm( outfld_->fileName() );
     const bool wrudfs = udffld_->isChecked();
     BufferString undefstr;
@@ -143,16 +141,15 @@ bool uiExport2DHorizon::doExport()
 
 	BufferStringSet linenms;
 
-
-	EM::EMManager& em = EM::EMM();
-	EM::EMObject* obj = em.getObject( em.getObjectID(horid) );
+	EM::EMManager& em = EM::Hor2DMan();
+	EM::EMObject* obj = em.getObject( horid );
 	if ( !obj )
 	{
 	    PtrMan<Executor> exec = em.objectLoader( horid );
 	    if ( !exec || !exec->execute() )
 		mErrRet(uiStrings::sCantReadHor())
 
-	    obj = em.getObject( em.getObjectID(horid) );
+	    obj = em.getObject( horid );
 	    if ( !obj ) return false;
 
 	    obj->ref();
@@ -182,9 +179,7 @@ bool uiExport2DHorizon::doExport()
 	if ( !hor )
 	    mErrRet(uiStrings::sCantReadHor())
 
-	EM::SectionID sid = hor->sectionID( 0 );
-	const Geometry::Horizon2DLine* geom = hor->geometry().
-						    sectionGeometry(sid);
+	const Geometry::Horizon2DLine* geom = hor->geometry().geometryElement();
 	if ( !geom ) mErrRet(tr("Error Reading Horizon"))
 
 	BufferString horname = hor->name();

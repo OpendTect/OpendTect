@@ -20,16 +20,16 @@ namespace Geometry
 class ParametricCurveIterator : public Iterator
 {
 public:
-    			ParametricCurveIterator( const ParametricCurve& pc )
+			ParametricCurveIterator( const ParametricCurve& pc )
 			    : range_( pc.parameterRange() )
 			    , curpos_( -1 )
 			{}
 
     GeomPosID		next()
     {
-	GeomPosID newid = curpos_++;
-	if ( !range_.includes( newid, false ) )
-	    return -1;
+	GeomPosID newid = GeomPosID::get( curpos_++ );
+	if ( !range_.includes( newid.getI(), false ) )
+	    return GeomPosID::getInvalid();
 
 	return newid;
     }
@@ -73,7 +73,8 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 	float closestsqdist = mUdf(float);
 	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )
 	{
-	    const float sqdist = (float) getPosition(idx).sqDistTo(pos);
+	    const float sqdist =
+		(float) getPosition(GeomPosID::get(idx)).sqDistTo(pos);
 	    if ( sqdist<closestsqdist )
 	    {
 		closestsqdist = sqdist;
@@ -82,10 +83,10 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 	}
     }
 
-    const Interval<float> limits( mCast(float,prange.start), 
+    const Interval<float> limits( mCast(float,prange.start),
 					    mCast(float,prange.stop) );
     ExtremeFinder1D finder( mfunc, false, 20, eps,
-	    		    Interval<float>(mMAX(p-prange.step,prange.start),
+			    Interval<float>(mMAX(p-prange.step,prange.start),
 					    mMIN(p+prange.step,prange.stop) ),
 			    &limits );
 
@@ -109,7 +110,7 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	float closestdist = mUdf(float);
 	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )
 	{
-	    const Coord3 pos = getPosition(idx);
+	    const Coord3 pos = getPosition(GeomPosID::get(idx));
 	    const float dist =
 	     (float) (plane.A_*pos.x_+plane.B_*pos.y_+plane.C_*pos.z_+plane.D_);
 	    if ( fabs(dist)<closestdist )
@@ -120,7 +121,7 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	}
     }
 
-    const Interval<float> limits( mCast(float,prange.start), 
+    const Interval<float> limits( mCast(float,prange.start),
 						mCast(float,prange.stop) );
     for ( int idx=0; idx<20; idx++ )
     {
@@ -156,8 +157,9 @@ void ParametricCurve::getPosIDs( TypeSet<GeomPosID>& ids, bool remudf ) const
 
     for ( int param=range.start; param<=range.stop; param += range.step )
     {
-	if ( remudf && !isDefined(param) ) continue;
-	ids += param;
+	GeomPosID id = GeomPosID::get( param );
+	if ( remudf && !isDefined(id) ) continue;
+	ids += id;
     }
 }
 

@@ -111,12 +111,11 @@ protected:
 
     virtual bool			setPosition(const EM::PosID&,
 						    const Coord3&);
-    Geometry::ElementEditor*		getEditor( const EM::SectionID& );
-    const Geometry::ElementEditor*	getEditor( const EM::SectionID& ) const;
-    virtual Geometry::ElementEditor*	createEditor( const EM::SectionID& )=0;
+    Geometry::ElementEditor*		getEditor();
+    const Geometry::ElementEditor*	getEditor() const;
+    virtual Geometry::ElementEditor*	createEditor()=0;
 
     void				editPosChangeTrigger(CallBacker*);
-    void				emSectionChange(CallBacker*);
 
     virtual void			getAlongMovingNodes( const EM::PosID&,
 					    TypeSet<EM::PosID>&,
@@ -138,8 +137,7 @@ protected:
     int					nrusers_;
 
 private:
-    ObjectSet<Geometry::ElementEditor>	geeditors_;
-    TypeSet<EM::SectionID>		sections_;
+    Geometry::ElementEditor*		geeditor_;
 
     bool				snapafterthisedit_;
 

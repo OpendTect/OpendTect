@@ -393,19 +393,20 @@ bool Horizon2DGridCreator::init( const IOPar& par,
     BufferStringSet horids;
 
     par.get( Horizon2DGridCreator::sKeyInputIDs(), horids );
-    EM::EMManager& em = EM::EMM();
     for ( int idx=0; idx<horids.size(); idx++ )
     {
 	const DBKey dbky = DBKey::getFromString( horids.get(idx) );
-	RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( dbky, trprov );
+	RefMan<EM::EMObject> emobj =
+			EM::Hor3DMan().loadIfNotFullyLoaded( dbky, trprov );
 
 	mDynamicCastGet(EM::Horizon3D*,horizon3d,emobj.ptr());
 	if ( !horizon3d ) continue;
 
 	horizon3d->ref();
 	BufferString hornm( prefix, " ", horizon3d->name() );
-	EM::ObjectID emid = em.createObject( EM::Horizon2D::typeStr(),hornm );
-	mDynamicCastGet(EM::Horizon2D*,horizon2d,em.getObject(emid));
+	EM::EMObject* emobj2d =
+		EM::Hor2DMan().createObject( EM::Horizon2D::typeStr(),hornm );
+	mDynamicCastGet(EM::Horizon2D*,horizon2d,emobj2d)
 	if ( !horizon2d ) continue;
 
 	horizon2d->ref();

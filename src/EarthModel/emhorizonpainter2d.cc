@@ -19,7 +19,7 @@ namespace EM
 {
 
 HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
-				    const EM::ObjectID& oid )
+				    const DBKey& oid )
     : viewer_(fv)
     , id_(oid)
     , markerlinestyle_(OD::LineStyle::Solid,2,Color(0,255,0))
@@ -31,11 +31,11 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
     , abouttorepaint_(this)
     , repaintdone_(this)
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( emobj )
     {
 	emobj->ref();
-	emobj->change.notify( mCB(this,HorizonPainter2D,horChangeCB) );
+	emobj->objectChanged().notify( mCB(this,HorizonPainter2D,horChangeCB) );
     }
 }
 
@@ -43,10 +43,10 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 HorizonPainter2D::~HorizonPainter2D()
 {
     detachAllNotifiers();
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( emobj )
     {
-	emobj->change.remove( mCB(this,HorizonPainter2D,horChangeCB) );
+	emobj->objectChanged().remove( mCB(this,HorizonPainter2D,horChangeCB) );
 	emobj->unRef();
     }
 
@@ -83,7 +83,7 @@ void HorizonPainter2D::paint( CallBacker* )
 
 bool HorizonPainter2D::addPolyLine()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( !emobj ) return false;
 
     const OD::MarkerStyle3D ms3d =
@@ -95,85 +95,79 @@ bool HorizonPainter2D::addPolyLine()
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d ) return false;
 
-    for ( int ids=0; ids<hor2d->nrSections(); ids++ )
+    updateIntersectionMarkers();
+    SectionMarker2DLine* secmarkerln = new SectionMarker2DLine;
+    markerline_ += secmarkerln;
+    FlatView::AuxData* seedauxdata =
+	viewer_.createAuxData( "Horizon2D Marker" );
+    seedauxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
+					: MouseCursor::Arrow;
+    seedauxdata->enabled_ = seedenabled_;
+    seedauxdata->poly_.erase();
+    seedauxdata->markerstyles_ += markerstyle_;
+    viewer_.addAuxData( seedauxdata );
+
+    markerseeds_ = new Marker2D;
+    markerseeds_->marker_ = seedauxdata;
+
+    bool newmarker = true;
+    bool coorddefined = true;
+
+    Marker2D* marker = 0;
+    TrcKeySamplingIterator iter( tkzs_.hsamp_ );
+    do
     {
-	EM::SectionID sid = hor2d->sectionID( ids );
-	updateIntersectionMarkers( sid );
-	SectionMarker2DLine* secmarkerln = new SectionMarker2DLine;
-	markerline_ += secmarkerln;
-	FlatView::AuxData* seedauxdata =
-	    viewer_.createAuxData( "Horizon2D Marker" );
-	seedauxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
-					    : MouseCursor::Arrow;
-	seedauxdata->enabled_ = seedenabled_;
-	seedauxdata->poly_.erase();
-	seedauxdata->markerstyles_ += markerstyle_;
-	viewer_.addAuxData( seedauxdata );
+	TrcKey trk( iter.curTrcKey() );
+	if ( hor2d->geometry().lineIndex( geomid_ ) < 0 )
+	    continue;
 
-	markerseeds_ = new Marker2D;
-	markerseeds_->marker_ = seedauxdata;
-	markerseeds_->sectionid_ = sid;
-
-	bool newmarker = true;
-	bool coorddefined = true;
-
-	Marker2D* marker = 0;
-	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
-	do
+	const Coord3 crd = hor2d->getCoord( trk );
+	if ( !crd.isDefined() )
 	{
-	    TrcKey trk( iter.curTrcKey() );
-	    if ( hor2d->geometry().lineIndex( geomid_ ) < 0 )
-		continue;
+	    coorddefined = false;
+	    continue;
+	}
+	else if ( !coorddefined )
+	{
+	    coorddefined = true;
+	    newmarker = true;
+	}
 
-	    const Coord3 crd = hor2d->getCoord( trk );
-	    if ( !crd.isDefined() )
-	    {
-		coorddefined = false;
-		continue;
-	    }
-	    else if ( !coorddefined )
-	    {
-		coorddefined = true;
-		newmarker = true;
-	    }
+	if ( newmarker )
+	{
+	    FlatView::AuxData* auxdata =
+		viewer_.createAuxData( "Horizon2D marker" );
+	    viewer_.addAuxData( auxdata );
+	    auxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
+					    : MouseCursor::Arrow;
+	    auxdata->poly_.erase();
+	    auxdata->linestyle_ = markerlinestyle_;
+	    Color prefcol = hor2d->preferredColor();
+	    prefcol.setTransparency( 0 );
+	    auxdata->linestyle_.color_ = prefcol;
+	    auxdata->fillcolor_ = prefcol;
+	    auxdata->enabled_ = linenabled_;
+	    auxdata->name_ = hor2d->name();
+	    marker = new Marker2D;
+	    (*secmarkerln) += marker;
+	    marker->marker_ = auxdata;
+	    newmarker = false;
+	}
 
-	    if ( newmarker )
-	    {
-		FlatView::AuxData* auxdata =
-		    viewer_.createAuxData( "Horizon2D marker" );
-		viewer_.addAuxData( auxdata );
-		auxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
-						: MouseCursor::Arrow;
-		auxdata->poly_.erase();
-		auxdata->linestyle_ = markerlinestyle_;
-		Color prefcol = hor2d->preferredColor();
-		prefcol.setTransparency( 0 );
-		auxdata->linestyle_.color_ = prefcol;
-		auxdata->fillcolor_ = prefcol;
-		auxdata->enabled_ = linenabled_;
-		auxdata->name_ = hor2d->name();
-		marker = new Marker2D;
-		(*secmarkerln) += marker;
-		marker->marker_ = auxdata;
-		marker->sectionid_ = sid;
-		newmarker = false;
-	    }
+	const int idx = trcnos_.indexOf( trk.trcNr() );
+	if ( idx == -1 )
+	    continue;
 
-	    const int idx = trcnos_.indexOf( trk.trcNr() );
-	    if ( idx == -1 )
-		continue;
+	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
+	const double z = zat ? (double)zat->transformTrc(trk,(float)crd.z_)
+			     : crd.z_;
+	marker->marker_->poly_ += FlatView::Point( distances_[idx], z );
 
-	    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-	    const double z = zat ? (double)zat->transformTrc(trk,(float)crd.z_)
-				 : crd.z_;
-	    marker->marker_->poly_ += FlatView::Point( distances_[idx], z );
+	if ( hor2d->isAttrib(trk,EM::EMObject::sSeedNode()) )
+	    markerseeds_->marker_->poly_ +=
+		FlatView::Point( distances_[idx], z );
 
-	    if ( hor2d->isAttrib(trk,EM::EMObject::sSeedNode()) )
-		markerseeds_->marker_->poly_ +=
-		    FlatView::Point( distances_[idx], z );
-
-	} while ( iter.next() );
-    }
+    } while ( iter.next() );
 
     return true;
 }
@@ -181,39 +175,27 @@ bool HorizonPainter2D::addPolyLine()
 
 void HorizonPainter2D::horChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
+    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
 				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
-    switch ( cbdata.event )
+    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+	return;
+    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+	changePolyLineColor();
+    else if ( cbdata.changeType() == EM::EMObject::cAttribChange() )
+	paint();
+    else if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
     {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
-	    {
-		changePolyLineColor();
-		break;
-	    }
-	case EM::EMObjectCallbackData::AttribChange:
-	    {
-		paint();
-		break;
-	    }
-	case EM::EMObjectCallbackData::BurstAlert:
-	    {
-		if ( emobject->hasBurstAlert() )
-		    return;
-		paint();
-		break;
-	    }
-	default:
-	    break;
+	if ( emobject->hasBurstAlert() )
+	    return;
+	paint();
     }
 }
 
 
-void HorizonPainter2D::updateIntersectionMarkers( int sid )
+void HorizonPainter2D::updateIntersectionMarkers()
 {
     if ( intsectset_.size()<=0 )
     {
@@ -221,7 +203,7 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
 	    return;
     }
     removeIntersectionMarkers();
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     mDynamicCastGet( EM::Horizon2D*, hor2d, emobj )
     if ( !hor2d ) return;
 
@@ -251,8 +233,7 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
 			continue;
 		}
 		float x = .0f;
-		Coord3 crd = hor2d->getPos(
-		    EM::SectionID(sid), geomids[idy], trcnr );
+		Coord3 crd = hor2d->getPos( geomids[idy], trcnr );
 		ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
 		const TrcKey tk( geomid_, trcnr );
 		const float z = zat ? zat->transformTrc( tk, (float)crd.z_ )
@@ -263,7 +244,7 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
 		if ( !mIsUdf(z) && x!=.0f )
 		{
 		    Marker2D* intsecmarker =
-			create2DMarker( EM::SectionID(sid), x, z );
+			create2DMarker( x, z );
 		    intsecmarker->marker_->markerstyles_.first().color_ =
 			emobj->preferredColor();
 		    intsectmarks_ += intsecmarker;
@@ -289,19 +270,17 @@ bool HorizonPainter2D::calcLine2DIntersections()
 }
 
 
-HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker(
-    const EM::SectionID& sid, float x, float z )
+HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker( float x, float z )
 {
     Marker2D* marker = 0;
-    marker = create2DMarker( sid );
+    marker = create2DMarker();
     if ( marker )
 	marker->marker_->poly_ += FlatView::Point( x, z );
     return marker;
 }
 
 
-HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker(
-    const EM::SectionID& sid )
+HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker()
 {
     FlatView::AuxData* seedauxdata = viewer_.createAuxData(0);
     seedauxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
@@ -312,7 +291,6 @@ HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker(
     viewer_.addAuxData(seedauxdata);
     Marker2D* marker = new Marker2D;
     marker->marker_ = seedauxdata;
-    marker->sectionid_ = sid;
     return marker;
 }
 
@@ -329,7 +307,7 @@ void HorizonPainter2D::getDisplayedHor( ObjectSet<Marker2D>& disphor )
 
 void HorizonPainter2D::changePolyLineColor()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( !emobj ) return;
 
     for ( int idx=0; idx<markerline_.size(); idx++ )
@@ -425,7 +403,7 @@ void HorizonPainter2D::displayIntersection( bool yn )
 void HorizonPainter2D::displaySelections(
     const TypeSet<EM::PosID>& pointselections )
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( !emobj )
 	return;
 
@@ -434,7 +412,7 @@ void HorizonPainter2D::displaySelections(
 
     removeSelections();
 
-    selectionpoints_ = create2DMarker( 0 );
+    selectionpoints_ = create2DMarker();
     for ( int idx=0; idx<pointselections.size(); idx++ )
     {
 	const Coord3 pos = emobj->getPos( pointselections[idx] );
@@ -474,13 +452,13 @@ void HorizonPainter2D::removeSelections()
 
 void HorizonPainter2D::updateSelectionColor()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
     if ( !hor2d ) return;
 
     if ( !selectionpoints_ )
 	return;
-    TypeSet<OD::MarkerStyle2D>& markerstyles = 
+    TypeSet<OD::MarkerStyle2D>& markerstyles =
 	selectionpoints_->marker_->markerstyles_;
 
     for ( int idx=0;idx<markerstyles.size();idx++ )

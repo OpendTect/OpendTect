@@ -23,8 +23,7 @@ namespace MPE
 mExpClass(MPEEngine) Horizon2DSelector : public SectionSourceSelector
 {
 public:
-    				Horizon2DSelector(const EM::Horizon2D&,
-						  const EM::SectionID&);
+				Horizon2DSelector(const EM::Horizon2D&);
     int				nextStep();
 
 protected:

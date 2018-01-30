@@ -58,7 +58,7 @@ public:
     visBase::Material*		getMaterial();
     void			setIntersectLineMaterial(visBase::Material*);
 
-    bool			setEMObject(const EM::ObjectID&,TaskRunner*);
+    bool			setEMObject(const DBKey&,TaskRunner*);
     bool			updateFromEM(TaskRunner*);
     void			updateFromMPE();
 

@@ -359,7 +359,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 				const visSurvey::EMObjectDisplay* emod,
 				const visBase::EventInfo& eventinfo )
 {
-    const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
+    const EM::EMObject* emobj = EM::Hor2DMan().getObject( emod->getObjectID() );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d ) return;
 
@@ -633,7 +633,7 @@ int MPEClickInfo::getObjID() const
 { return clickedobjid_; }
 
 
-EM::ObjectID MPEClickInfo::getEMObjID() const
+const DBKey& MPEClickInfo::getEMObjID() const
 { return clickedemobjid_; }
 
 
@@ -679,7 +679,7 @@ void MPEClickInfo::clear()
     clickednode_ = TrcKey::udf();
     clickedpos_ = Coord3::udf();
     clickedobjid_ = -1;
-    clickedemobjid_ = -1;
+    clickedemobjid_ = DBKey::getInvalid();
     clickedcs_.init( false);
     attrsel_ = 0;
     attrdata_ = 0;
@@ -728,7 +728,7 @@ void MPEClickInfo::setObjID( int visid )
 { clickedobjid_ = visid; }
 
 
-void MPEClickInfo::setEMObjID( EM::ObjectID emobjid )
+void MPEClickInfo::setEMObjID( const DBKey& emobjid )
 { clickedemobjid_ = emobjid; }
 
 

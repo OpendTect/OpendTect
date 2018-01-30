@@ -81,7 +81,6 @@ void Tut::ThicknessCalculator::init( const char* attribname )
 
     dataidx_ = horizon1_->auxdata.addAuxData( attribname && *attribname ?
 				attribname : (const char*)sKey::Thickness() );
-    posid_.setObjectID( horizon1_->id() );
 }
 
 
@@ -91,20 +90,15 @@ int Tut::ThicknessCalculator::nextStep()
     if ( horizon2_->nrSections() < nrsect )
 	nrsect = horizon2_->nrSections();
 
-    const EM::SubID subid( iter_->curBinID().toInt64() );
-    for ( EM::SectionID isect=0; isect<nrsect; isect++ )
-    {
-	const float z1 = (float) horizon1_->getPos( isect, subid ).z_;
-	const float z2 = (float) horizon2_->getPos( isect, subid ).z_;
+    posid_ = EM::PosID::getFromRowCol( iter_->curBinID() );
+    const float z1 = (float) horizon1_->getPos( posid_ ).z_;
+    const float z2 = (float) horizon2_->getPos( posid_ ).z_;
 
-	float val = mUdf(float);
-	if ( !mIsUdf(z1) && !mIsUdf(z2) )
-	    val = fabs( z2 - z1 ) * usrfac_;
+    float val = mUdf(float);
+    if ( !mIsUdf(z1) && !mIsUdf(z2) )
+	val = fabs( z2 - z1 ) * usrfac_;
 
-	posid_.setSubID( subid );
-	posid_.setSectionID( isect );
-	horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
-    }
+    horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
 
     nrdone_++;
     return iter_->next() ? Executor::MoreToDo() : Executor::Finished();
@@ -119,7 +113,6 @@ Executor* Tut::ThicknessCalculator::dataSaver()
 
 Tut::HorSmoother::HorSmoother()
     : HorTool("Smoothing Horizon")
-    , subid_(0)
 {
 }
 
@@ -129,31 +122,27 @@ int Tut::HorSmoother::nextStep()
     if ( !iter_->next() )
 	return Executor::Finished();
 
-    const int nrsect = horizon1_->nrSections();
     const int rad = weak_ ? 1 : 2;
-    for ( EM::SectionID isect=0; isect<nrsect; isect++ )
+    const BinID bid( iter_->curBinID() );
+    float sum = 0; int count = 0;
+    for ( int inloffs=-rad; inloffs<=rad; inloffs++ )
     {
-	const BinID bid( iter_->curBinID() );
-	float sum = 0; int count = 0;
-	for ( int inloffs=-rad; inloffs<=rad; inloffs++ )
+	for ( int crloffs=-rad; crloffs<=rad; crloffs++ )
 	{
-	    for ( int crloffs=-rad; crloffs<=rad; crloffs++ )
-	    {
-		const BinID binid = BinID( bid.inl() +inloffs *hs_.step_.inl(),
-					   bid.crl() +crloffs *hs_.step_.crl());
-		const EM::SubID subid = binid.toInt64();
-		const float z = (float) horizon1_->getPos( isect, subid ).z_;
-		if ( mIsUdf(z) ) continue;
-		sum += z; count++;
-	    }
+	    const BinID binid = BinID( bid.inl() +inloffs *hs_.step_.inl(),
+				       bid.crl() +crloffs *hs_.step_.crl());
+	    const EM::PosID posid = EM::PosID::getFromRowCol( binid );
+	    const float z = (float) horizon1_->getPos( posid ).z_;
+	    if ( mIsUdf(z) ) continue;
+	    sum += z; count++;
 	}
-	float val = count ? sum / count : mUdf(float);
-
-	subid_ = bid.toInt64();
-	Coord3 pos = horizon1_->getPos( isect, subid_ );
-	pos.z_ = val;
-	horizon1_->setPos( isect, subid_, pos, false );
     }
+    float val = count ? sum / count : mUdf(float);
+
+    posid_ = EM::PosID::getFromRowCol( bid );
+    Coord3 pos = horizon1_->getPos( posid_ );
+    pos.z_ = val;
+    horizon1_->setPos( posid_, pos, false );
 
     nrdone_++;
     return Executor::MoreToDo();
@@ -162,5 +151,5 @@ int Tut::HorSmoother::nextStep()
 
 Executor* Tut::HorSmoother::dataSaver( const DBKey& id )
 {
-    return horizon1_->geometry().saver( 0, &id );
+    return horizon1_->saver();
 }

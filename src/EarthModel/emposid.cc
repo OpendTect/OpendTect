@@ -13,42 +13,43 @@ namespace EM
 
 const char* PosID::emobjStr() { return "Object"; }
 const char* PosID::sectionStr() { return  "Patch"; }
-const char* PosID::subidStr() { return  "Sub ID"; }
+const char* PosID::posidStr() { return  "Sub ID"; }
 
 
-const PosID& PosID::udf()
+const PosID& PosID::getInvalid()
 {
-    mDefineStaticLocalObject( PosID, undef, ( -1, -1, -1 ) );
+    mDefineStaticLocalObject( PosID, undef,
+	    ( DBKey::getInvalid(), -1, PosID::getInvalid() ) );
     return undef;
 }
 
 
-bool PosID::isUdf() const { return objectID()==-1; }
+bool PosID::isUdf() const { return objectID().isInvalid(); }
 
 
 RowCol PosID::getRowCol() const
-{ return RowCol::fromInt64( subID() ); }
+{ return PosID::getRowCol(); }
 
 
 void PosID::fillPar( IOPar& par ) const
 {
-    par.set( emobjStr(), emobjid_ );
+    par.set( emobjStr(), objid_ );
     par.set( sectionStr(), sectionid_ );
-    par.set( subidStr(), subid_ );
+    par.set( posidStr(), getI() );
 }
 
 
 bool PosID::usePar( const IOPar& par )
 {
     int tmpsection = mUdf(int);
-    SubID tmpsubid = mUdf(od_int64);
-    const bool res = par.get( emobjStr(), emobjid_ ) &&
+    od_int64 tmpposid = mUdf(od_int64);
+    const bool res = par.get( emobjStr(), objid_ ) &&
 		     par.get( sectionStr(), tmpsection ) &&
-		     par.get( subidStr(), tmpsubid );
+		     par.get( posidStr(), tmpposid );
     if ( res )
     {
 	sectionid_ = mCast( EM::SectionID, tmpsection );
-	subid_ = tmpsubid;
+	setI( tmpposid );
     }
 
     return res;

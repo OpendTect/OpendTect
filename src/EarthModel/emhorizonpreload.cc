@@ -44,12 +44,14 @@ HorizonPreLoader::~HorizonPreLoader()
 }
 
 
-bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tskr )
+bool HorizonPreLoader::load( const DBKeySet& newmids, bool is2d,
+			     TaskRunner* tskr )
 {
     errmsg_ = uiString::emptyString();
     if ( newmids.isEmpty() )
 	return false;
 
+    EM::EMManager& horman = is2d ? EM::Hor2DMan() : EM::Hor3DMan();
     uiString msg1( tr("The selected horizon(s):\n") );
     uiString msg2( tr("Cannot pre-load:\n") );
     int nralreadyloaded = 0;
@@ -66,14 +68,13 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tskr )
 	    continue;
 	}
 
-	EM::ObjectID emid = EM::EMM().getObjectID( newmids[idx] );
-	EM::EMObject* emobj = EM::EMM().getObject( emid );
+	EM::EMObject* emobj = horman.getObject( newmids[idx] );
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{
-	    Executor* exec = EM::EMM().objectLoader( newmids[idx] );
+	    Executor* exec = horman.objectLoader( newmids[idx] );
 	    if ( !exec )
 	    {
-		BufferString name( EM::EMM().objectName(newmids[idx]) );
+		BufferString name( horman.objectName(newmids[idx]) );
 		msg2.append( " '%1'" ).arg( name );
 		nrproblems++;
 		continue;
@@ -82,8 +83,7 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tskr )
 	    execgrp->add( exec );
 	}
 
-	emid = EM::EMM().getObjectID( newmids[idx] );
-	emobj = EM::EMM().getObject( emid );
+	emobj = horman.getObject( newmids[idx] );
 	emobjects += emobj;
     }
 
@@ -137,8 +137,10 @@ void HorizonPreLoader::unload( const BufferStringSet& hornames )
 	    continue;
 
 	const DBKey mid = loadedmids_[selidx];
-	EM::ObjectID emid = EM::EMM().getObjectID( mid );
-	EM::EMObject* emobj = EM::EMM().getObject( emid );
+	EM::EMObject* emobj = EM::Hor3DMan().getObject( loadedmids_[selidx] );
+	if ( !emobj )
+	    emobj = EM::Hor2DMan().getObject( loadedmids_[selidx] );
+
 	if ( emobj )
 	    emobj->unRef();
 

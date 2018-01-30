@@ -28,12 +28,12 @@ namespace EM { class EMObject; }
 mExpClass(uiEMAttrib) uiIsochronMakerGrp : public uiGroup
 { mODTextTranslationClass(uiIsochronMakerGrp);
 public:
-			uiIsochronMakerGrp(uiParent*,EM::ObjectID);
+			uiIsochronMakerGrp(uiParent*,const DBKey&);
 			~uiIsochronMakerGrp();
 
     bool		chkInputFlds();
     bool		fillPar(IOPar&);
-    BufferString	getHorNm(EM::ObjectID);
+    BufferString	getHorNm(const DBKey&);
     const char*		attrName() const;
 
 protected:
@@ -43,7 +43,7 @@ protected:
     uiGenInput*		msecsfld_;
     CtxtIOObj&		basectio_;
     CtxtIOObj&		ctio_;
-    EM::ObjectID	horid_;
+    DBKey		horid_;
     EM::EMObject*	baseemobj_;
 
     void		toHorSel(CallBacker*);
@@ -69,7 +69,7 @@ protected:
 mExpClass(uiEMAttrib) uiIsochronMakerDlg : public uiDialog
 { mODTextTranslationClass(uiIsochronMakerDlg);
 public:
-			uiIsochronMakerDlg(uiParent*,EM::ObjectID);
+			uiIsochronMakerDlg(uiParent*,const DBKey&);
 			~uiIsochronMakerDlg();
 
     const char*		attrName() const	{ return grp_->attrName(); }

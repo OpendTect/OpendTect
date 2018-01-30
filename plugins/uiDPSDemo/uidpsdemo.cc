@@ -92,9 +92,6 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 
     hor->ref();
     const bool isok = getRandPositions(*hor,nrpts,*dps_);
-    BufferStringSet sectionnms;
-    for ( EM::SectionID isect=0; isect<hor->nrSections(); isect++ )
-	sectionnms.add( hor->sectionName(isect) );
     hor->unRef();
 
     if ( !isok || !getSeisData(seisioobj,*dps_,trprov) )
@@ -106,35 +103,23 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     su.canaddrow( true );
     uiDataPointSet* uidps =
 	new uiDataPointSet( parent(), *dps_, su, dpsdispmgr_ );
-    if ( sectionnms.size() > 1 )
-	{ uidps->setGroupNames(sectionnms); uidps->setGroupType("Section"); }
 
     uidps->show();
     return true;
 }
 
 
-#define mSectGeom(sect) (*hor.geometry().sectionGeometry(sect))
+#define mGeomElem (*hor.geometry().geometryElement())
 
 bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 				 DataPointSet& dps )
 {
-    // This is a bit complex - because we want to handle multiple horizon
-    // sections.
-
-    TypeSet<int> nrsectnodes;
-    int totnrnodes = 0;
-    for ( EM::SectionID isect=0; isect<hor.nrSections(); isect++ )
-    {
-	const int nrnodes = mSectGeom(isect).nrKnots();
-	nrsectnodes += nrnodes;
-	totnrnodes += nrnodes;
-    }
-    if ( totnrnodes < 1 )
+    const int nrnodes = mGeomElem.nrKnots();
+    if ( nrnodes < 1 )
 	mErrRet( tr("Horizon is empty") )
 
-    bool needrandsel = nrpts < totnrnodes;
-    const int actualnrpts = needrandsel ? nrpts : totnrnodes;
+    bool needrandsel = nrpts < nrnodes;
+    const int actualnrpts = needrandsel ? nrpts : nrnodes;
     const int maxnrunsuccessful = actualnrpts * 1000;
     int nrunsuccessful = 0;
 #   define mNextTry() { if ( needrandsel ) ipt--; nrunsuccessful++; continue; }
@@ -143,17 +128,9 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( nrunsuccessful > maxnrunsuccessful )
 	    break;
 
-	int selnodenr = needrandsel ? Stats::randGen().getIndex( totnrnodes )
+	int selnodenr = needrandsel ? Stats::randGen().getIndex( nrnodes )
 				    : ipt;
-	BinID bid; EM::SectionID selsect = 0;
-	for ( EM::SectionID isect=0; isect<nrsectnodes.size(); isect++ )
-	{
-	    if ( nrsectnodes[isect] < selnodenr )
-		selnodenr -= nrsectnodes[isect];
-	    else
-		{ selsect = isect; break; }
-	}
-	bid = BinID( mSectGeom(selsect).getKnotRowCol(selnodenr) );
+	BinID bid = BinID( mGeomElem.getKnotRowCol(selnodenr) );
 
 	// Checking whether position is already in set. Here, we have to use
 	// the BinIDValueSet, because we don't want to call
@@ -161,15 +138,15 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( needrandsel && dps.bivSet().isValid(bid) )
 	    mNextTry()
 
-	const float z = (float) (mSectGeom(selsect).getKnot(bid,false).z_);
+	const float z = (float) (mGeomElem.getKnot(bid,false).z_);
 	if ( mIsUdf(z) )
 	    mNextTry()
 
 	// Add the position to the set, set will allocate all the columns.
-	// We store section+1 because DataPointSet's groups start at 1
+	// We store 1 because DataPointSet's groups start at 1
 	DataPointSet::Pos dpspos( bid,
-		    (float) (mSectGeom(selsect).getKnot(bid,false).z_) );
-	DataPointSet::DataRow dr( dpspos, selsect+1 );
+		    (float) (mGeomElem.getKnot(bid,false).z_) );
+	DataPointSet::DataRow dr( dpspos, 1 );
 	dps.addRow( dr );
     }
 

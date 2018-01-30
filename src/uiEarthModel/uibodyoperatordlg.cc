@@ -311,7 +311,7 @@ bool uiBodyOperatorDlg::acceptOK()
 	return false;
 
     RefMan<EM::MarchingCubesSurface> emcs =
-	new EM::MarchingCubesSurface(EM::EMM());
+	new EM::MarchingCubesSurface("");
     if ( !emcs->getBodyOperator() )
 	emcs->createBodyOperator();
 
@@ -328,7 +328,7 @@ bool uiBodyOperatorDlg::acceptOK()
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
 
-    EM::EMM().addObject( emcs );
+    EM::BodyMan().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
 	mRetErr(uiStrings::sSaveBodyFail())
@@ -434,7 +434,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
 
     uiTaskRunnerProvider trprov( this );
     RefMan<EM::EMObject> emo =
-	EM::EMM().loadIfNotFullyLoaded( inpiobj->key(), trprov );
+	EM::BodyMan().loadIfNotFullyLoaded( inpiobj->key(), trprov );
     mDynamicCastGet(EM::Body*,emb,emo.ptr());
     if ( !emb )
 	mRetErr( uiStrings::phrCannotRead( uiStrings::sBody()) );
@@ -469,7 +469,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     }
 
     RefMan<EM::MarchingCubesSurface> emcs =
-	new EM::MarchingCubesSurface( EM::EMM() );
+	new EM::MarchingCubesSurface("");
 
     emcs->surface().setVolumeData( 0, 0, 0, *impbd->arr_, 0, &trprov.runner() );
     emcs->setInlSampling( SamplingData<int>(impbd->tkzs_.hsamp_.inlRange()) );
@@ -481,7 +481,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
 
-    EM::EMM().addObject( emcs );
+    EM::BodyMan().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
 	mRetErr( uiStrings::sSaveBodyFail() );

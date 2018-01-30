@@ -75,8 +75,8 @@ public:
     void			setOnlyAtSectionsDisplay(bool yn);
     bool			displayedOnlyAtSections() const;
 
-    bool			setEMID(const EM::ObjectID&);
-    EM::ObjectID		getEMID() const;
+    bool			setEMID(const DBKey&);
+    DBKey			getEMID() const;
 
     void			touchAll(bool,bool updatemarker=false);
     EM::PolygonBody*		getEMPolygonBody() const

@@ -39,13 +39,14 @@ mExpClass(Velocity) Pick
 public:
 			Pick(float depth=mUdf(float),
 			     float vel=mUdf(float),
-			     float offset=mUdf(float),EM::ObjectID=-1);
+			     float offset=mUdf(float),
+			     DBKey=DBKey::getInvalid());
     bool		operator==(const Pick& b) const;
 
     float		depth_;
     float		offset_;
     float		vel_;
-    EM::ObjectID	emobjid_;
+    DBKey		emobjid_;
 };
 
 
@@ -87,7 +88,7 @@ public:
     int				get(const BinID&, TypeSet<float>* depths,
 				    TypeSet<float>* vals,
 				    TypeSet<RowCol>*,
-				    TypeSet<EM::ObjectID>*,
+				    DBKeySet*,
 				    bool interpolatehors ) const;
 				//!<\returns number of picks
     void			get(const BinID&, TypeSet<Pick>&,
@@ -95,7 +96,7 @@ public:
 				    bool normalizerefoffset ) const;
 				//!<\returns number of picks
     bool			get(const RowCol&, BinID&, Pick& );
-    void			get(const EM::ObjectID&,TypeSet<RowCol>&) const;
+    void			get(const DBKey&,TypeSet<RowCol>&) const;
     void			remove(const RowCol&,
 				       bool undo=true,bool interactionend=true);
 
@@ -139,11 +140,11 @@ public:
     void			addHorizon(EM::Horizon3D*);
     int				nrHorizons() const;
 
-    EM::ObjectID		getHorizonID(int) const;
-    void			removeHorizon(EM::ObjectID);
-    EM::Horizon3D*		getHorizon(EM::ObjectID);
-    const EM::Horizon3D*	getHorizon(EM::ObjectID) const;
-    bool			interpolateVelocity(EM::ObjectID,
+    DBKey			getHorizonID(int) const;
+    void			removeHorizon(const DBKey&);
+    EM::Horizon3D*		getHorizon(const DBKey&);
+    const EM::Horizon3D*	getHorizon(const DBKey&) const;
+    bool			interpolateVelocity(const DBKey&,
 				    float searchradius,BinIDValueSet&) const;
 				/*!<Interpolates vel at all locations in
 				    the valset. First value in valset will

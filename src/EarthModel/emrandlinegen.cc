@@ -49,77 +49,70 @@ void EM::RandomLineSetByContourGenerator::createLines(
     BinID bid, prevbid;
     const int zfac = SI().zDomain().userFactor(); // for line name
 
-    for ( int isect=0; isect<geom_.nrSections(); isect++ )
+    const Array2D<float>* arr = geom_.geometryElement()->getArray();
+    if ( !arr )
+	return;
+
+    const StepInterval<int> inlrg = geom_.rowRange();
+    const StepInterval<int> crlrg = geom_.colRange(-1);
+    IsoContourTracer ict( *arr );
+    ict.setSampling( inlrg, crlrg );
+    ict.selectPolyROI( setup_.selpoly_ );
+    ict.setMinNrVertices( setup_.minnrvertices_ );
+    ict.setNrLargestOnly( setup_.nrlargestonly_ );
+    const float zeps = 0.0001f * setup_.contzrg_.step;
+
+    for ( float z = setup_.contzrg_.start;
+	  z - zeps < setup_.contzrg_.stop;
+	  z += setup_.contzrg_.step )
     {
-	if ( setup_.sectionnr_ >= 0 && setup_.sectionnr_ != isect )
+	ObjectSet<ODPolygon<float> > polys;
+	ict.getContours( polys, z );
+	if ( polys.isEmpty() )
 	    continue;
 
-	const EM::SectionID sid = hor_.sectionID( isect );
-	const Array2D<float>* arr = geom_.sectionGeometry(sid)->getArray();
-	if ( !arr )
-	    continue;
-
-	const StepInterval<int> inlrg = geom_.rowRange(sid);
-	const StepInterval<int> crlrg = geom_.colRange(sid,-1);
-	IsoContourTracer ict( *arr );
-	ict.setSampling( inlrg, crlrg );
-	ict.selectPolyROI( setup_.selpoly_ );
-	ict.setMinNrVertices( setup_.minnrvertices_ );
-	ict.setNrLargestOnly( setup_.nrlargestonly_ );
-	const float zeps = 0.0001f * setup_.contzrg_.step;
-
-	for ( float z = setup_.contzrg_.start;
-	      z - zeps < setup_.contzrg_.stop;
-	      z += setup_.contzrg_.step )
+	int usrpolynr = 1;
+	for ( int ipoly=0; ipoly<polys.size(); ipoly++ )
 	{
-	    ObjectSet<ODPolygon<float> > polys;
-	    ict.getContours( polys, z );
-	    if ( polys.isEmpty() )
-		continue;
+	    const ODPolygon<float>& poly = *polys[ipoly];
+	    RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
 
-	    int usrpolynr = 1;
-	    for ( int ipoly=0; ipoly<polys.size(); ipoly++ )
+	    prevbid = BinID( mUdf(int), mUdf(int) );
+	    BinID addbid( prevbid );
+	    for ( int ipt=0; ipt<poly.size(); ipt++ )
 	    {
-		const ODPolygon<float>& poly = *polys[ipoly];
-		RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
-
-		prevbid = BinID( mUdf(int), mUdf(int) );
-		BinID addbid( prevbid );
-		for ( int ipt=0; ipt<poly.size(); ipt++ )
+		const Geom::Point2D<float> vtx = poly.getVertex( ipt );
+		bid.inl() = inlrg.snap( vtx.x_ );
+		bid.crl() = crlrg.snap( vtx.y_ );
+		if ( bid != prevbid )
 		{
-		    const Geom::Point2D<float> vtx = poly.getVertex( ipt );
-		    bid.inl() = inlrg.snap( vtx.x_ );
-		    bid.crl() = crlrg.snap( vtx.y_ );
-		    if ( bid != prevbid )
-		    {
-			rl->addNode( bid );
-			prevbid = bid;
-		    }
-		    if ( ipt == 0 && poly.isClosed() )
-			addbid = bid;
+		    rl->addNode( bid );
+		    prevbid = bid;
 		}
-		if ( !mIsUdf(addbid.inl()) && addbid!=prevbid
-					   && rl->nrNodes()>2 )
-		    rl->addNode( addbid );
-
-		if ( rl->nrNodes() > 1 )
-		{
-		    BufferString nm( "C" ); const float usrz = z * zfac;
-		    nm += mNINT32( usrz );
-		    if ( usrpolynr > 1 )
-			{ nm += "-"; nm += usrpolynr; }
-		    usrpolynr++;
-		    rl->setName( nm.buf() );
-
-		    rls.addLine( *rl );
-		    Interval<float> zrg( setup_.linezrg_ );
-		    if ( setup_.isrel_ ) zrg.shift( z );
-		    rl->setZRange( zrg );
-		}
+		if ( ipt == 0 && poly.isClosed() )
+		    addbid = bid;
 	    }
+	    if ( !mIsUdf(addbid.inl()) && addbid!=prevbid
+				       && rl->nrNodes()>2 )
+		rl->addNode( addbid );
 
-	    deepErase( polys );
+	    if ( rl->nrNodes() > 1 )
+	    {
+		BufferString nm( "C" ); const float usrz = z * zfac;
+		nm += mNINT32( usrz );
+		if ( usrpolynr > 1 )
+		    { nm += "-"; nm += usrpolynr; }
+		usrpolynr++;
+		rl->setName( nm.buf() );
+
+		rls.addLine( *rl );
+		Interval<float> zrg( setup_.linezrg_ );
+		if ( setup_.isrel_ ) zrg.shift( z );
+		rl->setZRange( zrg );
+	    }
 	}
+
+	deepErase( polys );
     }
 }
 

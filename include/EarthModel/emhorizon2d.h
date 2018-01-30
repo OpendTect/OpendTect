@@ -34,8 +34,8 @@ mExpClass(EarthModel) Horizon2DGeometry : public HorizonGeometry
 {
 public:
 				Horizon2DGeometry(Surface&);
-    Geometry::Horizon2DLine*	sectionGeometry(const SectionID&);
-    const Geometry::Horizon2DLine* sectionGeometry(const SectionID&) const;
+    Geometry::Horizon2DLine*	geometryElement();
+    const Geometry::Horizon2DLine* geometryElement() const;
 
     int				nrLines() const;
 
@@ -78,13 +78,10 @@ public:
 
     int				getConnectedPos(const PosID& posid,
 						TypeSet<PosID>* res) const;
-    StepInterval<int>		colRange(const SectionID&,
-					 Pos::GeomID geomid) const;
-
     StepInterval<int>		colRange(Pos::GeomID geomid) const;
 
 protected:
-    Geometry::Horizon2DLine*	createSectionGeometry() const;
+    Geometry::Horizon2DLine*	createGeometryElement() const;
 
     bool			doAddLine(Pos::GeomID geomid,
 					  const StepInterval<int>& trcrg,
@@ -107,7 +104,6 @@ mExpClass(EarthModel) Horizon2D : public Horizon
 {   mDefineEMObjFuncs( Horizon2D );
     mODTextTranslationClass( Horizon2D );
 public:
-
     virtual float		getZ(const TrcKey&) const;
     virtual bool		setZ(const TrcKey&,float z,bool addtohist,
 				     NodeSourceType type=Auto);
@@ -123,16 +119,10 @@ public:
 				//!< don't use it.
 
     bool			unSetPos(const EM::PosID&,bool addtohist);
-    bool			unSetPos(const EM::SectionID&,const EM::SubID&,
-					 bool addtohist);
     Coord3			getPos(const EM::PosID&) const;
-    Coord3			getPos(const EM::SectionID&,
-				       const EM::SubID&) const;
-    TypeSet<Coord3>		getPositions(int lineidx,int trcnr) const;
-    Coord3			getPosition(EM::SectionID,int lidx,
-					    int trcnr) const;
+    Coord3			getPosition(int lineidx,int trcnr) const;
 
-    Coord3			getPos(EM::SectionID,Pos::GeomID,int trc) const;
+    Coord3			getPos(Pos::GeomID,int trc) const;
 
     virtual void		setNodeSourceType(const TrcKey&,
 					NodeSourceType);
@@ -141,7 +131,7 @@ public:
     virtual bool		isNodeSourceType(const TrcKey&,
 					NodeSourceType)const;
 
-    bool			setZPos(EM::SectionID,Pos::GeomID geomid,
+    bool			setZPos(Pos::GeomID geomid,
 				       int trcnr,float z,bool addtohist,
 				       NodeSourceType type=Auto);
 
@@ -154,14 +144,13 @@ public:
 
     bool			setArray1D(const Array1D<float>&,
 					   const StepInterval<int>& trcrg,
-					   SectionID sid,Pos::GeomID geomid,
+					   Pos::GeomID geomid,
 					   bool onlyfillundefs);
-    bool			setArray1D(const Array1D<float>&,SectionID sid,
+    bool			setArray1D(const Array1D<float>&,
 					   Pos::GeomID geomid,
 					   bool onlyfillundefs );
 
-    Array1D<float>*		createArray1D(SectionID,
-					      Pos::GeomID geomid,
+    Array1D<float>*		createArray1D(Pos::GeomID geomid,
 					      const ZAxisTransform* =0) const;
 
     TrcKey::SurvID		getSurveyID() const;

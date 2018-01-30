@@ -664,7 +664,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 
 	    SilentTaskRunnerProvider tprov;
 	    RefMan<EM::EMObject> emobj =
-		EM::EMM().loadIfNotFullyLoaded( horrefs_[horidx], tprov );
+		EM::Hor3DMan().loadIfNotFullyLoaded( horrefs_[horidx], tprov );
 	    mDynamicCastGet( EM::Horizon3D*, hor, emobj.ptr() );
 	    if ( !hor )
 		return false;
@@ -673,36 +673,36 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	    emhorizons_.replace( horidx, hor );
 	}
 
-	const EM::SectionID sid = emhorizons_[horidx]->sectionID( 0 );
-
 	const BinID horstep = emhorizons_[horidx]->geometry().loadedStep();
 	BinID previnl( bidv.inl()-horstep.inl(), bidv.crl() );
 	BinID nextinl( bidv.inl()+horstep.inl(), bidv.crl() );
-	if ( !emhorizons_[horidx]->isDefined(sid,previnl.toInt64() ) )
+	if ( !emhorizons_[horidx]->isDefined(
+				EM::PosID::getFromRowCol(previnl)) )
 	    previnl = bidv;
-	if ( !emhorizons_[horidx]->isDefined(sid,nextinl.toInt64() ) )
+	if ( !emhorizons_[horidx]->isDefined(
+				EM::PosID::getFromRowCol(nextinl)) )
 	    nextinl = bidv;
 
 	if ( previnl==nextinl )
 	    return false;
 
-	const float inldiff = (float)
-	    (emhorizons_[horidx]->getPos(sid,nextinl.toInt64() ).z_ -
-	     emhorizons_[horidx]->getPos(sid,previnl.toInt64() ).z_);
+	const float inldiff = emhorizons_[horidx]->getZ( nextinl ) -
+			      emhorizons_[horidx]->getZ( previnl );
 
 	BinID prevcrl( bidv.inl(), bidv.crl()-horstep.inl() );
 	BinID nextcrl( bidv.inl(), bidv.crl()+horstep.inl() );
-	if ( !emhorizons_[horidx]->isDefined(sid,prevcrl.toInt64() ) )
+	if ( !emhorizons_[horidx]->isDefined(
+				EM::PosID::getFromRowCol(prevcrl)) )
 	    prevcrl = bidv;
-	if ( !emhorizons_[horidx]->isDefined(sid,nextcrl.toInt64() ) )
+	if ( !emhorizons_[horidx]->isDefined(
+				EM::PosID::getFromRowCol(nextcrl)) )
 	    nextcrl = bidv;
 
 	if ( prevcrl==nextcrl )
 	    return false;
 
-	const float crldiff = (float)
-	    (emhorizons_[horidx]->getPos(sid,nextcrl.toInt64() ).z_ -
-	     emhorizons_[horidx]->getPos(sid,prevcrl.toInt64() ).z_);
+	const float crldiff = emhorizons_[horidx]->getZ( nextcrl ) -
+			      emhorizons_[horidx]->getZ( prevcrl );
 
 	inldip = inldiff/((nextinl.inl()-previnl.inl())*SI().inlDistance() );
 	crldip = crldiff/((nextcrl.crl()-prevcrl.crl())*SI().crlDistance() );

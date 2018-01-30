@@ -43,8 +43,7 @@ public:
 
 EM::EMObject* EM::StoredObjAccessData::getEMObjFromEMM()
 {
-    ObjectID objid = EMM().getObjectID( key_ );
-    return objid < 0 ? 0 : EMM().getObject( objid );
+    return EM::EMM().getObject( key_ );
 }
 
 
@@ -62,7 +61,7 @@ EM::StoredObjAccessData::StoredObjAccessData( const DBKey& ky,
     }
     else
     {
-	rdr_ = EMM().objectLoader( key_, siods );
+	rdr_ = EM::EMM().objectLoader( key_, siods );
 	if ( !rdr_ )
 	    { errmsg_ = tr("No loader for %1").arg(key_); return; }
 

@@ -25,7 +25,7 @@ mExpClass(uiViewer2D) VW2DPickSet : public Vw2DDataObject
 {
 public:
 
-    static VW2DPickSet* create(int id,uiFlatViewWin* win,
+    static VW2DPickSet* create(const DBKey& id,uiFlatViewWin* win,
 			     const ObjectSet<uiFlatViewAuxDataEditor>& ed)
 			    mCreateVw2DDataObj(VW2DPickSet,id,win,ed);
 			~VW2DPickSet();

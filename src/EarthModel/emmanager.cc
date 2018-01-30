@@ -8,12 +8,15 @@
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
+#include "embodytr.h"
 #include "emobject.h"
 #include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
+#include "emobjectio.h"
+#include "emundo.h"
 #include "executor.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -25,11 +28,27 @@
 #include "keystrs.h"
 #include "od_iostream.h"
 
-EM::EMManager& EM::EMM()
+#define mDefineEMMan(typeprefix,translgrp) \
+EM::EMManager& EM::typeprefix##Man() \
+{ \
+    mDefineStaticLocalObject( PtrMan<EM::EMManager>, emm, \
+			      (new EM::EMManager(mIOObjContext(translgrp))) ); \
+    return *emm; \
+}
+
+mDefineEMMan(Hor3D,EMHorizon3D)
+mDefineEMMan(Hor2D,EMHorizon2D)
+mDefineEMMan(FSS,EMFaultStickSet)
+mDefineEMMan(Flt3D,EMFault3D)
+mDefineEMMan(Body,EMBody)
+
+EM::GenEMManager& EM::EMM()
 {
-    mDefineStaticLocalObject( PtrMan<EM::EMManager>, emm, (new EM::EMManager) );
+    mDefineStaticLocalObject( PtrMan<EM::GenEMManager>, emm,
+			(new EM::GenEMManager(mIOObjContext(EMHorizon3D))) );
     return *emm;
 }
+
 
 bool EM::canOverwrite( const DBKey& mid )
 {
@@ -49,8 +68,10 @@ const char* EMManager::displayparameterstr() { return "Display Parameters"; }
 
 mImplFactory1Param( EMObject, EMManager&, EMOF );
 
-EMManager::EMManager()
-    : addRemove( this )
+EMManager::EMManager( const IOObjContext& ctxt )
+    : SaveableManager(ctxt,true)
+    , undo_( *new EMUndo() )
+    , addRemove( this )
 {
     mAttachCB( Strat::eLVLS().objectChanged(), EMManager::levelSetChgCB );
 }
@@ -65,24 +86,9 @@ EMManager::~EMManager()
 
 void EMManager::setEmpty()
 {
-    for ( int idx=0; idx<objects_.size(); idx++ )
-    {
-	EMObjectCallbackData cbdata;
-	cbdata.event = EMObjectCallbackData::Removal;
-
-	const int oldsize = objects_.size();
-	objects_[idx]->change.trigger(cbdata);
-	if ( oldsize!=objects_.size() ) idx--;
-    }
-
-    deepRef( objects_ );		//Removes all non-reffed
-    deepUnRef( objects_ );
-
-    if ( objects_.size() )
-	{ pErrMsg( "Not all objects are unreffed" ); }
-
+    savers_.setEmpty();
     addRemove.trigger();
-    eraseUndoList();
+    undo_.removeAll();
 }
 
 
@@ -92,49 +98,28 @@ void EMManager::eraseUndoList()
 }
 
 
-BufferString EMManager::objectName( const DBKey& mid ) const
+BufferString EMManager::objectName( const DBKey& id ) const
 {
-    if ( getObject(getObjectID(mid)) )
-	return getObject(getObjectID(mid))->name();
-
-    PtrMan<IOObj> ioobj = DBM().get( mid );
-    BufferString res;
-    if ( ioobj ) res = ioobj->name();
-    return res;
+    return DBM().nameOf( id );
 }
 
 
-const char* EMManager::objectType( const DBKey& mid ) const
+const char* EMManager::objectType( const DBKey& id ) const
 {
-    if ( getObject(getObjectID(mid)) )
-	return getObject(getObjectID(mid))->getTypeStr();
-
-    IOObjInfo ioobjinfo( mid );
-    if ( !ioobjinfo.isOK() )
-	return 0;
-
-    const IOObj& ioobj = *ioobjinfo.ioObj();
-    BufferString typenm = ioobj.pars().find( sKey::Type() );
-    if ( typenm.isEmpty() )
-	typenm = ioobj.group();
-
-    const int idx = EMOF().getNames().indexOf( typenm );
-    if ( idx<0 )
-	return 0;
-
-    return EMOF().getNames()[idx]->buf();
+    PtrMan<IOObj> ioobj = DBM().get( id );
+    return ioobj ? ioobj->group() : OD::String::empty();
 }
 
 
-ObjectID EMManager::createObject( const char* type, const char* name )
+EMObject* EMManager::createObject( const char* type, const char* nm )
 {
     EMObject* object = EMOF().create( type, *this );
-    if ( !object ) return -1;
+    if ( !object ) return 0;
 
     CtxtIOObj ctio( object->getIOObjContext() );
     ctio.ctxt_.forread_ = false;
     ctio.ioobj_ = 0;
-    ctio.setName( name );
+    ctio.setName( nm );
     if ( ctio.fillObj() )
     {
 	object->setDBKey( ctio.ioobj_->key() );
@@ -142,55 +127,108 @@ ObjectID EMManager::createObject( const char* type, const char* name )
     }
 
     object->setFullyLoaded( true );
-    return object->id();
+    return object;
 }
 
 
-EMObject* EMManager::getObject( const ObjectID& id )
+DBKey EMManager::objID( int idx ) const
 {
-    for ( int idx=0; idx<objects_.size(); idx++ )
+    if ( !savers_.validIdx(idx) )
+	return DBKey::getInvalid();
+    return savers_[idx]->key();
+}
+
+
+EMObject* EMManager::getObject( const DBKey& id )
+{
+   mLock4Read();
+   return gtObject( id );
+}
+
+
+EMObject* EMManager::gtObject( const DBKey& mid )
+{
+    for ( int idx=0; idx<savers_.size(); idx++ )
     {
-	if ( objects_[idx]->id()==id )
-	    return objects_[idx];
+	if ( savers_[idx]->key() == mid )
+	    return mCast(EMObject*,savers_[idx]->object());
     }
 
     return 0;
 }
 
 
-const EMObject* EMManager::getObject( const ObjectID& id ) const
-{ return const_cast<EMManager*>(this)->getObject(id); }
-
-
-ObjectID EMManager::getObjectID( const DBKey& mid ) const
+RefObjectSet<EMObject> EMManager::loadObjects( const char* typ,
+					    const DBKeySet& dbkeys,
+					const SurfaceIODataSelection* sel,
+					TaskRunner* tskr )
 {
-    ObjectID res = -1;
-    for ( int idx=0; idx<objects_.size(); idx++ )
-    {
-	if ( objects_[idx]->dbKey()==mid )
-	{
-	    if ( objects_[idx]->isFullyLoaded() )
-		return objects_[idx]->id();
+    RefObjectSet<EMObject> loadedpbjs;
+    PtrMan<EM::ObjectLoader> emloader =
+		EM::ObjectLoader::factory().create( typ, dbkeys, sel );
+    if ( !emloader )
+	return loadedpbjs;
 
-	    if ( res==-1 )
-		res = objects_[idx]->id(); //Better to return this than nothing
-	}
-    }
-
-    return res;
+    if ( emloader->load(tskr) )
+	loadedpbjs = emloader->getLoadedEMObjects();
+    
+    return loadedpbjs;
 }
 
 
-DBKey EMManager::getDBKey( const ObjectID& oid ) const
+ConstRefMan<EMObject> EMManager::fetch( const DBKey& mid, TaskRunner* trunner,
+				bool forcereload ) const
 {
-    const EMObject* emobj = getObject(oid);
-    return emobj ? emobj->dbKey() : DBKey::getInvalid();
+    mLock4Read();
+    EMObject* ret = const_cast<EMManager*>(this)->gtObject( mid );
+    if ( !forcereload && ret && ret->isFullyLoaded() )
+	return ret;
+
+    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( mid );
+    mUnlockAllAccess();
+    if ( !exec || !TaskRunner::execute(trunner,*exec) )
+	return 0;
+
+    mReLock();
+    return const_cast<EMManager*>(this)->gtObject( mid );
+}
+
+
+RefMan<EMObject> EMManager::fetchForEdit( const DBKey& mid, TaskRunner* trunner,
+				bool forcereload )
+{
+    mLock4Read();
+    EMObject* ret = gtObject( mid );
+    if ( !forcereload && ret && ret->isFullyLoaded() )
+	return ret;
+
+    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( mid );
+    mUnlockAllAccess();
+    if ( !exec || !TaskRunner::execute(trunner,*exec) )
+	return 0;
+
+    mReLock();
+    return gtObject( mid );
+}
+
+
+uiRetVal EMManager::store( const EMObject& emobj,
+				  const IOPar* ioobjpars ) const
+{
+    return SaveableManager::store( emobj, ioobjpars );
+}
+
+
+uiRetVal EMManager::store( const EMObject& emobj, const ObjID& id,
+			      const IOPar* ioobjpars ) const
+{
+    return SaveableManager::store( emobj, id, ioobjpars );
 }
 
 
 bool EMManager::objectExists( const EMObject* obj ) const
 {
-    return objects_.isPresent(obj);
+    return isPresent( *obj );
 }
 
 
@@ -199,9 +237,10 @@ void EMManager::addObject( EMObject* obj )
     if ( !obj )
 	{ pErrMsg("No object provided!"); return; }
 
-    if ( objects_.isPresent(obj) )
+    if ( isPresent(*obj) )
 	{ pErrMsg("Adding object twice"); return; }
 
+<<<<<<< HEAD
     objects_ += obj;
     addRemove.trigger();
 }
@@ -226,10 +265,6 @@ EMObject* EMManager::createTempObject( const char* type )
 }
 
 
-ObjectID EMManager::objectID( int idx ) const
-{ return idx>=0 && idx<objects_.size() ? objects_[idx]->id() : -1; }
-
-
 Executor* EMManager::objectLoader( const DBKeySet& mids,
 				   const SurfaceIODataSelection* iosel,
 				   DBKeySet* idstobeloaded )
@@ -237,8 +272,7 @@ Executor* EMManager::objectLoader( const DBKeySet& mids,
     ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) : 0;
     for ( int idx=0; idx<mids.size(); idx++ )
     {
-	const ObjectID objid = getObjectID( mids[idx] );
-	const EMObject* obj = getObject( objid );
+	const EMObject* obj = getObject( mids[idx] );
 	Executor* loader =
 	    obj && obj->isFullyLoaded() ? 0 : objectLoader( mids[idx], iosel );
 	if ( idstobeloaded && loader )
@@ -273,8 +307,7 @@ Executor* EMManager::objectLoader( const DBKeySet& mids,
 Executor* EMManager::objectLoader( const DBKey& mid,
 				   const SurfaceIODataSelection* iosel )
 {
-    const ObjectID id = getObjectID( mid );
-    EMObject* obj = getObject( id );
+    EMObject* obj = getObject( mid );
 
     if ( !obj )
     {
@@ -316,24 +349,21 @@ Executor* EMManager::objectLoader( const DBKey& mid,
 }
 
 
-
 EMObject* EMManager::loadIfNotFullyLoaded( const DBKey& mid,
 					   const TaskRunnerProvider& trprov )
 {
-    EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobj = getObject( mid );
 
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> exec = EM::EMM().objectLoader( mid );
+	PtrMan<Executor> exec = objectLoader( mid );
 	if ( !exec )
 	    return 0;
 
 	if ( !trprov.execute(*exec) )
 	    return 0;
 
-	emid = EM::EMM().getObjectID( mid );
-	emobj = EM::EMM().getObject( emid );
+	emobj = getObject( mid );
     }
 
     if ( !emobj || !emobj->isFullyLoaded() )
@@ -352,14 +382,15 @@ void EMManager::burstAlertToAll( bool yn )
 {
     for ( int idx=nrLoadedObjects()-1; idx>=0; idx-- )
     {
-	const EM::ObjectID oid = objectID( idx );
-	EM::EMObject* emobj = getObject( oid );
-	emobj->setBurstAlert( yn );
+	SharedObject* shobj = const_cast<SharedObject*>(savers_[idx]->object());
+	mDynamicCastGet(EM::EMObject*,emobj,shobj);
+	if ( emobj )
+	    emobj->setBurstAlert( yn );
     }
 }
 
 
-void EMManager::removeSelected( const ObjectID& id,
+void EMManager::removeSelected( const DBKey& id,
 				const Selector<Coord3>& selector,
 				const TaskRunnerProvider& trprov )
 {
@@ -464,37 +495,68 @@ void EMManager::levelSetChgCB( CallBacker* cb )
 	return;
 
     mGetIDFromChgData( Strat::Level::ID, lvlid, chgdata );
-    for ( int idx=0; idx<objects_.size(); idx++ )
+    for ( int idx=0; idx<savers_.size(); idx++ )
     {
-	mDynamicCastGet( EM::Horizon*, hor, objects_[idx] )
+	SharedObject* shobj = const_cast<SharedObject*>(savers_[idx]->object());
+	mDynamicCastGet( EM::Horizon*, hor, shobj )
 	if ( hor && hor->stratLevelID() == lvlid )
 	    hor->setStratLevelID( Strat::Level::ID::getInvalid() );
     }
 }
 
 
-Undo& EMManager::undo( const EM::ObjectID& id )
+Saveable* EMManager::getSaver( const SharedObject& shobj ) const
 {
-    const int idx = undoIndexOf( id );
-    if ( undolist_.validIdx(idx) )
-	return undolist_[idx]->undo_;
+    mDynamicCastGet(const EMObject*,emobj,&shobj);
+    if ( !emobj )
+	return 0;
 
-    EMObjUndo* newemobjundo = new EMObjUndo( id );
-    undolist_ += newemobjundo;
-
-    return newemobjundo->undo_;
+    ObjectSaver* objsaver = ObjectSaver::factory().create( emobj->getTypeStr(),
+							   shobj );
+    return objsaver;
 }
 
 
-int EMManager::undoIndexOf( const EM::ObjectID& id )
+EMManager& getMgr( const DBKey& id )
 {
-    for ( int idx=0; idx<undolist_.size(); idx++ )
-    {
-	if ( undolist_[idx]->id_ == id )
-	    return idx;
-    }
+    PtrMan<IOObj> ioobj = DBM().get( id );
+    return ioobj ? getMgr( ioobj->group() ) : Hor3DMan();
+}
 
-    return -1;
+
+EMManager& getMgr( const char* trgrp )
+{
+    if ( mTranslGroupName(EMHorizon3D)==trgrp ) return Hor3DMan();
+    if ( mTranslGroupName(EMHorizon2D)==trgrp ) return Hor2DMan();
+    if ( mTranslGroupName(EMFaultStickSet)==trgrp ) return FSSMan();
+    if ( mTranslGroupName(EMFault3D)==trgrp ) return Flt3DMan();
+    if ( mTranslGroupName(EMBody)==trgrp ) return BodyMan();
+
+    return Hor3DMan();
+}
+
+
+GenEMManager::GenEMManager( const IOObjContext& ctxt )
+    : EMManager(ctxt)
+{}
+
+
+EMObject* GenEMManager::createTempObject( const char* type )
+{
+    FixedString trgrp( type );
+    return getMgr( trgrp ).createTempObject( type );
+}
+
+
+void GenEMManager::addObject( EMObject* obj )
+{
+    if ( !obj )
+	{ pErrMsg("No object provided!"); return; }
+
+    if ( isPresent(*obj) )
+	{ pErrMsg("Adding object twice"); return; }
+
+    getMgr( obj->dbKey() ).addObject( obj );
 }
 
 

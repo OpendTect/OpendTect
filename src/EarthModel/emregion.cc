@@ -190,7 +190,7 @@ void RegionHor3DBoundary::setKey( const DBKey& mid )
 bool RegionHor3DBoundary::init( const TaskRunnerProvider& trprov )
 {
     RefMan<EM::EMObject> emobj =
-	EM::EMM().loadIfNotFullyLoaded( key_, trprov );
+		EM::Hor3DMan().loadIfNotFullyLoaded( key_, trprov );
     mDynamicCast(EM::Horizon3D*,hor_,emobj.ptr())
     if ( hor_ ) hor_->ref();
     return hor_;
@@ -267,7 +267,7 @@ bool RegionFaultBoundary::init( const TaskRunnerProvider& trprov )
 {
     if ( flt_ ) flt_->unRef();
     RefMan<EM::EMObject> emobj =
-	EM::EMM().loadIfNotFullyLoaded( key_, trprov );
+	EM::Flt3DMan().loadIfNotFullyLoaded( key_, trprov );
     mDynamicCast(EM::Fault3D*,flt_,emobj.ptr())
     if ( flt_ ) flt_->ref();
 

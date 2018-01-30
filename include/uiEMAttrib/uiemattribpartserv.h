@@ -54,12 +54,12 @@ public:
     enum HorOutType		{ OnHor, AroundHor, BetweenHors };
     void			createHorizonOutput(HorOutType,bool is2d);
 
-    void			snapHorizon(const EM::ObjectID&,bool is2d);
+    void			snapHorizon(const DBKey&,bool is2d);
 
     void			setNLA( const NLAModel* mdl, const DBKey& id )
 				{ nlamodel_ = mdl; nlaid_ = id; }
 
-    void			showHorShiftDlg(const EM::ObjectID&,
+    void			showHorShiftDlg(const DBKey&,
 						int visid,
 						const BoolTypeSet& attrenabled,
 						float initialshift,
@@ -86,7 +86,7 @@ public:
     const char*			getAttribBaseNm() const;
     void			import2DHorizon();
 
-    const TypeSet<EM::ObjectID>& getEMObjIDs() const	{ return emobjids_; }
+    const DBKeySet& getEMObjIDs() const	{ return emobjids_; }
 
 protected:
 
@@ -95,7 +95,7 @@ protected:
     uiHorizonShiftDialog*	horshiftdlg_;
     uiSeisEventSnapper*		uiseisevsnapdlg_;
     uiImportHorizon2D*		uiimphor2ddlg_;
-    TypeSet<EM::ObjectID>	emobjids_;
+    DBKeySet			emobjids_;
 
     float			initialshift_;
     BoolTypeSet			initialattribstatus_;

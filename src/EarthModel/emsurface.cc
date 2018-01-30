@@ -29,7 +29,6 @@ ________________________________________________________________________
 static const char* sDbInfo = "DB Info";
 static const char* sRange = "Range";
 static const char* sValnms = "Value Names";
-static const char* sSections = "Patches";
 
 
 namespace EM
@@ -40,7 +39,6 @@ void SurfaceIOData::clear()
     rg.init(false);
     dbinfo = "";
     valnames.setEmpty();
-    sections.setEmpty();
     linenames.setEmpty();
     linesets.setEmpty();
     geomids.setEmpty();
@@ -62,9 +60,6 @@ void SurfaceIOData::use( const Surface& surf )
 	rg.start_.crl() = hrg.start; rg.stop_.crl() = hrg.stop;
 	rg.step_.crl() = hrg.step;
     }
-
-    for ( int idx=0; idx<surf.nrSections(); idx++ )
-	sections += new BufferString( surf.sectionName( surf.sectionID(idx) ) );
 
     mDynamicCastGet(const Horizon3D*,horizon,&surf);
     if ( horizon )
@@ -104,10 +99,6 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
     valnames.fillPar( valnmspar );
     iopar.mergeComp( valnmspar, sValnms );
 
-    IOPar sectionpar;
-    sections.fillPar( sectionpar );
-    iopar.mergeComp( sectionpar, sSections );
-
     int nrlines = geomids.size();
     if ( !nrlines ) nrlines = linenames.size();
     iopar.set( Horizon2DGeometry::sKeyNrLines(), nrlines );
@@ -142,9 +133,6 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 
     IOPar* valnmspar = iopar.subselect(sValnms);
     if ( valnmspar ) valnames.usePar( *valnmspar );
-
-    IOPar* sectionpar = iopar.subselect(sSections);
-    if ( sectionpar ) sections.usePar( *sectionpar );
 
     if ( iopar.find(Horizon2DGeometry::sKeyNrLines()) )
     {
@@ -187,41 +175,37 @@ void SurfaceIODataSelection::setDefault()
 {
     rg = sd.rg;
     seltrcranges = sd.trcranges;
-    selvalues.setEmpty(); selsections.setEmpty();
+    selvalues.setEmpty();
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
 	selvalues += idx;
-    for ( int idx=0; idx<sd.sections.size(); idx++ )
-	selsections += idx;
 }
 
 
-Surface::Surface( EMManager& man)
-    : EMObject( man )
+Surface::Surface( const char* nm )
+    : EMObject(nm)
 {
 }
 
+
+Surface::Surface( const Surface& oth )
+    : EMObject(oth.name())
+{
+    *this = oth;
+}
+
+
+mImplMonitorableAssignment(Surface,EMObject);
 
 Surface::~Surface()
 {}
 
 void Surface::removeAll() {}
 
-int Surface::nrSections() const
-{ return geometry().nrSections(); }
+void Surface::copyClassData( const Surface& oth )
+{ geometry() = oth.geometry(); }
 
-SectionID Surface::sectionID( int idx ) const
-{ return geometry().sectionID(idx); }
-
-BufferString Surface::sectionName( const SectionID& sid ) const
-{ return geometry().sectionName(sid); }
-
-bool Surface::canSetSectionName() const { return true; }
-
-bool Surface::setSectionName( const SectionID& sid, const char* nm, bool hist )
-{ return geometry().setSectionName(sid,nm,hist); }
-
-bool Surface::removeSection( SectionID sid, bool hist )
-{ return geometry().removeSection( sid, hist ); }
+Monitorable::ChangeType Surface::compareClassData( const Surface& oth ) const
+{ return cNoChange(); }
 
 bool Surface::isAtEdge( const PosID& posid ) const
 { return geometry().isAtEdge(posid); }
@@ -233,12 +217,8 @@ Executor* Surface::saver() { return geometry().saver(); }
 
 Executor* Surface::loader() { return geometry().loader(); }
 
-Geometry::Element* Surface::sectionGeometryInternal( const SectionID& sid )
-{ return geometry().sectionGeometry(sid); }
-
-EMObjectIterator* Surface::createIterator( const SectionID& sid,
-					   const TrcKeyZSampling* cs ) const
-{ return geometry().createIterator( sid, cs ); }
+EMObjectIterator* Surface::createIterator( const TrcKeyZSampling* cs ) const
+{ return geometry().createIterator( cs ); }
 
 bool Surface::enableGeometryChecks( bool nv )
 { return geometry().enableChecks( nv ); }
@@ -249,14 +229,20 @@ bool Surface::isGeometryChecksEnabled() const
 const SurfaceGeometry& Surface::geometry() const
 { return const_cast<Surface*>(this)->geometry(); }
 
+const Geometry::Element* Surface::geometryElement() const
+{ return geometry().geometryElement(); }
+
+Geometry::Element* Surface::geometryElement()
+{ return geometry().geometryElement(); }
+
 
 void Surface::apply( const Pos::Filter& pf )
 {
-    PtrMan<EM::EMObjectIterator>iterator = createIterator( -1 );
+    PtrMan<EM::EMObjectIterator>iterator = createIterator();
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( pid.isInvalid() )
 	    break;
 
 	const Coord3 pos = getPos( pid );
@@ -296,6 +282,20 @@ BufferString Surface::getParentChildFileName( const IOObj& ioobj )
     File::Path fp( ioobj.mainFileName() );
     fp.setExtension( "pcd" );
     return fp.fullPath();
+}
+
+
+float Surface::getShift() const
+{
+    return shift_;
+}
+
+
+void Surface::setShift( float shift )
+{
+    mLock4Write();
+    shift_ = shift;
+    touch();
 }
 
 

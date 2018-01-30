@@ -56,7 +56,7 @@ public:
 
     const Coord3&		getPos() const;
     int				getObjID() const;
-    EM::ObjectID		getEMObjID() const; // avail when clicked on hor
+    const DBKey&		getEMObjID() const; // avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
     const TrcKeyPath*		getObjTKPath() const;
     int				getObjRandomLineID() const;
@@ -79,7 +79,7 @@ protected:
     void			setDoubleClicked(bool);
     void			setNode(const TrcKey&);
     void			setPos(const Coord3&);
-    void			setEMObjID(EM::ObjectID);
+    void			setEMObjID(const DBKey&);
     void			setObjID(int);
     void			setObjCS(const TrcKeyZSampling&);
     void			setObjTKPath(const TrcKeyPath*);
@@ -102,7 +102,7 @@ protected:
     TrcKey				clickednode_;
     Coord3				clickedpos_;
 
-    EM::ObjectID			clickedemobjid_;
+    DBKey				clickedemobjid_;
     int					clickedobjid_;
     TrcKeyZSampling			clickedcs_;
     const RegularSeisDataPack*		attrdata_;

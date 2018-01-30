@@ -36,27 +36,26 @@ public:
 			PolygonBodyGeometry(PolygonBody&);
 			~PolygonBodyGeometry();
 
-    int			nrPolygons(const SectionID&) const;
-    int			nrKnots(const SectionID&,int polygonnr) const;
-    bool		insertPolygon(const SectionID&,int polygonnr,
+    int			nrPolygons() const;
+    int			nrKnots(int polygonnr) const;
+    bool		insertPolygon(int polygonnr,
 				      int firstknot,const Coord3& pos,
 				      const Coord3& editnormal,
 				      bool addtohistory);
-    bool		removePolygon(const SectionID&,int polygonnr,
+    bool		removePolygon(int polygonnr,
 				      bool addtohistory);
-    bool		insertKnot(const SectionID&,const SubID&,
+    bool		insertKnot(const PosID&,
 				   const Coord3& pos,bool addtohistory);
-    bool		removeKnot(const SectionID&,const SubID&,
+    bool		removeKnot(const PosID&,
 				   bool addtohistory);
-    Coord3		getPolygonNormal(const SectionID&,int polygon) const;
+    Coord3		getPolygonNormal(int polygon) const;
 
     Geometry::PolygonSurface*
-			sectionGeometry(const SectionID&);
+			geometryElement();
     const Geometry::PolygonSurface*
-			sectionGeometry(const SectionID&) const;
+			geometryElement() const;
 
-    EMObjectIterator*	createIterator(const SectionID&,
-				       const TrcKeyZSampling* =0) const;
+    EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const;
 
     Executor*		loader(const SurfaceIODataSelection* s=0);
     Executor*		saver(const SurfaceIODataSelection* s=0,
@@ -66,7 +65,7 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
-    Geometry::PolygonSurface*	createSectionGeometry() const;
+    Geometry::PolygonSurface*	createGeometryElement() const;
 };
 
 

@@ -114,9 +114,11 @@ public:
     {
     public:
 
-			ChangeData( ChangeType typ, IDType id )
+	class AuxData;
+
+			ChangeData( ChangeType typ, IDType id, AuxData* data=0 )
 			    : std::pair<ChangeType,IDType>(typ,id)
-			    , auxdata_(0)		{}
+			    , auxdata_(data)		{}
 			ChangeData(const ChangeData&);
 	virtual		~ChangeData()		{}
 	ChangeData&	operator =(const ChangeData&);
@@ -142,6 +144,9 @@ public:
 	};
 
 	RefMan<AuxData>	auxdata_;
+	template<class T> inline
+	const T* auxDataAs() const
+			{ return static_cast<const T*>( auxdata_.ptr() ); }
 	template<class T> inline
 	T*		auxDataAs()
 			{ return static_cast<T*>( auxdata_.ptr() ); }

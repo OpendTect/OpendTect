@@ -72,7 +72,8 @@ BodyExtractorFromHorizons( const DBKeySet& hlist,
     SilentTaskRunnerProvider tprov;
     for ( int idx=0; idx<hlist.size(); idx++ )
     {
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(hlist[idx],tprov);
+	EM::EMObject* emobj =
+		EM::Hor3DMan().loadIfNotFullyLoaded( hlist[idx], tprov );
 	mDynamicCastGet(EM::Horizon3D*,hor,emobj);
 	if ( !hor ) continue;
 
@@ -181,7 +182,8 @@ ImplicitBodyRegionExtractor( const DBKeySet& surflist,
     SilentTaskRunnerProvider tprov;
     for ( int idx=0; idx<surflist.size(); idx++ )
     {
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(surflist[idx],tprov);
+	EM::EMObject* emobj =
+		EM::Hor3DMan().loadIfNotFullyLoaded( surflist[idx], tprov );
 	mDynamicCastGet( EM::Horizon3D*, hor, emobj );
 	if ( hor )
 	{
@@ -194,7 +196,7 @@ ImplicitBodyRegionExtractor( const DBKeySet& surflist,
 	{
 	    mDynamicCastGet( EM::Fault3D*, emflt, emobj );
 	    Geometry::FaultStickSurface* flt =
-		emflt ? emflt->geometry().sectionGeometry(0) : 0;
+		emflt ? emflt->geometry().geometryElement() : 0;
 	    if ( !flt ) continue;
 
 	    emflt->ref();
@@ -534,7 +536,7 @@ void computeHorOuterRange()
     for ( int idx=0; idx<hors_.size(); idx++ )
     {
 	const Geometry::BinIDSurface* surf =
-	    hors_[idx]->geometry().sectionGeometry(hors_[idx]->sectionID(0));
+	    hors_[idx]->geometry().geometryElement();
 	const Array2D<float>* depth = surf ? surf->getArray() : 0;
 	const int sz = depth ? mCast( int,depth->info().getTotalSz() ) : 0;
 	if ( !sz ) continue;
@@ -1001,7 +1003,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     }
 
     RefMan<EM::MarchingCubesSurface> emcs =
-	new EM::MarchingCubesSurface(EM::EMM());
+	new EM::MarchingCubesSurface(EM::BodyMan());
 
     emcs->surface().setVolumeData( 0, 0, 0, *arr, 0, &taskrunner);
     emcs->setInlSampling(
@@ -1015,7 +1017,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
 
-    EM::EMM().addObject( emcs );
+    EM::BodyMan().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
 	mRetErrDelHoridx( uiStrings::sSaveBodyFail() )

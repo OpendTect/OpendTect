@@ -88,7 +88,6 @@ bool LockedPointsPathFinder::doWork( od_int64 start, od_int64 stop, int thread )
 	return true;
 
     const TrcKeySampling tks = hor_.getTrackingSampling();
-    const EM::SectionID sid = hor_.sectionID( 0 );
 
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
@@ -99,7 +98,8 @@ bool LockedPointsPathFinder::doWork( od_int64 start, od_int64 stop, int thread )
 	const od_int64 gidx = tks.globalIdx( tk );
 	if ( gidx>=0 && lockednodes->getData()[gidx] != '0' )
 	{
-	    const Coord3 pos = hor_.getPos( sid, tk.binID(). toInt64() );
+	    const Coord3 pos =
+		hor_.getPos( EM::PosID::getFromRowCol(tk.binID()) );
 	    Threads::Locker locker( lock_, Threads::Locker::WriteLock );
 	    indexes_ += points_.addPoint( pos );
 	}
@@ -117,10 +117,9 @@ public:
 				       const TrcKeyPath& path,
 				       const TypeSet<Coord>& crds,
 				       const Interval<float>& zrg,
-				       EM::SectionID sid,
 				       HorizonDisplay::IntersectionData& res)
 		    : hd_(hd), path_(path), crds_(crds)
-		    , zrg_(zrg), sid_(sid), res_(res)
+		    , zrg_(zrg), res_(res)
 		    , hor_(0), seedposids_(0), onthesamegrid_(false)
 		    , pathgeom_(0), horgeom_(0)
 		{
@@ -144,7 +143,6 @@ protected:
     const TrcKeyPath&			path_;
     const TypeSet<Coord>&		crds_;
     const Interval<float>&		zrg_;
-    EM::SectionID			sid_;
     HorizonDisplay::IntersectionData&	res_;
     const EM::Horizon3D*		hor_;
     const TypeSet<EM::PosID>*		seedposids_;
@@ -202,22 +200,22 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 		continue;
 	    }
 
-	    EM::SubID horsubid = hortrc.isUdf()
-		    ? mUdf(EM::SubID)
-		    : hortrc.binID().toInt64();
+	    EM::PosID horsubid = hortrc.isUdf()
+		    ? EM::PosID::getInvalid()
+		    : EM::PosID::getFromRowCol( hortrc.binID() );
 
 	    if ( hd_.showsPosAttrib(EM::PosAttrib::SeedNode) &&
-		 seedposids_ && !mIsUdf(horsubid) &&
-		 seedposids_->isPresent(EM::PosID(hor_->id(),sid_,horsubid)) )
+		 seedposids_ && !horsubid.isInvalid() &&
+		 seedposids_->isPresent(horsubid) )
 	    {
-		horsubid = mUdf(EM::SubID);
+		horsubid = EM::PosID::getInvalid();
 	    }
 
-	    if ( !mIsUdf(horsubid) )
+	    if ( !horsubid.isInvalid() )
 	    {
 		//As zrg is in the non-transformed z-domain, we have to do the
 		//comparison there.
-		const Coord3 horpos = hor_->getPos( sid_, horsubid );
+		const Coord3 horpos = hor_->getPos( horsubid );
 		Coord3 displayhorpos = horpos;
 		if ( horpos.isDefined() && hd_.zaxistransform_ )
 		{
@@ -481,16 +479,17 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 	transformation_->transformBack( newpos );
 
     const BinID pickedbid = s3dgeom_->transform( newpos.getXY() );
-    const EM::SubID pickedsubid = pickedbid.toInt64();
+    const EM::PosID pickedsubid = EM::PosID::getFromRowCol( pickedbid );
     TypeSet<EM::PosID> closestnodes;
     for ( int idx=sids_.size()-1; idx>=0; idx-- )
     {
-	if ( !emobject_->isDefined( sids_[idx], pickedsubid ) )
+	if ( !emobject_->isDefined( pickedsubid ) )
 	    continue;
-	closestnodes += EM::PosID( emobject_->id(), sids_[idx], pickedsubid );
+	closestnodes += pickedsubid;
     }
 
-    if ( closestnodes.isEmpty() ) return EM::PosID( -1, -1, -1 );
+    if ( closestnodes.isEmpty() )
+	return EM::PosID::getInvalid();
 
     EM::PosID closestnode = closestnodes[0];
     float mindist = mUdf(float);
@@ -528,7 +527,7 @@ void HorizonDisplay::removeEMStuff()
 }
 
 
-bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tskr )
+bool HorizonDisplay::setEMObject( const DBKey& newid, TaskRunner* tskr )
 {
     return EMObjectDisplay::setEMObject( newid, tskr );
 }
@@ -1152,7 +1151,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tskr )
 
     UserShowWait usw( this, uiStrings::sUpdatingDisplay() );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
-    surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tskr );
+    surf->setSurface( horizon->geometry().geometryElement(), true, tskr );
     if ( !emobject_->isEmpty() && tskr && !tskr->execResult() )
     {
 	surf->unRef();
@@ -1282,7 +1281,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 {
     if ( cb )
     {
-	mCBCapsuleUnpack( const EM::EMObjectCallbackData&,cbdata, cb );
+	mCBCapsuleUnpack( EM::EMObjectCallbackData,cbdata, cb );
 	emchangedata_.addCallBackData( new EM::EMObjectCallbackData(cbdata) );
     }
 
@@ -1304,30 +1303,29 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 
 void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 {
-    if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    if ( cbdata.changeType()==EM::EMObject::cPositionChange() )
     {
 	validtexture_ = false;
-	const EM::SectionID sid = cbdata.pid0.sectionID();
-	const int idx = sids_.indexOf( sid );
+	const int idx = sids_.indexOf( 0 );
 	if ( idx>=0 && idx<sections_.size() )
 	    sections_[idx]->inValidateCache(-1);
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cPrefColorChange() )
     {
 	nontexturecol_ = emobject_->preferredColor();
 	setLineStyle( emobject_->preferredLineStyle() );
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::SelectionColorChnage )
+    else if ( cbdata.changeType()==EM::EMObject::cSelColorChange() )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ )
 	if ( hor3d )
 	{
 	    if ( selections_ && selections_->getMaterial() )
 		selections_->getMaterial()->setColor(
-		hor3d->getSelectionColor() );
+		hor3d->selectionColor() );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::ParentColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cParentColorChange() )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ )
 	if ( hor3d )
@@ -1336,13 +1334,13 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 		parentline_->getMaterial()->setColor( hor3d->getParentColor() );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
+    else if ( cbdata.changeType()==EM::EMObject::cSelectionChange() )
     {
 	// TODO: Should be made more general, such that it also works for
 	// polygon selections
 	selectChildren();
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
+    else if ( cbdata.changeType()==EM::EMObject::cLockChange() )
     {
 	// if it is unlocked, we need set all lockedpts to unlock.
 	// if it is locked, we do nothing
@@ -1374,7 +1372,7 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 	    showLocked( showlock_ );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::LockColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cLockColorChange() )
     {
 	updateLockedPointsColor();
     }
@@ -1429,7 +1427,7 @@ void HorizonDisplay::updateAuxData()
 
     float auxvals[3];
     auxvals[0] = mUdf(float);
-    auxvals[1] = hor3d->sectionID( 0 );
+    auxvals[1] = 0;
     for ( int idx=0; idx<auxdata[0]->nrVals(); idx++ )
     {
 	const char* auxdatanm = hor3d->auxdata.auxDataName( idx );
@@ -1577,14 +1575,14 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
     if ( hor )
     {
 	const BinID bid = s3dgeom_->transform( xytpos.getXY() );
-	const EM::SubID bidid = bid.toInt64();
+	const EM::PosID bidid = EM::PosID::getFromRowCol( bid );
 	TypeSet<Coord3> positions;
 	for ( int idx=sids_.size()-1; idx>=0; idx-- )
 	{
-	    if ( !emobject_->isDefined( sids_[idx], bidid ) )
+	    if ( !emobject_->isDefined( bidid ) )
 		continue;
 
-	    positions += emobject_->getPos( sids_[idx], bidid );
+	    positions += emobject_->getPos( bidid );
 	}
 
 	float mindist = mUdf(float);
@@ -1746,7 +1744,7 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
 				   EM::SectionID sid,
 				   HorizonDisplay::IntersectionData& res ) const
 {
-    HorizonPathIntersector hpi( *this, path, crds, zrg, sid, res );
+    HorizonPathIntersector hpi( *this, path, crds, zrg, res );
     hpi.execute();
 }
 
@@ -1775,7 +1773,7 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
     const float zshift = (float) getTranslation().z_;
 
     const Geometry::BinIDSurface* geom =
-	horizon->geometry().sectionGeometry( sid );
+	horizon->geometry().geometryElement();
 
     const Array2D<float>* field = geom->getArray();
     if ( !field ) return;
@@ -1783,7 +1781,7 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
     ConstPtrMan<Array2D<float> > myfield;
     if ( zaxistransform_ )
     {
-	myfield = field = horizon->createArray2D( sid, zaxistransform_ );
+	myfield = field = horizon->createArray2D( zaxistransform_ );
     }
 
     IsoContourTracer ictracer( *field );
@@ -2152,7 +2150,7 @@ void HorizonDisplay::initSelectionDisplay( bool erase )
 	selections_ = visBase::PointSet::create();
 	selections_->ref();
 	if ( hor3d && selections_->getMaterial() )
-	    selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
+	    selections_->getMaterial()->setColor( hor3d->selectionColor() );
 	addChild( selections_->osgNode() );
 	selections_->setDisplayTransformation( transformation_ );
     }
@@ -2173,7 +2171,6 @@ void HorizonDisplay::selectChildren()
     initSelectionDisplay( true );
 
     const TrcKeySampling tks = hor3d->getTrackingSampling();
-    const EM::SectionID sid = hor3d->sectionID( 0 );
     TypeSet<int> pidxs;
     for ( od_int64 gidx=0; gidx<children->info().getTotalSz(); gidx++ )
     {
@@ -2181,9 +2178,9 @@ void HorizonDisplay::selectChildren()
 	    continue;
 
 	const TrcKey tk = tks.atIndex( gidx );
-	const Coord3 pos = hor3d->getPos( sid, tk.binID().toInt64() );
+	const Coord3 pos = hor3d->getPos( EM::PosID::getFromRowCol(tk.binID()));
 	const int pidx = selections_->addPoint( pos );
-	selections_->getMaterial()->setColor( hor3d->getSelectionColor(), pidx);
+	selections_->getMaterial()->setColor( hor3d->selectionColor(), pidx);
 	pidxs += pidx;
     }
 
@@ -2251,7 +2248,6 @@ void HorizonDisplay::calculateLockedPoints()
     }
 
     const TrcKeySampling tks = hor3d->getTrackingSampling();
-    const EM::SectionID sid = hor3d->sectionID( 0 );
     TypeSet<int> pidxs;
     for ( od_int64 gidx=0; gidx<lockednodes->info().getTotalSz(); gidx++ )
     {
@@ -2259,7 +2255,7 @@ void HorizonDisplay::calculateLockedPoints()
 	    continue;
 
 	const TrcKey tk = tks.atIndex( gidx );
-	const Coord3 pos = hor3d->getPos( sid, tk.binID().toInt64() );
+	const Coord3 pos = hor3d->getPos( EM::PosID::getFromRowCol(tk.binID()));
 	const int pidx = lockedpts_->addPoint( pos );
 	pidxs += pidx;
     }
@@ -2301,20 +2297,24 @@ void HorizonDisplay::updateSelections()
 
     initSelectionDisplay( !ctrldown_ );
 
+<<<<<<< HEAD
     const EM::SectionID sid = hor3d->sectionID(0);
+=======
+    const Selector<Coord3>* sel = selectors_[lastidx];
+>>>>>>> od_em
     ObjectSet<const Selector<Coord3> > selectors;
     selectors += sel;
-    EM::EMObjectPosSelector posselector( *hor3d, sid, selectors );
+    EM::EMObjectPosSelector posselector( *hor3d, selectors );
     posselector.execute();
 
     TypeSet<int> pidxs;
-    const TypeSet<EM::SubID>& selids = posselector.getSelected();
+    const TypeSet<EM::PosID>& selids = posselector.getSelected();
     if ( selids.size()<=0 )
 	return;
 
     for ( int idx=0; idx<selids.size(); idx++ )
     {
-	const Coord3 pos = hor3d->getPos( sid, selids[idx] );
+	const Coord3 pos = hor3d->getPos( selids[idx] );
 	if ( pos.isUdf() ) continue;
 
 	const int pidx = selections_->addPoint( pos );
@@ -2330,7 +2330,7 @@ void HorizonDisplay::updateSelections()
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
-    selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
+    selections_->getMaterial()->setColor( hor3d->selectionColor() );
     selections_->turnOn( true );
 }
 

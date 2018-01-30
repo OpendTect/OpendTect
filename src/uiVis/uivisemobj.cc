@@ -55,10 +55,9 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return;
 
-    const DBKey mid = emod->getDBKey();
-    EM::ObjectID emid = EM::EMM().getObjectID( mid );
+    DBKey mid = emod->getDBKey();
 
-    const EM::EMObject* emobj = EM::EMM().getObject( emid );
+    const EM::EMObject* emobj = EM::EMM().getObject( mid );
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
     if ( hor3d )
 	checkHorizonSize( hor3d );
@@ -66,7 +65,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     visSurvey::Scene* scene = emod->getScene();
     mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
     uiTaskRunner dlg( uiparent_ );
-    if ( !EM::EMM().getObject(emid) )
+    if ( !EM::EMM().getObject(mid) )
     {
 	Executor* exec = 0;
 	EM::IOObjInfo oi( mid ); EM::SurfaceIOData sd;
@@ -89,9 +88,6 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 		    sectionidx += idy;
 	    }
 
-	    if ( sectionidx.size() )
-		sel.selsections = sectionidx;
-
 	    if ( hordisp )
 	    {
 		const StepInterval<int> rowrg = hordisp->geometryRowRange();
@@ -112,12 +108,11 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
 	if ( exec )
 	{
-	    emid = EM::EMM().getObjectID( mid );
-	    EM::EMObject* emobject = EM::EMM().getObject( emid );
+	    EM::EMObject* emobject = EM::EMM().getObject( mid );
 	    emobject->ref();
 	    if ( !TaskRunner::execute( &dlg, *exec ) )
 	    {
-		emid = -1;
+		mid = DBKey::getInvalid();
 		emobject->unRef();
 		if ( scene ) visserv_->removeObject( emod, scene->id() );
 		delete exec;
@@ -129,7 +124,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	}
     }
 
-    if ( !emod->setEMObject(emid,&dlg) )
+    if ( !emod->setEMObject(mid,&dlg) )
     {
 	if ( scene ) visserv_->removeObject( emod, scene->id() );
 	return;
@@ -151,7 +146,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
 #define mRefUnrefRet { emod->ref(); emod->unRef(); return; }
 
-uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
+uiVisEMObject::uiVisEMObject( uiParent* uip, const DBKey& emid,
 			      int sceneid, uiVisPartServer* vps )
     : displayid_(-1)
     , visserv_( vps )
@@ -275,7 +270,7 @@ int uiVisEMObject::nrSections() const
     const visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return 0;
 
-    EM::ObjectID emid = emod->getObjectID();
+    DBKey emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
     return emobj ? emobj->nrSections() : 0;
 }
@@ -286,7 +281,7 @@ EM::SectionID uiVisEMObject::getSectionID( int idx ) const
     const visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return -1;
 
-    EM::ObjectID emid = emod->getObjectID();
+    DBKey emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
     return emobj ? emobj->sectionID( idx ) : -1;
 }
@@ -321,7 +316,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	return;
 
     visSurvey::EMObjectDisplay* emod = getDisplay();
-    const EM::ObjectID emid = emod->getObjectID();
+    const DBKey emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
@@ -419,7 +414,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
-    const EM::ObjectID emid = emod->getObjectID();
+    const DBKey emid = emod->getObjectID();
     EM::EMObject* emobj = EM::EMM().getObject(emid);
 
     if ( mnuid==singlecolmnuitem_.id )
@@ -502,10 +497,10 @@ bool uiVisEMObject::isOnlyAtSections() const
 }
 
 
-EM::ObjectID uiVisEMObject::getObjectID() const
+DBKey uiVisEMObject::getObjectID() const
 {
     const visSurvey::EMObjectDisplay* emod = getDisplay();
-    return emod ? emod->getObjectID() : -1;
+    return emod ? emod->getObjectID() : DBKey::getInvalid();
 }
 
 

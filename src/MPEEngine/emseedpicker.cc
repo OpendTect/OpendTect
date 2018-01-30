@@ -90,11 +90,11 @@ EM::PosID Patch::seedNode( int idx ) const
 {
     const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
     if ( idx>=seeds_.size() || !emobj )
-	return EM::PosID::udf();
+	return EM::PosID::getInvalid();
 
     const TrcKey tck = seeds_[idx].tk_;
 
-    return EM::PosID( emobj->id(), emobj->sectionID(0), tck.binID().toInt64() );
+    return EM::PosID::getFromRowCol( tck.binID() );
 }
 
 
@@ -111,8 +111,7 @@ Coord3 Patch::seedCoord( int idx ) const
     if ( !is2d )
     {
 	const TrcKey tck = seeds_[idx].tk_;
-	const EM::PosID pid =
-	    EM::PosID( emobj->id(),emobj->sectionID(0),tck.binID().toInt64() );
+	const EM::PosID pid = EM::PosID::getFromRowCol( tck.binID() );
 	pos = emobj->getPos( pid );
     }
     else
@@ -120,7 +119,7 @@ Coord3 Patch::seedCoord( int idx ) const
 	if ( hor2d )
 	{
 	    TrcKey tck = seeds_[idx].tk_;
-	    pos = hor2d->getPos(emobj->sectionID(0), tck.geomID(), tck.trcNr());
+	    pos = hor2d->getPos( tck.geomID(), tck.trcNr());
 	}
     }
     pos.z_ = seeds_[idx].val_;
@@ -173,8 +172,7 @@ int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
     int idx = 0;
     if ( !is2d )
     {
-	const EM::PosID pid = EM::PosID( emobj->id(), emobj->sectionID(0),
-					 seedtckv.tk_.binID().toInt64() );
+	const EM::PosID pid = EM::PosID::getFromRowCol( seedtckv.tk_.binID() );
 	if ( !seedpicker_->lineTrackDirection(dir) )
 	{
 	    idx = findClosestSeedRdmIdx( pid );
@@ -349,7 +347,6 @@ EMSeedPicker::EMSeedPicker( EMTracker& tracker )
     , patch_(0)
     , patchundo_( *new Undo() )
 {
-    sectionid_ = tracker.emObject() ? tracker.emObject()->sectionID(0) : -1;
 }
 
 
@@ -362,12 +359,6 @@ EMSeedPicker::~EMSeedPicker()
     delete &patchundo_;
 }
 
-
-void EMSeedPicker::setSectionID( EM::SectionID sid )
-{ sectionid_ = sid; }
-
-EM::SectionID EMSeedPicker::getSectionID() const
-{ return sectionid_; }
 
 void EMSeedPicker::setSowerMode( bool yn )
 { sowermode_ = yn; }
@@ -418,7 +409,7 @@ void EMSeedPicker::setSelSpec( const Attrib::SelSpec* as )
 
     selspec_ = as ? *as : Attrib::SelSpec();
 
-    SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
+    SectionTracker* sectracker = tracker_.getSectionTracker( true );
     mDynamicCastGet(HorizonAdjuster*,adjuster,
 		    sectracker?sectracker->adjuster():0);
     if ( adjuster )
@@ -503,7 +494,7 @@ void EMSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
 
     for ( int idx=0; idx<seednodelist->size(); idx++ )
     {
-	const BinID bid = BinID::fromInt64( (*seednodelist)[idx].subID() );
+	const BinID bid = (*seednodelist)[idx].getBinID();
 	seeds += TrcKey( bid );
     }
 }

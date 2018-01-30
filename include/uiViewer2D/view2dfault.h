@@ -25,7 +25,7 @@ namespace MPE { class Fault3DFlatViewEditor; class FaultEditor; }
 mExpClass(uiViewer2D) VW2DFault : public Vw2DEMDataObject
 {
 public:
-    static VW2DFault*	create( const EM::ObjectID& id, uiFlatViewWin* fvw,
+    static VW2DFault*	create( const DBKey& id, uiFlatViewWin* fvw,
 				const ObjectSet<uiFlatViewAuxDataEditor>& eds )
 			     mCreateVw2DDataObj(VW2DFault,id,fvw,eds);
 			~VW2DFault();

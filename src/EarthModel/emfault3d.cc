@@ -26,15 +26,45 @@ namespace EM {
 mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::sGroupName() )
 
 
-Fault3D::Fault3D( EMManager& em )
-    : Fault(em)
+Fault3D::Fault3D(const char* fnm)
+    : Fault(fnm)
     , geometry_( *this )
     , auxdata_( 0 )
 {
-    geometry_.addSection( "", false );
     setPreferredColor( getRandomColor() );
-    setPreferredMarkerStyle3D( 
+    setPreferredMarkerStyle3D(
 	OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,3,Color::Yellow()) );
+}
+
+Fault3D::Fault3D( const Fault3D& oth )
+    : Fault(oth)
+    , geometry_(oth.geometry_)
+    , auxdata_(oth.auxdata_)
+{
+    copyClassData( oth );
+}
+
+mImplMonitorableAssignment( Fault3D, SharedObject )
+
+void Fault3D::copyClassData( const Fault3D& oth )
+{
+    storageid_ = oth.storageid_;
+    preferredcolor_ = oth.preferredcolor_;
+    changed_ = oth.changed_;
+    fullyloaded_ = oth.fullyloaded_;
+    locked_ = oth.locked_;
+    burstalertcount_ = oth.fullyloaded_;
+    selremoving_ = oth.selremoving_;
+    preferredlinestyle_ = oth.preferredlinestyle_;
+    preferredmarkerstyle_ = oth.preferredmarkerstyle_;
+    selectioncolor_ = oth.selectioncolor_;
+    haslockednodes_ = oth.haslockednodes_;
+}
+
+
+Monitorable::ChangeType Fault3D::compareClassData( EM::Fault3D const &) const 
+{
+    return cNoChange();
 }
 
 
@@ -76,28 +106,25 @@ uiString Fault3D::getUserTypeStr() const
 
 void Fault3D::apply( const Pos::Filter& pf )
 {
-    for ( int idx=0; idx<nrSections(); idx++ )
+    mDynamicCastGet( Geometry::FaultStickSurface*, fssg,
+		     geometryElement() );
+    if ( !fssg ) return;
+
+    const StepInterval<int> rowrg = fssg->rowRange();
+    if ( rowrg.isUdf() ) return;
+
+    RowCol rc;
+    for ( rc.row()=rowrg.stop; rc.row()>=rowrg.start; rc.row()-=rowrg.step )
     {
-	mDynamicCastGet( Geometry::FaultStickSurface*, fssg,
-			 sectionGeometry(sectionID(idx)) );
-	if ( !fssg ) continue;
+	const StepInterval<int> colrg = fssg->colRange( rc.row() );
+	if ( colrg.isUdf() ) continue;
 
-	const StepInterval<int> rowrg = fssg->rowRange();
-	if ( rowrg.isUdf() ) continue;
-
-	RowCol rc;
-	for ( rc.row()=rowrg.stop; rc.row()>=rowrg.start; rc.row()-=rowrg.step )
+	for ( rc.col()=colrg.stop; rc.col()>=colrg.start;
+	      rc.col()-=colrg.step )
 	{
-	    const StepInterval<int> colrg = fssg->colRange( rc.row() );
-	    if ( colrg.isUdf() ) continue;
-
-	    for ( rc.col()=colrg.stop; rc.col()>=colrg.start;
-		  rc.col()-=colrg.step )
-	    {
-		const Coord3 pos = fssg->getKnot( rc );
-		if ( !pf.includes( pos.getXY(), (float) pos.z_ ) )
-		    fssg->removeKnot( rc );
-	    }
+	    const Coord3 pos = fssg->getKnot( rc );
+	    if ( !pf.includes( pos.getXY(), (float) pos.z_ ) )
+		fssg->removeKnot( rc );
 	}
     }
 
@@ -115,73 +142,66 @@ Fault3DGeometry::~Fault3DGeometry()
 
 
 Geometry::FaultStickSurface*
-Fault3DGeometry::sectionGeometry( const SectionID& sid )
+Fault3DGeometry::geometryElement()
 {
-    Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
+    Geometry::Element* res = SurfaceGeometry::geometryElement();
     return (Geometry::FaultStickSurface*) res;
 }
 
 
 const Geometry::FaultStickSurface*
-Fault3DGeometry::sectionGeometry( const SectionID& sid ) const
+Fault3DGeometry::geometryElement() const
 {
-    const Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
+    const Geometry::Element* res = SurfaceGeometry::geometryElement();
     return (const Geometry::FaultStickSurface*) res;
 }
 
 
-Geometry::FaultStickSurface* Fault3DGeometry::createSectionGeometry() const
+Geometry::FaultStickSurface* Fault3DGeometry::createGeometryElement() const
 { return new Geometry::FaultStickSurface; }
 
 
-EMObjectIterator* Fault3DGeometry::createIterator( const SectionID& sid,
-					 const TrcKeyZSampling* cs) const
-{ return new RowColIterator( surface_, sid, cs ); }
+EMObjectIterator* Fault3DGeometry::createIterator(
+					const TrcKeyZSampling* cs ) const
+{ return new RowColIterator( surface_, cs ); }
 
 
-int Fault3DGeometry::nrSticks( const SectionID& sid ) const
+int Fault3DGeometry::nrSticks() const
 {
-    const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    const Geometry::FaultStickSurface* fss = geometryElement();
     return fss ? fss->nrSticks() : 0;
 }
 
 
-int Fault3DGeometry::nrKnots( const SectionID& sid, int sticknr ) const
+int Fault3DGeometry::nrKnots( int sticknr ) const
 {
-    const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    const Geometry::FaultStickSurface* fss = geometryElement();
     return fss ? fss->nrKnots(sticknr) : 0;
 }
 
 
-bool Fault3DGeometry::insertStick( const SectionID& sid, int sticknr,
-				 int firstcol, const Coord3& pos,
-				 const Coord3& editnormal, bool addtohistory )
+bool Fault3DGeometry::insertStick( int sticknr, int firstcol, const Coord3& pos,
+				   const Coord3& editnormal, bool addtohistory )
 {
-    Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    Geometry::FaultStickSurface* fss = geometryElement();
     if ( !fss || !fss->insertStick(pos,editnormal,sticknr, firstcol) )
 	return false;
 
 
     if ( addtohistory )
     {
-	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).toInt64());
+	const PosID posid = PosID::getFromRowCol( sticknr, 0 );
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
-	EMM().undo(surface_.id()).addEvent( undo, 0 );
+	Flt3DMan().undo().addEvent( undo, 0 );
     }
-
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
 
     return true;
 }
 
 
-bool Fault3DGeometry::removeStick( const SectionID& sid, int sticknr,
-				 bool addtohistory )
+bool Fault3DGeometry::removeStick( int sticknr, bool addtohistory )
 {
-    Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    Geometry::FaultStickSurface* fss = geometryElement();
     if ( !fss )
 	return false;
 
@@ -192,7 +212,7 @@ bool Fault3DGeometry::removeStick( const SectionID& sid, int sticknr,
     const RowCol rc( sticknr, colrg.start );
 
     const Coord3 pos = fss->getKnot( rc );
-    const Coord3 normal = getEditPlaneNormal( sid, sticknr );
+    const Coord3 normal = getEditPlaneNormal( sticknr );
     if ( !normal.isDefined() || !pos.isDefined() )
 	return false;
 
@@ -201,48 +221,36 @@ bool Fault3DGeometry::removeStick( const SectionID& sid, int sticknr,
 
     if ( addtohistory )
     {
-	const PosID posid( surface_.id(), sid, rc.toInt64() );
-
+	const PosID posid = PosID::getFromRowCol( rc );
 	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
-	EMM().undo(surface_.id()).addEvent( undo, 0 );
+	Flt3DMan().undo().addEvent( undo, 0 );
     }
-
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
 
     return true;
 }
 
 
-bool Fault3DGeometry::insertKnot( const SectionID& sid, const SubID& subid,
+bool Fault3DGeometry::insertKnot( const PosID& posid,
 				const Coord3& pos, bool addtohistory )
 {
-    Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-    RowCol rc = RowCol::fromInt64( subid );
+    Geometry::FaultStickSurface* fss = geometryElement();
+    RowCol rc =  posid .getRowCol();
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
 
     if ( addtohistory )
     {
-	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new FaultKnotUndoEvent( posid );
-	EMM().undo(surface_.id()).addEvent( undo, 0 );
+	Flt3DMan().undo().addEvent( undo, 0 );
     }
-
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
 
     return true;
 }
 
 
-bool Fault3DGeometry::areSticksVertical( const SectionID& sid ) const
+bool Fault3DGeometry::areSticksVertical() const
 {
-    const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    const Geometry::FaultStickSurface* fss = geometryElement();
     return fss ? fss->areSticksVertical() : false;
 }
 
@@ -252,35 +260,30 @@ bool Fault3DGeometry::areEditPlanesMostlyCrossline() const
 {
     int nrcrls=0, nrnoncrls=0;
     const Coord crldir = SI().binID2Coord().crlDir().normalize();
-    for ( int sidx=0; sidx<nrSections(); sidx++ )
-    {
-	const EM::SectionID sid = sectionID( sidx );
-	const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-	if ( !fss ) continue;
+    const Geometry::FaultStickSurface* fss = geometryElement();
+    if ( !fss ) return false;
 
-	StepInterval<int> stickrg = fss->rowRange();
-	for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
-	{
-	    const Coord3& normal = fss->getEditPlaneNormal( sticknr );
-	    if ( fabs(normal.z_) < 0.5 && mIsEqual(normal.x_,crldir.x_,mEps)
-				      && mIsEqual(normal.y_,crldir.y_,mEps) )
-		nrcrls++;
-	    else
-		nrnoncrls++;
-	}
+    StepInterval<int> stickrg = fss->rowRange();
+    for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
+    {
+	const Coord3& normal = fss->getEditPlaneNormal( sticknr );
+	if ( fabs(normal.z_) < 0.5 && mIsEqual(normal.x_,crldir.x_,mEps)
+				  && mIsEqual(normal.y_,crldir.y_,mEps) )
+	    nrcrls++;
+	else
+	    nrnoncrls++;
     }
 
     return nrcrls > nrnoncrls;
 }
 
 
-bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
-				bool addtohistory )
+bool Fault3DGeometry::removeKnot( const PosID& posid, bool addtohistory )
 {
-    Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    Geometry::FaultStickSurface* fss = geometryElement();
     if ( !fss ) return false;
 
-    RowCol rc = RowCol::fromInt64( subid );
+    RowCol rc =  posid .getRowCol();
     const Coord3 pos = fss->getKnot( rc );
 
     if ( !pos.isDefined() || !fss->removeKnot(rc) )
@@ -288,63 +291,49 @@ bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 
     if ( addtohistory )
     {
-	const PosID posid( surface_.id(), sid, subid );
-
 	UndoEvent* undo = new FaultKnotUndoEvent( posid, pos );
-	EMM().undo(surface_.id()).addEvent( undo, 0 );
+	Flt3DMan().undo().addEvent( undo, 0 );
     }
-
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
 
     return true;
 }
 
 
-#define mDefEditNormalStr( editnormstr, sid, sticknr ) \
+#define mDefEditNormalStr( editnormstr, sticknr ) \
     BufferString editnormstr("Edit normal of section "); \
-    editnormstr += sid; editnormstr += " sticknr "; editnormstr += sticknr;
+    editnormstr += 0; editnormstr += " sticknr "; editnormstr += sticknr;
 
 void Fault3DGeometry::fillPar( IOPar& par ) const
 {
-    for ( int idx=0; idx<nrSections(); idx++ )
-    {
-	const EM::SectionID sid = sectionID( idx );
-	const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-	if ( !fss ) continue;
+    const Geometry::FaultStickSurface* fss = geometryElement();
+    if ( !fss ) return;
 
-	StepInterval<int> stickrg = fss->rowRange();
-	for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
-	{
-	    mDefEditNormalStr( editnormstr, sid, sticknr );
-	    par.set( editnormstr.buf(), fss->getEditPlaneNormal(sticknr) );
-	}
+    StepInterval<int> stickrg = fss->rowRange();
+    for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
+    {
+	mDefEditNormalStr( editnormstr, sticknr );
+	par.set( editnormstr.buf(), fss->getEditPlaneNormal(sticknr) );
     }
 }
 
 
 bool Fault3DGeometry::usePar( const IOPar& par )
 {
-    for ( int idx=0; idx<nrSections(); idx++ )
-    {
-	const EM::SectionID sid = sectionID( idx );
-	Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-	if ( !fss ) return false;
+    Geometry::FaultStickSurface* fss = geometryElement();
+    if ( !fss ) return false;
 
-	StepInterval<int> stickrg = fss->rowRange();
-	for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
-	{
-	    fss->setSticksVertical( false );
-	    mDefEditNormalStr( editnormstr, sid, sticknr );
-	    Coord3 editnormal( Coord3::udf() );
-	    par.get( editnormstr.buf(), editnormal );
-	    fss->addEditPlaneNormal( editnormal );
-	    if ( editnormal.isDefined() && fabs(editnormal.z_)<0.5 )
-		fss->setSticksVertical( true );
-	}
+    StepInterval<int> stickrg = fss->rowRange();
+    for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
+    {
+	fss->setSticksVertical( false );
+	mDefEditNormalStr( editnormstr, sticknr );
+	Coord3 editnormal( Coord3::udf() );
+	par.get( editnormstr.buf(), editnormal );
+	fss->setEditPlaneNormal( sticknr, editnormal );
+	if ( editnormal.isDefined() && fabs(editnormal.z_)<0.5 )
+	    fss->setSticksVertical( true );
     }
+
     return true;
 }
 
@@ -379,7 +368,6 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
     getHdrVals( strm );
 
     Coord3 crd;
-    const SectionID sid = flt.sectionID( 0 );
     int curstickidx = -1;
     bool hasstickidx = false;
 
@@ -475,13 +463,13 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
 	    const Pos::GeomID geomid = Survey::GM().getGeomID( stick->lnm_ );
-	    fss->geometry().insertStick( sid, sticknr, 0,
+	    fss->geometry().insertStick( sticknr, 0,
 					stick->crds_[0], stick->getNormal(true),
 					geomid, false );
 	}
 	else
 	{
-	    bool res = flt.geometry().insertStick( sid, sticknr, 0,
+	    bool res = flt.geometry().insertStick( sticknr, 0,
 			    stick->crds_[0], stick->getNormal(false), false );
 	    if ( !res ) continue;
 	}
@@ -489,7 +477,7 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
 	    const RowCol rc( sticknr, crdidx );
-	    flt.geometry().insertKnot( sid, rc.toInt64(),
+	    flt.geometry().insertKnot( PosID::getFromRowCol(rc),
 				       stick->crds_[crdidx], false );
 	}
 

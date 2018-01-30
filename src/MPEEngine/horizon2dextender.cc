@@ -19,20 +19,18 @@ ___________________________________________________________________
 namespace MPE
 {
 
-Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor,
-				      EM::SectionID sid )
-    : SectionExtender( sid )
+Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor )
+    : SectionExtender()
     , hor2d_( hor )
     , anglethreshold_( 0.5 )
 {
 }
 
 
-SectionExtender* Horizon2DExtender::create( EM::EMObject* emobj,
-					    EM::SectionID sid )
+SectionExtender* Horizon2DExtender::create( EM::EMObject* emobj )
 {
     mDynamicCastGet(EM::Horizon2D*,hor,emobj)
-    return emobj && !hor ? 0 : new Horizon2DExtender( *hor, sid );
+    return emobj && !hor ? 0 : new Horizon2DExtender( *hor );
 }
 
 
@@ -87,7 +85,7 @@ int Horizon2DExtender::nextStep()
 void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
 {
     const StepInterval<int> colrange =
-	hor2d_.geometry().colRange( sid_, geomid_ );
+	hor2d_.geometry().colRange( geomid_ );
     TrcKey neighbor = src;
     neighbor.setTrcNr( neighbor.trcNr()
 	    + (upwards ? colrange.step : -colrange.step) );

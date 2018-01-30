@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 
 
-uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, 
+uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor,
 				      bool is2d, bool withsubsel )
     : uiGroup( p )
     , horizon_( hor )
@@ -130,15 +130,14 @@ bool uiHorSaveFieldGrp::needsFullSurveyArray() const
 
 #define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error( msg ); return 0; }
 
-EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& mid )
+EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& oid )
 {
-    EM::ObjectID oid = EM::EMM().getObjectID( mid );
     EM::EMObject* emobj = EM::EMM().getObject( oid );
 
     Executor* reader = 0;
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	reader = EM::EMM().objectLoader( mid );
+	reader = EM::EMM().objectLoader( oid );
 	if ( !reader )
 	    mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 
@@ -149,7 +148,6 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& mid )
 	     mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 	}
 
-	oid = EM::EMM().getObjectID( mid );
 	emobj = EM::EMM().getObject( oid );
     }
 
@@ -166,7 +164,7 @@ EM::SurfaceIODataSelection uiHorSaveFieldGrp::getSelection( bool isnew ) const
     RefMan<EM::Horizon> horizon = isnew ? newhorizon_ : horizon_;
     Pos::Provider* prov = rgfld_ ? rgfld_->curProvider() : 0;
     mDynamicCastGet(Pos::Provider3D*,prov3d,prov);
-    
+
     if ( prov3d )
     {
 	horizon->setBurstAlert( true );
@@ -181,8 +179,8 @@ EM::SurfaceIODataSelection uiHorSaveFieldGrp::getSelection( bool isnew ) const
 
     mDynamicCastGet(Pos::RangeProvider3D*,rgprov3d,prov3d);
     if ( rgprov3d )
-	outsdsel.rg = rgprov3d->sampling().hsamp_; 
-    
+	outsdsel.rg = rgprov3d->sampling().hsamp_;
+
     return outsdsel;
 }
 
@@ -195,7 +193,7 @@ bool uiHorSaveFieldGrp::saveHorizon()
     const bool savenew = savefld_->getBoolValue();
     if ( !newhorizon_ && savenew && !createNewHorizon() )
 	return false;
-    
+
     const EM::SurfaceIODataSelection sdsel = getSelection( savenew );
     PtrMan<Executor> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
 				    : horizon_->geometry().saver( &sdsel );
@@ -231,17 +229,16 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     }
 
     EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = em.createObject( is2d_ ? EM::Horizon2D::typeStr()
+    EM::EMObject* emobj = em.createObject( is2d_ ? EM::Horizon2D::typeStr()
 						: EM::Horizon3D::typeStr(),
 					  outputfld_->getInput() );
 
-    mDynamicCastGet(EM::Horizon*,horizon,em.getObject(objid));
+    mDynamicCastGet(EM::Horizon*,horizon,emobj);
     if ( !horizon )
 	mErrRet( uiStrings::sCantCreateHor() );
 
     newhorizon_ = horizon;
     newhorizon_->ref();
-    newhorizon_->setDBKey( horizon_->dbKey() );
 
     EM::SurfaceIOData sd;
     uiString errmsg;
@@ -277,17 +274,15 @@ void uiHorSaveFieldGrp::setHorRange( const Interval<int>& newinlrg,
 				     const Interval<int>& newcrlrg )
 {
     EM::Horizon* hor = overwriteHorizon() ? horizon_ : newhorizon_;
-    if ( !hor || !hor->geometry().nrSections() )
+    if ( !hor )
 	return;
 
-    const EM::SectionID sid = hor->geometry().sectionID( 0 );
-    mDynamicCastGet( Geometry::ParametricSurface*, surf,
-	    hor->sectionGeometry( sid ) );
+    mDynamicCastGet(Geometry::ParametricSurface*,surf,hor->geometryElement())
     if ( !surf )
 	return;
 
-    StepInterval<int> rowrg = hor->geometry().rowRange( sid );
-    StepInterval<int> colrg = hor->geometry().colRange( sid, -1 );
+    StepInterval<int> rowrg = hor->geometry().rowRange();
+    StepInterval<int> colrg = hor->geometry().colRange( -1 );
 
     while ( colrg.start-colrg.step >= newcrlrg.start )
     {

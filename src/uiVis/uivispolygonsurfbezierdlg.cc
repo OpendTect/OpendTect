@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	Yuancheng Liu
- Date: 		Feb 2009
+ Author:	Yuancheng Liu
+ Date:		Feb 2009
 ___________________________________________________________________
 
 -*/
@@ -21,15 +21,15 @@ uiVisPolygonSurfBezierDlg::uiVisPolygonSurfBezierDlg( uiParent* p,
 	visSurvey::PolygonBodyDisplay* plg )
     : uiDlgGroup( p, tr("Shape smoothness") )
     , plg_( plg )
-    , surf_( 0 )		 
+    , surf_( 0 )
 {
     if ( !plg ) return;
 
     bezierfld_ = new uiGenInput( this, tr("Number of inserts") );
     if ( plg->getEMPolygonBody() )
-	surf_ = plg->getEMPolygonBody()->geometry().sectionGeometry(0);
+	surf_ = plg->getEMPolygonBody()->geometry().geometryElement();
     bezierfld_->setValue( surf_ ? surf_->getBezierCurveSmoothness() : 0 );
-    
+
     applybut_ = new uiPushButton( this, tr("Update Now"), true );
     applybut_->attach( centeredBelow, bezierfld_ );
     applybut_->activated.notify( mCB(this,uiVisPolygonSurfBezierDlg,applyCB) );

@@ -101,30 +101,27 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 			   Interval<float>& zrg, od_int64& estnrpos )
 {
     bool veryfirst = true;
-    for ( int idx=0; idx<surf.nrSections(); idx++ )
+    EM::RowColIterator it( surf );
+    EM::PosID posid = it.next();
+    while ( !posid.isInvalid() )
     {
-	EM::RowColIterator it( surf, surf.sectionID(idx) );
-	EM::PosID posid = it.next();
-	while ( posid.objectID() != -1 )
+	const Coord3 coord = surf.getPos( posid );
+	const BinID bid( SI().transform(coord.getXY()) );
+	if ( veryfirst )
 	{
-	    const Coord3 coord = surf.getPos( posid );
-	    const BinID bid( SI().transform(coord.getXY()) );
-	    if ( veryfirst )
-	    {
-		veryfirst = false;
-		hs.start_ = hs.stop_ = bid;
-		zrg.start = zrg.stop = (float) coord.z_;
-	    }
-	    else
-	    {
-		if ( coord.z_ < zrg.start ) zrg.start = (float) coord.z_;
-		if ( coord.z_ > zrg.stop ) zrg.stop = (float) coord.z_;
-		hs.include( bid );
-	    }
-	    estnrpos++;
-
-	    posid = it.next();
+	    veryfirst = false;
+	    hs.start_ = hs.stop_ = bid;
+	    zrg.start = zrg.stop = (float) coord.z_;
 	}
+	else
+	{
+	    if ( coord.z_ < zrg.start ) zrg.start = (float) coord.z_;
+	    if ( coord.z_ > zrg.stop ) zrg.stop = (float) coord.z_;
+	    hs.include( bid );
+	}
+	estnrpos++;
+
+	posid = it.next();
     }
 }
 
@@ -134,9 +131,10 @@ bool EMSurfaceProvider::initialize( const TaskRunnerProvider& trprov )
     if ( nrSurfaces() == 0 )
 	return false;
 
-    EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(id1_) );
+    EM::EMManager& emman = EM::getMgr( id1_ );
+    EM::EMObject* emobj = emman.getObject( id1_ );
     if ( !emobj )
-	emobj = EM::EMM().loadIfNotFullyLoaded( id1_, trprov );
+	emobj = emman.loadIfNotFullyLoaded( id1_, trprov );
     mDynamicCastGet(EM::Surface*,surf1,emobj)
     if ( !surf1 ) return false;
     surf1_ = surf1; surf1_->ref();
@@ -145,9 +143,9 @@ bool EMSurfaceProvider::initialize( const TaskRunnerProvider& trprov )
 
     if ( id2_.isValid() )
     {
-	emobj = EM::EMM().getObject( EM::EMM().getObjectID(id2_) );
+	emobj = emman.getObject( id2_ );
 	if ( !emobj )
-	    emobj = EM::EMM().loadIfNotFullyLoaded( id2_, trprov );
+	    emobj = emman.loadIfNotFullyLoaded( id2_, trprov );
 	mDynamicCastGet(EM::Surface*,surf2,emobj)
 	if ( !surf2 ) return false;
 	surf2_ = surf2; surf2_->ref();
@@ -168,22 +166,22 @@ void EMSurfaceProvider::reset()
 {
     delete iterator_; iterator_ = 0;
     if ( surf1_ )
-	iterator_ = new EM::RowColIterator( *surf1_, surf1_->sectionID(0) );
-    curpos_ = EM::PosID( -1, -1, -1 );
+	iterator_ = new EM::RowColIterator( *surf1_ );
+    curpos_ = EM::PosID::getInvalid();
 }
 
 
 bool EMSurfaceProvider::toNextPos()
 {
     curpos_ = iterator_->next();
-    if ( curpos_.objectID() == -1 )
+    if ( curpos_.isInvalid() )
 	return false;
 
     curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z_;
     if ( surf2_ )
     {
 	const float stop =
-	    (float) surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z_;
+	    (float) surf2_->getPos( curpos_ ).z_;
 	if ( !mIsUdf(stop) )
 	    curzrg_.stop = stop;
     }
@@ -234,7 +232,7 @@ float EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
     if ( !hasZAdjustment() ) return z;
 
     const BinID bid = SI().transform( c );
-    return (float) surf1_->getPos( surf1_->sectionID(0), bid.toInt64() ).z_;
+    return (float) surf1_->getPos( EM::PosID::getFromRowCol(bid) ).z_;
 }
 
 
@@ -356,7 +354,7 @@ EMSurfaceProvider3D& EMSurfaceProvider3D::operator=(
 
 
 BinID EMSurfaceProvider3D::curBinID() const
-{ return BinID::fromInt64( curpos_.subID() ); }
+{ return curpos_.getBinID(); }
 
 
 bool EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
@@ -366,14 +364,14 @@ bool EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
 
     // TODO: support multiple sections
     Interval<float> zrg;
-    const EM::SubID subid = bid.toInt64();
-    const Coord3 crd1 = surf1_->getPos( surf1_->sectionID(0), subid );
+    const EM::PosID posid = EM::PosID::getFromRowCol(bid);
+    const Coord3 crd1 = surf1_->getPos( posid );
     if ( !crd1.isDefined() )
 	return false;
 
     if ( surf2_ )
     {
-	const Coord3 crd2 = surf2_->getPos( surf2_->sectionID(0), subid );
+	const Coord3 crd2 = surf2_->getPos( posid );
 	if ( !crd2.isDefined() )
 	    return false;
 
@@ -431,7 +429,7 @@ EMSurfaceProvider2D& EMSurfaceProvider2D::operator=(
 
 const char* EMSurfaceProvider2D::curLine() const
 {
-    BinID bid = BinID::fromInt64( curpos_.subID() );
+    BinID bid = curpos_.getBinID();
     if ( surf1_ )
     {
 	mDynamicCastGet(EM::Horizon2D*,hor2d,surf1_);
@@ -446,7 +444,7 @@ const char* EMSurfaceProvider2D::curLine() const
 
 
 int EMSurfaceProvider2D::curNr() const
-{ return BinID::fromInt64( curpos_.subID() ).trcNr(); }
+{ return curpos_.getBinID().trcNr(); }
 
 
 Coord EMSurfaceProvider2D::curCoord() const
@@ -504,7 +502,8 @@ bool EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
     BinID bid;
     bid.crl() = nr;
     bid.inl() = hor2d1->geometry().lineIndex( l2d.lineName().buf() );
-    const Coord3 crd1 = hor2d1->getPos( hor2d1->sectionID(0), bid.toInt64() );
+    const Coord3 crd1 =
+	hor2d1->getPos( EM::PosID::getFromRowCol(bid) );
     if ( !crd1.isDefined() )
 	return false;
 
@@ -512,8 +511,7 @@ bool EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
     if ( hor2d2 )
     {
 	bid.inl() =hor2d2->geometry().lineIndex(l2d.lineName().buf());
-	const Coord3 crd2 = hor2d2->getPos( hor2d2->sectionID(0),
-					    bid.toInt64() );
+	const Coord3 crd2 = hor2d2->getPos( EM::PosID::getFromRowCol(bid) );
 	if ( !crd2.isDefined() )
 	    return false;
 
@@ -587,21 +585,18 @@ void EMSurface2DProvider3D::mkDPS( const EM::Surface& s, DataPointSet& dps )
 {
     mDynamicCastGet(const EM::Horizon2D&,surf,s)
 
-    for ( int idx=0; idx<surf.nrSections(); idx++ )
+    EM::RowColIterator it( surf );
+    while ( true )
     {
-	EM::RowColIterator it( surf, surf.sectionID(idx) );
-	while ( true )
-	{
-	    EM::PosID posid = it.next();
-	    if ( posid.objectID() < 0 )
-		break;
+	EM::PosID posid = it.next();
+	if ( posid.isInvalid() )
+	    break;
 
-	    const BinID bid2d = posid.getRowCol();
-	    DataPointSet::Pos pos( surf.getPos(posid) );
-	    pos.nr_ = bid2d.crl();
-	    dps.addRow( DataPointSet::DataRow( pos,
-			mCast(unsigned short,bid2d.inl())) );
-	}
+	const BinID bid2d = posid.getRowCol();
+	DataPointSet::Pos pos( surf.getPos(posid) );
+	pos.nr_ = bid2d.crl();
+	dps.addRow( DataPointSet::DataRow( pos,
+		    mCast(unsigned short,bid2d.inl())) );
     }
 }
 
@@ -774,12 +769,14 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
     if ( !iop.get( mGetBodyKey("ID"), mid ) )
 	return;
 
-    EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(mid) );
+    EM::EMManager& emman = EM::getMgr( mid );
+    EM::EMObject* emobj = emman.getObject( mid );
     if ( !emobj )
     {
 	SilentTaskRunnerProvider trprov;
-	emobj = EM::EMM().loadIfNotFullyLoaded( mid, trprov );
+	emobj = emman.loadIfNotFullyLoaded( mid, trprov );
     }
+
     mDynamicCastGet(EM::Body*,emb,emobj);
     if ( !emb )
 	return;

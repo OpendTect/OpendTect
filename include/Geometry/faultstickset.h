@@ -18,13 +18,61 @@ Info:
 #include "geometrymod.h"
 #include "refcount.h"
 #include "rowcolsurface.h"
+#include "integerid.h"
 
 namespace Geometry
 {
 
+mExpClass(Geometry) FaultStick
+{
+public:
+    mDefIntegerIDType(int, KnotID);
+
+			    FaultStick();
+			    FaultStick(int firstcol,Coord3 pln,
+				      unsigned int st=0, int sz=0 );
+					
+			    ~FaultStick();
+
+    void		    addKnot(const Coord3&, unsigned int stat=0);
+    void		    setKnot(int idx,const Coord3&, unsigned int stat=0);
+    Coord3		    getKnot(int idx) const;
+    void		    removeKnot(int idx);
+
+    int			    size() const;
+    bool		    isEmpty() const { return !size(); }
+    int&		    firstCol() { return firstcol_; }
+    int			    firstCol() const { return firstcol_; }
+
+    void		    setPlaneNormal(Coord3 nrm) { planenormal_ = nrm; }
+    Coord3		    planeNormal() const { return planenormal_; }
+
+    const TypeSet<Coord3>&  stickCoords() const { return stickcoords_; }
+    
+    unsigned int	    knotStat(int idx) const;
+    void		    setKnotStat(int,unsigned stat);
+
+    unsigned int	    stickStat() const { return stickstatus_; }
+    void		    setStickStat(unsigned int st) { stickstatus_ = st; }
+    
+    KnotID		    knotID(int kntidx) const;
+
+protected:
+
+    TypeSet<KnotID>		knotids_;
+    TypeSet<Coord3>		stickcoords_;
+    int				firstcol_;
+    Coord3			planenormal_;
+    unsigned int		stickstatus_;
+    TypeSet<unsigned int>	knotstatus_;
+    int				curknotidnr_;
+};
+
+
 mExpClass(Geometry) FaultStickSet : public RowColSurface
 {
 public:
+    mDefIntegerIDType(int, StickID);
     			FaultStickSet();
     			~FaultStickSet();
     bool		isEmpty() const		{ return !sticks_.size(); }
@@ -57,7 +105,7 @@ public:
     
     			// To be used by surface reader only
     void		addUdfRow(int stickidx,int firstknotnr,int nrknots);
-    void		addEditPlaneNormal(const Coord3&);
+    void		setEditPlaneNormal(int sticknr,const Coord3&);
 
     			// Use zscale=0 to measure in xy-direction only and
    			// zscale=MAXDOUBLE to measure in z-direction only.
@@ -79,19 +127,19 @@ public:
     void		hideKnot(const RowCol&,bool yn,int sceneidx=-1);
     bool		isKnotHidden(const RowCol&,int sceneidx=-1) const;
 
+    void		hideAllSticks(bool yn, int sceneidx=-1 );
+    void		hideAllKnots(bool yn, int sceneidx=-1 );
+
 protected:
+
     double			interStickDist(int sticknr1,int sticknr2,
 					       double zscale) const;
 
     int				firstrow_;
-
-    ObjectSet<TypeSet<Coord3> >	sticks_;
-    TypeSet<int>		firstcols_;
     
-    TypeSet<Coord3>		editplanenormals_;
-    TypeSet<unsigned int>	stickstatus_;
-
-    ObjectSet<TypeSet<unsigned int> > knotstatus_;
+    ObjectSet<FaultStick >	sticks_;
+    TypeSet<StickID>		stickids_;
+    int				curstickidnr_;
 };
 
 } // namespace Geometry

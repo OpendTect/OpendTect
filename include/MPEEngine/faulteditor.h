@@ -28,7 +28,7 @@ namespace MPE
 mExpClass(MPEEngine) FaultEditor : public ObjectEditor
 {
 public:
-    				FaultEditor(EM::Fault3D&);
+				FaultEditor(EM::Fault3D&);
 
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
@@ -41,15 +41,14 @@ public:
 
     void			setZScale(float);
     void			setScaleVector(const Coord3& v);
-    				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
 
     void			getInteractionInfo(bool& makenewstick,
 				    EM::PosID& insertpid,const Coord3& pos,
 				    const Coord3* posnormal=0) const;
 
     bool			removeSelection(const Selector<Coord3>&);
-    const EM::PosID		getNearstStick(EM::SectionID& sid,
-					       const Coord3& pos,
+    const EM::PosID		getNearstStick(const Coord3& pos,
 					       const Coord3* posnormal)const;
 
 protected:
@@ -62,14 +61,14 @@ protected:
     int			getSecondKnotNr(const Geometry::FaultStickSurface&,
 				    int sticknr,const Coord3& mousepos) const;
 
-    float		getNearestStick(int& stick,EM::SectionID& sid,
-			    const Coord3& pos,const Coord3* posnormal) const;
-    bool		getInsertStick(int& stick,EM::SectionID& sid,
-			    const Coord3& pos,const Coord3* posnormal) const;
+    float		getNearestStick(int& stick,const Coord3& pos,
+					const Coord3* posnormal) const;
+    bool		getInsertStick(int& stick,const Coord3& pos,
+					const Coord3* posnormal) const;
     void		getPidsOnStick( EM::PosID& insertpid,int stick,
-			    const EM::SectionID&,const Coord3& pos) const;
+					const Coord3& pos) const;
 
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Geometry::ElementEditor*	createEditor();
     Coord3			scalevector_;
     int				sceneidx_;
 

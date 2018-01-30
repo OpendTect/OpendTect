@@ -11,13 +11,15 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "uibodyposprovgroup.h"
 #include "uihorinterpol.h"
+#include "uinewemobjdlg.h"
 #include "uisurfaceposprov.h"
 #include "uiimphorizon.h"
+
 
 mDefModInitFn(uiEarthModel)
 {
     mIfNotFirstTime( return );
-    
+
     uiImportHorizon::initClass();
     uiInvDistHor3DInterpol::initClass();
     uiTriangulationHor3DInterpol::initClass();
@@ -26,4 +28,8 @@ mDefModInitFn(uiEarthModel)
 
     uiBodyPosProvGroup::initClass();
     uiSurfacePosProvGroup::initClass();
+
+    uiNewFSSDlg::initClass();
+    uiNewFlt3DDlg::initClass();
+    uiNewHorizon3DDlg::initClass();
 }

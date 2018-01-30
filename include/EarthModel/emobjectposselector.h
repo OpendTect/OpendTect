@@ -31,11 +31,10 @@ mExpClass(EarthModel) EMObjectPosSelector : public ParallelTask
 {
 public:
 			EMObjectPosSelector(const EMObject& emobj,
-				const SectionID& secid,
 				const ObjectSet<const Selector<Coord3> >&);
 			~EMObjectPosSelector();
 
-    const TypeSet<EM::SubID>& getSelected() const	{ return poslist_; }
+    const TypeSet<EM::PosID>& getSelected() const	{ return poslist_; }
 
 protected:
 
@@ -53,7 +52,6 @@ protected:
     const ObjectSet<const Selector<Coord3> >&	selectors_;
 
     const EMObject&		emobj_;
-    const SectionID&		sectionid_;
     int				startrow_;
     int				nrrows_;
     int				startcol_;
@@ -67,7 +65,7 @@ protected:
     int				nrwaiting_;
     int				nrthreads_;
 
-    TypeSet<EM::SubID>		poslist_;
+    TypeSet<EM::PosID>		poslist_;
 };
 
 } // namespace EM

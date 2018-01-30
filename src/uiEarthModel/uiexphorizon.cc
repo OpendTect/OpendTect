@@ -61,47 +61,45 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 mExpClass(uiEarthModel) write3DHorASCII : public Executor
 { mODTextTranslationClass(write3DHorASCII)
 public:
-			    write3DHorASCII(od_ostream&,const EM::Horizon3D*,
-			    const ZAxisTransform* zatf,const UnitOfMeasure*,
-			    const bool doxy,const bool addzpos,
-			    const bool dogf,const bool issingle,
-			    const int nrattrib,const int sectionidx,
-			    const int sidx,BufferString udfstr,
-			    BufferString dispstr);
-    int			    nextStep();
-    uiString		    message() const	{ return msg_; }
-    uiString		    nrDoneText() const;
-    od_int64		    nrDone() const;
-    od_int64		    totalNr() const;
+    				write3DHorASCII(od_ostream&,
+					const EM::Horizon3D*,
+					const ZAxisTransform* zatf,
+					const UnitOfMeasure*,
+					bool doxy,bool addzpos,
+					bool dogf,bool issingle,
+					int nrattrib,const BufferString& udfstr,
+					const BufferString& dispstr);
+    int				nextStep();
+    uiString			message() const	{ return msg_; }
+    uiString			nrDoneText() const;
+    od_int64			nrDone() const;
+    od_int64			totalNr() const;
 
 protected:
-    od_ostream&		    stream_;
-    const bool		    doxy_;
-    const bool		    addzpos_;
-    const bool		    dogf_;
-    const int		    nrattrib_;
-    const int		    sidx_;
-    int			    maxsize_;
-    BufferString	    udfstr_;
-    const EM::Horizon3D*    hor_;
-    const bool		    issingle_;
-    EM::EMObjectIterator*   it_;
-    const ZAxisTransform*    zatf_;
-    const UnitOfMeasure*    unit_;
-    uiString		    msg_;
-    int			    counter_;
-
+    od_ostream&			stream_;
+    const bool			doxy_;
+    const bool			addzpos_;
+    const bool			dogf_;
+    const int			nrattrib_;
+    int				maxsize_;
+    BufferString		udfstr_;
+    const EM::Horizon3D*	hor_;
+    const bool			issingle_;
+    EM::EMObjectIterator*	it_;
+    const ZAxisTransform*	zatf_;
+    const UnitOfMeasure*	unit_;
+    uiString			msg_;
+    int				counter_;
 
 };
 
 
 
 write3DHorASCII::write3DHorASCII(od_ostream& stream,const EM::Horizon3D* hor,
-	const ZAxisTransform* zatf, const UnitOfMeasure* unit, const bool doxy,
-	const bool addzpos, const bool dogf, const bool issingle,
-	const int nrattrib, const int sectionidx,const int sidx,
-	BufferString udfstr, BufferString str )
-	: Executor( str )
+	const ZAxisTransform* zatf, const UnitOfMeasure* unit, bool doxy,
+	bool addzpos, bool dogf, bool issingle,	int nrattrib,
+	const BufferString& udfstr, const BufferString& str )
+	: Executor(str)
 	, stream_(stream)
 	, doxy_(doxy)
 	, dogf_(dogf)
@@ -112,11 +110,9 @@ write3DHorASCII::write3DHorASCII(od_ostream& stream,const EM::Horizon3D* hor,
 	, issingle_(issingle)
 	, zatf_(zatf)
 	, unit_(unit)
-	, sidx_(sidx)
 	, counter_(0)
 {
-    const EM::SectionID sectionid = hor->sectionID( sectionidx );
-    it_ = hor->createIterator( sectionid );
+    it_ = hor->createIterator();
     maxsize_ = it_->maximumSize();
 }
 
@@ -183,8 +179,7 @@ int write3DHorASCII::nextStep()
     {
 	const float auxvalue = nrattrib_ > 0
 	    ? hor_->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-	writeGF( stream_, bid, (float) crd.z_, auxvalue,
-		    crd.getXY(), sidx_ );
+	writeGF( stream_, bid, (float) crd.z_, auxvalue, crd.getXY(), 0 );
 	Executor::MoreToDo();
     }
 
@@ -416,7 +411,7 @@ bool uiExportHorizon::writeAscii()
 
     BufferString basename = outfld_->fileName();
 
-    EM::EMManager& em = EM::EMM();
+    EM::EMManager& em = EM::Hor3DMan();
     EM::SurfaceIOData sd;
     uiString errmsg;
     BufferString fname( basename );
@@ -450,12 +445,8 @@ bool uiExportHorizon::writeAscii()
 
 	if ( !trprov.execute( *loader ) ) return false;
 
-
 	if ( !isbulk_ )
 	    infld_->getSelection( sels );
-	else
-	    for( int idx=0; idx<sd.sections.size(); idx++ )
-		sels.selsections += idx;
 
 	uiUserShowWait usw( this, uiStrings::sSavingData() );
 	if ( dogf && sels.selvalues.size() > 1 &&
@@ -474,43 +465,35 @@ bool uiExportHorizon::writeAscii()
 	}
 
 	const UnitOfMeasure* unit = unitsel_->getUnit();
-	TypeSet<int>& sections = sels.selsections;
 	int zatvoi = -1;
 	if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
 	{
 	    TrcKeyZSampling bbox;
 	    bool first = true;
-	    for ( int sidx=0; sidx<sections.size(); sidx++ )
+	    PtrMan<EM::EMObjectIterator> it = hor->createIterator();
+	    while ( true )
 	    {
-		const EM::SectionID sectionid = hor->sectionID(
-							    sections[sidx] );
-		PtrMan<EM::EMObjectIterator> it = hor->createIterator(
-							    sectionid );
-		while ( true )
+		const EM::PosID posid = it->next();
+		if ( posid.isInvalid() )
+		    break;
+
+		const Coord3 crd = hor->getPos( posid );
+		if ( !crd.isDefined() )
+		    continue;
+
+		const BinID bid = SI().transform( crd.getXY() );
+		if ( first )
 		{
-		    const EM::PosID posid = it->next();
-		    if ( posid.objectID()==-1 )
-			break;
-
-		    const Coord3 crd = hor->getPos( posid );
-		    if ( !crd.isDefined() )
-			continue;
-
-		    const BinID bid = SI().transform( crd.getXY() );
-		    if ( first )
-		    {
-			first = false;
-			bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
-			bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
-		    }
-		    else
-		    {
-			bbox.hsamp_.include( bid );
-			bbox.zsamp_.include( (float) crd.z_ );
-		    }
+		    first = false;
+		    bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
+		    bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
+		}
+		else
+		{
+		    bbox.hsamp_.include( bid );
+		    bbox.zsamp_.include( (float) crd.z_ );
 		}
 	    }
-
 
 	    if ( !first && zatf->needsVolumeOfInterest() )
 	    {
@@ -533,16 +516,12 @@ bool uiExportHorizon::writeAscii()
 	    }
 	}
 
-    const int nrattribs = hor->auxdata.nrAuxData();
+	const int nrattribs = hor->auxdata.nrAuxData();
 
-    for ( int sidx=0; sidx<sections.size(); sidx++ )
-    {
 	BufferString dispstr("Writing Horizon ");
 	dispstr.add(hor->name());
 
 	ExecutorGroup exphorgrp( dispstr );
-
-	const int sectionidx = sections[sidx];
 
 	if ( stream.isBad() )
 	{
@@ -557,19 +536,18 @@ bool uiExportHorizon::writeAscii()
 	    writeHeader( stream );
 	}
 
-
-	write3DHorASCII* executor = new write3DHorASCII(stream, hor,
-	    zatf.ptr(), unit, doxy, addzpos, dogf, !isbulk_, nrattribs,
-	    sectionidx, sidx, udfstr, dispstr);
+	write3DHorASCII* executor = new write3DHorASCII( stream, hor,
+	    			zatf.ptr(), unit, doxy, addzpos, dogf, !isbulk_,
+				nrattribs, udfstr, dispstr);
 	exphorgrp.add(executor);
 	if ( !trprov.execute(exphorgrp) ) return false;
 
 	if ( zatf && zatvoi>=0 )
 	    zatf->removeVolumeOfInterest( zatvoi );
-	}
     }
+
     return true;
- }
+}
 
 
 bool uiExportHorizon::acceptOK()

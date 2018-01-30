@@ -227,7 +227,7 @@ bool uiODContourTreeItemContourGenerator::setRowColRgs(
 bool uiODContourTreeItemContourGenerator::prepForContourGenerator()
 {
     uiVisPartServer* visserv = uicitem_->applMgr()->visServer();
-    EM::ObjectID emid = uicitem_->getHorDisp()->getObjectID();
+    DBKey emid = uicitem_->getHorDisp()->getObjectID();
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emid));
     if( !hor ) return false;
     hor3d_ = hor;
@@ -1220,21 +1220,20 @@ void uiODContourTreeItem::startCreateUICContours()
 Array2D<float>* uiODContourTreeItem::getDataSet(
     visSurvey::HorizonDisplay* hordisp )
 {
-    EM::ObjectID emid = hordisp->getObjectID();
+    DBKey emid = hordisp->getObjectID();
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emid));
     if ( !hor ) return 0;
 
-    EM::SectionID sid = hor->sectionID( 0 );
     if ( attrnm_ == uiODContourTreeItem::sKeyZValue() )
     {
-	Array2D<float>* arr=hor->geometry().sectionGeometry(sid)->getArray();
+	Array2D<float>* arr=hor->geometry().geometryElement()->getArray();
 	if ( hordisp->getZAxisTransform() )
-	    arr = hor->createArray2D( sid, hordisp->getZAxisTransform() );
+	    arr = hor->createArray2D( hordisp->getZAxisTransform() );
 	return arr;
     }
 
     const int dataid=applMgr()->EMServer()->loadAuxData( hor->id(),attrnm_);
-    Array2D<float>* arr = hor->auxdata.createArray2D( dataid, sid );
+    Array2D<float>* arr = hor->auxdata.createArray2D( dataid );
     return arr;
 }
 

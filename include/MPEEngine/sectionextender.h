@@ -30,15 +30,13 @@ namespace MPE
 class SectionSourceSelector;
 
 /*!
-\brief SequentialTask to extend the section of an EM object with ID
-EM::SectionID.
+\brief SequentialTask to extend the section of an EM object.
 */
 
 mExpClass(MPEEngine) SectionExtender : public SequentialTask
 {
 public:
-				SectionExtender(EM::SectionID si=-1);
-    EM::SectionID		sectionID() const;
+				SectionExtender();
 
     virtual void		reset();
     virtual void		setDirection(const TrcKeyValue&);
@@ -51,7 +49,7 @@ public:
     int				nextStep();
 
     void			extendInVolume(const BinID& bidstep,
-    					       float zstep);
+					       float zstep);
 
     const TypeSet<TrcKey>&	getAddedPositions() const;
     const TypeSet<TrcKey>&	getAddedPositionsSource() const;
@@ -65,7 +63,7 @@ public:
 
     const char*			errMsg() const;
     virtual void		fillPar(IOPar&) const {}
-    virtual bool		usePar(const IOPar&) 	{ return true; }
+    virtual bool		usePar(const IOPar&)	{ return true; }
 
     void			setUndo(bool yn)	{ setundo_ = yn; }
 
@@ -84,13 +82,12 @@ protected:
 
     TrcKeyZSampling		extboundary_;
 
-    const EM::SectionID		sid_;
     BufferString		errmsg;
     bool			setundo_;
 };
 
 
-mDefineFactory2Param( MPEEngine, SectionExtender, EM::EMObject*,
-		      EM::SectionID, ExtenderFactory );
+mDefineFactory1Param( MPEEngine, SectionExtender, EM::EMObject*,
+		      ExtenderFactory );
 
 } // namespace MPE

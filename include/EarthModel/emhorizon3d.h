@@ -40,11 +40,8 @@ mExpClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
 public:
 				Horizon3DGeometry(Surface&);
 
-    const Geometry::BinIDSurface* sectionGeometry(const SectionID&) const;
-    Geometry::BinIDSurface*	sectionGeometry(const SectionID&);
-
-    bool			removeSection(const SectionID&,bool hist);
-    SectionID			cloneSection(const SectionID&);
+    const Geometry::BinIDSurface* geometryElement() const;
+    Geometry::BinIDSurface*	geometryElement();
 
     bool			isFullResolution() const;
     RowCol			loadedStep() const;
@@ -64,20 +61,16 @@ public:
     int				getConnectedPos(const PosID&,
 						TypeSet<PosID>*) const;
 
-    bool			getBoundingPolygon(const SectionID&,
-						   Pick::Set&) const;
-    void			getDataPointSet( const SectionID&,
-						  DataPointSet&,
+    bool			getBoundingPolygon(Pick::Set&) const;
+    void			getDataPointSet(  DataPointSet&,
 						  float shift=0.0) const;
-    void			fillBinIDValueSet(const SectionID&,
-						 BinIDValueSet&,
+    void			fillBinIDValueSet(BinIDValueSet&,
 						 Pos::Provider3D* prov=0) const;
 
-    EMObjectIterator*		createIterator(const EM::SectionID&,
-					       const TrcKeyZSampling* =0) const;
+    EMObjectIterator*		createIterator(const TrcKeyZSampling* =0) const;
 protected:
 
-    Geometry::BinIDSurface*	createSectionGeometry() const;
+    Geometry::BinIDSurface*	createGeometryElement() const;
 
     RowCol			loadedstep_;
     RowCol			step_;
@@ -95,6 +88,7 @@ mExpClass(EarthModel) Horizon3D : public Horizon
 {   mDefineEMObjFuncs( Horizon3D );
     mODTextTranslationClass( Horizon3D );
 public:
+				mDeclMonitorableAssignment(Horizon3D);
 
     virtual float		getZ(const TrcKey&) const;
 				//!< Fast: reads from the first section
@@ -145,9 +139,8 @@ public:
 					 bool takeover);
 
     static Horizon3D*		createWithConstZ(float z,const TrcKeySampling&);
-    Array2D<float>*		createArray2D(SectionID,
-					      const ZAxisTransform* zt=0) const;
-    bool			setArray2D(const Array2D<float>&,SectionID,
+    Array2D<float>*		createArray2D(const ZAxisTransform* zt=0) const;
+    bool			setArray2D(const Array2D<float>&,
 					   bool onlyfillundefs,
 					   const char* histdesc,bool trimundef);
 				/*!< Returns true on succes.  If histdesc
@@ -170,9 +163,9 @@ public:
 					const TrcKeySampling& hs);
 
 
-    Pos::GeomID			getSurveyGeomID() const { return survgeomid_; }
-    				//!A 3D Horizon is locked to one survey
-    				//!Geometry
+    Pos::GeomID			getSurveyGeomID() const { return survid_; }
+				//!A 3D Horizon is locked to one survey
+				//!Geometry
     void			setSurveyGeomID(Pos::GeomID);
 
     uiString			getUserTypeStr() const { return userTypeStr(); }
@@ -224,10 +217,9 @@ protected:
     void			createNodeSourceArray(const StepInterval<int>&,
 						const StepInterval<int>&,
 						ArrayType);
-    TrcKeySampling		getSectionTrckeySampling() const;
+    TrcKeySampling		getTrckeySampling() const;
 
-    virtual bool		setPosition(const EM::SectionID&,
-					    const EM::SubID&,
+    virtual bool		setPosition(const EM::PosID&,
 					    const Coord3&,bool addtohistory,
 					    NodeSourceType type=Auto);
 
@@ -242,7 +234,7 @@ protected:
 
     Color			parentcolor_;
 
-    Pos::GeomID			survgeomid_;
+    Pos::SurvID			survid_;
     Array2D<char>*		nodesource_;
 				/*!< '0'- non interpreted, '1'- manual
 				interpreted,'2' - auto interpreted.

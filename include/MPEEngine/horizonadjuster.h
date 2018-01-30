@@ -32,7 +32,7 @@ class SectionExtender;
 mExpClass(MPEEngine) HorizonAdjuster : public SectionAdjuster
 {
 public:
-			HorizonAdjuster(EM::Horizon&,EM::SectionID);
+			HorizonAdjuster(EM::Horizon&);
 			~HorizonAdjuster();
 
     void		reset();
@@ -58,10 +58,10 @@ public:
     float		amplitudeThreshold() const;
     void		setAmplitudeThresholds(const TypeSet<float>& ats);
     TypeSet<float>&	getAmplitudeThresholds();
-    void 		setAllowedVariance(float v);
+    void		setAllowedVariance(float v);
     void		setAllowedVariances(const TypeSet<float>& avs);
     TypeSet<float>&	getAllowedVariances();
-    float 		allowedVariance() const;
+    float		allowedVariance() const;
     void		setUseAbsThreshold(bool abs);
     bool		useAbsThreshold() const;
 

@@ -149,7 +149,7 @@ bool uiGenRanLinesByContour::acceptOK()
 	    return false;
     }
 
-    uiTaskRunnerProvider trprov( this ); EM::EMManager& em = EM::EMM();
+    uiTaskRunnerProvider trprov( this ); EM::EMManager& em = EM::Hor3DMan();
     EM::EMObject* emobj = em.loadIfNotFullyLoaded( horioobj->key(), trprov );
     mDynamicCastGet( EM::Horizon3D*, hor, emobj )
     if ( !hor )

@@ -27,8 +27,7 @@ namespace MPE
 mExpClass(MPEEngine) BinIDSurfaceSourceSelector : public SectionSourceSelector
 {
 public:
-    			BinIDSurfaceSourceSelector(const EM::Horizon3D&,
-			       			   const EM::SectionID&);
+			BinIDSurfaceSourceSelector(const EM::Horizon3D&);
     int			nextStep() { return 0; }
 
 protected:
@@ -43,8 +42,7 @@ protected:
 mExpClass(MPEEngine) SurfaceSourceSelector : public SectionSourceSelector
 {
 public:
-    		SurfaceSourceSelector(const EM::EMObject&,
-				      const EM::SectionID&);
+		SurfaceSourceSelector(const EM::EMObject&);
     int		nextStep() { return 0; }
 
 protected:

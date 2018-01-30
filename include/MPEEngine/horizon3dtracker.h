@@ -29,7 +29,7 @@ class Horizon3DSeedPicker;
 mExpClass(MPEEngine) Horizon3DTracker : public EMTracker
 {
 public:
-    				Horizon3DTracker(EM::Horizon3D* =0);
+				Horizon3DTracker(EM::Horizon3D* =0);
 
     static EMTracker*		create(EM::EMObject* =0);
     static void			initClass();
@@ -40,11 +40,11 @@ public:
 
 protected:
 
-    				~Horizon3DTracker();
+				~Horizon3DTracker();
     EM::Horizon3D*		getHorizon();
     const EM::Horizon3D*	getHorizon() const;
 
-    SectionTracker*		createSectionTracker(EM::SectionID);
+    SectionTracker*		createSectionTracker();
     Horizon3DSeedPicker*	seedpicker_;
 };
 

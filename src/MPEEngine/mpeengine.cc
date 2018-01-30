@@ -122,16 +122,9 @@ void Engine::updateSeedOnlyPropagation( bool yn )
 	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
 	    continue;
 
-	EM::ObjectID oid = trackers_[idx]->objectID();
-	EM::EMObject* emobj = EM::EMM().getObject( oid );
-
-	for ( int sidx=0; sidx<emobj->nrSections(); sidx++ )
-	{
-	    EM::SectionID sid = emobj->sectionID( sidx );
-	    SectionTracker* sectiontracker =
-			trackers_[idx]->getSectionTracker( sid, true );
-	    sectiontracker->setSeedOnlyPropagation( yn );
-	}
+	SectionTracker* sectiontracker =
+		    trackers_[idx]->getSectionTracker( true );
+	sectiontracker->setSeedOnlyPropagation( yn );
     }
 }
 
@@ -244,6 +237,8 @@ void Engine::undo( uiString& errmsg )
     mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
     if ( !emundo ) return;
 
+    DBKey curid = emundo->getCurrentEMObjectID( false );
+    EM::EMObject* emobj = EM::EMM().getObject( curid );
     if ( emobj )
     {
 	emobj->ref();
@@ -272,6 +267,8 @@ void Engine::redo( uiString& errmsg )
     mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
     if( !emundo ) return;
 
+    DBKey curid = emundo->getCurrentEMObjectID( true );
+    EM::EMObject* emobj = EM::EMM().getObject( curid );
     if ( emobj )
     {
 	emobj->ref();
@@ -354,12 +351,12 @@ bool Engine::trackInVolume()
     if ( !tracker || !tracker->isEnabled() )
 	return false;
 
-    EM::ObjectID oid = tracker->objectID();
+    DBKey oid = tracker->objectID();
     EM::EMObject* emobj = EM::EMM().getObject( oid );
     if ( !emobj || emobj->isLocked() )
 	return false;
 
-    emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
+    emobj->geometryElement()->blockCallBacks(true);
     EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
     if ( !seedpicker ) return false;
 
@@ -395,7 +392,6 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
 	    continue;
 
-	EM::ObjectID oid = trackers_[idx]->objectID();
 	EM::EMM().removeSelected( oid, selector, trprov );
 
 	EM::EMObject* emobj = EM::EMM().getObject( oid );
@@ -499,7 +495,7 @@ void Engine::removeTracker( int idx )
 }
 
 
-void Engine::refTracker( EM::ObjectID emid )
+void Engine::refTracker( const DBKey& emid )
 {
     const int idx = getTrackerByObject( emid );
     if ( trackers_.validIdx(idx) && trackers_[idx] )
@@ -510,7 +506,7 @@ void Engine::refTracker( EM::ObjectID emid )
 }
 
 
-void Engine::unRefTracker( EM::ObjectID emid, bool nodelete )
+void Engine::unRefTracker( const DBKey& emid, bool nodelete )
 {
     const int idx = getTrackerByObject( emid );
     if ( !trackers_.validIdx(idx) || !trackers_[idx] )
@@ -527,7 +523,7 @@ void Engine::unRefTracker( EM::ObjectID emid, bool nodelete )
 }
 
 
-bool Engine::hasTracker( EM::ObjectID emid ) const
+bool Engine::hasTracker( const DBKey& emid ) const
 {
     const int idx = getTrackerByObject( emid );
     return trackers_.validIdx(idx) && trackers_[idx];
@@ -558,9 +554,9 @@ EMTracker* Engine::getTracker( int idx )
 { return idx>=0 && idx<trackers_.size() ? trackers_[idx] : 0; }
 
 
-int Engine::getTrackerByObject( const EM::ObjectID& oid ) const
+int Engine::getTrackerByObject( const DBKey& oid ) const
 {
-    if ( oid==-1 ) return -1;
+    if ( oid.isInvalid() ) return -1;
 
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
@@ -594,7 +590,7 @@ void Engine::setActiveTracker( EMTracker* tracker )
 { activetracker_ = tracker; }
 
 
-void Engine::setActiveTracker( const EM::ObjectID& objid )
+void Engine::setActiveTracker( const DBKey& objid )
 {
     const int tridx = getTrackerByObject( objid );
     activetracker_ = trackers_.validIdx(tridx) ? trackers_[tridx] : 0;
@@ -916,7 +912,7 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 }
 
 
-ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
+ObjectEditor* Engine::getEditor( const DBKey& id, bool create )
 {
     for ( int idx=0; idx<editors_.size(); idx++ )
     {
@@ -929,7 +925,7 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
 
     if ( !create ) return 0;
 
-    EM::EMObject* emobj = EM::EMM().getObject(id);
+    EM::EMObject* emobj = EM::getMgr(id).getObject(id);
     if ( !emobj ) return 0;
 
     ObjectEditor* editor = EditorFactory().create( emobj->getTypeStr(), *emobj);
@@ -943,7 +939,7 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
 }
 
 
-void Engine::removeEditor( const EM::ObjectID& objid )
+void Engine::removeEditor( const DBKey& objid )
 {
     ObjectEditor* editor = getEditor( objid, false );
     if ( editor )
@@ -979,7 +975,7 @@ void Engine::fillPar( IOPar& iopar ) const
 	if ( !tracker ) continue;
 
 	IOPar localpar;
-	localpar.set( sKeyObjectID(),EM::EMM().getDBKey(tracker->objectID()));
+	localpar.set( sKeyObjectID(), tracker->objectID() );
 	localpar.setYN( sKeyEnabled(), tracker->isEnabled() );
 
 	EMSeedPicker* seedpicker =
@@ -1018,13 +1014,11 @@ bool Engine::usePar( const IOPar& iopar )
 	if ( !localpar ) continue;
 
 	if ( !localpar->get(sKeyObjectID(),midtoload) ) continue;
-	EM::ObjectID oid = EM::EMM().getObjectID( midtoload );
-	EM::EMObject* emobj = EM::EMM().getObject( oid );
+	EM::EMObject* emobj = EM::EMM().getObject( midtoload );
 	if ( !emobj )
 	{
 	    loadEMObject.trigger();
-	    oid = EM::EMM().getObjectID( midtoload );
-	    emobj = EM::EMM().getObject( oid );
+	    emobj = EM::EMM().getObject( midtoload );
 	    if ( emobj ) emobj->ref();
 	}
 
@@ -1034,8 +1028,7 @@ bool Engine::usePar( const IOPar& iopar )
 		EM::EMM().objectLoader( MPE::engine().midtoload );
 	    if ( exec ) exec->execute();
 
-	    oid = EM::EMM().getObjectID( midtoload );
-	    emobj = EM::EMM().getObject( oid );
+	    emobj = EM::EMM().getObject( midtoload );
 	    if ( emobj ) emobj->ref();
 	}
 

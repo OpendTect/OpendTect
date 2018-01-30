@@ -29,10 +29,10 @@ namespace Geometry
     if ( knotidx<0 && knotidx>polygons_[polygonidx]->size()+extra ) \
 	return errorres;
 
-    
+
 PolygonSurface::PolygonSurface()
     : firstpolygon_( 0 )
-    , beziernrpts_( 10 )  
+    , beziernrpts_( 10 )
 {}
 
 
@@ -61,22 +61,22 @@ char PolygonSurface::bodyDimension() const
     const int plygsz = polygons_.size();
     if ( !plygsz )
 	return 0;
-    
+
     if ( plygsz==1 )
-	return mCast( char, polygons_[0]->size() >= 3 ? 
+	return mCast( char, polygons_[0]->size() >= 3 ?
 					 2 : polygons_[0]->size()-1 );
-    
+
     int totalpts = 0;
     for ( int idx=0; idx<plygsz; idx++ )
 	totalpts += polygons_[idx]->size();
-    
+
     if ( !totalpts ) return 0;
-    
+
     return mCast( char, totalpts>3 ? 3 : totalpts-1 );
 }
 
 
-bool PolygonSurface::insertPolygon( const Coord3& firstpos, 
+bool PolygonSurface::insertPolygon( const Coord3& firstpos,
 	const Coord3& normal, int polygonnr, int firstknot )
 {
     if ( !firstpos.isDefined() || !normal.isDefined() )
@@ -109,7 +109,7 @@ bool PolygonSurface::insertPolygon( const Coord3& firstpos,
 
     polygons_[polygonidx]->insert( 0, firstpos );
 
-    triggerNrPosCh( RowCol(polygonidx,PolygonInsert).toInt64() );
+    triggerNrPosCh( GeomPosID::getFromRowCol(polygonidx,PolygonInsert) );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
 
@@ -126,10 +126,10 @@ bool PolygonSurface::removePolygon( int polygonnr )
     firstknots_.removeSingle( polygonidx );
     concavedirs_.removeSingle( polygonidx );
 
-    triggerNrPosCh( RowCol(polygonidx,PolygonRemove).toInt64() );
+    triggerNrPosCh( GeomPosID::getFromRowCol(polygonidx,PolygonRemove) );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
-    
+
     return true;
 }
 
@@ -160,7 +160,7 @@ bool PolygonSurface::insertKnot( const RowCol& rc, const Coord3& pos )
     else
 	polygons_[polygonidx]->insert( knotidx, pos );
 
-    triggerNrPosCh( RowCol(polygonidx,PolygonChange).toInt64() );
+    triggerNrPosCh( GeomPosID::getFromRowCol(polygonidx,PolygonChange) );
 
     return true;
 }
@@ -175,8 +175,8 @@ bool PolygonSurface::removeKnot( const RowCol& rc )
 	return removePolygon( rc.row() );
 
     polygons_[polygonidx]->removeSingle( knotidx );
-    triggerNrPosCh( RowCol(polygonidx,PolygonChange).toInt64() );
-    
+    triggerNrPosCh( GeomPosID::getFromRowCol(polygonidx,PolygonChange) );
+
     return true;
 }
 
@@ -187,8 +187,8 @@ StepInterval<int> PolygonSurface::rowRange() const
 {
     if ( polygons_.isEmpty() )
 	return mEmptyInterval();
-    
-    return StepInterval<int>(firstpolygon_,firstpolygon_+polygons_.size()-1,1); 
+
+    return StepInterval<int>(firstpolygon_,firstpolygon_+polygons_.size()-1,1);
 }
 
 
@@ -208,14 +208,14 @@ void PolygonSurface::setBezierCurveSmoothness( int nrpoints_on_segment )
 }
 
 
-void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts, 
+void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 					  const float zscale ) const
 {
     if ( beziernrpts_<0 )
 	return;
 
-    const int polygonidx = plg - firstpolygon_; 
-    if ( polygonidx<0 || polygonidx>polygons_.size() ) 
+    const int polygonidx = plg - firstpolygon_;
+    if ( polygonidx<0 || polygonidx>polygons_.size() )
 	return;
 
     const int nrknots = (*polygons_[polygonidx]).size();
@@ -237,9 +237,9 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 
     CubicBezierCurve curve( knots[0], knots[1], 0, 1 );
     for( int knot=2; knot<knots.size(); knot++ )
-	curve.insertPosition(knot, knots[knot]);
-  
-    curve.setCircular( true ); 
+	curve.insertPosition(GeomPosID::get(knot), knots[knot]);
+
+    curve.setCircular( true );
     for ( int knot=0; knot<nrknots; knot++ )
     {
 	const Coord3 prvpos = knots[knot==0 ? nrknots-1 : knot-1];
@@ -250,7 +250,7 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 	{
 	    Coord3 pt = curve.computePosition(
 		    knot+nr*1.0f/(float)(beziernrpts_+1) );
-	    
+
 	    pt.z_ /= zscale;
 	    pts += pt;
 	}
@@ -276,7 +276,7 @@ bool PolygonSurface::setKnot( const RowCol& rc, const Coord3& pos )
     mGetValidPolygonIdx( polygonidx, rc.row(), 0, false );
     mGetValidKnotIdx( knotidx, rc.col(), polygonidx, 0, false );
     (*polygons_[polygonidx])[knotidx] = pos;
-    triggerMovement( RowCol(polygonidx,PolygonChange).toInt64() );
+    triggerMovement( GeomPosID::getFromRowCol(polygonidx,PolygonChange) );
     return true;
 }
 
@@ -285,7 +285,7 @@ Coord3 PolygonSurface::getKnot( const RowCol& rc ) const
 {
     mGetValidPolygonIdx( polygonidx, rc.row(), 0, Coord3::udf() );
     mGetValidKnotIdx( knotidx, rc.col(), polygonidx, 0, Coord3::udf() );
-    
+
     return (*polygons_[polygonidx])[knotidx];
 }
 
@@ -319,7 +319,7 @@ Coord3 PolygonSurface::getPolygonConcaveDir( int polygon ) const
 }
 
 
-void PolygonSurface::getPolygonConcaveTriangles( int polygon, 
+void PolygonSurface::getPolygonConcaveTriangles( int polygon,
 						 TypeSet<int>& triangles ) const
 {
     const StepInterval<int> colrg = colRange( polygon );
@@ -330,15 +330,15 @@ void PolygonSurface::getPolygonConcaveTriangles( int polygon,
 
     for ( int idx=colrg.start; idx<=colrg.stop; idx += colrg.step )
     {
-    	for ( int idy=idx+colrg.step; idy<=colrg.stop; idy += colrg.step )
-    	{
+	for ( int idy=idx+colrg.step; idy<=colrg.stop; idy += colrg.step )
+	{
 	    for ( int idz=idy+colrg.step; idz<=colrg.stop; idz += colrg.step )
 	    {
 		const Coord3 v0 = getKnot( RowCol(polygon,idx) );
 		const Coord3 v1 = getKnot( RowCol(polygon,idy) );
 		const Coord3 v2 = getKnot( RowCol(polygon,idz) );
 		const Coord3 tridir = ( (v1-v0).cross(v2-v1) ).normalize();
-		if ( dir.dot(tridir)<0 )  
+		if ( dir.dot(tridir)<0 )
 		{
 		    triangles += idx;
 		    triangles += idy;
@@ -350,7 +350,7 @@ void PolygonSurface::getPolygonConcaveTriangles( int polygon,
 }
 
 
-bool PolygonSurface::includesEdge( const TypeSet<int> edges, 
+bool PolygonSurface::includesEdge( const TypeSet<int> edges,
 				   int v0, int v1 ) const
 {
     for ( int idx=0; idx<edges.size()/2; idx++ )
@@ -368,7 +368,7 @@ void PolygonSurface::getExceptionEdges( int plg, TypeSet<int>& edges ) const
 {
     TypeSet<int> triangles;
     getPolygonConcaveTriangles( plg, triangles );
-   
+
     const int nrknots = colRange(plg).nrSteps()+1;
     for ( int ti=0; ti<triangles.size()/3; ti++ )
     {
@@ -376,16 +376,16 @@ void PolygonSurface::getExceptionEdges( int plg, TypeSet<int>& edges ) const
 	{
 	    if ( !includesEdge( edges, triangles[3*ti], triangles[3*ti+1] ) )
 	    {
-    		edges += triangles[3*ti];   
-    		edges += triangles[3*ti+1];
+		edges += triangles[3*ti];
+		edges += triangles[3*ti+1];
 	    }
 	}
 	else if ( abs(triangles[3*ti+2]-triangles[3*ti])!=1 )
 	{
 	    if ( !includesEdge( edges, triangles[3*ti], triangles[3*ti+2] ) )
 	    {
-    		edges += triangles[3*ti];
-    		edges += triangles[3*ti+2];
+		edges += triangles[3*ti];
+		edges += triangles[3*ti+2];
 	    }
 	}
     }
@@ -397,9 +397,9 @@ void PolygonSurface::getExceptionEdges( int plg, TypeSet<int>& edges ) const
 	for ( int idy=idx+2*colrg.step; idy<=colrg.stop; idy += colrg.step )
 	{
 	    if ( includesEdge(edges,idx,idy) )
-	       	continue;
+		continue;
 
-	    const Coord3 v1 = getKnot( RowCol(plg,idy) );	    
+	    const Coord3 v1 = getKnot( RowCol(plg,idy) );
 	    bool intersecting = false;
 
 	    for ( int idz=colrg.start; idz<colrg.stop; idz += colrg.step )
@@ -413,9 +413,9 @@ void PolygonSurface::getExceptionEdges( int plg, TypeSet<int>& edges ) const
 		}
 	    }
 
-	    if ( !intersecting ) 
+	    if ( !intersecting )
 		intersecting = linesegmentsIntersecting( v0, v1,
-			getKnot( RowCol(plg,colrg.start) ), 
+			getKnot( RowCol(plg,colrg.start) ),
 			getKnot( RowCol(plg,colrg.stop) ) );
 
 	    if ( intersecting )
@@ -428,7 +428,7 @@ void PolygonSurface::getExceptionEdges( int plg, TypeSet<int>& edges ) const
 }
 
 
-bool PolygonSurface::linesegmentsIntersecting( const Coord3& v0,  
+bool PolygonSurface::linesegmentsIntersecting( const Coord3& v0,
 	const Coord3& v1,  const Coord3& p0,  const Coord3& p1 ) const
 {
     Coord3 norm0 = (v1-v0).cross(p0-v0);
@@ -461,7 +461,7 @@ void PolygonSurface::addUdfPolygon( int polygonnr, int firstknotnr, int nrknots)
     if ( isEmpty() )
 	firstpolygon_ = polygonnr;
 
-    firstknots_ += firstknotnr;    
+    firstknots_ += firstknotnr;
     polygons_ += new TypeSet<Coord3>( nrknots, Coord3::udf() );
 }
 

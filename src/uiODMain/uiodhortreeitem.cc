@@ -29,6 +29,7 @@ ___________________________________________________________________
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "uinewemobjdlg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiposprovider.h"
@@ -163,8 +164,19 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     }
     else if ( mnuid == trackitem_.id )
     {
+	uiNewEMObjectDlg* newdlg =
+	    uiNewEMObjectDlg::factory().create( EM::Horizon3D::typeStr(),
+						getUiParent() );
+	if ( !newdlg || !newdlg->go() )
+	    return false;
+
+	RefMan<EM::EMObject> emo = newdlg->getEMObject();
+	if ( !emo )
+	    return false;
+
+
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	mps->addTracker( EM::Horizon3D::typeStr(), sceneID() );
+	mps->addTracker( emo->dbKey(), sceneID() );
 	return true;
     }
     else if ( mnuid == mSectIdx || mnuid == mFullIdx || mnuid == mSectFullIdx )
@@ -204,9 +216,9 @@ static uiTreeItem* gtItm( const DBKey& mid, ObjectSet<uiTreeItem>& itms )
     for ( int idx=0; idx<itms.size(); idx++ )
     {
 	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,itms[idx])
-	const EM::ObjectID emid = itm && itm->visEMObject() ?
-		     itm->visEMObject()->getObjectID() : -1;
-	if ( mid == EM::EMM().getDBKey(emid) )
+	const DBKey itemkey = itm && itm->visEMObject() ?
+		     itm->visEMObject()->getObjectID() : DBKey::getInvalid();
+	if ( mid == itemkey  )
 	    return itms[idx];
     }
 
@@ -225,8 +237,7 @@ void uiODHorizonParentTreeItem::sort()
 	if ( !itm || !itm->visEMObject() )
 	    continue;
 
-	const EM::ObjectID emid = itm->visEMObject()->getObjectID();
-	mids += EM::EMM().getDBKey( emid );
+	mids += itm->visEMObject()->getObjectID();
     }
 
     EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );
@@ -280,7 +291,7 @@ uiTreeItem*
 
 // uiODHorizonTreeItem
 
-uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba,
+uiODHorizonTreeItem::uiODHorizonTreeItem( const DBKey& emid, bool rgba,
 					  bool atsect )
     : uiODEarthModelSurfaceTreeItem(emid)
     , rgba_(rgba)
@@ -290,7 +301,7 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba,
 
 uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool atsect,
 					  bool dummy )
-    : uiODEarthModelSurfaceTreeItem(0)
+    : uiODEarthModelSurfaceTreeItem(DBKey::getInvalid())
     , rgba_(rgba)
     , atsections_(atsect)
 {
@@ -381,7 +392,7 @@ bool uiODHorizonTreeItem::init()
     const bool res = uiODEarthModelSurfaceTreeItem::init();
     if ( !res ) return res;
 
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::Hor3DMan().getObject(emid_))
     if ( hor3d )
     {
 	const int trackerid = MPE::engine().getTrackerByObject( hor3d->id() );
@@ -567,7 +578,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     const int visid = displayID();
     mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
 		     visserv_->getObject(visid) );
-    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
+    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::Hor3DMan().getObject(emid_))
     if ( !hd || !hor3d ) return;
 
     uiEMPartServer* emserv = applMgr()->EMServer();
@@ -820,8 +831,7 @@ void uiODHorizon2DParentTreeItem::sort()
 	if ( !itm || !itm->visEMObject() )
 	    continue;
 
-	const EM::ObjectID emid = itm->visEMObject()->getObjectID();
-	mids += EM::EMM().getDBKey( emid );
+	mids += itm->visEMObject()->getObjectID();
     }
 
     EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );
@@ -863,13 +873,13 @@ uiTreeItem*
 
 // uiODHorizon2DTreeItem
 
-uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const EM::ObjectID& objid )
+uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const DBKey& objid )
     : uiODEarthModelSurfaceTreeItem( objid )
 { initMenuItems(); }
 
 
 uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
-    : uiODEarthModelSurfaceTreeItem( 0 )
+    : uiODEarthModelSurfaceTreeItem(DBKey::getInvalid())
 {
     initMenuItems();
     displayid_=id;

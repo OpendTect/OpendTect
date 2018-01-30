@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-mImplFactory3Param(Vw2DDataObject,const EM::ObjectID&,uiFlatViewWin*,
+mImplFactory3Param(Vw2DDataObject,const DBKey&,uiFlatViewWin*,
 	const ObjectSet<uiFlatViewAuxDataEditor>&,Vw2DDataManager::factory);
 
 Vw2DDataManager::Vw2DDataManager()
@@ -182,7 +182,8 @@ void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win,
 	    break;
 	}
 	const char* type = objpar->find( sKey::Type() );
-	RefMan<Vw2DDataObject> obj = factory().create(type, -1 ,win,eds);
+	RefMan<Vw2DDataObject> obj =
+		factory().create( type, DBKey::getInvalid(), win, eds );
 	if ( obj && obj->usePar( *objpar ) && !similarObjectPresent(obj) )
 	    addObject( obj );
     }

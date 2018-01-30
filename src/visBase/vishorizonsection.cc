@@ -437,9 +437,9 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
     if ( connect )
     {
 	geometry_ = surf;
-	mAttachCB( geometry_->movementnotifier,
+	mAttachCB( geometry_->movementNotifier(),
 					    HorizonSection::surfaceChangeCB );
-	mAttachCB( geometry_->nrpositionnotifier,
+	mAttachCB( geometry_->nrpositionNotifier(),
 					    HorizonSection::surfaceChangeCB );
     }
 

@@ -376,7 +376,7 @@ bool uiDataPointSetPickDlg::acceptOK()
 
 // uiEMDataPointSetPickDlg
 uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, int sceneid,
-						  EM::ObjectID emid )
+						  const DBKey& emid )
     : uiDataPointSetPickDlg(p,sceneid)
     , emid_(emid)
     , emdps_(*new DataPointSet(false,true))
@@ -429,19 +429,15 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 
     float auxvals[3];
-    const EM::SectionID sid = hor3d->sectionID( 0 );
     tks_ = hor3d->range();
-    auxvals[1] = sid;
-    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
+    auxvals[1] = 0;
+    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator();
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
-	    break;
-
 	auxvals[0] = (float) hor3d->getPos( pid ).z_;
 	auxvals[2] = mUdf( float );
-	BinID bid = BinID::fromInt64( pid.subID() );
+	BinID bid = pid.getBinID();
 	emdps_.bivSet().add( bid, auxvals );
     }
 

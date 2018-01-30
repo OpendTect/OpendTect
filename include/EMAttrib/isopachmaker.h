@@ -56,8 +56,6 @@ protected:
     const EM::Horizon3D&	hor2_;
     DataPointSet*		dps_;
     EM::EMObjectIterator*	iter_;
-    const EM::SectionID		sectid1_;
-    const EM::SectionID		sectid2_;
     bool			inmsec_;
 
 };

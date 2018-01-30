@@ -48,7 +48,7 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
     static uiRetVal	executeGridding(HorizonGridder*,EM::Horizon3D*,
-				const EM::SectionID&,const BinID& step,
+				const BinID& step,
 				const TaskRunnerProvider&,
 				const Interval<int>* polyinlrg = 0,
 				const Interval<int>* polycrlrg = 0);

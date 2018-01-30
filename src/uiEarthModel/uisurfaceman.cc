@@ -367,7 +367,7 @@ void uiSurfaceMan::calcVolCB( CallBacker* )
 
     uiTaskRunnerProvider trprov( this );
     RefMan<EM::EMObject> emo =
-	EM::EMM().loadIfNotFullyLoaded( curioobj_->key(), trprov );
+	EM::BodyMan().loadIfNotFullyLoaded( curioobj_->key(), trprov );
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
     if ( !emb )
     {
@@ -636,18 +636,6 @@ void uiSurfaceMan::mkFileInfo()
     }
 
     txt += getFileInfo();
-
-    BufferStringSet sectionnms;
-    eminfo.getSectionNames( sectionnms );
-    if ( sectionnms.size() > 1 )
-    {
-	txt += "Nr of sections: "; txt += sectionnms.size(); txt += "\n";
-	for ( int idx=0; idx<sectionnms.size(); idx++ )
-	{
-	    txt += "\tPatch "; txt += idx+1; txt += ": ";
-	    txt += sectionnms[idx]->buf(); txt += "\n";
-	}
-    }
 
     setInfo( txt );
     setToolButtonProperties();

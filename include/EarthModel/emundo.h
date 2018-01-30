@@ -32,7 +32,7 @@ mExpClass(EarthModel) EMUndo : public Undo
 {
 public:
 
-    ObjectID		getCurrentEMObjectID(bool forredo) const;
+    DBKey		getCurrentEMObjectID(bool forredo) const;
 };
 
 
@@ -40,7 +40,7 @@ mExpClass(EarthModel) EMUndoEvent : public UndoEvent
 {
 public:
 
-    virtual ObjectID	getObjectID() const =0;
+    virtual DBKey	getObjectID() const =0;
 };
 
 
@@ -52,7 +52,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const { return posid_.objectID(); }
+    DBKey		getObjectID() const { return DBKey::getInvalid(); }
 
 protected:
     EM::PosID		posid_;
@@ -69,22 +69,21 @@ protected:
 mExpClass(EarthModel) SetAllHor3DPosUndoEvent : public EMUndoEvent
 {
 public:
-			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
+			SetAllHor3DPosUndoEvent(EM::Horizon3D*,
 				    Array2D<float>*);
-			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
+			SetAllHor3DPosUndoEvent(EM::Horizon3D*,
 				    Array2D<float>*,const RowCol& oldorigin);
 
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const;
+    DBKey		getObjectID() const;
 
 protected:
     bool		setArray(const Array2D<float>&, const RowCol& origin);
 			~SetAllHor3DPosUndoEvent();
 
     EM::Horizon3D*	horizon_;
-    EM::SectionID	sid_;
     RowCol		oldorigin_;
     RowCol		neworigin_;
     Array2D<float>*	oldarr_;
@@ -105,7 +104,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const { return posid_.objectID(); }
+    DBKey		getObjectID() const { return DBKey::getInvalid(); }
 
 protected:
     EM::PosID		posid_;
@@ -113,28 +112,6 @@ protected:
     int			attrib_;
 };
 
-
-/*!
-\brief Saves information from a EMObject::changePosID call.
-*/
-
-mExpClass(EarthModel) PosIDChangeEvent : public EMUndoEvent
-{
-public:
-    			PosIDChangeEvent(const EM::PosID& from,
-					 const EM::PosID& to,
-					 const Coord3& tosprevpos);
-
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
-    ObjectID		getObjectID() const { return to_.objectID(); }
-
-protected:
-    const EM::PosID	from_;
-    const EM::PosID	to_;
-    Coord3		savedpos_;
-};
 
 
 /*!
@@ -144,16 +121,16 @@ protected:
 mExpClass(EarthModel) SetPrefColorEvent : public EMUndoEvent
 {
 public:
-    			SetPrefColorEvent(const EM::ObjectID&,
+			SetPrefColorEvent(const DBKey&,
 					  const Color& oldcol,
 					  const Color& newcol);
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const { return objectid_; }
+    DBKey		getObjectID() const { return objectid_; }
 
 protected:
-    const EM::ObjectID	objectid_;
+    const DBKey		objectid_;
     const Color		oldcolor_;
     const Color		newcolor_;
 };

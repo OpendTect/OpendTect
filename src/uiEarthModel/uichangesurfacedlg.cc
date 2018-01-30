@@ -122,47 +122,38 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	return false;
 
     uiUserShowWait( this, tr("Processing sections") );
-    for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
+    if ( needsFullSurveyArray() )
+	savefldgrp_->setFullSurveyArray( true );
+
+    PtrMan<Array2D<float> > arr = hor3d->createArray2D();
+    if ( !arr )
     {
-	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
-	if ( !idx && needsFullSurveyArray() )
-	    savefldgrp_->setFullSurveyArray( true );
-
-	PtrMan<Array2D<float> > arr = hor3d->createArray2D( sid );
-	if ( !arr )
-	{
-	    uiString msg = tr("Not enough horizon data for section %1")
-			 .arg(sid);
-	    ErrMsg( msg.getFullString() ); continue;
-	}
-
-	PtrMan<Executor> worker = getWorker( *arr,
-			hor3d->geometry().rowRange(sid),
-			hor3d->geometry().colRange(sid,-1) );
-	if ( !worker ) return false;
-
-	uiTaskRunner dlg( this );
-	if ( !TaskRunner::execute( &dlg, *worker ) )
-	    return false;
-
-	if ( !usedhor3d )
-	    return false;
-	const EM::SectionID usedsid = usedhor3d->geometry().sectionID( idx );
-	if ( !usedhor3d->setArray2D(*arr,usedsid,fillUdfsOnly(),
-				    undoText(),false) )
-	{
-	    uiString msg = tr("Cannot set new data to section %1").arg(usedsid);
-	    ErrMsg( msg.getFullString() ); continue;
-	}
-	else if ( usedhor3d==hor3d )
-	{
-	    change = true;
-	}
+	ErrMsg( "Not enough horizon data" );
+	return false;
     }
 
+    PtrMan<Executor> worker = getWorker( *arr,
+		    hor3d->geometry().rowRange(),
+		    hor3d->geometry().colRange(-1) );
+    if ( !worker ) return false;
+
+    uiTaskRunner dlg( this );
+    if ( !TaskRunner::execute( &dlg, *worker ) )
+	return false;
+
+    if ( !usedhor3d )
+	return false;
+    if ( !usedhor3d->setArray2D(*arr,fillUdfsOnly(),undoText(),false) )
+    {
+	ErrMsg( "Cannot set new data" );
+	return false;
+    }
+    else if ( usedhor3d==hor3d )
+	change = true;
+
     if ( change )
-	EM::EMM().undo(usedhor3d->id()).setUserInteractionEnd(
-	EM::EMM().undo(usedhor3d->id()).lastEventID());
+	EM::Hor3DMan().undo().setUserInteractionEnd(
+		EM::Hor3DMan().undo().lastEventID());
 
     return true;
 }

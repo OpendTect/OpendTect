@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "dbkey.h"
 #include "coord.h"
+#include "sharedobject.h"
+
 #include "uistring.h"
 #include "taskrunner.h"
 
@@ -39,36 +41,30 @@ class EMManager;
 \brief EM object callback data.
 */
 
-mExpClass(EarthModel) EMObjectCallbackData
+typedef Monitorable::ChangeData EMObjectCallbackData;
+
+mExpClass(EarthModel) EMChangeAuxData : public Monitorable::ChangeData::AuxData
 {
 public:
-		EMObjectCallbackData()
-		    : pid0( 0, 0, 0 )
-		    , pid1( 0, 0, 0 )
-		    , attrib( -1 )
+		EMChangeAuxData()
+		    : attrib( -1 )
 		    , flagfor2dviewer( false )
-		    , event( EMObjectCallbackData::Undef )
 		{}
 
 
-		EMObjectCallbackData( const EMObjectCallbackData& data )
+		EMChangeAuxData( const EMChangeAuxData& data )
 		    : pid0( data.pid0 )
 		    , pid1( data.pid1 )
 		    , attrib( data.attrib )
 		    , flagfor2dviewer( data.flagfor2dviewer )
-		    , event( data.event )
 		{}
 
-
-    enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
-		 AttribChange, SectionChange, NameChange, SelectionChange,
-		 LockChange, BurstAlert, LockColorChange, SelectionColorChnage,
-		 ParentColorChange} event;
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
     int		attrib; //Used only with AttribChange
     bool	flagfor2dviewer; //Used only with BurstAlert for 2DViewer
+
 };
 
 
@@ -87,7 +83,7 @@ public:
     virtual int		approximateSize() const	{ return maximumSize(); }
     virtual int		maximumSize() const	{ return -1; }
     virtual bool	canGoTo() const		{ return false; }
-    virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(-1,-1,-1); }
+    virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(); }
 };
 
 
@@ -114,72 +110,67 @@ public:
 \brief Base class for all EarthModel objects.
 */
 
-mExpClass(EarthModel) EMObject	: public RefCount::Referenced
-				, public NamedCallBacker // -> Monitorable
+#define mImplEMSet(fnnm,typ,memb,emcbtype) \
+void fnnm( typ _set_to_ ) \
+{ setMemberSimple( memb, _set_to_, emcbtype, ChangeData::cUnspecChgID() ); }
+
+#define mImplEMGetSet(pfx,fnnmget,fnnmset,typ,memb,emcbtype) \
+    pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
+    pfx mImplEMSet(fnnmset,const typ&,memb,emcbtype)
+
+
+mExpClass(EarthModel) EMObject : public SharedObject
 {
 public:
 
     enum NodeSourceType		{ None = (int)'0', Manual=(int)'1',
 				  Auto=(int)'2', Gridding=(int)'3' };
-    const ObjectID&		id() const		{ return id_; }
+
+    const DBKey&		id() const		{ return storageid_; }
     virtual const char*		getTypeStr() const	= 0;
     virtual uiString		getUserTypeStr() const	= 0;
     const DBKey&		dbKey() const		{ return storageid_; }
     void			setDBKey(const DBKey&);
 
+    mImplEMGetSet(inline,preferredColor,setPreferredColor,Color,preferredcolor_,
+		  cPrefColorChange())
+    mImplEMGetSet(inline,selectionColor,setSelectionColor,Color,selectioncolor_,
+		  cSelColorChange())
+    mImplEMGetSet(inline,preferredLineStyle,setPreferredLineStyle,
+		  OD::LineStyle, preferredlinestyle_,cPrefLineStyleChange())
+    mImplEMGetSet(inline,preferredMarkerStyle3D,setPreferredMarkerStyle3D,
+		  OD::MarkerStyle3D,preferredmarkerstyle_,
+		  cPrefMarkerStyleChange())
+
     virtual bool		isOK() const		{ return true; }
-
-    virtual BufferString	getName() const;
-    virtual const OD::String&	name() const;
-    virtual void		setName(const char*);
-				//!< sets an initial name that is valid when the
-				//!< object is not (yet) stored.
-    virtual void		setNameToJustCreated();
-
-    virtual int			nrSections() const	= 0;
-    virtual SectionID		sectionID(int) const	= 0;
-    virtual BufferString	sectionName(const SectionID&) const;
-    virtual bool		canSetSectionName() const;
-    virtual bool		setSectionName(const SectionID&,const char*,
-					       bool addtohistory);
-    virtual int			sectionIndex(const SectionID&) const;
-    virtual bool		removeSection(SectionID,bool hist )
-							{ return false; }
-
-    void			setSelectionColor(const Color&);
-    const Color&		getSelectionColor() const;
-    void			removeSelected(const TypeSet<EM::SubID>&);
-
-    const Geometry::Element*	sectionGeometry(const SectionID&) const;
-    Geometry::Element*		sectionGeometry(const SectionID&);
-
-    const Color&		preferredColor() const;
-    void			setPreferredColor(const Color&,
-						  bool addtohistory=false);
-    const OD::LineStyle&	preferredLineStyle() const;
-    void			setPreferredLineStyle(const OD::LineStyle&);
-    const OD::MarkerStyle3D&	preferredMarkerStyle3D() const;
-    void			setPreferredMarkerStyle3D(
-						    const OD::MarkerStyle3D&);
 
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
 
     virtual Coord3		getPos(const EM::PosID&) const;
-    virtual Coord3		getPos(const EM::SectionID&,
-				       const EM::SubID&) const;
+    Coord3			getPos(const EM::SectionID& sid,
+				       const EM::PosID& posid) const
+				{ return getPos( posid ); }
+
     virtual bool		isDefined(const EM::PosID&) const;
-    virtual bool		isDefined(const EM::SectionID&,
-					  const EM::SubID&) const;
+    virtual bool		isDefined(const EM::SectionID& sid,
+					  const EM::PosID& posid) const
+				{ return isDefined( posid ); }
+
     bool			setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory,
 				       NodeSourceType type=Auto);
-    bool			setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory,
-				       NodeSourceType type=Auto);
+    bool			setPos(const EM::SectionID& sid,
+				       const EM::PosID& posid,
+				       const Coord3& pos,bool tohistory,
+				       NodeSourceType type=Auto)
+				{ return setPos(posid, pos, tohistory, type); }
+
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
-    virtual bool		unSetPos(const EM::SectionID&,const EM::SubID&,
-					 bool addtohistory);
+    bool			unSetPos(const EM::SectionID& sid,
+					 const EM::PosID& posid,
+					 bool addtohistory)
+				{ return unSetPos( posid, addtohistory ); }
 
     virtual void		setNodeSourceType(const TrcKey&,
 							NodeSourceType){}
@@ -210,13 +201,6 @@ public:
 
     virtual bool		isAtEdge(const EM::PosID&) const;
 
-    void			changePosID(const EM::PosID& from,
-					    const EM::PosID& to,
-					    bool addtohistory);
-				/*!<Tells the object that the node former known
-				    as from is now called to. Function will also
-				    exchange set the position of to to the
-				    posion of from. */
 
     virtual void		getLinkedPos(const EM::PosID& posid,
 					  TypeSet<EM::PosID>&) const
@@ -225,8 +209,7 @@ public:
 				     linked to the posid given
 				*/
 
-    virtual EMObjectIterator*	createIterator(const EM::SectionID&,
-					       const TrcKeyZSampling* =0) const
+    virtual EMObjectIterator*	createIterator(const TrcKeyZSampling* =0) const
 				{ return 0; }
 				/*!< creates an iterator. If the sectionid is
 				     -1, all sections will be traversed. */
@@ -243,20 +226,17 @@ public:
     virtual const char*		posAttribName(int) const;
     virtual int			addPosAttribName(const char*);
     const TypeSet<PosID>*	getPosAttribList(int attr) const;
-    const OD::MarkerStyle3D&	getPosAttrMarkerStyle(int attr);
+    OD::MarkerStyle3D		getPosAttrMarkerStyle(int attr);
     void			setPosAttrMarkerStyle(int attr,
 						      const OD::MarkerStyle3D&);
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
     virtual void		removeSelected(const Selector<Coord3>&,
 					       const TaskRunnerProvider&);
-    void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
-						   const EM::SectionID&);
+    void			removePositions(const TypeSet<EM::PosID>&);
     void			removeAllUnSeedPos();
     const TrcKeyZSampling	getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();
-
-    CNotifier<EMObject,const EMObjectCallbackData&>	change;
 
     virtual Executor*		loader()		{ return 0; }
     virtual bool		isLoaded() const	{ return false; }
@@ -286,33 +266,51 @@ public:
     static int			sSeedNode();
     static int			sIntersectionNode();
 
+    static ChangeType		cUndefChange()
+				{ return ChangeData::cNoChgType(); }
+    static ChangeType		cPositionChange()	{ return 2; }
+    static ChangeType		cPrefColorChange()	{ return 3; }
+    static ChangeType		cSelColorChange()	{ return 4; }
+    static ChangeType		cPrefLineStyleChange()	{ return 5; }
+    static ChangeType		cPrefMarkerStyleChange(){ return 6; }
+    static ChangeType		cPosIDChange()		{ return 7; }
+    static ChangeType		cAttribChange()		{ return 8; }
+    static ChangeType		cSectionChange()	{ return 9; }
+    static ChangeType		cNameChange()		{ return 10; }
+    static ChangeType		cSelectionChange()	{ return 11; }
+    static ChangeType		cLockChange()		{ return 12; }
+    static ChangeType		cBurstAlert()		{ return 13; }
+    static ChangeType		cLockColorChange()	{ return 14; }
+    static ChangeType		cParentColorChange()	{ return 15; }
+
     virtual const IOObjContext&	getIOObjContext() const = 0;
+
 
 protected:
 				~EMObject();
-				EMObject( EMManager& );
+				EMObject(const char*);
 				//!<must be called after creation
 
-    virtual bool		setPosition(const EM::SectionID&,
-					    const EM::SubID&,
+				mDeclAbstractMonitorableAssignment(EMObject);
+
+    virtual bool		setPosition(const EM::PosID&,
 					    const Coord3&,bool addtohistory,
 					    NodeSourceType type=Auto);
-    virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);
     void			useDisplayPars(const IOPar&);
-    ObjectID			id_;
+
+    BufferString		objname_;
     DBKey			storageid_;
-    class EMManager&		manager_;
     uiString			errmsg_;
 
     Color			preferredcolor_;
-    OD::LineStyle&		preferredlinestyle_;
-    OD::MarkerStyle3D&		preferredmarkerstyle_;
+    Color			lockcolor_;
+    Color			selectioncolor_;
+    OD::LineStyle		preferredlinestyle_;
+    OD::MarkerStyle3D		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
-    Color			selectioncolor_;
-    Color			lockcolor_;
 
     TrcKeyZSampling		removebypolyposbox_;
 
@@ -338,13 +336,17 @@ public:
     static Color		sDefaultSelectionColor();
     static Color		sDefaultLockColor();
 
+				//TODO:Remove when all EMObjects are Montorable
+    void			sendEMNotifFromOutside(
+					const EMObjectCallbackData& c) const
+				{ mLock4Read(); sendChgNotif(accesslocker_,c); }
 };
 
 } // namespace EM
 
 #define mDefineEMObjFuncs( clss ) \
 public: \
-				clss(EM::EMManager&); \
+				clss(const char* nm); \
     static void			initClass(); \
     static EMObject*		create(EM::EMManager&); \
     static clss*		create(const char* nm); \
@@ -363,18 +365,16 @@ void clss::initClass() \
  \
 EMObject* clss::create( EM::EMManager& emm ) \
 { \
-    EMObject* obj = new clss( emm ); \
+    EMObject* obj = new clss(""); \
     if ( !obj ) return 0; \
     obj->ref();         \
-    emm.addObject( obj ); \
     obj->unRefNoDelete(); \
     return obj; \
 } \
 \
 clss* clss::create( const char* nm ) \
 { \
-    const ObjectID objid = EMM().createObject( typeStr(), nm ); \
-    EMObject* emobj = EMM().getObject( objid ); \
+    EMObject* emobj = EMM().createObject( typeStr(), nm ); \
     mDynamicCastGet(clss*,newobj,emobj); \
     return newobj; \
 } \
@@ -388,3 +388,27 @@ void clss::setNameToJustCreated() \
     nm.add( objnr++ ).add( ">" ); \
     setName( nm ); \
 }
+
+
+#define mSendEMCBNotifWithData( typ, data ) \
+    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), \
+			     data ); \
+    sendChgNotif( accesslocker_, cd );
+
+#define mSendEMCBNotifPosID( typ, pid ) \
+    setChangedFlag(); \
+    RefMan<EMChangeAuxData> data = new EMChangeAuxData; \
+    data->pid0 = pid; \
+    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), \
+			     data ); \
+    sendChgNotif( accesslocker_, cd );
+
+#define mSendEMCBNotif( typ ) \
+    setChangedFlag(); \
+    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), 0); \
+    sendChgNotif( accesslocker_, cd );
+
+#define mSendEMSurfNotif( typ ) \
+    surface_.setChangedFlag(); \
+    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), 0); \
+    surface_.sendEMNotifFromOutside( cd );

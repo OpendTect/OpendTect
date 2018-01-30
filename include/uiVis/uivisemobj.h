@@ -32,14 +32,14 @@ mExpClass(uiVis) uiVisEMObject : public CallBacker
 public:
 			uiVisEMObject(uiParent*,int displayid,
 				      uiVisPartServer* );
-			uiVisEMObject(uiParent*,const EM::ObjectID&,int sceneid,
+			uiVisEMObject(uiParent*,const DBKey&,int sceneid,
 				      uiVisPartServer*);
 			~uiVisEMObject();
     bool		isOK() const;
 
     static const char*	getObjectType(int displayid);
     int			id() const { return displayid_; }
-    EM::ObjectID	getObjectID() const;
+    DBKey		getObjectID() const;
 
     float		getShift() const;
     void		setDepthAsAttrib(int attrib);

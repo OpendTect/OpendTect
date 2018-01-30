@@ -203,8 +203,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 	    return;
 	}
 
-	EM::ObjectID emid = EM::EMM().getObjectID( horids[idx] );
-	RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+	RefMan<EM::EMObject> emobj = EM::EMM().getObject( horids[idx] );
 	bool success = true;
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{
@@ -216,10 +215,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 		    success = true;
 	    }
 	    if ( success )
-	    {
-		emid = EM::EMM().getObjectID( horids[idx] );
-		emobj = EM::EMM().getObject( emid );
-	    }
+		emobj = EM::EMM().getObject( horids[idx] );
 	    else
 	    {
 		errms = tr("Cannot load %1.")
@@ -231,7 +227,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 	if ( !hor )
 	    continue;
 	WellHorIntersectFinder whfinder( wd_->track(), &wd_->d2TModel() );
-	whfinder.setHorizon( emid );
+	whfinder.setHorizon( horids[idx] );
 	const float zval =
 	    whfinder.findZIntersection()*SI().zDomain().userFactor();
 	if ( !mIsUdf( zval ) )

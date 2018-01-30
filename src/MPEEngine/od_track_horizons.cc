@@ -55,8 +55,9 @@ bool BatchProgram::go( od_ostream& strm )
 		    continue );
 
 	LoggedTaskRunnerProvider trprov( strm );
-	RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( hordbky,
-								     trprov );
+	EM::EMManager& emmgr = EM::getMgr( hordbky );
+	RefMan<EM::EMObject> emobj =
+	    	emmgr.loadIfNotFullyLoaded( hordbky, trprov );
 	if ( !emobj )
 	    mError( BufferString( "Cannot load ", hordbky ), continue );
 

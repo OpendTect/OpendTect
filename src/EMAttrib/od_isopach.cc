@@ -46,8 +46,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
 
     EM::EMManager& em = EM::EMM();
-    EM::ObjectID emid1 = em.getObjectID( mid1 );
-    EM::EMObject* emobj1 = em.getObject( emid1 );
+    EM::EMObject* emobj1 = em.getObject( mid1 );
     mDynamicCastGet(EM::Horizon3D*,horizon1,emobj1);
     if ( !horizon1 )
 	return false;
@@ -57,8 +56,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !loadHorizon( mid2, strm ) )
 	return false;
 
-    EM::ObjectID emid2 = em.getObjectID( mid2 );
-    EM::EMObject* emobj2 = em.getObject( emid2 );
+    EM::EMObject* emobj2 = em.getObject( mid2 );
     mDynamicCastGet(EM::Horizon3D*,horizon2,emobj2)
     if ( !horizon2 )
 	return false;

@@ -18,19 +18,15 @@ ___________________________________________________________________
 namespace MPE
 {
 
-mImplFactory2Param( SectionExtender, EM::EMObject*, EM::SectionID,
+mImplFactory1Param( SectionExtender, EM::EMObject*,
 		    ExtenderFactory )
 
 
-SectionExtender::SectionExtender( EM::SectionID sid )
-    : sid_(sid)
-    , extboundary_(false)
+SectionExtender::SectionExtender()
+    : extboundary_(false)
     , excludedpos_(0)
     , setundo_(true)
 {}
-
-
-EM::SectionID SectionExtender::sectionID() const { return sid_; }
 
 
 void SectionExtender::reset()

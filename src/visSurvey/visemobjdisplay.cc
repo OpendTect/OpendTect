@@ -213,7 +213,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     else if ( keycb )
     {
 	const RowCol closestrc = closestnode.getRowCol();
-	BufferString str = "Section: "; str += closestnode.sectionID();
+	BufferString str = "Section: "; str += 0;
 	str += " ("; str += closestrc.row();
 	str += ","; str += closestrc.col(); str += ",";
 	const Coord3 pos = emobject_->getPos( closestnode );
@@ -238,7 +238,8 @@ void EMObjectDisplay::removeEMStuff()
 
     if ( emobject_ )
     {
-	emobject_->change.remove( mCB(this,EMObjectDisplay,emChangeCB));
+	emobject_->objectChanged().remove(
+		mCB(this,EMObjectDisplay,emChangeCB));
 	const int trackeridx =
 	    MPE::engine().getTrackerByObject(emobject_->id());
 	if ( trackeridx >= 0 )
@@ -251,10 +252,10 @@ void EMObjectDisplay::removeEMStuff()
 
 
 EM::PosID EMObjectDisplay::findClosestNode(const Coord3&) const
-{ return EM::PosID(-1,-1,-1); }
+{ return EM::PosID::getInvalid(); }
 
 
-bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tskr )
+bool EMObjectDisplay::setEMObject( const DBKey& newid, TaskRunner* tskr )
 {
     EM::EMObject* emobject = em_.getObject( newid );
     if ( !emobject ) return false;
@@ -263,7 +264,7 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tskr )
 
     emobject_ = emobject;
     emobject_->ref();
-    emobject_->change.notify( mCB(this,EMObjectDisplay,emChangeCB) );
+    emobject_->objectChanged().notify( mCB(this,EMObjectDisplay,emChangeCB) );
 
     if ( nontexturecolisset_ )
 	emobject_->setPreferredColor( nontexturecol_ );
@@ -284,9 +285,9 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tskr )
 }
 
 
-EM::ObjectID EMObjectDisplay::getObjectID() const
+DBKey EMObjectDisplay::getObjectID() const
 {
-    return emobject_ ? emobject_->id() : -1;
+    return emobject_ ? emobject_->id() : DBKey::getInvalid();
 }
 
 
@@ -300,18 +301,7 @@ DBKey EMObjectDisplay::getDBKey() const
 
 BufferStringSet EMObjectDisplay::displayedSections() const
 {
-    if ( !emobject_ )
-	return parsections_;
-
-    BufferStringSet res;
-    for ( int idx=emobject_->nrSections()-1; idx>=0; idx-- )
-    {
-	mDeclareAndTryAlloc( BufferString*, buf,
-	    BufferString(emobject_->sectionName(emobject_->sectionID(idx))) );
-	res += buf;
-    }
-
-    return res;
+    return parsections_;
 }
 
 
@@ -322,11 +312,8 @@ bool EMObjectDisplay::updateFromEM( TaskRunner* tskr )
 
     setName( emobject_->name() );
 
-    for ( int idx=0; idx<emobject_->nrSections(); idx++ )
-    {
-	if ( !addSection( emobject_->sectionID(idx), tskr ) )
-	    return false;
-    }
+    if ( !addSection( 0, tskr ) )
+	return false;
 
     updateFromMPE();
 
@@ -515,7 +502,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
    if ( cb )
     {
-	mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
+	mCBCapsuleUnpack( EM::EMObjectCallbackData, cbdata, cb );
 	emchangedata_.addCallBackData( &cbdata );
     }
 
@@ -553,18 +540,8 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( !emobject_ )
 	return;
 
-    info = emobject_->getTypeStr();
-    info.add( ": " ).add( getName() );
-
-    const EM::SectionID sid = getSectionID( &eventinfo.pickedobjids );
-
-    if ( sid==-1 || emobject_->nrSections()==1 )
-	return;
-
-    BufferString sectionname = emobject_->sectionName( sid );
-    if ( sectionname.isEmpty() )
-	sectionname = sid;
-    info.add( ", Section: " ).add( sectionname );
+    info = emobject_->getTypeStr(); info += ": ";
+    info += mFromUiStringTodo(name());
 }
 
 
@@ -696,7 +673,7 @@ const visBase::MarkerSet* EMObjectDisplay::getSeedMarkerSet() const
 EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     const TypeSet<int>& path, const Coord3& clickeddisplaypos ) const
 {
-    EM::PosID res(-1,-1,-1);
+    EM::PosID res = EM::PosID::getInvalid();
     const int attribidx = posattribs_.indexOf(attrib);
     if ( attribidx<0 )
 	return res;
@@ -712,7 +689,7 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 
     for ( int idx=0; idx<pids->size(); idx++ )
     {
-	Coord3 nodecrd = emobject_->getPos(  (*pids)[idx] );
+	Coord3 nodecrd = emobject_->getPos( (*pids)[idx] );
 	if ( transformation_ )
 	    transformation_->transform( nodecrd );
 
@@ -815,10 +792,8 @@ void EMObjectDisplay::updateSelections()
 
     Color selectioncolor =  Color::Orange();
     if ( hor2d || hor3d )
-    {
-	selectioncolor = hor3d ? hor3d->getSelectionColor() :
-	    hor2d->getSelectionColor();
-    }
+	selectioncolor = hor3d ? hor3d->selectionColor()
+	    			: hor2d->selectionColor();
 
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {
@@ -872,26 +847,10 @@ void EMObjectDisplay::unSelectAll()
 
 void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 {
-   bool triggermovement = false;
-   if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
-    {
-	const EM::SectionID sectionid = cbdata.pid0.sectionID();
-	if ( emobject_->sectionIndex(sectionid)>=0 )
-	{
-	    if ( emobject_->hasBurstAlert() )
-		addsectionids_ += sectionid;
-	    else
-		addSection( sectionid, 0 );
-	}
-	else
-	{
-	    removeSectionDisplay(sectionid);
-	    hasmoved.trigger();
-	}
-
-	triggermovement = true;
-    }
-    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert)
+    bool triggermovement = false;
+    ConstRefMan<EM::EMChangeAuxData> cbaux =
+				cbdata.auxDataAs<EM::EMChangeAuxData>();
+    if ( cbdata.changeType()==EM::EMObject::cBurstAlert())
     {
 	burstalertison_ = !burstalertison_;
 	if ( !burstalertison_ )
@@ -909,7 +868,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	}
 
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    else if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
     {
 	if ( !burstalertison_ )
 	{
@@ -917,7 +876,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	    {
 		const TypeSet<EM::PosID>* pids =
 			emobject_->getPosAttribList(posattribs_[idx]);
-		if ( !pids || !pids->isPresent(cbdata.pid0) )
+		if ( !pids || !pids->isPresent(cbaux->pid0) )
 		    continue;
 
 		updatePosAttrib(posattribs_[idx]);
@@ -925,12 +884,12 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	    triggermovement = true;
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
+    else if ( cbdata.changeType()==EM::EMObject::cAttribChange() && cbaux )
     {
-	if ( !burstalertison_ && posattribs_.isPresent(cbdata.attrib) )
-	    updatePosAttrib(cbdata.attrib);
+	if ( !burstalertison_ && posattribs_.isPresent(cbaux->attrib) )
+	    updatePosAttrib(cbaux->attrib);
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
+    else if ( cbdata.changeType()==EM::EMObject::cLockChange() )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
 	if ( hor3d )
@@ -939,7 +898,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 		updatePosAttrib( posattribs_[idx] );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::LockColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cLockColorChange() )
     {
 	updateLockedSeedsColor();
     }

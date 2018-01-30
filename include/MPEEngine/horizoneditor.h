@@ -27,14 +27,14 @@ namespace MPE
 mExpClass(MPEEngine) HorizonEditor : public ObjectEditor
 {
 public:
-    				HorizonEditor(EM::Horizon3D&);
+				HorizonEditor(EM::Horizon3D&);
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 
     void			getEditIDs(TypeSet<EM::PosID>&) const;
 
 protected:
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Geometry::ElementEditor*	createEditor();
 };
 
 
@@ -50,7 +50,7 @@ public:
     static void			initClass();
 
 protected:
-    Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    Geometry::ElementEditor*	createEditor();
 };
 
 

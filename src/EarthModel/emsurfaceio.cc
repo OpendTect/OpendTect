@@ -152,12 +152,6 @@ void dgbSurfaceReader::setOutput( EM::Surface& ns )
 }
 
 
-void dgbSurfaceReader::setOutput( Array3D<float>& cube )
-{
-    cube_ = &cube;
-}
-
-
 bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 					const char* horfnm )
 {
@@ -371,8 +365,6 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     const bool is2d = res;
     setLinesTrcRngs( trcranges );
 
-    for ( int idx=0; idx<nrSections(); idx++ )
-	sectionsel_ += sectionID(idx);
     for ( int idx=0; idx<nrAuxVals(); idx++ )
 	auxdatasel_ += idx;
 
@@ -473,20 +465,6 @@ dgbSurfaceReader::LevelID dgbSurfaceReader::stratLevelID() const
 }
 
 
-BufferString dgbSurfaceReader::sectionName( int idx ) const
-{
-    if ( !sectionnames_[idx] )
-    {
-	BufferString res = "[";
-	res += sectionids_[idx];
-	res += "]";
-	return res;
-    }
-
-    return *sectionnames_[idx];
-}
-
-
 int dgbSurfaceReader::nrLines() const
 { return geomids_.isEmpty() ? linenames_.size() : geomids_.size(); }
 
@@ -501,15 +479,6 @@ BufferString dgbSurfaceReader::lineSet( int idx ) const
 
 Pos::GeomID dgbSurfaceReader::lineGeomID( int idx ) const
 { return geomids_.validIdx( idx ) ? geomids_[idx] : -1; }
-
-
-
-void dgbSurfaceReader::selSections(const TypeSet<SectionID>& sel)
-{
-    sectionsel_ = sel;
-    sectionindex_ = 0;
-    oldsectionindex_ = -1;
-}
 
 
 int dgbSurfaceReader::nrAuxVals() const
@@ -618,10 +587,7 @@ uiString dgbSurfaceReader::nrDoneText() const
 
 od_int64 dgbSurfaceReader::totalNr() const
 {
-    int ownres =
-	(readrowrange_?readrowrange_->nrSteps():rowrange_.nrSteps()) *
-	sectionsel_.size();
-
+    int ownres = readrowrange_ ? readrowrange_->nrSteps() : rowrange_.nrSteps();
     if ( !ownres ) ownres = nrrows_;
 
     return ownres + (executors_.size() ? ExecutorGroup::totalNr() : 0);
@@ -713,9 +679,6 @@ bool dgbSurfaceReader::shouldSkipCurrentRow() const
     if ( version_==1 || (version_==2 && !isBinary()) )
 	return false;
 
-    if ( !sectionsel_.isPresent(sectionids_[sectionindex_]) )
-	return true;
-
     if ( readlinenames_ && linenames_.validIdx(rowindex_) )
     {
 	const BufferString& curlinenm = linenames_.get( rowindex_ );
@@ -775,9 +738,6 @@ int dgbSurfaceReader::nextStep()
 
 	    surface_->resetChangedFlag();
 	    surface_->enableGeometryChecks(true);
-
-	    if ( !surface_->nrSections() )
-		surface_->geometry().addSection( "", false );
 	}
 
 	return res;
@@ -865,7 +825,7 @@ int dgbSurfaceReader::nextStep()
 		return MoreToDo();
 	}
 
-	if ( !hor2d->sectionGeometry(sectionid) )
+	if ( !hor2d->geometryElement() )
 	    createSection( sectionid );
 
 	if ( geomids_.validIdx(rowindex_) )
@@ -882,7 +842,7 @@ int dgbSurfaceReader::nextStep()
 
 	    const int startcol = firstcol + noofcoltoskip;
 	    const int stopcol = firstcol + noofcoltoskip + colstep*(nrcols - 1);
-	    hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
+	    hor2d->geometry().geometryElement()->addUdfRow(
 			    geomid, startcol, stopcol, colstep );
 	}
     }
@@ -890,27 +850,27 @@ int dgbSurfaceReader::nextStep()
     mDynamicCastGet(Fault3D*,flt3d,surface_);
     if ( flt3d )
     {
-	if ( !flt3d->sectionGeometry(sectionid) )
+	if ( !flt3d->geometryElement() )
 	    createSection( sectionid );
-	flt3d->geometry().sectionGeometry( sectionid )->
+	flt3d->geometry().geometryElement()->
 	    addUdfRow( currentRow(), firstcol, nrcols );
     }
 
     mDynamicCastGet(FaultStickSet*,emfss,surface_);
     if ( emfss )
     {
-	if ( !emfss->sectionGeometry(sectionid) )
+	if ( !emfss->geometryElement() )
 	    createSection( sectionid );
-	emfss->geometry().sectionGeometry( sectionid )->
+	emfss->geometry().geometryElement()->
 	    addUdfRow( currentRow(), firstcol, nrcols );
     }
 
     mDynamicCastGet(PolygonBody*,polygon,surface_);
     if ( polygon )
     {
-	if ( !polygon->sectionGeometry(sectionid) )
+	if ( !polygon->geometryElement() )
 	    createSection( sectionid );
-	polygon->geometry().sectionGeometry( sectionid )->
+	polygon->geometry().geometryElement()->
 	    addUdfPolygon( currentRow(), firstcol, nrcols );
     }
 
@@ -933,13 +893,6 @@ int dgbSurfaceReader::nextStep()
 
 int dgbSurfaceReader::prepareNewSection( od_istream& strm )
 {
-    const SectionID sectionid = sectionids_[sectionindex_];
-    if ( version_==3 && !sectionsel_.isPresent(sectionid) )
-    {
-	sectionindex_++;
-	return MoreToDo();
-    }
-
     if ( version_==3 )
 	strm.setReadPosition( sectionoffsets_[sectionindex_] );
 
@@ -1038,11 +991,14 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	    continue;
 	}
 
-	if ( !surface_->sectionGeometry(sectionid) )
+	mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
+			 surface_->geometry().geometryElement() );
+	if ( bidsurf && !arr_ )
 	    createSection( sectionid );
 
 	if ( !arr_ )
-	    surface_->setPos( sectionid, surfrc.toInt64(), pos, false );
+	    surface_->setPos( sectionid, PosID::getFromRowCol(surfrc), pos,
+			      false );
 	else
 	{
 	    int i, j;
@@ -1099,11 +1055,14 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	    continue;
 	}
 
-	if ( !surface_->sectionGeometry(sectionid) )
+	mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
+			 surface_->geometry().geometryElement() );
+	if ( bidsurf && !arr_ )
 	    createSection( sectionid );
 
 	if ( !arr_ )
-	    surface_->setPos( sectionid, rowcol.toInt64(), pos, false );
+	    surface_->setPos( sectionid, PosID::getFromRowCol(rowcol), pos,
+			      false );
 	else
 	{
 	    int i, j;
@@ -1180,9 +1139,8 @@ void dgbSurfaceReader::goToNextRow()
     {
 	if ( surface_ )
 	{
-	    const SectionID sid = sectionids_[sectionindex_];
 	    Geometry::Element* secgeom =
-				surface_->geometry().sectionGeometry( sid );
+				surface_->geometry().geometryElement();
 	    mDynamicCastGet(Geometry::BinIDSurface*,bidsurf,secgeom)
 	    if ( bidsurf )
 	    {
@@ -1255,7 +1213,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
     RowCol rc( currentRow(), 0 );
     bool didread = false;
     const SectionID sectionid = sectionids_[sectionindex_];
-    const int cubezidx = sectionsel_.indexOf( sectionid );
+    const int cubezidx = 0;
 
     mDynamicCastGet(Horizon2D*,hor2d,surface_);
     const bool hor2dok = hor2d && geomids_.validIdx(rowindex_);
@@ -1310,13 +1268,15 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 
 	if ( surface_ )
 	{
-	    if ( !surface_->sectionGeometry(sectionid) )
+	    mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
+				surface_->geometry().geometryElement() );
+	    if ( bidsurf && !arr_ )
 		createSection( sectionid );
 
 	    RowCol myrc( rc );
 	    if ( hor2dok )
-		myrc.row() = hor2d->geometry().sectionGeometry(
-			sectionid )->getRowIndex( geomids_[rowindex_] );
+		myrc.row() = hor2d->geometry().geometryElement()->getRowIndex(
+							geomids_[rowindex_] );
 
 	    if ( arr_ )
 	    {
@@ -1325,7 +1285,8 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 		    arr_->set( i, j, mCast(float,pos.z_) );
 	    }
 	    else
-		surface_->setPos( sectionid, myrc.toInt64(), pos, false );
+		surface_->setPos( sectionid, PosID::getFromRowCol(myrc),
+				  pos, false );
 	}
 
 	if ( cube_ )
@@ -1347,10 +1308,8 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 
 void dgbSurfaceReader::createSection( const SectionID& sectionid )
 {
-    const int index = sectionids_.indexOf(sectionid);
-    surface_->geometry().addSection( sectionName(index), sectionid, false );
     mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
-		     surface_->geometry().sectionGeometry(sectionid) );
+		     surface_->geometry().geometryElement() );
     if ( !bidsurf )
 	return;
 
@@ -1521,16 +1480,13 @@ void dgbSurfaceWriter::init( const char* fulluserexpr )
     oldsectionindex_= -1;
     writeonlyz_ = false;
     nrrows_ = 0;
-    shift_ = 0;
+    shift_ = surface_.getShift();
     writingfinished_ = false;
     geometry_ = reinterpret_cast<const EM::RowColSurfaceGeometry*>(
 							&surface_.geometry() );
     surface_.ref();
     setNrDoneText( stdNrDoneText() );
     par_->set( dgbSurfaceReader::sKeyDBInfo(), surface_.dbInfo() );
-
-    for ( int idx=0; idx<nrSections(); idx++ )
-	sectionsel_ += sectionID( idx );
 
     for ( int idx=0; idx<nrAuxVals(); idx++ )
     {
@@ -1566,13 +1522,12 @@ void dgbSurfaceWriter::finishWriting()
 
     od_ostream& strm = conn_->oStream();
     const od_int64 nrsectionsoffset = strm.position();
-    writeInt32( strm, sectionsel_.size(), sEOL() );
+    writeInt32( strm, 1, sEOL() );
 
     for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
 	writeInt64( strm, sectionoffsets_[idx], sEOL() );
 
-    for ( int idx=0; idx<sectionsel_.size(); idx++ )
-	writeInt32( strm, sectionsel_[idx], sEOL() );
+    writeInt32( strm, 0, sEOL() );
 
 
     const od_stream::Pos secondparoffset = strm.position();
@@ -1613,36 +1568,13 @@ void dgbSurfaceWriter::finishWriting()
 
 int dgbSurfaceWriter::nrSections() const
 {
-    return surface_.nrSections();
+    return 1;
 }
 
 
 SectionID dgbSurfaceWriter::sectionID( int idx ) const
 {
-    return surface_.sectionID(idx);
-}
-
-
-const char* dgbSurfaceWriter::sectionName( int idx ) const
-{
-    return surface_.sectionName(sectionID(idx)).buf();
-}
-
-
-void dgbSurfaceWriter::selSections(const TypeSet<SectionID>& sel, bool keep )
-{
-    if ( keep )
-    {
-	for ( int idx=0; idx<sel.size(); idx++ )
-	{
-	    if ( !sectionsel_.isPresent(sel[idx]) )
-		sectionsel_ += sel[idx];
-	}
-    }
-    else
-    {
-	sectionsel_ = sel;
-    }
+    return 0;
 }
 
 
@@ -1725,8 +1657,7 @@ uiString dgbSurfaceWriter::nrDoneText() const
 od_int64 dgbSurfaceWriter::totalNr() const
 {
     return (executors_.size() ? ExecutorGroup::totalNr() : 0) +
-	   (writerowrange_?writerowrange_->nrSteps():rowrange_.nrSteps()) *
-	   sectionsel_.size();
+	   (writerowrange_?writerowrange_->nrSteps():rowrange_.nrSteps());
 }
 
 
@@ -1799,7 +1730,7 @@ int dgbSurfaceWriter::nextStep()
 	}
     }
 
-    if ( sectionindex_>=sectionsel_.size() )
+    if ( sectionindex_>=1 )
     {
 	const int res = ExecutorGroup::nextStep();
 	if ( !res && objectmid_==surface_.dbKey() )
@@ -1914,7 +1845,7 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
     rowoffsettableoffset_ = 0;
 
     mDynamicCastGet( const Geometry::RowColSurface*, gsurf,
-		     surface_.sectionGeometry( sectionsel_[sectionindex_] ) );
+		     surface_.geometryElement() );
 
     if ( !gsurf || gsurf->isEmpty() )
     {
@@ -1985,21 +1916,8 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
     }
 
     oldsectionindex_ = sectionindex_;
-    const BufferString sectionname =
-	surface_.sectionName( sectionsel_[sectionindex_] );
-
-    if ( sectionname.size() )
-    {
-	par_->set( dgbSurfaceReader::sSectionNameKey(sectionindex_).buf(),
-		  sectionname );
-    }
-
     return true;
 }
-
-
-void dgbSurfaceWriter::setShift( float s )
-{ shift_ = s; }
 
 
 bool dgbSurfaceWriter::writeRow( od_ostream& strm )
@@ -2013,7 +1931,6 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 
     const StepInterval<int> colrange = geometry_->colRange( row );
 
-    const SectionID sectionid = sectionsel_[sectionindex_];
     TypeSet<Coord3> colcoords;
 
     int firstcol = -1;
@@ -2026,8 +1943,7 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 	const int col = writecolrange_ ? writecolrange_->atIndex(colindex) :
 					colrange.atIndex(colindex);
 
-	const PosID posid(  surface_.id(), sectionid,
-				RowCol(row,col).toInt64() );
+	const PosID posid = PosID::getFromRowCol( row, col );
 	Coord3 pos = surface_.getPos( posid );
 	if ( hor3d && pos.isDefined() )
 	    pos.z_ += shift_;

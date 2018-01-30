@@ -36,13 +36,13 @@ public:
 	    {
 		curpos_.row() += rowrg_.step;
 		if ( !rowrg_.includes( curpos_.row(), false ) )
-		    return -1;
+		    return GeomPosID::getInvalid();
 
 		curpos_.col() = colrg_.start;
 	    }
 	}
 
-	return curpos_.toInt64();
+	return GeomPosID::getFromRowCol( curpos_ );
     }
 
 protected:
@@ -81,7 +81,7 @@ void RowColSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 
 	    if ( remudf && !isKnotDefined(rc) ) continue;
 
-	    pids += rc.toInt64();
+	    pids += GeomPosID::getFromRowCol( rc );
 	}
     }
 }
@@ -114,14 +114,14 @@ StepInterval<int> RowColSurface::colRange() const
 
 
 Coord3 RowColSurface::getPosition( GeomPosID pid ) const
-{ return getKnot( RowCol::fromInt64(pid) ); }
+{ return getKnot( pid.getRowCol() ); }
 
 
 bool RowColSurface::setPosition( GeomPosID pid, const Coord3& pos )
-{ return setKnot( RowCol::fromInt64(pid), pos ); }
+{ return setKnot( pid.getRowCol(), pos ); }
 
 
 bool RowColSurface::isDefined( GeomPosID pid ) const
-{ return isKnotDefined( RowCol::fromInt64(pid) ); }
+{ return isKnotDefined( pid.getRowCol() ); }
 
 }; //namespace

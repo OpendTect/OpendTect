@@ -25,6 +25,7 @@ ___________________________________________________________________
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "uinewemobjdlg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
@@ -138,15 +139,20 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
     else if ( mnuid == mNewMnuID )
     {
-	RefMan<EM::EMObject> emo =
-	    EM::EMM().createTempObject( EM::Fault3D::typeStr() );
+	uiNewEMObjectDlg* newdlg =
+	    uiNewEMObjectDlg::factory().create( EM::Fault3D::typeStr(),
+						getUiParent() );
+	if ( !newdlg || !newdlg->go() )
+	    return false;
+
+	RefMan<EM::EMObject> emo = newdlg->getEMObject();
 	if ( !emo )
 	    return false;
 
 	emo->setPreferredColor( getRandomColor(false) );
 	emo->setNameToJustCreated();
 	emo->setFullyLoaded( true );
-	addChild( new uiODFaultTreeItem( emo->id() ), false );
+	addChild( new uiODFaultTreeItem(emo->id()), false );
 	applMgr()->viewer2DMgr().addNewTempFault( emo->id() );
 	return true;
     }
@@ -205,7 +211,7 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
 
 
 
-uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
+uiODFaultTreeItem::uiODFaultTreeItem( const DBKey& oid )
     : uiODDisplayTreeItem()
     , emid_( oid )
     mCommonInit
@@ -216,7 +222,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
 
 uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
     : uiODDisplayTreeItem()
-    , emid_(-1)
+    , emid_(DBKey::getInvalid())
     , faultdisplay_(0)
     mCommonInit
 {
@@ -351,21 +357,18 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==saveasmnuitem_.id ||  mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	bool saveas = mnuid==saveasmnuitem_.id ||
-		      applMgr()->EMServer()->getStorageID(emid_).isInvalid();
+	bool saveas = mnuid==saveasmnuitem_.id || emid_.isInvalid();
 	if ( !saveas )
 	{
-	    PtrMan<IOObj> ioobj =
-		DBM().get( applMgr()->EMServer()->getStorageID(emid_) );
+	    PtrMan<IOObj> ioobj = DBM().get( emid_ );
 	    saveas = !ioobj;
 	}
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-	if ( saveas && faultdisplay_ &&
-	     !applMgr()->EMServer()->getName(emid_).isEmpty() )
+	if ( saveas && faultdisplay_ && DBM().nameOf(emid_).isEmpty() )
 	{
-	    faultdisplay_->setName( applMgr()->EMServer()->getName(emid_));
+	    faultdisplay_->setName( toUiString(DBM().nameOf(emid_)) );
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }
@@ -456,9 +459,13 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     }
     else if ( mnuid == mNewMnuID )
     {
-	//applMgr()->mpeServer()->saveUnsaveEMObject();
-	RefMan<EM::EMObject> emo =
-	    EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
+	uiNewEMObjectDlg* newdlg =
+	    uiNewEMObjectDlg::factory().create( EM::FaultStickSet::typeStr(),
+						getUiParent() );
+	if ( !newdlg || !newdlg->go() )
+	    return false;
+
+	RefMan<EM::EMObject> emo = newdlg->getEMObject();
 	if ( !emo )
 	    return false;
 
@@ -510,7 +517,7 @@ uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
     saveasmnuitem_.iconfnm = "saveas";
 
 
-uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
+uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const DBKey& oid )
     : uiODDisplayTreeItem()
     , emid_( oid )
     mCommonInit
@@ -521,7 +528,7 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
 
 uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( int id, bool dummy )
     : uiODDisplayTreeItem()
-    , emid_(-1)
+    , emid_(DBKey::getInvalid())
     mCommonInit
 {
     displayid_ = id;
@@ -640,18 +647,16 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==saveasmnuitem_.id ||  mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	bool saveas = mnuid==saveasmnuitem_.id ||
-		      applMgr()->EMServer()->getStorageID(emid_).isInvalid();
+	bool saveas = mnuid==saveasmnuitem_.id || emid_.isInvalid();
 	if ( !saveas )
 	{
-	    PtrMan<IOObj> ioobj =
-		DBM().get( applMgr()->EMServer()->getStorageID(emid_) );
+	    PtrMan<IOObj> ioobj = DBM().get( emid_ );
 	    saveas = !ioobj;
 	}
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-	const BufferString emname = applMgr()->EMServer()->getName(emid_);
+	const BufferString emname = DBM().nameOf( emid_ );
 	if ( saveas && faultsticksetdisplay_ && !emname.isEmpty() )
 	{
 	    faultsticksetdisplay_->setName( emname );
@@ -663,7 +668,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 
 // uiODFaultSurfaceDataTreeItem
-uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
+uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( const DBKey& objid,
 	const char* parenttype )
     : uiODAttribTreeItem(parenttype)
     , depthattribmnuitem_( uiStrings::sZValue(mPlural) )

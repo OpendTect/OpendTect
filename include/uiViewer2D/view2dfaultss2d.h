@@ -24,7 +24,7 @@ namespace MPE { class FaultStickSetFlatViewEditor; class FaultStickSetEditor; }
 mExpClass(uiViewer2D) VW2DFaultSS2D : public Vw2DEMDataObject
 {
 public:
-    static VW2DFaultSS2D* create(const EM::ObjectID& id,uiFlatViewWin* win,
+    static VW2DFaultSS2D* create(const DBKey& id,uiFlatViewWin* win,
 			     const ObjectSet<uiFlatViewAuxDataEditor>& ed)
 				mCreateVw2DDataObj(VW2DFaultSS2D,id,win,ed);
 			~VW2DFaultSS2D();

@@ -57,7 +57,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 
     for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
     {
-	const RowCol absrc = RowCol::fromInt64( (*gpids)[idx] );
+	const RowCol absrc = (*gpids)[idx].getRowCol();
 	RowCol rc = absrc - horsection_->origin_;
 	const int tilesidesize = horsection_->tilesidesize_;
 
@@ -269,7 +269,7 @@ HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx,
 }
 
 
-void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile, 
+void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile,
     int tilerowidx, int tilecolidx )
 {
     for ( int rowidx=-1; rowidx<=1; rowidx++ )
@@ -367,10 +367,10 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tskr )
 
     horsection_->setUpdateVar( horsection_->forceupdate_, false );
 
-    HorizonSectionTilePosSetup postask( createtiles, tileindexes, 
+    HorizonSectionTilePosSetup postask( createtiles, tileindexes,
 	horsection_, rrg, crg );
     TaskRunner::execute(tskr,postask);
-    
+
     HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
     int tidx = 0;
     for ( int tilerowidx = 0; tilerowidx<nrrows; tilerowidx++ )

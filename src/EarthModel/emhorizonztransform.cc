@@ -40,7 +40,7 @@ HorizonZTransform::~HorizonZTransform()
 {
     if ( horizon_ )
     {
-	const_cast<Horizon*>(horizon_)->change.remove(
+	const_cast<Horizon*>(horizon_)->objectChanged().remove(
 		mCB(this,HorizonZTransform,horChangeCB) );
 	horizon_->unRef();
     }
@@ -52,14 +52,14 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
     if ( horizon_ )
     {
 	const_cast<Horizon*>(horizon_)
-	    ->change.remove( mCB(this,HorizonZTransform,horChangeCB) );
+	    ->objectChanged().remove( mCB(this,HorizonZTransform,horChangeCB) );
 	horizon_->unRef();
     }
 
     horizon_ = &hor;
     horizon_->ref();
     const_cast<Horizon*>(horizon_)
-	->change.notify( mCB(this,HorizonZTransform,horChangeCB) );
+	->objectChanged().notify( mCB(this,HorizonZTransform,horChangeCB) );
 
     fromzdomaininfo_.setID( horizon_->dbKey().toString() );
     tozdomaininfo_.setID( horizon_->dbKey().toString() );
@@ -163,20 +163,14 @@ bool HorizonZTransform::usePar( const IOPar& par )
     if ( !ZAxisTransform::usePar( par ) )
 	return false;
 
-    DBKey mid;
-    if ( !par.get( sKeyHorizonID(), mid ) )
+    DBKey objkey;
+    if ( !par.get( sKeyHorizonID(), objkey ) )
 	return true;
 
-    EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+    EM::EMManager& horman = EM::getMgr( objkey );
+    RefMan<EM::EMObject> emobj = horman.getObject( objkey );
     if ( !emobj )
-    {
-	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
-	if ( !loader || !loader->execute() ) return false;
-
-	emid = EM::EMM().getObjectID( mid );
-	emobj = EM::EMM().getObject( emid );
-    }
+	return false;
 
     mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
     if ( !hor )
@@ -209,13 +203,13 @@ void HorizonZTransform::calculateHorizonRange()
 {
     if ( !horizon_ ) return;
 
-    PtrMan<EMObjectIterator> iterator = horizon_->createIterator( -1, 0 );
+    PtrMan<EMObjectIterator> iterator = horizon_->createIterator();
     if ( !iterator ) return;
 
     bool isset = false;
 
     EM::PosID pid = iterator->next();
-    while ( pid.objectID()!=-1  )
+    while ( !pid.isInvalid() )
     {
 	const float depth = (float) horizon_->getPos( pid ).z_;
 	if ( !mIsUdf( depth ) )
@@ -287,23 +281,17 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
     }
 
     EM::PosID pid = horizon_->geometry().getPosID( hortrckey );
-    for ( int idx=horizon_->nrSections()-1; idx>=0; idx--)
+    float depth = (float) horizon_->getPos( pid ).z_;
+    if ( mIsUdf( depth ) && hor3d )
     {
-	const SectionID sid = horizon_->sectionID( idx );
-	pid.setSectionID( sid );
-
-	float depth = (float) horizon_->getPos( pid ).z_;
-	if ( mIsUdf( depth ) && hor3d )
-	{
-	    const BinID bid = hortrckey.binID();
-	    const Geometry::BinIDSurface* geom =
-		hor3d->geometry().sectionGeometry(sid);
-	    depth =(float)geom->computePosition(Coord(bid.inl(),bid.crl()) ).z_;
-	}
-
-	if ( !mIsUdf(depth) )
-	    depths += depth;
+	const BinID bid = hortrckey.binID();
+	const Geometry::BinIDSurface* geom =
+	    hor3d->geometry().geometryElement();
+	depth =(float)geom->computePosition(Coord(bid.inl(),bid.crl()) ).z_;
     }
+
+    if ( !mIsUdf(depth) )
+	depths += depth;
 
     if ( depths.size()>1 )
 	sort_array( depths.arr(), depths.size() );

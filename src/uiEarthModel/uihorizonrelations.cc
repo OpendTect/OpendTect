@@ -182,9 +182,7 @@ bool acceptOK()
 {
     const bool saveas = savefld_->getBoolValue();
     const bool topisstatic = horizonfld_->getIntValue() == 1;
-    const EM::ObjectID objid =
-		EM::EMM().getObjectID( topisstatic ? mid2_ : mid1_ );
-    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    EM::EMObject* emobj = EM::EMM().getObject( topisstatic ? mid2_ : mid1_ );
     DBKey outmid;
     RefMan<EM::EMObject> outemobj = 0;
 
@@ -195,9 +193,8 @@ bool acceptOK()
 		    uiStrings::phrOutput(uiStrings::sSurface())) :
 		    uiStrings::sEmptyString()))
 	outmid = ctio_->ioobj_->key();
-	EM::ObjectID outemobjid =
-	    EM::EMM().createObject( emobj->getTypeStr(), ctio_->ioobj_->name());
-	outemobj = EM::EMM().getObject( outemobjid );
+	outemobj = EM::EMM().createObject( emobj->getTypeStr(),
+					   ctio_->ioobj_->name());
 	outemobj->setPreferredColor( emobj->preferredColor() );
 
 	if ( !is2d_ )
@@ -208,13 +205,13 @@ bool acceptOK()
 		return false;
 
 	    Array2D<float>* arr2d;
-	    arr2d = hor3d->createArray2D( emobj->sectionID(0) );
+	    arr2d = hor3d->createArray2D();
 	    BinID start( hor3d->geometry().rowRange().start,
 			 hor3d->geometry().colRange().start );
 	    BinID step( hor3d->geometry().step().row(),
 			hor3d->geometry().step().col() );
 	    outhor3d->setDBKey( outmid );
-	    outhor3d->geometry().sectionGeometry(EM::SectionID(0))->setArray(
+	    outhor3d->geometry().geometryElement()->setArray(
 		    start, step, arr2d, true );
 	}
 	else
@@ -227,9 +224,9 @@ bool acceptOK()
 	    {
 		const Pos::GeomID geomid = hor2d->geometry().geomID( idx );
 		PtrMan< Array1D<float> > arr1d;
-		arr1d = hor2d->createArray1D( emobj->sectionID(0), geomid );
+		arr1d = hor2d->createArray1D( geomid );
 		outhor2d->geometry().addLine( geomid );
-		outhor2d->setArray1D(*arr1d,emobj->sectionID(0),geomid,false);
+		outhor2d->setArray1D( *arr1d, geomid, false );
 	    }
 	}
     }

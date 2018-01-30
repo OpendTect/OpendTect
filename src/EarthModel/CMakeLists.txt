@@ -37,11 +37,11 @@ set(OD_MODULE_SOURCES
 		emmanager.cc
 		emmarchingcubessurface.cc
 		emobject.cc
+		emobjectio.cc
 		emobjectposselector.cc
 		emprobe.cc
 		emrandomposbody.cc
 		empolygonbody.cc
-		emposid.cc
 		emrandlinegen.cc
 		emregion.cc
 		emrowcoliterator.cc

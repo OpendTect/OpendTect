@@ -86,18 +86,18 @@ bool uiHorizonSortDlg::acceptOK()
     bool sorted = sortFromRelationTree( horids );
     uiTaskRunner taskrunner( this );
     PtrMan<Executor> horreader = 0;
+    EM::EMManager& emman = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
     if ( !sorted || loadneeded_ )
     {
 	DBKeySet loadids;
 	for ( int idx=0; idx<horids.size(); idx++ )
 	{
-	    const EM::ObjectID oid = EM::EMM().getObjectID( horids[idx] );
-	    const EM::EMObject* emobj = EM::EMM().getObject(oid);
+	    const EM::EMObject* emobj = emman.getObject( horids[idx] );
 	    if ( !emobj || !emobj->isFullyLoaded() )
 		loadids += horids[idx];
 	}
 
-	horreader = EM::EMM().objectLoader( loadids );
+	horreader = emman.objectLoader( loadids );
 	if ( horreader && !TaskRunner::execute( &taskrunner, *horreader ) )
 	    return false;
     }
@@ -138,8 +138,7 @@ bool uiHorizonSortDlg::acceptOK()
 
     for ( int idx=0; idx<horids.size(); idx++ )
     {
-	const EM::ObjectID objid = EM::EMM().getObjectID( horids[idx] );
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	EM::EMObject* emobj = emman.getObject( horids[idx] );
 	emobj->ref();
 	mDynamicCastGet(EM::Horizon*,horizon,emobj);
 	if ( !horizon )

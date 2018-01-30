@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "emhorizonztransform.h"
 #include "emmarchingcubessurface.h"
 #include "emobject.h"
+#include "emobjectio.h"
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
 #include "emsurfaceiodata.h"
@@ -74,4 +75,11 @@ mDefModInitFn(EarthModel)
 					"ms",1000) );
     ZDomain::Def::add( new ZDomain::Def("Depth-Flattened",uiStrings::sDepth(),
 					"",1) );
+
+    EM::Fault3DLoader::initClass();
+    EM::FaultStickSetLoader::initClass();
+    EM::Horizon3DLoader::initClass();
+    EM::Fault3DSaver::initClass();
+    EM::FaultStickSetSaver::initClass();
+    EM::Horizon3DSaver::initClass();
 }

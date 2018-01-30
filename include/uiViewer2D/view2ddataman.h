@@ -43,7 +43,7 @@ public:
     void			fillPar(IOPar&) const;
 
     mDefineFactory3ParamInClass(Vw2DDataObject,
-		    const EM::ObjectID&,uiFlatViewWin*,
+		    const DBKey&,uiFlatViewWin*,
 		    const ObjectSet<uiFlatViewAuxDataEditor>&,factory);
 
     Notifier<Vw2DDataManager>	addRemove;

@@ -46,7 +46,7 @@ public:
 						BufferString& info) const;
     void			setLineStyle(const OD::LineStyle&);
 
-    bool			setEMObject(const EM::ObjectID&,TaskRunner*);
+    bool			setEMObject(const DBKey&,TaskRunner*);
     EM::SectionID		getSectionID(int visid) const;
     TypeSet<EM::SectionID>	getSectionIDs() const{ return sids_; }
 

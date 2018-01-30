@@ -288,9 +288,6 @@ bool dgbEMSurfaceTranslator::prepRead()
 	return false;
     }
 
-    for ( int idx=0; idx<reader_->nrSections(); idx++ )
-	sd_.sections.add( reader_->sectionName(idx) );
-
     for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
     {
 	sd_.valnames.add( reader_->auxDataName(idx) );
@@ -365,11 +362,7 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 	    reader_->setLineNames( sels_.sellinenames );
 	    reader_->setLinesTrcRngs( sels_.seltrcranges );
 	}
-	TypeSet<EM::SectionID> sectionids;
-	for ( int idx=0; idx<sels_.selsections.size(); idx++ )
-	    sectionids += reader_->sectionID( sels_.selsections[idx] );
 
-	reader_->selSections( sectionids );
 	reader_->selAuxData( sels_.selvalues );
     }
 
@@ -390,11 +383,7 @@ Executor* dgbEMSurfaceTranslator::getWriter()
 	StepInterval<int> rrg, crg; getSels( rrg, crg );
 	res->setRowInterval( rrg ); res->setColInterval( crg );
     }
-    TypeSet<EM::SectionID> sectionids;
-    for ( int idx=0; idx<sels_.selsections.size(); idx++ )
-	sectionids += res->sectionID( sels_.selsections[idx] );
 
-    res->selSections( sectionids );
     if ( !sels_.selvalues.isEmpty() )
 	res->selAuxData( sels_.selvalues );
 

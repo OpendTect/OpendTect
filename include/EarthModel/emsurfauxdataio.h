@@ -72,9 +72,9 @@ protected:
     bool			writeFloat(float);
     int				dataidx_;
     const EM::Horizon3D&	surf_;
-    const TrcKeySampling*		sel_;
+    const TrcKeySampling*	sel_;
 
-    TypeSet<EM::SubID>		subids_;
+    TypeSet<EM::PosID>		posids_;
     TypeSet<float>		values_;
     int				sectionindex_;
 

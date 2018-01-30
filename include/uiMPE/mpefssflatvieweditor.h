@@ -26,11 +26,11 @@ namespace MPE
 {
 
 mExpClass(uiMPE) FaultStickSetFlatViewEditor
-    			: public EM::FaultStickSetFlatViewEditor
+			: public EM::FaultStickSetFlatViewEditor
 {
 public:
-    			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*,
-						    const EM::ObjectID&);
+			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*,
+						    const DBKey&);
 			~FaultStickSetFlatViewEditor();
 
     void		setMouseEventHandler(MouseEventHandler*);
@@ -56,7 +56,7 @@ protected:
     void			fssRepaintATSCB(CallBacker*);
     void			fssRepaintedCB(CallBacker*);
 
-    void 			seedMovementStartedCB(CallBacker*);
+    void			seedMovementStartedCB(CallBacker*);
     void			seedMovementFinishedCB(CallBacker*);
     void			removeSelectionCB(CallBacker*);
 
@@ -74,8 +74,8 @@ protected:
 
     void			cleanActStkContainer();
     void			fillActStkContainer();
-    int				getStickId(int markerid) const; 
-    
+    int				getStickId(int markerid) const;
+
     bool			getMousePosInfo(
 				    const Geom::Point2D<int>& mousepos,
 				    Coord3& worldpos,int* trcnr=0) const;
@@ -84,9 +84,9 @@ protected:
     Coord3			getNormal(const Coord3* mousepos=0) const;
 
     const TrcKeyPath*		path_;
-    int 			rdlid_;
+    int			rdlid_;
 
-    EM::FaultStickPainter*  	fsspainter_;
+    EM::FaultStickPainter*	fsspainter_;
     bool			seedhasmoved_;
     bool			makenewstick_;
     bool			doubleclicked_;

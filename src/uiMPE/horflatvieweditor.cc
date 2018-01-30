@@ -145,7 +145,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     if ( !canTrack(*tracker) ) return;
 
-    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( tracker->objectID() );
     if ( !emobj ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
@@ -179,7 +179,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
 	return;
 
-    const int prevevent = EM::EMM().undo().currentEventID();
+    const int prevevent = EM::Hor3DMan().undo().currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
     emobj->setBurstAlert( true );
 
@@ -191,9 +191,9 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     emobj->setBurstAlert( false );
     MouseCursorManager::restoreOverride();
-    const int currentevent = EM::EMM().undo().currentEventID();
+    const int currentevent = EM::Hor3DMan().undo().currentEventID();
     if ( currentevent != prevevent )
-	EM::EMM().undo().setUserInteractionEnd(currentevent);
+	EM::Hor3DMan().undo().setUserInteractionEnd(currentevent);
 
     restoreactivevolinuimpeman.trigger();
 }
@@ -408,15 +408,11 @@ bool HorizonFlatViewEditor::getPosID( const EM::EMObject& emobj,
 	bid.crl() = pos.nr_;
     }
 
-    for ( int idx=0; idx<emobj.nrSections(); idx++ )
+    const EM::PoasID candidatepid = EM::PosID::getFromRowCol( bid );
+    if ( emobj.isDefined(candidatepid) )
     {
-	if ( emobj.isDefined(emobj.sectionID(idx),bid.toInt64()) )
-	{
-	    pid.setObjectID( emobj.id() );
-	    pid.setSectionID( emobj.sectionID(idx) );
-	    pid.setSubID( bid.toInt64() );
-	    return true;
-	}
+	pid = candidatepid;
+	return true;
     }
 
     return false;

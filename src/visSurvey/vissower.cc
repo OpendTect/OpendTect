@@ -41,7 +41,7 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     , sowingline_(visBase::PolyLine::create())
     , linelost_(false)
     , singleseeded_(true)
-    , curpid_(EM::PosID::udf())
+    , curpid_(EM::PosID::getInvalid())
     , curpidstamp_(mUdf(int))
     , workrange_(0)
     , underlyingobjid_(-1)
@@ -293,7 +293,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	 eventinfo.type==visBase::MouseClick && !eventinfo.pressed )
     {
 	const EM::PosID pid = getMarkerID( eventinfo );
-	if ( pid.isUdf() )
+	if ( pid.isInvalid() )
 	    mReturnHandled( false );
     }
 
@@ -485,7 +485,7 @@ bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
 
     if ( eventinfo.tabletinfo->pointertype_ == TabletInfo::Eraser )
     {
-	if ( !pid.isUdf() )
+	if ( !pid.isInvalid() )
 	    return acceptEraser( eventinfo );
 
 	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
@@ -501,14 +501,14 @@ bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
     }
 
     if ( mode_==Idle && eventinfo.type==visBase::MouseMovement &&
-	 !pid.isUdf() && !mIsUdf(curpidstamp_) &&
+	 !pid.isInvalid() && !mIsUdf(curpidstamp_) &&
 	 Time::passedSince(curpidstamp_) > 300 )
     {
 	curpidstamp_ = mUdf(int);
 	return acceptLaser( eventinfo );
     }
 
-    if ( !pid.isUdf() && mode_==Furrowing && singleseeded_ )
+    if ( !pid.isInvalid() && mode_==Furrowing && singleseeded_ )
     {
 	sowingline_->turnOn( false );
     }
@@ -589,7 +589,7 @@ void Sower::setEraserMask( bool yn, OD::ButtonState mask )
 
 EM::PosID Sower::getMarkerID( const visBase::EventInfo& eventinfo ) const
 {
-    if ( !editobject_ ) return EM::PosID::udf();
+    if ( !editobject_ ) return EM::PosID::getInvalid();
 
     mDynamicCastGet( const MPEEditor*, mpeeditor, editobject_ );
     if ( mpeeditor )
@@ -599,10 +599,11 @@ EM::PosID Sower::getMarkerID( const visBase::EventInfo& eventinfo ) const
     if ( locdisp )
     {
 	const int knotid = locdisp->clickedMarkerIndex( eventinfo );
-	return knotid<0 ? EM::PosID::udf() : EM::PosID( 0, 0, knotid );
+	return knotid<0 ? EM::PosID::getInvalid()
+			: EM::PosID::getFromRowCol( 0, knotid );
     }
 
-    return EM::PosID::udf();
+    return EM::PosID::getInvalid();
 }
 
 

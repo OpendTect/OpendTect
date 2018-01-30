@@ -25,7 +25,7 @@ namespace EM
 {
 
 FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
-				      const EM::ObjectID& oid )
+				      const DBKey& oid )
     : viewer_(fv)
     , emid_(oid)
     , markerlinestyle_( OD::LineStyle::Solid,2,Color(0,255,0) )
@@ -42,11 +42,12 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , knotenabled_(false)
     , paintenable_(true)
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::FSSMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->ref();
-	emobj->change.notify( mCB(this,FaultStickPainter,fssChangedCB) );
+	emobj->objectChanged().notify(
+		mCB(this,FaultStickPainter,fssChangedCB) );
     }
     tkzs_.setEmpty();
 }
@@ -54,10 +55,11 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 
 FaultStickPainter::~FaultStickPainter()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::FSSMan().getObject( emid_ );
     if ( emobj )
     {
-	emobj->change.remove( mCB(this,FaultStickPainter,fssChangedCB) );
+	emobj->objectChanged().remove(
+		mCB(this,FaultStickPainter,fssChangedCB) );
 	emobj->unRef();
     }
 
@@ -90,65 +92,67 @@ void FaultStickPainter::paint()
 
 bool FaultStickPainter::addPolyLine()
 {
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
+    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid_ );
 
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return false;
 
     RefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry( false );
     const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
-    for ( int sidx=0; sidx<emfss->nrSections(); sidx++ )
+    mDynamicCastGet(const Geometry::FaultStickSet*,fss,
+		    emfss->geometryElement());
+    if ( fss->isEmpty() )
+	return false;
+
+    RowCol rc;
+    const StepInterval<int> rowrg = fss->rowRange();
+
+    ObjectSet<StkMarkerInfo>* secmarkerlines = new ObjectSet<StkMarkerInfo>;
+    sectionmarkerlines_ += secmarkerlines;
+
+    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
+    for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
     {
-	const EM::SectionID sid = emfss->sectionID( sidx );
-	mDynamicCastGet(const Geometry::FaultStickSet*,fss,
-			emfss->sectionGeometry(sid));
-	if ( fss->isEmpty() )
-	    continue;
+	StepInterval<int> colrg = fss->colRange( rc.row() );
 
-	RowCol rc;
-	const StepInterval<int> rowrg = fss->rowRange();
+	FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
+	stickauxdata->cursor_ = knotenabled_ ? MouseCursor::Cross
+					     : MouseCursor::Arrow;
+	stickauxdata->poly_.erase();
+	stickauxdata->linestyle_ = markerlinestyle_;
+	if ( rc.row() == activestickid_ )
+	    stickauxdata->linestyle_.width_ *= 2;
 
-	ObjectSet<StkMarkerInfo>* secmarkerlines = new ObjectSet<StkMarkerInfo>;
-	sectionmarkerlines_ += secmarkerlines;
+	stickauxdata->linestyle_.color_ = emfss->preferredColor();
+	stickauxdata->markerstyles_ += markerstyle_;
+	if ( !knotenabled_ )
+	    stickauxdata->markerstyles_.erase();
+	stickauxdata->enabled_ = linenabled_;
 
-	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
+	if ( emfss->geometry().pickedOn2DLine(rc.row()) )
 	{
-	    StepInterval<int> colrg = fss->colRange( rc.row() );
+	    const Pos::GeomID geomid =
+				emfss->geometry().pickedGeomID( rc.row() );
 
-	    FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
-	    stickauxdata->cursor_ = knotenabled_ ? MouseCursor::Cross
-						 : MouseCursor::Arrow;
-	    stickauxdata->poly_.erase();
-	    stickauxdata->linestyle_ = markerlinestyle_;
-	    if ( rc.row() == activestickid_ )
-		stickauxdata->linestyle_.width_ *= 2;
+	    if ( !is2d_ || geomid != geomid_ )
+		continue;
+	}
+	else if ( emfss->geometry().pickedOnPlane(rc.row()) )
+	{
+	    if ( tkzs_.isEmpty() && !path_ ) continue;
+	}
+	else continue;
 
-	    stickauxdata->linestyle_.color_ = emfss->preferredColor();
-	    stickauxdata->markerstyles_ += markerstyle_;
-	    if ( !knotenabled_ )
-		stickauxdata->markerstyles_.erase();
-	    stickauxdata->enabled_ = linenabled_;
-
-	    if ( emfss->geometry().pickedOn2DLine(sid,rc.row()) )
+	if ( tkzs_.isEmpty() ) // this means this is a 2D or random Line
+	{
+	    RefMan<Geometry::RandomLine> rlgeom =
+		Geometry::RLM().get( rdlid_ );
+	    if ( path_ && rlgeom )
 	    {
-		const Pos::GeomID geomid =
-			    emfss->geometry().pickedGeomID( sid, rc.row() );
-
-		if ( !is2d_ || geomid != geomid_ )
-		    continue;
-	    }
-	    else if ( emfss->geometry().pickedOnPlane(sid,rc.row()) )
-	    {
-		if ( tkzs_.isEmpty() && !path_ ) continue;
-	    }
-	    else continue;
-
-	    if ( tkzs_.isEmpty() ) // this means this is a 2D or random Line
-	    {
-		RefMan<Geometry::RandomLine> rlgeom =
-		    Geometry::RLM().get( rdlid_ );
-		if ( path_ && rlgeom )
+		TrcKeyPath knots;
+		rlgeom->allNodePositions( knots );
+		for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
+		      rc.col()+=colrg.step )
 		{
 		    TrcKeyPath knots;
 		    rlgeom->getNodePositions( knots );
@@ -197,98 +201,110 @@ bool FaultStickPainter::addPolyLine()
 	    }
 	    else
 	    {
-		Coord3 editnormal( 0, 0, 1 );
-		// Let's assume cs default dir. is 'Z'
-
-		if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
-		    editnormal = Coord3( SI().binID2Coord().inlDir(), 0 );
-		else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
-		    editnormal = Coord3( SI().binID2Coord().crlDir(), 0 );
-
-		const Coord3 nzednor = editnormal.normalize();
-		const Coord3 stkednor =
-			emfss->geometry().getEditPlaneNormal(sid,rc.row());
-
-		const bool equinormal =
-		    mIsEqual(nzednor.x_,stkednor.x_,.001) &&
-		    mIsEqual(nzednor.y_,stkednor.y_,.001) &&
-		    mIsEqual(nzednor.z_,stkednor.z_,.00001);
-
-		if ( !equinormal ) continue;
-
-		// we need to deal in different way if cs direction is Z
-		if ( tkzs_.defaultDir() != TrcKeyZSampling::Z )
+		for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
+		      rc.col()+=colrg.step )
 		{
-		    BinID extrbid1, extrbid2;
-		    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
-		    {
-			extrbid1.inl() = extrbid2.inl() =
-					tkzs_.hsamp_.inlRange().start;
-			extrbid1.crl() = tkzs_.hsamp_.crlRange().start;
-			extrbid2.crl() = tkzs_.hsamp_.crlRange().stop;
-		    }
-		    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
-		    {
-			extrbid1.inl() = tkzs_.hsamp_.inlRange().start;
-			extrbid2.inl() = tkzs_.hsamp_.inlRange().stop;
-			extrbid1.crl() = extrbid2.crl() =
-					 tkzs_.hsamp_.crlRange().start;
-		    }
-
-		    Coord extrcoord1, extrcoord2;
-		    extrcoord1 = SI().transform( extrbid1 );
-		    extrcoord2 = SI().transform( extrbid2 );
-
-		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
-						rc.col()+=colrg.step )
-		    {
-			const Coord3& pos = fss->getKnot( rc );
-			BinID knotbinid = SI().transform( pos.getXY() );
-			if (pointOnEdge2D(pos.getXY(),extrcoord1,extrcoord2,.5)
-			    || (tkzs_.defaultDir()==TrcKeyZSampling::Inl
-				&& knotbinid.inl()==extrbid1.inl())
-			    || (tkzs_.defaultDir()==TrcKeyZSampling::Crl
-				&& knotbinid.crl()==extrbid1.crl()) )
-			{
-			    const Coord bidf =
-				bid2crd.transformBackNoSnap( pos.getXY() );
-			    const double z = zat ? zat->transform(pos) : pos.z_;
-			    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
-				stickauxdata->poly_ += FlatView::Point(
-								bidf.y_, z );
-			    else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
-				stickauxdata->poly_ += FlatView::Point(
-								bidf.x_, z );
-			}
-		    }
+		    const Coord3 pos = fss->getKnot( rc );
+		    float dist;
+		    const double z = zat ? zat->transform(pos) : pos.z_;
+		    if ( getNearestDistance(pos,dist) )
+			stickauxdata->poly_ += FlatView::Point(dist,z);
 		}
-		else
-		{
-		    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
-							rc.col()+=colrg.step )
-		    {
-			const Coord3 pos = fss->getKnot( rc );
-			if ( !mIsEqual(pos.z_,tkzs_.zsamp_.start,.0001) )
-			    break;
+	    }
+	}
+	else
+	{
+	    Coord3 editnormal( 0, 0, 1 );
+	    // Let's assume cs default dir. is 'Z'
 
+	    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+		editnormal = Coord3( SI().binID2Coord().inlDir(), 0 );
+	    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+		editnormal = Coord3( SI().binID2Coord().crlDir(), 0 );
+
+	    const Coord3 nzednor = editnormal.normalize();
+	    const Coord3 stkednor =
+		    emfss->geometry().getEditPlaneNormal(rc.row());
+
+	    const bool equinormal =
+		mIsEqual(nzednor.x_,stkednor.x_,.001) &&
+		mIsEqual(nzednor.y_,stkednor.y_,.001) &&
+		mIsEqual(nzednor.z_,stkednor.z_,.00001);
+
+	    if ( !equinormal ) continue;
+
+	    // we need to deal in different way if cs direction is Z
+	    if ( tkzs_.defaultDir() != TrcKeyZSampling::Z )
+	    {
+		BinID extrbid1, extrbid2;
+		if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+		{
+		    extrbid1.inl() = extrbid2.inl() =
+				    tkzs_.hsamp_.inlRange().start;
+		    extrbid1.crl() = tkzs_.hsamp_.crlRange().start;
+		    extrbid2.crl() = tkzs_.hsamp_.crlRange().stop;
+		}
+		else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+		{
+		    extrbid1.inl() = tkzs_.hsamp_.inlRange().start;
+		    extrbid2.inl() = tkzs_.hsamp_.inlRange().stop;
+		    extrbid1.crl() = extrbid2.crl() =
+				     tkzs_.hsamp_.crlRange().start;
+		}
+
+		Coord extrcoord1, extrcoord2;
+		extrcoord1 = SI().transform( extrbid1 );
+		extrcoord2 = SI().transform( extrbid2 );
+
+		for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
+					    rc.col()+=colrg.step )
+		{
+		    const Coord3& pos = fss->getKnot( rc );
+		    BinID knotbinid = SI().transform( pos.getXY() );
+		    if (pointOnEdge2D(pos.getXY(),extrcoord1,extrcoord2,.5)
+			|| (tkzs_.defaultDir()==TrcKeyZSampling::Inl
+			    && knotbinid.inl()==extrbid1.inl())
+			|| (tkzs_.defaultDir()==TrcKeyZSampling::Crl
+			    && knotbinid.crl()==extrbid1.crl()) )
+		    {
 			const Coord bidf =
 			    bid2crd.transformBackNoSnap( pos.getXY() );
-			stickauxdata->poly_ +=
-			    FlatView::Point( bidf.x_, bidf.y_);
+			const double z = zat ? zat->transform(pos) : pos.z_;
+			if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+			    stickauxdata->poly_ += FlatView::Point(
+							    bidf.y_, z );
+			else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
+			    stickauxdata->poly_ += FlatView::Point(
+							    bidf.x_, z );
 		    }
 		}
 	    }
-
-	    if ( stickauxdata->poly_.size() == 0 )
-		delete stickauxdata;
 	    else
 	    {
-		StkMarkerInfo* stkmkrinfo = new StkMarkerInfo;
-		stkmkrinfo->marker_ = stickauxdata;
-		stkmkrinfo->stickid_ = rc.row();
-		(*secmarkerlines) += stkmkrinfo;
-		viewer_.addAuxData( stickauxdata );
+		for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
+						    rc.col()+=colrg.step )
+		{
+		    const Coord3 pos = fss->getKnot( rc );
+		    if ( !mIsEqual(pos.z_,tkzs_.zsamp_.start,.0001) )
+			break;
+
+		    const Coord bidf =
+			bid2crd.transformBackNoSnap( pos.getXY() );
+		    stickauxdata->poly_ +=
+			FlatView::Point( bidf.x_, bidf.y_);
+		}
 	    }
+	}
+
+	if ( stickauxdata->poly_.size() == 0 )
+	    delete stickauxdata;
+	else
+	{
+	    StkMarkerInfo* stkmkrinfo = new StkMarkerInfo;
+	    stkmkrinfo->marker_ = stickauxdata;
+	    stkmkrinfo->stickid_ = rc.row();
+	    (*secmarkerlines) += stkmkrinfo;
+	    viewer_.addAuxData( stickauxdata );
 	}
     }
 
@@ -365,7 +381,7 @@ void FaultStickPainter::removePolyLine()
 
 void FaultStickPainter::fssChangedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
+    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
 				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
@@ -375,54 +391,43 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 
     if ( emobject->id() != emid_ ) return;
 
-    switch ( cbdata.event )
+    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+	return;
+    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
     {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
+	for ( int oidx=0; oidx<sectionmarkerlines_.size(); oidx++ )
+	{
+	    if ( !sectionmarkerlines_[oidx] ) continue;
+	    ObjectSet<StkMarkerInfo>& stmkrinfos =
+					*sectionmarkerlines_[oidx];
+
+	    for( int iidx=0; iidx<stmkrinfos.size(); iidx++ )
 	    {
-		for ( int oidx=0; oidx<sectionmarkerlines_.size(); oidx++ )
-		{
-		    if ( !sectionmarkerlines_[oidx] ) continue;
-		    ObjectSet<StkMarkerInfo>& stmkrinfos =
-						*sectionmarkerlines_[oidx];
+		if ( !stmkrinfos[iidx] ) continue;
 
-		    for( int iidx=0; iidx<stmkrinfos.size(); iidx++ )
-		    {
-			if ( !stmkrinfos[iidx] ) continue;
-
-			stmkrinfos[iidx]->marker_->linestyle_.color_ =
-							emfss->preferredColor();
-			viewer_.updateProperties( *stmkrinfos[iidx]->marker_ );
-		    }
-		}
-		break;
+		stmkrinfos[iidx]->marker_->linestyle_.color_ =
+						emfss->preferredColor();
+		viewer_.updateProperties( *stmkrinfos[iidx]->marker_ );
 	    }
-	case EM::EMObjectCallbackData::PositionChange:
-	{
-	    if ( emfss->hasBurstAlert() )
-		return;
-	    repaintFSS();
-	    break;
 	}
-	case EM::EMObjectCallbackData::BurstAlert:
-	{
-	    if (  emobject->hasBurstAlert() )
-		return;
-	    repaintFSS();
-	    break;
-	}
-	default:
-	    break;
+    }
+    else if ( cbdata.changeType() == EM::EMObject::cPositionChange() )
+    {
+	if ( emfss->hasBurstAlert() )
+	    return;
+	repaintFSS();
+    }
+    else if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
+    {
+	if (  emobject->hasBurstAlert() )
+	    return;
+	repaintFSS();
     }
 }
 
 
 FlatView::AuxData* FaultStickPainter::getAuxData( const EM::PosID* pid )
 {
-    if ( pid->objectID() != emid_ )
-	return 0;
-
     return (*sectionmarkerlines_[0])[activestickid_]->marker_;
 }
 
@@ -438,18 +443,12 @@ void FaultStickPainter::getDisplayedSticks(
 
 bool FaultStickPainter::hasDiffActiveStick( const EM::PosID* pid )
 {
-    if ( pid->objectID() != emid_ ||
-	 pid->getRowCol().row() != activestickid_ )
-	return true;
-    else
-	return false;
+    return pid->getRowCol().row() != activestickid_;
 }
 
 
 void FaultStickPainter::setActiveStick( EM::PosID& pid )
 {
-    if ( pid.objectID() != emid_ ) return;
-
     if ( pid.getRowCol().row() == activestickid_ ) return;
 
     for ( int stkidx=0; stkidx<sectionmarkerlines_[0]->size(); stkidx++ )

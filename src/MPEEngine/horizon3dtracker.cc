@@ -59,14 +59,14 @@ void Horizon3DTracker::initClass()
 
 #define mErrRet(msg) { errmsg = msg; return false; }
 
-SectionTracker* Horizon3DTracker::createSectionTracker( EM::SectionID sid )
+SectionTracker* Horizon3DTracker::createSectionTracker()
 {
     if ( !getHorizon() ) return 0;
 
-    return new SectionTracker( *emObject(), sid,
-		new BinIDSurfaceSourceSelector(*getHorizon(),sid),
-		ExtenderFactory().create( getTypeStr(),getHorizon(),sid),
-		new HorizonAdjuster(*getHorizon(),sid) );
+    return new SectionTracker( *emObject(),
+		new BinIDSurfaceSourceSelector(*getHorizon()),
+		ExtenderFactory().create( getTypeStr(),getHorizon()),
+		new HorizonAdjuster(*getHorizon()) );
 }
 
 

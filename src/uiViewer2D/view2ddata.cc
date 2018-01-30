@@ -64,7 +64,7 @@ bool Vw2DDataObject::usePar( const IOPar& par )
 }
 
 
-Vw2DEMDataObject::Vw2DEMDataObject( const EM::ObjectID& oid,uiFlatViewWin* win,
+Vw2DEMDataObject::Vw2DEMDataObject( const DBKey& oid,uiFlatViewWin* win,
 			     const ObjectSet<uiFlatViewAuxDataEditor>& eds)
     : Vw2DDataObject()
     , viewerwin_(win)
@@ -76,7 +76,7 @@ Vw2DEMDataObject::Vw2DEMDataObject( const EM::ObjectID& oid,uiFlatViewWin* win,
 bool Vw2DEMDataObject::fillPar( IOPar& par ) const
 {
     Vw2DDataObject::fillPar( par );
-    par.set( sKeyMID(), EM::EMM().getDBKey( emid_ ) );
+    par.set( sKeyMID(), emid_ );
     return true;
 }
 

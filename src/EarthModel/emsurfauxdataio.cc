@@ -79,14 +79,8 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
     astream.putHeader( sKeyFileType() );
     par.putTo( astream );
 
-    int nrnodes = 0;
-    for ( int idx=0; idx<surf.nrSections(); idx++ )
-    {
-	SectionID sectionid = surf.sectionID(idx);
-	const Geometry::BinIDSurface* meshsurf =
-			surf.geometry().sectionGeometry(sectionid);
-	nrnodes += meshsurf->nrKnots();
-    }
+    const Geometry::BinIDSurface* meshsurf = surf.geometry().geometryElement();
+    const int nrnodes = meshsurf->nrKnots();
 
     chunksize_ = nrnodes/100 + 1;
     if ( chunksize_ < 100 )
@@ -124,26 +118,24 @@ bool dgbSurfDataWriter::writeDummyHeader( const char* fnm, const char* attrnm )
 
 int dgbSurfDataWriter::nextStep()
 {
-    PosID posid( surf_.id() );
     for ( int idx=0; idx<chunksize_; idx++ )
     {
-	while ( subids_.isEmpty() )
+	while ( posids_.isEmpty() )
 	{
 	    if ( nrdone_ )
 	    {
 		sectionindex_++;
-		if ( sectionindex_ >= surf_.nrSections() )
+		if ( sectionindex_ >= 1 )
 		    return Finished();
 	    }
 	    else
 	    {
-		if ( !writeInt(surf_.nrSections()) )
+		if ( !writeInt(1) )
 		    mErrRetWrite(tr("Error in writing data information"))
 	    }
 
-	    const SectionID sectionid = surf_.sectionID( sectionindex_ );
 	    const Geometry::BinIDSurface* meshsurf =
-				surf_.geometry().sectionGeometry( sectionid );
+				surf_.geometry().geometryElement();
 	    if ( !meshsurf ) continue;
 
 	    const int nrnodes = meshsurf->nrKnots();
@@ -157,9 +149,7 @@ int dgbSurfDataWriter::nextStep()
 		    continue;
 
 		const RowCol emrc( bid.inl(), bid.crl() );
-		const SubID subid = emrc.toInt64();
-		posid.setSubID( subid );
-		posid.setSectionID( sectionid );
+		const PosID posid = PosID::getFromRowCol(emrc);
 		const float auxval =
 		    surf_.auxdata.getAuxDataVal( dataidx_, posid );
 		if ( mIsUdf(auxval) )
@@ -168,27 +158,27 @@ int dgbSurfDataWriter::nextStep()
 		    continue;
 		}
 
-		subids_ += subid;
+		posids_ += posid;
 		values_ += auxval;
 		nrdone_++;
 	    }
 
-	    if ( subids_.isEmpty() )
+	    if ( posids_.isEmpty() )
 		mErrRetWrite(tr("No data available for this surface"))
 
-	    if ( !writeInt(sectionid) || !writeInt(subids_.size()) )
+	    if ( !writeInt(0) || !writeInt(posids_.size()) )
 		mErrRetWrite(tr("Error in writing data information"))
 	}
 
-	const int subidindex = subids_.size()-1;
-	const SubID subid = subids_[subidindex];
-	const float auxvalue = values_[subidindex];
+	const int posidindex = posids_.size()-1;
+	const PosID posid = posids_[posidindex];
+	const float auxvalue = values_[posidindex];
 
-	if ( !writeInt64(subid) || !writeFloat(auxvalue) )
+	if ( !writeInt64(posid.getI()) || !writeFloat(auxvalue) )
 	    mErrRetWrite(tr("Error in writing datavalues"))
 
-	subids_.removeSingle( subidindex );
-	values_.removeSingle( subidindex );
+	posids_.removeSingle( posidindex );
+	values_.removeSingle( posidindex );
     }
 
     return MoreToDo();
@@ -366,7 +356,6 @@ int dgbSurfDataReader::nextStep()
 {
     if ( error_ ) mErrRetRead( uiString::emptyString() )
 
-    PosID posid( surf_->id() );
     for ( int idx=0; idx<chunksize_; idx++ )
     {
 	while ( !valsleftonsection_ )
@@ -380,13 +369,13 @@ int dgbSurfDataReader::nextStep()
 	    else
 	    {
 		if ( !readInt(nrsections_) || nrsections_ < 0 )
-		    mErrRetReadNoDeleteAux( 
+		    mErrRetReadNoDeleteAux(
 		    uiStrings::phrCannotRead( sHorizonData() ) )
 	    }
 
 	    int cursec = -1;
 	    if ( !readInt(cursec) || !readInt(valsleftonsection_) )
-		mErrRetReadNoDeleteAux( 
+		mErrRetReadNoDeleteAux(
 		uiStrings::phrCannotRead( sHorizonData() ) )
 
 	    currentsection_ = mCast(EM::SectionID,cursec);
@@ -399,13 +388,12 @@ int dgbSurfDataReader::nextStep()
 	    }
 	}
 
-	SubID subid;
+	od_int64 posidnr;
 	float val;
-	if ( !readInt64(subid) || !readFloat(val) )
+	if ( !readInt64(posidnr) || !readFloat(val) )
 	    mErrRetReadNoDeleteAux( uiStrings::phrCannotRead( sHorizonData() ) )
 
-	posid.setSubID( subid );
-	posid.setSectionID( currentsection_ );
+	const PosID posid = PosID::get( posidnr );
 	surf_->auxdata.setAuxDataVal( dataidx_, posid, val );
 
 	valsleftonsection_--;

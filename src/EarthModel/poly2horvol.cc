@@ -45,7 +45,7 @@ bool Poly2HorVol::setHorizon( const DBKey& mid, const TaskRunnerProvider& trprov
     if ( hor_ )
 	{ hor_->unRef(); hor_ = 0; }
 
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, trprov );
+    EM::EMObject* emobj = EM::Hor3DMan().loadIfNotFullyLoaded( mid, trprov );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
 
     setHorizon( hor );
@@ -92,7 +92,6 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
     if ( !zvals.isEmpty() )
 	avgz /= mCast(float,zvals.size());
 
-    const int nrsect = hor_->nrSections();
     TrcKeySamplingIterator iter( hs );
     float totth = 0;
     do
@@ -102,31 +101,27 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	if ( !poly.isInside(mPolyLoc(bid),true,1e-6) )
 	    continue;
 
-	const EM::SubID subid = bid.toInt64();
+	const EM::PosID posid = EM::PosID::getFromRowCol(bid);
 	const Coord pos( trk.getCoord() );
 
-	for ( int isect=0; isect<nrsect; isect++ )
-	{
-	    const EM::SectionID sid = hor_->sectionID( isect );
-	    float horz = (float) hor_->getPos( sid, subid ).z_;
-	    if ( mIsUdf(horz) && bid.inl()!=hs.stop_.inl() &&
-		 bid.crl()!=hs.stop_.crl() )
-	    { //The very last edges should exclude.
-		horz = (float) hor_->geometry().sectionGeometry(sid)
-		    ->computePosition( pos ).z_;
-	    }
-
-	    if ( mIsUdf(horz) )
-		continue;
-
-	    float polyz = grdr.getValue( pos );
-	    if ( mIsUdf(polyz) )
-		polyz = avgz;
-
-	    const float th = upw ? polyz - horz : horz - polyz;
-	    if ( useneg || th > 0 )
-		{ totth += th; break; }
+	float horz = (float) hor_->getPos( posid ).z_;
+	if ( mIsUdf(horz) && bid.inl()!=hs.stop_.inl() &&
+	     bid.crl()!=hs.stop_.crl() )
+	{ //The very last edges should exclude.
+	    horz = (float) hor_->geometry().geometryElement()
+		->computePosition( pos ).z_;
 	}
+
+	if ( mIsUdf(horz) )
+	    continue;
+
+	float polyz = grdr.getValue( pos );
+	if ( mIsUdf(polyz) )
+	    polyz = avgz;
+
+	const float th = upw ? polyz - horz : horz - polyz;
+	if ( useneg || th > 0 )
+	    { totth += th; break; }
     } while ( iter.next() );
 
     const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;

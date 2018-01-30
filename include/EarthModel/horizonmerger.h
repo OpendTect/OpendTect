@@ -50,7 +50,7 @@ protected:
 mExpClass(EarthModel) Horizon3DMerger : public HorizonMerger
 {
 public:
-			Horizon3DMerger(const TypeSet<ObjectID>&);
+			Horizon3DMerger(const TypeSet<DBKey>&);
 			~Horizon3DMerger();
 
     Horizon3D*		getOutputHorizon();

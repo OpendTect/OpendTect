@@ -30,7 +30,7 @@ void Element::getPosIDs( TypeSet<GeomPosID>& res, bool noudf ) const
     PtrMan<Iterator> iter = createIterator();
 
     GeomPosID posid;
-    while ( (posid=iter->next())!=-1 )
+    while ( (posid=iter->next()).isValid() )
     {
 	if ( noudf && !isDefined( posid ) )
 	    continue;
@@ -47,7 +47,7 @@ IntervalND<float> Element::boundingBox(bool) const
 
     PtrMan<Iterator> iter = createIterator();
     GeomPosID posid;
-    while ( (posid=iter->next())!=-1 )
+    while ( (posid=iter->next()).isValid() )
     {
 	pos = getPosition( posid );
 
@@ -84,7 +84,7 @@ void Element::blockCallBacks( bool yn, bool flush )
 
     if ( blockcbs_ && !flush )
 	return;
-    
+
     Threads::Locker poschglocker( poschglock_ );
     nrposchbuffer_.erase();
     poschglocker.unlockNow();
@@ -106,7 +106,7 @@ void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
 	movementbuffer_.append( gpids );
     }
     else
-	movementnotifier.trigger( &gpids, this );
+	movementNotifier().trigger( &gpids, this );
 
     ischanged_ = true;
 }
@@ -124,7 +124,7 @@ void Element::triggerMovement()
     if ( blockcbs_ )
 	getPosIDs( movementbuffer_, true );
     else
-	movementnotifier.trigger( 0, this );
+	movementNotifier().trigger( 0, this );
 
     ischanged_ = true;
 }
@@ -140,7 +140,7 @@ void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
 	nrposchbuffer_.append( gpids );
     }
     else
-	nrpositionnotifier.trigger( &gpids, this );
+	nrpositionNotifier().trigger( &gpids, this );
 
     ischanged_ = true;
 }
@@ -158,7 +158,7 @@ void Element::triggerNrPosCh()
     if ( blockcbs_ )
 	getPosIDs( nrposchbuffer_, true );
     else
-	nrpositionnotifier.trigger( 0, this );
+	nrpositionNotifier().trigger( 0, this );
     ischanged_ = true;
 }
 

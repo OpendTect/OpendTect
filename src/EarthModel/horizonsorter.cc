@@ -72,11 +72,10 @@ void HorizonSorter::calcBoundingBox()
 	    mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
 	    if ( !hor2d ) continue;
 
-	    const EM::SectionID sid = hor2d->sectionID( 0 );
 	    for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
 	    {
 		const Geometry::Horizon2DLine* geom =
-			hor2d->geometry().sectionGeometry(sid);
+			hor2d->geometry().geometryElement();
 		if ( !geom ) continue;
 
 		Pos::GeomID geomid = hor2d->geometry().geomID( ldx );
@@ -184,7 +183,8 @@ int HorizonSorter::nextStep()
 {
     if ( !nrdone_ )
     {
-	PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedids_ );
+	EM::EMManager& emmgr = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
+	PtrMan<Executor> horreader = emmgr.objectLoader( unsortedids_ );
 	if ( horreader )
 	{
 	    if ( trprov_ )
@@ -195,18 +195,15 @@ int HorizonSorter::nextStep()
 
 	for ( int idx=0; idx<unsortedids_.size(); idx++ )
 	{
-	    EM::ObjectID objid = EM::EMM().getObjectID( unsortedids_[idx] );
-	    EM::EMObject* emobj = EM::EMM().getObject( objid );
+	    RefMan<EM::EMObject> emobj = emmgr.getObject( unsortedids_[idx] );
 	    if ( !emobj )
 		mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
 
-	    emobj->ref();
-	    mDynamicCastGet(EM::Horizon*,horizon,emobj);
+	    mDynamicCastGet(EM::Horizon*,horizon,emobj.ptr());
 	    if ( !horizon )
-	    {
-		emobj->unRef();
 		mErrRet( tr("Loaded object is not a horizon") );
-	    }
+
+	    horizon->ref();
 	    horizons_ += horizon;
 	}
 
@@ -245,19 +242,18 @@ int HorizonSorter::nextStep()
 	mAllocLargeVarLenArr( float, depths, nrhors );
 	for ( int idx=0; idx<nrhors; idx++ )
 	{
-	    const EM::SectionID sid = horizons_[idx]->sectionID(0);
-	    const EM::SubID subid = binid_.toInt64();
+	    const EM::PosID posid = EM::PosID::getFromRowCol(binid_);
 	    if ( is2d_ )
 	    {
 		mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
 		if ( !hor2d ) continue;
 
 		depths[idx] =
-		    (float) hor2d->getPos( sid, geomids_[binid_.inl()],
+		    (float) hor2d->getPos( geomids_[binid_.inl()],
 					   binid_.crl() ).z_;
 	    }
 	    else
-		depths[idx] = (float) horizons_[idx]->getPos( sid, subid ).z_;
+		depths[idx] = (float) horizons_[idx]->getPos( posid ).z_;
 	}
 
 	for ( int idx=0; idx<nrhors; idx++ )

@@ -27,14 +27,13 @@ public:
 				~uiODVw2DFaultParentTreeItem();
 
     bool			showSubMenu();
-    void			getFaultVwr2DIDs(EM::ObjectID emid,
+    void			getFaultVwr2DIDs(const DBKey& emid,
 						 TypeSet<int>& vw2dids ) const;
-    void			getLoadedFaults(
-					TypeSet<EM::ObjectID>& emids) const;
-    void			removeFault(EM::ObjectID);
-    void			addFaults(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFault(EM::ObjectID emid);
-    void			setupNewTempFault(EM::ObjectID emid);
+    void			getLoadedFaults(DBKeySet& emids) const;
+    void			removeFault(const DBKey&);
+    void			addFaults(const DBKeySet&);
+    void			addNewTempFault(const DBKey& emid);
+    void			setupNewTempFault(const DBKey& emid);
 
 protected:
 
@@ -61,13 +60,13 @@ public:
 mExpClass(uiODMain) uiODVw2DFaultTreeItem : public uiODVw2DEMTreeItem
 { mODTextTranslationClass(uiODVw2DFaultTreeItem);
 public:
-			uiODVw2DFaultTreeItem(const EM::ObjectID&);
+			uiODVw2DFaultTreeItem(const DBKey&);
 			uiODVw2DFaultTreeItem(int dispid,bool dummy);
 			~uiODVw2DFaultTreeItem();
 
     bool		showSubMenu();
     bool		select();
-    EM::ObjectID	emObjectID() const	{ return emid_; }
+    const DBKey&	emObjectID() const	{ return emid_; }
     const Vw2DDataObject* vw2DObject() const;
 
 protected:

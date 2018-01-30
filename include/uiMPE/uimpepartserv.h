@@ -36,15 +36,16 @@ public:
 
     const char*			name() const		{ return "MPE";}
 
-    int				getTrackerID(const EM::ObjectID&) const;
+    int				getTrackerID(const DBKey&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
     bool			addTracker(const char* trackertype,int sceneid);
-    int				addTracker(const EM::ObjectID&);
+    bool			addTracker(const DBKey&,int sceneid);
+    int				addTracker(const DBKey&);
 				/*!<Creates a new tracker for the object and
 				    returns the trackerid of it or -1 if it
 				    failed.*/
-    EM::ObjectID		getEMObjectID(int trackerid) const;
+    DBKey			getEMObjectID(int trackerid) const;
     int				getCurSceneID() const { return cursceneid_; }
 
     bool			canAddSeed(int trackerid) const;
@@ -52,13 +53,11 @@ public:
     void			enableTracking(int trackerid,bool yn);
     bool			isTrackingEnabled(int trackerid) const;
 
-    bool			showSetupDlg(const EM::ObjectID&,
-					     const EM::SectionID&);
+    bool			showSetupDlg(const DBKey&);
 				/*!<\returns false if cancel was pressed. */
-    bool			showSetupGroupOnTop(const EM::ObjectID&,
+    bool			showSetupGroupOnTop(const DBKey&,
 						    const char* grpnm);
-    void			useSavedSetupDlg(const EM::ObjectID&,
-						 const EM::SectionID&);
+    void			useSavedSetupDlg(const DBKey&);
     MPE::uiSetupGroup*		getSetupGroup()	{ return setupgrp_; }
     void			fillTrackerSettings(int trackerid);
 
@@ -117,7 +116,6 @@ protected:
 						MPE::EMTracker&);
     bool			initSetupDlg(EM::EMObject*& emobj,
 					     MPE::EMTracker*& tracker,
-					     const EM::SectionID& sid,
 					     bool freshdlg=false);
 
 				//Interaction variables
@@ -134,7 +132,7 @@ protected:
     void			trackerToBeRemovedCB(CallBacker*);
     void			aboutToAddRemoveSeed(CallBacker*);
     void			seedAddedCB(CallBacker*);
-    EM::ObjectID		trackercurrentobject_;
+    DBKey			trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
 
     int				initialundoid_;

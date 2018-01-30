@@ -27,7 +27,7 @@ ________________________________________________________________________
 namespace EM
 {
 
-Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
+Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const DBKey& oid )
     : viewer_(fv)
     , emid_(oid)
     , markerlinestyle_(OD::LineStyle::Solid,2,Color(0,255,0))
@@ -42,11 +42,11 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     , knotenabled_(false)
     , paintenable_(true)
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::Flt3DMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->ref();
-	emobj->change.notify( mCB(this,Fault3DPainter,fault3DChangedCB) );
+	emobj->objectChanged().notify( mCB(this,Fault3DPainter,fault3DChangedCB) );
     }
     tkzs_.setEmpty();
 }
@@ -54,10 +54,10 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
 
 Fault3DPainter::~Fault3DPainter()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::Flt3DMan().getObject( emid_ );
     if ( emobj )
     {
-	emobj->change.remove( mCB(this,Fault3DPainter,fault3DChangedCB) );
+	emobj->objectChanged().remove( mCB(this,Fault3DPainter,fault3DChangedCB) );
 	emobj->unRef();
     }
 
@@ -102,22 +102,18 @@ void Fault3DPainter::setFlatPosData( const FlatPosData* fps )
 
 bool Fault3DPainter::addPolyLine()
 {
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
+    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid_ );
 
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d ) return false;
 
-    for ( int sidx=0; sidx<emf3d->nrSections(); sidx++ )
-    {
-	const EM::SectionID sid = emf3d->sectionID( sidx );
-	Fault3DMarker* f3dsectionmarker = new Fault3DMarker;
-	f3dmarkers_ += f3dsectionmarker;
+    Fault3DMarker* f3dsectionmarker = new Fault3DMarker;
+    f3dmarkers_ += f3dsectionmarker;
 
-	bool stickpained = paintSticks(*emf3d,sid,f3dsectionmarker);
-	bool intersecpainted = paintIntersection(*emf3d,sid,f3dsectionmarker);
-	if ( !stickpained && !intersecpainted )
-	     return false;
-    }
+    bool stickpained = paintSticks( *emf3d, f3dsectionmarker );
+    bool intersecpainted = paintIntersection( *emf3d, f3dsectionmarker );
+    if ( !stickpained && !intersecpainted )
+	 return false;
 
     return true;
 }
@@ -129,11 +125,9 @@ void Fault3DPainter::paint()
 }
 
 
-bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
-				 Fault3DMarker* f3dmaker )
+bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, Fault3DMarker* f3dmaker )
 {
-    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-		     f3d.sectionGeometry(sid) );
+    mDynamicCastGet( Geometry::FaultStickSurface*, fss, f3d.geometryElement() );
 
     if ( !fss || fss->isEmpty() )
 	return false;
@@ -159,7 +153,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D& f3d, const EM::SectionID& sid,
 	    stickauxdata->markerstyles_.erase();
 	stickauxdata->enabled_ = linenabled_;
 
-	const Coord3 stkednor = f3d.geometry().getEditPlaneNormal(sid,rc.row());
+	const Coord3 stkednor = f3d.geometry().getEditPlaneNormal(rc.row());
 
 	if ( !path_ )
 	{
@@ -313,12 +307,11 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 
 
 bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
-					const EM::SectionID& sid,
 					Fault3DMarker* f3dmaker )
 {
     PtrMan<Geometry::IndexedShape> faultsurf =
 		    new Geometry::ExplFaultStickSurface(
-			f3d.geometry().sectionGeometry(sid), SI().zScale() );
+			f3d.geometry().geometryElement(), SI().zScale() );
     faultsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
     if ( !faultsurf->update(true,0) )
 	return false;
@@ -546,8 +539,6 @@ void Fault3DPainter::enableKnots( bool yn )
 
 void Fault3DPainter::setActiveStick( EM::PosID& pid )
 {
-    if ( pid.objectID() != emid_ ) return;
-
     if ( pid.getRowCol().row() == activestickid_ ) return;
 
     for ( int auxdid=0; auxdid<f3dmarkers_[0]->stickmarker_.size(); auxdid++ )
@@ -568,20 +559,13 @@ void Fault3DPainter::setActiveStick( EM::PosID& pid )
 
 bool Fault3DPainter::hasDiffActiveStick( const EM::PosID* pid ) const
 {
-    if ( pid->objectID() != emid_ ||
-	 pid->getRowCol().row() != activestickid_ )
-	return true;
-    else
-	return false;
+    return pid->getRowCol().row() != activestickid_;
 }
 
 
 FlatView::AuxData* Fault3DPainter::getAuxData(
 						const EM::PosID* pid) const
 {
-    if ( pid->objectID() != emid_ )
-	return 0;
-
     return f3dmarkers_[0]->stickmarker_[activestickid_]->marker_;
 }
 
@@ -626,7 +610,7 @@ void Fault3DPainter::repaintFault3D()
 
 void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
+    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData,
 				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
@@ -636,53 +620,46 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 
     if ( emobject->id() != emid_ ) return;
 
-    switch ( cbdata.event )
+    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+	return;
+    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
     {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
+	for ( int oidx=0; oidx<f3dmarkers_.size(); oidx++ )
+	{
+	    if ( !f3dmarkers_[oidx] ) continue;
+	    Fault3DMarker& mrks = *f3dmarkers_[oidx];
+
+	    for ( int stid=0; stid<mrks.stickmarker_.size(); stid++ )
 	    {
-		for ( int oidx=0; oidx<f3dmarkers_.size(); oidx++ )
-		{
-		    if ( !f3dmarkers_[oidx] ) continue;
-		    Fault3DMarker& mrks = *f3dmarkers_[oidx];
+		if ( !mrks.stickmarker_[stid] ) continue;
 
-		    for ( int stid=0; stid<mrks.stickmarker_.size(); stid++ )
-		    {
-			if ( !mrks.stickmarker_[stid] ) continue;
-
-			mrks.stickmarker_[stid]->marker_->linestyle_.color_ =
-							emf3d->preferredColor();
-			viewer_.updateProperties(
-					*mrks.stickmarker_[stid]->marker_ );
-		    }
-
-		    for ( int itid=0; itid<mrks.intsecmarker_.size(); itid++ )
-		    {
-			if ( !mrks.intsecmarker_[itid] ) continue;
-
-			mrks.intsecmarker_[itid]->linestyle_.color_ =
-							emf3d->preferredColor();
-			viewer_.updateProperties( *mrks.intsecmarker_[itid] );
-		    }
-		}
-		break;
+		mrks.stickmarker_[stid]->marker_->linestyle_.color_ =
+						emf3d->preferredColor();
+		viewer_.updateProperties(
+				*mrks.stickmarker_[stid]->marker_ );
 	    }
-	case EM::EMObjectCallbackData::PositionChange:
-	{
-	    if ( emf3d->hasBurstAlert() )
-		return;
-	    repaintFault3D();
-	    break;
+
+	    for ( int itid=0; itid<mrks.intsecmarker_.size(); itid++ )
+	    {
+		if ( !mrks.intsecmarker_[itid] ) continue;
+
+		mrks.intsecmarker_[itid]->linestyle_.color_ =
+						emf3d->preferredColor();
+		viewer_.updateProperties( *mrks.intsecmarker_[itid] );
+	    }
 	}
-	case EM::EMObjectCallbackData::BurstAlert:
-	{
-	    if (  emobject->hasBurstAlert() )
-		return;
-	    repaintFault3D();
-	    break;
-	}
-	default: break;
+    }
+    if ( cbdata.changeType() == EM::EMObject::cPositionChange() )
+    {
+	if ( emf3d->hasBurstAlert() )
+	    return;
+	repaintFault3D();
+    }
+    if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
+    {
+	if (  emobject->hasBurstAlert() )
+	    return;
+	repaintFault3D();
     }
 }
 

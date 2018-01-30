@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioobj.h"
+#include "od_ostream.h"
 #include "ptrman.h"
 #include "strmprov.h"
 #include "survgeom.h"
@@ -146,32 +147,32 @@ uiExportFault::~uiExportFault()
 }
 
 
-static int stickNr( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
+static int stickNr( EM::EMObject* emobj, int stickidx )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     return fss->rowRange().atIndex( stickidx );
 }
 
 
-static int nrSticks( EM::EMObject* emobj, EM::SectionID sid )
+static int nrSticks( EM::EMObject* emobj )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     return fss->nrSticks();
 }
 
 
-static int nrKnots( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
+static int nrKnots( EM::EMObject* emobj, int stickidx )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     const int sticknr = fss->rowRange().atIndex( stickidx );
     return fss->nrKnots( sticknr );
 }
 
 
-static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
+static Coord3 getCoord( EM::EMObject* emobj, int stickidx,
 			int knotidx )
 {
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement());
     const int sticknr = fss->rowRange().atIndex(stickidx);
     const int knotnr = fss->colRange(sticknr).atIndex(knotidx);
     return fss->getKnot( RowCol(sticknr,knotnr) );
@@ -232,11 +233,12 @@ bool uiExportFault::writeAscii()
 {
     DBKeySet dbkeyset;
     if ( !getInputDBKeys(dbkeyset) )
-	mErrRet(tr("Cannot find object in database"))
+	mErrRet(tr("No faults selected"))
 
     const BufferString fname = outfld_->fileName();
-
-    StreamData sdo = StreamProvider( fname ).makeOStream();
+    od_ostream ostrm( fname );
+    if ( !ostrm.isOK() )
+	return false;
 
     RefMan<ZAxisTransform> zatf = 0;
     if ( zfld_->getIntValue()==2 )
@@ -251,43 +253,26 @@ bool uiExportFault::writeAscii()
     }
 
     uiTaskRunnerProvider trprov( this );
-    PtrMan<Executor> objloader = EM::EMM().objectLoader( dbkeyset );
-    if ( !objloader || !trprov.execute(*objloader) )
-    {
-	mErrRet( uiStrings::phrCannotRead(tr("the object") ));
+    BufferString typnm = issingle_ ? ctio_.ioobj_->group() :
+				    bulkinfld_->getCtxtIOObj().ioobj_->group();
+    RefObjectSet<EM::EMObject> loadedobjs =
+		EM::EMM().loadObjects( typnm, dbkeyset, 0, &trprov );
+    if ( loadedobjs.isEmpty() )
 	return false;
-    }
 
     const UnitOfMeasure* unit = zunitsel_->getUnit();
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );
 
-    for ( int idx=0; idx<dbkeyset.size(); idx++ )
+
+    for ( int idx=0; idx<loadedobjs.size(); idx++ )
     {
-	EM::ObjectID objid = EM::EMM().getObjectID( dbkeyset[idx] );
-	if ( objid < 0 ) continue;
-	RefMan<EM::EMObject> emobj = EM::EMM().getObject(objid);
-	emobj->setDBKey( dbkeyset.get(idx) );
-	mDynamicCastGet(EM::Fault3D*,f3d,emobj.ptr())
-	mDynamicCastGet(EM::FaultStickSet*,fss,emobj.ptr())
+	mDynamicCastGet(EM::Fault3D*,f3d,loadedobjs[idx])
+	mDynamicCastGet(EM::FaultStickSet*,fss,loadedobjs[idx])
 	if ( !f3d && !fss ) return false;
 
-	PtrMan<Executor> loader = emobj->loader();
-	if ( !loader ) mErrRet( uiStrings::phrCannotRead(
-							uiStrings::sFault() ))
-
-	if ( !trprov.execute( *loader ) )
-	    return false;
-
-	if ( !sdo.usable() )
-	{
-	    sdo.close();
-	    mErrRet( uiStrings::sCantOpenOutpFile() );
-	}
-	const EM::SectionID sectionid = emobj->sectionID( 0 );
-	const int nrsticks = nrSticks( emobj.ptr(), sectionid );
-
+	const int nrsticks = nrSticks( loadedobjs[idx] );
 	BufferString objnm = f3d ? f3d->name() : fss->name();
 	objnm.quote('\"');
 
@@ -300,11 +285,10 @@ bool uiExportFault::writeAscii()
 	{
 	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	    {
-		const int nrknots = nrKnots( emobj, sectionid, stickidx );
+		const int nrknots = nrKnots( emobj, stickidx );
 		for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 		{
-		    Coord3 crd = getCoord( emobj, sectionid,
-						stickidx, knotidx );
+		    Coord3 crd = getCoord( emobj, stickidx, knotidx );
 		    if ( !crd.isDefined() )
 			continue;
 		    const BinID bid = SI().transform( crd.getXY() );
@@ -335,61 +319,60 @@ bool uiExportFault::writeAscii()
 
 	for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	{
-	    const int nrknots = nrKnots( emobj.ptr(), sectionid, stickidx );
+	    const int nrknots = nrKnots( emobj.ptr(), stickidx );
 	    for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 	    {
-		Coord3 crd = getCoord( emobj.ptr(), sectionid,
-					     stickidx, knotidx );
+		Coord3 crd = getCoord( emobj.ptr(), stickidx, knotidx );
 		if ( !crd.isDefined() )
 		    continue;
 		if ( !issingle_ )
-		    *sdo.oStrm() << objnm << "\t";
+		    ostrm << objnm << "\t";
 		const BinID bid = SI().transform( crd.getXY() );
 		if ( zatf )
 		    crd.z_ =  zatf->transformTrc( bid, (float)crd.z_ );
 		if ( !doxy )
 		{
-		    *sdo.oStrm() << bid.inl() << '\t' << bid.crl();
+		    ostrm << bid.inl() << '\t' << bid.crl();
+
+
+		    ostrm << bid.inl() << '\t' << bid.crl();
 		}
 		else
 		{
 		    // ostreams print doubles awfully
 		    str.setEmpty();
 		    str += crd.x_; str += "\t"; str += crd.y_;
-		    *sdo.oStrm() << str;
+		    ostrm << str;
 		}
 
-		*sdo.oStrm() << '\t' << unit->userValue( crd.z_ );
+		ostrm << '\t' << unit->userValue( crd.z_ );
 
 		if ( inclstickidx )
-		    *sdo.oStrm() << '\t' << stickidx;
+		    ostrm << '\t' << stickidx;
 		if ( inclknotidx )
-		    *sdo.oStrm() << '\t' << knotidx;
+		    ostrm << '\t' << knotidx;
 
 		if ( fss )
 		{
-		    const int sticknr = stickNr( emobj.ptr(), sectionid,
-								    stickidx );
+		    const int sticknr = stickNr( loadedobjs[idx], stickidx );
 
 		    bool pickedon2d =
-			fss->geometry().pickedOn2DLine( sectionid, sticknr );
+			fss->geometry().pickedOn2DLine( sticknr );
 		    if ( pickedon2d && linenmfld_->isChecked() )
 		    {
 			Pos::GeomID geomid =
-			    fss->geometry().pickedGeomID( sectionid, sticknr );
+					fss->geometry().pickedGeomID( sticknr );
 			const char* linenm = Survey::GM().getName( geomid );
 
 			if ( linenm )
-			    *sdo.oStrm() << '\t' << linenm;
+			    ostrm << '\t' << linenm;
 		    }
 		}
 
-		*sdo.oStrm() << '\n';
+		ostrm << '\n';
 	    }
 	}
-
     }
-    sdo.close();
 
     return true;
 }

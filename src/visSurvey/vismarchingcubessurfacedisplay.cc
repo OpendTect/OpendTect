@@ -136,7 +136,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
     if ( !surface || !surface->getSurface() )
 	return false;
 
-    mTryAlloc( emsurface_, EM::MarchingCubesSurface( EM::EMM() ) );
+    mTryAlloc( emsurface_, EM::MarchingCubesSurface("") );
 
     if ( !emsurface_ )
     {
@@ -186,8 +186,8 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 }
 
 
-EM::ObjectID MarchingCubesDisplay::getEMID() const
-{ return emsurface_ ? emsurface_->id() : -1; }
+DBKey MarchingCubesDisplay::getEMID() const
+{ return emsurface_ ? emsurface_->id() : DBKey::getInvalid(); }
 
 
 SurveyObject::AttribFormat MarchingCubesDisplay::getAttributeFormat(int) const
@@ -502,7 +502,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
+bool MarchingCubesDisplay::setEMID( const DBKey& emid,
        TaskRunner* runner )
 {
     if ( emsurface_ )
@@ -626,17 +626,15 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	EM::ObjectID emid = EM::EMM().getObjectID( newmid );
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+	RefMan<EM::EMObject> emobject = EM::EMM().getObject( newmid );
 	if ( !emobject )
 	{
 	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
 	    if ( loader ) loader->execute();
-	    emid = EM::EMM().getObjectID( newmid );
-	    emobject = EM::EMM().getObject( emid );
+	    emobject = EM::EMM().getObject( newmid );
 	}
 
-	if ( emobject ) setEMID( emobject->id(), 0 );
+	if ( emobject ) setEMID( newmid, 0 );
     }
 
     par.getYN( sKeyUseTexture(), usestexture_ );

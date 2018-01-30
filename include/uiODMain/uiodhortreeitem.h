@@ -58,7 +58,7 @@ mExpClass(uiODMain) uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
 public:
 			uiODHorizonTreeItem(int visid,bool rgba,
 					    bool atsect,bool dummy);
-			uiODHorizonTreeItem(const EM::ObjectID&,
+			uiODHorizonTreeItem(const DBKey&,
 					    bool rgba,bool atsect);
 
 protected:
@@ -129,7 +129,7 @@ mExpClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
 { mODTextTranslationClass(uiODHorizon2DTreeItem)
 public:
 			uiODHorizon2DTreeItem(int visid,bool dummy);
-			uiODHorizon2DTreeItem(const EM::ObjectID&);
+			uiODHorizon2DTreeItem(const DBKey&);
 
 protected:
     void		initMenuItems();

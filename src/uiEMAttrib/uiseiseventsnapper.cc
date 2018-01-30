@@ -124,68 +124,64 @@ bool uiSeisEventSnapper::acceptOK()
     Interval<float> rg = gatefld_->getFInterval();
     rg.scale( 1.f / SI().zDomain().userFactor() );
 
-    for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
+    if ( !is2d_ )
     {
-	const EM::SectionID sid = horizon_->sectionID( idx );
-	if ( !is2d_ )
+	mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
+	if ( !hor3d )
+	    return false;
+
+	mDynamicCastGet(EM::Horizon3D*,newhor3d,usedhor)
+	if ( !newhor3d )
+	    return false;
+
+	BinIDValueSet bivs( 1, false );
+	hor3d->geometry().fillBinIDValueSet( bivs );
+
+	SeisEventSnapper3D snapper( *seisioobj, bivs, rg );
+	snapper.setEvent(
+		typedef_.getEnumForIndex(eventfld_->getIntValue()));
+
+	uiTaskRunner dlg( this );
+	if ( !TaskRunner::execute(&dlg,snapper) )
+	    return false;
+
+	hor3d->setBurstAlert( true );
+	MouseCursorManager::setOverride( MouseCursor::Wait );
+	BinIDValueSet::SPos pos;
+	while ( bivs.next(pos) )
 	{
-	    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
-	    if ( !hor3d )
-		return false;
-
-	    mDynamicCastGet(EM::Horizon3D*,newhor3d,usedhor)
-	    if ( !newhor3d )
-		return false;
-
-	    BinIDValueSet bivs( 1, false );
-	    hor3d->geometry().fillBinIDValueSet( sid, bivs );
-
-	    SeisEventSnapper3D snapper( *seisioobj, bivs, rg );
-	    snapper.setEvent(
-		    typedef_.getEnumForIndex(eventfld_->getIntValue()));
-
-	    uiTaskRunner dlg( this );
-	    if ( !TaskRunner::execute(&dlg,snapper) )
-		return false;
-
-	    hor3d->setBurstAlert( true );
-	    MouseCursorManager::setOverride( MouseCursor::Wait );
-	    BinIDValueSet::SPos pos;
-	    while ( bivs.next(pos) )
-	    {
-		BinID bid; float z;
-		bivs.get( pos, bid, z );
-		newhor3d->setPos( sid, bid.toInt64(), Coord3(0,0,z),
-				  false );
-	    }
-
-	    hor3d->setBurstAlert( false );
-	    MouseCursorManager::restoreOverride();
-	}
-	else
-	{
-	    mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_)
-	    if ( !hor2d )
-		return false;
-
-	    mDynamicCastGet(EM::Horizon2D*,newhor2d,usedhor)
-	    if ( !newhor2d )
-		return false;
-
-	    SeisEventSnapper2D::Setup su(
-		    seisioobj,
-		    typedef_.getEnumForIndex(eventfld_->getIntValue()),
-		    rg );
-	    SeisEventSnapper2D snapper( hor2d, newhor2d, su );
-
-	    uiTaskRunner dlg( this );
-	    if ( !TaskRunner::execute( &dlg, snapper ) )
-		return false;
+	    BinID bid; float z;
+	    bivs.get( pos, bid, z );
+	    newhor3d->setPos( EM::PosID::getFromRowCol(bid), Coord3(0,0,z),
+			      false );
 	}
 
-	usedhor->setBurstAlert( false );
+	hor3d->setBurstAlert( false );
 	MouseCursorManager::restoreOverride();
     }
+    else
+    {
+	mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_)
+	if ( !hor2d )
+	    return false;
+
+	mDynamicCastGet(EM::Horizon2D*,newhor2d,usedhor)
+	if ( !newhor2d )
+	    return false;
+
+	SeisEventSnapper2D::Setup su(
+		seisioobj,
+		typedef_.getEnumForIndex(eventfld_->getIntValue()),
+		rg );
+	SeisEventSnapper2D snapper( hor2d, newhor2d, su );
+
+	uiTaskRunner dlg( this );
+	if ( !TaskRunner::execute( &dlg, snapper ) )
+	    return false;
+    }
+
+    usedhor->setBurstAlert( false );
+    MouseCursorManager::restoreOverride();
 
     const bool res = savefldgrp_->saveHorizon();
     if ( res && savefldgrp_->displayNewHorizon() )
