@@ -411,22 +411,26 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
+    const bool isflt =
+	curioobj_->group()==EMFault3DTranslatorGroup::sGroupName();
+    uiString datatype =
+	isflt ? uiStrings::sFaultData() : uiStrings::sHorizonData();
     if ( curioobj_->implReadOnly() )
     {
 	uiMSG().error(
-		tr("Cannot remove Surface Data. Surface is read-only"));
+		tr("Cannot delete %1. Surface is read-only").arg(datatype) );
 	return;
     }
 
     BufferStringSet attrnms;
     attribfld_->getChosen( attrnms );
-    uiString msg = tr("%1\nwill be removed from disk.\n"
-                      "Do you wish to continue?")
-                 .arg(attrnms.getDispString(2));
-    if ( !uiMSG().askRemove(msg) )
+    uiString msg = tr("%1 '%2'\nwill be deleted from disk. "
+		      "Do you wish to continue?").arg(datatype)
+			.arg(attrnms.getDispString(2));
+    if ( !uiMSG().askGoOn(msg,uiStrings::sDelete(),uiStrings::sCancel()) )
 	return;
 
-    if ( curioobj_->group()==EMFault3DTranslatorGroup::sGroupName() )
+    if ( isflt )
     {
 	EM::FaultAuxData fad( curioobj_->key() );
 	for ( int ida=0; ida<attrnms.size(); ida++ )
