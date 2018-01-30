@@ -76,7 +76,8 @@ uiEdMapperSetupDlg( uiColTabSelTool& st )
 				 BoolInpSpec(false) );
     histeqfld_->attach( alignedBelow, usemodefld_ );
 
-    nrsegsfld_ = new uiSlider( this, uiSlider::Setup() );
+    uiSlider::Setup slsu; slsu.withedit( true );
+    nrsegsfld_ = new uiSlider( this, slsu );
     nrsegsfld_->setInterval( StepInterval<int>(1,20,1) );
     nrsegsfld_->setTickMarks( uiSlider::Below );
     nrsegsfld_->attach( alignedBelow, histeqfld_ );
@@ -103,6 +104,8 @@ void initFldsCB( CallBacker* )
     mAttachCB( rangefld_->valuechanged, uiEdMapperSetupDlg::fldSelCB );
     mAttachCB( rangefld_->updateRequested, uiEdMapperSetupDlg::updReqCB );
     mAttachCB( clipfld_->updateRequested, uiEdMapperSetupDlg::updReqCB );
+    mAttachCB( usemodefld_->modeChange, uiEdMapperSetupDlg::updReqCB );
+    mAttachCB( histeqfld_->valuechanged, uiEdMapperSetupDlg::updReqCB );
     mAttachCB( dosegbox_->activated, uiEdMapperSetupDlg::updReqCB );
     mAttachCB( nrsegsfld_->valueChanged, uiEdMapperSetupDlg::updReqCB );
 }
@@ -134,14 +137,13 @@ void putToScreen()
 	clipfld_->setValue( (clipperc.first+clipperc.second) * 0.5 );
 
     int nrsegs = setup().nrSegs();
-    dosegbox_->setChecked( nrsegs > 0 );
-    if ( nrsegs > 0 )
-    {
-	if ( nrsegs > 25 )
-	    nrsegs = 25;
-	nrsegsfld_->setValue( nrsegs );
-    }
-
+    const bool havesegs = nrsegs > 0;
+    if ( !havesegs )
+	nrsegs = 5;
+    else if ( nrsegs > 25 )
+	nrsegs = 25;
+    nrsegsfld_->setValue( nrsegs );
+    dosegbox_->setChecked( havesegs );
 }
 
 void getFromScreen()
