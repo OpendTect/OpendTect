@@ -32,6 +32,7 @@ BlocksSeisTrcTranslator::BlocksSeisTrcTranslator( const char* s1,
 BlocksSeisTrcTranslator::~BlocksSeisTrcTranslator()
 {
     cleanUp();
+    close();
 }
 
 
