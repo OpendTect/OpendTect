@@ -28,7 +28,7 @@ macro ( create_package PACKAGE_NAME )
 	elseif( APPLE )
 	else()
 	   execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			    /usr/lib64/libpython2.6.so.1.0
+			    /usr/lib64/libpython2.7.so.1.0
 			    ${COPYTOLIBDIR} )
 	endif()
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
