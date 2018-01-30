@@ -819,7 +819,7 @@ void uiSEGYReadStartInfo::fillLoadDef()
     {
 	mSetByteNr( refnrbytefld_, refnr_  );
 	mSetByteNr( trcnrbytefld_, trnr_  );
-	loaddef_.havetrcnrs_ = trcnrsrcfld_->currentItem() == 0;
+	loaddef_.havetrcnrs_ = trcnrsrcfld_ && trcnrsrcfld_->currentItem() == 0;
 	if ( trcnrgengrp_ )
 	{
 	    SamplingData<int>& def = loaddef_.trcnrdef_;
