@@ -19,10 +19,58 @@ ________________________________________________________________________
 class uiColorInput;
 class uiGenInput;
 class uiSlider;
+class uiSpinBox;
+
+
+mExpClass(uiTools) uiMarkerStyle2D : public uiGroup
+{ mODTextTranslationClass(uiMarkerStyle2D)
+public:
+	mExpClass(uiTools) Setup
+	{
+	public:
+			Setup( const uiString& txt=uiString::emptyString())
+			    : lbltxt_(txt)
+			    , shape_(true)
+			    , color_(true)
+			    , transparency_(false)
+			    , sz_(true)
+			{}
+	    mDefSetupMemb(uiString,lbltxt)
+	    mDefSetupMemb(bool,shape)
+	    mDefSetupMemb(bool,color)
+	    mDefSetupMemb(bool,sz)
+	    mDefSetupMemb(bool,transparency)
+	    mDefSetupMemb(TypeSet<MarkerStyle2D::Type>,toexclude)
+	};
+			uiMarkerStyle2D(uiParent*,const Setup&);
+			~uiMarkerStyle2D();
+
+    void		setMarkerType(MarkerStyle2D::Type);
+    MarkerStyle2D::Type getMarkerType() const;
+    void		setMarkerColor(const Color&);
+    Color		getMarkerColor() const;
+    void		setMarkerSize(int);
+    int			getMarkerSize() const;
+
+    void		setMarkerStyle(const MarkerStyle2D&);
+    MarkerStyle2D	getMarkerStyle() const;
+
+    Notifier<uiMarkerStyle2D>	changed;
+
+protected:
+    TypeSet<MarkerStyle2D::Type>	types_;
+
+    uiGenInput*				typefld_;
+    uiColorInput*			colorfld_;
+    uiSpinBox*				szfld_;
+
+    void		changeCB(CallBacker*);
+};
+
 
 
 mExpClass(uiTools) uiMarkerStyle3D : public uiGroup
-{ mODTextTranslationClass(uiMarkerStyle3D);
+{ mODTextTranslationClass(uiMarkerStyle3D)
 public:
 			uiMarkerStyle3D(uiParent*,bool withcolor,
 				const Interval<int>& sizerange,
