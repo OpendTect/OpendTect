@@ -279,7 +279,7 @@ void WellLogInterpolator::setGridder( const char* nm, float radius )
     if ( FixedString(nm) == RadialBasisFunctionGridder2D::sFactoryKeyword() )
     {
 	gridder_ = new RadialBasisFunctionGridder2D();
-	trendorder_ = PolyTrend::Order2;
+	trendorder_ = PolyTrend::Order0;
 	return;
     }
 

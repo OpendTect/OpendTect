@@ -329,7 +329,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 
 	gridder_->setValues( gridvalues_ );
 	if ( rbfgridder )
-	    gridder_->setTrend( PolyTrend::Order2 );
+	    gridder_->setTrend( PolyTrend::Order0 );
 
 	const float val = rbfgridder
 			? gridder_->getValue( workpos )
