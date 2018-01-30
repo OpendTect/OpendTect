@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "file.h"
 #include "iodir.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "iodirentry.h"
 #include "iopar.h"
@@ -69,9 +70,15 @@ uiString getWinTitle( const uiString& objtyp,
 			       arg(objtyp);
 }
 
+uiString getDlgTitle( const MultiID& wllky )
+{
+    const BufferString wellnm = IOM().nameOf( wllky );
+    return toUiString("%1: %2").arg(uiStrings::sWell()).arg(wellnm);
+}
+
 #define mGetDlgSetup(wd,objtyp,hid) \
     uiDialog::Setup( getWinTitle(objtyp,wd.multiID(),writable_), \
-		     mNoDlgTitle, mODHelpKey(hid) )
+		     getDlgTitle(wd.multiID()), mODHelpKey(hid) )
 #define mTDName(iscksh) iscksh ? uiWellTrackDlg::sCkShotData() \
 			       : uiWellTrackDlg::sTimeDepthModel()
 #define mTDOpName(op,iscksh) \
@@ -1653,10 +1660,17 @@ bool uiD2TModelDlg::acceptOK( CallBacker* )
 //============================================================================
 
 uiNewWellDlg::uiNewWellDlg( uiParent* p )
-        : uiGetObjectName(p,uiGetObjectName::Setup(tr("New Well"),mkWellNms())
+    : uiGetObjectName(p,uiGetObjectName::Setup(tr("New Well"),mkWellNms())
 				.inptxt(tr("New well name")) )
 {
     setHelpKey( mODHelpKey(mNewWellTrackDlgHelpID) );
+
+    if ( listfld_ )
+    {
+	uiLabel* lbl = new uiLabel( this, tr("Existing wells") );
+	lbl->attach( leftOf, listfld_ );
+    }
+
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
 				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, inpFld() );

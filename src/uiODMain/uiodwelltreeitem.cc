@@ -61,7 +61,8 @@ bool uiODWellParentTreeItem::showSubMenu()
 	mnu.insertItem(
 	    new uiAction(m3Dots(tr("Tie Well to Seismic")),"well_tie"),cTieIdx);
     }
-    mnu.insertItem( new uiAction(m3Dots(tr("New WellTrack"))), cNewWellIdx );
+    mnu.insertItem( new uiAction(m3Dots(tr("Pick New Trajectory"))),
+		    cNewWellIdx );
     if ( children_.size() > 1 )
 	mnu.insertItem( new uiAction(m3Dots(tr("Create Attribute Log"))),
 			cAttribIdx);
@@ -138,8 +139,9 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	Color color;
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
+
 	wd->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
-    wd->setName( mToUiStringTodo(wellname));
+	wd->setName( mToUiStringTodo(wellname));
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }
@@ -246,15 +248,15 @@ bool uiODWellTreeItem::init()
     {
 	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
 	displayid_ = wd->id();
-	visserv_->addObject( wd, sceneID(), true );
 	if ( !wd->setMultiID(mid_) )
 	{
-	    visserv_->removeObject( wd, sceneID() );
 	    PtrMan<IOObj> ioobj = IOM().get( mid_ );
 	    const char* nm = ioobj ? ioobj->name().buf() : 0;
 	    uiMSG().error(tr("Could not load well %1").arg( nm ) );
 	    return false;
 	}
+
+	visserv_->addObject( wd, sceneID(), true );
     }
     else
     {
