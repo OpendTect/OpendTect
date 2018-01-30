@@ -22,6 +22,7 @@ class Settings;
 class uiCheckList;
 class uiComboBox;
 class uiGenInput;
+class uiIconSetSel;
 class uiLabeledComboBox;
 class uiSettingsSubjectTreeItm;
 class uiTable;
@@ -197,6 +198,7 @@ public:
 protected:
 
     uiThemeSel*		themesel_;
+    uiIconSetSel*	iconsetsel_;
     uiGenInput*		iconszfld_;
     uiGenInput*		virtualkeyboardfld_;
     uiCheckList*	showprogressfld_;

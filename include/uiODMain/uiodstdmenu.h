@@ -192,8 +192,6 @@ ________________________________________________________________________
 #define mStereoQuadMnuItm		(mViewStereoMnu + 3)
 #define mStereoOffsetMnuItm		(mViewStereoMnu + 4)
 
-#define mViewIconsMnuItm		(mViewMnu + 200)
-
 
 /* 'Utilities' menu */
 

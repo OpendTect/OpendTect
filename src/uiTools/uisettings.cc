@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uichecklist.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uiiconsetsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -332,19 +333,36 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
     , initialshowcrlprogress_(true)
     , initialshowrdlprogress_(true)
     , initialenabvirtualkeyboard_(false)
+    , iconsetsel_(0)
 {
     themesel_ = new uiThemeSel( this, true );
 
-    iconszfld_ = new uiGenInput( this, tr("Icon Size"),
+    uiGroup* hattgrp = themesel_;
+    BufferStringSet icsetnms;
+    uiIconSetSel::getSetNames( icsetnms );
+    if ( uiIconSetSel::canSelect(icsetnms) )
+    {
+	iconsetsel_ = new uiIconSetSel( this, icsetnms, true );
+	iconsetsel_->attach( alignedBelow, themesel_ );
+	hattgrp = iconsetsel_;
+    }
+    iconszfld_ = new uiGenInput( this,
+		    iconsetsel_ ? uiStrings::sSize() : tr("Icon Size"),
 				 IntInpSpec(initialiconsz_,10,64) );
-    iconszfld_->attach( alignedBelow, themesel_ );
+    if ( iconsetsel_ )
+	iconszfld_->attach( rightOf, iconsetsel_ );
+    else
+    {
+	hattgrp = iconszfld_;
+	iconszfld_->attach( alignedBelow, themesel_ );
+    }
 
     setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
 		  initialenabvirtualkeyboard_ );
     virtualkeyboardfld_ = new uiGenInput( this,
 		tr("Enable Virtual Keyboard"),
 		BoolInpSpec(initialenabvirtualkeyboard_) );
-    virtualkeyboardfld_->attach( alignedBelow, iconszfld_ );
+    virtualkeyboardfld_->attach( alignedBelow, hattgrp );
 
     setts_.getYN( SettingsAccess::sKeyShowInlProgress(),
 		  initialshowinlprogress_ );
@@ -368,12 +386,16 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
 void uiGeneralLnFSettingsGroup::doRollBack()
 {
     themesel_->revert();
+    if ( iconsetsel_ )
+	iconsetsel_->revert();
 }
 
 
 void uiGeneralLnFSettingsGroup::doCommit( uiRetVal& )
 {
     if ( themesel_->putInSettings(false) )
+	changed_ = true;
+    if ( iconsetsel_ && iconsetsel_->newSetSelected() )
 	changed_ = true;
 
     const int newiconsz = iconszfld_->getIntValue();

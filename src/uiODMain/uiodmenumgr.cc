@@ -53,7 +53,6 @@ ________________________________________________________________________
 #include "thread.h"
 
 
-static const char* sKeyIconSetNm = "Icon set name";
 static const char* ascic = "ascii";
 static const char* singic = "single";
 static const char* multic = "multiple";
@@ -841,47 +840,12 @@ void uiODMenuMgr::fillViewMenu()
 				  "stereooffset", mStereoOffsetMnuItm );
     stereooffsetitm_->setEnabled( false );
 
-    mkViewIconsMnu();
     viewmnu_->insertSeparator();
 
     uiMenu& toolbarsmnu = appl_.getToolbarsMenu();
     toolbarsmnu.setName( "Toolbars" );
     toolbarsmnu.setIcon( "toolbar" );
     viewmnu_->addMenu( &toolbarsmnu );
-}
-
-
-void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiMenu* iconsmnu )
-{
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	BufferString nm( dl.get( idx ).buf() + 6 );
-	if ( nm.isEmpty() || iconsetnames_.isPresent(nm) )
-	    continue;
-
-	BufferString icnm( nm ); icnm.toLower();
-	addAction( iconsmnu, toUiString(nm), icnm,
-		    mViewIconsMnuItm+iconsetnames_.size() );
-	iconsetnames_.add( nm );
-    }
-}
-
-
-void uiODMenuMgr::mkViewIconsMnu()
-{
-    DirList dlsett( GetSettingsDir(), File::DirsInDir, "icons.*" );
-    DirList dlsite( mGetApplSetupDataDir(), File::DirsInDir, "icons.*" );
-    DirList dlrel( mGetSWDirDataDir(), File::DirsInDir, "icons.*" );
-    if ( dlsett.size() + dlsite.size() + dlrel.size() < 2 )
-	return;
-
-    uiMenu* iconsmnu = addSubMenu( viewmnu_, tr("Icons"), "icons" );
-    addAction( iconsmnu, tr("Default"), "od", mViewIconsMnuItm+0 );
-    iconsetnames_.setEmpty();
-    iconsetnames_.add( "Default" );
-    addIconMnuItems( dlsett, iconsmnu );
-    addIconMnuItems( dlsite, iconsmnu);
-    addIconMnuItems( dlrel, iconsmnu );
 }
 
 
@@ -1466,23 +1430,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     default:
     {
-    if ( id>=mSceneSelMnuItm && id<=mSceneSelMnuItm +100 )
+	if ( id>=mSceneSelMnuItm && id<=mSceneSelMnuItm +100 )
 	{
 	    sceneMgr().setActiveScene( id-mSceneSelMnuItm );
 	    itm->setChecked( true );
 	}
-
-	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )
-	{
-	    Settings::common().set( sKeyIconSetNm,
-				    iconsetnames_.get( id-mViewIconsMnuItm ) );
-	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
-		uiToolBar::toolBars()[idx]->reloadIcons();
-	    Settings::common().write();
-	}
-	if ( id > mHelpMnu )
+	else if ( id > mHelpMnu )
 	    helpmnumgr_->handle( id );
-
     } break;
 
     }
