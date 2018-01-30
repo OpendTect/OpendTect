@@ -126,7 +126,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     SEGY::FileSpec spec( segyfnm );
     SEGY::FileIndexer indexer( mid, true, spec, false, segypars );
     if ( !indexer.execute() )
-	mErrRet( indexer.message().getFullString() );
+	mErrRet( toString(indexer.message()) );
 
     BufferString msg;
     msg.add("Succesfully scanned SEG-Y file. Index file ").add( indexnm )

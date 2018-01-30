@@ -44,7 +44,7 @@ public:
     void			setProbe(Probe*);
     Probe*			getProbe()		{ return probe_; }
     const Probe*		getProbe() const	{ return probe_; }
-    const char*			getLineName() const;
+    BufferString		getLineName() const;
     Pos::GeomID			getGeomID() const;
 
     void			setGeometry(const PosInfo::Line2DData&);

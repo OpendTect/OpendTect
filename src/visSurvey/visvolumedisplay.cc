@@ -957,12 +957,14 @@ void VolumeDisplay::getObjectInfo( BufferString& info ) const
 {
     uiString uistring;
     getObjectInfoText( uistring, false );
-    info = uistring.getFullString();
+    info = toString( uistring );
 }
 
 
 void VolumeDisplay::getTreeObjectInfo( uiString& info ) const
-{ getObjectInfoText( info, true ); }
+{
+    getObjectInfoText( info, true );
+}
 
 
 void VolumeDisplay::sliceMoving( CallBacker* cb )

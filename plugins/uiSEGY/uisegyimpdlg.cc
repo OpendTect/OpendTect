@@ -48,14 +48,14 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     , morebut_(0)
     , batchfld_(0)
 {
-    BufferString ttl( setup().dlgtitle_.getFullString() );
+    uiString ttl = setup().dlgtitle_;
     if ( ttl.isEmpty() )
     {
-	ttl.set( "Import " ).add( Seis::nameOf(setup_.geom_) );
 	SEGY::FileSpec fs; fs.usePar( iop );
-	ttl.add( " " ).add( getLimitedDisplayString(fs.dispName(),40,0) );
+	ttl = tr( "Import %1 %2" ).arg( Seis::nameOf(setup_.geom_) )
+	    .arg( getLimitedDisplayString(fs.dispName(),40,0) );
     }
-    setTitleText( tr(ttl) );
+    setTitleText( ttl );
 
     uiSeparator* sep = optsfld_ ? new uiSeparator( this, "Hor sep" ) : 0;
 

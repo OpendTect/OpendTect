@@ -94,7 +94,7 @@ bool uiSEGY::displayWarnings( const uiStringSet& inpwarns, bool withstop,
     TypeSet<int> curwarnnrs;
     for ( int idx=0; idx<warns.size(); idx++ )
     {
-	BufferString curwarn( warns.get(idx).getFullString() );
+	BufferString curwarn( toString(warns.get(idx)) );
 	char* nrptr = curwarn.getCStr() + 1;
 	char* msgptr = curwarn.getCStr() + 2;
 	*msgptr = '\0'; msgptr += 2;

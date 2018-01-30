@@ -19,7 +19,7 @@ DipViewAttrib::DipViewAttrib( Parameters* params )
     : aspect( params->aspect )
     , AttribCalc( new DipViewAttrib::Task( *this ) )
 {
-    BufferString compnm( uiStrings::sInlineDip().getFullString() );
+    BufferString compnm( toString(uiStrings::sInlineDip()) );
     params->fillDefStr( desc );
     delete params;
     AttribInputSpec* spec = new AttribInputSpec;
@@ -33,7 +33,7 @@ DipViewAttrib::DipViewAttrib( Parameters* params )
     inputspec += spec;
 
     spec = new AttribInputSpec;
-    compnm.set( uiStrings::sCrosslineDip().getFullString() ).add( " angle" );
+    compnm.set( toString(uiStrings::sCrosslineDip()) ).add( " angle" );
     spec->setDesc( compnm );
     spec->forbiddenDts += Seis::Ampl;
     spec->forbiddenDts += Seis::Dip;

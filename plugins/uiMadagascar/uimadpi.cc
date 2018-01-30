@@ -151,7 +151,7 @@ mDefODInitPlugin(uiMadagascar)
 
     theinst_ = new uiMadagascarLinkMgr( *ODMainWin() );
     if ( !theinst_ )
-	return ODMad::PI().errMsg().getFullString().str();
+	return toString( ODMad::PI().errMsg() );
 
     DBMan::CustomDirData cdd( ODMad::cMadDirIDNr(), ODMad::sKeyMadagascar(),
 			      "Madagascar data" );

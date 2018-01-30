@@ -200,15 +200,10 @@ void RandomTrackDisplay::setProbe( Probe* probe )
 }
 
 
-const char* RandomTrackDisplay::getRandomLineName() const
+BufferString RandomTrackDisplay::getRandomLineName() const
 {
     mDynamicCastGet( const RandomLineProbe*,rdlprobe, probe_.ptr() );
-    if ( !rdlprobe )
-	return name().str();
-
-    mDeclStaticString( ret );
-    ret.set( rdlprobe->displayName().getFullString() );
-    return ret.str();
+    return rdlprobe ? toString(rdlprobe->displayName()) : BufferString(name());
 }
 
 
