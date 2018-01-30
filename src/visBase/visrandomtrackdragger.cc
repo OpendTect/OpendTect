@@ -961,7 +961,6 @@ void RandomTrackDragger::setLimits( const Coord3& start, const Coord3& stop,
 	horborder_.setLeft( -mUdf(double) );
     if ( mIsUdf(horborder_.top()) )
 	horborder_.setTop( -mUdf(double) );
-
     zborder_.set( start.z, stop.z );
     if ( limits_[2].step < 0.0 )
 	zborder_.set( stop.z, start.z );
@@ -972,6 +971,11 @@ void RandomTrackDragger::setLimits( const Coord3& start, const Coord3& stop,
     // Correct meaningless zero-width intervals
     horborder_.sortCorners();
     zborder_.sort();
+}
+
+void RandomTrackDragger::updateZLimit( const Interval<float>& zborder )
+{
+    zborder_ = zborder;
 }
 
 

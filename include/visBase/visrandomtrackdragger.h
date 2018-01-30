@@ -63,6 +63,8 @@ public:
 	    				  const Coord3& stop,
 					  const Coord3& step); 
 
+    void			updateZLimit( const Interval<float>& zborder );
+
     void			showPlaneDraggers(bool yn,int minsizeinsteps=0);
 
     void			setTransDragKeys(bool trans1d,int keys,

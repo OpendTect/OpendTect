@@ -301,6 +301,8 @@ protected:
 
     bool			isMappingTraceOfBid(BinID bid,int trcidx,
 						    bool forward=true) const;
+
+    void			snapZRange(Interval<float>&);
 };
 
 } // namespace visSurvey

@@ -49,6 +49,7 @@ const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 
+
 RandomTrackDisplay::RandomTrackDisplay()
     : MultiTextureSurveyObject()
     , panelstrip_( visBase::TexturePanelStrip::create() )
@@ -707,7 +708,11 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* t )
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->notify(
 		    mCB(this,RandomTrackDisplay,dataTransformCB) );
+
+	dragger_->updateZLimit( datatransform_->getZInterval(false) );
+
     }
+
     return true;
 }
 
@@ -2009,12 +2014,21 @@ void RandomTrackDisplay::setPixelDensity( float dpi )
 void RandomTrackDisplay::draggerMoveFinished( CallBacker* cb )
 {
     Interval<float> zrg = dragger_->getDepthRange();
-    s3dgeom_->snapZ( zrg.start );
-    s3dgeom_->snapZ( zrg.stop );
+    snapZRange( zrg );
     dragger_->setDepthRange( zrg );
-
     finishNodeMoveInternal();
     selnodeidx_ = mUdf(int);
+}
+
+void RandomTrackDisplay::snapZRange( Interval<float>& zrg )
+{
+    if ( !scene_ )
+	return;
+    const StepInterval<float>& scenezrg =
+				    scene_->getTrcKeyZSampling().zsamp_;
+    zrg.limitTo( scenezrg );
+    zrg.start = scenezrg.snap( zrg.start );
+    zrg.stop = scenezrg.snap( zrg.stop );
 }
 
 
