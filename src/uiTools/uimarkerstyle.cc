@@ -48,7 +48,7 @@ uiMarkerStyle2D::uiMarkerStyle2D( uiParent* p, const Setup& su )
     else if ( lbltxt.getFullString() == "-" )
 	lbltxt.setEmpty();
 
-    uiObject* alignobj;
+    uiObject* alignobj = 0;
     if ( su.shape_ )
     {
 	typefld_ = new uiGenInput( this, lbltxt, str );
