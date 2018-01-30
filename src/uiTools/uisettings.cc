@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uithemesel.h"
 #include "uitreeview.h"
-#include "uivirtualkeyboard.h"
 
 
 static const char* sKeyCommon = "<general>";
@@ -334,7 +333,6 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
     , initialshowinlprogress_(true)
     , initialshowcrlprogress_(true)
     , initialshowrdlprogress_(true)
-    , initialenabvirtualkeyboard_(false)
     , iconsetsel_(0)
 {
     themesel_ = new uiThemeSel( this, true );
@@ -359,13 +357,6 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
 	iconszfld_->attach( alignedBelow, themesel_ );
     }
 
-    setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
-		  initialenabvirtualkeyboard_ );
-    virtualkeyboardfld_ = new uiGenInput( this,
-		tr("Enable Virtual Keyboard"),
-		BoolInpSpec(initialenabvirtualkeyboard_) );
-    virtualkeyboardfld_->attach( alignedBelow, hattgrp );
-
     setts_.getYN( SettingsAccess::sKeyShowInlProgress(),
 		  initialshowinlprogress_ );
     setts_.getYN( SettingsAccess::sKeyShowCrlProgress(),
@@ -373,7 +364,7 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
     setts_.getYN( SettingsAccess::sKeyShowRdlProgress(),
 		  initialshowrdlprogress_ );
     showprogressfld_ = new uiCheckList( this );
-    showprogressfld_->setLabel( tr("Show progress when loading for") );
+    showprogressfld_->setLabel( tr("Show progress loading") );
     showprogressfld_->addItem( uiStrings::sInline(mPlural), "cube_inl" );
     showprogressfld_->addItem( uiStrings::sCrossline(mPlural), "cube_crl" );
     showprogressfld_->addItem( uiStrings::sRandomLine(mPlural),
@@ -381,7 +372,7 @@ uiGeneralLnFSettingsGroup::uiGeneralLnFSettingsGroup( uiParent* p, Settings& s )
     showprogressfld_->setChecked( 0, initialshowinlprogress_ );
     showprogressfld_->setChecked( 1, initialshowcrlprogress_ );
     showprogressfld_->setChecked( 2, initialshowrdlprogress_ );
-    showprogressfld_->attach( alignedBelow, virtualkeyboardfld_ );
+    showprogressfld_->attach( alignedBelow, hattgrp );
 }
 
 
@@ -419,9 +410,6 @@ void uiGeneralLnFSettingsGroup::doCommit( uiRetVal& )
 		    SettingsAccess::sKeyShowCrlProgress() );
     updateSettings( initialshowrdlprogress_, showprogressfld_->isChecked(2),
 		    SettingsAccess::sKeyShowRdlProgress() );
-    updateSettings( initialenabvirtualkeyboard_,
-		    virtualkeyboardfld_->getBoolValue(),
-		    uiVirtualKeyboard::sKeyEnabVirtualKeyboard() );
 }
 
 
@@ -440,7 +428,7 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
 		  initialusesurfshaders_ );
     usesurfshadersfld_ = new uiGenInput( this, tr("for surface rendering"),
 					 BoolInpSpec(initialusesurfshaders_) );
-    usesurfshadersfld_->attach( leftAlignedBelow, shadinglbl );
+    usesurfshadersfld_->attach( ensureBelow, shadinglbl );
 
     setts_.getYN( SettingsAccess::sKeyUseVolShaders(), initialusevolshaders_ );
     usevolshadersfld_ = new uiGenInput( this, tr("for volume rendering"),
@@ -602,6 +590,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
     mAddTypeTreeItm( General );
     mAddTypeTreeItm( LooknFeel );
     mAddTypeTreeItm( Interaction );
+    treefld_->setStretch( 1, 2 );
 
     uiGroup* rightgrp = new uiGroup( this, "uiSettingsGroup area" );
     const BufferStringSet& nms = uiSettingsGroup::factory().getNames();
@@ -616,6 +605,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
     uiSplitter* spl = new uiSplitter( this );
     spl->addGroup( leftgrp );
     spl->addGroup( rightgrp );
+    spl->setPrefHeightInChar( 15 );
 
     mAttachCB( postFinalise(), uiSettingsDlg::initWin );
 }

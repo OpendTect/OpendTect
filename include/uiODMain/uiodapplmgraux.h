@@ -75,7 +75,6 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		setupBatchHosts();
     void		batchProgs();
     void		pluginMan();
-    void		manageShortcuts();
     void		startInstMgr();
     void		setAutoUpdatePol();
     void		openXPlot();

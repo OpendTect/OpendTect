@@ -1976,8 +1976,6 @@ void uiODApplMgr::pluginMan()
 { dispatcher_.pluginMan(); }
 void uiODApplMgr::posConversion()
 { dispatcher_.posConversion(); }
-void uiODApplMgr::manageShortcuts()
-{ dispatcher_.manageShortcuts(); }
 void uiODApplMgr::startInstMgr()
 { dispatcher_.startInstMgr(); }
 void uiODApplMgr::setAutoUpdatePol()

@@ -34,6 +34,7 @@ public:
 
     bool		operator==(const uiKeyDesc& ev) const
 			{ return key_==ev.key_ && state_==ev.state_; }
+    bool		isEqualTo(const uiKeyDesc&) const;
 
     bool		set(const char* statestr,const char* keystr);
     BufferString	getKeySequenceStr() const;
@@ -69,12 +70,14 @@ public:
 
 			uiShortcutsList( const uiShortcutsList& scl )
 							{ *this = scl; }
-			~uiShortcutsList() 		{ empty(); }
+			~uiShortcutsList()		{ setEmpty(); }
     uiShortcutsList&	operator =(const uiShortcutsList&);
     bool		write(bool usr=true) const;
+    void		setEmpty();
 
     void		fillPar(IOPar&) const;
 
+    int			size() const		{ return keydescs_.size(); }
     ObjectSet<uiKeyDesc>& keyDescs()		{ return keydescs_; }
     const ObjectSet<uiKeyDesc>& keyDescs() const { return keydescs_; }
     BufferStringSet&	names()			{ return names_; }
@@ -82,8 +85,6 @@ public:
     const uiKeyDesc*	keyDescOf(const char*) const;
     const char*		nameOf(const uiKeyDesc&) const;
     int			valueOf(const uiKeyDesc&) const;
-
-    void		empty();
 
 protected:
 
@@ -146,4 +147,5 @@ protected:
 
     int			val_;
     uiString		extralbl_;
+
 };

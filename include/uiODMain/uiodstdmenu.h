@@ -213,7 +213,6 @@ ________________________________________________________________________
 #define mSettAutoSaveMnuItm		(mUtilSettingMnu + 20)
 #define mSettAdvPersonal		(mUtilSettingMnu + 30)
 #define mSettAdvSurvey			(mUtilSettingMnu + 31)
-#define mSettShortcutsMnuItm		(mUtilSettingMnu + 40)
 #define mSettLanguageMnu		(mUtilSettingMnu + 100)
 
 

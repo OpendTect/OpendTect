@@ -81,7 +81,6 @@ set( OD_MODULE_SOURCES
 	uisellinest.cc
 	uiselsimple.cc
 	uisettings.cc
-	uishortcuts.cc
 	uislicepos.cc
 	uislicesel.cc
 	uistatsdisplay.cc

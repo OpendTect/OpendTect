@@ -65,7 +65,6 @@ ________________________________________________________________________
 #include "uiseis2dfrom3d.h"
 #include "uiseis2dto3d.h"
 #include "uiselsimple.h"
-#include "uishortcuts.h"
 #include "uistrattreewin.h"
 #include "uistrings.h"
 #include "uiveldesc.h"
@@ -657,8 +656,6 @@ void uiODApplMgrDispatcher::batchProgs()
 { uiBatchProgLaunch dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::pluginMan()
 { uiPluginMan dlg( par_ ); dlg.go(); }
-void uiODApplMgrDispatcher::manageShortcuts()
-{ uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
 void uiODApplMgrDispatcher::createCubeFromWells()
 { am_.wellattrserv_->createLogCube( DBKey::getInvalid() ); }
 

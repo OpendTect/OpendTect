@@ -855,8 +855,6 @@ void uiODMenuMgr::fillUtilMenu()
     langmnumgr_ = new uiODLangMenuMgr( *this );
     addAction( settmnu_, uiStrings::sUserSettings(), "settings",
 				mSettingsMnuItm );
-    addAction( settmnu_, tr("Keyboard Shortcuts"), "keyboardshortcuts",
-				mSettShortcutsMnuItm );
     addAction( settmnu_, tr("Auto-Save"), "autosave", mSettAutoSaveMnuItm );
 
     uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
@@ -1410,10 +1408,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 		id == mSettAdvPersonal ? 0 : uiAdvSettings::sKeySurveyDefs() );
 	dlg.go();
     } break;
-
-    case mSettShortcutsMnuItm:
-	applMgr().manageShortcuts();
-    break;
 
     case mStereoOffsetMnuItm:
 	applMgr().setStereoOffset();

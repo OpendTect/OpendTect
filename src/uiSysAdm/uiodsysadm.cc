@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiodsysadm.h"
 #include "uiodsysadmcoltabs.h"
-#include "uishortcuts.h"
 #include "uimain.h"
 #include "uimsg.h"
 #include "uilistbox.h"
@@ -99,8 +98,6 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
     mAddGroup( tr("Look & Feel") );
     mAddTask(0,"Color bars",doColorTabs,
 	    "Manage standard color bars");
-    mAddTask(0,"Shortcuts",doShortcuts,
-	    "Manage standard keyboard shortcut settings");
     mAddTask(0,"Icon sets",doIconSets,"Add/Remove icons sets");
     mAddGroup( tr("Batch processing") );
     mAddTask(1,"Processing hosts",doBatchHosts,
@@ -214,13 +211,6 @@ bool uiODSysAdm::acceptOK()
 void uiODSysAdm::doColorTabs( CallBacker* )
 {
     uiODSysAdmColorTabs dlg( this );
-    dlg.go();
-}
-
-
-void uiODSysAdm::doShortcuts( CallBacker* )
-{
-    uiShortcutsDlg dlg( this, "ODScene" );
     dlg.go();
 }
 
