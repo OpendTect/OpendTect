@@ -60,6 +60,7 @@ public:
     uiString		nrDoneText() const;
     od_int64		totalNr() const;
     int			nextStep();
+    int			Finished();
 
     int			nrSkipped() const	{ return nrskipped_; }
     Reader&		reader()		{ return *rdr_; }

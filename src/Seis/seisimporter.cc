@@ -90,6 +90,19 @@ od_int64 SeisImporter::nrDone() const
 }
 
 
+int SeisImporter::Finished()
+{
+    if ( nrskipped_ > 0 )
+    {
+	uiString msg;
+	msg.append( "During import, %1 traces were rejected").arg(nrskipped_);
+	errmsg_ = msg;
+    }
+
+    return 0;
+}
+
+
 uiString SeisImporter::nrDoneText() const
 {
     return state_ == ReadBuf ? tr("Traces read") : tr("Traces written");
@@ -163,7 +176,7 @@ int SeisImporter::nextStep()
 	    return Executor::ErrorOccurred();
 	lock.unLock();
 
-	return Executor::Finished();
+	return Finished();
     }
 
     return readIntoBuf();
@@ -246,12 +259,23 @@ int SeisImporter::readIntoBuf()
 {
     SeisTrc* trc = new SeisTrc;
     mDoRead( *trc )
+    const bool is2d = Seis::is2D(geomtype_);
     if ( atend )
     {
 	delete trc;
 	if ( nrread_ == 0 )
 	{
-	    errmsg_ = tr("No valid traces in input");
+	    uiString msg;
+	    msg.append( "No valid traces in input.\n", true);
+	    msg.append( "Traces range is out of the survey range:\n");
+	    StepInterval<int> inlrg( SI().inlRange( true ) );
+	    StepInterval<int> crlrg( SI().crlRange( true ) );
+	    msg.append( "Inline Range: '%1 - %2'" )
+	       .arg( inlrg.start).arg(inlrg.stop);
+	    msg.append( "Crossline Range: '%1 - %2'" )
+	       .arg( crlrg.start).arg(crlrg.stop);
+	    errmsg_ = msg;
+	    //errmsg_ = tr("No valid traces in input");
 	    return Executor::ErrorOccurred();
 	}
 
@@ -259,7 +283,6 @@ int SeisImporter::readIntoBuf()
 	return Executor::MoreToDo();
     }
 
-    const bool is2d = Seis::is2D(geomtype_);
     if ( !is2d && !SI().isReasonable(trc->info().binID()) )
     {
 	delete trc;

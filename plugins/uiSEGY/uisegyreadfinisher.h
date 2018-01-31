@@ -28,6 +28,7 @@ class SeisTrcWriter;
 class SeisStdImporterReader;
 class uiSEGYVintageInfo;
 namespace SEGY { class FileIndexer; }
+class uiSEGYImportReport;
 
 
 /*!\brief Finishes reading process of 'any SEG-Y file'. */
@@ -69,8 +70,10 @@ protected:
     uiFileSel*		coordfilefld_;
     uiBatchJobDispatcherSel* batchfld_;
     uiString		errmsg_;
+    uiSEGYImportReport* reportdlg_;
 
     bool		singlevintage_;
+    bool		trcsskipped_;
     const ObjectSet<uiSEGYVintageInfo>* vntinfos_;
 
     void		crVSPFields(bool);
@@ -78,7 +81,8 @@ protected:
     void		cr2DCoordSrcFields(uiGroup*&,bool);
 
     bool		doVSP();
-    bool		do3D(const IOObj&,const IOObj&,bool);
+    bool		do3D(const IOObj&,const IOObj&,bool,
+			     bool trcsckipped=false);
     bool		do2D(const IOObj&,const IOObj&,bool,const char*);
     bool		doBatch(bool);
     bool		doMultiVintage();
@@ -114,5 +118,7 @@ mExpClass(uiSEGY) uiSEGYImportReport : public uiDialog
 public:
 			uiSEGYImportReport(uiParent*);
     uiTable*		table_;
+protected:
+    void		msgDisplayCB(CallBacker*);
 
 };
