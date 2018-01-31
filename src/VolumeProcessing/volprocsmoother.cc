@@ -61,12 +61,20 @@ StepInterval<int> Smoother::getInputZRg( const StepInterval<int>& inrg ) const
 }
 
 
-StepInterval<int> Smoother::getInputZRgWithGeom( const StepInterval<int>& inrg,
+StepInterval<int> Smoother::getInputZRgWithGeom( const StepInterval<int>& zrg,
 					 Survey::Geometry::ID geomid ) const
 {
-    StepInterval<int> res = inrg;
+    StepInterval<int> res( zrg );
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    if ( !geom )
+	return res;
+
     const int zstepout =  smoother_->getWindowSize( 2 ) / 2;
     res.widen( zstepout );
+    const StepInterval<float> survzrg( geom->sampling().zsamp_ );
+    const int zstartidx = mNINT32( survzrg.start / survzrg.step );
+    const Interval<int> survzrgint( zstartidx, zstartidx+survzrg.nrSteps() );
+    res.limitTo( survzrgint );
 
     return res;
 }
