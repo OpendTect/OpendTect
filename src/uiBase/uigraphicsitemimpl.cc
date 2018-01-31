@@ -90,9 +90,7 @@ QGraphicsItem* uiObjectItem::mkQtObj()
 void uiObjectItem::setObjectSize( int szx, int szy )
 {
     if ( grp_ )
-    {
-	grp_->setSize( uiSize( szx, szy ) );
-    }
+	grp_->setGeometry( uiSize(szx,szy) );
     else if ( obj_ && obj_->getWidget(0) )
     {
 	obj_->getWidget(0)->setMinimumSize( szx, szy );

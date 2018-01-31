@@ -572,7 +572,7 @@ void uiGroup::setChildrenSensitive( bool yn )
 }
 
 
-void uiGroup::setSize( const uiSize& sz )
+void uiGroup::setGeometry( const uiSize& sz )
 {
     if ( sz.width() <= 0 || sz.height() <= 0 )
 	return;
