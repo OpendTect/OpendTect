@@ -56,12 +56,10 @@ uiNewPickSetDlg::uiNewPickSetDlg( uiParent* p, bool ispoly, const char* cat )
     , ispolygon_(ispoly)
     , category_(cat)
 {
-    nmfld_ = new uiGenInput( this,
-		tr("Name for new %1").arg(ispolygon_ ? uiStrings::sPolygon() :
-						      uiStrings::sPointSet()) );
+    nmfld_ = new uiGenInput( this, tr("Name for new %1").arg(
+		ispolygon_ ? uiStrings::sPolygon() : uiStrings::sPointSet()) );
 
-    markerstylefld_ = new uiMarkerStyle3D( this, true,
-		    Interval<int>(1,uiMarkerStyle3D::cDefMaxMarkerSize()),
+    markerstylefld_ = new uiMarkerStyle3D( this, uiMarkerStyle::Setup(),
 		    ispolygon_ ? 0 : &exclude_none  );
     OD::MarkerStyle3D mstyle;
     mstyle.type_ = OD::MarkerStyle3D::Sphere;

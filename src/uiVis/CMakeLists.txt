@@ -12,7 +12,6 @@ set(OD_MODULE_SOURCES
 	uidatapointsetpickdlg.cc
 	uifltdispoptgrp.cc
 	uigridlinesdlg.cc
-	uivismarkerstyledlg.cc
 	uimaterialdlg.cc
 	uimpeman.cc
 	uipickpropdlg.cc

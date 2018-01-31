@@ -39,7 +39,14 @@ i_QFileSystemWatcher( File::Monitor& fm )
 public:
 
 ~i_QFileSystemWatcher() { deactivate(); }
-void deactivate() {}
+
+void deactivate()
+{
+    disconnect( this, SIGNAL(directoryChanged(const QString&)),
+	     this, SLOT(dirChg(const QString&)) );
+    disconnect( this, SIGNAL(fileChanged(const QString&)),
+	     this, SLOT(fileChg(const QString&)) );
+}
 
 private slots:
 

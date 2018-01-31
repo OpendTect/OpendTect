@@ -10,17 +10,18 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uivismarkerstyledlg.h"
+#include "uidialog.h"
 
 class uiCheckBox;
 class uiGenInput;
+class uiMarkerStyle3D;
 
-namespace Pick { class Set; };
-namespace visSurvey { class PickSetDisplay; };
+namespace Pick { class Set; }
+namespace visSurvey { class PickSetDisplay; }
 
 
-mExpClass(uiVis) uiPickPropDlg : public uiVisMarkerStyleDlg
-{ mODTextTranslationClass(uiPickPropDlg);
+mExpClass(uiVis) uiPickPropDlg : public uiDialog
+{ mODTextTranslationClass(uiPickPropDlg)
 public:
 				uiPickPropDlg(uiParent* p,
 					      Pick::Set& set,
@@ -29,18 +30,16 @@ public:
 
 protected:
 
-    void			doFinalise(CallBacker*);
-    void			sizeChg(CallBacker*);
-    void			typeSel(CallBacker*);
-    void			colSel(CallBacker*);
     bool			acceptOK();
+    void			styleSel(CallBacker*);
     void			drawStyleCB(CallBacker*);
     void			drawSel(CallBacker*);
     void			useThresholdCB(CallBacker*);
     void			thresholdChangeCB(CallBacker*);
 
-    uiGenInput*			drawstylefld_;
     uiCheckBox*			usedrawstylefld_;
+    uiGenInput*			drawstylefld_;
+    uiMarkerStyle3D*		stylefld_;
     uiCheckBox*			usethresholdfld_;
     uiGenInput*			thresholdfld_;
 

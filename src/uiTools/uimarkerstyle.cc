@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uicolor.h"
 #include "uigeninput.h"
-#include "uislider.h"
+#include "uispinbox.h"
 #include "uistrings.h"
 #include "color.h"
 #include "draw.h"
@@ -20,89 +20,100 @@ ________________________________________________________________________
 
 uiMarkerStyle::uiMarkerStyle( uiParent* p )
     : uiGroup(p)
-    , colselfld_(0)
+    , typefld_(0)
+    , sizefld_(0)
+    , colorfld_(0)
+    , change(this)
 {
 }
 
 
-void uiMarkerStyle::createFlds( const uiStringSet& typnms, bool wcol,
-				   const Interval<int>& szrg )
+void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
 {
-    typefld_ = new uiGenInput( this, tr("Marker Shape"),
-				StringListInpSpec(typnms) );
+    uiString lbltxt( su.lbltxt_ );
+    if ( lbltxt.isEmpty() )
+	lbltxt = tr("Marker style");
+    else if ( lbltxt.toString() == "-" )
+	lbltxt.setEmpty();
 
-    sizefld_ = new uiSlider( this,
-	uiSlider::Setup(uiStrings::sSize()).withedit(true), "Size" );
-    sizefld_->setInterval( szrg );
-    sizefld_->setValue( 3 );
-    sizefld_->attach( alignedBelow, typefld_ );
-
-    if ( wcol )
+    uiObject* alignobj;
+    if ( su.wshape_ )
     {
-	colselfld_ = new uiColorInput( this,
-		    uiColorInput::Setup(Color::White())
-			.lbltxt(uiStrings::sColor()) );
-	colselfld_->attach( alignedBelow, sizefld_ );
+	typefld_ = new uiGenInput( this, lbltxt, StringListInpSpec(typnms) );
+	typefld_->valuechanged.notify( mCB(this,uiMarkerStyle,changeCB) );
+	alignobj = typefld_->attachObj();
     }
 
-    setHAlignObj( sizefld_ );
+    if ( su.wcolor_ )
+    {
+	uiColorInput::Setup csu( Color::White(), su.wtransparency_ ?
+		uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
+	csu.lbltxt( typefld_ ? uiStrings::sColor() : tr("Marker color") )
+	   .withdesc(false);
+	colorfld_ = new uiColorInput( this,  csu );
+	colorfld_->colorChanged.notify( mCB(this,uiMarkerStyle,changeCB) );
+	if ( typefld_ )
+	    colorfld_->attach( rightTo, typefld_ );
+	else
+	    alignobj = colorfld_->attachObj();
+
+    }
+
+    if ( su.wsz_ )
+    {
+	uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
+	    su.wcolor_||su.wshape_ ? uiStrings::sSize() : tr("Marker size") );
+	sizefld_ = lsb->box();
+	sizefld_->setMinValue( 1 );
+	sizefld_->valueChanging.notify( mCB(this,uiMarkerStyle,changeCB) );
+	if ( colorfld_ )
+	    lsb->attach( rightTo, colorfld_ );
+	else if ( typefld_ )
+	    lsb->attach( rightTo, typefld_ );
+	else
+	    alignobj = lsb->attachObj();
+    }
+
+    setHAlignObj( alignobj );
 }
 
 
-void uiMarkerStyle::enableColorSelection( bool yn )
+void uiMarkerStyle::changeCB( CallBacker* cb )
 {
-    if ( colselfld_ )
-	colselfld_->setSensitive( yn );
+    change.trigger( cb );
 }
 
 
-void uiMarkerStyle::setMStyle( int typ, int sz, const Color& col )
+void uiMarkerStyle::setColor( const Color& col )
 {
-    const int idx = types_.indexOf( typ );
-    if ( idx < 0 )
-	return;
-
-    typefld_->setValue( idx );
-    sizefld_->setValue( sz );
-    if ( colselfld_ )
-	colselfld_->setColor( col );
-}
-
-
-NotifierAccess* uiMarkerStyle::sizeChange()
-{
-    return &sizefld_->valueChanged;
-}
-
-
-NotifierAccess* uiMarkerStyle::typeSel()
-{
-    return &typefld_->valuechanged;
-}
-
-
-NotifierAccess* uiMarkerStyle::colSel()
-{
-    return colselfld_ ? &colselfld_->colorChanged : 0;
+    if ( colorfld_ )
+	colorfld_->setColor( col );
 }
 
 
 Color uiMarkerStyle::getColor() const
 {
-    return colselfld_ ? colselfld_->color() : Color::White();
+    return colorfld_ ? colorfld_->color() : Color::White();
+}
+
+
+void uiMarkerStyle::setSize( int sz )
+{
+    if ( sizefld_ )
+	sizefld_->setValue( sz );
 }
 
 
 int uiMarkerStyle::getSize() const
 {
-    return sizefld_->getIntValue();
+    return sizefld_ ? sizefld_->getIntValue() : 1;
 }
 
 
 
 // uiMarkerStyle2D
 
-uiMarkerStyle2D::uiMarkerStyle2D( uiParent* p, bool wcol, Interval<int> rg,
+uiMarkerStyle2D::uiMarkerStyle2D( uiParent* p, const Setup& su,
 				  const TypeSet<OD::MarkerStyle2D::Type>* excl )
     : uiMarkerStyle(p)
 {
@@ -114,41 +125,61 @@ uiMarkerStyle2D::uiMarkerStyle2D( uiParent* p, bool wcol, Interval<int> rg,
 	const OD::MarkerStyle2D::Type mtyp = def.getEnumForIndex( idx );
 	if ( !excl || !excl->isPresent(mtyp) )
 	{
-	    types_.add( (int)mtyp );
+	    types_.add( mtyp );
 	    nms.add( def.toUiString( mtyp ) );
 	}
     }
-    createFlds( nms, wcol, rg );
+
+    createFlds( nms, su );
 }
 
 
 void uiMarkerStyle2D::getMarkerStyle( OD::MarkerStyle2D& st ) const
 {
-    st.type_ = getType(); st.size_ = getSize();
-    if ( colselfld_ )
-	st.color_ = colselfld_->color();
+    if ( typefld_ )
+	st.type_ = getType();
+    if ( sizefld_ )
+	st.size_ = getSize();
+    if ( colorfld_ )
+	st.color_ = getColor();
+}
+
+
+void uiMarkerStyle2D::setType( OD::MarkerStyle2D::Type tp )
+{
+    if ( !typefld_ )
+	return;
+
+    int idx = types_.indexOf( tp );
+    if ( idx<0 )
+        idx = 0;
+
+    typefld_->setValue( idx );
 }
 
 
 OD::MarkerStyle2D::Type uiMarkerStyle2D::getType() const
 {
-    return (OD::MarkerStyle2D::Type)types_[ typefld_->getIntValue() ];
+    const int idx = typefld_ ? typefld_->getIntValue() : 0;
+    return types_.validIdx(idx) ? types_[idx] : OD::MarkerStyle2D::Circle;
 }
 
 
 void uiMarkerStyle2D::setMarkerStyle( const OD::MarkerStyle2D& st )
 {
-    setMStyle( (int)st.type_, st.size_, st.color_ );
+    setType( st.type_ );
+    setSize( st.size_ );
+    setColor( st.color_ );
 }
 
 
 
 // uiMarkerStyle3D
-
-uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool wcol, Interval<int> rg,
+uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, const Setup& su,
 				  const TypeSet<OD::MarkerStyle3D::Type>* excl )
     : uiMarkerStyle(p)
 {
+
     const EnumDefImpl<OD::MarkerStyle3D::Type>& def
 				= OD::MarkerStyle3D::TypeDef();
     uiStringSet nms;
@@ -157,29 +188,49 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool wcol, Interval<int> rg,
 	const OD::MarkerStyle3D::Type mtyp = def.getEnumForIndex( idx );
 	if ( !excl || !excl->isPresent(mtyp) )
 	{
-	    types_.add( (int)mtyp );
+	    types_.add( mtyp );
 	    nms.add( def.toUiString( mtyp ) );
 	}
     }
-    createFlds( nms, wcol, rg );
+    createFlds( nms, su );
 }
 
 
 void uiMarkerStyle3D::getMarkerStyle( OD::MarkerStyle3D& st ) const
 {
-    st.type_ = getType(); st.size_ = getSize();
-    if ( colselfld_ )
-	st.color_ = colselfld_->color();
+    if ( typefld_ )
+	st.type_ = getType();
+    if ( sizefld_ )
+	st.size_ = getSize();
+    if ( colorfld_ )
+	st.color_ = getColor();
+}
+
+
+void uiMarkerStyle3D::setType( OD::MarkerStyle3D::Type tp )
+{
+    if ( !typefld_ )
+	return;
+
+    int idx = types_.indexOf( tp );
+    if ( idx<0 )
+	idx = 0;
+
+    typefld_->setValue( idx );
 }
 
 
 OD::MarkerStyle3D::Type uiMarkerStyle3D::getType() const
 {
-    return (OD::MarkerStyle3D::Type)types_[ typefld_->getIntValue() ];
+    const int idx = typefld_ ? typefld_->getIntValue() : 0;
+    return types_.validIdx(idx) ? types_[idx] : OD::MarkerStyle3D::Sphere;
 }
 
 
 void uiMarkerStyle3D::setMarkerStyle( const OD::MarkerStyle3D& st )
 {
-    setMStyle( (int)st.type_, st.size_, st.color_ );
+    NotifyStopper ns( change );
+    setType( st.type_ );
+    setSize( st.size_ );
+    setColor( st.color_ );
 }
