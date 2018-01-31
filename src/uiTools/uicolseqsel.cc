@@ -53,7 +53,7 @@ void uiColSeqSelTool::initialise( OD::Orientation orient )
 void uiColSeqSelTool::setToolTip()
 {
     disp_->setToolTip( tr("Click to change, Right-click for Menu."
-			"\nAfter selection you can use up and down keys.") );
+		    "\nYou can use mouse scroll wheel or up and down keys.") );
 }
 
 

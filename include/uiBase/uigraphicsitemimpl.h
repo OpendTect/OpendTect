@@ -290,11 +290,14 @@ public:
 
     void		setFont(const uiFont&);
     void		setFontData(const FontData&);
-    const uiString	getText() const;
+    uiString		getText() const;
     uiSize		getTextSize() const;
     void		setAlignment(const OD::Alignment&);
     void		setText(const uiString&);
     void		setTextColor(const Color&);
+
+    void		fitIn(const uiRect&);
+			//!< adjusts font size until the text fits
 
 protected:
 			uiTextItem(QGraphicsItem*);

@@ -16,6 +16,9 @@ ________________________________________________________________________
 class uiRGBArray;
 class uiPixmap;
 class MouseEvent;
+class uiTextItem;
+class uiRectItem;
+
 
 namespace ColTab
 {
@@ -68,6 +71,8 @@ protected:
     OD::Orientation		orientation_;
     const bool			withudfcoldisp_;
     uiRGBArray*			rgbarr_;
+    uiTextItem*			nmitm_;
+    uiRectItem*			nmbgrectitm_;
 
     void			initCB(CallBacker*);
     void			mouseWheelCB(CallBacker*);

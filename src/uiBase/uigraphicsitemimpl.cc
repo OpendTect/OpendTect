@@ -718,8 +718,10 @@ ODGraphicsTextItem* uiTextItem::mkODObj()
 
 #define mExtraSpace 10
 
-const uiString uiTextItem::getText() const
-{ return text_; }
+uiString uiTextItem::getText() const
+{
+    return text_;
+}
 
 
 uiSize uiTextItem::getTextSize() const
@@ -800,6 +802,49 @@ void uiTextItem::stPos( float x, float y )
 void uiTextItem::setTextColor( const Color& col )
 {
     qtextitem_->setPen( QPen(QColor(col.r(),col.g(), col.b())) );
+}
+
+
+void uiTextItem::fitIn( const uiRect& rect )
+{
+    if ( text_.isEmpty() )
+	return;
+
+    QFont qfont = qtextitem_->getFont();
+    const int rectwidth = rect.width();
+    const int rectheight = rect.height();
+    int resizedir = 0;
+    const QString qtxt( text_.getQString() );
+    float curptsz = qfont.pointSizeF();
+    float prevptsz = curptsz;
+    while ( true )
+    {
+	QFontMetrics qfm( qfont );
+	const int wdth = qfm.width( qtxt );
+	const int hght = qfm.height();
+	const bool istoobig = wdth > rectwidth || hght > rectheight;
+	if ( resizedir == 0 )
+	    resizedir = istoobig ? -1 : 1;
+	else if ( (resizedir < 0 && !istoobig) || (resizedir > 0 && istoobig) )
+	    break;
+
+	prevptsz = curptsz;
+	curptsz += (resizedir > 0 ? 0.2f : -0.2f);
+	qfont.setPointSizeF( curptsz );
+    }
+
+    qfont.setPointSizeF( prevptsz );
+    QFontMetrics qfm( qfont );
+    const int wdth = qfm.width( qtxt );
+    int xshift = (rectwidth - wdth) / 2;
+    if ( xshift < 0 )
+	xshift = 0;
+    const int hght = qfm.height();
+    int yshift = (rectheight - hght) / 2;
+    if ( yshift < 0 )
+	yshift = 0;
+    qtextitem_->setFont( qfont );
+    qtextitem_->setPos( rect.left()+xshift-1, rect.top()+yshift-1 );
 }
 
 
