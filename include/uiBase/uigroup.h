@@ -133,6 +133,5 @@ protected:
 
 public:
     virtual void	setGeometry(const uiSize&);
-    mDeprecated void	setSize( const uiSize& sz )	{ setGeometry(sz); }
 
 };
