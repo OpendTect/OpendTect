@@ -36,7 +36,7 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, const Setup& su )
     else if ( lbltxt.toString() == "-" )
 	lbltxt.setEmpty();
 
-    uiObject* alignobj;
+    uiObject* alignobj = 0;
     if ( su.wshape_ )
     {
 	typefld_ = new uiGenInput( this, lbltxt, StringListInpSpec(typnms) );
