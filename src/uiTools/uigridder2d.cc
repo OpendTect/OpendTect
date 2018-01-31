@@ -133,7 +133,7 @@ uiGridder2DGrp::uiGridder2DGrp( uiParent* p, const uiString& nm,
 	return;
 
     initialstate_.set( PolyTrend::sKeyOrder(),
-		       PolyTrend::OrderDef().getKey(PolyTrend::Order2) );
+		       PolyTrend::OrderDef().getKey(PolyTrend::Order0) );
 
     trendfld_ = new uiGenInput( this, tr("Trend Polynomial"),
 				StringListInpSpec(PolyTrend::OrderDef()) );

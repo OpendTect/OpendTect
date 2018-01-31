@@ -1448,7 +1448,7 @@ bool TriangulationArray2DInterpol::initFromArray(
 	return true;
 
     //Trend settings
-    setTrendOrder( PolyTrend::Order2 );
+    setTrendOrder( PolyTrend::Order0 );
     Array2DImpl<char> edgesmask( arr_->info() );
     const bool usetrimming = trend_ ? trimArray( 8, edgesmask ) : false;
     //Get defined nodes to triangulate
