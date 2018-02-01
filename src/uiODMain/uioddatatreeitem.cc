@@ -538,7 +538,7 @@ void uiODDataTreeItem::setProbeLayer( ProbeLayer* newlayer )
 
     if ( probelayer_ )
     {
-	Probe* prb = probelayer_->getProbe();
+	const Probe* prb = probelayer_->getProbe();
 	if ( prb )
 	    mDetachCB( prb->objectChanged(), uiODDataTreeItem::probeChangedCB );
     }
@@ -547,7 +547,7 @@ void uiODDataTreeItem::setProbeLayer( ProbeLayer* newlayer )
 
     if ( newlayer )
     {
-	Probe* prb = newlayer->getProbe();
+	const Probe* prb = newlayer->getProbe();
 	if ( !prb )
 	    { pErrMsg("new ProbelLayer has no Probe"); }
 	else
