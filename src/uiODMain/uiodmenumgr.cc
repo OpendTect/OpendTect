@@ -1239,10 +1239,13 @@ void uiODMenuMgr::selectionMode( CallBacker* cb )
     }
     else
     {
+	const bool ison = viewtb_->isOn( polyselectid_ );
+	if ( inviewmode_ && ison )
+	    updateViewMode( false );
+
 	uiVisPartServer::SelectionMode mode = sIsPolySelect ?
 			 uiVisPartServer::Polygon : uiVisPartServer::Rectangle;
-	visserv->turnSelectionModeOn(
-	    !inviewmode_  && viewtb_->isOn(polyselectid_) );
+	visserv->turnSelectionModeOn( !inviewmode_ && ison );
 	visserv->setSelectionMode( mode );
     }
 
@@ -1617,7 +1620,8 @@ void uiODMenuMgr::toggViewMode( CallBacker* cb )
     else
 	sceneMgr().actMode( cb );
 
-    selectionMode( 0 );
+    if ( inviewmode_ )
+	applMgr().visServer()->turnSelectionModeOn( false );
 }
 
 
