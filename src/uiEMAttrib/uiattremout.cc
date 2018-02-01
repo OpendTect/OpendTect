@@ -64,11 +64,8 @@ uiAttrEMOut::~uiAttrEMOut()
     delete ads_;
     delete nlamodel_;
 
-//    outdescids_.removeAndDeleteParam( this );
-//    outdescnms_.removeAndDeleteParam( this );
-// replace by code above when new function reviewed
-    delete outdescids_.getParam(this); outdescids_.removeParam(this);
-    delete outdescnms_.getParam(this); outdescnms_.removeParam(this);
+    outdescids_.removeAndDeleteParam( this );
+    outdescnms_.removeAndDeleteParam( this );
 }
 
 
@@ -107,6 +104,7 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
     }
 
     BufferStringSet& seloutnms = *outdescnms_.getParam( this );
+    seloutnms.erase();
     TypeSet<int> seloutputs;
     const DescID targetid =
 	nladescid_.isValid() ? nladescid_ : attrfld_->attribID();

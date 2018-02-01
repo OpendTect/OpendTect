@@ -97,8 +97,8 @@ void uiAttrSurfaceOut::fillUdfSelCB( CallBacker* )
 void uiAttrSurfaceOut::settingsCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation"),
-					        tr("Interpolation Settings"),
-                                                mNoHelpKey) );
+						tr("Interpolation Settings"),
+						mNoHelpKey) );
     uiArray2DInterpolSel* interpolsel =
 		new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
     dlg.setGroup( interpolsel );
@@ -157,7 +157,13 @@ bool uiAttrSurfaceOut::prepareProcessing()
 
 bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 {
-    if ( !uiAttrEMOut::fillPar( iopar ) )
+    BufferString attrnm = attrnmfld_->text();
+    if ( attrnm.isEmpty() )
+	attrnm = attrfld_->getInput();
+
+    iopar.set( sKey::Target(), attrnm ); // Must be called before fillPar
+
+    if ( !uiAttrEMOut::fillPar(iopar) )
 	return false;
 
     const IOObj* ioobj = objfld_->ioobj();
@@ -169,34 +175,36 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
     fillOutPar( iopar, Output::surfkey(),
 		LocationOutput::surfidkey(), ioobj->key() );
 
-    BufferString attrnm = attrnmfld_->text();
-    if ( attrnm.isEmpty() )
-	attrnm = attrfld_->getInput();
+    BufferStringSet outputnms;
+    getDescNames( outputnms );
 
-    BufferString attrfnm =
-	EM::SurfaceAuxData::getFileName( *ioobj, attrnm );
-    if ( !attrfnm.isEmpty() )
+    uiStringSet errors;
+    for ( int idx=0; idx<outputnms.size(); idx++ )
     {
-	const int val = uiMSG().askOverwrite( tr("Horizon data with "
-            "this attribute name already exists."
-	    "\n\nDo you want to overwrite?") );
-	if ( val==0 )
-	    return false;
-    }
-    else
-    {
-	attrfnm = EM::SurfaceAuxData::getFreeFileName( *ioobj );
-	const bool res =
-	    EM::dgbSurfDataWriter::writeDummyHeader( attrfnm, attrnm );
-	if ( !res )
+	const BufferString& outputnm = outputnms.get( idx );
+	BufferString attrfnm =
+		EM::SurfaceAuxData::getFileName( *ioobj, outputnm.buf() );
+	if ( !attrfnm.isEmpty() )
+	    errors.add( tr("Horizon Data with name %1 already exists. "
+			   "Overwrite?").arg(outputnm) );
+	else
 	{
-	    uiMSG().error(tr("Cannot save Horizon data to: %1").arg(attrfnm));
-	    return false;
+	    attrfnm = EM::SurfaceAuxData::getFreeFileName( *ioobj );
+	    const bool res =
+		EM::dgbSurfDataWriter::writeDummyHeader( attrfnm, outputnm );
+	    if ( !res )
+		errors.add( tr("Cannot save Horizon data to: %1").arg(attrfnm));
 	}
     }
 
-    iopar.set( sKey::Target(), attrnm );
-    return true;
+    bool res = true;
+    if ( !errors.isEmpty() )
+    {
+	uiString msg = errors.cat();
+	res = uiMSG().askContinue( msg );
+    }
+
+    return res;
 }
 
 

@@ -440,7 +440,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     BufferString newattrnm;
     pars().get( sKey::Target(), newattrnm );
-    if ( newattrnm != "" )
+    if ( attribrefs.size()==1 && newattrnm != "" )
 	attribrefs.get(0) = newattrnm;
 
     if ( !iscubeoutp )
