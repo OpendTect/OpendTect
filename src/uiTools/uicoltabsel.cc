@@ -224,6 +224,7 @@ class uiManipMapper : public uiGraphicsView
 public:
 
     typedef ColTab::Mapper::DistribType	DistribType;
+    typedef Interval<float>		RangeType;
 
 uiManipMapper( uiColTabSelTool& seltool )
     : uiGraphicsView(seltool.getParent(),"Mapper Manipulator")
@@ -237,6 +238,8 @@ uiManipMapper( uiColTabSelTool& seltool )
     , borderitm_(0)
     , zeroitem_(0)
     , movingside_(0)
+    , lastmovedside_(0)
+    , lastmovepos_(mUdf(float))
 {
     setNoBackGround();
     disableScrollZoom();
@@ -303,14 +306,25 @@ void handleMouseBut( bool ispressed )
 	}
 	else if ( event.leftButton() )
 	{
+	    const RangeType rg = setup().range();
 	    const int pix = xIsLong() ? event.x() : event.y();
-	    const int nrsnappixs = 5;
-	    if ( abs(pix-pix4Val(maprg_.start)) < nrsnappixs )
+	    const int nrsnappixs = 8;
+	    const int startdist = std::abs( pix-pix4Val(rg.start) );
+	    const int stopdist = std::abs( pix-pix4Val(rg.stop) );
+	    if ( startdist <= stopdist && startdist < nrsnappixs )
 		{ movingside_ = -1; lastmovepos_ = val4Pix(pix); }
-	    else if ( abs(pix-pix4Val(maprg_.stop)) < nrsnappixs )
+	    else if ( stopdist < startdist && stopdist < nrsnappixs )
 		{ movingside_ = 1; lastmovepos_ = val4Pix(pix); }
 	}
     }
+
+    if ( movingside_ )
+	lastmovedside_ = movingside_;
+}
+
+bool isZeroMirrored( const RangeType& rg ) const
+{
+    return ColTab::Mapper::isNearZeroSymmetry( rg );
 }
 
 void mouseMoveCB( CallBacker* )
@@ -322,27 +336,30 @@ void mouseMoveCB( CallBacker* )
 	{ pErrMsg("Huh"); return; }
 
     int pix = xIsLong() ? event.x() : event.y();
-    const bool iszeromirrored = maprg_.start + maprg_.stop < 1e-6f;
+    RangeType newrg = setup().range();
+    const bool iszeromirrored = isZeroMirrored( newrg );
     if ( movingside_ < 0 )
     {
-	const int othsidepix = pix4Val( maprg_.stop );
+	const int othsidepix = pix4Val( newrg.stop );
 	if ( othsidepix - pix < 1 )
 	    pix = othsidepix - 1;
-	maprg_.start = val4Pix( pix );
+	newrg.start = val4Pix( pix );
 	if ( iszeromirrored )
-	    maprg_.stop = -maprg_.start;
+	    newrg.stop = -newrg.start;
     }
     else
     {
-	const int othsidepix = pix4Val( maprg_.start );
+	const int othsidepix = pix4Val( newrg.start );
 	if ( pix - othsidepix < 1 )
 	    pix = othsidepix + 1;
-	maprg_.stop = val4Pix( pix );
+	newrg.stop = val4Pix( pix );
 	if ( iszeromirrored )
-	    maprg_.start = -maprg_.stop;
+	    newrg.start = -newrg.stop;
     }
 
-    setup().setFixedRange( maprg_ );
+    if ( iszeromirrored )
+	newrg.shift( -newrg.center() );
+    setup().setFixedRange( newrg );
 }
 
 void keyReleasedCB( CallBacker* )
@@ -355,6 +372,32 @@ void keyReleasedCB( CallBacker* )
 
     if ( event.key_ == OD::KB_Enter || event.key_ == OD::KB_Return )
 	setupDlgReqCB( 0 );
+    else if ( xIsLong()
+	   && (event.key_==OD::KB_Left || event.key_==OD::KB_Right) )
+	moveLastUsed( event.key_ == OD::KB_Right );
+    else if ( !xIsLong()
+	   && (event.key_==OD::KB_Up || event.key_==OD::KB_Down) )
+	moveLastUsed( event.key_ == OD::KB_Down );
+}
+
+void moveLastUsed( bool incr )
+{
+    if ( !lastmovedside_ || mIsUdf(lastmovepos_) )
+	return;
+
+    RangeType newrg = setup().range();
+    const bool iszeromirrored = isZeroMirrored( newrg );
+    float& mvval = lastmovedside_ < 0 ? newrg.start : newrg.stop;
+    const int toadd = incr ? 1 : -1;
+    mvval = val4Pix( pix4Val(mvval) + toadd );
+    if ( iszeromirrored )
+    {
+	float& othval = lastmovedside_ > 0 ? newrg.start : newrg.stop;
+	othval = val4Pix( pix4Val(othval) - toadd );
+	newrg.shift( -newrg.center() );
+    }
+
+    setup().setFixedRange( newrg );
 }
 
 void addObjectsToToolBar( uiToolBar& tbar )
@@ -425,9 +468,9 @@ bool calcScale()
     DataDistributionChanger<float>(*drawdistr).deSpike();
     DataDistributionInfoExtracter<float>(*drawdistr)
 			    .getCurve( longvals_, shortvals_, true );
-    maprg_ = setup().range();
+    drawrg_ = setup().range();
 
-    longrg_ = maprg_;
+    longrg_ = drawrg_;
     const bool emptydistrib = longvals_.isEmpty();
     const bool emptyrange = mIsUdf(longrg_.start) || mIsUdf(longrg_.start);
     if ( emptyrange && emptydistrib )
@@ -435,7 +478,7 @@ bool calcScale()
 
     if ( !emptydistrib )
     {
-	Interval<float> drg( longvals_.first(), longvals_.last() );
+	RangeType drg( longvals_.first(), longvals_.last() );
 	if ( emptyrange )
 	    longrg_ = drg;
 	else
@@ -449,7 +492,7 @@ bool calcScale()
 	longvals_.erase(); shortvals_.erase();
 	longvals_ += longrg_.start; longvals_ += longrg_.stop;
 	shortvals_ += 0.5f; shortvals_ += 0.5f;
-	shortrg_ = Interval<float>( 0.f, 1.f );
+	shortrg_ = RangeType( 0.f, 1.f );
     }
 
     return true;
@@ -507,7 +550,7 @@ void drawDistrib()
 
 void drawRange()
 {
-    if ( mIsUdf(maprg_.start) || mIsUdf(maprg_.stop) )
+    if ( mIsUdf(drawrg_.start) || mIsUdf(drawrg_.stop) )
 	return;
 
     const int xmaxpix = scene().nrPixX() - 1;
@@ -520,9 +563,9 @@ void drawRange()
     msu.color_ = Color::Black();
 
     const int nrpixlong = xislong ? xmaxpix : ymaxpix;
-    float fpos = nrpixlong * (maprg_.start-longrg_.start) / longwdth;
+    float fpos = nrpixlong * (drawrg_.start-longrg_.start) / longwdth;
     rgstartitm_ = scene().addItem( new uiManipHandleItem(msu,fpos) );
-    fpos = nrpixlong * (maprg_.stop-longrg_.start) / longwdth;
+    fpos = nrpixlong * (drawrg_.stop-longrg_.start) / longwdth;
     rgstopitm_ = scene().addItem( new uiManipHandleItem(msu,fpos) );
 }
 
@@ -561,8 +604,8 @@ void reDraw()
     uiEdMapperSetupDlg*	eddlg_;
     MouseEventHandler&	meh_;
     KeyboardEventHandler& keh_;
-    Interval<float>	maprg_;
-    Interval<float>	longrg_, shortrg_;
+    RangeType		drawrg_;
+    RangeType		longrg_, shortrg_;
     TypeSet<float>	longvals_, shortvals_;
     uiPolygonItem*	distribitem_;
     uiLineItem*		zeroitem_;
@@ -572,6 +615,7 @@ void reDraw()
 
     int			movingside_;
     float		lastmovepos_;
+    int			lastmovedside_;
 
     uiParent*		parent()
 			{ return seltool_.asParent(); }
