@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "convolveattrib.h"
 #include "deltaresampleattrib.h"
+#include "dipfilterattrib.h"
 #include "energyattrib.h"
 #include "evaluateattrib.h"
 #include "eventattrib.h"
@@ -42,6 +43,7 @@ mDefModInitFn(Attributes)
 
     Attrib::Convolve::initClass();
     Attrib::DeltaResample::initClass();
+    Attrib::DipFilter::initClass();
     Attrib::Energy::initClass();
     Attrib::Evaluate::initClass();
     Attrib::Event::initClass();

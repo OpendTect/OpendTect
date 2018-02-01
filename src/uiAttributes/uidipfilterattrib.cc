@@ -49,7 +49,8 @@ static const char* fltrstrs[] =
 	0
 };
 
-mInitAttribUI(uiDipFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp())
+mInitAttribUI(uiDipFilterAttrib,DipFilter,"Localized Velocity Fan Filter",
+	      sKeyFilterGrp())
 
 
 uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
