@@ -169,6 +169,10 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	, table_(0)
 	, unitfld_(0)
 {
+    uiString title( "%1: %2" );
+    title.arg( uiStrings::sWell() ).arg( t.name() );
+    setTitleText( title );
+
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
 						.rowgrow(true)
 						.defrowlbl("")
@@ -254,7 +258,7 @@ bool uiMarkerDlg::getFromScreen()
 
 void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
-    uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true, 
+    uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true,
 						    uiStrings::sEmptyString() );
     levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
     const int currentrow = table_->currentRow();
