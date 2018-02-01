@@ -490,7 +490,7 @@ protected:
 };
 
 
-/*!\brief lines looking like a user can pick it up and drag it.  */
+/*!\brief lines with thingy looking like a user can pick it up and drag it.  */
 
 mExpClass(uiBase) uiManipHandleItem : public uiGraphicsItemGroup
 {
@@ -526,5 +526,6 @@ protected:
     uiLineItem*		bodyitm_;
     uiLineItem*		shadeitm1_;
     uiLineItem*		shadeitm2_;
+    uiRectItem*		rectitm_;
 
 };

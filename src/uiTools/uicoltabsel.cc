@@ -560,13 +560,13 @@ void drawRange()
     uiManipHandleItem::Setup msu;
     msu.hor_ = !isHor(); msu.thickness_ = 3;
     msu.start_ = 0; msu.stop_ = xislong ? ymaxpix : xmaxpix;
-    msu.color_ = Color::Black();
+    msu.color_ = Color( 100, 100, 180 );
 
     const int nrpixlong = xislong ? xmaxpix : ymaxpix;
     float fpos = nrpixlong * (drawrg_.start-longrg_.start) / longwdth;
-    rgstartitm_ = scene().addItem( new uiManipHandleItem(msu,fpos) );
+    rgstartitm_ = scene().addItem( new uiManipHandleItem(msu,fpos,1000) );
     fpos = nrpixlong * (drawrg_.stop-longrg_.start) / longwdth;
-    rgstopitm_ = scene().addItem( new uiManipHandleItem(msu,fpos) );
+    rgstopitm_ = scene().addItem( new uiManipHandleItem(msu,fpos,1000) );
 }
 
 

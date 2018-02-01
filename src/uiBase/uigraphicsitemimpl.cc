@@ -1265,10 +1265,22 @@ void uiManipHandleItem::init( const Setup& su, int pixpos, int zval )
     centeritm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, 1, zval );
     bodyitm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_,
 		       zval-1 );
-    shadeitm1_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+2,
-			 zval-2 );
-    shadeitm2_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+4,
-			 zval-3 );
+    shadeitm1_ = mkLine( su.hor_, pixpos+1, su.start_, su.stop_,
+			 su.thickness_, zval-2 );
+    shadeitm2_ = mkLine( su.hor_, pixpos+2, su.start_, su.stop_,
+			 su.thickness_, zval-3 );
+
+    const int sz = su.thickness_;
+    int x0 = pixpos - sz;
+    int xw = 2 * sz + 1;
+    int y0 = su.start_;
+    int yw = xw;
+    if ( su.hor_ )
+	{ std::swap( x0, y0 ); std::swap( xw, yw ); }
+    rectitm_ = new uiRectItem( x0, y0, xw, yw );
+    rectitm_->setZValue( zval+1 );
+    add( rectitm_ );
+
     setPenColor( su.color_ );
 }
 
@@ -1291,8 +1303,10 @@ uiLineItem* uiManipHandleItem::mkLine( bool ishor, int pos,
 
 void uiManipHandleItem::setPenColor( const Color& basecol, bool )
 {
+    rectitm_->setPenColor( basecol );
+    rectitm_->setFillColor( basecol );
     centeritm_->setPenColor( basecol.complementaryColor().darker( 1.0f ) );
     bodyitm_->setPenColor( basecol );
-    shadeitm1_->setPenColor( basecol.lighter( 1.0f ) );
-    shadeitm2_->setPenColor( basecol.lighter( 3.0f ) );
+    shadeitm1_->setPenColor( basecol.lighter( 1.5f ) );
+    shadeitm2_->setPenColor( basecol.lighter( 4.0f ) );
 }
