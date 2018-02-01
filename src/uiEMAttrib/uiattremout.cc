@@ -180,7 +180,7 @@ void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
     for ( int idx=0; idx<outdescids_.size(); idx++ )
     {
 	key = IOPar::compKey( tmpkey.buf(), idx );
-	iopar.set( key, outdescids_[idx].asInt() );
+	iopar.set( key, outdescids_[idx].getI() );
     }
 
     key = IOPar::compKey( keybase.buf(), idlbl );
