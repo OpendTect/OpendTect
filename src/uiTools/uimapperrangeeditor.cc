@@ -58,6 +58,8 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
 
 uiMapperRangeEditor::~uiMapperRangeEditor()
 {
+    detachAllNotifiers();
+
     delete minline_; delete maxline_;
     delete leftcoltab_; delete centercoltab_; delete rightcoltab_;
     delete minvaltext_; delete maxvaltext_;
@@ -79,7 +81,8 @@ bool uiMapperRangeEditor::setDataPackID(
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
-    if ( retval ) drawAgain();
+    if ( retval )
+	drawAgain();
     return retval;
 }
 
@@ -144,7 +147,7 @@ void uiMapperRangeEditor::setMapper( ColTab::Mapper& mpr )
 
 void uiMapperRangeEditor::setColTabSeq( const ColTab::Sequence& cseq )
 {
-    ctseq_ = &cseq;
+    replaceMonitoredRef( ctseq_, cseq, this );
     drawAgain();
 }
 
@@ -176,6 +179,9 @@ void uiMapperRangeEditor::init()
     maxline_->setPenStyle( ls );
     maxline_->setCursor( cursor );
     maxline_->setZValue( zval+2 );
+
+    mAttachCB( mapper_->objectChanged(), uiMapperRangeEditor::mapperChg );
+    mAttachCB( ctseq_->objectChanged(), uiMapperRangeEditor::colSeqChg );
 }
 
 
@@ -246,6 +252,21 @@ void uiMapperRangeEditor::drawAgain()
     drawText();
     drawLines();
     drawPixmaps();
+}
+
+
+void uiMapperRangeEditor::colSeqChg( CallBacker* cb )
+{
+    drawAgain();
+}
+
+
+void uiMapperRangeEditor::mapperChg( CallBacker* cb )
+{
+    const Interval<float> rg = mapper_->getRange();
+    cliprg_.start = rg.isRev() ? rg.stop : rg.start;
+    cliprg_.stop = rg.isRev() ? rg.start : rg.stop;
+    drawAgain();
 }
 
 
@@ -344,7 +365,8 @@ void uiMapperRangeEditor::mouseMoved( CallBacker* )
 void uiMapperRangeEditor::mouseReleased( CallBacker* )
 {
     MouseEventHandler& meh = histogramdisp_->getMouseEventHandler();
-    if ( meh.isHandled() || !mousedown_ ) return;
+    if ( meh.isHandled() || !mousedown_ )
+	return;
 
     mousedown_ = false;
     Interval<float> newrg;

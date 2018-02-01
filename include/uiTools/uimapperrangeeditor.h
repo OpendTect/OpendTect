@@ -39,7 +39,7 @@ public:
 
     void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID,
-	    				      int version);
+					      int version);
     void			setData(const Array2D<float>*);
     bool			setData(const IOPar&);
     void			setMarkValue(float,bool forx);
@@ -88,4 +88,7 @@ protected:
 
     void			histogramResized(CallBacker*);
     void			histDRChanged(CallBacker*);
+    void			colSeqChg(CallBacker*);
+    void			mapperChg(CallBacker*);
+
 };

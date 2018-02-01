@@ -230,10 +230,11 @@ void uiColSeqDisp::reDraw()
 	nmbgrectitm_->setZValue( 100 );
     }
 
-    const int xstart = scene().nrPixX()/10;
+    const int xstart = scene().nrPixX() / 10;
     const int xsz = scene().nrPixX() - 2*xstart;
     const int ysz = scene().nrPixY() / 3;
-    const uiRect bgrect( uiPoint(xstart,bordernrpix), uiSize(xsz,ysz) );
+    const int ystart = scene().nrPixY() - bordernrpix - ysz;
+    const uiRect bgrect( uiPoint(xstart,ystart), uiSize(xsz,ysz) );
 
     nmbgrectitm_->setRect( bgrect.left(), bgrect.top(), bgrect.width(),
 			   bgrect.height() );

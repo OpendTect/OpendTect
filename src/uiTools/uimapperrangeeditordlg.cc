@@ -39,6 +39,7 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     , dpm_(DPM(dmid))
 {
     setCtrlStyle( CloseOnly );
+    showAlwaysOnTop();
 
     datapackids_.setSize( nr, DataPack::ID::getInvalid() );
     uiSeparator* sephor = 0;
@@ -82,15 +83,14 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
 	}
     }
 
-    dpm_.packToBeRemoved.notifyIfNotNotified(
-			mCB(this,uiMultiMapperRangeEditWin,dataPackDeleted) );
+    mAttachCB( dpm_.packToBeRemoved,
+	       uiMultiMapperRangeEditWin::dataPackDeleted );
 }
 
 
 uiMultiMapperRangeEditWin::~uiMultiMapperRangeEditWin()
 {
-    dpm_.packToBeRemoved.remove(
-			mCB(this,uiMultiMapperRangeEditWin,dataPackDeleted) );
+    detachAllNotifiers();
 }
 
 
@@ -105,7 +105,7 @@ void uiMultiMapperRangeEditWin::showStatDlg( CallBacker* )
     {
 	statswin->statsDisplay( idx )->setDataPackID(
 				datapackids_[idx], dpm_.id(), 0 );
-	datanms.add(  DPM(dpm_.id()).nameOf(datapackids_[idx]) );
+	datanms.add( DPM(dpm_.id()).nameOf(datapackids_[idx]) );
     }
 
     statswin->addDataNames( datanms );
@@ -114,7 +114,9 @@ void uiMultiMapperRangeEditWin::showStatDlg( CallBacker* )
 
 
 uiMapperRangeEditor* uiMultiMapperRangeEditWin::getuiMapperRangeEditor( int idx)
-{ return mapperrgeditors_.validIdx(idx) ? mapperrgeditors_[idx] : 0; }
+{
+    return mapperrgeditors_.validIdx(idx) ? mapperrgeditors_[idx] : 0;
+}
 
 
 void uiMultiMapperRangeEditWin::setDataPackID(
