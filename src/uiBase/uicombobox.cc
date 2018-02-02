@@ -209,7 +209,7 @@ void uiComboBox::setPixmap( int index, const uiPixmap& pixmap )
 {
     if ( index >= 0 && index < body_->count() )
     {
-	body_->setItemText( index, itemstrings_[index].getQString() );
+	body_->setItemText( index, toQString(itemstrings_[index]) );
 	body_->setItemIcon( index, *pixmap.qpixmap() );
     }
 }
@@ -271,7 +271,7 @@ void uiComboBox::setText( const uiString& txt )
     if ( idx >= 0 )
 	setCurrentItem( idx );
     else if ( body_->isEditable() )
-	body_->setEditText( txt.getQString() );
+	body_->setEditText( toQString(txt) );
 }
 
 
@@ -289,20 +289,22 @@ bool uiComboBox::isPresent( const uiString& txt ) const
 
 uiString uiComboBox::textOfItem( int idx ) const
 {
-    if ( idx < 0 || idx >= body_->count() )
+    if ( idx < 0 )
 	return uiString::emptyString();
 
-    if ( isReadOnly() && enumdef_ && idx<enumdef_->size() )
+    const bool isreadonly = isReadOnly();
+    if ( isreadonly && enumdef_ && idx<enumdef_->size() )
 	return enumdef_->getUiStringForIndex( idx );
 
-    uiString ret;
-    if ( itemstrings_.validIdx(idx) && (isReadOnly() ||
-	 body_->itemText(idx)==itemstrings_[idx].getQString()) )
-	ret = itemstrings_[idx];
-    else
-	ret = toUiString( itemText(idx) );
+    bool useitmstr = false;
+    if ( itemstrings_.validIdx(idx) )
+    {
+	useitmstr = isreadonly;
+	if ( !useitmstr )
+	    useitmstr = body_->itemText(idx) == toQString(itemstrings_[idx]);
+    }
 
-    return ret;
+    return useitmstr ? itemstrings_[idx] : toUiString( itemText(idx) );
 }
 
 
@@ -310,16 +312,10 @@ const char* uiComboBox::itemText( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() )
 	return OD::EmptyString();
-
     if ( isReadOnly() && enumdef_ && idx<enumdef_->size() )
 	return enumdef_->getKeyForIndex( idx );
 
-    if ( itemstrings_.validIdx(idx) && (isReadOnly() ||
-	 body_->itemText(idx)==itemstrings_[idx].getQString()) )
-	rettxt_ = toString( itemstrings_[idx] );
-    else
-	rettxt_ = body_->itemText( idx );
-
+    rettxt_.set( body_->itemText(idx) );
     return rettxt_.buf();
 }
 
@@ -379,7 +375,7 @@ void uiComboBox::setItemText( int idx, const uiString& txt )
     if ( idx >= 0 && idx < body_->count() )
     {
 	adjustWidth( txt );
-	body_->setItemText( idx, txt.getQString() );
+	body_->setItemText( idx, toQString(txt) );
 	itemstrings_[idx] = txt;
     }
 }
@@ -434,7 +430,7 @@ void uiComboBox::addItem( const uiString& txt, int id )
 {
     mBlockCmdRec;
     adjustWidth( txt );
-    body_->addItem( txt.getQString() );
+    body_->addItem( toQString(txt) );
     itemids_ += id;
     itemstrings_ += txt;
 }
@@ -466,7 +462,7 @@ void uiComboBox::insertItem( const uiString& txt, int index, int id )
 {
     mBlockCmdRec;
     adjustWidth( txt );
-    body_->insertItem( index, txt.getQString() );
+    body_->insertItem( index, toQString(txt) );
     itemids_.insert( index, id );
     itemstrings_.insert( index, txt );
 }
@@ -477,7 +473,7 @@ void uiComboBox::insertItem( const uiPixmap& pm, const uiString& txt,
 {
     mBlockCmdRec;
     adjustWidth( txt );
-    body_->insertItem( index, *pm.qpixmap(), txt.getQString() );
+    body_->insertItem( index, *pm.qpixmap(), toQString(txt) );
     itemids_.insert( index, id );
     itemstrings_.insert( index, txt );
 }
@@ -585,9 +581,7 @@ void uiComboBox::translateText()
 	return;
 
     for ( int idx=0; idx<size(); idx++ )
-    {
-	body_->setItemText( idx, itemstrings_[idx].getQString() );
-    }
+	body_->setItemText( idx, toQString(itemstrings_[idx]) );
 }
 
 

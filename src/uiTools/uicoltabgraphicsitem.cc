@@ -39,11 +39,13 @@ uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     borderitm_->setRect( -1, -1, boundrec.width()+1, boundrec.height()+1 );
 
     adjustLabel();
+    mAttachCB( sequence_->objectChanged(), uiColTabItem::seqChgCB );
 }
 
 
 uiColTabItem::~uiColTabItem()
 {
+    detachAllNotifiers();
     removeAll( true );
 }
 
@@ -141,8 +143,13 @@ void uiColTabItem::setPixmap()
 
 void uiColTabItem::setMapper( const ColTab::Mapper* mpr )
 {
+    const bool hadmapper = mapper_;
+
     if ( replaceMonitoredRef(mapper_,mpr,this) )
 	mapperChgCB( 0 );
+
+    if ( mapper_ && !hadmapper )
+	mAttachCB( mapper_->objectChanged(), uiColTabItem::mapperChgCB );
 }
 
 

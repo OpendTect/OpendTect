@@ -339,7 +339,7 @@ protected:
 
 #define mParKeyStrPre( objnm, objsfound, nrgrey, keys, selnr ) \
     mParStrPre( objnm, objsfound, nrgrey, keys.buf(), selnr, "key(s)", true ); \
-    mDisabilityCheck( objnm, 1, !UIEntity(objsfound[0]).sensitive() ); \
+    mDisabilityCheck( objnm, 1, !UIEntity(objsfound[0]).isSensitive() ); \
     ObjectFinder wcmobjfinder( *curWin(), isCaseSensitive(), &wildcardMan() ); \
     wcmobjfinder.selectNodes( objsfound, keys );
 

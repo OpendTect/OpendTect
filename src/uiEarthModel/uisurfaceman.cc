@@ -224,7 +224,7 @@ void uiSurfaceMan::attribSel( CallBacker* )
 #define mSetButToolTip(but,str1,curattribnms,str2,deftt) \
     if ( but ) \
     { \
-	if ( but->sensitive() ) \
+	if ( but->isSensitive() ) \
 	{ \
 	    tt.setEmpty(); \
 	    tt.add( str1 ).add( curattribnms ).add( str2 ); \

@@ -751,7 +751,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     , valuechanging(this), valuechanged(this) \
     , checked(this), updateRequested(this) \
     , checked_(false), rdonly_(false), rdonlyset_(false) \
-    , elemszpol_( uiObject::Undef ) \
+    , elemszpol_( uiObject::UseDefault ) \
     , isrequired_(false)
 
 
@@ -1189,7 +1189,8 @@ void uiGenInput::setText( const OD::String& txt, int nr )
 void uiGenInput::setText( const uiString& txt, int nr )
 {
     BufferString bufstr;
-    setText( txt.fillUTF8String(bufstr).str(), nr );
+    txt.fillUTF8String( bufstr );
+    setText( bufstr, nr );
 }
 
 
@@ -1225,7 +1226,7 @@ void uiGenInput::checkBoxSel( CallBacker* cb )
     if ( !cbox_ ) return;
 
     checked_ = cbox_->isChecked();
-    const bool elemsens = cbox_->sensitive() && cbox_->isChecked();
+    const bool elemsens = cbox_->isSensitive() && cbox_->isChecked();
 
     for ( int idx=0; idx<flds_.size(); idx++ )
 	flds_[idx]->setSensitive( elemsens );

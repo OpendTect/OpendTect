@@ -1,6 +1,4 @@
-#ifndef i_qdial_h
-#define i_qdial_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,8 +10,8 @@ ________________________________________________________________________
 -*/
 
 #include "uidial.h"
+#include "i_common.h"
 
-#include <QObject>
 #include <QDial>
 
 //! Helper class for uidial to relay Qt's messages.
@@ -63,5 +61,3 @@ void valueChanged(int)	{ mTrigger(valueChanged); }
 };
 
 QT_END_NAMESPACE
-
-#endif

@@ -218,6 +218,17 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
     outsidevalfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)gatefld_
 						   : (uiGroup*)seissubselfld_ );
     outsidevalfld_->setValue(0);
+
+    uiPushButton* undefbut =
+	new uiPushButton( prnt, tr("Set to Undefined"), true );
+    undefbut->attach( rightTo, outsidevalfld_ );
+    undefbut->activated.notify( mCB(this,uiAttrTrcSelOut,undefCB) );
+}
+
+
+void uiAttrTrcSelOut::undefCB( CallBacker* )
+{
+    outsidevalfld_->setText( sKey::FloatUdf() );
 }
 
 
@@ -362,8 +373,11 @@ void uiAttrTrcSelOut::getJobName( BufferString& jobnm ) const
 
 bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 {
-    uiAttrEMOut::fillPar( iopar );
-    const bool is2d = ads_->is2D();
+    BufferString outnm = outpfld_->getInput();
+    iopar.set( sKey::Target(), outnm );
+
+    if ( !uiAttrEMOut::fillPar(iopar) )
+	return false;
 
     const IOObj* outioobj = outpfld_->ioobj( true );
     if ( outioobj )
@@ -373,9 +387,6 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(),
 		    outseisid );
     }
-
-    BufferString outnm = outpfld_->getInput();
-    iopar.set( sKey::Target(), outnm );
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
     BufferString key = IOPar::compKey( sKey::Geometry(), tmpkey );
@@ -396,6 +407,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     if ( horsamp.isEmpty() )
 	getComputableSurf( horsamp );
 
+    const bool is2d = ads_->is2D();
     BufferString typestr;
     subselpar->get( sKey::Type(), typestr );
     const bool issubsel = typestr != sKey::None();
@@ -471,6 +483,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	iopar.set( key, cubezbounds );
     }
 
+    batchjobfld_->saveProcPars( *outioobj );
     return true;
 }
 

@@ -555,7 +555,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     }
     else
     {
-	const bool havecompsel = compfld_->mainObject()->visible();
+	const bool havecompsel = compfld_->mainObject()->isVisible();
 	const bool haveallcomps = havecompsel
 				 && compfld_->box()->textOfItem( 0 )
 					.isEqualTo( uiStrings::sAll() );

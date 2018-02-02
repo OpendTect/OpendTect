@@ -10,25 +10,24 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uivismarkerstyledlg.h"
-#include "emobject.h"
+#include "uidialog.h"
+#include "draw.h"
 
-class uiColorInput;
+namespace EM { class EMObject; }
+class uiMarkerStyle3D;
 
-mExpClass(uiVis) uiSeedPropDlg : public uiVisMarkerStyleDlg
-{ mODTextTranslationClass(uiSeedPropDlg);
+
+mExpClass(uiVis) uiSeedPropDlg : public uiDialog
+{ mODTextTranslationClass(uiSeedPropDlg)
 public:
-			uiSeedPropDlg(uiParent*,EM::EMObject*);
+			uiSeedPropDlg(uiParent*,EM::EMObject&);
 
 protected:
 
-    EM::EMObject*	emobject_;
+    EM::EMObject&	emobject_;
+    uiMarkerStyle3D*	stylefld_;
+
     OD::MarkerStyle3D	markerstyle_;
 
-    void		doFinalise(CallBacker*);
-
-    void		sizeChg(CallBacker*);
-    void		typeSel(CallBacker*);
-    void		colSel(CallBacker*);
-    void		updateMarkerStyle();
+    void		styleSel(CallBacker*);
 };

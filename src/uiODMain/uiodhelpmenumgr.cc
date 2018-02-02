@@ -60,7 +60,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr& mm )
 		    "attributematrix" );
     mAddHelpAction( tr("Online Support"), mSupportMnuItm, "internet" );
     act = mAddHelpAction( tr("Keyboard shortcuts"), mShortcutsMnuItm,
-			  "keyboardshortcuts" );
+			  "keyboard" );
     act->setShortcut( "?" );
     mAddHelpAction( tr("About"), mAboutMnuItm, "info" );
 

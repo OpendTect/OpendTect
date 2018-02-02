@@ -116,7 +116,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 void uiFaultStickTransferDlg::displayCB( CallBacker* )
 {
     displayifnot_ = displayfld_->isChecked();
-    setOutputDisplayed( !displayfld_->sensitive() );
+    setOutputDisplayed( !displayfld_->isSensitive() );
 }
 
 
@@ -529,7 +529,7 @@ void uiODFaultToolMan::clearCurDisplayObj()
 
 #define mOutputNameComboSetTextColorSensitivityHack( color ) \
     outputnamecombo_->setTextColor( toolbar_->isSensitive() && \
-	    outputnamecombo_->sensitive() ? color : Color(128,128,128) );
+	    outputnamecombo_->isSensitive() ? color : Color(128,128,128) );
 
 void uiODFaultToolMan::enableToolbar( bool yn )
 {
@@ -1356,7 +1356,7 @@ void uiODFaultToolMan::flashOutputName( bool error, const char* newname )
     const Color color = error ? Color(255,0,0) : Color(0,0,0);
 
     const bool doflash = toolbar_->isSensitive() &&
-			 outputnamecombo_->sensitive() &&
+			 outputnamecombo_->isSensitive() &&
 			 (name!=flashname_ || color!=flashcolor_);
 
     flashname_ = name; flashcolor_ = color;

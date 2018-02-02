@@ -429,6 +429,7 @@ bool uiSEGYReadFinisher::doMultiVintage()
     if ( !vntinfos_ && !vntinfos_->size() )
 	return false;
 
+    bool donotshow = false;
     uiSEGYImportReport reportdlg(this);
     for ( int vidx=0; vidx<vntinfos_->size(); vidx++ )
     {
@@ -466,23 +467,44 @@ bool uiSEGYReadFinisher::doMultiVintage()
 
 	    DBM().setEntry(*inioobj);
 
+	    trcsskipped_ = false;
 	    errmsg_.setEmpty();
-	    const int nrrows = reportdlg.table_->nrRows();
-	    reportdlg.table_->setNrRows( nrrows+1 );
 	    const bool impsuccess = do3D( *inioobj, *ctio.ioobj_, true );
+	    const int nrrows = reportdlg.table_->nrRows();
+	    reportdlg.table_->setNrRows( nrrows + 1 );
 	    reportdlg.table_->setText( RowCol(nrrows,0), fnm );
-	    reportdlg.table_->setText( RowCol(nrrows,1), errmsg_ );
+	    uiString tooltip;
+	    tooltip.append( fp.fullPath() );
+	    reportdlg.table_->setCellToolTip( RowCol(nrrows,0), tooltip );
+	    reportdlg.table_->setText( RowCol(nrrows,2), errmsg_ );
+	    reportdlg.table_->setText( RowCol(nrrows,1),
+				       impsuccess ? tr("Scuuess")
+						  : tr("Failed") );
 	    reportdlg.table_->setCellColor( RowCol(nrrows,1),
 					    impsuccess ? Color::Green()
 						       : Color::Red() );
+	    if ( trcsskipped_ )
+	    {
+		reportdlg.table_->setText( RowCol(nrrows,1), "Partial" );
+		reportdlg.table_->setCellColor( RowCol(nrrows,1),
+						Color::Orange() );
+	    }
 	    if ( !impsuccess )
 	    {
 		uiString msg(tr("Failed to import '%1'").arg(fnm) );
 		msg.append( tr("Do you wish to continue?"), true );
-		if ( !uiMSG().askContinue( msg ) )
+		if ( !donotshow )
 		{
-		    reportdlg.go();
-		    return false;
+		    int val = uiMSG().question( msg, tr("Continue"),
+						     tr("Abort"),
+						     uiString::emptyString(),
+						     uiString::emptyString(),
+						     &donotshow );
+		    if ( !val )
+		    {
+			reportdlg.go();
+			return false;
+		    }
 		}
 	    }
 	}
@@ -494,7 +516,7 @@ bool uiSEGYReadFinisher::doMultiVintage()
 
 
 bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
-				bool doimp )
+				bool doimp, bool trcsskipped )
 {
     Executor* exec;
     const Seis::GeomType gt = fs_.geomType();
@@ -525,11 +547,17 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     else
     {
 	if ( !singlevintage_ && doimp )
-	    errmsg_.append( "Successfully imported" );
+	{
+	    trcsskipped_ = imp.ptr()->nrSkipped() > 0;
+	    if ( imp.ptr()->nrSkipped() > 0 )
+		errmsg_.append( "Warning: ").append( imp.ptr()->message() );
+	    else
+		errmsg_.append( "Successfully imported" );
+	}
     }
 
     wrr.erase(); // closes output
-    if ( !handleWarnings(!doimp,indexer,imp) )
+    if ( singlevintage_ && !handleWarnings(!doimp,indexer,imp) )
 	{ DBM().removeEntry( outioobj.key() ); return false; }
 
     if ( indexer )
@@ -632,7 +660,8 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 	return false;
 
     wrr.erase(); // closes output
-    handleWarnings( false, indexer, imp );
+    if ( singlevintage_ )
+	handleWarnings( false, indexer, imp );
 
     return true;
 }
@@ -848,10 +877,27 @@ uiSEGYImportReport::uiSEGYImportReport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("SEGY multi vintage import status"),
 	       mNoDlgTitle, mNoHelpKey) )
 {
-    table_ = new uiTable( this, uiTable::Setup(0, 2), "Report" );
+    table_ = new uiTable( this, uiTable::Setup(0, 3), "Final Report" );
     table_->setColumnLabel( 0, tr("File") );
     table_->setColumnLabel( 1, tr("Status") );
+    table_->setColumnLabel( 2, tr("Report") );
+    table_->resizeColumnToContents( 2 );
     table_->setPrefWidthInChars( 70  );
+    table_->setPrefHeightInRows( 4  );
     table_->setTableReadOnly( true );
+    table_->leftClicked.notify( mCB(this,uiSEGYImportReport,msgDisplayCB) );
     setCtrlStyle( uiDialog::CloseOnly );
+}
+
+
+void uiSEGYImportReport::msgDisplayCB( CallBacker* cb )
+{
+    const RowCol rc( table_->notifiedCell() );
+    if ( rc.col() != 2 )
+	return;
+
+    BufferString msg( table_->text( rc ) );
+    uiString str;
+    str.append( table_->text( rc ) );
+    uiMSG().message( str );
 }

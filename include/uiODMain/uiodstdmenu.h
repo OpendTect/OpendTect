@@ -192,8 +192,6 @@ ________________________________________________________________________
 #define mStereoQuadMnuItm		(mViewStereoMnu + 3)
 #define mStereoOffsetMnuItm		(mViewStereoMnu + 4)
 
-#define mViewIconsMnuItm		(mViewMnu + 200)
-
 
 /* 'Utilities' menu */
 
@@ -215,7 +213,6 @@ ________________________________________________________________________
 #define mSettAutoSaveMnuItm		(mUtilSettingMnu + 20)
 #define mSettAdvPersonal		(mUtilSettingMnu + 30)
 #define mSettAdvSurvey			(mUtilSettingMnu + 31)
-#define mSettShortcutsMnuItm		(mUtilSettingMnu + 40)
 #define mSettLanguageMnu		(mUtilSettingMnu + 100)
 
 

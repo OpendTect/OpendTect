@@ -463,7 +463,7 @@ bool uiSeisIOSimple::acceptOK()
 
     data().setScaler( scalefld_->getScaler() );
     data().remnull_ = remnullfld_->getBoolValue();
-    const bool ismulticomp = multcompfld_->sensitive();
+    const bool ismulticomp = multcompfld_->isSensitive();
     data().compidx_ = ismulticomp ? multcompfld_->getIntValue() : 0;
 
     data().isasc_ = isascfld_->getBoolValue();

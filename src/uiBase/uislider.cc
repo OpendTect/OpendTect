@@ -110,6 +110,7 @@ void uiSlider::init( const uiSlider::Setup& setup, const char* nm )
     {
 	valueChanged.notify( mCB(this,uiSlider,sliderMove) );
 	editfld_ = new uiLineEdit( this, toString(setup.lbl_) );
+	editfld_->attach( rightOf, slider_ );
 	editfld_->setHSzPol( uiObject::Small );
 	editfld_->returnPressed.notify( mCB(this,uiSlider,editRetPress) );
 	sliderMove(0);

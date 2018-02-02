@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 
 #include "uilabel.h"
+#include "i_common.h"
 
 #include "bufstringset.h"
 #include "uiobjbody.h"
@@ -81,7 +82,7 @@ void uiLabel::init( const uiString& txt, uiObject* buddy )
     setText( txt );
     setTextSelectable( true );
 
-    const QString& qstr = txt.getQString();
+    const QString qstr = toQString(txt);
     const int nrnewlines = qstr.count( "\n" );
     if ( nrnewlines>0 )
 	setPrefHeightInChar( nrnewlines+1 );
@@ -116,7 +117,7 @@ void uiLabel::setText( const uiString& txt )
     const bool wasempty = text_.isEmpty();
     text_ = txt;
 
-    QString qstr = text_.getQString();
+    QString qstr = toQString( text_ );
     if ( isrequired_ )
 	addRequiredChar( qstr );
 
@@ -134,7 +135,7 @@ void uiLabel::setText( const uiString& txt )
 void uiLabel::makeRequired( bool yn )
 {
     isrequired_ = yn;
-    QString qstr = text_.getQString();
+    QString qstr = toQString( text_ );
     if ( qstr.isEmpty() )
 	return;
 
@@ -147,7 +148,7 @@ void uiLabel::makeRequired( bool yn )
 void uiLabel::translateText()
 {
     uiObject::translateText();
-    QString qstr = text_.getQString();
+    QString qstr = toQString( text_ );
     if ( isrequired_ ) addRequiredChar( qstr );
     body_->setText( qstr );
 }

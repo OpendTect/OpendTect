@@ -78,7 +78,6 @@ protected:
     void		taskDClick(CallBacker*);
 
     void		doColorTabs(CallBacker*);
-    void		doShortcuts(CallBacker*);
     void		doIconSets(CallBacker*);
     void		doBatchHosts(CallBacker*);
     void		doBatchProgs(CallBacker*);

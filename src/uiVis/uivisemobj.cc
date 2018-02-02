@@ -456,7 +456,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     {
 	if ( emobj && !visserv_->showSetupGroupOnTop("Properties") )
 	{
-	    uiSeedPropDlg dlg( uiparent_, emobj );
+	    uiSeedPropDlg dlg( uiparent_, *emobj );
 	    dlg.go();
 	}
 	menu->setIsHandled( true );

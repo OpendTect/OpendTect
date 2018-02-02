@@ -551,8 +551,8 @@ void uiStratSynthDisp::drawLevel()
 {
     vwr_->removeAuxDatas( levelaux_ );
     const float offset =
-	prestackgrp_->sensitive() ? mCast(float, offsetposfld_->getValue())
-				  : 0.0f;
+	prestackgrp_->isSensitive() ? mCast(float, offsetposfld_->getValue())
+				    : 0.0f;
     ObjectSet<const TimeDepthModel> curd2tmodels;
     getCurD2TModel( currentwvasynthetic_ ? currentwvasynthetic_
 					 : currentvdsynthetic_,
@@ -933,8 +933,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr());
 
     const float offset =
-	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
-				  : 0.0f;
+	prestackgrp_->isSensitive() ? mCast( float, offsetposfld_->getValue() )
+				    : 0.0f;
     const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, 0 )
 				   : &postsd->postStackPack().trcBuf();
     if ( !tbuf ) return;
@@ -1034,8 +1034,8 @@ void uiStratSynthDisp::reSampleTraces( ConstRefMan<SyntheticData> sd,
 	return;
     Interval<float> depthrg = layerModel().sequence(longestaimdl_).zRange();
     const float offset =
-	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
-				  : 0.0f;
+	prestackgrp_->isSensitive() ? mCast( float, offsetposfld_->getValue() )
+				    : 0.0f;
     ObjectSet<const TimeDepthModel> curd2tmodels;
     mDynamicCastGet(const StratPropSyntheticData*,spsd,sd.ptr());
     getCurD2TModel( sd, curd2tmodels, offset );

@@ -290,11 +290,14 @@ public:
 
     void		setFont(const uiFont&);
     void		setFontData(const FontData&);
-    const uiString	getText() const;
+    uiString		getText() const;
     uiSize		getTextSize() const;
     void		setAlignment(const OD::Alignment&);
     void		setText(const uiString&);
     void		setTextColor(const Color&);
+
+    void		fitIn(const uiRect&);
+			//!< adjusts font size until the text fits
 
 protected:
 			uiTextItem(QGraphicsItem*);
@@ -487,7 +490,7 @@ protected:
 };
 
 
-/*!\brief lines looking like a user can pick it up and drag it.  */
+/*!\brief lines with thingy looking like a user can pick it up and drag it.  */
 
 mExpClass(uiBase) uiManipHandleItem : public uiGraphicsItemGroup
 {
@@ -523,5 +526,6 @@ protected:
     uiLineItem*		bodyitm_;
     uiLineItem*		shadeitm1_;
     uiLineItem*		shadeitm2_;
+    uiRectItem*		rectitm_;
 
 };

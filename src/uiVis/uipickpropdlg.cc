@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "pickset.h"
 #include "settings.h"
+
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uimarkerstyle.h"
@@ -24,7 +25,8 @@ ________________________________________________________________________
 
 uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 			      visSurvey::PickSetDisplay* psd )
-    : uiVisMarkerStyleDlg( p, tr("PointSet Display Properties") )
+    : uiDialog(p,Setup(tr("PointSet Display Properties"),
+		       mNoDlgTitle,mTODOHelpKey))
     , set_( set )
     , psd_( psd )
 {
@@ -43,6 +45,10 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
     drawstylefld_->attach( rightOf, usedrawstylefld_ );
 
+    TypeSet<OD::MarkerStyle3D::Type> excl;
+    excl.add( OD::MarkerStyle3D::None );
+    stylefld_ = new uiMarkerStyle3D( this, uiMarkerStyle::Setup(), &excl );
+    stylefld_->change.notify( mCB(this,uiPickPropDlg,styleSel) );
     stylefld_->attach( alignedBelow, usedrawstylefld_ );
 
     bool usethreshold = true;
@@ -52,13 +58,15 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     usethresholdfld_->setChecked( usethreshold );
     usethresholdfld_->activated.notify( mCB(this,uiPickPropDlg,useThresholdCB));
     usethresholdfld_->attach( alignedBelow, stylefld_ );
-    
+
     thresholdfld_ =  new uiGenInput( this, tr("Threshold size for Point mode"));
     thresholdfld_->attach( rightAlignedBelow, usethresholdfld_ );
     thresholdfld_->valuechanged.notify(
 				     mCB(this,uiPickPropDlg,thresholdChangeCB));
     thresholdfld_->setSensitive( usethreshold );
     thresholdfld_->setValue( Pick::Set::getSizeThreshold() );
+
+    stylefld_->setMarkerStyle( set_.markerStyle() );
     drawSel( 0 );
 }
 
@@ -107,30 +115,11 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 }
 
 
-void uiPickPropDlg::doFinalise( CallBacker* )
-{
-    stylefld_->setMarkerStyle( set_.markerStyle() );
-
-}
-
-
-void uiPickPropDlg::sizeChg( CallBacker* cb )
-{
-    typeSel( cb );
-}
-
-
-void uiPickPropDlg::typeSel( CallBacker* )
+void uiPickPropDlg::styleSel( CallBacker* )
 {
     OD::MarkerStyle3D style( set_.markerStyle() );
     stylefld_->getMarkerStyle( style );
     set_.setMarkerStyle( style );
-}
-
-
-void uiPickPropDlg::colSel( CallBacker* cb )
-{
-    typeSel( cb );
 }
 
 

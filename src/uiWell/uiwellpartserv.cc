@@ -172,6 +172,7 @@ void uiWellPartServer::importMarkers()
     if ( !wd )
 	return;
 
+    wd->track().setName( wd->name() );
     const Well::MarkerSet origmarkers = wd->markers();
     uiMarkerDlg dlg( parent(), wd->track() );
     dlg.setMarkerSet( wd->markers() );

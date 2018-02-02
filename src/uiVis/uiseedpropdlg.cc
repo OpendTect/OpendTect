@@ -11,23 +11,23 @@ ________________________________________________________________________
 #include "uiseedpropdlg.h"
 
 #include "uimarkerstyle.h"
+#include "emobject.h"
 
 
-uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj )
-    : uiVisMarkerStyleDlg( p, tr("Seed properties") )
-    , emobject_( emobj )
-    , markerstyle_(emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()))
+uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject& emobj )
+    : uiDialog(p,Setup(tr("Seed properties"),mNoDlgTitle,mTODOHelpKey))
+    , emobject_(emobj)
+    , markerstyle_(emobject_.getPosAttrMarkerStyle(EM::EMObject::sSeedNode()))
 {
-}
-
-
-void uiSeedPropDlg::doFinalise( CallBacker* )
-{
+    TypeSet<OD::MarkerStyle3D::Type> excl;
+    excl.add( OD::MarkerStyle3D::None );
+    stylefld_ = new uiMarkerStyle3D( this, uiMarkerStyle::Setup(), &excl );
     stylefld_->setMarkerStyle( markerstyle_ );
+    stylefld_->change.notify( mCB(this,uiSeedPropDlg,styleSel) );
 }
 
 
-void uiSeedPropDlg::sizeChg( CallBacker* )
+void uiSeedPropDlg::styleSel( CallBacker* )
 {
     OD::MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
@@ -35,37 +35,5 @@ void uiSeedPropDlg::sizeChg( CallBacker* )
 	return;
 
     markerstyle_ = style;
-    updateMarkerStyle();
-}
-
-
-void uiSeedPropDlg::typeSel( CallBacker* )
-{
-    OD::MarkerStyle3D style;
-    stylefld_->getMarkerStyle( style );
-    if ( markerstyle_==style )
-	return;
-
-    markerstyle_ = style;
-
-    updateMarkerStyle();
-}
-
-
-void uiSeedPropDlg::colSel( CallBacker* )
-{
-    OD::MarkerStyle3D style;
-    stylefld_->getMarkerStyle( style );
-    if ( markerstyle_==style )
-	return;
-
-    markerstyle_ = style;
-
-    updateMarkerStyle();
-}
-
-
-void uiSeedPropDlg::updateMarkerStyle()
-{
-    emobject_->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), markerstyle_ );
+    emobject_.setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), markerstyle_ );
 }

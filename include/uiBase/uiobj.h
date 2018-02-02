@@ -28,8 +28,33 @@ class uiPixmap;
 class uiObjEventFilter;
 
 
-/*!
-\brief The base class for most UI elements.
+/*!\brief The base class for most UI elements.
+
+Noteworthy:
+
+  * setStretch(int hor,int ver
+	Sets stretch factors for object. 0=no stretch in that direction.
+	a factor > 1 makes it take up as much space as possible in its parent.
+  * SzPolicy
+    Many objects can take any size, but to actually set them to any size
+    looks terribly chaotic. Thusm we use 3 options:
+	Small:	1 base sz.
+	Medium:	2* base sz + 1.
+	Wide:	4* base sz + 3.
+    The xxVar options specify that the element may have a bigger internal
+    preferred size. In that case, the maximum is taken.
+    The xxMax options specify that the element should take all available
+    space ( stretch = 2 )
+  * attach(constraintType,...)
+	tie objects together in a certain way. Very important is the concept of
+	'align obejct', which is the object itself if it's stand-alone, but
+	usually one of teh objects in a group. It s the object that is logical
+	to align with other objects. For example, simple label+input box groups
+	have the input box as horizontal align object.
+	For the 'stretched' aligning, margin=-1 (default) stretches the object
+	not to cross any border. Margin=-2 stretches the object to fill the
+	parent's border. This looks nice with separators.
+
 */
 
 mExpClass(uiBase) uiObject : public uiBaseObject
@@ -42,28 +67,22 @@ public:
 			uiObject(uiParent*,const char* nm,uiObjectBody&);
 			~uiObject();
 
-/*! \brief How should the object's size behave?
-    Undef       : use default.
-    Small       : 1 base sz.
-    Medium      : 2* base sz + 1.
-    Wide        : 4* base sz + 3.
-    The xxVar options specify that the element may have a bigger internal
-    preferred size. In that case, the maximum is taken.
-    The xxMax options specify that the element should take all available
-    space ( stretch = 2 )
-*/
-    enum		SzPolicy{ Undef, Small, Medium, Wide,
-				  SmallVar, MedVar, WideVar,
-				  SmallMax, MedMax, WideMax };
-
+    enum		SzPolicy    //!< see class comments
+			{	UseDefault,
+				Small, Medium, Wide,
+				SmallVar, MedVar, WideVar,
+				SmallMax, MedMax, WideMax
+			};
     void		setHSzPol(SzPolicy);
     void		setVSzPol(SzPolicy);
-    SzPolicy		szPol( bool hor=true) const;
+    SzPolicy		szPol(bool hor=true) const;
 
     virtual int		width() const;	//!< Actual size in pixels
     virtual int		height() const;	//!< Actual size in pixels
+    uiSize		actualSize(bool include_border=true) const;
 
     virtual void	setName(const char*);
+			//!< This is an identifier; rarely displayed to the user
 
     void		setToolTip(const uiString&);
     const uiString&	toolTip() const;
@@ -71,24 +90,21 @@ public:
 
     void		translateText();
 
-    void		display(bool yn,bool shrink=false,bool maximized=false);
     void		setFocus();
     bool		hasFocus() const;
     void		disabFocus();
 
-    virtual void	setCursor(const MouseCursor&);
-    bool		isCursorInside() const;
-
-    virtual void	setStyleSheet(const char*);
     virtual Color	backgroundColor() const;
     Color		roBackgroundColor() const;
     virtual void	setBackgroundColor(const Color&);
     virtual void	setBackgroundPixmap(const uiPixmap&);
     virtual void	setTextColor(const Color&);
-    void		setSensitive(bool yn=true);
-    bool		sensitive() const;
-    bool		visible() const;
+
     bool		isDisplayed() const;
+    inline void		display( bool yn )  { display( yn, false ); }
+    bool		isSensitive() const;
+    void		setSensitive(bool yn=true);
+    bool		isVisible() const;
 
     int			prefHNrPics() const;
     virtual void	setPrefWidth(int);
@@ -103,19 +119,10 @@ public:
     void		setMinimumHeight(int);
     void		setMaximumHeight(int);
 
-/*! \brief Sets stretch factors for object
-    If stretch factor is > 1, then object will already grow at pop-up.
-*/
     void		setStretch(int hor,int ver);
-
-
-/*! \brief attaches object to another
-    In case the stretched... options are used, margin=-1 (default) stretches
-    the object not to cross the border.
-    margin=-2 stretches the object to fill the parent's border. This looks nice
-    with separators.
-*/
+				    //!< see class comments
     void		attach(constraintType,int margin=-1);
+				    //!< see class comments
     void		attach(constraintType,uiObject*,int margin=-1,
 				bool reciprocal=true);
     void		attach(constraintType,uiParent*,int margin=-1,
@@ -125,21 +132,31 @@ public:
 
     void		setFont(const uiFont&);
     const uiFont*	font() const;
-    void		setCaption(const uiString&);
 
-
-    void		shallowRedraw(CallBacker* =0)	{ reDraw( false ); }
-    void		deepRedraw(CallBacker* =0)	{ reDraw( true ); }
-    void		reDraw(bool deep);
-
-    uiSize		actualSize(bool include_border=true) const;
-
+    uiMainWin*		mainwin();
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const
 			    { return const_cast<uiObject*>(this)->parent(); }
-    void		reParent(uiParent*);
 
-    uiMainWin*		mainwin();
+protected:
+
+    uiString		tooltip_;
+    uiObjEventFilter*	uiobjeventfilter_;
+
+    virtual bool	closeOK()	{ closed.trigger(); return true; }
+			//!< hook. Accepts/denies closing of window.
+
+    void		triggerSetGeometry(const i_LayoutItem*,uiRect&);
+			//<! should be triggered by this's layoutItem
+    void		updateToolTip(CallBacker* = 0);
+
+private:
+
+    uiParent*		parent_;
+
+public:
+
+    /// Following functions are rarely useful for everyday programming
 
     int			getNrWidgets() const	{ return 1; }
     mQtclass(QWidget*)	getWidget(int);
@@ -152,33 +169,25 @@ public:
 			//!< Triggered when object closes.
     void		close();
 
-
-			/*! \brief triggered when getting a new geometry
+    CNotifier<uiObject,uiRect&>	setGeometry;
+			/*!< triggered when getting a new geometry
 			    A reference to the new geometry is passed
 			    which *can* be manipulated, before the
-			    geometry is actually set to the QWidget.
-			*/
-    CNotifier<uiObject,uiRect&>	setGeometry;
+			    geometry is actually set to the QWidget. */
+
+    void		display(bool yn,bool shrink,bool maximized=false);
+    void		reParent(uiParent*);
+    void		shallowRedraw(CallBacker* =0)	{ reDraw( false ); }
+    void		deepRedraw(CallBacker* =0)	{ reDraw( true ); }
+    void		reDraw(bool deep);
+    void		setCaption(const uiString&);
+    virtual void	setStyleSheet(const char*);
+    virtual void	setCursor(const MouseCursor&);
+    bool		isCursorInside() const;
 
     static int		baseFldSize();
     static int		iconSize();
 
-protected:
-			//! hook. Accepts/denies closing of window.
-    virtual bool	closeOK()	{ closed.trigger(); return true; }
-
-			//! setGeometry should be triggered by this's layoutItem
-    void		triggerSetGeometry(const i_LayoutItem*, uiRect&);
-
-    void		updateToolTip(CallBacker* = 0);
-
-    uiString		tooltip_;
-
-    uiObjEventFilter*	uiobjeventfilter_;
-
-private:
-
-    uiParent*		parent_;
 };
 
 

@@ -143,7 +143,7 @@ bool ObjectFinder::findNodes( const CallBacker* root,
     bool res = false;
     const UIEntity uientity( root );
 
-    if ( !uientity.isValid() || (visonly && !uientity.visible()) )
+    if ( !uientity.isValid() || (visonly && !uientity.isVisible()) )
 	return res;
 
     if ( !searchexpr )
@@ -195,7 +195,7 @@ bool ObjectFinder::findNodes( NodeTag tag, const CallBacker* root,
 
     const UIEntity uientity( root );
     if ( uientity.isValid() )
-	return findNodes( root, nodelist, searchexpr, uientity.visible() );
+	return findNodes( root, nodelist, searchexpr, uientity.isVisible() );
 
     return false;
 }
@@ -341,7 +341,7 @@ int ObjectFinder::deleteGreys( ObjectSet<const CallBacker>& objsfound, bool yn )
     int nrgreyfound = 0;
     for ( int idx=objsfound.size()-1; idx>=0; idx-- )
     {
-	if ( !UIEntity(objsfound[idx]).sensitive() )
+	if ( !UIEntity(objsfound[idx]).isSensitive() )
 	{
 	    nrgreyfound++;
 	    if ( yn )

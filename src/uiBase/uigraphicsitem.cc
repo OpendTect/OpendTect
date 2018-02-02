@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "uigraphicsitem.h"
 #include "uigraphicsscene.h"
 
@@ -505,7 +504,7 @@ void uiGraphicsItem::setCursor( const MouseCursor& cursor )
 void uiGraphicsItem::setToolTip( const uiString& tt )
 {
     tooltip_ = tt;
-    qgraphicsitem_->setToolTip( tt.getQString() );
+    qgraphicsitem_->setToolTip( toQString(tt) );
 }
 
 
@@ -537,7 +536,7 @@ int uiGraphicsItem::getZValue() const
 
 void uiGraphicsItem::translateText()
 {
-    qgraphicsitem_->setToolTip( tooltip_.getQString() );
+    qgraphicsitem_->setToolTip( toQString(tooltip_) );
 }
 
 

@@ -143,21 +143,19 @@ public:
     inline uiString&	addTab(int =1)		{ return append("\t"); }
     inline uiString&	addNewLine(int =1)	{ return append("\n"); }
 
+			// UNtranslated:
+    const char*		getOriginalString() const;
+			//!< *untranslated*, no argument substitution
+    BufferString	toString() const;
+			//!< *untranslated* but arguments evaluated
 
-    /*! Results: */
-    BufferString		toString() const { return getFullString(); }
-				//!< returns full string, *without* translation
-    wchar_t*			createWCharString() const;
-				/*!< The translation. Result becomes owner's and
-				    should be deleted using the [] operator. */
-    const char*			getOriginalString() const;
-    const mQtclass(QString)&	getQString() const;
-	/*!<Returns reference, so could be unsafe */
-    const mQtclass(QString)&	fillQString(QString&) const;
-				/*!<Fully thread-safe. Returns input*/
-    const BufferString&		fillUTF8String(BufferString&) const;
-				/*!< Full string, with translation
-				    result. Returns input. */
+			// Translated:
+    void		fillUTF8String(BufferString&) const;
+			//!< *translated* with arguments inserted
+    void		fillQString(QString&) const;
+			//!< *translated* with arguments inserted
+    wchar_t*		createWCharString() const;
+			//!< returns new string: use 'delete []'.
 private:
 
     inline			operator bool() const	{ return !isEmpty(); }
@@ -179,8 +177,7 @@ private:
     bool			operator!=( const uiString& oth ) const
 				{ return !isEqualTo( oth ); }
 
-    BufferString		getFullString() const; // use toString() instead
-				// Note the changed return type!
+    void			getFullString(BufferString&) const; // toString
 
 public:
 
@@ -453,6 +450,10 @@ inline uiString& uiString::arg( double val, int nrdec )
 {
     return arg( toUiString(val,nrdec) );
 }
+
+
+#define mGetQStr( qstr, uistring_var ) \
+    QString qstr; (uistring_var).fillQString( qstr )
 
 
 //TODO as said, should go away

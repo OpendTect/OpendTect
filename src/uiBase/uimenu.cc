@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uimenu.h"
+#include "q_uiimpl.h"
 
 #include "uiaction.h"
 #include "uibody.h"
@@ -125,7 +126,7 @@ uiMenu::uiMenu()
 uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     : uiBaseObject( toString(txt) )
     , submenuaction_( 0 )
-    , qmenu_( new mQtclass(QMenu)(txt.getQString(), gtParent(p)->getWidget(0) ))
+    , qmenu_( new mQtclass(QMenu)(toQString(txt), gtParent(p)->getWidget(0) ))
     , text_(txt)
 {
     setIcon( pmnm );
@@ -136,7 +137,7 @@ uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
 uiMenu::uiMenu( const MenuItem& itm )
     : uiBaseObject( toString(itm.text) )
     , submenuaction_( 0 )
-    , qmenu_(new mQtclass(QMenu)(itm.text.getQString()))
+    , qmenu_(new mQtclass(QMenu)(toQString(itm.text)))
     , text_(itm.text)
 {
     setIcon( itm.iconfnm );

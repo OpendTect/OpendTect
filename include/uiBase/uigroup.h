@@ -132,6 +132,6 @@ protected:
     void		reSizeChildren(const uiObject*,float,float);
 
 public:
-    virtual void	setSize(const uiSize&);
+    virtual void	setGeometry(const uiSize&);
 
 };

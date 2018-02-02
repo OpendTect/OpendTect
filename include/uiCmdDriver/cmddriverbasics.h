@@ -228,8 +228,8 @@ public:
     const uiObject*	object() const		{ return uiobj_; }
     const uiAction*	action() const		{ return uiact_; }
 
-    bool		visible() const;
-    bool		sensitive() const;
+    bool		isVisible() const;
+    bool		isSensitive() const;
 
     const char*		name() const;
     BufferString	toolTip() const;

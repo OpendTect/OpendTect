@@ -13,13 +13,13 @@ ________________________________________________________________________
 #include "odsession.h"
 
 #include "uiodcontourtreeitem.h"
-#include "uiodscenemgr.h"
 #include "uiodplanedatatreeitem.h"
-#include "uiodvolproctreeitem.h"
-#include "uiodseis2dtreeitem.h"
 #include "uiodrandlinetreeitem.h"
-#include "uiodvolumetreeitem.h"
+#include "uiodseis2dtreeitem.h"
 #include "uiodstratlayermodelmgr.h"
+#include "uiodusrinteractionsettings.h"
+#include "uiodvolproctreeitem.h"
+#include "uiodvolumetreeitem.h"
 
 mDefModInitFn(uiODMain)
 {
@@ -27,7 +27,6 @@ mDefModInitFn(uiODMain)
 
     ODSessionTranslatorGroup::initClass();
     dgbODSessionTranslator::initClass();
-    uiKeyBindingSettingsGroup::initClass();
     VolProc::uiDataTreeItem::initClass();
     uiODInlineAttribTreeItem::initClass();
     uiODCrosslineAttribTreeItem::initClass();
@@ -37,4 +36,6 @@ mDefModInitFn(uiODMain)
     uiODVolumeAttribTreeItem::initClass();
     uiODContourTreeItem::initClass();
     uiStratLayerModelManager::initClass();
+    uiKeyboardInteractionSettingsGroup::initClass();
+    uiMouseInteractionSettingsGroup::initClass();
 }

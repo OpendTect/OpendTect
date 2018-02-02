@@ -279,7 +279,7 @@ void uiMdiArea::getWindowNames( uiStringSet& nms ) const
 
 bool uiMdiArea::paralyse( bool yn )
 {
-    const bool oldstate = !sensitive();
+    const bool oldstate = !isSensitive();
     if ( !yn ) QApplication::processEvents();
     setSensitive( !yn );
     return oldstate;
@@ -335,7 +335,7 @@ uiMdiAreaWindow::uiMdiAreaWindow( uiMdiArea& mdiarea, const uiString& title )
 
 void uiMdiAreaWindow::setTitle( const uiString& title )
 {
-    qmdisubwindow_->setWindowTitle( title.getQString() );
+    qmdisubwindow_->setWindowTitle( toQString(title) );
     title_ = title;
     changed.trigger();
 }

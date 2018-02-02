@@ -359,7 +359,7 @@ bool uiSynthGenDlg::getFromScreen()
 	    mErrRet( tr("Cannot generate an angle stack synthetics without any "
 		        "NMO corrected Prestack."), return false );
 
-	if ( !psselfld_->box()->sensitive() )
+	if ( !psselfld_->box()->isSensitive() )
 	    mErrRet( tr("Cannot change synthetic data as the dependent prestack"
 		        " synthetic data has already been removed"),
 			return false );

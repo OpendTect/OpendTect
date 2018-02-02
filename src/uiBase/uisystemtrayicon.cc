@@ -52,7 +52,7 @@ void uiSystemTrayIcon::setIcon( const uiIcon& icon )
 { qsystemtrayicon_->setIcon( icon.qicon() ); }
 
 void uiSystemTrayIcon::setToolTip( const uiString& tt )
-{ qsystemtrayicon_->setToolTip( tt.getQString() ); }
+{ qsystemtrayicon_->setToolTip( toQString(tt) ); }
 
 void uiSystemTrayIcon::show()
 { qsystemtrayicon_->show(); }

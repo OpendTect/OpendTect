@@ -25,6 +25,7 @@ uiCheckList::uiCheckList( uiParent* p, uiCheckList::Pol pl,
 {
     grp_ = new uiGroup( this, "CheckList buttons" );
     setHAlignObj( grp_ );
+    setStretch( 1, 0 );
     postFinalise().notify( mCB(this,uiCheckList,initObj) );
 }
 

@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 
 #include "uigraphicsviewbase.h"
+#include "i_common.h"
 
 #include "draw.h"
 #include "mouseevent.h"

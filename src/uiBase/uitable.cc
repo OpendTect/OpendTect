@@ -789,7 +789,7 @@ void uiTable::setText( const RowCol& rc, const uiString& txt )
     if ( !cellobj )
     {
 	QTableWidgetItem* itm = body_->getItem( rc );
-	itm->setText( txt.getQString() );
+	itm->setText( toQString(txt) );
     }
     else
     {
@@ -1136,8 +1136,9 @@ const char* uiTable::rowLabel( int row ) const
 void uiTable::setRowLabel( int row, const uiString& label )
 {
     QTableWidgetItem& itm = body_->getRCItem( row, true );
-    itm.setText( label.getQString() );
-    itm.setToolTip( label.getQString() );
+    mGetQStr( qstr, label );
+    itm.setText( qstr );
+    itm.setToolTip( qstr );
 }
 
 
@@ -1148,7 +1149,7 @@ void uiTable::setTopLeftCornerLabel( const uiString& txt )
 	cornerlabel_ = new QLabel( body_ );
 	cornerlabel_->move( 2, 2 );
     }
-    cornerlabel_->setText( txt.getQString() );
+    cornerlabel_->setText( toQString(txt) );
     cornerlabel_->adjustSize();
     cornerlabel_->show();
 }
@@ -1156,7 +1157,7 @@ void uiTable::setTopLeftCornerLabel( const uiString& txt )
 
 void uiTable::setRowToolTip( int row, const uiString& tt )
 {
-    body_->getRCItem(row,true).setToolTip( tt.getQString() );
+    body_->getRCItem(row,true).setToolTip( toQString(tt) );
 }
 
 
@@ -1205,15 +1206,16 @@ const char* uiTable::columnLabel( int col ) const
 void uiTable::setColumnLabel( int col, const uiString& label )
 {
     QTableWidgetItem& itm = body_->getRCItem( col, false );
-    itm.setText( label.getQString() );
-    itm.setToolTip( label.getQString() );
+    mGetQStr( qstr, label );
+    itm.setText( qstr );
+    itm.setToolTip( qstr );
 }
 
 
 void uiTable::setColumnToolTip( int col, const uiString& tt )
 {
     QTableWidgetItem& itm = body_->getRCItem( col, false );
-    itm.setToolTip( tt.getQString() );
+    itm.setToolTip( toQString(tt) );
 }
 
 
@@ -1260,7 +1262,7 @@ void uiTable::setCellToolTip( const RowCol& rc, const uiString& tt )
     if ( !cellobj )
     {
 	QTableWidgetItem* itm = body_->getItem( rc );
-	itm->setToolTip( tt.getQString() );
+	itm->setToolTip( toQString(tt) );
     }
     else
 	cellobj->setToolTip( tt );

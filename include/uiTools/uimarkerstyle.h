@@ -17,35 +17,47 @@ ________________________________________________________________________
 
 class uiColorInput;
 class uiGenInput;
-class uiSlider;
+class uiSpinBox;
 
 
 mExpClass(uiTools) uiMarkerStyle : public uiGroup
 { mODTextTranslationClass(uiMarkerStyle)
 public:
+	mExpClass(uiTools) Setup
+	{
+	public:
+			Setup( const uiString& txt=uiString::emptyString())
+			    : lbltxt_(txt)
+			    , wshape_(true)
+			    , wcolor_(true)
+			    , wtransparency_(false)
+			    , wsz_(true)
+			{}
 
+	    mDefSetupMemb(uiString,lbltxt)
+	    mDefSetupMemb(bool,wshape)
+	    mDefSetupMemb(bool,wcolor)
+	    mDefSetupMemb(bool,wsz)
+	    mDefSetupMemb(bool,wtransparency)
+	};
+
+    void		setColor(const Color&);
     Color		getColor() const;
+    void		setSize(int);
     int			getSize() const;
 
-    NotifierAccess*	sizeChange();
-    NotifierAccess*	typeSel();
-    NotifierAccess*	colSel();
-
-    static int		cDefMaxMarkerSize()	{ return 18; }
-    void		enableColorSelection(bool);
+    Notifier<uiMarkerStyle> change;
 
 protected:
 
 			uiMarkerStyle(uiParent*);
 
-    uiSlider*		sizefld_;
     uiGenInput*		typefld_;
-    uiColorInput*	colselfld_;
+    uiSpinBox*		sizefld_;
+    uiColorInput*	colorfld_;
 
-    TypeSet<int>	types_;
-    void		createFlds(const uiStringSet&,bool withcolor,
-				   const Interval<int>& szrg);
-    void		setMStyle(int typ,int sz, const Color&);
+    void		changeCB(CallBacker*);
+    void		createFlds(const uiStringSet&,const Setup&);
 };
 
 
@@ -53,16 +65,17 @@ mExpClass(uiTools) uiMarkerStyle2D : public uiMarkerStyle
 { mODTextTranslationClass(uiMarkerStyle2D)
 public:
 
-			uiMarkerStyle2D(uiParent*,bool withcolor,
-				Interval<int> sizerange
-				    =Interval<int>(1,cDefMaxMarkerSize()),
+			uiMarkerStyle2D(uiParent*,const Setup&,
 				const TypeSet<OD::MarkerStyle2D::Type>* excl=0);
 
+    void		setType(OD::MarkerStyle2D::Type);
     OD::MarkerStyle2D::Type getType() const;
 
-    void		setMarkerStyle(const OD::MarkerStyle2D& style);
-    void		getMarkerStyle(OD::MarkerStyle2D& style) const;
+    void		setMarkerStyle(const OD::MarkerStyle2D&);
+    void		getMarkerStyle(OD::MarkerStyle2D&) const;
 
+protected:
+    TypeSet<OD::MarkerStyle2D::Type>	types_;
 };
 
 
@@ -70,14 +83,15 @@ mExpClass(uiTools) uiMarkerStyle3D : public uiMarkerStyle
 { mODTextTranslationClass(uiMarkerStyle3D)
 public:
 
-			uiMarkerStyle3D(uiParent*,bool withcolor,
-				Interval<int> sizerange
-				    =Interval<int>(1,cDefMaxMarkerSize()),
+			uiMarkerStyle3D(uiParent*,const Setup&,
 				const TypeSet<OD::MarkerStyle3D::Type>* excl=0);
 
+    void		setType(OD::MarkerStyle3D::Type);
     OD::MarkerStyle3D::Type getType() const;
 
     void		setMarkerStyle(const OD::MarkerStyle3D&);
     void		getMarkerStyle(OD::MarkerStyle3D&) const;
 
+protected:
+    TypeSet<OD::MarkerStyle3D::Type>	types_;
 };

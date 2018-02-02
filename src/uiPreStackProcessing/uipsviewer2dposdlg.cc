@@ -475,11 +475,11 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 				  tr("Move right"), cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->attach( centeredRightOf, allgatherfld_ );
-    toselect_->setHSzPol( uiObject::Undef );
+    toselect_->setHSzPol( uiObject::UseDefault );
     fromselect_ = new uiToolButton( this, uiToolButton::LeftArrow,
 				    tr("Move left"), cb );
     fromselect_->attach( alignedBelow, toselect_ );
-    fromselect_->setHSzPol( uiObject::Undef );
+    fromselect_->setHSzPol( uiObject::UseDefault );
     selgatherfld_->attach( centeredRightOf, toselect_ );
 }
 

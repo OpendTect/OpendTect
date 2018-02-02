@@ -22,12 +22,12 @@ class uiSelLineStyle;
 class uiTabStack;
 class uiMarkerStyle3D;
 
-namespace visBase { class Material; class VisualObject; };
-namespace visSurvey { class SurveyObject; };
+namespace visBase { class Material; class VisualObject; }
+namespace visSurvey { class SurveyObject; }
 
 
 mExpClass(uiVis) uiMaterialGrp : public uiDlgGroup
-{ mODTextTranslationClass(uiMaterialGrp);
+{ mODTextTranslationClass(uiMaterialGrp)
 public:
 				uiMaterialGrp(uiParent*,
 					      visSurvey::SurveyObject*,
@@ -60,7 +60,7 @@ protected:
 
 
 mExpClass(uiVis) uiLineStyleGrp : public uiDlgGroup
-{ mODTextTranslationClass(uiLineStyleGrp);
+{ mODTextTranslationClass(uiLineStyleGrp)
 public:
     				uiLineStyleGrp(uiParent*,
 					       visSurvey::SurveyObject*);
@@ -78,34 +78,32 @@ protected:
 
 
 mExpClass(uiVis) uiTextureInterpolateGrp : public uiDlgGroup
-{ mODTextTranslationClass(uiTextureInterpolateGrp);
+{ mODTextTranslationClass(uiTextureInterpolateGrp)
 public:
 				uiTextureInterpolateGrp(uiParent*,
 					visSurvey::SurveyObject*);
-protected:				
+protected:
     void			chgIntpCB(CallBacker*);
-    
+
     uiGenInput*			textclasssify_;
     visSurvey::SurveyObject*	survobj_;
 };
 
 
 mExpClass(uiVis) uiMarkerStyleGrp : public uiDlgGroup
-{mODTextTranslationClass(uiMarkerStyleGrp);
+{mODTextTranslationClass(uiMarkerStyleGrp)
 public:
 				uiMarkerStyleGrp(uiParent*,
 					    visSurvey::SurveyObject*);
 protected:
-    uiMarkerStyle3D*	    	stylefld_;
+    uiMarkerStyle3D*		stylefld_;
     visSurvey::SurveyObject*	survobj_;
-    void			sizeChg(CallBacker*);
-    void			typeSel(CallBacker*);
-    void			colSel(CallBacker*);
+    void			changeCB(CallBacker*);
 };
 
 
 mExpClass(uiVis) uiPropertiesDlg : public uiTabStackDlg
-{ mODTextTranslationClass(uiPropertiesDlg);
+{ mODTextTranslationClass(uiPropertiesDlg)
 public:
 				uiPropertiesDlg(uiParent*,
 						visSurvey::SurveyObject*);

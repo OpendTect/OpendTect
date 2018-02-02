@@ -90,9 +90,7 @@ QGraphicsItem* uiObjectItem::mkQtObj()
 void uiObjectItem::setObjectSize( int szx, int szy )
 {
     if ( grp_ )
-    {
-	grp_->setSize( uiSize( szx, szy ) );
-    }
+	grp_->setGeometry( uiSize(szx,szy) );
     else if ( obj_ && obj_->getWidget(0) )
     {
 	obj_->getWidget(0)->setMinimumSize( szx, szy );
@@ -720,8 +718,10 @@ ODGraphicsTextItem* uiTextItem::mkODObj()
 
 #define mExtraSpace 10
 
-const uiString uiTextItem::getText() const
-{ return text_; }
+uiString uiTextItem::getText() const
+{
+    return text_;
+}
 
 
 uiSize uiTextItem::getTextSize() const
@@ -737,14 +737,14 @@ uiSize uiTextItem::getTextSize() const
 void uiTextItem::setText( const uiString& txt )
 {
     text_ = txt;
-    qtextitem_->setText( text_.getQString() );
+    qtextitem_->setText( toQString(text_) );
 }
 
 
 void uiTextItem::translateText()
 {
     uiGraphicsItem::translateText();
-    qtextitem_->setText( text_.getQString() );
+    qtextitem_->setText( toQString(text_) );
 }
 
 
@@ -802,6 +802,49 @@ void uiTextItem::stPos( float x, float y )
 void uiTextItem::setTextColor( const Color& col )
 {
     qtextitem_->setPen( QPen(QColor(col.r(),col.g(), col.b())) );
+}
+
+
+void uiTextItem::fitIn( const uiRect& rect )
+{
+    if ( text_.isEmpty() )
+	return;
+
+    QFont qfont = qtextitem_->getFont();
+    const int rectwidth = rect.width();
+    const int rectheight = rect.height();
+    int resizedir = 0;
+    const QString qtxt( toQString(text_) );
+    float curptsz = qfont.pointSizeF();
+    float prevptsz = curptsz;
+    while ( true )
+    {
+	QFontMetrics qfm( qfont );
+	const int wdth = qfm.width( qtxt );
+	const int hght = qfm.height();
+	const bool istoobig = wdth > rectwidth || hght > rectheight;
+	if ( resizedir == 0 )
+	    resizedir = istoobig ? -1 : 1;
+	else if ( (resizedir < 0 && !istoobig) || (resizedir > 0 && istoobig) )
+	    break;
+
+	prevptsz = curptsz;
+	curptsz += (resizedir > 0 ? 0.2f : -0.2f);
+	qfont.setPointSizeF( curptsz );
+    }
+
+    qfont.setPointSizeF( prevptsz );
+    QFontMetrics qfm( qfont );
+    const int wdth = qfm.width( qtxt );
+    int xshift = (rectwidth - wdth) / 2;
+    if ( xshift < 0 )
+	xshift = 0;
+    const int hght = qfm.height();
+    int yshift = (rectheight - hght) / 2;
+    if ( yshift < 0 )
+	yshift = 0;
+    qtextitem_->setFont( qfont );
+    qtextitem_->setPos( rect.left()+xshift-1, rect.top()+yshift-1 );
 }
 
 
@@ -889,7 +932,7 @@ void uiAdvancedTextItem::setFont( const FontData& fd )
 
 void uiAdvancedTextItem::setPlainText( const uiString& txt )
 {
-    qtextitem_->setPlainText( txt.getQString() );
+    qtextitem_->setPlainText( toQString(txt) );
 }
 
 
@@ -1222,10 +1265,22 @@ void uiManipHandleItem::init( const Setup& su, int pixpos, int zval )
     centeritm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, 1, zval );
     bodyitm_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_,
 		       zval-1 );
-    shadeitm1_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+2,
-			 zval-2 );
-    shadeitm2_ = mkLine( su.hor_, pixpos, su.start_, su.stop_, su.thickness_+4,
-			 zval-3 );
+    shadeitm1_ = mkLine( su.hor_, pixpos+1, su.start_, su.stop_,
+			 su.thickness_, zval-2 );
+    shadeitm2_ = mkLine( su.hor_, pixpos+2, su.start_, su.stop_,
+			 su.thickness_, zval-3 );
+
+    const int sz = su.thickness_;
+    int x0 = pixpos - sz;
+    int xw = 2 * sz + 1;
+    int y0 = su.start_;
+    int yw = xw;
+    if ( su.hor_ )
+	{ std::swap( x0, y0 ); std::swap( xw, yw ); }
+    rectitm_ = new uiRectItem( x0, y0, xw, yw );
+    rectitm_->setZValue( zval+1 );
+    add( rectitm_ );
+
     setPenColor( su.color_ );
 }
 
@@ -1248,8 +1303,10 @@ uiLineItem* uiManipHandleItem::mkLine( bool ishor, int pos,
 
 void uiManipHandleItem::setPenColor( const Color& basecol, bool )
 {
+    rectitm_->setPenColor( basecol );
+    rectitm_->setFillColor( basecol );
     centeritm_->setPenColor( basecol.complementaryColor().darker( 1.0f ) );
     bodyitm_->setPenColor( basecol );
-    shadeitm1_->setPenColor( basecol.lighter( 1.0f ) );
-    shadeitm2_->setPenColor( basecol.lighter( 3.0f ) );
+    shadeitm1_->setPenColor( basecol.lighter( 1.5f ) );
+    shadeitm2_->setPenColor( basecol.lighter( 4.0f ) );
 }

@@ -67,6 +67,17 @@ uiKeyDesc::uiKeyDesc( const char* str1, const char* str2 )
 }
 
 
+bool uiKeyDesc::isEqualTo( const uiKeyDesc& oth ) const
+{
+    mDynamicCastGet( const uiExtraIntKeyDesc*, eithis, this );
+    mDynamicCastGet( const uiExtraIntKeyDesc*, eioth, &oth );
+    if ( (eithis && !eioth) || (!eithis && eioth) )
+	return false;
+
+    return eithis ? *eithis == *eioth : *this == oth;
+}
+
+
 bool uiKeyDesc::set( const char* statestr, const char* keystr )
 {
     if ( !statestr )
@@ -199,8 +210,10 @@ uiShortcutsList::uiShortcutsList( const char* selkey )
 
 uiShortcutsList& uiShortcutsList::operator =( const uiShortcutsList& scl )
 {
-    if ( this == &scl ) return *this;
-    empty();
+    if ( this == &scl )
+	return *this;
+
+    setEmpty();
     selkey_ = scl.selkey_;
     names_ = scl.names_;
 
@@ -223,9 +236,10 @@ uiShortcutsList& uiShortcutsList::operator =( const uiShortcutsList& scl )
 }
 
 
-void uiShortcutsList::empty()
+void uiShortcutsList::setEmpty()
 {
-    deepErase(keydescs_); names_.erase();
+    deepErase( keydescs_ );
+    names_.erase();
 }
 
 
@@ -377,10 +391,7 @@ uiShortcutsMgr::uiShortcutsMgr()
 bool uiShortcutsMgr::setList( const uiShortcutsList& scl, bool usr )
 {
     if ( !usr )
-    {
-	pErrMsg( "Needs implementation" );
-	return false;
-    }
+	{ pErrMsg( "Needs implementation" ); return false; }
 
     IOPar iop; scl.fillPar( iop );
     Settings& setts = Settings::fetch( sFileKey );

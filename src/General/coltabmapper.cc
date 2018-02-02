@@ -310,11 +310,11 @@ Monitorable::ChangeType ColTab::Mapper::compareClassData(
 void ColTab::Mapper::transferSubObjNotifsTo( const Mapper& oth ) const
 {
     setup().objectChanged().transferCBSTo( oth.setup().objectChanged(), 0,
-	    				   this );
+					   this );
     setup().rangeCalculated.transferCBSTo( oth.setup().rangeCalculated, 0,
-	    				   this );
+					   this );
     distribution().objectChanged().transferCBSTo(
-	    		oth.distribution().objectChanged(), 0, this );
+			oth.distribution().objectChanged(), 0, this );
 }
 
 
@@ -348,18 +348,17 @@ ColTab::PosType ColTab::Mapper::getHistEqRelPos( const RangeType& rg,
 }
 
 
-static void snapRangeIfNearZeroSymmetry( ColTab::Mapper::RangeType& rg )
+bool ColTab::Mapper::isNearZeroSymmetry( const RangeType& rg )
 {
     if ( rg.start >= 0.f || rg.stop <= 0.f )
-	return;
+	return false;
 
     const float rgcenter = rg.center();
     Interval<float> nobiasrg( rg ); nobiasrg.shift( -rgcenter );
     Interval<float> twopctzone( nobiasrg.start*0.02f, nobiasrg.stop*0.02f );
     twopctzone.shift( rgcenter );
 
-    if ( twopctzone.includes(0.f,false) )
-	rg.shift( -rgcenter );
+    return twopctzone.includes( 0.f, false );
 }
 
 
@@ -377,7 +376,8 @@ void ColTab::Mapper::determineRange() const
 			       (1.0f-clips.second) * sumvals );
 	rg.start = distrib_->positionForCumulative( distrvals.first );
 	rg.stop = distrib_->positionForCumulative( distrvals.second );
-	snapRangeIfNearZeroSymmetry( rg );
+	if ( isNearZeroSymmetry(rg) )
+	    rg.shift( -rg.center() );
     }
 
     setup_->setCalculatedRange( rg );

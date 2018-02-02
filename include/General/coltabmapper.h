@@ -57,6 +57,8 @@ public:
 
     void		transferSubObjNotifsTo(const Mapper&) const;
 
+    static bool		isNearZeroSymmetry(const RangeType&);
+
 protected:
 
 			~Mapper();

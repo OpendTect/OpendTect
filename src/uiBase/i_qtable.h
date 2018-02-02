@@ -1,6 +1,4 @@
-#ifndef i_qtable_h
-#define i_qtable_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,9 +10,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitable.h"
+#include "i_common.h"
 
 #include <QHeaderView>
-#include <QObject>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QWidget>
@@ -198,5 +196,3 @@ void columnDoubleClicked( int idx )
 };
 
 QT_END_NAMESPACE
-
-#endif

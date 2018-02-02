@@ -1,6 +1,4 @@
-#ifndef odgraphicsitem_h
-#define odgraphicsitem_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -10,6 +8,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
+
+#include "i_common.h"
 
 #include <QGraphicsItem>
 #include <QPolygonF>
@@ -293,7 +293,7 @@ public:
     virtual int			type() const	{ return ODGraphicsType+8; }
 
 protected:
-    
+
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
 
     QLineF			qline_;
@@ -363,5 +363,3 @@ protected:
     QRectF			dynamicpixmapbbox_; //Only access in paint
 
 };
-
-#endif

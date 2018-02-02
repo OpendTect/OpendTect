@@ -351,7 +351,7 @@ bool uiAttrVolOut::prepareProcessing()
 	}
     }
 
-    if ( datastorefld_ && datastorefld_->sensitive() )
+    if ( datastorefld_ && datastorefld_->isSensitive() )
     {
 	if ( !datastorefld_->ioobj() )
 	    return false;

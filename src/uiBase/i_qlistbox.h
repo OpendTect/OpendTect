@@ -1,6 +1,4 @@
-#ifndef i_qlistbox_h
-#define i_qlistbox_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,9 +10,9 @@ ________________________________________________________________________
 -*/
 
 #include "uilistbox.h"
+#include "i_common.h"
 
 #include <QListWidget>
-#include <QObject>
 
 //! Helper class for uiListBox to relay Qt's messages.
 /*!
@@ -114,5 +112,3 @@ void itemChanged( QListWidgetItem* itm )
 };
 
 QT_END_NAMESPACE
-
-#endif

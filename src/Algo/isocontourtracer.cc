@@ -26,12 +26,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class SameZFinder : public ParallelTask
-{ 
+{
 public:
 				SameZFinder( const Array2D<float>* field,
 					     float* zarray, int* execs,
 					     int xsize, int ysize,
-					     const ODPolygon<float>*polyroi, 
+					     const ODPolygon<float>*polyroi,
 					     const float zval,
 					     const float edgevalue);
     void			setRanges(const Interval<int>&,
@@ -79,7 +79,7 @@ SameZFinder::SameZFinder( const Array2D<float>* field, float* zarray,
     totalnr_ = xsize;
 }
 
-void SameZFinder::setRanges( const Interval<int>&xrange, 
+void SameZFinder::setRanges( const Interval<int>&xrange,
     const Interval<int>& yrange )
 {
     xrange_ = xrange;
@@ -513,8 +513,8 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 	tracer.setSamplings( xsampling_, ysampling_ );
 	tracer.execute();
     }
-    delete crossings;
-    delete execs;
+    delete [] crossings;
+    delete [] execs;
 
     if ( nrlargestonly_>0 && contours.size()>nrlargestonly_ )
     {

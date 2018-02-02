@@ -26,14 +26,15 @@ ________________________________________________________________________
 #include "uiunitsel.h"
 #include "uiwellsel.h"
 
-#include "ioobjctxt.h"
-#include "file.h"
 #include "dbdir.h"
+#include "dbman.h"
+#include "file.h"
 #include "ioobj.h"
+#include "ioobjctxt.h"
 #include "iopar.h"
 #include "oddirs.h"
-#include "randcolor.h"
 #include "od_iostream.h"
+#include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -69,9 +70,15 @@ uiString getWinTitle( const uiString& objtyp,
 			       arg(objtyp);
 }
 
+uiString getDlgTitle( const DBKey& wllky )
+{
+    const BufferString wellnm = DBM().nameOf( wllky );
+    return toUiString("%1: %2").arg(uiStrings::sWell()).arg(wellnm);
+}
+
 #define mGetDlgSetup(wd,objtyp,hid) \
     uiDialog::Setup( getWinTitle(objtyp,wd.dbKey(),writable_), \
-		     mNoDlgTitle, mODHelpKey(hid) )
+		     getDlgTitle(wd.dbKey()), mODHelpKey(hid) )
 #define mTDName(iscksh) iscksh ? uiWellTrackDlg::sCkShotData() \
 			       : uiWellTrackDlg::sTimeDepthModel()
 #define mTDOpName(op,iscksh) \

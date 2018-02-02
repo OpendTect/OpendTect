@@ -1,6 +1,4 @@
-#ifndef i_qbutton_h
-#define i_qbutton_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,9 +10,9 @@ ________________________________________________________________________
 -*/
 
 #include "uibutton.h"
+#include "i_common.h"
 
 #include <QAbstractButton>
-#include <QObject>
 
 /*! Help class, because templates can not use signals/slots
     Relays QT button signals to the notifyHandler of a uiButton object.
@@ -58,5 +56,3 @@ public slots:
 };
 
 QT_END_NAMESPACE
-
-#endif

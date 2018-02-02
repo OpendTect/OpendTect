@@ -160,12 +160,12 @@ uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
 static void createQString( QString& qs, const uiString& str, bool mark )
 {
     if ( !mark )
-	qs = str.getQString();
+	qs = toQString( str );
     else
     {
 	const char* markstr = ":";
 	qs = markstr;
-	qs += str.getQString();
+	qs += toQString( str );
 	qs += markstr;
     }
 }
@@ -1104,7 +1104,7 @@ int uiListBox::currentItem() const
 
 void uiListBox::setCurrentItem( const uiString& str )
 {
-    const QString txt( str.getQString() );
+    const QString txt( toQString(str) );
     const QList<QListWidgetItem*> itmlst = lb_->body().findItems( txt,
 							    Qt::MatchExactly );
     if ( itmlst.isEmpty() )

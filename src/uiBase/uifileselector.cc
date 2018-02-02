@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uifileseltool.h"
+#include "q_uiimpl.h"
 
 #include "envvars.h"
 #include "file.h"
@@ -362,7 +363,7 @@ bool uiLocalFileSelTool::doSelection()
     fd->setAcceptMode( isForRead(setup_.selmode_) ? QFileDialog::AcceptOpen
 						 : QFileDialog::AcceptSave );
     fd->setFileMode( qmodeForUiMode(setup_.selmode_) );
-    fd->setWindowTitle( wintitle.getQString() );
+    fd->setWindowTitle( toQString(wintitle) );
     fd->setConfirmOverwrite( setup_.confirmoverwrite_ );
     if ( !setup_.initialselectiondir_.isEmpty() )
 	fd->setDirectory( QString(setup_.initialselectiondir_.buf()) );
@@ -379,8 +380,8 @@ bool uiLocalFileSelTool::doSelection()
     QList<QPushButton*> qpblst = fd->findChildren<QPushButton*>("");
     foreach(QPushButton* qpb,qpblst)
     {
-	if ( qpb->text() == uiStrings::sSave().getQString() ||
-	     qpb->text() == uiStrings::sOpen().getQString() ||
+	if ( qpb->text() == toQString(uiStrings::sSave()) ||
+	     qpb->text() == toQString(uiStrings::sOpen()) ||
 	     qpb->text() == "Choose" )
 	     qpb->setText( "OK" );
     }

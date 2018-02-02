@@ -22,6 +22,7 @@ class Settings;
 class uiCheckList;
 class uiComboBox;
 class uiGenInput;
+class uiIconSetSel;
 class uiLabeledComboBox;
 class uiSettingsSubjectTreeItm;
 class uiTable;
@@ -197,15 +198,14 @@ public:
 protected:
 
     uiThemeSel*		themesel_;
+    uiIconSetSel*	iconsetsel_;
     uiGenInput*		iconszfld_;
-    uiGenInput*		virtualkeyboardfld_;
     uiCheckList*	showprogressfld_;
 
     int			initialiconsz_;
     bool		initialshowinlprogress_;
     bool		initialshowcrlprogress_;
     bool		initialshowrdlprogress_;
-    bool		initialenabvirtualkeyboard_;
 
     virtual void	doCommit(uiRetVal&);
     virtual void	doRollBack();

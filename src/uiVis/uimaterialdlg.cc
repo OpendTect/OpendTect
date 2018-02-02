@@ -84,39 +84,23 @@ uiMarkerStyleGrp::uiMarkerStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
     excludedtypes.add( OD::MarkerStyle3D::None );
 
     const OD::MarkerStyle3D* mkstyle = so->markerStyle();
-    const bool enableColorSel = so->markerStyleColorSelection();
+    const bool enabcolsel = so->markerStyleColorSelection();
 
-    stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1,
-	uiMarkerStyle3D::cDefMaxMarkerSize()), &excludedtypes );
-
+    stylefld_ = new uiMarkerStyle3D( this,
+	uiMarkerStyle::Setup().wcolor(enabcolsel), &excludedtypes );
     if ( mkstyle )
 	stylefld_->setMarkerStyle( *mkstyle );
 
-    stylefld_->typeSel()->notify( mCB(this,uiMarkerStyleGrp,typeSel) );
-    stylefld_->sizeChange()->notify( mCB(this,uiMarkerStyleGrp,sizeChg) );
-    stylefld_->colSel()->notify( mCB(this,uiMarkerStyleGrp,colSel) );
-    stylefld_->enableColorSelection( enableColorSel );
+    stylefld_->change.notify( mCB(this,uiMarkerStyleGrp,changeCB) );
 }
 
 
-void uiMarkerStyleGrp::sizeChg( CallBacker* cb )
-{
-    typeSel(cb);
-}
-
-
-void uiMarkerStyleGrp::typeSel( CallBacker* )
+void uiMarkerStyleGrp::changeCB( CallBacker* )
 {
     OD::MarkerStyle3D mkstyle;
     stylefld_->getMarkerStyle( mkstyle );
     if ( survobj_ )
 	survobj_->setMarkerStyle( mkstyle );
-}
-
-
-void uiMarkerStyleGrp::colSel( CallBacker* cb )
-{
-    typeSel(cb);
 }
 
 

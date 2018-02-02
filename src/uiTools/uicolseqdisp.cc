@@ -90,6 +90,8 @@ uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient, bool wucd )
     , withudfcoldisp_(wucd)
     , colseq_(ColTab::SeqMGR().getDefault())
     , mapper_(new ColTab::Mapper())
+    , nmitm_(0)
+    , nmbgrectitm_(0)
     , selReq(this)
     , menuReq(this)
     , upReq(this)
@@ -210,12 +212,35 @@ void uiColSeqDisp::reDraw()
 
     beforeDraw();
 
+    const int bordernrpix = withudfcoldisp_ ? 4 : 0;
     ColTab::fillRGBArray( *rgbarr_, *colseq_, mapper_, orientation_,
-			  withudfcoldisp_ ? 4 : 0 );
+			  bordernrpix );
     uiPixmap pixmap( rgbarr_->getSize(true), rgbarr_->getSize(false) );
     pixmap.convertFromRGBArray( *rgbarr_ );
     setPixmap( pixmap );
     updatePixmap();
+
+    if ( !nmitm_ )
+    {
+	nmitm_ = scene().addItem( new uiTextItem() );
+	nmitm_->setZValue( 200 );
+	nmbgrectitm_ = scene().addItem( new uiRectItem() );
+	nmbgrectitm_->setPenColor( Color::Black() );
+	nmbgrectitm_->setFillColor( Color::White() );
+	nmbgrectitm_->setZValue( 100 );
+    }
+
+    const int xstart = scene().nrPixX() / 10;
+    const int xsz = scene().nrPixX() - 2*xstart;
+    const int ysz = scene().nrPixY() / 3;
+    const int ystart = scene().nrPixY() - bordernrpix - ysz;
+    const uiRect bgrect( uiPoint(xstart,ystart), uiSize(xsz,ysz) );
+
+    nmbgrectitm_->setRect( bgrect.left(), bgrect.top(), bgrect.width(),
+			   bgrect.height() );
+
+    nmitm_->setText( toUiString(colseq_->name()) );
+    nmitm_->fitIn( bgrect );
 }
 
 

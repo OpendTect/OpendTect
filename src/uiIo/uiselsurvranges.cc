@@ -429,7 +429,7 @@ void uiSelNrRange::checkBoxSel( CallBacker* cb )
     if ( !cbox_ ) return;
 
     checked_ = cbox_->isChecked();
-    const bool elemsens = cbox_->sensitive() && cbox_->isChecked();
+    const bool elemsens = cbox_->isSensitive() && cbox_->isChecked();
 
     if ( startfld_ )
 	startfld_->setSensitive( elemsens );

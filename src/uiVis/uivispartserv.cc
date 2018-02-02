@@ -368,7 +368,7 @@ bool uiVisPartServer::disabToolBars( bool yn )
     bool res = false;
     if ( slicepostools_ )
     {
-	res = !slicepostools_->getToolBar()->sensitive();
+	res = !slicepostools_->getToolBar()->isSensitive();
 	slicepostools_->getToolBar()->setSensitive( !yn );
     }
     return res;
@@ -530,21 +530,26 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
 	return;
 
     selattrib_ = attrib;
-
     eventmutex_.lock();
     eventobjid_ = id;
     sendEvent( evSelection() );
     eventmutex_.lock();
     sendEvent( evPickingStatusChange() );
+    setSelectionMode( selectionmode_ );
 
-    mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id));
-    if ( so && so->getScene() && so->getScene()->getSceneColTab() )
+    if ( selattrib_ >= 0 )
     {
-	const ColTab::Sequence& seq = so->getColTabSequence( selattrib_ );
-	so->getScene()->getSceneColTab()->setColTabSequence( seq );
-	const ColTab::Mapper& mpr = so->getColTabMapper( selattrib_ );
-	so->getScene()->getSceneColTab()->setColTabMapper( mpr );
-	setSelectionMode( selectionmode_ );
+	mDynamicCastGet(visSurvey::SurveyObject*,survobj,
+			visBase::DM().getObject(id));
+	if ( survobj && survobj->getScene()
+	  && survobj->getScene()->getSceneColTab() )
+	{
+	    const ColTab::Sequence& seq = survobj->getColTabSequence(
+							selattrib_ );
+	    survobj->getScene()->getSceneColTab()->setColTabSequence( seq );
+	    survobj->getScene()->getSceneColTab()->setColTabMapper(
+					survobj->getColTabMapper(selattrib_) );
+	}
     }
 }
 
@@ -1199,8 +1204,11 @@ void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
 	}
     }
 
-    selectionmode_ = mode;
-    selectionmodeChange.trigger();
+    if ( selectionmode_ != mode )
+    {
+	selectionmode_ = mode;
+	selectionmodeChange.trigger();
+    }
 }
 
 

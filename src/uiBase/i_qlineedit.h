@@ -1,6 +1,4 @@
-#ifndef i_qlineedit_h
-#define i_qlineedit_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,12 +10,12 @@ ________________________________________________________________________
 -*/
 
 #include "uilineedit.h"
+#include "i_common.h"
 
 #include <QLineEdit>
 
 QT_BEGIN_NAMESPACE
 
-class QString;
 
 //! Helper class for uilineedit to relay Qt's messages.
 /*!
@@ -74,5 +72,3 @@ private slots:
 };
 
 QT_END_NAMESPACE
-
-#endif

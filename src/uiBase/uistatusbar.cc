@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistatusbar.h"
+#include "q_uiimpl.h"
 #include "uimainwin.h"
 #include "uimain.h"
 #include "uiparentbody.h"
@@ -49,9 +50,9 @@ void message( const uiString& msg, int idx, int msecs )
 	return;
 
     if ( msgs_.validIdx(idx) && msgs_[idx] )
-	msgs_[idx]->setText(msg.getQString());
+	msgs_[idx]->setText( toQString(msg) );
     else if ( !msg.isEmpty() )
-	qthing()->showMessage( msg.getQString(), msecs<0?0:msecs );
+	qthing()->showMessage( toQString(msg), msecs<0?0:msecs );
     else
 	qthing()->clearMessage();
 }
@@ -88,13 +89,13 @@ Color getBGColor( int idx )
 
 int addMsgFld( const uiString& lbltxt, int stretch )
 {
-    QLabel* lbl = new QLabel( lbltxt.getQString() );
+    QLabel* lbl = new QLabel( toQString(lbltxt) );
     int idx = msgs_.size();
     msgs_ += lbl;
 
     if ( !lbltxt.isEmpty() )
     {
-	QLabel* txtlbl = new QLabel( lbltxt.getQString() );
+	QLabel* txtlbl = new QLabel( toQString(lbltxt) );
 	lbl->setBuddy( txtlbl );
 
 	qthing()->addWidget( txtlbl );
@@ -196,7 +197,7 @@ Color uiStatusBar::getBGColor( int fldidx ) const
 
 
 int uiStatusBar::addMsgFld( const uiString& lbltxt, const uiString& tooltip,
-			    OD::Alignment::HPos al, int stretch )
+			    OD::Alignment al, int stretch )
 {
     int idx = body_->addMsgFld( lbltxt, stretch );
 
@@ -207,8 +208,8 @@ int uiStatusBar::addMsgFld( const uiString& lbltxt, const uiString& tooltip,
     return idx;
 }
 
-int uiStatusBar::addMsgFld( const uiString& tooltip,
-			    OD::Alignment::HPos al, int stretch )
+int uiStatusBar::addMsgFld( const uiString& tooltip, OD::Alignment al,
+			    int stretch )
 {
     int idx = body_->addMsgFld( uiStrings::sEmptyString(), stretch );
 
@@ -237,16 +238,14 @@ void uiStatusBar::setToolTip( int idx, const uiString& tooltip )
     if ( !body_->msgs_.validIdx(idx) ) return;
 
     if ( !tooltip.isEmpty() && body_->msgs_[idx] )
-	body_->msgs_[idx]->setToolTip( tooltip.getQString() );
+	body_->msgs_[idx]->setToolTip( toQString(tooltip) );
 }
 
 
-void uiStatusBar::setTxtAlign( int idx, OD::Alignment::HPos hal )
+void uiStatusBar::setTxtAlign( int idx, OD::Alignment al )
 {
     if ( !body_->msgs_.validIdx(idx) ) return;
-
-    OD::Alignment al( hal );
-    body_->msgs_[idx]->setAlignment( (Qt::Alignment)al.hPos() );
+    body_->msgs_[idx]->setAlignment( (Qt::Alignment)al.uiValue() );
 }
 
 
@@ -259,5 +258,5 @@ void uiStatusBar::setLabelTxt( int idx, const uiString& lbltxt )
 
     QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs_[idx]->buddy());
 
-    if ( lbl ) lbl->setText( lbltxt.getQString() );
+    if ( lbl ) lbl->setText( toQString(lbltxt) );
 }
