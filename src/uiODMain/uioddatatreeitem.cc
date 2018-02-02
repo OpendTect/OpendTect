@@ -305,7 +305,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( hasdatapack && isvert )
     {
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrumitem_,
-			  true, false )
+			  !hastransform, false )
 	mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &fkspectrumitem_,
 			  !hastransform, false )
     }
