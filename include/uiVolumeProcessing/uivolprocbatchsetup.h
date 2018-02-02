@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uivolumeprocessingmod.h"
 #include "uidialog.h"
 #include "mmbatchjobdispatch.h"
+#include "clusterjobdispatch.h"
 
 class IOObj;
 
@@ -65,6 +66,16 @@ class VolMMProgDef : public MMProgDef
 {
 public:
 			VolMMProgDef() : MMProgDef( "od_SeisMMBatch" )	{}
+    virtual bool	isSuitedFor(const char*) const;
+    virtual bool	canHandle(const JobSpec&) const;
+    static const char*	sKeyNeedsFullVolYN()	{ return "NeedsFullVol"; }
+};
+
+class VolClusterProgDef : public ClusterProgDef
+{
+public:
+			VolClusterProgDef() {}
+
     virtual bool	isSuitedFor(const char*) const;
     virtual bool	canHandle(const JobSpec&) const;
     static const char*	sKeyNeedsFullVolYN()	{ return "NeedsFullVol"; }

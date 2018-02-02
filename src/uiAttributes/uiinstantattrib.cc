@@ -44,8 +44,8 @@ const char* uiInstantaneousAttrib::outstrs[] =
 };
 
 
-mInitAttribUI(uiInstantaneousAttrib,Instantaneous,"Instantaneous",
-              sKeyBasicGrp())
+mInitAttribUI(uiInstantaneousAttrib,Instantaneous,tr("Instantaneous"),
+              sBasicGrp())
 
 
 uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )

@@ -75,8 +75,13 @@ void SEGY::FullSpec::usePar( const IOPar& iop )
 }
 
 
-bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
+bool uiSEGY::displayWarnings( const uiStringSet& inpwarns, bool withstop,
+			      int nrskipped )
 {
+    uiStringSet warns( inpwarns );
+    if ( nrskipped > 0 )
+	warns += od_static_tr("uiSEGY_displayWarnings",
+		    "During import, %1 traces were rejected").arg( nrskipped );
     if ( warns.isEmpty() )
 	return true;
 
@@ -84,13 +89,12 @@ bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
     Settings::common().get( sKeySuppress, suppress );
 
     uiString msg = od_static_tr("uiSEGY_displayWarnings",
-                                "The operation was successful, but there %1:");
-    msg.arg( warns.size() > 1 ? "were warnings" : "was a warning" );
+		    "The operation was successful, but:");
 
     TypeSet<int> curwarnnrs;
     for ( int idx=0; idx<warns.size(); idx++ )
     {
-	BufferString curwarn( warns.get(idx) );
+	BufferString curwarn( toString(warns.get(idx)) );
 	char* nrptr = curwarn.getCStr() + 1;
 	char* msgptr = curwarn.getCStr() + 2;
 	*msgptr = '\0'; msgptr += 2;
@@ -99,8 +103,7 @@ bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
 	    continue;
 
 	curwarnnrs += msgnr;
-	msg.append(od_static_tr("displayWarnings",
-						      "\n\n%1").arg( msgptr ));
+	msg.appendPhrase( warns.get(idx) );
     }
 
     if ( curwarnnrs.isEmpty() ) // all suppressed
@@ -113,7 +116,7 @@ bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
 					    uiString::emptyString(), true );
     else
     {
-	msg.append(od_static_tr("displayWarnings","\n\nContinue?"));
+	msg.appendPhrase( od_static_tr("displayWarnings","\nContinue?") );
 	res = uiMSG().askGoOn( msg, true, &suppresscurwarns );
     }
 

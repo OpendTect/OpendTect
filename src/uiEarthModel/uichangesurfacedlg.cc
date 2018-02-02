@@ -112,7 +112,6 @@ bool uiChangeHorizonDlg::doProcessing2D()
 
 bool uiChangeHorizonDlg::doProcessing3D()
 {
-    bool change = false;
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
        savefldgrp_->getNewHorizon() : horizon_;
     mDynamicCastGet(EM::Horizon3D*,usedhor3d,usedhor)
@@ -143,17 +142,17 @@ bool uiChangeHorizonDlg::doProcessing3D()
 
     if ( !usedhor3d )
 	return false;
+
     if ( !usedhor3d->setArray2D(*arr,fillUdfsOnly(),undoText(),false) )
     {
-	ErrMsg( "Cannot set new data" );
+	uiString msg = tr("Cannot set new data");
+	ErrMsg( msg );
 	return false;
     }
-    else if ( usedhor3d==hor3d )
-	change = true;
 
-    if ( change )
-	EM::Hor3DMan().undo().setUserInteractionEnd(
-		EM::Hor3DMan().undo().lastEventID());
+    if ( usedhor3d==hor3d )
+	EM::Hor3DMan().undo(hor3d->id()).setUserInteractionEnd(
+		EM::Hor3DMan().undo(hor3d->id()).lastEventID());
 
     return true;
 }

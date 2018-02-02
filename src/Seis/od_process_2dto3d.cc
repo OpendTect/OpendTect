@@ -189,8 +189,8 @@ bool BatchProgram::go( od_ostream& strm )
 	    else
 	    {
 		if ( res == -1 )
-		    mRetJobErr( BufferString("Cannot reach next position",
-				":\n",proc->message().getFullString()) )
+		    mRetJobErr( BufferString("Cannot reach next position:\n",
+				toString(proc->message()) ) )
 		break;
 	    }
 

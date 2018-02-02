@@ -179,7 +179,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
 	return;
 
-    const int prevevent = EM::Hor3DMan().undo().currentEventID();
+    const int prevevent = EM::Hor3DMan().undo(emobj->id()).currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
     emobj->setBurstAlert( true );
 
@@ -191,9 +191,9 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     emobj->setBurstAlert( false );
     MouseCursorManager::restoreOverride();
-    const int currentevent = EM::Hor3DMan().undo().currentEventID();
+    const int currentevent = EM::Hor3DMan().undo(emobj->id()).currentEventID();
     if ( currentevent != prevevent )
-	EM::Hor3DMan().undo().setUserInteractionEnd(currentevent);
+	EM::Hor3DMan().undo(emobj->id()).setUserInteractionEnd(currentevent);
 
     restoreactivevolinuimpeman.trigger();
 }

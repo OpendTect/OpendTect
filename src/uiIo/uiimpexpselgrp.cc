@@ -617,10 +617,10 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
 {
     bool hasy2 = plotter.axisHandler(2);
     BufferStringSet nms;
-    nms.add( plotter.axisHandler(0)->getCaption().getFullString() );
-    nms.add( plotter.axisHandler(1)->getCaption().getFullString() );
+    nms.add( toString(plotter.axisHandler(0)->getCaption()) );
+    nms.add( toString(plotter.axisHandler(1)->getCaption()) );
     if ( hasy2 )
-	nms.add( plotter.axisHandler(2)->getCaption().getFullString() );
+	nms.add( toString(plotter.axisHandler(2)->getCaption()) );
 
     inpfld_ = new uiSGSel( this, true );
     inpfld_->selGrpSelected.notify( mCB(this,uiReadSelGrp,selectedCB) );
@@ -686,10 +686,10 @@ void uiReadSelGrp::selectedCB( CallBacker* )
     selgrpset_ = inpfld_->selGrpSet();
 
     BufferStringSet axisnms;
-    axisnms.add( plotter_.axisHandler(0)->getCaption().getFullString() );
-    axisnms.add( plotter_.axisHandler(1)->getCaption().getFullString() );
+    axisnms.add( toString(plotter_.axisHandler(0)->getCaption()) );
+    axisnms.add( toString(plotter_.axisHandler(1)->getCaption()) );
     if ( plotter_.axisHandler(2) )
-	axisnms.add( plotter_.axisHandler(2)->getCaption().getFullString() );
+	axisnms.add( toString(plotter_.axisHandler(2)->getCaption()) );
 
     xname_ = inpfld_->xName();
     yname_ = inpfld_->yName();
@@ -934,13 +934,12 @@ bool uiReadSelGrp::adjustSelectionGrps()
 	    {
 		actselarea.id_ = selareaid;
 		actselarea.xaxisnm_ =
-			plotter_.axisHandler(0)->getCaption().getFullString();
-		actselarea.yaxisnm_ =
-		    plotter_.axisHandler( yaxis < 0 ? 2 : 1 )
-			->getCaption().getFullString();
+			toString( plotter_.axisHandler(0)->getCaption() );
+		actselarea.yaxisnm_ = toString(
+		    plotter_.axisHandler( yaxis < 0 ? 2 : 1 )->getCaption() );
 		if ( hasalt && y2axis >=0 )
 		    actselarea.altyaxisnm_ =
-		    plotter_.axisHandler(2)->getCaption().getFullString();
+		    toString( plotter_.axisHandler(2)->getCaption() );
 		newselgrp->addSelection( actselarea );
 		selareaid++;
 	    }

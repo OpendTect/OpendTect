@@ -31,7 +31,7 @@ void uiListBoxFilter::setItems( const uiStringSet& itms )
 {
     BufferStringSet nms;
     for ( int idx=0; idx<itms.size(); idx++ )
-	nms.add( itms[idx].getFullString() );
+	nms.add( toString(itms[idx]) );
     setItems( nms );
 }
 

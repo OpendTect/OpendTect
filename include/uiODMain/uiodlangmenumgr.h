@@ -16,24 +16,25 @@ ________________________________________________________________________
 
 class uiMenu;
 class uiODMenuMgr;
+class uiLanguageSel;
 
 /*!\brief The OpendTect language menu manager */
 
 mExpClass(uiODMain) uiODLangMenuMgr : public CallBacker
-{ mODTextTranslationClass(uiODLangMenuMgr)
+{
 public:
 			uiODLangMenuMgr(uiODMenuMgr&);
 			~uiODLangMenuMgr();
 
 protected:
 
-    void		initLanguageMenu();
-    void		updateLanguageMenu();
+    void		setLanguageMenu();
 
     void		languageChangeCB(CallBacker*);
     void		languageSelectedCB(CallBacker*);
 
     uiODMenuMgr&	mnumgr_;
     uiMenu*		langmnu_;
+    uiLanguageSel*	selfld_;
 
 };

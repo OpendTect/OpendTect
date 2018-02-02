@@ -25,11 +25,11 @@ bool testPing()
 
     mRunStandardTestWithError( Network::ping(url.str(),err),
 				BufferString( prefix_, "Ping existant URL"),
-				err.getFullString() );
+				toString(err) );
 
     url.add( "/thisfiledoesnotexist" );
     mRunStandardTestWithError( Network::ping(url.str(),err)==false,
-	BufferString( prefix_, "Ping non-existant URL"), err.getFullString() );
+	BufferString( prefix_, "Ping non-existent URL"), toString(err) );
 
     return true;
 }
@@ -42,7 +42,7 @@ bool testDownloadToBuffer()
     uiString err;
 
     mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
-	    BufferString( prefix_, "Download to buffer"), err.getFullString() );
+	    BufferString( prefix_, "Download to buffer"), toString(err) );
 
     mRunStandardTest( db.size()==23,
 		      BufferString( prefix_, "Download to buffer size") );
@@ -57,7 +57,7 @@ bool testDownloadToFile()
     uiString err;
     mRunStandardTestWithError(
 	    Network::downloadFile( url, tempfile.fullPath(), err ),
-	    BufferString( prefix_, "Download to file"), err.getFullString() );
+	    BufferString( prefix_, "Download to file"), toString(err) );
 
     return true;
 }
@@ -73,7 +73,7 @@ bool testFileUpload()
     mRunStandardTestWithError(
 	    Network::uploadFile(url, tempfile.fullPath(), remotefn, "dumpfile",
 				postvars, err ),
-	    BufferString( prefix_, "Upload file"), err.getFullString());
+	    BufferString( prefix_, "Upload file "), toString(err) );
 
     return true;
 }
@@ -88,7 +88,7 @@ bool testQueryUpload()
 		    "http://intranet/testing/ctest/php_do_not_delete_it_2.php";
     uiString err;
     mRunStandardTestWithError( Network::uploadQuery( url, querypars, err ),
-		BufferString( prefix_, "UploadQuery"), err.getFullString() );
+		BufferString( prefix_, "UploadQuery"), toString(err) );
 
     return true;
 }
@@ -110,7 +110,7 @@ bool testFileSizes()
     mRunStandardTestWithError(
 	    sizeofuploadedfile >= 0 && sizeremotefile >= 0 &&
 	    sizeofuploadedfile == sizeremotefile,
-	       BufferString( prefix_, "TestFileSizes"), err.getFullString() );
+	       BufferString( prefix_, "TestFileSizes"), toString(err) );
     return true;
 }
 

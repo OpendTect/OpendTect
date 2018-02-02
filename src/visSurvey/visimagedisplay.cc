@@ -60,10 +60,7 @@ bool ImageDisplay::setFileName( const char* fnm )
     uiString errmsg;
     OD::RGBImage* img = OD::RGBImageLoader::loadRGBImage(fnm,errmsg);
     if ( !img )
-    {
-	pErrMsg( errmsg.getFullString() );
-	return false;
-    }
+	{ ErrMsg( errmsg ); return false; }
 
     setRGBImage( img );
     return true;

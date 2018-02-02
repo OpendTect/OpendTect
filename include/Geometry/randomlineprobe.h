@@ -25,19 +25,16 @@ public:
     mDeclInstanceCreatedNotifierAccess( RandomLineProbe );
     mDeclMonitorableAssignment( RandomLineProbe );
 
-    static Geometry::RandomLine* createNewDefaultRDL();
-    static const char*		sFactoryKey();
-    virtual const char*		type() const		{ return sFactoryKey();}
-    static Probe*		createFrom(const IOPar&);
+				mDeclRequiredProbeFns();
 
-    static void			initClass();
+    static Geometry::RandomLine* createNewDefaultRDL();
+
     mImplSimpleMonitoredGet(randomeLineID,int,rdlid_)
     void			setRandomLineID(int rdlid);
     void			geomUpdated();
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
-    BufferString		getDisplayName() const;
 
 protected:
 

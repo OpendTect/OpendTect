@@ -533,7 +533,7 @@ void uiEMPartServer::deriveHor3DFrom2D( const DBKey& emid )
     if ( dlg.go() && dlg.doDisplay() )
     {
 	RefMan<EM::Horizon3D> hor = dlg.getHor3D();
-	selemid_ = hor ? hor->id() : -1;
+	selemid_ = hor ? hor->id() : DBKey::getInvalid();
 	sendEvent( evDisplayHorizon() );
     }
 }
@@ -609,7 +609,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs,
 	if ( !ioobj )
 	    continue;
 
-	const BufferString& translator = ioobj->translator();
+	const BufferString translator = ioobj->translator();
 	if ( translator!=EMBodyTranslatorGroup::sKeyUserWord() )
 	    continue;
 
@@ -814,7 +814,7 @@ bool uiEMPartServer::showLoadFaultAuxDataDlg( const DBKey& id )
 }
 
 
-bool uiEMPartServer::showLoadAuxDataDlg( const DBKey& id )
+bool uiEMPartServer::showLoadAuxDataDlg( const DBKey& id, uiParent* prnt )
 {
     EM::EMObject* object = em_.getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
@@ -872,7 +872,10 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
     PtrMan<Executor> exec = 0;
     DBKey key = object->dbKey();
     uiTaskRunner uitr( parent() );
-    if ( storeas )
+    uiRetVal ret;
+    if ( !storeas )
+	ret = em_.save( id, &uitr );
+    else
     {
 	if ( surface )
 	{
@@ -885,45 +888,12 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 	    dlg.getSelection( sel );
 
 	    key = dlg.ioObj() ? dlg.ioObj()->key() : DBKey::getInvalid();
-	    EM::getMgr( id ).saveAs( id, key, &uitr );
-	}
-    }
-    em_.save( id, &uitr );
-
-    /*EM::EMObject* object = em_.getObject( id );
-    if ( !object ) return false;
-
-    mDynamicCastGet(EM::Surface*,surface,object);
-    mDynamicCastGet(EM::Body*,body,object);
-
-    PtrMan<Executor> exec = 0;
-    DBKey key = object->dbKey();
-
-    if ( storeas )
-    {
-	if ( surface )
-	{
-	    uiWriteSurfaceDlg dlg( parent(), *surface, shift );
-	    dlg.showAlwaysOnTop(); // hack to show on top of tracking window
-	    if ( !dlg.go() ) return false;
-
-	    EM::SurfaceIOData sd;
-	    EM::SurfaceIODataSelection sel( sd );
-	    dlg.getSelection( sel );
-
-	    key = dlg.ioObj() ? dlg.ioObj()->key() : DBKey::getInvalid();
-	    exec = surface->geometry().saver( &sel, &key );
-	    if ( exec && dlg.replaceInTree() )
-	    {
-		surface->setDBKey( key );
-		surface->setShift( shift );
-	    }
+	    ret = EM::getMgr( id ).saveAs( id, key, &uitr );
 	}
 	else
 	{
 	    CtxtIOObj ctio( body ? EMBodyTranslatorGroup::ioContext()
-				 : object->getIOObjContext(),
-				 DBM().get(object->dbKey()) );
+				 : object->getIOObjContext(), DBM().get(key) );
 
 	    ctio.ctxt_.forread_ = false;
 
@@ -939,35 +909,17 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 		key = dlg.ioObj()->key();
 		object->setDBKey( key );
 	    }
-
-	    exec = object->saver();
+	    
+	    ret = EM::getMgr( id ).saveAs( id, key, &uitr );
 	}
     }
-    else
-	exec = object->saver();
 
-    if ( !exec )
-	return false;
-
-    PtrMan<IOObj> ioobj = DBM().get( key );
-    if ( !ioobj->pars().find( sKey::Type() ) )
+    if ( !ret.isOK() )
     {
-	ioobj->pars().set( sKey::Type(), object->getTypeStr() );
-	if ( !DBM().setEntry( *ioobj ) )
-	{
-	    uiMSG().error( uiStrings::phrCannotWriteDBEntry(ioobj->uiName()) );
-	    return false;
-	}
+	uiMSG().error( ret );
+	return false;
     }
 
-    object->resetChangedFlag();
-    storagekey = key;
-    uiTaskRunner exdlg( parent() );
-    const bool ret = TaskRunner::execute( &exdlg, *exec );
-    if( ret && surface )
-	surface->saveDisplayPars();
-
-    return ret;*/
     return true;
 }
 

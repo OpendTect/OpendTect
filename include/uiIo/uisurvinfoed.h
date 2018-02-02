@@ -48,7 +48,6 @@ public:
 
     static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
     static int		addInfoProvider(uiSurvInfoProvider*);
-    static uiSurvInfoProvider*	getInfoProviderByName(const uiString&);
 
     static bool		renameSurv(const char* path,const char* fromdirnm,
 				   const char* todirnm);

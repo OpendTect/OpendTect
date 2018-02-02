@@ -25,7 +25,7 @@ class uiToolButton;
  dep on the gender you want to be able to define different properties.
 
  uiBuildListFromList::Setup( true, "person" )
- 	.withtitles(true).avtitle("gender");
+	.withtitles(true).avtitle("gender");
 
  The list of 'available' items is simply "male" and "female".
  Once you create e.g. a female, the option 'female' itself should stay in the
@@ -50,19 +50,19 @@ mExpClass(uiTools) uiBuildListFromList : public uiGroup
 public:
 
     mExpClass(uiTools) Setup
-    {
+    { mODTextTranslationClass(uiBuildListFromList::Setup);
     public:
-			Setup(bool itemsmovable,const char* avitmtyp,
-				const char* defitmtyp);
+			Setup(bool itemsmovable,const uiString& avitmtyp,
+				const uiString& defitmtyp);
 
 	mDefSetupMemb(bool,movable);
 	mDefSetupMemb(bool,withio);		// default: true
 	mDefSetupMemb(bool,withtitles);		// default: false
 	mDefSetupMemb(bool,singleuse);		// default: false
-	mDefSetupMemb(BufferString,avitemtype);
-	mDefSetupMemb(BufferString,defitemtype);
-	mDefSetupMemb(BufferString,avtitle);  // titles
-	mDefSetupMemb(BufferString,deftitle);
+	mDefSetupMemb(uiString,avitemtype);
+	mDefSetupMemb(uiString,defitemtype);
+	mDefSetupMemb(uiString,avtitle);  // titles
+	mDefSetupMemb(uiString,deftitle);
 	mDefSetupMemb(uiString,addtt);	// tooltips
 	mDefSetupMemb(uiString,edtt);
 	mDefSetupMemb(uiString,rmtt);
@@ -77,6 +77,7 @@ protected:
 
     Setup		setup_;
     bool		usrchg_;
+    mutable uiString	avret_;
 
     uiListBox*		avfld_;
     uiListBox*		deffld_;
@@ -87,22 +88,23 @@ protected:
     uiToolButton*	movedownbut_;
 
     uiToolButton*	lowestStdBut();
-    const char*		curAvSel() const;		//!< null = no selection
+    const uiString*	curAvSel() const;		//!< null = no selection
     const char*		curDefSel() const;		//!< null = no selection
     void		setCurDefSel(const char*);	//!< null = first
 
     virtual void	editReq(bool isadd)		= 0;
     virtual void	removeReq()			= 0;
-    virtual const char*	avFromDef(const char*) const	= 0;
+    virtual uiString	avFromDef(const char*) const	= 0;
     virtual bool	ioReq( bool forsave )		{ return false; }
-    virtual void	itemSwitch(const char*,const char*)	{}
+    virtual void	itemSwitch(int, int)		{}
     virtual void	defSelChg();
 
     void		setAvailable(const BufferStringSet&); //!< at start
-    void		removeItem(); 
-    void		removeAll(); 
-    void		setItemName(const char*); 
-    void		addItem(const char*); 
+    void		setAvailable(const uiStringSet&); //!< at start
+    void		removeItem();
+    void		removeAll();
+    void		setItemName(const char*);
+    void		addItem(const char*);
     void		handleSuccessfullEdit( bool isadd, const char* itmnm )
 			{ isadd ? addItem( itmnm ) : setItemName( itmnm ); }
 

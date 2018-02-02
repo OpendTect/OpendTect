@@ -116,7 +116,6 @@ bool uiSeisCopyCube::acceptOK()
 	outpars.set( sKey::Type(), sKey::Attribute() );
     DBM().setEntry( *outioobj );
 
-    bool execok = false;
     const bool inbatch = batchfld_->wantBatch();
     if ( inbatch )
     {

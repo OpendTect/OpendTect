@@ -259,7 +259,7 @@ static EM::FaultStickSet* createFaultStickSet(
 	if ( stick->crds_.isEmpty() )
 	    continue;
 
-	emfss->geometry().insertStick( stick->stickidx_, 0,
+	emfss->geometry().insertStick( stick->stickidx_, 0, 
 			stick->crds_[0], stick->getNormal(false), false );
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
@@ -296,8 +296,9 @@ bool uiBulkFaultImport::acceptOK()
 			       : EM::Fault3D::typeStr();
     for ( int idx=0; idx<pars.size(); idx++ )
     {
-	EM::EMObject* emobj = EM::Flt3DMan().createObject(
-		EM::Fault3D::typeStr(), pars[idx]->name_.buf() );
+	EM::EMManager& emm = isfss_ ? EM::FSSMan() : EM::Flt3DMan();
+	EM::EMObject* emobj = emm.createObject( typestr,
+						pars[idx]->name_.buf() );
 	emobj->ref();
 	mDynamicCastGet( EM::Fault*, flt, emobj );
 	if ( !flt )
@@ -330,7 +331,7 @@ bool uiBulkFaultImport::acceptOK()
 	    if( fss )
 	    {
 		emfss->geometry().selectAllSticks( true );
-		emfss->geometry().copySelectedSticksTo(fss->geometry(),0,false);
+		emfss->geometry().copySelectedSticksTo(fss->geometry(),false);
 	    }
 	}
 

@@ -197,9 +197,9 @@ bool PolyTrend::getOrder( int nrpoints, Order& ord, uiString* msg )
 	return true;
 
     if ( msg )
-	msg->append( tr("Will revert to Order0 (Average removal)."), true );
-    ord = Order0;
+	msg->appendPhrase( tr("Will revert to Order0 (Average removal)") );
 
+    ord = Order0;
     return false;
 }
 

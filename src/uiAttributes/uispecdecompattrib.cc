@@ -37,8 +37,8 @@ ________________________________________________________________________
 using namespace Attrib;
 
 
-mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomposition",
-              sKeyFreqGrp())
+mInitGrpDefAttribUI(uiSpecDecompAttrib,SpecDecomp,tr("Spectral Decomposition"),
+		      sFreqGrp())
 
 
 const char* uiSpecDecompAttrib::sKeyBinID() { return "BinID"; }

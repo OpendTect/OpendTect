@@ -73,7 +73,7 @@ public:
 
     virtual void		prepareForShutdown();
     virtual void		setProbeLayer(ProbeLayer*);
-    virtual void		updateDisplay()				{}
+    virtual void		updateDisplay()		{}
 
 protected:
 				uiODDataTreeItem(const char* parenttype);

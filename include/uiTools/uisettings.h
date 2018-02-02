@@ -12,17 +12,53 @@ ________________________________________________________________________
 
 
 #include "uitoolsmod.h"
+#include "uigroup.h"
 #include "uidialog.h"
-#include "uidlggroup.h"
-#include "factory.h"
 #include "uistrings.h"
+#include "factory.h"
+#include "od_helpids.h"
 
 class Settings;
 class uiCheckList;
 class uiComboBox;
 class uiGenInput;
 class uiLabeledComboBox;
+class uiSettingsSubjectTreeItm;
 class uiTable;
+class uiThemeSel;
+class uiTreeView;
+
+
+mExpClass(uiTools) uiSettingsDlg : public uiDialog
+{ mODTextTranslationClass(uiSettingsDlg);
+public:
+
+			uiSettingsDlg(uiParent*);
+			~uiSettingsDlg();
+
+    bool		hadChanges() const	{ return havechanges_; }
+    bool		neededRestart() const	{ return restartneeded_; }
+    bool		neededRenewal() const	{ return renewalneeded_; }
+
+protected:
+
+    void		handleRestart();
+    bool		rejectOK();
+    bool		acceptOK();
+
+    void		initWin(CallBacker*);
+    void		selChgCB(CallBacker*);
+
+    uiTreeView*				treefld_;
+    uiSettingsSubjectTreeItm*		curtreeitm_;
+    ObjectSet<uiSettingsSubjectTreeItm> treeitms_;
+
+    Settings&		setts_;
+    bool		havechanges_;
+    bool		restartneeded_;
+    bool		renewalneeded_;
+
+};
 
 
 mExpClass(uiTools) uiAdvSettings : public uiDialog
@@ -58,29 +94,34 @@ protected:
 };
 
 
-mExpClass(uiTools) uiSettingsGroup : public uiDlgGroup
+mExpClass(uiTools) uiSettingsGroup : public uiGroup
 { mODTextTranslationClass(uiSettingsGroup);
 public:
+
+    enum Type		{ General, LooknFeel, Interaction };
+
 			mDefineFactory2ParamInClass(uiSettingsGroup,
 						    uiParent*,Settings&,
 						    factory)
-    static void		setIsLooknFeelGroup(const char*,bool);
-			// the default is look&feel, so only need to use when
-			// you added a group that is not look&feel
-
     virtual		~uiSettingsGroup();
+
+    virtual Type	type() const		= 0;
+    virtual uiWord	subject() const		= 0;
+    virtual const char*	iconID() const		= 0;
+    virtual HelpKey	helpKey() const		= 0;
+
+    bool		commit(uiRetVal&);
+    void		rollBack()		{ doRollBack(); }
 
     bool		isChanged() const	{ return changed_; }
     bool		needsRestart() const	{ return needsrestart_; }
     bool		needsRenewal() const	{ return needsrenewal_; }
-    uiString		errMsg() const;
 
-    static bool		isLooknFeelGroup(const char*);
+    static uiString	dispStr(Type);
 
 protected:
 
-			uiSettingsGroup(uiParent*,const uiString& caption,
-					Settings&);
+			uiSettingsGroup(uiParent*,Settings&);
 
     void		updateSettings(bool oldval,bool newval,const char* key);
     void		updateSettings(int oldval,int newval,const char* key);
@@ -90,59 +131,53 @@ protected:
 				       const OD::String& newval,
 				       const char* key);
 
-    uiString		errmsg_;
+    virtual void	activationChange(bool activated)	{}
+    virtual void	doCommit(uiRetVal&)			= 0;
+    virtual void	doRollBack()				{}
+
+    uiRetVal		state_;
     Settings&		setts_;
     bool		changed_;
     bool		needsrestart_;
     bool		needsrenewal_;
 
-};
-
-
-mExpClass(uiTools) uiSettingsDlg : public uiTabStackDlg
-{ mODTextTranslationClass(uiSettingsDlg);
 public:
 
-			uiSettingsDlg(uiParent*,bool looknfeel);
-			~uiSettingsDlg();
-
-    bool		isChanged() const	{ return changed_; }
-    bool		needsRestart() const	{ return needsrestart_; }
-    bool		needsRenewal() const	{ return needsrenewal_; }
-
-protected:
-
-    bool		acceptOK();
-    void		handleRestart();
-
-    ObjectSet<uiSettingsGroup>	grps_;
-    Settings&		setts_;
-    bool		changed_;
-    bool		needsrestart_;
-    bool		needsrenewal_;
+			// use if you make your own dialog for user settings
+    void		setActive( bool yn )	{ activationChange(yn); }
 
 };
+
+
+#define mDecluiSettingsGroupPublicFns(clss,typ,keystr,icid,usrstr,helpky) \
+    mDefaultFactoryInstantiation2Param( uiSettingsGroup, clss, uiParent*, \
+					Settings&, keystr, usrstr ); \
+ \
+    virtual Type	type() const	{ return uiSettingsGroup::typ; } \
+    virtual uiWord	subject() const	{ return factoryDisplayName(); } \
+    virtual const char*	iconID() const	{ return icid; } \
+    virtual HelpKey	helpKey() const	{ return helpky; }
 
 
 
 mExpClass(uiTools) uiStorageSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiStorageSettingsGroup);
 public:
-			mDefaultFactoryInstantiation2Param(
-				uiSettingsGroup,
-				uiStorageSettingsGroup,
-				uiParent*,Settings&,
-				"General",
-				uiStrings::sStorage())
+
+    mDecluiSettingsGroupPublicFns( uiStorageSettingsGroup,
+				   General, "Storage", "database",
+				   uiStrings::sStorage(),
+				   mTODOHelpKey )
 
 			uiStorageSettingsGroup(uiParent*,Settings&);
-    bool		acceptOK();
 
 protected:
 
     uiGenInput*		enablesharedstorfld_;
 
-    bool		enabsharedstor_;
+    bool		initialshstorenab_;
+
+    virtual void	doCommit(uiRetVal&);
 
 };
 
@@ -151,27 +186,29 @@ protected:
 mExpClass(uiTools) uiGeneralLnFSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiGeneralLnFSettingsGroup);
 public:
-			mDefaultFactoryInstantiation2Param(
-				uiSettingsGroup,
-				uiGeneralLnFSettingsGroup,
-				uiParent*,Settings&,
-				"GenLnF",
-				uiStrings::sGeneral())
+
+    mDecluiSettingsGroupPublicFns( uiGeneralLnFSettingsGroup,
+				   LooknFeel, "GenLnF", "settings",
+				   uiStrings::sGeneral(),
+				   mODHelpKey(mLooknFeelSettingsHelpID) )
 
 			uiGeneralLnFSettingsGroup(uiParent*,Settings&);
-    bool		acceptOK();
 
 protected:
 
+    uiThemeSel*		themesel_;
     uiGenInput*		iconszfld_;
     uiGenInput*		virtualkeyboardfld_;
     uiCheckList*	showprogressfld_;
 
-    int			iconsz_;
-    bool		showinlprogress_;
-    bool		showcrlprogress_;
-    bool		showrdlprogress_;
-    bool		enabvirtualkeyboard_;
+    int			initialiconsz_;
+    bool		initialshowinlprogress_;
+    bool		initialshowcrlprogress_;
+    bool		initialshowrdlprogress_;
+    bool		initialenabvirtualkeyboard_;
+
+    virtual void	doCommit(uiRetVal&);
+    virtual void	doRollBack();
 
 };
 
@@ -179,15 +216,13 @@ protected:
 mExpClass(uiTools) uiVisSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiVisSettingsGroup);
 public:
-			mDefaultFactoryInstantiation2Param(
-				uiSettingsGroup,
-				uiVisSettingsGroup,
-				uiParent*,Settings&,
-				"Visualization",
-				toUiString(sFactoryKeyword()))
+
+    mDecluiSettingsGroupPublicFns( uiVisSettingsGroup,
+				   LooknFeel, "Visualization", "vis",
+				   tr("Visualization"),
+				   mTODOHelpKey )
 
 			uiVisSettingsGroup(uiParent*,Settings&);
-    bool		acceptOK();
 
 protected:
 
@@ -200,10 +235,12 @@ protected:
     uiLabeledComboBox*	anisotropicpowerfld_;
 
 			//0=standard, 1=higher, 2=highest, 3=system default
-    int			textureresindex_;
-    bool		usesurfshaders_;
-    bool		usevolshaders_;
-    bool		enablemipmapping_;
-    int			anisotropicpower_;
+    int			initialtextureresindex_;
+    bool		initialusesurfshaders_;
+    bool		initialusevolshaders_;
+    bool		initialenablemipmapping_;
+    int			initialanisotropicpower_;
+
+    virtual void	doCommit(uiRetVal&);
 
 };

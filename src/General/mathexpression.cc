@@ -780,7 +780,7 @@ bool Math::ExpressionParser::findOuterParens( char* str, int len,
 		str[idx+1] = '\0';
 		errmsg_ = tr("Found a closing parenthesis ')' too early");
 		if ( idx > 3 )
-		    errmsg_.append( ": " ).append( str );
+		    errmsg_.appendPlainText( str );
 		return true;
 	    }
 	}
@@ -1087,14 +1087,6 @@ static char* findLooseComma( char* str )
 }
 
 
-#   define mErrRetStr( str1, str2 ) \
-    { \
-	uiString uistr;			\
-	uistr.append(str1).append(str2); \
-	errmsg_ = uistr; \
-    }
-
-
 bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
 					      Math::Expression*& ret ) const
 {
@@ -1134,10 +1126,7 @@ bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
 	workstr[len-1] = '\0'; \
 	const int fnnameskipsz = FixedString( #nm ).size() + 1; \
 	char* ptrcomma = findLooseComma( str+fnnameskipsz ); \
-	if ( !ptrcomma ) \
-	{ \
-	    mErrRetStr( #nm, sParse2ArgStr() ) \
-	} \
+	if ( !ptrcomma ) { errmsg_ = sParse2ArgStr( #nm ); return false; } \
 	*ptrcomma++ = '\0'; \
 	PtrMan<Math::Expression> inp0 = parse( str + fnnameskipsz ); \
 	PtrMan<Math::Expression> inp1 = parse( ptrcomma ); \

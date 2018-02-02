@@ -64,13 +64,17 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
 }
 
 
+static const char* sCompilerVersionUnknown = "<unknown>";
+
+
 const char* GetGCCVersion()
 {
 #ifndef __GNUC__
-    return OD::EmptyString();
+    return sCompilerVersionUnknown;
 #else
     mDeclStaticString( ret );
-    if ( !ret.isEmpty() ) return ret.buf();
+    if ( !ret.isEmpty() )
+	return ret.buf();
 
     ret.set( __GNUC__ ).add( "." )
        .add( __GNUC_MINOR__ ).add( "." )
@@ -95,25 +99,23 @@ const char* GetMSVCVersion()
 
 const char* GetMSVCVersionStr()
 {
-#ifndef __msvc__
-    return OD::EmptyString();
-#else
-    mDeclStaticString( ret );
-    if ( !ret.isEmpty() ) return ret.buf();
-
-# if ( _MSC_VER == 1800 )
-    ret = "Visual Studio 2013 - MSVC 12.0";
-# elif ( _MSC_VER == 1700 )
+    const char* ret = sCompilerVersionUnknown;
+#ifdef __msvc__
+# if ( _MSC_VER < 1700 )
+    ret = "Visual Studio Pre-2012";
+# elif ( _MSC_VER < 1800 )
     ret = "Visual Studio 2012 - MSVC 11.0";
-# elif ( _MSC_VER == 1600 )
-    ret = "Visual Studio 2010 - MSVC 10.0";
-# elif ( _MSC_VER == 1500 )
-    ret = "Visual Studio 2008 - MSVC 9.0";
-# elif ( _MSC_VER == 1400 )
-    ret = "Visual Studio 2005 - MSVC 8.0";
+# elif ( _MSC_VER < 1900 )
+    ret = "Visual Studio 2013 - MSVC 12.0";
+# elif ( _MSC_VER < 1910 )
+    ret = "Visual Studio 2015 - MSVC 14.0";
+# elif ( _MSC_VER < 1920 )
+    ret = "Visual Studio 2017 - MSVC 15.0";
+# else
+    ret = "CHANGE GetMSVCVersionStr() macro to support newer version";
 # endif
-    return ret;
 #endif
+    return ret;
 }
 
 
@@ -133,7 +135,8 @@ const char* GetQtVersion()
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
-    if ( !ret.isEmpty() ) return ret.buf();
+    if ( !ret.isEmpty() )
+	return ret.buf();
 
     ret.set( QT_VERSION_STR );
 #endif

@@ -311,7 +311,7 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
     funcdrawer_->getSelectedItems( selitems );
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
-	const BufferString& winname = funcnames_[selitems[idx]]->buf();
+	const BufferString& winname = funcnames_.get( selitems[idx] );
 	WindowFunction* wf = getWindowFuncByName( winname );
 	if ( wf && wf->hasVariable() )
 	{

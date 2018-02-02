@@ -258,6 +258,12 @@ void uiTreeItem::updateCheckStatus()
 }
 
 
+const uiTreeItem* uiTreeItem::findChild( const uiString& nm ) const
+{
+    return const_cast<uiTreeItem*>(this)->findChild(nm);
+}
+
+
 const uiTreeItem* uiTreeItem::findChild( const char* nm ) const
 {
     return const_cast<uiTreeItem*>(this)->findChild(nm);
@@ -270,9 +276,25 @@ const uiTreeItem* uiTreeItem::findChild( int selkey ) const
 }
 
 
+uiTreeItem* uiTreeItem::findChild( const uiString& nm )
+{
+    if ( name_.isEqualTo(nm) )
+	return this;
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	uiTreeItem* res = children_[idx]->findChild( nm );
+	if ( res )
+	    return res;
+    }
+
+    return 0;
+}
+
+
 uiTreeItem* uiTreeItem::findChild( const char* nm )
 {
-    if ( name_.getFullString() == nm )
+    if ( toString(name_) == nm )
 	return this;
 
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -286,9 +308,19 @@ uiTreeItem* uiTreeItem::findChild( const char* nm )
 }
 
 
+void uiTreeItem::findChildren( const uiString& nm, ObjectSet<uiTreeItem>& set )
+{
+    if ( name_.isEqualTo(nm) )
+	set += this;
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+	children_[idx]->findChildren( nm, set );
+}
+
+
 void uiTreeItem::findChildren( const char* nm, ObjectSet<uiTreeItem>& set )
 {
-    if ( name_.getFullString() == nm )
+    if ( toString(name_) == nm )
 	set += this;
 
     for ( int idx=0; idx<children_.size(); idx++ )

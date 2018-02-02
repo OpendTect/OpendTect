@@ -197,11 +197,6 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 	, pssel_(0)
 {
     hor_.ref();
-    if ( hor_.nrSections() < 1 )
-    {
-	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sHorizon(1)));
-	return;
-    }
 
     uiIOObjSel::Setup su( uiStrings::phrCalculateFrom(uiStrings::sPolygon()) );
     pssel_ = new uiPickSetIOObjSel( this, su,

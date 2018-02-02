@@ -86,10 +86,6 @@ void Tut::ThicknessCalculator::init( const char* attribname )
 
 int Tut::ThicknessCalculator::nextStep()
 {
-    int nrsect = horizon1_->nrSections();
-    if ( horizon2_->nrSections() < nrsect )
-	nrsect = horizon2_->nrSections();
-
     posid_ = EM::PosID::getFromRowCol( iter_->curBinID() );
     const float z1 = (float) horizon1_->getPos( posid_ ).z_;
     const float z2 = (float) horizon2_->getPos( posid_ ).z_;

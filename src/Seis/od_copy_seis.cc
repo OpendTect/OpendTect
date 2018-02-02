@@ -34,7 +34,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !ioobjinfo.isOK() )
 	{ strm << "Input data is not OK" << od_endl; return false; }
     else if ( ioobjinfo.isPS() )
-	{ strm << "Pre-Stack data not supported" << od_endl; return false; }
+	{ strm << "Prestack data not supported" << od_endl; return false; }
 
     PtrMan<IOPar> outpar = pars().subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )

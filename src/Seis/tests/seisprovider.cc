@@ -43,7 +43,7 @@ static const TrcKey tk_before_first_missing_inl( BinID(298,1200) );
 static const TrcKey tk_last( BinID(650,1200) );
 static const TrcKey tk_before_first_missing_trc( 17, 170 );
 
-// Using Penobscot_Test_survey for Pre-Stack
+// Using Penobscot_Test_survey for Prestack
 static const char* dbkeyps3d = "100010.5";
 static const char* dbkeyps2d = "100010.9";
 static const TrcKey tk_1300_1200( BinID(1300,1200) );
@@ -124,7 +124,7 @@ static bool testLine()
     mTestPreLoadTrc( true );
     mTestIOParUsage( true );
     mTestComponentSelection( true );
-    
+
     od_cout() << "\n---- 2D Line with a gap ----\n" << od_endl;
 
     tester.setInput( dbkeyline_with_missing_trcs );
@@ -136,7 +136,7 @@ static bool testLine()
 
 static bool testPS3D()
 {
-    od_cout() << "\n---- 3D Pre-Stack ----\n" << od_endl;
+    od_cout() << "\n---- 3D Prestack ----\n" << od_endl;
 
     Seis::ProviderTester tester;
     tester.setSurveyName( pssurvname );
@@ -163,13 +163,13 @@ static bool testPS3D()
 
 static bool testPS2D()
 {
-    od_cout() << "\n---- 2D Pre-Stack ----\n" << od_endl;
+    od_cout() << "\n---- 2D Prestack ----\n" << od_endl;
 
     Seis::ProviderTester tester;
     tester.setSurveyName( pssurvname );
     tester.setInput( dbkeyps2d );
     mTestGetNext();
-    
+
     TrcKeySampling tks;
     tks.set2DDef();
     tks.start_ = tks.stop_ = tk_non_existent.binID();

@@ -28,13 +28,12 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipixmap.h"
-#include "uipluginsel.h"
+#include "uiodprestart.h"
 #include "uiseispartserv.h"
 #include "uifixinvaliddataroot.h"
 #include "uistrattreewin.h"
 #include "uisurvinfoed.h"
 #include "uitoolbar.h"
-#include "ui2dsip.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "uiodhorattribmgr.h"
@@ -179,11 +178,11 @@ int ODMain( int argc, char** argv )
     checkScreenRes();
 
     bool dodlg = true;
-    Settings::common().getYN( uiPluginSel::sKeyDoAtStartup(), dodlg );
+    Settings::common().getYN( uiODPreStart::sKeyDoAtStartup(), dodlg );
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     if ( dodlg && !pimdata.isEmpty() )
     {
-	uiPluginSel dlg( ODMainWin() );
+	uiODPreStart dlg( ODMainWin() );
 	if ( !dlg.go() )
 	    return 1;
     }
@@ -212,6 +211,7 @@ uiODMain::uiODMain( uiMain& a )
     , failed_(true)
     , applmgr_(0)
     , menumgr_(0)
+    , horattrmgr_(0)
     , scenemgr_(0)
     , ctabed_(0)
     , ctabtb_(0)
@@ -632,7 +632,7 @@ void uiODMain::autoSaveFail( CallBacker* cb )
 	// uiMSG().error( msg );
     }
     //else
-	ErrMsg( msg.getFullString() );
+	ErrMsg( msg );
 }
 
 

@@ -284,7 +284,6 @@ Horizon3D::Horizon3D( const char* nm )
     , parents_(0)
     , children_(0)
     , parentcolor_(Color::Yellow())
-    , lockcolor_(Color::Blue())
     , survid_( Survey::GM().default3DSurvID() )
     , nodesource_( 0 )
     , arrayinited_( false )
@@ -300,7 +299,6 @@ Horizon3D::Horizon3D( const Horizon3D& oth )
     , parents_(0)
     , children_(0)
     , parentcolor_(Color::Yellow())
-    , lockcolor_(Color::Blue())
     , survid_( Survey::GM().default3DSurvID() )
     , nodesource_( 0 )
     , arrayinited_( false )
@@ -606,7 +604,7 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr,
     if ( oldarr )
     {
 	UndoEvent* undo = new  SetAllHor3DPosUndoEvent( this, oldarr );
-	Hor3DMan().undo().addEvent( undo, undodesc );
+	Hor3DMan().undo(id()).addEvent( undo, undodesc );
     }
 
     return true;
@@ -1121,7 +1119,7 @@ void Horizon3D::deleteChildren()
 {
     if ( !children_ ) return;
 
-    const int prevevid = EM::Hor3DMan().undo().currentEventID();
+    const int prevevid = EM::Hor3DMan().undo(id()).currentEventID();
 
     Geometry::Element* ge = geometryElement();
     setBurstAlert( true );
@@ -1140,9 +1138,9 @@ void Horizon3D::deleteChildren()
 
     resetChildren();
 
-    const int evid = EM::Hor3DMan().undo().currentEventID();
+    const int evid = EM::Hor3DMan().undo(id()).currentEventID();
     if ( prevevid != evid )
-	EM::Hor3DMan().undo().setUserInteractionEnd( evid );
+	EM::Hor3DMan().undo(id()).setUserInteractionEnd( evid );
 }
 
 
@@ -1242,17 +1240,6 @@ const Color& Horizon3D::getParentColor() const
 { return parentcolor_; }
 
 
-void Horizon3D::setLockColor( const Color& col )
-{
-    mLock4Write();
-    lockcolor_ = col;
-    mSendEMCBNotif( EMObject::cLockColorChange() );
-}
-
-const Color Horizon3D::getLockColor() const
-{ return lockcolor_; }
-
-
 bool Horizon3D::setPosition( const PosID& posid,
 			const Coord3& crd, bool addtoundo,
 			NodeSourceType type )
@@ -1275,26 +1262,6 @@ bool Horizon3D::setPosition( const PosID& posid,
     setNodeSourceType( tk, tp );
     return EMObject::setPosition( posid, crd, addtoundo );
 }
-
-
-void Horizon3D::setArray( const SectionID& sid, const BinID& start,
-    const BinID& step, Array2D<float>* arr, bool takeover )
-{
-    PtrMan<EM::EMObjectIterator> iterator = createIterator( sid );
-    if ( !iterator )
-	return;
-
-    while( true )
-    {
-	const EM::PosID posid = iterator->next();
-	if ( posid.objectID() == -1 )
-	    break;
-	if ( !hasNodeSourceType(posid) )
-	    setNodeSourceType( posid, NodeSourceType::Gridding );
-    }
-    geometry().sectionGeometry(sid)->setArray( start, step, arr, true );
-}
-
 
 
 // Horizon3DGeometry

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstring.h"
+class BufferStringSet;
 
 
 namespace OD
@@ -108,8 +109,10 @@ enum StdActionType
 };
 
 
+mGlobal(Basic) bool haveUserSetStyleName();
 mGlobal(Basic) BufferString getActiveStyleName();
 mGlobal(Basic) BufferString getStyleFile(const char* stylenm,const char* ext);
+mGlobal(Basic) void getStyleNames(BufferStringSet&);
 
 
 

@@ -176,15 +176,9 @@ uiSurveyManager::uiSurveyManager( uiParent* p, bool standalone )
     if ( !standalone )
 	survinfo_ = new SurveyInfo( SI() );
 
-    const CallBack lnfsettpush( mCB(this,uiSurveyManager,lnfSettsCB) );
-    const CallBack gensettpush( mCB(this,uiSurveyManager,genSettsCB) );
-    uiToolButton* settbut = new uiToolButton( this, "settings",
-			tr("General Settings"), lnfsettpush );
-    uiMenu* butmnu = settbut->addMenu();
-    butmnu->insertAction( new uiAction( uiStrings::sGeneral(), gensettpush,
-					"settings") );
-    butmnu->insertAction( new uiAction( uiStrings::sLooknFeel(), lnfsettpush,
-					"looknfeel") );
+    uiToolButton* settbut = uiToolButton::getStd( this, OD::Settings,
+				mCB(this,uiSurveyManager,settsCB),
+				uiStrings::sUserSettings() );
     settbut->attach( rightTo, datarootfld_ );
     settbut->attach( rightBorder );
 
@@ -233,7 +227,7 @@ void uiSurveyManager::mkSurvManTools()
     survmanbuts_ = new uiButtonGroup( survselgrp_, "Surv Man Buttons",
 				      OD::Vertical );
     survmanbuts_->attach( rightTo, survdirfld_ );
-    new uiToolButton( survmanbuts_, "addnew",
+    new uiToolButton( survmanbuts_, "create",
 			uiStrings::phrCreate(mJoinUiStrs(sNew(),
 			sSurvey())), mCB(this,uiSurveyManager,newButPushed) );
     editbut_ = new uiToolButton( survmanbuts_, "edit",
@@ -241,12 +235,12 @@ void uiSurveyManager::mkSurvManTools()
 				 mCB(this,uiSurveyManager,editButPushed) );
     new uiToolButton( survmanbuts_, "copyobj",
 	tr("Copy Survey"), mCB(this,uiSurveyManager,copyButPushed) );
-    new uiToolButton( survmanbuts_, "compress",
-	tr("Compress survey as zip archive"),
-	mCB(this,uiSurveyManager,compressButPushed) );
-    new uiToolButton( survmanbuts_, "extract",
+    new uiToolButton( survmanbuts_, "import",
 	tr("Extract survey from zip archive"),
 	mCB(this,uiSurveyManager,extractButPushed) );
+    new uiToolButton( survmanbuts_, "export",
+	tr("Compress survey as zip archive"),
+	mCB(this,uiSurveyManager,compressButPushed) );
     new uiToolButton( survmanbuts_, "share",
 	tr("Share surveys through the OpendTect Seismic Repository"),
 	mSCB(osrbuttonCB) );
@@ -498,16 +492,9 @@ void uiSurveyManager::compressButPushed( CallBacker* )
 }
 
 
-void uiSurveyManager::genSettsCB( CallBacker* )
+void uiSurveyManager::settsCB( CallBacker* )
 {
-    uiSettingsDlg dlg( this, false );
-    dlg.go();
-}
-
-
-void uiSurveyManager::lnfSettsCB( CallBacker* )
-{
-    uiSettingsDlg dlg( this, true );
+    uiSettingsDlg dlg( this );
     dlg.go();
 }
 
@@ -629,12 +616,14 @@ void uiSurveyManager::putToScreen()
     const SurveyInfo& si = *curSI();
     notesfld_->setText( si.comments() );
 
-    zinfo.add( "(" )
-	 .add( si.zIsTime() ? ZDomain::Time().unitStr().getFullString()
-			    : getDistUnitString(si.zInFeet(), false) )
-	 .add( "): " );
+    zinfo.add( "(" );
+    if ( si.zIsTime() )
+	zinfo.add( toString(ZDomain::Time().unitStr()) );
+    else
+	zinfo.add( getDistUnitString(si.zInFeet(), false) );
+     zinfo.add( "): " );
 
-    bininfo.add( " (" ).add( si.xyUnitString(false).getFullString() )
+    bininfo.add( " (" ).add( toString(si.xyUnitString(false)) )
 	    .add( "/line): " );
     areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
 

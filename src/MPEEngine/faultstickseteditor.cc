@@ -293,8 +293,8 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
     if ( change )
     {
-	EM::FSSMan().undo().setUserInteractionEnd(
-					EM::FSSMan().undo().currentEventID() );
+	EM::FSSMan().undo(emfss->id()).setUserInteractionEnd(
+			EM::FSSMan().undo(emfss->id()).currentEventID() );
     }
 
     return change;

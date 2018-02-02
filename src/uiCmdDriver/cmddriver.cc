@@ -1024,7 +1024,7 @@ bool CmdDriver::tryAction( const char* identname, const char* actstr )
 }
 
 
-const char* CmdDriver::curWinTitle( int aliasnr ) const
+BufferString CmdDriver::curWinTitle( int aliasnr ) const
 {
     return windowTitle( applwin_, (openqdialog_ ? 0 : curWin()), aliasnr );
 }

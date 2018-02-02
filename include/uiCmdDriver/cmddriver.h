@@ -326,7 +326,7 @@ protected:
 public:
 			// interface for output stream macros
     od_ostream&		logStream()			 { return logstream_; }
-    const char*		curWinTitle(int aliasnr=0) const;
+    BufferString	curWinTitle(int aliasnr=0) const;
 
     bool		streamBlocked(bool parse,const char* tag);
 			// Does tryout management as side-effect!

@@ -116,20 +116,21 @@ private:
 int Execute_batch(int*,char**);
 mGlobal(Batch) BatchProgram& BP();
 
-#define mRetJobErr(s) \
-{  \
-    if ( comm_ ) comm_->setState( JobCommunic::JobError ); \
-    mRetError(s) \
-}
-
 
 #define mRetError(s) \
 { errorMsg(toUiString(s)); mDestroyWorkers; return false; }
 
+#define mRetJobErr(s) \
+{  \
+    if ( comm_ ) \
+	comm_->setState( JobCommunic::JobError ); \
+    mRetError(s) \
+}
+
 #define mRetHostErr(s) \
 {  \
     if ( comm_ ) comm_->setState( JobCommunic::HostError ); \
-	mRetError(toUiString(s)) \
+	mRetError(s) \
 }
 
 #define mStrmWithProcID(s) \

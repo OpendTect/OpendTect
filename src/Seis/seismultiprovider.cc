@@ -182,8 +182,8 @@ uiRetVal Seis::MultiProvider::fillPar( IOPar& iop ) const
     iop.set( sKey::TotalNr(), totalnr_ );
     iop.set( sKey::ZRange(), zsampling_ );
     iop.set( sKeySpecialValue(), specialvalue_ );
-    iop.set( PolicyDef().name(), MultiProvider::toUiString(policy_) );
-    iop.set( ZPolicyDef().name(), MultiProvider::toUiString(zpolicy_) );
+    iop.set( PolicyDef().name(), MultiProvider::toString(policy_) );
+    iop.set( ZPolicyDef().name(), MultiProvider::toString(zpolicy_) );
 
     uiRetVal uirv;
     doFillPar( iop, uirv );

@@ -47,7 +47,7 @@ static const char* outpstrs[] =
 
 using namespace Attrib;
 
-mInitAttribUI(uiEventAttrib,Event,"Event",sKeyPatternGrp())
+mInitAttribUI(uiEventAttrib,Event,uiStrings::sEvent(mPlural),sPatternGrp())
 
 
 uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )

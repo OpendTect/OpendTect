@@ -33,49 +33,52 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-// uiProcSettings
+// uiProcSettingsGroup
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
 static const char* sKeyClusterProcEnv = "DTECT_CLUSTER_PROC";
 
 
 const uiString uiStartBatchJobDialog::sKeyNoParFiles()
-{ return tr("<No job files found>");	}
-
-
-static bool enabClusterProc()
 {
-    bool enabclusterproc = false;
-    const bool hassetting =
-	Settings::common().getYN( sKeyClusterProc, enabclusterproc );
-    if ( !hassetting )
-	enabclusterproc = GetEnvVarYN( sKeyClusterProcEnv );
-    return enabclusterproc;
+    return tr("<No job files found>");
 }
 
 
-uiProcSettings::uiProcSettings( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,uiStrings::sProcessing(),setts)
+uiProcSettingsGroup::uiProcSettingsGroup( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,setts)
+    , initialnrinl_( InlineSplitJobDescProv::defaultNrInlPerJob() )
+    , initialcpenabled_( clusterProcEnabled() )
 {
-    nrinl_ = InlineSplitJobDescProv::defaultNrInlPerJob();
     nrinlfld_ = new uiGenInput( this, tr("Default number of inlines per job"),
-				IntInpSpec(nrinl_,1,10000) );
+				IntInpSpec(initialnrinl_,1,10000) );
 
-    enabclusterproc_ = enabClusterProc();
     clusterfld_ = new uiGenInput( this, tr("Enable cluster processing"),
-				  BoolInpSpec(enabclusterproc_) );
+				  BoolInpSpec(initialcpenabled_) );
     clusterfld_->attach( alignedBelow, nrinlfld_ );
 }
 
 
-HelpKey uiProcSettings::helpKey() const
-{ return mODHelpKey(mProcSettingsHelpID); }
-
-
-bool uiProcSettings::acceptOK()
+bool uiProcSettingsGroup::clusterProcEnabled() const
 {
-    InlineSplitJobDescProv::setDefaultNrInlPerJob( nrinlfld_->getIntValue() );
-    Settings::common().setYN( sKeyClusterProc, clusterfld_->getBoolValue() );
-    return true;
+    bool isenab = false;
+    const bool hassetting = setts_.getYN( sKeyClusterProc, isenab );
+    if ( !hassetting )
+	isenab = GetEnvVarYN( sKeyClusterProcEnv );
+    return isenab;
+}
+
+
+void uiProcSettingsGroup::doCommit( uiRetVal& )
+{
+    const int nrinl = nrinlfld_->getIntValue();
+    if ( nrinl != initialnrinl_ )
+    {
+	changed_ = true;
+	InlineSplitJobDescProv::setDefaultNrInlPerJob( nrinl );
+    }
+
+    const bool cpenabled  = clusterfld_->getBoolValue();
+    updateSettings( initialcpenabled_, cpenabled, sKeyClusterProc );
 }
 
 

@@ -362,7 +362,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
     ObjectSet<const Selector<Coord3> > selectors;
     selectors += &selector;
     EMObjectPosSelector posselector( *this, selectors );
-    posselector.executeParallel( tskr );
+    trprov.execute( posselector );
 
     const TypeSet<EM::PosID>& list = posselector.getSelected();
 
@@ -535,6 +535,17 @@ bool EMObject::usePar( const IOPar& par )
 
     return true;
 }
+
+
+void EMObject::setLockColor( const Color& col )
+{
+    mLock4Write();
+    lockcolor_ = col;
+    mSendEMCBNotif( EMObject::cLockColorChange() );
+}
+
+const Color EMObject::getLockColor() const
+{ return lockcolor_; }
 
 
 void EMObject::saveDisplayPars() const

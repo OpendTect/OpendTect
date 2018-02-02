@@ -79,7 +79,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 				    uiStrings::sStep().toLower()),
 				    mCB(this,uiProcessorManager,propertiesCB) );
 
-    removeprocessorbutton_ = new uiToolButton( butgrp, "trashcan",
+    removeprocessorbutton_ = new uiToolButton( butgrp, "remove",
 			     uiStrings::phrRemove(uiStrings::sStep().toLower()),
 			     mCB(this,uiProcessorManager,removeCB) );
 

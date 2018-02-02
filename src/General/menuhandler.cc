@@ -105,8 +105,35 @@ MenuItem* MenuItemHolder::findItem( int searchid )
 }
 
 
+const MenuItem* MenuItemHolder::findItem( const uiString& tofindtxt ) const
+{
+    return const_cast<MenuItemHolder*>(this)->findItem( tofindtxt );
+}
+
+
+MenuItem* MenuItemHolder::findItem( const uiString& tofindtxt )
+{
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	if ( items_[idx]->text.isEqualTo( tofindtxt ) )
+	    return items_[idx];
+    }
+
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	MenuItem* item = items_[idx]->findItem( tofindtxt );
+	if ( item )
+	    return item;
+    }
+
+    return 0;
+}
+
+
 const MenuItem* MenuItemHolder::findItem( const char* txt ) const
-{ return const_cast<MenuItemHolder*>(this)->findItem(txt); }
+{
+    return const_cast<MenuItemHolder*>(this)->findItem(txt);
+}
 
 
 MenuItem* MenuItemHolder::findItem( const char* txt )
@@ -115,7 +142,7 @@ MenuItem* MenuItemHolder::findItem( const char* txt )
     tofindtxt.remove( '&' );
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	BufferString itmtxt = items_[idx]->text.getFullString();
+	BufferString itmtxt = toString(items_[idx]->text);
 	itmtxt.remove( '&' );
 	if ( itmtxt == tofindtxt )
 	    return items_[idx];
@@ -124,7 +151,8 @@ MenuItem* MenuItemHolder::findItem( const char* txt )
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	MenuItem* item = items_[idx]->findItem( txt );
-	if ( item ) return item;
+	if ( item )
+	    return item;
     }
 
     return 0;
@@ -169,6 +197,18 @@ MenuItem::MenuItem( const uiString& txt, int pl )
     , checked(false)
     , enabled(true)
 {
+    id = itemid++;
+}
+
+
+MenuItem::MenuItem( const uiString& txt, const char* icid, int pl )
+    : text(txt)
+    , placement(pl)
+    , checkable(false)
+    , checked(false)
+    , enabled(true)
+{
+    iconfnm = icid;
     id = itemid++;
 }
 

@@ -8,7 +8,6 @@ set( OD_MODULE_DEPS uiTools uiFlatView Geometry )
 set( OD_MODULE_SOURCES
 	dpsdensitycalc.cc
 	ui2dgeomman.cc
-	ui2dsip.cc
 	uiautosaverdlg.cc
 	uibatchhostsdlg.cc
 	uibatchlaunch.cc
@@ -65,6 +64,7 @@ set( OD_MODULE_SOURCES
 	uiselobjothersurv.cc
 	uiselsurvranges.cc
 	uisrchprocfiles.cc
+	uisipimpl.cc
 	uisurveymanager.cc
 	uisurveyselect.cc
 	uisurvinfoed.cc

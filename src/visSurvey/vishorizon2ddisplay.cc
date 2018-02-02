@@ -446,19 +446,15 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	    const Pos::GeomID geomid = emgeo.geomID( lnidx );
 	    geomids += geomid;
 
-	    for ( int idy=0; idy<h2d->nrSections(); idy++ )
+	    const Geometry::Horizon2DLine* ghl = emgeo.geometryElement();
+	    if ( ghl )
 	    {
-		const Geometry::Horizon2DLine* ghl =
-		    emgeo.geometryElement();
-		if ( ghl )
-		{
-		    linergs.trcrgs += TypeSet<Interval<int> >();
-		    linergs.zrgs += TypeSet<Interval<float> >();
-		    const int ridx = linergs.trcrgs.size()-1;
+		linergs.trcrgs += TypeSet<Interval<int> >();
+		linergs.zrgs += TypeSet<Interval<float> >();
+		const int ridx = linergs.trcrgs.size()-1;
 
-		    linergs.trcrgs[ridx] += ghl->colRange( geomid );
-		    linergs.zrgs[ridx] += ghl->zRange( geomid );
-		}
+		linergs.trcrgs[ridx] += ghl->colRange( geomid );
+		linergs.zrgs[ridx] += ghl->zRange( geomid );
 	    }
 	}
     }
@@ -505,7 +501,7 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
       {
 	  mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
 	  if ( hor2d && selections_ && selections_->getMaterial() )
-	      selections_->getMaterial()->setColor(hor2d->getSelectionColor());
+	      selections_->getMaterial()->setColor(hor2d->selectionColor());
       }
     }
 
@@ -642,13 +638,13 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
     {
 	const Line2DInterSection::Point& intpoint = intsect->getPoint(idx);
 
-	if ( lngid != seisgid && intpoint.line != lngid )
+	if ( lngid != seisgid && intpoint.otherid_ != lngid )
 	    continue;
 
 	for ( int idy=0; idy<sids_.size(); idy++ )
 	{
 	    const int trcnr =
-		lngid != seisgid ? intpoint.linetrcnr : intpoint.mytrcnr;
+		lngid != seisgid ? intpoint.othertrcnr_ : intpoint.mytrcnr_;
 	    const Coord3 crd = hor2d->getPos( lngid, trcnr );
 	    if ( crd.isDefined() )
 		intsectpnts += crd;
@@ -874,7 +870,7 @@ void Horizon2DDisplay::initSelectionDisplay( bool erase )
 	selections_->ref();
 
 	if ( h2d && selections_->getMaterial() )
-	    selections_->getMaterial()->setColor( h2d->getSelectionColor() );
+	    selections_->getMaterial()->setColor( h2d->selectionColor() );
 	addChild( selections_->osgNode() );
 	selections_->setDisplayTransformation( transformation_ );
     }
@@ -913,7 +909,7 @@ void Horizon2DDisplay::updateSelections()
 	if ( sel->includes( pos ) )
 	{
 	    const int pidx = selections_->addPoint( pos );
-	    selectionids_ += pid.subID();
+	    selectionids_ += pid;
 	    pidxs += pidx;
 	}
     }
@@ -926,7 +922,7 @@ void Horizon2DDisplay::updateSelections()
     pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
     selections_->getMaterial()->setColor(
-	h2d->getSelectionColor() );
+	h2d->selectionColor() );
     selections_->turnOn( true );
 }
 

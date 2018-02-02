@@ -10,6 +10,13 @@
 #include "odplugin.h"
 
 
+mDefODInitPlugin(uiCRS)
+{
+    Coords::uiProjectionBasedSystem::initClass();
+    return 0;
+}
+
+
 mDefODPluginInfo(uiCRS)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
@@ -20,14 +27,10 @@ mDefODPluginInfo(uiCRS)
 		    "using the PROJ.4 services" ) );
     retpi.useronoffselectable_ = true;
     retpi.url_ = "proj4.org";
+    mSetPackageDisplayName( retpi,
+			    Coords::uiProjectionBasedSystem::pkgDispNm() );
+    retpi.uidispname_ = retpi.uipackagename_;
     return &retpi;
-}
-
-
-mDefODInitPlugin(uiCRS)
-{
-    Coords::uiProjectionBasedSystem::initClass();
-    return 0;
 }
 
 mDefODPluginSurvRelToolsLoadFn(uiCRS)

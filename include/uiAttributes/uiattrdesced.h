@@ -24,6 +24,7 @@ namespace ZDomain { class Info; }
 class uiAttrDescEd;
 class uiAttrSel;
 class uiAttrSelData;
+class uiAttrTypeSel;
 class uiImagAttrSel;
 class uiSteeringSel;
 class uiSteerAttrSel;
@@ -78,6 +79,9 @@ public:
 
     typedef Attrib::Desc	Desc;
     typedef Attrib::DescSet	DescSet;
+    enum DomainType		{ TimeAndDepth, Time, Depth };
+    enum DimensionType		{ AnyDim, Only3D, Only2D };
+    enum SynthAttrType		{ Not4Synth, Usable4Synth };
 
     virtual		~uiAttrDescEd();
     HelpKey		helpKey()			{ return helpkey_; }
@@ -102,17 +106,11 @@ public:
 
     virtual void	getEvalParams(TypeSet<EvalParam>&) const {}
 
-    virtual const char* attribName() const		= 0;
-    const char*		displayName() const		{ return dispname_; }
-    void		setDisplayName(const char* nm ) { dispname_ = nm; }
-
-    enum DomainType	{ Both, Time, Depth };
-    DomainType		domainType() const		{ return domtyp_; }
-    void		setDomainType( DomainType t )	{ domtyp_ = t; }
-
-    enum DimensionType	{ AnyDim, Only3D, Only2D };
-    DimensionType	dimensionType() const		{ return dimtyp_; }
-    void		setDimensionType( DimensionType t ) { dimtyp_ = t; }
+    virtual const char*	attribName() const		= 0;
+    virtual uiString	displayName() const		= 0;
+    virtual uiString	groupName() const		= 0;
+    virtual DomainType	domainType() const		= 0;
+    virtual DimensionType dimensionType() const		= 0;
 
     bool		is2D() const			{ return is2d_; }
 
@@ -173,31 +171,30 @@ protected:
 
     ChangeTracker	chtr_;
     HelpKey		helpkey_;
-    BufferString	attrnm_;
-    DomainType		domtyp_;
-    DimensionType	dimtyp_;
-    DescSet*	ads_;
+    DescSet*		ads_;
     bool		is2d_;
     const ZDomain::Info* zdomaininfo_;
 
     TypeSet<DataPack::FullID> dpfids_;
 
-    static const char*	sKeyOtherGrp();
-    static const char*	sKeyBasicGrp();
-    static const char*	sKeyFilterGrp();
-    static const char*	sKeyFreqGrp();
-    static const char*	sKeyPatternGrp();
-    static const char*	sKeyStatsGrp();
-    static const char*	sKeyPositionGrp();
-    static const char*	sKeyDipGrp();
-
+    static uiString	sOtherGrp();
+    static uiString	sBasicGrp();
+    static uiString	sFilterGrp();
+    static uiString	sFreqGrp();
+    static uiString	sPatternGrp();
+    static uiString	sStatsGrp();
+    static uiString	sPositionGrp();
+    static uiString	sDipGrp();
+    static uiString	sTraceMatchGrp();
+    static uiString	sExperimentalGrp();
     static uiString	sInputTypeError(int input);
     static uiString	sDefLabel(); // uiAttrSel::sDefLabel()
 
 private:
 
-    BufferString	dispname_;
     Desc*		desc_;
+
+    friend class	uiAttrTypeSel;
 
 };
 
@@ -205,39 +202,58 @@ private:
 #define mDeclReqAttribUIFns \
 protected: \
     static uiAttrDescEd* createInstance(uiParent*,bool); \
-    static int factoryid_; \
+    static int		factoryid_; \
+    static BufferString	attrnm_; \
+    static uiString	groupname_; \
+    static uiString	dispname_; \
+    static DomainType	domtyp_; \
+    static DimensionType dimtyp_; \
 public: \
-    static void initClass(); \
-    virtual const char* attribName() const; \
-    static int factoryID() { return factoryid_; }
+    static void		initClass(); \
+    static int		factoryID()		{ return factoryid_; } \
+    const char*		attribName() const	{ return attrnm_; } \
+    uiString		displayName() const	{ return dispname_; } \
+    uiString		groupName() const	{ return groupname_; } \
+    DomainType		domainType() const	{ return domtyp_; } \
+    DimensionType	dimensionType() const	{ return dimtyp_; }
 
 
-#define mInitAttribUIPars(clss,attr,displaynm,grp,domtyp,dimtyp,supportsynth) \
+#define mGenInitAttribUIPars( clss, attr, dispnm, grp, domtyp, dimtyp, \
+			      synthtyp, isgrpdef) \
 \
 int clss::factoryid_ = -1; \
+BufferString clss::attrnm_; \
+uiString clss::groupname_; \
+uiString clss::dispname_; \
+uiAttrDescEd::DomainType clss::domtyp_ = uiAttrDescEd::domtyp; \
+uiAttrDescEd::DimensionType clss::dimtyp_ = uiAttrDescEd::dimtyp; \
 \
 void clss::initClass() \
 { \
     if ( factoryid_ < 0 ) \
-	factoryid_ = uiAF().add( displaynm, attr::attribName(), grp, \
+	factoryid_ = uiAF().add( dispnm, attr::attribName(), grp, \
 		     clss::createInstance, (int)domtyp, (int)dimtyp, \
-		     (bool)supportsynth ); \
+		     synthtyp == Usable4Synth, isgrpdef ); \
+    dispname_ = dispnm; domtyp_ = domtyp; dimtyp_ = dimtyp; \
+    attrnm_ = attr::attribName(); \
 } \
 \
 uiAttrDescEd* clss::createInstance( uiParent* p, bool is2d ) \
 { \
-    uiAttrDescEd* de = new clss( p, is2d ); \
-    de->setDisplayName( displaynm ); \
-    de->setDomainType( domtyp ); \
-    de->setDimensionType( dimtyp ); \
-    return de; \
+    return new clss( p, is2d ); \
 } \
-\
-const char* clss::attribName() const \
-{ \
-    return attr::attribName(); \
-}
 
-#define mInitAttribUI( clss, attr, displaynm, grp ) \
-    mInitAttribUIPars(clss,attr,displaynm,grp,uiAttrDescEd::Both, \
-		      uiAttrDescEd::AnyDim,true)
+#define mInitAttribUIPars(clss,attr,dispnm,grp,domtyp,dimtyp,synthtype) \
+mGenInitAttribUIPars(clss,attr,dispnm,grp,domtyp,dimtyp,synthtype,false)
+
+#define mInitAttribUI( clss, attr, dispnm, grp ) \
+mInitAttribUIPars(clss,attr,dispnm,grp,TimeAndDepth,AnyDim,Usable4Synth)
+
+#define mInitAttribUINoSynth( clss, attr, dispnm, grp ) \
+mInitAttribUIPars(clss,attr,dispnm,grp,TimeAndDepth,AnyDim,Not4Synth)
+
+#define mInitGrpDefAttribUI( clss, attr, dispnm, grp ) \
+mGenInitAttribUIPars(clss,attr,dispnm,grp,TimeAndDepth,AnyDim,Usable4Synth,true)
+
+#define mInitGrpDefAttribUINoSynth( clss, attr, dispnm, grp ) \
+mGenInitAttribUIPars(clss,attr,dispnm,grp,TimeAndDepth,AnyDim,Not4Synth,true)

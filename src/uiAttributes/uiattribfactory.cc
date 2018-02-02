@@ -27,13 +27,13 @@ uiAttributeFactory& uiAF()
 }
 
 
-int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
-			     const char* grpnm, uiAttrDescEdCreateFunc fn,
-			     int domtyp, int dimtyp, bool supportsynth )
+int uiAttributeFactory::add( const uiString& dispnm, const char* attrnm,
+			 const uiString& grpnm, uiAttrDescEdCreateFunc fn,
+			 int domtyp, int dimtyp, bool supportsynth, bool gd )
 {
-    Entry* entry = getEntry( dispnm, true );
+    Entry* entry = getEntry( attrnm );
     if ( !entry )
-	entry = getEntry( attrnm, false );
+	entry = getEntry( dispnm );
 
     if ( entry )
     {
@@ -44,11 +44,12 @@ int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 	entry->domtyp_ = domtyp;
 	entry->dimtyp_ = dimtyp;
 	entry->supportsynthetic_ = supportsynth;
+	entry->isgroupdef_ = gd;
     }
     else
     {
 	entry = new Entry( dispnm, attrnm, grpnm, fn, domtyp, dimtyp,
-			   supportsynth );
+			   supportsynth, gd );
 	entries_ += entry;
     }
 
@@ -56,53 +57,86 @@ int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 }
 
 
-uiAttrDescEd* uiAttributeFactory::create( uiParent* p, const char* nm,
-					  bool is2d, bool isdisp ) const
+uiAttrDescEd* uiAttributeFactory::create( uiParent* p, const uiString& nm,
+					  bool is2d ) const
 {
-    Entry* entry = getEntry( nm, isdisp );
-    if ( !entry ) return 0;
-
-    uiAttrDescEd* ed = entry->crfn_( p, is2d );
-    if ( ed )
-    {
-	ed->setDisplayName( entry->dispnm_ );
-	ed->setDomainType( (uiAttrDescEd::DomainType)entry->domtyp_ );
-	ed->setDimensionType( (uiAttrDescEd::DimensionType)entry->dimtyp_ );
-    }
-    return ed;
+    Entry* entry = getEntry( nm );
+    return entry ? entry->crfn_( p, is2d ) : 0;
 }
 
 
-uiAttributeFactory::Entry* uiAttributeFactory::getEntry( const char* nm,
-							 bool isdisp ) const
+uiAttrDescEd* uiAttributeFactory::create( uiParent* p, const char* nm,
+					  bool is2d ) const
+{
+    Entry* entry = getEntry( nm );
+    return entry ? entry->crfn_( p, is2d ) : 0;
+}
+
+
+int uiAttributeFactory::indexOf( const char* nm ) const
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
-	if ( (isdisp && entries_[idx]->dispnm_ == nm)
-	  || (!isdisp && entries_[idx]->attrnm_ == nm) )
-	    return const_cast<uiAttributeFactory*>( this )->entries_[idx];
+	if ( entries_[idx]->attrnm_ == nm )
+	    return idx;
+    }
+    return -1;
+}
+
+
+int uiAttributeFactory::indexOf( const uiString& nm ) const
+{
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( entries_[idx]->dispnm_.isEqualTo(nm) )
+	    return idx;
+    }
+    return -1;
+}
+
+
+uiAttributeFactory::Entry* uiAttributeFactory::getEntry( const char* nm ) const
+{
+    const int idx = indexOf( nm );
+    return idx < 0 ? 0 : const_cast<uiAttributeFactory*>( this )->entries_[idx];
+}
+
+
+uiAttributeFactory::Entry* uiAttributeFactory::getEntry(
+					const uiString& nm ) const
+{
+    const int idx = indexOf( nm );
+    return idx < 0 ? 0 : const_cast<uiAttributeFactory*>( this )->entries_[idx];
+}
+
+
+const uiString& uiAttributeFactory::dispNameOf( const char* attrnm ) const
+{
+    Entry* entry = getEntry( attrnm );
+    return entry ? entry->dispnm_ : uiString::emptyString();
+}
+
+
+const char* uiAttributeFactory::attrNameOf( const uiString& attrnm ) const
+{
+    const Entry* entry = getEntry( attrnm );
+    return entry ? entry->attrnm_.str() : 0;
+}
+
+
+#define mRetInfo(memb,notvalidval) \
+    return entries_.validIdx(idx) ? entries_[idx]->memb : notvalidval
+
+#define mDefInfoFn(rettyp,fnnm,memb,notvalidval) \
+    rettyp uiAttributeFactory::fnnm( int idx ) const \
+    { \
+	return entries_.validIdx(idx) ? entries_[idx]->memb : notvalidval; \
     }
 
-    return 0;
-}
-
-
-const char* uiAttributeFactory::dispNameOf( const char* attrnm ) const
-{
-    Entry* entry = getEntry( attrnm, false );
-    return entry ? ((const char*)entry->dispnm_) : 0;
-}
-
-
-const char* uiAttributeFactory::attrNameOf( const char* attrnm ) const
-{
-    const Entry* entry = getEntry( attrnm, true );
-    return entry ? ((const char*)entry->attrnm_) : 0;
-}
-
-
-bool uiAttributeFactory::isPresent( const char* nm, bool isdispnm ) const
-{
-    Entry* entry = getEntry( nm, isdispnm );
-    return entry;
-}
+mDefInfoFn( const char*, getAttribName, attrnm_, 0 )
+mDefInfoFn( const uiString&, getDisplayName, dispnm_, uiString::emptyString() )
+mDefInfoFn( const uiString&, getGroupName, grpnm_, uiString::emptyString() )
+mDefInfoFn( int, domainType, domtyp_, 0 )
+mDefInfoFn( int, dimensionType, dimtyp_, 0 )
+mDefInfoFn( bool, isSyntheticSupported, supportsynthetic_, false )
+mDefInfoFn( bool, isGroupDef, isgroupdef_, false )

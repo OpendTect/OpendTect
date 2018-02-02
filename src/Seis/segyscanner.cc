@@ -79,8 +79,9 @@ SEGY::Scanner::~Scanner()
 
 void SEGY::Scanner::closeTr()
 {
-    if ( !tr_ ) return;
-    trwarns_.add( tr_->warnings(), true );
+    if ( !tr_ )
+	return;
+    trwarns_.add( tr_->warnings() );
     delete tr_; tr_ = 0;
 }
 
@@ -144,7 +145,7 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
 	{
 	    BufferString keyw( "Error during read of " );
 	    keyw += fnm;
-	    iop.add( keyw, scanerrmsgs_[idx].getFullString() );
+	    iop.add( keyw, toString(scanerrmsgs_[idx]) );
 	}
     }
 
@@ -152,7 +153,7 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
     {
 	BufferString keyw( "Failed to read " );
 	keyw += failedfnms_.get( idx );
-	iop.add( keyw, failerrmsgs_[idx].getFullString() );
+	iop.add( keyw, toString(failerrmsgs_[idx]) );
     }
 
 }

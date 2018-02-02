@@ -22,7 +22,7 @@ class AttribProbeLayer;
 mExpClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
 { mODTextTranslationClass(mODTextTranslationClass);
 public:
-    			uiODAttribTreeItem( const char* parenttype );
+			uiODAttribTreeItem( const char* parenttype );
 			~uiODAttribTreeItem();
 
     const AttribProbeLayer* attribProbeLayer() const;

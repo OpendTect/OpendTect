@@ -35,8 +35,9 @@ public:
     inline FixedString&	operator=( const char* p )
 						{ str_ = p; return *this; }
     FixedString&	operator=(const OD::String&)	= delete;
-				//!< Not impl - on purpose: too dangerous
-    inline		operator const char*() const	{ return buf(); }
+						//!< too dangerous
+    inline		operator const char*() const
+						{ return buf(); }
 
     inline bool		operator==( const FixedString& fs ) const
 						{ return isEqual(fs.str_);}

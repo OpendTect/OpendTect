@@ -613,7 +613,7 @@ void uiHorizonSetupGroup::initPropertyGroup()
 
     const EM::EMObject& emobj = sectiontracker_->emObject();
     lockcolfld_->setColor( emobj.getLockColor() );
-    selectioncolfld_->setColor( emobj.getSelectionColor() );
+    selectioncolfld_->setColor( emobj.selectionColor() );
 
     mDynamicCastGet(const EM::Horizon3D*,hor3d,&emobj)
     if ( hor3d )

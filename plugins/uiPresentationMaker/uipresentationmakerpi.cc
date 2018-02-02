@@ -16,17 +16,6 @@
 #include "odplugin.h"
 
 
-mDefODPluginInfo(uiPresentationMaker)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Presentation Maker",
-	"Powerpoint Presentation Maker",
-	mODPluginCreator, mODPluginVersion,
-	"Create Powerpoint presentations from OpendTect") );
-    retpi.useronoffselectable_ = true;
-    return &retpi;
-}
-
 
 class uiPresMakerPIMgr	: public CallBacker
 { mODTextTranslationClass(uiPresMakerPIMgr)
@@ -39,6 +28,9 @@ public:
 
     void			updateMenu(CallBacker*);
     void			mnuCB(CallBacker*);
+
+    static uiString		pkgDispNm()
+				{ return tr("Powerpoint Presentation Maker"); }
 };
 
 
@@ -50,7 +42,7 @@ uiPresMakerPIMgr::uiPresMakerPIMgr( uiODMain* a )
     mAttachCB( DBM().applicationClosing, uiPresMakerPIMgr::updateMenu );
 
     uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
-			mCB(this,uiPresMakerPIMgr,mnuCB) );
+			mCB(this,uiPresMakerPIMgr,mnuCB), "ppt" );
     appl_->menuMgr().toolsMnu()->insertAction( action );
 }
 
@@ -58,7 +50,7 @@ uiPresMakerPIMgr::uiPresMakerPIMgr( uiODMain* a )
 void uiPresMakerPIMgr::updateMenu( CallBacker* )
 {
     if ( dlg_ )
-    { dlg_->close(); delete dlg_; dlg_ = 0; }
+	{ dlg_->close(); delete dlg_; dlg_ = 0; }
 }
 
 
@@ -68,6 +60,19 @@ void uiPresMakerPIMgr::mnuCB( CallBacker* )
 	dlg_ = new uiPresentationMakerDlg( appl_ );
 
     dlg_->show();
+}
+
+
+mDefODPluginInfo(uiPresentationMaker)
+{
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"Presentation Maker",
+	"Powerpoint Presentation Maker",
+	mODPluginCreator, mODPluginVersion,
+	"Create Powerpoint presentations from OpendTect") );
+    retpi.useronoffselectable_ = true;
+    mSetPackageDisplayName( retpi, uiPresMakerPIMgr::pkgDispNm() );
+    return &retpi;
 }
 
 

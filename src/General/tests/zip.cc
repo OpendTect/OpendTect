@@ -17,7 +17,7 @@
 { \
 if ( !command ) \
 { \
-    od_cout() << testname << " failed!\n" << err.getFullString(); \
+    od_cout() << testname << " failed!\n" << toString(err); \
     File::remove( zipfilename.fullPath() ); \
     File::removeDir( outputdir.fullPath() ); \
     return 1; \

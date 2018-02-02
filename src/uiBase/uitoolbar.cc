@@ -37,7 +37,7 @@ ObjectSet<uiToolBar>& uiToolBar::toolBars()
 
 uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
 		      bool newline )
-    : uiParent(nm.getFullString(),0)
+    : uiParent(toString(nm),0)
     , parent_(parnt)
     , tbarea_(tba)
     , buttonClicked(this)
@@ -125,7 +125,7 @@ void uiToolBar::setLabel( const uiString& lbl )
 {
     label_ = lbl;
     qtoolbar_->setWindowTitle( lbl.getQString() );
-    setName( lbl.getFullString() );
+    setName( toString(lbl) );
 }
 
 #define mGetAction( conststatement, erraction ) \

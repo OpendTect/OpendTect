@@ -771,8 +771,8 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* cb )
 		msg.append( " on %1" ).arg( hnm );
 	    if ( !jobrunner_->errorMsg().isEmpty() )
 		msg.append( ":\n" ).append( jobrunner_->errorMsg() );
-	    progrfld_->append( msg.getFullString() );
-	    mLogMsg( msg.getFullString() );
+	    progrfld_->append( toString(msg) );
+	    mLogMsg( toString(msg) );
 	}
     }
 

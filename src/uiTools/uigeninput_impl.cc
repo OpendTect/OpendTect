@@ -271,15 +271,15 @@ uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec,
 
 
 const char* uiGenInputBoolFld::text() const
-{ return yn_ ? truetxt_.getFullString() : falsetxt_.getFullString(); }
+{ return yn_ ? toString(truetxt_) : toString(falsetxt_); }
 
 
 void uiGenInputBoolFld::setText( const char* t )
 {
     bool newval;
-    if ( truetxt_.getFullString() == t ) newval = true;
-    else if ( falsetxt_.getFullString()==t ) newval = false;
-    else newval = toBool(t);
+    if ( toString(truetxt_) == t )		newval = true;
+    else if ( toString(falsetxt_) == t )	newval = false;
+    else					newval = toBool(t);
 
     setvalue_(newval);
 }

@@ -13,7 +13,9 @@ void UserInputObj::setValue( const char* s )
 
 
 void UserInputObj::addItem( const uiString& s )
-{ setText(s.getFullString()); }
+{
+    setText( toString(s) );
+}
 
 
 bool UserInputObj::notifyValueChanging( const CallBack& cb )

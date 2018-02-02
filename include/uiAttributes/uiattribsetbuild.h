@@ -66,6 +66,6 @@ protected:
     virtual void	editReq(bool);
     virtual void	removeReq();
     virtual bool	ioReq(bool);
-    virtual const char*	avFromDef(const char*) const;
+    virtual uiString	avFromDef(const char*) const;
 
 };

@@ -552,7 +552,7 @@ bool Well::odReader::getLogs() const
 	if ( !addLog(strm) )
 	{
 	    setStrmOperErrMsg( strm, tr("read data") );
-	    ErrMsg( errmsg_.getFullString() ); errmsg_.setEmpty();
+	    ErrMsg( errmsg_ ); errmsg_.setEmpty();
 	    rv = false;
 	}
     }

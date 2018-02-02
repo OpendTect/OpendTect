@@ -62,7 +62,6 @@ uiLabel::uiLabel( uiParent* p, const uiString& txt, uiGroup* grp )
 
 uiLabel::uiLabel( uiParent* p, const uiString& txt, uiObject* buddy )
     : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
-    , isrequired_(false)
 {
     init( txt, buddy );
 }
@@ -70,9 +69,12 @@ uiLabel::uiLabel( uiParent* p, const uiString& txt, uiObject* buddy )
 
 void uiLabel::init( const uiString& txt, uiObject* buddy )
 {
-//Overcome QMacStyles setting of fonts, which is not inline with
-//our layout.
+    isrequired_ = false;
+    horalign_ = OD::Alignment::HCenter;
+
 #ifdef __mac__
+    // Overcome QMacStyles setting of fonts, which is not in line with
+    // our layout
     setFont( uiFontList::getInst().get(FontData::Control) );
 #endif
 
@@ -107,34 +109,25 @@ static void addRequiredChar( QString& qstr )
 }
 
 
-void uiLabel::updateWidth()
-{
-    BufferStringSet strs; strs.unCat( text_.getFullString().buf() );
-    if ( strs.size() != 1 )
-	return;
-
-    int lblwidth = body_->fontWidthFor( text_ ) + 1;
-    if ( isrequired_ )
-	lblwidth++;
-
-    if ( body_ && body_->itemInited() )
-	body_->adjustSize();
-    else
-    {
-	const int prefwidth = prefHNrPics();
-	setPrefWidth( mMAX(lblwidth,prefwidth) );
-    }
-}
-
-
 void uiLabel::setText( const uiString& txt )
 {
+    if ( text_.isEqualTo(txt) )
+	return;
+    const bool wasempty = text_.isEmpty();
     text_ = txt;
+
     QString qstr = text_.getQString();
-    if ( isrequired_ ) addRequiredChar( qstr );
+    if ( isrequired_ )
+	addRequiredChar( qstr );
+
+    if ( !wasempty )
+    {
+	// body_->adjustSize();
+        setAlignment( horalign_ );
+    }
     body_->setText( qstr );
-    updateWidth();
     setName( text_.getOriginalString() );
+
 }
 
 
@@ -142,11 +135,12 @@ void uiLabel::makeRequired( bool yn )
 {
     isrequired_ = yn;
     QString qstr = text_.getQString();
-    if ( qstr.isEmpty() ) return;
+    if ( qstr.isEmpty() )
+	return;
 
-    if ( isrequired_ ) addRequiredChar( qstr );
+    if ( isrequired_ )
+	addRequiredChar( qstr );
     body_->setText( qstr );
-    updateWidth();
 }
 
 
@@ -156,7 +150,6 @@ void uiLabel::translateText()
     QString qstr = text_.getQString();
     if ( isrequired_ ) addRequiredChar( qstr );
     body_->setText( qstr );
-    updateWidth();
 }
 
 
@@ -175,7 +168,8 @@ void uiLabel::setTextSelectable( bool yn )
 
 void uiLabel::setPixmap( const uiPixmap& pixmap )
 {
-    if ( !pixmap.qpixmap() ) return;
+    if ( !pixmap.qpixmap() )
+	return;
 
     const uiFont& ft =
 	uiFontList::getInst().get( FontData::key(FontData::Control) );
@@ -193,14 +187,13 @@ void uiLabel::setIcon( const char* iconnm )
 
 void uiLabel::setAlignment( OD::Alignment::HPos hal )
 {
-    OD::Alignment al( hal, OD::Alignment::VCenter );
+    horalign_ = hal;
+    OD::Alignment al( horalign_, OD::Alignment::VCenter );
     body_->setAlignment( (Qt::AlignmentFlag)al.uiValue() );
 }
 
 
 OD::Alignment::HPos uiLabel::alignment() const
 {
-    OD::Alignment al;
-    al.setUiValue( (int)body_->alignment() );
-    return al.hPos();
+    return horalign_;
 }

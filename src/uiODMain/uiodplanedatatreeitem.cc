@@ -254,7 +254,8 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
 
     if ( mnuid==positionmnuitem_.id )
     {
@@ -285,7 +286,8 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     }
 
     mDynamicCastGet(uiMenuHandler*,uimh,menu);
-    if ( !uimh ) return;
+    if ( !uimh )
+	return;
 
     const Coord3 pickedpos = uimh->getPickedPos();
     TrcKey tk( SI().transform(pickedpos.getXY()) );
@@ -411,7 +413,9 @@ uiODPlaneDataParentTreeItem::uiODPlaneDataParentTreeItem( const uiString& nm )
 
 
 uiString uiODPlaneDataParentTreeItem::sAddAtWellLocation()
-{ return m3Dots(tr("Add at Well Location")); }
+{
+    return m3Dots(tr("Add at Well Location"));
+}
 
 
 void uiODPlaneDataParentTreeItem::addMenuItems()
@@ -453,22 +457,22 @@ bool uiODPlaneDataParentTreeItem::handleSubMenu( int mnuid )
 
 bool uiODPlaneDataParentTreeItem::setProbeToBeAddedParams( int mnuid )
 {
-    if ( mnuid==uiODSceneProbeParentTreeItem::cAddDefaultDataMenuID() ||
-	 mnuid==uiODSceneProbeParentTreeItem::cAddDefaultAttribMenuID() ||
-	 mnuid==uiODSceneProbeParentTreeItem::cAddAndSelectDataMenuID() ||
-	 mnuid==uiODSceneProbeParentTreeItem::cAddColorBlendedMenuID() )
-    {
-	typetobeadded_ = uiODSceneProbeParentTreeItem::getAddType( mnuid );
-	return setDefaultPosToBeAdded();
-    }
+    if ( !isSceneAddMnuId(mnuid) )
+	return false;
 
-    return false;
+    typetobeadded_ = getAddType( mnuid );
+    probetobeaddedpos_ = SI().sampling( true );
+    getDefZRange( probetobeaddedpos_.zsamp_ );
+    setDefaultPosToBeAdded();
+
+    return true;
 }
 
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
     : uiODPlaneDataParentTreeItem( uiStrings::sInline() )
-{}
+{
+}
 
 
 const char* uiODInlineParentTreeItem::iconName() const
@@ -492,23 +496,10 @@ bool uiODInlineParentTreeItem::canShowSubMenu() const
 }
 
 
-bool uiODInlineParentTreeItem::setDefaultPosToBeAdded()
+void uiODInlineParentTreeItem::setDefaultPosToBeAdded()
 {
-    const Interval<int> inlrg = SI().sampling( true ).hsamp_.lineRange();
-    Interval<int> definlrg( inlrg.center(), inlrg.center() );
-    probetobeaddedpos_.hsamp_.setLineRange( definlrg );
-    Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
-    if ( !vwr )
-    {
-	pErrMsg( "Huh ?? No Scene found" );
-	return false;
-    }
-
-    if ( !vwr->hasZAxisTransform() )
-	return true;
-
-    probetobeaddedpos_.zsamp_ = vwr->getZAxisTransform()->getZInterval( true );
-    return true;
+    TrcKeySampling& hs = probetobeaddedpos_.hsamp_;
+    hs.start_.inl() = hs.stop_.inl() = hs.lineRange().center();
 }
 
 
@@ -597,31 +588,15 @@ const char* uiODCrosslineParentTreeItem::childObjTypeKey() const
 
 bool uiODCrosslineParentTreeItem::canShowSubMenu() const
 {
-    if ( !SI().inlRange(true).width() ||
-	  SI().zRange(true).width() < SI().zStep() * 0.5 )
-    {
-	uiMSG().warning( tr("Flat survey, disabled cross-line display") );
-	return false;
-    }
-
-    return true;
+    return SI().inlRange(true).width() > 0
+	&& SI().zRange(true).width() > SI().zStep() * 0.5f;
 }
 
 
-bool uiODCrosslineParentTreeItem::setDefaultPosToBeAdded()
+void uiODCrosslineParentTreeItem::setDefaultPosToBeAdded()
 {
-    const Interval<int> crlrg = SI().sampling( true ).hsamp_.trcRange();
-    Interval<int> defcrlrg( crlrg.center(), crlrg.center() );
-    probetobeaddedpos_.hsamp_.setTrcRange( defcrlrg );
-    Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
-    if ( !vwr )
-	{ pErrMsg( "Huh? No Scene found" ); return false; }
-
-    if ( !vwr->hasZAxisTransform() )
-	return true;
-
-    probetobeaddedpos_.zsamp_ = vwr->getZAxisTransform()->getZInterval( true );
-    return true;
+    TrcKeySampling& hs = probetobeaddedpos_.hsamp_;
+    hs.start_.crl() = hs.stop_.crl() = hs.trcRange().center();
 }
 
 
@@ -700,42 +675,40 @@ uiTreeItem*
 
 uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
     : uiODPlaneDataParentTreeItem( uiStrings::sZSlice() )
-{}
+{
+}
 
 
 const char* uiODZsliceParentTreeItem::iconName() const
-{ return "tree-zsl"; }
+{
+    return "tree-zsl";
+}
 
 
 const char* uiODZsliceParentTreeItem::childObjTypeKey() const
-{ return ProbePresentationInfo::sFactoryKey(); }
+{
+    return ProbePresentationInfo::sFactoryKey();
+}
 
 
 bool uiODZsliceParentTreeItem::canShowSubMenu() const
 {
-     if ( !SI().inlRange(true).width() || !SI().crlRange(true).width() )
-     {
-	 uiMSG().warning( tr("Flat survey, disabled z display") );
-	 return false;
-     }
-
-     return true;
+    return SI().inlRange(true).width() > 0 && SI().crlRange(true).width() > 0;
 }
 
-bool uiODZsliceParentTreeItem::setDefaultPosToBeAdded()
-{
-    Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
-    if ( !vwr )
-	{ pErrMsg( "Huh? No Scene found" ); return false; }
 
-    const ZAxisTransform* transform = vwr->getZAxisTransform();
-    StepInterval<float> zrg = transform ? transform->getZInterval(true)
-					      : SI().sampling(true).zsamp_;
-    if ( !transform )
-	zrg.step = SI().zStep();
-    StepInterval<float> defzrg( zrg.center(), zrg.center(), zrg.step );
-    probetobeaddedpos_.zsamp_ = defzrg;
-    return true;
+void uiODZsliceParentTreeItem::setDefaultPosToBeAdded()
+{
+    StepInterval<float>& zrg = probetobeaddedpos_.zsamp_;
+    Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
+    const ZAxisTransform* ztransform = vwr ? vwr->getZAxisTransform() : 0;
+    if ( !ztransform )
+	zrg.start = zrg.stop = zrg.center();
+    else
+    {
+	zrg = ztransform->getZInterval( true );
+	zrg.start = zrg.stop = ztransform->getZIntervalCenter( true );
+    }
 }
 
 

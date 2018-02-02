@@ -24,7 +24,7 @@ mExpClass(uiTools) uiDlgGroup : public uiGroup
 {
 public:
 			uiDlgGroup(uiParent* p,const uiString& caption )
-			    : uiGroup( p, caption.getFullString() )
+			    : uiGroup( p, toString(caption) )
 			    , caption_( caption )	{}
 
     void		setCaption( const uiString& c ) { caption_ = c; }

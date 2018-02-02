@@ -383,7 +383,6 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	visserv_->canRemoveDisplay( displayid_ );
 
     mAddMenuItem( menu, &removemnuitem_, enab, false );
-
 }
 
 

@@ -68,7 +68,7 @@ uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
 
     uiButtonGroup* grp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     grp->attach( rightTo, table_ );
-    new uiToolButton( grp, "plus", uiStrings::phrAdd(tr("Iteration")),
+    new uiToolButton( grp, "iterate", uiStrings::phrAdd(tr("Iteration")),
 					     mCB(this,uiTrimStatics,addCB) );
     rmbut_ = new uiToolButton( grp, "remove",	uiStrings::phrRemove(
 			    tr("Iteration")), mCB(this,uiTrimStatics,rmCB) );

@@ -104,7 +104,7 @@ bool CommandLineParser::isKey( int idx ) const
     if ( !argv_.validIdx( idx ) )
 	return false;
 
-    const OD::String& arg = getArg( idx );
+    const BufferString arg = getArg( idx );
     if ( arg.size()<2 )
 	return false;
 
@@ -114,7 +114,7 @@ bool CommandLineParser::isKey( int idx ) const
 	return true;
     }
 
-    if ( arg.buf()[0]=='-' )
+    if ( arg.firstChar()=='-' )
     {
 	const char nextchar = arg.buf()[1];
 	if ( !iswspace(nextchar) && nextchar!='.' && !iswdigit(nextchar) )

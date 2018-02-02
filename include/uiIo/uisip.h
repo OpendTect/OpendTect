@@ -44,6 +44,8 @@ class uiDialog;
 
   This class delivers everything in SI units.
 
+  Note: the userText's original (untranslated) string is put int the .survey.
+
  */
 
 mExpClass(uiIo) uiSurvInfoProvider
@@ -77,9 +79,12 @@ public:
     virtual uiString		importAskQuestion() const
 					{ return uiString::emptyString(); }
 
-    static const char*		sKeySIPName()		{ return "SIP.Name"; }
-
     bool			runDialog(uiParent*,TDInfo,SurveyInfo&,
 					  bool defdpthinft,bool* havezinfo=0);
+
+    static const char*		sKeySIPName()		{ return "SIP.Name"; }
+
+    static uiSurvInfoProvider*	getByName(const char*);
+    static uiSurvInfoProvider*	getByName(const uiString&);
 
 };

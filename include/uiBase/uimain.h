@@ -26,7 +26,7 @@ class KeyboardEventHandler;
 class KeyboardEventFilter;
 
 
-mExpClass(uiBase) uiMain
+mExpClass(uiBase) uiMain : public CallBacker
 {
 public:
 			uiMain(int& argc,char** argv);
@@ -46,8 +46,10 @@ public:
     void		setFont(const uiFont&,bool passtochildren);
     const uiFont*	font();
     Color		windowColor() const;
-    static void		setIconFileName(const char* full_path);
+    static void		setIconFileName(const char* full_path); // before start
+    static void		setIcon(const char* icid); // when running
     static const char*	iconFileName();
+    bool		setStyleSheet(const char*);
 
     int			nrScreens() const;
     const char*		getScreenName(int screennr) const;
@@ -86,6 +88,9 @@ protected:
     static KeyboardEventHandler*	keyhandler_;
     static KeyboardEventFilter*		keyfilter_;
     mQtclass(QDesktopWidget*)		qdesktop_;
+
+    void		languageChangeCB(CallBacker*);
+    static void		updateAllToolTips();
 
 private:
 			uiMain(mQtclass(QApplication*));

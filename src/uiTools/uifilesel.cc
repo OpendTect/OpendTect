@@ -86,11 +86,17 @@ void uiFileSel::init( const uiString& lbltxt )
     const bool forread = isForRead( setup_.selmode_ );
     uiStringSet protnms;
     File::SystemAccess::getProtocolNames( factnms_, forread );
+    const int nrfactnms =
+#ifdef ENABLE_REMOTE_FILESEL_UI
+	    factnms_.size();
+#else
+            1;
+#endif
 
-    if ( factnms_.size() > 1 && !setup_.onlylocal_ )
+    if ( nrfactnms > 1 && !setup_.onlylocal_ )
     {
 	protfld_ = new uiComboBox( this, "Protocol" );
-	for ( int idx=0; idx<factnms_.size(); idx++ )
+	for ( int idx=0; idx<nrfactnms; idx++ )
 	{
 	    const File::SystemAccess& fsa = fsAccess( idx );
 	    protfld_->addItem( fsa.userName() );

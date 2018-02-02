@@ -27,7 +27,7 @@ VolProc::ChainExecutor::ChainExecutor( Chain& vr )
     , totalnrepochs_( 1 )
     , curepoch_( 0 )
 {
-    setName( vr.name().getFullString() );
+    setName( toString(vr.name()) );
     web_ = chain_.getWeb();
     //TODO Optimize connections, check for indentical steps using same inputs
 }

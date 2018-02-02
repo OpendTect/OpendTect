@@ -313,7 +313,7 @@ uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj,TaskRunner* tskr) const
     if ( !TaskRunner::execute(tskr,*exec)  )
 	return exec->errorWithDetails();
 
-    if ( isSave(ioobj) )
+    if ( storeIsSave(ioobj) )
     {
 	emobj.getNonConstPtr()->setName( ioobj.name() );
 	emobj.getNonConstPtr()->setDBKey( objid );
@@ -351,7 +351,7 @@ uiRetVal Fault3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
 	return exec->errorWithDetails();
 
     flt3d->setDBKey( objid );
-    if ( isSave(ioobj) )
+    if ( storeIsSave(ioobj) )
     {
 	emobj.getNonConstPtr()->setName( ioobj.name() );
 	emobj.getNonConstPtr()->setDBKey( objid );
@@ -387,7 +387,7 @@ uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj, TaskRunner* tskr ) const
     if ( !TaskRunner::execute(tskr,*exec) )
 	return exec->errorWithDetails();
 
-    if ( isSave(ioobj) )
+    if ( storeIsSave(ioobj) )
     {
 	emobj.getNonConstPtr()->setName( ioobj.name() );
 	emobj.getNonConstPtr()->setDBKey( objid );

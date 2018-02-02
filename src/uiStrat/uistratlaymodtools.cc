@@ -81,9 +81,9 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     nrmodlsfld_->setToolTip( tr("Number of models to generate") );
     nrmodlsfld_->valueChanging.notify(
 	    mCB(this,uiStratGenDescTools,nrModelsChangedCB) );
-    uiToolButton* gotb = new uiToolButton( rightgrp, "go",
+    uiToolButton* runtb = new uiToolButton( rightgrp, "resume",
 				tr("Generate this amount of models"), gocb );
-    nrmodlsfld_->attach( leftOf, gotb );
+    nrmodlsfld_->attach( leftOf, runtb );
     rightgrp->attach( ensureRightOf, leftgrp );
     rightgrp->setFrame( true );
 }

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiaction.h"
 #include "uitoolbutton.h"
 #include "filepath.h"
+#include "staticstring.h"
 
 
 namespace CmdDrive
@@ -599,28 +600,28 @@ char StringProcessor::stripOuterBrackets( const char* beginsymbols,
 
 //=============================================================================
 
-const char* windowTitle( const uiMainWin* applwin, const uiMainWin* uimw,
-			 int aliasnr )
+BufferString windowTitle( const uiMainWin* applwin, const uiMainWin* uimw,
+			  int aliasnr )
 {
     if ( applwin && uimw==applwin )
     {
 	if ( aliasnr == 0 )
-	    return uimw->name().buf();
+	    return uimw->name();
 	if ( aliasnr == 1 )
-	    return uimw->caption( true ).getFullString();
+	    return toString( uimw->caption(true) );
     }
 
     if ( aliasnr > 0 )
-	return 0;
+	return BufferString();
 
     if ( !uimw )
     {
 	if ( uiMainWin::activeModalType() == uiMainWin::Main )
-	    return 0;
+	    return BufferString();
 	return uiMainWin::activeModalQDlgTitle();
     }
 
-    return uimw->caption( true ).getFullString();
+    return toString( uimw->caption(true) );
 }
 
 
@@ -781,17 +782,22 @@ bool UIEntity::sensitive() const
 
 const char* UIEntity::name() const
 {
-    if ( !isValid() ) return "";
-    return uiobj_ ? uiobj_->name() : uiact_->text().getFullString();
+    if ( !isValid() )
+	return "";
+    else if ( uiobj_ )
+	return uiobj_->name().buf();
+
+    mDeclStaticString( ret );
+    ret = toString( uiact_->text() );
+    return ret.buf();
 }
 
 
-const char* UIEntity::toolTip() const
+BufferString UIEntity::toolTip() const
 {
     if ( !isValid() ) return "";
-    return uiobj_
-	? uiobj_->toolTip().getFullString()
-	: uiact_->toolTip().getFullString();
+    return uiobj_ ? toString( uiobj_->toolTip() )
+		  : toString( uiact_->toolTip() );
 }
 
 

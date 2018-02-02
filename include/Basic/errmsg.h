@@ -11,9 +11,11 @@ ________________________________________________________________________
 */
 
 #include "commondefs.h"
+class uiString;
 
 
 mGlobal(Basic) void ErrMsg(const char*,bool progr=false);
+mGlobal(Basic) void ErrMsg(const uiString&);
 
 #include <typeinfo>
 template <class T>

@@ -103,11 +103,11 @@ int testMain( int argc, char** argv )
     od_cout() << "Reading " << clparser.getArg(0) << " ..." << od_endl;
     SEGY::DirectDef dd1( clparser.getArg(0) );
     if ( !dd1.errMsg().isEmpty() )
-	mErrRet(dd1.errMsg().getFullString())
+	mErrRet( toString(dd1.errMsg()) )
     od_cout() << "Reading " << clparser.getArg(1) << " ..." << od_endl;
     SEGY::DirectDef dd2( clparser.getArg(1) );
     if ( !dd2.errMsg().isEmpty() )
-	mErrRet(dd2.errMsg().getFullString())
+	mErrRet( toString(dd2.errMsg()) )
 
     if ( !compareDefs(dd1,dd2) )
 	return 1;

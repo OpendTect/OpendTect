@@ -8,12 +8,13 @@ ________________________________________________________________________
 
 -*/
 
+#include "cmddrivermod.h"
 #include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uicmddrivermgr.h"
+#include "uistrings.h"
 #include "odplugin.h"
-#include "cmddrivermod.h"
 
 
 namespace CmdDrive
@@ -25,6 +26,9 @@ mDefODPluginInfo(CmdDriver)
 	"Command Driver", "Command Driver",
 	mODPluginCreator, mODPluginVersion,
 	"Used for testing and general 'scripting'." ));
+    retpi.useronoffselectable_ = true;
+    mSetPackageDisplayName( retpi, uiCmdDriverMgr::usrDispNm() );
+    retpi.uidispname_ = retpi.uipackagename_;
     return &retpi;
 }
 
@@ -34,7 +38,8 @@ static void initExtraCommands()
 }
 
 static void initExtraFunctions()
-{}
+{
+}
 
 static void initExtraComposers()
 {
@@ -47,12 +52,16 @@ mDefODInitPlugin(CmdDriver)
     if ( mgr ) return 0;
     mgr = new uiCmdDriverMgr( true );
 
-    mDefineStaticLocalObject( uiAction*, cmdmnuitm, = 0 );
-    if ( cmdmnuitm ) return 0;
-    cmdmnuitm = new uiAction( toUiString("Command &Driver ...") );
+    mDefineStaticLocalObject( uiAction*, cmdaction, = 0 );
+    if ( cmdaction )
+	return 0;
 
-    ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdmnuitm );
-    cmdmnuitm->triggered.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
+    cmdaction = new uiAction( m3Dots(uiCmdDriverMgr::usrDispNm()),
+				"commanddriver" );
+    cmdaction->setShortcut( "Ctrl+R" );
+
+    ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdaction );
+    cmdaction->triggered.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
 
     initExtraCommands();
     initExtraFunctions();

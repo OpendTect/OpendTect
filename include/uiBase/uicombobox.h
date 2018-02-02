@@ -50,19 +50,21 @@ public:
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
+    bool		isPresent(const uiString&) const;
     bool		isPresent(const char*) const;
     int			indexOf(const uiString&) const;
     int			indexOf(const char*) const;
     inline int		indexOf( const OD::String& str ) const
 			{ return indexOf( str.str() ); }
 
+    uiString		uiText() const;
     const char*		text() const;
+    void		setText(const uiString&);
     void		setText(const char*);
-    void		setText(uiString&);
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
-    void		setCurrentItem(uiString&);
+    void		setCurrentItem(const uiString&);
     void		setCurrentItem( const FixedString& fs )
 						{ setCurrentItem( fs.str() ); }
     virtual void	addItem(const uiString&);
@@ -77,6 +79,7 @@ public:
     const char*		itemText(int) const;
     uiString		textOfItem(int) const;
     void		getItems(BufferStringSet&) const;
+    void		getItems(uiStringSet&) const;
 
     void		setItemText(int,const uiString&);
     void		setPixmap(int index,const uiPixmap&);

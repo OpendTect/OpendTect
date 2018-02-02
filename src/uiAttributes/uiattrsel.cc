@@ -258,7 +258,7 @@ void uiAttrSelDlg::initAndBuild( const Setup& stp )
     setCaption( uiStrings::sInputData() );
     uiString title = uiStrings::phrSelect( stp.seltxt_ );
     setTitleText( title );
-    setName( title.getFullString() );
+    setName( toString(title) );
 
     uiGroup* typselgrp = createSelectionButtons();
     uiGroup* selfldgrp = createSelectionFields();

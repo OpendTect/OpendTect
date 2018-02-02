@@ -29,12 +29,7 @@ QSplitter::handle:hover, QMainWindow::separator:hover
     background: rgb( 200, 245, 220 );
 }
 
-QMainWindow, QDockWidget, QStatusBar
-{
-    border: 1px solid rgb( 200, 200, 200 );
-}
-
-QStatusBar::item
+QMainWindow, QDockWidget, QStatusBar, QStatusBar::item
 {
     border: 1px solid rgb( 200, 200, 200 );
 }
@@ -75,7 +70,7 @@ QTreeView
     show-decoration-selected: 0
 }
 
-QTreeView, QStatusBar, QStatusBar QLabel
+QMenuBar, QTabBar, QTreeView, QStatusBar, QStatusBar QLabel
 {
     background-color: rgb( 245, 250, 245 );
 }

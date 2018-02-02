@@ -17,6 +17,8 @@ ________________________________________________________________________
 
 using namespace PosInfo;
 
+
+// BendPointFinder2DGeomSet
 BendPoints::BendPoints()
     : geomid_(Survey::GeometryManager::cUndefGeomID())
 {}
@@ -74,6 +76,29 @@ int BendPointFinder2DGeomSet::nextStep()
 }
 
 
+// Line2DInterSection
+Line2DInterSection::Point::Point( Pos::GeomID myid, Pos::GeomID lineid,
+				  int mynr,int linenr )
+    : myid_(myid)
+    , otherid_(lineid)
+    , mytrcnr_(mynr)
+    , othertrcnr_(linenr)
+{
+}
+
+
+bool Line2DInterSection::Point::isOpposite( const Point& pt ) const
+{
+    return myid_==pt.otherid_ && otherid_==pt.myid_ &&
+	   mytrcnr_==pt.othertrcnr_ && othertrcnr_==pt.mytrcnr_;
+}
+
+
+Line2DInterSection::Line2DInterSection( Pos::GeomID geomid )
+    : geomid_(geomid)
+{}
+
+
 void Line2DInterSection::sort()
 {
     const int sz = points_.size();
@@ -81,8 +106,8 @@ void Line2DInterSection::sort()
     {
 	for ( int i=d; i<sz; i++ )
 	{
-	    for ( int j=i-d; j>=0 && points_[j].mytrcnr > points_[j+d].mytrcnr;
-									j-=d )
+	    for ( int j=i-d;
+		   j>=0 && points_[j].mytrcnr_>points_[j+d].mytrcnr_; j-=d )
 		points_.swap( j, j+d );
 	}
     }
@@ -96,7 +121,7 @@ bool Line2DInterSection::getIntersectionTrcNrs( Pos::GeomID geomid,
     int index = -1;
     for ( int idx=0; idx<points_.size(); idx++ )
     {
-	if ( points_[idx].line == geomid )
+	if ( points_[idx].otherid_ == geomid )
 	{
 	    index = idx;
 	    break;
@@ -105,18 +130,20 @@ bool Line2DInterSection::getIntersectionTrcNrs( Pos::GeomID geomid,
 
     if ( index < 0 ) return false;
 
-    mytrcnr = points_[index].mytrcnr;
-    crosstrcnr = points_[index].linetrcnr;
+    mytrcnr = points_[index].mytrcnr_;
+    crosstrcnr = points_[index].othertrcnr_;
     return true;
 }
 
 
 void Line2DInterSection::addPoint( Pos::GeomID geomid, int mynr, int linenr )
 {
-    points_ += Point( geomid, mynr, linenr );
+    points_ += Point( geomid_, geomid, mynr, linenr );
 }
 
 
+
+// Line2DInterSectionSet
 const Line2DInterSection* Line2DInterSectionSet::getByGeomID(
 						    Pos::GeomID geomid ) const
 {
@@ -131,6 +158,42 @@ const Line2DInterSection* Line2DInterSectionSet::getByGeomID(
 }
 
 
+static bool hasOpposite( const TypeSet<Line2DInterSection::Point>& pts,
+			 const Line2DInterSection::Point& pt )
+{
+    for ( int idx=0; idx<pts.size(); idx++ )
+    {
+	const bool isopp = pts[idx].isOpposite( pt );
+	if ( isopp )
+	    return true;
+    }
+
+    return false;
+}
+
+
+void Line2DInterSectionSet::getAll(
+			TypeSet<Line2DInterSection::Point>& pts ) const
+{
+    pts.erase();
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Line2DInterSection* isect = (*this)[idx];
+	if ( !isect ) continue;
+
+	const int nrpts = isect->size();
+	for ( int pidx=0; pidx<nrpts; pidx++ )
+	{
+	    const Line2DInterSection::Point& pt = isect->getPoint( pidx );
+	    if ( !hasOpposite(pts,pt) )
+		pts.add( pt );
+	}
+    }
+}
+
+
+
+// Line2DInterSectionFinder
 Line2DInterSectionFinder::Line2DInterSectionFinder(
 		const ObjectSet<BendPoints>& bps, Line2DInterSectionSet& lsis )
     : bendptset_(bps)

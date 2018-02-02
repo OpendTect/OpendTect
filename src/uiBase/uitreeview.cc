@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "odqtobjset.h"
 #include "staticstring.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 
 #include <QHeaderView>
 #include <QKeyEvent>
@@ -475,8 +475,8 @@ uiString uiTreeView::getColumnText( int col ) const
     return labels_[col];
 }
 
-const char* uiTreeView::columnText(int column) const
-{ return getColumnText(column).getFullString(); }
+const char* uiTreeView::columnText( int column ) const
+{ return toString( getColumnText(column) ); }
 
 
 void uiTreeView::setColumnWidth( int col, int w )
@@ -912,7 +912,12 @@ void uiTreeViewItem::setBGColor( int column, const Color& color )
 
 const char* uiTreeViewItem::text( int column ) const
 {
-    return texts_.validIdx(column) ? texts_[column].getFullString().buf() : 0;
+    mDeclStaticString( ret );
+    if ( !texts_.validIdx(column) )
+	ret.setEmpty();
+    else
+	ret.set( toString(texts_[column]) );
+    return ret.buf();
 }
 
 
@@ -1208,13 +1213,15 @@ bool uiTreeViewItem::updateToolTip( int column )
 }
 
 
-void uiTreeViewItem::updateToolTips()
+void uiTreeViewItem::updateAllToolTips()
 {
     for ( int idx=odqtobjects_.size()-1; idx>=0; idx-- )
     {
-	int column = 0;
-	while ( odqtobjects_.getODObject(idx)->updateToolTip(column++) )
-	{}
+	for ( int col=0; ; col++ )
+	{
+	    if ( !odqtobjects_.getODObject(idx)->updateToolTip(col) )
+		break;
+	}
     }
 }
 

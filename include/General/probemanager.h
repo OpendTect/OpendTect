@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "probe.h"
 
 
-/*!\brief Manages all stored Pick::Set's.
+/*!\brief Manages all stored Probe information objects.
 
- If a set is not yet loaded, then it will be loaded by fetch().
+ If a Probe is not yet loaded, then it will be loaded by fetch().
 
 */
 
@@ -62,7 +62,7 @@ public:
 };
 
 
-/*!\brief access to the singleton Pick Set Manager */
+/*!\brief access to the singleton Probe Manager */
 inline ProbeManager& ProbeMGR()
 {
     return ProbeManager::getInstance();

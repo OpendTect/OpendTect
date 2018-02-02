@@ -12,20 +12,46 @@
 #include "filepath.h"
 #include "oddirs.h"
 #include "settings.h"
+#include "dirlist.h"
 
 static const char* sStyleDir = "Styles";
 
+
+static BufferString getUserSetStyleName()
+{
+    BufferString res = Settings::common().find( "dTect.StyleName" );
+    if ( res.isEmpty() )
+	res = GetEnvVar( "OD_STYLENAME" );
+    return res;
+}
+
+bool OD::haveUserSetStyleName()
+{
+    return !getUserSetStyleName().isEmpty();
+}
+
+
 BufferString OD::getActiveStyleName()
 {
-    BufferString stylenm = Settings::common().find( "dTect.StyleName" );
+    BufferString stylenm = getUserSetStyleName();
     if ( stylenm.isEmpty() )
-    {
-	stylenm = GetEnvVar( "OD_STYLENAME" );
-	if ( stylenm.isEmpty() )
-	    stylenm.set( "default" );
-    }
-
+	stylenm.set( "default" );
     return stylenm;
+}
+
+namespace OD
+{
+
+mGlobal(Basic) bool setActiveStyleName(const char*);
+bool setActiveStyleName( const char* nm )
+{
+    const BufferString curstylenm = getActiveStyleName();
+    if ( curstylenm == nm )
+	return false;
+    Settings::common().update( "dTect.StyleName", nm );
+    return true;
+}
+
 }
 
 
@@ -47,11 +73,14 @@ static bool isFilePresent( const File::Path& basedir, const char* filebase,
 }
 
 
+#define mDefStyleDirs() \
+    const File::Path userstyledir( GetSettingsFileName(sStyleDir) ); \
+    const File::Path appstyledir( mGetApplSetupDataDir(), sStyleDir ); \
+    const File::Path inststyledir( mGetSWDirDataDir(), sStyleDir )
+
 BufferString OD::getStyleFile( const char* stylenm, const char* ext )
 {
-    const File::Path userstyledir( GetSettingsFileName(sStyleDir) );
-    const File::Path appstyledir( mGetApplSetupDataDir(), sStyleDir );
-    const File::Path inststyledir( mGetSWDirDataDir(), sStyleDir );
+    mDefStyleDirs();
 
 #define mRetIfExists(pathfp,filebase) \
     if ( isFilePresent(pathfp,filebase,ext,stylefnm) ) \
@@ -69,3 +98,24 @@ BufferString OD::getStyleFile( const char* stylenm, const char* ext )
     return BufferString::empty();
 }
 
+
+static void getStyleNames( const File::Path& dirfp, BufferStringSet& nms )
+{
+    DirList dl( dirfp.fullPath(), File::FilesInDir, "*.qss" );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	File::Path fp( dl.get( idx ) );
+	fp.setExtension( 0 );
+	nms.addIfNew( fp.fileName() );
+    }
+}
+
+
+void OD::getStyleNames( BufferStringSet& nms )
+{
+    nms.setEmpty();
+    mDefStyleDirs();
+    getStyleNames( userstyledir, nms );
+    getStyleNames( appstyledir, nms );
+    getStyleNames( inststyledir, nms );
+}

@@ -84,21 +84,17 @@ bool uiHorGeom2Attr::acceptOK()
 
     mGetZFac( 1000 );
 
-    for ( EM::SectionID isect=0; isect<hor_.nrSections(); isect++ )
+    PtrMan<EM::EMObjectIterator> iter = hor_.createIterator();
+    while ( true )
     {
-	EM::EMObjectIterator* iter = hor_.createIterator();
-	while ( true )
-	{
-	    const EM::PosID pid = iter->next();
-	    if ( pid.isInvalid() )
-		break;
-	    if ( !hor_.geometry().isNodeOK(pid) )
-		continue;
+	const EM::PosID pid = iter->next();
+	if ( pid.isInvalid() )
+	    break;
+	if ( !hor_.geometry().isNodeOK(pid) )
+	    continue;
 
-	    const float zval = (float) ( hor_.getPos(pid).z_ * zfac );
-	    hor_.auxdata.setAuxDataVal( auxidx, pid, zval );
-	}
-	delete iter;
+	const float zval = (float) ( hor_.getPos(pid).z_ * zfac );
+	hor_.auxdata.setAuxDataVal( auxidx, pid, zval );
     }
 
     PtrMan<Executor> saver = hor_.auxdata.auxDataSaver( auxidx, true );

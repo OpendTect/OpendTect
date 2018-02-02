@@ -178,7 +178,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
     if ( is2d_ )
     {
 	Seis2DDataSet ds( *ioobj );
-	const OD::String& fnm =
+	const BufferString fnm =
 		SeisCBVS2DLineIOProvider::getFileName( *ioobj, su.geomid_ );
 	tr_ = CBVSSeisTrcTranslator::make( fnm, false,
 					   Seis::is2D(su.geom_), &emsg );
@@ -401,7 +401,7 @@ void uiSeisBrowser::fillTable()
 
     const CBVSInfo& info = tr_->readMgr()->info();
     const int zfac = zdomdef_->userFactor();
-    const BufferString zunstr = zdomdef_->unitStr(false).getFullString();
+    const uiString zunstr = zdomdef_->unitStr( false );
     for ( int idx=0; idx<info.nrsamples_; idx++ )
     {
 	const BufferString zvalstr( getZValStr(info.sd_.atIndex(idx),zfac) );

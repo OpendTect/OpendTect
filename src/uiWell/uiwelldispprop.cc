@@ -42,7 +42,7 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
     szfld_->box()->valueChanging.notify(mCB(this,uiWellDispProperties,propChg));
     uiColorInput::Setup csu( props().color() );
     csu.lbltxt( su.mycoltxt_ );
-    colfld_ = new uiColorInput( this, csu, su.mycoltxt_.getFullString() );
+    colfld_ = new uiColorInput( this, csu, toString(su.mycoltxt_) );
     colfld_->attach( alignedBelow, szfld_ );
     colfld_->colorChanged.notify( mCB(this,uiWellDispProperties,propChg) );
 
@@ -199,7 +199,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
     uiString dlgtxt = tr( "Names color" );
     uiColorInput::Setup csu( mrkprops().color() ); csu.lbltxt( dlgtxt );
-    nmcolfld_ = new uiColorInput( this, csu, dlgtxt.getFullString() );
+    nmcolfld_ = new uiColorInput( this, csu, toString(dlgtxt) );
     nmcolfld_->attach( alignedBelow, nmsizefld_ );
     nmcolfld_->display( !setup_.onlyfor2ddisplay_ );
 

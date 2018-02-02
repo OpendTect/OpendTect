@@ -35,11 +35,13 @@ public:
     Type		type_;
 
     static CallBack&	theCB( const CallBack* cb=0 );
-    			//!< pass non-null to set the CB
+			//!< pass non-null to set the CB
     static const char*	nameOf(Type);
 
 };
 
 
-mGlobal(Basic)  void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
+mGlobal(Basic) void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
+//!< Will pass the message to the appropriate destination.
+mGlobal(Basic) void UsrMsg(const uiString&,MsgClass::Type t=MsgClass::Info);
 //!< Will pass the message to the appropriate destination.

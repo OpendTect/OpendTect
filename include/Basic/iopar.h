@@ -177,7 +177,6 @@ public:
     bool		get(const char*,DBKey&) const;
     bool		get(const char*,Color&) const;
     bool		get(const char*,SeparString&) const;
-    bool		get(const char*,uiString&) const;
     bool		get(const char*,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&,
@@ -265,7 +264,6 @@ public:
     void		set(const char*,const DBKey&);
     void		set(const char*,const Color&);
     void		set(const char*,const SeparString&);
-    void		set(const char*,const uiString&);
     void		set(const char*,const OD::String&);
     void		set(const char*,const OD::String&,
 					const OD::String&);
@@ -285,6 +283,9 @@ public:
     void		setToUser(const char* ky=0);
     void		setStdCreationEntries();
 
+			// Do you want to use these? Probably not. Think twice!
+    bool		getUiString(const char*,uiString&) const;
+    void		setUiString(const char*,const uiString&);
 
 // I/O  functions
 

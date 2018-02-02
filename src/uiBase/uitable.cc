@@ -797,7 +797,7 @@ void uiTable::setText( const RowCol& rc, const uiString& txt )
 	if ( !cb )
 	    pErrMsg("TODO: unknown table cell obj: add it!");
 	else
-	    cb->setText( txt.getFullString() );
+	    cb->setText( toString(txt) );
     }
 }
 
@@ -1834,6 +1834,20 @@ void uiTable::cellObjChangedCB( CallBacker* cb )
 
     notifcell_ = getCell( obj );
     valueChanged.trigger();
+}
+
+
+void uiTable::setCellChecked( const RowCol& rc, bool yn )
+{
+    QTableWidgetItem* itm = body_->getItem( rc );
+    itm->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
+}
+
+
+bool uiTable::isCellChecked( const RowCol& rc ) const
+{
+    QTableWidgetItem* itm = body_->getItem( rc, false );
+    return itm && itm->checkState()==Qt::Checked;
 }
 
 

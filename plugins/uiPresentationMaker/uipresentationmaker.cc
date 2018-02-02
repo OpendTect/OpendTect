@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "uibuttongroup.h"
 #include "uicombobox.h"
+#include "uidlggroup.h"
 #include "uidesktopservices.h"
 #include "uifilesel.h"
 #include "uigeninput.h"
@@ -429,7 +430,7 @@ static void createSlideName( BufferString& slidename )
     {
 	uiString dispnm =
 		uiODAttribTreeItem::createDisplayName( visid, attrib );
-	BufferString attribnm = dispnm.getFullString();
+	BufferString attribnm = toString( dispnm );
 	if ( attribnm.isEmpty() )
 	{
 	    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
@@ -487,7 +488,7 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
 	{
 	    const int selitm = windowfld_->currentItem();
 	    windowlist[selitm]->grab( imagefnm, 1, "png" );
-	    slidename = windowlist[selitm]->caption(true).getFullString();
+	    slidename = toString( windowlist[selitm]->caption(true) );
 	}
     }
 

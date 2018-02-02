@@ -571,10 +571,13 @@ bool Seis::Blocks::Writer::writeColumnHeader( const MemBlockColumn& column,
     strm_->addBin( column.globIdx().first ).addBin( column.globIdx().second );
 
     const int bytes_left_in_hdr = hdrsz - (int)(strm_->position()-orgstrmpos);
-    char* buf = new char [bytes_left_in_hdr];
-    OD::memZero( buf, bytes_left_in_hdr );
-    strm_->addBin( buf, bytes_left_in_hdr );
-    delete [] buf;
+    if ( bytes_left_in_hdr > 0 )
+    {
+	char* buf = new char [bytes_left_in_hdr];
+	OD::memZero( buf, bytes_left_in_hdr );
+	strm_->addBin( buf, bytes_left_in_hdr );
+	delete [] buf;
+    }
 
     return strm_->isOK();
 }
@@ -638,10 +641,7 @@ void Seis::Blocks::Writer::writeInfoFiles( uiRetVal& uirv )
 
     od_ostream ovvwstrm( ovvwfnm );
     if ( ovvwstrm.isBad() )
-    {
-	ErrMsg( uiStrings::phrCannotOpen(toUiString(ovvwfnm)).getFullString() );
-	return;
-    }
+	{ ErrMsg( uiStrings::phrCannotOpen(toUiString(ovvwfnm)) ); return; }
     if ( !writeOverviewFileData(ovvwstrm) )
 	File::remove( ovvwfnm );
 }

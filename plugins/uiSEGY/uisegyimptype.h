@@ -32,7 +32,7 @@ public:
 			{ return (Seis::GeomType)(isVSP() ? types_[0]
 							  : types_[tidx_]); }
     bool		isVSP() const
-			{ return types_[tidx_] > Seis::LinePS; }
+			{ return types_[tidx_] > Seis::VolPS; }
     bool		is2D() const	{ return Seis::is2D(geomType()); }
     bool		isPS() const	{ return Seis::isPS(geomType()); }
 
@@ -65,7 +65,7 @@ public:
 
     const SEGY::ImpType& impType() const;
     void		setTypIdx(int);
-
+    void		setGeomType(Seis::GeomType);
     void		usePar(const IOPar&);
 
     Notifier<uiSEGYImpType> typeChanged;

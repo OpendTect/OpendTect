@@ -229,8 +229,7 @@ bool GetSpinCmd::act( const char* parstr )
     mDynamicCastGet( uiLabeledSpinBox*, uilabeledspin,
 		     const_cast<uiSpinBox*>(uispin)->parent() );
     BufferString text = uilabeledspin
-	? uilabeledspin->label()->text().getFullString().str()
-	: OD::EmptyString();
+	? toString(uilabeledspin->label()->text()) : BufferString();
 
     mParForm( answer, form, text, uispin->fstep() );
     mParExtraForm( answer, form, Value, uispin->getFValue() );
@@ -307,8 +306,7 @@ bool GetSliderCmd::act( const char* parstr )
     mDynamicCastGet( const uiSlider*, uislider, uisliderobj->parent() );
 
     BufferString text = uislider && uislider->label()
-	? uislider->label()->text().getFullString().str()
-	: OD::EmptyString();
+	? toString(uislider->label()->text()) : BufferString();
 
     mParForm( answer, form, text, uislider->getLinearFraction()*100 );
     mParExtraForm( answer, form, Value, uislider->getFValue() );

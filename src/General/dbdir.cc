@@ -423,7 +423,7 @@ bool DBDir::prepObj( IOObj& ioobj ) const
 #define mErrRet() \
 { \
     errmsg_ = uiStrings::phrCannotWriteDBEntry( toUiString(dirname_) ); \
-    errmsg_.append( uiStrings::sCheckPermissions(), true ); \
+    errmsg_.appendPhrase( uiStrings::sCheckPermissions() ); \
     return false; \
 }
 

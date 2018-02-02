@@ -1125,8 +1125,8 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
     mDynamicCastGet( visSurvey::EMObjectDisplay*,
 				surface, visserv_->getObject(selectedids[0]) );
     if ( !surface ) return 0;
-    const DBKey oid = surface->getObjectID();
-    const int trackerid = MPE::engine().getTrackerByObject( oid );
+    const int trackerid =
+		MPE::engine().getTrackerByObject( surface->getObjectID() );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     if ( tracker && tracker->isEnabled() )
 	return tracker;
@@ -1263,7 +1263,7 @@ void uiMPEMan::initFromDisplay()
 }
 
 
-void uiMPEMan::setUndoLevel( const EM::ObjectID& id, int preveventnr )
+void uiMPEMan::setUndoLevel( const DBKey& id, int preveventnr )
 {
     Undo& emundo = EM::EMM().undo( id );
     const int currentevent = emundo.currentEventID();

@@ -49,12 +49,11 @@ ________________________________________________________________________
 #include "settings.h"
 #include "od_ostream.h"
 #include "survinfo.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 #include "thread.h"
 
 
 static const char* sKeyIconSetNm = "Icon set name";
-// static const char* sTODOIcon = "icontodo";
 static const char* ascic = "ascii";
 static const char* singic = "single";
 static const char* multic = "multiple";
@@ -68,6 +67,7 @@ static const uiString multstr = uiStrings::sMultiple();
     bool haveonechoice = !have2d || !have3d; \
     if ( always3d && !have3d ) \
 	haveonechoice = false
+#define mClickCB mCB(this,uiODMenuMgr,handleClick)
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
@@ -207,7 +207,6 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillUtilMenu();
     menubar->insertSeparator();
     helpmnumgr_ = new uiODHelpMenuMgr( *this );
-    langmnumgr_ = new uiODLangMenuMgr( *this );
 
     fillDtectTB( appman );
     fillVisTB( sceneman );
@@ -232,8 +231,7 @@ uiMenu* uiODMenuMgr::addSubMenu( uiMenu* parmnu, const uiString& nm,
 uiAction* uiODMenuMgr::addDirectAction( uiMenu* mnu, const uiString& nm,
 				   const char* icnm, int id )
 {
-    uiAction* uiact = new uiAction( nm, mCB(this,uiODMenuMgr,handleClick),
-				    icnm );
+    uiAction* uiact = new uiAction( nm, mClickCB, icnm );
     mnu->insertAction( uiact, id );
     return uiact;
 }
@@ -242,8 +240,7 @@ uiAction* uiODMenuMgr::addDirectAction( uiMenu* mnu, const uiString& nm,
 uiAction* uiODMenuMgr::addCheckableAction( uiMenu* mnu, const uiString& nm,
 					   const char* icnm, int id )
 {
-    uiAction* uiact = new uiAction( nm, mCB(this,uiODMenuMgr,handleClick),
-				    icnm );
+    uiAction* uiact = new uiAction( nm, mClickCB, icnm );
     uiact->setCheckable( true );
     mnu->insertAction( uiact, id );
     return uiact;
@@ -426,7 +423,7 @@ void uiODMenuMgr::fillSurveyMenu()
 
     surveymnu_->insertSeparator();
 
-    addAction( surveymnu_, tr("Restart"), "restart", mRestartMnuItm );
+    addDirectAction( surveymnu_, tr("Restart"), "restart", mRestartMnuItm );
     addDirectAction( surveymnu_, uiStrings::sExit(), "exit", mExitMnuItm );
 }
 
@@ -586,57 +583,50 @@ void uiODMenuMgr::fillWellImpSubMenu( uiMenu* mnu )
 }
 
 
+uiMenu* uiODMenuMgr::addFullSeisSubMenu( uiMenu* parmnu, const uiString& mnunm,
+			const char* icnm, const CallBack& cb, int menustartid )
+{
+    uiMenu* mnu = addSubMenu( parmnu, mnunm, icnm );
+    fillFullSeisSubMenu( mnu, cb, menustartid );
+    return mnu;
+}
+
+
+void uiODMenuMgr::fillFullSeisSubMenu( uiMenu* mnu, const CallBack& cb,
+					int menustartid )
+{
+    mGet2D3D();
+    if ( have2d )
+    {
+	uiString linestr = have3d ? uiStrings::s2D() : tr("Line(s)");
+	uiString linepsstr = have3d ? tr("Prestack 2D") : tr("Prestack Data");
+	addAction( mnu, linestr, "seismicline2d", cb, menustartid );
+	addAction( mnu, linepsstr, "prestackdataset2d", cb, menustartid+1 );
+    }
+    if ( have3d )
+    {
+	uiString volstr = have2d ? uiStrings::s3D() : uiStrings::sVolume();
+	uiString volpsstr = have2d ? tr("Prestack 3D") : tr("Prestack Volume");
+	addAction( mnu, volstr, "seismiccube", cb, menustartid+2 );
+	addAction( mnu, volpsstr, "prestackdataset", cb, menustartid+3 );
+    }
+}
+
+
 void uiODMenuMgr::createSeisSubMenus()
 {
     uiString mnunm = tr("Seismic Data");
     const char* iconnm = "seis";
+    addAction( preloadmnu_, mnunm, iconnm, mPreLoadSeisMnuItm );
+    addFullSeisSubMenu( manmnu_, mnunm, iconnm, mClickCB, mManSeisMnu );
+
     uiMenu* impseis = addSubMenu( impmnu_, mnunm, iconnm );
     uiMenu* expseis = addSubMenu( expmnu_, mnunm, iconnm );
-    add2D3DActions( manmnu_, mnunm, iconnm, mManSeis2DMnuItm, mManSeis3DMnuItm);
-    addAction( preloadmnu_, mnunm, iconnm, mPreLoadSeisMnuItm );
+    mnunm = tr("Simple File");
+    addFullSeisSubMenu( impseis, mnunm, ascic, mClickCB, mImpSeisSimpleMnu );
+    addFullSeisSubMenu( expseis, mnunm, ascic, mClickCB, mExpSeisSimpleMnu );
 
-    const uiString simpfilestr = tr("Simple File");
-    uiMenu* simpimpmnu = addSubMenu( impseis, simpfilestr, ascic );
-    uiMenu* simpexpmnu = addSubMenu( expseis, simpfilestr, ascic );
-    const uiString linestr = tr("Line");
-    const uiString cubestr = tr("Cube");
-    const uiString psdatastr = tr("Pre-Stack Data");
     mGet2D3D();
-    if ( !have2d || !have3d )
-    {
-	mnunm = have2d ? linestr : cubestr;
-	iconnm = have2d ? "seismicline2d" : "seismiccube";
-	addAction( simpimpmnu, mnunm, iconnm,
-		have2d ? mImpSeisSimple2DMnuItm : mImpSeisSimple3DMnuItm );
-	addAction( simpexpmnu, mnunm, iconnm,
-		have2d ? mExpSeisSimple2DMnuItm : mExpSeisSimple3DMnuItm );
-	mnunm = psdatastr;
-	iconnm = have2d ? "prestackdataset2d" : "prestackdataset";
-	addAction( simpimpmnu, mnunm, iconnm,
-		have2d ? mImpSeisSimplePS2DMnuItm : mImpSeisSimplePS3DMnuItm );
-	addAction( simpexpmnu, mnunm, iconnm,
-		have2d ? mExpSeisSimplePS2DMnuItm : mExpSeisSimplePS3DMnuItm );
-    }
-    else
-    {
-	uiMenu* mnu2dimp = addSubMenu( simpimpmnu, uiStrings::s2D(), "2d" );
-	uiMenu* mnu3dimp = addSubMenu( simpimpmnu, uiStrings::s3D(), "3d" );
-	uiMenu* mnu2dexp = addSubMenu( simpexpmnu, uiStrings::s2D(), "2d" );
-	uiMenu* mnu3dexp = addSubMenu( simpexpmnu, uiStrings::s3D(), "3d" );
-	mnunm = linestr; iconnm = "seismicline2d";
-	addAction( mnu2dimp, mnunm, iconnm, mImpSeisSimple2DMnuItm );
-	addAction( mnu2dexp, mnunm, iconnm, mExpSeisSimple2DMnuItm );
-	mnunm = cubestr; iconnm = "seismiccube";
-	addAction( mnu3dimp, mnunm, iconnm, mImpSeisSimple3DMnuItm );
-	addAction( mnu3dexp, mnunm, iconnm, mExpSeisSimple3DMnuItm );
-	mnunm = psdatastr; iconnm = "prestackdataset2d";
-	addAction( mnu2dimp, mnunm, iconnm, mImpSeisSimplePS2DMnuItm );
-	addAction( mnu2dexp, mnunm, iconnm, mExpSeisSimplePS2DMnuItm );
-	mnunm = psdatastr; iconnm = "prestackdataset";
-	addAction( mnu3dimp, mnunm, iconnm, mImpSeisSimplePS3DMnuItm );
-	addAction( mnu3dexp, mnunm, iconnm, mExpSeisSimplePS3DMnuItm );
-    }
-
     if ( have3d )
     {
 	mnunm = uiStrings::sOpendTect(); iconnm = "od";
@@ -741,11 +731,11 @@ void uiODMenuMgr::fillAnalMenu()
 
     uiMenu* xplotmnu = addSubMenu( analmnu_, tr("Cross-plot Data"), "xplot" );
     addAction( xplotmnu, tr("Well logs vs Attributes"), "xplot_wells",
-			mXplotMnuItm );
+			mXPlotMnuItm );
     addAction( xplotmnu, tr("Attributes vs Attributes"), "xplot_attribs",
-			mAXplotMnuItm );
+			mAttrXPlotMnuItm );
     addAction( xplotmnu, tr("Open Cross-plot from File"), "singlefile",
-			mOpenXplotMnuItm );
+			mOpenXPlotMnuItm );
 
     analwellmnu_ = addSubMenu( analmnu_, uiStrings::sWells(), "well" );
     addAction( analwellmnu_, tr("Edit Logs"), "well_props",
@@ -756,7 +746,7 @@ void uiODMenuMgr::fillAnalMenu()
 
     layermodelmnu_ = addSubMenu( analmnu_, tr("Layer Modeling"),
 				 "stratlayermodeling" );
-    addAction( layermodelmnu_, tr("Basic"), "basiclayermodeling",
+    addAction( layermodelmnu_, uiStrings::sBasic(), "basiclayermodeling",
 		mCB(&applMgr(),uiODApplMgr,doLayerModeling) );
 
     analmnu_->insertSeparator();
@@ -766,7 +756,7 @@ void uiODMenuMgr::fillAnalMenu()
 void uiODMenuMgr::fillSceneMenu()
 {
     scenemnu_->clear();
-    addAction( scenemnu_, uiStrings::sNew(), "new", mAddSceneMnuItm );
+    addAction( scenemnu_, uiStrings::sNew(), "addnew", mAddSceneMnuItm );
     addAction( scenemnu_, tr("New Map View"), "survey", mAddMapSceneMnuItm );
     uiString tdmnutxt = tr( "New [%1]" )
 	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
@@ -898,12 +888,12 @@ void uiODMenuMgr::mkViewIconsMnu()
 void uiODMenuMgr::fillUtilMenu()
 {
     settmnu_ = addSubMenu( utilmnu_, uiStrings::sSettings(), "settings" );
-    addAction( settmnu_, uiStrings::sGeneral(), "settings", mSettGenMnuItm );
-    addAction( settmnu_, tr("Auto-Save"), "save", mSettAutoSaveMnuItm );
-    addAction( settmnu_, uiStrings::sLooknFeel(), "looknfeel",
-				mSettLkNFlMnuItm );
+    langmnumgr_ = new uiODLangMenuMgr( *this );
+    addAction( settmnu_, uiStrings::sUserSettings(), "settings",
+				mSettingsMnuItm );
     addAction( settmnu_, tr("Keyboard Shortcuts"), "keyboardshortcuts",
 				mSettShortcutsMnuItm );
+    addAction( settmnu_, tr("Auto-Save"), "autosave", mSettAutoSaveMnuItm );
 
     uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
     addAction( advmnu, tr("Personal Settings"), "unknownperson",
@@ -994,7 +984,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     add2D3DToolButton( *dtecttb_, "attributes", tr("Edit Attributes"),
 		       mCB(appman,uiODApplMgr,editAttr2DCB),
 		       mCB(appman,uiODApplMgr,editAttr3DCB) );
-    add2D3DToolButton( *dtecttb_, "seisout", tr("Create Seismic Output"),
+    add2D3DToolButton( *dtecttb_, "out_seis", tr("Create Seismic Output"),
 		       mCB(appman,uiODApplMgr,seisOut2DCB),
 		       mCB(appman,uiODApplMgr,seisOut3DCB) );
 
@@ -1064,18 +1054,7 @@ void uiODMenuMgr::fillManTB()
 
     uiMenu* seispopmnu = mantb_->addButtonMenu( seisid,
 						uiToolButton::InstantPopup );
-    if ( have2d )
-    {
-	mAddPopupMnu( seispopmnu, tr("2D Seismics"), mManSeis2DMnuItm )
-	mAddPopupMnu( seispopmnu, tr("2D Prestack Seismics"),
-		      mManSeisPS2DMnuItm )
-    }
-    if ( have3d )
-    {
-	mAddPopupMnu( seispopmnu, tr("3D Seismics"), mManSeis3DMnuItm )
-	mAddPopupMnu( seispopmnu, tr("3D Prestack Seismics"),
-		      mManSeisPS3DMnuItm )
-    }
+    fillFullSeisSubMenu( seispopmnu, mClickCB, mManSeisMnu );
 
     if ( have2d )
 	mAddPopUp( tr("2D Horizons"), tr("3D Horizons"),
@@ -1096,16 +1075,25 @@ static bool sIsPolySelect = true;
     uiAction* itm = new uiAction( txt, mCB(this,uiODMenuMgr,fn), fnm ); \
     mnu->insertAction( itm, idx ); }
 
+#define mAddSMMnuItm(mnu,txt,fn,fnm,idx) { \
+    uiAction* itm = new uiAction( txt, mCB(scenemgr,uiODSceneMgr,fn), fnm ); \
+    mnu->insertAction( itm, idx ); }
+
 void uiODMenuMgr::fillVisTB( uiODSceneMgr* scenemgr )
 {
     actviewid_ = viewtb_->addButton( "altpick", tr("Switch to View Mode"),
 			mCB(this,uiODMenuMgr,toggViewMode), false );
-    mAddTB(viewtb_,"home",tr("To home position"),false,toHomePos);
-    mAddTB(viewtb_,"set_home",tr("Save Home Position"),false,saveHomePos);
-    mAddTB(viewtb_,"view_all",tr("View All"),false,viewAll);
-    cameraid_ = mAddTB(viewtb_,"perspective",
-		       tr("Switch to Orthographic Camera"),
-		       false,switchCameraType);
+
+    int homeid = mAddTB(viewtb_,"home",tr("To home position"),false,toHomePos);
+    uiMenu* homemnu = viewtb_->addButtonMenu( homeid );
+    mAddSMMnuItm( homemnu, tr("To home position"), toHomePos, "home", 0 );
+    mAddSMMnuItm( homemnu, tr("Save position as Home position"),
+		  saveHomePos, "set_home", 1 );
+
+    mAddTB( viewtb_, "view_all", tr("View All"), false, viewAll );
+    cameraid_ = mAddTB( viewtb_, "perspective",
+		        tr("Switch to Orthographic Camera"),
+		        false, switchCameraType );
 
     curviewmode_ = ui3DViewer::Inl;
     bool separateviewbuttons = false;
@@ -1157,7 +1145,7 @@ void uiODMenuMgr::fillVisTB( uiODSceneMgr* scenemgr )
     mAddMnuItm( mnu, uiStrings::sRectangle(),
 		handleToolClick, "rectangleselect", 1 );
 
-    removeselectionid_ = viewtb_->addButton( "trashcan", tr("Remove selection"),
+    removeselectionid_ = viewtb_->addButton( "remove", tr("Remove selection"),
 		    mCB(this,uiODMenuMgr,removeSelectionCB), false );
 
     soloid_ = mAddTB(viewtb_,"solo",tr("Display current element only"),
@@ -1273,7 +1261,8 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
 void uiODMenuMgr::handleClick( CallBacker* cb )
 {
     mDynamicCastGet(uiAction*,itm,cb)
-    if ( !itm ) return; // Huh?
+    if ( !itm )
+	{ pErrMsg("Huh?"); return; }
 
     const int id = itm->getID();
     switch( id )
@@ -1381,9 +1370,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExtract2DFrom3DMnuItm: applMgr().create2DFrom3D(); break;
     case mCreate3DFrom2DMnuItm:	applMgr().create3DFrom2D(); break;
     case mStartBatchJobMnuItm:	applMgr().startBatchJob(); break;
-    case mXplotMnuItm:		applMgr().doWellXPlot(); break;
-    case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
-    case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;
+    case mXPlotMnuItm:		applMgr().doWellXPlot(); break;
+    case mAttrXPlotMnuItm:	applMgr().doAttribXPlot(); break;
+    case mOpenXPlotMnuItm:	applMgr().openCrossPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
     case mAddTmeDepthMnuItm:	applMgr().addTimeDepthScene(); break;
@@ -1421,9 +1410,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	dlg.go();
     } break;
 
-    case mSettGenMnuItm:
-    case mSettLkNFlMnuItm: {
-	uiSettingsDlg dlg( &appl_, id == mSettLkNFlMnuItm );
+    case mSettingsMnuItm: {
+	uiSettingsDlg dlg( &appl_ );
 	dlg.go();
     } break;
 
@@ -1537,6 +1525,7 @@ void uiODMenuMgr::manSeis( CallBacker* )
 
     appl_.applMgr().seisServer()->manageSeismics( !have2d ? 0 : 2 );
 }
+
 
 #define mDefManCBFn(typ) \
     void uiODMenuMgr::man##typ( CallBacker* ) { mDoOp(Man,typ,0); }

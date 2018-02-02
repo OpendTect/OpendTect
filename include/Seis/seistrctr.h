@@ -243,7 +243,7 @@ public:
     void		getComponentNames(BufferStringSet&) const;
 
     bool		haveWarnings() const;
-    const BufferStringSet& warnings() const		{ return warnings_; }
+    const uiStringSet&	warnings() const		{ return warnings_; }
 
     virtual bool	implRemove(const IOObj*) const;
     virtual bool	implRename(const IOObj*,const char*,
@@ -307,8 +307,8 @@ protected:
     TargetComponentData** outcds_;
 
     TypeSet<int>	warnnrs_;
-    BufferStringSet&	warnings_;
-    virtual void	addWarn(int,const char*);
+    uiStringSet		warnings_;
+    virtual void	addWarn(int,const uiString& s=uiString::emptyString());
 
     virtual bool	removeMainObj(const IOObj&) const;
     virtual bool	renameMainObj(const IOObj&,const char*,

@@ -226,10 +226,10 @@ void HorizonPainter2D::updateIntersectionMarkers()
 		const Line2DInterSection::Point& intpoint =
 		    intsect->getPoint(idz);
 		int trcnr = geomids[idy] !=
-		    geomid_ ? intpoint.linetrcnr : intpoint.mytrcnr;
+		    geomid_ ? intpoint.othertrcnr_ : intpoint.mytrcnr_;
 		if ( geomids[idy] != geomid_ )
 		{
-		    if ( intpoint.line != geomids[idy] )
+		    if ( intpoint.otherid_ != geomids[idy] )
 			continue;
 		}
 		float x = .0f;
@@ -238,7 +238,7 @@ void HorizonPainter2D::updateIntersectionMarkers()
 		const TrcKey tk( geomid_, trcnr );
 		const float z = zat ? zat->transformTrc( tk, (float)crd.z_ )
 				    : (float)crd.z_;
-		const int didx = trcnos_.indexOf( intpoint.mytrcnr );
+		const int didx = trcnos_.indexOf( intpoint.mytrcnr_ );
 		if ( didx>0 && didx<distances_.size() )
 		    x = distances_[didx];
 		if ( !mIsUdf(z) && x!=.0f )
@@ -428,7 +428,7 @@ void HorizonPainter2D::displaySelections(
 	const int postype = isseed ? EM::EMObject::sSeedNode()
 	    : EM::EMObject::sIntersectionNode();
 	const OD::MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
-	markerstyle_.color_ = hor2d->getSelectionColor();
+	markerstyle_.color_ = hor2d->selectionColor();
 	markerstyle_.size_ = ms3d.size_*2;
 	markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
 	selectionpoints_->marker_->markerstyles_ += markerstyle_;
@@ -462,7 +462,7 @@ void HorizonPainter2D::updateSelectionColor()
 	selectionpoints_->marker_->markerstyles_;
 
     for ( int idx=0;idx<markerstyles.size();idx++ )
-	markerstyles[idx].color_ = hor2d->getSelectionColor();
+	markerstyles[idx].color_ = hor2d->selectionColor();
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 }

@@ -59,8 +59,9 @@ static const char* actionstr[] =
     0
 };
 
-mInitAttribUIPars(uiTextureAttrib,Texture,"Texture",sKeyBasicGrp(),
-		  uiAttrDescEd::Both,uiAttrDescEd::AnyDim,false)
+mInitAttribUINoSynth( uiTextureAttrib, Texture,
+		      uiStrings::sTexture(), sBasicGrp() );
+
 
 uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mTextureAttribHelpID) )

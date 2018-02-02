@@ -779,7 +779,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const uiString& inputStr )
     mInitStdMembs
 {
-    inputs_ += new StringInpSpec( inputStr.getFullString() );
+    inputs_ += new StringInpSpec( toString(inputStr) );
     if ( !disptxt.isEmpty() )
 	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
@@ -1202,7 +1202,7 @@ const uiString& uiGenInput::titleText()
 void uiGenInput::setTitleText( const uiString& txt )
 {
     titletext_ = txt;
-    setName( txt.getFullString() );
+    setName( toString(txt) );
     if ( labl_ )
     {
 	labl_->setText( txt );

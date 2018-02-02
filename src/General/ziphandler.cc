@@ -171,7 +171,7 @@ ________________________________________________________________________
 #define mMaxWindowBitForRawDeflate -15
 
 #define mErrRet(pre,mid,post) { \
-    errormsg_.append( pre ).append( mid ).append( post ); \
+    errormsg_.appendWord( pre ).appendWord( mid ).appendWord( post ); \
     return false; }
 
 
@@ -1301,8 +1301,9 @@ bool ZipHandler::extractNextFile()
 		    istrm_->addErrMsgTo( errormsg_ );
 		else
 		{
-		    errormsg_.append( tr(" because of a write error to %1")
-			     .arg(ostrm_->fileName()) );
+		    errormsg_.appendPhrase(
+			    tr(" because of a write error to %1")
+			    .arg(ostrm_->fileName()) );
 		    ostrm_->addErrMsgTo( errormsg_ );
 		}
 		closeOutputStream(); closeInputStream();

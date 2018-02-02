@@ -64,13 +64,12 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
-
-BufferString uiAttribDescSetEd::nmprefgrp_( "" );
-static bool savebuttoncheckedonstart_ = true;
+static uiString	lastusedgroup_;
+static bool	lastsavebuttonchecked_ = true;
 
 
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSet& ds,
-				      const char* prefgrp, bool attrsneedupdt )
+				      uiString prefgrp, bool attrsneedupdt )
     : uiDialog(p,uiDialog::Setup( ds.is2D() ? tr("Attribute Set 2D")
 					: tr("Attribute Set 3D"),mNoDlgTitle,
 					mODHelpKey(mAttribDescSetEdHelpID) )
@@ -94,7 +93,10 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSet& ds,
     createMenuBar();
     createToolBar();
     createGroups();
-    attrtypefld_->setGrp( prefgrp ? prefgrp : nmprefgrp_.buf() );
+
+    if ( !prefgrp.isEmpty() )
+	lastusedgroup_ = prefgrp;
+    attrtypefld_->setGroupName( lastusedgroup_ );
 
     init();
 }
@@ -131,14 +133,7 @@ const ZDomain::Info* uiAttribDescSetEd::getZDomainInfo() const
     mnu->insertAction( itm ); \
 }
 
-#define mInsertMnuItemNoIcon( mnu, txt, func ) \
-{ \
-    uiAction* itm = new uiAction(txt,mCB(this,uiAttribDescSetEd,func));\
-    mnu->insertAction( itm ); \
-}
-
 #define mInsertItem( txt, func, fnm ) mInsertMnuItem(filemnu,txt,func,fnm)
-#define mInsertItemNoIcon( txt, func ) mInsertMnuItemNoIcon(filemnu,txt,func)
 
 void uiAttribDescSetEd::createMenuBar()
 {
@@ -147,24 +142,29 @@ void uiAttribDescSetEd::createMenuBar()
 	{ pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
-    mInsertItem( m3Dots(tr("New set")), newSetCB, "new" );
     mInsertItem( m3Dots(tr("Open set")), openSetCB, "open" );
     mInsertItem( m3Dots(tr("Save set")), savePushCB, "save" );
     mInsertItem( m3Dots(tr("Save set as")), saveAsPushCB, "saveas" );
-    mInsertItemNoIcon( m3Dots(tr("Auto Load Attribute Set")), autoAttrSetCB );
-    mInsertItemNoIcon( m3Dots(tr("Change attribute input(s)")),
-				    chgAttrInputsCB );
+    mInsertItem( m3Dots(tr("Clear set")), newSetCB, "clear" );
+    mInsertItem( m3Dots(tr("Auto Load Attribute Set")), autoAttrSetCB, "auto" );
+    mInsertItem( m3Dots(tr("Change attribute input(s)")),
+				    chgAttrInputsCB, "inputs" );
     filemnu->insertSeparator();
     mInsertItem( m3Dots(tr("Open Default set")), openDefSetCB, "defset" );
     uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
+    impmnu->setIcon( "import" );
     mInsertMnuItem( impmnu, m3Dots(tr("From other Survey")),
-		    importSetCB, "impset" );
-    mInsertMnuItemNoIcon( impmnu, m3Dots(tr("From File")), importFileCB );
-    mInsertItem( m3Dots(tr("Reconstruct from job file")), job2SetCB, "job2set");
-    mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")),
-			importFromSeisCB );
+		    importSetCB, "survey" );
+    mInsertMnuItem( impmnu, m3Dots(tr("From File")), importFileCB,
+			"singlefile" );
+    uiMenu* recmnu = new uiMenu( this, tr("Reconstruct") );
+    recmnu->setIcon( "reconstruct" );
+    mInsertMnuItem( recmnu, m3Dots(tr("From Seismics")), importFromSeisCB,
+		    "seis" );
+    mInsertMnuItem( recmnu, m3Dots(tr("From job file")), job2SetCB, "job2set");
 
     filemnu->addMenu( impmnu );
+    filemnu->addMenu( recmnu );
     menubar->addMenu( filemnu );
 }
 
@@ -175,14 +175,14 @@ void uiAttribDescSetEd::createMenuBar()
 void uiAttribDescSetEd::createToolBar()
 {
     toolbar_ = new uiToolBar( this, tr("AttributeSet tools") );
-    mAddButton( "new", newSetCB, tr("New attribute set") );
     mAddButton( "open", openSetCB, tr("Open attribute set") );
     mAddButton( "defset", openDefSetCB, tr("Open default attribute set") );
-    mAddButton( "impset", importSetCB,
+    mAddButton( "import", importSetCB,
 		tr("Import attribute set from other survey") );
     mAddButton( "job2set", job2SetCB, tr("Reconstruct set from job file") );
     mAddButton( "save", savePushCB, tr("Save attribute set") );
     mAddButton( "saveas", saveAsPushCB, tr("Save attribute set as") );
+    mAddButton( "clear", newSetCB, tr("Clear attributes") );
     toolbar_->addSeparator();
     mAddButton( "evalattr", evalAttributeCB, tr("Evaluate attribute") );
     mAddButton( "evalcrossattr",crossEvalAttrsCB,
@@ -246,12 +246,12 @@ void uiAttribDescSetEd::createGroups()
 		|| (dimtyp == uiAttrDescEd::Only2D && !is2d) )
 	    continue;
 
-	const char* attrnm = uiAF().getDisplayName(idx);
-	attrtypefld_->add( uiAF().getGroupName(idx), attrnm );
-	uiAttrDescEd* de = uiAF().create( degrp, attrnm, is2d, true );
+	const uiString attrnm = uiAF().getDisplayName(idx);
+	uiAttrDescEd* de = uiAF().create( degrp, attrnm, is2d );
 	if ( !de )
 	    continue;
 
+	attrtypefld_->add( uiAF().getGroupName(idx), attrnm );
 	if ( zdomaininfo_ )
 	    de->setZDomainInfo( zdomaininfo_ );
 
@@ -278,7 +278,7 @@ void uiAttribDescSetEd::createGroups()
 
     addbut_ = new uiPushButton( rightgrp, tr("Add as new"), true );
     addbut_->attach( rightTo, attrnmfld_ );
-    addbut_->setIcon( "plus" );
+    addbut_->setIcon( "addnew" );
     addbut_->activated.notify( mCB(this,uiAttribDescSetEd,addPushCB) );
 
     dispbut_ = new uiToolButton( rightgrp, "showattrnow",
@@ -286,9 +286,9 @@ void uiAttribDescSetEd::createGroups()
 	mCB(this,uiAttribDescSetEd,directShowCB) );
     dispbut_->attach( rightTo, addbut_ );
 
-    procbut_ = new uiToolButton( rightgrp, "seisout",
-	tr("Process this attribute"),
-	mCB(this,uiAttribDescSetEd,procAttributeCB) );
+    procbut_ = new uiToolButton( rightgrp, "out_seis",
+				tr("Process this attribute"),
+				mCB(this,uiAttribDescSetEd,procAttributeCB) );
     procbut_->attach( rightTo, dispbut_ );
 
     uiSplitter* splitter = new uiSplitter( this );
@@ -301,7 +301,7 @@ void uiAttribDescSetEd::init()
 {
     newList(0);
 
-    setSaveButtonChecked( savebuttoncheckedonstart_ );
+    setSaveButtonChecked( lastsavebuttonchecked_ );
     setButStates();
 }
 
@@ -523,11 +523,11 @@ bool uiAttribDescSetEd::acceptOK()
     if ( !doCommit() || !doAcceptInputs() )
 	return false;
 
-    if ( saveButtonChecked() && !doSave(false) )
+    lastsavebuttonchecked_ = saveButtonChecked();
+    if ( lastsavebuttonchecked_ && !doSave(false) )
 	return false;
 
-    savebuttoncheckedonstart_ = saveButtonChecked();
-    nmprefgrp_ = attrtypefld_->group();
+    lastusedgroup_ = attrtypefld_->groupName();
     applycb.trigger();
     return true;
 }
@@ -577,7 +577,7 @@ void uiAttribDescSetEd::setSelAttr( const char* attrnm, bool isnewset )
     if ( isnewset )
 	newSetCB(0);
 
-    attrtypefld_->setAttr( attrnm );
+    attrtypefld_->setAttributeName( attrnm );
     updateFields( false );
 }
 
@@ -588,7 +588,7 @@ BufferString uiAttribDescSetEd::getAttribName( uiAttrDescEd& desced ) const
     if ( attribname.isEmpty() )
     {
 	pErrMsg("Missing uiAttrDescEd attribName()");
-	attribname = uiAF().attrNameOf( attrtypefld_->attr() );
+	attribname = attrtypefld_->attributeName();
     }
     return attribname;
 }
@@ -603,9 +603,10 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 
     if ( set_type )
     {
-	const BufferString typenm( curdesc ? curdesc->attribName().str()
-					   : "RefTime" );
-	attrtypefld_->setAttr( uiAF().dispNameOf(typenm) );
+	BufferString attrnm( "RefTime" );
+	if ( curdesc )
+	    attrnm.set( curdesc->attribName() );
+	attrtypefld_->setAttributeName( attrnm );
     }
 
     uiAttrDescEd& neededdesced = activeDescEd();
@@ -660,7 +661,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     if ( !usedesc )
 	return false;
 
-    BufferString newattr = uiAF().attrNameOf( attrtypefld_->attr() );
+    BufferString newattr = attrtypefld_->attributeName();
     BufferString oldattr = usedesc->attribName();
     if ( oldattr != newattr )
     {
@@ -738,10 +739,9 @@ Attrib::Desc* uiAttribDescSetEd::curDesc() const
 
 uiAttrDescEd& uiAttribDescSetEd::activeDescEd()
 {
-    const BufferString attrstr = attrtypefld_->attr();
-    BufferString attrnm = uiAF().attrNameOf( attrstr );
-    if ( !attrnm )
-	{ pErrMsg("Huh"); attrnm = attrstr; }
+    BufferString attrnm = attrtypefld_->attributeName();
+    if ( attrnm.isEmpty() )
+	{ pErrMsg("Huh"); return *desceds_[0]; }
 
     for ( int idx=0; idx<desceds_.size(); idx++ )
     {
@@ -1314,7 +1314,7 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
 	if ( !ad )
 	    { pErrMsg("Huh"); continue; }
 
-	const BufferString& attrnm = ad->attribName();
+	const BufferString attrnm = ad->attribName();
 	const char* usernm = ad->userRef();
 	for ( int idy=0; idy<desceds_.size(); idy++ )
 	{

@@ -49,7 +49,7 @@ static void getOutputNames( uiStringSet& strs3d, uiStringSet& strs2d )
 }
 
 
-mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp())
+mInitAttribUI(uiReferenceAttrib,Reference,tr("Reference"),sPositionGrp())
 
 
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )

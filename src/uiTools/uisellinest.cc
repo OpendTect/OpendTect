@@ -47,7 +47,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     uiString lbltxt( su.txt_ );
     if ( lbltxt.isEmpty() )
 	lbltxt = tr("Line style");
-    else if ( lbltxt.getFullString() == "-" )
+    else if ( toString(lbltxt) == "-" )
 	lbltxt.setEmpty();
 
     uiObject* alobj = 0;
@@ -67,7 +67,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     {
 	uiColorInput::Setup csu( linestyle_.color_, su.transparency_
 		? uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
-	csu.lbltxt( stylesel_ ? uiStrings::sColor() 
+	csu.lbltxt( stylesel_ ? uiStrings::sColor()
                               : tr("Line color") ).withdesc( !su.width_ );
 	colinp_ = new uiColorInput( this, csu );
 	colinp_->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
@@ -80,10 +80,10 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     if ( su.width_ )
     {
 	widthbox_ = new uiLabeledSpinBox( this,
-		    su.color_ || su.drawstyle_ ? tr("Width") 
+		    su.color_ || su.drawstyle_ ? tr("Width")
                                                : tr("Line width") );
 	widthbox_->box()->setMinValue( mMIN(cMinWidth,linestyle_.width_) );
-  	widthbox_->box()->setMaxValue( mMAX(cMaxWidth,linestyle_.width_) );
+	widthbox_->box()->setMaxValue( mMAX(cMaxWidth,linestyle_.width_) );
 	widthbox_->box()->setValue( linestyle_.width_ );
 	if ( colinp_ )
 	    widthbox_->attach( rightTo, colinp_ );
@@ -95,7 +95,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 	    alobj = widthbox_->attachObj();
 	}
 
-	widthbox_->box()->valueChanging.notify( 
+	widthbox_->box()->valueChanging.notify(
 					mCB(this,uiSelLineStyle,changeCB) );
     }
 

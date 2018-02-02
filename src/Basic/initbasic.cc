@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "posinfo2dsurv.h"
 #include "sighndl.h"
-#include "texttranslator.h"
 
 #ifdef __win__
 # include <stdio.h> // for _set_output_format
@@ -51,14 +50,6 @@ mDefModInitFn(Basic)
     //forking from a process that had affinity set.
     Threads::setCurrentThreadProcessorAffinity(-1);
 
-#ifdef __win__
-#if ( _MSC_VER < 1900 ) // Incorporated as default in VS 14.0 (1900) onwards
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-    // From MSDN:
-    // "is used to configure the output of formatted I/O functions"
-#endif
-#endif
-
     PosInfo::Survey2D::initClass();
     Coords::UnlocatedXY::initClass();
     Coords::AnchorBasedXY::initClass();
@@ -71,6 +62,4 @@ mDefModInitFn(Basic)
 #ifndef OD_NO_QT
     legalInformation().addCreator( qtLegalText, "Qt" );
 #endif
-
-    OD::loadLocalization();
 }

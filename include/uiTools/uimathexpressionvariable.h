@@ -20,6 +20,7 @@ class uiLabel;
 class uiUnitSel;
 class uiGenInput;
 class uiComboBox;
+class uiLabeledComboBox;
 class uiToolButton;
 
 
@@ -85,6 +86,7 @@ protected:
 
     uiGroup*		inpgrp_;
     uiLabel*		inplbl_;
+    uiLabeledComboBox*	fullinpfld_;
     uiComboBox*		inpfld_;
     uiComboBox*		subinpfld_;
     uiGenInput*		constfld_;

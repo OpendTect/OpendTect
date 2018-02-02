@@ -67,7 +67,7 @@ public:
 
     void		setToolTip(const uiString&);
     const uiString&	toolTip() const;
-    static void		updateToolTips();
+    static void		updateAllToolTips();
 
     void		translateText();
 

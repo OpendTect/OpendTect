@@ -70,7 +70,6 @@ mImplFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager::EMManager( const IOObjContext& ctxt )
     : SaveableManager(ctxt,true)
-    , undo_( *new EMUndo() )
     , addRemove( this )
 {
     mAttachCB( Strat::eLVLS().objectChanged(), EMManager::levelSetChgCB );
@@ -80,6 +79,7 @@ EMManager::EMManager( const IOObjContext& ctxt )
 EMManager::~EMManager()
 {
     detachAllNotifiers();
+
     setEmpty();
 }
 
@@ -88,7 +88,6 @@ void EMManager::setEmpty()
 {
     savers_.setEmpty();
     addRemove.trigger();
-    undo_.removeAll();
 }
 
 
@@ -235,26 +234,12 @@ bool EMManager::objectExists( const EMObject* obj ) const
 void EMManager::addObject( EMObject* obj )
 {
     if ( !obj )
-	{ pErrMsg("No object provided!"); return; }
+    { pErrMsg("No object provided!"); return; }
 
     if ( isPresent(*obj) )
-	{ pErrMsg("Adding object twice"); return; }
+    { pErrMsg("Adding object twice"); return; }
 
-<<<<<<< HEAD
-    objects_ += obj;
-    addRemove.trigger();
-}
-
-
-void EMManager::removeObject( const EMObject* obj )
-{
-    const int idy = undoIndexOf( obj->id() );
-    if ( idy>=0 )
-	delete undolist_.removeSingle( idy );
-
-    const int idx = objects_.indexOf(obj);
-    if ( idx<0 ) return;
-    objects_.removeSingle( idx );
+    addNew( *obj, obj->dbKey(), 0, true );
     addRemove.trigger();
 }
 
@@ -517,6 +502,31 @@ Saveable* EMManager::getSaver( const SharedObject& shobj ) const
 }
 
 
+Undo& EMManager::undo( const DBKey& id )
+{
+    const int idx = undoIndexOf( id );
+    if ( undolist_.validIdx(idx) )
+	return undolist_[idx]->undo_;
+
+    EMObjUndo* newemobjundo = new EMObjUndo( id );
+    undolist_ += newemobjundo;
+
+    return newemobjundo->undo_;
+}
+
+
+int EMManager::undoIndexOf( const DBKey& id )
+{
+    for ( int idx=0; idx<undolist_.size(); idx++ )
+    {
+	if ( undolist_[idx]->id_ == id )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
 EMManager& getMgr( const DBKey& id )
 {
     PtrMan<IOObj> ioobj = DBM().get( id );
@@ -540,24 +550,22 @@ GenEMManager::GenEMManager( const IOObjContext& ctxt )
     : EMManager(ctxt)
 {}
 
+void GenEMManager::addObject( EMObject* obj )
+{
+    if ( !obj )
+    { pErrMsg("No object provided!"); return; }
+
+    if ( isPresent(*obj) )
+    { pErrMsg("Adding object twice"); return; }
+
+    getMgr( obj->dbKey() ).addObject( obj );
+}
+
 
 EMObject* GenEMManager::createTempObject( const char* type )
 {
     FixedString trgrp( type );
     return getMgr( trgrp ).createTempObject( type );
 }
-
-
-void GenEMManager::addObject( EMObject* obj )
-{
-    if ( !obj )
-	{ pErrMsg("No object provided!"); return; }
-
-    if ( isPresent(*obj) )
-	{ pErrMsg("Adding object twice"); return; }
-
-    getMgr( obj->dbKey() ).addObject( obj );
-}
-
 
 } // namespace EM

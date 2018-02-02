@@ -68,6 +68,44 @@ public:
 };
 
 
+
+/*!
+\brief Thread safe set of EMObjectCallbackData
+*/
+
+mExpClass(EarthModel) CBDataSet
+{
+public:
+void addCallBackData( const EM::EMObjectCallbackData* data )
+{
+    Threads::Locker locker( lock_ );
+    emcallbackdata_ += data;
+}
+
+const EM::EMObjectCallbackData* getCallBackData( int idx )
+{
+    Threads::Locker locker( lock_ );
+    return emcallbackdata_.validIdx(idx) ? emcallbackdata_[idx] : 0;
+}
+
+void clearData()
+{
+    Threads::Locker locker( lock_ );
+    deepErase( emcallbackdata_ );
+}
+
+int size() const
+{
+    return emcallbackdata_.size();
+}
+
+protected:
+    ObjectSet<const EMObjectCallbackData>	emcallbackdata_;
+    Threads::Lock				lock_;
+};
+
+
+
 /*!
 \brief Iterator that iterates a number of positions (normally all) on an
 EMObject. The object is created by EMObject::createIterator, and the next()
@@ -143,6 +181,12 @@ public:
 		  cPrefMarkerStyleChange())
 
     virtual bool		isOK() const		{ return true; }
+
+    virtual uiString		uiName() const	{ return toUiString( name() ); }
+    virtual void		setNameToJustCreated();
+
+    virtual const Geometry::Element*	geometryElement() const;
+    virtual Geometry::Element*		geometryElement();
 
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;

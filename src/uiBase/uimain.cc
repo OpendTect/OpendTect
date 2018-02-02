@@ -29,10 +29,12 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "oddirs.h"
+#include "odiconfile.h"
 #include "oscommand.h"
 #include "staticstring.h"
 #include "settings.h"
 #include "thread.h"
+#include "texttranslation.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -50,8 +52,8 @@ static Color normaltooltipbackgroundcolor_;
 static Color normaltooltipforegroundcolor_;
 
 void uiMain::setXpmIconData( const char** buf )	{ xpm_icon_data = buf; }
-void uiMain::setIconFileName( const char* fnm )	{ icon_filename = fnm; }
 const char* uiMain::iconFileName()		{ return icon_filename; }
+namespace OD { mGlobal(Basic) void loadLocalization(); }
 
 
 class KeyboardEventFilter : public QObject
@@ -410,15 +412,52 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     const BufferString stylenm = OD::getActiveStyleName();
     const BufferString qssfnm = OD::getStyleFile( stylenm, "qss" );
     if ( !qssfnm.isEmpty() )
-    {
-	QFile file( qssfnm.buf() );
-	file.open( QFile::ReadOnly );
-	QString sheet = QLatin1String( file.readAll() );
-	app_->setStyleSheet( sheet );
-    }
+	setStyleSheet( qssfnm );
 
     font_ = 0;
     setFont( *font() , true );
+
+    OD::loadLocalization();
+    mAttachCB( TrMgr().languageChange, uiMain::languageChangeCB );
+}
+
+
+bool uiMain::setStyleSheet( const char* fnm )
+{
+    QFile file( fnm );
+    if ( !file.open( QFile::ReadOnly| QFile::Text ) )
+	return false;
+    QString filecontents = QLatin1String( file.readAll() );
+    if ( filecontents.isEmpty() )
+	return false;
+
+    app_->setStyleSheet( filecontents );
+    return true;
+}
+
+
+void uiMain::setIcon( const char* icid )
+{
+    File::Path fp( icid );
+    QIcon qic;
+    if ( fp.isAbsolute() )
+    {
+	qic.addFile( icid );
+	icon_filename = icid;
+    }
+    else
+    {
+	OD::IconFile icfil( icid );
+	const BufferStringSet& fnms = icfil.fileNames();
+	if ( fnms.isEmpty() )
+	    return;
+	for ( int idx=0; idx<fnms.size(); idx++ )
+	    qic.addFile( fnms.get(idx).buf() );
+	icon_filename = fnms.get(0);
+    }
+
+    if ( app_ )
+	app_->setWindowIcon( qic );
 }
 
 
@@ -615,15 +654,28 @@ void uiMain::processEvents( int msec )
 }
 
 
+void uiMain::languageChangeCB( CallBacker* )
+{
+    updateAllToolTips();
+    uiAction::updateAllTexts();
+}
+
+
+void uiMain::updateAllToolTips()
+{
+    uiObject::updateAllToolTips();
+    uiTreeViewItem::updateAllToolTips();
+    uiAction::updateAllToolTips();
+}
+
+
 void uiMain::useNameToolTip( bool yn )
 {
     if ( usenametooltip_ == yn )
 	return;
 
     usenametooltip_ = yn;
-    uiObject::updateToolTips();
-    uiAction::updateToolTips();
-    uiTreeViewItem::updateToolTips();
+    updateAllToolTips();
 }
 
 

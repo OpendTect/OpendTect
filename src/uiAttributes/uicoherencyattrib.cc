@@ -25,7 +25,7 @@ static const char* sKeyDeltaDip = "Delta dip";
 static const char* sKeyMaxDip = "Maximum dip";
 
 
-mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp())
+mInitAttribUI(uiCoherencyAttrib,Coherency,tr("Coherency"),sBasicGrp())
 
 
 uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )

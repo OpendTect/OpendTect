@@ -716,7 +716,7 @@ bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
     Undo& undo = EM::EMM().undo( emobject_->id() );
     const int lastid = undo.currentEventID();
 
-    emobject_->removeSelected( selectionids_ );
+    emobject_->removePositions( selectionids_ );
 
     if ( lastid!=undo.currentEventID() )
 	undo.setUserInteractionEnd( undo.currentEventID() );

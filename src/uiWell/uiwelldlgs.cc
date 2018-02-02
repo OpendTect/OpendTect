@@ -715,8 +715,8 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     const bool zinfeet = zinftfld_ ? zinftfld_->isChecked() : false;
     const BufferString depthunit = getDistUnitString( zinfeet, true );
 
-    strm << trackcollbls[0] << SI().xyUnitString().getFullString() << od_tab;
-    strm << trackcollbls[1] << SI().xyUnitString().getFullString() << od_tab;
+    strm << trackcollbls[0] << toString(SI().xyUnitString()) << od_tab;
+    strm << trackcollbls[1] << toString(SI().xyUnitString()) << od_tab;
     strm << trackcollbls[2] << depthunit << od_tab;
     strm << "TVD" << depthunit << od_tab;
     strm << trackcollbls[3] << depthunit << od_newline;
@@ -768,7 +768,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 				.defrowlbl("")
 				.selmode(uiTable::Single)
 				.removeselallowed(false),
-				(mTDName(cksh)).getFullString().buf() );
+				toString((mTDName(cksh))) );
 
     timefld_ = new uiCheckBox( this, tr(" Time is TWT") );
     timefld_->setChecked( true );
@@ -874,8 +874,7 @@ void uiD2TModelDlg::getColLabels( BufferStringSet& lbls ) const
     }
 
     curlbl.set( timeisoneway ? sKeyOWT() : sKeyTWT() );
-    curlbl.add(
-	    UnitOfMeasure::surveyDefTimeUnitAnnot(true,true).getFullString() );
+    curlbl.add( toString(UnitOfMeasure::surveyDefTimeUnitAnnot(true,true)) );
     lbls.add( curlbl );
 
     curlbl.set( sKeyVint() );
@@ -1663,10 +1662,17 @@ bool uiD2TModelDlg::acceptOK()
 //============================================================================
 
 uiNewWellDlg::uiNewWellDlg( uiParent* p )
-	: uiGetObjectName(p,uiGetObjectName::Setup(tr("New Well"),mkWellNms())
+    : uiGetObjectName(p,uiGetObjectName::Setup(tr("New Well"),mkWellNms())
 				.inptxt(tr("New well name")) )
 {
     setHelpKey( mODHelpKey(mNewWellTrackDlgHelpID) );
+
+    if ( listfld_ )
+    {
+	uiLabel* lbl = new uiLabel( this, tr("Existing wells") );
+	lbl->attach( leftOf, listfld_ );
+    }
+
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
 				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, inpFld() );

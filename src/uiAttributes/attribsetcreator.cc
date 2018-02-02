@@ -167,7 +167,7 @@ bool acceptOK()
 	}
 
 	const DescID descid =
-		attrset_->getID( sel.labelText().getFullString(), true );
+		attrset_->getID( toString(sel.labelText()), true );
 	if ( !descid.isValid() )
 	{
 	    const uiString msg =
@@ -214,7 +214,7 @@ AttributeSetCreator::AttributeSetCreator( uiParent* p_,
 {
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
-	const BufferString& uref = *inps_[idx];
+	const BufferString& uref = inps_.get( idx );
 	Desc* ad = getDesc( uref );
 	if ( !ad )
 	    { attrset->setEmpty(); attrset = 0; return; }

@@ -836,7 +836,7 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
     uiString wmsg;
     const bool isok = getTVDD2TModel( *this, wll, *zvals, *tvals, msg, wmsg );
     if ( !wmsg.isEmpty() )
-	ErrMsg( wmsg.getFullString() );
+	ErrMsg( wmsg );
 
     if ( !externalvals )
 	{ delete zvals; delete tvals; }

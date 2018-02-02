@@ -523,7 +523,7 @@ int uiObject::baseFldSize()
 }
 
 
-void uiObject::updateToolTips()
+void uiObject::updateAllToolTips()
 {
     for ( int idx=uiobjectlist_.size()-1; idx>=0; idx-- )
 	uiobjectlist_[idx]->updateToolTip();

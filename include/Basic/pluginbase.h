@@ -39,6 +39,8 @@ Settable:
 
 */
 
+class uiString;
+
 
 struct PluginInfo
 {
@@ -61,8 +63,25 @@ struct PluginInfo
     const char*	version_;
     const char*	text_;
 
+    const uiString*	uidispname_;
+    const uiString*	uipackagename_;
     const char*		url_;
     bool		useronoffselectable_;
     LicenseType		lictype_;
 
 };
+
+
+// Not inline functions to make it possible to avoid compile-time deps on
+// the uiString class.
+// Example: mSetUserDisplayName( retpi, uiPresMakerPIMgr::dispNm() );
+
+#define mSetPackageDisplayName(piinfo,nm) \
+    (piinfo).uipackagename_ = new uiString( nm )
+
+#define mSetDisplayName(piinfo,nm) \
+    (piinfo).uidispname_ = new uiString( nm )
+
+#define mGetPackageDisplayName(piinfo,uistr) \
+    uistr = ((piinfo).uipackagename_ ? *(piinfo).uipackagename_ \
+				     : toUiString( (piinfo).packagename_ ))

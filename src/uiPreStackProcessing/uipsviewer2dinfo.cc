@@ -48,9 +48,9 @@ void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl,
     if ( mIsUdf(pos.inl()) && mIsUdf(pos.crl()) )
 	return;
 
-    uiString posstr = toUiString("%1 %2").arg(is2d ? uiStrings::sTrace() : 
+    uiString posstr = toUiString("%1 %2").arg(is2d ? uiStrings::sTrace() :
 					  isinl ? tr("Crl ") : tr("Inl "))
-					  .arg(isinl ? toUiString( pos.crl() ) 
+					  .arg(isinl ? toUiString( pos.crl() )
 						     : toUiString( pos.inl() ));
     poslbl_->setText( posstr );
 }
@@ -63,7 +63,10 @@ void uiGatherDisplayInfoHeader::setData( int pos, const char* datanm )
     poslbl_->setText( posstr );
 }
 
+
 const char* uiGatherDisplayInfoHeader::getDataName() const
-{ return datalbl_->text().getFullString(); }
+{
+    return toString( datalbl_->text() );
+}
 
 } //namespace

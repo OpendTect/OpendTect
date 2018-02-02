@@ -162,38 +162,40 @@ bool HorizonPainter3D::addPolyLine()
 	    if ( newmarker )
 		generateNewMarker( *hor3d, *secmarkerln, marker );
 
-	    addDataToMarker( bid, crd, posid, *hor3d, *marker, idx );
+	    addDataToMarker( bid, crd, posid, *hor3d, *marker, newmarker, idx );
 	    newmarker = false;
 	}
-	continue;
     }
-
-    TrcKeySamplingIterator iter( tkzs_.hsamp_ );
-    do
+    else
     {
-	const TrcKey trk( iter.curTrcKey() );
-	const EM::PosID posid = PosID::getFromRowCol( trk.position() );
-	const Coord3 crd = hor3d->getPos( posid );
-	if ( !crd.isDefined() )
+	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
+	do
 	{
-	    coorddefined = false;
-	    continue;
-	}
-	else if ( !coorddefined )
-	{
-	    coorddefined = true;
-	    newmarker = true;
-	}
+	    const TrcKey trk( iter.curTrcKey() );
+	    const EM::PosID posid = PosID::getFromRowCol( trk.position() );
+	    const Coord3 crd = hor3d->getPos( posid );
+	    if ( !crd.isDefined() )
+	    {
+		coorddefined = false;
+		continue;
+	    }
+	    else if ( !coorddefined )
+	    {
+		coorddefined = true;
+		newmarker = true;
+	    }
 
-	if ( newmarker )
-	    generateNewMarker( *hor3d, *secmarkerln, marker );
+	    if ( newmarker )
+		generateNewMarker( *hor3d, *secmarkerln, marker );
 
-	if ( addDataToMarker(trk.position(),crd,posid,*hor3d,*marker) )
-	    nrseeds_++;
-	
-	newmarker = false;
+	    if ( addDataToMarker(trk.position(),crd,posid,*hor3d,
+				 *marker,newmarker) )
+		nrseeds_++;
+	    
+	    newmarker = false;
 
-    } while ( iter.next() );
+	} while ( iter.next() );
+    }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
     return true;

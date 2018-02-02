@@ -192,7 +192,7 @@ void TextStreamProgressMeter::setStarted()
 	if ( !message_.isEmpty() )
 	{
 	    strm_ << "Started: " << Time::getUsrDateTimeString() << "\n\n";
-	    strm_ << '\t' << message_.getFullString() << od_endl;
+	    strm_ << '\t' << toString( message_ ) << od_endl;
 	}
 
         oldtime_ = Time::getMilliSeconds();
@@ -247,18 +247,13 @@ void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
 
 void TextStreamProgressMeter::setMessage( const uiString& message )
 {
-    const BufferString existmsg( message_.getFullString() );
-    const BufferString newmsg( message.getFullString() );
-    if ( existmsg == newmsg )
-	return;
-
     message_ = message;
 }
 
 
 void TextStreamProgressMeter::printMessage( const uiString& msg )
 {
-    strm_ << od_newline << msg.getFullString() << od_endl;
+    strm_ << od_newline << toString( msg ) << od_endl;
 }
 
 

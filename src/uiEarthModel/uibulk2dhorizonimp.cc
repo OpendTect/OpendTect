@@ -296,7 +296,7 @@ bool uiBulk2DHorizonImport::acceptOK()
     BufferStringSet linenmset = reader->linenms_;
     ObjectSet<BinIDValueSet> data = reader->data_;
     ObjectSet<EM::Horizon2D> hor2ds;
-    EM::EMManager& em = EM::EMM();
+    EM::EMManager& em = EM::Hor2DMan();
     PtrMan<IOObj> existioobj(0);
     BufferStringSet existinghornms;
     for ( int idx=0; idx<hornms.size(); idx++ )
@@ -322,25 +322,27 @@ bool uiBulk2DHorizonImport::acceptOK()
 	PtrMan<IOObj> ioobj = DBM().getByName( hornm,
 				EMHorizon2DTranslatorGroup::sGroupName() );
 
-	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() ) : -1;
-	EM::EMObject* emobj = em.getObject(id);
+	RefMan<EM::EMObject> emobj = ioobj ? em.getObject( ioobj->key() ) : 0;
 	if ( emobj )
 	    emobj->setBurstAlert( true );
 
 	PtrMan<Executor> exec = ioobj ? em.objectLoader( ioobj->key() ) : 0;
+	bool newhor = false;
+	if ( !ioobj || !exec || !exec->execute() )
+	{
+	    emobj = em.createObject( EM::Horizon2D::typeStr(), hornm );
+	    newhor = true;
+	}
 
-	id = em.createObject( EM::Horizon2D::typeStr(), hornm );
-	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
-	if ( ioobj )
-	    hor->setDBKey( ioobj->key() );
-
-	hor->setPreferredColor(getRandomColor());
+	mDynamicCastGet(EM::Horizon2D*,hor,emobj.ptr());
 	hor->ref();
-	hor->setBurstAlert( true );
+	if ( newhor )
+	{
+	    hor->setPreferredColor(getRandomColor());
+	    hor->setBurstAlert( true );
+	}
+
 	hor2ds += hor;
-
-	hor2ds.add(hor);
-
 	PtrMan<Horizon2DBulkImporter> imprtr =
 	new Horizon2DBulkImporter( linenmset, hor2ds, data[idx],
 	    (Horizon2DBulkImporter::UndefTreat) udftreatfld_->getIntValue() );
@@ -352,6 +354,7 @@ bool uiBulk2DHorizonImport::acceptOK()
 	if ( !saver->execute() )
 	    mErrRet(uiStrings::phrCannotSave(toUiString(hornms.get(idx))))
     }
+
     uiString msg = tr( "2D Horizons successfully imported.\n\n"
 		    "Do you want to export more 2DHorizons?" );
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),

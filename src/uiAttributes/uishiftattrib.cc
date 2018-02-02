@@ -25,7 +25,7 @@ ________________________________________________________________________
 using namespace Attrib;
 
 
-mInitAttribUI(uiShiftAttrib,Shift,"Reference shift",sKeyPositionGrp())
+mInitAttribUI(uiShiftAttrib,Shift,tr("Reference shift"),sPositionGrp())
 
 uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mShiftAttribHelpID) )

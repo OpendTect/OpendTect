@@ -1458,7 +1458,7 @@ void uiAttribPartServer::filter2DMenuItems(
 
     BufferStringSet childitemnms;
     for ( int idx=0; idx<subitem.nrItems(); idx++ )
-	childitemnms.add( subitem.getItem(idx)->text.getFullString() );
+	childitemnms.add( toString(subitem.getItem(idx)->text) );
 
     subitem.removeItems();
     FixedString linenm( Survey::GM().getName(geomid) );
@@ -1534,7 +1534,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& ass,
     if ( stored3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
-	const int idx = attrinf.ioobjnms_.indexOf(item->text.getFullString());
+	const int idx = attrinf.ioobjnms_.indexOf( toString(item->text) );
 	dbkey = attrinf.ioobjids_.get(idx);
 	attribid = curDescSet(false).getStoredID( dbkey );
 	isstored = true;
@@ -1542,7 +1542,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& ass,
     else if ( steering3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = steering3dmnuitem_.findItem( mnuid );
-	const int idx = attrinf.steernms_.indexOf( item->text.getFullString() );
+	const int idx = attrinf.steernms_.indexOf( toString(item->text) );
 	dbkey = attrinf.steerids_.get( idx );
 	attribid = curDescSet(false).getStoredID( dbkey );
 	isstored = true;
@@ -1556,7 +1556,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& ass,
 	if ( !item )
 	    return false;
 
-	const BufferString& itmnm = item->text.getFullString();
+	const BufferString itmnm = toString( item->text );
 	const int idx = issteering ? attrinf.steernms_.indexOf( itmnm )
 				   : attrinf.ioobjnms_.indexOf( itmnm );
 	dbkey = issteering ? attrinf.steerids_.get(idx)
@@ -1568,7 +1568,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& ass,
     else if ( calcmnuitem->findItem(mnuid) )
     {
 	const MenuItem* item = calcmnuitem->findItem(mnuid);
-	int idx = attrinf.attrnms_.indexOf(item->text.getFullString());
+	int idx = attrinf.attrnms_.indexOf( toString(item->text) );
 	attribid = attrinf.attrids_[idx];
     }
     else if ( nlamnuitem->findItem(mnuid) )
@@ -1582,7 +1582,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& ass,
 	    return false;
 	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
 	PtrMan<IOObj> ioobj = DBM().getByName( IOObjContext::Seis,
-						item->text.getFullString() );
+						toString(item->text) );
 	if ( ioobj )
 	{
 	    dbkey = ioobj->key();
@@ -1653,12 +1653,12 @@ void uiAttribPartServer::info2DAttribSubMenu( int mnuid, BufferString& attbnm,
 	stored = true;
 	const MenuItem* item = stored2dmnuitem_.findItem( mnuid );
 	if ( !item ) item = steering2dmnuitem_.findItem( mnuid );
-	attbnm = item->text.getFullString();
+	attbnm = toString( item->text );
     }
     else if ( calc2dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = calc2dmnuitem_.findItem( mnuid );
-	attbnm = item->text.getFullString();
+	attbnm = toString( item->text );
     }
 }
 
@@ -1681,8 +1681,8 @@ bool uiAttribPartServer::handleMultiComp( const DBKey& dbkey, bool is2d,
     if ( !is2d && issteering && complist.isPresent("Component 1") )
     {
 	complist.erase();
-	complist.add( BufferString(uiStrings::sInlineDip().getFullString() ) );
-	complist.add( BufferString(uiStrings::sCrosslineDip().getFullString()));
+	complist.add( toString(uiStrings::sInlineDip()) );
+	complist.add( toString(uiStrings::sCrosslineDip()) );
     }
 
     uiMultCompDlg compdlg( parent(), complist );
@@ -1703,9 +1703,9 @@ bool uiAttribPartServer::handleMultiComp( const DBKey& dbkey, bool is2d,
 		if ( !desc )
 		    return false;
 		mFakeCompName( "Component 1",
-		    BufferString( uiStrings::sInlineDip().getFullString() ) );
+			       toString(uiStrings::sInlineDip()) );
 		mFakeCompName( "Component 2",
-		    BufferString( uiStrings::sCrosslineDip().getFullString() ));
+				toString(uiStrings::sCrosslineDip()) );
 	    }
 
 	    return true;
@@ -1740,12 +1740,12 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	if ( !is2d && issteering )
 	{
 	    mFakeCompName( "Component 1",
-		    BufferString( uiStrings::sInlineDip().getFullString() ) );
+			    toString(uiStrings::sInlineDip()) );
 	    mFakeCompName( "Component 2",
-		    BufferString( uiStrings::sCrosslineDip().getFullString() ));
+			    toString(uiStrings::sCrosslineDip()) );
 	}
 
-	//Trick for PreStack offsets displayed on the fly
+	//Trick for Prestack offsets displayed on the fly
 	if ( desc->isStored() && desc->userRef()[0] == '{' )
 	{
 	    StringPair strpair( desc->userRef() );

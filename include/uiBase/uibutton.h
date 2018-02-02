@@ -90,6 +90,9 @@ public:
     void		click();
     void		setFlat(bool);
 
+    static uiPushButton* getStd(uiParent*,OD::StdActionType,const CallBack&,
+				bool immediate);
+
 private:
 
     void		translateText();

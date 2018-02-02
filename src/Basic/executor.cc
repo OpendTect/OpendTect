@@ -27,7 +27,8 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 	    if ( rv < 0 )
 	    {
 		const uiString msg = message();
-		if ( !msg.isEmpty() ) ErrMsg( msg.getFullString() );
+		if ( !msg.isEmpty() )
+		    ErrMsg( msg );
 		return false;
 	    }
 	    if ( delay )
@@ -45,7 +46,7 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 
     bool res = SequentialTask::execute();
     if ( !res )
-	*strm << "Error: " << message().getFullString() << od_newline;
+	*strm << "Error: " << toString(message()) << od_newline;
 
     setProgressMeter( 0 );
 

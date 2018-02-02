@@ -30,13 +30,13 @@ Used for calculating attributes in relation with surfaces
 mExpClass(uiEMAttrib) uiAttrEMOut : public uiBatchProcDlg
 { mODTextTranslationClass(uiAttrEMOut);
 public:
-    			uiAttrEMOut(uiParent*,const Attrib::DescSet&,
-				    const NLAModel*,const DBKey&,const char*);
 			~uiAttrEMOut();
     void		updateAttributes(const Attrib::DescSet& descset,
 					 const NLAModel* nlamodel,
 					 const DBKey& nlaid );
 protected:
+    			uiAttrEMOut(uiParent*,const Attrib::DescSet&,
+				    const NLAModel*,const DBKey&,const char*);
 
     virtual void	attribSel(CallBacker*)		=0;
     virtual bool	prepareProcessing();
@@ -51,5 +51,4 @@ protected:
     const NLAModel*	nlamodel_;
 
     uiAttrSel*		attrfld_;
-    uiBatchJobDispatcherSel* batchfld_;
 };

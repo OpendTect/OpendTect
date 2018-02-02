@@ -31,7 +31,7 @@ NearSubtractAttrib::NearSubtractAttrib( Parameters* params )
 
     if ( usedip )
     {
-	BufferString compnm( uiStrings::sInlineDip().getFullString() );
+	BufferString compnm( toString(uiStrings::sInlineDip()) );
 	spec = new AttribInputSpec;
 	spec->setDesc( compnm );
 	spec->forbiddenDts += Seis::Ampl;
@@ -41,7 +41,7 @@ NearSubtractAttrib::NearSubtractAttrib( Parameters* params )
 	spec->forbiddenDts += Seis::UnknownData;
 	inputspec += spec;
 
-	compnm.set( uiStrings::sCrosslineDip().getFullString() );
+	compnm.set( toString(uiStrings::sCrosslineDip()) );
 	spec = new AttribInputSpec;
 	spec->setDesc( compnm );
 	spec->forbiddenDts += Seis::Ampl;

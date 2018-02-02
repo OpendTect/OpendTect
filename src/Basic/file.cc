@@ -157,7 +157,7 @@ int File::RecursiveCopier::nextStep()
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(dest_)) )
     }
 
-    const BufferString& srcfile = *filelist_[fileidx_];
+    const BufferString& srcfile = filelist_.get( fileidx_ );
     QDir srcdir( src_.buf() );
     BufferString relpath( srcdir.relativeFilePath(srcfile.buf()) );
     const BufferString destfile = Path(dest_,relpath).fullPath();
@@ -254,9 +254,7 @@ int File::RecursiveDeleter::nextStep()
 
     if ( !res )
     {
-	uiString msg( tr("Failed to remove ") );
-	msg.append( filename );
-	msg_ = msg;
+	msg_ = tr("Failed to remove '%1'").arg( filename );
 	return ErrorOccurred();
     }
 
@@ -704,7 +702,7 @@ bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 				   .arg( dirnm );
     errmsg = forread ? uiStrings::phrCannotRead( postfix )
 		     : uiStrings::phrCannotWrite( postfix );
-    errmsg.append( uiStrings::sCheckPermissions(), true );
+    errmsg.appendPhrase( uiStrings::sCheckPermissions() );
 
     return success;
 }

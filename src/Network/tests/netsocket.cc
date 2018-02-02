@@ -29,7 +29,7 @@ ArrPtrMan<double> doublewritearr, doublereadarr;
 
 #define mRunSockTest( test, msg ) \
     mRunStandardTestWithError( (test), BufferString( prefix_, msg ), \
-			       connection.errMsg().getFullString()  )
+			       toString(connection.errMsg()) )
 
 class TestRunner : public CallBacker
 {

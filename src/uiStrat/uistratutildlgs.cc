@@ -301,7 +301,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     renamebut->attach( alignedBelow, newlithbut );
 
     uiButton* rmbut = new uiPushButton( rightgrp, tr("Remove Last"),
-	    uiPixmap("trashcan"), mCB(this,uiStratLithoDlg,rmLast), true );
+	    uiPixmap("remove"), mCB(this,uiStratLithoDlg,rmLast), true );
     rmbut->setPrefWidthInChar( butsz );
     rmbut->attach( alignedBelow, renamebut );
 
@@ -473,7 +473,7 @@ class uiStratContentsEd : public uiEditObjectList
 public:
 
 uiStratContentsEd( uiParent* p, bool& chg )
-    : uiEditObjectList(p,"content",true)
+    : uiEditObjectList(p,tr("content"),true)
     , anychg_(chg)
 {
     fillList( 0 );

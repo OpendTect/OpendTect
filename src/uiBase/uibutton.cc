@@ -46,7 +46,7 @@ public:
 
 uiButtonBody( uiButton& uibut, uiParent* p, const uiString& txt,
 	      QAbstractButton& qbut )
-    : uiObjectBody(p,txt.getFullString())
+    : uiObjectBody(p,toString(txt))
     , messenger_(qbut,*this)
     , qbut_(qbut)
     , uibut_(uibut)
@@ -198,7 +198,7 @@ void uiCheckBoxBody::nextCheckState()
 
 uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 		    uiObjectBody& b  )
-    : uiObject(parnt,nm.getFullString(),b)
+    : uiObject(parnt,toString(nm),b)
     , activated(this)
     , iconscale_(0.75)
     , text_(nm)
@@ -394,6 +394,21 @@ uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 }
 
 
+uiPushButton* uiPushButton::getStd( uiParent* p, OD::StdActionType typ,
+				    const CallBack& cb, bool immediate )
+{
+    uiButton* but = uiButton::getStd( p, typ, cb, immediate );
+    if ( !but )
+	return 0;
+
+    mDynamicCastGet(uiPushButton*,pb,but)
+    if ( !pb )
+	{ pFreeFnErrMsg("uiButton::getStd delivered TB"); return 0; }
+
+    return pb;
+}
+
+
 uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const uiString& txt )
 {
     pbbody_ = new uiPushButtonBody( *this, parnt, txt );
@@ -558,8 +573,8 @@ void uiCheckBox::click()
 
 uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
 {
-    const FixedString nm( name_.getFullString() );
-    const bool istoolbut = nm == tooltip_.getFullString();
+    const BufferString nm( toString(name_) );
+    const bool istoolbut = nm == toString( tooltip_ );
     if ( forcetb || istoggle_ || istoolbut )
 	return new uiToolButton( p, *this );
 

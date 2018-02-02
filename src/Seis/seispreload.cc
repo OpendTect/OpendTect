@@ -106,7 +106,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 	tkzstoload.hsamp_ = TrcKeySampling( geomid_ );
 
     SequentialFSLoader rdr( *ioobj, tkzstoload.isDefined() ? &tkzstoload : 0 );
-    rdr.setName( caption.getFullString() );
+    rdr.setName( toString(caption) );
     rdr.setScaler( scaler );
     rdr.setDataChar( type );
     if ( !trunnr.execute(rdr) )
@@ -143,7 +143,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 	    tkzs.hsamp_ = TrcKeySampling( geomid );
 
 	SequentialFSLoader* rdr = new SequentialFSLoader( *ioobj, &tkzs );
-	rdr->setName( caption.getFullString() );
+	rdr->setName( toString(caption) );
 	rdr->setScaler( scaler );
 	rdr->setDataChar( type );
 	taskgrp.addTask( rdr );

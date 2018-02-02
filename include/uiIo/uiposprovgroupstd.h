@@ -97,7 +97,6 @@ public:
     void		getSummary(BufferString&) const;
 
     bool		getID(DBKey&) const;
-    bool		getFileName(BufferString&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
 			{ return new uiTablePosProvGroup(p,s); }
@@ -105,10 +104,6 @@ public:
 
 protected:
 
-    uiGenInput*		selfld_;
     uiPickSetIOObjSel*	psfld_;
-    uiFileSel*		tffld_;
-
-    void		selChg(CallBacker*);
 
 };

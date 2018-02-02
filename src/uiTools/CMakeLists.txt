@@ -52,6 +52,7 @@ set( OD_MODULE_SOURCES
 	uiinterpollayermodel.cc
 	uiiosel.cc
 	uiissuereporter.cc
+	uilanguagesel.cc
 	uilistboxfilter.cc
 	uimapperrangeeditor.cc
 	uimenuhandler.cc
@@ -64,10 +65,10 @@ set( OD_MODULE_SOURCES
 	uiobjectitemview.cc
 	uiobjectitemviewwin.cc
 	uiodtreeitem.cc
+	uiodprestart.cc
 	uiodprmantreeitem.cc
 	uiofferinfo.cc
 	uipluginman.cc
-	uipluginsel.cc
 	uipositiontable.cc
 	uipropvalfld.cc
 	uiproxydlg.cc
@@ -88,6 +89,7 @@ set( OD_MODULE_SOURCES
 	uitblimpexpdatasel.cc
 	uitaskrunner.cc
 	uitextfile.cc
+	uithemesel.cc
 	uitime2depthzaxistrans.cc
 	uitreeitem.cc
 	uiunitsel.cc

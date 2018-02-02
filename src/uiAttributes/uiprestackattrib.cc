@@ -38,7 +38,7 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiPreStackAttrib,PSAttrib,"Prestack",sKeyBasicGrp())
+mInitAttribUI(uiPreStackAttrib,PSAttrib,uiStrings::sPreStack(),sBasicGrp())
 
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )

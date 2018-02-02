@@ -157,7 +157,7 @@ bool uiLineStyleGrp::rejectOK()
 // uiTextureInterpolateGrp
 uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 						  visSurvey::SurveyObject* so )
-    : uiDlgGroup(p,tr("Texture"))
+    : uiDlgGroup(p,uiStrings::sTexture())
     , survobj_(so)
 {
     if ( !so || !so->canEnableTextureInterpolation() )
@@ -234,10 +234,10 @@ void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
     if ( !domk ) return;
 
     uiSlider::Setup ss( lbltxt ); ss.withedit(true);
-    slider = new uiSlider( this, ss,
-	    BufferString( lbltxt.getFullString(), "slider").buf() );
+    slider = new uiSlider( this, ss, toString(lbltxt) );
     slider->valueChanged.notify( mCB(this,uiMaterialGrp,sliderMove) );
-    if ( prevobj_ ) slider->attach( alignedBelow, prevobj_ );
+    if ( prevobj_ )
+	slider->attach( alignedBelow, prevobj_ );
     prevobj_ = slider;
 }
 

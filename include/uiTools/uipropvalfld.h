@@ -33,7 +33,7 @@ public:
     void		setUnitName(const char*);
 
     void		setReadOnly(bool); //!< will still allow unit selection
-    const char*		propName() const;
+    BufferString	propName() const;
 
     Notifier<uiPropertyValFld> valueChanged;
 

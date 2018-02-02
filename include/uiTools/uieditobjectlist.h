@@ -26,7 +26,7 @@ mExpClass(uiTools) uiEditObjectList : public uiGroup
 { mODTextTranslationClass(uiEditObjectList)
 public:
 
-			uiEditObjectList(uiParent*,const char* itmtyp,
+			uiEditObjectList(uiParent*,const uiString& itmtyp,
 					 bool movable,bool compact=false);
 
     uiButtonGroup*	buttons()		{ return bgrp_; }
@@ -49,6 +49,7 @@ protected:
 
     int			currentItem() const;
     void		setItems(const BufferStringSet&,int newcur=-1);
+    void		setItems(const uiStringSet&,int newcur=-1);
     void		manButSt();
 
     void	addCB(CallBacker*)	{ editReq(true);	manButSt(); }

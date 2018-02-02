@@ -373,8 +373,8 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
     interpolateSeeds( true );
     hor3d->geometryElement()->blockCallBacks( false, true );
     hor3d->setBurstAlert( false );
-    EM::Hor3DMan().undo().setUserInteractionEnd(
-	    EM::Hor3DMan().undo().currentEventID());
+    EM::Hor3DMan().undo(hor3d->id()).setUserInteractionEnd(
+	    EM::Hor3DMan().undo(hor3d->id()).currentEventID());
     return true;
 }
 
@@ -398,8 +398,8 @@ bool Horizon3DSeedPicker::addPatchSowingSeeds()
     hor3d->geometryElement()->blockCallBacks(false,true);
     hor3d->setBurstAlert( false );
 
-    EM::Hor3DMan().undo().setUserInteractionEnd(
-	    EM::Hor3DMan().undo().currentEventID() );
+    EM::Hor3DMan().undo(hor3d->id()).setUserInteractionEnd(
+	    EM::Hor3DMan().undo(hor3d->id()).currentEventID() );
     return true;
 }
 

@@ -33,14 +33,17 @@ const char* uiAttrDescEd::stepoutstr()	        { return "Stepout"; }
 const char* uiAttrDescEd::frequencystr()        { return "Frequency"; }
 const char* uiAttrDescEd::filterszstr()	        { return "Filter size"; }
 
-const char* uiAttrDescEd::sKeyOtherGrp()	{ return "Other"; }
-const char* uiAttrDescEd::sKeyBasicGrp()	{ return "Basic"; }
-const char* uiAttrDescEd::sKeyFilterGrp()	{ return "Filters"; }
-const char* uiAttrDescEd::sKeyFreqGrp()	        { return "Frequency"; }
-const char* uiAttrDescEd::sKeyPatternGrp()	{ return "Patterns"; }
-const char* uiAttrDescEd::sKeyStatsGrp()	{ return "Statistics"; }
-const char* uiAttrDescEd::sKeyPositionGrp()	{ return "Positions"; }
-const char* uiAttrDescEd::sKeyDipGrp()	        { return "Dip"; }
+uiString uiAttrDescEd::sOtherGrp()	{ return uiStrings::sOther(); }
+uiString uiAttrDescEd::sBasicGrp()	{ return uiStrings::sBasic(); }
+uiString uiAttrDescEd::sFilterGrp()	{ return uiStrings::sFilter(mPlural); }
+uiString uiAttrDescEd::sFreqGrp()	{ return uiStrings::sFrequency(); }
+uiString uiAttrDescEd::sStatsGrp()	{ return uiStrings::sStatistics(); }
+uiString uiAttrDescEd::sDipGrp()	{ return uiStrings::sDip(); }
+uiString uiAttrDescEd::sPositionGrp()	{ return uiStrings::sPosition(mPlural);}
+uiString uiAttrDescEd::sExperimentalGrp() { return tr("Experimental"); }
+uiString uiAttrDescEd::sPatternGrp()	{ return tr("Patterns"); }
+uiString uiAttrDescEd::sTraceMatchGrp()	{ return tr("Trace Match"); }
+
 
 uiString uiAttrDescEd::sInputTypeError( int inp )
 {

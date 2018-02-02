@@ -148,9 +148,13 @@ void uiScaler::typeSel( CallBacker* )
     if ( !ynfld->isChecked() ) typ = -1;
 
     if ( typefld )
+    {
+	typefld->setSensitive( ynfld->isChecked() );
 	linearfld->display( typ == 0 );
+    }
     else
 	linearfld->setSensitive( typ == 0 );
+
     if ( basefld ) basefld->display( typ > 0 );
 }
 

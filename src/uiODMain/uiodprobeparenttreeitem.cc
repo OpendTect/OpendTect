@@ -27,39 +27,48 @@ ___________________________________________________________________
 #include "coltabseqmgr.h"
 #include "probemanager.h"
 #include "zdomain.h"
+#include "survinfo.h"
 
 
-uiODSceneProbeParentTreeItem::AddType
-		uiODSceneProbeParentTreeItem::getAddType( int mnuid ) const
+uiODSceneProbeParentTreeItem::AddType uiODSceneProbeParentTreeItem::getAddType(
+					int mnuid )
 {
-    return mnuid < Empty ? (AddType)mnuid : Empty;
+    return mnuid <= RGBA ? (AddType)mnuid : DefaultData;
+}
+
+int uiODSceneProbeParentTreeItem::getMenuID( AddType addtyp )
+{
+    return addtyp;
 }
 
 
-uiString uiODSceneProbeParentTreeItem::sAddEmptyPlane()
+uiString uiODSceneProbeParentTreeItem::sTxt4AddMnu( AddType addtyp )
 {
-    return tr("Add Empty Plane");
+    switch ( addtyp )
+    {
+	case DefaultData:	return tr("Add Default Data");
+	case DefaultAttrib:	return tr("Add Default Attribute");
+	case Select:		return m3Dots(tr("Add and Select Data"));
+	case RGBA:		return m3Dots(tr("Add Color Blended"));
+    }
+    pFreeFnErrMsg("non-enum value passed");
+    return uiStrings::sAdd();
 }
 
-uiString uiODSceneProbeParentTreeItem::sAddAndSelectData()
+
+const char* uiODSceneProbeParentTreeItem::iconID4AddMnu( AddType addtyp )
 {
-    return m3Dots(tr("Add and Select Data"));
+    switch ( addtyp )
+    {
+	case DefaultData:	return "attribtype_stored";
+	case DefaultAttrib:	return "attribtype_attrib";
+	case Select:		return "selectfromlist";
+	case RGBA:		return "colorblending";
+    }
+    pFreeFnErrMsg("non-enum value passed");
+    return "create";
 }
 
-uiString uiODSceneProbeParentTreeItem::sAddDefaultData()
-{
-    return tr("Add Default Data");
-}
-
-uiString uiODSceneProbeParentTreeItem::sAddDefaultAttrib()
-{
-    return tr("Add Default Attribute");
-}
-
-uiString uiODSceneProbeParentTreeItem::sAddColorBlended()
-{
-    return m3Dots(uiStrings::sAddColBlend());
-}
 
 uiODSceneProbeParentTreeItem::uiODSceneProbeParentTreeItem( const uiString& nm )
     : uiODSceneParentTreeItem( nm )
@@ -86,28 +95,28 @@ bool uiODSceneProbeParentTreeItem::showSubMenu()
     addMenuItems();
     addStandardItems( *menu_ );
     const int mnuid = menu_->exec();
-    return handleSubMenu( mnuid );
+    return mnuid < 0 ? false : handleSubMenu( mnuid );
 }
 
 void uiODSceneProbeParentTreeItem::addMenuItems()
 {
-    menu_->insertAction( new uiAction(sAddDefaultData(),"attribtype_stored"),
-			 cAddDefaultDataMenuID() );
+#   define mAddAddMnuItem(at) \
+    menu_->insertAction( \
+	    new uiAction(sTxt4AddMnu(at),iconID4AddMnu(at)), getMenuID(at) )
+
+    mAddAddMnuItem( DefaultData );
     if ( Attrib::DescSet::global(is2D()).hasTrueAttribute() )
-	menu_->insertAction(
-		new uiAction(sAddDefaultAttrib(),"attribtype_attrib"),
-		cAddDefaultAttribMenuID() );
-    menu_->insertAction(
-		new uiAction(sAddAndSelectData(),"selectfromlist"),
-		cAddAndSelectDataMenuID() );
-    menu_->insertAction(
-		new uiAction(sAddColorBlended(),"colorblending"),
-		cAddColorBlendedMenuID() );
+	mAddAddMnuItem( DefaultAttrib );
+    mAddAddMnuItem( Select );
+    mAddAddMnuItem( RGBA );
 }
 
 
 bool uiODSceneProbeParentTreeItem::handleSubMenu( int mnuid )
 {
+    if ( mnuid < 0 )
+	return true;
+
     if ( setProbeToBeAddedParams(mnuid) )
 	return addChildProbe();
 
@@ -157,6 +166,7 @@ bool uiODSceneProbeParentTreeItem::setDefaultAttribLayer( Probe& probe,
 
     return addDefaultAttribLayer( *applMgr(), probe, stored );
 }
+
 
 bool uiODSceneProbeParentTreeItem::addDefaultAttribLayer( uiODApplMgr& applmgr,
 			      Probe& probe, bool stored )
@@ -264,6 +274,17 @@ bool uiODSceneProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
 }
 
 
+void uiODSceneProbeParentTreeItem::getDefZRange(
+				StepInterval<float>& zrg ) const
+{
+    zrg = SI().zRange( true );
+    Presentation::ManagedViewer* vwr = OD::PrMan().getViewer( viewerID() );
+    const ZAxisTransform* ztransf = vwr ? vwr->getZAxisTransform() : 0;
+    if ( ztransf )
+	zrg = ztransf->getZInterval( true );
+}
+
+
 uiODSceneProbeTreeItem::uiODSceneProbeTreeItem( Probe& prb )
     : uiODDisplayTreeItem()
 {
@@ -311,7 +332,7 @@ uiString uiODSceneProbeTreeItem::createDisplayName() const
     if ( !probe )
 	return uiString::emptyString();
 
-    return toUiString( probe->getDisplayName() );
+    return probe->displayName();
 }
 
 

@@ -529,7 +529,7 @@ void File::Path::compress( int startlvl )
 {
     for ( int idx=startlvl; idx<lvls_.size(); idx++ )
     {
-	const BufferString& bs = *lvls_[idx];
+	const BufferString& bs = lvls_.get( idx );
 	int remoffs = 99999;
 	if ( bs == "." )
 	    remoffs = 0;

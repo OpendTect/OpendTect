@@ -350,7 +350,7 @@ void checkMathExpr( CallBacker* cb )
     mDynamicCastGet(uiGenInput*,yinp,cb);
     const bool isy1 = (yinp && yinp==inpfld_);
     const BufferString& mathexpr = isy1 ? mathexprstring_ : mathexprstring1_;
-    const BufferString& inptxt = isy1 ? inpfld_->text() : inpfld1_->text();
+    const BufferString inptxt = isy1 ? inpfld_->text() : inpfld1_->text();
     const bool& errbfrplot = isy1 ? err1bfrplot_ : err2bfrplot_;
     bool& expplotted = isy1 ? exp1plotted_ : exp2plotted_;
     bool& linedrawn = isy1 ? line1drawn_ : line2drawn_;
@@ -384,7 +384,7 @@ bool parseExp( CallBacker* cb )
 
     const bool isy1 =
 	(yinp && yinp==inpfld_) || (ycb && ycb==shwy1userdefpolyline_);
-    const BufferString& rmsstr = isy1 ? rmsfld_->text() : rmsfld1_->text();
+    const BufferString rmsstr = isy1 ? rmsfld_->text() : rmsfld1_->text();
     if ( !rmsstr.isEmpty() ) return false;
 
     BufferString& mathexpr = isy1 ? mathexprstring_ : mathexprstring1_;

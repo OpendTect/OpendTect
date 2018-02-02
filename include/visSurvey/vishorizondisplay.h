@@ -272,12 +272,10 @@ private:
     void			traverseLine(const TrcKeyPath&,
                                              const TypeSet<Coord>&,
 					     const Interval<float>& zrg,
-					     EM::SectionID,
 					     IntersectionData&) const;
                                 /*!<List of coordinates may be empty, coords
                                     will then be fetched from trckeys. */
     void			drawHorizonOnZSlice(const TrcKeyZSampling&,
-					     const EM::SectionID&,
 					     IntersectionData&) const;
 
     bool			isValidIntersectionObject(

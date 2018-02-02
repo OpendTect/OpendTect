@@ -371,7 +371,7 @@ bool PolygonBodyGeometry::insertPolygon( int polygonnr,
     {
 	const PosID posid = PosID::getFromRowCol( polygonnr, 0 );
 	UndoEvent* undo = new PolygonBodyUndoEvent( posid );
-	BodyMan().undo().addEvent( undo, 0 );
+	BodyMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     mSendEMSurfNotif( EMObject::cBurstAlert() );

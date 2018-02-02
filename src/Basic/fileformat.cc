@@ -168,7 +168,7 @@ const char* File::Format::extension( int idx ) const
 
 BufferString File::Format::getFileFilter() const
 {
-    BufferString ret( usrdesc_.getFullString(), " (" );
+    BufferString ret( toString(usrdesc_), " (" );
     for ( int iext=0; iext<exts_.size(); iext++ )
     {
 	if ( iext > 0 )

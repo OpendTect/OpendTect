@@ -236,9 +236,9 @@ BoolInpSpec::BoolInpSpec( bool yesno, const uiString& truetxt,
 {
     if ( !falsetxt.isEmpty() ) falsetext_ = falsetxt;
     if ( !truetext_.isEmpty() )
-	setName( truetext_.getFullString(), 0 );
+	setName( toString(truetext_), 0 );
     if ( !falsetext_.isEmpty() )
-	setName( falsetext_.getFullString(), 1 );
+	setName( toString(falsetext_), 1 );
 }
 
 
@@ -272,7 +272,7 @@ void BoolInpSpec::setTrueFalseTxt( bool tf, const uiString& txt )
     else
 	falsetext_=txt;
 
-    setName( txt.getFullString(), tf ? 0 : 1 );
+    setName( toString(txt), tf ? 0 : 1 );
 }
 
 
@@ -286,14 +286,13 @@ void BoolInpSpec::setChecked( bool yesno )
 
 const char* BoolInpSpec::text( int idx ) const
 {
-    return yn_ ? truetext_.getFullString()
-	      : falsetext_.getFullString();
+    return yn_ ? toString(truetext_) : toString(falsetext_);
 }
 
 
 bool BoolInpSpec::setText( const char* s, int idx )
 {
-    yn_ = s && falsetext_.getFullString()!=s;
+    yn_ = toString(falsetext_) != s;
     isset_ = true;
     return true;
 }
@@ -421,18 +420,19 @@ const char* StringListInpSpec::text( int ) const
 {
     if ( isUndef() )
 	return OD::EmptyString();
-
     if ( enumdef_ )
-    {
 	return enumdef_->getKeyForIndex(cur_);
-    }
 
-    return strings_[cur_].getFullString().buf();
+    mDeclStaticString( ret );
+    ret = toString( strings_[cur_] );
+    return ret.buf();
 }
 
 
 void StringListInpSpec::setItemText( int idx, const uiString& s )
-{ strings_[cur_] = s; }
+{
+    strings_[cur_] = s;
+}
 
 
 bool StringListInpSpec::setText( const char* s, int nr )
@@ -448,11 +448,10 @@ bool StringListInpSpec::setText( const char* s, int nr )
     }
     else
     {
-	BufferString compstr;
 	for ( int idx=0; idx<strings_.size(); idx++ )
 	{
-	    if ( strings_[idx].getFullString(&compstr) == s )
-	    { cur_ = idx; isset_ = true; return true; }
+	    if ( toString(strings_[idx]) == s )
+		{ cur_ = idx; isset_ = true; return true; }
 	}
     }
 

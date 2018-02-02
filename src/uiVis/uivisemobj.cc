@@ -78,16 +78,6 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	    sel.setDefault();
 	    sel.selvalues.erase();
 
-	    const BufferStringSet sections = emod->displayedSections();
-
-	    TypeSet<int> sectionidx;
-	    for ( int idx=sections.size()-1; idx>=0; idx-- )
-	    {
-		const int idy = sel.sd.sections.indexOf( *sections[idx] );
-		if ( idy!=-1 )
-		    sectionidx += idy;
-	    }
-
 	    if ( hordisp )
 	    {
 		const StepInterval<int> rowrg = hordisp->geometryRowRange();
@@ -272,7 +262,7 @@ int uiVisEMObject::nrSections() const
 
     DBKey emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
-    return emobj ? emobj->nrSections() : 0;
+    return emobj ? 1 : 0;
 }
 
 
@@ -283,14 +273,14 @@ EM::SectionID uiVisEMObject::getSectionID( int idx ) const
 
     DBKey emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
-    return emobj ? emobj->sectionID( idx ) : -1;
+    return emobj ? 0 : -1;
 }
 
 
 EM::SectionID uiVisEMObject::getSectionID( const TypeSet<int>* path ) const
 {
     const visSurvey::EMObjectDisplay* emod = getDisplay();
-    return path && emod ? emod->getSectionID( path ) : -1;
+    return path && emod ? 0 : -1;
 }
 
 
@@ -376,8 +366,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     seedsmenuitem_.removeItems();
 
     mResetMenuItem( &lockseedsmnuitem_ );
-    MenuItem* trackmnu =
-	menu->findItem( uiStrings::sTracking().getFullString() );
+    MenuItem* trackmnu = menu->findItem( uiStrings::sTracking() );
     if ( trackmnu )
     {
 	const TypeSet<EM::PosID>* seeds =
@@ -534,39 +523,33 @@ static void fillResolutionNames( BufferStringSet& nms )
 }
 
 
-// uiHorizonSettings
-uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,uiStrings::sHorizon(mPlural),setts)
+uiHorizonSettingsGroup::uiHorizonSettingsGroup( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,setts)
 {
     if ( sResolutionNames.isEmpty() )
 	fillResolutionNames( sResolutionNames );
 
-    resolution_ = 0;
-    setts.get( sKeyHorizonRes, resolution_ );
+    initialresolution_ = 0;
+    setts.get( sKeyHorizonRes, initialresolution_ );
     resolutionfld_ = new uiGenInput( this, tr("Default Resolution"),
 				     StringListInpSpec(sResolutionNames) );
-    resolutionfld_->setValue( resolution_ );
+    resolutionfld_->setValue( initialresolution_ );
 
-    colseqnm_ = ColTab::defSeqName( true );
-    setts.get( sKeyHorizonColSeqName, colseqnm_ );
+    initialcolseqnm_ = ColTab::defSeqName( true );
+    setts.get( sKeyHorizonColSeqName, initialcolseqnm_ );
     colseqfld_ = new uiColSeqSel( this, OD::Horizontal,
 				  tr("Default Colortable") );
-    colseqfld_->setSeqName( colseqnm_ );
+    colseqfld_->setSeqName( initialcolseqnm_ );
     colseqfld_->attach( alignedBelow, resolutionfld_ );
 }
 
 
-HelpKey uiHorizonSettings::helpKey() const
-{ return mODHelpKey(mHorizonSettingsHelpID); }
-
-
-bool uiHorizonSettings::acceptOK()
+void uiHorizonSettingsGroup::doCommit( uiRetVal& )
 {
-    updateSettings( resolution_, resolutionfld_->getIntValue(),
+    updateSettings( initialresolution_, resolutionfld_->getIntValue(),
 		    sKeyHorizonRes );
-    updateSettings( colseqnm_, colseqfld_->seqName(),
+    updateSettings( initialcolseqnm_, colseqfld_->seqName(),
 		    sKeyHorizonColSeqName );
-    return true;
 }
 
 

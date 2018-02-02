@@ -101,7 +101,7 @@ protected:
     int				cureventnr_;
     void			beginSeedClickEvent(EM::EMObject*);
     void			endSeedClickEvent(EM::EMObject*);
-    void			setUndoLevel(const EM::ObjectID&,int);
+    void			setUndoLevel(const DBKey&,int);
 
     void			seedClick(CallBacker*);
     void			updateClickCatcher(bool create=true);

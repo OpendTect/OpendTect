@@ -104,16 +104,24 @@ public:
     virtual const uiTreeItem*	findChild(const char* name) const;
 				/*!<Finds a child in the tree below
 				    this item.  */
+    virtual const uiTreeItem*	findChild(const uiString& name) const;
+				/*!<Finds a child in the tree below
+				    this item. */
     virtual const uiTreeItem*	findChild(int selkey) const;
 				/*!<Finds a child in the tree below
 				    this item.  */
     virtual uiTreeItem*		findChild(const char* name);
 				/*!<Finds a child in the tree below
 				    this item.  */
+    virtual uiTreeItem*		findChild(const uiString& name);
+				/*!<Finds a child in the tree below
+				    this item.  */
     virtual uiTreeItem*		findChild(int selkey);
 				/*!<Finds a child in the tree below
 				    this item.  */
     virtual void		findChildren(const char*,
+					     ObjectSet<uiTreeItem>&);
+    virtual void		findChildren(const uiString&,
 					     ObjectSet<uiTreeItem>&);
 				/*!<Finds all children in the tree below this
 				    item. */

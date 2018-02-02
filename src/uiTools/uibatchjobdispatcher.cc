@@ -11,10 +11,12 @@ ________________________________________________________________________
 #include "uibatchjobdispatchersel.h"
 #include "uibatchjobdispatcherlauncher.h"
 
-#include "singlebatchjobdispatch.h"
+#include "file.h"
 #include "hostdata.h"
+#include "ioobj.h"
 #include "oddirs.h"
 #include "settings.h"
+#include "singlebatchjobdispatch.h"
 
 #include "uigeninput.h"
 #include "uidialog.h"
@@ -199,7 +201,7 @@ int uiBatchJobDispatcherSel::selIdx() const
 
     for ( int idx=0; idx<uidispatchers_.size(); idx++ )
     {
-	if ( cursel == uidispatchers_[idx]->name().getFullString() )
+	if ( cursel == toString(uidispatchers_[idx]->name()) )
 	    return idx;
     }
 
@@ -231,8 +233,27 @@ bool uiBatchJobDispatcherSel::start()
 }
 
 
+bool uiBatchJobDispatcherSel::saveProcPars( const IOObj& ioobj ) const
+{
+    File::Path fp( ioobj.fullUserExpr() );
+    if ( fp.pathOnly().isEmpty() )
+    {
+	File::Path survfp( GetDataDir(), ioobj.dirName() );
+	if ( !File::exists(survfp.fullPath()) )
+	    return false;
+
+	fp.setPath( survfp.fullPath() );
+    }
+
+    fp.setExtension( "proc" );
+    return jobspec_.pars_.write( fp.fullPath(), sKey::Pars() );
+}
+
+
 void uiBatchJobDispatcherSel::setJobName( const char* nm )
-{ jobname_ = nm; }
+{
+    jobname_ = nm;
+}
 
 
 void uiBatchJobDispatcherSel::selChg( CallBacker* )

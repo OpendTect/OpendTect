@@ -242,8 +242,8 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
     interpolateSeeds( true );
     hor2d->setBurstAlert( false );
 
-    EM::Hor2DMan().undo().setUserInteractionEnd(
-	    EM::Hor2DMan().undo().currentEventID());
+    EM::Hor2DMan().undo(hor2d->id()).setUserInteractionEnd(
+	    EM::Hor2DMan().undo(hor2d->id()).currentEventID());
     return true;
 }
 
@@ -265,8 +265,8 @@ bool Horizon2DSeedPicker::addPatchSowingSeeds()
     }
 
     hor2d->setBurstAlert( false );
-    EM::Hor2DMan().undo().setUserInteractionEnd(
-	    EM::Hor2DMan().undo().currentEventID());
+    EM::Hor2DMan().undo(hor2d->id()).setUserInteractionEnd(
+	    EM::Hor2DMan().undo(hor2d->id()).currentEventID());
     return true;
 }
 

@@ -306,7 +306,7 @@ void uiSeisFileMan::mkFileInfo()
 
 	    const BufferString rgstr = mFromUiStringTodo(zddef.getRange());
 	    txt.add("\n").add(rgstr)
-		.add(zddef.unitStr(true).getFullString())
+		.add( toString(zddef.unitStr(true)) )
 		.add(": ") mAddZValTxt(cs.zsamp_.start)
 		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
 		.add(" [") mAddZValTxt(cs.zsamp_.step) .add("]");
@@ -343,7 +343,7 @@ void uiSeisFileMan::mkFileInfo()
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
 		    txt.add( "\nDepth Range " )
-			.add( ZDomain::Depth().unitStr(true).getFullString());
+			.add( toString(ZDomain::Depth().unitStr(true)) );
 		}
 
 		else
@@ -354,7 +354,7 @@ void uiSeisFileMan::mkFileInfo()
 					/ sizrg.nrSteps();
 		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
 		    txt.add( "\nTime Range " )
-			.add( ZDomain::Time().unitStr(true).getFullString() );
+			.add( toString(ZDomain::Time().unitStr(true)) );
 		}
 
 		txt.add( ": " ).add( dispzrg.start )

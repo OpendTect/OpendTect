@@ -123,8 +123,9 @@ public:
 
     const uiString	errMsg() const		{ return errmsg_; }
     bool		foundOldAbs() const	{ return abswarn_; }
-    uiString		sParse2ArgStr()  const
-			{ return tr(" function takes 2 arguments"); }
+    uiString		sParse2ArgStr( const char* fnnm )  const
+			{ return tr("%1 function takes 2 arguments")
+				 .arg(fnnm); }
 
 protected:
 
@@ -147,7 +148,7 @@ protected:
 					 Expression*&) const;
     bool		findStatsFunction(BufferString&,int,
 					  Expression*&) const;
-    
+
 };
 
 

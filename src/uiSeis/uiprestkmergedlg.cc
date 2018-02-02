@@ -386,7 +386,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const DBKey& key )
 {
     const CallBack selcb( mCB(this,uiPreStackCopyDlg,objSel) );
     inpfld_ = new uiIOObjSel( this, mIOObjContext(SeisPS3D),
-				tr("Input Pre-Stack Data Store") );
+				tr("Input Prestack Data Store") );
     inpfld_->setInput( key );
     inpfld_->selectionDone.notify( selcb );
 

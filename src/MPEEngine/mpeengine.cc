@@ -237,22 +237,14 @@ void Engine::undo( uiString& errmsg )
     mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
     if ( !emundo ) return;
 
-    DBKey curid = emundo->getCurrentEMObjectID( false );
-    EM::EMObject* emobj = EM::EMM().getObject( curid );
-    if ( emobj )
-    {
-	emobj->ref();
-	emobj->setBurstAlert( true );
-    }
+    emobj->ref();
+    emobj->setBurstAlert( true );
 
     if ( !emundo->unDo(1,true) )
 	errmsg = tr("Cannot undo everything.");
 
-    if ( emobj )
-    {
-	emobj->setBurstAlert( false );
-	emobj->unRef();
-    }
+    emobj->setBurstAlert( false );
+    emobj->unRef();
 
     actionCalled.trigger();
     actionFinished.trigger();
@@ -267,22 +259,14 @@ void Engine::redo( uiString& errmsg )
     mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
     if( !emundo ) return;
 
-    DBKey curid = emundo->getCurrentEMObjectID( true );
-    EM::EMObject* emobj = EM::EMM().getObject( curid );
-    if ( emobj )
-    {
-	emobj->ref();
-	emobj->setBurstAlert( true );
-    }
+    emobj->ref();
+    emobj->setBurstAlert( true );
 
     if ( !emundo->reDo(1,true) )
 	errmsg = tr("Cannot redo everything.");
 
-    if ( emobj )
-    {
-	emobj->setBurstAlert( false );
-	emobj->unRef();
-    }
+    emobj->setBurstAlert( false );
+    emobj->unRef();
 
     actionCalled.trigger();
     actionFinished.trigger();
@@ -392,6 +376,7 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
 	    continue;
 
+	const DBKey oid = trackers_[idx]->objectID();
 	EM::EMM().removeSelected( oid, selector, trprov );
 
 	EM::EMObject* emobj = EM::EMM().getObject( oid );

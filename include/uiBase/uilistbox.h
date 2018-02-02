@@ -124,6 +124,7 @@ public:
     inline bool		isEmpty() const		{ return size() == 0; }
     bool		validIdx(int) const;
     bool		isPresent(const char*) const;
+    bool		isPresent(const uiString&) const;
     int			maxNrOfChoices() const;
 
     OD::Alignment::HPos alignment() const	{ return alignment_; }
@@ -165,8 +166,9 @@ public:
     void		sortNmItems(bool asc=true);
 
     int			indexOf(const char*) const;	//!< First match
+    int			indexOf(const uiString&) const;	//!< First match
     const char*		itemText(int) const;
-    const uiString	textOfItem(int) const;
+    uiString		textOfItem(int) const;
     void		setItemText(int,const uiString&);
     void		getItems(BufferStringSet&) const;
 
@@ -228,7 +230,8 @@ private:
     OD::Alignment::HPos alignment_;
     bool		allowduplicates_;
     uiMenu&		rightclickmnu_;
-    mutable uiString	rettxt_;
+    mutable BufferString rettxt_;
+    mutable uiString	uirettxt_;
     OD::ButtonState	buttonstate_;
     CallBack		savecb_;
     CallBack		retrievecb_;

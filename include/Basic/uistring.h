@@ -18,21 +18,18 @@ ________________________________________________________________________
 class uiStringData;
 class uiStringSet;
 class uiRetVal;
+namespace Pos { class IdxPair; }
 
 mFDQtclass( QString );
 mFDQtclass( QStringList );
 mFDQtclass( QTranslator );
 
 
-#define mTextTranslationClass(clss,application) \
+#define mTextTranslationClass(clss,pkgkey) \
 private: \
  static inline uiString tr( const char* text, const char* disambiguation = 0,  \
  int pluralnr=-1 ) \
- { return uiString( text, #clss, application, disambiguation, pluralnr ); } \
- static inline uiString legacyTr( const char* text, \
-				  const char* disambiguation = 0,  \
-				  int pluralnr=-1 ) \
- { return uiString( text, #clss, application, disambiguation, pluralnr ); }
+ { return uiString( text, #clss, pkgkey, disambiguation, pluralnr ); } \
 
 #define mODTextTranslationClass(clss) \
 mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
@@ -68,10 +65,10 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
  The translation in OpendTect is done using Qt's subsystem for localization.
  A class that wishes to enable localization should:
 
-  -# Declare the mTextTranslationClass(classname,application) in its class
-     definition. The application is a string that identifies your application.
-     OpendTect's internal classes use the "od" applicaiton string, and can for
-     short use the mODTextTranslationClass macro.
+  -# Declare the mTextTranslationClass(classname,packagekey) in its class
+     definition. The packagekey is a string that identifies your software
+     package. OpendTect's internal classes use the "od" package string, and
+     can for short use the mODTextTranslationClass macro.
   -# Use the tr() function for all translatable string. The tr() function
      returns a uiString() that can be passed to the ui.
   -# For functions not belonging to a class, use the od_static_tr function.
@@ -82,9 +79,9 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
   -# The updated .ts file should be converted to a binary .qm file using Qt's
      lrelease application.
   -# The .qm file should be placed in
-     data/localizations/<application>_<lang>_<country>.ts in the release. For
-     example, a localization of OpendTect to traditional Chinese/Taiwan would be
-     saved as od_zh_TW.qm.
+     data/translations/<packagekey>_<lang>_<country>.ts in the release. For
+     example, a localization of OpendTect to modern Chinese would be
+     saved as od_cn-cn.qm.
  */
 
 
@@ -96,11 +93,11 @@ public:
 		~uiString();
 
     uiString&	set(const char*);
+    uiString&	importFrom(const char*);
     bool	isEmpty() const;
     void	setEmpty();
-    uiString&	toLower(bool yn=true);
-		/*!<Set output to lowercase, if allowed by language
-		    This is applied before eventual arguments. */
+    uiString&	toLower( bool yn=true ); //!< Applied before argument subst.
+    uiString&	toUpper( bool yn=true )		{ return toLower(!yn); }
     bool	operator!() const		{ return isEmpty(); }
 
     uiString&	operator=(const uiString&);	//!< no copy, ref counted
@@ -119,22 +116,37 @@ public:
     inline uiString&	arg(double,int nrdecimals);
     uiString&		arg(const uiString&);
 
-	/*! append() functions are used to concatenate entire sentences.
-	    Otherwise you'll be in trouble because you will not know in what
-	    order args end up after translation.
-	    'withnewline' will only add one if the first string is not empty. */
-    uiString&	append(const char*, bool withnewline=false);
-    uiString&	append(const OD::String&, bool withnewline=false);
-    uiString&	append(const uiString&, bool withnewline=false);
+	/*! appendXX() functions should be used to concatenate entire sentences.
+		  You cannot just mix&match words and verbs etc.  */
+    enum AppendType	{ BluntGlue, WithSpace, NewLine,
+			  CloseLine, CloseAndNewLine };
+    uiString&	appendPhrase(const uiString&,AppendType=CloseAndNewLine);
+    uiString&	appendPhrases(const uiStringSet&,AppendType=CloseAndNewLine);
+    uiString&	appendPlainText(const char*,AppendType=CloseAndNewLine);
+    uiString&	appendPlainText(const OD::String&,AppendType=CloseAndNewLine);
+    uiString&	constructWord( const uiString& str )
+		{ return appendPhrase(str,WithSpace); }
+
+    // TODO this is where it's used illegally, get rid of it
+    inline uiString&	appendWord(const uiString&);
+    inline uiString&	appendWord(const char*);
+    inline uiString&	appendWord(const OD::String&);
+
+    // TEMP-- comment out to fix a directory at a time
+    inline uiString&	append( const uiString& s, bool nl=false)
+			{ return appendWord(s); }
+    inline uiString&	append( const char* s, bool nl=false)
+			{ return appendWord(s); }
+    inline uiString&	append( const OD::String& s, bool nl=false )
+			{ return appendWord(s); }
+    inline uiString&	addSpace(int =1)	{ return append(" "); }
+    inline uiString&	addTab(int =1)		{ return append("\t"); }
+    inline uiString&	addNewLine(int =1)	{ return append("\n"); }
 
 
     /*! Results: */
-    const OD::String&		getFullString(BufferString* = 0) const;
-				/*!< Full string, *without* translation
-				    result is in a thread-safe static buffer,
-				    so copy the result before calling again.
-				    If BufferString is given, it will be
-				    filled, and static buffer won't be used. */
+    BufferString		toString() const { return getFullString(); }
+				//!< returns full string, *without* translation
     wchar_t*			createWCharString() const;
 				/*!< The translation. Result becomes owner's and
 				    should be deleted using the [] operator. */
@@ -155,7 +167,7 @@ private:
     friend class		uiStringData;
 
     char*			debugstr_;
-				/*<!< Contains getFullString() for easy debuggin
+				/*<!< Contains full string() for easy debugging
 				      Only filled in in debug builds. */
 
     mutable uiStringData*	data_;
@@ -166,6 +178,9 @@ private:
 				{ return isEqualTo( oth ); }
     bool			operator!=( const uiString& oth ) const
 				{ return !isEqualTo( oth ); }
+
+    BufferString		getFullString() const; // use toString() instead
+				// Note the changed return type!
 
 public:
 
@@ -189,21 +204,13 @@ public:
 
 		uiString(const char* original,
 			 const char* context,
-			 const char* application,
+			 const char* package,
 			 const char* disambiguation,
 			 int pluralnr);
     void	setFrom(const mQtclass(QString)&);
 		/*!<Set the translated text. No further
 		    translation will be done. */
-    void	addLegacyVersion(const uiString&);
-		/*!<If this string was previously known by another origial
-		    string, it can be added here. This is normally done with the
-		    legacyTr function.
-		    \code
-			uiString str = tr("New version");
-			str.addLegacyVersion( legacyTr("Old ver") );
-		    \endcode
-                */
+    void	addAlternateVersion(const uiString&);
 
     bool	translate(const mQtclass(QTranslator)&,
 			  mQtclass(QString)&) const;
@@ -212,11 +219,42 @@ public:
     static uiString getOrderString(int);
 		//Returns 1st, 2nd, 3rd
 
-    uiString&	addSpace(int nr=1);
-    uiString&	addTab(int nrtabs=1);
-    uiString&	addNewLine(int nrnl=1);
+};
+
+
+#ifndef UISTRING_FULL_SEPARATION
+
+	typedef uiString uiWord;
+	typedef uiString uiPhrase;
+
+#else
+
+//TODO make this better
+
+mExpClass(Basic) uiWord : public uiString
+{ mODTextTranslationClass(uiWord);
+public:
+		uiWord();
+		uiWord(const uiWord&);
+    explicit	uiWord(const uiString&);
+		~uiWord();
 
 };
+
+
+mExpClass(Basic) uiPhrase : public uiString
+{ mODTextTranslationClass(uiPhrase);
+public:
+		uiPhrase();
+		uiPhrase(const uiPhrase&);
+    explicit	uiPhrase(const uiString&);
+		~uiWord();
+
+    uiString&	set(const UserNameString&)	= delete;
+
+};
+
+#endif
 
 
 mGlobal(Basic) uiString toUiString(const uiString&);
@@ -230,6 +268,19 @@ mGlobal(Basic) uiString toUiString(float);
 mGlobal(Basic) uiString toUiString(double);
 mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
+mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
+
+
+mGlobal(Basic) inline BufferString toString( const uiString& uis )
+{
+    return uis.toString();
+}
+
+template <class T1,class T2>
+uiString toUiString( const std::pair<T1,T2>& pair )
+{
+    return toUiString( "%1/%2" ).arg( pair.first ).arg( pair.second );
+}
 
 
 /*\brief Set of uiStrings */
@@ -271,24 +322,35 @@ public:
     void		removeSingle(IdxType,bool keep_order=true);
     void		removeRange(IdxType,IdxType);
 
-    uiString		cat(const char* sepstr="\n") const;
+    uiString		cat(uiString::AppendType apptyp
+					=uiString::CloseAndNewLine) const;
+    uiStringSet		getNonEmpty() const;
     uiString		createOptionString(bool use_and=true,int maxnritems=-1,
-				   bool separate_using_newlines=false) const;
-				//!< example: "option1, option2, and option3"
+				   bool separate_lines=false) const;
+				//!< example: "option1, option2 and option3"
 
     void		fill(mQtclass(QStringList)&) const;
-    void		sort(const bool caseinsens,bool asc);
-    void		sort(bool);
+    void		sort(const bool caseinsens=true,bool asc=true);
     void		useIndexes( const IdxType* idxs );
     IdxType*		getSortIndexes(bool caseinsens,bool asc) const;
-
-
 
 protected:
 
     ObjectSet<uiString>	strs_;
 
 };
+
+
+#ifndef UISTRING_FULL_SEPARATION
+
+	typedef uiStringSet uiPhraseSet;
+	typedef uiStringSet uiWordSet;
+
+#else
+
+	//TODO
+
+#endif
 
 
 /*\brief allows returning status and accompanying user info.
@@ -303,39 +365,40 @@ mExpClass(Basic) uiRetVal
 public:
 
 			uiRetVal()		{}
-			uiRetVal(const uiString&);
-			uiRetVal(const uiStringSet&);
+			uiRetVal(const uiPhrase&);
+			uiRetVal(const uiPhraseSet&);
 			uiRetVal(const uiRetVal&);
     static uiRetVal	OK()			{ return ok_; }
     static uiRetVal	Empty()			{ return ok_; }
     uiRetVal&		operator =(const uiRetVal&);
-    uiRetVal&		operator =(const uiString&);
-    uiRetVal&		operator =(const uiStringSet&);
-			operator uiString() const;
-			operator uiStringSet() const;
+    uiRetVal&		operator =(const uiPhrase&);
+    uiRetVal&		operator =(const uiPhraseSet&);
+			operator uiPhrase() const;
+			operator uiPhraseSet() const;
 
     bool		isOK() const;
     inline bool		isEmpty() const		{ return isOK(); }
     inline bool		isError() const		{ return !isOK(); }
     bool		isMultiMessage() const;
-    uiStringSet		messages() const;
-    bool		isSingleWord(const uiString&) const;
+    uiPhraseSet		messages() const;
+    bool		isSingleWord(const uiWord&) const;
 
     uiRetVal&		setEmpty();
     inline uiRetVal&	setOK()			{ return setEmpty(); }
-    uiRetVal&		insert(const uiString&);
+    uiRetVal&		insert(const uiPhrase&);
     uiRetVal&		set(const uiRetVal&);
-    uiRetVal&		set(const uiString&);
-    uiRetVal&		set(const uiStringSet&);
+    uiRetVal&		set(const uiPhrase&);
+    uiRetVal&		set(const uiPhraseSet&);
     uiRetVal&		add(const uiRetVal&);
-    uiRetVal&		add(const uiString&);
-    uiRetVal&		add(const uiStringSet&);
+    uiRetVal&		add(const uiPhrase&);
+    uiRetVal&		add(const uiPhraseSet&);
+    uiRetVal&		setAsStatus(const uiWord&);
 
     BufferString	getText() const;
 
 private:
 
-    uiStringSet		msgs_;
+    uiPhraseSet		msgs_;
     mutable Threads::Lock lock_;
 
     static const uiRetVal ok_;
@@ -349,10 +412,10 @@ mGlobal(Basic) bool isCancelled(const uiRetVal&);
 
 // Use when string should be revisited later
 #define mToUiStringTodo(i) ::toUiString(i)
-#define mFromUiStringTodo(i) i.getFullString()
+#define mFromUiStringTodo(i) ::toString(i)
 
 
-/*!Adds translation of strings outside of classes for the "od" application. It
+/*!Adds translation of strings outside of classes for the "od" package. It
    will return a uistring where the context is "static_func_function", where
    'function' is whatever is given as the function parameter. This matches what
    is done in the filtering of the source files before lupdate is run (in
@@ -370,10 +433,10 @@ mGlobal(Basic) bool isCancelled(const uiRetVal&);
 
    \endcode
 */
+mGlobal(Basic) uiString od_static_tr(const char* context,const char* text,
+				const char* disambiguation=0,int pluralnr=-1);
 
-mGlobal(Basic) uiString od_static_tr( const char* function, const char* text,
-	const char* disambiguation = 0, int pluralnr=-1 );
-mGlobal(Basic) uiString getUiYesNoString(bool);
+mGlobal(Basic) uiWord getUiYesNoWord(bool);
 
 template <class T> inline
 uiString& uiString::arg( const T& var )
@@ -390,3 +453,12 @@ inline uiString& uiString::arg( double val, int nrdec )
 {
     return arg( toUiString(val,nrdec) );
 }
+
+
+//TODO as said, should go away
+inline uiString& uiString::appendWord( const uiString& str )
+{ return appendPhrase(str,WithSpace); }
+inline uiString& uiString::appendWord( const char* str )
+{ return appendPhrase(toUiString(str),WithSpace); }
+inline uiString& uiString::appendWord( const OD::String& str )
+{ return appendPhrase(toUiString(str),WithSpace); }

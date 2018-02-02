@@ -58,7 +58,8 @@ bool uiODWellParentTreeItem::showSubMenu()
 	mnu.insertAction(
 	    new uiAction(m3Dots(tr("Tie Well to Seismic")),"well_tie"),cTieIdx);
     }
-    mnu.insertAction( new uiAction(m3Dots(tr("New WellTrack"))), cNewWellIdx );
+    mnu.insertAction( new uiAction(m3Dots(tr("Pick New Trajectory"))),
+		      cNewWellIdx );
     if ( children_.size() > 1 )
 	mnu.insertAction( new uiAction(m3Dots(tr("Create Attribute Log"))),
 			cAttribIdx);
@@ -135,6 +136,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	Color color;
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
+
 	wd->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
 	wd->setName( wellname );
 	visserv->addObject( wd, sceneID(), true );
@@ -145,7 +147,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     {
 	BufferStringSet wellnms;
 	for ( int idx = 0; idx<children_.size(); idx++ )
-	    wellnms.addIfNew( children_[idx]->name().getFullString() );
+	    wellnms.addIfNew( toString(children_[idx]->name()) );
 
 	uiWellAttribPartServer* srv = ODMainWin()->applMgr().wellAttribServer();
 	if ( srv->createAttribLog(wellnms) )
@@ -353,7 +355,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	ODMainWin()->applMgr().wellAttribServer()->showAmplSpectrum( wellid,
-		amplspectrummnuitem_.findItem(mnuid)->text.getFullString() );
+		toString(amplspectrummnuitem_.findItem(mnuid)->text) );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == logviewermnuitem_.id )

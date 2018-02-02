@@ -35,7 +35,7 @@ static const char* actionstr[] =
 };
 
 
-mInitAttribUI(uiTutorialAttrib,Tutorial,"Tutorial",sKeyBasicGrp())
+mInitAttribUI(uiTutorialAttrib,Tutorial,tr("Tutorial"),sBasicGrp())
 
 
 uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )

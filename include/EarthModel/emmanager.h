@@ -100,16 +100,14 @@ protected:
 			{ return 0; }
 
 
-    Undo&			undo_;
-
     mStruct(EarthModel) EMObjUndo
     {
-	EMObjUndo( const EM::ObjectID& id )
-	: undo_( *new EMUndo() ), id_ ( id ) {}
-
+	EMObjUndo( const DBKey& id )
+	    : undo_( *new EMUndo() ), id_ ( id ) {}
 	~EMObjUndo() { delete &undo_; }
-	Undo&	     undo_;
-	EM::ObjectID id_;
+
+	Undo&		undo_;
+	DBKey		id_;
     };
 
     ObjectSet<EMObjUndo>	undolist_;
@@ -121,7 +119,7 @@ protected:
 						    IOPar&)const;
     bool		readParsFromGeometryInfoFile(const DBKey&,
 						     IOPar&)const;
-    int			undoIndexOf(const EM::ObjectID& id);
+    int			undoIndexOf(const DBKey& id);
 
 public:
 
@@ -141,11 +139,10 @@ public:
 			/*!< Creates a new object, saves it and loads it.
 			     Removes any loaded object with the same name!  */
 
-			/*Interface from EMObject to report themselves */
-    void		addObject(EMObject*);
+    virtual void	addObject(EMObject*);
 
     void		eraseUndoList();
-    Undo&		undo(const EM::ObjectID&);
+    Undo&		undo(const DBKey&);
 
 };
 
@@ -187,8 +184,8 @@ public:
 
     void		removeSelected(const DBKey& id,
 				       const Selector<Coord3>& sel,
-				       TaskRunner* trun)
-			{ return getMgr(id).removeSelected( id, sel, trun ); }
+				       const TaskRunnerProvider& trprov)
+			{ return getMgr(id).removeSelected( id, sel, trprov ); }
     bool		readDisplayPars(const DBKey& id,IOPar& pars) const
 			{ return getMgr(id).readDisplayPars( id, pars ); }
     bool		writeDisplayPars(const DBKey& id,
@@ -199,8 +196,9 @@ public:
 			{ return getMgr(id).getSurfaceData( id, sd, errmsg ); }
 
 
-    EMObject*		loadIfNotFullyLoaded(const DBKey& id,TaskRunner* t=0)
-			{ return getMgr(id).loadIfNotFullyLoaded( id, t ); }
+    EMObject*		loadIfNotFullyLoaded(const DBKey& id,
+					     const TaskRunnerProvider& tp)
+			{ return getMgr(id).loadIfNotFullyLoaded( id, tp ); }
    /* Executor*		objectLoader(const DBKey& id,
 				     const SurfaceIODataSelection* sd=0)
 			{ return getMgr(id).objectLoader( id, sd ); }*/
@@ -210,12 +208,13 @@ public:
 			     Removes any loaded object with the same name!  */
 			{ return getMgr(type).createObject( type, nm ); }
 
-    Undo&		getUndo(const DBKey& id)
-			{ return getMgr(id).undo(); }
-    const Undo&		getUndo(const DBKey& id) const
-			{ return getMgr(id).undo(); }
-
     void		addObject(EMObject*);
+
+    Undo&		getUndo(const DBKey& id)
+			{ return getMgr(id).undo(id); }
+    const Undo&		getUndo(const DBKey& id) const
+			{ return getMgr(id).undo(id); }
+
 };
 
 mGlobal(EarthModel) GenEMManager& EMM();

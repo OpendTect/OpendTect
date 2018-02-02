@@ -27,7 +27,7 @@ Geometry::RandomLine* RandomLineProbe::createNewDefaultRDL()
 	uiStrings::phrJoinStrings( uiStrings::sRandomLine(),
 				   toUiString(newrdlid) );
     Geometry::RandomLine* rl =
-	new Geometry::RandomLine( newrdlname.getFullString() );
+		new Geometry::RandomLine( toString(newrdlname) );
     const StepInterval<int> inlrange = SI().inlRange( true );
     const StepInterval<int> crlrange = SI().crlRange( true );
     const BinID start( inlrange.snappedCenter(), crlrange.start );
@@ -43,7 +43,7 @@ RandomLineProbe::RandomLineProbe( int rdlid )
     : Probe()
     , rdlid_(rdlid)
 {
-    if ( rdlid_<0 )
+    if ( rdlid_ < 0 )
     {
 	Geometry::RandomLine* newrl = createNewDefaultRDL();
 	rdlid_ = newrl->ID();
@@ -90,13 +90,19 @@ const char* RandomLineProbe::sFactoryKey()
 }
 
 
-BufferString RandomLineProbe::getDisplayName() const
+uiWord RandomLineProbe::usrType() const
 {
-    BufferString rdlname;
+    return uiStrings::sRandomLine();
+}
+
+
+uiWord RandomLineProbe::displayName() const
+{
+    uiWord ret;
     const Geometry::RandomLine* rdl = Geometry::RLM().get( rdlid_ );
     if ( rdl )
-	rdlname = rdl->name();
-    return rdlname;
+	ret = toUiString(rdl->name());
+    return ret;
 }
 
 

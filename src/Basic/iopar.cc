@@ -284,7 +284,7 @@ bool IOPar::hasSubSelection( const char* kystr ) const
     mGetKeyPfx( kystr );
     for ( int idx=0; idx<keys_.size(); idx++ )
     {
-	const BufferString& curky = keys_.get(idx).buf();
+	const BufferString& curky = keys_.get( idx );
 	if ( curky.startsWith( pfx ) )
 	    return true;
     }
@@ -307,7 +307,7 @@ IOPar* IOPar::subselect( const char* kystr ) const
     IOPar* iopar = new IOPar( name() );
     for ( int idx=0; idx<keys_.size(); idx++ )
     {
-	const BufferString& curky = keys_.get(idx).buf();
+	const BufferString& curky = keys_.get( idx );
 	if ( curky.startsWith( pfx ) )
 	{
 	    const char* ky = curky.str() + pfxlen;
@@ -966,7 +966,7 @@ bool IOPar::get( const char* keyw, SeparString& ss ) const
 }
 
 
-bool IOPar::get( const char* keyw, uiString& uis ) const
+bool IOPar::getUiString( const char* keyw, uiString& uis ) const
 {
     BufferString valstr;
     if ( !get( keyw, valstr ) )
@@ -1025,10 +1025,10 @@ void IOPar::set( const char* keyw, const SeparString& ss )
 }
 
 
-void IOPar::set( const char* keyw, const uiString& uis )
+void IOPar::setUiString( const char* keyw, const uiString& uis )
 {
     if ( uis.isPlainAscii() )
-	set( keyw, uis.getFullString() );
+	set( keyw, toString(uis) );
     else
     {
 	BufferString buf;
@@ -1350,7 +1350,7 @@ void IOPar::dumpPretty( BufferString& res ) const
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	const BufferString& ky = *keys_[idx];
+	const BufferString& ky = keys_.get( idx );
 	if ( ky == sKeyHdr() )
 	{
 	    res += "\n\n* ";

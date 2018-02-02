@@ -137,7 +137,7 @@ const char* dgbVolProcessingTranslator::read( VolProc::Chain& chain,
     if ( !chain.usePar(par) )
     {
 	mDeclStaticString(errmsg);
-	errmsg = chain.errMsg().getFullString();
+	errmsg = toString( chain.errMsg() );
 	return errmsg;
     }
 
@@ -210,7 +210,11 @@ const char* dgbVolProcessing2DTranslator::read( VolProc::Chain& chain,
     if ( par.isEmpty() )
 	return "Input file contains no data";
     if ( !chain.usePar( par ) )
-	return chain.errMsg().getFullString();
+    {
+	mDeclStaticString(errmsg);
+	errmsg = toString( chain.errMsg() );
+	return errmsg;
+    }
 
     return 0;
 }

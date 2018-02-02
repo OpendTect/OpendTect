@@ -256,7 +256,7 @@ bool uiExportFault::writeAscii()
     BufferString typnm = issingle_ ? ctio_.ioobj_->group() :
 				    bulkinfld_->getCtxtIOObj().ioobj_->group();
     RefObjectSet<EM::EMObject> loadedobjs =
-		EM::EMM().loadObjects( typnm, dbkeyset, 0, &trprov );
+		EM::EMM().loadObjects( typnm, dbkeyset, 0, &trprov.runner() );
     if ( loadedobjs.isEmpty() )
 	return false;
 
@@ -268,11 +268,12 @@ bool uiExportFault::writeAscii()
 
     for ( int idx=0; idx<loadedobjs.size(); idx++ )
     {
-	mDynamicCastGet(EM::Fault3D*,f3d,loadedobjs[idx])
-	mDynamicCastGet(EM::FaultStickSet*,fss,loadedobjs[idx])
+	EM::EMObject* emobj = loadedobjs[idx];
+	mDynamicCastGet(EM::Fault3D*,f3d,emobj)
+	mDynamicCastGet(EM::FaultStickSet*,fss,emobj)
 	if ( !f3d && !fss ) return false;
 
-	const int nrsticks = nrSticks( loadedobjs[idx] );
+	const int nrsticks = nrSticks( emobj );
 	BufferString objnm = f3d ? f3d->name() : fss->name();
 	objnm.quote('\"');
 
@@ -319,10 +320,10 @@ bool uiExportFault::writeAscii()
 
 	for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	{
-	    const int nrknots = nrKnots( emobj.ptr(), stickidx );
+	    const int nrknots = nrKnots( emobj, stickidx );
 	    for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 	    {
-		Coord3 crd = getCoord( emobj.ptr(), stickidx, knotidx );
+		Coord3 crd = getCoord( emobj, stickidx, knotidx );
 		if ( !crd.isDefined() )
 		    continue;
 		if ( !issingle_ )
@@ -354,7 +355,7 @@ bool uiExportFault::writeAscii()
 
 		if ( fss )
 		{
-		    const int sticknr = stickNr( loadedobjs[idx], stickidx );
+		    const int sticknr = stickNr( emobj, stickidx );
 
 		    bool pickedon2d =
 			fss->geometry().pickedOn2DLine( sticknr );

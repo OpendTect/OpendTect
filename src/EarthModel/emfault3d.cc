@@ -192,7 +192,7 @@ bool Fault3DGeometry::insertStick( int sticknr, int firstcol, const Coord3& pos,
     {
 	const PosID posid = PosID::getFromRowCol( sticknr, 0 );
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
-	Flt3DMan().undo().addEvent( undo, 0 );
+	Flt3DMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     return true;
@@ -223,7 +223,7 @@ bool Fault3DGeometry::removeStick( int sticknr, bool addtohistory )
     {
 	const PosID posid = PosID::getFromRowCol( rc );
 	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
-	Flt3DMan().undo().addEvent( undo, 0 );
+	Flt3DMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     return true;
@@ -241,7 +241,7 @@ bool Fault3DGeometry::insertKnot( const PosID& posid,
     if ( addtohistory )
     {
 	UndoEvent* undo = new FaultKnotUndoEvent( posid );
-	Flt3DMan().undo().addEvent( undo, 0 );
+	Flt3DMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     return true;
@@ -292,7 +292,7 @@ bool Fault3DGeometry::removeKnot( const PosID& posid, bool addtohistory )
     if ( addtohistory )
     {
 	UndoEvent* undo = new FaultKnotUndoEvent( posid, pos );
-	Flt3DMan().undo().addEvent( undo, 0 );
+	Flt3DMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     return true;

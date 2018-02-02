@@ -455,22 +455,21 @@ uiString StrmOper::getErrorMessage( const StreamData& sd )
 {
     uiString msg;
 
-    const int iotyp = sd.iStrm() ? -1 : (sd.oStrm() ? 1 : 0);
-    if ( iotyp == 0 )
-    {
-	uiString addedmsg = od_static_tr( "StrmOpergetErrorMessage", "file: " );
-	msg = uiStrings::phrCannotOpen( addedmsg );
-    }
+    const bool havestrm = sd.iStrm() || sd.oStrm();
+    BufferString fnmstr( "'", sd.fileName(), "'" );
+    if ( fnmstr == "''" )
+	fnmstr.setEmpty();
+
+    if ( !havestrm )
+	msg = uiStrings::phrCannotOpen( toUiString(fnmstr) );
     else if ( sd.streamPtr()->good() )
-	msg = od_static_tr( "StrmOpergetErrorMessage", "Successfully opened " );
+	msg = od_static_tr( "StrmOpergetErrorMessage",
+			    "Successfully opened %1" ).arg( fnmstr );
     else
 	msg = getErrorMessage( *sd.streamPtr() );
 
-    if ( sd.fileName() && *sd.fileName() )
-	msg.append( toUiString(sd.fileName()) );
-
-    if ( iotyp == 0 || !sd.streamPtr()->good() )
-	msg.append( uiStrings::sCheckPermissions(), true );
+    if ( !havestrm || !sd.streamPtr()->good() )
+	msg.appendPhrase( uiStrings::sCheckPermissions() );
 
     return msg;
 }

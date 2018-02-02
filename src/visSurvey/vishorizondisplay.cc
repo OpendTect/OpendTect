@@ -1741,7 +1741,6 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 void HorizonDisplay::traverseLine( const TrcKeyPath& path,
 				   const TypeSet<Coord>& crds,
 				   const Interval<float>& zrg,
-				   EM::SectionID sid,
 				   HorizonDisplay::IntersectionData& res ) const
 {
     HorizonPathIntersector hpi( *this, path, crds, zrg, res );
@@ -1764,7 +1763,6 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
 
 
 void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
-			const EM::SectionID&  sid,
 			HorizonDisplay::IntersectionData& res ) const
 {
     mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
@@ -1912,27 +1910,22 @@ void HorizonDisplay::updateIntersectionLines(
 
 	    IntersectionData* data = 0;
 
-	    for ( int sectionidx=0; sectionidx<horizon->nrSections();
-		  sectionidx++ )
+	    if ( trckeypath.size() )
 	    {
-		const EM::SectionID sid = horizon->sectionID(sectionidx);
-		if ( trckeypath.size() )
+		const Interval<float> zrg =
+		    objs[objidx]->getDataTraceRange();
+		data = getOrCreateIntersectionData( lines );
+		data->objid_ = vo->id();
+		traverseLine( trckeypath, trccoords, zrg, *data );
+		continue;
+	    }
+	    else
+	    {
+		if ( mIsZero(trzs.zsamp_.width(),1e-5) )
 		{
-		    const Interval<float> zrg =
-			objs[objidx]->getDataTraceRange();
 		    data = getOrCreateIntersectionData( lines );
 		    data->objid_ = vo->id();
-		    traverseLine( trckeypath, trccoords, zrg, sid, *data );
-		    continue;
-		}
-		else
-		{
-		    if ( mIsZero(trzs.zsamp_.width(),1e-5) )
-		    {
-			data = getOrCreateIntersectionData( lines );
-			data->objid_ = vo->id();
-			drawHorizonOnZSlice( trzs, sid, *data );
-		    }
+		    drawHorizonOnZSlice( trzs, *data );
 		}
 	    }
 
@@ -2297,11 +2290,6 @@ void HorizonDisplay::updateSelections()
 
     initSelectionDisplay( !ctrldown_ );
 
-<<<<<<< HEAD
-    const EM::SectionID sid = hor3d->sectionID(0);
-=======
-    const Selector<Coord3>* sel = selectors_[lastidx];
->>>>>>> od_em
     ObjectSet<const Selector<Coord3> > selectors;
     selectors += sel;
     EM::EMObjectPosSelector posselector( *hor3d, selectors );

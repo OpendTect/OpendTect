@@ -287,10 +287,7 @@ bool RockPhysics::FormulaSet::save( Repos::Source src ) const
 
     SafeFileIO sfio( fnm, true );
     if ( !sfio.open(false) )
-    {
-	ErrMsg( sfio.errMsg().getFullString() );
-	return false;
-    }
+	{ ErrMsg( sfio.errMsg() ); return false; }
 
     ascostream astrm( sfio.ostrm() );
     if ( !writeTo(astrm) )

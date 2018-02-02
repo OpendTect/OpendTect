@@ -10,12 +10,13 @@ ___________________________________________________________________
 
 #include "emprobe.h"
 #include "keystrs.h"
+#include "uistrings.h"
 #include "emmanager.h"
 
 mDefineInstanceCreatedNotifierAccess( EMProbe );
 
 
-EMProbe::EMProbe( const ObjectID& objid )
+EMProbe::EMProbe( const DBKey& objid )
     : Probe()
     , objid_(objid)
 {
@@ -53,9 +54,11 @@ Monitorable::ChangeType EMProbe::compareClassData(
 }
 
 
-BufferString EMProbe::getDisplayName() const
+uiWord EMProbe::gtDisplayName() const
 {
-    return EM::EMM().objectName( EM::EMM().getDBKey(objid_) );
+    const BufferString objnm =
+		EM::EMM().objectName( objid_ );
+    return toUiString( objnm );
 }
 
 
@@ -70,7 +73,7 @@ void EMProbe::updateAll()
 }
 
 
-void EMProbe::setID( const EM::ObjectID& objid )
+void EMProbe::setID( const DBKey& objid )
 {
     mLock4Read();
 
@@ -92,7 +95,7 @@ void EMProbe::setID( const EM::ObjectID& objid )
 void EMProbe::fillPar( IOPar& par ) const
 {
     Probe::fillPar( par );
-    par.set( sKey::Object(), EM::EMM().getDBKey(objid_) );
+    par.set( sKey::Object(), objid_ );
 }
 
 
@@ -101,19 +104,14 @@ bool EMProbe::usePar( const IOPar& par )
     if ( !Probe::usePar(par) )
 	return false;
 
-    DBKey dbky( EM::EMM().getDBKey(objid_) );
-    if ( !par.get(sKey::Object(),dbky) || dbky.isInvalid() )
-	return false;
-
-    setID( EM::EMM().getObjectID(dbky) );
-    return true;
+    return par.get( sKey::Object(), objid_ ) && !objid_.isInvalid();
 }
 
 
 mDefineInstanceCreatedNotifierAccess(Horizon3DProbe)
 
 
-Horizon3DProbe::Horizon3DProbe( const ObjectID& objid )
+Horizon3DProbe::Horizon3DProbe( const DBKey& objid )
     : EMProbe(objid)
 {
     mTriggerInstanceCreatedNotifier();
@@ -150,7 +148,19 @@ Monitorable::ChangeType Horizon3DProbe::compareClassData(
 
 const char* Horizon3DProbe::sFactoryKey()
 {
-    return "Horizon3D"; //TODO impl proper
+    return "Horizon3D";
+}
+
+
+uiWord Horizon3DProbe::usrType() const
+{
+    return uiStrings::sHorizon();
+}
+
+
+uiWord Horizon3DProbe::displayName() const
+{
+    return gtDisplayName();
 }
 
 
@@ -168,7 +178,7 @@ bool Horizon3DProbe::usePar( const IOPar& par )
 
 Probe* Horizon3DProbe::createFrom( const IOPar& par )
 {
-    Horizon3DProbe* probe = new Horizon3DProbe();
+    Horizon3DProbe* probe = new Horizon3DProbe( DBKey::getInvalid() );
     if ( !probe->usePar(par) )
 	{ delete probe; return 0; }
 

@@ -200,22 +200,23 @@ void RandomTrackDisplay::setProbe( Probe* probe )
 }
 
 
-const char* RandomTrackDisplay::getRandomLineName() const
+BufferString RandomTrackDisplay::getRandomLineName() const
 {
     mDynamicCastGet( const RandomLineProbe*,rdlprobe, probe_.ptr() );
-    if ( !rdlprobe )
-	return name().str();
-
-    return rdlprobe->getDisplayName();
+    return rdlprobe ? toString(rdlprobe->displayName()) : BufferString(name());
 }
 
 
 int RandomTrackDisplay::getRandomLineID() const
-{ return rl_ ? rl_->ID() : -1; }
+{
+    return rl_ ? rl_->ID() : -1;
+}
 
 
 Geometry::RandomLine* RandomTrackDisplay::getRandomLine()
-{ return rl_; }
+{
+    return rl_;
+}
 
 
 void RandomTrackDisplay::setDisplayTransformation( const mVisTrans* t )

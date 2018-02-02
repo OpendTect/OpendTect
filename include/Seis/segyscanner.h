@@ -63,7 +63,7 @@ public:
     const PosInfo::Detector&	posInfoDetector() const { return dtctor_; }
     const FileSpec&		fileSpec() const	{ return filespec_; }
 
-    const BufferStringSet&	warnings() const	{ return trwarns_; }
+    const uiStringSet&		warnings() const	{ return trwarns_; }
     const SEGYSeisTrcTranslator* translator() const	{ return tr_; }
 
 protected:
@@ -85,7 +85,7 @@ protected:
     od_int64		nrdone_;
     mutable od_int64	totnr_;
     PosInfo::Detector&	dtctor_;
-    BufferStringSet	trwarns_;
+    uiStringSet		trwarns_;
     bool		notrcinfo_;
 
     int			openNext();

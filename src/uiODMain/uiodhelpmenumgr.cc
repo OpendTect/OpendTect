@@ -54,16 +54,18 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr& mm )
 	mnumgr_.addAction( docmnu_, tr("System Administration"),
 			    "sysadm", mAdminDocMnuItm );
 
-    mAddHelpAction( tr("How-To Instructions"), mWorkflowsMnuItm, 0 );
-    mAddHelpAction( tr("Training Manual"), mTrainingManualMnuItm, 0 );
-    mAddHelpAction( tr("Attributes Table"), mAttribMatrixMnuItm, 0 );
-    mAddHelpAction( tr("Online Support"), mSupportMnuItm, 0 );
-    act = mAddHelpAction( tr("Keyboard shortcuts"), mShortcutsMnuItm, 0 );
+    mAddHelpAction( tr("How-To Instructions"), mWorkflowsMnuItm, "howto" );
+    mAddHelpAction( tr("Training Manual"), mTrainingManualMnuItm, "training" );
+    mAddHelpAction( tr("Attributes Table"), mAttribMatrixMnuItm,
+		    "attributematrix" );
+    mAddHelpAction( tr("Online Support"), mSupportMnuItm, "internet" );
+    act = mAddHelpAction( tr("Keyboard shortcuts"), mShortcutsMnuItm,
+			  "keyboardshortcuts" );
     act->setShortcut( "?" );
-    mAddHelpAction( tr("About"), mAboutMnuItm, 0 );
+    mAddHelpAction( tr("About"), mAboutMnuItm, "info" );
 
     if ( legalInformation().size() )
-	mAddHelpAction( tr("Legal"), mLegalMnuItm, 0);
+	mAddHelpAction( tr("Legal"), mLegalMnuItm, "legal" );
 }
 
 

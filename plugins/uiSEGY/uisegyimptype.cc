@@ -17,11 +17,11 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 static const char* sKeyImpTyp = "Import.Type";
 static const char* sKeyVSP = "VSP";
+static const int cVSPType = 4; // one after the last Seis::GeomType
 
 
 
 SEGY::ImpType::ImpType( bool isvsp )
-    : tidx_(0)
 {
     init();
     if ( isvsp )
@@ -30,7 +30,6 @@ SEGY::ImpType::ImpType( bool isvsp )
 
 
 SEGY::ImpType::ImpType( Seis::GeomType gt )
-    : tidx_(0)
 {
     init();
     setGeomType( gt );
@@ -39,17 +38,19 @@ SEGY::ImpType::ImpType( Seis::GeomType gt )
 
 void SEGY::ImpType::init()
 {
-    if ( SI().has3D() )
-    {
-	types_ += (int)Seis::Vol;
-	types_ += (int)Seis::VolPS;
-    }
     if ( SI().has2D() )
     {
+	tidx_ = 0; // default is Line, unless there is 3D data
 	types_ += (int)Seis::Line;
 	types_ += (int)Seis::LinePS;
     }
-    types_ += (int)Seis::LinePS + 1;
+    if ( SI().has3D() )
+    {
+	tidx_ = types_.size(); // When 3D data available, default is Vol
+	types_ += (int)Seis::Vol;
+	types_ += (int)Seis::VolPS;
+    }
+    types_ += cVSPType;
 }
 
 
@@ -79,7 +80,7 @@ uiString SEGY::ImpType::dispText() const
     case Seis::LinePS:
 	return tr("2D PreStack data");
     default: case Seis::Vol:
-	return tr("3D seismic data");
+	return tr("3D Seismic data");
     }
 }
 
@@ -104,7 +105,6 @@ uiSEGYImpType::uiSEGYImpType( uiParent* p, bool withvsp,
 
     fld_ = lcb->box();
     fld_->setHSzPol( uiObject::MedVar );
-    fld_->selectionChanged.notify( mCB(this,uiSEGYImpType,typChg) );
 
 #   define mAddItem(txt,ic) { \
     fld_->addItem( tr(txt) ); \
@@ -138,6 +138,9 @@ uiSEGYImpType::uiSEGYImpType( uiParent* p, bool withvsp,
 	}
     }
 
+    setTypIdx( typ_.tidx_ );
+    fld_->selectionChanged.notify( mCB(this,uiSEGYImpType,typChg) );
+
     setHAlignObj( fld_ );
 }
 
@@ -156,6 +159,16 @@ void uiSEGYImpType::setTypIdx( int tidx )
 }
 
 
+void uiSEGYImpType::setGeomType( Seis::GeomType gt )
+{
+    for ( int idx=0; idx<typ_.types_.size(); idx++ )
+    {
+	if ( typ_.types_[idx] == (int)gt )
+	    { fld_->setCurrentItem( idx ); break; }
+    }
+}
+
+
 void uiSEGYImpType::usePar( const IOPar& iop )
 {
     BufferString res = iop.find( sKeyImpTyp );
@@ -168,5 +181,5 @@ void uiSEGYImpType::usePar( const IOPar& iop )
     if ( res == sKeyVSP )
 	setTypIdx( fld_->size()-1 );
     else
-	fld_->setText( res );
+	setGeomType( Seis::geomTypeOf(res) );
 }

@@ -21,30 +21,6 @@ class uiLabel;
 class uiListBox;
 class Settings;
 
-mExpClass(uiIo) uiProcSettings : public uiSettingsGroup
-{ mODTextTranslationClass(uiProcSettings);
-public:
-			mDefaultFactoryInstantiation2Param(
-		uiSettingsGroup,
-		uiProcSettings,
-		uiParent*,Settings&,
-		"Processing",
-		uiStrings::sProcessing())
-
-			uiProcSettings(uiParent*,Settings&);
-    bool		acceptOK();
-    HelpKey		helpKey() const;
-
-protected:
-
-    uiGenInput*		nrinlfld_;
-    uiGenInput*		clusterfld_;
-
-    int			nrinl_;
-    bool		enabclusterproc_;
-
-};
-
 
 mExpClass(uiIo) uiStartBatchJobDialog : public uiDialog
 { mODTextTranslationClass(uiStartBatchJobDialog);
@@ -77,4 +53,31 @@ protected:
 private:
 
     static const uiString	sKeyNoParFiles();
+
+};
+
+
+mExpClass(uiIo) uiProcSettingsGroup : public uiSettingsGroup
+{ mODTextTranslationClass(uiProcSettingsGroup);
+public:
+
+    mDecluiSettingsGroupPublicFns( uiProcSettingsGroup,
+				   General, "Processing", "batchprogs",
+				   uiStrings::sProcessing(),
+				   mODHelpKey(mProcSettingsHelpID) )
+
+			uiProcSettingsGroup(uiParent*,Settings&);
+
+protected:
+
+    const int		initialnrinl_;
+    const bool		initialcpenabled_;
+
+    uiGenInput*		nrinlfld_;
+    uiGenInput*		clusterfld_;
+
+    bool		clusterProcEnabled() const;
+
+    virtual void	doCommit(uiRetVal&);
+
 };

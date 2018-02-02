@@ -307,9 +307,6 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
 			? sowingpivot_ : mousepos;
 
-    if ( !emObject().nrSections() )
-	return;
-
     int sticknr = getLastClickedStick();
     if ( !makenewstick && !mIsUdf(sticknr) )
     {
@@ -347,9 +344,6 @@ const EM::PosID FaultEditor::getNearstStick( const Coord3& mousepos,
     EM::PosID pid = EM::PosID::getInvalid();
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
 			? sowingpivot_ : mousepos;
-
-    if ( !emObject().nrSections() )
-	return EM::PosID::getInvalid();
 
     int sticknr = getLastClickedStick();
     if ( getNearestStick(sticknr, pos, posnormal)>0 )
@@ -400,8 +394,8 @@ bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 
     if ( change )
     {
-	EM::Flt3DMan().undo().setUserInteractionEnd(
-				EM::Flt3DMan().undo().currentEventID() );
+	EM::Flt3DMan().undo(fault->id()).setUserInteractionEnd(
+			EM::Flt3DMan().undo(fault->id()).currentEventID() );
     }
 
     return change;

@@ -15,18 +15,18 @@
 </head>
 
 <body id="page_bg" class="width_fmax">
-		
+
 <div id="all">
 <div id="wrapper">
 <div id="wrapper_r">
 <div id="header">
 <div id="header_l">
-                                
+
 <div id="header_r">
 <a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
 <div id="topmenu">
 </div>
-<div id="leftcolumn">	
+<div id="leftcolumn">
 <table id="greenborder"><tbody>
 <tr><td valign="top">
 <center>
@@ -119,7 +119,7 @@ In any case, <code>Basic</code> handles basic stuff like file-related, extra str
 </p><p id="text">
 <code>Algo</code> is for, well, Algorithmic stuff. <code>General</code> handles all sorts of things, like fast dynamic large N-D arrays (<code>ArrayND</code> etc.), the CBVS format for volumestorage, the <code>IOObj</code>, <code>IOMan</code> and other data store related classes, <code>Translators</code> enabling different formats, transforms and a few more things.
 </p><p id="text">
-The domain-specific modules like <code>Well</code>, <code>EarthModel</code>, <code>Seis</code> etc. will be recognised by a geoscientist. There's also the <code>Attribute</code> and <code>AttributeEngine</code>, the seismic attribute modules, and the engine that does the work.
+The domain-specific modules like <code>Well</code>, <code>EarthModel</code>, <code>Seis</code> etc. will be recognized by a geoscientist. There's also the <code>Attribute</code> and <code>AttributeEngine</code>, the seismic attribute modules, and the engine that does the work.
 </p>
 
 <a name="uimodules"><h3 id="heading3">UI modules</h3></a>
@@ -177,4 +177,3 @@ Along the way, you'll have to do some digging in the include directory or the cl
 </div>
 </body>
 </html>
-

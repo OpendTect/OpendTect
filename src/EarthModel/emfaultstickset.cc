@@ -242,7 +242,7 @@ bool FaultStickSetGeometry::insertStick( int sticknr,
     {
 	const PosID posid = PosID::getFromRowCol( sticknr, 0 );
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
-	FSSMan().undo().addEvent( undo, 0 );
+	FSSMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     return true;
@@ -278,7 +278,7 @@ bool FaultStickSetGeometry::insertStick( int sticknr,
     {
 	const PosID posid = PosID::getFromRowCol( sticknr, 0 );
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
-	FSSMan().undo().addEvent( undo, 0 );
+	FSSMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     return true;
@@ -322,7 +322,7 @@ bool FaultStickSetGeometry::removeStick( int sticknr,
     {
 	const PosID posid = PosID::getFromRowCol( rc );
 	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
-	FSSMan().undo().addEvent( undo, 0 );
+	FSSMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     return true;
@@ -340,7 +340,7 @@ bool FaultStickSetGeometry::insertKnot( const PosID& posid, const Coord3& pos,
     if ( addtohistory )
     {
 	UndoEvent* undo = new FaultKnotUndoEvent( posid );
-	FSSMan().undo().addEvent( undo, 0 );
+	FSSMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     return true;
@@ -361,7 +361,7 @@ bool FaultStickSetGeometry::removeKnot( const PosID& posid, bool addtohistory )
     if ( addtohistory )
     {
 	UndoEvent* undo = new FaultKnotUndoEvent( posid, pos );
-	FSSMan().undo().addEvent( undo, 0 );
+	FSSMan().undo(surface_.id()).addEvent( undo, 0 );
     }
 
     return true;

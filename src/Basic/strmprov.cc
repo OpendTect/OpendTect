@@ -168,14 +168,15 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
     , id_(id)
     , filesz_(0)
     , chunkidx_(0)
-    , msg_(tr("Reading '"))
+    , msg_(tr("Reading '%1'"))
     , fnm_(nm)
 {
-    File::Path fp(nm); msg_.append(fp.fileName()).append(toUiString("'"));
+    File::Path fp(nm);
+    msg_.arg( fp.fileName() );
 
     sd_ = StreamProvider(nm).makeIStream(true,false);
     if ( !sd_.usable() )
-	{ msg_ = tr("Cannot open '%1'").arg(nm); }
+	{ msg_ = tr("Cannot open '%1'").arg( nm ); }
     else
     {
 	od_int64 bufsz = File::getKbSize( nm ) + 1;
@@ -185,7 +186,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
 	if ( !buf )
 	{
 	    msg_ = tr("Failed to allocate %1 MB of memory")
-		 .arg(mBytesToMB( bufsz ));
+		    .arg( mBytesToMB(bufsz) );
 	}
 	else
 	{

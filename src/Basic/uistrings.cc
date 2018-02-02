@@ -13,213 +13,216 @@ ________________________________________________________________________
 
 static const char* joinstring = "%1 %2";
 
-uiString uiStrings::phrAdd( const uiString& string )
+uiPhrase uiStrings::phrAdd( const uiWord& string )
 { return toUiString(joinstring).arg( sAdd() ).arg( string ); }
 
-uiString uiStrings::phrASCII( const uiString& string )
+uiPhrase uiStrings::phrASCII( const uiWord& string )
 { return toUiString(joinstring).arg( sASCII() ).arg( string ); }
 
-uiString uiStrings::phrCalculate( const uiString& string )
+uiPhrase uiStrings::phrCalculate( const uiWord& string )
 { return toUiString(joinstring).arg(sCalculate()).arg(string); }
 
-uiString uiStrings::phrCalculateFrom( const uiString& string )
+uiPhrase uiStrings::phrCalculateFrom( const uiWord& string )
 { return toUiString(joinstring).arg(sCalculateFrom()).arg(string); }
 
-uiString uiStrings::phrCrossline( const uiString& string )
+uiPhrase uiStrings::phrCrossline( const uiWord& string )
 { return phrJoinStrings( sCrossline(), string ); }
 
-uiString uiStrings::phrTODONotImpl( const char* clssnm )
+uiPhrase uiStrings::phrExitOD()
+{ return tr("Exit OpendTect"); }
+
+uiPhrase uiStrings::phrTODONotImpl( const char* clssnm )
 { return toUiString( "[%1] TODO: Not Implemented" ).arg( clssnm ); }
 
-uiString uiStrings::phrNotImplInThisVersion( const char* fromver )
+uiPhrase uiStrings::phrNotImplInThisVersion( const char* fromver )
 { return tr("Not implemented in this version of OpendTect."
 	  "\nPlease use version %1 or higher").arg( fromver ); }
 
-uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
+uiPhrase uiStrings::phrThreeDots( const uiWord& string, bool immediate )
 { return immediate ? string : toUiString( "%1 ..." ).arg( string ); }
 
-uiString uiStrings::phrPlsSelectAtLeastOne( const uiString& string )
+uiPhrase uiStrings::phrPlsSelectAtLeastOne( const uiWord& string )
 { return tr("Please select at least one %1").arg( string ); }
 
-uiString uiStrings::phrPlsSpecifyAtLeastOne( const uiString& string )
+uiPhrase uiStrings::phrPlsSpecifyAtLeastOne( const uiWord& string )
 { return tr("Please specify at least one %1").arg( string ); }
 
-uiString uiStrings::phrSelect( const uiString& string )
+uiPhrase uiStrings::phrSelect( const uiWord& string )
 { return toUiString(joinstring).arg( sSelect() ).arg( string ); }
 
-uiString uiStrings::phrSelectObjectWrongType( const uiString& string )
+uiPhrase uiStrings::phrSelectObjectWrongType( const uiWord& string )
 { return toUiString(joinstring).arg(tr("Select object is not a ")).arg(string);}
 
-uiString uiStrings::phrDoesntExist(const uiString& string, int num )
+uiPhrase uiStrings::phrDoesntExist(const uiWord& string, int num )
 { return tr( "%1 does not exist", 0, num ).arg( string ); }
 
-uiString uiStrings::phrExport( const uiString& string )
+uiPhrase uiStrings::phrExport( const uiWord& string )
 { return toUiString(joinstring).arg( sExport() ).arg( string ); }
 
-uiString uiStrings::phrImport( const uiString& string )
+uiPhrase uiStrings::phrImport( const uiWord& string )
 { return toUiString(joinstring).arg( sImport() ).arg( string ); }
 
-uiString uiStrings::phrInternalError( const uiString& string )
+uiPhrase uiStrings::phrInternalError( const uiWord& string )
 { return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
 	 .arg( string ); }
 
-uiString uiStrings::phrInternalError( const char* string )
+uiPhrase uiStrings::phrInternalError( const char* string )
 { return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
 	 .arg( string ); }
 
-uiString uiStrings::phrCannotAdd( const uiString& string )
+uiPhrase uiStrings::phrCannotAdd( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotAdd()).arg(string); }
 
-uiString uiStrings::phrCannotCompute( const uiString& string )
+uiPhrase uiStrings::phrCannotCompute( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotCompute()).arg(string); }
 
-uiString uiStrings::phrCannotCopy( const uiString& string )
+uiPhrase uiStrings::phrCannotCopy( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotCopy()).arg(string); }
 
-uiString uiStrings::phrCannotCreate( const uiString& string )
+uiPhrase uiStrings::phrCannotCreate( const uiWord& string )
 { return tr("Cannot create %1").arg( string ); }
 
-uiString uiStrings::phrCannotCreateDBEntryFor(const uiString& string)
+uiPhrase uiStrings::phrCannotCreateDBEntryFor(const uiWord& string)
 { return phrCannotCreate( tr("database entry for %1").arg(string) ); }
 
-uiString uiStrings::phrCannotCreateDirectory( const uiString& string )
+uiPhrase uiStrings::phrCannotCreateDirectory( const uiWord& string )
 { return phrCannotCreate( tr("directory %1").arg(string) ); }
 
-uiString uiStrings::phrCannotEdit( const uiString& string )
+uiPhrase uiStrings::phrCannotEdit( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotEdit()).arg(string); }
 
-uiString uiStrings::phrCannotExtract( const uiString& string )
+uiPhrase uiStrings::phrCannotExtract( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotExtract()).arg(string); }
 
-uiString uiStrings::phrCannotFind( const uiString& string )
+uiPhrase uiStrings::phrCannotFind( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotFind()).arg(string); }
 
-uiString uiStrings::phrCannotImport( const uiString& string )
+uiPhrase uiStrings::phrCannotImport( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotImport()).arg(string); }
 
-uiString uiStrings::phrCannotLoad( const uiString& string )
+uiPhrase uiStrings::phrCannotLoad( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotLoad()).arg(string); }
 
-uiString uiStrings::phrCannotOpen( const uiString& string )
+uiPhrase uiStrings::phrCannotOpen( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotOpen()).arg( string ); }
 
-uiString uiStrings::phrCannotParse( const uiString& string )
+uiPhrase uiStrings::phrCannotParse( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotParse()).arg(string); }
 
-uiString uiStrings::phrCannotFindDBEntry( const uiString& string )
+uiPhrase uiStrings::phrCannotFindDBEntry( const uiWord& string )
 { return phrCannotFind( tr("database entry for %1").arg( string ) ); }
 
-uiString uiStrings::phrCannotRead( const uiString& string )
+uiPhrase uiStrings::phrCannotRead( const uiWord& string )
 { return tr("Cannot read %1").arg( string ); }
 
-uiString uiStrings::phrCannotRemove( const uiString& string )
+uiPhrase uiStrings::phrCannotRemove( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotRemove()).arg(string); }
 
-uiString uiStrings::phrCannotWrite( const uiString& string )
+uiPhrase uiStrings::phrCannotWrite( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotWrite()).arg( string ); }
 
-uiString uiStrings::phrCannotWriteDBEntry( const uiString& string )
+uiPhrase uiStrings::phrCannotWriteDBEntry( const uiWord& string )
 { return phrCannotWrite( tr("database entry for %1").arg(string) ); }
 
-uiString uiStrings::phrCannotSave( const uiString& string )
+uiPhrase uiStrings::phrCannotSave( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotSave()).arg(string); }
 
-uiString uiStrings::phrCannotStart( const uiString& string )
+uiPhrase uiStrings::phrCannotStart( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotStart()).arg(string); }
 
-uiString uiStrings::phrCannotUnZip( const uiString& string )
+uiPhrase uiStrings::phrCannotUnZip( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotUnZip()).arg(string); }
 
-uiString uiStrings::phrCannotZip( const uiString& string )
+uiPhrase uiStrings::phrCannotZip( const uiWord& string )
 { return toUiString(joinstring).arg(sCannotZip()).arg(string); }
 
-uiString uiStrings::phrCheck( const uiString& string )
+uiPhrase uiStrings::phrCheck( const uiWord& string )
 { return toUiString(joinstring).arg(sCheck()).arg(string); }
 
-uiString uiStrings::phrClose( const uiString& string )
+uiPhrase uiStrings::phrClose( const uiWord& string )
 { return toUiString(joinstring).arg(sClose()).arg(string); }
 
-uiString uiStrings::phrCopy( const uiString& string )
+uiPhrase uiStrings::phrCopy( const uiWord& string )
 { return toUiString(joinstring).arg(sCopy()).arg(string); }
 
-uiString uiStrings::phrCreate( const uiString& string )
+uiPhrase uiStrings::phrCreate( const uiWord& string )
 { return toUiString(joinstring).arg(sCreate()).arg(string); }
 
-uiString uiStrings::phrCreateNew( const uiString& string )
+uiPhrase uiStrings::phrCreateNew( const uiWord& string )
 { return toUiString(joinstring).arg(sCreateNew()).arg(string); }
 
-uiString uiStrings::phrCrossPlot( const uiString& string )
+uiPhrase uiStrings::phrCrossPlot( const uiWord& string )
 { return toUiString(joinstring).arg(sCrossPlot()).arg(string); }
 
-uiString uiStrings::phrColonString( const uiString& string )
+uiPhrase uiStrings::phrColonString( const uiWord& string )
 { return tr(": %1").arg( string ); }
 
-uiString uiStrings::phrData( const uiString& string )
+uiPhrase uiStrings::phrData( const uiWord& string )
 { return toUiString(joinstring).arg(sData()).arg(string); }
 
-uiString uiStrings::phrDelete( const uiString& string )
+uiPhrase uiStrings::phrDelete( const uiWord& string )
 { return toUiString(joinstring).arg(sDelete()).arg(string); }
 
-uiString uiStrings::phrEdit( const uiString& string )
+uiPhrase uiStrings::phrEdit( const uiWord& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
 
-uiString uiStrings::phrEnter( const uiString& string )
+uiPhrase uiStrings::phrEnter( const uiWord& string )
 { return toUiString(joinstring).arg(sEnter()).arg(string); }
 
-uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
+uiPhrase uiStrings::phrExistsContinue( const uiWord& string, bool overwrite )
 {
     return tr( "%1 exists. %2?")
 	.arg( string )
 	.arg( overwrite ? sOverwrite() : sContinue() );
 }
 
-uiString uiStrings::phrExtract( const uiString& string )
+uiPhrase uiStrings::phrExtract( const uiWord& string )
 { return toUiString(joinstring).arg(sExtract()).arg(string); }
 
-uiString uiStrings::phrGenerating( const uiString& string )
+uiPhrase uiStrings::phrGenerating( const uiWord& string )
 { return toUiString(joinstring).arg(sGenerating()).arg(string); }
 
-uiString uiStrings::phrHandling( const uiString& string )
+uiPhrase uiStrings::phrHandling( const uiWord& string )
 { return tr( "Handling %1").arg( string ); }
 
-uiString uiStrings::phrHandled( const uiString& string )
+uiPhrase uiStrings::phrHandled( const uiWord& string )
 { return tr( "%1 handled").arg( string ); }
 
-uiString uiStrings::phrInline( const uiString& string )
+uiPhrase uiStrings::phrInline( const uiWord& string )
 { return phrJoinStrings( sInline(), string ); }
 
-uiString uiStrings::phrInput( const uiString& string )
+uiPhrase uiStrings::phrInput( const uiWord& string )
 { return toUiString(joinstring).arg( sInput() ).arg( string ); }
 
-uiString uiStrings::phrInsert( const uiString& string )
+uiPhrase uiStrings::phrInsert( const uiWord& string )
 { return phrJoinStrings( sInsert(), string ); }
 
-uiString uiStrings::phrInvalid( const uiString& string )
+uiPhrase uiStrings::phrInvalid( const uiWord& string )
 { return toUiString(joinstring).arg(sInvalid()).arg(string); }
 
-uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b )
+uiPhrase uiStrings::phrJoinStrings( const uiWord& a, const uiWord& b )
 { return toUiString(joinstring).arg( a ).arg( b ); }
 
-uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b,
-				    const uiString& c)
+uiPhrase uiStrings::phrJoinStrings( const uiWord& a, const uiWord& b,
+				    const uiPhrase& c)
 { return toUiString("%1 %2 %3").arg( a ).arg( b ).arg( c ); }
 
-uiString uiStrings::phrManage( const uiString& string )
+uiPhrase uiStrings::phrManage( const uiWord& string )
 { return toUiString(joinstring).arg(sManage()).arg(string); }
 
-uiString uiStrings::phrModify( const uiString& string )
+uiPhrase uiStrings::phrModify( const uiWord& string )
 { return toUiString(joinstring).arg(sModify()).arg(string); }
 
-uiString uiStrings::phrMerge( const uiString& string )
+uiPhrase uiStrings::phrMerge( const uiWord& string )
 { return toUiString(joinstring).arg(sMerge()).arg(string); }
 
-uiString uiStrings::phrOpen( const uiString& string )
+uiPhrase uiStrings::phrOpen( const uiWord& string )
 { return toUiString(joinstring).arg(sOpen()).arg(string); }
 
-uiString uiStrings::phrOutput( const uiString& string )
+uiPhrase uiStrings::phrOutput( const uiWord& string )
 { return toUiString(joinstring).arg( sOutput() ).arg( string ); }
 
-uiString uiStrings::phrPlsContactSupport( bool firstdoc )
+uiPhrase uiStrings::phrPlsContactSupport( bool firstdoc )
 {
     if ( !firstdoc )
 	return tr( "Please contact OpendTect support at support@dgbes.com." );
@@ -228,361 +231,364 @@ uiString uiStrings::phrPlsContactSupport( bool firstdoc )
 	    "support@dgbes.com.");
 }
 
-uiString uiStrings::phrReading( const uiString& string )
+uiPhrase uiStrings::phrReading( const uiWord& string )
 { return tr( "Reading %1").arg( string ); }
 
-uiString uiStrings::phrRead( const uiString& string )
+uiPhrase uiStrings::phrRead( const uiWord& string )
 { return tr( "%1 read").arg( string ); }
 
-uiString uiStrings::phrRemove( const uiString& string )
+uiPhrase uiStrings::phrRemove( const uiWord& string )
 { return toUiString(joinstring).arg(sRemove()).arg(string); }
 
-uiString uiStrings::phrRemoveSelected( const uiString& string )
+uiPhrase uiStrings::phrRemoveSelected( const uiWord& string )
 { return toUiString(joinstring).arg(sRemoveSelected()).arg(string); }
 
-uiString uiStrings::phrRename( const uiString& string )
+uiPhrase uiStrings::phrRename( const uiWord& string )
 { return toUiString(joinstring).arg(sRename()).arg(string); }
 
-uiString uiStrings::phrSelectPos( const uiString& string )
+uiPhrase uiStrings::phrSelectPos( const uiWord& string )
 { return toUiString(joinstring).arg(sSelectPos()).arg(string); }
 
-uiString uiStrings::phrSetAs( const uiString& string )
+uiPhrase uiStrings::phrSetAs( const uiWord& string )
 { return toUiString(joinstring).arg(sSetAs()).arg(string); }
 
-uiString uiStrings::phrSuccessfullyExported( const uiString& string )
+uiPhrase uiStrings::phrSuccessfullyExported( const uiWord& string )
 { return tr( "Successfully exported %1").arg( string );}
 
-uiString uiStrings::phrZIn( const uiString& string )
+uiPhrase uiStrings::phrZIn( const uiWord& string )
 { return tr( "Z in %1" ).arg( string ); }
 
-uiString uiStrings::phrWriting( const uiString& string )
+uiPhrase uiStrings::phrWriting( const uiWord& string )
 { return tr( "Writing %1").arg( string ); }
 
-uiString uiStrings::phrWritten( const uiString& string )
+uiPhrase uiStrings::phrWritten( const uiWord& string )
 { return tr( "%1 written").arg( string ); }
 
-uiString uiStrings::phrSave( const uiString& string )
+uiPhrase uiStrings::phrSave( const uiWord& string )
 { return toUiString(joinstring).arg(sSave()).arg(string); }
 
-uiString uiStrings::phrSaveAs( const uiString& string )
+uiPhrase uiStrings::phrSaveAs( const uiWord& string )
 { return tr( "Save %1 as" ).arg( string ); }
 
-uiString uiStrings::phrShowIn( const uiString& string )
+uiPhrase uiStrings::phrShowIn( const uiWord& string )
 { return toUiString(joinstring).arg(sShowIn()).arg(string); }
 
-uiString uiStrings::phrSpecify( const uiString& string )
+uiPhrase uiStrings::phrSpecify( const uiWord& string )
 { return toUiString(joinstring).arg(sSpecify()).arg(string); }
 
-uiString uiStrings::phrStorageDir( const uiString& string )
+uiPhrase uiStrings::phrStart( const uiWord& word )
+{ return tr( "Start %1" ).arg( word ); }
+
+uiPhrase uiStrings::phrStorageDir( const uiWord& string )
 { return toUiString(joinstring).arg(sStorageDir()).arg(string); }
 
-uiString uiStrings::phrLoad( const uiString& string )
+uiPhrase uiStrings::phrLoad( const uiWord& string )
 { return toUiString(joinstring).arg(sLoad()).arg(string); }
 
-uiString uiStrings::phrLoading( const uiString& string )
+uiPhrase uiStrings::phrLoading( const uiWord& string )
 { return tr("Loading %1").arg(string); }
 
-uiString uiStrings::phrXcoordinate( const uiString& string )
+uiPhrase uiStrings::phrXcoordinate( const uiWord& string )
 { return toUiString(joinstring).arg(sXcoordinate()).arg(string); }
 
-uiString uiStrings::phrYcoordinate( const uiString& string )
+uiPhrase uiStrings::phrYcoordinate( const uiWord& string )
 { return toUiString(joinstring).arg(sYcoordinate()).arg(string); }
 
-uiString uiStrings::phrZRange( const uiString& string )
+uiPhrase uiStrings::phrZRange( const uiWord& string )
 { return toUiString(joinstring).arg(sZRange()).arg(string); }
 
 
 
-uiString uiStrings::sCannotAdd()
+uiWord uiStrings::sCannotAdd()
 { return tr("Cannot add"); }
 
-uiString uiStrings::sCannotCompute()
+uiWord uiStrings::sCannotCompute()
 { return tr("Cannot compute"); }
 
-uiString uiStrings::sCannotCopy()
+uiWord uiStrings::sCannotCopy()
 { return tr("Cannot copy"); }
 
-uiString uiStrings::sCannotEdit()
+uiWord uiStrings::sCannotEdit()
 { return tr("Cannot edit"); }
 
-uiString uiStrings::sCannotExtract()
+uiWord uiStrings::sCannotExtract()
 { return tr("Cannot extract"); }
 
-uiString uiStrings::sCannotFind()
+uiWord uiStrings::sCannotFind()
 { return tr("Cannot find"); }
 
-uiString uiStrings::sCannotImport()
+uiWord uiStrings::sCannotImport()
 { return tr("Cannot Import"); }
 
-uiString uiStrings::sCannotLoad()
+uiWord uiStrings::sCannotLoad()
 { return tr("Cannot load"); }
 
-uiString uiStrings::sCannotSave()
+uiWord uiStrings::sCannotSave()
 { return tr("Cannot Save"); }
 
-uiString uiStrings::sCannotWrite()
+uiWord uiStrings::sCannotWrite()
 { return tr("Cannot Write"); }
 
-uiString uiStrings::sCannotUnZip()
+uiWord uiStrings::sCannotUnZip()
 { return tr("Cannot UnZip"); }
 
-uiString uiStrings::sCannotZip()
+uiWord uiStrings::sCannotZip()
 { return tr("Cannot Zip"); }
 
-uiString uiStrings::sCantCreateHor()
+uiWord uiStrings::sCantCreateHor()
 { return phrCannotCreate( tr("horizon") ); }
 
-uiString uiStrings::sCantFindAttrName()
+uiWord uiStrings::sCantFindAttrName()
 { return phrCannotFind( tr("attribute name") ); }
 
-uiString uiStrings::sCantFindODB()
+uiWord uiStrings::sCantFindODB()
 { return phrCannotFind( tr("object in data base") ); }
 
-uiString uiStrings::sCantFindSurf()
+uiWord uiStrings::sCantFindSurf()
 { return phrCannotFind( tr("surface") ); }
 
-uiString uiStrings::sCannotOpen()
+uiWord uiStrings::sCannotOpen()
 { return tr("Cannot open"); }
 
-uiString uiStrings::sCannotParse()
+uiWord uiStrings::sCannotParse()
 { return tr("Cannot parse"); }
 
-uiString uiStrings::sCantReadHor()
+uiWord uiStrings::sCantReadHor()
 { return phrCannotRead( tr("horizon") ); }
 
-uiString uiStrings::sCantReadInp()
+uiWord uiStrings::sCantReadInp()
 { return phrCannotRead( tr("input") ); }
 
-uiString uiStrings::sCantWriteSettings()
+uiWord uiStrings::sCantWriteSettings()
 { return phrCannotWrite(tr("settings"));}
 
-uiString uiStrings::sCantOpenInpFile( int num )
+uiWord uiStrings::sCantOpenInpFile( int num )
 { return phrCannotOpen( tr("input file", 0, num ) ); }
 
-uiString uiStrings::sCannotStart()
+uiWord uiStrings::sCannotStart()
 { return tr("Cannot Start"); }
 
-uiString uiStrings::sCheck()
+uiWord uiStrings::sCheck()
 { return tr("Check"); }
 
-uiString uiStrings::sCheckPermissions()
+uiWord uiStrings::sCheckPermissions()
 { return tr("Please check your permissions."); }
 
-uiString uiStrings::sOutput()
+uiWord uiStrings::sOutput()
 { return tr("Output"); }
 
-uiString uiStrings::sCantOpenOutpFile( int num )
+uiWord uiStrings::sCantOpenOutpFile( int num )
 { return phrCannotOpen( tr("output file", 0, num ) ); }
 
-uiString uiStrings::sCannotRemove()
+uiWord uiStrings::sCannotRemove()
 { return tr("Cannot remove"); }
 
-uiString uiStrings::sCopy()
+uiWord uiStrings::sCopy()
 { return tr("Copy"); }
 
-uiString uiStrings::sCreateNew()
+uiWord uiStrings::sCreateNew()
 { return mJoinUiStrs(sCreate(),sNew()); }
 
-uiString uiStrings::sCreateOutput()
+uiWord uiStrings::sCreateOutput()
 { return mJoinUiStrs(sCreate(),sOutput()); }
 
-uiString uiStrings::sCreateProbDesFunc()
+uiWord uiStrings::sCreateProbDesFunc()
 { return phrCreate( sProbDensFunc(false) ); }
 
-uiString uiStrings::sCrossPlot()
+uiWord uiStrings::sCrossPlot()
 { return tr("Cross Plot"); }
 
-uiString uiStrings::sData()
+uiWord uiStrings::sData()
 { return tr("Data"); }
 
-uiString uiStrings::sDelete()
+uiWord uiStrings::sDelete()
 { return tr("Delete"); }
 
-uiString uiStrings::sEdit()
+uiWord uiStrings::sEdit()
 { return tr("Edit"); }
 
-uiString uiStrings::sEnter()
+uiWord uiStrings::sEnter()
 { return tr("Enter"); }
 
-uiString uiStrings::sEnterValidName()
+uiWord uiStrings::sEnterValidName()
 { return uiStrings::phrEnter(tr("a valid name")); }
 
-uiString uiStrings::sExport()
+uiWord uiStrings::sExport()
 { return tr("Export"); }
 
-uiString uiStrings::sExtract()
+uiWord uiStrings::sExtract()
 { return tr("Extract"); }
 
-uiString uiStrings::sFault( int num )
+uiWord uiStrings::sFault( int num )
 { return tr("Fault", 0, num ); }
 
-uiString uiStrings::sFaultStickSet( int num )
+uiWord uiStrings::sFaultStickSet( int num )
 { return tr( "FaultStickSet", 0, num ); }
 
-uiString uiStrings::sFrequency( int num )
+uiWord uiStrings::sFrequency( int num )
 {
     return tr( "Frequency", 0, num );
 }
 
-uiString uiStrings::sHelp()
+uiWord uiStrings::sHelp()
 { return tr("Help"); }
 
-uiString uiStrings::sHistogram( )
+uiWord uiStrings::sHistogram( )
 { return tr("Histogram"); }
 
-uiString uiStrings::sHorizon( int num )
+uiWord uiStrings::sHorizon( int num )
 { return tr("Horizon", 0, num ); }
 
-uiString uiStrings::sImport()
+uiWord uiStrings::sImport()
 { return tr("Import"); }
 
-uiString uiStrings::sInput()
+uiWord uiStrings::sInput()
 { return tr("Input"); }
 
-uiString uiStrings::sInputFile()
+uiWord uiStrings::sInputFile()
 { return phrInput( sFile().toLower() ); }
 
-uiString uiStrings::sInputSelection()
+uiWord uiStrings::sInputSelection()
 { return phrInput( sSelection().toLower() ); }
 
-uiString uiStrings::sInputASCIIFile()
+uiWord uiStrings::sInputASCIIFile()
 { return phrInput( phrASCII( sFile() )); }
 
-uiString uiStrings::sInputParamsMissing()
+uiWord uiStrings::sInputParamsMissing()
 { return tr("Input parameters missing"); }
 
-uiString uiStrings::sInsert()
+uiWord uiStrings::sInsert()
 { return tr("Insert"); }
 
-uiString uiStrings::sInvalid()
+uiWord uiStrings::sInvalid()
 { return tr("Invalid"); }
 
-uiString uiStrings::sLatitude( bool abbrev )
+uiWord uiStrings::sLatitude( bool abbrev )
 { return abbrev ? tr("Lat") : tr("Latitude"); }
 
-uiString uiStrings::sLoad()
+uiWord uiStrings::sLoad()
 { return tr("Load"); }
 
-uiString uiStrings::sLogs()
+uiWord uiStrings::sLogs()
 { return sLog(mPlural); }
 
-uiString uiStrings::sLongitude( bool abbrev )
+uiWord uiStrings::sLongitude( bool abbrev )
 { return abbrev ? tr("Long") : tr("Longitude"); }
 
-uiString uiStrings::sManage()
+uiWord uiStrings::sManage()
 { return tr("Manage"); }
 
-uiString uiStrings::sMarker( int num )
+uiWord uiStrings::sMarker( int num )
 { return tr("Marker", 0, num); }
 
-uiString uiStrings::sMerge()
+uiWord uiStrings::sMerge()
 { return tr("Merge"); }
 
-uiString uiStrings::sModify()
+uiWord uiStrings::sModify()
 { return tr("Modify"); }
 
-uiString uiStrings::sNew()
+uiWord uiStrings::sNew()
 { return tr("New"); }
 
-uiString uiStrings::sOpen()
+uiWord uiStrings::sOpen()
 { return tr("Open" ); }
 
-uiString uiStrings::sOptions()
+uiWord uiStrings::sOptions()
 { return tr("Options"); }
 
-uiString uiStrings::sOutputSelection()
+uiWord uiStrings::sOutputSelection()
 { return phrOutput(sSelection().toLower()); }
 
-uiString uiStrings::sOutputASCIIFile()
+uiWord uiStrings::sOutputASCIIFile()
 { return phrOutput( phrASCII( sFile() )); }
 
-uiString uiStrings::sOutputFileExistsOverwrite()
-{ return phrExistsConinue( tr("Output file"), true); }
+uiWord uiStrings::sOutputFileExistsOverwrite()
+{ return phrExistsContinue( tr("Output file"), true); }
 
-uiString uiStrings::sProbDensFunc( bool abbrevation, int num )
+uiWord uiStrings::sProbDensFunc( bool abbrevation, int num )
 {
     return abbrevation
         ? tr( "PDF", 0, num )
         : tr("Probability Density Function", 0, num );
 }
 
-uiString uiStrings::sProperties()
-{ return tr("Properties"); }
-
-uiString uiStrings::sRemove()
+uiWord uiStrings::sRemove()
 { return tr("Remove"); }
 
-uiString uiStrings::sRemoveSelected()
+uiWord uiStrings::sRemoveSelected()
 { return tr("Remove Selected"); }
 
-uiString uiStrings::sRename()
+uiWord uiStrings::sRename()
 { return tr("Rename"); }
 
-uiString uiStrings::sSave()
+uiWord uiStrings::sSave()
 { return tr("Save"); }
 
-uiString uiStrings::sSaveAs()
+uiWord uiStrings::sSaveAs()
 { return tr("Save as"); }
 
-uiString uiStrings::sSelect()
+uiWord uiStrings::sSelect()
 { return tr("Select"); }
 
-uiString uiStrings::sSelectPos()
+uiWord uiStrings::sSelectPos()
 { return tr("Select Position"); }
 
-uiString uiStrings::sSelOutpFile()
+uiWord uiStrings::sSelOutpFile()
 { return uiStrings::phrSelect(tr("output file")); }
 
-uiString uiStrings::sSelection( int num )
+uiWord uiStrings::sSelection( int num )
 { return tr("Selection", 0, num ); }
 
-uiString uiStrings::sSetting( int num )
-{ return tr("Setting", 0, num ); }
+uiWord uiStrings::sSettings()
+{ return tr("Settings"); }
 
-uiString uiStrings::sSetAs()
+uiWord uiStrings::sUserSettings()
+{ return tr("User Settings"); }
+
+uiWord uiStrings::sSetAs()
 { return tr("Set As"); }
 
-uiString uiStrings::sShift()
+uiWord uiStrings::sShift()
 { return tr("Shift" ); }
 
-uiString uiStrings::sShowIn()
+uiWord uiStrings::sShowIn()
 { return tr("Show in"); }
 
-uiString uiStrings::sSpecify()
+uiWord uiStrings::sSpecify()
 { return tr("Specify"); }
 
-uiString uiStrings::sSpecifyOut()
+uiWord uiStrings::sSpecifyOut()
 { return uiStrings::phrJoinStrings(tr("Specify"), uiStrings::sOutput()); }
 
 
-uiString uiStrings::sStorageDir()
+uiWord uiStrings::sStorageDir()
 { return tr("Storage Directory"); }
 
-uiString uiStrings::sStored()
+uiWord uiStrings::sStored()
 { return tr("Stored" ); }
 
-uiString uiStrings::sStratigraphy()
+uiWord uiStrings::sStratigraphy()
 { return tr( "Stratigraphy" ); }
 
-uiString uiStrings::sTrack()
+uiWord uiStrings::sTrack()
 { return tr("Track" ); }
 
-uiString uiStrings::sVolume(int num)
+uiWord uiStrings::sVolume(int num)
 { return tr("Volume",0,num); }
 
-uiString uiStrings::sWaveNumber( int num )
+uiWord uiStrings::sWaveNumber( int num )
 { return tr("Wavenumber", 0, num ); }
 
-uiString uiStrings::sWavelet( int num )
+uiWord uiStrings::sWavelet( int num )
 { return tr("Wavelet", 0, num ); }
 
-uiString uiStrings::sWell( int num )
+uiWord uiStrings::sWell( int num )
 { return tr("Well", 0, num ); }
 
-uiString uiStrings::sWellLog( int num )
+uiWord uiStrings::sWellLog( int num )
 { return tr("Well log", 0, num ); }
 
-uiString uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
+uiWord uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
 {
     return withparentheses
 	? toUiString("(%1)").arg( sDistUnitString( isfeet, abb, false ) )
@@ -591,20 +597,20 @@ uiString uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
 	    : abb ? tr("m") : tr("meter");
 }
 
-uiString uiStrings::sTimeUnitString( bool abb )
+uiWord uiStrings::sTimeUnitString( bool abb )
 { return abb ? tr( "s" ) : uiStrings::sSec(); }
 
-uiString uiStrings::sXcoordinate()
+uiWord uiStrings::sXcoordinate()
 { return tr("X-coordinate"); }
 
-uiString uiStrings::sYcoordinate()
-{ return tr("Y-coordinate"); }uiString uiStrings::sZRange()
+uiWord uiStrings::sYcoordinate()
+{ return tr("Y-coordinate"); }uiWord uiStrings::sZRange()
 { return tr("Z Range"); }
 
 
-uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
-			     bool both_2d_3d_in_context,
-			     bool both_pre_post_in_context )
+uiWord uiStrings::sVolDataName( bool is2d, bool is3d, bool isprestack,
+			      bool both_2d_3d_in_context,
+			      bool both_pre_post_in_context )
 {
     if ( is2d && is3d )
 	return tr( "Seismic data" );

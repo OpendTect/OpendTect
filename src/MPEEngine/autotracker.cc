@@ -255,7 +255,7 @@ void HorizonTrackerMgr::addUndoEvent()
 	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 	UndoEvent* undo = new EM::SetAllHor3DPosUndoEvent(
 		hor3d, horizon3dundoinfo_, horizon3dundoorigin_ );
-	EM::Hor3DMan().undo().addEvent( undo, "Auto tracking" );
+	EM::Hor3DMan().undo(emobj->id()).addEvent( undo, "Auto tracking" );
 	horizon3dundoinfo_ = 0;
     }
 }

@@ -368,7 +368,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( saveas && faultdisplay_ && DBM().nameOf(emid_).isEmpty() )
 	{
-	    faultdisplay_->setName( toUiString(DBM().nameOf(emid_)) );
+	    faultdisplay_->setName( DBM().nameOf(emid_) );
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }

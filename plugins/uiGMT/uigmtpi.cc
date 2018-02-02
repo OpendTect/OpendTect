@@ -35,21 +35,6 @@
 #include "odplugin.h"
 
 
-mDefODPluginInfo(uiGMT)
-{
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"GMT Access: Generic Mapping Tools",
-	mODGMTPluginPackage,
-	mODPluginCreator, mODPluginVersion,
-	"GMT is a mapping tool originating at the School of Ocean and Earth "
-	"Science and Technology, University of Hawai‘i at Manoa.\n"
-        "This plugin can use the services of an existing GMT installation." ) );
-    retpi.useronoffselectable_ = true;
-    retpi.url_ = "gmt.soest.hawaii.edu";
-    return &retpi;
-}
-
-
 class uiGMTIntro : public uiDialog
 { mODTextTranslationClass(uiGMTIntro);
 public:
@@ -104,6 +89,9 @@ public:
     void		updateToolBar(CallBacker*);
     void		updateMenu(CallBacker*);
     void		createMap(CallBacker*);
+
+    static uiString	pkgDispNm()
+			{ return tr("GMT Link"); }
 };
 
 
@@ -156,6 +144,24 @@ void uiGMTMgr::createMap( CallBacker* )
     dlg_->show();
     dlg_->raise();
 }
+
+
+mDefODPluginInfo(uiGMT)
+{
+    mDefineStaticLocalObject( PluginInfo, retpi,(
+	"GMT Access",
+	mODGMTPluginPackage,
+	mODPluginCreator, mODPluginVersion,
+	"GMT is a mapping tool originating at the School of Ocean and Earth "
+	"Science and Technology, University of Hawai‘i at Manoa.\n"
+        "This plugin can use the services of an existing GMT installation." ) );
+    retpi.useronoffselectable_ = true;
+    retpi.url_ = "gmt.soest.hawaii.edu";
+    mSetPackageDisplayName( retpi, uiGMTMgr::pkgDispNm() );
+    retpi.uidispname_ = retpi.uipackagename_;
+    return &retpi;
+}
+
 
 
 mDefODInitPlugin(uiGMT)

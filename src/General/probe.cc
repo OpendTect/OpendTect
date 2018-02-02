@@ -265,7 +265,7 @@ ProbeLayer* Probe::removeLayer( ProbeLayer::ID id )
     if ( probeidx<0 )
 	return 0;
 
-    mSendChgNotif( cLayerToRemove(), probeidx );
+    mSendChgNotif( cLayerToBeRemoved(), probeidx );
     mReLock();
 
     probeidx = layers_.indexOf( lay );
@@ -326,6 +326,12 @@ void Probe::setPos( const TrcKeyZSampling& newpos )
 	layers_[idx]->invalidateData();
 
     mSendChgNotif( cPositionChange(), cEntireObjectChgID() );
+}
+
+
+uiWord Probe::mkDispNm( const uiWord& add ) const
+{
+    return usrType().constructWord( toUiString("[%1]").arg(add) );
 }
 
 
@@ -435,9 +441,15 @@ const char* InlineProbe::sFactoryKey()
 }
 
 
-BufferString InlineProbe::getDisplayName() const
+uiWord InlineProbe::usrType() const
 {
-    return BufferString( type(), probepos_.hsamp_.inlRange().start );
+    return uiStrings::sInline();
+}
+
+
+uiWord InlineProbe::displayName() const
+{
+    return mkDispNm( probepos_.hsamp_.inlRange().start );
 }
 
 
@@ -510,10 +522,17 @@ const char* CrosslineProbe::sFactoryKey()
 }
 
 
-BufferString CrosslineProbe::getDisplayName() const
+uiWord CrosslineProbe::usrType() const
 {
-    return BufferString( type(), probepos_.hsamp_.crlRange().start );
+    return uiStrings::sCrossline();
 }
+
+
+uiWord CrosslineProbe::displayName() const
+{
+    return mkDispNm( probepos_.hsamp_.crlRange().start );
+}
+
 
 mImplMonitorableAssignmentWithNoMembers( CrosslineProbe, Probe )
 
@@ -578,13 +597,21 @@ ZSliceProbe::~ZSliceProbe()
 
 
 const char* ZSliceProbe::sFactoryKey()
-{ return sKey::ZSlice(); }
-
-
-
-BufferString ZSliceProbe::getDisplayName() const
 {
-    return BufferString( type(),probepos_.zsamp_.start*SI().showZ2UserFactor());
+    return sKey::ZSlice();
+}
+
+
+uiWord ZSliceProbe::usrType() const
+{
+    return uiStrings::sZSlice();
+}
+
+
+uiWord ZSliceProbe::displayName() const
+{
+    const float pos = probepos_.zsamp_.start * SI().showZ2UserFactor();
+    return mkDispNm( pos );
 }
 
 
@@ -679,12 +706,20 @@ void Line2DProbe::setGeomID( Pos::GeomID geomid )
 
 
 const char* Line2DProbe::sFactoryKey()
-{ return IOPar::compKey(sKey::TwoD(),sKey::Line()); }
-
-
-BufferString Line2DProbe::getDisplayName() const
 {
-    return BufferString( Survey::GM().getName(geomid_) );
+    return IOPar::compKey( sKey::TwoD(), sKey::Line() );
+}
+
+
+uiWord Line2DProbe::usrType() const
+{
+    return uiStrings::sLine();
+}
+
+
+uiWord Line2DProbe::displayName() const
+{
+    return toUiString( Survey::GM().getName(geomid_) );
 }
 
 
@@ -793,8 +828,29 @@ VolumeProbe::~VolumeProbe()
 
 
 const char* VolumeProbe::sFactoryKey()
-{ return sKey::Volume(); }
+{
+    return sKey::Volume();
+}
 
+
+uiWord VolumeProbe::usrType() const
+{
+    return uiStrings::sVolume();
+}
+
+
+uiWord VolumeProbe::displayName() const
+{
+    uiWord ret( toUiString("[%1-%2|%3-%4|%5-%6]") );
+    const int zuserfac = zdominfo_->userFactor();
+    ret	.arg( probepos_.hsamp_.start_.inl() )
+	.arg( probepos_.hsamp_.stop_.inl() )
+	.arg( probepos_.hsamp_.start_.crl() )
+	.arg( probepos_.hsamp_.stop_.crl() )
+	.arg( mNINT32(probepos_.zsamp_.start*zuserfac) )
+	.arg( mNINT32(probepos_.zsamp_.stop*zuserfac) );
+    return ret;
+}
 
 
 void VolumeProbe::setZDomain( const ZDomain::Info& zdom )
@@ -803,21 +859,6 @@ void VolumeProbe::setZDomain( const ZDomain::Info& zdom )
 
     delete zdominfo_;
     zdominfo_ = new ZDomain::Info( zdom );
-}
-
-
-BufferString VolumeProbe::getDisplayName() const
-{
-    BufferString nm;
-    const int zuserfac = zdominfo_->userFactor();
-    nm.add(probepos_.hsamp_.start_.inl()).add("-")
-      .add(probepos_.hsamp_.stop_.inl()).add("/")
-      .add(probepos_.hsamp_.start_.crl()).add( "-")
-      .add(probepos_.hsamp_.stop_.crl()).add("/")
-      .add(mNINT32(probepos_.zsamp_.start*zuserfac)).add("-")
-      .add(mNINT32(probepos_.zsamp_.stop*zuserfac));
-
-    return nm;
 }
 
 

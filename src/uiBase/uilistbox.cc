@@ -502,19 +502,23 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
     setHAlignObj( lb_ );
 
     BufferStringSet txts;
-    BufferString s( txt.getFullString() );
-    char* ptr = s.getCStr();
-    if( !ptr || !*ptr ) return;
-    while ( 1 )
+    BufferString bufstr( toString(txt) );
+    char* ptr = bufstr.getCStr();
+    if ( !ptr || !*ptr )
+	return;
+
+    while ( true )
     {
 	char* nlptr = firstOcc( ptr, '\n' );
 	if ( nlptr ) *nlptr = '\0';
 	txts += new BufferString( ptr );
-	if ( !nlptr ) break;
+	if ( !nlptr )
+	    break;
 
 	ptr = nlptr + 1;
     }
-    if ( txts.size() < 1 ) return;
+    if ( txts.size() < 1 )
+	return;
 
     bool last1st = pos > RightTop && pos < BelowLeft;
     ptr = last1st ? txts[txts.size()-1]->getCStr() : txts[0]->getCStr();
@@ -769,7 +773,7 @@ void uiListBox::initNewItem( int newidx )
 
 void uiListBox::addItem( const uiString& text, bool mark, int id )
 {
-    if ( !allowduplicates_ && isPresent( text.getFullString() ) )
+    if ( !allowduplicates_ && isPresent(text) )
 	return;
 
     mListBoxBlockCmdRec;
@@ -850,7 +854,7 @@ void uiListBox::insertItem( const uiString& text, int index, bool mark, int id )
 	addItem( text, mark );
     else
     {
-	if ( !allowduplicates_ && isPresent( text.getFullString() ) )
+	if ( !allowduplicates_ && isPresent(text) )
 	    return;
 
 	lb_->body().insertItem( index, text, mark, id );
@@ -1046,23 +1050,35 @@ bool uiListBox::isPresent( const char* txt ) const
 }
 
 
+bool uiListBox::isPresent( const uiString& txt ) const
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( lb_->body().getItemText(idx).isEqualTo(txt) )
+	    return true;
+    }
+    return false;
+}
+
+
 const char* uiListBox::itemText( int idx ) const
 {
     if ( !validIdx(idx) )
 	return "";
 
-    rettxt_ = lb_->body().getItemText(idx);
-    return mFromUiStringTodo(rettxt_).buf();
+    rettxt_ = toString(lb_->body().getItemText(idx));
+    return rettxt_.buf();
 }
 
 
-const uiString uiListBox::textOfItem( int idx ) const
+uiString uiListBox::textOfItem( int idx ) const
 {
     if ( !validIdx(idx) )
 	return uiString::emptyString();
 
-    rettxt_ = lb_->body().getItemText(idx);
-    return rettxt_;
+    uirettxt_ = lb_->body().getItemText(idx);
+    return uirettxt_;
 }
 
 
@@ -1088,20 +1104,23 @@ int uiListBox::currentItem() const
 
 void uiListBox::setCurrentItem( const uiString& str )
 {
-    setCurrentItem( str.getFullString() );
+    const QString txt( str.getQString() );
+    const QList<QListWidgetItem*> itmlst = lb_->body().findItems( txt,
+							    Qt::MatchExactly );
+    if ( itmlst.isEmpty() )
+	return;
+
+    setCurrentItem( lb_->body().row( itmlst.first() ) );
 }
 
 
-void uiListBox::setCurrentItem( const char* txt )
+void uiListBox::setCurrentItem( const char* inpstr )
 {
-    if ( !txt ) return;
-
+    const BufferString txt( inpstr );
     const int sz = lb_->body().count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const char* ptr = itemText( idx );
-	mSkipBlanks(ptr);
-	if ( FixedString(ptr) == txt )
+	if ( txt == itemText(idx) )
 	    { setCurrentItem( idx ); return; }
     }
 }
@@ -1139,6 +1158,15 @@ int uiListBox::indexOf( const char* txt ) const
     const FixedString str( txt );
     for ( int idx=0; idx<size(); idx++ )
 	if ( str == itemText(idx) )
+	    return idx;
+    return -1;
+}
+
+
+int uiListBox::indexOf( const uiString& txt ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	if ( txt.isEqualTo(textOfItem(idx)) )
 	    return idx;
     return -1;
 }

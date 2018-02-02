@@ -96,7 +96,7 @@ Seis::Blocks::FileColumn::FileColumn( const Reader& rdr, const HGlobIdx& gidx,
 
     strm_.setReadPosition( startoffsinfile_ );
     strm_.getBin( headernrbytes_ );
-    SzType expectedhdrbts = rdr_.columnHeaderSize( rdr_.version_ );
+    const SzType expectedhdrbts = rdr_.columnHeaderSize( rdr_.version_ );
     if ( headernrbytes_ != expectedhdrbts )
     {
 	uirv.set( tr("%1: unexpected size in file.\nFound %2, should be %3.")

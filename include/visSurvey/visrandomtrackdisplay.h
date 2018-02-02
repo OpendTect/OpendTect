@@ -157,7 +157,7 @@ public:
 
     visBase::TexturePanelStrip* getTexturePanelStrip() const
 				{ return panelstrip_; }
-    const char*			getRandomLineName() const;
+    BufferString		getRandomLineName() const;
 
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> nodemoving_;

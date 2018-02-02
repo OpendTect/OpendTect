@@ -150,53 +150,35 @@ bool FaultStickPainter::addPolyLine()
 	    if ( path_ && rlgeom )
 	    {
 		TrcKeyPath knots;
-		rlgeom->allNodePositions( knots );
+		rlgeom->getNodePositions( knots );
 		for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
 		      rc.col()+=colrg.step )
 		{
-		    TrcKeyPath knots;
-		    rlgeom->getNodePositions( knots );
-		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
-			  rc.col()+=colrg.step )
-		    {
-			const Coord3 pos = fss->getKnot( rc );
-			const BinID bid = SI().transform( pos.getXY() );
-			const TrcKey trckey = Survey::GM().traceKey(
-			   Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
-			Coord3 editnormal(
-			    Geometry::RandomLine::getNormal(knots,trckey), 0.f);
-			const Coord3 nzednor = editnormal.normalize();
-			const Coord3 stkednor =
-			    emfss->geometry().getEditPlaneNormal(sid,rc.row());
-			const bool equinormal =
-			    mIsEqual(nzednor.x_,stkednor.x_,.001) &&
-			    mIsEqual(nzednor.y_,stkednor.y_,.001) &&
-			    mIsEqual(nzednor.z_,stkednor.z_,.00001);
+		    const Coord3 pos = fss->getKnot( rc );
+		    const BinID bid = SI().transform( pos.getXY() );
+		    const TrcKey trckey = Survey::GM().traceKey(
+		       Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
+		    Coord3 editnormal(
+			Geometry::RandomLine::getNormal(knots,trckey), 0.f);
+		    const Coord3 nzednor = editnormal.normalize();
+		    const Coord3 stkednor =
+			emfss->geometry().getEditPlaneNormal(rc.row());
+		    const bool equinormal =
+			mIsEqual(nzednor.x_,stkednor.x_,.001) &&
+			mIsEqual(nzednor.y_,stkednor.y_,.001) &&
+			mIsEqual(nzednor.z_,stkednor.z_,.00001);
 
-			if ( !equinormal ) continue;
+		    if ( !equinormal ) continue;
 
-			const int posidx =
-			    Geometry::RandomLine::getNearestPathPosIdx(
-				    knots, *path_, trckey );
-			if ( posidx < 0 )
-			    continue;
+		    const int posidx =
+			Geometry::RandomLine::getNearestPathPosIdx(
+				knots, *path_, trckey );
+		    if ( posidx < 0 )
+			continue;
 
-			const double z = zat ? zat->transform(pos) : pos.z_;
-			stickauxdata->poly_ += FlatView::Point(
-					flatposdata_->position(true,posidx),z );
-		    }
-		}
-		else
-		{
-		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
-			  rc.col()+=colrg.step )
-		    {
-			const Coord3 pos = fss->getKnot( rc );
-			float dist;
-			const double z = zat ? zat->transform(pos) : pos.z_;
-			if ( getNearestDistance(pos,dist) )
-			    stickauxdata->poly_ += FlatView::Point(dist,z);
-		    }
+		    const double z = zat ? zat->transform(pos) : pos.z_;
+		    stickauxdata->poly_ += FlatView::Point(
+				    flatposdata_->position(true,posidx),z );
 		}
 	    }
 	    else

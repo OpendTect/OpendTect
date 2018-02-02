@@ -17,29 +17,15 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uipixmap.h"
 #include "uitoolbutton.h"
+#include "uistrings.h"
 
 
-static void chckYPlural( BufferString& str )
-{
-    const int len = str.size();
-    if ( len < 3 ) return;
-    char* ptr = str.getCStr() + len - 2;
-    if ( *ptr == 'y' )
-    {
-	*ptr = '\0';
-	str += "ies";
-    }
-}
-
-uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
+uiEditObjectList::uiEditObjectList( uiParent* p, const uiString& itmtyp,
 				    bool movable, bool compact )
     : uiGroup(p,"Object list build group")
     , selectionChange(this)
 {
-    if ( !itmtyp ) itmtyp = "object";
-    BufferString listnm( "Defined ", itmtyp, "s" );
-    chckYPlural( listnm );
-    listfld_ = new uiListBox( this, listnm );
+    listfld_ = new uiListBox( this, "Defined" );
     listfld_->doubleClicked.notify( mCB(this,uiEditObjectList,edCB) );
     listfld_->deleteButtonPressed.notify( mCB(this,uiEditObjectList,rmCB) );
     listfld_->selectionChanged.notify( mCB(this,uiEditObjectList,selChgCB) );
@@ -54,12 +40,10 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 		mCB(this,uiEditObjectList,cb) )
 	//-- Copy the following code exactly to the 'else' branch
 	//  (if you want to be purist, put it in a separate file and include it)
-	mDefBut( add, uiStrings::phrAdd(toUiString(itmtyp)),
-						    "addnew", addCB, false );
+	mDefBut( add, uiStrings::phrAdd(itmtyp), "addnew", addCB, false );
 	mDefBut( ed, uiStrings::phrEdit(uiStrings::sProperties()),
-						    "edit", edCB, false );
-	mDefBut( rm, uiStrings::phrJoinStrings(uiStrings::sRemove(),
-			    toUiString(itmtyp)), "remove", rmCB, true );
+						  "edit", edCB, false );
+	mDefBut( rm, uiStrings::phrRemove(itmtyp), "remove", rmCB, true );
 	if ( movable )
 	{
 	    mDefBut( up, sMoveUp, "uparrow", upCB, true );
@@ -69,8 +53,9 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
     }
     else
     {
-	int butsz = FixedString(itmtyp).size() + 8;
-	if ( butsz < 20 ) butsz = 20;
+	int butsz = toString(itmtyp).size() + 8;
+	if ( butsz < 20 )
+	    butsz = 20;
 
 #undef mDefBut
 #define mDefBut(butnm,txt,pm,cb,imm) \
@@ -79,12 +64,10 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 	butnm##but_->setPrefWidthInChar( butsz )
 
 	//-- Make sure this code is exactly a copy of above
-	mDefBut( add, uiStrings::phrAdd(toUiString(itmtyp)),
-						    "addnew", addCB, false );
+	mDefBut( add, uiStrings::phrAdd(itmtyp), "addnew", addCB, false );
 	mDefBut( ed, uiStrings::phrEdit(uiStrings::sProperties()),
-						    "edit", edCB, false );
-	mDefBut( rm, uiStrings::phrJoinStrings(uiStrings::sRemove(),
-			    toUiString(itmtyp)), "remove", rmCB, true );
+						  "edit", edCB, false );
+	mDefBut( rm, uiStrings::phrRemove(itmtyp), "remove", rmCB, true );
 	if ( movable )
 	{
 	    mDefBut( up, sMoveUp, "uparrow", upCB, true );
@@ -105,16 +88,27 @@ int uiEditObjectList::currentItem() const
 
 void uiEditObjectList::setItems( const BufferStringSet& itms, int newcur )
 {
+    setItems( itms.getUiStringSet() );
+}
+
+
+void uiEditObjectList::setItems( const uiStringSet& itms, int newcur )
+{
     const int newsz = itms.size();
-    if ( newcur < 0 ) newcur = currentItem();
-    if ( newcur < 0 ) newcur = 0;
-    if ( newcur >= newsz ) newcur = newsz-1;
+    if ( newcur < 0 )
+	newcur = currentItem();
+    if ( newcur < 0 )
+	newcur = 0;
+    if ( newcur >= newsz )
+	newcur = newsz-1;
     NotifyStopper ns( listfld_->selectionChanged );
     listfld_->setEmpty();
-    if ( newcur < 0 ) return;
+    if ( newcur < 0 )
+	return;
 
-    listfld_->addItems( itms.getUiStringSet() );
+    listfld_->addItems( itms );
     listfld_->setCurrentItem( newcur );
+
     manButSt();
 }
 
@@ -129,25 +123,26 @@ void uiEditObjectList::manButSt()
 }
 
 
-uiBuildListFromList::Setup::Setup( bool mv, const char* avitmtp,
-				   const char* defitmtp )
+uiBuildListFromList::Setup::Setup( bool mv, const uiString& avitmtp,
+				   const uiString& defitmtp )
     : movable_(mv)
     , avitemtype_(avitmtp)
     , defitemtype_(defitmtp)
     , withio_(true)
     , singleuse_(false)
     , withtitles_(false)
+    , avtitle_(tr("Available [%1]"))
+    , deftitle_(tr("Defined [%1]"))
 {
     if ( avitemtype_.isEmpty() )
-	avitemtype_ = "ingredient";
+	avitemtype_ = tr("ingredient");
     if ( defitemtype_.isEmpty() )
-	defitemtype_ = "definition";
+	defitemtype_ = tr("definition");
     addtt_.append( uiStrings::sAdd() ).append(" ").append( defitemtype_ );
     edtt_.append( uiStrings::sEdit() ).append(" ").append( defitemtype_ );
     rmtt_.append( uiStrings::sRemove() ).append(" ").append( defitemtype_ );
-    avtitle_.add( "Available " ).add( avitemtype_ ).add( "s" );
-    deftitle_.add( "Defined " ).add( defitemtype_ ).add( "s" );
-    chckYPlural( avtitle_ ); chckYPlural( deftitle_ );
+    avtitle_.arg( avitemtype_ );
+    deftitle_.arg( defitemtype_ );
 }
 
 
@@ -159,7 +154,7 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     , savebut_(0)
     , movedownbut_(0)
 {
-    avfld_ = new uiListBox( this, setup_.avtitle_ );
+    avfld_ = new uiListBox( this, "Available" );
     avfld_->doubleClicked.notify( mCB(this,uiBuildListFromList,addCB) );
     if ( setup_.withtitles_ && !setup_.avtitle_.isEmpty() )
     {
@@ -171,7 +166,7 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
 	setup_.addtt_, mCB(this,uiBuildListFromList,addCB) );
     addbut->attach( centeredRightOf, avfld_ );
 
-    deffld_ = new uiListBox( this, setup_.deftitle_ );
+    deffld_ = new uiListBox( this, "Defined" );
     deffld_->attach( rightTo, avfld_ );
     deffld_->attach( ensureRightOf, addbut );
     deffld_->selectionChanged.notify( mCB(this,uiBuildListFromList,defSelCB) );
@@ -216,6 +211,13 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
 }
 
 
+void uiBuildListFromList::setAvailable( const uiStringSet& avnms )
+{
+    avfld_->setEmpty();
+    avfld_->addItems( avnms );
+}
+
+
 void uiBuildListFromList::setAvailable( const BufferStringSet& avnms )
 {
     avfld_->setEmpty();
@@ -249,8 +251,7 @@ void uiBuildListFromList::rmItm( int itmidx, bool dosignals )
     if ( itmidx < 0 || itmidx >= deffld_->size() )
 	return;
     if ( setup_.singleuse_ )
-	avfld_->insertItem(
-		toUiString(avFromDef(deffld_->itemText(itmidx))), 0 );
+	avfld_->insertItem( avFromDef(deffld_->itemText(itmidx)), 0 );
 
     deffld_->removeItem( itmidx );
     usrchg_ = true;
@@ -332,18 +333,20 @@ void uiBuildListFromList::saveCB( CallBacker* )
 void uiBuildListFromList::moveCB( CallBacker* cb )
 {
     const int sz = deffld_->size();
-    if ( sz < 2 ) return;
+    if ( sz < 2 )
+	return;
 
     const int fromidx = deffld_->currentItem();
     const int toidx = cb == movedownbut_ ? fromidx + 1 : fromidx - 1;
-    if ( toidx < 0 || toidx >= sz ) return;
+    if ( toidx < 0 || toidx >= sz )
+	return;
 
-    const char* fromtxt( deffld_->itemText(fromidx) );
-    const char* totxt( deffld_->itemText(toidx) );
-    deffld_->setItemText( fromidx, toUiString(totxt) );
-    deffld_->setItemText( toidx, toUiString(fromtxt) );
+    const uiString fromtxt( deffld_->textOfItem(fromidx) );
+    const uiString totxt( deffld_->textOfItem(toidx) );
+    deffld_->setItemText( fromidx, totxt );
+    deffld_->setItemText( toidx, fromtxt );
 
-    itemSwitch( fromtxt, totxt );
+    itemSwitch( fromidx, toidx );
 }
 
 
@@ -354,10 +357,13 @@ uiToolButton* uiBuildListFromList::lowestStdBut()
 }
 
 
-const char* uiBuildListFromList::curAvSel() const
+const uiString* uiBuildListFromList::curAvSel() const
 {
     const int itmidx = avfld_->currentItem();
-    return itmidx < 0 ? 0 : avfld_->itemText(itmidx);
+    if ( itmidx < 0 )
+	return 0;
+    avret_ = avfld_->textOfItem( itmidx );
+    return &avret_;
 }
 
 

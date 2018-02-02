@@ -45,7 +45,7 @@ static const char* extstrs2d[] =
 	0
 };
 
-mInitAttribUI(uiSemblanceAttrib,Semblance,"Semblance",sKeyBasicGrp())
+mInitAttribUI(uiSemblanceAttrib,Semblance,tr("Semblance"),sBasicGrp())
 
 
 uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )

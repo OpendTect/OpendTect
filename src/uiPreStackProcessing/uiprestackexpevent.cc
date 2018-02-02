@@ -91,8 +91,8 @@ bool uiEventExport::acceptOK()
 	return false;
     }
 
-    uiString msg = tr( "PreStack Event successfully exported"
-		      "\n\nDo you want to export more PreStack Events?" );
+    uiString msg = tr( "Prestack Event successfully exported"
+		      "\n\nDo you want to export more Prestack Events?" );
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

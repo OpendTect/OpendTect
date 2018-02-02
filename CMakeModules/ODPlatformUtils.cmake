@@ -247,3 +247,9 @@ if ( WIN32 )
 else()
     add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
 endif()
+
+#Remote file selection development was started, but priorities have shifted
+option( OD_SUPPORT_REMOTE_FILE_SELECTION "Support remote file selection (unfinished)" OFF )
+if ( OD_SUPPORT_REMOTE_FILE_SELECTION STREQUAL "ON" )
+    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_REMOTE_FILESEL_UI" )
+endif()

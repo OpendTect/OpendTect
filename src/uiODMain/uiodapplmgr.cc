@@ -211,7 +211,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 		"its database before using it in newer versions of OpendTect." )
 		.arg(DBM().surveyName()) );
 	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
-			     uiStrings::sExitOD() ) )
+			     uiStrings::phrExitOD() ) )
 	    return false;
 
 	ExitProgram( 0 );
@@ -229,7 +229,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 
 	const int res = uiMSG().question( msg, tr("Convert now"),
 					  tr("Select another survey"),
-					  uiStrings::sExitOD() );
+					  uiStrings::phrExitOD() );
 	if ( res < 0 )
 	    ExitProgram( 0 );
 
@@ -279,7 +279,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 
     const int res = uiMSG().question( msg, tr("Convert now"),
 					   tr("Do it later"),
-					   uiStrings::sExitOD() );
+					   uiStrings::phrExitOD() );
     if ( res < 0 )
 	ExitProgram( 0 );
 
@@ -309,12 +309,12 @@ void uiODApplMgr::handleSIPImport()
 {
     IOPar iop;
     SI().getFreshSetupData( iop );
-    uiString sipnm;
+    BufferString sipnm;
     iop.get( uiSurvInfoProvider::sKeySIPName(), sipnm );
     if ( sipnm.isEmpty() )
 	return;
 
-    uiSurvInfoProvider* sip = uiSurveyInfoEditor::getInfoProviderByName(sipnm);
+    uiSurvInfoProvider* sip = uiSurvInfoProvider::getByName( sipnm );
     if ( !sip )
 	{ pErrMsg("Cannot find SIP"); return; }
 
@@ -553,9 +553,8 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
     const DBKey hormid = DBKey::getFromString(
 			    transform->fromZDomainInfo().getID() );
     PtrMan<IOObj> ioobj = DBM().get( hormid );
-    const BufferString hornm = ioobj
-		? ioobj->name().buf()
-		: transform->factoryDisplayName().getFullString();
+    const BufferString hornm = ioobj ? BufferString(ioobj->name())
+		: toString( transform->factoryDisplayName() );
     uiString scenenm = tr( "Flattened on '%1'").arg( hornm );
     sceneMgr().tile();
     sceneMgr().addScene( true, transform, scenenm );
@@ -1882,7 +1881,7 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
     visserv_->findObject( emid, ids );
 
     for ( int idx=0; idx<ids.size(); idx++ )
-	visserv_->setObjectName( ids[idx], toUiString(DBM().nameOf(emid)) );
+	visserv_->setObjectName( ids[idx], DBM().nameOf(emid) );
 
     mpeserv_->saveSetup( emid );
     sceneMgr().updateTrees();

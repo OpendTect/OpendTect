@@ -12,13 +12,14 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "envvars.h"
+#include "geometry.h"
 #include "keystrs.h"
 #include "od_iostream.h"
 #include "odmemory.h"
 #include "staticstring.h"
 #include "ptrman.h"
 #include "refcount.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 #include "typeset.h"
 #include "uistrings.h"
 
@@ -38,7 +39,7 @@ ________________________________________________________________________
 
 #else
 
-static char* getNewDebugStr( char* strvar, const OD::String& newstr )
+static char* getNewDebugStr( char* strvar, const BufferString& newstr )
 {
     delete [] strvar;
     const od_int64 newsz = newstr.size();
@@ -62,14 +63,15 @@ class uiStringData : public RefCount::Referenced
 {
   friend class uiString;
 public:
+
     uiStringData( const char* originalstring, const char* context,
-		  const char* application,
+		  const char* packagekey,
 		  const char* disambiguation, int pluralnr )
 	: originalstring_( originalstring )
 	, translationcontext_( context )
 	, translationpluralnumber_( pluralnr )
 	, translationdisambiguation_( disambiguation )
-	, application_( application )
+	, packagekey_( packagekey )
 	, contentlock_( true )
 	, changecount_( mForceUpdate )
 	, tolower_( false )
@@ -84,15 +86,15 @@ public:
 	translationpluralnumber_ = d.translationpluralnumber_;
 	translationdisambiguation_ = d.translationdisambiguation_;
 	arguments_ = d.arguments_;
-	application_ = d.application_;
+	packagekey_ = d.packagekey_;
 	changecount_ = mForceUpdate;
 	tolower_ = d.tolower_;
     }
 
-    void addLegacyVersion( const uiString& legacy )
+    void addAlternateVersion( const uiString& altstr )
     {
 	Threads::Locker contentlocker( contentlock_ );
-        legacyversions_.add( legacy );
+        alternateversions_.add( altstr );
 	changecount_ = mForceUpdate;
     }
 
@@ -105,7 +107,7 @@ public:
 #endif
     }
 
-    void getFullString( BufferString& ) const;
+    void getFullString(BufferString&) const;
 
     void set(const char* orig);
     bool fillQString(QString&,const QTranslator* translator,
@@ -120,9 +122,9 @@ public:
 #endif
 
     BufferString		originalstring_;
-    uiStringSet			legacyversions_;
+    uiStringSet			alternateversions_;
     BufferString		translationcontext_;
-    const char*			application_;
+    const char*			packagekey_;
     const char*			translationdisambiguation_;
     int				translationpluralnumber_;
     bool			tolower_;
@@ -136,9 +138,9 @@ void uiStringData::set( const char* orig )
     Threads::Locker contentlocker( contentlock_ );
     originalstring_ = orig;
     arguments_.setEmpty();
-    legacyversions_.setEmpty();
+    alternateversions_.setEmpty();
     translationcontext_.setEmpty();
-    application_ = 0;
+    packagekey_ = 0;
     translationdisambiguation_ = 0;
     translationpluralnumber_ = -1;
     changecount_ = mForceUpdate;
@@ -196,7 +198,7 @@ bool uiStringData::fillQString( QString& res,
     const QTranslator* usedtrans = translator;
 
     if ( !notranslation && !usedtrans )
-	usedtrans = TrMgr().getQTranslator( application_ );
+	usedtrans = TrMgr().getQTranslator( packagekey_ );
 
     if ( !notranslation && usedtrans && !translationcontext_.isEmpty() )
     {
@@ -207,17 +209,13 @@ bool uiStringData::fillQString( QString& res,
 	if ( res.size() && QString(originalstring_.buf())!=res )
             translationres = true;
 
-        if ( legacyversions_.size() && !translationres )
+        if ( !alternateversions_.isEmpty() && !translationres )
         {
-            for ( int idx=0; idx<legacyversions_.size(); idx++ )
+            for ( int idx=0; idx<alternateversions_.size(); idx++ )
             {
-                QString legacytrans;
-		if ( legacyversions_[idx].translate( *usedtrans, legacytrans) )
-                {
-                    res = legacytrans;
-                    translationres = true;
-                    break;
-                }
+                QString alttrans;
+		if ( alternateversions_[idx].translate(*usedtrans,alttrans) )
+		    { res = alttrans; translationres = true; break; }
             }
         }
 	mDefineStaticLocalObject(bool,dbgtransl,
@@ -250,7 +248,10 @@ bool uiStringData::fillQString( QString& res,
     {
 	QString thearg;
 	if ( notranslation )
-	    thearg = arguments_[idx].getFullString().buf();
+	{
+	    const BufferString str( arguments_[idx].getFullString() );
+	    thearg = str.buf();
+	}
 	else if ( translator )
 	    arguments_[idx].translate( *translator, thearg );
 	else
@@ -281,9 +282,9 @@ uiString::uiString()
 
 
 uiString::uiString( const char* originaltext, const char* context,
-		    const char* application,
+		    const char* packagekey,
 		    const char* disambiguation, int pluralnr )
-    : data_( new uiStringData(originaltext, context, application,
+    : data_( new uiStringData(originaltext, context, packagekey,
 			      disambiguation, pluralnr ))
     , datalock_( true )
     , debugstr_( 0 )
@@ -311,12 +312,12 @@ uiString::~uiString()
 }
 
 
-void uiString::addLegacyVersion( const uiString& legacy )
+void uiString::addAlternateVersion( const uiString& altstr )
 {
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
     mEnsureData;
-    data_->addLegacyVersion( legacy );
+    data_->addAlternateVersion( altstr );
 }
 
 
@@ -373,20 +374,16 @@ const char* uiString::getOriginalString() const
 }
 
 
-const OD::String& uiString::getFullString( BufferString* res ) const
+BufferString uiString::getFullString() const
 {
-    if ( !res )
-    {
-	mDeclStaticString( staticres );
-	res = &staticres;
-    }
 
     Threads::Locker datalocker( datalock_ );
     if ( !data_ )
-	res->setEmpty();
-    else
-	data_->getFullString( *res );
-    return *res;
+	return BufferString();
+
+    BufferString res;
+    data_->getFullString( res );
+    return res;
 }
 
 
@@ -579,8 +576,7 @@ bool uiString::isEqualTo( const uiString& oth ) const
     if ( data_ == oth.data_ )
 	return true;
 
-    const BufferString myfullstring = getFullString();
-    return myfullstring == oth.getFullString();
+    return getFullString() == oth.getFullString();
 }
 
 
@@ -651,7 +647,7 @@ uiString& uiString::arg( const uiString& newarg )
 }
 
 
-uiString& uiString::append( const uiString& txt, bool withnewline )
+uiString& uiString::appendPhrase( const uiString& txt, AppendType apptyp )
 {
     Threads::Locker datalocker( datalock_ );
     uiString self( *this );
@@ -662,25 +658,40 @@ uiString& uiString::append( const uiString& txt, bool withnewline )
     RefMan<uiStringData> tmpptr = data_;
     Threads::Locker contentlocker( tmpptr->contentlock_ );
 
+    if ( isEmpty() || txt.isEmpty() )
+	apptyp = BluntGlue;
 
-    if ( isEmpty() )
-	withnewline = false;
-
-    *this = toUiString( withnewline ? "%1\n%2" : "%1%2" )
-		.arg( self ).arg( txt );
+    const char* tplstr = 0;
+    switch ( apptyp )
+    {
+	case BluntGlue:		tplstr = "%1%2";	break;
+	case WithSpace:		tplstr = "%1 %2";	break;
+	case NewLine:		tplstr = "%1\n%2";	break;
+	case CloseLine:		tplstr = "%1. %2";	break;
+	case CloseAndNewLine:	tplstr = "%1.\n%2";	break;
+    }
+    *this = toUiString( tplstr ).arg( self ).arg( txt );
 
     mSetDBGStr;
     return *this;
 }
 
 
-uiString& uiString::append( const OD::String& a, bool withnewline )
-{ return append( a.str(), withnewline ); }
-
-
-uiString& uiString::append( const char* newarg, bool withnewline )
+uiString& uiString::appendPhrases( const uiStringSet& strs, AppendType apptyp )
 {
-    return append( toUiString(newarg), withnewline );
+    return appendPhrase( strs.cat(apptyp), apptyp );
+}
+
+
+uiString& uiString::appendPlainText( const OD::String& a, AppendType apptyp )
+{
+    return appendPlainText( a.str(), apptyp );
+}
+
+
+uiString& uiString::appendPlainText( const char* newarg, AppendType apptyp )
+{
+    return appendPhrase( toUiString(newarg), apptyp );
 }
 
 
@@ -853,6 +864,12 @@ uiString toUiString( float v, int prec )
 uiString toUiString( double v, int prec )
 { return toUiStringWithPrecisionImpl<double,double>( v, prec ); }
 
+uiString toUiString( const Coord& c )
+{
+    return toUiString( "(%1,%2)" ).arg( mRounded(od_int64,c.x_) )
+				  .arg( mRounded(od_int64,c.y_) );
+}
+
 
 uiString od_static_tr( const char* func, const char* text,
 		       const char* disambiguation, int pluralnr )
@@ -864,7 +881,7 @@ uiString od_static_tr( const char* func, const char* text,
 }
 
 
-uiString getUiYesNoString( bool res )
+uiWord getUiYesNoWord( bool res )
 {
     return res ? uiStrings::sYes() : uiStrings::sNo();
 }
@@ -873,35 +890,6 @@ uiString getUiYesNoString( bool res )
 int uiString::size() const
 {
     return getQString().size();
-}
-
-
-uiString& uiString::addSpace( int nr )
-{
-    uiString spaces;
-    for( int i=0; i<nr; i++ )
-	spaces.append( toUiString(" ") );
-
-    return (*this).append( spaces );
-}
-
-
-uiString& uiString::addTab( int nr )
-{
-    uiString tabs;
-    for( int i=0; i<nr; i++ )
-	tabs.append( toUiString("\t") );
-
-    return append( tabs );
-}
-
-uiString& uiString::addNewLine( int nr )
-{
-    uiString newline;
-    for( int i=0; i<nr; i++)
-	newline.append( toUiString("\n") );
-
-    return append( newline );
 }
 
 
@@ -1014,18 +1002,24 @@ void uiStringSet::fill( QStringList& qlist ) const
 }
 
 
-
-uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
-					  bool usenl ) const
+uiStringSet uiStringSet::getNonEmpty() const
 {
-    uiStringSet usestrs;
+    uiStringSet ret;
     for ( IdxType idx=0; idx<size(); idx++ )
     {
 	const uiString& str = *strs_[idx];
 	if ( !str.isEmpty() )
-	    usestrs.add( str );
+	    ret.add( str );
     }
+    return ret;
+}
 
+
+
+uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
+					  bool separate_lines ) const
+{
+    const uiStringSet usestrs( getNonEmpty() );
     const size_type sz = usestrs.size();
     if ( sz < 1 )
 	return uiString::emptyString();
@@ -1034,55 +1028,42 @@ uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
     if ( sz < 2 || maxnr == 1 )
 	return result;
 
-    const char* sepstr = usenl ? "\n" : " ";
     const uiString and_or_or = use_and ? uiStrings::sAnd() : uiStrings::sOr();
+    const uiString::AppendType apptyp = separate_lines	? uiString::NewLine
+							: uiString::WithSpace;
 
-    if ( sz == 2 )
-    {
-	result.append( sepstr ).append( and_or_or ).append( " " )
-	      .append( usestrs[1] );
-	return result;
-    }
+    if ( maxnr < 1 || maxnr > sz )
+	maxnr = sz;
 
-    for ( IdxType idx=1; idx<sz; idx++ )
+    const uiString possiblecomma = separate_lines ? uiString::emptyString()
+						  : toUiString( "," );
+    for ( IdxType idx=1; idx<maxnr; idx++ )
     {
-	const uiString& str = usestrs[idx];
-	if ( idx == maxnr )
-	{
-	    result.append( "," ).append( sepstr ).append( "..." );
-	    return result;
-	}
+	if ( idx < sz-1 )
+	    result.appendPhrase( possiblecomma, uiString::BluntGlue );
 	else
-	{
-	    if ( idx == sz-1 )
-	    {
-		result.append( "," ).append( sepstr ).append( and_or_or )
-			.append( " " ).append( str );
-		return result;
-	    }
-	    result.append( "," ).append( sepstr ).append( str );
-	}
+	    result.appendPhrase( and_or_or, uiString::WithSpace );
+	result.appendPhrase( usestrs.get(idx), apptyp );
     }
 
-    pErrMsg( "Should not reach" );
+    if ( sz > maxnr )
+	result.appendPhrase( and_or_or, apptyp )
+	      .appendPhrase( toUiString( "..." ), uiString::WithSpace );
+
     return result;
 }
 
 
-uiString uiStringSet::cat( const char* sepstr ) const
+uiString uiStringSet::cat( uiString::AppendType apptyp ) const
 {
     uiString result;
     for ( IdxType idx=0; idx<size(); idx++ )
-    {
-	if (idx)
-	    result.append( sepstr );
-	result.append( *strs_[idx] );
-    }
+	result.appendPhrase( *strs_[idx], apptyp );
     return result;
 }
 
 
-void uiStringSet::sort( const bool caseinsens,bool asc )
+void uiStringSet::sort( const bool caseinsens, bool asc )
 {
     size_type* idxs = getSortIndexes( caseinsens, asc );
     useIndexes( idxs );
@@ -1153,35 +1134,49 @@ UserNameString& UserNameString::join( const uiString& s, bool before )
 
 const uiRetVal uiRetVal::ok_;
 
-uiRetVal::uiRetVal( const uiString& str )
-{ msgs_.add( str ); }
-
-uiRetVal::uiRetVal( const uiStringSet& strs )
-    : msgs_(strs)
-{}
-
-uiRetVal::uiRetVal( const uiRetVal& oth )
-    : msgs_(oth.msgs_)
-{}
-
-uiRetVal& uiRetVal::operator =( const uiRetVal& oth )
-{ return set( oth ); }
-
-uiRetVal& uiRetVal::operator =( const uiString& str )
-{ return set( str ); }
-
-uiRetVal& uiRetVal::operator =( const uiStringSet& strs )
-{ return set( strs ); }
-
-
-uiRetVal::operator uiString() const
+uiRetVal::uiRetVal( const uiPhrase& str )
 {
-    Threads::Locker locker( lock_ );
-    return msgs_.isEmpty() ? uiString::emptyString() : msgs_.cat();
+    msgs_.add( str );
 }
 
 
-uiRetVal::operator uiStringSet() const
+uiRetVal::uiRetVal( const uiPhraseSet& strs )
+    : msgs_(strs)
+{
+}
+
+
+uiRetVal::uiRetVal( const uiRetVal& oth )
+    : msgs_(oth.msgs_)
+{
+}
+
+uiRetVal& uiRetVal::operator =( const uiRetVal& oth )
+{
+    return set( oth );
+}
+
+
+uiRetVal& uiRetVal::operator =( const uiPhrase& str )
+{
+    return set( str );
+}
+
+
+uiRetVal& uiRetVal::operator =( const uiPhraseSet& strs )
+{
+    return set( strs );
+}
+
+
+uiRetVal::operator uiPhrase() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_.isEmpty() ? uiPhrase::emptyString() : msgs_.cat();
+}
+
+
+uiRetVal::operator uiPhraseSet() const
 {
     Threads::Locker locker( lock_ );
     return msgs_;
@@ -1202,14 +1197,14 @@ bool uiRetVal::isMultiMessage() const
 }
 
 
-uiStringSet uiRetVal::messages() const
+uiPhraseSet uiRetVal::messages() const
 {
     Threads::Locker locker( lock_ );
     return msgs_;
 }
 
 
-bool uiRetVal::isSingleWord( const uiString& str ) const
+bool uiRetVal::isSingleWord( const uiWord& str ) const
 {
     Threads::Locker locker( lock_ );
     return msgs_.size() == 1 && msgs_[0].isEqualTo( str );
@@ -1227,7 +1222,7 @@ uiRetVal& uiRetVal::set( const uiRetVal& oth )
 }
 
 
-uiRetVal& uiRetVal::set( const uiString& str )
+uiRetVal& uiRetVal::set( const uiPhrase& str )
 {
     Threads::Locker locker( lock_ );
     msgs_.setEmpty();
@@ -1236,7 +1231,7 @@ uiRetVal& uiRetVal::set( const uiString& str )
 }
 
 
-uiRetVal& uiRetVal::set( const uiStringSet& strs )
+uiRetVal& uiRetVal::set( const uiPhraseSet& strs )
 {
     Threads::Locker locker( lock_ );
     msgs_ = strs;
@@ -1252,7 +1247,7 @@ uiRetVal& uiRetVal::setEmpty()
 }
 
 
-uiRetVal& uiRetVal::insert( const uiString& str )
+uiRetVal& uiRetVal::insert( const uiPhrase& str )
 {
     Threads::Locker locker( lock_ );
     msgs_.insert( 0, str );
@@ -1271,7 +1266,7 @@ uiRetVal& uiRetVal::add( const uiRetVal& oth )
 }
 
 
-uiRetVal& uiRetVal::add( const uiString& str )
+uiRetVal& uiRetVal::add( const uiPhrase& str )
 {
     if ( !str.isEmpty() )
     {
@@ -1282,7 +1277,18 @@ uiRetVal& uiRetVal::add( const uiString& str )
 }
 
 
-uiRetVal& uiRetVal::add( const uiStringSet& strs )
+uiRetVal& uiRetVal::setAsStatus( const uiWord& word )
+{
+    if ( !word.isEmpty() )
+    {
+	Threads::Locker locker( lock_ );
+	msgs_.add( word );
+    }
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::add( const uiPhraseSet& strs )
 {
     for ( int idx=0; idx<strs.size(); idx++ )
 	add( strs[idx] );
@@ -1301,7 +1307,7 @@ BufferString uiRetVal::getText() const
 	uistr = msgs_.cat();
     }
 
-    return BufferString( uistr.getFullString() );
+    return toString( uistr );
 }
 
 

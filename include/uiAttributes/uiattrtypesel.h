@@ -11,54 +11,50 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uigroup.h"
-#include "bufstringset.h"
 
 class uiComboBox;
 
-/*!\brief Selector for attribute type
-
-  Note that every attribute belongs to a group, but the usage of that
-  is not mandatory.
-
-  */
+/*!\brief Selector for attribute type. */
 
 mExpClass(uiAttributes) uiAttrTypeSel : public uiGroup
-{
+{ mODTextTranslationClass(uiAttrTypeSel)
 public:
 				uiAttrTypeSel(uiParent*,bool sorted=true);
 				~uiAttrTypeSel();
-    void			fill(BufferStringSet* selgrps=0);
+    void			fill(uiStringSet* selgroups=0);
 						//!< with factory entries
 
-    const char*			group() const;
-    const char*			attr() const;
-    void			setGrp(const char*);
-    void			setAttr(const char*);
+    uiString			groupName() const;
+    uiString			attributeDisplayName() const;
+    const char*			attributeName() const;
+    void			setGroupName(const uiString&);
+    void			setAttributeName(const char*);
+    void			setAttributeDisplayName(const uiString&);
 
     Notifier<uiAttrTypeSel>	selChg;
 
-    void			add(const char* grp,const char* attr);
+    void			add(const uiString& group,const uiString& attr);
     void			update();	//!< after a number of add()'s
     void			setEmpty();
 
-    static const char*		sKeyAllGrp;
+    static uiString		sAllGroup();
 
 protected:
 
-    uiComboBox*			grpfld_;
+    uiComboBox*			groupfld_;
     uiComboBox*			attrfld_;
 
-    BufferStringSet		grpnms_;
-    BufferStringSet		attrnms_;
-    TypeSet<int>		attrgroups_;
-    int*			idxs_;
+    uiStringSet			groupnms_;
+    uiStringSet			attrnms_;
+    TypeSet<int>		groupidxs_;
     bool			sorted_;
+    int*			sortidxs_;
 
-    void			grpSel(CallBacker*);
+    void			groupSel(CallBacker*);
     void			attrSel(CallBacker*);
-    int				curGrpIdx() const;
-    void			updAttrNms(const char* s=0);
-    bool			isPrefAttrib(int,const char*) const;
+    int				curGroupIdx() const;
+    void			updAttrNms(const uiString* s=0);
+    bool			isGroupDef(const uiString&) const;
 
     void			clear();
 };

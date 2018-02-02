@@ -29,9 +29,9 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
 				    const Strat::LayerModel& lm,
 				    uiStratLaySeqAttribSetBuild::SetTypeSel sts,
 				    Strat::LaySeqAttribSet* as )
-    : uiBuildListFromList(p,
-		  uiBuildListFromList::Setup(false,"property","attribute"),
-		  "Layer Sequence Attrib Set build group")
+    : uiBuildListFromList(p, uiBuildListFromList::Setup(false,
+	uiStrings::sProperty().toLower(), uiStrings::sAttribute().toLower()),
+			    "Layer Sequence Attrib Set build group")
     , attrset_(as ? *as : *new Strat::LaySeqAttribSet)
     , reftree_(lm.refTree())
     , ctio_(*mMkCtxtIOObj(StratLayerSequenceAttribSet))
@@ -39,11 +39,11 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
     , setismine_(!as)
     , anychg_(false)
 {
-    BufferStringSet dispnms;
+    uiStringSet dispnms;
     for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
     {
 	const PropertyRef* pr = lm.propertyRefs()[idx];
-	dispnms.add( pr->name() );
+	dispnms.add( toUiString(pr->name()) );
 	props_ += pr;
     }
 
@@ -76,39 +76,52 @@ bool uiStratLaySeqAttribSetBuild::handleUnsaved()
 	                                "Do you want to save it now?"),
                                      tr("Yes (store)"), tr("No (discard)"),
                                         uiStrings::sCancel() );
-    if ( res == 0 ) return true;
-    if ( res == -1 ) return false;
 
-    return ioReq(true);
+    return res < 1 ? res == 0 : ioReq( true );
 }
 
 
-const char* uiStratLaySeqAttribSetBuild::avFromDef( const char* attrnm ) const
+uiString uiStratLaySeqAttribSetBuild::avFromDef( const char* attrnm ) const
 {
     const Strat::LaySeqAttrib* attr = attrset_.attr( attrnm );
-    if ( !attr ) return 0;
-    return attr->prop_.name();
+    if ( !attr )
+	return uiString::emptyString();
+    return toUiString( attr->prop_.name() );
 }
 
 
 void uiStratLaySeqAttribSetBuild::editReq( bool isadd )
 {
-    const char* nm = isadd ? curAvSel() : curDefSel();
-    if ( !nm || !*nm ) return;
+    uiString propnm; const char* attrnm = 0;
+    if ( isadd )
+    {
+	const uiString* curavsel = curAvSel();
+	if ( !curavsel || curavsel->isEmpty() )
+	    return;
+	propnm = *curavsel;
+    }
+    else
+    {
+	attrnm = curDefSel();
+	if ( !attrnm || !*attrnm )
+	    return;
+    }
 
     Strat::LaySeqAttrib* attr = 0;
     if ( !isadd )
-	attr = attrset_.attr( nm );
+	attr = attrset_.attr( attrnm );
     else
     {
-	const PropertyRef* prop = props_.getByName( nm );
-	if ( !prop ) return;
+	const PropertyRef* prop = props_.getByName( toString(propnm) );
+	if ( !prop )
+	    { pErrMsg("Huh"); return; }
 	attr = new Strat::LaySeqAttrib( attrset_, *prop );
 	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
 	    attr->liths_.add( reftree_.lithologies().getLith(idx).name() );
 	attrset_ += attr;
     }
-    if ( !attr ) { pErrMsg("Huh"); return; }
+    if ( !attr )
+	{ pErrMsg("Huh"); return; }
 
     uiLaySeqAttribEd::Setup su( isadd );
     su.allowlocal( typesel_ != OnlyIntegrated );

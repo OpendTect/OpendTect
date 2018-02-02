@@ -34,7 +34,7 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 
     uiButtonGroup* grp = new uiButtonGroup( this, "Tools", OD::Vertical );
     grp->attach( rightTo, box() );
-    new uiToolButton( grp, "addnew", uiStrings::phrCreate(uiStrings::sNew()),
+    new uiToolButton( grp, "create", uiStrings::phrCreate(uiStrings::sNew()),
 		      mCB(this,uiStratLvlList,addCB) );
     new uiToolButton( grp, "edit", uiStrings::sEdit(),
                       mCB(this,uiStratLvlList,editCB) );

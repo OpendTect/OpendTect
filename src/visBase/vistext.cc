@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "oddirs.h"
 #include "filepath.h"
-#include "texttranslator.h"
+#include "texttranslation.h"
 
 
 #include <osgGeo/Text>
@@ -173,10 +173,10 @@ int Text::getJustification() const
 
 void Text::setCharacterSizeMode( CharacterSizeMode mode )
 {
-    const osgText::TextBase::CharacterSizeMode osgmode =  
+    const osgText::TextBase::CharacterSizeMode osgmode =
 	( osgText::TextBase::CharacterSizeMode ) mode;
 
-    const osgText::TextBase::CharacterSizeMode oldosgmode =  
+    const osgText::TextBase::CharacterSizeMode oldosgmode =
 	osgtext_->getCharacterSizeMode();
 
     osgtext_->setCharacterSizeMode( osgmode );
@@ -184,10 +184,10 @@ void Text::setCharacterSizeMode( CharacterSizeMode mode )
     if ( osgmode == oldosgmode )
 	return;
 
-    if ( osgmode == osgText::TextBase::OBJECT_COORDS && 
+    if ( osgmode == osgText::TextBase::OBJECT_COORDS &&
 	oldosgmode == osgText::TextBase::SCREEN_COORDS )
     {
-	osgtext_->setCharacterSize( 
+	osgtext_->setCharacterSize(
 	    osgtext_->getCharacterHeight()*cObjectSizeToScreenSizeFactor );
     }
     else if( osgmode == osgText::TextBase::SCREEN_COORDS &&
@@ -347,7 +347,7 @@ void Text2::setPixelDensity( float dpi )
 	texts_[idx]->updateFontSize( pixeldensity_ );
 }
 
-    
+
 void Text2::translationChangeCB(CallBacker *)
 {
     for ( int idx=0; idx<texts_.size(); idx++ )

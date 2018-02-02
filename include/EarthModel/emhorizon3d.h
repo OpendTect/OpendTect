@@ -134,10 +134,6 @@ public:
     Horizon3DGeometry&		geometry();
     const Horizon3DGeometry&	geometry() const;
 
-    virtual void		setArray(const SectionID&,const BinID& start,
-					 const BinID& step,Array2D<float>* arr,
-					 bool takeover);
-
     static Horizon3D*		createWithConstZ(float z,const TrcKeySampling&);
     Array2D<float>*		createArray2D(const ZAxisTransform* zt=0) const;
     bool			setArray2D(const Array2D<float>&,

@@ -233,7 +233,6 @@ EMObject* MarchingCubesSurface::create( EMManager& emm ) \
     EMObject* obj = new MarchingCubesSurface("");
     if ( !obj ) return 0;
     obj->ref();
-    emm.addObject( obj );
     obj->unRefNoDelete();
     return obj;
 }

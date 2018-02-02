@@ -19,20 +19,20 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-const char* uiAttrTypeSel::sKeyAllGrp = "<All>";
+uiString uiAttrTypeSel::sAllGroup()   { return tr("<All>"); }
 
 
 uiAttrTypeSel::uiAttrTypeSel( uiParent* p, bool sorted )
     : uiGroup(p,"Attribute type selector")
     , sorted_(sorted)
-    , idxs_(0)
+    , sortidxs_(0)
     , selChg(this)
 {
-    grpfld_ = new uiComboBox( this, "Attribute group" );
-    grpfld_->selectionChanged.notify( mCB(this,uiAttrTypeSel,grpSel) );
+    groupfld_ = new uiComboBox( this, "Attribute group" );
+    groupfld_->selectionChanged.notify( mCB(this,uiAttrTypeSel,groupSel) );
     attrfld_ = new uiComboBox( this, "Attribute type" );
     attrfld_->selectionChanged.notify( mCB(this,uiAttrTypeSel,attrSel) );
-    attrfld_->attach( rightOf, grpfld_ );
+    attrfld_->attach( rightOf, groupfld_ );
     attrfld_->setHSzPol( uiObject::Wide );
 
     setHAlignObj( attrfld_ );
@@ -48,22 +48,23 @@ uiAttrTypeSel::~uiAttrTypeSel()
 
 void uiAttrTypeSel::clear()
 {
-    grpnms_.erase(); grpnms_.add( sKeyAllGrp );
-    attrnms_.erase();
-    attrgroups_.erase();
-    delete [] idxs_; idxs_ = 0;
+    groupnms_.setEmpty(); attrnms_.setEmpty();
+    groupidxs_.erase();
+    delete [] sortidxs_; sortidxs_ = 0;
+
+    groupnms_.add( sAllGroup() );
 }
 
 
 void uiAttrTypeSel::setEmpty()
 {
     clear();
-    grpfld_->setEmpty();
+    groupfld_->setEmpty();
     attrfld_->setEmpty();
 }
 
 
-void uiAttrTypeSel::fill( BufferStringSet* selgrps )
+void uiAttrTypeSel::fill( uiStringSet* selgroups )
 {
     setEmpty();
     const int forbiddendomtyp = (int)(SI().zIsTime() ? uiAttrDescEd::Depth
@@ -71,131 +72,149 @@ void uiAttrTypeSel::fill( BufferStringSet* selgrps )
 
     for ( int iattr=0; iattr<uiAF().size(); iattr++ )
     {
-	const char* grpnm = uiAF().getGroupName( iattr );
+	const uiString groupnm = uiAF().getGroupName( iattr );
 	if ( uiAF().domainType(iattr) != forbiddendomtyp
-	  && (!selgrps || selgrps->isPresent(grpnm)) )
-	    add( grpnm, uiAF().getDisplayName(iattr) );
+	  && (!selgroups || selgroups->isPresent(groupnm)) )
+	    add( groupnm, uiAF().getDisplayName(iattr) );
     }
 
     update();
 }
 
 
-const char* uiAttrTypeSel::group() const
+uiString uiAttrTypeSel::groupName() const
 {
-    const int attridx = attrnms_.indexOf( attr() );
-    return grpnms_.get( attrgroups_[attridx] );
+    const int attridx = attrnms_.indexOf( attributeDisplayName() );
+    return groupnms_.get( groupidxs_[attridx] );
 }
 
 
-const char* uiAttrTypeSel::attr() const
+uiString uiAttrTypeSel::attributeDisplayName() const
 {
-    return attrfld_->text();
+    return attrfld_->uiText();
 }
 
 
-void uiAttrTypeSel::setGrp( const char* grp )
+const char* uiAttrTypeSel::attributeName() const
 {
-    if ( !grpnms_.isPresent(grp) ) return;
-    grpfld_->setText( grp );
+    return uiAF().attrNameOf( attributeDisplayName() );
+}
+
+
+void uiAttrTypeSel::setGroupName( const uiString& group )
+{
+    if ( !groupnms_.isPresent(group) )
+	return;
+    groupfld_->setText( group );
     updAttrNms();
 }
 
 
-void uiAttrTypeSel::setAttr( const char* attrnm )
+void uiAttrTypeSel::setAttributeName( const char* attrnm )
+{
+    if ( attrnm && *attrnm )
+	setAttributeDisplayName( uiAF().dispNameOf(attrnm) );
+}
+
+
+void uiAttrTypeSel::setAttributeDisplayName( const uiString& attrnm )
 {
     const int attridx = attrnms_.indexOf( attrnm );
     if ( attridx < 0 )
 	return;
 
-    int grpidx = attrgroups_[attridx];
-    int oldgrpitem = grpfld_->currentItem();
-    int oldgrpidx = idxs_ ? idxs_[oldgrpitem] : oldgrpitem;
-    if ( oldgrpitem == 0 || grpidx == oldgrpidx )
+    int groupidx = groupidxs_[attridx];
+    int oldgroupitem = groupfld_->currentItem();
+    int oldgroupidx = sortidxs_ ? sortidxs_[oldgroupitem] : oldgroupitem;
+    if ( oldgroupitem == 0 || groupidx == oldgroupidx )
 	attrfld_->setText( attrnm );
     else
     {
-	grpfld_->setText( grpnms_.get(grpidx) );
-	updAttrNms( attrnm );
+	groupfld_->setText( groupnms_.get(groupidx) );
+	updAttrNms( &attrnm );
     }
 }
 
 
-void uiAttrTypeSel::add( const char* grpnm, const char* attrnm )
+void uiAttrTypeSel::add( const uiString& gnm, const uiString& attrnm )
 {
-    if ( !attrnm || !*attrnm )	return;
-    if ( !grpnm || !*grpnm )	grpnm = sKeyAllGrp;
+    if ( attrnm.isEmpty() )
+	return;
 
-    int grpidx = grpnms_.indexOf( grpnm );
-    if ( grpidx < 0 )
+    const uiString groupnm( gnm.isEmpty() ? sAllGroup() : gnm );
+    int groupidx = groupnms_.indexOf( groupnm );
+    if ( groupidx < 0 )
     {
-	grpnms_.add( grpnm );
-	grpidx = grpnms_.size() - 1;
+	groupnms_.add( groupnm );
+	groupidx = groupnms_.size() - 1;
     }
 
     attrnms_.add( attrnm );
-    attrgroups_ += grpidx;
+    groupidxs_ += groupidx;
 }
 
 
 void uiAttrTypeSel::update()
 {
-    grpfld_->setEmpty(); attrfld_->setEmpty();
-    const int nrgrps = grpnms_.size();
+    groupfld_->setEmpty(); attrfld_->setEmpty();
+    const int nrgroups = groupnms_.size();
 
-    delete [] idxs_;
-    idxs_ = sorted_ ? grpnms_.getSortIndexes() : 0;
+    delete [] sortidxs_;
+    sortidxs_ = sorted_ ? groupnms_.getSortIndexes(true,true) : 0;
 
-    for ( int idx=0; idx<nrgrps; idx++ )
-	grpfld_->addItem( toUiString(grpnms_.get(idxs_ ? idxs_[idx] : idx)) );
+    for ( int idx=0; idx<nrgroups; idx++ )
+	groupfld_->addItem( groupnms_.get(sortidxs_ ? sortidxs_[idx] : idx) );
 
-    setGrp( sKeyAllGrp );
+    setGroupName( uiAttrDescEd::sBasicGrp() );
 }
 
 
-int uiAttrTypeSel::curGrpIdx() const
+int uiAttrTypeSel::curGroupIdx() const
 {
-    if ( grpnms_.size() < 1 )
+    if ( groupnms_.size() < 1 )
 	return -1;
 
-    const int grpitem = grpfld_->currentItem();
-    return idxs_ ? idxs_[grpitem] : grpitem;
+    const int groupitem = groupfld_->currentItem();
+    return sortidxs_ ? sortidxs_[groupitem] : groupitem;
 }
 
 
-void uiAttrTypeSel::updAttrNms( const char* selattrnm )
+void uiAttrTypeSel::updAttrNms( const uiString* selattrnm )
 {
-    BufferString curattrnm( selattrnm );
-    if ( !selattrnm || !*selattrnm )
-	curattrnm = attrfld_->text();
+    uiString curattrnm;
+    const bool haveselattrnm = selattrnm && !selattrnm->isEmpty();
+    if ( haveselattrnm )
+	curattrnm = *selattrnm;
+    else
+	curattrnm = attrfld_->uiText();
 
     attrfld_->setEmpty();
-    const int grpidx = curGrpIdx();
-    if ( grpidx < 0 )
+    const int groupidx = curGroupIdx();
+    if ( groupidx < 0 )
 	return;
 
-    BufferStringSet nms;
+    uiStringSet nms;
     for ( int idx=0; idx<attrnms_.size(); idx++ )
     {
-	if ( grpidx == 0 || attrgroups_[idx] == grpidx )
+	if ( groupidx == 0 || groupidxs_[idx] == groupidx )
 	    nms.add( attrnms_.get(idx) );
     }
 
-    nms.sort();
+    nms.sort( true, true );
     for ( int idx=0; idx<nms.size(); idx++ )
     {
-	const char* attrnm = nms.get(idx);
-	attrfld_->addItem( toUiString(attrnm) );
-	if ( (!selattrnm || !*selattrnm) && isPrefAttrib(grpidx,attrnm) )
+	uiString attrnm = nms.get( idx );
+	attrfld_->addItem( attrnm );
+	if ( !haveselattrnm && isGroupDef(attrnm) )
 	    curattrnm = attrnm;
     }
 
-    if ( curattrnm )
+    if ( !curattrnm.isEmpty() )
 	attrfld_->setText( curattrnm );
 }
 
 
-void uiAttrTypeSel::grpSel( CallBacker* )
+void uiAttrTypeSel::groupSel( CallBacker* )
 {
     updAttrNms();
     selChg.trigger();
@@ -208,28 +227,10 @@ void uiAttrTypeSel::attrSel( CallBacker* )
 }
 
 
-bool uiAttrTypeSel::isPrefAttrib( int grpidx, const char* anm ) const
+bool uiAttrTypeSel::isGroupDef( const uiString& anm ) const
 {
-    const char* grp = grpnms_.get( grpidx );
-
-    const FixedString grpnm( grp );
-    const FixedString attrnm( anm );
-    if ( *grpnm == '<' )
-	return attrnm == "Similarity";
-    else if ( grpnm == "Basic" )
-	return attrnm == "Scaling";
-    else if ( grpnm == "Filters" )
-	return attrnm == "Frequency Filter";
-    else if ( grpnm == "Frequency" )
-	return attrnm == "Spectral Decomp";
-    else if ( grpnm == "Patterns" )
-	return attrnm == "FingerPrint";
-    else if ( grpnm == "Positions" )
-	return attrnm == "Position";
-    else if ( grpnm == "Statistics" )
-	return attrnm == "Volume Statistics";
-    else if ( grpnm == "Trace match" )
-	return attrnm == "Match delta";
-
-    return false;
+    uiString grp4query = anm;
+    if ( grp4query.isEqualTo(sAllGroup()) )
+	grp4query = uiAttrDescEd::sBasicGrp();
+    return uiAF().isGroupDef( uiAF().indexOf(grp4query) );
 }

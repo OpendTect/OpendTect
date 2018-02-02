@@ -251,10 +251,7 @@ public:
     void		checkAll(bool yn,bool trigger=false);
 
     void		setToolTip(int column,const uiString&);
-
     void		translateText();
-
-    static void		updateToolTips();
 
     void		insertItem(int,uiTreeViewItem*);
     void		takeItem(uiTreeViewItem*);
@@ -348,6 +345,11 @@ protected:
     bool			ischeckable_;
     bool			isenabled_;
     bool			checked_;
+
+public:
+
+    static void		updateAllToolTips();
+
 };
 
 

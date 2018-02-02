@@ -285,7 +285,7 @@ Seis::Loader::Loader( const IOObj& ioobj, const TrcKeyZSampling* tkzs,
 	const BufferString linenm(
 			    Survey::GM().getName(tkzs_.hsamp_.getGeomID()) );
 	if ( !linenm.isEmpty() )
-	    msg_.append( tr("|%1" ).arg( linenm.str() ) );
+	    msg_.constructWord( tr("|%1" ).arg( linenm.str() ) );
     }
 }
 
@@ -952,7 +952,7 @@ bool Seis::SequentialFSLoader::init()
     {
 	const BufferString linenm( Survey::GM().getName(geomid) );
 	if ( !linenm.isEmpty() )
-	    msg_.append( tr("|%1" ).arg( linenm.str() ) );
+	    msg_.constructWord( tr("|%1" ).arg( linenm.str() ) );
     }
 
     return true;
@@ -979,7 +979,7 @@ bool Seis::SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 	 !addComponents(*dp_,*ioobj_,components_,msg_) )
     {
 	if ( extstrm )
-	    *extstrm << msg_.getFullString() << od_endl;
+	    *extstrm << toString(msg_) << od_endl;
 
 	return false;
     }

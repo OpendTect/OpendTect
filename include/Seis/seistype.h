@@ -28,11 +28,11 @@ namespace Seis
 
     enum ReadMode		{ PreScan, Scan, Prod };
 
-    enum GeomType		{ Vol, VolPS, Line, LinePS };
+    enum GeomType		{ Line, LinePS, Vol, VolPS };
     mGlobal(Seis) inline bool	is2D( GeomType gt )
-				{ return gt > VolPS; }
+				{ return gt < Vol; }
     mGlobal(Seis) inline bool	is3D( GeomType gt )
-				{ return gt < Line; }
+				{ return gt > LinePS; }
     mGlobal(Seis) inline bool	isPS( GeomType gt )
 				{ return gt == VolPS || gt == LinePS; }
     mGlobal(Seis) inline int	dimSize( GeomType gt )

@@ -11,7 +11,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "bufstringset.h"
+#include "bufstring.h"
+#include "uistring.h"
 
 class uiAttrDescEd;
 class uiParent;
@@ -24,67 +25,79 @@ typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*,bool);
 mExpClass(uiAttributes) uiAttributeFactory
 {
 public:
-    virtual		~uiAttributeFactory();
 
-    int			add(const char* displaynm,const char* attrnm,
-			    const char* grpnm,uiAttrDescEdCreateFunc,
-			    int,int,bool);
-    uiAttrDescEd*	create(uiParent*,const char* nm, bool,
-	    		       bool dispnm=true) const;
+    uiAttrDescEd*	create(uiParent*,const char* nm,bool) const;
+    uiAttrDescEd*	create(uiParent*,const uiString& nm,bool) const;
 
     int			size() const	{ return entries_.size(); }
-    const char*		getAttribName( int idx ) const
-					{ return entries_[idx]->attrnm_; }
-    const char*		getDisplayName( int idx ) const
-					{ return entries_[idx]->dispnm_; }
-    const char*		getGroupName( int idx ) const
-					{ return entries_[idx]->grpnm_; }
-    int			domainType( int idx ) const
-					{ return entries_[idx]->domtyp_; }
-    				//!< Is, in fact, uiAttrDescEd::DomainType
-    				//!< Not used to avoid dependency
-    int			dimensionType( int idx ) const
-					{ return entries_[idx]->dimtyp_; }
-    				//!< Is, in fact, uiAttrDescEd::DimensionType
-    				//!< Not used to avoid dependency
-    bool		isSyntheticSupported(int idx) const
-				    { return entries_[idx]->supportsynthetic_; }
+    const char*		getAttribName(int) const;
+    const uiString&	getDisplayName(int) const;
+    const uiString&	getGroupName(int) const;
+    int			domainType(int) const;
+				//!< Is, in fact, uiAttrDescEd::DomainType
+				//!< Not used to avoid dependency
+    int			dimensionType(int) const;
+				//!< Is, in fact, uiAttrDescEd::DimensionType
+				//!< Not used to avoid dependency
+    bool		isSyntheticSupported(int) const;
+    bool		isGroupDef(int) const;
 
-    const char*		dispNameOf(const char*) const;
-    const char*		attrNameOf(const char*) const;
-    bool		isPresent(const char*,bool dispnm) const;
+    const uiString&	dispNameOf(const char*) const;
+    const char*		attrNameOf(const uiString&) const;
+
+    int			indexOf(const char* nm) const;
+    int			indexOf(const uiString& nm) const;
+    inline bool		isPresent( const char* nm ) const
+			{ return indexOf(nm) >= 0; }
+    inline bool		isPresent( const uiString& nm ) const
+			{ return indexOf(nm) >= 0; }
 
 protected:
 
     struct Entry
     {
-				Entry(	const char* dn, const char* an,
-					const char* gn,
-					uiAttrDescEdCreateFunc fn,
-					int dt, int dimtyp, bool supsynth )
-				    : dispnm_(dn)
-				    , attrnm_(an)
-				    , grpnm_(gn)
-				    , domtyp_(dt)
-				    , dimtyp_(dimtyp)
-				    , supportsynthetic_(supsynth)
-				    , crfn_(fn)		{}
+			Entry(	const uiString& dn, const char* an,
+				const uiString& gn,
+				uiAttrDescEdCreateFunc fn,
+				int dt, int dimtyp, bool supsynth, bool grpdef )
+			    : dispnm_(dn)
+			    , attrnm_(an)
+			    , grpnm_(gn)
+			    , domtyp_(dt)
+			    , dimtyp_(dimtyp)
+			    , supportsynthetic_(supsynth)
+			    , isgroupdef_(grpdef)
+			    , crfn_(fn)		{}
 
-	BufferString		dispnm_;
-	BufferString		attrnm_;
-	BufferString		grpnm_;
-	int			domtyp_;
-	int			dimtyp_;
-	bool			supportsynthetic_;
+	BufferString	attrnm_;
+	uiString	dispnm_;
+	uiString	grpnm_;
+	int		domtyp_;
+	int		dimtyp_;
+	bool		supportsynthetic_;
+	bool		isgroupdef_;
 	uiAttrDescEdCreateFunc	crfn_;
     };
 
     ObjectSet<Entry>	entries_;
 
-    Entry*		getEntry(const char*,bool) const;
+    Entry*		getEntry(const char*) const;
+    Entry*		getEntry(const uiString&) const;
 
     friend mGlobal(uiAttributes) uiAttributeFactory&	uiAF();
-    void			fillStd();
+    void		fillStd();
+
+public:
+
+    virtual		~uiAttributeFactory();
+
+    int			add(const uiString& displaynm,const char* attrnm,
+			    const uiString& grpnm,uiAttrDescEdCreateFunc,
+			    int,int,bool synth,bool isgrpdef);
+
+    inline bool		haveSteering() const
+			{ return isPresent( "Curvature" ); }
+
 };
 
 mGlobal(uiAttributes) uiAttributeFactory& uiAF();

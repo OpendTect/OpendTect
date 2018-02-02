@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uiodvolproctreeitem.h"
 #include "uiodseis2dtreeitem.h"
 #include "uiodrandlinetreeitem.h"
-#include "uiodvolrentreeitem.h"
+#include "uiodvolumetreeitem.h"
 #include "uiodstratlayermodelmgr.h"
 
 mDefModInitFn(uiODMain)
@@ -34,7 +34,7 @@ mDefModInitFn(uiODMain)
     uiODZsliceAttribTreeItem::initClass();
     uiOD2DLineAttribTreeItem::initClass();
     uiODRandomLineAttribTreeItem::initClass();
-    uiODVolrenAttribTreeItem::initClass();
+    uiODVolumeAttribTreeItem::initClass();
     uiODContourTreeItem::initClass();
     uiStratLayerModelManager::initClass();
 }

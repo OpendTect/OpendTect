@@ -19,7 +19,7 @@ class uiFileSel;
 class uiGenInput;
 class uiSurfaceRead;
 class uiUnitSel;
-class uiPushButton;
+class uiButton;
 class uiT2DConvSel;
 class write3DHorASCII;
 
@@ -39,7 +39,7 @@ protected:
     uiGenInput*		    headerfld_;
     uiGenInput*		    typfld_;
     uiGenInput*		    zfld_;
-    uiPushButton*	    settingsbutt_;
+    uiButton*		    settingsbutt_;
     uiUnitSel*		    unitsel_;
     uiGenInput*		    udffld_;
     uiT2DConvSel*	    transfld_;

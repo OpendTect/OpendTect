@@ -188,7 +188,7 @@ uiMdiAreaWindow* uiMdiArea::getWindow( const char* nm )
     const BufferString nmbufstr( nm );
     for ( int idx=0; idx<grps_.size(); idx++ )
     {
-	if ( !strcmp(nmbufstr.buf(),grps_[idx]->getTitle().getFullString()) )
+	if ( nmbufstr == toString(grps_[idx]->getTitle()) )
 	    return grps_[idx];
     }
 
@@ -262,7 +262,7 @@ const char* uiMdiArea::getActiveWin() const
 	for ( int idx=0; idx<grps_.size(); idx++ )
 	{
 	    if ( grps_[idx]->qWidget()==widget )
-		nm = grps_[idx]->getTitle().getFullString();
+		nm = toString( grps_[idx]->getTitle() );
 	}
     }
 
@@ -323,7 +323,7 @@ void closeEvent( QCloseEvent* ev )
 
 // uiMdiAreaWindow
 uiMdiAreaWindow::uiMdiAreaWindow( uiMdiArea& mdiarea, const uiString& title )
-    : uiGroup(0,title.getFullString())
+    : uiGroup(0,toString(title))
     , mdiarea_(mdiarea)
     , changed(this)
 {

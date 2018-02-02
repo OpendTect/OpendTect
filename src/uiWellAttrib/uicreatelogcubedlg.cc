@@ -161,7 +161,7 @@ void uiCreateLogCubeOutputSel::useWellNameFld( bool disp )
 
 bool uiCreateLogCubeOutputSel::askOverwrite( const uiString& errmsg ) const
 {
-    if ( BufferString(errmsg.getFullString()).find("as another type") )
+    if ( toString(errmsg).find("as another type") )
     {
 	uiString msg( errmsg );
 	msg.append( tr( "Please choose another suffix" ), true );

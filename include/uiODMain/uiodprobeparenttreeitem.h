@@ -23,7 +23,7 @@ mExpClass(uiODMain) uiODSceneProbeParentTreeItem
 {   mODTextTranslationClass(uiODSceneProbeParentTreeItem);
 public:
 
-    enum AddType	{ DefaultData, DefaultAttrib, RGBA, Select, Empty };
+    enum AddType	{ DefaultData, DefaultAttrib, Select, RGBA };
 
 			uiODSceneProbeParentTreeItem(const uiString&);
     const char*		childObjTypeKey() const;
@@ -36,22 +36,19 @@ public:
     virtual Probe*	createNewProbe() const		= 0;
     virtual bool	addChildProbe();
 
-    virtual AddType	getAddType(int mnuid) const;
-    static uiString	sAddEmptyPlane();
-    static uiString	sAddAndSelectData();
-    static uiString	sAddDefaultData();
-    static uiString	sAddDefaultAttrib();
-    static uiString	sAddColorBlended();
-    static int		cAddDefaultDataMenuID()		{ return DefaultData; }
-    static int		cAddDefaultAttribMenuID()	{ return DefaultAttrib;}
-    static int		cAddColorBlendedMenuID()	{ return RGBA; }
-    static int		cAddAndSelectDataMenuID()	{ return Select; }
+    static uiString	sTxt4AddMnu(AddType);
+    static const char*	iconID4AddMnu(AddType);
+    static int		getMenuID(AddType);
+    static AddType	getAddType(int mnuid);
+    static bool		isSceneAddMnuId( int mnuid )
+			{ return mnuid >= DefaultData && mnuid <= RGBA; }
 
     static bool		addDefaultAttribLayer(uiODApplMgr&,Probe&,bool stored);
 
 protected:
 
     bool		fillProbe(Probe&);
+
     virtual bool	setProbeToBeAddedParams(int mnuid)	{ return true;}
     virtual bool	setDefaultAttribLayer(Probe&,bool stored) const;
     virtual bool	setSelAttribProbeLayer(Probe&) const;
@@ -62,6 +59,8 @@ protected:
 
     AddType		typetobeadded_;
     uiMenu*		menu_;
+
+    void		getDefZRange(StepInterval<float>&) const;
 
 };
 

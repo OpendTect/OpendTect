@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uifilesel.h"
 #include "uichecklist.h"
 #include "uibutton.h"
+#include "uitable.h"
 #include "uitaskrunner.h"
 #include "uimsg.h"
 #include "ui2dgeomman.h"
@@ -162,7 +163,7 @@ void uiSEGYReadFinisher::crSeisFields( bool istime )
 
     uiSeisSel::Setup copysu( gt );
     copysu.optionsselectable( singlevintage_ );
-    copysu.enabotherdomain( true )
+    copysu.enabotherdomain( singlevintage_ )
 	  .isotherdomain( istime != SI().zIsTime() );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
     outimpfld_ = new uiSeisSel( this, ctxt, copysu );
@@ -428,6 +429,7 @@ bool uiSEGYReadFinisher::doMultiVintage()
     if ( !vntinfos_ && !vntinfos_->size() )
 	return false;
 
+    uiSEGYImportReport reportdlg(this);
     for ( int vidx=0; vidx<vntinfos_->size(); vidx++ )
     {
 	Repos::IOParSet parset = Repos::IOParSet( "SEGYSetups" );
@@ -464,16 +466,29 @@ bool uiSEGYReadFinisher::doMultiVintage()
 
 	    DBM().setEntry(*inioobj);
 
-	    if ( !do3D( *inioobj, *ctio.ioobj_, true ) )
+	    errmsg_.setEmpty();
+	    const int nrrows = reportdlg.table_->nrRows();
+	    reportdlg.table_->setNrRows( nrrows+1 );
+	    const bool impsuccess = do3D( *inioobj, *ctio.ioobj_, true );
+	    reportdlg.table_->setText( RowCol(nrrows,0), fnm );
+	    reportdlg.table_->setText( RowCol(nrrows,1), errmsg_ );
+	    reportdlg.table_->setCellColor( RowCol(nrrows,1),
+					    impsuccess ? Color::Green()
+						       : Color::Red() );
+	    if ( !impsuccess )
 	    {
 		uiString msg(tr("Failed to import '%1'").arg(fnm) );
 		msg.append( tr("Do you wish to continue?"), true );
 		if ( !uiMSG().askContinue( msg ) )
+		{
+		    reportdlg.go();
 		    return false;
+		}
 	    }
 	}
     }
 
+    reportdlg.go();
     return true;
 }
 
@@ -499,9 +514,19 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 	exec = indexer.ptr();
     }
 
-    uiTaskRunner dlg( this );
+    uiTaskRunner dlg( this, singlevintage_ );
     if ( !dlg.execute( *exec ) )
+    {
+	if ( !singlevintage_ && doimp )
+	    errmsg_.append( imp.ptr()->message() );
+
 	return false;
+    }
+    else
+    {
+	if ( !singlevintage_ && doimp )
+	    errmsg_.append( "Successfully imported" );
+    }
 
     wrr.erase(); // closes output
     if ( !handleWarnings(!doimp,indexer,imp) )
@@ -752,15 +777,13 @@ bool uiSEGYReadFinisher::putCoordChoiceInSpec()
 bool uiSEGYReadFinisher::handleWarnings( bool withstop,
 				SEGY::FileIndexer* indexer, SeisImporter* imp )
 {
-    BufferStringSet warns;
+    uiStringSet warns; int nrskip = 0;
     if ( indexer )
-	warns.add( indexer->scanner()->warnings(), false );
+	warns.add( indexer->scanner()->warnings() );
     else
-	if ( imp->nrSkipped() > 0 )
-	    warns += new BufferString("During import, ", imp->nrSkipped(),
-				      " traces were rejected" );
+	nrskip = imp->nrSkipped();
 
-    return uiSEGY::displayWarnings( warns, withstop );
+    return uiSEGY::displayWarnings( warns, withstop, nrskip );
 }
 
 
@@ -817,4 +840,18 @@ bool uiSEGYReadFinisher::acceptOK()
 
     return is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
 		: do3D( *inioobj, *outioobj, doimp );
+}
+
+
+//uiSEGYImportReport
+uiSEGYImportReport::uiSEGYImportReport( uiParent* p )
+    : uiDialog(p,uiDialog::Setup(tr("SEGY multi vintage import status"),
+	       mNoDlgTitle, mNoHelpKey) )
+{
+    table_ = new uiTable( this, uiTable::Setup(0, 2), "Report" );
+    table_->setColumnLabel( 0, tr("File") );
+    table_->setColumnLabel( 1, tr("Status") );
+    table_->setPrefWidthInChars( 70  );
+    table_->setTableReadOnly( true );
+    setCtrlStyle( uiDialog::CloseOnly );
 }

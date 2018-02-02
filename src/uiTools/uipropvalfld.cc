@@ -110,7 +110,7 @@ void uiPropertyValFld::setReadOnly( bool yn )
 }
 
 
-const char* uiPropertyValFld::propName() const
+BufferString uiPropertyValFld::propName() const
 {
-    return valfld_->titleText().getFullString();
+    return toString( valfld_->titleText() );
 }

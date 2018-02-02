@@ -22,7 +22,7 @@ mExpClass(General) ProbeTranslatorGroup : public TranslatorGroup
 public:
 			mDefEmptyTranslatorGroupConstructor(Probe)
 
-    const char*		defExtension() const		{ return "prb"; }
+    const char*		defExtension() const		{ return "probe"; }
     static const char*	sKeyProbe()			{ return "Probe"; }
 };
 
@@ -51,6 +51,7 @@ public:
 			mDefEmptyTranslatorConstructor(dgb,Probe)
 
 protected:
+
     Probe*		read(Conn&,uiString&);
     uiString		write(const Probe&,Conn&);
 

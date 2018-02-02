@@ -19,27 +19,25 @@ ___________________________________________________________________
 mExpClass(EarthModel) EMProbe : public Probe
 {
 public:
-
-    typedef EM::ObjectID	ObjectID;
-
 				~EMProbe();
 
     mDeclInstanceCreatedNotifierAccess(EMProbe);
     mDeclAbstractMonitorableAssignment(EMProbe);
 
-    mImplSimpleMonitoredGet(	id,ObjectID,objid_)
-    void			setID(const ObjectID&);
+    mImplSimpleMonitoredGet(	id,DBKey,objid_)
+    void			setID(const DBKey&);
     void			updateAll();
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
-    virtual BufferString	getDisplayName() const;
 
 protected:
 
-				EMProbe(const ObjectID&);
+				EMProbe(const DBKey&);
 
-    ObjectID			objid_;
+    uiWord			gtDisplayName() const;
+
+    DBKey			objid_;
 
 };
 
@@ -48,21 +46,16 @@ mExpClass(EarthModel) Horizon3DProbe : public EMProbe
 {
 public:
 
-				Horizon3DProbe(const ObjectID& id=ObjectID(0));
+				Horizon3DProbe(const DBKey&);
 				~Horizon3DProbe();
     mDeclInstanceCreatedNotifierAccess(Horizon3DProbe);
     mDeclMonitorableAssignment(Horizon3DProbe);
 
-    static const char*		sFactoryKey();
-    virtual const char*		type() const		{ return sFactoryKey();}
-    virtual bool		isVertical() const	{ return false; }
-    static Probe*		createFrom(const IOPar&);
+    mDeclRequiredProbeFns();
 
-    static void			initClass();
+    virtual bool		isVertical() const	{ return false; }
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
 };
-
-

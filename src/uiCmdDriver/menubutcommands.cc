@@ -441,8 +441,7 @@ bool GetButtonCmd::act( const char* parstr )
     mDynamicCastGet( const uiColorInput*, uicolinp,
 		     UIEntity(objsfound[0]).parent() );
 
-    mGetAmpFilteredStr( text,
-	uibut ? const_cast<uiButton*>(uibut)->text().getFullString().str() : 0);
+    mGetAmpFilteredStr( text, uibut ? toString(uibut->text()) : BufferString());
     mGetColorString( uicolinp->color(), uicolinp, colorstr );
     mParForm( answer, form, text, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
@@ -472,8 +471,8 @@ static int getOkCancelRetVal( bool ok )
     if ( uiMainWin::activeModalType() != uiMainWin::Message )
 	return ok ? 1 : 0;
 
-    const FixedString buttxt1( uiMainWin::activeModalQDlgButTxt(1) );
-    const FixedString buttxt2( uiMainWin::activeModalQDlgButTxt(2) );
+    const BufferString buttxt1( uiMainWin::activeModalQDlgButTxt(1) );
+    const BufferString buttxt2( uiMainWin::activeModalQDlgButTxt(2) );
 
     const int butnr = ok || buttxt1.isEmpty() ? 0 : buttxt2.isEmpty() ? 1 : 2;
 
@@ -572,11 +571,11 @@ bool CloseCmd::actCloseCurWin( const char* parstr )
     mdiobj->getWindowNames( subwinnames ); \
     for ( int idx=subwinnames.size()-1; idx>=0; idx-- ) \
     { \
-	if ( !mSearchKey(winstr).isMatching(subwinnames[idx].getFullString()) )\
+	if ( !mSearchKey(winstr).isMatching(toString(subwinnames[idx])) )\
 	    subwinnames.removeSingle(idx); \
     } \
     mParStrPre( "subwindow", subwinnames, 0, winstr, selnr, "string", true ); \
-    wildcardMan().check( mSearchKey(winstr), subwinnames[0].getFullString() );
+    wildcardMan().check( mSearchKey(winstr), toString(subwinnames[0]) );
 
 bool CloseCmd::act( const char* parstr )
 {
@@ -602,8 +601,7 @@ bool CloseCmd::act( const char* parstr )
     mDynamicCastGet( const uiMdiArea*, mdiarea, objsfound[0] );
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
 
-    mActivate( MdiAreaClose,
-	       Activator(*mdiarea,subwinnames[0].getFullString()) );
+    mActivate( MdiAreaClose, Activator(*mdiarea,toString(subwinnames[0])) );
     return true;
 }
 
@@ -692,11 +690,11 @@ bool ShowCmd::act( const char* parstr )
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
 
     const uiMdiAreaWindow* mdiwin =
-	mdiarea->getWindow( subwinnames[0].getFullString() );
+	mdiarea->getWindow( toString(subwinnames[0]) );
     mParShowTagPre( "subwindow", mdiwin ? mdiwin->isMinimized() : false,
 		    mdiwin ? mdiwin->isMaximized() : false, minnormmax );
 
-    mActivate( MdiAreaShow, Activator(*mdiarea,subwinnames[0].getFullString(),
+    mActivate( MdiAreaShow, Activator(*mdiarea,toString(subwinnames[0]),
 				      minnormmax) );
 
     return true;
@@ -765,8 +763,8 @@ bool IsShownCmd::act( const char* parstr )
     mDynamicCastGet( const uiMdiArea*, mdiarea, objsfound[0] );
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
 
-    mGetShowStatus(answer, mdiarea->getWindow(subwinnames[0].getFullString()),
-		   minnormmax);
+    mGetShowStatus( answer, mdiarea->getWindow(toString(subwinnames[0])),
+		    minnormmax );
     mParIdentPost( identname, answer, parnext );
     return true;
 }
@@ -779,7 +777,7 @@ bool IsShownCmd::act( const char* parstr )
     int nrgreytabs = 0; \
     for ( int idx=0; idx<uitabbar->size(); idx++ ) \
     { \
-	mGetAmpFilteredStr( tabtxt, uitabbar->textOfTab(idx).getFullString() );\
+	mGetAmpFilteredStr( tabtxt, toString(uitabbar->textOfTab(idx)) );\
 	tabtexts.add( tabtxt ); \
 	if ( !mSearchKey(tabstr).isMatching(tabtxt) ) \
 	    continue; \
@@ -874,8 +872,7 @@ bool CurTabCmd::act( const char* parstr )
 
     const int curtabidx = uitabbar->currentTabId();
     mCountTabs( uitabbar, curtabidx, count );
-    mParForm( answer, form, uitabbar->textOfTab(curtabidx).getFullString(),
-	      count );
+    mParForm( answer, form, toString(uitabbar->textOfTab(curtabidx)), count );
     mParIdentPost( identname, answer, parnext );
     return true;
 }
@@ -899,8 +896,7 @@ bool GetTabCmd::act( const char* parstr )
     mParTabSelPre( uitabbar, tabstr, tabnr, tabidxs );
 
     mCountTabs( uitabbar, tabidxs[0], count );
-    mParForm( answer, form, uitabbar->textOfTab(tabidxs[0]).getFullString(),
-	      count );
+    mParForm( answer, form, toString(uitabbar->textOfTab(tabidxs[0])), count );
     mParIdentPost( identname, answer, parnext );
     return true;
 }
@@ -1042,7 +1038,7 @@ bool MdiAreaCmdComposer::accept( const CmdRecEvent& ev )
     mDynamicCastGet(const uiMdiArea*,mdiarea,ev.object_);
     mdiarea->getWindowNames( subwinnames );
 
-    BufferString curwintitle = subwinnames[curwinidx].getFullString();
+    BufferString curwintitle = toString( subwinnames[curwinidx] );
     mDressNameString( curwintitle, sWinName );
 
     bool titlecasedep = false;
@@ -1051,7 +1047,7 @@ bool MdiAreaCmdComposer::accept( const CmdRecEvent& ev )
 
     for ( int idx=0; idx<subwinnames.size(); idx++ )
     {
-	const BufferString wintitle = subwinnames[idx].getFullString();
+	const BufferString wintitle = toString( subwinnames[idx] );
 	if ( SearchKey(curwintitle,false).isMatching(wintitle) )
 	{
 	    if ( SearchKey(curwintitle,true).isMatching(wintitle) )
@@ -1092,7 +1088,7 @@ bool TabCmdComposer::accept( const CmdRecEvent& ev )
     mDynamicCastGet( const uiTabBar*, uitabs, ev.object_ );
 
     mGetAmpFilteredStr( curtabname,
-		uitabs->textOfTab(uitabs->currentTabId()).getFullString() );
+		toString(uitabs->textOfTab(uitabs->currentTabId())) );
     mDressNameString( curtabname, sItemName );
 
     bool namecasedep = false;
@@ -1104,7 +1100,7 @@ bool TabCmdComposer::accept( const CmdRecEvent& ev )
 	if ( !uitabs->isTabEnabled(idx) )
 	    continue;
 
-	mGetAmpFilteredStr( tabtxt, uitabs->textOfTab(idx).getFullString() );
+	mGetAmpFilteredStr( tabtxt, toString(uitabs->textOfTab(idx)) );
 	if ( SearchKey(curtabname,false).isMatching(tabtxt) )
 	{
 	    if ( SearchKey(curtabname,true).isMatching(tabtxt) )

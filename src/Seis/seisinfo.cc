@@ -91,10 +91,10 @@ mDefineEnumUtils(SeisEnum,SelType,"Selection type")
 
 mDefineEnumUtils(SeisEnum,GeomType,"Geometry type")
 {
-	"3D Volume",
-	"Pre-Stack Volume",
 	"2D Line",
 	"Line 2D Pre-Stack",
+	"3D Volume",
+	"Pre-Stack Volume",
 	0
 };
 

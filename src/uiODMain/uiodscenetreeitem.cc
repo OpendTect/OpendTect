@@ -181,7 +181,7 @@
 	    continue;
 
 	PtrMan<uiTreeItem> itm = tfs->getFactory(idx)->create();
-	itmbefore = findChild( itm->name().getFullString() );
+	itmbefore = findChild( toString(itm->name()) );
 	break;
     }
 
@@ -196,7 +196,7 @@ void uiODSceneTreeTop::removeFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs->getFactory(idx)->create();
-    const uiTreeItem* child = findChild( dummy->name().getFullString() );
+    const uiTreeItem* child = findChild( toString(dummy->name()) );
     if ( !children_.isPresent(child) ) return;
     removeChild( const_cast<uiTreeItem*>(child) );
 }

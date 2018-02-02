@@ -24,7 +24,7 @@ _______________________________________________________________________
 using namespace Attrib;
 
 mInitAttribUI( uiSimilaritybyAW, SimilaritybyAW,
-	"Similarity by Adaptive Time Gate", "Experimental" )
+	tr("Similarity / Adaptive Window"), sExperimentalGrp() )
 
 uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
     :  uiAttrDescEd(p, is2d, mNoHelpKey)

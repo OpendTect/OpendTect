@@ -728,7 +728,7 @@ void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tskr )
 	*ptrmappedvals = isudf ? udfcolidx
 			       : (unsigned char)idxtbl.indexFor( val );
 	ptrmappedvals += spacing;
-	if ( isudf )
+	if ( isudf && ptrmappedudfs )
 	{
 	    *ptrmappedudfs = isudf ? (unsigned char)0 : udfcolidx;
 	    ptrmappedudfs += spacing;

@@ -106,8 +106,8 @@ void setDefaultVals( const PropertyRef* otherthref )
 
 void setZUnit( CallBacker* cb=0 )
 {
-    ref_->disp_.unit_ =
-	UnitOfMeasure::zUnitAnnot( false, true, false ).getFullString();
+    ref_->disp_.unit_ = toString(
+	UnitOfMeasure::zUnitAnnot( false, true, false ) );
 }
 
     ThicknessPropertyRef*	ref_;
@@ -506,10 +506,7 @@ bool PropertyRefSet::save( Repos::Source src ) const
 
     SafeFileIO sfio( fnm, true );
     if ( !sfio.open(false) )
-    {
-	ErrMsg( sfio.errMsg().getFullString() );
-	return false;
-    }
+	{ ErrMsg( sfio.errMsg() ); return false; }
 
     ascostream astrm( sfio.ostrm() );
     if ( !writeTo(astrm) )

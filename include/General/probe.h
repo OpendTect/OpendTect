@@ -67,13 +67,17 @@ private:
 mExpClass(General) ProbeLayerFactory
 {
 public:
+
     typedef ProbeLayer* (*CreateFunc)(const IOPar&);
 
     void		addCreateFunc(CreateFunc,const char*);
     ProbeLayer*		create(const IOPar&);
+
 protected:
+
     TypeSet<CreateFunc>			createfuncs_;
     BufferStringSet			keys_;
+
 };
 
 mGlobal(General) ProbeLayerFactory& PrLayFac();
@@ -82,26 +86,31 @@ mGlobal(General) ProbeLayerFactory& PrLayFac();
 mExpClass(General) Probe : public SharedObject
 {
 public:
+
 			Probe();
-    mDeclAbstractMonitorableAssignment( Probe );
-    mDeclInstanceCreatedNotifierAccess( Probe );
+			mDeclAbstractMonitorableAssignment( Probe );
+			mDeclInstanceCreatedNotifierAccess( Probe );
 
     static const char*	sProbeType();
     static ChangeType	cPositionChange()		{ return 2; }
     static ChangeType	cDimensionChange()		{ return 3; }
     static ChangeType	cLayerAdd()			{ return 4; }
-    static ChangeType	cLayerToRemove()		{ return 5; }
+    static ChangeType	cLayerToBeRemoved()		{ return 5; }
     static ChangeType	cLayerChange()			{ return 6; }
 
-    mImplSimpleMonitoredGet(position,TrcKeyZSampling,probepos_);
-
     void		setPos(const TrcKeyZSampling&);
-    virtual const char* type() const			=0;
+    virtual const char*	type() const			= 0;
+    virtual uiWord	usrType() const			= 0;
+    virtual uiWord	displayName() const		= 0;
+
     virtual bool	is2D() const			{ return false; }
     virtual bool	isVertical() const		{ return true; }
     virtual bool	is3DSlice() const		{ return false; }
+
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
+
+    mImplSimpleMonitoredGet(position,TrcKeyZSampling,probepos_);
 
     int			nrLayers() const;
     void		addLayer(ProbeLayer*);
@@ -110,26 +119,48 @@ public:
     ProbeLayer*		getLayerByIdx(int);
     const ProbeLayer*	getLayer(ProbeLayer::ID) const;
     ProbeLayer*		getLayer(ProbeLayer::ID);
-    virtual BufferString getDisplayName() const		=0;
 
 protected:
+
 				~Probe();
+
     ObjectSet<ProbeLayer>	layers_;
     TrcKeyZSampling		probepos_;
 
+    uiWord			mkDispNm(const uiWord& add) const;
+				//!< generates join of type and '[add]'
+    template<class T>
+    inline uiWord		mkDispNm( const T& t ) const
+				{ return mkDispNm( toUiString(t) ); }
+
 };
+
+
+#define mDeclRequiredProbeFns() \
+    static const char*	sFactoryKey(); \
+    static Probe*	createFrom(const IOPar&); \
+    static void		initClass(); \
+ \
+    virtual const char*	type() const		{ return sFactoryKey(); } \
+    virtual uiWord	usrType() const; \
+    virtual uiWord	displayName() const
+
 
 
 mExpClass(General) ProbeFactory
 {
 public:
+
     typedef Probe*	(*CreateFunc)(const IOPar&);
 
     void		addCreateFunc(CreateFunc,const char*);
     Probe*		create(const IOPar&);
+
 protected:
+
     TypeSet<CreateFunc>			createfuncs_;
     BufferStringSet			keys_;
+
 };
 
 

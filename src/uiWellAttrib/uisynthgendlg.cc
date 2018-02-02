@@ -64,7 +64,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     typefld_ = lblcbx->box();
     typefld_->selectionChanged.notify( mCB(this,uiSynthGenDlg,typeChg) );
 
-    psselfld_ = new uiLabeledComboBox( toppargrp, tr("Input PreStack") );
+    psselfld_ = new uiLabeledComboBox( toppargrp, tr("Input Prestack") );
     psselfld_->attach( alignedBelow, lblcbx );
 
     FloatInpIntervalSpec finpspec(false);
@@ -357,7 +357,7 @@ bool uiSynthGenDlg::getFromScreen()
 	SynthGenParams::SynthType synthtype = genparams.synthtype_;
 	if ( psselfld_->box()->isEmpty() )
 	    mErrRet( tr("Cannot generate an angle stack synthetics without any "
-		        "NMO corrected PreStack."), return false );
+		        "NMO corrected Prestack."), return false );
 
 	if ( !psselfld_->box()->sensitive() )
 	    mErrRet( tr("Cannot change synthetic data as the dependent prestack"

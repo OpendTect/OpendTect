@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-mInitAttribUI(uiMadAGCAttrib,MadAGC,"Madagascar AGC","Madagascar AGC")
+mInitAttribUI(uiMadAGCAttrib,MadAGC,tr("Madagascar AGC"),tr("Madagascar"))
 
 
 uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )

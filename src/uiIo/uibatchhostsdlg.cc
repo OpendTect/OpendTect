@@ -49,7 +49,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	writeallowed = File::isWritable( bhfnm );
     else
     {
-	const BufferString& datadir = bhfp.pathOnly();
+	const BufferString datadir = bhfp.pathOnly();
 	writeallowed = File::isWritable( datadir );
     }
 
@@ -473,12 +473,9 @@ void uiBatchHostsDlg::dataRootChanged( int row )
 
 bool uiBatchHostsDlg::acceptOK()
 {
-    uiStringSet errmsg;
-    if ( !hostdatalist_.isOK(errmsg) )
-    {
-	uiMSG().errorWithDetails( errmsg );
-	return false;
-    }
+    uiRetVal uirv = hostdatalist_.check();
+    if ( uirv.isError() )
+	{ uiMSG().error( uirv ); return false; }
 
     // TODO: Support BatchHosts file selection?
     const bool res =

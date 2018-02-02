@@ -581,7 +581,7 @@ void Network::setHttpProxyFromIOPar( const IOPar& pars )
 	{
 	    uiString str;
 	    str.setFromHexEncoded( password );
-	    password = str.getFullString();
+	    password = toString( str );
 	}
 
 	Network::setHttpProxy( host, port, auth, username, password );

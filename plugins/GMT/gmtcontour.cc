@@ -56,7 +56,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     FixedString attrnm = find( ODGMT::sKeyAttribName() );
     BufferString str = "\""; str += attrnm;
     if ( attrnm == ODGMT::sKeyZVals() )
-	str += SI().zUnitString().getFullString();
+	str += toString( SI().zUnitString() );
 
     str += "\"";
     par.set( ODGMT::sKeyAttribName(), str.buf() );
@@ -97,7 +97,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     EM::SurfaceIOData sd;
     uiString errmsg;
     if ( !EM::EMM().getSurfaceData(id,sd,errmsg) )
-	mErrStrmRet( errmsg.getFullString() )
+	mErrStrmRet( toString(errmsg) )
 
     PtrMan<IOPar> subpar = subselect( sKey::Selection() );
     if ( !subpar )

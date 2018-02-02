@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uicombobox.h"
 #include "uilabel.h"
+#include "uistrings.h"
 
 
 
@@ -42,6 +43,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	setbut_ = new uiPushButton( this, tr("Set"),
 			mCB(this,uiMathExpression,setButCB),
 			!setup_.setcb_.willCall() );
+	setbut_->setIcon( "apply" );
 	setbut_->attach( rightOf, txtfld_ );
     }
 
@@ -55,10 +57,10 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	for ( int idx=0; idx<grps.size(); idx++ )
 	    grpfld_->addItem( toUiString(grps[idx]->name_) );
 	if ( setup_.specvars_ )
-	    grpfld_->addItem( tr("Other") );
+	    grpfld_->addItem( uiStrings::sOther() );
 	grpfld_->setCurrentItem( 2 );
 	grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
-	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ? 
+	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ?
 				    toUiString("   \\") : toUiString("   /") );
 	lbl->attach( leftOf, grpfld_ );
 	insgrp->setHAlignObj( lbl );
@@ -71,6 +73,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 
 	uiPushButton* but = new uiPushButton( insgrp, tr("Insert"),
 		    mCB(this,uiMathExpression,doIns), true );
+	but->setIcon( "insertbelow" );
 	but->attach( rightOf, fnfld_ );
 	but->setStretch( 0, 0 );
 

@@ -9,7 +9,6 @@
 #include "uistring.h"
 #include "testprog.h"
 #include "uistrings.h"
-#include "texttranslator.h"
 #include "filepath.h"
 #include "oddirs.h"
 
@@ -31,52 +30,6 @@ bool testSetEmpty()
     return true;
 }
 
-class TestTranslator
-{ mTextTranslationClass( TestTranslator, "test_uistring" );
-public:
-    static bool testTranslation();
-
-};
-
-
-bool TestTranslator::testTranslation()
-{
-    uiString a = tr("I am an A");
-    uiString b = tr("I am a B" );
-    uiString join = uiStrings::phrJoinStrings( a, b );
-
-    QTranslator trans;
-    File::Path path;
-    TextTranslateMgr::GetLocalizationDir( path );
-    path.add( "uistring.qm" );
-    mRunStandardTest( trans.load( QString(path.fullPath().buf())),
-		    "Load test translation");
-
-    QString qres;
-    mRunStandardTest( join.translate( trans, qres ),
-		      "Run translation" );
-
-    BufferString res( qres );
-    mRunStandardTest( res=="A B", "Translation content");
-
-    uiString hor3d =
-	uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon() );
-
-    qres = hor3d.getQString();
-    res = qres;
-    mRunStandardTest( res=="3D Horizon", "Translation content (Horizon)");
-
-    hor3d =
-     uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon(mPlural) );
-
-    qres = hor3d.getQString();
-    res = qres;
-    mRunStandardTest( res=="3D Horizons", "Translation content (Horizons)");
-
-    return true;
-}
-
-
 
 bool testArg()
 {
@@ -85,7 +38,7 @@ bool testArg()
 		.arg( 5 )
 		.arg( 9 );
 
-    mRunStandardTest( composite.getFullString()=="4 plus 5 is 9",
+    mRunStandardTest( toString(composite) == "4 plus 5 is 9",
 		      "Composite test" );
 
     const char* desoutput = "Hello Dear 1";
@@ -104,7 +57,7 @@ bool testArg()
 		     "In-place");
 
 
-    BufferString expargs = string.getFullString();
+    BufferString expargs = toString( string );
 
     mRunStandardTest( expargs==desoutput, "Argument expansion" );
 
@@ -114,42 +67,26 @@ bool testArg()
 
     mRunStandardTest( string.getQString()==cloned.getQString(), "copyFrom" );
 
-    uiString part1 = toUiString( "Part 1" );
-    part1.append( ", Part 2", false );
-    mRunStandardTest(
-	    FixedString(part1.getFullString())=="Part 1, Part 2", "append" );
-    part1.append( ", Part 2", true );
-    mRunStandardTest(
-	    FixedString(part1.getFullString())=="Part 1, Part 2\n, Part 2",
-			"append with newline" );
+    const uiString part1 = toUiString( "Part 1" );
+    const uiString part2 = toUiString( "Part 2" );
+    uiString res = part1; res.appendPhrase( part2, uiString::BluntGlue );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1Part 2")),
+				"appendPhrase(BluntGlue)" )
+    res = part1; res.appendPhrase( part2, uiString::WithSpace );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1 Part 2")),
+				"appendPhrase(WithSpace)" )
+    res = part1; res.appendPhrase( part2, uiString::NewLine );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1\nPart 2")),
+				"appendPhrase(NewLine)" )
+    res = part1; res.appendPhrase( part2, uiString::CloseLine );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1. Part 2")),
+				"appendPhrase(CloseLine)" )
+    res = part1; res.appendPhrase( part2, uiString::CloseAndNewLine );
+    mRunStandardTest( res.isEqualTo(toUiString("Part 1.\nPart 2")),
+				"appendPhrase(CloseAndNewLine)" )
 
     return true;
 }
-
-
-bool testUTF8()
-{
-    /* Commented out after consulting Kris, failed.
-
-    //Convert some chinese from base 64 to qstring. Then get the utf8 out.
-    //Expected values comes from an online conversion tool.
-    const QString input = QByteArray::fromBase64(
-					    QByteArray("5omL5py66Zi/6YeM") );
-    uiString uistring;
-    uistring.setFrom( input );
-    BufferString utf8;
-    uistring.fillUTF8String( utf8 );
-    const unsigned char expected[] =  { 0xE6, 0x89, 0x8B, 0xE6, 0x9C, 0xBA,
-			      0xE9, 0x98, 0xBF, 0xE9, 0x87, 0x8C, 0 };
-
-#ifndef __win__
-    mRunStandardTest( !strcmp( (const char*)expected, utf8.buf() ),
-							    "UTF conversion" );
-#endif
-    */
-    return true;
-}
-
 
 
 bool testSharedData()
@@ -158,18 +95,15 @@ bool testSharedData()
     uiString b = a;
 
     b.arg( "s" );
-    mRunStandardTest( b.getFullString()=="Hello Worlds" &&
-		      BufferString(a.getFullString())!=
-		      BufferString(b.getFullString()), "arg on copy" );
+    mRunStandardTest( toString(b) == "Hello Worlds" &&
+		      toString(a) != toString(b), "arg on copy" );
 
     uiString c = b;
     c = toUiString("Another message");
-    mRunStandardTest( BufferString(c.getFullString())!=
-		      BufferString(b.getFullString()),
-		      "assignment of copy" );
+    mRunStandardTest( toString(c) != toString(b), "assignment of copy" );
 
     uiString d = b;
-    mRunStandardTest( d.getOriginalString()==b.getOriginalString(),
+    mRunStandardTest( d.getOriginalString() == b.getOriginalString(),
 		      "Use of same buffer on normal operations" );
 
     return true;
@@ -202,7 +136,7 @@ bool testQStringAssignment()
     uiString string;
     string.setFrom( QString( message ) );
 
-    BufferString res = string.getFullString();
+    BufferString res = toString( string );
     mRunStandardTest( res==message, "QString assignment" );
 
     return true;
@@ -248,12 +182,12 @@ bool testToLower()
 {
     uiString string = uiStrings::phrJoinStrings( uiStrings::sInput(),
 					    uiStrings::sHorizon().toLower() );
-    BufferString bstr = string.getFullString();
+    BufferString bstr = toString( string );
     mRunStandardTest( bstr=="Input horizon", "To lower" );
 
     uiString string2 = uiStrings::phrJoinStrings( uiStrings::sInput(),
 						 uiStrings::sHorizon() );
-    bstr = string2.getFullString();
+    bstr = toString( string2 );
     mRunStandardTest( bstr=="Input Horizon", "To lower does not affect orig" );
 
 
@@ -269,15 +203,27 @@ bool testOptionStrings()
     uiStringSet options( strings );
 
     mRunStandardTest(
-	    options.createOptionString( true, -1, false ).getFullString()==
-	              "One, Two, Three, and Four", "createOptionString and" );
+	    toString(options.createOptionString(true,-1,false)) ==
+	      "One, Two, Three and Four", "createOptionString and" );
     mRunStandardTest(
-	    options.createOptionString( false, -1, false ).getFullString()==
-	              "One, Two, Three, or Four", "createOptionString or" );
+	    toString(options.createOptionString(false,-1,false)) ==
+	      "One, Two, Three or Four", "createOptionString or" );
 
     mRunStandardTest(
-	    options.createOptionString( false, 3, false ).getFullString()==
-	              "One, Two, Three, ...", "createOptionString limited" );
+	    toString(options.createOptionString(false,3,false)) ==
+	      "One, Two, Three or ...", "createOptionString limited" );
+
+    mRunStandardTest(
+	    toString(options.createOptionString(true,-1,true)) ==
+	      "One\nTwo\nThree and\nFour", "createOptionString nl and" );
+    mRunStandardTest(
+	    toString(options.createOptionString(false,-1,true)) ==
+	      "One\nTwo\nThree or\nFour", "createOptionString nl or" );
+
+    mRunStandardTest(
+	    toString(options.createOptionString(false,3,true)) ==
+	      "One\nTwo\nThree\nor ...", "createOptionString nl limited" );
+
 
     return true;
 }
@@ -287,7 +233,7 @@ bool testHexEncoding()
 {
     uiString str;
     mRunStandardTest( str.setFromHexEncoded("517420697320677265617421") &&
-	              str.getFullString()=="Qt is great!",
+	              toString(str) == "Qt is great!",
 		      "Reading hard-coded string" );
 
 
@@ -313,10 +259,10 @@ bool fromBufferStringSetToUiStringSet()
     strset.add("C");
     uiStringSet uistrset = strset.getUiStringSet();
 
-    BufferString str = strset.cat(" ");
-    uiString uistr = uistrset.cat(" ");
+    BufferString str = strset.cat( " " );
+    uiString uistr = uistrset.cat( uiString::WithSpace );
 
-    mRunStandardTest( str == uistr.getFullString(), "Comparing BuffStrSet "
+    mRunStandardTest( str == toString(uistr), "Comparing BuffStrSet "
 				    "UiStrSet" );
     return true;
 
@@ -330,8 +276,7 @@ int testMain( int argc, char** argv )
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
 	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings() ||
-	 !testToLower() || !TestTranslator::testTranslation() || !testUTF8() ||
-	 !fromBufferStringSetToUiStringSet() )
+	 !testToLower() || !fromBufferStringSetToUiStringSet() )
 	return 1;
 
     return 0;

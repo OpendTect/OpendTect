@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uistepoutsel.h"
 #include "od_helpids.h"
+#include "uistrings.h"
 
 using namespace Attrib;
 
@@ -70,7 +71,7 @@ static const char* outpdip3dstrs[] =
 	0
 };
 
-mInitAttribUI(uiSimilarityAttrib,Similarity,"Similarity",sKeyBasicGrp())
+mInitGrpDefAttribUI(uiSimilarityAttrib,Similarity,tr("Similarity"),sBasicGrp())
 
 
 uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
@@ -331,25 +332,24 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
     : uiSteeringSel( p, dset, is2d, true, false )
     , typeSelected(this)
 {
-    const char* res = uiAF().attrNameOf( "Curvature" );
-    if ( !res )
+    if ( uiAF().haveSteering() )
+	createFields();
+    else
     {
-	BufferStringSet steertyps;
-	steertyps.add( "None" );
+	uiStringSet steertyps;
+	steertyps.add( uiStrings::sNone() );
 	typfld_ = new uiGenInput( this, uiStrings::sSteering(),
 				  StringListInpSpec(steertyps) );
 	typfld_->valuechanged.notify(
 		    mCB(this,uiSimilarityAttrib::uiSimiSteeringSel,typeSel));
     }
-    else
-	createFields();
 
     DataInpSpec* inpspec = const_cast<DataInpSpec*>(typfld_->dataInpSpec());
     mDynamicCastGet(StringListInpSpec*,listspec,inpspec);
-    if ( !listspec ) return;
+    if ( !listspec )
+	return;
 
     listspec->addString(tr("Browse dip"));
-//    typfld_->newSpec(listspec,0);
     setHAlignObj( typfld_ );
 }
 
@@ -381,6 +381,5 @@ bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
 
 int uiSimilarityAttrib::uiSimiSteeringSel::browseDipIdxInList() const
 {
-    const char* hassteerplug = uiAF().attrNameOf( "Curvature" );
-    return hassteerplug ? withconstdir_ ? 4 : 3 : 1;
+    return uiAF().haveSteering() ? withconstdir_ ? 4 : 3 : 1;
 }

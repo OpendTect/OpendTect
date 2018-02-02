@@ -976,13 +976,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-<<<<<<< HEAD
-		EM::EMM().undo(fault_->id()).setUserInteractionEnd(
-		    EM::EMM().undo(fault_->id()).currentEventID() );
-=======
-		EM::Flt3DMan().undo().setUserInteractionEnd(
-		    EM::Flt3DMan().undo().currentEventID() );
->>>>>>> od_em
+		EM::Flt3DMan().undo(fault_->id()).setUserInteractionEnd(
+		    EM::Flt3DMan().undo(fault_->id()).currentEventID() );
 
 		updateDisplay();
 		setActiveStick( insertpid );
@@ -998,13 +993,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-<<<<<<< HEAD
-		EM::EMM().undo(fault_->id()).setUserInteractionEnd(
-		    EM::EMM().undo(fault_->id()).currentEventID() );
-=======
-		EM::Flt3DMan().undo().setUserInteractionEnd(
-		    EM::Flt3DMan().undo().currentEventID() );
->>>>>>> od_em
+		EM::Flt3DMan().undo(fault_->id()).setUserInteractionEnd(
+		    EM::Flt3DMan().undo(fault_->id()).currentEventID() );
 		faulteditor_->editpositionchange.trigger();
 	    }
 	}
@@ -1096,12 +1086,6 @@ void FaultDisplay::updateActiveStickMarker()
 
     if ( mIsUdf(activestick_) || !showmanipulator_ || !displaysticks_ )
 	activestickmarker_->turnOn( false );
-
-    if ( !fault_->nrSections() )
-    {
-	activestickmarker_->turnOn( false );
-	return;
-    }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 		     fault_->geometryElement() );

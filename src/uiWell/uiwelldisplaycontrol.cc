@@ -151,7 +151,7 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     if ( zdata.zistime_ )
     {
 	info.add( "  TWT: " ).add( time_ );
-	info.add( SI().zDomain().unitStr().getFullString() );
+	info.add( toString(SI().zDomain().unitStr()) );
     }
 }
 

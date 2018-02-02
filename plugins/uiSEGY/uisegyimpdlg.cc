@@ -48,14 +48,14 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     , morebut_(0)
     , batchfld_(0)
 {
-    BufferString ttl( setup().dlgtitle_.getFullString() );
+    uiString ttl = setup().dlgtitle_;
     if ( ttl.isEmpty() )
     {
-	ttl.set( "Import " ).add( Seis::nameOf(setup_.geom_) );
 	SEGY::FileSpec fs; fs.usePar( iop );
-	ttl.add( " " ).add( getLimitedDisplayString(fs.dispName(),40,0) );
+	ttl = tr( "Import %1 %2" ).arg( Seis::nameOf(setup_.geom_) )
+	    .arg( getLimitedDisplayString(fs.dispName(),40,0) );
     }
-    setTitleText( tr(ttl) );
+    setTitleText( ttl );
 
     uiSeparator* sep = optsfld_ ? new uiSeparator( this, "Hor sep" ) : 0;
 
@@ -385,13 +385,10 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     uiTaskRunner dlg( this );
     rv = TaskRunner::execute( &dlg, *imp );
-    BufferStringSet warns;
-    if ( imp && imp->nrSkipped() > 0 )
-	warns += new BufferString("During import, ", imp->nrSkipped(),
-				  " traces were rejected" );
     imp.erase(); wrr.erase(); // closes output cube
 
-    uiSEGY::displayWarnings( warns );
+    uiStringSet warns;
+    uiSEGY::displayWarnings( warns, false, imp ? imp->nrSkipped() : 0 );
     if ( rv && !is2d && ioobjinfo )
 	rv = ioobjinfo->provideUserInfo();
 

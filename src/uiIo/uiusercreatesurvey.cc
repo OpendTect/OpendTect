@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "ui2dsip.h"
+#include "uisipimpl.h"
 
 #include "survinfo.h"
 #include "dbman.h"
@@ -157,7 +157,7 @@ void uiUserCreateSurvey::fillSipsFld( bool have2d, bool have3d )
 
 	if ( preferredsel < 0 )
 	{
-	    const BufferString workstr = sipnm.getFullString();
+	    const BufferString workstr = toString( sipnm );
 	    if ( workstr.contains("etrel") )
 		preferredsel = idx;
 	    else
@@ -264,7 +264,8 @@ bool uiUserCreateSurvey::acceptOK()
 bool uiUserCreateSurvey::doUsrDef()
 {
     IOPar iop; iop.setStdCreationEntries();
-    iop.set( uiSurvInfoProvider::sKeySIPName(), survinfo_->sipName() );
+    iop.set( uiSurvInfoProvider::sKeySIPName(),
+	     toString(survinfo_->sipName()) );
     const uiSurvInfoProvider* cursip = getSIP();
     if ( cursip )
 	cursip->fillPar( iop );

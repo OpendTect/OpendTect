@@ -562,18 +562,23 @@ void uiPolyLineItem::unHighlight()
 //uiMultiColorPolyLineItem
 uiMultiColorPolyLineItem::uiMultiColorPolyLineItem()
     : uiGraphicsItem(mkQtObj())
+    , penwidth_(2)
 {}
 
 
 uiMultiColorPolyLineItem::uiMultiColorPolyLineItem(
-				const TypeSet<uiPoint>& pts )
+					const TypeSet<uiPoint>& pts )
+    : uiGraphicsItem(mkQtObj())
+    , penwidth_(2)
 {
     setPolyLine( pts );
 }
 
 
 uiMultiColorPolyLineItem::uiMultiColorPolyLineItem(
-				const TypeSet<uiWorldPoint>& pts )
+					const TypeSet<uiWorldPoint>& pts )
+    : uiGraphicsItem(mkQtObj())
+    , penwidth_(2)
 {
     setPolyLine( pts );
 }
@@ -611,18 +616,30 @@ mImplSetPolyline( const TypeSet<uiWorldPoint>& );
 
 
 void uiMultiColorPolyLineItem::setColors(
-	const TypeSet<Color>& colors, bool usetransparency )
+		const TypeSet<Color>& colors, bool usetransparency )
 {
     QVector<QPen> qpens( colors.size() );
     for ( int idx=0; idx<colors.size(); idx++ )
     {
-	qpens[idx] = QPen( QColor(QRgb(colors[idx].rgb())), 2 );
+	qpens[idx] = QPen( QColor(QRgb(colors[idx].rgb())), penwidth_ );
 	if ( usetransparency )
 	    qpens[idx].color().setAlpha( 255-colors[idx].t() );
     }
     odmulticoloritem_->setQPens( qpens );
 }
 
+
+void uiMultiColorPolyLineItem::setPenWidth( int sz )
+{
+    penwidth_ = sz;
+    odmulticoloritem_->setPenWidth( sz );
+}
+
+
+int uiMultiColorPolyLineItem::getPenWidth() const
+{
+    return penwidth_;
+}
 
 
 // uiRectItem

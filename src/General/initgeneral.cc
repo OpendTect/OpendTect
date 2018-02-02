@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 
-#include "coordsystem.h"
 #include "dbman.h"
 #include "elasticpropseltransl.h"
 #include "geometryio.h"
@@ -78,7 +77,4 @@ GeneralModuleIniter::GeneralModuleIniter()
     dgbSurvGeom2DTranslator::initClass();
 
     DBM().initFirst(); //Trigger creation & reading of geometries
-
-    //After DBM is created
-    Coords::CoordSystem::initRepository( &DBM().afterSurveyChange );
 }

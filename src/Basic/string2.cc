@@ -1043,7 +1043,7 @@ static int gtIntFromString( const char* str, int defval )
 
     bool isok = false;
     const QString qstr( str );
-    const float ret = qstr.toInt( &isok, 0 );
+    const int ret = qstr.toInt( &isok, 0 );
     return isok ? ret : defval;
 
 #endif
@@ -1061,7 +1061,7 @@ static od_uint32 gtUIntFromString( const char* str, od_uint32 defval )
 
     bool isok = false;
     const QString qstr( str );
-    const float ret = qstr.toUInt( &isok, 0 );
+    const od_uint32 ret = qstr.toUInt( &isok, 0 );
     return isok ? ret : defval;
 
 #endif
@@ -1080,7 +1080,7 @@ static od_int64 gtInt64FromString( const char* str, od_int64 defval )
 
     bool isok = false;
     const QString qstr( str );
-    const float ret = qstr.toLongLong( &isok, 0 );
+    const od_int64 ret = qstr.toLongLong( &isok, 0 );
     return isok ? ret : defval;
 
 #endif
@@ -1099,7 +1099,7 @@ static od_uint64 gtUInt64FromString( const char* str, od_uint64 defval )
 
     bool isok = false;
     const QString qstr( str );
-    const float ret = qstr.toULongLong( &isok, 0 );
+    const od_uint64 ret = qstr.toULongLong( &isok, 0 );
     return isok ? ret : defval;
 
 #endif

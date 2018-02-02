@@ -172,7 +172,7 @@ void uiTaskRunner::updateFields()
     const int nrdone = mCast( int, task_->nrDone() );
     const uiString nrdonetext = task_->nrDoneText();
 #ifdef __debug__
-    if ( FixedString(nrdonetext.getFullString())=="Nr Done" )
+    if ( toString(nrdonetext) == "Nr Done" )
     {
         pErrMsg("Nr Done is not an acceptable name in a UI. "
                 "Make class implement nrDoneText");
@@ -186,14 +186,12 @@ void uiTaskRunner::updateFields()
 	return;
     }
 
-    if ( BufferString(prevmessage_.getFullString() )
-	    != BufferString(message.getFullString() ) )
+    if ( toString(prevmessage_) != toString(message) )
     {
 	sb.message( message, 0 );
 	prevmessage_ = message;
     }
-    if ( BufferString(prevnrdonetext_.getFullString() )
-	    != BufferString(nrdonetext.getFullString() ) )
+    if ( toString(prevnrdonetext_) != toString(nrdonetext) )
     {
 	sb.message( nrdonetext, 1 );
 	prevnrdonetext_ = nrdonetext;
@@ -203,7 +201,7 @@ void uiTaskRunner::updateFields()
     if ( nrdonechg )
     {
 	prevnrdone_ = nrdone;
-	uiString str = toUiString(nrdone);
+	uiString str = toUiString( nrdone );
 	sb.message( str, 2 );
     }
 

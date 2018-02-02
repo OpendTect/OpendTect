@@ -124,15 +124,3 @@ void EnumDef::fillUiStrings()
 	uistrings_ += ::toUiString( keys_.get(idx) );
 
 }
-
-
-bool EnumDef::isValidName(const char* key) const
-{ return isValidKey(key); }
-
-
-const char* EnumDef::convert(int idx) const
-{ return getKeyForIndex(idx); }
-
-
-int EnumDef::convert(const char* txt) const
-{ return indexOf(txt); }

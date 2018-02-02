@@ -74,7 +74,7 @@ static const char* scalingtypestr[] =
     0
 };
 
-mInitAttribUI(uiScalingAttrib,Scaling,"Scaling",sKeyBasicGrp())
+mInitAttribUI(uiScalingAttrib,Scaling,tr("Scaling"),sBasicGrp())
 
 
 uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
