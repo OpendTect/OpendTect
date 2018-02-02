@@ -230,23 +230,39 @@ void uiColSeqDisp::reDraw()
 	nmbgrectitm_->setZValue( 100 );
     }
 
-    const int xstart = scene().nrPixX() / 10;
-    const int xsz = scene().nrPixX() - 2*xstart;
-    const int ysz = scene().nrPixY() / 3;
-    const int ystart = scene().nrPixY() - bordernrpix - ysz;
-    const uiRect bgrect( uiPoint(xstart,ystart), uiSize(xsz,ysz) );
-
-    nmbgrectitm_->setRect( bgrect.left(), bgrect.top(), bgrect.width(),
-			   bgrect.height() );
+    const bool xislong = orientation_ == OD::Horizontal;
+    int longstart = longSz() / 10;
+    int longsz = longSz() - 2*longstart;
+    int shortsz = shortSz() / 3;
+    int shortstart = shortSz() - bordernrpix - shortsz;
+    uiRect bgrect;
+    if ( xislong )
+    {
+	bgrect.set( uiPoint(longstart,shortstart), uiSize(longsz,shortsz) );
+	nmitm_->setRotation( 0.f );
+    }
+    else
+    {
+	bgrect.set( uiPoint(shortstart,longstart), uiSize(shortsz,longsz) );
+	nmitm_->setRotation( 90.f );
+    }
 
     nmitm_->setText( toUiString(colseq_->name()) );
     nmitm_->fitIn( bgrect );
+    nmbgrectitm_->setRect( bgrect.left(), bgrect.top(), bgrect.width(),
+			   bgrect.height() );
 }
 
 
 int uiColSeqDisp::longSz() const
 {
     return orientation_ == OD::Horizontal ? scene().nrPixX() : scene().nrPixY();
+}
+
+
+int uiColSeqDisp::shortSz() const
+{
+    return orientation_ == OD::Vertical ? scene().nrPixX() : scene().nrPixY();
 }
 
 

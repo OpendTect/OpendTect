@@ -85,6 +85,7 @@ protected:
     void			seqChgCB( CallBacker* )		{ reDraw(); }
     void			mapperChgCB( CallBacker* )	{ reDraw(); }
     int				longSz() const;
+    int				shortSz() const;
     PosType			relPosFor(const MouseEvent&) const;
 
     bool			setNewSeq(const Sequence&);

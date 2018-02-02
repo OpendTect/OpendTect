@@ -47,12 +47,14 @@ public:
     static uiRect::Side	across(uiRect::Side);
     static uiRect::Side	clockWise(uiRect::Side);
 
-    inline		uiRect( int l = 0 , int t = 0, int r = 0 , int b = 0 );
-    inline		uiRect( const uiPoint& tl, const uiPoint& br );
-    inline		uiRect( const uiPoint& tl, const uiSize& sz );
-    inline		uiRect( const Geom::PixRectangle<int>& );
-    inline uiSize	getPixelSize() const;
+    inline		uiRect(int l=0,int t=0, int r=0,int b=0);
+    inline		uiRect(const uiPoint& tl,const uiPoint& br);
+    inline		uiRect(const uiPoint& tl,const uiSize&);
+    inline		uiRect(const Geom::PixRectangle<int>&);
+    inline void		set(const uiPoint& tl,const uiSize&);
+    inline void		set(const uiPoint& tl,const uiPoint& br);
 
+    inline uiSize	getPixelSize() const;
     inline uiRect	selectArea( const uiRect& other ) const;
     inline bool		topToAtLeast( int ref );
     inline void		topTo( int ref );
@@ -65,8 +67,8 @@ public:
     inline void		expandTo( const uiRect& oth );
     inline int		hNrPics() const;
     inline int		vNrPics() const;
-    inline void		setHNrPics( int np );
-    inline void		setVNrPics( int np );
+    inline void		setHNrPics(int);
+    inline void		setVNrPics(int);
 
     int			get(Side) const;
     void		set(Side,int);
@@ -125,6 +127,19 @@ inline uiRect::uiRect( const uiPoint& tl, const uiSize& sz )
 inline uiRect::uiRect( const Geom::PixRectangle<int>& pr )
     : Geom::PixRectangle<int>( pr )
 {}
+
+
+inline void uiRect::set( const uiPoint& tl, const uiPoint& br )
+{
+    topleft_ = tl; bottomright_ = br;
+}
+
+
+inline void uiRect::set( const uiPoint& tl, const uiSize& sz )
+{
+    topleft_ = tl;
+    bottomright_ = uiPoint( tl.x_ + sz.width(), tl.y_ + sz.height() );
+}
 
 
 inline uiSize uiRect::getPixelSize() const
