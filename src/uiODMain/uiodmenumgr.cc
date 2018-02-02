@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiodmenumgr.h"
 
 #include "ui3dviewer.h"
-#include "uiautosaverdlg.h"
 #include "uicrdevenv.h"
 #include "uifileselector.h"
 #include "uiglinfo.h"
@@ -855,7 +854,6 @@ void uiODMenuMgr::fillUtilMenu()
     langmnumgr_ = new uiODLangMenuMgr( *this );
     addAction( settmnu_, uiStrings::sUserSettings(), "settings",
 				mSettingsMnuItm );
-    addAction( settmnu_, tr("Auto-Save"), "autosave", mSettAutoSaveMnuItm );
 
     uiMenu* advmnu = addSubMenu( settmnu_, uiStrings::sAdvanced(), "advanced" );
     addAction( advmnu, tr("Personal Settings"), "unknownperson",
@@ -1369,11 +1367,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
     case mInstConnSettsMnuItm: {
 	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;
-
-    case mSettAutoSaveMnuItm: {
-	uiAutoSaverDlg dlg( &appl_ );
-	dlg.go();
-    } break;
 
     case mSettingsMnuItm: {
 	uiSettingsDlg dlg( &appl_ );

@@ -210,9 +210,8 @@ ________________________________________________________________________
 #define mDisplayMemoryMnuItm		(mUtilMnu + 98)
 #define mDumpDataPacksMnuItm		(mUtilMnu + 99)
 #define mSettingsMnuItm			(mUtilSettingMnu + 10)
-#define mSettAutoSaveMnuItm		(mUtilSettingMnu + 20)
-#define mSettAdvPersonal		(mUtilSettingMnu + 30)
-#define mSettAdvSurvey			(mUtilSettingMnu + 31)
+#define mSettAdvPersonal		(mUtilSettingMnu + 20)
+#define mSettAdvSurvey			(mUtilSettingMnu + 21)
 #define mSettLanguageMnu		(mUtilSettingMnu + 100)
 
 
