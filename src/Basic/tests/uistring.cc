@@ -245,7 +245,7 @@ bool testHexEncoding()
     uiString original( toUiString(msg) );
     BufferString encoding;
     original.getHexEncoded( encoding );
-
+    str.setFromHexEncoded( encoding );
     QString qstr; str.fillQString( qstr );
     QString orgqstr; original.fillQString( orgqstr );
     mRunStandardTest( str.setFromHexEncoded( encoding ) && orgqstr==qstr,
