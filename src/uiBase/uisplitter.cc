@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 
 #include "uisplitter.h"
+#include "i_common.h"
 
 #include "uigroup.h"
 #include "uiobjbody.h"

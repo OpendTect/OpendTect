@@ -368,7 +368,7 @@ bool uiVisPartServer::disabToolBars( bool yn )
     bool res = false;
     if ( slicepostools_ )
     {
-	res = !slicepostools_->getToolBar()->sensitive();
+	res = !slicepostools_->getToolBar()->isSensitive();
 	slicepostools_->getToolBar()->setSensitive( !yn );
     }
     return res;

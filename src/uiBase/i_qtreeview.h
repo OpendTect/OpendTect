@@ -1,6 +1,4 @@
-#ifndef i_qtreeview_h
-#define i_qtreeview_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,8 +10,8 @@ ________________________________________________________________________
 -*/
 
 #include "uitreeview.h"
+#include "i_common.h"
 
-#include <QObject>
 #include <QTreeWidget>
 
 
@@ -189,5 +187,3 @@ void itemEntered( QTreeWidgetItem* item, int col )
 };
 
 QT_END_NAMESPACE
-
-#endif

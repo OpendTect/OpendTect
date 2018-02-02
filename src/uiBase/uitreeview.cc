@@ -23,16 +23,15 @@ ________________________________________________________________________
 #include "staticstring.h"
 #include "texttranslation.h"
 
+#include "i_qtreeview.h"
+
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QPixmap>
 #include <QScrollBar>
 #include <QSize>
-#include <QString>
 #include <QTreeWidgetItem>
 #include <QTreeWidgetItemIterator>
-
-#include "i_qtreeview.h"
 
 mUseQtnamespace
 
@@ -464,7 +463,7 @@ void uiTreeView::setColumnText( int col, const uiString& label )
 	labels_ += uiString();
 
     labels_[col] = label;
-    body_->headerItem()->setText( col, label.getQString() );
+    body_->headerItem()->setText( col, toQString(label) );
 }
 
 
@@ -805,7 +804,7 @@ void uiTreeView::translateText()
     {
 	if ( idx<labels_.size() )
 	{
-	    body_->headerItem()->setText( idx, labels_[idx].getQString() );
+	    body_->headerItem()->setText( idx, toQString(labels_[idx]) );
 	}
     }
 }
@@ -898,7 +897,7 @@ void uiTreeViewItem::setText( const uiString& txt, int column )
 	texts_ += uiString();
 
     texts_[column] = txt;
-    qtreeitem_->setText( column, txt.getQString() );
+    qtreeitem_->setText( column, toQString(txt) );
     setToolTip( column, txt );
 }
 
@@ -925,7 +924,7 @@ void uiTreeViewItem::translateText()
 {
     for ( int idx=0; idx<texts_.size(); idx++ )
     {
-	qtreeitem_->setText( idx, texts_[idx].getQString() );
+	qtreeitem_->setText( idx, toQString(texts_[idx]) );
 	updateToolTip( idx );
     }
 
@@ -1207,7 +1206,7 @@ bool uiTreeViewItem::updateToolTip( int column )
     if ( uiMain::isNameToolTipUsed() )
 	qtreeitem_->setToolTip( column, "" ); // no name-tooltip for tree items
 
-    qtreeitem_->setToolTip( column, tooltips_[column].getQString() );
+    qtreeitem_->setToolTip( column, toQString(tooltips_[column]) );
 
     return true;
 }

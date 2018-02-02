@@ -1,6 +1,4 @@
-#ifndef i_qcombobox_h
-#define i_qcombobox_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,8 +10,9 @@ ________________________________________________________________________
 -*/
 
 #include "uicombobox.h"
+#include "i_common.h"
 
-#include <QComboBox> 
+#include <QComboBox>
 
 //! Helper class for uiComboBox to relay Qt's 'activated' messages to uiAction.
 /*!
@@ -22,7 +21,7 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class i_comboMessenger : public QObject 
+class i_comboMessenger : public QObject
 {
     Q_OBJECT
     friend class	uiComboBoxBody;
@@ -32,7 +31,7 @@ protected:
 					 uiComboBox* receiver )
 			: _sender( sndr )
 			, _receiver( receiver )
-			{ 
+			{
 			    connect( sndr, SIGNAL( activated (int)),
 				     this,   SLOT( activated (int)) );
 
@@ -43,11 +42,11 @@ protected:
 			}
 
     virtual		~i_comboMessenger() {}
-   
+
 private:
 
-    uiComboBox* 	_receiver;
-    QComboBox*  	_sender;
+    uiComboBox*	_receiver;
+    QComboBox*	_sender;
 
 private slots:
 
@@ -56,7 +55,7 @@ private slots:
     \sa QComboBox::activated
 */
 
-void activated( int ) 
+void activated( int )
 { _receiver->notifyHandler( true ); }
 
 
@@ -67,5 +66,3 @@ void editTextChanged( const QString& )
 };
 
 QT_END_NAMESPACE
-
-#endif

@@ -1266,9 +1266,9 @@ void CmdDriver::forceQtToCatchUp()
 	    CallBack cb = mCB( &displaytoggler, DisplayToggleActivator, actCB );
 
 	    mActivateInGUIThread( cb, true );
-	    mBusyWaitUntil( dummy->visible()!=olddispstate );
+	    mBusyWaitUntil( dummy->isVisible()!=olddispstate );
 	    mActivateInGUIThread( cb, true );
-	    mBusyWaitUntil( dummy->visible()==olddispstate );
+	    mBusyWaitUntil( dummy->isVisible()==olddispstate );
 	    return;
 	}
     }

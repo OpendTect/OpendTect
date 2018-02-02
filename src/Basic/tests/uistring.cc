@@ -42,19 +42,20 @@ bool testArg()
 		      "Composite test" );
 
     const char* desoutput = "Hello Dear 1";
+    QString qstr, qstr2;
 
     uiString string = toUiString( "Hello %1 %2").arg( "Dear" ).arg(toString(1));
-    mRunStandardTest( string.getQString()==QString( desoutput ),
-		     "Standard argument order");
+    string.fillQString( qstr );
+    mRunStandardTest( qstr==QString( desoutput ), "Standard argument order");
 
     string = toUiString( "Hello %2 %1").arg( toString( 1 ) ).arg( "Dear" );
-    mRunStandardTest( string.getQString()==QString(desoutput),
-		     "Reversed argument order");
+    string.fillQString( qstr );
+    mRunStandardTest( qstr==QString(desoutput), "Reversed argument order");
 
     string = toUiString( "Hello %1 %2");
     string.arg( "Dear" ).arg( toString(1) );
-    mRunStandardTest( string.getQString()==QString(desoutput),
-		     "In-place");
+    string.fillQString( qstr );
+    mRunStandardTest( qstr==QString(desoutput), "In-place");
 
 
     BufferString expargs = toString( string );
@@ -65,7 +66,8 @@ bool testArg()
     cloned = string;
     cloned.makeIndependent();
 
-    mRunStandardTest( string.getQString()==cloned.getQString(), "copyFrom" );
+    string.fillQString( qstr ); cloned.fillQString( qstr2 );
+    mRunStandardTest( qstr==qstr2, "copyFrom" );
 
     const uiString part1 = toUiString( "Part 1" );
     const uiString part2 = toUiString( "Part 2" );
@@ -148,7 +150,7 @@ bool testNumberStrings()
     /* These tests will fail miserably if a non-C LOCALE is set.
 
     uiString string = toUiString( 0.9, 3 );
-    QString qstr = string.getQString();
+    QString qstr;
     BufferString bstr( qstr );
     mRunStandardTest( bstr=="0.9", "Number string" );
 
@@ -165,7 +167,7 @@ bool testNumberStrings()
 bool testLargeNumberStrings()
 {
     uiString string = toUiString( 12500 );
-    QString qstr = string.getQString();
+    QString qstr; string.fillQString( qstr );
     BufferString bstr( qstr );
     mRunStandardTest( bstr=="12500", "Large number string" );
 
@@ -244,8 +246,9 @@ bool testHexEncoding()
     BufferString encoding;
     original.getHexEncoded( encoding );
 
-    mRunStandardTest( str.setFromHexEncoded( encoding ) &&
-		      original.getQString()==str.getQString(),
+    QString qstr; str.fillQString( qstr );
+    QString orgqstr; original.fillQString( orgqstr );
+    mRunStandardTest( str.setFromHexEncoded( encoding ) && orgqstr==qstr,
 		      "Reading encoded string" );
 
     return true;

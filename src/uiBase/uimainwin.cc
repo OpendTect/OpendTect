@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uimainwin.h"
 #include "uidialog.h"
+#include "q_uiimpl.h"
 
 #include "uibody.h"
 #include "uiclipboard.h"
@@ -824,8 +825,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     setBody( body_ );
     body_->construct( setup.nrstatusflds_, setup.withmenubar_ );
     body_->setWindowIconText( setup.caption_.isEmpty()
-		? "OpendTect"
-		: setup.caption_.getQString() );
+		? QString("OpendTect") : toQString(setup.caption_) );
     body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 }
@@ -850,8 +850,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     setBody( body_ );
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( caption_.isEmpty()
-			     ? "OpendTect"
-			     : caption_.getQString() );
+			     ? QString("OpendTect") : toQString(caption_) );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 
     mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );
@@ -943,7 +942,7 @@ void uiMainWin::setCaption( const uiString& txt )
 void uiMainWin::updateCaption()
 {
     uniquecaption_ = uniqueWinTitle(caption_,body_,0);
-    body_->setWindowTitle( uniquecaption_.getQString() );
+    body_->setWindowTitle( toQString(uniquecaption_) );
 }
 
 
@@ -1059,7 +1058,7 @@ void uiMainWin::setIcon( const uiPixmap& pm )
 { body_->setWindowIcon( *pm.qpixmap() ); }
 
 void uiMainWin::setIconText( const uiString& txt)
-{ body_->setWindowIconText( txt.getQString() ); }
+{ body_->setWindowIconText( toQString(txt) ); }
 
 void uiMainWin::saveSettings()
 { body_->saveSettings(); }
@@ -1272,7 +1271,7 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 	    res = beginning;
 	}
 
-	QString wintitle = res.getQString();
+	QString wintitle = toQString( res );
 
 	for ( int idx=0; idx<toplevelwigs.count(); idx++ )
 	{

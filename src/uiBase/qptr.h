@@ -1,6 +1,4 @@
-#ifndef qptr_h
-#define qptr_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -34,17 +32,14 @@ public:
 				operator const mQtclass(QObject)*() const;
     mQtclass(QObject*)		operator->();
     const mQtclass(QObject*)	operator->() const;
-    
+
     mQtclass(QObject)*		operator=(mQtclass(QObject)*);
 
     Threads::Mutex&		mutex();
-    
+
     NotifierAccess&		deleteNotifier();
 
 protected:
 
     i_QPtrImpl*		impl_;
 };
-
-
-#endif

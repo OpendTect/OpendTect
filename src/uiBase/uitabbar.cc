@@ -32,7 +32,7 @@ public:
 			uiTabBarBody( uiTabBar& hndl, uiParent* p,
 				      const char* nm )
 			    : uiObjBodyImpl<uiTabBar,QTabBar>(hndl,p,
-				    					nm)
+									nm)
 			    , messenger_(*new i_tabbarMessenger(this,&hndl))
 			    {
 				setHSzPol( uiObject::MedVar );
@@ -68,7 +68,7 @@ uiTabBar::~uiTabBar()
 uiTabBarBody& uiTabBar::mkbody( uiParent* parnt, const char* nm )
 {
     body_ = new uiTabBarBody( *this, parnt, nm );
-    return *body_; 
+    return *body_;
 }
 
 int uiTabBar::addTab( uiTab* tab )
@@ -77,7 +77,7 @@ int uiTabBar::addTab( uiTab* tab )
     if ( !tab ) return -1;
     tabs_ += tab;
     tab->group().display( tabs_.size()==1 );
-    return body_->insertTab( tabs_.size(), tab->getCaption().getQString() );
+    return body_->insertTab( tabs_.size(), toQString(tab->getCaption()) );
 }
 
 

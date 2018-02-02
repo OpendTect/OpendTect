@@ -1,6 +1,4 @@
-#ifndef i_qtoolbar_h
-#define i_qtoolbar_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -11,8 +9,10 @@ ________________________________________________________________________
 
 -*/
 
-#include <QToolBar>
 #include "uitoolbar.h"
+#include "i_common.h"
+
+#include <QToolBar>
 
 
 //! Helper class for uiToolBar to relay Qt's messages.
@@ -56,5 +56,3 @@ void orientationChanged( Qt::Orientation )
 };
 
 QT_END_NAMESPACE
-
-#endif

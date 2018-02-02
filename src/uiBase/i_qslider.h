@@ -1,6 +1,4 @@
-#ifndef i_qslider_h
-#define i_qslider_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,8 +10,8 @@ ________________________________________________________________________
 -*/
 
 #include "uislider.h"
+#include "i_common.h"
 
-#include <QObject>
 #include <QSlider>
 
 //! Helper class for uislider to relay Qt's messages.
@@ -65,5 +63,3 @@ void valueChanged(int)	{ mTrigger(valueChanged); }
 };
 
 QT_END_NAMESPACE
-
-#endif

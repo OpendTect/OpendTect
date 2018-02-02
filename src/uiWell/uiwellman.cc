@@ -219,7 +219,7 @@ void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
 
     uiString tt = toUiString("%1 %2").arg(oper)
 				     .arg(objtyp);
-    if ( but->sensitive() && !obj.isEmpty() )
+    if ( but->isSensitive() && !obj.isEmpty() )
 	tt = tr("%1 for '%2'").arg(tt).arg(obj);
 
     if ( !end.isEmpty() )

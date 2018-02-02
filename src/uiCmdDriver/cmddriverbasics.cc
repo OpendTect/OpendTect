@@ -766,17 +766,17 @@ UIEntity::UIEntity( const CallBacker* cber )
 }
 
 
-bool UIEntity::visible() const
+bool UIEntity::isVisible() const
 {
     if ( !isValid() ) return false;
-    return uiobj_ ? uiobj_->visible() :  uiact_->isVisible();
+    return uiobj_ ? uiobj_->isVisible() :  uiact_->isVisible();
 }
 
 
-bool UIEntity::sensitive() const
+bool UIEntity::isSensitive() const
 {
     if ( !isValid() ) return false;
-    return uiobj_ ? uiobj_->sensitive() : uiact_->isEnabled();
+    return uiobj_ ? uiobj_->isSensitive() : uiact_->isEnabled();
 }
 
 

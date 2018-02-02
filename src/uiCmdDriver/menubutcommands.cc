@@ -495,7 +495,7 @@ bool OkCancelCmd::act( const char* parstr )
 	uiDialog::Button buttyp = ok ? uiDialog::OK : uiDialog::CANCEL;
 	const uiButton* but = const_cast<uiDialog*>(dlg)->button( buttyp );
 
-	if ( but && !but->sensitive() )
+	if ( but && !but->isSensitive() )
 	{
 	    mWinErrStrm << "The " << name() << "-button is currently disabled"
 			<< od_endl;

@@ -80,7 +80,7 @@ uiString uiSeisPreStackMan::createCaption( bool is2d )
 
 
 #define mSetButToolTip(but,str1,deftt) \
-    if ( !but->sensitive() ) \
+    if ( !but->isSensitive() ) \
 	but->setToolTip( deftt ); \
     else \
 	but->setToolTip( str1 ); \

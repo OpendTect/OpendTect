@@ -1,6 +1,4 @@
-#ifndef i_qaction_h
-#define i_qaction_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,8 +10,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiaction.h"
+#include "i_common.h"
 
-#include <QObject>
 #include <QAction>
 #include <iostream>
 
@@ -30,14 +28,14 @@ protected:
 i_ActionMessenger( QAction* sndr, uiAction* receiver )
     : sender_( sndr )
     , receiver_( receiver )
-{ 
+{
     connect( sender_, SIGNAL(toggled(bool)),this, SLOT(toggled(bool)) );
     connect( sender_, SIGNAL(triggered(bool)), this, SLOT(triggered(bool)));
     connect( sender_, SIGNAL(hovered()), this, SLOT(hovered()) );
 }
 
 virtual	~i_ActionMessenger() {}
-   
+
 private:
 
     uiAction*		receiver_;
@@ -66,5 +64,3 @@ void hovered()
 };
 
 QT_END_NAMESPACE
-
-#endif

@@ -261,7 +261,7 @@ void uiObject::updateToolTip(CallBacker*)
 	getWidget(0)->setToolTip( namestr.buf() );
     }
     else
-	getWidget(0)->setToolTip( tooltip_.getQString() );
+	getWidget(0)->setToolTip( toQString(tooltip_) );
 }
 
 
@@ -339,11 +339,10 @@ void uiObject::setTextColor(const Color& col)
 void uiObject::setSensitive(bool yn)
     { mBody()->uisetSensitive(yn); }
 
-bool uiObject::sensitive() const
+bool uiObject::isSensitive() const
     { return mConstBody()->uisensitive(); }
 
-
-bool uiObject::visible() const
+bool uiObject::isVisible() const
     { return mConstBody()->uivisible(); }
 
 bool uiObject::isDisplayed() const

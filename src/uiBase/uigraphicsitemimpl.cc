@@ -737,14 +737,14 @@ uiSize uiTextItem::getTextSize() const
 void uiTextItem::setText( const uiString& txt )
 {
     text_ = txt;
-    qtextitem_->setText( text_.getQString() );
+    qtextitem_->setText( toQString(text_) );
 }
 
 
 void uiTextItem::translateText()
 {
     uiGraphicsItem::translateText();
-    qtextitem_->setText( text_.getQString() );
+    qtextitem_->setText( toQString(text_) );
 }
 
 
@@ -814,7 +814,7 @@ void uiTextItem::fitIn( const uiRect& rect )
     const int rectwidth = rect.width();
     const int rectheight = rect.height();
     int resizedir = 0;
-    const QString qtxt( text_.getQString() );
+    const QString qtxt( toQString(text_) );
     float curptsz = qfont.pointSizeF();
     float prevptsz = curptsz;
     while ( true )
@@ -932,7 +932,7 @@ void uiAdvancedTextItem::setFont( const FontData& fd )
 
 void uiAdvancedTextItem::setPlainText( const uiString& txt )
 {
-    qtextitem_->setPlainText( txt.getQString() );
+    qtextitem_->setPlainText( toQString(txt) );
 }
 
 

@@ -1,6 +1,4 @@
-#ifndef i_qptr_h
-#define i_qptr_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,7 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "notify.h"
-#include <QObject>
+#include "i_common.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -63,5 +61,3 @@ private slots:
 };
 
 QT_END_NAMESPACE
-
-#endif

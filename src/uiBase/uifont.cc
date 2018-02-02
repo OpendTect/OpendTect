@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uifont.h"
+#include "q_uiimpl.h"
 
 #include "uimain.h"
 #include "uiparent.h"
@@ -127,7 +128,7 @@ int uiFont::avgWidth() const
 
 int uiFont::width(const uiString& str) const
 {
-    return qfontmetrics_.width( str.getQString() );
+    return qfontmetrics_.width( toQString(str) );
 }
 
 
@@ -379,7 +380,7 @@ static bool getFont( mQtclass(QFont)& qfontout,
 {
     QFontDialog dlg( qfontin,
 		     par && par->getNrWidgets() ? par->getWidget( 0 ) : 0 );
-    dlg.setWindowTitle( nm.getQString() );
+    dlg.setWindowTitle( toQString(nm) );
 
     if ( dlg.exec() != QDialog::Accepted )
 	return false;

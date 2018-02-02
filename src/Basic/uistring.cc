@@ -49,7 +49,8 @@ static char* getNewDebugStr( char* strvar, const BufferString& newstr )
     return strvar;
 }
 
-# define mSetDBGStr debugstr_ = getNewDebugStr( debugstr_, getFullString() )
+# define mSetDBGStr { \
+    debugstr_ = getNewDebugStr( debugstr_, toString() ); }
 
 #endif
 
@@ -249,13 +250,14 @@ bool uiStringData::fillQString( QString& res,
 	QString thearg;
 	if ( notranslation )
 	{
-	    const BufferString str( arguments_[idx].getFullString() );
+	    BufferString str;
+	    arguments_[idx].getFullString( str );
 	    thearg = str.buf();
 	}
 	else if ( translator )
 	    arguments_[idx].translate( *translator, thearg );
 	else
-	    thearg = arguments_[idx].getQString();
+	    arguments_[idx].fillQString( thearg );
 
 	res = res.arg( thearg );
     }
@@ -278,7 +280,8 @@ uiString::uiString()
     : data_( 0 )
     , datalock_( true )
     , debugstr_( 0 )
-{}
+{
+}
 
 
 uiString::uiString( const char* originaltext, const char* context,
@@ -374,16 +377,14 @@ const char* uiString::getOriginalString() const
 }
 
 
-BufferString uiString::getFullString() const
+void uiString::getFullString( BufferString& ret ) const
 {
 
     Threads::Locker datalocker( datalock_ );
     if ( !data_ )
-	return BufferString();
-
-    BufferString res;
-    data_->getFullString( res );
-    return res;
+	ret.setEmpty();
+    else
+	data_->getFullString( ret );
 }
 
 
@@ -406,41 +407,24 @@ bool uiString::isCacheValid() const
 }
 
 
-const QString& uiString::getQString() const
+void uiString::fillQString( QString& res ) const
 {
-    Threads::Locker datalocker( datalock_ );
     if ( !data_ )
+	res.clear();
+    else
     {
-#ifndef OD_NO_QT
-	return emptyqstring;
-#else
-	QString* ptr = 0;
-	return *ptr;
-#endif
+	Threads::Locker datalocker( datalock_ );
+	Threads::Locker contentlocker( data_->contentlock_ );
+	res = getQStringInternal();
     }
-
-    Threads::Locker contentlocker( data_->contentlock_ );
-
-    return getQStringInternal();
 }
 
 
-const QString& uiString::fillQString( QString& res ) const
-{
-    Threads::Locker datalocker( datalock_ );
-    Threads::Locker contentlocker( data_->contentlock_ );
-
-    res = getQStringInternal();
-    return res;
-}
-
-
-const BufferString& uiString::fillUTF8String( BufferString& res ) const
+void uiString::fillUTF8String( BufferString& res ) const
 {
     QString qres;
     fillQString( qres );
     res.set( qres );
-    return res;
 }
 
 
@@ -538,45 +522,38 @@ uiString& uiString::set( const char* str )
 }
 
 
-bool uiString::operator>(const uiString& b ) const
+bool uiString::operator>( const uiString& oth ) const
 {
 #ifndef OD_NO_QT
-    Threads::Locker datalocker( datalock_ );
-    if ( !data_ )
-	return false;
-
-    const QString& aqstr = getQString();
-    const QString& bqstr = b.getQString();
-    return aqstr > bqstr;
+    mGetQStr( myqs, *this );
+    mGetQStr( othqs, oth );
+    return myqs > othqs;
 #else
     return true;
 #endif
 }
 
 
-bool uiString::operator<(const uiString& b ) const
+bool uiString::operator<( const uiString& oth ) const
 {
 #ifndef OD_NO_QT
-    Threads::Locker datalocker( datalock_ );
-    if ( !data_ )
-	return true;
-
-    const QString& aqstr = getQString();
-    const QString& bqstr = b.getQString();
-    return aqstr < bqstr;
+    mGetQStr( myqs, *this );
+    mGetQStr( othqs, oth );
+    return myqs < othqs;
 #else
-    return true;
+    return false;
 #endif
 }
 
 
 bool uiString::isEqualTo( const uiString& oth ) const
 {
-    Threads::Locker datalocker( datalock_ );
-    if ( data_ == oth.data_ )
+    if ( this == &oth )
 	return true;
 
-    return getFullString() == oth.getFullString();
+    mGetQStr( myqs, *this );
+    mGetQStr( othqs, oth );
+    return myqs == othqs;
 }
 
 
@@ -585,7 +562,7 @@ bool uiString::isPlainAscii() const
 #ifdef OD_NO_QT
     return true;
 #else
-    const QString qstr = getQString();
+    mGetQStr( qstr, *this );
     return !qstr.contains( QRegularExpression(
 		QStringLiteral( "[^\\x{0000}-\\x{007F}]") ) );
 #endif
@@ -764,9 +741,8 @@ void uiString::makeIndependent()
 void uiString::getHexEncoded( BufferString& str ) const
 {
 #ifndef OD_NO_QT
-    const QString qstr = getQString();
+    mGetQStr( qstr, *this );
     const QString hex( qstr.toUtf8().toHex() );
-
     str = BufferString( hex );
 #endif
 }
@@ -781,6 +757,14 @@ bool uiString::setFromHexEncoded( const char* str )
 #else
     return false;
 #endif
+}
+
+
+BufferString uiString::toString() const
+{
+    BufferString ret;
+    getFullString( ret );
+    return ret;
 }
 
 
@@ -889,7 +873,8 @@ uiWord getUiYesNoWord( bool res )
 
 int uiString::size() const
 {
-    return getQString().size();
+    mGetQStr( qstr, *this );
+    return qstr.size();
 }
 
 
@@ -997,8 +982,12 @@ void uiStringSet::removeSingle( IdxType idx, bool kporder )
 
 void uiStringSet::fill( QStringList& qlist ) const
 {
+    QString qstr;
     for ( IdxType idx=0; idx<size(); idx++ )
-	qlist.append( strs_[idx]->getQString() );
+    {
+	strs_[idx]->fillQString( qstr );
+	qlist.append( qstr );
+    }
 }
 
 
@@ -1094,18 +1083,28 @@ uiStringSet::IdxType* uiStringSet::getSortIndexes( bool caseinsens,
     const size_type sz = size();
     if ( sz < 1 )
 	return 0;
+
     mGetIdxArr( size_type, idxs, sz );
     Qt::CaseSensitivity cs(Qt::CaseSensitive);
     if ( caseinsens )
 	cs = Qt::CaseInsensitive;
 
     const uiStringSet* strset = this;
+    QString qs1, qs2;
     for ( size_type d=sz/2; d>0; d=d/2 )
+    {
 	for ( size_type i=d; i<sz; i++ )
-	    for ( size_type j=i-d; j>=0 &&
-		  (QString::compare( strset->get(idxs[j]).getQString(),
-		  strset->get(idxs[j+d]).getQString(), cs ) > 0 ); j-=d )
+	{
+	    for ( size_type j=i-d; j>=0; j-=d )
+	    {
+		strset->get(idxs[j]).fillQString( qs1 );
+		strset->get(idxs[j+d]).fillQString( qs2 );
+		if ( QString::compare(qs1,qs2,cs) <= 0 )
+		    break;
 		Swap( idxs[j+d], idxs[j] );
+	    }
+	}
+    }
 
     if ( !asc )
     {

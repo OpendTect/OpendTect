@@ -1,6 +1,4 @@
-#ifndef i_qtabbar_h
-#define i_qtabbar_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,8 +10,8 @@ ________________________________________________________________________
 -*/
 
 #include "uitabbar.h"
+#include "i_common.h"
 
-#include <QObject>
 #include <QTabBar>
 
 
@@ -24,7 +22,7 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class i_tabbarMessenger : public QObject 
+class i_tabbarMessenger : public QObject
 {
     Q_OBJECT
     friend class	uiTabBarBody;
@@ -33,14 +31,14 @@ protected:
 i_tabbarMessenger( QTabBar* sndr, uiTabBar* receiver )
     : sender_(sndr)
     , receiver_(receiver)
-{ 
+{
     connect( sndr, SIGNAL(currentChanged(int)), this, SLOT(selected(int)) );
 }
 
 private:
 
     uiTabBar*		receiver_;
-    QTabBar*     	sender_;
+    QTabBar*	sender_;
 
 private slots:
 
@@ -54,5 +52,3 @@ private slots:
 };
 
 QT_END_NAMESPACE
-
-#endif

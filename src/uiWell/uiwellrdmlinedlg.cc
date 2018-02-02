@@ -101,11 +101,11 @@ void uiWellSelGrp::createSelectButtons( uiGroup* selbuttons )
     toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow,
 					tr("Move right"), cb );
     toselect_->attach( centeredBelow, sellbl );
-    toselect_->setHSzPol( uiObject::Undef );
+    toselect_->setHSzPol( uiObject::UseDefault );
     fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow,
 					tr("Move left"), cb );
     fromselect_->attach( alignedBelow, toselect_ );
-    fromselect_->setHSzPol( uiObject::Undef );
+    fromselect_->setHSzPol( uiObject::UseDefault );
     selbuttons->setHAlignObj( toselect_ );
 }
 
@@ -117,11 +117,11 @@ void uiWellSelGrp::createMoveButtons( uiGroup* movebuttons )
     moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,
 				    tr("Move Up"), cb );
     moveupward_->attach( centeredBelow, movelbl );
-    moveupward_->setHSzPol( uiObject::Undef );
+    moveupward_->setHSzPol( uiObject::UseDefault );
     movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
 					tr("Move Down"), cb );
     movedownward_->attach( alignedBelow, moveupward_ );
-    movedownward_->setHSzPol( uiObject::Undef );
+    movedownward_->setHSzPol( uiObject::UseDefault );
     movebuttons->setHAlignObj( moveupward_ );
 }
 

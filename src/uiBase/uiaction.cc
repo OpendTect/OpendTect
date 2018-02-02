@@ -126,7 +126,7 @@ uiAction::~uiAction()
 void uiAction::init( const uiString& txt )
 {
     text_ = txt;
-    qaction_ = new QAction( text_.getQString(), 0 );
+    qaction_ = new QAction( toQString(text_), 0 );
     msgr_ = new i_ActionMessenger( qaction_, this );
     alluiactions_ += this;
 
@@ -144,7 +144,7 @@ void uiAction::setShortcut( const char* sctxt )
 void uiAction::setText( const uiString& txt )
 {
     text_ = txt;
-    qaction_->setText( text_.getQString() );
+    qaction_->setText( toQString(text_) );
     updateToolTip();
 }
 
@@ -158,7 +158,7 @@ const uiString& uiAction::text() const
 void uiAction::setIconText( const uiString& txt )
 {
     icontext_ = txt;
-    qaction_->setIconText( icontext_.getQString() );
+    qaction_->setIconText( toQString(icontext_) );
 }
 
 
@@ -186,7 +186,7 @@ void uiAction::updateToolTip( CallBacker* )
     mEnsureExecutedInMainThread( uiAction::updateToolTip );
 
     if ( !uiMain::isNameToolTipUsed() )
-	qaction_->setToolTip( tooltip_.getQString() );
+	qaction_->setToolTip( toQString(text_) );
     else
     {
 	BufferString namestr =
@@ -199,8 +199,8 @@ void uiAction::updateToolTip( CallBacker* )
 
 void uiAction::updateText()
 {
-    qaction_->setText( text_.getQString() );
-    qaction_->setIconText( icontext_.getQString() );
+    qaction_->setText( toQString(text_) );
+    qaction_->setIconText( toQString(icontext_) );
 }
 
 

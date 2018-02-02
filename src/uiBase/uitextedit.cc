@@ -303,7 +303,7 @@ void uiTextEdit::setText( const OD::String& txt )
 void uiTextEdit::setText( const uiString& txt )
 {
     NotifyStopper ns( textChanged );
-    qte().setText( txt.getQString() );
+    qte().setText( toQString(txt) );
     body_->setReadOnly( true );
     setBackgroundColor( roBackgroundColor() );
 }

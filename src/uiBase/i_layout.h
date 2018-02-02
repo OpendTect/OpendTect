@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "uilayout.h"
+#include "i_common.h"
 #include "uigeom.h"
 #include "uiobj.h"
 #include "sets.h"

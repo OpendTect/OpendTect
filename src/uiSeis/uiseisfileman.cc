@@ -162,7 +162,7 @@ void uiSeisFileMan::ownSelChg()
 #define mSetButToolTip(but,str1,curattribnms,str2,deftt) { \
     if ( but ) \
     { \
-	if ( but->sensitive() ) \
+	if ( but->isSensitive() ) \
 	{ \
 	    tt.setEmpty(); \
 	    tt.append( str1 ).append( curattribnms ).append( str2 ); \

@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 
 #include "uidate.h"
+#include "i_common.h"
 
-#include "uiobjbody.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uicombobox.h"
@@ -40,9 +40,9 @@ uiCalendar::uiCalendar( uiParent* p )
 
 
 uiCalendarBody& uiCalendar::mkbody( uiParent* p )
-{ 
+{
     body_= new uiCalendarBody(*this,p );
-    return *body_; 
+    return *body_;
 }
 
 void uiCalendar::setDate( const DateInfo& di )

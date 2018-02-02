@@ -69,7 +69,7 @@ public:
     bool		hasFocus() const	  { mRetMO(hasFocus,false); }
 
     void		setSensitive(bool yn=true){ mIfMO()->setSensitive(yn); }
-    bool		sensitive() const	  { mRetMO(sensitive,false); }
+    bool		isSensitive() const	  { mRetMO(isSensitive,false); }
 
     const uiFont*	font() const		  { mRetMO(font,0); }
     void		setFont( const uiFont& f) { mIfMO()->setFont(f); }

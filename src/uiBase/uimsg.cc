@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 
 #include "uimsg.h"
+#include "q_uiimpl.h"
 
 #include "bufstringset.h"
 #include "mousecursor.h"
@@ -215,8 +216,8 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 
     QMessageBox* mb = new QMessageBox( parent );
     mb->setIcon( (QMessageBox::Icon)icon );
-    mb->setWindowTitle( title.getQString() );
-    mb->setText( txt.getQString() );
+    mb->setWindowTitle( toQString(title) );
+    mb->setText( toQString(txt) );
     addStayOnTopFlag( *mb );
 
     QIcon qicon; // null icon to avoid icons on the pushbuttons
@@ -224,7 +225,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( !yestxt.isEmpty() )
     {
 	QPushButton* yesbut = mb->addButton( QMessageBox::Yes );
-	yesbut->setText(yestxt.getQString() );
+	yesbut->setText( toQString(yestxt) );
 	uiIcon icn( "ok" );
 	qicon = icn.qicon();
 	yesbut->setIcon( qicon );
@@ -233,7 +234,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( !notxt.isEmpty() )
     {
 	QPushButton* nobut = mb->addButton( QMessageBox::No );
-	nobut->setText( notxt.getQString() );
+	nobut->setText( toQString(notxt) );
 	uiIcon icn( "stop" );
 	qicon = icn.qicon();
 	nobut->setIcon( qicon );
@@ -242,7 +243,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( !cncltxt.isEmpty() )
     {
 	QPushButton* rejbut = mb->addButton( QMessageBox::Abort );
-	rejbut->setText( cncltxt.getQString() );
+	rejbut->setText( toQString(cncltxt) );
 	uiIcon icn( "cancel" );
 	qicon = icn.qicon();
 	rejbut->setIcon( qicon );
@@ -251,7 +252,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( notagain && mb->layout() )
     {
 	*notagain = new QCheckBox();
-	(*notagain)->setText( uiMsg::sDontShowAgain().getQString() );
+	(*notagain)->setText( toQString(uiMsg::sDontShowAgain()) );
 	mDynamicCastGet(QGridLayout*,grid,mb->layout())
 	if ( grid )
 	    grid->addWidget( *notagain, grid->rowCount(), 0, 1,
@@ -459,7 +460,7 @@ void uiMsg::errorWithDetailProc( uiStringSet& strings )
 	    detailed = tr( "%1\n%2" ).arg( old ).arg( strings[idx] );
 	}
 
-	mb->setDetailedText( detailed.getQString() );
+	mb->setDetailedText( toQString(detailed) );
     }
 
     mb->exec();

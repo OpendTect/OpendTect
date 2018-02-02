@@ -215,8 +215,8 @@ void uiGenInputInputFld::init()
 {
     update_( spec_ );
 
-    uiObject::SzPolicy hpol = p_ ? p_->elemSzPol() : uiObject::Undef;
-    if ( hpol == uiObject::Undef )
+    uiObject::SzPolicy hpol = p_ ? p_->elemSzPol() : uiObject::UseDefault;
+    if ( hpol == uiObject::UseDefault )
     {
 	int nel = p_ ? p_->nrElements() : nElems();
 
@@ -380,12 +380,12 @@ void uiGenInputBoolFld::setReadOnly( bool ro )
 
 bool uiGenInputBoolFld::isReadOnly() const
 {
-    if ( checkbox_ )		return checkbox_->sensitive();
+    if ( checkbox_ )		return checkbox_->isSensitive();
 
     if ( !rb1_ || !rb2_ )
 	{ pErrMsg("Huh?"); return false; }
 
-    return !rb1_->sensitive() && !rb2_->sensitive();
+    return !rb1_->isSensitive() && !rb2_->isSensitive();
 }
 
 
@@ -422,7 +422,7 @@ void uiGenInputIntFld::setReadOnly( bool yn )
 { uiSpinBox::setSensitive( !yn ); }
 
 bool uiGenInputIntFld::isReadOnly() const
-{ return !uiSpinBox::sensitive(); }
+{ return !uiSpinBox::isSensitive(); }
 
 bool uiGenInputIntFld::update_( const DataInpSpec& spec )
 { setvalue_( spec.getIntValue() ); return true; }
@@ -473,7 +473,7 @@ void uiGenInputInt64Fld::setReadOnly( bool yn )
 { uiSpinBox::setSensitive( !yn ); }
 
 bool uiGenInputInt64Fld::isReadOnly() const
-{ return !uiSpinBox::sensitive(); }
+{ return !uiSpinBox::isSensitive(); }
 
 bool uiGenInputInt64Fld::update_( const DataInpSpec& spec )
 { setvalue_( spec.getIntValue() ); return true; }

@@ -403,7 +403,7 @@ bool CmdRecorder::findKeyString( const uiMainWin& srcwin, CmdRecEvent& event )
 
     bool res = doFindKeyStr( srcwin, event );
     const UIEntity uientity( event.object_ );
-    if ( !res && uientity.visible() && uientity.sensitive() )
+    if ( !res && uientity.isVisible() && uientity.isSensitive() )
 	lastobjfreewins_ += &srcwin;
 
     return res;

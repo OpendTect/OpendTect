@@ -453,7 +453,7 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 	displayfld_->setChecked( false );
 	displayfld_->setSensitive( false );
     }
-    else if ( displayfld_ && !displayfld_->sensitive() )
+    else if ( displayfld_ && !displayfld_->isSensitive() )
     {
 	displayfld_->setSensitive( true );
 	displayfld_->setChecked( true );

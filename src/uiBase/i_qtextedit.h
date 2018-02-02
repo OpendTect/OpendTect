@@ -1,6 +1,4 @@
-#ifndef i_qtextedit_h
-#define i_qtextedit_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -12,6 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "uitextedit.h"
+#include "i_common.h"
 
 #include <QAbstractSlider>
 #include <QTextEdit>
@@ -24,8 +23,6 @@ ________________________________________________________________________
 */
 
 QT_BEGIN_NAMESPACE
-
-class QString;
 
 class i_TextEditMessenger : public QObject
 {
@@ -150,5 +147,3 @@ private slots:
 };
 
 QT_END_NAMESPACE
-
-#endif

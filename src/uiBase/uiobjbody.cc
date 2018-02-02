@@ -49,8 +49,8 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     , fnt_hgt( 0 )
     , fnt_wdt( 0 )
     , fnt_maxwdt( 0 )
-    , hszpol( uiObject::Undef )
-    , vszpol( uiObject::Undef )
+    , hszpol( uiObject::UseDefault )
+    , vszpol( uiObject::UseDefault )
 #ifdef USE_DISPLAY_TIMER
     , displaytimer( *new Timer("Display timer"))
 {
@@ -386,7 +386,7 @@ int uiObjectBody::prefVNrPics() const
 	{
 	    const_cast<uiObjectBody*>(this)->getSzHint();
 
-	    if ( nrTxtLines() < 0 && szPol(false) == uiObject::Undef  )
+	    if ( nrTxtLines() < 0 && szPol(false) == uiObject::UseDefault  )
 		const_cast<uiObjectBody*>(this)->pref_height_= pref_height_hint;
 	    else
 	    {
@@ -480,10 +480,11 @@ void uiObjectBody::setStretch( int hor, int ver )
 }
 
 
-int uiObjectBody::stretch( bool hor, bool retUndef ) const
+int uiObjectBody::stretch( bool hor, bool retundef ) const
 {
     int s = hor ? hStretch : vStretch;
-    if ( retUndef ) return s;
+    if ( retundef )
+	return s;
 
     return mIsUdf(s) ? 0 : s;
 }
@@ -497,12 +498,12 @@ uiSize uiObjectBody::actualSize( bool include_border ) const
 
 void uiObjectBody::setToolTip( const uiString& txt )
 {
-    qwidget()->setToolTip( txt.getQString() );
+    qwidget()->setToolTip( toQString(txt) );
 }
 
 
 void uiObjectBody::uisetCaption( const uiString& str )
-    { qwidget()->setWindowTitle( str.getQString() ); }
+    { qwidget()->setWindowTitle( toQString(str) ); }
 
 i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
     { return new i_uiLayoutItem( mngr , *this ); }
@@ -550,7 +551,7 @@ int uiObjectBody::fontWidthFor( const uiString& str ) const
 	return qstr.size() * fnt_wdt;
     }
 
-    return qw->fontMetrics().width( str.getQString() );
+    return qw->fontMetrics().width( toQString(str) );
 }
 
 

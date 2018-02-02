@@ -211,7 +211,7 @@ void uiSeisWvltMan::wvltExtractedCB( CallBacker* )
 
 
 #define mSetButToolTip(but,str1,deftt) \
-    if ( !but->sensitive() ) \
+    if ( !but->isSensitive() ) \
 	but->setToolTip( deftt ); \
     else \
 	but->setToolTip( str1 ); \
