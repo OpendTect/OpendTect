@@ -91,7 +91,7 @@ bool Well::TrackAscIO::readTrackData( TypeSet<Coord3>& pos,
 	if ( mIsUdf(curpos.z_) && mIsUdf(dah) )
 	{
 	    if ( !nozptsfound )
-		warnmsg_.append( nozpts, true );
+		warnmsg_.appendPhrase( nozpts );
 	    else
 		nozptsfound = true;
 

@@ -718,10 +718,10 @@ void Well::D2TModel::shiftTimesIfNecessary( TypeSet<double>& tvals,
 	  "It does not honour TWT(Z=SRD) = 0.");
     const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefTimeUnit();
     const double usrtshftval = mScaledValue( timeshift, uomz );
-    msg.append(
+    msg.appendPhrase(
 	tr( "\nOpendTect WILL correct for this error by applying a "
 		  "time shift of: %1%2\n"
-		   "The resulting travel-times will differ from the file"))
+		   "The resulting travel-times will differ from the file") )
 		   .arg( usrtshftval )
 		   .arg( UnitOfMeasure::surveyDefTimeUnitAnnot(true,false) );
 
