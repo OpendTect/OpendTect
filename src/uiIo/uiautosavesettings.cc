@@ -32,8 +32,6 @@ uiAutoSaverSettingsGroup::uiAutoSaverSettingsGroup( uiParent* p,
     , washidden_(OD::AUTOSAVE().useHiddenMode())
     , oldnrsecs_(OD::AUTOSAVE().nrSecondsBetweenSaves())
 {
-    const OD::AutoSaver& autosaver = OD::AUTOSAVE();
-
     isactivefld_ = new uiGenInput( this, tr("Auto-Save precious data"),
 			    BoolInpSpec(wasactive_) );
     mAttachCB( isactivefld_->valuechanged,
