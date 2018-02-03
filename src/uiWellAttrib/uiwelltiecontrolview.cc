@@ -40,7 +40,7 @@ namespace WellTie
 { uiMSG().error(msg); act; }
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton( toolbar_, fnm, tt, mCB(this,uiControlView,cbnm) ); \
-    toolbar_->addObject( but );
+    toolbar_->add( but );
 
 uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 				uiFlatViewer* vwr, Server& server )

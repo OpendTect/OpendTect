@@ -240,15 +240,17 @@ void uiColSeqDisp::reDraw()
     {
 	bgrect.set( uiPoint(longstart,shortstart), uiSize(longsz,shortsz) );
 	nmitm_->setRotation( 0.f );
+	nmitm_->setAlignment( OD::Alignment() );
     }
     else
     {
 	bgrect.set( uiPoint(shortstart,longstart), uiSize(shortsz,longsz) );
 	nmitm_->setRotation( 90.f );
+	// nmitm_->setAlignment( mAlignment(Left,Bottom) );
     }
 
     nmitm_->setText( toUiString(colseq_->name()) );
-    nmitm_->fitIn( bgrect );
+    nmitm_->fitIn( bgrect, !xislong );
     nmbgrectitm_->setRect( bgrect.left(), bgrect.top(), bgrect.width(),
 			   bgrect.height() );
 }

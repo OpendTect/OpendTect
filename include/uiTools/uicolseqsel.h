@@ -60,8 +60,8 @@ public:
     virtual void		addObjectsToToolBar(uiToolBar&);
     virtual void		orientationChanged();
 
-    static int			maxElemLongDimSize();
-				//!< max size in pixels of each element
+    static int			maxElemLongDimSize()		{ return 3; }
+				//!< max size in tool button size
 
 protected:
 

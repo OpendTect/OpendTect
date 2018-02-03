@@ -56,7 +56,8 @@ public:
 				  const CallBack& =CallBack(),
 				  bool toggle=false,int id=-1);
     int			addButton(const MenuItem&);
-    void		addObject(uiObject*);
+    void		add(uiToolButton*);
+    void		addObject(uiObject*,int szinicons);
 
     void		setLabel(const uiString&);
 
@@ -117,6 +118,8 @@ protected:
     void			doRemoveAction(mQtclass(QAction)*);
     void			doClear();
     void			handleFinalise(bool pre);
+    void			limitObjSize(mQtclass(QWidget*));
+    void			orientChgCB(CallBacker*);
 
     uiAction*			toolbarmenuaction_;
 
@@ -125,6 +128,7 @@ protected:
 
     ToolBarArea			tbarea_;
     ObjectSet<uiObject>		addedobjects_;
+    ObjectSet<QWidget>		addedwidgets_;
 
     uiString			label_;
     int				getButtonID(mQtclass(QAction*));

@@ -49,12 +49,12 @@ uiSlicePos::uiSlicePos( uiParent* p )
     nextbut_ = new uiToolButton( toolbar_, "nextpos", tr("Next position"),
 				mCB(this,uiSlicePos,nextCB) );
 
-    toolbar_->addObject( label_ );
-    toolbar_->addObject( sliceposbox_ );
-    toolbar_->addObject( steplabel );
-    toolbar_->addObject( slicestepbox_ );
-    toolbar_->addObject( prevbut_ );
-    toolbar_->addObject( nextbut_ );
+    toolbar_->addObject( label_, 2 );
+    toolbar_->addObject( sliceposbox_, 2 );
+    toolbar_->addObject( steplabel, 2 );
+    toolbar_->addObject( slicestepbox_, 2 );
+    toolbar_->addObject( prevbut_, 1 );
+    toolbar_->addObject( nextbut_, 1 );
 
     DBM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
 

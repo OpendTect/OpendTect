@@ -57,6 +57,8 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     }
 
     toolBars() += this;
+
+    mAttachCB( orientationChanged, uiToolBar::orientChgCB );
 }
 
 
@@ -104,20 +106,59 @@ int uiToolBar::addButton( const MenuItem& itm )
 }
 
 
-void uiToolBar::addObject( uiObject* obj )
+void uiToolBar::add( uiToolButton* tb )
+{
+    addObject( tb, 1 );
+}
+
+
+void uiToolBar::addObject( uiObject* obj, int maxsz )
 {
     QWidget* qw = obj && obj->body() ? obj->body()->qwidget() : 0;
-    if ( qw )
+    if ( !qw )
+	{ pErrMsg("Invalid object inserted"); }
+    else
     {
 	qtoolbar_->addWidget( qw );
-	mDynamicCastGet(uiToolButton*,button,obj)
-	if ( !button ) qw->setMaximumHeight( uiObject::iconSize() );
+	mDynamicCastGet(QToolButton*,tb,qw)
+	if ( !tb )
+	{
+	    if ( maxsz < 1 )
+		maxsz = 1;
+	    maxsz *= uiObject::iconSize();
+	    qw->setMaximumWidth( maxsz );
+	    qw->setMaximumHeight( maxsz );
+	    limitObjSize( qw );
+	    addedwidgets_ += qw;
+	}
 	addedobjects_ += obj;
+    }
+}
+
+
+void uiToolBar::limitObjSize( QWidget* qw )
+{
+    const int icsz = uiObject::iconSize();
+    const int maxwdth = qw->maximumWidth();
+    const int maxhght = qw->maximumHeight();
+    const int maxothsz = maxwdth > maxhght ? maxwdth : maxhght;
+    if ( getOrientation() == OD::Horizontal )
+    {
+	qw->setMaximumWidth( maxothsz );
+	qw->setMaximumHeight( icsz );
     }
     else
     {
-	pErrMsg("Not a valid object");
+	qw->setMaximumWidth( icsz );
+	qw->setMaximumHeight( maxothsz );
     }
+}
+
+
+void uiToolBar::orientChgCB( CallBacker* )
+{
+    for ( int idx=0; idx<addedwidgets_.size(); idx++ )
+	limitObjSize( addedwidgets_[idx] );
 }
 
 

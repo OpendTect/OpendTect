@@ -805,14 +805,14 @@ void uiTextItem::setTextColor( const Color& col )
 }
 
 
-void uiTextItem::fitIn( const uiRect& rect )
+void uiTextItem::fitIn( const uiRect& rect, bool verttxt )
 {
     if ( text_.isEmpty() )
 	return;
 
     QFont qfont = qtextitem_->getFont();
-    const int rectwidth = rect.width();
-    const int rectheight = rect.height();
+    const int txtwidth = verttxt ? rect.height() : rect.width();
+    const int txtheight = verttxt ? rect.width() : rect.height();
     int resizedir = 0;
     const QString qtxt( toQString(text_) );
     float curptsz = qfont.pointSizeF();
@@ -822,7 +822,7 @@ void uiTextItem::fitIn( const uiRect& rect )
 	QFontMetrics qfm( qfont );
 	const int wdth = qfm.width( qtxt );
 	const int hght = qfm.height();
-	const bool istoobig = wdth > rectwidth || hght > rectheight;
+	const bool istoobig = wdth > txtwidth || hght > txtheight;
 	if ( resizedir == 0 )
 	    resizedir = istoobig ? -1 : 1;
 	else if ( (resizedir < 0 && !istoobig) || (resizedir > 0 && istoobig) )
@@ -836,15 +836,19 @@ void uiTextItem::fitIn( const uiRect& rect )
     qfont.setPointSizeF( prevptsz );
     QFontMetrics qfm( qfont );
     const int wdth = qfm.width( qtxt );
-    int xshift = (rectwidth - wdth) / 2;
-    if ( xshift < 0 )
-	xshift = 0;
+    int txtdirshift = (txtwidth - wdth) / 2;
+    if ( txtdirshift < 0 )
+	txtdirshift = 0;
     const int hght = qfm.height();
-    int yshift = (rectheight - hght) / 2;
-    if ( yshift < 0 )
-	yshift = 0;
+    int updirshift = (txtheight - hght) / 2;
+    if ( updirshift < 0 )
+	updirshift = 0;
+
     qtextitem_->setFont( qfont );
-    qtextitem_->setPos( rect.left()+xshift-1, rect.top()+yshift-1 );
+    if ( verttxt )
+	qtextitem_->setPos( rect.left()+updirshift-1, rect.top()+txtdirshift-1);
+    else
+	qtextitem_->setPos( rect.left()+txtdirshift-1, rect.top()+updirshift-1);
 }
 
 

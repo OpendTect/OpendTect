@@ -296,7 +296,7 @@ public:
     void		setText(const uiString&);
     void		setTextColor(const Color&);
 
-    void		fitIn(const uiRect&);
+    void		fitIn(const uiRect&,bool verttxt=false);
 			//!< adjusts font size until the text fits
 
 protected:

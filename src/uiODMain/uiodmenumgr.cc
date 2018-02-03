@@ -111,15 +111,6 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
 uiODMenuMgr::~uiODMenuMgr()
 {
-    delete appl_.removeToolBar( dtecttb_ );
-    delete appl_.removeToolBar( viewtb_ );
-    delete appl_.removeToolBar( mantb_ );
-    if ( plugintb_ )
-	delete appl_.removeToolBar( plugintb_ );
-
-    for ( int idx=0; idx<customtbs_.size(); idx++ )
-	delete appl_.removeToolBar( customtbs_[idx] );
-
     delete helpmnumgr_;
     delete langmnumgr_;
     delete faulttoolman_;

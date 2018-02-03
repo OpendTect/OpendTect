@@ -269,8 +269,6 @@ uiMainWinBody::~uiMainWinBody()
     deleteAllChildren(); //delete them now to make sure all ui objects
 			 //are deleted before their body counterparts
 
-    deepErase( toolbars_ );
-
     if ( toolbarsmnu_ )
     {
 	toolbarsmnu_->clear();

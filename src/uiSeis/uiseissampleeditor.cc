@@ -266,21 +266,21 @@ void uiSeisSampleEditor::createMenuAndToolBar()
     {
 	selcompnmfld_ = new uiComboBox( toolbar_, compnms_.getUiStringSet(),
 							    "Component name" );
-	toolbar_->addObject( selcompnmfld_ );
+	toolbar_->addObject( selcompnmfld_, 5 );
 	selcompnmfld_->setCurrentItem( compnr_ );
 	selcompnmfld_->selectionChanged.notify(
 				    mCB(this,uiSeisSampleEditor,chgCompNrCB) );
     }
 
     uiLabel* lbl = new uiLabel( toolbar_, tr("Nr traces") );
-    toolbar_->addObject( lbl );
+    toolbar_->addObject( lbl, 3 );
     nrtrcsfld_ = new uiSpinBox( toolbar_ );
     nrtrcsfld_->setInterval( StepInterval<int>(3,99999,2) );
     nrtrcsfld_->doSnap( true );
     nrtrcsfld_->setValue( 2*stepout_+1 );
     nrtrcsfld_->valueChanged.notify(
 			    mCB(this,uiSeisSampleEditor,nrTracesChgCB) );
-    toolbar_->addObject( nrtrcsfld_ );
+    toolbar_->addObject( nrtrcsfld_, 3 );
 }
 
 

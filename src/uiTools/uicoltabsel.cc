@@ -402,9 +402,7 @@ void moveLastUsed( bool incr )
 
 void addObjectsToToolBar( uiToolBar& tbar )
 {
-    setMaximumWidth( seltool_.maxElemLongDimSize() );
-    setMaximumHeight( seltool_.maxElemLongDimSize() );
-    tbar.addObject( this );
+    tbar.addObject( this, seltool_.maxElemLongDimSize() );
 }
 
 void orientationChanged()
@@ -681,7 +679,7 @@ void uiColTabSelTool::addObjectsToToolBar( uiToolBar& tbar )
     uiColSeqSelTool::addObjectsToToolBar( tbar );
     usemodesel_->addObjectsToToolBar( tbar );
     manip_->addObjectsToToolBar( tbar );
-    tbar.addObject( histeqbut_ );
+    tbar.add( histeqbut_ );
 }
 
 

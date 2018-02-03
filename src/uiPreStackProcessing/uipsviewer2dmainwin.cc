@@ -580,9 +580,8 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	uiToolBar* tb = control_->toolBar();
 	if ( tb )
 	{
-	    tb->addObject(
-		new uiToolButton( tb, "mute", tr("Load Mute"),
-		    mCB(this,uiViewer2DMainWin,loadMuteCB) ) );
+	    tb->add( new uiToolButton( tb, "mute", tr("Load Mute"),
+		     mCB(this,uiViewer2DMainWin,loadMuteCB) ) );
 
 	    if  ( isStored() )
 	    {
@@ -593,10 +592,10 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 			    "anglegather", tr("Display Angle Data"),
 			    mCB(this,uiStoredViewer2DMainWin,angleDataCB) );
 		    adtbsu.istoggle( true );
-		    tb->addObject( new uiToolButton(tb,adtbsu) );
+		    tb->add( new uiToolButton(tb,adtbsu) );
 		}
 
-		tb->addObject(
+		tb->add(
 		    new uiToolButton( tb, "contexthelp", uiStrings::sHelp(),
 			mCB(this,uiStoredViewer2DMainWin,doHelp) ) );
 	    }
@@ -1431,9 +1430,9 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 
 
 #define mDefBut(but,fnm,cbnm,tt) \
-uiToolButton* but = \
-new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
-    tb_->addObject( but );
+    uiToolButton* but = \
+	new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
+    tb_->add( but );
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
 				      bool isstored )
@@ -1465,7 +1464,7 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
     colseqsel_->seqChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
     vwr_.dispParsChanged.notify( mCB(this,uiViewer2DControl,updateColTabCB) );
     colseqsel_->setSeqName( dispPars().vd_.colseqname_ );
-    tb_->addObject( &colseqsel_->asUiObject() );
+    colseqsel_->addObjectsToToolBar( *tb_ );
     tb_->addSeparator();
 }
 

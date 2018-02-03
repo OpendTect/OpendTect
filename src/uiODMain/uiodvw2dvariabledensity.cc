@@ -206,7 +206,13 @@ void uiODVW2DVariableDensityTreeItem::attrLayerChangedCB( CallBacker* cb )
     if ( !viewer2D()->viewwin()->nrViewers() || !viewer2D()->viewControl() )
 	return;
 
-    mGetMonitoredChgData( cb, chgdata );
+    Monitorable::ChangeData chgdata( Monitorable::ChangeData::AllChanged() );
+    if ( cb )
+    {
+	mGetMonitoredChgData( cb, cd );
+	chgdata = cd;
+    }
+
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     if ( chgdata.changeType() == AttribProbeLayer::cDataChange() ||
 	 chgdata.changeType() == AttribProbeLayer::cEntireObjectChange() )

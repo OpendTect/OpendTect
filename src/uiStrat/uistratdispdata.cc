@@ -79,7 +79,7 @@ const StratDispData::Column* StratDispData::getCol( int idx ) const
 StratDispData::Unit* StratDispData::getUnit( int colidx, int uidx )
 {
     Column* col = getCol( colidx );
-    return col && col->units_.validIdx(uidx) ? col->units_[colidx] : 0;
+    return col && col->units_.validIdx(uidx) ? col->units_[uidx] : 0;
 }
 
 

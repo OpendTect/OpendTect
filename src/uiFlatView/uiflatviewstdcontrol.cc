@@ -32,12 +32,12 @@ ________________________________________________________________________
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
-    tb_->addObject( but );
+    tb_->add( but );
 
 #define mEditDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(edittb_,fnm,tt,\
 			   mCB(this,uiFlatViewStdControl,cbnm) ); \
-    edittb_->addObject( but );
+    edittb_->add( but );
 
 #define sLocalHZIdx	0
 #define sGlobalHZIdx	1
@@ -178,8 +178,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     if ( setup.withsnapshot_ )
     {
 	vwr_.rgbCanvas().enableImageSave();
-	tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
-	tb_->addObject( vwr_.rgbCanvas().getPrintImageButton(tb_) );
+	tb_->add( vwr_.rgbCanvas().getSaveImageButton(tb_) );
+	tb_->add( vwr_.rgbCanvas().getPrintImageButton(tb_) );
     }
 
     if ( setup.withscalebarbut_ )
@@ -271,8 +271,7 @@ void uiFlatViewStdControl::finalPrepare()
 
 void uiFlatViewStdControl::clearToolBar()
 {
-    delete mainwin()->removeToolBar( tb_ );
-    tb_ = 0;
+    mainwin()->removeToolBar( tb_ ); tb_ = 0;
     zoominbut_ = zoomoutbut_ = rubbandzoombut_ = parsbut_ = editbut_ = 0;
     vertzoominbut_ = vertzoomoutbut_ = cancelzoombut_ = 0;
 }
