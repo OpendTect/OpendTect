@@ -263,7 +263,7 @@ void ui2DGeomManageDlg::ownSelChg()
 
 void ui2DGeomManageDlg::mkFileInfo()
 {
-    const BufferString txt = getFileInfo();
+    const uiPhrase txt = mToUiStringTodo(getFileInfo());
     setInfo( txt );
 }
 

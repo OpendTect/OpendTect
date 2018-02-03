@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Aug 2007
+ Author:	Bert
+ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
@@ -31,12 +31,12 @@ ________________________________________________________________________
 mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 #define mHelpID is2d ? mODHelpKey(mSeisPrestackMan2DHelpID) : \
-                       mODHelpKey(mSeisPrestackMan3DHelpID)
+		       mODHelpKey(mSeisPrestackMan3DHelpID)
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(createCaption(is2d),mNoDlgTitle,mHelpID)
 		     .nrstatusflds(1).modal(false),
 		   is2d ? SeisPS2DTranslatorGroup::ioContext()
-		        : SeisPS3DTranslatorGroup::ioContext())
+			: SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)
     , copybut_(0)
     , mergebut_(0)
@@ -74,8 +74,8 @@ uiSeisPreStackMan::~uiSeisPreStackMan()
 uiString uiSeisPreStackMan::createCaption( bool is2d )
 {
     return is2d
-        ? uiStrings::phrManage( SeisPS2DTranslatorGroup::sTypeName() )
-        : uiStrings::phrManage( SeisPS3DTranslatorGroup::sTypeName());
+	? uiStrings::phrManage( SeisPS2DTranslatorGroup::sTypeName() )
+	: uiStrings::phrManage( SeisPS3DTranslatorGroup::sTypeName());
 }
 
 
@@ -123,7 +123,7 @@ void uiSeisPreStackMan::ownSelChg()
 
 void uiSeisPreStackMan::mkFileInfo()
 {
-    BufferString txt;
+    uiPhrase txt;
     SeisIOObjInfo objinf( curioobj_ );
     if ( objinf.isOK() )
     {
@@ -131,8 +131,9 @@ void uiSeisPreStackMan::mkFileInfo()
 	{
 	    BufferStringSet nms;
 	    SPSIOPF().getLineNames( *curioobj_, nms );
-	    txt.set( "Line" ).add( nms.size() != 1 ? "s: " : ": " )
-		.add( nms.getDispString(3,false) );
+	    txt = uiStrings::sLine(mPlural).appendPlainText(":",
+				uiString::NewLine).addSpace()
+				.appendPlainText(nms.getDispString(3,false));
 	}
 	else
 	{
@@ -140,36 +141,44 @@ void uiSeisPreStackMan::mkFileInfo()
 	    if ( rdr )
 	    {
 		const PosInfo::CubeData& cd = rdr->posData();
-		txt.add( "Total number of gathers: " ).add( cd.totalSize() );
+		txt = tr("Total number of gathers: %1").arg(cd.totalSize());
+		//txt.add( "Total number of gathers: " ).add( cd.totalSize() );
 		StepInterval<int> rg; cd.getInlRange( rg );
+
+		txt.addNewLine().appendPhrase(tr("Inline range: %1 - %2")
+				.arg(rg.start).arg(rg.stop));
+
 		txt.add( "\nInline range: " )
 			    .add( rg.start ).add( " - " ).add( rg.stop );
 		if ( cd.haveInlStepInfo() )
-		    { txt.add( " [" ).add( rg.step ).add( "]" ); }
+		    txt.appendPlainText( " [%1]", uiString::NewLine )
+							    .arg( rg.step );
 		cd.getCrlRange( rg );
-		txt.add( "\nCrossline range: " )
-			    .add( rg.start ).add( " - " ).add( rg.stop );
+		txt.appendPhrase(tr("Crossline range: %1 - %2").arg(rg.start)
+							    .arg(rg.stop));
 		if ( cd.haveCrlStepInfo() )
-		    { txt.add( " [" ).add( rg.step ).add( "]" ); }
+		    txt.appendPlainText( " [%1]", uiString::NewLine )
+				.arg( rg.step );
 	    }
 	}
-	txt.add( "\n" );
 
 	TrcKeyZSampling cs;
 	if ( objinf.getRanges(cs) )
 	{
 	    const bool zistm = objinf.isTime();
 	    const ZDomain::Def& zddef = objinf.zDomainDef();
-#	    define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
-	    txt.add( toString(zddef.userName()) ).add(" range ")
-		.add( toString(zddef.unitStr(true)) )
-		.add(": ") mAddZValTxt(cs.zsamp_.start)
-		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
-		.add(" [") mAddZValTxt(cs.zsamp_.step) .add("]\n");
+#	    define mAddZValTxt(memb) .arg(zistm ? mNINT32(1000*memb) : memb)
+	    txt.appendPhrase(tr("%1 range %2: %3 - %4 [%5]")
+					.arg(zddef.userName()))
+					.arg(toString(zddef.unitStr(true)))
+					mAddZValTxt(cs.zsamp_.start)
+					mAddZValTxt(cs.zsamp_.stop)
+					mAddZValTxt(cs.zsamp_.step);
+	    txt.addNewLine();
 	}
     }
 
-    txt += getFileInfo();
+    txt.appendPhrase(mToUiStringTodo(getFileInfo()));
     setInfo( txt );
 }
 

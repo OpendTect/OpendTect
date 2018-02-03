@@ -52,7 +52,7 @@ protected:
     void			finaliseStartCB(CallBacker*);
     void			saveNotes(CallBacker*);
     void			readNotes();
-    void			setInfo(const char* txt);
+    void			setInfo(const uiString txt);
     void			setPrefWidth(int width); //!< width in char
     void			createDefaultUI(bool needreloc=false,
 						bool needremove=true,

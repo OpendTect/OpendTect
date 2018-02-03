@@ -79,58 +79,62 @@ void uiPickSetMan::ownSelChg()
 
 void uiPickSetMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( "" ); return; }
+    if ( !curioobj_ ) { setInfo( uiString::emptyString() ); return; }
 
-    BufferString txt;
+    uiPhrase txt;
     uiRetVal uirv;
     ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( curioobj_->key(), uirv );
     if ( !ps )
     {
-	txt.set( "Read error: '" ).add( uirv.getText() );
-	txt.add( "'" ).add( "\n<No specific info available>\n" );
+	txt = uiStrings::phrCannotRead(toUiString(uirv.getText())).addNewLine();
+	txt.appendPhrase(tr("<No specific info available>")).addNewLine();
     }
     else
     {
 	const bool ispoly = ps->isPolygon();
 	const BufferString cat = ps->category();
-	txt.add( "Type: " );
+	txt = tr("Type:").addSpace();
+	//txt.add( "Type: " );
 	if ( ispoly )
-	    txt.add( "Polygon" );
+	    txt.appendWord( uiStrings::sPolygon() );
 	else if ( !cat.isEmpty() )
-	    txt.add( cat );
+	    txt.appendPlainText( cat );
 	else
-	    txt.add( "Pick Set" );
+	    txt.appendWord(uiStrings::sPickSet());
 
 	MonitorLock ml( *ps );
 	const int sz = ps->size();
 	if ( sz < 1 )
-	    txt.add( "Empty Pick Set." );
+	    txt.appendPhrase( tr("Empty Pick Set.") );
 	else
 	{
-	    txt.add( " <" ).add( sz )
-	       .add( ispoly ? " vertice" : " pick" );
-	    if ( sz > 1 )
-		txt.add( "s" );
+	    txt.appendPhrase(toUiString(" < %1 %2").arg(sz).arg(ispoly ? tr("vertices") : tr("picks")));
 	    if ( !ispoly && ps->first().hasDir() )
-		txt.add( " (with directions)" );
+	    {
+		txt.addSpace();
+		txt.appendPhrase(tr("(with directions)"));
+	    }
 	    if ( ispoly && sz > 2 )
 	    {
 		const float area = ps->getXYArea();
 		if ( !mIsUdf(area) )
-		    txt.add( ", area=" ).add( area );
+		    txt.appendPhrase( tr(", area=%1").arg( area ));
 	    }
-	    txt.add( ">" );
+	    txt.appendPlainText( ">" );
 	}
 
 	const Pick::Set::Disp disp = ps->getDisp();
 	Color col( disp.mkstyle_.color_ ); col.setTransparency( 0 );
-	txt.add( "\nColor: " ).add( col.largeUserInfoString() );
-	txt.add( "\nMarker size (pixels): " ).add( disp.mkstyle_.size_ );
-	txt.add( "\nMarker type: " );
-	txt.add(OD::MarkerStyle3D::TypeDef().getKey(disp.mkstyle_.type_));
+	txt.addNewLine().appendWord(uiStrings::sColor()).appendPlainText(": ")
+	    .appendPlainText(col.largeUserInfoString());
+	txt.addNewLine().appendPhrase(tr("Marker size (pixels): %1"))
+						    .arg(disp.mkstyle_.size_);
+	txt.addNewLine().appendPhrase(tr("Marker type: %1")
+			.arg(OD::MarkerStyle3D::TypeDef()
+			.getUiStringForIndex(disp.mkstyle_.type_)));
     }
 
-    txt.add( "\n" ).add( getFileInfo() );
+    txt.addSpace().appendPhrase( mToUiStringTodo(getFileInfo()) );
     setInfo( txt );
 }
 

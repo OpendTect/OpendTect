@@ -208,7 +208,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
     if ( curioobj_ )
 	mkFileInfo();
     else
-	setInfo( "" );
+	setInfo( uiString::emptyString() );
 
     readNotes();
     uiString msg;

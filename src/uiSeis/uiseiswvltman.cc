@@ -241,7 +241,7 @@ void uiSeisWvltMan::ownSelChg()
 
 void uiSeisWvltMan::mkFileInfo()
 {
-    BufferString txt;
+    uiPhrase txt;
     ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( curioobj_->key() );
     dispWavelet( wvlt );
     if ( wvlt )
@@ -249,40 +249,44 @@ void uiSeisWvltMan::mkFileInfo()
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
 	WaveletAttrib wvltattrib( *wvlt );
 
-	BufferString msg;
-	msg.add( "Number of samples: " ).add( wvlt->size() ).addNewLine();
-	msg.add( "Sample interval " )
-	   .add( toString(SI().zUnitString(true)) )
-	   .add( ": " ).add( wvlt->sampleRate() * zfac ).addNewLine();
+	uiPhrase msg;
+	msg.appendPhrase( tr("Number of samples: %1" ).arg(wvlt->size()) )
+	   .addNewLine();
+	msg.appendPhrase( tr("Sample interval %1: %2" )
+	   .arg(SI().zUnitString(true)).arg(wvlt->sampleRate() * zfac) )
+	   .addNewLine();
+
 	Interval<float> extremevals;
 	wvlt->getExtrValues( extremevals );
-	msg.add( "Min/Max amplitude: " ).add( extremevals.start )
-	   .add( "/" ).add( extremevals.stop ).addNewLine();
+	msg.appendPhrase( tr("Min/Max amplitude: %1/%2" )
+	   .arg(extremevals.start).arg( extremevals.stop ) ).addNewLine();
 	float avgphase = wvltattrib.getAvgPhase( true );
 	if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
-	msg.add( "Average phase (deg): ").add( avgphase ).addNewLine();
-	txt.add( msg );
+	msg.appendPhrase( tr("Average phase (deg): %1").arg(avgphase) )
+	   .addNewLine();
+	txt.appendPhrase( msg );
 	wvlt = 0;
 
 	DBKey orgid; DBKey horid; DBKey seisid; BufferString lvlnm;
 	if ( WaveletMGR().getScalingInfo(curioobj_->key(),
 			    orgid,horid,seisid,lvlnm) )
 	{
-	    msg = "Scaled: ";
+	    msg = tr("Scaled: ");
 	    if ( orgid.isInvalid() )
-		msg.add( "Outside OpendTect" );
+		msg.appendPhrase( tr("Outside OpendTect") );
 	    else
 	    {
-		msg.add( "'").add( DBM().nameOf(orgid) ).add( "'" );
-		msg.add( " scaled to '").add( DBM().nameOf(seisid) ).add( "'" );
-		msg.add( "\n\t(along '").add( DBM().nameOf(horid) ).add( "'" );
-		msg.add( " at '").add( lvlnm ).add( "')" );
+		msg.appendPhrase( tr("'%1' scaled to '%2'")
+		   .arg(DBM().nameOf(orgid)).arg(DBM().nameOf(seisid)),
+		   uiString::NewLine );
+		msg.appendPhrase( tr("\n\t(along '%1' at '%2')")
+		   .arg(DBM().nameOf(horid)).arg(lvlnm) );
 	    }
-	    txt.add( msg ).addNewLine();
+	    txt.appendPhrase( msg ).addNewLine();
 	}
     }
 
-    txt += getFileInfo();
+    txt.appendPhrase(mToUiStringTodo(getFileInfo()));
     setInfo( txt );
 }
 

@@ -117,24 +117,25 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 
 void uiDataPointSetMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( "" ); return; }
+    if ( !curioobj_ ) { setInfo( uiString::emptyString() ); return; }
 
-    BufferString txt;
-    txt += getFileInfo();
+    uiPhrase txt;
+    txt = mToUiStringTodo(getFileInfo());
 
     mGetDPS(dps);
     if ( !dps ) return;
 
-    txt += "Properties: \n";
+    txt.appendPhrase(tr("Properties: "),uiString::NewLine);
     for ( int colnr=0; colnr<dps->nrCols(); colnr++ )
     {
-	txt += dps->colName( colnr );
-	txt += " [ ";
+	txt.appendPlainText(dps->colName(colnr));
 	Interval<float> valrg =
 	    dps->bivSet().valRange( dps->bivSetIdx(colnr) );
-	txt += valrg.start; txt += ", ";
-	txt += valrg.stop; txt += " ]";
-	txt += "\n";
+	BufferString str;
+	str = "[";
+	str += valrg.start; str += ", ";
+	str += valrg.stop; str += " ]";
+	txt.appendPlainText( str, uiString::NewLine);
     }
 
     setInfo( txt );

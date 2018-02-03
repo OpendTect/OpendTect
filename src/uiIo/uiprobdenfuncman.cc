@@ -105,19 +105,19 @@ void uiProbDenFuncMan::genPush( CallBacker* )
 
 void uiProbDenFuncMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( "" ); return; }
+    if ( !curioobj_ ) { setInfo( uiWord::emptyString() ); return; }
 
-    BufferString txt;
-    txt += getFileInfo();
+    uiPhrase txt;
+    txt = mToUiStringTodo(getFileInfo());
 
     mGetPDF(pdf);
     if ( pdf )
     {
-	txt += BufferString( "Type: ", pdf->getTypeStr() );
+	txt.appendPhrase(tr("Type: %1").arg(pdf->getTypeStr()));
 	for ( int idx=0; idx<pdf->nrDims(); idx++ )
 	{
-	    BufferString lbl( "\nDimension ", idx+1, ": " );
-	    txt += lbl; txt += pdf->dimName(idx);
+	    uiPhrase lbl = tr("\nDimension %1 : ").arg(idx+1);
+	    txt.appendPhrase(lbl); txt.appendPlainText(pdf->dimName(idx));
 	}
     }
     setInfo( txt );
