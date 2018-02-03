@@ -233,16 +233,17 @@ uiManipMapper( uiColTabSelTool& seltool )
     , meh_(getMouseEventHandler())
     , keh_(getKeyboardEventHandler())
     , distribitem_(0)
-    , rgstartitm_(0)
-    , rgstopitm_(0)
     , borderitm_(0)
     , zeroitem_(0)
+    , rgstartitm_(0)
+    , rgstopitm_(0)
     , movingside_(0)
     , lastmovedside_(0)
     , lastmovepos_(mUdf(float))
 {
     setNoBackGround();
     disableScrollZoom();
+
     mAttachCB( postFinalise(), uiManipMapper::initCB );
 }
 
@@ -555,16 +556,17 @@ void drawRange()
     const int ymaxpix = scene().nrPixY() - 1;
     const float longwdth = longrg_.width();
     const bool xislong = xIsLong();
+
     uiManipHandleItem::Setup msu;
-    msu.hor_ = !isHor(); msu.thickness_ = 3;
-    msu.start_ = 0; msu.stop_ = xislong ? ymaxpix : xmaxpix;
     msu.color_ = Color( 100, 100, 180 );
+    rgstartitm_ = scene().addItem( new uiManipHandleItem(msu,!isHor()) );
+    rgstopitm_ = scene().addItem( new uiManipHandleItem(msu,!isHor()) );
 
     const int nrpixlong = xislong ? xmaxpix : ymaxpix;
     float fpos = nrpixlong * (drawrg_.start-longrg_.start) / longwdth;
-    rgstartitm_ = scene().addItem( new uiManipHandleItem(msu,fpos,1000) );
+    rgstartitm_->setPixPos( fpos );
     fpos = nrpixlong * (drawrg_.stop-longrg_.start) / longwdth;
-    rgstopitm_ = scene().addItem( new uiManipHandleItem(msu,fpos,1000) );
+    rgstopitm_->setPixPos( fpos );
 }
 
 

@@ -499,28 +499,35 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-		    Setup() : hor_(false), start_(0), stop_(1) {}
+		    Setup()
+			: color_(Color::Black())
+			, thickness_(3)
+			, zval_(1000)	{}
 
 
-	bool	    hor_;
-	int	    thickness_; // width of the 'body' of the marker
-	int	    start_;	// start pixel in direction (usually 0)
-	int	    stop_;	// stop pixel (usually nrPixY()-1)
 	Color	    color_;	// color of 'body'
+	int	    thickness_; // width of the 'body' of the marker
+	int	    zval_;	// max zval, will make stuff with 1-3 lower
+
     };
 
-			uiManipHandleItem(const Setup&,int pixpos,
-					    int zval=10000);
-			uiManipHandleItem(const Setup&,double fpos,
-					    int zval=10000);
+			uiManipHandleItem(const Setup&,bool ishor=false);
 
-    void		setPenColor(const Color&,bool usetransp=false);
-			// usetransp is ignored
+    void		setIsHorizontal(bool);
+    void		setPixPos(int);
+    void		setPixPos(double);
+    virtual void	setPenColor(const Color&,bool usetransp=false);
+						//!< usetransp is ignored
 
 protected:
 
-    void		init(const Setup&,int,int);
-    uiLineItem*		mkLine(bool,int,int,int,int,int);
+    Setup		setup_;
+    bool		ishor_;
+    int			pixpos_;
+
+    uiLineItem*		addLine(int,int);
+    void		setLine(uiLineItem*,int,bool setcursor=false);
+    void		updatePos();
 
     uiLineItem*		centeritm_;
     uiLineItem*		bodyitm_;

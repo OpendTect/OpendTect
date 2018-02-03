@@ -84,10 +84,12 @@ uiPixmap* ColTab::getuiPixmap( const Sequence& seq, int szx, int szy,
 }
 
 
-uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient, bool wucd )
+uiColSeqDisp::uiColSeqDisp( uiParent* p, OD::Orientation orient,
+			    bool wucd, bool wnd )
     : uiRGBArrayCanvas(p,mkRGBArr())
     , orientation_(orient)
     , withudfcoldisp_(wucd)
+    , withnamedisp_(wnd)
     , colseq_(ColTab::SeqMGR().getDefault())
     , mapper_(new ColTab::Mapper())
     , nmitm_(0)
@@ -220,6 +222,9 @@ void uiColSeqDisp::reDraw()
     setPixmap( pixmap );
     updatePixmap();
 
+    if ( !withnamedisp_ )
+	return;
+
     if ( !nmitm_ )
     {
 	nmitm_ = scene().addItem( new uiTextItem() );
@@ -240,13 +245,11 @@ void uiColSeqDisp::reDraw()
     {
 	bgrect.set( uiPoint(longstart,shortstart), uiSize(longsz,shortsz) );
 	nmitm_->setRotation( 0.f );
-	nmitm_->setAlignment( OD::Alignment() );
     }
     else
     {
 	bgrect.set( uiPoint(shortstart,longstart), uiSize(shortsz,longsz) );
 	nmitm_->setRotation( 90.f );
-	// nmitm_->setAlignment( mAlignment(Left,Bottom) );
     }
 
     nmitm_->setText( toUiString(colseq_->name()) );
